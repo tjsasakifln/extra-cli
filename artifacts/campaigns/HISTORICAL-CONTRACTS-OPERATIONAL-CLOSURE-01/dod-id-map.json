@@ -1,0 +1,445 @@
+{
+  "as_of": "2026-07-23T20:45:45.163828+00:00",
+  "main_sha": "5f922114e566e30b123b97ebe9a2e06f2de487ad",
+  "campaign": "HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01",
+  "campaign_result": "BLOCKED",
+  "blockers": [
+    "OFFSITE_BACKUP_CREDENTIAL",
+    "SOAK_7D_IN_PROGRESS"
+  ],
+  "mapped_items": [
+    {
+      "id": "DOD-definition-of-done-extra-1580defee6",
+      "state": "OPEN",
+      "line": 108,
+      "category": "MACHINE_ACTIONABLE",
+      "text": "Coleta de contratos dos últimos três anos, no mínimo.",
+      "section": "Definition of Done — Extra Consultoria > 2. Contrato funcional do projeto > 2.2 Escopo incluído",
+      "can_accept_now": "candidate",
+      "blocker": null,
+      "proof_hint": "campaign artifacts + main 5f92211 + dual PASS; still needs sequential verify/accept gates"
+    },
+    {
+      "id": "DOD-definition-of-done-extra-d213dd4037",
+      "state": "OPEN",
+      "line": 109,
+      "category": "MACHINE_ACTIONABLE",
+      "text": "Atualização incremental de contratos após o backfill inicial.",
+      "section": "Definition of Done — Extra Consultoria > 2. Contrato funcional do projeto > 2.2 Escopo incluído",
+      "can_accept_now": false,
+      "blocker": "not fully proved or needs more evidence",
+      "proof_hint": null
+    },
+    {
+      "id": "DOD-rol-1-definition-of-done-c8d4fd6597",
+      "state": "OPEN",
+      "line": 459,
+      "category": "MACHINE_ACTIONABLE",
+      "text": "`capability_monitoring_coverage(historical_contracts) >= 95%`.",
+      "section": "ROL 1 — DEFINITION OF DONE DO ESTÁGIO ATUAL > 4. Definição objetiva de cobertura > 4.1 Fórmulas canô",
+      "can_accept_now": "candidate",
+      "blocker": null,
+      "proof_hint": "campaign artifacts + main 5f92211 + dual PASS; still needs sequential verify/accept gates"
+    },
+    {
+      "id": "DOD-rol-1-definition-of-done-925c2e6bed",
+      "state": "OPEN",
+      "line": 514,
+      "category": "MACHINE_ACTIONABLE",
+      "text": "Contratos possuem backfill integral mínimo de três anos.",
+      "section": "ROL 1 — DEFINITION OF DONE DO ESTÁGIO ATUAL > 4. Definição objetiva de cobertura > 4.3 Freshness",
+      "can_accept_now": "candidate",
+      "blocker": null,
+      "proof_hint": "campaign artifacts + main 5f92211 + dual PASS; still needs sequential verify/accept gates"
+    },
+    {
+      "id": "DOD-rol-1-definition-of-done-c2443d2b03",
+      "state": "OPEN",
+      "line": 752,
+      "category": "MACHINE_ACTIONABLE",
+      "text": "O backfill cobre no mínimo os últimos três anos.",
+      "section": "ROL 1 — DEFINITION OF DONE DO ESTÁGIO ATUAL > 9. Contratos históricos > 9.1 Escopo temporal",
+      "can_accept_now": "candidate",
+      "blocker": null,
+      "proof_hint": "campaign artifacts + main 5f92211 + dual PASS; still needs sequential verify/accept gates"
+    },
+    {
+      "id": "DOD-rol-1-definition-of-done-00e53389b2",
+      "state": "OPEN",
+      "line": 753,
+      "category": "MACHINE_ACTIONABLE",
+      "text": "A data inicial do backfill é registrada.",
+      "section": "ROL 1 — DEFINITION OF DONE DO ESTÁGIO ATUAL > 9. Contratos históricos > 9.1 Escopo temporal",
+      "can_accept_now": "candidate",
+      "blocker": null,
+      "proof_hint": "campaign artifacts + main 5f92211 + dual PASS; still needs sequential verify/accept gates"
+    },
+    {
+      "id": "DOD-rol-1-definition-of-done-19ab88eea0",
+      "state": "OPEN",
+      "line": 754,
+      "category": "MACHINE_ACTIONABLE",
+      "text": "A data final do backfill é registrada.",
+      "section": "ROL 1 — DEFINITION OF DONE DO ESTÁGIO ATUAL > 9. Contratos históricos > 9.1 Escopo temporal",
+      "can_accept_now": "candidate",
+      "blocker": null,
+      "proof_hint": "campaign artifacts + main 5f92211 + dual PASS; still needs sequential verify/accept gates"
+    },
+    {
+      "id": "DOD-rol-1-definition-of-done-749585a9b5",
+      "state": "OPEN",
+      "line": 764,
+      "category": "MACHINE_ACTIONABLE",
+      "text": "O backfill não reinicia janelas concluídas sem necessidade.",
+      "section": "ROL 1 — DEFINITION OF DONE DO ESTÁGIO ATUAL > 9. Contratos históricos > 9.1 Escopo temporal",
+      "can_accept_now": "candidate",
+      "blocker": null,
+      "proof_hint": "campaign artifacts + main 5f92211 + dual PASS; still needs sequential verify/accept gates"
+    },
+    {
+      "id": "DOD-rol-1-definition-of-done-495f293b30",
+      "state": "OPEN",
+      "line": 791,
+      "category": "MACHINE_ACTIONABLE",
+      "text": "A cobertura de contratos >= 95% é provada por ente aplicável.",
+      "section": "ROL 1 — DEFINITION OF DONE DO ESTÁGIO ATUAL > 9. Contratos históricos > 9.2 Coleta e atualização",
+      "can_accept_now": false,
+      "blocker": "not fully proved or needs more evidence",
+      "proof_hint": null
+    },
+    {
+      "id": "DOD-rol-1-definition-of-done-a3e4d26f8a",
+      "state": "OPEN",
+      "line": 1000,
+      "category": "MACHINE_ACTIONABLE",
+      "text": "Backfill de contratos de janela pequena.",
+      "section": "ROL 1 — DEFINITION OF DONE DO ESTÁGIO ATUAL > 13. Testes do estágio atual > 13.2 Testes de integraçã",
+      "can_accept_now": false,
+      "blocker": "not fully proved or needs more evidence",
+      "proof_hint": null
+    },
+    {
+      "id": "DOD-rol-1-definition-of-done-24fa315104",
+      "state": "OPEN",
+      "line": 1001,
+      "category": "MACHINE_ACTIONABLE",
+      "text": "Incremental após backfill.",
+      "section": "ROL 1 — DEFINITION OF DONE DO ESTÁGIO ATUAL > 13. Testes do estágio atual > 13.2 Testes de integraçã",
+      "can_accept_now": false,
+      "blocker": "not fully proved or needs more evidence",
+      "proof_hint": null
+    },
+    {
+      "id": "DOD-rol-2-definition-of-done-7be0deecf4",
+      "state": "OPEN",
+      "line": 1121,
+      "category": "VPS_PHASE",
+      "text": "A política de backup externo foi definida.",
+      "section": "ROL 2 — DEFINITION OF DONE APÓS PROVISIONAR A VPS > 16. Decisão e contratação da infraestrutura",
+      "can_accept_now": false,
+      "blocker": "requires offsite/soak/7d/VPS gate or non-claim",
+      "proof_hint": null
+    },
+    {
+      "id": "DOD-rol-2-definition-of-done-be192a40b8",
+      "state": "OPEN",
+      "line": 1362,
+      "category": "VPS_PHASE",
+      "text": "Um reboot controlado foi testado.",
+      "section": "ROL 2 — DEFINITION OF DONE APÓS PROVISIONAR A VPS > 24. Operação contínua e independência do ambient",
+      "can_accept_now": false,
+      "blocker": "requires offsite/soak/7d/VPS gate or non-claim",
+      "proof_hint": null
+    },
+    {
+      "id": "DOD-rol-2-definition-of-done-0c84d0b03d",
+      "state": "OPEN",
+      "line": 1365,
+      "category": "VPS_PHASE",
+      "text": "Uma falha de backup foi simulada.",
+      "section": "ROL 2 — DEFINITION OF DONE APÓS PROVISIONAR A VPS > 24. Operação contínua e independência do ambient",
+      "can_accept_now": false,
+      "blocker": "not fully proved or needs more evidence",
+      "proof_hint": null
+    },
+    {
+      "id": "DOD-rol-2-definition-of-done-f7b322b6ae",
+      "state": "OPEN",
+      "line": 1370,
+      "category": "VPS_PHASE",
+      "text": "O sistema operou por sete dias consecutivos sem falha crítica não detectada.",
+      "section": "ROL 2 — DEFINITION OF DONE APÓS PROVISIONAR A VPS > 24. Operação contínua e independência do ambient",
+      "can_accept_now": false,
+      "blocker": "requires offsite/soak/7d/VPS gate or non-claim",
+      "proof_hint": null
+    },
+    {
+      "id": "DOD-rol-2-definition-of-done-a25f4cffb6",
+      "state": "OPEN",
+      "line": 1372,
+      "category": "VPS_PHASE",
+      "text": "Durante os sete dias, contratos mantiveram freshness <= 7 dias.",
+      "section": "ROL 2 — DEFINITION OF DONE APÓS PROVISIONAR A VPS > 24. Operação contínua e independência do ambient",
+      "can_accept_now": false,
+      "blocker": "requires offsite/soak/7d/VPS gate or non-claim",
+      "proof_hint": null
+    },
+    {
+      "id": "DOD-rol-2-definition-of-done-702ee2935a",
+      "state": "OPEN",
+      "line": 1374,
+      "category": "VPS_PHASE",
+      "text": "Durante os sete dias, cobertura de contratos permaneceu >= 95%.",
+      "section": "ROL 2 — DEFINITION OF DONE APÓS PROVISIONAR A VPS > 24. Operação contínua e independência do ambient",
+      "can_accept_now": false,
+      "blocker": "requires offsite/soak/7d/VPS gate or non-claim",
+      "proof_hint": null
+    },
+    {
+      "id": "DOD-rol-3-definition-of-done-e7c852704e",
+      "state": "OPEN",
+      "line": 1695,
+      "category": "MACHINE_ACTIONABLE",
+      "text": "O sistema permite consultar contratos dos últimos três anos.",
+      "section": "ROL 3 — DEFINITION OF DONE INDEPENDENTE DA INFRAESTRUTURA > 34. Aceite final da utilidade",
+      "can_accept_now": "candidate",
+      "blocker": null,
+      "proof_hint": "campaign artifacts + main 5f92211 + dual PASS; still needs sequential verify/accept gates"
+    },
+    {
+      "id": "DOD-35-gates-consolidados-d784fe4e0d",
+      "state": "OPEN",
+      "line": 1722,
+      "category": "MACHINE_ACTIONABLE",
+      "text": "A cobertura de contratos é >= 95%.",
+      "section": "35. Gates consolidados > 35.1 Gate `LOCAL_READY`",
+      "can_accept_now": false,
+      "blocker": "requires offsite/soak/7d/VPS gate or non-claim",
+      "proof_hint": null
+    },
+    {
+      "id": "DOD-35-gates-consolidados-d58b1f7b47",
+      "state": "OPEN",
+      "line": 1746,
+      "category": "VPS_PHASE",
+      "text": "Timers estão ativos.",
+      "section": "35. Gates consolidados > 35.2 Gate `VPS_OPERATIONAL`",
+      "can_accept_now": false,
+      "blocker": "requires offsite/soak/7d/VPS gate or non-claim",
+      "proof_hint": null
+    },
+    {
+      "id": "DOD-35-gates-consolidados-82d03a68fd",
+      "state": "OPEN",
+      "line": 1748,
+      "category": "VPS_PHASE",
+      "text": "Backup externo funciona.",
+      "section": "35. Gates consolidados > 35.2 Gate `VPS_OPERATIONAL`",
+      "can_accept_now": false,
+      "blocker": "requires offsite/soak/7d/VPS gate or non-claim",
+      "proof_hint": null
+    },
+    {
+      "id": "DOD-35-gates-consolidados-2c979efeb6",
+      "state": "OPEN",
+      "line": 1754,
+      "category": "VPS_PHASE",
+      "text": "A cobertura de contratos permaneceu >= 95%.",
+      "section": "35. Gates consolidados > 35.2 Gate `VPS_OPERATIONAL`",
+      "can_accept_now": false,
+      "blocker": "requires offsite/soak/7d/VPS gate or non-claim",
+      "proof_hint": null
+    }
+  ],
+  "candidates_for_sequential_accept": [
+    {
+      "id": "DOD-definition-of-done-extra-1580defee6",
+      "state": "OPEN",
+      "line": 108,
+      "category": "MACHINE_ACTIONABLE",
+      "text": "Coleta de contratos dos últimos três anos, no mínimo.",
+      "section": "Definition of Done — Extra Consultoria > 2. Contrato funcional do projeto > 2.2 Escopo incluído",
+      "can_accept_now": "candidate",
+      "blocker": null,
+      "proof_hint": "campaign artifacts + main 5f92211 + dual PASS; still needs sequential verify/accept gates"
+    },
+    {
+      "id": "DOD-rol-1-definition-of-done-c8d4fd6597",
+      "state": "OPEN",
+      "line": 459,
+      "category": "MACHINE_ACTIONABLE",
+      "text": "`capability_monitoring_coverage(historical_contracts) >= 95%`.",
+      "section": "ROL 1 — DEFINITION OF DONE DO ESTÁGIO ATUAL > 4. Definição objetiva de cobertura > 4.1 Fórmulas canô",
+      "can_accept_now": "candidate",
+      "blocker": null,
+      "proof_hint": "campaign artifacts + main 5f92211 + dual PASS; still needs sequential verify/accept gates"
+    },
+    {
+      "id": "DOD-rol-1-definition-of-done-925c2e6bed",
+      "state": "OPEN",
+      "line": 514,
+      "category": "MACHINE_ACTIONABLE",
+      "text": "Contratos possuem backfill integral mínimo de três anos.",
+      "section": "ROL 1 — DEFINITION OF DONE DO ESTÁGIO ATUAL > 4. Definição objetiva de cobertura > 4.3 Freshness",
+      "can_accept_now": "candidate",
+      "blocker": null,
+      "proof_hint": "campaign artifacts + main 5f92211 + dual PASS; still needs sequential verify/accept gates"
+    },
+    {
+      "id": "DOD-rol-1-definition-of-done-c2443d2b03",
+      "state": "OPEN",
+      "line": 752,
+      "category": "MACHINE_ACTIONABLE",
+      "text": "O backfill cobre no mínimo os últimos três anos.",
+      "section": "ROL 1 — DEFINITION OF DONE DO ESTÁGIO ATUAL > 9. Contratos históricos > 9.1 Escopo temporal",
+      "can_accept_now": "candidate",
+      "blocker": null,
+      "proof_hint": "campaign artifacts + main 5f92211 + dual PASS; still needs sequential verify/accept gates"
+    },
+    {
+      "id": "DOD-rol-1-definition-of-done-00e53389b2",
+      "state": "OPEN",
+      "line": 753,
+      "category": "MACHINE_ACTIONABLE",
+      "text": "A data inicial do backfill é registrada.",
+      "section": "ROL 1 — DEFINITION OF DONE DO ESTÁGIO ATUAL > 9. Contratos históricos > 9.1 Escopo temporal",
+      "can_accept_now": "candidate",
+      "blocker": null,
+      "proof_hint": "campaign artifacts + main 5f92211 + dual PASS; still needs sequential verify/accept gates"
+    },
+    {
+      "id": "DOD-rol-1-definition-of-done-19ab88eea0",
+      "state": "OPEN",
+      "line": 754,
+      "category": "MACHINE_ACTIONABLE",
+      "text": "A data final do backfill é registrada.",
+      "section": "ROL 1 — DEFINITION OF DONE DO ESTÁGIO ATUAL > 9. Contratos históricos > 9.1 Escopo temporal",
+      "can_accept_now": "candidate",
+      "blocker": null,
+      "proof_hint": "campaign artifacts + main 5f92211 + dual PASS; still needs sequential verify/accept gates"
+    },
+    {
+      "id": "DOD-rol-1-definition-of-done-749585a9b5",
+      "state": "OPEN",
+      "line": 764,
+      "category": "MACHINE_ACTIONABLE",
+      "text": "O backfill não reinicia janelas concluídas sem necessidade.",
+      "section": "ROL 1 — DEFINITION OF DONE DO ESTÁGIO ATUAL > 9. Contratos históricos > 9.1 Escopo temporal",
+      "can_accept_now": "candidate",
+      "blocker": null,
+      "proof_hint": "campaign artifacts + main 5f92211 + dual PASS; still needs sequential verify/accept gates"
+    },
+    {
+      "id": "DOD-rol-3-definition-of-done-e7c852704e",
+      "state": "OPEN",
+      "line": 1695,
+      "category": "MACHINE_ACTIONABLE",
+      "text": "O sistema permite consultar contratos dos últimos três anos.",
+      "section": "ROL 3 — DEFINITION OF DONE INDEPENDENTE DA INFRAESTRUTURA > 34. Aceite final da utilidade",
+      "can_accept_now": "candidate",
+      "blocker": null,
+      "proof_hint": "campaign artifacts + main 5f92211 + dual PASS; still needs sequential verify/accept gates"
+    }
+  ],
+  "do_not_accept_until_unblock": [
+    {
+      "id": "DOD-rol-2-definition-of-done-7be0deecf4",
+      "state": "OPEN",
+      "line": 1121,
+      "category": "VPS_PHASE",
+      "text": "A política de backup externo foi definida.",
+      "section": "ROL 2 — DEFINITION OF DONE APÓS PROVISIONAR A VPS > 16. Decisão e contratação da infraestrutura",
+      "can_accept_now": false,
+      "blocker": "requires offsite/soak/7d/VPS gate or non-claim",
+      "proof_hint": null
+    },
+    {
+      "id": "DOD-rol-2-definition-of-done-be192a40b8",
+      "state": "OPEN",
+      "line": 1362,
+      "category": "VPS_PHASE",
+      "text": "Um reboot controlado foi testado.",
+      "section": "ROL 2 — DEFINITION OF DONE APÓS PROVISIONAR A VPS > 24. Operação contínua e independência do ambient",
+      "can_accept_now": false,
+      "blocker": "requires offsite/soak/7d/VPS gate or non-claim",
+      "proof_hint": null
+    },
+    {
+      "id": "DOD-rol-2-definition-of-done-f7b322b6ae",
+      "state": "OPEN",
+      "line": 1370,
+      "category": "VPS_PHASE",
+      "text": "O sistema operou por sete dias consecutivos sem falha crítica não detectada.",
+      "section": "ROL 2 — DEFINITION OF DONE APÓS PROVISIONAR A VPS > 24. Operação contínua e independência do ambient",
+      "can_accept_now": false,
+      "blocker": "requires offsite/soak/7d/VPS gate or non-claim",
+      "proof_hint": null
+    },
+    {
+      "id": "DOD-rol-2-definition-of-done-a25f4cffb6",
+      "state": "OPEN",
+      "line": 1372,
+      "category": "VPS_PHASE",
+      "text": "Durante os sete dias, contratos mantiveram freshness <= 7 dias.",
+      "section": "ROL 2 — DEFINITION OF DONE APÓS PROVISIONAR A VPS > 24. Operação contínua e independência do ambient",
+      "can_accept_now": false,
+      "blocker": "requires offsite/soak/7d/VPS gate or non-claim",
+      "proof_hint": null
+    },
+    {
+      "id": "DOD-rol-2-definition-of-done-702ee2935a",
+      "state": "OPEN",
+      "line": 1374,
+      "category": "VPS_PHASE",
+      "text": "Durante os sete dias, cobertura de contratos permaneceu >= 95%.",
+      "section": "ROL 2 — DEFINITION OF DONE APÓS PROVISIONAR A VPS > 24. Operação contínua e independência do ambient",
+      "can_accept_now": false,
+      "blocker": "requires offsite/soak/7d/VPS gate or non-claim",
+      "proof_hint": null
+    },
+    {
+      "id": "DOD-35-gates-consolidados-d784fe4e0d",
+      "state": "OPEN",
+      "line": 1722,
+      "category": "MACHINE_ACTIONABLE",
+      "text": "A cobertura de contratos é >= 95%.",
+      "section": "35. Gates consolidados > 35.1 Gate `LOCAL_READY`",
+      "can_accept_now": false,
+      "blocker": "requires offsite/soak/7d/VPS gate or non-claim",
+      "proof_hint": null
+    },
+    {
+      "id": "DOD-35-gates-consolidados-d58b1f7b47",
+      "state": "OPEN",
+      "line": 1746,
+      "category": "VPS_PHASE",
+      "text": "Timers estão ativos.",
+      "section": "35. Gates consolidados > 35.2 Gate `VPS_OPERATIONAL`",
+      "can_accept_now": false,
+      "blocker": "requires offsite/soak/7d/VPS gate or non-claim",
+      "proof_hint": null
+    },
+    {
+      "id": "DOD-35-gates-consolidados-82d03a68fd",
+      "state": "OPEN",
+      "line": 1748,
+      "category": "VPS_PHASE",
+      "text": "Backup externo funciona.",
+      "section": "35. Gates consolidados > 35.2 Gate `VPS_OPERATIONAL`",
+      "can_accept_now": false,
+      "blocker": "requires offsite/soak/7d/VPS gate or non-claim",
+      "proof_hint": null
+    },
+    {
+      "id": "DOD-35-gates-consolidados-2c979efeb6",
+      "state": "OPEN",
+      "line": 1754,
+      "category": "VPS_PHASE",
+      "text": "A cobertura de contratos permaneceu >= 95%.",
+      "section": "35. Gates consolidados > 35.2 Gate `VPS_OPERATIONAL`",
+      "can_accept_now": false,
+      "blocker": "requires offsite/soak/7d/VPS gate or non-claim",
+      "proof_hint": null
+    }
+  ]
+}

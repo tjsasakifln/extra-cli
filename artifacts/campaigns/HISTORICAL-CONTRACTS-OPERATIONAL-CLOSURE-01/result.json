@@ -1,28 +1,18 @@
 {
   "campaign_id": "HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01",
-  "as_of": "2026-07-23T20:34:39.396583Z",
+  "as_of": "2026-07-23T22:28:58.359785+00:00",
   "result": "BLOCKED",
   "blockers": [
     {
-      "id": "OFFSITE_BACKUP_CREDENTIAL",
-      "evidence": "artifacts/campaigns/HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01/backup-offsite.json",
-      "observed": "BACKUP_STORAGE_BOX_SSH empty on VPS (len=0)",
-      "owner": "Tiago / ops",
-      "action_exact": "Set BACKUP_STORAGE_BOX_SSH in /etc/backup-database.conf (or secret store); do not commit. Optionally mount off-site and set REQUIRE_STORAGE_BOX=1 when ready.",
-      "unblock_test": "python3 -m scripts.ops.campaign_offsite_backup_status && transfer verify + restore from off-site package",
-      "attempts": "3 consistent observations: handoff, probe 2026-07-23T14:17Z, probe 2026-07-23T20:14Z all empty",
-      "impact": "\u00a722 off-site RPO/RTO not fully met (same-host separate-DB restore IS proven)"
-    },
-    {
       "id": "SOAK_7D_IN_PROGRESS",
       "evidence": "artifacts/campaigns/HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01/soak.json",
-      "observed": "1 daily observation; timer extra-contracts-soak.timer active",
+      "observed": "still day 1/7 only (calendar 2026-07-23); timer armed",
       "owner": "ops automation + calendar time",
       "action_exact": "Leave timer running; after 7 consecutive days re-run campaign_soak_tracker until soak.json.complete=true",
       "unblock_test": "python3 -m scripts.ops.campaign_soak_tracker; jq .complete artifacts/.../soak.json",
       "attempts": "day1 recorded 2026-07-23; cannot fabricate future days",
-      "impact": "\u00a724 seven consecutive days not elapsed",
-      "note": "Wall-clock soak is external duration; monitoring is persistent and already armed \u2014 not abandoned"
+      "impact": "§24 seven consecutive days not elapsed",
+      "note": "Wall-clock soak is external duration; monitoring is persistent and already armed — not abandoned"
     }
   ],
   "completed_internal": {
@@ -45,16 +35,63 @@
     "independent_review": "NO_CRITICAL_OR_HIGH_OPEN_FOR_IMPLEMENTED_SCOPE",
     "local_post_cutover_dump_bytes": 432013312,
     "backup_offsite_fail_closed": true,
-    "soak_day1_freshness_hours": 22.56,
-    "vps_main_sha": "f25b96b",
-    "followup_branch_tip": "b1a328f"
+    "soak_day1_freshness_hours": 22.82,
+    "vps_main_sha": "5f92211",
+    "followup_branch_tip": "b1a328f",
+    "origin_main_sha": "2f22fa0",
+    "pr126": "merged",
+    "ci_main_run": 30042874795,
+    "dod_first_item_verified": "DOD-rol-1-definition-of-done-c2443d2b03",
+    "dod_accept_pending": "needs checkout on main (not allow-non-main)",
+    "offsite_probes": 4,
+    "dod_accepted_main_local": [
+      "DOD-rol-1-definition-of-done-c2443d2b03",
+      "DOD-rol-1-definition-of-done-00e53389b2",
+      "DOD-rol-1-definition-of-done-19ab88eea0",
+      "DOD-rol-1-definition-of-done-c8d4fd6597"
+    ],
+    "dod_accept_commits_local_main": [
+      "fddf859",
+      "d6c311a"
+    ],
+    "dod_accept_push": "pending_devops — main worktree ahead of origin/main by 2 commits",
+    "dod_accepted_on_origin_main": [
+      "DOD-rol-1-definition-of-done-c2443d2b03",
+      "DOD-rol-1-definition-of-done-00e53389b2",
+      "DOD-rol-1-definition-of-done-19ab88eea0",
+      "DOD-rol-1-definition-of-done-c8d4fd6597",
+      "DOD-rol-1-definition-of-done-925c2e6bed",
+      "DOD-rol-1-definition-of-done-749585a9b5",
+      "DOD-definition-of-done-extra-1580defee6",
+      "DOD-definition-of-done-extra-d213dd4037"
+    ],
+    "dod_accept_commits_pushed": [
+      "fddf859",
+      "d6c311a",
+      "2f22fa0"
+    ],
+    "offsite_backup": {
+      "status": "ok",
+      "provider": "netcup_storagespace_nfs",
+      "host": "46.38.248.210",
+      "export": "46.38.248.210:/voln1116040a1",
+      "mount": "/mnt/storage-box",
+      "dump_bytes": 421985469,
+      "dump": "pncp_datalake-2026-07-23.dump.gz",
+      "sha256": "72d8866e9f78e3c2c9b4442ee07d659a37239763f202e2ad6061f2e79cde358c"
+    },
+    "checkpoint_3y": "37/37",
+    "checkpoint_span": "20230720_20260723",
+    "offsite_status": "ok",
+    "handoff": true
   },
   "claims_authorized": [
     "HISTORICAL_CONTRACTS_BACKFILL_37_WINDOWS",
     "HISTORICAL_CONTRACTS_DUAL_GATE_PASS",
     "CUTOVER_RESTORE_OK",
     "SEPARATE_DB_RESTORE_DRILL_OK",
-    "VPS_INCREMENTAL_TIMER_EXECUTED"
+    "VPS_INCREMENTAL_TIMER_EXECUTED",
+    "OFFSITE_NFS_BACKUP_OK"
   ],
   "non_claims": [
     "LOCAL_READY",
@@ -64,5 +101,10 @@
     "HISTORICAL_CONTRACTS_OPERATIONAL_COVERAGE_PASS",
     "offsite_backup_complete",
     "soak_7d_complete"
-  ]
+  ],
+  "session_close": {
+    "at": "2026-07-23T22:28:58.359802+00:00",
+    "reason": "handoff_written_backfill_operational_on_vps_soak_pending",
+    "handoff": "artifacts/campaigns/HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01/HANDOFF.md"
+  }
 }

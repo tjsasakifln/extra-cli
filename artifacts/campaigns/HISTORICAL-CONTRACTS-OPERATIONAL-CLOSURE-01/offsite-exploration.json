@@ -1,0 +1,43 @@
+{
+  "as_of": "2026-07-23T20:51:00Z",
+  "campaign": "HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01",
+  "status": "blocked_credential",
+  "question": "Can off-site backup be completed without inventing credentials?",
+  "answer": "NO — no real off-site destination is configured or discoverable.",
+  "probes": [
+    {
+      "where": "VPS /etc/backup-database.conf",
+      "BACKUP_STORAGE_BOX_SSH": "EMPTY",
+      "BACKUP_MOUNT_POINT": "/var/lib/extra-consultoria/backups (LOCAL, not off-site)",
+      "observations": 4
+    },
+    {
+      "where": "VPS /root/.ssh",
+      "result": "only authorized_keys; no storage_box key, no ssh config Host for storagebox"
+    },
+    {
+      "where": "VPS known_hosts",
+      "result": "no storagebox/hetzner backup host"
+    },
+    {
+      "where": "laptop env / .env",
+      "result": "BACKUP_STORAGE_BOX_SSH empty or unset; no usable secret exposed to agent"
+    },
+    {
+      "where": "local dumps on VPS",
+      "result": "pncp_datalake-*.dump under /var/lib/extra-consultoria/backups/postgresql/ — same host; fail-closed offsite status correctly refuses"
+    }
+  ],
+  "allowed_alternatives_documented": [
+    "Hetzner Storage Box via sshfs (docs/ops/backup.md)",
+    "Any sshfs-compatible off-site volume",
+    "Object storage adapted from backup-database.sh (not implemented as drop-in today)"
+  ],
+  "not_done": [
+    "Did not invent SSH user/host",
+    "Did not claim local dump as off-site",
+    "Did not set REQUIRE_STORAGE_BOX=1 while empty"
+  ],
+  "operator_action_required": "See UNBLOCK.md — set BACKUP_STORAGE_BOX_SSH on VPS only, authorize key, mount, run backup + restore-from-remote drill",
+  "unblock_test": "python3 -m scripts.ops.campaign_offsite_backup_status → status ok/configured; then restore from remote package"
+}
