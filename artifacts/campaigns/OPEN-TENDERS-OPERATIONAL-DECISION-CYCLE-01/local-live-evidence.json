@@ -1,0 +1,85 @@
+{
+  "as_of": "2026-07-23T23:07:29Z",
+  "local_db": {
+    "opportunity_intel": 4,
+    "coverage_evidence_proj_test": 1093,
+    "recent_runs": [
+      {
+        "status": "failed",
+        "scope_complete": false,
+        "records_fetched": 4
+      }
+    ]
+  },
+  "snapshot_integrity": {
+    "status": "FAIL",
+    "integrity_pct": 100.0,
+    "active_open_count": 4,
+    "intact_count": 4,
+    "defect_count": 0,
+    "defects": [],
+    "checks": [
+      {
+        "id": "schema_tables",
+        "ok": true,
+        "detail": {
+          "missing": [],
+          "present": [
+            "opportunity_intel",
+            "opportunity_runs",
+            "source_snapshot_membership"
+          ]
+        }
+      },
+      {
+        "id": "complete_parent_run",
+        "ok": false,
+        "detail": {
+          "run_id": null,
+          "membership_count": 0
+        }
+      },
+      {
+        "id": "row_structural_integrity",
+        "ok": true,
+        "detail": {
+          "active_open_count": 4,
+          "intact_count": 4,
+          "defect_count": 0,
+          "integrity_pct": 100.0
+        }
+      }
+    ],
+    "as_of": "2026-07-23T23:07:29Z",
+    "source": "pncp",
+    "operational_ok": false,
+    "claims_forbidden": [
+      "integrity 100% from empty snapshot",
+      "presence of table as integrity",
+      "partial run as reconciliation basis"
+    ],
+    "notes": [
+      "no completed scope_complete parent run — integrity claim blocked"
+    ]
+  },
+  "deliverable_e_live": {
+    "status": "OK",
+    "recommendations": 4,
+    "audit_ok": true,
+    "audit_summary": {
+      "total": 10,
+      "pass": 10,
+      "fail": 0
+    }
+  },
+  "claims": [
+    "coverage evidence projection for 1093 entities works after ON CONFLICT fix",
+    "live Deliverable E path executes against real DB",
+    "EMPTY operational audit fails closed when no open opportunities"
+  ],
+  "claims_forbidden": [
+    "open_tenders coverage ≥95%",
+    "VPS operational",
+    "snapshot integrity 100% with empty active open set"
+  ]
+}

@@ -1,0 +1,13 @@
+[Unit]
+Description=Timer — Extra weekly operational cycle (canonical open tenders + deliverable pack)
+Documentation=file:///opt/extra-consultoria/docs/DEVELOPMENT.md
+
+[Timer]
+# Weekly Monday 03:30 America/Sao_Paulo wall clock (host local)
+OnCalendar=Mon *-*-* 03:30:00
+Persistent=true
+RandomizedDelaySec=300
+Unit=extra-weekly.service
+
+[Install]
+WantedBy=timers.target

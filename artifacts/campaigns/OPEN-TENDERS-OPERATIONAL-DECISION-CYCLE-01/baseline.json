@@ -1,0 +1,128 @@
+{
+  "campaign_id": "OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01",
+  "schema_version": "1.0",
+  "generated_at": "2026-07-23T22:50:32Z",
+  "inspection_mode": "read_only_baseline",
+  "git": {
+    "branch": "campaign/open-tenders-operational-decision-cycle-01",
+    "head": "3e04728e4277320454e5bf218cc008e5000b970f",
+    "origin_main": "3e04728e4277320454e5bf218cc008e5000b970f",
+    "status_short": "## campaign/open-tenders-operational-decision-cycle-01...origin/main\n M .dod/state.json",
+    "main_matches_head": true
+  },
+  "worktree": {
+    "path": "/mnt/d/extra consultoria/.worktrees/open-tenders-odc-01",
+    "isolated_from_dirty_main_tree": true,
+    "source_dirty_branch_observed": "campaign/historical-contracts-operational-closure-01"
+  },
+  "dod_controller": {
+    "total": 1361,
+    "audited_accepted": 25,
+    "claimed_checked": 339,
+    "proof_debt": 319,
+    "next_item": {
+      "id": "DOD-rol-1-definition-of-done-7d2ae13087",
+      "text": "A integridade do snapshot ativo é 100%.",
+      "state": "OPEN"
+    },
+    "note": "Checkbox visual ≠ ACCEPTED. DOD state not mutated during baseline."
+  },
+  "open_tenders_coverage_observed": {
+    "capability": "open_tenders",
+    "universe_version": "d65f272812cf:0b3f894d87ba:1093",
+    "universe_count": 1093,
+    "applicable_denominator": 946,
+    "covered_numerator": 0,
+    "coverage_pct": 0.0,
+    "threshold": 0.95,
+    "gate_status": "FAIL",
+    "as_of": "2026-07-22T13:29:06.280874Z",
+    "freshness_sla": 24,
+    "fresh_count": 0,
+    "stale_count": 0,
+    "unknown_count": 147,
+    "applicability_unknown_count": 147,
+    "applicability_blocked_count": 0,
+    "blocked_count": 0,
+    "partial_count": 0,
+    "success_zero_count": 0,
+    "success_with_data_count": 0,
+    "not_applicable_count": 0,
+    "pending_count": 0,
+    "never_checked_count": 946,
+    "error_count": 0,
+    "source_blocked_count": 0,
+    "identity_unresolved_count": 0,
+    "unmapped_evidence_count": 0,
+    "data_presence_numerator": 0,
+    "data_presence_pct": 0.0,
+    "data_presence_status": "measured_no_rows",
+    "data_presence_complete": true,
+    "source_combinations": [
+      "pncp",
+      "pncp+ciga_ckan"
+    ],
+    "limitations": [
+      "Presence is descriptive and is never coverage.",
+      "Complementary sources do not replace required source combinations.",
+      "entity_coverage.is_covered / any_row are forbidden as coverage methods.",
+      "Applicability without proven rule is unknown (never silent applicable).",
+      "Gate PASS requires coverage>=95%, zero applicability unknown/blocked, zero unmapped evidence.",
+      "Draft/missing source policy never forms a valid denominator.",
+      "DEFAULT_REQUIRED_SOURCES is non-canonical fallback only."
+    ],
+    "git_sha": "abcd067902c76bd98c28125dd72ac85680750195",
+    "schema_version": "migrations_count=63",
+    "measurement_success": true,
+    "coverage_gate_pass": false,
+    "method": "dual_capability_coverage",
+    "reconciliation_ok": true,
+    "reconciliation_errors": []
+  },
+  "implemented_but_not_operationally_proven": [
+    "scripts/ops/weekly_cycle.py (per-modalidade PncpOpportunityCrawler without parent aggregate in weekly path)",
+    "scripts/opportunity_intel/reconciliation.py SourceSnapshotReconciler (proven in unit/integration tests; wired in pncp_audit but not weekly_cycle)",
+    "scripts/opportunity_intel/pncp_audit.run_pncp_open_monitoring (aggregated 19 modalidades + reconcile)",
+    "scripts/ops/deliverable_e_editais.py (fixture-only operational path; empty audit vacuous pass)",
+    "config/client_profiles/extra.yaml critical elicitation PENDING",
+    "deploy/systemd extra-crawl-pncp / pncp-crawl-full / pncp-crawl-inc (concurrent PNCP paths; no extra-weekly timer)"
+  ],
+  "documented_only": [
+    "weekly cycle as canonical make extra-weekly",
+    "ADR-022 profile as commercial law",
+    "DOD freshness editais <= 24h"
+  ],
+  "blockers_to_operational_use": [
+    "open_tenders coverage 0% / 946 never_checked in last dual report",
+    "weekly_cycle default PNCP SLA 48h conflicts with DOD 24h",
+    "ciga_ckan sla_hours 48 conflicts with DOD 24h for editais",
+    "deliverable E fixture can pass audit without live data",
+    "no VPS timer for extra-weekly observed in repo units",
+    "VPS opportunity_intel empty (prior handoff; re-verify at verify-production)"
+  ],
+  "divergent_paths_pncp": [
+    "pncp-crawl-full.service",
+    "pncp-crawl-inc.service",
+    "extra-crawl-pncp.service",
+    "weekly_cycle _collect_pncp_opportunities (per-modalidade)",
+    "pncp_audit.run_pncp_open_monitoring (canonical aggregate)",
+    "resilient_cycle references"
+  ],
+  "chosen_canonical_path": {
+    "entry_point": "make extra-weekly → python -m scripts.ops.weekly_cycle --strict",
+    "open_tenders_collect": "scripts.opportunity_intel.pncp_audit.run_pncp_open_monitoring",
+    "reconcile": "scripts.opportunity_intel.reconciliation.SourceSnapshotReconciler",
+    "deliverable_e": "scripts.ops.deliverable_e_editais from live DB snapshot",
+    "rationale": "Reuse existing aggregated monitoring + reconciler; do not invent a parallel pipeline."
+  },
+  "concurrent_work": {
+    "pr_121_draft": "NATIONAL-CONTRACTS-INTELLIGENCE-ARCHITECTURE-01 — not accepted; migration 059 collision risk",
+    "historical_contracts_campaign": "soak remaining; release-candidate/verify-production still HC-coupled"
+  },
+  "largest_gap_confirmed": "open_tenders operational cycle at coverage zero; historical contracts advanced",
+  "policy": {
+    "dod_prevails_over_ciga_48h_sla": true,
+    "target_editais_freshness_hours": 24,
+    "do_not_weaken_denominator": true
+  }
+}

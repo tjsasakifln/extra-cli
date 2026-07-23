@@ -1,0 +1,28 @@
+[Unit]
+Description=Extra Consultoria — canonical weekly operational cycle (open tenders + pack)
+Documentation=file:///opt/extra-consultoria/docs/DEVELOPMENT.md
+After=network-online.target postgresql.service
+Wants=network-online.target
+OnFailure=extra-onfailure@%n.service
+# Single-writer: do not overlap concurrent PNCP crawls on the same DB.
+Conflicts=pncp-crawl-full.service pncp-crawl-inc.service extra-crawl-pncp.service
+
+[Service]
+Type=oneshot
+User=extra-consultoria
+Group=extra-consultoria
+WorkingDirectory=/opt/extra-consultoria
+Environment=PYTHONPATH=/opt/extra-consultoria
+Environment=PYTHONUNBUFFERED=1
+EnvironmentFile=/opt/extra-consultoria/.env
+# Canonical entry: make extra-weekly → scripts.ops.weekly_cycle --strict
+# flock prevents overlapping weekly runs
+ExecStart=/usr/bin/flock --nonblock /run/lock/extra-weekly.lock /opt/extra-consultoria/.venv/bin/python -m scripts.ops.weekly_cycle --strict --contracts-incremental
+TimeoutStartSec=6h
+Restart=no
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=extra-weekly
+
+[Install]
+WantedBy=multi-user.target

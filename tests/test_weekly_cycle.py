@@ -674,3 +674,55 @@ def test_weekly_cycle_offline_skip_collect(tmp_path: Path) -> None:
     assert report.human_accept.get("status") == "PENDING_HUMAN"
     assert "LOCAL_READY" in report.claims_forbidden
     assert report.exit_code in {0, 2, 3}
+
+
+# ---------------------------------------------------------------------------
+# Open tenders campaign: SLA + canonical collect path
+# ---------------------------------------------------------------------------
+
+
+def test_pncp_opp_sla_default_is_24h() -> None:
+    """DOD editais freshness ≤24h must be the weekly default (not 48h)."""
+    from scripts.ops import weekly_cycle as wc
+
+    assert wc.PNCP_OPP_SLA_HOURS == 24 or __import__("os").getenv("WEEKLY_PNCP_SLA_HOURS")
+    src = open(wc.__file__, encoding="utf-8").read()
+    assert 'WEEKLY_PNCP_SLA_HOURS", "24"' in src or "WEEKLY_PNCP_SLA_HOURS', '24'" in src
+    assert "48" not in src.split("PNCP_OPP_SLA_HOURS")[1].split("\n")[0]
+
+
+def test_weekly_collect_uses_aggregated_pncp_audit() -> None:
+    """Weekly path must call run_pncp_open_monitoring, not orphan per-modalidade run()."""
+    from scripts.ops import weekly_cycle as wc
+
+    src = open(wc.__file__, encoding="utf-8").read()
+    assert "run_pncp_open_monitoring" in src
+    assert "OPEN_TENDERS_COLLECT_PATH" in src
+    assert "for m in DEFAULT_MODALIDADES" not in src
+    assert "SourceSnapshotReconciler" in open(
+        __import__("pathlib").Path(wc.__file__).resolve().parents[1]
+        / "opportunity_intel"
+        / "pncp_audit.py",
+        encoding="utf-8",
+    ).read()
+
+
+def test_fresh_within_24h_sla() -> None:
+    assert (
+        classify_opportunity_freshness(
+            status="completed",
+            age_hours=23.0,
+            sla_hours=24,
+            scope_complete=True,
+        )
+        == "fresh"
+    )
+    assert (
+        classify_opportunity_freshness(
+            status="completed",
+            age_hours=25.0,
+            sla_hours=24,
+            scope_complete=True,
+        )
+        == "stale"
+    )

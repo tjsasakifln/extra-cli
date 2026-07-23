@@ -10,12 +10,12 @@
 # itself (see scripts.coverage.source_policy.compute_policy_sha256).
 # =============================================================================
 
-policy_version: "2.1.0"
-version: "2.1.0"
-updated_at: "2026-07-22"
+policy_version: "2.1.1"
+version: "2.1.1"
+updated_at: "2026-07-23"
 status: active
-validated_at: "2026-07-22T15:00:00Z"
-validated_by: "historical-contracts-operational-closure-01"
+validated_at: "2026-07-23T23:00:00Z"
+validated_by: "open-tenders-operational-decision-cycle-01"
 owner: "coverage-governance"
 rationale: >
   Activate entity×source×capability applicability and explicit required
@@ -28,7 +28,10 @@ rationale: >
   per entity id. Semantic roles: pncp = official federal catalog authority;
   contracts = historical contracts capability surface on that authority (same
   PNCP /contratos origin, two audit roles — not two independent fetches).
-policy_sha256: "f090ff87dbd2d073fb5c7ca89d42bda690deffb7656e6bde8fa2c01446b492e2"
+  v2.1.1: ciga_ckan sla_hours aligned to DOD editais freshness ≤24h (DOD prevails
+  over prior 48h operational note); missing CIGA within 24h must fail closed,
+  never inflate open_tenders coverage.
+policy_sha256: "0a3cac5820b30935f9229b40682f496c75aa3eb4dbfdd28164c9163263e0aeb3"
 
 # -----------------------------------------------------------------------------
 # Source roles per capability (complementary never satisfies required)
@@ -245,7 +248,9 @@ sources:
   ciga_ckan:
     display_name: "CIGA Dados (DOM-SC público)"
     authority_level: municipal
-    sla_hours: 48
+    # DOD editais freshness ≤24h prevails over historical 48h CIGA note.
+    # If CIGA cannot meet 24h, treat as stale/failed — never presume coverage.
+    sla_hours: 24
     default_applicable: false
     rules:
       - filter: {esfera: municipal, natureza: "*", plataforma: "*"}
@@ -265,6 +270,7 @@ sources:
       - "API CKAN 2.9; datasets mensais domsc-publicacoes-de-MM-YYYY"
       - "Extrai publicações de compras (open_tenders) + entity coverage; sem inventar valores"
       - "Caminho canônico DOM/SC; dom_sc autenticado é legado opcional"
+      - "SLA 24h alinhado ao DOD de editais; indisponibilidade → fail-closed, sem cobertura presumida"
 
   # --------------------------------------------------------------------------
   # MIDES BigQuery
