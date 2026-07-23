@@ -254,8 +254,8 @@ campaign-gate-historical-contracts-vps:
 
 # ── Campaign OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01 ─────────────────────
 
-.PHONY: campaign-gate-open-tenders
-campaign-gate-open-tenders:
+.PHONY: campaign-gate-open-tenders campaign-gate-open-tenders-operational
+campaign-gate-open-tenders campaign-gate-open-tenders-operational:
 	@echo '==> Campaign gate: open tenders operational decision cycle'
 	python3 -m scripts.ops.campaign_open_tenders_gate \
 		--out artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/campaign-gate.json
@@ -271,10 +271,17 @@ campaign-gate-open-tenders:
 
 .PHONY: release-candidate-open-tenders
 release-candidate-open-tenders:
-	@echo '==> release-candidate (open tenders campaign)'
-	$(MAKE) campaign-gate-open-tenders
-	python3 -m pytest -o addopts='' -q tests/test_weekly_cycle.py tests/test_deliverable_e_editais.py
-	@echo 'release-candidate-open-tenders foundation OK'
+	@echo '==> release-candidate-open-tenders (fail-closed JSON)'
+	python3 -m scripts.ops.campaign_open_tenders_release \
+		--out artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/release-candidate.json \
+		$(OPEN_TENDERS_RC_FLAGS)
+
+.PHONY: verify-open-tenders-production
+verify-open-tenders-production:
+	@echo '==> verify-open-tenders-production (local artifacts + ssh ec-prod)'
+	python3 -m scripts.ops.campaign_verify_open_tenders \
+		--out artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/verify-production.json \
+		$(VERIFY_OPEN_TENDERS_FLAGS)
 
 .PHONY: release-candidate
 release-candidate:

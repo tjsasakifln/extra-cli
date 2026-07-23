@@ -37,6 +37,19 @@ def test_systemd_extra_weekly_units() -> None:
     assert "OnCalendar=" in tmr.read_text(encoding="utf-8")
 
 
+def test_makefile_open_tenders_targets() -> None:
+    mk = (ROOT / "Makefile").read_text(encoding="utf-8")
+    for target in (
+        "campaign-gate-open-tenders",
+        "campaign-gate-open-tenders-operational",
+        "release-candidate-open-tenders",
+        "verify-open-tenders-production",
+    ):
+        assert target in mk, f"missing Makefile target {target}"
+    assert "campaign_open_tenders_release" in mk
+    assert "campaign_verify_open_tenders" in mk
+
+
 def test_ciga_sla_aligned_to_dod_24h() -> None:
     import yaml
 
