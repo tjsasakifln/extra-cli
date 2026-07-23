@@ -7,7 +7,7 @@
   "coverage_pct": 38.8838,
   "threshold": 0.95,
   "gate_status": "FAIL",
-  "as_of": "2026-07-23T23:25:53.127774Z",
+  "as_of": "2026-07-23T23:17:53.233652Z",
   "freshness_sla": 24,
   "fresh_count": 1093,
   "stale_count": 0,
@@ -42,7 +42,7 @@
     "Draft/missing source policy never forms a valid denominator.",
     "DEFAULT_REQUIRED_SOURCES is non-canonical fallback only."
   ],
-  "git_sha": "c51c2e85f2e432a71326f4c34575634056f2e5d3",
+  "git_sha": "7194cb169c2e963e132cb35f8861e78f70aaf192",
   "schema_version": "migrations_count=64",
   "measurement_success": true,
   "coverage_gate_pass": false,

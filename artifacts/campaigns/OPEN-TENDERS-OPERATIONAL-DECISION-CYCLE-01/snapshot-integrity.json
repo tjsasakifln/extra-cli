@@ -1,5 +1,5 @@
 {
-  "status": "FAIL",
+  "status": "PASS",
   "integrity_pct": 100.0,
   "active_open_count": 4,
   "intact_count": 4,
@@ -20,10 +20,10 @@
     },
     {
       "id": "complete_parent_run",
-      "ok": false,
+      "ok": true,
       "detail": {
-        "run_id": null,
-        "membership_count": 0
+        "run_id": 1,
+        "membership_count": 4
       }
     },
     {
@@ -37,15 +37,13 @@
       }
     }
   ],
-  "as_of": "2026-07-23T23:11:29Z",
+  "as_of": "2026-07-23T23:25:52Z",
   "source": "pncp",
-  "operational_ok": false,
+  "operational_ok": true,
   "claims_forbidden": [
     "integrity 100% from empty snapshot",
     "presence of table as integrity",
     "partial run as reconciliation basis"
   ],
-  "notes": [
-    "no completed scope_complete parent run — integrity claim blocked"
-  ]
+  "notes": []
 }

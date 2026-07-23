@@ -1,0 +1,40 @@
+{
+  "campaign_id": "OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01",
+  "as_of": "2026-07-23T23:25:35Z",
+  "git_sha_candidate": "c51c2e85f2e432a71326f4c34575634056f2e5d3",
+  "pr": "https://github.com/tjsasakifln/extra-cli/pull/127",
+  "vps": {
+    "sha": "c51c2e85f2e432a71326f4c34575634056f2e5d3",
+    "timer": "extra-weekly.timer enabled+active next Mon 2026-07-27 03:30",
+    "pncp_run": {
+      "status": "completed",
+      "scope_complete": true,
+      "scopes_complete": "19/19",
+      "records_fetched": 4,
+      "db_run_id": 1
+    },
+    "snapshot_integrity": {
+      "status": "PASS",
+      "integrity_pct": 100.0,
+      "active_open_count": 4
+    },
+    "deliverable_e": {
+      "ok": true,
+      "recommendation_count": 4
+    },
+    "dual_open_tenders": {
+      "coverage_pct": 38.8838,
+      "covered_numerator": 425,
+      "applicable_denominator": 1093,
+      "applicability_unknown_count": 0,
+      "pending_count": 668,
+      "gate_status": "FAIL",
+      "note": "municipal requires pncp+ciga_ckan; CIGA dual evidence path not yet writing coverage_evidence (entity match DB entities=0)"
+    }
+  },
+  "blockers_remaining": [
+    "open_tenders coverage \u226595% blocked on CIGA dual evidence for municipal combinations",
+    "soak 7 days not elapsed",
+    "merge to main + DOD ACCEPTED not done"
+  ]
+}
