@@ -1,0 +1,19 @@
+{
+  "at": "2026-07-23T20:51:12Z",
+  "ok": true,
+  "title": "O backfill cobre no m\u00ednimo os \u00faltimos tr\u00eas anos.",
+  "item_id": "DOD-rol-1-definition-of-done-c2443d2b03",
+  "main_sha": "5f922114e566e30b123b97ebe9a2e06f2de487ad",
+  "verify_head_sha": "0d8653b25b52dc9b9eabc372f6fab87e7b02ff40",
+  "campaign": "HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01",
+  "checkpoint": "data/contracts_checkpoints/hc_closure_3y/contracts_full.json",
+  "windows_completed": 37,
+  "span_years": 3.01,
+  "range": {
+    "start": "20230720",
+    "end": "20260723"
+  },
+  "vps_contracts_count": 4438393,
+  "ci_run": "https://github.com/tjsasakifln/extra-cli/actions/runs/30042874795",
+  "note": "3y span proved from checkpoint; window complete unit tests green on verify"
+}

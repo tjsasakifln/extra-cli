@@ -749,7 +749,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 
 ### 9.1 Escopo temporal
 
-- [ ] O backfill cobre no mínimo os últimos três anos.
+- [x] O backfill cobre no mínimo os últimos três anos.
 - [ ] A data inicial do backfill é registrada.
 - [ ] A data final do backfill é registrada.
 - [ ] O período é particionado em janelas controladas.

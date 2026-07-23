@@ -1,0 +1,11 @@
+{
+  "status": "PASS_FOR_ACCEPT",
+  "item_id": "DOD-rol-1-definition-of-done-c2443d2b03",
+  "reviewer": "campaign-independent-review-hc-closure-01",
+  "at": "2026-07-23T20:51:12Z",
+  "main_sha": "5f922114e566e30b123b97ebe9a2e06f2de487ad",
+  "requirement": "O backfill cobre no m\u00ednimo os \u00faltimos tr\u00eas anos.",
+  "dod_line": 752,
+  "pending_changes_requested": false,
+  "head_sha": "5f922114e566e30b123b97ebe9a2e06f2de487ad"
+}

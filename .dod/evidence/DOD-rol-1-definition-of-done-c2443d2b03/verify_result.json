@@ -1,0 +1,136 @@
+{
+  "item_id": "DOD-rol-1-definition-of-done-c2443d2b03",
+  "commands": [
+    {
+      "cmd": "python3 -c \"import json; from pathlib import Path; from datetime import datetime; cp=json.loads(Path('data/contracts_checkpoints/hc_closure_3y/contracts_full.json').read_text()); wins=cp['completed_windows']; assert len(wins)>=37 and cp.get('total_windows_completed')==37; starts=[w.split('_')[0] for w in wins]; ends=[w.split('_')[1] for w in wins]; s=datetime.strptime(min(starts),'%Y%m%d'); e=datetime.strptime(max(ends),'%Y%m%d'); years=(e-s).days/365.25; assert years>=3.0, years; print('PASS windows',len(wins),'span_years',round(years,2),'range',min(starts),max(ends))\"",
+      "exit_code": 0,
+      "duration_s": 0.039,
+      "stdout_tail": "PASS windows 37 span_years 3.01 range 20230720 20260723\n",
+      "stderr_tail": "",
+      "env": {
+        "CI": null,
+        "GITHUB_ACTIONS": null,
+        "LOCAL_DATALAKE_DSN": {
+          "set": false,
+          "len": 0
+        },
+        "PYTEST_ADDOPTS": null,
+        "PATH": {
+          "set": true,
+          "len": 1919
+        },
+        "USER": "tjsasakifln",
+        "HOME": {
+          "set": true,
+          "len": 17
+        }
+      },
+      "skipped": false
+    }
+  ],
+  "tests": [
+    {
+      "test": "tests/test_contracts_window_complete.py",
+      "cmd": "python3 -m pytest tests/test_contracts_window_complete.py -q --tb=line",
+      "exit_code": 0,
+      "duration_s": 54.143,
+      "stdout_tail": "scripts/workspace/common.py                                      194    194   0.0%   6-297\nscripts/workspace/queue.py                                       261    261   0.0%   6-715\n--------------------------------------------------------------------------------------------\nTOTAL                                                          68144  67998   0.2%\nCoverage HTML written to dir docs/td-001/coverage-reports/\n\n\n============================== 3 passed in 49.63s ==============================\n",
+      "stderr_tail": "",
+      "counts": {
+        "passed": 3,
+        "failed": 0,
+        "skipped": 0,
+        "deselected": 0,
+        "xfailed": 0,
+        "error": 0
+      },
+      "env": {
+        "CI": null,
+        "GITHUB_ACTIONS": null,
+        "LOCAL_DATALAKE_DSN": {
+          "set": false,
+          "len": 0
+        },
+        "PYTEST_ADDOPTS": null,
+        "PATH": {
+          "set": true,
+          "len": 1919
+        },
+        "USER": "tjsasakifln",
+        "HOME": {
+          "set": true,
+          "len": 17
+        }
+      },
+      "skipped": false
+    },
+    {
+      "test": "tests/test_contracts_per_window_persist.py",
+      "cmd": "python3 -m pytest tests/test_contracts_per_window_persist.py -q --tb=line",
+      "exit_code": 0,
+      "duration_s": 44.065,
+      "stdout_tail": "scripts/workspace/common.py                                      194    194   0.0%   6-297\nscripts/workspace/queue.py                                       261    261   0.0%   6-715\n--------------------------------------------------------------------------------------------\nTOTAL                                                          68144  67994   0.2%\nCoverage HTML written to dir docs/td-001/coverage-reports/\n\n\n============================== 3 passed in 39.71s ==============================\n",
+      "stderr_tail": "",
+      "counts": {
+        "passed": 3,
+        "failed": 0,
+        "skipped": 0,
+        "deselected": 0,
+        "xfailed": 0,
+        "error": 0
+      },
+      "env": {
+        "CI": null,
+        "GITHUB_ACTIONS": null,
+        "LOCAL_DATALAKE_DSN": {
+          "set": false,
+          "len": 0
+        },
+        "PYTEST_ADDOPTS": null,
+        "PATH": {
+          "set": true,
+          "len": 1919
+        },
+        "USER": "tjsasakifln",
+        "HOME": {
+          "set": true,
+          "len": 17
+        }
+      },
+      "skipped": false
+    }
+  ],
+  "ok": true,
+  "notes": [],
+  "rejected_trivial": [],
+  "head_sha": "5f922114e566e30b123b97ebe9a2e06f2de487ad",
+  "env": {
+    "CI": null,
+    "GITHUB_ACTIONS": null,
+    "LOCAL_DATALAKE_DSN": {
+      "set": false,
+      "len": 0
+    },
+    "PYTEST_ADDOPTS": null,
+    "PATH": {
+      "set": true,
+      "len": 1919
+    },
+    "USER": "tjsasakifln",
+    "HOME": {
+      "set": true,
+      "len": 17
+    }
+  },
+  "started_at": "2026-07-23T20:55:39Z",
+  "duration_s": 98.248,
+  "substantive_runs": 3,
+  "totals": {
+    "passed": 7,
+    "failed": 0,
+    "skipped": 0,
+    "deselected": 0,
+    "error": 0
+  },
+  "finished_at": "2026-07-23T20:57:17Z"
+}

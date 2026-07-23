@@ -1,6 +1,6 @@
 schema_version: '1.0'
 source: DOD.md
-updated_at: '2026-07-22T13:29:43Z'
+updated_at: '2026-07-23T20:57:33Z'
 items:
 - id: DOD-definition-of-done-extra-934b7e1a8d
   text: 'O denominador estratégico permaneceu fixo em **1.093 entidades**. Evidência: `output/coverage/contract-report.json`;
@@ -33986,22 +33986,30 @@ items:
     - 9. Contratos históricos
     - 9.1 Escopo temporal
   category: MACHINE_ACTIONABLE
-  state: OPEN
-  dod_checked: false
+  state: ACCEPTED
+  dod_checked: true
   evidence_type: mixed_or_unspecified
   dependencies: []
   blockers: []
-  acceptance_commands: []
-  tests: []
+  acceptance_commands:
+  - python3 -c "import json; from pathlib import Path; from datetime import datetime; cp=json.loads(Path('data/contracts_checkpoints/hc_closure_3y/contracts_full.json').read_text());
+    wins=cp['completed_windows']; assert len(wins)>=37 and cp.get('total_windows_completed')==37; starts=[w.split('_')[0]
+    for w in wins]; ends=[w.split('_')[1] for w in wins]; s=datetime.strptime(min(starts),'%Y%m%d'); e=datetime.strptime(max(ends),'%Y%m%d');
+    years=(e-s).days/365.25; assert years>=3.0, years; print('PASS windows',len(wins),'span_years',round(years,2),'range',min(starts),max(ends))"
+  tests:
+  - tests/test_contracts_window_complete.py
+  - tests/test_contracts_per_window_persist.py
   files: []
   environment: local
   needs_clean_db: false
   needs_live_source: false
   needs_human_eval: false
-  evidence: []
-  acceptance_commit: null
+  evidence:
+  - data/contracts_checkpoints/hc_closure_3y/contracts_full.json
+  - .dod/evidence/DOD-rol-1-definition-of-done-c2443d2b03/
+  acceptance_commit: 5f922114e566e30b123b97ebe9a2e06f2de487ad
   acceptance_pr: null
-  accepted_at: null
+  accepted_at: '2026-07-23T20:57:33Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -34034,8 +34042,19 @@ items:
   - at: '2026-07-22T12:58:21Z'
     event: rescan
     detail: line=752
+  - at: '2026-07-23T20:55:27Z'
+    event: worktree_main_prepare
+    detail: VERIFIED pack from campaign for accept on main
+  - at: '2026-07-23T20:57:17Z'
+    event: verify
+    detail: VERIFIED head=5f922114e566e30b123b97ebe9a2e06f2de487ad runs=3
+  - at: '2026-07-23T20:57:33Z'
+    event: accept
+    detail: commit=5f922114e566e30b123b97ebe9a2e06f2de487ad branch=main gates_ok=True
   content_fingerprint: c2443d2b03
-  evidence_audit: null
+  evidence_audit:
+    status: ok
+    notes: 2 path(s) exist
   priority_boost: 0
 - id: DOD-rol-1-definition-of-done-00e53389b2
   text: A data inicial do backfill é registrada.
