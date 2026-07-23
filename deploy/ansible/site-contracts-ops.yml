@@ -1,0 +1,75 @@
+---
+# Minimal idempotent host config for contracts operational path (ADR-008).
+# Does NOT enable PNCP crawl timers while laptop is single writer.
+# Usage:
+#   ansible-playbook -i deploy/ansible/inventory/hosts.yml deploy/ansible/site-contracts-ops.yml
+- name: Extra Consultoria contracts ops host
+  hosts: ec-prod
+  become: true
+  vars:
+    extra_app_dir: /opt/extra-consultoria
+    extra_app_user: extra-consultoria
+    unit_files:
+      - extra-health-check.service
+      - extra-health-check.timer
+      - extra-check-alerts.service
+      - extra-check-alerts.timer
+      - extra-db-backup.service
+      - extra-db-backup.timer
+      - extra-collect-metrics.service
+      - extra-collect-metrics.timer
+      - extra-onfailure@.service
+      - pncp-crawl-inc.service
+      - pncp-contracts.service
+    # Keep crawl timers disabled until cutover
+    disabled_timers:
+      - pncp-crawl-inc.timer
+      - pncp-contracts.timer
+      - extra-crawl-pncp.timer
+    enabled_timers:
+      - extra-health-check.timer
+      - extra-db-backup.timer
+  tasks:
+    - name: Install systemd units from repo tree
+      copy:
+        src: "{{ playbook_dir }}/../systemd/{{ item }}"
+        dest: "/etc/systemd/system/{{ item }}"
+        mode: "0644"
+      loop: "{{ unit_files }}"
+      notify: Reload systemd
+
+    - name: Ensure staging directories
+      file:
+        path: "{{ item }}"
+        state: directory
+        owner: "{{ extra_app_user }}"
+        group: "{{ extra_app_user }}"
+        mode: "0755"
+      loop:
+        - /var/lib/extra-consultoria/incoming
+        - /var/lib/extra-consultoria/backups
+        - /var/lib/extra-consultoria/checkpoints
+        - /var/lib/extra-consultoria/backfill
+
+    - name: Disable crawl timers (single-writer guard)
+      systemd:
+        name: "{{ item }}"
+        enabled: false
+        state: stopped
+      loop: "{{ disabled_timers }}"
+      failed_when: false
+
+    - name: Enable ops timers
+      systemd:
+        name: "{{ item }}"
+        enabled: true
+        state: started
+      loop: "{{ enabled_timers }}"
+
+    - name: Reset failed units
+      command: systemctl reset-failed
+      changed_when: false
+
+  handlers:
+    - name: Reload systemd
+      command: systemctl daemon-reload

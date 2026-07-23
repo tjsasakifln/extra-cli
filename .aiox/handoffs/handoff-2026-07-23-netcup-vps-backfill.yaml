@@ -1,0 +1,143 @@
+handoff:
+  from_agent: grok-session
+  to_agent: next-session / @devops / @dev
+  date_utc: "2026-07-23T13:27:42Z"
+  pipeline_id: netcup-vps-backfill-migration
+  story_context:
+    story_id: null
+    campaign: HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01
+    branch: campaign/historical-contracts-operational-closure-01
+    commit: dc71b72
+    story_status: ops-in-progress
+    current_task: VPS provisioned; snapshot backfill on VPS; local pilot still writer
+  goal: >
+    Contratar/usar Netcup RS 2000 G12 MNZ, provisionar host, pausar crawls PNCP na VPS,
+    migrar snapshot do backfill histórico local para a VPS e documentar cutover.
+
+  infrastructure:
+    provider: Netcup
+    sku: RS 2000 G12 ip iv MNZ
+    ccp_customer: "397766 (Tiago Sasaki)"
+    scp_server_id: "902196"
+    account_name: v2202607385716487230
+    ipv4: "159.195.18.88"
+    hostname_dns: v2202607385716487230.happysrv.de
+    gateway: "159.195.16.1"
+    ipv6_prefix: "2a0a:4cc0:101:1f21::/64"
+    cost_eur_month: "24,88"
+    site: Manassas USA
+    hardware: "8 cores / 16 GiB RAM / 512 GiB NVMe"
+    os: "Debian GNU/Linux 13 (trixie) — NOT Ubuntu 24.04"
+    postgres: "17.10 + pgvector"
+    python: "3.13 venv /opt/extra-consultoria/.venv"
+    ssh:
+      host_alias: ec-prod
+      host: "159.195.18.88"
+      port: 2222
+      user: root
+      identity: "~/.ssh/extra-consultoria-prod"
+      password_auth: disabled
+    app_dir: /opt/extra-consultoria
+    app_user: extra-consultoria
+    db_name: pncp_datalake
+    secrets_local: "~/.config/extra-consultoria/netcup-rs2000.env"
+    secrets_vps: /root/.extra-pg-credentials
+    scp_url: https://www.servercontrolpanel.de/
+    ccp_url: https://www.customercontrolpanel.de/
+
+  decisions:
+    - "Netcup RS 2000 G12 MNZ accepted as minimum ADR (16 GB); upgrade path RS 4000 via CCP"
+    - "Debian 13 kept; Ubuntu 24.04 reimage blocked on SCP reauth (needs account password)"
+    - "PNCP timers disabled on VPS while local 3y pilot is sole writer"
+    - "Snapshot migrate now; final cutover requires stop local + re-export + restore"
+    - "Do not claim VPS_OPERATIONAL / 95% / PROJECT_DONE"
+
+  delivered:
+    - "Playwright: CCP/SCP inventory, set root password, attempted Ubuntu reimage (reauth)"
+    - "SSH key-only :2222 + Host ec-prod"
+    - "deploy/provision-vps.sh adapted rs2000-16g + timer waves + fixed listen_addresses sed"
+    - "App clone, venv, migrations, pgvector on VPS"
+    - "Paused: pncp-crawl-inc, extra-crawl-pncp, pncp-crawl-full, pncp-contracts, pncp-enrich"
+    - "Active timers: extra-health-check, extra-check-alerts, extra-db-backup"
+    - "Staging dirs /var/lib/extra-consultoria/{incoming,backups,checkpoints,backfill}"
+    - "export_backfill_for_vps.sh + restore_backfill_on_vps.sh"
+    - "Snapshot package uploaded and restored — VPS contracts=3337776"
+    - "Checkpoint 26/37 windows installed on VPS"
+    - "Local daily dump helper /usr/local/bin/extra-local-pg-dump.sh"
+
+  data_state_at_handoff:
+    local_pilot:
+      pid: 11008
+      etime: "~1h37+"
+      cmd: "python3 -u scripts/crawl/run_contracts_90d_pilot.py --days 1099 --allow-cross-run-resume"
+      dsn: "postgresql://test:test@127.0.0.1:5433/extra_test"
+      checkpoint_dir: data/contracts_checkpoints/hc_closure_3y
+      output_json: artifacts/campaigns/HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01/backfill/live-3y.json
+      resume_log: artifacts/campaigns/HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01/backfill/live-3y-resume-20260723T115016Z.log
+      contracts_count: 3421049
+      checkpoint_completed_windows: 27
+      checkpoint_current: "20250907"
+      checkpoint_fetched: 2666025
+      planned_windows: 37
+    vps:
+      contracts_count: 3337776
+      snapshot_pkg: artifacts/migration/backfill-vps/pkg-20260723T131251Z
+      snapshot_exported_utc: "20260723T131251Z"
+      snapshot_manifest_contracts: 3337776
+      drift_vs_local: "~+83k rows on local after dump (expected)"
+      checkpoint_completed_windows: 26
+      table_size: "~3.7 GB"
+      disk_free: "~471 GB"
+    rule: "ONE writer only — local pilot is canonical until cutover"
+
+  files_modified:
+    - deploy/provision-vps.sh
+    - scripts/ops/export_backfill_for_vps.sh
+    - scripts/ops/restore_backfill_on_vps.sh
+    - docs/ops/vps-backfill-migration.md
+    - docs/ops/netcup-inventory-live.md
+    - docs/ops/netcup-phase0-activate.md
+    - docs/ops/v6.2-procurement-credentials-package.md
+    - docs/ops/vps-access.md
+    - docs/ops/vps-provisioning.md
+    - docs/baseline/v6.2-pncp-from-vps.md
+    - .gitignore  # artifacts/migration/
+    - .aiox/handoffs/handoff-2026-07-23-netcup-vps-backfill.yaml
+    - docs/ops/handoff-2026-07-23-netcup-vps-backfill.md
+
+  blockers:
+    - "Ubuntu 24.04 reimage needs Netcup CCP/SCP password reauth (Playwright)"
+    - "Backup off-site not configured (only on-disk pg_dump on VPS)"
+    - "extra-collect-metrics.timer invalid OnCalendar (*:0/60:00)"
+    - "Local pilot incomplete (~27/37 windows); VPS snapshot stale vs live local"
+    - "prometheus_client missing from requirements.txt (installed manually on VPS venv)"
+
+  next_action: |
+    1. Monitor local pilot until completed_windows==37 (or user stop).
+       tail -f artifacts/campaigns/HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01/backfill/live-3y-resume-*.log
+    2. CUTOVER (when ready):
+       a. stop PID pilot local
+       b. LOCAL_DATALAKE_DSN=... bash scripts/ops/export_backfill_for_vps.sh --upload
+       c. ssh ec-prod 'bash /opt/extra-consultoria/scripts/ops/restore_backfill_on_vps.sh /var/lib/extra-consultoria/incoming/pkg-…'
+       d. validate counts match manifest
+       e. optional: resume remaining windows ONLY on VPS (not local)
+    3. Keep PNCP timers disabled until single-writer policy decided.
+    4. Configure off-site backup; fix collect-metrics timer; optional Ubuntu reimage.
+    5. After full 37 windows: entity projection + dual coverage (campaign STATUS) — no false 95% claims.
+
+  commands_cheat_sheet:
+    ssh: "ssh ec-prod"
+    local_count: "psql postgresql://test:test@127.0.0.1:5433/extra_test -Atc 'SELECT count(*) FROM pncp_supplier_contracts;'"
+    vps_count: "ssh ec-prod 'source /root/.extra-pg-credentials && psql \"$LOCAL_DATALAKE_DSN\" -Atc \"SELECT count(*) FROM pncp_supplier_contracts;\"'"
+    export: "export LOCAL_DATALAKE_DSN=postgresql://test:test@127.0.0.1:5433/extra_test && bash scripts/ops/export_backfill_for_vps.sh --upload"
+    restore: "ssh ec-prod 'bash /opt/extra-consultoria/scripts/ops/restore_backfill_on_vps.sh /var/lib/extra-consultoria/incoming/pkg-XXXX'"
+    runbook: docs/ops/vps-backfill-migration.md
+    inventory: docs/ops/netcup-inventory-live.md
+    campaign_status: artifacts/campaigns/HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01/STATUS.md
+
+  non_claims:
+    - VPS_OPERATIONAL
+    - LOCAL_READY
+    - PROJECT_DONE
+    - historical_contracts dual coverage 95%
+    - full 3y windows complete

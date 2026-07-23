@@ -12,7 +12,7 @@ Type=oneshot
 WorkingDirectory=/opt/extra-consultoria
 Environment=PYTHONPATH=/opt/extra-consultoria
 EnvironmentFile=/opt/extra-consultoria/.env
-ExecStart=/usr/bin/python3 -m scripts.reports.coverage_weekly
+ExecStart=/opt/extra-consultoria/.venv/bin/python -m scripts.reports.coverage_weekly
 User=extra-consultoria
 StandardOutput=journal
 StandardError=journal

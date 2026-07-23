@@ -1,0 +1,99 @@
+{
+  "campaign_id": "HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01",
+  "captured_at_utc": "2026-07-23T13:59:10.287548Z",
+  "git": {
+    "branch": "campaign/historical-contracts-operational-closure-01",
+    "head": "dc71b72f6ff22e8293bb51655076a3d9dcb139ba",
+    "origin_main_observed": "a38981bfa616b8f47363da6ff91b12a28bec218c",
+    "commits_ahead_of_main": 6,
+    "origin_url_observed": "https://github.com/tjsasakifln/extra-consultoria.git",
+    "canonical_remote": "https://github.com/tjsasakifln/extra-cli",
+    "dirty_tree_preserved": true,
+    "untracked_handoff_artifacts": true
+  },
+  "backfill_local": {
+    "writer_pid": 11008,
+    "writer_alive": true,
+    "dsn_host": "127.0.0.1:5433/extra_test",
+    "checkpoint_completed_windows": 28,
+    "planned_windows": 37,
+    "current_window_start": "20251007",
+    "total_contracts_fetched_ckpt": 2851355,
+    "contracts_table_count": 3549886,
+    "date_range_observed": [
+      "2021-04-01",
+      "8406-05-16"
+    ],
+    "date_range_note": "max date anomaly present; not used as coverage proof",
+    "status": "running"
+  },
+  "backfill_vps": {
+    "contracts_count": 3337776,
+    "checkpoint_completed_windows": 26,
+    "writer_active": false,
+    "timers_pncp_disabled": true,
+    "drift_vs_local": true
+  },
+  "vps": {
+    "host_alias": "ec-prod",
+    "os": "Debian 13 trixie",
+    "kernel": "6.12.96+deb13-amd64",
+    "postgresql": "17",
+    "app_dir": "/opt/extra-consultoria",
+    "failed_units": [
+      "extra-check-alerts.service",
+      "extra-crawl-pncp.service",
+      "extra-health-check.service",
+      "extra-onfailure@extra-check-alerts.service.service",
+      "extra-onfailure@extra-crawl-pncp.service.service",
+      "extra-onfailure@extra-health-check.service.service",
+      "pncp-crawl-inc.service"
+    ],
+    "active_timers": [
+      "extra-check-alerts.timer",
+      "extra-health-check.timer",
+      "extra-db-backup.timer"
+    ]
+  },
+  "dual_historical_contracts_snapshot": {
+    "as_of": "2026-07-22T13:29:06.280874Z",
+    "coverage_pct": 0.0,
+    "gate_status": "FAIL",
+    "applicable_denominator": 946,
+    "covered_numerator": 0,
+    "applicability_unknown_count": 147,
+    "note": "pre-projection; not operational PASS"
+  },
+  "migration_collision": {
+    "campaign_059": "db/migrations/059_coverage_evidence_canonical_entity_unique.sql",
+    "pr121_059": "db/migrations/059_national_contracts_intelligence_layers.sql",
+    "precedence": "this_campaign",
+    "pr121_action": "remain draft; renumber on rebase after this campaign merges"
+  },
+  "known_defects": [
+    "success_zero fabricable via --window-complete --pages-processed 1 --pages-expected 1",
+    "export/restore lack mandatory SHA256 verify and fail-closed truncate/migration",
+    "validate_systemd only checks crawl priority units, misses invalid OnCalendar and StartLimit section",
+    "pncp-crawl-inc uses /usr/bin/python3 without venv",
+    "extra-collect-metrics.timer OnCalendar=*:0/60:00 invalid",
+    "extra-db-backup.service StartLimit* in [Service] section",
+    "prometheus_client not in requirements.txt",
+    "Spec 002 lists VPS as non-goal",
+    "origin remote not yet pointing at extra-cli",
+    "test_exit_ok_with_reused_and_products fails under contracts fail-closed strict"
+  ],
+  "dod_controller": {
+    "total": 1361,
+    "state_ACCEPTED": 333,
+    "OPEN": 1027,
+    "acceptance_pct": 1.54,
+    "no_accept_yet_this_session": true
+  },
+  "claims_forbidden_now": [
+    "LOCAL_READY",
+    "VPS_OPERATIONAL",
+    "PROJECT_DONE",
+    "HISTORICAL_CONTRACTS_OPERATIONAL_COVERAGE_PASS",
+    "open_tenders>=95%"
+  ]
+}

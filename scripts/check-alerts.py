@@ -59,7 +59,18 @@ ALERT_DISK_WARN_PCT = int(os.getenv("ALERT_DISK_WARN_PCT", "80"))
 ALERT_BACKUP_MAX_HOURS = int(os.getenv("ALERT_BACKUP_MAX_HOURS", "28"))
 
 BACKUP_LOG_FILE = os.getenv("BACKUP_LOG_FILE", "/var/log/backup-database.log")
+LOCAL_BACKUP_DIR = os.getenv(
+    "LOCAL_BACKUP_DIR", "/var/lib/extra-consultoria/backups/postgresql"
+)
 STORAGE_BOX_MOUNT = os.getenv("BACKUP_MOUNT_POINT", "/mnt/storage-box")
+# Align with health_check: off-site mount optional until provisioned.
+REQUIRE_STORAGE_BOX = os.getenv("REQUIRE_STORAGE_BOX", "0").lower() in {
+    "1",
+    "true",
+    "yes",
+}
+# Scope for campaign ops hosts that only run contracts path initially.
+ALERT_SCOPE = os.getenv("ALERT_SCOPE", "all").strip().lower()
 
 # API keys that should be checked (name, purpose)
 REQUIRED_API_KEYS: list[tuple[str, str]] = [
@@ -67,6 +78,8 @@ REQUIRED_API_KEYS: list[tuple[str, str]] = [
     ("DOM_SC_API_KEY", "DOM-SC"),
     # PORTAL_TRANSPARENCIA_API_KEY is optional — skip if absent
 ]
+# Keys required only for non-contracts scopes
+_NON_CONTRACTS_KEYS = {"OPENAI_API_KEY", "DOM_SC_API_KEY"}
 
 
 # ---------------------------------------------------------------------------
@@ -260,14 +273,26 @@ def check_storage_box(registry: AlertRegistry) -> None:
     """Check if Storage Box is mounted and accessible."""
     logger.debug("Checking Storage Box mount")
     if not os.path.ismount(STORAGE_BOX_MOUNT):
-        registry.add(
-            severity=2,
-            category="storage",
-            title="Storage Box desmontado",
-            message=(
-                f"O ponto de montagem {STORAGE_BOX_MOUNT} nao esta montado. Backups para Storage Box podem falhar."
-            ),
-        )
+        if REQUIRE_STORAGE_BOX:
+            registry.add(
+                severity=2,
+                category="storage",
+                title="Storage Box desmontado",
+                message=(
+                    f"O ponto de montagem {STORAGE_BOX_MOUNT} nao esta montado. "
+                    "Backups para Storage Box podem falhar."
+                ),
+            )
+        else:
+            registry.add(
+                severity=0,
+                category="storage",
+                title="Storage Box opcional nao montado",
+                message=(
+                    f"SKIP: {STORAGE_BOX_MOUNT} nao montado (REQUIRE_STORAGE_BOX!=1). "
+                    "Off-site backup is a separate campaign gate."
+                ),
+            )
         return
 
     try:
@@ -294,6 +319,21 @@ def check_backup(registry: AlertRegistry) -> None:
     logger.debug("Checking backup status")
     log_path = Path(BACKUP_LOG_FILE)
     if not log_path.exists():
+        # Fallback: recent local dump files count as local-backup proof
+        dump_dir = Path(LOCAL_BACKUP_DIR)
+        dumps = sorted(dump_dir.glob("*.dump"), key=lambda x: x.stat().st_mtime, reverse=True) if dump_dir.is_dir() else []
+        if dumps:
+            age_h = (datetime.now(UTC).timestamp() - dumps[0].stat().st_mtime) / 3600
+            if age_h <= ALERT_BACKUP_MAX_HOURS:
+                logger.debug("Local dump OK age=%.1fh file=%s", age_h, dumps[0].name)
+                return
+            registry.add(
+                severity=2,
+                category="backup",
+                title=f"Backup local desatualizado ({age_h:.0f}h)",
+                message=f"Dump mais recente {dumps[0].name} tem {age_h:.0f}h (limite {ALERT_BACKUP_MAX_HOURS}h).",
+            )
+            return
         registry.add(
             severity=1,
             category="backup",
@@ -364,16 +404,24 @@ def check_backup(registry: AlertRegistry) -> None:
 
 
 def check_api_keys(registry: AlertRegistry) -> None:
-    """Check that required API keys are set and warn about optional ones."""
+    """Check that required API keys are set and warn about optional ones.
+
+    When ALERT_SCOPE=contracts, non-contracts keys are informational only so
+    the contracts operational host is not failed for dormant capabilities.
+    """
     logger.debug("Checking API keys")
     for key, purpose in REQUIRED_API_KEYS:
         value = os.getenv(key, "")
         if not value:
+            sev = 0 if (ALERT_SCOPE == "contracts" and key in _NON_CONTRACTS_KEYS) else 1
             registry.add(
-                severity=1,
+                severity=sev,
                 category="api_key",
                 title=f"API key faltando: {key}",
-                message=(f"A chave {key} ({purpose}) nao esta configurada no arquivo .env ou ambiente."),
+                message=(
+                    f"A chave {key} ({purpose}) nao esta configurada no arquivo .env ou ambiente."
+                    + (" [scope=contracts: info only]" if sev == 0 else "")
+                ),
                 details=f"Service: {purpose}",
             )
 

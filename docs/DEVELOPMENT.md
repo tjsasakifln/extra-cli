@@ -109,3 +109,8 @@ Remover um adaptador **não** remove requisitos de produto: eles vivem em `DOD.m
 
 ## Private assets
 See [docs/ops/private-assets.md](ops/private-assets.md). Set `EXTRA_TARGET_SPREADSHEET` for the private planilha (not in public git).
+
+## Active campaign (2026-07-23)
+
+- **HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01** — Spec `specs/002-historical-contracts-operational-coverage/` — branch `campaign/historical-contracts-operational-closure-01`.
+- Host of record: Netcup RS 2000 / Debian 13 / PG 17 (`ssh ec-prod`).

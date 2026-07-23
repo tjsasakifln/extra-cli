@@ -222,3 +222,34 @@ db-up:
 db-down:
 	@echo '==> [$(ENV)] Derrubando banco PostgreSQL'
 	docker compose -f docker-compose.local.yml down
+
+# ── Campaign HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01 ─────────────────────
+
+.PHONY: campaign-gate-historical-contracts-vps
+campaign-gate-historical-contracts-vps:
+	@echo '==> Campaign gate: historical contracts VPS'
+	python3 -m scripts.ops.validate_systemd
+	bash -n scripts/ops/export_backfill_for_vps.sh
+	bash -n scripts/ops/restore_backfill_on_vps.sh
+	python3 -m pytest -o addopts='' -q \
+		tests/test_contracts_entity_evidence.py \
+		tests/test_weekly_cycle.py::test_exit_ok_with_reused_and_products \
+		tests/test_weekly_cycle.py::test_exit_unreliable_strict_without_contracts_run \
+		tests/test_local_resilience.py::test_systemd_priority_units_are_statically_safe
+	@test -f artifacts/campaigns/HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01/baseline.json
+	@echo 'campaign-gate foundation OK (ops evidence still required for PASS)'
+
+.PHONY: release-candidate
+release-candidate:
+	@echo '==> release-candidate wrappers'
+	$(MAKE) campaign-gate-historical-contracts-vps
+	python3 -m pytest -o addopts='' -q tests/test_contracts_entity_evidence.py tests/test_weekly_cycle.py
+	@echo 'release-candidate foundation OK'
+
+.PHONY: verify-production
+verify-production:
+	@echo '==> verify-production (local artifacts + optional ssh ec-prod)'
+	python3 -m scripts.ops.campaign_verify_production \
+		--campaign HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01 \
+		--output artifacts/campaigns/HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01/verify-production.json \
+		$(VERIFY_PRODUCTION_FLAGS)

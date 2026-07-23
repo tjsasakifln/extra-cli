@@ -218,6 +218,19 @@ def test_exit_ok_with_reused_and_products() -> None:
         scope_complete=True,
         reused_within_sla=True,
     )
+    # Strict mode requires contracts section healthy (fail-closed consultative pack).
+    contracts = CollectionRun.start(
+        source="pncp_contracts",
+        collection_id="c",
+        collector_version="t",
+    )
+    contracts.finish(
+        records_obtained=100,
+        records_persisted=100,
+        request_completed=True,
+        scope_complete=True,
+        reused_within_sla=True,
+    )
     stages = [
         StageResult(name="validate_db", status="ok"),
         StageResult(name="collect", status="ok"),
@@ -229,7 +242,35 @@ def test_exit_ok_with_reused_and_products() -> None:
         ),
         StageResult(name="delivery", status="ok", detail=_delivery_ok_detail()),
     ]
-    assert compute_exit_code(stages, [run], strict=True) == EXIT_OK
+    assert compute_exit_code(stages, [run, contracts], strict=True) == EXIT_OK
+
+
+def test_exit_unreliable_strict_without_contracts_run() -> None:
+    """Strict weekly pack without contracts collection must not exit 0."""
+    run = CollectionRun.start(
+        source="pncp_opportunities",
+        collection_id="c",
+        collector_version="t",
+    )
+    run.finish(
+        records_obtained=10,
+        records_persisted=10,
+        request_completed=True,
+        scope_complete=True,
+        reused_within_sla=True,
+    )
+    stages = [
+        StageResult(name="validate_db", status="ok"),
+        StageResult(name="collect", status="ok"),
+        StageResult(name="quality", status="ok"),
+        StageResult(
+            name="intelligence",
+            status="ok",
+            detail={"counts": {"opportunities": 5}},
+        ),
+        StageResult(name="delivery", status="ok", detail=_delivery_ok_detail()),
+    ]
+    assert compute_exit_code(stages, [run], strict=True) == EXIT_UNRELIABLE
 
 
 def test_exit_unreliable_empty_without_success_zero() -> None:

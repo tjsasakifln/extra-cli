@@ -1,10 +1,11 @@
 # /etc/systemd/system/extra-health-check.service
-# Periodic health check: DB connectivity, Storage Box mount, disk space
+# Periodic health check: DB connectivity, disk space, optional off-site mount
 # Extra Consultoria — Story FEAT-4.1
+# Note: /mnt/storage-box is optional; health script must not hard-fail when unset.
 
 [Unit]
 Description=Extra Consultoria — Health Check
-Documentation=https://github.com/extra-consultoria/docs/ops/vps-provisioning.md
+Documentation=https://github.com/tjsasakifln/extra-cli/blob/main/docs/ops/vps-provisioning.md
 After=network-online.target
 Wants=network-online.target
 OnFailure=extra-onfailure@%n.service
@@ -14,7 +15,15 @@ Type=oneshot
 WorkingDirectory=/opt/extra-consultoria
 Environment=PYTHONPATH=/opt/extra-consultoria
 EnvironmentFile=/opt/extra-consultoria/.env
-ExecStart=/usr/bin/python3 /opt/extra-consultoria/scripts/health_check.py
+# Prefer venv; legacy entrypoint scripts/health_check.py
+ExecStart=/opt/extra-consultoria/.venv/bin/python /opt/extra-consultoria/scripts/health_check.py
 User=extra-consultoria
+Group=extra-consultoria
+TimeoutStartSec=5min
+Restart=no
 StandardOutput=journal
 StandardError=journal
+SyslogIdentifier=extra-health-check
+
+[Install]
+WantedBy=multi-user.target

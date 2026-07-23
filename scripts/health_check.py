@@ -32,6 +32,12 @@ logger = get_logger(__name__)
 
 DB_DSN = os.getenv("LOCAL_DATALAKE_DSN", "postgresql://postgres@localhost:5432/pncp_datalake")
 STORAGE_BOX_MOUNT = os.getenv("BACKUP_MOUNT_POINT", "/mnt/storage-box")
+# Off-site mount is optional until configured; set REQUIRE_STORAGE_BOX=1 to enforce.
+REQUIRE_STORAGE_BOX = os.getenv("REQUIRE_STORAGE_BOX", "0").lower() in {
+    "1",
+    "true",
+    "yes",
+}
 DISK_WARN_PCT = 80
 DISK_CRIT_PCT = 90
 
@@ -62,9 +68,17 @@ def check_db() -> tuple[bool, str]:
 
 
 def check_storage_box() -> tuple[bool, str]:
-    """Check if Storage Box is mounted and accessible."""
+    """Check if Storage Box / off-site backup mount is mounted and accessible.
+
+    When REQUIRE_STORAGE_BOX is unset/false, a missing mount is a soft skip
+    (not critical) so health stays green on hosts with local-only backup until
+    off-site is provisioned. Operational off-site proof is a separate gate.
+    """
     if not os.path.ismount(STORAGE_BOX_MOUNT):
-        return False, f"Storage Box not mounted at {STORAGE_BOX_MOUNT}"
+        msg = f"Storage Box not mounted at {STORAGE_BOX_MOUNT}"
+        if REQUIRE_STORAGE_BOX:
+            return False, msg
+        return True, f"SKIP (optional): {msg}"
     try:
         entries = os.listdir(STORAGE_BOX_MOUNT)
         return True, f"Storage Box OK ({len(entries)} entries)"
@@ -135,7 +149,8 @@ def main() -> int:
     sb_ok, sb_msg = check_storage_box()
     results["storage_box"] = {"status": "pass" if sb_ok else "fail", "message": sb_msg}
     if not sb_ok:
-        exit_code = max(exit_code, 1)
+        # Critical only when off-site mount is required by env.
+        exit_code = 2 if REQUIRE_STORAGE_BOX else max(exit_code, 1)
 
     disk_severity, disk_msg = check_disk()
     disk_status = "pass" if disk_severity == 0 else ("warn" if disk_severity == 1 else "fail")

@@ -121,6 +121,14 @@ def _normalize_natureza(raw: str | None) -> str | None:
     return "outro"
 
 
+def _norm_attr_text(value: str | None) -> str:
+    """ASCII-ish uppercase token stream for attribute matching (not inventing sphere)."""
+    # Local implementation — normalize_identity_text is defined later in this module.
+    s = (value or "").upper()
+    s = re.sub(r"[^A-Z0-9]+", " ", s)
+    return re.sub(r"\s+", " ", s).strip()
+
+
 def derive_esfera(
     *,
     natureza_juridica: str | None = None,
@@ -129,6 +137,8 @@ def derive_esfera(
     esfera: str | None = None,
     override: str | None = None,
     override_justification: str | None = None,
+    razao_social: str | None = None,
+    municipio: str | None = None,
 ) -> tuple[str | None, str]:
     """Derive esfera with explicit precedence. Never invent municipal default.
 
@@ -136,7 +146,7 @@ def derive_esfera(
     1. auditável override (requires justification)
     2. explicit esfera / sphere field
     3. entity_type heuristics
-    4. natureza_juridica heuristics
+    4. natureza_juridica heuristics (incl. multi-sphere natures + name/sede attrs)
     5. None (unknown)
     """
     if override:
@@ -176,6 +186,8 @@ def derive_esfera(
             return "municipal", "entity_type"
 
     nat = (natureza_juridica or "").strip().lower()
+    name = _norm_attr_text(razao_social)
+    mun = _norm_attr_text(municipio)
     if nat:
         if "federal" in nat:
             return "federal", "natureza_juridica"
@@ -188,6 +200,33 @@ def derive_esfera(
         if "autarquia" in nat and "federal" not in nat and "estadual" not in nat:
             # without sphere qualifier remains unknown
             return None, "natureza_autarquia_unscoped"
+
+        # Multi-sphere RF natures — resolve only from co-present canonical attributes
+        # (razao_social / municipio). Never invent a default sphere.
+        if "consórcio" in nat or "consorcio" in nat:
+            if "INTERMUNICIPAL" in name or "INTERFEDERATIV" in name or "MUNICIP" in name:
+                return "municipal", "natureza_consorcio_name"
+            if any(tok in name for tok in ("ESTADUAL", "ESTADO DE", " GOVERNO ")):
+                return "estadual", "natureza_consorcio_name"
+            if mun:
+                return "municipal", "natureza_consorcio_sede_municipal"
+            return None, "natureza_consorcio_unscoped"
+
+        if "economia mista" in nat or "empresa pública" in nat or "empresa publica" in nat:
+            if any(tok in name for tok in ("FEDERAL", "UNIAO", "UNIÃO", "UNIAO ", " DA UNIAO")):
+                return "federal", "natureza_ep_sem_name"
+            if any(tok in name for tok in ("ESTADUAL", "ESTADO DE", " DO ESTADO", "SC ", " DE SC")):
+                return "estadual", "natureza_ep_sem_name"
+            if mun and mun in name:
+                return "municipal", "natureza_ep_sem_municipio_in_name"
+            if mun:
+                # Public company / SEM with municipal seat in seed, no federal/state marker
+                return "municipal", "natureza_ep_sem_sede_municipal"
+            return None, "natureza_ep_sem_unscoped"
+
+        if "servi" in nat and "social" in nat and "aut" in nat:
+            # Serviço Social Autônomo (Sistema S) — federal legal framework
+            return "federal", "natureza_servico_social_autonomo"
 
     return None, "attribute_absent"
 
@@ -207,6 +246,7 @@ def entity_attributes_from_canonical(
     municipio = getattr(entity, "municipio", None) or None
     ibge = getattr(entity, "codigo_ibge", None) or None
     cnpj8 = getattr(entity, "cnpj8", None) or None
+    razao = getattr(entity, "razao_social", None) or getattr(entity, "entity_name", None) or None
     et = entity_type or getattr(entity, "entity_type", None)
     esfera_field = getattr(entity, "esfera", None) or sphere
     esfera, src = derive_esfera(
@@ -216,6 +256,8 @@ def entity_attributes_from_canonical(
         esfera=esfera_field,
         override=override_esfera,
         override_justification=override_justification,
+        razao_social=str(razao) if razao else None,
+        municipio=str(municipio) if municipio else None,
     )
     gaps: list[str] = []
     if not esfera:
@@ -495,15 +537,6 @@ def decide_source_applicability(
                 "role": source_role(policy, source, capability),
             }
 
-    if attrs.esfera is None:
-        return {
-            "decision": "unknown",
-            "justification": "esfera attribute absent — cannot evaluate applicability without inventing default",
-            "decision_source": "entity_attributes:esfera_absent",
-            "role": source_role(policy, source, capability),
-            "blockers": ["esfera_absent"],
-        }
-
     # manual overrides first
     for ov in policy.raw.get("manual_overrides") or []:
         if str(ov.get("entity_id")) != attrs.entity_id:
@@ -552,16 +585,37 @@ def decide_source_applicability(
             # also allow natureza from filter against normalized
             ef = str(filt.get("esfera", "*")).lower()
             nf = str(filt.get("natureza", "*")).lower()
-            if ef not in ("*", (attrs.esfera or "")):
+            # When esfera is unknown, only wildcard (esfera=*) rules may match.
+            if attrs.esfera is None:
+                if ef != "*":
+                    continue
+            elif ef not in ("*", (attrs.esfera or "")):
                 continue
             if nf not in ("*", natureza):
                 continue
+        else:
+            # _match_filter passed; if esfera absent it only passes when ef=="*"
+            if attrs.esfera is None:
+                ef = str(filt.get("esfera", "*")).lower()
+                if ef != "*":
+                    continue
         pri = int(rule.get("priority") or 0)
         if pri >= best_pri:
             best_pri = pri
             best = rule
 
     if best is None:
+        if attrs.esfera is None:
+            return {
+                "decision": "unknown",
+                "justification": (
+                    "esfera attribute absent and no esfera=* rule matched — "
+                    "cannot invent sphere-specific applicability"
+                ),
+                "decision_source": "entity_attributes:esfera_absent",
+                "role": source_role(policy, source, capability),
+                "blockers": ["esfera_absent"],
+            }
         default_app = bool(src_cfg.get("default_applicable", False))
         # Prefer unknown over silent default when default would hide gaps for required sources
         if "default_applicable" not in src_cfg:
@@ -639,13 +693,14 @@ def select_required_combination(
         report["entity_capability_status"] = "NOT_READY"
         report["justification"] = "SOURCE_POLICY_NOT_READY"
         return report
-    if attrs.esfera is None:
-        report["entity_capability_status"] = "unknown"
-        report["justification"] = "esfera_absent"
-        return report
     if not candidates:
-        report["entity_capability_status"] = "unknown"
-        report["justification"] = "no_required_combination_rule_matched"
+        # Missing esfera only fails closed when no wildcard (esfera=*) combination matches.
+        if attrs.esfera is None:
+            report["entity_capability_status"] = "unknown"
+            report["justification"] = "esfera_absent_and_no_wildcard_combination"
+        else:
+            report["entity_capability_status"] = "unknown"
+            report["justification"] = "no_required_combination_rule_matched"
         return report
 
     applicable_alts: list[list[str]] = []

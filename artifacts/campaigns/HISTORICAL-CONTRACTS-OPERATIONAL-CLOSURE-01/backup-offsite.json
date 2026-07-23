@@ -1,0 +1,18 @@
+{
+  "as_of": "2026-07-23T14:17:31.379075Z",
+  "offsite_configured": false,
+  "mount_point": null,
+  "mount_active": false,
+  "last_local_dump": null,
+  "last_offsite_verify": null,
+  "status": "blocked_credential",
+  "blockers": [
+    "VPS BACKUP_STORAGE_BOX_SSH empty \u2014 off-site not configured"
+  ],
+  "vps_probe": {
+    "offsite_configured": false,
+    "local_dumps": 1,
+    "last_local": "/var/lib/extra-consultoria/backups/postgresql/pncp_datalake-20260723T131433Z.dump",
+    "status": "blocked_credential"
+  }
+}

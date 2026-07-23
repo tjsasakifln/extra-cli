@@ -11,7 +11,7 @@ WorkingDirectory=/opt/extra-consultoria
 Environment=PYTHONPATH=/opt/extra-consultoria
 EnvironmentFile=/opt/extra-consultoria/.env
 ExecStartPre=/usr/bin/python3 /opt/extra-consultoria/scripts/crawl/monitor.py --report-coverage
-ExecStart=/usr/bin/python3 -m scripts.local_datalake coverage --snapshot --export
+ExecStart=/opt/extra-consultoria/.venv/bin/python -m scripts.local_datalake coverage --snapshot --export
 User=extra-consultoria
 StandardOutput=journal
 StandardError=journal

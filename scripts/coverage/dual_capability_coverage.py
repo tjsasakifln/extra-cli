@@ -1643,14 +1643,18 @@ def load_observations_from_db(
     """
     _ = cnpj8_to_entity_id  # reserved for alternate key paths
     cur = conn.cursor()
-    # Prefer migration 058 canonical view; fall back to base table if absent.
+    # Prefer base coverage_evidence so canonical_entity_key is available and
+    # NULL entity_id rows (nominal universe keys) are not collapsed by the
+    # legacy DISTINCT ON (entity_id, ...) view from migration 058.
+    evidence_relation = "coverage_evidence"
     cur.execute(
         """
-        SELECT 1 FROM information_schema.views
-        WHERE table_schema = 'public' AND table_name = 'v_dual_capability_evidence_latest'
+        SELECT 1 FROM information_schema.columns
+        WHERE table_schema = 'public' AND table_name = 'coverage_evidence'
+          AND column_name = 'canonical_entity_key'
         """
     )
-    evidence_relation = "v_dual_capability_evidence_latest" if cur.fetchone() else "coverage_evidence"
+    cur.fetchone()  # ensure column probe query executed
     aliases = [capability]
     if capability == CAP_OPEN_TENDERS:
         aliases.extend(["notices_or_bids", "bids", "editais"])
@@ -1662,7 +1666,11 @@ def load_observations_from_db(
     try:
         cur.execute(
             f"""
-            SELECT DISTINCT ON (entity_id, source, COALESCE(capability, data_type))
+            SELECT DISTINCT ON (
+                COALESCE(canonical_entity_key, entity_id::text),
+                source,
+                COALESCE(capability, data_type)
+            )
                 entity_id,
                 source,
                 COALESCE(capability, data_type) AS cap,
@@ -1682,13 +1690,18 @@ def load_observations_from_db(
                 COALESCE(error_code, ''),
                 COALESCE(error_message, ''),
                 COALESCE(metadata, '{{}}'::jsonb),
-                id
+                id,
+                canonical_entity_key
             FROM {evidence_relation}
             WHERE (
                 capability IN ({placeholders})
                 OR (capability IS NULL AND data_type IN ({placeholders}))
             )
-            ORDER BY entity_id, source, COALESCE(capability, data_type), completed_at DESC NULLS LAST
+            ORDER BY
+                COALESCE(canonical_entity_key, entity_id::text),
+                source,
+                COALESCE(capability, data_type),
+                completed_at DESC NULLS LAST
             """,
             aliases + aliases,
         )
@@ -1736,33 +1749,65 @@ def load_observations_from_db(
     unmapped = 0
     outsider = 0
     for row in rows:
-        (
-            db_entity_id,
-            source,
-            cap_raw,
-            state,
-            appl,
-            appl_reason,
-            run_id,
-            started_at,
-            completed_at,
-            pages_expected,
-            pages_processed,
-            count_obtained,
-            count_persisted,
-            q_start,
-            q_end,
-            freshness_status,
-            error_code,
-            error_message,
-            metadata,
-            evidence_id,
-        ) = row
+        # Modern rows include optional trailing canonical_entity_key; legacy has 20 cols.
+        if len(row) >= 21:
+            (
+                db_entity_id,
+                source,
+                cap_raw,
+                state,
+                appl,
+                appl_reason,
+                run_id,
+                started_at,
+                completed_at,
+                pages_expected,
+                pages_processed,
+                count_obtained,
+                count_persisted,
+                q_start,
+                q_end,
+                freshness_status,
+                error_code,
+                error_message,
+                metadata,
+                evidence_id,
+                canonical_entity_key,
+            ) = row[:21]
+        else:
+            (
+                db_entity_id,
+                source,
+                cap_raw,
+                state,
+                appl,
+                appl_reason,
+                run_id,
+                started_at,
+                completed_at,
+                pages_expected,
+                pages_processed,
+                count_obtained,
+                count_persisted,
+                q_start,
+                q_end,
+                freshness_status,
+                error_code,
+                error_message,
+                metadata,
+                evidence_id,
+            ) = row
+            canonical_entity_key = None
         canon_cap = normalize_capability(str(cap_raw)) or capability
         if canon_cap != capability:
             continue
         entity_key: str | None = None
-        if db_entity_id is not None:
+        # Prefer stable canonical_entity_key when it matches the planilha universe.
+        if canonical_entity_key:
+            ck = str(canonical_entity_key).strip()
+            if ck in universe_ids:
+                entity_key = ck
+        if entity_key is None and db_entity_id is not None:
             try:
                 entity_key = db_id_to_entity_id.get(int(db_entity_id))
             except (TypeError, ValueError):

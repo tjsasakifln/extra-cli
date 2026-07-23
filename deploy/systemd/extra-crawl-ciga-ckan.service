@@ -21,7 +21,7 @@ Type=oneshot
 WorkingDirectory=/opt/extra-consultoria
 Environment=PYTHONPATH=/opt/extra-consultoria
 EnvironmentFile=/opt/extra-consultoria/.env
-ExecStart=/usr/bin/python3 /opt/extra-consultoria/scripts/crawl/ciga_ckan_crawler.py --all-months --source ciga_ckan
+ExecStart=/opt/extra-consultoria/.venv/bin/python /opt/extra-consultoria/scripts/crawl/ciga_ckan_crawler.py --all-months --source ciga_ckan
 User=extra-consultoria
 StandardOutput=journal
 StandardError=journal

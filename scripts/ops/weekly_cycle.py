@@ -550,13 +550,95 @@ def _collect_pncp_opportunities(
     return run
 
 
+def _contracts_incremental_run(
+    conn: Any,
+    *,
+    collection_id: str,
+    dsn: str,
+    days: int = 7,
+) -> CollectionRun:
+    """Run canonical incremental contracts update (fail-closed on incomplete)."""
+    run = CollectionRun.start(
+        source="pncp_contracts",
+        collection_id=collection_id,
+        collector_version=COLLECTOR_VERSION,
+        parameters={"strategy": "incremental_via_pilot_runner", "days": days},
+        mode="incremental",
+    )
+    try:
+        from scripts.crawl.run_contracts_incremental import main as inc_main
+
+        out = (
+            _PROJECT_ROOT
+            / "output"
+            / "contracts"
+            / f"incremental-weekly-{collection_id}.json"
+        )
+        rc = inc_main(
+            [
+                "--dsn",
+                dsn,
+                "--days",
+                str(days),
+                "--output-json",
+                str(out),
+                "--checkpoint-dir",
+                "data/contracts_checkpoints/weekly_incremental",
+                "--reset-checkpoint",
+            ]
+        )
+        payload: dict[str, Any] = {}
+        if out.is_file():
+            payload = json.loads(out.read_text(encoding="utf-8"))
+        totals = payload.get("totals") or {}
+        inserted = int(totals.get("inserted") or 0)
+        if rc == 0 and str(payload.get("status")) == "success":
+            run.finish(
+                records_obtained=int(totals.get("fetched") or inserted),
+                records_persisted=inserted,
+                request_completed=True,
+                scope_complete=True,
+                reused_within_sla=False,
+                raw_uri="api://pncp.gov.br/api/consulta/v1/contratos",
+                notes=[
+                    "contracts incremental completed this cycle",
+                    f"days={days}",
+                    f"artifact={out}",
+                ],
+            )
+        else:
+            run.finish(
+                records_obtained=int(totals.get("fetched") or 0),
+                records_persisted=inserted,
+                request_completed=False,
+                scope_complete=False,
+                error=f"incremental_rc={rc} status={payload.get('status')}",
+                notes=["contracts incremental incomplete — fail-closed"],
+            )
+            run.terminal_status = "partial"
+    except Exception as exc:  # noqa: BLE001
+        run.finish(
+            request_completed=False,
+            scope_complete=False,
+            source_available=False,
+            error=str(exc),
+            interrupted=True,
+        )
+    try:
+        persist_pipeline_run(conn, run)
+    except Exception as exc:  # noqa: BLE001
+        run.notes.append(f"persist_pipeline_run warn: {exc}")
+        conn.rollback()
+    return run
+
+
 def _contracts_reuse_run(
     conn: Any,
     *,
     collection_id: str,
     freshness_rows: list[dict[str, Any]],
 ) -> CollectionRun:
-    """Contracts: reuse lake data; full re-collect is out of weekly scope cost."""
+    """Contracts: reuse lake data when fresh; stale is partial (fail-closed under --strict)."""
     run = CollectionRun.start(
         source="pncp_contracts",
         collection_id=collection_id,
@@ -1343,6 +1425,15 @@ def compute_exit_code(
             return EXIT_UNRELIABLE
         if not d.get("checksums_file") and not d.get("product_checksums"):
             return EXIT_UNRELIABLE
+        # Contracts section is part of the full consultative package: stale /
+        # missing / partial contracts must not yield EXIT_OK under --strict.
+        ct = next((r for r in runs if r.source == "pncp_contracts"), None)
+        if ct is None or ct.terminal_status not in {
+            "success",
+            "success_zero",
+            "reused_fresh",
+        }:
+            return EXIT_UNRELIABLE
 
     if (
         intel
@@ -1372,8 +1463,14 @@ def run_weekly_cycle(
     lookback_days: int = DEFAULT_LOOKBACK_DAYS,
     limit: int = 50,
     offline: bool = False,
+    contracts_incremental: bool = False,
+    contracts_incremental_days: int = 7,
 ) -> WeeklyCycleReport:
-    """Execute the weekly cycle. `offline` skips live collect (tests)."""
+    """Execute the weekly cycle. `offline` skips live collect (tests).
+
+    When ``contracts_incremental`` is true, run the canonical contracts
+    incremental update before packaging (preferred for full consultative packs).
+    """
     t0 = time.monotonic()
     cycle_id = new_run_id("weekly")
     collection_id = new_collection_id("extra-weekly")
@@ -1484,9 +1581,17 @@ def run_weekly_cycle(
                 freshness_rows=freshness_rows,
             )
         runs.append(r_opp)
-        r_ct = _contracts_reuse_run(
-            conn, collection_id=collection_id, freshness_rows=freshness_rows
-        )
+        if contracts_incremental and not offline:
+            r_ct = _contracts_incremental_run(
+                conn,
+                collection_id=collection_id,
+                dsn=resolved,
+                days=contracts_incremental_days,
+            )
+        else:
+            r_ct = _contracts_reuse_run(
+                conn, collection_id=collection_id, freshness_rows=freshness_rows
+            )
         runs.append(r_ct)
         collect_status = "ok"
         if r_opp.terminal_status == "blocked":
@@ -1597,6 +1702,18 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Modo teste sem rede (não usar para pacote real)",
     )
+    p.add_argument(
+        "--contracts-incremental",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+        help="Executa atualização incremental de contratos no ciclo (recomendado para pack consultivo integral)",
+    )
+    p.add_argument(
+        "--contracts-incremental-days",
+        type=int,
+        default=7,
+        help="Janela lookback do incremental de contratos (default 7)",
+    )
     return p
 
 
@@ -1613,6 +1730,8 @@ def main(argv: list[str] | None = None) -> int:
             lookback_days=int(args.lookback_days),
             limit=int(args.limit),
             offline=bool(args.offline),
+            contracts_incremental=bool(args.contracts_incremental),
+            contracts_incremental_days=int(args.contracts_incremental_days),
         )
     except Exception as exc:  # noqa: BLE001
         print(f"FATAL: {exc}", file=sys.stderr)

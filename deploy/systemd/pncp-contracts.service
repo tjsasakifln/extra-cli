@@ -1,5 +1,5 @@
 # /etc/systemd/system/pncp-contracts.service
-# PNCP contracts crawler — Mon, Wed, Fri at 06:00 UTC
+# PNCP contracts crawler / incremental — project venv required
 
 [Unit]
 Description=PNCP Contracts Crawler — Extra Consultoria
@@ -12,7 +12,15 @@ Type=oneshot
 WorkingDirectory=/opt/extra-consultoria
 Environment=PYTHONPATH=/opt/extra-consultoria
 EnvironmentFile=/opt/extra-consultoria/.env
-ExecStart=/usr/bin/python3 /opt/extra-consultoria/scripts/crawl/monitor.py --source contracts --mode full
+ExecStart=/usr/bin/flock --nonblock /run/lock/pncp-contracts.lock \
+  /opt/extra-consultoria/.venv/bin/python -m scripts.crawl.run_contracts_incremental --days 7
 User=extra-consultoria
+Group=extra-consultoria
+TimeoutStartSec=90min
+Restart=no
 StandardOutput=journal
 StandardError=journal
+SyslogIdentifier=pncp-contracts
+
+[Install]
+WantedBy=multi-user.target
