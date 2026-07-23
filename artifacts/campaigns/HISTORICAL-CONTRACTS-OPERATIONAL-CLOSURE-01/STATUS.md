@@ -1,26 +1,28 @@
 # Campaign STATUS — HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01
 
-**Updated:** 2026-07-23T14:34Z  
-**Branch:** `campaign/historical-contracts-operational-closure-01` @ `1d403d5`  
-**PR:** https://github.com/tjsasakifln/extra-cli/pull/124  
-**CI:** run 30016200814 **green** (full suite + lint + mypy + bandit + pip-audit + resilience)
+**Updated:** 2026-07-23T20:12Z  
+**Result:** **BLOCKED** (see `result.json`) — not PASS
 
-## Result so far (honest — NOT final PASS)
+## Done
 
-| Gate | Status |
-|------|--------|
-| Spec 002 converged | DONE |
-| Foundation code + proof-gated success_zero | DONE |
-| Export/restore fail-closed | DONE (code) |
-| systemd/health/alerts on VPS | DONE (failed units=0; health/alerts exit 0) |
-| CI green on campaign SHA | DONE |
-| Live 3y backfill | IN PROGRESS ~28/37 (window 20251007 in flight) |
-| Cutover VPS sole writer | OPEN |
-| Dual ≥95% | OPEN |
-| Off-site backup | BLOCKED_CREDENTIAL (BACKUP_STORAGE_BOX_SSH empty) |
-| Soak 7d | STARTED day 1/7 |
-| DOD ACCEPTED | NOT YET (no item accepted without full proof) |
+| Gate | Evidence |
+|------|----------|
+| Spec 002 VPS scope + converge | specs/002-*/ |
+| success_zero proof-gated | contracts_entity_evidence + adversarial tests |
+| Backfill 37/37 | checkpoint + live-3y.json status=success |
+| Cutover restore SHA256 + count match | 4,437,142 on VPS |
+| Dual historical_contracts 100% PASS | dual-coverage.json gate_status=PASS |
+| Incremental 7d | incremental.json status=success |
+| Foundation on main | PR #124 @ 1864b12 |
+| VPS health/alerts | 0 failed units |
+| pncp-contracts.timer enabled | sole writer path armed |
+| Consulting package sample | consulting-package/ 5000 contracts |
+
+## Blockers
+
+1. **OFFSITE_BACKUP_CREDENTIAL** — BACKUP_STORAGE_BOX_SSH empty  
+2. **SOAK_7D_IN_PROGRESS** — day 1/7; timer armed  
 
 ## Non-claims
 
-No LOCAL_READY / VPS_OPERATIONAL / PROJECT_DONE / open_tenders 95% / fabricated coverage.
+No LOCAL_READY / VPS_OPERATIONAL / PROJECT_DONE / open_tenders 95% / full OPERATIONAL_COVERAGE_PASS until blockers clear.
