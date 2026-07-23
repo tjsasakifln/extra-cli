@@ -1,3 +1,3 @@
 source,level,sla_hours,age_hours,last_run_id,last_status,scope_complete,records_fetched,indicator,row_count,note
-pncp_opportunities,unreliable,24,0.11,1,failed,False,4,freshness_source,,
-pncp_contracts,fresh,168,3.02,,,,,freshness_source,4438345,freshness by max(ingested_at); not a full re-collect this cycle
+pncp_opportunities,unreliable,24,0.62,1,failed,False,4,freshness_source,,
+pncp_contracts,fresh,168,3.53,,,,,freshness_source,4438345,freshness by max(ingested_at); not a full re-collect this cycle

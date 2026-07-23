@@ -1,14 +1,14 @@
 {
   "campaign_id": "OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01",
   "gate": "verify-open-tenders-production",
-  "generated_at": "2026-07-23T23:30:59Z",
-  "git_sha": "7addb3526a55cc7011c96177b2140e9b8dd4ac42",
+  "generated_at": "2026-07-23T23:43:02Z",
+  "git_sha": "6db0a6987c425bcd3bdcdeb97bc0230ddfb3c41b",
   "status": "BLOCKED",
   "ok": false,
   "summary": {
     "total": 9,
-    "pass": 6,
-    "fail": 3
+    "pass": 8,
+    "fail": 1
   },
   "checks": [
     {
@@ -32,18 +32,18 @@
       "status": "PASS",
       "evidence": {
         "ok": true,
-        "sha": "ee4bb12b49281622cbf15ddc24f7741c00060e9e"
+        "sha": "6db0a6987c425bcd3bdcdeb97bc0230ddfb3c41b"
       },
       "notes": "optional if only verify without RC step"
     },
     {
       "item_id": "dual_open_tenders_coverage",
-      "status": "FAIL",
+      "status": "PASS",
       "evidence": {
-        "coverage_pct": 38.8838,
-        "gate_status": "FAIL",
+        "coverage_pct": 100.0,
+        "gate_status": "PASS",
         "applicable_denominator": 1093,
-        "covered_numerator": 425,
+        "covered_numerator": 1093,
         "unknown": 0,
         "universe": 1093
       },
@@ -51,11 +51,11 @@
     },
     {
       "item_id": "freshness_editais",
-      "status": "FAIL",
+      "status": "PASS",
       "evidence": {
-        "fresh_or_covered": null,
-        "denominator": null,
-        "as_of": null
+        "fresh_or_covered": 1093,
+        "denominator": 1093,
+        "as_of": "2026-07-23T23:43:03.980591Z"
       },
       "notes": "freshness-editais.json must show ≥95% fresh within SLA"
     },
@@ -77,7 +77,7 @@
         "active": "active",
         "service": "Result=success\nExecMainStatus=0\nActiveEnterTimestamp=",
         "ssh_ok": true,
-        "vps_sha": "c51c2e85f2e432a71326f4c34575634056f2e5d3"
+        "vps_sha": "6db0a6987c425bcd3bdcdeb97bc0230ddfb3c41b"
       },
       "notes": "timer must be enabled+active on VPS"
     },
@@ -116,7 +116,7 @@
     }
   ],
   "vps": {
-    "sha": "c51c2e85f2e432a71326f4c34575634056f2e5d3",
+    "sha": "6db0a6987c425bcd3bdcdeb97bc0230ddfb3c41b",
     "timer_enabled": "enabled",
     "timer_active": "active",
     "opportunity_intel_count": 4

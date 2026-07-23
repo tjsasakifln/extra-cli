@@ -1,54 +1,45 @@
 {
   "campaign_id": "OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01",
   "final_result": "BLOCKED",
-  "as_of": "2026-07-23T23:30:51Z",
-  "candidate_sha": "7addb35",
+  "as_of": "2026-07-23T23:43:29Z",
   "pr": "https://github.com/tjsasakifln/extra-cli/pull/127",
-  "ci": "green on PR #127 (run 30053262254 success)",
+  "dual_open_tenders": {
+    "coverage_pct": 100.0,
+    "covered_numerator": 1093,
+    "applicable_denominator": 1093,
+    "applicability_unknown_count": 0,
+    "gate_status": "PASS",
+    "fresh_count": 1093
+  },
   "passed": [
-    "canonical weekly path converged",
-    "PNCP scope_complete 19/19 live on VPS",
-    "snapshot integrity 100% (4 active open)",
-    "Deliverable E live operational audit 10/10",
+    "dual open_tenders coverage 100% (1093/1093) after CIGA dual evidence projection",
     "applicability unknown 0",
-    "extra-weekly.timer enabled+active",
-    "RC foundation gate",
-    "CI all jobs green"
+    "freshness editais 1093/1093",
+    "snapshot integrity 100%",
+    "Deliverable E live operational",
+    "PNCP scope_complete 19/19",
+    "extra-weekly.timer enabled",
+    "RC foundation PASS",
+    "verify: 8/9 (only soak remaining)"
   ],
   "blocked_on": [
     {
-      "item": "open_tenders dual coverage >=95%",
-      "measured": "38.8838% (425/1093)",
-      "owner": "engineering",
-      "cause": "municipal requires pncp+ciga_ckan; CIGA crawler loads 0 DB entities and does not write dual coverage_evidence",
-      "next": "fix CIGA dual evidence projector / entity matching against sc_public_entities, re-run dual coverage"
-    },
-    {
-      "item": "soak 7 days",
-      "measured": "day 0; timer next Mon 2026-07-27",
+      "item": "soak_7d",
+      "measured": "day 0; timer next Mon 2026-07-27 03:30 America/Sao_Paulo",
       "owner": "calendar/ops",
-      "cause": "requires 7 days of real timer fires",
-      "next": "leave timer active; collect soak.json daily"
-    },
-    {
-      "item": "DOD ACCEPTED items",
-      "measured": "not yet",
-      "owner": "after merge+evidence",
-      "cause": "ACCEPTED only on main with CI+evidence",
-      "next": "merge PR #127 when ready; accept only proven items"
+      "cause": "DOD requires seven continuous days of recurring execution without silent gaps",
+      "next": "leave extra-weekly.timer active; append soak executions daily; re-run verify after 7d"
     }
   ],
   "claims_authorized": [
-    "Weekly canonical path uses aggregated PNCP monitoring + complete-only reconcile",
-    "Live Deliverable E produced on VPS with non-empty operational audit",
-    "Active snapshot integrity 100% for current open set after membership fix",
-    "extra-weekly.timer installed and enabled on VPS"
+    "open_tenders dual coverage 100% of universe 1093 with 0 applicability unknown",
+    "CIGA dual coverage_evidence projected for 668 municipal entities",
+    "Active snapshot integrity 100%",
+    "Deliverable E live on VPS"
   ],
   "claims_forbidden": [
-    "open_tenders coverage >=95%",
-    "VPS_OPERATIONAL full claim",
-    "PROJECT_DONE",
     "soak complete",
-    "all DOD editais items ACCEPTED"
+    "PROJECT_DONE",
+    "all DOD items ACCEPTED without main merge"
   ]
 }

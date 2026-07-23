@@ -126,14 +126,21 @@ def crawl_recent_ciga_months(*, max_months: int = 3) -> tuple[list[str], dict[st
     months = list_domsc_months()
     if not months:
         return [], {}, False, "no_domsc_months_listed"
-    # months come as MM-YYYY strings typically — sort reverse chronological
+    # Package ids like domsc-publicacoes-de-MM-YYYY (or bare MM-YYYY / YYYY-MM)
     def _sort_key(m: str) -> tuple[int, int]:
-        # accept MM-YYYY or YYYY-MM
-        parts = m.replace("_", "-").split("-")
-        if len(parts) == 2 and len(parts[0]) == 4:
-            return int(parts[0]), int(parts[1])
-        if len(parts) == 2:
-            return int(parts[1]), int(parts[0])
+        import re
+
+        s = m.replace("_", "-")
+        found = re.findall(r"(\d{1,4})", s)
+        if len(found) >= 2:
+            a, b = found[-2], found[-1]
+            # last two numeric groups: prefer (year, month)
+            if len(b) == 4 and len(a) <= 2:
+                return int(b), int(a)
+            if len(a) == 4 and len(b) <= 2:
+                return int(a), int(b)
+            if len(a) == 4 and len(b) == 4:
+                return int(a), int(b)
         return (0, 0)
 
     months_sorted = sorted(months, key=_sort_key, reverse=True)

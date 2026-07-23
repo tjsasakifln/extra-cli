@@ -1,12 +1,12 @@
 {
   "schema": "extra-weekly-checksums/1.0",
-  "cycle_id": "weekly-20260723T231127Z-ab75580fcc",
-  "collection_id": "col-extra-weekly-20260723T231127Z-3b479073",
+  "cycle_id": "weekly-20260723T234219Z-b1c82d43ce",
+  "collection_id": "col-extra-weekly-20260723T234219Z-d1868440",
   "note": "Hashes of product artifacts only — does not include manifest.json",
   "artifacts": {
     "opportunities_csv": {
       "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/opportunities.csv",
-      "sha256": "dbc01c6a518f16bcc4351f2022130e4baad0e53947bfa94b49dca53f044847ca",
+      "sha256": "f3e80378fdec4d397525acad57c5ef89b6ef6e807c0d65b78d16610c33506ef1",
       "bytes": 4949
     },
     "contracts_csv": {
@@ -21,12 +21,12 @@
     },
     "orgaos_csv": {
       "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/orgaos.csv",
-      "sha256": "d10772a771dd49d78d41a382cfef865ae718e50ec54ed6c42b40aa099c62ba4f",
+      "sha256": "815d4d8793d98c45b3f707813d2daafca43a51f16c9b423aa9f1e0dac33e811c",
       "bytes": 662
     },
     "source_health_csv": {
       "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/source_health.csv",
-      "sha256": "f629b3c0e138e26bc0806aa923b488c874bac63b709ce89a99880ba968aaaabe",
+      "sha256": "68f4f1daa4a1fd90f608a1d8fe8d76a634c9bb7d9aec627011adf59cceca17cf",
       "bytes": 313
     },
     "gaps_csv": {
@@ -36,27 +36,27 @@
     },
     "claims_csv": {
       "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/claims_provenance.csv",
-      "sha256": "a96de106d3d34474f67da1e9b098cdde37f3b518d4971f8b21a6e95e1eef0a70",
+      "sha256": "bfb114d18be086580a0a60d4835185e2cb9ee3f1b8056d2b6ed883284f3c1ab5",
       "bytes": 3013
     },
     "executive_md": {
       "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/executive_summary.md",
-      "sha256": "f9b7ce4ea112851c3e86aa015fe4c3699499da45a34cb93364db23f7ab92afa7",
+      "sha256": "422ba4c85835b7ddb0613c04aa85b3ddf46a0bec196234814044a0f8609b21ee",
       "bytes": 3924
     },
     "excel": {
       "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/extra_weekly_pack.xlsx",
-      "sha256": "c703e1b92760d93e5b2dbc40cbd64e631dc8fc87171df8af7eaad8df4a4b5a64",
-      "bytes": 12547
+      "sha256": "1caf8e064662c7f088c1db76c7c131ab64f35bc4e95b3a7e13c07977e4ee3bfb",
+      "bytes": 12548
     },
     "deliverable_e": {
       "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/deliverable_e.json",
-      "sha256": "f8d0f1fd0421534e4d496405f7524d1d3602c605705cc05c314f3248d0de7eb7",
+      "sha256": "2f2a6f89a4749fb711f28d2bf975a31d97552ef0d93559f69490139c7d649c4d",
       "bytes": 7265
     },
     "deliverable_e_audit": {
       "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/deliverable_e_audit.json",
-      "sha256": "d1c1472eaab065a3f53080472de5d8c26f9f1f9297c169438e5f08e025443316",
+      "sha256": "c17856e172e5eca740776ec82b3e2aa1858f6367e25c383d449495031ae67062",
       "bytes": 3079
     }
   }

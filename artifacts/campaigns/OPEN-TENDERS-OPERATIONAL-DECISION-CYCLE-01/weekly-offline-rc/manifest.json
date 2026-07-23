@@ -1,11 +1,11 @@
 {
-  "cycle_id": "weekly-20260723T231127Z-ab75580fcc",
-  "collection_id": "col-extra-weekly-20260723T231127Z-3b479073",
-  "started_at": "2026-07-23T23:11:27Z",
-  "finished_at": "2026-07-23T23:11:29Z",
+  "cycle_id": "weekly-20260723T234219Z-b1c82d43ce",
+  "collection_id": "col-extra-weekly-20260723T234219Z-d1868440",
+  "started_at": "2026-07-23T23:42:19Z",
+  "finished_at": "2026-07-23T23:42:22Z",
   "exit_code": 0,
   "git": {
-    "git_sha": "ee4bb12b49281622cbf15ddc24f7741c00060e9e",
+    "git_sha": "6db0a6987c425bcd3bdcdeb97bc0230ddfb3c41b",
     "git_branch": "campaign/open-tenders-operational-decision-cycle-01"
   },
   "stages": [
@@ -43,7 +43,7 @@
             "source": "pncp_opportunities",
             "level": "unreliable",
             "sla_hours": 24,
-            "age_hours": 0.11,
+            "age_hours": 0.62,
             "last_run_id": 1,
             "last_status": "failed",
             "scope_complete": false,
@@ -54,7 +54,7 @@
             "source": "pncp_contracts",
             "level": "fresh",
             "sla_hours": 168,
-            "age_hours": 3.02,
+            "age_hours": 3.53,
             "row_count": 4438345,
             "indicator": "freshness_source",
             "note": "freshness by max(ingested_at); not a full re-collect this cycle"
@@ -69,15 +69,15 @@
       "detail": {
         "runs": [
           {
-            "run_id": "collect-pncp_opportunities-20260723T231128Z-a68b48c8d2",
-            "collection_id": "col-extra-weekly-20260723T231127Z-3b479073",
+            "run_id": "collect-pncp_opportunities-20260723T234221Z-10d16aeb86",
+            "collection_id": "col-extra-weekly-20260723T234219Z-d1868440",
             "source": "pncp_opportunities",
             "collector_version": "weekly-cycle/1.1",
             "parameters": {},
             "period_start": null,
             "period_end": null,
-            "started_at": "2026-07-23T23:11:28.874860Z",
-            "finished_at": "2026-07-23T23:11:28.874886Z",
+            "started_at": "2026-07-23T23:42:21.276943Z",
+            "finished_at": "2026-07-23T23:42:21.276979Z",
             "terminal_status": "reused_fresh",
             "records_obtained": 0,
             "records_rejected": 0,
@@ -90,16 +90,16 @@
             "scope_complete": true,
             "source_available": true,
             "mode": "offline_test",
-            "git_sha": "ee4bb12b49281622cbf15ddc24f7741c00060e9e",
+            "git_sha": "6db0a6987c425bcd3bdcdeb97bc0230ddfb3c41b",
             "notes": [
               "offline test mode — no network"
             ],
             "contract_version": "1.0",
-            "payload_hash": "f8594895cee7482588ec1130ef81239274e43b6bcf0abbc7590f0a8f1e7ee353"
+            "payload_hash": "0bd07208d7731305c94078c77be1827b8e6034e9b01e170f86cceb516c7140d7"
           },
           {
-            "run_id": "collect-pncp_contracts-20260723T231129Z-e5159ec9e5",
-            "collection_id": "col-extra-weekly-20260723T231127Z-3b479073",
+            "run_id": "collect-pncp_contracts-20260723T234221Z-c3b8118c1b",
+            "collection_id": "col-extra-weekly-20260723T234219Z-d1868440",
             "source": "pncp_contracts",
             "collector_version": "weekly-cycle/1.1",
             "parameters": {
@@ -107,8 +107,8 @@
             },
             "period_start": null,
             "period_end": null,
-            "started_at": "2026-07-23T23:11:29.121239Z",
-            "finished_at": "2026-07-23T23:11:29.121269Z",
+            "started_at": "2026-07-23T23:42:21.503295Z",
+            "finished_at": "2026-07-23T23:42:21.503327Z",
             "terminal_status": "reused_fresh",
             "records_obtained": 4438345,
             "records_rejected": 0,
@@ -121,13 +121,13 @@
             "scope_complete": false,
             "source_available": true,
             "mode": "reuse",
-            "git_sha": "ee4bb12b49281622cbf15ddc24f7741c00060e9e",
+            "git_sha": "6db0a6987c425bcd3bdcdeb97bc0230ddfb3c41b",
             "notes": [
               "contracts not re-crawled; lake rows reused with explicit freshness",
-              "age_hours=3.02"
+              "age_hours=3.53"
             ],
             "contract_version": "1.0",
-            "payload_hash": "372c18c00ace1cd76c506f3eda819681976e05dba4f23093a5fe78febf63fc9b"
+            "payload_hash": "bb7b11b7e06678465df9e6eee3cc93aa045c8b4a11d3f66f86d48d7b13ee4ad4"
           }
         ]
       },
@@ -205,8 +205,8 @@
             "ranking_note": null,
             "valor_tipo": "valor_total_estimado_informado_pelo_pncp",
             "valor_nao_e_pago": true,
-            "cycle_collection_id": "col-extra-weekly-20260723T231127Z-3b479073",
-            "cycle_run_id": "collect-pncp_opportunities-20260723T231128Z-a68b48c8d2",
+            "cycle_collection_id": "col-extra-weekly-20260723T234219Z-d1868440",
+            "cycle_run_id": "collect-pncp_opportunities-20260723T234221Z-10d16aeb86",
             "source_record_run_id": 1,
             "scope": "extra_sc_or_universe_200km"
           },
@@ -246,8 +246,8 @@
             "ranking_note": null,
             "valor_tipo": "valor_total_estimado_informado_pelo_pncp",
             "valor_nao_e_pago": true,
-            "cycle_collection_id": "col-extra-weekly-20260723T231127Z-3b479073",
-            "cycle_run_id": "collect-pncp_opportunities-20260723T231128Z-a68b48c8d2",
+            "cycle_collection_id": "col-extra-weekly-20260723T234219Z-d1868440",
+            "cycle_run_id": "collect-pncp_opportunities-20260723T234221Z-10d16aeb86",
             "source_record_run_id": 1,
             "scope": "extra_sc_or_universe_200km"
           },
@@ -287,8 +287,8 @@
             "ranking_note": null,
             "valor_tipo": "valor_total_estimado_informado_pelo_pncp",
             "valor_nao_e_pago": true,
-            "cycle_collection_id": "col-extra-weekly-20260723T231127Z-3b479073",
-            "cycle_run_id": "collect-pncp_opportunities-20260723T231128Z-a68b48c8d2",
+            "cycle_collection_id": "col-extra-weekly-20260723T234219Z-d1868440",
+            "cycle_run_id": "collect-pncp_opportunities-20260723T234221Z-10d16aeb86",
             "source_record_run_id": 1,
             "scope": "extra_sc_or_universe_200km"
           },
@@ -328,8 +328,8 @@
             "ranking_note": null,
             "valor_tipo": "valor_total_estimado_informado_pelo_pncp",
             "valor_nao_e_pago": true,
-            "cycle_collection_id": "col-extra-weekly-20260723T231127Z-3b479073",
-            "cycle_run_id": "collect-pncp_opportunities-20260723T231128Z-a68b48c8d2",
+            "cycle_collection_id": "col-extra-weekly-20260723T234219Z-d1868440",
+            "cycle_run_id": "collect-pncp_opportunities-20260723T234221Z-10d16aeb86",
             "source_record_run_id": 1,
             "scope": "extra_sc_or_universe_200km"
           }
@@ -343,7 +343,7 @@
             "uf": "SC",
             "municipio": "Concórdia",
             "n_opp": 1,
-            "cycle_collection_id": "col-extra-weekly-20260723T231127Z-3b479073",
+            "cycle_collection_id": "col-extra-weekly-20260723T234219Z-d1868440",
             "scope": "extra_sc_or_universe_200km"
           },
           {
@@ -352,7 +352,7 @@
             "uf": "SC",
             "municipio": "Videira",
             "n_opp": 1,
-            "cycle_collection_id": "col-extra-weekly-20260723T231127Z-3b479073",
+            "cycle_collection_id": "col-extra-weekly-20260723T234219Z-d1868440",
             "scope": "extra_sc_or_universe_200km"
           },
           {
@@ -361,7 +361,7 @@
             "uf": "SC",
             "municipio": "Santa Terezinha do Progresso",
             "n_opp": 1,
-            "cycle_collection_id": "col-extra-weekly-20260723T231127Z-3b479073",
+            "cycle_collection_id": "col-extra-weekly-20260723T234219Z-d1868440",
             "scope": "extra_sc_or_universe_200km"
           },
           {
@@ -370,7 +370,7 @@
             "uf": "SC",
             "municipio": "Porto União",
             "n_opp": 1,
-            "cycle_collection_id": "col-extra-weekly-20260723T231127Z-3b479073",
+            "cycle_collection_id": "col-extra-weekly-20260723T234219Z-d1868440",
             "scope": "extra_sc_or_universe_200km"
           }
         ],
@@ -410,13 +410,13 @@
         "checksums_file": "/mnt/d/extra consultoria/.worktrees/open-tenders-odc-01/artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/checksums.json",
         "checksums_file_meta": {
           "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/checksums.json",
-          "sha256": "45658264efd7d12dec12af1d6ba5cb48276642287058c1fa0535c86e44602e33",
+          "sha256": "a47f33e7d88ddac67fdbf7a0e53fa3a512dce55a95f80454a393ba5252d85c1f",
           "bytes": 3000
         },
         "product_checksums": {
           "opportunities_csv": {
             "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/opportunities.csv",
-            "sha256": "dbc01c6a518f16bcc4351f2022130e4baad0e53947bfa94b49dca53f044847ca",
+            "sha256": "f3e80378fdec4d397525acad57c5ef89b6ef6e807c0d65b78d16610c33506ef1",
             "bytes": 4949
           },
           "contracts_csv": {
@@ -431,12 +431,12 @@
           },
           "orgaos_csv": {
             "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/orgaos.csv",
-            "sha256": "d10772a771dd49d78d41a382cfef865ae718e50ec54ed6c42b40aa099c62ba4f",
+            "sha256": "815d4d8793d98c45b3f707813d2daafca43a51f16c9b423aa9f1e0dac33e811c",
             "bytes": 662
           },
           "source_health_csv": {
             "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/source_health.csv",
-            "sha256": "f629b3c0e138e26bc0806aa923b488c874bac63b709ce89a99880ba968aaaabe",
+            "sha256": "68f4f1daa4a1fd90f608a1d8fe8d76a634c9bb7d9aec627011adf59cceca17cf",
             "bytes": 313
           },
           "gaps_csv": {
@@ -446,27 +446,27 @@
           },
           "claims_csv": {
             "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/claims_provenance.csv",
-            "sha256": "a96de106d3d34474f67da1e9b098cdde37f3b518d4971f8b21a6e95e1eef0a70",
+            "sha256": "bfb114d18be086580a0a60d4835185e2cb9ee3f1b8056d2b6ed883284f3c1ab5",
             "bytes": 3013
           },
           "executive_md": {
             "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/executive_summary.md",
-            "sha256": "f9b7ce4ea112851c3e86aa015fe4c3699499da45a34cb93364db23f7ab92afa7",
+            "sha256": "422ba4c85835b7ddb0613c04aa85b3ddf46a0bec196234814044a0f8609b21ee",
             "bytes": 3924
           },
           "excel": {
             "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/extra_weekly_pack.xlsx",
-            "sha256": "c703e1b92760d93e5b2dbc40cbd64e631dc8fc87171df8af7eaad8df4a4b5a64",
-            "bytes": 12547
+            "sha256": "1caf8e064662c7f088c1db76c7c131ab64f35bc4e95b3a7e13c07977e4ee3bfb",
+            "bytes": 12548
           },
           "deliverable_e": {
             "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/deliverable_e.json",
-            "sha256": "f8d0f1fd0421534e4d496405f7524d1d3602c605705cc05c314f3248d0de7eb7",
+            "sha256": "2f2a6f89a4749fb711f28d2bf975a31d97552ef0d93559f69490139c7d649c4d",
             "bytes": 7265
           },
           "deliverable_e_audit": {
             "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/deliverable_e_audit.json",
-            "sha256": "d1c1472eaab065a3f53080472de5d8c26f9f1f9297c169438e5f08e025443316",
+            "sha256": "c17856e172e5eca740776ec82b3e2aa1858f6367e25c383d449495031ae67062",
             "bytes": 3079
           }
         },
@@ -477,15 +477,15 @@
   ],
   "runs": [
     {
-      "run_id": "collect-pncp_opportunities-20260723T231128Z-a68b48c8d2",
-      "collection_id": "col-extra-weekly-20260723T231127Z-3b479073",
+      "run_id": "collect-pncp_opportunities-20260723T234221Z-10d16aeb86",
+      "collection_id": "col-extra-weekly-20260723T234219Z-d1868440",
       "source": "pncp_opportunities",
       "collector_version": "weekly-cycle/1.1",
       "parameters": {},
       "period_start": null,
       "period_end": null,
-      "started_at": "2026-07-23T23:11:28.874860Z",
-      "finished_at": "2026-07-23T23:11:28.874886Z",
+      "started_at": "2026-07-23T23:42:21.276943Z",
+      "finished_at": "2026-07-23T23:42:21.276979Z",
       "terminal_status": "reused_fresh",
       "records_obtained": 0,
       "records_rejected": 0,
@@ -498,16 +498,16 @@
       "scope_complete": true,
       "source_available": true,
       "mode": "offline_test",
-      "git_sha": "ee4bb12b49281622cbf15ddc24f7741c00060e9e",
+      "git_sha": "6db0a6987c425bcd3bdcdeb97bc0230ddfb3c41b",
       "notes": [
         "offline test mode — no network"
       ],
       "contract_version": "1.0",
-      "payload_hash": "f8594895cee7482588ec1130ef81239274e43b6bcf0abbc7590f0a8f1e7ee353"
+      "payload_hash": "0bd07208d7731305c94078c77be1827b8e6034e9b01e170f86cceb516c7140d7"
     },
     {
-      "run_id": "collect-pncp_contracts-20260723T231129Z-e5159ec9e5",
-      "collection_id": "col-extra-weekly-20260723T231127Z-3b479073",
+      "run_id": "collect-pncp_contracts-20260723T234221Z-c3b8118c1b",
+      "collection_id": "col-extra-weekly-20260723T234219Z-d1868440",
       "source": "pncp_contracts",
       "collector_version": "weekly-cycle/1.1",
       "parameters": {
@@ -515,8 +515,8 @@
       },
       "period_start": null,
       "period_end": null,
-      "started_at": "2026-07-23T23:11:29.121239Z",
-      "finished_at": "2026-07-23T23:11:29.121269Z",
+      "started_at": "2026-07-23T23:42:21.503295Z",
+      "finished_at": "2026-07-23T23:42:21.503327Z",
       "terminal_status": "reused_fresh",
       "records_obtained": 4438345,
       "records_rejected": 0,
@@ -529,13 +529,13 @@
       "scope_complete": false,
       "source_available": true,
       "mode": "reuse",
-      "git_sha": "ee4bb12b49281622cbf15ddc24f7741c00060e9e",
+      "git_sha": "6db0a6987c425bcd3bdcdeb97bc0230ddfb3c41b",
       "notes": [
         "contracts not re-crawled; lake rows reused with explicit freshness",
-        "age_hours=3.02"
+        "age_hours=3.53"
       ],
       "contract_version": "1.0",
-      "payload_hash": "372c18c00ace1cd76c506f3eda819681976e05dba4f23093a5fe78febf63fc9b"
+      "payload_hash": "bb7b11b7e06678465df9e6eee3cc93aa045c8b4a11d3f66f86d48d7b13ee4ad4"
     }
   ],
   "freshness": [
@@ -543,7 +543,7 @@
       "source": "pncp_opportunities",
       "level": "unreliable",
       "sla_hours": 24,
-      "age_hours": 0.11,
+      "age_hours": 0.62,
       "last_run_id": 1,
       "last_status": "failed",
       "scope_complete": false,
@@ -554,7 +554,7 @@
       "source": "pncp_contracts",
       "level": "fresh",
       "sla_hours": 168,
-      "age_hours": 3.02,
+      "age_hours": 3.53,
       "row_count": 4438345,
       "indicator": "freshness_source",
       "note": "freshness by max(ingested_at); not a full re-collect this cycle"
@@ -565,7 +565,7 @@
       "source": "pncp_opportunities",
       "level": "unreliable",
       "sla_hours": 24,
-      "age_hours": 0.11,
+      "age_hours": 0.62,
       "last_run_id": 1,
       "last_status": "failed",
       "scope_complete": false,
@@ -576,7 +576,7 @@
       "source": "pncp_contracts",
       "level": "fresh",
       "sla_hours": 168,
-      "age_hours": 3.02,
+      "age_hours": 3.53,
       "row_count": 4438345,
       "indicator": "freshness_source",
       "note": "freshness by max(ingested_at); not a full re-collect this cycle"
@@ -623,13 +623,13 @@
     "checksums_file": "/mnt/d/extra consultoria/.worktrees/open-tenders-odc-01/artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/checksums.json",
     "checksums_file_meta": {
       "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/checksums.json",
-      "sha256": "45658264efd7d12dec12af1d6ba5cb48276642287058c1fa0535c86e44602e33",
+      "sha256": "a47f33e7d88ddac67fdbf7a0e53fa3a512dce55a95f80454a393ba5252d85c1f",
       "bytes": 3000
     },
     "product_checksums": {
       "opportunities_csv": {
         "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/opportunities.csv",
-        "sha256": "dbc01c6a518f16bcc4351f2022130e4baad0e53947bfa94b49dca53f044847ca",
+        "sha256": "f3e80378fdec4d397525acad57c5ef89b6ef6e807c0d65b78d16610c33506ef1",
         "bytes": 4949
       },
       "contracts_csv": {
@@ -644,12 +644,12 @@
       },
       "orgaos_csv": {
         "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/orgaos.csv",
-        "sha256": "d10772a771dd49d78d41a382cfef865ae718e50ec54ed6c42b40aa099c62ba4f",
+        "sha256": "815d4d8793d98c45b3f707813d2daafca43a51f16c9b423aa9f1e0dac33e811c",
         "bytes": 662
       },
       "source_health_csv": {
         "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/source_health.csv",
-        "sha256": "f629b3c0e138e26bc0806aa923b488c874bac63b709ce89a99880ba968aaaabe",
+        "sha256": "68f4f1daa4a1fd90f608a1d8fe8d76a634c9bb7d9aec627011adf59cceca17cf",
         "bytes": 313
       },
       "gaps_csv": {
@@ -659,27 +659,27 @@
       },
       "claims_csv": {
         "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/claims_provenance.csv",
-        "sha256": "a96de106d3d34474f67da1e9b098cdde37f3b518d4971f8b21a6e95e1eef0a70",
+        "sha256": "bfb114d18be086580a0a60d4835185e2cb9ee3f1b8056d2b6ed883284f3c1ab5",
         "bytes": 3013
       },
       "executive_md": {
         "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/executive_summary.md",
-        "sha256": "f9b7ce4ea112851c3e86aa015fe4c3699499da45a34cb93364db23f7ab92afa7",
+        "sha256": "422ba4c85835b7ddb0613c04aa85b3ddf46a0bec196234814044a0f8609b21ee",
         "bytes": 3924
       },
       "excel": {
         "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/extra_weekly_pack.xlsx",
-        "sha256": "c703e1b92760d93e5b2dbc40cbd64e631dc8fc87171df8af7eaad8df4a4b5a64",
-        "bytes": 12547
+        "sha256": "1caf8e064662c7f088c1db76c7c131ab64f35bc4e95b3a7e13c07977e4ee3bfb",
+        "bytes": 12548
       },
       "deliverable_e": {
         "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/deliverable_e.json",
-        "sha256": "f8d0f1fd0421534e4d496405f7524d1d3602c605705cc05c314f3248d0de7eb7",
+        "sha256": "2f2a6f89a4749fb711f28d2bf975a31d97552ef0d93559f69490139c7d649c4d",
         "bytes": 7265
       },
       "deliverable_e_audit": {
         "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/deliverable_e_audit.json",
-        "sha256": "d1c1472eaab065a3f53080472de5d8c26f9f1f9297c169438e5f08e025443316",
+        "sha256": "c17856e172e5eca740776ec82b3e2aa1858f6367e25c383d449495031ae67062",
         "bytes": 3079
       }
     },
@@ -740,5 +740,5 @@
     ],
     "note": "Ausência de manifestação não é aceite"
   },
-  "duration_seconds": 1.93
+  "duration_seconds": 2.55
 }

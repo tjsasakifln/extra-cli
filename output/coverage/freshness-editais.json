@@ -1,0 +1,20 @@
+{
+  "adapter_version": "freshness_from_dual_open_tenders/1.0.0",
+  "as_of": "2026-07-23T23:43:03.980591Z",
+  "capability": "open_tenders",
+  "covered": 1093,
+  "denominator": 1093,
+  "fresh_count": 1093,
+  "stale_count": 0,
+  "never_count": 0,
+  "threshold": 0.95,
+  "gate_status": "PASS",
+  "source": "dual_capability_coverage.open_tenders",
+  "git_sha": "6db0a6987c425bcd3bdcdeb97bc0230ddfb3c41b",
+  "claims_allowed": [
+    "freshness measured via dual open_tenders evidence completed_at within SLA"
+  ],
+  "claims_forbidden": [
+    "MAX(ingested_at) global as entity freshness"
+  ]
+}
