@@ -1687,11 +1687,34 @@ def run_weekly_cycle(
                 detail={"runs": [r.to_dict() for r in runs]},
             )
         )
+
+        # Municipal dual coverage requires ciga_ckan evidence alongside PNCP.
+        # Project coverage_evidence after open-tenders collect (skip offline).
+        ciga_proj: dict[str, Any] = {"status": "skipped", "reason": "offline_or_skip"}
+        if not offline and not skip_collect:
+            try:
+                from scripts.coverage.project_ciga_dual_evidence import (
+                    project_ciga_coverage_evidence,
+                )
+
+                ciga_proj = project_ciga_coverage_evidence(
+                    dsn=resolved,
+                    max_months=int(os.getenv("WEEKLY_CIGA_MAX_MONTHS", "2")),
+                    external_run_id=f"ciga-weekly-{collection_id}",
+                )
+            except Exception as exc:  # noqa: BLE001
+                ciga_proj = {
+                    "status": "FAIL",
+                    "error": str(exc),
+                    "note": "CIGA dual projection failed — municipal coverage may lag",
+                }
+
         process_detail: dict[str, Any] = {
             "note": (
                 "Open tenders via run_pncp_open_monitoring (aggregated modalities) "
                 "normalize into opportunity_intel; SourceSnapshotReconciler runs only "
                 "when the parent run is completed + scope_complete; "
+                "CIGA dual coverage_evidence projected for municipal combinations; "
                 "contracts already canonical in pncp_supplier_contracts"
             ),
             "open_tenders_collect_path": OPEN_TENDERS_COLLECT_PATH,
@@ -1699,11 +1722,17 @@ def run_weekly_cycle(
             if getattr(r_opp, "parameters", None)
             else None,
             "reconcile_policy": "complete_aggregated_run_only",
+            "ciga_dual_projection": ciga_proj,
         }
+        process_status = "ok"
+        if r_opp.terminal_status == "failure":
+            process_status = "warn"
+        if ciga_proj.get("status") == "FAIL":
+            process_status = "warn"
         stages.append(
             StageResult(
                 name="process",
-                status="ok" if r_opp.terminal_status != "failure" else "warn",
+                status=process_status,
                 detail=process_detail,
             )
         )

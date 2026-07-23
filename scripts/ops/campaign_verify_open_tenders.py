@@ -211,16 +211,36 @@ def build_report(*, require_vps: bool = False) -> dict[str, Any]:
         )
     )
 
-    # Soak artifact if present
+    # Soak artifact if present (prefer live collector when available)
     soak = _load_json(art / "soak.json") or {}
+    try:
+        from scripts.ops.campaign_open_tenders_soak import collect_soak
+
+        live_soak = collect_soak(days_required=7)
+        # Merge live observation into artifact path for regeneration
+        soak = {**soak, **live_soak, "artifact_prior_status": soak.get("status")}
+        (art / "soak.json").write_text(
+            json.dumps(soak, indent=2, ensure_ascii=False, default=str) + "\n",
+            encoding="utf-8",
+        )
+    except Exception as exc:  # noqa: BLE001
+        soak = {**soak, "live_collect_error": str(exc)}
     soak_ok = soak.get("status") == "PASS" or (
-        int(soak.get("days_observed") or 0) >= 7 and soak.get("gaps", 1) == 0
+        int(soak.get("days_observed") or 0) >= 7
+        and not soak.get("gaps")
+        and soak.get("timer_ok") is True
     )
     checks.append(
         _check(
             "soak_7d",
             soak_ok,
-            soak if soak else "missing soak.json",
+            {
+                "status": soak.get("status"),
+                "days_observed": soak.get("days_observed"),
+                "successful_fire_days": soak.get("successful_fire_days"),
+                "timer_ok": soak.get("timer_ok"),
+                "gaps": soak.get("gaps"),
+            },
             "requires seven days of recurring execution evidence",
         )
     )

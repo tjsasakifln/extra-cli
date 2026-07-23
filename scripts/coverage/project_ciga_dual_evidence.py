@@ -22,7 +22,6 @@ import json
 import logging
 import os
 import sys
-from collections import Counter
 from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Any

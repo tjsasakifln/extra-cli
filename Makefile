@@ -279,9 +279,17 @@ release-candidate-open-tenders:
 .PHONY: verify-open-tenders-production
 verify-open-tenders-production:
 	@echo '==> verify-open-tenders-production (local artifacts + ssh ec-prod)'
+	python3 -m scripts.ops.campaign_open_tenders_soak \
+		--out artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/soak.json || true
 	python3 -m scripts.ops.campaign_verify_open_tenders \
 		--out artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/verify-production.json \
 		$(VERIFY_OPEN_TENDERS_FLAGS)
+
+.PHONY: open-tenders-soak
+open-tenders-soak:
+	@echo '==> open-tenders soak status (VPS timer/journal)'
+	python3 -m scripts.ops.campaign_open_tenders_soak \
+		--out artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/soak.json
 
 .PHONY: release-candidate
 release-candidate:
