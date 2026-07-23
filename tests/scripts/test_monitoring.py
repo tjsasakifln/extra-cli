@@ -558,16 +558,28 @@ class TestCheckAlerts:
             assert len(reg.alerts) == 0
 
     def test_check_storage_box_not_mounted(self):
-        """Storage Box not mounted — critical alert."""
+        """Storage Box not mounted — critical when REQUIRE_STORAGE_BOX, else info."""
         import scripts.check_alerts as m
 
-        with patch("scripts.check_alerts.os.path.ismount", return_value=False):
+        with (
+            patch("scripts.check_alerts.os.path.ismount", return_value=False),
+            patch("scripts.check_alerts.REQUIRE_STORAGE_BOX", True),
+        ):
             reg = m.AlertRegistry()
             m.check_storage_box(reg)
 
             assert len(reg.alerts) == 1
             assert reg.alerts[0]["severity"] == 2
             assert reg.alerts[0]["category"] == "storage"
+
+        with (
+            patch("scripts.check_alerts.os.path.ismount", return_value=False),
+            patch("scripts.check_alerts.REQUIRE_STORAGE_BOX", False),
+        ):
+            reg = m.AlertRegistry()
+            m.check_storage_box(reg)
+            assert len(reg.alerts) == 1
+            assert reg.alerts[0]["severity"] == 0
 
     def test_check_backup_recent(self):
         """Backup ran recently — no alert."""
