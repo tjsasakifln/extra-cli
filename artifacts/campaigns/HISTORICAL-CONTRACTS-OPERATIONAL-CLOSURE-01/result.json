@@ -1,39 +1,55 @@
 {
   "campaign_id": "HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01",
-  "as_of": "2026-07-23T20:11:46.566934Z",
+  "as_of": "2026-07-23T20:26:47.619497Z",
   "result": "BLOCKED",
   "blockers": [
     {
       "id": "OFFSITE_BACKUP_CREDENTIAL",
-      "evidence": "backup-offsite.json status=blocked_credential; BACKUP_STORAGE_BOX_SSH empty on VPS",
+      "evidence": "artifacts/campaigns/HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01/backup-offsite.json",
+      "observed": "BACKUP_STORAGE_BOX_SSH empty on VPS (len=0)",
       "owner": "Tiago / ops",
-      "unblock": "Configure off-site SSH destination in /etc/backup-database.conf without committing secrets; re-run campaign_offsite_backup_status + restore drill",
-      "impact": "\u00a722 off-site backup/RPO not proven"
+      "action_exact": "Set BACKUP_STORAGE_BOX_SSH in /etc/backup-database.conf (or secret store); do not commit. Optionally mount off-site and set REQUIRE_STORAGE_BOX=1 when ready.",
+      "unblock_test": "python3 -m scripts.ops.campaign_offsite_backup_status && transfer verify + restore from off-site package",
+      "attempts": "3 consistent observations: handoff, probe 2026-07-23T14:17Z, probe 2026-07-23T20:14Z all empty",
+      "impact": "\u00a722 off-site RPO/RTO not fully met (same-host separate-DB restore IS proven)"
     },
     {
       "id": "SOAK_7D_IN_PROGRESS",
-      "evidence": "soak/2026-07-23.json day1 only; timer extra-contracts-soak.timer armed daily",
-      "owner": "ops automation",
-      "unblock": "Wait until 7 consecutive daily soak observations with health_ok and contracts freshness<=168h; re-run campaign_soak_tracker",
-      "impact": "\u00a724 seven-day continuous operation not yet elapsed"
+      "evidence": "artifacts/campaigns/HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01/soak.json",
+      "observed": "1 daily observation; timer extra-contracts-soak.timer active",
+      "owner": "ops automation + calendar time",
+      "action_exact": "Leave timer running; after 7 consecutive days re-run campaign_soak_tracker until soak.json.complete=true",
+      "unblock_test": "python3 -m scripts.ops.campaign_soak_tracker; jq .complete artifacts/.../soak.json",
+      "attempts": "day1 recorded 2026-07-23; cannot fabricate future days",
+      "impact": "\u00a724 seven consecutive days not elapsed",
+      "note": "Wall-clock soak is external duration; monitoring is persistent and already armed \u2014 not abandoned"
     }
   ],
-  "completed": {
+  "completed_internal": {
+    "spec_002_converged": true,
     "backfill_37_windows": true,
-    "checkpoint_proof_gated_success_zero": true,
     "cutover_sha256_count_match": true,
+    "contracts_count_vps": 4438393,
     "dual_historical_contracts_pass": true,
     "coverage_pct": 100.0,
-    "incremental_success": true,
-    "foundation_merged_main": "1864b12",
-    "vps_health_alerts_ok": true,
-    "pncp_contracts_timer_enabled": true,
-    "consulting_package_real_rows": 5000
+    "incremental_local_and_vps": true,
+    "separate_db_restore_drill": true,
+    "restore_drill_rto_seconds": 645,
+    "postgresql_restart_recovery": true,
+    "vps_consulting_package_rows": 5000,
+    "foundation_main": "1864b12",
+    "followup_main": "f25b96b",
+    "pr124": "merged",
+    "pr125": "merged",
+    "failed_units": 0,
+    "independent_review": "NO_CRITICAL_OR_HIGH_OPEN_FOR_IMPLEMENTED_SCOPE"
   },
   "claims_authorized": [
     "HISTORICAL_CONTRACTS_BACKFILL_37_WINDOWS",
-    "HISTORICAL_CONTRACTS_DUAL_GATE_PASS_LOCAL",
-    "CUTOVER_RESTORE_OK"
+    "HISTORICAL_CONTRACTS_DUAL_GATE_PASS",
+    "CUTOVER_RESTORE_OK",
+    "SEPARATE_DB_RESTORE_DRILL_OK",
+    "VPS_INCREMENTAL_TIMER_EXECUTED"
   ],
   "non_claims": [
     "LOCAL_READY",
@@ -43,9 +59,5 @@
     "HISTORICAL_CONTRACTS_OPERATIONAL_COVERAGE_PASS",
     "offsite_backup_complete",
     "soak_7d_complete"
-  ],
-  "prs": {
-    "foundation_merged": "https://github.com/tjsasakifln/extra-cli/pull/124",
-    "dual_fix_branch": "campaign/historical-contracts-operational-closure-01 @ c583516"
-  }
+  ]
 }

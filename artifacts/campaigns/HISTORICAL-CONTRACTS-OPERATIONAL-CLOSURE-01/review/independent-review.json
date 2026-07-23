@@ -1,0 +1,61 @@
+{
+  "as_of": "2026-07-23T20:26:47.583055Z",
+  "reviewer_role": "independent_adversarial_not_primary_implementer",
+  "sha_reviewed": "f25b96b29cd8e3631e08746b1b0ede0bb3b39485",
+  "attacks": [
+    {
+      "name": "fabricate_success_zero_flags",
+      "result": "blocked",
+      "evidence": "tests/test_contracts_entity_evidence.py manual flags rejected"
+    },
+    {
+      "name": "incomplete_window_as_complete",
+      "result": "pass",
+      "evidence": "422/503 windows left incomplete until resume; final missing=[]"
+    },
+    {
+      "name": "volume_as_coverage",
+      "result": "pass",
+      "evidence": "dual uses evidence numerators not row counts; presence separate"
+    },
+    {
+      "name": "restore_without_hash",
+      "result": "blocked",
+      "evidence": "restore_backfill_on_vps.sh requires SHA256SUMS"
+    },
+    {
+      "name": "migration_ignored",
+      "result": "pass",
+      "evidence": "apply_migrations default max=None; drill applied 64 migrations"
+    },
+    {
+      "name": "two_writers",
+      "result": "pass",
+      "evidence": "laptop pilot stopped; VPS pncp-contracts sole incremental writer"
+    },
+    {
+      "name": "local_backup_called_offsite",
+      "result": "blocked_claim_prevented",
+      "evidence": "backup-offsite.json blocked_credential; result BLOCKED"
+    },
+    {
+      "name": "fixture_consulting_package",
+      "result": "pass",
+      "evidence": "VPS product_meta lake_total=4437142 sample_rows=5000"
+    },
+    {
+      "name": "migration_059_collision",
+      "result": "pass",
+      "evidence": "campaign 059 wins; PR121 commented renumber"
+    }
+  ],
+  "blocking_findings": [],
+  "residual_risks": [
+    "Off-site credential still empty \u2014 RPO off-host unproven",
+    "Soak day 1 only \u2014 7 consecutive days not elapsed",
+    "failed_windows historical counter remains 10 (retriable history, final set complete)",
+    "Full host reboot not performed (postgresql service restart only)"
+  ],
+  "verdict": "NO_CRITICAL_OR_HIGH_OPEN_FOR_IMPLEMENTED_SCOPE",
+  "campaign_result_recommendation": "BLOCKED until offsite + soak"
+}

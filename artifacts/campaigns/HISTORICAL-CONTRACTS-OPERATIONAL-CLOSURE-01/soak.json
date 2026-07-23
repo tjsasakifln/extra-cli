@@ -4,15 +4,16 @@
   "observations_last_7d": [
     {
       "day": "2026-07-23",
-      "as_of": "2026-07-23T14:17:33.167834Z",
+      "as_of": "2026-07-23T20:26:44.062447Z",
       "contracts_freshness_hours": null,
       "incremental_exit": null,
       "health_ok": true,
       "failed_units": 0,
       "notes": [],
+      "dsn_configured": false,
       "health_timer": "active"
     }
   ],
   "complete": false,
-  "as_of": "2026-07-23T14:17:34.809770Z"
+  "as_of": "2026-07-23T20:26:45.813806Z"
 }
