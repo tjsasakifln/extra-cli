@@ -1,0 +1,8 @@
+{
+  "campaign_precedence": "HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01",
+  "campaign_migration": "db/migrations/059_coverage_evidence_canonical_entity_unique.sql",
+  "pr121_migration": "db/migrations/059_national_contracts_intelligence_layers.sql",
+  "pr121_action": "remain draft; renumber to 060+ after this campaign merges",
+  "pr121_commented": true,
+  "merge_pr121_in_this_campaign": false
+}
