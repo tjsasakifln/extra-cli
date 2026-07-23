@@ -1,0 +1,19 @@
+{
+  "campaign_id": "OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01",
+  "schema_version": "1.0",
+  "status": "IN_PROGRESS",
+  "started_at": "2026-07-23T23:15:00Z",
+  "days_required": 7,
+  "days_observed": 0,
+  "gaps": null,
+  "timer_unit": "extra-weekly.timer",
+  "service_unit": "extra-weekly.service",
+  "next_fire_observed": "Mon 2026-07-27 03:30:47 -03",
+  "vps_sha_at_start": "7194cb169c2e963e132cb35f8861e78f70aaf192",
+  "executions": [],
+  "note": "Soak started when extra-weekly.timer enabled on VPS. Complete after 7 days of real fires without silent gaps. Manual start-now does not replace timer soak.",
+  "claims_forbidden": [
+    "soak PASS before 7 days",
+    "manual oneshot equals recurrence"
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "as_of": "2026-07-23T23:13:43Z",
+  "vps": {
+    "raw": "enabled\nactive\nNEXT                          LEFT LAST PASSED UNIT               ACTIVATES\nMon 2026-07-27 03:30:47 -03 3 days -         - extra-weekly.timer extra-weekly.service\n\n1 timers listed.\nPass --all to see loaded but inactive timers, too.\n7194cb169c2e963e132cb35f8861e78f70aaf192\n",
+    "timer_enabled": true
+  }
+}
