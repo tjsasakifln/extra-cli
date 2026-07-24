@@ -1,11 +1,11 @@
 {
   "status": "PASS",
-  "run_id": "live-pack-20260724-153517-67ec2ec8",
-  "git_sha": "298c5218e8cf1afa5c56354f9ad1f86c82265ddc",
+  "run_id": "live-pack-20260724-153737-28bf1a43",
+  "git_sha": "b81af0cc2db6b5efe00c64df71a3a3acf972fe37",
   "as_of": "2026-07-24",
   "eligible_population": 1179237,
-  "same_run_id": true,
   "divergences": [],
-  "source_pack_manifest": "pack-rc/pack-manifest.json",
-  "stamped_at": "2026-07-24T15:36:29Z"
+  "same_run_id": true,
+  "source": "pack-rc/pack-manifest.json",
+  "stamped_at": "2026-07-24T15:37:57Z"
 }

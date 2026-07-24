@@ -1,8 +1,8 @@
 # Sumário executivo — EXTRA-LIVE-CONSULTING-PACK-01
 
-- run_id: `live-pack-20260724-153517-67ec2ec8`
+- run_id: `live-pack-20260724-153737-28bf1a43`
 - as_of: 2026-07-24
-- git_sha: 298c5218e8cf1afa5c56354f9ad1f86c82265ddc
+- git_sha: b81af0cc2db6b5efe00c64df71a3a3acf972fe37
 - população elegível: 1179237 (FULL_ELIGIBLE_POPULATION)
 - A: status=OK rows=200 órgãos_elegíveis=1378
 - B: status=OK valid=15 target=15

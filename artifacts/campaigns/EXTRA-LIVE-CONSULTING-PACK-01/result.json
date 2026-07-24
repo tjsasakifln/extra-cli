@@ -18,16 +18,16 @@
     }
   ],
   "work_not_blocked_complete": true,
-  "git_sha": "298c5218e8cf1afa5c56354f9ad1f86c82265ddc",
-  "pack_run_id": "live-pack-20260724-153517-67ec2ec8",
-  "pack_git_sha": "298c5218e8cf1afa5c56354f9ad1f86c82265ddc",
+  "git_sha": "b81af0cc2db6b5efe00c64df71a3a3acf972fe37",
+  "pack_run_id": "live-pack-20260724-153737-28bf1a43",
+  "pack_git_sha": "b81af0cc2db6b5efe00c64df71a3a3acf972fe37",
   "pr": "https://github.com/tjsasakifln/extra-cli/pull/130",
   "branch": "campaign/extra-live-consulting-pack-01",
   "production_touched": false,
   "soak_contact": false,
   "pack": {
-    "run_id": "live-pack-20260724-153517-67ec2ec8",
-    "git_sha": "298c5218e8cf1afa5c56354f9ad1f86c82265ddc",
+    "run_id": "live-pack-20260724-153737-28bf1a43",
+    "git_sha": "b81af0cc2db6b5efe00c64df71a3a3acf972fe37",
     "as_of": "2026-07-24",
     "eligible_population_SC": 1179237,
     "A": {
@@ -47,13 +47,13 @@
         "export_limit": 200,
         "export_is_not_universe": true
       },
-      "query_seconds": 3.04
+      "query_seconds": 3.198
     },
     "B": {
       "status": "OK",
       "valid_count": 15,
       "target_n": 15,
-      "query_seconds": 11.806
+      "query_seconds": 12.166
     },
     "C": {
       "status": "OK",
@@ -63,12 +63,12 @@
         "n": 14750,
         "query_complete": true
       },
-      "query_seconds": 2.015
+      "query_seconds": 1.941
     },
     "D": {
       "status": "OK",
       "n_panels": 6,
-      "query_seconds": 1.693
+      "query_seconds": 1.699
     },
     "E": {
       "status": "OK",
@@ -79,7 +79,7 @@
       "status": "PASS",
       "same_run_id": true,
       "divergences": [],
-      "run_id": "live-pack-20260724-153517-67ec2ec8",
+      "run_id": "live-pack-20260724-153737-28bf1a43",
       "eligible_population": 1179237
     }
   },

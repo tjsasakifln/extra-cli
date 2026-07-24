@@ -13,9 +13,9 @@
     "3. Agents must not rewrite decision to ACCEPT"
   ],
   "pack": {
-    "path": "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-rc/",
-    "run_id": "live-pack-20260724-153517-67ec2ec8",
-    "git_sha": "298c5218e8cf1afa5c56354f9ad1f86c82265ddc"
+    "run_id": "live-pack-20260724-153737-28bf1a43",
+    "git_sha": "b81af0cc2db6b5efe00c64df71a3a3acf972fe37",
+    "path": "pack-rc/"
   },
   "summary_for_reviewer": {
     "eligible_population_SC": 1179237,
@@ -26,7 +26,7 @@
     "E": "OK",
     "reconcile": "PASS"
   },
-  "git_sha": "298c5218e8cf1afa5c56354f9ad1f86c82265ddc",
+  "git_sha": "b81af0cc2db6b5efe00c64df71a3a3acf972fe37",
   "recorded_at": "2026-07-24T15:36:29Z",
   "accepted_at": null,
   "rejected_at": null
