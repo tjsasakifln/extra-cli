@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import io
 import json
 import re
 import sys
@@ -22,7 +23,6 @@ import urllib.error
 import urllib.parse
 import urllib.request
 import zipfile
-import io
 from collections import defaultdict
 from datetime import UTC, datetime
 from pathlib import Path
@@ -102,14 +102,20 @@ def _utc_now() -> str:
 
 
 def _http_get_json(url: str, timeout: int = 45) -> Any:
-    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT, "Accept": "application/json"})
-    with urllib.request.urlopen(req, timeout=timeout) as resp:
+    if not str(url).startswith("https://"):
+        raise ValueError(f"only https allowed: {url}")
+    req = urllib.request.Request(  # noqa: S310
+        url, headers={"User-Agent": USER_AGENT, "Accept": "application/json"}
+    )
+    with urllib.request.urlopen(req, timeout=timeout) as resp:  # noqa: S310
         return json.loads(resp.read().decode("utf-8"))
 
 
 def _http_get_bytes(url: str, timeout: int = 90) -> bytes:
-    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
-    with urllib.request.urlopen(req, timeout=timeout) as resp:
+    if not str(url).startswith("https://"):
+        raise ValueError(f"only https allowed: {url}")
+    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})  # noqa: S310
+    with urllib.request.urlopen(req, timeout=timeout) as resp:  # noqa: S310
         return resp.read()
 
 

@@ -17,7 +17,6 @@ import json
 import os
 import sys
 import time
-import urllib.request
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any

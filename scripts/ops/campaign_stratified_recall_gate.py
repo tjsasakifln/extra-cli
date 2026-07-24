@@ -98,7 +98,7 @@ def run_gate(root: Path | None = None) -> dict[str, Any]:
     )
 
     # Run adversarial unit tests
-    proc = subprocess.run(
+    proc = subprocess.run(  # noqa: S603
         [
             sys.executable,
             "-m",
@@ -122,7 +122,7 @@ def run_gate(root: Path | None = None) -> dict[str, Any]:
     )
 
     # Scaffold / EXAMPLE evaluate must be non-zero
-    proc2 = subprocess.run(
+    proc2 = subprocess.run(  # noqa: S603
         [
             sys.executable,
             "-m",

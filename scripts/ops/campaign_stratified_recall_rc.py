@@ -25,7 +25,7 @@ def _utc_now() -> str:
 def _git_sha(root: Path) -> str:
     try:
         return (
-            subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=str(root), text=True).strip()
+            subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=str(root), text=True).strip()  # noqa: S607
         )
     except Exception:
         return "unknown"
