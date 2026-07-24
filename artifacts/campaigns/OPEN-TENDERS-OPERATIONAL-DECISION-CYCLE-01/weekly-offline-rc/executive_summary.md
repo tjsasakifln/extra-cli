@@ -1,8 +1,8 @@
-# Pacote semanal Extra Construtora — weekly-20260723T234219Z-b1c82d43ce
+# Pacote semanal Extra Construtora — weekly-20260724T001238Z-cd7bad9648
 
-- **Gerado em:** 2026-07-23T23:42:19Z
-- **Collection ID:** `col-extra-weekly-20260723T234219Z-d1868440`
-- **Git:** `6db0a6987c425bcd3bdcdeb97bc0230ddfb3c41b`
+- **Gerado em:** 2026-07-24T00:12:38Z
+- **Collection ID:** `col-extra-weekly-20260724T001238Z-ee77044c`
+- **Git:** `68752046e9d93ecb8e37a8111ed709261f3da595`
 - **Exit code previsto:** ver manifest
 
 ## Resumo executivo
@@ -17,16 +17,16 @@ Ranking efetivo: **GO=0**, **REVIEW=4**, **NO_GO=0**.
 
 ## Freshness / saúde das fontes
 
-- `pncp_opportunities`: **unreliable** (age_h=0.62, SLA=24h)
-- `pncp_contracts`: **fresh** (age_h=3.53, SLA=168h) — freshness by max(ingested_at); not a full re-collect this cycle
+- `pncp_opportunities`: **unreliable** (age_h=1.13, SLA=24h)
+- `pncp_contracts`: **fresh** (age_h=4.04, SLA=168h) — freshness by max(ingested_at); not a full re-collect this cycle
 
 ## Coletas deste ciclo
 
-- `pncp_opportunities` run `collect-pncp_opportunities-20260723T234221Z-10d16aeb86` → **reused_fresh** (obtidos=0, persistidos=0)
+- `pncp_opportunities` run `collect-pncp_opportunities-20260724T001240Z-1060734f2b` → **reused_fresh** (obtidos=0, persistidos=0)
   - nota: offline test mode — no network
-- `pncp_contracts` run `collect-pncp_contracts-20260723T234221Z-c3b8118c1b` → **reused_fresh** (obtidos=4438345, persistidos=4438345)
+- `pncp_contracts` run `collect-pncp_contracts-20260724T001240Z-0ccc4c7ee4` → **reused_fresh** (obtidos=4438345, persistidos=4438345)
   - nota: contracts not re-crawled; lake rows reused with explicit freshness
-  - nota: age_hours=3.53
+  - nota: age_hours=4.04
 
 ## Top oportunidades (até 15)
 

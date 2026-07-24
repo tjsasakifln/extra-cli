@@ -1,8 +1,8 @@
 {
   "campaign_id": "OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01",
   "gate": "release-candidate-open-tenders",
-  "generated_at": "2026-07-23T23:42:22Z",
-  "git_sha": "6db0a6987c425bcd3bdcdeb97bc0230ddfb3c41b",
+  "generated_at": "2026-07-24T00:12:41Z",
+  "git_sha": "68752046e9d93ecb8e37a8111ed709261f3da595",
   "ok": true,
   "baseline_present": true,
   "steps": [
@@ -10,13 +10,13 @@
       "name": "campaign_gate",
       "ok": true,
       "exit_code": 0,
-      "duration_s": 0.39
+      "duration_s": 0.37
     },
     {
       "name": "pytest_suite",
       "ok": true,
       "exit_code": 0,
-      "duration_s": 13.46
+      "duration_s": 13.06
     },
     {
       "name": "weekly_offline",
@@ -35,8 +35,8 @@
         "/mnt/d/extra consultoria/.worktrees/open-tenders-odc-01/artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/campaign-gate.json"
       ],
       "exit_code": 0,
-      "duration_s": 0.39,
-      "stdout_tail": "{\n  \"campaign_id\": \"OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01\",\n  \"generated_at\": \"2026-07-23T23:42:05Z\",\n  \"ok\": true,\n  \"summary\": {\n    \"total\": 12,\n    \"pass\": 12,\n    \"fail\": 0\n  },\n  \"checks\": [\n    {\n      \"item_id\": \"G1_canonical_entry\",\n      \"status\": \"PASS\",\n      \"evidence\": [\n        \"Makefile extra-weekly\",\n        \"scripts/ops/weekly_cycle.py\"\n      ],\n      \"notes\": \"\"\n    },\n    {\n      \"item_id\": \"G2_aggregated_collect\",\n      \"status\": \"PASS\",\n      \"evidence\": [\n        \"run_pncp_open_monitoring_present=True\",\n        \"orphan_modalidade_loop_absent=True\"\n      ],\n      \"notes\": \"\"\n    },\n    {\n      \"item_id\": \"G3_reconcile_complete_only\",\n      \"status\": \"PASS\",\n      \"evidence\": [\n        \"reconciliation.py gate\",\n        \"pncp_audit reconcile on complete\"\n      ],\n      \"notes\": \"\"\n    },\n    {\n      \"item_id\": \"G4_sla_24h\",\n      \"status\": \"PASS\",\n      \"evidence\": [\n        \"PNCP_OPP_SLA_HOURS=24\",\n        \"source_default_24=True\"\n      ],\n      \"notes\": \"\"\n    },\n    {\n      \"item_id\": \"G5_ciga_sla_24\",\n      \"status\": \"PASS\",\n      \"evidence\": [\n        \"ciga_ckan.sla_hours=24\",\n        \"DOD editais freshness ≤24h prevails\"\n      ],\n      \"notes\": \"\"\n    },\n    {\n      \"item_id\": \"G6_deliverable_e_fail_closed_empty\",\n      \"status\": \"PASS\",\n      \"evidence\": [\n        \"from_db=True\",\n        \"operational_empty_ok=False\"\n      ],\n      \"notes\": \"\"\n    },\n    {\n      \"item_id\": \"G7_pending_capacity_no_go\",\n      \"status\": \"PASS\",\n      \"evidence\": [\n        \"ranking=REVIEW\",\n        \"risk=['capacidade operacional crítica PENDING no perfil: elicitation.capital_giro, elicitation.capacidade_simultanea, elicitation.capacidade_garantia, elicitation.cats_atestados, elicitation.certidoes']\"\n      ],\n      \"notes\": \"\"\n    },\n    {\n      \"item_id\": \"G8_snapshot_integrity_module\",\n      \"status\": \"PASS\",\n      \"evidence\": [\n        \"scripts/ops/snapshot_integrity.py\"\n      ],\n      \"notes\": \"\"\n    },\n    {\n      \"item_id\": \"G9_campaign_gate_script\",\n      \"status\": \"PASS\",\n      \"evidence\": [\n        \"makefile_target=True\",\n        \"script=True\"\n      ],\n      \"notes\": \"\"\n    },\n    {\n      \"item_id\": \"G10_systemd_weekly\",\n      \"status\": \"PASS\",\n      \"evidence\": [\n        \"deploy/systemd/extra-weekly.service\",\n        \"deploy/systemd/extra-weekly.timer\"\n      ],\n      \"notes\": \"\"\n    },\n    {\n      \"item_id\": \"G0_baseline\",\n      \"status\": \"PASS\",\n      \"evidence\": [\n        \"artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/baseline.json\"\n      ],\n      \"notes\": \"\"\n    },\n    {\n      \"item_id\": \"G_ast_weekly\",\n      \"status\": \"PASS\",\n      \"evidence\": [\n        \"weekly_cycle.py parses\"\n      ],\n      \"notes\": \"\"\n    }\n  ],\n  \"claims_forbidden\": [\n    \"VPS_OPERATIONAL\",\n    \"coverage open_tenders ≥95% without regenerated dual report\",\n    \"LOCAL_READY\",\n    \"PROJECT_DONE\"\n  ],\n  \"note\": \"Structural/unit gate only — not full campaign operational PASS\"\n}\n",
+      "duration_s": 0.37,
+      "stdout_tail": "{\n  \"campaign_id\": \"OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01\",\n  \"generated_at\": \"2026-07-24T00:12:25Z\",\n  \"ok\": true,\n  \"summary\": {\n    \"total\": 12,\n    \"pass\": 12,\n    \"fail\": 0\n  },\n  \"checks\": [\n    {\n      \"item_id\": \"G1_canonical_entry\",\n      \"status\": \"PASS\",\n      \"evidence\": [\n        \"Makefile extra-weekly\",\n        \"scripts/ops/weekly_cycle.py\"\n      ],\n      \"notes\": \"\"\n    },\n    {\n      \"item_id\": \"G2_aggregated_collect\",\n      \"status\": \"PASS\",\n      \"evidence\": [\n        \"run_pncp_open_monitoring_present=True\",\n        \"orphan_modalidade_loop_absent=True\"\n      ],\n      \"notes\": \"\"\n    },\n    {\n      \"item_id\": \"G3_reconcile_complete_only\",\n      \"status\": \"PASS\",\n      \"evidence\": [\n        \"reconciliation.py gate\",\n        \"pncp_audit reconcile on complete\"\n      ],\n      \"notes\": \"\"\n    },\n    {\n      \"item_id\": \"G4_sla_24h\",\n      \"status\": \"PASS\",\n      \"evidence\": [\n        \"PNCP_OPP_SLA_HOURS=24\",\n        \"source_default_24=True\"\n      ],\n      \"notes\": \"\"\n    },\n    {\n      \"item_id\": \"G5_ciga_sla_24\",\n      \"status\": \"PASS\",\n      \"evidence\": [\n        \"ciga_ckan.sla_hours=24\",\n        \"DOD editais freshness ≤24h prevails\"\n      ],\n      \"notes\": \"\"\n    },\n    {\n      \"item_id\": \"G6_deliverable_e_fail_closed_empty\",\n      \"status\": \"PASS\",\n      \"evidence\": [\n        \"from_db=True\",\n        \"operational_empty_ok=False\"\n      ],\n      \"notes\": \"\"\n    },\n    {\n      \"item_id\": \"G7_pending_capacity_no_go\",\n      \"status\": \"PASS\",\n      \"evidence\": [\n        \"ranking=REVIEW\",\n        \"risk=['capacidade operacional crítica PENDING no perfil: elicitation.capital_giro, elicitation.capacidade_simultanea, elicitation.capacidade_garantia, elicitation.cats_atestados, elicitation.certidoes']\"\n      ],\n      \"notes\": \"\"\n    },\n    {\n      \"item_id\": \"G8_snapshot_integrity_module\",\n      \"status\": \"PASS\",\n      \"evidence\": [\n        \"scripts/ops/snapshot_integrity.py\"\n      ],\n      \"notes\": \"\"\n    },\n    {\n      \"item_id\": \"G9_campaign_gate_script\",\n      \"status\": \"PASS\",\n      \"evidence\": [\n        \"makefile_target=True\",\n        \"script=True\"\n      ],\n      \"notes\": \"\"\n    },\n    {\n      \"item_id\": \"G10_systemd_weekly\",\n      \"status\": \"PASS\",\n      \"evidence\": [\n        \"deploy/systemd/extra-weekly.service\",\n        \"deploy/systemd/extra-weekly.timer\"\n      ],\n      \"notes\": \"\"\n    },\n    {\n      \"item_id\": \"G0_baseline\",\n      \"status\": \"PASS\",\n      \"evidence\": [\n        \"artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/baseline.json\"\n      ],\n      \"notes\": \"\"\n    },\n    {\n      \"item_id\": \"G_ast_weekly\",\n      \"status\": \"PASS\",\n      \"evidence\": [\n        \"weekly_cycle.py parses\"\n      ],\n      \"notes\": \"\"\n    }\n  ],\n  \"claims_forbidden\": [\n    \"VPS_OPERATIONAL\",\n    \"coverage open_tenders ≥95% without regenerated dual report\",\n    \"LOCAL_READY\",\n    \"PROJECT_DONE\"\n  ],\n  \"note\": \"Structural/unit gate only — not full campaign operational PASS\"\n}\n",
       "stderr_tail": "",
       "ok": true
     },
@@ -55,8 +55,8 @@
         "tests/test_source_policy_canonical.py"
       ],
       "exit_code": 0,
-      "duration_s": 13.46,
-      "stdout_tail": "..........................................s....................          [100%]\n62 passed, 1 skipped in 8.29s\n",
+      "duration_s": 13.06,
+      "stdout_tail": "..........................................s....................          [100%]\n62 passed, 1 skipped in 8.17s\n",
       "stderr_tail": "",
       "ok": true
     },
@@ -74,7 +74,7 @@
       ],
       "exit_code": 0,
       "duration_s": 2.84,
-      "stdout_tail": "{\n  \"cycle_id\": \"weekly-20260723T234219Z-b1c82d43ce\",\n  \"collection_id\": \"col-extra-weekly-20260723T234219Z-d1868440\",\n  \"exit_code\": 0,\n  \"duration_seconds\": 2.55,\n  \"products\": {\n    \"executive_md\": \"/mnt/d/extra consultoria/.worktrees/open-tenders-odc-01/artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/executive_summary.md\",\n    \"excel\": \"/mnt/d/extra consultoria/.worktrees/open-tenders-odc-01/artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/extra_weekly_pack.xlsx\",\n    \"manifest\": \"/mnt/d/extra consultoria/.worktrees/open-tenders-odc-01/artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/manifest.json\",\n    \"pdf_status\": \"RESIDUAL_NOT_GENERATED\"\n  },\n  \"intelligence_counts\": {\n    \"opportunities\": 4,\n    \"contracts\": 0,\n    \"competitors\": 0,\n    \"orgaos\": 4\n  },\n  \"runs\": [\n    {\n      \"source\": \"pncp_opportunities\",\n      \"terminal_status\": \"reused_fresh\"\n    },\n    {\n      \"source\": \"pncp_contracts\",\n      \"terminal_status\": \"reused_fresh\"\n    }\n  ],\n  \"human_accept\": \"PENDING_HUMAN\"\n}\n",
+      "stdout_tail": "{\n  \"cycle_id\": \"weekly-20260724T001238Z-cd7bad9648\",\n  \"collection_id\": \"col-extra-weekly-20260724T001238Z-ee77044c\",\n  \"exit_code\": 0,\n  \"duration_seconds\": 2.56,\n  \"products\": {\n    \"executive_md\": \"/mnt/d/extra consultoria/.worktrees/open-tenders-odc-01/artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/executive_summary.md\",\n    \"excel\": \"/mnt/d/extra consultoria/.worktrees/open-tenders-odc-01/artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/extra_weekly_pack.xlsx\",\n    \"manifest\": \"/mnt/d/extra consultoria/.worktrees/open-tenders-odc-01/artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/manifest.json\",\n    \"pdf_status\": \"RESIDUAL_NOT_GENERATED\"\n  },\n  \"intelligence_counts\": {\n    \"opportunities\": 4,\n    \"contracts\": 0,\n    \"competitors\": 0,\n    \"orgaos\": 4\n  },\n  \"runs\": [\n    {\n      \"source\": \"pncp_opportunities\",\n      \"terminal_status\": \"reused_fresh\"\n    },\n    {\n      \"source\": \"pncp_contracts\",\n      \"terminal_status\": \"reused_fresh\"\n    }\n  ],\n  \"human_accept\": \"PENDING_HUMAN\"\n}\n",
       "stderr_tail": "",
       "ok": true
     }

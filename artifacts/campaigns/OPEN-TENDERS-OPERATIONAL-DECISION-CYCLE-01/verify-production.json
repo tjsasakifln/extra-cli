@@ -1,8 +1,8 @@
 {
   "campaign_id": "OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01",
   "gate": "verify-open-tenders-production",
-  "generated_at": "2026-07-24T00:04:15Z",
-  "git_sha": "cc976e69e9b9c8c291ed3cf48bfcd4976bf60bbd",
+  "generated_at": "2026-07-24T00:14:11Z",
+  "git_sha": "68752046e9d93ecb8e37a8111ed709261f3da595",
   "status": "BLOCKED",
   "ok": false,
   "summary": {
@@ -32,7 +32,7 @@
       "status": "PASS",
       "evidence": {
         "ok": true,
-        "sha": "6db0a6987c425bcd3bdcdeb97bc0230ddfb3c41b"
+        "sha": "68752046e9d93ecb8e37a8111ed709261f3da595"
       },
       "notes": "optional if only verify without RC step"
     },
@@ -77,7 +77,7 @@
         "active": "active",
         "service": "Result=success\nExecMainStatus=0\nActiveEnterTimestamp=",
         "ssh_ok": true,
-        "vps_sha": "450ed533b33965055ae3c879533f8b8c8a483478"
+        "vps_sha": "68752046e9d93ecb8e37a8111ed709261f3da595"
       },
       "notes": "timer must be enabled+active on VPS"
     },
@@ -104,7 +104,7 @@
     }
   ],
   "vps": {
-    "sha": "450ed533b33965055ae3c879533f8b8c8a483478",
+    "sha": "68752046e9d93ecb8e37a8111ed709261f3da595",
     "timer_enabled": "enabled",
     "timer_active": "active",
     "opportunity_intel_count": 4
