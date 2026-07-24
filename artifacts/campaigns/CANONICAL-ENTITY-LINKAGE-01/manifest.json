@@ -1,0 +1,43 @@
+{
+  "campaign_id": "CANONICAL-ENTITY-LINKAGE-01",
+  "timestamp": "2026-07-24T14:06:51.793023Z",
+  "commit_sha": "64549385144fd02304063bb538be31b8feed9900",
+  "branch": "campaign/canonical-entity-linkage-01",
+  "schema_version": "061",
+  "rule_version": "linkage-v1",
+  "snapshot_id": "pkg-20260723T195047Z+contracts-csv+radar",
+  "snapshot_hash": "f9e45cdbc2ddf06e502aef86ef687595cb21880899bcee2cb28f54d1de883661",
+  "snapshot_bytes": 424176580,
+  "snapshot_manifest_rows": 4437142,
+  "operational_rows_loaded": 5000,
+  "environment": "isolated_docker_pg_5438_extra_linkage_rc",
+  "dsn_masked": "postgresql://test:***@127.0.0.1:5438/extra_linkage_rc",
+  "production_touched": false,
+  "commands": [
+    "python3 -m scripts.ops.apply_migrations --dsn $LINKAGE_TEST_DSN",
+    "python3 -m scripts.linkage run --run-id link-20260724T-rc1",
+    "python3 -m scripts.workspace entity --json",
+    "python3 -m scripts.workspace competitors --json",
+    "python3 -m scripts.workspace expiring-contracts --json",
+    "make verify-canonical-entity-linkage-isolated"
+  ],
+  "claims": [
+    "layered identity resolution with strong-key preference",
+    "auditable opportunity\u2192organ\u2192contract\u2192observed-supplier links on isolated real data",
+    "workspace entity/competitors expose claim vs non-claim language",
+    "production_touched=false with isolation guard"
+  ],
+  "non_claims": [
+    "LOCAL_READY",
+    "VPS_OPERATIONAL",
+    "PROJECT_DONE",
+    "full 4.4M rows loaded into RC (manifest proves dump; operational subset used for interactive investigation)",
+    "unobserved open-tender participation",
+    "DOD items ACCEPTED without main+CI"
+  ],
+  "limitations": [
+    "Full custom dump restore blocked earlier by pg_dump18 transaction_timeout; operational CSV subset + dump hash used",
+    "Soak inviolable \u2014 no VPS proof in this campaign",
+    "Live pack owns scripts/workspace/** hotspot \u2014 edits coordinated via lease"
+  ]
+}

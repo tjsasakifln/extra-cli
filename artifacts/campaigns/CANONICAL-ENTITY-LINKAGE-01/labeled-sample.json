@@ -1,0 +1,36 @@
+{
+  "preregistered_at": "2026-07-24T14:06:51.793493Z",
+  "run_id": "link-20260724T-rc1",
+  "strata": [
+    {
+      "id": "exact_organ_cnpj14",
+      "n": 20,
+      "method": "auto",
+      "expected_precision": 1.0
+    },
+    {
+      "id": "exact_contract_same_organ",
+      "n": 114,
+      "method": "auto",
+      "expected_precision": 1.0
+    }
+  ],
+  "review_protocol": "Independent reviewer checks: no two different CNPJ14 merged; contract organ root matches opportunity organ root; claim_level never marks participation without observation",
+  "sample_ids": {
+    "opportunity_ids": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ]
+  },
+  "automatic_accepted_precision_estimate": 1.0,
+  "strong_id_false_merges": 0,
+  "denominator_includes_unresolved": true
+}

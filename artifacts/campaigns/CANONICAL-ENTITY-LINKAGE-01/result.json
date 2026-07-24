@@ -1,0 +1,58 @@
+{
+  "campaign_id": "CANONICAL-ENTITY-LINKAGE-01",
+  "as_of": "2026-07-24T14:06:51.998952Z",
+  "terminal_status": "IN_PROGRESS",
+  "implementation_status": "OPERATIONAL_ON_ISOLATED_REAL_DATA",
+  "run_id": "link-20260724T-rc1",
+  "metrics_summary": {
+    "dsn_masked": "postgresql://test:***@127.0.0.1:5438/extra_linkage_rc",
+    "organ_links": {
+      "exact": 20,
+      "total": 20,
+      "ambiguous": 0,
+      "unresolved": 0,
+      "auto_accepted": 20,
+      "hard_cases_excluded": false,
+      "heuristic_reviewable": 0,
+      "deterministic_composite": 0,
+      "link_rate_deterministic": 1.0,
+      "unresolved_in_denominator": true
+    },
+    "snapshot_id": null,
+    "rule_version": "linkage-v1",
+    "opportunities": 20,
+    "snapshot_hash": null,
+    "contract_links": {
+      "exact": 114,
+      "total": 126,
+      "ambiguous": 0,
+      "unresolved": 12,
+      "auto_accepted": 114,
+      "hard_cases_excluded": false,
+      "heuristic_reviewable": 0,
+      "deterministic_composite": 0,
+      "link_rate_deterministic": 0.904762,
+      "unresolved_in_denominator": true
+    },
+    "supplier_links": {
+      "exact": 126,
+      "total": 126,
+      "ambiguous": 0,
+      "unresolved": 0,
+      "auto_accepted": 126,
+      "hard_cases_excluded": false,
+      "heuristic_reviewable": 0,
+      "deterministic_composite": 0,
+      "link_rate_deterministic": 1.0,
+      "unresolved_in_denominator": true
+    },
+    "production_touched": false
+  },
+  "production_touched": false,
+  "next": [
+    "independent review",
+    "commit/PR via devops",
+    "optional full dump load",
+    "DOD accept only on main+CI"
+  ]
+}

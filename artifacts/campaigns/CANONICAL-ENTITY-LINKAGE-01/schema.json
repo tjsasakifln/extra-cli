@@ -1,0 +1,14 @@
+{
+  "migration": "061_canonical_entity_linkage.sql",
+  "tables": [
+    "canonical_organs",
+    "canonical_suppliers",
+    "canonical_entity_aliases",
+    "entity_linkage_runs",
+    "opportunity_organ_links",
+    "opportunity_contract_links",
+    "observed_supplier_relations",
+    "entity_linkage_review_queue"
+  ],
+  "rule_version": "linkage-v1"
+}

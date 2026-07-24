@@ -1,0 +1,6 @@
+{
+  "reviewer": "pending-independent-agent",
+  "status": "OPEN",
+  "findings": [],
+  "protocol": "Attack false merges, claim language, soak access, denominator weakening"
+}

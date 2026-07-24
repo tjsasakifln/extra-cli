@@ -1,0 +1,13 @@
+{
+  "suite": "tests/test_canonical_entity_linkage.py",
+  "note": "Focused campaign suite; full project coverage not claimed",
+  "tests_collected": 16,
+  "modules_under_test": [
+    "scripts.linkage.keys",
+    "scripts.linkage.resolve",
+    "scripts.linkage.isolation",
+    "scripts.linkage.dossier",
+    "scripts.linkage.pipeline",
+    "scripts.workspace.cli"
+  ]
+}

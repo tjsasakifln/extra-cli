@@ -593,29 +593,202 @@ def cmd_coverage(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_entity(args: argparse.Namespace) -> int:
+    """Canonical entity investigation (direct/inverse) via linkage tables.
+
+    Distinguishes fact vs similarity vs inference. Never equates historical
+    winners with unobserved open-tender participants.
+    """
+    conn, err = try_pg_conn(args.dsn)
+    payload: dict[str, Any] = {
+        "status": "UNAVAILABLE",
+        "pg_error": err,
+        "claim_language": {
+            "fact": "observed official key or observed contract winner",
+            "similarity": "related historical contract / organ match — not tender participation",
+            "inference": "not used for auto-accepted strong-id links",
+            "none": "unresolved or refused",
+        },
+        "non_claims": [
+            "not_observed_participant_of_open_tender",
+            "similarity_is_not_participation",
+        ],
+    }
+    if conn is None:
+        if args.json:
+            print(json.dumps(payload, indent=2, ensure_ascii=False, default=str))
+        else:
+            print(f"UNAVAILABLE: {err}")
+        return 0
+
+    try:
+        run_id = args.run_id
+        if not run_id:
+            rows = pg_query(
+                conn,
+                """
+                SELECT run_id FROM entity_linkage_runs
+                WHERE status = 'completed'
+                ORDER BY finished_at DESC NULLS LAST
+                LIMIT 1
+                """,
+            )
+            run_id = rows[0]["run_id"] if rows else None
+        payload["run_id"] = run_id
+
+        if not run_id:
+            payload["status"] = "EMPTY"
+            payload["reason"] = "no_completed_linkage_run"
+            if args.json:
+                print(json.dumps(payload, indent=2, ensure_ascii=False, default=str))
+            else:
+                print("EMPTY: nenhuma execução de linkage completed.")
+            return 0
+
+        if args.opportunity_id:
+            from scripts.linkage.pipeline import investigate_opportunity
+
+            inv = investigate_opportunity(conn, run_id, int(args.opportunity_id))
+            payload.update(inv)
+            payload["direction"] = "direct"
+            payload["status"] = inv.get("status") or "OK"
+        elif args.cnpj or args.supplier:
+            from scripts.linkage.pipeline import investigate_inverse_supplier
+
+            key = args.supplier or args.cnpj
+            inv = investigate_inverse_supplier(conn, run_id, key)
+            payload.update(inv)
+            payload["direction"] = "inverse"
+            payload["status"] = "OK" if inv.get("count") else "EMPTY"
+        else:
+            # Summary of golden records + latest metrics
+            organs = pg_query(
+                conn,
+                "SELECT canonical_key, cnpj14, cnpj8, raw_name FROM canonical_organs ORDER BY id DESC LIMIT %s",
+                (args.limit,),
+            )
+            suppliers = pg_query(
+                conn,
+                "SELECT canonical_key, cnpj14, raw_name FROM canonical_suppliers ORDER BY id DESC LIMIT %s",
+                (args.limit,),
+            )
+            runs = pg_query(
+                conn,
+                "SELECT run_id, status, metrics, as_of, production_touched FROM entity_linkage_runs ORDER BY started_at DESC LIMIT 3",
+            )
+            payload.update(
+                {
+                    "direction": "summary",
+                    "status": "OK" if organs or suppliers else "EMPTY",
+                    "organs": organs,
+                    "suppliers": suppliers,
+                    "recent_runs": runs,
+                    "count": len(organs) + len(suppliers),
+                }
+            )
+    except Exception as exc:  # noqa: BLE001
+        payload["status"] = "UNAVAILABLE"
+        payload["pg_error"] = f"{err or ''}; {exc}"
+    finally:
+        conn.close()
+
+    if args.json:
+        print(json.dumps(payload, indent=2, ensure_ascii=False, default=str))
+        return 0
+    print("\n=== ENTITY / LINKAGE ===")
+    print(f"status={payload.get('status')} run_id={payload.get('run_id')} direction={payload.get('direction')}")
+    if payload.get("pg_error") and payload.get("status") == "UNAVAILABLE":
+        print(f"UNAVAILABLE: {payload['pg_error']}")
+        return 0
+    if payload.get("direction") == "summary":
+        print(f"organs={len(payload.get('organs') or [])} suppliers={len(payload.get('suppliers') or [])}")
+        if payload.get("organs"):
+            print_table(payload["organs"][:10])
+    elif payload.get("direction") == "direct":
+        print(f"contracts={len(payload.get('contracts') or [])} suppliers={len(payload.get('observed_suppliers') or [])}")
+        if payload.get("contracts"):
+            print_table(payload["contracts"][:10])
+    else:
+        print(f"relations={payload.get('count')}")
+        if payload.get("relations"):
+            print_table(payload["relations"][:10])
+    print()
+    return 0
+
+
 def cmd_competitors(args: argparse.Namespace) -> int:
     conn, err = try_pg_conn(args.dsn)
     items: list[dict[str, Any]] = []
+    claim_note = (
+        "Historical contract winners / top suppliers by volume. "
+        "NOT automatically 'competitors of a specific open tender' unless linkage run says so."
+    )
 
     if conn is not None:
         try:
-            if args.cnpj:
-                cnpj = "".join(ch for ch in args.cnpj if ch.isdigit())
-                items = pg_query(
+            # Prefer linkage observed suppliers when opportunity_id provided
+            if getattr(args, "opportunity_id", None):
+                run_rows = pg_query(
                     conn,
                     """
-                    SELECT numero_controle_pncp, orgao_nome, objeto_contrato,
-                           valor_total, data_assinatura, data_fim_vigencia,
-                           municipio, uf, ni_fornecedor, nome_fornecedor
-                    FROM pncp_supplier_contracts
-                    WHERE is_active IS TRUE
-                      AND (ni_fornecedor = %s OR LEFT(ni_fornecedor, 8) = %s)
-                    ORDER BY data_assinatura DESC NULLS LAST
-                    LIMIT %s
+                    SELECT run_id FROM entity_linkage_runs
+                    WHERE status='completed' ORDER BY finished_at DESC NULLS LAST LIMIT 1
                     """,
-                    (cnpj, cnpj[:8], args.limit),
                 )
-            else:
+                run_id = run_rows[0]["run_id"] if run_rows else None
+                if run_id:
+                    items = pg_query(
+                        conn,
+                        """
+                        SELECT supplier_canonical_key, relation_kind, classification,
+                               score, claim_level, non_claims, contract_id, reason_codes
+                        FROM observed_supplier_relations
+                        WHERE run_id = %s AND opportunity_id = %s
+                        ORDER BY score DESC
+                        LIMIT %s
+                        """,
+                        (run_id, int(args.opportunity_id), args.limit),
+                    )
+                    claim_note = (
+                        "Observed historical winners for the same organ as the opportunity "
+                        "(claim_level=fact on winner identity; non_claims exclude open-tender participation)."
+                    )
+            if not items and args.cnpj:
+                cnpj = "".join(ch for ch in args.cnpj if ch.isdigit())
+                try:
+                    items = pg_query(
+                        conn,
+                        """
+                        SELECT contrato_id, orgao_nome, objeto_contrato,
+                               valor_total, data_assinatura, data_publicacao,
+                               municipio, uf, fornecedor_cnpj, fornecedor_nome
+                        FROM pncp_supplier_contracts
+                        WHERE COALESCE(is_active, TRUE) IS TRUE
+                          AND (
+                            fornecedor_cnpj = %s
+                            OR fornecedor_cnpj_8 = %s
+                            OR LEFT(regexp_replace(COALESCE(fornecedor_cnpj,''), '\\D', '', 'g'), 8) = %s
+                          )
+                        ORDER BY COALESCE(data_assinatura, data_publicacao) DESC NULLS LAST
+                        LIMIT %s
+                        """,
+                        (cnpj, cnpj[:8], cnpj[:8], args.limit),
+                    )
+                except Exception:
+                    items = pg_query(
+                        conn,
+                        """
+                        SELECT contrato_id, orgao_nome, objeto_contrato,
+                               valor_total, data_assinatura, data_publicacao,
+                               municipio, uf, fornecedor_cnpj, fornecedor_nome
+                        FROM pncp_supplier_contracts
+                        WHERE fornecedor_cnpj = %s OR left(fornecedor_cnpj, 8) = %s
+                        ORDER BY data_publicacao DESC NULLS LAST
+                        LIMIT %s
+                        """,
+                        (cnpj, cnpj[:8], args.limit),
+                    )
+            elif not items:
                 try:
                     items = pg_query(
                         conn,
@@ -633,14 +806,14 @@ def cmd_competitors(args: argparse.Namespace) -> int:
                     items = pg_query(
                         conn,
                         """
-                        SELECT ni_fornecedor AS fornecedor_cnpj,
-                               MAX(nome_fornecedor) AS fornecedor_nome,
+                        SELECT fornecedor_cnpj,
+                               MAX(fornecedor_nome) AS fornecedor_nome,
                                COUNT(*) AS qtd_contratos,
                                SUM(valor_total) AS valor_total_contratos,
                                AVG(valor_total) AS ticket_medio_contrato
                         FROM pncp_supplier_contracts
-                        WHERE is_active IS TRUE AND ni_fornecedor IS NOT NULL
-                        GROUP BY ni_fornecedor
+                        WHERE COALESCE(is_active, TRUE) IS TRUE AND fornecedor_cnpj IS NOT NULL
+                        GROUP BY fornecedor_cnpj
                         ORDER BY SUM(valor_total) DESC NULLS LAST
                         LIMIT %s
                         """,
@@ -655,20 +828,27 @@ def cmd_competitors(args: argparse.Namespace) -> int:
         "status": "OK" if items else ("UNAVAILABLE" if err else "EMPTY"),
         "pg_error": err,
         "cnpj": args.cnpj,
+        "opportunity_id": getattr(args, "opportunity_id", None),
         "count": len(items),
         "items": items,
+        "claim_note": claim_note,
+        "non_claims": [
+            "not_automatically_open_tender_competitor",
+            "not_win_rate",
+        ],
     }
     if args.json:
         print(json.dumps(payload, indent=2, ensure_ascii=False, default=str))
         return 0
 
-    title = f"DOSSIÊ CONCORRENTE {args.cnpj}" if args.cnpj else "TOP FORNECEDORES"
+    title = f"DOSSIÊ CONCORRENTE {args.cnpj}" if args.cnpj else "TOP FORNECEDORES / OBSERVED WINNERS"
     print(f"\n=== {title} ===")
+    print(f"NOTE: {claim_note}")
     if err and not items:
         print(f"UNAVAILABLE: {err}")
         return 0
     if not items:
-        print("Nenhum concorrente encontrado.")
+        print("Nenhum concorrente/fornecedor encontrado.")
         return 0
     print_table(items)
     print()
@@ -701,17 +881,17 @@ def cmd_expiring_contracts(args: argparse.Namespace) -> int:
                     rows = pg_query(
                         conn,
                         """
-                        SELECT numero_controle_pncp AS contrato_id,
-                               orgao_nome, nome_fornecedor AS fornecedor_nome,
+                        SELECT contrato_id,
+                               orgao_nome, fornecedor_nome,
                                objeto_contrato, valor_total AS valor_contrato,
-                               data_fim_vigencia AS data_fim_contrato,
-                               (data_fim_vigencia - CURRENT_DATE) AS dias_ate_fim,
+                               data_fim AS data_fim_contrato,
+                               (data_fim - CURRENT_DATE) AS dias_ate_fim,
                                municipio
                         FROM pncp_supplier_contracts
-                        WHERE is_active IS TRUE
-                          AND data_fim_vigencia BETWEEN CURRENT_DATE
+                        WHERE COALESCE(is_active, TRUE) IS TRUE
+                          AND data_fim BETWEEN CURRENT_DATE
                               AND CURRENT_DATE + (%s || ' days')::interval
-                        ORDER BY data_fim_vigencia ASC
+                        ORDER BY data_fim ASC
                         LIMIT %s
                         """,
                         (b, args.limit),
@@ -1127,8 +1307,11 @@ Examples:
   python -m scripts.workspace opportunities --status open --ranking GO,REVIEW
   python -m scripts.workspace dossier 42
   python -m scripts.workspace coverage
+  python -m scripts.workspace entity --json
+  python -m scripts.workspace entity --opportunity-id 1 --json
   python -m scripts.workspace competitors --limit 20
   python -m scripts.workspace competitors --cnpj 12345678000199
+  python -m scripts.workspace competitors --opportunity-id 1 --json
   python -m scripts.workspace expiring-contracts
   python -m scripts.workspace prices --keywords reforma,predial
   python -m scripts.workspace edital analyze ./edital.pdf
@@ -1178,9 +1361,20 @@ Examples:
     p_cov.add_argument("--json", action="store_true")
     p_cov.add_argument("--dsn", default=None)
 
+    # entity (canonical identity / linkage investigation)
+    p_ent = sub.add_parser("entity", help="Identidade canônica e investigação linkage")
+    p_ent.add_argument("--opportunity-id", type=int, default=None, help="Investigação direta a partir da oportunidade")
+    p_ent.add_argument("--cnpj", default=None, help="Investigação inversa por CNPJ/fornecedor")
+    p_ent.add_argument("--supplier", default=None, help="Chave canônica ou CNPJ do fornecedor")
+    p_ent.add_argument("--run-id", default=None, help="Run de linkage (default: último completed)")
+    p_ent.add_argument("--limit", type=int, default=20)
+    p_ent.add_argument("--json", action="store_true")
+    p_ent.add_argument("--dsn", default=None)
+
     # competitors
-    p_comp = sub.add_parser("competitors", help="Top fornecedores / dossiê CNPJ")
+    p_comp = sub.add_parser("competitors", help="Top fornecedores / dossiê CNPJ / observed winners")
     p_comp.add_argument("--cnpj", default=None)
+    p_comp.add_argument("--opportunity-id", type=int, default=None, help="Observed winners linked to opportunity")
     p_comp.add_argument("--limit", type=int, default=20)
     p_comp.add_argument("--json", action="store_true")
     p_comp.add_argument("--dsn", default=None)
@@ -1272,6 +1466,7 @@ def main(argv: list[str] | None = None) -> None:
         "opportunities": cmd_opportunities,
         "dossier": cmd_dossier,
         "coverage": cmd_coverage,
+        "entity": cmd_entity,
         "competitors": cmd_competitors,
         "expiring-contracts": cmd_expiring_contracts,
         "prices": cmd_prices,

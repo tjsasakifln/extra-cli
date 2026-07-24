@@ -1,0 +1,46 @@
+{
+  "items": [
+    {
+      "ref": "\u00a72.1 cruzar editais/contratos/concorrentes",
+      "class": "PARTIAL_ADVANCE",
+      "note": "linkage operational on isolated real data"
+    },
+    {
+      "ref": "\u00a72.2 \u00f3rg\u00e3os/fornecedores/recorr\u00eancia",
+      "class": "PARTIAL_ADVANCE",
+      "note": "golden organs/suppliers + observed winners"
+    },
+    {
+      "ref": "\u00a72.5 entreg\u00e1veis B/C",
+      "class": "NO_CHANGE",
+      "note": "not full A\u2013E pack"
+    },
+    {
+      "ref": "\u00a7\u00a79\u201310 contratos e concorrentes",
+      "class": "PARTIAL_ADVANCE",
+      "note": "workspace competitors claim language fixed"
+    },
+    {
+      "ref": "\u00a712 pipeline/sa\u00eddas",
+      "class": "PARTIAL_ADVANCE"
+    },
+    {
+      "ref": "\u00a7\u00a718\u201322 identidade/qualidade/proveni\u00eancia",
+      "class": "PARTIAL_ADVANCE"
+    },
+    {
+      "ref": "\u00a729 lineage",
+      "class": "PARTIAL_ADVANCE"
+    },
+    {
+      "ref": "\u00a730 performance",
+      "class": "PARTIAL_ADVANCE",
+      "note": "queries under 60s on subset"
+    },
+    {
+      "ref": "\u00a734 investiga\u00e7\u00e3o real",
+      "class": "PARTIAL_ADVANCE"
+    }
+  ],
+  "no_dod_checkbox_without_ACCEPTED_main_ci": true
+}

@@ -1,0 +1,6 @@
+{
+  "isolation_guard": true,
+  "sql_parameterized": true,
+  "no_strong_id_name_only_merge": true,
+  "dsn_password_masked_in_artifacts": true
+}
