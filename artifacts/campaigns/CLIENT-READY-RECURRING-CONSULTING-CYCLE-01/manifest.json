@@ -4,7 +4,7 @@
   "finished_at": "2026-07-24T21:05:34Z",
   "branch": "campaign/client-ready-recurring-consulting-cycle-01",
   "base_sha": "5d906f631f444dd803e92bb88b7c98972297f8d4",
-  "rc_sha": "c2bef8fd928c4eca5d9f6ad8e939ee2bf74c604a",
+  "rc_sha": "77cc1fe742435a547c755a1329c888dad75569c9",
   "schema_version": "coverage-2.4_entity_coverage_rebuild",
   "migration_versions": [
     "061",

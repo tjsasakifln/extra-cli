@@ -6,7 +6,7 @@
     "user_acceptance_PENDING_HUMAN: Tiago must ACCEPT the release candidate"
   ],
   "failures": [],
-  "rc_sha": "c2bef8fd928c4eca5d9f6ad8e939ee2bf74c604a",
+  "rc_sha": "77cc1fe742435a547c755a1329c888dad75569c9",
   "run_id": "live-pack-20260724-210500-96b1aa13",
   "production_touched": false,
   "soak_touched": false,
@@ -148,5 +148,8 @@
   ],
   "generated_at": "2026-07-24T21:05:34Z",
   "dossiers_written": 12,
-  "review_verdict": "CONCERNS"
+  "review_verdict": "CONCERNS",
+  "git_sha": "77cc1fe742435a547c755a1329c888dad75569c9",
+  "candidate_sha": "77cc1fe742435a547c755a1329c888dad75569c9",
+  "evidence_stamp_sha": "77cc1fe742435a547c755a1329c888dad75569c9"
 }
