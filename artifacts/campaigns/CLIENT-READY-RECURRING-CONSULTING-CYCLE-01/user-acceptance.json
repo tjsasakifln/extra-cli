@@ -1,6 +1,6 @@
 {
   "status": "PENDING_HUMAN",
-  "rc_sha": "9851e364ad6b8e24228da7ba397cf0d07fd10c6c",
+  "rc_sha": "aadd65c00599a5dd44a3c2517492eae22a79c6c5",
   "run_id": "live-pack-20260724-210500-96b1aa13",
   "package_checksums": {
     "competitors.csv": "06aec24dd8e8a2c80089bffe5db80d6338f34a8f046f5379a330bc4e44b2b2b8",
