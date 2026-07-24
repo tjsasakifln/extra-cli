@@ -1,0 +1,37 @@
+{
+  "FR-01": {
+    "status": "OK",
+    "n_orgaos": 1378
+  },
+  "FR-02": {
+    "status": "OK",
+    "valid_count": 15
+  },
+  "FR-03": {
+    "status": "EMPTY_success_zero"
+  },
+  "FR-04": {
+    "status": "OK",
+    "panels": 6
+  },
+  "FR-05": {
+    "status": "OK",
+    "n_recs": 4
+  },
+  "FR-06": {
+    "status": "PASS"
+  },
+  "FR-07": {
+    "status": "PARTIAL"
+  },
+  "FR-08": {
+    "status": "OK"
+  },
+  "FR-09": {
+    "status": "OK",
+    "eligible": 1179237
+  },
+  "FR-10": {
+    "status": "OK"
+  }
+}

@@ -1,0 +1,749 @@
+{
+  "status": "OK",
+  "deliverable": "B",
+  "title": "Mapeamento de até 15 concorrentes observáveis",
+  "profile": {
+    "profile_path": "config/client_profiles/extra.yaml",
+    "profile_id": "extra_construtora",
+    "display_name": "Extra Empreiteira e Construtora",
+    "version": 2,
+    "version_date": "2026-07-16",
+    "stamp": "extra_construtora@v2"
+  },
+  "selection_rule": {
+    "target_n": 15,
+    "min_contracts": 2,
+    "sort_keys": [
+      "n_contratos",
+      "valor_contratado_total"
+    ],
+    "require_cnpj": true,
+    "uf_filter": "SC",
+    "allow_desagio_without_pair": false,
+    "description": "Top 15 by n_contratos,valor_contratado_total with min_contracts>=2; require CNPJ"
+  },
+  "target_n": 15,
+  "valid_count": 15,
+  "rows": [
+    {
+      "rank": 1,
+      "cnpj": "03574370000120",
+      "nome": "EMPREITEIRA DE MAO DE OBRA ADRIMAR LTDA - EIRELI",
+      "identidade_canonica": "03574370000120",
+      "n_contratos": 93,
+      "valor_contratado_total": 159994613.74,
+      "valor_semantica": "CONTRATADO",
+      "ticket_contratado_medio": 1720372.19,
+      "ticket_formula": "valor_contratado_total / n_contratos",
+      "orgaos_em_que_venceu": [
+        "Camâra Municipal de Vereadores",
+        "DEPARTAMENTO RODOVIÁRIO",
+        "Diretoria de Obras de Infraestrutura Viária",
+        "DIVISAO DE ESTRADAS E RODAGEM",
+        "Gerência de Obras e Serviços Urbanos do Município de Massaranduba -SC",
+        "MOBILIDADE URBANA",
+        "MUNICÍPIO DE CAMPO ALEGRE",
+        "MUNICÍPIO DE SCHROEDER",
+        "Prefeitura Municipal de Jaraguá do Sul",
+        "Prefeitura Municipal de Joinville - PMJ",
+        "Secretaria de Administração",
+        "Secretaria de Infra-estrutura",
+        "Secretaria de Infraestrutura Urbana",
+        "Secretaria de Obras, Servicos Publicos e Transport",
+        "Secretaria de Planejamento e Desenvolv. Urbano",
+        "SECRETARIA MUNICIPAL DE OBRAS E PLANEJAMENTO",
+        "SECRETARIA MUNICIPAL DE OBRAS, SERVIÇOS URBANOS E RURAIS",
+        "SEOB - Secretaria de Obras de Pomerode",
+        "Subprefeitura do Itinga"
+      ],
+      "distribuicao_geografica": {
+        "SC": 93
+      },
+      "tipos_objeto": [
+        "engenharia_extra_profile"
+      ],
+      "desagio": null,
+      "desagio_status": "INSUFFICIENT_PAIR",
+      "desagio_evidence": "estimado/homologado not linked to same certame/lote/item",
+      "contratos_ativos": [],
+      "capacidade_operacional": {
+        "label": "HYPOTHESIS",
+        "claim_as_fact_forbidden": true,
+        "text": "Capacidade operacional não afirmada como fato sem evidência"
+      },
+      "selection_score": 252994613.74,
+      "selection_justification": "rank by ('n_contratos', 'valor_contratado_total'): n=93, valor=159994613.74; min_contracts>=2"
+    },
+    {
+      "rank": 2,
+      "cnpj": "03620927000112",
+      "nome": "PAVIPLAN PAVIMENTAÇÃO LTDA.",
+      "identidade_canonica": "03620927000112",
+      "n_contratos": 84,
+      "valor_contratado_total": 140706472.22,
+      "valor_semantica": "CONTRATADO",
+      "ticket_contratado_medio": 1675077.05,
+      "ticket_formula": "valor_contratado_total / n_contratos",
+      "orgaos_em_que_venceu": [
+        "Camâra Municipal de Vereadores",
+        "CONSÓRCIO INTERFEDERATIVO SANTA CATARINA - CINCATARINA",
+        "DEPARTAMENTO RODOVIÁRIO",
+        "DIVISÃO DE ADMINISTRACAO E PLANEJAMENTO",
+        "DIVISAO DE ESTRADAS E RODAGEM",
+        "Fundo de Saneamento Básico de Mafra",
+        "FUNDO MUNICIPAL DE HABITAÇÃO DE INTERESSE SOCIAL",
+        "Gabinete do Vice-prefeito",
+        "Gerência de Obras e Serviços Urbanos do Município de Massaranduba -SC",
+        "Gerência de Planejamento e Meio Ambiente do Município de Massaranduba -SC",
+        "Gestão da Secretaria de Planejamento e Urbanismo",
+        "MOBILIDADE URBANA",
+        "Obras Municipais",
+        "PREFEITURA MUNICIPAL DE ITAIÓPOLIS - SC",
+        "Prefeitura Municipal de Jaraguá do Sul",
+        "Prefeitura Municipal de Mafra",
+        "PREFEITURA MUNICIPAL DE MAJOR VIEIRA - SC",
+        "PREFEITURA MUNICIPAL DE SCHROEDER - SC",
+        "Secretaria de Infra-estrutura",
+        "SECRETARIA MUNICIPAL DE OBRAS E PLANEJAMENTO"
+      ],
+      "distribuicao_geografica": {
+        "SC": 84
+      },
+      "tipos_objeto": [
+        "engenharia_extra_profile"
+      ],
+      "desagio": null,
+      "desagio_status": "INSUFFICIENT_PAIR",
+      "desagio_evidence": "estimado/homologado not linked to same certame/lote/item",
+      "contratos_ativos": [],
+      "capacidade_operacional": {
+        "label": "HYPOTHESIS",
+        "claim_as_fact_forbidden": true,
+        "text": "Capacidade operacional não afirmada como fato sem evidência"
+      },
+      "selection_score": 224706472.22,
+      "selection_justification": "rank by ('n_contratos', 'valor_contratado_total'): n=84, valor=140706472.22; min_contracts>=2"
+    },
+    {
+      "rank": 3,
+      "cnpj": "12547887000111",
+      "nome": "POLARIS SERVICOS E CONSTRUCOES LTDA-IR 1.2%",
+      "identidade_canonica": "12547887000111",
+      "n_contratos": 70,
+      "valor_contratado_total": 17402564.23,
+      "valor_semantica": "CONTRATADO",
+      "ticket_contratado_medio": 248608.06,
+      "ticket_formula": "valor_contratado_total / n_contratos",
+      "orgaos_em_que_venceu": [
+        "Fundo Municipal de Terras, Habitação Popular e Saneamento - FMTHPS",
+        "Prefeitura Municipal de Joinville - PMJ"
+      ],
+      "distribuicao_geografica": {
+        "SC": 70
+      },
+      "tipos_objeto": [
+        "engenharia_extra_profile"
+      ],
+      "desagio": null,
+      "desagio_status": "INSUFFICIENT_PAIR",
+      "desagio_evidence": "estimado/homologado not linked to same certame/lote/item",
+      "contratos_ativos": [],
+      "capacidade_operacional": {
+        "label": "HYPOTHESIS",
+        "claim_as_fact_forbidden": true,
+        "text": "Capacidade operacional não afirmada como fato sem evidência"
+      },
+      "selection_score": 87402564.23,
+      "selection_justification": "rank by ('n_contratos', 'valor_contratado_total'): n=70, valor=17402564.23; min_contracts>=2"
+    },
+    {
+      "rank": 4,
+      "cnpj": "43887548000108",
+      "nome": "CONSTRUTORA SCHROEDER E SCHMIDT LTDA EPP",
+      "identidade_canonica": "43887548000108",
+      "n_contratos": 65,
+      "valor_contratado_total": 54246028.79,
+      "valor_semantica": "CONTRATADO",
+      "ticket_contratado_medio": 834554.29,
+      "ticket_formula": "valor_contratado_total / n_contratos",
+      "orgaos_em_que_venceu": [
+        "Departamento de Estradas de Rodagem",
+        "Departamento de Planejamento",
+        "Desenvolvimento Econômico",
+        "DIRETORIA DE COMUNICAÇÃO E MÍDIA",
+        "DIRETORIA DE OBRAS E SERVIÇOS URBANOS",
+        "Fundação Municipal de Esportes - Fme",
+        "MUNICÍPIO DE SCHROEDER",
+        "Prefeitura de Gaspar - SC",
+        "Prefeitura Municipal de Blumenau",
+        "PREFEITURA MUNICIPAL DE ILHOTA",
+        "PREFEITURA MUNICIPAL DE NAVEGANTES",
+        "PREFEITURA MUNICIPAL DE NOVA TRENTO",
+        "PREFEITURA MUNICIPAL DE SCHROEDER - SC",
+        "Secretaria de Educação",
+        "Secretaria de Obras",
+        "Secretaria de Obras e Servicos Publicos do Município de Guabiruba",
+        "SECRETARIA DE OBRAS E SERVIÇOS URBANOS",
+        "Secretaria de Transporte Obras e Serviços Urbanos",
+        "Secretaria Municipal de Infraestrutura",
+        "Secretaria Municipal de Infraestrutura Estratégica"
+      ],
+      "distribuicao_geografica": {
+        "SC": 65
+      },
+      "tipos_objeto": [
+        "engenharia_extra_profile"
+      ],
+      "desagio": null,
+      "desagio_status": "INSUFFICIENT_PAIR",
+      "desagio_evidence": "estimado/homologado not linked to same certame/lote/item",
+      "contratos_ativos": [],
+      "capacidade_operacional": {
+        "label": "HYPOTHESIS",
+        "claim_as_fact_forbidden": true,
+        "text": "Capacidade operacional não afirmada como fato sem evidência"
+      },
+      "selection_score": 119246028.78999999,
+      "selection_justification": "rank by ('n_contratos', 'valor_contratado_total'): n=65, valor=54246028.79; min_contracts>=2"
+    },
+    {
+      "rank": 5,
+      "cnpj": "03094645000129",
+      "nome": "INFRASUL - INFRAESTUTURA E EMPREENDIMENTOS LTDA",
+      "identidade_canonica": "03094645000129",
+      "n_contratos": 63,
+      "valor_contratado_total": 154646448.14,
+      "valor_semantica": "CONTRATADO",
+      "ticket_contratado_medio": 2454705.53,
+      "ticket_formula": "valor_contratado_total / n_contratos",
+      "orgaos_em_que_venceu": [
+        "Camâra Municipal de Vereadores",
+        "CONSÓRCIO INTERFEDERATIVO SANTA CATARINA - CINCATARINA",
+        "DEPARTAMENTO DE OBRAS E URBANISMO",
+        "Departamento de Urbanismo",
+        "Diretoria de Obras de Infraestrutura Viária",
+        "Gabinete do Vice-prefeito",
+        "Gerência de Planejamento e Meio Ambiente do Município de Massaranduba -SC",
+        "MOBILIDADE URBANA",
+        "MUNICÍPIO DE SCHROEDER",
+        "Prefeitura Municipal de Jaraguá do Sul",
+        "Prefeitura Municipal de Joinville - PMJ",
+        "PREFEITURA MUNICIPAL DE SCHROEDER - SC",
+        "Secretaria de Infra-estrutura",
+        "Secretaria de Planejamento e Desenvolv. Urbano",
+        "SECRETARIA DE PLANEJAMENTO URBANO",
+        "Secretaria Municipal de Infraestrutura Estratégica",
+        "SECRETARIA MUNICIPAL DE OBRAS E PLANEJAMENTO",
+        "SECRETARIA MUNICIPAL DE OBRAS, SERVIÇOS URBANOS E RURAIS",
+        "Secretaria Municipal de Planejamento - SEPLAN",
+        "SEOB - Secretaria de Obras de Pomerode"
+      ],
+      "distribuicao_geografica": {
+        "SC": 63
+      },
+      "tipos_objeto": [
+        "engenharia_extra_profile"
+      ],
+      "desagio": null,
+      "desagio_status": "INSUFFICIENT_PAIR",
+      "desagio_evidence": "estimado/homologado not linked to same certame/lote/item",
+      "contratos_ativos": [],
+      "capacidade_operacional": {
+        "label": "HYPOTHESIS",
+        "claim_as_fact_forbidden": true,
+        "text": "Capacidade operacional não afirmada como fato sem evidência"
+      },
+      "selection_score": 217646448.14,
+      "selection_justification": "rank by ('n_contratos', 'valor_contratado_total'): n=63, valor=154646448.14; min_contracts>=2"
+    },
+    {
+      "rank": 6,
+      "cnpj": "22798043000105",
+      "nome": "KAENG INFRAESTRUTURA LTDA",
+      "identidade_canonica": "22798043000105",
+      "n_contratos": 59,
+      "valor_contratado_total": 82520640.58,
+      "valor_semantica": "CONTRATADO",
+      "ticket_contratado_medio": 1398654.93,
+      "ticket_formula": "valor_contratado_total / n_contratos",
+      "orgaos_em_que_venceu": [
+        "ADMINISTRAÇÃO",
+        "ADM - Secret. Mun. de Obras e Serviços - SMOS",
+        "CONSÓRCIO INTERFEDERATIVO SANTA CATARINA - CINCATARINA",
+        "DESENVOLVIMENTO ECONÔMICO E INOVAÇÃO",
+        "MANUTENÇÃO SECRETARIA DE OBRAS E PROJETOS",
+        "Município de Arroio Trinta",
+        "MUNÍCIPIO DE ERVAL VELHO",
+        "Município de Luzerna",
+        "MUNICÍPIO DE SALTO VELOSO",
+        "Prefeitura de Capinzal",
+        "Prefeitura Municipal de Catanduvas",
+        "Prefeitura Municipal de Erval Velho",
+        "PREFEITURA MUNICIPAL DE HERVAL D´OESTE - SC",
+        "PREFEITURA MUNICIPAL DE JOAÇABA",
+        "VIDEIRA SANEAMENTO - VISAN"
+      ],
+      "distribuicao_geografica": {
+        "SC": 59
+      },
+      "tipos_objeto": [
+        "engenharia_extra_profile"
+      ],
+      "desagio": null,
+      "desagio_status": "INSUFFICIENT_PAIR",
+      "desagio_evidence": "estimado/homologado not linked to same certame/lote/item",
+      "contratos_ativos": [],
+      "capacidade_operacional": {
+        "label": "HYPOTHESIS",
+        "claim_as_fact_forbidden": true,
+        "text": "Capacidade operacional não afirmada como fato sem evidência"
+      },
+      "selection_score": 141520640.57999998,
+      "selection_justification": "rank by ('n_contratos', 'valor_contratado_total'): n=59, valor=82520640.58; min_contracts>=2"
+    },
+    {
+      "rank": 7,
+      "cnpj": "05895635000118",
+      "nome": "JR CONSTRUÇÕES E TERRAPLENAGEM LTDA EPP - EPP",
+      "identidade_canonica": "05895635000118",
+      "n_contratos": 58,
+      "valor_contratado_total": 111184145.08,
+      "valor_semantica": "CONTRATADO",
+      "ticket_contratado_medio": 1916968.02,
+      "ticket_formula": "valor_contratado_total / n_contratos",
+      "orgaos_em_que_venceu": [
+        "DEPARTAMENTO DE ESTUDOS E PROJETOS URBANISTICOS",
+        "DEPARTAMENTO DE OBRAS E SERVIÇOS URBANOS",
+        "DEPARTAMENTO DE TRANSPORTES E OBRAS",
+        "DEPARTAMENTO OPERACIONAL",
+        "DIRETORIA DE OBRAS E SERVIÇOS URBANOS",
+        "Gerência de Obras e Serviços Urbanos do Município de Massaranduba -SC",
+        "MUNICÍPIO DE MORRO GRANDE",
+        "MUNICIPIO DE PEDRAS GRANDES",
+        "MUNICÍPIO DE TUBARÃO",
+        "MUNICÍPIO DE URUSSANGA",
+        "PREFEITURA",
+        "Prefeitura de Gaspar - SC",
+        "PREFEITURA MUNICIPAL DE BALNEÁRIO RINCÃO",
+        "PREFEITURA MUNICIPAL DE CAPIVARI DE BAIXO - SC",
+        "PREFEITURA MUNICIPAL DE CRICIÚMA - SC",
+        "PREFEITURA MUNICIPAL DE FORQUILHINHA - SC",
+        "PREFEITURA MUNICIPAL DE IÇARA - SC",
+        "Prefeitura Municipal de Jaraguá do Sul",
+        "PREFEITURA MUNICIPAL DE NAVEGANTES",
+        "PREFEITURA MUNICIPAL DE TREZE DE MAIO - SC"
+      ],
+      "distribuicao_geografica": {
+        "SC": 58
+      },
+      "tipos_objeto": [
+        "engenharia_extra_profile"
+      ],
+      "desagio": null,
+      "desagio_status": "INSUFFICIENT_PAIR",
+      "desagio_evidence": "estimado/homologado not linked to same certame/lote/item",
+      "contratos_ativos": [],
+      "capacidade_operacional": {
+        "label": "HYPOTHESIS",
+        "claim_as_fact_forbidden": true,
+        "text": "Capacidade operacional não afirmada como fato sem evidência"
+      },
+      "selection_score": 169184145.07999998,
+      "selection_justification": "rank by ('n_contratos', 'valor_contratado_total'): n=58, valor=111184145.08; min_contracts>=2"
+    },
+    {
+      "rank": 8,
+      "cnpj": "02063876000102",
+      "nome": "CCT CONSTRUTORA DE OBRAS LTDA.",
+      "identidade_canonica": "02063876000102",
+      "n_contratos": 57,
+      "valor_contratado_total": 14796871.13,
+      "valor_semantica": "CONTRATADO",
+      "ticket_contratado_medio": 259594.23,
+      "ticket_formula": "valor_contratado_total / n_contratos",
+      "orgaos_em_que_venceu": [
+        "Diretoria de Obras de Infraestrutura Viária",
+        "Prefeitura Municipal de Joinville - PMJ",
+        "PREFEITURA MUNICIPAL DE SCHROEDER - SC"
+      ],
+      "distribuicao_geografica": {
+        "SC": 57
+      },
+      "tipos_objeto": [
+        "engenharia_extra_profile"
+      ],
+      "desagio": null,
+      "desagio_status": "INSUFFICIENT_PAIR",
+      "desagio_evidence": "estimado/homologado not linked to same certame/lote/item",
+      "contratos_ativos": [],
+      "capacidade_operacional": {
+        "label": "HYPOTHESIS",
+        "claim_as_fact_forbidden": true,
+        "text": "Capacidade operacional não afirmada como fato sem evidência"
+      },
+      "selection_score": 71796871.13,
+      "selection_justification": "rank by ('n_contratos', 'valor_contratado_total'): n=57, valor=14796871.13; min_contracts>=2"
+    },
+    {
+      "rank": 9,
+      "cnpj": "12218083000179",
+      "nome": "BCL INFRAESTRUTURA LTDA.",
+      "identidade_canonica": "12218083000179",
+      "n_contratos": 54,
+      "valor_contratado_total": 72226452.65,
+      "valor_semantica": "CONTRATADO",
+      "ticket_contratado_medio": 1337526.9,
+      "ticket_formula": "valor_contratado_total / n_contratos",
+      "orgaos_em_que_venceu": [
+        "CONSÓRCIO INTERFEDERATIVO SANTA CATARINA - CINCATARINA",
+        "DEPARTAMENTO DE INFRAESTRURA E OBRAS",
+        "DEPARTAMENTO DE TRANSPORTES E OBRAS",
+        "MUNICÍPIO DE LAURO MULLER",
+        "MUNICÍPIO DE ORLEANS",
+        "MUNICÍPIO DE RIO FORTUNA",
+        "MUNICÍPIO DE SÃO MARTINHO",
+        "MUNICÍPIO DE URUSSANGA",
+        "PREFEITURA",
+        "PREFEITURA MUNICIPAL DE BRAÇO DO NORTE - SC",
+        "PREFEITURA MUNICIPAL DE CAPIVARI DE BAIXO - SC",
+        "PREFEITURA MUNICIPAL DE FORQUILHINHA - SC",
+        "PREFEITURA MUNICIPAL DE GRÃO-PARÁ - SC",
+        "Prefeitura Municipal de Pescaria Brava - SC",
+        "PREFEITURA MUNICIPAL DE TREZE DE MAIO - SC",
+        "SECRETARIA MUNICIPAL DE INFRA ESTRUTURA"
+      ],
+      "distribuicao_geografica": {
+        "SC": 54
+      },
+      "tipos_objeto": [
+        "engenharia_extra_profile"
+      ],
+      "desagio": null,
+      "desagio_status": "INSUFFICIENT_PAIR",
+      "desagio_evidence": "estimado/homologado not linked to same certame/lote/item",
+      "contratos_ativos": [],
+      "capacidade_operacional": {
+        "label": "HYPOTHESIS",
+        "claim_as_fact_forbidden": true,
+        "text": "Capacidade operacional não afirmada como fato sem evidência"
+      },
+      "selection_score": 126226452.65,
+      "selection_justification": "rank by ('n_contratos', 'valor_contratado_total'): n=54, valor=72226452.65; min_contracts>=2"
+    },
+    {
+      "rank": 10,
+      "cnpj": "12535370000102",
+      "nome": "TERRABASE TERRAPLENAGEM LTDA",
+      "identidade_canonica": "12535370000102",
+      "n_contratos": 54,
+      "valor_contratado_total": 65149279.12,
+      "valor_semantica": "CONTRATADO",
+      "ticket_contratado_medio": 1206468.13,
+      "ticket_formula": "valor_contratado_total / n_contratos",
+      "orgaos_em_que_venceu": [
+        "Departamento de Urbanismo",
+        "DIRETORIA DE OBRAS E SERVIÇOS URBANOS",
+        "DIRETORIA DO SERVIÇO DE FISCALIZAÇÃO DE OBRAS",
+        "FUNDO MUNICIPAL DE DEFESA CIVIL DO MUNICÍPIO DE RIO DOS CEDROS - FUNDEC",
+        "Obras Municipais",
+        "Secretaria de Estado da Infraestrutura e Mobilidade",
+        "Secretaria de Infraestrutura",
+        "Secretaria de Transporte Obras e Serviços Urbanos",
+        "Secretário de Infraestrutura",
+        "Serviços Urbanos",
+        "SVOS -  Secretaria de Viacao, Obras e Servicos"
+      ],
+      "distribuicao_geografica": {
+        "SC": 54
+      },
+      "tipos_objeto": [
+        "engenharia_extra_profile"
+      ],
+      "desagio": null,
+      "desagio_status": "INSUFFICIENT_PAIR",
+      "desagio_evidence": "estimado/homologado not linked to same certame/lote/item",
+      "contratos_ativos": [],
+      "capacidade_operacional": {
+        "label": "HYPOTHESIS",
+        "claim_as_fact_forbidden": true,
+        "text": "Capacidade operacional não afirmada como fato sem evidência"
+      },
+      "selection_score": 119149279.12,
+      "selection_justification": "rank by ('n_contratos', 'valor_contratado_total'): n=54, valor=65149279.12; min_contracts>=2"
+    },
+    {
+      "rank": 11,
+      "cnpj": "01650178000140",
+      "nome": "CR ARTEFATOS DE CIMENTO LTDA",
+      "identidade_canonica": "01650178000140",
+      "n_contratos": 48,
+      "valor_contratado_total": 56673610.2,
+      "valor_semantica": "CONTRATADO",
+      "ticket_contratado_medio": 1180700.21,
+      "ticket_formula": "valor_contratado_total / n_contratos",
+      "orgaos_em_que_venceu": [
+        "DIRETORIA DE COMUNICAÇÃO E MÍDIA",
+        "EMASA - Empresa Municipal de Água e Saneamento de Balneário Camboriú",
+        "FUBE - FUNDAÇÃO BATISTENSE DE ESPORTES",
+        "Fundo Municipal de Terras, Habitação Popular e Saneamento - FMTHPS",
+        "Gestão da Secretaria de Planejamento e Urbanismo",
+        "Obras Municipais",
+        "Prefeitura de Gaspar - SC",
+        "Prefeitura Municipal de Balneário Camboriú",
+        "PREFEITURA MUNICIPAL DE ITAJAÍ - SC",
+        "Prefeitura Municipal de Joinville - PMJ",
+        "PREFEITURA MUNICIPAL DE NOVA TRENTO",
+        "PREFEITURA MUNICIPAL DE SÃO JOÃO BATISTA",
+        "Procuradoria Geral",
+        "Sec. Planejamento, Meio Ambente, Urbanismo e Habitação",
+        "Secretaria de Educacao e Cultura",
+        "Secretaria de Infraestrutura",
+        "Secretaria de Infraestrutura – SEINFRA",
+        "Secretaria de Obras e Servicos Publicos do Município de Guabiruba",
+        "SECRETARIA DE OBRAS E SERVIÇOS URBANOS",
+        "Secretaria de Obras, Servicos Publicos e Transport"
+      ],
+      "distribuicao_geografica": {
+        "SC": 48
+      },
+      "tipos_objeto": [
+        "engenharia_extra_profile"
+      ],
+      "desagio": null,
+      "desagio_status": "INSUFFICIENT_PAIR",
+      "desagio_evidence": "estimado/homologado not linked to same certame/lote/item",
+      "contratos_ativos": [],
+      "capacidade_operacional": {
+        "label": "HYPOTHESIS",
+        "claim_as_fact_forbidden": true,
+        "text": "Capacidade operacional não afirmada como fato sem evidência"
+      },
+      "selection_score": 104673610.2,
+      "selection_justification": "rank by ('n_contratos', 'valor_contratado_total'): n=48, valor=56673610.2; min_contracts>=2"
+    },
+    {
+      "rank": 12,
+      "cnpj": "27743102000153",
+      "nome": "FJ CONSTRUTORA LTDA EPP",
+      "identidade_canonica": "27743102000153",
+      "n_contratos": 48,
+      "valor_contratado_total": 48899863.58,
+      "valor_semantica": "CONTRATADO",
+      "ticket_contratado_medio": 1018747.16,
+      "ticket_formula": "valor_contratado_total / n_contratos",
+      "orgaos_em_que_venceu": [
+        "Câmara Municipal de Vereadores",
+        "Diretor. Obras, Transp.serviç.e Edif.públi.urbanos",
+        "Prefeitura de Gaspar - SC",
+        "Prefeitura Municipal de Balneário Camboriú",
+        "PREFEITURA MUNICIPAL DE SÃO JOÃO BATISTA",
+        "SECRETARIA DE INFRAESTRUTURA URBANA",
+        "Secretaria de Obras e Servicos Publicos do Município de Guabiruba",
+        "SECRETARIA MUNICIPAL DE OBRAS E PLANEJAMENTO"
+      ],
+      "distribuicao_geografica": {
+        "SC": 48
+      },
+      "tipos_objeto": [
+        "engenharia_extra_profile"
+      ],
+      "desagio": null,
+      "desagio_status": "INSUFFICIENT_PAIR",
+      "desagio_evidence": "estimado/homologado not linked to same certame/lote/item",
+      "contratos_ativos": [],
+      "capacidade_operacional": {
+        "label": "HYPOTHESIS",
+        "claim_as_fact_forbidden": true,
+        "text": "Capacidade operacional não afirmada como fato sem evidência"
+      },
+      "selection_score": 96899863.58,
+      "selection_justification": "rank by ('n_contratos', 'valor_contratado_total'): n=48, valor=48899863.58; min_contracts>=2"
+    },
+    {
+      "rank": 13,
+      "cnpj": "00820854000114",
+      "nome": "QUALIDADE MINERAÇÃO LTDA.",
+      "identidade_canonica": "00820854000114",
+      "n_contratos": 47,
+      "valor_contratado_total": 372807900.91,
+      "valor_semantica": "CONTRATADO",
+      "ticket_contratado_medio": 7932083.0,
+      "ticket_formula": "valor_contratado_total / n_contratos",
+      "orgaos_em_que_venceu": [
+        "Gestão da Secretaria de Planejamento e Urbanismo",
+        "MUNICÍPIO DE LAGUNA",
+        "MUNICÍPIO DE PAULO LOPES",
+        "MUNICÍPIO DE RIO FORTUNA",
+        "MUNICÍPIO DE SÃO MARTINHO",
+        "MUNICÍPIO DE TUBARÃO",
+        "PREFEITURA MUNICIPAL DE BELA VISTA DO TOLDO - SC",
+        "Prefeitura Municipal de Imbituba/SC",
+        "Prefeitura Municipal de Jaraguá do Sul",
+        "PREFEITURA MUNICIPAL DE NOVA TRENTO",
+        "Prefeitura Municipal de Pescaria Brava - SC",
+        "Prefeitura Municipal de Petrolândia",
+        "PREFEITURA MUNICIPAL DE RANCHO QUEIMADO",
+        "PREFEITURA MUNICIPAL DE SÃO JOÃO BATISTA",
+        "SEC. MUN. INFRAESTRUTURA E OBRAS - SEINF",
+        "Secretaria de Estado da Infraestrutura e Mobilidade",
+        "SECRETARIA DE INFRA-ESTRUTURA",
+        "Secretaria de Obras e Servicos Publicos do Município de Guabiruba",
+        "Secretaria de Planejamento e Infraestrutura e Saneamento",
+        "Unidade Única"
+      ],
+      "distribuicao_geografica": {
+        "SC": 47
+      },
+      "tipos_objeto": [
+        "engenharia_extra_profile"
+      ],
+      "desagio": null,
+      "desagio_status": "INSUFFICIENT_PAIR",
+      "desagio_evidence": "estimado/homologado not linked to same certame/lote/item",
+      "contratos_ativos": [],
+      "capacidade_operacional": {
+        "label": "HYPOTHESIS",
+        "claim_as_fact_forbidden": true,
+        "text": "Capacidade operacional não afirmada como fato sem evidência"
+      },
+      "selection_score": 419807900.91,
+      "selection_justification": "rank by ('n_contratos', 'valor_contratado_total'): n=47, valor=372807900.91; min_contracts>=2"
+    },
+    {
+      "rank": 14,
+      "cnpj": "24451654000108",
+      "nome": "L. DA SILVA - COMERCIO",
+      "identidade_canonica": "24451654000108",
+      "n_contratos": 46,
+      "valor_contratado_total": 492623.02,
+      "valor_semantica": "CONTRATADO",
+      "ticket_contratado_medio": 10709.2,
+      "ticket_formula": "valor_contratado_total / n_contratos",
+      "orgaos_em_que_venceu": [
+        "CONSELHO REGIONAL DE ENGENHARIA  E AGRONOMIA"
+      ],
+      "distribuicao_geografica": {
+        "SC": 46
+      },
+      "tipos_objeto": [
+        "engenharia_extra_profile"
+      ],
+      "desagio": null,
+      "desagio_status": "INSUFFICIENT_PAIR",
+      "desagio_evidence": "estimado/homologado not linked to same certame/lote/item",
+      "contratos_ativos": [],
+      "capacidade_operacional": {
+        "label": "HYPOTHESIS",
+        "claim_as_fact_forbidden": true,
+        "text": "Capacidade operacional não afirmada como fato sem evidência"
+      },
+      "selection_score": 46492623.02,
+      "selection_justification": "rank by ('n_contratos', 'valor_contratado_total'): n=46, valor=492623.02; min_contracts>=2"
+    },
+    {
+      "rank": 15,
+      "cnpj": "09223659000181",
+      "nome": "VIGA PAVIMENTAÇÃO E OBRAS LTDA",
+      "identidade_canonica": "09223659000181",
+      "n_contratos": 44,
+      "valor_contratado_total": 95415708.18,
+      "valor_semantica": "CONTRATADO",
+      "ticket_contratado_medio": 2168538.82,
+      "ticket_formula": "valor_contratado_total / n_contratos",
+      "orgaos_em_que_venceu": [
+        "CONSÓRCIO INTERFEDERATIVO SANTA CATARINA - CINCATARINA",
+        "FUNDO MUNICIPAL DE ASSISTÊNCIA SOCIAL DE HERVAL D´OESTE - SC",
+        "MUNICÍPIO DE ÁGUA DOCE",
+        "MUNÍCIPIO DE ERVAL VELHO",
+        "MUNICÍPIO DE JABORÁ",
+        "Prefeitura de Capinzal",
+        "PREFEITURA MUNICIPAL DE HERVAL D´OESTE - SC",
+        "PREFEITURA MUNICIPAL DE JOAÇABA",
+        "Sec. Mun. de Transportes",
+        "SERVIÇO INTERMUNICIPAL DE ÁGUA E ESGOTO JOAÇABA HERVAL DOESTE E LUZERNA"
+      ],
+      "distribuicao_geografica": {
+        "SC": 44
+      },
+      "tipos_objeto": [
+        "engenharia_extra_profile"
+      ],
+      "desagio": null,
+      "desagio_status": "INSUFFICIENT_PAIR",
+      "desagio_evidence": "estimado/homologado not linked to same certame/lote/item",
+      "contratos_ativos": [],
+      "capacidade_operacional": {
+        "label": "HYPOTHESIS",
+        "claim_as_fact_forbidden": true,
+        "text": "Capacidade operacional não afirmada como fato sem evidência"
+      },
+      "selection_score": 139415708.18,
+      "selection_justification": "rank by ('n_contratos', 'valor_contratado_total'): n=44, valor=95415708.18; min_contracts>=2"
+    }
+  ],
+  "insufficiency": {
+    "insufficient": false,
+    "target_n": 15,
+    "valid_count": 15,
+    "message": "15 defensáveis >= target 15"
+  },
+  "claims_allowed": [
+    "Selected 15 of target 15 with rule Top 15 by n_contratos,valor_contratado_total with min_contracts>=2; require CNPJ",
+    "No padding when insufficient",
+    "Deságio only with comparable pair",
+    "Active claim only with vigencia+status evidence",
+    "Capacity labeled HYPOTHESIS without evidence",
+    "Suppliers observed winning engineering-object contracts in filter",
+    "Not a complete market or win-rate claim"
+  ],
+  "claims_forbidden": [
+    "Pad list to 15 with noise",
+    "Deságio without same certame/lote/item pair",
+    "Call contract active without vigencia+status",
+    "State competitor capacity as fact without evidence",
+    "ESTIMADO labeled as CONTRATADO total",
+    "Treat top suppliers by raw national volume as Extra peers",
+    "Infer partnership from co-presence"
+  ],
+  "generated_at": "2026-07-24T15:38:54Z",
+  "population": {
+    "eligible_population": 1179237,
+    "active_contracts": 1179237,
+    "uf_filter": "SC",
+    "period_min": "2023-07-20",
+    "period_max": "2026-07-23",
+    "sample_label": "FULL_ELIGIBLE_POPULATION",
+    "not_sample_of_n": true,
+    "n_suppliers_eligible_engineering": 1360,
+    "n_contracts_eligible_engineering": 5131,
+    "profile_object_terms": [
+      "reforma predial",
+      "reforma de edif",
+      "reforma de prédio",
+      "reforma de predio",
+      "manutenção predial",
+      "manutencao predial",
+      "construção de edif",
+      "construcao de edif",
+      "construção de préd",
+      "construcao de pred",
+      "edificação",
+      "edificacao",
+      "obra de engenharia",
+      "engenharia civil",
+      "pavimenta",
+      "drenagem",
+      "revitalização urbana",
+      "revitalizacao urbana",
+      "infraestrutura urbana"
+    ],
+    "export_limit": 200,
+    "export_is_not_universe": true,
+    "selection_note": "Competitors ranked only on contracts whose objeto matches Extra engineering profile terms; hospital/office suppliers excluded."
+  },
+  "query_seconds": 12.229,
+  "run_id": "live-pack-20260724-153838-8a526ae6",
+  "as_of": "2026-07-24",
+  "git_sha": "b7655a231d063db3764fa6bd8e0f71f7897d860f",
+  "schema_version": "coverage-2.4_entity_coverage_rebuild"
+}

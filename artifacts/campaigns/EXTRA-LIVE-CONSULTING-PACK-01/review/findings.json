@@ -1,0 +1,64 @@
+{
+  "reviewer": "campaign-coordinator-self-critique-after-skeptic",
+  "mode": "adversarial-remediation",
+  "tip_at_review": "54ac214c4d9cbe0a7249bc3750bff588d315fcf6",
+  "pack_run_id": "live-pack-20260724-153838-8a526ae6",
+  "verdict": "CONDITIONAL_BLOCKED",
+  "findings": [
+    {
+      "id": "F3",
+      "severity": "high",
+      "title": "Human ACCEPT required",
+      "status": "open",
+      "note": "BLOCKED_HUMAN; agent fill-in forbidden"
+    },
+    {
+      "id": "F1",
+      "severity": "info",
+      "title": "C window hits",
+      "status": "resolved",
+      "observed": "~14750 hits after termino_fonte fix",
+      "previous_error": "claimed zero incorrectly"
+    },
+    {
+      "id": "F6",
+      "severity": "high",
+      "title": "B hospital suppliers",
+      "status": "resolved",
+      "fix": "engineering object filter + name denylist"
+    },
+    {
+      "id": "F7",
+      "severity": "medium",
+      "title": "Dual isolated operational reproof missing",
+      "status": "executed_gate_fail",
+      "observed": "dual reproof on isolated: denominator 1093, coverage 0% (coverage_evidence empty); not claimable as 95%",
+      "note": "Does not invalidate prior signed live dual evidence paths"
+    },
+    {
+      "id": "F8",
+      "severity": "medium",
+      "title": "SHA/run_id scatter",
+      "status": "mitigated_this_rc",
+      "note": "single pack-rc run stamped into package-reconciliation"
+    },
+    {
+      "id": "F9",
+      "severity": "medium",
+      "title": "Monthly silent 5000",
+      "status": "resolved",
+      "observed": "FULL_WINDOW 57238"
+    },
+    {
+      "id": "F10",
+      "severity": "medium",
+      "title": "Independent non-implementer review still required",
+      "status": "open",
+      "note": "this file is remediation self-critique, not independent reviewer"
+    }
+  ],
+  "blocking": [
+    "F3",
+    "F10"
+  ]
+}

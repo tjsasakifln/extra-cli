@@ -1,0 +1,155 @@
+{
+  "status": "OK",
+  "deliverable": "E",
+  "title": "Editais abertos e recomendação individual",
+  "profile": {
+    "profile_path": "config/client_profiles/extra.yaml",
+    "profile_id": "extra_construtora",
+    "display_name": "Extra Empreiteira e Construtora",
+    "version": 2,
+    "version_date": "2026-07-16",
+    "stamp": "extra_construtora@v2"
+  },
+  "cut_date": "2026-07-23",
+  "recommendations": [
+    {
+      "edital_id": "11360515000119-1-000013/2026",
+      "titulo": "AQUISIÇÃO DE LENÇÓIS E MANTAS DESTINADOS AOS LEITOS DA UNIDADE BÁSICA DE SAÚDE DO MUNICÍPIO DE SANTA TEREZINHA DO PROGRESSO/SC, VISANDO ATENDER ÀS NECESSIDADES DE ACOLHIMENTO, CONFORTO, HIGIENE E BEM-",
+      "orgao": "FUNDO MUNICIPAL DE SAUDE DE SANTA TEREZINHA DO PROGRESSO",
+      "ranking": "REVIEW",
+      "client_label": "REVIEW",
+      "profile_id": "extra_construtora",
+      "profile_version": 2,
+      "openness": {
+        "is_open_at_cut": true,
+        "cut_date": "2026-07-23",
+        "proof_mode": "SNAPSHOT",
+        "snapshot_id": "1",
+        "reconfirmed_at": null,
+        "official_url": "https://pncp.gov.br/app/editais/11360515000119-1-000013/2026",
+        "status_source": "pncp"
+      },
+      "fatores_favoraveis": [
+        "UF alinhada ao perfil (SC)"
+      ],
+      "fatores_impeditivos_ou_riscos": [
+        "objeto sem match claro em engineering_categories",
+        "capacidade operacional crítica PENDING no perfil: capital_giro, capacidade_simultanea, capacidade_garantia, cats_atestados, certidoes"
+      ],
+      "referencias_oficiais": [
+        "https://pncp.gov.br/app/editais/11360515000119-1-000013/2026"
+      ],
+      "disclaimer": "Recomendação operacional fundamentada em dados disponíveis; NÃO promete vitória e NÃO substitui análise jurídica, contábil ou técnica final.",
+      "score_notes": "REVIEW por ambiguidade de objeto; ADR-022: sem capacidade elicitada não emitir PARTICIPAR definitivo; GO bloqueado por campos críticos PENDING"
+    },
+    {
+      "edital_id": "07654807000197-1-000072/2026",
+      "titulo": "Aquisição de 01 (um) computador do tipo All in One, novo, de primeiro uso, contemplando, no mínimo, processador Intel Core i5- 12400 ou equivalente em desempenho ou superior, 16 GB de memória RAM DDR4",
+      "orgao": "CONSORCIO INTERMUNICIPAL DE SAUDE DO ALTO URUGUAI CATARINENSE",
+      "ranking": "REVIEW",
+      "client_label": "REVIEW",
+      "profile_id": "extra_construtora",
+      "profile_version": 2,
+      "openness": {
+        "is_open_at_cut": true,
+        "cut_date": "2026-07-23",
+        "proof_mode": "SNAPSHOT",
+        "snapshot_id": "1",
+        "reconfirmed_at": null,
+        "official_url": "https://pncp.gov.br/app/editais/07654807000197-1-000072/2026",
+        "status_source": "pncp"
+      },
+      "fatores_favoraveis": [
+        "UF alinhada ao perfil (SC)"
+      ],
+      "fatores_impeditivos_ou_riscos": [
+        "objeto sem match claro em engineering_categories",
+        "capacidade operacional crítica PENDING no perfil: capital_giro, capacidade_simultanea, capacidade_garantia, cats_atestados, certidoes"
+      ],
+      "referencias_oficiais": [
+        "https://pncp.gov.br/app/editais/07654807000197-1-000072/2026"
+      ],
+      "disclaimer": "Recomendação operacional fundamentada em dados disponíveis; NÃO promete vitória e NÃO substitui análise jurídica, contábil ou técnica final.",
+      "score_notes": "REVIEW por ambiguidade de objeto; ADR-022: sem capacidade elicitada não emitir PARTICIPAR definitivo; GO bloqueado por campos críticos PENDING"
+    },
+    {
+      "edital_id": "10432684000154-1-000049/2025",
+      "titulo": "CREDENCIAMENTO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE SERVIÇOS DE FORMA COMPLEMENTAR AO SUS, DE EXAMES COM FINALIDADE DIAGNÓSTICA (LABORATÓRIO CLÍNICO), EXAMES BIOQUÍMICOS, HEMATOLÓGICOS E HEMOSTAS",
+      "orgao": "FUNDO MUNICIPAL DE SAUDE",
+      "ranking": "REVIEW",
+      "client_label": "REVIEW",
+      "profile_id": "extra_construtora",
+      "profile_version": 2,
+      "openness": {
+        "is_open_at_cut": true,
+        "cut_date": "2026-07-23",
+        "proof_mode": "SNAPSHOT",
+        "snapshot_id": "1",
+        "reconfirmed_at": null,
+        "official_url": "https://pncp.gov.br/app/editais/10432684000154-1-000049/2025",
+        "status_source": "pncp"
+      },
+      "fatores_favoraveis": [
+        "UF alinhada ao perfil (SC)"
+      ],
+      "fatores_impeditivos_ou_riscos": [
+        "objeto sem match claro em engineering_categories",
+        "capacidade operacional crítica PENDING no perfil: capital_giro, capacidade_simultanea, capacidade_garantia, cats_atestados, certidoes"
+      ],
+      "referencias_oficiais": [
+        "https://pncp.gov.br/app/editais/10432684000154-1-000049/2025"
+      ],
+      "disclaimer": "Recomendação operacional fundamentada em dados disponíveis; NÃO promete vitória e NÃO substitui análise jurídica, contábil ou técnica final.",
+      "score_notes": "REVIEW por ambiguidade de objeto; ADR-022: sem capacidade elicitada não emitir PARTICIPAR definitivo; GO bloqueado por campos críticos PENDING"
+    },
+    {
+      "edital_id": "83102541000158-1-000167/2025",
+      "titulo": "Credenciamento de empresa para prestação de serviços de manutenção da frota municipal, incluindo fornecimento de peças e serviços necessários, visando à aquisição de serviços de manutenção mecânica, e",
+      "orgao": "MUNICIPIO DE PORTO UNIAO",
+      "ranking": "REVIEW",
+      "client_label": "REVIEW",
+      "profile_id": "extra_construtora",
+      "profile_version": 2,
+      "openness": {
+        "is_open_at_cut": true,
+        "cut_date": "2026-07-23",
+        "proof_mode": "SNAPSHOT",
+        "snapshot_id": "1",
+        "reconfirmed_at": null,
+        "official_url": "https://pncp.gov.br/app/editais/83102541000158-1-000167/2025",
+        "status_source": "pncp"
+      },
+      "fatores_favoraveis": [
+        "UF alinhada ao perfil (SC)"
+      ],
+      "fatores_impeditivos_ou_riscos": [
+        "objeto sem match claro em engineering_categories",
+        "capacidade operacional crítica PENDING no perfil: capital_giro, capacidade_simultanea, capacidade_garantia, cats_atestados, certidoes"
+      ],
+      "referencias_oficiais": [
+        "https://pncp.gov.br/app/editais/83102541000158-1-000167/2025"
+      ],
+      "disclaimer": "Recomendação operacional fundamentada em dados disponíveis; NÃO promete vitória e NÃO substitui análise jurídica, contábil ou técnica final.",
+      "score_notes": "REVIEW por ambiguidade de objeto; ADR-022: sem capacidade elicitada não emitir PARTICIPAR definitivo; GO bloqueado por campos críticos PENDING"
+    }
+  ],
+  "excluded_not_open": 0,
+  "claims_allowed": [
+    "4 open editais with GO/REVIEW/NO_GO at cut=2026-07-23",
+    "Client labels PARTICIPAR/NÃO PARTICIPAR/REVIEW",
+    "Disclaimer: no victory promise; no substitute for final legal/accounting/tech analysis"
+  ],
+  "claims_forbidden": [
+    "Promise vitória",
+    "Substitute análise jurídica/contábil/técnica final",
+    "Include closed editais as open without proof",
+    "Recommend without official data/doc reference when available path exists"
+  ],
+  "generated_at": "2026-07-24T00:12:41Z",
+  "incorporated_from": "/tmp/extra-cli-live-pack-01/artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/deliverable_e.json",
+  "source_class": "captured_real_evidence",
+  "run_id": "live-pack-20260724-153838-8a526ae6",
+  "as_of": "2026-07-24",
+  "git_sha": "b7655a231d063db3764fa6bd8e0f71f7897d860f",
+  "schema_version": "coverage-2.4_entity_coverage_rebuild"
+}

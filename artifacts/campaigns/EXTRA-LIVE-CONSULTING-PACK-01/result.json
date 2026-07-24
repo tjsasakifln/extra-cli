@@ -1,0 +1,156 @@
+{
+  "campaign_id": "EXTRA-LIVE-CONSULTING-PACK-01",
+  "terminal": "BLOCKED",
+  "terminal_detail": "BLOCKED_HUMAN — dual isolated reproof executed (0% / empty coverage_evidence); prior signed live dual not invalidated",
+  "blockers": [
+    {
+      "id": "HUMAN_ACCEPT",
+      "type": "human_acceptance",
+      "who": "Tiago",
+      "action": "Inspect pack-rc/ (PDF/Excel/sumário) personally and set user-acceptance.json decision ACCEPT|REJECT|findings — agents must not fill decision",
+      "impact": "No PASS without verifiable human decision"
+    }
+  ],
+  "work_not_blocked_complete": true,
+  "git_sha": "54ac214c4d9cbe0a7249bc3750bff588d315fcf6",
+  "pack_run_id": "live-pack-20260724-153838-8a526ae6",
+  "pack_git_sha": "b7655a231d063db3764fa6bd8e0f71f7897d860f",
+  "pr": "https://github.com/tjsasakifln/extra-cli/pull/130",
+  "branch": "campaign/extra-live-consulting-pack-01",
+  "production_touched": false,
+  "soak_contact": false,
+  "pack": {
+    "run_id": "live-pack-20260724-153838-8a526ae6",
+    "git_sha": "b7655a231d063db3764fa6bd8e0f71f7897d860f",
+    "as_of": "2026-07-24",
+    "eligible_population_SC": 1179237,
+    "A": {
+      "status": "OK",
+      "n_rows": 200,
+      "population": {
+        "eligible_population": 1179237,
+        "active_contracts": 1179237,
+        "uf_filter": "SC",
+        "period_min": "2023-07-20",
+        "period_max": "2026-07-23",
+        "sample_label": "FULL_ELIGIBLE_POPULATION",
+        "not_sample_of_n": true,
+        "n_orgaos_eligible": 1378,
+        "n_contracts_eligible": 1179237,
+        "valor_sum_eligible": 60997079905.59,
+        "export_limit": 200,
+        "export_is_not_universe": true
+      },
+      "query_seconds": 2.952
+    },
+    "B": {
+      "status": "OK",
+      "valid_count": 15,
+      "target_n": 15,
+      "query_seconds": 12.229
+    },
+    "C": {
+      "status": "OK",
+      "n_rows": 200,
+      "success_zero": {
+        "success_zero": false,
+        "n": 14750,
+        "query_complete": true
+      },
+      "query_seconds": 1.965
+    },
+    "D": {
+      "status": "OK",
+      "n_panels": 6,
+      "query_seconds": 1.717
+    },
+    "E": {
+      "status": "OK",
+      "n_recs": 4,
+      "source_class": "captured_real_evidence"
+    },
+    "reconcile": {
+      "status": "PASS",
+      "same_run_id": true,
+      "divergences": [],
+      "run_id": "live-pack-20260724-153838-8a526ae6",
+      "eligible_population": 1179237
+    }
+  },
+  "gates": {
+    "isolation": "PASS",
+    "pack_reconcile": "PASS",
+    "campaign_gate_full_suite": "PENDING_RUN_ON_SUITE_DSN",
+    "human": "BLOCKED_HUMAN"
+  },
+  "claims_authorized": [
+    "A_E_pack_isolated_authenticated_snapshot_technical",
+    "engineering_filtered_competitors_B",
+    "C_full_window_query",
+    "monthly_full_window_labeled",
+    "production_touched=false"
+  ],
+  "non_claims": [
+    "PASS_without_verifiable_human_ACCEPT",
+    "agent_fabricated_ACCEPT",
+    "LOCAL_READY",
+    "VPS_OPERATIONAL",
+    "PROJECT_DONE",
+    "dual_operational_coverage_reproof_on_tip",
+    "unit_price_from_global",
+    "win_rate"
+  ],
+  "next_step": "1) Tiago real ACCEPT/REJECT after inspecting pack-rc. 2) Dual operational reproof on isolated copy or keep gap explicit. 3) campaign-gate with suite DSN green + CI tip green. 4) Only then consider PASS.",
+  "generated_at": "2026-07-24T15:44:35Z",
+  "candidate_sha": "b7655a231d063db3764fa6bd8e0f71f7897d860f",
+  "evidence_stamp_sha": "54ac214c4d9cbe0a7249bc3750bff588d315fcf6",
+  "sha_binding": {
+    "pack_generation_sha": "b7655a231d063db3764fa6bd8e0f71f7897d860f",
+    "evidence_stamp_sha": "e0d5b7b2974ecbd0e44acdc5301e1a2136f057c5",
+    "pack_run_id": "live-pack-20260724-153838-8a526ae6",
+    "package_reconciliation_run_id": "live-pack-20260724-153838-8a526ae6",
+    "consistent": true
+  },
+  "ci": {
+    "pr": 130,
+    "run": "30106367806",
+    "full_suite": "PASS",
+    "all_jobs": "PASS",
+    "checked_at": "2026-07-24T15:44:35Z"
+  },
+  "dual_isolated_reproof": {
+    "as_of": "2026-07-24T15:40:53.708064Z",
+    "git_sha": "54ac214c4d9cbe0a7249bc3750bff588d315fcf6",
+    "universe_count": 1093,
+    "seed_sha256": "d65f272812cf8dc95f3ca78c5db9a2fb2a39a759e5633eb3fb91891ad10a5486",
+    "open_tenders": {
+      "coverage_pct": 0.0,
+      "covered_numerator": 0,
+      "applicable_denominator": 1093,
+      "gate_status": "FAIL",
+      "never_checked_count": 1093,
+      "data_presence_status": "measured_no_rows"
+    },
+    "historical_contracts": {
+      "coverage_pct": 0.0,
+      "covered_numerator": 0,
+      "applicable_denominator": 1093,
+      "gate_status": "FAIL",
+      "never_checked_count": 1093,
+      "data_presence_status": "measured_rows_present"
+    },
+    "interpretation": {
+      "isolated_operational_dual_reproof": "EXECUTED",
+      "result": "GATE_FAIL_0pct",
+      "root_cause": "coverage_evidence empty on isolated restore (0 rows); denominator 1093 measured correctly",
+      "does_NOT_invalidate_prior_signed_live_dual": true,
+      "prior_signed_live_dual_paths": [
+        "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/dual-coverage-open_tenders.json",
+        "artifacts/campaigns/HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01/dual-coverage.json"
+      ],
+      "production_touched": false,
+      "claim_isolated_dual_95": false
+    },
+    "generated_at": "2026-07-24T15:41:11Z"
+  }
+}

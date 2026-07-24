@@ -1,0 +1,7 @@
+{
+  "release_candidate": "PASS",
+  "verify_isolated": "PASS",
+  "C_false_zero_fixed": true,
+  "workspace_competitors_fixed": true,
+  "ci_full_suite": "PASS"
+}

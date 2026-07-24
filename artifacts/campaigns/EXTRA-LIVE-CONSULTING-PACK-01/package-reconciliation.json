@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "run_id": "live-pack-20260724-153838-8a526ae6",
+  "git_sha": "b7655a231d063db3764fa6bd8e0f71f7897d860f",
+  "as_of": "2026-07-24",
+  "eligible_population": 1179237,
+  "divergences": [],
+  "same_run_id": true,
+  "source": "pack-rc/pack-manifest.json",
+  "stamped_at": "2026-07-24T15:38:59Z",
+  "evidence_stamp_sha": "e0d5b7b2974ecbd0e44acdc5301e1a2136f057c5",
+  "note": "run_id/git_sha bind pack generation; evidence_stamp_sha is docs tip after pack"
+}

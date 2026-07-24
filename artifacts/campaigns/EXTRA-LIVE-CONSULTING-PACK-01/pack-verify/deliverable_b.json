@@ -1,0 +1,817 @@
+{
+  "status": "OK",
+  "deliverable": "B",
+  "title": "Mapeamento de até 15 concorrentes observáveis",
+  "profile": {
+    "profile_path": "config/client_profiles/extra.yaml",
+    "profile_id": "extra_construtora",
+    "display_name": "Extra Empreiteira e Construtora",
+    "version": 2,
+    "version_date": "2026-07-16",
+    "stamp": "extra_construtora@v2"
+  },
+  "selection_rule": {
+    "target_n": 15,
+    "min_contracts": 1,
+    "sort_keys": [
+      "n_contratos",
+      "valor_contratado_total"
+    ],
+    "require_cnpj": true,
+    "uf_filter": null,
+    "allow_desagio_without_pair": false,
+    "description": "Top 15 by n_contratos,valor_contratado_total with min_contracts>=1; require CNPJ"
+  },
+  "target_n": 15,
+  "valid_count": 15,
+  "rows": [
+    {
+      "rank": 1,
+      "cnpj": "00802002000102",
+      "nome": "ALTERMED MAT.MED.HOSPITALAR LTDA",
+      "identidade_canonica": "00802002000102",
+      "n_contratos": 39605,
+      "valor_contratado_total": 69693800.96,
+      "valor_semantica": "CONTRATADO",
+      "ticket_contratado_medio": 1759.72,
+      "ticket_formula": "valor_contratado_total / n_contratos",
+      "orgaos_em_que_venceu": [
+        "AGENCIA PUBLICA INTERMUNICIPAL DE SERVICOS DO VALE EUROPEU - APIS",
+        "CAMARA DE VEREADORES DO MUNICIPIO DE CANELINHA",
+        "CÂMARA MUNICIPAL DE VEREADORES DE NAVEGANTES",
+        "CÂMARA MUNICIPAL DE VEREADORES IPORA DO OESTE",
+        "CIALAR",
+        "CINCATARINA - COMPRADOR",
+        "Consórcio Interfederativo de Saúde da Região da Amures - CISAMURES",
+        "CONSORCIO INTERMUNICIPAL DE ASSISTENCIA SOCIAL E SAUDE - CIASS",
+        "CONSORCIO INTERMUNICIPAL DE DESENVOLVIMENTO DA INFRAESTRUTURA RODOVIARIA ENTRE OS RIOS - CIDIRIOS",
+        "CONSORCIO INTERMUNICIPAL DE SAUDE DA REGIAO DA AMURES - CIS AMURES",
+        "CONSORCIO INTERMUNICIPAL DE SAUDE DO ALTO URUGUAI CATARINENSE",
+        "CONSORCIO INTERMUNICIPAL DE SAUDE E ASSISTENCIA SOCIAL",
+        "DEPARTAMENTO ADMINISTRATIVO",
+        "EBSERH - H U PROF POLYDORO ERNANI DE S THIAGO",
+        "FUNDACAO CULTURAL DE GUABIRUBA",
+        "FUNDACAO CULTURAL DE SAO CARLOS",
+        "FUNDACAO DE SAUDE DE LAURO MULLER",
+        "FUNDAÇÃO HOSPITALAR DR JOSÉ ATHANAZIO",
+        "FUNDAÇÃO HOSPITALAR MUNICIPAL DE CANELINHA",
+        "FUNDACAO MUNICIPAL DE DESPORTOS DO MUNICIPIO DE SAO BENTO DO SUL"
+      ],
+      "distribuicao_geografica": {
+        "SC": 1
+      },
+      "tipos_objeto": [
+        "contrato_pncp"
+      ],
+      "desagio": null,
+      "desagio_status": "INSUFFICIENT_PAIR",
+      "desagio_evidence": "estimado/homologado not linked to same certame/lote/item",
+      "contratos_ativos": [],
+      "capacidade_operacional": {
+        "label": "HYPOTHESIS",
+        "claim_as_fact_forbidden": true,
+        "text": "Capacidade operacional não afirmada como fato sem evidência"
+      },
+      "selection_score": 39674693800.96,
+      "selection_justification": "rank by ('n_contratos', 'valor_contratado_total'): n=39605, valor=69693800.96; min_contracts>=1"
+    },
+    {
+      "rank": 2,
+      "cnpj": "03652030000332",
+      "nome": "CENTERMEDI COMERCIO DE PRODUTOS HOSPITALARES LTDA   FILIAL SC",
+      "identidade_canonica": "03652030000332",
+      "n_contratos": 38496,
+      "valor_contratado_total": 88172380.39,
+      "valor_semantica": "CONTRATADO",
+      "ticket_contratado_medio": 2290.43,
+      "ticket_formula": "valor_contratado_total / n_contratos",
+      "orgaos_em_que_venceu": [
+        "AGENCIA PUBLICA INTERMUNICIPAL DE SERVICOS DO VALE EUROPEU - APIS",
+        "CÂMARA DE VEREADORES DE BALNEÁRIO CAMBORIÚ",
+        "CAMARA MUNICIPAL DE GAROPABA",
+        "CAMARA MUNICIPAL DE VEREADORES DE CONCORDIA\t",
+        "CAMARA MUNICIPAL DE VEREADORES DE ITAPIRANGA",
+        "CÂMARA MUNICIPAL DE VEREADORES DE XANXERÊ",
+        "CAMARA MUNICIPAL DO MUNICIPIO DE GUARAMIRIM",
+        "Consórcio Interfederativo de Saúde da Região da Amures - CISAMURES",
+        "Consórcio Intermunicipal de Saúde (CIS-A",
+        "CONSORCIO INTERMUNICIPAL DE SAUDE DA REGIAO DA AMURES - CIS AMURES",
+        "CONSORCIO INTERMUNICIPAL DO MEDIO VALE DO ITAJAI - CIMVI\t",
+        "EMPRESA MUNICIPAL DE AGUA E SANEAMENTO DE BALNEARIO CAMBORIU",
+        "FUNDACAO CULTURAL DE GUABIRUBA",
+        "FUNDACAO CULTURAL DE SÃO BENTO DO SUL",
+        "FUNDACAO CULTURAL DE SAO CARLOS",
+        "FUNDACAO DE SAUDE DE LAURO MULLER",
+        "FUNDAÇÃO HOSPITALAR DR JOSÉ ATHANAZIO",
+        "FUNDAÇÃO HOSPITALAR MUNICIPAL DE CANELINHA",
+        "FUNDACAO MUNICIPAL DE EDUCACAO DE TUBARAO",
+        "FUNDACAO MUNICIPAL DE MEIO AMBIENTE DE TUBARAO"
+      ],
+      "distribuicao_geografica": {
+        "SC": 1
+      },
+      "tipos_objeto": [
+        "contrato_pncp"
+      ],
+      "desagio": null,
+      "desagio_status": "INSUFFICIENT_PAIR",
+      "desagio_evidence": "estimado/homologado not linked to same certame/lote/item",
+      "contratos_ativos": [],
+      "capacidade_operacional": {
+        "label": "HYPOTHESIS",
+        "claim_as_fact_forbidden": true,
+        "text": "Capacidade operacional não afirmada como fato sem evidência"
+      },
+      "selection_score": 38584172380.39,
+      "selection_justification": "rank by ('n_contratos', 'valor_contratado_total'): n=38496, valor=88172380.39; min_contracts>=1"
+    },
+    {
+      "rank": 3,
+      "cnpj": "45747626000102",
+      "nome": "OTHALA COMERCIO LTDA",
+      "identidade_canonica": "45747626000102",
+      "n_contratos": 28432,
+      "valor_contratado_total": 21030188.71,
+      "valor_semantica": "CONTRATADO",
+      "ticket_contratado_medio": 739.67,
+      "ticket_formula": "valor_contratado_total / n_contratos",
+      "orgaos_em_que_venceu": [
+        "AGENCIA PUBLICA INTERMUNICIPAL DE SERVICOS DO VALE EUROPEU - APIS",
+        "AGENCIA REGULADORA DE SANEAMENTO DE TUBARAO\t",
+        "AGÊNCIA REGULADORA INTERMUNICIPAL DE SANEAMENTO - ARIS",
+        "ÁGUAS DE CORUPÁ",
+        "ARARANGUA CAMARA DE VEREADORES",
+        "ASSOCIACAO DOS MUNICIPIOS DO PLANALTO NORTE AMPLANORTE",
+        "BALNEARIO PIÇARRAS CAMARA MUNICIPAL DE VEREADORES",
+        "CAMARA DE VEREADORES",
+        "CÂMARA DE VEREADORES DE AGROLÂNDIA",
+        "CÂMARA DE VEREADORES DE ARROIO TRINTA",
+        "CAMARA DE VEREADORES DE AURORA",
+        "CÂMARA DE VEREADORES DE BALNEÁRIO CAMBORIÚ",
+        "CAMARA DE VEREADORES DE BARRA VELHA",
+        "CÂMARA DE VEREADORES DE CUNHATAÍ",
+        "CAMARA DE VEREADORES DE IMBUIA",
+        "CAMARA DE VEREADORES DE IPUMIRIM",
+        "CAMARA DE VEREADORES DE IRATI\t",
+        "CÂMARA DE VEREADORES DE LAURENTINO",
+        "CÂMARA DE VEREADORES DE PENHA",
+        "CÂMARA DE VEREADORES DE PONTE ALTA"
+      ],
+      "distribuicao_geografica": {
+        "SC": 1
+      },
+      "tipos_objeto": [
+        "contrato_pncp"
+      ],
+      "desagio": null,
+      "desagio_status": "INSUFFICIENT_PAIR",
+      "desagio_evidence": "estimado/homologado not linked to same certame/lote/item",
+      "contratos_ativos": [],
+      "capacidade_operacional": {
+        "label": "HYPOTHESIS",
+        "claim_as_fact_forbidden": true,
+        "text": "Capacidade operacional não afirmada como fato sem evidência"
+      },
+      "selection_score": 28453030188.71,
+      "selection_justification": "rank by ('n_contratos', 'valor_contratado_total'): n=28432, valor=21030188.71; min_contracts>=1"
+    },
+    {
+      "rank": 4,
+      "cnpj": "05531725000120",
+      "nome": "SOMA/SC PRODUTOS HOSPITALARES LTDA.",
+      "identidade_canonica": "05531725000120",
+      "n_contratos": 27661,
+      "valor_contratado_total": 87678236.81,
+      "valor_semantica": "CONTRATADO",
+      "ticket_contratado_medio": 3169.74,
+      "ticket_formula": "valor_contratado_total / n_contratos",
+      "orgaos_em_que_venceu": [
+        "AGENCIA PUBLICA INTERMUNICIPAL DE SERVICOS DO VALE EUROPEU - APIS",
+        "COMITE DESPORTIVO MUNICIPAL DE SÃO LOURENÇO",
+        "Consórcio Interfederativo de Saúde da Região da Amures - CISAMURES",
+        "CONSORCIO INTERMUNICIPAL DE SAUDE DA REGIAO DA AMURES - CIS AMURES",
+        "Coordenadoria de Recursos Materiais",
+        "EBSERH - H U PROF POLYDORO ERNANI DE S THIAGO",
+        "FUNDACAO DE SAUDE DE LAURO MULLER",
+        "FUNDAÇÃO HOSPITALAR DR JOSÉ ATHANAZIO",
+        "FUNDAÇÃO HOSPITALAR MUNICIPAL DE CANELINHA",
+        "FUNDACAO MUNICIPAL DE MEIO AMBIENTE DE TUBARAO",
+        "FUNDACAO MUNICIPAL DE SAUDE DE TUBARAO",
+        "FUNDO DE SAÚDE DO MUNICÍPIO DE MONTE CASTELO",
+        "FUNDO MUNICIPAL DA SAUDE DE OURO",
+        "FUNDO MUNICIPAL DA SAUDE DO MUNICÍPIO DE GRÃO-PARÁ",
+        "FUNDO MUNICIPAL DA SAUDE DO MUNICÍPIO DE JAGUARUNA",
+        "FUNDO MUNICIPAL DE SAUDE",
+        "Fundo Municipal de Saúde",
+        "FUNDO MUNICIPAL DE SAÚDE",
+        "FUNDO MUNICIPAL DE SAÚDE DE ABELARDO LUZ",
+        "FUNDO MUNICIPAL DE SAÚDE DE ÁGUAS MORNAS"
+      ],
+      "distribuicao_geografica": {
+        "SC": 1
+      },
+      "tipos_objeto": [
+        "contrato_pncp"
+      ],
+      "desagio": null,
+      "desagio_status": "INSUFFICIENT_PAIR",
+      "desagio_evidence": "estimado/homologado not linked to same certame/lote/item",
+      "contratos_ativos": [],
+      "capacidade_operacional": {
+        "label": "HYPOTHESIS",
+        "claim_as_fact_forbidden": true,
+        "text": "Capacidade operacional não afirmada como fato sem evidência"
+      },
+      "selection_score": 27748678236.81,
+      "selection_justification": "rank by ('n_contratos', 'valor_contratado_total'): n=27661, valor=87678236.81; min_contracts>=1"
+    },
+    {
+      "rank": 5,
+      "cnpj": "11145401000156",
+      "nome": "L A DALLA PORTA JUNIOR LTDA",
+      "identidade_canonica": "11145401000156",
+      "n_contratos": 24282,
+      "valor_contratado_total": 43889091.76,
+      "valor_semantica": "CONTRATADO",
+      "ticket_contratado_medio": 1807.47,
+      "ticket_formula": "valor_contratado_total / n_contratos",
+      "orgaos_em_que_venceu": [
+        "CÂMARA MUNICIPAL DE SÃO JOSÉ",
+        "CAMBORIU CAMARA DE VEREADORES",
+        "CIALAR",
+        "COMITE DESPORTIVO MUNICIPAL DE SÃO LOURENÇO",
+        "Consórcio Interfederativo de Saúde da Região da Amures - CISAMURES",
+        "CONSÓRCIO INTERFEDERATIVO SANTA CATARINA - CINCATARINA",
+        "CONSORCIO INTERMUNICIPAL DE ASSISTENCIA SOCIAL E SAUDE - CIASS",
+        "CONSORCIO INTERMUNICIPAL DE SAUDE DA REGIAO DA AMURES - CIS AMURES",
+        "CONSORCIO INTERMUNICIPAL DE SAUDE E ASSISTENCIA SOCIAL",
+        "CONSORCIO INTERMUNICIPAL DO MEDIO VALE DO ITAJAI - CIMVI\t",
+        "Coordenadoria de Recursos Materiais",
+        "EMPRESA MUNICIPAL DE AGUA E SANEAMENTO DE BALNEARIO CAMBORIU",
+        "FUNDACAO AMBIENTAL AREA COSTEIRA DE ITAPEMA - FAACI",
+        "FUNDACAO CULTURAL DE GUABIRUBA",
+        "FUNDACAO CULTURAL DE SÃO BENTO DO SUL",
+        "FUNDACAO CULTURAL DE SAO CARLOS",
+        "FUNDACAO DE SAUDE DE LAURO MULLER",
+        "FUNDACAO DO MEIO AMBIENTE DE GOVERNADOR CELSO RAMOS",
+        "FUNDAÇÃO HOSPITALAR DR JOSÉ ATHANAZIO",
+        "FUNDAÇÃO HOSPITALAR MUNICIPAL DE CANELINHA"
+      ],
+      "distribuicao_geografica": {
+        "SC": 1
+      },
+      "tipos_objeto": [
+        "contrato_pncp"
+      ],
+      "desagio": null,
+      "desagio_status": "INSUFFICIENT_PAIR",
+      "desagio_evidence": "estimado/homologado not linked to same certame/lote/item",
+      "contratos_ativos": [],
+      "capacidade_operacional": {
+        "label": "HYPOTHESIS",
+        "claim_as_fact_forbidden": true,
+        "text": "Capacidade operacional não afirmada como fato sem evidência"
+      },
+      "selection_score": 24325889091.76,
+      "selection_justification": "rank by ('n_contratos', 'valor_contratado_total'): n=24282, valor=43889091.76; min_contracts>=1"
+    },
+    {
+      "rank": 6,
+      "cnpj": "07752236000123",
+      "nome": "MEDILAR IMPORTAÇÃO E DISTRIBUIÇÃO DE PRODUTOS MEDICO HOSPITLARES",
+      "identidade_canonica": "07752236000123",
+      "n_contratos": 23993,
+      "valor_contratado_total": 82126390.95,
+      "valor_semantica": "CONTRATADO",
+      "ticket_contratado_medio": 3422.93,
+      "ticket_formula": "valor_contratado_total / n_contratos",
+      "orgaos_em_que_venceu": [
+        "CAMARA DE VEREADORES DO MUNICIPIO DE CANELINHA",
+        "CAMARA MUNICIPAL DE CAÇADOR",
+        "Consórcio Interfederativo de Saúde da Região da Amures - CISAMURES",
+        "CONSORCIO INTERMUNICIPAL DE SAUDE DA REGIAO DA AMURES - CIS AMURES",
+        "CONSORCIO INTERMUNICIPAL DE SAUDE DO ALTO URUGUAI CATARINENSE",
+        "CONSORCIO INTERMUNICIPAL DE SAUDE DO ALTO VALE DO RIO DO PEIXE",
+        "CONSORCIO INTERMUNICIPAL DE SAUDE DO OESTE DE SC",
+        "CONSORCIO INTERMUNICIPAL DO MEDIO VALE DO ITAJAI - CIMVI\t",
+        "EBSERH - H U PROF POLYDORO ERNANI DE S THIAGO",
+        "FUNDACAO CULTURAL DE GUABIRUBA",
+        "FUNDACAO DE SAUDE DE LAURO MULLER",
+        "FUNDAÇÃO HOSPITALAR DR JOSÉ ATHANAZIO",
+        "FUNDAÇÃO HOSPITALAR MUNICIPAL DE CANELINHA",
+        "FUNDACAO MUNICIPAL DE MEIO AMBIENTE DE TUBARAO",
+        "FUNDACAO MUNICIPAL DE SAUDE DE TUBARAO",
+        "Fundação Universidade Regional de Blumenau- SC",
+        "FUNDO DE SAÚDE DO MUNICÍPIO DE MONTE CASTELO",
+        "FUNDO MUNICIPAL DA SAUDE DE OURO",
+        "FUNDO MUNICIPAL DA SAUDE DO MUNICÍPIO DE GRÃO-PARÁ",
+        "FUNDO MUNICIPAL DA SAUDE DO MUNICÍPIO DE JAGUARUNA"
+      ],
+      "distribuicao_geografica": {
+        "SC": 1
+      },
+      "tipos_objeto": [
+        "contrato_pncp"
+      ],
+      "desagio": null,
+      "desagio_status": "INSUFFICIENT_PAIR",
+      "desagio_evidence": "estimado/homologado not linked to same certame/lote/item",
+      "contratos_ativos": [],
+      "capacidade_operacional": {
+        "label": "HYPOTHESIS",
+        "claim_as_fact_forbidden": true,
+        "text": "Capacidade operacional não afirmada como fato sem evidência"
+      },
+      "selection_score": 24075126390.95,
+      "selection_justification": "rank by ('n_contratos', 'valor_contratado_total'): n=23993, valor=82126390.95; min_contracts>=1"
+    },
+    {
+      "rank": 7,
+      "cnpj": "13965228000168",
+      "nome": "JLM DISTRIBUIDORA BR LTDA",
+      "identidade_canonica": "13965228000168",
+      "n_contratos": 22854,
+      "valor_contratado_total": 20261704.86,
+      "valor_semantica": "CONTRATADO",
+      "ticket_contratado_medio": 886.57,
+      "ticket_formula": "valor_contratado_total / n_contratos",
+      "orgaos_em_que_venceu": [
+        "AGENCIA PUBLICA INTERMUNICIPAL DE SERVICOS DO VALE EUROPEU - APIS",
+        "AGENCIA REGULADORA DE SANEAMENTO DE TUBARAO\t",
+        "AGÊNCIA REGULADORA INTERMUNICIPAL DE SANEAMENTO - ARIS",
+        "AGRONOMICA CAMARA DE VEREADORES",
+        "ARARANGUA CAMARA DE VEREADORES",
+        "BALNEARIO PIÇARRAS CAMARA MUNICIPAL DE VEREADORES",
+        "CÂMARA DE VEREADORES DE AGROLÂNDIA",
+        "CÂMARA DE VEREADORES DE ARROIO TRINTA",
+        "CAMARA DE VEREADORES DE AURORA",
+        "CÂMARA DE VEREADORES DE BALNEÁRIO CAMBORIÚ",
+        "CAMARA DE VEREADORES DE BARRA VELHA",
+        "CAMARA DE VEREADORES DE BIGUAÇU",
+        "CAMARA DE VEREADORES DE IMBUIA",
+        "CAMARA DE VEREADORES DE IRATI\t",
+        "CÂMARA DE VEREADORES DE LAURENTINO",
+        "CÂMARA DE VEREADORES DE PENHA",
+        "CÂMARA DE VEREADORES DE PONTE ALTA",
+        "CÂMARA DE VEREADORES DE POUSO REDONDO",
+        "CAMARA DE VEREADORES DE SAO BERNARDINO",
+        "CAMARA DE VEREADORES DE SAO CARLOS"
+      ],
+      "distribuicao_geografica": {
+        "SC": 1
+      },
+      "tipos_objeto": [
+        "contrato_pncp"
+      ],
+      "desagio": null,
+      "desagio_status": "INSUFFICIENT_PAIR",
+      "desagio_evidence": "estimado/homologado not linked to same certame/lote/item",
+      "contratos_ativos": [],
+      "capacidade_operacional": {
+        "label": "HYPOTHESIS",
+        "claim_as_fact_forbidden": true,
+        "text": "Capacidade operacional não afirmada como fato sem evidência"
+      },
+      "selection_score": 22874261704.86,
+      "selection_justification": "rank by ('n_contratos', 'valor_contratado_total'): n=22854, valor=20261704.86; min_contracts>=1"
+    },
+    {
+      "rank": 8,
+      "cnpj": "48566347000122",
+      "nome": "TELES SOLUÇÕES EMPRESARIAIS LTDA",
+      "identidade_canonica": "48566347000122",
+      "n_contratos": 19956,
+      "valor_contratado_total": 32205833.8,
+      "valor_semantica": "CONTRATADO",
+      "ticket_contratado_medio": 1613.84,
+      "ticket_formula": "valor_contratado_total / n_contratos",
+      "orgaos_em_que_venceu": [
+        "AGENCIA PUBLICA INTERMUNICIPAL DE SERVICOS DO VALE EUROPEU - APIS",
+        "AGENCIA REGULADORA DE SANEAMENTO DE TUBARAO\t",
+        "AGÊNCIA REGULADORA INTERMUNICIPAL DE SANEAMENTO - ARIS",
+        "ÁGUAS DE CORUPÁ",
+        "AMASPU",
+        "ASSOCIACAO DOS MUNICIPIOS DO MEIO OESTE CATARINENSE AMMOC",
+        "ASSOCIACAO DOS MUNICIPIOS DO PLANALTO NORTE AMPLANORTE",
+        "ASSOCIAÇÃO DOS MUNICÍPIOS DO PLANALTO SUL DE SANTA CATARINA AMPLASC",
+        "BALNEARIO PIÇARRAS CAMARA MUNICIPAL DE VEREADORES",
+        "CÂMARA DE VEREADORES DE AGROLÂNDIA",
+        "CÂMARA DE VEREADORES DE ARROIO TRINTA",
+        "CAMARA DE VEREADORES DE AURORA",
+        "CAMARA DE VEREADORES DE BARRA VELHA",
+        "CAMARA DE VEREADORES DE BIGUAÇU",
+        "CAMARA DE VEREADORES DE IMBUIA",
+        "CAMARA DE VEREADORES DE IPUMIRIM",
+        "CAMARA DE VEREADORES DE IRATI\t",
+        "CÂMARA DE VEREADORES DE LAURENTINO",
+        "CÂMARA DE VEREADORES DE PENHA",
+        "CÂMARA DE VEREADORES DE PONTE ALTA"
+      ],
+      "distribuicao_geografica": {
+        "SC": 1
+      },
+      "tipos_objeto": [
+        "contrato_pncp"
+      ],
+      "desagio": null,
+      "desagio_status": "INSUFFICIENT_PAIR",
+      "desagio_evidence": "estimado/homologado not linked to same certame/lote/item",
+      "contratos_ativos": [],
+      "capacidade_operacional": {
+        "label": "HYPOTHESIS",
+        "claim_as_fact_forbidden": true,
+        "text": "Capacidade operacional não afirmada como fato sem evidência"
+      },
+      "selection_score": 19988205833.8,
+      "selection_justification": "rank by ('n_contratos', 'valor_contratado_total'): n=19956, valor=32205833.8; min_contracts>=1"
+    },
+    {
+      "rank": 9,
+      "cnpj": "29222667000110",
+      "nome": "SK MATERIAIS PARA ESCRITORIO LTDA",
+      "identidade_canonica": "29222667000110",
+      "n_contratos": 19774,
+      "valor_contratado_total": 11504119.63,
+      "valor_semantica": "CONTRATADO",
+      "ticket_contratado_medio": 581.78,
+      "ticket_formula": "valor_contratado_total / n_contratos",
+      "orgaos_em_que_venceu": [
+        "AGENCIA PUBLICA INTERMUNICIPAL DE SERVICOS DO VALE EUROPEU - APIS",
+        "AGENCIA REGULADORA DE SANEAMENTO DE TUBARAO\t",
+        "AGÊNCIA REGULADORA INTERMUNICIPAL DE SANEAMENTO - ARIS",
+        "ASSOCIACAO DOS MUNICIPIOS DO MEIO OESTE CATARINENSE AMMOC",
+        "ASSOCIAÇÃO DOS MUNICÍPIOS DO PLANALTO SUL DE SANTA CATARINA AMPLASC",
+        "BALNEARIO PIÇARRAS CAMARA MUNICIPAL DE VEREADORES",
+        "CÂMARA DE VEREADORES DE AGROLÂNDIA",
+        "CAMARA DE VEREADORES DE BARRA VELHA",
+        "CAMARA DE VEREADORES DE BIGUAÇU",
+        "CÂMARA DE VEREADORES DE CUNHATAÍ",
+        "CAMARA DE VEREADORES DE IMBUIA",
+        "CAMARA DE VEREADORES DE IPUMIRIM",
+        "CÂMARA DE VEREADORES DE PENHA",
+        "CÂMARA DE VEREADORES DE PONTE ALTA",
+        "CAMARA DE VEREADORES DE SAO BERNARDINO",
+        "CAMARA DE VEREADORES DE SAO CARLOS",
+        "CAMARA DE VEREADORES DE SAO JOSE DO CERRITO",
+        "CAMARA DE VEREADORES DE TIMBO GRANDE\t",
+        "CÂMARA DE VEREADORES DE TRÊS BARRAS",
+        "CAMARA DE VEREADORES DO MUNICIPIO DE CANELINHA"
+      ],
+      "distribuicao_geografica": {
+        "SC": 1
+      },
+      "tipos_objeto": [
+        "contrato_pncp"
+      ],
+      "desagio": null,
+      "desagio_status": "INSUFFICIENT_PAIR",
+      "desagio_evidence": "estimado/homologado not linked to same certame/lote/item",
+      "contratos_ativos": [],
+      "capacidade_operacional": {
+        "label": "HYPOTHESIS",
+        "claim_as_fact_forbidden": true,
+        "text": "Capacidade operacional não afirmada como fato sem evidência"
+      },
+      "selection_score": 19785504119.63,
+      "selection_justification": "rank by ('n_contratos', 'valor_contratado_total'): n=19774, valor=11504119.63; min_contracts>=1"
+    },
+    {
+      "rank": 10,
+      "cnpj": "19633424000111",
+      "nome": "PLANALTO COMERCIO E TRANSPORTES DE ALIMENTOS LTDA",
+      "identidade_canonica": "19633424000111",
+      "n_contratos": 18472,
+      "valor_contratado_total": 25631066.3,
+      "valor_semantica": "CONTRATADO",
+      "ticket_contratado_medio": 1387.56,
+      "ticket_formula": "valor_contratado_total / n_contratos",
+      "orgaos_em_que_venceu": [
+        "62 BATALHAO DE INFANTARIA",
+        "AGENCIA PUBLICA INTERMUNICIPAL DE SERVICOS DO VALE EUROPEU - APIS",
+        "AGÊNCIA REGULADORA INTERMUNICIPAL DE SANEAMENTO - ARIS",
+        "ASSOCIACAO DOS MUNICIPIOS DO MEIO OESTE CATARINENSE AMMOC",
+        "BALNEARIO PIÇARRAS CAMARA MUNICIPAL DE VEREADORES",
+        "Câmara de Vereadores",
+        "CÂMARA DE VEREADORES DE AGROLÂNDIA",
+        "CÂMARA DE VEREADORES DE ARROIO TRINTA",
+        "CAMARA DE VEREADORES DE AURORA",
+        "CAMARA DE VEREADORES DE BARRA VELHA",
+        "CAMARA DE VEREADORES DE BIGUAÇU",
+        "CAMARA DE VEREADORES DE IMBUIA",
+        "CAMARA DE VEREADORES DE IPUMIRIM",
+        "CÂMARA DE VEREADORES DE PENHA",
+        "CÂMARA DE VEREADORES DE PONTE ALTA",
+        "CÂMARA DE VEREADORES DE POUSO REDONDO",
+        "CAMARA DE VEREADORES DE SALTO VELOSO",
+        "CAMARA DE VEREADORES DE SAO BERNARDINO",
+        "CAMARA DE VEREADORES DE SAO CARLOS",
+        "CAMARA DE VEREADORES DE SAO JOSE DO CERRITO"
+      ],
+      "distribuicao_geografica": {
+        "SC": 1
+      },
+      "tipos_objeto": [
+        "contrato_pncp"
+      ],
+      "desagio": null,
+      "desagio_status": "INSUFFICIENT_PAIR",
+      "desagio_evidence": "estimado/homologado not linked to same certame/lote/item",
+      "contratos_ativos": [],
+      "capacidade_operacional": {
+        "label": "HYPOTHESIS",
+        "claim_as_fact_forbidden": true,
+        "text": "Capacidade operacional não afirmada como fato sem evidência"
+      },
+      "selection_score": 18497631066.3,
+      "selection_justification": "rank by ('n_contratos', 'valor_contratado_total'): n=18472, valor=25631066.3; min_contracts>=1"
+    },
+    {
+      "rank": 11,
+      "cnpj": "40738368000176",
+      "nome": "GAMBA CONEXOES COMERCIO ATACADISTA DE ALIMENTOS LTDA",
+      "identidade_canonica": "40738368000176",
+      "n_contratos": 16993,
+      "valor_contratado_total": 18106470.65,
+      "valor_semantica": "CONTRATADO",
+      "ticket_contratado_medio": 1065.53,
+      "ticket_formula": "valor_contratado_total / n_contratos",
+      "orgaos_em_que_venceu": [
+        "AGENCIA PUBLICA INTERMUNICIPAL DE SERVICOS DO VALE EUROPEU - APIS",
+        "AGÊNCIA REGULADORA INTERMUNICIPAL DE SANEAMENTO - ARIS",
+        "ASSOCIACAO DOS MUNICIPIOS DO MEIO OESTE CATARINENSE AMMOC",
+        "ASSOCIAÇÃO DOS MUNICÍPIOS DO PLANALTO SUL DE SANTA CATARINA AMPLASC",
+        "BALNEARIO PIÇARRAS CAMARA MUNICIPAL DE VEREADORES",
+        "CAMARA DE VEREADORES",
+        "CÂMARA DE VEREADORES DE AGROLÂNDIA",
+        "CÂMARA DE VEREADORES DE ARROIO TRINTA",
+        "CAMARA DE VEREADORES DE AURORA",
+        "CÂMARA DE VEREADORES DE BALNEÁRIO CAMBORIÚ",
+        "CAMARA DE VEREADORES DE BIGUAÇU",
+        "CAMARA DE VEREADORES DE IBICARE",
+        "CAMARA DE VEREADORES DE IMBUIA",
+        "CAMARA DE VEREADORES DE IPUMIRIM",
+        "CAMARA DE VEREADORES DE IRATI\t",
+        "CÂMARA DE VEREADORES DE LAURENTINO",
+        "CÂMARA DE VEREADORES DE LUZERNA",
+        "CÂMARA DE VEREADORES DE PENHA",
+        "CÂMARA DE VEREADORES DE PONTE ALTA",
+        "CAMARA DE VEREADORES DE SALTO VELOSO"
+      ],
+      "distribuicao_geografica": {
+        "SC": 1
+      },
+      "tipos_objeto": [
+        "contrato_pncp"
+      ],
+      "desagio": null,
+      "desagio_status": "INSUFFICIENT_PAIR",
+      "desagio_evidence": "estimado/homologado not linked to same certame/lote/item",
+      "contratos_ativos": [],
+      "capacidade_operacional": {
+        "label": "HYPOTHESIS",
+        "claim_as_fact_forbidden": true,
+        "text": "Capacidade operacional não afirmada como fato sem evidência"
+      },
+      "selection_score": 17011106470.65,
+      "selection_justification": "rank by ('n_contratos', 'valor_contratado_total'): n=16993, valor=18106470.65; min_contracts>=1"
+    },
+    {
+      "rank": 12,
+      "cnpj": "38613730000130",
+      "nome": "JM PAPELARIA LTDA",
+      "identidade_canonica": "38613730000130",
+      "n_contratos": 16183,
+      "valor_contratado_total": 10082577.05,
+      "valor_semantica": "CONTRATADO",
+      "ticket_contratado_medio": 623.04,
+      "ticket_formula": "valor_contratado_total / n_contratos",
+      "orgaos_em_que_venceu": [
+        "AGENCIA PUBLICA INTERMUNICIPAL DE SERVICOS DO VALE EUROPEU - APIS",
+        "AGENCIA REGULADORA DE SANEAMENTO DE TUBARAO\t",
+        "AGRONOMICA CAMARA DE VEREADORES",
+        "ASSOCIAÇÃO DOS MUNICÍPIOS DO PLANALTO SUL DE SANTA CATARINA AMPLASC",
+        "BALNEARIO PIÇARRAS CAMARA MUNICIPAL DE VEREADORES",
+        "CÂMARA DE VEREADORES DE AGROLÂNDIA",
+        "CÂMARA DE VEREADORES DE ARROIO TRINTA",
+        "CAMARA DE VEREADORES DE AURORA",
+        "CÂMARA DE VEREADORES DE BALNEÁRIO CAMBORIÚ",
+        "CAMARA DE VEREADORES DE BARRA VELHA",
+        "CAMARA DE VEREADORES DE BIGUAÇU",
+        "CÂMARA DE VEREADORES DE CUNHATAÍ",
+        "CAMARA DE VEREADORES DE IMBUIA",
+        "CAMARA DE VEREADORES DE IRATI\t",
+        "Câmara de Vereadores de Itajaí",
+        "CÂMARA DE VEREADORES DE LAURENTINO",
+        "CÂMARA DE VEREADORES DE LUZERNA",
+        "CÂMARA DE VEREADORES DE PENHA",
+        "CAMARA DE VEREADORES DE SALTO VELOSO",
+        "CAMARA DE VEREADORES DE SAO BERNARDINO"
+      ],
+      "distribuicao_geografica": {
+        "SC": 1
+      },
+      "tipos_objeto": [
+        "contrato_pncp"
+      ],
+      "desagio": null,
+      "desagio_status": "INSUFFICIENT_PAIR",
+      "desagio_evidence": "estimado/homologado not linked to same certame/lote/item",
+      "contratos_ativos": [],
+      "capacidade_operacional": {
+        "label": "HYPOTHESIS",
+        "claim_as_fact_forbidden": true,
+        "text": "Capacidade operacional não afirmada como fato sem evidência"
+      },
+      "selection_score": 16193082577.05,
+      "selection_justification": "rank by ('n_contratos', 'valor_contratado_total'): n=16183, valor=10082577.05; min_contracts>=1"
+    },
+    {
+      "rank": 13,
+      "cnpj": "12889035000102",
+      "nome": "INOVAMED HOSPITALAR LTDA",
+      "identidade_canonica": "12889035000102",
+      "n_contratos": 13738,
+      "valor_contratado_total": 32765220.21,
+      "valor_semantica": "CONTRATADO",
+      "ticket_contratado_medio": 2385.01,
+      "ticket_formula": "valor_contratado_total / n_contratos",
+      "orgaos_em_que_venceu": [
+        "EBSERH - H U PROF POLYDORO ERNANI DE S THIAGO",
+        "FUNDACAO DE SAUDE DE LAURO MULLER",
+        "FUNDAÇÃO HOSPITALAR DR JOSÉ ATHANAZIO",
+        "FUNDAÇÃO HOSPITALAR MUNICIPAL DE CANELINHA",
+        "FUNDACAO MUNICIPAL DE SAUDE DE TUBARAO",
+        "FUNDO DE SAÚDE DO MUNICÍPIO DE MONTE CASTELO",
+        "FUNDO MUNICIPAL DA SAUDE DE OURO",
+        "FUNDO MUNICIPAL DA SAUDE DO MUNICÍPIO DE GRÃO-PARÁ",
+        "FUNDO MUNICIPAL DA SAUDE DO MUNICÍPIO DE JAGUARUNA",
+        "FUNDO MUNICIPAL DE ASSISTENCIA SOCIAL BANDEIRANTE SC",
+        "FUNDO MUNICIPAL DE ASSISTÊNCIA SOCIAL DE CAMPOS NOVOS",
+        "FUNDO MUNICIPAL DE ASSISTENCIA SOCIAL DE JARAGUÁ DO SUL",
+        "FUNDO MUNICIPAL DE ASSISTÊNCIA SOCIAL DE JOAÇABA",
+        "FUNDO MUNICIPAL DE ASSISTENCIA SOCIAL DE LAGUNA",
+        "FUNDO MUNICIPAL DE EDUCACAO SÃO JOAQUIM",
+        "FUNDO MUNICIPAL DE SAUDE",
+        "Fundo Municipal de Saúde",
+        "FUNDO MUNICIPAL DE SAÚDE",
+        "FUNDO MUNICIPAL DE SAÚDE DE ABELARDO LUZ",
+        "FUNDO MUNICIPAL DE SAÚDE DE ÁGUAS MORNAS"
+      ],
+      "distribuicao_geografica": {
+        "SC": 1
+      },
+      "tipos_objeto": [
+        "contrato_pncp"
+      ],
+      "desagio": null,
+      "desagio_status": "INSUFFICIENT_PAIR",
+      "desagio_evidence": "estimado/homologado not linked to same certame/lote/item",
+      "contratos_ativos": [],
+      "capacidade_operacional": {
+        "label": "HYPOTHESIS",
+        "claim_as_fact_forbidden": true,
+        "text": "Capacidade operacional não afirmada como fato sem evidência"
+      },
+      "selection_score": 13770765220.21,
+      "selection_justification": "rank by ('n_contratos', 'valor_contratado_total'): n=13738, valor=32765220.21; min_contracts>=1"
+    },
+    {
+      "rank": 14,
+      "cnpj": "81706251000198",
+      "nome": "PROMEFARMA REPRESENTAÇÕES COMERCIAIS LTDA",
+      "identidade_canonica": "81706251000198",
+      "n_contratos": 13504,
+      "valor_contratado_total": 59753493.72,
+      "valor_semantica": "CONTRATADO",
+      "ticket_contratado_medio": 4424.87,
+      "ticket_formula": "valor_contratado_total / n_contratos",
+      "orgaos_em_que_venceu": [
+        "CONSORCIO INTERMUNICIPAL DE SAUDE DA REGIAO DA AMURES - CIS AMURES",
+        "EBSERH - H U PROF POLYDORO ERNANI DE S THIAGO",
+        "FUNDACAO DE SAUDE DE LAURO MULLER",
+        "FUNDAÇÃO HOSPITALAR DR JOSÉ ATHANAZIO",
+        "FUNDAÇÃO HOSPITALAR MUNICIPAL DE CANELINHA",
+        "FUNDACAO MUNICIPAL DE MEIO AMBIENTE DE TUBARAO",
+        "FUNDACAO MUNICIPAL DE SAUDE DE TUBARAO",
+        "Fundação Universidade Regional de Blumenau- SC",
+        "FUNDO DE SAÚDE DO MUNICÍPIO DE MONTE CASTELO",
+        "FUNDO MUNICIPAL DA SAUDE DE OURO",
+        "FUNDO MUNICIPAL DA SAUDE DO MUNICÍPIO DE GRÃO-PARÁ",
+        "FUNDO MUNICIPAL DA SAUDE DO MUNICÍPIO DE JAGUARUNA",
+        "FUNDO MUNICIPAL DE ASSISTÊNCIA SOCIAL DE CAMPOS NOVOS",
+        "FUNDO MUNICIPAL DE ASSISTENCIA SOCIAL DE JARAGUÁ DO SUL",
+        "FUNDO MUNICIPAL DE ASSISTÊNCIA SOCIAL DE JOAÇABA",
+        "FUNDO MUNICIPAL DE ASSISTENCIA SOCIAL DE LAGUNA",
+        "FUNDO MUNICIPAL DE ASSISTENCIA SOCIAL DE SAO JOAQUIM",
+        "FUNDO MUNICIPAL DE SAUDE",
+        "Fundo Municipal de Saúde",
+        "FUNDO MUNICIPAL DE SAÚDE"
+      ],
+      "distribuicao_geografica": {
+        "SC": 1
+      },
+      "tipos_objeto": [
+        "contrato_pncp"
+      ],
+      "desagio": null,
+      "desagio_status": "INSUFFICIENT_PAIR",
+      "desagio_evidence": "estimado/homologado not linked to same certame/lote/item",
+      "contratos_ativos": [],
+      "capacidade_operacional": {
+        "label": "HYPOTHESIS",
+        "claim_as_fact_forbidden": true,
+        "text": "Capacidade operacional não afirmada como fato sem evidência"
+      },
+      "selection_score": 13563753493.72,
+      "selection_justification": "rank by ('n_contratos', 'valor_contratado_total'): n=13504, valor=59753493.72; min_contracts>=1"
+    },
+    {
+      "rank": 15,
+      "cnpj": "44734671002286",
+      "nome": "CRISTÁLIA PRODUTOS QUÍMICOS FARMACÊUTICOS LTDA.",
+      "identidade_canonica": "44734671002286",
+      "n_contratos": 13301,
+      "valor_contratado_total": 40379586.19,
+      "valor_semantica": "CONTRATADO",
+      "ticket_contratado_medio": 3035.83,
+      "ticket_formula": "valor_contratado_total / n_contratos",
+      "orgaos_em_que_venceu": [
+        "Consórcio Interfederativo de Saúde da Região da Amures - CISAMURES",
+        "CONSORCIO INTERMUNICIPAL DE SAUDE DA REGIAO DA AMURES - CIS AMURES",
+        "EBSERH - H U PROF POLYDORO ERNANI DE S THIAGO",
+        "FUNDACAO DE SAUDE DE LAURO MULLER",
+        "FUNDAÇÃO HOSPITALAR DR JOSÉ ATHANAZIO",
+        "FUNDAÇÃO HOSPITALAR MUNICIPAL DE CANELINHA",
+        "FUNDACAO MUNICIPAL DE MEIO AMBIENTE DE TUBARAO",
+        "Fundação Universidade Regional de Blumenau- SC",
+        "FUNDO DE SAÚDE DO MUNICÍPIO DE MONTE CASTELO",
+        "FUNDO MUNICIPAL DA SAUDE DE OURO",
+        "FUNDO MUNICIPAL DA SAUDE DO MUNICÍPIO DE GRÃO-PARÁ",
+        "FUNDO MUNICIPAL DA SAUDE DO MUNICÍPIO DE JAGUARUNA",
+        "FUNDO MUNICIPAL DE SAUDE",
+        "Fundo Municipal de Saúde",
+        "FUNDO MUNICIPAL DE SAÚDE",
+        "FUNDO MUNICIPAL DE SAÚDE DE ABELARDO LUZ",
+        "FUNDO MUNICIPAL DE SAÚDE DE ÁGUAS MORNAS",
+        "FUNDO MUNICIPAL DE SAÚDE DE ALTO BELA VISTA",
+        "FUNDO MUNICIPAL DE SAÚDE DE ANCHIETA",
+        "FUNDO MUNICIPAL DE SAÚDE DE ANITÁPOLIS"
+      ],
+      "distribuicao_geografica": {
+        "SC": 1
+      },
+      "tipos_objeto": [
+        "contrato_pncp"
+      ],
+      "desagio": null,
+      "desagio_status": "INSUFFICIENT_PAIR",
+      "desagio_evidence": "estimado/homologado not linked to same certame/lote/item",
+      "contratos_ativos": [],
+      "capacidade_operacional": {
+        "label": "HYPOTHESIS",
+        "claim_as_fact_forbidden": true,
+        "text": "Capacidade operacional não afirmada como fato sem evidência"
+      },
+      "selection_score": 13341379586.19,
+      "selection_justification": "rank by ('n_contratos', 'valor_contratado_total'): n=13301, valor=40379586.19; min_contracts>=1"
+    }
+  ],
+  "insufficiency": {
+    "insufficient": false,
+    "target_n": 15,
+    "valid_count": 15,
+    "message": "15 defensáveis >= target 15"
+  },
+  "claims_allowed": [
+    "Selected 15 of target 15 with rule Top 15 by n_contratos,valor_contratado_total with min_contracts>=1; require CNPJ",
+    "No padding when insufficient",
+    "Deságio only with comparable pair",
+    "Active claim only with vigencia+status evidence",
+    "Capacity labeled HYPOTHESIS without evidence"
+  ],
+  "claims_forbidden": [
+    "Pad list to 15 with noise",
+    "Deságio without same certame/lote/item pair",
+    "Call contract active without vigencia+status",
+    "State competitor capacity as fact without evidence",
+    "ESTIMADO labeled as CONTRATADO total"
+  ],
+  "generated_at": "2026-07-24T15:21:19Z",
+  "population": {
+    "eligible_population": 1179237,
+    "active_contracts": 1179237,
+    "uf_filter": "SC",
+    "period_min": "2023-07-20",
+    "period_max": "2026-07-23",
+    "sample_label": "FULL_ELIGIBLE_POPULATION",
+    "not_sample_of_n": true,
+    "n_suppliers_eligible": 34424,
+    "export_limit": 200,
+    "export_is_not_universe": true
+  },
+  "query_seconds": 5.837,
+  "run_id": "live-pack-20260724-152109-4619c475",
+  "as_of": "2026-07-24",
+  "git_sha": "839d800519768a02172a77e757e896a76ad63cac",
+  "schema_version": "coverage-2.4_entity_coverage_rebuild"
+}

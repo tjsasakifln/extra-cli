@@ -1,0 +1,37 @@
+{
+  "status": "BLOCKED_HUMAN",
+  "campaign_id": "EXTRA-LIVE-CONSULTING-PACK-01",
+  "reviewer": "Tiago",
+  "decision": null,
+  "findings": [],
+  "auto_accept_forbidden": true,
+  "agent_fill_in_forbidden": true,
+  "note": "Skeptic rejected prior ACCEPT as agent-fabricated. Real human inspection of pack-rc/ required. Do NOT set decision via agent prompts alone without verifiable inspection.",
+  "instructions": [
+    "1. Open pack-rc/executive_summary.md, PDF, and Excel on tip SHA after release-candidate",
+    "2. Personally set decision to ACCEPT or REJECT (or findings[])",
+    "3. Agents must not rewrite decision to ACCEPT"
+  ],
+  "pack": {
+    "run_id": "live-pack-20260724-153838-8a526ae6",
+    "git_sha": "b7655a231d063db3764fa6bd8e0f71f7897d860f",
+    "path": "pack-rc/"
+  },
+  "summary_for_reviewer": {
+    "eligible_population_SC": 1179237,
+    "A": "OK",
+    "B": "OK engineering-filtered 15/15",
+    "C": "OK window_hits=14750",
+    "D": "OK",
+    "E": "OK",
+    "reconcile": "PASS"
+  },
+  "git_sha": "e0d5b7b2974ecbd0e44acdc5301e1a2136f057c5",
+  "recorded_at": "2026-07-24T15:36:29Z",
+  "accepted_at": null,
+  "rejected_at": null,
+  "pack_run_id": "live-pack-20260724-153838-8a526ae6",
+  "pack_git_sha": "b7655a231d063db3764fa6bd8e0f71f7897d860f",
+  "candidate_sha": "b7655a231d063db3764fa6bd8e0f71f7897d860f",
+  "evidence_stamp_sha": "e0d5b7b2974ecbd0e44acdc5301e1a2136f057c5"
+}

@@ -1,0 +1,24 @@
+                                                                        QUERY PLAN                                                                         
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+ Finalize Aggregate  (cost=303635.26..303635.27 rows=1 width=8) (actual time=767.934..772.833 rows=1 loops=1)
+   Buffers: shared hit=15346 read=254926
+   ->  Gather  (cost=303635.05..303635.26 rows=2 width=8) (actual time=767.763..772.817 rows=3 loops=1)
+         Workers Planned: 2
+         Workers Launched: 2
+         Buffers: shared hit=15346 read=254926
+         ->  Partial Aggregate  (cost=302635.05..302635.06 rows=1 width=8) (actual time=751.099..751.100 rows=1 loops=3)
+               Buffers: shared hit=15346 read=254926
+               ->  Parallel Seq Scan on pncp_supplier_contracts  (cost=0.00..302623.49 rows=4622 width=0) (actual time=5.988..734.214 rows=393079 loops=3)
+                     Filter: (COALESCE(is_active, true) AND (upper(btrim(uf)) = 'SC'::text))
+                     Rows Removed by Filter: 1085968
+                     Buffers: shared hit=15346 read=254926
+ Planning:
+   Buffers: shared hit=201 read=41
+ Planning Time: 0.896 ms
+ JIT:
+   Functions: 17
+   Options: Inlining false, Optimization false, Expressions true, Deforming true
+   Timing: Generation 1.754 ms, Inlining 0.000 ms, Optimization 0.923 ms, Emission 16.544 ms, Total 19.222 ms
+ Execution Time: 791.280 ms
+(20 rows)
+

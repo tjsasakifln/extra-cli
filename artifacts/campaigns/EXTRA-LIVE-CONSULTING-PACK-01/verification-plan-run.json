@@ -1,0 +1,22 @@
+{
+  "ran_at": "2026-07-24T15:36:29Z",
+  "terminal": "BLOCKED",
+  "human": "BLOCKED_HUMAN",
+  "pack_run_id": "live-pack-20260724-153838-8a526ae6",
+  "pack_git_sha": "b7655a231d063db3764fa6bd8e0f71f7897d860f",
+  "observations": {
+    "population_SC": 1179237,
+    "A_OK": true,
+    "B_engineering_15": true,
+    "C_hits": 14750,
+    "D_OK": true,
+    "E_OK": true,
+    "reconcile_PASS": true,
+    "monthly_full_window": true,
+    "human_ACCEPT": false,
+    "dual_operational_reproof": false
+  },
+  "git_sha": "e0d5b7b2974ecbd0e44acdc5301e1a2136f057c5",
+  "candidate_sha": "b7655a231d063db3764fa6bd8e0f71f7897d860f",
+  "evidence_stamp_sha": "e0d5b7b2974ecbd0e44acdc5301e1a2136f057c5"
+}

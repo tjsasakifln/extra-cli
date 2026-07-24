@@ -1,0 +1,185 @@
+{
+  "mode": "live_isolated_snapshot",
+  "dsn_host_local": true,
+  "as_of": "2026-07-24",
+  "uf": "SC",
+  "cycle_1": {
+    "status": "OK",
+    "cycle": {
+      "cycle_id": "live-mon-2026-07-24-c1",
+      "as_of": "2026-07-24",
+      "reused_previous_state": false,
+      "manual_diagnostic_rebuild_required": false,
+      "previous_run_at": null,
+      "window_days": {
+        "min": 90,
+        "max": 180
+      }
+    },
+    "summary": {
+      "new_editais": 1,
+      "status_deltas": 0,
+      "expiring_contracts": 14750,
+      "organs_tracked": 2274,
+      "winners_tracked": 16653
+    },
+    "variation": {
+      "has_previous": false,
+      "fields": {
+        "contracts_total": {
+          "previous": null,
+          "current": 57238,
+          "delta": null
+        },
+        "editais_total": {
+          "previous": null,
+          "current": 1,
+          "delta": null
+        },
+        "expiring_in_window": {
+          "previous": null,
+          "current": 14750,
+          "delta": null
+        },
+        "new_editais": {
+          "previous": null,
+          "current": 1,
+          "delta": null
+        },
+        "organs_count": {
+          "previous": null,
+          "current": 2274,
+          "delta": null
+        },
+        "status_deltas": {
+          "previous": null,
+          "current": 0,
+          "delta": null
+        },
+        "winners_count": {
+          "previous": null,
+          "current": 16653,
+          "delta": null
+        }
+      },
+      "note": "Sem per\u00edodo anterior \u2014 primeira execu\u00e7\u00e3o do ciclo"
+    },
+    "expiring_n": 14750,
+    "new_editais_n": 1
+  },
+  "cycle_2": {
+    "status": "OK",
+    "cycle": {
+      "cycle_id": "live-mon-2026-07-24-c2",
+      "as_of": "2026-07-24",
+      "reused_previous_state": true,
+      "manual_diagnostic_rebuild_required": false,
+      "previous_run_at": "2026-07-24T15:35:38Z",
+      "window_days": {
+        "min": 90,
+        "max": 180
+      }
+    },
+    "summary": {
+      "new_editais": 1,
+      "status_deltas": 1,
+      "expiring_contracts": 14750,
+      "organs_tracked": 2275,
+      "winners_tracked": 16653
+    },
+    "variation": {
+      "has_previous": true,
+      "fields": {
+        "contracts_total": {
+          "previous": 57238,
+          "current": 57238,
+          "delta": 0,
+          "delta_pct": 0.0
+        },
+        "editais_total": {
+          "previous": 1,
+          "current": 2,
+          "delta": 1,
+          "delta_pct": 100.0
+        },
+        "expiring_in_window": {
+          "previous": 14750,
+          "current": 14750,
+          "delta": 0,
+          "delta_pct": 0.0
+        },
+        "new_editais": {
+          "previous": 1,
+          "current": 1,
+          "delta": 0,
+          "delta_pct": 0.0
+        },
+        "organs_count": {
+          "previous": 2274,
+          "current": 2275,
+          "delta": 1,
+          "delta_pct": 0.04
+        },
+        "status_deltas": {
+          "previous": 0,
+          "current": 1,
+          "delta": 1,
+          "delta_pct": null
+        },
+        "winners_count": {
+          "previous": 16653,
+          "current": 16653,
+          "delta": 0,
+          "delta_pct": 0.0
+        }
+      },
+      "note": "Varia\u00e7\u00e3o vs per\u00edodo anterior a partir do state persistido"
+    },
+    "expiring_n": 14750,
+    "new_editais_n": 1
+  },
+  "contracts_c1": 57238,
+  "contracts_c2": 57238,
+  "population": {
+    "cycle_1": {
+      "contracts_window_full_count": 57238,
+      "contracts_detail_rows": 57238,
+      "export_limit": 57238,
+      "export_is_not_universe": false,
+      "sample_label": "FULL_WINDOW",
+      "window": {
+        "start": "2026-07-25",
+        "end": "2027-07-24"
+      },
+      "uf": "SC"
+    },
+    "cycle_2": {
+      "contracts_window_full_count": 57238,
+      "contracts_detail_rows": 57238,
+      "export_limit": 57238,
+      "export_is_not_universe": false,
+      "sample_label": "FULL_WINDOW",
+      "window": {
+        "start": "2026-07-25",
+        "end": "2027-07-24"
+      },
+      "uf": "SC"
+    },
+    "not_silent_5000_universe": true
+  },
+  "state_path": "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/monthly/cycle-state.json",
+  "proofs": {
+    "no_manual_rebuild": true,
+    "new_editais_detected": true,
+    "status_events": [
+      "SUSPENSAO"
+    ],
+    "expiring_window_count": 14750,
+    "panorama_updated": true,
+    "weekly_present": true,
+    "monthly_present": true,
+    "variation_has_previous": true,
+    "live_snapshot_wired": true,
+    "full_window_population_labeled": true
+  }
+}

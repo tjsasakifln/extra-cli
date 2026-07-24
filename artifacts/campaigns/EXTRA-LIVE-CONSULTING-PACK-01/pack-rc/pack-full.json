@@ -1,0 +1,190 @@
+{
+  "campaign_id": "EXTRA-LIVE-CONSULTING-PACK-01",
+  "run_id": "live-pack-20260724-153838-8a526ae6",
+  "as_of": "2026-07-24",
+  "git_sha": "b7655a231d063db3764fa6bd8e0f71f7897d860f",
+  "schema_version": "coverage-2.4_entity_coverage_rebuild",
+  "profile": {
+    "profile_path": "config/client_profiles/extra.yaml",
+    "profile_id": "extra_construtora",
+    "display_name": "Extra Empreiteira e Construtora",
+    "version": 2,
+    "version_date": "2026-07-16",
+    "stamp": "extra_construtora@v2"
+  },
+  "population": {
+    "eligible_population": 1179237,
+    "active_contracts": 1179237,
+    "uf_filter": "SC",
+    "period_min": "2023-07-20",
+    "period_max": "2026-07-23",
+    "sample_label": "FULL_ELIGIBLE_POPULATION",
+    "not_sample_of_n": true
+  },
+  "deliverable_a": {
+    "status": "OK",
+    "n_rows": 200,
+    "population": {
+      "eligible_population": 1179237,
+      "active_contracts": 1179237,
+      "uf_filter": "SC",
+      "period_min": "2023-07-20",
+      "period_max": "2026-07-23",
+      "sample_label": "FULL_ELIGIBLE_POPULATION",
+      "not_sample_of_n": true,
+      "n_orgaos_eligible": 1378,
+      "n_contracts_eligible": 1179237,
+      "valor_sum_eligible": 60997079905.59,
+      "export_limit": 200,
+      "export_is_not_universe": true
+    },
+    "query_seconds": 2.952
+  },
+  "deliverable_b": {
+    "status": "OK",
+    "valid_count": 15,
+    "target_n": 15,
+    "query_seconds": 12.229
+  },
+  "deliverable_c": {
+    "status": "OK",
+    "n_rows": 200,
+    "success_zero": {
+      "success_zero": false,
+      "n": 14750,
+      "query_complete": true
+    },
+    "query_seconds": 1.965
+  },
+  "deliverable_d": {
+    "status": "OK",
+    "n_panels": 6,
+    "query_seconds": 1.717
+  },
+  "deliverable_e": {
+    "status": "OK",
+    "n_recs": 4,
+    "source_class": "captured_real_evidence"
+  },
+  "artifacts": {
+    "pdf": "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-rc/extra_live_consulting_pack.pdf",
+    "excel": "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-rc/extra_live_consulting_pack.xlsx",
+    "pdf_pages_estimate": 2,
+    "json": [
+      "deliverable_a.json",
+      "deliverable_b.json",
+      "deliverable_c.json",
+      "deliverable_d.json",
+      "deliverable_e.json"
+    ]
+  },
+  "reconcile": {
+    "status": "PASS",
+    "same_run_id": true,
+    "divergences": [],
+    "run_id": "live-pack-20260724-153838-8a526ae6",
+    "eligible_population": 1179237
+  },
+  "isolation": {
+    "production_touched": false,
+    "isolation_ok": true,
+    "hits": [],
+    "dsn_masked": "postgresql://test:***@127.0.0.1:5436/extra_live_pack_rc",
+    "checked_at": "2026-07-24T15:38:38Z"
+  },
+  "production_touched": false,
+  "generated_at": "2026-07-24T15:38:58Z",
+  "meta": {
+    "schema_version": "coverage-2.4_entity_coverage_rebuild",
+    "run_id": "live-pack-20260724-153838-8a526ae6",
+    "generated_at": "2026-07-24T15:38:58.547907Z",
+    "artifact_kind": "live_consulting_pack",
+    "script": "scripts/ops/live_consulting_pack.py",
+    "filters": {
+      "uf": "SC",
+      "export_limit": 200
+    },
+    "cutoff": {
+      "as_of_date": "2026-07-24",
+      "data_window": "all_active",
+      "ultima_atualizacao_db": "N/I"
+    },
+    "sample_size": {
+      "opportunity_intel_active": 0,
+      "ranking_go": 0,
+      "ranking_review": 0,
+      "ranking_no_go": 0,
+      "orgaos_sc": 0,
+      "pncp_raw_bids_active": 0,
+      "vincendos_180d": 0,
+      "label": "INSUFFICIENT"
+    },
+    "git_sha": "b7655a231d063db3764fa6bd8e0f71f7897d860f",
+    "profile_id": "extra_construtora",
+    "profile_version": 2,
+    "dsn_host": "default",
+    "claims": {
+      "allowed": [
+        "Contagens derivadas de opportunity_intel.is_active=true no DSN local.",
+        "Ranking GO/REVIEW/NO_GO conforme coluna ranking (pode ser stub/fixture).",
+        "Ranking de \u00f3rg\u00e3os por volume de editais ativos (UF filtrada quando aplic\u00e1vel).",
+        "Contratos vincendos apenas se pncp_supplier_contracts tiver linhas no horizonte.",
+        "Amostra rotulada INSUFFICIENT/MINIMAL/ADEQUATE \u2014 n\u00e3o inventar cobertura %."
+      ],
+      "forbidden": [
+        "Afirmar cobertura 95% ou readiness comercial sem evidence ledger.",
+        "Tratar REVIEW como GO ou esconder sample_size=0.",
+        "Misturar PDF e Excel de runs diferentes sem reconcilia\u00e7\u00e3o PASS.",
+        "Inferir contratos vincendos a partir de pncp_raw_bids.",
+        "Publicar ranking de \u00f3rg\u00e3os como 'mercado completo SC' com N < 20 editais."
+      ]
+    },
+    "as_of": "2026-07-24",
+    "campaign_id": "EXTRA-LIVE-CONSULTING-PACK-01",
+    "population": {
+      "eligible_population": 1179237,
+      "active_contracts": 1179237,
+      "uf_filter": "SC",
+      "period_min": "2023-07-20",
+      "period_max": "2026-07-23",
+      "sample_label": "FULL_ELIGIBLE_POPULATION",
+      "not_sample_of_n": true
+    },
+    "limitations": [
+      "Isolated snapshot \u2014 not live VPS query",
+      "valor_total = CONTRATADO not pago",
+      "export_limit caps detail tabs only",
+      "Deliverable E from captured real evidence when DB has no opportunities"
+    ],
+    "production_touched": false,
+    "isolation": {
+      "production_touched": false,
+      "isolation_ok": true,
+      "hits": [],
+      "dsn_masked": "postgresql://test:***@127.0.0.1:5436/extra_live_pack_rc",
+      "checked_at": "2026-07-24T15:38:38Z"
+    }
+  },
+  "products_meta": {
+    "A": {
+      "status": "OK",
+      "n_rows": 200
+    },
+    "B": {
+      "status": "OK",
+      "n_rows": 15
+    },
+    "C": {
+      "status": "OK",
+      "n_rows": 200
+    },
+    "D": {
+      "status": "OK",
+      "n_rows": 0
+    },
+    "E": {
+      "status": "OK",
+      "n_rows": 0
+    }
+  }
+}
