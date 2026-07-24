@@ -3,15 +3,23 @@
   "PARTIAL_ADVANCE": [
     "\u00a72.5 A\u2013E technical pack on isolated real data (human use pending real ACCEPT)",
     "\u00a72.6 monthly full-window isolated",
-    "\u00a7\u00a79\u201312 filtered competitors/values/contracts"
+    "\u00a7\u00a79\u201312 filtered competitors/values/contracts",
+    "\u00a729 lineage via run_id/manifest",
+    "\u00a730 performance query_seconds under SLO"
   ],
   "UNBLOCKED": [
     "full-population aggregates path",
-    "engineering competitor filter"
+    "engineering competitor filter",
+    "C full-window success_zero honesty",
+    "campaign-gate surface (workspace+golden+suite/CI)"
   ],
   "NO_CHANGE": [
     "items requiring live VPS",
-    "formal ACCEPTED without main+CI"
+    "formal ACCEPTED without main+CI+human ACCEPT",
+    "dual \u226595% isolated operational reproof (GATE_FAIL_0%)"
   ],
-  "terminal": "BLOCKED"
+  "terminal": "BLOCKED",
+  "terminal_detail": "BLOCKED_HUMAN + dual isolated residual",
+  "human_acceptance": "pending",
+  "updated_at": "2026-07-24T16:38:37Z"
 }

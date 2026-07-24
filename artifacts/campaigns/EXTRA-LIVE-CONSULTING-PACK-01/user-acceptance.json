@@ -6,7 +6,7 @@
   "findings": [],
   "auto_accept_forbidden": true,
   "agent_fill_in_forbidden": true,
-  "note": "Human declined interactive ACCEPT/REJECT prompt; decision remains null. No agent auto-accept. Terminal BLOCKED_HUMAN. Pack re-generated on tip for SHA bind.",
+  "note": "Human declined ACCEPT prompt; decision null. No agent auto-accept. Terminal BLOCKED_HUMAN. Skeptic gaps fixed on tip except human.",
   "instructions": [
     "1. Open pack-rc/executive_summary.md, PDF, and Excel on tip SHA after release-candidate",
     "2. Personally set decision to ACCEPT or REJECT (or findings[])",
@@ -27,13 +27,13 @@
     "reconcile": "PASS",
     "tip_bound": true
   },
-  "git_sha": "f6fad70fe7839a002859ab74055bc4097a285ebf",
-  "recorded_at": "2026-07-24T16:25:25Z",
+  "git_sha": "f27843e42c927c30c6931b9981826d94deb76385",
+  "recorded_at": "2026-07-24T16:41:31Z",
   "accepted_at": null,
   "rejected_at": null,
   "pack_run_id": "live-pack-20260724-162325-f4d6894d",
   "pack_git_sha": "fa66dd7f9d8ae68b7ad9c14e5266c5b35d4e032d",
   "candidate_sha": "fa66dd7f9d8ae68b7ad9c14e5266c5b35d4e032d",
-  "evidence_stamp_sha": "f6fad70fe7839a002859ab74055bc4097a285ebf",
+  "evidence_stamp_sha": "f27843e42c927c30c6931b9981826d94deb76385",
   "last_prompt_declined_at": "2026-07-24T16:15:02Z"
 }

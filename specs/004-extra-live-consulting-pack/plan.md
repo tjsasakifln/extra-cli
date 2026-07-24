@@ -36,11 +36,15 @@ authenticated dump (local SHA256)
 
 ## Gates
 
-1. Isolation assert
-2. Migrations ×2
+1. Isolation assert (fail on prod/soak DSN/path)
+2. Migrations ×2 (idempotent)
 3. Targeted pytest + pack run
-4. Monthly live two-cycle
-5. Workspace CLI smoke on DSN
+4. Workspace: today / competitors / expiring-contracts / prices
+5. Weekly isolated cycle (exit 0 or 2 with manifest)
+6. golden_path on pack DSN
+7. run_full_suite on suite DSN :5433 **or** fail-closed CI evidence file (no `|| true`)
+8. Monthly live two-cycle FULL_WINDOW
+9. Human ACCEPT or terminal BLOCKED_HUMAN
 
 ## Risks
 
@@ -50,3 +54,15 @@ authenticated dump (local SHA256)
 | Empty sc_public_entities | UF=SC filter as eligible pop; dual coverage not rewritten |
 | Sister campaign Makefile lease | integrate after rebase |
 | Tiago unavailable | BLOCKED_HUMAN terminal |
+| Dual empty on restore | measure 0% honestly; do not claim ≥95% isolado |
+
+## Deviations (current tip evidence)
+
+- Eligible universe in isolated DB uses UF=SC full contracts (1.18M); dual denominator 1093 measured on isolado with **GATE_FAIL_0%** (empty `coverage_evidence`); prior signed live dual paths preserved as non-tip claim.
+- Terminal **BLOCKED** / **BLOCKED_HUMAN**: `user-acceptance.decision=null`, `agent_fill_in_forbidden=true`; no fabricated ACCEPT.
+- Engineering-filtered B (Extra profile object terms + hospital denylist); 15 construction peers.
+- C full window query: `success_zero=false`, n=14750.
+- Monthly FULL_WINDOW contracts_c1/c2=57238 labeled (`not_silent_5000_universe=true`).
+- Pack generation SHA product tip `fa66dd7`; evidence docs tip may advance without product code delta; package-reconciliation binds same pack `run_id`.
+- Full suite: CI proxy when suite DSN :5433 down; assert on `ci-full-suite-pass.json`.
+- RC technical complete; merge/DOD `[x]` blocked on human ACCEPT + main CI.

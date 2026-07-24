@@ -1,5 +1,5 @@
 {
-  "ran_at": "2026-07-24T16:25:25Z",
+  "ran_at": "2026-07-24T16:41:31Z",
   "terminal": "BLOCKED",
   "human": "BLOCKED_HUMAN",
   "pack_run_id": "live-pack-20260724-162325-f4d6894d",
@@ -13,12 +13,37 @@
     "E_OK": true,
     "reconcile_PASS": true,
     "monthly_full_window": true,
+    "workspace_today": true,
+    "workspace_competitors": true,
+    "workspace_expiring": true,
+    "workspace_prices": true,
     "human_ACCEPT": false,
     "dual_operational_reproof": false,
+    "dual_isolated_status": "GATE_FAIL_0pct",
     "tip_pack_bound": true,
-    "skeptic_10_closed_except_human": true
+    "skeptic_10_technical_closed": true,
+    "ci_tip_full_suite": true,
+    "plan_tasks_aligned": true
   },
-  "git_sha": "72f0a97fa298050ac093e304b4187d3fa6726865",
+  "verification_plan_steps": {
+    "1_restore_isolation": "PASS",
+    "2_pack_AE": "PASS",
+    "3_workspace_reconcile": "PASS",
+    "4_monthly_weekly": "PASS",
+    "5_gates_ci": "PASS_CI_proxy_suite_DSN_down",
+    "6_human_acceptance": "BLOCKED_HUMAN",
+    "7_evidence_review": "PASS_TECHNICAL"
+  },
+  "git_sha": "f27843e42c927c30c6931b9981826d94deb76385",
   "candidate_sha": "fa66dd7f9d8ae68b7ad9c14e5266c5b35d4e032d",
-  "evidence_stamp_sha": "72f0a97fa298050ac093e304b4187d3fa6726865"
+  "evidence_stamp_sha": "f27843e42c927c30c6931b9981826d94deb76385",
+  "scratch_artifacts": [
+    "isolation.json",
+    "workspace-today.json",
+    "workspace-competitors.json",
+    "workspace-expiring.json",
+    "workspace-prices.json",
+    "monthly-cycle.json",
+    "reconcile-check.txt"
+  ]
 }

@@ -1,19 +1,26 @@
 {
   "campaign_id": "EXTRA-LIVE-CONSULTING-PACK-01",
   "terminal": "BLOCKED",
-  "terminal_detail": "BLOCKED_HUMAN \u2014 tip re-pack PASS technical; 10 skeptic gaps defended/fixed; dual isolated 0% documented; human decision null",
+  "terminal_detail": "BLOCKED_HUMAN \u2014 technical A\u2013E pack PASS; skeptic 10 gaps technical closed; dual isolated 0% residual; human decision null; CI tip full suite PASS",
   "blockers": [
     {
       "id": "HUMAN_ACCEPT",
       "type": "human_acceptance",
       "who": "Tiago",
-      "action": "Inspect pack-rc/ and set user-acceptance.json decision ACCEPT|REJECT|findings without agent fill-in",
-      "reproduction": "cat artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/user-acceptance.json | jq .decision  # expect null until human",
-      "impact": "Campaign terminal cannot be PASS without verifiable human decision"
+      "action": "Inspect pack-rc/ PDF+Excel+executive_summary and set user-acceptance.json decision ACCEPT|REJECT|findings without agent fill-in",
+      "reproduction": "jq .decision artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/user-acceptance.json  # expect null until human",
+      "impact": "Campaign cannot be PASS; merge/DOD accept blocked"
+    },
+    {
+      "id": "DUAL_ISOLATED_0",
+      "type": "data_gap",
+      "action": "Optional: restore coverage_evidence on isolado or keep non-claim",
+      "impact": "Cannot claim dual \u226595% operational reproof on tip isolado",
+      "status": "documented_non_claim"
     }
   ],
   "work_not_blocked_complete": true,
-  "git_sha": "f6fad70fe7839a002859ab74055bc4097a285ebf",
+  "git_sha": "f27843e42c927c30c6931b9981826d94deb76385",
   "pack_run_id": "live-pack-20260724-162325-f4d6894d",
   "pack_git_sha": "fa66dd7f9d8ae68b7ad9c14e5266c5b35d4e032d",
   "pr": "https://github.com/tjsasakifln/extra-cli/pull/130",
@@ -27,44 +34,28 @@
     "eligible_population_SC": 1179237,
     "A": {
       "status": "OK",
-      "n_rows": 200,
-      "population": {
-        "eligible_population": 1179237,
-        "active_contracts": 1179237,
-        "uf_filter": "SC",
-        "period_min": "2023-07-20",
-        "period_max": "2026-07-23",
-        "sample_label": "FULL_ELIGIBLE_POPULATION",
-        "not_sample_of_n": true
-      },
-      "query_seconds": 3.074
+      "n_rows": 200
     },
     "B": {
       "status": "OK",
       "valid_count": 15,
-      "target_n": 15,
-      "query_seconds": 12.216,
       "engineering_filtered": true
     },
     "C": {
       "status": "OK",
-      "n_rows": 200,
       "success_zero": {
         "success_zero": false,
         "n": 14750,
         "query_complete": true
-      },
-      "query_seconds": 2.021
+      }
     },
     "D": {
       "status": "OK",
-      "n_panels": 6,
-      "query_seconds": 1.748
+      "n_panels": 6
     },
     "E": {
       "status": "OK",
-      "n_recs": 4,
-      "source_class": "captured_real_evidence"
+      "n_recs": 4
     },
     "reconcile": {
       "status": "PASS",
@@ -77,18 +68,22 @@
   "gates": {
     "isolation": "PASS",
     "pack_reconcile": "PASS",
+    "workspace_cli": "PASS",
+    "monthly_full_window": "PASS",
     "campaign_gate_full_suite": "CI_PASS_as_proxy_suite_DSN_5433_unavailable",
+    "ci_full_suite_tip": "PASS",
     "human": "BLOCKED_HUMAN",
-    "ci_full_suite": "PASS",
-    "skeptic_10": "TECHNICAL_CLOSED"
+    "dual_isolated": "GATE_FAIL_0pct",
+    "skeptic_10_technical": "CLOSED"
   },
   "claims_authorized": [
     "A_E_pack_isolated_authenticated_snapshot_technical",
     "engineering_filtered_competitors_B",
     "C_full_window_query",
     "monthly_full_window_labeled",
-    "tip_bound_pack_generation",
-    "production_touched=false"
+    "tip_bound_pack_generation_product_sha",
+    "production_touched=false",
+    "ci_full_suite_green_on_tip"
   ],
   "non_claims": [
     "PASS_without_verifiable_human_ACCEPT",
@@ -96,30 +91,29 @@
     "LOCAL_READY",
     "VPS_OPERATIONAL",
     "PROJECT_DONE",
-    "dual_operational_coverage_reproof_on_tip",
+    "dual_operational_coverage_reproof_on_tip_95",
     "unit_price_from_global",
     "win_rate"
   ],
-  "next_step": "1) Tiago real ACCEPT/REJECT after inspecting tip pack-rc. 2) Dual operational reproof on isolated copy or keep gap explicit. 3) Wait CI tip full suite green. 4) Only then consider PASS/merge.",
-  "generated_at": "2026-07-24T16:35:45Z",
+  "next_step": "Tiago inspects pack-rc and writes decision; then DevOps merges PR #130; isolated reproof + DOD accepts on main only after real ACCEPT.",
+  "generated_at": "2026-07-24T16:41:31Z",
   "candidate_sha": "fa66dd7f9d8ae68b7ad9c14e5266c5b35d4e032d",
-  "evidence_stamp_sha": "f6fad70fe7839a002859ab74055bc4097a285ebf",
+  "evidence_stamp_sha": "f27843e42c927c30c6931b9981826d94deb76385",
   "sha_binding": {
     "pack_generation_sha": "fa66dd7f9d8ae68b7ad9c14e5266c5b35d4e032d",
-    "evidence_stamp_sha": "f6fad70fe7839a002859ab74055bc4097a285ebf",
+    "evidence_stamp_sha": "f27843e42c927c30c6931b9981826d94deb76385",
     "pack_run_id": "live-pack-20260724-162325-f4d6894d",
     "package_reconciliation_run_id": "live-pack-20260724-162325-f4d6894d",
     "consistent": true,
     "product_code_delta_since_pack": false,
-    "note": "pack generated on fa66dd7; evidence docs tip may advance; scripts/ops/live_consulting_pack unchanged"
+    "note": "pack on fa66dd7; evidence docs tip advances; scripts unchanged since pack"
   },
   "ci": {
     "pr": 130,
-    "run": "30108852563",
+    "run": "30109832299",
     "full_suite": "PASS",
     "all_jobs": "PASS",
-    "head_sha": "fa66dd7f9d8ae68b7ad9c14e5266c5b35d4e032d",
-    "note": "CI full suite green on PR tip; local suite DSN :5433 unavailable"
+    "head_sha": "f27843e42c927c30c6931b9981826d94deb76385"
   },
   "dual_isolated_reproof": {
     "as_of": "2026-07-24T15:40:53.708064Z",
@@ -164,8 +158,23 @@
   },
   "independent_review": {
     "verdict": "PASS_TECHNICAL",
-    "reviewer": "coordinator-repack-skeptic-revalidation",
     "file": "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/review/independent-review.json",
     "skeptic_audit": "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/review/skeptic-audit-10-gaps.json"
+  },
+  "skeptic_panel_response": {
+    "old_snapshot_commits_invalidated": [
+      "4016906",
+      "298c521",
+      "0f8ab48"
+    ],
+    "current_tip_defenses": "see review/skeptic-audit-10-gaps.json",
+    "fabricated_ACCEPT": "reverted; decision=null",
+    "B_hospital": "fixed engineering filter",
+    "monthly_5000": "fixed FULL_WINDOW 57238",
+    "reconcile_run_id": "aligned",
+    "gates_surface": "workspace+golden+suite/CI",
+    "dual": "0% explicit non-claim",
+    "independent_review": "PASS_TECHNICAL",
+    "ci_tip": "30109832299 PASS"
   }
 }

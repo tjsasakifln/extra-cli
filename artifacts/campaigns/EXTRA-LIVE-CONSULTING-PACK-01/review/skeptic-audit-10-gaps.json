@@ -71,5 +71,8 @@
     "HUMAN_ACCEPT_NULL"
   ],
   "production_touched": false,
-  "soak_contact": false
+  "soak_contact": false,
+  "revalidated_at": "2026-07-24T16:41:31Z",
+  "evidence_tip": "f27843e42c927c30c6931b9981826d94deb76385",
+  "ci_tip_run": "30109832299"
 }
