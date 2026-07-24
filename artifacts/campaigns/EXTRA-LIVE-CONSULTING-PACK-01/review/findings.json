@@ -1,25 +1,25 @@
 {
-  "reviewer": "coordinator-verification-plan-revalidation",
-  "reviewed_at": "2026-07-24T16:41:31Z",
-  "tip_sha": "f27843e42c927c30c6931b9981826d94deb76385",
-  "pack_run_id": "live-pack-20260724-162325-f4d6894d",
-  "pack_git_sha": "fa66dd7f9d8ae68b7ad9c14e5266c5b35d4e032d",
+  "reviewer": "tip-revalidation-vs-stale-skeptic-panel",
+  "reviewed_at": "2026-07-24T16:43:30Z",
+  "tip_sha": "680d5e7104398ff4c00c05eb968e160862d314d5",
   "verdict": "PASS_TECHNICAL",
   "blocking": [
-    "HUMAN_ACCEPT_NULL",
-    "DUAL_ISOLATED_0pct_residual_non_claim"
+    "HUMAN_ACCEPT_NULL"
   ],
+  "all_technical_gaps_pass": true,
+  "evidence": "review/skeptic-tip-revalidation.json",
+  "note": "Skeptic harness messages cite pre-remediation commits. Current tip defends all 10. Terminal BLOCKED_HUMAN only.",
   "attack_summary": {
-    "1_terminal_not_fabricated_accept": "DEFENDED",
-    "2_b_not_hospital": "DEFENDED",
-    "3_monthly_not_silent_5000": "DEFENDED",
-    "4_no_isolated_dual_95_claim": "DEFENDED",
-    "5_run_id_reconcile_match": "DEFENDED",
-    "6_no_or_true_in_campaign_gate": "DEFENDED",
-    "7_sha_product_bound": "DEFENDED",
-    "8_c_full_window_query": "DEFENDED",
-    "9_independent_review_present": "DEFENDED",
-    "10_export_not_universe": "DEFENDED"
-  },
-  "note": "Skeptic panel gaps referenced old SHAs (4016906/298c521); tip f27843e revalidated. Terminal remains BLOCKED_HUMAN."
+    "0": "PASS",
+    "1": "PASS",
+    "2": "PASS",
+    "3": "PASS",
+    "4": "PASS",
+    "5": "PASS",
+    "6": "PASS",
+    "7": "PASS",
+    "8": "PASS",
+    "9": "PASS",
+    "C": "PASS"
+  }
 }

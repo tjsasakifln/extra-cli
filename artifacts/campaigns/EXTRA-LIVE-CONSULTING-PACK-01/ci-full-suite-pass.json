@@ -1,7 +1,7 @@
 {
   "pr": 130,
-  "run_id": "30109832299",
-  "head_sha": "f27843e42c927c30c6931b9981826d94deb76385",
+  "run_id": "30110189083",
+  "head_sha": "680d5e7104398ff4c00c05eb968e160862d314d5",
   "full_suite": "PASS",
   "conclusion": "success",
   "jobs": {
@@ -14,12 +14,7 @@
     "Security (bandit)": "pass",
     "Dependency Audit (pip-audit)": "pass"
   },
-  "url": "https://github.com/tjsasakifln/extra-cli/actions/runs/30109832299",
-  "recorded_at": "2026-07-24T16:41:31Z",
-  "note": "CI full suite green on docs tip f27843e; product pack generation SHA fa66dd7; suite DSN :5433 unavailable host",
-  "prior_product_tip_ci": {
-    "run_id": "30108852563",
-    "head_sha": "fa66dd7f9d8ae68b7ad9c14e5266c5b35d4e032d",
-    "full_suite": "PASS"
-  }
+  "url": "https://github.com/tjsasakifln/extra-cli/actions/runs/30110189083",
+  "recorded_at": "2026-07-24T16:46:42Z",
+  "note": "CI full suite green on tip 680d5e7; suite DSN :5433 unavailable host"
 }

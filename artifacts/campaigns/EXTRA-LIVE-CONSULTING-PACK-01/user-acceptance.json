@@ -27,13 +27,14 @@
     "reconcile": "PASS",
     "tip_bound": true
   },
-  "git_sha": "f27843e42c927c30c6931b9981826d94deb76385",
-  "recorded_at": "2026-07-24T16:41:31Z",
+  "git_sha": "680d5e7104398ff4c00c05eb968e160862d314d5",
+  "recorded_at": "2026-07-24T16:43:30Z",
   "accepted_at": null,
   "rejected_at": null,
   "pack_run_id": "live-pack-20260724-162325-f4d6894d",
   "pack_git_sha": "fa66dd7f9d8ae68b7ad9c14e5266c5b35d4e032d",
   "candidate_sha": "fa66dd7f9d8ae68b7ad9c14e5266c5b35d4e032d",
-  "evidence_stamp_sha": "f27843e42c927c30c6931b9981826d94deb76385",
-  "last_prompt_declined_at": "2026-07-24T16:15:02Z"
+  "evidence_stamp_sha": "680d5e7104398ff4c00c05eb968e160862d314d5",
+  "last_prompt_declined_at": "2026-07-24T16:15:02Z",
+  "skeptic_stale_snapshot_note": "Harness skeptic gaps reference obsolete commits 4016906/298c521/0f8ab48. Tip revalidation in review/skeptic-tip-revalidation.json: all technical gaps PASS; decision remains null."
 }
