@@ -4,11 +4,10 @@ from __future__ import annotations
 
 import hashlib
 import json
-import os
 import subprocess
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from scripts.linkage import RULE_VERSION
@@ -29,13 +28,13 @@ from scripts.linkage.resolve import (
 
 
 def _utc_now() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 def _git_sha() -> str | None:
     try:
-        out = subprocess.check_output(
-            ["git", "rev-parse", "HEAD"],
+        out = subprocess.check_output(  # noqa: S603 — fixed argv, no shell
+            ["git", "rev-parse", "HEAD"],  # noqa: S607 — git on PATH is intentional
             stderr=subprocess.DEVNULL,
             text=True,
             timeout=5,
@@ -250,12 +249,7 @@ def _insert_decision_row(
         )
 
     if decision.classification in ("heuristic_reviewable", "ambiguous"):
-        subject_id = str(
-            cols.get("contract_id")
-            or cols.get("opportunity_id")
-            or decision.target_key
-            or ""
-        )
+        subject_id = str(cols.get("contract_id") or cols.get("opportunity_id") or decision.target_key or "")
         cur.execute(
             """
             DELETE FROM entity_linkage_review_queue
@@ -331,16 +325,28 @@ def run_linkage(
         conn.commit()
 
         with conn.cursor() as cur:
-            cur.execute(
-                """
-                SELECT id, orgao_cnpj, orgao_nome, objeto, uf, municipio,
-                       numero_controle_pncp, status_canonico AS status, codigo_ibge
-                FROM opportunity_intel
-                WHERE COALESCE(is_active, TRUE) IS TRUE
-                ORDER BY id
-                """
-                + (f" LIMIT {int(max_opportunities)}" if max_opportunities else "")
-            )
+            if max_opportunities is not None:
+                cur.execute(
+                    """
+                    SELECT id, orgao_cnpj, orgao_nome, objeto, uf, municipio,
+                           numero_controle_pncp, status_canonico AS status, codigo_ibge
+                    FROM opportunity_intel
+                    WHERE COALESCE(is_active, TRUE) IS TRUE
+                    ORDER BY id
+                    LIMIT %s
+                    """,
+                    (int(max_opportunities),),
+                )
+            else:
+                cur.execute(
+                    """
+                    SELECT id, orgao_cnpj, orgao_nome, objeto, uf, municipio,
+                           numero_controle_pncp, status_canonico AS status, codigo_ibge
+                    FROM opportunity_intel
+                    WHERE COALESCE(is_active, TRUE) IS TRUE
+                    ORDER BY id
+                    """
+                )
             opportunities = list(cur.fetchall())
 
         if not opportunities:
@@ -525,8 +531,8 @@ def run_linkage(
                     (json.dumps({"error": str(exc)}), rid),
                 )
             conn.commit()
-        except Exception:  # noqa: BLE001
-            pass
+        except Exception as meta_exc:  # noqa: BLE001 — best-effort failure stamp
+            result.errors.append(f"status_update_failed:{type(meta_exc).__name__}")
         raise
     finally:
         conn.close()

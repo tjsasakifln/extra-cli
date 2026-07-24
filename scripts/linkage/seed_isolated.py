@@ -213,15 +213,11 @@ def main(argv: list[str] | None = None) -> int:
     out: dict[str, Any] = {}
     try:
         if args.contracts_csv and args.contracts_csv.exists():
-            out["contracts_loaded"] = load_contracts_csv(
-                conn, args.contracts_csv, limit=args.contract_limit
-            )
+            out["contracts_loaded"] = load_contracts_csv(conn, args.contracts_csv, limit=args.contract_limit)
         if args.entities_jsonl and args.entities_jsonl.exists():
             out["entities_loaded"] = load_entities_jsonl(conn, args.entities_jsonl)
         if args.seed_opportunities:
-            out["opportunity_ids"] = seed_opportunities_from_top_organs(
-                conn, n_organs=args.seed_opportunities
-            )
+            out["opportunity_ids"] = seed_opportunities_from_top_organs(conn, n_organs=args.seed_opportunities)
         with conn.cursor() as cur:
             cur.execute("SELECT count(*) AS n FROM pncp_supplier_contracts")
             out["contracts_total"] = int(cur.fetchone()["n"])

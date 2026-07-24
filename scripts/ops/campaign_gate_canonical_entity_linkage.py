@@ -12,7 +12,7 @@ import os
 import subprocess
 import sys
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -24,7 +24,7 @@ from scripts.linkage.isolation import check_dsn, scan_command_line  # noqa: E402
 
 
 def _utc() -> str:
-    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+    return datetime.now(UTC).isoformat().replace("+00:00", "Z")
 
 
 def run_cmd(cmd: list[str], *, env: dict[str, str], timeout: int = 600) -> dict[str, Any]:
@@ -39,7 +39,8 @@ def run_cmd(cmd: list[str], *, env: dict[str, str], timeout: int = 600) -> dict[
         }
     t0 = time.monotonic()
     try:
-        p = subprocess.run(
+        # cmd is always a fixed list built by this gate (python -m …), never shell string
+        p = subprocess.run(  # noqa: S603
             cmd,
             cwd=str(ROOT),
             env=env,

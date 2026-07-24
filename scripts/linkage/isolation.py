@@ -11,7 +11,6 @@ from dataclasses import dataclass, field
 from typing import Any
 from urllib.parse import urlparse
 
-
 # Forbidden host markers (literal substrings, case-insensitive)
 FORBIDDEN_HOST_MARKERS = (
     "ec-prod",
@@ -112,8 +111,7 @@ def check_dsn(dsn: str | None, *, require_isolated_port: bool = True) -> Isolati
         reasons.append(f"port_{port}_not_preferred_5438")
 
     production_touched = bool(hits) and any(
-        h.startswith("host_marker:") or h.startswith("path_marker:") or h.startswith("non_local_host:")
-        for h in hits
+        h.startswith("host_marker:") or h.startswith("path_marker:") or h.startswith("non_local_host:") for h in hits
     )
     # Port/path policy failures block ok without claiming production was touched.
     policy_fail = any(h.startswith("port_not_isolated:") for h in hits)

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import html
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -21,7 +21,7 @@ def build_dossier(
     return {
         "title": "Dossiê de investigação — linkage canônico",
         "campaign_id": "CANONICAL-ENTITY-LINKAGE-01",
-        "generated_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+        "generated_at": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
         "run_id": inv.get("run_id"),
         "opportunity_id": inv.get("opportunity_id"),
         "universe": universe
