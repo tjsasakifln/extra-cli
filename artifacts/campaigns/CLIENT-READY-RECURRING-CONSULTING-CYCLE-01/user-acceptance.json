@@ -1,0 +1,23 @@
+{
+  "status": "PENDING_HUMAN",
+  "rc_sha": "c2bef8fd928c4eca5d9f6ad8e939ee2bf74c604a",
+  "run_id": "live-pack-20260724-210500-96b1aa13",
+  "package_checksums": {
+    "competitors.csv": "06aec24dd8e8a2c80089bffe5db80d6338f34a8f046f5379a330bc4e44b2b2b8",
+    "deliverable_b.json": "b966648370cf3f955211139dbb5f9861f0a0b5c81b70bc06894fc438cc01ae80",
+    "extra_live_consulting_pack.pdf": "8c88afb363d535cca94232afe6e330b478299d04590dfaf0d997a4ead31ce1c5",
+    "expiring.csv": "e82b87832eaeeee8a28e24c55d644f41a7a5548b91dedc6cd3765b0b69febeb3",
+    "orgaos_ranking.csv": "58cb823c3a4038bd52743e2c4608cb1a71a9042b0e68c6daa3d9b64f8c12f809",
+    "deliverable_c.json": "6213b7420b111ce05f5e1d33e09aaff175ab1df58904cc6b037e6931914f1bb5",
+    "deliverable_d.json": "d18ef8ccc06039c879c69668eb1ef15089f23234c27c49b7f23adf0ffe57a4e7",
+    "pack-full.json": "0772644c4933917f7307a6c8cca58016fbc744f127829c3498d4e36387fe010d",
+    "deliverable_a.json": "780bfa37ae2d86d3c34fcc10e8eba846312c09f8037a7d7a038320164e55982e",
+    "executive_summary.md": "d0bff03f48e062245bbb54b321af56e0cf7d07e91e64e1eb3f967b118240e28a",
+    "pack-manifest.json": "d7364219f7ecbf072d762c6b5bf839038ae7958544f7550f5d4da4127e19ce86",
+    "deliverable_e.json": "69364e71ddb8fcf1806d9a24bd10d4ca4e04268d0fc7a20e530654874a9ba266",
+    "extra_live_consulting_pack.xlsx": "f91b8cc2a8250ee9cbd35c0316418d6bca5477a194352501773a841647ac54ad"
+  },
+  "accepted_by": null,
+  "accepted_at": null,
+  "notes": "Awaiting Tiago explicit ACCEPT of the release candidate pack"
+}

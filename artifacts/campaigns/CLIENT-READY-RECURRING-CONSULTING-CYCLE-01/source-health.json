@@ -1,0 +1,9 @@
+{
+  "sources": [
+    "pncp_supplier_contracts",
+    "opportunity_intel_captured_E",
+    "entity_linkage"
+  ],
+  "degraded": [],
+  "note": "isolated snapshot; not live crawl health"
+}

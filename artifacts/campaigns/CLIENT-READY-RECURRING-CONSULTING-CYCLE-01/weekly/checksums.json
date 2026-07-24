@@ -1,0 +1,63 @@
+{
+  "schema": "extra-weekly-checksums/1.0",
+  "cycle_id": "weekly-20260724T210526Z-9c0527cd9c",
+  "collection_id": "col-extra-weekly-20260724T210526Z-b2b865fa",
+  "note": "Hashes of product artifacts only — does not include manifest.json",
+  "artifacts": {
+    "opportunities_csv": {
+      "path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/opportunities.csv",
+      "sha256": "b165eb0c19e6537624f955cb1a3106b7669ecf34891ce04ba551140697684a89",
+      "bytes": 4902
+    },
+    "contracts_csv": {
+      "path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/contracts.csv",
+      "sha256": "37942b0bd1ca560927d9dcf0156051f2abcf116f5e1081fb501f583cacef53ae",
+      "bytes": 18753
+    },
+    "competitors_csv": {
+      "path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/competitors.csv",
+      "sha256": "b3de8fabdf7cd083f56828fd1e1d76f52e3adc53bd251d789e11907e4cb373ce",
+      "bytes": 7670
+    },
+    "orgaos_csv": {
+      "path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/orgaos.csv",
+      "sha256": "8a0452f7672193024de0e523dd06bf6e690c8fe364dc3249afe4100e5afe9052",
+      "bytes": 985
+    },
+    "source_health_csv": {
+      "path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/source_health.csv",
+      "sha256": "e8139f62101cf30bd90c7ea8abea4019bf16d091983241112ca326132fb252bd",
+      "bytes": 229
+    },
+    "gaps_csv": {
+      "path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/gaps.csv",
+      "sha256": "aa429b5f7865d75cb2cebab26a3e24bf4dc070a3ae90ed063d7f28a4ddd8c902",
+      "bytes": 350
+    },
+    "claims_csv": {
+      "path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/claims_provenance.csv",
+      "sha256": "31f2b056333713bf6075f3536028c844e4aa43972a779be10bbd9d59825d4326",
+      "bytes": 32291
+    },
+    "executive_md": {
+      "path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/executive_summary.md",
+      "sha256": "209b8674a3854e3b6ad599dcfb9f64f681771c190718ec06d001b8f9d8a2e702",
+      "bytes": 5340
+    },
+    "excel": {
+      "path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/extra_weekly_pack.xlsx",
+      "sha256": "caa269d792929735bf8cacd3379bbf83a55167702a0074506d5be959b6b54c77",
+      "bytes": 21489
+    },
+    "deliverable_e": {
+      "path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/deliverable_e.json",
+      "sha256": "eba887eca03adefa1f7cacb66f21bb7d854b509c150d04c5579361f73ef4dadd",
+      "bytes": 12031
+    },
+    "deliverable_e_audit": {
+      "path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/deliverable_e_audit.json",
+      "sha256": "9d45337fbd454a2e47af82397328640b267245d3f2fe14918d8c727845e2c70d",
+      "bytes": 3079
+    }
+  }
+}

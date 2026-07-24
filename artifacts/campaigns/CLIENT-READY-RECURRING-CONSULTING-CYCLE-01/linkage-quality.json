@@ -1,0 +1,49 @@
+{
+  "run_id": "crc-20260724T210458Z",
+  "status": "completed",
+  "metrics": {
+    "opportunities": 12,
+    "organ_links": {
+      "total": 12,
+      "exact": 12,
+      "deterministic_composite": 0,
+      "heuristic_reviewable": 0,
+      "ambiguous": 0,
+      "unresolved": 0,
+      "auto_accepted": 12,
+      "link_rate_deterministic": 1.0,
+      "unresolved_in_denominator": true,
+      "hard_cases_excluded": false
+    },
+    "contract_links": {
+      "total": 600,
+      "exact": 600,
+      "deterministic_composite": 0,
+      "heuristic_reviewable": 0,
+      "ambiguous": 0,
+      "unresolved": 0,
+      "auto_accepted": 600,
+      "link_rate_deterministic": 1.0,
+      "unresolved_in_denominator": true,
+      "hard_cases_excluded": false
+    },
+    "supplier_links": {
+      "total": 600,
+      "exact": 600,
+      "deterministic_composite": 0,
+      "heuristic_reviewable": 0,
+      "ambiguous": 0,
+      "unresolved": 0,
+      "auto_accepted": 600,
+      "link_rate_deterministic": 1.0,
+      "unresolved_in_denominator": true,
+      "hard_cases_excluded": false
+    },
+    "rule_version": "linkage-v1",
+    "snapshot_id": "authenticated-dump-pkg-20260723T195047Z",
+    "snapshot_hash": null,
+    "dsn_masked": "postgresql://test:***@127.0.0.1:5436/extra_live_pack_rc",
+    "production_touched": false
+  },
+  "production_touched": false
+}

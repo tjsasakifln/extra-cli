@@ -1,0 +1,47 @@
+{
+  "campaign_id": "CLIENT-READY-RECURRING-CONSULTING-CYCLE-01",
+  "as_of": "2026-07-24T21:06:54.227329Z",
+  "rc_sha": "c2bef8fd928c4eca5d9f6ad8e939ee2bf74c604a",
+  "final_status": "BLOCKED",
+  "checkbox_policy": "no premature [x]; only ACCEPTED with evidence on main",
+  "directly_advanced": [
+    {
+      "theme": "A-E consulting pack on full SC population",
+      "state": "PROVEN_ISOLATED",
+      "evidence": "pack/"
+    },
+    {
+      "theme": "canonical linkage dossiers",
+      "state": "PROVEN_ISOLATED",
+      "evidence": "dossiers/"
+    },
+    {
+      "theme": "weekly+monthly+delta integrated entry",
+      "state": "PROVEN_ISOLATED",
+      "evidence": "recurrence.json"
+    },
+    {
+      "theme": "isolation production_touched/soak_touched false",
+      "state": "PROVEN_ISOLATED",
+      "evidence": "security.json"
+    }
+  ],
+  "blocked": [
+    {
+      "theme": "human RC acceptance",
+      "owner": "Tiago",
+      "evidence": "user-acceptance.json"
+    },
+    {
+      "theme": "soak 7d",
+      "owner": "calendar",
+      "note": "frontier inviolable"
+    }
+  ],
+  "not_claimed": [
+    "LOCAL_READY",
+    "VPS_OPERATIONAL",
+    "PROJECT_DONE",
+    "soak_7d PASS"
+  ]
+}

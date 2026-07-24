@@ -1,0 +1,7 @@
+{
+  "060": "national_contracts_intelligence_layers (from PR#130)",
+  "061": "canonical_entity_linkage (from PR#129)",
+  "059_authority": "coverage_evidence_canonical_entity_unique (main)",
+  "059_pr121": "SUPERSEDED \u2014 not applied",
+  "idempotent_reapply": true
+}

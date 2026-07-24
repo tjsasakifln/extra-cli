@@ -1,9 +1,10 @@
-# Spec 004 — Extra Live Consulting Pack (A–E)
+# Spec 004 — Extra Live Consulting Pack (A–E) + integrated recurring cycle
 
-**Campaign:** `EXTRA-LIVE-CONSULTING-PACK-01`  
-**Status:** In progress  
-**Base:** `origin/main` @ `6454938`  
-**Relationship:** Operational successor to architecture/fixture work in PR #121 (`national_intel`) and proven dual/open-tenders campaigns. Does **not** replace specs 001–003 acceptance criteria.
+**Campaign (pack):** `EXTRA-LIVE-CONSULTING-PACK-01`  
+**Campaign (integration):** `CLIENT-READY-RECURRING-CONSULTING-CYCLE-01`  
+**Status:** Integrated operational capability (terminal may be BLOCKED pending human accept)  
+**Base:** `origin/main` @ `5d906f6` + PR #130 + PR #129  
+**Relationship:** Operational successor to architecture/fixture work in PR #121 (`national_intel`, **superseded**) and proven dual/open-tenders campaigns. Spec **006** remains the component truth for linkage and is referenced (not duplicated) here.
 
 ## Problem
 
@@ -40,6 +41,13 @@ Operational assets exist (4.4M contracts dump, dual coverage evidence, Deliverab
 | FR-08 | Monthly two-cycle delta on isolated snapshot | §2.6 | monthly-cycle.json |
 | FR-09 | Aggregates use full eligible population; export_limit ≠ universe | §9–11 | population fields |
 | FR-10 | Isolation verifier fails on prod/soak DSN | ops | verify-isolation |
+| FR-11 | Single canonical entry runs full cycle: migrations→snapshot→opportunities→linkage→dossiers→A–E→weekly→monthly→reconcile→evidence | §2.6, consulting product | `make client-ready-consulting-cycle` |
+| FR-12 | Linkage opportunity→organ→contract→supplier with dossiers for pack opportunities (Spec 006) | linkage | linkage-quality.json + dossiers/ |
+| FR-13 | Global terminal status exactly PASS \| BLOCKED \| FAIL; human accept required for PASS | ops | result.json / user-acceptance.json |
+
+## Component reference — Spec 006
+
+Canonical entity linkage requirements live in `specs/006-canonical-entity-linkage/`. This pack **must not** fork a second identity engine. Migration **061** + `scripts/linkage/` are the authority.
 
 ## Non-functional
 
@@ -52,11 +60,22 @@ Operational assets exist (4.4M contracts dump, dual coverage evidence, Deliverab
 
 ## Entry points
 
+**Canonical integrated (CRC-01):**
+
+- `make client-ready-consulting-cycle`
+- `python -m scripts.ops.client_ready_consulting_cycle run --dsn … --out …`
+- `make campaign-gate-client-ready-recurring-consulting-cycle`
+- `make release-candidate-client-ready-recurring-consulting-cycle`
+- `make verify-client-ready-recurring-consulting-cycle-isolated`
+- `make dod-audit-client-ready-recurring-consulting-cycle`
+
+**Component / legacy pack entry points (still valid):**
+
 - `python -m scripts.ops.live_consulting_pack run --dsn … --out …`
+- `make extra-weekly` (weekly operational surface)
 - `make campaign-gate-extra-live-consulting-pack`
-- `make release-candidate-extra-live-consulting-pack`
-- `make verify-extra-live-consulting-isolated`
 - `python -m scripts.ops.strategic_monthly_monitor --live-isolated --dsn …`
+- `python -m scripts.linkage run|investigate|guard`
 
 ## Claims / non-claims
 

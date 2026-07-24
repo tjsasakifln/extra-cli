@@ -1,0 +1,101 @@
+{
+  "campaign_id": "CLIENT-READY-RECURRING-CONSULTING-CYCLE-01",
+  "as_of": "2026-07-24T21:04:25.966303Z",
+  "origin_main": "5d906f631f444dd803e92bb88b7c98972297f8d4",
+  "integration_branch": "campaign/client-ready-recurring-consulting-cycle-01",
+  "prs": {
+    "130": {
+      "head": "6b5bc7678b5447e90b2e9df2de21d07de0fa42d2",
+      "role": "FOUNDATION",
+      "ci": "green",
+      "state": "OPEN",
+      "class": "PROVEN_ISOLATED"
+    },
+    "129": {
+      "head": "bd6d404f77f715898cae6ca9824d315106f40d2c",
+      "role": "LINKAGE",
+      "ci": "green",
+      "state": "OPEN",
+      "class": "PROVEN_ISOLATED"
+    },
+    "121": {
+      "head": "a1c77a0d8aaef83c2f199c8df146da651d683b75",
+      "role": "SUPERSEDED_ARCH",
+      "ci": "green",
+      "state": "DRAFT",
+      "class": "SUPERSEDED",
+      "note": "migration 059 conflict with coverage 059; national_intel absorbed via #130 as 060"
+    }
+  },
+  "capabilities": {
+    "dual_capability_coverage": {
+      "class": "PROVEN_LIVE",
+      "evidence": "main + ODC/HC campaigns"
+    },
+    "historical_contracts_dump": {
+      "class": "PROVEN_ISOLATED",
+      "row_count": 4437142,
+      "sha256": "f9e45cdbc2ddf06e502aef86ef687595cb21880899bcee2cb28f54d1de883661",
+      "package": "artifacts/migration/backfill-vps/pkg-20260723T195047Z"
+    },
+    "open_tenders_odc": {
+      "class": "PARTIAL",
+      "note": "soak calendar remaining; offline E evidence usable"
+    },
+    "stratified_recall": {
+      "class": "IMPLEMENTED",
+      "pr": 128,
+      "merged": true
+    },
+    "live_consulting_pack_AE": {
+      "class": "PROVEN_ISOLATED",
+      "pr": 130,
+      "terminal": "BLOCKED_HUMAN\u2192maps to BLOCKED"
+    },
+    "canonical_entity_linkage": {
+      "class": "PROVEN_ISOLATED",
+      "pr": 129,
+      "terminal": "BLOCKED"
+    },
+    "national_intel_engine": {
+      "class": "IMPLEMENTED",
+      "authority": "PR130 migration 060",
+      "pr121": "SUPERSEDED"
+    },
+    "weekly_cycle": {
+      "class": "IMPLEMENTED",
+      "entry": "make extra-weekly"
+    },
+    "strategic_monthly_monitor": {
+      "class": "PROVEN_ISOLATED",
+      "note": "live-isolated two-cycle in pack campaign"
+    },
+    "integrated_client_ready_cycle": {
+      "class": "PARTIAL",
+      "note": "this campaign wires single entry point"
+    },
+    "human_rc_acceptance": {
+      "class": "BLOCKED_EXTERNAL",
+      "owner": "Tiago"
+    },
+    "soak_7d": {
+      "class": "BLOCKED_EXTERNAL",
+      "note": "calendar; frontier inviolable"
+    }
+  },
+  "conflicts": {
+    "Makefile": "resolved_merge_both_target_sets",
+    "scripts/workspace/cli.py": "resolved_linkage_plus_fast_aggregate",
+    "migration_059": "main coverage wins; PR121 national_intel renumbered 060 in #130"
+  },
+  "isolation": {
+    "dsn": "postgresql://test:***@127.0.0.1:5436/extra_live_pack_rc",
+    "ports": [
+      5436,
+      5438,
+      5439
+    ],
+    "production_touched": false,
+    "soak_touched": false
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "organ_links": {
+    "total": 12,
+    "exact": 12,
+    "deterministic_composite": 0,
+    "heuristic_reviewable": 0,
+    "ambiguous": 0,
+    "unresolved": 0,
+    "auto_accepted": 12,
+    "link_rate_deterministic": 1.0,
+    "unresolved_in_denominator": true,
+    "hard_cases_excluded": false
+  },
+  "unresolved_in_denominator": true,
+  "false_merge_strong_cnpj": 0
+}

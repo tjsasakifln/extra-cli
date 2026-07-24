@@ -1,0 +1,51 @@
+{
+  "findings": [
+    {
+      "id": "R-01",
+      "severity": "info",
+      "risk": "human_accept",
+      "status": "open",
+      "description": "Terminal BLOCKED pending Tiago ACCEPT \u2014 correct fail-closed behaviour",
+      "precondition": "technical gates green",
+      "expected": "BLOCKED",
+      "observed": "BLOCKED",
+      "impact": "no PASS without human",
+      "affected_files": [
+        "user-acceptance.json"
+      ],
+      "rc_sha": "c2bef8fd928c4eca5d9f6ad8e939ee2bf74c604a"
+    },
+    {
+      "id": "R-02",
+      "severity": "low",
+      "risk": "dossier_stem",
+      "status": "fixed",
+      "description": "write_dossier default stem overwrote files; fixed with stem=dossier-opp-{id}",
+      "precondition": "12 opportunities",
+      "expected": "12*3 files",
+      "observed": "36 files after fix",
+      "impact": "all E/linkage opps dossiered",
+      "affected_files": [
+        "scripts/ops/client_ready_consulting_cycle.py"
+      ],
+      "rc_sha": "c2bef8fd928c4eca5d9f6ad8e939ee2bf74c604a"
+    },
+    {
+      "id": "R-03",
+      "severity": "info",
+      "risk": "pr121",
+      "status": "accepted",
+      "description": "PR#121 not merged; national_intel from #130/060 only",
+      "precondition": "integration strategy",
+      "expected": "single engine",
+      "observed": "no 059_national collision",
+      "impact": "clean schema",
+      "affected_files": [
+        "db/migrations/"
+      ],
+      "rc_sha": "c2bef8fd928c4eca5d9f6ad8e939ee2bf74c604a"
+    }
+  ],
+  "verdict": "CONCERNS",
+  "note": "only external blocker is human accept"
+}

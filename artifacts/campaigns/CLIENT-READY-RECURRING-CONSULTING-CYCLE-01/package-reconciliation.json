@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "run_id": "live-pack-20260724-210500-96b1aa13",
+  "git_sha": "c2bef8fd928c4eca5d9f6ad8e939ee2bf74c604a",
+  "eligible_population": 1179237,
+  "divergences": [],
+  "same_run_id": true
+}

@@ -1,0 +1,11 @@
+{
+  "snapshot_row_count": 4437142,
+  "eligible_population_SC": 1179237,
+  "export_is_not_universe": true,
+  "dump_sha256": "f9e45cdbc2ddf06e502aef86ef687595cb21880899bcee2cb28f54d1de883661",
+  "row_count_reconciled": true,
+  "B_valid_count": 15,
+  "C_window_hits": 14750,
+  "D_panels": 6,
+  "E_recs": 4
+}

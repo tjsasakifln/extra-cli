@@ -1,0 +1,1816 @@
+{
+  "title": "Dossiê de investigação — linkage canônico",
+  "campaign_id": "CANONICAL-ENTITY-LINKAGE-01",
+  "generated_at": "2026-07-24T21:06:12.013704Z",
+  "run_id": "crc-20260724T210458Z",
+  "opportunity_id": 3,
+  "universe": {
+    "note": "Isolated snapshot + open opportunities in linkage RC DB"
+  },
+  "cut": {
+    "opportunity": {
+      "id": 3,
+      "orgao_cnpj": "10432684000154",
+      "orgao_nome": "FUNDO MUNICIPAL DE SAUDE",
+      "objeto": "CREDENCIAMENTO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE SERVIÇOS DE FORMA COMPLEMENTAR AO SUS, DE EXAMES COM FINALIDADE DIAGNÓSTICA (LABORATÓRIO CLÍNICO), EXAMES BIOQUÍMICOS, HEMATOLÓGICOS E HEMOSTAS",
+      "uf": "SC",
+      "numero_controle_pncp": "10432684000154-1-000049/2025"
+    }
+  },
+  "sources": [
+    "opportunity_intel",
+    "pncp_supplier_contracts",
+    "canonical_organs",
+    "canonical_suppliers",
+    "opportunity_organ_links",
+    "opportunity_contract_links",
+    "observed_supplier_relations"
+  ],
+  "lineage": {
+    "organs": [
+      {
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_cnpj14"
+        ],
+        "claim_level": "fact",
+        "organ_canonical_key": "org:cnpj14:10432684000154",
+        "source_record_ids": [
+          "opportunity_intel:3"
+        ],
+        "rule_version": "linkage-v1"
+      }
+    ],
+    "contracts": [
+      {
+        "contract_id": "10432684000154-2-000032/2026",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "same_organ_cnpj14",
+          "same_uf"
+        ],
+        "claim_level": "similarity",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "similarity_not_participation"
+        ],
+        "organ_canonical_key": "org:cnpj14:10432684000154",
+        "supplier_canonical_key": "sup:cnpj14:35741144000183",
+        "rule_version": "linkage-v1"
+      },
+      {
+        "contract_id": "10432684000154-2-000033/2026",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "same_organ_cnpj14",
+          "weak_shared_object_token",
+          "same_uf"
+        ],
+        "claim_level": "similarity",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "similarity_not_participation"
+        ],
+        "organ_canonical_key": "org:cnpj14:10432684000154",
+        "supplier_canonical_key": "sup:cnpj14:05655697000152",
+        "rule_version": "linkage-v1"
+      },
+      {
+        "contract_id": "10432684000154-2-000034/2026",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "same_organ_cnpj14",
+          "shared_object_tokens",
+          "same_uf"
+        ],
+        "claim_level": "similarity",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "similarity_not_participation"
+        ],
+        "organ_canonical_key": "org:cnpj14:10432684000154",
+        "supplier_canonical_key": "sup:cnpj14:34339263000141",
+        "rule_version": "linkage-v1"
+      },
+      {
+        "contract_id": "10432684000154-2-000035/2026",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "same_organ_cnpj14",
+          "shared_object_tokens",
+          "same_uf"
+        ],
+        "claim_level": "similarity",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "similarity_not_participation"
+        ],
+        "organ_canonical_key": "org:cnpj14:10432684000154",
+        "supplier_canonical_key": "sup:cnpj14:61627459000104",
+        "rule_version": "linkage-v1"
+      },
+      {
+        "contract_id": "10432684000154-2-000036/2026",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "same_organ_cnpj14",
+          "weak_shared_object_token",
+          "same_uf"
+        ],
+        "claim_level": "similarity",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "similarity_not_participation"
+        ],
+        "organ_canonical_key": "org:cnpj14:10432684000154",
+        "supplier_canonical_key": "sup:cnpj14:13919051000163",
+        "rule_version": "linkage-v1"
+      },
+      {
+        "contract_id": "10432684000154-2-000037/2026",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "same_organ_cnpj14",
+          "shared_object_tokens",
+          "same_uf"
+        ],
+        "claim_level": "similarity",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "similarity_not_participation"
+        ],
+        "organ_canonical_key": "org:cnpj14:10432684000154",
+        "supplier_canonical_key": "sup:cnpj14:01880521000143",
+        "rule_version": "linkage-v1"
+      },
+      {
+        "contract_id": "10432684000154-2-000038/2026",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "same_organ_cnpj14",
+          "shared_object_tokens",
+          "same_uf"
+        ],
+        "claim_level": "similarity",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "similarity_not_participation"
+        ],
+        "organ_canonical_key": "org:cnpj14:10432684000154",
+        "supplier_canonical_key": "sup:cnpj14:02436641000119",
+        "rule_version": "linkage-v1"
+      },
+      {
+        "contract_id": "10432684000154-2-000039/2026",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "same_organ_cnpj14",
+          "shared_object_tokens",
+          "same_uf"
+        ],
+        "claim_level": "similarity",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "similarity_not_participation"
+        ],
+        "organ_canonical_key": "org:cnpj14:10432684000154",
+        "supplier_canonical_key": "sup:cnpj14:37413837000172",
+        "rule_version": "linkage-v1"
+      },
+      {
+        "contract_id": "10432684000154-2-000040/2026",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "same_organ_cnpj14",
+          "shared_object_tokens",
+          "same_uf"
+        ],
+        "claim_level": "similarity",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "similarity_not_participation"
+        ],
+        "organ_canonical_key": "org:cnpj14:10432684000154",
+        "supplier_canonical_key": "sup:cnpj14:20350231000132",
+        "rule_version": "linkage-v1"
+      },
+      {
+        "contract_id": "10432684000154-2-000041/2026",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "same_organ_cnpj14",
+          "weak_shared_object_token",
+          "same_uf"
+        ],
+        "claim_level": "similarity",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "similarity_not_participation"
+        ],
+        "organ_canonical_key": "org:cnpj14:10432684000154",
+        "supplier_canonical_key": "sup:cnpj14:53795421000112",
+        "rule_version": "linkage-v1"
+      },
+      {
+        "contract_id": "10432684000154-2-000042/2026",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "same_organ_cnpj14",
+          "weak_shared_object_token",
+          "same_uf"
+        ],
+        "claim_level": "similarity",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "similarity_not_participation"
+        ],
+        "organ_canonical_key": "org:cnpj14:10432684000154",
+        "supplier_canonical_key": "sup:cnpj14:41726130000193",
+        "rule_version": "linkage-v1"
+      },
+      {
+        "contract_id": "10432684000154-2-000043/2026",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "same_organ_cnpj14",
+          "shared_object_tokens",
+          "same_uf"
+        ],
+        "claim_level": "similarity",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "similarity_not_participation"
+        ],
+        "organ_canonical_key": "org:cnpj14:10432684000154",
+        "supplier_canonical_key": "sup:cnpj14:01212863000195",
+        "rule_version": "linkage-v1"
+      },
+      {
+        "contract_id": "10432684000154-2-000044/2026",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "same_organ_cnpj14",
+          "shared_object_tokens",
+          "same_uf"
+        ],
+        "claim_level": "similarity",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "similarity_not_participation"
+        ],
+        "organ_canonical_key": "org:cnpj14:10432684000154",
+        "supplier_canonical_key": "sup:cnpj14:13365548000187",
+        "rule_version": "linkage-v1"
+      },
+      {
+        "contract_id": "10432684000154-2-000045/2026",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "same_organ_cnpj14",
+          "shared_object_tokens",
+          "same_uf"
+        ],
+        "claim_level": "similarity",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "similarity_not_participation"
+        ],
+        "organ_canonical_key": "org:cnpj14:10432684000154",
+        "supplier_canonical_key": "sup:cnpj14:78491172000364",
+        "rule_version": "linkage-v1"
+      },
+      {
+        "contract_id": "10432684000154-2-000046/2026",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "same_organ_cnpj14",
+          "weak_shared_object_token",
+          "same_uf"
+        ],
+        "claim_level": "similarity",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "similarity_not_participation"
+        ],
+        "organ_canonical_key": "org:cnpj14:10432684000154",
+        "supplier_canonical_key": "sup:cnpj14:28419352000103",
+        "rule_version": "linkage-v1"
+      },
+      {
+        "contract_id": "10432684000154-2-000047/2026",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "same_organ_cnpj14",
+          "weak_shared_object_token",
+          "same_uf"
+        ],
+        "claim_level": "similarity",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "similarity_not_participation"
+        ],
+        "organ_canonical_key": "org:cnpj14:10432684000154",
+        "supplier_canonical_key": "sup:cnpj14:14292313000175",
+        "rule_version": "linkage-v1"
+      },
+      {
+        "contract_id": "10432684000154-2-000048/2026",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "same_organ_cnpj14",
+          "weak_shared_object_token",
+          "same_uf"
+        ],
+        "claim_level": "similarity",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "similarity_not_participation"
+        ],
+        "organ_canonical_key": "org:cnpj14:10432684000154",
+        "supplier_canonical_key": "sup:cnpj14:27517454000190",
+        "rule_version": "linkage-v1"
+      },
+      {
+        "contract_id": "10432684000154-2-000049/2026",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "same_organ_cnpj14",
+          "weak_shared_object_token",
+          "same_uf"
+        ],
+        "claim_level": "similarity",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "similarity_not_participation"
+        ],
+        "organ_canonical_key": "org:cnpj14:10432684000154",
+        "supplier_canonical_key": "sup:cnpj14:42178454000105",
+        "rule_version": "linkage-v1"
+      },
+      {
+        "contract_id": "10432684000154-2-000050/2026",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "same_organ_cnpj14",
+          "weak_shared_object_token",
+          "same_uf"
+        ],
+        "claim_level": "similarity",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "similarity_not_participation"
+        ],
+        "organ_canonical_key": "org:cnpj14:10432684000154",
+        "supplier_canonical_key": "sup:cnpj14:42178454000105",
+        "rule_version": "linkage-v1"
+      },
+      {
+        "contract_id": "10432684000154-2-000051/2026",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "same_organ_cnpj14",
+          "weak_shared_object_token",
+          "same_uf"
+        ],
+        "claim_level": "similarity",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "similarity_not_participation"
+        ],
+        "organ_canonical_key": "org:cnpj14:10432684000154",
+        "supplier_canonical_key": "sup:cnpj14:27284516000161",
+        "rule_version": "linkage-v1"
+      },
+      {
+        "contract_id": "10432684000154-2-000052/2026",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "same_organ_cnpj14",
+          "shared_object_tokens",
+          "same_uf"
+        ],
+        "claim_level": "similarity",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "similarity_not_participation"
+        ],
+        "organ_canonical_key": "org:cnpj14:10432684000154",
+        "supplier_canonical_key": "sup:cnpj14:51017180000155",
+        "rule_version": "linkage-v1"
+      },
+      {
+        "contract_id": "10432684000154-2-000053/2026",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "same_organ_cnpj14",
+          "shared_object_tokens",
+          "same_uf"
+        ],
+        "claim_level": "similarity",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "similarity_not_participation"
+        ],
+        "organ_canonical_key": "org:cnpj14:10432684000154",
+        "supplier_canonical_key": "sup:cnpj14:08914663000123",
+        "rule_version": "linkage-v1"
+      },
+      {
+        "contract_id": "10432684000154-2-000054/2026",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "same_organ_cnpj14",
+          "shared_object_tokens",
+          "same_uf"
+        ],
+        "claim_level": "similarity",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "similarity_not_participation"
+        ],
+        "organ_canonical_key": "org:cnpj14:10432684000154",
+        "supplier_canonical_key": "sup:cnpj14:95860193000167",
+        "rule_version": "linkage-v1"
+      },
+      {
+        "contract_id": "10432684000154-2-000055/2026",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "same_organ_cnpj14",
+          "shared_object_tokens",
+          "same_uf"
+        ],
+        "claim_level": "similarity",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "similarity_not_participation"
+        ],
+        "organ_canonical_key": "org:cnpj14:10432684000154",
+        "supplier_canonical_key": "sup:cnpj14:34678112000118",
+        "rule_version": "linkage-v1"
+      },
+      {
+        "contract_id": "10432684000154-2-000056/2026",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "same_organ_cnpj14",
+          "weak_shared_object_token",
+          "same_uf"
+        ],
+        "claim_level": "similarity",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "similarity_not_participation"
+        ],
+        "organ_canonical_key": "org:cnpj14:10432684000154",
+        "supplier_canonical_key": "sup:cnpj14:41018893000180",
+        "rule_version": "linkage-v1"
+      },
+      {
+        "contract_id": "10432684000154-2-000057/2026",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "same_organ_cnpj14",
+          "shared_object_tokens",
+          "same_uf"
+        ],
+        "claim_level": "similarity",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "similarity_not_participation"
+        ],
+        "organ_canonical_key": "org:cnpj14:10432684000154",
+        "supplier_canonical_key": "sup:cnpj14:28028063000175",
+        "rule_version": "linkage-v1"
+      },
+      {
+        "contract_id": "10432684000154-2-000058/2026",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "same_organ_cnpj14",
+          "shared_object_tokens",
+          "same_uf"
+        ],
+        "claim_level": "similarity",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "similarity_not_participation"
+        ],
+        "organ_canonical_key": "org:cnpj14:10432684000154",
+        "supplier_canonical_key": "sup:cnpj14:01994951002997",
+        "rule_version": "linkage-v1"
+      },
+      {
+        "contract_id": "10432684000154-2-000059/2026",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "same_organ_cnpj14",
+          "shared_object_tokens",
+          "same_uf"
+        ],
+        "claim_level": "similarity",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "similarity_not_participation"
+        ],
+        "organ_canonical_key": "org:cnpj14:10432684000154",
+        "supplier_canonical_key": "sup:cnpj14:16444136000201",
+        "rule_version": "linkage-v1"
+      },
+      {
+        "contract_id": "10432684000154-2-000060/2026",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "same_organ_cnpj14",
+          "weak_shared_object_token",
+          "same_uf"
+        ],
+        "claim_level": "similarity",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "similarity_not_participation"
+        ],
+        "organ_canonical_key": "org:cnpj14:10432684000154",
+        "supplier_canonical_key": "sup:cnpj14:18486182000118",
+        "rule_version": "linkage-v1"
+      },
+      {
+        "contract_id": "10432684000154-2-000061/2026",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "same_organ_cnpj14",
+          "weak_shared_object_token",
+          "same_uf"
+        ],
+        "claim_level": "similarity",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "similarity_not_participation"
+        ],
+        "organ_canonical_key": "org:cnpj14:10432684000154",
+        "supplier_canonical_key": "sup:cnpj14:49605859000113",
+        "rule_version": "linkage-v1"
+      },
+      {
+        "contract_id": "10432684000154-2-000062/2026",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "same_organ_cnpj14",
+          "weak_shared_object_token",
+          "same_uf"
+        ],
+        "claim_level": "similarity",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "similarity_not_participation"
+        ],
+        "organ_canonical_key": "org:cnpj14:10432684000154",
+        "supplier_canonical_key": "sup:cnpj14:81301350000190",
+        "rule_version": "linkage-v1"
+      },
+      {
+        "contract_id": "10432684000154-2-000063/2026",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "same_organ_cnpj14",
+          "shared_object_tokens",
+          "same_uf"
+        ],
+        "claim_level": "similarity",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "similarity_not_participation"
+        ],
+        "organ_canonical_key": "org:cnpj14:10432684000154",
+        "supplier_canonical_key": "sup:cnpj14:31121372000108",
+        "rule_version": "linkage-v1"
+      },
+      {
+        "contract_id": "10432684000154-2-000064/2026",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "same_organ_cnpj14",
+          "weak_shared_object_token",
+          "same_uf"
+        ],
+        "claim_level": "similarity",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "similarity_not_participation"
+        ],
+        "organ_canonical_key": "org:cnpj14:10432684000154",
+        "supplier_canonical_key": "sup:cnpj14:90180605000102",
+        "rule_version": "linkage-v1"
+      },
+      {
+        "contract_id": "10432684000154-2-000065/2026",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "same_organ_cnpj14",
+          "shared_object_tokens",
+          "same_uf"
+        ],
+        "claim_level": "similarity",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "similarity_not_participation"
+        ],
+        "organ_canonical_key": "org:cnpj14:10432684000154",
+        "supplier_canonical_key": "sup:cnpj14:81301350000190",
+        "rule_version": "linkage-v1"
+      },
+      {
+        "contract_id": "10432684000154-2-000066/2026",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "same_organ_cnpj14",
+          "shared_object_tokens",
+          "same_uf"
+        ],
+        "claim_level": "similarity",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "similarity_not_participation"
+        ],
+        "organ_canonical_key": "org:cnpj14:10432684000154",
+        "supplier_canonical_key": "sup:cnpj14:01258027000141",
+        "rule_version": "linkage-v1"
+      },
+      {
+        "contract_id": "10432684000154-2-000067/2026",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "same_organ_cnpj14",
+          "shared_object_tokens",
+          "same_uf"
+        ],
+        "claim_level": "similarity",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "similarity_not_participation"
+        ],
+        "organ_canonical_key": "org:cnpj14:10432684000154",
+        "supplier_canonical_key": "sup:cnpj14:08336783000190",
+        "rule_version": "linkage-v1"
+      },
+      {
+        "contract_id": "10432684000154-2-000068/2026",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "same_organ_cnpj14",
+          "shared_object_tokens",
+          "same_uf"
+        ],
+        "claim_level": "similarity",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "similarity_not_participation"
+        ],
+        "organ_canonical_key": "org:cnpj14:10432684000154",
+        "supplier_canonical_key": "sup:cnpj14:83703306000131",
+        "rule_version": "linkage-v1"
+      },
+      {
+        "contract_id": "10432684000154-2-000069/2026",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "same_organ_cnpj14",
+          "shared_object_tokens",
+          "same_uf"
+        ],
+        "claim_level": "similarity",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "similarity_not_participation"
+        ],
+        "organ_canonical_key": "org:cnpj14:10432684000154",
+        "supplier_canonical_key": "sup:cnpj14:83703306000131",
+        "rule_version": "linkage-v1"
+      },
+      {
+        "contract_id": "10432684000154-2-000070/2026",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "same_organ_cnpj14",
+          "same_uf"
+        ],
+        "claim_level": "similarity",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "similarity_not_participation"
+        ],
+        "organ_canonical_key": "org:cnpj14:10432684000154",
+        "supplier_canonical_key": "sup:cnpj14:41850630000132",
+        "rule_version": "linkage-v1"
+      },
+      {
+        "contract_id": "10432684000154-2-000071/2026",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "same_organ_cnpj14",
+          "weak_shared_object_token",
+          "same_uf"
+        ],
+        "claim_level": "similarity",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "similarity_not_participation"
+        ],
+        "organ_canonical_key": "org:cnpj14:10432684000154",
+        "supplier_canonical_key": "sup:cnpj14:41018893000180",
+        "rule_version": "linkage-v1"
+      },
+      {
+        "contract_id": "10432684000154-2-000072/2026",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "same_organ_cnpj14",
+          "weak_shared_object_token",
+          "same_uf"
+        ],
+        "claim_level": "similarity",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "similarity_not_participation"
+        ],
+        "organ_canonical_key": "org:cnpj14:10432684000154",
+        "supplier_canonical_key": "sup:cnpj14:53198993000114",
+        "rule_version": "linkage-v1"
+      },
+      {
+        "contract_id": "10432684000154-2-000073/2026",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "same_organ_cnpj14",
+          "shared_object_tokens",
+          "same_uf"
+        ],
+        "claim_level": "similarity",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "similarity_not_participation"
+        ],
+        "organ_canonical_key": "org:cnpj14:10432684000154",
+        "supplier_canonical_key": "sup:cnpj14:22048632000168",
+        "rule_version": "linkage-v1"
+      },
+      {
+        "contract_id": "10432684000154-2-000074/2026",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "same_organ_cnpj14",
+          "shared_object_tokens",
+          "same_uf"
+        ],
+        "claim_level": "similarity",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "similarity_not_participation"
+        ],
+        "organ_canonical_key": "org:cnpj14:10432684000154",
+        "supplier_canonical_key": "sup:cnpj14:07807348000134",
+        "rule_version": "linkage-v1"
+      },
+      {
+        "contract_id": "10432684000154-2-000075/2026",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "same_organ_cnpj14",
+          "weak_shared_object_token",
+          "same_uf"
+        ],
+        "claim_level": "similarity",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "similarity_not_participation"
+        ],
+        "organ_canonical_key": "org:cnpj14:10432684000154",
+        "supplier_canonical_key": "sup:cnpj14:26264100000119",
+        "rule_version": "linkage-v1"
+      },
+      {
+        "contract_id": "10432684000154-2-000076/2026",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "same_organ_cnpj14",
+          "shared_object_tokens",
+          "same_uf"
+        ],
+        "claim_level": "similarity",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "similarity_not_participation"
+        ],
+        "organ_canonical_key": "org:cnpj14:10432684000154",
+        "supplier_canonical_key": "sup:cnpj14:41018893000180",
+        "rule_version": "linkage-v1"
+      },
+      {
+        "contract_id": "10432684000154-2-000077/2026",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "same_organ_cnpj14",
+          "shared_object_tokens",
+          "same_uf"
+        ],
+        "claim_level": "similarity",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "similarity_not_participation"
+        ],
+        "organ_canonical_key": "org:cnpj14:10432684000154",
+        "supplier_canonical_key": "sup:cnpj14:31383275000185",
+        "rule_version": "linkage-v1"
+      },
+      {
+        "contract_id": "10432684000154-2-000078/2026",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "same_organ_cnpj14",
+          "shared_object_tokens",
+          "same_uf"
+        ],
+        "claim_level": "similarity",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "similarity_not_participation"
+        ],
+        "organ_canonical_key": "org:cnpj14:10432684000154",
+        "supplier_canonical_key": "sup:cnpj14:13266980000110",
+        "rule_version": "linkage-v1"
+      },
+      {
+        "contract_id": "10432684000154-2-000079/2026",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "same_organ_cnpj14",
+          "shared_object_tokens",
+          "same_uf"
+        ],
+        "claim_level": "similarity",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "similarity_not_participation"
+        ],
+        "organ_canonical_key": "org:cnpj14:10432684000154",
+        "supplier_canonical_key": "sup:cnpj14:57269497000165",
+        "rule_version": "linkage-v1"
+      },
+      {
+        "contract_id": "10432684000154-2-000080/2026",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "same_organ_cnpj14",
+          "shared_object_tokens",
+          "same_uf"
+        ],
+        "claim_level": "similarity",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "similarity_not_participation"
+        ],
+        "organ_canonical_key": "org:cnpj14:10432684000154",
+        "supplier_canonical_key": "sup:cnpj14:37638993000131",
+        "rule_version": "linkage-v1"
+      },
+      {
+        "contract_id": "10432684000154-2-000081/2026",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "same_organ_cnpj14",
+          "shared_object_tokens",
+          "same_uf"
+        ],
+        "claim_level": "similarity",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "similarity_not_participation"
+        ],
+        "organ_canonical_key": "org:cnpj14:10432684000154",
+        "supplier_canonical_key": "sup:cnpj14:51577256000105",
+        "rule_version": "linkage-v1"
+      }
+    ],
+    "observed_suppliers": [
+      {
+        "supplier_canonical_key": "sup:cnpj14:51577256000105",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "10432684000154-2-000081/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:37638993000131",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "10432684000154-2-000080/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:57269497000165",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "10432684000154-2-000079/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:13266980000110",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "10432684000154-2-000078/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:31383275000185",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "10432684000154-2-000077/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:41018893000180",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "10432684000154-2-000076/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:26264100000119",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "10432684000154-2-000075/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:07807348000134",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "10432684000154-2-000074/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:22048632000168",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "10432684000154-2-000073/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:53198993000114",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "10432684000154-2-000072/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:41018893000180",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "10432684000154-2-000071/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:41850630000132",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "10432684000154-2-000070/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:83703306000131",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "10432684000154-2-000069/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:83703306000131",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "10432684000154-2-000068/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:08336783000190",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "10432684000154-2-000067/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:01258027000141",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "10432684000154-2-000066/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:81301350000190",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "10432684000154-2-000065/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:90180605000102",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "10432684000154-2-000064/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:31121372000108",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "10432684000154-2-000063/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:81301350000190",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "10432684000154-2-000062/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:16444136000201",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "10432684000154-2-000059/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:49605859000113",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "10432684000154-2-000061/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:18486182000118",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "10432684000154-2-000060/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:01994951002997",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "10432684000154-2-000058/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:28028063000175",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "10432684000154-2-000057/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:41018893000180",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "10432684000154-2-000056/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:95860193000167",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "10432684000154-2-000054/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:34678112000118",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "10432684000154-2-000055/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:08914663000123",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "10432684000154-2-000053/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:51017180000155",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "10432684000154-2-000052/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:27284516000161",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "10432684000154-2-000051/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:42178454000105",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "10432684000154-2-000050/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:42178454000105",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "10432684000154-2-000049/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:27517454000190",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "10432684000154-2-000048/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:14292313000175",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "10432684000154-2-000047/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:28419352000103",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "10432684000154-2-000046/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:13365548000187",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "10432684000154-2-000044/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:78491172000364",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "10432684000154-2-000045/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:01212863000195",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "10432684000154-2-000043/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:41726130000193",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "10432684000154-2-000042/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:20350231000132",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "10432684000154-2-000040/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:53795421000112",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "10432684000154-2-000041/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:02436641000119",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "10432684000154-2-000038/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:37413837000172",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "10432684000154-2-000039/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:01880521000143",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "10432684000154-2-000037/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:13919051000163",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "10432684000154-2-000036/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:34339263000141",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "10432684000154-2-000034/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:61627459000104",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "10432684000154-2-000035/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:05655697000152",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "10432684000154-2-000033/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:35741144000183",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "10432684000154-2-000032/2026"
+      }
+    ]
+  },
+  "quality": {},
+  "status": "OK",
+  "claims": [
+    "organ_identity_from_official_keys",
+    "historical_contracts_same_organ",
+    "observed_contract_winners_only"
+  ],
+  "non_claims": [
+    "not_observed_participant_of_open_tender",
+    "not_inferred_consortium",
+    "not_win_rate",
+    "similarity_is_not_participation"
+  ],
+  "limitations": [
+    "Links to historical contracts mean shared organ (and optional object tokens), not that the supplier bid on the open tender.",
+    "Heuristic name-only merges are never auto-accepted.",
+    "Coverage dual metrics are independent of this identity graph (ADR-030)."
+  ]
+}

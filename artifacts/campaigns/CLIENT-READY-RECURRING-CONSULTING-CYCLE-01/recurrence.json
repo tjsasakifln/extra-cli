@@ -1,0 +1,61 @@
+{
+  "mode": "LIVE_ISOLATED",
+  "live_dual_snapshot": true,
+  "categories": {
+    "new_opportunities": {
+      "count": 0,
+      "success_zero": true,
+      "note": "empty after complete comparison or field not emitted"
+    },
+    "status_changes": {
+      "count": 0,
+      "success_zero": true,
+      "note": "empty after complete comparison or field not emitted"
+    },
+    "deadline_changes": {
+      "count": 0,
+      "success_zero": true,
+      "note": "empty after complete comparison or field not emitted"
+    },
+    "new_expiring_contracts": {
+      "count": 0,
+      "success_zero": true,
+      "note": "empty after complete comparison or field not emitted"
+    },
+    "org_ranking_changes": {
+      "count": 0,
+      "success_zero": true,
+      "note": "empty after complete comparison or field not emitted"
+    },
+    "supplier_ranking_changes": {
+      "count": 0,
+      "success_zero": true,
+      "note": "empty after complete comparison or field not emitted"
+    },
+    "coverage_changes": {
+      "count": 0,
+      "success_zero": true,
+      "note": "empty after complete comparison or field not emitted"
+    },
+    "freshness_changes": {
+      "count": 0,
+      "success_zero": true,
+      "note": "empty after complete comparison or field not emitted"
+    },
+    "degraded_sources": {
+      "count": 0,
+      "success_zero": true,
+      "note": "empty after complete comparison or field not emitted"
+    },
+    "resolved_blockers": {
+      "count": 0,
+      "success_zero": true,
+      "note": "empty after complete comparison or field not emitted"
+    },
+    "new_blockers": {
+      "count": 0,
+      "success_zero": true,
+      "note": "empty after complete comparison or field not emitted"
+    }
+  }
+}

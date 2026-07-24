@@ -29,9 +29,11 @@ FORBIDDEN_PATH_MARKERS = (
     "historical-contracts-operational-closure-01/soak",
 )
 
-# Allowed local isolated hosts/ports for this campaign
+# Allowed local isolated hosts/ports for this campaign and integrated consulting cycle.
+# 5438 = CANONICAL-ENTITY-LINKAGE-01 RC; 5436 = EXTRA-LIVE pack RC (full dump);
+# 5439 = CLIENT-READY-RECURRING-CONSULTING-CYCLE-01 (optional dedicated).
 ALLOWED_LOCAL_HOSTS = ("127.0.0.1", "localhost", "::1")
-PREFERRED_PORTS = (5438,)
+PREFERRED_PORTS = (5436, 5438, 5439)
 
 
 @dataclass

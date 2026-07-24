@@ -1,0 +1,346 @@
+{
+  "campaign_id": "CLIENT-READY-RECURRING-CONSULTING-CYCLE-01",
+  "started_at": "2026-07-24T21:04:54Z",
+  "finished_at": "2026-07-24T21:05:34Z",
+  "branch": "campaign/client-ready-recurring-consulting-cycle-01",
+  "base_sha": "5d906f631f444dd803e92bb88b7c98972297f8d4",
+  "rc_sha": "c2bef8fd928c4eca5d9f6ad8e939ee2bf74c604a",
+  "schema_version": "coverage-2.4_entity_coverage_rebuild",
+  "migration_versions": [
+    "061",
+    "060",
+    "059",
+    "058",
+    "057"
+  ],
+  "profile_id": "extra_construtora",
+  "profile_version": 2,
+  "profile_sha256": "7ec38bbcd291ae435a49133853238999f66e5e413edaa7c2d08d39338aa45384",
+  "universe_sha256": null,
+  "snapshot_sha256": null,
+  "snapshot_row_count": 4437142,
+  "eligible_population": 1179237,
+  "database_identity": {
+    "database": "extra_live_pack_rc",
+    "dsn_masked": "postgresql://test:***@127.0.0.1:5436/extra_live_pack_rc",
+    "server_addr": "172.17.0.3"
+  },
+  "environment": {
+    "dsn_masked": "postgresql://test:***@127.0.0.1:5436/extra_live_pack_rc"
+  },
+  "commands": [
+    "python -m scripts.ops.client_ready_consulting_cycle run"
+  ],
+  "exit_codes": {},
+  "durations": {
+    "total_s": 40.081
+  },
+  "test_counts": {},
+  "skipped_tests": [],
+  "generated_artifacts": [
+    "baseline.json",
+    "baseline.md",
+    "dossiers/operational-report-suppliers.csv",
+    "dossiers/operational-report.html",
+    "dossiers/operational-report.json",
+    "linkage-run.json",
+    "monthly/cycle-state.json",
+    "monthly/monthly-monitor-live.json",
+    "pack/checksums.json",
+    "pack/competitors.csv",
+    "pack/consulting-pack.xlsx",
+    "pack/deliverable_a.json",
+    "pack/deliverable_b.json",
+    "pack/deliverable_c.json",
+    "pack/deliverable_d.json",
+    "pack/deliverable_e.json",
+    "pack/executive-report.pdf",
+    "pack/executive-summary.md",
+    "pack/executive_summary.md",
+    "pack/expiring-contracts.csv",
+    "pack/expiring.csv",
+    "pack/extra_live_consulting_pack.pdf",
+    "pack/extra_live_consulting_pack.xlsx",
+    "pack/meeting-support.md",
+    "pack/opportunities.csv",
+    "pack/organizations.csv",
+    "pack/orgaos_ranking.csv",
+    "pack/pack-full.json",
+    "pack/pack-manifest.json",
+    "recurrence.json",
+    "user-acceptance.json",
+    "weekly/checksums.json",
+    "weekly/claims_provenance.csv",
+    "weekly/competitors.csv",
+    "weekly/contracts.csv",
+    "weekly/deliverable_e.json",
+    "weekly/deliverable_e_audit.json",
+    "weekly/executive_summary.md",
+    "weekly/extra_weekly_pack.xlsx",
+    "weekly/gaps.csv",
+    "weekly/manifest.json",
+    "weekly/opportunities.csv",
+    "weekly/orgaos.csv",
+    "weekly/source_health.csv"
+  ],
+  "artifact_checksums": {
+    "pack/pack-manifest.json": "d7364219f7ecbf072d762c6b5bf839038ae7958544f7550f5d4da4127e19ce86",
+    "pack/executive-report.pdf": "8c88afb363d535cca94232afe6e330b478299d04590dfaf0d997a4ead31ce1c5",
+    "pack/consulting-pack.xlsx": "f91b8cc2a8250ee9cbd35c0316418d6bca5477a194352501773a841647ac54ad",
+    "linkage-run.json": "e6812cdc3295a242230d7da0bc159cd763e2d137d9e8f8dae1b754a75b3b30d4",
+    "recurrence.json": "c4e0ccaea2fbbfc9615be4652a6e460a09a782c2013fff4bcd787397b213462e"
+  },
+  "gate_results": {},
+  "ci_run": null,
+  "review_verdict": null,
+  "production_touched": false,
+  "soak_touched": false,
+  "claims": [
+    "integrated cycle entry point sequences pack+linkage+weekly+monthly on isolated DSN",
+    "A–E pack over authenticated dump population (not silent sample universe)",
+    "linkage with provenance classifications on campaign opportunities",
+    "production_touched=false and soak_touched=false when isolation_ok"
+  ],
+  "non_claims": [
+    "LOCAL_READY",
+    "PRE_VPS_FINAL_READY",
+    "VPS_OPERATIONAL",
+    "PROJECT_DONE",
+    "soak_7d PASS",
+    "unit price from global valor_total",
+    "Extra operational capacity fields not elicited",
+    "win rate without observable open-tender denominator"
+  ],
+  "limitations": [
+    "Isolated snapshot — not live VPS query",
+    "Deliverable E from captured evidence when live crawl skipped",
+    "Labeled monthly replay if live-isolated two-cycle unavailable"
+  ],
+  "blockers": [
+    "user_acceptance_PENDING_HUMAN: Tiago must ACCEPT the release candidate"
+  ],
+  "final_status": "BLOCKED",
+  "steps": {
+    "isolation": {
+      "ok": true,
+      "production_touched": false,
+      "soak_touched": false,
+      "dsn_masked": "postgresql://test:***@127.0.0.1:5436/extra_live_pack_rc",
+      "host": "127.0.0.1",
+      "port": 5436,
+      "database": "extra_live_pack_rc",
+      "hits": [],
+      "checked_at": "2026-07-24T21:04:54Z",
+      "campaign_id": "CLIENT-READY-RECURRING-CONSULTING-CYCLE-01"
+    },
+    "migrations": {
+      "first_exit": 0,
+      "second_exit": 0,
+      "idempotent": true,
+      "duration_s": 0.147,
+      "stderr_tail": ""
+    },
+    "profile": {
+      "profile_path": "config/client_profiles/extra.yaml",
+      "profile_id": "extra_construtora",
+      "display_name": "Extra Empreiteira e Construtora",
+      "version": 2,
+      "version_date": "2026-07-16",
+      "stamp": "extra_construtora@v2",
+      "profile_sha256": "7ec38bbcd291ae435a49133853238999f66e5e413edaa7c2d08d39338aa45384",
+      "exists": true
+    },
+    "snapshot": {
+      "ok": true,
+      "snapshot_row_count": 4437142,
+      "expected_row_count": null,
+      "row_count_reconciled": true,
+      "sc_active_count": 1179237,
+      "snapshot_sha256": null,
+      "dump_package": null,
+      "migrations_recent": [
+        "061",
+        "060",
+        "059",
+        "058",
+        "057"
+      ],
+      "database_identity": {
+        "database": "extra_live_pack_rc",
+        "dsn_masked": "postgresql://test:***@127.0.0.1:5436/extra_live_pack_rc",
+        "server_addr": "172.17.0.3"
+      },
+      "eligible_population_note": "computed at pack time; not hard-coded"
+    },
+    "opportunities": {
+      "seeded_from_e": 4,
+      "opportunity_ids": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "opportunities_total": 12,
+      "e_evidence": "/tmp/extra-cli-client-ready-01/artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/deliverable_e.json",
+      "claim": "opportunities include SNAPSHOT-SEED and captured open-tender evidence; not a live PNCP crawl in this run"
+    },
+    "linkage": {
+      "run_id": "crc-20260724T210458Z",
+      "status": "completed",
+      "metrics": {
+        "opportunities": 12,
+        "organ_links": {
+          "total": 12,
+          "exact": 12,
+          "deterministic_composite": 0,
+          "heuristic_reviewable": 0,
+          "ambiguous": 0,
+          "unresolved": 0,
+          "auto_accepted": 12,
+          "link_rate_deterministic": 1.0,
+          "unresolved_in_denominator": true,
+          "hard_cases_excluded": false
+        },
+        "contract_links": {
+          "total": 600,
+          "exact": 600,
+          "deterministic_composite": 0,
+          "heuristic_reviewable": 0,
+          "ambiguous": 0,
+          "unresolved": 0,
+          "auto_accepted": 600,
+          "link_rate_deterministic": 1.0,
+          "unresolved_in_denominator": true,
+          "hard_cases_excluded": false
+        },
+        "supplier_links": {
+          "total": 600,
+          "exact": 600,
+          "deterministic_composite": 0,
+          "heuristic_reviewable": 0,
+          "ambiguous": 0,
+          "unresolved": 0,
+          "auto_accepted": 600,
+          "link_rate_deterministic": 1.0,
+          "unresolved_in_denominator": true,
+          "hard_cases_excluded": false
+        },
+        "rule_version": "linkage-v1",
+        "snapshot_id": "authenticated-dump-pkg-20260723T195047Z",
+        "snapshot_hash": null,
+        "dsn_masked": "postgresql://test:***@127.0.0.1:5436/extra_live_pack_rc",
+        "production_touched": false
+      },
+      "production_touched": false
+    },
+    "dossiers": {
+      "written": 12,
+      "run_id": "crc-20260724T210458Z",
+      "opportunity_ids": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ]
+    },
+    "pack": {
+      "run_id": "live-pack-20260724-210500-96b1aa13",
+      "reconcile": {
+        "status": "PASS",
+        "same_run_id": true,
+        "divergences": [],
+        "run_id": "live-pack-20260724-210500-96b1aa13",
+        "eligible_population": 1179237
+      },
+      "population": {
+        "eligible_population": 1179237,
+        "active_contracts": 1179237,
+        "uf_filter": "SC",
+        "period_min": "2023-07-20",
+        "period_max": "2026-07-23",
+        "sample_label": "FULL_ELIGIBLE_POPULATION",
+        "not_sample_of_n": true
+      },
+      "deliverable_a": {
+        "status": "OK",
+        "n_rows": 200,
+        "population": {
+          "eligible_population": 1179237,
+          "active_contracts": 1179237,
+          "uf_filter": "SC",
+          "period_min": "2023-07-20",
+          "period_max": "2026-07-23",
+          "sample_label": "FULL_ELIGIBLE_POPULATION",
+          "not_sample_of_n": true,
+          "n_orgaos_eligible": 1378,
+          "n_contracts_eligible": 1179237,
+          "valor_sum_eligible": 60997079905.59,
+          "export_limit": 200,
+          "export_is_not_universe": true
+        },
+        "query_seconds": 3.027
+      },
+      "deliverable_b": {
+        "status": "OK",
+        "valid_count": 15,
+        "target_n": 15,
+        "query_seconds": 16.518
+      },
+      "deliverable_c": {
+        "status": "OK",
+        "n_rows": 200,
+        "success_zero": {
+          "success_zero": false,
+          "n": 14750,
+          "query_complete": true
+        },
+        "query_seconds": 2.135
+      },
+      "deliverable_d": {
+        "status": "OK",
+        "n_panels": 6,
+        "query_seconds": 2.31
+      },
+      "deliverable_e": {
+        "status": "OK",
+        "n_recs": 4,
+        "source_class": "captured_real_evidence"
+      },
+      "production_touched": false
+    },
+    "weekly": {
+      "exit_code": 2,
+      "ok": true,
+      "manifest_exists": true,
+      "stdout_tail": "724T210526Z-b2b865fa\",\n  \"exit_code\": 2,\n  \"duration_seconds\": 3.75,\n  \"products\": {\n    \"executive_md\": \"artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/executive_summary.md\",\n    \"excel\": \"artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/extra_weekly_pack.xlsx\",\n    \"manifest\": \"artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/manifest.json\",\n    \"pdf_status\": \"RESIDUAL_NOT_GENERATED\"\n  },\n  \"intelligence_counts\": {\n    \"opportunities\": 7,\n    \"contracts\": 30,\n    \"competitors\": 30,\n    \"orgaos\": 7\n  },\n  \"runs\": [\n    {\n      \"source\": \"pncp_opportunities\",\n      \"terminal_status\": \"partial\"\n    },\n    {\n      \"source\": \"pncp_contracts\",\n      \"terminal_status\": \"reused_fresh\"\n    }\n  ],\n  \"human_accept\": \"PENDING_HUMAN\"\n}\n",
+      "stderr_tail": ""
+    },
+    "monthly": {
+      "ok": true,
+      "mode": "LIVE_ISOLATED",
+      "live_recurrence": true,
+      "exit_code": 0,
+      "stdout_tail": "{\n  \"ok\": true,\n  \"checks\": {\n    \"no_manual_rebuild\": true,\n    \"new_editais_detected\": true,\n    \"status_events\": true,\n    \"expiring_window\": true,\n    \"panorama_updated\": true,\n    \"weekly_present\": true,\n    \"monthly_present\": true,\n    \"variation_has_previous\": true\n  },\n  \"fails\": [],\n  \"summary\": {\n    \"pass\": 8,\n    \"fail\": 0\n  }\n}\n"
+    },
+    "recurrence": {
+      "mode": "LIVE_ISOLATED",
+      "live_dual_snapshot": true
+    }
+  }
+}

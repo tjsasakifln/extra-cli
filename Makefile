@@ -455,3 +455,101 @@ verify-extra-live-consulting-isolated:
 	LOCAL_DATALAKE_DSN='$(CAMPAIGN_TEST_DSN)' python3 -m scripts.workspace expiring-contracts --json --dsn '$(CAMPAIGN_TEST_DSN)' | python3 -c "import sys,json; d=json.load(sys.stdin); assert 'buckets' in d, d"
 	LOCAL_DATALAKE_DSN='$(CAMPAIGN_TEST_DSN)' python3 -m scripts.workspace prices --json --dsn '$(CAMPAIGN_TEST_DSN)' --keywords reforma | python3 -c "import sys,json; d=json.load(sys.stdin); assert d.get('status')=='OK', d"
 	@echo 'verify-extra-live-consulting-isolated OK'
+
+# ---------------------------------------------------------------------------
+# CLIENT-READY-RECURRING-CONSULTING-CYCLE-01
+# ---------------------------------------------------------------------------
+CLIENT_READY_DSN ?= postgresql://test:test@127.0.0.1:5436/extra_live_pack_rc
+CLIENT_READY_DIR ?= artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01
+CLIENT_READY_SUITE_DSN ?= postgresql://test:test@127.0.0.1:5433/extra_test
+
+.PHONY: client-ready-consulting-cycle
+client-ready-consulting-cycle:
+	@echo '==> client-ready-consulting-cycle (isolated)'
+	@echo '$(CLIENT_READY_DSN)' | grep -Eqv 'ec-prod|/opt/extra-consultoria|extra_prod' || (echo 'ISOLATION_FAIL: prod DSN' && exit 2)
+	@echo '$(CLIENT_READY_DSN)' | grep -Eq '127\.0\.0\.1|localhost' || (echo 'ISOLATION_FAIL: non-local host' && exit 2)
+	python3 -m scripts.ops.client_ready_consulting_cycle guard --dsn '$(CLIENT_READY_DSN)'
+	python3 -m scripts.ops.client_ready_consulting_cycle run \
+		--dsn '$(CLIENT_READY_DSN)' \
+		--out '$(CLIENT_READY_DIR)'
+
+.PHONY: campaign-gate-client-ready-recurring-consulting-cycle
+campaign-gate-client-ready-recurring-consulting-cycle:
+	@echo '==> campaign-gate CLIENT-READY-RECURRING-CONSULTING-CYCLE-01'
+	@echo '$(CLIENT_READY_DSN)' | grep -Eqv 'ec-prod|/opt/extra-consultoria|extra_prod' || (echo 'ISOLATION_FAIL' && exit 2)
+	@echo '$(CLIENT_READY_DSN)' | grep -Eq '127\.0\.0\.1|localhost' || (echo 'ISOLATION_FAIL host' && exit 2)
+	python3 -m scripts.ops.client_ready_consulting_cycle guard --dsn '$(CLIENT_READY_DSN)'
+	python3 -c "import sys; from scripts.ops.client_ready_consulting_cycle import isolation_guard; \
+import pytest; \
+\
+def bad(dsn): \
+  try: isolation_guard(dsn); return False \
+  except SystemExit: return True \
+assert bad('postgresql://x:y@ec-prod:5432/extra_prod') \
+assert bad('postgresql://test:test@127.0.0.1:5432/anything') \
+assert isolation_guard('$(CLIENT_READY_DSN)')['production_touched'] is False \
+assert isolation_guard('$(CLIENT_READY_DSN)')['soak_touched'] is False \
+print('isolation-adversarial-ok')"
+	python3 -m scripts.ops.apply_migrations --dsn '$(CLIENT_READY_DSN)'
+	python3 -m scripts.ops.apply_migrations --dsn '$(CLIENT_READY_DSN)'
+	python3 -m pytest -o addopts='' -q \
+		tests/test_client_ready_consulting_cycle.py \
+		tests/test_live_consulting_pack.py \
+		tests/test_canonical_entity_linkage.py \
+		tests/test_strategic_monthly_monitor.py \
+		--tb=line
+	@test -f db/migrations/060_national_contracts_intelligence_layers.sql
+	@test -f db/migrations/061_canonical_entity_linkage.sql
+	@test -f db/migrations/059_coverage_evidence_canonical_entity_unique.sql
+	@test ! -f db/migrations/059_national_contracts_intelligence_layers.sql
+	@echo 'campaign-gate-client-ready-recurring-consulting-cycle OK'
+
+.PHONY: release-candidate-client-ready-recurring-consulting-cycle
+release-candidate-client-ready-recurring-consulting-cycle:
+	@echo '==> release-candidate CLIENT-READY'
+	$(MAKE) campaign-gate-client-ready-recurring-consulting-cycle
+	$(MAKE) client-ready-consulting-cycle
+	@test -f $(CLIENT_READY_DIR)/manifest.json
+	@test -f $(CLIENT_READY_DIR)/result.json
+	@test -f $(CLIENT_READY_DIR)/pack/pack-manifest.json
+	python3 -c "import json; r=json.load(open('$(CLIENT_READY_DIR)/result.json')); assert r['final_status'] in ('PASS','BLOCKED','FAIL'), r; assert r.get('production_touched') is False; assert r.get('soak_touched') is False; print('rc-terminal', r['final_status'])"
+	@echo 'release-candidate-client-ready-recurring-consulting-cycle OK'
+
+.PHONY: verify-client-ready-recurring-consulting-cycle-isolated
+verify-client-ready-recurring-consulting-cycle-isolated:
+	@echo '==> verify-isolated CLIENT-READY'
+	python3 -m scripts.ops.client_ready_consulting_cycle guard --dsn '$(CLIENT_READY_DSN)'
+	@test -f $(CLIENT_READY_DIR)/manifest.json
+	@test -f $(CLIENT_READY_DIR)/package-reconciliation.json
+	@test -f $(CLIENT_READY_DIR)/linkage-quality.json
+	@test -f $(CLIENT_READY_DIR)/recurrence.json
+	@test -f $(CLIENT_READY_DIR)/user-acceptance.json
+	python3 -c "import json; from pathlib import Path; \
+m=json.load(open('$(CLIENT_READY_DIR)/manifest.json')); \
+r=json.load(open('$(CLIENT_READY_DIR)/result.json')); \
+assert m.get('production_touched') is False and m.get('soak_touched') is False; \
+assert r['final_status'] in ('PASS','BLOCKED','FAIL'); \
+assert m.get('snapshot_row_count',0) > 0; \
+rec=json.load(open('$(CLIENT_READY_DIR)/package-reconciliation.json')); \
+assert rec.get('status')=='PASS'; \
+print('verify-ok', r['final_status'], m.get('eligible_population'))"
+	@echo 'verify-client-ready-recurring-consulting-cycle-isolated OK'
+
+.PHONY: dod-audit-client-ready-recurring-consulting-cycle
+dod-audit-client-ready-recurring-consulting-cycle:
+	@echo '==> dod-audit CLIENT-READY'
+	python3 -c "import json,re; from pathlib import Path; \
+dod=Path('DOD.md').read_text(encoding='utf-8'); \
+trace=Path('$(CLIENT_READY_DIR)/requirements-traceability.json'); \
+assert trace.exists(), 'missing requirements-traceability.json'; \
+t=json.loads(trace.read_text()); \
+# Fail if any [x] cites this campaign without evidence path existing \
+bad=[]; \
+for item in t.get('items', []); \
+  st=item.get('state'); ev=item.get('evidence'); \
+  if st in ('DONE','ACCEPTED','PROVEN') and ev: \
+    p=Path(str(ev)); \
+    if not p.exists() and not Path(str(ev).lstrip('./')).exists(): bad.append(ev); \
+assert not bad, bad; \
+print('dod-audit-ok', len(t.get('items',[])))"
+	@echo 'dod-audit-client-ready-recurring-consulting-cycle OK'

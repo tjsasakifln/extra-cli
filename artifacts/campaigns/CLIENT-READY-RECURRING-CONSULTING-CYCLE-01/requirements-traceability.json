@@ -1,0 +1,151 @@
+{
+  "campaign_id": "CLIENT-READY-RECURRING-CONSULTING-CYCLE-01",
+  "rc_sha": "c2bef8fd928c4eca5d9f6ad8e939ee2bf74c604a",
+  "run_id": "live-pack-20260724-210500-96b1aa13",
+  "generated_at": "2026-07-24T21:06:54.227329Z",
+  "items": [
+    {
+      "id": "FR-01",
+      "requirement": "A ranking full population",
+      "task": "T-pack-A",
+      "implementation": "scripts/ops/deliverable_a_org_ranking.py",
+      "test": "tests/test_deliverable_a_org_ranking.py",
+      "gate": "make campaign-gate-client-ready-recurring-consulting-cycle",
+      "evidence": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/pack/deliverable_a.json",
+      "dod": "DOD \u00a72.5 A",
+      "state": "PROVEN_ISOLATED"
+    },
+    {
+      "id": "FR-02",
+      "requirement": "B \u226515 competitors",
+      "task": "T-pack-B",
+      "implementation": "scripts/ops/deliverable_b_competitors.py",
+      "test": "tests/test_deliverable_b_competitors.py",
+      "gate": "make campaign-gate-...",
+      "evidence": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/pack/deliverable_b.json",
+      "dod": "DOD \u00a72.5 B",
+      "state": "PROVEN_ISOLATED"
+    },
+    {
+      "id": "FR-03",
+      "requirement": "C 90-180 window",
+      "task": "T-pack-C",
+      "implementation": "scripts/ops/deliverable_c_expiring.py",
+      "test": "tests/test_deliverable_c_expiring.py",
+      "gate": "make campaign-gate-...",
+      "evidence": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/pack/deliverable_c.json",
+      "dod": "DOD \u00a72.5 C",
+      "state": "PROVEN_ISOLATED"
+    },
+    {
+      "id": "FR-04",
+      "requirement": "D price panels",
+      "task": "T-pack-D",
+      "implementation": "scripts/ops/deliverable_d_prices.py",
+      "test": "tests/test_deliverable_d_prices.py",
+      "gate": "make campaign-gate-...",
+      "evidence": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/pack/deliverable_d.json",
+      "dod": "DOD \u00a72.5 D",
+      "state": "PROVEN_ISOLATED"
+    },
+    {
+      "id": "FR-05",
+      "requirement": "E open editais",
+      "task": "T-pack-E",
+      "implementation": "scripts/ops/deliverable_e_editais.py",
+      "test": "tests/test_deliverable_e_editais.py",
+      "gate": "make campaign-gate-...",
+      "evidence": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/pack/deliverable_e.json",
+      "dod": "DOD \u00a72.5 E",
+      "state": "PROVEN_ISOLATED"
+    },
+    {
+      "id": "FR-06",
+      "requirement": "PDF/Excel reconcile",
+      "task": "T-pack-rec",
+      "implementation": "scripts/ops/live_consulting_pack.py",
+      "test": "tests/test_live_consulting_pack.py",
+      "gate": "make client-ready-consulting-cycle",
+      "evidence": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/package-reconciliation.json",
+      "dod": "DOD \u00a72.5 pacote",
+      "state": "PROVEN_ISOLATED"
+    },
+    {
+      "id": "FR-07",
+      "requirement": "Linkage opp\u2192org\u2192contract\u2192supplier",
+      "task": "T-link",
+      "implementation": "scripts/linkage/pipeline.py",
+      "test": "tests/test_canonical_entity_linkage.py",
+      "gate": "make client-ready-consulting-cycle",
+      "evidence": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/linkage-quality.json",
+      "dod": "DOD linkage",
+      "state": "PROVEN_ISOLATED"
+    },
+    {
+      "id": "FR-08",
+      "requirement": "Dossiers for opportunities",
+      "task": "T-dos",
+      "implementation": "scripts/linkage/dossier.py",
+      "test": "tests/test_client_ready_consulting_cycle.py",
+      "gate": "make client-ready-consulting-cycle",
+      "evidence": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/dossiers",
+      "dod": "DOD linkage",
+      "state": "PROVEN_ISOLATED"
+    },
+    {
+      "id": "FR-09",
+      "requirement": "Weekly report",
+      "task": "T-week",
+      "implementation": "scripts/ops/weekly_cycle.py",
+      "test": "tests/test_client_ready_consulting_cycle.py",
+      "gate": "make client-ready-consulting-cycle",
+      "evidence": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly",
+      "dod": "DOD \u00a72.6 weekly",
+      "state": "PROVEN_ISOLATED"
+    },
+    {
+      "id": "FR-10",
+      "requirement": "Monthly+delta recurrence",
+      "task": "T-month",
+      "implementation": "scripts/ops/strategic_monthly_monitor.py",
+      "test": "tests/test_strategic_monthly_monitor.py",
+      "gate": "make client-ready-consulting-cycle",
+      "evidence": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/recurrence.json",
+      "dod": "DOD \u00a72.6 monthly",
+      "state": "PROVEN_ISOLATED"
+    },
+    {
+      "id": "FR-11",
+      "requirement": "Isolation fail-closed",
+      "task": "T-iso",
+      "implementation": "scripts/ops/client_ready_consulting_cycle.py",
+      "test": "tests/test_client_ready_consulting_cycle.py",
+      "gate": "make campaign-gate-...",
+      "evidence": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/security.json",
+      "dod": "ops soak frontier",
+      "state": "PROVEN_ISOLATED"
+    },
+    {
+      "id": "FR-12",
+      "requirement": "Human acceptance gate",
+      "task": "T-ha",
+      "implementation": "scripts/ops/client_ready_consulting_cycle.py",
+      "test": "tests/test_client_ready_consulting_cycle.py",
+      "gate": "make release-candidate-...",
+      "evidence": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/user-acceptance.json",
+      "dod": "DOD accept",
+      "state": "BLOCKED_EXTERNAL"
+    },
+    {
+      "id": "FR-06-link",
+      "requirement": "Spec006 linkage component",
+      "task": "T-006",
+      "implementation": "scripts/linkage/",
+      "test": "tests/test_canonical_entity_linkage.py",
+      "gate": "make campaign-gate-canonical-entity-linkage",
+      "evidence": "artifacts/.../CANONICAL...",
+      "dod": "Spec 006",
+      "state": "PROVEN_ISOLATED"
+    }
+  ]
+}

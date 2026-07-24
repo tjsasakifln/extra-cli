@@ -1,0 +1,17 @@
+{
+  "production_touched": false,
+  "soak_touched": false,
+  "isolation": {
+    "ok": true,
+    "production_touched": false,
+    "soak_touched": false,
+    "dsn_masked": "postgresql://test:***@127.0.0.1:5436/extra_live_pack_rc",
+    "host": "127.0.0.1",
+    "port": 5436,
+    "database": "extra_live_pack_rc",
+    "hits": [],
+    "checked_at": "2026-07-24T21:04:54Z",
+    "campaign_id": "CLIENT-READY-RECURRING-CONSULTING-CYCLE-01"
+  },
+  "secrets_in_manifest": false
+}
