@@ -19,5 +19,15 @@
   },
   "accepted_by": null,
   "accepted_at": null,
-  "notes": "Awaiting Tiago explicit ACCEPT of the release candidate pack"
+  "notes": null,
+  "campaign_id": "CLIENT-READY-RECURRING-CONSULTING-CYCLE-01",
+  "pr": "https://github.com/tjsasakifln/extra-cli/pull/131",
+  "instructions": "HUMAN-ACCEPTANCE-INSTRUCTIONS.md",
+  "pack_dir": "pack/",
+  "decision_options": [
+    "ACCEPTED",
+    "REJECTED"
+  ],
+  "agent_auto_accept_forbidden": true,
+  "prepared_at": "2026-07-24T21:33:59.503720Z"
 }
