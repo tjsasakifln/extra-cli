@@ -26,8 +26,12 @@
     "E": "OK",
     "reconcile": "PASS"
   },
-  "git_sha": "b7655a231d063db3764fa6bd8e0f71f7897d860f",
+  "git_sha": "e0d5b7b2974ecbd0e44acdc5301e1a2136f057c5",
   "recorded_at": "2026-07-24T15:36:29Z",
   "accepted_at": null,
-  "rejected_at": null
+  "rejected_at": null,
+  "pack_run_id": "live-pack-20260724-153838-8a526ae6",
+  "pack_git_sha": "b7655a231d063db3764fa6bd8e0f71f7897d860f",
+  "candidate_sha": "b7655a231d063db3764fa6bd8e0f71f7897d860f",
+  "evidence_stamp_sha": "e0d5b7b2974ecbd0e44acdc5301e1a2136f057c5"
 }

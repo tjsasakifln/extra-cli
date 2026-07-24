@@ -16,5 +16,7 @@
     "human_ACCEPT": false,
     "dual_operational_reproof": false
   },
-  "git_sha": "b7655a231d063db3764fa6bd8e0f71f7897d860f"
+  "git_sha": "e0d5b7b2974ecbd0e44acdc5301e1a2136f057c5",
+  "candidate_sha": "b7655a231d063db3764fa6bd8e0f71f7897d860f",
+  "evidence_stamp_sha": "e0d5b7b2974ecbd0e44acdc5301e1a2136f057c5"
 }

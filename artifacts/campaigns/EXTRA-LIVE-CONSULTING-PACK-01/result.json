@@ -18,7 +18,7 @@
     }
   ],
   "work_not_blocked_complete": true,
-  "git_sha": "b7655a231d063db3764fa6bd8e0f71f7897d860f",
+  "git_sha": "e0d5b7b2974ecbd0e44acdc5301e1a2136f057c5",
   "pack_run_id": "live-pack-20260724-153838-8a526ae6",
   "pack_git_sha": "b7655a231d063db3764fa6bd8e0f71f7897d860f",
   "pr": "https://github.com/tjsasakifln/extra-cli/pull/130",
@@ -107,5 +107,14 @@
     "win_rate"
   ],
   "next_step": "1) Tiago real ACCEPT/REJECT after inspecting pack-rc. 2) Dual operational reproof on isolated copy or keep gap explicit. 3) campaign-gate with suite DSN green + CI tip green. 4) Only then consider PASS.",
-  "generated_at": "2026-07-24T15:38:59Z"
+  "generated_at": "2026-07-24T15:38:59Z",
+  "candidate_sha": "b7655a231d063db3764fa6bd8e0f71f7897d860f",
+  "evidence_stamp_sha": "e0d5b7b2974ecbd0e44acdc5301e1a2136f057c5",
+  "sha_binding": {
+    "pack_generation_sha": "b7655a231d063db3764fa6bd8e0f71f7897d860f",
+    "evidence_stamp_sha": "e0d5b7b2974ecbd0e44acdc5301e1a2136f057c5",
+    "pack_run_id": "live-pack-20260724-153838-8a526ae6",
+    "package_reconciliation_run_id": "live-pack-20260724-153838-8a526ae6",
+    "consistent": true
+  }
 }
