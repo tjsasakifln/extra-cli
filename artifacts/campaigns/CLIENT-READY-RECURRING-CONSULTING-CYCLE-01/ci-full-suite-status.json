@@ -1,9 +1,9 @@
 {
-  "as_of": "2026-07-24T21:39:17.279771Z",
-  "head": "89e02ca225c05cc32065eff10efa99b6674dc558",
+  "as_of": "2026-07-24T21:57:25.977056Z",
+  "head": "73fe55faaa363b34f75b741d0cfc8f2a3e78a5d9",
   "pr": 131,
   "url": "https://github.com/tjsasakifln/extra-cli/pull/131",
-  "run_id": 30128298986,
+  "run_id": 30129268929,
   "full_suite": "PASS",
   "conclusion": "success",
   "all_checks_success": true,
@@ -17,6 +17,7 @@
     "Security (bandit)": "pass",
     "Dependency Audit (pip-audit)": "pass"
   },
-  "human_acceptance": "PENDING_HUMAN",
-  "final_status": "BLOCKED"
+  "human_acceptance": "ACCEPTED",
+  "final_status": "PASS",
+  "recurrence_honesty": "LABELED_DETERMINISTIC_REPLAY_not_live_dual_snapshot"
 }

@@ -4,7 +4,7 @@
   "terminal": "PASS",
   "blockers": [],
   "failures": [],
-  "rc_sha": "9662ce478bde3345297711746b6ecfe225564dd7",
+  "rc_sha": "73fe55faaa363b34f75b741d0cfc8f2a3e78a5d9",
   "run_id": "live-pack-20260724-215055-5b8d0087",
   "production_touched": false,
   "soak_touched": false,
@@ -171,5 +171,29 @@
     "Extra operational capacity fields not elicited",
     "win rate without observable open-tender denominator"
   ],
-  "generated_at": "2026-07-24T21:51:22Z"
+  "generated_at": "2026-07-24T21:51:22Z",
+  "ci": {
+    "as_of": "2026-07-24T21:57:25.977056Z",
+    "head": "73fe55faaa363b34f75b741d0cfc8f2a3e78a5d9",
+    "pr": 131,
+    "url": "https://github.com/tjsasakifln/extra-cli/pull/131",
+    "run_id": 30129268929,
+    "full_suite": "PASS",
+    "conclusion": "success",
+    "all_checks_success": true,
+    "checks": {
+      "Lint (ruff)": "pass",
+      "Type Check (mypy)": "pass",
+      "Test (critical readiness)": "pass",
+      "Test operational expanded (PR)": "pass",
+      "Test All (full suite)": "pass",
+      "Resilience Gate (pre-VPS)": "pass",
+      "Security (bandit)": "pass",
+      "Dependency Audit (pip-audit)": "pass"
+    },
+    "human_acceptance": "ACCEPTED",
+    "final_status": "PASS",
+    "recurrence_honesty": "LABELED_DETERMINISTIC_REPLAY_not_live_dual_snapshot"
+  },
+  "branch_tip_sha": "73fe55faaa363b34f75b741d0cfc8f2a3e78a5d9"
 }
