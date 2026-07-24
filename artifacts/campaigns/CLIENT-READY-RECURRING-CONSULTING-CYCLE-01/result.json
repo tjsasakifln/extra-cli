@@ -148,7 +148,7 @@
   ],
   "generated_at": "2026-07-24T21:05:34Z",
   "dossiers_written": 12,
-  "review_verdict": "CONCERNS",
+  "review_verdict": "CONCERNS_HIGHS_FIXED",
   "git_sha": "aadd65c00599a5dd44a3c2517492eae22a79c6c5",
   "candidate_sha": "aadd65c00599a5dd44a3c2517492eae22a79c6c5",
   "evidence_stamp_sha": "aadd65c00599a5dd44a3c2517492eae22a79c6c5",
@@ -156,10 +156,32 @@
     "pack_generation_note": "pack git_sha in pack-manifest may lag tip evidence stamp",
     "evidence_stamp_sha": "9851e364ad6b8e24228da7ba397cf0d07fd10c6c"
   },
-  "branch_tip_sha": "9acd8d4005f811ace6047f60cd5666d2ed858478",
+  "branch_tip_sha": "f150599396b1971a6d398fe137b1624a9dcd8e62",
   "sha_roles": {
     "branch_tip": "9acd8d4005f811ace6047f60cd5666d2ed858478",
     "evidence_stamp": "aadd65c00599a5dd44a3c2517492eae22a79c6c5",
     "pack_manifest_git_sha": "c2bef8fd928c4eca5d9f6ad8e939ee2bf74c604a"
-  }
+  },
+  "ci": {
+    "as_of": "2026-07-24T21:28:21.538481Z",
+    "head": "f150599396b1971a6d398fe137b1624a9dcd8e62",
+    "pr": 131,
+    "url": "https://github.com/tjsasakifln/extra-cli/pull/131",
+    "full_suite": "PASS",
+    "conclusion": "success",
+    "checks": {
+      "Lint (ruff)": "SUCCESS",
+      "Type Check (mypy)": "SUCCESS",
+      "Test (critical readiness)": "SUCCESS",
+      "Test operational expanded (PR)": "SUCCESS",
+      "Test All (full suite)": "SUCCESS",
+      "Resilience Gate (pre-VPS)": "SUCCESS",
+      "Security (bandit)": "SUCCESS",
+      "Dependency Audit (pip-audit)": "SUCCESS"
+    }
+  },
+  "highs_fixed": [
+    "IAF-05",
+    "IAF-08a"
+  ]
 }

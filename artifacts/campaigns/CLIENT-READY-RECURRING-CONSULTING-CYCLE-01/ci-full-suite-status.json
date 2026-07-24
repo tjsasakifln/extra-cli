@@ -1,9 +1,18 @@
 {
-  "as_of": "2026-07-24T21:23:53.055895Z",
-  "head": "1c7e464861dbda5028927bb6e3c40dcc83fa91df",
-  "run": 30127374857,
-  "full_suite": "FAILURE",
-  "cause": "test_canonical_entry_points missing token scripts.ops.client_ready_consulting_cycle in DEVELOPMENT.md",
-  "fix": "docs/DEVELOPMENT.md documents the entry point",
-  "other_jobs": "SUCCESS (lint,mypy,critical,operational,resilience,bandit,audit)"
+  "as_of": "2026-07-24T21:28:21.538481Z",
+  "head": "f150599396b1971a6d398fe137b1624a9dcd8e62",
+  "pr": 131,
+  "url": "https://github.com/tjsasakifln/extra-cli/pull/131",
+  "full_suite": "PASS",
+  "conclusion": "success",
+  "checks": {
+    "Lint (ruff)": "SUCCESS",
+    "Type Check (mypy)": "SUCCESS",
+    "Test (critical readiness)": "SUCCESS",
+    "Test operational expanded (PR)": "SUCCESS",
+    "Test All (full suite)": "SUCCESS",
+    "Resilience Gate (pre-VPS)": "SUCCESS",
+    "Security (bandit)": "SUCCESS",
+    "Dependency Audit (pip-audit)": "SUCCESS"
+  }
 }
