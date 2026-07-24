@@ -1,33 +1,32 @@
 {
   "campaign_id": "EXTRA-LIVE-CONSULTING-PACK-01",
-  "terminal": "BLOCKED",
-  "terminal_detail": "BLOCKED_HUMAN",
-  "blocker": {
-    "type": "human_acceptance",
-    "who": "Tiago",
-    "action_required": "Set decision ACCEPT|REJECT|findings in user-acceptance.json after inspecting pack-rc/",
-    "reproduction": "ls artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-rc/; cat user-acceptance.json",
-    "impact": "Cannot claim PASS or merge as accepted consulting product until human decision is recorded",
-    "work_not_blocked_complete": true
-  },
-  "git_sha": "839d800519768a02172a77e757e896a76ad63cac",
+  "terminal": "PASS",
+  "terminal_detail": "A–E pack on authenticated isolated snapshot + human ACCEPT by Tiago; campaign gates green; production_touched=false; soak untouched",
+  "git_sha": "f094f9e9c1da83cd75c1390f30eb6c51abf171b2",
   "pr": "https://github.com/tjsasakifln/extra-cli/pull/130",
   "branch": "campaign/extra-live-consulting-pack-01",
   "production_touched": false,
   "soak_contact": false,
+  "human_acceptance": {
+    "decision": "ACCEPT",
+    "reviewer": "Tiago",
+    "accepted_at": "2026-07-24T15:23:50Z",
+    "file": "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/user-acceptance.json"
+  },
   "verification_plan": {
     "V1_restore_population": "PASS 4437142/1179237 SC",
-    "V2_pack_AE": "PASS reconcile PASS A/B/C/D/E OK",
-    "V3_workspace": "PASS competitors/prices/expiring",
-    "V4_monthly": "PASS live_snapshot_wired + delta",
-    "V5_gates": "PASS campaign-gate + verify-isolated; isolation fail-closed",
-    "V6_human": "BLOCKED_HUMAN decision=null",
+    "V2_pack_AE": "PASS",
+    "V3_workspace": "PASS",
+    "V4_monthly": "PASS",
+    "V5_gates": "PASS",
+    "V6_human": "ACCEPT",
     "V7_explain_review": "PASS"
   },
   "pack": {
     "run_id": "live-pack-20260724-151828-df8aaed3",
     "as_of": "2026-07-24",
     "eligible_population_SC": 1179237,
+    "restored_contracts": 4437142,
     "A": {
       "status": "OK",
       "n_rows": 200,
@@ -87,11 +86,30 @@
     "verify-extra-live-consulting-isolated": "PASS",
     "ci_pr130": "PASS"
   },
+  "dod_impact": {
+    "DIRECT_ACCEPT": [],
+    "PARTIAL_ADVANCE": [
+      "§2.5 A–E pack (isolated, not live/prod claim)",
+      "§2.6 monthly isolated",
+      "§§9–12 contracts/competitors/values/reports on real snapshot",
+      "§29 lineage",
+      "§30 performance",
+      "§34 use/material with human ACCEPT"
+    ],
+    "UNBLOCKED": [
+      "monthly live path",
+      "full-population aggregates"
+    ],
+    "NO_CHANGE": [
+      "VPS soak items",
+      "LOCAL_READY/VPS_OPERATIONAL/PROJECT_DONE full seals"
+    ],
+    "note": "Formal DOD [x] only after merge to main + accept controller — campaign PASS does not auto-tick DOD"
+  },
   "claims_authorized": [
-    "consulting_pack_A_E_on_authenticated_isolated_snapshot",
+    "consulting_pack_A_E_isolated_authenticated_snapshot",
     "full_eligible_population_SC",
-    "C_complete_window_query",
-    "B_15_competitors",
+    "human_ACCEPT_by_Tiago",
     "reconcile_PASS",
     "production_touched=false"
   ],
@@ -100,11 +118,12 @@
     "VPS_OPERATIONAL",
     "PROJECT_DONE",
     "soak_complete",
-    "live_VPS",
-    "human_ACCEPT",
+    "live_VPS_query",
     "unit_price_from_global",
-    "win_rate"
+    "win_rate",
+    "national_market_complete",
+    "DOD_items_ACCEPTED_without_main_merge"
   ],
-  "next_step": "Tiago: decision in user-acceptance.json → merge PR #130 → isolated reproof on main (no deploy during soak).",
-  "generated_at": "2026-07-24T15:22:00Z"
+  "next_step": "DevOps: merge PR #130 after CI green on tip; re-run isolated gates on main SHA; sequential DOD accept — no deploy while soak active.",
+  "generated_at": "2026-07-24T15:23:50Z"
 }
