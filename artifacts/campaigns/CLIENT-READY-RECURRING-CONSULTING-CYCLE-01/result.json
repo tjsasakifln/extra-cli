@@ -6,7 +6,7 @@
     "user_acceptance_PENDING_HUMAN: Tiago must ACCEPT the release candidate"
   ],
   "failures": [],
-  "rc_sha": "77cc1fe742435a547c755a1329c888dad75569c9",
+  "rc_sha": "9851e364ad6b8e24228da7ba397cf0d07fd10c6c",
   "run_id": "live-pack-20260724-210500-96b1aa13",
   "production_touched": false,
   "soak_touched": false,
@@ -149,7 +149,11 @@
   "generated_at": "2026-07-24T21:05:34Z",
   "dossiers_written": 12,
   "review_verdict": "CONCERNS",
-  "git_sha": "77cc1fe742435a547c755a1329c888dad75569c9",
-  "candidate_sha": "77cc1fe742435a547c755a1329c888dad75569c9",
-  "evidence_stamp_sha": "77cc1fe742435a547c755a1329c888dad75569c9"
+  "git_sha": "9851e364ad6b8e24228da7ba397cf0d07fd10c6c",
+  "candidate_sha": "9851e364ad6b8e24228da7ba397cf0d07fd10c6c",
+  "evidence_stamp_sha": "9851e364ad6b8e24228da7ba397cf0d07fd10c6c",
+  "sha_binding": {
+    "pack_generation_note": "pack git_sha in pack-manifest may lag tip evidence stamp",
+    "evidence_stamp_sha": "9851e364ad6b8e24228da7ba397cf0d07fd10c6c"
+  }
 }
