@@ -1,4 +1,6 @@
 {
   "failures": [],
-  "blockers": []
+  "blockers": [
+    "user_acceptance_STALE: prior ACCEPT does not bind current RC; re-accept required"
+  ]
 }

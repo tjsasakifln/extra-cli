@@ -1,9 +1,9 @@
 # Material de apoio — reunião consultiva Extra Construtora
 
-- run_id: `live-pack-20260724-215055-5b8d0087`
+- run_id: `live-pack-20260724-220350-da3bee0b`
 - as_of: `2026-07-24`
 - população elegível: `1179237`
-- linkage run: `crc-20260724T215053Z`
+- linkage run: `crc-20260724T220348Z`
 
 ## Roteiro
 1. Abrir executive-summary / PDF e confirmar profile_version.

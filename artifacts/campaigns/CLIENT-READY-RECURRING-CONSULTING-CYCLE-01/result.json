@@ -1,31 +1,33 @@
 {
   "campaign_id": "CLIENT-READY-RECURRING-CONSULTING-CYCLE-01",
-  "final_status": "PASS",
-  "terminal": "PASS",
-  "blockers": [],
+  "final_status": "BLOCKED",
+  "terminal": "BLOCKED",
+  "blockers": [
+    "user_acceptance_STALE: prior ACCEPT does not bind current RC; re-accept required"
+  ],
   "failures": [],
-  "rc_sha": "73fe55faaa363b34f75b741d0cfc8f2a3e78a5d9",
-  "run_id": "live-pack-20260724-215055-5b8d0087",
+  "rc_sha": "be96c8bc8eb2b017e491bfafe8cf99f81e321267",
+  "run_id": "live-pack-20260724-220350-da3bee0b",
   "production_touched": false,
   "soak_touched": false,
-  "duration_s": 32.755,
+  "duration_s": 34.292,
   "pack": {
-    "run_id": "live-pack-20260724-215055-5b8d0087",
+    "run_id": "live-pack-20260724-220350-da3bee0b",
     "reconcile": {
       "status": "PASS",
       "same_run_id": true,
       "divergences": [],
-      "run_id": "live-pack-20260724-215055-5b8d0087",
+      "run_id": "live-pack-20260724-220350-da3bee0b",
       "eligible_population": 1179237,
-      "meta_pdf_run_id": "live-pack-20260724-215055-5b8d0087",
-      "meta_excel_run_id": "live-pack-20260724-215055-5b8d0087",
+      "meta_pdf_run_id": "live-pack-20260724-220350-da3bee0b",
+      "meta_excel_run_id": "live-pack-20260724-220350-da3bee0b",
       "artifact_checks": {
         "pdf_path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/pack/extra_live_consulting_pack.pdf",
         "excel_path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/pack/extra_live_consulting_pack.xlsx",
-        "pdf_sha256": "49dd6a2934d0c46de62dd6a6903097da6ba52fb71f809855fd7d1e2e6f18c6ba",
-        "excel_sha256": "f53523874bc6d2db90fd8783b12b1d9b22acab55290eea4dd803ef3397bb9216",
-        "pdf_bytes": 3675,
-        "excel_bytes": 119182,
+        "pdf_sha256": "eb0690fae0a9d5326da1c6dd1d3598640b2ceaf477ffb5de8e51998a4846da9a",
+        "excel_sha256": "ca4ebbe84078e3b4b7e367ab0f443a677f6ca6225b5bc471d835372e41cce741",
+        "pdf_bytes": 3679,
+        "excel_bytes": 119905,
         "binaries_distinct": true,
         "pdf_run_id_plaintext": false,
         "excel_sheet_rows": {
@@ -68,13 +70,13 @@
         "export_limit": 200,
         "export_is_not_universe": true
       },
-      "query_seconds": 3.013
+      "query_seconds": 3.074
     },
     "deliverable_b": {
       "status": "OK",
       "valid_count": 15,
       "target_n": 15,
-      "query_seconds": 12.025
+      "query_seconds": 12.614
     },
     "deliverable_c": {
       "status": "OK",
@@ -84,12 +86,12 @@
         "n": 14750,
         "query_complete": true
       },
-      "query_seconds": 2.083
+      "query_seconds": 2.152
     },
     "deliverable_d": {
       "status": "OK",
       "n_panels": 6,
-      "query_seconds": 2.061
+      "query_seconds": 1.872
     },
     "deliverable_e": {
       "status": "OK",
@@ -99,7 +101,7 @@
     "production_touched": false
   },
   "linkage": {
-    "run_id": "crc-20260724T215053Z",
+    "run_id": "crc-20260724T220348Z",
     "status": "completed",
     "metrics": {
       "opportunities": 12,
@@ -151,7 +153,7 @@
     "mode": "LABELED_DETERMINISTIC_REPLAY",
     "live_dual_snapshot": false
   },
-  "human_acceptance": "ACCEPTED",
+  "human_acceptance": "PENDING_HUMAN",
   "claims": [
     "integrated cycle entry point sequences pack+linkage+weekly+monthly on isolated DSN",
     "A–E pack over authenticated dump population (not silent sample universe)",
@@ -171,29 +173,5 @@
     "Extra operational capacity fields not elicited",
     "win rate without observable open-tender denominator"
   ],
-  "generated_at": "2026-07-24T21:51:22Z",
-  "ci": {
-    "as_of": "2026-07-24T21:57:25.977056Z",
-    "head": "73fe55faaa363b34f75b741d0cfc8f2a3e78a5d9",
-    "pr": 131,
-    "url": "https://github.com/tjsasakifln/extra-cli/pull/131",
-    "run_id": 30129268929,
-    "full_suite": "PASS",
-    "conclusion": "success",
-    "all_checks_success": true,
-    "checks": {
-      "Lint (ruff)": "pass",
-      "Type Check (mypy)": "pass",
-      "Test (critical readiness)": "pass",
-      "Test operational expanded (PR)": "pass",
-      "Test All (full suite)": "pass",
-      "Resilience Gate (pre-VPS)": "pass",
-      "Security (bandit)": "pass",
-      "Dependency Audit (pip-audit)": "pass"
-    },
-    "human_acceptance": "ACCEPTED",
-    "final_status": "PASS",
-    "recurrence_honesty": "LABELED_DETERMINISTIC_REPLAY_not_live_dual_snapshot"
-  },
-  "branch_tip_sha": "73fe55faaa363b34f75b741d0cfc8f2a3e78a5d9"
+  "generated_at": "2026-07-24T22:04:19Z"
 }
