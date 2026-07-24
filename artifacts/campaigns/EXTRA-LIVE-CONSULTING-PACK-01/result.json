@@ -1,15 +1,17 @@
 {
   "campaign_id": "EXTRA-LIVE-CONSULTING-PACK-01",
   "terminal": "BLOCKED",
-  "terminal_detail": "BLOCKED_HUMAN — all non-human technical work complete; Tiago must set user-acceptance.json decision ACCEPT|REJECT|findings before PASS.",
+  "terminal_detail": "BLOCKED_HUMAN — Tiago must inspect pack-rc and write ACCEPT/REJECT/findings in user-acceptance.json. All non-human technical work complete.",
+  "git_sha": "0f8ab480ed81af1ffc2f1188944a6af648b242ea",
   "pr": "https://github.com/tjsasakifln/extra-cli/pull/130",
   "branch": "campaign/extra-live-consulting-pack-01",
   "production_touched": false,
   "soak_contact": false,
   "pack": {
-    "run_id": "live-pack-20260724-151413-54344a15",
-    "as_of": "2026-07-23",
-    "eligible_population": 1179237,
+    "run_id": "live-pack-20260724-151828-df8aaed3",
+    "as_of": "2026-07-24",
+    "eligible_population_SC": 1179237,
+    "restored_contracts": 4437142,
     "A": {
       "status": "OK",
       "n_rows": 200,
@@ -27,28 +29,28 @@
         "export_limit": 200,
         "export_is_not_universe": true
       },
-      "query_seconds": 3.26
+      "query_seconds": 3.87
     },
     "B": {
       "status": "OK",
       "valid_count": 15,
       "target_n": 15,
-      "query_seconds": 6.294
+      "query_seconds": 5.808
     },
     "C": {
       "status": "OK",
       "n_rows": 200,
       "success_zero": {
         "success_zero": false,
-        "n": 14758,
+        "n": 14750,
         "query_complete": true
       },
-      "query_seconds": 2.124
+      "query_seconds": 2.699
     },
     "D": {
       "status": "OK",
       "n_panels": 6,
-      "query_seconds": 1.84
+      "query_seconds": 1.79
     },
     "E": {
       "status": "OK",
@@ -59,31 +61,35 @@
       "status": "PASS",
       "same_run_id": true,
       "divergences": [],
-      "run_id": "live-pack-20260724-151413-54344a15",
+      "run_id": "live-pack-20260724-151828-df8aaed3",
       "eligible_population": 1179237
     }
   },
   "gates": {
-    "campaign-gate": "PASS",
-    "verify-isolated": "PASS",
+    "campaign-gate-extra-live-consulting-pack": "PASS",
+    "release-candidate-extra-live-consulting-pack": "PASS",
+    "verify-extra-live-consulting-isolated": "PASS",
     "workspace_competitors": "PASS",
     "workspace_prices": "PASS",
-    "workspace_expiring": "PASS_buckets",
-    "isolation_prod_dsn": "FAIL_closed_exit_2",
-    "ci_pr130_prior": "PASS_30103220668"
+    "monthly_live_isolated": "PASS",
+    "weekly_isolated_skip_collect": "EXIT_2_partial_documented",
+    "isolation_prod_dsn_reject": "PASS",
+    "ci_pr130": "PASS_30103220668"
   },
   "human_gate": {
     "status": "BLOCKED_HUMAN",
-    "path": "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/user-acceptance.json",
-    "pack_path": "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-rc/",
-    "auto_accept_forbidden": true
+    "file": "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/user-acceptance.json",
+    "pack_dir": "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-rc",
+    "auto_accept_forbidden": true,
+    "required_action": "Tiago sets decision ACCEPT|REJECT|findings"
   },
   "claims_authorized": [
-    "A_E_pack_isolated_authenticated_snapshot",
+    "A_E_isolated_authenticated_snapshot",
     "full_eligible_population_SC_1179237",
-    "C_window_14758_hits_export_capped",
+    "C_window_14758_complete_query_export_capped",
     "B_15_competitors",
     "E_captured_open_tenders",
+    "reconcile_PASS",
     "production_touched=false"
   ],
   "non_claims": [
@@ -91,13 +97,14 @@
     "VPS_OPERATIONAL",
     "PROJECT_DONE",
     "soak_complete",
-    "live_VPS",
+    "live_VPS_query",
     "human_ACCEPT",
+    "weekly_exit_0_full_consultive",
     "unit_price_from_global",
     "win_rate",
-    "national_complete"
+    "national_market_complete",
+    "dual_operational_coverage_from_this_campaign"
   ],
-  "next_step": "Tiago: open pack-rc, set user-acceptance.json decision; then merge PR #130 and isolated reproof on main (no deploy during soak).",
-  "generated_at": "2026-07-24T15:16:22Z",
-  "git_sha": "873bbe49fc653baba478d5b4b89c064c90a80cdb"
+  "next_step": "Tiago ACCEPT/REJECT in user-acceptance.json → merge PR #130 → isolated reproof on main → no deploy while soak active.",
+  "generated_at": "2026-07-24T15:19:23Z"
 }

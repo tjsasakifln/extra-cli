@@ -796,7 +796,7 @@
     "State competitor capacity as fact without evidence",
     "ESTIMADO labeled as CONTRATADO total"
   ],
-  "generated_at": "2026-07-24T15:14:24Z",
+  "generated_at": "2026-07-24T15:18:39Z",
   "population": {
     "eligible_population": 1179237,
     "active_contracts": 1179237,
@@ -809,9 +809,9 @@
     "export_limit": 200,
     "export_is_not_universe": true
   },
-  "query_seconds": 6.294,
-  "run_id": "live-pack-20260724-151413-54344a15",
-  "as_of": "2026-07-23",
-  "git_sha": "09bbffdf4239508c2ca7ebb59e2411cb6754ebfc",
+  "query_seconds": 5.808,
+  "run_id": "live-pack-20260724-151828-df8aaed3",
+  "as_of": "2026-07-24",
+  "git_sha": "0f8ab480ed81af1ffc2f1188944a6af648b242ea",
   "schema_version": "coverage-2.4_entity_coverage_rebuild"
 }

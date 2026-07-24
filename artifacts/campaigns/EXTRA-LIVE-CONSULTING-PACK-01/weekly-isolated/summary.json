@@ -1,0 +1,13 @@
+{
+  "exit_code": 2,
+  "cycle_id": "weekly-20260724T151853Z-f36b5838f1",
+  "intelligence_counts": {
+    "opportunities": 0,
+    "contracts": 50,
+    "competitors": 50,
+    "orgaos": 0
+  },
+  "production_touched": false,
+  "mode": "skip_collect_no_incremental_isolated",
+  "note": "exit 2 = not fully consultive (no opportunity_intel rows / pdf residual); contracts+competitors populated from lake"
+}

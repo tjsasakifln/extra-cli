@@ -1,7 +1,7 @@
 {
   "production_touched": false,
   "isolation_ok": true,
-  "dsn_masked": "postgresql://test:***@127.0.0.1:5436/extra_live_pack_rc",
   "soak_contact": false,
-  "ssh_ec_prod": false
+  "ssh_ec_prod": false,
+  "dsn_masked": "postgresql://test:***@127.0.0.1:5436/extra_live_pack_rc"
 }
