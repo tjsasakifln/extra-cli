@@ -1,8 +1,8 @@
 {
   "campaign": "STRATIFIED-RECALL-SOURCE-RESILIENCE-01",
   "status": "PASS",
-  "sha": "64549385144fd02304063bb538be31b8feed9900",
-  "generated_at": "2026-07-24T14:06:59Z",
+  "sha": "1243da5e59373e2dedbe9b79143872e6690ee7ac",
+  "generated_at": "2026-07-24T14:07:17Z",
   "gate_status": "PASS",
   "recall_status": "PASS",
   "recall_pct": 100.0,

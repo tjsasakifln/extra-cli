@@ -1,7 +1,7 @@
 {
   "campaign": "STRATIFIED-RECALL-SOURCE-RESILIENCE-01",
   "schema_version": 1,
-  "sha": "64549385144fd02304063bb538be31b8feed9900",
+  "sha": "1243da5e59373e2dedbe9b79143872e6690ee7ac",
   "branch": "campaign/stratified-recall-source-resilience-01",
   "generated_at": "2026-07-24T14:06:42Z",
   "worktree": "/tmp/extra-cli-recall-source-01",
