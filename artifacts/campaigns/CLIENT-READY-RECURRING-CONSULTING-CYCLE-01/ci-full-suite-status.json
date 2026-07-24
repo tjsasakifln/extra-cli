@@ -1,10 +1,11 @@
 {
-  "as_of": "2026-07-24T21:28:21.538481Z",
-  "head": "f150599396b1971a6d398fe137b1624a9dcd8e62",
+  "as_of": "2026-07-24T21:33:06.509050Z",
+  "head": "5c692c64bc0f79396c5c62688601386580b137fe",
   "pr": 131,
   "url": "https://github.com/tjsasakifln/extra-cli/pull/131",
   "full_suite": "PASS",
   "conclusion": "success",
+  "all_checks_success": true,
   "checks": {
     "Lint (ruff)": "SUCCESS",
     "Type Check (mypy)": "SUCCESS",
@@ -14,5 +15,9 @@
     "Resilience Gate (pre-VPS)": "SUCCESS",
     "Security (bandit)": "SUCCESS",
     "Dependency Audit (pip-audit)": "SUCCESS"
-  }
+  },
+  "verification_plan": "VERIFICATION_PLAN_OK",
+  "human_acceptance": "PENDING_HUMAN",
+  "final_status": "BLOCKED",
+  "note": "Agent must not auto-accept. Technical path complete."
 }
