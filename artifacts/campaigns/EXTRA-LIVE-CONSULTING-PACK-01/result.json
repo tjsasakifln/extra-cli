@@ -2,7 +2,6 @@
   "campaign_id": "EXTRA-LIVE-CONSULTING-PACK-01",
   "terminal": "BLOCKED",
   "terminal_detail": "BLOCKED_HUMAN — all non-human technical work complete; Tiago must set user-acceptance.json decision ACCEPT|REJECT|findings before PASS.",
-  "git_sha_pending_commit": true,
   "pr": "https://github.com/tjsasakifln/extra-cli/pull/130",
   "branch": "campaign/extra-live-consulting-pack-01",
   "production_touched": false,
@@ -99,5 +98,6 @@
     "national_complete"
   ],
   "next_step": "Tiago: open pack-rc, set user-acceptance.json decision; then merge PR #130 and isolated reproof on main (no deploy during soak).",
-  "generated_at": "2026-07-24T15:16:22Z"
+  "generated_at": "2026-07-24T15:16:22Z",
+  "git_sha": "873bbe49fc653baba478d5b4b89c064c90a80cdb"
 }
