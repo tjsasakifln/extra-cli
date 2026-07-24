@@ -2,7 +2,7 @@
   "campaign_id": "EXTRA-LIVE-CONSULTING-PACK-01",
   "terminal": "BLOCKED",
   "terminal_detail": "BLOCKED_HUMAN — Tiago user acceptance not recorded this session; all non-human gates green on isolated snapshot",
-  "git_sha": "e5351405d4b1399e3d2a8d3ba9c290b532951c16",
+  "git_sha": "1ebad1102e77efd89b77d0c8799a14d1e55804a1",
   "pack": {
     "run_id": "live-pack-20260724-144033-ff964ea8",
     "A": {
