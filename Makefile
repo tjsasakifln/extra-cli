@@ -363,7 +363,7 @@ campaign-gate-extra-live-consulting-pack:
 	LOCAL_DATALAKE_DSN='$(CAMPAIGN_TEST_DSN)' python3 -m scripts.workspace competitors --json --dsn '$(CAMPAIGN_TEST_DSN)' --limit 5 | python3 -c "import sys,json; d=json.load(sys.stdin); assert d.get('status')=='OK' and d.get('count',0)>=1, d"
 	LOCAL_DATALAKE_DSN='$(CAMPAIGN_TEST_DSN)' python3 -m scripts.workspace expiring-contracts --json --dsn '$(CAMPAIGN_TEST_DSN)' | python3 -c "import sys,json; d=json.load(sys.stdin); assert 'buckets' in d, d"
 	LOCAL_DATALAKE_DSN='$(CAMPAIGN_TEST_DSN)' python3 -m scripts.workspace prices --json --dsn '$(CAMPAIGN_TEST_DSN)' --keywords reforma | python3 -c "import sys,json; d=json.load(sys.stdin); assert d.get('status')=='OK', d"
-	@# Weekly isolated (skip network); exit 0=OK, 2=partial consultive but lake products present
+	@# Weekly isolated = extra-weekly surface (scripts.ops.weekly_cycle; exit 0=OK, 2=partial OK)
 	@set -e; \
 	  LOCAL_DATALAKE_DSN='$(CAMPAIGN_TEST_DSN)' python3 -m scripts.ops.weekly_cycle \
 	    --dsn '$(CAMPAIGN_TEST_DSN)' --skip-collect --no-contracts-incremental --no-strict --limit 30 \
