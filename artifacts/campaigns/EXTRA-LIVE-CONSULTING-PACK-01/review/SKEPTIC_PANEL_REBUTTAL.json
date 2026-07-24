@@ -1,0 +1,76 @@
+{
+  "document": "SKEPTIC_PANEL_REBUTTAL",
+  "harness_snapshot_shas_cited": [
+    "4016906",
+    "298c521",
+    "0f8ab48",
+    "839d800",
+    "live-pack-...151828",
+    "run 30105248253"
+  ],
+  "current_tip": "2e046ee2e208eb5359e3306d2a92ce566769fc61",
+  "current_pack_run_id": "live-pack-20260724-162325-f4d6894d",
+  "current_pack_git_sha": "fa66dd7f9d8ae68b7ad9c14e5266c5b35d4e032d",
+  "audited_at": "2026-07-24T17:19:06Z",
+  "terminal": "BLOCKED",
+  "terminal_detail": "BLOCKED_HUMAN",
+  "decision": null,
+  "agent_fill_in_forbidden": true,
+  "work_not_blocked_complete": true,
+  "gaps": [
+    {
+      "harness": "Terminal PASS / agent-fabricated ACCEPT (4016906)",
+      "tip_status": "CLOSED",
+      "proof": "user-acceptance.decision=null; result.terminal=BLOCKED; agent_fill_in_forbidden=true; human declined prompt twice"
+    },
+    {
+      "harness": "SHA scatter pack 0f8ab48 / multiple run_ids",
+      "tip_status": "CLOSED",
+      "proof": "single run_id live-pack-20260724-162325-f4d6894d across pack-rc, package-reconciliation, result; product pack sha fa66dd7"
+    },
+    {
+      "harness": "Gates omit full suite/golden/workspace",
+      "tip_status": "CLOSED",
+      "proof": "Makefile campaign-gate-extra-live includes workspace today/competitors/expiring/prices, golden_path, run_full_suite or CI evidence assert; no || true in gate section"
+    },
+    {
+      "harness": "dual \u226595% isolated unmet",
+      "tip_status": "CLOSED_AS_NON_CLAIM",
+      "proof": "dual-coverage-status GATE_FAIL_0pct; claim_isolated_dual_95=false; terminal not PASS; dual residual documented blocker optional"
+    },
+    {
+      "harness": "Independent review self-pass / C=0",
+      "tip_status": "CLOSED",
+      "proof": "C success_zero n=14750; review PASS_TECHNICAL; skeptic-tip-revalidation all_technical_pass=true"
+    },
+    {
+      "harness": "CI full suite pending on 298c521",
+      "tip_status": "CLOSED",
+      "proof": "CI PASS runs 30110189083, 30109832299, 30108852563 on tip lineage"
+    },
+    {
+      "harness": "package-reconciliation run_id mismatch",
+      "tip_status": "CLOSED",
+      "proof": "same run_id as pack-rc"
+    },
+    {
+      "harness": "B hospital peers",
+      "tip_status": "CLOSED",
+      "proof": "engineering filter; 15 construction peers; n_contracts_eligible_engineering=5131"
+    },
+    {
+      "harness": "monthly contracts 5000",
+      "tip_status": "CLOSED",
+      "proof": "FULL_WINDOW 57238; not_silent_5000_universe=true"
+    },
+    {
+      "harness": "plan PASS vs BLOCKED_HUMAN contradiction",
+      "tip_status": "CLOSED",
+      "proof": "plan Deviations + result terminal BLOCKED; tasks Phase 4 user-acceptance BLOCKED_HUMAN checked; no PASS claim"
+    }
+  ],
+  "only_open": [
+    "HUMAN_ACCEPT_NULL \u2014 Tiago must set decision after inspecting pack-rc (evaluator next step)"
+  ],
+  "evaluator_next_step_acknowledged": "Tiago inspects pack-rc and writes decision; then DevOps merge PR #130"
+}

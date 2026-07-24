@@ -1,0 +1,63 @@
+{
+  "schema": "extra-weekly-checksums/1.0",
+  "cycle_id": "weekly-20260724T151853Z-f36b5838f1",
+  "collection_id": "col-extra-weekly-20260724T151853Z-397cf2e5",
+  "note": "Hashes of product artifacts only — does not include manifest.json",
+  "artifacts": {
+    "opportunities_csv": {
+      "path": "/tmp/grok-goal-507604d67546/implementer/weekly-isolated/opportunities.csv",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "contracts_csv": {
+      "path": "/tmp/grok-goal-507604d67546/implementer/weekly-isolated/contracts.csv",
+      "sha256": "1945533c3420138b17399fee5fa4c553709552091271efd2100c414931340ad7",
+      "bytes": 30632
+    },
+    "competitors_csv": {
+      "path": "/tmp/grok-goal-507604d67546/implementer/weekly-isolated/competitors.csv",
+      "sha256": "ea213222e4fbf0e0b6fe4fdd4678e040010ead9e0fa177e568d871599d89807d",
+      "bytes": 12658
+    },
+    "orgaos_csv": {
+      "path": "/tmp/grok-goal-507604d67546/implementer/weekly-isolated/orgaos.csv",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "source_health_csv": {
+      "path": "/tmp/grok-goal-507604d67546/implementer/weekly-isolated/source_health.csv",
+      "sha256": "b486f8da21e5076a67aa40e4ad41ddb68d7e8009b193e156703036f0a07e070c",
+      "bytes": 228
+    },
+    "gaps_csv": {
+      "path": "/tmp/grok-goal-507604d67546/implementer/weekly-isolated/gaps.csv",
+      "sha256": "aa429b5f7865d75cb2cebab26a3e24bf4dc070a3ae90ed063d7f28a4ddd8c902",
+      "bytes": 350
+    },
+    "claims_csv": {
+      "path": "/tmp/grok-goal-507604d67546/implementer/weekly-isolated/claims_provenance.csv",
+      "sha256": "b133678cb11c9c9d109a95c7ff5f06076c5063f1f8c4da8be5a8be8c7043bd82",
+      "bytes": 48025
+    },
+    "executive_md": {
+      "path": "/tmp/grok-goal-507604d67546/implementer/weekly-isolated/executive_summary.md",
+      "sha256": "1568ea9fb5e00c9ae381a4b5785335820df4b37fd03f92ee0a1d4ce1dabce185",
+      "bytes": 4222
+    },
+    "excel": {
+      "path": "/tmp/grok-goal-507604d67546/implementer/weekly-isolated/extra_weekly_pack.xlsx",
+      "sha256": "b6ba37301314324ce25440f61225f64dbe7d07e635d4e5a86bfaff3866f1516f",
+      "bytes": 22575
+    },
+    "deliverable_e": {
+      "path": "/tmp/grok-goal-507604d67546/implementer/weekly-isolated/deliverable_e.json",
+      "sha256": "1ca087c49419f01cde0c2d11a894f333ad01a7a27901dff66bfe80486fd954e4",
+      "bytes": 966
+    },
+    "deliverable_e_audit": {
+      "path": "/tmp/grok-goal-507604d67546/implementer/weekly-isolated/deliverable_e_audit.json",
+      "sha256": "49950b58c7ce95120187ac7188d322de016a8e7fea77b7cbc29c1d16271aba94",
+      "bytes": 2764
+    }
+  }
+}

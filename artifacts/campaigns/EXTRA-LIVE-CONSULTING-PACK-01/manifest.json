@@ -1,0 +1,22 @@
+{
+  "campaign_id": "EXTRA-LIVE-CONSULTING-PACK-01",
+  "git_sha": "1ebad1102e77efd89b77d0c8799a14d1e55804a1",
+  "pack_run_id": "live-pack-20260724-144033-ff964ea8",
+  "as_of": "2026-07-23",
+  "production_touched": false,
+  "dsn_masked": "postgresql://test:***@127.0.0.1:5436/extra_live_pack_rc",
+  "population": {
+    "eligible_population": 1179237,
+    "active_contracts": 1179237,
+    "uf_filter": "SC",
+    "period_min": "2023-07-20",
+    "period_max": "2026-07-23",
+    "sample_label": "FULL_ELIGIBLE_POPULATION",
+    "not_sample_of_n": true
+  },
+  "artifacts": {
+    "pack_dir": "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-rc",
+    "external_note": "PDF/XLSX under pack-rc; large DB outside git"
+  },
+  "generated_at": "2026-07-24T14:43:43Z"
+}

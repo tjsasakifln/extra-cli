@@ -1,0 +1,81 @@
+{
+  "campaign_id": "EXTRA-LIVE-CONSULTING-PACK-01",
+  "captured_at": "2026-07-24T14:00:27Z",
+  "origin_main_sha": "64549385144fd02304063bb538be31b8feed9900",
+  "branch_sha": "64549385144fd02304063bb538be31b8feed9900",
+  "worktree": "/tmp/extra-cli-live-pack-01",
+  "isolation": {
+    "dsn_masked": "postgresql://test:***@127.0.0.1:5436/extra_live_pack_rc",
+    "port": 5436,
+    "db": "extra_live_pack_rc",
+    "production_touched": false,
+    "soak_boundary": "no ssh ec-prod, no VPS DSN, no /opt/extra-consultoria"
+  },
+  "data_source": {
+    "package": "artifacts/migration/backfill-vps/pkg-20260723T195047Z",
+    "contracts_dump_sha256": "f9e45cdbc2ddf06e502aef86ef687595cb21880899bcee2cb28f54d1de883661",
+    "contracts_count_export_meta": 4437142,
+    "authenticated": true,
+    "sha256sums_verified": true
+  },
+  "classification": {
+    "implemented": [
+      "deliverable_a/b/c/d/e schema+audit modules",
+      "deliverable_package_final fixture path",
+      "weekly_cycle intelligence SQL",
+      "workspace CLI competitors/expiring/prices",
+      "org_ranking from pncp_supplier_contracts",
+      "strategic_monthly_monitor fixture recurrence",
+      "dual coverage spine 059",
+      "OPEN-TENDERS Deliverable E live evidence"
+    ],
+    "proven_by_test": [
+      "deliverable A–E fixture audits",
+      "package final reconcile fixture",
+      "weekly_cycle unit tests",
+      "strategic_monthly fixture demo"
+    ],
+    "proven_live": [
+      "4.4M contracts on VPS (prior campaign; soak boundary)",
+      "dual historical_contracts 100% and open_tenders 100% signed evidence",
+      "Deliverable E open tenders on captured evidence",
+      "authenticated dump package local with SHA256"
+    ],
+    "fixture_or_documented_only": [
+      "PR #121 national_intel (fixtures + CONDITIONAL_PASS; migration was 059 collision)",
+      "strategic_monthly live path was unwired (now wired this campaign)",
+      "package_final PDF was fixture placeholders",
+      "historical consulting pack sample_rows=5000 claim only",
+      "weekly offline RC contracts=0 competitors=0 scope drift"
+    ],
+    "accepted_dod": [
+      "subset of open-tenders ODC items on main via PR #127"
+    ],
+    "divergent_obsolete": [
+      "README/DEVELOPMENT local-only / VPS future language vs Netcup operational reality",
+      "PR #121 spec labeled 003 conflicts with main specs/003-open-tenders",
+      "PR #121 migration 059 occupied by coverage on main",
+      "dod controller main_sha lag"
+    ],
+    "blocked": [
+      "soak 7d HISTORICAL-CONTRACTS — inviolable for this campaign",
+      "Tiago human acceptance gate (cannot auto-PASS)",
+      "DOD items requiring live/prod execution — max PARTIAL_ADVANCE here"
+    ]
+  },
+  "pr_121": {
+    "state": "OPEN draft",
+    "head": "a1c77a0",
+    "action": "cherry-pick national_intel + renumber migration to 060; not merge as-is"
+  },
+  "specs": {
+    "001": "dual-capability-coverage-truth",
+    "002": "historical-contracts-operational-coverage",
+    "003": "open-tenders-operational-decision-cycle (main)",
+    "004": "extra-live-consulting-pack (this campaign)"
+  },
+  "migrations": {
+    "main_last": "059_coverage_evidence_canonical_entity_unique.sql",
+    "reserved_this_campaign": "060_national_contracts_intelligence_layers.sql"
+  }
+}

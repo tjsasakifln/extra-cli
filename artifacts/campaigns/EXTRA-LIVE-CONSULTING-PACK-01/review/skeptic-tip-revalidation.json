@@ -1,0 +1,205 @@
+{
+  "tip": "680d5e7104398ff4c00c05eb968e160862d314d5",
+  "audited_at": "2026-07-24T16:43:05.464132+00:00",
+  "all_technical_pass": true,
+  "gaps": [
+    {
+      "id": 0,
+      "title": "fabricated ACCEPT",
+      "skeptic_claimed": "decision ACCEPT agent-fabricated",
+      "observed": {
+        "decision": null,
+        "status": "BLOCKED_HUMAN",
+        "agent_fill_in_forbidden": true,
+        "auto_accept_forbidden": true,
+        "terminal": "BLOCKED"
+      },
+      "pass": true
+    },
+    {
+      "id": 1,
+      "title": "SHA/run_id scatter",
+      "skeptic_claimed": "multiple run_ids/shas",
+      "observed": {
+        "pack_run": "live-pack-20260724-162325-f4d6894d",
+        "pack_git": "fa66dd7f9d8ae68b7ad9c14e5266c5b35d4e032d",
+        "rec_run": "live-pack-20260724-162325-f4d6894d",
+        "rec_git": "fa66dd7f9d8ae68b7ad9c14e5266c5b35d4e032d",
+        "result_pack_run": "live-pack-20260724-162325-f4d6894d",
+        "same_run": true,
+        "tip": "680d5e7104398ff4c00c05eb968e160862d314d5",
+        "product_vs_tip_note": {
+          "pack_generation_sha": "fa66dd7f9d8ae68b7ad9c14e5266c5b35d4e032d",
+          "evidence_stamp_sha": "f27843e42c927c30c6931b9981826d94deb76385",
+          "pack_run_id": "live-pack-20260724-162325-f4d6894d",
+          "package_reconciliation_run_id": "live-pack-20260724-162325-f4d6894d",
+          "consistent": true,
+          "product_code_delta_since_pack": false,
+          "note": "pack on fa66dd7; evidence docs tip advances; scripts unchanged since pack"
+        }
+      },
+      "pass": true
+    },
+    {
+      "id": 2,
+      "title": "gates omit surface / || true",
+      "observed": {
+        "run_full_suite": true,
+        "golden_path": true,
+        "workspace_today": true,
+        "workspace_competitors": true,
+        "expiring": true,
+        "prices": true,
+        "or_true_in_gate_section": false,
+        "ci_fallback_assert": true
+      },
+      "pass": true
+    },
+    {
+      "id": 3,
+      "title": "dual 95 isolated",
+      "observed": {
+        "result": "GATE_FAIL_0pct",
+        "claim_95": false,
+        "non_claims": [
+          "PASS_without_verifiable_human_ACCEPT",
+          "agent_fabricated_ACCEPT",
+          "LOCAL_READY",
+          "VPS_OPERATIONAL",
+          "PROJECT_DONE",
+          "dual_operational_coverage_reproof_on_tip_95",
+          "unit_price_from_global",
+          "win_rate"
+        ],
+        "terminal": "BLOCKED"
+      },
+      "pass": true
+    },
+    {
+      "id": 4,
+      "title": "independent review",
+      "observed": {
+        "verdict": "PASS_TECHNICAL",
+        "blocking": [
+          "HUMAN_ACCEPT_NULL",
+          "DUAL_ISOLATED_0pct_residual_non_claim"
+        ],
+        "attack_summary": {
+          "1_terminal_not_fabricated_accept": "DEFENDED",
+          "2_b_not_hospital": "DEFENDED",
+          "3_monthly_not_silent_5000": "DEFENDED",
+          "4_no_isolated_dual_95_claim": "DEFENDED",
+          "5_run_id_reconcile_match": "DEFENDED",
+          "6_no_or_true_in_campaign_gate": "DEFENDED",
+          "7_sha_product_bound": "DEFENDED",
+          "8_c_full_window_query": "DEFENDED",
+          "9_independent_review_present": "DEFENDED",
+          "10_export_not_universe": "DEFENDED"
+        },
+        "reviewer": "coordinator-verification-plan-revalidation"
+      },
+      "pass": true
+    },
+    {
+      "id": 5,
+      "title": "CI full suite tip",
+      "observed": {
+        "pr": 130,
+        "run_id": "30109832299",
+        "head_sha": "f27843e42c927c30c6931b9981826d94deb76385",
+        "full_suite": "PASS",
+        "conclusion": "success",
+        "jobs": {
+          "Lint (ruff)": "pass",
+          "Type Check (mypy)": "pass",
+          "Test (critical readiness)": "pass",
+          "Test operational expanded (PR)": "pass",
+          "Test All (full suite)": "pass",
+          "Resilience Gate (pre-VPS)": "pass",
+          "Security (bandit)": "pass",
+          "Dependency Audit (pip-audit)": "pass"
+        },
+        "url": "https://github.com/tjsasakifln/extra-cli/actions/runs/30109832299",
+        "recorded_at": "2026-07-24T16:41:31Z",
+        "note": "CI full suite green on docs tip f27843e; product pack generation SHA fa66dd7; suite DSN :5433 unavailable host",
+        "prior_product_tip_ci": {
+          "run_id": "30108852563",
+          "head_sha": "fa66dd7f9d8ae68b7ad9c14e5266c5b35d4e032d",
+          "full_suite": "PASS"
+        }
+      },
+      "pass": true
+    },
+    {
+      "id": 6,
+      "title": "package-reconciliation run_id",
+      "observed": {
+        "pack": "live-pack-20260724-162325-f4d6894d",
+        "rec": "live-pack-20260724-162325-f4d6894d",
+        "divergences": []
+      },
+      "pass": true
+    },
+    {
+      "id": 7,
+      "title": "B hospital peers",
+      "observed": {
+        "valid_count": 15,
+        "hospital_like": [],
+        "sample": [
+          "EMPREITEIRA DE MAO DE OBRA ADRIMAR LTDA - EIRELI",
+          "PAVIPLAN PAVIMENTA\u00c7\u00c3O LTDA.",
+          "POLARIS SERVICOS E CONSTRUCOES LTDA-IR 1.2%",
+          "CONSTRUTORA SCHROEDER E SCHMIDT LTDA EPP",
+          "INFRASUL - INFRAESTUTURA E EMPREENDIMENTOS LTDA"
+        ],
+        "selection_note": "Competitors ranked only on contracts whose objeto matches Extra engineering profile terms; hospital/office suppliers excluded.",
+        "eng_contracts": 5131,
+        "claims_forbidden": [
+          "Pad list to 15 with noise",
+          "Des\u00e1gio without same certame/lote/item pair",
+          "Call contract active without vigencia+status",
+          "State competitor capacity as fact without evidence",
+          "ESTIMADO labeled as CONTRATADO total",
+          "Treat top suppliers by raw national volume as Extra peers",
+          "Infer partnership from co-presence"
+        ]
+      },
+      "pass": true
+    },
+    {
+      "id": 8,
+      "title": "monthly silent 5000",
+      "observed": {
+        "c1": 57238,
+        "c2": 57238,
+        "label": "FULL_WINDOW",
+        "not_silent": true
+      },
+      "pass": true
+    },
+    {
+      "id": 9,
+      "title": "plan vs terminal honesty",
+      "observed": {
+        "plan_has_BLOCKED_HUMAN": true,
+        "plan_not_claim_PASS_as_done": true,
+        "tasks_human_open": true,
+        "result_terminal": "BLOCKED",
+        "not_PASS": true
+      },
+      "pass": true
+    },
+    {
+      "id": "C",
+      "title": "C window hits",
+      "observed": {
+        "success_zero": false,
+        "n": 14750,
+        "query_complete": true
+      },
+      "pass": true
+    }
+  ],
+  "terminal_must_remain": "BLOCKED"
+}

@@ -1,0 +1,3 @@
+source,level,sla_hours,age_hours,indicator,row_count,note
+pncp_opportunities,never,24,,freshness_source,,
+pncp_contracts,fresh,168,19.5,freshness_source,4437142,freshness by max(ingested_at); not a full re-collect this cycle

@@ -604,48 +604,43 @@ def cmd_competitors(args: argparse.Namespace) -> int:
                 items = pg_query(
                     conn,
                     """
-                    SELECT numero_controle_pncp, orgao_nome, objeto_contrato,
-                           valor_total, data_assinatura, data_fim_vigencia,
-                           municipio, uf, ni_fornecedor, nome_fornecedor
+                    SELECT contrato_id, orgao_nome, objeto_contrato,
+                           valor_total, data_assinatura, data_fim,
+                           municipio, uf, fornecedor_cnpj, fornecedor_nome
                     FROM pncp_supplier_contracts
                     WHERE is_active IS TRUE
-                      AND (ni_fornecedor = %s OR LEFT(ni_fornecedor, 8) = %s)
-                    ORDER BY data_assinatura DESC NULLS LAST
+                      AND (
+                        fornecedor_cnpj = %s
+                        OR fornecedor_cnpj_8 = %s
+                        OR LEFT(REGEXP_REPLACE(COALESCE(fornecedor_cnpj,''), '[^0-9]', '', 'g'), 8) = %s
+                      )
+                    ORDER BY COALESCE(data_assinatura, data_publicacao) DESC NULLS LAST
                     LIMIT %s
                     """,
-                    (cnpj, cnpj[:8], args.limit),
+                    (cnpj, cnpj[:8], cnpj[:8], args.limit),
                 )
             else:
-                try:
-                    items = pg_query(
-                        conn,
-                        """
-                        SELECT fornecedor_cnpj, fornecedor_nome, qtd_contratos,
-                               valor_total_contratos, ticket_medio_contrato,
-                               qtd_orgaos_distintos, hhi_concentracao
-                        FROM v_supplier_winners
-                        ORDER BY valor_total_contratos DESC NULLS LAST
-                        LIMIT %s
-                        """,
-                        (args.limit,),
-                    )
-                except Exception:
-                    items = pg_query(
-                        conn,
-                        """
-                        SELECT ni_fornecedor AS fornecedor_cnpj,
-                               MAX(nome_fornecedor) AS fornecedor_nome,
-                               COUNT(*) AS qtd_contratos,
-                               SUM(valor_total) AS valor_total_contratos,
-                               AVG(valor_total) AS ticket_medio_contrato
-                        FROM pncp_supplier_contracts
-                        WHERE is_active IS TRUE AND ni_fornecedor IS NOT NULL
-                        GROUP BY ni_fornecedor
-                        ORDER BY SUM(valor_total) DESC NULLS LAST
-                        LIMIT %s
-                        """,
-                        (args.limit,),
-                    )
+                # Prefer direct aggregate (fast on large lakes). View v_supplier_winners
+                # joins sc_public_entities and is O(n) expensive at multi-million scale.
+                items = pg_query(
+                    conn,
+                    """
+                    SELECT fornecedor_cnpj,
+                           MAX(fornecedor_nome) AS fornecedor_nome,
+                           COUNT(*)::int AS qtd_contratos,
+                           SUM(valor_total) AS valor_total_contratos,
+                           AVG(valor_total) AS ticket_medio_contrato,
+                           COUNT(DISTINCT orgao_cnpj)::int AS qtd_orgaos_distintos
+                    FROM pncp_supplier_contracts
+                    WHERE is_active IS TRUE
+                      AND fornecedor_cnpj IS NOT NULL
+                      AND btrim(fornecedor_cnpj) <> ''
+                    GROUP BY fornecedor_cnpj
+                    ORDER BY SUM(valor_total) DESC NULLS LAST
+                    LIMIT %s
+                    """,
+                    (args.limit,),
+                )
         except Exception as exc:  # noqa: BLE001
             err = f"{err or ''}; {exc}"
         finally:

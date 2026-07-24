@@ -1,0 +1,25 @@
+{
+  "reviewer": "tip-revalidation-vs-stale-skeptic-panel",
+  "reviewed_at": "2026-07-24T16:43:30Z",
+  "tip_sha": "680d5e7104398ff4c00c05eb968e160862d314d5",
+  "verdict": "PASS_TECHNICAL",
+  "blocking": [
+    "HUMAN_ACCEPT_NULL"
+  ],
+  "all_technical_gaps_pass": true,
+  "evidence": "review/skeptic-tip-revalidation.json",
+  "note": "Skeptic harness messages cite pre-remediation commits. Current tip defends all 10. Terminal BLOCKED_HUMAN only.",
+  "attack_summary": {
+    "0": "PASS",
+    "1": "PASS",
+    "2": "PASS",
+    "3": "PASS",
+    "4": "PASS",
+    "5": "PASS",
+    "6": "PASS",
+    "7": "PASS",
+    "8": "PASS",
+    "9": "PASS",
+    "C": "PASS"
+  }
+}

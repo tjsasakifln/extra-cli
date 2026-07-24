@@ -1,0 +1,7 @@
+{
+  "mode": "isolated_presence_probe_not_operational_coverage",
+  "universe_n": 1093,
+  "seed_entities_with_lake_presence": 412,
+  "production_touched": false,
+  "signed_live_dual_path": "artifacts/campaigns/*-01/dual-*.json"
+}

@@ -1,0 +1,19 @@
+{
+  "population_label": "FULL_ELIGIBLE_POPULATION",
+  "export_is_not_universe": true,
+  "C_success_zero": {
+    "success_zero": true,
+    "window": "90-180d",
+    "as_of": "2026-07-23",
+    "contracts_with_data_fim_scanned": 1179228,
+    "query_complete": true,
+    "message": "Zero contracts in 90–180 day window after complete query; not 'not consulted'"
+  },
+  "B_valid_count": 15,
+  "D_panels": 6,
+  "limitations": [
+    "sc_public_entities not seeded in isolated DB; eligible pop = UF=SC filter",
+    "data_fim sparsely populated → C window may be empty with success_zero",
+    "Deliverable E from prior captured evidence file not live opportunity_intel"
+  ]
+}

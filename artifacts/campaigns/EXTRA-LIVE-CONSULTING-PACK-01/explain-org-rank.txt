@@ -1,0 +1,38 @@
+                                                                                  QUERY PLAN                                                                                  
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=305697.15..305697.28 rows=50 width=68) (actual time=1450.717..1456.280 rows=50 loops=1)
+   Buffers: shared hit=15521 read=254830, temp read=6912 written=6936
+   ->  Sort  (cost=305697.15..305724.57 rows=10968 width=68) (actual time=1442.423..1447.984 rows=50 loops=1)
+         Sort Key: ((count(*))::integer) DESC
+         Sort Method: top-N heapsort  Memory: 32kB
+         Buffers: shared hit=15521 read=254830, temp read=6912 written=6936
+         ->  Finalize GroupAggregate  (cost=303904.86..305332.81 rows=10968 width=68) (actual time=1308.834..1447.158 rows=3026 loops=1)
+               Group Key: (COALESCE(orgao_nome, orgao_cnpj))
+               Buffers: shared hit=15518 read=254830, temp read=6912 written=6936
+               ->  Gather Merge  (cost=303904.86..305075.85 rows=9244 width=72) (actual time=1308.802..1441.943 rows=7657 loops=1)
+                     Workers Planned: 2
+                     Workers Launched: 2
+                     Buffers: shared hit=15518 read=254830, temp read=6912 written=6936
+                     ->  Partial GroupAggregate  (cost=302904.84..303008.83 rows=4622 width=72) (actual time=1292.814..1397.108 rows=2552 loops=3)
+                           Group Key: (COALESCE(orgao_nome, orgao_cnpj))
+                           Buffers: shared hit=15518 read=254830, temp read=6912 written=6936
+                           ->  Sort  (cost=302904.84..302916.39 rows=4622 width=38) (actual time=1292.772..1346.014 rows=393079 loops=3)
+                                 Sort Key: (COALESCE(orgao_nome, orgao_cnpj))
+                                 Sort Method: external merge  Disk: 18464kB
+                                 Buffers: shared hit=15518 read=254830, temp read=6912 written=6936
+                                 Worker 0:  Sort Method: external merge  Disk: 18256kB
+                                 Worker 1:  Sort Method: external merge  Disk: 18576kB
+                                 ->  Parallel Seq Scan on pncp_supplier_contracts  (cost=0.00..302623.49 rows=4622 width=38) (actual time=5.489..670.648 rows=393079 loops=3)
+                                       Filter: (COALESCE(is_active, true) AND (upper(btrim(uf)) = 'SC'::text))
+                                       Rows Removed by Filter: 1085968
+                                       Buffers: shared hit=15442 read=254830
+ Planning:
+   Buffers: shared hit=316 read=19
+ Planning Time: 0.920 ms
+ JIT:
+   Functions: 31
+   Options: Inlining false, Optimization false, Expressions true, Deforming true
+   Timing: Generation 2.576 ms, Inlining 0.000 ms, Optimization 1.376 ms, Emission 22.995 ms, Total 26.947 ms
+ Execution Time: 1475.697 ms
+(34 rows)
+

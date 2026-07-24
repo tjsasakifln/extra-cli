@@ -1,0 +1,15 @@
+{
+  "query_seconds": {
+    "A": 2.87,
+    "B": 5.274,
+    "C": 1.478,
+    "D": 1.78
+  },
+  "pack_wall_approx_s": 13,
+  "slo_query_ceiling_s": 60,
+  "slo_pack_ceiling_s": 1800,
+  "explain_files": [
+    "implementer/explain-count-sc.txt",
+    "implementer/explain-org-rank.txt"
+  ]
+}
