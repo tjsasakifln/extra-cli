@@ -801,15 +801,15 @@ def write_executive_summary(path: Path, pack: dict[str, Any]) -> None:
         f"- git_sha: {pack.get('git_sha')}",
         f"- população elegível: {pop.get('eligible_population')} "
         f"({pop.get('sample_label')})",
-        f"- A: status={a.get('status')} rows={len(a.get('rows') or [])} "
+        f"- A: status={a.get('status')} rows={a.get('n_rows', len(a.get('rows') or []))} "
         f"órgãos_elegíveis={(a.get('population') or {}).get('n_orgaos_eligible')}",
         f"- B: status={b.get('status')} valid={b.get('valid_count')} "
         f"target={b.get('target_n')}",
-        f"- C: status={c.get('status')} rows={len(c.get('rows') or [])} "
+        f"- C: status={c.get('status')} rows={c.get('n_rows', len(c.get('rows') or []))} "
         f"success_zero={(c.get('success_zero') or {}).get('success_zero')}",
-        f"- D: status={d.get('status')} panels={len(d.get('panels') or [])}",
+        f"- D: status={d.get('status')} panels={d.get('n_panels', len(d.get('panels') or []))}",
         f"- E: status={e.get('status')} "
-        f"recs={len(e.get('recommendations') or [])}",
+        f"recs={e.get('n_recs', len(e.get('recommendations') or []))}",
         f"- reconciliação: {(pack.get('reconcile') or {}).get('status')}",
         "",
         "## Non-claims",

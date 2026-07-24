@@ -4,11 +4,11 @@
 - as_of: 2026-07-23
 - git_sha: 23ed5506916945bd4770ea00c9c795243a981e2e
 - população elegível: 1179237 (FULL_ELIGIBLE_POPULATION)
-- A: status=OK rows=0 órgãos_elegíveis=1378
+- A: status=OK rows=200 órgãos_elegíveis=1378
 - B: status=OK valid=15 target=15
 - C: status=EMPTY rows=0 success_zero=True
-- D: status=OK panels=0
-- E: status=OK recs=0
+- D: status=OK panels=6
+- E: status=OK recs=4
 - reconciliação: PASS
 
 ## Non-claims
