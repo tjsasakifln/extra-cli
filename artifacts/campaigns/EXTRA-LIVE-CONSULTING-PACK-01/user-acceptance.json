@@ -6,15 +6,15 @@
   "findings": [],
   "auto_accept_forbidden": true,
   "agent_fill_in_forbidden": true,
-  "note": "Human declined interactive ACCEPT/REJECT prompt; decision remains null. No agent auto-accept. Terminal BLOCKED_HUMAN.",
+  "note": "Human declined interactive ACCEPT/REJECT prompt; decision remains null. No agent auto-accept. Terminal BLOCKED_HUMAN. Pack re-generated on tip for SHA bind.",
   "instructions": [
     "1. Open pack-rc/executive_summary.md, PDF, and Excel on tip SHA after release-candidate",
     "2. Personally set decision to ACCEPT or REJECT (or findings[])",
     "3. Agents must not rewrite decision to ACCEPT"
   ],
   "pack": {
-    "run_id": "live-pack-20260724-153838-8a526ae6",
-    "git_sha": "b7655a231d063db3764fa6bd8e0f71f7897d860f",
+    "run_id": "live-pack-20260724-162325-f4d6894d",
+    "git_sha": "fa66dd7f9d8ae68b7ad9c14e5266c5b35d4e032d",
     "path": "pack-rc/"
   },
   "summary_for_reviewer": {
@@ -24,15 +24,16 @@
     "C": "OK window_hits=14750",
     "D": "OK",
     "E": "OK",
-    "reconcile": "PASS"
+    "reconcile": "PASS",
+    "tip_bound": true
   },
-  "git_sha": "613e4fe03c4061042a4a8d3b90c027644b00a948",
-  "recorded_at": "2026-07-24T15:36:29Z",
+  "git_sha": "f6fad70fe7839a002859ab74055bc4097a285ebf",
+  "recorded_at": "2026-07-24T16:25:25Z",
   "accepted_at": null,
   "rejected_at": null,
-  "pack_run_id": "live-pack-20260724-153838-8a526ae6",
-  "pack_git_sha": "b7655a231d063db3764fa6bd8e0f71f7897d860f",
-  "candidate_sha": "b7655a231d063db3764fa6bd8e0f71f7897d860f",
-  "evidence_stamp_sha": "e0d5b7b2974ecbd0e44acdc5301e1a2136f057c5",
+  "pack_run_id": "live-pack-20260724-162325-f4d6894d",
+  "pack_git_sha": "fa66dd7f9d8ae68b7ad9c14e5266c5b35d4e032d",
+  "candidate_sha": "fa66dd7f9d8ae68b7ad9c14e5266c5b35d4e032d",
+  "evidence_stamp_sha": "f6fad70fe7839a002859ab74055bc4097a285ebf",
   "last_prompt_declined_at": "2026-07-24T16:15:02Z"
 }

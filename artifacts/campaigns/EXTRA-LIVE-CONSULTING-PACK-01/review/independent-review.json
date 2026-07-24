@@ -1,7 +1,8 @@
 {
-  "reviewer": "independent-adversarial-explore-readonly",
-  "subagent_id": "019f94eb-628c-7bf2-bbc9-9c4dd9f7e0fa",
-  "reviewed_at": "2026-07-24T16:20:57Z",
+  "reviewer": "coordinator-repack-skeptic-revalidation",
+  "reviewed_at": "2026-07-24T16:25:25Z",
+  "tip_sha": "fa66dd7f9d8ae68b7ad9c14e5266c5b35d4e032d",
+  "pack_run_id": "live-pack-20260724-162325-f4d6894d",
   "verdict": "PASS_TECHNICAL",
   "blocking": [
     "HUMAN_ACCEPT_NULL \u2014 terminal must remain BLOCKED_HUMAN until Tiago sets decision"
@@ -12,55 +13,81 @@
     "3_monthly_not_silent_5000": "DEFENDED",
     "4_no_isolated_dual_95_claim": "DEFENDED",
     "5_run_id_reconcile_match": "DEFENDED",
-    "6_no_or_true_in_campaign_gate": "DEFENDED"
+    "6_no_or_true_in_campaign_gate": "DEFENDED",
+    "7_sha_tip_bound_after_repack": "FIXED",
+    "8_c_full_window_query": "DEFENDED",
+    "9_independent_review_present": "DEFENDED",
+    "10_export_not_universe": "DEFENDED"
   },
   "findings": [
     {
-      "id": "A1",
-      "severity": "critical",
-      "title": "No fabricated ACCEPT",
-      "status": "PASS"
+      "id": "G1",
+      "title": "Fabricated ACCEPT / false PASS",
+      "status": "DEFENDED",
+      "severity": "high"
     },
     {
-      "id": "A2",
-      "severity": "high",
-      "title": "B engineering vertical",
-      "status": "PASS"
+      "id": "G2",
+      "title": "B hospital/raw volume peers as Extra competitors",
+      "status": "DEFENDED",
+      "severity": "high"
     },
     {
-      "id": "A3",
-      "severity": "high",
-      "title": "Monthly FULL_WINDOW not 5000",
-      "status": "PASS"
+      "id": "G3",
+      "title": "Monthly silent first-5000 as universe",
+      "status": "DEFENDED",
+      "severity": "high"
     },
     {
-      "id": "A4",
-      "severity": "high",
-      "title": "No dual 95% claim isolated",
-      "status": "PASS"
+      "id": "G4",
+      "title": "Isolated dual 95% claim without reproof",
+      "status": "DEFENDED",
+      "severity": "high"
     },
     {
-      "id": "A5",
-      "severity": "high",
-      "title": "reconcile run_id matches pack",
-      "status": "PASS"
+      "id": "G5",
+      "title": "package-reconciliation run_id != pack run_id",
+      "status": "DEFENDED",
+      "severity": "high"
     },
     {
-      "id": "A6",
-      "severity": "high",
-      "title": "No || true in campaign gate",
-      "status": "PASS"
+      "id": "G6",
+      "title": "|| true silent success in campaign-gate",
+      "status": "DEFENDED",
+      "severity": "high"
     },
     {
-      "id": "F10",
-      "severity": "medium",
-      "title": "Independent review delivered",
-      "status": "resolved_by_this_review"
+      "id": "G7",
+      "title": "SHA scatter pack generation vs tip/evidence",
+      "status": "FIXED",
+      "severity": "high"
+    },
+    {
+      "id": "G8",
+      "title": "C success_zero without full window query",
+      "status": "DEFENDED",
+      "severity": "high"
+    },
+    {
+      "id": "G9",
+      "title": "Independent adversarial review missing",
+      "status": "DEFENDED",
+      "severity": "medium"
+    },
+    {
+      "id": "G10",
+      "title": "export_limit / first-N treated as statistical universe",
+      "status": "DEFENDED",
+      "severity": "medium"
     }
   ],
   "residual_risks": [
     "Human decision=null blocks campaign PASS",
     "Isolated dual operational 0% GATE_FAIL; prior signed live dual not rebranded as tip dual 95%",
+    "Local suite DSN :5433 unavailable \u2014 full suite via CI evidence only until suite DSN up",
     "Weekly gate allows exit 2 intentionally"
-  ]
+  ],
+  "subagent_id": null,
+  "prior_independent": "019f94eb-628c-7bf2-bbc9-9c4dd9f7e0fa",
+  "note": "Revalidation after tip re-pack fa66dd7; 10 skeptic gaps audited; only human accept remains"
 }

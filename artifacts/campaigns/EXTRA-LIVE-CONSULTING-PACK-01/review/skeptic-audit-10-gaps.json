@@ -1,0 +1,75 @@
+{
+  "campaign_id": "EXTRA-LIVE-CONSULTING-PACK-01",
+  "audited_at": "2026-07-24T16:25:25Z",
+  "tip_sha": "fa66dd7f9d8ae68b7ad9c14e5266c5b35d4e032d",
+  "pack_run_id": "live-pack-20260724-162325-f4d6894d",
+  "pack_git_sha": "fa66dd7f9d8ae68b7ad9c14e5266c5b35d4e032d",
+  "verdict": "TECHNICAL_GAPS_CLOSED_HUMAN_REMAINS",
+  "gaps": [
+    {
+      "id": 1,
+      "title": "Fabricated ACCEPT / false PASS",
+      "status": "DEFENDED",
+      "evidence": "user-acceptance.decision=null; agent_fill_in_forbidden; terminal BLOCKED_HUMAN"
+    },
+    {
+      "id": 2,
+      "title": "B hospital/raw volume peers as Extra competitors",
+      "status": "DEFENDED",
+      "evidence": "engineering object filter + hospital denylist; 15 construction peers; n_contracts_eligible_engineering=5131"
+    },
+    {
+      "id": 3,
+      "title": "Monthly silent first-5000 as universe",
+      "status": "DEFENDED",
+      "evidence": "FULL_WINDOW contracts_c1=57238 labeled; not_silent_5000_universe=true"
+    },
+    {
+      "id": 4,
+      "title": "Isolated dual 95% claim without reproof",
+      "status": "DEFENDED",
+      "evidence": "dual-coverage-status GATE_FAIL_0pct documented; claim_isolated_dual_95=false; prior live dual paths preserved as non-tip claim"
+    },
+    {
+      "id": 5,
+      "title": "package-reconciliation run_id != pack run_id",
+      "status": "DEFENDED",
+      "evidence": "same run_id live-pack-20260724-162325-f4d6894d; divergences=[]"
+    },
+    {
+      "id": 6,
+      "title": "|| true silent success in campaign-gate",
+      "status": "DEFENDED",
+      "evidence": "Makefile campaign-gate-extra-live-consulting-pack has no || true; suite DSN fallback requires ci-full-suite-pass.json assert"
+    },
+    {
+      "id": 7,
+      "title": "SHA scatter pack generation vs tip/evidence",
+      "status": "FIXED",
+      "evidence": "re-pack on tip: pack_git_sha==tip==fa66dd7f9d8a; previous pack b7655a2 superseded"
+    },
+    {
+      "id": 8,
+      "title": "C success_zero without full window query",
+      "status": "DEFENDED",
+      "evidence": "success_zero=false n=14750 query_complete=true; termino_fonte/verificado required"
+    },
+    {
+      "id": 9,
+      "title": "Independent adversarial review missing",
+      "status": "DEFENDED",
+      "evidence": "review/independent-review.json PASS_TECHNICAL; re-stamped after tip re-pack"
+    },
+    {
+      "id": 10,
+      "title": "export_limit / first-N treated as statistical universe",
+      "status": "DEFENDED",
+      "evidence": "sample_label FULL_ELIGIBLE_POPULATION; export_is_not_universe=true; eligible_population=1179237"
+    }
+  ],
+  "blocking_only": [
+    "HUMAN_ACCEPT_NULL"
+  ],
+  "production_touched": false,
+  "soak_contact": false
+}

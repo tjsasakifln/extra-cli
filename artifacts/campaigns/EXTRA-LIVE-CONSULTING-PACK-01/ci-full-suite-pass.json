@@ -1,6 +1,7 @@
 {
   "pr": 130,
-  "run_id": "30108517302",
+  "run_id": "30108852563",
+  "head_sha": "fa66dd7f9d8ae68b7ad9c14e5266c5b35d4e032d",
   "full_suite": "PASS",
   "conclusion": "success",
   "jobs": {
@@ -13,7 +14,7 @@
     "Security (bandit)": "pass",
     "Dependency Audit (pip-audit)": "pass"
   },
-  "url": "https://github.com/tjsasakifln/extra-cli/actions/runs/30108517302",
-  "recorded_at": "2026-07-24T16:20:57Z",
-  "note": "Recorded from gh pr checks 130; suite DSN :5433 unavailable in this host"
+  "url": "https://github.com/tjsasakifln/extra-cli/actions/runs/30108852563",
+  "recorded_at": "2026-07-24T16:34:07Z",
+  "note": "CI full suite green on PR tip fa66dd7; suite DSN :5433 unavailable in this host"
 }

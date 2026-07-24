@@ -1,9 +1,9 @@
 {
-  "ran_at": "2026-07-24T15:36:29Z",
+  "ran_at": "2026-07-24T16:25:25Z",
   "terminal": "BLOCKED",
   "human": "BLOCKED_HUMAN",
-  "pack_run_id": "live-pack-20260724-153838-8a526ae6",
-  "pack_git_sha": "b7655a231d063db3764fa6bd8e0f71f7897d860f",
+  "pack_run_id": "live-pack-20260724-162325-f4d6894d",
+  "pack_git_sha": "fa66dd7f9d8ae68b7ad9c14e5266c5b35d4e032d",
   "observations": {
     "population_SC": 1179237,
     "A_OK": true,
@@ -14,9 +14,11 @@
     "reconcile_PASS": true,
     "monthly_full_window": true,
     "human_ACCEPT": false,
-    "dual_operational_reproof": false
+    "dual_operational_reproof": false,
+    "tip_pack_bound": true,
+    "skeptic_10_closed_except_human": true
   },
-  "git_sha": "e0d5b7b2974ecbd0e44acdc5301e1a2136f057c5",
-  "candidate_sha": "b7655a231d063db3764fa6bd8e0f71f7897d860f",
-  "evidence_stamp_sha": "e0d5b7b2974ecbd0e44acdc5301e1a2136f057c5"
+  "git_sha": "72f0a97fa298050ac093e304b4187d3fa6726865",
+  "candidate_sha": "fa66dd7f9d8ae68b7ad9c14e5266c5b35d4e032d",
+  "evidence_stamp_sha": "72f0a97fa298050ac093e304b4187d3fa6726865"
 }

@@ -180,6 +180,9 @@
     "monthly_present": true,
     "variation_has_previous": true,
     "live_snapshot_wired": true,
-    "full_window_population_labeled": true
-  }
+    "full_window_population_labeled": true,
+    "revalidated_on_tip": "fa66dd7f9d8ae68b7ad9c14e5266c5b35d4e032d"
+  },
+  "artifact_policy": "ADR-020 compact manifest; full row dumps not versioned",
+  "revalidated_at": "2026-07-24T16:35:10Z"
 }

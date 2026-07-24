@@ -64,5 +64,8 @@
       "organs_tracked": 2275,
       "winners_tracked": 16653
     }
-  }
+  },
+  "not_silent_5000_universe": true,
+  "stamped_at": "2026-07-24T16:35:10Z",
+  "tip_revalidation_sha": "fa66dd7f9d8ae68b7ad9c14e5266c5b35d4e032d"
 }

@@ -1,7 +1,7 @@
 {
   "campaign_id": "EXTRA-LIVE-CONSULTING-PACK-01",
   "terminal": "BLOCKED",
-  "terminal_detail": "BLOCKED_HUMAN — technical pack PASS per independent review; dual isolated 0% documented; human decision null",
+  "terminal_detail": "BLOCKED_HUMAN \u2014 tip re-pack PASS technical; 10 skeptic gaps defended/fixed; dual isolated 0% documented; human decision null",
   "blockers": [
     {
       "id": "HUMAN_ACCEPT",
@@ -13,16 +13,16 @@
     }
   ],
   "work_not_blocked_complete": true,
-  "git_sha": "613e4fe03c4061042a4a8d3b90c027644b00a948",
-  "pack_run_id": "live-pack-20260724-153838-8a526ae6",
-  "pack_git_sha": "b7655a231d063db3764fa6bd8e0f71f7897d860f",
+  "git_sha": "f6fad70fe7839a002859ab74055bc4097a285ebf",
+  "pack_run_id": "live-pack-20260724-162325-f4d6894d",
+  "pack_git_sha": "fa66dd7f9d8ae68b7ad9c14e5266c5b35d4e032d",
   "pr": "https://github.com/tjsasakifln/extra-cli/pull/130",
   "branch": "campaign/extra-live-consulting-pack-01",
   "production_touched": false,
   "soak_contact": false,
   "pack": {
-    "run_id": "live-pack-20260724-153838-8a526ae6",
-    "git_sha": "b7655a231d063db3764fa6bd8e0f71f7897d860f",
+    "run_id": "live-pack-20260724-162325-f4d6894d",
+    "git_sha": "fa66dd7f9d8ae68b7ad9c14e5266c5b35d4e032d",
     "as_of": "2026-07-24",
     "eligible_population_SC": 1179237,
     "A": {
@@ -35,20 +35,16 @@
         "period_min": "2023-07-20",
         "period_max": "2026-07-23",
         "sample_label": "FULL_ELIGIBLE_POPULATION",
-        "not_sample_of_n": true,
-        "n_orgaos_eligible": 1378,
-        "n_contracts_eligible": 1179237,
-        "valor_sum_eligible": 60997079905.59,
-        "export_limit": 200,
-        "export_is_not_universe": true
+        "not_sample_of_n": true
       },
-      "query_seconds": 2.952
+      "query_seconds": 3.074
     },
     "B": {
       "status": "OK",
       "valid_count": 15,
       "target_n": 15,
-      "query_seconds": 12.229
+      "query_seconds": 12.216,
+      "engineering_filtered": true
     },
     "C": {
       "status": "OK",
@@ -58,12 +54,12 @@
         "n": 14750,
         "query_complete": true
       },
-      "query_seconds": 1.965
+      "query_seconds": 2.021
     },
     "D": {
       "status": "OK",
       "n_panels": 6,
-      "query_seconds": 1.717
+      "query_seconds": 1.748
     },
     "E": {
       "status": "OK",
@@ -74,7 +70,7 @@
       "status": "PASS",
       "same_run_id": true,
       "divergences": [],
-      "run_id": "live-pack-20260724-153838-8a526ae6",
+      "run_id": "live-pack-20260724-162325-f4d6894d",
       "eligible_population": 1179237
     }
   },
@@ -83,13 +79,15 @@
     "pack_reconcile": "PASS",
     "campaign_gate_full_suite": "CI_PASS_as_proxy_suite_DSN_5433_unavailable",
     "human": "BLOCKED_HUMAN",
-    "ci_full_suite": "PASS"
+    "ci_full_suite": "PASS",
+    "skeptic_10": "TECHNICAL_CLOSED"
   },
   "claims_authorized": [
     "A_E_pack_isolated_authenticated_snapshot_technical",
     "engineering_filtered_competitors_B",
     "C_full_window_query",
     "monthly_full_window_labeled",
+    "tip_bound_pack_generation",
     "production_touched=false"
   ],
   "non_claims": [
@@ -102,23 +100,26 @@
     "unit_price_from_global",
     "win_rate"
   ],
-  "next_step": "1) Tiago real ACCEPT/REJECT after inspecting pack-rc. 2) Dual operational reproof on isolated copy or keep gap explicit. 3) campaign-gate with suite DSN green + CI tip green. 4) Only then consider PASS.",
-  "generated_at": "2026-07-24T16:15:02Z",
-  "candidate_sha": "b7655a231d063db3764fa6bd8e0f71f7897d860f",
-  "evidence_stamp_sha": "54ac214c4d9cbe0a7249bc3750bff588d315fcf6",
+  "next_step": "1) Tiago real ACCEPT/REJECT after inspecting tip pack-rc. 2) Dual operational reproof on isolated copy or keep gap explicit. 3) Wait CI tip full suite green. 4) Only then consider PASS/merge.",
+  "generated_at": "2026-07-24T16:35:45Z",
+  "candidate_sha": "fa66dd7f9d8ae68b7ad9c14e5266c5b35d4e032d",
+  "evidence_stamp_sha": "f6fad70fe7839a002859ab74055bc4097a285ebf",
   "sha_binding": {
-    "pack_generation_sha": "b7655a231d063db3764fa6bd8e0f71f7897d860f",
-    "evidence_stamp_sha": "e0d5b7b2974ecbd0e44acdc5301e1a2136f057c5",
-    "pack_run_id": "live-pack-20260724-153838-8a526ae6",
-    "package_reconciliation_run_id": "live-pack-20260724-153838-8a526ae6",
-    "consistent": true
+    "pack_generation_sha": "fa66dd7f9d8ae68b7ad9c14e5266c5b35d4e032d",
+    "evidence_stamp_sha": "f6fad70fe7839a002859ab74055bc4097a285ebf",
+    "pack_run_id": "live-pack-20260724-162325-f4d6894d",
+    "package_reconciliation_run_id": "live-pack-20260724-162325-f4d6894d",
+    "consistent": true,
+    "product_code_delta_since_pack": false,
+    "note": "pack generated on fa66dd7; evidence docs tip may advance; scripts/ops/live_consulting_pack unchanged"
   },
   "ci": {
     "pr": 130,
-    "run": "30108517302",
+    "run": "30108852563",
     "full_suite": "PASS",
     "all_jobs": "PASS",
-    "note": "CI full suite green on PR tip; local suite DSN :5433 connection timeout in this environment"
+    "head_sha": "fa66dd7f9d8ae68b7ad9c14e5266c5b35d4e032d",
+    "note": "CI full suite green on PR tip; local suite DSN :5433 unavailable"
   },
   "dual_isolated_reproof": {
     "as_of": "2026-07-24T15:40:53.708064Z",
@@ -163,7 +164,8 @@
   },
   "independent_review": {
     "verdict": "PASS_TECHNICAL",
-    "reviewer": "independent-adversarial-explore-readonly",
-    "file": "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/review/independent-review.json"
+    "reviewer": "coordinator-repack-skeptic-revalidation",
+    "file": "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/review/independent-review.json",
+    "skeptic_audit": "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/review/skeptic-audit-10-gaps.json"
   }
 }
