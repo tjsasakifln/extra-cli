@@ -1,0 +1,5 @@
+{
+  "060": "db/migrations/060_national_contracts_intelligence_layers.sql",
+  "059_preserved": "db/migrations/059_coverage_evidence_canonical_entity_unique.sql",
+  "collision_avoided": true
+}

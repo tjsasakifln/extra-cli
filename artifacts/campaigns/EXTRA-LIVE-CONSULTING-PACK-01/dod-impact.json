@@ -1,0 +1,21 @@
+{
+  "DIRECT_ACCEPT": [],
+  "PARTIAL_ADVANCE": [
+    "§2.5 A–E isolated pack (not live/prod)",
+    "§2.6 monthly monitor on isolated snapshot",
+    "§9–11 contracts/competitors/values on real snapshot",
+    "§12 valores panel path",
+    "§29 lineage via pack meta run_id/sha",
+    "§30 performance measured on isolated queries",
+    "§34 material pack presentable; human use pending"
+  ],
+  "UNBLOCKED": [
+    "Live monthly path wired (--live-isolated)",
+    "Full-population aggregates no longer blocked by sample-only path"
+  ],
+  "NO_CHANGE": [
+    "Items requiring VPS/soak live execution",
+    "LOCAL_READY / VPS_OPERATIONAL / PROJECT_DONE"
+  ],
+  "note": "No DOD [x] without main+CI+ACCEPTED controller path"
+}

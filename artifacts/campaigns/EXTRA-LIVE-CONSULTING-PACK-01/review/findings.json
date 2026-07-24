@@ -1,0 +1,46 @@
+{
+  "reviewer": "independent-adversarial-self-pass-1",
+  "mode": "attack-checklist",
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "info",
+      "title": "C success_zero on data_fim sparsity",
+      "status": "accepted_limitation",
+      "observed": "1.17M SC scanned; 0 in 90-180 window",
+      "impact": "Honest EMPTY"
+    },
+    {
+      "id": "F2",
+      "severity": "info",
+      "title": "UF=SC filter not raio_200km entities",
+      "status": "documented",
+      "observed": "sc_public_entities empty in isolated restore"
+    },
+    {
+      "id": "F3",
+      "severity": "medium",
+      "title": "Human acceptance missing",
+      "status": "open",
+      "impact": "Terminal BLOCKED_HUMAN until Tiago ACCEPT/REJECT"
+    },
+    {
+      "id": "F4",
+      "severity": "info",
+      "title": "Sample-as-universe attack",
+      "status": "mitigated",
+      "observed": "population.sample_label=FULL_ELIGIBLE_POPULATION export_is_not_universe=true"
+    },
+    {
+      "id": "F5",
+      "severity": "info",
+      "title": "Migration 059 collision",
+      "status": "mitigated",
+      "observed": "intel layers on 060; coverage 059 preserved"
+    }
+  ],
+  "blocking": [
+    "F3"
+  ],
+  "verdict": "CONDITIONAL \u2014 technical pack OK; human gate open"
+}

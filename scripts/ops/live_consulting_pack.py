@@ -531,7 +531,7 @@ def build_deliverable_d(
             obs.append(
                 deliv_d.PriceObservation(
                     value=float(r["valor_total"]),
-                    value_semantic="CONTRATADO",
+                    value_semantic="contratado",
                     tipo_obra_servico=kw.lower(),
                     unidade="contrato_global",
                     lote="n/a",

@@ -1,0 +1,64 @@
+{
+  "status": "EMPTY",
+  "deliverable": "C",
+  "title": "Contratos vincendos (janela configurável)",
+  "profile": {
+    "profile_path": "config/client_profiles/extra.yaml",
+    "profile_id": "extra_construtora",
+    "display_name": "Extra Empreiteira e Construtora",
+    "version": 2,
+    "version_date": "2026-07-16",
+    "stamp": "extra_construtora@v2"
+  },
+  "window": {
+    "min_days": 90,
+    "max_days": 180,
+    "as_of": "2026-07-23",
+    "description": "vigencia_fim in [as_of+90d, as_of+180d]"
+  },
+  "rows": [],
+  "excluded_no_vigencia": 14758,
+  "relicitacao_method": {
+    "default_mode": "EVIDENCE_CLASS",
+    "fabricated_percent_forbidden": true,
+    "requires_retrospective_validation_for_probability": true
+  },
+  "claims_allowed": [
+    "Listed 0 contracts in window 90-180d",
+    "Excluded 14758 without vigencia/source/verification (not silent include)",
+    "Relicitação as evidence class unless validated model"
+  ],
+  "claims_forbidden": [
+    "Include contracts without vigencia silently",
+    "Fabricated relicitation probability %",
+    "Treat ESTIMADO end as contractual vencimento without label",
+    "Claim active market coverage from empty DSN"
+  ],
+  "generated_at": "2026-07-24T14:40:44Z",
+  "success_zero": {
+    "success_zero": true,
+    "window": "90-180d",
+    "as_of": "2026-07-23",
+    "contracts_with_data_fim_scanned": 1179228,
+    "query_complete": true,
+    "message": "Zero contracts in 90–180 day window after complete query; not 'not consulted'"
+  },
+  "population": {
+    "eligible_population": 1179237,
+    "active_contracts": 1179237,
+    "uf_filter": "SC",
+    "period_min": "2023-07-20",
+    "period_max": "2026-07-23",
+    "sample_label": "FULL_ELIGIBLE_POPULATION",
+    "not_sample_of_n": true,
+    "contracts_with_data_fim_scanned": 1179228,
+    "window_start": "2026-10-21",
+    "window_end": "2027-01-19",
+    "query_complete": true
+  },
+  "query_seconds": 1.478,
+  "run_id": "live-pack-20260724-144033-ff964ea8",
+  "as_of": "2026-07-23",
+  "git_sha": "23ed5506916945bd4770ea00c9c795243a981e2e",
+  "schema_version": "coverage-2.4_entity_coverage_rebuild"
+}

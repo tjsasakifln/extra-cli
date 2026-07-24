@@ -1,0 +1,90 @@
+{
+  "mode": "live_isolated_snapshot",
+  "dsn_host_local": true,
+  "as_of": "2026-07-24",
+  "uf": "SC",
+  "contracts_c1": 5000,
+  "contracts_c2": 5000,
+  "state_path": "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/monthly/cycle-state.json",
+  "proofs": {
+    "no_manual_rebuild": true,
+    "new_editais_detected": true,
+    "status_events": [
+      "SUSPENSAO"
+    ],
+    "expiring_window_count": 0,
+    "panorama_updated": true,
+    "weekly_present": true,
+    "monthly_present": true,
+    "variation_has_previous": true,
+    "live_snapshot_wired": true
+  },
+  "cycle_1_summary": {
+    "status": "OK",
+    "metrics": {
+      "new_editais": 1,
+      "status_deltas": 0,
+      "expiring_contracts": 0,
+      "organs_tracked": 641,
+      "winners_tracked": 675
+    }
+  },
+  "cycle_2_summary": {
+    "status": "OK",
+    "metrics": {
+      "new_editais": 1,
+      "status_deltas": 1,
+      "expiring_contracts": 0,
+      "organs_tracked": 645,
+      "winners_tracked": 679
+    },
+    "variation": {
+      "has_previous": true,
+      "fields": {
+        "contracts_total": {
+          "previous": 5000,
+          "current": 5000,
+          "delta": 0,
+          "delta_pct": 0.0
+        },
+        "editais_total": {
+          "previous": 1,
+          "current": 2,
+          "delta": 1,
+          "delta_pct": 100.0
+        },
+        "expiring_in_window": {
+          "previous": 0,
+          "current": 0,
+          "delta": 0,
+          "delta_pct": null
+        },
+        "new_editais": {
+          "previous": 1,
+          "current": 1,
+          "delta": 0,
+          "delta_pct": 0.0
+        },
+        "organs_count": {
+          "previous": 641,
+          "current": 645,
+          "delta": 4,
+          "delta_pct": 0.62
+        },
+        "status_deltas": {
+          "previous": 0,
+          "current": 1,
+          "delta": 1,
+          "delta_pct": null
+        },
+        "winners_count": {
+          "previous": 675,
+          "current": 679,
+          "delta": 4,
+          "delta_pct": 0.59
+        }
+      },
+      "note": "Varia\u00e7\u00e3o vs per\u00edodo anterior a partir do state persistido"
+    }
+  }
+}

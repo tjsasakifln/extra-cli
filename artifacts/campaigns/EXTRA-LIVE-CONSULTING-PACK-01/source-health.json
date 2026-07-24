@@ -1,0 +1,11 @@
+{
+  "dump_package": "artifacts/migration/backfill-vps/pkg-20260723T195047Z",
+  "contracts_count_restored": 4437142,
+  "sc_eligible": 1179237,
+  "sha256_dump": "f9e45cdbc2ddf06e502aef86ef687595cb21880899bcee2cb28f54d1de883661",
+  "sha256_verified": true,
+  "freshness_period": {
+    "min": "2023-07-20",
+    "max": "2026-07-23"
+  }
+}

@@ -1,0 +1,100 @@
+{
+  "campaign_id": "EXTRA-LIVE-CONSULTING-PACK-01",
+  "run_id": "live-pack-20260724-144033-ff964ea8",
+  "as_of": "2026-07-23",
+  "git_sha": "23ed5506916945bd4770ea00c9c795243a981e2e",
+  "schema_version": "coverage-2.4_entity_coverage_rebuild",
+  "profile": {
+    "profile_path": "config/client_profiles/extra.yaml",
+    "profile_id": "extra_construtora",
+    "display_name": "Extra Empreiteira e Construtora",
+    "version": 2,
+    "version_date": "2026-07-16",
+    "stamp": "extra_construtora@v2"
+  },
+  "population": {
+    "eligible_population": 1179237,
+    "active_contracts": 1179237,
+    "uf_filter": "SC",
+    "period_min": "2023-07-20",
+    "period_max": "2026-07-23",
+    "sample_label": "FULL_ELIGIBLE_POPULATION",
+    "not_sample_of_n": true
+  },
+  "deliverable_a": {
+    "status": "OK",
+    "n_rows": 200,
+    "population": {
+      "eligible_population": 1179237,
+      "active_contracts": 1179237,
+      "uf_filter": "SC",
+      "period_min": "2023-07-20",
+      "period_max": "2026-07-23",
+      "sample_label": "FULL_ELIGIBLE_POPULATION",
+      "not_sample_of_n": true,
+      "n_orgaos_eligible": 1378,
+      "n_contracts_eligible": 1179237,
+      "valor_sum_eligible": 60997079905.59,
+      "export_limit": 200,
+      "export_is_not_universe": true
+    },
+    "query_seconds": 2.87
+  },
+  "deliverable_b": {
+    "status": "OK",
+    "valid_count": 15,
+    "target_n": 15,
+    "query_seconds": 5.274
+  },
+  "deliverable_c": {
+    "status": "EMPTY",
+    "n_rows": 0,
+    "success_zero": {
+      "success_zero": true,
+      "window": "90-180d",
+      "as_of": "2026-07-23",
+      "contracts_with_data_fim_scanned": 1179228,
+      "query_complete": true,
+      "message": "Zero contracts in 90–180 day window after complete query; not 'not consulted'"
+    },
+    "query_seconds": 1.478
+  },
+  "deliverable_d": {
+    "status": "OK",
+    "n_panels": 6,
+    "query_seconds": 1.78
+  },
+  "deliverable_e": {
+    "status": "OK",
+    "n_recs": 4,
+    "source_class": "captured_real_evidence"
+  },
+  "artifacts": {
+    "pdf": "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-rc/extra_live_consulting_pack.pdf",
+    "excel": "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-rc/extra_live_consulting_pack.xlsx",
+    "pdf_pages_estimate": 2,
+    "json": [
+      "deliverable_a.json",
+      "deliverable_b.json",
+      "deliverable_c.json",
+      "deliverable_d.json",
+      "deliverable_e.json"
+    ]
+  },
+  "reconcile": {
+    "status": "PASS",
+    "same_run_id": true,
+    "divergences": [],
+    "run_id": "live-pack-20260724-144033-ff964ea8",
+    "eligible_population": 1179237
+  },
+  "isolation": {
+    "production_touched": false,
+    "isolation_ok": true,
+    "hits": [],
+    "dsn_masked": "postgresql://test:***@127.0.0.1:5436/extra_live_pack_rc",
+    "checked_at": "2026-07-24T14:40:33Z"
+  },
+  "production_touched": false,
+  "generated_at": "2026-07-24T14:40:46Z"
+}

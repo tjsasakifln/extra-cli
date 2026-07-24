@@ -346,7 +346,7 @@ campaign-gate-extra-live-consulting-pack:
 	python3 -m scripts.ops.live_consulting_pack verify-isolation --dsn '$(CAMPAIGN_TEST_DSN)'
 	python3 -m scripts.ops.apply_migrations --dsn '$(CAMPAIGN_TEST_DSN)'
 	python3 -m scripts.ops.apply_migrations --dsn '$(CAMPAIGN_TEST_DSN)'
-	python3 -m pytest -o addopts='' -q \
+	REQUIRE_REAL_DB=1 CAMPAIGN_TEST_DSN='$(CAMPAIGN_TEST_DSN)' python3 -m pytest -o addopts='' -q \
 		tests/test_live_consulting_pack.py \
 		tests/test_deliverable_a_org_ranking.py \
 		tests/test_deliverable_b_competitors.py \

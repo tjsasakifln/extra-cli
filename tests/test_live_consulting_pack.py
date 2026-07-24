@@ -92,9 +92,11 @@ def _db_has_contracts(dsn: str) -> int:
         return 0
 
 
+@pytest.mark.real_db
 @pytest.mark.skipif(
-    _db_has_contracts(CAMPAIGN_DSN) < 100,
-    reason="isolated campaign DB not restored yet",
+    _db_has_contracts(CAMPAIGN_DSN) < 100
+    or os.getenv("REQUIRE_REAL_DB", "").lower() not in {"1", "true", "yes"},
+    reason="isolated campaign DB not restored or REQUIRE_REAL_DB not set",
 )
 def test_population_stats_full_not_sample(tmp_path: Path) -> None:
     conn = lcp.connect(CAMPAIGN_DSN)
@@ -107,9 +109,11 @@ def test_population_stats_full_not_sample(tmp_path: Path) -> None:
     assert pop["not_sample_of_n"] is True
 
 
+@pytest.mark.real_db
 @pytest.mark.skipif(
-    _db_has_contracts(CAMPAIGN_DSN) < 100,
-    reason="isolated campaign DB not restored yet",
+    _db_has_contracts(CAMPAIGN_DSN) < 100
+    or os.getenv("REQUIRE_REAL_DB", "").lower() not in {"1", "true", "yes"},
+    reason="isolated campaign DB not restored or REQUIRE_REAL_DB not set",
 )
 def test_run_pack_end_to_end_real_path(tmp_path: Path) -> None:
     """Drive shipped run_pack on isolated DSN — not fixtures as universe."""
