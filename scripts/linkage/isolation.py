@@ -107,11 +107,23 @@ def check_dsn(dsn: str | None, *, require_isolated_port: bool = True) -> Isolati
         hits.append(f"non_local_host:{host}")
 
     if require_isolated_port and port is not None and port not in PREFERRED_PORTS:
-        # Soft warn for other local test ports (5433 etc.) but flag as non-campaign
+        # Campaign isolation: only preferred local RC ports are accepted.
+        hits.append(f"port_not_isolated:{port}")
         reasons.append(f"port_{port}_not_preferred_5438")
 
-    production_touched = bool(hits)
-    ok = not production_touched and bool(host) and host in ALLOWED_LOCAL_HOSTS
+    production_touched = bool(hits) and any(
+        h.startswith("host_marker:") or h.startswith("path_marker:") or h.startswith("non_local_host:")
+        for h in hits
+    )
+    # Port/path policy failures block ok without claiming production was touched.
+    policy_fail = any(h.startswith("port_not_isolated:") for h in hits)
+    ok = (
+        not production_touched
+        and not policy_fail
+        and bool(host)
+        and host in ALLOWED_LOCAL_HOSTS
+        and (not require_isolated_port or port in PREFERRED_PORTS or port is None)
+    )
 
     if ok:
         reasons.append("local_isolated_dsn")

@@ -115,14 +115,17 @@ def decide_opportunity_organ(
         )
 
     if keys.cnpj8:
+        # CNPJ8 without a distinctive name is weak for golden identity:
+        # keep deterministic key for joins but do NOT auto-accept as fact merge.
         ck = organ_canonical_key(keys)
         return LinkDecision(
-            classification="deterministic_composite",
-            score=0.99,
-            reason_codes=("deterministic_cnpj8_only",),
-            claim_level="fact",
+            classification="heuristic_reviewable",
+            score=0.9,
+            reason_codes=("cnpj8_only_requires_review", "weak_without_name"),
+            claim_level="similarity",
             target_key=ck,
             source_record_ids=src,
+            non_claims=("not_auto_merged_on_cnpj8_alone",),
         )
 
     if keys.normalized_name and keys.ibge7:

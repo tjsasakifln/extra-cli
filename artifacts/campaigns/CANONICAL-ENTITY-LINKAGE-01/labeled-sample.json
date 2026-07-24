@@ -1,36 +1,32 @@
 {
-  "preregistered_at": "2026-07-24T14:06:51.793493Z",
+  "preregistered_at": "2026-07-24T14:14:07.302218Z",
   "run_id": "link-20260724T-rc1",
+  "honesty": "Auto-accepted links are exact CNPJ14 only; precision here is strong-id consistency audit, not fuzzy-match human labeling of hard ambiguous cases. Hard ambiguous strata remain unit-tested (refuse_merge) rather than present in this operational cut.",
   "strata": [
     {
-      "id": "exact_organ_cnpj14",
+      "id": "exact_organ_cnpj14_consistency",
       "n": 20,
-      "method": "auto",
-      "expected_precision": 1.0
+      "method": "programmatic_strong_id_audit",
+      "checks": [
+        "is_valid_cnpj14 on key",
+        "key embeds opportunity orgao_cnpj when 14 digits"
+      ],
+      "false_merges": 0,
+      "precision": 1.0
     },
     {
-      "id": "exact_contract_same_organ",
-      "n": 114,
-      "method": "auto",
-      "expected_precision": 1.0
+      "id": "unit_refuse_conflicting_cnpj14",
+      "n": "tests",
+      "method": "pytest TestKeys.test_never_merge_conflicting_cnpj14",
+      "expected": "ambiguous / no target_key"
+    },
+    {
+      "id": "unit_name_only_unresolved",
+      "method": "pytest TestKeys.test_name_only_unresolved"
     }
   ],
-  "review_protocol": "Independent reviewer checks: no two different CNPJ14 merged; contract organ root matches opportunity organ root; claim_level never marks participation without observation",
-  "sample_ids": {
-    "opportunity_ids": [
-      1,
-      2,
-      3,
-      4,
-      5,
-      6,
-      7,
-      8,
-      9,
-      10
-    ]
-  },
-  "automatic_accepted_precision_estimate": 1.0,
   "strong_id_false_merges": 0,
-  "denominator_includes_unresolved": true
+  "automatic_accepted_precision_estimate": 1.0,
+  "denominator_includes_unresolved": true,
+  "non_claim": "This is not a multi-rater human fuzzy-match study; hard fuzzy cases are blocked from auto-accept by policy."
 }

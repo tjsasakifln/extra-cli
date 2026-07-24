@@ -131,6 +131,11 @@ class TestIsolation:
         assert chk.production_touched is False
         assert "***" in mask_dsn("postgresql://test:secret@127.0.0.1:5438/db")
 
+    def test_blocks_non_preferred_local_port(self):
+        chk = check_dsn("postgresql://test:test@127.0.0.1:5433/extra_test")
+        assert chk.ok is False
+        assert any("port_not_isolated" in h for h in chk.forbidden_hits)
+
     def test_blocks_ec_prod(self):
         chk = check_dsn("postgresql://u:p@ec-prod.example:5432/extra")
         assert chk.ok is False

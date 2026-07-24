@@ -593,13 +593,37 @@ def cmd_coverage(args: argparse.Namespace) -> int:
     return 0
 
 
+def _linkage_isolation_or_error(dsn: str | None) -> tuple[str | None, dict[str, Any] | None]:
+    """Entity / linkage-facing paths refuse non-isolated DSNs (campaign guard)."""
+    from scripts.linkage.isolation import check_dsn
+    from scripts.workspace.common import get_dsn
+
+    target = get_dsn(dsn)
+    chk = check_dsn(target, require_isolated_port=True)
+    if not chk.ok or chk.production_touched:
+        return None, {
+            "status": "ISOLATION_BLOCK",
+            "pg_error": "ISOLATION_GUARD_BLOCK",
+            "isolation": chk.as_dict(),
+            "production_touched": chk.production_touched,
+        }
+    return target, None
+
+
 def cmd_entity(args: argparse.Namespace) -> int:
     """Canonical entity investigation (direct/inverse) via linkage tables.
 
     Distinguishes fact vs similarity vs inference. Never equates historical
     winners with unobserved open-tender participants.
     """
-    conn, err = try_pg_conn(args.dsn)
+    isolated_dsn, iso_err = _linkage_isolation_or_error(args.dsn)
+    if iso_err is not None:
+        if args.json:
+            print(json.dumps(iso_err, indent=2, ensure_ascii=False, default=str))
+        else:
+            print(f"ISOLATION_BLOCK: {iso_err.get('isolation')}")
+        return 2
+    conn, err = try_pg_conn(isolated_dsn)
     payload: dict[str, Any] = {
         "status": "UNAVAILABLE",
         "pg_error": err,
@@ -717,6 +741,17 @@ def cmd_entity(args: argparse.Namespace) -> int:
 
 
 def cmd_competitors(args: argparse.Namespace) -> int:
+    # Linkage-facing path (opportunity-scoped) requires isolated DSN.
+    if getattr(args, "opportunity_id", None) is not None:
+        isolated_dsn, iso_err = _linkage_isolation_or_error(args.dsn)
+        if iso_err is not None:
+            if args.json:
+                print(json.dumps(iso_err, indent=2, ensure_ascii=False, default=str))
+            else:
+                print(f"ISOLATION_BLOCK: {iso_err.get('isolation')}")
+            return 2
+        args.dsn = isolated_dsn
+
     conn, err = try_pg_conn(args.dsn)
     items: list[dict[str, Any]] = []
     claim_note = (

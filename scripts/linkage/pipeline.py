@@ -250,6 +250,19 @@ def _insert_decision_row(
         )
 
     if decision.classification in ("heuristic_reviewable", "ambiguous"):
+        subject_id = str(
+            cols.get("contract_id")
+            or cols.get("opportunity_id")
+            or decision.target_key
+            or ""
+        )
+        cur.execute(
+            """
+            DELETE FROM entity_linkage_review_queue
+            WHERE run_id = %s AND subject_type = %s AND subject_id = %s
+            """,
+            (run_id, table, subject_id),
+        )
         cur.execute(
             """
             INSERT INTO entity_linkage_review_queue (
@@ -260,7 +273,7 @@ def _insert_decision_row(
             (
                 run_id,
                 table,
-                str(cols.get("opportunity_id") or cols.get("contract_id") or ""),
+                subject_id,
                 decision.classification,
                 decision.score,
                 list(decision.reason_codes),
@@ -441,7 +454,8 @@ def run_linkage(
                             [f"contract:{ctr.get('contrato_id')}"],
                         )
 
-                    if d_ctr.classification != "unresolved" or d_ctr.score > 0:
+                    # Always persist including unresolved so denominators remain auditable in DB
+                    if ctr.get("contrato_id"):
                         _insert_decision_row(
                             cur,
                             "opportunity_contract_links",

@@ -1,8 +1,10 @@
 {
   "campaign_id": "CANONICAL-ENTITY-LINKAGE-01",
-  "as_of": "2026-07-24T14:06:51.998952Z",
-  "terminal_status": "IN_PROGRESS",
+  "as_of": "2026-07-24T14:14:42.273050Z",
+  "terminal_status": "BLOCKED",
+  "block_reason": "Campaign operational capability proven on isolated RC; final PASS requires @devops push/PR, main CI green, and serial DOD ACCEPTED. Independent review residual: precision is strong-id audit (accepted_risk), not multi-rater fuzzy study.",
   "implementation_status": "OPERATIONAL_ON_ISOLATED_REAL_DATA",
+  "candidate_sha": "f05162ab389998733f2532664ebd607b5cebc607",
   "run_id": "link-20260724T-rc1",
   "metrics_summary": {
     "dsn_masked": "postgresql://test:***@127.0.0.1:5438/extra_linkage_rc",
@@ -49,10 +51,22 @@
     "production_touched": false
   },
   "production_touched": false,
-  "next": [
-    "independent review",
-    "commit/PR via devops",
-    "optional full dump load",
-    "DOD accept only on main+CI"
+  "gates": {
+    "verify-canonical-entity-linkage-isolated": "PASS",
+    "unit_tests": "16 passed, 1 skipped (real_db marker path)",
+    "review": "CONCERNS with highs fixed; residual accepted_risk documented"
+  },
+  "claims": [
+    "layered linkage with provenance on isolated real contracts+opportunities",
+    "workspace entity isolation fail-closed",
+    "no soak/production interference"
+  ],
+  "non_claims": [
+    "LOCAL_READY",
+    "VPS_OPERATIONAL",
+    "PROJECT_DONE",
+    "DOD [x] without ACCEPTED",
+    "full 4.4M loaded into RC interactive tables",
+    "human multi-rater fuzzy precision study"
   ]
 }

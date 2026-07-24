@@ -87,5 +87,6 @@
       "unresolved_in_denominator": true
     }
   },
-  "notes": "All auto-accepted links are exact CNPJ14; unresolved retained in denominators"
+  "notes": "Auto-accept restricted to exact CNPJ14 (+ deterministic cnpj8+name). CNPJ8-only is heuristic_reviewable after review fix. Unresolved contract decisions are persisted.",
+  "precision_definition": "strong_id_consistency_on_auto_accepted_exact_only"
 }
