@@ -1,8 +1,8 @@
 {
   "campaign_id": "EXTRA-LIVE-CONSULTING-PACK-01",
-  "run_id": "live-pack-20260724-153737-28bf1a43",
+  "run_id": "live-pack-20260724-153838-8a526ae6",
   "as_of": "2026-07-24",
-  "git_sha": "b81af0cc2db6b5efe00c64df71a3a3acf972fe37",
+  "git_sha": "b7655a231d063db3764fa6bd8e0f71f7897d860f",
   "schema_version": "coverage-2.4_entity_coverage_rebuild",
   "profile": {
     "profile_path": "config/client_profiles/extra.yaml",
@@ -38,13 +38,13 @@
       "export_limit": 200,
       "export_is_not_universe": true
     },
-    "query_seconds": 3.198
+    "query_seconds": 2.952
   },
   "deliverable_b": {
     "status": "OK",
     "valid_count": 15,
     "target_n": 15,
-    "query_seconds": 12.166
+    "query_seconds": 12.229
   },
   "deliverable_c": {
     "status": "OK",
@@ -54,12 +54,12 @@
       "n": 14750,
       "query_complete": true
     },
-    "query_seconds": 1.941
+    "query_seconds": 1.965
   },
   "deliverable_d": {
     "status": "OK",
     "n_panels": 6,
-    "query_seconds": 1.699
+    "query_seconds": 1.717
   },
   "deliverable_e": {
     "status": "OK",
@@ -82,7 +82,7 @@
     "status": "PASS",
     "same_run_id": true,
     "divergences": [],
-    "run_id": "live-pack-20260724-153737-28bf1a43",
+    "run_id": "live-pack-20260724-153838-8a526ae6",
     "eligible_population": 1179237
   },
   "isolation": {
@@ -90,14 +90,14 @@
     "isolation_ok": true,
     "hits": [],
     "dsn_masked": "postgresql://test:***@127.0.0.1:5436/extra_live_pack_rc",
-    "checked_at": "2026-07-24T15:37:37Z"
+    "checked_at": "2026-07-24T15:38:38Z"
   },
   "production_touched": false,
-  "generated_at": "2026-07-24T15:37:57Z",
+  "generated_at": "2026-07-24T15:38:58Z",
   "meta": {
     "schema_version": "coverage-2.4_entity_coverage_rebuild",
-    "run_id": "live-pack-20260724-153737-28bf1a43",
-    "generated_at": "2026-07-24T15:37:57.146227Z",
+    "run_id": "live-pack-20260724-153838-8a526ae6",
+    "generated_at": "2026-07-24T15:38:58.547907Z",
     "artifact_kind": "live_consulting_pack",
     "script": "scripts/ops/live_consulting_pack.py",
     "filters": {
@@ -119,10 +119,10 @@
       "vincendos_180d": 0,
       "label": "INSUFFICIENT"
     },
-    "git_sha": "b81af0cc2db6b5efe00c64df71a3a3acf972fe37",
+    "git_sha": "b7655a231d063db3764fa6bd8e0f71f7897d860f",
     "profile_id": "extra_construtora",
     "profile_version": 2,
-    "dsn_host": "127.0.0.1:5436/extra_live_pack_rc",
+    "dsn_host": "default",
     "claims": {
       "allowed": [
         "Contagens derivadas de opportunity_intel.is_active=true no DSN local.",
@@ -162,7 +162,7 @@
       "isolation_ok": true,
       "hits": [],
       "dsn_masked": "postgresql://test:***@127.0.0.1:5436/extra_live_pack_rc",
-      "checked_at": "2026-07-24T15:37:37Z"
+      "checked_at": "2026-07-24T15:38:38Z"
     }
   },
   "products_meta": {

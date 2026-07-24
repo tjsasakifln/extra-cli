@@ -148,8 +148,8 @@
   "generated_at": "2026-07-24T00:12:41Z",
   "incorporated_from": "/tmp/extra-cli-live-pack-01/artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/deliverable_e.json",
   "source_class": "captured_real_evidence",
-  "run_id": "live-pack-20260724-153737-28bf1a43",
+  "run_id": "live-pack-20260724-153838-8a526ae6",
   "as_of": "2026-07-24",
-  "git_sha": "b81af0cc2db6b5efe00c64df71a3a3acf972fe37",
+  "git_sha": "b7655a231d063db3764fa6bd8e0f71f7897d860f",
   "schema_version": "coverage-2.4_entity_coverage_rebuild"
 }

@@ -18,16 +18,16 @@
     }
   ],
   "work_not_blocked_complete": true,
-  "git_sha": "b81af0cc2db6b5efe00c64df71a3a3acf972fe37",
-  "pack_run_id": "live-pack-20260724-153737-28bf1a43",
-  "pack_git_sha": "b81af0cc2db6b5efe00c64df71a3a3acf972fe37",
+  "git_sha": "b7655a231d063db3764fa6bd8e0f71f7897d860f",
+  "pack_run_id": "live-pack-20260724-153838-8a526ae6",
+  "pack_git_sha": "b7655a231d063db3764fa6bd8e0f71f7897d860f",
   "pr": "https://github.com/tjsasakifln/extra-cli/pull/130",
   "branch": "campaign/extra-live-consulting-pack-01",
   "production_touched": false,
   "soak_contact": false,
   "pack": {
-    "run_id": "live-pack-20260724-153737-28bf1a43",
-    "git_sha": "b81af0cc2db6b5efe00c64df71a3a3acf972fe37",
+    "run_id": "live-pack-20260724-153838-8a526ae6",
+    "git_sha": "b7655a231d063db3764fa6bd8e0f71f7897d860f",
     "as_of": "2026-07-24",
     "eligible_population_SC": 1179237,
     "A": {
@@ -47,13 +47,13 @@
         "export_limit": 200,
         "export_is_not_universe": true
       },
-      "query_seconds": 3.198
+      "query_seconds": 2.952
     },
     "B": {
       "status": "OK",
       "valid_count": 15,
       "target_n": 15,
-      "query_seconds": 12.166
+      "query_seconds": 12.229
     },
     "C": {
       "status": "OK",
@@ -63,12 +63,12 @@
         "n": 14750,
         "query_complete": true
       },
-      "query_seconds": 1.941
+      "query_seconds": 1.965
     },
     "D": {
       "status": "OK",
       "n_panels": 6,
-      "query_seconds": 1.699
+      "query_seconds": 1.717
     },
     "E": {
       "status": "OK",
@@ -79,7 +79,7 @@
       "status": "PASS",
       "same_run_id": true,
       "divergences": [],
-      "run_id": "live-pack-20260724-153737-28bf1a43",
+      "run_id": "live-pack-20260724-153838-8a526ae6",
       "eligible_population": 1179237
     }
   },
@@ -107,5 +107,5 @@
     "win_rate"
   ],
   "next_step": "1) Tiago real ACCEPT/REJECT after inspecting pack-rc. 2) Dual operational reproof on isolated copy or keep gap explicit. 3) campaign-gate with suite DSN green + CI tip green. 4) Only then consider PASS.",
-  "generated_at": "2026-07-24T15:36:29Z"
+  "generated_at": "2026-07-24T15:38:59Z"
 }
