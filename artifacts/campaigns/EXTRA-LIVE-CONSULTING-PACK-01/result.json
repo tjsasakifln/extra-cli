@@ -2,7 +2,7 @@
   "campaign_id": "EXTRA-LIVE-CONSULTING-PACK-01",
   "terminal": "BLOCKED",
   "terminal_detail": "BLOCKED_HUMAN — Tiago must inspect pack-rc/ and write ACCEPT/REJECT/findings into user-acceptance.json before any PASS claim. All non-human technical work on isolated snapshot is complete.",
-  "git_sha": "8b067bef4a5041f6fd86319ee8041453cfae8048",
+  "git_sha": "79836c1d740ee0610ec0bb0abe2acbd5e1ffa993",
   "pr": "https://github.com/tjsasakifln/extra-cli/pull/130",
   "branch": "campaign/extra-live-consulting-pack-01",
   "worktree": "/tmp/extra-cli-live-pack-01",
@@ -14,7 +14,9 @@
     "isolation_fail_on_prod_dsn": "PASS_exit_2",
     "migrations_idempotent": "PASS",
     "pack_reconcile": "PASS",
-    "ci_full_suite": "fix_pushed_pending_recheck"
+    "ci_full_suite": "PASS",
+    "ci_run": "30103220668",
+    "ci_all_jobs": "PASS"
   },
   "data": {
     "restored_contracts": 4437142,
@@ -71,5 +73,6 @@
     "win_rate"
   ],
   "next_step": "Tiago inspects pack-rc and updates user-acceptance.json; then CI green + merge + isolated reproof on main (no deploy while soak active).",
-  "generated_at": "2026-07-24T14:55:29Z"
+  "generated_at": "2026-07-24T14:55:29Z",
+  "updated_at": "2026-07-24T15:00:21Z"
 }

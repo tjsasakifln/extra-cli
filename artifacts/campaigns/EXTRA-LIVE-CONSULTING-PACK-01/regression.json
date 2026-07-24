@@ -1,0 +1,8 @@
+{
+  "campaign_gate": "PASS",
+  "verify_isolated": "PASS",
+  "ci_pr130": "PASS",
+  "ci_run": "30103220668",
+  "national_intel_tests_fixed": true,
+  "production_touched": false
+}
