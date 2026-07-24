@@ -1130,15 +1130,19 @@ def run_cycle(
     acceptance = human_acceptance_status(out_dir)
     pack_checksums = compute_pack_checksums(pack_dir) if pack_dir.is_dir() else {}
     pack_run_id = (pack or {}).get("run_id")
+    pack_git_sha = (pack or {}).get("git_sha")
     # If pack failed, try pack-manifest on disk
-    if not pack_run_id and (pack_dir / "pack-manifest.json").exists():
+    if (pack_dir / "pack-manifest.json").exists():
         try:
-            pack_run_id = json.loads(
+            pm_disk = json.loads(
                 (pack_dir / "pack-manifest.json").read_text(encoding="utf-8")
-            ).get("run_id")
+            )
+            pack_run_id = pack_run_id or pm_disk.get("run_id")
+            pack_git_sha = pack_git_sha or pm_disk.get("git_sha")
         except json.JSONDecodeError:
-            pack_run_id = None
-    rc_sha_now = git_sha()
+            pass
+    # RC product identity = pack generation SHA (not post-hoc docs-only tips)
+    rc_sha_now = str(pack_git_sha or git_sha())
     # NEVER silently rebind ACCEPTED onto a new pack — validate binding instead
     acceptance = validate_acceptance_binding(
         acceptance,
@@ -1411,7 +1415,8 @@ def cmd_verify_accept_binding(args: argparse.Namespace) -> int:
         return 1
     pm = json.loads(pm_path.read_text(encoding="utf-8"))
     pack_run_id = pm.get("run_id")
-    rc_sha = git_sha()
+    # RC identity is the product SHA recorded in pack-manifest (not later docs tips)
+    rc_sha = str(pm.get("git_sha") or git_sha())
     checksums = compute_pack_checksums(pack_dir)
     acceptance = human_acceptance_status(out_dir)
     bound = validate_acceptance_binding(
