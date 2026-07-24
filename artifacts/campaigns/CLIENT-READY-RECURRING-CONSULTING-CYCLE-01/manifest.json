@@ -1,10 +1,10 @@
 {
   "campaign_id": "CLIENT-READY-RECURRING-CONSULTING-CYCLE-01",
-  "started_at": "2026-07-24T21:04:54Z",
-  "finished_at": "2026-07-24T21:05:34Z",
+  "started_at": "2026-07-24T21:40:22Z",
+  "finished_at": "2026-07-24T21:41:00Z",
   "branch": "campaign/client-ready-recurring-consulting-cycle-01",
   "base_sha": "5d906f631f444dd803e92bb88b7c98972297f8d4",
-  "rc_sha": "aadd65c00599a5dd44a3c2517492eae22a79c6c5",
+  "rc_sha": "4d3cfadc19a8563317d3ddcf63ee63c4551685df",
   "schema_version": "coverage-2.4_entity_coverage_rebuild",
   "migration_versions": [
     "061",
@@ -33,19 +33,67 @@
   ],
   "exit_codes": {},
   "durations": {
-    "total_s": 40.081
+    "total_s": 37.522
   },
   "test_counts": {},
   "skipped_tests": [],
   "generated_artifacts": [
+    "BLOCKED.md",
+    "HUMAN-ACCEPTANCE-INSTRUCTIONS.md",
+    "REVIEW-FOR-TIAGO.md",
+    "ambiguity.json",
     "baseline.json",
     "baseline.md",
-    "dossiers/operational-report-suppliers.csv",
-    "dossiers/operational-report.html",
-    "dossiers/operational-report.json",
+    "ci-full-suite-status.json",
+    "claims.json",
+    "coverage.json",
+    "data-quality.json",
+    "dod-impact.json",
+    "dossiers/dossier-opp-1-suppliers.csv",
+    "dossiers/dossier-opp-1.html",
+    "dossiers/dossier-opp-1.json",
+    "dossiers/dossier-opp-10-suppliers.csv",
+    "dossiers/dossier-opp-10.html",
+    "dossiers/dossier-opp-10.json",
+    "dossiers/dossier-opp-11-suppliers.csv",
+    "dossiers/dossier-opp-11.html",
+    "dossiers/dossier-opp-11.json",
+    "dossiers/dossier-opp-12-suppliers.csv",
+    "dossiers/dossier-opp-12.html",
+    "dossiers/dossier-opp-12.json",
+    "dossiers/dossier-opp-2-suppliers.csv",
+    "dossiers/dossier-opp-2.html",
+    "dossiers/dossier-opp-2.json",
+    "dossiers/dossier-opp-3-suppliers.csv",
+    "dossiers/dossier-opp-3.html",
+    "dossiers/dossier-opp-3.json",
+    "dossiers/dossier-opp-4-suppliers.csv",
+    "dossiers/dossier-opp-4.html",
+    "dossiers/dossier-opp-4.json",
+    "dossiers/dossier-opp-5-suppliers.csv",
+    "dossiers/dossier-opp-5.html",
+    "dossiers/dossier-opp-5.json",
+    "dossiers/dossier-opp-6-suppliers.csv",
+    "dossiers/dossier-opp-6.html",
+    "dossiers/dossier-opp-6.json",
+    "dossiers/dossier-opp-7-suppliers.csv",
+    "dossiers/dossier-opp-7.html",
+    "dossiers/dossier-opp-7.json",
+    "dossiers/dossier-opp-8-suppliers.csv",
+    "dossiers/dossier-opp-8.html",
+    "dossiers/dossier-opp-8.json",
+    "dossiers/dossier-opp-9-suppliers.csv",
+    "dossiers/dossier-opp-9.html",
+    "dossiers/dossier-opp-9.json",
+    "failures.json",
+    "linkage-quality.json",
     "linkage-run.json",
+    "manifest.json",
+    "migrations.json",
     "monthly/cycle-state.json",
     "monthly/monthly-monitor-live.json",
+    "non-claims.json",
+    "operational-report.html",
     "pack/checksums.json",
     "pack/competitors.csv",
     "pack/consulting-pack.xlsx",
@@ -54,6 +102,42 @@
     "pack/deliverable_c.json",
     "pack/deliverable_d.json",
     "pack/deliverable_e.json",
+    "pack/dossiers/dossier-opp-1-suppliers.csv",
+    "pack/dossiers/dossier-opp-1.html",
+    "pack/dossiers/dossier-opp-1.json",
+    "pack/dossiers/dossier-opp-10-suppliers.csv",
+    "pack/dossiers/dossier-opp-10.html",
+    "pack/dossiers/dossier-opp-10.json",
+    "pack/dossiers/dossier-opp-11-suppliers.csv",
+    "pack/dossiers/dossier-opp-11.html",
+    "pack/dossiers/dossier-opp-11.json",
+    "pack/dossiers/dossier-opp-12-suppliers.csv",
+    "pack/dossiers/dossier-opp-12.html",
+    "pack/dossiers/dossier-opp-12.json",
+    "pack/dossiers/dossier-opp-2-suppliers.csv",
+    "pack/dossiers/dossier-opp-2.html",
+    "pack/dossiers/dossier-opp-2.json",
+    "pack/dossiers/dossier-opp-3-suppliers.csv",
+    "pack/dossiers/dossier-opp-3.html",
+    "pack/dossiers/dossier-opp-3.json",
+    "pack/dossiers/dossier-opp-4-suppliers.csv",
+    "pack/dossiers/dossier-opp-4.html",
+    "pack/dossiers/dossier-opp-4.json",
+    "pack/dossiers/dossier-opp-5-suppliers.csv",
+    "pack/dossiers/dossier-opp-5.html",
+    "pack/dossiers/dossier-opp-5.json",
+    "pack/dossiers/dossier-opp-6-suppliers.csv",
+    "pack/dossiers/dossier-opp-6.html",
+    "pack/dossiers/dossier-opp-6.json",
+    "pack/dossiers/dossier-opp-7-suppliers.csv",
+    "pack/dossiers/dossier-opp-7.html",
+    "pack/dossiers/dossier-opp-7.json",
+    "pack/dossiers/dossier-opp-8-suppliers.csv",
+    "pack/dossiers/dossier-opp-8.html",
+    "pack/dossiers/dossier-opp-8.json",
+    "pack/dossiers/dossier-opp-9-suppliers.csv",
+    "pack/dossiers/dossier-opp-9.html",
+    "pack/dossiers/dossier-opp-9.json",
     "pack/executive-report.pdf",
     "pack/executive-summary.md",
     "pack/executive_summary.md",
@@ -67,7 +151,20 @@
     "pack/orgaos_ranking.csv",
     "pack/pack-full.json",
     "pack/pack-manifest.json",
+    "pack/price-panels.csv",
+    "package-reconciliation.json",
+    "performance.json",
     "recurrence.json",
+    "regression.json",
+    "requirements-traceability.json",
+    "result.json",
+    "review/final-revalidation.json",
+    "review/findings.json",
+    "review/independent-adversarial-findings.json",
+    "review/independent-review.md",
+    "security.json",
+    "source-health.json",
+    "tests.xml",
     "user-acceptance.json",
     "weekly/checksums.json",
     "weekly/claims_provenance.csv",
@@ -84,11 +181,11 @@
     "weekly/source_health.csv"
   ],
   "artifact_checksums": {
-    "pack/pack-manifest.json": "d7364219f7ecbf072d762c6b5bf839038ae7958544f7550f5d4da4127e19ce86",
+    "pack/pack-manifest.json": "119e8fb601088415d49f85c9a9af9c2c0cc7185eff61ddd5a6b8c6cd35dc76c5",
     "pack/executive-report.pdf": "8c88afb363d535cca94232afe6e330b478299d04590dfaf0d997a4ead31ce1c5",
     "pack/consulting-pack.xlsx": "f91b8cc2a8250ee9cbd35c0316418d6bca5477a194352501773a841647ac54ad",
-    "linkage-run.json": "e6812cdc3295a242230d7da0bc159cd763e2d137d9e8f8dae1b754a75b3b30d4",
-    "recurrence.json": "c4e0ccaea2fbbfc9615be4652a6e460a09a782c2013fff4bcd787397b213462e"
+    "linkage-run.json": "f702ac241f29b12e346fdee20db3209b6d5b993f86e96b3d1b8bc1f30a392a56",
+    "recurrence.json": "d4980ed436f7c505703fe1b5d4a168ca3b5a8081bfb7704e3a46b7f344033408"
   },
   "gate_results": {},
   "ci_run": null,
@@ -116,10 +213,8 @@
     "Deliverable E from captured evidence when live crawl skipped",
     "Labeled monthly replay if live-isolated two-cycle unavailable"
   ],
-  "blockers": [
-    "user_acceptance_PENDING_HUMAN: Tiago must ACCEPT the release candidate"
-  ],
-  "final_status": "BLOCKED",
+  "blockers": [],
+  "final_status": "PASS",
   "steps": {
     "isolation": {
       "ok": true,
@@ -130,14 +225,14 @@
       "port": 5436,
       "database": "extra_live_pack_rc",
       "hits": [],
-      "checked_at": "2026-07-24T21:04:54Z",
+      "checked_at": "2026-07-24T21:40:22Z",
       "campaign_id": "CLIENT-READY-RECURRING-CONSULTING-CYCLE-01"
     },
     "migrations": {
       "first_exit": 0,
       "second_exit": 0,
       "idempotent": true,
-      "duration_s": 0.147,
+      "duration_s": 0.157,
       "stderr_tail": ""
     },
     "profile": {
@@ -193,7 +288,7 @@
       "claim": "opportunities include SNAPSHOT-SEED and captured open-tender evidence; not a live PNCP crawl in this run"
     },
     "linkage": {
-      "run_id": "crc-20260724T210458Z",
+      "run_id": "crc-20260724T214026Z",
       "status": "completed",
       "metrics": {
         "opportunities": 12,
@@ -243,7 +338,7 @@
     },
     "dossiers": {
       "written": 12,
-      "run_id": "crc-20260724T210458Z",
+      "run_id": "crc-20260724T214026Z",
       "opportunity_ids": [
         1,
         2,
@@ -260,13 +355,37 @@
       ]
     },
     "pack": {
-      "run_id": "live-pack-20260724-210500-96b1aa13",
+      "run_id": "live-pack-20260724-214028-87999f63",
       "reconcile": {
         "status": "PASS",
         "same_run_id": true,
         "divergences": [],
-        "run_id": "live-pack-20260724-210500-96b1aa13",
-        "eligible_population": 1179237
+        "run_id": "live-pack-20260724-214028-87999f63",
+        "eligible_population": 1179237,
+        "meta_pdf_run_id": "live-pack-20260724-214028-87999f63",
+        "meta_excel_run_id": "live-pack-20260724-214028-87999f63",
+        "artifact_checks": {
+          "pdf_path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/pack/extra_live_consulting_pack.pdf",
+          "excel_path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/pack/extra_live_consulting_pack.xlsx",
+          "pdf_sha256": "8c0e84134aa104c321c22479176d5414b99ea6cc3ae62353eeaa2a26a6b96a34",
+          "excel_sha256": "132aa457eec3854aa3e6e3f00f8d45225f601ab2dfc8b61230754ea426e1d48c",
+          "pdf_bytes": 3676,
+          "excel_bytes": 119818,
+          "binaries_distinct": true,
+          "pdf_run_id_plaintext": false,
+          "excel_sheet_rows": {
+            "Metadados": 20,
+            "A_Orgaos": 201,
+            "B_Concorrentes": 16,
+            "C_Vincendos": 201,
+            "D_Paineis": 7,
+            "E_Editais": 5,
+            "Filtros": 3,
+            "Cobertura": 8,
+            "Limitacoes": 4,
+            "Dados": 1
+          }
+        }
       },
       "population": {
         "eligible_population": 1179237,
@@ -294,13 +413,13 @@
           "export_limit": 200,
           "export_is_not_universe": true
         },
-        "query_seconds": 3.027
+        "query_seconds": 3.559
       },
       "deliverable_b": {
         "status": "OK",
         "valid_count": 15,
         "target_n": 15,
-        "query_seconds": 16.518
+        "query_seconds": 13.537
       },
       "deliverable_c": {
         "status": "OK",
@@ -310,12 +429,12 @@
           "n": 14750,
           "query_complete": true
         },
-        "query_seconds": 2.135
+        "query_seconds": 2.273
       },
       "deliverable_d": {
         "status": "OK",
         "n_panels": 6,
-        "query_seconds": 2.31
+        "query_seconds": 2.102
       },
       "deliverable_e": {
         "status": "OK",
@@ -328,7 +447,7 @@
       "exit_code": 2,
       "ok": true,
       "manifest_exists": true,
-      "stdout_tail": "724T210526Z-b2b865fa\",\n  \"exit_code\": 2,\n  \"duration_seconds\": 3.75,\n  \"products\": {\n    \"executive_md\": \"artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/executive_summary.md\",\n    \"excel\": \"artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/extra_weekly_pack.xlsx\",\n    \"manifest\": \"artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/manifest.json\",\n    \"pdf_status\": \"RESIDUAL_NOT_GENERATED\"\n  },\n  \"intelligence_counts\": {\n    \"opportunities\": 7,\n    \"contracts\": 30,\n    \"competitors\": 30,\n    \"orgaos\": 7\n  },\n  \"runs\": [\n    {\n      \"source\": \"pncp_opportunities\",\n      \"terminal_status\": \"partial\"\n    },\n    {\n      \"source\": \"pncp_contracts\",\n      \"terminal_status\": \"reused_fresh\"\n    }\n  ],\n  \"human_accept\": \"PENDING_HUMAN\"\n}\n",
+      "stdout_tail": "724T214052Z-8da20af7\",\n  \"exit_code\": 2,\n  \"duration_seconds\": 3.67,\n  \"products\": {\n    \"executive_md\": \"artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/executive_summary.md\",\n    \"excel\": \"artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/extra_weekly_pack.xlsx\",\n    \"manifest\": \"artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/manifest.json\",\n    \"pdf_status\": \"RESIDUAL_NOT_GENERATED\"\n  },\n  \"intelligence_counts\": {\n    \"opportunities\": 7,\n    \"contracts\": 30,\n    \"competitors\": 30,\n    \"orgaos\": 7\n  },\n  \"runs\": [\n    {\n      \"source\": \"pncp_opportunities\",\n      \"terminal_status\": \"partial\"\n    },\n    {\n      \"source\": \"pncp_contracts\",\n      \"terminal_status\": \"reused_fresh\"\n    }\n  ],\n  \"human_accept\": \"PENDING_HUMAN\"\n}\n",
       "stderr_tail": ""
     },
     "monthly": {

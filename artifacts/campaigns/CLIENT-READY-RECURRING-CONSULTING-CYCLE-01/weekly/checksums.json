@@ -1,32 +1,32 @@
 {
   "schema": "extra-weekly-checksums/1.0",
-  "cycle_id": "weekly-20260724T210526Z-9c0527cd9c",
-  "collection_id": "col-extra-weekly-20260724T210526Z-b2b865fa",
+  "cycle_id": "weekly-20260724T214052Z-5d7fc91e7c",
+  "collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
   "note": "Hashes of product artifacts only — does not include manifest.json",
   "artifacts": {
     "opportunities_csv": {
       "path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/opportunities.csv",
-      "sha256": "b165eb0c19e6537624f955cb1a3106b7669ecf34891ce04ba551140697684a89",
+      "sha256": "be073667ff10ac65699e7d53e4b4a0be50fb3a403150f78833bac79a7c362aaa",
       "bytes": 4902
     },
     "contracts_csv": {
       "path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/contracts.csv",
-      "sha256": "37942b0bd1ca560927d9dcf0156051f2abcf116f5e1081fb501f583cacef53ae",
+      "sha256": "dbddfc06c90fcff6c028d7d807916633158fb46f136a1d3805f54d713ce48cb5",
       "bytes": 18753
     },
     "competitors_csv": {
       "path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/competitors.csv",
-      "sha256": "b3de8fabdf7cd083f56828fd1e1d76f52e3adc53bd251d789e11907e4cb373ce",
+      "sha256": "6d90ce374a2cb5a08f660cab2b2b2f1b5f579841e4babeadb1ee1171e18c9fe2",
       "bytes": 7670
     },
     "orgaos_csv": {
       "path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/orgaos.csv",
-      "sha256": "8a0452f7672193024de0e523dd06bf6e690c8fe364dc3249afe4100e5afe9052",
+      "sha256": "49ecb97d6c57193e4fbdf950d9cd10805660897f2b32f4c66630c3b9cd81d7c1",
       "bytes": 985
     },
     "source_health_csv": {
       "path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/source_health.csv",
-      "sha256": "e8139f62101cf30bd90c7ea8abea4019bf16d091983241112ca326132fb252bd",
+      "sha256": "f28725e4f4387d2a3e7cb679847923b224956c474c33be59d2b428b102e16110",
       "bytes": 229
     },
     "gaps_csv": {
@@ -36,27 +36,27 @@
     },
     "claims_csv": {
       "path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/claims_provenance.csv",
-      "sha256": "31f2b056333713bf6075f3536028c844e4aa43972a779be10bbd9d59825d4326",
+      "sha256": "58ef66c0eec44d9ee5f3beac03c5b58b1f9325ad2e642cb3738ecfb1041863ef",
       "bytes": 32291
     },
     "executive_md": {
       "path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/executive_summary.md",
-      "sha256": "209b8674a3854e3b6ad599dcfb9f64f681771c190718ec06d001b8f9d8a2e702",
+      "sha256": "adcbf077673e8175c6853ab902a4e9521f5db36823f5335d2bc48d5081d76004",
       "bytes": 5340
     },
     "excel": {
       "path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/extra_weekly_pack.xlsx",
-      "sha256": "caa269d792929735bf8cacd3379bbf83a55167702a0074506d5be959b6b54c77",
-      "bytes": 21489
+      "sha256": "b89508d688d95d10b0b76c887297696fd6c2cb3994c356bf4356ea1726db1ea7",
+      "bytes": 21492
     },
     "deliverable_e": {
       "path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/deliverable_e.json",
-      "sha256": "eba887eca03adefa1f7cacb66f21bb7d854b509c150d04c5579361f73ef4dadd",
+      "sha256": "dd157a071d6e6d9471412b638a63a1864fb2301161c9e4b95c6bb1f3c88e4b0e",
       "bytes": 12031
     },
     "deliverable_e_audit": {
       "path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/deliverable_e_audit.json",
-      "sha256": "9d45337fbd454a2e47af82397328640b267245d3f2fe14918d8c727845e2c70d",
+      "sha256": "eb0080bdc12ef6224dd82d8015ba045de950125345c7921d3be9c4306a1613ef",
       "bytes": 3079
     }
   }

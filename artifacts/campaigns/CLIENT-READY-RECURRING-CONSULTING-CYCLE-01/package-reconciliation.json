@@ -1,7 +1,7 @@
 {
   "status": "PASS",
-  "run_id": "live-pack-20260724-210500-96b1aa13",
-  "git_sha": "c2bef8fd928c4eca5d9f6ad8e939ee2bf74c604a",
+  "run_id": "live-pack-20260724-214028-87999f63",
+  "git_sha": "4d3cfadc19a8563317d3ddcf63ee63c4551685df",
   "eligible_population": 1179237,
   "divergences": [],
   "same_run_id": true,
@@ -26,7 +26,5 @@
       "Limitacoes": 4,
       "Dados": 1
     }
-  },
-  "meta_pdf_run_id": "live-pack-20260724-210500-96b1aa13",
-  "meta_excel_run_id": "live-pack-20260724-210500-96b1aa13"
+  }
 }

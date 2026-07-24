@@ -13,6 +13,93 @@
   "cut_date": "2026-07-24",
   "recommendations": [
     {
+      "edital_id": "SEED-PNCP-00360305000104-0",
+      "titulo": "[SNAPSHOT-SEED open] (ZMES) - CONTRATAÇÃO DE ATÉ 02 (DUAS) EMPRESAS ESPECIALIZADAS NO PLANEJAMENTO, DESENVOLVIMENTO, EXECUÇÃO, MANUTENÇÃO E MONITORAMENTO DE AMBIENTES DIGITAIS E DE SOLUÇÕES DE COMUNIC",
+      "orgao": "CEFOR",
+      "ranking": "REVIEW",
+      "client_label": "REVIEW",
+      "profile_id": "extra_construtora",
+      "profile_version": 2,
+      "openness": {
+        "is_open_at_cut": true,
+        "cut_date": "2026-07-24",
+        "proof_mode": "INDIVIDUAL_RECONFIRM",
+        "snapshot_id": null,
+        "reconfirmed_at": "2026-07-24T21:40:55Z",
+        "official_url": "https://pncp.gov.br/app/editais/SEED-PNCP-00360305000104-0",
+        "status_source": "pncp"
+      },
+      "fatores_favoraveis": [],
+      "fatores_impeditivos_ou_riscos": [
+        "UF DF fora de uf_primary=SC",
+        "objeto sem match claro em engineering_categories",
+        "capacidade operacional crítica PENDING no perfil: capital_giro, capacidade_simultanea, capacidade_garantia, cats_atestados, certidoes"
+      ],
+      "referencias_oficiais": [
+        "https://pncp.gov.br/app/editais/SEED-PNCP-00360305000104-0"
+      ],
+      "disclaimer": "Recomendação operacional fundamentada em dados disponíveis; NÃO promete vitória e NÃO substitui análise jurídica, contábil ou técnica final.",
+      "score_notes": "REVIEW por ambiguidade de objeto; ADR-022: sem capacidade elicitada não emitir PARTICIPAR definitivo; GO bloqueado por campos críticos PENDING"
+    },
+    {
+      "edital_id": "SEED-PNCP-00394452000103-0",
+      "titulo": "[SNAPSHOT-SEED open] НHOSPITAL GERAL DE MÉDIA E ALTA COMPLEXIDADE COM ATENDIMENTO AMBULATORIAL, INTERNAÇÃO E SADT.",
+      "orgao": "SECRETARIA GERAL DO EXERCITO/MEX/DF",
+      "ranking": "REVIEW",
+      "client_label": "REVIEW",
+      "profile_id": "extra_construtora",
+      "profile_version": 2,
+      "openness": {
+        "is_open_at_cut": true,
+        "cut_date": "2026-07-24",
+        "proof_mode": "INDIVIDUAL_RECONFIRM",
+        "snapshot_id": null,
+        "reconfirmed_at": "2026-07-24T21:40:55Z",
+        "official_url": "https://pncp.gov.br/app/editais/SEED-PNCP-00394452000103-0",
+        "status_source": "pncp"
+      },
+      "fatores_favoraveis": [],
+      "fatores_impeditivos_ou_riscos": [
+        "UF TO fora de uf_primary=SC",
+        "objeto sem match claro em engineering_categories",
+        "capacidade operacional crítica PENDING no perfil: capital_giro, capacidade_simultanea, capacidade_garantia, cats_atestados, certidoes"
+      ],
+      "referencias_oficiais": [
+        "https://pncp.gov.br/app/editais/SEED-PNCP-00394452000103-0"
+      ],
+      "disclaimer": "Recomendação operacional fundamentada em dados disponíveis; NÃO promete vitória e NÃO substitui análise jurídica, contábil ou técnica final.",
+      "score_notes": "REVIEW por ambiguidade de objeto; ADR-022: sem capacidade elicitada não emitir PARTICIPAR definitivo; GO bloqueado por campos críticos PENDING"
+    },
+    {
+      "edital_id": "SEED-PNCP-00394544000185-0",
+      "titulo": "[SNAPSHOT-SEED open] VISTO À AQUISIÇÃO EMERGENCIAL DE EQUIPAMENTOS NÁUTICOS PARA ATENDER ÀS NECESSIDADES DA CASAI DE GUAJARÁ-MIRIM/RO, MOTOR DE POPA 150HP 4 TEMPOS MARCA MERCURY MODELO 150L EFI 4STK S",
+      "orgao": "SUPERINTENDENCIA ESTADUAL DO MS/TO",
+      "ranking": "REVIEW",
+      "client_label": "REVIEW",
+      "profile_id": "extra_construtora",
+      "profile_version": 2,
+      "openness": {
+        "is_open_at_cut": true,
+        "cut_date": "2026-07-24",
+        "proof_mode": "INDIVIDUAL_RECONFIRM",
+        "snapshot_id": null,
+        "reconfirmed_at": "2026-07-24T21:40:55Z",
+        "official_url": "https://pncp.gov.br/app/editais/SEED-PNCP-00394544000185-0",
+        "status_source": "pncp"
+      },
+      "fatores_favoraveis": [],
+      "fatores_impeditivos_ou_riscos": [
+        "UF TO fora de uf_primary=SC",
+        "objeto sem match claro em engineering_categories",
+        "capacidade operacional crítica PENDING no perfil: capital_giro, capacidade_simultanea, capacidade_garantia, cats_atestados, certidoes"
+      ],
+      "referencias_oficiais": [
+        "https://pncp.gov.br/app/editais/SEED-PNCP-00394544000185-0"
+      ],
+      "disclaimer": "Recomendação operacional fundamentada em dados disponíveis; NÃO promete vitória e NÃO substitui análise jurídica, contábil ou técnica final.",
+      "score_notes": "REVIEW por ambiguidade de objeto; ADR-022: sem capacidade elicitada não emitir PARTICIPAR definitivo; GO bloqueado por campos críticos PENDING"
+    },
+    {
       "edital_id": "11360515000119-1-000013/2026",
       "titulo": "AQUISIÇÃO DE LENÇÓIS E MANTAS DESTINADOS AOS LEITOS DA UNIDADE BÁSICA DE SAÚDE DO MUNICÍPIO DE SANTA TEREZINHA DO PROGRESSO/SC, VISANDO ATENDER ÀS NECESSIDADES DE ACOLHIMENTO, CONFORTO, HIGIENE E BEM-",
       "orgao": "FUNDO MUNICIPAL DE SAUDE DE SANTA TEREZINHA DO PROGRESSO",
@@ -25,7 +112,7 @@
         "cut_date": "2026-07-24",
         "proof_mode": "INDIVIDUAL_RECONFIRM",
         "snapshot_id": null,
-        "reconfirmed_at": "2026-07-24T21:05:30Z",
+        "reconfirmed_at": "2026-07-24T21:40:55Z",
         "official_url": "https://pncp.gov.br/app/editais/11360515000119-1-000013/2026",
         "status_source": "pncp"
       },
@@ -55,7 +142,7 @@
         "cut_date": "2026-07-24",
         "proof_mode": "INDIVIDUAL_RECONFIRM",
         "snapshot_id": null,
-        "reconfirmed_at": "2026-07-24T21:05:30Z",
+        "reconfirmed_at": "2026-07-24T21:40:55Z",
         "official_url": "https://pncp.gov.br/app/editais/07654807000197-1-000072/2026",
         "status_source": "pncp"
       },
@@ -85,7 +172,7 @@
         "cut_date": "2026-07-24",
         "proof_mode": "INDIVIDUAL_RECONFIRM",
         "snapshot_id": null,
-        "reconfirmed_at": "2026-07-24T21:05:30Z",
+        "reconfirmed_at": "2026-07-24T21:40:55Z",
         "official_url": "https://pncp.gov.br/app/editais/10432684000154-1-000049/2025",
         "status_source": "pncp"
       },
@@ -115,7 +202,7 @@
         "cut_date": "2026-07-24",
         "proof_mode": "INDIVIDUAL_RECONFIRM",
         "snapshot_id": null,
-        "reconfirmed_at": "2026-07-24T21:05:30Z",
+        "reconfirmed_at": "2026-07-24T21:40:55Z",
         "official_url": "https://pncp.gov.br/app/editais/83102541000158-1-000167/2025",
         "status_source": "pncp"
       },
@@ -128,93 +215,6 @@
       ],
       "referencias_oficiais": [
         "https://pncp.gov.br/app/editais/83102541000158-1-000167/2025"
-      ],
-      "disclaimer": "Recomendação operacional fundamentada em dados disponíveis; NÃO promete vitória e NÃO substitui análise jurídica, contábil ou técnica final.",
-      "score_notes": "REVIEW por ambiguidade de objeto; ADR-022: sem capacidade elicitada não emitir PARTICIPAR definitivo; GO bloqueado por campos críticos PENDING"
-    },
-    {
-      "edital_id": "SEED-PNCP-00360305000104-0",
-      "titulo": "[SNAPSHOT-SEED open] (ZMES) - CONTRATAÇÃO DE ATÉ 02 (DUAS) EMPRESAS ESPECIALIZADAS NO PLANEJAMENTO, DESENVOLVIMENTO, EXECUÇÃO, MANUTENÇÃO E MONITORAMENTO DE AMBIENTES DIGITAIS E DE SOLUÇÕES DE COMUNIC",
-      "orgao": "CEFOR",
-      "ranking": "REVIEW",
-      "client_label": "REVIEW",
-      "profile_id": "extra_construtora",
-      "profile_version": 2,
-      "openness": {
-        "is_open_at_cut": true,
-        "cut_date": "2026-07-24",
-        "proof_mode": "INDIVIDUAL_RECONFIRM",
-        "snapshot_id": null,
-        "reconfirmed_at": "2026-07-24T21:05:30Z",
-        "official_url": "https://pncp.gov.br/app/editais/SEED-PNCP-00360305000104-0",
-        "status_source": "pncp"
-      },
-      "fatores_favoraveis": [],
-      "fatores_impeditivos_ou_riscos": [
-        "UF DF fora de uf_primary=SC",
-        "objeto sem match claro em engineering_categories",
-        "capacidade operacional crítica PENDING no perfil: capital_giro, capacidade_simultanea, capacidade_garantia, cats_atestados, certidoes"
-      ],
-      "referencias_oficiais": [
-        "https://pncp.gov.br/app/editais/SEED-PNCP-00360305000104-0"
-      ],
-      "disclaimer": "Recomendação operacional fundamentada em dados disponíveis; NÃO promete vitória e NÃO substitui análise jurídica, contábil ou técnica final.",
-      "score_notes": "REVIEW por ambiguidade de objeto; ADR-022: sem capacidade elicitada não emitir PARTICIPAR definitivo; GO bloqueado por campos críticos PENDING"
-    },
-    {
-      "edital_id": "SEED-PNCP-00394452000103-0",
-      "titulo": "[SNAPSHOT-SEED open] НHOSPITAL GERAL DE MÉDIA E ALTA COMPLEXIDADE COM ATENDIMENTO AMBULATORIAL, INTERNAÇÃO E SADT.",
-      "orgao": "SECRETARIA GERAL DO EXERCITO/MEX/DF",
-      "ranking": "REVIEW",
-      "client_label": "REVIEW",
-      "profile_id": "extra_construtora",
-      "profile_version": 2,
-      "openness": {
-        "is_open_at_cut": true,
-        "cut_date": "2026-07-24",
-        "proof_mode": "INDIVIDUAL_RECONFIRM",
-        "snapshot_id": null,
-        "reconfirmed_at": "2026-07-24T21:05:30Z",
-        "official_url": "https://pncp.gov.br/app/editais/SEED-PNCP-00394452000103-0",
-        "status_source": "pncp"
-      },
-      "fatores_favoraveis": [],
-      "fatores_impeditivos_ou_riscos": [
-        "UF TO fora de uf_primary=SC",
-        "objeto sem match claro em engineering_categories",
-        "capacidade operacional crítica PENDING no perfil: capital_giro, capacidade_simultanea, capacidade_garantia, cats_atestados, certidoes"
-      ],
-      "referencias_oficiais": [
-        "https://pncp.gov.br/app/editais/SEED-PNCP-00394452000103-0"
-      ],
-      "disclaimer": "Recomendação operacional fundamentada em dados disponíveis; NÃO promete vitória e NÃO substitui análise jurídica, contábil ou técnica final.",
-      "score_notes": "REVIEW por ambiguidade de objeto; ADR-022: sem capacidade elicitada não emitir PARTICIPAR definitivo; GO bloqueado por campos críticos PENDING"
-    },
-    {
-      "edital_id": "SEED-PNCP-00394544000185-0",
-      "titulo": "[SNAPSHOT-SEED open] VISTO À AQUISIÇÃO EMERGENCIAL DE EQUIPAMENTOS NÁUTICOS PARA ATENDER ÀS NECESSIDADES DA CASAI DE GUAJARÁ-MIRIM/RO, MOTOR DE POPA 150HP 4 TEMPOS MARCA MERCURY MODELO 150L EFI 4STK S",
-      "orgao": "SUPERINTENDENCIA ESTADUAL DO MS/TO",
-      "ranking": "REVIEW",
-      "client_label": "REVIEW",
-      "profile_id": "extra_construtora",
-      "profile_version": 2,
-      "openness": {
-        "is_open_at_cut": true,
-        "cut_date": "2026-07-24",
-        "proof_mode": "INDIVIDUAL_RECONFIRM",
-        "snapshot_id": null,
-        "reconfirmed_at": "2026-07-24T21:05:30Z",
-        "official_url": "https://pncp.gov.br/app/editais/SEED-PNCP-00394544000185-0",
-        "status_source": "pncp"
-      },
-      "fatores_favoraveis": [],
-      "fatores_impeditivos_ou_riscos": [
-        "UF TO fora de uf_primary=SC",
-        "objeto sem match claro em engineering_categories",
-        "capacidade operacional crítica PENDING no perfil: capital_giro, capacidade_simultanea, capacidade_garantia, cats_atestados, certidoes"
-      ],
-      "referencias_oficiais": [
-        "https://pncp.gov.br/app/editais/SEED-PNCP-00394544000185-0"
       ],
       "disclaimer": "Recomendação operacional fundamentada em dados disponíveis; NÃO promete vitória e NÃO substitui análise jurídica, contábil ou técnica final.",
       "score_notes": "REVIEW por ambiguidade de objeto; ADR-022: sem capacidade elicitada não emitir PARTICIPAR definitivo; GO bloqueado por campos críticos PENDING"
@@ -232,5 +232,5 @@
     "Include closed editais as open without proof",
     "Recommend without official data/doc reference when available path exists"
   ],
-  "generated_at": "2026-07-24T21:05:30Z"
+  "generated_at": "2026-07-24T21:40:55Z"
 }

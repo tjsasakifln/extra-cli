@@ -1,8 +1,8 @@
 {
   "title": "Dossiê de investigação — linkage canônico",
   "campaign_id": "CANONICAL-ENTITY-LINKAGE-01",
-  "generated_at": "2026-07-24T21:06:12.008402Z",
-  "run_id": "crc-20260724T210458Z",
+  "generated_at": "2026-07-24T21:40:28.921300Z",
+  "run_id": "crc-20260724T214026Z",
   "opportunity_id": 2,
   "universe": {
     "note": "Isolated snapshot + open opportunities in linkage RC DB"
@@ -896,7 +896,7 @@
     ],
     "observed_suppliers": [
       {
-        "supplier_canonical_key": "sup:cnpj14:35532525000233",
+        "supplier_canonical_key": "sup:cnpj14:00739189000139",
         "relation_kind": "historical_winner",
         "classification": "exact",
         "score": "1.00000",
@@ -910,10 +910,10 @@
           "not_win_rate",
           "not_consortium_inference"
         ],
-        "contract_id": "07654807000197-2-000066/2026"
+        "contract_id": "07654807000197-2-000044/2026"
       },
       {
-        "supplier_canonical_key": "sup:cnpj14:62240655000194",
+        "supplier_canonical_key": "sup:cnpj14:01515044000117",
         "relation_kind": "historical_winner",
         "classification": "exact",
         "score": "1.00000",
@@ -927,7 +927,41 @@
           "not_win_rate",
           "not_consortium_inference"
         ],
-        "contract_id": "07654807000197-2-000065/2026"
+        "contract_id": "07654807000197-2-000049/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:01678033000158",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "07654807000197-2-000039/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:01963276000138",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "07654807000197-2-000056/2026"
       },
       {
         "supplier_canonical_key": "sup:cnpj14:03725261000167",
@@ -947,7 +981,7 @@
         "contract_id": "07654807000197-2-000064/2026"
       },
       {
-        "supplier_canonical_key": "sup:cnpj14:18476349000160",
+        "supplier_canonical_key": "sup:cnpj14:04152554000165",
         "relation_kind": "historical_winner",
         "classification": "exact",
         "score": "1.00000",
@@ -961,10 +995,10 @@
           "not_win_rate",
           "not_consortium_inference"
         ],
-        "contract_id": "07654807000197-2-000063/2026"
+        "contract_id": "07654807000197-2-000047/2026"
       },
       {
-        "supplier_canonical_key": "sup:cnpj14:23187203000134",
+        "supplier_canonical_key": "sup:cnpj14:05047599000132",
         "relation_kind": "historical_winner",
         "classification": "exact",
         "score": "1.00000",
@@ -978,41 +1012,7 @@
           "not_win_rate",
           "not_consortium_inference"
         ],
-        "contract_id": "07654807000197-2-000062/2026"
-      },
-      {
-        "supplier_canonical_key": "sup:cnpj14:24501218000198",
-        "relation_kind": "historical_winner",
-        "classification": "exact",
-        "score": "1.00000",
-        "reason_codes": [
-          "exact_supplier_cnpj14",
-          "observed_contract_winner"
-        ],
-        "claim_level": "fact",
-        "non_claims": [
-          "not_observed_participant_of_open_tender",
-          "not_win_rate",
-          "not_consortium_inference"
-        ],
-        "contract_id": "07654807000197-2-000061/2026"
-      },
-      {
-        "supplier_canonical_key": "sup:cnpj14:17513203000184",
-        "relation_kind": "historical_winner",
-        "classification": "exact",
-        "score": "1.00000",
-        "reason_codes": [
-          "exact_supplier_cnpj14",
-          "observed_contract_winner"
-        ],
-        "claim_level": "fact",
-        "non_claims": [
-          "not_observed_participant_of_open_tender",
-          "not_win_rate",
-          "not_consortium_inference"
-        ],
-        "contract_id": "07654807000197-2-000060/2026"
+        "contract_id": "07654807000197-2-000017/2026"
       },
       {
         "supplier_canonical_key": "sup:cnpj14:05527987000110",
@@ -1032,6 +1032,210 @@
         "contract_id": "07654807000197-2-000059/2026"
       },
       {
+        "supplier_canonical_key": "sup:cnpj14:06261557000162",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "07654807000197-2-000027/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:07598562000209",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "07654807000197-2-000020/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:08983067000103",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "07654807000197-2-000040/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:09035294000161",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "07654807000197-2-000045/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:09674414000170",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "07654807000197-2-000025/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:13510173000100",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "07654807000197-2-000022/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:15639577000115",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "07654807000197-2-000048/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:17164172000101",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "07654807000197-2-000029/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:17513203000184",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "07654807000197-2-000060/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:18476349000160",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "07654807000197-2-000063/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:22730460000108",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "07654807000197-2-000050/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:23187203000134",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "07654807000197-2-000062/2026"
+      },
+      {
         "supplier_canonical_key": "sup:cnpj14:23830923000257",
         "relation_kind": "historical_winner",
         "classification": "exact",
@@ -1049,7 +1253,7 @@
         "contract_id": "07654807000197-2-000058/2026"
       },
       {
-        "supplier_canonical_key": "sup:cnpj14:45671581000121",
+        "supplier_canonical_key": "sup:cnpj14:24501218000198",
         "relation_kind": "historical_winner",
         "classification": "exact",
         "score": "1.00000",
@@ -1063,10 +1267,10 @@
           "not_win_rate",
           "not_consortium_inference"
         ],
-        "contract_id": "07654807000197-2-000057/2026"
+        "contract_id": "07654807000197-2-000061/2026"
       },
       {
-        "supplier_canonical_key": "sup:cnpj14:01963276000138",
+        "supplier_canonical_key": "sup:cnpj14:27263257000192",
         "relation_kind": "historical_winner",
         "classification": "exact",
         "score": "1.00000",
@@ -1080,7 +1284,92 @@
           "not_win_rate",
           "not_consortium_inference"
         ],
-        "contract_id": "07654807000197-2-000056/2026"
+        "contract_id": "07654807000197-2-000038/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:27314085000210",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "07654807000197-2-000031/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:30445859000175",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "07654807000197-2-000053/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:31428434000110",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "07654807000197-2-000043/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:33326261000155",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "07654807000197-2-000035/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:33326261000236",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "07654807000197-2-000036/2026"
       },
       {
         "supplier_canonical_key": "sup:cnpj14:34210729000104",
@@ -1117,7 +1406,7 @@
         "contract_id": "07654807000197-2-000054/2026"
       },
       {
-        "supplier_canonical_key": "sup:cnpj14:83506030000282",
+        "supplier_canonical_key": "sup:cnpj14:35301364000196",
         "relation_kind": "historical_winner",
         "classification": "exact",
         "score": "1.00000",
@@ -1131,10 +1420,10 @@
           "not_win_rate",
           "not_consortium_inference"
         ],
-        "contract_id": "07654807000197-2-000052/2026"
+        "contract_id": "07654807000197-2-000023/2026"
       },
       {
-        "supplier_canonical_key": "sup:cnpj14:30445859000175",
+        "supplier_canonical_key": "sup:cnpj14:35532525000233",
         "relation_kind": "historical_winner",
         "classification": "exact",
         "score": "1.00000",
@@ -1148,364 +1437,7 @@
           "not_win_rate",
           "not_consortium_inference"
         ],
-        "contract_id": "07654807000197-2-000053/2026"
-      },
-      {
-        "supplier_canonical_key": "sup:cnpj14:46586215000137",
-        "relation_kind": "historical_winner",
-        "classification": "exact",
-        "score": "1.00000",
-        "reason_codes": [
-          "exact_supplier_cnpj14",
-          "observed_contract_winner"
-        ],
-        "claim_level": "fact",
-        "non_claims": [
-          "not_observed_participant_of_open_tender",
-          "not_win_rate",
-          "not_consortium_inference"
-        ],
-        "contract_id": "07654807000197-2-000051/2026"
-      },
-      {
-        "supplier_canonical_key": "sup:cnpj14:22730460000108",
-        "relation_kind": "historical_winner",
-        "classification": "exact",
-        "score": "1.00000",
-        "reason_codes": [
-          "exact_supplier_cnpj14",
-          "observed_contract_winner"
-        ],
-        "claim_level": "fact",
-        "non_claims": [
-          "not_observed_participant_of_open_tender",
-          "not_win_rate",
-          "not_consortium_inference"
-        ],
-        "contract_id": "07654807000197-2-000050/2026"
-      },
-      {
-        "supplier_canonical_key": "sup:cnpj14:01515044000117",
-        "relation_kind": "historical_winner",
-        "classification": "exact",
-        "score": "1.00000",
-        "reason_codes": [
-          "exact_supplier_cnpj14",
-          "observed_contract_winner"
-        ],
-        "claim_level": "fact",
-        "non_claims": [
-          "not_observed_participant_of_open_tender",
-          "not_win_rate",
-          "not_consortium_inference"
-        ],
-        "contract_id": "07654807000197-2-000049/2026"
-      },
-      {
-        "supplier_canonical_key": "sup:cnpj14:15639577000115",
-        "relation_kind": "historical_winner",
-        "classification": "exact",
-        "score": "1.00000",
-        "reason_codes": [
-          "exact_supplier_cnpj14",
-          "observed_contract_winner"
-        ],
-        "claim_level": "fact",
-        "non_claims": [
-          "not_observed_participant_of_open_tender",
-          "not_win_rate",
-          "not_consortium_inference"
-        ],
-        "contract_id": "07654807000197-2-000048/2026"
-      },
-      {
-        "supplier_canonical_key": "sup:cnpj14:78478559000119",
-        "relation_kind": "historical_winner",
-        "classification": "exact",
-        "score": "1.00000",
-        "reason_codes": [
-          "exact_supplier_cnpj14",
-          "observed_contract_winner"
-        ],
-        "claim_level": "fact",
-        "non_claims": [
-          "not_observed_participant_of_open_tender",
-          "not_win_rate",
-          "not_consortium_inference"
-        ],
-        "contract_id": "07654807000197-2-000046/2026"
-      },
-      {
-        "supplier_canonical_key": "sup:cnpj14:04152554000165",
-        "relation_kind": "historical_winner",
-        "classification": "exact",
-        "score": "1.00000",
-        "reason_codes": [
-          "exact_supplier_cnpj14",
-          "observed_contract_winner"
-        ],
-        "claim_level": "fact",
-        "non_claims": [
-          "not_observed_participant_of_open_tender",
-          "not_win_rate",
-          "not_consortium_inference"
-        ],
-        "contract_id": "07654807000197-2-000047/2026"
-      },
-      {
-        "supplier_canonical_key": "sup:cnpj14:09035294000161",
-        "relation_kind": "historical_winner",
-        "classification": "exact",
-        "score": "1.00000",
-        "reason_codes": [
-          "exact_supplier_cnpj14",
-          "observed_contract_winner"
-        ],
-        "claim_level": "fact",
-        "non_claims": [
-          "not_observed_participant_of_open_tender",
-          "not_win_rate",
-          "not_consortium_inference"
-        ],
-        "contract_id": "07654807000197-2-000045/2026"
-      },
-      {
-        "supplier_canonical_key": "sup:cnpj14:00739189000139",
-        "relation_kind": "historical_winner",
-        "classification": "exact",
-        "score": "1.00000",
-        "reason_codes": [
-          "exact_supplier_cnpj14",
-          "observed_contract_winner"
-        ],
-        "claim_level": "fact",
-        "non_claims": [
-          "not_observed_participant_of_open_tender",
-          "not_win_rate",
-          "not_consortium_inference"
-        ],
-        "contract_id": "07654807000197-2-000044/2026"
-      },
-      {
-        "supplier_canonical_key": "sup:cnpj14:61436196000156",
-        "relation_kind": "historical_winner",
-        "classification": "exact",
-        "score": "1.00000",
-        "reason_codes": [
-          "exact_supplier_cnpj14",
-          "observed_contract_winner"
-        ],
-        "claim_level": "fact",
-        "non_claims": [
-          "not_observed_participant_of_open_tender",
-          "not_win_rate",
-          "not_consortium_inference"
-        ],
-        "contract_id": "07654807000197-2-000042/2026"
-      },
-      {
-        "supplier_canonical_key": "sup:cnpj14:31428434000110",
-        "relation_kind": "historical_winner",
-        "classification": "exact",
-        "score": "1.00000",
-        "reason_codes": [
-          "exact_supplier_cnpj14",
-          "observed_contract_winner"
-        ],
-        "claim_level": "fact",
-        "non_claims": [
-          "not_observed_participant_of_open_tender",
-          "not_win_rate",
-          "not_consortium_inference"
-        ],
-        "contract_id": "07654807000197-2-000043/2026"
-      },
-      {
-        "supplier_canonical_key": "sup:cnpj14:42587715000132",
-        "relation_kind": "historical_winner",
-        "classification": "exact",
-        "score": "1.00000",
-        "reason_codes": [
-          "exact_supplier_cnpj14",
-          "observed_contract_winner"
-        ],
-        "claim_level": "fact",
-        "non_claims": [
-          "not_observed_participant_of_open_tender",
-          "not_win_rate",
-          "not_consortium_inference"
-        ],
-        "contract_id": "07654807000197-2-000041/2026"
-      },
-      {
-        "supplier_canonical_key": "sup:cnpj14:08983067000103",
-        "relation_kind": "historical_winner",
-        "classification": "exact",
-        "score": "1.00000",
-        "reason_codes": [
-          "exact_supplier_cnpj14",
-          "observed_contract_winner"
-        ],
-        "claim_level": "fact",
-        "non_claims": [
-          "not_observed_participant_of_open_tender",
-          "not_win_rate",
-          "not_consortium_inference"
-        ],
-        "contract_id": "07654807000197-2-000040/2026"
-      },
-      {
-        "supplier_canonical_key": "sup:cnpj14:01678033000158",
-        "relation_kind": "historical_winner",
-        "classification": "exact",
-        "score": "1.00000",
-        "reason_codes": [
-          "exact_supplier_cnpj14",
-          "observed_contract_winner"
-        ],
-        "claim_level": "fact",
-        "non_claims": [
-          "not_observed_participant_of_open_tender",
-          "not_win_rate",
-          "not_consortium_inference"
-        ],
-        "contract_id": "07654807000197-2-000039/2026"
-      },
-      {
-        "supplier_canonical_key": "sup:cnpj14:53095471000197",
-        "relation_kind": "historical_winner",
-        "classification": "exact",
-        "score": "1.00000",
-        "reason_codes": [
-          "exact_supplier_cnpj14",
-          "observed_contract_winner"
-        ],
-        "claim_level": "fact",
-        "non_claims": [
-          "not_observed_participant_of_open_tender",
-          "not_win_rate",
-          "not_consortium_inference"
-        ],
-        "contract_id": "07654807000197-2-000037/2026"
-      },
-      {
-        "supplier_canonical_key": "sup:cnpj14:27263257000192",
-        "relation_kind": "historical_winner",
-        "classification": "exact",
-        "score": "1.00000",
-        "reason_codes": [
-          "exact_supplier_cnpj14",
-          "observed_contract_winner"
-        ],
-        "claim_level": "fact",
-        "non_claims": [
-          "not_observed_participant_of_open_tender",
-          "not_win_rate",
-          "not_consortium_inference"
-        ],
-        "contract_id": "07654807000197-2-000038/2026"
-      },
-      {
-        "supplier_canonical_key": "sup:cnpj14:33326261000236",
-        "relation_kind": "historical_winner",
-        "classification": "exact",
-        "score": "1.00000",
-        "reason_codes": [
-          "exact_supplier_cnpj14",
-          "observed_contract_winner"
-        ],
-        "claim_level": "fact",
-        "non_claims": [
-          "not_observed_participant_of_open_tender",
-          "not_win_rate",
-          "not_consortium_inference"
-        ],
-        "contract_id": "07654807000197-2-000036/2026"
-      },
-      {
-        "supplier_canonical_key": "sup:cnpj14:33326261000155",
-        "relation_kind": "historical_winner",
-        "classification": "exact",
-        "score": "1.00000",
-        "reason_codes": [
-          "exact_supplier_cnpj14",
-          "observed_contract_winner"
-        ],
-        "claim_level": "fact",
-        "non_claims": [
-          "not_observed_participant_of_open_tender",
-          "not_win_rate",
-          "not_consortium_inference"
-        ],
-        "contract_id": "07654807000197-2-000035/2026"
-      },
-      {
-        "supplier_canonical_key": "sup:cnpj14:73471989003534",
-        "relation_kind": "historical_winner",
-        "classification": "exact",
-        "score": "1.00000",
-        "reason_codes": [
-          "exact_supplier_cnpj14",
-          "observed_contract_winner"
-        ],
-        "claim_level": "fact",
-        "non_claims": [
-          "not_observed_participant_of_open_tender",
-          "not_win_rate",
-          "not_consortium_inference"
-        ],
-        "contract_id": "07654807000197-2-000034/2026"
-      },
-      {
-        "supplier_canonical_key": "sup:cnpj14:85448264000165",
-        "relation_kind": "historical_winner",
-        "classification": "exact",
-        "score": "1.00000",
-        "reason_codes": [
-          "exact_supplier_cnpj14",
-          "observed_contract_winner"
-        ],
-        "claim_level": "fact",
-        "non_claims": [
-          "not_observed_participant_of_open_tender",
-          "not_win_rate",
-          "not_consortium_inference"
-        ],
-        "contract_id": "07654807000197-2-000033/2026"
-      },
-      {
-        "supplier_canonical_key": "sup:cnpj14:64952417000137",
-        "relation_kind": "historical_winner",
-        "classification": "exact",
-        "score": "1.00000",
-        "reason_codes": [
-          "exact_supplier_cnpj14",
-          "observed_contract_winner"
-        ],
-        "claim_level": "fact",
-        "non_claims": [
-          "not_observed_participant_of_open_tender",
-          "not_win_rate",
-          "not_consortium_inference"
-        ],
-        "contract_id": "07654807000197-2-000032/2026"
-      },
-      {
-        "supplier_canonical_key": "sup:cnpj14:27314085000210",
-        "relation_kind": "historical_winner",
-        "classification": "exact",
-        "score": "1.00000",
-        "reason_codes": [
-          "exact_supplier_cnpj14",
-          "observed_contract_winner"
-        ],
-        "claim_level": "fact",
-        "non_claims": [
-          "not_observed_participant_of_open_tender",
-          "not_win_rate",
-          "not_consortium_inference"
-        ],
-        "contract_id": "07654807000197-2-000031/2026"
+        "contract_id": "07654807000197-2-000066/2026"
       },
       {
         "supplier_canonical_key": "sup:cnpj14:41335843000126",
@@ -1525,7 +1457,7 @@
         "contract_id": "07654807000197-2-000030/2026"
       },
       {
-        "supplier_canonical_key": "sup:cnpj14:17164172000101",
+        "supplier_canonical_key": "sup:cnpj14:42587715000132",
         "relation_kind": "historical_winner",
         "classification": "exact",
         "score": "1.00000",
@@ -1539,10 +1471,10 @@
           "not_win_rate",
           "not_consortium_inference"
         ],
-        "contract_id": "07654807000197-2-000029/2026"
+        "contract_id": "07654807000197-2-000041/2026"
       },
       {
-        "supplier_canonical_key": "sup:cnpj14:76590884001034",
+        "supplier_canonical_key": "sup:cnpj14:45671581000121",
         "relation_kind": "historical_winner",
         "classification": "exact",
         "score": "1.00000",
@@ -1556,10 +1488,10 @@
           "not_win_rate",
           "not_consortium_inference"
         ],
-        "contract_id": "07654807000197-2-000028/2026"
+        "contract_id": "07654807000197-2-000057/2026"
       },
       {
-        "supplier_canonical_key": "sup:cnpj14:06261557000162",
+        "supplier_canonical_key": "sup:cnpj14:46586215000137",
         "relation_kind": "historical_winner",
         "classification": "exact",
         "score": "1.00000",
@@ -1573,126 +1505,7 @@
           "not_win_rate",
           "not_consortium_inference"
         ],
-        "contract_id": "07654807000197-2-000027/2026"
-      },
-      {
-        "supplier_canonical_key": "sup:cnpj14:65101410000174",
-        "relation_kind": "historical_winner",
-        "classification": "exact",
-        "score": "1.00000",
-        "reason_codes": [
-          "exact_supplier_cnpj14",
-          "observed_contract_winner"
-        ],
-        "claim_level": "fact",
-        "non_claims": [
-          "not_observed_participant_of_open_tender",
-          "not_win_rate",
-          "not_consortium_inference"
-        ],
-        "contract_id": "07654807000197-2-000026/2026"
-      },
-      {
-        "supplier_canonical_key": "sup:cnpj14:09674414000170",
-        "relation_kind": "historical_winner",
-        "classification": "exact",
-        "score": "1.00000",
-        "reason_codes": [
-          "exact_supplier_cnpj14",
-          "observed_contract_winner"
-        ],
-        "claim_level": "fact",
-        "non_claims": [
-          "not_observed_participant_of_open_tender",
-          "not_win_rate",
-          "not_consortium_inference"
-        ],
-        "contract_id": "07654807000197-2-000025/2026"
-      },
-      {
-        "supplier_canonical_key": "sup:cnpj14:52490388000150",
-        "relation_kind": "historical_winner",
-        "classification": "exact",
-        "score": "1.00000",
-        "reason_codes": [
-          "exact_supplier_cnpj14",
-          "observed_contract_winner"
-        ],
-        "claim_level": "fact",
-        "non_claims": [
-          "not_observed_participant_of_open_tender",
-          "not_win_rate",
-          "not_consortium_inference"
-        ],
-        "contract_id": "07654807000197-2-000024/2026"
-      },
-      {
-        "supplier_canonical_key": "sup:cnpj14:35301364000196",
-        "relation_kind": "historical_winner",
-        "classification": "exact",
-        "score": "1.00000",
-        "reason_codes": [
-          "exact_supplier_cnpj14",
-          "observed_contract_winner"
-        ],
-        "claim_level": "fact",
-        "non_claims": [
-          "not_observed_participant_of_open_tender",
-          "not_win_rate",
-          "not_consortium_inference"
-        ],
-        "contract_id": "07654807000197-2-000023/2026"
-      },
-      {
-        "supplier_canonical_key": "sup:cnpj14:13510173000100",
-        "relation_kind": "historical_winner",
-        "classification": "exact",
-        "score": "1.00000",
-        "reason_codes": [
-          "exact_supplier_cnpj14",
-          "observed_contract_winner"
-        ],
-        "claim_level": "fact",
-        "non_claims": [
-          "not_observed_participant_of_open_tender",
-          "not_win_rate",
-          "not_consortium_inference"
-        ],
-        "contract_id": "07654807000197-2-000022/2026"
-      },
-      {
-        "supplier_canonical_key": "sup:cnpj14:62609220000174",
-        "relation_kind": "historical_winner",
-        "classification": "exact",
-        "score": "1.00000",
-        "reason_codes": [
-          "exact_supplier_cnpj14",
-          "observed_contract_winner"
-        ],
-        "claim_level": "fact",
-        "non_claims": [
-          "not_observed_participant_of_open_tender",
-          "not_win_rate",
-          "not_consortium_inference"
-        ],
-        "contract_id": "07654807000197-2-000021/2026"
-      },
-      {
-        "supplier_canonical_key": "sup:cnpj14:07598562000209",
-        "relation_kind": "historical_winner",
-        "classification": "exact",
-        "score": "1.00000",
-        "reason_codes": [
-          "exact_supplier_cnpj14",
-          "observed_contract_winner"
-        ],
-        "claim_level": "fact",
-        "non_claims": [
-          "not_observed_participant_of_open_tender",
-          "not_win_rate",
-          "not_consortium_inference"
-        ],
-        "contract_id": "07654807000197-2-000020/2026"
+        "contract_id": "07654807000197-2-000051/2026"
       },
       {
         "supplier_canonical_key": "sup:cnpj14:47544725000104",
@@ -1729,7 +1542,7 @@
         "contract_id": "07654807000197-2-000018/2026"
       },
       {
-        "supplier_canonical_key": "sup:cnpj14:05047599000132",
+        "supplier_canonical_key": "sup:cnpj14:52490388000150",
         "relation_kind": "historical_winner",
         "classification": "exact",
         "score": "1.00000",
@@ -1743,7 +1556,194 @@
           "not_win_rate",
           "not_consortium_inference"
         ],
-        "contract_id": "07654807000197-2-000017/2026"
+        "contract_id": "07654807000197-2-000024/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:53095471000197",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "07654807000197-2-000037/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:61436196000156",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "07654807000197-2-000042/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:62240655000194",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "07654807000197-2-000065/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:62609220000174",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "07654807000197-2-000021/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:64952417000137",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "07654807000197-2-000032/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:65101410000174",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "07654807000197-2-000026/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:73471989003534",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "07654807000197-2-000034/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:76590884001034",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "07654807000197-2-000028/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:78478559000119",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "07654807000197-2-000046/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:83506030000282",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "07654807000197-2-000052/2026"
+      },
+      {
+        "supplier_canonical_key": "sup:cnpj14:85448264000165",
+        "relation_kind": "historical_winner",
+        "classification": "exact",
+        "score": "1.00000",
+        "reason_codes": [
+          "exact_supplier_cnpj14",
+          "observed_contract_winner"
+        ],
+        "claim_level": "fact",
+        "non_claims": [
+          "not_observed_participant_of_open_tender",
+          "not_win_rate",
+          "not_consortium_inference"
+        ],
+        "contract_id": "07654807000197-2-000033/2026"
       }
     ]
   },

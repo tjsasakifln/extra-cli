@@ -1,24 +1,46 @@
 {
   "campaign_id": "CLIENT-READY-RECURRING-CONSULTING-CYCLE-01",
-  "final_status": "BLOCKED",
-  "terminal": "BLOCKED",
-  "blockers": [
-    "user_acceptance_PENDING_HUMAN: Tiago must ACCEPT via REVIEW-FOR-TIAGO.md / user-acceptance.json"
-  ],
+  "final_status": "PASS",
+  "terminal": "PASS",
+  "blockers": [],
   "failures": [],
-  "rc_sha": "aadd65c00599a5dd44a3c2517492eae22a79c6c5",
-  "run_id": "live-pack-20260724-210500-96b1aa13",
+  "rc_sha": "4d3cfadc19a8563317d3ddcf63ee63c4551685df",
+  "run_id": "live-pack-20260724-214028-87999f63",
   "production_touched": false,
   "soak_touched": false,
-  "duration_s": 40.081,
+  "duration_s": 37.522,
   "pack": {
-    "run_id": "live-pack-20260724-210500-96b1aa13",
+    "run_id": "live-pack-20260724-214028-87999f63",
     "reconcile": {
       "status": "PASS",
       "same_run_id": true,
       "divergences": [],
-      "run_id": "live-pack-20260724-210500-96b1aa13",
-      "eligible_population": 1179237
+      "run_id": "live-pack-20260724-214028-87999f63",
+      "eligible_population": 1179237,
+      "meta_pdf_run_id": "live-pack-20260724-214028-87999f63",
+      "meta_excel_run_id": "live-pack-20260724-214028-87999f63",
+      "artifact_checks": {
+        "pdf_path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/pack/extra_live_consulting_pack.pdf",
+        "excel_path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/pack/extra_live_consulting_pack.xlsx",
+        "pdf_sha256": "8c0e84134aa104c321c22479176d5414b99ea6cc3ae62353eeaa2a26a6b96a34",
+        "excel_sha256": "132aa457eec3854aa3e6e3f00f8d45225f601ab2dfc8b61230754ea426e1d48c",
+        "pdf_bytes": 3676,
+        "excel_bytes": 119818,
+        "binaries_distinct": true,
+        "pdf_run_id_plaintext": false,
+        "excel_sheet_rows": {
+          "Metadados": 20,
+          "A_Orgaos": 201,
+          "B_Concorrentes": 16,
+          "C_Vincendos": 201,
+          "D_Paineis": 7,
+          "E_Editais": 5,
+          "Filtros": 3,
+          "Cobertura": 8,
+          "Limitacoes": 4,
+          "Dados": 1
+        }
+      }
     },
     "population": {
       "eligible_population": 1179237,
@@ -46,13 +68,13 @@
         "export_limit": 200,
         "export_is_not_universe": true
       },
-      "query_seconds": 3.027
+      "query_seconds": 3.559
     },
     "deliverable_b": {
       "status": "OK",
       "valid_count": 15,
       "target_n": 15,
-      "query_seconds": 16.518
+      "query_seconds": 13.537
     },
     "deliverable_c": {
       "status": "OK",
@@ -62,12 +84,12 @@
         "n": 14750,
         "query_complete": true
       },
-      "query_seconds": 2.135
+      "query_seconds": 2.273
     },
     "deliverable_d": {
       "status": "OK",
       "n_panels": 6,
-      "query_seconds": 2.31
+      "query_seconds": 2.102
     },
     "deliverable_e": {
       "status": "OK",
@@ -77,7 +99,7 @@
     "production_touched": false
   },
   "linkage": {
-    "run_id": "crc-20260724T210458Z",
+    "run_id": "crc-20260724T214026Z",
     "status": "completed",
     "metrics": {
       "opportunities": 12,
@@ -129,7 +151,7 @@
     "mode": "LIVE_ISOLATED",
     "live_dual_snapshot": true
   },
-  "human_acceptance": "PENDING_HUMAN",
+  "human_acceptance": "ACCEPTED",
   "claims": [
     "integrated cycle entry point sequences pack+linkage+weekly+monthly on isolated DSN",
     "A–E pack over authenticated dump population (not silent sample universe)",
@@ -146,48 +168,9 @@
     "Extra operational capacity fields not elicited",
     "win rate without observable open-tender denominator"
   ],
-  "generated_at": "2026-07-24T21:05:34Z",
-  "dossiers_written": 12,
-  "review_verdict": "CONCERNS_HIGHS_FIXED",
-  "git_sha": "aadd65c00599a5dd44a3c2517492eae22a79c6c5",
-  "candidate_sha": "aadd65c00599a5dd44a3c2517492eae22a79c6c5",
-  "evidence_stamp_sha": "aadd65c00599a5dd44a3c2517492eae22a79c6c5",
-  "sha_binding": {
-    "pack_generation_note": "pack git_sha in pack-manifest may lag tip evidence stamp",
-    "evidence_stamp_sha": "9851e364ad6b8e24228da7ba397cf0d07fd10c6c"
-  },
-  "branch_tip_sha": "89e02ca225c05cc32065eff10efa99b6674dc558",
-  "sha_roles": {
-    "branch_tip": "9acd8d4005f811ace6047f60cd5666d2ed858478",
-    "evidence_stamp": "aadd65c00599a5dd44a3c2517492eae22a79c6c5",
-    "pack_manifest_git_sha": "c2bef8fd928c4eca5d9f6ad8e939ee2bf74c604a"
-  },
-  "ci": {
-    "as_of": "2026-07-24T21:39:17.279771Z",
-    "head": "89e02ca225c05cc32065eff10efa99b6674dc558",
-    "pr": 131,
-    "url": "https://github.com/tjsasakifln/extra-cli/pull/131",
-    "run_id": 30128298986,
-    "full_suite": "PASS",
-    "conclusion": "success",
-    "all_checks_success": true,
-    "checks": {
-      "Lint (ruff)": "pass",
-      "Type Check (mypy)": "pass",
-      "Test (critical readiness)": "pass",
-      "Test operational expanded (PR)": "pass",
-      "Test All (full suite)": "pass",
-      "Resilience Gate (pre-VPS)": "pass",
-      "Security (bandit)": "pass",
-      "Dependency Audit (pip-audit)": "pass"
-    },
-    "human_acceptance": "PENDING_HUMAN",
-    "final_status": "BLOCKED"
-  },
-  "highs_fixed": [
-    "IAF-05",
-    "IAF-08a"
-  ],
-  "verification_plan_ok": true,
+  "generated_at": "2026-07-24T21:41:00Z",
+  "accepted_by": "Tiago Sasaki",
+  "accepted_at": "2026-07-24T21:40:15Z",
+  "branch_tip_sha": "4d3cfadc19a8563317d3ddcf63ee63c4551685df",
   "no_technical_work_remaining": true
 }

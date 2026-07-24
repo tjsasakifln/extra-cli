@@ -28,7 +28,7 @@
           "titulo": "delta marker cycle-2",
           "orgao": "monitor",
           "status": "ABERTA",
-          "seen_at": "2026-07-24T21:05:33Z"
+          "seen_at": "2026-07-24T21:40:59Z"
         }
       ]
     },
@@ -57,49 +57,89 @@
       "success_zero": false,
       "items": [
         {
-          "contract_id": "82939380000199-2-000308/2026",
-          "orgao": "PREFEITURA MUNICIPAL DE JOAÇABA",
-          "contratado": "NOVOS AEROPORTOS SERVICOS AEROPORTUARIOS LTDA",
+          "contract_id": "83551531000108-2-000066/2026",
+          "orgao": "CÂMARA MUNICIPAL DE VEREADORES DE NAVEGANTES",
+          "contratado": "MUNDIAL MOTOR`S LTDA",
           "vigencia_fim": "2026-10-22",
           "days_to_end": 90,
           "window": "90-180d"
         },
         {
-          "contract_id": "83156455000128-2-001028/2025",
-          "orgao": "FUNDAÇÃO HOSPITALAR DR JOSÉ ATHANAZIO",
-          "contratado": "Olidef Cz Ind. Com. Apar. Hosp. Ltda",
+          "contract_id": "83102293000145-2-001441/2026",
+          "orgao": "MUNICÍPIO DE CAMBORIÚ",
+          "contratado": "MALLON CONCESSIONARIA DE VEICULOS COMERCIAIS LTDA",
           "vigencia_fim": "2026-10-22",
           "days_to_end": 90,
           "window": "90-180d"
         },
         {
-          "contract_id": "83169623000110-2-001655/2025",
-          "orgao": "Prefeitura Municipal de Joinville - PMJ",
-          "contratado": "CLINICA VETERINARIA SALETE LTDA",
+          "contract_id": "83102285000107-2-000486/2026",
+          "orgao": "MUNICÍPIO DE BALNEÁRIO CAMBORIÚ",
+          "contratado": "METRONORTE COMERCIAL DE VEICULOS LTDA",
           "vigencia_fim": "2026-10-22",
           "days_to_end": 90,
           "window": "90-180d"
         },
         {
-          "contract_id": "81140303000101-2-001079/2025",
-          "orgao": "Fundo Mun. de Meio Ambiente-FMMA",
-          "contratado": "DIAS & CARDOZO ENGENHARIA LTDA",
+          "contract_id": "82930181000110-2-000929/2026",
+          "orgao": "MUNICÍPIO DE URUSSANGA",
+          "contratado": "NOVAFROTA EQUIPAMENTOS S/A",
           "vigencia_fim": "2026-10-22",
           "days_to_end": 90,
           "window": "90-180d"
         },
         {
-          "contract_id": "82916826000160-2-001075/2025",
-          "orgao": "PREFEITURA",
-          "contratado": "CONSTRUTORA NUNES LTDA",
+          "contract_id": "83102343000194-2-003287/2025",
+          "orgao": "Secretaria Municipal de Obras e Serviços Urbanos",
+          "contratado": "AGRO PRESTADORA DE SERVIÇOS LTDA",
           "vigencia_fim": "2026-10-22",
           "days_to_end": 90,
           "window": "90-180d"
         },
         {
-          "contract_id": "07854402000100-2-000099/2025",
-          "orgao": "EMASA - Empresa Municipal de Água e Saneamento de Balneário Camboriú",
-          "contratado": "CAIXA ECONOMICA FEDERAL",
+          "contract_id": "79372520000185-2-000660/2026",
+          "orgao": "MUNICÍPIO DE VITOR MEIRELES",
+          "contratado": "MALLON CONCESSIONARIA DE VEICULOS COMERCIAIS LTDA",
+          "vigencia_fim": "2026-10-22",
+          "days_to_end": 90,
+          "window": "90-180d"
+        },
+        {
+          "contract_id": "01612888000186-2-000536/2025",
+          "orgao": "PREFEITURA MUNICIPAL DE BELA VISTA DO TOLDO - SC",
+          "contratado": "GR SOLUÇÕES AMBIENTAIS LTDA",
+          "vigencia_fim": "2026-10-22",
+          "days_to_end": 90,
+          "window": "90-180d"
+        },
+        {
+          "contract_id": "82843582000132-2-001281/2025",
+          "orgao": "MUNICÍPIO DE URUBICI",
+          "contratado": "J. F. ONOFRE LTDA",
+          "vigencia_fim": "2026-10-22",
+          "days_to_end": 90,
+          "window": "90-180d"
+        },
+        {
+          "contract_id": "95995247000100-2-000874/2025",
+          "orgao": "DIRETORIA DE TRANSPORTES",
+          "contratado": "CAOVILLA TOPOGRAFIA E ENGENHARIA LTDA",
+          "vigencia_fim": "2026-10-22",
+          "days_to_end": 90,
+          "window": "90-180d"
+        },
+        {
+          "contract_id": "49947569000158-2-000006/2025",
+          "orgao": "SECRETARIA DE ESTADO DA CIÊNCIA, TECNOLOGIA E INOVAÇÃO",
+          "contratado": "REDE COMERCIO ATACADISTA LTDA",
+          "vigencia_fim": "2026-10-22",
+          "days_to_end": 90,
+          "window": "90-180d"
+        },
+        {
+          "contract_id": "82928656000133-2-000520/2025",
+          "orgao": "MUNICÍPIO DE TUBARÃO",
+          "contratado": "BRESSAN TERRAPLANAGEM LTDA",
           "vigencia_fim": "2026-10-22",
           "days_to_end": 90,
           "window": "90-180d"
@@ -113,105 +153,65 @@
           "window": "90-180d"
         },
         {
-          "contract_id": "05140677000149-2-000008/2025",
-          "orgao": "INSTITUTO MUNICIPAL DE SEGURIDADE SOCIAL DOS SERVIDORES PUBLICOS DE CRICIUMA - CRICIUMAPREV",
-          "contratado": "MullerEyng Auditores",
+          "contract_id": "07854402000100-2-000099/2025",
+          "orgao": "EMASA - Empresa Municipal de Água e Saneamento de Balneário Camboriú",
+          "contratado": "CAIXA ECONOMICA FEDERAL",
           "vigencia_fim": "2026-10-22",
           "days_to_end": 90,
           "window": "90-180d"
         },
         {
-          "contract_id": "82939406000107-2-001852/2025",
-          "orgao": "Prefeitura de Capinzal",
-          "contratado": "INFO DIGITALLE - SOLUCOES TECNOLOGICAS PARA GESTAO",
+          "contract_id": "82845744000171-2-000750/2025",
+          "orgao": "MUNICÍPIO DE MAJOR GERCINO",
+          "contratado": "MAXIFROTA SERVIÇOS DE MANUTENÇÃO DE FROTA LTDA",
           "vigencia_fim": "2026-10-22",
           "days_to_end": 90,
           "window": "90-180d"
         },
         {
-          "contract_id": "79373767000116-2-001255/2025",
-          "orgao": "Secretaria da Educação",
-          "contratado": "CONSTRURIO EMPREITEIRA DE MAO DE OBRA LTDA",
+          "contract_id": "82815085000120-2-000650/2026",
+          "orgao": "MUNICÍPIO DE PERITIBA",
+          "contratado": "MACROMAQ EQUIPAMENTOS LTDA",
           "vigencia_fim": "2026-10-22",
           "days_to_end": 90,
           "window": "90-180d"
         },
         {
-          "contract_id": "78510112000180-2-000893/2025",
-          "orgao": "PREFEITURA MUNICIPAL DE LINDOIA DO SUL",
-          "contratado": "LEVI RODRIGO RAMOS DA CRUZ 54.110.461",
-          "vigencia_fim": "2026-10-22",
-          "days_to_end": 90,
-          "window": "90-180d"
-        },
-        {
-          "contract_id": "86051398000100-2-001199/2025",
-          "orgao": "Secretaria de Educação",
-          "contratado": "MAGNUS ENGENHARIA E ARQUITETURA LTDA",
-          "vigencia_fim": "2026-10-22",
-          "days_to_end": 90,
-          "window": "90-180d"
-        },
-        {
-          "contract_id": "83102640000130-2-001294/2024",
-          "orgao": "Divisão de Ensino",
-          "contratado": "TRANSPORTE COLETIVO DE PASSAGEIROS VIAÇÃO ITUPORANGA LTDA",
-          "vigencia_fim": "2026-10-22",
-          "days_to_end": 90,
-          "window": "90-180d"
-        },
-        {
-          "contract_id": "83169623000110-2-001663/2025",
-          "orgao": "Prefeitura Municipal de Joinville - PMJ",
-          "contratado": "CIASC - CENTRO DE INFORM E AUTOM DO ESTADO DE SC S/A",
-          "vigencia_fim": "2026-10-22",
-          "days_to_end": 90,
-          "window": "90-180d"
-        },
-        {
-          "contract_id": "83599191000187-2-000073/2026",
-          "orgao": "Coordenadoria de Licitações e Contratos",
-          "contratado": "Marcella Koerich",
-          "vigencia_fim": "2026-10-22",
-          "days_to_end": 90,
-          "window": "90-180d"
-        },
-        {
-          "contract_id": "83599191000187-2-000074/2026",
-          "orgao": "Coordenadoria de Licitações e Contratos",
-          "contratado": "PRISCYLLA ALVES CAMPOS 79313450534",
-          "vigencia_fim": "2026-10-22",
-          "days_to_end": 90,
-          "window": "90-180d"
-        },
-        {
-          "contract_id": "83102541000158-2-003561/2025",
+          "contract_id": "83102541000158-2-001364/2026",
           "orgao": "MUNICÍPIO DE PORTO UNIÃO",
-          "contratado": "NAWEG INTERNET LTDA",
+          "contratado": "MACROMAQ EQUIPAMENTOS LTDA",
           "vigencia_fim": "2026-10-22",
           "days_to_end": 90,
           "window": "90-180d"
         },
         {
-          "contract_id": "83102681000126-2-001533/2025",
-          "orgao": "MUNICÍPIO DE POUSO REDONDO",
-          "contratado": "SILVANO ALVES DOS SANTOS",
+          "contract_id": "01746653000187-2-001339/2025",
+          "orgao": "FUNDO MUNICIPAL DA SAUDE DO MUNICÍPIO DE JAGUARUNA",
+          "contratado": "MAXIFROTA SERVIÇOS DE MANUTENÇÃO DE FROTA LTDA",
           "vigencia_fim": "2026-10-22",
           "days_to_end": 90,
           "window": "90-180d"
         },
         {
-          "contract_id": "12321353000172-2-000040/2025",
-          "orgao": "FUNDO MUNICIPAL DE SAÚDE",
-          "contratado": "SILVANO ALVES DOS SANTOS",
+          "contract_id": "82939380000199-2-000308/2026",
+          "orgao": "PREFEITURA MUNICIPAL DE JOAÇABA",
+          "contratado": "NOVOS AEROPORTOS SERVICOS AEROPORTUARIOS LTDA",
           "vigencia_fim": "2026-10-22",
           "days_to_end": 90,
           "window": "90-180d"
         },
         {
-          "contract_id": "82892365000132-2-000685/2025",
-          "orgao": "MUNICÍPIO DE PAULO LOPES",
-          "contratado": "MARCOPOLO",
+          "contract_id": "75321406000175-2-000091/2025",
+          "orgao": "CAMARA MUNICIPAL DE VEREADORES DE CONCORDIA\t",
+          "contratado": "MAXIFROTA SERVIÇOS DE MANUTENÇÃO DE FROTA LTDA",
+          "vigencia_fim": "2026-10-22",
+          "days_to_end": 90,
+          "window": "90-180d"
+        },
+        {
+          "contract_id": "83102285000107-2-001200/2025",
+          "orgao": "Fundo Municipal de Prevenção Contra Sinistros de Balneário Camboriú",
+          "contratado": "PORTO INDUSTRIA LTDA",
           "vigencia_fim": "2026-10-22",
           "days_to_end": 90,
           "window": "90-180d"

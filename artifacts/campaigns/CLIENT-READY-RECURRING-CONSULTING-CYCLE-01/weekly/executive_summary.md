@@ -1,8 +1,8 @@
-# Pacote semanal Extra Construtora — weekly-20260724T210526Z-9c0527cd9c
+# Pacote semanal Extra Construtora — weekly-20260724T214052Z-5d7fc91e7c
 
-- **Gerado em:** 2026-07-24T21:05:26Z
-- **Collection ID:** `col-extra-weekly-20260724T210526Z-b2b865fa`
-- **Git:** `c2bef8fd928c4eca5d9f6ad8e939ee2bf74c604a`
+- **Gerado em:** 2026-07-24T21:40:52Z
+- **Collection ID:** `col-extra-weekly-20260724T214052Z-8da20af7`
+- **Git:** `4d3cfadc19a8563317d3ddcf63ee63c4551685df`
 - **Exit code previsto:** ver manifest
 
 ## Resumo executivo
@@ -18,28 +18,28 @@ Ranking efetivo: **GO=0**, **REVIEW=7**, **NO_GO=0**.
 ## Freshness / saúde das fontes
 
 - `pncp_opportunities`: **never** (age_h=None, SLA=24h)
-- `pncp_contracts`: **fresh** (age_h=25.27, SLA=168h) — freshness by max(ingested_at); not a full re-collect this cycle
+- `pncp_contracts`: **fresh** (age_h=25.86, SLA=168h) — freshness by max(ingested_at); not a full re-collect this cycle
 
 ## Coletas deste ciclo
 
-- `pncp_opportunities` run `collect-pncp_opportunities-20260724T210527Z-37e683b782` → **partial** (obtidos=0, persistidos=0)
+- `pncp_opportunities` run `collect-pncp_opportunities-20260724T214053Z-f8742a1bfd` → **partial** (obtidos=0, persistidos=0)
   - nota: skip_collect with freshness level=never — not promoted to reused_fresh
   - nota: partial: lake reused without complete in-SLA collection proof
-- `pncp_contracts` run `collect-pncp_contracts-20260724T210528Z-d81cfd4c1f` → **reused_fresh** (obtidos=4437142, persistidos=4437142)
+- `pncp_contracts` run `collect-pncp_contracts-20260724T214053Z-978b39a746` → **reused_fresh** (obtidos=4437142, persistidos=4437142)
   - nota: contracts not re-crawled; lake rows reused with explicit freshness
-  - nota: age_hours=25.27
+  - nota: age_hours=25.86
 
 ## Top oportunidades (até 15)
 
 | id | ranking | órgão | objeto | valor_estimado | prazo | fonte |
 |---:|---|---|---|---:|---|---|
+| 9 | REVIEW | CEFOR | [SNAPSHOT-SEED open] (ZMES) - CONTRATAÇÃO DE ATÉ 02 (DUAS) EMPRESAS ESPECIALIZAD | None | — | pncp |
+| 10 | REVIEW | SECRETARIA GERAL DO EXERCITO/MEX/DF | [SNAPSHOT-SEED open] НHOSPITAL GERAL DE MÉDIA E ALTA COMPLEXIDADE COM ATENDIMENT | None | — | pncp |
+| 11 | REVIEW | SUPERINTENDENCIA ESTADUAL DO MS/TO | [SNAPSHOT-SEED open] VISTO À AQUISIÇÃO EMERGENCIAL DE EQUIPAMENTOS NÁUTICOS PARA | None | — | pncp |
 | 1 | REVIEW | FUNDO MUNICIPAL DE SAUDE DE SANTA TEREZI | AQUISIÇÃO DE LENÇÓIS E MANTAS DESTINADOS AOS LEITOS DA UNIDADE BÁSICA DE SAÚDE D | None | — | pncp |
 | 2 | REVIEW | CONSORCIO INTERMUNICIPAL DE SAUDE DO ALT | Aquisição de 01 (um) computador do tipo All in One, novo, de primeiro uso, conte | None | — | pncp |
 | 3 | REVIEW | FUNDO MUNICIPAL DE SAUDE | CREDENCIAMENTO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE SERVIÇOS DE FORMA COMPL | None | — | pncp |
 | 4 | REVIEW | MUNICIPIO DE PORTO UNIAO | Credenciamento de empresa para prestação de serviços de manutenção da frota muni | None | — | pncp |
-| 9 | REVIEW | CEFOR | [SNAPSHOT-SEED open] (ZMES) - CONTRATAÇÃO DE ATÉ 02 (DUAS) EMPRESAS ESPECIALIZAD | None | — | pncp |
-| 10 | REVIEW | SECRETARIA GERAL DO EXERCITO/MEX/DF | [SNAPSHOT-SEED open] НHOSPITAL GERAL DE MÉDIA E ALTA COMPLEXIDADE COM ATENDIMENT | None | — | pncp |
-| 11 | REVIEW | SUPERINTENDENCIA ESTADUAL DO MS/TO | [SNAPSHOT-SEED open] VISTO À AQUISIÇÃO EMERGENCIAL DE EQUIPAMENTOS NÁUTICOS PARA | None | — | pncp |
 
 ## Contratos (amostra)
 
