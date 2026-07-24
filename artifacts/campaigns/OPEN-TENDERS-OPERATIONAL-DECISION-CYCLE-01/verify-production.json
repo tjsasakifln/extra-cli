@@ -1,8 +1,8 @@
 {
   "campaign_id": "OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01",
   "gate": "verify-open-tenders-production",
-  "generated_at": "2026-07-23T23:47:21Z",
-  "git_sha": "450ed533b33965055ae3c879533f8b8c8a483478",
+  "generated_at": "2026-07-24T00:04:15Z",
+  "git_sha": "cc976e69e9b9c8c291ed3cf48bfcd4976bf60bbd",
   "status": "BLOCKED",
   "ok": false,
   "summary": {
@@ -95,8 +95,8 @@
       "status": "FAIL",
       "evidence": {
         "status": "IN_PROGRESS",
-        "days_observed": 0,
-        "successful_fire_days": 0,
+        "days_observed": 1,
+        "successful_fire_days": 1,
         "timer_ok": true,
         "gaps": []
       },

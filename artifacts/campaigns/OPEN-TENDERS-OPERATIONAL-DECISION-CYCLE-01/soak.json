@@ -1,21 +1,26 @@
 {
   "campaign_id": "OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01",
   "schema_version": "1.1",
-  "generated_at": "2026-07-23T23:47:13Z",
+  "generated_at": "2026-07-24T00:04:07Z",
   "status": "IN_PROGRESS",
   "days_required": 7,
-  "days_observed": 0,
-  "successful_fire_days": 0,
+  "days_observed": 1,
+  "successful_fire_days": 1,
   "gaps": [],
   "timer_unit": "extra-weekly.timer",
   "service_unit": "extra-weekly.service",
   "timer_enabled": "enabled",
   "timer_active": "active",
   "timer_ok": true,
-  "next_timer": "NEXT                          LEFT LAST PASSED UNIT               ACTIVATES\nMon 2026-07-27 03:33:29 -03 3 days -         - extra-weekly.timer extra-weekly.service\n\n1 timers listed.\nPass --all to see loaded but inactive timers, too.",
+  "next_timer": "NEXT                          LEFT LAST PASSED UNIT               ACTIVATES\nMon 2026-07-27 03:34:45 -03 3 days -         - extra-weekly.timer extra-weekly.service\n\n1 timers listed.\nPass --all to see loaded but inactive timers, too.",
   "vps_sha": "450ed533b33965055ae3c879533f8b8c8a483478",
-  "executions": [],
-  "journal_snippet": "",
+  "executions": [
+    {
+      "day": "2026-07-24",
+      "at": "2026-07-24T00:03:57Z"
+    }
+  ],
+  "journal_snippet": "2026-07-23T21:03:57-03:00 v2202607385716487230 extra-weekly[23890]:   \"exit_code\": 0,\n2026-07-23T21:03:57-03:00 v2202607385716487230 systemd[1]: extra-weekly.service: Deactivated successfully.\n2026-07-23T21:03:57-03:00 v2202607385716487230 systemd[1]: Finished extra-weekly.service - Extra Consultoria — canonical weekly operational cycle (open tenders + pack).",
   "ssh_ok": true,
   "note": "Weekly soak requires timer enabled+active, observed span >= 7 days, and no silent gap > 8 days between fire days. Manual oneshot alone is not PASS.",
   "claims_forbidden": [

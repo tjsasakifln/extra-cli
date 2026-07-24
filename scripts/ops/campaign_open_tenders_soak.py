@@ -58,15 +58,21 @@ def _ssh(cmd: str, timeout: int = 60) -> tuple[int, str]:
 def _parse_journal_timestamps(text: str) -> list[datetime]:
     """Parse `journalctl -u extra-weekly.service --output=short-iso` lines."""
     out: list[datetime] = []
-    # e.g. 2026-07-23T20:15:34-0300 hostname ...
+    # short-iso: 2026-07-23T21:03:57-03:00 hostname ...
+    # also accept -0300 without colon
+    pat = re.compile(
+        r"^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:[+-]\d{2}:\d{2}|[+-]\d{4}|Z))"
+    )
     for line in text.splitlines():
-        m = re.match(r"^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+-]\d{4})", line)
+        m = pat.match(line)
         if not m:
             continue
         raw = m.group(1)
         try:
-            # convert +0000 / -0300 to ISO offset
-            if len(raw) >= 5 and (raw[-5] in "+-"):
+            if raw.endswith("Z"):
+                raw_iso = raw[:-1] + "+00:00"
+            elif len(raw) >= 5 and raw[-5] in "+-" and ":" not in raw[-5:]:
+                # -0300 → -03:00
                 raw_iso = raw[:-2] + ":" + raw[-2:]
             else:
                 raw_iso = raw
@@ -90,10 +96,10 @@ def collect_soak(
     rc_act, active = _ssh(f"systemctl is-active {TIMER} 2>&1 || true")
     _, next_timer = _ssh(f"systemctl list-timers {TIMER} --no-pager 2>&1 | head -5")
     _, sha = _ssh("git -C /opt/extra-consultoria rev-parse HEAD 2>/dev/null || echo unknown")
-    # successful unit finishes
+    # successful unit finishes (match systemd Finished line or exit_code JSON)
     _, journal = _ssh(
-        f"journalctl -u {SERVICE} -o short-iso --no-pager -n 200 2>/dev/null | "
-        f"grep -E 'Finished|Succeeded|Main process exited' || true"
+        f"journalctl -u {SERVICE} -o short-iso --no-pager -n 400 2>/dev/null | "
+        f"grep -E 'Finished {SERVICE}|Deactivated successfully|\"exit_code\": 0' || true"
     )
     stamps = _parse_journal_timestamps(journal)
     # Deduplicate by calendar day UTC

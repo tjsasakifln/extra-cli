@@ -1,8 +1,7 @@
 {
   "campaign_id": "OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01",
   "final_result": "BLOCKED",
-  "as_of": "2026-07-23T23:50:43Z",
-  "candidate_sha": "450ed53",
+  "as_of": "2026-07-24T00:04:15Z",
   "pr": "https://github.com/tjsasakifln/extra-cli/pull/127",
   "dual_open_tenders": {
     "coverage_pct": 100.0,
@@ -19,37 +18,38 @@
   },
   "soak": {
     "status": "IN_PROGRESS",
-    "days_observed": 0,
+    "days_observed": 1,
+    "successful_fire_days": 1,
     "timer_ok": true,
-    "vps_sha": "450ed533b33965055ae3c879533f8b8c8a483478"
+    "executions": [
+      {
+        "day": "2026-07-24",
+        "at": "2026-07-24T00:03:57Z"
+      }
+    ]
   },
-  "passed": [
-    "dual open_tenders 100% (1093/1093)",
-    "snapshot integrity 100%",
-    "Deliverable E live",
-    "PNCP complete 19/19",
-    "CIGA dual evidence integrated in weekly_cycle",
-    "extra-weekly.timer enabled+active",
-    "first extra-weekly.service fire started (soak day0)",
-    "verify 8/9"
-  ],
+  "first_canonical_weekly_fire": {
+    "exit_code": 0,
+    "result": "success",
+    "opportunities": 4,
+    "finished_at": "2026-07-23T21:03:57-03:00",
+    "pack": "output/weekly/weekly-20260723T234848Z-3266bd6fd1"
+  },
   "blocked_on": [
     {
       "item": "soak_7d",
-      "measured": "timer_ok=True days_observed=0 status=IN_PROGRESS",
-      "owner": "calendar",
-      "cause": "DOD requires 7 continuous days of recurrence without silent gaps",
-      "next": "After Mon 2026-07-30 (7d from arm): make open-tenders-soak && make verify-open-tenders-production; if PASS merge PR #127 and DOD accept proven items only"
+      "measured": "days_observed=1/7 fires=1 status=IN_PROGRESS",
+      "next": "After \u22657 continuous days: make open-tenders-soak && make verify-open-tenders-production; merge PR #127; DOD ACCEPTED only proven items on main"
     }
   ],
   "claims_authorized": [
     "open_tenders dual coverage 100%",
-    "canonical weekly path with CIGA dual projection",
-    "VPS timer armed and first service activation started"
+    "first extra-weekly.service fire completed exit 0 on VPS",
+    "timer armed for recurrence"
   ],
   "claims_forbidden": [
     "soak PASS",
     "PROJECT_DONE",
-    "full campaign PASS without 7d soak"
+    "campaign PASS without 7d"
   ]
 }
