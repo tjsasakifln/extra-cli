@@ -1,0 +1,6 @@
+{
+  "reserved": "061_canonical_entity_linkage.sql",
+  "sibling_060": "EXTRA-LIVE-CONSULTING-PACK-01 reserved 060_national_contracts_intelligence_layers.sql",
+  "applied_on_isolated": true,
+  "idempotent_second_apply": true
+}

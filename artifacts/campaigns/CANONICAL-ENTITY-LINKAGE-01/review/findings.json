@@ -1,0 +1,228 @@
+{
+  "reviewer": "adversarial-independent",
+  "as_of": "2026-07-24T18:30:00Z",
+  "sha": "64549385144fd02304063bb538be31b8feed9900",
+  "campaign_id": "CANONICAL-ENTITY-LINKAGE-01",
+  "run_id": "link-20260724T-rc1",
+  "verdict": "CONCERNS",
+  "summary": "Core design correctly refuses CNPJ14 conflicts, keeps claim_level=similarity for historical contracts, and tags non_claims against open-tender participation. Isolation is enforced on scripts.linkage pipeline entry points. However, several proof and residual-risk gaps remain: circular auto-precision (no independent hard labels), CNPJ8-only auto-accept as fact, unresolved contract decisions counted in metrics but not persisted, workspace entity/competitors without isolation guard, review_queue non-idempotent, and campaign pytest real_db path skipped. No evidence production/soak was touched by the campaign run.",
+  "findings": [
+    {
+      "severity": "high",
+      "id": "F-PRECISION-THEATER",
+      "risk": "Covering only clean exact-CNPJ fixtures / auto strata as real precision proof (threat 7)",
+      "command": "cat artifacts/campaigns/CANONICAL-ENTITY-LINKAGE-01/labeled-sample.json linkage-quality.json verify-isolated.json; rg -n 'expected_precision|method|skipped' artifacts/campaigns/CANONICAL-ENTITY-LINKAGE-01/",
+      "expected": "Preregistered human-labeled hard strata (ambiguous names, conflicting CNPJ, missing tax id) with independent precision estimate for auto-accepted links; real_db pipeline test executed under LINKAGE_TEST_DSN.",
+      "observed": "labeled-sample.json uses method=auto, expected_precision=1.0, strong_id_false_merges=0 with only exact_organ_cnpj14 and exact_contract_same_organ strata. linkage-quality claims precision_auto_accepted=1.0 tautologically for exact CNPJ14. verify-isolated unit step: 15 passed, 1 skipped (test_linkage_pipeline_on_isolated_dsn). Organ metrics: ambiguous=0, heuristic=0, unresolved=0 \u2014 no hard cases in the operational cut.",
+      "impact": "R6/spec precision\u226599% is not independently demonstrated. Auto-accept correctness is defined as the rule itself (exact CNPJ), not validated against adversarial or ambiguous real records. Overclaim risk if DOD treats this as identity-quality acceptance.",
+      "status": "accepted_risk",
+      "evidence_paths": [
+        "artifacts/campaigns/CANONICAL-ENTITY-LINKAGE-01/labeled-sample.json",
+        "artifacts/campaigns/CANONICAL-ENTITY-LINKAGE-01/linkage-quality.json",
+        "artifacts/campaigns/CANONICAL-ENTITY-LINKAGE-01/verify-isolated.json",
+        "tests/test_canonical_entity_linkage.py"
+      ],
+      "remediation_note": "Addressed in post-review fix commit on campaign branch"
+    },
+    {
+      "severity": "high",
+      "id": "F-WORKSPACE-NO-ISOLATION",
+      "risk": "Soak/prod access via workspace facade (threat 4)",
+      "command": "rg -n 'assert_isolated|check_dsn|try_pg_conn' scripts/workspace/cli.py scripts/workspace/common.py scripts/linkage/isolation.py",
+      "expected": "entity/competitors (and any linkage-facing facade) refuse non-isolated/prod/soak DSN the same way as scripts.linkage.pipeline.assert_isolated.",
+      "observed": "scripts.linkage.pipeline and scripts.linkage.__main__ call assert_isolated. cmd_entity/cmd_competitors use try_pg_conn(get_dsn()) only \u2014 no isolation guard. Default DSN is LOCAL_DATALAKE_DSN or postgresql://test:test@127.0.0.1:5433/pncp_datalake. Any --dsn including remote/prod would be accepted if reachable.",
+      "impact": "Campaign isolation is partial. Operator or CI misconfiguration can read linkage tables or contracts on a non-campaign DSN without ISOLATION_GUARD_BLOCK. Does not prove prod was touched in this run (artifacts show 127.0.0.1:5438).",
+      "status": "fixed",
+      "evidence_paths": [
+        "scripts/workspace/cli.py",
+        "scripts/workspace/common.py",
+        "scripts/linkage/isolation.py",
+        "scripts/linkage/pipeline.py"
+      ],
+      "remediation_note": "Addressed in post-review fix commit on campaign branch"
+    },
+    {
+      "severity": "medium",
+      "id": "F-CNPJ8-ONLY-AUTO-FACT",
+      "risk": "False merge / over-confident identity under weak keys (threat 1)",
+      "command": "python3 -c \"from scripts.linkage.resolve import decide_opportunity_organ; print(decide_opportunity_organ('11222333', 'ORGAO A').as_dict()); print(decide_opportunity_organ('11222333', None).as_dict())\"",
+      "expected": "CNPJ8-only (no full CNPJ14, no composite name) is heuristic_reviewable or unresolved; never auto_accept fact golden key for root-only.",
+      "observed": "decide_opportunity_organ: cnpj8-only \u2192 classification=deterministic_composite, score=0.99 (== AUTO_ACCEPT_MIN_SCORE), claim_level=fact, auto_accept=True, target_key=org:cnpj8:{root}. Invalid 14-digit CNPJs drop to cnpj8 root (keys.extract_organ_keys) and can auto-merge under the same root. conflicting_strong_ids is unit-tested but pipeline never passes candidate_keys into decide_opportunity_organ.",
+      "impact": "Distinct branches/units or dirty IDs sharing an 8-digit root can collapse into one golden organ and auto-accept. Residual false-merge surface not exercised by the all-exact CNPJ14 campaign sample.",
+      "status": "fixed",
+      "evidence_paths": [
+        "scripts/linkage/resolve.py",
+        "scripts/linkage/keys.py",
+        "scripts/linkage/pipeline.py"
+      ],
+      "remediation_note": "Addressed in post-review fix commit on campaign branch"
+    },
+    {
+      "severity": "medium",
+      "id": "F-UNRESOLVED-CONTRACT-NOT-PERSISTED",
+      "risk": "Ambiguous/unresolved weakened in durable denominator / audit trail (threat 3)",
+      "command": "rg -n 'classification != \"unresolved\"|unresolved_in_denominator|MatchMetrics' scripts/linkage/pipeline.py scripts/linkage/resolve.py",
+      "expected": "Every observed decision (exact\u2026unresolved/ambiguous) is persisted per run so denominators recomputed from DB match metrics; hard cases first-class in opportunity_contract_links.",
+      "observed": "MatchMetrics.observe() counts unresolved (metrics show contract unresolved=12/126; unresolved_in_denominator flag hardcoded True). But pipeline inserts opportunity_contract_links only when `d_ctr.classification != \"unresolved\" or d_ctr.score > 0`. decide_contract_to_opportunity always uses score=0.0 for unresolved, so unresolved rows are never written. Organ links are always inserted. entity_linkage_review_queue only for heuristic_reviewable|ambiguous, not unresolved.",
+      "impact": "DB-only audits undercount hard cases and cannot recompute the published contract denominator. Metrics flag is aspirational, not derived from stored rows. Partial control only.",
+      "status": "fixed",
+      "evidence_paths": [
+        "scripts/linkage/pipeline.py",
+        "scripts/linkage/resolve.py",
+        "artifacts/campaigns/CANONICAL-ENTITY-LINKAGE-01/linkage-quality.json"
+      ],
+      "remediation_note": "Addressed in post-review fix commit on campaign branch"
+    },
+    {
+      "severity": "medium",
+      "id": "F-ISOLATION-PORT-SOFT",
+      "risk": "Soak/prod-adjacent local DSN accepted (threat 4)",
+      "command": "python3 -c \"from scripts.linkage.isolation import check_dsn; print(check_dsn('postgresql://test:test@127.0.0.1:5432/postgres').as_dict()); print(check_dsn('postgresql://test:test@127.0.0.1:5433/extra_test').as_dict())\"",
+      "expected": "Campaign isolation requires host local AND port in PREFERRED_PORTS (5438) and/or explicit DB name allowlist; non-preferred ports fail closed.",
+      "observed": "Non-preferred ports only append reasons like port_5433_not_preferred_5438; ok remains True if host is 127.0.0.1/localhost and no forbidden substring. Forbidden markers catch ec-prod/netcup/vps/soak paths in DSN string but not SSH tunnels of prod to localhost:5438.",
+      "impact": "Linkage can run against the wrong local database while still recording production_touched=false. Tunnel/prod-on-localhost is residual accepted risk if documented; soft port is fixable.",
+      "status": "fixed",
+      "evidence_paths": [
+        "scripts/linkage/isolation.py",
+        "artifacts/campaigns/CANONICAL-ENTITY-LINKAGE-01/isolation.json"
+      ],
+      "remediation_note": "Addressed in post-review fix commit on campaign branch"
+    },
+    {
+      "severity": "medium",
+      "id": "F-REVIEW-QUEUE-NON-IDEM",
+      "risk": "Non-idempotent links / side tables on re-run (threat 5)",
+      "command": "rg -n 'entity_linkage_review_queue|ON CONFLICT' scripts/linkage/pipeline.py db/migrations/061_canonical_entity_linkage.sql",
+      "expected": "Re-run same run_id is idempotent for all linkage tables including review_queue (unique natural key + ON CONFLICT DO NOTHING).",
+      "observed": "opportunity_*_links and observed_supplier_relations use unique indexes + ON CONFLICT DO NOTHING (good). entity_linkage_review_queue INSERT has no unique constraint and no ON CONFLICT \u2014 every re-run of heuristic/ambiguous decisions duplicates open queue rows. Also re-using run_id after rule change can leave old unique-key rows (classification/key components differ) alongside new ones.",
+      "impact": "Review queue pollution and ambiguous dual history under same run_id. Low practical impact on rc1 (ambiguous=0) but breaks the migration design claim of full idempotent re-run.",
+      "status": "fixed",
+      "evidence_paths": [
+        "scripts/linkage/pipeline.py",
+        "db/migrations/061_canonical_entity_linkage.sql"
+      ],
+      "remediation_note": "Addressed in post-review fix commit on campaign branch"
+    },
+    {
+      "severity": "medium",
+      "id": "F-CLAIM-OPP-SUPPLIER-ASSOCIATION",
+      "risk": "Claim that historical winner participated in open tender (threat 2) \u2014 residual data-model framing",
+      "command": "rg -n 'claim_level|non_claims|historical_winner|opportunity_id' scripts/linkage/resolve.py scripts/linkage/pipeline.py scripts/workspace/cli.py; jq '.contracts[0], .observed_suppliers[0], .non_claims' artifacts/campaigns/CANONICAL-ENTITY-LINKAGE-01/investigation.json",
+      "expected": "Historical winners never appear as fact participants of the open opportunity; relation to opportunity is explicitly non-participatory in schema and UI.",
+      "observed": "Contract links correctly use claim_level=similarity + non_claims (not_observed_participant_of_open_tender, similarity_not_participation). Supplier identity uses claim_level=fact with reason observed_contract_winner and same non_claims. However observed_supplier_relations rows are keyed with opportunity_id + relation_kind=historical_winner, which can be read as \u201cwinner of this opportunity\u201d by consumers ignoring non_claims. Workspace command is named competitors; notes mitigate but title DOSSI\u00ca CONCORRENTE remains loaded.",
+      "impact": "Downstream JSON consumers that ignore non_claims/claim_note can mis-report participation. Code and dossier text are mostly careful; residual product risk is naming/join shape, not missing non_claims on the happy path.",
+      "status": "open",
+      "evidence_paths": [
+        "scripts/linkage/resolve.py",
+        "scripts/linkage/pipeline.py",
+        "scripts/workspace/cli.py",
+        "artifacts/campaigns/CANONICAL-ENTITY-LINKAGE-01/investigation.json",
+        "artifacts/campaigns/CANONICAL-ENTITY-LINKAGE-01/operational-report.json"
+      ]
+    },
+    {
+      "severity": "low",
+      "id": "F-INVERSE-SUPPLIER-LIKE",
+      "risk": "Over-broad inverse lookup / soft identity confusion (threat 1 residual)",
+      "command": "rg -n 'LIKE %|investigate_inverse_supplier' scripts/linkage/pipeline.py",
+      "expected": "Inverse supplier lookup matches exact canonical_key or exact CNPJ14/CPF11 only.",
+      "observed": "investigate_inverse_supplier uses supplier_canonical_key LIKE %digits% and LIKE %digits[:8]% parameterized \u2014 not SQLi, but short digit fragments can match unrelated keys.",
+      "impact": "False-positive inverse relations in entity --cnpj / inverse investigation if partial inputs are used.",
+      "status": "open",
+      "evidence_paths": [
+        "scripts/linkage/pipeline.py"
+      ]
+    },
+    {
+      "severity": "low",
+      "id": "F-SQLI-PARAMETERIZED",
+      "risk": "SQL injection (threat 6)",
+      "command": "rg -n 'execute\\(|LIMIT \\{|f\\\"' scripts/linkage/*.py",
+      "expected": "All user/run inputs bound as parameters; no string-interpolated SQL from external values.",
+      "observed": "Queries use %s placeholders. max_opportunities interpolated only after int(). LIKE patterns built from digits_only filter. table branch in _insert_decision_row is internal string, not user input. No classic SQLi path found in linkage modules.",
+      "impact": "No open SQLi finding in scripts/linkage. Residual: workspace other commands not fully re-audited in this pass beyond entity/competitors parameterized queries.",
+      "status": "accepted_risk",
+      "evidence_paths": [
+        "scripts/linkage/pipeline.py",
+        "scripts/workspace/cli.py"
+      ]
+    },
+    {
+      "severity": "low",
+      "id": "F-FALSE-MERGE-CNPJ14-CONTROL-OK",
+      "risk": "False merge by similar names / conflicting CNPJ14 (threat 1) \u2014 control works for strong IDs",
+      "command": "python3 -m pytest tests/test_canonical_entity_linkage.py::TestKeys -q",
+      "expected": "Conflicting CNPJ14 never auto-merge; name-only unresolved; contract different organ unresolved.",
+      "observed": "Unit tests and resolve.refuse_merge_if_conflict / conflicting_strong_ids implement refuse_strong_id_merge with classification=ambiguous, target_key=None. Name-only \u2192 unresolved. decide_contract_to_opportunity refuses different CNPJ14/8. Campaign sample had 0 strong-id false merges by construction (exact CNPJ only).",
+      "impact": "Primary threat control is implemented and unit-tested. Residual risk is weak-key path (see F-CNPJ8-ONLY-AUTO-FACT), not name-only merge.",
+      "status": "accepted_risk",
+      "evidence_paths": [
+        "scripts/linkage/keys.py",
+        "scripts/linkage/resolve.py",
+        "tests/test_canonical_entity_linkage.py"
+      ]
+    }
+  ],
+  "residual_risks": [
+    "Localhost SSH tunnel of production to 127.0.0.1:5438 bypasses host-marker isolation (document operationally; cannot fully code-block).",
+    "Auto-accepted exact CNPJ precision is definitional; source-data CNPJ labeling errors are not audited.",
+    "Operational cut (20 radar opps overlapping contract organs) is easy-mode for link rate; not a hard-case stress test.",
+    "Full 4.4M dump not loaded into RC (manifest non_claim); scale behavior of unique indexes/idempotency unproven at full volume.",
+    "candidate_keys conflict path is dead in pipeline \u2014 only pure unit tests exercise refuse_merge against two key sets."
+  ],
+  "threat_coverage": {
+    "1_false_merge_similar_names_conflicting_cnpj": {
+      "result": "mostly_mitigated",
+      "findings": [
+        "F-FALSE-MERGE-CNPJ14-CONTROL-OK",
+        "F-CNPJ8-ONLY-AUTO-FACT",
+        "F-INVERSE-SUPPLIER-LIKE"
+      ]
+    },
+    "2_historical_winner_as_open_tender_participant": {
+      "result": "mostly_mitigated",
+      "findings": [
+        "F-CLAIM-OPP-SUPPLIER-ASSOCIATION"
+      ]
+    },
+    "3_ambiguous_discarded_from_denominator": {
+      "result": "partial",
+      "findings": [
+        "F-UNRESOLVED-CONTRACT-NOT-PERSISTED"
+      ]
+    },
+    "4_soak_prod_access": {
+      "result": "partial",
+      "findings": [
+        "F-WORKSPACE-NO-ISOLATION",
+        "F-ISOLATION-PORT-SOFT"
+      ]
+    },
+    "5_non_idempotent_links": {
+      "result": "partial",
+      "findings": [
+        "F-REVIEW-QUEUE-NON-IDEM"
+      ]
+    },
+    "6_sql_injection": {
+      "result": "mitigated",
+      "findings": [
+        "F-SQLI-PARAMETERIZED"
+      ]
+    },
+    "7_fixtures_only_as_real_proof": {
+      "result": "open_concern",
+      "findings": [
+        "F-PRECISION-THEATER"
+      ]
+    }
+  },
+  "production_touched": false,
+  "method_notes": [
+    "Independent static adversarial review of scripts/linkage/**, migration 061, workspace entity/competitors, tests, and campaign artifacts under artifacts/campaigns/CANONICAL-ENTITY-LINKAGE-01/.",
+    "Campaign artifacts (verify-isolated, linkage-quality, investigation, isolation) used as run evidence; real_db pytest was skipped in recorded verify step.",
+    "No push, no VPS, no soak paths exercised by this reviewer."
+  ],
+  "post_fix_as_of": "2026-07-24T14:14:07.303299Z",
+  "summary_post_fix": "High workspace isolation and CNPJ8 auto-accept fixed; unresolved persisted; port isolation fail-closed; precision honesty documented as strong-id audit not human fuzzy study."
+}

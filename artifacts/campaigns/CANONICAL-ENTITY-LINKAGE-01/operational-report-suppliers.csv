@@ -1,0 +1,6 @@
+supplier_canonical_key,relation_kind,classification,score,contract_id,claim_level
+sup:cnpj14:24230082000129,historical_winner,exact,1.00000,00508903000188-2-000998/2026,fact
+sup:cnpj14:13961079000169,historical_winner,exact,1.00000,00508903000188-2-000996/2026,fact
+sup:cnpj14:36003671000153,historical_winner,exact,1.00000,00508903000188-2-000999/2026,fact
+sup:cnpj14:41634948000186,historical_winner,exact,1.00000,00508903000188-2-000997/2026,fact
+sup:cnpj14:65447810000136,historical_winner,exact,1.00000,00508903000188-2-001005/2026,fact
