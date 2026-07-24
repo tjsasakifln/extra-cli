@@ -305,3 +305,29 @@ verify-production:
 		--campaign HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01 \
 		--output artifacts/campaigns/HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01/verify-production.json \
 		$(VERIFY_PRODUCTION_FLAGS)
+
+# ── Campaign STRATIFIED-RECALL-SOURCE-RESILIENCE-01 ─────────────────────────
+
+.PHONY: campaign-gate-stratified-recall
+campaign-gate-stratified-recall:
+	@echo '==> Campaign gate: stratified recall source resilience'
+	python3 -m scripts.ops.campaign_stratified_recall_gate \
+		--out artifacts/campaigns/STRATIFIED-RECALL-SOURCE-RESILIENCE-01/campaign-gate.json
+	@test -f artifacts/campaigns/STRATIFIED-RECALL-SOURCE-RESILIENCE-01/baseline.json
+	@echo 'campaign-gate-stratified-recall foundation OK (live ≥95% still required for campaign PASS)'
+
+.PHONY: release-candidate-stratified-recall
+release-candidate-stratified-recall:
+	@echo '==> release-candidate-stratified-recall (fail-closed JSON)'
+	python3 -m scripts.ops.campaign_stratified_recall_rc \
+		--out artifacts/campaigns/STRATIFIED-RECALL-SOURCE-RESILIENCE-01/release-candidate.json
+
+.PHONY: verify-stratified-recall-isolated
+verify-stratified-recall-isolated:
+	@echo '==> verify-stratified-recall-isolated (no production DSN)'
+	python3 -m scripts.ops.campaign_stratified_recall_verify \
+		--sample artifacts/campaigns/STRATIFIED-RECALL-SOURCE-RESILIENCE-01/gold-sample.json \
+		--lock artifacts/campaigns/STRATIFIED-RECALL-SOURCE-RESILIENCE-01/sample-lock.json \
+		--out artifacts/campaigns/STRATIFIED-RECALL-SOURCE-RESILIENCE-01/verify-isolated.json \
+		$(STRATIFIED_RECALL_VERIFY_FLAGS)
+

@@ -1,0 +1,32 @@
+{
+  "ok": true,
+  "status": "READY",
+  "unique_items": 76,
+  "example_count": 0,
+  "strata_counts": {
+    "municipio_grande": 12,
+    "municipio_medio": 53,
+    "municipio_pequeno": 11,
+    "admin_direta": 61,
+    "admin_indireta": 22,
+    "autarquia": 12,
+    "fundacao": 5,
+    "camara": 5,
+    "consorcio": 5,
+    "source_api": 76,
+    "source_html": 6,
+    "source_pdf": 6,
+    "source_js": 70,
+    "platform_pncp": 63,
+    "platform_sc_compras": 7,
+    "platform_ciga": 6
+  },
+  "missing_strata": [],
+  "thin_strata": [],
+  "errors": [],
+  "warnings": [],
+  "denominator_hash": "2d1b3fc13e5f5c98ebc202b7f3cd275accf34804d794027d21e78c863b9c2606",
+  "min_unique_items": 50,
+  "min_per_stratum": 5,
+  "as_of": "2026-07-24T13:57:29Z"
+}

@@ -1,0 +1,9 @@
+{
+  "campaign": "STRATIFIED-RECALL-SOURCE-RESILIENCE-01",
+  "generated_at": "2026-07-24T14:05:30Z",
+  "unit_adversarial_suite_seconds": 0.44,
+  "gold_collect_seconds_approx": 16,
+  "live_capture_280_items_seconds_approx": 12,
+  "evaluate_seconds": 1,
+  "notes": "Live inventory not run on every CI push"
+}

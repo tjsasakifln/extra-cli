@@ -1,0 +1,31 @@
+{
+  "campaign": "STRATIFIED-RECALL-SOURCE-RESILIENCE-01",
+  "generated_at": "2026-07-24T14:05:30Z",
+  "production_touched": false,
+  "sources": {
+    "pncp": {
+      "status": "OK",
+      "probe": "https://pncp.gov.br/api/consulta/v1/contratacoes/publicacao",
+      "http": 200,
+      "notes": "Live API returned pages for SC window; detail endpoint intermittent 404/connection close treated as external noise, list+identity capture OK"
+    },
+    "sc_compras": {
+      "status": "OK",
+      "probe": "https://compras.sc.gov.br/api/editais?ano=2026",
+      "http": 200,
+      "totalElementos_observed": 2706
+    },
+    "ciga_ckan": {
+      "status": "OK",
+      "probe": "https://dados.ciga.sc.gov.br/api/3/action/package_search",
+      "http": 200,
+      "package": "domsc-publicacoes-de-07-2026"
+    }
+  },
+  "fail_closed_rules": [
+    "portal HTTP error must not become success-as-zero publications",
+    "auto-match connection failure exits NOT_READY",
+    "recall PARTIAL/FAIL exits non-zero"
+  ],
+  "alerts": []
+}

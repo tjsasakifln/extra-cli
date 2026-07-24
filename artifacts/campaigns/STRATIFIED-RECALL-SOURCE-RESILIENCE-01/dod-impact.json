@@ -1,0 +1,36 @@
+{
+  "campaign": "STRATIFIED-RECALL-SOURCE-RESILIENCE-01",
+  "generated_at": "2026-07-24T14:05:30Z",
+  "items": [
+    {
+      "dod": "Recall independente e estratificado ≥95%",
+      "classification": "direct",
+      "status": "code_and_isolated_evidence_ready",
+      "accepted_on_main": false,
+      "evidence": ["recall.json PASS 76/76", "sample-lock.json", "gold-sample.json"]
+    },
+    {
+      "dod": "§8.4 amostra estratificada",
+      "classification": "direct",
+      "status": "proven_isolated",
+      "accepted_on_main": false
+    },
+    {
+      "dod": "§7 contratos de fontes / source-health",
+      "classification": "partial",
+      "status": "artifacts_present",
+      "accepted_on_main": false
+    },
+    {
+      "dod": "§34 encontra oportunidades / não exibe encerradas / informa o que não monitorou",
+      "classification": "partial",
+      "status": "operational-report + misses queue + status_canonico=open on capture",
+      "accepted_on_main": false
+    }
+  ],
+  "non_claims": [
+    "DOD [x] not marked without ACCEPTED on main",
+    "VPS/production soak not claimed",
+    "Coverage dual % not modified"
+  ]
+}

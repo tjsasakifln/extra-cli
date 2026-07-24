@@ -1,0 +1,28 @@
+{
+  "campaign": "STRATIFIED-RECALL-SOURCE-RESILIENCE-01",
+  "status": "PASS",
+  "terminal": true,
+  "recall_status": "PASS",
+  "recall_pct": 100.0,
+  "captured": 76,
+  "published_in_sample": 76,
+  "denominator_hash": "2d1b3fc13e5f5c98ebc202b7f3cd275accf34804d794027d21e78c863b9c2606",
+  "forbidden_proxy_used": false,
+  "production_touched": false,
+  "sha": "64549385144fd02304063bb538be31b8feed9900",
+  "branch": "campaign/stratified-recall-source-resilience-01",
+  "generated_at": "2026-07-24T14:06:42Z",
+  "claims": [
+    "Fail-closed stratified recall evaluator with min 50 / min 5 strata / floors 90% / global 95%",
+    "Independent gold sample n=76 frozen before match; denominator stable",
+    "Isolated capture+match achieved 76/76 (100%) after controllable miss repair",
+    "production_touched=false"
+  ],
+  "non_claims": [
+    "DOD item not ACCEPTED on main yet",
+    "VPS/production operational soak not claimed",
+    "Coverage dual percentages unchanged",
+    "PNCP detail endpoint reliability not claimed (list+identity path used)"
+  ],
+  "next_step_recommendation": "DevOps merge da branch campaign/stratified-recall-source-resilience-01 com CI verde; depois dod_controller accept do item de recall no main \u2014 n\u00e3o marcar DOD [x] antes de ACCEPTED."
+}

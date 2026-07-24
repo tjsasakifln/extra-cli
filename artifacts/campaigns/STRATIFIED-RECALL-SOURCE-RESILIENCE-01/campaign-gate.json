@@ -1,0 +1,91 @@
+{
+  "campaign": "STRATIFIED-RECALL-SOURCE-RESILIENCE-01",
+  "status": "PASS",
+  "generated_at": "2026-07-24T14:06:59Z",
+  "checks": [
+    {
+      "item_id": "G1_fail_closed_module",
+      "status": "PASS",
+      "evidence": [
+        "scripts/coverage/recall_benchmark.py"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "G2_independent_inventory",
+      "status": "PASS",
+      "evidence": [
+        "scripts/coverage/independent_inventory.py"
+      ],
+      "notes": "Collector must not use operational tables as denominator source"
+    },
+    {
+      "item_id": "G2b_no_ops_table_denominator",
+      "status": "PASS",
+      "evidence": [
+        "independent_inventory denies operational denominator"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "G3_makefile_targets",
+      "status": "PASS",
+      "evidence": [
+        "Makefile targets present"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "G4_adversarial_tests_present",
+      "status": "PASS",
+      "evidence": [
+        "tests/unit/coverage/test_recall_benchmark_adversarial.py"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "G5_adversarial_pytest",
+      "status": "PASS",
+      "evidence": [
+        "exit=0",
+        "...................                                                      [100%]\n19 passed in 0.34s\n"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "G6_evaluate_exit_matches_status",
+      "status": "PASS",
+      "evidence": [
+        "status=PARTIAL",
+        "exit=2"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "G7_baseline_artifact",
+      "status": "PASS",
+      "evidence": [
+        "artifacts/campaigns/STRATIFIED-RECALL-SOURCE-RESILIENCE-01/baseline.json"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "G8_spec_kit",
+      "status": "PASS",
+      "evidence": [
+        "specs/005-stratified-recall-source-resilience"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "G9_production_untouched",
+      "status": "PASS",
+      "evidence": [
+        "production_touched=False"
+      ],
+      "notes": ""
+    }
+  ],
+  "failed_count": 0,
+  "notes": "Foundation gate; live ≥95% recall requires gold sample + capture evidence in result.json"
+}

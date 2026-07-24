@@ -1,0 +1,13 @@
+{
+  "campaign": "STRATIFIED-RECALL-SOURCE-RESILIENCE-01",
+  "generated_at": "2026-07-24T14:05:30Z",
+  "production_touched": false,
+  "checks": [
+    {"id": "no_prod_dsn", "ok": true},
+    {"id": "no_ssh_ec_prod", "ok": true},
+    {"id": "no_soak_artifact_reuse", "ok": true},
+    {"id": "isolated_db_5437", "ok": true},
+    {"id": "respectful_user_agent", "ok": true},
+    {"id": "no_aggressive_scrape", "ok": true}
+  ]
+}

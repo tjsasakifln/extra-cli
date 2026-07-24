@@ -1,0 +1,39 @@
+{
+  "campaign": "STRATIFIED-RECALL-SOURCE-RESILIENCE-01",
+  "reviewer": "independent-pass-structure",
+  "generated_at": "2026-07-24T14:07:00Z",
+  "verdict": "PASS_WITH_NOTES",
+  "findings": [
+    {
+      "severity": "medium",
+      "id": "R1",
+      "title": "Miss repair used official identity upsert when PNCP detail endpoint flaked",
+      "detail": "11 source_gap items were captured via official external_id/URL from independent inventory after detail API 404/connection errors. Acceptable for controllable repair; document that list pagination expansion is the primary fix.",
+      "status": "documented"
+    },
+    {
+      "severity": "low",
+      "id": "R2",
+      "title": "Municipality size classification uses static KNOWN_POP with medio default",
+      "detail": "Does not invalidate strata floors; improve with IBGE file join later.",
+      "status": "accepted_debt"
+    },
+    {
+      "severity": "low",
+      "id": "R3",
+      "title": "SC Compras list lacks publication date",
+      "detail": "Items still valid official publications with stable IDs.",
+      "status": "accepted_debt"
+    },
+    {
+      "severity": "info",
+      "id": "R4",
+      "title": "DOD ACCEPTED on main not yet done",
+      "detail": "Campaign PASS in isolated worktree; merge/CI/accept is DevOps path.",
+      "status": "open"
+    }
+  ],
+  "critical_count": 0,
+  "high_count": 0,
+  "blocks_campaign_pass": false
+}

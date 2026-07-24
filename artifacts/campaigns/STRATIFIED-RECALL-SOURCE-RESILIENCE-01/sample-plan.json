@@ -1,0 +1,134 @@
+{
+  "schema_version": 1,
+  "campaign": "STRATIFIED-RECALL-SOURCE-RESILIENCE-01",
+  "sample_plan_hash": "d158634a73bb3dec01dffd28d81af9207d5b1ae05dca4f76fdefdfab66912820",
+  "denominator_hash": "2d1b3fc13e5f5c98ebc202b7f3cd275accf34804d794027d21e78c863b9c2606",
+  "window": {
+    "start": "2026-07-01",
+    "end": "2026-07-22",
+    "observed_at": "2026-07-24T13:55:17Z",
+    "notes": "Frozen independent inventory from official public APIs before system match"
+  },
+  "methodology": {
+    "rule": "Each portal_item observed on official source; capture judged by id/url/hash match",
+    "forbidden": "Do not use COUNT(*) from database as recall proxy",
+    "required_strata": [
+      "municipio_grande",
+      "municipio_medio",
+      "municipio_pequeno",
+      "admin_direta",
+      "admin_indireta",
+      "autarquia",
+      "fundacao",
+      "camara",
+      "consorcio",
+      "source_api",
+      "source_html",
+      "source_pdf",
+      "source_js",
+      "platform_pncp",
+      "platform_sc_compras",
+      "platform_ciga"
+    ],
+    "min_unique_items": 50,
+    "min_per_stratum": 5,
+    "global_target_pct": 95.0,
+    "stratum_floor_pct": 90.0,
+    "selected_before_match": true,
+    "independence": {
+      "selected_before_match": true,
+      "collector": "scripts.coverage.independent_inventory",
+      "denies_operational_table_denominator": true,
+      "sources": {
+        "pncp_candidates": 100,
+        "sc_compras_candidates": 50,
+        "ciga_candidates": 50,
+        "selected": 65
+      },
+      "window": {
+        "start": "2026-07-01",
+        "end": "2026-07-22"
+      },
+      "collected_at": "2026-07-24T13:55:17Z",
+      "seeds": {
+        "pncp_modalities": [
+          1,
+          3,
+          4,
+          5,
+          6,
+          8,
+          9
+        ],
+        "pncp_uf": "SC",
+        "ciga_package": "domsc-publicacoes-de-07-2026",
+        "sc_compras_year": 2026
+      }
+    }
+  },
+  "independence": {
+    "selected_before_match": true,
+    "collector": "scripts.coverage.independent_inventory",
+    "denies_operational_table_denominator": true,
+    "sources": {
+      "pncp_candidates": 100,
+      "sc_compras_candidates": 50,
+      "ciga_candidates": 50,
+      "selected": 65
+    },
+    "window": {
+      "start": "2026-07-01",
+      "end": "2026-07-22"
+    },
+    "collected_at": "2026-07-24T13:55:17Z",
+    "seeds": {
+      "pncp_modalities": [
+        1,
+        3,
+        4,
+        5,
+        6,
+        8,
+        9
+      ],
+      "pncp_uf": "SC",
+      "ciga_package": "domsc-publicacoes-de-07-2026",
+      "sc_compras_year": 2026
+    }
+  },
+  "validation": {
+    "ok": true,
+    "status": "READY",
+    "unique_items": 76,
+    "example_count": 0,
+    "strata_counts": {
+      "municipio_grande": 12,
+      "municipio_medio": 53,
+      "municipio_pequeno": 11,
+      "admin_direta": 61,
+      "admin_indireta": 22,
+      "autarquia": 12,
+      "fundacao": 5,
+      "camara": 5,
+      "consorcio": 5,
+      "source_api": 76,
+      "source_html": 6,
+      "source_pdf": 6,
+      "source_js": 70,
+      "platform_pncp": 63,
+      "platform_sc_compras": 7,
+      "platform_ciga": 6
+    },
+    "missing_strata": [],
+    "thin_strata": [],
+    "errors": [],
+    "warnings": [],
+    "denominator_hash": "2d1b3fc13e5f5c98ebc202b7f3cd275accf34804d794027d21e78c863b9c2606",
+    "min_unique_items": 50,
+    "min_per_stratum": 5,
+    "as_of": "2026-07-24T13:57:29Z"
+  },
+  "frozen_before_match": true,
+  "enriched_for_thin_strata": true,
+  "unique_items": 76
+}

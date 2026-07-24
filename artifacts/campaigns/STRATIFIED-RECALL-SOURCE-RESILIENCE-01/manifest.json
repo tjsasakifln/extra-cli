@@ -1,0 +1,43 @@
+{
+  "campaign": "STRATIFIED-RECALL-SOURCE-RESILIENCE-01",
+  "schema_version": 1,
+  "sha": "64549385144fd02304063bb538be31b8feed9900",
+  "branch": "campaign/stratified-recall-source-resilience-01",
+  "generated_at": "2026-07-24T14:06:42Z",
+  "worktree": "/tmp/extra-cli-recall-source-01",
+  "isolated_db_masked": "postgresql://test:***@127.0.0.1:5437/extra_recall_rc",
+  "production_touched": false,
+  "commands": [
+    "python3 -m scripts.coverage.independent_inventory collect ...",
+    "python3 -m scripts.coverage.recall_capture_window ...",
+    "python3 -m scripts.coverage.recall_benchmark gate --auto-match ...",
+    "make campaign-gate-stratified-recall",
+    "pytest tests/unit/coverage/test_recall_benchmark_adversarial.py"
+  ],
+  "exits": {
+    "evaluate_gold": 0,
+    "evaluate_partial_4item": 2,
+    "adversarial_tests": 0
+  },
+  "hashes": {
+    "denominator_hash": "2d1b3fc13e5f5c98ebc202b7f3cd275accf34804d794027d21e78c863b9c2606",
+    "recall_denominator_hash": "2d1b3fc13e5f5c98ebc202b7f3cd275accf34804d794027d21e78c863b9c2606"
+  },
+  "claims": [
+    "Fail-closed stratified recall evaluator with min 50 / min 5 strata / floors 90% / global 95%",
+    "Independent gold sample n=76 frozen before match; denominator stable",
+    "Isolated capture+match achieved 76/76 (100%) after controllable miss repair",
+    "production_touched=false"
+  ],
+  "non_claims": [
+    "DOD item not ACCEPTED on main yet",
+    "VPS/production operational soak not claimed",
+    "Coverage dual percentages unchanged",
+    "PNCP detail endpoint reliability not claimed (list+identity path used)"
+  ],
+  "limitations": [
+    "Municipality size uses local KNOWN_POP table with medio default for unknowns",
+    "SC Compras list endpoint lacks publication day on list-only path",
+    "Live inventory not auto-run in CI"
+  ]
+}
