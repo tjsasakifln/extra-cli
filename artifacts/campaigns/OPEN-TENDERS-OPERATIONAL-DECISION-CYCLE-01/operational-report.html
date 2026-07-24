@@ -1,10 +1,24 @@
-<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><title>ODC-01</title>
-<style>body{font-family:system-ui,sans-serif;margin:2rem}table{border-collapse:collapse;width:100%}th,td{border:1px solid #ccc;padding:.4rem}</style></head><body>
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OPEN-TENDERS-ODC-01 · relatório operacional</title>
+<style>
+body{font-family:system-ui,sans-serif;margin:2rem;background:#0f172a;color:#e2e8f0}
+h1{font-size:1.4rem} table{border-collapse:collapse;width:100%;margin:1rem 0}
+th,td{border:1px solid #334155;padding:.45rem .6rem;text-align:left} th{color:#94a3b8}
+.ok{color:#4ade80} .warn{color:#fbbf24} code{background:#1e293b;padding:0 .25rem;border-radius:4px}
+a{color:#93c5fd}
+</style></head><body>
 <h1>OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01</h1>
-<p>SHA 7617baea8d17 · dual 100.0% gate PASS · soak IN_PROGRESS</p>
-<table><tr><th>ID</th><th>Órgão</th><th>Label</th><th>Ranking</th></tr>
-<tr><td>11360515000119-1-000013/2026</td><td>FUNDO MUNICIPAL DE SAUDE DE SANTA TEREZINHA DO PRO</td><td>REVIEW</td><td>REVIEW</td></tr>
-<tr><td>07654807000197-1-000072/2026</td><td>CONSORCIO INTERMUNICIPAL DE SAUDE DO ALTO URUGUAI </td><td>REVIEW</td><td>REVIEW</td></tr>
-<tr><td>10432684000154-1-000049/2025</td><td>FUNDO MUNICIPAL DE SAUDE</td><td>REVIEW</td><td>REVIEW</td></tr>
-<tr><td>83102541000158-1-000167/2025</td><td>MUNICIPIO DE PORTO UNIAO</td><td>REVIEW</td><td>REVIEW</td></tr>
-</table><p><em>NÃO promete vitória; NÃO substitui análise jurídica.</em></p></body></html>
+<p>Resultado terminal: <strong class="warn">BLOCKED</strong> (soak 1/7) · evidência SHA <code>475aa50</code> · PR <a href="https://github.com/tjsasakifln/extra-cli/pull/127">#127</a> · 2026-07-24T01:00Z</p>
+<table>
+<tr><th>Gate</th><th>Valor</th></tr>
+<tr><td>Dual open_tenders</td><td class="ok">100% (1093/1093)</td></tr>
+<tr><td>Applicability unknown</td><td class="ok">0</td></tr>
+<tr><td>Fresh ≤24h</td><td class="ok">1093/1093</td></tr>
+<tr><td>Snapshot integrity</td><td class="ok">100%</td></tr>
+<tr><td>Entregável E (live)</td><td class="ok">PASS · 4 recs</td></tr>
+<tr><td>DOD aplicáveis wave</td><td class="ok">13/13 ACCEPTED</td></tr>
+<tr><td>Soak 7d</td><td class="warn">1/7 · timer armed</td></tr>
+</table>
+<p><em>Não afirma soak PASS, PROJECT_DONE, VPS_OPERATIONAL produto, recall estratificado completo, nem freshness contínua 7d.</em></p>
+</body></html>

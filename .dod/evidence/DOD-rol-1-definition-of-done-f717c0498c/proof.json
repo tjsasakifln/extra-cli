@@ -1,0 +1,12 @@
+{
+  "item_id": "DOD-rol-1-definition-of-done-f717c0498c",
+  "title": "source_applicability_resolution = 100%.",
+  "as_of": "2026-07-24T00:34:15Z",
+  "git_sha": "475aa50c7ab7ddfd93dd832ee4e8c53314bcacd4",
+  "proof": {
+    "applicability_unknown_count": 0,
+    "applicable_denominator": 1093,
+    "universe_count": 1093,
+    "policy_version": "2.1.1"
+  }
+}

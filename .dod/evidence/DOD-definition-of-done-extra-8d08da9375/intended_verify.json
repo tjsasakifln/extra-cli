@@ -1,0 +1,8 @@
+{
+  "tests": [
+    "tests/test_deliverable_e_editais.py"
+  ],
+  "commands": [
+    "python3 -c \"import json; from pathlib import Path; d=json.loads(Path('artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/deliverable-e-audit.json').read_text()); assert d.get('ok') is True; c=next(x for x in d['checks'] if x['item_id']=='fatores_favoraveis'); assert c['status']=='PASS'; print('fatores_favoraveis', 'PASS', d.get('recommendation_count'))\""
+  ]
+}

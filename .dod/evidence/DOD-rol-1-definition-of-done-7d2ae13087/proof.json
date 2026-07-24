@@ -1,0 +1,55 @@
+{
+  "item_id": "DOD-rol-1-definition-of-done-7d2ae13087",
+  "title": "A integridade do snapshot ativo é 100%.",
+  "as_of": "2026-07-24T00:34:15Z",
+  "git_sha": "475aa50c7ab7ddfd93dd832ee4e8c53314bcacd4",
+  "proof": {
+    "status": "PASS",
+    "integrity_pct": 100.0,
+    "active_open_count": 4,
+    "intact_count": 4,
+    "defect_count": 0,
+    "defects": [],
+    "checks": [
+      {
+        "id": "schema_tables",
+        "ok": true,
+        "detail": {
+          "missing": [],
+          "present": [
+            "opportunity_intel",
+            "opportunity_runs",
+            "source_snapshot_membership"
+          ]
+        }
+      },
+      {
+        "id": "complete_parent_run",
+        "ok": true,
+        "detail": {
+          "run_id": 1,
+          "membership_count": 4
+        }
+      },
+      {
+        "id": "row_structural_integrity",
+        "ok": true,
+        "detail": {
+          "active_open_count": 4,
+          "intact_count": 4,
+          "defect_count": 0,
+          "integrity_pct": 100.0
+        }
+      }
+    ],
+    "as_of": "2026-07-24T00:15:40Z",
+    "source": "pncp",
+    "operational_ok": true,
+    "claims_forbidden": [
+      "integrity 100% from empty snapshot",
+      "presence of table as integrity",
+      "partial run as reconciliation basis"
+    ],
+    "notes": []
+  }
+}

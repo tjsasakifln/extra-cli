@@ -102,8 +102,8 @@ Um item pode ser marcado como concluído apenas quando pelo menos uma das evidê
 
 ### 2.2 Escopo incluído
 
-- [ ] Monitoramento de editais abertos.
-- [ ] Reconciliação de status de editais.
+- [x] Monitoramento de editais abertos.
+- [x] Reconciliação de status de editais.
 - [ ] Histórico de editais encerrados quando necessário para análise.
 - [x] Coleta de contratos dos últimos três anos, no mínimo.
 - [x] Atualização incremental de contratos após o backfill inicial.
@@ -246,15 +246,15 @@ Um item pode ser marcado como concluído apenas quando pelo menos uma das evidê
 
 #### Entregável E — editais abertos e recomendação individual
 
-- [ ] O relatório inclui editais comprovadamente abertos na data de corte ou semana de conclusão.
-- [ ] Cada edital foi visto no snapshot completo mais recente ou reconfirmado individualmente.
-- [ ] Cada edital é avaliado contra o perfil versionado da Extra.
+- [x] O relatório inclui editais comprovadamente abertos na data de corte ou semana de conclusão.
+- [x] Cada edital foi visto no snapshot completo mais recente ou reconfirmado individualmente.
+- [x] Cada edital é avaliado contra o perfil versionado da Extra.
 - [x] Cada edital recebe `GO`, `REVIEW` ou `NO_GO`. Evidência: opportunity_intel 401 opps GO=0 REVIEW≈397 NO_GO=4 · ranking demote · EXTRA-OPS-95
-- [ ] A apresentação ao cliente traduz `GO` e `NO_GO` como recomendação fundamentada de `PARTICIPAR` ou `NÃO PARTICIPAR`, preservando `REVIEW` quando depender de análise humana adicional.
-- [ ] Cada recomendação mostra fatores favoráveis.
-- [ ] Cada recomendação mostra fatores impeditivos ou riscos.
-- [ ] Cada recomendação referencia dados e documentos oficiais disponíveis.
-- [ ] Nenhuma recomendação promete vitória ou substitui análise jurídica, contábil ou técnica final.
+- [x] A apresentação ao cliente traduz `GO` e `NO_GO` como recomendação fundamentada de `PARTICIPAR` ou `NÃO PARTICIPAR`, preservando `REVIEW` quando depender de análise humana adicional.
+- [x] Cada recomendação mostra fatores favoráveis.
+- [x] Cada recomendação mostra fatores impeditivos ou riscos.
+- [x] Cada recomendação referencia dados e documentos oficiais disponíveis.
+- [x] Nenhuma recomendação promete vitória ou substitui análise jurídica, contábil ou técnica final.
 
 #### Pacote final da consultoria
 
@@ -444,7 +444,7 @@ pares ente × fonte × capacidade classificados como applicable ou not_applicabl
 total de pares que exigem decisão
 ```
 
-- [ ] `source_applicability_resolution = 100%`.
+- [x] `source_applicability_resolution = 100%`.
 - [ ] Nenhum par necessário permanece como `unknown`.
 
 ```text
@@ -1090,7 +1090,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] A cobertura auditável de editais é >= 95%.
 - [ ] A cobertura auditável de contratos é >= 95%.
 - [ ] O recall de editais relevantes é >= 95% na amostra-ouro.
-- [ ] A integridade do snapshot ativo é 100%.
+- [x] A integridade do snapshot ativo é 100%.
 - [ ] Não existem afirmações de acompanhamento de obras.
 - [ ] O gate `LOCAL_READY` foi registrado com data, commit e evidências.
 
@@ -1258,7 +1258,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] Timers são escalonados para evitar concorrência desnecessária.
 - [ ] Timers usam timezone documentado.
 - [ ] Timers possuem `RandomizedDelaySec` quando apropriado.
-- [ ] O crawl de editais atende freshness <= 24h.
+- [x] O crawl de editais atende freshness <= 24h.
 - [ ] O incremental de contratos atende freshness <= 7 dias.
 - [ ] O freshness gate possui timer.
 - [ ] O coverage report possui timer.
