@@ -1,8 +1,8 @@
 {
   "reviewer": "campaign-coordinator-self-critique-after-skeptic",
   "mode": "adversarial-remediation",
-  "tip_at_review": "298c5218e8cf1afa5c56354f9ad1f86c82265ddc",
-  "pack_run_id": "live-pack-20260724-153517-67ec2ec8",
+  "tip_at_review": "54ac214c4d9cbe0a7249bc3750bff588d315fcf6",
+  "pack_run_id": "live-pack-20260724-153838-8a526ae6",
   "verdict": "CONDITIONAL_BLOCKED",
   "findings": [
     {
@@ -10,7 +10,7 @@
       "severity": "high",
       "title": "Human ACCEPT required",
       "status": "open",
-      "note": "Prior ACCEPT reverted as non-verifiable; BLOCKED_HUMAN"
+      "note": "BLOCKED_HUMAN; agent fill-in forbidden"
     },
     {
       "id": "F1",
@@ -31,7 +31,9 @@
       "id": "F7",
       "severity": "medium",
       "title": "Dual isolated operational reproof missing",
-      "status": "open"
+      "status": "executed_gate_fail",
+      "observed": "dual reproof on isolated: denominator 1093, coverage 0% (coverage_evidence empty); not claimable as 95%",
+      "note": "Does not invalidate prior signed live dual evidence paths"
     },
     {
       "id": "F8",
@@ -57,7 +59,6 @@
   ],
   "blocking": [
     "F3",
-    "F7",
     "F10"
   ]
 }

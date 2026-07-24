@@ -1,31 +1,35 @@
 {
-  "campaign_tip_sha": "298c5218e8cf1afa5c56354f9ad1f86c82265ddc",
-  "pack_sha": "298c5218e8cf1afa5c56354f9ad1f86c82265ddc",
-  "production_touched": false,
-  "isolated_operational_dual_reproof": "NOT_DONE",
-  "gap": "Signed dual evidence SHAs predate campaign tip; isolated restore did not re-run dual operational coverage (>=95%) against 1093 denominator. Only presence probe available.",
-  "signed_evidence": {
-    "open_tenders": {
-      "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/dual-coverage-open_tenders.json",
-      "bytes": 1761,
-      "note": "pre-existing signed evidence; not re-measured this campaign"
-    },
-    "historical": {
-      "path": "artifacts/campaigns/HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01/dual-coverage.json",
-      "bytes": 1770,
-      "note": "pre-existing signed evidence; not re-measured this campaign"
-    },
-    "summary": {
-      "path": "artifacts/campaigns/HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01/dual-reproof-after-applicability/dual-capability-coverage-summary.json",
-      "bytes": 24233,
-      "note": "pre-existing signed evidence; not re-measured this campaign"
-    }
+  "as_of": "2026-07-24T15:40:53.708064Z",
+  "git_sha": "54ac214c4d9cbe0a7249bc3750bff588d315fcf6",
+  "universe_count": 1093,
+  "seed_sha256": "d65f272812cf8dc95f3ca78c5db9a2fb2a39a759e5633eb3fb91891ad10a5486",
+  "open_tenders": {
+    "coverage_pct": 0.0,
+    "covered_numerator": 0,
+    "applicable_denominator": 1093,
+    "gate_status": "FAIL",
+    "never_checked_count": 1093,
+    "data_presence_status": "measured_no_rows"
   },
-  "isolated_presence_probe": {
-    "mode": "isolated_presence_probe_not_operational_coverage",
-    "universe_n": 1093,
-    "seed_entities_with_lake_presence": 412,
+  "historical_contracts": {
+    "coverage_pct": 0.0,
+    "covered_numerator": 0,
+    "applicable_denominator": 1093,
+    "gate_status": "FAIL",
+    "never_checked_count": 1093,
+    "data_presence_status": "measured_rows_present"
+  },
+  "interpretation": {
+    "isolated_operational_dual_reproof": "EXECUTED",
+    "result": "GATE_FAIL_0pct",
+    "root_cause": "coverage_evidence empty on isolated restore (0 rows); denominator 1093 measured correctly",
+    "does_NOT_invalidate_prior_signed_live_dual": true,
+    "prior_signed_live_dual_paths": [
+      "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/dual-coverage-open_tenders.json",
+      "artifacts/campaigns/HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01/dual-coverage.json"
+    ],
     "production_touched": false,
-    "signed_live_dual_path": "artifacts/campaigns/*-01/dual-*.json"
-  }
+    "claim_isolated_dual_95": false
+  },
+  "generated_at": "2026-07-24T15:41:11Z"
 }
