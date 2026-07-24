@@ -4,7 +4,7 @@
   "terminal_status": "BLOCKED",
   "block_reason": "Campaign operational capability proven on isolated RC; final PASS requires @devops push/PR, main CI green, and serial DOD ACCEPTED. Independent review residual: precision is strong-id audit (accepted_risk), not multi-rater fuzzy study.",
   "implementation_status": "OPERATIONAL_ON_ISOLATED_REAL_DATA",
-  "candidate_sha": "f05162ab389998733f2532664ebd607b5cebc607",
+  "candidate_sha": "21cf59c41758b80ac333fbe31303355762b85c3c",
   "run_id": "link-20260724T-rc1",
   "metrics_summary": {
     "dsn_masked": "postgresql://test:***@127.0.0.1:5438/extra_linkage_rc",

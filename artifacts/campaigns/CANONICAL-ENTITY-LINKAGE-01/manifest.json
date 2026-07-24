@@ -1,7 +1,7 @@
 {
   "campaign_id": "CANONICAL-ENTITY-LINKAGE-01",
   "timestamp": "2026-07-24T14:06:51.793023Z",
-  "commit_sha": "64549385144fd02304063bb538be31b8feed9900",
+  "commit_sha": "21cf59c41758b80ac333fbe31303355762b85c3c",
   "branch": "campaign/canonical-entity-linkage-01",
   "schema_version": "061",
   "rule_version": "linkage-v1",
