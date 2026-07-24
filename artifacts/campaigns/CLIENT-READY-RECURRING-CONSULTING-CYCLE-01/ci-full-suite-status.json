@@ -1,23 +1,22 @@
 {
-  "as_of": "2026-07-24T21:33:06.509050Z",
-  "head": "5c692c64bc0f79396c5c62688601386580b137fe",
+  "as_of": "2026-07-24T21:39:17.279771Z",
+  "head": "89e02ca225c05cc32065eff10efa99b6674dc558",
   "pr": 131,
   "url": "https://github.com/tjsasakifln/extra-cli/pull/131",
+  "run_id": 30128298986,
   "full_suite": "PASS",
   "conclusion": "success",
   "all_checks_success": true,
   "checks": {
-    "Lint (ruff)": "SUCCESS",
-    "Type Check (mypy)": "SUCCESS",
-    "Test (critical readiness)": "SUCCESS",
-    "Test operational expanded (PR)": "SUCCESS",
-    "Test All (full suite)": "SUCCESS",
-    "Resilience Gate (pre-VPS)": "SUCCESS",
-    "Security (bandit)": "SUCCESS",
-    "Dependency Audit (pip-audit)": "SUCCESS"
+    "Lint (ruff)": "pass",
+    "Type Check (mypy)": "pass",
+    "Test (critical readiness)": "pass",
+    "Test operational expanded (PR)": "pass",
+    "Test All (full suite)": "pass",
+    "Resilience Gate (pre-VPS)": "pass",
+    "Security (bandit)": "pass",
+    "Dependency Audit (pip-audit)": "pass"
   },
-  "verification_plan": "VERIFICATION_PLAN_OK",
   "human_acceptance": "PENDING_HUMAN",
-  "final_status": "BLOCKED",
-  "note": "Agent must not auto-accept. Technical path complete."
+  "final_status": "BLOCKED"
 }

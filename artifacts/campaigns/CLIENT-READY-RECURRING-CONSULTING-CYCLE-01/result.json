@@ -3,7 +3,7 @@
   "final_status": "BLOCKED",
   "terminal": "BLOCKED",
   "blockers": [
-    "user_acceptance_PENDING_HUMAN: Tiago must ACCEPT the release candidate per HUMAN-ACCEPTANCE-INSTRUCTIONS.md"
+    "user_acceptance_PENDING_HUMAN: Tiago must ACCEPT via REVIEW-FOR-TIAGO.md / user-acceptance.json"
   ],
   "failures": [],
   "rc_sha": "aadd65c00599a5dd44a3c2517492eae22a79c6c5",
@@ -156,38 +156,38 @@
     "pack_generation_note": "pack git_sha in pack-manifest may lag tip evidence stamp",
     "evidence_stamp_sha": "9851e364ad6b8e24228da7ba397cf0d07fd10c6c"
   },
-  "branch_tip_sha": "5c692c64bc0f79396c5c62688601386580b137fe",
+  "branch_tip_sha": "89e02ca225c05cc32065eff10efa99b6674dc558",
   "sha_roles": {
     "branch_tip": "9acd8d4005f811ace6047f60cd5666d2ed858478",
     "evidence_stamp": "aadd65c00599a5dd44a3c2517492eae22a79c6c5",
     "pack_manifest_git_sha": "c2bef8fd928c4eca5d9f6ad8e939ee2bf74c604a"
   },
   "ci": {
-    "as_of": "2026-07-24T21:33:06.509050Z",
-    "head": "5c692c64bc0f79396c5c62688601386580b137fe",
+    "as_of": "2026-07-24T21:39:17.279771Z",
+    "head": "89e02ca225c05cc32065eff10efa99b6674dc558",
     "pr": 131,
     "url": "https://github.com/tjsasakifln/extra-cli/pull/131",
+    "run_id": 30128298986,
     "full_suite": "PASS",
     "conclusion": "success",
     "all_checks_success": true,
     "checks": {
-      "Lint (ruff)": "SUCCESS",
-      "Type Check (mypy)": "SUCCESS",
-      "Test (critical readiness)": "SUCCESS",
-      "Test operational expanded (PR)": "SUCCESS",
-      "Test All (full suite)": "SUCCESS",
-      "Resilience Gate (pre-VPS)": "SUCCESS",
-      "Security (bandit)": "SUCCESS",
-      "Dependency Audit (pip-audit)": "SUCCESS"
+      "Lint (ruff)": "pass",
+      "Type Check (mypy)": "pass",
+      "Test (critical readiness)": "pass",
+      "Test operational expanded (PR)": "pass",
+      "Test All (full suite)": "pass",
+      "Resilience Gate (pre-VPS)": "pass",
+      "Security (bandit)": "pass",
+      "Dependency Audit (pip-audit)": "pass"
     },
-    "verification_plan": "VERIFICATION_PLAN_OK",
     "human_acceptance": "PENDING_HUMAN",
-    "final_status": "BLOCKED",
-    "note": "Agent must not auto-accept. Technical path complete."
+    "final_status": "BLOCKED"
   },
   "highs_fixed": [
     "IAF-05",
     "IAF-08a"
   ],
-  "verification_plan_ok": true
+  "verification_plan_ok": true,
+  "no_technical_work_remaining": true
 }
