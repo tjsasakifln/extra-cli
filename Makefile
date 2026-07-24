@@ -331,3 +331,61 @@ verify-stratified-recall-isolated:
 		--out artifacts/campaigns/STRATIFIED-RECALL-SOURCE-RESILIENCE-01/verify-isolated.json \
 		$(STRATIFIED_RECALL_VERIFY_FLAGS)
 
+
+
+# ── Campaign EXTRA-LIVE-CONSULTING-PACK-01 ───────────────────────────────────
+# Isolated A–E pack on authenticated snapshot. NEVER touch soak/prod DSN.
+
+CAMPAIGN_LIVE_PACK_DIR := artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01
+CAMPAIGN_TEST_DSN ?= postgresql://test:test@127.0.0.1:5436/extra_live_pack_rc
+
+.PHONY: campaign-gate-extra-live-consulting-pack
+campaign-gate-extra-live-consulting-pack:
+	@echo '==> Campaign gate: EXTRA-LIVE-CONSULTING-PACK-01'
+	@echo '$(CAMPAIGN_TEST_DSN)' | grep -Eqv 'ec-prod|/opt/extra-consultoria|extra_prod' || (echo 'ISOLATION_FAIL: prod DSN' && exit 2)
+	python3 -m scripts.ops.live_consulting_pack verify-isolation --dsn '$(CAMPAIGN_TEST_DSN)'
+	python3 -m scripts.ops.apply_migrations --dsn '$(CAMPAIGN_TEST_DSN)'
+	python3 -m scripts.ops.apply_migrations --dsn '$(CAMPAIGN_TEST_DSN)'
+	python3 -m pytest -o addopts='' -q \
+		tests/test_live_consulting_pack.py \
+		tests/test_deliverable_a_org_ranking.py \
+		tests/test_deliverable_b_competitors.py \
+		tests/test_deliverable_c_expiring.py \
+		tests/test_deliverable_d_prices.py \
+		tests/test_deliverable_e_editais.py \
+		tests/test_deliverable_package_final.py \
+		tests/test_strategic_monthly_monitor.py
+	@test -f db/migrations/060_national_contracts_intelligence_layers.sql
+	@test -f db/migrations/059_coverage_evidence_canonical_entity_unique.sql
+	@test ! -f db/migrations/059_national_contracts_intelligence_layers.sql
+	@echo 'campaign-gate-extra-live-consulting-pack foundation OK'
+
+.PHONY: release-candidate-extra-live-consulting-pack
+release-candidate-extra-live-consulting-pack:
+	@echo '==> release-candidate EXTRA-LIVE-CONSULTING-PACK-01'
+	$(MAKE) campaign-gate-extra-live-consulting-pack
+	python3 -m scripts.ops.live_consulting_pack run \
+		--dsn '$(CAMPAIGN_TEST_DSN)' \
+		--out '$(CAMPAIGN_LIVE_PACK_DIR)/pack-rc' \
+		--uf SC
+	python3 -m scripts.ops.strategic_monthly_monitor --live-isolated \
+		--dsn '$(CAMPAIGN_TEST_DSN)' \
+		--out-dir '$(CAMPAIGN_LIVE_PACK_DIR)/monthly' \
+		--audit
+	@test -f $(CAMPAIGN_LIVE_PACK_DIR)/pack-rc/pack-manifest.json
+	@test -f $(CAMPAIGN_LIVE_PACK_DIR)/pack-rc/extra_live_consulting_pack.xlsx
+	@test -f $(CAMPAIGN_LIVE_PACK_DIR)/pack-rc/extra_live_consulting_pack.pdf
+	@echo 'release-candidate-extra-live-consulting-pack OK'
+
+.PHONY: verify-extra-live-consulting-isolated
+verify-extra-live-consulting-isolated:
+	@echo '==> verify isolated EXTRA-LIVE-CONSULTING-PACK-01'
+	python3 -m scripts.ops.live_consulting_pack verify-isolation --dsn '$(CAMPAIGN_TEST_DSN)'
+	@echo '$(CAMPAIGN_TEST_DSN)' | grep -Eq '127\.0\.0\.1|localhost' || (echo 'ISOLATION_FAIL: non-local host' && exit 2)
+	@echo '$(CAMPAIGN_TEST_DSN)' | grep -Eqv 'ec-prod|/opt/extra-consultoria' || (echo 'ISOLATION_FAIL' && exit 2)
+	python3 -m scripts.ops.live_consulting_pack run \
+		--dsn '$(CAMPAIGN_TEST_DSN)' \
+		--out '$(CAMPAIGN_LIVE_PACK_DIR)/pack-verify' \
+		--uf SC
+	python3 -c "import json; m=json.load(open('$(CAMPAIGN_LIVE_PACK_DIR)/pack-verify/pack-manifest.json')); assert m.get('production_touched') is False; assert m['reconcile']['status']=='PASS'; assert m['deliverable_a']['status'] in ('OK','PARTIAL'); print('verify-ok', m['run_id'], m['population']['eligible_population'])"
+	@echo 'verify-extra-live-consulting-isolated OK'
