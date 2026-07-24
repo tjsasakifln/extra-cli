@@ -1,8 +1,8 @@
 {
   "campaign_id": "EXTRA-LIVE-CONSULTING-PACK-01",
-  "run_id": "live-pack-20260724-151533-5c99331c",
+  "run_id": "live-pack-20260724-152109-4619c475",
   "as_of": "2026-07-24",
-  "git_sha": "09bbffdf4239508c2ca7ebb59e2411cb6754ebfc",
+  "git_sha": "839d800519768a02172a77e757e896a76ad63cac",
   "schema_version": "coverage-2.4_entity_coverage_rebuild",
   "profile": {
     "profile_path": "config/client_profiles/extra.yaml",
@@ -38,13 +38,13 @@
       "export_limit": 200,
       "export_is_not_universe": true
     },
-    "query_seconds": 3.149
+    "query_seconds": 3.103
   },
   "deliverable_b": {
     "status": "OK",
     "valid_count": 15,
     "target_n": 15,
-    "query_seconds": 5.88
+    "query_seconds": 5.837
   },
   "deliverable_c": {
     "status": "OK",
@@ -54,12 +54,12 @@
       "n": 14750,
       "query_complete": true
     },
-    "query_seconds": 2.134
+    "query_seconds": 2.186
   },
   "deliverable_d": {
     "status": "OK",
     "n_panels": 6,
-    "query_seconds": 1.911
+    "query_seconds": 1.831
   },
   "deliverable_e": {
     "status": "OK",
@@ -82,7 +82,7 @@
     "status": "PASS",
     "same_run_id": true,
     "divergences": [],
-    "run_id": "live-pack-20260724-151533-5c99331c",
+    "run_id": "live-pack-20260724-152109-4619c475",
     "eligible_population": 1179237
   },
   "isolation": {
@@ -90,8 +90,8 @@
     "isolation_ok": true,
     "hits": [],
     "dsn_masked": "postgresql://test:***@127.0.0.1:5436/extra_live_pack_rc",
-    "checked_at": "2026-07-24T15:15:33Z"
+    "checked_at": "2026-07-24T15:21:09Z"
   },
   "production_touched": false,
-  "generated_at": "2026-07-24T15:15:48Z"
+  "generated_at": "2026-07-24T15:21:23Z"
 }

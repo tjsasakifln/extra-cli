@@ -1,24 +1,38 @@
 {
   "status": "BLOCKED_HUMAN",
+  "campaign_id": "EXTRA-LIVE-CONSULTING-PACK-01",
   "reviewer": "Tiago",
   "decision": null,
-  "required_before_PASS": true,
+  "findings": [],
+  "auto_accept_forbidden": true,
+  "pack": {
+    "path": "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-rc/",
+    "run_id": "live-pack-20260724-151828-df8aaed3",
+    "executive_summary": "pack-rc/executive_summary.md",
+    "pdf": "pack-rc/extra_live_consulting_pack.pdf",
+    "excel": "pack-rc/extra_live_consulting_pack.xlsx",
+    "operational_report": "operational-report.html"
+  },
+  "summary_for_reviewer": {
+    "eligible_population_SC": 1179237,
+    "A": "OK ranking orgãos (export 200 / 1378 elegíveis)",
+    "B": "OK 15/15 concorrentes",
+    "C": "OK ~14750 contratos janela 90-180d (export 200)",
+    "D": "OK 6 painéis valor contratado global",
+    "E": "OK 4 editais capturados",
+    "reconcile": "PASS",
+    "production_touched": false
+  },
   "instructions": [
-    "Read pack-rc/executive_summary.md",
-    "Open pack-rc/extra_live_consulting_pack.pdf and .xlsx",
-    "Set decision to ACCEPT or REJECT (or findings array)",
-    "Never leave agents to auto-accept"
+    "1. Abra pack-rc/executive_summary.md",
+    "2. Abra pack-rc/extra_live_consulting_pack.pdf e .xlsx",
+    "3. (Opcional) Abra operational-report.html",
+    "4. Edite ESTE arquivo: set decision para ACCEPT ou REJECT",
+    "5. Se REJECT ou ressalvas, preencha findings[] com bullets",
+    "6. NÃO deixe agentes preencherem decision automaticamente"
   ],
-  "pack_run_id": "live-pack-20260724-151413-54344a15",
-  "eligible_population": 1179237,
-  "git_sha": "8b067bef4a5041f6fd86319ee8041453cfae8048",
-  "recorded_at": "2026-07-24T15:16:22Z",
-  "pack_summary": {
-    "A": "OK",
-    "B": "OK 15/15",
-    "C": "OK 14758 window hits (export 200)",
-    "D": "OK 6 panels",
-    "E": "OK 4 recs",
-    "reconcile": "PASS"
-  }
+  "git_sha": "839d800519768a02172a77e757e896a76ad63cac",
+  "recorded_at": "2026-07-24T15:22:00Z",
+  "accepted_at": null,
+  "rejected_at": null
 }
