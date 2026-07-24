@@ -5,6 +5,8 @@
     "VPS_OPERATIONAL",
     "PROJECT_DONE",
     "soak_7d PASS",
+    "live_dual_snapshot_recurrence",
+    "two_independent_temporal_exports",
     "unit price from global valor_total",
     "Extra operational capacity fields not elicited",
     "win rate without observable open-tender denominator"

@@ -1,10 +1,10 @@
 {
   "campaign_id": "CLIENT-READY-RECURRING-CONSULTING-CYCLE-01",
-  "started_at": "2026-07-24T21:40:22Z",
-  "finished_at": "2026-07-24T21:41:00Z",
+  "started_at": "2026-07-24T21:50:50Z",
+  "finished_at": "2026-07-24T21:51:22Z",
   "branch": "campaign/client-ready-recurring-consulting-cycle-01",
   "base_sha": "5d906f631f444dd803e92bb88b7c98972297f8d4",
-  "rc_sha": "4d3cfadc19a8563317d3ddcf63ee63c4551685df",
+  "rc_sha": "9662ce478bde3345297711746b6ecfe225564dd7",
   "schema_version": "coverage-2.4_entity_coverage_rebuild",
   "migration_versions": [
     "061",
@@ -16,8 +16,8 @@
   "profile_id": "extra_construtora",
   "profile_version": 2,
   "profile_sha256": "7ec38bbcd291ae435a49133853238999f66e5e413edaa7c2d08d39338aa45384",
-  "universe_sha256": null,
-  "snapshot_sha256": null,
+  "universe_sha256": "d65f272812cf8dc95f3ca78c5db9a2fb2a39a759e5633eb3fb91891ad10a5486",
+  "snapshot_sha256": "f9e45cdbc2ddf06e502aef86ef687595cb21880899bcee2cb28f54d1de883661",
   "snapshot_row_count": 4437142,
   "eligible_population": 1179237,
   "database_identity": {
@@ -31,15 +31,18 @@
   "commands": [
     "python -m scripts.ops.client_ready_consulting_cycle run"
   ],
-  "exit_codes": {},
+  "exit_codes": {
+    "cycle_terminal": 0
+  },
   "durations": {
-    "total_s": 37.522
+    "total_s": 32.755
   },
   "test_counts": {},
   "skipped_tests": [],
   "generated_artifacts": [
     "BLOCKED.md",
     "HUMAN-ACCEPTANCE-INSTRUCTIONS.md",
+    "PASS.md",
     "REVIEW-FOR-TIAGO.md",
     "ambiguity.json",
     "baseline.json",
@@ -181,14 +184,45 @@
     "weekly/source_health.csv"
   ],
   "artifact_checksums": {
-    "pack/pack-manifest.json": "119e8fb601088415d49f85c9a9af9c2c0cc7185eff61ddd5a6b8c6cd35dc76c5",
-    "pack/executive-report.pdf": "8c88afb363d535cca94232afe6e330b478299d04590dfaf0d997a4ead31ce1c5",
-    "pack/consulting-pack.xlsx": "f91b8cc2a8250ee9cbd35c0316418d6bca5477a194352501773a841647ac54ad",
-    "linkage-run.json": "f702ac241f29b12e346fdee20db3209b6d5b993f86e96b3d1b8bc1f30a392a56",
-    "recurrence.json": "d4980ed436f7c505703fe1b5d4a168ca3b5a8081bfb7704e3a46b7f344033408"
+    "pack/pack-manifest.json": "8ebfb94074ee5fed4cae5f96c6dcb197c8473fc3f65a8a10a05494e86644301a",
+    "pack/executive-report.pdf": "49dd6a2934d0c46de62dd6a6903097da6ba52fb71f809855fd7d1e2e6f18c6ba",
+    "pack/consulting-pack.xlsx": "f53523874bc6d2db90fd8783b12b1d9b22acab55290eea4dd803ef3397bb9216",
+    "linkage-run.json": "2e154f18a2cba2a3f2f0c3070c902143de8e94d79d1e5fd3e89641ee11f046f6",
+    "recurrence.json": "35c0d2175e40fd50dbf5d5c5ef352a843b6f24db59b35491d6c3e33200b6accc"
   },
-  "gate_results": {},
-  "ci_run": null,
+  "gate_results": {
+    "isolation": "PASS",
+    "migrations_idempotent": "PASS",
+    "snapshot": "PASS",
+    "pack_reconcile": "PASS",
+    "linkage": "completed",
+    "recurrence_mode": "LABELED_DETERMINISTIC_REPLAY",
+    "live_dual_snapshot": false,
+    "human_acceptance": "ACCEPTED",
+    "final_status": "PASS"
+  },
+  "ci_run": {
+    "as_of": "2026-07-24T21:39:17.279771Z",
+    "head": "89e02ca225c05cc32065eff10efa99b6674dc558",
+    "pr": 131,
+    "url": "https://github.com/tjsasakifln/extra-cli/pull/131",
+    "run_id": 30128298986,
+    "full_suite": "PASS",
+    "conclusion": "success",
+    "all_checks_success": true,
+    "checks": {
+      "Lint (ruff)": "pass",
+      "Type Check (mypy)": "pass",
+      "Test (critical readiness)": "pass",
+      "Test operational expanded (PR)": "pass",
+      "Test All (full suite)": "pass",
+      "Resilience Gate (pre-VPS)": "pass",
+      "Security (bandit)": "pass",
+      "Dependency Audit (pip-audit)": "pass"
+    },
+    "human_acceptance": "PENDING_HUMAN",
+    "final_status": "BLOCKED"
+  },
   "review_verdict": null,
   "production_touched": false,
   "soak_touched": false,
@@ -196,7 +230,8 @@
     "integrated cycle entry point sequences pack+linkage+weekly+monthly on isolated DSN",
     "A–E pack over authenticated dump population (not silent sample universe)",
     "linkage with provenance classifications on campaign opportunities",
-    "production_touched=false and soak_touched=false when isolation_ok"
+    "production_touched=false and soak_touched=false when isolation_ok",
+    "recurrence_mechanics_proven_via_labeled_same_snapshot_cycles"
   ],
   "non_claims": [
     "LOCAL_READY",
@@ -204,6 +239,8 @@
     "VPS_OPERATIONAL",
     "PROJECT_DONE",
     "soak_7d PASS",
+    "live_dual_snapshot_recurrence",
+    "two_independent_temporal_exports",
     "unit price from global valor_total",
     "Extra operational capacity fields not elicited",
     "win rate without observable open-tender denominator"
@@ -211,7 +248,7 @@
   "limitations": [
     "Isolated snapshot — not live VPS query",
     "Deliverable E from captured evidence when live crawl skipped",
-    "Labeled monthly replay if live-isolated two-cycle unavailable"
+    "Monthly recurrence mechanics use same snapshot + labeled inject (NOT two independent temporal exports)"
   ],
   "blockers": [],
   "final_status": "PASS",
@@ -225,14 +262,14 @@
       "port": 5436,
       "database": "extra_live_pack_rc",
       "hits": [],
-      "checked_at": "2026-07-24T21:40:22Z",
+      "checked_at": "2026-07-24T21:50:50Z",
       "campaign_id": "CLIENT-READY-RECURRING-CONSULTING-CYCLE-01"
     },
     "migrations": {
       "first_exit": 0,
       "second_exit": 0,
       "idempotent": true,
-      "duration_s": 0.157,
+      "duration_s": 0.144,
       "stderr_tail": ""
     },
     "profile": {
@@ -248,11 +285,12 @@
     "snapshot": {
       "ok": true,
       "snapshot_row_count": 4437142,
-      "expected_row_count": null,
+      "expected_row_count": 4437142,
       "row_count_reconciled": true,
       "sc_active_count": 1179237,
-      "snapshot_sha256": null,
-      "dump_package": null,
+      "snapshot_sha256": "f9e45cdbc2ddf06e502aef86ef687595cb21880899bcee2cb28f54d1de883661",
+      "snapshot_sha256_source": "SHA256SUMS",
+      "dump_package": "/mnt/d/extra consultoria/artifacts/migration/backfill-vps/pkg-20260723T195047Z",
       "migrations_recent": [
         "061",
         "060",
@@ -288,7 +326,7 @@
       "claim": "opportunities include SNAPSHOT-SEED and captured open-tender evidence; not a live PNCP crawl in this run"
     },
     "linkage": {
-      "run_id": "crc-20260724T214026Z",
+      "run_id": "crc-20260724T215053Z",
       "status": "completed",
       "metrics": {
         "opportunities": 12,
@@ -338,7 +376,7 @@
     },
     "dossiers": {
       "written": 12,
-      "run_id": "crc-20260724T214026Z",
+      "run_id": "crc-20260724T215053Z",
       "opportunity_ids": [
         1,
         2,
@@ -355,22 +393,22 @@
       ]
     },
     "pack": {
-      "run_id": "live-pack-20260724-214028-87999f63",
+      "run_id": "live-pack-20260724-215055-5b8d0087",
       "reconcile": {
         "status": "PASS",
         "same_run_id": true,
         "divergences": [],
-        "run_id": "live-pack-20260724-214028-87999f63",
+        "run_id": "live-pack-20260724-215055-5b8d0087",
         "eligible_population": 1179237,
-        "meta_pdf_run_id": "live-pack-20260724-214028-87999f63",
-        "meta_excel_run_id": "live-pack-20260724-214028-87999f63",
+        "meta_pdf_run_id": "live-pack-20260724-215055-5b8d0087",
+        "meta_excel_run_id": "live-pack-20260724-215055-5b8d0087",
         "artifact_checks": {
           "pdf_path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/pack/extra_live_consulting_pack.pdf",
           "excel_path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/pack/extra_live_consulting_pack.xlsx",
-          "pdf_sha256": "8c0e84134aa104c321c22479176d5414b99ea6cc3ae62353eeaa2a26a6b96a34",
-          "excel_sha256": "132aa457eec3854aa3e6e3f00f8d45225f601ab2dfc8b61230754ea426e1d48c",
-          "pdf_bytes": 3676,
-          "excel_bytes": 119818,
+          "pdf_sha256": "49dd6a2934d0c46de62dd6a6903097da6ba52fb71f809855fd7d1e2e6f18c6ba",
+          "excel_sha256": "f53523874bc6d2db90fd8783b12b1d9b22acab55290eea4dd803ef3397bb9216",
+          "pdf_bytes": 3675,
+          "excel_bytes": 119182,
           "binaries_distinct": true,
           "pdf_run_id_plaintext": false,
           "excel_sheet_rows": {
@@ -413,13 +451,13 @@
           "export_limit": 200,
           "export_is_not_universe": true
         },
-        "query_seconds": 3.559
+        "query_seconds": 3.013
       },
       "deliverable_b": {
         "status": "OK",
         "valid_count": 15,
         "target_n": 15,
-        "query_seconds": 13.537
+        "query_seconds": 12.025
       },
       "deliverable_c": {
         "status": "OK",
@@ -429,12 +467,12 @@
           "n": 14750,
           "query_complete": true
         },
-        "query_seconds": 2.273
+        "query_seconds": 2.083
       },
       "deliverable_d": {
         "status": "OK",
         "n_panels": 6,
-        "query_seconds": 2.102
+        "query_seconds": 2.061
       },
       "deliverable_e": {
         "status": "OK",
@@ -447,19 +485,22 @@
       "exit_code": 2,
       "ok": true,
       "manifest_exists": true,
-      "stdout_tail": "724T214052Z-8da20af7\",\n  \"exit_code\": 2,\n  \"duration_seconds\": 3.67,\n  \"products\": {\n    \"executive_md\": \"artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/executive_summary.md\",\n    \"excel\": \"artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/extra_weekly_pack.xlsx\",\n    \"manifest\": \"artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/manifest.json\",\n    \"pdf_status\": \"RESIDUAL_NOT_GENERATED\"\n  },\n  \"intelligence_counts\": {\n    \"opportunities\": 7,\n    \"contracts\": 30,\n    \"competitors\": 30,\n    \"orgaos\": 7\n  },\n  \"runs\": [\n    {\n      \"source\": \"pncp_opportunities\",\n      \"terminal_status\": \"partial\"\n    },\n    {\n      \"source\": \"pncp_contracts\",\n      \"terminal_status\": \"reused_fresh\"\n    }\n  ],\n  \"human_accept\": \"PENDING_HUMAN\"\n}\n",
+      "stdout_tail": "724T215115Z-178bc934\",\n  \"exit_code\": 2,\n  \"duration_seconds\": 3.04,\n  \"products\": {\n    \"executive_md\": \"artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/executive_summary.md\",\n    \"excel\": \"artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/extra_weekly_pack.xlsx\",\n    \"manifest\": \"artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/manifest.json\",\n    \"pdf_status\": \"RESIDUAL_NOT_GENERATED\"\n  },\n  \"intelligence_counts\": {\n    \"opportunities\": 7,\n    \"contracts\": 30,\n    \"competitors\": 30,\n    \"orgaos\": 7\n  },\n  \"runs\": [\n    {\n      \"source\": \"pncp_opportunities\",\n      \"terminal_status\": \"partial\"\n    },\n    {\n      \"source\": \"pncp_contracts\",\n      \"terminal_status\": \"reused_fresh\"\n    }\n  ],\n  \"human_accept\": \"PENDING_HUMAN\"\n}\n",
       "stderr_tail": ""
     },
     "monthly": {
       "ok": true,
-      "mode": "LIVE_ISOLATED",
-      "live_recurrence": true,
+      "mode": "LABELED_DETERMINISTIC_REPLAY",
+      "live_recurrence": false,
+      "live_dual_snapshot": false,
+      "synthetic_inject_used": true,
       "exit_code": 0,
+      "path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/monthly/monthly-monitor-live.json",
       "stdout_tail": "{\n  \"ok\": true,\n  \"checks\": {\n    \"no_manual_rebuild\": true,\n    \"new_editais_detected\": true,\n    \"status_events\": true,\n    \"expiring_window\": true,\n    \"panorama_updated\": true,\n    \"weekly_present\": true,\n    \"monthly_present\": true,\n    \"variation_has_previous\": true\n  },\n  \"fails\": [],\n  \"summary\": {\n    \"pass\": 8,\n    \"fail\": 0\n  }\n}\n"
     },
     "recurrence": {
-      "mode": "LIVE_ISOLATED",
-      "live_dual_snapshot": true
+      "mode": "LABELED_DETERMINISTIC_REPLAY",
+      "live_dual_snapshot": false
     }
   }
 }

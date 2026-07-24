@@ -1,8 +1,8 @@
 {
   "title": "Dossiê de investigação — linkage canônico",
   "campaign_id": "CANONICAL-ENTITY-LINKAGE-01",
-  "generated_at": "2026-07-24T21:40:28.926589Z",
-  "run_id": "crc-20260724T214026Z",
+  "generated_at": "2026-07-24T21:50:55.275201Z",
+  "run_id": "crc-20260724T215053Z",
   "opportunity_id": 3,
   "universe": {
     "note": "Isolated snapshot + open opportunities in linkage RC DB"

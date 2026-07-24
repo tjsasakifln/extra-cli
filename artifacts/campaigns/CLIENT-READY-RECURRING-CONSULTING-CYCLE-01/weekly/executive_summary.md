@@ -1,8 +1,8 @@
-# Pacote semanal Extra Construtora — weekly-20260724T214052Z-5d7fc91e7c
+# Pacote semanal Extra Construtora — weekly-20260724T215115Z-6d643e108f
 
-- **Gerado em:** 2026-07-24T21:40:52Z
-- **Collection ID:** `col-extra-weekly-20260724T214052Z-8da20af7`
-- **Git:** `4d3cfadc19a8563317d3ddcf63ee63c4551685df`
+- **Gerado em:** 2026-07-24T21:51:16Z
+- **Collection ID:** `col-extra-weekly-20260724T215115Z-178bc934`
+- **Git:** `9662ce478bde3345297711746b6ecfe225564dd7`
 - **Exit code previsto:** ver manifest
 
 ## Resumo executivo
@@ -18,16 +18,16 @@ Ranking efetivo: **GO=0**, **REVIEW=7**, **NO_GO=0**.
 ## Freshness / saúde das fontes
 
 - `pncp_opportunities`: **never** (age_h=None, SLA=24h)
-- `pncp_contracts`: **fresh** (age_h=25.86, SLA=168h) — freshness by max(ingested_at); not a full re-collect this cycle
+- `pncp_contracts`: **fresh** (age_h=26.04, SLA=168h) — freshness by max(ingested_at); not a full re-collect this cycle
 
 ## Coletas deste ciclo
 
-- `pncp_opportunities` run `collect-pncp_opportunities-20260724T214053Z-f8742a1bfd` → **partial** (obtidos=0, persistidos=0)
+- `pncp_opportunities` run `collect-pncp_opportunities-20260724T215117Z-ad4de2a078` → **partial** (obtidos=0, persistidos=0)
   - nota: skip_collect with freshness level=never — not promoted to reused_fresh
   - nota: partial: lake reused without complete in-SLA collection proof
-- `pncp_contracts` run `collect-pncp_contracts-20260724T214053Z-978b39a746` → **reused_fresh** (obtidos=4437142, persistidos=4437142)
+- `pncp_contracts` run `collect-pncp_contracts-20260724T215117Z-ebf6e0d883` → **reused_fresh** (obtidos=4437142, persistidos=4437142)
   - nota: contracts not re-crawled; lake rows reused with explicit freshness
-  - nota: age_hours=25.86
+  - nota: age_hours=26.04
 
 ## Top oportunidades (até 15)
 

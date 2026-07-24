@@ -1,6 +1,6 @@
 {
-  "run_id": "crc-20260724T214026Z",
-  "as_of": "2026-07-24T21:40:26.892562Z",
+  "run_id": "crc-20260724T215053Z",
+  "as_of": "2026-07-24T21:50:53.504787Z",
   "status": "completed",
   "metrics": {
     "opportunities": 12,
@@ -50,7 +50,7 @@
   "production_touched": false,
   "errors": [],
   "sample_investigation": {
-    "run_id": "crc-20260724T214026Z",
+    "run_id": "crc-20260724T215053Z",
     "opportunity_id": 1,
     "opportunity": {
       "id": 1,

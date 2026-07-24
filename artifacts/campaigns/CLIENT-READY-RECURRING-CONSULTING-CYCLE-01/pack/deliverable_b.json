@@ -705,7 +705,7 @@
     "Treat top suppliers by raw national volume as Extra peers",
     "Infer partnership from co-presence"
   ],
-  "generated_at": "2026-07-24T21:40:47Z",
+  "generated_at": "2026-07-24T21:51:11Z",
   "population": {
     "eligible_population": 1179237,
     "active_contracts": 1179237,
@@ -741,9 +741,9 @@
     "export_is_not_universe": true,
     "selection_note": "Competitors ranked only on contracts whose objeto matches Extra engineering profile terms; hospital/office suppliers excluded."
   },
-  "query_seconds": 13.537,
-  "run_id": "live-pack-20260724-214028-87999f63",
+  "query_seconds": 12.025,
+  "run_id": "live-pack-20260724-215055-5b8d0087",
   "as_of": "2026-07-24",
-  "git_sha": "4d3cfadc19a8563317d3ddcf63ee63c4551685df",
+  "git_sha": "9662ce478bde3345297711746b6ecfe225564dd7",
   "schema_version": "coverage-2.4_entity_coverage_rebuild"
 }

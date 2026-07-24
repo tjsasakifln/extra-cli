@@ -1,11 +1,14 @@
 {
-  "as_of": "2026-07-24T21:18:08.456626Z",
-  "fixed_highs": [
-    "IAF-05",
-    "IAF-08a"
+  "as_of": "2026-07-24T21:51:54.420106Z",
+  "skeptic_gaps_closed": [
+    "live_dual_snapshot false for labeled inject",
+    "pack run_id consistent across executive-summary/meeting-support/pack-manifest/result",
+    "user-acceptance checksums match pack files",
+    "manifest snapshot_sha256 + gate_results + ci_run populated"
   ],
-  "tests": "21 passed tests/test_client_ready_consulting_cycle.py + live pack",
-  "reconcile_status": "PASS",
-  "recurrence_new_opportunities_count": 1,
-  "recurrence_status_changes_count": 1
+  "recurrence_mode": "LABELED_DETERMINISTIC_REPLAY",
+  "live_dual_snapshot": false,
+  "final_status": "PASS",
+  "run_id": "live-pack-20260724-215055-5b8d0087",
+  "reconcile": "PASS"
 }

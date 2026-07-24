@@ -4,28 +4,28 @@
   "terminal": "PASS",
   "blockers": [],
   "failures": [],
-  "rc_sha": "4d3cfadc19a8563317d3ddcf63ee63c4551685df",
-  "run_id": "live-pack-20260724-214028-87999f63",
+  "rc_sha": "9662ce478bde3345297711746b6ecfe225564dd7",
+  "run_id": "live-pack-20260724-215055-5b8d0087",
   "production_touched": false,
   "soak_touched": false,
-  "duration_s": 37.522,
+  "duration_s": 32.755,
   "pack": {
-    "run_id": "live-pack-20260724-214028-87999f63",
+    "run_id": "live-pack-20260724-215055-5b8d0087",
     "reconcile": {
       "status": "PASS",
       "same_run_id": true,
       "divergences": [],
-      "run_id": "live-pack-20260724-214028-87999f63",
+      "run_id": "live-pack-20260724-215055-5b8d0087",
       "eligible_population": 1179237,
-      "meta_pdf_run_id": "live-pack-20260724-214028-87999f63",
-      "meta_excel_run_id": "live-pack-20260724-214028-87999f63",
+      "meta_pdf_run_id": "live-pack-20260724-215055-5b8d0087",
+      "meta_excel_run_id": "live-pack-20260724-215055-5b8d0087",
       "artifact_checks": {
         "pdf_path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/pack/extra_live_consulting_pack.pdf",
         "excel_path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/pack/extra_live_consulting_pack.xlsx",
-        "pdf_sha256": "8c0e84134aa104c321c22479176d5414b99ea6cc3ae62353eeaa2a26a6b96a34",
-        "excel_sha256": "132aa457eec3854aa3e6e3f00f8d45225f601ab2dfc8b61230754ea426e1d48c",
-        "pdf_bytes": 3676,
-        "excel_bytes": 119818,
+        "pdf_sha256": "49dd6a2934d0c46de62dd6a6903097da6ba52fb71f809855fd7d1e2e6f18c6ba",
+        "excel_sha256": "f53523874bc6d2db90fd8783b12b1d9b22acab55290eea4dd803ef3397bb9216",
+        "pdf_bytes": 3675,
+        "excel_bytes": 119182,
         "binaries_distinct": true,
         "pdf_run_id_plaintext": false,
         "excel_sheet_rows": {
@@ -68,13 +68,13 @@
         "export_limit": 200,
         "export_is_not_universe": true
       },
-      "query_seconds": 3.559
+      "query_seconds": 3.013
     },
     "deliverable_b": {
       "status": "OK",
       "valid_count": 15,
       "target_n": 15,
-      "query_seconds": 13.537
+      "query_seconds": 12.025
     },
     "deliverable_c": {
       "status": "OK",
@@ -84,12 +84,12 @@
         "n": 14750,
         "query_complete": true
       },
-      "query_seconds": 2.273
+      "query_seconds": 2.083
     },
     "deliverable_d": {
       "status": "OK",
       "n_panels": 6,
-      "query_seconds": 2.102
+      "query_seconds": 2.061
     },
     "deliverable_e": {
       "status": "OK",
@@ -99,7 +99,7 @@
     "production_touched": false
   },
   "linkage": {
-    "run_id": "crc-20260724T214026Z",
+    "run_id": "crc-20260724T215053Z",
     "status": "completed",
     "metrics": {
       "opportunities": 12,
@@ -148,15 +148,16 @@
     "production_touched": false
   },
   "recurrence": {
-    "mode": "LIVE_ISOLATED",
-    "live_dual_snapshot": true
+    "mode": "LABELED_DETERMINISTIC_REPLAY",
+    "live_dual_snapshot": false
   },
   "human_acceptance": "ACCEPTED",
   "claims": [
     "integrated cycle entry point sequences pack+linkage+weekly+monthly on isolated DSN",
     "A–E pack over authenticated dump population (not silent sample universe)",
     "linkage with provenance classifications on campaign opportunities",
-    "production_touched=false and soak_touched=false when isolation_ok"
+    "production_touched=false and soak_touched=false when isolation_ok",
+    "recurrence_mechanics_proven_via_labeled_same_snapshot_cycles"
   ],
   "non_claims": [
     "LOCAL_READY",
@@ -164,13 +165,11 @@
     "VPS_OPERATIONAL",
     "PROJECT_DONE",
     "soak_7d PASS",
+    "live_dual_snapshot_recurrence",
+    "two_independent_temporal_exports",
     "unit price from global valor_total",
     "Extra operational capacity fields not elicited",
     "win rate without observable open-tender denominator"
   ],
-  "generated_at": "2026-07-24T21:41:00Z",
-  "accepted_by": "Tiago Sasaki",
-  "accepted_at": "2026-07-24T21:40:15Z",
-  "branch_tip_sha": "4d3cfadc19a8563317d3ddcf63ee63c4551685df",
-  "no_technical_work_remaining": true
+  "generated_at": "2026-07-24T21:51:22Z"
 }

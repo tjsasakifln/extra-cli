@@ -1,17 +1,17 @@
 {
   "status": "PASS",
-  "run_id": "live-pack-20260724-214028-87999f63",
-  "git_sha": "4d3cfadc19a8563317d3ddcf63ee63c4551685df",
+  "run_id": "live-pack-20260724-215055-5b8d0087",
+  "git_sha": "9662ce478bde3345297711746b6ecfe225564dd7",
   "eligible_population": 1179237,
   "divergences": [],
   "same_run_id": true,
   "artifact_checks": {
     "pdf_path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/pack/executive-report.pdf",
     "excel_path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/pack/consulting-pack.xlsx",
-    "pdf_sha256": "8c88afb363d535cca94232afe6e330b478299d04590dfaf0d997a4ead31ce1c5",
-    "excel_sha256": "f91b8cc2a8250ee9cbd35c0316418d6bca5477a194352501773a841647ac54ad",
-    "pdf_bytes": 3676,
-    "excel_bytes": 119428,
+    "pdf_sha256": "49dd6a2934d0c46de62dd6a6903097da6ba52fb71f809855fd7d1e2e6f18c6ba",
+    "excel_sha256": "f53523874bc6d2db90fd8783b12b1d9b22acab55290eea4dd803ef3397bb9216",
+    "pdf_bytes": 3675,
+    "excel_bytes": 119182,
     "binaries_distinct": true,
     "pdf_run_id_plaintext": false,
     "excel_sheet_rows": {
@@ -26,5 +26,7 @@
       "Limitacoes": 4,
       "Dados": 1
     }
-  }
+  },
+  "meta_pdf_run_id": "live-pack-20260724-215055-5b8d0087",
+  "meta_excel_run_id": "live-pack-20260724-215055-5b8d0087"
 }

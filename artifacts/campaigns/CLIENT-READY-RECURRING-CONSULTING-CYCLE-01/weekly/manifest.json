@@ -1,11 +1,11 @@
 {
-  "cycle_id": "weekly-20260724T214052Z-5d7fc91e7c",
-  "collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-  "started_at": "2026-07-24T21:40:52Z",
-  "finished_at": "2026-07-24T21:40:55Z",
+  "cycle_id": "weekly-20260724T215115Z-6d643e108f",
+  "collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+  "started_at": "2026-07-24T21:51:16Z",
+  "finished_at": "2026-07-24T21:51:19Z",
   "exit_code": 2,
   "git": {
-    "git_sha": "4d3cfadc19a8563317d3ddcf63ee63c4551685df",
+    "git_sha": "9662ce478bde3345297711746b6ecfe225564dd7",
     "git_branch": "campaign/client-ready-recurring-consulting-cycle-01"
   },
   "stages": [
@@ -50,7 +50,7 @@
             "source": "pncp_contracts",
             "level": "fresh",
             "sla_hours": 168,
-            "age_hours": 25.86,
+            "age_hours": 26.04,
             "row_count": 4437142,
             "indicator": "freshness_source",
             "note": "freshness by max(ingested_at); not a full re-collect this cycle"
@@ -65,8 +65,8 @@
       "detail": {
         "runs": [
           {
-            "run_id": "collect-pncp_opportunities-20260724T214053Z-f8742a1bfd",
-            "collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
+            "run_id": "collect-pncp_opportunities-20260724T215117Z-ad4de2a078",
+            "collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
             "source": "pncp_opportunities",
             "collector_version": "weekly-cycle/1.1",
             "parameters": {
@@ -76,8 +76,8 @@
             },
             "period_start": "2026-07-17",
             "period_end": "2026-07-24",
-            "started_at": "2026-07-24T21:40:53.788348Z",
-            "finished_at": "2026-07-24T21:40:53.788377Z",
+            "started_at": "2026-07-24T21:51:17.002927Z",
+            "finished_at": "2026-07-24T21:51:17.003004Z",
             "terminal_status": "partial",
             "records_obtained": 0,
             "records_rejected": 0,
@@ -90,17 +90,17 @@
             "scope_complete": false,
             "source_available": true,
             "mode": "incremental",
-            "git_sha": "4d3cfadc19a8563317d3ddcf63ee63c4551685df",
+            "git_sha": "9662ce478bde3345297711746b6ecfe225564dd7",
             "notes": [
               "skip_collect with freshness level=never — not promoted to reused_fresh",
               "partial: lake reused without complete in-SLA collection proof"
             ],
             "contract_version": "1.0",
-            "payload_hash": "962350019752d6897365b5d65cd55b93049d5fdc11e2be7a30b79ba563f722fb"
+            "payload_hash": "78ff177cd99760d5366cff8c27c2148e9dbd6b555093d641a83eeb59001f67da"
           },
           {
-            "run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
-            "collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
+            "run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
+            "collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
             "source": "pncp_contracts",
             "collector_version": "weekly-cycle/1.1",
             "parameters": {
@@ -108,8 +108,8 @@
             },
             "period_start": null,
             "period_end": null,
-            "started_at": "2026-07-24T21:40:53.992647Z",
-            "finished_at": "2026-07-24T21:40:53.992689Z",
+            "started_at": "2026-07-24T21:51:17.161720Z",
+            "finished_at": "2026-07-24T21:51:17.161752Z",
             "terminal_status": "reused_fresh",
             "records_obtained": 4437142,
             "records_rejected": 0,
@@ -122,13 +122,13 @@
             "scope_complete": false,
             "source_available": true,
             "mode": "reuse",
-            "git_sha": "4d3cfadc19a8563317d3ddcf63ee63c4551685df",
+            "git_sha": "9662ce478bde3345297711746b6ecfe225564dd7",
             "notes": [
               "contracts not re-crawled; lake rows reused with explicit freshness",
-              "age_hours=25.86"
+              "age_hours=26.04"
             ],
             "contract_version": "1.0",
-            "payload_hash": "fbdf1998a9e0d4e3d68d741ebf5ae7938c7b3e10c3941ddcc18b8dea4c1e4049"
+            "payload_hash": "727e94e5ca2b86a061a84b4c975dc22857e003d3d92541f76204a8a88af2895b"
           }
         ]
       },
@@ -208,8 +208,8 @@
             "ranking_note": null,
             "valor_tipo": "estimado_ou_nao_declarado",
             "valor_nao_e_pago": true,
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_opportunities-20260724T214053Z-f8742a1bfd",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_opportunities-20260724T215117Z-ad4de2a078",
             "source_record_run_id": null,
             "scope": "extra_sc_or_universe_200km"
           },
@@ -247,8 +247,8 @@
             "ranking_note": null,
             "valor_tipo": "estimado_ou_nao_declarado",
             "valor_nao_e_pago": true,
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_opportunities-20260724T214053Z-f8742a1bfd",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_opportunities-20260724T215117Z-ad4de2a078",
             "source_record_run_id": null,
             "scope": "extra_sc_or_universe_200km"
           },
@@ -286,8 +286,8 @@
             "ranking_note": null,
             "valor_tipo": "estimado_ou_nao_declarado",
             "valor_nao_e_pago": true,
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_opportunities-20260724T214053Z-f8742a1bfd",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_opportunities-20260724T215117Z-ad4de2a078",
             "source_record_run_id": null,
             "scope": "extra_sc_or_universe_200km"
           },
@@ -317,7 +317,7 @@
             "proveniencia": {},
             "last_seen_source_run_id": null,
             "ingested_at": "2026-07-24 21:04:54.438026+00:00",
-            "updated_at": "2026-07-24 21:40:22.770687+00:00",
+            "updated_at": "2026-07-24 21:50:50.296555+00:00",
             "essential_gaps": [
               "valor_estimado"
             ],
@@ -325,8 +325,8 @@
             "ranking_note": null,
             "valor_tipo": "estimado_ou_nao_declarado",
             "valor_nao_e_pago": true,
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_opportunities-20260724T214053Z-f8742a1bfd",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_opportunities-20260724T215117Z-ad4de2a078",
             "source_record_run_id": null,
             "scope": "extra_sc_or_universe_200km"
           },
@@ -356,7 +356,7 @@
             "proveniencia": {},
             "last_seen_source_run_id": null,
             "ingested_at": "2026-07-24 21:04:54.438026+00:00",
-            "updated_at": "2026-07-24 21:40:22.770687+00:00",
+            "updated_at": "2026-07-24 21:50:50.296555+00:00",
             "essential_gaps": [
               "valor_estimado"
             ],
@@ -364,8 +364,8 @@
             "ranking_note": null,
             "valor_tipo": "estimado_ou_nao_declarado",
             "valor_nao_e_pago": true,
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_opportunities-20260724T214053Z-f8742a1bfd",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_opportunities-20260724T215117Z-ad4de2a078",
             "source_record_run_id": null,
             "scope": "extra_sc_or_universe_200km"
           },
@@ -395,7 +395,7 @@
             "proveniencia": {},
             "last_seen_source_run_id": null,
             "ingested_at": "2026-07-24 21:04:54.438026+00:00",
-            "updated_at": "2026-07-24 21:40:22.770687+00:00",
+            "updated_at": "2026-07-24 21:50:50.296555+00:00",
             "essential_gaps": [
               "valor_estimado"
             ],
@@ -403,8 +403,8 @@
             "ranking_note": null,
             "valor_tipo": "estimado_ou_nao_declarado",
             "valor_nao_e_pago": true,
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_opportunities-20260724T214053Z-f8742a1bfd",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_opportunities-20260724T215117Z-ad4de2a078",
             "source_record_run_id": null,
             "scope": "extra_sc_or_universe_200km"
           },
@@ -434,7 +434,7 @@
             "proveniencia": {},
             "last_seen_source_run_id": null,
             "ingested_at": "2026-07-24 21:04:54.438026+00:00",
-            "updated_at": "2026-07-24 21:40:22.770687+00:00",
+            "updated_at": "2026-07-24 21:50:50.296555+00:00",
             "essential_gaps": [
               "valor_estimado"
             ],
@@ -442,8 +442,8 @@
             "ranking_note": null,
             "valor_tipo": "estimado_ou_nao_declarado",
             "valor_nao_e_pago": true,
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_opportunities-20260724T214053Z-f8742a1bfd",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_opportunities-20260724T215117Z-ad4de2a078",
             "source_record_run_id": null,
             "scope": "extra_sc_or_universe_200km"
           }
@@ -470,8 +470,8 @@
             "valor_tipo": "valor_contratado",
             "valor_nao_e_pago": true,
             "valor_note": "valor_total é contratado/homologado na fonte — não pagar/medido",
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "source_record_run_id": null,
             "source_record_id": "82836057000190-2-001020/2026",
             "scope": "extra_universe_200km",
@@ -498,8 +498,8 @@
             "valor_tipo": "valor_contratado",
             "valor_nao_e_pago": true,
             "valor_note": "valor_total é contratado/homologado na fonte — não pagar/medido",
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "source_record_run_id": null,
             "source_record_id": "83102343000194-2-002449/2026",
             "scope": "extra_universe_200km",
@@ -526,8 +526,8 @@
             "valor_tipo": "valor_contratado",
             "valor_nao_e_pago": true,
             "valor_note": "valor_total é contratado/homologado na fonte — não pagar/medido",
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "source_record_run_id": null,
             "source_record_id": "82836057000190-2-001016/2026",
             "scope": "extra_universe_200km",
@@ -554,8 +554,8 @@
             "valor_tipo": "valor_contratado",
             "valor_nao_e_pago": true,
             "valor_note": "valor_total é contratado/homologado na fonte — não pagar/medido",
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "source_record_run_id": null,
             "source_record_id": "82836057000190-2-001019/2026",
             "scope": "extra_universe_200km",
@@ -582,8 +582,8 @@
             "valor_tipo": "valor_contratado",
             "valor_nao_e_pago": true,
             "valor_note": "valor_total é contratado/homologado na fonte — não pagar/medido",
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "source_record_run_id": null,
             "source_record_id": "95815379000102-2-000475/2026",
             "scope": "extra_universe_200km",
@@ -610,8 +610,8 @@
             "valor_tipo": "valor_contratado",
             "valor_nao_e_pago": true,
             "valor_note": "valor_total é contratado/homologado na fonte — não pagar/medido",
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "source_record_run_id": null,
             "source_record_id": "83102343000194-2-002448/2026",
             "scope": "extra_universe_200km",
@@ -638,8 +638,8 @@
             "valor_tipo": "valor_contratado",
             "valor_nao_e_pago": true,
             "valor_note": "valor_total é contratado/homologado na fonte — não pagar/medido",
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "source_record_run_id": null,
             "source_record_id": "64372423000115-2-000003/2026",
             "scope": "extra_universe_200km",
@@ -666,8 +666,8 @@
             "valor_tipo": "valor_contratado",
             "valor_nao_e_pago": true,
             "valor_note": "valor_total é contratado/homologado na fonte — não pagar/medido",
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "source_record_run_id": null,
             "source_record_id": "82836057000190-2-001015/2026",
             "scope": "extra_universe_200km",
@@ -694,8 +694,8 @@
             "valor_tipo": "valor_contratado",
             "valor_nao_e_pago": true,
             "valor_note": "valor_total é contratado/homologado na fonte — não pagar/medido",
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "source_record_run_id": null,
             "source_record_id": "82836057000190-2-001017/2026",
             "scope": "extra_universe_200km",
@@ -722,8 +722,8 @@
             "valor_tipo": "valor_contratado",
             "valor_nao_e_pago": true,
             "valor_note": "valor_total é contratado/homologado na fonte — não pagar/medido",
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "source_record_run_id": null,
             "source_record_id": "82836057000190-2-001018/2026",
             "scope": "extra_universe_200km",
@@ -750,8 +750,8 @@
             "valor_tipo": "valor_contratado",
             "valor_nao_e_pago": true,
             "valor_note": "valor_total é contratado/homologado na fonte — não pagar/medido",
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "source_record_run_id": null,
             "source_record_id": "82836057000190-2-001022/2026",
             "scope": "extra_universe_200km",
@@ -778,8 +778,8 @@
             "valor_tipo": "valor_contratado",
             "valor_nao_e_pago": true,
             "valor_note": "valor_total é contratado/homologado na fonte — não pagar/medido",
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "source_record_run_id": null,
             "source_record_id": "82836057000190-2-001024/2026",
             "scope": "extra_universe_200km",
@@ -806,8 +806,8 @@
             "valor_tipo": "valor_contratado",
             "valor_nao_e_pago": true,
             "valor_note": "valor_total é contratado/homologado na fonte — não pagar/medido",
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "source_record_run_id": null,
             "source_record_id": "95815379000102-2-000476/2026",
             "scope": "extra_universe_200km",
@@ -834,8 +834,8 @@
             "valor_tipo": "valor_contratado",
             "valor_nao_e_pago": true,
             "valor_note": "valor_total é contratado/homologado na fonte — não pagar/medido",
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "source_record_run_id": null,
             "source_record_id": "83102343000194-2-002447/2026",
             "scope": "extra_universe_200km",
@@ -862,8 +862,8 @@
             "valor_tipo": "valor_contratado",
             "valor_nao_e_pago": true,
             "valor_note": "valor_total é contratado/homologado na fonte — não pagar/medido",
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "source_record_run_id": null,
             "source_record_id": "82845744000171-2-000523/2026",
             "scope": "extra_universe_200km",
@@ -890,8 +890,8 @@
             "valor_tipo": "valor_contratado",
             "valor_nao_e_pago": true,
             "valor_note": "valor_total é contratado/homologado na fonte — não pagar/medido",
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "source_record_run_id": null,
             "source_record_id": "83102772000161-2-000297/2026",
             "scope": "extra_universe_200km",
@@ -918,8 +918,8 @@
             "valor_tipo": "valor_contratado",
             "valor_nao_e_pago": true,
             "valor_note": "valor_total é contratado/homologado na fonte — não pagar/medido",
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "source_record_run_id": null,
             "source_record_id": "82575812000120-2-000841/2026",
             "scope": "extra_universe_200km",
@@ -946,8 +946,8 @@
             "valor_tipo": "valor_contratado",
             "valor_nao_e_pago": true,
             "valor_note": "valor_total é contratado/homologado na fonte — não pagar/medido",
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "source_record_run_id": null,
             "source_record_id": "82836057000190-2-001014/2026",
             "scope": "extra_universe_200km",
@@ -974,8 +974,8 @@
             "valor_tipo": "valor_contratado",
             "valor_nao_e_pago": true,
             "valor_note": "valor_total é contratado/homologado na fonte — não pagar/medido",
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "source_record_run_id": null,
             "source_record_id": "82845744000171-2-000524/2026",
             "scope": "extra_universe_200km",
@@ -1002,8 +1002,8 @@
             "valor_tipo": "valor_contratado",
             "valor_nao_e_pago": true,
             "valor_note": "valor_total é contratado/homologado na fonte — não pagar/medido",
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "source_record_run_id": null,
             "source_record_id": "82845744000171-2-000525/2026",
             "scope": "extra_universe_200km",
@@ -1030,8 +1030,8 @@
             "valor_tipo": "valor_contratado",
             "valor_nao_e_pago": true,
             "valor_note": "valor_total é contratado/homologado na fonte — não pagar/medido",
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "source_record_run_id": null,
             "source_record_id": "82892324000146-2-000461/2026",
             "scope": "extra_universe_200km",
@@ -1058,8 +1058,8 @@
             "valor_tipo": "valor_contratado",
             "valor_nao_e_pago": true,
             "valor_note": "valor_total é contratado/homologado na fonte — não pagar/medido",
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "source_record_run_id": null,
             "source_record_id": "74047341000159-2-000047/2026",
             "scope": "extra_universe_200km",
@@ -1086,8 +1086,8 @@
             "valor_tipo": "valor_contratado",
             "valor_nao_e_pago": true,
             "valor_note": "valor_total é contratado/homologado na fonte — não pagar/medido",
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "source_record_run_id": null,
             "source_record_id": "82951195000110-2-000456/2026",
             "scope": "extra_universe_200km",
@@ -1114,8 +1114,8 @@
             "valor_tipo": "valor_contratado",
             "valor_nao_e_pago": true,
             "valor_note": "valor_total é contratado/homologado na fonte — não pagar/medido",
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "source_record_run_id": null,
             "source_record_id": "82836057000190-2-001021/2026",
             "scope": "extra_universe_200km",
@@ -1142,8 +1142,8 @@
             "valor_tipo": "valor_contratado",
             "valor_nao_e_pago": true,
             "valor_note": "valor_total é contratado/homologado na fonte — não pagar/medido",
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "source_record_run_id": null,
             "source_record_id": "81286254000110-2-000164/2026",
             "scope": "extra_universe_200km",
@@ -1170,8 +1170,8 @@
             "valor_tipo": "valor_contratado",
             "valor_nao_e_pago": true,
             "valor_note": "valor_total é contratado/homologado na fonte — não pagar/medido",
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "source_record_run_id": null,
             "source_record_id": "82836057000190-2-001023/2026",
             "scope": "extra_universe_200km",
@@ -1198,8 +1198,8 @@
             "valor_tipo": "valor_contratado",
             "valor_nao_e_pago": true,
             "valor_note": "valor_total é contratado/homologado na fonte — não pagar/medido",
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "source_record_run_id": null,
             "source_record_id": "82892357000196-2-000349/2026",
             "scope": "extra_universe_200km",
@@ -1226,8 +1226,8 @@
             "valor_tipo": "valor_contratado",
             "valor_nao_e_pago": true,
             "valor_note": "valor_total é contratado/homologado na fonte — não pagar/medido",
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "source_record_run_id": null,
             "source_record_id": "82892357000196-2-000348/2026",
             "scope": "extra_universe_200km",
@@ -1254,8 +1254,8 @@
             "valor_tipo": "valor_contratado",
             "valor_nao_e_pago": true,
             "valor_note": "valor_total é contratado/homologado na fonte — não pagar/medido",
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "source_record_run_id": null,
             "source_record_id": "95815379000102-2-000477/2026",
             "scope": "extra_universe_200km",
@@ -1282,8 +1282,8 @@
             "valor_tipo": "valor_contratado",
             "valor_nao_e_pago": true,
             "valor_note": "valor_total é contratado/homologado na fonte — não pagar/medido",
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "source_record_run_id": null,
             "source_record_id": "83102343000194-2-002450/2026",
             "scope": "extra_universe_200km",
@@ -1299,8 +1299,8 @@
             "n_orgaos": 93,
             "valor_tipo": "soma_valor_contratado_nao_pago",
             "valor_nao_e_pago": true,
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "scope": "extra_universe_200km",
             "normalized_table": "pncp_supplier_contracts_agg"
           },
@@ -1312,8 +1312,8 @@
             "n_orgaos": 151,
             "valor_tipo": "soma_valor_contratado_nao_pago",
             "valor_nao_e_pago": true,
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "scope": "extra_universe_200km",
             "normalized_table": "pncp_supplier_contracts_agg"
           },
@@ -1325,8 +1325,8 @@
             "n_orgaos": 144,
             "valor_tipo": "soma_valor_contratado_nao_pago",
             "valor_nao_e_pago": true,
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "scope": "extra_universe_200km",
             "normalized_table": "pncp_supplier_contracts_agg"
           },
@@ -1338,8 +1338,8 @@
             "n_orgaos": 99,
             "valor_tipo": "soma_valor_contratado_nao_pago",
             "valor_nao_e_pago": true,
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "scope": "extra_universe_200km",
             "normalized_table": "pncp_supplier_contracts_agg"
           },
@@ -1351,8 +1351,8 @@
             "n_orgaos": 148,
             "valor_tipo": "soma_valor_contratado_nao_pago",
             "valor_nao_e_pago": true,
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "scope": "extra_universe_200km",
             "normalized_table": "pncp_supplier_contracts_agg"
           },
@@ -1364,8 +1364,8 @@
             "n_orgaos": 143,
             "valor_tipo": "soma_valor_contratado_nao_pago",
             "valor_nao_e_pago": true,
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "scope": "extra_universe_200km",
             "normalized_table": "pncp_supplier_contracts_agg"
           },
@@ -1377,8 +1377,8 @@
             "n_orgaos": 136,
             "valor_tipo": "soma_valor_contratado_nao_pago",
             "valor_nao_e_pago": true,
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "scope": "extra_universe_200km",
             "normalized_table": "pncp_supplier_contracts_agg"
           },
@@ -1390,8 +1390,8 @@
             "n_orgaos": 81,
             "valor_tipo": "soma_valor_contratado_nao_pago",
             "valor_nao_e_pago": true,
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "scope": "extra_universe_200km",
             "normalized_table": "pncp_supplier_contracts_agg"
           },
@@ -1403,8 +1403,8 @@
             "n_orgaos": 91,
             "valor_tipo": "soma_valor_contratado_nao_pago",
             "valor_nao_e_pago": true,
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "scope": "extra_universe_200km",
             "normalized_table": "pncp_supplier_contracts_agg"
           },
@@ -1416,8 +1416,8 @@
             "n_orgaos": 126,
             "valor_tipo": "soma_valor_contratado_nao_pago",
             "valor_nao_e_pago": true,
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "scope": "extra_universe_200km",
             "normalized_table": "pncp_supplier_contracts_agg"
           },
@@ -1429,8 +1429,8 @@
             "n_orgaos": 148,
             "valor_tipo": "soma_valor_contratado_nao_pago",
             "valor_nao_e_pago": true,
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "scope": "extra_universe_200km",
             "normalized_table": "pncp_supplier_contracts_agg"
           },
@@ -1442,8 +1442,8 @@
             "n_orgaos": 138,
             "valor_tipo": "soma_valor_contratado_nao_pago",
             "valor_nao_e_pago": true,
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "scope": "extra_universe_200km",
             "normalized_table": "pncp_supplier_contracts_agg"
           },
@@ -1455,8 +1455,8 @@
             "n_orgaos": 132,
             "valor_tipo": "soma_valor_contratado_nao_pago",
             "valor_nao_e_pago": true,
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "scope": "extra_universe_200km",
             "normalized_table": "pncp_supplier_contracts_agg"
           },
@@ -1468,8 +1468,8 @@
             "n_orgaos": 134,
             "valor_tipo": "soma_valor_contratado_nao_pago",
             "valor_nao_e_pago": true,
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "scope": "extra_universe_200km",
             "normalized_table": "pncp_supplier_contracts_agg"
           },
@@ -1481,8 +1481,8 @@
             "n_orgaos": 95,
             "valor_tipo": "soma_valor_contratado_nao_pago",
             "valor_nao_e_pago": true,
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "scope": "extra_universe_200km",
             "normalized_table": "pncp_supplier_contracts_agg"
           },
@@ -1494,8 +1494,8 @@
             "n_orgaos": 140,
             "valor_tipo": "soma_valor_contratado_nao_pago",
             "valor_nao_e_pago": true,
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "scope": "extra_universe_200km",
             "normalized_table": "pncp_supplier_contracts_agg"
           },
@@ -1507,8 +1507,8 @@
             "n_orgaos": 112,
             "valor_tipo": "soma_valor_contratado_nao_pago",
             "valor_nao_e_pago": true,
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "scope": "extra_universe_200km",
             "normalized_table": "pncp_supplier_contracts_agg"
           },
@@ -1520,8 +1520,8 @@
             "n_orgaos": 124,
             "valor_tipo": "soma_valor_contratado_nao_pago",
             "valor_nao_e_pago": true,
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "scope": "extra_universe_200km",
             "normalized_table": "pncp_supplier_contracts_agg"
           },
@@ -1533,8 +1533,8 @@
             "n_orgaos": 110,
             "valor_tipo": "soma_valor_contratado_nao_pago",
             "valor_nao_e_pago": true,
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "scope": "extra_universe_200km",
             "normalized_table": "pncp_supplier_contracts_agg"
           },
@@ -1546,8 +1546,8 @@
             "n_orgaos": 116,
             "valor_tipo": "soma_valor_contratado_nao_pago",
             "valor_nao_e_pago": true,
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "scope": "extra_universe_200km",
             "normalized_table": "pncp_supplier_contracts_agg"
           },
@@ -1559,8 +1559,8 @@
             "n_orgaos": 139,
             "valor_tipo": "soma_valor_contratado_nao_pago",
             "valor_nao_e_pago": true,
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "scope": "extra_universe_200km",
             "normalized_table": "pncp_supplier_contracts_agg"
           },
@@ -1572,8 +1572,8 @@
             "n_orgaos": 102,
             "valor_tipo": "soma_valor_contratado_nao_pago",
             "valor_nao_e_pago": true,
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "scope": "extra_universe_200km",
             "normalized_table": "pncp_supplier_contracts_agg"
           },
@@ -1585,8 +1585,8 @@
             "n_orgaos": 63,
             "valor_tipo": "soma_valor_contratado_nao_pago",
             "valor_nao_e_pago": true,
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "scope": "extra_universe_200km",
             "normalized_table": "pncp_supplier_contracts_agg"
           },
@@ -1598,8 +1598,8 @@
             "n_orgaos": 111,
             "valor_tipo": "soma_valor_contratado_nao_pago",
             "valor_nao_e_pago": true,
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "scope": "extra_universe_200km",
             "normalized_table": "pncp_supplier_contracts_agg"
           },
@@ -1611,8 +1611,8 @@
             "n_orgaos": 61,
             "valor_tipo": "soma_valor_contratado_nao_pago",
             "valor_nao_e_pago": true,
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "scope": "extra_universe_200km",
             "normalized_table": "pncp_supplier_contracts_agg"
           },
@@ -1624,8 +1624,8 @@
             "n_orgaos": 136,
             "valor_tipo": "soma_valor_contratado_nao_pago",
             "valor_nao_e_pago": true,
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "scope": "extra_universe_200km",
             "normalized_table": "pncp_supplier_contracts_agg"
           },
@@ -1637,8 +1637,8 @@
             "n_orgaos": 140,
             "valor_tipo": "soma_valor_contratado_nao_pago",
             "valor_nao_e_pago": true,
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "scope": "extra_universe_200km",
             "normalized_table": "pncp_supplier_contracts_agg"
           },
@@ -1650,8 +1650,8 @@
             "n_orgaos": 112,
             "valor_tipo": "soma_valor_contratado_nao_pago",
             "valor_nao_e_pago": true,
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "scope": "extra_universe_200km",
             "normalized_table": "pncp_supplier_contracts_agg"
           },
@@ -1663,8 +1663,8 @@
             "n_orgaos": 116,
             "valor_tipo": "soma_valor_contratado_nao_pago",
             "valor_nao_e_pago": true,
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "scope": "extra_universe_200km",
             "normalized_table": "pncp_supplier_contracts_agg"
           },
@@ -1676,8 +1676,8 @@
             "n_orgaos": 102,
             "valor_tipo": "soma_valor_contratado_nao_pago",
             "valor_nao_e_pago": true,
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
-            "cycle_run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
+            "cycle_run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
             "scope": "extra_universe_200km",
             "normalized_table": "pncp_supplier_contracts_agg"
           }
@@ -1689,7 +1689,7 @@
             "uf": "DF",
             "municipio": "Brasília",
             "n_opp": 1,
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
             "scope": "extra_sc_or_universe_200km"
           },
           {
@@ -1698,7 +1698,7 @@
             "uf": "TO",
             "municipio": "Vila Velha",
             "n_opp": 1,
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
             "scope": "extra_sc_or_universe_200km"
           },
           {
@@ -1707,7 +1707,7 @@
             "uf": "TO",
             "municipio": "Vitória",
             "n_opp": 1,
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
             "scope": "extra_sc_or_universe_200km"
           },
           {
@@ -1716,7 +1716,7 @@
             "uf": "SC",
             "municipio": null,
             "n_opp": 1,
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
             "scope": "extra_sc_or_universe_200km"
           },
           {
@@ -1725,7 +1725,7 @@
             "uf": "SC",
             "municipio": null,
             "n_opp": 1,
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
             "scope": "extra_sc_or_universe_200km"
           },
           {
@@ -1734,7 +1734,7 @@
             "uf": "SC",
             "municipio": null,
             "n_opp": 1,
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
             "scope": "extra_sc_or_universe_200km"
           },
           {
@@ -1743,7 +1743,7 @@
             "uf": "SC",
             "municipio": null,
             "n_opp": 1,
-            "cycle_collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
+            "cycle_collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
             "scope": "extra_sc_or_universe_200km"
           }
         ],
@@ -1783,33 +1783,33 @@
         "checksums_file": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/checksums.json",
         "checksums_file_meta": {
           "path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/checksums.json",
-          "sha256": "57c9434b07ad04dce5c5c6776124c12a7b97d62b6f91f2895f6dd4a1e9782614",
+          "sha256": "d223262745af3d5bfa3b231dd118b3e205b1a33646cfe9c5ddf413965548f391",
           "bytes": 2888
         },
         "product_checksums": {
           "opportunities_csv": {
             "path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/opportunities.csv",
-            "sha256": "be073667ff10ac65699e7d53e4b4a0be50fb3a403150f78833bac79a7c362aaa",
+            "sha256": "ce00c2d2acb71148b9284841abcb8a8526af37a914c25e6b8dcacdf7024a7407",
             "bytes": 4902
           },
           "contracts_csv": {
             "path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/contracts.csv",
-            "sha256": "dbddfc06c90fcff6c028d7d807916633158fb46f136a1d3805f54d713ce48cb5",
+            "sha256": "f8ceb953f110383bedf97eec2db664ac56b5259aac88fa9a2426b4f22ad960a2",
             "bytes": 18753
           },
           "competitors_csv": {
             "path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/competitors.csv",
-            "sha256": "6d90ce374a2cb5a08f660cab2b2b2f1b5f579841e4babeadb1ee1171e18c9fe2",
+            "sha256": "427b6ccb8efe2f51856cfd57ac5aac7f67f711bb0c77a111247b371a532662d1",
             "bytes": 7670
           },
           "orgaos_csv": {
             "path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/orgaos.csv",
-            "sha256": "49ecb97d6c57193e4fbdf950d9cd10805660897f2b32f4c66630c3b9cd81d7c1",
+            "sha256": "4db53b421cb6a8585e45d8cb3658377e52adb5d9a52c86271c8aa1c4bba61a2f",
             "bytes": 985
           },
           "source_health_csv": {
             "path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/source_health.csv",
-            "sha256": "f28725e4f4387d2a3e7cb679847923b224956c474c33be59d2b428b102e16110",
+            "sha256": "5d0ced638c3326159f1089a552cc1ad8fcfcda1a7cd41b5b5063ee98e6f48b04",
             "bytes": 229
           },
           "gaps_csv": {
@@ -1819,27 +1819,27 @@
           },
           "claims_csv": {
             "path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/claims_provenance.csv",
-            "sha256": "58ef66c0eec44d9ee5f3beac03c5b58b1f9325ad2e642cb3738ecfb1041863ef",
+            "sha256": "a52f76c71c282e516a7f68d440c295d36c8435e64a252f7a3e09383f0c269670",
             "bytes": 32291
           },
           "executive_md": {
             "path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/executive_summary.md",
-            "sha256": "adcbf077673e8175c6853ab902a4e9521f5db36823f5335d2bc48d5081d76004",
+            "sha256": "0baaf230c724703d349fd7c9d5afb2493d67c41852fc3a2502c63f16102227da",
             "bytes": 5340
           },
           "excel": {
             "path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/extra_weekly_pack.xlsx",
-            "sha256": "b89508d688d95d10b0b76c887297696fd6c2cb3994c356bf4356ea1726db1ea7",
-            "bytes": 21492
+            "sha256": "49b14548d1903b336d3e4f8615d31c0a4b052612de151702dc24d2b0145beb1d",
+            "bytes": 21493
           },
           "deliverable_e": {
             "path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/deliverable_e.json",
-            "sha256": "dd157a071d6e6d9471412b638a63a1864fb2301161c9e4b95c6bb1f3c88e4b0e",
+            "sha256": "c00a31d4926b1d987c1af090effb7d288d3d9a3ca3c950476cad58c482e79f1c",
             "bytes": 12031
           },
           "deliverable_e_audit": {
             "path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/deliverable_e_audit.json",
-            "sha256": "eb0080bdc12ef6224dd82d8015ba045de950125345c7921d3be9c4306a1613ef",
+            "sha256": "32f43dd5b3d62b2cf720962bc14bfc802a5aaa4e7a8e02750d7a66494705a261",
             "bytes": 3079
           }
         },
@@ -1850,8 +1850,8 @@
   ],
   "runs": [
     {
-      "run_id": "collect-pncp_opportunities-20260724T214053Z-f8742a1bfd",
-      "collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
+      "run_id": "collect-pncp_opportunities-20260724T215117Z-ad4de2a078",
+      "collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
       "source": "pncp_opportunities",
       "collector_version": "weekly-cycle/1.1",
       "parameters": {
@@ -1861,8 +1861,8 @@
       },
       "period_start": "2026-07-17",
       "period_end": "2026-07-24",
-      "started_at": "2026-07-24T21:40:53.788348Z",
-      "finished_at": "2026-07-24T21:40:53.788377Z",
+      "started_at": "2026-07-24T21:51:17.002927Z",
+      "finished_at": "2026-07-24T21:51:17.003004Z",
       "terminal_status": "partial",
       "records_obtained": 0,
       "records_rejected": 0,
@@ -1875,17 +1875,17 @@
       "scope_complete": false,
       "source_available": true,
       "mode": "incremental",
-      "git_sha": "4d3cfadc19a8563317d3ddcf63ee63c4551685df",
+      "git_sha": "9662ce478bde3345297711746b6ecfe225564dd7",
       "notes": [
         "skip_collect with freshness level=never — not promoted to reused_fresh",
         "partial: lake reused without complete in-SLA collection proof"
       ],
       "contract_version": "1.0",
-      "payload_hash": "962350019752d6897365b5d65cd55b93049d5fdc11e2be7a30b79ba563f722fb"
+      "payload_hash": "78ff177cd99760d5366cff8c27c2148e9dbd6b555093d641a83eeb59001f67da"
     },
     {
-      "run_id": "collect-pncp_contracts-20260724T214053Z-978b39a746",
-      "collection_id": "col-extra-weekly-20260724T214052Z-8da20af7",
+      "run_id": "collect-pncp_contracts-20260724T215117Z-ebf6e0d883",
+      "collection_id": "col-extra-weekly-20260724T215115Z-178bc934",
       "source": "pncp_contracts",
       "collector_version": "weekly-cycle/1.1",
       "parameters": {
@@ -1893,8 +1893,8 @@
       },
       "period_start": null,
       "period_end": null,
-      "started_at": "2026-07-24T21:40:53.992647Z",
-      "finished_at": "2026-07-24T21:40:53.992689Z",
+      "started_at": "2026-07-24T21:51:17.161720Z",
+      "finished_at": "2026-07-24T21:51:17.161752Z",
       "terminal_status": "reused_fresh",
       "records_obtained": 4437142,
       "records_rejected": 0,
@@ -1907,13 +1907,13 @@
       "scope_complete": false,
       "source_available": true,
       "mode": "reuse",
-      "git_sha": "4d3cfadc19a8563317d3ddcf63ee63c4551685df",
+      "git_sha": "9662ce478bde3345297711746b6ecfe225564dd7",
       "notes": [
         "contracts not re-crawled; lake rows reused with explicit freshness",
-        "age_hours=25.86"
+        "age_hours=26.04"
       ],
       "contract_version": "1.0",
-      "payload_hash": "fbdf1998a9e0d4e3d68d741ebf5ae7938c7b3e10c3941ddcc18b8dea4c1e4049"
+      "payload_hash": "727e94e5ca2b86a061a84b4c975dc22857e003d3d92541f76204a8a88af2895b"
     }
   ],
   "freshness": [
@@ -1928,7 +1928,7 @@
       "source": "pncp_contracts",
       "level": "fresh",
       "sla_hours": 168,
-      "age_hours": 25.86,
+      "age_hours": 26.04,
       "row_count": 4437142,
       "indicator": "freshness_source",
       "note": "freshness by max(ingested_at); not a full re-collect this cycle"
@@ -1946,7 +1946,7 @@
       "source": "pncp_contracts",
       "level": "fresh",
       "sla_hours": 168,
-      "age_hours": 25.86,
+      "age_hours": 26.04,
       "row_count": 4437142,
       "indicator": "freshness_source",
       "note": "freshness by max(ingested_at); not a full re-collect this cycle"
@@ -1993,33 +1993,33 @@
     "checksums_file": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/checksums.json",
     "checksums_file_meta": {
       "path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/checksums.json",
-      "sha256": "57c9434b07ad04dce5c5c6776124c12a7b97d62b6f91f2895f6dd4a1e9782614",
+      "sha256": "d223262745af3d5bfa3b231dd118b3e205b1a33646cfe9c5ddf413965548f391",
       "bytes": 2888
     },
     "product_checksums": {
       "opportunities_csv": {
         "path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/opportunities.csv",
-        "sha256": "be073667ff10ac65699e7d53e4b4a0be50fb3a403150f78833bac79a7c362aaa",
+        "sha256": "ce00c2d2acb71148b9284841abcb8a8526af37a914c25e6b8dcacdf7024a7407",
         "bytes": 4902
       },
       "contracts_csv": {
         "path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/contracts.csv",
-        "sha256": "dbddfc06c90fcff6c028d7d807916633158fb46f136a1d3805f54d713ce48cb5",
+        "sha256": "f8ceb953f110383bedf97eec2db664ac56b5259aac88fa9a2426b4f22ad960a2",
         "bytes": 18753
       },
       "competitors_csv": {
         "path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/competitors.csv",
-        "sha256": "6d90ce374a2cb5a08f660cab2b2b2f1b5f579841e4babeadb1ee1171e18c9fe2",
+        "sha256": "427b6ccb8efe2f51856cfd57ac5aac7f67f711bb0c77a111247b371a532662d1",
         "bytes": 7670
       },
       "orgaos_csv": {
         "path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/orgaos.csv",
-        "sha256": "49ecb97d6c57193e4fbdf950d9cd10805660897f2b32f4c66630c3b9cd81d7c1",
+        "sha256": "4db53b421cb6a8585e45d8cb3658377e52adb5d9a52c86271c8aa1c4bba61a2f",
         "bytes": 985
       },
       "source_health_csv": {
         "path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/source_health.csv",
-        "sha256": "f28725e4f4387d2a3e7cb679847923b224956c474c33be59d2b428b102e16110",
+        "sha256": "5d0ced638c3326159f1089a552cc1ad8fcfcda1a7cd41b5b5063ee98e6f48b04",
         "bytes": 229
       },
       "gaps_csv": {
@@ -2029,27 +2029,27 @@
       },
       "claims_csv": {
         "path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/claims_provenance.csv",
-        "sha256": "58ef66c0eec44d9ee5f3beac03c5b58b1f9325ad2e642cb3738ecfb1041863ef",
+        "sha256": "a52f76c71c282e516a7f68d440c295d36c8435e64a252f7a3e09383f0c269670",
         "bytes": 32291
       },
       "executive_md": {
         "path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/executive_summary.md",
-        "sha256": "adcbf077673e8175c6853ab902a4e9521f5db36823f5335d2bc48d5081d76004",
+        "sha256": "0baaf230c724703d349fd7c9d5afb2493d67c41852fc3a2502c63f16102227da",
         "bytes": 5340
       },
       "excel": {
         "path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/extra_weekly_pack.xlsx",
-        "sha256": "b89508d688d95d10b0b76c887297696fd6c2cb3994c356bf4356ea1726db1ea7",
-        "bytes": 21492
+        "sha256": "49b14548d1903b336d3e4f8615d31c0a4b052612de151702dc24d2b0145beb1d",
+        "bytes": 21493
       },
       "deliverable_e": {
         "path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/deliverable_e.json",
-        "sha256": "dd157a071d6e6d9471412b638a63a1864fb2301161c9e4b95c6bb1f3c88e4b0e",
+        "sha256": "c00a31d4926b1d987c1af090effb7d288d3d9a3ca3c950476cad58c482e79f1c",
         "bytes": 12031
       },
       "deliverable_e_audit": {
         "path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/deliverable_e_audit.json",
-        "sha256": "eb0080bdc12ef6224dd82d8015ba045de950125345c7921d3be9c4306a1613ef",
+        "sha256": "32f43dd5b3d62b2cf720962bc14bfc802a5aaa4e7a8e02750d7a66494705a261",
         "bytes": 3079
       }
     },
@@ -2110,5 +2110,5 @@
     ],
     "note": "Ausência de manifestação não é aceite"
   },
-  "duration_seconds": 3.67
+  "duration_seconds": 3.04
 }

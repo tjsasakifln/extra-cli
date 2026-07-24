@@ -25,7 +25,7 @@
         "cut_date": "2026-07-24",
         "proof_mode": "INDIVIDUAL_RECONFIRM",
         "snapshot_id": null,
-        "reconfirmed_at": "2026-07-24T21:40:55Z",
+        "reconfirmed_at": "2026-07-24T21:51:18Z",
         "official_url": "https://pncp.gov.br/app/editais/SEED-PNCP-00360305000104-0",
         "status_source": "pncp"
       },
@@ -54,7 +54,7 @@
         "cut_date": "2026-07-24",
         "proof_mode": "INDIVIDUAL_RECONFIRM",
         "snapshot_id": null,
-        "reconfirmed_at": "2026-07-24T21:40:55Z",
+        "reconfirmed_at": "2026-07-24T21:51:18Z",
         "official_url": "https://pncp.gov.br/app/editais/SEED-PNCP-00394452000103-0",
         "status_source": "pncp"
       },
@@ -83,7 +83,7 @@
         "cut_date": "2026-07-24",
         "proof_mode": "INDIVIDUAL_RECONFIRM",
         "snapshot_id": null,
-        "reconfirmed_at": "2026-07-24T21:40:55Z",
+        "reconfirmed_at": "2026-07-24T21:51:18Z",
         "official_url": "https://pncp.gov.br/app/editais/SEED-PNCP-00394544000185-0",
         "status_source": "pncp"
       },
@@ -112,7 +112,7 @@
         "cut_date": "2026-07-24",
         "proof_mode": "INDIVIDUAL_RECONFIRM",
         "snapshot_id": null,
-        "reconfirmed_at": "2026-07-24T21:40:55Z",
+        "reconfirmed_at": "2026-07-24T21:51:18Z",
         "official_url": "https://pncp.gov.br/app/editais/11360515000119-1-000013/2026",
         "status_source": "pncp"
       },
@@ -142,7 +142,7 @@
         "cut_date": "2026-07-24",
         "proof_mode": "INDIVIDUAL_RECONFIRM",
         "snapshot_id": null,
-        "reconfirmed_at": "2026-07-24T21:40:55Z",
+        "reconfirmed_at": "2026-07-24T21:51:18Z",
         "official_url": "https://pncp.gov.br/app/editais/07654807000197-1-000072/2026",
         "status_source": "pncp"
       },
@@ -172,7 +172,7 @@
         "cut_date": "2026-07-24",
         "proof_mode": "INDIVIDUAL_RECONFIRM",
         "snapshot_id": null,
-        "reconfirmed_at": "2026-07-24T21:40:55Z",
+        "reconfirmed_at": "2026-07-24T21:51:18Z",
         "official_url": "https://pncp.gov.br/app/editais/10432684000154-1-000049/2025",
         "status_source": "pncp"
       },
@@ -202,7 +202,7 @@
         "cut_date": "2026-07-24",
         "proof_mode": "INDIVIDUAL_RECONFIRM",
         "snapshot_id": null,
-        "reconfirmed_at": "2026-07-24T21:40:55Z",
+        "reconfirmed_at": "2026-07-24T21:51:18Z",
         "official_url": "https://pncp.gov.br/app/editais/83102541000158-1-000167/2025",
         "status_source": "pncp"
       },
@@ -232,5 +232,5 @@
     "Include closed editais as open without proof",
     "Recommend without official data/doc reference when available path exists"
   ],
-  "generated_at": "2026-07-24T21:40:55Z"
+  "generated_at": "2026-07-24T21:51:19Z"
 }

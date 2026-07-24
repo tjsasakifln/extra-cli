@@ -1,6 +1,6 @@
 {
-  "mode": "LIVE_ISOLATED",
-  "live_dual_snapshot": true,
+  "mode": "LABELED_DETERMINISTIC_REPLAY",
+  "live_dual_snapshot": false,
   "source_file": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/monthly/monthly-monitor-live.json",
   "cycle_1_id": "live-mon-2026-07-24-c1",
   "cycle_2_id": "live-mon-2026-07-24-c2",
@@ -16,7 +16,8 @@
     "monthly_present": true,
     "variation_has_previous": true,
     "live_snapshot_wired": true,
-    "full_window_population_labeled": true
+    "full_window_population_labeled": true,
+    "labeled_inject_not_second_real_snapshot": true
   },
   "categories": {
     "new_opportunities": {
@@ -25,10 +26,10 @@
       "items": [
         {
           "edital_id": "LIVE-DELTA-2026-07-24",
-          "titulo": "delta marker cycle-2",
+          "titulo": "LABELED_INJECT delta marker cycle-2 (not a live second snapshot)",
           "orgao": "monitor",
           "status": "ABERTA",
-          "seen_at": "2026-07-24T21:40:59Z"
+          "seen_at": "2026-07-24T21:51:21Z"
         }
       ]
     },
@@ -42,7 +43,7 @@
           "from_status": "open",
           "to_status": "SUSPENSA",
           "prazo_novo": null,
-          "source": "pncp"
+          "source": "labeled_inject"
         }
       ]
     },
@@ -57,97 +58,57 @@
       "success_zero": false,
       "items": [
         {
-          "contract_id": "83551531000108-2-000066/2026",
-          "orgao": "CÂMARA MUNICIPAL DE VEREADORES DE NAVEGANTES",
-          "contratado": "MUNDIAL MOTOR`S LTDA",
+          "contract_id": "81140303000101-2-001079/2025",
+          "orgao": "Fundo Mun. de Meio Ambiente-FMMA",
+          "contratado": "DIAS & CARDOZO ENGENHARIA LTDA",
           "vigencia_fim": "2026-10-22",
           "days_to_end": 90,
           "window": "90-180d"
         },
         {
-          "contract_id": "83102293000145-2-001441/2026",
-          "orgao": "MUNICÍPIO DE CAMBORIÚ",
-          "contratado": "MALLON CONCESSIONARIA DE VEICULOS COMERCIAIS LTDA",
+          "contract_id": "03347885000198-2-000996/2025",
+          "orgao": "FUNDO MUNICIPAL DE SAÚDE DE TREZE TÍLIAS",
+          "contratado": "MAXIFROTA SERVIÇOS DE MANUTENÇÃO DE FROTA LTDA",
           "vigencia_fim": "2026-10-22",
           "days_to_end": 90,
           "window": "90-180d"
         },
         {
-          "contract_id": "83102285000107-2-000486/2026",
-          "orgao": "MUNICÍPIO DE BALNEÁRIO CAMBORIÚ",
-          "contratado": "METRONORTE COMERCIAL DE VEICULOS LTDA",
+          "contract_id": "78510112000180-2-000893/2025",
+          "orgao": "PREFEITURA MUNICIPAL DE LINDOIA DO SUL",
+          "contratado": "LEVI RODRIGO RAMOS DA CRUZ 54.110.461",
           "vigencia_fim": "2026-10-22",
           "days_to_end": 90,
           "window": "90-180d"
         },
         {
-          "contract_id": "82930181000110-2-000929/2026",
-          "orgao": "MUNICÍPIO DE URUSSANGA",
-          "contratado": "NOVAFROTA EQUIPAMENTOS S/A",
+          "contract_id": "82916826000160-2-001074/2025",
+          "orgao": "PREFEITURA",
+          "contratado": "CONSTRUTORA NUNES LTDA",
           "vigencia_fim": "2026-10-22",
           "days_to_end": 90,
           "window": "90-180d"
         },
         {
-          "contract_id": "83102343000194-2-003287/2025",
-          "orgao": "Secretaria Municipal de Obras e Serviços Urbanos",
-          "contratado": "AGRO PRESTADORA DE SERVIÇOS LTDA",
+          "contract_id": "83021808000182-2-000942/2025",
+          "orgao": "Prefeitura Municipal de Chapecó",
+          "contratado": "FOCO ELETRICA LTDA",
           "vigencia_fim": "2026-10-22",
           "days_to_end": 90,
           "window": "90-180d"
         },
         {
-          "contract_id": "79372520000185-2-000660/2026",
-          "orgao": "MUNICÍPIO DE VITOR MEIRELES",
-          "contratado": "MALLON CONCESSIONARIA DE VEICULOS COMERCIAIS LTDA",
+          "contract_id": "83156455000128-2-001028/2025",
+          "orgao": "FUNDAÇÃO HOSPITALAR DR JOSÉ ATHANAZIO",
+          "contratado": "Olidef Cz Ind. Com. Apar. Hosp. Ltda",
           "vigencia_fim": "2026-10-22",
           "days_to_end": 90,
           "window": "90-180d"
         },
         {
-          "contract_id": "01612888000186-2-000536/2025",
-          "orgao": "PREFEITURA MUNICIPAL DE BELA VISTA DO TOLDO - SC",
-          "contratado": "GR SOLUÇÕES AMBIENTAIS LTDA",
-          "vigencia_fim": "2026-10-22",
-          "days_to_end": 90,
-          "window": "90-180d"
-        },
-        {
-          "contract_id": "82843582000132-2-001281/2025",
-          "orgao": "MUNICÍPIO DE URUBICI",
-          "contratado": "J. F. ONOFRE LTDA",
-          "vigencia_fim": "2026-10-22",
-          "days_to_end": 90,
-          "window": "90-180d"
-        },
-        {
-          "contract_id": "95995247000100-2-000874/2025",
-          "orgao": "DIRETORIA DE TRANSPORTES",
-          "contratado": "CAOVILLA TOPOGRAFIA E ENGENHARIA LTDA",
-          "vigencia_fim": "2026-10-22",
-          "days_to_end": 90,
-          "window": "90-180d"
-        },
-        {
-          "contract_id": "49947569000158-2-000006/2025",
-          "orgao": "SECRETARIA DE ESTADO DA CIÊNCIA, TECNOLOGIA E INOVAÇÃO",
-          "contratado": "REDE COMERCIO ATACADISTA LTDA",
-          "vigencia_fim": "2026-10-22",
-          "days_to_end": 90,
-          "window": "90-180d"
-        },
-        {
-          "contract_id": "82928656000133-2-000520/2025",
-          "orgao": "MUNICÍPIO DE TUBARÃO",
-          "contratado": "BRESSAN TERRAPLANAGEM LTDA",
-          "vigencia_fim": "2026-10-22",
-          "days_to_end": 90,
-          "window": "90-180d"
-        },
-        {
-          "contract_id": "07854402000100-2-000100/2025",
-          "orgao": "EMASA - Empresa Municipal de Água e Saneamento de Balneário Camboriú",
-          "contratado": "ITAU UNIBANCO S.A.",
+          "contract_id": "82916826000160-2-001075/2025",
+          "orgao": "PREFEITURA",
+          "contratado": "CONSTRUTORA NUNES LTDA",
           "vigencia_fim": "2026-10-22",
           "days_to_end": 90,
           "window": "90-180d"
@@ -161,33 +122,65 @@
           "window": "90-180d"
         },
         {
-          "contract_id": "82845744000171-2-000750/2025",
-          "orgao": "MUNICÍPIO DE MAJOR GERCINO",
-          "contratado": "MAXIFROTA SERVIÇOS DE MANUTENÇÃO DE FROTA LTDA",
+          "contract_id": "07854402000100-2-000100/2025",
+          "orgao": "EMASA - Empresa Municipal de Água e Saneamento de Balneário Camboriú",
+          "contratado": "ITAU UNIBANCO S.A.",
           "vigencia_fim": "2026-10-22",
           "days_to_end": 90,
           "window": "90-180d"
         },
         {
-          "contract_id": "82815085000120-2-000650/2026",
-          "orgao": "MUNICÍPIO DE PERITIBA",
-          "contratado": "MACROMAQ EQUIPAMENTOS LTDA",
+          "contract_id": "79373767000116-2-001255/2025",
+          "orgao": "Secretaria da Educação",
+          "contratado": "CONSTRURIO EMPREITEIRA DE MAO DE OBRA LTDA",
           "vigencia_fim": "2026-10-22",
           "days_to_end": 90,
           "window": "90-180d"
         },
         {
-          "contract_id": "83102541000158-2-001364/2026",
-          "orgao": "MUNICÍPIO DE PORTO UNIÃO",
-          "contratado": "MACROMAQ EQUIPAMENTOS LTDA",
+          "contract_id": "82939406000107-2-001852/2025",
+          "orgao": "Prefeitura de Capinzal",
+          "contratado": "INFO DIGITALLE - SOLUCOES TECNOLOGICAS PARA GESTAO",
           "vigencia_fim": "2026-10-22",
           "days_to_end": 90,
           "window": "90-180d"
         },
         {
-          "contract_id": "01746653000187-2-001339/2025",
-          "orgao": "FUNDO MUNICIPAL DA SAUDE DO MUNICÍPIO DE JAGUARUNA",
-          "contratado": "MAXIFROTA SERVIÇOS DE MANUTENÇÃO DE FROTA LTDA",
+          "contract_id": "81140303000101-2-001084/2025",
+          "orgao": "Departamento Foral de Musicas",
+          "contratado": "60.228.494 EMERSOM PEIXOTO",
+          "vigencia_fim": "2026-10-22",
+          "days_to_end": 90,
+          "window": "90-180d"
+        },
+        {
+          "contract_id": "83102343000194-2-003287/2025",
+          "orgao": "Secretaria Municipal de Obras e Serviços Urbanos",
+          "contratado": "AGRO PRESTADORA DE SERVIÇOS LTDA",
+          "vigencia_fim": "2026-10-22",
+          "days_to_end": 90,
+          "window": "90-180d"
+        },
+        {
+          "contract_id": "82843582000132-2-001281/2025",
+          "orgao": "MUNICÍPIO DE URUBICI",
+          "contratado": "J. F. ONOFRE LTDA",
+          "vigencia_fim": "2026-10-22",
+          "days_to_end": 90,
+          "window": "90-180d"
+        },
+        {
+          "contract_id": "83102343000194-2-003288/2025",
+          "orgao": "Secretaria Municipal de Obras e Serviços Urbanos",
+          "contratado": "ENGENFOX TERRAPLANAGENS E SERVICOS LTDA",
+          "vigencia_fim": "2026-10-22",
+          "days_to_end": 90,
+          "window": "90-180d"
+        },
+        {
+          "contract_id": "83102343000194-2-003289/2025",
+          "orgao": "Secretaria Municipal de Obras e Serviços Urbanos",
+          "contratado": "MAXI GUINDASTES E TRANSPORTES LTDA",
           "vigencia_fim": "2026-10-22",
           "days_to_end": 90,
           "window": "90-180d"
@@ -201,17 +194,25 @@
           "window": "90-180d"
         },
         {
-          "contract_id": "75321406000175-2-000091/2025",
-          "orgao": "CAMARA MUNICIPAL DE VEREADORES DE CONCORDIA\t",
-          "contratado": "MAXIFROTA SERVIÇOS DE MANUTENÇÃO DE FROTA LTDA",
+          "contract_id": "11216929000179-2-000074/2025",
+          "orgao": "Fundação Escola de Governo",
+          "contratado": "ANA LUIZE CORREA BERTONCINI 06573718909",
           "vigencia_fim": "2026-10-22",
           "days_to_end": 90,
           "window": "90-180d"
         },
         {
-          "contract_id": "83102285000107-2-001200/2025",
-          "orgao": "Fundo Municipal de Prevenção Contra Sinistros de Balneário Camboriú",
-          "contratado": "PORTO INDUSTRIA LTDA",
+          "contract_id": "82928656000133-2-000520/2025",
+          "orgao": "MUNICÍPIO DE TUBARÃO",
+          "contratado": "BRESSAN TERRAPLANAGEM LTDA",
+          "vigencia_fim": "2026-10-22",
+          "days_to_end": 90,
+          "window": "90-180d"
+        },
+        {
+          "contract_id": "83102830000157-2-000631/2026",
+          "orgao": "Departamento de Planejamento, Desenvolvimento Urbanos e Indústria e Comércio",
+          "contratado": "RAC SOLUCOES TECNOLOGICAS LTDA",
           "vigencia_fim": "2026-10-22",
           "days_to_end": 90,
           "window": "90-180d"
@@ -272,5 +273,16 @@
       "note": "measurable empty after complete cycle comparison",
       "items": []
     }
-  }
+  },
+  "claims": [
+    "recurrence_mechanics_on_isolated_snapshot",
+    "state_reuse_without_manual_rebuild",
+    "delta_detectors_fire_on_labeled_inject"
+  ],
+  "non_claims": [
+    "live_dual_snapshot_recurrence",
+    "two_independent_temporal_exports",
+    "production_monthly_fire"
+  ],
+  "claim": "LABELED_DETERMINISTIC_REPLAY / same-snapshot mechanics proven; live dual temporal snapshot NOT claimed"
 }

@@ -667,22 +667,32 @@ def run_live_two_cycle(
     uf: str | None = "SC",
     as_of: date | None = None,
 ) -> dict[str, Any]:
-    """Two cycles on isolated DB: first baseline, second reuses state (delta)."""
+    """Two correlatable cycles on isolated DB proving recurrence *mechanics*.
+
+    Uses the **same** authenticated snapshot twice. Cycle-2 may inject labeled
+    synthetic markers (LIVE-DELTA-*, forced SUSPENSAO) solely to exercise
+    detectors when a second real temporal snapshot is unavailable.
+
+    This is **LABELED_DETERMINISTIC_REPLAY** / same-snapshot mechanics — NOT
+    live dual-snapshot recurrence. Callers must set live_dual_snapshot=false.
+    """
     as_of = as_of or date.today()
     out_dir.mkdir(parents=True, exist_ok=True)
     state_path = out_dir / "cycle-state.json"
+    synthetic_inject_used = False
 
     e1, c1, meta1 = load_snapshot_from_db(dsn, uf=uf, as_of=as_of, limit_contracts=None)
     # If no editais in DB, seed minimal synthetic markers so delta logic still
     # proves recurrence while contracts come from real snapshot.
     if not e1:
+        synthetic_inject_used = True
         e1 = [
             {
                 "id": "LIVE-SEED-001",
                 "titulo": "seed baseline (no opportunity_intel in snapshot)",
                 "orgao": "seed",
                 "status": "ABERTA",
-                "fonte": "seed",
+                "fonte": "labeled_seed",
             }
         ]
     r1, s1 = run_cycle(
@@ -694,26 +704,30 @@ def run_live_two_cycle(
     )
     save_state(s1, state_path)
 
-    # Second cycle: reload (same snapshot) + inject one new edital id for delta
+    # Second cycle: same DB snapshot (not a second temporal export).
+    # Inject labeled synthetic events to prove detectors when dual snapshots
+    # are unavailable — never claim this as live dual-snapshot recurrence.
     e2, c2, meta2 = load_snapshot_from_db(dsn, uf=uf, as_of=as_of, limit_contracts=None)
     if not e2:
         e2 = list(e1)
+    synthetic_inject_used = True
     e2 = list(e2) + [
         {
             "id": f"LIVE-DELTA-{as_of.isoformat()}",
-            "titulo": "delta marker cycle-2",
+            "titulo": "LABELED_INJECT delta marker cycle-2 (not a live second snapshot)",
             "orgao": "monitor",
             "status": "ABERTA",
-            "fonte": "cycle",
+            "fonte": "labeled_inject",
         }
     ]
-    # Mark status change on first if present
+    # Mark status change on first if present (labeled inject for detector proof)
     if e2 and e1:
         first_id = str(e1[0].get("id"))
         for e in e2:
             if str(e.get("id")) == first_id:
                 e["status"] = "SUSPENSA"
                 e["event_type"] = "SUSPENSAO"
+                e["fonte"] = "labeled_inject"
                 break
     r2, s2 = run_cycle(
         editais=e2,
@@ -725,7 +739,11 @@ def run_live_two_cycle(
     save_state(s2, state_path)
 
     package = {
-        "mode": "live_isolated_snapshot",
+        # Honest mode: same snapshot + labeled inject — not dual live snapshots
+        "mode": "LABELED_DETERMINISTIC_REPLAY",
+        "mode_detail": "same_isolated_snapshot_plus_labeled_inject",
+        "live_dual_snapshot": False,
+        "synthetic_inject_used": synthetic_inject_used,
         "dsn_host_local": True,
         "as_of": as_of.isoformat(),
         "uf": uf,
@@ -737,8 +755,19 @@ def run_live_two_cycle(
             "cycle_1": meta1,
             "cycle_2": meta2,
             "not_silent_5000_universe": True,
+            "same_snapshot_both_cycles": True,
         },
         "state_path": str(state_path),
+        "claims": [
+            "recurrence_mechanics_on_isolated_snapshot",
+            "state_reuse_without_manual_rebuild",
+            "delta_detectors_fire_on_labeled_inject",
+        ],
+        "non_claims": [
+            "live_dual_snapshot_recurrence",
+            "two_independent_temporal_exports",
+            "production_monthly_fire",
+        ],
         "proofs": {
             "no_manual_rebuild": r2.cycle["manual_diagnostic_rebuild_required"] is False
             and r2.cycle["reused_previous_state"] is True,
@@ -751,6 +780,7 @@ def run_live_two_cycle(
             "variation_has_previous": r2.variation.get("has_previous") is True,
             "live_snapshot_wired": True,
             "full_window_population_labeled": True,
+            "labeled_inject_not_second_real_snapshot": True,
         },
     }
     report_path = out_dir / "monthly-monitor-live.json"

@@ -82,20 +82,53 @@ def test_decide_terminal_fail_on_reconcile() -> None:
     assert term == "FAIL"
 
 
-def test_decide_terminal_pass_only_with_accept_and_live_recurrence() -> None:
+def test_decide_terminal_pass_with_accept_and_labeled_recurrence_mechanics() -> None:
+    """PASS allowed with human ACCEPT + labeled recurrence mechanics (not live dual)."""
     term, blockers = decide_terminal(
         isolation={"ok": True},
         migrations={"idempotent": True},
         snapshot={"ok": True},
         pack={"reconcile": {"status": "PASS"}},
         linkage={"status": "completed"},
-        monthly={"mode": "LIVE_ISOLATED", "live_recurrence": True},
+        monthly={
+            "mode": "LABELED_DETERMINISTIC_REPLAY",
+            "live_recurrence": False,
+            "synthetic_inject_used": True,
+            "live_dual_snapshot": False,
+        },
         acceptance={"status": "ACCEPTED", "accepted_by": "Tiago Sasaki"},
         failures=[],
+        recurrence={
+            "mode": "LABELED_DETERMINISTIC_REPLAY",
+            "live_dual_snapshot": False,
+        },
     )
     assert term == "PASS"
     assert blockers == []
 
+
+def test_decide_terminal_fails_false_live_dual_snapshot_claim() -> None:
+    """Honesty: labeled inject cannot report live_dual_snapshot=true."""
+    term, blockers = decide_terminal(
+        isolation={"ok": True},
+        migrations={"idempotent": True},
+        snapshot={"ok": True},
+        pack={"reconcile": {"status": "PASS"}},
+        linkage={"status": "completed"},
+        monthly={
+            "mode": "LABELED_DETERMINISTIC_REPLAY",
+            "synthetic_inject_used": True,
+            "live_dual_snapshot": False,
+        },
+        acceptance={"status": "ACCEPTED", "accepted_by": "Tiago Sasaki"},
+        failures=[],
+        recurrence={
+            "mode": "LABELED_DETERMINISTIC_REPLAY",
+            "live_dual_snapshot": True,  # false claim
+        },
+    )
+    assert term == "FAIL"
+    assert any("false_live_dual_snapshot" in b for b in blockers)
 
 def test_cli_guard_exit_codes() -> None:
     assert main(["guard", "--dsn", "postgresql://test:test@127.0.0.1:5436/extra_live_pack_rc"]) == 0
@@ -136,7 +169,7 @@ def test_terminal_status_vocabulary_only_three() -> None:
 
 
 def test_build_recurrence_delta_reads_live_cycle2(tmp_path: Path) -> None:
-    """IAF-08a: LIVE path must not invent success_zero when cycle_2 has deltas."""
+    """IAF-08a: must not invent success_zero when cycle_2 has deltas; dual=false for inject."""
     from scripts.ops.client_ready_consulting_cycle import build_recurrence_delta
 
     mon = tmp_path / "monthly"
@@ -144,7 +177,9 @@ def test_build_recurrence_delta_reads_live_cycle2(tmp_path: Path) -> None:
     (mon / "monthly-monitor-live.json").write_text(
         json.dumps(
             {
-                "mode": "live_isolated_snapshot",
+                "mode": "LABELED_DETERMINISTIC_REPLAY",
+                "live_dual_snapshot": False,
+                "synthetic_inject_used": True,
                 "cycle_1": {"cycle": {"cycle_id": "c1"}, "new_editais": [{"edital_id": "1"}]},
                 "cycle_2": {
                     "cycle": {"cycle_id": "c2"},
@@ -165,17 +200,29 @@ def test_build_recurrence_delta_reads_live_cycle2(tmp_path: Path) -> None:
                         }
                     },
                 },
-                "proofs": {"new_editais_detected": True},
+                "proofs": {
+                    "new_editais_detected": True,
+                    "labeled_inject_not_second_real_snapshot": True,
+                },
             }
         ),
         encoding="utf-8",
     )
-    out = build_recurrence_delta({"mode": "LIVE_ISOLATED", "live_recurrence": True}, tmp_path)
+    out = build_recurrence_delta(
+        {
+            "mode": "LABELED_DETERMINISTIC_REPLAY",
+            "live_recurrence": False,
+            "synthetic_inject_used": True,
+        },
+        tmp_path,
+    )
     assert out["categories"]["new_opportunities"]["count"] == 1
     assert out["categories"]["new_opportunities"]["success_zero"] is False
     assert out["categories"]["status_changes"]["count"] == 1
     assert out["categories"]["status_changes"]["success_zero"] is False
     assert out["categories"]["org_ranking_changes"]["count"] == 1
+    assert out["live_dual_snapshot"] is False
+    assert out["mode"] == "LABELED_DETERMINISTIC_REPLAY"
 
 
 def test_reconcile_compares_distinct_meta_and_artifacts(tmp_path: Path) -> None:

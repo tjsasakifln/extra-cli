@@ -1,6 +1,6 @@
 {
   "ok": true,
-  "generated_at": "2026-07-24T21:40:55Z",
+  "generated_at": "2026-07-24T21:51:19Z",
   "summary": {
     "total": 10,
     "pass": 10,
@@ -51,9 +51,9 @@
       "dod_text": "Cada edital recebe `GO`, `REVIEW` ou `NO_GO`.",
       "status": "PASS",
       "evidence": [
+        "REVIEW",
         "NO_GO",
-        "GO",
-        "REVIEW"
+        "GO"
       ],
       "notes": ""
     },
