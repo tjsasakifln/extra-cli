@@ -1,0 +1,8 @@
+{
+  "conclusion": "success",
+  "head_sha": "475aa50c7ab7ddfd93dd832ee4e8c53314bcacd4",
+  "mandatory_jobs_skipped": [],
+  "pr": 127,
+  "note": "CI green on PR #127 campaign branch; accept after merge to main re-proves on main HEAD",
+  "as_of": "2026-07-24T00:34:15Z"
+}

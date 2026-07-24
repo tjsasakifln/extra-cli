@@ -1,0 +1,124 @@
+{
+  "campaign_id": "OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01",
+  "generated_at": "2026-07-24T00:12:25Z",
+  "ok": true,
+  "summary": {
+    "total": 12,
+    "pass": 12,
+    "fail": 0
+  },
+  "checks": [
+    {
+      "item_id": "G1_canonical_entry",
+      "status": "PASS",
+      "evidence": [
+        "Makefile extra-weekly",
+        "scripts/ops/weekly_cycle.py"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "G2_aggregated_collect",
+      "status": "PASS",
+      "evidence": [
+        "run_pncp_open_monitoring_present=True",
+        "orphan_modalidade_loop_absent=True"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "G3_reconcile_complete_only",
+      "status": "PASS",
+      "evidence": [
+        "reconciliation.py gate",
+        "pncp_audit reconcile on complete"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "G4_sla_24h",
+      "status": "PASS",
+      "evidence": [
+        "PNCP_OPP_SLA_HOURS=24",
+        "source_default_24=True"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "G5_ciga_sla_24",
+      "status": "PASS",
+      "evidence": [
+        "ciga_ckan.sla_hours=24",
+        "DOD editais freshness ≤24h prevails"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "G6_deliverable_e_fail_closed_empty",
+      "status": "PASS",
+      "evidence": [
+        "from_db=True",
+        "operational_empty_ok=False"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "G7_pending_capacity_no_go",
+      "status": "PASS",
+      "evidence": [
+        "ranking=REVIEW",
+        "risk=['capacidade operacional crítica PENDING no perfil: elicitation.capital_giro, elicitation.capacidade_simultanea, elicitation.capacidade_garantia, elicitation.cats_atestados, elicitation.certidoes']"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "G8_snapshot_integrity_module",
+      "status": "PASS",
+      "evidence": [
+        "scripts/ops/snapshot_integrity.py"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "G9_campaign_gate_script",
+      "status": "PASS",
+      "evidence": [
+        "makefile_target=True",
+        "script=True"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "G10_systemd_weekly",
+      "status": "PASS",
+      "evidence": [
+        "deploy/systemd/extra-weekly.service",
+        "deploy/systemd/extra-weekly.timer"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "G0_baseline",
+      "status": "PASS",
+      "evidence": [
+        "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/baseline.json"
+      ],
+      "notes": ""
+    },
+    {
+      "item_id": "G_ast_weekly",
+      "status": "PASS",
+      "evidence": [
+        "weekly_cycle.py parses"
+      ],
+      "notes": ""
+    }
+  ],
+  "claims_forbidden": [
+    "VPS_OPERATIONAL",
+    "coverage open_tenders ≥95% without regenerated dual report",
+    "LOCAL_READY",
+    "PROJECT_DONE"
+  ],
+  "note": "Structural/unit gate only — not full campaign operational PASS"
+}

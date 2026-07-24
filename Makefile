@@ -105,7 +105,20 @@ run-report:
 extra-weekly:
 	@echo '==> [$(ENV)] Ciclo semanal canônico Extra Construtora'
 	@echo '    Entry point: python -m scripts.ops.weekly_cycle --strict'
+	@echo '    Open tenders: run_pncp_open_monitoring (aggregated) + SourceSnapshotReconciler'
 	python3 -m scripts.ops.weekly_cycle --strict $(WEEKLY_FLAGS)
+
+.PHONY: deliverable-e-live
+deliverable-e-live:
+	@echo '==> Deliverable E from live DB (operational fail-closed audit)'
+	python3 -m scripts.ops.deliverable_e_editais audit-db --operational \
+		--out artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/deliverable-e-audit.json
+
+.PHONY: snapshot-integrity
+snapshot-integrity:
+	@echo '==> Active open-tenders snapshot integrity'
+	python3 -m scripts.ops.snapshot_integrity \
+		--out artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/snapshot-integrity.json
 
 .PHONY: report-executivo
 report-executivo:
@@ -238,6 +251,45 @@ campaign-gate-historical-contracts-vps:
 		tests/test_local_resilience.py::test_systemd_priority_units_are_statically_safe
 	@test -f artifacts/campaigns/HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01/baseline.json
 	@echo 'campaign-gate foundation OK (ops evidence still required for PASS)'
+
+# ── Campaign OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01 ─────────────────────
+
+.PHONY: campaign-gate-open-tenders campaign-gate-open-tenders-operational
+campaign-gate-open-tenders campaign-gate-open-tenders-operational:
+	@echo '==> Campaign gate: open tenders operational decision cycle'
+	python3 -m scripts.ops.campaign_open_tenders_gate \
+		--out artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/campaign-gate.json
+	python3 -m pytest -o addopts='' -q \
+		tests/test_open_tenders_campaign_gate.py \
+		tests/test_deliverable_e_editais.py \
+		tests/test_weekly_cycle.py::test_pncp_opp_sla_default_is_24h \
+		tests/test_weekly_cycle.py::test_weekly_collect_uses_aggregated_pncp_audit
+	@test -f artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/baseline.json
+	@test -f deploy/systemd/extra-weekly.service
+	@test -f deploy/systemd/extra-weekly.timer
+	@echo 'campaign-gate-open-tenders foundation OK (live coverage/VPS still required for campaign PASS)'
+
+.PHONY: release-candidate-open-tenders
+release-candidate-open-tenders:
+	@echo '==> release-candidate-open-tenders (fail-closed JSON)'
+	python3 -m scripts.ops.campaign_open_tenders_release \
+		--out artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/release-candidate.json \
+		$(OPEN_TENDERS_RC_FLAGS)
+
+.PHONY: verify-open-tenders-production
+verify-open-tenders-production:
+	@echo '==> verify-open-tenders-production (local artifacts + ssh ec-prod)'
+	python3 -m scripts.ops.campaign_open_tenders_soak \
+		--out artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/soak.json || true
+	python3 -m scripts.ops.campaign_verify_open_tenders \
+		--out artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/verify-production.json \
+		$(VERIFY_OPEN_TENDERS_FLAGS)
+
+.PHONY: open-tenders-soak
+open-tenders-soak:
+	@echo '==> open-tenders soak status (VPS timer/journal)'
+	python3 -m scripts.ops.campaign_open_tenders_soak \
+		--out artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/soak.json
 
 .PHONY: release-candidate
 release-candidate:

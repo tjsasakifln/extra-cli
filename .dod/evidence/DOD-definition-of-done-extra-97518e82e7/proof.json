@@ -1,0 +1,115 @@
+{
+  "item_id": "DOD-definition-of-done-extra-97518e82e7",
+  "title": "Nenhuma recomendação promete vitória ou substitui análise jurídica.",
+  "as_of": "2026-07-24T00:34:15Z",
+  "git_sha": "475aa50c7ab7ddfd93dd832ee4e8c53314bcacd4",
+  "proof": {
+    "ok": true,
+    "generated_at": "2026-07-23T23:25:53Z",
+    "summary": {
+      "total": 10,
+      "pass": 10,
+      "fail": 0
+    },
+    "checks": [
+      {
+        "item_id": "non_empty_operational",
+        "dod_text": "Dataset vazio não pode aprovar o relatório operacional de editais.",
+        "status": "PASS",
+        "evidence": [
+          "recommendation_count=4",
+          "status=OK"
+        ],
+        "notes": "fail-closed when operational/require_non_empty"
+      },
+      {
+        "item_id": "open_at_cut",
+        "dod_text": "O relatório inclui editais comprovadamente abertos na data de corte ou semana de conclusão.",
+        "status": "PASS",
+        "evidence": [
+          "cut_date=2026-07-23",
+          "n=4",
+          "excluded_not_open=0"
+        ],
+        "notes": ""
+      },
+      {
+        "item_id": "snapshot_or_reconfirm",
+        "dod_text": "Cada edital foi visto no snapshot completo mais recente ou reconfirmado individualmente.",
+        "status": "PASS",
+        "evidence": [
+          "proof_mode SNAPSHOT|INDIVIDUAL_RECONFIRM"
+        ],
+        "notes": ""
+      },
+      {
+        "item_id": "profile_versioned",
+        "dod_text": "Cada edital é avaliado contra o perfil versionado da Extra.",
+        "status": "PASS",
+        "evidence": [
+          "profile_id + profile_version on each recommendation"
+        ],
+        "notes": ""
+      },
+      {
+        "item_id": "go_review_nogo",
+        "dod_text": "Cada edital recebe `GO`, `REVIEW` ou `NO_GO`.",
+        "status": "PASS",
+        "evidence": [
+          "NO_GO",
+          "REVIEW",
+          "GO"
+        ],
+        "notes": ""
+      },
+      {
+        "item_id": "client_labels",
+        "dod_text": "A apresentação ao cliente traduz `GO` e `NO_GO` como recomendação fundamentada de `PARTICIPAR` ou `NÃO PARTICIPAR`, preservando `REVIEW` quando depender de análise humana adicional.",
+        "status": "PASS",
+        "evidence": [
+          "{'GO': 'PARTICIPAR', 'NO_GO': 'NÃO PARTICIPAR', 'REVIEW': 'REVIEW'}"
+        ],
+        "notes": ""
+      },
+      {
+        "item_id": "fatores_favoraveis",
+        "dod_text": "Cada recomendação mostra fatores favoráveis.",
+        "status": "PASS",
+        "evidence": [
+          "fatores_favoraveis list"
+        ],
+        "notes": ""
+      },
+      {
+        "item_id": "fatores_impeditivos",
+        "dod_text": "Cada recomendação mostra fatores impeditivos ou riscos.",
+        "status": "PASS",
+        "evidence": [
+          "fatores_impeditivos_ou_riscos list"
+        ],
+        "notes": ""
+      },
+      {
+        "item_id": "refs_oficiais",
+        "dod_text": "Cada recomendação referencia dados e documentos oficiais disponíveis.",
+        "status": "PASS",
+        "evidence": [
+          "referencias_oficiais non-empty when included"
+        ],
+        "notes": ""
+      },
+      {
+        "item_id": "no_victory_promise",
+        "dod_text": "Nenhuma recomendação promete vitória ou substitui análise jurídica, contábil ou técnica final.",
+        "status": "PASS",
+        "evidence": [
+          "shared disclaimer on every recommendation"
+        ],
+        "notes": ""
+      }
+    ],
+    "report_status": "OK",
+    "recommendation_count": 4,
+    "excluded_not_open": 0
+  }
+}

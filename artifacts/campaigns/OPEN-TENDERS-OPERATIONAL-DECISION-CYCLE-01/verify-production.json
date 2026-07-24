@@ -1,0 +1,120 @@
+{
+  "campaign_id": "OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01",
+  "gate": "verify-open-tenders-production",
+  "generated_at": "2026-07-24T00:14:11Z",
+  "git_sha": "68752046e9d93ecb8e37a8111ed709261f3da595",
+  "status": "BLOCKED",
+  "ok": false,
+  "summary": {
+    "total": 9,
+    "pass": 8,
+    "fail": 1
+  },
+  "checks": [
+    {
+      "item_id": "baseline",
+      "status": "PASS",
+      "evidence": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/baseline.json",
+      "notes": ""
+    },
+    {
+      "item_id": "campaign_gate",
+      "status": "PASS",
+      "evidence": {
+        "total": 12,
+        "pass": 12,
+        "fail": 0
+      },
+      "notes": ""
+    },
+    {
+      "item_id": "release_candidate_foundation",
+      "status": "PASS",
+      "evidence": {
+        "ok": true,
+        "sha": "68752046e9d93ecb8e37a8111ed709261f3da595"
+      },
+      "notes": "optional if only verify without RC step"
+    },
+    {
+      "item_id": "dual_open_tenders_coverage",
+      "status": "PASS",
+      "evidence": {
+        "coverage_pct": 100.0,
+        "gate_status": "PASS",
+        "applicable_denominator": 1093,
+        "covered_numerator": 1093,
+        "unknown": 0,
+        "universe": 1093
+      },
+      "notes": "requires regenerated dual report ≥95% with zero applicability unknown"
+    },
+    {
+      "item_id": "freshness_editais",
+      "status": "PASS",
+      "evidence": {
+        "fresh_or_covered": 1093,
+        "denominator": 1093,
+        "as_of": "2026-07-23T23:43:03.980591Z"
+      },
+      "notes": "freshness-editais.json must show ≥95% fresh within SLA"
+    },
+    {
+      "item_id": "snapshot_integrity",
+      "status": "PASS",
+      "evidence": {
+        "status": "PASS",
+        "integrity_pct": 100.0,
+        "active_open_count": 4
+      },
+      "notes": ""
+    },
+    {
+      "item_id": "vps_extra_weekly_timer",
+      "status": "PASS",
+      "evidence": {
+        "enabled": "enabled",
+        "active": "active",
+        "service": "Result=success\nExecMainStatus=0\nActiveEnterTimestamp=",
+        "ssh_ok": true,
+        "vps_sha": "68752046e9d93ecb8e37a8111ed709261f3da595"
+      },
+      "notes": "timer must be enabled+active on VPS"
+    },
+    {
+      "item_id": "vps_opportunity_intel_nonempty",
+      "status": "PASS",
+      "evidence": {
+        "count": 4,
+        "raw": "4"
+      },
+      "notes": ""
+    },
+    {
+      "item_id": "soak_7d",
+      "status": "FAIL",
+      "evidence": {
+        "status": "IN_PROGRESS",
+        "days_observed": 1,
+        "successful_fire_days": 1,
+        "timer_ok": true,
+        "gaps": []
+      },
+      "notes": "requires seven days of recurring execution evidence"
+    }
+  ],
+  "vps": {
+    "sha": "68752046e9d93ecb8e37a8111ed709261f3da595",
+    "timer_enabled": "enabled",
+    "timer_active": "active",
+    "opportunity_intel_count": 4
+  },
+  "claims_authorized": [],
+  "claims_forbidden": [
+    "VPS_OPERATIONAL without timer+data+coverage+soak",
+    "PROJECT_DONE",
+    "LOCAL_READY",
+    "coverage ≥95% without dual report PASS"
+  ],
+  "note": "BLOCKED means foundation may exist but operational proof is incomplete. PASS requires all checks green including soak."
+}

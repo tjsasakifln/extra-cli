@@ -1,0 +1,51 @@
+{
+  "schema_version": "1.0",
+  "as_of": "2026-07-24T00:09:15Z",
+  "git_sha": "ab1bc0a7a6ff0d852e7999003564dcb1f69935e6",
+  "population": "active open opportunity_intel (VPS)",
+  "population_n": 4,
+  "essential_fields": [
+    "numero_controle_pncp",
+    "orgao_nome",
+    "objeto",
+    "status_canonico",
+    "uf",
+    "link_edital",
+    "orgao_cnpj",
+    "data_encerramento",
+    "modalidade"
+  ],
+  "complete_n": 4,
+  "completeness_pct": 100.0,
+  "threshold": 95.0,
+  "gate_status": "PASS",
+  "rows": [
+    {
+      "id": 1,
+      "numero": "11360515000119-1-000013/2026",
+      "missing": [],
+      "complete": true
+    },
+    {
+      "id": 2,
+      "numero": "07654807000197-1-000072/2026",
+      "missing": [],
+      "complete": true
+    },
+    {
+      "id": 3,
+      "numero": "10432684000154-1-000049/2025",
+      "missing": [],
+      "complete": true
+    },
+    {
+      "id": 4,
+      "numero": "83102541000158-1-000167/2025",
+      "missing": [],
+      "complete": true
+    }
+  ],
+  "claims_forbidden": [
+    "empty population as 100% completeness"
+  ]
+}

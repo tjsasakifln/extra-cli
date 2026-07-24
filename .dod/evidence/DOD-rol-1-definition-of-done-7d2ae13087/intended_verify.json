@@ -1,0 +1,8 @@
+{
+  "tests": [
+    "tests/test_open_tenders_campaign_gate.py::test_snapshot_integrity_fail_closed_without_dsn_shape"
+  ],
+  "commands": [
+    "python3 -c \"import json; from pathlib import Path; d=json.loads(Path('artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/snapshot-integrity.json').read_text()); assert d.get('integrity_pct')==100.0 and d.get('operational_ok') is True and int(d.get('active_open_count') or 0)>0; print('snapshot_integrity_ok', d['active_open_count'])\""
+  ]
+}

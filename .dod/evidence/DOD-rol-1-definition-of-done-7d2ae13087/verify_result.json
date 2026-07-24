@@ -1,0 +1,101 @@
+{
+  "item_id": "DOD-rol-1-definition-of-done-7d2ae13087",
+  "commands": [
+    {
+      "cmd": "python3 -c \"import json; from pathlib import Path; d=json.loads(Path('artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/snapshot-integrity.json').read_text()); assert d.get('integrity_pct')==100.0 and d.get('operational_ok') is True and int(d.get('active_open_count') or 0)>0; print('snapshot_integrity_ok', d['active_open_count'])\"",
+      "exit_code": 0,
+      "duration_s": 0.04,
+      "stdout_tail": "snapshot_integrity_ok 4\n",
+      "stderr_tail": "",
+      "env": {
+        "CI": null,
+        "GITHUB_ACTIONS": null,
+        "LOCAL_DATALAKE_DSN": {
+          "set": false,
+          "len": 0
+        },
+        "PYTEST_ADDOPTS": null,
+        "PATH": {
+          "set": true,
+          "len": 1919
+        },
+        "USER": "tjsasakifln",
+        "HOME": {
+          "set": true,
+          "len": 17
+        }
+      },
+      "skipped": false
+    }
+  ],
+  "tests": [
+    {
+      "test": "tests/test_open_tenders_campaign_gate.py::test_snapshot_integrity_fail_closed_without_dsn_shape",
+      "cmd": "python3 -m pytest tests/test_open_tenders_campaign_gate.py::test_snapshot_integrity_fail_closed_without_dsn_shape -q --tb=line",
+      "exit_code": 0,
+      "duration_s": 60.28,
+      "stdout_tail": "scripts/workspace/common.py                                      194    194   0.0%   6-297\nscripts/workspace/queue.py                                       261    261   0.0%   6-715\n--------------------------------------------------------------------------------------------\nTOTAL                                                          68954  68904   0.1%\nCoverage HTML written to dir docs/td-001/coverage-reports/\n\n\n============================== 1 passed in 55.43s ==============================\n",
+      "stderr_tail": "",
+      "counts": {
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "deselected": 0,
+        "xfailed": 0,
+        "error": 0
+      },
+      "env": {
+        "CI": null,
+        "GITHUB_ACTIONS": null,
+        "LOCAL_DATALAKE_DSN": {
+          "set": false,
+          "len": 0
+        },
+        "PYTEST_ADDOPTS": null,
+        "PATH": {
+          "set": true,
+          "len": 1919
+        },
+        "USER": "tjsasakifln",
+        "HOME": {
+          "set": true,
+          "len": 17
+        }
+      },
+      "skipped": false
+    }
+  ],
+  "ok": true,
+  "notes": [],
+  "rejected_trivial": [],
+  "head_sha": "475aa50c7ab7ddfd93dd832ee4e8c53314bcacd4",
+  "env": {
+    "CI": null,
+    "GITHUB_ACTIONS": null,
+    "LOCAL_DATALAKE_DSN": {
+      "set": false,
+      "len": 0
+    },
+    "PYTEST_ADDOPTS": null,
+    "PATH": {
+      "set": true,
+      "len": 1919
+    },
+    "USER": "tjsasakifln",
+    "HOME": {
+      "set": true,
+      "len": 17
+    }
+  },
+  "started_at": "2026-07-24T00:39:09Z",
+  "duration_s": 60.32,
+  "substantive_runs": 2,
+  "totals": {
+    "passed": 2,
+    "failed": 0,
+    "skipped": 0,
+    "deselected": 0,
+    "error": 0
+  },
+  "finished_at": "2026-07-24T00:40:09Z"
+}

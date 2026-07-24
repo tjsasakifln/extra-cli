@@ -1,0 +1,63 @@
+{
+  "schema": "extra-weekly-checksums/1.0",
+  "cycle_id": "weekly-20260724T001238Z-cd7bad9648",
+  "collection_id": "col-extra-weekly-20260724T001238Z-ee77044c",
+  "note": "Hashes of product artifacts only — does not include manifest.json",
+  "artifacts": {
+    "opportunities_csv": {
+      "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/opportunities.csv",
+      "sha256": "1f4ee56ebfc10a0e351d9029dbcabf64a76d21e65a3399d6f083f3dd607d25fa",
+      "bytes": 4949
+    },
+    "contracts_csv": {
+      "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/contracts.csv",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "competitors_csv": {
+      "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/competitors.csv",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "orgaos_csv": {
+      "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/orgaos.csv",
+      "sha256": "018c750ad89c8ff731fa361efc785d4ebc266f0a30515d32f23d40b50c4d1d02",
+      "bytes": 662
+    },
+    "source_health_csv": {
+      "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/source_health.csv",
+      "sha256": "0260269f729574bd9ca4e522c5ec353cecb9042c13acc86ec932e06a86070041",
+      "bytes": 313
+    },
+    "gaps_csv": {
+      "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/gaps.csv",
+      "sha256": "aa429b5f7865d75cb2cebab26a3e24bf4dc070a3ae90ed063d7f28a4ddd8c902",
+      "bytes": 350
+    },
+    "claims_csv": {
+      "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/claims_provenance.csv",
+      "sha256": "9ebc1d9544efda561531337ae62f3ceb7b96f2ff937a91ecf24c87b0defb1731",
+      "bytes": 3013
+    },
+    "executive_md": {
+      "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/executive_summary.md",
+      "sha256": "a443e780b60105a3b7dbde118be832dfd37108a7495d57ac9423a38608a51e10",
+      "bytes": 3924
+    },
+    "excel": {
+      "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/extra_weekly_pack.xlsx",
+      "sha256": "36d47185561405ca71c5d1fbc2598d2d6a8c6698d3440c0072f9f38f580faa3a",
+      "bytes": 12543
+    },
+    "deliverable_e": {
+      "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/deliverable_e.json",
+      "sha256": "f1792c9d41807f4637abce2d1d981ca3f143b81b7d5147e581cf176e2a835f26",
+      "bytes": 7265
+    },
+    "deliverable_e_audit": {
+      "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/deliverable_e_audit.json",
+      "sha256": "7853d6fbf43da97c54a57158d98cd997a9a0d9e2f81fc9309cb22653484a25b8",
+      "bytes": 3079
+    }
+  }
+}

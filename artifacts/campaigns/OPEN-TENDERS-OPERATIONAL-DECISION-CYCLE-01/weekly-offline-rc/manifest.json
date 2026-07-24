@@ -1,0 +1,748 @@
+{
+  "cycle_id": "weekly-20260724T001238Z-cd7bad9648",
+  "collection_id": "col-extra-weekly-20260724T001238Z-ee77044c",
+  "started_at": "2026-07-24T00:12:38Z",
+  "finished_at": "2026-07-24T00:12:41Z",
+  "exit_code": 0,
+  "git": {
+    "git_sha": "68752046e9d93ecb8e37a8111ed709261f3da595",
+    "git_branch": "campaign/open-tenders-operational-decision-cycle-01"
+  },
+  "stages": [
+    {
+      "name": "validate_config",
+      "status": "ok",
+      "detail": {
+        "dsn_host_set": true,
+        "notes": []
+      },
+      "error": null
+    },
+    {
+      "name": "validate_db",
+      "status": "warn",
+      "detail": {
+        "tables": {
+          "sc_public_entities": true,
+          "opportunity_intel": true,
+          "opportunity_runs": true,
+          "pipeline_runs": true,
+          "pncp_supplier_contracts": true
+        },
+        "universe_200km": 0,
+        "expected_universe": 1093
+      },
+      "error": "universe_200km=0 != 1093 (scope drift)"
+    },
+    {
+      "name": "freshness",
+      "status": "warn",
+      "detail": {
+        "sources": [
+          {
+            "source": "pncp_opportunities",
+            "level": "unreliable",
+            "sla_hours": 24,
+            "age_hours": 1.13,
+            "last_run_id": 1,
+            "last_status": "failed",
+            "scope_complete": false,
+            "records_fetched": 4,
+            "indicator": "freshness_source"
+          },
+          {
+            "source": "pncp_contracts",
+            "level": "fresh",
+            "sla_hours": 168,
+            "age_hours": 4.04,
+            "row_count": 4438345,
+            "indicator": "freshness_source",
+            "note": "freshness by max(ingested_at); not a full re-collect this cycle"
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "name": "collect",
+      "status": "ok",
+      "detail": {
+        "runs": [
+          {
+            "run_id": "collect-pncp_opportunities-20260724T001240Z-1060734f2b",
+            "collection_id": "col-extra-weekly-20260724T001238Z-ee77044c",
+            "source": "pncp_opportunities",
+            "collector_version": "weekly-cycle/1.1",
+            "parameters": {},
+            "period_start": null,
+            "period_end": null,
+            "started_at": "2026-07-24T00:12:40.506476Z",
+            "finished_at": "2026-07-24T00:12:40.506501Z",
+            "terminal_status": "reused_fresh",
+            "records_obtained": 0,
+            "records_rejected": 0,
+            "records_persisted": 0,
+            "watermark": null,
+            "raw_uri": null,
+            "content_hashes": [],
+            "terminal_error": null,
+            "request_completed": true,
+            "scope_complete": true,
+            "source_available": true,
+            "mode": "offline_test",
+            "git_sha": "68752046e9d93ecb8e37a8111ed709261f3da595",
+            "notes": [
+              "offline test mode — no network"
+            ],
+            "contract_version": "1.0",
+            "payload_hash": "524bdf4abf58f02318724139049cc7ecdda6de128540d23c523dcdfcf73b2666"
+          },
+          {
+            "run_id": "collect-pncp_contracts-20260724T001240Z-0ccc4c7ee4",
+            "collection_id": "col-extra-weekly-20260724T001238Z-ee77044c",
+            "source": "pncp_contracts",
+            "collector_version": "weekly-cycle/1.1",
+            "parameters": {
+              "strategy": "reuse_lake_with_freshness_declaration"
+            },
+            "period_start": null,
+            "period_end": null,
+            "started_at": "2026-07-24T00:12:40.741579Z",
+            "finished_at": "2026-07-24T00:12:40.741617Z",
+            "terminal_status": "reused_fresh",
+            "records_obtained": 4438345,
+            "records_rejected": 0,
+            "records_persisted": 4438345,
+            "watermark": null,
+            "raw_uri": "db://pncp_supplier_contracts",
+            "content_hashes": [],
+            "terminal_error": null,
+            "request_completed": true,
+            "scope_complete": false,
+            "source_available": true,
+            "mode": "reuse",
+            "git_sha": "68752046e9d93ecb8e37a8111ed709261f3da595",
+            "notes": [
+              "contracts not re-crawled; lake rows reused with explicit freshness",
+              "age_hours=4.04"
+            ],
+            "contract_version": "1.0",
+            "payload_hash": "fe38c362baa38adb730ee69941bda212d860c1489eb40f25d5814df653ac555c"
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "name": "process",
+      "status": "ok",
+      "detail": {
+        "note": "Open tenders via run_pncp_open_monitoring (aggregated modalities) normalize into opportunity_intel; SourceSnapshotReconciler runs only when the parent run is completed + scope_complete; CIGA dual coverage_evidence projected for municipal combinations; contracts already canonical in pncp_supplier_contracts",
+        "open_tenders_collect_path": "scripts.opportunity_intel.pncp_audit.run_pncp_open_monitoring",
+        "opportunity_runs_id": null,
+        "reconcile_policy": "complete_aggregated_run_only",
+        "ciga_dual_projection": {
+          "status": "skipped",
+          "reason": "offline_or_skip"
+        }
+      },
+      "error": null
+    },
+    {
+      "name": "quality",
+      "status": "ok",
+      "detail": {
+        "catalog_size": 9,
+        "opportunity_counts": {
+          "open_n": 4,
+          "active_n": 4,
+          "go_n": 0,
+          "review_n": 4,
+          "nogo_n": 0
+        },
+        "issues": [],
+        "runs": [
+          "reused_fresh",
+          "reused_fresh"
+        ]
+      },
+      "error": null
+    },
+    {
+      "name": "intelligence",
+      "status": "ok",
+      "detail": {
+        "opportunities": [
+          {
+            "id": 1,
+            "source": "pncp",
+            "source_id": "11360515000119-1-000013/2026",
+            "numero_controle_pncp": "11360515000119-1-000013/2026",
+            "orgao_cnpj": "11360515000119",
+            "orgao_nome": "FUNDO MUNICIPAL DE SAUDE DE SANTA TEREZINHA DO PROGRESSO",
+            "municipio": "Santa Terezinha do Progresso",
+            "uf": "SC",
+            "objeto": "AQUISIÇÃO DE LENÇÓIS E MANTAS DESTINADOS AOS LEITOS DA UNIDADE BÁSICA DE SAÚDE DO MUNICÍPIO DE SANTA TEREZINHA DO PROGRESSO/SC, VISANDO ATENDER ÀS NECESSIDADES DE ACOLHIMENTO, CONFORTO, HIGIENE E BEM-ESTAR DOS PACIENTES DURANTE OS ATENDIMENTOS E PERMANÊNCIA NA UNIDADE DE SAÚDE.",
+            "modalidade": "Dispensa",
+            "valor_estimado": "2562.60",
+            "valor_semantica": "valor_total_estimado_informado_pelo_pncp",
+            "status_canonico": "open",
+            "ranking": "REVIEW",
+            "ranking_score": 0,
+            "ranking_confianca": "MEDIUM",
+            "data_publicacao": "2026-07-20 00:00:00+00:00",
+            "data_abertura": "2026-07-21 00:00:00+00:00",
+            "data_encerramento": "2026-07-23 00:00:00+00:00",
+            "link_edital": null,
+            "run_id": 1,
+            "crawl_batch_id": "odc01-smoke-live",
+            "proveniencia": {
+              "source": "pncp",
+              "all_fields": "pncp_api",
+              "status_evidence": "pncp_open_proposals_endpoint"
+            },
+            "last_seen_source_run_id": null,
+            "ingested_at": "2026-07-23 23:05:04.006766+00:00",
+            "updated_at": "2026-07-23 23:05:04.006766+00:00",
+            "essential_gaps": [],
+            "ranking_effective": "REVIEW",
+            "ranking_note": null,
+            "valor_tipo": "valor_total_estimado_informado_pelo_pncp",
+            "valor_nao_e_pago": true,
+            "cycle_collection_id": "col-extra-weekly-20260724T001238Z-ee77044c",
+            "cycle_run_id": "collect-pncp_opportunities-20260724T001240Z-1060734f2b",
+            "source_record_run_id": 1,
+            "scope": "extra_sc_or_universe_200km"
+          },
+          {
+            "id": 2,
+            "source": "pncp",
+            "source_id": "07654807000197-1-000072/2026",
+            "numero_controle_pncp": "07654807000197-1-000072/2026",
+            "orgao_cnpj": "07654807000197",
+            "orgao_nome": "CONSORCIO INTERMUNICIPAL DE SAUDE DO ALTO URUGUAI CATARINENSE",
+            "municipio": "Concórdia",
+            "uf": "SC",
+            "objeto": "Aquisição de 01 (um) computador do tipo All in One, novo, de primeiro uso, contemplando, no mínimo, processador Intel Core i5- 12400 ou equivalente em desempenho ou superior, 16 GB de memória RAM DDR4, armazenamento de, no mínimo, 512 GB em SSD (SATA ou M.2), teclado e mouse, além de sistema operacional Microsoft Windows 11 Pro 64 bits, original, licenciado e pré instalado pelo fabricante. destinado ao atendimento das necessidades administrativas do Consórcio",
+            "modalidade": "Dispensa",
+            "valor_estimado": "4922.50",
+            "valor_semantica": "valor_total_estimado_informado_pelo_pncp",
+            "status_canonico": "open",
+            "ranking": "REVIEW",
+            "ranking_score": 0,
+            "ranking_confianca": "MEDIUM",
+            "data_publicacao": "2026-07-20 00:00:00+00:00",
+            "data_abertura": "2026-07-21 00:00:00+00:00",
+            "data_encerramento": "2026-07-23 00:00:00+00:00",
+            "link_edital": null,
+            "run_id": 1,
+            "crawl_batch_id": "odc01-smoke-live",
+            "proveniencia": {
+              "source": "pncp",
+              "all_fields": "pncp_api",
+              "status_evidence": "pncp_open_proposals_endpoint"
+            },
+            "last_seen_source_run_id": null,
+            "ingested_at": "2026-07-23 23:05:04.006766+00:00",
+            "updated_at": "2026-07-23 23:05:04.006766+00:00",
+            "essential_gaps": [],
+            "ranking_effective": "REVIEW",
+            "ranking_note": null,
+            "valor_tipo": "valor_total_estimado_informado_pelo_pncp",
+            "valor_nao_e_pago": true,
+            "cycle_collection_id": "col-extra-weekly-20260724T001238Z-ee77044c",
+            "cycle_run_id": "collect-pncp_opportunities-20260724T001240Z-1060734f2b",
+            "source_record_run_id": 1,
+            "scope": "extra_sc_or_universe_200km"
+          },
+          {
+            "id": 3,
+            "source": "pncp",
+            "source_id": "10432684000154-1-000049/2025",
+            "numero_controle_pncp": "10432684000154-1-000049/2025",
+            "orgao_cnpj": "10432684000154",
+            "orgao_nome": "FUNDO MUNICIPAL DE SAUDE",
+            "municipio": "Videira",
+            "uf": "SC",
+            "objeto": "CREDENCIAMENTO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE SERVIÇOS DE FORMA COMPLEMENTAR AO SUS, DE EXAMES COM FINALIDADE DIAGNÓSTICA (LABORATÓRIO CLÍNICO), EXAMES BIOQUÍMICOS, HEMATOLÓGICOS E HEMOSTASIA, SOROLÓGICOS E IMUNOLÓGICOS; CROPOLÓGICOS; UROANÁLISES, HORMONAIS, TOXICOLÓGICOS OU DE MONITORIZAÇÃO TERAPÊUTICA, MICROBIOLÓGICOS, EM OUTROS LÍQUIDOS BIOLÓGICOS, DE GENÉTICA, PARA TRIAGEM NEONATAL E IMUNO HEMATOLÓGICOS, A SEREM ATENDIDOS PELA REDE BÁSICA DE SAÚDE, CONFORME TABELA DO SIA/SUS DO MINISTÉRIO DA SAÚDE",
+            "modalidade": "Credenciamento",
+            "valor_estimado": "1500000.00",
+            "valor_semantica": "valor_total_estimado_informado_pelo_pncp",
+            "status_canonico": "open",
+            "ranking": "REVIEW",
+            "ranking_score": 0,
+            "ranking_confianca": "MEDIUM",
+            "data_publicacao": "2025-07-25 00:00:00+00:00",
+            "data_abertura": "2025-07-24 00:00:00+00:00",
+            "data_encerramento": "2026-07-23 00:00:00+00:00",
+            "link_edital": null,
+            "run_id": 1,
+            "crawl_batch_id": "odc01-smoke-live",
+            "proveniencia": {
+              "source": "pncp",
+              "all_fields": "pncp_api",
+              "status_evidence": "pncp_open_proposals_endpoint"
+            },
+            "last_seen_source_run_id": null,
+            "ingested_at": "2026-07-23 23:05:04.006766+00:00",
+            "updated_at": "2026-07-23 23:05:04.006766+00:00",
+            "essential_gaps": [],
+            "ranking_effective": "REVIEW",
+            "ranking_note": null,
+            "valor_tipo": "valor_total_estimado_informado_pelo_pncp",
+            "valor_nao_e_pago": true,
+            "cycle_collection_id": "col-extra-weekly-20260724T001238Z-ee77044c",
+            "cycle_run_id": "collect-pncp_opportunities-20260724T001240Z-1060734f2b",
+            "source_record_run_id": 1,
+            "scope": "extra_sc_or_universe_200km"
+          },
+          {
+            "id": 4,
+            "source": "pncp",
+            "source_id": "83102541000158-1-000167/2025",
+            "numero_controle_pncp": "83102541000158-1-000167/2025",
+            "orgao_cnpj": "83102541000158",
+            "orgao_nome": "MUNICIPIO DE PORTO UNIAO",
+            "municipio": "Porto União",
+            "uf": "SC",
+            "objeto": "Credenciamento de empresa para prestação de serviços de manutenção da frota municipal, incluindo fornecimento de peças e serviços necessários, visando à aquisição de serviços de manutenção mecânica, elétrica e lataria em veículos leves e pesados, conforme necessidades e demandas das Secretarias Municipais, conforme especificações detalhadas no Edital e no Termo de Referência, em conformidade com os anexos deste Edital.",
+            "modalidade": "Credenciamento",
+            "valor_estimado": "2571000.00",
+            "valor_semantica": "valor_total_estimado_informado_pelo_pncp",
+            "status_canonico": "open",
+            "ranking": "REVIEW",
+            "ranking_score": 0,
+            "ranking_confianca": "MEDIUM",
+            "data_publicacao": "2025-09-11 00:00:00+00:00",
+            "data_abertura": "2025-07-23 00:00:00+00:00",
+            "data_encerramento": "2026-07-23 00:00:00+00:00",
+            "link_edital": null,
+            "run_id": 1,
+            "crawl_batch_id": "odc01-smoke-live",
+            "proveniencia": {
+              "source": "pncp",
+              "all_fields": "pncp_api",
+              "status_evidence": "pncp_open_proposals_endpoint"
+            },
+            "last_seen_source_run_id": null,
+            "ingested_at": "2026-07-23 23:05:04.006766+00:00",
+            "updated_at": "2026-07-23 23:05:04.006766+00:00",
+            "essential_gaps": [],
+            "ranking_effective": "REVIEW",
+            "ranking_note": null,
+            "valor_tipo": "valor_total_estimado_informado_pelo_pncp",
+            "valor_nao_e_pago": true,
+            "cycle_collection_id": "col-extra-weekly-20260724T001238Z-ee77044c",
+            "cycle_run_id": "collect-pncp_opportunities-20260724T001240Z-1060734f2b",
+            "source_record_run_id": 1,
+            "scope": "extra_sc_or_universe_200km"
+          }
+        ],
+        "contracts": [],
+        "competitors": [],
+        "orgaos": [
+          {
+            "orgao_cnpj": "07654807000197",
+            "orgao_nome": "CONSORCIO INTERMUNICIPAL DE SAUDE DO ALTO URUGUAI CATARINENSE",
+            "uf": "SC",
+            "municipio": "Concórdia",
+            "n_opp": 1,
+            "cycle_collection_id": "col-extra-weekly-20260724T001238Z-ee77044c",
+            "scope": "extra_sc_or_universe_200km"
+          },
+          {
+            "orgao_cnpj": "10432684000154",
+            "orgao_nome": "FUNDO MUNICIPAL DE SAUDE",
+            "uf": "SC",
+            "municipio": "Videira",
+            "n_opp": 1,
+            "cycle_collection_id": "col-extra-weekly-20260724T001238Z-ee77044c",
+            "scope": "extra_sc_or_universe_200km"
+          },
+          {
+            "orgao_cnpj": "11360515000119",
+            "orgao_nome": "FUNDO MUNICIPAL DE SAUDE DE SANTA TEREZINHA DO PROGRESSO",
+            "uf": "SC",
+            "municipio": "Santa Terezinha do Progresso",
+            "n_opp": 1,
+            "cycle_collection_id": "col-extra-weekly-20260724T001238Z-ee77044c",
+            "scope": "extra_sc_or_universe_200km"
+          },
+          {
+            "orgao_cnpj": "83102541000158",
+            "orgao_nome": "MUNICIPIO DE PORTO UNIAO",
+            "uf": "SC",
+            "municipio": "Porto União",
+            "n_opp": 1,
+            "cycle_collection_id": "col-extra-weekly-20260724T001238Z-ee77044c",
+            "scope": "extra_sc_or_universe_200km"
+          }
+        ],
+        "counts": {
+          "opportunities": 4,
+          "contracts": 0,
+          "competitors": 0,
+          "orgaos": 4
+        },
+        "scope": "extra_universe_200km"
+      },
+      "error": null
+    },
+    {
+      "name": "delivery",
+      "status": "ok",
+      "detail": {
+        "executive_md": "/mnt/d/extra consultoria/.worktrees/open-tenders-odc-01/artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/executive_summary.md",
+        "excel": "/mnt/d/extra consultoria/.worktrees/open-tenders-odc-01/artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/extra_weekly_pack.xlsx",
+        "excel_ok": true,
+        "excel_note": "",
+        "deliverable_e": "/mnt/d/extra consultoria/.worktrees/open-tenders-odc-01/artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/deliverable_e.json",
+        "deliverable_e_audit": "/mnt/d/extra consultoria/.worktrees/open-tenders-odc-01/artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/deliverable_e_audit.json",
+        "deliverable_e_ok": true,
+        "deliverable_e_note": "OK n=4",
+        "pdf": null,
+        "pdf_status": "RESIDUAL_NOT_GENERATED",
+        "csvs": {
+          "opportunities_csv": "/mnt/d/extra consultoria/.worktrees/open-tenders-odc-01/artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/opportunities.csv",
+          "contracts_csv": "/mnt/d/extra consultoria/.worktrees/open-tenders-odc-01/artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/contracts.csv",
+          "competitors_csv": "/mnt/d/extra consultoria/.worktrees/open-tenders-odc-01/artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/competitors.csv",
+          "orgaos_csv": "/mnt/d/extra consultoria/.worktrees/open-tenders-odc-01/artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/orgaos.csv",
+          "source_health_csv": "/mnt/d/extra consultoria/.worktrees/open-tenders-odc-01/artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/source_health.csv",
+          "gaps_csv": "/mnt/d/extra consultoria/.worktrees/open-tenders-odc-01/artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/gaps.csv",
+          "claims_csv": "/mnt/d/extra consultoria/.worktrees/open-tenders-odc-01/artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/claims_provenance.csv"
+        },
+        "checksums_file": "/mnt/d/extra consultoria/.worktrees/open-tenders-odc-01/artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/checksums.json",
+        "checksums_file_meta": {
+          "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/checksums.json",
+          "sha256": "1e8eb1d03a85b324162c593d682e3fab0632392a85dcffc5cacd97c1d88cd906",
+          "bytes": 3000
+        },
+        "product_checksums": {
+          "opportunities_csv": {
+            "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/opportunities.csv",
+            "sha256": "1f4ee56ebfc10a0e351d9029dbcabf64a76d21e65a3399d6f083f3dd607d25fa",
+            "bytes": 4949
+          },
+          "contracts_csv": {
+            "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/contracts.csv",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "bytes": 0
+          },
+          "competitors_csv": {
+            "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/competitors.csv",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "bytes": 0
+          },
+          "orgaos_csv": {
+            "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/orgaos.csv",
+            "sha256": "018c750ad89c8ff731fa361efc785d4ebc266f0a30515d32f23d40b50c4d1d02",
+            "bytes": 662
+          },
+          "source_health_csv": {
+            "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/source_health.csv",
+            "sha256": "0260269f729574bd9ca4e522c5ec353cecb9042c13acc86ec932e06a86070041",
+            "bytes": 313
+          },
+          "gaps_csv": {
+            "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/gaps.csv",
+            "sha256": "aa429b5f7865d75cb2cebab26a3e24bf4dc070a3ae90ed063d7f28a4ddd8c902",
+            "bytes": 350
+          },
+          "claims_csv": {
+            "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/claims_provenance.csv",
+            "sha256": "9ebc1d9544efda561531337ae62f3ceb7b96f2ff937a91ecf24c87b0defb1731",
+            "bytes": 3013
+          },
+          "executive_md": {
+            "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/executive_summary.md",
+            "sha256": "a443e780b60105a3b7dbde118be832dfd37108a7495d57ac9423a38608a51e10",
+            "bytes": 3924
+          },
+          "excel": {
+            "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/extra_weekly_pack.xlsx",
+            "sha256": "36d47185561405ca71c5d1fbc2598d2d6a8c6698d3440c0072f9f38f580faa3a",
+            "bytes": 12543
+          },
+          "deliverable_e": {
+            "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/deliverable_e.json",
+            "sha256": "f1792c9d41807f4637abce2d1d981ca3f143b81b7d5147e581cf176e2a835f26",
+            "bytes": 7265
+          },
+          "deliverable_e_audit": {
+            "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/deliverable_e_audit.json",
+            "sha256": "7853d6fbf43da97c54a57158d98cd997a9a0d9e2f81fc9309cb22653484a25b8",
+            "bytes": 3079
+          }
+        },
+        "claims_count": 8
+      },
+      "error": null
+    }
+  ],
+  "runs": [
+    {
+      "run_id": "collect-pncp_opportunities-20260724T001240Z-1060734f2b",
+      "collection_id": "col-extra-weekly-20260724T001238Z-ee77044c",
+      "source": "pncp_opportunities",
+      "collector_version": "weekly-cycle/1.1",
+      "parameters": {},
+      "period_start": null,
+      "period_end": null,
+      "started_at": "2026-07-24T00:12:40.506476Z",
+      "finished_at": "2026-07-24T00:12:40.506501Z",
+      "terminal_status": "reused_fresh",
+      "records_obtained": 0,
+      "records_rejected": 0,
+      "records_persisted": 0,
+      "watermark": null,
+      "raw_uri": null,
+      "content_hashes": [],
+      "terminal_error": null,
+      "request_completed": true,
+      "scope_complete": true,
+      "source_available": true,
+      "mode": "offline_test",
+      "git_sha": "68752046e9d93ecb8e37a8111ed709261f3da595",
+      "notes": [
+        "offline test mode — no network"
+      ],
+      "contract_version": "1.0",
+      "payload_hash": "524bdf4abf58f02318724139049cc7ecdda6de128540d23c523dcdfcf73b2666"
+    },
+    {
+      "run_id": "collect-pncp_contracts-20260724T001240Z-0ccc4c7ee4",
+      "collection_id": "col-extra-weekly-20260724T001238Z-ee77044c",
+      "source": "pncp_contracts",
+      "collector_version": "weekly-cycle/1.1",
+      "parameters": {
+        "strategy": "reuse_lake_with_freshness_declaration"
+      },
+      "period_start": null,
+      "period_end": null,
+      "started_at": "2026-07-24T00:12:40.741579Z",
+      "finished_at": "2026-07-24T00:12:40.741617Z",
+      "terminal_status": "reused_fresh",
+      "records_obtained": 4438345,
+      "records_rejected": 0,
+      "records_persisted": 4438345,
+      "watermark": null,
+      "raw_uri": "db://pncp_supplier_contracts",
+      "content_hashes": [],
+      "terminal_error": null,
+      "request_completed": true,
+      "scope_complete": false,
+      "source_available": true,
+      "mode": "reuse",
+      "git_sha": "68752046e9d93ecb8e37a8111ed709261f3da595",
+      "notes": [
+        "contracts not re-crawled; lake rows reused with explicit freshness",
+        "age_hours=4.04"
+      ],
+      "contract_version": "1.0",
+      "payload_hash": "fe38c362baa38adb730ee69941bda212d860c1489eb40f25d5814df653ac555c"
+    }
+  ],
+  "freshness": [
+    {
+      "source": "pncp_opportunities",
+      "level": "unreliable",
+      "sla_hours": 24,
+      "age_hours": 1.13,
+      "last_run_id": 1,
+      "last_status": "failed",
+      "scope_complete": false,
+      "records_fetched": 4,
+      "indicator": "freshness_source"
+    },
+    {
+      "source": "pncp_contracts",
+      "level": "fresh",
+      "sla_hours": 168,
+      "age_hours": 4.04,
+      "row_count": 4438345,
+      "indicator": "freshness_source",
+      "note": "freshness by max(ingested_at); not a full re-collect this cycle"
+    }
+  ],
+  "source_health": [
+    {
+      "source": "pncp_opportunities",
+      "level": "unreliable",
+      "sla_hours": 24,
+      "age_hours": 1.13,
+      "last_run_id": 1,
+      "last_status": "failed",
+      "scope_complete": false,
+      "records_fetched": 4,
+      "indicator": "freshness_source"
+    },
+    {
+      "source": "pncp_contracts",
+      "level": "fresh",
+      "sla_hours": 168,
+      "age_hours": 4.04,
+      "row_count": 4438345,
+      "indicator": "freshness_source",
+      "note": "freshness by max(ingested_at); not a full re-collect this cycle"
+    }
+  ],
+  "gaps": [
+    {
+      "gap": "no_GO_rankings",
+      "detail": "Nenhuma oportunidade com ranking efetivo GO — revisar perfil Extra / fatores"
+    },
+    {
+      "gap": "editais_coverage_below_95",
+      "detail": "Cobertura de editais permanece abaixo de 95% — não claim nesta campanha"
+    },
+    {
+      "gap": "recall_independent_unproven",
+      "detail": "Recall independente estratificado não comprovado"
+    },
+    {
+      "gap": "official_acts_empty",
+      "detail": "Tabela official_acts vazia no lake local"
+    }
+  ],
+  "products": {
+    "executive_md": "/mnt/d/extra consultoria/.worktrees/open-tenders-odc-01/artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/executive_summary.md",
+    "excel": "/mnt/d/extra consultoria/.worktrees/open-tenders-odc-01/artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/extra_weekly_pack.xlsx",
+    "excel_ok": true,
+    "excel_note": "",
+    "deliverable_e": "/mnt/d/extra consultoria/.worktrees/open-tenders-odc-01/artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/deliverable_e.json",
+    "deliverable_e_audit": "/mnt/d/extra consultoria/.worktrees/open-tenders-odc-01/artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/deliverable_e_audit.json",
+    "deliverable_e_ok": true,
+    "deliverable_e_note": "OK n=4",
+    "pdf": null,
+    "pdf_status": "RESIDUAL_NOT_GENERATED",
+    "csvs": {
+      "opportunities_csv": "/mnt/d/extra consultoria/.worktrees/open-tenders-odc-01/artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/opportunities.csv",
+      "contracts_csv": "/mnt/d/extra consultoria/.worktrees/open-tenders-odc-01/artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/contracts.csv",
+      "competitors_csv": "/mnt/d/extra consultoria/.worktrees/open-tenders-odc-01/artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/competitors.csv",
+      "orgaos_csv": "/mnt/d/extra consultoria/.worktrees/open-tenders-odc-01/artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/orgaos.csv",
+      "source_health_csv": "/mnt/d/extra consultoria/.worktrees/open-tenders-odc-01/artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/source_health.csv",
+      "gaps_csv": "/mnt/d/extra consultoria/.worktrees/open-tenders-odc-01/artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/gaps.csv",
+      "claims_csv": "/mnt/d/extra consultoria/.worktrees/open-tenders-odc-01/artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/claims_provenance.csv"
+    },
+    "checksums_file": "/mnt/d/extra consultoria/.worktrees/open-tenders-odc-01/artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/checksums.json",
+    "checksums_file_meta": {
+      "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/checksums.json",
+      "sha256": "1e8eb1d03a85b324162c593d682e3fab0632392a85dcffc5cacd97c1d88cd906",
+      "bytes": 3000
+    },
+    "product_checksums": {
+      "opportunities_csv": {
+        "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/opportunities.csv",
+        "sha256": "1f4ee56ebfc10a0e351d9029dbcabf64a76d21e65a3399d6f083f3dd607d25fa",
+        "bytes": 4949
+      },
+      "contracts_csv": {
+        "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/contracts.csv",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "competitors_csv": {
+        "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/competitors.csv",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "orgaos_csv": {
+        "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/orgaos.csv",
+        "sha256": "018c750ad89c8ff731fa361efc785d4ebc266f0a30515d32f23d40b50c4d1d02",
+        "bytes": 662
+      },
+      "source_health_csv": {
+        "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/source_health.csv",
+        "sha256": "0260269f729574bd9ca4e522c5ec353cecb9042c13acc86ec932e06a86070041",
+        "bytes": 313
+      },
+      "gaps_csv": {
+        "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/gaps.csv",
+        "sha256": "aa429b5f7865d75cb2cebab26a3e24bf4dc070a3ae90ed063d7f28a4ddd8c902",
+        "bytes": 350
+      },
+      "claims_csv": {
+        "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/claims_provenance.csv",
+        "sha256": "9ebc1d9544efda561531337ae62f3ceb7b96f2ff937a91ecf24c87b0defb1731",
+        "bytes": 3013
+      },
+      "executive_md": {
+        "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/executive_summary.md",
+        "sha256": "a443e780b60105a3b7dbde118be832dfd37108a7495d57ac9423a38608a51e10",
+        "bytes": 3924
+      },
+      "excel": {
+        "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/extra_weekly_pack.xlsx",
+        "sha256": "36d47185561405ca71c5d1fbc2598d2d6a8c6698d3440c0072f9f38f580faa3a",
+        "bytes": 12543
+      },
+      "deliverable_e": {
+        "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/deliverable_e.json",
+        "sha256": "f1792c9d41807f4637abce2d1d981ca3f143b81b7d5147e581cf176e2a835f26",
+        "bytes": 7265
+      },
+      "deliverable_e_audit": {
+        "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/deliverable_e_audit.json",
+        "sha256": "7853d6fbf43da97c54a57158d98cd997a9a0d9e2f81fc9309cb22653484a25b8",
+        "bytes": 3079
+      }
+    },
+    "claims_count": 8,
+    "manifest": "/mnt/d/extra consultoria/.worktrees/open-tenders-odc-01/artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/manifest.json",
+    "manifest_integrity": "product hashes live in checksums.json; manifest is not self-hashed"
+  },
+  "intelligence": {
+    "counts": {
+      "opportunities": 4,
+      "contracts": 0,
+      "competitors": 0,
+      "orgaos": 4
+    }
+  },
+  "claims_allowed": [
+    "Pacote semanal gerado por make extra-weekly / scripts.ops.weekly_cycle",
+    "Oportunidades e contratos com proveniência de run/collection quando disponível",
+    "Freshness declarado por fonte com SLA",
+    "Valores com semântica explícita (estimado vs contratado; nunca como pago)"
+  ],
+  "claims_forbidden": [
+    "LOCAL_READY",
+    "PRE_VPS_FINAL_READY",
+    "VPS_OPERATIONAL",
+    "PROJECT_DONE",
+    "cobertura operacional 95%",
+    "recall independente 95%",
+    "proxy de contratos = cobertura completa",
+    "score = probabilidade",
+    "valor contratado = valor pago",
+    "PDF fixture como produto operacional"
+  ],
+  "limitations": [
+    "Este pacote não declara LOCAL_READY, cobertura operacional 95% nem recall independente.",
+    "Ranking GO/REVIEW/NO_GO é triagem interna, não probabilidade calibrada.",
+    "Campos críticos PENDING no perfil Extra forçam REVIEW (nunca PARTICIPAR definitivo).",
+    "valor_estimado ≠ valor_homologado ≠ valor pago/medido.",
+    "PDF multi-página real permanece residual nesta campanha.",
+    "Open tenders: coleta canônica via run_pncp_open_monitoring; reconciliação só em run completo + scope_complete.",
+    "Freshness de editais: SLA 24h (DOD prevalece).",
+    "Contratos no ciclo semanal reutilizam o lake com declaração de freshness (re-coleta completa de 499k+ linhas está fora do orçamento do ciclo).",
+    "Universo canônico = entidades raio 200 km (meta 1093).",
+    "Fonte pncp_opportunities reutilizada dentro do SLA (sem nova chamada oficial).",
+    "Fonte pncp_contracts reutilizada dentro do SLA (sem nova chamada oficial).",
+    "Freshness pncp_opportunities=unreliable."
+  ],
+  "human_accept": {
+    "status": "PENDING_HUMAN",
+    "owner": "Tiago",
+    "required_reviews": [
+      "executive_summary",
+      "opportunities",
+      "contracts_sample",
+      "competitors",
+      "values_semantics",
+      "limitations"
+    ],
+    "note": "Ausência de manifestação não é aceite"
+  },
+  "duration_seconds": 2.56
+}

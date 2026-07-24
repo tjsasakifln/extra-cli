@@ -1,0 +1,11 @@
+{
+  "status": "completed",
+  "scope_complete": true,
+  "records_fetched": 4,
+  "records_inserted": 4,
+  "records_updated": 0,
+  "db_run_id": 1,
+  "scopes": 19,
+  "scopes_complete": 19,
+  "error": null
+}

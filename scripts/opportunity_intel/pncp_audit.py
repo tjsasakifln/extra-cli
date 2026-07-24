@@ -205,13 +205,25 @@ def run_pncp_open_monitoring(
         )
         if conn is not None and db_run_id is not None:
             _finish_run(conn, db_run_id, outcome)
-            _project_coverage_evidence(
-                conn=conn,
-                universe=universe,
-                outcome=outcome,
-                period_start=period_start,
-                period_end=period_end,
-            )
+            # Coverage evidence projection is audit support — never overwrite a
+            # finished crawl status if projection fails (fail-open for evidence,
+            # fail-closed remains on crawl/reconcile gates).
+            try:
+                _project_coverage_evidence(
+                    conn=conn,
+                    universe=universe,
+                    outcome=outcome,
+                    period_start=period_start,
+                    period_end=period_end,
+                )
+            except Exception as proj_err:  # noqa: BLE001
+                _logger.error(
+                    "Coverage evidence projection failed for run %s (crawl status kept=%s): %s",
+                    db_run_id,
+                    outcome.status,
+                    proj_err,
+                    exc_info=True,
+                )
             # Story 1.4: Trigger snapshot reconciliation for completed runs
             if scope_complete and outcome.status in ("completed", "completed_zero"):
                 try:
@@ -467,18 +479,22 @@ def _project_coverage_evidence(
             )
         )
 
-    # Deduplicate by entity_id within the batch — uq_ce_entity_run forbids
-    # two rows with the same (entity_id, source, data_type, run_id).
+    # Deduplicate by canonical key (primary) / db entity_id within the batch.
+    # Unique indexes after migration 059:
+    #   uq_ce_canonical_entity_run (canonical_entity_key, source, data_type, run_id)
+    #     WHERE canonical_entity_key IS NOT NULL
+    #   uq_ce_legacy_entity_run (entity_id, source, data_type, run_id)
+    #     WHERE canonical_entity_key IS NULL AND entity_id IS NOT NULL
     deduped: dict[Any, tuple[Any, ...]] = {}
     for rec in records:
         entity_id = rec[0]
-        key = entity_id if entity_id is not None else ("canon", rec[1])
+        canon = rec[1]
+        key = ("canon", canon) if canon is not None else ("legacy", entity_id)
         deduped[key] = rec
     records = list(deduped.values())
 
-    # Prefer the entity_id unique index (uq_ce_entity_run) when entity_id is set;
-    # fall back path still updates canonical key fields on conflict.
-    sql = """
+    # Canonical path (preferred): every monitoring population row has entity_id string key.
+    sql_canonical = """
         INSERT INTO coverage_evidence (
             entity_id, canonical_entity_key, source, data_type, applicability,
             scope_key, queried_start, queried_end, run_id, started_at,
@@ -491,10 +507,39 @@ def _project_coverage_evidence(
             %s, %s, %s, %s::evidence_state, %s, %s, %s, %s, %s, %s, %s,
             %s::jsonb, %s::jsonb
         )
-        ON CONFLICT (entity_id, source, data_type, run_id)
-            WHERE entity_id IS NOT NULL
+        ON CONFLICT (canonical_entity_key, source, data_type, run_id)
+            WHERE canonical_entity_key IS NOT NULL
         DO UPDATE SET
-            canonical_entity_key = COALESCE(EXCLUDED.canonical_entity_key, coverage_evidence.canonical_entity_key),
+            entity_id = COALESCE(EXCLUDED.entity_id, coverage_evidence.entity_id),
+            checked_at = EXCLUDED.checked_at,
+            completed_at = EXCLUDED.completed_at,
+            state = EXCLUDED.state,
+            pages_expected = EXCLUDED.pages_expected,
+            pages_processed = EXCLUDED.pages_processed,
+            records_fetched = EXCLUDED.records_fetched,
+            open_records = EXCLUDED.open_records,
+            freshness_status = EXCLUDED.freshness_status,
+            error_code = EXCLUDED.error_code,
+            error_message = EXCLUDED.error_message,
+            metadata = EXCLUDED.metadata,
+            evidence_metadata = EXCLUDED.evidence_metadata
+    """
+    sql_legacy = """
+        INSERT INTO coverage_evidence (
+            entity_id, canonical_entity_key, source, data_type, applicability,
+            scope_key, queried_start, queried_end, run_id, started_at,
+            completed_at, checked_at, count_obtained, count_transformed,
+            count_persisted, state, pages_expected, pages_processed,
+            records_fetched, open_records, freshness_status, error_code,
+            error_message, metadata, evidence_metadata
+        ) VALUES (
+            %s, NULL, 'pncp', 'bids', %s, %s, %s, %s, %s, NOW(), NOW(), NOW(),
+            %s, %s, %s, %s::evidence_state, %s, %s, %s, %s, %s, %s, %s,
+            %s::jsonb, %s::jsonb
+        )
+        ON CONFLICT (entity_id, source, data_type, run_id)
+            WHERE canonical_entity_key IS NULL AND entity_id IS NOT NULL
+        DO UPDATE SET
             checked_at = EXCLUDED.checked_at,
             completed_at = EXCLUDED.completed_at,
             state = EXCLUDED.state,
@@ -529,31 +574,57 @@ def _project_coverage_evidence(
                 error_message,
                 metadata_json,
             ) = record
-            cursor.execute(
-                sql,
-                (
-                    db_entity_id,
-                    canonical_key,
-                    applicability,
-                    row_scope_key,
-                    row_period_start,
-                    row_period_end,
-                    run_id,
-                    count_obtained,
-                    count_obtained,
-                    count_obtained,
-                    state,
-                    pages_expected,
-                    pages_processed,
-                    records_fetched,
-                    open_records,
-                    freshness_status,
-                    error_code,
-                    error_message,
-                    metadata_json,
-                    metadata_json,
-                ),
-            )
+            if canonical_key:
+                cursor.execute(
+                    sql_canonical,
+                    (
+                        db_entity_id,
+                        canonical_key,
+                        applicability,
+                        row_scope_key,
+                        row_period_start,
+                        row_period_end,
+                        run_id,
+                        count_obtained,
+                        count_obtained,
+                        count_obtained,
+                        state,
+                        pages_expected,
+                        pages_processed,
+                        records_fetched,
+                        open_records,
+                        freshness_status,
+                        error_code,
+                        error_message,
+                        metadata_json,
+                        metadata_json,
+                    ),
+                )
+            elif db_entity_id is not None:
+                cursor.execute(
+                    sql_legacy,
+                    (
+                        db_entity_id,
+                        applicability,
+                        row_scope_key,
+                        row_period_start,
+                        row_period_end,
+                        run_id,
+                        count_obtained,
+                        count_obtained,
+                        count_obtained,
+                        state,
+                        pages_expected,
+                        pages_processed,
+                        records_fetched,
+                        open_records,
+                        freshness_status,
+                        error_code,
+                        error_message,
+                        metadata_json,
+                        metadata_json,
+                    ),
+                )
 
 
 def _raw_org_cnpj(record: dict[str, Any]) -> str:

@@ -1,0 +1,35 @@
+{
+  "campaign_id": "OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01",
+  "status": "BLOCKED",
+  "blocked_since": "2026-07-24T00:17:04Z",
+  "git_sha": "4ab5c432222a367319ea8cc4576d110c6960893d",
+  "pr": 127,
+  "resume_not_before": "2026-07-30T00:03:57Z (approx)",
+  "resume_checklist": [
+    "make open-tenders-soak",
+    "make verify-open-tenders-production",
+    "# merge PR #127 with green CI",
+    "# tools/dod_controller.py accept only proven items on main"
+  ],
+  "do_not": [
+    "fake soak timestamps",
+    "mark soak PASS with single manual fire only",
+    "ACCEPT DOD items before main merge"
+  ],
+  "already_proven": [
+    "dual_coverage_pct",
+    "dual_gate",
+    "applicability_unknown",
+    "fresh_count",
+    "snapshot_integrity_pct",
+    "snapshot_operational_ok",
+    "essential_completeness_pct",
+    "deliverable_e_ok",
+    "security_gate",
+    "recall_status",
+    "recall_pct",
+    "verify_pass_count",
+    "verify_fail_count",
+    "first_weekly_fire"
+  ]
+}

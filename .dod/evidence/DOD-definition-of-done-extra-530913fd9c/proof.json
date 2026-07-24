@@ -1,0 +1,11 @@
+{
+  "item_id": "DOD-definition-of-done-extra-530913fd9c",
+  "title": "Reconciliação de status de editais.",
+  "as_of": "2026-07-24T00:34:15Z",
+  "git_sha": "475aa50c7ab7ddfd93dd832ee4e8c53314bcacd4",
+  "proof": {
+    "module": "scripts/opportunity_intel/reconciliation.py",
+    "wired_in": "pncp_audit.run_pncp_open_monitoring",
+    "bugfix": "raw PNCP membership keys"
+  }
+}

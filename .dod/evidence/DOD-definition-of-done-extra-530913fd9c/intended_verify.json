@@ -1,0 +1,9 @@
+{
+  "tests": [
+    "tests/test_snapshot_reconciliation.py",
+    "tests/test_open_tenders_campaign_gate.py::test_membership_keys_accept_raw_pncp_fields"
+  ],
+  "commands": [
+    "python3 -c \"from pathlib import Path; t=Path('scripts/opportunity_intel/reconciliation.py').read_text(); assert 'numeroControlePNCP' in t; assert 'SourceSnapshotReconciler' in Path('scripts/opportunity_intel/pncp_audit.py').read_text(); print('reconcile_path_ok')\""
+  ]
+}

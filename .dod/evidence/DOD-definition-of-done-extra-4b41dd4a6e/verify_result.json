@@ -1,0 +1,136 @@
+{
+  "item_id": "DOD-definition-of-done-extra-4b41dd4a6e",
+  "commands": [
+    {
+      "cmd": "python3 -c \"import json; from pathlib import Path; d=json.loads(Path('artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/dual-coverage-open_tenders.json').read_text()); assert d.get('gate_status')=='PASS' and float(d.get('coverage_pct') or 0)>=95; v=json.loads(Path('artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/vps-full-collect.json').read_text()); assert v.get('scope_complete') is True; print('monitoring_ok', d['coverage_pct'], v.get('records_fetched'))\"",
+      "exit_code": 0,
+      "duration_s": 0.05,
+      "stdout_tail": "monitoring_ok 100.0 4\n",
+      "stderr_tail": "",
+      "env": {
+        "CI": null,
+        "GITHUB_ACTIONS": null,
+        "LOCAL_DATALAKE_DSN": {
+          "set": false,
+          "len": 0
+        },
+        "PYTEST_ADDOPTS": null,
+        "PATH": {
+          "set": true,
+          "len": 1919
+        },
+        "USER": "tjsasakifln",
+        "HOME": {
+          "set": true,
+          "len": 17
+        }
+      },
+      "skipped": false
+    }
+  ],
+  "tests": [
+    {
+      "test": "tests/test_weekly_cycle.py::test_weekly_collect_uses_aggregated_pncp_audit",
+      "cmd": "python3 -m pytest tests/test_weekly_cycle.py::test_weekly_collect_uses_aggregated_pncp_audit -q --tb=line",
+      "exit_code": 0,
+      "duration_s": 45.787,
+      "stdout_tail": "scripts/workspace/common.py                                      194    194   0.0%   6-297\nscripts/workspace/queue.py                                       261    261   0.0%   6-715\n--------------------------------------------------------------------------------------------\nTOTAL                                                          68954  68769   0.3%\nCoverage HTML written to dir docs/td-001/coverage-reports/\n\n\n============================== 1 passed in 41.02s ==============================\n",
+      "stderr_tail": "",
+      "counts": {
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "deselected": 0,
+        "xfailed": 0,
+        "error": 0
+      },
+      "env": {
+        "CI": null,
+        "GITHUB_ACTIONS": null,
+        "LOCAL_DATALAKE_DSN": {
+          "set": false,
+          "len": 0
+        },
+        "PYTEST_ADDOPTS": null,
+        "PATH": {
+          "set": true,
+          "len": 1919
+        },
+        "USER": "tjsasakifln",
+        "HOME": {
+          "set": true,
+          "len": 17
+        }
+      },
+      "skipped": false
+    },
+    {
+      "test": "tests/test_open_tenders_campaign_gate.py",
+      "cmd": "python3 -m pytest tests/test_open_tenders_campaign_gate.py -q --tb=line",
+      "exit_code": 0,
+      "duration_s": 46.375,
+      "stdout_tail": "scripts/workspace/common.py                                      194    194   0.0%   6-297\nscripts/workspace/queue.py                                       261    261   0.0%   6-715\n--------------------------------------------------------------------------------------------\nTOTAL                                                          68954  68467   0.7%\nCoverage HTML written to dir docs/td-001/coverage-reports/\n\n\n============================== 7 passed in 41.68s ==============================\n",
+      "stderr_tail": "",
+      "counts": {
+        "passed": 7,
+        "failed": 0,
+        "skipped": 0,
+        "deselected": 0,
+        "xfailed": 0,
+        "error": 0
+      },
+      "env": {
+        "CI": null,
+        "GITHUB_ACTIONS": null,
+        "LOCAL_DATALAKE_DSN": {
+          "set": false,
+          "len": 0
+        },
+        "PYTEST_ADDOPTS": null,
+        "PATH": {
+          "set": true,
+          "len": 1919
+        },
+        "USER": "tjsasakifln",
+        "HOME": {
+          "set": true,
+          "len": 17
+        }
+      },
+      "skipped": false
+    }
+  ],
+  "ok": true,
+  "notes": [],
+  "rejected_trivial": [],
+  "head_sha": "475aa50c7ab7ddfd93dd832ee4e8c53314bcacd4",
+  "env": {
+    "CI": null,
+    "GITHUB_ACTIONS": null,
+    "LOCAL_DATALAKE_DSN": {
+      "set": false,
+      "len": 0
+    },
+    "PYTEST_ADDOPTS": null,
+    "PATH": {
+      "set": true,
+      "len": 1919
+    },
+    "USER": "tjsasakifln",
+    "HOME": {
+      "set": true,
+      "len": 17
+    }
+  },
+  "started_at": "2026-07-24T00:43:35Z",
+  "duration_s": 92.213,
+  "substantive_runs": 3,
+  "totals": {
+    "passed": 9,
+    "failed": 0,
+    "skipped": 0,
+    "deselected": 0,
+    "error": 0
+  },
+  "finished_at": "2026-07-24T00:45:07Z"
+}

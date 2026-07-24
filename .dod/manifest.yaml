@@ -1,6 +1,6 @@
 schema_version: '1.0'
 source: DOD.md
-updated_at: '2026-07-23T21:13:56Z'
+updated_at: '2026-07-24T00:59:23Z'
 items:
 - id: DOD-definition-of-done-extra-934b7e1a8d
   text: 'O denominador estratégico permaneceu fixo em **1.093 entidades**. Evidência: `output/coverage/contract-report.json`;
@@ -463,8 +463,8 @@ items:
     detail: line=27
   content_fingerprint: 066ad585f6
   evidence_audit:
-    status: ok
-    notes: 1 path(s) exist
+    status: missing
+    notes: missing=['output/session-evidence/official-acts-load-20260717.json']
   priority_boost: 0
 - id: DOD-definition-of-done-extra-aa33c98608
   text: O workspace cotidiano executa `today`, `opportunities`, `dossier`, `coverage`, `competitors`, `expiring-contracts`,
@@ -3763,22 +3763,29 @@ items:
     - 2. Contrato funcional do projeto
     - 2.2 Escopo incluído
   category: MACHINE_ACTIONABLE
-  state: OPEN
-  dod_checked: false
+  state: ACCEPTED
+  dod_checked: true
   evidence_type: mixed_or_unspecified
   dependencies: []
   blockers: []
-  acceptance_commands: []
-  tests: []
+  acceptance_commands:
+  - python3 -c "import json; from pathlib import Path; d=json.loads(Path('artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/dual-coverage-open_tenders.json').read_text());
+    assert d.get('gate_status')=='PASS' and float(d.get('coverage_pct') or 0)>=95; v=json.loads(Path('artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/vps-full-collect.json').read_text());
+    assert v.get('scope_complete') is True; print('monitoring_ok', d['coverage_pct'], v.get('records_fetched'))"
+  tests:
+  - tests/test_weekly_cycle.py::test_weekly_collect_uses_aggregated_pncp_audit
+  - tests/test_open_tenders_campaign_gate.py
   files: []
   environment: local
   needs_clean_db: false
   needs_live_source: false
   needs_human_eval: false
-  evidence: []
-  acceptance_commit: null
-  acceptance_pr: null
-  accepted_at: null
+  evidence:
+  - artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/result.json
+  - .dod/evidence/DOD-definition-of-done-extra-4b41dd4a6e/proof.json
+  acceptance_commit: 475aa50c7ab7ddfd93dd832ee4e8c53314bcacd4
+  acceptance_pr: '127'
+  accepted_at: '2026-07-24T00:45:15Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -3811,8 +3818,19 @@ items:
   - at: '2026-07-22T12:58:21Z'
     event: rescan
     detail: line=105
+  - at: '2026-07-24T00:43:27Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-24T00:45:07Z'
+    event: verify
+    detail: VERIFIED head=475aa50c7ab7ddfd93dd832ee4e8c53314bcacd4 runs=3
+  - at: '2026-07-24T00:45:15Z'
+    event: accept
+    detail: commit=475aa50c7ab7ddfd93dd832ee4e8c53314bcacd4 branch=campaign/open-tenders-operational-decision-cycle-01 gates_ok=True
   content_fingerprint: 4b41dd4a6e
-  evidence_audit: null
+  evidence_audit:
+    status: ok
+    notes: 2 path(s) exist
   priority_boost: 0
 - id: DOD-definition-of-done-extra-530913fd9c
   text: Reconciliação de status de editais.
@@ -3826,22 +3844,28 @@ items:
     - 2. Contrato funcional do projeto
     - 2.2 Escopo incluído
   category: MACHINE_ACTIONABLE
-  state: OPEN
-  dod_checked: false
+  state: ACCEPTED
+  dod_checked: true
   evidence_type: mixed_or_unspecified
   dependencies: []
   blockers: []
-  acceptance_commands: []
-  tests: []
+  acceptance_commands:
+  - python3 -c "from pathlib import Path; t=Path('scripts/opportunity_intel/reconciliation.py').read_text(); assert 'numeroControlePNCP'
+    in t; assert 'SourceSnapshotReconciler' in Path('scripts/opportunity_intel/pncp_audit.py').read_text(); print('reconcile_path_ok')"
+  tests:
+  - tests/test_snapshot_reconciliation.py
+  - tests/test_open_tenders_campaign_gate.py::test_membership_keys_accept_raw_pncp_fields
   files: []
   environment: local
   needs_clean_db: false
   needs_live_source: false
   needs_human_eval: false
-  evidence: []
-  acceptance_commit: null
-  acceptance_pr: null
-  accepted_at: null
+  evidence:
+  - artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/result.json
+  - .dod/evidence/DOD-definition-of-done-extra-530913fd9c/proof.json
+  acceptance_commit: 475aa50c7ab7ddfd93dd832ee4e8c53314bcacd4
+  acceptance_pr: '127'
+  accepted_at: '2026-07-24T00:47:14Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -3874,8 +3898,19 @@ items:
   - at: '2026-07-22T12:58:21Z'
     event: rescan
     detail: line=106
+  - at: '2026-07-24T00:45:25Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-24T00:47:06Z'
+    event: verify
+    detail: VERIFIED head=475aa50c7ab7ddfd93dd832ee4e8c53314bcacd4 runs=3
+  - at: '2026-07-24T00:47:14Z'
+    event: accept
+    detail: commit=475aa50c7ab7ddfd93dd832ee4e8c53314bcacd4 branch=campaign/open-tenders-operational-decision-cycle-01 gates_ok=True
   content_fingerprint: 530913fd9c
-  evidence_audit: null
+  evidence_audit:
+    status: ok
+    notes: 2 path(s) exist
   priority_boost: 0
 - id: DOD-definition-of-done-extra-22db522413
   text: Histórico de editais encerrados quando necessário para análise.
@@ -4017,8 +4052,8 @@ items:
     detail: commit=d6c311a8f69563b77983b751d52759481b90764a branch=main gates_ok=True
   content_fingerprint: 1580defee6
   evidence_audit:
-    status: ok
-    notes: 2 path(s) exist
+    status: partial
+    notes: found=1 missing=['data/contracts_checkpoints/hc_closure_3y/contracts_full.json']
   priority_boost: 0
 - id: DOD-definition-of-done-extra-d213dd4037
   text: Atualização incremental de contratos após o backfill inicial.
@@ -11482,22 +11517,28 @@ items:
     - 2.5 Correspondência obrigatória com a proposta comercial
     - Entregável E — editais abertos e recomendação individual
   category: DOCUMENTATION_WITH_PROOF
-  state: OPEN
-  dod_checked: false
+  state: ACCEPTED
+  dod_checked: true
   evidence_type: system_report
   dependencies: []
   blockers: []
-  acceptance_commands: []
-  tests: []
+  acceptance_commands:
+  - python3 -c "import json; from pathlib import Path; d=json.loads(Path('artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/deliverable-e-audit.json').read_text());
+    assert d.get('ok') is True; c=next(x for x in d['checks'] if x['item_id']=='open_at_cut'); assert c['status']=='PASS';
+    print('open_at_cut', 'PASS', d.get('recommendation_count'))"
+  tests:
+  - tests/test_deliverable_e_editais.py
   files: []
   environment: local
   needs_clean_db: false
   needs_live_source: false
   needs_human_eval: false
-  evidence: []
-  acceptance_commit: null
-  acceptance_pr: null
-  accepted_at: null
+  evidence:
+  - artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/result.json
+  - .dod/evidence/DOD-definition-of-done-extra-9951f2d889/proof.json
+  acceptance_commit: 475aa50c7ab7ddfd93dd832ee4e8c53314bcacd4
+  acceptance_pr: '127'
+  accepted_at: '2026-07-24T00:48:26Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -11530,8 +11571,19 @@ items:
   - at: '2026-07-22T12:58:21Z'
     event: rescan
     detail: line=249
+  - at: '2026-07-24T00:47:24Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-24T00:48:18Z'
+    event: verify
+    detail: VERIFIED head=475aa50c7ab7ddfd93dd832ee4e8c53314bcacd4 runs=2
+  - at: '2026-07-24T00:48:26Z'
+    event: accept
+    detail: commit=475aa50c7ab7ddfd93dd832ee4e8c53314bcacd4 branch=campaign/open-tenders-operational-decision-cycle-01 gates_ok=True
   content_fingerprint: 9951f2d889
-  evidence_audit: null
+  evidence_audit:
+    status: ok
+    notes: 2 path(s) exist
   priority_boost: 0
 - id: DOD-definition-of-done-extra-4364e46419
   text: Cada edital foi visto no snapshot completo mais recente ou reconfirmado individualmente.
@@ -11547,22 +11599,28 @@ items:
     - 2.5 Correspondência obrigatória com a proposta comercial
     - Entregável E — editais abertos e recomendação individual
   category: MACHINE_ACTIONABLE
-  state: OPEN
-  dod_checked: false
+  state: ACCEPTED
+  dod_checked: true
   evidence_type: mixed_or_unspecified
   dependencies: []
   blockers: []
-  acceptance_commands: []
-  tests: []
+  acceptance_commands:
+  - python3 -c "import json; from pathlib import Path; d=json.loads(Path('artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/deliverable-e-audit.json').read_text());
+    assert d.get('ok') is True; c=next(x for x in d['checks'] if x['item_id']=='snapshot_or_reconfirm'); assert c['status']=='PASS';
+    print('snapshot_or_reconfirm', 'PASS', d.get('recommendation_count'))"
+  tests:
+  - tests/test_deliverable_e_editais.py
   files: []
   environment: local
   needs_clean_db: false
   needs_live_source: false
   needs_human_eval: false
-  evidence: []
-  acceptance_commit: null
-  acceptance_pr: null
-  accepted_at: null
+  evidence:
+  - artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/result.json
+  - .dod/evidence/DOD-definition-of-done-extra-4364e46419/proof.json
+  acceptance_commit: 475aa50c7ab7ddfd93dd832ee4e8c53314bcacd4
+  acceptance_pr: '127'
+  accepted_at: '2026-07-24T00:49:38Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -11595,8 +11653,19 @@ items:
   - at: '2026-07-22T12:58:21Z'
     event: rescan
     detail: line=250
+  - at: '2026-07-24T00:48:36Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-24T00:49:30Z'
+    event: verify
+    detail: VERIFIED head=475aa50c7ab7ddfd93dd832ee4e8c53314bcacd4 runs=2
+  - at: '2026-07-24T00:49:38Z'
+    event: accept
+    detail: commit=475aa50c7ab7ddfd93dd832ee4e8c53314bcacd4 branch=campaign/open-tenders-operational-decision-cycle-01 gates_ok=True
   content_fingerprint: 4364e46419
-  evidence_audit: null
+  evidence_audit:
+    status: ok
+    notes: 2 path(s) exist
   priority_boost: 0
 - id: DOD-definition-of-done-extra-cfe70b5748
   text: Cada edital é avaliado contra o perfil versionado da Extra.
@@ -11612,22 +11681,28 @@ items:
     - 2.5 Correspondência obrigatória com a proposta comercial
     - Entregável E — editais abertos e recomendação individual
   category: MACHINE_ACTIONABLE
-  state: OPEN
-  dod_checked: false
+  state: ACCEPTED
+  dod_checked: true
   evidence_type: mixed_or_unspecified
   dependencies: []
   blockers: []
-  acceptance_commands: []
-  tests: []
+  acceptance_commands:
+  - python3 -c "import json; from pathlib import Path; d=json.loads(Path('artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/deliverable-e-audit.json').read_text());
+    assert d.get('ok') is True; c=next(x for x in d['checks'] if x['item_id']=='profile_versioned'); assert c['status']=='PASS';
+    print('profile_versioned', 'PASS', d.get('recommendation_count'))"
+  tests:
+  - tests/test_deliverable_e_editais.py
   files: []
   environment: local
   needs_clean_db: false
   needs_live_source: false
   needs_human_eval: false
-  evidence: []
-  acceptance_commit: null
-  acceptance_pr: null
-  accepted_at: null
+  evidence:
+  - artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/result.json
+  - .dod/evidence/DOD-definition-of-done-extra-cfe70b5748/proof.json
+  acceptance_commit: 475aa50c7ab7ddfd93dd832ee4e8c53314bcacd4
+  acceptance_pr: '127'
+  accepted_at: '2026-07-24T00:50:50Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -11660,8 +11735,19 @@ items:
   - at: '2026-07-22T12:58:21Z'
     event: rescan
     detail: line=251
+  - at: '2026-07-24T00:49:48Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-24T00:50:42Z'
+    event: verify
+    detail: VERIFIED head=475aa50c7ab7ddfd93dd832ee4e8c53314bcacd4 runs=2
+  - at: '2026-07-24T00:50:50Z'
+    event: accept
+    detail: commit=475aa50c7ab7ddfd93dd832ee4e8c53314bcacd4 branch=campaign/open-tenders-operational-decision-cycle-01 gates_ok=True
   content_fingerprint: cfe70b5748
-  evidence_audit: null
+  evidence_audit:
+    status: ok
+    notes: 2 path(s) exist
   priority_boost: 0
 - id: DOD-definition-of-done-extra-85d4a6e354
   text: 'Cada edital recebe `GO`, `REVIEW` ou `NO_GO`. Evidência: opportunity_intel 401 opps GO=0 REVIEW≈397 NO_GO=4 · ranking
@@ -11747,22 +11833,28 @@ items:
     - 2.5 Correspondência obrigatória com a proposta comercial
     - Entregável E — editais abertos e recomendação individual
   category: MACHINE_ACTIONABLE
-  state: OPEN
-  dod_checked: false
+  state: ACCEPTED
+  dod_checked: true
   evidence_type: mixed_or_unspecified
   dependencies: []
   blockers: []
-  acceptance_commands: []
-  tests: []
+  acceptance_commands:
+  - python3 -c "import json; from pathlib import Path; d=json.loads(Path('artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/deliverable-e-audit.json').read_text());
+    assert d.get('ok') is True; c=next(x for x in d['checks'] if x['item_id']=='client_labels'); assert c['status']=='PASS';
+    print('client_labels', 'PASS', d.get('recommendation_count'))"
+  tests:
+  - tests/test_deliverable_e_editais.py
   files: []
   environment: local
   needs_clean_db: false
   needs_live_source: false
   needs_human_eval: false
-  evidence: []
-  acceptance_commit: null
-  acceptance_pr: null
-  accepted_at: null
+  evidence:
+  - artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/result.json
+  - .dod/evidence/DOD-definition-of-done-extra-589667a65f/proof.json
+  acceptance_commit: 475aa50c7ab7ddfd93dd832ee4e8c53314bcacd4
+  acceptance_pr: '127'
+  accepted_at: '2026-07-24T00:52:03Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -11795,8 +11887,19 @@ items:
   - at: '2026-07-22T12:58:21Z'
     event: rescan
     detail: line=253
+  - at: '2026-07-24T00:51:00Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-24T00:51:55Z'
+    event: verify
+    detail: VERIFIED head=475aa50c7ab7ddfd93dd832ee4e8c53314bcacd4 runs=2
+  - at: '2026-07-24T00:52:03Z'
+    event: accept
+    detail: commit=475aa50c7ab7ddfd93dd832ee4e8c53314bcacd4 branch=campaign/open-tenders-operational-decision-cycle-01 gates_ok=True
   content_fingerprint: 589667a65f
-  evidence_audit: null
+  evidence_audit:
+    status: ok
+    notes: 2 path(s) exist
   priority_boost: 0
 - id: DOD-definition-of-done-extra-8d08da9375
   text: Cada recomendação mostra fatores favoráveis.
@@ -11812,22 +11915,28 @@ items:
     - 2.5 Correspondência obrigatória com a proposta comercial
     - Entregável E — editais abertos e recomendação individual
   category: MACHINE_ACTIONABLE
-  state: OPEN
-  dod_checked: false
+  state: ACCEPTED
+  dod_checked: true
   evidence_type: mixed_or_unspecified
   dependencies: []
   blockers: []
-  acceptance_commands: []
-  tests: []
+  acceptance_commands:
+  - python3 -c "import json; from pathlib import Path; d=json.loads(Path('artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/deliverable-e-audit.json').read_text());
+    assert d.get('ok') is True; c=next(x for x in d['checks'] if x['item_id']=='fatores_favoraveis'); assert c['status']=='PASS';
+    print('fatores_favoraveis', 'PASS', d.get('recommendation_count'))"
+  tests:
+  - tests/test_deliverable_e_editais.py
   files: []
   environment: local
   needs_clean_db: false
   needs_live_source: false
   needs_human_eval: false
-  evidence: []
-  acceptance_commit: null
-  acceptance_pr: null
-  accepted_at: null
+  evidence:
+  - artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/result.json
+  - .dod/evidence/DOD-definition-of-done-extra-8d08da9375/proof.json
+  acceptance_commit: 475aa50c7ab7ddfd93dd832ee4e8c53314bcacd4
+  acceptance_pr: '127'
+  accepted_at: '2026-07-24T00:53:16Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -11860,8 +11969,19 @@ items:
   - at: '2026-07-22T12:58:21Z'
     event: rescan
     detail: line=254
+  - at: '2026-07-24T00:52:13Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-24T00:53:08Z'
+    event: verify
+    detail: VERIFIED head=475aa50c7ab7ddfd93dd832ee4e8c53314bcacd4 runs=2
+  - at: '2026-07-24T00:53:16Z'
+    event: accept
+    detail: commit=475aa50c7ab7ddfd93dd832ee4e8c53314bcacd4 branch=campaign/open-tenders-operational-decision-cycle-01 gates_ok=True
   content_fingerprint: 8d08da9375
-  evidence_audit: null
+  evidence_audit:
+    status: ok
+    notes: 2 path(s) exist
   priority_boost: 0
 - id: DOD-definition-of-done-extra-0b850cd22b
   text: Cada recomendação mostra fatores impeditivos ou riscos.
@@ -11877,22 +11997,28 @@ items:
     - 2.5 Correspondência obrigatória com a proposta comercial
     - Entregável E — editais abertos e recomendação individual
   category: MACHINE_ACTIONABLE
-  state: OPEN
-  dod_checked: false
+  state: ACCEPTED
+  dod_checked: true
   evidence_type: mixed_or_unspecified
   dependencies: []
   blockers: []
-  acceptance_commands: []
-  tests: []
+  acceptance_commands:
+  - python3 -c "import json; from pathlib import Path; d=json.loads(Path('artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/deliverable-e-audit.json').read_text());
+    assert d.get('ok') is True; c=next(x for x in d['checks'] if x['item_id']=='fatores_impeditivos'); assert c['status']=='PASS';
+    print('fatores_impeditivos', 'PASS', d.get('recommendation_count'))"
+  tests:
+  - tests/test_deliverable_e_editais.py
   files: []
   environment: local
   needs_clean_db: false
   needs_live_source: false
   needs_human_eval: false
-  evidence: []
-  acceptance_commit: null
-  acceptance_pr: null
-  accepted_at: null
+  evidence:
+  - artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/result.json
+  - .dod/evidence/DOD-definition-of-done-extra-0b850cd22b/proof.json
+  acceptance_commit: 475aa50c7ab7ddfd93dd832ee4e8c53314bcacd4
+  acceptance_pr: '127'
+  accepted_at: '2026-07-24T00:54:29Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -11925,8 +12051,19 @@ items:
   - at: '2026-07-22T12:58:21Z'
     event: rescan
     detail: line=255
+  - at: '2026-07-24T00:53:26Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-24T00:54:20Z'
+    event: verify
+    detail: VERIFIED head=475aa50c7ab7ddfd93dd832ee4e8c53314bcacd4 runs=2
+  - at: '2026-07-24T00:54:29Z'
+    event: accept
+    detail: commit=475aa50c7ab7ddfd93dd832ee4e8c53314bcacd4 branch=campaign/open-tenders-operational-decision-cycle-01 gates_ok=True
   content_fingerprint: 0b850cd22b
-  evidence_audit: null
+  evidence_audit:
+    status: ok
+    notes: 2 path(s) exist
   priority_boost: 0
 - id: DOD-definition-of-done-extra-fb7578239c
   text: Cada recomendação referencia dados e documentos oficiais disponíveis.
@@ -11942,22 +12079,28 @@ items:
     - 2.5 Correspondência obrigatória com a proposta comercial
     - Entregável E — editais abertos e recomendação individual
   category: DOCUMENTATION_WITH_PROOF
-  state: OPEN
-  dod_checked: false
+  state: ACCEPTED
+  dod_checked: true
   evidence_type: mixed_or_unspecified
   dependencies: []
   blockers: []
-  acceptance_commands: []
-  tests: []
+  acceptance_commands:
+  - python3 -c "import json; from pathlib import Path; d=json.loads(Path('artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/deliverable-e-audit.json').read_text());
+    assert d.get('ok') is True; c=next(x for x in d['checks'] if x['item_id']=='refs_oficiais'); assert c['status']=='PASS';
+    print('refs_oficiais', 'PASS', d.get('recommendation_count'))"
+  tests:
+  - tests/test_deliverable_e_editais.py
   files: []
   environment: local
   needs_clean_db: false
   needs_live_source: false
   needs_human_eval: false
-  evidence: []
-  acceptance_commit: null
-  acceptance_pr: null
-  accepted_at: null
+  evidence:
+  - artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/result.json
+  - .dod/evidence/DOD-definition-of-done-extra-fb7578239c/proof.json
+  acceptance_commit: 475aa50c7ab7ddfd93dd832ee4e8c53314bcacd4
+  acceptance_pr: '127'
+  accepted_at: '2026-07-24T00:55:42Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -11990,8 +12133,19 @@ items:
   - at: '2026-07-22T12:58:21Z'
     event: rescan
     detail: line=256
+  - at: '2026-07-24T00:54:39Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-24T00:55:34Z'
+    event: verify
+    detail: VERIFIED head=475aa50c7ab7ddfd93dd832ee4e8c53314bcacd4 runs=2
+  - at: '2026-07-24T00:55:42Z'
+    event: accept
+    detail: commit=475aa50c7ab7ddfd93dd832ee4e8c53314bcacd4 branch=campaign/open-tenders-operational-decision-cycle-01 gates_ok=True
   content_fingerprint: fb7578239c
-  evidence_audit: null
+  evidence_audit:
+    status: ok
+    notes: 2 path(s) exist
   priority_boost: 0
 - id: DOD-definition-of-done-extra-97518e82e7
   text: Nenhuma recomendação promete vitória ou substitui análise jurídica, contábil ou técnica final.
@@ -12007,22 +12161,28 @@ items:
     - 2.5 Correspondência obrigatória com a proposta comercial
     - Entregável E — editais abertos e recomendação individual
   category: MACHINE_ACTIONABLE
-  state: OPEN
-  dod_checked: false
+  state: ACCEPTED
+  dod_checked: true
   evidence_type: mixed_or_unspecified
   dependencies: []
   blockers: []
-  acceptance_commands: []
-  tests: []
+  acceptance_commands:
+  - python3 -c "import json; from pathlib import Path; d=json.loads(Path('artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/deliverable-e-audit.json').read_text());
+    assert d.get('ok') is True; c=next(x for x in d['checks'] if x['item_id']=='no_victory_promise'); assert c['status']=='PASS';
+    print('no_victory_promise', 'PASS', d.get('recommendation_count'))"
+  tests:
+  - tests/test_deliverable_e_editais.py
   files: []
   environment: local
   needs_clean_db: false
   needs_live_source: false
   needs_human_eval: false
-  evidence: []
-  acceptance_commit: null
-  acceptance_pr: null
-  accepted_at: null
+  evidence:
+  - artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/result.json
+  - .dod/evidence/DOD-definition-of-done-extra-97518e82e7/proof.json
+  acceptance_commit: 475aa50c7ab7ddfd93dd832ee4e8c53314bcacd4
+  acceptance_pr: '127'
+  accepted_at: '2026-07-24T00:56:53Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -12055,8 +12215,19 @@ items:
   - at: '2026-07-22T12:58:21Z'
     event: rescan
     detail: line=257
+  - at: '2026-07-24T00:55:52Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-24T00:56:45Z'
+    event: verify
+    detail: VERIFIED head=475aa50c7ab7ddfd93dd832ee4e8c53314bcacd4 runs=2
+  - at: '2026-07-24T00:56:53Z'
+    event: accept
+    detail: commit=475aa50c7ab7ddfd93dd832ee4e8c53314bcacd4 branch=campaign/open-tenders-operational-decision-cycle-01 gates_ok=True
   content_fingerprint: 97518e82e7
-  evidence_audit: null
+  evidence_audit:
+    status: ok
+    notes: 2 path(s) exist
   priority_boost: 0
 - id: DOD-definition-of-done-extra-9f824c2545
   text: 'O sistema gera PDF executivo e planilhas Excel a partir do mesmo conjunto de runs. Evidência: `deliverable_package_final`
@@ -20116,22 +20287,28 @@ items:
     - 4. Definição objetiva de cobertura
     - 4.1 Fórmulas canônicas
   category: MACHINE_ACTIONABLE
-  state: OPEN
-  dod_checked: false
+  state: ACCEPTED
+  dod_checked: true
   evidence_type: mixed_or_unspecified
   dependencies: []
   blockers: []
-  acceptance_commands: []
-  tests: []
+  acceptance_commands:
+  - python3 -c "import json; from pathlib import Path; d=json.loads(Path('artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/dual-coverage-open_tenders.json').read_text());
+    assert int(d.get('applicability_unknown_count', -1))==0; assert int(d.get('applicable_denominator', 0))==int(d.get('universe_count',
+    -1)); assert d.get('gate_status')=='PASS'; print('applicability_ok', d['universe_count'], 'unknown', d.get('applicability_unknown_count'))"
+  tests:
+  - tests/test_source_policy_canonical.py
   files: []
   environment: local
   needs_clean_db: false
   needs_live_source: false
   needs_human_eval: false
-  evidence: []
-  acceptance_commit: null
-  acceptance_pr: null
-  accepted_at: null
+  evidence:
+  - artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/result.json
+  - .dod/evidence/DOD-rol-1-definition-of-done-f717c0498c/proof.json
+  acceptance_commit: 475aa50c7ab7ddfd93dd832ee4e8c53314bcacd4
+  acceptance_pr: '127'
+  accepted_at: '2026-07-24T00:59:23Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -20164,8 +20341,22 @@ items:
   - at: '2026-07-22T12:58:21Z'
     event: rescan
     detail: line=447
+  - at: '2026-07-24T00:40:27Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-24T00:58:20Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-24T00:59:15Z'
+    event: verify
+    detail: VERIFIED head=475aa50c7ab7ddfd93dd832ee4e8c53314bcacd4 runs=2
+  - at: '2026-07-24T00:59:23Z'
+    event: accept
+    detail: commit=475aa50c7ab7ddfd93dd832ee4e8c53314bcacd4 branch=campaign/open-tenders-operational-decision-cycle-01 gates_ok=True
   content_fingerprint: f717c0498c
-  evidence_audit: null
+  evidence_audit:
+    status: ok
+    notes: 2 path(s) exist
   priority_boost: 0
 - id: DOD-rol-1-definition-of-done-fa9384881f
   text: Nenhum par necessário permanece como `unknown`.
@@ -22357,8 +22548,8 @@ items:
     detail: commit=d6c311a8f69563b77983b751d52759481b90764a branch=main gates_ok=True
   content_fingerprint: 925c2e6bed
   evidence_audit:
-    status: ok
-    notes: 2 path(s) exist
+    status: partial
+    notes: found=1 missing=['data/contracts_checkpoints/hc_closure_3y/contracts_full.json']
   priority_boost: 0
 - id: DOD-rol-1-definition-of-done-266aeddad8
   text: Contratos possuem atualização incremental com intervalo máximo de sete dias.
@@ -23434,8 +23625,8 @@ items:
     detail: line=538
   content_fingerprint: 2a3f1d25db
   evidence_audit:
-    status: partial
-    notes: found=1 missing=['.env.local']
+    status: missing
+    notes: missing=['.env', '.env.local']
   priority_boost: 0
 - id: DOD-rol-1-definition-of-done-ae4f8e420c
   text: Arquivos de credenciais locais não são versionados.
@@ -34125,8 +34316,8 @@ items:
     detail: commit=5f922114e566e30b123b97ebe9a2e06f2de487ad branch=main gates_ok=True
   content_fingerprint: c2443d2b03
   evidence_audit:
-    status: ok
-    notes: 2 path(s) exist
+    status: partial
+    notes: found=1 missing=['data/contracts_checkpoints/hc_closure_3y/contracts_full.json']
   priority_boost: 0
 - id: DOD-rol-1-definition-of-done-00e53389b2
   text: A data inicial do backfill é registrada.
@@ -34205,8 +34396,8 @@ items:
     detail: commit=fddf859e9664078ccc8f4493d858e3bfcfe8fe4e branch=main gates_ok=True
   content_fingerprint: 00e53389b2
   evidence_audit:
-    status: ok
-    notes: 2 path(s) exist
+    status: partial
+    notes: found=1 missing=['data/contracts_checkpoints/hc_closure_3y/contracts_full.json']
   priority_boost: 0
 - id: DOD-rol-1-definition-of-done-19ab88eea0
   text: A data final do backfill é registrada.
@@ -34285,8 +34476,8 @@ items:
     detail: commit=fddf859e9664078ccc8f4493d858e3bfcfe8fe4e branch=main gates_ok=True
   content_fingerprint: 19ab88eea0
   evidence_audit:
-    status: ok
-    notes: 2 path(s) exist
+    status: partial
+    notes: found=1 missing=['data/contracts_checkpoints/hc_closure_3y/contracts_full.json']
   priority_boost: 0
 - id: DOD-rol-1-definition-of-done-1d8c325815
   text: O período é particionado em janelas controladas.
@@ -34941,8 +35132,8 @@ items:
     detail: commit=d6c311a8f69563b77983b751d52759481b90764a branch=main gates_ok=True
   content_fingerprint: 749585a9b5
   evidence_audit:
-    status: ok
-    notes: 2 path(s) exist
+    status: partial
+    notes: found=1 missing=['data/contracts_checkpoints/hc_closure_3y/contracts_full.json']
   priority_boost: 0
 - id: DOD-rol-1-definition-of-done-acc0a00fa2
   text: O crawler de contratos usa endpoint vigente.
@@ -42672,8 +42863,8 @@ items:
     detail: line=915
   content_fingerprint: 05418e32b2
   evidence_audit:
-    status: ok
-    notes: 2 path(s) exist
+    status: partial
+    notes: found=1 missing=['output/golden-path/']
   priority_boost: 0
 - id: DOD-rol-1-definition-of-done-3500c05a66
   text: 'O golden path retorna exit code não zero em qualquer gate obrigatório. Evidência: PR #85 · essential_fail=2 freshness_fail=3
@@ -52205,22 +52396,28 @@ items:
     - ROL 1 — DEFINITION OF DONE DO ESTÁGIO ATUAL
     - 15. Aceite manual do estágio atual
   category: MACHINE_ACTIONABLE
-  state: OPEN
-  dod_checked: false
+  state: ACCEPTED
+  dod_checked: true
   evidence_type: mixed_or_unspecified
   dependencies: []
   blockers: []
-  acceptance_commands: []
-  tests: []
+  acceptance_commands:
+  - python3 -c "import json; from pathlib import Path; d=json.loads(Path('artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/snapshot-integrity.json').read_text());
+    assert d.get('integrity_pct')==100.0 and d.get('operational_ok') is True and int(d.get('active_open_count') or 0)>0; print('snapshot_integrity_ok',
+    d['active_open_count'])"
+  tests:
+  - tests/test_open_tenders_campaign_gate.py::test_snapshot_integrity_fail_closed_without_dsn_shape
   files: []
   environment: local
   needs_clean_db: false
   needs_live_source: false
   needs_human_eval: false
-  evidence: []
-  acceptance_commit: null
-  acceptance_pr: null
-  accepted_at: null
+  evidence:
+  - artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/result.json
+  - .dod/evidence/DOD-rol-1-definition-of-done-7d2ae13087/proof.json
+  acceptance_commit: 475aa50c7ab7ddfd93dd832ee4e8c53314bcacd4
+  acceptance_pr: '127'
+  accepted_at: '2026-07-24T00:40:17Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -52253,8 +52450,22 @@ items:
   - at: '2026-07-22T12:58:21Z'
     event: rescan
     detail: line=1093
+  - at: '2026-07-24T00:36:57Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-24T00:39:00Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-24T00:40:09Z'
+    event: verify
+    detail: VERIFIED head=475aa50c7ab7ddfd93dd832ee4e8c53314bcacd4 runs=2
+  - at: '2026-07-24T00:40:17Z'
+    event: accept
+    detail: commit=475aa50c7ab7ddfd93dd832ee4e8c53314bcacd4 branch=campaign/open-tenders-operational-decision-cycle-01 gates_ok=True
   content_fingerprint: 7d2ae13087
-  evidence_audit: null
+  evidence_audit:
+    status: ok
+    notes: 2 path(s) exist
   priority_boost: 0
 - id: DOD-rol-1-definition-of-done-840dad960c
   text: Não existem afirmações de acompanhamento de obras.
@@ -60236,22 +60447,29 @@ items:
     - ROL 2 — DEFINITION OF DONE APÓS PROVISIONAR A VPS
     - 21. Serviços e timers
   category: VPS_PHASE
-  state: OPEN
-  dod_checked: false
+  state: ACCEPTED
+  dod_checked: true
   evidence_type: vps_operational
   dependencies: []
   blockers: []
-  acceptance_commands: []
-  tests: []
+  acceptance_commands:
+  - python3 -c "import json; from pathlib import Path; d=json.loads(Path('artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/dual-coverage-open_tenders.json').read_text());
+    assert int(d.get('fresh_count') or 0)>=int(0.95*int(d.get('universe_count') or 1)); f=json.loads(Path('artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/freshness.json').read_text());
+    assert f.get('gate_status')=='PASS'; print('freshness_ok', d.get('fresh_count'), d.get('universe_count'))"
+  tests:
+  - tests/test_weekly_cycle.py::test_pncp_opp_sla_default_is_24h
+  - tests/test_weekly_cycle.py::test_fresh_within_24h_sla
   files: []
   environment: local
   needs_clean_db: false
   needs_live_source: false
   needs_human_eval: false
-  evidence: []
-  acceptance_commit: null
-  acceptance_pr: null
-  accepted_at: null
+  evidence:
+  - artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/result.json
+  - .dod/evidence/DOD-rol-2-definition-of-done-0d11eb2518/proof.json
+  acceptance_commit: 475aa50c7ab7ddfd93dd832ee4e8c53314bcacd4
+  acceptance_pr: '127'
+  accepted_at: '2026-07-24T00:43:17Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -60284,8 +60502,19 @@ items:
   - at: '2026-07-22T12:58:21Z'
     event: rescan
     detail: line=1261
+  - at: '2026-07-24T00:41:28Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-24T00:43:09Z'
+    event: verify
+    detail: VERIFIED head=475aa50c7ab7ddfd93dd832ee4e8c53314bcacd4 runs=3
+  - at: '2026-07-24T00:43:17Z'
+    event: accept
+    detail: commit=475aa50c7ab7ddfd93dd832ee4e8c53314bcacd4 branch=campaign/open-tenders-operational-decision-cycle-01 gates_ok=True
   content_fingerprint: 0d11eb2518
-  evidence_audit: null
+  evidence_audit:
+    status: ok
+    notes: 2 path(s) exist
   priority_boost: 0
 - id: DOD-rol-2-definition-of-done-52226ec5f0
   text: O incremental de contratos atende freshness <= 7 dias.
@@ -66745,8 +66974,8 @@ items:
     detail: line=1393
   content_fingerprint: f4fc6dee9c
   evidence_audit:
-    status: ok
-    notes: 3 path(s) exist
+    status: partial
+    notes: found=2 missing=['docs/ops/session-2026-07-18-indicator-catalog/']
   priority_boost: 0
 - id: DOD-rol-3-definition-of-done-d3688d14a3
   text: 'Todo indicador possui fórmula. Evidência: `scripts/coverage/coverage_contract.py` (`MetricDefinition`/`validate_indicator_catalog`/`READY_SEMANTICS`)
@@ -66817,8 +67046,8 @@ items:
     detail: line=1394
   content_fingerprint: d3688d14a3
   evidence_audit:
-    status: ok
-    notes: 3 path(s) exist
+    status: partial
+    notes: found=2 missing=['docs/ops/session-2026-07-18-indicator-catalog/']
   priority_boost: 0
 - id: DOD-rol-3-definition-of-done-392e38b49a
   text: 'Todo indicador possui denominador. Evidência: `scripts/coverage/coverage_contract.py` (`MetricDefinition`/`validate_indicator_catalog`/`READY_SEMANTICS`)
@@ -66889,8 +67118,8 @@ items:
     detail: line=1395
   content_fingerprint: 392e38b49a
   evidence_audit:
-    status: ok
-    notes: 3 path(s) exist
+    status: partial
+    notes: found=2 missing=['docs/ops/session-2026-07-18-indicator-catalog/']
   priority_boost: 0
 - id: DOD-rol-3-definition-of-done-ae07dfd4be
   text: 'Todo indicador possui data de corte. Evidência: `scripts/coverage/coverage_contract.py` (`MetricDefinition`/`validate_indicator_catalog`/`READY_SEMANTICS`)
@@ -66961,8 +67190,8 @@ items:
     detail: line=1396
   content_fingerprint: ae07dfd4be
   evidence_audit:
-    status: ok
-    notes: 3 path(s) exist
+    status: partial
+    notes: found=2 missing=['docs/ops/session-2026-07-18-indicator-catalog/']
   priority_boost: 0
 - id: DOD-rol-3-definition-of-done-d867363db7
   text: 'Todo indicador possui fonte. Evidência: `scripts/coverage/coverage_contract.py` (`MetricDefinition`/`validate_indicator_catalog`/`READY_SEMANTICS`)
@@ -67033,8 +67262,8 @@ items:
     detail: line=1397
   content_fingerprint: d867363db7
   evidence_audit:
-    status: ok
-    notes: 3 path(s) exist
+    status: partial
+    notes: found=2 missing=['docs/ops/session-2026-07-18-indicator-catalog/']
   priority_boost: 0
 - id: DOD-rol-3-definition-of-done-2e259bfdcf
   text: 'Todo indicador possui status de prontidão. Evidência: `scripts/coverage/coverage_contract.py` (`MetricDefinition`/`validate_indicator_catalog`/`READY_SEMANTICS`)
@@ -67105,8 +67334,8 @@ items:
     detail: line=1398
   content_fingerprint: 2e259bfdcf
   evidence_audit:
-    status: ok
-    notes: 3 path(s) exist
+    status: partial
+    notes: found=2 missing=['docs/ops/session-2026-07-18-indicator-catalog/']
   priority_boost: 0
 - id: DOD-rol-3-definition-of-done-d6e2d622c5
   text: '`READY` significa executado e validado. Evidência: `scripts/coverage/coverage_contract.py` (`MetricDefinition`/`validate_indicator_catalog`/`READY_SEMANTICS`)
@@ -67177,8 +67406,8 @@ items:
     detail: line=1399
   content_fingerprint: d6e2d622c5
   evidence_audit:
-    status: ok
-    notes: 3 path(s) exist
+    status: partial
+    notes: found=2 missing=['docs/ops/session-2026-07-18-indicator-catalog/']
   priority_boost: 0
 - id: DOD-rol-3-definition-of-done-a11a5a2862
   text: '`PARTIAL` significa parcialmente disponível com limitações explícitas. Evidência: `scripts/coverage/coverage_contract.py`
@@ -67647,8 +67876,8 @@ items:
     detail: line=1406
   content_fingerprint: 861eb988e2
   evidence_audit:
-    status: ok
-    notes: 4 path(s) exist
+    status: partial
+    notes: found=3 missing=['docs/ops/session-2026-07-18-claim-language/']
   priority_boost: 0
 - id: DOD-rol-3-definition-of-done-da1e6024a5
   text: 'Valor contratado não é chamado de preço praticado. Evidência: canonical `AUTOMATED_TEST` + `scripts/lib/value_semantics.py`'
@@ -67783,8 +68012,8 @@ items:
     detail: line=1408
   content_fingerprint: dd8517aa64
   evidence_audit:
-    status: ok
-    notes: 4 path(s) exist
+    status: partial
+    notes: found=3 missing=['docs/ops/session-2026-07-18-claim-language/']
   priority_boost: 0
 - id: DOD-rol-3-definition-of-done-442b2df454
   text: 'Participante não identificado não é tratado como inexistente. Evidência: `scripts/lib/claim_language.py` + `tests/test_claim_language.py`
@@ -67853,8 +68082,8 @@ items:
     detail: line=1409
   content_fingerprint: 442b2df454
   evidence_audit:
-    status: ok
-    notes: 4 path(s) exist
+    status: partial
+    notes: found=3 missing=['docs/ops/session-2026-07-18-claim-language/']
   priority_boost: 0
 - id: DOD-rol-3-definition-of-done-48aada861a
   text: 'Win rate não é calculado sem propostas enviadas. Evidência: `scripts/lib/claim_language.py` + `tests/test_claim_language.py`
@@ -67923,8 +68152,8 @@ items:
     detail: line=1410
   content_fingerprint: 48aada861a
   evidence_audit:
-    status: ok
-    notes: 4 path(s) exist
+    status: partial
+    notes: found=3 missing=['docs/ops/session-2026-07-18-claim-language/']
   priority_boost: 0
 - id: DOD-rol-3-definition-of-done-7ced71fb08
   text: 'Deságio não é calculado sem grandezas comparáveis. Evidência: canonical `AUTOMATED_TEST` + `scripts/lib/value_semantics.py`'
@@ -68059,8 +68288,8 @@ items:
     detail: line=1412
   content_fingerprint: f626a61c72
   evidence_audit:
-    status: ok
-    notes: 4 path(s) exist
+    status: partial
+    notes: found=3 missing=['docs/ops/session-2026-07-18-claim-language/']
   priority_boost: 0
 - id: DOD-rol-3-definition-of-done-ce769ded67
   text: 'Relatórios exibem limitações relevantes. Evidência: `scripts/lib/claim_language.py` + `tests/test_claim_language.py`
@@ -68129,8 +68358,8 @@ items:
     detail: line=1413
   content_fingerprint: ce769ded67
   evidence_audit:
-    status: ok
-    notes: 4 path(s) exist
+    status: partial
+    notes: found=3 missing=['docs/ops/session-2026-07-18-claim-language/']
   priority_boost: 0
 - id: DOD-rol-3-definition-of-done-8a14451cce
   text: 'Nenhum documento afirma que o projeto acompanha obras. Evidência: `scripts/lib/claim_language.py` + `tests/test_claim_language.py`
@@ -68199,8 +68428,8 @@ items:
     detail: line=1414
   content_fingerprint: 8a14451cce
   evidence_audit:
-    status: ok
-    notes: 4 path(s) exist
+    status: partial
+    notes: found=3 missing=['docs/ops/session-2026-07-18-claim-language/']
   priority_boost: 0
 - id: DOD-rol-3-definition-of-done-0da8dd7e43
   text: 'Nenhum documento promete capacidade fora do escopo. Evidência: `scripts/ops/scan_docs_definition_consistency.py`
@@ -68268,8 +68497,8 @@ items:
     detail: line=1415
   content_fingerprint: 0da8dd7e43
   evidence_audit:
-    status: ok
-    notes: 3 path(s) exist
+    status: partial
+    notes: found=2 missing=['docs/ops/session-2026-07-18-docs-definitions/']
   priority_boost: 0
 - id: DOD-rol-3-definition-of-done-5dfaead6cd
   text: 'README, PRD, DOD, manifests e relatórios usam as mesmas definições. Evidência: `scripts/ops/scan_docs_definition_consistency.py`
@@ -68337,8 +68566,8 @@ items:
     detail: line=1416
   content_fingerprint: 5dfaead6cd
   evidence_audit:
-    status: ok
-    notes: 3 path(s) exist
+    status: partial
+    notes: found=2 missing=['docs/ops/session-2026-07-18-docs-definitions/']
   priority_boost: 0
 - id: DOD-rol-3-definition-of-done-8e787108f9
   text: 'Números conflitantes são eliminados ou contextualizados historicamente. Evidência: `scripts/ops/scan_docs_definition_consistency.py`
@@ -68406,8 +68635,8 @@ items:
     detail: line=1417
   content_fingerprint: 8e787108f9
   evidence_audit:
-    status: ok
-    notes: 3 path(s) exist
+    status: partial
+    notes: found=2 missing=['docs/ops/session-2026-07-18-docs-definitions/']
   priority_boost: 0
 - id: DOD-rol-3-definition-of-done-c96cb48099
   text: Cada componente possui problema claro a resolver.
@@ -71359,8 +71588,8 @@ items:
     detail: line=1479
   content_fingerprint: e511d080b7
   evidence_audit:
-    status: ok
-    notes: 1 path(s) exist
+    status: missing
+    notes: missing=['.env']
   priority_boost: 0
 - id: DOD-rol-3-definition-of-done-e638f8a7a5
   text: Histórico git foi verificado para segredos expostos.
@@ -72628,8 +72857,8 @@ items:
     detail: line=1504
   content_fingerprint: 0e01e0abeb
   evidence_audit:
-    status: ok
-    notes: 3 path(s) exist
+    status: partial
+    notes: found=2 missing=['docs/ops/session-2026-07-18-execution-audit/']
   priority_boost: 0
 - id: DOD-rol-3-definition-of-done-b179796fa9
   text: 'Cada execução possui versão do código. Evidência: `scripts/crawl/run_evidence.py` `build_execution_audit_record`
@@ -72698,8 +72927,8 @@ items:
     detail: line=1505
   content_fingerprint: b179796fa9
   evidence_audit:
-    status: ok
-    notes: 3 path(s) exist
+    status: partial
+    notes: found=2 missing=['docs/ops/session-2026-07-18-execution-audit/']
   priority_boost: 0
 - id: DOD-rol-3-definition-of-done-8f46ddcaf1
   text: 'Cada execução possui versão do schema. Evidência: `scripts/crawl/run_evidence.py` `build_execution_audit_record`
@@ -72768,8 +72997,8 @@ items:
     detail: line=1506
   content_fingerprint: 8f46ddcaf1
   evidence_audit:
-    status: ok
-    notes: 3 path(s) exist
+    status: partial
+    notes: found=2 missing=['docs/ops/session-2026-07-18-execution-audit/']
   priority_boost: 0
 - id: DOD-rol-3-definition-of-done-19fbf1906c
   text: 'Cada execução possui hash da planilha. Evidência: `scripts/crawl/run_evidence.py` `build_execution_audit_record`
@@ -72838,8 +73067,8 @@ items:
     detail: line=1507
   content_fingerprint: 19fbf1906c
   evidence_audit:
-    status: ok
-    notes: 3 path(s) exist
+    status: partial
+    notes: found=2 missing=['docs/ops/session-2026-07-18-execution-audit/']
   priority_boost: 0
 - id: DOD-rol-3-definition-of-done-97a55b0bd8
   text: 'Cada execução possui fonte. Evidência: `scripts/crawl/run_evidence.py` `build_execution_audit_record` + `tests/test_execution_audit_record.py`
@@ -72908,8 +73137,8 @@ items:
     detail: line=1508
   content_fingerprint: 97a55b0bd8
   evidence_audit:
-    status: ok
-    notes: 3 path(s) exist
+    status: partial
+    notes: found=2 missing=['docs/ops/session-2026-07-18-execution-audit/']
   priority_boost: 0
 - id: DOD-rol-3-definition-of-done-3928e6b186
   text: 'Cada execução possui capability. Evidência: `scripts/crawl/run_evidence.py` `build_execution_audit_record` + `tests/test_execution_audit_record.py`
@@ -72978,8 +73207,8 @@ items:
     detail: line=1509
   content_fingerprint: 3928e6b186
   evidence_audit:
-    status: ok
-    notes: 3 path(s) exist
+    status: partial
+    notes: found=2 missing=['docs/ops/session-2026-07-18-execution-audit/']
   priority_boost: 0
 - id: DOD-rol-3-definition-of-done-fb3e4e5b57
   text: 'Cada execução possui parâmetros. Evidência: `scripts/crawl/run_evidence.py` `build_execution_audit_record` + `tests/test_execution_audit_record.py`
@@ -73048,8 +73277,8 @@ items:
     detail: line=1510
   content_fingerprint: fb3e4e5b57
   evidence_audit:
-    status: ok
-    notes: 3 path(s) exist
+    status: partial
+    notes: found=2 missing=['docs/ops/session-2026-07-18-execution-audit/']
   priority_boost: 0
 - id: DOD-rol-3-definition-of-done-40624b4464
   text: 'Cada execução possui período. Evidência: `scripts/crawl/run_evidence.py` `build_execution_audit_record` + `tests/test_execution_audit_record.py`
@@ -73118,8 +73347,8 @@ items:
     detail: line=1511
   content_fingerprint: 40624b4464
   evidence_audit:
-    status: ok
-    notes: 3 path(s) exist
+    status: partial
+    notes: found=2 missing=['docs/ops/session-2026-07-18-execution-audit/']
   priority_boost: 0
 - id: DOD-rol-3-definition-of-done-60aeb4cf89
   text: 'Cada execução possui timestamps. Evidência: coverage_evidence started_at/completed_at · run manifests · EXTRA-OPS-95'
@@ -77121,8 +77350,8 @@ items:
     detail: line=1583
   content_fingerprint: 5586cfff81
   evidence_audit:
-    status: ok
-    notes: 1 path(s) exist
+    status: missing
+    notes: missing=['squads/extra-dod-roi/state/blockers/latest.json']
   priority_boost: 0
 - id: DOD-rol-3-definition-of-done-07f9608ac4
   text: 'Existe changelog ou histórico equivalente. Evidência: PRD v2.1 + CHANGELOG.md + docs/ops/NEXT-DEV-STEP.md + scan_ops_docs_honesty

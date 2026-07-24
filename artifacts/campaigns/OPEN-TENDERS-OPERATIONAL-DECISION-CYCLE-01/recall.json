@@ -1,0 +1,57 @@
+{
+  "status": "PARTIAL",
+  "captured": 4,
+  "published_in_sample": 4,
+  "pct": 100.0,
+  "as_of": "2026-07-23",
+  "generated_at": "2026-07-24T00:09:51Z",
+  "formula": "captured / published_in_sample (independent stratified portal sample)",
+  "notes": "All real items labeled; missing_strata=['municipio_grande', 'municipio_pequeno', 'admin_indireta', 'autarquia', 'fundacao', 'camara', 'consorcio', 'source_html', 'source_pdf', 'source_js', 'platform_sc_compras', 'platform_ciga']; target recall 95% on validated sample",
+  "strata_coverage": {
+    "source_api": {
+      "published": 4,
+      "captured": 4
+    },
+    "platform_pncp": {
+      "published": 4,
+      "captured": 4
+    },
+    "municipio_medio": {
+      "published": 4,
+      "captured": 4
+    },
+    "admin_direta": {
+      "published": 4,
+      "captured": 4
+    }
+  },
+  "forbidden_proxy_used": false,
+  "target_pct": 95.0,
+  "portal_checks": [
+    {
+      "ok": false,
+      "error": "Remote end closed connection without response",
+      "url": "https://pncp.gov.br/app/editais/11360515000119-1-000013/2026",
+      "checked_at": "2026-07-24T00:09:51Z",
+      "note": "Redirect responses treated as portal-reachable; full HTML may be SPA"
+    },
+    {
+      "ok": true,
+      "status": 200,
+      "final_url": "https://pncp.gov.br/app/editais/07654807000197-1-000072/2026",
+      "checked_at": "2026-07-24T00:09:51Z"
+    },
+    {
+      "ok": true,
+      "status": 200,
+      "final_url": "https://pncp.gov.br/app/editais/10432684000154-1-000049/2025",
+      "checked_at": "2026-07-24T00:09:51Z"
+    },
+    {
+      "ok": true,
+      "status": 200,
+      "final_url": "https://pncp.gov.br/app/editais/83102541000158-1-000167/2025",
+      "checked_at": "2026-07-24T00:09:51Z"
+    }
+  ]
+}

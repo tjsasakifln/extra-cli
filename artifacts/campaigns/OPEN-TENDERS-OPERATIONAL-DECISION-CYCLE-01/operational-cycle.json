@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0",
+  "as_of": "2026-07-24T00:09:15Z",
+  "git_sha": "ab1bc0a7a6ff0d852e7999003564dcb1f69935e6",
+  "entry_point": "make extra-weekly / extra-weekly.service",
+  "last_fire": {
+    "finished_at": "2026-07-23T21:03:57-03:00",
+    "exit_code": 0,
+    "result": "success",
+    "duration_seconds": 908.95,
+    "pack": "output/weekly/weekly-20260723T234848Z-3266bd6fd1",
+    "opportunities": 4,
+    "pncp": "reused_fresh",
+    "contracts": "success"
+  },
+  "ciga_projection_in_weekly": true
+}

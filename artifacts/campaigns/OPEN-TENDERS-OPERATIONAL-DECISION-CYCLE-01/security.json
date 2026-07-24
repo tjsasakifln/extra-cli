@@ -1,0 +1,187 @@
+{
+  "schema_version": "1.0",
+  "as_of": "2026-07-24T00:09:15Z",
+  "git_sha": "ab1bc0a7a6ff0d852e7999003564dcb1f69935e6",
+  "tool": "bandit",
+  "exit_code": 1,
+  "report": {
+    "errors": [],
+    "generated_at": "2026-07-24T00:09:18Z",
+    "metrics": {
+      "./scripts/coverage/project_ciga_dual_evidence.py": {
+        "CONFIDENCE.HIGH": 0,
+        "CONFIDENCE.LOW": 0,
+        "CONFIDENCE.MEDIUM": 0,
+        "CONFIDENCE.UNDEFINED": 0,
+        "SEVERITY.HIGH": 0,
+        "SEVERITY.LOW": 0,
+        "SEVERITY.MEDIUM": 0,
+        "SEVERITY.UNDEFINED": 0,
+        "loc": 342,
+        "nosec": 0,
+        "skipped_tests": 0
+      },
+      "./scripts/opportunity_intel/reconciliation.py": {
+        "CONFIDENCE.HIGH": 0,
+        "CONFIDENCE.LOW": 0,
+        "CONFIDENCE.MEDIUM": 0,
+        "CONFIDENCE.UNDEFINED": 0,
+        "SEVERITY.HIGH": 0,
+        "SEVERITY.LOW": 0,
+        "SEVERITY.MEDIUM": 0,
+        "SEVERITY.UNDEFINED": 0,
+        "loc": 401,
+        "nosec": 0,
+        "skipped_tests": 0
+      },
+      "./scripts/ops/deliverable_e_editais.py": {
+        "CONFIDENCE.HIGH": 0,
+        "CONFIDENCE.LOW": 1,
+        "CONFIDENCE.MEDIUM": 0,
+        "CONFIDENCE.UNDEFINED": 0,
+        "SEVERITY.HIGH": 0,
+        "SEVERITY.LOW": 0,
+        "SEVERITY.MEDIUM": 1,
+        "SEVERITY.UNDEFINED": 0,
+        "loc": 582,
+        "nosec": 0,
+        "skipped_tests": 0
+      },
+      "./scripts/ops/weekly_cycle.py": {
+        "CONFIDENCE.HIGH": 0,
+        "CONFIDENCE.LOW": 2,
+        "CONFIDENCE.MEDIUM": 0,
+        "CONFIDENCE.UNDEFINED": 0,
+        "SEVERITY.HIGH": 0,
+        "SEVERITY.LOW": 0,
+        "SEVERITY.MEDIUM": 2,
+        "SEVERITY.UNDEFINED": 0,
+        "loc": 1696,
+        "nosec": 0,
+        "skipped_tests": 0
+      },
+      "_totals": {
+        "CONFIDENCE.HIGH": 0,
+        "CONFIDENCE.LOW": 3,
+        "CONFIDENCE.MEDIUM": 0,
+        "CONFIDENCE.UNDEFINED": 0,
+        "SEVERITY.HIGH": 0,
+        "SEVERITY.LOW": 0,
+        "SEVERITY.MEDIUM": 3,
+        "SEVERITY.UNDEFINED": 0,
+        "loc": 3021,
+        "nosec": 0,
+        "skipped_tests": 0
+      }
+    },
+    "results": [
+      {
+        "code": "370     active_clause = \"AND COALESCE(source_active, TRUE) = TRUE\" if require_source_active else \"\"\n371     sql = f\"\"\"\n372         SELECT id, source, source_id, numero_controle_pncp, orgao_cnpj, orgao_nome,\n373                municipio, uf, objeto, modalidade, valor_estimado,\n374                status_canonico, ranking, ranking_score,\n375                data_publicacao, data_abertura, data_encerramento,\n376                link_edital, run_id, last_seen_source_run_id, crawl_batch_id,\n377                ingested_at, updated_at, source_active\n378         FROM opportunity_intel\n379         WHERE is_active = TRUE\n380           AND status_canonico IN ('open', 'upcoming')\n381           {active_clause}\n382         ORDER BY\n383           CASE ranking WHEN 'GO' THEN 0 WHEN 'REVIEW' THEN 1 ELSE 2 END,\n384           data_encerramento NULLS LAST\n385         LIMIT %s\n386     \"\"\"  # noqa: S608 — active_clause is fixed boolean branch only\n387     conn = psycopg2.connect(dsn, cursor_factory=psycopg2.extras.RealDictCursor)\n",
+        "col_offset": 14,
+        "end_col_offset": 10,
+        "filename": "./scripts/ops/deliverable_e_editais.py",
+        "issue_confidence": "LOW",
+        "issue_cwe": {
+          "id": 89,
+          "link": "https://cwe.mitre.org/data/definitions/89.html"
+        },
+        "issue_severity": "MEDIUM",
+        "issue_text": "Possible SQL injection vector through string-based query construction.",
+        "line_number": 371,
+        "line_range": [
+          371,
+          372,
+          373,
+          374,
+          375,
+          376,
+          377,
+          378,
+          379,
+          380,
+          381,
+          382,
+          383,
+          384,
+          385,
+          386
+        ],
+        "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html",
+        "test_id": "B608",
+        "test_name": "hardcoded_sql_expressions"
+      },
+      {
+        "code": "846         # Constant fragment only — not user input (S608 false positive)\n847         f\"\"\"\n848         SELECT c.contrato_id, c.orgao_cnpj, c.orgao_nome, c.fornecedor_cnpj, c.fornecedor_nome,\n849                c.objeto_contrato, c.valor_total, c.data_inicio, c.data_fim, c.data_publicacao,\n850                c.uf, c.municipio, c.source, c.source_id, c.ingested_at, c.source_date_semantics,\n851                c.orgao_cnpj_8\n852         FROM pncp_supplier_contracts c\n853         WHERE COALESCE(c.is_active, TRUE)\n854           AND {_EXTRA_UNIVERSE_ORGAO}\n855           AND (\n856             c.data_publicacao >= CURRENT_DATE - INTERVAL '90 days'\n857             OR c.data_fim >= CURRENT_DATE - INTERVAL '30 days'\n858             OR c.data_fim BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '180 days'\n859           )\n860         ORDER BY COALESCE(c.data_publicacao, c.data_fim) DESC NULLS LAST\n861         LIMIT %s\n862         \"\"\",  # noqa: S608\n863         (limit,),\n",
+        "col_offset": 12,
+        "end_col_offset": 14,
+        "filename": "./scripts/ops/weekly_cycle.py",
+        "issue_confidence": "LOW",
+        "issue_cwe": {
+          "id": 89,
+          "link": "https://cwe.mitre.org/data/definitions/89.html"
+        },
+        "issue_severity": "MEDIUM",
+        "issue_text": "Possible SQL injection vector through string-based query construction.",
+        "line_number": 847,
+        "line_range": [
+          847,
+          848,
+          849,
+          850,
+          851,
+          852,
+          853,
+          854,
+          855,
+          856,
+          857,
+          858,
+          859,
+          860,
+          861,
+          862
+        ],
+        "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html",
+        "test_id": "B608",
+        "test_name": "hardcoded_sql_expressions"
+      },
+      {
+        "code": "878         conn,\n879         f\"\"\"\n880         SELECT c.fornecedor_cnpj, c.fornecedor_nome,\n881                COUNT(*)::int AS n_contratos,\n882                SUM(c.valor_total)::numeric AS soma_valor_contratado,\n883                COUNT(DISTINCT c.orgao_cnpj)::int AS n_orgaos\n884         FROM pncp_supplier_contracts c\n885         WHERE COALESCE(c.is_active, TRUE)\n886           AND {_EXTRA_UNIVERSE_ORGAO}\n887           AND c.fornecedor_cnpj IS NOT NULL\n888           AND COALESCE(c.data_publicacao, c.data_inicio, c.ingested_at)\n889               >= CURRENT_DATE - INTERVAL '365 days'\n890         GROUP BY c.fornecedor_cnpj, c.fornecedor_nome\n891         ORDER BY n_contratos DESC, soma_valor_contratado DESC NULLS LAST\n892         LIMIT %s\n893         \"\"\",  # noqa: S608\n894         (limit,),\n",
+        "col_offset": 12,
+        "end_col_offset": 14,
+        "filename": "./scripts/ops/weekly_cycle.py",
+        "issue_confidence": "LOW",
+        "issue_cwe": {
+          "id": 89,
+          "link": "https://cwe.mitre.org/data/definitions/89.html"
+        },
+        "issue_severity": "MEDIUM",
+        "issue_text": "Possible SQL injection vector through string-based query construction.",
+        "line_number": 879,
+        "line_range": [
+          879,
+          880,
+          881,
+          882,
+          883,
+          884,
+          885,
+          886,
+          887,
+          888,
+          889,
+          890,
+          891,
+          892,
+          893
+        ],
+        "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html",
+        "test_id": "B608",
+        "test_name": "hardcoded_sql_expressions"
+      }
+    ]
+  },
+  "high": 0,
+  "critical": 0,
+  "gate_status": "PASS"
+}

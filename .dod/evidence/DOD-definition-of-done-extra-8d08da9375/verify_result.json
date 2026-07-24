@@ -1,0 +1,101 @@
+{
+  "item_id": "DOD-definition-of-done-extra-8d08da9375",
+  "commands": [
+    {
+      "cmd": "python3 -c \"import json; from pathlib import Path; d=json.loads(Path('artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/deliverable-e-audit.json').read_text()); assert d.get('ok') is True; c=next(x for x in d['checks'] if x['item_id']=='fatores_favoraveis'); assert c['status']=='PASS'; print('fatores_favoraveis', 'PASS', d.get('recommendation_count'))\"",
+      "exit_code": 0,
+      "duration_s": 0.043,
+      "stdout_tail": "fatores_favoraveis PASS 4\n",
+      "stderr_tail": "",
+      "env": {
+        "CI": null,
+        "GITHUB_ACTIONS": null,
+        "LOCAL_DATALAKE_DSN": {
+          "set": false,
+          "len": 0
+        },
+        "PYTEST_ADDOPTS": null,
+        "PATH": {
+          "set": true,
+          "len": 1919
+        },
+        "USER": "tjsasakifln",
+        "HOME": {
+          "set": true,
+          "len": 17
+        }
+      },
+      "skipped": false
+    }
+  ],
+  "tests": [
+    {
+      "test": "tests/test_deliverable_e_editais.py",
+      "cmd": "python3 -m pytest tests/test_deliverable_e_editais.py -q --tb=line",
+      "exit_code": 0,
+      "duration_s": 46.591,
+      "stdout_tail": "scripts/workspace/common.py                                      194    194   0.0%   6-297\nscripts/workspace/queue.py                                       261    261   0.0%   6-715\n--------------------------------------------------------------------------------------------\nTOTAL                                                          68954  68740   0.3%\nCoverage HTML written to dir docs/td-001/coverage-reports/\n\n\n============================= 10 passed in 41.88s ==============================\n",
+      "stderr_tail": "",
+      "counts": {
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "deselected": 0,
+        "xfailed": 0,
+        "error": 0
+      },
+      "env": {
+        "CI": null,
+        "GITHUB_ACTIONS": null,
+        "LOCAL_DATALAKE_DSN": {
+          "set": false,
+          "len": 0
+        },
+        "PYTEST_ADDOPTS": null,
+        "PATH": {
+          "set": true,
+          "len": 1919
+        },
+        "USER": "tjsasakifln",
+        "HOME": {
+          "set": true,
+          "len": 17
+        }
+      },
+      "skipped": false
+    }
+  ],
+  "ok": true,
+  "notes": [],
+  "rejected_trivial": [],
+  "head_sha": "475aa50c7ab7ddfd93dd832ee4e8c53314bcacd4",
+  "env": {
+    "CI": null,
+    "GITHUB_ACTIONS": null,
+    "LOCAL_DATALAKE_DSN": {
+      "set": false,
+      "len": 0
+    },
+    "PYTEST_ADDOPTS": null,
+    "PATH": {
+      "set": true,
+      "len": 1919
+    },
+    "USER": "tjsasakifln",
+    "HOME": {
+      "set": true,
+      "len": 17
+    }
+  },
+  "started_at": "2026-07-24T00:52:21Z",
+  "duration_s": 46.635,
+  "substantive_runs": 2,
+  "totals": {
+    "passed": 11,
+    "failed": 0,
+    "skipped": 0,
+    "deselected": 0,
+    "error": 0
+  },
+  "finished_at": "2026-07-24T00:53:08Z"
+}

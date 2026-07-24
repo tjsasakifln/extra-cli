@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0",
+  "as_of": "2026-07-23T23:43:03.980591Z",
+  "git_sha": "ab1bc0a7a6ff0d852e7999003564dcb1f69935e6",
+  "universe_count": 1093,
+  "applicable_denominator": 1093,
+  "applicability_unknown_count": 0,
+  "applicability_blocked_count": 0,
+  "source_combinations": [
+    "pncp",
+    "pncp+ciga_ckan"
+  ],
+  "policy_version": "2.1.1",
+  "gate_status": "PASS"
+}

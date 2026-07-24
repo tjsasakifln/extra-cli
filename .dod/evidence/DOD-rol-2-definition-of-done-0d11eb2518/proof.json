@@ -1,0 +1,12 @@
+{
+  "item_id": "DOD-rol-2-definition-of-done-0d11eb2518",
+  "title": "O crawl de editais atende freshness <= 24h.",
+  "as_of": "2026-07-24T00:34:15Z",
+  "git_sha": "475aa50c7ab7ddfd93dd832ee4e8c53314bcacd4",
+  "proof": {
+    "fresh_count": 1093,
+    "universe": 1093,
+    "sla_hours": 24,
+    "note": "Does NOT claim 7-day continuous freshness soak"
+  }
+}

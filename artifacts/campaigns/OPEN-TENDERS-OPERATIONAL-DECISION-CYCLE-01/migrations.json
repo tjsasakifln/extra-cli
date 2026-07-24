@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0",
+  "as_of": "2026-07-24T00:09:15Z",
+  "git_sha": "ab1bc0a7a6ff0d852e7999003564dcb1f69935e6",
+  "dsn_env": "LOCAL_DATALAKE_DSN",
+  "exit_code": 0,
+  "stdout_tail": "ierarchy.sql (ledger)\nskip 021c_sc_dados_abertos_municipio.sql (ledger)\nskip 021d_views_functions.sql (ledger)\nskip 022_match_method_coverage.sql (ledger)\nskip 023_pncp_engineering_pipeline.sql (ledger)\nskip 024_coverage_evidence_ledger.sql (ledger)\nskip 025a_contract_intel_views.sql (ledger)\nskip 025b_coverage_evidence_null_uniqueness.sql (ledger)\nskip 026_contract_intel_truth_v1.sql (ledger)\nskip 027_opportunity_intel.sql (ledger)\nskip 028_opportunity_indexes.sql (ledger)\nskip 029_qw01_auditable_radar.sql (ledger)\nskip 030_schema_contract_and_canonical_views.sql (ledger)\nskip 031_source_snapshot_reconciliation.sql (ledger)\nskip 032_capability_coverage.sql (ledger)\nskip 033_contract_versioning.sql (ledger)\nskip 034_supplier_identity.sql (ledger)\nskip 035_value_observations.sql (ledger)\nskip 036_reporting_views.sql (ledger)\nskip 037_target_universe_snapshot.sql (ledger)\nskip 038_target_universe_active_view.sql (ledger)\nskip 039_source_snapshot_tracking.sql (ledger)\nskip 040_coverage_model_expansion.sql (ledger)\nskip 041a_fix_fk_constraints.sql (ledger)\nskip 041b_fix_snapshot_membership.sql (ledger)\nskip 042_validate_fk_constraints.sql (ledger)\nskip 043_entity_aliases.sql (ledger)\nskip 044_fix_upsert_dedup.sql (ledger)\nskip 045_dlq_entries.sql (ledger)\nskip 046_pipeline_watermarks.sql (ledger)\nskip 047_pipeline_runs.sql (ledger)\nskip 048_record_hashes.sql (ledger)\nskip 049_pncp_resumable_backfill.sql (ledger)\nskip 050_fix_contracts_upsert_fk.sql (ledger)\nskip 051_contract_date_semantics.sql (ledger)\nskip 052_official_acts.sql (ledger)\nskip 053_entity_source_registry.sql (ledger)\nskip 054_local_resilience_contract.sql (ledger)\nskip 055_drop_orgao_entity_fk_national_pncp.sql (ledger)\nskip 056_drop_supplier_entity_fk_contracts.sql (ledger)\nskip 057_fix_upsert_opportunity_content_hash.sql (ledger)\nskip 058_dual_capability_coverage_views.sql (ledger)\nskip 059_coverage_evidence_canonical_entity_unique.sql (ledger)\nmigrations_ok mode=upgrade applied=0 skipped=64 repaired=0\n",
+  "stderr_tail": "",
+  "gate_status": "PASS",
+  "notes": "upgrade/idempotent re-apply on local test DSN"
+}

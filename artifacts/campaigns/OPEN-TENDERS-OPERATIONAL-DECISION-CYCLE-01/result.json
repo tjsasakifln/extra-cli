@@ -1,0 +1,71 @@
+{
+  "campaign_id": "OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01",
+  "final_result": "BLOCKED",
+  "terminal": true,
+  "as_of": "2026-07-24T00:17:04Z",
+  "git_sha": "4ab5c432222a367319ea8cc4576d110c6960893d",
+  "pr": "https://github.com/tjsasakifln/extra-cli/pull/127",
+  "blocker": {
+    "type": "calendar_external",
+    "item": "soak_7d",
+    "owner": "calendar/ops",
+    "measured": {
+      "days_observed": 1,
+      "days_required": 7,
+      "successful_fire_days": 1,
+      "timer_ok": true,
+      "timer_enabled": "enabled",
+      "timer_active": "active",
+      "first_fire_at": "2026-07-24T00:03:57Z",
+      "earliest_pass_at_utc": "2026-07-30T00:03:57Z"
+    },
+    "why_not_fail": "Not a technical impossibility; production recurrence is armed and one real fire succeeded. DOD requires wall-clock soak.",
+    "why_not_pass": "days_observed < 7; inventing elapsed time would violate fail-closed evidence rules.",
+    "unblocks_after": "2026-07-30T00:03:57Z (approx)",
+    "resume_commands": [
+      "make open-tenders-soak",
+      "make verify-open-tenders-production",
+      "# merge PR #127 with green CI",
+      "# tools/dod_controller.py accept only proven items on main"
+    ]
+  },
+  "completed_independent_of_blocker": {
+    "dual_coverage_pct": 100.0,
+    "dual_gate": "PASS",
+    "applicability_unknown": 0,
+    "fresh_count": 1093,
+    "snapshot_integrity_pct": 100.0,
+    "snapshot_operational_ok": true,
+    "essential_completeness_pct": 100.0,
+    "deliverable_e_ok": true,
+    "security_gate": "PASS",
+    "recall_status": "PARTIAL",
+    "recall_pct": 100.0,
+    "verify_pass_count": 8,
+    "verify_fail_count": 1,
+    "first_weekly_fire": "Finished success exit 0 on VPS 2026-07-23T21:03:57-03:00"
+  },
+  "claims_authorized": [
+    "open_tenders dual coverage 100% of universe 1093 with 0 applicability unknown",
+    "active snapshot integrity 100%",
+    "Deliverable E generated from live DB with operational audit PASS",
+    "canonical weekly cycle completed once with exit 0 on VPS",
+    "extra-weekly.timer enabled and active for recurrence"
+  ],
+  "claims_forbidden": [
+    "soak PASS",
+    "campaign PASS without 7 continuous days",
+    "PROJECT_DONE",
+    "VPS_OPERATIONAL full product seal",
+    "full stratified recall across all required strata",
+    "DOD ACCEPTED without main merge + CI"
+  ],
+  "residual_risks": [
+    {
+      "id": "recall_full_strata",
+      "severity": "medium",
+      "status": "OPEN",
+      "note": "Sample n=4 PARTIAL; expand independent portal strata before DOD recall item ACCEPTED"
+    }
+  ]
+}

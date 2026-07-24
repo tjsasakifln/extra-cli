@@ -1,0 +1,21 @@
+{
+  "source": "ciga_ckan",
+  "capability": "open_tenders",
+  "run_id": "ciga-dual-20260723T233745Z",
+  "generated_at": "2026-07-23T23:42:50Z",
+  "municipal_targets": 668,
+  "months_ok": [
+    "domsc-publicacoes-de-01-2023",
+    "domsc-publicacoes-de-01-2024"
+  ],
+  "scope_complete": true,
+  "crawl_error": null,
+  "ciga_unique_entities": 335,
+  "matched_with_data": 1,
+  "projected": 668,
+  "success_with_data": 1,
+  "success_zero": 667,
+  "skipped": 0,
+  "dry_run": false,
+  "status": "OK"
+}

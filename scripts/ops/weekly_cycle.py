@@ -41,15 +41,18 @@ from scripts.collect.run_contract import (  # noqa: E402
 from scripts.crawl.run_evidence import get_git_meta, new_run_id, sha256_file  # noqa: E402
 from scripts.quality.indicator_catalog import catalog_as_list  # noqa: E402
 
-COLLECTOR_VERSION = "weekly-cycle/1.0"
+COLLECTOR_VERSION = "weekly-cycle/1.1"
 DEFAULT_DSN = os.getenv(
     "LOCAL_DATALAKE_DSN",
     "postgresql://test:test@127.0.0.1:5433/extra_test",
 )
-# Freshness SLA for reusing previous collection without re-crawl
-PNCP_OPP_SLA_HOURS = int(os.getenv("WEEKLY_PNCP_SLA_HOURS", "48"))
+# Freshness SLA for reusing previous collection without re-crawl.
+# DOD editais freshness is ≤24h — DOD prevails over historical 48h default.
+PNCP_OPP_SLA_HOURS = int(os.getenv("WEEKLY_PNCP_SLA_HOURS", "24"))
 CONTRACTS_SLA_HOURS = int(os.getenv("WEEKLY_CONTRACTS_SLA_HOURS", "168"))
 DEFAULT_LOOKBACK_DAYS = int(os.getenv("WEEKLY_LOOKBACK_DAYS", "7"))
+# Canonical open-tenders collect path (aggregated modalities + reconcile).
+OPEN_TENDERS_COLLECT_PATH = "scripts.opportunity_intel.pncp_audit.run_pncp_open_monitoring"
 
 # Exit codes
 EXIT_OK = 0
@@ -459,80 +462,91 @@ def _collect_pncp_opportunities(
             conn.rollback()
         return run
 
-    # Live collect via opportunity_intel crawler
+    # Live collect via canonical aggregated open-proposals monitoring.
+    # One logical run across modalities 1–19; reconciliation only on complete scope.
+    # Do NOT use orphan per-modalidade crawler.run() as the weekly path — that
+    # creates incomplete child runs that must never drive inactivation alone.
     try:
-        from scripts.crawl.pncp_contract import DEFAULT_MODALIDADES
-        from scripts.opportunity_intel.crawler_base import CrawlRequest
-        from scripts.opportunity_intel.pncp_crawler import PncpOpportunityCrawler
+        from scripts.lib.universe import load_canonical_universe, resolve_default_seed_path
+        from scripts.opportunity_intel.pncp_audit import run_pncp_open_monitoring
 
-        crawler = PncpOpportunityCrawler(dsn=dsn)
-        fetched = 0
-        persisted = 0
-        rejected = 0
-        errors: list[str] = None  # type: ignore[assignment]
-        errors = []
-        modalidades_ok = 0
-        modalidades_total = 0
-        try:
-            for m in DEFAULT_MODALIDADES:
-                modalidades_total += 1
-                request = CrawlRequest(
-                    source="pncp",
-                    date_from=date.today() - timedelta(days=lookback_days),
-                    date_to=date.today(),
-                    mode="full",
-                    limit=None,
-                    target=f"modalidade:{m}",
-                )
-                try:
-                    result = crawler.run(request)
-                except Exception as exc:  # noqa: BLE001
-                    errors.append(f"modalidade:{m}:{exc}")
-                    continue
-                counts = result.get("counts") or {}
-                fetched += int(counts.get("fetched") or 0)
-                persisted += int(counts.get("new") or 0) + int(counts.get("updated") or 0)
-                st = str(result.get("status") or "")
-                if st in {"success", "ok", "completed", "completed_zero", "partial"}:
-                    modalidades_ok += 1
-                elif result.get("error"):
-                    errors.append(f"modalidade:{m}:{result.get('error')}")
-        finally:
-            crawler.close()
-
-        scope_complete = modalidades_ok == modalidades_total and not errors
-        request_completed = modalidades_ok > 0
-        err = "; ".join(errors[:5]) if errors else None
-        if modalidades_ok == 0 and errors:
-            # likely source down
+        seed = resolve_default_seed_path(_PROJECT_ROOT)
+        universe = load_canonical_universe(seed_path=seed, conn=conn)
+        external_run_id = f"weekly-{collection_id}"
+        period_start = date.today() - timedelta(days=lookback_days)
+        period_end = date.today()
+        outcome = run_pncp_open_monitoring(
+            dsn=dsn,
+            external_run_id=external_run_id,
+            universe=universe,
+            period_start=period_start,
+            period_end=period_end,
+            mode="full",
+            persist=True,
+        )
+        fetched = int(outcome.records_fetched or 0)
+        persisted = int(outcome.records_inserted or 0) + int(outcome.records_updated or 0)
+        scope_complete = bool(outcome.scope_complete)
+        status = str(outcome.status or "")
+        scopes_ok = sum(1 for s in outcome.scopes if s.scope_complete)
+        scopes_total = len(outcome.scopes)
+        err = outcome.error_message or outcome.error_code
+        notes = [
+            f"collect_path={OPEN_TENDERS_COLLECT_PATH}",
+            f"db_run_id={outcome.db_run_id}",
+            f"external_run_id={outcome.external_run_id}",
+            f"pncp_status={status}",
+            f"scopes_complete={scopes_ok}/{scopes_total}",
+            f"scope_complete={scope_complete}",
+            "reconcile=via_pncp_audit_on_complete_only",
+        ]
+        if status in {"failed"} or (scopes_ok == 0 and err):
             source_available = not any(
-                "timeout" in e.lower() or "connection" in e.lower() or "503" in e or "429" in e
-                for e in errors
+                tok in str(err or "").lower()
+                for tok in ("timeout", "connection", "503", "429", "network", "http_")
             )
-            # if all failed with HTTP/network → blocked-ish; classify via finish
             run.finish(
                 records_obtained=fetched,
                 records_persisted=persisted,
-                records_rejected=rejected,
                 request_completed=False,
                 scope_complete=False,
                 source_available=source_available,
-                error=err or "all modalidades failed",
-                notes=[f"modalidades_ok={modalidades_ok}/{modalidades_total}"],
+                error=str(err) if err else f"pncp_status={status}",
+                notes=notes,
             )
+        elif not scope_complete or status == "partial":
+            run.finish(
+                records_obtained=fetched,
+                records_persisted=persisted,
+                request_completed=scopes_ok > 0,
+                scope_complete=False,
+                source_available=True,
+                error=str(err) if err else "partial_open_tenders_snapshot",
+                watermark=f"period:{period_start}:{period_end}",
+                raw_uri="api://pncp.gov.br/api/consulta/v1/contratacoes/proposta",
+                notes=notes + ["partial: do not reconcile absence from incomplete snapshot"],
+            )
+            run.terminal_status = "partial"
         else:
             run.finish(
                 records_obtained=fetched,
                 records_persisted=persisted,
-                records_rejected=rejected,
-                request_completed=request_completed,
-                scope_complete=scope_complete,
+                request_completed=True,
+                scope_complete=True,
                 source_available=True,
-                error=err,
-                watermark=f"period:{run.period_start}:{run.period_end}",
+                error=None,
+                watermark=f"period:{period_start}:{period_end}",
                 raw_uri="api://pncp.gov.br/api/consulta/v1/contratacoes/proposta",
-                notes=[f"modalidades_ok={modalidades_ok}/{modalidades_total}"],
+                notes=notes,
             )
+        # Attach aggregate run id for downstream intelligence/provenance
+        run.parameters = {
+            **(run.parameters or {}),
+            "opportunity_runs_id": outcome.db_run_id,
+            "external_run_id": outcome.external_run_id,
+            "pncp_status": status,
+            "collect_path": OPEN_TENDERS_COLLECT_PATH,
+        }
     except Exception as exc:  # noqa: BLE001
         run.finish(
             request_completed=False,
@@ -540,6 +554,7 @@ def _collect_pncp_opportunities(
             source_available=False,
             error=str(exc),
             interrupted=True,
+            notes=[f"collect_path={OPEN_TENDERS_COLLECT_PATH}", f"exception={type(exc).__name__}"],
         )
 
     try:
@@ -1240,6 +1255,59 @@ def stage_delivery(
     ]
     md_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
+    # Deliverable E (live snapshot recommendations) — fail-closed if empty under operational audit
+    deliverable_e_path = out_dir / "deliverable_e.json"
+    deliverable_e_audit_path = out_dir / "deliverable_e_audit.json"
+    deliverable_e_ok = False
+    deliverable_e_note = ""
+    try:
+        from scripts.ops.deliverable_e_editais import audit_report, build_report
+
+        # Map intelligence opportunities into Deliverable E candidate shape
+        e_candidates: list[dict[str, Any]] = []
+        for o in opps:
+            snap = o.get("last_seen_source_run_id") or o.get("run_id") or o.get("crawl_batch_id")
+            url = o.get("link_edital")
+            if not url and o.get("numero_controle_pncp"):
+                url = f"https://pncp.gov.br/app/editais/{o['numero_controle_pncp']}"
+            e_candidates.append(
+                {
+                    "edital_id": str(
+                        o.get("numero_controle_pncp") or o.get("source_id") or o.get("id")
+                    ),
+                    "titulo": str(o.get("objeto") or "")[:200],
+                    "objeto": o.get("objeto"),
+                    "orgao": o.get("orgao_nome") or "",
+                    "uf": o.get("uf") or "",
+                    "status": "ABERTA",
+                    "is_open": True,
+                    "proof_mode": "SNAPSHOT" if snap else "INDIVIDUAL_RECONFIRM",
+                    "snapshot_id": str(snap) if snap else None,
+                    "reconfirmed_at": _iso() if not snap else None,
+                    "official_url": url,
+                    "url": url,
+                    "status_source": o.get("source") or "opportunity_intel",
+                }
+            )
+        e_report = build_report(e_candidates)
+        e_payload = asdict(e_report)
+        _atomic_json(deliverable_e_path, e_payload)
+        e_audit = audit_report(e_report, operational=bool(e_candidates))
+        _atomic_json(deliverable_e_audit_path, e_audit)
+        deliverable_e_ok = bool(e_audit.get("ok")) if e_candidates else False
+        if not e_candidates:
+            deliverable_e_note = "EMPTY snapshot — operational audit not passed"
+        elif not deliverable_e_ok:
+            deliverable_e_note = "operational audit FAIL"
+        else:
+            deliverable_e_note = f"OK n={len(e_report.recommendations)}"
+    except Exception as exc:  # noqa: BLE001
+        deliverable_e_note = f"deliverable_e error: {exc}"
+        deliverable_e_path.write_text(
+            json.dumps({"error": str(exc)}, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
+
     # Product checksums EXCLUDE the manifest (no self-referential hash).
     # Written to checksums.json; manifest only references that external file.
     checksums: dict[str, Any] = {}
@@ -1247,6 +1315,8 @@ def stage_delivery(
         **{k: Path(v) for k, v in paths.items()},
         "executive_md": md_path,
         "excel": xlsx_path,
+        "deliverable_e": deliverable_e_path,
+        "deliverable_e_audit": deliverable_e_audit_path,
     }
     for label, pth in product_paths.items():
         if pth.exists() and pth.is_file():
@@ -1295,6 +1365,10 @@ def stage_delivery(
         "excel": str(xlsx_path),
         "excel_ok": excel_ok,
         "excel_note": excel_note,
+        "deliverable_e": str(deliverable_e_path),
+        "deliverable_e_audit": str(deliverable_e_audit_path),
+        "deliverable_e_ok": deliverable_e_ok,
+        "deliverable_e_note": deliverable_e_note,
         "pdf": None,
         "pdf_status": "RESIDUAL_NOT_GENERATED",
         "csvs": {k: str(v) for k, v in paths.items()},
@@ -1315,8 +1389,12 @@ def _default_limitations(runs: list[CollectionRun], freshness: list[dict[str, An
     lim = [
         "Este pacote não declara LOCAL_READY, cobertura operacional 95% nem recall independente.",
         "Ranking GO/REVIEW/NO_GO é triagem interna, não probabilidade calibrada.",
+        "Campos críticos PENDING no perfil Extra forçam REVIEW (nunca PARTICIPAR definitivo).",
         "valor_estimado ≠ valor_homologado ≠ valor pago/medido.",
         "PDF multi-página real permanece residual nesta campanha.",
+        "Open tenders: coleta canônica via run_pncp_open_monitoring; "
+        "reconciliação só em run completo + scope_complete.",
+        "Freshness de editais: SLA 24h (DOD prevalece).",
         "Contratos no ciclo semanal reutilizam o lake com declaração de freshness "
         "(re-coleta completa de 499k+ linhas está fora do orçamento do ciclo).",
         "Universo canônico = entidades raio 200 km (meta 1093).",
@@ -1609,14 +1687,53 @@ def run_weekly_cycle(
                 detail={"runs": [r.to_dict() for r in runs]},
             )
         )
+
+        # Municipal dual coverage requires ciga_ckan evidence alongside PNCP.
+        # Project coverage_evidence after open-tenders collect (skip offline).
+        ciga_proj: dict[str, Any] = {"status": "skipped", "reason": "offline_or_skip"}
+        if not offline and not skip_collect:
+            try:
+                from scripts.coverage.project_ciga_dual_evidence import (
+                    project_ciga_coverage_evidence,
+                )
+
+                ciga_proj = project_ciga_coverage_evidence(
+                    dsn=resolved,
+                    max_months=int(os.getenv("WEEKLY_CIGA_MAX_MONTHS", "2")),
+                    external_run_id=f"ciga-weekly-{collection_id}",
+                )
+            except Exception as exc:  # noqa: BLE001
+                ciga_proj = {
+                    "status": "FAIL",
+                    "error": str(exc),
+                    "note": "CIGA dual projection failed — municipal coverage may lag",
+                }
+
+        process_detail: dict[str, Any] = {
+            "note": (
+                "Open tenders via run_pncp_open_monitoring (aggregated modalities) "
+                "normalize into opportunity_intel; SourceSnapshotReconciler runs only "
+                "when the parent run is completed + scope_complete; "
+                "CIGA dual coverage_evidence projected for municipal combinations; "
+                "contracts already canonical in pncp_supplier_contracts"
+            ),
+            "open_tenders_collect_path": OPEN_TENDERS_COLLECT_PATH,
+            "opportunity_runs_id": (r_opp.parameters or {}).get("opportunity_runs_id")
+            if getattr(r_opp, "parameters", None)
+            else None,
+            "reconcile_policy": "complete_aggregated_run_only",
+            "ciga_dual_projection": ciga_proj,
+        }
+        process_status = "ok"
+        if r_opp.terminal_status == "failure":
+            process_status = "warn"
+        if ciga_proj.get("status") == "FAIL":
+            process_status = "warn"
         stages.append(
             StageResult(
                 name="process",
-                status="ok",
-                detail={
-                    "note": "PNCP opportunity crawler normalizes into opportunity_intel; "
-                    "contracts already canonical in pncp_supplier_contracts"
-                },
+                status=process_status,
+                detail=process_detail,
             )
         )
 

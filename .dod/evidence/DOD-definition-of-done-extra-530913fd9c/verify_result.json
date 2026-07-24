@@ -1,0 +1,136 @@
+{
+  "item_id": "DOD-definition-of-done-extra-530913fd9c",
+  "commands": [
+    {
+      "cmd": "python3 -c \"from pathlib import Path; t=Path('scripts/opportunity_intel/reconciliation.py').read_text(); assert 'numeroControlePNCP' in t; assert 'SourceSnapshotReconciler' in Path('scripts/opportunity_intel/pncp_audit.py').read_text(); print('reconcile_path_ok')\"",
+      "exit_code": 0,
+      "duration_s": 0.04,
+      "stdout_tail": "reconcile_path_ok\n",
+      "stderr_tail": "",
+      "env": {
+        "CI": null,
+        "GITHUB_ACTIONS": null,
+        "LOCAL_DATALAKE_DSN": {
+          "set": false,
+          "len": 0
+        },
+        "PYTEST_ADDOPTS": null,
+        "PATH": {
+          "set": true,
+          "len": 1919
+        },
+        "USER": "tjsasakifln",
+        "HOME": {
+          "set": true,
+          "len": 17
+        }
+      },
+      "skipped": false
+    }
+  ],
+  "tests": [
+    {
+      "test": "tests/test_snapshot_reconciliation.py",
+      "cmd": "python3 -m pytest tests/test_snapshot_reconciliation.py -q --tb=line",
+      "exit_code": 0,
+      "duration_s": 46.361,
+      "stdout_tail": "scripts/workspace/common.py                                      194    194   0.0%   6-297\nscripts/workspace/queue.py                                       261    261   0.0%   6-715\n--------------------------------------------------------------------------------------------\nTOTAL                                                          68954  68915   0.1%\nCoverage HTML written to dir docs/td-001/coverage-reports/\n\n\n============================= 8 skipped in 41.65s ==============================\n",
+      "stderr_tail": "",
+      "counts": {
+        "passed": 0,
+        "failed": 0,
+        "skipped": 8,
+        "deselected": 0,
+        "xfailed": 0,
+        "error": 0
+      },
+      "env": {
+        "CI": null,
+        "GITHUB_ACTIONS": null,
+        "LOCAL_DATALAKE_DSN": {
+          "set": false,
+          "len": 0
+        },
+        "PYTEST_ADDOPTS": null,
+        "PATH": {
+          "set": true,
+          "len": 1919
+        },
+        "USER": "tjsasakifln",
+        "HOME": {
+          "set": true,
+          "len": 17
+        }
+      },
+      "skipped": false
+    },
+    {
+      "test": "tests/test_open_tenders_campaign_gate.py::test_membership_keys_accept_raw_pncp_fields",
+      "cmd": "python3 -m pytest tests/test_open_tenders_campaign_gate.py::test_membership_keys_accept_raw_pncp_fields -q --tb=line",
+      "exit_code": 0,
+      "duration_s": 45.893,
+      "stdout_tail": "scripts/workspace/common.py                                      194    194   0.0%   6-297\nscripts/workspace/queue.py                                       261    261   0.0%   6-715\n--------------------------------------------------------------------------------------------\nTOTAL                                                          68954  68865   0.1%\nCoverage HTML written to dir docs/td-001/coverage-reports/\n\n\n============================== 1 passed in 41.22s ==============================\n",
+      "stderr_tail": "",
+      "counts": {
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "deselected": 0,
+        "xfailed": 0,
+        "error": 0
+      },
+      "env": {
+        "CI": null,
+        "GITHUB_ACTIONS": null,
+        "LOCAL_DATALAKE_DSN": {
+          "set": false,
+          "len": 0
+        },
+        "PYTEST_ADDOPTS": null,
+        "PATH": {
+          "set": true,
+          "len": 1919
+        },
+        "USER": "tjsasakifln",
+        "HOME": {
+          "set": true,
+          "len": 17
+        }
+      },
+      "skipped": false
+    }
+  ],
+  "ok": true,
+  "notes": [],
+  "rejected_trivial": [],
+  "head_sha": "475aa50c7ab7ddfd93dd832ee4e8c53314bcacd4",
+  "env": {
+    "CI": null,
+    "GITHUB_ACTIONS": null,
+    "LOCAL_DATALAKE_DSN": {
+      "set": false,
+      "len": 0
+    },
+    "PYTEST_ADDOPTS": null,
+    "PATH": {
+      "set": true,
+      "len": 1919
+    },
+    "USER": "tjsasakifln",
+    "HOME": {
+      "set": true,
+      "len": 17
+    }
+  },
+  "started_at": "2026-07-24T00:45:33Z",
+  "duration_s": 92.295,
+  "substantive_runs": 3,
+  "totals": {
+    "passed": 2,
+    "failed": 0,
+    "skipped": 8,
+    "deselected": 0,
+    "error": 0
+  },
+  "finished_at": "2026-07-24T00:47:06Z"
+}

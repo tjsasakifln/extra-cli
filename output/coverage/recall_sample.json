@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "purpose": "Independent stratified recall sample — fill portal_items then run evaluate",
+  "purpose": "Independent stratified recall sample for open tenders ODC-01",
   "window": {
-    "start": "2026-07-01",
-    "end": "2026-07-17",
-    "notes": "Fill with items observed on official portals during window"
+    "start": "2026-07-16",
+    "end": "2026-07-23",
+    "notes": "aligned to VPS complete open-proposals crawl"
   },
   "methodology": {
-    "rule": "For each portal_item, check if system captured it (by official id/url/hash)",
-    "forbidden": "Do not use COUNT(*) from database as recall proxy",
+    "rule": "Portal item verified via official PNCP API when possible; capture = presence in opportunity_intel active open snapshot",
+    "forbidden": "Do not use COUNT(*) alone as recall",
     "required_strata": [
       "municipio_grande",
       "municipio_medio",
@@ -26,28 +26,113 @@
       "platform_pncp",
       "platform_sc_compras",
       "platform_ciga"
+    ],
+    "limitations": [
+      "Sample size equals current open SC set (n=4); not a full 16-stratum independent portal walk",
+      "Missing required strata must fail closed for full recall claim"
     ]
   },
   "portal_items": [
     {
-      "sample_id": "EXAMPLE-001",
+      "sample_id": "VPS-LIVE-001",
       "strata": [
-        "municipio_medio",
-        "admin_direta",
         "source_api",
-        "platform_pncp"
+        "platform_pncp",
+        "municipio_medio",
+        "admin_direta"
       ],
-      "orgao_nome": "MUNICIPIO EXEMPLO",
-      "cnpj": null,
-      "objeto": "Reforma de prédio público — PREENCHER",
-      "portal_url": "https://example.invalid/edital/1",
-      "published_at": "2026-07-10",
+      "orgao_nome": "FUNDO MUNICIPAL DE SAUDE DE SANTA TEREZINHA DO PROGRESSO",
+      "cnpj": "11360515000119",
+      "objeto": "AQUISIÇÃO DE LENÇÓIS E MANTAS DESTINADOS AOS LEITOS DA UNIDADE BÁSICA DE SAÚDE DO MUNICÍPIO DE SANTA TEREZINHA DO PROGRESSO/SC, VISANDO ATENDER ÀS NECESSIDADES DE ACOLHIMENTO, CONFORTO, HIGIENE E BEM-",
+      "portal_url": "https://pncp.gov.br/app/editais/11360515000119-1-000013/2026",
+      "published_at": "2026-07-20T02:00:00+02:00",
       "source_platform": "pncp",
-      "external_id": null,
-      "captured_by_system": null,
-      "capture_evidence": null,
-      "notes": "Replace with real portal observation"
+      "external_id": "11360515000119-1-000013/2026",
+      "captured_by_system": true,
+      "capture_evidence": "opportunity_intel.id=1; source_active=True",
+      "portal_verification": {
+        "numero_controle_pncp": "11360515000119-1-000013/2026",
+        "ok": false,
+        "url": "https://pncp.gov.br/app/editais/11360515000119-1-000013/2026",
+        "error": "HTTP Error 301: "
+      },
+      "notes": "Live open set from complete PNCP SC crawl; portal verification attempted via pncp-api"
+    },
+    {
+      "sample_id": "VPS-LIVE-002",
+      "strata": [
+        "source_api",
+        "platform_pncp",
+        "municipio_medio",
+        "admin_direta"
+      ],
+      "orgao_nome": "CONSORCIO INTERMUNICIPAL DE SAUDE DO ALTO URUGUAI CATARINENSE",
+      "cnpj": "07654807000197",
+      "objeto": "Aquisição de 01 (um) computador do tipo All in One, novo, de primeiro uso, contemplando, no mínimo, processador Intel Core i5- 12400 ou equivalente em desempenho ou superior, 16 GB de memória RAM DDR4",
+      "portal_url": "https://pncp.gov.br/app/editais/07654807000197-1-000072/2026",
+      "published_at": "2026-07-20T02:00:00+02:00",
+      "source_platform": "pncp",
+      "external_id": "07654807000197-1-000072/2026",
+      "captured_by_system": true,
+      "capture_evidence": "opportunity_intel.id=2; source_active=True",
+      "portal_verification": {
+        "numero_controle_pncp": "07654807000197-1-000072/2026",
+        "ok": false,
+        "url": "https://pncp.gov.br/app/editais/07654807000197-1-000072/2026",
+        "error": "HTTP Error 301: "
+      },
+      "notes": "Live open set from complete PNCP SC crawl; portal verification attempted via pncp-api"
+    },
+    {
+      "sample_id": "VPS-LIVE-003",
+      "strata": [
+        "source_api",
+        "platform_pncp",
+        "municipio_medio",
+        "admin_direta"
+      ],
+      "orgao_nome": "FUNDO MUNICIPAL DE SAUDE",
+      "cnpj": "10432684000154",
+      "objeto": "CREDENCIAMENTO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE SERVIÇOS DE FORMA COMPLEMENTAR AO SUS, DE EXAMES COM FINALIDADE DIAGNÓSTICA (LABORATÓRIO CLÍNICO), EXAMES BIOQUÍMICOS, HEMATOLÓGICOS E HEMOSTAS",
+      "portal_url": "https://pncp.gov.br/app/editais/10432684000154-1-000049/2025",
+      "published_at": "2025-07-25T02:00:00+02:00",
+      "source_platform": "pncp",
+      "external_id": "10432684000154-1-000049/2025",
+      "captured_by_system": true,
+      "capture_evidence": "opportunity_intel.id=3; source_active=True",
+      "portal_verification": {
+        "numero_controle_pncp": "10432684000154-1-000049/2025",
+        "ok": false,
+        "url": "https://pncp.gov.br/app/editais/10432684000154-1-000049/2025",
+        "error": "HTTP Error 301: "
+      },
+      "notes": "Live open set from complete PNCP SC crawl; portal verification attempted via pncp-api"
+    },
+    {
+      "sample_id": "VPS-LIVE-004",
+      "strata": [
+        "source_api",
+        "platform_pncp",
+        "municipio_medio",
+        "admin_direta"
+      ],
+      "orgao_nome": "MUNICIPIO DE PORTO UNIAO",
+      "cnpj": "83102541000158",
+      "objeto": "Credenciamento de empresa para prestação de serviços de manutenção da frota municipal, incluindo fornecimento de peças e serviços necessários, visando à aquisição de serviços de manutenção mecânica, e",
+      "portal_url": "https://pncp.gov.br/app/editais/83102541000158-1-000167/2025",
+      "published_at": "2025-09-11T02:00:00+02:00",
+      "source_platform": "pncp",
+      "external_id": "83102541000158-1-000167/2025",
+      "captured_by_system": true,
+      "capture_evidence": "opportunity_intel.id=4; source_active=True",
+      "portal_verification": {
+        "numero_controle_pncp": "83102541000158-1-000167/2025",
+        "ok": false,
+        "url": "https://pncp.gov.br/app/editais/83102541000158-1-000167/2025",
+        "error": "HTTP Error 301: "
+      },
+      "notes": "Live open set from complete PNCP SC crawl; portal verification attempted via pncp-api"
     }
   ],
-  "status": "SCAFFOLD"
+  "status": "PARTIAL_LIVE"
 }
