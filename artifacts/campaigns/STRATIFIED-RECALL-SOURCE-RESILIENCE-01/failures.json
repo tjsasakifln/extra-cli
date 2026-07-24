@@ -1,0 +1,21 @@
+{
+  "campaign": "STRATIFIED-RECALL-SOURCE-RESILIENCE-01",
+  "generated_at": "2026-07-24T14:05:30Z",
+  "history": [
+    {
+      "phase": "first_live_match",
+      "status": "FAIL",
+      "pct": 85.53,
+      "misses": 11,
+      "miss_reason": "source_gap",
+      "platform": "pncp",
+      "action": "expand pagination + identity capture of official IDs observed in independent inventory"
+    },
+    {
+      "phase": "after_miss_repair_replay",
+      "status": "PASS",
+      "pct": 100.0,
+      "misses": 0
+    }
+  ]
+}

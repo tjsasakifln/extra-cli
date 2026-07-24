@@ -1,0 +1,20 @@
+{
+  "campaign": "STRATIFIED-RECALL-SOURCE-RESILIENCE-01",
+  "status": "PASS",
+  "sha": "1243da5e59373e2dedbe9b79143872e6690ee7ac",
+  "generated_at": "2026-07-24T14:07:17Z",
+  "gate_status": "PASS",
+  "recall_status": "PASS",
+  "recall_pct": 100.0,
+  "production_touched": false,
+  "artifacts_present": [
+    "baseline.json",
+    "campaign-gate.json",
+    "manifest.json",
+    "recall.json",
+    "result.json",
+    "sample-lock.json",
+    "verify-isolated.json"
+  ],
+  "notes": "RC PASS requires foundation gate PASS + recall PASS + production_touched=false. BLOCKED when gold/capture incomplete but foundation holds."
+}

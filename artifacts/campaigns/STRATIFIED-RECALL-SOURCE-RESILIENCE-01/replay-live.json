@@ -1,0 +1,17 @@
+{
+  "status": "OK",
+  "mode": "live_api_recapture",
+  "run_token": "recall-capture-2026-07-24T140021Z",
+  "window": {
+    "start": "2026-07-01",
+    "end": "2026-07-22"
+  },
+  "fetched_items": 160,
+  "upsert": {
+    "inserted": 147,
+    "updated": 13,
+    "total": 160
+  },
+  "generated_at": "2026-07-24T14:03:44Z",
+  "production_touched": false
+}

@@ -1,0 +1,31 @@
+{
+  "campaign": "STRATIFIED-RECALL-SOURCE-RESILIENCE-01",
+  "generated_at": "2026-07-24T14:05:30Z",
+  "contracts": [
+    {
+      "source": "pncp",
+      "kind": "api",
+      "endpoint": "https://pncp.gov.br/api/consulta/v1/contratacoes/publicacao",
+      "pagination": "pagina + tamanhoPagina",
+      "identity": "numeroControlePNCP",
+      "match_keys": ["numero_controle_pncp", "source_id", "exact source_url"],
+      "rate_limit_notes": "429 observed under multi-page burst; pacing required"
+    },
+    {
+      "source": "sc_compras",
+      "kind": "api+js_portal",
+      "endpoint": "https://compras.sc.gov.br/api/editais",
+      "required_params": ["ano"],
+      "identity": "id",
+      "portal": "https://www.compras.sc.gov.br/editais/{id}"
+    },
+    {
+      "source": "ciga_ckan",
+      "kind": "api+pdf",
+      "endpoint": "https://dados.ciga.sc.gov.br/api/3/action/package_search",
+      "bulk": "monthly ZIP autopublicacoes JSON",
+      "identity": "codigo",
+      "media": ["source_api", "source_pdf", "source_html"]
+    }
+  ]
+}

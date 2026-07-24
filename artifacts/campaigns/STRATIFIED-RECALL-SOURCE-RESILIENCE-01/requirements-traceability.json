@@ -1,0 +1,19 @@
+{
+  "campaign": "STRATIFIED-RECALL-SOURCE-RESILIENCE-01",
+  "spec": "specs/005-stratified-recall-source-resilience/",
+  "fr_map": {
+    "FR-01": {"code": "scripts/coverage/recall_benchmark.py", "test": "test_cli_gate_exits_nonzero_on_fail", "evidence": "recall.json gate_exit"},
+    "FR-02": {"code": "evaluate_sample", "test": "test_scaffold_example_is_not_ready", "evidence": "recall-failclosed"},
+    "FR-03": {"code": "evaluate_sample", "test": "test_unlabeled_items_do_not_disappear_from_denominator", "evidence": "recall-unlabeled.json"},
+    "FR-04": {"code": "evaluate_sample", "test": "test_global_recall_below_95_is_fail_not_partial", "evidence": "failures.json history"},
+    "FR-05": {"code": "denominator_hash/freeze_sample_lock", "test": "test_denominator_hash_stable_after_miss_label_change", "evidence": "sample-lock.json"},
+    "FR-06": {"code": "forbidden_proxy_used", "test": "test_db_count_proxy_flag_rejected", "evidence": "methodology"},
+    "FR-07": {"code": "independent_inventory.py", "test": "structural", "evidence": "gold-sample.json"},
+    "FR-08": {"code": "try_match_against_system", "test": "test_auto_match_fail_closed_on_connection_error", "evidence": "unit"},
+    "FR-09": {"code": "independent_inventory collect", "test": "sample-validation", "evidence": "strata platform_*"},
+    "FR-10": {"code": "strata source_*", "test": "sample-validation", "evidence": "gold-sample"},
+    "FR-11": {"code": "nature_strata/municipio_size", "test": "sample-validation", "evidence": "gold-sample"},
+    "FR-12": {"code": "campaign_* modules", "test": "gate", "evidence": "artifacts/*"},
+    "FR-13": {"code": "Makefile notes", "test": "plan", "evidence": "spec FR-13"}
+  }
+}

@@ -1,0 +1,96 @@
+{
+  "status": "PARTIAL",
+  "captured": 4,
+  "published_in_sample": 4,
+  "pct": 100.0,
+  "as_of": "2026-07-24",
+  "generated_at": "2026-07-24T14:06:59Z",
+  "formula": "captured / published_in_sample (independent stratified portal sample)",
+  "notes": "All real items labeled; missing_strata=['municipio_grande', 'municipio_pequeno', 'admin_indireta', 'autarquia', 'fundacao', 'camara', 'consorcio', 'source_html', 'source_pdf', 'source_js', 'platform_sc_compras', 'platform_ciga']; thin_strata=['municipio_grande', 'municipio_medio', 'municipio_pequeno', 'admin_direta', 'admin_indireta', 'autarquia', 'fundacao', 'camara', 'consorcio', 'source_api', 'source_html', 'source_pdf', 'source_js', 'platform_pncp', 'platform_sc_compras', 'platform_ciga']; insufficient_unique_items=4<50; target recall 95.0% global / floor 90.0% per critical stratum",
+  "strata_coverage": {
+    "source_api": {
+      "published": 4,
+      "captured": 4
+    },
+    "platform_pncp": {
+      "published": 4,
+      "captured": 4
+    },
+    "municipio_medio": {
+      "published": 4,
+      "captured": 4
+    },
+    "admin_direta": {
+      "published": 4,
+      "captured": 4
+    }
+  },
+  "stratum_pct": {
+    "source_api": 100.0,
+    "platform_pncp": 100.0,
+    "municipio_medio": 100.0,
+    "admin_direta": 100.0
+  },
+  "forbidden_proxy_used": false,
+  "target_pct": 95.0,
+  "stratum_floor_pct": 90.0,
+  "floors_failed": [
+    "municipio_grande",
+    "municipio_pequeno",
+    "admin_indireta",
+    "autarquia",
+    "fundacao",
+    "camara",
+    "consorcio",
+    "source_html",
+    "source_pdf",
+    "source_js",
+    "platform_sc_compras",
+    "platform_ciga"
+  ],
+  "denominator_hash": "1d3b603bbf4420ed1de3f0c707e199a0ffd8c78532dfbfa8c121b4f0c191fd9a",
+  "validation": {
+    "unique_items": 4,
+    "missing_strata": [
+      "municipio_grande",
+      "municipio_pequeno",
+      "admin_indireta",
+      "autarquia",
+      "fundacao",
+      "camara",
+      "consorcio",
+      "source_html",
+      "source_pdf",
+      "source_js",
+      "platform_sc_compras",
+      "platform_ciga"
+    ],
+    "thin_strata": [
+      "municipio_grande",
+      "municipio_medio",
+      "municipio_pequeno",
+      "admin_direta",
+      "admin_indireta",
+      "autarquia",
+      "fundacao",
+      "camara",
+      "consorcio",
+      "source_api",
+      "source_html",
+      "source_pdf",
+      "source_js",
+      "platform_pncp",
+      "platform_sc_compras",
+      "platform_ciga"
+    ],
+    "unlabeled": 0,
+    "invalid_captured": 0,
+    "invalid_misses": 0,
+    "schema_errors": [
+      "insufficient_unique_items=4<50",
+      "missing_strata=['municipio_grande', 'municipio_pequeno', 'admin_indireta', 'autarquia', 'fundacao', 'camara', 'consorcio', 'source_html', 'source_pdf', 'source_js', 'platform_sc_compras', 'platform_ciga']",
+      "thin_strata=['municipio_medio', 'admin_direta', 'source_api', 'platform_pncp']"
+    ]
+  },
+  "gate_exit": 2
+}

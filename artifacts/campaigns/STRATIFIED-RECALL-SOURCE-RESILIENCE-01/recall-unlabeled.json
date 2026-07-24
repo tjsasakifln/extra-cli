@@ -1,0 +1,109 @@
+{
+  "status": "PARTIAL",
+  "captured": 0,
+  "published_in_sample": 76,
+  "pct": null,
+  "as_of": "2026-07-24",
+  "generated_at": "2026-07-24T13:59:16Z",
+  "formula": "captured / published_in_sample (independent stratified portal sample)",
+  "notes": "76 items missing captured_by_system label; target recall 95.0% global / floor 90.0% per critical stratum",
+  "strata_coverage": {
+    "admin_direta": {
+      "published": 61,
+      "captured": 0
+    },
+    "admin_indireta": {
+      "published": 22,
+      "captured": 0
+    },
+    "fundacao": {
+      "published": 5,
+      "captured": 0
+    },
+    "municipio_grande": {
+      "published": 12,
+      "captured": 0
+    },
+    "platform_sc_compras": {
+      "published": 7,
+      "captured": 0
+    },
+    "source_api": {
+      "published": 76,
+      "captured": 0
+    },
+    "source_js": {
+      "published": 70,
+      "captured": 0
+    },
+    "consorcio": {
+      "published": 5,
+      "captured": 0
+    },
+    "municipio_medio": {
+      "published": 53,
+      "captured": 0
+    },
+    "platform_ciga": {
+      "published": 6,
+      "captured": 0
+    },
+    "source_html": {
+      "published": 6,
+      "captured": 0
+    },
+    "source_pdf": {
+      "published": 6,
+      "captured": 0
+    },
+    "municipio_pequeno": {
+      "published": 11,
+      "captured": 0
+    },
+    "platform_pncp": {
+      "published": 63,
+      "captured": 0
+    },
+    "autarquia": {
+      "published": 12,
+      "captured": 0
+    },
+    "camara": {
+      "published": 5,
+      "captured": 0
+    }
+  },
+  "stratum_pct": {
+    "admin_direta": 0.0,
+    "admin_indireta": 0.0,
+    "fundacao": 0.0,
+    "municipio_grande": 0.0,
+    "platform_sc_compras": 0.0,
+    "source_api": 0.0,
+    "source_js": 0.0,
+    "consorcio": 0.0,
+    "municipio_medio": 0.0,
+    "platform_ciga": 0.0,
+    "source_html": 0.0,
+    "source_pdf": 0.0,
+    "municipio_pequeno": 0.0,
+    "platform_pncp": 0.0,
+    "autarquia": 0.0,
+    "camara": 0.0
+  },
+  "forbidden_proxy_used": false,
+  "target_pct": 95.0,
+  "stratum_floor_pct": 90.0,
+  "floors_failed": [],
+  "denominator_hash": "2d1b3fc13e5f5c98ebc202b7f3cd275accf34804d794027d21e78c863b9c2606",
+  "validation": {
+    "unique_items": 76,
+    "missing_strata": [],
+    "thin_strata": [],
+    "unlabeled": 76,
+    "invalid_captured": 0,
+    "invalid_misses": 0,
+    "schema_errors": []
+  },
+  "gate_exit": 2
+}

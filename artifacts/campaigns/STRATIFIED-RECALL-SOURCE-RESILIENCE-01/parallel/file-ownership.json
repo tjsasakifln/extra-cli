@@ -1,0 +1,29 @@
+{
+  "campaign": "STRATIFIED-RECALL-SOURCE-RESILIENCE-01",
+  "branch": "campaign/stratified-recall-source-resilience-01",
+  "worktree": "/tmp/extra-cli-recall-source-01",
+  "owned_files": [
+    "scripts/coverage/recall_benchmark.py",
+    "scripts/coverage/independent_inventory.py",
+    "tests/unit/coverage/test_recall_benchmark_adversarial.py",
+    "scripts/ops/campaign_stratified_recall_gate.py",
+    "scripts/ops/campaign_stratified_recall_verify.py",
+    "scripts/ops/campaign_stratified_recall_rc.py",
+    "specs/005-stratified-recall-source-resilience/**",
+    "artifacts/campaigns/STRATIFIED-RECALL-SOURCE-RESILIENCE-01/**",
+    "Makefile"
+  ],
+  "owned_adapters_write": [
+    "scripts/crawl/sc_compras_crawler.py",
+    "scripts/crawl/ciga_ckan_crawler.py",
+    "scripts/opportunity_intel/pncp_crawler.py"
+  ],
+  "do_not_edit": [
+    "scripts/reports/**",
+    "scripts/**/national_intel*",
+    "scripts/**/identity*",
+    "scripts/**/linkage*"
+  ],
+  "shared_hotspot_lock": "/tmp/extra-cli-parallel/shared-integration.lock",
+  "notes": "One writer per adapter; serial integration for Makefile/CI/DOD"
+}

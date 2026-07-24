@@ -1,0 +1,84 @@
+{
+  "campaign": "STRATIFIED-RECALL-SOURCE-RESILIENCE-01",
+  "generated_at": "2026-07-24T14:00:00Z",
+  "origin_main_sha": "64549385144fd02304063bb538be31b8feed9900",
+  "worktree": "/tmp/extra-cli-recall-source-01",
+  "branch": "campaign/stratified-recall-source-resilience-01",
+  "isolated_db": {
+    "host": "127.0.0.1",
+    "port": 5437,
+    "database": "extra_recall_rc",
+    "user": "test",
+    "dsn_masked": "postgresql://test:***@127.0.0.1:5437/extra_recall_rc"
+  },
+  "production_touched": false,
+  "ci_baseline_note": "origin/main 6454938; CI complete green run 30058134393 (observed at campaign start)",
+  "prior_recall": {
+    "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/recall.json",
+    "status": "PARTIAL",
+    "captured": 4,
+    "published_in_sample": 4,
+    "pct": 100.0,
+    "missing_strata": [
+      "municipio_grande",
+      "municipio_pequeno",
+      "admin_indireta",
+      "autarquia",
+      "fundacao",
+      "camara",
+      "consorcio",
+      "source_html",
+      "source_pdf",
+      "source_js",
+      "platform_sc_compras",
+      "platform_ciga"
+    ],
+    "non_claim": "4/4 PNCP-only is NOT stratified recall ≥95%"
+  },
+  "recall_benchmark_gaps_at_start": [
+    "exit 0 on PARTIAL",
+    "single EXAMPLE or thin sample could appear READY without min 50 / min 5 per stratum",
+    "auto-match silent connection failure",
+    "no denominator freeze/hash",
+    "no stratum floor 90%"
+  ],
+  "source_baseline": {
+    "pncp": {
+      "implemented": true,
+      "tested": true,
+      "live_api_probed": true,
+      "accepted_stratified_recall": false,
+      "notes": "API consulta v1 live; opportunity_intel path exists"
+    },
+    "sc_compras": {
+      "implemented": true,
+      "tested": "partial",
+      "live_api_probed": true,
+      "endpoint": "https://compras.sc.gov.br/api/editais?ano=YYYY",
+      "accepted_stratified_recall": false
+    },
+    "ciga_ckan": {
+      "implemented": true,
+      "tested": "partial",
+      "live_api_probed": true,
+      "accepted_stratified_recall": false,
+      "notes": "CKAN + ZIP autopublicacoes; prior 4-item CIGA sample was PARTIAL"
+    },
+    "selenium": {
+      "is_source": false,
+      "role": "acquisition_method_only"
+    }
+  },
+  "specs_present": [
+    "001-dual-capability-coverage-truth",
+    "002-historical-contracts-operational-coverage",
+    "003-open-tenders-operational-decision-cycle"
+  ],
+  "next_spec": "005-stratified-recall-source-resilience",
+  "dod_targets": [
+    "Recall independente e estratificado ≥95%",
+    "§8.4 amostra estratificada",
+    "§7 fontes/contratos",
+    "§34 encontra oportunidades / não exibe encerradas / informa o que não monitorou"
+  ]
+}

@@ -1,0 +1,109 @@
+{
+  "status": "PASS",
+  "captured": 76,
+  "published_in_sample": 76,
+  "pct": 100.0,
+  "as_of": "2026-07-24",
+  "generated_at": "2026-07-24T14:06:59Z",
+  "formula": "captured / published_in_sample (independent stratified portal sample)",
+  "notes": "All real items labeled; target recall 95.0% global / floor 90.0% per critical stratum",
+  "strata_coverage": {
+    "admin_direta": {
+      "published": 61,
+      "captured": 61
+    },
+    "admin_indireta": {
+      "published": 22,
+      "captured": 22
+    },
+    "fundacao": {
+      "published": 5,
+      "captured": 5
+    },
+    "municipio_grande": {
+      "published": 12,
+      "captured": 12
+    },
+    "platform_sc_compras": {
+      "published": 7,
+      "captured": 7
+    },
+    "source_api": {
+      "published": 76,
+      "captured": 76
+    },
+    "source_js": {
+      "published": 70,
+      "captured": 70
+    },
+    "consorcio": {
+      "published": 5,
+      "captured": 5
+    },
+    "municipio_medio": {
+      "published": 53,
+      "captured": 53
+    },
+    "platform_ciga": {
+      "published": 6,
+      "captured": 6
+    },
+    "source_html": {
+      "published": 6,
+      "captured": 6
+    },
+    "source_pdf": {
+      "published": 6,
+      "captured": 6
+    },
+    "municipio_pequeno": {
+      "published": 11,
+      "captured": 11
+    },
+    "platform_pncp": {
+      "published": 63,
+      "captured": 63
+    },
+    "autarquia": {
+      "published": 12,
+      "captured": 12
+    },
+    "camara": {
+      "published": 5,
+      "captured": 5
+    }
+  },
+  "stratum_pct": {
+    "admin_direta": 100.0,
+    "admin_indireta": 100.0,
+    "fundacao": 100.0,
+    "municipio_grande": 100.0,
+    "platform_sc_compras": 100.0,
+    "source_api": 100.0,
+    "source_js": 100.0,
+    "consorcio": 100.0,
+    "municipio_medio": 100.0,
+    "platform_ciga": 100.0,
+    "source_html": 100.0,
+    "source_pdf": 100.0,
+    "municipio_pequeno": 100.0,
+    "platform_pncp": 100.0,
+    "autarquia": 100.0,
+    "camara": 100.0
+  },
+  "forbidden_proxy_used": false,
+  "target_pct": 95.0,
+  "stratum_floor_pct": 90.0,
+  "floors_failed": [],
+  "denominator_hash": "2d1b3fc13e5f5c98ebc202b7f3cd275accf34804d794027d21e78c863b9c2606",
+  "validation": {
+    "unique_items": 76,
+    "missing_strata": [],
+    "thin_strata": [],
+    "unlabeled": 0,
+    "invalid_captured": 0,
+    "invalid_misses": 0,
+    "schema_errors": []
+  },
+  "gate_exit": 0
+}

@@ -1,0 +1,13 @@
+{
+  "campaign": "STRATIFIED-RECALL-SOURCE-RESILIENCE-01",
+  "generated_at": "2026-07-24T14:05:30Z",
+  "gold_unique_items": 76,
+  "denominator_hash": "2d1b3fc13e5f5c98ebc202b7f3cd275accf34804d794027d21e78c863b9c2606",
+  "unlabeled": 0,
+  "example_scaffold_rows": 0,
+  "duplicate_sample_ids": 0,
+  "forbidden_proxy_used": false,
+  "identity_fields_present_rate": 1.0,
+  "strata_min_met": true,
+  "notes": "All gold items have external_id and portal_url; content_hash present"
+}
