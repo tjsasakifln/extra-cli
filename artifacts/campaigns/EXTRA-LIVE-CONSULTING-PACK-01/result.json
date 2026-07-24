@@ -2,7 +2,7 @@
   "campaign_id": "EXTRA-LIVE-CONSULTING-PACK-01",
   "terminal": "BLOCKED",
   "terminal_detail": "BLOCKED_HUMAN — Tiago must inspect pack-rc and write ACCEPT/REJECT/findings in user-acceptance.json. All non-human technical work complete.",
-  "git_sha": "0f8ab480ed81af1ffc2f1188944a6af648b242ea",
+  "git_sha": "6b9cf95943902709209760406ab825889708e204",
   "pr": "https://github.com/tjsasakifln/extra-cli/pull/130",
   "branch": "campaign/extra-live-consulting-pack-01",
   "production_touched": false,
