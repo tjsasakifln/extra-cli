@@ -1,7 +1,7 @@
 {
   "campaign_id": "EXTRA-LIVE-CONSULTING-PACK-01",
   "terminal": "BLOCKED",
-  "terminal_detail": "BLOCKED_HUMAN \u2014 verification plan re-run PASS on all non-human steps; decision=null; dual isolated non-claim; skeptic harness gaps obsolete vs tip",
+  "terminal_detail": "BLOCKED_HUMAN \u2014 skeptic 10/10 technical CLOSED; CI 30113214073 PASS; decision=null",
   "blockers": [
     {
       "id": "HUMAN_ACCEPT",
@@ -13,7 +13,7 @@
     }
   ],
   "work_not_blocked_complete": true,
-  "git_sha": "8bc72428a3c661b59c059d8ed224d3dd528af358",
+  "git_sha": "c0b903e0ce06983bd844620e050f81adf7c9887a",
   "pack_run_id": "live-pack-20260724-162325-f4d6894d",
   "pack_git_sha": "fa66dd7f9d8ae68b7ad9c14e5266c5b35d4e032d",
   "pr": "https://github.com/tjsasakifln/extra-cli/pull/130",
@@ -89,9 +89,9 @@
     "win_rate"
   ],
   "next_step": "ONLY human: inspect pack-rc and set decision ACCEPT|REJECT|findings. Then DevOps merge PR #130 + isolated reproof + DOD accept. Agent must not fill decision.",
-  "generated_at": "2026-07-24T17:27:52Z",
+  "generated_at": "2026-07-24T17:33:19Z",
   "candidate_sha": "fa66dd7f9d8ae68b7ad9c14e5266c5b35d4e032d",
-  "evidence_stamp_sha": "8bc72428a3c661b59c059d8ed224d3dd528af358",
+  "evidence_stamp_sha": "c0b903e0ce06983bd844620e050f81adf7c9887a",
   "sha_binding": {
     "pack_generation_sha": "fa66dd7f9d8ae68b7ad9c14e5266c5b35d4e032d",
     "evidence_stamp_sha": "f27843e42c927c30c6931b9981826d94deb76385",
@@ -103,10 +103,10 @@
   },
   "ci": {
     "pr": 130,
-    "run": "30112708991",
+    "run": "30113214073",
     "full_suite": "PASS",
     "all_jobs": "PASS",
-    "head_sha": "58a7ece4709e9a36dfe5c04e0836c685bb6f4b76"
+    "head_sha": "c0b903e0ce06983bd844620e050f81adf7c9887a"
   },
   "dual_isolated_reproof": {
     "as_of": "2026-07-24T15:40:53.708064Z",
@@ -147,7 +147,6 @@
     "status": "BLOCKED_HUMAN",
     "decision": null,
     "prompt_declined": true,
-    "last_prompt_declined_at": "2026-07-24T17:17:50Z",
     "file": "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/user-acceptance.json"
   },
   "independent_review": {
@@ -183,5 +182,10 @@
       "optional dual coverage_evidence restore on isolado"
     ]
   },
-  "skeptic_panel_rebuttal": "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/review/SKEPTIC_PANEL_REBUTTAL.json"
+  "skeptic_panel_rebuttal": "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/review/SKEPTIC_PANEL_REBUTTAL.json",
+  "skeptic_panel_status": {
+    "all_10_technical_closed": true,
+    "matrix": "review/skeptic-gap-matrix-tip.json",
+    "only_open": "HUMAN_ACCEPT_NULL"
+  }
 }

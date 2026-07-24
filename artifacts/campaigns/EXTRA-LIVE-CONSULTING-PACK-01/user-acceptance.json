@@ -6,7 +6,7 @@
   "findings": [],
   "auto_accept_forbidden": true,
   "agent_fill_in_forbidden": true,
-  "note": "Human declined ACCEPT/REJECT prompt again (session goal revalidation). decision remains null. No agent auto-accept. Terminal BLOCKED_HUMAN. All non-human technical work complete; skeptic gaps on tip revalidated PASS.",
+  "note": "Human declined ACCEPT; decision null. Skeptic 10/10 technical closed on tip. No agent fill-in.",
   "instructions": [
     "1. Open pack-rc/executive_summary.md, PDF, and Excel on tip SHA after release-candidate",
     "2. Personally set decision to ACCEPT or REJECT (or findings[])",
@@ -27,14 +27,14 @@
     "reconcile": "PASS",
     "tip_bound": true
   },
-  "git_sha": "d3258389012a5275c0d09189e9933e08cdcaa888",
-  "recorded_at": "2026-07-24T17:17:50Z",
+  "git_sha": "c0b903e0ce06983bd844620e050f81adf7c9887a",
+  "recorded_at": "2026-07-24T17:33:19Z",
   "accepted_at": null,
   "rejected_at": null,
   "pack_run_id": "live-pack-20260724-162325-f4d6894d",
   "pack_git_sha": "fa66dd7f9d8ae68b7ad9c14e5266c5b35d4e032d",
   "candidate_sha": "fa66dd7f9d8ae68b7ad9c14e5266c5b35d4e032d",
-  "evidence_stamp_sha": "d3258389012a5275c0d09189e9933e08cdcaa888",
+  "evidence_stamp_sha": "c0b903e0ce06983bd844620e050f81adf7c9887a",
   "last_prompt_declined_at": "2026-07-24T17:17:50Z",
   "skeptic_stale_snapshot_note": "Harness skeptic gaps reference obsolete commits 4016906/298c521/0f8ab48. Tip revalidation in review/skeptic-tip-revalidation.json: all technical gaps PASS; decision remains null."
 }

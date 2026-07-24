@@ -1,0 +1,137 @@
+{
+  "tip": "c0b903e0ce06983bd844620e050f81adf7c9887a",
+  "audited_at": "2026-07-24T17:33:19Z",
+  "all_pass": true,
+  "failed": [],
+  "gaps": [
+    {
+      "id": 0,
+      "harness": "fabricated ACCEPT 4016906",
+      "pass": true,
+      "evidence": {
+        "terminal": "BLOCKED",
+        "decision": null
+      }
+    },
+    {
+      "id": 1,
+      "harness": "SHA scatter 0f8ab48",
+      "pass": true,
+      "evidence": {
+        "run_id": "live-pack-20260724-162325-f4d6894d",
+        "same": true,
+        "pack_git": "fa66dd7f9d8a"
+      }
+    },
+    {
+      "id": 2,
+      "harness": "gates omit surface",
+      "pass": true,
+      "evidence": {
+        "full_suite": true,
+        "golden": true,
+        "or_true": false
+      }
+    },
+    {
+      "id": 3,
+      "harness": "dual 95 PASS claim",
+      "pass": true,
+      "evidence": {
+        "isolated_operational_dual_reproof": "EXECUTED",
+        "result": "GATE_FAIL_0pct",
+        "root_cause": "coverage_evidence empty on isolated restore (0 rows); denominator 1093 measured correctly",
+        "does_NOT_invalidate_prior_signed_live_dual": true,
+        "prior_signed_live_dual_paths": [
+          "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/dual-coverage-open_tenders.json",
+          "artifacts/campaigns/HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01/dual-coverage.json"
+        ],
+        "production_touched": false,
+        "claim_isolated_dual_95": false
+      }
+    },
+    {
+      "id": 4,
+      "harness": "review C=0",
+      "pass": true,
+      "evidence": {
+        "verdict": "PASS_TECHNICAL",
+        "C": {
+          "success_zero": false,
+          "n": 14750,
+          "query_complete": true
+        }
+      }
+    },
+    {
+      "id": 5,
+      "harness": "CI pending 298c521",
+      "pass": true,
+      "evidence": {
+        "run": "30113214073",
+        "full_suite": "PASS",
+        "tip": "c0b903e0ce06"
+      }
+    },
+    {
+      "id": 6,
+      "harness": "reconcile mismatch",
+      "pass": true,
+      "evidence": {
+        "pack": "live-pack-20260724-162325-f4d6894d",
+        "rec": "live-pack-20260724-162325-f4d6894d"
+      }
+    },
+    {
+      "id": 7,
+      "harness": "B hospital",
+      "pass": true,
+      "evidence": {
+        "valid": 15,
+        "hospital": [],
+        "sample": [
+          "EMPREITEIRA DE MAO DE OBRA ADRIMAR LTDA - EIRELI",
+          "PAVIPLAN PAVIMENTA\u00c7\u00c3O LTDA.",
+          "POLARIS SERVICOS E CONSTRUCOES LTDA-IR 1.2%",
+          "CONSTRUTORA SCHROEDER E SCHMIDT LTDA EPP",
+          "INFRASUL - INFRAESTUTURA E EMPREENDIMENTOS LTDA"
+        ],
+        "eng": 5131,
+        "geo": [
+          {
+            "SC": 93
+          },
+          {
+            "SC": 84
+          },
+          {
+            "SC": 70
+          }
+        ]
+      }
+    },
+    {
+      "id": 8,
+      "harness": "monthly 5000",
+      "pass": true,
+      "evidence": {
+        "c1": 57238,
+        "label": "FULL_WINDOW"
+      }
+    },
+    {
+      "id": 9,
+      "harness": "plan PASS lie",
+      "pass": true,
+      "evidence": {
+        "result": "BLOCKED",
+        "dod": "BLOCKED",
+        "vpr": "BLOCKED"
+      }
+    }
+  ],
+  "ci_tip_run": "30113214073",
+  "only_open": "HUMAN_ACCEPT_NULL",
+  "terminal": "BLOCKED",
+  "decision": null
+}
