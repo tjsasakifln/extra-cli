@@ -1,34 +1,22 @@
-# Independent review — post-skeptic revalidation
+# Independent review — accept-binding honesty
 
-**Verdict: PASS (technical) with honest non-claims**
+**Verdict: CONCERNS closed for code; terminal BLOCKED on human re-accept**
 
-## Closed skeptic findings
+## Skeptic HIGH remediations
 
-| ID | Issue | Resolution |
-|----|-------|------------|
-| live dual false claim | synthetic LIVE-DELTA + SUSPENSAO claimed as live dual | `run_live_two_cycle` mode=`LABELED_DETERMINISTIC_REPLAY`, `live_dual_snapshot=false`, non-claim explicit |
-| pack run_id drift | executive-summary stale | aliases always overwrite; single run_id `live-pack-20260724-215055-5b8d0087` |
-| acceptance checksums | mismatched files | full pack tree checksums rebound on cycle |
-| manifest nulls | snapshot_sha256/gate_results/ci_run | populated from SHA256SUMS + gate_results map |
-| IAF-05 reconcile | same object identity | distinct meta + PDF/Excel SHA + sheet rows |
-| IAF-08a recurrence | false success_zero | cycle_2 fields read; dual=false |
+| Finding | Fix |
+|---------|-----|
+| Silent ACCEPT rebind to new pack | `validate_acceptance_binding` demotes STALE ACCEPT; never rewrites ACCEPTED onto new run_id/rc_sha/checksums |
+| RC identity scatter | Accept binds to **pack-manifest product SHA** + run_id + pack file checksums |
+| LIVE_ISOLATED dual without proof | `decide_terminal` FAILs any live_dual_snapshot=true without dual_snapshot_proof=true |
 
-## Residual (accepted non-claims)
+## Residual blocker (external)
 
-- No second independent temporal dump export in this environment
-- Monthly recurrence = same-snapshot mechanics + labeled inject
-- soak_7d untouched / not claimed
+Human must ACCEPTED the frozen RC:
+- run_id `live-pack-20260724-220350-da3bee0b`
+- rc_sha product `be96c8bc8eb2…`
+- via `verify-accept` after filling user-acceptance.json **without** regenerating pack
 
-## Attack surfaces re-checked
+## Non-claims
 
-Universe export ≠ population: PASS  
-False CNPJ merge: PASS  
-PDF×Excel reconcile: PASS  
-Profile version: PASS  
-PENDING capacity as known: PASS  
-Production/soak DSN: PASS  
-Human accept fabricated: PASS (Tiago Sasaki explicit)  
-False live dual: PASS (now non-claim)
-
-**RC run_id:** `live-pack-20260724-215055-5b8d0087`  
-**git_sha (pack):** `9662ce478bde3345297711746b6ecfe225564dd7`
+live_dual_snapshot_recurrence, soak_7d, LOCAL_READY, VPS_OPERATIONAL, PROJECT_DONE

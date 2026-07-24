@@ -3,7 +3,7 @@
   "final_status": "BLOCKED",
   "terminal": "BLOCKED",
   "blockers": [
-    "user_acceptance_STALE: prior ACCEPT does not bind current RC; re-accept required"
+    "user_acceptance_PENDING_HUMAN: Tiago must ACCEPT the release candidate"
   ],
   "failures": [],
   "rc_sha": "be96c8bc8eb2b017e491bfafe8cf99f81e321267",
@@ -173,5 +173,10 @@
     "Extra operational capacity fields not elicited",
     "win rate without observable open-tender denominator"
   ],
-  "generated_at": "2026-07-24T22:04:19Z"
+  "generated_at": "2026-07-24T22:04:19Z",
+  "acceptance_binding": {
+    "pack_run_id": "live-pack-20260724-220350-da3bee0b",
+    "rc_sha": "be96c8bc8eb2b017e491bfafe8cf99f81e321267",
+    "checked_at": "2026-07-24T22:37:24Z"
+  }
 }

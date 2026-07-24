@@ -65,17 +65,23 @@
   },
   "accepted_by": null,
   "accepted_at": null,
-  "notes": null,
+  "notes": "Prior ACCEPT demoted as STALE after accept-binding fix. Human must re-accept THIS frozen RC (run_id+rc_sha+checksums). Agent will not rebind ACCEPT.",
   "agent_auto_accept_forbidden": true,
   "instructions": "HUMAN-ACCEPTANCE-INSTRUCTIONS.md",
-  "pack_dir": "pack/",
+  "REVIEW_FOR_TIAGO": "REVIEW-FOR-TIAGO.md",
   "decision_options": [
     "ACCEPTED",
     "REJECTED"
   ],
+  "freeze": {
+    "pack_run_id": "live-pack-20260724-220350-da3bee0b",
+    "product_rc_sha": "be96c8bc8eb2b017e491bfafe8cf99f81e321267",
+    "branch_tip": "29bfbc360eadb10f027ab0e30260ad4ab19fb404",
+    "as_of": "2026-07-24T22:37:22.193868Z"
+  },
   "binding": {
     "pack_run_id": "live-pack-20260724-220350-da3bee0b",
     "rc_sha": "be96c8bc8eb2b017e491bfafe8cf99f81e321267",
-    "checked_at": "2026-07-24T22:06:46Z"
+    "checked_at": "2026-07-24T22:37:24Z"
   }
 }
