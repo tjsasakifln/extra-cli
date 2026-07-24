@@ -155,5 +155,11 @@
   "sha_binding": {
     "pack_generation_note": "pack git_sha in pack-manifest may lag tip evidence stamp",
     "evidence_stamp_sha": "9851e364ad6b8e24228da7ba397cf0d07fd10c6c"
+  },
+  "branch_tip_sha": "9acd8d4005f811ace6047f60cd5666d2ed858478",
+  "sha_roles": {
+    "branch_tip": "9acd8d4005f811ace6047f60cd5666d2ed858478",
+    "evidence_stamp": "aadd65c00599a5dd44a3c2517492eae22a79c6c5",
+    "pack_manifest_git_sha": "c2bef8fd928c4eca5d9f6ad8e939ee2bf74c604a"
   }
 }
