@@ -1,0 +1,7 @@
+{
+  "run_id": "link-20260724T-rc1",
+  "ambiguous_count": 0,
+  "unresolved_contract_links": 12,
+  "review_queue_open": "see entity_linkage_review_queue",
+  "policy": "ambiguous stay ambiguous; never auto-merge conflicting strong ids"
+}

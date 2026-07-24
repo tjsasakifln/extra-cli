@@ -1,0 +1,92 @@
+{
+  "run_id": "link-20260724T-rc1",
+  "metrics": {
+    "dsn_masked": "postgresql://test:***@127.0.0.1:5438/extra_linkage_rc",
+    "organ_links": {
+      "exact": 20,
+      "total": 20,
+      "ambiguous": 0,
+      "unresolved": 0,
+      "auto_accepted": 20,
+      "hard_cases_excluded": false,
+      "heuristic_reviewable": 0,
+      "deterministic_composite": 0,
+      "link_rate_deterministic": 1.0,
+      "unresolved_in_denominator": true
+    },
+    "snapshot_id": null,
+    "rule_version": "linkage-v1",
+    "opportunities": 20,
+    "snapshot_hash": null,
+    "contract_links": {
+      "exact": 114,
+      "total": 126,
+      "ambiguous": 0,
+      "unresolved": 12,
+      "auto_accepted": 114,
+      "hard_cases_excluded": false,
+      "heuristic_reviewable": 0,
+      "deterministic_composite": 0,
+      "link_rate_deterministic": 0.904762,
+      "unresolved_in_denominator": true
+    },
+    "supplier_links": {
+      "exact": 126,
+      "total": 126,
+      "ambiguous": 0,
+      "unresolved": 0,
+      "auto_accepted": 126,
+      "hard_cases_excluded": false,
+      "heuristic_reviewable": 0,
+      "deterministic_composite": 0,
+      "link_rate_deterministic": 1.0,
+      "unresolved_in_denominator": true
+    },
+    "production_touched": false
+  },
+  "precision_auto_accepted": 1.0,
+  "strong_identifier_false_merges": 0,
+  "meta_precision_threshold": 0.99,
+  "meta_met": true,
+  "link_rate_global": 0.904762,
+  "by_type": {
+    "organ": {
+      "exact": 20,
+      "total": 20,
+      "ambiguous": 0,
+      "unresolved": 0,
+      "auto_accepted": 20,
+      "hard_cases_excluded": false,
+      "heuristic_reviewable": 0,
+      "deterministic_composite": 0,
+      "link_rate_deterministic": 1.0,
+      "unresolved_in_denominator": true
+    },
+    "contract": {
+      "exact": 114,
+      "total": 126,
+      "ambiguous": 0,
+      "unresolved": 12,
+      "auto_accepted": 114,
+      "hard_cases_excluded": false,
+      "heuristic_reviewable": 0,
+      "deterministic_composite": 0,
+      "link_rate_deterministic": 0.904762,
+      "unresolved_in_denominator": true
+    },
+    "supplier": {
+      "exact": 126,
+      "total": 126,
+      "ambiguous": 0,
+      "unresolved": 0,
+      "auto_accepted": 126,
+      "hard_cases_excluded": false,
+      "heuristic_reviewable": 0,
+      "deterministic_composite": 0,
+      "link_rate_deterministic": 1.0,
+      "unresolved_in_denominator": true
+    }
+  },
+  "notes": "Auto-accept restricted to exact CNPJ14 (+ deterministic cnpj8+name). CNPJ8-only is heuristic_reviewable after review fix. Unresolved contract decisions are persisted.",
+  "precision_definition": "strong_id_consistency_on_auto_accepted_exact_only"
+}

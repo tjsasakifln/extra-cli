@@ -1,0 +1,17 @@
+{
+  "production_touched": false,
+  "dsn_masked": "postgresql://test:***@127.0.0.1:5438/extra_linkage_rc",
+  "host": "127.0.0.1",
+  "port": 5438,
+  "database": "extra_linkage_rc",
+  "guard": "scripts.linkage.isolation",
+  "forbidden_checked": [
+    "ec-prod",
+    "netcup",
+    "vps",
+    "/opt/extra-consultoria",
+    "soak",
+    "systemctl extra-"
+  ],
+  "soak_interference": false
+}

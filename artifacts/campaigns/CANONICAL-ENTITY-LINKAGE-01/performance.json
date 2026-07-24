@@ -1,0 +1,16 @@
+{
+  "priority_queries": [
+    {
+      "name": "entity_summary",
+      "seconds": 0.104,
+      "budget_s": 60
+    },
+    {
+      "name": "opp_contract_links",
+      "seconds": 0.1,
+      "budget_s": 60
+    }
+  ],
+  "note": "Measured via workspace CLI wall times on 5k-row operational subset",
+  "all_under_budget": true
+}

@@ -291,6 +291,39 @@ open-tenders-soak:
 	python3 -m scripts.ops.campaign_open_tenders_soak \
 		--out artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/soak.json
 
+# --- CANONICAL-ENTITY-LINKAGE-01 (isolated PG only; never soak/VPS) ---
+.PHONY: campaign-gate-canonical-entity-linkage
+campaign-gate-canonical-entity-linkage:
+	@echo '==> campaign-gate-canonical-entity-linkage (fail-closed, isolated DSN)'
+	@test -n "$${LINKAGE_TEST_DSN}" || (echo 'LINKAGE_TEST_DSN required' >&2; exit 2)
+	python3 -m scripts.ops.campaign_gate_canonical_entity_linkage \
+		--dsn "$${LINKAGE_TEST_DSN}" \
+		--out artifacts/campaigns/CANONICAL-ENTITY-LINKAGE-01/campaign-gate.json
+
+.PHONY: release-candidate-canonical-entity-linkage
+release-candidate-canonical-entity-linkage:
+	@echo '==> release-candidate-canonical-entity-linkage'
+	@test -n "$${LINKAGE_TEST_DSN}" || (echo 'LINKAGE_TEST_DSN required' >&2; exit 2)
+	python3 -m scripts.ops.apply_migrations --dsn "$${LINKAGE_TEST_DSN}"
+	python3 -m scripts.ops.apply_migrations --dsn "$${LINKAGE_TEST_DSN}"
+	python3 -m pytest -o addopts='' -q tests/test_canonical_entity_linkage.py --tb=line
+	python3 -m scripts.linkage guard --dsn "$${LINKAGE_TEST_DSN}"
+	python3 -m scripts.workspace entity --json --dsn "$${LINKAGE_TEST_DSN}"
+	python3 -m scripts.workspace competitors --json --dsn "$${LINKAGE_TEST_DSN}" --limit 5
+	python3 -m scripts.workspace expiring-contracts --json --dsn "$${LINKAGE_TEST_DSN}" --limit 5
+	@echo 'release-candidate-canonical-entity-linkage OK'
+
+.PHONY: verify-canonical-entity-linkage-isolated
+verify-canonical-entity-linkage-isolated:
+	@echo '==> verify-canonical-entity-linkage-isolated (no soak/VPS)'
+	@test -n "$${LINKAGE_TEST_DSN}" || (echo 'LINKAGE_TEST_DSN required' >&2; exit 2)
+	python3 -m scripts.linkage guard --dsn "$${LINKAGE_TEST_DSN}"
+	python3 -m scripts.ops.campaign_gate_canonical_entity_linkage \
+		--dsn "$${LINKAGE_TEST_DSN}" \
+		--skip-full-suite \
+		--out artifacts/campaigns/CANONICAL-ENTITY-LINKAGE-01/verify-isolated.json
+	@echo 'verify-canonical-entity-linkage-isolated OK'
+
 .PHONY: release-candidate
 release-candidate:
 	@echo '==> release-candidate wrappers'

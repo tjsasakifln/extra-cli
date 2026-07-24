@@ -1,0 +1,5 @@
+{
+  "competitors_column_fix": "ni_fornecedor\u2192fornecedor_cnpj",
+  "idempotent_rerun": true,
+  "contract_links_after_rerun": 114
+}

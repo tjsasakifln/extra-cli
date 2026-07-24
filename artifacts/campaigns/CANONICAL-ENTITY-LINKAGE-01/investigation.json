@@ -1,0 +1,212 @@
+{
+  "run_id": "link-20260724T-rc1",
+  "opportunity_id": 1,
+  "opportunity": {
+    "id": 1,
+    "orgao_cnpj": "00508903000188",
+    "orgao_nome": "JUSTICA FEDERAL DE PRIMEIRA INSTANCIA",
+    "objeto": "JUSTICA FEDERAL DE PRIMEIRA INSTANCIA",
+    "uf": "SC",
+    "municipio": "Florian\u00f3polis",
+    "numero_controle_pncp": "00508903000188-1-001317/2026",
+    "status_canonico": "open",
+    "valor_estimado": null
+  },
+  "organs": [
+    {
+      "classification": "exact",
+      "score": "1.00000",
+      "reason_codes": [
+        "exact_cnpj14"
+      ],
+      "claim_level": "fact",
+      "organ_canonical_key": "org:cnpj14:00508903000188",
+      "source_record_ids": [
+        "opportunity_intel:1"
+      ],
+      "rule_version": "linkage-v1"
+    }
+  ],
+  "contracts": [
+    {
+      "contract_id": "00508903000188-2-000996/2026",
+      "classification": "exact",
+      "score": "1.00000",
+      "reason_codes": [
+        "same_organ_cnpj14"
+      ],
+      "claim_level": "similarity",
+      "non_claims": [
+        "not_observed_participant_of_open_tender",
+        "similarity_not_participation"
+      ],
+      "organ_canonical_key": "org:cnpj14:00508903000188",
+      "supplier_canonical_key": "sup:cnpj14:13961079000169",
+      "rule_version": "linkage-v1"
+    },
+    {
+      "contract_id": "00508903000188-2-000997/2026",
+      "classification": "exact",
+      "score": "1.00000",
+      "reason_codes": [
+        "same_organ_cnpj14"
+      ],
+      "claim_level": "similarity",
+      "non_claims": [
+        "not_observed_participant_of_open_tender",
+        "similarity_not_participation"
+      ],
+      "organ_canonical_key": "org:cnpj14:00508903000188",
+      "supplier_canonical_key": "sup:cnpj14:41634948000186",
+      "rule_version": "linkage-v1"
+    },
+    {
+      "contract_id": "00508903000188-2-000998/2026",
+      "classification": "exact",
+      "score": "1.00000",
+      "reason_codes": [
+        "same_organ_cnpj14"
+      ],
+      "claim_level": "similarity",
+      "non_claims": [
+        "not_observed_participant_of_open_tender",
+        "similarity_not_participation"
+      ],
+      "organ_canonical_key": "org:cnpj14:00508903000188",
+      "supplier_canonical_key": "sup:cnpj14:24230082000129",
+      "rule_version": "linkage-v1"
+    },
+    {
+      "contract_id": "00508903000188-2-000999/2026",
+      "classification": "exact",
+      "score": "1.00000",
+      "reason_codes": [
+        "same_organ_cnpj14"
+      ],
+      "claim_level": "similarity",
+      "non_claims": [
+        "not_observed_participant_of_open_tender",
+        "similarity_not_participation"
+      ],
+      "organ_canonical_key": "org:cnpj14:00508903000188",
+      "supplier_canonical_key": "sup:cnpj14:36003671000153",
+      "rule_version": "linkage-v1"
+    },
+    {
+      "contract_id": "00508903000188-2-001005/2026",
+      "classification": "exact",
+      "score": "1.00000",
+      "reason_codes": [
+        "same_organ_cnpj14"
+      ],
+      "claim_level": "similarity",
+      "non_claims": [
+        "not_observed_participant_of_open_tender",
+        "similarity_not_participation"
+      ],
+      "organ_canonical_key": "org:cnpj14:00508903000188",
+      "supplier_canonical_key": "sup:cnpj14:65447810000136",
+      "rule_version": "linkage-v1"
+    }
+  ],
+  "observed_suppliers": [
+    {
+      "supplier_canonical_key": "sup:cnpj14:24230082000129",
+      "relation_kind": "historical_winner",
+      "classification": "exact",
+      "score": "1.00000",
+      "reason_codes": [
+        "exact_supplier_cnpj14",
+        "observed_contract_winner"
+      ],
+      "claim_level": "fact",
+      "non_claims": [
+        "not_observed_participant_of_open_tender",
+        "not_win_rate",
+        "not_consortium_inference"
+      ],
+      "contract_id": "00508903000188-2-000998/2026"
+    },
+    {
+      "supplier_canonical_key": "sup:cnpj14:13961079000169",
+      "relation_kind": "historical_winner",
+      "classification": "exact",
+      "score": "1.00000",
+      "reason_codes": [
+        "exact_supplier_cnpj14",
+        "observed_contract_winner"
+      ],
+      "claim_level": "fact",
+      "non_claims": [
+        "not_observed_participant_of_open_tender",
+        "not_win_rate",
+        "not_consortium_inference"
+      ],
+      "contract_id": "00508903000188-2-000996/2026"
+    },
+    {
+      "supplier_canonical_key": "sup:cnpj14:36003671000153",
+      "relation_kind": "historical_winner",
+      "classification": "exact",
+      "score": "1.00000",
+      "reason_codes": [
+        "exact_supplier_cnpj14",
+        "observed_contract_winner"
+      ],
+      "claim_level": "fact",
+      "non_claims": [
+        "not_observed_participant_of_open_tender",
+        "not_win_rate",
+        "not_consortium_inference"
+      ],
+      "contract_id": "00508903000188-2-000999/2026"
+    },
+    {
+      "supplier_canonical_key": "sup:cnpj14:41634948000186",
+      "relation_kind": "historical_winner",
+      "classification": "exact",
+      "score": "1.00000",
+      "reason_codes": [
+        "exact_supplier_cnpj14",
+        "observed_contract_winner"
+      ],
+      "claim_level": "fact",
+      "non_claims": [
+        "not_observed_participant_of_open_tender",
+        "not_win_rate",
+        "not_consortium_inference"
+      ],
+      "contract_id": "00508903000188-2-000997/2026"
+    },
+    {
+      "supplier_canonical_key": "sup:cnpj14:65447810000136",
+      "relation_kind": "historical_winner",
+      "classification": "exact",
+      "score": "1.00000",
+      "reason_codes": [
+        "exact_supplier_cnpj14",
+        "observed_contract_winner"
+      ],
+      "claim_level": "fact",
+      "non_claims": [
+        "not_observed_participant_of_open_tender",
+        "not_win_rate",
+        "not_consortium_inference"
+      ],
+      "contract_id": "00508903000188-2-001005/2026"
+    }
+  ],
+  "status": "OK",
+  "claims": [
+    "organ_identity_from_official_keys",
+    "historical_contracts_same_organ",
+    "observed_contract_winners_only"
+  ],
+  "non_claims": [
+    "not_observed_participant_of_open_tender",
+    "not_inferred_consortium",
+    "not_win_rate",
+    "similarity_is_not_participation"
+  ],
+  "fail_closed_if_empty": false
+}

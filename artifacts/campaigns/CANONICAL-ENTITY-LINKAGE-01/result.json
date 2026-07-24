@@ -1,0 +1,72 @@
+{
+  "campaign_id": "CANONICAL-ENTITY-LINKAGE-01",
+  "as_of": "2026-07-24T14:14:42.273050Z",
+  "terminal_status": "BLOCKED",
+  "block_reason": "Campaign operational capability proven on isolated RC; final PASS requires @devops push/PR, main CI green, and serial DOD ACCEPTED. Independent review residual: precision is strong-id audit (accepted_risk), not multi-rater fuzzy study.",
+  "implementation_status": "OPERATIONAL_ON_ISOLATED_REAL_DATA",
+  "candidate_sha": "b5353e431f9dd33952ecc347e6329b30fa159970",
+  "run_id": "link-20260724T-rc1",
+  "metrics_summary": {
+    "dsn_masked": "postgresql://test:***@127.0.0.1:5438/extra_linkage_rc",
+    "organ_links": {
+      "exact": 20,
+      "total": 20,
+      "ambiguous": 0,
+      "unresolved": 0,
+      "auto_accepted": 20,
+      "hard_cases_excluded": false,
+      "heuristic_reviewable": 0,
+      "deterministic_composite": 0,
+      "link_rate_deterministic": 1.0,
+      "unresolved_in_denominator": true
+    },
+    "snapshot_id": null,
+    "rule_version": "linkage-v1",
+    "opportunities": 20,
+    "snapshot_hash": null,
+    "contract_links": {
+      "exact": 114,
+      "total": 126,
+      "ambiguous": 0,
+      "unresolved": 12,
+      "auto_accepted": 114,
+      "hard_cases_excluded": false,
+      "heuristic_reviewable": 0,
+      "deterministic_composite": 0,
+      "link_rate_deterministic": 0.904762,
+      "unresolved_in_denominator": true
+    },
+    "supplier_links": {
+      "exact": 126,
+      "total": 126,
+      "ambiguous": 0,
+      "unresolved": 0,
+      "auto_accepted": 126,
+      "hard_cases_excluded": false,
+      "heuristic_reviewable": 0,
+      "deterministic_composite": 0,
+      "link_rate_deterministic": 1.0,
+      "unresolved_in_denominator": true
+    },
+    "production_touched": false
+  },
+  "production_touched": false,
+  "gates": {
+    "verify-canonical-entity-linkage-isolated": "PASS",
+    "unit_tests": "16 passed, 1 skipped (real_db marker path)",
+    "review": "CONCERNS with highs fixed; residual accepted_risk documented"
+  },
+  "claims": [
+    "layered linkage with provenance on isolated real contracts+opportunities",
+    "workspace entity isolation fail-closed",
+    "no soak/production interference"
+  ],
+  "non_claims": [
+    "LOCAL_READY",
+    "VPS_OPERATIONAL",
+    "PROJECT_DONE",
+    "DOD [x] without ACCEPTED",
+    "full 4.4M loaded into RC interactive tables",
+    "human multi-rater fuzzy precision study"
+  ]
+}

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"/>
+<title>Dossiê de investigação — linkage canônico</title>
+<style>
+body { font-family: system-ui, sans-serif; margin: 2rem; color: #122; }
+h1,h2 { color: #0b3d5c; }
+.badge { display:inline-block; padding:0.15rem 0.5rem; border-radius:4px; background:#e8f1f8; }
+table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+th,td { border: 1px solid #ccd; padding: 0.4rem 0.6rem; text-align: left; font-size: 0.9rem; }
+th { background: #f0f4f8; }
+.nonclaim { color: #844; }
+.meta { color: #456; font-size: 0.9rem; }
+</style>
+</head>
+<body>
+<h1>Dossiê de investigação — linkage canônico</h1>
+<p class="meta">Campaign <span class="badge">CANONICAL-ENTITY-LINKAGE-01</span>
+ · run_id <code>link-20260724T-rc1</code>
+ · status <strong>OK</strong>
+ · 2026-07-24T14:05:11.818595Z</p>
+
+<h2>Oportunidade</h2>
+<ul>
+<li>ID: 1</li>
+<li>Órgão: JUSTICA FEDERAL DE PRIMEIRA INSTANCIA (00508903000188)</li>
+<li>PNCP: 00508903000188-1-001317/2026</li>
+<li>UF: SC</li>
+<li>Objeto: JUSTICA FEDERAL DE PRIMEIRA INSTANCIA</li>
+</ul>
+
+<h2>Órgãos resolvidos (1)</h2>
+<pre>[
+  {
+    &quot;classification&quot;: &quot;exact&quot;,
+    &quot;score&quot;: &quot;1.00000&quot;,
+    &quot;reason_codes&quot;: [
+      &quot;exact_cnpj14&quot;
+    ],
+    &quot;claim_level&quot;: &quot;fact&quot;,
+    &quot;organ_canonical_key&quot;: &quot;org:cnpj14:00508903000188&quot;,
+    &quot;source_record_ids&quot;: [
+      &quot;opportunity_intel:1&quot;
+    ],
+    &quot;rule_version&quot;: &quot;linkage-v1&quot;
+  }
+]</pre>
+
+<h2>Contratos históricos relacionados (5)</h2>
+<table>
+<thead><tr><th>contrato_id</th><th>class</th><th>score</th><th>claim</th><th>reasons</th></tr></thead>
+<tbody><tr><td>00508903000188-2-000996/2026</td><td>exact</td><td>1.00000</td><td>similarity</td><td>same_organ_cnpj14</td></tr><tr><td>00508903000188-2-000997/2026</td><td>exact</td><td>1.00000</td><td>similarity</td><td>same_organ_cnpj14</td></tr><tr><td>00508903000188-2-000998/2026</td><td>exact</td><td>1.00000</td><td>similarity</td><td>same_organ_cnpj14</td></tr><tr><td>00508903000188-2-000999/2026</td><td>exact</td><td>1.00000</td><td>similarity</td><td>same_organ_cnpj14</td></tr><tr><td>00508903000188-2-001005/2026</td><td>exact</td><td>1.00000</td><td>similarity</td><td>same_organ_cnpj14</td></tr></tbody>
+</table>
+
+<h2>Fornecedores observados (vencedores históricos) (5)</h2>
+<table>
+<thead><tr><th>supplier</th><th>relation</th><th>class</th><th>score</th><th>contract</th></tr></thead>
+<tbody><tr><td>sup:cnpj14:24230082000129</td><td>historical_winner</td><td>exact</td><td>1.00000</td><td>00508903000188-2-000998/2026</td></tr><tr><td>sup:cnpj14:13961079000169</td><td>historical_winner</td><td>exact</td><td>1.00000</td><td>00508903000188-2-000996/2026</td></tr><tr><td>sup:cnpj14:36003671000153</td><td>historical_winner</td><td>exact</td><td>1.00000</td><td>00508903000188-2-000999/2026</td></tr><tr><td>sup:cnpj14:41634948000186</td><td>historical_winner</td><td>exact</td><td>1.00000</td><td>00508903000188-2-000997/2026</td></tr><tr><td>sup:cnpj14:65447810000136</td><td>historical_winner</td><td>exact</td><td>1.00000</td><td>00508903000188-2-001005/2026</td></tr></tbody>
+</table>
+
+<h2>Claims</h2>
+<ul><li>organ_identity_from_official_keys</li><li>historical_contracts_same_organ</li><li>observed_contract_winners_only</li></ul>
+
+<h2 class="nonclaim">Non-claims</h2>
+<ul class="nonclaim"><li>not_observed_participant_of_open_tender</li><li>not_inferred_consortium</li><li>not_win_rate</li><li>similarity_is_not_participation</li></ul>
+
+<h2>Limitações</h2>
+<ul><li>Links to historical contracts mean shared organ (and optional object tokens), not that the supplier bid on the open tender.</li><li>Heuristic name-only merges are never auto-accepted.</li><li>Coverage dual metrics are independent of this identity graph (ADR-030).</li></ul>
+
+<h2>Qualidade (métricas do run)</h2>
+<pre>{}</pre>
+</body>
+</html>

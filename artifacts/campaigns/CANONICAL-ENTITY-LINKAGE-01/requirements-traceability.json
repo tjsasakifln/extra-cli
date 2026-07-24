@@ -1,0 +1,52 @@
+{
+  "requirements": [
+    {
+      "id": "R1",
+      "text": "golden organs/suppliers",
+      "impl": "canonical_organs/suppliers + pipeline",
+      "test": "test_canonical_entity_linkage",
+      "evidence": "schema.json",
+      "dod": "\u00a72.2"
+    },
+    {
+      "id": "R2",
+      "text": "link opportunity to contracts/suppliers",
+      "impl": "opportunity_*_links",
+      "test": "test_linkage_pipeline_on_isolated_dsn",
+      "evidence": "investigation.json",
+      "dod": "\u00a72.1"
+    },
+    {
+      "id": "R3",
+      "text": "classification+score+lineage",
+      "impl": "resolve.LinkDecision",
+      "test": "TestKeys",
+      "evidence": "linkage-quality.json",
+      "dod": "\u00a729"
+    },
+    {
+      "id": "R4",
+      "text": "workspace facade",
+      "impl": "cmd_entity/competitors",
+      "test": "test_workspace_parser_has_entity",
+      "evidence": "workspace-*.json",
+      "dod": "\u00a712"
+    },
+    {
+      "id": "R5",
+      "text": "isolation soak quarantine",
+      "impl": "isolation.py",
+      "test": "TestIsolation",
+      "evidence": "isolation.json",
+      "dod": "ops"
+    },
+    {
+      "id": "R6",
+      "text": "precision>=99% auto accepted",
+      "impl": "exact-only auto accept",
+      "test": "TestKeys",
+      "evidence": "linkage-quality.json",
+      "dod": "\u00a7\u00a718-22"
+    }
+  ]
+}

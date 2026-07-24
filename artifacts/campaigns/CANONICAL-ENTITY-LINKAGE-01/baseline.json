@@ -1,0 +1,55 @@
+{
+  "campaign_id": "CANONICAL-ENTITY-LINKAGE-01",
+  "as_of": "2026-07-24T14:06:49.098741Z",
+  "base_sha": "64549385144fd02304063bb538be31b8feed9900",
+  "origin_main": "64549385144fd02304063bb538be31b8feed9900",
+  "implemented": [
+    "sc_public_entities",
+    "entity_aliases",
+    "entity_source_registry",
+    "pncp_supplier_contracts",
+    "opportunity_intel",
+    "scripts.matching.entity_matcher",
+    "scripts.entity_identity.pncp_orgao_resolve",
+    "scripts.workspace competitors/dossier (partial, wrong columns pre-fix)",
+    "dual coverage ADR-030",
+    "NEW: scripts.linkage layered resolver + migration 061 + workspace entity"
+  ],
+  "tested": [
+    "tests/test_canonical_entity_linkage.py pure keys/resolve/isolation/dossier/parser"
+  ],
+  "proven_real_data": [
+    "4.437.142 contracts in authenticated dump pkg-20260723T195047Z",
+    "5000 contracts operational subset in isolated extra_linkage_rc",
+    "20 real radar opportunities overlapping contract organs",
+    "linkage run link-20260724T-rc1: organ 20/20 exact, contract exact 114, suppliers 126"
+  ],
+  "docs_or_fixture_only": [
+    "PR #121 national intel fixtures (not scale linkage proof)",
+    "workspace competitors previously used ni_fornecedor column (broken on real schema)"
+  ],
+  "dod_accepted_related": [
+    "historical contracts dual coverage 100% (presence \u2260 linkage)",
+    "open tenders dual coverage 100% measurement"
+  ],
+  "divergent": [
+    "weekly offline package contracts=0 competitors=0 despite millions of contracts \u2014 linkage gap"
+  ],
+  "blocked": [
+    "soak calendar for HC/open tenders continues \u2014 cannot touch VPS/prod for this campaign"
+  ],
+  "soak_forbidden": [
+    "ec-prod",
+    "ssh ec-prod",
+    "systemctl extra-*",
+    "/opt/extra-consultoria",
+    "production DSN",
+    "soak checkpoints"
+  ],
+  "specs_authority": {
+    "001": "dual coverage measurement only \u2014 not entity linkage graph",
+    "002": "historical contracts operational closure/VPS \u2014 not opportunity\u2194contract investigation",
+    "003": "open tenders weekly decision cycle \u2014 not canonical identity links",
+    "006": "CREATED as correct authority for canonical entity linkage"
+  }
+}

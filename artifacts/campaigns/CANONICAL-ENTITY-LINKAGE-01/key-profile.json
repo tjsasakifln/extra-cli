@@ -1,0 +1,30 @@
+{
+  "as_of": "2026-07-24T14:06:49.098528Z",
+  "snapshot_operational_rows": 5000,
+  "snapshot_full_dump_manifest_rows": 4437142,
+  "snapshot_full_dump_path": "artifacts/migration/backfill-vps/pkg-20260723T195047Z/db/pncp_supplier_contracts.dump",
+  "snapshot_source_note": "custom dump exported from local laptop 127.0.0.1:5433 (not soak VPS live access); operational subset loaded from consulting-package/contracts.csv",
+  "contracts": {
+    "n": 5000,
+    "fill_orgao_cnpj14": 1.0,
+    "fill_orgao_cnpj8": 1.0,
+    "fill_fornecedor_cnpj14": 0.977,
+    "fill_fornecedor_cnpj8": 1.0,
+    "fill_ibge": 0.0,
+    "fill_orgao_nome": 1.0,
+    "fill_fornecedor_nome": 1.0
+  },
+  "opportunities": {
+    "n": 20,
+    "orgao_cnpj": 20,
+    "pncp_ctrl": 20
+  },
+  "strong_keys_preferred": [
+    "cnpj14",
+    "cnpj8",
+    "cpf11",
+    "ibge7",
+    "numero_controle_pncp"
+  ],
+  "heuristic_required": false
+}
