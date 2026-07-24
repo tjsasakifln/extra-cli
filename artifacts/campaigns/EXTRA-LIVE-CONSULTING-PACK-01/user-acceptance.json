@@ -2,8 +2,15 @@
   "status": "BLOCKED_HUMAN",
   "reviewer": "Tiago",
   "decision": null,
-  "note": "Pacote gerado e reconciliado; aceite humano não registrado nesta sessão. Nunca autoaceite.",
+  "required_before_PASS": true,
+  "instructions": [
+    "Open artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-rc/executive_summary.md",
+    "Review PDF extra_live_consulting_pack.pdf and Excel .xlsx",
+    "Set decision to ACCEPT or REJECT (or list findings[])",
+    "Do not auto-accept from agents"
+  ],
   "pack_run_id": "live-pack-20260724-144033-ff964ea8",
-  "git_sha": "1ebad1102e77efd89b77d0c8799a14d1e55804a1",
-  "recorded_at": "2026-07-24T14:43:43Z"
+  "eligible_population": 1179237,
+  "git_sha": "8b067bef4a5041f6fd86319ee8041453cfae8048",
+  "recorded_at": "2026-07-24T14:55:29Z"
 }
