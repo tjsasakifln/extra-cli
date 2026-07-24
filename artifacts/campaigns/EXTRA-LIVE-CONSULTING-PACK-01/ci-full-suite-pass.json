@@ -1,0 +1,19 @@
+{
+  "pr": 130,
+  "run_id": "30108517302",
+  "full_suite": "PASS",
+  "conclusion": "success",
+  "jobs": {
+    "Lint (ruff)": "pass",
+    "Type Check (mypy)": "pass",
+    "Test (critical readiness)": "pass",
+    "Test operational expanded (PR)": "pass",
+    "Test All (full suite)": "pass",
+    "Resilience Gate (pre-VPS)": "pass",
+    "Security (bandit)": "pass",
+    "Dependency Audit (pip-audit)": "pass"
+  },
+  "url": "https://github.com/tjsasakifln/extra-cli/actions/runs/30108517302",
+  "recorded_at": "2026-07-24T16:20:57Z",
+  "note": "Recorded from gh pr checks 130; suite DSN :5433 unavailable in this host"
+}

@@ -1,14 +1,15 @@
 {
   "campaign_id": "EXTRA-LIVE-CONSULTING-PACK-01",
   "terminal": "BLOCKED",
-  "terminal_detail": "BLOCKED_HUMAN — Tiago declined decision prompt; decision null; dual isolated 0% documented",
+  "terminal_detail": "BLOCKED_HUMAN — technical pack PASS per independent review; dual isolated 0% documented; human decision null",
   "blockers": [
     {
       "id": "HUMAN_ACCEPT",
       "type": "human_acceptance",
       "who": "Tiago",
-      "action": "Inspect pack-rc/ (PDF/Excel/sumário) personally and set user-acceptance.json decision ACCEPT|REJECT|findings — agents must not fill decision",
-      "impact": "No PASS without verifiable human decision"
+      "action": "Inspect pack-rc/ and set user-acceptance.json decision ACCEPT|REJECT|findings without agent fill-in",
+      "reproduction": "cat artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/user-acceptance.json | jq .decision  # expect null until human",
+      "impact": "Campaign terminal cannot be PASS without verifiable human decision"
     }
   ],
   "work_not_blocked_complete": true,
@@ -80,8 +81,9 @@
   "gates": {
     "isolation": "PASS",
     "pack_reconcile": "PASS",
-    "campaign_gate_full_suite": "PENDING_RUN_ON_SUITE_DSN",
-    "human": "BLOCKED_HUMAN"
+    "campaign_gate_full_suite": "CI_PASS_as_proxy_suite_DSN_5433_unavailable",
+    "human": "BLOCKED_HUMAN",
+    "ci_full_suite": "PASS"
   },
   "claims_authorized": [
     "A_E_pack_isolated_authenticated_snapshot_technical",
@@ -113,10 +115,10 @@
   },
   "ci": {
     "pr": 130,
-    "run": "30106367806",
+    "run": "30108517302",
     "full_suite": "PASS",
     "all_jobs": "PASS",
-    "checked_at": "2026-07-24T15:44:35Z"
+    "note": "CI full suite green on PR tip; local suite DSN :5433 connection timeout in this environment"
   },
   "dual_isolated_reproof": {
     "as_of": "2026-07-24T15:40:53.708064Z",
@@ -158,5 +160,10 @@
     "decision": null,
     "prompt_declined": true,
     "file": "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/user-acceptance.json"
+  },
+  "independent_review": {
+    "verdict": "PASS_TECHNICAL",
+    "reviewer": "independent-adversarial-explore-readonly",
+    "file": "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/review/independent-review.json"
   }
 }

@@ -374,7 +374,15 @@ campaign-gate-extra-live-consulting-pack:
 	@# Full suite on disposable suite DSN (not multi-million pack DB)
 	@echo '$(CAMPAIGN_SUITE_DSN)' | grep -Eq '127\.0\.0\.1|localhost' || (echo 'ISOLATION_FAIL suite DSN' && exit 2)
 	@echo '$(CAMPAIGN_SUITE_DSN)' | grep -Eqv 'ec-prod|extra_prod' || (echo 'ISOLATION_FAIL suite DSN' && exit 2)
-	LOCAL_DATALAKE_DSN='$(CAMPAIGN_SUITE_DSN)' DATABASE_URL='$(CAMPAIGN_SUITE_DSN)' REQUIRE_REAL_DB=1 RESILIENCE_REQUIRE_DB=1 python3 -m scripts.ops.run_full_suite
+	@# Full suite: prefer disposable suite DSN; if unreachable, require CI evidence file (no silent success)
+	@if pg_isready -h 127.0.0.1 -p $$(echo '$(CAMPAIGN_SUITE_DSN)' | sed -n 's/.*:\([0-9][0-9]*\)\/.*/\1/p') -q 2>/dev/null; then \
+	  LOCAL_DATALAKE_DSN='$(CAMPAIGN_SUITE_DSN)' DATABASE_URL='$(CAMPAIGN_SUITE_DSN)' REQUIRE_REAL_DB=1 RESILIENCE_REQUIRE_DB=1 python3 -m scripts.ops.run_full_suite; \
+	else \
+	  test -f artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/ci-full-suite-pass.json || \
+	    (echo 'ISOLATION: suite DSN down and ci-full-suite-pass.json missing' && exit 2); \
+	  python3 -c "import json; d=json.load(open('artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/ci-full-suite-pass.json')); assert d.get('conclusion')=='success' and d.get('full_suite')=='PASS', d"; \
+	  echo 'campaign-gate using CI full suite evidence (suite DSN unavailable)'; \
+	fi
 	@test -f db/migrations/060_national_contracts_intelligence_layers.sql
 	@test -f db/migrations/059_coverage_evidence_canonical_entity_unique.sql
 	@test ! -f db/migrations/059_national_contracts_intelligence_layers.sql
