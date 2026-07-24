@@ -1,0 +1,13 @@
+specs/003-national-contracts-intelligence-architecture/analyze-report.md
+specs/003-national-contracts-intelligence-architecture/checklists/requirements.md
+specs/003-national-contracts-intelligence-architecture/contracts/README.md
+specs/003-national-contracts-intelligence-architecture/contracts/isolation-policy.md
+specs/003-national-contracts-intelligence-architecture/contracts/product-output.schema.json
+specs/003-national-contracts-intelligence-architecture/contracts/scope-classification.md
+specs/003-national-contracts-intelligence-architecture/data-model.md
+specs/003-national-contracts-intelligence-architecture/plan.md
+specs/003-national-contracts-intelligence-architecture/quickstart.md
+specs/003-national-contracts-intelligence-architecture/requirements-tests-matrix.md
+specs/003-national-contracts-intelligence-architecture/research.md
+specs/003-national-contracts-intelligence-architecture/spec.md
+specs/003-national-contracts-intelligence-architecture/tasks.md

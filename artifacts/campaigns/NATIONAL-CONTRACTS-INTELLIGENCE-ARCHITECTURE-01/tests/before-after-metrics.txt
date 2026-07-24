@@ -1,0 +1,6 @@
+seed_included 1093
+before 0 0.0 5 0
+after  0 0.0 5 5
+coverage_unchanged True
+gate_pass False False
+PASS isolation metrics

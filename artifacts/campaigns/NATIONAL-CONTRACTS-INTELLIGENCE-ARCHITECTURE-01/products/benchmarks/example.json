@@ -1,0 +1,45 @@
+{
+  "product_id": "benchmarks_value",
+  "scope_label": "intel_product",
+  "as_of": "2026-07-22T22:29:23Z",
+  "filters": {
+    "keyword": "paviment",
+    "uf": null,
+    "min_sample": 3
+  },
+  "row_count": 1,
+  "limitations": [
+    "Minimum sample size for percentiles: 3.",
+    "Objects matched by keyword are not guaranteed technically comparable.",
+    "valor_total is global contract value — unit price omitted without valid quantity denominator.",
+    "Do not treat benchmark as Extra bid price recommendation without human review.",
+    "Filter may mix different modalities and scopes of work."
+  ],
+  "claim_class_legend": {
+    "fact": "Directly observed from contract rows (counts, UF set, sums).",
+    "indicator": "Derived statistic (percentiles, shares, modes); not a legal finding.",
+    "hypothesis": "Business inference requiring human validation; not proven relationship."
+  },
+  "lineage": {
+    "git_sha": "a38981b",
+    "dsn_host_port_masked": "postgresql://***@127.0.0.1:5435/extra_national_intelligence_test",
+    "query_id": "benchmarks_value",
+    "module_version": "0.1.0"
+  },
+  "rows": [
+    {
+      "status": "ok",
+      "sample_size": 6,
+      "valor_min": 800000.0,
+      "valor_max": 5000000.0,
+      "valor_avg": 2250000.0,
+      "valor_p50": 1750000.0,
+      "valor_p90": 4000000.0,
+      "unit_price": null,
+      "unit_price_claim_class": "not_applicable",
+      "claim_class": "indicator"
+    }
+  ],
+  "status": "ok",
+  "sample_size": 6
+}

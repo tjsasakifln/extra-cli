@@ -72,6 +72,17 @@ def _mock_psycopg2_connect(request):
         yield
         return
 
+    # National intelligence campaign tests use isolated DSN (port 5435 by default).
+    # Allow real PG when test path is tests/national_intel/ and NATIONAL_INTEL_DSN is set
+    # (never use HC writer DSN in that package's conftest).
+    fspath = str(getattr(request.node, "fspath", "") or getattr(request.node, "path", "") or "")
+    if "tests/national_intel" in fspath.replace("\\", "/") and (
+        os.getenv("NATIONAL_INTEL_DSN")
+        or os.getenv("REQUIRE_REAL_DB", "").lower() in {"1", "true", "yes"}
+    ):
+        yield
+        return
+
     mock_conn = MagicMock()
     mock_cursor = MagicMock()
     mock_conn.cursor.return_value = mock_cursor

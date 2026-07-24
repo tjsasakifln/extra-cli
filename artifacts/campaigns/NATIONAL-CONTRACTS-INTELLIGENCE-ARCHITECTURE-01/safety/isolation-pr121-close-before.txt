@@ -1,0 +1,10 @@
+PR121 close session isolation proof (before)
+date: 2026-07-22
+worktree: /mnt/d/extra-consultoria-national-intelligence
+branch: campaign/national-contracts-intelligence-architecture-01
+HEAD: 8cd569cfb10fd575feeddb17bda2b724f3e27603
+PR: https://github.com/tjsasakifln/extra-cli/pull/121 draft=true
+HC PID 27115 still running on 5433/extra_test/hc_closure_3y
+isolated DB: 5435/extra_national_intelligence_test
+NO write to HC paths planned
+CI: Lint FAIL; others PASS

@@ -1,0 +1,65 @@
+{
+  "campaign": "NATIONAL-CONTRACTS-INTELLIGENCE-ARCHITECTURE-01",
+  "inspected_at": "2026-07-22T22:15:00Z",
+  "mode": "absolute_protection_list",
+  "protected_paths": [
+    {
+      "path": "data/contracts_checkpoints/hc_closure_3y/",
+      "reason": "Active 3y backfill checkpoint",
+      "policy": "read_never_write"
+    },
+    {
+      "path": "artifacts/campaigns/HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01/",
+      "reason": "Active campaign artifacts and live logs",
+      "policy": "read_never_write"
+    },
+    {
+      "path": "artifacts/campaigns/HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01/backfill/live-3y.json",
+      "reason": "Live backfill output JSON",
+      "policy": "read_never_write"
+    },
+    {
+      "path": "artifacts/campaigns/HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01/backfill/live-3y.log",
+      "reason": "Live backfill log",
+      "policy": "read_never_write"
+    },
+    {
+      "path": "/mnt/d/extra consultoria",
+      "reason": "Active campaign worktree (primary)",
+      "policy": "no_git_destructive_ops_no_implementation"
+    },
+    {
+      "path": "data/contracts_checkpoints/hc_closure_7d/",
+      "reason": "Sibling HC pilot checkpoint",
+      "policy": "read_never_write"
+    },
+    {
+      "path": "data/contracts_checkpoints/hc_closure_90d/",
+      "reason": "Sibling HC pilot checkpoint",
+      "policy": "read_never_write"
+    }
+  ],
+  "protected_databases": [
+    {
+      "host": "127.0.0.1",
+      "port": 5433,
+      "database": "extra_test",
+      "container": "extraconsultoria-test-db-1",
+      "policy": "read_only_if_indispensable_else_forbidden_write",
+      "owner_campaign": "HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01"
+    }
+  ],
+  "protected_processes": [
+    {
+      "pid_at_inspection": 27115,
+      "match": "scripts.crawl.run_contracts_90d_pilot",
+      "policy": "never_kill_never_restart"
+    }
+  ],
+  "this_campaign_allowed": [
+    "/mnt/d/extra-consultoria-national-intelligence/**",
+    "artifacts/campaigns/NATIONAL-CONTRACTS-INTELLIGENCE-ARCHITECTURE-01/**",
+    "specs/003-national-contracts-intelligence-architecture/**",
+    "postgresql://test:***@127.0.0.1:5435/extra_national_intelligence_test"
+  ]
+}

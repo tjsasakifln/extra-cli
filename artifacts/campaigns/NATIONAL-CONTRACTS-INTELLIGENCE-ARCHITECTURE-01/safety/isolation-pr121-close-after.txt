@@ -1,0 +1,9 @@
+PR121 close session isolation proof (after)
+date: 2026-07-22
+worktree: /mnt/d/extra-consultoria-national-intelligence
+branch: campaign/national-contracts-intelligence-architecture-01
+HC PID 27115 left running (not killed)
+ports 5433 (HC) and 5435 (isolated) both listening
+no writes to data/contracts_checkpoints/hc_closure_3y/
+no writes to artifacts/campaigns/HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01/
+PR remains draft; no merge

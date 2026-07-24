@@ -1,0 +1,33 @@
+NATIONAL-CONTRACTS-INTELLIGENCE-ARCHITECTURE-01 — WORKTREE PROOF
+================================================================
+Generated: 2026-07-22
+
+Campaign worktree path:
+  /mnt/d/extra-consultoria-national-intelligence
+
+Branch:
+  campaign/national-contracts-intelligence-architecture-01
+
+Base SHA (origin/main):
+  a38981bfa616b8f47363da6ff91b12a28bec218c
+  Message: Merge pull request #120 from tjsasakifln/docs/dual-stamp-same-truth
+
+NOT based on:
+  campaign/historical-contracts-operational-closure-01 (d49b103)
+  session/20260722-historical-contracts
+
+Active HC worktree (UNTOUCHED):
+  /mnt/d/extra consultoria @ campaign/historical-contracts-operational-closure-01
+
+Isolation checks:
+  [x] Separate directory outside active campaign tree
+  [x] Separate branch
+  [x] Base = accepted origin/main (not unmerged HC commits)
+  [x] No git checkout/reset/clean/stash performed on active HC tree
+  [x] Session worktree session-20260722-historical-contracts left unused for implementation
+
+Commands used (conceptual):
+  git fetch origin
+  git worktree add /mnt/d/extra-consultoria-national-intelligence \
+    -b campaign/national-contracts-intelligence-architecture-01 \
+    a38981bfa616b8f47363da6ff91b12a28bec218c
