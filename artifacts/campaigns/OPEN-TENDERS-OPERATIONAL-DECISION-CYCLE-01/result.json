@@ -1,55 +1,63 @@
 {
   "campaign_id": "OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01",
   "final_result": "BLOCKED",
-  "as_of": "2026-07-24T00:04:15Z",
+  "as_of": "2026-07-24T00:09:51Z",
   "pr": "https://github.com/tjsasakifln/extra-cli/pull/127",
-  "dual_open_tenders": {
-    "coverage_pct": 100.0,
-    "covered_numerator": 1093,
-    "applicable_denominator": 1093,
-    "gate_status": "PASS",
+  "metrics": {
+    "dual_coverage_pct": 100.0,
+    "dual_gate": "PASS",
+    "applicability_unknown": 0,
     "fresh_count": 1093,
-    "applicability_unknown_count": 0
-  },
-  "verify_production": {
-    "total": 9,
-    "pass": 8,
-    "fail": 1
-  },
-  "soak": {
-    "status": "IN_PROGRESS",
-    "days_observed": 1,
-    "successful_fire_days": 1,
-    "timer_ok": true,
-    "executions": [
-      {
-        "day": "2026-07-24",
-        "at": "2026-07-24T00:03:57Z"
-      }
-    ]
-  },
-  "first_canonical_weekly_fire": {
-    "exit_code": 0,
-    "result": "success",
-    "opportunities": 4,
-    "finished_at": "2026-07-23T21:03:57-03:00",
-    "pack": "output/weekly/weekly-20260723T234848Z-3266bd6fd1"
+    "snapshot_integrity_pct": 100.0,
+    "essential_completeness_pct": 100.0,
+    "recall_status": "PARTIAL",
+    "recall_pct": 100.0,
+    "security": "PASS",
+    "soak_days": 1,
+    "soak_fires": 1,
+    "verify": {
+      "total": 9,
+      "pass": 8,
+      "fail": 1
+    }
   },
   "blocked_on": [
     {
       "item": "soak_7d",
-      "measured": "days_observed=1/7 fires=1 status=IN_PROGRESS",
-      "next": "After \u22657 continuous days: make open-tenders-soak && make verify-open-tenders-production; merge PR #127; DOD ACCEPTED only proven items on main"
+      "severity": "blocking",
+      "measured": "1/7 days, fires=1",
+      "owner": "calendar",
+      "next": "Wait ≥7 continuous days with timer active; make open-tenders-soak && make verify-open-tenders-production"
+    },
+    {
+      "item": "recall_full_strata",
+      "severity": "residual_risk",
+      "measured": "status=PARTIAL pct=100.0 notes=All real items labeled; missing_strata=['municipio_grande', 'municipio_pequeno', 'admin_indireta', 'autarquia', 'fundacao', 'camara', 'consorcio', 'source_html', 'source_pdf', 'source_js', 'platform_s",
+      "owner": "engineering+human_portal_walk",
+      "next": "Expand independent portal sample to all required strata before claiming full stratified recall DOD item"
     }
   ],
+  "passed_gates": [
+    "dual coverage 100%",
+    "applicability 0 unknown",
+    "freshness 1093",
+    "snapshot integrity 100%",
+    "essential completeness 100% on active open set",
+    "false open 0 on active open set",
+    "security bandit high/crit 0",
+    "first weekly fire success",
+    "verify 8/9"
+  ],
   "claims_authorized": [
-    "open_tenders dual coverage 100%",
-    "first extra-weekly.service fire completed exit 0 on VPS",
-    "timer armed for recurrence"
+    "open_tenders dual coverage 100% of 1093",
+    "active snapshot integrity 100%",
+    "Deliverable E live",
+    "canonical weekly fire completed exit 0"
   ],
   "claims_forbidden": [
     "soak PASS",
+    "full stratified recall 95% across all required strata",
     "PROJECT_DONE",
-    "campaign PASS without 7d"
+    "DOD ACCEPTED without main"
   ]
 }

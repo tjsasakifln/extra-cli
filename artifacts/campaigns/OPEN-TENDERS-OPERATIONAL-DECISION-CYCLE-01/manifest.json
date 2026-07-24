@@ -1,26 +1,10 @@
 {
   "campaign_id": "OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01",
-  "generated_at": "2026-07-23T23:54:53Z",
-  "git_sha": "7617baea8d17895bbfe26886814e4faa318c4de4",
-  "branch": "campaign/open-tenders-operational-decision-cycle-01",
-  "base_sha": "3e04728e4277320454e5bf218cc008e5000b970f",
+  "generated_at": "2026-07-24T00:10:12Z",
+  "git_sha": "ab1bc0a7a6ff0d852e7999003564dcb1f69935e6",
   "pr": "https://github.com/tjsasakifln/extra-cli/pull/127",
   "final_result": "BLOCKED",
-  "metrics": {
-    "dual_coverage_pct": 100.0,
-    "dual_gate": "PASS",
-    "universe": 1093,
-    "applicability_unknown": 0,
-    "snapshot_integrity_pct": 100.0,
-    "deliverable_e_ok": true,
-    "soak_status": "IN_PROGRESS",
-    "verify_status": "BLOCKED"
-  },
-  "gates": {
-    "campaign_gate": true,
-    "release_candidate": true,
-    "verify_production": "BLOCKED"
-  },
+  "artifact_count": 51,
   "artifacts": [
     {
       "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/BASELINE.md",
@@ -31,6 +15,16 @@
       "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/STATUS.md",
       "sha256": "f16f8ae40a860698c95ab2480846849faf6b0613e3164ace472a8d33cc7dfc09",
       "bytes": 867
+    },
+    {
+      "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/alerts.json",
+      "sha256": "d54484a7144466a2effcdd35d93eca0bb39e46b6cf8eb5e462477a192d90dde0",
+      "bytes": 505
+    },
+    {
+      "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/applicability.json",
+      "sha256": "2a1c97a97b8066c97551771bce4c0a816cb699688c9ce13ee31cf7bd909dc0a2",
+      "bytes": 380
     },
     {
       "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/baseline.json",
@@ -48,6 +42,16 @@
       "bytes": 494
     },
     {
+      "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/coverage.json",
+      "sha256": "6bcd9408246386aa2355a4013f10ad3d87c5a4e815b5dca99756e2f8939e109f",
+      "bytes": 1761
+    },
+    {
+      "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/data-quality.json",
+      "sha256": "40bd72b1d7d024eae63b7583e8317c8c962fc003249848e1823b60bc7781f432",
+      "bytes": 1062
+    },
+    {
       "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/deliverable-e-audit.json",
       "sha256": "496abea290ef0a257f68459f9852bbb7b77807124d8be1cc099021c5236d24eb",
       "bytes": 3079
@@ -63,6 +67,21 @@
       "bytes": 1761
     },
     {
+      "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/failures.json",
+      "sha256": "8dd5715d34ba99cf9e44110094dcb12ff855cbab4fc0abc72528a43e1592fae7",
+      "bytes": 545
+    },
+    {
+      "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/false-open-audit.json",
+      "sha256": "1807f11e801dc273502d745466dec3a53fc3800142f03f402711f81753a2d08a",
+      "bytes": 320
+    },
+    {
+      "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/final-report.md",
+      "sha256": "5866d13c39c8586564a43f4a7ad2592b8e0cb0363edd3e4b958fbbdb1d06a6fa",
+      "bytes": 800
+    },
+    {
       "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/freshness.json",
       "sha256": "33cdd1551619c5c7276e464734086245fa63ef4f1d016fcbf025704b99fef368",
       "bytes": 587
@@ -73,14 +92,49 @@
       "bytes": 2016
     },
     {
+      "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/manifest.json",
+      "sha256": "be9b0e54419a6aefd455ae58313883aa9c98bc434fbe9cb82afe535f33b5f86c",
+      "bytes": 8841
+    },
+    {
+      "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/migrations.json",
+      "sha256": "fef2d578d8949c115079d68ae7a2c32892efdf682fa46adf30df23d501421553",
+      "bytes": 2346
+    },
+    {
       "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/operational-cycle.json",
-      "sha256": "7ceecb36dda7cdad5d29c5e8aea40ab1dd531aaf1909d2ec379a2fecd1420e94",
-      "bytes": 1312
+      "sha256": "3a1374f4d347aa34635c6cac61782de6a07edd7e1f15960e7d6893b31badc772",
+      "bytes": 510
     },
     {
       "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/operational-report.html",
       "sha256": "b05bec5f558b067c4a9ca7488594a7de28f2ee057a9ec74dd301ef6d29622ee2",
       "bytes": 1030
+    },
+    {
+      "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/performance.json",
+      "sha256": "0e790346fbc00d0716b8f946be804d5a623c3067e09b77eef43019cd4cf433c6",
+      "bytes": 406
+    },
+    {
+      "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/recall.json",
+      "sha256": "07ada70e07df90f93936815332773e985c0a5e253e6bc21bd9adf976b53b06c6",
+      "bytes": 1751
+    },
+    {
+      "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/recall_sample.json",
+      "sha256": "86716cbca8cc1f97ec9d0f3cd2815a4977b55027cd7d413b299c1731d358e6c4",
+      "bytes": 5771
+    },
+    {
+      "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/recovery.json",
+      "sha256": "87d6ad7aa2d3d48ecf35cae4c407e65a5eb9736e4ccf00196cfb52c0345580a4",
+      "bytes": 914
+    },
+    {
+      "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/regression.json",
+      "sha256": "6be9c288110bcb826ccda5ee60939f0c848484e232fb03525ef35ce1b0f410d3",
+      "bytes": 235
     },
     {
       "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/release-candidate.json",
@@ -94,13 +148,23 @@
     },
     {
       "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/result.json",
-      "sha256": "70c870eccc6df42d6548641e8efa4fbfd42b3acadc39057a04f3fccb07b48d31",
-      "bytes": 1674
+      "sha256": "00f1a6a95f22b5ccaa1696aab89239fe533492989a7ead74ba80a725e85cadbe",
+      "bytes": 2040
+    },
+    {
+      "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/review-findings.json",
+      "sha256": "154bb2e898c2381ca1ea75bcb632ff0b359fd37ba3fbb36c3d0bbf4de670d952",
+      "bytes": 1335
     },
     {
       "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/scheduler.json",
       "sha256": "7019171a66138a165644651a03b042d75ea82fd5e159e981354a2a79f2c46c4f",
       "bytes": 391
+    },
+    {
+      "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/security.json",
+      "sha256": "e76f75ec693286d6d4aea60018a23d4b72d4ad018b3851ee384e8d24385c9710",
+      "bytes": 7793
     },
     {
       "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/snapshot-integrity.json",
@@ -109,12 +173,22 @@
     },
     {
       "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/soak.json",
-      "sha256": "a3837f5f4485affa4c4c9a8654222e14902a9a991ae731f37de68ff3daa7a75c",
-      "bytes": 1089
+      "sha256": "6799c03eb2f3d1307d4cbef0f47c334e7e9d91585d9b7192ab34211b49f2f6ca",
+      "bytes": 1533
+    },
+    {
+      "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/source-health.json",
+      "sha256": "3c2775c6fd1c19ba633934332472304c03e379d105b0e8b0c787e4b1e754950c",
+      "bytes": 1027
+    },
+    {
+      "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/tests.xml",
+      "sha256": "db1e1b1f103c518bbf52517fc050d8187a39e0e113e7c88e0dacd369a230e539",
+      "bytes": 10909
     },
     {
       "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/verify-production.json",
-      "sha256": "10655d3dbbb9e5e6f1dc558ec614617971d1f86b83c13d54c96e1c5edc25e420",
+      "sha256": "a8a18ac433ae69f28934f0b56fda2e7e9441276c4646b537fedf0191281285b0",
       "bytes": 3183
     },
     {
@@ -188,26 +262,8 @@
       "bytes": 313
     }
   ],
-  "claims": [
-    "open_tenders dual coverage 100% of universe 1093",
-    "snapshot integrity 100% on VPS active open set",
-    "Deliverable E live operational audit PASS",
-    "extra-weekly.timer enabled+active; first fire started"
-  ],
-  "non_claims": [
-    "soak PASS",
-    "PROJECT_DONE",
-    "DOD ACCEPTED without main",
-    "campaign PASS without 7d soak"
-  ],
-  "limitations": [
-    "Soak 7 continuous days not elapsed \u2014 BLOCKED on calendar",
-    "Independent stratified recall package not fully re-run this campaign"
-  ],
-  "commands": [
-    "make campaign-gate-open-tenders-operational",
-    "make release-candidate-open-tenders",
-    "make verify-open-tenders-production",
-    "make open-tenders-soak"
+  "primary_blockers": [
+    "soak_7d (calendar 1/7 days)",
+    "recall full strata residual"
   ]
 }

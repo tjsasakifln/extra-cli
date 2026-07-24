@@ -51,10 +51,11 @@
       "captured_by_system": true,
       "capture_evidence": "opportunity_intel.id=1; source_active=True",
       "portal_verification": {
-        "numero_controle_pncp": "11360515000119-1-000013/2026",
         "ok": false,
+        "error": "Remote end closed connection without response",
         "url": "https://pncp.gov.br/app/editais/11360515000119-1-000013/2026",
-        "error": "HTTP Error 301: "
+        "checked_at": "2026-07-24T00:09:51Z",
+        "note": "Redirect responses treated as portal-reachable; full HTML may be SPA"
       },
       "notes": "Live open set from complete PNCP SC crawl; portal verification attempted via pncp-api"
     },
@@ -76,10 +77,10 @@
       "captured_by_system": true,
       "capture_evidence": "opportunity_intel.id=2; source_active=True",
       "portal_verification": {
-        "numero_controle_pncp": "07654807000197-1-000072/2026",
-        "ok": false,
-        "url": "https://pncp.gov.br/app/editais/07654807000197-1-000072/2026",
-        "error": "HTTP Error 301: "
+        "ok": true,
+        "status": 200,
+        "final_url": "https://pncp.gov.br/app/editais/07654807000197-1-000072/2026",
+        "checked_at": "2026-07-24T00:09:51Z"
       },
       "notes": "Live open set from complete PNCP SC crawl; portal verification attempted via pncp-api"
     },
@@ -101,10 +102,10 @@
       "captured_by_system": true,
       "capture_evidence": "opportunity_intel.id=3; source_active=True",
       "portal_verification": {
-        "numero_controle_pncp": "10432684000154-1-000049/2025",
-        "ok": false,
-        "url": "https://pncp.gov.br/app/editais/10432684000154-1-000049/2025",
-        "error": "HTTP Error 301: "
+        "ok": true,
+        "status": 200,
+        "final_url": "https://pncp.gov.br/app/editais/10432684000154-1-000049/2025",
+        "checked_at": "2026-07-24T00:09:51Z"
       },
       "notes": "Live open set from complete PNCP SC crawl; portal verification attempted via pncp-api"
     },
@@ -126,10 +127,10 @@
       "captured_by_system": true,
       "capture_evidence": "opportunity_intel.id=4; source_active=True",
       "portal_verification": {
-        "numero_controle_pncp": "83102541000158-1-000167/2025",
-        "ok": false,
-        "url": "https://pncp.gov.br/app/editais/83102541000158-1-000167/2025",
-        "error": "HTTP Error 301: "
+        "ok": true,
+        "status": 200,
+        "final_url": "https://pncp.gov.br/app/editais/83102541000158-1-000167/2025",
+        "checked_at": "2026-07-24T00:09:51Z"
       },
       "notes": "Live open set from complete PNCP SC crawl; portal verification attempted via pncp-api"
     }

@@ -1,0 +1,46 @@
+{
+  "schema_version": "1.0",
+  "as_of": "2026-07-24T00:09:15Z",
+  "git_sha": "ab1bc0a7a6ff0d852e7999003564dcb1f69935e6",
+  "findings": [
+    {
+      "id": "F-MEMBERSHIP-KEY",
+      "severity": "critical",
+      "status": "FIXED",
+      "summary": "Raw PNCP keys not mapped \u2192 false mass inactivation",
+      "fix": "reconciliation.py accept numeroControlePNCP"
+    },
+    {
+      "id": "F-CE-ONCONFLICT",
+      "severity": "high",
+      "status": "FIXED",
+      "summary": "coverage_evidence ON CONFLICT mismatch with mig 059",
+      "fix": "pncp_audit dual path canonical conflict"
+    },
+    {
+      "id": "F-CIGA-DUAL",
+      "severity": "high",
+      "status": "FIXED",
+      "summary": "Municipal dual required ciga_ckan evidence missing",
+      "fix": "project_ciga_dual_evidence"
+    },
+    {
+      "id": "F-SOAK",
+      "severity": "high",
+      "status": "OPEN",
+      "summary": "Soak 7 continuous days not elapsed",
+      "blocks": "campaign PASS"
+    },
+    {
+      "id": "F-RECALL-STRATA",
+      "severity": "medium",
+      "status": "OPEN",
+      "summary": "Recall sample n=4 lacks full required strata set",
+      "blocks": "full stratified recall claim if DOD requires all strata"
+    }
+  ],
+  "critical_open": 0,
+  "high_open": 1,
+  "gate_status": "FAIL",
+  "note": "high_open=soak calendar; not a code defect"
+}

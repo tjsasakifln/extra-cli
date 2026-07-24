@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0",
+  "as_of": "2026-07-24T00:09:15Z",
+  "failures": [
+    {
+      "gate": "soak_7d",
+      "status": "FAIL",
+      "reason": "days_observed=1/7"
+    },
+    {
+      "gate": "recall_full_strata",
+      "status": "PARTIAL",
+      "reason": "All real items labeled; missing_strata=['municipio_grande', 'municipio_pequeno', 'admin_indireta', 'autarquia', 'fundacao', 'camara', 'consorcio', 'source_html', 'source_pdf', 'source_js', 'platform_sc_compras', 'platform_ciga']; target recall 95% on validated sample"
+    }
+  ]
+}
