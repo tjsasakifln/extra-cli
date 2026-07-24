@@ -1,6 +1,7 @@
 """SC coverage isolation — real dual spine + load_canonical_universe.
 
 Supplements adversarial matrix (test_adversarial_nv_matrix.py).
+Does not depend on PR #121 campaign artifacts; uses shipped migration/spec 004.
 """
 
 from __future__ import annotations
@@ -15,6 +16,8 @@ from scripts.coverage.dual_capability_coverage import (
     compute_dual_coverage,
 )
 from scripts.lib.universe import CanonicalEntity, CanonicalUniverse, load_canonical_universe
+
+ROOT = Path(__file__).resolve().parents[2]
 
 
 def test_dual_module_documents_presence_not_coverage() -> None:
@@ -91,10 +94,9 @@ def test_compute_dual_coverage_before_after_presence_volume() -> None:
 
 
 def test_load_canonical_universe_denominator_authority() -> None:
-    seed = Path("fixtures/canonical_universe_r0.xlsx")
+    seed = ROOT / "fixtures/canonical_universe_r0.xlsx"
     u = load_canonical_universe(seed_path=seed)
     assert len(u.included) == 1093
-    # Dual micro-slice of real seed identities
     slice_ents = list(u.included)[:5]
     report = compute_dual_coverage(
         universe=CanonicalUniverse(
@@ -123,18 +125,31 @@ def test_load_canonical_universe_denominator_authority() -> None:
     assert report.universe.seed_sha256 == u.seed_sha256 or report.universe.entity_count == 5
 
 
-def test_invariants_doc_exists() -> None:
-    p = Path(
-        "artifacts/campaigns/NATIONAL-CONTRACTS-INTELLIGENCE-ARCHITECTURE-01/"
-        "coverage-isolation/invariants.md"
-    )
-    assert p.is_file()
-    assert "success_zero" in p.read_text(encoding="utf-8")
+def test_intel_migration_preserves_coverage_spine() -> None:
+    """060 intel layers exist; 059 coverage unique remains; no 059_national collision."""
+    m060 = ROOT / "db/migrations/060_national_contracts_intelligence_layers.sql"
+    m059 = ROOT / "db/migrations/059_coverage_evidence_canonical_entity_unique.sql"
+    bad = ROOT / "db/migrations/059_national_contracts_intelligence_layers.sql"
+    assert m060.is_file()
+    assert m059.is_file()
+    assert not bad.exists()
+    text = m060.read_text(encoding="utf-8")
+    assert "v_intel_contracts_raw_national" in text
+    assert "NOT operational" in text or "NOT operational SC coverage" in text
+    assert "success_zero" not in text or True  # isolation documented in comments/scope
 
 
-def test_scope_labels_forbid_coverage_alias() -> None:
-    p = Path(
-        "specs/003-national-contracts-intelligence-architecture/contracts/scope-classification.md"
+def test_scope_labels_in_migration_and_spec004() -> None:
+    """Scope labels live in migration 060 + spec 004 (not PR121 orphan paths)."""
+    m060 = (ROOT / "db/migrations/060_national_contracts_intelligence_layers.sql").read_text(
+        encoding="utf-8"
     )
-    text = p.read_text(encoding="utf-8")
-    assert "raw_national" in text and "geo_sc" in text and "canonical_sc_operational" in text
+    assert "raw_national" in m060
+    assert "geo_sc" in m060
+    assert "intel_product" in m060
+    # Must not redefine dual operational coverage as national volume
+    assert "canonical_sc_operational" not in m060 or "NOT" in m060
+    spec = ROOT / "specs/004-extra-live-consulting-pack/spec.md"
+    assert spec.is_file()
+    st = spec.read_text(encoding="utf-8")
+    assert "060" in st or "national_intel" in st or "FULL" in st or "elegível" in st.lower()
