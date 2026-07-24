@@ -1,5 +1,5 @@
 {
-  "ran_at": "2026-07-24T16:41:31Z",
+  "ran_at": "2026-07-24T17:17:50Z",
   "terminal": "BLOCKED",
   "human": "BLOCKED_HUMAN",
   "pack_run_id": "live-pack-20260724-162325-f4d6894d",
@@ -23,7 +23,8 @@
     "tip_pack_bound": true,
     "skeptic_10_technical_closed": true,
     "ci_tip_full_suite": true,
-    "plan_tasks_aligned": true
+    "plan_tasks_aligned": true,
+    "human_prompt_declined_again": true
   },
   "verification_plan_steps": {
     "1_restore_isolation": "PASS",
@@ -34,9 +35,9 @@
     "6_human_acceptance": "BLOCKED_HUMAN",
     "7_evidence_review": "PASS_TECHNICAL"
   },
-  "git_sha": "f27843e42c927c30c6931b9981826d94deb76385",
+  "git_sha": "d3258389012a5275c0d09189e9933e08cdcaa888",
   "candidate_sha": "fa66dd7f9d8ae68b7ad9c14e5266c5b35d4e032d",
-  "evidence_stamp_sha": "f27843e42c927c30c6931b9981826d94deb76385",
+  "evidence_stamp_sha": "d3258389012a5275c0d09189e9933e08cdcaa888",
   "scratch_artifacts": [
     "isolation.json",
     "workspace-today.json",

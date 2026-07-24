@@ -1,26 +1,19 @@
 {
   "campaign_id": "EXTRA-LIVE-CONSULTING-PACK-01",
   "terminal": "BLOCKED",
-  "terminal_detail": "BLOCKED_HUMAN \u2014 all non-human work complete; skeptic 10 gaps PASS on tip 680d5e710439; human decision=null; dual isolated GATE_FAIL_0pct non-claim",
+  "terminal_detail": "BLOCKED_HUMAN \u2014 human declined decision prompt again; technical A\u2013E pack + gates + CI complete; dual isolated 0% non-claim; no fabricated ACCEPT",
   "blockers": [
     {
       "id": "HUMAN_ACCEPT",
       "type": "human_acceptance",
       "who": "Tiago",
-      "action": "Inspect pack-rc/ PDF+Excel+executive_summary and set user-acceptance.json decision ACCEPT|REJECT|findings without agent fill-in",
-      "reproduction": "jq .decision artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/user-acceptance.json  # expect null until human",
-      "impact": "Campaign cannot be PASS; merge/DOD accept blocked"
-    },
-    {
-      "id": "DUAL_ISOLATED_0",
-      "type": "data_gap",
-      "action": "Optional: restore coverage_evidence on isolado or keep non-claim",
-      "impact": "Cannot claim dual \u226595% operational reproof on tip isolado",
-      "status": "documented_non_claim"
+      "action": "Inspect pack-rc/ and set user-acceptance.json decision without agent fill-in",
+      "reproduction": "jq .decision artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/user-acceptance.json",
+      "impact": "Campaign cannot be PASS until verifiable human decision"
     }
   ],
   "work_not_blocked_complete": true,
-  "git_sha": "680d5e7104398ff4c00c05eb968e160862d314d5",
+  "git_sha": "d3258389012a5275c0d09189e9933e08cdcaa888",
   "pack_run_id": "live-pack-20260724-162325-f4d6894d",
   "pack_git_sha": "fa66dd7f9d8ae68b7ad9c14e5266c5b35d4e032d",
   "pr": "https://github.com/tjsasakifln/extra-cli/pull/130",
@@ -95,10 +88,10 @@
     "unit_price_from_global",
     "win_rate"
   ],
-  "next_step": "Tiago inspects pack-rc and writes decision; then DevOps merges PR #130; isolated reproof + DOD accepts on main only after real ACCEPT.",
-  "generated_at": "2026-07-24T16:46:42Z",
+  "next_step": "ONLY human: inspect pack-rc and set decision ACCEPT|REJECT|findings. Then DevOps merge PR #130 + isolated reproof + DOD accept. Agent must not fill decision.",
+  "generated_at": "2026-07-24T17:17:50Z",
   "candidate_sha": "fa66dd7f9d8ae68b7ad9c14e5266c5b35d4e032d",
-  "evidence_stamp_sha": "680d5e7104398ff4c00c05eb968e160862d314d5",
+  "evidence_stamp_sha": "d3258389012a5275c0d09189e9933e08cdcaa888",
   "sha_binding": {
     "pack_generation_sha": "fa66dd7f9d8ae68b7ad9c14e5266c5b35d4e032d",
     "evidence_stamp_sha": "f27843e42c927c30c6931b9981826d94deb76385",
@@ -154,6 +147,7 @@
     "status": "BLOCKED_HUMAN",
     "decision": null,
     "prompt_declined": true,
+    "last_prompt_declined_at": "2026-07-24T17:17:50Z",
     "file": "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/user-acceptance.json"
   },
   "independent_review": {
