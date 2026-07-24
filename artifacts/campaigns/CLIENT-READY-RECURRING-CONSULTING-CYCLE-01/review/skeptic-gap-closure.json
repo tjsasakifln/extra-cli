@@ -1,0 +1,37 @@
+{
+  "as_of": "2026-07-24T23:45:49.942923Z",
+  "verdict": "CONCERNS_CLOSED_CODE_BLOCKED_HUMAN",
+  "skeptic_panel_response": [
+    {
+      "id": "SKEPTIC-REBIND",
+      "severity": "high",
+      "status": "FIXED",
+      "reproduction": "validate_acceptance_binding demotes ACCEPTED when run_id/rc_sha/checksums diverge",
+      "test": "tests/test_client_ready_consulting_cycle.py::test_validate_acceptance_binding_rejects_stale_accept"
+    },
+    {
+      "id": "SKEPTIC-IDENTITY",
+      "severity": "high",
+      "status": "FIXED",
+      "reproduction": "user-acceptance run_id/rc_sha == pack-manifest; freeze live-pack-20260724-220350-da3bee0b @ be96c8bc"
+    },
+    {
+      "id": "SKEPTIC-DUAL",
+      "severity": "high",
+      "status": "FIXED",
+      "reproduction": "decide_terminal FAIL on LIVE_ISOLATED+live_dual without dual_snapshot_proof",
+      "test": "tests/test_client_ready_consulting_cycle.py::test_decide_terminal_fails_live_isolated_dual_without_proof"
+    }
+  ],
+  "open_external": [
+    {
+      "id": "HUMAN-REACCEPT",
+      "severity": "blocker",
+      "status": "OPEN",
+      "owner": "Tiago Sasaki",
+      "action": "ACCEPTED frozen RC then verify-accept without pack regen",
+      "run_id": "live-pack-20260724-220350-da3bee0b",
+      "rc_sha": "be96c8bc8eb2b017e491bfafe8cf99f81e321267"
+    }
+  ]
+}
