@@ -13,7 +13,7 @@
     }
   ],
   "work_not_blocked_complete": true,
-  "git_sha": "2e046ee2e208eb5359e3306d2a92ce566769fc61",
+  "git_sha": "58a7ece4709e9a36dfe5c04e0836c685bb6f4b76",
   "pack_run_id": "live-pack-20260724-162325-f4d6894d",
   "pack_git_sha": "fa66dd7f9d8ae68b7ad9c14e5266c5b35d4e032d",
   "pr": "https://github.com/tjsasakifln/extra-cli/pull/130",
@@ -89,9 +89,9 @@
     "win_rate"
   ],
   "next_step": "ONLY human: inspect pack-rc and set decision ACCEPT|REJECT|findings. Then DevOps merge PR #130 + isolated reproof + DOD accept. Agent must not fill decision.",
-  "generated_at": "2026-07-24T17:19:06Z",
+  "generated_at": "2026-07-24T17:25:03Z",
   "candidate_sha": "fa66dd7f9d8ae68b7ad9c14e5266c5b35d4e032d",
-  "evidence_stamp_sha": "2e046ee2e208eb5359e3306d2a92ce566769fc61",
+  "evidence_stamp_sha": "58a7ece4709e9a36dfe5c04e0836c685bb6f4b76",
   "sha_binding": {
     "pack_generation_sha": "fa66dd7f9d8ae68b7ad9c14e5266c5b35d4e032d",
     "evidence_stamp_sha": "f27843e42c927c30c6931b9981826d94deb76385",
@@ -103,10 +103,10 @@
   },
   "ci": {
     "pr": 130,
-    "run": "30110189083",
+    "run": "30112708991",
     "full_suite": "PASS",
     "all_jobs": "PASS",
-    "head_sha": "680d5e7104398ff4c00c05eb968e160862d314d5"
+    "head_sha": "58a7ece4709e9a36dfe5c04e0836c685bb6f4b76"
   },
   "dual_isolated_reproof": {
     "as_of": "2026-07-24T15:40:53.708064Z",

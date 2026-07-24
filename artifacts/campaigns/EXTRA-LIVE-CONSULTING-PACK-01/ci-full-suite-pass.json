@@ -1,7 +1,7 @@
 {
   "pr": 130,
-  "run_id": "30110189083",
-  "head_sha": "680d5e7104398ff4c00c05eb968e160862d314d5",
+  "run_id": "30112708991",
+  "head_sha": "58a7ece4709e9a36dfe5c04e0836c685bb6f4b76",
   "full_suite": "PASS",
   "conclusion": "success",
   "jobs": {
@@ -14,7 +14,7 @@
     "Security (bandit)": "pass",
     "Dependency Audit (pip-audit)": "pass"
   },
-  "url": "https://github.com/tjsasakifln/extra-cli/actions/runs/30110189083",
-  "recorded_at": "2026-07-24T16:46:42Z",
-  "note": "CI full suite green on tip 680d5e7; suite DSN :5433 unavailable host"
+  "url": "https://github.com/tjsasakifln/extra-cli/actions/runs/30112708991",
+  "recorded_at": "2026-07-24T17:25:03Z",
+  "note": "CI full suite green on exact tip used for campaign terminal BLOCKED_HUMAN"
 }
