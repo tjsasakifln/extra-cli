@@ -1,63 +1,71 @@
 {
   "campaign_id": "OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01",
   "final_result": "BLOCKED",
-  "as_of": "2026-07-24T00:09:51Z",
+  "terminal": true,
+  "as_of": "2026-07-24T00:17:04Z",
+  "git_sha": "4ab5c432222a367319ea8cc4576d110c6960893d",
   "pr": "https://github.com/tjsasakifln/extra-cli/pull/127",
-  "metrics": {
+  "blocker": {
+    "type": "calendar_external",
+    "item": "soak_7d",
+    "owner": "calendar/ops",
+    "measured": {
+      "days_observed": 1,
+      "days_required": 7,
+      "successful_fire_days": 1,
+      "timer_ok": true,
+      "timer_enabled": "enabled",
+      "timer_active": "active",
+      "first_fire_at": "2026-07-24T00:03:57Z",
+      "earliest_pass_at_utc": "2026-07-30T00:03:57Z"
+    },
+    "why_not_fail": "Not a technical impossibility; production recurrence is armed and one real fire succeeded. DOD requires wall-clock soak.",
+    "why_not_pass": "days_observed < 7; inventing elapsed time would violate fail-closed evidence rules.",
+    "unblocks_after": "2026-07-30T00:03:57Z (approx)",
+    "resume_commands": [
+      "make open-tenders-soak",
+      "make verify-open-tenders-production",
+      "# merge PR #127 with green CI",
+      "# tools/dod_controller.py accept only proven items on main"
+    ]
+  },
+  "completed_independent_of_blocker": {
     "dual_coverage_pct": 100.0,
     "dual_gate": "PASS",
     "applicability_unknown": 0,
     "fresh_count": 1093,
     "snapshot_integrity_pct": 100.0,
+    "snapshot_operational_ok": true,
     "essential_completeness_pct": 100.0,
+    "deliverable_e_ok": true,
+    "security_gate": "PASS",
     "recall_status": "PARTIAL",
     "recall_pct": 100.0,
-    "security": "PASS",
-    "soak_days": 1,
-    "soak_fires": 1,
-    "verify": {
-      "total": 9,
-      "pass": 8,
-      "fail": 1
-    }
+    "verify_pass_count": 8,
+    "verify_fail_count": 1,
+    "first_weekly_fire": "Finished success exit 0 on VPS 2026-07-23T21:03:57-03:00"
   },
-  "blocked_on": [
-    {
-      "item": "soak_7d",
-      "severity": "blocking",
-      "measured": "1/7 days, fires=1",
-      "owner": "calendar",
-      "next": "Wait ≥7 continuous days with timer active; make open-tenders-soak && make verify-open-tenders-production"
-    },
-    {
-      "item": "recall_full_strata",
-      "severity": "residual_risk",
-      "measured": "status=PARTIAL pct=100.0 notes=All real items labeled; missing_strata=['municipio_grande', 'municipio_pequeno', 'admin_indireta', 'autarquia', 'fundacao', 'camara', 'consorcio', 'source_html', 'source_pdf', 'source_js', 'platform_s",
-      "owner": "engineering+human_portal_walk",
-      "next": "Expand independent portal sample to all required strata before claiming full stratified recall DOD item"
-    }
-  ],
-  "passed_gates": [
-    "dual coverage 100%",
-    "applicability 0 unknown",
-    "freshness 1093",
-    "snapshot integrity 100%",
-    "essential completeness 100% on active open set",
-    "false open 0 on active open set",
-    "security bandit high/crit 0",
-    "first weekly fire success",
-    "verify 8/9"
-  ],
   "claims_authorized": [
-    "open_tenders dual coverage 100% of 1093",
+    "open_tenders dual coverage 100% of universe 1093 with 0 applicability unknown",
     "active snapshot integrity 100%",
-    "Deliverable E live",
-    "canonical weekly fire completed exit 0"
+    "Deliverable E generated from live DB with operational audit PASS",
+    "canonical weekly cycle completed once with exit 0 on VPS",
+    "extra-weekly.timer enabled and active for recurrence"
   ],
   "claims_forbidden": [
     "soak PASS",
-    "full stratified recall 95% across all required strata",
+    "campaign PASS without 7 continuous days",
     "PROJECT_DONE",
-    "DOD ACCEPTED without main"
+    "VPS_OPERATIONAL full product seal",
+    "full stratified recall across all required strata",
+    "DOD ACCEPTED without main merge + CI"
+  ],
+  "residual_risks": [
+    {
+      "id": "recall_full_strata",
+      "severity": "medium",
+      "status": "OPEN",
+      "note": "Sample n=4 PARTIAL; expand independent portal strata before DOD recall item ACCEPTED"
+    }
   ]
 }
