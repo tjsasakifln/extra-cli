@@ -2,7 +2,7 @@
   "campaign_id": "EXTRA-LIVE-CONSULTING-PACK-01",
   "terminal": "PASS",
   "terminal_detail": "A–E pack on authenticated isolated snapshot + human ACCEPT by Tiago; campaign gates green; production_touched=false; soak untouched",
-  "git_sha": "f094f9e9c1da83cd75c1390f30eb6c51abf171b2",
+  "git_sha": "4016906136951650d9dd7ee0c60ae630fff3bca6",
   "pr": "https://github.com/tjsasakifln/extra-cli/pull/130",
   "branch": "campaign/extra-live-consulting-pack-01",
   "production_touched": false,
