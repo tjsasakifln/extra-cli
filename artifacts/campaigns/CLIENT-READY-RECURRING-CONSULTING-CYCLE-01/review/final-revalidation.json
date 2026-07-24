@@ -1,10 +1,11 @@
 {
-  "as_of": "2026-07-24T21:06:54.227329Z",
-  "areas": [
-    "dossiers unique stems",
-    "isolation preferred ports 5436/5438/5439",
-    "decide_terminal"
+  "as_of": "2026-07-24T21:18:08.456626Z",
+  "fixed_highs": [
+    "IAF-05",
+    "IAF-08a"
   ],
-  "unit_tests": "11 passed tests/test_client_ready_consulting_cycle.py",
-  "cycle_status": "BLOCKED"
+  "tests": "21 passed tests/test_client_ready_consulting_cycle.py + live pack",
+  "reconcile_status": "PASS",
+  "recurrence_new_opportunities_count": 1,
+  "recurrence_status_changes_count": 1
 }

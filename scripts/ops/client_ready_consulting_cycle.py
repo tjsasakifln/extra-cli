@@ -584,9 +584,20 @@ def run_monthly(dsn: str, out_dir: Path) -> dict[str, Any]:
     }
 
 
+def _cat_entry(items: list[Any] | None, *, note_empty: str) -> dict[str, Any]:
+    items = list(items or [])
+    if not items:
+        return {"count": 0, "success_zero": True, "note": note_empty, "items": []}
+    return {
+        "count": len(items),
+        "success_zero": False,
+        "items": items[:50],  # cap evidence size
+    }
+
+
 def build_recurrence_delta(monthly: dict[str, Any], out_dir: Path) -> dict[str, Any]:
-    """Normalize delta categories required by the campaign."""
-    categories = {
+    """Normalize delta categories required by the campaign from real cycle artifacts."""
+    categories: dict[str, Any] = {
         "new_opportunities": [],
         "status_changes": [],
         "deadline_changes": [],
@@ -600,63 +611,103 @@ def build_recurrence_delta(monthly: dict[str, Any], out_dir: Path) -> dict[str, 
         "new_blockers": [],
     }
     mode = monthly.get("mode")
+    mon_path = out_dir / "monthly"
+    live_path = mon_path / "monthly-monitor-live.json"
+    replay_path = mon_path / "monthly-replay.json"
+
+    c2: dict[str, Any] = {}
+    c1: dict[str, Any] = {}
+    source_file = None
+    if live_path.exists():
+        raw = json.loads(live_path.read_text(encoding="utf-8"))
+        c1 = raw.get("cycle_1") or {}
+        c2 = raw.get("cycle_2") or {}
+        source_file = str(live_path)
+        mode = mode or "LIVE_ISOLATED"
+    elif replay_path.exists():
+        raw = json.loads(replay_path.read_text(encoding="utf-8"))
+        c1 = raw.get("cycle_1") or {}
+        c2 = raw.get("cycle_2") or {}
+        source_file = str(replay_path)
+        mode = mode or "LABELED_DETERMINISTIC_REPLAY"
+
+    if c2:
+        categories["new_opportunities"] = list(c2.get("new_editais") or [])
+        categories["status_changes"] = list(c2.get("status_deltas") or [])
+        exp = c2.get("expiring_contracts") or []
+        if isinstance(exp, list):
+            categories["new_expiring_contracts"] = exp[:20]
+        elif isinstance(exp, dict) and exp.get("count"):
+            categories["new_expiring_contracts"] = [
+                {"count": exp.get("count"), "window": "90-180"}
+            ]
+        # deadline changes from status_deltas with prazo
+        categories["deadline_changes"] = [
+            d
+            for d in (c2.get("status_deltas") or [])
+            if isinstance(d, dict)
+            and (
+                d.get("prazo_novo")
+                or d.get("event_type") in {"PRAZO", "deadline_change", "ALTERACAO_PRAZO"}
+            )
+        ]
+        # ranking deltas from variation.fields
+        var = c2.get("variation") or {}
+        fields = var.get("fields") or {}
+        if fields.get("organs_count", {}).get("delta"):
+            categories["org_ranking_changes"] = [fields["organs_count"]]
+        if fields.get("winners_count", {}).get("delta"):
+            categories["supplier_ranking_changes"] = [fields["winners_count"]]
+        if fields.get("editais_total", {}).get("delta"):
+            # coverage-ish signal
+            categories["coverage_changes"] = [fields["editais_total"]]
+
+    # first cycle has no previous — all-new is not "delta"; cycle_2 is the comparison
+    note_empty = (
+        "measurable empty after complete cycle comparison"
+        if c2
+        else "cycle_2 artifact missing — cannot claim success_zero of deltas"
+    )
+    normalized: dict[str, Any] = {}
+    for k, v in categories.items():
+        if not c2 and k in {
+            "new_opportunities",
+            "status_changes",
+            "deadline_changes",
+            "new_expiring_contracts",
+        }:
+            normalized[k] = {
+                "count": None,
+                "success_zero": False,
+                "note": "NOT_MEASURED — missing cycle_2",
+            }
+        else:
+            normalized[k] = _cat_entry(v if isinstance(v, list) else [], note_empty=note_empty)
+
+    result = {
+        "mode": mode or "UNKNOWN",
+        "live_dual_snapshot": bool(
+            monthly.get("live_recurrence") or (mode == "LIVE_ISOLATED")
+        ),
+        "source_file": source_file,
+        "cycle_1_id": (c1.get("cycle") or {}).get("cycle_id") if isinstance(c1, dict) else None,
+        "cycle_2_id": (c2.get("cycle") or {}).get("cycle_id") if isinstance(c2, dict) else None,
+        "proofs": None,
+        "categories": normalized,
+    }
+    if live_path.exists():
+        try:
+            result["proofs"] = json.loads(live_path.read_text(encoding="utf-8")).get(
+                "proofs"
+            )
+        except json.JSONDecodeError:
+            pass
     if mode == "LABELED_DETERMINISTIC_REPLAY":
-        raw = {}
-        p = out_dir / "monthly" / "monthly-replay.json"
-        if p.exists():
-            raw = json.loads(p.read_text(encoding="utf-8"))
-            c2d = raw.get("cycle_2") or {}
-            # extract from CycleResult structure if present
-            if isinstance(c2d, dict):
-                for d in c2d.get("status_deltas") or []:
-                    categories["status_changes"].append(d)
-                for e in (c2d.get("new_editais") or c2d.get("cycle", {}).get("new_editais") or []):
-                    categories["new_opportunities"].append(e)
-                # if fields nested under reports
-                mon = c2d.get("monthly") or {}
-                if mon.get("new_editais"):
-                    categories["new_opportunities"] = mon["new_editais"]
-        for k, v in list(categories.items()):
-            if not v:
-                categories[k] = {
-                    "count": 0,
-                    "success_zero": True,
-                    "note": "measurable empty or not applicable in labeled replay",
-                }
-            else:
-                categories[k] = {"count": len(v) if isinstance(v, list) else 1, "items": v, "success_zero": False}
-        result = {
-            "mode": mode,
-            "live_dual_snapshot": False,
-            "categories": categories,
-            "claim": "LABELED_DETERMINISTIC_REPLAY — mechanics proven; live dual snapshot not claimed",
-        }
-    else:
-        # live-isolated: read artifacts if present
-        mon_path = out_dir / "monthly"
-        for name in ("monthly-monitor-live.json", "monthly-cycle.json", "cycle-state.json"):
-            p = mon_path / name
-            if p.exists():
-                try:
-                    raw = json.loads(p.read_text(encoding="utf-8"))
-                except json.JSONDecodeError:
-                    continue
-                if isinstance(raw, dict):
-                    for key in categories:
-                        if key in raw:
-                            categories[key] = raw[key]
-        for k, v in list(categories.items()):
-            if not v:
-                categories[k] = {
-                    "count": 0,
-                    "success_zero": True,
-                    "note": "empty after complete comparison or field not emitted",
-                }
-        result = {
-            "mode": mode or "LIVE_ISOLATED",
-            "live_dual_snapshot": bool(monthly.get("live_recurrence")),
-            "categories": categories,
-        }
+        result["claim"] = (
+            "LABELED_DETERMINISTIC_REPLAY — mechanics proven; live dual snapshot not claimed"
+        )
+        result["live_dual_snapshot"] = False
+
     (out_dir / "recurrence.json").write_text(
         json.dumps(result, indent=2, ensure_ascii=False, default=str),
         encoding="utf-8",

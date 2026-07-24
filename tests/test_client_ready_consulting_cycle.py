@@ -133,3 +133,85 @@ def test_terminal_status_vocabulary_only_three() -> None:
     ):
         # may appear in comments/docs of other campaigns; orchestrator decide path must not return them
         assert f'return "{banned}"' not in src
+
+
+def test_build_recurrence_delta_reads_live_cycle2(tmp_path: Path) -> None:
+    """IAF-08a: LIVE path must not invent success_zero when cycle_2 has deltas."""
+    from scripts.ops.client_ready_consulting_cycle import build_recurrence_delta
+
+    mon = tmp_path / "monthly"
+    mon.mkdir()
+    (mon / "monthly-monitor-live.json").write_text(
+        json.dumps(
+            {
+                "mode": "live_isolated_snapshot",
+                "cycle_1": {"cycle": {"cycle_id": "c1"}, "new_editais": [{"edital_id": "1"}]},
+                "cycle_2": {
+                    "cycle": {"cycle_id": "c2"},
+                    "new_editais": [{"edital_id": "LIVE-DELTA"}],
+                    "status_deltas": [
+                        {
+                            "edital_id": "1",
+                            "event_type": "SUSPENSAO",
+                            "from_status": "open",
+                            "to_status": "SUSPENSA",
+                        }
+                    ],
+                    "expiring_contracts": [{"id": "c1"}, {"id": "c2"}],
+                    "variation": {
+                        "fields": {
+                            "organs_count": {"previous": 10, "current": 11, "delta": 1},
+                            "winners_count": {"previous": 5, "current": 5, "delta": 0},
+                        }
+                    },
+                },
+                "proofs": {"new_editais_detected": True},
+            }
+        ),
+        encoding="utf-8",
+    )
+    out = build_recurrence_delta({"mode": "LIVE_ISOLATED", "live_recurrence": True}, tmp_path)
+    assert out["categories"]["new_opportunities"]["count"] == 1
+    assert out["categories"]["new_opportunities"]["success_zero"] is False
+    assert out["categories"]["status_changes"]["count"] == 1
+    assert out["categories"]["status_changes"]["success_zero"] is False
+    assert out["categories"]["org_ranking_changes"]["count"] == 1
+
+
+def test_reconcile_compares_distinct_meta_and_artifacts(tmp_path: Path) -> None:
+    """IAF-05: reconcile must not hardcode same_run_id or ignore artifacts."""
+    from scripts.ops import live_consulting_pack as lcp
+
+    pdf = tmp_path / "a.pdf"
+    xls = tmp_path / "a.xlsx"
+    pdf.write_bytes(b"%PDF-1.4 run_id=rid-1 fake")
+    # minimal xlsx zip is complex; write non-empty distinct bytes
+    xls.write_bytes(b"PK\x03\x04 excel-placeholder-rid-1")
+    meta = {"run_id": "rid-1", "git_sha": "abc", "as_of": "2026-07-24"}
+    rec = lcp.reconcile(
+        run_id="rid-1",
+        meta_pdf=dict(meta),
+        meta_excel=dict(meta),
+        a={"population": {"eligible_population": 10}, "rows": []},
+        b={"population": {"eligible_population": 10}, "rows": []},
+        c={"population": {"eligible_population": 10}, "rows": []},
+        d={"population": {"eligible_population": 10}, "panels": []},
+        pdf_path=pdf,
+        excel_path=xls,
+    )
+    assert rec["same_run_id"] is True
+    assert rec["status"] == "PASS"
+    assert rec["artifact_checks"]["binaries_distinct"] is True
+    assert rec["artifact_checks"]["pdf_sha256"] != rec["artifact_checks"]["excel_sha256"]
+
+    bad = lcp.reconcile(
+        run_id="rid-1",
+        meta_pdf={"run_id": "rid-1", "git_sha": "abc"},
+        meta_excel={"run_id": "rid-OTHER", "git_sha": "abc"},
+        a={},
+        b={},
+        c={},
+        d={},
+    )
+    assert bad["same_run_id"] is False
+    assert bad["status"] == "FAIL"

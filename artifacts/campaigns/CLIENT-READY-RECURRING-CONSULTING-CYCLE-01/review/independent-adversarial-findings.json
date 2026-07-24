@@ -1,0 +1,285 @@
+{
+  "campaign_id": "CLIENT-READY-RECURRING-CONSULTING-CYCLE-01",
+  "review_track": "G-independent-adversarial",
+  "reviewer_role": "independent_adversarial (did not implement integration)",
+  "as_of": "2026-07-24T22:30:00Z",
+  "worktree": "/tmp/extra-cli-client-ready-01",
+  "pr": "https://github.com/tjsasakifln/extra-cli/pull/131",
+  "evidence_root": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/",
+  "verdict": "CONCERNS",
+  "critical_high_open": true,
+  "open_critical_count": 0,
+  "open_high_count": 2,
+  "open_medium_count": 3,
+  "gate_checks": {
+    "result_final_status_vocab": {
+      "status": "PASS",
+      "expected": "PASS|BLOCKED|FAIL",
+      "observed": "BLOCKED",
+      "command": "python3 -c \"import json; print(json.load(open('artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/result.json'))['final_status'])\""
+    },
+    "production_touched_false": {
+      "status": "PASS",
+      "expected": false,
+      "observed": false,
+      "type": "boolean_not_null"
+    },
+    "soak_touched_false": {
+      "status": "PASS",
+      "expected": false,
+      "observed": false,
+      "type": "boolean_not_null"
+    },
+    "package_reconciliation_status": {
+      "status": "CONCERNS",
+      "expected": "PASS with substantive PDF×Excel/content comparison",
+      "observed": "PASS but reconcile is self-referential (see IAF-05)",
+      "field": "package-reconciliation.json status=PASS; divergences=[]"
+    },
+    "linkage_quality_present": {
+      "status": "PASS",
+      "observed": "linkage-quality.json present; status=completed; organ/contract/supplier metrics"
+    },
+    "user_acceptance": {
+      "status": "PASS",
+      "expected": "PENDING_HUMAN (not agent fake ACCEPT)",
+      "observed": "PENDING_HUMAN; accepted_by=null; accepted_at=null"
+    }
+  },
+  "attack_surfaces": [
+    {
+      "id": 1,
+      "name": "universe contamination / export limit as population",
+      "result": "PASS",
+      "reproduction": "Inspect pack/deliverable_a.json population: eligible_population=1179237, export_limit=200, export_is_not_universe=true, sample_label=FULL_ELIGIBLE_POPULATION, not_sample_of_n=true. executive_summary.md states export_limit ≠ universo. package-reconciliation eligible_population matches.",
+      "notes": "A rows=200 is detail export only; n_orgaos_eligible=1378 and n_contracts_eligible=1179237 labeled."
+    },
+    {
+      "id": 2,
+      "name": "false CNPJ merge",
+      "result": "PASS",
+      "reproduction": "tests/test_canonical_entity_linkage.py::test_never_merge_conflicting_cnpj14 in tests.xml (passed). ambiguity.json false_merge_strong_cnpj=0. dossiers claim_level fact only on exact_cnpj14 organ links.",
+      "notes": "No evidence of merging conflicting CNPJ14 in campaign artifacts."
+    },
+    {
+      "id": 3,
+      "name": "historical winner as open-tender participant",
+      "result": "PASS",
+      "reproduction": "dossier-opp-1.json contract links: claim_level=similarity; non_claims include not_observed_participant_of_open_tender and similarity_not_participation. meeting-support.md: concorrentes = vencedores históricos, não participantes. non-claims include win rate without open-tender denominator.",
+      "notes": "classification field may still say 'exact' for same_organ_cnpj14 (semantic overload) but claim_level/non_claims protect participation claim."
+    },
+    {
+      "id": 4,
+      "name": "success_zero without full query",
+      "result": "PASS",
+      "reproduction": "deliverable_c / pack-full products.C: success_zero.success_zero=false, n=14750, query_complete=true, contracts_with_data_fim_scanned=1179228, window_hits_total=14750.",
+      "notes": "Non-empty window correctly not labeled success_zero."
+    },
+    {
+      "id": 5,
+      "name": "PDF×Excel divergence",
+      "result": "FAIL",
+      "reproduction": "Read scripts/ops/live_consulting_pack.py run_pack: rec = reconcile(run_id=run_id, meta_pdf=meta, meta_excel=meta, ...). Both channels receive the identical meta dict. reconcile() always returns same_run_id=True (hardcoded). No byte/content comparison of PDF vs XLSX.",
+      "finding_ids": [
+        "IAF-05"
+      ],
+      "notes": "package-reconciliation.json reports PASS with divergences=[] but the gate is tautological."
+    },
+    {
+      "id": 6,
+      "name": "missing profile version",
+      "result": "PASS",
+      "reproduction": "manifest.json profile_id=extra_construtora profile_version=2 profile_sha256 present. All deliverables stamp extra_construtora@v2. config/client_profiles/extra.yaml version: 2.",
+      "notes": null
+    },
+    {
+      "id": 7,
+      "name": "PENDING capacity treated as known",
+      "result": "PASS",
+      "reproduction": "deliverable_e recommendations all ranking/client_label=REVIEW; fatores list PENDING capacity fields; score_notes block GO/PARTICIPAR. live_consulting_pack guard demotes GO/PARTICIPAR when PENDING in risks. non-claims: Extra operational capacity fields not elicited.",
+      "notes": "No GO/PARTICIPAR in pack or weekly E artifacts."
+    },
+    {
+      "id": 8,
+      "name": "second run rebuilding everything / fake delta",
+      "result": "CONCERNS",
+      "reproduction": "1) monthly-monitor-live.json cycle_2.new_editais = LIVE-DELTA-2026-07-24 ('delta marker cycle-2') injected in strategic_monthly_monitor.py lines ~697-708. 2) recurrence.json all categories success_zero=true count=0 because build_recurrence_delta LIVE path only reads top-level keys new_opportunities/status_changes etc., not cycle_2.new_editais/status_deltas. 3) monthly audit proofs new_editais_detected=true via synthetic inject; cycle_2.reused_previous_state=true (not full rebuild).",
+      "finding_ids": [
+        "IAF-08a",
+        "IAF-08b"
+      ],
+      "notes": "Mechanics prove state reuse; synthetic delta is labeled in content but recurrence artifact falsely empty-success_zero."
+    },
+    {
+      "id": 9,
+      "name": "production DSN / soak interference",
+      "result": "PASS",
+      "reproduction": "security.json isolation.ok=true dsn_masked=...@127.0.0.1:5436/extra_live_pack_rc hits=[]. production_touched=false soak_touched=false. isolation_guard rejects ec-prod/5432/opt paths (tests.xml test_isolation_* passed). FORBIDDEN_HOST_MARKERS and ALLOWED_PORTS enforced.",
+      "notes": "Code path SystemExit on isolation fail; production_touched never null on success path."
+    },
+    {
+      "id": 10,
+      "name": "mandatory test skipped as pass",
+      "result": "CONCERNS",
+      "reproduction": "tests.xml: skipped=3 of 41 — test_population_stats_full_not_sample, test_run_pack_end_to_end_real_path (REQUIRE_REAL_DB), test_linkage_pipeline_on_isolated_dsn (LINKAGE_TEST_DSN). Pytest skip ≠ fail. Campaign live run produced pack evidence (mitigation) but junit does not enforce real_db.",
+      "finding_ids": [
+        "IAF-10"
+      ],
+      "notes": "Unit isolation/terminal tests (11 client_ready) passed; real_db integration not mandatory in this junit capture."
+    },
+    {
+      "id": 11,
+      "name": "dual national_intel / PR121 collision",
+      "result": "PASS",
+      "reproduction": "db/migrations has 059_coverage_evidence_canonical_entity_unique.sql and 060_national_contracts_intelligence_layers.sql; no 059_national*. migrations.json 059_pr121 SUPERSEDED. regression.json national_intel_single_authority=true. test_migration_060_exists_and_059_coverage_preserved passed.",
+      "notes": null
+    },
+    {
+      "id": 12,
+      "name": "DOD marked without proof",
+      "result": "PASS",
+      "reproduction": "dod-impact.json checkbox_policy='no premature [x]'; only ACCEPTED with evidence on main'; final_status=BLOCKED; not_claimed includes LOCAL_READY/VPS_OPERATIONAL/PROJECT_DONE/soak_7d PASS. Campaign does not flip DOD to PASS.",
+      "notes": "Pre-existing DOD.md [x] items are outside this campaign stamp."
+    },
+    {
+      "id": 13,
+      "name": "alternate terminal statuses (TECHNICAL_PASS etc.)",
+      "result": "PASS",
+      "reproduction": "decide_terminal returns only PASS|BLOCKED|FAIL. test_terminal_status_vocabulary_only_three bans TECHNICAL_PASS/READY_FOR_REVIEW/MOSTLY_PASS/CONDITIONAL_PASS/BLOCKED_HUMAN return strings. result.json final_status=BLOCKED terminal=BLOCKED.",
+      "notes": "Weekly stage terminal_status=partial is source-level, not global final_status."
+    },
+    {
+      "id": 14,
+      "name": "human accept fabricated",
+      "result": "PASS",
+      "reproduction": "user-acceptance.json status=PENDING_HUMAN accepted_by=null. human_acceptance_status rejects ACCEPTED with accepted_by in {agent,auto,system,null}. decide_terminal BLOCKED without ACCEPTED. result blockers include user_acceptance_PENDING_HUMAN.",
+      "notes": null
+    }
+  ],
+  "findings": [
+    {
+      "id": "IAF-05",
+      "severity": "high",
+      "status": "fixed",
+      "surface": 5,
+      "title": "PDF×Excel reconcile is self-referential; same_run_id hardcoded",
+      "command": "rg -n \"meta_pdf=meta, meta_excel=meta|same_run_id\" scripts/ops/live_consulting_pack.py; python3 -c \"import json; print(json.load(open('artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/package-reconciliation.json')))\"",
+      "expected": "Independent meta/hash comparison of PDF and Excel artifacts; same_run_id computed from actual run_ids; content-level divergence detection.",
+      "observed": "reconcile(meta_pdf=meta, meta_excel=meta) with identical object; return same_run_id=True always; package-reconciliation status PASS, divergences=[].",
+      "impact": "FR-06 / package-reconciliation PASS can be green even if PDF and Excel later diverge; attack surface §15.5 is not substantively defended.",
+      "affected_files": [
+        "scripts/ops/live_consulting_pack.py",
+        "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/package-reconciliation.json"
+      ],
+      "rc_sha": "aadd65c00599a5dd44a3c2517492eae22a79c6c5",
+      "revalidation": "final-revalidation.json"
+    },
+    {
+      "id": "IAF-08a",
+      "severity": "high",
+      "status": "fixed",
+      "surface": 8,
+      "title": "recurrence.json marks all categories success_zero despite live monthly deltas",
+      "command": "python3 -c \"import json; r=json.load(open('artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/recurrence.json')); print({k:v.get('count') for k,v in r['categories'].items()})\"; python3 -c \"import json; m=json.load(open('artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/monthly/monthly-monitor-live.json')); print(m['cycle_2']['new_editais'], m['cycle_2']['status_deltas'][:1])\"",
+      "expected": "recurrence categories populated from cycle_2.new_editais / status_deltas / expiring when LIVE_ISOLATED dual cycle completes.",
+      "observed": "All 11 categories count=0 success_zero=true note='empty after complete comparison or field not emitted' while monthly cycle_2 has new_editais and status_deltas.",
+      "impact": "Operators may treat empty recurrence as true success_zero; masks real delta evidence and confuses labeled-empty vs not-extracted.",
+      "affected_files": [
+        "scripts/ops/client_ready_consulting_cycle.py",
+        "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/recurrence.json",
+        "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/monthly/monthly-monitor-live.json"
+      ],
+      "rc_sha": "aadd65c00599a5dd44a3c2517492eae22a79c6c5",
+      "revalidation": "final-revalidation.json"
+    },
+    {
+      "id": "IAF-08b",
+      "severity": "medium",
+      "status": "open",
+      "surface": 8,
+      "title": "LIVE-ISOLATED second cycle injects synthetic LIVE-DELTA marker",
+      "command": "rg -n \"LIVE-DELTA|inject one new edital\" scripts/ops/strategic_monthly_monitor.py; jq '.cycle_2.new_editais' artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/monthly/monthly-monitor-live.json",
+      "expected": "Delta from real snapshot change or explicit LABELED synthetic claim in recurrence/claims; proofs must not over-claim operational discovery.",
+      "observed": "strategic_monthly_monitor always appends LIVE-DELTA-{as_of}; proofs.new_editais_detected=true; recurrence mode LIVE_ISOLATED live_dual_snapshot=true without non-claim of synthetic edital inject.",
+      "impact": "new_editais_detected can pass without organic new tender in dump; acceptable as mechanics test if labeled, but campaign claims leave room for over-reading.",
+      "affected_files": [
+        "scripts/ops/strategic_monthly_monitor.py",
+        "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/monthly/monthly-monitor-live.json",
+        "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/result.json"
+      ],
+      "rc_sha": "aadd65c00599a5dd44a3c2517492eae22a79c6c5"
+    },
+    {
+      "id": "IAF-10",
+      "severity": "medium",
+      "status": "open",
+      "surface": 10,
+      "title": "Real-DB integration tests skipped in campaign junit; skip not treated as fail",
+      "command": "python3 -c \"import xml.etree.ElementTree as ET; r=ET.parse('artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/tests.xml').getroot(); print(r.find('testsuite').attrib)\"",
+      "expected": "Mandatory population/pack/linkage integration tests executed against isolated dump for campaign gate, or explicit residual if environment missing.",
+      "observed": "tests=41 failures=0 skipped=3; skipif REQUIRE_REAL_DB / LINKAGE_TEST_DSN. Live cycle evidence exists separately but junit alone looks green.",
+      "impact": "CI theater risk if campaign gate relies only on junit without REQUIRE_REAL_DB=1.",
+      "affected_files": [
+        "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/tests.xml",
+        "tests/test_live_consulting_pack.py",
+        "tests/test_canonical_entity_linkage.py"
+      ],
+      "rc_sha": "aadd65c00599a5dd44a3c2517492eae22a79c6c5"
+    },
+    {
+      "id": "IAF-W01",
+      "severity": "medium",
+      "status": "open",
+      "surface": 9,
+      "title": "Weekly cycle exit_code=2 accepted as ok; residual PDF and universe drift",
+      "command": "jq '.steps.weekly' artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/manifest.json; jq '.exit_code,.stages[1]' artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/manifest.json",
+      "expected": "Weekly ok only on exit 0, or residual explicitly blocks packaging claims that require weekly PDF.",
+      "observed": "run_weekly treats returncode in (0,2) as ok; weekly exit_code=2; universe_200km=1090!=1093; pdf_status=RESIDUAL_NOT_GENERATED; skip_collect=true for opportunities.",
+      "impact": "Integrated cycle can complete technical path while weekly is partial/degraded without elevating global FAIL.",
+      "affected_files": [
+        "scripts/ops/client_ready_consulting_cycle.py",
+        "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/weekly/manifest.json"
+      ],
+      "rc_sha": "aadd65c00599a5dd44a3c2517492eae22a79c6c5"
+    },
+    {
+      "id": "IAF-SHA",
+      "severity": "low",
+      "status": "open",
+      "surface": 12,
+      "title": "Multiple SHA roles without hard binding of pack generation to tip",
+      "command": "jq '{final_status,rc_sha,git_sha,sha_roles,sha_binding}' artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/result.json",
+      "expected": "Single authoritative evidence stamp SHA bound to pack git_sha or explicit lag documented as residual.",
+      "observed": "branch_tip 9acd8d4…, evidence/rc aadd65c…, pack_manifest_git_sha c2bef8f…, sha_binding notes lag.",
+      "impact": "Traceability friction; not a false PASS.",
+      "affected_files": [
+        "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/result.json",
+        "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/pack/pack-manifest.json"
+      ],
+      "rc_sha": "aadd65c00599a5dd44a3c2517492eae22a79c6c5"
+    },
+    {
+      "id": "IAF-R01",
+      "severity": "info",
+      "status": "open",
+      "surface": 14,
+      "title": "Terminal correctly BLOCKED pending human ACCEPT",
+      "command": "jq '{final_status,human_acceptance,blockers}' artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/result.json",
+      "expected": "BLOCKED when technical green and acceptance not human ACCEPTED",
+      "observed": "BLOCKED; PENDING_HUMAN; blockers list user_acceptance_PENDING_HUMAN",
+      "impact": "Correct fail-closed behaviour — not a defect",
+      "affected_files": [
+        "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/user-acceptance.json",
+        "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/result.json"
+      ],
+      "rc_sha": "aadd65c00599a5dd44a3c2517492eae22a79c6c5"
+    }
+  ],
+  "prior_review_delta": {
+    "file": "review/independent-review.md",
+    "prior_verdict": "CONCERNS",
+    "prior_claim": "Critical/High open: none; all attack surfaces PASS",
+    "this_review": "Disagrees: surfaces 5 FAIL, 8 CONCERNS, 10 CONCERNS; 2 HIGH open (IAF-05, IAF-08a)"
+  },
+  "summary": "Campaign terminal BLOCKED is correct and isolation holds. Package-reconciliation PASS and recurrence success_zero reporting are not trustworthy under adversarial scrutiny. Human accept not fabricated. Do not elevate to PASS without fixing IAF-05 and IAF-08a."
+}

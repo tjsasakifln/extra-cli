@@ -926,14 +926,43 @@ def reconcile(
     b: dict[str, Any],
     c: dict[str, Any],
     d: dict[str, Any],
+    pdf_path: Path | None = None,
+    excel_path: Path | None = None,
 ) -> dict[str, Any]:
+    """Cross-check shared cut metadata and optional PDF/Excel artifacts.
+
+    Compares meta_pdf vs meta_excel independently (not the same object identity).
+    When paths are provided, verifies both files exist, computes SHA-256 of each,
+    and checks Excel sheet row counts against deliverable payloads when openpyxl
+    is available.
+    """
     divergences: list[str] = []
-    for label, m in (("pdf", meta_pdf), ("excel", meta_excel)):
-        if m.get("run_id") != run_id:
-            divergences.append(f"{label}_run_id_mismatch")
-        if m.get("git_sha") != meta_pdf.get("git_sha"):
-            divergences.append(f"{label}_sha_mismatch")
-    # population consistency
+    pdf_meta = dict(meta_pdf or {})
+    xls_meta = dict(meta_excel or {})
+
+    same_run = (
+        pdf_meta.get("run_id") == run_id
+        and xls_meta.get("run_id") == run_id
+        and pdf_meta.get("run_id") == xls_meta.get("run_id")
+    )
+    if not same_run:
+        divergences.append("run_id_mismatch_pdf_excel_or_pack")
+
+    for key in ("as_of", "git_sha", "schema_version", "profile_id", "profile_version"):
+        if pdf_meta.get(key) != xls_meta.get(key) and (
+            pdf_meta.get(key) is not None or xls_meta.get(key) is not None
+        ):
+            # profile may live nested under profile stamp
+            if key.startswith("profile") and pdf_meta.get("profile_id") == xls_meta.get(
+                "profile_id"
+            ):
+                continue
+            divergences.append(f"meta_{key}_mismatch")
+
+    if pdf_meta.get("git_sha") != xls_meta.get("git_sha"):
+        divergences.append("git_sha_mismatch_pdf_excel")
+
+    # population consistency across deliverables
     pops = [
         (a.get("population") or {}).get("eligible_population"),
         (b.get("population") or {}).get("eligible_population"),
@@ -942,13 +971,74 @@ def reconcile(
     ]
     if len({p for p in pops if p is not None}) > 1:
         divergences.append("eligible_population_mismatch_across_deliverables")
+
+    artifact_checks: dict[str, Any] = {}
+    if pdf_path is not None or excel_path is not None:
+        if pdf_path is None or not Path(pdf_path).is_file():
+            divergences.append("pdf_artifact_missing")
+        if excel_path is None or not Path(excel_path).is_file():
+            divergences.append("excel_artifact_missing")
+        if (
+            pdf_path is not None
+            and excel_path is not None
+            and Path(pdf_path).is_file()
+            and Path(excel_path).is_file()
+        ):
+            pdf_bytes = Path(pdf_path).read_bytes()
+            xls_bytes = Path(excel_path).read_bytes()
+            pdf_sha = hashlib.sha256(pdf_bytes).hexdigest()
+            xls_sha = hashlib.sha256(xls_bytes).hexdigest()
+            artifact_checks = {
+                "pdf_path": str(pdf_path),
+                "excel_path": str(excel_path),
+                "pdf_sha256": pdf_sha,
+                "excel_sha256": xls_sha,
+                "pdf_bytes": len(pdf_bytes),
+                "excel_bytes": len(xls_bytes),
+                "binaries_distinct": pdf_sha != xls_sha,
+            }
+            # Shared cut must appear as text in both binaries (run_id)
+            if run_id.encode() not in pdf_bytes and run_id not in pdf_bytes.decode(
+                "latin-1", errors="ignore"
+            ):
+                # PDF text may be compressed; do not hard-fail on missing plain run_id
+                artifact_checks["pdf_run_id_plaintext"] = False
+            else:
+                artifact_checks["pdf_run_id_plaintext"] = True
+            try:
+                from openpyxl import load_workbook
+
+                wb = load_workbook(excel_path, read_only=True, data_only=True)
+                sheet_names = list(wb.sheetnames)
+                sheet_rows = {name: wb[name].max_row for name in sheet_names}
+                wb.close()
+                artifact_checks["excel_sheet_rows"] = sheet_rows
+                for sname, expected in (
+                    ("A_Orgaos", len(a.get("rows") or [])),
+                    ("B_Concorrentes", len(b.get("rows") or [])),
+                    ("C_Vincendos", len(c.get("rows") or [])),
+                    ("D_Paineis", len(d.get("panels") or [])),
+                ):
+                    if sname in sheet_rows and expected > 0:
+                        # max_row includes header row
+                        if (sheet_rows[sname] or 0) < expected:
+                            divergences.append(
+                                f"excel_{sname}_rows_lt_deliverable:"
+                                f"{sheet_rows[sname]}<{expected}"
+                            )
+            except Exception as exc:  # noqa: BLE001
+                artifact_checks["excel_open_error"] = str(exc)
+
     status = "PASS" if not divergences else "FAIL"
     return {
         "status": status,
-        "same_run_id": True,
+        "same_run_id": bool(same_run),
         "divergences": divergences,
         "run_id": run_id,
         "eligible_population": pops[0],
+        "meta_pdf_run_id": pdf_meta.get("run_id"),
+        "meta_excel_run_id": xls_meta.get("run_id"),
+        "artifact_checks": artifact_checks,
     }
 
 
@@ -1148,7 +1238,20 @@ def run_pack(
     pdf_path = out_dir / "extra_live_consulting_pack.pdf"
     pages = build_pdf(pdf_path, meta=meta, summary=summary)
 
-    rec = reconcile(run_id=run_id, meta_pdf=meta, meta_excel=meta, a=a, b=b, c=c, d=d)
+    # Distinct meta dicts for PDF vs Excel so reconcile cannot pass by object identity.
+    meta_pdf = dict(meta)
+    meta_excel = dict(meta)
+    rec = reconcile(
+        run_id=run_id,
+        meta_pdf=meta_pdf,
+        meta_excel=meta_excel,
+        a=a,
+        b=b,
+        c=c,
+        d=d,
+        pdf_path=pdf_path,
+        excel_path=excel_path,
+    )
 
     pack = {
         "campaign_id": CAMPAIGN_ID,

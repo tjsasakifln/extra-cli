@@ -2,7 +2,7 @@
 # All tool adapters (CLAUDE.md, AGENTS.md, Cursor rules) MUST reference
 # docs/DEVELOPMENT.md and MUST NOT invent parallel product requirements.
 version: "1.0"
-updated_at: "2026-07-18"
+updated_at: "2026-07-24"
 canonical_guide: docs/DEVELOPMENT.md
 precedence:
   - DOD.md
@@ -25,6 +25,14 @@ commands:
     # CANONICAL weekly operational cycle for Extra Construtora
     make extra-weekly
     # equivalent: python3 -m scripts.ops.weekly_cycle --strict
+  client_ready_consulting_cycle: |
+    # CANONICAL integrated consulting cycle (A–E + linkage + weekly/monthly + evidence)
+    # Isolated DSN only — never production/soak. Campaign CLIENT-READY-RECURRING-CONSULTING-CYCLE-01
+    make client-ready-consulting-cycle
+    # equivalent:
+    # python3 -m scripts.ops.client_ready_consulting_cycle run \
+    #   --dsn "$CLIENT_READY_DSN" \
+    #   --out artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01
   campaign: |
     python3 squads/extra-dod-roi/scripts/cli.py force-next
 
@@ -33,6 +41,7 @@ required_command_tokens:
   - scripts.golden_path
   - scripts.ops.weekly_cycle
   - scripts.ops.apply_migrations
+  - scripts.ops.client_ready_consulting_cycle
   - force-next
   - LOCAL_DATALAKE_DSN
 

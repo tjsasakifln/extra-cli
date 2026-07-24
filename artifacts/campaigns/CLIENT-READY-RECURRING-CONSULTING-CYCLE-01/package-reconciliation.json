@@ -4,5 +4,29 @@
   "git_sha": "c2bef8fd928c4eca5d9f6ad8e939ee2bf74c604a",
   "eligible_population": 1179237,
   "divergences": [],
-  "same_run_id": true
+  "same_run_id": true,
+  "artifact_checks": {
+    "pdf_path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/pack/executive-report.pdf",
+    "excel_path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/pack/consulting-pack.xlsx",
+    "pdf_sha256": "8c88afb363d535cca94232afe6e330b478299d04590dfaf0d997a4ead31ce1c5",
+    "excel_sha256": "f91b8cc2a8250ee9cbd35c0316418d6bca5477a194352501773a841647ac54ad",
+    "pdf_bytes": 3676,
+    "excel_bytes": 119428,
+    "binaries_distinct": true,
+    "pdf_run_id_plaintext": false,
+    "excel_sheet_rows": {
+      "Metadados": 20,
+      "A_Orgaos": 201,
+      "B_Concorrentes": 16,
+      "C_Vincendos": 201,
+      "D_Paineis": 7,
+      "E_Editais": 5,
+      "Filtros": 3,
+      "Cobertura": 8,
+      "Limitacoes": 4,
+      "Dados": 1
+    }
+  },
+  "meta_pdf_run_id": "live-pack-20260724-210500-96b1aa13",
+  "meta_excel_run_id": "live-pack-20260724-210500-96b1aa13"
 }
