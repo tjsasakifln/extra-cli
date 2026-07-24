@@ -55,6 +55,15 @@ make extra-weekly
 python3 -m scripts.ops.weekly_cycle --strict
 # flags úteis: WEEKLY_FLAGS="--force-collect" | "--skip-collect" | "--lookback-days 7"
 
+# Ciclo consultivo integrado A–E + linkage + weekly/monthly + evidências
+# (CLIENT-READY-RECURRING-CONSULTING-CYCLE-01) — DSN isolado apenas; nunca produção/soak.
+# make client-ready-consulting-cycle
+# equivalente:
+# export CLIENT_READY_DSN='postgresql://test:test@127.0.0.1:5436/extra_live_pack_rc'
+python3 -m scripts.ops.client_ready_consulting_cycle run \
+  --dsn "${CLIENT_READY_DSN:-$LOCAL_DATALAKE_DSN}" \
+  --out artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01
+
 # Coverage / operational outputs (componentes internos)
 python3 -m scripts.reports.operational_outputs --dsn "$LOCAL_DATALAKE_DSN" --out output/ops-lists --json
 python3 -m scripts.coverage.applicability_matrix --limit-entities 50 --out output/applicability --json
@@ -64,7 +73,7 @@ python3 squads/extra-dod-roi/scripts/cli.py status
 python3 squads/extra-dod-roi/scripts/cli.py force-next
 ```
 
-Os pontos de entrada (Claude / Codex-compat / Cursor) **devem** citar: setup → validação → golden path → **extra-weekly**.
+Os pontos de entrada (Claude / Codex-compat / Cursor) **devem** citar: setup → validação → golden path → **extra-weekly** → ciclo consultivo integrado (`scripts.ops.client_ready_consulting_cycle` / `make client-ready-consulting-cycle`) quando o pacote A–E + linkage for o objetivo.
 
 ---
 

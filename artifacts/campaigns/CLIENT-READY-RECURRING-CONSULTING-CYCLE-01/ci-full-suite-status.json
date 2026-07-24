@@ -1,0 +1,9 @@
+{
+  "as_of": "2026-07-24T21:23:53.055895Z",
+  "head": "1c7e464861dbda5028927bb6e3c40dcc83fa91df",
+  "run": 30127374857,
+  "full_suite": "FAILURE",
+  "cause": "test_canonical_entry_points missing token scripts.ops.client_ready_consulting_cycle in DEVELOPMENT.md",
+  "fix": "docs/DEVELOPMENT.md documents the entry point",
+  "other_jobs": "SUCCESS (lint,mypy,critical,operational,resilience,bandit,audit)"
+}
