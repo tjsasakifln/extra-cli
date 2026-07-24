@@ -334,19 +334,22 @@ verify-stratified-recall-isolated:
 
 
 # ── Campaign EXTRA-LIVE-CONSULTING-PACK-01 ───────────────────────────────────
-# Isolated A–E pack on authenticated snapshot. NEVER touch soak/prod DSN.
+# Isolated A–E pack. NEVER touch soak/prod DSN. No || true / silent success.
 
 CAMPAIGN_LIVE_PACK_DIR := artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01
 CAMPAIGN_TEST_DSN ?= postgresql://test:test@127.0.0.1:5436/extra_live_pack_rc
+# Disposable suite DSN (not the multi-million pack DB) for run_full_suite
+CAMPAIGN_SUITE_DSN ?= postgresql://test:test@127.0.0.1:5433/extra_test
 
 .PHONY: campaign-gate-extra-live-consulting-pack
 campaign-gate-extra-live-consulting-pack:
 	@echo '==> Campaign gate: EXTRA-LIVE-CONSULTING-PACK-01'
 	@echo '$(CAMPAIGN_TEST_DSN)' | grep -Eqv 'ec-prod|/opt/extra-consultoria|extra_prod' || (echo 'ISOLATION_FAIL: prod DSN' && exit 2)
+	@echo '$(CAMPAIGN_TEST_DSN)' | grep -Eq '127\.0\.0\.1|localhost' || (echo 'ISOLATION_FAIL: non-local host' && exit 2)
 	python3 -m scripts.ops.live_consulting_pack verify-isolation --dsn '$(CAMPAIGN_TEST_DSN)'
 	python3 -m scripts.ops.apply_migrations --dsn '$(CAMPAIGN_TEST_DSN)'
 	python3 -m scripts.ops.apply_migrations --dsn '$(CAMPAIGN_TEST_DSN)'
-	REQUIRE_REAL_DB=1 CAMPAIGN_TEST_DSN='$(CAMPAIGN_TEST_DSN)' python3 -m pytest -o addopts='' -q \
+	REQUIRE_REAL_DB=1 CAMPAIGN_TEST_DSN='$(CAMPAIGN_TEST_DSN)' LOCAL_DATALAKE_DSN='$(CAMPAIGN_TEST_DSN)' python3 -m pytest -o addopts='' -q \
 		tests/test_live_consulting_pack.py \
 		tests/test_deliverable_a_org_ranking.py \
 		tests/test_deliverable_b_competitors.py \
@@ -354,11 +357,28 @@ campaign-gate-extra-live-consulting-pack:
 		tests/test_deliverable_d_prices.py \
 		tests/test_deliverable_e_editais.py \
 		tests/test_deliverable_package_final.py \
-		tests/test_strategic_monthly_monitor.py
+		tests/test_strategic_monthly_monitor.py \
+		tests/national_intel/test_coverage_isolation_national_volume.py
+	LOCAL_DATALAKE_DSN='$(CAMPAIGN_TEST_DSN)' python3 -m scripts.workspace today --json --dsn '$(CAMPAIGN_TEST_DSN)' | python3 -c "import sys,json; d=json.load(sys.stdin); assert d.get('pg_available') is True or d.get('sections'), d"
+	LOCAL_DATALAKE_DSN='$(CAMPAIGN_TEST_DSN)' python3 -m scripts.workspace competitors --json --dsn '$(CAMPAIGN_TEST_DSN)' --limit 5 | python3 -c "import sys,json; d=json.load(sys.stdin); assert d.get('status')=='OK' and d.get('count',0)>=1, d"
+	LOCAL_DATALAKE_DSN='$(CAMPAIGN_TEST_DSN)' python3 -m scripts.workspace expiring-contracts --json --dsn '$(CAMPAIGN_TEST_DSN)' | python3 -c "import sys,json; d=json.load(sys.stdin); assert 'buckets' in d, d"
+	LOCAL_DATALAKE_DSN='$(CAMPAIGN_TEST_DSN)' python3 -m scripts.workspace prices --json --dsn '$(CAMPAIGN_TEST_DSN)' --keywords reforma | python3 -c "import sys,json; d=json.load(sys.stdin); assert d.get('status')=='OK', d"
+	@# Weekly isolated (skip network); exit 0=OK, 2=partial consultive but lake products present
+	@set -e; \
+	  LOCAL_DATALAKE_DSN='$(CAMPAIGN_TEST_DSN)' python3 -m scripts.ops.weekly_cycle \
+	    --dsn '$(CAMPAIGN_TEST_DSN)' --skip-collect --no-contracts-incremental --no-strict --limit 30 \
+	    --output-dir '$(CAMPAIGN_LIVE_PACK_DIR)/weekly-gate'; \
+	  ec=$$?; test $$ec -eq 0 -o $$ec -eq 2
+	@test -f $(CAMPAIGN_LIVE_PACK_DIR)/weekly-gate/manifest.json
+	LOCAL_DATALAKE_DSN='$(CAMPAIGN_TEST_DSN)' python3 -m scripts.golden_path --dsn '$(CAMPAIGN_TEST_DSN)' --skip-sources --skip-freshness --skip-reports
+	@# Full suite on disposable suite DSN (not multi-million pack DB)
+	@echo '$(CAMPAIGN_SUITE_DSN)' | grep -Eq '127\.0\.0\.1|localhost' || (echo 'ISOLATION_FAIL suite DSN' && exit 2)
+	@echo '$(CAMPAIGN_SUITE_DSN)' | grep -Eqv 'ec-prod|extra_prod' || (echo 'ISOLATION_FAIL suite DSN' && exit 2)
+	LOCAL_DATALAKE_DSN='$(CAMPAIGN_SUITE_DSN)' DATABASE_URL='$(CAMPAIGN_SUITE_DSN)' REQUIRE_REAL_DB=1 RESILIENCE_REQUIRE_DB=1 python3 -m scripts.ops.run_full_suite
 	@test -f db/migrations/060_national_contracts_intelligence_layers.sql
 	@test -f db/migrations/059_coverage_evidence_canonical_entity_unique.sql
 	@test ! -f db/migrations/059_national_contracts_intelligence_layers.sql
-	@echo 'campaign-gate-extra-live-consulting-pack foundation OK'
+	@echo 'campaign-gate-extra-live-consulting-pack OK'
 
 .PHONY: release-candidate-extra-live-consulting-pack
 release-candidate-extra-live-consulting-pack:
@@ -375,6 +395,7 @@ release-candidate-extra-live-consulting-pack:
 	@test -f $(CAMPAIGN_LIVE_PACK_DIR)/pack-rc/pack-manifest.json
 	@test -f $(CAMPAIGN_LIVE_PACK_DIR)/pack-rc/extra_live_consulting_pack.xlsx
 	@test -f $(CAMPAIGN_LIVE_PACK_DIR)/pack-rc/extra_live_consulting_pack.pdf
+	python3 -c "import json,hashlib; from pathlib import Path; p=Path('$(CAMPAIGN_LIVE_PACK_DIR)/pack-rc'); m=json.loads((p/'pack-manifest.json').read_text()); assert m['reconcile']['status']=='PASS'; assert m['production_touched'] is False; rec={'status':m['reconcile']['status'],'run_id':m['run_id'],'git_sha':m['git_sha'],'eligible_population':m['population']['eligible_population'],'divergences':m['reconcile'].get('divergences',[]),'same_run_id':True}; Path('$(CAMPAIGN_LIVE_PACK_DIR)/package-reconciliation.json').write_text(json.dumps(rec,indent=2)+chr(10)); print('reconcile-stamped', m['run_id'], m['git_sha'][:12])"
 	@echo 'release-candidate-extra-live-consulting-pack OK'
 
 .PHONY: verify-extra-live-consulting-isolated
@@ -388,6 +409,8 @@ verify-extra-live-consulting-isolated:
 		--out '$(CAMPAIGN_LIVE_PACK_DIR)/pack-verify' \
 		--uf SC
 	python3 -c "import json; m=json.load(open('$(CAMPAIGN_LIVE_PACK_DIR)/pack-verify/pack-manifest.json')); assert m.get('production_touched') is False; assert m['reconcile']['status']=='PASS'; assert m['deliverable_a']['status'] in ('OK','PARTIAL'); assert m['deliverable_b']['status'] in ('OK','INSUFFICIENT','PARTIAL'); print('verify-ok', m['run_id'], m['population']['eligible_population'])"
+	LOCAL_DATALAKE_DSN='$(CAMPAIGN_TEST_DSN)' python3 -m scripts.workspace today --json --dsn '$(CAMPAIGN_TEST_DSN)' | python3 -c "import sys,json; d=json.load(sys.stdin); assert d.get('sections') is not None, d"
 	LOCAL_DATALAKE_DSN='$(CAMPAIGN_TEST_DSN)' python3 -m scripts.workspace competitors --json --dsn '$(CAMPAIGN_TEST_DSN)' --limit 5 | python3 -c "import sys,json; d=json.load(sys.stdin); assert d.get('status')=='OK' and d.get('count',0)>=1, d"
+	LOCAL_DATALAKE_DSN='$(CAMPAIGN_TEST_DSN)' python3 -m scripts.workspace expiring-contracts --json --dsn '$(CAMPAIGN_TEST_DSN)' | python3 -c "import sys,json; d=json.load(sys.stdin); assert 'buckets' in d, d"
 	LOCAL_DATALAKE_DSN='$(CAMPAIGN_TEST_DSN)' python3 -m scripts.workspace prices --json --dsn '$(CAMPAIGN_TEST_DSN)' --keywords reforma | python3 -c "import sys,json; d=json.load(sys.stdin); assert d.get('status')=='OK', d"
 	@echo 'verify-extra-live-consulting-isolated OK'

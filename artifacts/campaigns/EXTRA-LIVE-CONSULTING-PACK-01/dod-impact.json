@@ -1,21 +1,17 @@
 {
   "DIRECT_ACCEPT": [],
   "PARTIAL_ADVANCE": [
-    "§2.5 A–E isolated pack (not live/prod)",
-    "§2.6 monthly monitor on isolated snapshot",
-    "§9–11 contracts/competitors/values on real snapshot",
-    "§12 valores panel path",
-    "§29 lineage via pack meta run_id/sha",
-    "§30 performance measured on isolated queries",
-    "§34 material pack presentable; human use pending"
+    "\u00a72.5 A\u2013E technical pack on isolated real data (human use pending real ACCEPT)",
+    "\u00a72.6 monthly full-window isolated",
+    "\u00a7\u00a79\u201312 filtered competitors/values/contracts"
   ],
   "UNBLOCKED": [
-    "Live monthly path wired (--live-isolated)",
-    "Full-population aggregates no longer blocked by sample-only path"
+    "full-population aggregates path",
+    "engineering competitor filter"
   ],
   "NO_CHANGE": [
-    "Items requiring VPS/soak live execution",
-    "LOCAL_READY / VPS_OPERATIONAL / PROJECT_DONE"
+    "items requiring live VPS",
+    "formal ACCEPTED without main+CI"
   ],
-  "note": "No DOD [x] without main+CI+ACCEPTED controller path"
+  "terminal": "BLOCKED"
 }

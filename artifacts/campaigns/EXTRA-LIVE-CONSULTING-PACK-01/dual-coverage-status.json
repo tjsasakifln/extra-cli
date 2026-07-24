@@ -1,0 +1,31 @@
+{
+  "campaign_tip_sha": "298c5218e8cf1afa5c56354f9ad1f86c82265ddc",
+  "pack_sha": "298c5218e8cf1afa5c56354f9ad1f86c82265ddc",
+  "production_touched": false,
+  "isolated_operational_dual_reproof": "NOT_DONE",
+  "gap": "Signed dual evidence SHAs predate campaign tip; isolated restore did not re-run dual operational coverage (>=95%) against 1093 denominator. Only presence probe available.",
+  "signed_evidence": {
+    "open_tenders": {
+      "path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/dual-coverage-open_tenders.json",
+      "bytes": 1761,
+      "note": "pre-existing signed evidence; not re-measured this campaign"
+    },
+    "historical": {
+      "path": "artifacts/campaigns/HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01/dual-coverage.json",
+      "bytes": 1770,
+      "note": "pre-existing signed evidence; not re-measured this campaign"
+    },
+    "summary": {
+      "path": "artifacts/campaigns/HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01/dual-reproof-after-applicability/dual-capability-coverage-summary.json",
+      "bytes": 24233,
+      "note": "pre-existing signed evidence; not re-measured this campaign"
+    }
+  },
+  "isolated_presence_probe": {
+    "mode": "isolated_presence_probe_not_operational_coverage",
+    "universe_n": 1093,
+    "seed_entities_with_lake_presence": 412,
+    "production_touched": false,
+    "signed_live_dual_path": "artifacts/campaigns/*-01/dual-*.json"
+  }
+}

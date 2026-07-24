@@ -1,46 +1,63 @@
 {
-  "reviewer": "independent-adversarial-self-pass-1",
-  "mode": "attack-checklist",
+  "reviewer": "campaign-coordinator-self-critique-after-skeptic",
+  "mode": "adversarial-remediation",
+  "tip_at_review": "298c5218e8cf1afa5c56354f9ad1f86c82265ddc",
+  "pack_run_id": "live-pack-20260724-153517-67ec2ec8",
+  "verdict": "CONDITIONAL_BLOCKED",
   "findings": [
+    {
+      "id": "F3",
+      "severity": "high",
+      "title": "Human ACCEPT required",
+      "status": "open",
+      "note": "Prior ACCEPT reverted as non-verifiable; BLOCKED_HUMAN"
+    },
     {
       "id": "F1",
       "severity": "info",
-      "title": "C success_zero on data_fim sparsity",
-      "status": "accepted_limitation",
-      "observed": "1.17M SC scanned; 0 in 90-180 window",
-      "impact": "Honest EMPTY"
+      "title": "C window hits",
+      "status": "resolved",
+      "observed": "~14750 hits after termino_fonte fix",
+      "previous_error": "claimed zero incorrectly"
     },
     {
-      "id": "F2",
-      "severity": "info",
-      "title": "UF=SC filter not raio_200km entities",
-      "status": "documented",
-      "observed": "sc_public_entities empty in isolated restore"
+      "id": "F6",
+      "severity": "high",
+      "title": "B hospital suppliers",
+      "status": "resolved",
+      "fix": "engineering object filter + name denylist"
     },
     {
-      "id": "F3",
+      "id": "F7",
       "severity": "medium",
-      "title": "Human acceptance missing",
+      "title": "Dual isolated operational reproof missing",
+      "status": "open"
+    },
+    {
+      "id": "F8",
+      "severity": "medium",
+      "title": "SHA/run_id scatter",
+      "status": "mitigated_this_rc",
+      "note": "single pack-rc run stamped into package-reconciliation"
+    },
+    {
+      "id": "F9",
+      "severity": "medium",
+      "title": "Monthly silent 5000",
+      "status": "resolved",
+      "observed": "FULL_WINDOW 57238"
+    },
+    {
+      "id": "F10",
+      "severity": "medium",
+      "title": "Independent non-implementer review still required",
       "status": "open",
-      "impact": "Terminal BLOCKED_HUMAN until Tiago ACCEPT/REJECT"
-    },
-    {
-      "id": "F4",
-      "severity": "info",
-      "title": "Sample-as-universe attack",
-      "status": "mitigated",
-      "observed": "population.sample_label=FULL_ELIGIBLE_POPULATION export_is_not_universe=true"
-    },
-    {
-      "id": "F5",
-      "severity": "info",
-      "title": "Migration 059 collision",
-      "status": "mitigated",
-      "observed": "intel layers on 060; coverage 059 preserved"
+      "note": "this file is remediation self-critique, not independent reviewer"
     }
   ],
   "blocking": [
-    "F3"
-  ],
-  "verdict": "CONDITIONAL \u2014 technical pack OK; human gate open"
+    "F3",
+    "F7",
+    "F10"
+  ]
 }

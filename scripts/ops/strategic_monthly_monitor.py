@@ -581,18 +581,20 @@ def load_snapshot_from_db(
     dsn: str,
     *,
     uf: str | None = "SC",
-    limit_contracts: int = 5000,
+    limit_contracts: int | None = None,
     as_of: date | None = None,
-) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]], dict[str, Any]]:
     """Load editais + contracts from isolated PG for monthly monitor.
 
-    Contracts with data_fim in/near window are preferred; export limit is a
-    detail cap only — caller should pass population stats separately.
+    Full window is counted. ``limit_contracts`` only caps *detail rows* returned
+    for cycle processing; population metadata is always full-window.
     """
     import psycopg2
     import psycopg2.extras
 
     as_of = as_of or date.today()
+    win_lo = (as_of + timedelta(days=1)).isoformat()
+    win_hi = (as_of + timedelta(days=365)).isoformat()
     conn = psycopg2.connect(dsn, cursor_factory=psycopg2.extras.RealDictCursor)
     try:
         with conn.cursor() as cur:
@@ -612,6 +614,20 @@ def load_snapshot_from_db(
             editais = [dict(r) for r in cur.fetchall()]
             cur.execute(
                 """
+                SELECT COUNT(*) AS n
+                FROM pncp_supplier_contracts
+                WHERE COALESCE(is_active, TRUE)
+                  AND (%s::text IS NULL OR upper(btrim(uf)) = upper(%s))
+                  AND data_fim IS NOT NULL
+                  AND data_fim::date BETWEEN %s AND %s
+                """,
+                (uf, uf, win_lo, win_hi),
+            )
+            full_n = int((cur.fetchone() or {}).get("n") or 0)
+            # Prefer full window when feasible; default no silent 5000 universe
+            if limit_contracts is None or limit_contracts <= 0:
+                limit_contracts = full_n if full_n > 0 else 1
+            sql = """
                 SELECT contrato_id AS id, orgao_nome AS orgao,
                        fornecedor_nome AS contratado,
                        data_fim::text AS vigencia_fim,
@@ -623,19 +639,25 @@ def load_snapshot_from_db(
                   AND data_fim::date BETWEEN %s AND %s
                 ORDER BY data_fim ASC
                 LIMIT %s
-                """,
-                (
-                    uf,
-                    uf,
-                    (as_of + timedelta(days=1)).isoformat(),
-                    (as_of + timedelta(days=365)).isoformat(),
-                    limit_contracts,
-                ),
-            )
+                """
+            cur.execute(sql, (uf, uf, win_lo, win_hi, limit_contracts))
             contracts = [dict(r) for r in cur.fetchall()]
     finally:
         conn.close()
-    return editais, contracts
+    meta = {
+        "contracts_window_full_count": full_n,
+        "contracts_detail_rows": len(contracts),
+        "export_limit": limit_contracts,
+        "export_is_not_universe": len(contracts) < full_n,
+        "sample_label": (
+            "FULL_WINDOW"
+            if len(contracts) >= full_n and full_n > 0
+            else "DETAIL_CAP_NOT_UNIVERSE"
+        ),
+        "window": {"start": win_lo, "end": win_hi},
+        "uf": uf,
+    }
+    return editais, contracts, meta
 
 
 def run_live_two_cycle(
@@ -650,7 +672,7 @@ def run_live_two_cycle(
     out_dir.mkdir(parents=True, exist_ok=True)
     state_path = out_dir / "cycle-state.json"
 
-    e1, c1 = load_snapshot_from_db(dsn, uf=uf, as_of=as_of)
+    e1, c1, meta1 = load_snapshot_from_db(dsn, uf=uf, as_of=as_of, limit_contracts=None)
     # If no editais in DB, seed minimal synthetic markers so delta logic still
     # proves recurrence while contracts come from real snapshot.
     if not e1:
@@ -673,7 +695,7 @@ def run_live_two_cycle(
     save_state(s1, state_path)
 
     # Second cycle: reload (same snapshot) + inject one new edital id for delta
-    e2, c2 = load_snapshot_from_db(dsn, uf=uf, as_of=as_of)
+    e2, c2, meta2 = load_snapshot_from_db(dsn, uf=uf, as_of=as_of, limit_contracts=None)
     if not e2:
         e2 = list(e1)
     e2 = list(e2) + [
@@ -711,6 +733,11 @@ def run_live_two_cycle(
         "cycle_2": asdict(r2),
         "contracts_c1": len(c1),
         "contracts_c2": len(c2),
+        "population": {
+            "cycle_1": meta1,
+            "cycle_2": meta2,
+            "not_silent_5000_universe": True,
+        },
         "state_path": str(state_path),
         "proofs": {
             "no_manual_rebuild": r2.cycle["manual_diagnostic_rebuild_required"] is False
@@ -723,6 +750,7 @@ def run_live_two_cycle(
             "monthly_present": r2.monthly_report.get("periodicity") == "monthly",
             "variation_has_previous": r2.variation.get("has_previous") is True,
             "live_snapshot_wired": True,
+            "full_window_population_labeled": True,
         },
     }
     report_path = out_dir / "monthly-monitor-live.json"

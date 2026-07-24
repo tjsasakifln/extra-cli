@@ -313,6 +313,31 @@ def build_deliverable_a(
     return data
 
 
+def _extra_engineering_terms() -> list[str]:
+    """Strict lexical object filter for Extra Construtora peers (not hospital/fuel/IT)."""
+    return [
+        "reforma predial",
+        "reforma de edif",
+        "reforma de prédio",
+        "reforma de predio",
+        "manutenção predial",
+        "manutencao predial",
+        "construção de edif",
+        "construcao de edif",
+        "construção de préd",
+        "construcao de pred",
+        "edificação",
+        "edificacao",
+        "obra de engenharia",
+        "engenharia civil",
+        "pavimenta",
+        "drenagem",
+        "revitalização urbana",
+        "revitalizacao urbana",
+        "infraestrutura urbana",
+    ]
+
+
 def build_deliverable_b(
     conn: Any,
     *,
@@ -320,59 +345,116 @@ def build_deliverable_b(
     target_n: int,
     export_limit: int,
     pop: dict[str, Any],
+    profile_keywords: list[str] | None = None,
 ) -> dict[str, Any]:
+    """Competitors relevant to Extra Construtora (engineering objects), fail-closed.
+
+    Ranking uses full eligible population filtered by engineering object terms.
+    Hospital/office suppliers without engineering objects are excluded.
+    Geography is counted by contract UF frequency (not SC:1 stub).
+    """
     t0 = time.perf_counter()
+    terms = profile_keywords or _extra_engineering_terms()
+    # Build OR ILIKE clause with bound params only
+    obj_clauses = " OR ".join(["objeto_contrato ILIKE %s"] * len(terms))
+    like_params = [f"%{t}%" for t in terms]
+
     n_suppliers = int(
         scalar(
             conn,
-            """
+            f"""
             SELECT COUNT(DISTINCT COALESCE(fornecedor_cnpj_8,
                          left(COALESCE(fornecedor_cnpj,''),8)))
             FROM pncp_supplier_contracts
             WHERE COALESCE(is_active, TRUE)
               AND (%s::text IS NULL OR upper(btrim(uf)) = upper(%s))
-              AND (
-                (fornecedor_cnpj IS NOT NULL AND btrim(fornecedor_cnpj) <> '')
-                OR (fornecedor_nome IS NOT NULL AND btrim(fornecedor_nome) <> '')
-              )
-            """,
-            (uf, uf),
+              AND fornecedor_cnpj IS NOT NULL AND btrim(fornecedor_cnpj) <> ''
+              AND objeto_contrato IS NOT NULL
+              AND ({obj_clauses})
+            """,  # noqa: S608
+            (uf, uf, *like_params),
         )
         or 0
     )
+    n_contracts_eligible = int(
+        scalar(
+            conn,
+            f"""
+            SELECT COUNT(*)
+            FROM pncp_supplier_contracts
+            WHERE COALESCE(is_active, TRUE)
+              AND (%s::text IS NULL OR upper(btrim(uf)) = upper(%s))
+              AND fornecedor_cnpj IS NOT NULL AND btrim(fornecedor_cnpj) <> ''
+              AND objeto_contrato IS NOT NULL
+              AND ({obj_clauses})
+            """,  # noqa: S608
+            (uf, uf, *like_params),
+        )
+        or 0
+    )
+    # Single CTE: engineering-filtered contracts → supplier ranks + honest UF counts
+    pool = max(export_limit, target_n * 5, 80)
     rows_raw = q(
         conn,
-        """
-        SELECT
-            COALESCE(MAX(fornecedor_cnpj), '') AS cnpj,
-            MAX(fornecedor_nome) AS nome,
-            COUNT(*)::int AS n_contratos,
-            COALESCE(SUM(valor_total),0)::float AS valor_contratado_total,
-            array_agg(DISTINCT orgao_nome) FILTER (
-                WHERE orgao_nome IS NOT NULL AND btrim(orgao_nome) <> ''
-            ) AS orgaos,
-            array_agg(DISTINCT upper(btrim(uf))) FILTER (
-                WHERE uf IS NOT NULL AND btrim(uf) <> ''
-            ) AS ufs
-        FROM pncp_supplier_contracts
-        WHERE COALESCE(is_active, TRUE)
-          AND (%s::text IS NULL OR upper(btrim(uf)) = upper(%s))
-          AND (
-            (fornecedor_cnpj IS NOT NULL AND btrim(fornecedor_cnpj) <> '')
-            OR (fornecedor_nome IS NOT NULL AND btrim(fornecedor_nome) <> '')
-          )
-        GROUP BY COALESCE(fornecedor_cnpj_8, left(COALESCE(fornecedor_cnpj,''),8))
-        HAVING COUNT(*) >= 1
-        ORDER BY COUNT(*) DESC, SUM(valor_total) DESC NULLS LAST
-        LIMIT %s
-        """,
-        (uf, uf, max(export_limit, target_n)),
+        f"""
+        WITH eng AS (
+          SELECT
+            COALESCE(fornecedor_cnpj_8, left(COALESCE(fornecedor_cnpj,''),8)) AS root,
+            fornecedor_cnpj,
+            fornecedor_nome,
+            orgao_nome,
+            valor_total,
+            upper(btrim(uf)) AS uf_u
+          FROM pncp_supplier_contracts
+          WHERE COALESCE(is_active, TRUE)
+            AND (%s::text IS NULL OR upper(btrim(uf)) = upper(%s))
+            AND fornecedor_cnpj IS NOT NULL AND btrim(fornecedor_cnpj) <> ''
+            AND objeto_contrato IS NOT NULL
+            AND ({obj_clauses})
+        ),
+        ranked AS (
+          SELECT root,
+                 MAX(fornecedor_cnpj) AS cnpj,
+                 MAX(fornecedor_nome) AS nome,
+                 COUNT(*)::int AS n_contratos,
+                 COALESCE(SUM(valor_total),0)::float AS valor_contratado_total
+          FROM eng
+          GROUP BY root
+          HAVING COUNT(*) >= 2
+          ORDER BY COUNT(*) DESC, SUM(valor_total) DESC NULLS LAST
+          LIMIT %s
+        ),
+        geo AS (
+          SELECT e.root, e.uf_u, COUNT(*)::int AS n
+          FROM eng e
+          JOIN ranked r ON r.root = e.root
+          WHERE e.uf_u IS NOT NULL AND e.uf_u <> ''
+          GROUP BY e.root, e.uf_u
+        ),
+        orgs AS (
+          SELECT e.root, array_agg(DISTINCT e.orgao_nome) FILTER (
+            WHERE e.orgao_nome IS NOT NULL AND btrim(e.orgao_nome) <> ''
+          ) AS orgaos
+          FROM eng e
+          JOIN ranked r ON r.root = e.root
+          GROUP BY e.root
+        )
+        SELECT r.cnpj, r.nome, r.n_contratos, r.valor_contratado_total,
+               o.orgaos,
+               COALESCE(
+                 (SELECT jsonb_object_agg(g.uf_u, g.n) FROM geo g WHERE g.root = r.root),
+                 '{{}}'::jsonb
+               ) AS geo_counts
+        FROM ranked r
+        LEFT JOIN orgs o ON o.root = r.root
+        ORDER BY r.n_contratos DESC, r.valor_contratado_total DESC
+        """,  # noqa: S608
+        (uf, uf, *like_params, pool),
     )
     candidates: list[dict[str, Any]] = []
     for r in rows_raw:
         cnpj = "".join(ch for ch in str(r.get("cnpj") or "") if ch.isdigit())
         if len(cnpj) < 14:
-            # pad root-only to 14 zeros suffix for schema when only root known
             if len(cnpj) == 8:
                 cnpj = cnpj + "000000"
             elif len(cnpj) > 0:
@@ -380,35 +462,100 @@ def build_deliverable_b(
             else:
                 continue
         orgaos = list(r.get("orgaos") or [])
-        ufs = list(r.get("ufs") or [])
+        geo = r.get("geo_counts") or {}
+        if isinstance(geo, str):
+            try:
+                geo = json.loads(geo)
+            except json.JSONDecodeError:
+                geo = {}
+        if not isinstance(geo, dict):
+            geo = {}
+        nome = str(r.get("nome") or "")
+        nome_l = nome.lower()
+        # Fail-closed noise: exclude hospital/medical/food/fuel/IT resellers
+        bad_tokens = (
+            "hospitalar",
+            "hospital",
+            "medic",
+            "farmac",
+            "alimento",
+            "merenda",
+            "papelaria",
+            "combust",
+            "frotas",
+            "sistemas",
+            "software",
+            "tecnologia",
+            "informatica",
+            "informática",
+            "eletrica",
+            "elétrica",
+            "eletrô",
+            "eletro",
+            "consórcio intermunicipal",
+            "consorcio intermunicipal",
+            "prefeitura",
+            "município de",
+            "municipio de",
+        )
+        good_tokens = (
+            "constru",
+            "engenh",
+            "empreite",
+            "paviment",
+            "obras",
+            "edifica",
+            "reforma",
+            "predial",
+            "drenag",
+        )
+        if any(bad in nome_l for bad in bad_tokens) and not any(
+            good in nome_l for good in good_tokens
+        ):
+            continue
+        ufs = list(geo.keys()) if geo else ([uf] if uf else [])
         candidates.append(
             {
                 "cnpj": cnpj[:14],
-                "nome": r.get("nome") or "",
+                "nome": nome,
                 "n_contratos": int(r["n_contratos"]),
                 "valor_contratado_total": float(r["valor_contratado_total"] or 0),
                 "orgaos_em_que_venceu": orgaos[:20],
                 "ufs": ufs,
-                "distribuicao_geografica": {str(u): 1 for u in ufs},
-                "tipos_objeto": ["contrato_pncp"],
+                "distribuicao_geografica": {str(k): int(v) for k, v in geo.items()},
+                "tipos_objeto": ["engenharia_extra_profile"],
+                "object_types": ["engenharia_extra_profile"],
             }
         )
-    # Prefer CNPJ when available; allow root-padded identities for ranking
     rule = deliv_b.SelectionRule(
         target_n=target_n,
-        min_contracts=1,
+        min_contracts=2,
         require_cnpj=True,
-        uf_filter=None,  # already filtered in SQL
+        uf_filter=uf,  # enforce SC when profile uf set
     )
     report = deliv_b.select_competitors(candidates, rule)
     data = asdict(report)
     data["population"] = {
         **pop,
-        "n_suppliers_eligible": n_suppliers,
+        "n_suppliers_eligible_engineering": n_suppliers,
+        "n_contracts_eligible_engineering": n_contracts_eligible,
+        "profile_object_terms": terms,
         "export_limit": export_limit,
         "export_is_not_universe": True,
+        "selection_note": (
+            "Competitors ranked only on contracts whose objeto matches Extra "
+            "engineering profile terms; hospital/office suppliers excluded."
+        ),
     }
     data["query_seconds"] = round(time.perf_counter() - t0, 3)
+    data["claims_allowed"] = list(data.get("claims_allowed") or []) + [
+        "Suppliers observed winning engineering-object contracts in filter",
+        "Not a complete market or win-rate claim",
+    ]
+    data["claims_forbidden"] = list(data.get("claims_forbidden") or []) + [
+        "Treat top suppliers by raw national volume as Extra peers",
+        "Infer partnership from co-presence",
+    ]
     return data
 
 

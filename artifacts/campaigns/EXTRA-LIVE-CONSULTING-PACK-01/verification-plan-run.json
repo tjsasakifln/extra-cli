@@ -1,19 +1,19 @@
 {
-  "ran_at": "2026-07-24T15:22:00Z",
-  "all_technical_steps": "PASS",
-  "human_step": "BLOCKED_HUMAN",
-  "scratch_log": "/tmp/grok-goal-507604d67546/implementer/verification/plan-run.log",
+  "ran_at": "2026-07-24T15:36:29Z",
+  "terminal": "BLOCKED",
+  "human": "BLOCKED_HUMAN",
+  "pack_run_id": "live-pack-20260724-153517-67ec2ec8",
+  "pack_git_sha": "298c5218e8cf1afa5c56354f9ad1f86c82265ddc",
   "observations": {
     "population_SC": 1179237,
     "A_OK": true,
-    "B_15": true,
+    "B_engineering_15": true,
     "C_hits": 14750,
     "D_OK": true,
-    "E_4": true,
+    "E_OK": true,
     "reconcile_PASS": true,
-    "workspace_OK": true,
-    "monthly_OK": true,
-    "gates_OK": true,
-    "isolation_fail_closed": true
+    "monthly_full_window": true,
+    "human_ACCEPT": false,
+    "dual_operational_reproof": false
   }
 }

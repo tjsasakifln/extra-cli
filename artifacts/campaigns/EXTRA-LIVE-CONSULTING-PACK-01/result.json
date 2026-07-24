@@ -1,32 +1,35 @@
 {
   "campaign_id": "EXTRA-LIVE-CONSULTING-PACK-01",
-  "terminal": "PASS",
-  "terminal_detail": "A–E pack on authenticated isolated snapshot + human ACCEPT by Tiago; campaign gates green; production_touched=false; soak untouched",
-  "git_sha": "4016906136951650d9dd7ee0c60ae630fff3bca6",
+  "terminal": "BLOCKED",
+  "terminal_detail": "BLOCKED_HUMAN + residual dual operational reproof gap",
+  "blockers": [
+    {
+      "id": "HUMAN_ACCEPT",
+      "type": "human_acceptance",
+      "who": "Tiago",
+      "action": "Inspect pack-rc/ and set user-acceptance.json decision ACCEPT|REJECT|findings without agent auto-fill",
+      "impact": "No PASS claim without verifiable human decision"
+    },
+    {
+      "id": "DUAL_ISOLATED_REPROOF",
+      "type": "evidence_gap",
+      "action": "Re-run dual operational coverage on isolated restore against 1093 denominator or accept residual PARTIAL only",
+      "impact": "Cannot claim dual>=95% on this campaign tip for isolated reproof"
+    }
+  ],
+  "work_not_blocked_complete": true,
+  "git_sha": "298c5218e8cf1afa5c56354f9ad1f86c82265ddc",
+  "pack_run_id": "live-pack-20260724-153517-67ec2ec8",
+  "pack_git_sha": "298c5218e8cf1afa5c56354f9ad1f86c82265ddc",
   "pr": "https://github.com/tjsasakifln/extra-cli/pull/130",
   "branch": "campaign/extra-live-consulting-pack-01",
   "production_touched": false,
   "soak_contact": false,
-  "human_acceptance": {
-    "decision": "ACCEPT",
-    "reviewer": "Tiago",
-    "accepted_at": "2026-07-24T15:23:50Z",
-    "file": "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/user-acceptance.json"
-  },
-  "verification_plan": {
-    "V1_restore_population": "PASS 4437142/1179237 SC",
-    "V2_pack_AE": "PASS",
-    "V3_workspace": "PASS",
-    "V4_monthly": "PASS",
-    "V5_gates": "PASS",
-    "V6_human": "ACCEPT",
-    "V7_explain_review": "PASS"
-  },
   "pack": {
-    "run_id": "live-pack-20260724-151828-df8aaed3",
+    "run_id": "live-pack-20260724-153517-67ec2ec8",
+    "git_sha": "298c5218e8cf1afa5c56354f9ad1f86c82265ddc",
     "as_of": "2026-07-24",
     "eligible_population_SC": 1179237,
-    "restored_contracts": 4437142,
     "A": {
       "status": "OK",
       "n_rows": 200,
@@ -44,13 +47,13 @@
         "export_limit": 200,
         "export_is_not_universe": true
       },
-      "query_seconds": 3.87
+      "query_seconds": 3.04
     },
     "B": {
       "status": "OK",
       "valid_count": 15,
       "target_n": 15,
-      "query_seconds": 5.808
+      "query_seconds": 11.806
     },
     "C": {
       "status": "OK",
@@ -60,12 +63,12 @@
         "n": 14750,
         "query_complete": true
       },
-      "query_seconds": 2.699
+      "query_seconds": 2.015
     },
     "D": {
       "status": "OK",
       "n_panels": 6,
-      "query_seconds": 1.79
+      "query_seconds": 1.693
     },
     "E": {
       "status": "OK",
@@ -76,54 +79,33 @@
       "status": "PASS",
       "same_run_id": true,
       "divergences": [],
-      "run_id": "live-pack-20260724-151828-df8aaed3",
+      "run_id": "live-pack-20260724-153517-67ec2ec8",
       "eligible_population": 1179237
     }
   },
   "gates": {
-    "campaign-gate-extra-live-consulting-pack": "PASS",
-    "release-candidate-extra-live-consulting-pack": "PASS",
-    "verify-extra-live-consulting-isolated": "PASS",
-    "ci_pr130": "PASS"
-  },
-  "dod_impact": {
-    "DIRECT_ACCEPT": [],
-    "PARTIAL_ADVANCE": [
-      "§2.5 A–E pack (isolated, not live/prod claim)",
-      "§2.6 monthly isolated",
-      "§§9–12 contracts/competitors/values/reports on real snapshot",
-      "§29 lineage",
-      "§30 performance",
-      "§34 use/material with human ACCEPT"
-    ],
-    "UNBLOCKED": [
-      "monthly live path",
-      "full-population aggregates"
-    ],
-    "NO_CHANGE": [
-      "VPS soak items",
-      "LOCAL_READY/VPS_OPERATIONAL/PROJECT_DONE full seals"
-    ],
-    "note": "Formal DOD [x] only after merge to main + accept controller — campaign PASS does not auto-tick DOD"
+    "isolation": "PASS",
+    "pack_reconcile": "PASS",
+    "campaign_gate_full_suite": "PENDING_RUN_ON_SUITE_DSN",
+    "human": "BLOCKED_HUMAN"
   },
   "claims_authorized": [
-    "consulting_pack_A_E_isolated_authenticated_snapshot",
-    "full_eligible_population_SC",
-    "human_ACCEPT_by_Tiago",
-    "reconcile_PASS",
+    "A_E_pack_isolated_authenticated_snapshot_technical",
+    "engineering_filtered_competitors_B",
+    "C_full_window_query",
+    "monthly_full_window_labeled",
     "production_touched=false"
   ],
   "non_claims": [
+    "PASS_without_verifiable_human_ACCEPT",
+    "agent_fabricated_ACCEPT",
     "LOCAL_READY",
     "VPS_OPERATIONAL",
     "PROJECT_DONE",
-    "soak_complete",
-    "live_VPS_query",
+    "dual_operational_coverage_reproof_on_tip",
     "unit_price_from_global",
-    "win_rate",
-    "national_market_complete",
-    "DOD_items_ACCEPTED_without_main_merge"
+    "win_rate"
   ],
-  "next_step": "DevOps: merge PR #130 after CI green on tip; re-run isolated gates on main SHA; sequential DOD accept — no deploy while soak active.",
-  "generated_at": "2026-07-24T15:23:50Z"
+  "next_step": "1) Tiago real ACCEPT/REJECT after inspecting pack-rc. 2) Dual operational reproof on isolated copy or keep gap explicit. 3) campaign-gate with suite DSN green + CI tip green. 4) Only then consider PASS.",
+  "generated_at": "2026-07-24T15:36:29Z"
 }

@@ -1,7 +1,11 @@
 {
   "status": "PASS",
+  "run_id": "live-pack-20260724-153517-67ec2ec8",
+  "git_sha": "298c5218e8cf1afa5c56354f9ad1f86c82265ddc",
+  "as_of": "2026-07-24",
+  "eligible_population": 1179237,
   "same_run_id": true,
   "divergences": [],
-  "run_id": "live-pack-20260724-151413-54344a15",
-  "eligible_population": 1179237
+  "source_pack_manifest": "pack-rc/pack-manifest.json",
+  "stamped_at": "2026-07-24T15:36:29Z"
 }
