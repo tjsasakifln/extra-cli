@@ -782,6 +782,17 @@ def build_recurrence_delta(monthly: dict[str, Any], out_dir: Path) -> dict[str, 
     return result
 
 
+def compute_pack_checksums(pack_dir: Path) -> dict[str, str]:
+    """SHA-256 of every file under pack/ except pack-full.json (ADR-020 large)."""
+    out: dict[str, str] = {}
+    if not pack_dir.is_dir():
+        return out
+    for p in sorted(pack_dir.rglob("*")):
+        if p.is_file() and p.name != "pack-full.json":
+            out[str(p.relative_to(pack_dir))] = sha256_file(p)
+    return out
+
+
 def human_acceptance_status(campaign_dir: Path) -> dict[str, Any]:
     path = campaign_dir / "user-acceptance.json"
     if not path.exists():
@@ -806,6 +817,87 @@ def human_acceptance_status(campaign_dir: Path) -> dict[str, Any]:
     return data
 
 
+def validate_acceptance_binding(
+    acceptance: dict[str, Any],
+    *,
+    pack_run_id: str | None,
+    rc_sha: str,
+    pack_checksums: dict[str, str],
+) -> dict[str, Any]:
+    """Ensure ACCEPTED records bind to this exact RC identity — never rebind.
+
+    Returns acceptance dict possibly demoted to PENDING_HUMAN if stale vs pack.
+    """
+    out = dict(acceptance)
+    out["binding"] = {
+        "pack_run_id": pack_run_id,
+        "rc_sha": rc_sha,
+        "checked_at": utc_now(),
+    }
+    if out.get("status") != "ACCEPTED":
+        # For pending forms, publish the RC identity humans must accept (not a rebind of ACCEPT)
+        if out.get("status") in {None, "PENDING_HUMAN", "REJECTED"}:
+            out["status"] = out.get("status") or "PENDING_HUMAN"
+            out["run_id"] = pack_run_id
+            out["rc_sha"] = rc_sha
+            out["package_checksums"] = pack_checksums
+            out["accepted_by"] = None if out.get("status") != "REJECTED" else out.get("accepted_by")
+            if out.get("status") != "REJECTED":
+                out["accepted_at"] = None
+        return out
+
+    who = out.get("accepted_by")
+    if not who or str(who).lower() in {"agent", "auto", "system", "null"}:
+        out["status"] = "PENDING_HUMAN"
+        out["binding"]["valid"] = False
+        out["binding"]["reason"] = "invalid_accepted_by"
+        out["notes"] = "auto-accept rejected; requires Tiago explicit acceptance"
+        return out
+
+    mismatches: list[str] = []
+    if pack_run_id and out.get("run_id") and out.get("run_id") != pack_run_id:
+        mismatches.append(
+            f"run_id:{out.get('run_id')}!={pack_run_id}"
+        )
+    if out.get("rc_sha") and out.get("rc_sha") != rc_sha:
+        mismatches.append(f"rc_sha:{str(out.get('rc_sha'))[:12]}!={rc_sha[:12]}")
+    accepted_ck = out.get("package_checksums") or {}
+    # Require identity files to match when both sides have them
+    for key in (
+        "pack-manifest.json",
+        "executive-summary.md",
+        "consulting-pack.xlsx",
+        "executive-report.pdf",
+    ):
+        if key in accepted_ck and key in pack_checksums:
+            if accepted_ck[key] != pack_checksums[key]:
+                mismatches.append(f"checksum:{key}")
+    if mismatches:
+        # Stale ACCEPT must not be rewritten onto new RC — demote and keep prior fields for audit
+        out["status"] = "PENDING_HUMAN"
+        out["binding"]["valid"] = False
+        out["binding"]["mismatches"] = mismatches
+        out["binding"]["prior_accepted_run_id"] = acceptance.get("run_id")
+        out["binding"]["prior_accepted_rc_sha"] = acceptance.get("rc_sha")
+        out["binding"]["prior_accepted_by"] = who
+        out["binding"]["prior_accepted_at"] = acceptance.get("accepted_at")
+        out["notes"] = (
+            "STALE_ACCEPT: prior human ACCEPT does not bind to current pack/rc_sha. "
+            "New release candidate requires explicit re-accept. "
+            f"mismatches={mismatches}"
+        )
+        # Publish current RC identity for the re-accept form (status stays PENDING)
+        out["run_id"] = pack_run_id
+        out["rc_sha"] = rc_sha
+        out["package_checksums"] = pack_checksums
+        out["accepted_by"] = None
+        out["accepted_at"] = None
+        return out
+
+    out["binding"]["valid"] = True
+    return out
+
+
 def decide_terminal(
     *,
     isolation: dict[str, Any],
@@ -820,9 +912,9 @@ def decide_terminal(
 ) -> tuple[str, list[str]]:
     """Global terminal: PASS | BLOCKED | FAIL.
 
-    Live dual-snapshot recurrence is a non-claim when only labeled same-snapshot
-    mechanics exist. Campaign PASS is allowed with human ACCEPT + pack/linkage
-    green + recurrence *mechanics* proven — without claiming live dual snapshot.
+    Live dual-snapshot recurrence requires dual_snapshot_proof=true with real
+    independent temporal evidence. Labeled same-snapshot mechanics are allowed
+    for product PASS only when live_dual_snapshot is false.
     """
     blockers: list[str] = []
     if failures:
@@ -840,25 +932,45 @@ def decide_terminal(
         if st != "completed":
             return "FAIL", [f"linkage_status:{st}"]
 
-    # Reject false live_dual_snapshot claims as FAIL (honesty gate)
     rec = recurrence or {}
     mon = monthly or {}
-    if rec.get("live_dual_snapshot") is True and (
-        rec.get("mode") == "LABELED_DETERMINISTIC_REPLAY"
-        or mon.get("synthetic_inject_used")
-        or mon.get("live_dual_snapshot") is False
+
+    # Honesty: any live_dual_snapshot=true without dual_snapshot_proof fails
+    if rec.get("live_dual_snapshot") is True:
+        proof = rec.get("dual_snapshot_proof") or mon.get("dual_snapshot_proof")
+        labeled = (
+            "LABELED" in str(rec.get("mode") or "").upper()
+            or mon.get("synthetic_inject_used")
+            or mon.get("live_dual_snapshot") is False
+            or (isinstance(mon.get("population"), dict) and mon["population"].get("same_snapshot_both_cycles"))
+        )
+        if labeled or proof is not True:
+            return "FAIL", ["false_live_dual_snapshot_claim"]
+    # Also fail LIVE_ISOLATED mode that claims dual without proof
+    if (
+        str(rec.get("mode") or mon.get("mode") or "").upper() == "LIVE_ISOLATED"
+        and mon.get("live_dual_snapshot") is True
+        and mon.get("dual_snapshot_proof") is not True
     ):
         return "FAIL", ["false_live_dual_snapshot_claim"]
 
+    # Stale or invalid ACCEPT binding
+    binding = acceptance.get("binding") or {}
+    if acceptance.get("status") == "ACCEPTED" and binding.get("valid") is False:
+        return "FAIL", ["stale_or_invalid_accept_binding"]
+
     if acceptance.get("status") != "ACCEPTED":
-        blockers.append(
-            "user_acceptance_PENDING_HUMAN: Tiago must ACCEPT the release candidate"
-        )
+        if binding.get("mismatches"):
+            blockers.append(
+                "user_acceptance_STALE: prior ACCEPT does not bind current RC; re-accept required"
+            )
+        else:
+            blockers.append(
+                "user_acceptance_PENDING_HUMAN: Tiago must ACCEPT the release candidate"
+            )
         return "BLOCKED", blockers
 
-    # Human accepted + technical green → PASS.
-    # Recurrence mechanics may be labeled; live dual snapshot remains a non-claim
-    # recorded in recurrence.json / non-claims, not a global terminal blocker.
+    # Human accepted + binding valid + technical green → PASS
     return "PASS", []
 
 
@@ -1016,33 +1128,29 @@ def run_cycle(
     }
 
     acceptance = human_acceptance_status(out_dir)
-    # Preserve human decision fields; rebind run_id/rc_sha/checksums to THIS pack run
-    preserved_status = acceptance.get("status")
-    preserved_by = acceptance.get("accepted_by")
-    preserved_at = acceptance.get("accepted_at")
-    preserved_notes = acceptance.get("notes")
-    preserved_channel = acceptance.get("decision_channel")
-    if pack:
-        acceptance["run_id"] = pack.get("run_id")
-        acceptance["rc_sha"] = git_sha()
-        # Full pack checksums (all files) so acceptance binds to on-disk artifacts
-        pack_checksums: dict[str, str] = {}
-        for p in sorted(pack_dir.rglob("*")):
-            if p.is_file() and p.name != "pack-full.json":
-                pack_checksums[str(p.relative_to(pack_dir))] = sha256_file(p)
-        acceptance["package_checksums"] = pack_checksums
-        # Never demote a real human ACCEPT when refreshing bindings
-        if preserved_status == "ACCEPTED" and preserved_by:
-            acceptance["status"] = "ACCEPTED"
-            acceptance["accepted_by"] = preserved_by
-            acceptance["accepted_at"] = preserved_at
-            acceptance["notes"] = preserved_notes
-            acceptance["decision_channel"] = preserved_channel
-            acceptance["agent_auto_accept_forbidden"] = True
-        (out_dir / "user-acceptance.json").write_text(
-            json.dumps(acceptance, indent=2, ensure_ascii=False) + "\n",
-            encoding="utf-8",
-        )
+    pack_checksums = compute_pack_checksums(pack_dir) if pack_dir.is_dir() else {}
+    pack_run_id = (pack or {}).get("run_id")
+    # If pack failed, try pack-manifest on disk
+    if not pack_run_id and (pack_dir / "pack-manifest.json").exists():
+        try:
+            pack_run_id = json.loads(
+                (pack_dir / "pack-manifest.json").read_text(encoding="utf-8")
+            ).get("run_id")
+        except json.JSONDecodeError:
+            pack_run_id = None
+    rc_sha_now = git_sha()
+    # NEVER silently rebind ACCEPTED onto a new pack — validate binding instead
+    acceptance = validate_acceptance_binding(
+        acceptance,
+        pack_run_id=pack_run_id,
+        rc_sha=rc_sha_now,
+        pack_checksums=pack_checksums,
+    )
+    (out_dir / "user-acceptance.json").write_text(
+        json.dumps(acceptance, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
+    steps["acceptance_binding"] = acceptance.get("binding")
 
     terminal, blockers = decide_terminal(
         isolation=isolation,
@@ -1293,6 +1401,95 @@ def cmd_guard(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_verify_accept_binding(args: argparse.Namespace) -> int:
+    """Re-check acceptance binding against on-disk pack without regenerating."""
+    out_dir = Path(args.out)
+    pack_dir = out_dir / "pack"
+    pm_path = pack_dir / "pack-manifest.json"
+    if not pm_path.exists():
+        print(json.dumps({"error": "missing_pack_manifest", "path": str(pm_path)}))
+        return 1
+    pm = json.loads(pm_path.read_text(encoding="utf-8"))
+    pack_run_id = pm.get("run_id")
+    rc_sha = git_sha()
+    checksums = compute_pack_checksums(pack_dir)
+    acceptance = human_acceptance_status(out_dir)
+    bound = validate_acceptance_binding(
+        acceptance,
+        pack_run_id=pack_run_id,
+        rc_sha=rc_sha,
+        pack_checksums=checksums,
+    )
+    (out_dir / "user-acceptance.json").write_text(
+        json.dumps(bound, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
+    # Also refresh result terminal using bound acceptance + on-disk evidence
+    result_path = out_dir / "result.json"
+    result: dict[str, Any] = {}
+    if result_path.exists():
+        result = json.loads(result_path.read_text(encoding="utf-8"))
+    pack = {
+        "run_id": pack_run_id,
+        "reconcile": json.loads(
+            (out_dir / "package-reconciliation.json").read_text(encoding="utf-8")
+        )
+        if (out_dir / "package-reconciliation.json").exists()
+        else {"status": pm.get("reconcile", {}).get("status")},
+    }
+    linkage = {"status": "completed"}
+    if (out_dir / "linkage-quality.json").exists():
+        linkage = json.loads((out_dir / "linkage-quality.json").read_text(encoding="utf-8"))
+    recurrence = {}
+    if (out_dir / "recurrence.json").exists():
+        recurrence = json.loads((out_dir / "recurrence.json").read_text(encoding="utf-8"))
+    monthly = {
+        "mode": recurrence.get("mode"),
+        "live_dual_snapshot": recurrence.get("live_dual_snapshot"),
+        "synthetic_inject_used": True,
+    }
+    terminal, blockers = decide_terminal(
+        isolation={"ok": True},
+        migrations={"idempotent": True},
+        snapshot={"ok": True},
+        pack=pack,
+        linkage=linkage,
+        monthly=monthly,
+        acceptance=bound,
+        failures=[],
+        recurrence=recurrence,
+    )
+    result["final_status"] = terminal
+    result["terminal"] = terminal
+    result["blockers"] = blockers
+    result["human_acceptance"] = bound.get("status")
+    result["acceptance_binding"] = bound.get("binding")
+    result["rc_sha"] = rc_sha
+    result["run_id"] = pack_run_id
+    result_path.write_text(
+        json.dumps(result, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+    )
+    print(
+        json.dumps(
+            {
+                "final_status": terminal,
+                "blockers": blockers,
+                "acceptance": bound.get("status"),
+                "binding": bound.get("binding"),
+                "run_id": pack_run_id,
+                "rc_sha": rc_sha,
+            },
+            indent=2,
+            ensure_ascii=False,
+        )
+    )
+    if terminal == "PASS":
+        return 0
+    if terminal == "BLOCKED":
+        return 2
+    return 1
+
+
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(description="Client-ready recurring consulting cycle")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -1308,6 +1505,13 @@ def main(argv: list[str] | None = None) -> int:
     g = sub.add_parser("guard", help="Isolation guard only")
     g.add_argument("--dsn", default=DEFAULT_DSN)
     g.set_defaults(func=cmd_guard)
+
+    v = sub.add_parser(
+        "verify-accept",
+        help="Validate user-acceptance binding to frozen pack (no pack regen)",
+    )
+    v.add_argument("--out", default=str(DEFAULT_OUT))
+    v.set_defaults(func=cmd_verify_accept_binding)
 
     args = p.parse_args(argv)
     return int(args.func(args))

@@ -14,6 +14,7 @@ from scripts.ops.client_ready_consulting_cycle import (
     decide_terminal,
     isolation_guard,
     main,
+    validate_acceptance_binding,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -83,7 +84,7 @@ def test_decide_terminal_fail_on_reconcile() -> None:
 
 
 def test_decide_terminal_pass_with_accept_and_labeled_recurrence_mechanics() -> None:
-    """PASS allowed with human ACCEPT + labeled recurrence mechanics (not live dual)."""
+    """PASS allowed with bound human ACCEPT + labeled recurrence mechanics (not live dual)."""
     term, blockers = decide_terminal(
         isolation={"ok": True},
         migrations={"idempotent": True},
@@ -96,7 +97,11 @@ def test_decide_terminal_pass_with_accept_and_labeled_recurrence_mechanics() -> 
             "synthetic_inject_used": True,
             "live_dual_snapshot": False,
         },
-        acceptance={"status": "ACCEPTED", "accepted_by": "Tiago Sasaki"},
+        acceptance={
+            "status": "ACCEPTED",
+            "accepted_by": "Tiago Sasaki",
+            "binding": {"valid": True},
+        },
         failures=[],
         recurrence={
             "mode": "LABELED_DETERMINISTIC_REPLAY",
@@ -120,7 +125,11 @@ def test_decide_terminal_fails_false_live_dual_snapshot_claim() -> None:
             "synthetic_inject_used": True,
             "live_dual_snapshot": False,
         },
-        acceptance={"status": "ACCEPTED", "accepted_by": "Tiago Sasaki"},
+        acceptance={
+            "status": "ACCEPTED",
+            "accepted_by": "Tiago Sasaki",
+            "binding": {"valid": True},
+        },
         failures=[],
         recurrence={
             "mode": "LABELED_DETERMINISTIC_REPLAY",
@@ -129,6 +138,85 @@ def test_decide_terminal_fails_false_live_dual_snapshot_claim() -> None:
     )
     assert term == "FAIL"
     assert any("false_live_dual_snapshot" in b for b in blockers)
+
+
+def test_decide_terminal_fails_live_isolated_dual_without_proof() -> None:
+    """LIVE_ISOLATED + live_dual_snapshot without dual_snapshot_proof must FAIL."""
+    term, blockers = decide_terminal(
+        isolation={"ok": True},
+        migrations={"idempotent": True},
+        snapshot={"ok": True},
+        pack={"reconcile": {"status": "PASS"}},
+        linkage={"status": "completed"},
+        monthly={
+            "mode": "LIVE_ISOLATED",
+            "live_dual_snapshot": True,
+            "dual_snapshot_proof": False,
+        },
+        acceptance={
+            "status": "ACCEPTED",
+            "accepted_by": "Tiago Sasaki",
+            "binding": {"valid": True},
+        },
+        failures=[],
+        recurrence={"mode": "LIVE_ISOLATED", "live_dual_snapshot": True},
+    )
+    assert term == "FAIL"
+    assert any("false_live_dual_snapshot" in b for b in blockers)
+
+
+def test_validate_acceptance_binding_rejects_stale_accept() -> None:
+    """ACCEPTED for old run_id/rc_sha/checksums must demote to PENDING (no silent rebind)."""
+    prior = {
+        "status": "ACCEPTED",
+        "accepted_by": "Tiago Sasaki",
+        "accepted_at": "2026-07-24T21:40:15Z",
+        "run_id": "old-run",
+        "rc_sha": "a" * 40,
+        "package_checksums": {
+            "pack-manifest.json": "0" * 64,
+            "executive-summary.md": "1" * 64,
+        },
+    }
+    out = validate_acceptance_binding(
+        prior,
+        pack_run_id="new-run",
+        rc_sha="b" * 40,
+        pack_checksums={
+            "pack-manifest.json": "c" * 64,
+            "executive-summary.md": "d" * 64,
+        },
+    )
+    assert out["status"] == "PENDING_HUMAN"
+    assert out["accepted_by"] is None
+    assert out["run_id"] == "new-run"
+    assert out["rc_sha"] == "b" * 40
+    assert out["binding"]["valid"] is False
+    assert out["binding"]["prior_accepted_run_id"] == "old-run"
+    assert any("run_id" in m for m in out["binding"]["mismatches"])
+
+
+def test_validate_acceptance_binding_keeps_matching_accept() -> None:
+    ck = {
+        "pack-manifest.json": "a" * 64,
+        "executive-summary.md": "b" * 64,
+        "consulting-pack.xlsx": "c" * 64,
+        "executive-report.pdf": "d" * 64,
+    }
+    prior = {
+        "status": "ACCEPTED",
+        "accepted_by": "Tiago Sasaki",
+        "accepted_at": "2026-07-24T21:40:15Z",
+        "run_id": "run-1",
+        "rc_sha": "e" * 40,
+        "package_checksums": dict(ck),
+    }
+    out = validate_acceptance_binding(
+        prior, pack_run_id="run-1", rc_sha="e" * 40, pack_checksums=ck
+    )
+    assert out["status"] == "ACCEPTED"
+    assert out["accepted_by"] == "Tiago Sasaki"
+    assert out["binding"]["valid"] is True
 
 def test_cli_guard_exit_codes() -> None:
     assert main(["guard", "--dsn", "postgresql://test:test@127.0.0.1:5436/extra_live_pack_rc"]) == 0
