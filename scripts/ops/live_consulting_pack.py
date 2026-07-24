@@ -447,12 +447,22 @@ def build_deliverable_c(
             orgao_nome AS orgao,
             orgao_cnpj,
             fornecedor_nome AS fornecedor,
+            fornecedor_nome AS contratado,
+            fornecedor_cnpj AS contratado_cnpj,
             fornecedor_cnpj,
             objeto_contrato AS objeto,
+            valor_total AS valor,
             valor_total,
+            'CONTRATADO'::text AS valor_semantica,
             data_inicio::text AS vigencia_inicio,
+            data_inicio::text AS inicio,
             data_fim::text AS vigencia_fim,
             data_fim::text AS termino,
+            'pncp_supplier_contracts'::text AS fonte,
+            'pncp_supplier_contracts'::text AS termino_fonte,
+            COALESCE(last_seen_at, ingested_at, now())::date::text AS termino_verificado_em,
+            COALESCE(last_seen_at, ingested_at, now())::date::text AS verified_at,
+            'CONTRATUAL'::text AS termino_tipo,
             uf,
             municipio
         FROM pncp_supplier_contracts
@@ -472,6 +482,13 @@ def build_deliverable_c(
     report = deliv_c.select_expiring(rows_raw, cfg)
     data = asdict(report)
     n_in = len(data.get("rows") or [])
+    # Detail export cap — full window already queried into n_in
+    export_cap = int(pop.get("export_limit") or 500)
+    if n_in > export_cap:
+        data["rows"] = list(data.get("rows") or [])[:export_cap]
+        data["export_limit"] = export_cap
+        data["export_is_not_universe"] = True
+        data["window_hits_total"] = n_in
     if n_in == 0:
         data["status"] = "EMPTY"
         data["success_zero"] = {
@@ -486,13 +503,15 @@ def build_deliverable_c(
             ),
         }
     else:
-        data["success_zero"] = {"success_zero": False, "n": n_in}
+        data["success_zero"] = {"success_zero": False, "n": n_in, "query_complete": True}
     data["population"] = {
         **pop,
         "contracts_with_data_fim_scanned": n_scanned,
         "window_start": lo.isoformat(),
         "window_end": hi.isoformat(),
+        "window_hits_total": n_in,
         "query_complete": True,
+        "export_is_not_universe": True,
     }
     data["query_seconds"] = round(time.perf_counter() - t0, 3)
     return data
@@ -866,7 +885,8 @@ def run_pack(
             export_limit=export_limit,
             pop=pop,
         )
-        c = build_deliverable_c(conn, uf=uf, as_of=as_of_d, pop=pop)
+        pop_c = {**pop, "export_limit": export_limit}
+        c = build_deliverable_c(conn, uf=uf, as_of=as_of_d, pop=pop_c)
         d = build_deliverable_d(
             conn, uf=uf, keywords=keywords, min_sample=5, pop=pop
         )

@@ -387,5 +387,7 @@ verify-extra-live-consulting-isolated:
 		--dsn '$(CAMPAIGN_TEST_DSN)' \
 		--out '$(CAMPAIGN_LIVE_PACK_DIR)/pack-verify' \
 		--uf SC
-	python3 -c "import json; m=json.load(open('$(CAMPAIGN_LIVE_PACK_DIR)/pack-verify/pack-manifest.json')); assert m.get('production_touched') is False; assert m['reconcile']['status']=='PASS'; assert m['deliverable_a']['status'] in ('OK','PARTIAL'); print('verify-ok', m['run_id'], m['population']['eligible_population'])"
+	python3 -c "import json; m=json.load(open('$(CAMPAIGN_LIVE_PACK_DIR)/pack-verify/pack-manifest.json')); assert m.get('production_touched') is False; assert m['reconcile']['status']=='PASS'; assert m['deliverable_a']['status'] in ('OK','PARTIAL'); assert m['deliverable_b']['status'] in ('OK','INSUFFICIENT','PARTIAL'); print('verify-ok', m['run_id'], m['population']['eligible_population'])"
+	LOCAL_DATALAKE_DSN='$(CAMPAIGN_TEST_DSN)' python3 -m scripts.workspace competitors --json --dsn '$(CAMPAIGN_TEST_DSN)' --limit 5 | python3 -c "import sys,json; d=json.load(sys.stdin); assert d.get('status')=='OK' and d.get('count',0)>=1, d"
+	LOCAL_DATALAKE_DSN='$(CAMPAIGN_TEST_DSN)' python3 -m scripts.workspace prices --json --dsn '$(CAMPAIGN_TEST_DSN)' --keywords reforma | python3 -c "import sys,json; d=json.load(sys.stdin); assert d.get('status')=='OK', d"
 	@echo 'verify-extra-live-consulting-isolated OK'

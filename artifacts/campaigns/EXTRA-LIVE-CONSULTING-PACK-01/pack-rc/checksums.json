@@ -1,15 +1,16 @@
 {
   "competitors.csv": "7cd3e770702f26251ece0e511fa0e5a0f5884c1ac24efacda7371257730a4a70",
-  "deliverable_b.json": "e193923380ae9433a5e1e6566bd8a1ca47e591b0655cc268851cde9188a9fe7e",
-  "extra_live_consulting_pack.pdf": "565eae762ce7c13fcd4e962adc1f74f924d2314fb37ff1673f75a91958b13276",
-  "expiring.csv": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "deliverable_b.json": "e319bb294ce4b1bdf44532a24c5f45a4eae1c0fdb993fd1c835e343ca5de8a7e",
+  "extra_live_consulting_pack.pdf": "1590355e069423b8fb78c14cbda83ebf4911232c623e1eebe58b562964ff69e3",
+  "expiring.csv": "a906867a70fa6809d42f0482461571f0a2492721d5c1662b835de5e76dad82d6",
+  "checksums.json": "83824d1549dd3251070052297e9fb1298e49d5c3e103c496263fa0059c63ce0e",
   "orgaos_ranking.csv": "58cb823c3a4038bd52743e2c4608cb1a71a9042b0e68c6daa3d9b64f8c12f809",
-  "deliverable_c.json": "8f6e4f86fc60814cd5029400943f5c23828e38098e28f91eaa8606718578c72c",
-  "deliverable_d.json": "84cee8f948acf87662f3941c3def815413de42519f2fea40345a4a2cece5ac75",
-  "pack-full.json": "2dff835326d83fd15fc8a87bffc6fdf195d27af3cddf85055840a28df6393733",
-  "deliverable_a.json": "0d63ad27225902511e71c25f72a97bcc6dda1f84e400598042a21716d2f59211",
-  "executive_summary.md": "a45e3c93c670dda65bda7e50db0c548a1129f6f1624d1e34b602da5e28637e9c",
-  "pack-manifest.json": "c82015dac55c76c019c70a90fa3946b82cb1674919f199cac45d3271bbdf3901",
-  "deliverable_e.json": "f7b88b9feb5a2e7804ea15c8497387732d47938f02f0aa48358790464ef065e7",
-  "extra_live_consulting_pack.xlsx": "6376ef0cb13f28d227f50d9108a40e755e5e1382cf035562c763dfa36c8c67fa"
+  "deliverable_c.json": "15672657099a7b2e5e93a43c94431dfef13168d3cf96b3956aa5f6c65d0ab1fc",
+  "deliverable_d.json": "ed0af0273371fce09d76d3a67287e8c9f8d3dea6a81f691d9956c2215ac7f18c",
+  "pack-full.json": "5d1d6e4c6274a91fdc54bdb8ff697dc920f05d8243531736a1108ddf3cc82fee",
+  "deliverable_a.json": "84cda8615b9df35ca9f4b7d88c3a75e2855a03030c079902e563f211a5e69f0d",
+  "executive_summary.md": "9c682031975ab797ad7a5bb0737032562f73c353ae1f9ae0b2fb043398da0606",
+  "pack-manifest.json": "911b0012e3a6f424a58f6540abc3ee50ee83794e23f163743c492999c7285702",
+  "deliverable_e.json": "fd9153109dd2cdaf5e9266e279c7285aee5a2df3a5b34752963a0a84ae50c9c6",
+  "extra_live_consulting_pack.xlsx": "890945a4236765c93b21b3775efb92f5010e3924728ad3e7944f16ec42225d51"
 }

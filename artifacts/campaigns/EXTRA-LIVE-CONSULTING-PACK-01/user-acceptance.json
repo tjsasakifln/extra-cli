@@ -4,13 +4,21 @@
   "decision": null,
   "required_before_PASS": true,
   "instructions": [
-    "Open artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-rc/executive_summary.md",
-    "Review PDF extra_live_consulting_pack.pdf and Excel .xlsx",
-    "Set decision to ACCEPT or REJECT (or list findings[])",
-    "Do not auto-accept from agents"
+    "Read pack-rc/executive_summary.md",
+    "Open pack-rc/extra_live_consulting_pack.pdf and .xlsx",
+    "Set decision to ACCEPT or REJECT (or findings array)",
+    "Never leave agents to auto-accept"
   ],
-  "pack_run_id": "live-pack-20260724-144033-ff964ea8",
+  "pack_run_id": "live-pack-20260724-151413-54344a15",
   "eligible_population": 1179237,
   "git_sha": "8b067bef4a5041f6fd86319ee8041453cfae8048",
-  "recorded_at": "2026-07-24T14:55:29Z"
+  "recorded_at": "2026-07-24T15:16:22Z",
+  "pack_summary": {
+    "A": "OK",
+    "B": "OK 15/15",
+    "C": "OK 14758 window hits (export 200)",
+    "D": "OK 6 panels",
+    "E": "OK 4 recs",
+    "reconcile": "PASS"
+  }
 }

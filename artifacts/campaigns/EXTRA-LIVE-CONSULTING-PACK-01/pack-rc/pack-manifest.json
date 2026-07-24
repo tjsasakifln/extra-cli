@@ -1,8 +1,8 @@
 {
   "campaign_id": "EXTRA-LIVE-CONSULTING-PACK-01",
-  "run_id": "live-pack-20260724-144033-ff964ea8",
+  "run_id": "live-pack-20260724-151413-54344a15",
   "as_of": "2026-07-23",
-  "git_sha": "23ed5506916945bd4770ea00c9c795243a981e2e",
+  "git_sha": "09bbffdf4239508c2ca7ebb59e2411cb6754ebfc",
   "schema_version": "coverage-2.4_entity_coverage_rebuild",
   "profile": {
     "profile_path": "config/client_profiles/extra.yaml",
@@ -38,31 +38,28 @@
       "export_limit": 200,
       "export_is_not_universe": true
     },
-    "query_seconds": 2.87
+    "query_seconds": 3.26
   },
   "deliverable_b": {
     "status": "OK",
     "valid_count": 15,
     "target_n": 15,
-    "query_seconds": 5.274
+    "query_seconds": 6.294
   },
   "deliverable_c": {
-    "status": "EMPTY",
-    "n_rows": 0,
+    "status": "OK",
+    "n_rows": 200,
     "success_zero": {
-      "success_zero": true,
-      "window": "90-180d",
-      "as_of": "2026-07-23",
-      "contracts_with_data_fim_scanned": 1179228,
-      "query_complete": true,
-      "message": "Zero contracts in 90–180 day window after complete query; not 'not consulted'"
+      "success_zero": false,
+      "n": 14758,
+      "query_complete": true
     },
-    "query_seconds": 1.478
+    "query_seconds": 2.124
   },
   "deliverable_d": {
     "status": "OK",
     "n_panels": 6,
-    "query_seconds": 1.78
+    "query_seconds": 1.84
   },
   "deliverable_e": {
     "status": "OK",
@@ -85,7 +82,7 @@
     "status": "PASS",
     "same_run_id": true,
     "divergences": [],
-    "run_id": "live-pack-20260724-144033-ff964ea8",
+    "run_id": "live-pack-20260724-151413-54344a15",
     "eligible_population": 1179237
   },
   "isolation": {
@@ -93,8 +90,8 @@
     "isolation_ok": true,
     "hits": [],
     "dsn_masked": "postgresql://test:***@127.0.0.1:5436/extra_live_pack_rc",
-    "checked_at": "2026-07-24T14:40:33Z"
+    "checked_at": "2026-07-24T15:14:13Z"
   },
   "production_touched": false,
-  "generated_at": "2026-07-24T14:40:46Z"
+  "generated_at": "2026-07-24T15:14:28Z"
 }

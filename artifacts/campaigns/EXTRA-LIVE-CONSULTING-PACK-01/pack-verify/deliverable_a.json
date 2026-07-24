@@ -4647,7 +4647,7 @@
     "Treat export_limit rows as statistical universe",
     "Call valor_total a unit price or valor pago"
   ],
-  "generated_at": "2026-07-24T15:14:18Z",
+  "generated_at": "2026-07-24T15:15:37Z",
   "population": {
     "eligible_population": 1179237,
     "active_contracts": 1179237,
@@ -4662,10 +4662,10 @@
     "export_limit": 200,
     "export_is_not_universe": true
   },
-  "query_seconds": 3.26,
+  "query_seconds": 3.149,
   "valor_semantica": "CONTRATADO",
-  "run_id": "live-pack-20260724-151413-54344a15",
-  "as_of": "2026-07-23",
+  "run_id": "live-pack-20260724-151533-5c99331c",
+  "as_of": "2026-07-24",
   "git_sha": "09bbffdf4239508c2ca7ebb59e2411cb6754ebfc",
   "schema_version": "coverage-2.4_entity_coverage_rebuild"
 }
