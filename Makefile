@@ -331,3 +331,12 @@ verify-stratified-recall-isolated:
 		--out artifacts/campaigns/STRATIFIED-RECALL-SOURCE-RESILIENCE-01/verify-isolated.json \
 		$(STRATIFIED_RECALL_VERIFY_FLAGS)
 
+
+# --- national intel foundation (migration 060) ---
+.PHONY: test-national-intel verify-national-intel-foundation
+test-national-intel:
+	python -m pytest tests/national_intel/ -q --tb=short
+
+verify-national-intel-foundation:
+	@test -f db/migrations/060_national_contracts_intelligence_layers.sql
+	@test ! -f db/migrations/059_national_contracts_intelligence_layers.sql
