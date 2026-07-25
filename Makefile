@@ -340,3 +340,11 @@ test-national-intel:
 verify-national-intel-foundation:
 	@test -f db/migrations/060_national_contracts_intelligence_layers.sql
 	@test ! -f db/migrations/059_national_contracts_intelligence_layers.sql
+
+# --- canonical entity linkage (migration 061) ---
+.PHONY: test-linkage verify-linkage-foundation
+test-linkage:
+	python -m pytest tests/test_canonical_entity_linkage.py -q --tb=short
+
+verify-linkage-foundation:
+	@test -f db/migrations/061_canonical_entity_linkage.sql
