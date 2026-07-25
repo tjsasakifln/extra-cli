@@ -68,7 +68,7 @@ def select_no_match_audit_sample(
     for name in order:
         pool = sorted(
             buckets[name],
-            key=lambda l: hashlib.sha1(f"{seed}:{l.canonical_id}".encode()).hexdigest(),
+            key=lambda lin: hashlib.sha1(f"{seed}:{lin.canonical_id}".encode(), usedforsecurity=False).hexdigest(),
         )
         for lin in pool[:per]:
             selected[lin.canonical_id] = lin
@@ -80,7 +80,7 @@ def select_no_match_audit_sample(
     if len(selected) < n:
         for lin in sorted(
             no_match_lineages,
-            key=lambda l: hashlib.sha1(f"{seed}:{l.canonical_id}".encode()).hexdigest(),
+            key=lambda lin: hashlib.sha1(f"{seed}:{lin.canonical_id}".encode(), usedforsecurity=False).hexdigest(),
         ):
             selected[lin.canonical_id] = lin
             if len(selected) >= n:

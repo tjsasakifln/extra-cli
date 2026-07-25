@@ -277,7 +277,7 @@ class OpenAICompatibleProvider:
                 {"role": "user", "content": user},
             ],
         }
-        req = urllib.request.Request(
+        req = urllib.request.Request(  # noqa: S310
             url,
             data=json.dumps(body).encode("utf-8"),
             headers={
@@ -287,7 +287,7 @@ class OpenAICompatibleProvider:
             method="POST",
         )
         try:
-            with urllib.request.urlopen(req, timeout=self.timeout_seconds) as resp:
+            with urllib.request.urlopen(req, timeout=self.timeout_seconds) as resp:  # noqa: S310
                 payload = json.loads(resp.read().decode("utf-8"))
         except urllib.error.URLError as exc:
             raise LLMError(f"timeout/network: {exc}", kind="timeout") from exc

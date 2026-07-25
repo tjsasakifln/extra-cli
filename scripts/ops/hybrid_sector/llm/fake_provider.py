@@ -2,7 +2,8 @@
 from __future__ import annotations
 
 import re
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 from scripts.ops.hybrid_sector.llm.protocol import LLMError
 from scripts.ops.hybrid_sector.llm.schema import (

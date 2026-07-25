@@ -11,12 +11,12 @@ from __future__ import annotations
 import re
 from typing import Any
 
+from scripts.ops.hybrid_sector.models import CandidateRecord, DeterministicResult, RawOpportunity
 from scripts.ops.sector_classifier import (
     RULE_VERSION,
     classify_object,
     normalize_text,
 )
-from scripts.ops.hybrid_sector.models import CandidateRecord, DeterministicResult, RawOpportunity
 
 # Explicit execution / obra signals that block irreversible CLEAR_NEGATIVE
 _EXECUTION_SIGNAL = re.compile(
@@ -84,7 +84,6 @@ def classify_selective(
 
     pos = list(champion.positive_terms or [])
     neg = list(champion.negative_terms or [])
-    pos_score = float(champion.confidence) if champion.sector_match or pos else 0.0
     # Approximate margin from champion confidence + hit counts
     margin = abs(len(pos) * 0.35 - len(neg) * 0.4)
 

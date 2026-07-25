@@ -5,10 +5,10 @@ Categories are retrieval signals, not final classification decisions.
 from __future__ import annotations
 
 import re
-from typing import Any, Iterable
+from collections.abc import Iterable
 
-from scripts.ops.sector_classifier import normalize_text
 from scripts.ops.hybrid_sector.models import RawOpportunity, RetrievalHit
+from scripts.ops.sector_classifier import normalize_text
 
 DEFAULT_CATEGORY_TERMS = [
     "obras",

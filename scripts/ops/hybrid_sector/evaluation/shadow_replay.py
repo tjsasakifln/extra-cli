@@ -85,10 +85,10 @@ def shadow_compare(
     latency_champion_s: float | None = None,
     latency_challenger_s: float | None = None,
 ) -> dict[str, Any]:
-    chal = {l.canonical_id: l for l in challenger_lineages}
+    chal = {lin.canonical_id: lin for lin in challenger_lineages}
     rows = []
-    pos_ids = {i for i, l in gold_labels.items() if l == "POSITIVE"}
-    neg_ids = {i for i, l in gold_labels.items() if l == "NEGATIVE"}
+    pos_ids = {i for i, lab in gold_labels.items() if lab == "POSITIVE"}
+    neg_ids = {i for i, lab in gold_labels.items() if lab == "NEGATIVE"}
 
     for rec in universe:
         cid = rec.canonical_id
@@ -178,7 +178,7 @@ def multi_window_shadow(
 
     windows: list of (name, start_iso, end_iso). If None, derive from captured_at.
     """
-    chal = {l.canonical_id: l for l in challenger_lineages}
+    chal = {lin.canonical_id: lin for lin in challenger_lineages}
     by_source: dict[str, list[RawOpportunity]] = defaultdict(list)
     for rec in universe:
         if rec.canonical_id in gold_labels:

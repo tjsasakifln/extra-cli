@@ -4,8 +4,9 @@ Recall denominator MUST come from this universe, never only keyword hits.
 """
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass, field
-from typing import Any, Iterable
+from typing import Any
 
 from scripts.ops.hybrid_sector.models import RawOpportunity
 

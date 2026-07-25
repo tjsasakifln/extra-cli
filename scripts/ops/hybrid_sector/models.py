@@ -4,7 +4,6 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass, field
 from typing import Any, Literal
 
-
 CommercialDecision = Literal["MATCH", "REVIEW", "NO_MATCH"]
 DeterministicDecision = Literal["CLEAR_POSITIVE", "GRAY_ZONE", "CLEAR_NEGATIVE"]
 

@@ -167,3 +167,6 @@ artifacts/campaigns/**/monthly/monthly-monitor-live.json
 artifacts/campaigns/**/monthly/cycle-state.json
 artifacts/campaigns/**/dossiers/
 artifacts/campaigns/**/pack/dossiers/
+
+# Hybrid sector campaign: ban deliverable_* dumps (generated-artifacts policy)
+artifacts/campaigns/**/deliverable_*.json

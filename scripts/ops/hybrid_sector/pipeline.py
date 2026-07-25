@@ -317,12 +317,12 @@ def run_pipeline(
     universe_ids = {r.canonical_id for r in universe}
     candidate_ids = {c.record.canonical_id for c in candidates}
     decision_ids = {lin.canonical_id for lin in lineages}
-    assert len(lineages) == len(candidates), "lineage/candidate count mismatch"
-    assert candidate_ids == universe_ids, (
+    assert len(lineages) == len(candidates), "lineage/candidate count mismatch"  # noqa: S101
+    assert candidate_ids == universe_ids, (  # noqa: S101
         f"silent discard of raw-universe records: "
         f"{sorted(universe_ids - candidate_ids)[:20]}"
     )
-    assert decision_ids == universe_ids, (
+    assert decision_ids == universe_ids, (  # noqa: S101
         f"raw-universe records without commercial decision: "
         f"{sorted(universe_ids - decision_ids)[:20]}"
     )

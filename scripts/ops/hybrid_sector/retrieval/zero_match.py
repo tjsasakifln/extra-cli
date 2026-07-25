@@ -5,7 +5,7 @@ organ history, value/modality compatible, semantic proximity.
 """
 from __future__ import annotations
 
-from typing import Iterable
+from collections.abc import Iterable
 
 from scripts.ops.hybrid_sector.models import RawOpportunity, RetrievalHit
 

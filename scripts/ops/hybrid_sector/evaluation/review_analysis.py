@@ -77,7 +77,7 @@ def analyze_review_queue(
 ) -> dict[str, Any]:
     """Per-reason volume, positive yield, missing docs — for triage."""
     gold_labels = gold_labels or {}
-    reviews = [l for l in lineages if l.commercial_decision == "REVIEW"]
+    reviews = [lin for lin in lineages if lin.commercial_decision == "REVIEW"]
     by_reason: dict[str, list[DecisionLineage]] = defaultdict(list)
     for lin in reviews:
         reason = classify_review_reason(lin, candidates_by_id.get(lin.canonical_id))
@@ -98,7 +98,7 @@ def analyze_review_queue(
             "positive_yield": pos_yield,
             "positive_yield_rate": (pos_yield / len(items)) if items else 0.0,
             "missing_documentation": dict(missing_docs.most_common(10)),
-            "sample_ids": [l.canonical_id for l in items[:10]],
+            "sample_ids": [lin.canonical_id for lin in items[:10]],
         }
 
     n = len(lineages) or 1

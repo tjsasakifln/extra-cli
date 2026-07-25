@@ -83,12 +83,12 @@ def prioritize_review_queue(
 ) -> tuple[list[DecisionLineage], dict[str, Any]]:
     """Sort REVIEW items by priority; never discard overflow — flag operational block."""
     config = config or ReviewCapacityConfig()
-    reviews = [l for l in lineages if l.commercial_decision == "REVIEW"]
+    reviews = [lin for lin in lineages if lin.commercial_decision == "REVIEW"]
     for lin in reviews:
         cand = candidates_by_id.get(lin.canonical_id)
         lin.review_priority = compute_review_priority(lin, cand)
 
-    reviews.sort(key=lambda l: (-(l.review_priority or 0.0), l.canonical_id))
+    reviews.sort(key=lambda lin: (-(lin.review_priority or 0.0), lin.canonical_id))
 
     overflow = len(reviews) > config.max_items_per_cycle
     status = {

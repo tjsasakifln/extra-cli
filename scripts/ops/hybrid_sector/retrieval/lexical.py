@@ -2,15 +2,15 @@
 from __future__ import annotations
 
 import re
+from collections.abc import Iterable
 from dataclasses import dataclass, field
-from typing import Any, Iterable
+from typing import Any
 
+from scripts.ops.hybrid_sector.models import RawOpportunity, RetrievalHit
 from scripts.ops.sector_classifier import (
     _FALLBACK_POSITIVE,
     normalize_text,
 )
-from scripts.ops.hybrid_sector.models import RawOpportunity, RetrievalHit
-
 
 # Morphological / common variants beyond base fallback patterns
 _EXTRA_VARIANTS: list[tuple[str, str, float]] = [

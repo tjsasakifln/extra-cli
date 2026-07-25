@@ -22,7 +22,7 @@ from scripts.ops.hybrid_sector.evaluation.real_corpus import (
 
 def near_dup_key(objeto: str) -> str:
     t = " ".join((objeto or "").lower().split())
-    return hashlib.sha1(t.encode("utf-8")).hexdigest()[:16]
+    return hashlib.sha1(t.encode("utf-8"), usedforsecurity=False).hexdigest()[:16]
 
 
 def load_gold_corpus(path: Path) -> dict[str, Any]:

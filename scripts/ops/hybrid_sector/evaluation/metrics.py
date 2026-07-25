@@ -108,7 +108,7 @@ def decision_metrics(
     """
     critical_positive_ids = critical_positive_ids or set()
     adjudicated_ids = adjudicated_ids or set()
-    by_id = {l.canonical_id: l for l in lineages}
+    by_id = {lin.canonical_id: lin for lin in lineages}
     pos_ids = {i for i, lab in gold_labels.items() if lab == "POSITIVE"}
     neg_ids = {i for i, lab in gold_labels.items() if lab == "NEGATIVE"}
 
@@ -134,7 +134,7 @@ def decision_metrics(
     # Null when no positives — do not treat absence as 0.0 or 1.0 performance
     safe_recall = (preserved / n_pos) if n_pos else None
 
-    match_ids = [l.canonical_id for l in lineages if l.commercial_decision == "MATCH"]
+    match_ids = [lin.canonical_id for lin in lineages if lin.commercial_decision == "MATCH"]
     all_match_count = len(match_ids)
 
     unlabeled_match_ids = [m for m in match_ids if m not in gold_labels]
@@ -189,7 +189,7 @@ def decision_metrics(
     unlabeled_match_gate_ok = unlabeled_match_count == 0
     all_equals_evaluated = all_match_count == evaluated_match_count
 
-    review_ids = [l.canonical_id for l in lineages if l.commercial_decision == "REVIEW"]
+    review_ids = [lin.canonical_id for lin in lineages if lin.commercial_decision == "REVIEW"]
     review_rate = len(review_ids) / len(lineages) if lineages else 0.0
     review_yield = (
         sum(1 for r in review_ids if gold_labels.get(r) == "POSITIVE") / len(review_ids)
@@ -277,7 +277,7 @@ def confusion_counts(
     lineages: list[DecisionLineage],
 ) -> dict[str, Any]:
     """3-way commercial vs POSITIVE/NEGATIVE/AMBIGUOUS gold."""
-    by_id = {l.canonical_id: l.commercial_decision for l in lineages}
+    by_id = {lin.canonical_id: lin.commercial_decision for lin in lineages}
     matrix: dict[str, dict[str, int]] = defaultdict(lambda: defaultdict(int))
     for gid, glab in gold_labels.items():
         pred = by_id.get(gid, "MISSING")
