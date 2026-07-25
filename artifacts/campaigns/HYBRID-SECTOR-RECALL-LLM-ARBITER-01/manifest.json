@@ -23,7 +23,8 @@
       "preserved_all": true
     },
     "terminal_status": "BLOCKED_REVIEW_CAPACITY",
-    "every_record_has_decision": true
+    "every_record_has_decision": true,
+    "silent_drop_ids": []
   },
   "forbidden_claims_absent": true,
   "pr_131_status": "CHANGES_REQUESTED_RECALL_ASSURANCE",

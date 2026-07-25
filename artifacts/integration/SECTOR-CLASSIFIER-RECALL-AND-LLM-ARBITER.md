@@ -2,7 +2,7 @@
 
 ## Status
 
-`BLOCKED_INSUFFICIENT_STATISTICAL_POWER`
+`BLOCKED_REVIEW_CAPACITY`
 
 PR #131 remains **CHANGES_REQUESTED_RECALL_ASSURANCE**. This stacked work does not accept or merge #131 and does not produce RC v3.
 
@@ -36,8 +36,8 @@ Default CI uses **fake LLM only**. Paid provider requires `--allow-paid-llm` (op
 
 ## Summary
 
-- Universe: 5
-- Candidates: 5
-- MATCH: 3
-- REVIEW: 0
-- NO_MATCH: 2
+- Universe: 1100
+- Candidates: 1100
+- MATCH: 318
+- REVIEW: 619
+- NO_MATCH: 163

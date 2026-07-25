@@ -3,17 +3,17 @@
     {
       "severity": "HIGH",
       "finding": "terminal=BLOCKED_REVIEW_CAPACITY",
-      "action": "review queue 619 > max_items_per_cycle 100; overflow_policy=preserve_and_flag (zero discarded). Increase human capacity or further reduce gray rate before READY_FOR_RECALL_ASSURANCE_REVIEW / RC v3."
+      "action": "REVIEW queue exceeds max_items_per_cycle=100 with preserve_and_flag (0 discarded). Reduce gray rate or raise capacity before READY_FOR_RECALL_ASSURANCE_REVIEW."
     },
     {
       "severity": "INFO",
-      "finding": "retrieval+preservation gates pass on locked gold (n_pos=300, safe_recall=1.0, retrieval_recall=1.0, critical_FN=0)",
-      "action": "keep dual-reviewed expansion; do not claim 100% FN elimination"
+      "finding": "no silent drop: every raw-universe record has MATCH|REVIEW|NO_MATCH lineage (residual_audit fill when hybrid)",
+      "action": "keep residual_audit invariant in CI"
     },
     {
       "severity": "INFO",
-      "finding": "commercial MATCH precision on hard labels = 1.0 (0 hard FP); champion safe_recall ~0.45 vs challenger 1.0",
-      "action": "challenger not auto-promoted; PR #131 remains CHANGES_REQUESTED_RECALL_ASSURANCE"
+      "finding": "gates retrieval/preservation/commercial/audit pass; invented_evidence_accepted measured=0",
+      "action": "do not hardcode audit success"
     }
   ],
   "pr_131": "CHANGES_REQUESTED_RECALL_ASSURANCE",

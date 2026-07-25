@@ -75,7 +75,9 @@
         "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.0.0",
         "prompt_version": "sector-arbiter-v1",
         "schema_version": "SectorLLMDecision/1.0",
-        "rule_stamp": "extra-sector-classifier/2.2.0+selective"
+        "rule_stamp": "extra-sector-classifier/2.2.0+selective",
+        "invented_evidence": [],
+        "invented_evidence_accepted": false
       }
     },
     {
@@ -157,7 +159,9 @@
         "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.0.0",
         "prompt_version": "sector-arbiter-v1",
         "schema_version": "SectorLLMDecision/1.0",
-        "rule_stamp": "extra-sector-classifier/2.2.0+selective"
+        "rule_stamp": "extra-sector-classifier/2.2.0+selective",
+        "invented_evidence": [],
+        "invented_evidence_accepted": false
       }
     },
     {
@@ -239,7 +243,9 @@
         "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.0.0",
         "prompt_version": "sector-arbiter-v1",
         "schema_version": "SectorLLMDecision/1.0",
-        "rule_stamp": "extra-sector-classifier/2.2.0+selective"
+        "rule_stamp": "extra-sector-classifier/2.2.0+selective",
+        "invented_evidence": [],
+        "invented_evidence_accepted": false
       }
     },
     {
@@ -336,7 +342,9 @@
         "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.0.0",
         "prompt_version": "sector-arbiter-v1",
         "schema_version": "SectorLLMDecision/1.0",
-        "rule_stamp": "extra-sector-classifier/2.2.0+selective"
+        "rule_stamp": "extra-sector-classifier/2.2.0+selective",
+        "invented_evidence": [],
+        "invented_evidence_accepted": false
       }
     },
     {
@@ -418,7 +426,9 @@
         "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.0.0",
         "prompt_version": "sector-arbiter-v1",
         "schema_version": "SectorLLMDecision/1.0",
-        "rule_stamp": "extra-sector-classifier/2.2.0+selective"
+        "rule_stamp": "extra-sector-classifier/2.2.0+selective",
+        "invented_evidence": [],
+        "invented_evidence_accepted": false
       }
     },
     {
@@ -495,7 +505,9 @@
         "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.0.0",
         "prompt_version": "sector-arbiter-v1",
         "schema_version": "SectorLLMDecision/1.0",
-        "rule_stamp": "extra-sector-classifier/2.2.0+selective"
+        "rule_stamp": "extra-sector-classifier/2.2.0+selective",
+        "invented_evidence": [],
+        "invented_evidence_accepted": false
       }
     },
     {
@@ -577,7 +589,9 @@
         "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.0.0",
         "prompt_version": "sector-arbiter-v1",
         "schema_version": "SectorLLMDecision/1.0",
-        "rule_stamp": "extra-sector-classifier/2.2.0+selective"
+        "rule_stamp": "extra-sector-classifier/2.2.0+selective",
+        "invented_evidence": [],
+        "invented_evidence_accepted": false
       }
     },
     {
@@ -654,7 +668,9 @@
         "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.0.0",
         "prompt_version": "sector-arbiter-v1",
         "schema_version": "SectorLLMDecision/1.0",
-        "rule_stamp": "extra-sector-classifier/2.2.0+selective"
+        "rule_stamp": "extra-sector-classifier/2.2.0+selective",
+        "invented_evidence": [],
+        "invented_evidence_accepted": false
       }
     },
     {
@@ -736,7 +752,9 @@
         "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.0.0",
         "prompt_version": "sector-arbiter-v1",
         "schema_version": "SectorLLMDecision/1.0",
-        "rule_stamp": "extra-sector-classifier/2.2.0+selective"
+        "rule_stamp": "extra-sector-classifier/2.2.0+selective",
+        "invented_evidence": [],
+        "invented_evidence_accepted": false
       }
     },
     {
@@ -828,7 +846,9 @@
         "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.0.0",
         "prompt_version": "sector-arbiter-v1",
         "schema_version": "SectorLLMDecision/1.0",
-        "rule_stamp": "extra-sector-classifier/2.2.0+selective"
+        "rule_stamp": "extra-sector-classifier/2.2.0+selective",
+        "invented_evidence": [],
+        "invented_evidence_accepted": false
       }
     },
     {
@@ -910,7 +930,9 @@
         "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.0.0",
         "prompt_version": "sector-arbiter-v1",
         "schema_version": "SectorLLMDecision/1.0",
-        "rule_stamp": "extra-sector-classifier/2.2.0+selective"
+        "rule_stamp": "extra-sector-classifier/2.2.0+selective",
+        "invented_evidence": [],
+        "invented_evidence_accepted": false
       }
     },
     {
@@ -1002,7 +1024,9 @@
         "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.0.0",
         "prompt_version": "sector-arbiter-v1",
         "schema_version": "SectorLLMDecision/1.0",
-        "rule_stamp": "extra-sector-classifier/2.2.0+selective"
+        "rule_stamp": "extra-sector-classifier/2.2.0+selective",
+        "invented_evidence": [],
+        "invented_evidence_accepted": false
       }
     },
     {
@@ -1079,7 +1103,9 @@
         "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.0.0",
         "prompt_version": "sector-arbiter-v1",
         "schema_version": "SectorLLMDecision/1.0",
-        "rule_stamp": "extra-sector-classifier/2.2.0+selective"
+        "rule_stamp": "extra-sector-classifier/2.2.0+selective",
+        "invented_evidence": [],
+        "invented_evidence_accepted": false
       }
     },
     {
@@ -1161,7 +1187,9 @@
         "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.0.0",
         "prompt_version": "sector-arbiter-v1",
         "schema_version": "SectorLLMDecision/1.0",
-        "rule_stamp": "extra-sector-classifier/2.2.0+selective"
+        "rule_stamp": "extra-sector-classifier/2.2.0+selective",
+        "invented_evidence": [],
+        "invented_evidence_accepted": false
       }
     },
     {
@@ -1243,7 +1271,9 @@
         "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.0.0",
         "prompt_version": "sector-arbiter-v1",
         "schema_version": "SectorLLMDecision/1.0",
-        "rule_stamp": "extra-sector-classifier/2.2.0+selective"
+        "rule_stamp": "extra-sector-classifier/2.2.0+selective",
+        "invented_evidence": [],
+        "invented_evidence_accepted": false
       }
     },
     {
@@ -1320,7 +1350,9 @@
         "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.0.0",
         "prompt_version": "sector-arbiter-v1",
         "schema_version": "SectorLLMDecision/1.0",
-        "rule_stamp": "extra-sector-classifier/2.2.0+selective"
+        "rule_stamp": "extra-sector-classifier/2.2.0+selective",
+        "invented_evidence": [],
+        "invented_evidence_accepted": false
       }
     },
     {
@@ -1402,7 +1434,9 @@
         "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.0.0",
         "prompt_version": "sector-arbiter-v1",
         "schema_version": "SectorLLMDecision/1.0",
-        "rule_stamp": "extra-sector-classifier/2.2.0+selective"
+        "rule_stamp": "extra-sector-classifier/2.2.0+selective",
+        "invented_evidence": [],
+        "invented_evidence_accepted": false
       }
     },
     {
@@ -1484,7 +1518,9 @@
         "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.0.0",
         "prompt_version": "sector-arbiter-v1",
         "schema_version": "SectorLLMDecision/1.0",
-        "rule_stamp": "extra-sector-classifier/2.2.0+selective"
+        "rule_stamp": "extra-sector-classifier/2.2.0+selective",
+        "invented_evidence": [],
+        "invented_evidence_accepted": false
       }
     },
     {
@@ -1561,7 +1597,9 @@
         "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.0.0",
         "prompt_version": "sector-arbiter-v1",
         "schema_version": "SectorLLMDecision/1.0",
-        "rule_stamp": "extra-sector-classifier/2.2.0+selective"
+        "rule_stamp": "extra-sector-classifier/2.2.0+selective",
+        "invented_evidence": [],
+        "invented_evidence_accepted": false
       }
     },
     {
@@ -1638,7 +1676,9 @@
         "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.0.0",
         "prompt_version": "sector-arbiter-v1",
         "schema_version": "SectorLLMDecision/1.0",
-        "rule_stamp": "extra-sector-classifier/2.2.0+selective"
+        "rule_stamp": "extra-sector-classifier/2.2.0+selective",
+        "invented_evidence": [],
+        "invented_evidence_accepted": false
       }
     },
     {
@@ -1724,7 +1764,9 @@
         "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.0.0",
         "prompt_version": "sector-arbiter-v1",
         "schema_version": "SectorLLMDecision/1.0",
-        "rule_stamp": "extra-sector-classifier/2.2.0+selective"
+        "rule_stamp": "extra-sector-classifier/2.2.0+selective",
+        "invented_evidence": [],
+        "invented_evidence_accepted": false
       }
     },
     {
@@ -1818,7 +1860,9 @@
         "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.0.0",
         "prompt_version": "sector-arbiter-v1",
         "schema_version": "SectorLLMDecision/1.0",
-        "rule_stamp": "extra-sector-classifier/2.2.0+selective"
+        "rule_stamp": "extra-sector-classifier/2.2.0+selective",
+        "invented_evidence": [],
+        "invented_evidence_accepted": false
       }
     },
     {
@@ -1915,7 +1959,9 @@
         "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.0.0",
         "prompt_version": "sector-arbiter-v1",
         "schema_version": "SectorLLMDecision/1.0",
-        "rule_stamp": "extra-sector-classifier/2.2.0+selective"
+        "rule_stamp": "extra-sector-classifier/2.2.0+selective",
+        "invented_evidence": [],
+        "invented_evidence_accepted": false
       }
     },
     {
@@ -2001,7 +2047,9 @@
         "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.0.0",
         "prompt_version": "sector-arbiter-v1",
         "schema_version": "SectorLLMDecision/1.0",
-        "rule_stamp": "extra-sector-classifier/2.2.0+selective"
+        "rule_stamp": "extra-sector-classifier/2.2.0+selective",
+        "invented_evidence": [],
+        "invented_evidence_accepted": false
       }
     },
     {
@@ -2098,7 +2146,9 @@
         "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.0.0",
         "prompt_version": "sector-arbiter-v1",
         "schema_version": "SectorLLMDecision/1.0",
-        "rule_stamp": "extra-sector-classifier/2.2.0+selective"
+        "rule_stamp": "extra-sector-classifier/2.2.0+selective",
+        "invented_evidence": [],
+        "invented_evidence_accepted": false
       }
     },
     {
@@ -2192,7 +2242,9 @@
         "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.0.0",
         "prompt_version": "sector-arbiter-v1",
         "schema_version": "SectorLLMDecision/1.0",
-        "rule_stamp": "extra-sector-classifier/2.2.0+selective"
+        "rule_stamp": "extra-sector-classifier/2.2.0+selective",
+        "invented_evidence": [],
+        "invented_evidence_accepted": false
       }
     },
     {
@@ -2289,7 +2341,9 @@
         "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.0.0",
         "prompt_version": "sector-arbiter-v1",
         "schema_version": "SectorLLMDecision/1.0",
-        "rule_stamp": "extra-sector-classifier/2.2.0+selective"
+        "rule_stamp": "extra-sector-classifier/2.2.0+selective",
+        "invented_evidence": [],
+        "invented_evidence_accepted": false
       }
     },
     {
@@ -2386,7 +2440,9 @@
         "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.0.0",
         "prompt_version": "sector-arbiter-v1",
         "schema_version": "SectorLLMDecision/1.0",
-        "rule_stamp": "extra-sector-classifier/2.2.0+selective"
+        "rule_stamp": "extra-sector-classifier/2.2.0+selective",
+        "invented_evidence": [],
+        "invented_evidence_accepted": false
       }
     },
     {
@@ -2483,7 +2539,9 @@
         "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.0.0",
         "prompt_version": "sector-arbiter-v1",
         "schema_version": "SectorLLMDecision/1.0",
-        "rule_stamp": "extra-sector-classifier/2.2.0+selective"
+        "rule_stamp": "extra-sector-classifier/2.2.0+selective",
+        "invented_evidence": [],
+        "invented_evidence_accepted": false
       }
     },
     {
@@ -2568,7 +2626,9 @@
         "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.0.0",
         "prompt_version": "sector-arbiter-v1",
         "schema_version": "SectorLLMDecision/1.0",
-        "rule_stamp": "extra-sector-classifier/2.2.0+selective"
+        "rule_stamp": "extra-sector-classifier/2.2.0+selective",
+        "invented_evidence": [],
+        "invented_evidence_accepted": false
       }
     },
     {
@@ -2665,7 +2725,9 @@
         "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.0.0",
         "prompt_version": "sector-arbiter-v1",
         "schema_version": "SectorLLMDecision/1.0",
-        "rule_stamp": "extra-sector-classifier/2.2.0+selective"
+        "rule_stamp": "extra-sector-classifier/2.2.0+selective",
+        "invented_evidence": [],
+        "invented_evidence_accepted": false
       }
     },
     {
@@ -2762,7 +2824,9 @@
         "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.0.0",
         "prompt_version": "sector-arbiter-v1",
         "schema_version": "SectorLLMDecision/1.0",
-        "rule_stamp": "extra-sector-classifier/2.2.0+selective"
+        "rule_stamp": "extra-sector-classifier/2.2.0+selective",
+        "invented_evidence": [],
+        "invented_evidence_accepted": false
       }
     },
     {
@@ -2856,7 +2920,9 @@
         "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.0.0",
         "prompt_version": "sector-arbiter-v1",
         "schema_version": "SectorLLMDecision/1.0",
-        "rule_stamp": "extra-sector-classifier/2.2.0+selective"
+        "rule_stamp": "extra-sector-classifier/2.2.0+selective",
+        "invented_evidence": [],
+        "invented_evidence_accepted": false
       }
     },
     {
@@ -2953,7 +3019,9 @@
         "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.0.0",
         "prompt_version": "sector-arbiter-v1",
         "schema_version": "SectorLLMDecision/1.0",
-        "rule_stamp": "extra-sector-classifier/2.2.0+selective"
+        "rule_stamp": "extra-sector-classifier/2.2.0+selective",
+        "invented_evidence": [],
+        "invented_evidence_accepted": false
       }
     },
     {
@@ -3050,7 +3118,9 @@
         "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.0.0",
         "prompt_version": "sector-arbiter-v1",
         "schema_version": "SectorLLMDecision/1.0",
-        "rule_stamp": "extra-sector-classifier/2.2.0+selective"
+        "rule_stamp": "extra-sector-classifier/2.2.0+selective",
+        "invented_evidence": [],
+        "invented_evidence_accepted": false
       }
     },
     {
@@ -3147,7 +3217,9 @@
         "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.0.0",
         "prompt_version": "sector-arbiter-v1",
         "schema_version": "SectorLLMDecision/1.0",
-        "rule_stamp": "extra-sector-classifier/2.2.0+selective"
+        "rule_stamp": "extra-sector-classifier/2.2.0+selective",
+        "invented_evidence": [],
+        "invented_evidence_accepted": false
       }
     },
     {
@@ -3244,7 +3316,9 @@
         "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.0.0",
         "prompt_version": "sector-arbiter-v1",
         "schema_version": "SectorLLMDecision/1.0",
-        "rule_stamp": "extra-sector-classifier/2.2.0+selective"
+        "rule_stamp": "extra-sector-classifier/2.2.0+selective",
+        "invented_evidence": [],
+        "invented_evidence_accepted": false
       }
     },
     {
@@ -3338,7 +3412,9 @@
         "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.0.0",
         "prompt_version": "sector-arbiter-v1",
         "schema_version": "SectorLLMDecision/1.0",
-        "rule_stamp": "extra-sector-classifier/2.2.0+selective"
+        "rule_stamp": "extra-sector-classifier/2.2.0+selective",
+        "invented_evidence": [],
+        "invented_evidence_accepted": false
       }
     },
     {
@@ -3426,7 +3502,9 @@
         "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.0.0",
         "prompt_version": "sector-arbiter-v1",
         "schema_version": "SectorLLMDecision/1.0",
-        "rule_stamp": "extra-sector-classifier/2.2.0+selective"
+        "rule_stamp": "extra-sector-classifier/2.2.0+selective",
+        "invented_evidence": [],
+        "invented_evidence_accepted": false
       }
     },
     {
@@ -3506,7 +3584,9 @@
         "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.0.0",
         "prompt_version": "sector-arbiter-v1",
         "schema_version": "SectorLLMDecision/1.0",
-        "rule_stamp": "extra-sector-classifier/2.2.0+selective"
+        "rule_stamp": "extra-sector-classifier/2.2.0+selective",
+        "invented_evidence": [],
+        "invented_evidence_accepted": false
       }
     },
     {
@@ -3584,7 +3664,9 @@
         "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.0.0",
         "prompt_version": "sector-arbiter-v1",
         "schema_version": "SectorLLMDecision/1.0",
-        "rule_stamp": "extra-sector-classifier/2.2.0+selective"
+        "rule_stamp": "extra-sector-classifier/2.2.0+selective",
+        "invented_evidence": [],
+        "invented_evidence_accepted": false
       }
     },
     {
@@ -3663,7 +3745,9 @@
         "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.0.0",
         "prompt_version": "sector-arbiter-v1",
         "schema_version": "SectorLLMDecision/1.0",
-        "rule_stamp": "extra-sector-classifier/2.2.0+selective"
+        "rule_stamp": "extra-sector-classifier/2.2.0+selective",
+        "invented_evidence": [],
+        "invented_evidence_accepted": false
       }
     },
     {
@@ -3745,7 +3829,9 @@
         "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.0.0",
         "prompt_version": "sector-arbiter-v1",
         "schema_version": "SectorLLMDecision/1.0",
-        "rule_stamp": "extra-sector-classifier/2.2.0+selective"
+        "rule_stamp": "extra-sector-classifier/2.2.0+selective",
+        "invented_evidence": [],
+        "invented_evidence_accepted": false
       }
     },
     {
@@ -3827,7 +3913,9 @@
         "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.0.0",
         "prompt_version": "sector-arbiter-v1",
         "schema_version": "SectorLLMDecision/1.0",
-        "rule_stamp": "extra-sector-classifier/2.2.0+selective"
+        "rule_stamp": "extra-sector-classifier/2.2.0+selective",
+        "invented_evidence": [],
+        "invented_evidence_accepted": false
       }
     },
     {
@@ -3919,7 +4007,9 @@
         "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.0.0",
         "prompt_version": "sector-arbiter-v1",
         "schema_version": "SectorLLMDecision/1.0",
-        "rule_stamp": "extra-sector-classifier/2.2.0+selective"
+        "rule_stamp": "extra-sector-classifier/2.2.0+selective",
+        "invented_evidence": [],
+        "invented_evidence_accepted": false
       }
     },
     {
@@ -3994,7 +4084,9 @@
         "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.0.0",
         "prompt_version": "sector-arbiter-v1",
         "schema_version": "SectorLLMDecision/1.0",
-        "rule_stamp": "extra-sector-classifier/2.2.0+selective"
+        "rule_stamp": "extra-sector-classifier/2.2.0+selective",
+        "invented_evidence": [],
+        "invented_evidence_accepted": false
       }
     },
     {
@@ -4076,7 +4168,9 @@
         "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.0.0",
         "prompt_version": "sector-arbiter-v1",
         "schema_version": "SectorLLMDecision/1.0",
-        "rule_stamp": "extra-sector-classifier/2.2.0+selective"
+        "rule_stamp": "extra-sector-classifier/2.2.0+selective",
+        "invented_evidence": [],
+        "invented_evidence_accepted": false
       }
     },
     {
@@ -4153,7 +4247,9 @@
         "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.0.0",
         "prompt_version": "sector-arbiter-v1",
         "schema_version": "SectorLLMDecision/1.0",
-        "rule_stamp": "extra-sector-classifier/2.2.0+selective"
+        "rule_stamp": "extra-sector-classifier/2.2.0+selective",
+        "invented_evidence": [],
+        "invented_evidence_accepted": false
       }
     },
     {
@@ -4233,7 +4329,9 @@
         "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.0.0",
         "prompt_version": "sector-arbiter-v1",
         "schema_version": "SectorLLMDecision/1.0",
-        "rule_stamp": "extra-sector-classifier/2.2.0+selective"
+        "rule_stamp": "extra-sector-classifier/2.2.0+selective",
+        "invented_evidence": [],
+        "invented_evidence_accepted": false
       }
     },
     {
@@ -4315,7 +4413,9 @@
         "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.0.0",
         "prompt_version": "sector-arbiter-v1",
         "schema_version": "SectorLLMDecision/1.0",
-        "rule_stamp": "extra-sector-classifier/2.2.0+selective"
+        "rule_stamp": "extra-sector-classifier/2.2.0+selective",
+        "invented_evidence": [],
+        "invented_evidence_accepted": false
       }
     }
   ],

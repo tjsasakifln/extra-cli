@@ -91,11 +91,29 @@ def _rescue_analysis(
 def ensure_full_universe_candidates(
     universe: list[RawOpportunity],
     candidates: list[CandidateRecord],
+    *,
+    mode: str = "full_universe",
 ) -> list[CandidateRecord]:
-    """When full-universe classification is enabled, include non-retrieved records.
+    """Include every raw-universe record not yet a candidate (no silent drop).
 
-    They enter with empty retrieved_by but full lineage (inclusion_reason=full_universe).
+    Modes:
+      - full_universe: volume ≤ threshold; classify entire universe
+      - residual_audit: hybrid retrieval active; non-hits still get a decision
+        (auditable NO_MATCH/REVIEW/MATCH), never disappear
+
+    RRF ranking still only prioritizes retrieved hits; residuals rank last.
     """
+    channel = "full_universe" if mode == "full_universe" else "residual_audit"
+    reason = (
+        "full_universe:classify_all"
+        if mode == "full_universe"
+        else "residual_not_retrieved:must_classify_no_silent_drop"
+    )
+    inclusion = (
+        "full_universe_threshold"
+        if mode == "full_universe"
+        else "hybrid_residual_universe_audit"
+    )
     have = {c.record.canonical_id for c in candidates}
     extra: list[CandidateRecord] = []
     for rec in universe:
@@ -104,11 +122,11 @@ def ensure_full_universe_candidates(
         extra.append(
             CandidateRecord(
                 record=rec,
-                retrieved_by=["full_universe"],
-                retrieval_scores={"full_universe": 0.0},
-                retrieval_rank_by_channel={"full_universe": 0},
-                retrieval_reason=["full_universe:classify_all"],
-                inclusion_reason="full_universe_threshold",
+                retrieved_by=[channel],
+                retrieval_scores={channel: 0.0},
+                retrieval_rank_by_channel={channel: 0},
+                retrieval_reason=[reason],
+                inclusion_reason=inclusion,
                 fused_score=0.0,
             )
         )

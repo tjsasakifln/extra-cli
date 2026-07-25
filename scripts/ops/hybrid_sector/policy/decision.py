@@ -32,14 +32,18 @@ def map_to_commercial(
     llm_error = None
     second = None
 
+    invented: list[str] = []
     if arb and arb.invoked:
         llm_invoked = True
         llm_error = arb.error
+        invented = list(arb.invented_evidence or [])
         if arb.decision is not None:
             llm_decision = arb.decision.model_dump()
         if arb.second is not None:
             second = arb.second.model_dump()
         reasons.extend(arb.reasons or [])
+        if invented:
+            reasons.append("invented_evidence_detected")
 
     commercial: str
     review_question = None
@@ -58,6 +62,10 @@ def map_to_commercial(
         if llm_error:
             commercial = "REVIEW"
             reasons.append(f"llm_error_forced_review:{llm_error}")
+        if invented:
+            # Invented evidence must never produce commercial NO_MATCH or MATCH
+            commercial = "REVIEW"
+            reasons.append("invented_evidence_forced_review")
         if commercial == "NO_MATCH" and det.has_execution_signal and det.positive_signals:
             # Safety: independent positive + NO_MATCH without second resolution → REVIEW
             if second is None and (candidate.record.valor_estimado or 0) >= 500_000:
@@ -79,6 +87,12 @@ def map_to_commercial(
         if det.decision == "CLEAR_NEGATIVE" and not llm_invoked:
             commercial = "NO_MATCH"
             reasons.append("blocker_clear_negative")
+        if invented:
+            commercial = "REVIEW"
+            reasons.append("invented_evidence_blocks_match")
+
+    # invented_evidence_accepted iff invented snippets present AND decision not REVIEW
+    invented_accepted = bool(invented) and commercial != "REVIEW"
 
     if commercial == "REVIEW":
         review_question = _review_question(det, llm_decision)
@@ -98,6 +112,8 @@ def map_to_commercial(
         documents_needed=docs_needed,
         pipeline_version=PIPELINE_VERSION,
         prompt_version=PROMPT_VERSION,
+        invented_evidence=invented,
+        invented_evidence_accepted=invented_accepted,
         schema_version=SCHEMA_VERSION,
         rule_stamp=RULE_STAMP,
     )

@@ -130,6 +130,8 @@ class DecisionLineage:
     prompt_version: str = ""
     schema_version: str = ""
     rule_stamp: str = ""
+    invented_evidence: list[str] = field(default_factory=list)
+    invented_evidence_accepted: bool = False
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -149,4 +151,6 @@ class DecisionLineage:
             "prompt_version": self.prompt_version,
             "schema_version": self.schema_version,
             "rule_stamp": self.rule_stamp,
+            "invented_evidence": list(self.invented_evidence),
+            "invented_evidence_accepted": self.invented_evidence_accepted,
         }

@@ -278,9 +278,92 @@ def test_pipeline_no_silent_discard_full_path():
     ]
     result = run_pipeline(records, force_fake_llm=True)
     assert len(result.lineages) == len(result.candidates)
+    assert len(result.lineages) == len(result.universe)
+    assert result.to_summary()["every_record_has_decision"] is True
+    assert result.to_summary()["silent_drop_ids"] == []
     assert all(l.commercial_decision in {"MATCH", "REVIEW", "NO_MATCH"} for l in result.lineages)
     assert all(l.retrieval for l in result.lineages)
     assert all(l.pipeline_version for l in result.lineages)
+
+
+def test_pipeline_no_silent_discard_hybrid_mode_threshold_below_n():
+    """When n > full_universe_threshold, residual records must still get a decision."""
+    # Mix: one clear lexical hit, one pure distractor with no engineering signal
+    records = [
+        {
+            "source": "hyb",
+            "official_id": "hit",
+            "objeto": "Execução de pavimentação asfáltica em vias urbanas",
+            "orgao": "Secretaria de Obras",
+        },
+        {
+            "source": "hyb",
+            "official_id": "miss",
+            "objeto": "xyzzy qqq nonmatching gibberish token set alpha",
+            "orgao": "Setor Administrativo",
+            "valor_estimado": 1000,
+        },
+    ]
+    # Force hybrid residual path: threshold < n so classify_full_universe=False
+    cfg = {
+        "raw_universe": {"full_universe_threshold": 1},
+        "manual_review": {"max_items_per_cycle": 100, "overflow_policy": "preserve_and_flag"},
+        "llm": {"provider": "fake", "min_confidence": 60},
+        "retrieval": {
+            "rrf_k": 60,
+            "semantic": {"top_k": 1, "min_similarity": 0.99},  # hard to hit gibberish
+            "zero_match": {"short_text_max_chars": 5, "high_value_threshold": 9e12},
+        },
+    }
+    result = run_pipeline(records, config=cfg, force_fake_llm=True)
+    universe_ids = {r.canonical_id for r in result.universe}
+    decision_ids = {l.canonical_id for l in result.lineages}
+    assert universe_ids - decision_ids == set(), (
+        f"silent drop under hybrid: {universe_ids - decision_ids}"
+    )
+    assert len(result.lineages) == len(result.universe) == 2
+    assert result.to_summary()["every_record_has_decision"] is True
+    assert result.universe_metrics["classify_full_universe"] is False
+    # Missed retrieval still has commercial decision (not disappeared)
+    miss = next(l for l in result.lineages if l.canonical_id.endswith("::miss"))
+    assert miss.commercial_decision in {"MATCH", "REVIEW", "NO_MATCH"}
+    assert miss.retrieval.get("inclusion_reason") in {
+        "hybrid_residual_universe_audit",
+        "full_universe_threshold",
+        "exclusive_channel:lexical",
+        "multi_channel:lexical",
+    } or "residual" in str(miss.retrieval.get("inclusion_reason", "")).lower() or miss.retrieval.get(
+        "retrieved_by"
+    )
+
+
+def test_invented_evidence_accepted_counted_not_hardcoded():
+    """Audit field invented_evidence_accepted is measured from lineages."""
+    from scripts.ops.hybrid_sector.llm.arbitration import ArbitrationOutcome
+    from scripts.ops.hybrid_sector.llm.schema import SectorLLMDecision
+    from scripts.ops.hybrid_sector.models import DeterministicResult
+    from scripts.ops.hybrid_sector.policy.decision import map_to_commercial
+    from scripts.ops.hybrid_sector.models import CandidateRecord, RawOpportunity
+
+    cand = CandidateRecord(
+        record=RawOpportunity(
+            source="t", official_id="1", objeto="Execução de pavimentação asfáltica"
+        ),
+        retrieved_by=["lexical"],
+    )
+    det = DeterministicResult(decision="GRAY_ZONE", confidence=0.4, reason="gray")
+    # Simulated arbiter path that still somehow left invented evidence on outcome
+    # (production arbiter forces REVIEW; policy must mark accepted=False)
+    from scripts.ops.hybrid_sector.llm.fake_provider import FakeLLMProvider
+    from scripts.ops.hybrid_sector.llm.arbitration import arbitrate
+
+    out = arbitrate(
+        cand, det, FakeLLMProvider(invent_evidence=True), force_invoke=True
+    )
+    lin = map_to_commercial(cand, det, out)
+    assert lin.invented_evidence, "invented snippets must be recorded on lineage"
+    assert lin.commercial_decision == "REVIEW"
+    assert lin.invented_evidence_accepted is False
 
 
 def test_should_invoke_llm_on_gray_and_zero_match():

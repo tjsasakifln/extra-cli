@@ -61,12 +61,20 @@ def run_hybrid_retrieval(
         "zero_match": zm_hits,
     }
     candidates, analysis = fuse_candidates(universe, channel_hits, rrf_k=rrf_k)
-    if classify_full_universe:
-        candidates = ensure_full_universe_candidates(universe, candidates)
-        analysis["full_universe_fill"] = True
-        analysis["candidate_count"] = len(candidates)
-    else:
-        analysis["full_universe_fill"] = False
+    # NEVER silently drop raw-universe records. When hybrid (not full-universe),
+    # non-retrieved residuals still enter classification with residual_audit lineage.
+    fill_mode = "full_universe" if classify_full_universe else "residual_audit"
+    before = len(candidates)
+    candidates = ensure_full_universe_candidates(
+        universe, candidates, mode=fill_mode
+    )
+    residual_added = len(candidates) - before
+    analysis["full_universe_fill"] = classify_full_universe
+    analysis["residual_audit_fill"] = not classify_full_universe
+    analysis["residual_added"] = residual_added
+    analysis["candidate_count"] = len(candidates)
+    analysis["universe_count"] = len(universe)
+    analysis["no_silent_drop"] = len(candidates) == len(universe)
 
     report = {
         "channels": list(channel_hits.keys()),
@@ -75,5 +83,6 @@ def run_hybrid_retrieval(
         "semantic_report": sem_report.to_dict(),
         "fusion_analysis": analysis,
         "rrf_k": rrf_k,
+        "fill_mode": fill_mode,
     }
     return candidates, report

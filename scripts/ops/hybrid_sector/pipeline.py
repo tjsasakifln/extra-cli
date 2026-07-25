@@ -76,9 +76,13 @@ class PipelineResult:
     terminal_status: str = "BLOCKED_INSUFFICIENT_STATISTICAL_POWER"
 
     def to_summary(self) -> dict[str, Any]:
+        n_universe = int(self.universe_metrics.get("raw_universe_count") or len(self.universe))
+        decision_ids = {l.canonical_id for l in self.lineages}
+        universe_ids = {r.canonical_id for r in self.universe}
+        missing = sorted(universe_ids - decision_ids)
         return {
             "pipeline_version": PIPELINE_VERSION,
-            "raw_universe_count": self.universe_metrics.get("raw_universe_count"),
+            "raw_universe_count": n_universe,
             "candidate_count": len(self.candidates),
             "lineage_count": len(self.lineages),
             "match_count": len(self.deliverables.get("deliverable_e_matches") or []),
@@ -86,7 +90,11 @@ class PipelineResult:
             "no_match_count": len(self.deliverables.get("deliverable_e_no_match_audit") or []),
             "review_status": self.review_status,
             "terminal_status": self.terminal_status,
-            "every_record_has_decision": len(self.lineages) == len(self.candidates),
+            # No silent drop: every raw-universe id must have a commercial decision
+            "every_record_has_decision": (
+                len(self.lineages) == n_universe and not missing
+            ),
+            "silent_drop_ids": missing,
         }
 
 
@@ -154,8 +162,20 @@ def run_pipeline(
         lin = map_to_commercial(cand, det, arb)
         lineages.append(lin)
 
-    # Integrity: every candidate has exactly one lineage
-    assert len(lineages) == len(candidates), "silent discard detected"
+    # Integrity: every candidate has exactly one lineage AND every universe record
+    # is a candidate (residual_audit / full_universe fill) — no silent drop.
+    universe_ids = {r.canonical_id for r in universe}
+    candidate_ids = {c.record.canonical_id for c in candidates}
+    decision_ids = {l.canonical_id for l in lineages}
+    assert len(lineages) == len(candidates), "lineage/candidate count mismatch"
+    assert candidate_ids == universe_ids, (
+        f"silent discard of raw-universe records: "
+        f"{sorted(universe_ids - candidate_ids)[:20]}"
+    )
+    assert decision_ids == universe_ids, (
+        f"raw-universe records without commercial decision: "
+        f"{sorted(universe_ids - decision_ids)[:20]}"
+    )
 
     reviews, review_status = prioritize_review_queue(
         lineages,
@@ -172,8 +192,6 @@ def run_pipeline(
             lin.review_priority = rev_pri[lin.canonical_id]
 
     records_by_id = {r.canonical_id: r for r in universe}
-    # Only candidates get commercial decisions; non-candidates are not silently
-    # dropped from universe metrics — they remain in raw universe audit.
     deliverables = split_deliverables(lineages, records_by_id)
 
     evaluation: dict[str, Any] = {"retrieval_report": retrieval_report}
@@ -181,24 +199,62 @@ def run_pipeline(
 
     if gold_labels is not None:
         pos_ids = {i for i, l in gold_labels.items() if l == "POSITIVE"}
-        ret_m = retrieval_metrics(pos_ids, candidates, gold_meta=gold_meta)
+        # Retrieval metrics: only channel-retrieved candidates (exclude pure residual fill)
+        retrieved_for_metrics = [
+            c
+            for c in candidates
+            if c.inclusion_reason
+            not in {"hybrid_residual_universe_audit", "full_universe_threshold"}
+            or any(
+                ch not in {"residual_audit", "full_universe"}
+                for ch in c.retrieved_by
+            )
+        ]
+        # Prefer true multi-channel hits; if residual-only still in list with only
+        # residual channel, exclude them from retrieval_recall denominator hits
+        retrieved_for_metrics = [
+            c
+            for c in candidates
+            if not (
+                set(c.retrieved_by) <= {"residual_audit", "full_universe"}
+            )
+        ]
+        ret_m = retrieval_metrics(
+            pos_ids,
+            retrieved_for_metrics if retrieved_for_metrics else candidates,
+            gold_meta=gold_meta,
+        )
+        # Also report coverage of positives among full decision set
+        ret_m["positives_with_decision"] = len(pos_ids & decision_ids)
+        ret_m["universe_decision_coverage"] = (
+            len(decision_ids) / len(universe_ids) if universe_ids else 1.0
+        )
         dec_m = decision_metrics(
             gold_labels,
             lineages,
             critical_positive_ids=critical_positive_ids,
         )
-        # Audit integrity stats
+        # Audit integrity stats — measured from lineages, never hard-coded success
         llm_errors = [l for l in lineages if l.llm_error]
         llm_err_review = sum(
             1 for l in llm_errors if l.commercial_decision == "REVIEW"
         )
+        invented_accepted = sum(
+            1 for l in lineages if l.invented_evidence_accepted
+        )
+        invented_seen = sum(1 for l in lineages if l.invented_evidence)
+        silent_discards = len(universe_ids - decision_ids)
         audit = {
-            "invented_evidence_accepted": 0,  # pipeline rejects invented
+            "invented_evidence_accepted": invented_accepted,
+            "invented_evidence_seen": invented_seen,
+            "invented_evidence_rejected": max(0, invented_seen - invented_accepted),
             "llm_error_to_review_rate": (
                 llm_err_review / len(llm_errors) if llm_errors else 1.0
             ),
-            "lineage_coverage": 1.0 if len(lineages) == len(candidates) else 0.0,
-            "silent_discards": max(0, len(candidates) - len(lineages)),
+            "lineage_coverage": (
+                len(decision_ids) / len(universe_ids) if universe_ids else 1.0
+            ),
+            "silent_discards": silent_discards,
         }
         gate_res = evaluate_gates(ret_m, dec_m, audit=audit, thresholds=cfg.get("evaluation"))
         if review_status.get("operational_status") == "OPERATIONALLY_BLOCKED_REVIEW_VOLUME":
