@@ -441,13 +441,15 @@ jobs:
 
       - name: Run generated artifacts policy gate
         run: |
-          BASE_REF="${{ github.event.pull_request.base.sha || 'origin/main' }}"
-          if git rev-parse --verify "$BASE_REF" >/dev/null 2>&1; then
-            python -m scripts.ops.check_generated_artifacts_policy --base "$BASE_REF"
+          # Fail-closed: no || true. Prefer PR base SHA; else origin/main after fetch.
+          if [ -n "${{ github.event.pull_request.base.sha }}" ]; then
+            BASE_REF="${{ github.event.pull_request.base.sha }}"
           else
-            git fetch origin main --depth=1 || true
-            python -m scripts.ops.check_generated_artifacts_policy --base origin/main
+            git fetch --no-tags origin main
+            BASE_REF="origin/main"
           fi
+          git rev-parse --verify "$BASE_REF"
+          python -m scripts.ops.check_generated_artifacts_policy --base "$BASE_REF"
 
   # ============================================================================
   # SECURITY — bandit (fail-closed, sem continue-on-error)
