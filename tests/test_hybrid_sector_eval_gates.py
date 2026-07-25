@@ -992,21 +992,20 @@ def test_paid_llm_uses_gpt4o_mini_and_loads_env(monkeypatch, tmp_path):
         build_provider,
         load_project_env,
     )
+    import scripts.ops.hybrid_sector.pipeline as pipe
 
-    # Write a temporary .env and point discovery via cwd
+    # Isolated .env under tmp — do not touch real secrets
     env_file = tmp_path / ".env"
     env_file.write_text("OPENAI_API_KEY=sk-test-hybrid-sector-unit\n", encoding="utf-8")
     monkeypatch.chdir(tmp_path)
-    # clear prior load flag
-    import scripts.ops.hybrid_sector.pipeline as pipe
-
     monkeypatch.setattr(pipe, "_ENV_LOADED", False)
-    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    # CI sets OPENAI_API_KEY="" — treat empty as unset for load
+    monkeypatch.setenv("OPENAI_API_KEY", "")
     monkeypatch.delenv("HYBRID_SECTOR_ENV_FILE", raising=False)
 
     found = load_project_env(override=True)
     assert found is not None
-    assert found.name == ".env"
+    assert found.resolve() == env_file.resolve()
     assert os.environ.get("OPENAI_API_KEY") == "sk-test-hybrid-sector-unit"
 
     cfg = apply_paid_llm_config({"llm": {"provider": "fake", "model": "offline-fake"}})

@@ -78,21 +78,41 @@ DEFAULT_CONFIG = PROJECT_ROOT / "config/hybrid_sector/default.yaml"
 _ENV_LOADED = False
 
 
+def _parse_dotenv_file(path: Path) -> dict[str, str]:
+    """Minimal .env parser (no dependency on python-dotenv)."""
+    out: dict[str, str] = {}
+    try:
+        text = path.read_text(encoding="utf-8")
+    except OSError:
+        return out
+    for raw in text.splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        if line.startswith("export "):
+            line = line[len("export ") :].strip()
+        key, _, val = line.partition("=")
+        key = key.strip()
+        val = val.strip()
+        if not key:
+            continue
+        if len(val) >= 2 and val[0] == val[-1] and val[0] in {"'", '"'}:
+            val = val[1:-1]
+        out[key] = val
+    return out
+
+
 def load_project_env(*, override: bool = False) -> Path | None:
     """Load OPENAI_API_KEY and related vars from nearest .env (never commit secrets).
 
     Searches cwd and project root ancestors so worktrees pick up the main-repo `.env`.
-    Does not override already-exported process env by default.
+    Does not override already-exported non-empty process env by default.
+    Works without python-dotenv (manual parse fallback).
     """
     global _ENV_LOADED
     if _ENV_LOADED and not override:
         env_path = os.environ.get("HYBRID_SECTOR_ENV_FILE")
         return Path(env_path) if env_path else None
-
-    try:
-        from dotenv import load_dotenv
-    except ImportError:  # pragma: no cover — optional dep
-        load_dotenv = None  # type: ignore[assignment]
 
     candidates: list[Path] = []
     for start in (Path.cwd().resolve(), PROJECT_ROOT.resolve()):
@@ -103,8 +123,20 @@ def load_project_env(*, override: bool = False) -> Path | None:
                 break
     # Prefer the first found (cwd walk, then project root walk)
     chosen = candidates[0] if candidates else None
-    if chosen is not None and load_dotenv is not None:
-        load_dotenv(chosen, override=override)
+    if chosen is not None:
+        parsed = _parse_dotenv_file(chosen)
+        # Prefer python-dotenv when available (handles edge cases), then apply parse
+        try:
+            from dotenv import load_dotenv
+
+            load_dotenv(chosen, override=override)
+        except ImportError:
+            pass
+        for key, val in parsed.items():
+            if override or not (os.environ.get(key) or "").strip():
+                # Empty CI placeholders ("") must not block .env values when override
+                if override or key not in os.environ or not str(os.environ.get(key) or "").strip():
+                    os.environ[key] = val
         os.environ["HYBRID_SECTOR_ENV_FILE"] = str(chosen)
     _ENV_LOADED = True
     return chosen

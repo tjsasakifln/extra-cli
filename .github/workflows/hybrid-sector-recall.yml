@@ -86,7 +86,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install deps
-        run: pip install -q pydantic pyyaml pytest pytest-cov "psycopg2-binary>=2.9.9"
+        run: pip install -q pydantic pyyaml pytest pytest-cov "psycopg2-binary>=2.9.9" python-dotenv
       - name: Locked eval on REAL corpus path (not --fixtures)
         env:
           HYBRID_SECTOR_LLM_PROVIDER: fake
@@ -110,10 +110,11 @@ jobs:
           gates_wrap = r.get("gates") or {}
           g = gates_wrap.get("gates") or gates_wrap
           blockers = set(r.get("active_blockers") or [])
-          required_honest = {
-              "BLOCKED_INVALID_EVALUATION_CORPUS",
+          # Empty Level C: insufficient real gold (primary). REVIEW_CAPACITY is
+          # NOT forced when review universe is unevaluable (0 records).
+          required_operational = {
+              "BLOCKED_INSUFFICIENT_REAL_GOLD_CORPUS",
               "BLOCKED_LLM_OPERATIONAL_VALIDATION",
-              "BLOCKED_REVIEW_CAPACITY",
               "BLOCKED_FULL_SUITE_VALIDATION",
           }
 
@@ -123,12 +124,14 @@ jobs:
           assert r["claims"]["NO_FALSE_NEGATIVES_100"] is False
 
           # Not READY without real evidence; all_core_pass must not be true
-          assert r["terminal_status"] != "READY_FOR_RECALL_ASSURANCE_REVIEW"
+          assert r["terminal_status"] == "BLOCKED_INSUFFICIENT_REAL_GOLD_CORPUS"
           assert r.get("all_core_pass") is False
+          assert r.get("foundation_pr_status") == "READY_TO_MERGE_AS_DISABLED_FOUNDATION"
+          assert r.get("operational_pipeline_status") == "BLOCKED_INSUFFICIENT_REAL_GOLD_CORPUS"
 
-          # Four honest blockers MUST all be present when not READY
-          missing = required_honest - blockers
-          assert not missing, f"missing honest blockers: {missing}; have={sorted(blockers)}"
+          missing = required_operational - blockers
+          assert not missing, f"missing operational blockers: {missing}; have={sorted(blockers)}"
+          assert "BLOCKED_REVIEW_CAPACITY" not in blockers
           assert r.get("required_honest_blockers_present") is not False
 
           # evaluation level C for real locked path
@@ -142,16 +145,22 @@ jobs:
           commercial = g.get("commercial") or {}
           # Vacuous empty corpus: must NOT claim commercial pass / operational precision
           assert commercial.get("pass") is not True
-          assert commercial.get("precision_vacuous") is True or commercial.get("all_match_count", 0) == 0
+          assert commercial.get("point") is None or commercial.get("precision_vacuous") is True
           assert commercial.get("operational_claim_allowed") is not True
           ready_req = gates_wrap.get("ready_requirements") or {}
           assert ready_req.get("real_precision_approved") is not True
 
-          # Critical FN / audit / lineage when present
+          # Zero observations → null metrics, no operational claims
+          ret = g.get("retrieval") or {}
+          assert ret.get("operational_claim_allowed") is False
+          assert ret.get("point") is None
           pres = g.get("preservation") or {}
-          if "critical_false_negatives" in pres:
-              # empty gold → 0 critical FN is ok, but retrieval/pres cannot claim operational
-              assert pres.get("operational_claim_allowed") is True  # level C flag only
+          assert pres.get("operational_claim_allowed") is False
+          assert pres.get("point") is None
+          rev = g.get("review_capacity") or {}
+          assert rev.get("status") == "NOT_EVALUATED_INSUFFICIENT_REAL_CORPUS"
+          assert rev.get("blocker_active") is False
+
           audit = g.get("audit") or {}
           details = audit.get("details") or audit
           if "invented_evidence_accepted" in details:
@@ -177,10 +186,17 @@ jobs:
           ):
               assert (out / name).is_file(), name
 
-          # Separated claims
+          # Separated claims are explicit objects (artifact_present ≠ passed)
           sep = r.get("separated_results") or {}
-          assert sep.get("paid_llm_validation") is True
-          assert sep.get("full_suite_status") is True
+          paid = sep.get("paid_llm_validation") or {}
+          suite = sep.get("full_suite") or {}
+          real_ev = sep.get("real_operational_evaluation") or {}
+          assert isinstance(paid, dict) and paid.get("artifact_present") is True
+          assert paid.get("passed") is False
+          assert isinstance(suite, dict) and suite.get("artifact_present") is True
+          assert suite.get("passed") is False
+          assert isinstance(real_ev, dict) and real_ev.get("passed") is False
+          assert real_ev.get("status") == "BLOCKED_INSUFFICIENT_REAL_GOLD_CORPUS"
 
           print(
               "numeric_gates_ok",
@@ -201,7 +217,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install deps
-        run: pip install -q pydantic pyyaml
+        run: pip install -q pydantic pyyaml python-dotenv
       - name: Reproducibility + cost guard (offline Level A fixtures)
         env:
           OPENAI_API_KEY: ""
@@ -218,15 +234,15 @@ jobs:
           assert cost.get("paid_calls_in_default_ci", 0) == 0
           assert cost.get("not_yaml_copy") is True
           assert "observed_cost_usd" in cost
-          # fixtures not READY; multi-blocker honesty
+          # fixtures not READY; operational honesty (no vacuous REVIEW_CAPACITY)
           blockers = set(a.get("active_blockers") or [])
           required = {
               "BLOCKED_INVALID_EVALUATION_CORPUS",
               "BLOCKED_LLM_OPERATIONAL_VALIDATION",
-              "BLOCKED_REVIEW_CAPACITY",
               "BLOCKED_FULL_SUITE_VALIDATION",
           }
           assert required <= blockers, blockers
+          assert "BLOCKED_REVIEW_CAPACITY" not in blockers
           print("repro_ok", a["terminal_status"])
           PY
 
