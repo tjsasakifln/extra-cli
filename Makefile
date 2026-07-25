@@ -384,3 +384,7 @@ dod-audit-client-ready-recurring-consulting-cycle:
 	@echo 'dod-audit-client-ready-recurring-consulting-cycle: technical audit via unit gates'
 	$(MAKE) test-client-ready
 
+
+.PHONY: test-edital-case
+test-edital-case:
+	python -m pytest tests/edital_case/ -q --tb=short
