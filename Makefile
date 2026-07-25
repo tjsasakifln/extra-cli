@@ -477,6 +477,8 @@ verify-confenge-ranking-stability:
 	python3 -c "import json,sys; from pathlib import Path; p=Path('$(CONFENGE_COMMERCIAL_ART)/ranking-stability.json'); d=json.loads(p.read_text()) if p.is_file() else {}; print(d); sys.exit(0 if d.get('ok') else 1)"
 
 verify-confenge-commercial-artifact-binding:
-	python3 -c "import json,sys,subprocess; from pathlib import Path; sha=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(); arts=['artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/result.json','artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/run/run-result.json']; bad=[]; for a in arts: p=Path(a); if not p.is_file(): bad.append('missing:'+a); continue; d=json.loads(p.read_text()); for k in ('git_sha','run_git_sha','artifact_git_sha'):  v=d.get(k);  if v and v!=sha: bad.append(f'{a}:{k}={v}!={sha}'); print({'sha':sha,'bad':bad}); sys.exit(0 if not bad else 1)"
+	python3 -m scripts.ops.verify_confenge_artifact_binding \
+		--result $(CONFENGE_COMMERCIAL_ART)/result.json \
+		--queue-summary $(CONFENGE_COMMERCIAL_ART)/queue-summary.json
 
 

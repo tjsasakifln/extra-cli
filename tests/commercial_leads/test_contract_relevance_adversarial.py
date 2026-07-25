@@ -58,6 +58,27 @@ def test_weak_token_alone_never_passes() -> None:
         assert "weak_token_alone" in r.reason_codes or "no_relevance_evidence" in r.reason_codes
 
 
+@pytest.mark.parametrize(
+    "objeto",
+    [
+        "infraestrutura de TI",
+        "infraestrutura de rede de dados",
+        "serviços de infraestrutura de telecomunicações",
+        "infraestrutura de tecnologia da informação",
+        "contratação de infraestrutura cloud e datacenter",
+    ],
+)
+def test_infraestrutura_ti_telecom_never_passes(objeto: str) -> None:
+    """Bare/IT 'infraestrutura' must not qualify as engineering (skeptic finding)."""
+    r = classify_contract_relevance(objeto)
+    assert r.status != "PASS", (objeto, r.as_dict())
+
+
+def test_infraestrutura_viaria_still_passes() -> None:
+    r = classify_contract_relevance("obras de infraestrutura viária e pavimentação")
+    assert r.status == "PASS"
+
+
 def test_manutencao_de_ponte_passes_manutencao_veiculo_fails() -> None:
     assert classify_contract_relevance("manutenção de ponte e estrutura").status == "PASS"
     assert classify_contract_relevance("manutenção de veículos da frota").status == "FAIL"

@@ -10,7 +10,6 @@ import pytest
 
 from scripts.commercial_leads import POPULATION_FULL, POPULATION_SAMPLE, SOURCE_STATE_RESTORED
 from scripts.commercial_leads.isolation import assert_source_state_isolation, mask_dsn
-from scripts.commercial_leads.snapshot import bind_snapshot_to_database
 
 
 def test_restored_snapshot_mode_declared_when_same_dsn() -> None:
@@ -94,17 +93,59 @@ def test_bind_snapshot_match_ok() -> None:
     assert result["table_snapshot_hash"]
 
 
-def test_artifact_sha_mismatch_policy() -> None:
-    """RC must FAIL when artifact SHA != PR HEAD."""
-    pr_head = "abc123"
-    artifact = {
-        "artifact_git_sha": "oldsha",
-        "run_git_sha": "oldsha",
-        "gate_git_sha": "oldsha",
-        "review_git_sha": "oldsha",
+def test_artifact_sha_mismatch_policy_drives_shipped_gate(tmp_path: Path) -> None:
+    """Shipped SHA-binding gate must FAIL when any artifact SHA != HEAD."""
+    from scripts.ops.verify_confenge_artifact_binding import check_artifact_binding
+
+    head = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    result = {
+        "status": "BLOCKED",
+        "git_sha": head,
+        "artifact_git_sha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "run_git_sha": head,
+        "gate_git_sha": head,
+        "review_git_sha": head,
     }
-    mismatch = any(artifact[k] != pr_head for k in artifact)
-    assert mismatch is True
+    path = tmp_path / "result.json"
+    path.write_text(json.dumps(result), encoding="utf-8")
+    report = check_artifact_binding(head_sha=head, result_path=path)
+    assert report["ok"] is False
+    assert report["status"] == "FAIL"
+    assert any("artifact_git_sha" in i for i in report["issues"])
+
+
+def test_artifact_sha_match_passes(tmp_path: Path) -> None:
+    from scripts.ops.verify_confenge_artifact_binding import check_artifact_binding
+
+    head = "cccccccccccccccccccccccccccccccccccccccc"
+    result = {
+        "status": "BLOCKED",
+        "git_sha": head,
+        "artifact_git_sha": head,
+        "run_git_sha": head,
+        "gate_git_sha": head,
+        "review_git_sha": head,
+    }
+    path = tmp_path / "result.json"
+    path.write_text(json.dumps(result), encoding="utf-8")
+    report = check_artifact_binding(head_sha=head, result_path=path)
+    assert report["ok"] is True
+    assert report["status"] == "PASS"
+
+
+def test_public_consorcio_excluded_by_organ_markers() -> None:
+    from scripts.commercial_leads.identity import resolve_supplier
+    from scripts.commercial_leads.profile import load_profile
+
+    prof = load_profile("config/commercial_profiles/confenge.yaml")
+    markers = list((prof.data.get("exclusions") or {}).get("organ_name_markers") or [])
+    r = resolve_supplier(
+        "22835076000170",
+        "CONSORCIO INTEGRADO MULTIFINALITARIO DO VALE DO JEQUITINHONHA",
+        organ_markers=markers,
+    )
+    assert r.eligible is False
+    assert r.exclusion_reason == "public_organ_name"
 
 
 def test_population_modes_constants() -> None:

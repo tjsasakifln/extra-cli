@@ -540,17 +540,49 @@ jobs:
       - name: Profile + catalog schema
         run: |
           python -c "from scripts.commercial_leads.profile import load_profile; p=load_profile('config/commercial_profiles/confenge.yaml'); assert p.profile_id=='confenge'; assert len(p.signal_ids)>=12"
-      - name: Sector-fit + adversarial tests
+      - name: Sector-fit + adversarial + validity unit tests
         run: |
-          python -m pytest tests/commercial_leads/test_contract_relevance_adversarial.py tests/commercial_leads/test_sector_fit.py tests/commercial_leads/test_validity_gates.py tests/commercial_leads/ -q --tb=short -o addopts=
+          python -m pytest tests/commercial_leads/ -q --tb=short -o addopts=
       - name: Sector-fit eval corpus present
         run: |
           test -f evals/commercial_leads/sector-fit-v1.jsonl
           python -c "from pathlib import Path; n=sum(1 for _ in Path('evals/commercial_leads/sector-fit-v1.jsonl').open()); assert n>=12, n"
       - name: No RC_TECHNICAL_PASS claim in result
         run: |
-          python -c "import json; from pathlib import Path; p=Path('artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/result.json');
-d=json.loads(p.read_text()) if p.is_file() else {};
-assert d.get('technical_status')!='RC_TECHNICAL_PASS' and d.get('status')!='RC_TECHNICAL_PASS';
-assert d.get('status') in ('PASS','BLOCKED','FAIL',None) or True"
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path("artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/result.json")
+          assert p.is_file(), "result.json missing"
+          d = json.loads(p.read_text())
+          assert d.get("technical_status") != "RC_TECHNICAL_PASS"
+          assert d.get("status") != "RC_TECHNICAL_PASS"
+          assert d.get("status") in ("PASS", "BLOCKED", "FAIL"), d.get("status")
+          PY
+      - name: Artifact SHA binding gate
+        run: make verify-confenge-commercial-artifact-binding
+      - name: Ranking stability artifact
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path("artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/ranking-stability.json")
+          assert p.is_file(), "ranking-stability.json missing"
+          d = json.loads(p.read_text())
+          assert "same_snapshot" in d or d.get("ok") is True
+          if d.get("ok") is not True and not d.get("same_snapshot", {}).get("ok"):
+              raise SystemExit(f"ranking_stability incomplete: {d}")
+          PY
+      - name: Independent review populations present
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d = json.loads(Path("artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/independent-review.json").read_text())
+          pop = d.get("populations_reviewed") or {}
+          for key in ("top20", "random_outside_top20", "clear_out_of_scope", "clear_in_sector"):
+              assert key in pop, f"missing population {key}"
+          assert d.get("false_positives") is not None
+          assert d.get("precision_at_10") is not None or d.get("recommendation")
+          PY
 

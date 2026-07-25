@@ -40,6 +40,9 @@ STRONG_PHRASES: tuple[str, ...] = (
     "obras e servicos de engenharia",
     "empreitada",
     "infraestrutura viaria",
+    "infraestrutura urbana",
+    "infraestrutura de saneamento",
+    "obras de infraestrutura",
     "construcao de escola",
     "construcao de ponte",
     "engenharia e arquitetura",
@@ -60,6 +63,9 @@ STRONG_PHRASES: tuple[str, ...] = (
     "estrada vicinal",
 )
 
+# Bare tokens that are strong only when NOT purely IT/telecom/generic.
+# Note: "infraestrutura" alone is NOT here — it requires positive engineering
+# context (see POSITIVE_CONTEXT / compound STRONG_PHRASES) to avoid TI/telecom FPs.
 STRONG_TOKENS: tuple[str, ...] = (
     "pavimentacao",
     "terraplenagem",
@@ -73,7 +79,6 @@ STRONG_TOKENS: tuple[str, ...] = (
     "empreitada",
     "engenheir",
     "construtora",
-    "infraestrutura",
 )
 
 # Layer B — weak tokens (need positive engineering context)
@@ -149,7 +154,17 @@ NEGATIVE_CONTEXT: tuple[str, ...] = (
     "sistema de informacao",
     "tecnologia da informacao",
     "ti ",
+    " de ti",
     "informatica",
+    "telecomunicacoes",
+    "telecomunicacao",
+    "rede de dados",
+    "infraestrutura de ti",
+    "infraestrutura de rede",
+    "infraestrutura de telecomunicacoes",
+    "cloud",
+    "datacenter",
+    "data center",
     "contabil",
     "contabilidade",
     "cultural",
@@ -268,6 +283,14 @@ def classify_contract_relevance(objeto: str | None) -> ContractRelevanceResult:
                 "dedicacao exclusiva de mao de obra",
                 "impressora",
                 "impressoras",
+                "telecomunicacoes",
+                "telecomunicacao",
+                "rede de dados",
+                "infraestrutura de ti",
+                "infraestrutura de rede",
+                "infraestrutura de telecomunicacoes",
+                "tecnologia da informacao",
+                "informatica",
             )
         )
         if hard_neg:

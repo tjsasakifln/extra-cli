@@ -87,6 +87,12 @@ exclusions:
   - estado de
   - uniao
   - união
+  - consorcio
+  - consórcio
+  - consorcio intermunicipal
+  - consórcio intermunicipal
+  - consorcio publico
+  - consórcio público
 queue: &id004
   limit: 20
   min_score: 1.0

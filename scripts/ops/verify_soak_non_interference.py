@@ -157,10 +157,15 @@ def compare_snapshots(baseline: dict[str, Any], final: dict[str, Any]) -> dict[s
 
     production_touched = False
     soak_touched = False
-    timers_modified = False
-    services_restarted = False
-    operational_tables_written = False  # this gate does not write; force false unless evidence
-    soak_artifacts_modified = False
+    # Objective §18: never auto-fill false without observation. UNKNOWN fails closed.
+    timers_modified: bool | str = "UNKNOWN"
+    services_restarted: bool | str = "UNKNOWN"
+    operational_tables_written: bool | str = "UNKNOWN"
+    soak_artifacts_modified: bool | str = "UNKNOWN"
+    no_write_proven = False
+    no_write_observed: bool | None = None
+    campaign_did_not_request_write = True
+    _timer_observed = False
 
     b_units = baseline.get("units") or {}
     f_units = final.get("units") or {}
@@ -173,6 +178,7 @@ def compare_snapshots(baseline: dict[str, Any], final: dict[str, Any]) -> dict[s
                 reasons.append(f"unit_missing_in_final:{name}")
                 soak_touched = True
             continue
+        _timer_observed = True
         if bu.get("enabled") != fu.get("enabled"):
             reasons.append(f"enabled_changed:{name}")
             timers_modified = True
@@ -186,6 +192,7 @@ def compare_snapshots(baseline: dict[str, Any], final: dict[str, Any]) -> dict[s
     b_hash = baseline.get("unit_file_hashes") or {}
     f_hash = final.get("unit_file_hashes") or {}
     for path, bh in b_hash.items():
+        _timer_observed = True
         fh = f_hash.get(path)
         if fh is None:
             reasons.append(f"unitfile_missing_final:{path}")
@@ -196,6 +203,8 @@ def compare_snapshots(baseline: dict[str, Any], final: dict[str, Any]) -> dict[s
             timers_modified = True
             soak_touched = True
             production_touched = True
+    if _timer_observed and timers_modified == "UNKNOWN":
+        timers_modified = False  # observed units, no change detected
 
     b_art = baseline.get("soak_artifact_hashes") or {}
     f_art = final.get("soak_artifact_hashes") or {}
@@ -212,11 +221,52 @@ def compare_snapshots(baseline: dict[str, Any], final: dict[str, Any]) -> dict[s
             # Not necessarily campaign interference; still report honestly
             # Campaign must not have written these files. Hash change alone is not production_touched
             # unless we prove our process wrote them. Keep soak_artifacts_modified true.
+    if (b_art or f_art) and soak_artifacts_modified == "UNKNOWN":
+        soak_artifacts_modified = False
 
     if baseline.get("deploy_sha") and final.get("deploy_sha"):
         if baseline["deploy_sha"] != final["deploy_sha"] and final["deploy_sha"] != "unknown":
             # deploy SHA change is not automatically our fault; note only
             reasons.append("deploy_sha_changed_observe_only")
+
+    # Derive services_restarted only from real evidence fields when present
+    svc_evidence = final.get("service_restart_evidence") or baseline.get("service_restart_evidence")
+    if isinstance(svc_evidence, dict) and svc_evidence.get("NRestarts") is not None:
+        b_n = (baseline.get("service_restart_evidence") or {}).get("NRestarts")
+        f_n = (final.get("service_restart_evidence") or {}).get("NRestarts")
+        if b_n is not None and f_n is not None:
+            services_restarted = int(f_n) > int(b_n)
+        else:
+            services_restarted = "UNKNOWN"
+            reasons.append("services_restarted_incomplete_evidence")
+    else:
+        services_restarted = "UNKNOWN"
+        reasons.append("services_restarted_unobserved")
+
+    table_evidence = final.get("operational_table_write_evidence")
+    if isinstance(table_evidence, dict) and table_evidence.get("no_write_proven") is True:
+        operational_tables_written = False
+        no_write_proven = True
+        no_write_observed = True
+    elif isinstance(table_evidence, dict) and table_evidence.get("writes_observed") is True:
+        operational_tables_written = True
+        no_write_proven = False
+        no_write_observed = False
+    else:
+        operational_tables_written = "UNKNOWN"
+        no_write_proven = False
+        no_write_observed = None
+        reasons.append("operational_tables_unobserved")
+
+    if soak_artifacts_modified == "UNKNOWN":
+        # if we compared hashes, we have observation
+        if b_art or f_art:
+            soak_artifacts_modified = bool(
+                any(
+                    (f_art.get(p) != bh)
+                    for p, bh in b_art.items()
+                )
+            )
 
     result = {
         "campaign_id": CAMPAIGN_ID,
@@ -227,6 +277,9 @@ def compare_snapshots(baseline: dict[str, Any], final: dict[str, Any]) -> dict[s
         "services_restarted": services_restarted,
         "operational_tables_written": operational_tables_written,
         "soak_artifacts_modified": soak_artifacts_modified,
+        "campaign_did_not_request_write": campaign_did_not_request_write,
+        "no_write_observed": no_write_observed,
+        "no_write_proven": no_write_proven,
         "reasons": reasons,
         "baseline_captured_at": baseline.get("captured_at"),
         "final_captured_at": final.get("captured_at"),
@@ -234,26 +287,48 @@ def compare_snapshots(baseline: dict[str, Any], final: dict[str, Any]) -> dict[s
         "final_deploy_sha": final.get("deploy_sha"),
     }
 
-    # Fail closed: no nulls
+    # Fail closed: nulls or UNKNOWN on observation keys
     for k in REQUIRED_BOOL_KEYS:
         if result.get(k) is None:
             reasons.append(f"null_bool:{k}")
-            result[k] = True  # treat unknown as interference to fail closed
+            result[k] = "UNKNOWN"
     result["reasons"] = reasons
 
-    # Interference verdict: structural changes to unit files/timers by campaign
-    interference = (
-        production_touched
-        or timers_modified
-        or services_restarted
-        or operational_tables_written
-        or (soak_touched and any(r.startswith("unitfile_hash_changed") or r.startswith("enabled_changed") for r in reasons))
+    unknown_obs = any(
+        result.get(k) == "UNKNOWN"
+        for k in ("services_restarted", "operational_tables_written", "timers_modified")
     )
-    # soak artifact growth during natural soak is NOT campaign interference
-    ok = not interference and not any(r.startswith("baseline_not_ok") or r.startswith("final_not_ok") or r.startswith("missing_or_null") for r in reasons)
+    # Interference: proven true OR unobserved (UNKNOWN fail-closed) OR structural unit changes
+    interference = (
+        production_touched is True
+        or timers_modified is True
+        or services_restarted is True
+        or operational_tables_written is True
+        or unknown_obs
+        or (
+            soak_touched
+            and any(
+                r.startswith("unitfile_hash_changed") or r.startswith("enabled_changed")
+                for r in reasons
+            )
+        )
+    )
+    # Strong PASS only when no_write_proven and no interference
+    ok = (
+        not interference
+        and no_write_proven
+        and not any(
+            r.startswith("baseline_not_ok")
+            or r.startswith("final_not_ok")
+            or r.startswith("missing_or_null")
+            for r in reasons
+        )
+    )
     result["ok"] = ok
     result["status"] = "PASS" if ok else "FAIL"
     result["interference"] = interference
+    if unknown_obs and not ok:
+        result["fail_reason"] = "UNKNOWN_observations_fail_closed"
     return result
 
 
