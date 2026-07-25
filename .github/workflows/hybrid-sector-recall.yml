@@ -49,7 +49,6 @@ jobs:
       - name: Secrets scan (fail closed)
         run: |
           set -euo pipefail
-          # Fail if forbidden secret patterns appear under hybrid config or campaign sources
           if grep -RInE 'sk-[a-zA-Z0-9]{10,}|OPENAI_API_KEY\s*=\s*["'\''][^"'\'']+' \
             config/hybrid_sector scripts/ops/hybrid_sector 2>/dev/null; then
             echo "SECRET PATTERN FOUND — fail closed"
@@ -104,37 +103,93 @@ jobs:
           python - <<'PY'
           import json
           from pathlib import Path
-          r = json.loads(Path("artifacts/campaigns/HYBRID-SECTOR-RECALL-LLM-ARBITER-01/result.json").read_text())
-          # Numeric gates — not soft allow-list alone
+
+          r = json.loads(
+              Path("artifacts/campaigns/HYBRID-SECTOR-RECALL-LLM-ARBITER-01/result.json").read_text()
+          )
+          gates_wrap = r.get("gates") or {}
+          g = gates_wrap.get("gates") or gates_wrap
+          blockers = set(r.get("active_blockers") or [])
+          required_honest = {
+              "BLOCKED_INVALID_EVALUATION_CORPUS",
+              "BLOCKED_LLM_OPERATIONAL_VALIDATION",
+              "BLOCKED_REVIEW_CAPACITY",
+              "BLOCKED_FULL_SUITE_VALIDATION",
+          }
+
+          # Claims
           assert r["claims"]["ACCEPTED"] is False
           assert r["claims"]["MERGED"] is False
-          assert r.get("all_core_pass") is False or r["terminal_status"] == "READY_FOR_RECALL_ASSURANCE_REVIEW"
-          blockers = set(r.get("active_blockers") or [])
-          # Until real evidence exists, multi-blocker honesty required
-          if r["terminal_status"] != "READY_FOR_RECALL_ASSURANCE_REVIEW":
-              required = {
-                  "BLOCKED_INVALID_EVALUATION_CORPUS",
-                  "BLOCKED_LLM_OPERATIONAL_VALIDATION",
-                  "BLOCKED_REVIEW_CAPACITY",
-                  "BLOCKED_FULL_SUITE_VALIDATION",
-              }
-              # At least the four honest blockers must be representable; corpus/llm/suite always apply when empty real gold
-              for b in ("BLOCKED_INVALID_EVALUATION_CORPUS", "BLOCKED_LLM_OPERATIONAL_VALIDATION", "BLOCKED_FULL_SUITE_VALIDATION"):
-                  # INVALID may be replaced by INSUFFICIENT_REAL when real kind but empty
-                  pass
-              assert r["terminal_status"] != "READY_FOR_RECALL_ASSURANCE_REVIEW" or r.get("all_core_pass") is True
-              # Must not only report BLOCKED_REVIEW_CAPACITY alone when others apply
-              if blockers == {"BLOCKED_REVIEW_CAPACITY"}:
-                  raise AssertionError("must not collapse to only BLOCKED_REVIEW_CAPACITY")
-          # unlabeled MATCH integrity when metrics present
-          gates = r.get("gates") or {}
-          g = gates.get("gates") or gates
-          um = (g.get("unlabeled_match") or {})
-          if "unlabeled_match_count" in um or um.get("pass") is not None:
-              assert um.get("pass") is True or um.get("unlabeled_match_count", 0) == 0 or True
-          # corpus must not claim synthetic as operational
-          assert r.get("evaluation_level") in {"A", "B", "C", None} or True
-          print("terminal", r["terminal_status"], "blockers", sorted(blockers))
+          assert r["claims"]["NO_FALSE_NEGATIVES_100"] is False
+
+          # Not READY without real evidence; all_core_pass must not be true
+          assert r["terminal_status"] != "READY_FOR_RECALL_ASSURANCE_REVIEW"
+          assert r.get("all_core_pass") is False
+
+          # Four honest blockers MUST all be present when not READY
+          missing = required_honest - blockers
+          assert not missing, f"missing honest blockers: {missing}; have={sorted(blockers)}"
+          assert r.get("required_honest_blockers_present") is not False
+
+          # evaluation level C for real locked path
+          assert r.get("evaluation_level") == "C", r.get("evaluation_level")
+          assert r.get("corpus_kind") == "REAL_OPERATIONAL_LOCKED_GOLD"
+
+          # Numeric integrity gates
+          um = g.get("unlabeled_match") or {}
+          assert um.get("pass") is True or um.get("unlabeled_match_count", 0) == 0
+
+          commercial = g.get("commercial") or {}
+          # Vacuous empty corpus: must NOT claim commercial pass / operational precision
+          assert commercial.get("pass") is not True
+          assert commercial.get("precision_vacuous") is True or commercial.get("all_match_count", 0) == 0
+          assert commercial.get("operational_claim_allowed") is not True
+          ready_req = gates_wrap.get("ready_requirements") or {}
+          assert ready_req.get("real_precision_approved") is not True
+
+          # Critical FN / audit / lineage when present
+          pres = g.get("preservation") or {}
+          if "critical_false_negatives" in pres:
+              # empty gold → 0 critical FN is ok, but retrieval/pres cannot claim operational
+              assert pres.get("operational_claim_allowed") is True  # level C flag only
+          audit = g.get("audit") or {}
+          details = audit.get("details") or audit
+          if "invented_evidence_accepted" in details:
+              assert int(details["invented_evidence_accepted"]) == 0
+          if "silent_discards" in details:
+              assert int(details["silent_discards"]) == 0
+          if "lineage_coverage" in details:
+              assert float(details["lineage_coverage"]) >= 1.0 or float(details["lineage_coverage"]) == 0.0
+
+          # Corpus not operational gold yet
+          corpus_gate = g.get("corpus") or {}
+          assert corpus_gate.get("pass") is not True
+
+          # Provenance artifacts written
+          out = Path("artifacts/campaigns/HYBRID-SECTOR-RECALL-LLM-ARBITER-01")
+          for name in (
+              "annotation-provenance.json",
+              "annotation-agreement.json",
+              "annotation-adjudications.json",
+              "paid_llm_validation.json",
+              "full_suite_status.json",
+              "real_operational_results.json",
+          ):
+              assert (out / name).is_file(), name
+
+          # Separated claims
+          sep = r.get("separated_results") or {}
+          assert sep.get("paid_llm_validation") is True
+          assert sep.get("full_suite_status") is True
+
+          print(
+              "numeric_gates_ok",
+              r["terminal_status"],
+              "blockers",
+              sorted(blockers),
+              "commercial_pass",
+              commercial.get("pass"),
+          )
           PY
 
   cost-guard-reproducibility:
@@ -163,10 +218,18 @@ jobs:
           assert cost.get("paid_calls_in_default_ci", 0) == 0
           assert cost.get("not_yaml_copy") is True
           assert "observed_cost_usd" in cost
+          # fixtures not READY; multi-blocker honesty
+          blockers = set(a.get("active_blockers") or [])
+          required = {
+              "BLOCKED_INVALID_EVALUATION_CORPUS",
+              "BLOCKED_LLM_OPERATIONAL_VALIDATION",
+              "BLOCKED_REVIEW_CAPACITY",
+              "BLOCKED_FULL_SUITE_VALIDATION",
+          }
+          assert required <= blockers, blockers
           print("repro_ok", a["terminal_status"])
           PY
 
-  # Explicitly named operational job — NOT triggered on pull_request default path
   operational-paid-llm-validation:
     if: github.event_name == 'workflow_dispatch' && inputs.allow_paid_llm == 'true'
     runs-on: ubuntu-latest
@@ -183,8 +246,6 @@ jobs:
           pip install -q pydantic pyyaml
           if [ -z "${OPENAI_API_KEY:-}" ]; then
             echo "SKIP: OPENAI_API_KEY secret not configured (explicit skip, not success)"
-            # GitHub Actions: skip via exit 0 with clear message is NOT success of validation.
-            # Use neutral conclusion file for audit; job is skipped intentionally.
             mkdir -p artifacts/campaigns/HYBRID-SECTOR-RECALL-LLM-ARBITER-01/operational-paid
             echo '{"status":"SKIPPED_NO_SECRET","passed":false}' > \
               artifacts/campaigns/HYBRID-SECTOR-RECALL-LLM-ARBITER-01/operational-paid/paid_llm_validation.json

@@ -4,9 +4,11 @@
     "BLOCKED_EMBEDDING_OPERATIONAL_VALIDATION",
     "BLOCKED_FULL_SUITE_VALIDATION",
     "BLOCKED_INSUFFICIENT_REAL_GOLD_CORPUS",
+    "BLOCKED_INSUFFICIENT_RECALL",
     "BLOCKED_INSUFFICIENT_STATISTICAL_POWER",
     "BLOCKED_INVALID_EVALUATION_CORPUS",
-    "BLOCKED_LLM_OPERATIONAL_VALIDATION"
+    "BLOCKED_LLM_OPERATIONAL_VALIDATION",
+    "BLOCKED_REVIEW_CAPACITY"
   ],
   "required_honest_blockers": [
     "BLOCKED_FULL_SUITE_VALIDATION",
@@ -14,6 +16,7 @@
     "BLOCKED_LLM_OPERATIONAL_VALIDATION",
     "BLOCKED_REVIEW_CAPACITY"
   ],
+  "required_honest_blockers_present": true,
   "allowed_states": [
     "BLOCKED_EMBEDDING_OPERATIONAL_VALIDATION",
     "BLOCKED_FULL_SUITE_VALIDATION",
@@ -59,9 +62,11 @@
       "BLOCKED_EMBEDDING_OPERATIONAL_VALIDATION",
       "BLOCKED_FULL_SUITE_VALIDATION",
       "BLOCKED_INSUFFICIENT_REAL_GOLD_CORPUS",
+      "BLOCKED_INSUFFICIENT_RECALL",
       "BLOCKED_INSUFFICIENT_STATISTICAL_POWER",
       "BLOCKED_INVALID_EVALUATION_CORPUS",
-      "BLOCKED_LLM_OPERATIONAL_VALIDATION"
+      "BLOCKED_LLM_OPERATIONAL_VALIDATION",
+      "BLOCKED_REVIEW_CAPACITY"
     ],
     "every_record_has_decision": true,
     "silent_drop_ids": [],
@@ -101,15 +106,17 @@
         "operational_claim_allowed": true
       },
       "commercial": {
-        "pass": true,
-        "point": 1.0,
-        "lower_95": 1.0,
-        "conservative": 1.0,
-        "hard_only_additional": 1.0,
+        "pass": false,
+        "point": null,
+        "lower_95": null,
+        "conservative": null,
+        "hard_only_additional": null,
         "hard_false_positives": 0,
         "ambiguous_match_commercial_risk": 0,
-        "blocks_readiness": false,
-        "operational_claim_allowed": true
+        "all_match_count": 0,
+        "precision_vacuous": true,
+        "blocks_readiness": true,
+        "operational_claim_allowed": false
       },
       "audit": {
         "pass": true,
@@ -187,11 +194,14 @@
         "benchmark": null
       },
       "review_capacity": {
-        "pass": true,
+        "pass": false,
         "review_rate": 0.0,
         "max_review_rate": 0.2,
         "overflow": false,
-        "operational_status": "WITHIN_CAPACITY"
+        "within_numeric": true,
+        "review_count": 0,
+        "operational_status": "WITHIN_CAPACITY",
+        "vacuous_empty_not_pass": true
       },
       "full_suite": {
         "pass": false,
@@ -224,21 +234,29 @@
       "BLOCKED_EMBEDDING_OPERATIONAL_VALIDATION",
       "BLOCKED_FULL_SUITE_VALIDATION",
       "BLOCKED_INSUFFICIENT_REAL_GOLD_CORPUS",
+      "BLOCKED_INSUFFICIENT_RECALL",
       "BLOCKED_INSUFFICIENT_STATISTICAL_POWER",
       "BLOCKED_INVALID_EVALUATION_CORPUS",
-      "BLOCKED_LLM_OPERATIONAL_VALIDATION"
+      "BLOCKED_LLM_OPERATIONAL_VALIDATION",
+      "BLOCKED_REVIEW_CAPACITY"
     ],
-    "required_honest_blockers_present": false,
+    "required_honest_blockers": [
+      "BLOCKED_INVALID_EVALUATION_CORPUS",
+      "BLOCKED_LLM_OPERATIONAL_VALIDATION",
+      "BLOCKED_REVIEW_CAPACITY",
+      "BLOCKED_FULL_SUITE_VALIDATION"
+    ],
+    "required_honest_blockers_present": true,
     "evaluation_level": "C",
     "ready_requirements": {
       "real_corpus_sufficient": false,
       "label_provenance_valid": false,
       "unlabeled_match_zero": true,
       "real_recall_approved": false,
-      "real_precision_approved": true,
+      "real_precision_approved": false,
       "real_embeddings_evaluated": false,
       "real_llm_validated": false,
-      "review_capacity_within_limit": true,
+      "review_capacity_within_limit": false,
       "full_suite_green": false,
       "rc_v2_intact": false
     }

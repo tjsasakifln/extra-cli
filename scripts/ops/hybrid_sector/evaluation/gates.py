@@ -117,34 +117,54 @@ def evaluate_gates(
         "operational_claim_allowed": evaluation_level == "C",
     }
 
-    # Commercial MATCH precision — primary is all MATCH, not hard-only
-    m_point = float(
-        decision.get("match_precision_all")
-        or decision.get("match_precision")
-        or 0
-    )
-    m_low = float(decision.get("match_precision_lower_95") or 0)
-    m_cons = float(decision.get("match_precision_conservative") or m_point)
+    # Commercial MATCH precision — primary is all MATCH, not hard-only.
+    # Vacuous 0-MATCH must NOT pass (no free 1.0 precision).
+    raw_point = decision.get("match_precision_all")
+    if raw_point is None:
+        raw_point = decision.get("match_precision")
+    precision_vacuous = bool(decision.get("precision_vacuous")) or raw_point is None
+    all_match_n = int(decision.get("all_match_count") or decision.get("match_count") or 0)
+    if precision_vacuous or all_match_n == 0:
+        m_point = 0.0
+        m_low = 0.0
+        m_cons = 0.0
+        precision_evidence_ok = False
+    else:
+        m_point = float(raw_point)
+        m_low = float(decision.get("match_precision_lower_95") or 0)
+        cons_raw = decision.get("match_precision_conservative")
+        m_cons = float(cons_raw) if cons_raw is not None else m_point
+        precision_evidence_ok = bool(decision.get("precision_evidence_sufficient", True))
     hard_fp = int(decision.get("match_false_positives_hard") or 0)
     ambig_risk = int(decision.get("ambiguous_match_commercial_risk") or 0)
     com_pass = (
-        m_point >= thr["match_precision_point"]
+        precision_evidence_ok
+        and not precision_vacuous
+        and all_match_n > 0
+        and m_point >= thr["match_precision_point"]
         and m_low >= thr["match_precision_lower_95"]
+        and m_cons >= thr["match_precision_point"]  # conservative must also clear
         and hard_fp == 0
         and unlabeled_ok
         and denom_ok
-        and ambig_risk == 0  # unadjudicated AMBIGUOUS MATCH fails commercial until adjudicated
+        and ambig_risk == 0  # unadjudicated AMBIGUOUS MATCH fails until adjudicated
+    )
+    # Operational commercial claims only on Level C with real evidence — never vacuous
+    commercial_ops_allowed = (
+        evaluation_level == "C" and com_pass and not precision_vacuous and all_match_n > 0
     )
     gates["commercial"] = {
         "pass": com_pass,
-        "point": m_point,
-        "lower_95": m_low,
-        "conservative": m_cons,
+        "point": m_point if not precision_vacuous else None,
+        "lower_95": m_low if not precision_vacuous else None,
+        "conservative": m_cons if not precision_vacuous else None,
         "hard_only_additional": decision.get("match_precision_hard_only"),
         "hard_false_positives": hard_fp,
         "ambiguous_match_commercial_risk": ambig_risk,
+        "all_match_count": all_match_n,
+        "precision_vacuous": precision_vacuous,
         "blocks_readiness": not com_pass,
-        "operational_claim_allowed": evaluation_level == "C",
+        "operational_claim_allowed": commercial_ops_allowed,
     }
 
     # Audit gate
@@ -207,17 +227,34 @@ def evaluate_gates(
         "benchmark": embedding_operational.get("benchmark_summary"),
     }
 
-    # Review capacity
+    # Review capacity — empty/vacuous universe is NOT proof of capacity.
+    # Require real operational evidence (Level C + corpus_ok + enough decisions)
+    # before clearing BLOCKED_REVIEW_CAPACITY.
     review_status = review_status or {}
     review_rate = float(decision.get("review_rate") or 0)
+    n_lineages = int(decision.get("n_lineages") or 0)
+    # decision may not carry n_lineages; infer from review_rate context via review_status
+    review_count = int(review_status.get("review_count") or 0)
     overflow = review_status.get("operational_status") == "OPERATIONALLY_BLOCKED_REVIEW_VOLUME"
-    review_ok = (not overflow) and review_rate <= float(thr["max_review_rate"])
+    within_numeric = (not overflow) and review_rate <= float(thr["max_review_rate"])
+    # Vacuous: no gold power / no real corpus → cannot claim capacity cleared
+    review_evidence_ok = (
+        evaluation_level == "C"
+        and corpus_ok
+        and power_ok
+        and within_numeric
+        and not overflow
+    )
+    review_ok = review_evidence_ok
     gates["review_capacity"] = {
         "pass": review_ok,
         "review_rate": review_rate,
         "max_review_rate": thr["max_review_rate"],
         "overflow": overflow,
+        "within_numeric": within_numeric,
+        "review_count": review_count,
         "operational_status": review_status.get("operational_status"),
+        "vacuous_empty_not_pass": not review_evidence_ok,
     }
 
     # Full suite
@@ -265,22 +302,6 @@ def evaluate_gates(
     if rc_v2_intact is False:
         active_blockers.append("BLOCKED_RC_V2_INTEGRITY")
 
-    # Always surface the four required honest blockers when not READY
-    # (even if some other failure dominates the primary terminal)
-    for req in REQUIRED_HONEST_BLOCKERS_WHEN_UNREADY:
-        if req not in active_blockers:
-            # Only auto-include when corresponding evidence missing
-            if req == BLOCKED_INVALID_EVALUATION_CORPUS and not corpus_ok:
-                active_blockers.append(req)
-            elif req == BLOCKED_LLM_OPERATIONAL_VALIDATION and not llm_ok:
-                active_blockers.append(req)
-            elif req == BLOCKED_REVIEW_CAPACITY and not review_ok:
-                active_blockers.append(req)
-            elif req == BLOCKED_FULL_SUITE_VALIDATION and not suite_ok:
-                active_blockers.append(req)
-
-    active_blockers = sorted(set(active_blockers))
-
     all_core = (
         corpus_ok
         and power_ok
@@ -296,11 +317,25 @@ def evaluate_gates(
         and suite_ok
         and rc_v2_intact is True
         and evaluation_level == "C"
+        and not precision_vacuous
     )
+
+    # Always surface the four required honest blockers when not READY.
+    # They remain until cleared by real evidence (READY), not by vacuous empty runs.
+    if not all_core:
+        for req in REQUIRED_HONEST_BLOCKERS_WHEN_UNREADY:
+            if req not in active_blockers:
+                active_blockers.append(req)
+
+    active_blockers = sorted(set(active_blockers))
 
     if all_core:
         terminal = READY_FOR_RECALL_ASSURANCE_REVIEW
         primary_terminal = terminal
+        # READY clears the four honest blockers
+        active_blockers = [
+            b for b in active_blockers if b not in REQUIRED_HONEST_BLOCKERS_WHEN_UNREADY
+        ]
     else:
         # Primary terminal: first severity-ordered blocker
         priority = [
@@ -321,6 +356,10 @@ def evaluate_gates(
         )
         terminal = primary_terminal
 
+    honest_present = all_core or all(
+        b in active_blockers for b in REQUIRED_HONEST_BLOCKERS_WHEN_UNREADY
+    )
+
     # Never claim all_core_pass without real gates
     return {
         "gates": gates,
@@ -329,11 +368,8 @@ def evaluate_gates(
         "terminal_status": terminal,
         "primary_terminal_status": primary_terminal,
         "active_blockers": active_blockers,
-        "required_honest_blockers_present": all(
-            b in active_blockers or all_core
-            for b in REQUIRED_HONEST_BLOCKERS_WHEN_UNREADY
-        )
-        or all_core,
+        "required_honest_blockers": list(REQUIRED_HONEST_BLOCKERS_WHEN_UNREADY),
+        "required_honest_blockers_present": honest_present,
         "evaluation_level": evaluation_level,
         "ready_requirements": {
             "real_corpus_sufficient": corpus_ok,
@@ -343,8 +379,16 @@ def evaluate_gates(
             if corpus_audit
             else False,
             "unlabeled_match_zero": unlabeled_ok,
-            "real_recall_approved": ret_pass and pres_pass and power_ok and evaluation_level == "C",
-            "real_precision_approved": com_pass and evaluation_level == "C",
+            "real_recall_approved": (
+                ret_pass and pres_pass and power_ok and evaluation_level == "C"
+            ),
+            # Never approve precision on vacuous 0-MATCH or non-C
+            "real_precision_approved": (
+                com_pass
+                and evaluation_level == "C"
+                and not precision_vacuous
+                and all_match_n > 0
+            ),
             "real_embeddings_evaluated": emb_ok,
             "real_llm_validated": llm_ok,
             "review_capacity_within_limit": review_ok,

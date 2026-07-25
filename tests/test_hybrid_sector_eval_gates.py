@@ -151,15 +151,19 @@ def test_gates_ready_requires_all_real_evidence():
         "n_positives": 300,
         "match_precision": 1.0,
         "match_precision_all": 1.0,
+        "match_precision_conservative": 1.0,
         "match_precision_lower_95": 0.95,
         "match_false_positives_hard": 0,
         "unlabeled_match_count": 0,
         "all_match_count": 10,
         "evaluated_match_count": 10,
+        "match_count": 10,
         "review_rate": 0.1,
         "ambiguous_match_commercial_risk": 0,
+        "precision_vacuous": False,
+        "precision_evidence_sufficient": True,
     }
-    # Level B with perfect metrics still not READY
+    # Level B with perfect metrics still not READY + four honest blockers
     res_b = evaluate_gates(
         retrieval,
         decision,
@@ -170,10 +174,18 @@ def test_gates_ready_requires_all_real_evidence():
             "silent_discards": 0,
         },
         evaluation_level="B",
-        review_status={"operational_status": "WITHIN_CAPACITY"},
+        review_status={"operational_status": "WITHIN_CAPACITY", "review_count": 5},
     )
     assert res_b["terminal_status"] != "READY_FOR_RECALL_ASSURANCE_REVIEW"
     assert res_b["all_core_pass"] is False
+    assert res_b["required_honest_blockers_present"] is True
+    for b in (
+        "BLOCKED_INVALID_EVALUATION_CORPUS",
+        "BLOCKED_LLM_OPERATIONAL_VALIDATION",
+        "BLOCKED_REVIEW_CAPACITY",
+        "BLOCKED_FULL_SUITE_VALIDATION",
+    ):
+        assert b in res_b["active_blockers"]
 
     # Level C with all evidence
     res_c = evaluate_gates(
@@ -197,14 +209,18 @@ def test_gates_ready_requires_all_real_evidence():
             "min_required": 200,
             "human_review_complete": True,
         },
-        embedding_operational={"passed": True, "provider_class": "sentence_transformer"},
-        review_status={"operational_status": "WITHIN_CAPACITY"},
+        embedding_operational={
+            "passed": True,
+            "provider_class": "sentence_transformer",
+        },
+        review_status={"operational_status": "WITHIN_CAPACITY", "review_count": 5},
         full_suite={"passed": True, "status": "FULL_SUITE_GREEN"},
         evaluation_level="C",
         rc_v2_intact=True,
     )
     assert res_c["terminal_status"] == "READY_FOR_RECALL_ASSURANCE_REVIEW"
     assert res_c["all_core_pass"] is True
+    assert res_c["required_honest_blockers_present"] is True
 
 
 def test_unlabeled_match_gate_fails():
@@ -264,10 +280,97 @@ def test_precision_variants_all_conservative_hard():
     assert m["match_false_positives_hard"] == 1
     assert m["match_ambiguous"] == 1
     assert m["ambiguous_match_unadjudicated_as_error"] == 1
+    assert m["precision_vacuous"] is False
     assert m["match_precision_all"] == pytest.approx(1 / 3)
+    # Conservative punishes unadjudicated AMBIG with extra denom penalty
+    # tp / (all_match + ambig_unadj) = 1 / (3 + 1) = 0.25
+    assert m["match_precision_conservative"] == pytest.approx(1 / 4)
+    assert m["match_precision_conservative"] < m["match_precision_all"]
+    assert m["match_precision_conservative_errors"] == 2  # fp + ambig_unadj
     # hard-only excludes ambiguous
     assert m["match_precision_hard_only"] == pytest.approx(0.5)
     assert m["match_precision_hard_only_is_primary"] is False
+
+
+def test_vacuous_precision_zero_match_not_perfect():
+    """0 MATCH must not yield precision=1.0 or commercial pass."""
+    gold = {"p1": "POSITIVE", "n1": "NEGATIVE"}
+    lineages = [_lin("p1", "REVIEW"), _lin("n1", "NO_MATCH")]
+    m = decision_metrics(gold, lineages)
+    assert m["all_match_count"] == 0
+    assert m["match_precision_all"] is None
+    assert m["match_precision_conservative"] is None
+    assert m["precision_vacuous"] is True
+    assert m["precision_evidence_sufficient"] is False
+
+    res = evaluate_gates(
+        {
+            "retrieval_recall": 1.0,
+            "retrieval_recall_lower_95": 0.995,
+            "n_gold_positives": 300,
+        },
+        {
+            **m,
+            "n_positives": 300,
+            "safe_recall_match_plus_review": 1.0,
+            "safe_recall_lower_95": 0.995,
+            "critical_false_negatives": 0,
+        },
+        audit={
+            "invented_evidence_accepted": 0,
+            "llm_error_to_review_rate": 1.0,
+            "lineage_coverage": 1.0,
+            "silent_discards": 0,
+        },
+        evaluation_level="C",
+        corpus_audit={
+            "operational_gold_eligible": True,
+            "blockers": [],
+            "quotas": {"ok": True},
+            "dual_review": {"ok": True},
+        },
+    )
+    assert res["gates"]["commercial"]["pass"] is False
+    assert res["gates"]["commercial"]["precision_vacuous"] is True
+    assert res["gates"]["commercial"]["operational_claim_allowed"] is False
+    assert res["ready_requirements"]["real_precision_approved"] is False
+
+
+def test_level_c_locked_campaign_has_four_honest_blockers(tmp_path):
+    """Level C empty real corpus must record all four REQUIRED honest blockers."""
+    out = tmp_path / "level-c-honest"
+    code = campaign_main(
+        [
+            "--corpus",
+            str(REAL),
+            "--split",
+            "locked",
+            "--out",
+            str(out),
+        ]
+    )
+    assert code == 0
+    result = json.loads((out / "result.json").read_text(encoding="utf-8"))
+    blockers = set(result.get("active_blockers") or [])
+    required = {
+        "BLOCKED_INVALID_EVALUATION_CORPUS",
+        "BLOCKED_LLM_OPERATIONAL_VALIDATION",
+        "BLOCKED_REVIEW_CAPACITY",
+        "BLOCKED_FULL_SUITE_VALIDATION",
+    }
+    assert required <= blockers, f"missing {required - blockers}; have {blockers}"
+    assert result.get("required_honest_blockers_present") is True
+    assert result.get("evaluation_level") == "C"
+    assert result.get("all_core_pass") is False
+    assert result["terminal_status"] != "READY_FOR_RECALL_ASSURANCE_REVIEW"
+    # vacuous commercial
+    gates = result.get("gates") or {}
+    g = gates.get("gates") or gates
+    commercial = g.get("commercial") or {}
+    assert commercial.get("pass") is not True
+    assert commercial.get("operational_claim_allowed") is not True
+    ready = gates.get("ready_requirements") or {}
+    assert ready.get("real_precision_approved") is not True
 
 
 def test_locked_only_no_unlabeled_distractors():
@@ -368,21 +471,25 @@ def test_campaign_entry_fixtures_twice(tmp_path):
     out2 = tmp_path / "run2"
     assert campaign_main(["--fixtures", "--out", str(out1)]) == 0
     assert campaign_main(["--fixtures", "--out", str(out2)]) == 0
+    required = {
+        "BLOCKED_INVALID_EVALUATION_CORPUS",
+        "BLOCKED_LLM_OPERATIONAL_VALIDATION",
+        "BLOCKED_REVIEW_CAPACITY",
+        "BLOCKED_FULL_SUITE_VALIDATION",
+    }
     for out in (out1, out2):
         result = json.loads((out / "result.json").read_text(encoding="utf-8"))
-        assert result["terminal_status"] != "READY_FOR_RECALL_ASSURANCE_REVIEW" or result.get(
-            "all_core_pass"
-        )
+        assert result["terminal_status"] != "READY_FOR_RECALL_ASSURANCE_REVIEW"
+        assert result.get("all_core_pass") is False
         assert result["claims"]["ACCEPTED"] is False
         assert result["claims"]["MERGED"] is False
         assert (out / "deliverable_e_matches.json").is_file()
         assert (out / "synthetic_test_results.json").is_file() or (
             out / "real_operational_results.json"
         ).is_file()
-        # multi-blocker honesty when not ready
-        if result["terminal_status"] != "READY_FOR_RECALL_ASSURANCE_REVIEW":
-            blockers = set(result.get("active_blockers") or [])
-            assert blockers != {"BLOCKED_REVIEW_CAPACITY"}
+        blockers = set(result.get("active_blockers") or [])
+        assert required <= blockers, blockers
+        assert result.get("required_honest_blockers_present") is True
 
 
 def test_require_ready_exits_nonzero(tmp_path):
@@ -408,16 +515,28 @@ def test_locked_real_corpus_campaign(tmp_path):
     result = json.loads((out / "result.json").read_text(encoding="utf-8"))
     assert result["terminal_status"] != "READY_FOR_RECALL_ASSURANCE_REVIEW"
     blockers = set(result.get("active_blockers") or [])
-    # multi-blocker: not only review capacity
-    assert "BLOCKED_LLM_OPERATIONAL_VALIDATION" in blockers or result[
-        "terminal_status"
-    ] == "BLOCKED_LLM_OPERATIONAL_VALIDATION"
+    required = {
+        "BLOCKED_INVALID_EVALUATION_CORPUS",
+        "BLOCKED_LLM_OPERATIONAL_VALIDATION",
+        "BLOCKED_REVIEW_CAPACITY",
+        "BLOCKED_FULL_SUITE_VALIDATION",
+    }
+    assert required <= blockers, blockers
+    assert result.get("required_honest_blockers_present") is True
     assert result.get("all_core_pass") is False
+    assert result.get("evaluation_level") == "C"
     # separated artifacts
     assert (out / "paid_llm_validation.json").is_file()
     assert (out / "full_suite_status.json").is_file()
     assert (out / "real_operational_results.json").is_file()
     assert (out / "annotation-provenance.json").is_file()
+    # no vacuous commercial approval
+    gates = result.get("gates") or {}
+    g = gates.get("gates") or gates
+    assert (g.get("commercial") or {}).get("pass") is not True
+    assert (gates.get("ready_requirements") or {}).get(
+        "real_precision_approved"
+    ) is not True
 
 
 def test_write_artifacts_contract(tmp_path):

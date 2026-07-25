@@ -140,37 +140,46 @@ def decision_metrics(
     evaluated_match_ids = list(match_ids)  # evaluate ALL matches
     evaluated_match_count = len(evaluated_match_ids)
 
-    # --- Primary precision: over all MATCH ---
-    # TP = gold POSITIVE; FP = gold NEGATIVE; AMBIGUOUS counted separately;
-    # unlabeled counted as integrity failure (not free precision boost).
+    # --- Primary precision: over ALL MATCH (never vacuous 1.0 on empty) ---
+    # TP = gold POSITIVE only. Denom = every MATCH (NEG + AMBIG + unlabeled hurt).
     tp_all = sum(1 for m in match_ids if gold_labels.get(m) == "POSITIVE")
     fp_hard = sum(1 for m in match_ids if gold_labels.get(m) == "NEGATIVE")
     ambiguous_match = sum(1 for m in match_ids if gold_labels.get(m) == "AMBIGUOUS")
-    # Primary: TP / all_match when all labeled hard+ambiguous+unlabeled in denom
-    # Commercial primary treats only POSITIVE as success among ALL matches.
-    match_precision_all = tp_all / all_match_count if all_match_count else 1.0
-
-    # --- Conservative: unadjudicated AMBIGUOUS MATCH = error ---
     ambig_unadj_as_error = sum(
         1
         for m in match_ids
         if gold_labels.get(m) == "AMBIGUOUS" and m not in adjudicated_ids
     )
-    # successes: only POSITIVE; denom = all MATCH; ambig unadj + neg + unlabeled = errors
-    match_precision_conservative = (
-        tp_all / all_match_count if all_match_count else 1.0
-    )
-    # conservative_errors for reporting
-    conservative_errors = fp_hard + ambig_unadj_as_error + unlabeled_match_count
+    ambig_adjudicated = ambiguous_match - ambig_unadj_as_error
 
-    # --- Additional: hard labels only (POSITIVE/NEGATIVE) — NOT primary ---
+    # Empty MATCH set is NOT perfect precision — insufficient evidence.
     labeled_hard_matches = [
         m for m in match_ids if gold_labels.get(m) in {"POSITIVE", "NEGATIVE"}
     ]
     tp_hard = sum(1 for m in labeled_hard_matches if gold_labels[m] == "POSITIVE")
-    match_precision_hard_only = (
-        tp_hard / len(labeled_hard_matches) if labeled_hard_matches else 1.0
-    )
+    conservative_errors = fp_hard + ambig_unadj_as_error + unlabeled_match_count
+
+    if all_match_count == 0:
+        match_precision_all = None
+        match_precision_conservative = None
+        match_precision_hard_only = None
+        precision_vacuous = True
+    else:
+        precision_vacuous = False
+        # Primary over ALL MATCH: only gold POSITIVE counts as success.
+        match_precision_all = tp_all / all_match_count
+
+        # Conservative: unadjudicated AMBIGUOUS is an explicit error with extra
+        # penalty in the denominator (all_match + unadj_ambig), so whenever
+        # ambig_unadj > 0 the conservative rate is strictly below primary.
+        # Adjudicated AMBIGUOUS does not add extra penalty (resolved).
+        # Formula: tp / (all_match_count + ambig_unadj_as_error)
+        cons_denom = all_match_count + ambig_unadj_as_error
+        match_precision_conservative = tp_all / cons_denom
+
+        match_precision_hard_only = (
+            tp_hard / len(labeled_hard_matches) if labeled_hard_matches else None
+        )
 
     # Integrity gates
     unlabeled_match_gate_ok = unlabeled_match_count == 0
@@ -186,26 +195,33 @@ def decision_metrics(
 
     llm_rescue = 0
     disagreement = 0
-    for l in lineages:
-        if not l.llm_invoked or not l.deterministic:
+    for lin in lineages:
+        if not lin.llm_invoked or not lin.deterministic:
             continue
         if (
-            l.deterministic.decision == "CLEAR_NEGATIVE"
-            and l.commercial_decision in {"MATCH", "REVIEW"}
-            and gold_labels.get(l.canonical_id) == "POSITIVE"
+            lin.deterministic.decision == "CLEAR_NEGATIVE"
+            and lin.commercial_decision in {"MATCH", "REVIEW"}
+            and gold_labels.get(lin.canonical_id) == "POSITIVE"
         ):
             llm_rescue += 1
-        if l.llm_decision:
+        if lin.llm_decision:
             det_map = {
                 "CLEAR_POSITIVE": "MATCH",
                 "CLEAR_NEGATIVE": "NO_MATCH",
                 "GRAY_ZONE": "REVIEW",
             }
-            if det_map.get(l.deterministic.decision) != l.llm_decision.get("decision"):
+            if det_map.get(lin.deterministic.decision) != lin.llm_decision.get(
+                "decision"
+            ):
                 disagreement += 1
 
-    # Commercial risk: AMBIGUOUS marked MATCH without adjudication
     ambiguous_match_commercial_risk = ambig_unadj_as_error
+
+    precision_lower = (
+        binomial_ci_lower_one_sided(tp_all, all_match_count)
+        if all_match_count
+        else 0.0
+    )
 
     return {
         "safe_recall_match_plus_review": safe_recall,
@@ -214,16 +230,17 @@ def decision_metrics(
         "critical_false_negatives": critical_fn,
         "n_positives": n_pos,
         "n_preserved": preserved,
-        # Primary commercial precision (all MATCH)
+        # Primary commercial precision (all MATCH) — None when vacuous
         "match_precision": match_precision_all,
         "match_precision_all": match_precision_all,
-        "match_precision_lower_95": binomial_ci_lower_one_sided(tp_all, all_match_count)
-        if all_match_count
-        else 1.0,
-        # Conservative (AMBIGUOUS unadjudicated as error — same denom all MATCH)
+        "match_precision_lower_95": precision_lower,
+        "precision_vacuous": precision_vacuous,
+        "precision_evidence_sufficient": all_match_count > 0 and n_pos > 0,
+        # Conservative: unadjudicated AMBIGUOUS as error; adj AMBIG excluded from denom
         "match_precision_conservative": match_precision_conservative,
         "match_precision_conservative_errors": conservative_errors,
         "ambiguous_match_unadjudicated_as_error": ambig_unadj_as_error,
+        "ambiguous_match_adjudicated": ambig_adjudicated,
         "ambiguous_match_commercial_risk": ambiguous_match_commercial_risk,
         # Additional hard-label-only (NOT primary)
         "match_precision_hard_only": match_precision_hard_only,

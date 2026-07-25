@@ -789,12 +789,25 @@ def write_campaign_artifacts(
     if level != "C":
         all_core = False
 
+    honest_present = bool(
+        gates.get("required_honest_blockers_present")
+        if isinstance(gates, dict)
+        else False
+    )
+    if not all_core:
+        # Hard guarantee: four honest blockers always on result when not READY
+        blockers = set(result.active_blockers)
+        blockers |= set(REQUIRED_HONEST_BLOCKERS)
+        result.active_blockers = sorted(blockers)
+        honest_present = set(REQUIRED_HONEST_BLOCKERS) <= set(result.active_blockers)
+
     w(
         "result.json",
         {
             "terminal_status": result.terminal_status,
             "active_blockers": result.active_blockers,
             "required_honest_blockers": sorted(REQUIRED_HONEST_BLOCKERS),
+            "required_honest_blockers_present": honest_present,
             "allowed_states": sorted(ALLOWED_TERMINAL_STATES),
             "forbidden_claims": sorted(FORBIDDEN_CLAIMS),
             "summary": summary,
