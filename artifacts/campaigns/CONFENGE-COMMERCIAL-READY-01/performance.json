@@ -1,9 +1,0 @@
-{
-  "elapsed_seconds": 7.829,
-  "raw_contracts_loaded": 33709,
-  "eligible_companies": 14301,
-  "ranked_leads": 20,
-  "llm_cost": 0,
-  "mode": "deterministic",
-  "git_sha": "a60109c89760762bae02c7a42e69d40030405d75"
-}

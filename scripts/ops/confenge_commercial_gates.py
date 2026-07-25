@@ -98,7 +98,7 @@ def cmd_campaign_gate(_: argparse.Namespace) -> int:
         fails.append("catalog_lt_12")
 
     # unit tests → junit
-    junit = _ART / "tests.xml"
+    junit = _ART / "junit-commercial-leads.xml"
     t = _run(
         [
             sys.executable,
