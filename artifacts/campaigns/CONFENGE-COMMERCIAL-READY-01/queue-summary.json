@@ -4,7 +4,7 @@
   "reason": null,
   "git_sha": "1108c72a21d82e81670976cd9dd104fb4b153a82",
   "run_git_sha": "1108c72a21d82e81670976cd9dd104fb4b153a82",
-  "artifact_git_sha": "1108c72a21d82e81670976cd9dd104fb4b153a82",
+  "artifact_git_sha": "d9874b64c8b1adf953a24453944ae51d9bf5284b",
   "population_mode": "FULL_POPULATION",
   "source_state_mode": "RESTORED_SNAPSHOT_SINGLE_DB",
   "snapshot_binding": {
@@ -266,5 +266,6 @@
       "commercial_signal_fit": "PASS",
       "geography_fit": "PASS"
     }
-  ]
+  ],
+  "commit_git_sha": "d9874b64c8b1adf953a24453944ae51d9bf5284b"
 }

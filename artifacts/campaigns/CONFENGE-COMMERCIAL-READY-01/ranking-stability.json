@@ -2,5 +2,6 @@
   "ok": true,
   "ranking_hash_run1": "8f9fc2d103b048641c93750a7c928b8b4f1a96311a30b649b3c2dbd55dbec316",
   "ranking_hash_run2": "8f9fc2d103b048641c93750a7c928b8b4f1a96311a30b649b3c2dbd55dbec316",
-  "identical": true
+  "identical": true,
+  "git_sha": "d9874b64c8b1adf953a24453944ae51d9bf5284b"
 }

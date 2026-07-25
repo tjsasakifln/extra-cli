@@ -373,5 +373,6 @@
     "stale RC SHA"
   ],
   "rules_changed": false,
-  "note": "Baseline BEFORE sector-fit hardening"
+  "note": "Baseline BEFORE sector-fit hardening",
+  "hardening_commit_sha": "d9874b64c8b1adf953a24453944ae51d9bf5284b"
 }
