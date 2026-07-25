@@ -54,7 +54,9 @@ jobs:
           python-version: "3.12"
       - name: Install deps
         run: |
-          pip install -q pydantic pyyaml pytest
+          # pytest.ini requires pytest-cov via addopts; install it and also
+          # clear addopts so hybrid jobs stay offline/lightweight without HTML cov paths.
+          pip install -q pydantic pyyaml pytest pytest-cov
       - name: Unit + adversarial (fake LLM only)
         env:
           HYBRID_SECTOR_LLM_PROVIDER: fake
@@ -63,7 +65,7 @@ jobs:
           python -m pytest \
             tests/test_hybrid_sector_core.py \
             tests/test_hybrid_sector_adversarial.py \
-            -q --tb=short
+            -q --tb=short -o addopts=
 
   retrieval-benchmark-locked-eval:
     runs-on: ubuntu-latest
@@ -74,13 +76,14 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install deps
-        run: pip install -q pydantic pyyaml pytest
+        run: pip install -q pydantic pyyaml pytest pytest-cov
       - name: Locked eval + statistical gate + campaign entry
         env:
           HYBRID_SECTOR_LLM_PROVIDER: fake
           OPENAI_API_KEY: ""
         run: |
-          python -m pytest tests/test_hybrid_sector_eval_gates.py -q --tb=short
+          # -o addopts= disables pytest.ini --cov* so missing pytest-cov/html dir cannot fail CI
+          python -m pytest tests/test_hybrid_sector_eval_gates.py -q --tb=short -o addopts=
           python -m scripts.ops.campaign_hybrid_sector_recall --fixtures \
             --out artifacts/campaigns/HYBRID-SECTOR-RECALL-LLM-ARBITER-01
           test -f artifacts/campaigns/HYBRID-SECTOR-RECALL-LLM-ARBITER-01/result.json
