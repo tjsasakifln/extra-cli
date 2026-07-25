@@ -1,14 +1,14 @@
 {
   "schema_version": "1.0",
   "pr": 131,
-  "evaluated_at": "2026-07-25T00:57:04Z",
+  "evaluated_at": "2026-07-25T00:59:47Z",
   "head_sha_at_start": "dd20c37d7b92cbe93774f1e7b4b0e53921f4b21c",
   "gates": {
     "inventory": "PASS",
     "absorption_129_130": "FULLY_ABSORBED",
     "artifacts_slim": "PASS",
     "generated_artifacts_policy_doc": "PASS",
-    "generated_artifacts_policy_gate": "PENDING_LOCAL",
+    "generated_artifacts_policy_gate": "PASS",
     "cto_review_blocker_high": "PASS",
     "user_acceptance": "PENDING_HUMAN",
     "production_touched": false,
@@ -19,13 +19,19 @@
     "bandit": "PENDING_CI_AFTER_PUSH",
     "pip_audit": "PENDING_CI_AFTER_PUSH",
     "migrations_060_061": "PRESENT_NO_059_COLLISION",
-    "mandatory_jobs_skipped": false
+    "mandatory_jobs_skipped": false,
+    "unit_tests_policy": "PASS",
+    "main_is_ancestor": true
   },
-  "status": "IN_PROGRESS",
-  "ready_for_human_acceptance": false,
+  "status": "READY_FOR_HUMAN_ACCEPTANCE",
+  "ready_for_human_acceptance": true,
   "notes": [
-    "Human must not be auto-accepted",
-    "Full CI re-run required after slim push",
-    "Local unit tests for policy gate required before READY"
-  ]
+    "BLOCKER/HIGH fixed (slim + PASS.md honesty + policy gate)",
+    "user-acceptance.json remains PENDING_HUMAN \u2014 human only",
+    "CI must re-run green on pushed tip; agents do not merge",
+    "129/130 FULLY_ABSORBED; do not merge separately",
+    "production_touched=false soak_touched=false"
+  ],
+  "head_sha": "a5eb260ad2626cb0b1399921b02458aba5417c2d",
+  "classification": "READY_FOR_HUMAN_ACCEPTANCE"
 }
