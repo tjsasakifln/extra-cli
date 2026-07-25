@@ -2,7 +2,7 @@
   "ok": true,
   "status": "PASS",
   "campaign_id": "CONFENGE-COMMERCIAL-READY-01",
-  "run_id": "cl-20260725T215053Z-310b8521",
+  "run_id": "cl-20260725T220818Z-901bba0e",
   "run_status": "PASS",
   "checks": {
     "isolation": true,
@@ -15,9 +15,11 @@
     "top10_has_signal": true,
     "top10_has_provenance": true,
     "score_decomposable": true,
+    "no_do_not_contact_in_queue": true,
     "export_reconciled": true,
+    "git_sha_present": true,
     "no_forbidden_language": true
   },
   "reasons": [],
-  "git_sha": "8344254942ec48978566317df16d7b3e3caabd89"
+  "git_sha": "5e0ad0f4b605364eaccb8b0c0b7b50c6ac419367"
 }

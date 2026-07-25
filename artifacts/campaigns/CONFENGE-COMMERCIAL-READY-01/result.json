@@ -3,103 +3,58 @@
   "reason": "BLOCKED_PENDING_HUMAN_ACCEPTANCE",
   "technical_status": "RC_TECHNICAL_PASS",
   "campaign_id": "CONFENGE-COMMERCIAL-READY-01",
-  "run_id": "cl-20260725T215053Z-310b8521",
-  "git_sha": "bab090aaf70f7d7487c22dd728cc42c0ed04a6ab",
-  "branch": "campaign/confenge-commercial-ready-01",
-  "gate": {
-    "ok": true,
-    "status": "PASS",
-    "campaign_id": "CONFENGE-COMMERCIAL-READY-01",
-    "run_id": "cl-20260725T215053Z-310b8521",
-    "run_status": "PASS",
-    "checks": {
-      "isolation": true,
-      "production_touched_false": true,
-      "soak_touched_false": true,
-      "migrations_idempotent": true,
-      "snapshot_real": true,
-      "snapshot_hash_present": true,
-      "top10_cnpj_defensible": true,
-      "top10_has_signal": true,
-      "top10_has_provenance": true,
-      "score_decomposable": true,
-      "export_reconciled": true,
-      "no_forbidden_language": true
-    },
-    "reasons": [],
-    "git_sha": "8344254942ec48978566317df16d7b3e3caabd89"
+  "run_id": "cl-20260725T220818Z-901bba0e",
+  "git_sha": "5e0ad0f4b605364eaccb8b0c0b7b50c6ac419367",
+  "run_git_sha": "5e0ad0f4b605364eaccb8b0c0b7b50c6ac419367",
+  "sha_match": true,
+  "migrations": {
+    "idempotent": true,
+    "skipped": false
   },
-  "soak_non_interference": {
-    "ok": true,
-    "production_touched": false,
-    "soak_touched": false,
-    "timers_modified": false
-  },
-  "recurrence_ok": true,
+  "do_not_contact_suppressed": 2,
+  "gate_ok": true,
+  "independent_review": "NO_CRITICAL_OR_HIGH_OPEN",
+  "user_acceptance": "PENDING_HUMAN",
   "leads": 20,
-  "top10": [
-    {
-      "cnpj14": "07192414000109",
-      "score": 10.0853,
-      "priority": "CRITICAL",
-      "razao": "COSTA OESTE SERVICOS LTDA"
-    },
-    {
-      "cnpj14": "02316749000500",
-      "score": 10.0689,
-      "priority": "CRITICAL",
-      "razao": "PAX COMERCIO DE PNEUS LTDA"
-    },
-    {
-      "cnpj14": "59457959000101",
-      "score": 10.0429,
-      "priority": "CRITICAL",
-      "razao": "PRO ACTIVE TERCEIRIZACAO LTDA"
-    },
+  "top5": [
     {
       "cnpj14": "12253900000120",
-      "score": 9.943,
-      "priority": "CRITICAL",
+      "score": 9.7107,
+      "state": "NEW",
       "razao": "BRANIX EMPREENDIMENTOS LTDA - ME."
     },
     {
       "cnpj14": "58109690000100",
-      "score": 9.9414,
-      "priority": "CRITICAL",
+      "score": 9.701,
+      "state": "NEW",
       "razao": "MG AUTO PECAS E SERVICOS LTDA"
     },
     {
+      "cnpj14": "59457959000101",
+      "score": 9.6732,
+      "state": "REVIEWED",
+      "razao": "PRO ACTIVE TERCEIRIZACAO LTDA"
+    },
+    {
       "cnpj14": "27254414000101",
-      "score": 9.8843,
-      "priority": "CRITICAL",
+      "score": 9.5914,
+      "state": "NEW",
       "razao": "FAK EMPREENDIMENTOS LTDA"
     },
     {
       "cnpj14": "95257945000108",
-      "score": 9.7869,
-      "priority": "CRITICAL",
+      "score": 9.5276,
+      "state": "NEW",
       "razao": "CONSTRUBRÁS CONSTRUTORA LTDA"
-    },
-    {
-      "cnpj14": "60344157000166",
-      "score": 9.5455,
-      "priority": "CRITICAL",
-      "razao": "CODESAN SERVICOS E OBRAS"
-    },
-    {
-      "cnpj14": "96355854000160",
-      "score": 9.5,
-      "priority": "CRITICAL",
-      "razao": "CONVIVA SERVICOS E GESTAO DE MAO DE OBRA LTDA"
-    },
-    {
-      "cnpj14": "08764222000192",
-      "score": 9.5,
-      "priority": "CRITICAL",
-      "razao": "IMK INDUSTRIA E COMERCIO DE PRE MOLDADOS LTDA"
     }
   ],
-  "user_acceptance": "PENDING_HUMAN",
-  "next_action": "Tiago revisa artifacts/.../run/ e preenche user-acceptance.json com ACCEPTED + assinatura de hashes",
-  "finished_at": "2026-07-25T21:51:02Z"
+  "skeptic_fixes": [
+    "DNC applied in rank_leads + pipeline state_map",
+    "campaign-gate runs pytest/ruff/mypy/bandit/migrations",
+    "release-candidate.json with frozen hashes",
+    "required evidence artifacts generated",
+    "independent-review by non-implementer subagent",
+    "run git_sha bound to campaign HEAD; migrations not skipped",
+    "honest identity + DNC survive re-run tests"
+  ]
 }

@@ -28,9 +28,20 @@ def _fold(text: str | None) -> str:
 def _parse_date(value: Any) -> date | None:
     if value is None:
         return None
-    if isinstance(value, date) and not isinstance(value, type(None)):
-        # datetime is subclass of date
-        return value if type(value) is date else value.date()  # type: ignore[union-attr]
+    if type(value) is date:
+        return value
+    # datetime is subclass of date
+    if hasattr(value, "date") and callable(value.date) and not isinstance(value, date):
+        try:
+            return value.date()  # type: ignore[no-any-return]
+        except Exception:  # noqa: BLE001
+            return None
+    if isinstance(value, date):
+        # datetime instance
+        try:
+            return value.date()  # type: ignore[attr-defined, no-any-return]
+        except Exception:  # noqa: BLE001
+            return date(value.year, value.month, value.day)
     s = str(value)[:10]
     try:
         y, m, d = s.split("-")
@@ -249,7 +260,7 @@ def compute_signals_for_supplier(
             first_pub_ok = False
         else:
             first_pub_ok = True
-        if first_pub_ok:
+        if first_pub_ok and first.data_publicacao is not None:
             days = (as_of - first.data_publicacao).days
             if days <= within and len(dated) <= 2:
                 results.append(
@@ -972,33 +983,35 @@ def digits_clean(value: str | None) -> str:
     return re.sub(r"\D", "", str(value or ""))
 
 
-def decorrelate_contributions(results: list[SignalResult]) -> list[SignalResult]:
-    """Limit inflation from correlated growth signals."""
-    growth_ids = {"quantity_growth", "value_growth", "diversity_increase"}
-    fired_growth = [r for r in results if r.signal_id in growth_ids and r.status == SIGNAL_STATUS_FIRED]
-    if len(fired_growth) >= 2:
-        # keep strongest full, dampen others to 50%
-        fired_growth_sorted = sorted(fired_growth, key=lambda r: r.contribution, reverse=True)
-        keep = fired_growth_sorted[0].signal_id
-        out: list[SignalResult] = []
-        for r in results:
-            if r.signal_id in growth_ids and r.status == SIGNAL_STATUS_FIRED and r.signal_id != keep:
-                out.append(
-                    SignalResult(
-                        signal_id=r.signal_id,
-                        status=r.status,
-                        strength=r.strength,
-                        weight=r.weight,
-                        contribution=r.contribution * 0.5,
-                        hypothesis=r.hypothesis,
-                        evidence=r.evidence,
-                        limitations=list(r.limitations)
-                        + ["correlation_dampening_applied_vs_" + keep],
-                        offer=r.offer,
-                        reason=r.reason,
-                    )
+def _dampen_group(results: list[SignalResult], group_ids: set[str]) -> list[SignalResult]:
+    fired = [r for r in results if r.signal_id in group_ids and r.status == SIGNAL_STATUS_FIRED]
+    if len(fired) < 2:
+        return results
+    keep = sorted(fired, key=lambda r: r.contribution, reverse=True)[0].signal_id
+    out: list[SignalResult] = []
+    for r in results:
+        if r.signal_id in group_ids and r.status == SIGNAL_STATUS_FIRED and r.signal_id != keep:
+            out.append(
+                SignalResult(
+                    signal_id=r.signal_id,
+                    status=r.status,
+                    strength=r.strength,
+                    weight=r.weight,
+                    contribution=r.contribution * 0.5,
+                    hypothesis=r.hypothesis,
+                    evidence=r.evidence,
+                    limitations=list(r.limitations) + [f"correlation_dampening_applied_vs_{keep}"],
+                    offer=r.offer,
+                    reason=r.reason,
                 )
-            else:
-                out.append(r)
-        return out
-    return results
+            )
+        else:
+            out.append(r)
+    return out
+
+
+def decorrelate_contributions(results: list[SignalResult]) -> list[SignalResult]:
+    """Limit inflation from correlated signal groups (growth; concentration)."""
+    out = _dampen_group(results, {"quantity_growth", "value_growth", "diversity_increase"})
+    out = _dampen_group(out, {"agency_concentration", "contract_concentration"})
+    return out

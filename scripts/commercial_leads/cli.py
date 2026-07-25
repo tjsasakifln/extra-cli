@@ -102,7 +102,11 @@ def cmd_gate(args: argparse.Namespace) -> int:
     checks["score_decomposable"] = all(
         isinstance(L.get("score_decomposition"), dict) and L.get("score_decomposition") for L in top10
     ) if top10 else False
+    checks["no_do_not_contact_in_queue"] = all(
+        str(L.get("commercial_state") or "").upper() != "DO_NOT_CONTACT" for L in leads
+    )
     checks["export_reconciled"] = bool((run.get("export_reconciliation") or {}).get("ok"))
+    checks["git_sha_present"] = bool(run.get("git_sha")) and run.get("git_sha") != "unknown"
 
     # forbidden language in outputs
     blob = json.dumps(leads, ensure_ascii=False).lower()

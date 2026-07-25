@@ -101,6 +101,40 @@ def get_latest_state(conn: Any, cnpj14: str) -> str:
     return "NEW"
 
 
+def load_state_map(conn: Any) -> dict[str, str]:
+    """Latest commercial_state per CNPJ14 from overrides (preferred) then leads.
+
+    DO_NOT_CONTACT always wins when present in override history as the latest state.
+    """
+    out: dict[str, str] = {}
+    # latest override per cnpj
+    rows = fetch_all(
+        conn,
+        """
+        SELECT DISTINCT ON (cnpj14) cnpj14, new_state
+        FROM commercial_lead_state_overrides
+        ORDER BY cnpj14, created_at DESC, id DESC
+        """,
+    )
+    for r in rows:
+        cnpj = str(r["cnpj14"])
+        out[cnpj] = str(r["new_state"])
+    # fill missing from latest lead rows
+    lead_rows = fetch_all(
+        conn,
+        """
+        SELECT DISTINCT ON (cnpj14) cnpj14, commercial_state
+        FROM commercial_leads
+        ORDER BY cnpj14, created_at DESC, id DESC
+        """,
+    )
+    for r in lead_rows:
+        cnpj = str(r["cnpj14"])
+        if cnpj not in out:
+            out[cnpj] = str(r["commercial_state"])
+    return out
+
+
 def apply_review(
     dsn: str,
     *,

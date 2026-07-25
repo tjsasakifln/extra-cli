@@ -130,14 +130,34 @@ def score_supplier(
 def rank_leads(
     leads: list[LeadScore],
     profile: CommercialProfile,
+    *,
+    suppressed_cnpjs: set[str] | None = None,
+    state_by_cnpj: dict[str, str] | None = None,
 ) -> list[LeadScore]:
+    """Rank leads for the commercial queue.
+
+    DO_NOT_CONTACT and other suppressed CNPJs never enter the published queue.
+    Human commercial_state overrides are consulted via state_by_cnpj / suppressed_cnpjs.
+    """
     min_score = float((profile.data.get("queue") or {}).get("min_score", 1.0))
     min_signals = int((profile.data.get("queue") or {}).get("min_signals_fired", 1))
-    eligible = [
-        L
-        for L in leads
-        if L.score_total >= min_score and len(L.signals_fired) >= min_signals
-    ]
+    suppressed = {s for s in (suppressed_cnpjs or set()) if s}
+    states = state_by_cnpj or {}
+    # Always suppress DO_NOT_CONTACT from published ranking
+    for cnpj, st in states.items():
+        if str(st).upper() == "DO_NOT_CONTACT":
+            suppressed.add(cnpj)
+
+    drop_dnc = bool((profile.data.get("exclusions") or {}).get("drop_do_not_contact", True))
+
+    eligible: list[LeadScore] = []
+    for lead in leads:
+        if drop_dnc and lead.cnpj14 in suppressed:
+            continue
+        if states.get(lead.cnpj14, "").upper() == "DO_NOT_CONTACT":
+            continue
+        if lead.score_total >= min_score and len(lead.signals_fired) >= min_signals:
+            eligible.append(lead)
 
     def sort_key(lead: LeadScore) -> tuple:
         return (

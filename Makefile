@@ -418,21 +418,12 @@ confenge-commercial-cycle:
 		--out $(CONFENGE_COMMERCIAL_OUT) \
 		$(CONFENGE_CYCLE_FLAGS)
 
-campaign-gate-confenge-commercial-ready: test-commercial-leads
-	@test -f db/migrations/062_commercial_leads_ledger.sql
-	@test -f config/commercial_profiles/confenge.yaml
-	@test -f config/commercial_profiles/signal_catalog.yaml
-	@test -f scripts/ops/confenge_commercial_cycle.py
-	@test -f scripts/ops/verify_soak_non_interference.py
-	@test -f specs/006-confenge-commercial-ready/spec.md
-	python3 -c "from scripts.commercial_leads.profile import load_profile; p=load_profile('config/commercial_profiles/confenge.yaml'); assert len(p.signal_ids)>=12"
-	python3 -m ruff check scripts/commercial_leads scripts/ops/confenge_commercial_cycle.py scripts/ops/verify_soak_non_interference.py
-	@echo 'campaign-gate-confenge-commercial-ready OK (unit + structure)'
+campaign-gate-confenge-commercial-ready:
+	python3 -m scripts.ops.confenge_commercial_gates campaign-gate
 
 release-candidate-confenge-commercial-ready: campaign-gate-confenge-commercial-ready
-	@echo 'RC technical requires real snapshot run; see verify-confenge-commercial-ready-real'
-	@test -f $(CONFENGE_COMMERCIAL_ART)/user-acceptance.json || (echo 'writing PENDING_HUMAN user-acceptance' && python3 -c "import json, pathlib; p=pathlib.Path('$(CONFENGE_COMMERCIAL_ART)/user-acceptance.json'); p.parent.mkdir(parents=True, exist_ok=True); p.write_text(json.dumps({'status':'PENDING_HUMAN','author_required':'Tiago Sasaki','campaign_id':'CONFENGE-COMMERCIAL-READY-01'}, indent=2)+chr(10))")
-	@echo 'RC technical scaffold ready — human acceptance remains PENDING_HUMAN'
+	python3 -m scripts.ops.confenge_commercial_gates release-candidate \
+		--run-result $(CONFENGE_COMMERCIAL_OUT)/run-result.json
 
 verify-confenge-commercial-ready-real:
 	@echo '==> verify real commercial queue (fails closed without authenticated snapshot)'
@@ -447,6 +438,7 @@ verify-confenge-commercial-ready-real:
 	python3 -m scripts.commercial_leads gate \
 		--out $(CONFENGE_COMMERCIAL_ART)/gate.json \
 		--run-result $(CONFENGE_COMMERCIAL_OUT)/run-result.json
+	@test "$$(python3 -c "import json; print(json.load(open('$(CONFENGE_COMMERCIAL_ART)/gate.json'))['ok'])")" = "True"
 
 verify-soak-non-interference:
 	python3 -m scripts.ops.verify_soak_non_interference \
@@ -455,8 +447,4 @@ verify-soak-non-interference:
 		--out $(CONFENGE_COMMERCIAL_ART)/soak-non-interference.json
 
 dod-audit-confenge-commercial-ready:
-	@test -f specs/006-confenge-commercial-ready/spec.md
-	@test -f config/commercial_profiles/confenge.yaml
-	@test -f db/migrations/062_commercial_leads_ledger.sql
-	python3 -c "from pathlib import Path; import yaml; from scripts.commercial_leads.profile import load_profile; p=load_profile('config/commercial_profiles/confenge.yaml'); assert p.profile_id=='confenge'; assert len(p.signal_ids)>=12; print('dod-audit structural OK signals=', len(p.signal_ids))"
-	$(MAKE) test-commercial-leads
+	python3 -m scripts.ops.confenge_commercial_gates dod-audit

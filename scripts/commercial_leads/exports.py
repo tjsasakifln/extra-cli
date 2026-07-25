@@ -155,8 +155,8 @@ def export_all(out_dir: Path, run: dict[str, Any]) -> dict[str, str]:
     except Exception as exc:  # noqa: BLE001 — fallback is intentional
         p_csv = out_dir / "review-template.csv"
         with p_csv.open("w", encoding="utf-8", newline="") as f:
-            w = csv.writer(f)
-            w.writerow(
+            csv_w = csv.writer(f)
+            csv_w.writerow(
                 [
                     "rank",
                     "cnpj14",
@@ -168,7 +168,7 @@ def export_all(out_dir: Path, run: dict[str, Any]) -> dict[str, str]:
                 ]
             )
             for i, lead in enumerate(leads, start=1):
-                w.writerow([i, lead.get("cnpj14"), lead.get("razao_social"), lead.get("score_total"), lead.get("priority"), "", ""])
+                csv_w.writerow([i, lead.get("cnpj14"), lead.get("razao_social"), lead.get("score_total"), lead.get("priority"), "", ""])
         paths["review-template.csv"] = str(p_csv)
         paths["review-template.xlsx_error"] = str(exc)
 

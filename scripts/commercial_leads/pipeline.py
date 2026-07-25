@@ -19,6 +19,7 @@ from scripts.commercial_leads.exports import export_all, reconcile_exports
 from scripts.commercial_leads.identity import ExclusionRecord, resolve_supplier
 from scripts.commercial_leads.isolation import assert_isolation, mask_dsn
 from scripts.commercial_leads.profile import CommercialProfile, load_profile
+from scripts.commercial_leads.review import load_state_map
 from scripts.commercial_leads.scoring import rank_leads, score_supplier
 from scripts.commercial_leads.signals import compute_signals_for_supplier, rows_from_dicts
 from scripts.commercial_leads.snapshot import validate_snapshot_manifest
@@ -113,6 +114,7 @@ def load_contract_universe(
     uf_list = [u.upper() for u in uf_list if u]
 
     # filt is built only from bound ILIKE params (no raw user SQL)
+    # filt is only composed of static "col ILIKE %s" clauses with bound params
     sql = (
         "SELECT contrato_id, orgao_cnpj, orgao_nome, "
         "fornecedor_cnpj, fornecedor_nome, objeto_contrato, valor_total, "
@@ -121,7 +123,7 @@ def load_contract_universe(
         "WHERE is_active = TRUE "
         "AND fornecedor_cnpj IS NOT NULL "
         "AND btrim(fornecedor_cnpj) <> '' "
-        "AND (" + filt + ")"
+        "AND (" + filt + ")"  # nosec B608
     )
     if uf_list:
         sql += " AND (uf IS NULL OR upper(btrim(uf)) = ANY(%s))"
@@ -231,13 +233,14 @@ def persist_run(
                     evidence, suggested_offer, next_human_step, limitations,
                     commercial_state, rank_position
                 ) VALUES (
-                    %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,'NEW',%s
+                    %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s
                 )
                 ON CONFLICT (run_id, cnpj14) DO UPDATE SET
                     score_total = EXCLUDED.score_total,
                     priority = EXCLUDED.priority,
                     score_decomposition = EXCLUDED.score_decomposition,
                     signals_fired = EXCLUDED.signals_fired,
+                    commercial_state = EXCLUDED.commercial_state,
                     rank_position = EXCLUDED.rank_position
                 """,
                 (
@@ -254,6 +257,7 @@ def persist_run(
                     lead.get("suggested_offer"),
                     lead.get("next_human_step"),
                     Json(lead.get("limitations") or []),
+                    lead.get("commercial_state") or "NEW",
                     lead.get("rank_position") or i,
                 ),
             )
@@ -408,12 +412,31 @@ def run_pipeline(
             )
             scored.append(lead)
 
-        ranked = rank_leads(scored, profile)
-        lead_dicts = []
+        # Human overrides / DO_NOT_CONTACT must suppress from published queue
+        state_map: dict[str, str] = {}
+        try:
+            state_map = load_state_map(conn)
+        except Exception as exc:  # noqa: BLE001
+            # Fail closed for missing relation only (fresh DB before 062); otherwise abort.
+            msg = str(exc).lower()
+            if "commercial_lead_state_overrides" in msg or "does not exist" in msg:
+                state_map = {}
+            else:
+                raise
+        dnc_set = {c for c, st in state_map.items() if str(st).upper() == "DO_NOT_CONTACT"}
+        suppressed_from_score = [s for s in scored if s.cnpj14 in dnc_set]
+        ranked = rank_leads(
+            scored,
+            profile,
+            suppressed_cnpjs=dnc_set,
+            state_by_cnpj=state_map,
+        )
+        lead_dicts: list[dict[str, Any]] = []
         for i, lead in enumerate(ranked, start=1):
             d = lead.as_dict()
             d["rank_position"] = i
-            d["commercial_state"] = "NEW"
+            # Preserve prior human state when present; default NEW for first sighting
+            d["commercial_state"] = state_map.get(lead.cnpj14, "NEW")
             lead_dicts.append(d)
 
         baseline_cmp = compare_to_baselines(ranked, candidates_meta, limit=profile.queue_limit)
@@ -422,7 +445,11 @@ def run_pipeline(
                 "cnpj14": lead["cnpj14"],
                 "event_type": "EXPORT",
                 "author": "system",
-                "payload": {"rank": lead["rank_position"], "score": lead["score_total"]},
+                "payload": {
+                    "rank": lead["rank_position"],
+                    "score": lead["score_total"],
+                    "commercial_state": lead.get("commercial_state"),
+                },
                 "created_at": utc_now(),
             }
             for lead in lead_dicts
@@ -435,6 +462,8 @@ def run_pipeline(
             "exclusions": len(exclusions),
             "scored_companies": len(scored),
             "ranked_leads": len(lead_dicts),
+            "do_not_contact_suppressed": len(suppressed_from_score),
+            "human_state_overrides": len(state_map),
             "queue_limit": profile.queue_limit,
             "insufficient_queue": len(lead_dicts) < profile.queue_limit,
             "elapsed_seconds": round(time.time() - t0, 3),
@@ -442,19 +471,26 @@ def run_pipeline(
         }
 
         # Top-10 quality gates for status
-        top10 = lead_dicts[:10]
+        top10: list[dict[str, Any]] = lead_dicts[:10]
         top10_ok = True
         top10_issues: list[str] = []
-        for lead in top10:
-            if not lead.get("cnpj14") or len(str(lead["cnpj14"])) != 14:
+        for item in top10:
+            if not item.get("cnpj14") or len(str(item["cnpj14"])) != 14:
                 top10_ok = False
                 top10_issues.append("invalid_cnpj_in_top10")
-            if not (lead.get("signals_fired") or []):
+            if str(item.get("commercial_state") or "").upper() == "DO_NOT_CONTACT":
+                top10_ok = False
+                top10_issues.append("do_not_contact_in_top10")
+            if not (item.get("signals_fired") or []):
                 top10_ok = False
                 top10_issues.append("top10_without_fired_signal")
-            if not (lead.get("evidence") or []):
+            if not (item.get("evidence") or []):
                 top10_ok = False
                 top10_issues.append("top10_without_evidence")
+        # Package must never publish DO_NOT_CONTACT
+        if any(str(L.get("commercial_state") or "").upper() == "DO_NOT_CONTACT" for L in lead_dicts):
+            top10_ok = False
+            top10_issues.append("do_not_contact_in_published_queue")
 
         status = "PASS" if top10_ok and lead_dicts else ("BLOCKED" if not lead_dicts else "FAIL")
         if not lead_dicts:
@@ -508,8 +544,10 @@ def run_pipeline(
                 "package_ready_for_human_review",
             ],
             "language_note": (
-                "Fila de priorização por sinais observados; não afirma intenção de compra."
+                "Fila de priorização por sinais observados; "
+                "não afirma claim estatístico de conversão comercial."
             ),
+            "suppressed_do_not_contact": sorted(dnc_set)[:100],
         }
 
         if not skip_persist:

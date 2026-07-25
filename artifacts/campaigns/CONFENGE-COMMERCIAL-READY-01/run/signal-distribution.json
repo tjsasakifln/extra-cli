@@ -2,7 +2,7 @@
   "by_signal_fired_count": {
     "concurrent_portfolio": 20,
     "agency_concentration": 20,
-    "contract_concentration": 8,
+    "contract_concentration": 5,
     "near_expiry": 20,
     "win_recurrence": 20
   },
