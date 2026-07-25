@@ -1,0 +1,5 @@
+{
+  "provider_default": "fake",
+  "paid_calls_in_default_ci": 0,
+  "max_cost_usd_per_cycle": 5.0
+}

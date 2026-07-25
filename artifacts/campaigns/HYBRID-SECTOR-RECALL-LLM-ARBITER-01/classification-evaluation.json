@@ -1,0 +1,38 @@
+{
+  "decision_metrics": {
+    "safe_recall_match_plus_review": 1.0,
+    "safe_recall_lower_95": 0.9900639180555423,
+    "false_negative_rate_no_match": 0.0,
+    "critical_false_negatives": 0,
+    "n_positives": 300,
+    "n_preserved": 300,
+    "match_precision": 1.0,
+    "match_precision_lower_95": 0.9841915402609456,
+    "match_count": 318,
+    "match_labeled_hard_count": 188,
+    "match_true_positives": 188,
+    "match_false_positives_hard": 0,
+    "match_ambiguous": 10,
+    "match_unlabeled": 120,
+    "review_rate": 0.5627272727272727,
+    "review_yield": 0.18093699515347333,
+    "llm_rescue_rate": 0.0,
+    "deterministic_llm_disagreement": 373,
+    "n_negatives_gold": 300
+  },
+  "confusion": {
+    "POSITIVE": {
+      "REVIEW": 112,
+      "MATCH": 188
+    },
+    "NEGATIVE": {
+      "NO_MATCH": 110,
+      "REVIEW": 190
+    },
+    "AMBIGUOUS": {
+      "MATCH": 10,
+      "REVIEW": 140
+    }
+  },
+  "lineage_count": 1100
+}

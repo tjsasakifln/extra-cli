@@ -1,0 +1,23 @@
+{
+  "findings": [
+    {
+      "severity": "HIGH",
+      "finding": "terminal=BLOCKED_REVIEW_CAPACITY",
+      "action": "review queue 619 > max_items_per_cycle 100; overflow_policy=preserve_and_flag (zero discarded). Increase human capacity or further reduce gray rate before READY_FOR_RECALL_ASSURANCE_REVIEW / RC v3."
+    },
+    {
+      "severity": "INFO",
+      "finding": "retrieval+preservation gates pass on locked gold (n_pos=300, safe_recall=1.0, retrieval_recall=1.0, critical_FN=0)",
+      "action": "keep dual-reviewed expansion; do not claim 100% FN elimination"
+    },
+    {
+      "severity": "INFO",
+      "finding": "commercial MATCH precision on hard labels = 1.0 (0 hard FP); champion safe_recall ~0.45 vs challenger 1.0",
+      "action": "challenger not auto-promoted; PR #131 remains CHANGES_REQUESTED_RECALL_ASSURANCE"
+    }
+  ],
+  "pr_131": "CHANGES_REQUESTED_RECALL_ASSURANCE",
+  "rc_v3": false,
+  "accepted": false,
+  "merged": false
+}

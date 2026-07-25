@@ -1,0 +1,31 @@
+{
+  "gate_id": "SECTOR-CLASSIFIER-RECALL-GATE",
+  "terminal_status": "BLOCKED_INSUFFICIENT_STATISTICAL_POWER",
+  "campaign": "HYBRID-SECTOR-RECALL-LLM-ARBITER-01",
+  "offline_default": true,
+  "paid_llm_default": false,
+  "pr_131": "CHANGES_REQUESTED_RECALL_ASSURANCE",
+  "summary": {
+    "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.0.0",
+    "raw_universe_count": 5,
+    "candidate_count": 5,
+    "lineage_count": 5,
+    "match_count": 3,
+    "review_count": 0,
+    "no_match_count": 2,
+    "review_status": {
+      "manual_review": {
+        "max_items_per_cycle": 100,
+        "overflow_policy": "preserve_and_flag"
+      },
+      "review_count": 0,
+      "overflow": false,
+      "overflow_policy": "preserve_and_flag",
+      "operational_status": "WITHIN_CAPACITY",
+      "discarded": 0,
+      "preserved_all": true
+    },
+    "terminal_status": "BLOCKED_INSUFFICIENT_STATISTICAL_POWER",
+    "every_record_has_decision": true
+  }
+}

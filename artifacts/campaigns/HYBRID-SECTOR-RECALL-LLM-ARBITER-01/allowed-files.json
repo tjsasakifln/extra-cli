@@ -1,0 +1,24 @@
+{
+  "policy": "only files listed may be created or modified in this campaign",
+  "create": [
+    "scripts/ops/hybrid_sector/**",
+    "scripts/ops/campaign_hybrid_sector_recall.py",
+    "config/hybrid_sector/**",
+    "tests/test_hybrid_sector*.py",
+    "tests/fixtures/hybrid_sector/**",
+    "artifacts/campaigns/HYBRID-SECTOR-RECALL-LLM-ARBITER-01/**",
+    "artifacts/integration/SECTOR-CLASSIFIER-RECALL-AND-LLM-ARBITER.md",
+    "artifacts/integration/SECTOR-CLASSIFIER-RECALL-GATE.json",
+    ".github/workflows/hybrid-sector-recall.yml"
+  ],
+  "modify_allowed": [
+    "scripts/ops/sector_classifier.py",
+    "Makefile",
+    "config/client_profiles/extra.yaml"
+  ],
+  "forbidden": [
+    "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/client-ready-frozen-rc-v2/**",
+    "db/migrations/**",
+    "branches related to #132 #133 #134"
+  ]
+}

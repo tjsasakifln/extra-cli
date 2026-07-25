@@ -1,0 +1,51 @@
+{
+  "path": "tests/fixtures/hybrid_sector/gold_corpus.json",
+  "split_stats": {
+    "locked": {
+      "POSITIVE": 300,
+      "total": 750,
+      "NEGATIVE": 300,
+      "AMBIGUOUS": 150
+    },
+    "dev": {
+      "POSITIVE": 80,
+      "total": 200,
+      "NEGATIVE": 80,
+      "AMBIGUOUS": 40
+    },
+    "calibration": {
+      "POSITIVE": 60,
+      "total": 150,
+      "NEGATIVE": 60,
+      "AMBIGUOUS": 30
+    }
+  },
+  "locked_adequacy": {
+    "ok": true,
+    "checks": {
+      "positives": {
+        "have": 300,
+        "need": 300,
+        "ok": true
+      },
+      "hard_negatives": {
+        "have": 300,
+        "need": 300,
+        "ok": true
+      },
+      "ambiguous": {
+        "have": 150,
+        "need": 150,
+        "ok": true
+      },
+      "positives_without_keywords": {
+        "have": 100,
+        "need": 100,
+        "ok": true
+      }
+    },
+    "dual_review_rate": 0.46,
+    "note": "Labels authored independently of classifier under test; full dual human review may be pending — do not claim 99% without power."
+  },
+  "labels_independent_of_classifier": true
+}

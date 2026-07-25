@@ -553,3 +553,29 @@ for item in t.get('items', []); \
 assert not bad, bad; \
 print('dod-audit-ok', len(t.get('items',[])))"
 	@echo 'dod-audit-client-ready-recurring-consulting-cycle OK'
+
+# ── Hybrid sector recall + LLM arbiter (OFFLINE default) ─────────────────────
+.PHONY: hybrid-sector-unit hybrid-sector-adversarial hybrid-sector-eval hybrid-sector-campaign hybrid-sector-gate hybrid-sector-offline
+
+hybrid-sector-unit:
+	@echo '==> Hybrid sector unit tests (fake LLM)'
+	python -m pytest tests/test_hybrid_sector_core.py -q --tb=short
+
+hybrid-sector-adversarial:
+	@echo '==> Hybrid sector adversarial tests (fake LLM)'
+	python -m pytest tests/test_hybrid_sector_adversarial.py -q --tb=short
+
+hybrid-sector-eval:
+	@echo '==> Hybrid sector locked eval + statistical gates (offline)'
+	python -m pytest tests/test_hybrid_sector_eval_gates.py -q --tb=short
+
+hybrid-sector-campaign:
+	@echo '==> Hybrid sector campaign entry (fake LLM, no paid provider)'
+	python -m scripts.ops.campaign_hybrid_sector_recall --corpus tests/fixtures/hybrid_sector/gold_corpus.json \
+		--out artifacts/campaigns/HYBRID-SECTOR-RECALL-LLM-ARBITER-01
+
+hybrid-sector-gate: hybrid-sector-unit hybrid-sector-adversarial hybrid-sector-eval
+	@echo '==> Hybrid sector offline gate complete (no paid LLM)'
+
+hybrid-sector-offline: hybrid-sector-gate hybrid-sector-campaign
+	@echo '==> Full offline hybrid sector suite done'

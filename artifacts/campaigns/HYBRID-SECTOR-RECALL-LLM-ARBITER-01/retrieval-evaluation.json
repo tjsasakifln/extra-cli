@@ -1,0 +1,139 @@
+{
+  "universe_metrics": {
+    "raw_universe_count": 1100,
+    "records_with_object": 1100,
+    "records_with_items": 250,
+    "records_with_category": 150,
+    "records_with_documents": 1100,
+    "records_missing_critical_text": 0,
+    "source_coverage_status": {
+      "portal_sc": "fixture",
+      "compras_gov": "fixture",
+      "pncp": "fixture"
+    },
+    "source_freshness_status": {
+      "portal_sc": "fixture",
+      "compras_gov": "fixture",
+      "pncp": "fixture"
+    },
+    "classify_full_universe": false,
+    "full_universe_threshold": 500,
+    "recall_denominator": 1100
+  },
+  "retrieval_report": {
+    "channels": [
+      "lexical",
+      "semantic",
+      "metadata",
+      "organ_history",
+      "zero_match"
+    ],
+    "channel_hit_counts": {
+      "lexical": 465,
+      "semantic": 200,
+      "metadata": 1044,
+      "organ_history": 660,
+      "zero_match": 635
+    },
+    "lexical_report": {
+      "total_terms": 38,
+      "terms_executed": 38,
+      "terms_omitted": 0,
+      "omission_reason": null,
+      "term_ids": [
+        "pavimentacao",
+        "asfalto",
+        "drenagem",
+        "terraplenagem",
+        "saneamento",
+        "esgoto_rede",
+        "infraestrutura_urbana",
+        "calcada",
+        "edificacao",
+        "construcao_edificios",
+        "ampliacao",
+        "reforma_predial",
+        "manutencao_predial",
+        "obra_engenharia",
+        "ponte_viaduto",
+        "contencao",
+        "demolicao",
+        "projeto_engenharia",
+        "projetos_complementares",
+        "fiscalizacao_obra",
+        "instalacoes_prediais",
+        "cobertura_telhado",
+        "alvenaria_concreto",
+        "recuperacao_estrutural",
+        "obras_publicas",
+        "pavimentacao_typo",
+        "recape",
+        "drenagem_abbrev",
+        "ete_eta",
+        "obra_civil",
+        "execucao",
+        "implantacao",
+        "instalacao_exec",
+        "requalificacao",
+        "contencao_encosta",
+        "empreitada",
+        "modular",
+        "acessibilidade"
+      ]
+    },
+    "semantic_report": {
+      "model_id": "offline-hash-embedding-pt-v1",
+      "model_version": "1.0.0",
+      "text_fields_used": [
+        "objeto",
+        "titulo",
+        "items",
+        "categories",
+        "documents",
+        "orgao",
+        "modalidade"
+      ],
+      "n_queries": 8,
+      "n_docs": 1100,
+      "top_k": 200,
+      "min_similarity": 0.12
+    },
+    "fusion_analysis": {
+      "candidate_count": 1100,
+      "lexical_only_count": 465,
+      "would_lose_without_non_lexical": 1470,
+      "unique_rescues_by_channel": {
+        "semantic": 47,
+        "metadata": 579,
+        "organ_history": 209,
+        "zero_match": 635
+      },
+      "single_channel_candidates_kept": 56,
+      "zero_match_rescues": 635,
+      "note": "RRF used only for ranking; no pre-classification exclusion by RRF score",
+      "full_universe_fill": false
+    },
+    "rrf_k": 60
+  },
+  "metrics": {
+    "retrieval_recall": 1.0,
+    "retrieval_recall_lower_95": 0.9900639180555423,
+    "n_gold_positives": 300,
+    "n_retrieved_positives": 300,
+    "missed_positive_ids": [],
+    "recall_by_channel": {
+      "lexical": 0.8933333333333333,
+      "semantic": 0.31,
+      "metadata": 1.0,
+      "organ_history": 1.0,
+      "zero_match": 0.10666666666666667
+    },
+    "recall_without_keywords": 1.0,
+    "unique_rescues_by_channel": {
+      "semantic": 0,
+      "metadata": 32,
+      "organ_history": 32,
+      "zero_match": 32
+    }
+  }
+}

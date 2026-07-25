@@ -1,0 +1,100 @@
+{
+  "terminal_status": "BLOCKED_REVIEW_CAPACITY",
+  "allowed_states": [
+    "BLOCKED_INSUFFICIENT_RECALL",
+    "BLOCKED_INSUFFICIENT_STATISTICAL_POWER",
+    "BLOCKED_LLM_OPERATIONAL_VALIDATION",
+    "BLOCKED_REVIEW_CAPACITY",
+    "READY_FOR_RECALL_ASSURANCE_REVIEW"
+  ],
+  "forbidden_claims": [
+    "100% NO FALSE NEGATIVES",
+    "ACCEPTED",
+    "FULLY GUARANTEED",
+    "MERGED",
+    "PROJECT_DONE"
+  ],
+  "summary": {
+    "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.0.0",
+    "raw_universe_count": 1100,
+    "candidate_count": 1100,
+    "lineage_count": 1100,
+    "match_count": 318,
+    "review_count": 619,
+    "no_match_count": 163,
+    "review_status": {
+      "manual_review": {
+        "max_items_per_cycle": 100,
+        "overflow_policy": "preserve_and_flag"
+      },
+      "review_count": 619,
+      "overflow": true,
+      "overflow_policy": "preserve_and_flag",
+      "operational_status": "OPERATIONALLY_BLOCKED_REVIEW_VOLUME",
+      "discarded": 0,
+      "preserved_all": true
+    },
+    "terminal_status": "BLOCKED_REVIEW_CAPACITY",
+    "every_record_has_decision": true
+  },
+  "gates": {
+    "gates": {
+      "statistical_power": {
+        "ok": true,
+        "n_positives": 300,
+        "status": "OK"
+      },
+      "retrieval": {
+        "pass": true,
+        "point": 1.0,
+        "lower_95": 0.9900639180555423,
+        "blocked_insufficient_power": false
+      },
+      "preservation": {
+        "pass": true,
+        "point": 1.0,
+        "lower_95": 0.9900639180555423,
+        "critical_false_negatives": 0,
+        "blocked_insufficient_power": false
+      },
+      "commercial": {
+        "pass": true,
+        "point": 1.0,
+        "lower_95": 0.9841915402609456,
+        "hard_false_positives": 0,
+        "blocks_readiness": false
+      },
+      "audit": {
+        "pass": true,
+        "details": {
+          "invented_evidence_accepted": 0,
+          "llm_error_to_review_rate": 1.0,
+          "lineage_coverage": 1.0,
+          "silent_discards": 0
+        }
+      }
+    },
+    "thresholds": {
+      "retrieval_recall_point": 0.995,
+      "retrieval_recall_lower_95": 0.99,
+      "preservation_recall_point": 0.995,
+      "preservation_recall_lower_95": 0.99,
+      "match_precision_point": 0.95,
+      "match_precision_lower_95": 0.9,
+      "locked_min_positives": 300,
+      "locked_min_hard_negatives": 300,
+      "locked_min_ambiguous": 150,
+      "locked_min_positives_without_keywords": 100
+    },
+    "all_core_pass": true,
+    "terminal_status": "BLOCKED_REVIEW_CAPACITY"
+  },
+  "pr_131": "CHANGES_REQUESTED_RECALL_ASSURANCE",
+  "claims": {
+    "PROJECT_DONE": false,
+    "ACCEPTED": false,
+    "MERGED": false,
+    "FULLY_GUARANTEED": false,
+    "NO_FALSE_NEGATIVES_100": false
+  }
+}

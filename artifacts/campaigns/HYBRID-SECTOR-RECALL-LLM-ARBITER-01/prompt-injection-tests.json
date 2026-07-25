@@ -1,0 +1,4 @@
+{
+  "note": "see tests/test_hybrid_sector_adversarial.py for executable suite",
+  "policy": "source text is untrusted data; never modifies classifier rules"
+}

@@ -1,0 +1,19 @@
+{
+  "worktree": ".worktrees/hybrid-sector-recall-llm-arbiter-01",
+  "branch": "campaign/hybrid-sector-recall-llm-arbiter-01",
+  "base_branch": "campaign/client-ready-recurring-consulting-cycle-01",
+  "base_sha": "28ddc4f262153f1e5a59c8ca5400c1839377f500",
+  "pr_target_branch": "campaign/client-ready-recurring-consulting-cycle-01",
+  "never_base_on": "main_while_131_open",
+  "frozen_rc_v2_protected": true,
+  "frozen_rc_v2_path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/client-ready-frozen-rc-v2/",
+  "rc_v2_checksums_file": "rc-v2-freeze-checksums.sha256",
+  "no_vps": true,
+  "no_prod": true,
+  "no_soak": true,
+  "no_rc_v3": true,
+  "no_131_merge": true,
+  "no_131_accepted": true,
+  "pr_131_remains": "CHANGES_REQUESTED_RECALL_ASSURANCE",
+  "created_at": "2026-07-25T14:22:49.365394+00:00"
+}

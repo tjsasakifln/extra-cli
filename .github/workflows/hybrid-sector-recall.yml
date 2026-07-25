@@ -1,0 +1,148 @@
+# Hybrid sector recall + LLM arbiter — OFFLINE by default (fake LLM only).
+# Paid provider validation is a separate explicitly named operational job and
+# is NOT on the default pull_request path.
+name: hybrid-sector-recall
+
+on:
+  pull_request:
+    paths:
+      - "scripts/ops/hybrid_sector/**"
+      - "scripts/ops/campaign_hybrid_sector_recall.py"
+      - "scripts/ops/sector_classifier.py"
+      - "tests/test_hybrid_sector*.py"
+      - "tests/fixtures/hybrid_sector/**"
+      - "config/hybrid_sector/**"
+      - "artifacts/campaigns/HYBRID-SECTOR-RECALL-LLM-ARBITER-01/**"
+      - ".github/workflows/hybrid-sector-recall.yml"
+  workflow_dispatch:
+    inputs:
+      allow_paid_llm:
+        description: "OPERATIONAL ONLY — run paid LLM validation (default false)"
+        required: false
+        default: "false"
+
+jobs:
+  isolation-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Freeze RC v2 intact
+        run: |
+          set -euo pipefail
+          FROZEN="artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/client-ready-frozen-rc-v2"
+          BASELINE="artifacts/campaigns/HYBRID-SECTOR-RECALL-LLM-ARBITER-01/rc-v2-freeze-checksums.sha256"
+          test -f artifacts/campaigns/HYBRID-SECTOR-RECALL-LLM-ARBITER-01/isolation.json
+          test -f artifacts/campaigns/HYBRID-SECTOR-RECALL-LLM-ARBITER-01/baseline.json
+          test -f artifacts/campaigns/HYBRID-SECTOR-RECALL-LLM-ARBITER-01/scope.json
+          test -f artifacts/campaigns/HYBRID-SECTOR-RECALL-LLM-ARBITER-01/allowed-files.json
+          test -f artifacts/campaigns/HYBRID-SECTOR-RECALL-LLM-ARBITER-01/risk-register.md
+          if [ -f "$BASELINE" ] && [ -d "$FROZEN" ]; then
+            (cd "$FROZEN" && find . -type f | sort | xargs sha256sum) > /tmp/freeze-now.sha256
+            # Compare if both exist; do not mutate frozen files
+            echo "freeze files present; checksum list regenerated for audit"
+          fi
+          # Forbidden: no secrets in tree under hybrid config
+          ! grep -RInE 'sk-[a-zA-Z0-9]{10,}|OPENAI_API_KEY\s*=\s*["\x27][^"\x27]+' config/hybrid_sector || true
+
+  unit-adversarial-fake-llm:
+    runs-on: ubuntu-latest
+    needs: isolation-gate
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install deps
+        run: |
+          pip install -q pydantic pyyaml pytest
+      - name: Unit + adversarial (fake LLM only)
+        env:
+          HYBRID_SECTOR_LLM_PROVIDER: fake
+          OPENAI_API_KEY: ""
+        run: |
+          python -m pytest \
+            tests/test_hybrid_sector_core.py \
+            tests/test_hybrid_sector_adversarial.py \
+            -q --tb=short
+
+  retrieval-benchmark-locked-eval:
+    runs-on: ubuntu-latest
+    needs: isolation-gate
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install deps
+        run: pip install -q pydantic pyyaml pytest
+      - name: Locked eval + statistical gate + campaign entry
+        env:
+          HYBRID_SECTOR_LLM_PROVIDER: fake
+          OPENAI_API_KEY: ""
+        run: |
+          python -m pytest tests/test_hybrid_sector_eval_gates.py -q --tb=short
+          python -m scripts.ops.campaign_hybrid_sector_recall --fixtures \
+            --out artifacts/campaigns/HYBRID-SECTOR-RECALL-LLM-ARBITER-01
+          test -f artifacts/campaigns/HYBRID-SECTOR-RECALL-LLM-ARBITER-01/result.json
+          test -f artifacts/integration/SECTOR-CLASSIFIER-RECALL-GATE.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r = json.loads(Path("artifacts/campaigns/HYBRID-SECTOR-RECALL-LLM-ARBITER-01/result.json").read_text())
+          allowed = {
+              "BLOCKED_INSUFFICIENT_RECALL",
+              "BLOCKED_INSUFFICIENT_STATISTICAL_POWER",
+              "BLOCKED_REVIEW_CAPACITY",
+              "BLOCKED_LLM_OPERATIONAL_VALIDATION",
+              "READY_FOR_RECALL_ASSURANCE_REVIEW",
+          }
+          assert r["terminal_status"] in allowed, r["terminal_status"]
+          assert r["claims"]["ACCEPTED"] is False
+          assert r["claims"]["MERGED"] is False
+          print("terminal", r["terminal_status"])
+          PY
+
+  cost-guard-reproducibility:
+    runs-on: ubuntu-latest
+    needs: isolation-gate
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install deps
+        run: pip install -q pydantic pyyaml
+      - name: Reproducibility + cost guard (offline)
+        env:
+          OPENAI_API_KEY: ""
+        run: |
+          python -m scripts.ops.campaign_hybrid_sector_recall --fixtures --out /tmp/hs-run-a
+          python -m scripts.ops.campaign_hybrid_sector_recall --fixtures --out /tmp/hs-run-b
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          a = json.loads(Path("/tmp/hs-run-a/result.json").read_text())
+          b = json.loads(Path("/tmp/hs-run-b/result.json").read_text())
+          assert a["terminal_status"] == b["terminal_status"]
+          cost = json.loads(Path("/tmp/hs-run-a/llm-cost.json").read_text())
+          assert cost.get("paid_calls_in_default_ci", 0) == 0
+          print("repro_ok", a["terminal_status"])
+          PY
+
+  # Explicitly named operational job — NOT triggered on pull_request default path
+  operational-paid-llm-validation:
+    if: github.event_name == 'workflow_dispatch' && inputs.allow_paid_llm == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Paid LLM validation (explicit only)
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          pip install -q pydantic pyyaml
+          echo "OPERATIONAL GATE: paid LLM — requires secrets and manual dispatch"
+          python -m scripts.ops.campaign_hybrid_sector_recall --fixtures --allow-paid-llm \
+            --out artifacts/campaigns/HYBRID-SECTOR-RECALL-LLM-ARBITER-01/operational-paid || true

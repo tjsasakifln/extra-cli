@@ -1,0 +1,89 @@
+# Hybrid sector recall + LLM arbiter — default offline-safe config
+# No secrets. Paid LLM only via explicit operational gate.
+
+pipeline_version: hybrid-sector-recall-llm-arbiter/1.0.0
+
+raw_universe:
+  full_universe_threshold: 500
+
+manual_review:
+  max_items_per_cycle: 100
+  overflow_policy: preserve_and_flag
+
+retrieval:
+  rrf_k: 60
+  lexical:
+    max_terms: null  # null = no silent 80-term cap; log if capped
+  semantic:
+    model_id: offline-hash-embedding-pt-v1
+    model_version: "1.0.0"
+    top_k: 200
+    min_similarity: 0.12
+  metadata:
+    engineering_category_terms:
+      - obras
+      - engenharia
+      - construcao
+      - pavimentacao
+      - drenagem
+      - saneamento
+      - infraestrutura
+      - urbanismo
+      - terraplenagem
+      - edificacao
+      - reforma
+  organ_history:
+    engineering_org_keywords:
+      - obras
+      - infraestrutura
+      - saneamento
+      - urbanismo
+      - engenharia
+      - paviment
+      - der
+      - dem
+      - seinfra
+      - secretaria de obras
+  zero_match:
+    short_text_max_chars: 40
+    high_value_threshold: 500000.0
+
+llm:
+  enabled: true
+  provider: fake  # fake | openai_compatible
+  model: offline-fake
+  prompt_version: sector-arbiter-v1
+  timeout_seconds: 15
+  max_retries: 2
+  max_cost_usd_per_cycle: 5.0
+  max_concurrency: 4
+  circuit_breaker_failures: 5
+  min_confidence: 60
+  second_adjudication_value_threshold: 1000000.0
+  # OPENAI_API_KEY / LLM_BASE_URL only via env — never commit secrets
+
+decision_policy:
+  commercial_match_requires:
+    - positive_evidence
+    - no_blocker
+    - auditable_classification
+    - official_source
+  high_value_no_match_threshold: 500000.0
+
+evaluation:
+  locked_min_positives: 300
+  locked_min_hard_negatives: 300
+  locked_min_ambiguous: 150
+  locked_min_positives_without_keywords: 100
+  retrieval_recall_point: 0.995
+  retrieval_recall_lower_95: 0.99
+  preservation_recall_point: 0.995
+  preservation_recall_lower_95: 0.99
+  match_precision_point: 0.95
+  match_precision_lower_95: 0.90
+
+no_match_audit:
+  # audit_size = all if total < 200 else min(1000, max(200, 5% of total))
+  min_sample: 200
+  max_sample: 1000
+  pct: 0.05

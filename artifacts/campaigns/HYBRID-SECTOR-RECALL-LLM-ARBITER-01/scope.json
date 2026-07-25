@@ -1,0 +1,36 @@
+{
+  "campaign_id": "HYBRID-SECTOR-RECALL-LLM-ARBITER-01",
+  "in_scope": [
+    "raw open-edital universe contract + metrics",
+    "5+ independent retrieval channels (lexical, semantic, metadata, organ_history, zero_match)",
+    "union merge + RRF prioritization only",
+    "selective deterministic CLEAR_POSITIVE|GRAY_ZONE|CLEAR_NEGATIVE",
+    "LLM arbiter provider-agnostic with fail->REVIEW",
+    "commercial decision MATCH|REVIEW|NO_MATCH",
+    "review capacity + OPERATIONALLY_BLOCKED_REVIEW_VOLUME",
+    "gold corpus structure + offline evaluation gates",
+    "champion-challenger shadow replay",
+    "CI offline jobs and campaign artifacts"
+  ],
+  "out_of_scope": [
+    "PR #131 merge / ACCEPT / RC v3",
+    "VPS production soak",
+    "paid LLM in default CI",
+    "mutating client-ready-frozen-rc-v2",
+    "rewriting db/migrations already shipped",
+    "branches #132 #133 #134",
+    "Smartlic repo dependency"
+  ],
+  "allowed_write_roots": [
+    "scripts/ops/hybrid_sector/",
+    "scripts/ops/campaign_hybrid_sector_recall.py",
+    "scripts/ops/sector_classifier.py",
+    "config/hybrid_sector/",
+    "tests/test_hybrid_sector*.py",
+    "tests/fixtures/hybrid_sector/",
+    "artifacts/campaigns/HYBRID-SECTOR-RECALL-LLM-ARBITER-01/",
+    "artifacts/integration/SECTOR-CLASSIFIER-RECALL*",
+    ".github/workflows/hybrid-sector-recall.yml",
+    "Makefile"
+  ]
+}
