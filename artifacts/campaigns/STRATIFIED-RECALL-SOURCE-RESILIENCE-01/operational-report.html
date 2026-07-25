@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8"><title>Stratified Recall Report</title>
+<style>body{font-family:system-ui;margin:2rem;} table{border-collapse:collapse} td,th{border:1px solid #ccc;padding:.4rem .6rem} .pass{color:green} .fail{color:#a00}</style>
+</head><body>
+<h1>STRATIFIED-RECALL-SOURCE-RESILIENCE-01</h1>
+<p>Status: <strong class="pass">PASS</strong> — 76/76 (100.0%)</p>
+<p>Denominator hash: <code>2d1b3fc13e5f5c98ebc202b7f3cd275accf34804d794027d21e78c863b9c2606</code></p>
+<p>production_touched: false</p>
+<h2>Metodologia</h2>
+<ul>
+<li>Amostra-ouro independente de portais oficiais (PNCP, SC Compras, CIGA)</li>
+<li>Congelada antes do match; misses nunca removem denominador</li>
+<li>Piso por estrato ≥90%; global ≥95%</li>
+</ul>
+<h2>Estratos</h2>
+<table><tr><th>Estrato</th><th>Publicados</th><th>Capturados</th><th>%</th></tr>
+<tr><td>admin_direta</td><td>61</td><td>61</td><td>100.0</td></tr>
+<tr><td>admin_indireta</td><td>22</td><td>22</td><td>100.0</td></tr>
+<tr><td>autarquia</td><td>12</td><td>12</td><td>100.0</td></tr>
+<tr><td>camara</td><td>5</td><td>5</td><td>100.0</td></tr>
+<tr><td>consorcio</td><td>5</td><td>5</td><td>100.0</td></tr>
+<tr><td>fundacao</td><td>5</td><td>5</td><td>100.0</td></tr>
+<tr><td>municipio_grande</td><td>12</td><td>12</td><td>100.0</td></tr>
+<tr><td>municipio_medio</td><td>53</td><td>53</td><td>100.0</td></tr>
+<tr><td>municipio_pequeno</td><td>11</td><td>11</td><td>100.0</td></tr>
+<tr><td>platform_ciga</td><td>6</td><td>6</td><td>100.0</td></tr>
+<tr><td>platform_pncp</td><td>63</td><td>63</td><td>100.0</td></tr>
+<tr><td>platform_sc_compras</td><td>7</td><td>7</td><td>100.0</td></tr>
+<tr><td>source_api</td><td>76</td><td>76</td><td>100.0</td></tr>
+<tr><td>source_html</td><td>6</td><td>6</td><td>100.0</td></tr>
+<tr><td>source_js</td><td>70</td><td>70</td><td>100.0</td></tr>
+<tr><td>source_pdf</td><td>6</td><td>6</td><td>100.0</td></tr>
+</table>
+<h2>Oportunidades / misses</h2>
+<p>Misses residuais: 0 após correção de source_gap PNCP (paginação + captura por ID oficial).</p>
+<p>Itens capturados persistem em opportunity_intel isolado com source, source_id, URL, content_hash, status_canonico=open.</p>
+<h2>O que não foi monitorado nesta prova</h2>
+<ul>
+<li>VPS produção / soak</li>
+<li>Todas as modalidades PNCP nacionais fora de SC</li>
+<li>Portais municipais HTML exclusivos sem publicação PNCP/CIGA/SC Compras</li>
+</ul>
+</body></html>
