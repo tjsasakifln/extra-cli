@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "pr": 131,
-  "evaluated_at": "2026-07-25T01:11:47Z",
+  "evaluated_at": "2026-07-25T01:12:29Z",
   "head_sha_at_start": "dd20c37d7b92cbe93774f1e7b4b0e53921f4b21c",
   "gates": {
     "inventory": "PASS",
@@ -35,7 +35,8 @@
     "user-acceptance remains PENDING_HUMAN",
     "#134 full suite now PASS after hypothesis dep"
   ],
-  "head_sha": "79edf0789b5f10b7a390e4a3cf47e91e183adaca",
+  "head_sha": "115acdbe2710f7d83290e09197def96687aee957",
   "classification": "READY_FOR_HUMAN_ACCEPTANCE",
-  "failed_checks": []
+  "failed_checks": [],
+  "ci_run_evidence": "https://github.com/tjsasakifln/extra-cli/actions/runs/30137902889"
 }

@@ -119,14 +119,14 @@
         "dossiers orchestration",
         "human acceptance freeze"
       ],
-      "ci_status": "SUCCESS_8_8",
+      "ci_status": "SUCCESS_9_9_INCLUDING_ARTIFACT_POLICY",
       "human_acceptance_required": true,
       "recommended_action": "SLIM+REVIEW+GATES then READY_FOR_HUMAN_ACCEPTANCE; merge only after Tiago ACCEPTED",
       "merge_order": 1,
       "blocking_reasons": [
-        "human_acceptance_PENDING_HUMAN",
-        "reviewable_diff_required"
-      ]
+        "human_acceptance_PENDING_HUMAN"
+      ],
+      "head_sha_note": "see latest branch tip"
     },
     {
       "pr_number": 132,
@@ -196,13 +196,12 @@
       "unique_files": [
         "budget/BDI audit pack"
       ],
-      "ci_status": "FAILURE_full_suite",
+      "ci_status": "SUCCESS_8_8_AFTER_HYPOTHESIS_FIX",
       "ci_root_cause_hypothesis": "ModuleNotFoundError: hypothesis (tests/budget_audit/test_adversarial_property.py)",
       "human_acceptance_required": false,
-      "recommended_action": "FIX_HYPOTHESIS_DEP; rebase after #131; merge only full suite green",
+      "recommended_action": "REBASE_AFTER_131_MERGE; full suite currently green",
       "merge_order": 4,
       "blocking_reasons": [
-        "full_suite_red_missing_hypothesis",
         "await_131_merge"
       ]
     }

@@ -28,3 +28,11 @@ This is **not** an acceptable “pre-existing unrelated failure” without the s
 
 Fix applied on branch `campaign/engineering-budget-composition-bdi-audit-01` (see commits).  
 Merge still **blocked** until full suite green and after #131 merge/rebase order.
+
+
+## Post-fix status
+
+- Commit `4c912519` added `hypothesis>=6.100.0` to `requirements.txt`.
+- CI run after fix: **Test All (full suite) PASS** (run 30137611994).
+- All 8 jobs green.
+- Still **do not merge** until after #131 merge + rebase per integration order.

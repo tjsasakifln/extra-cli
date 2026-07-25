@@ -132,5 +132,5 @@ READY_FOR_HUMAN_ACCEPTANCE
 
 CI failed after slim because the new Generated Artifacts Policy job used `|| true`
 (forbidden by fail-closed mandatory gate tests). Fix pushed; re-run required.
-After CI green + human accept only: promote to READY_FOR_HUMAN_ACCEPTANCE / merge.
+CI tip verified **9/9 PASS** (incl. Generated Artifacts Policy + full suite). After human accept only: promote to READY_FOR_HUMAN_ACCEPTANCE / merge.
 Not INTEGRATION_COMPLETE. #134 hypothesis fix verified full suite PASS.
