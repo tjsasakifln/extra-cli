@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "pr": 131,
-  "evaluated_at": "2026-07-25T00:59:47Z",
+  "evaluated_at": "2026-07-25T01:01:40Z",
   "head_sha_at_start": "dd20c37d7b92cbe93774f1e7b4b0e53921f4b21c",
   "gates": {
     "inventory": "PASS",
@@ -30,8 +30,9 @@
     "user-acceptance.json remains PENDING_HUMAN \u2014 human only",
     "CI must re-run green on pushed tip; agents do not merge",
     "129/130 FULLY_ABSORBED; do not merge separately",
-    "production_touched=false soak_touched=false"
+    "production_touched=false soak_touched=false",
+    "CI poll snapshot recorded; local policy+unit gates PASS"
   ],
-  "head_sha": "a5eb260ad2626cb0b1399921b02458aba5417c2d",
+  "head_sha": "9015558ff7433aa35f54de8bc9f320ea9eee9ffc",
   "classification": "READY_FOR_HUMAN_ACCEPTANCE"
 }
