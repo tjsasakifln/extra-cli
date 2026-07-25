@@ -1,7 +1,7 @@
 # PR #129–#134 — Final CTO Integration Report
 
 **Generated:** 2026-07-25T01:00:35Z  
-**Classification:** `READY_FOR_HUMAN_ACCEPTANCE`  
+**Classification:** `BLOCKED_BY_CI` (policy job `|| true` fixed; re-CI pending)  
 **VPS/soak:** not touched (`production_touched=false`, `soak_touched=false`)
 
 ## Initial state
@@ -14,7 +14,7 @@
 | 131 | Integrator | 8/8 green | Opaque ~748k-line diff; human accept pending |
 | 132 | Edital triage | 8/8 green | Await #131 merge then rebase |
 | 133 | Bid readiness | 8/8 green | Experimental; fictional docs only |
-| 134 | Budget/BDI | **full suite red** | Missing `hypothesis` at collection |
+| 134 | Budget/BDI | was red → **fixed** | hypothesis added; full suite PASS |
 
 Main SHA: `5d906f631f444dd803e92bb88b7c98972297f8d4`  
 Main branch protection: **absent** (404).
@@ -127,8 +127,10 @@ Unchanged. Tip remains `5d906f63`. No merge performed.
 ## Classification
 
 ```
-READY_FOR_HUMAN_ACCEPTANCE
+BLOCKED_BY_CI
 ```
 
-Not `INTEGRATION_COMPLETE` (no human accept, no merge).  
-Not promotional language. Evidence-backed only.
+CI failed after slim because the new Generated Artifacts Policy job used `|| true`
+(forbidden by fail-closed mandatory gate tests). Fix pushed; re-run required.
+After CI green + human accept only: promote to READY_FOR_HUMAN_ACCEPTANCE / merge.
+Not INTEGRATION_COMPLETE. #134 hypothesis fix verified full suite PASS.
