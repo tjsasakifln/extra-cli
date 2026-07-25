@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "bid_readiness/package.schema.json",
+  "title": "BidReadinessPackageManifest",
+  "type": "object",
+  "required": ["simulation_only", "banner", "package_status", "files"],
+  "properties": {
+    "simulation_only": { "const": true },
+    "banner": { "const": "SIMULATION_ONLY" },
+    "package_status": {
+      "type": "string",
+      "enum": [
+        "READY_FOR_HUMAN_REVIEW",
+        "NOT_READY",
+        "BLOCKED_BY_MISSING_DOCUMENT",
+        "BLOCKED_BY_EXPIRED_DOCUMENT",
+        "BLOCKED_BY_INCONSISTENCY",
+        "BLOCKED_BY_TECHNICAL_QUALIFICATION",
+        "BLOCKED_BY_HUMAN_DECISION"
+      ]
+    },
+    "files": { "type": "array" },
+    "missing_required_requirements": { "type": "array", "items": { "type": "string" } },
+    "non_claims": { "type": "array", "items": { "type": "string" } }
+  },
+  "additionalProperties": true
+}

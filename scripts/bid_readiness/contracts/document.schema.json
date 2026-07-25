@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "bid_readiness/document.schema.json",
+  "title": "BidReadinessDocument",
+  "type": "object",
+  "required": ["document_id", "original_name", "sha256", "classification"],
+  "properties": {
+    "document_id": { "type": "string" },
+    "original_name": { "type": "string" },
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "size": { "type": "integer" },
+    "content_type": { "type": "string" },
+    "extension": { "type": "string" },
+    "source_path": { "type": "string" },
+    "ingested_at": { "type": "string" },
+    "classification": { "type": "string" },
+    "sensitivity": { "type": "string" },
+    "retention_policy": { "type": "string" },
+    "metadata": { "type": "object" },
+    "validity": { "type": "object" },
+    "identity": { "type": "object" }
+  },
+  "additionalProperties": true
+}

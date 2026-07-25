@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "bid_readiness/requirement.schema.json",
+  "title": "BidReadinessRequirement",
+  "type": "object",
+  "required": [
+    "requirement_id",
+    "category",
+    "title",
+    "mandatory",
+    "required_document_type"
+  ],
+  "properties": {
+    "requirement_id": { "type": "string" },
+    "category": { "type": "string" },
+    "title": { "type": "string" },
+    "description": { "type": "string" },
+    "mandatory": { "type": "boolean" },
+    "condition": {},
+    "source_document": { "type": "string" },
+    "source_locator": { "type": "object" },
+    "source_excerpt": { "type": "string" },
+    "deadline": { "type": ["string", "null"] },
+    "required_document_type": { "type": "string" },
+    "required_issuer": { "type": ["string", "null"] },
+    "required_holder": { "type": ["string", "null"] },
+    "required_signatory": { "type": ["string", "null"] },
+    "validity_rule": { "type": "object" },
+    "technical_criteria": { "type": "object" },
+    "financial_criteria": { "type": "object" },
+    "submission_format": { "type": "object" },
+    "original_file_required": { "type": "boolean" },
+    "signature_required": { "type": "boolean" },
+    "authentication_required": { "type": "boolean" },
+    "human_interpretation_required": { "type": "boolean" }
+  },
+  "additionalProperties": true
+}
