@@ -158,3 +158,70 @@ def test_classifier_rejects_v1_polluters() -> None:
         "AQUISIÇÃO DE CONJUNTOS MOTOBOMBAS SUBMERSÍVEIS PARA ESGOTAMENTO SANITÁRIO",
     ):
         assert not is_engineering_for_e(classify_object(obj)), obj
+
+
+def test_ua_checksums_identity_triple_equality_for_checksums_json() -> None:
+    """Criterion 4: ua.package_checksums[checksums.json] == disk == identity.file_sha256."""
+    if not (STG / "checksums.json").is_file():
+        return
+    if not (STG / "user-acceptance.json").is_file():
+        return
+    if not (STG / "ARTIFACT-IDENTITY.json").is_file():
+        return
+    ua = json.loads((STG / "user-acceptance.json").read_text(encoding="utf-8"))
+    identity = json.loads((STG / "ARTIFACT-IDENTITY.json").read_text(encoding="utf-8"))
+    disk = hashlib.sha256((STG / "checksums.json").read_bytes()).hexdigest()
+    ua_ck = (ua.get("package_checksums") or {}).get("checksums.json")
+    id_ck = (identity.get("file_sha256") or {}).get("checksums.json")
+    assert ua_ck is not None, "ua.package_checksums missing checksums.json"
+    assert id_ck is not None, "identity.file_sha256 missing checksums.json"
+    assert ua_ck == disk == id_ck, (
+        f"triple mismatch checksums.json ua={ua_ck[:16]} id={id_ck[:16]} disk={disk[:16]}"
+    )
+
+
+def test_assert_full_reconciliation_detects_checksums_mutation(tmp_path: Path) -> None:
+    """Mutation after freeze must fail assert_full_reconciliation (no silent OK)."""
+    from scripts.ops.publish_commercial_rc_v2 import assert_full_reconciliation, freeze_staging
+
+    if not PACK.is_dir() or not (PACK / "executive-report.pdf").is_file():
+        return
+    # Need pack members present
+    for name in (
+        "executive-report.pdf",
+        "consulting-pack.xlsx",
+        "executive-summary.md",
+        "pack-manifest.json",
+        "deliverable_a.json",
+        "deliverable_b.json",
+        "deliverable_c.json",
+        "deliverable_d.json",
+        "deliverable_e.json",
+    ):
+        if not (PACK / name).is_file():
+            return
+
+    campaign = tmp_path / "campaign"
+    staging = tmp_path / "staging"
+    campaign.mkdir()
+    pm = json.loads((PACK / "pack-manifest.json").read_text(encoding="utf-8"))
+    run_id = str(pm.get("run_id") or "test-run")
+    product_rc_sha = "a" * 64
+    result = freeze_staging(
+        campaign_dir=campaign,
+        pack_dir=PACK,
+        staging_dir=staging,
+        run_id=run_id,
+        product_rc_sha=product_rc_sha,
+    )
+    assert result["status"] == "READY_FOR_SECOND_HUMAN_PRODUCT_REVIEW", result
+    assert assert_full_reconciliation(staging) == []
+
+    # Mutate checksums.json after freeze — must be detected
+    ck_path = staging / "checksums.json"
+    ck = json.loads(ck_path.read_text(encoding="utf-8"))
+    ck["executive-report.pdf"] = "0" * 64
+    ck_path.write_text(json.dumps(ck, indent=2) + "\n", encoding="utf-8")
+    div = assert_full_reconciliation(staging)
+    assert div, "mutation of checksums.json must produce divergences"
+    assert any("checksums" in d or "ua_package" in d or "triple" in d for d in div)

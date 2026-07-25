@@ -1,22 +1,23 @@
 {
   "run_id": "live-pack-20260725-034511-57554b1d",
   "product_rc_sha": "db62911a3dc5f3fe1e632efa26d100a01780201c036659bf2707624fe1c320f0",
+  "product_rc_scheme": "content_sha256_v1",
   "file_sha256": {
     "executive-report.pdf": "3eb42413757280b4f086cf63a7d3f8018eff021d63adacf0a3f5c66ee40830bd",
     "consulting-pack.xlsx": "93f30b45a662f46254039b2f5164d9a17312da283d9675d92489842ba9a95475",
     "executive-summary.md": "e0142b5bdf2491273fde6468846c58ec3c312b30a84ded62dfa85cb0aed0e98e",
-    "pack-manifest.json": "31a1d39432e551cba59151a9fe494256028b1a1a3d3a677eb3e331033599f98b",
-    "checksums.json": "9bd548bec134a7d2c27ce39846648efa12460e60e1737e945d2a91810dcd017a",
     "deliverable_a.json": "890afc1120f448bfc05cd668c5e7c21565f02fc9230153899a6069b12df3c053",
     "deliverable_b.json": "9af904714a90f9091ca84aca6742b5771c3def907ac3cb25aeec73370a2c805b",
     "deliverable_c.json": "779d260cb5bdc50ecd00f22ff70d316a724dfb13b101950fe8772e6c9871b197",
     "deliverable_d.json": "6805c0295aa04ea5ec436c99a2814a3c72bf3f4054128ce371e141a80eaf82ef",
     "deliverable_e.json": "b07370790951fbd611b3a5b100c0369d52912cad9f053e74ac782bef476cb431",
-    "package-reconciliation.json": "ad466bfad7bdde84f1473195bd090baaf4ce5648304c4bf34812bfe1415f99be",
-    "user-acceptance.json": "b4a32775ea5f545d3f12d9f52f515556e5fbe5efb1cfc34a40aba96aec8c9e15",
-    "rc-v1-CHANGES_REQUESTED.json": "cbe5567cd303da9514e42136b235667af53c42c068ef8a56093ea46adb18423b"
+    "pack-manifest.json": "31a1d39432e551cba59151a9fe494256028b1a1a3d3a677eb3e331033599f98b",
+    "checksums.json": "55a603fd04e0e2cfe604c66c462fdc0a2253a8b94151298de2b058b7069f16c7",
+    "user-acceptance.json": "f36edb0cf9bd65ccec48a84a212fd7b13d25c9ad36653881bd5665c33b5e0062",
+    "package-reconciliation.json": "45694d9bb84bd1283a38f40d3d1ffbd577627be791bf6ff05c6ce5f58114daff",
+    "rc-v1-CHANGES_REQUESTED.json": "80a351bde5e9e8f82997e483c4a9d7b343ada8ded7e20248ae632a37c029704e"
   },
-  "freeze_date": "2026-07-25T03:47:32Z",
+  "freeze_date": "2026-07-25T03:57:35Z",
   "production_touched": false,
   "soak_touched": false,
   "artifact_name": "client-ready-frozen-rc-v2",
@@ -28,20 +29,16 @@
     "status": "CHANGES_REQUESTED"
   },
   "sources": {
-    "executive-report.pdf": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/pack-v2/executive-report.pdf",
-    "consulting-pack.xlsx": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/pack-v2/consulting-pack.xlsx",
-    "executive-summary.md": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/pack-v2/executive-summary.md",
-    "pack-manifest.json": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/pack-v2/pack-manifest.json",
-    "checksums.json": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/pack-v2/checksums.json",
-    "deliverable_a.json": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/pack-v2/deliverable_a.json",
-    "deliverable_b.json": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/pack-v2/deliverable_b.json",
-    "deliverable_c.json": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/pack-v2/deliverable_c.json",
-    "deliverable_d.json": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/pack-v2/deliverable_d.json",
-    "deliverable_e.json": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/pack-v2/deliverable_e.json",
-    "package-reconciliation.json": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/package-reconciliation.json",
-    "user-acceptance.json": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/user-acceptance.json",
-    "rc-v1-CHANGES_REQUESTED.json": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/rc-v1-CHANGES_REQUESTED.json"
+    "executive-report.pdf": "pack:executive-report.pdf",
+    "consulting-pack.xlsx": "pack:consulting-pack.xlsx",
+    "executive-summary.md": "pack:executive-summary.md",
+    "deliverable_a.json": "pack:deliverable_a.json",
+    "deliverable_b.json": "pack:deliverable_b.json",
+    "deliverable_c.json": "pack:deliverable_c.json",
+    "deliverable_d.json": "pack:deliverable_d.json",
+    "deliverable_e.json": "pack:deliverable_e.json",
+    "pack-manifest.json": "pack:pack-manifest.json"
   },
   "self_hash_policy": "excluded — ARTIFACT-IDENTITY.sha256 sidecar",
-  "assembled_at": "2026-07-25T03:47:32Z"
+  "assembled_at": "2026-07-25T03:57:35Z"
 }

@@ -1,18 +1,11 @@
 {
-  "competitors.csv": "56a52036b881657cba6560a00759831fdae22efbd710b35208b45f4bc603c24a",
+  "executive-report.pdf": "3eb42413757280b4f086cf63a7d3f8018eff021d63adacf0a3f5c66ee40830bd",
   "consulting-pack.xlsx": "93f30b45a662f46254039b2f5164d9a17312da283d9675d92489842ba9a95475",
+  "executive-summary.md": "e0142b5bdf2491273fde6468846c58ec3c312b30a84ded62dfa85cb0aed0e98e",
   "deliverable_a.json": "890afc1120f448bfc05cd668c5e7c21565f02fc9230153899a6069b12df3c053",
   "deliverable_b.json": "9af904714a90f9091ca84aca6742b5771c3def907ac3cb25aeec73370a2c805b",
   "deliverable_c.json": "779d260cb5bdc50ecd00f22ff70d316a724dfb13b101950fe8772e6c9871b197",
   "deliverable_d.json": "6805c0295aa04ea5ec436c99a2814a3c72bf3f4054128ce371e141a80eaf82ef",
   "deliverable_e.json": "b07370790951fbd611b3a5b100c0369d52912cad9f053e74ac782bef476cb431",
-  "executive-report.pdf": "3eb42413757280b4f086cf63a7d3f8018eff021d63adacf0a3f5c66ee40830bd",
-  "executive-summary.md": "e0142b5bdf2491273fde6468846c58ec3c312b30a84ded62dfa85cb0aed0e98e",
-  "executive_summary.md": "e0142b5bdf2491273fde6468846c58ec3c312b30a84ded62dfa85cb0aed0e98e",
-  "expiring.csv": "b4f8b0cf26c4f7b6b9055b0f487bcdb2b88737e6a9ecc9bb4066b951f531d4fd",
-  "extra_live_consulting_pack.pdf": "3eb42413757280b4f086cf63a7d3f8018eff021d63adacf0a3f5c66ee40830bd",
-  "extra_live_consulting_pack.xlsx": "93f30b45a662f46254039b2f5164d9a17312da283d9675d92489842ba9a95475",
-  "orgaos_ranking.csv": "fd4b597305c0cf499bb075cd9a2f4238256594af4479b9c1f6e591c37e3dce3c",
-  "pack-full.json": "e8bd7d2a6da915ada56b3abf6e9c35b2bd5707521acac69274a1a98f0b91316f",
   "pack-manifest.json": "31a1d39432e551cba59151a9fe494256028b1a1a3d3a677eb3e331033599f98b"
 }
