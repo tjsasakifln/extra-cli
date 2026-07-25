@@ -14,8 +14,6 @@ from typing import Any
 from scripts.commercial_leads.contract_relevance import classify_contract_relevance
 from scripts.commercial_leads.geography import GeographyFitResult, supplier_geography_from_contracts
 from scripts.commercial_leads.sector_fit import (
-    CLASS_STRONG,
-    CLASS_CONFIRMED,
     PUBLISHABLE,
     SectorFitDecision,
     classify_supplier_sector_fit,

@@ -22,14 +22,12 @@ from scripts.commercial_leads import (
 from scripts.commercial_leads.baseline import compare_to_baselines
 from scripts.commercial_leads.commercial_validity import evaluate_supplier_validity
 from scripts.commercial_leads.contract_relevance import (
-    classify_contract_relevance,
     filter_relevant_contracts,
 )
 from scripts.commercial_leads.dbutil import connect, fetch_all
 from scripts.commercial_leads.exports import export_all, reconcile_exports
 from scripts.commercial_leads.identity import ExclusionRecord, resolve_supplier
 from scripts.commercial_leads.isolation import (
-    assert_isolation,
     assert_source_state_isolation,
     mask_dsn,
     open_source_connection,
@@ -865,8 +863,8 @@ def run_pipeline(
                     run_payload["artifact_invalid"] = True
                     try:
                         state_conn.rollback()
-                    except Exception:  # noqa: BLE001
-                        pass
+                    except Exception as rb_exc:  # noqa: BLE001
+                        run_payload["rollback_error"] = str(rb_exc)
         else:
             run_payload["persist_ok"] = None
             run_payload["persist_skipped"] = True

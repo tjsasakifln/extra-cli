@@ -199,27 +199,33 @@ def bind_snapshot_to_database(
     """
     from scripts.commercial_leads.dbutil import fetch_all
 
+    allowed = {"pncp_supplier_contracts"}
+    if table not in allowed:
+        raise ValueError(f"table not allowed for snapshot bind: {table}")
+
     man = manifest.as_dict() if hasattr(manifest, "as_dict") else dict(manifest)
     details = man.get("details") or {}
     declared = man.get("contracts_count_declared")
     if declared is None:
         declared = details.get("contracts_count") or details.get("row_count")
 
-    count_rows = fetch_all(conn, f"SELECT COUNT(*)::bigint AS n FROM public.{table}")  # nosec B608
+    # table is allowlisted above (not user SQL)
+    count_sql = "SELECT COUNT(*)::bigint AS n FROM public.pncp_supplier_contracts"
+    count_rows = fetch_all(conn, count_sql)
     db_count = int(count_rows[0]["n"]) if count_rows else 0
 
     date_rows = fetch_all(
         conn,
-        f"SELECT MIN(data_publicacao)::text AS min_d, MAX(data_publicacao)::text AS max_d "  # nosec B608
-        f"FROM public.{table}",
+        "SELECT MIN(data_publicacao)::text AS min_d, MAX(data_publicacao)::text AS max_d "
+        "FROM public.pncp_supplier_contracts",
     )
     min_date = date_rows[0]["min_d"] if date_rows else None
     max_date = date_rows[0]["max_d"] if date_rows else None
 
     sample_rows = fetch_all(
         conn,
-        f"SELECT contrato_id, fornecedor_cnpj, md5(coalesce(objeto_contrato,'')) AS obj_md5 "  # nosec B608
-        f"FROM public.{table} ORDER BY contrato_id NULLS LAST LIMIT %s",
+        "SELECT contrato_id, fornecedor_cnpj, md5(coalesce(objeto_contrato,'')) AS obj_md5 "
+        "FROM public.pncp_supplier_contracts ORDER BY contrato_id NULLS LAST LIMIT %s",
         (sample_limit,),
     )
     sample_hashes = [

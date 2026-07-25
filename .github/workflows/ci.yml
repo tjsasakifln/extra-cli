@@ -529,6 +529,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Full history so ancestor SHA binding works; PR merge HEAD != branch tip
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -560,7 +563,14 @@ jobs:
           assert d.get("status") in ("PASS", "BLOCKED", "FAIL"), d.get("status")
           PY
       - name: Artifact SHA binding gate
-        run: make verify-confenge-commercial-artifact-binding
+        env:
+          # On pull_request, GITHUB_SHA is a merge commit; bind against PR head.
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          python3 -m scripts.ops.verify_confenge_artifact_binding \
+            --head "${PR_HEAD_SHA}" \
+            --result artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/result.json \
+            --queue-summary artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/queue-summary.json
       - name: Ranking stability artifact
         run: |
           python - <<'PY'

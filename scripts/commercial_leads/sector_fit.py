@@ -8,7 +8,6 @@ alone as proof the supplier is an engineering firm.
 from __future__ import annotations
 
 import re
-import unicodedata
 from collections import Counter
 from dataclasses import asdict, dataclass, field
 from typing import Any
@@ -379,7 +378,7 @@ def classify_supplier_sector_fit(
         # contracts loaded but none engineering-relevant
         if neg_name or any(
             classify_contract_relevance(
-                (r.get(object_field) if isinstance(r, dict) else None)
+                r.get(object_field) if isinstance(r, dict) else None
             ).negative_context
             for r in contracts[:5]
         ):
