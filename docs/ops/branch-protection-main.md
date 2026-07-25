@@ -2,9 +2,11 @@
 
 Apply after governance gates land on `main`. Discover real check names from the latest green CI run; do not invent names.
 
-## Required status checks (canonical CI)
+## Required status checks (canonical)
 
-From `.github/workflows/ci.yml` job `name:` fields:
+Job `name:` fields that must appear as required contexts on `main`:
+
+From `.github/workflows/ci.yml`:
 
 - `Lint (ruff)`
 - `Type Check (mypy)`
@@ -15,8 +17,26 @@ From `.github/workflows/ci.yml` job `name:` fields:
 - `Security (bandit)`
 - `Dependency Audit (pip-audit)`
 - `Generated Artifacts Policy`
-- `PR Reviewability Policy`
 - `Pytest Skip Policy`
+
+From `.github/workflows/pr-reviewability.yml` (light, dedicated):
+
+- `PR Reviewability Policy`
+
+### When reviewability revalidates
+
+`pr-reviewability.yml` runs on `pull_request` types:
+
+| Event | Why |
+|-------|-----|
+| `opened` | new PR |
+| `synchronize` | new commits |
+| `reopened` | reopened PR |
+| `ready_for_review` | draft → ready (non-draft limits) |
+| `edited` | title/body change (HEAD SHA / PASS claims) |
+
+This avoids re-running the full CI suite on body-only edits while keeping
+the same required check context name for branch protection.
 
 ## Apply via GitHub API
 
