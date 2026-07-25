@@ -161,6 +161,8 @@ artifacts/campaigns/**/pack/*.pdf
 artifacts/campaigns/**/pack/*.xlsx
 artifacts/campaigns/**/pack/pack-full.json
 artifacts/campaigns/**/pack/deliverable_*.json
+# Runtime pack-v2 is regenerate-only (frozen product lives in client-ready-frozen-rc-v2/)
+artifacts/campaigns/**/pack-v2/
 artifacts/campaigns/**/monthly/monthly-monitor-live.json
 artifacts/campaigns/**/monthly/cycle-state.json
 artifacts/campaigns/**/dossiers/

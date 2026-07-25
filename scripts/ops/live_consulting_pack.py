@@ -1068,7 +1068,6 @@ def _enrich_e_recommendation(rec: dict[str, Any], profile: dict[str, Any]) -> di
     out["official_url"] = out.get("official_url") or open_.get("official_url")
     # PENDING capacity must not auto-GO
     ranking = str(out.get("ranking") or out.get("client_label") or "REVIEW").upper()
-    risks = " ".join(str(x) for x in (out.get("fatores_impeditivos_ou_riscos") or []))
     elic = (profile.get("elicitation") or {}) if isinstance(profile, dict) else {}
     pending_cap = any(
         isinstance(v, dict) and str(v.get("status") or "").upper() == "PENDING"

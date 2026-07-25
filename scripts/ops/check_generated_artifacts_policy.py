@@ -165,6 +165,15 @@ def classify_violation(path: str, size: int | None, exceptions: dict[str, int]) 
         return None
 
     # --- under artifacts/campaigns/ ---
+    # Frozen human-review RC tree is the only allowed home for PDF/XLSX/deliverable JSON.
+    # Runtime pack-v2/ and pack/ remain banned (regenerate locally/CI).
+    if "/client-ready-frozen-rc-v2/" in f"/{posix}/" or "/client-ready-frozen-rc-v2/" in posix:
+        max_b = exceptions.get(posix, 512 * 1024)
+        if size is not None and size > max_b:
+            return f"frozen_rc_too_large:{size}>{max_b}"
+        # Allow product + identity files under the freeze dir only
+        return None
+
     if name.endswith(BANNED_SUFFIXES):
         return f"banned_suffix:{name}"
     if name in BANNED_NAMES:

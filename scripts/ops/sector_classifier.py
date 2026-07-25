@@ -325,7 +325,7 @@ def classify_object(
     positives, negatives, exclusions = _compile_from_profile(prof)
 
     # Explicit false friends first (always NON_ENGINEERING)
-    _FALSE_FRIENDS: list[tuple[str, str, str]] = [
+    false_friends: list[tuple[str, str, str]] = [
         (
             r"\b(aquisicao|compra)\b.+\b(livro|exemplares?\s+do\s+livro|publicacao)\b",
             "publicacao_livro",
@@ -387,7 +387,7 @@ def classify_object(
             "equipamento/serviço de pintura e demarcação viária — não é obra civil Extra",
         ),
     ]
-    for pat, tid, reason in _FALSE_FRIENDS:
+    for pat, tid, reason in false_friends:
         if re.search(pat, blob, re.I):
             return SectorClassification(
                 label="NON_ENGINEERING",
@@ -577,7 +577,7 @@ def classify_object(
         )
 
     # Strong engineering execution categories
-    STRONG_SUBS = {
+    strong_subs = {
         "pavimentacao",
         "drenagem",
         "terraplenagem",
@@ -590,7 +590,7 @@ def classify_object(
 
     if pos_score >= 0.38 and neg_score < 0.35:
         # projetos alone → REVIEW (comercialmente relevante só com contexto)
-        if subcategory == "projetos" and not any(h[1] in STRONG_SUBS for h in pos_hits):
+        if subcategory == "projetos" and not any(h[1] in strong_subs for h in pos_hits):
             return SectorClassification(
                 label="ENGINEERING_REVIEW",
                 positive_terms=pos_ids,
@@ -614,7 +614,7 @@ def classify_object(
                 subcategory=subcategory,
                 sector_match=True,
             )
-        if subcategory in STRONG_SUBS or pos_score >= 0.5:
+        if subcategory in strong_subs or pos_score >= 0.5:
             return SectorClassification(
                 label="ENGINEERING_HIGH_CONFIDENCE",
                 positive_terms=pos_ids,

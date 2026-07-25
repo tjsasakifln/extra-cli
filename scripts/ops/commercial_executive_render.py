@@ -79,7 +79,6 @@ def build_executive_pdf(
     from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
     from reportlab.lib.units import cm, mm
     from reportlab.platypus import (
-        KeepTogether,
         PageBreak,
         Paragraph,
         SimpleDocTemplate,
@@ -573,9 +572,8 @@ def build_executive_xlsx(
     """Workbook navegável para reunião (Dashboard + abas executivas + técnica)."""
     from openpyxl import Workbook
     from openpyxl.chart import BarChart, Reference
-    from openpyxl.styles import Alignment, Font, PatternFill, Border, Side
+    from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
     from openpyxl.utils import get_column_letter
-    from openpyxl.worksheet.table import Table, TableStyleInfo
 
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -971,7 +969,7 @@ def build_executive_xlsx(
         "deliverable_c_status": c.get("status"),
         "deliverable_d_status": d.get("status"),
         "deliverable_e_status": e.get("status"),
-        "population": str((a.get("population") or pack.get("population") or {})),
+        "population": str(a.get("population") or pack.get("population") or {}),
     }
     for k, v in tech.items():
         ws.append([k, str(v) if v is not None else ""])

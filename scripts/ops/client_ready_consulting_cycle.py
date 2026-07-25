@@ -1679,6 +1679,7 @@ def assemble_client_ready_frozen_rc(
         (
             "executive-report.pdf",
             [
+                "client-ready-frozen-rc-v2/executive-report.pdf",
                 "pack-v2/executive-report.pdf",
                 "pack-v2/extra_live_consulting_pack.pdf",
                 "pack/executive-report.pdf",
@@ -1688,6 +1689,7 @@ def assemble_client_ready_frozen_rc(
         (
             "consulting-pack.xlsx",
             [
+                "client-ready-frozen-rc-v2/consulting-pack.xlsx",
                 "pack-v2/consulting-pack.xlsx",
                 "pack-v2/extra_live_consulting_pack.xlsx",
                 "pack/consulting-pack.xlsx",
@@ -1697,6 +1699,7 @@ def assemble_client_ready_frozen_rc(
         (
             "executive-summary.md",
             [
+                "client-ready-frozen-rc-v2/executive-summary.md",
                 "pack-v2/executive-summary.md",
                 "pack-v2/executive_summary.md",
                 "pack/executive-summary.md",
@@ -1705,10 +1708,27 @@ def assemble_client_ready_frozen_rc(
         ),
         (
             "pack-manifest.json",
-            ["pack-v2/pack-manifest.json", "pack/pack-manifest.json"],
+            [
+                "client-ready-frozen-rc-v2/pack-manifest.json",
+                "pack-v2/pack-manifest.json",
+                "pack/pack-manifest.json",
+            ],
         ),
-        ("checksums.json", ["pack-v2/checksums.json", "pack/checksums.json"]),
-        ("package-reconciliation.json", ["package-reconciliation.json"]),
+        (
+            "checksums.json",
+            [
+                "client-ready-frozen-rc-v2/checksums.json",
+                "pack-v2/checksums.json",
+                "pack/checksums.json",
+            ],
+        ),
+        (
+            "package-reconciliation.json",
+            [
+                "client-ready-frozen-rc-v2/package-reconciliation.json",
+                "package-reconciliation.json",
+            ],
+        ),
         ("claims.json", ["claims.json"]),
         ("non-claims.json", ["non-claims.json"]),
         # Optional dossiers (v1 had them; v2 commercial pack may be SUCCESS_ZERO on E)

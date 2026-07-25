@@ -468,13 +468,13 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: Assemble client-ready-frozen-rc (exact freeze only)
+      - name: Assemble client-ready-frozen-rc-v2 (exact freeze only)
         id: assemble
         env:
           RUNNER_TEMP: ${{ runner.temp }}
         run: |
           set -euo pipefail
-          STAGING="${RUNNER_TEMP}/client-ready-frozen-rc"
+          STAGING="${RUNNER_TEMP}/client-ready-frozen-rc-v2"
           set +e
           python -m scripts.ops.client_ready_consulting_cycle publish-frozen-rc \
             --out artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01 \
@@ -491,33 +491,53 @@ jobs:
           test -f "$STAGING/consulting-pack.xlsx"
           STAGING="$STAGING" python - <<'PY'
           import hashlib, json, os, pathlib, sys
+          from scripts.ops.client_ready_consulting_cycle import (
+              FROZEN_RC_ARTIFACT_NAME,
+              FROZEN_RC_PRODUCT_SHA,
+              FROZEN_RC_RUN_ID,
+          )
           staging = pathlib.Path(os.environ["STAGING"])
           ua = json.loads(pathlib.Path(
               "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/user-acceptance.json"
           ).read_text(encoding="utf-8"))
           assert ua["status"] == "PENDING_HUMAN", ua["status"]
           assert ua.get("accepted_by") is None
+          assert ua.get("agent_auto_accept_forbidden") is True
           identity = json.loads((staging / "ARTIFACT-IDENTITY.json").read_text(encoding="utf-8"))
-          assert identity["classification"] == "HUMAN_REVIEW_ARTIFACT"
-          assert identity["run_id"] == ua["run_id"] == "live-pack-20260724-220350-da3bee0b"
-          assert identity["product_rc_sha"] == ua["rc_sha"] == "be96c8bc8eb2b017e491bfafe8cf99f81e321267"
+          allowed_class = {
+              "HUMAN_REVIEW_ARTIFACT",
+              "READY_FOR_SECOND_HUMAN_PRODUCT_REVIEW",
+          }
+          assert identity.get("classification") in allowed_class, identity.get("classification")
+          assert identity["run_id"] == ua["run_id"] == FROZEN_RC_RUN_ID
+          assert identity["product_rc_sha"] == ua["rc_sha"] == FROZEN_RC_PRODUCT_SHA
+          assert identity.get("artifact_name", FROZEN_RC_ARTIFACT_NAME) == FROZEN_RC_ARTIFACT_NAME
           assert identity["production_touched"] is False
-          assert identity["soak_touched"] is False
-          for name in ("executive-report.pdf", "consulting-pack.xlsx"):
+          assert identity.get("soak_touched") is False
+          assert "ARTIFACT-IDENTITY.json" not in (identity.get("file_sha256") or {})
+          for name in ("executive-report.pdf", "consulting-pack.xlsx", "executive-summary.md"):
               digest = hashlib.sha256((staging / name).read_bytes()).hexdigest()
               expected = ua["package_checksums"][name]
               if digest != expected:
                   print("checksum mismatch", name, digest, expected)
                   sys.exit(1)
-          print("frozen_rc_ok", identity["run_id"], identity["product_rc_sha"])
+          # Triple equality for checksums.json when present in all maps
+          if (staging / "checksums.json").is_file() and "checksums.json" in ua.get("package_checksums", {}):
+              disk_ck = hashlib.sha256((staging / "checksums.json").read_bytes()).hexdigest()
+              id_ck = (identity.get("file_sha256") or {}).get("checksums.json")
+              ua_ck = ua["package_checksums"]["checksums.json"]
+              if id_ck is not None and not (ua_ck == id_ck == disk_ck):
+                  print("triple mismatch checksums.json", ua_ck, id_ck, disk_ck)
+                  sys.exit(1)
+          print("frozen_rc_ok", FROZEN_RC_ARTIFACT_NAME, identity["run_id"], identity["product_rc_sha"][:16])
           PY
           echo "staging=$STAGING" >> "$GITHUB_OUTPUT"
 
-      - name: Upload client-ready-frozen-rc artifact
+      - name: Upload client-ready-frozen-rc-v2 artifact
         uses: actions/upload-artifact@v4
         with:
-          name: client-ready-frozen-rc
-          path: ${{ runner.temp }}/client-ready-frozen-rc/
+          name: client-ready-frozen-rc-v2
+          path: ${{ runner.temp }}/client-ready-frozen-rc-v2/
           if-no-files-found: error
           retention-days: 30
 
