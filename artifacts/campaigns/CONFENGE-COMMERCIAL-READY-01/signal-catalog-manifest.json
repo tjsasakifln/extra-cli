@@ -1,0 +1,21 @@
+{
+  "catalog_hash": "a02e6c66adef2795c71906e4a3fd0d1a2c2c55c9449d2205940a637011e1004d",
+  "signal_count": 15,
+  "signal_ids": [
+    "first_public_contract",
+    "ticket_above_history",
+    "quantity_growth",
+    "value_growth",
+    "new_agency",
+    "new_region",
+    "new_object_category",
+    "concurrent_portfolio",
+    "agency_concentration",
+    "contract_concentration",
+    "near_expiry",
+    "addendum_recurrence",
+    "adverse_event",
+    "diversity_increase",
+    "win_recurrence"
+  ]
+}

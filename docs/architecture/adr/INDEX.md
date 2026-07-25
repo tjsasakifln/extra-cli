@@ -33,3 +33,5 @@ Se uma ADR for supersedida, registre aqui com data, ADR substituta e motivo.
 2. Atualizar este `INDEX.md` (vigente ou revogada).
 3. Referenciar no README/PRD apenas ADRs vigentes.
 4. Não inventar selos de gate em texto de ADR sem evidência.
+
+| ADR-034 | CONFENGE commercial lead evidence model | Accepted | 2026-07-25 |

@@ -1,0 +1,31 @@
+{
+  "status": "PENDING_HUMAN",
+  "campaign_id": "CONFENGE-COMMERCIAL-READY-01",
+  "author_required": "Tiago Sasaki",
+  "run_id": "cl-20260725T215053Z-310b8521",
+  "git_sha": "8344254942ec48978566317df16d7b3e3caabd89",
+  "profile_hash": "30637f6f532fa3c03a317344c01e5650884db8d38a132d9108330492d7bd3604",
+  "catalog_hash": "a02e6c66adef2795c71906e4a3fd0d1a2c2c55c9449d2205940a637011e1004d",
+  "dataset_hash": "e916d721f5314a7b0453c5d910edd99b9594bf6ff163179965de92b4e78c59dd",
+  "package_checksums": {
+    "run/baseline-comparison.json": "df085e7abc45e6fea8e8352d250366d01b4d80498682b1f4169d5217f6d2d6ef",
+    "run/commercial-leads.csv": "585d0af910af02c08f0de1543264f4dc81506efeec1c8d351c64510595d33dd0",
+    "run/commercial-leads.json": "ee0a7a9cde4558b85258bed7a13c52fb485e08267f9422d6378bcedbf2aad7e4",
+    "run/commercial-ledger.csv": "7a5d4def57b968b911fe87b372ec0dab2422b5d0efa4f30d570b08350f0acd99",
+    "run/commercial-report.html": "63ab6557302a5ac4b31c1412b491454f564cf89cc2a684c41cbb94fc520e3cf6",
+    "run/commercial-review.csv": "25d16d687b185f07bc75febb438a595a5988cb5bbfe56b5ec5474db5ebab98da",
+    "run/commercial-summary.md": "e790a9130c97ecca409b10680101da0906197e4aff1e83fda142ac1cd8d75cc3",
+    "run/cycle-manifest.json": "6885a56b18f6c721caad077e041dfd182de45d94060f044ecc898b08e925db7c",
+    "run/evidence-ledger.jsonl": "b609737751009be5b2da22aab78e3a5fb1d9360b18b924b225ca40cb72cb7609",
+    "run/executive-summary.md": "e790a9130c97ecca409b10680101da0906197e4aff1e83fda142ac1cd8d75cc3",
+    "run/lead-explanations.jsonl": "de76118cc137a54ae6464056fa339d29cfe41b1e9fc1924b01ce42ac69bd9c5c",
+    "run/leads.csv": "f13c6c9b4455787f01816b2c40436ee411693b0402912481a771373b8547bde7",
+    "run/leads.json": "ee0a7a9cde4558b85258bed7a13c52fb485e08267f9422d6378bcedbf2aad7e4",
+    "run/operational-report.html": "63ab6557302a5ac4b31c1412b491454f564cf89cc2a684c41cbb94fc520e3cf6",
+    "run/run-result.json": "5255e382582fb1a17c300a7973313c72941f79ffbad6cfe0bf75993d30eaed23",
+    "run/signal-catalog.json": "281e48151b70fe93fbbf509256bd01fd5ffb2e0159a9b15731c808737e89dcc5",
+    "run/signal-distribution.json": "fda7a862d0064ca3ae024b9db32ddbdbff40d5cc5a5583efe8aeafdf160e444e"
+  },
+  "note": "Agent must not set ACCEPTED. Tiago reviews commercial package and signs.",
+  "created_at": "2026-07-25T21:51:02Z"
+}

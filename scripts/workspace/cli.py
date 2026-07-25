@@ -1330,6 +1330,60 @@ def _offline_opportunities(args: argparse.Namespace) -> list[dict[str, Any]]:
 # ---------------------------------------------------------------------------
 
 
+
+def cmd_commercial_leads(args: argparse.Namespace) -> int:
+    """List CONFENGE commercial leads from state DSN."""
+    from scripts.commercial_leads.review import list_leads
+
+    dsn = args.dsn or __import__("os").environ.get("CONFENGE_COMMERCIAL_STATE_DSN") or get_dsn()
+    data = list_leads(
+        dsn,
+        limit=args.limit,
+        changed_since_last_run=bool(getattr(args, "changed_since_last_run", False)),
+    )
+    if args.json:
+        print(json.dumps(data, indent=2, ensure_ascii=False, default=str))
+        return 0 if data.get("ok") else 1
+    print(f"\n=== COMMERCIAL LEADS CONFENGE — run={data.get('run_id')} mode={data.get('mode')} ===")
+    for i, lead in enumerate(data.get("leads") or [], start=1):
+        print(
+            f"{i:2d}. {lead.get('cnpj14')} | {lead.get('razao_social')} | "
+            f"score={lead.get('score_total')} | {lead.get('priority')} | "
+            f"state={lead.get('commercial_state')}"
+        )
+    print(f"count={data.get('count')}")
+    return 0 if data.get("ok") else 1
+
+
+def cmd_commercial_lead(args: argparse.Namespace) -> int:
+    from scripts.commercial_leads.review import explain_lead
+
+    dsn = args.dsn or __import__("os").environ.get("CONFENGE_COMMERCIAL_STATE_DSN") or get_dsn()
+    data = explain_lead(dsn, args.cnpj)
+    if args.json or getattr(args, "explain", False):
+        print(json.dumps(data, indent=2, ensure_ascii=False, default=str))
+    else:
+        print(json.dumps(data, indent=2, ensure_ascii=False, default=str))
+    return 0 if data.get("ok") else 1
+
+
+def cmd_commercial_review(args: argparse.Namespace) -> int:
+    from scripts.commercial_leads.review import apply_review
+
+    dsn = args.dsn or __import__("os").environ.get("CONFENGE_COMMERCIAL_STATE_DSN") or get_dsn()
+    data = apply_review(
+        dsn,
+        cnpj=args.cnpj,
+        status=args.status,
+        reason=args.reason,
+        author=args.author,
+        run_id=getattr(args, "run_id", None),
+        force_override=bool(getattr(args, "force_override", False)),
+    )
+    print(json.dumps(data, indent=2, ensure_ascii=False, default=str))
+    return 0 if data.get("ok") else 1
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="workspace",
@@ -1480,6 +1534,29 @@ Examples:
     p_rep.add_argument("--dsn", default=None)
     p_rep.add_argument("--json", action="store_true")
 
+
+    # commercial leads (CONFENGE)
+    p_cl = sub.add_parser("commercial-leads", help="Fila comercial CONFENGE (estado)")
+    p_cl.add_argument("--limit", type=int, default=20)
+    p_cl.add_argument("--changed-since-last-run", action="store_true")
+    p_cl.add_argument("--json", action="store_true")
+    p_cl.add_argument("--dsn", default=None)
+
+    p_cle = sub.add_parser("commercial-lead", help="Explicar lead comercial por CNPJ")
+    p_cle.add_argument("cnpj")
+    p_cle.add_argument("--explain", action="store_true", default=True)
+    p_cle.add_argument("--json", action="store_true")
+    p_cle.add_argument("--dsn", default=None)
+
+    p_cr = sub.add_parser("commercial-review", help="Registrar revisão/outcome comercial")
+    p_cr.add_argument("cnpj")
+    p_cr.add_argument("--status", required=True)
+    p_cr.add_argument("--reason", required=True)
+    p_cr.add_argument("--author", default="tiago")
+    p_cr.add_argument("--run-id", default=None)
+    p_cr.add_argument("--force-override", action="store_true")
+    p_cr.add_argument("--dsn", default=None)
+
     return parser
 
 
@@ -1511,6 +1588,9 @@ def main(argv: list[str] | None = None) -> None:
         "decide": cmd_decide,
         "briefing": cmd_briefing,
         "report": cmd_report,
+        "commercial-leads": cmd_commercial_leads,
+        "commercial-lead": cmd_commercial_lead,
+        "commercial-review": cmd_commercial_review,
     }
     handler = commands.get(args.command)
     if handler is None:

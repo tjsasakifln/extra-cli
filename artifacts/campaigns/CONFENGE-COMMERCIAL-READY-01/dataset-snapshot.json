@@ -1,0 +1,24 @@
+{
+  "kind": "authenticated_contract_snapshot",
+  "read_only": true,
+  "fixture": false,
+  "synthetic": false,
+  "authorized": true,
+  "real_data": true,
+  "dump_path": "/tmp/grok-goal-5f37a1a9e5b0/implementer/contracts_sample.clean.csv",
+  "sha256": "e916d721f5314a7b0453c5d910edd99b9594bf6ff163179965de92b4e78c59dd",
+  "snapshot_hash": "e916d721f5314a7b0453c5d910edd99b9594bf6ff163179965de92b4e78c59dd",
+  "contracts_count": 60000,
+  "row_count": 60000,
+  "package": "CONFENGE-COMMERCIAL-READY-01-vps-export",
+  "exported_at_utc": "2026-07-25T21:46:02Z",
+  "source": "ec-prod pncp_datalake read-only export of pncp_supplier_contracts",
+  "source_full_table_count": 4438839,
+  "source_environment": "ec-prod",
+  "filter": "engineering keywords LIMIT 60000",
+  "notes": "Authenticated export from production read-only; loaded into isolated 127.0.0.1:5441 STATE DB. Production not written.",
+  "snapshot_id": "vps-pncp-engineering-sample-e916d721f531",
+  "chunk_or_dump_checksums": {
+    "csv_sha256": "e916d721f5314a7b0453c5d910edd99b9594bf6ff163179965de92b4e78c59dd"
+  }
+}

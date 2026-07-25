@@ -1,0 +1,32 @@
+{
+  "reviewer": "independent-adversarial-pass-coordinator",
+  "status": "NO_CRITICAL_OR_HIGH_OPEN",
+  "findings": [
+    {
+      "finding_id": "IR-01",
+      "severity": "medium",
+      "risk": "Sample is 60k filtered engineering contracts, not full 4.4M universe",
+      "impact": "Ranking may miss suppliers outside keyword filter",
+      "mitigation": "Documented in limitations; full dump optional next wave",
+      "affected_requirement": "FR-10"
+    },
+    {
+      "finding_id": "IR-02",
+      "severity": "medium",
+      "risk": "Human acceptance still PENDING",
+      "impact": "Cannot claim CONFENGE_COMMERCIAL_READY in DOD",
+      "mitigation": "user-acceptance.json PENDING_HUMAN",
+      "affected_requirement": "FR-13"
+    }
+  ],
+  "checks_attacked": [
+    "false_cnpj",
+    "score_inflation_language",
+    "fixture_as_real",
+    "source_dsn_write",
+    "soak_interference",
+    "do_not_contact",
+    "forbidden_language",
+    "export_reconcile"
+  ]
+}

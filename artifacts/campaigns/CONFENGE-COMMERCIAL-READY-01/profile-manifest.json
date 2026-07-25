@@ -1,0 +1,133 @@
+{
+  "profile_id": "confenge",
+  "version": "1.0.0",
+  "profile_hash": "30637f6f532fa3c03a317344c01e5650884db8d38a132d9108330492d7bd3604",
+  "catalog_hash": "a02e6c66adef2795c71906e4a3fd0d1a2c2c55c9449d2205940a637011e1004d",
+  "version_date": "2026-07-25",
+  "services": [
+    {
+      "id": "diagnostico_b2g",
+      "label": "Diagnóstico B2G"
+    },
+    {
+      "id": "monitoramento",
+      "label": "Monitoramento de oportunidades"
+    },
+    {
+      "id": "analise_edital",
+      "label": "Análise técnica de edital"
+    },
+    {
+      "id": "apoio_proposta",
+      "label": "Apoio à elaboração de proposta"
+    },
+    {
+      "id": "acompanhamento_admin",
+      "label": "Acompanhamento administrativo de contrato"
+    },
+    {
+      "id": "auditoria_orcamento",
+      "label": "Auditoria de orçamento, composições e BDI"
+    },
+    {
+      "id": "inteligencia_mercado",
+      "label": "Inteligência de mercado público"
+    }
+  ],
+  "segments": [
+    {
+      "id": "engenharia_obras",
+      "label": "Engenharia e obras públicas"
+    },
+    {
+      "id": "servicos_tecnicos",
+      "label": "Serviços técnicos especializados"
+    }
+  ],
+  "region": {
+    "primary_ufs": [
+      "SC",
+      "PR",
+      "RS"
+    ],
+    "secondary_ufs": [
+      "SP",
+      "RJ",
+      "MG"
+    ],
+    "notes": "Prioriza Sul; demais UFs entram se ticket e sinais forem fortes."
+  },
+  "ticket": {
+    "min_contract_brl": 50000,
+    "material_ticket_brl": 500000,
+    "high_ticket_brl": 2000000
+  },
+  "capacity": {
+    "max_active_leads": 20,
+    "max_contacts_per_week": 10,
+    "notes": "Fila pequena para prospecção humana; sem automação de contato."
+  },
+  "queue": {
+    "limit": 20,
+    "min_score": 1.0,
+    "min_signals_fired": 1,
+    "suppress_repeat_days": 30
+  },
+  "weights": {
+    "first_public_contract": 1.2,
+    "ticket_above_history": 1.5,
+    "quantity_growth": 1.3,
+    "value_growth": 1.4,
+    "new_agency": 1.1,
+    "new_region": 1.0,
+    "new_object_category": 1.0,
+    "concurrent_portfolio": 1.2,
+    "agency_concentration": 1.1,
+    "contract_concentration": 0.9,
+    "near_expiry": 1.3,
+    "addendum_recurrence": 1.0,
+    "adverse_event": 0.8,
+    "diversity_increase": 1.0,
+    "win_recurrence": 1.1
+  },
+  "thresholds": {
+    "first_public_within_days": 365,
+    "ticket_vs_median_ratio": 3.0,
+    "growth_ratio": 2.0,
+    "concurrent_min": 3,
+    "agency_concentration_share": 0.7,
+    "contract_concentration_share": 0.5,
+    "near_expiry_days": 120,
+    "diversity_new_organs_min": 2,
+    "win_recurrence_min": 3,
+    "recent_window_days": 180,
+    "prior_window_days": 365
+  },
+  "signal_count": 15,
+  "signal_ids": [
+    "first_public_contract",
+    "ticket_above_history",
+    "quantity_growth",
+    "value_growth",
+    "new_agency",
+    "new_region",
+    "new_object_category",
+    "concurrent_portfolio",
+    "agency_concentration",
+    "contract_concentration",
+    "near_expiry",
+    "addendum_recurrence",
+    "adverse_event",
+    "diversity_increase",
+    "win_recurrence"
+  ],
+  "non_claims": [
+    "CONFENGE_COMMERCIAL_READY",
+    "purchase_propensity",
+    "conversion_probability",
+    "tiago_acceptance",
+    "contact_authorization",
+    "PROJECT_DONE",
+    "VPS_OPERATIONAL"
+  ]
+}

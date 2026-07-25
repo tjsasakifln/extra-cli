@@ -1,0 +1,12 @@
+{
+  "campaign_id": "CONFENGE-COMMERCIAL-READY-01",
+  "items": [
+    {"dod": "2.7 profile versioned", "status": "PARTIALLY_ADVANCED", "note": "code+evidence; human accept pending"},
+    {"dod": "2.7 catalog 12 signals", "status": "PARTIALLY_ADVANCED"},
+    {"dod": "2.7 top-20 queue CLI", "status": "PARTIALLY_ADVANCED"},
+    {"dod": "2.7 commercial states", "status": "PARTIALLY_ADVANCED"},
+    {"dod": "2.7 baseline comparison", "status": "PARTIALLY_ADVANCED"},
+    {"dod": "2.7 CONFENGE_COMMERCIAL_READY gate", "status": "BLOCKED_HUMAN", "note": "PENDING_HUMAN acceptance"},
+    {"dod": "soak / 95% / LOCAL_READY", "status": "UNCHANGED"}
+  ]
+}

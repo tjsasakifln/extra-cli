@@ -392,3 +392,71 @@ test-edital-case:
 .PHONY: test-budget-audit
 test-budget-audit:
 	python -m pytest tests/budget_audit/ -q --tb=short
+
+# --- CONFENGE commercial ready (migration 062 + commercial_leads) ---
+.PHONY: confenge-commercial-cycle \
+	campaign-gate-confenge-commercial-ready \
+	release-candidate-confenge-commercial-ready \
+	verify-confenge-commercial-ready-real \
+	verify-soak-non-interference \
+	dod-audit-confenge-commercial-ready \
+	test-commercial-leads
+
+CONFENGE_COMMERCIAL_PROFILE ?= config/commercial_profiles/confenge.yaml
+CONFENGE_COMMERCIAL_OUT ?= artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/run
+CONFENGE_COMMERCIAL_ART ?= artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01
+
+test-commercial-leads:
+	python3 -m pytest tests/commercial_leads/ -q --tb=short -o addopts=''
+
+confenge-commercial-cycle:
+	@echo '==> confenge-commercial-cycle (CONFENGE commercial intelligence)'
+	@echo '    Entry: python -m scripts.ops.confenge_commercial_cycle'
+	@echo '    Requires: CONFENGE_COMMERCIAL_STATE_DSN + CONFENGE_COMMERCIAL_SNAPSHOT'
+	python3 -m scripts.ops.confenge_commercial_cycle \
+		--profile $(CONFENGE_COMMERCIAL_PROFILE) \
+		--out $(CONFENGE_COMMERCIAL_OUT) \
+		$(CONFENGE_CYCLE_FLAGS)
+
+campaign-gate-confenge-commercial-ready: test-commercial-leads
+	@test -f db/migrations/062_commercial_leads_ledger.sql
+	@test -f config/commercial_profiles/confenge.yaml
+	@test -f config/commercial_profiles/signal_catalog.yaml
+	@test -f scripts/ops/confenge_commercial_cycle.py
+	@test -f scripts/ops/verify_soak_non_interference.py
+	@test -f specs/006-confenge-commercial-ready/spec.md
+	python3 -c "from scripts.commercial_leads.profile import load_profile; p=load_profile('config/commercial_profiles/confenge.yaml'); assert len(p.signal_ids)>=12"
+	python3 -m ruff check scripts/commercial_leads scripts/ops/confenge_commercial_cycle.py scripts/ops/verify_soak_non_interference.py
+	@echo 'campaign-gate-confenge-commercial-ready OK (unit + structure)'
+
+release-candidate-confenge-commercial-ready: campaign-gate-confenge-commercial-ready
+	@echo 'RC technical requires real snapshot run; see verify-confenge-commercial-ready-real'
+	@test -f $(CONFENGE_COMMERCIAL_ART)/user-acceptance.json || (echo 'writing PENDING_HUMAN user-acceptance' && python3 -c "import json, pathlib; p=pathlib.Path('$(CONFENGE_COMMERCIAL_ART)/user-acceptance.json'); p.parent.mkdir(parents=True, exist_ok=True); p.write_text(json.dumps({'status':'PENDING_HUMAN','author_required':'Tiago Sasaki','campaign_id':'CONFENGE-COMMERCIAL-READY-01'}, indent=2)+chr(10))")
+	@echo 'RC technical scaffold ready — human acceptance remains PENDING_HUMAN'
+
+verify-confenge-commercial-ready-real:
+	@echo '==> verify real commercial queue (fails closed without authenticated snapshot)'
+	@test -n "$$CONFENGE_COMMERCIAL_STATE_DSN" || (echo 'CONFENGE_COMMERCIAL_STATE_DSN required' && exit 1)
+	@test -n "$$CONFENGE_COMMERCIAL_SNAPSHOT" || (echo 'CONFENGE_COMMERCIAL_SNAPSHOT required' && exit 1)
+	python3 -m scripts.commercial_leads run \
+		--dsn "$$CONFENGE_COMMERCIAL_STATE_DSN" \
+		--profile $(CONFENGE_COMMERCIAL_PROFILE) \
+		--snapshot-manifest "$$CONFENGE_COMMERCIAL_SNAPSHOT" \
+		--out $(CONFENGE_COMMERCIAL_OUT) \
+		--result-json $(CONFENGE_COMMERCIAL_ART)/real-run.json
+	python3 -m scripts.commercial_leads gate \
+		--out $(CONFENGE_COMMERCIAL_ART)/gate.json \
+		--run-result $(CONFENGE_COMMERCIAL_OUT)/run-result.json
+
+verify-soak-non-interference:
+	python3 -m scripts.ops.verify_soak_non_interference \
+		--baseline $(CONFENGE_COMMERCIAL_ART)/soak-baseline.json \
+		--final $(CONFENGE_COMMERCIAL_ART)/soak-final.json \
+		--out $(CONFENGE_COMMERCIAL_ART)/soak-non-interference.json
+
+dod-audit-confenge-commercial-ready:
+	@test -f specs/006-confenge-commercial-ready/spec.md
+	@test -f config/commercial_profiles/confenge.yaml
+	@test -f db/migrations/062_commercial_leads_ledger.sql
+	python3 -c "from pathlib import Path; import yaml; from scripts.commercial_leads.profile import load_profile; p=load_profile('config/commercial_profiles/confenge.yaml'); assert p.profile_id=='confenge'; assert len(p.signal_ids)>=12; print('dod-audit structural OK signals=', len(p.signal_ids))"
+	$(MAKE) test-commercial-leads

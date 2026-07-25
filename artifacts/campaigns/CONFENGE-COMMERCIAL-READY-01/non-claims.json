@@ -1,0 +1,11 @@
+{
+  "non_claims": [
+    "CONFENGE_COMMERCIAL_READY",
+    "purchase_propensity",
+    "conversion_probability",
+    "tiago_acceptance",
+    "contact_authorization",
+    "PROJECT_DONE",
+    "VPS_OPERATIONAL"
+  ]
+}
