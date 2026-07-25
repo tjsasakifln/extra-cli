@@ -1,14 +1,14 @@
 {
   "schema_version": "1.3",
   "pr": 131,
-  "evaluated_at": "2026-07-25T01:27:58Z",
-  "head_sha": "36aae9dc11c0c58343035b3621a2bd42d06c2e9a",
+  "evaluated_at": "2026-07-25T01:28:49Z",
+  "head_sha": "40fc11bab906c56fbc992866ff6f538c5c84332e",
   "main_sha": "5d906f631f444dd803e92bb88b7c98972297f8d4",
   "ci_run_evidence": "https://github.com/tjsasakifln/extra-cli/actions/runs/30138432144",
   "gates": {
     "inventory": "PASS",
     "absorption_129_130": "FULLY_ABSORBED",
-    "absorption_scope": "product_code_migrations_tests_docs — generated pack outputs excluded by Phase-3 policy",
+    "absorption_scope": "product_code_migrations_tests_docs \u2014 generated pack outputs excluded by Phase-3 policy",
     "absorption_material_missing_129": [],
     "absorption_material_missing_130": [],
     "phase3_generated_exclusions_129": 3,
@@ -50,10 +50,12 @@
   "ready_for_human_acceptance": true,
   "failed_checks": [],
   "notes": [
-    "11 main-owned evidence files restored blob-identical from origin/main",
-    "Absorption FULLY_ABSORBED for product code/migrations/tests; Phase-3 generated pack exclusions intentional",
-    "CI 9/9 PASS including Generated Artifacts Policy + full suite (run 30138432144 on pre-final-docs tip; this tip is docs-only stamp)",
-    "user-acceptance.json remains PENDING_HUMAN — agents must not set ACCEPTED",
+    "11 main-owned evidence files restored blob-identical from origin/main (MAIN-EVIDENCE-RESTORE.md)",
+    "Absorption FULLY_ABSORBED for product code/migrations/tests; 3+34 generated pack paths excluded by Phase-3 policy",
+    "CI 9/9 PASS on ci_verified_sha=abb0cf255f1b6400d7154e01390c10f28fde4199 run 30138432144",
+    "user-acceptance.json remains PENDING_HUMAN",
     "production_touched=false soak_touched=false"
-  ]
+  ],
+  "ci_verified_sha": "abb0cf255f1b6400d7154e01390c10f28fde4199",
+  "head_sha_semantics": "head_sha is branch tip when this document was last authored; a docs-only commit that only updates this JSON will advance tip by 1. ci_verified_sha is the tip with full 9/9 CI (includes main-evidence restore). product tree for code/migrations is identical across these docs-only commits."
 }

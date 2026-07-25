@@ -1,8 +1,8 @@
 {
   "schema_version": "1.1",
-  "captured_at": "2026-07-25T01:27:58Z",
+  "captured_at": "2026-07-25T01:28:49Z",
   "integrator_pr": 131,
-  "integrator_head": "36aae9dc11c0c58343035b3621a2bd42d06c2e9a",
+  "integrator_head": "40fc11bab906c56fbc992866ff6f538c5c84332e",
   "main_sha": "5d906f631f444dd803e92bb88b7c98972297f8d4",
   "method": [
     "git merge-base --is-ancestor <129|130> <131_tip>",
@@ -183,5 +183,6 @@
     "PR #131 merged to main",
     "comment on each PR with this absorption file at tip SHA"
   ],
-  "tip_stamp_note": "final tip after restore+docs; CI 9/9 green run 30138432144"
+  "tip_stamp_note": "final tip after restore+docs; CI 9/9 green run 30138432144",
+  "ci_verified_sha": "abb0cf255f1b6400d7154e01390c10f28fde4199"
 }
