@@ -92,14 +92,14 @@ def _load_exceptions() -> dict[str, int]:
 
 def _git_diff_names(base: str) -> list[str]:
     try:
-        out = subprocess.check_output(
+        out = subprocess.check_output(  # nosec B603 B607 — fixed git argv
             ["git", "diff", "--name-only", "--diff-filter=AM", f"{base}...HEAD"],
             cwd=REPO_ROOT,
             text=True,
             stderr=subprocess.DEVNULL,
         )
     except subprocess.CalledProcessError:
-        out = subprocess.check_output(
+        out = subprocess.check_output(  # nosec B603 B607 — fixed git argv
             ["git", "diff", "--name-only", "--diff-filter=AM", base],
             cwd=REPO_ROOT,
             text=True,
@@ -113,7 +113,7 @@ def _file_size(path: str) -> int | None:
         return fp.stat().st_size
     # try blob from HEAD
     try:
-        out = subprocess.check_output(
+        out = subprocess.check_output(  # nosec B603 B607 — fixed git argv
             ["git", "cat-file", "-s", f"HEAD:{path}"],
             cwd=REPO_ROOT,
             text=True,
