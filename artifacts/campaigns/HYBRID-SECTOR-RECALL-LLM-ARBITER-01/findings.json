@@ -2,22 +2,29 @@
   "findings": [
     {
       "severity": "HIGH",
-      "finding": "terminal=BLOCKED_REVIEW_CAPACITY",
-      "action": "REVIEW queue exceeds max_items_per_cycle=100 with preserve_and_flag (0 discarded). Reduce gray rate or raise capacity before READY_FOR_RECALL_ASSURANCE_REVIEW."
+      "finding": "terminal=BLOCKED_INVALID_EVALUATION_CORPUS",
+      "active_blockers": [
+        "BLOCKED_EMBEDDING_OPERATIONAL_VALIDATION",
+        "BLOCKED_FULL_SUITE_VALIDATION",
+        "BLOCKED_INSUFFICIENT_REAL_GOLD_CORPUS",
+        "BLOCKED_INSUFFICIENT_STATISTICAL_POWER",
+        "BLOCKED_INVALID_EVALUATION_CORPUS",
+        "BLOCKED_LLM_OPERATIONAL_VALIDATION"
+      ],
+      "action": "close real-corpus/LLM/capacity/full-suite gates before RC v3"
     },
     {
-      "severity": "INFO",
-      "finding": "no silent drop: every raw-universe record has MATCH|REVIEW|NO_MATCH lineage (residual_audit fill when hybrid)",
-      "action": "keep residual_audit invariant in CI"
-    },
-    {
-      "severity": "INFO",
-      "finding": "gates retrieval/preservation/commercial/audit pass; invented_evidence_accepted measured=0",
-      "action": "do not hardcode audit success"
+      "severity": "HIGH",
+      "finding": "insufficient statistical power for 99% CI claims",
+      "action": "expand dual-reviewed real locked gold corpus"
     }
   ],
-  "pr_131": "CHANGES_REQUESTED_RECALL_ASSURANCE",
-  "rc_v3": false,
-  "accepted": false,
-  "merged": false
+  "active_blockers": [
+    "BLOCKED_EMBEDDING_OPERATIONAL_VALIDATION",
+    "BLOCKED_FULL_SUITE_VALIDATION",
+    "BLOCKED_INSUFFICIENT_REAL_GOLD_CORPUS",
+    "BLOCKED_INSUFFICIENT_STATISTICAL_POWER",
+    "BLOCKED_INVALID_EVALUATION_CORPUS",
+    "BLOCKED_LLM_OPERATIONAL_VALIDATION"
+  ]
 }

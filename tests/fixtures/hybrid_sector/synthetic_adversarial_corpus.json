@@ -1,12 +1,8 @@
 {
-  "corpus_id": "hybrid-sector-gold-v1",
+  "corpus_id": "hybrid-sector-synthetic-adversarial-v1",
   "version": "1.0.0",
-  "label_policy": "independent_human_authored_fixtures_not_from_classifier_or_llm_under_test",
-  "dual_review_policy": {
-    "all_high_criticality_positives": true,
-    "all_ambiguous": true,
-    "random_sample_pct_others": 20
-  },
+  "label_policy": "SYNTHETIC_ADVERSARIAL_FIXTURE — labels are independent of the classifier under test but records are templated fixtures (example.local URLs). NOT operational gold. Do not use for commercial recall/precision claims.",
+  "dual_review_policy": "synthetic dual_review boolean only — NOT human dual labeling proof. See annotation-provenance.json for real operational labeling requirements.",
   "splits": [
     "dev",
     "calibration",
@@ -40413,5 +40409,15 @@
       "source_coverage_status": "fixture",
       "source_freshness_status": "fixture"
     }
+  ],
+  "corpus_kind": "SYNTHETIC_ADVERSARIAL_FIXTURE",
+  "evaluation_level": "B",
+  "operational_gold": false,
+  "not_for": [
+    "operational_recall",
+    "commercial_precision",
+    "confidence_intervals_operational",
+    "champion_challenger_promotion",
+    "challenger_promotion"
   ]
 }

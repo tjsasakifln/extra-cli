@@ -12,13 +12,25 @@ from scripts.ops.hybrid_sector import (
     ALLOWED_TERMINAL_STATES,
     FORBIDDEN_CLAIMS,
     PIPELINE_VERSION,
+    REQUIRED_HONEST_BLOCKERS,
 )
 from scripts.ops.hybrid_sector.classification.selective import classify_selective
+from scripts.ops.hybrid_sector.config_runtime import (
+    HybridSectorRuntimeConfig,
+    load_runtime_config,
+)
+from scripts.ops.hybrid_sector.evaluation.embedding_benchmark import (
+    benchmark_embedding_channels,
+)
 from scripts.ops.hybrid_sector.evaluation.gates import evaluate_gates
 from scripts.ops.hybrid_sector.evaluation.gold_corpus import (
+    adjudicated_match_ids,
     gold_index,
-    locked_test_adequacy,
+    load_gold_corpus,
     records_as_universe,
+)
+from scripts.ops.hybrid_sector.evaluation.llm_operational import (
+    run_llm_operational_validation,
 )
 from scripts.ops.hybrid_sector.evaluation.metrics import (
     confusion_counts,
@@ -26,10 +38,24 @@ from scripts.ops.hybrid_sector.evaluation.metrics import (
     retrieval_metrics,
 )
 from scripts.ops.hybrid_sector.evaluation.no_match_audit import select_no_match_audit_sample
-from scripts.ops.hybrid_sector.evaluation.shadow_replay import shadow_compare
+from scripts.ops.hybrid_sector.evaluation.real_corpus import (
+    CORPUS_KIND_SYNTHETIC,
+    audit_real_corpus,
+    classify_corpus,
+)
+from scripts.ops.hybrid_sector.evaluation.review_analysis import analyze_review_queue
+from scripts.ops.hybrid_sector.evaluation.shadow_replay import (
+    multi_window_shadow,
+)
 from scripts.ops.hybrid_sector.llm.arbitration import arbitrate
 from scripts.ops.hybrid_sector.llm.fake_provider import FakeLLMProvider
-from scripts.ops.hybrid_sector.llm.protocol import LLMProvider, OpenAICompatibleProvider
+from scripts.ops.hybrid_sector.llm.protocol import (
+    CircuitBreaker,
+    CostGuard,
+    LLMProvider,
+    OpenAICompatibleProvider,
+    ResponseCache,
+)
 from scripts.ops.hybrid_sector.models import CandidateRecord, DecisionLineage, RawOpportunity
 from scripts.ops.hybrid_sector.policy.decision import map_to_commercial, split_deliverables
 from scripts.ops.hybrid_sector.policy.review_queue import (
@@ -38,6 +64,7 @@ from scripts.ops.hybrid_sector.policy.review_queue import (
 )
 from scripts.ops.hybrid_sector.raw_universe import build_raw_universe
 from scripts.ops.hybrid_sector.retrieval.hybrid import run_hybrid_retrieval
+from scripts.ops.hybrid_sector.retrieval.semantic import build_embedding_provider
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_CONFIG = PROJECT_ROOT / "config/hybrid_sector/default.yaml"
@@ -51,14 +78,39 @@ def load_config(path: Path | None = None) -> dict[str, Any]:
     return data if isinstance(data, dict) else {}
 
 
-def build_provider(cfg: dict[str, Any], *, force_fake: bool = False) -> LLMProvider:
-    llm = cfg.get("llm") or {}
+def build_provider(
+    cfg: dict[str, Any] | HybridSectorRuntimeConfig,
+    *,
+    force_fake: bool = False,
+) -> LLMProvider:
+    if isinstance(cfg, HybridSectorRuntimeConfig):
+        llm = {
+            "provider": cfg.llm.provider,
+            "model": cfg.llm.model,
+            "base_url": cfg.llm.base_url,
+            "timeout_seconds": cfg.llm.timeout_seconds,
+            "max_retries": cfg.llm.max_retries,
+            "max_cost_usd_per_cycle": cfg.llm.max_cost_usd_per_cycle,
+            "circuit_breaker_failures": cfg.llm.circuit_breaker_failures,
+            "cache_enabled": cfg.llm.cache_enabled,
+        }
+    else:
+        llm = cfg.get("llm") or {}
     provider_name = "fake" if force_fake else str(llm.get("provider") or "fake")
     if provider_name == "openai_compatible" and not force_fake:
+        cost = CostGuard(max_cost_usd=float(llm.get("max_cost_usd_per_cycle") or 5.0))
+        breaker = CircuitBreaker(
+            failure_threshold=int(llm.get("circuit_breaker_failures") or 5)
+        )
+        cache = ResponseCache() if llm.get("cache_enabled", True) else ResponseCache()
         return OpenAICompatibleProvider(
             model=llm.get("model"),
+            base_url=llm.get("base_url"),
             timeout_seconds=float(llm.get("timeout_seconds") or 15),
             max_retries=int(llm.get("max_retries") or 2),
+            cost_guard=cost,
+            circuit_breaker=breaker,
+            cache=cache,
         )
     return FakeLLMProvider()
 
@@ -74,10 +126,13 @@ class PipelineResult:
     review_status: dict[str, Any]
     evaluation: dict[str, Any] = field(default_factory=dict)
     terminal_status: str = "BLOCKED_INSUFFICIENT_STATISTICAL_POWER"
+    active_blockers: list[str] = field(default_factory=list)
+    runtime_config: dict[str, Any] = field(default_factory=dict)
+    observed_cost_usd: float = 0.0
 
     def to_summary(self) -> dict[str, Any]:
         n_universe = int(self.universe_metrics.get("raw_universe_count") or len(self.universe))
-        decision_ids = {l.canonical_id for l in self.lineages}
+        decision_ids = {lin.canonical_id for lin in self.lineages}
         universe_ids = {r.canonical_id for r in self.universe}
         missing = sorted(universe_ids - decision_ids)
         return {
@@ -90,11 +145,12 @@ class PipelineResult:
             "no_match_count": len(self.deliverables.get("deliverable_e_no_match_audit") or []),
             "review_status": self.review_status,
             "terminal_status": self.terminal_status,
-            # No silent drop: every raw-universe id must have a commercial decision
+            "active_blockers": list(self.active_blockers),
             "every_record_has_decision": (
                 len(self.lineages) == n_universe and not missing
             ),
             "silent_drop_ids": missing,
+            "observed_cost_usd": self.observed_cost_usd,
         }
 
 
@@ -102,46 +158,91 @@ def run_pipeline(
     records: list[dict[str, Any] | RawOpportunity],
     *,
     config: dict[str, Any] | None = None,
+    runtime: HybridSectorRuntimeConfig | None = None,
     provider: LLMProvider | None = None,
     force_fake_llm: bool = True,
     gold_labels: dict[str, str] | None = None,
     gold_meta: dict[str, dict[str, Any]] | None = None,
     critical_positive_ids: set[str] | None = None,
+    adjudicated_ids: set[str] | None = None,
     stratified_audit_ids: set[str] | None = None,
+    corpus_kind: str = CORPUS_KIND_SYNTHETIC,
+    corpus_audit: dict[str, Any] | None = None,
+    llm_operational: dict[str, Any] | None = None,
+    embedding_operational: dict[str, Any] | None = None,
+    full_suite: dict[str, Any] | None = None,
+    rc_v2_intact: bool | None = None,
+    evaluation_level: str | None = None,
 ) -> PipelineResult:
     """Run full architecture. Every candidate gets a decision lineage (no silent drop)."""
     cfg = config if config is not None else load_config()
+    rt = runtime or load_runtime_config()
+    # Prefer runtime typed values; allow raw cfg override for tests
     ru_cfg = cfg.get("raw_universe") or {}
     ret_cfg = cfg.get("retrieval") or {}
     llm_cfg = cfg.get("llm") or {}
     mr_cfg = cfg.get("manual_review") or {}
 
-    universe, umetrics = build_raw_universe(
-        records,
-        full_universe_threshold=int(ru_cfg.get("full_universe_threshold") or 500),
-    )
+    full_thr = int(ru_cfg.get("full_universe_threshold") or rt.full_universe_threshold)
+    universe, umetrics = build_raw_universe(records, full_universe_threshold=full_thr)
     provider = provider or build_provider(cfg, force_fake=force_fake_llm)
+
+    # Semantic provider from config (default lexical_fuzzy_hash)
+    sem_cfg = ret_cfg.get("semantic") or {}
+    if not sem_cfg.get("provider"):
+        sem_cfg = {
+            **sem_cfg,
+            "provider": rt.semantic.provider,
+            "model_id": rt.semantic.model_id,
+            "model_version": rt.semantic.model_version,
+            "top_k": rt.semantic.top_k,
+            "min_similarity": rt.semantic.min_similarity,
+            "base_url": rt.semantic.base_url,
+            "timeout_seconds": rt.semantic.timeout_seconds,
+            "max_retries": rt.semantic.max_retries,
+            "cache_path": rt.semantic.cache_path,
+        }
+    embed_provider = build_embedding_provider({"semantic": sem_cfg})
 
     candidates, retrieval_report = run_hybrid_retrieval(
         universe,
         classify_full_universe=umetrics.classify_full_universe,
-        rrf_k=int(ret_cfg.get("rrf_k") or 60),
+        rrf_k=int(ret_cfg.get("rrf_k") or rt.rrf_k),
         lexical_max_terms=(ret_cfg.get("lexical") or {}).get("max_terms"),
-        semantic_top_k=int((ret_cfg.get("semantic") or {}).get("top_k") or 200),
+        semantic_provider=embed_provider,
+        semantic_top_k=int(sem_cfg.get("top_k") or rt.semantic.top_k),
         semantic_min_similarity=float(
-            (ret_cfg.get("semantic") or {}).get("min_similarity") or 0.12
+            sem_cfg.get("min_similarity") or rt.semantic.min_similarity
         ),
         short_text_max_chars=int(
-            (ret_cfg.get("zero_match") or {}).get("short_text_max_chars") or 40
+            (ret_cfg.get("zero_match") or {}).get("short_text_max_chars")
+            or rt.short_text_max_chars
         ),
         high_value_threshold=float(
-            (ret_cfg.get("zero_match") or {}).get("high_value_threshold") or 500_000
+            (ret_cfg.get("zero_match") or {}).get("high_value_threshold")
+            or rt.high_value_threshold
         ),
+    )
+    retrieval_report["embedding_class"] = getattr(
+        embed_provider, "embedding_class", "unknown"
+    )
+    retrieval_report["operational_semantic"] = bool(
+        getattr(embed_provider, "operational_semantic", False)
     )
 
     stratified_audit_ids = stratified_audit_ids or set()
     lineages: list[DecisionLineage] = []
     cand_by_id: dict[str, CandidateRecord] = {}
+    min_conf = int(llm_cfg.get("min_confidence") or rt.llm.min_confidence)
+    hv_thr = float(
+        (cfg.get("decision_policy") or {}).get("high_value_no_match_threshold")
+        or rt.high_value_no_match_threshold
+    )
+    second_adj = float(
+        llm_cfg.get("second_adjudication_value_threshold")
+        or rt.llm.second_adjudication_value_threshold
+    )
+
     for cand in candidates:
         cand_by_id[cand.record.canonical_id] = cand
         det = classify_selective(cand)
@@ -149,24 +250,17 @@ def run_pipeline(
             cand,
             det,
             provider,
-            min_confidence=int(llm_cfg.get("min_confidence") or 60),
-            high_value_threshold=float(
-                (cfg.get("decision_policy") or {}).get("high_value_no_match_threshold")
-                or 500_000
-            ),
-            second_adjudication_value_threshold=float(
-                llm_cfg.get("second_adjudication_value_threshold") or 1_000_000
-            ),
+            min_confidence=min_conf,
+            high_value_threshold=hv_thr,
+            second_adjudication_value_threshold=second_adj,
             stratified_audit=cand.record.canonical_id in stratified_audit_ids,
         )
         lin = map_to_commercial(cand, det, arb)
         lineages.append(lin)
 
-    # Integrity: every candidate has exactly one lineage AND every universe record
-    # is a candidate (residual_audit / full_universe fill) — no silent drop.
     universe_ids = {r.canonical_id for r in universe}
     candidate_ids = {c.record.canonical_id for c in candidates}
-    decision_ids = {l.canonical_id for l in lineages}
+    decision_ids = {lin.canonical_id for lin in lineages}
     assert len(lineages) == len(candidates), "lineage/candidate count mismatch"
     assert candidate_ids == universe_ids, (
         f"silent discard of raw-universe records: "
@@ -181,11 +275,14 @@ def run_pipeline(
         lineages,
         cand_by_id,
         config=ReviewCapacityConfig(
-            max_items_per_cycle=int(mr_cfg.get("max_items_per_cycle") or 100),
-            overflow_policy=str(mr_cfg.get("overflow_policy") or "preserve_and_flag"),
+            max_items_per_cycle=int(
+                mr_cfg.get("max_items_per_cycle") or rt.max_items_per_cycle
+            ),
+            overflow_policy=str(
+                mr_cfg.get("overflow_policy") or rt.overflow_policy
+            ),
         ),
     )
-    # write priorities back
     rev_pri = {r.canonical_id: r.review_priority for r in reviews}
     for lin in lineages:
         if lin.canonical_id in rev_pri:
@@ -194,37 +291,58 @@ def run_pipeline(
     records_by_id = {r.canonical_id: r for r in universe}
     deliverables = split_deliverables(lineages, records_by_id)
 
+    # Observed cost (real) — not YAML copy
+    observed_cost = 0.0
+    if hasattr(provider, "cost_guard"):
+        observed_cost = float(getattr(provider.cost_guard, "spent_usd", 0.0) or 0.0)
+    if hasattr(embed_provider, "observed_cost_usd"):
+        observed_cost += float(getattr(embed_provider, "observed_cost_usd", 0.0) or 0.0)
+
     evaluation: dict[str, Any] = {"retrieval_report": retrieval_report}
-    terminal = "READY_FOR_RECALL_ASSURANCE_REVIEW"
+    level = evaluation_level or (
+        "C"
+        if corpus_kind == "REAL_OPERATIONAL_LOCKED_GOLD"
+        else ("B" if corpus_kind == CORPUS_KIND_SYNTHETIC else "A")
+    )
+    corpus_audit = corpus_audit or {
+        "corpus_kind": corpus_kind,
+        "operational_gold_eligible": False,
+        "blockers": ["BLOCKED_INVALID_EVALUATION_CORPUS"]
+        if level != "C"
+        else ["BLOCKED_INSUFFICIENT_REAL_GOLD_CORPUS"],
+    }
+    llm_operational = llm_operational or {
+        "passed": False,
+        "status": "BLOCKED_LLM_OPERATIONAL_VALIDATION",
+        "n_samples": 0,
+        "min_required": 200,
+        "human_review_complete": False,
+    }
+    embedding_operational = embedding_operational or {
+        "passed": False,
+        "status": "BLOCKED_EMBEDDING_OPERATIONAL_VALIDATION",
+        "provider_class": getattr(embed_provider, "embedding_class", "unknown"),
+    }
+    full_suite = full_suite or {
+        "passed": False,
+        "status": "BLOCKED_FULL_SUITE_VALIDATION",
+    }
+
+    active_blockers: list[str] = []
+    terminal = "BLOCKED_INSUFFICIENT_STATISTICAL_POWER"
 
     if gold_labels is not None:
-        pos_ids = {i for i, l in gold_labels.items() if l == "POSITIVE"}
-        # Retrieval metrics: only channel-retrieved candidates (exclude pure residual fill)
+        pos_ids = {i for i, lab in gold_labels.items() if lab == "POSITIVE"}
         retrieved_for_metrics = [
             c
             for c in candidates
-            if c.inclusion_reason
-            not in {"hybrid_residual_universe_audit", "full_universe_threshold"}
-            or any(
-                ch not in {"residual_audit", "full_universe"}
-                for ch in c.retrieved_by
-            )
-        ]
-        # Prefer true multi-channel hits; if residual-only still in list with only
-        # residual channel, exclude them from retrieval_recall denominator hits
-        retrieved_for_metrics = [
-            c
-            for c in candidates
-            if not (
-                set(c.retrieved_by) <= {"residual_audit", "full_universe"}
-            )
+            if not (set(c.retrieved_by) <= {"residual_audit", "full_universe"})
         ]
         ret_m = retrieval_metrics(
             pos_ids,
             retrieved_for_metrics if retrieved_for_metrics else candidates,
             gold_meta=gold_meta,
         )
-        # Also report coverage of positives among full decision set
         ret_m["positives_with_decision"] = len(pos_ids & decision_ids)
         ret_m["universe_decision_coverage"] = (
             len(decision_ids) / len(universe_ids) if universe_ids else 1.0
@@ -233,16 +351,14 @@ def run_pipeline(
             gold_labels,
             lineages,
             critical_positive_ids=critical_positive_ids,
+            adjudicated_ids=adjudicated_ids,
         )
-        # Audit integrity stats — measured from lineages, never hard-coded success
-        llm_errors = [l for l in lineages if l.llm_error]
+        llm_errors = [lin for lin in lineages if lin.llm_error]
         llm_err_review = sum(
-            1 for l in llm_errors if l.commercial_decision == "REVIEW"
+            1 for lin in llm_errors if lin.commercial_decision == "REVIEW"
         )
-        invented_accepted = sum(
-            1 for l in lineages if l.invented_evidence_accepted
-        )
-        invented_seen = sum(1 for l in lineages if l.invented_evidence)
+        invented_accepted = sum(1 for lin in lineages if lin.invented_evidence_accepted)
+        invented_seen = sum(1 for lin in lineages if lin.invented_evidence)
         silent_discards = len(universe_ids - decision_ids)
         audit = {
             "invented_evidence_accepted": invented_accepted,
@@ -256,15 +372,30 @@ def run_pipeline(
             ),
             "silent_discards": silent_discards,
         }
-        gate_res = evaluate_gates(ret_m, dec_m, audit=audit, thresholds=cfg.get("evaluation"))
-        if review_status.get("operational_status") == "OPERATIONALLY_BLOCKED_REVIEW_VOLUME":
-            # capacity block is operational — may override readiness
-            if gate_res["terminal_status"] == "READY_FOR_RECALL_ASSURANCE_REVIEW":
-                gate_res["terminal_status"] = "BLOCKED_REVIEW_CAPACITY"
+        gate_res = evaluate_gates(
+            ret_m,
+            dec_m,
+            audit=audit,
+            thresholds=cfg.get("evaluation") or rt.evaluation,
+            corpus_audit=corpus_audit,
+            llm_operational=llm_operational,
+            embedding_operational=embedding_operational,
+            review_status=review_status,
+            full_suite=full_suite,
+            evaluation_level=level,
+            rc_v2_intact=rc_v2_intact,
+        )
         terminal = gate_res["terminal_status"]
-        shadow = shadow_compare(universe, lineages, gold_labels)
-        no_match_lins = [l for l in lineages if l.commercial_decision == "NO_MATCH"]
+        active_blockers = list(gate_res.get("active_blockers") or [])
+        shadow = multi_window_shadow(
+            universe,
+            lineages,
+            gold_labels,
+            corpus_kind=corpus_kind,
+        )
+        no_match_lins = [lin for lin in lineages if lin.commercial_decision == "NO_MATCH"]
         nm_sample = select_no_match_audit_sample(no_match_lins, cand_by_id)
+        review_analysis = analyze_review_queue(lineages, cand_by_id, gold_labels)
         evaluation.update(
             {
                 "retrieval_metrics": ret_m,
@@ -272,22 +403,61 @@ def run_pipeline(
                 "confusion": confusion_counts(gold_labels, lineages),
                 "gates": gate_res,
                 "shadow_replay": shadow,
+                "review_analysis": review_analysis,
                 "no_match_audit_sample_size": len(nm_sample),
-                "no_match_audit_sample": nm_sample[:50],  # cap in summary
+                "no_match_audit_sample": nm_sample[:50],
+                "evaluation_level": level,
+                "corpus_kind": corpus_kind,
+                "llm_operational": llm_operational,
+                "embedding_operational": embedding_operational,
             }
         )
     else:
         terminal = "BLOCKED_INSUFFICIENT_STATISTICAL_POWER"
+        active_blockers = sorted(
+            set(REQUIRED_HONEST_BLOCKERS)
+            | {
+                "BLOCKED_INSUFFICIENT_STATISTICAL_POWER",
+                "BLOCKED_INSUFFICIENT_REAL_GOLD_CORPUS",
+            }
+        )
         evaluation["gates"] = {
             "terminal_status": terminal,
+            "active_blockers": active_blockers,
+            "all_core_pass": False,
             "note": "no gold labels provided",
         }
+        evaluation["evaluation_level"] = level
+        evaluation["corpus_kind"] = corpus_kind
+        evaluation["llm_operational"] = llm_operational
+        evaluation["embedding_operational"] = embedding_operational
 
     if terminal not in ALLOWED_TERMINAL_STATES:
         terminal = "BLOCKED_INSUFFICIENT_RECALL"
     for claim in FORBIDDEN_CLAIMS:
         if claim in terminal:
             raise RuntimeError(f"forbidden claim in terminal: {claim}")
+
+    # Ensure multi-blocker honesty when not READY
+    if terminal != "READY_FOR_RECALL_ASSURANCE_REVIEW":
+        for b in REQUIRED_HONEST_BLOCKERS:
+            if b not in active_blockers:
+                # only add if still applicable
+                if b == "BLOCKED_INVALID_EVALUATION_CORPUS" and level != "C":
+                    active_blockers.append(b)
+                elif b == "BLOCKED_LLM_OPERATIONAL_VALIDATION" and not (
+                    llm_operational or {}
+                ).get("passed"):
+                    active_blockers.append(b)
+                elif b == "BLOCKED_REVIEW_CAPACITY" and review_status.get(
+                    "operational_status"
+                ) == "OPERATIONALLY_BLOCKED_REVIEW_VOLUME":
+                    active_blockers.append(b)
+                elif b == "BLOCKED_FULL_SUITE_VALIDATION" and not (
+                    full_suite or {}
+                ).get("passed"):
+                    active_blockers.append(b)
+        active_blockers = sorted(set(active_blockers))
 
     return PipelineResult(
         universe=universe,
@@ -299,6 +469,9 @@ def run_pipeline(
         review_status=review_status,
         evaluation=evaluation,
         terminal_status=terminal,
+        active_blockers=active_blockers,
+        runtime_config=rt.to_dict(),
+        observed_cost_usd=observed_cost,
     )
 
 
@@ -308,14 +481,58 @@ def run_from_gold_corpus(
     split: str = "locked",
     config: dict[str, Any] | None = None,
     force_fake_llm: bool = True,
+    include_distractors: bool = False,
+    full_suite: dict[str, Any] | None = None,
+    llm_operational: dict[str, Any] | None = None,
+    embedding_operational: dict[str, Any] | None = None,
+    rc_v2_intact: bool | None = None,
+    run_embedding_benchmark: bool = False,
 ) -> PipelineResult:
-    corpus = json.loads(corpus_path.read_text(encoding="utf-8"))
+    """Locked evaluation.
+
+    Preferential: evaluate exclusively records with split=locked.
+    If include_distractors=True, dev/calibration are added AND must keep labels
+    (no unlabeled MATCH).
+    """
+    corpus = load_gold_corpus(corpus_path)
+    kind = classify_corpus(corpus)
+    audit = audit_real_corpus(corpus, cfg=(config or {}).get("evaluation"))
     labels, meta, critical = gold_index(corpus, split=split)
+    adjudicated = adjudicated_match_ids(corpus, split=split)
     records = records_as_universe(corpus, split=split)
-    # Include other splits as distractors in universe for retrieval realism
-    if split == "locked":
+
+    if include_distractors and split == "locked":
+        # Alternative: distractors must retain labels for evaluation
         for other in ("dev", "calibration"):
+            other_labels, other_meta, other_crit = gold_index(corpus, split=other)
+            labels.update(other_labels)
+            meta.update(other_meta)
+            critical |= other_crit
             records.extend(records_as_universe(corpus, split=other))
+    # Preferred path: locked-only — do NOT add unlabeled distractors
+
+    level = "C" if kind == "REAL_OPERATIONAL_LOCKED_GOLD" else (
+        "B" if kind == CORPUS_KIND_SYNTHETIC else "A"
+    )
+
+    emb_op = embedding_operational
+    if run_embedding_benchmark and emb_op is None:
+        emb_op = benchmark_embedding_channels(
+            records,
+            labels,
+            real_provider_cfg=(config or {}).get("retrieval"),
+            try_real=True,
+        )
+
+    llm_op = llm_operational
+    if llm_op is None:
+        # Honest default: blocked until real stratified validation
+        llm_op = run_llm_operational_validation(
+            [meta[i] for i in labels if i in meta] or list(corpus.get("records") or []),
+            provider=None if force_fake_llm else None,
+            force_run=False,
+        )
+
     return run_pipeline(
         records,
         config=config,
@@ -323,6 +540,14 @@ def run_from_gold_corpus(
         gold_labels=labels,
         gold_meta=meta,
         critical_positive_ids=critical,
+        adjudicated_ids=adjudicated,
+        corpus_kind=kind,
+        corpus_audit=audit,
+        llm_operational=llm_op,
+        embedding_operational=emb_op,
+        full_suite=full_suite,
+        rc_v2_intact=rc_v2_intact,
+        evaluation_level=level,
     )
 
 
@@ -333,13 +558,16 @@ def write_campaign_artifacts(
     corpus_manifest: dict[str, Any] | None = None,
     extra: dict[str, Any] | None = None,
 ) -> dict[str, Path]:
-    """Write all required campaign deliverable files."""
+    """Write campaign deliverables with separated Level A/B/C claims."""
     out_dir.mkdir(parents=True, exist_ok=True)
     paths: dict[str, Path] = {}
 
     def w(name: str, obj: Any) -> Path:
         p = out_dir / name
-        p.write_text(json.dumps(obj, indent=2, ensure_ascii=False, default=str) + "\n", encoding="utf-8")
+        p.write_text(
+            json.dumps(obj, indent=2, ensure_ascii=False, default=str) + "\n",
+            encoding="utf-8",
+        )
         paths[name] = p
         return p
 
@@ -348,109 +576,248 @@ def write_campaign_artifacts(
     gates = eval_.get("gates") or {}
     ret_m = eval_.get("retrieval_metrics") or {}
     dec_m = eval_.get("decision_metrics") or {}
+    level = eval_.get("evaluation_level") or "B"
+    corpus_kind = eval_.get("corpus_kind") or CORPUS_KIND_SYNTHETIC
 
-    w("manifest.json", {
-        "campaign_id": "HYBRID-SECTOR-RECALL-LLM-ARBITER-01",
-        "pipeline_version": PIPELINE_VERSION,
-        "terminal_status": result.terminal_status,
-        "summary": summary,
-        "forbidden_claims_absent": True,
-        "pr_131_status": "CHANGES_REQUESTED_RECALL_ASSURANCE",
-        "rc_v3_generated": False,
-        "accepted": False,
-        "merged": False,
-    })
-    w("retrieval-evaluation.json", {
-        "universe_metrics": result.universe_metrics,
-        "retrieval_report": result.retrieval_report,
-        "metrics": ret_m,
-    })
-    w("classification-evaluation.json", {
-        "decision_metrics": dec_m,
-        "confusion": eval_.get("confusion"),
-        "lineage_count": len(result.lineages),
-    })
-    w("calibration.json", {
-        "note": "probabilistic calibration deferred when scores are not probabilistic",
-        "deterministic_confidence_hist": _conf_hist(result.lineages),
-    })
-    w("confidence-intervals.json", {
-        "retrieval_recall": {
-            "point": ret_m.get("retrieval_recall"),
-            "lower_95": ret_m.get("retrieval_recall_lower_95"),
+    # Separated result sections — never blend synthetic + real rates
+    synthetic_test_results = None
+    real_operational_results = None
+    if level == "B" or corpus_kind == CORPUS_KIND_SYNTHETIC:
+        synthetic_test_results = {
+            "evaluation_level": "B",
+            "corpus_kind": CORPUS_KIND_SYNTHETIC,
+            "retrieval_metrics": ret_m,
+            "decision_metrics": dec_m,
+            "note": "SYNTHETIC_ADVERSARIAL_FIXTURE — not operational gold",
+            "headline_operational_recall": None,
+            "headline_operational_precision": None,
+        }
+    if level == "C":
+        real_operational_results = {
+            "evaluation_level": "C",
+            "corpus_kind": corpus_kind,
+            "retrieval_metrics": ret_m,
+            "decision_metrics": dec_m,
+        }
+
+    paid_llm_validation = eval_.get("llm_operational") or {
+        "passed": False,
+        "status": "BLOCKED_LLM_OPERATIONAL_VALIDATION",
+    }
+    full_suite_status = (gates.get("gates") or {}).get("full_suite") or {
+        "pass": False,
+        "status": "BLOCKED_FULL_SUITE_VALIDATION",
+    }
+
+    w(
+        "manifest.json",
+        {
+            "campaign_id": "HYBRID-SECTOR-RECALL-LLM-ARBITER-01",
+            "pipeline_version": PIPELINE_VERSION,
+            "terminal_status": result.terminal_status,
+            "active_blockers": result.active_blockers,
+            "summary": summary,
+            "forbidden_claims_absent": True,
+            "pr_131_status": "CHANGES_REQUESTED_RECALL_ASSURANCE",
+            "rc_v3_generated": False,
+            "accepted": False,
+            "merged": False,
+            "evaluation_level": level,
+            "corpus_kind": corpus_kind,
         },
-        "safe_recall": {
-            "point": dec_m.get("safe_recall_match_plus_review"),
-            "lower_95": dec_m.get("safe_recall_lower_95"),
+    )
+    w(
+        "retrieval-evaluation.json",
+        {
+            "universe_metrics": result.universe_metrics,
+            "retrieval_report": result.retrieval_report,
+            "metrics": ret_m,
+            "evaluation_level": level,
         },
-        "match_precision": {
-            "point": dec_m.get("match_precision"),
-            "lower_95": dec_m.get("match_precision_lower_95"),
+    )
+    w(
+        "classification-evaluation.json",
+        {
+            "decision_metrics": dec_m,
+            "confusion": eval_.get("confusion"),
+            "lineage_count": len(result.lineages),
+            "evaluation_level": level,
+            "precision_variants": {
+                "all_match_primary": dec_m.get("match_precision_all")
+                or dec_m.get("match_precision"),
+                "conservative_ambiguous_as_error": dec_m.get(
+                    "match_precision_conservative"
+                ),
+                "hard_label_only_additional": dec_m.get("match_precision_hard_only"),
+                "unlabeled_match_count": dec_m.get("unlabeled_match_count"),
+                "all_match_count": dec_m.get("all_match_count"),
+                "evaluated_match_count": dec_m.get("evaluated_match_count"),
+            },
         },
-        "gates": gates,
-    })
+    )
+    w(
+        "calibration.json",
+        {
+            "note": "probabilistic calibration deferred when scores are not probabilistic",
+            "deterministic_confidence_hist": _conf_hist(result.lineages),
+        },
+    )
+    w(
+        "confidence-intervals.json",
+        {
+            "evaluation_level": level,
+            "operational_claims_allowed": level == "C",
+            "retrieval_recall": {
+                "point": ret_m.get("retrieval_recall"),
+                "lower_95": ret_m.get("retrieval_recall_lower_95"),
+            },
+            "safe_recall": {
+                "point": dec_m.get("safe_recall_match_plus_review"),
+                "lower_95": dec_m.get("safe_recall_lower_95"),
+            },
+            "match_precision": {
+                "point": dec_m.get("match_precision"),
+                "lower_95": dec_m.get("match_precision_lower_95"),
+            },
+            "gates": gates,
+            "note": (
+                "Intervals from synthetic Level B must not be published as operational."
+                if level != "C"
+                else "Level C operational intervals"
+            ),
+        },
+    )
     w("gold-corpus-manifest.json", corpus_manifest or {"status": "not_provided"})
     w("shadow-replay.json", eval_.get("shadow_replay") or {})
-    w("no-match-audit.json", {
-        "sample_size": eval_.get("no_match_audit_sample_size"),
-        "sample_preview": eval_.get("no_match_audit_sample"),
-        "total_no_match": len(result.deliverables.get("deliverable_e_no_match_audit") or []),
-    })
-    w("review-queue-analysis.json", {
-        "status": result.review_status,
-        "top": (result.deliverables.get("deliverable_e_review_queue") or [])[:20],
-    })
-    w("llm-cost.json", {
-        "provider_default": "fake",
-        "paid_calls_in_default_ci": 0,
-        "max_cost_usd_per_cycle": (load_config().get("llm") or {}).get("max_cost_usd_per_cycle"),
-    })
+    w(
+        "no-match-audit.json",
+        {
+            "sample_size": eval_.get("no_match_audit_sample_size"),
+            "sample_preview": eval_.get("no_match_audit_sample"),
+            "total_no_match": len(
+                result.deliverables.get("deliverable_e_no_match_audit") or []
+            ),
+        },
+    )
+    w(
+        "review-queue-analysis.json",
+        {
+            "status": result.review_status,
+            "analysis": eval_.get("review_analysis"),
+            "top": (result.deliverables.get("deliverable_e_review_queue") or [])[:20],
+        },
+    )
+    # Cost: observed real, not YAML copy
+    w(
+        "llm-cost.json",
+        {
+            "provider_default": "fake",
+            "paid_calls_in_default_ci": 0,
+            "max_cost_usd_per_cycle": (
+                (result.runtime_config.get("llm") or {}).get("max_cost_usd_per_cycle")
+            ),
+            "observed_cost_usd": result.observed_cost_usd,
+            "cost_source": "runtime_observed",
+            "not_yaml_copy": True,
+        },
+    )
     llm_failures = [
-        {"canonical_id": l.canonical_id, "error": l.llm_error}
-        for l in result.lineages
-        if l.llm_error
+        {"canonical_id": lin.canonical_id, "error": lin.llm_error}
+        for lin in result.lineages
+        if lin.llm_error
     ]
     w("llm-failures.json", {"count": len(llm_failures), "failures": llm_failures})
-    w("prompt-injection-tests.json", {
-        "note": "see tests/test_hybrid_sector_adversarial.py for executable suite",
-        "policy": "source text is untrusted data; never modifies classifier rules",
-    })
-    w("drift-baseline.json", {
-        "decision_distribution": _decision_dist(result.lineages),
-        "review_rate": dec_m.get("review_rate"),
-        "zero_match_rate": sum(
-            1 for c in result.candidates if c.zero_match_rescue
-        ) / max(1, len(result.candidates)),
-    })
+    w(
+        "prompt-injection-tests.json",
+        {
+            "note": "see tests/test_hybrid_sector_adversarial.py for executable suite",
+            "policy": "source text is untrusted data; never modifies classifier rules",
+        },
+    )
+    w(
+        "drift-baseline.json",
+        {
+            "decision_distribution": _decision_dist(result.lineages),
+            "review_rate": dec_m.get("review_rate"),
+            "zero_match_rate": sum(
+                1 for c in result.candidates if c.zero_match_rescue
+            )
+            / max(1, len(result.candidates)),
+        },
+    )
+    # Separated claim artifacts
+    w("synthetic_test_results.json", synthetic_test_results or {"status": "not_run"})
+    w(
+        "real_operational_results.json",
+        real_operational_results
+        or {
+            "status": "not_run",
+            "reason": "Level C real locked corpus required",
+            "blockers": result.active_blockers,
+        },
+    )
+    w("paid_llm_validation.json", paid_llm_validation)
+    w("full_suite_status.json", full_suite_status)
+    w(
+        "embedding_benchmark.json",
+        eval_.get("embedding_operational")
+        or {"status": "BLOCKED_EMBEDDING_OPERATIONAL_VALIDATION"},
+    )
+
     findings = []
     if result.terminal_status != "READY_FOR_RECALL_ASSURANCE_REVIEW":
-        findings.append({
-            "severity": "HIGH",
-            "finding": f"terminal={result.terminal_status}",
-            "action": "close statistical/recall/capacity/LLM gates before RC v3",
-        })
+        findings.append(
+            {
+                "severity": "HIGH",
+                "finding": f"terminal={result.terminal_status}",
+                "active_blockers": result.active_blockers,
+                "action": "close real-corpus/LLM/capacity/full-suite gates before RC v3",
+            }
+        )
     if not statistical_power_note(dec_m):
-        findings.append({
-            "severity": "HIGH",
-            "finding": "insufficient statistical power for 99% CI claims",
-            "action": "expand dual-reviewed locked gold corpus",
-        })
-    w("findings.json", {"findings": findings})
-    w("result.json", {
-        "terminal_status": result.terminal_status,
-        "allowed_states": sorted(ALLOWED_TERMINAL_STATES),
-        "forbidden_claims": sorted(FORBIDDEN_CLAIMS),
-        "summary": summary,
-        "gates": gates,
-        "pr_131": "CHANGES_REQUESTED_RECALL_ASSURANCE",
-        "claims": {
-            "PROJECT_DONE": False,
-            "ACCEPTED": False,
-            "MERGED": False,
-            "FULLY_GUARANTEED": False,
-            "NO_FALSE_NEGATIVES_100": False,
+        findings.append(
+            {
+                "severity": "HIGH",
+                "finding": "insufficient statistical power for 99% CI claims",
+                "action": "expand dual-reviewed real locked gold corpus",
+            }
+        )
+    w("findings.json", {"findings": findings, "active_blockers": result.active_blockers})
+
+    all_core = bool(gates.get("all_core_pass")) if isinstance(gates, dict) else False
+    # Never publish all_core_pass=true when real gates not executed
+    if level != "C":
+        all_core = False
+
+    w(
+        "result.json",
+        {
+            "terminal_status": result.terminal_status,
+            "active_blockers": result.active_blockers,
+            "required_honest_blockers": sorted(REQUIRED_HONEST_BLOCKERS),
+            "allowed_states": sorted(ALLOWED_TERMINAL_STATES),
+            "forbidden_claims": sorted(FORBIDDEN_CLAIMS),
+            "summary": summary,
+            "gates": gates,
+            "evaluation_level": level,
+            "corpus_kind": corpus_kind,
+            "all_core_pass": all_core,
+            "separated_results": {
+                "synthetic_test_results": synthetic_test_results is not None,
+                "real_operational_results": real_operational_results is not None,
+                "paid_llm_validation": True,
+                "full_suite_status": True,
+            },
+            "pr_131": "CHANGES_REQUESTED_RECALL_ASSURANCE",
+            "claims": {
+                "PROJECT_DONE": False,
+                "ACCEPTED": False,
+                "MERGED": False,
+                "FULLY_GUARANTEED": False,
+                "NO_FALSE_NEGATIVES_100": False,
+            },
         },
-    })
+    )
     for key, fname in [
         ("deliverable_e_matches", "deliverable_e_matches.json"),
         ("deliverable_e_review_queue", "deliverable_e_review_queue.json"),
@@ -474,10 +841,10 @@ def statistical_power_note(dec_m: dict[str, Any]) -> bool:
 
 def _conf_hist(lineages: list[DecisionLineage]) -> dict[str, int]:
     hist = {"0-0.25": 0, "0.25-0.5": 0, "0.5-0.75": 0, "0.75-1": 0}
-    for l in lineages:
-        if not l.deterministic:
+    for lin in lineages:
+        if not lin.deterministic:
             continue
-        c = l.deterministic.confidence
+        c = lin.deterministic.confidence
         if c < 0.25:
             hist["0-0.25"] += 1
         elif c < 0.5:
@@ -491,17 +858,20 @@ def _conf_hist(lineages: list[DecisionLineage]) -> dict[str, int]:
 
 def _decision_dist(lineages: list[DecisionLineage]) -> dict[str, int]:
     d: dict[str, int] = {}
-    for l in lineages:
-        d[l.commercial_decision] = d.get(l.commercial_decision, 0) + 1
+    for lin in lineages:
+        d[lin.commercial_decision] = d.get(lin.commercial_decision, 0) + 1
     return d
 
 
 def _final_report_md(result: PipelineResult, findings: list[dict[str, Any]]) -> str:
     s = result.to_summary()
+    level = result.evaluation.get("evaluation_level") or "?"
     lines = [
         "# HYBRID-SECTOR-RECALL-LLM-ARBITER-01 — Final Report",
         "",
         f"**Terminal status:** `{result.terminal_status}`",
+        f"**Active blockers:** `{', '.join(result.active_blockers) or 'none'}`",
+        f"**Evaluation level:** `{level}`",
         "",
         "PR #131 remains `CHANGES_REQUESTED_RECALL_ASSURANCE`. Not ACCEPTED. Not MERGED. No RC v3.",
         "",
@@ -514,6 +884,7 @@ def _final_report_md(result: PipelineResult, findings: list[dict[str, Any]]) -> 
         f"- NO_MATCH: {s['no_match_count']}",
         f"- Every candidate has decision: {s['every_record_has_decision']}",
         f"- Review operational status: {result.review_status.get('operational_status')}",
+        f"- Observed cost USD: {result.observed_cost_usd}",
         "",
         "## Architecture",
         "",
@@ -522,6 +893,12 @@ def _final_report_md(result: PipelineResult, findings: list[dict[str, Any]]) -> 
         "→ DETERMINISTIC SELECTIVE → LLM ARBITER (eligible) → MATCH|REVIEW|NO_MATCH",
         "```",
         "",
+        "## Evaluation levels (never blended)",
+        "",
+        "- A: unit fixtures",
+        "- B: SYNTHETIC_ADVERSARIAL_FIXTURE (regression/attacks only)",
+        "- C: real locked operational gold (only C sustains operational claims)",
+        "",
         "## Findings",
         "",
     ]
@@ -529,15 +906,17 @@ def _final_report_md(result: PipelineResult, findings: list[dict[str, Any]]) -> 
         lines.append("- No blocking findings beyond terminal status contract.")
     for f in findings:
         lines.append(f"- **{f['severity']}**: {f['finding']} — {f['action']}")
-    lines.extend([
-        "",
-        "## Non-claims",
-        "",
-        "- Not PROJECT_DONE",
-        "- Not 100% NO FALSE NEGATIVES",
-        "- Not FULLY GUARANTEED",
-        "- Not ACCEPTED",
-        "- Not MERGED",
-        "",
-    ])
+    lines.extend(
+        [
+            "",
+            "## Non-claims",
+            "",
+            "- Not PROJECT_DONE",
+            "- Not 100% NO FALSE NEGATIVES",
+            "- Not FULLY GUARANTEED",
+            "- Not ACCEPTED",
+            "- Not MERGED",
+            "",
+        ]
+    )
     return "\n".join(lines) + "\n"

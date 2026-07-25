@@ -1,0 +1,19 @@
+{
+  "schema_version": "annotation-agreement/1.0",
+  "n_dual_reviewed": 0,
+  "n_agree": 0,
+  "raw_agreement": null,
+  "pairs_preview": [],
+  "dual_review_rules": {
+    "ok": false,
+    "checks": {
+      "empty_corpus": {
+        "have": 0,
+        "need": 1,
+        "ok": false
+      }
+    },
+    "disagreements": [],
+    "note": "Empty corpus cannot satisfy dual-review rules."
+  }
+}

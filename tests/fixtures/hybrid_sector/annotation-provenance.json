@@ -1,0 +1,22 @@
+{
+  "schema_version": "annotation-provenance/1.0",
+  "n_records": 0,
+  "required_fields": [
+    "annotator_id",
+    "annotation_date",
+    "decision",
+    "justification",
+    "evidence",
+    "segment",
+    "criticality",
+    "documents_needed",
+    "second_review"
+  ],
+  "required_second_review_fields": [
+    "reviewer_id",
+    "review_date",
+    "decision",
+    "agreement"
+  ],
+  "records": []
+}

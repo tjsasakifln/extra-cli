@@ -1,42 +1,61 @@
 {
+  "evaluation_level": "C",
+  "operational_claims_allowed": true,
   "retrieval_recall": {
-    "point": 1.0,
-    "lower_95": 0.9900639180555423
+    "point": 0.0,
+    "lower_95": 0.0
   },
   "safe_recall": {
-    "point": 1.0,
-    "lower_95": 0.9900639180555423
+    "point": 0.0,
+    "lower_95": 0.0
   },
   "match_precision": {
     "point": 1.0,
-    "lower_95": 0.9841915402609456
+    "lower_95": 1.0
   },
   "gates": {
     "gates": {
       "statistical_power": {
-        "ok": true,
-        "n_positives": 300,
-        "status": "OK"
+        "ok": false,
+        "n_positives": 0,
+        "status": "INSUFFICIENT_STATISTICAL_POWER"
+      },
+      "unlabeled_match": {
+        "pass": true,
+        "unlabeled_match_count": 0,
+        "required": "unlabeled_match_count == 0"
+      },
+      "match_denominator": {
+        "pass": true,
+        "all_match_count": 0,
+        "evaluated_match_count": 0,
+        "required": "all_match_count == evaluated_match_count"
       },
       "retrieval": {
-        "pass": true,
-        "point": 1.0,
-        "lower_95": 0.9900639180555423,
-        "blocked_insufficient_power": false
+        "pass": false,
+        "point": 0.0,
+        "lower_95": 0.0,
+        "blocked_insufficient_power": true,
+        "operational_claim_allowed": true
       },
       "preservation": {
-        "pass": true,
-        "point": 1.0,
-        "lower_95": 0.9900639180555423,
+        "pass": false,
+        "point": 0.0,
+        "lower_95": 0.0,
         "critical_false_negatives": 0,
-        "blocked_insufficient_power": false
+        "blocked_insufficient_power": true,
+        "operational_claim_allowed": true
       },
       "commercial": {
         "pass": true,
         "point": 1.0,
-        "lower_95": 0.9841915402609456,
+        "lower_95": 1.0,
+        "conservative": 1.0,
+        "hard_only_additional": 1.0,
         "hard_false_positives": 0,
-        "blocks_readiness": false
+        "ambiguous_match_commercial_risk": 0,
+        "blocks_readiness": false,
+        "operational_claim_allowed": true
       },
       "audit": {
         "pass": true,
@@ -48,6 +67,87 @@
           "lineage_coverage": 1.0,
           "silent_discards": 0
         }
+      },
+      "corpus": {
+        "pass": false,
+        "evaluation_level": "C",
+        "blockers": [
+          "BLOCKED_INSUFFICIENT_REAL_GOLD_CORPUS"
+        ],
+        "audit": {
+          "corpus_kind": "REAL_OPERATIONAL_LOCKED_GOLD",
+          "operational_gold_eligible": false,
+          "quotas": {
+            "ok": false,
+            "checks": {
+              "positives": {
+                "have": 0,
+                "need": 300,
+                "ok": false
+              },
+              "hard_negatives": {
+                "have": 0,
+                "need": 300,
+                "ok": false
+              },
+              "ambiguous": {
+                "have": 0,
+                "need": 150,
+                "ok": false
+              },
+              "positives_without_keywords": {
+                "have": 0,
+                "need": 100,
+                "ok": false
+              }
+            },
+            "locked_count": 0
+          },
+          "dual_review": {
+            "ok": false,
+            "checks": {
+              "empty_corpus": {
+                "have": 0,
+                "need": 1,
+                "ok": false
+              }
+            },
+            "disagreements": [],
+            "note": "Empty corpus cannot satisfy dual-review rules."
+          },
+          "n_records": 0,
+          "n_locked": 0
+        }
+      },
+      "llm_operational": {
+        "pass": false,
+        "status": "BLOCKED_LLM_OPERATIONAL_VALIDATION",
+        "n_samples": 0,
+        "min_required": 200,
+        "human_review_complete": false
+      },
+      "embedding_operational": {
+        "pass": false,
+        "status": "BLOCKED_EMBEDDING_OPERATIONAL_VALIDATION",
+        "provider_class": "lexical_fuzzy_hash",
+        "benchmark": null
+      },
+      "review_capacity": {
+        "pass": true,
+        "review_rate": 0.0,
+        "max_review_rate": 0.2,
+        "overflow": false,
+        "operational_status": "WITHIN_CAPACITY"
+      },
+      "full_suite": {
+        "pass": false,
+        "status": "BLOCKED_FULL_SUITE_VALIDATION",
+        "details": null
+      },
+      "rc_v2_intact": {
+        "pass": false,
+        "checked": false,
+        "value": null
       }
     },
     "thresholds": {
@@ -57,12 +157,37 @@
       "preservation_recall_lower_95": 0.99,
       "match_precision_point": 0.95,
       "match_precision_lower_95": 0.9,
+      "max_review_rate": 0.2,
       "locked_min_positives": 300,
       "locked_min_hard_negatives": 300,
       "locked_min_ambiguous": 150,
       "locked_min_positives_without_keywords": 100
     },
-    "all_core_pass": true,
-    "terminal_status": "BLOCKED_REVIEW_CAPACITY"
-  }
+    "all_core_pass": false,
+    "terminal_status": "BLOCKED_INVALID_EVALUATION_CORPUS",
+    "primary_terminal_status": "BLOCKED_INVALID_EVALUATION_CORPUS",
+    "active_blockers": [
+      "BLOCKED_EMBEDDING_OPERATIONAL_VALIDATION",
+      "BLOCKED_FULL_SUITE_VALIDATION",
+      "BLOCKED_INSUFFICIENT_REAL_GOLD_CORPUS",
+      "BLOCKED_INSUFFICIENT_STATISTICAL_POWER",
+      "BLOCKED_INVALID_EVALUATION_CORPUS",
+      "BLOCKED_LLM_OPERATIONAL_VALIDATION"
+    ],
+    "required_honest_blockers_present": false,
+    "evaluation_level": "C",
+    "ready_requirements": {
+      "real_corpus_sufficient": false,
+      "label_provenance_valid": false,
+      "unlabeled_match_zero": true,
+      "real_recall_approved": false,
+      "real_precision_approved": true,
+      "real_embeddings_evaluated": false,
+      "real_llm_validated": false,
+      "review_capacity_within_limit": true,
+      "full_suite_green": false,
+      "rc_v2_intact": false
+    }
+  },
+  "note": "Level C operational intervals"
 }

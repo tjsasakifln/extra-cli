@@ -1,51 +1,101 @@
 {
-  "path": "tests/fixtures/hybrid_sector/gold_corpus.json",
-  "split_stats": {
-    "locked": {
-      "POSITIVE": 300,
-      "total": 750,
-      "NEGATIVE": 300,
-      "AMBIGUOUS": 150
-    },
-    "dev": {
-      "POSITIVE": 80,
-      "total": 200,
-      "NEGATIVE": 80,
-      "AMBIGUOUS": 40
-    },
-    "calibration": {
-      "POSITIVE": 60,
-      "total": 150,
-      "NEGATIVE": 60,
-      "AMBIGUOUS": 30
-    }
-  },
+  "path": "tests/fixtures/hybrid_sector/real_operational_corpus.json",
+  "corpus_id": "hybrid-sector-real-operational-locked-v0",
+  "corpus_kind": "REAL_OPERATIONAL_LOCKED_GOLD",
+  "evaluation_level": "C",
+  "operational_gold": true,
+  "operational_gold_eligible": false,
+  "split_stats": {},
   "locked_adequacy": {
-    "ok": true,
+    "ok": false,
     "checks": {
       "positives": {
-        "have": 300,
+        "have": 0,
         "need": 300,
-        "ok": true
+        "ok": false
       },
       "hard_negatives": {
-        "have": 300,
+        "have": 0,
         "need": 300,
-        "ok": true
+        "ok": false
       },
       "ambiguous": {
-        "have": 150,
+        "have": 0,
         "need": 150,
-        "ok": true
+        "ok": false
       },
       "positives_without_keywords": {
-        "have": 100,
+        "have": 0,
         "need": 100,
-        "ok": true
+        "ok": false
       }
     },
-    "dual_review_rate": 0.46,
-    "note": "Labels authored independently of classifier under test; full dual human review may be pending — do not claim 99% without power."
+    "dual_review_rate": 0.0,
+    "corpus_kind": "REAL_OPERATIONAL_LOCKED_GOLD",
+    "operational_gold": true,
+    "numeric_quotas_only": false,
+    "blockers": [
+      "BLOCKED_INSUFFICIENT_REAL_GOLD_CORPUS"
+    ],
+    "note": "Labels for operational gold require structured dual review provenance."
   },
-  "labels_independent_of_classifier": true
+  "real_corpus_audit": {
+    "corpus_kind": "REAL_OPERATIONAL_LOCKED_GOLD",
+    "evaluation_level": "C",
+    "operational_gold_eligible": false,
+    "quotas": {
+      "ok": false,
+      "checks": {
+        "positives": {
+          "have": 0,
+          "need": 300,
+          "ok": false
+        },
+        "hard_negatives": {
+          "have": 0,
+          "need": 300,
+          "ok": false
+        },
+        "ambiguous": {
+          "have": 0,
+          "need": 150,
+          "ok": false
+        },
+        "positives_without_keywords": {
+          "have": 0,
+          "need": 100,
+          "ok": false
+        }
+      },
+      "locked_count": 0
+    },
+    "dual_review": {
+      "ok": false,
+      "checks": {
+        "empty_corpus": {
+          "have": 0,
+          "need": 1,
+          "ok": false
+        }
+      },
+      "disagreements": [],
+      "note": "Empty corpus cannot satisfy dual-review rules."
+    },
+    "fields": {
+      "ok_count": 0,
+      "fail_count": 0,
+      "missing_examples": []
+    },
+    "private_data_flags": 0,
+    "blockers": [
+      "BLOCKED_INSUFFICIENT_REAL_GOLD_CORPUS"
+    ],
+    "n_records": 0,
+    "n_locked": 0,
+    "invented_fill_forbidden": true,
+    "note": "Level C only. Synthetic fixtures are Level B and cannot sustain operational recall/precision claims."
+  },
+  "labels_independent_of_classifier": true,
+  "synthetic_only_for": [],
+  "not_for_operational_claims": false
 }

@@ -5,10 +5,15 @@ Stages (never mixed):
   → llm_arbitration → decision_policy → human_review → evaluation
 
 No stage may silently discard a record.
+
+Evaluation levels:
+  A — small unit fixtures
+  B — synthetic adversarial (SYNTHETIC_ADVERSARIAL_FIXTURE)
+  C — real locked operational gold (only Level C sustains operational claims)
 """
 from __future__ import annotations
 
-PIPELINE_VERSION = "hybrid-sector-recall-llm-arbiter/1.0.0"
+PIPELINE_VERSION = "hybrid-sector-recall-llm-arbiter/1.1.0"
 RULE_STAMP = "extra-sector-classifier/2.2.0+selective"
 PROMPT_VERSION = "sector-arbiter-v1"
 SCHEMA_VERSION = "SectorLLMDecision/1.0"
@@ -19,7 +24,23 @@ ALLOWED_TERMINAL_STATES = frozenset(
         "BLOCKED_INSUFFICIENT_STATISTICAL_POWER",
         "BLOCKED_REVIEW_CAPACITY",
         "BLOCKED_LLM_OPERATIONAL_VALIDATION",
+        "BLOCKED_INVALID_EVALUATION_CORPUS",
+        "BLOCKED_INSUFFICIENT_REAL_GOLD_CORPUS",
+        "BLOCKED_FULL_SUITE_VALIDATION",
+        "BLOCKED_UNLABELED_MATCH",
+        "BLOCKED_EMBEDDING_OPERATIONAL_VALIDATION",
+        "BLOCKED_RC_V2_INTEGRITY",
         "READY_FOR_RECALL_ASSURANCE_REVIEW",
+    }
+)
+
+# Required honest multi-blocker set when not READY (must report all that apply)
+REQUIRED_HONEST_BLOCKERS = frozenset(
+    {
+        "BLOCKED_INVALID_EVALUATION_CORPUS",
+        "BLOCKED_LLM_OPERATIONAL_VALIDATION",
+        "BLOCKED_REVIEW_CAPACITY",
+        "BLOCKED_FULL_SUITE_VALIDATION",
     }
 )
 
@@ -39,5 +60,6 @@ __all__ = [
     "PROMPT_VERSION",
     "SCHEMA_VERSION",
     "ALLOWED_TERMINAL_STATES",
+    "REQUIRED_HONEST_BLOCKERS",
     "FORBIDDEN_CLAIMS",
 ]

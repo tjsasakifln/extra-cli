@@ -1,19 +1,198 @@
 {
-  "champion": {
-    "match": 138,
-    "review": 28,
-    "no_match": 584,
-    "safe_recall": 0.4533333333333333
+  "overall": {
+    "champion": {
+      "match": 0,
+      "review": 0,
+      "no_match": 0,
+      "safe_recall": 0.0,
+      "review_rate": 0.0,
+      "false_negative_rate": 0.0,
+      "precision_all_match": 1.0,
+      "match_true_positives": 0,
+      "match_false_positives": 0,
+      "cost_usd": null,
+      "latency_s": null
+    },
+    "challenger": {
+      "match": 0,
+      "review": 0,
+      "no_match": 0,
+      "safe_recall": 0.0,
+      "review_rate": 0.0,
+      "false_negative_rate": 0.0,
+      "precision_all_match": 1.0,
+      "match_true_positives": 0,
+      "match_false_positives": 0,
+      "cost_usd": null,
+      "latency_s": null,
+      "rescues": 0,
+      "new_false_positives": 0
+    },
+    "rescued_by_challenger": 0,
+    "new_hard_fp_by_challenger": 0,
+    "n_compared": 0,
+    "corpus_kind": "REAL_OPERATIONAL_LOCKED_GOLD",
+    "promotion_eligible": false,
+    "promotion_requires": {
+      "real_operational_corpus": true,
+      "human_review": false,
+      "no_new_hard_fp": true
+    },
+    "note": "Challenger must not replace champion without human + real Level C gate approval. Synthetic-only shadow never sets promotion_eligible=true."
   },
-  "challenger": {
-    "match": 198,
-    "review": 442,
-    "no_match": 110,
-    "safe_recall": 1.0
-  },
-  "rescued_by_challenger": 164,
-  "new_hard_fp_by_challenger": 0,
-  "n_compared": 750,
+  "windows": [
+    {
+      "window": "window_all",
+      "start": "",
+      "end": "",
+      "n": 0,
+      "has_positive_opportunities": false,
+      "comparison": {
+        "champion": {
+          "match": 0,
+          "review": 0,
+          "no_match": 0,
+          "safe_recall": 0.0,
+          "review_rate": 0.0,
+          "false_negative_rate": 0.0,
+          "precision_all_match": 1.0,
+          "match_true_positives": 0,
+          "match_false_positives": 0,
+          "cost_usd": null,
+          "latency_s": null
+        },
+        "challenger": {
+          "match": 0,
+          "review": 0,
+          "no_match": 0,
+          "safe_recall": 0.0,
+          "review_rate": 0.0,
+          "false_negative_rate": 0.0,
+          "precision_all_match": 1.0,
+          "match_true_positives": 0,
+          "match_false_positives": 0,
+          "cost_usd": null,
+          "latency_s": null,
+          "rescues": 0,
+          "new_false_positives": 0
+        },
+        "rescued_by_challenger": 0,
+        "new_hard_fp_by_challenger": 0,
+        "n_compared": 0,
+        "corpus_kind": "REAL_OPERATIONAL_LOCKED_GOLD",
+        "promotion_eligible": false,
+        "promotion_requires": {
+          "real_operational_corpus": true,
+          "human_review": false,
+          "no_new_hard_fp": true
+        },
+        "note": "Challenger must not replace champion without human + real Level C gate approval. Synthetic-only shadow never sets promotion_eligible=true."
+      }
+    },
+    {
+      "window": "window_placeholder_2",
+      "start": "",
+      "end": "",
+      "n": 0,
+      "has_positive_opportunities": false,
+      "comparison": {
+        "champion": {
+          "match": 0,
+          "review": 0,
+          "no_match": 0,
+          "safe_recall": 0.0,
+          "review_rate": 0.0,
+          "false_negative_rate": 0.0,
+          "precision_all_match": 1.0,
+          "match_true_positives": 0,
+          "match_false_positives": 0,
+          "cost_usd": null,
+          "latency_s": null
+        },
+        "challenger": {
+          "match": 0,
+          "review": 0,
+          "no_match": 0,
+          "safe_recall": 0.0,
+          "review_rate": 0.0,
+          "false_negative_rate": 0.0,
+          "precision_all_match": 1.0,
+          "match_true_positives": 0,
+          "match_false_positives": 0,
+          "cost_usd": null,
+          "latency_s": null,
+          "rescues": 0,
+          "new_false_positives": 0
+        },
+        "rescued_by_challenger": 0,
+        "new_hard_fp_by_challenger": 0,
+        "n_compared": 0,
+        "corpus_kind": "REAL_OPERATIONAL_LOCKED_GOLD",
+        "promotion_eligible": false,
+        "promotion_requires": {
+          "real_operational_corpus": true,
+          "human_review": false,
+          "no_new_hard_fp": true
+        },
+        "note": "Challenger must not replace champion without human + real Level C gate approval. Synthetic-only shadow never sets promotion_eligible=true."
+      }
+    },
+    {
+      "window": "window_placeholder_3",
+      "start": "",
+      "end": "",
+      "n": 0,
+      "has_positive_opportunities": false,
+      "comparison": {
+        "champion": {
+          "match": 0,
+          "review": 0,
+          "no_match": 0,
+          "safe_recall": 0.0,
+          "review_rate": 0.0,
+          "false_negative_rate": 0.0,
+          "precision_all_match": 1.0,
+          "match_true_positives": 0,
+          "match_false_positives": 0,
+          "cost_usd": null,
+          "latency_s": null
+        },
+        "challenger": {
+          "match": 0,
+          "review": 0,
+          "no_match": 0,
+          "safe_recall": 0.0,
+          "review_rate": 0.0,
+          "false_negative_rate": 0.0,
+          "precision_all_match": 1.0,
+          "match_true_positives": 0,
+          "match_false_positives": 0,
+          "cost_usd": null,
+          "latency_s": null,
+          "rescues": 0,
+          "new_false_positives": 0
+        },
+        "rescued_by_challenger": 0,
+        "new_hard_fp_by_challenger": 0,
+        "n_compared": 0,
+        "corpus_kind": "REAL_OPERATIONAL_LOCKED_GOLD",
+        "promotion_eligible": false,
+        "promotion_requires": {
+          "real_operational_corpus": true,
+          "human_review": false,
+          "no_new_hard_fp": true
+        },
+        "note": "Challenger must not replace champion without human + real Level C gate approval. Synthetic-only shadow never sets promotion_eligible=true."
+      }
+    }
+  ],
+  "sources": [],
+  "n_windows": 3,
+  "n_sources": 0,
+  "min_windows_required": 3,
+  "min_sources_required": 2,
+  "windows_requirement_met": true,
+  "sources_requirement_met": false,
   "promotion_eligible": false,
-  "note": "Challenger must not replace champion without human + gate approval"
+  "corpus_kind": "REAL_OPERATIONAL_LOCKED_GOLD"
 }

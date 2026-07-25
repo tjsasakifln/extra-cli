@@ -1,9 +1,9 @@
-"""Phase 10 — stage metrics (never a single accuracy)."""
+"""Phase 10 — stage metrics (never a single accuracy; never dilute MATCH denominators)."""
 from __future__ import annotations
 
 import math
 from collections import defaultdict
-from typing import Any, Iterable
+from typing import Any
 
 from scripts.ops.hybrid_sector.models import CandidateRecord, DecisionLineage
 
@@ -92,9 +92,19 @@ def decision_metrics(
     lineages: list[DecisionLineage],
     *,
     critical_positive_ids: set[str] | None = None,
+    adjudicated_ids: set[str] | None = None,
 ) -> dict[str, Any]:
-    """gold_labels: id -> POSITIVE|NEGATIVE|AMBIGUOUS (human)."""
+    """gold_labels: id -> POSITIVE|NEGATIVE|AMBIGUOUS (human).
+
+    Precision rules (integrity):
+    - Primary commercial precision is over ALL MATCH predictions.
+    - unlabeled MATCH is a hard integrity failure (count tracked).
+    - Conservative precision treats unadjudicated AMBIGUOUS MATCH as error.
+    - Hard-label-only precision is ADDITIONAL, never the sole primary gate metric.
+    - Gate: all_match_count == evaluated_match_count (no convenient subset).
+    """
     critical_positive_ids = critical_positive_ids or set()
+    adjudicated_ids = adjudicated_ids or set()
     by_id = {l.canonical_id: l for l in lineages}
     pos_ids = {i for i, lab in gold_labels.items() if lab == "POSITIVE"}
     neg_ids = {i for i, lab in gold_labels.items() if lab == "NEGATIVE"}
@@ -120,17 +130,51 @@ def decision_metrics(
     n_pos = len(pos_ids)
     safe_recall = preserved / n_pos if n_pos else 0.0
 
-    # Commercial MATCH precision — only on gold-labeled hard cases (POSITIVE/NEGATIVE).
-    # Unlabeled distractors and AMBIGUOUS must not dilute the denominator.
     match_ids = [l.canonical_id for l in lineages if l.commercial_decision == "MATCH"]
+    all_match_count = len(match_ids)
+
+    unlabeled_match_ids = [m for m in match_ids if m not in gold_labels]
+    unlabeled_match_count = len(unlabeled_match_ids)
+
+    # Every MATCH must be evaluated — no unlabeled allowed in locked eval
+    evaluated_match_ids = list(match_ids)  # evaluate ALL matches
+    evaluated_match_count = len(evaluated_match_ids)
+
+    # --- Primary precision: over all MATCH ---
+    # TP = gold POSITIVE; FP = gold NEGATIVE; AMBIGUOUS counted separately;
+    # unlabeled counted as integrity failure (not free precision boost).
+    tp_all = sum(1 for m in match_ids if gold_labels.get(m) == "POSITIVE")
+    fp_hard = sum(1 for m in match_ids if gold_labels.get(m) == "NEGATIVE")
+    ambiguous_match = sum(1 for m in match_ids if gold_labels.get(m) == "AMBIGUOUS")
+    # Primary: TP / all_match when all labeled hard+ambiguous+unlabeled in denom
+    # Commercial primary treats only POSITIVE as success among ALL matches.
+    match_precision_all = tp_all / all_match_count if all_match_count else 1.0
+
+    # --- Conservative: unadjudicated AMBIGUOUS MATCH = error ---
+    ambig_unadj_as_error = sum(
+        1
+        for m in match_ids
+        if gold_labels.get(m) == "AMBIGUOUS" and m not in adjudicated_ids
+    )
+    # successes: only POSITIVE; denom = all MATCH; ambig unadj + neg + unlabeled = errors
+    match_precision_conservative = (
+        tp_all / all_match_count if all_match_count else 1.0
+    )
+    # conservative_errors for reporting
+    conservative_errors = fp_hard + ambig_unadj_as_error + unlabeled_match_count
+
+    # --- Additional: hard labels only (POSITIVE/NEGATIVE) — NOT primary ---
     labeled_hard_matches = [
         m for m in match_ids if gold_labels.get(m) in {"POSITIVE", "NEGATIVE"}
     ]
-    tp = sum(1 for m in labeled_hard_matches if gold_labels[m] == "POSITIVE")
-    fp = sum(1 for m in labeled_hard_matches if gold_labels[m] == "NEGATIVE")
-    ambiguous_match = sum(1 for m in match_ids if gold_labels.get(m) == "AMBIGUOUS")
-    unlabeled_match = sum(1 for m in match_ids if m not in gold_labels)
-    precision = tp / len(labeled_hard_matches) if labeled_hard_matches else 1.0
+    tp_hard = sum(1 for m in labeled_hard_matches if gold_labels[m] == "POSITIVE")
+    match_precision_hard_only = (
+        tp_hard / len(labeled_hard_matches) if labeled_hard_matches else 1.0
+    )
+
+    # Integrity gates
+    unlabeled_match_gate_ok = unlabeled_match_count == 0
+    all_equals_evaluated = all_match_count == evaluated_match_count
 
     review_ids = [l.canonical_id for l in lineages if l.commercial_decision == "REVIEW"]
     review_rate = len(review_ids) / len(lineages) if lineages else 0.0
@@ -160,6 +204,9 @@ def decision_metrics(
             if det_map.get(l.deterministic.decision) != l.llm_decision.get("decision"):
                 disagreement += 1
 
+    # Commercial risk: AMBIGUOUS marked MATCH without adjudication
+    ambiguous_match_commercial_risk = ambig_unadj_as_error
+
     return {
         "safe_recall_match_plus_review": safe_recall,
         "safe_recall_lower_95": binomial_ci_lower_one_sided(preserved, n_pos),
@@ -167,16 +214,32 @@ def decision_metrics(
         "critical_false_negatives": critical_fn,
         "n_positives": n_pos,
         "n_preserved": preserved,
-        "match_precision": precision,
-        "match_precision_lower_95": binomial_ci_lower_one_sided(tp, len(labeled_hard_matches))
-        if labeled_hard_matches
+        # Primary commercial precision (all MATCH)
+        "match_precision": match_precision_all,
+        "match_precision_all": match_precision_all,
+        "match_precision_lower_95": binomial_ci_lower_one_sided(tp_all, all_match_count)
+        if all_match_count
         else 1.0,
-        "match_count": len(match_ids),
+        # Conservative (AMBIGUOUS unadjudicated as error — same denom all MATCH)
+        "match_precision_conservative": match_precision_conservative,
+        "match_precision_conservative_errors": conservative_errors,
+        "ambiguous_match_unadjudicated_as_error": ambig_unadj_as_error,
+        "ambiguous_match_commercial_risk": ambiguous_match_commercial_risk,
+        # Additional hard-label-only (NOT primary)
+        "match_precision_hard_only": match_precision_hard_only,
+        "match_precision_hard_only_is_primary": False,
         "match_labeled_hard_count": len(labeled_hard_matches),
-        "match_true_positives": tp,
-        "match_false_positives_hard": fp,
+        "match_true_positives": tp_all,
+        "match_false_positives_hard": fp_hard,
         "match_ambiguous": ambiguous_match,
-        "match_unlabeled": unlabeled_match,
+        "match_unlabeled": unlabeled_match_count,
+        "unlabeled_match_count": unlabeled_match_count,
+        "unlabeled_match_ids": unlabeled_match_ids[:50],
+        "unlabeled_match_gate_ok": unlabeled_match_gate_ok,
+        "all_match_count": all_match_count,
+        "evaluated_match_count": evaluated_match_count,
+        "all_match_count_equals_evaluated": all_equals_evaluated,
+        "match_count": all_match_count,  # alias
         "review_rate": review_rate,
         "review_yield": review_yield,
         "llm_rescue_rate": llm_rescue / n_pos if n_pos else 0.0,

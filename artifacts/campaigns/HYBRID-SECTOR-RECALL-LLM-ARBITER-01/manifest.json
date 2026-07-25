@@ -1,34 +1,53 @@
 {
   "campaign_id": "HYBRID-SECTOR-RECALL-LLM-ARBITER-01",
-  "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.0.0",
-  "terminal_status": "BLOCKED_REVIEW_CAPACITY",
+  "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.1.0",
+  "terminal_status": "BLOCKED_INVALID_EVALUATION_CORPUS",
+  "active_blockers": [
+    "BLOCKED_EMBEDDING_OPERATIONAL_VALIDATION",
+    "BLOCKED_FULL_SUITE_VALIDATION",
+    "BLOCKED_INSUFFICIENT_REAL_GOLD_CORPUS",
+    "BLOCKED_INSUFFICIENT_STATISTICAL_POWER",
+    "BLOCKED_INVALID_EVALUATION_CORPUS",
+    "BLOCKED_LLM_OPERATIONAL_VALIDATION"
+  ],
   "summary": {
-    "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.0.0",
-    "raw_universe_count": 1100,
-    "candidate_count": 1100,
-    "lineage_count": 1100,
-    "match_count": 318,
-    "review_count": 619,
-    "no_match_count": 163,
+    "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.1.0",
+    "raw_universe_count": 0,
+    "candidate_count": 0,
+    "lineage_count": 0,
+    "match_count": 0,
+    "review_count": 0,
+    "no_match_count": 0,
     "review_status": {
       "manual_review": {
         "max_items_per_cycle": 100,
         "overflow_policy": "preserve_and_flag"
       },
-      "review_count": 619,
-      "overflow": true,
+      "review_count": 0,
+      "overflow": false,
       "overflow_policy": "preserve_and_flag",
-      "operational_status": "OPERATIONALLY_BLOCKED_REVIEW_VOLUME",
+      "operational_status": "WITHIN_CAPACITY",
       "discarded": 0,
       "preserved_all": true
     },
-    "terminal_status": "BLOCKED_REVIEW_CAPACITY",
+    "terminal_status": "BLOCKED_INVALID_EVALUATION_CORPUS",
+    "active_blockers": [
+      "BLOCKED_EMBEDDING_OPERATIONAL_VALIDATION",
+      "BLOCKED_FULL_SUITE_VALIDATION",
+      "BLOCKED_INSUFFICIENT_REAL_GOLD_CORPUS",
+      "BLOCKED_INSUFFICIENT_STATISTICAL_POWER",
+      "BLOCKED_INVALID_EVALUATION_CORPUS",
+      "BLOCKED_LLM_OPERATIONAL_VALIDATION"
+    ],
     "every_record_has_decision": true,
-    "silent_drop_ids": []
+    "silent_drop_ids": [],
+    "observed_cost_usd": 0.0
   },
   "forbidden_claims_absent": true,
   "pr_131_status": "CHANGES_REQUESTED_RECALL_ASSURANCE",
   "rc_v3_generated": false,
   "accepted": false,
-  "merged": false
+  "merged": false,
+  "evaluation_level": "C",
+  "corpus_kind": "REAL_OPERATIONAL_LOCKED_GOLD"
 }

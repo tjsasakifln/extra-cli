@@ -1,0 +1,36 @@
+{
+  "schema_version": "annotation-agreement/1.0",
+  "n_dual_reviewed": 0,
+  "n_agree": 0,
+  "raw_agreement": null,
+  "pairs_preview": [],
+  "dual_review_rules": {
+    "ok": true,
+    "checks": {
+      "critical_positives_dual": {
+        "have": 0,
+        "need": 0,
+        "ok": true
+      },
+      "ambiguous_dual": {
+        "have": 0,
+        "need": 0,
+        "ok": true
+      },
+      "rest_dual_rate": {
+        "have": 1.0,
+        "need": 0.2,
+        "ok": true,
+        "dual_count": 0,
+        "rest_count": 0
+      },
+      "disagreements_resolved": {
+        "total_disagreements": 0,
+        "unresolved": 0,
+        "ok": true
+      }
+    },
+    "disagreements": [],
+    "note": "Bare boolean second_review is NOT dual review. Operational gold requires structured second_review + adjudications."
+  }
+}

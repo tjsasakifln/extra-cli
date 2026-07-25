@@ -1,4 +1,18 @@
 {
+  "evaluation_level": "C",
+  "corpus_kind": "REAL_OPERATIONAL_LOCKED_GOLD",
+  "retrieval_metrics": {
+    "retrieval_recall": 0.0,
+    "retrieval_recall_lower_95": 0.0,
+    "n_gold_positives": 0,
+    "n_retrieved_positives": 0,
+    "missed_positive_ids": [],
+    "recall_by_channel": {},
+    "recall_without_keywords": null,
+    "unique_rescues_by_channel": {},
+    "positives_with_decision": 0,
+    "universe_decision_coverage": 1.0
+  },
   "decision_metrics": {
     "safe_recall_match_plus_review": 0.0,
     "safe_recall_lower_95": 0.0,
@@ -32,16 +46,5 @@
     "llm_rescue_rate": 0.0,
     "deterministic_llm_disagreement": 0,
     "n_negatives_gold": 0
-  },
-  "confusion": {},
-  "lineage_count": 0,
-  "evaluation_level": "C",
-  "precision_variants": {
-    "all_match_primary": 1.0,
-    "conservative_ambiguous_as_error": 1.0,
-    "hard_label_only_additional": 1.0,
-    "unlabeled_match_count": 0,
-    "all_match_count": 0,
-    "evaluated_match_count": 0
   }
 }

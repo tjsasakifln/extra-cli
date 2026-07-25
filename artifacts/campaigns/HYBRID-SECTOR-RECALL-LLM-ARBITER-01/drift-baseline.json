@@ -1,9 +1,5 @@
 {
-  "decision_distribution": {
-    "MATCH": 318,
-    "REVIEW": 619,
-    "NO_MATCH": 163
-  },
-  "review_rate": 0.5627272727272727,
-  "zero_match_rate": 0.5772727272727273
+  "decision_distribution": {},
+  "review_rate": 0.0,
+  "zero_match_rate": 0.0
 }

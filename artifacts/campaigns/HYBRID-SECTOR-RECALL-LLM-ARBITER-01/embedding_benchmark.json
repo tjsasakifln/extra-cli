@@ -1,0 +1,5 @@
+{
+  "passed": false,
+  "status": "BLOCKED_EMBEDDING_OPERATIONAL_VALIDATION",
+  "provider_class": "lexical_fuzzy_hash"
+}

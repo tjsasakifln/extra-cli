@@ -1,7 +1,8 @@
 # Hybrid sector recall + LLM arbiter — default offline-safe config
 # No secrets. Paid LLM only via explicit operational gate.
+# Hash embeddings are lexical_fuzzy_hash only — not operational semantic.
 
-pipeline_version: hybrid-sector-recall-llm-arbiter/1.0.0
+pipeline_version: hybrid-sector-recall-llm-arbiter/1.1.0
 
 raw_universe:
   full_universe_threshold: 500
@@ -9,16 +10,30 @@ raw_universe:
 manual_review:
   max_items_per_cycle: 100
   overflow_policy: preserve_and_flag
+  target_review_rate: 0.20
 
 retrieval:
   rrf_k: 60
   lexical:
     max_terms: null  # null = no silent 80-term cap; log if capped
   semantic:
+    # lexical_fuzzy_hash | sentence_transformer | openai_compatible
+    provider: lexical_fuzzy_hash
     model_id: offline-hash-embedding-pt-v1
     model_version: "1.0.0"
+    base_url: null
     top_k: 200
     min_similarity: 0.12
+    batch_size: 32
+    timeout_seconds: 60
+    max_retries: 2
+    normalize: true
+    dim: null
+    cache_path: null
+    cost_per_1k_tokens: 0.00002
+    # Operational real model example (not default CI):
+    # provider: sentence_transformer
+    # model_id: sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
   metadata:
     engineering_category_terms:
       - obras
@@ -52,6 +67,7 @@ llm:
   enabled: true
   provider: fake  # fake | openai_compatible
   model: offline-fake
+  base_url: null  # set via env HYBRID_SECTOR_LLM_BASE_URL / OPENAI_BASE_URL
   prompt_version: sector-arbiter-v1
   timeout_seconds: 15
   max_retries: 2
@@ -60,6 +76,8 @@ llm:
   circuit_breaker_failures: 5
   min_confidence: 60
   second_adjudication_value_threshold: 1000000.0
+  cache_enabled: true
+  temperature: 0.0
   # OPENAI_API_KEY / LLM_BASE_URL only via env — never commit secrets
 
 decision_policy:
@@ -81,6 +99,7 @@ evaluation:
   preservation_recall_lower_95: 0.99
   match_precision_point: 0.95
   match_precision_lower_95: 0.90
+  max_review_rate: 0.20
 
 no_match_audit:
   # audit_size = all if total < 200 else min(1000, max(200, 5% of total))
