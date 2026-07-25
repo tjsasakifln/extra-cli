@@ -1,10 +1,10 @@
 {
-  "run_id": "cl-20260725T230439Z-2afabde7",
+  "run_id": "cl-20260725T230559Z-242e4a71",
   "status": "PASS",
   "reason": null,
-  "git_sha": "b956f00ef632c26715ae4b4eaf20928d05abcb6a",
-  "run_git_sha": "b956f00ef632c26715ae4b4eaf20928d05abcb6a",
-  "artifact_git_sha": "b956f00ef632c26715ae4b4eaf20928d05abcb6a",
+  "git_sha": "ffefe2960f40469be02a1d7de68b13c5c2ccfad2",
+  "run_git_sha": "ffefe2960f40469be02a1d7de68b13c5c2ccfad2",
+  "artifact_git_sha": "ffefe2960f40469be02a1d7de68b13c5c2ccfad2",
   "population_mode": "FULL_POPULATION",
   "source_state_mode": "RESTORED_SNAPSHOT_SINGLE_DB",
   "snapshot_binding": {
