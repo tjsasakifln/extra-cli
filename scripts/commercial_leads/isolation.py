@@ -1,4 +1,12 @@
-"""Fail-closed isolation for CONFENGE commercial campaign."""
+"""Fail-closed isolation for CONFENGE commercial campaign.
+
+Supports dual DSN:
+  CONFENGE_COMMERCIAL_SOURCE_DSN — read-only source of contracts
+  CONFENGE_COMMERCIAL_STATE_DSN  — ledger / migrations
+
+If source and state are the same physical DB with a restored snapshot, mode must
+be RESTORED_SNAPSHOT_SINGLE_DB (never claim source_state_separated=true).
+"""
 
 from __future__ import annotations
 
@@ -9,7 +17,11 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
-from scripts.commercial_leads import CAMPAIGN_ID
+from scripts.commercial_leads import (
+    CAMPAIGN_ID,
+    SOURCE_STATE_RESTORED,
+    SOURCE_STATE_SEPARATED,
+)
 
 FORBIDDEN_HOST_MARKERS = (
     "ec-prod",
@@ -48,6 +60,11 @@ class IsolationResult:
     database: str | None
     reasons: list[str] = field(default_factory=list)
     forbidden_hits: list[str] = field(default_factory=list)
+    source_state_mode: str | None = None
+    source_dsn_masked: str | None = None
+    state_dsn_masked: str | None = None
+    source_read_only_enforced: bool | None = None
+    source_state_separated: bool | None = None
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -61,6 +78,11 @@ class IsolationResult:
             "reasons": self.reasons,
             "forbidden_hits": self.forbidden_hits,
             "campaign_id": CAMPAIGN_ID,
+            "source_state_mode": self.source_state_mode,
+            "source_dsn_masked": self.source_dsn_masked,
+            "state_dsn_masked": self.state_dsn_masked,
+            "source_read_only_enforced": self.source_read_only_enforced,
+            "source_state_separated": self.source_state_separated,
         }
 
 
@@ -153,3 +175,119 @@ def assert_isolation(
         reasons=reasons,
         forbidden_hits=hits,
     )
+
+
+def _normalize_dsn_identity(dsn: str) -> str:
+    """Host:port/db identity ignoring credentials for separation detection."""
+    host, port, db = parse_dsn(dsn)
+    return f"{(host or '').lower()}:{(port or '')}/{(db or '').lower()}"
+
+
+def assert_source_state_isolation(
+    *,
+    source_dsn: str,
+    state_dsn: str,
+    out_dir: Path | str | None = None,
+    force_mode: str | None = None,
+    enforce_source_readonly: bool = True,
+) -> IsolationResult:
+    """Validate source/state DSNs and declare honest mode.
+
+    force_mode may be RESTORED_SNAPSHOT_SINGLE_DB when intentionally single DB.
+    """
+    state_res = assert_isolation(state_dsn, out_dir=out_dir)
+    source_res = assert_isolation(source_dsn, out_dir=out_dir)
+
+    reasons = list(state_res.reasons) + [f"source:{r}" for r in source_res.reasons]
+    hits = list(state_res.forbidden_hits) + [f"source:{h}" for h in source_res.forbidden_hits]
+    production = state_res.production_touched or source_res.production_touched
+    soak = state_res.soak_touched or source_res.soak_touched
+
+    same = _normalize_dsn_identity(source_dsn) == _normalize_dsn_identity(state_dsn)
+    if force_mode == SOURCE_STATE_SEPARATED:
+        if same:
+            mode = SOURCE_STATE_RESTORED
+            separated = False
+            reasons.append("claimed_separated_but_same_dsn")
+            hits.append("false_source_state_separation")
+        else:
+            mode = SOURCE_STATE_SEPARATED
+            separated = True
+    elif force_mode == SOURCE_STATE_RESTORED or same:
+        mode = SOURCE_STATE_RESTORED
+        separated = False
+        if same and force_mode not in (None, SOURCE_STATE_RESTORED, ""):
+            pass
+    else:
+        mode = SOURCE_STATE_SEPARATED
+        separated = True
+
+    source_ro: bool | None = None
+    if enforce_source_readonly and source_dsn:
+        source_ro = _probe_source_read_only(source_dsn)
+        if source_ro is False:
+            reasons.append("source_dsn_writable")
+            hits.append("source_not_read_only")
+
+    ok = not hits and state_res.ok and source_res.ok
+    if hits and "isolation_violation" not in reasons:
+        reasons.append("isolation_violation")
+
+    return IsolationResult(
+        ok=ok,
+        production_touched=production,
+        soak_touched=soak,
+        dsn_masked=state_res.dsn_masked,
+        host=state_res.host,
+        port=state_res.port,
+        database=state_res.database,
+        reasons=reasons,
+        forbidden_hits=hits,
+        source_state_mode=mode,
+        source_dsn_masked=mask_dsn(source_dsn),
+        state_dsn_masked=mask_dsn(state_dsn),
+        source_read_only_enforced=source_ro,
+        source_state_separated=separated and mode == SOURCE_STATE_SEPARATED,
+    )
+
+
+def _probe_source_read_only(dsn: str) -> bool | None:
+    """Return True if session is read-only, False if write succeeds, None if probe failed."""
+    try:
+        import psycopg2
+
+        conn = psycopg2.connect(dsn, connect_timeout=5)
+        try:
+            conn.set_session(readonly=True, autocommit=True)
+            with conn.cursor() as cur:
+                cur.execute("SHOW default_transaction_read_only")
+                row = cur.fetchone()
+                if row and str(row[0]).lower() in ("on", "true", "1"):
+                    return True
+                # try a no-op write that must fail under readonly
+                try:
+                    cur.execute(
+                        "CREATE TEMP TABLE _confenge_ro_probe(x int)"
+                    )
+                    cur.execute("DROP TABLE IF EXISTS _confenge_ro_probe")
+                    return False
+                except Exception:  # noqa: BLE001
+                    conn.rollback()
+                    return True
+        finally:
+            conn.close()
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def open_source_connection(dsn: str) -> Any:
+    """Open source DB connection with default_transaction_read_only=on."""
+    import psycopg2
+    from psycopg2.extras import RealDictCursor
+
+    conn = psycopg2.connect(dsn, connect_timeout=30)
+    conn.set_session(readonly=True, autocommit=True)
+    with conn.cursor() as cur:
+        cur.execute("SET default_transaction_read_only = on")
+    conn.cursor_factory = RealDictCursor
+    return conn

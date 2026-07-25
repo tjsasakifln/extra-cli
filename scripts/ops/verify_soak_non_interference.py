@@ -15,6 +15,10 @@ from pathlib import Path
 from typing import Any
 
 CAMPAIGN_ID = "CONFENGE-COMMERCIAL-READY-01"
+REQUIRED_EVIDENCE_KEYS = (
+    "no_write_proven",
+)
+
 REQUIRED_BOOL_KEYS = (
     "production_touched",
     "soak_touched",

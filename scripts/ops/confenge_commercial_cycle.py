@@ -51,7 +51,22 @@ def main(argv: list[str] | None = None) -> int:
         "--out",
         default=os.environ.get("CONFENGE_COMMERCIAL_OUT", str(_DEFAULT_OUT)),
     )
-    p.add_argument("--max-contracts", type=int, default=250_000)
+    p.add_argument("--max-contracts", type=int, default=None)
+    p.add_argument(
+        "--population-mode",
+        choices=["FULL_POPULATION", "BOUNDED_SAMPLE"],
+        default=os.environ.get("CONFENGE_POPULATION_MODE", "BOUNDED_SAMPLE"),
+    )
+    p.add_argument(
+        "--source-state-mode",
+        choices=["SOURCE_STATE_SEPARATED", "RESTORED_SNAPSHOT_SINGLE_DB"],
+        default=os.environ.get("CONFENGE_SOURCE_STATE_MODE", "RESTORED_SNAPSHOT_SINGLE_DB"),
+    )
+    p.add_argument(
+        "--run-mode",
+        choices=["RC", "TEST", "DRY_RUN", "EXPERIMENTAL_SAMPLE"],
+        default=os.environ.get("CONFENGE_RUN_MODE", "EXPERIMENTAL_SAMPLE"),
+    )
     p.add_argument("--skip-migrations", action="store_true")
     p.add_argument("--skip-persist", action="store_true")
     p.add_argument("--skip-hash-verify", action="store_true")
@@ -73,15 +88,15 @@ def main(argv: list[str] | None = None) -> int:
         )
         return 1
 
-    # Source/state separation: when source differs, pipeline still uses single DSN today
-    # for contract table co-location; isolation gate forbids production hosts.
     dsn = args.dsn
-    if args.source_dsn and args.source_dsn != args.dsn:
+    source = args.source_dsn or dsn
+    if source == dsn and args.source_state_mode == "SOURCE_STATE_SEPARATED":
         print(
-            "NOTE: source/state DSN split requested; contracts must be present "
-            "on STATE DSN (restore/export). Source DSN is recorded only.",
+            "FAIL: source==state but SOURCE_STATE_SEPARATED claimed. "
+            "Use RESTORED_SNAPSHOT_SINGLE_DB.",
             file=sys.stderr,
         )
+        return 1
 
     from datetime import date
 
@@ -96,6 +111,11 @@ def main(argv: list[str] | None = None) -> int:
         skip_migrations=args.skip_migrations,
         skip_persist=args.skip_persist,
         verify_snapshot_hash=not args.skip_hash_verify,
+        source_dsn=source,
+        state_dsn=dsn,
+        population_mode=args.population_mode,
+        source_state_mode=args.source_state_mode,
+        run_mode=args.run_mode,
     )
     result.setdefault("source_dsn_env_set", bool(args.source_dsn))
     result.setdefault("git_sha", git_sha())

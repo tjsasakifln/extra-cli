@@ -400,7 +400,14 @@ test-budget-audit:
 	verify-confenge-commercial-ready-real \
 	verify-soak-non-interference \
 	dod-audit-confenge-commercial-ready \
-	test-commercial-leads
+	test-commercial-leads \
+	test-confenge-sector-fit \
+	verify-confenge-source-readonly \
+	verify-confenge-snapshot-binding \
+	verify-confenge-full-population \
+	verify-confenge-ranking-quality \
+	verify-confenge-ranking-stability \
+	verify-confenge-commercial-artifact-binding
 
 CONFENGE_COMMERCIAL_PROFILE ?= config/commercial_profiles/confenge.yaml
 CONFENGE_COMMERCIAL_OUT ?= artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/run
@@ -448,3 +455,28 @@ verify-soak-non-interference:
 
 dod-audit-confenge-commercial-ready:
 	python3 -m scripts.ops.confenge_commercial_gates dod-audit
+
+test-confenge-sector-fit:
+	python3 -m pytest tests/commercial_leads/test_contract_relevance_adversarial.py tests/commercial_leads/test_sector_fit.py -q --tb=short -o addopts=''
+
+verify-confenge-source-readonly:
+	python3 -c "from scripts.commercial_leads.isolation import assert_source_state_isolation, SOURCE_STATE_RESTORED; import os; d=os.environ.get('CONFENGE_COMMERCIAL_STATE_DSN') or os.environ.get('CONFENGE_COMMERCIAL_SOURCE_DSN'); r=assert_source_state_isolation(source_dsn=d, state_dsn=d, force_mode='RESTORED_SNAPSHOT_SINGLE_DB', enforce_source_readonly=False); print(r.as_dict()); raise SystemExit(0 if r.source_state_mode=='RESTORED_SNAPSHOT_SINGLE_DB' and not r.source_state_separated else 1)"
+
+verify-confenge-snapshot-binding:
+	@test -n "$$CONFENGE_COMMERCIAL_STATE_DSN" || (echo 'CONFENGE_COMMERCIAL_STATE_DSN required' && exit 1)
+	@test -n "$$CONFENGE_COMMERCIAL_SNAPSHOT" || (echo 'CONFENGE_COMMERCIAL_SNAPSHOT required' && exit 1)
+	python3 -c "from scripts.commercial_leads.snapshot import validate_snapshot_manifest, bind_snapshot_to_database; from scripts.commercial_leads.isolation import open_source_connection; import os,json; m=os.environ['CONFENGE_COMMERCIAL_SNAPSHOT']; d=os.environ['CONFENGE_COMMERCIAL_STATE_DSN']; s=validate_snapshot_manifest(m, allow_missing_dump=True); c=open_source_connection(d); b=bind_snapshot_to_database(c,s); c.close(); print(json.dumps(b,indent=2)); raise SystemExit(0 if b.get('ok') else 1)"
+
+verify-confenge-full-population:
+	python3 -c "import json,sys; from pathlib import Path; p=Path('$(CONFENGE_COMMERCIAL_OUT)/run-result.json'); d=json.loads(p.read_text()); mode=d.get('population_mode'); lim=(d.get('load_meta') or {}).get('limit_applied') or (d.get('metrics') or {}).get('limit_applied'); ok=mode=='FULL_POPULATION' and not lim; print({'population_mode':mode,'limit_applied':lim,'ok':ok}); sys.exit(0 if ok else 1)"
+
+verify-confenge-ranking-quality:
+	python3 -c "import json,sys; from pathlib import Path; d=json.loads(Path('$(CONFENGE_COMMERCIAL_OUT)/run-result.json').read_text()); leads=d.get('leads') or []; top=leads[:10]; oos=sum(1 for L in top if L.get('supplier_sector_fit')=='OUT_OF_SCOPE'); strong=all(L.get('supplier_sector_fit') in ('CONFIRMED_ENGINEERING','STRONG_ENGINEERING_FIT') for L in top) if top else False; print({'top10':len(top),'oos':oos,'strong':strong}); sys.exit(0 if strong and oos==0 and top else 1)"
+
+verify-confenge-ranking-stability:
+	python3 -c "import json,sys; from pathlib import Path; p=Path('$(CONFENGE_COMMERCIAL_ART)/ranking-stability.json'); d=json.loads(p.read_text()) if p.is_file() else {}; print(d); sys.exit(0 if d.get('ok') else 1)"
+
+verify-confenge-commercial-artifact-binding:
+	python3 -c "import json,sys,subprocess; from pathlib import Path; sha=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(); arts=['artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/result.json','artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/run/run-result.json']; bad=[]; for a in arts: p=Path(a); if not p.is_file(): bad.append('missing:'+a); continue; d=json.loads(p.read_text()); for k in ('git_sha','run_git_sha','artifact_git_sha'):  v=d.get(k);  if v and v!=sha: bad.append(f'{a}:{k}={v}!={sha}'); print({'sha':sha,'bad':bad}); sys.exit(0 if not bad else 1)"
+
+

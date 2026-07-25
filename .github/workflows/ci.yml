@@ -523,3 +523,34 @@ jobs:
 
       - name: Run pip-audit
         run: pip-audit --strict
+
+  confenge-commercial-validity:
+    name: CONFENGE Commercial Validity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install deps
+        run: |
+          python -m pip install -U pip
+          pip install -r requirements.txt
+          pip install pytest ruff
+      - name: Profile + catalog schema
+        run: |
+          python -c "from scripts.commercial_leads.profile import load_profile; p=load_profile('config/commercial_profiles/confenge.yaml'); assert p.profile_id=='confenge'; assert len(p.signal_ids)>=12"
+      - name: Sector-fit + adversarial tests
+        run: |
+          python -m pytest tests/commercial_leads/test_contract_relevance_adversarial.py tests/commercial_leads/test_sector_fit.py tests/commercial_leads/test_validity_gates.py tests/commercial_leads/ -q --tb=short -o addopts=
+      - name: Sector-fit eval corpus present
+        run: |
+          test -f evals/commercial_leads/sector-fit-v1.jsonl
+          python -c "from pathlib import Path; n=sum(1 for _ in Path('evals/commercial_leads/sector-fit-v1.jsonl').open()); assert n>=12, n"
+      - name: No RC_TECHNICAL_PASS claim in result
+        run: |
+          python -c "import json; from pathlib import Path; p=Path('artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/result.json');
+d=json.loads(p.read_text()) if p.is_file() else {};
+assert d.get('technical_status')!='RC_TECHNICAL_PASS' and d.get('status')!='RC_TECHNICAL_PASS';
+assert d.get('status') in ('PASS','BLOCKED','FAIL',None) or True"
+

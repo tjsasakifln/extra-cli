@@ -12,17 +12,34 @@ from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Any
 
-from scripts.commercial_leads import CAMPAIGN_ID, MODULE_VERSION
+from scripts.commercial_leads import (
+    CAMPAIGN_ID,
+    MODULE_VERSION,
+    POPULATION_FULL,
+    POPULATION_SAMPLE,
+    SOURCE_STATE_RESTORED,
+)
 from scripts.commercial_leads.baseline import compare_to_baselines
+from scripts.commercial_leads.commercial_validity import evaluate_supplier_validity
+from scripts.commercial_leads.contract_relevance import (
+    classify_contract_relevance,
+    filter_relevant_contracts,
+)
 from scripts.commercial_leads.dbutil import connect, fetch_all
 from scripts.commercial_leads.exports import export_all, reconcile_exports
 from scripts.commercial_leads.identity import ExclusionRecord, resolve_supplier
-from scripts.commercial_leads.isolation import assert_isolation, mask_dsn
+from scripts.commercial_leads.isolation import (
+    assert_isolation,
+    assert_source_state_isolation,
+    mask_dsn,
+    open_source_connection,
+)
 from scripts.commercial_leads.profile import CommercialProfile, load_profile
 from scripts.commercial_leads.review import load_state_map
 from scripts.commercial_leads.scoring import rank_leads, score_supplier
+from scripts.commercial_leads.sector_fit import PUBLISHABLE, sector_fit_histogram
 from scripts.commercial_leads.signals import compute_signals_for_supplier, rows_from_dicts
-from scripts.commercial_leads.snapshot import validate_snapshot_manifest
+from scripts.commercial_leads.snapshot import bind_snapshot_to_database, validate_snapshot_manifest
 
 _PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
@@ -81,20 +98,42 @@ def verify_migration_idempotence(dsn: str) -> dict[str, Any]:
     }
 
 
-def _segment_sql_filter(profile: CommercialProfile) -> tuple[str, list[Any]]:
-    """Build ILIKE filter for engineering-ish objects from profile keywords."""
+def _segment_sql_prefilter(profile: CommercialProfile) -> tuple[str, list[Any]]:
+    """Broad SQL prefilter (recall). Final relevance is hierarchical in Python.
+
+    Uses only strong-ish profile keywords plus layer-A tokens so we do not
+    scan the entire 4M table blindly, but weak tokens alone never qualify
+    after Python classification.
+    """
+    from scripts.commercial_leads.contract_relevance import STRONG_PHRASES, STRONG_TOKENS
+
     kws: list[str] = []
     for seg in profile.data.get("segments") or []:
         if isinstance(seg, dict):
             kws.extend(str(x) for x in (seg.get("object_keywords") or []))
-    kws = [k for k in kws if k.strip()]
-    if not kws:
+    # Prefer strong engineering terms for SQL prefilter
+    strongish = [
+        k for k in kws
+        if k.strip() and k.lower() not in {
+            "projeto", "consultoria", "servico", "serviço", "manutencao", "manutenção",
+        }
+    ]
+    strongish.extend(STRONG_PHRASES[:12])
+    strongish.extend(STRONG_TOKENS[:10])
+    # de-dupe
+    seen: set[str] = set()
+    ordered: list[str] = []
+    for k in strongish:
+        kl = k.lower().strip()
+        if kl and kl not in seen:
+            seen.add(kl)
+            ordered.append(k.strip())
+    ordered = ordered[:30]
+    if not ordered:
         return "TRUE", []
-    # Limit to top keywords for performance
-    kws = kws[:24]
     clauses = []
     params: list[Any] = []
-    for kw in kws:
+    for kw in ordered:
         clauses.append("objeto_contrato ILIKE %s")
         params.append(f"%{kw}%")
     return "(" + " OR ".join(clauses) + ")", params
@@ -106,15 +145,17 @@ def load_contract_universe(
     *,
     max_contracts: int | None = None,
     as_of: date | None = None,
-) -> list[dict[str, Any]]:
-    """Load active contracts relevant to profile (keyword filter + optional UFs)."""
-    filt, params = _segment_sql_filter(profile)
+    population_mode: str = POPULATION_SAMPLE,
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    """Load active contracts; apply hierarchical relevance; never silent full claim.
+
+    Returns (relevant_rows, load_meta).
+    """
+    filt, params = _segment_sql_prefilter(profile)
     uf_list = list((profile.data.get("region") or {}).get("primary_ufs") or [])
     uf_list += list((profile.data.get("region") or {}).get("secondary_ufs") or [])
     uf_list = [u.upper() for u in uf_list if u]
 
-    # filt is built only from bound ILIKE params (no raw user SQL)
-    # filt is only composed of static "col ILIKE %s" clauses with bound params
     sql = (
         "SELECT contrato_id, orgao_cnpj, orgao_nome, "
         "fornecedor_cnpj, fornecedor_nome, objeto_contrato, valor_total, "
@@ -125,17 +166,39 @@ def load_contract_universe(
         "AND btrim(fornecedor_cnpj) <> '' "
         "AND (" + filt + ")"  # nosec B608
     )
+    # Geography: do NOT auto-include uf IS NULL when filter active
     if uf_list:
-        sql += " AND (uf IS NULL OR upper(btrim(uf)) = ANY(%s))"
+        sql += " AND uf IS NOT NULL AND upper(btrim(uf)) = ANY(%s)"
         params.append(uf_list)
 
-    # Prefer recent + high value for scoring pool
     sql += " ORDER BY data_publicacao DESC NULLS LAST, valor_total DESC NULLS LAST"
-    if max_contracts:
-        sql += " LIMIT %s"
-        params.append(max_contracts)
 
-    return fetch_all(conn, sql, tuple(params))
+    limit_applied = None
+    if population_mode == POPULATION_FULL:
+        # No LIMIT — full eligible population for this prefilter
+        pass
+    elif max_contracts is not None:
+        sql += " LIMIT %s"
+        params.append(int(max_contracts))
+        limit_applied = int(max_contracts)
+    else:
+        # Explicit default sample bound (must be recorded, never silent full claim)
+        limit_applied = 250_000
+        sql += " LIMIT %s"
+        params.append(limit_applied)
+
+    raw = fetch_all(conn, sql, tuple(params))
+    kept, excluded = filter_relevant_contracts(raw)
+    meta = {
+        "population_mode": population_mode,
+        "limit_applied": limit_applied,
+        "sql_prefilter_rows": len(raw),
+        "relevance_pass_rows": len(kept),
+        "relevance_fail_rows": len(excluded),
+        "ufs_filter": uf_list,
+        "uf_null_excluded_when_geo_filter": bool(uf_list),
+    }
+    return kept, meta
 
 
 def group_by_supplier(
@@ -285,12 +348,23 @@ def run_pipeline(
     profile_path: str | Path,
     snapshot_manifest: str | Path,
     out_dir: str | Path,
-    max_contracts: int | None = 250_000,
+    max_contracts: int | None = None,
     as_of: date | None = None,
     skip_migrations: bool = False,
     skip_persist: bool = False,
     verify_snapshot_hash: bool = True,
+    source_dsn: str | None = None,
+    state_dsn: str | None = None,
+    population_mode: str | None = None,
+    source_state_mode: str | None = None,
+    persistence_required: bool | None = None,
+    run_mode: str = "RC",
 ) -> dict[str, Any]:
+    """Run commercial queue with sector validity gates.
+
+    population_mode: FULL_POPULATION | BOUNDED_SAMPLE
+    run_mode: RC | TEST | DRY_RUN | EXPERIMENTAL_SAMPLE
+    """
     t0 = time.time()
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
@@ -298,7 +372,18 @@ def run_pipeline(
     as_of_d = as_of or date.today()
     git = git_sha()
 
-    isolation = assert_isolation(dsn, out_dir=out)
+    state = state_dsn or dsn
+    source = source_dsn or dsn
+    # Honest dual-DSN mode
+    if source_state_mode is None:
+        source_state_mode = SOURCE_STATE_RESTORED if source == state else None
+    isolation = assert_source_state_isolation(
+        source_dsn=source,
+        state_dsn=state,
+        out_dir=out,
+        force_mode=source_state_mode or SOURCE_STATE_RESTORED,
+        enforce_source_readonly=False,  # probe optional; session set readonly on open
+    )
     if not isolation.ok or isolation.production_touched or isolation.soak_touched:
         result = {
             "run_id": run_id,
@@ -308,6 +393,48 @@ def run_pipeline(
             "campaign_id": CAMPAIGN_ID,
             "production_touched": isolation.production_touched,
             "soak_touched": isolation.soak_touched,
+            "artifact_git_sha": git,
+            "run_git_sha": git,
+        }
+        (out / "run-result.json").write_text(
+            json.dumps(result, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+        )
+        return result
+
+    # Population mode defaults: sample unless explicitly FULL
+    pop_mode = (population_mode or POPULATION_SAMPLE).upper()
+    if pop_mode not in (POPULATION_FULL, POPULATION_SAMPLE):
+        pop_mode = POPULATION_SAMPLE
+    if run_mode == "RC" and pop_mode != POPULATION_FULL:
+        # RC may still run sample but cannot claim final ranking
+        run_mode_effective = "EXPERIMENTAL_SAMPLE"
+    else:
+        run_mode_effective = run_mode
+
+    persist_required = persistence_required
+    if persist_required is None:
+        persist_required = run_mode_effective == "RC" and pop_mode == POPULATION_FULL
+    if skip_persist and run_mode_effective == "RC" and pop_mode == POPULATION_FULL:
+        result = {
+            "run_id": run_id,
+            "status": "FAIL",
+            "reason": "skip_persist_not_allowed_for_rc",
+            "campaign_id": CAMPAIGN_ID,
+            "artifact_git_sha": git,
+            "run_git_sha": git,
+        }
+        (out / "run-result.json").write_text(
+            json.dumps(result, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+        )
+        return result
+    if skip_persist and run_mode_effective not in ("TEST", "DRY_RUN", "EXPERIMENTAL_SAMPLE"):
+        result = {
+            "run_id": run_id,
+            "status": "FAIL",
+            "reason": "skip_persist_only_for_test_dry_run_sample",
+            "campaign_id": CAMPAIGN_ID,
+            "artifact_git_sha": git,
+            "run_git_sha": git,
         }
         (out / "run-result.json").write_text(
             json.dumps(result, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
@@ -317,36 +444,48 @@ def run_pipeline(
     snap = validate_snapshot_manifest(
         snapshot_manifest,
         verify_file_hash=verify_snapshot_hash,
+        allow_missing_dump=True,  # bind to DB is the real gate
     )
-    if not snap.ok:
-        status = snap.status if snap.status.startswith("BLOCKED") else "FAIL"
-        result = {
-            "run_id": run_id,
-            "status": status,
-            "reason": "snapshot_validation_failed",
-            "snapshot": snap.as_dict(),
-            "isolation": isolation.as_dict(),
-            "campaign_id": CAMPAIGN_ID,
-            "production_touched": False,
-            "soak_touched": False,
-            "non_claims": [
-                "CONFENGE_COMMERCIAL_READY",
-                "purchase_propensity",
-                "tiago_acceptance",
-            ],
-        }
-        (out / "run-result.json").write_text(
-            json.dumps(result, indent=2, ensure_ascii=False, default=str) + "\n",
-            encoding="utf-8",
-        )
-        return result
+    if not snap.ok and snap.status.startswith("BLOCKED"):
+        # Allow DB-bound path when dump absent but hash declared
+        if "dump_file_missing" not in (snap.reasons or []) and "dump_file_absent" not in str(snap.reasons):
+            result = {
+                "run_id": run_id,
+                "status": snap.status if snap.status.startswith("BLOCKED") else "FAIL",
+                "reason": "snapshot_validation_failed",
+                "snapshot": snap.as_dict(),
+                "isolation": isolation.as_dict(),
+                "campaign_id": CAMPAIGN_ID,
+                "artifact_git_sha": git,
+                "run_git_sha": git,
+            }
+            (out / "run-result.json").write_text(
+                json.dumps(result, indent=2, ensure_ascii=False, default=str) + "\n",
+                encoding="utf-8",
+            )
+            return result
 
     profile = load_profile(profile_path)
     mig: dict[str, Any]
     if skip_migrations:
-        mig = {"idempotent": True, "skipped": True}
+        mig = {"idempotent": False, "skipped": True, "first_ok": False, "second_ok": False}
+        if run_mode_effective == "RC" and pop_mode == POPULATION_FULL:
+            result = {
+                "run_id": run_id,
+                "status": "FAIL",
+                "reason": "migrations_skipped_not_allowed_for_rc",
+                "migrations": mig,
+                "isolation": isolation.as_dict(),
+                "artifact_git_sha": git,
+                "run_git_sha": git,
+            }
+            (out / "run-result.json").write_text(
+                json.dumps(result, indent=2, default=str) + "\n", encoding="utf-8"
+            )
+            return result
     else:
-        mig = verify_migration_idempotence(dsn)
+        mig = verify_migration_idempotence(state)
+        mig["skipped"] = False
         if not mig.get("idempotent"):
             result = {
                 "run_id": run_id,
@@ -354,79 +493,162 @@ def run_pipeline(
                 "reason": "migration_not_idempotent",
                 "migrations": mig,
                 "isolation": isolation.as_dict(),
+                "artifact_git_sha": git,
+                "run_git_sha": git,
             }
             (out / "run-result.json").write_text(
                 json.dumps(result, indent=2, default=str) + "\n", encoding="utf-8"
             )
             return result
 
-    conn = connect(dsn)
+    source_conn = open_source_connection(source)
+    state_conn = connect(state)
     try:
-        count_row = fetch_all(conn, "SELECT COUNT(*)::bigint AS n FROM pncp_supplier_contracts")
-        db_count = int(count_row[0]["n"]) if count_row else 0
+        # Snapshot ↔ DB binding on source
+        binding = bind_snapshot_to_database(source_conn, snap)
+        if not binding.get("ok"):
+            result = {
+                "run_id": run_id,
+                "status": "FAIL",
+                "reason": "snapshot_database_binding_failed",
+                "snapshot_binding": binding,
+                "snapshot": snap.as_dict(),
+                "isolation": isolation.as_dict(),
+                "artifact_git_sha": git,
+                "run_git_sha": git,
+            }
+            (out / "run-result.json").write_text(
+                json.dumps(result, indent=2, default=str) + "\n", encoding="utf-8"
+            )
+            return result
+
+        db_count = int(binding["database_row_count"])
         if db_count == 0:
             result = {
                 "run_id": run_id,
-                "status": "BLOCKED_MISSING_AUTHENTICATED_REAL_SNAPSHOT",
-                "reason": "database_has_zero_contracts",
+                "status": "BLOCKED",
+                "reason": "BLOCKED_MISSING_AUTHENTICATED_REAL_SNAPSHOT",
                 "snapshot": snap.as_dict(),
+                "snapshot_binding": binding,
                 "isolation": isolation.as_dict(),
                 "db_contract_count": 0,
-                "hint": "Restore authenticated dump into isolated DB before run.",
+                "artifact_git_sha": git,
+                "run_git_sha": git,
             }
             (out / "run-result.json").write_text(
                 json.dumps(result, indent=2, default=str) + "\n", encoding="utf-8"
             )
             return result
 
-        raw_rows = load_contract_universe(conn, profile, max_contracts=max_contracts, as_of=as_of_d)
+        raw_rows, load_meta = load_contract_universe(
+            source_conn,
+            profile,
+            max_contracts=max_contracts,
+            as_of=as_of_d,
+            population_mode=pop_mode,
+        )
         groups, exclusions, names = group_by_supplier(raw_rows, profile)
+
+        uf_list = list((profile.data.get("region") or {}).get("primary_ufs") or [])
+        uf_list += list((profile.data.get("region") or {}).get("secondary_ufs") or [])
+        uf_list = [u.upper() for u in uf_list if u]
 
         candidates_meta: list[dict[str, Any]] = []
         scored = []
-        for cnpj14, crow in groups.items():
-            contracts = rows_from_dicts(crow)
-            sigs = compute_signals_for_supplier(contracts, profile, as_of=as_of_d, official_acts=None)
-            total_value = sum(float(c.valor_total or 0) for c in contracts if c.valor_total is not None)
-            last_pub = None
-            pubs = [c.data_publicacao for c in contracts if c.data_publicacao]
-            if pubs:
-                last_pub = max(pubs).isoformat()
-            lead = score_supplier(
-                cnpj14=cnpj14,
-                razao_social=names.get(cnpj14, crow[0].get("fornecedor_nome") or cnpj14),
-                signal_results=sigs,
-                profile=profile,
-                total_value=total_value,
-                contract_count=len(contracts),
-                last_publication=last_pub,
-            )
-            candidates_meta.append(
-                {
-                    "cnpj14": cnpj14,
-                    "razao_social": lead.razao_social,
-                    "total_value": total_value,
-                    "contract_count": len(contracts),
-                    "last_publication": last_pub,
-                }
-            )
-            scored.append(lead)
+        sector_decisions = []
+        review_queue: list[dict[str, Any]] = []
+        validity_excluded = 0
 
-        # Human overrides / DO_NOT_CONTACT must suppress from published queue
         state_map: dict[str, str] = {}
         try:
-            state_map = load_state_map(conn)
+            state_map = load_state_map(state_conn)
         except Exception as exc:  # noqa: BLE001
-            # Fail closed for missing relation only (fresh DB before 062); otherwise abort.
             msg = str(exc).lower()
             if "commercial_lead_state_overrides" in msg or "does not exist" in msg:
                 state_map = {}
             else:
                 raise
         dnc_set = {c for c, st in state_map.items() if str(st).upper() == "DO_NOT_CONTACT"}
-        suppressed_from_score = [s for s in scored if s.cnpj14 in dnc_set]
+
+        for cnpj14, crow in groups.items():
+            contracts = rows_from_dicts(crow)
+            # convert contracts back to dicts for sector/geo
+            crow_dicts = list(crow)
+            sigs = compute_signals_for_supplier(contracts, profile, as_of=as_of_d, official_acts=None)
+            total_value = sum(float(c.valor_total or 0) for c in contracts if c.valor_total is not None)
+            last_pub = None
+            pubs = [c.data_publicacao for c in contracts if c.data_publicacao]
+            if pubs:
+                last_pub = max(pubs).isoformat()
+            razao = names.get(cnpj14, crow[0].get("fornecedor_nome") or cnpj14)
+            lead = score_supplier(
+                cnpj14=cnpj14,
+                razao_social=razao,
+                signal_results=sigs,
+                profile=profile,
+                total_value=total_value,
+                contract_count=len(contracts),
+                last_publication=last_pub,
+            )
+            # provisional signal dict for validity
+            lead_d = lead.as_dict()
+            validity, sector, geo = evaluate_supplier_validity(
+                razao_social=razao,
+                contracts=crow_dicts,
+                signals_fired=lead_d.get("signals_fired") or [],
+                score_total=lead.score_total,
+                allowed_ufs=uf_list,
+                min_signals=int((profile.data.get("queue") or {}).get("min_signals_fired") or 1),
+                min_score=float((profile.data.get("queue") or {}).get("min_score") or 1.0),
+                exclusion_flags={
+                    "do_not_contact": cnpj14 in dnc_set,
+                },
+                run_id=run_id,
+            )
+            sector_decisions.append(sector)
+            meta_row = {
+                "cnpj14": cnpj14,
+                "razao_social": razao,
+                "total_value": total_value,
+                "contract_count": len(contracts),
+                "last_publication": last_pub,
+                "supplier_sector_fit": sector.classification,
+                "contract_relevance": validity.contract_relevance,
+                "commercial_signal_fit": validity.commercial_signal_fit,
+                "geography_fit": validity.geography_fit,
+                "publishable": validity.publishable,
+            }
+            candidates_meta.append(meta_row)
+            # Attach validity fields onto lead object via as_dict later
+            lead_d_extra = {
+                "supplier_sector_fit": sector.classification,
+                "supplier_sector_confidence": sector.confidence,
+                "supplier_sector_evidence": sector.as_dict(),
+                "contract_relevance": validity.contract_relevance,
+                "contract_relevance_evidence": (validity.evidence or {}).get("contract_relevance_sample"),
+                "commercial_signal_fit": validity.commercial_signal_fit,
+                "geography_fit": validity.geography_fit,
+                "exclusion_checks": validity.exclusion_checks,
+                "commercial_validity": validity.as_dict(),
+                "data_quality": {
+                    "relevant_contract_ratio": sector.relevant_contract_ratio,
+                    "relevant_contract_count": sector.relevant_contract_count,
+                    "total_contract_count": sector.total_contract_count,
+                },
+                "manual_review_status": "PENDING",
+            }
+            if validity.publishable and cnpj14 not in dnc_set:
+                scored.append((lead, lead_d_extra))
+            else:
+                validity_excluded += 1
+                if validity.review_queue:
+                    review_queue.append({**meta_row, **lead_d_extra})
+
+        pure_scored = [s[0] for s in scored]
+        extras_by_cnpj = {s[0].cnpj14: s[1] for s in scored}
+        suppressed_from_score = [s for s in pure_scored if s.cnpj14 in dnc_set]
         ranked = rank_leads(
-            scored,
+            pure_scored,
             profile,
             suppressed_cnpjs=dnc_set,
             state_by_cnpj=state_map,
@@ -435,11 +657,14 @@ def run_pipeline(
         for i, lead in enumerate(ranked, start=1):
             d = lead.as_dict()
             d["rank_position"] = i
-            # Preserve prior human state when present; default NEW for first sighting
             d["commercial_state"] = state_map.get(lead.cnpj14, "NEW")
+            d.update(extras_by_cnpj.get(lead.cnpj14, {}))
             lead_dicts.append(d)
 
+        # Human-label-aware baseline comparison (labels optional)
         baseline_cmp = compare_to_baselines(ranked, candidates_meta, limit=profile.queue_limit)
+        sector_dist = sector_fit_histogram(sector_decisions)
+
         ledger = [
             {
                 "cnpj14": lead["cnpj14"],
@@ -449,6 +674,12 @@ def run_pipeline(
                     "rank": lead["rank_position"],
                     "score": lead["score_total"],
                     "commercial_state": lead.get("commercial_state"),
+                    "supplier_sector_fit": lead.get("supplier_sector_fit"),
+                    "profile_version": profile.version,
+                    "catalog_version": profile.catalog_hash,
+                    "dataset_snapshot_id": snap.snapshot_hash,
+                    "source_run_id": run_id,
+                    "rule_version": "commercial-validity-v1",
                 },
                 "created_at": utc_now(),
             }
@@ -457,10 +688,13 @@ def run_pipeline(
 
         metrics = {
             "eligible_companies": len(groups),
-            "raw_contracts_loaded": len(raw_rows),
+            "raw_contracts_loaded": load_meta.get("sql_prefilter_rows"),
+            "relevance_pass_contracts": load_meta.get("relevance_pass_rows"),
             "db_contract_count": db_count,
             "exclusions": len(exclusions),
-            "scored_companies": len(scored),
+            "scored_companies": len(pure_scored),
+            "validity_excluded": validity_excluded,
+            "review_queue_size": len(review_queue),
             "ranked_leads": len(lead_dicts),
             "do_not_contact_suppressed": len(suppressed_from_score),
             "human_state_overrides": len(state_map),
@@ -468,12 +702,16 @@ def run_pipeline(
             "insufficient_queue": len(lead_dicts) < profile.queue_limit,
             "elapsed_seconds": round(time.time() - t0, 3),
             "module_version": MODULE_VERSION,
+            "population_mode": pop_mode,
+            "limit_applied": load_meta.get("limit_applied"),
+            "sector_fit_distribution": sector_dist,
         }
 
-        # Top-10 quality gates for status
+        # Commercial top-10 gate
         top10: list[dict[str, Any]] = lead_dicts[:10]
         top10_ok = True
         top10_issues: list[str] = []
+        out_of_scope_top10 = 0
         for item in top10:
             if not item.get("cnpj14") or len(str(item["cnpj14"])) != 14:
                 top10_ok = False
@@ -487,38 +725,90 @@ def run_pipeline(
             if not (item.get("evidence") or []):
                 top10_ok = False
                 top10_issues.append("top10_without_evidence")
-        # Package must never publish DO_NOT_CONTACT
+            sfit = str(item.get("supplier_sector_fit") or "")
+            if sfit not in PUBLISHABLE:
+                top10_ok = False
+                top10_issues.append(f"top10_sector_not_strong:{sfit}")
+                if sfit == "OUT_OF_SCOPE":
+                    out_of_scope_top10 += 1
+            if item.get("contract_relevance") != "PASS":
+                top10_ok = False
+                top10_issues.append("top10_contract_relevance_fail")
+            if item.get("commercial_signal_fit") != "PASS":
+                top10_ok = False
+                top10_issues.append("top10_commercial_signal_fail")
+            if item.get("geography_fit") != "PASS":
+                top10_ok = False
+                top10_issues.append("top10_geography_fail")
+        if out_of_scope_top10:
+            top10_ok = False
+            top10_issues.append("out_of_scope_in_top10")
         if any(str(L.get("commercial_state") or "").upper() == "DO_NOT_CONTACT" for L in lead_dicts):
             top10_ok = False
             top10_issues.append("do_not_contact_in_published_queue")
 
-        status = "PASS" if top10_ok and lead_dicts else ("BLOCKED" if not lead_dicts else "FAIL")
+        # Terminal status — never RC_TECHNICAL_PASS
         if not lead_dicts:
             status = "BLOCKED"
+            reason = "BLOCKED_COMMERCIAL_RELEVANCE_NOT_PROVEN"
             top10_issues.append("empty_queue")
-        if not top10_ok and lead_dicts:
+        elif pop_mode != POPULATION_FULL:
+            status = "BLOCKED"
+            reason = "BLOCKED_FULL_POPULATION_NOT_AVAILABLE"
+        elif not top10_ok:
             status = "FAIL"
+            reason = "FAIL_COMMERCIAL_QUALITY_GATE"
+        else:
+            status = "PASS"
+            reason = None
+
+        # Sample mode cannot claim final ranking
+        claims = [
+            "explainable_signals",
+            "reproducible_ranking_inputs",
+            "sector_fit_layer_v1",
+            "hierarchical_contract_relevance_v1",
+        ]
+        if pop_mode == POPULATION_FULL and status == "PASS":
+            claims.append("full_population_ranking")
+        else:
+            claims.append("EXPERIMENTAL_SAMPLE" if pop_mode == POPULATION_SAMPLE else "partial_queue")
 
         run_payload: dict[str, Any] = {
             "run_id": run_id,
             "campaign_id": CAMPAIGN_ID,
             "status": status,
+            "reason": reason,
             "as_of": as_of_d.isoformat(),
             "git_sha": git,
+            "artifact_git_sha": git,
+            "run_git_sha": git,
             "profile_id": profile.profile_id,
             "profile_version": profile.version,
             "profile_hash": profile.profile_hash,
             "catalog_hash": profile.catalog_hash,
             "snapshot_hash": snap.snapshot_hash,
             "snapshot": snap.as_dict(),
+            "snapshot_binding": binding,
             "isolation": isolation.as_dict(),
-            "migrations": {"idempotent": mig.get("idempotent"), "skipped": mig.get("skipped", False)},
-            "dsn_masked": mask_dsn(dsn),
+            "source_state_mode": isolation.source_state_mode,
+            "population_mode": pop_mode,
+            "run_mode": run_mode_effective,
+            "load_meta": load_meta,
+            "migrations": {
+                "idempotent": mig.get("idempotent"),
+                "skipped": mig.get("skipped", False),
+                "first_ok": mig.get("first_ok", mig.get("idempotent")),
+                "second_ok": mig.get("second_ok", mig.get("idempotent")),
+            },
+            "persistence_required": persist_required,
+            "dsn_masked": mask_dsn(state),
             "production_touched": False,
             "soak_touched": False,
             "eligible_companies": len(groups),
             "queue_limit": profile.queue_limit,
             "leads": lead_dicts,
+            "review_queue_sample": review_queue[:50],
             "exclusions_sample": [e.as_dict() for e in exclusions[:200]],
             "exclusion_counts": _count_reasons(exclusions),
             "baseline_comparison": baseline_cmp,
@@ -526,7 +816,12 @@ def run_pipeline(
             "profile_public": profile.as_public_dict(),
             "ledger": ledger,
             "metrics": metrics,
-            "top10_validation": {"ok": top10_ok, "issues": sorted(set(top10_issues))},
+            "sector_fit_distribution": sector_dist,
+            "top10_validation": {
+                "ok": top10_ok,
+                "issues": sorted(set(top10_issues)),
+                "out_of_scope_in_top10": out_of_scope_top10,
+            },
             "non_claims": profile.data.get("non_claims")
             or [
                 "CONFENGE_COMMERCIAL_READY",
@@ -536,15 +831,11 @@ def run_pipeline(
                 "contact_authorization",
                 "PROJECT_DONE",
                 "VPS_OPERATIONAL",
+                "RC_TECHNICAL_PASS",
             ],
-            "claims": [
-                "technical_commercial_queue_generated",
-                "explainable_signals",
-                "reproducible_ranking_inputs",
-                "package_ready_for_human_review",
-            ],
+            "claims": claims,
             "language_note": (
-                "Fila de priorização por sinais observados; "
+                "Fila de priorização por aderência setorial + sinais observados; "
                 "não afirma claim estatístico de conversão comercial."
             ),
             "suppressed_do_not_contact": sorted(dnc_set)[:100],
@@ -553,7 +844,7 @@ def run_pipeline(
         if not skip_persist:
             try:
                 persist_run(
-                    conn,
+                    state_conn,
                     run_id=run_id,
                     profile=profile,
                     snapshot_hash=str(snap.snapshot_hash),
@@ -564,8 +855,21 @@ def run_pipeline(
                     metrics=metrics,
                     git=git,
                 )
+                run_payload["persist_ok"] = True
             except Exception as exc:  # noqa: BLE001
                 run_payload["persist_error"] = str(exc)
+                run_payload["persist_ok"] = False
+                if persist_required:
+                    run_payload["status"] = "FAIL"
+                    run_payload["reason"] = "persistence_failed"
+                    run_payload["artifact_invalid"] = True
+                    try:
+                        state_conn.rollback()
+                    except Exception:  # noqa: BLE001
+                        pass
+        else:
+            run_payload["persist_ok"] = None
+            run_payload["persist_skipped"] = True
 
         paths = export_all(out, run_payload)
         recon = reconcile_exports(out, run_payload)
@@ -575,9 +879,16 @@ def run_pipeline(
             run_payload["status"] = "FAIL"
             run_payload["reason"] = "export_reconciliation_failed"
 
-        # ranking hash for reproducibility
         rank_blob = json.dumps(
-            [(lead["cnpj14"], lead["score_total"], lead["priority"]) for lead in lead_dicts],
+            [
+                (
+                    lead["cnpj14"],
+                    lead["score_total"],
+                    lead["priority"],
+                    lead.get("supplier_sector_fit"),
+                )
+                for lead in lead_dicts
+            ],
             sort_keys=True,
         )
         run_payload["ranking_hash"] = hashlib.sha256(rank_blob.encode()).hexdigest()
@@ -586,9 +897,16 @@ def run_pipeline(
             json.dumps(run_payload, indent=2, ensure_ascii=False, default=str) + "\n",
             encoding="utf-8",
         )
+        # review queue separate
+        (out / "review-queue.json").write_text(
+            json.dumps(review_queue[:200], indent=2, ensure_ascii=False, default=str) + "\n",
+            encoding="utf-8",
+        )
         return run_payload
     finally:
-        conn.close()
+        source_conn.close()
+        state_conn.close()
+
 
 
 def _count_reasons(exclusions: list[ExclusionRecord]) -> dict[str, int]:

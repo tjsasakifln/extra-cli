@@ -1,57 +1,90 @@
 {
   "status": "BLOCKED",
-  "reason": "BLOCKED_PENDING_HUMAN_ACCEPTANCE",
-  "technical_status": "RC_TECHNICAL_PASS",
+  "reason": "BLOCKED_INSUFFICIENT_HUMAN_LABELS",
+  "technical_status": "BLOCKED",
   "campaign_id": "CONFENGE-COMMERCIAL-READY-01",
-  "run_id": "cl-20260725T221018Z-f1c6a107",
-  "git_sha": "a60109c89760762bae02c7a42e69d40030405d75",
-  "run_git_sha": "a60109c89760762bae02c7a42e69d40030405d75",
-  "sha_match": true,
-  "migrations": {
-    "idempotent": true,
-    "skipped": false
+  "run_id": "cl-20260725T225921Z-f9360478",
+  "git_sha": "1108c72a21d82e81670976cd9dd104fb4b153a82",
+  "run_git_sha": "1108c72a21d82e81670976cd9dd104fb4b153a82",
+  "artifact_git_sha": "1108c72a21d82e81670976cd9dd104fb4b153a82",
+  "gate_git_sha": "1108c72a21d82e81670976cd9dd104fb4b153a82",
+  "review_git_sha": "1108c72a21d82e81670976cd9dd104fb4b153a82",
+  "base_sha": "8344254942ec48978566317df16d7b3e3caabd89",
+  "branch": "campaign/confenge-commercial-ready-01",
+  "population_mode": "FULL_POPULATION",
+  "source_state_mode": "RESTORED_SNAPSHOT_SINGLE_DB",
+  "snapshot_binding": {
+    "ok": true,
+    "status": "BOUND",
+    "declared_row_count": 60000,
+    "database_row_count": 60000,
+    "min_date": "2026-02-13",
+    "max_date": "2026-07-23",
+    "sample_hashes": [
+      "00000000000191-2-000004/2026:50052653000192:871dd87a1f8dd86e0e7db63314adce94",
+      "00000000000191-2-000009/2026:63056469000162:9d1f42e66ce0dfc826509cfaffeba22c",
+      "00000000000191-2-000013/2026:31834991000131:e3e30f0fb9f15d81639ab53fdcea37a6",
+      "00000000000191-2-000020/2026:89278519000140:fd2a1b4044d0f97f34ae9829f156088b",
+      "00000000000191-2-000024/2026:33624704000194:5b32f5760c24803cea3f8f35922e9cea"
+    ],
+    "table_snapshot_hash": "bb1fa54ececca5ab5d68a700e103d5103a5fa424f233344d41d955543cc4d8d3",
+    "schema_version": null,
+    "reasons": [],
+    "justified_filter": false,
+    "filter_note": null,
+    "table": "pncp_supplier_contracts"
   },
-  "do_not_contact_suppressed": 2,
-  "suppressed_do_not_contact": [
-    "02316749000500",
-    "07192414000109"
-  ],
-  "gate_ok": true,
-  "independent_review": "NO_CRITICAL_OR_HIGH_OPEN",
-  "user_acceptance": "PENDING_HUMAN",
+  "sector_fit_distribution": {
+    "STRONG_ENGINEERING_FIT": 4255,
+    "CONFLICTING": 312,
+    "POSSIBLE_ENGINEERING_FIT": 3001,
+    "OUT_OF_SCOPE": 975
+  },
   "leads": 20,
   "top5": [
     {
       "cnpj14": "12253900000120",
-      "score": 9.7107,
-      "state": "NEW",
-      "razao": "BRANIX EMPREENDIMENTOS LTDA - ME."
-    },
-    {
-      "cnpj14": "58109690000100",
-      "score": 9.701,
-      "state": "NEW",
-      "razao": "MG AUTO PECAS E SERVICOS LTDA"
-    },
-    {
-      "cnpj14": "59457959000101",
-      "score": 9.6732,
-      "state": "REVIEWED",
-      "razao": "PRO ACTIVE TERCEIRIZACAO LTDA"
-    },
-    {
-      "cnpj14": "27254414000101",
-      "score": 9.5914,
-      "state": "NEW",
-      "razao": "FAK EMPREENDIMENTOS LTDA"
+      "score": 9.737,
+      "razao": "BRANIX EMPREENDIMENTOS LTDA",
+      "supplier_sector_fit": "STRONG_ENGINEERING_FIT"
     },
     {
       "cnpj14": "95257945000108",
       "score": 9.5276,
-      "state": "NEW",
-      "razao": "CONSTRUBRÁS CONSTRUTORA LTDA"
+      "razao": "CONSTRUBRÁS CONSTRUTORA LTDA",
+      "supplier_sector_fit": "STRONG_ENGINEERING_FIT"
+    },
+    {
+      "cnpj14": "27254414000101",
+      "score": 9.5,
+      "razao": "FAK EMPREENDIMENTOS LTDA",
+      "supplier_sector_fit": "STRONG_ENGINEERING_FIT"
+    },
+    {
+      "cnpj14": "19648512000197",
+      "score": 9.5,
+      "razao": "KARAIBA CONSULTORIA E PROJETOS LTDA.",
+      "supplier_sector_fit": "STRONG_ENGINEERING_FIT"
+    },
+    {
+      "cnpj14": "38517835000196",
+      "score": 9.2243,
+      "razao": "PROJESOL ENGENHARIA LTDA",
+      "supplier_sector_fit": "STRONG_ENGINEERING_FIT"
     }
   ],
-  "branch": "campaign/confenge-commercial-ready-01",
-  "base_sha": "8344254942ec48978566317df16d7b3e3caabd89"
+  "top10_validation": {
+    "ok": true,
+    "issues": [],
+    "out_of_scope_in_top10": 0
+  },
+  "rc_technical_pass_revoked": true,
+  "blockers": [
+    "BLOCKED_INSUFFICIENT_HUMAN_LABELS",
+    "BLOCKED_PENDING_HUMAN_ACCEPTANCE",
+    "machine queue improved (no autopecas/terceirizacao in top20) but human precision thresholds not certified"
+  ],
+  "user_acceptance": "NOT_REQUESTED",
+  "independent_review": "see independent-review.json — high findings open on human labels",
+  "updated_at": "2026-07-25T23:01:54.717435Z"
 }

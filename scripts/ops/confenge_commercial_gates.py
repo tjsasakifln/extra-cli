@@ -168,21 +168,44 @@ def cmd_campaign_gate(_: argparse.Namespace) -> int:
     if not b["ok"]:
         fails.append("bandit")
 
-    # pip-audit (non-zero if vulns; record honestly)
-    pa = _run([sys.executable, "-m", "pip_audit", "-r", "requirements.txt"], timeout=300)
+    # pip-audit: CRITICAL/HIGH → FAIL; MEDIUM requires versioned waiver
+    pa = _run([sys.executable, "-m", "pip_audit", "-r", "requirements.txt", "-f", "json"], timeout=300)
     results["steps"]["pip_audit"] = {
         "ok": pa["ok"],
         "exit_code": pa["exit_code"],
         "stdout_tail": pa["stdout_tail"][-1500:],
     }
-    # pip-audit may fail env-wide; treat as soft if module missing else hard
-    if pa["exit_code"] not in (0, 1) and "No module named" in (pa["stderr_tail"] + pa["stdout_tail"]):
-        results["steps"]["pip_audit"]["soft_skip"] = True
-    elif not pa["ok"] and pa["exit_code"] == 1:
-        # known vulns — record, do not auto-fail campaign structure unless CRITICAL policy
+    if "No module named" in (pa["stderr_tail"] + pa["stdout_tail"]):
+        results["steps"]["pip_audit"]["module_missing"] = True
+        fails.append("pip_audit_module_missing")
+    elif pa["exit_code"] not in (0, 1):
+        fails.append("pip_audit_error")
+    elif pa["exit_code"] == 1:
+        # Parse severities when possible
+        high = False
+        try:
+            vulns = json.loads(pa["stdout_tail"] or "[]")
+            if isinstance(vulns, list):
+                for item in vulns:
+                    for v in item.get("vulns") or item.get("vulnerabilities") or []:
+                        sev = str(v.get("severity") or v.get("fix") or "").upper()
+                        if sev in ("CRITICAL", "HIGH", "H", "C"):
+                            high = True
+        except json.JSONDecodeError:
+            # fail closed if vulns reported but unparsed
+            high = True
         results["steps"]["pip_audit"]["known_vulns"] = True
-    elif not pa["ok"]:
-        fails.append("pip_audit")
+        results["steps"]["pip_audit"]["high_or_critical"] = high
+        waiver_path = _ROOT / "artifacts/campaigns" / CAMPAIGN / "security-waivers.json"
+        if high:
+            fails.append("pip_audit_high_or_critical")
+        elif waiver_path.is_file():
+            results["steps"]["pip_audit"]["waivers"] = json.loads(
+                waiver_path.read_text(encoding="utf-8")
+            )
+        else:
+            # MEDIUM without waiver → FAIL
+            fails.append("pip_audit_medium_without_waiver")
 
     # migrations double-apply when DSN present
     dsn = os.environ.get("CONFENGE_COMMERCIAL_STATE_DSN")
@@ -334,49 +357,161 @@ def cmd_release_candidate(args: argparse.Namespace) -> int:
     }
     _write(_ART / "user-acceptance.json", ua)
 
-    technical_ok = (
+    # Commercial validity requirements (no RC_TECHNICAL_PASS ever)
+    top10 = leads[:10]
+    sector_ok = all(
+        str(L.get("supplier_sector_fit") or "") in {
+            "CONFIRMED_ENGINEERING",
+            "STRONG_ENGINEERING_FIT",
+        }
+        for L in top10
+    ) if top10 else False
+    oos_top10 = sum(1 for L in top10 if str(L.get("supplier_sector_fit") or "") == "OUT_OF_SCOPE")
+    pop_full = run.get("population_mode") == "FULL_POPULATION"
+    binding_ok = bool((run.get("snapshot_binding") or {}).get("ok"))
+    ranking_ok = bool(stability.get("ok"))
+    mig = run.get("migrations") or {}
+    mig_ok = (
+        mig.get("skipped") is False
+        and bool(mig.get("idempotent") or (mig.get("first_ok") and mig.get("second_ok")))
+    )
+    sha_fields_ok = all(
+        (run.get(k) or run.get("git_sha")) == sha
+        for k in ("git_sha", "run_git_sha", "artifact_git_sha")
+        if run.get(k) is not None
+    ) and bool(run.get("git_sha")) and run.get("git_sha") != "unknown"
+
+    commercial_reasons: list[str] = []
+    if not top10:
+        commercial_reasons.append("empty_top10")
+    if not sector_ok:
+        commercial_reasons.append("top10_sector_not_strong")
+    if oos_top10:
+        commercial_reasons.append("out_of_scope_in_top10")
+    if not pop_full:
+        commercial_reasons.append("BLOCKED_FULL_POPULATION_NOT_AVAILABLE")
+    if not binding_ok:
+        commercial_reasons.append("snapshot_binding_failed")
+    if not ranking_ok:
+        commercial_reasons.append("ranking_stability_missing_or_false")
+    if not mig_ok:
+        commercial_reasons.append("migrations_not_ok")
+    if not sha_fields_ok or run.get("git_sha") != sha:
+        commercial_reasons.append("RUN_SHA_MISMATCH")
+    if any(str(L.get("commercial_state") or "").upper() == "DO_NOT_CONTACT" for L in leads):
+        commercial_reasons.append("dnc_in_queue")
+    if (run.get("baseline_comparison") or {}).get("ranking_quality_status") == (
+        "FAIL_RANKING_NOT_BETTER_THAN_SIMPLE_BASELINE"
+    ):
+        commercial_reasons.append("FAIL_RANKING_NOT_BETTER_THAN_SIMPLE_BASELINE")
+
+    # Terminal: PASS only if all technical commercial gates + human would still be needed
+    # Without human labels / acceptance, max is BLOCKED
+    technical_commercial_ok = (
         run.get("status") == "PASS"
         and gate.get("ok") is True
         and recon.get("ok") is True
-        and bool(run.get("git_sha"))
-        and run.get("git_sha") != "unknown"
-        and not any(str(L.get("commercial_state") or "").upper() == "DO_NOT_CONTACT" for L in leads)
+        and sector_ok
+        and oos_top10 == 0
+        and pop_full
+        and binding_ok
+        and ranking_ok
+        and mig_ok
+        and sha_fields_ok
+        and not commercial_reasons
     )
+
+    if commercial_reasons and run.get("status") == "FAIL":
+        terminal = "FAIL"
+        terminal_reason = commercial_reasons[0]
+    elif not technical_commercial_ok:
+        terminal = "BLOCKED"
+        if not sector_ok or oos_top10:
+            terminal_reason = "BLOCKED_COMMERCIAL_RELEVANCE_NOT_PROVEN"
+        elif not pop_full:
+            terminal_reason = "BLOCKED_FULL_POPULATION_NOT_AVAILABLE"
+        elif "BLOCKED_INSUFFICIENT_HUMAN_LABELS" in str(
+            (run.get("baseline_comparison") or {}).get("ranking_quality_status")
+        ):
+            terminal_reason = "BLOCKED_INSUFFICIENT_HUMAN_LABELS"
+        else:
+            terminal_reason = "BLOCKED_COMMERCIAL_RELEVANCE_NOT_PROVEN"
+    else:
+        terminal = "BLOCKED"
+        terminal_reason = "BLOCKED_PENDING_HUMAN_ACCEPTANCE"
+
     rc = {
         "campaign_id": CAMPAIGN,
-        "status": "RC_TECHNICAL_PASS" if technical_ok else "FAIL",
-        "campaign_terminal": "BLOCKED",
-        "campaign_terminal_reason": "BLOCKED_PENDING_HUMAN_ACCEPTANCE" if technical_ok else "TECHNICAL_FAIL",
+        "status": terminal,  # PASS | BLOCKED | FAIL only — never RC_TECHNICAL_PASS
+        "technical_status": terminal,
+        "campaign_terminal": terminal,
+        "campaign_terminal_reason": terminal_reason,
         "git_sha": sha,
+        "artifact_git_sha": sha,
+        "gate_git_sha": sha,
+        "review_git_sha": sha,
         "run_id": run.get("run_id"),
-        "run_git_sha": run.get("git_sha"),
-        "sha_match_run": run.get("git_sha") == sha,
+        "run_git_sha": run.get("run_git_sha") or run.get("git_sha"),
+        "sha_match_run": (run.get("run_git_sha") or run.get("git_sha")) == sha,
         "profile_hash": run.get("profile_hash"),
         "catalog_hash": run.get("catalog_hash"),
         "snapshot_hash": run.get("snapshot_hash"),
+        "population_mode": run.get("population_mode"),
+        "source_state_mode": run.get("source_state_mode"),
+        "sector_fit_distribution": run.get("sector_fit_distribution"),
+        "top10_validation": run.get("top10_validation"),
+        "commercial_reasons": commercial_reasons,
         "package_checksums": checksums,
         "gate": gate,
         "package_reconciliation": recon,
         "ranking_stability": stability,
-        "user_acceptance": "PENDING_HUMAN",
+        "user_acceptance": "NOT_REQUESTED" if terminal_reason != "BLOCKED_PENDING_HUMAN_ACCEPTANCE" else "PENDING_HUMAN",
         "migrations_in_run": run.get("migrations"),
+        "rc_technical_pass_revoked": True,
         "created_at": utc_now(),
     }
-    if run.get("git_sha") != sha:
-        rc["status"] = "FAIL"
-        rc["campaign_terminal_reason"] = "RUN_SHA_MISMATCH"
-        technical_ok = False
-    if not (run.get("migrations") or {}).get("idempotent") and not (run.get("migrations") or {}).get("skipped"):
-        pass
-    # require migrations not silently skipped for RC technical
-    if (run.get("migrations") or {}).get("skipped") is True:
-        rc["warnings"] = ["migrations_skipped_on_run"]
 
+    # Campaign result.json — bound to HEAD
+    result_body = {
+        "status": terminal,
+        "reason": terminal_reason,
+        "technical_status": terminal,
+        "campaign_id": CAMPAIGN,
+        "run_id": run.get("run_id"),
+        "git_sha": sha,
+        "run_git_sha": run.get("run_git_sha") or run.get("git_sha"),
+        "artifact_git_sha": sha,
+        "gate_git_sha": sha,
+        "review_git_sha": sha,
+        "sha_match": (run.get("run_git_sha") or run.get("git_sha")) == sha,
+        "population_mode": run.get("population_mode"),
+        "source_state_mode": run.get("source_state_mode"),
+        "leads": len(leads),
+        "top5": [
+            {
+                "cnpj14": L.get("cnpj14"),
+                "score": L.get("score_total"),
+                "state": L.get("commercial_state"),
+                "razao": L.get("razao_social"),
+                "supplier_sector_fit": L.get("supplier_sector_fit"),
+            }
+            for L in leads[:5]
+        ],
+        "sector_fit_distribution": run.get("sector_fit_distribution"),
+        "blockers": commercial_reasons or [terminal_reason],
+        "rc_technical_pass_revoked": True,
+        "user_acceptance": rc["user_acceptance"],
+        "branch": "campaign/confenge-commercial-ready-01",
+        "updated_at": utc_now(),
+    }
+    _write(_ART / "result.json", result_body)
     _write(_ART / "release-candidate.json", rc)
-    print(json.dumps({"status": rc["status"], "terminal": rc["campaign_terminal"], "git_sha": sha}, indent=2))
-    if not technical_ok:
+    print(json.dumps({"status": rc["status"], "terminal": rc["campaign_terminal"], "git_sha": sha, "reason": terminal_reason}, indent=2))
+    if terminal == "FAIL":
         return 1
-    return 2  # BLOCKED human — RC technical pass uses exit 2 per mandate for human dependency
+    if terminal == "BLOCKED":
+        return 2
+    return 0
 
 
 def cmd_dod_audit(_: argparse.Namespace) -> int:

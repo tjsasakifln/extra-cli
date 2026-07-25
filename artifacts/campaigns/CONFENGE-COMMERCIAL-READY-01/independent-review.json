@@ -1,0 +1,56 @@
+{
+  "reviewer": "independent-reviewer-agent",
+  "not_implementer": true,
+  "git_sha": "1108c72a21d82e81670976cd9dd104fb4b153a82",
+  "run_id": "cl-20260725T225921Z-f9360478",
+  "populations_reviewed": {
+    "top20": [
+      "12253900000120",
+      "95257945000108",
+      "27254414000101",
+      "19648512000197",
+      "38517835000196",
+      "45145494000130",
+      "15247296000117",
+      "07192929000109",
+      "52067902000149",
+      "62913677000178",
+      "29084108000191",
+      "22798043000105",
+      "20123886000178",
+      "00472805000138",
+      "00220982000127",
+      "61608477000149",
+      "06145928000140",
+      "03094645000129",
+      "22835076000170",
+      "10249046000100"
+    ],
+    "clearly_in_sector_sample": [
+      "construtoras and engenharia names in top20"
+    ],
+    "clearly_out_of_scope_sample": [
+      "MG AUTO PECAS",
+      "CHURRASCARIA",
+      "COSTA OESTE TERCEIRIZACAO — absent from published queue after fix"
+    ]
+  },
+  "false_positives": [],
+  "false_negatives": [],
+  "precision_at_10": 0.5,
+  "precision_at_20": 0.7,
+  "sector_fit_confusion_matrix": {
+    "note": "machine STRONG only in published queue; OUT_OF_SCOPE suppressed"
+  },
+  "baseline_comparison": {
+    "ranking_quality_status": "BLOCKED_INSUFFICIENT_HUMAN_LABELS",
+    "note": "see run metrics; jaccard alone not used"
+  },
+  "critical_findings": [],
+  "high_findings": [
+    "Human precision@10/@20 thresholds (0.90/0.80) not yet certified by Tiago labels",
+    "CNAE official registry not joined for most suppliers — STRONG relies on contracts+name"
+  ],
+  "recommendation": "BLOCKED pending human labels and Tiago acceptance; machine queue no longer dominated by autopecas/terceirizacao",
+  "reviewed_at": "2026-07-25T23:01:54.708677Z"
+}

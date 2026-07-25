@@ -49,11 +49,17 @@ def cmd_run(args: argparse.Namespace) -> int:
         skip_migrations=args.skip_migrations,
         skip_persist=args.skip_persist,
         verify_snapshot_hash=not args.skip_hash_verify,
+        source_dsn=getattr(args, "source_dsn", None),
+        state_dsn=getattr(args, "state_dsn", None) or args.dsn,
+        population_mode=getattr(args, "population_mode", None),
+        source_state_mode=getattr(args, "source_state_mode", None),
+        run_mode=getattr(args, "run_mode", "EXPERIMENTAL_SAMPLE"),
     )
     status = result.get("status")
     print(
         f"[{CAMPAIGN_ID}] status={status} leads={len(result.get('leads') or [])} "
-        f"run_id={result.get('run_id')} dsn={mask_dsn(args.dsn)}"
+        f"run_id={result.get('run_id')} dsn={mask_dsn(args.dsn)} "
+        f"pop={result.get('population_mode')} sector={result.get('sector_fit_distribution')}"
     )
     code = 0 if status == "PASS" else (2 if str(status).startswith("BLOCKED") else 1)
     if args.result_json:
@@ -107,6 +113,29 @@ def cmd_gate(args: argparse.Namespace) -> int:
     )
     checks["export_reconciled"] = bool((run.get("export_reconciliation") or {}).get("ok"))
     checks["git_sha_present"] = bool(run.get("git_sha")) and run.get("git_sha") != "unknown"
+    checks["no_rc_technical_pass"] = "RC_TECHNICAL_PASS" not in (
+        str(run.get("status")),
+        str(run.get("technical_status")),
+        str(run.get("reason")),
+    )
+    checks["snapshot_binding_ok"] = bool((run.get("snapshot_binding") or {}).get("ok", True))
+    checks["top10_sector_strong"] = all(
+        str(L.get("supplier_sector_fit") or "") in {
+            "CONFIRMED_ENGINEERING",
+            "STRONG_ENGINEERING_FIT",
+        }
+        for L in top10
+    ) if top10 else True
+    checks["top10_contract_relevance"] = all(
+        L.get("contract_relevance") == "PASS" for L in top10
+    ) if top10 else True
+    checks["top10_no_out_of_scope"] = all(
+        str(L.get("supplier_sector_fit") or "") != "OUT_OF_SCOPE" for L in top10
+    ) if top10 else True
+    checks["population_mode_declared"] = bool(run.get("population_mode"))
+    checks["source_state_mode_declared"] = bool(
+        run.get("source_state_mode") or (run.get("isolation") or {}).get("source_state_mode")
+    )
 
     # forbidden language in outputs
     blob = json.dumps(leads, ensure_ascii=False).lower()
@@ -131,9 +160,16 @@ def cmd_gate(args: argparse.Namespace) -> int:
             "top10_has_provenance",
             "score_decomposable",
             "top10_cnpj_defensible",
+            "top10_sector_strong",
+            "top10_contract_relevance",
+            "top10_no_out_of_scope",
         }]
 
-    ok = len(reasons) == 0 and run.get("status") in ("PASS", "BLOCKED", "BLOCKED_MISSING_AUTHENTICATED_REAL_SNAPSHOT")
+    ok = len(reasons) == 0 and run.get("status") in (
+        "PASS",
+        "BLOCKED",
+        "BLOCKED_MISSING_AUTHENTICATED_REAL_SNAPSHOT",
+    )
     if run.get("status") == "FAIL":
         ok = False
         reasons.append("run_status_fail")
@@ -147,6 +183,9 @@ def cmd_gate(args: argparse.Namespace) -> int:
         "checks": checks,
         "reasons": reasons,
         "git_sha": git_sha(),
+        "gate_git_sha": git_sha(),
+        "run_git_sha": run.get("run_git_sha") or run.get("git_sha"),
+        "sector_fit_distribution": run.get("sector_fit_distribution"),
     }
     return _print_json(data, str(out))
 
@@ -220,6 +259,11 @@ def cmd_reproduce(args: argparse.Namespace) -> int:
         skip_migrations=True,
         skip_persist=True,
         verify_snapshot_hash=not args.skip_hash_verify,
+        source_dsn=args.dsn,
+        state_dsn=args.dsn,
+        population_mode="BOUNDED_SAMPLE" if args.max_contracts else "FULL_POPULATION",
+        source_state_mode="RESTORED_SNAPSHOT_SINGLE_DB",
+        run_mode="EXPERIMENTAL_SAMPLE",
     )
     a = run_pipeline(out_dir=r1_dir, **common)
     b = run_pipeline(out_dir=r2_dir, **common)
@@ -324,10 +368,32 @@ def build_parser() -> argparse.ArgumentParser:
 
     r = sub.add_parser("run", help="Generate commercial queue from snapshot + DB")
     r.add_argument("--dsn", required=True)
+    r.add_argument("--source-dsn", default=None, help="Read-only source DSN (optional)")
+    r.add_argument("--state-dsn", default=None, help="State/ledger DSN (defaults to --dsn)")
     r.add_argument("--profile", required=True)
     r.add_argument("--snapshot-manifest", required=True)
     r.add_argument("--out", required=True)
-    r.add_argument("--max-contracts", type=int, default=250_000)
+    r.add_argument(
+        "--max-contracts",
+        type=int,
+        default=None,
+        help="Bound for BOUNDED_SAMPLE (recorded). Omit with FULL_POPULATION.",
+    )
+    r.add_argument(
+        "--population-mode",
+        choices=["FULL_POPULATION", "BOUNDED_SAMPLE"],
+        default="BOUNDED_SAMPLE",
+    )
+    r.add_argument(
+        "--source-state-mode",
+        choices=["SOURCE_STATE_SEPARATED", "RESTORED_SNAPSHOT_SINGLE_DB"],
+        default=None,
+    )
+    r.add_argument(
+        "--run-mode",
+        choices=["RC", "TEST", "DRY_RUN", "EXPERIMENTAL_SAMPLE"],
+        default="EXPERIMENTAL_SAMPLE",
+    )
     r.add_argument("--as-of", default=None, help="YYYY-MM-DD")
     r.add_argument("--skip-migrations", action="store_true")
     r.add_argument("--skip-persist", action="store_true")

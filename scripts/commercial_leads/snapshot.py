@@ -6,7 +6,7 @@ import hashlib
 import json
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any  # noqa: I001 — used by bind_snapshot_to_database
 
 
 @dataclass
@@ -183,6 +183,83 @@ def validate_snapshot_manifest(
             "sha256sums_file": man.get("sha256sums_file"),
         },
     )
+
+
+def bind_snapshot_to_database(
+    conn: Any,
+    manifest: SnapshotValidation | dict[str, Any],
+    *,
+    table: str = "pncp_supplier_contracts",
+    sample_limit: int = 5,
+) -> dict[str, Any]:
+    """Bind manifest declarations to live database content.
+
+    Fails closed when declared_row_count != database_row_count unless
+    an explicit justified filter is recorded on the manifest.
+    """
+    from scripts.commercial_leads.dbutil import fetch_all
+
+    man = manifest.as_dict() if hasattr(manifest, "as_dict") else dict(manifest)
+    details = man.get("details") or {}
+    declared = man.get("contracts_count_declared")
+    if declared is None:
+        declared = details.get("contracts_count") or details.get("row_count")
+
+    count_rows = fetch_all(conn, f"SELECT COUNT(*)::bigint AS n FROM public.{table}")  # nosec B608
+    db_count = int(count_rows[0]["n"]) if count_rows else 0
+
+    date_rows = fetch_all(
+        conn,
+        f"SELECT MIN(data_publicacao)::text AS min_d, MAX(data_publicacao)::text AS max_d "  # nosec B608
+        f"FROM public.{table}",
+    )
+    min_date = date_rows[0]["min_d"] if date_rows else None
+    max_date = date_rows[0]["max_d"] if date_rows else None
+
+    sample_rows = fetch_all(
+        conn,
+        f"SELECT contrato_id, fornecedor_cnpj, md5(coalesce(objeto_contrato,'')) AS obj_md5 "  # nosec B608
+        f"FROM public.{table} ORDER BY contrato_id NULLS LAST LIMIT %s",
+        (sample_limit,),
+    )
+    sample_hashes = [
+        f"{r.get('contrato_id')}:{r.get('fornecedor_cnpj')}:{r.get('obj_md5')}" for r in sample_rows
+    ]
+
+    justified = bool(details.get("row_count_filter_justified") or man.get("row_count_filter_justified"))
+    filter_note = details.get("canonical_filter_note") or man.get("canonical_filter_note")
+
+    ok = True
+    reasons: list[str] = []
+    if declared is not None and int(declared) != db_count:
+        if justified and filter_note:
+            reasons.append("row_count_diff_justified")
+        else:
+            ok = False
+            reasons.append("manifest_row_count_ne_database_row_count")
+
+    # table snapshot fingerprint
+    import hashlib
+
+    fp = hashlib.sha256(
+        f"{db_count}|{min_date}|{max_date}|{'|'.join(sample_hashes)}".encode()
+    ).hexdigest()
+
+    return {
+        "ok": ok,
+        "status": "BOUND" if ok else "FAIL_SNAPSHOT_DB_MISMATCH",
+        "declared_row_count": int(declared) if declared is not None else None,
+        "database_row_count": db_count,
+        "min_date": min_date,
+        "max_date": max_date,
+        "sample_hashes": sample_hashes,
+        "table_snapshot_hash": fp,
+        "schema_version": details.get("schema_version") or man.get("schema_version"),
+        "reasons": reasons,
+        "justified_filter": justified,
+        "filter_note": filter_note,
+        "table": table,
+    }
 
 
 def write_default_manifest(

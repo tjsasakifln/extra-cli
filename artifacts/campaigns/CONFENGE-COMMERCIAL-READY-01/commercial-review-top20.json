@@ -1,0 +1,1187 @@
+{
+  "generated_at": "2026-07-25T23:00:37.525475+00:00",
+  "run_id": "cl-20260725T225921Z-f9360478",
+  "git_sha": "1108c72a21d82e81670976cd9dd104fb4b153a82",
+  "leads": [
+    {
+      "rank": 1,
+      "cnpj14": "12253900000120",
+      "razao_social": "BRANIX EMPREENDIMENTOS LTDA",
+      "supplier_sector_fit": "STRONG_ENGINEERING_FIT",
+      "supplier_sector_confidence": 0.72,
+      "cnaes": null,
+      "contract_relevance": "PASS",
+      "score_total": 9.737,
+      "score_decomposition": {
+        "first_public_contract": 0.0,
+        "ticket_above_history": 0.0,
+        "quantity_growth": 0.0,
+        "value_growth": 0.0,
+        "new_agency": 0.0,
+        "new_region": 0.0,
+        "new_object_category": 0.0,
+        "concurrent_portfolio": 3.6,
+        "agency_concentration": 1.1,
+        "contract_concentration": 0.237,
+        "near_expiry": 2.6,
+        "addendum_recurrence": 0.0,
+        "adverse_event": 0.0,
+        "diversity_increase": 0.0,
+        "win_recurrence": 2.2
+      },
+      "suggested_offer": "acompanhamento_admin",
+      "relevant_contracts": [
+        {
+          "objeto": "Contratação de empresa técnica especializada em engenharia para execução de obra de pavimentação em PMF em ruas do Bairro Pedra Azul, zona urbana da cidade de Porteirinha/MG, conforme Emenda Parlament",
+          "contrato_id": "18013326000119-2-000074/2026"
+        },
+        {
+          "objeto": "Contratação de empresa técnica especializada em engenharia para execução de obra de restabelecimento da drenagem no Córrego Água Salgada e Córrego Pequeno, conforme Portaria nº 1.470, de 04/05/2026, d",
+          "contrato_id": "18013326000119-2-000073/2026"
+        },
+        {
+          "objeto": "Contratação de empresa técnica especializada em engenharia para execução de obra de pavimentação em PMF em ruas do Bairro Pedra Azul, zona urbana da cidade de Porteirinha/MG, conforme Emenda Parlament",
+          "contrato_id": "18013326000119-2-000074/2026"
+        },
+        {
+          "objeto": "Contratação de empresa técnica especializada em engenharia para execução de obra de restabelecimento da drenagem no Córrego Água Salgada e Córrego Pequeno, conforme Portaria nº 1.470, de 04/05/2026, d",
+          "contrato_id": "18013326000119-2-000073/2026"
+        },
+        {
+          "objeto": "Contratação de empresa técnica especializada em engenharia para execução da obra de construção de 40 (quarenta) unidades habitacionais no município de Porteirinha, a serem implantadas na Rua Projetada",
+          "contrato_id": "18013326000119-2-000071/2026"
+        }
+      ],
+      "human_decision": null,
+      "human_reason": null,
+      "human_notes": null,
+      "allowed_decisions": [
+        "ACCEPT_FIT",
+        "REJECT_OUT_OF_SCOPE",
+        "REVIEW_MORE",
+        "DO_NOT_CONTACT"
+      ]
+    },
+    {
+      "rank": 2,
+      "cnpj14": "95257945000108",
+      "razao_social": "CONSTRUBRÁS CONSTRUTORA LTDA",
+      "supplier_sector_fit": "STRONG_ENGINEERING_FIT",
+      "supplier_sector_confidence": 0.8,
+      "cnaes": null,
+      "contract_relevance": "PASS",
+      "score_total": 9.5276,
+      "score_decomposition": {
+        "first_public_contract": 0.0,
+        "ticket_above_history": 0.0,
+        "quantity_growth": 0.0,
+        "value_growth": 0.0,
+        "new_agency": 0.0,
+        "new_region": 0.0,
+        "new_object_category": 0.0,
+        "concurrent_portfolio": 3.6,
+        "agency_concentration": 0.8682,
+        "contract_concentration": 0.2593,
+        "near_expiry": 2.6,
+        "addendum_recurrence": 0.0,
+        "adverse_event": 0.0,
+        "diversity_increase": 0.0,
+        "win_recurrence": 2.2
+      },
+      "suggested_offer": "acompanhamento_admin",
+      "relevant_contracts": [
+        {
+          "objeto": "Contratação de empresa especializada, sob o Regime de Execução de EMPREITADA POR PREÇO GLOBAL, compreendendo mão-de-obra e materiais, visando a execução de Pavimentação asfáltica na Estrada Santa Lúci",
+          "contrato_id": "94704004000102-2-000077/2026"
+        },
+        {
+          "objeto": "CONTRATAÇÃO DE EMPRESA EXECUÇÃO DE OBRAS E SERVIÇOS DE ENGENHARIA PARA ESTRADAS VICINAIS.",
+          "contrato_id": "87712212000180-2-000062/2026"
+        },
+        {
+          "objeto": "O objeto do presente instrumento é a contratação de empresa para implantação e pavimentação asfáltica da rodovia ERS-483, Trecho: Entre Rios do Sul-Cruzaltense,\r\nSegmento: km 17,20 ao km 35,57, extens",
+          "contrato_id": "92883834000100-2-000009/2026"
+        },
+        {
+          "objeto": "O objeto do presente instrumento é a contratação de empresa para implantação e pavimentação asfáltica da rodovia BRS-386, Trecho: BRS-386-Acesso São Pedro das\r\nMissões (SRE:386BRS9180), com extensão d",
+          "contrato_id": "92883834000100-2-000010/2026"
+        },
+        {
+          "objeto": "O objeto do presente instrumento é a contratação de empresa para implantação e pavimentação asfáltica da rodovia ERS-483, Trecho: Entre Rios do Sul-Cruzaltense,\r\nSegmento: km 17,20 ao km 35,57, extens",
+          "contrato_id": "92883834000100-2-000009/2026"
+        }
+      ],
+      "human_decision": null,
+      "human_reason": null,
+      "human_notes": null,
+      "allowed_decisions": [
+        "ACCEPT_FIT",
+        "REJECT_OUT_OF_SCOPE",
+        "REVIEW_MORE",
+        "DO_NOT_CONTACT"
+      ]
+    },
+    {
+      "rank": 3,
+      "cnpj14": "27254414000101",
+      "razao_social": "FAK EMPREENDIMENTOS LTDA",
+      "supplier_sector_fit": "STRONG_ENGINEERING_FIT",
+      "supplier_sector_confidence": 0.72,
+      "cnaes": null,
+      "contract_relevance": "PASS",
+      "score_total": 9.5,
+      "score_decomposition": {
+        "first_public_contract": 0.0,
+        "ticket_above_history": 0.0,
+        "quantity_growth": 0.0,
+        "value_growth": 0.0,
+        "new_agency": 0.0,
+        "new_region": 0.0,
+        "new_object_category": 0.0,
+        "concurrent_portfolio": 3.6,
+        "agency_concentration": 1.1,
+        "contract_concentration": 0.0,
+        "near_expiry": 2.6,
+        "addendum_recurrence": 0.0,
+        "adverse_event": 0.0,
+        "diversity_increase": 0.0,
+        "win_recurrence": 2.2
+      },
+      "suggested_offer": "acompanhamento_admin",
+      "relevant_contracts": [
+        {
+          "objeto": "O OBJETO DO PRESENTE INSTRUMENTO É A CONTRATAÇÃO DE SERVIÇOS COMUNS DE ENGENHARIA PARA ATENDER AS NECESSIDADES DE REPARAÇÃO NO PELOTÃO DE MANUTENÇÃO DO PAVILHÃO GUARANI, NO CENTRO\nDE INSTRUÇÃO DE BLIN",
+          "contrato_id": "00394452000103-2-005371/2026"
+        },
+        {
+          "objeto": "O OBJETO DO PRESENTE INSTRUMENTO É A CONTRATAÇÃO DE SERVIÇOS COMUNS DE ENGENHARIA PARA ATENDER AS NECESSIDADES DE SERVIÇO DE MANUTENÇÃO DA SALA DE AULA DO PAVILHÃO DE ENSINO E \nMANUTENÇÃO – CI BLD.",
+          "contrato_id": "00394452000103-2-005373/2026"
+        },
+        {
+          "objeto": "O OBJETO DO PRESENTE INSTRUMENTO É A CONTRATAÇÃO DE SERVIÇOS COMUNS DE ENGENHARIA PARA ATENDER AS NECESSIDADES DE REPARAÇÃO NO PELOTÃO DE MANUTENÇÃO DO PAVILHÃO GUARANI, NO CENTRO\nDE INSTRUÇÃO DE BLIN",
+          "contrato_id": "00394452000103-2-005371/2026"
+        },
+        {
+          "objeto": "O OBJETO DO PRESENTE INSTRUMENTO É A CONTRATAÇÃO DE SERVIÇOS COMUNS DE ENGENHARIA PARA ATENDER AS NECESSIDADES DE SERVIÇO DE MANUTENÇÃO DA SALA DE AULA DO PAVILHÃO DE ENSINO E \nMANUTENÇÃO – CI BLD.",
+          "contrato_id": "00394452000103-2-005373/2026"
+        },
+        {
+          "objeto": "CONTRATAÇÃO DE SERVIÇOS COMUNS DE ENGENHARIA PARA ATENDER AS NECESSIDADES DE SERVIÇOS PARA INSTALAÇÃO DE MEDIDORES DE ENERGIA ELÉTRICA SECUNDÁRIOS E TROCA DE FIOS ELÉTRICOS DANIFICADOS PARA AS INSTALA",
+          "contrato_id": "00394452000103-2-005066/2026"
+        }
+      ],
+      "human_decision": null,
+      "human_reason": null,
+      "human_notes": null,
+      "allowed_decisions": [
+        "ACCEPT_FIT",
+        "REJECT_OUT_OF_SCOPE",
+        "REVIEW_MORE",
+        "DO_NOT_CONTACT"
+      ]
+    },
+    {
+      "rank": 4,
+      "cnpj14": "19648512000197",
+      "razao_social": "KARAIBA CONSULTORIA E PROJETOS LTDA.",
+      "supplier_sector_fit": "STRONG_ENGINEERING_FIT",
+      "supplier_sector_confidence": 0.72,
+      "cnaes": null,
+      "contract_relevance": "PASS",
+      "score_total": 9.5,
+      "score_decomposition": {
+        "first_public_contract": 0.0,
+        "ticket_above_history": 0.0,
+        "quantity_growth": 0.0,
+        "value_growth": 0.0,
+        "new_agency": 0.0,
+        "new_region": 0.0,
+        "new_object_category": 0.0,
+        "concurrent_portfolio": 3.6,
+        "agency_concentration": 1.1,
+        "contract_concentration": 0.0,
+        "near_expiry": 2.6,
+        "addendum_recurrence": 0.0,
+        "adverse_event": 0.0,
+        "diversity_increase": 0.0,
+        "win_recurrence": 2.2
+      },
+      "suggested_offer": "acompanhamento_admin",
+      "relevant_contracts": [
+        {
+          "objeto": "Serviços Técnicos Especializados de Engenharia e Arquitetura Para Elaboração de Projetos Diversos, Com Uso da Tecnologia Bim-Building Information Modeling, Realização de Estudos Técnicos (Levantamento",
+          "contrato_id": "18593103000178-2-002793/2026"
+        },
+        {
+          "objeto": "Serviços Técnicos Especializados de Engenharia e Arquitetura Para Elaboração de Projetos Diversos, Com Uso da Tecnologia Bim-Building Information Modeling, Realização de Estudos Técnicos (Levantamento",
+          "contrato_id": "18593103000178-2-002780/2026"
+        },
+        {
+          "objeto": "Serviços Técnicos Especializados de Engenharia e Arquitetura Para Elaboração de Projetos Diversos, Com Uso da Tecnologia Bim-Building Information Modeling, Realização de Estudos Técnicos (Levantamento",
+          "contrato_id": "18593103000178-2-002793/2026"
+        },
+        {
+          "objeto": "Serviços Técnicos Especializados de Engenharia e Arquitetura Para Elaboração de Projetos Diversos, Com Uso da Tecnologia Bim-Building Information Modeling, Realização de Estudos Técnicos (Levantamento",
+          "contrato_id": "18593103000178-2-002780/2026"
+        },
+        {
+          "objeto": "Serviços Técnicos Especializados de Engenharia e Arquitetura Para Elaboração de Projetos Diversos, Com Uso da Tecnologia Bim-Building Information Modeling, Realização de Estudos Técnicos (Levantamento",
+          "contrato_id": "18593103000178-2-002793/2026"
+        }
+      ],
+      "human_decision": null,
+      "human_reason": null,
+      "human_notes": null,
+      "allowed_decisions": [
+        "ACCEPT_FIT",
+        "REJECT_OUT_OF_SCOPE",
+        "REVIEW_MORE",
+        "DO_NOT_CONTACT"
+      ]
+    },
+    {
+      "rank": 5,
+      "cnpj14": "38517835000196",
+      "razao_social": "PROJESOL ENGENHARIA LTDA",
+      "supplier_sector_fit": "STRONG_ENGINEERING_FIT",
+      "supplier_sector_confidence": 0.8,
+      "cnaes": null,
+      "contract_relevance": "PASS",
+      "score_total": 9.2243,
+      "score_decomposition": {
+        "first_public_contract": 0.0,
+        "ticket_above_history": 0.0,
+        "quantity_growth": 0.0,
+        "value_growth": 0.0,
+        "new_agency": 0.0,
+        "new_region": 0.0,
+        "new_object_category": 0.0,
+        "concurrent_portfolio": 3.6,
+        "agency_concentration": 0.8243,
+        "contract_concentration": 0.0,
+        "near_expiry": 2.6,
+        "addendum_recurrence": 0.0,
+        "adverse_event": 0.0,
+        "diversity_increase": 0.0,
+        "win_recurrence": 2.2
+      },
+      "suggested_offer": "acompanhamento_admin",
+      "relevant_contracts": [
+        {
+          "objeto": "Registro de preços para a eventual contratação da execução de sondagem SPT-T e sondagem a trado para simples reconhecimento, a serem executados em diversos locais do Município de Londrina, a serem def",
+          "contrato_id": "75771477000170-2-000099/2026"
+        },
+        {
+          "objeto": "ontratação de empresa especializada de engenharia para execução de Sondagem Geotécnica à percussão (SPT)\r\nno terreno da Escola Estadual de Ensino Médio Jerônimo Mércio da Silveira, localizada no Munic",
+          "contrato_id": "87958641000131-2-000173/2026"
+        },
+        {
+          "objeto": "Registro de preços para a eventual contratação da execução de sondagem SPT-T e sondagem a trado para simples reconhecimento, a serem executados em diversos locais do Município de Londrina, a serem def",
+          "contrato_id": "75771477000170-2-000099/2026"
+        },
+        {
+          "objeto": "Registro de preços para a eventual contratação da execução de sondagem SPT-T e sondagem a trado para simples reconhecimento, a serem executados em diversos locais do Município de Londrina, a serem def",
+          "contrato_id": "75771477000170-2-000094/2026"
+        },
+        {
+          "objeto": "ontratação de empresa especializada de engenharia para execução de Sondagem Geotécnica à percussão (SPT)\r\nno terreno da Escola Estadual de Ensino Médio Jerônimo Mércio da Silveira, localizada no Munic",
+          "contrato_id": "87958641000131-2-000173/2026"
+        }
+      ],
+      "human_decision": null,
+      "human_reason": null,
+      "human_notes": null,
+      "allowed_decisions": [
+        "ACCEPT_FIT",
+        "REJECT_OUT_OF_SCOPE",
+        "REVIEW_MORE",
+        "DO_NOT_CONTACT"
+      ]
+    },
+    {
+      "rank": 6,
+      "cnpj14": "45145494000130",
+      "razao_social": "CONSTRUTORA IRMAOS WARTHA LTDA",
+      "supplier_sector_fit": "STRONG_ENGINEERING_FIT",
+      "supplier_sector_confidence": 0.8,
+      "cnaes": null,
+      "contract_relevance": "PASS",
+      "score_total": 9.1,
+      "score_decomposition": {
+        "first_public_contract": 0.0,
+        "ticket_above_history": 0.0,
+        "quantity_growth": 0.0,
+        "value_growth": 0.0,
+        "new_agency": 0.0,
+        "new_region": 0.0,
+        "new_object_category": 0.0,
+        "concurrent_portfolio": 3.2,
+        "agency_concentration": 1.1,
+        "contract_concentration": 0.0,
+        "near_expiry": 2.6,
+        "addendum_recurrence": 0.0,
+        "adverse_event": 0.0,
+        "diversity_increase": 0.0,
+        "win_recurrence": 2.2
+      },
+      "suggested_offer": "acompanhamento_admin",
+      "relevant_contracts": [
+        {
+          "objeto": "Contratação de empresa especializada para execução de obras de pavimentação intertravada, drenagem pluvial e sinalização viária na Rua Israel, Bairro Barragem, Rio do Sul/SC.",
+          "contrato_id": "83102574000106-2-000595/2026"
+        },
+        {
+          "objeto": "Contratação de empresa especializada para execução de obras de pavimentação intertravada, drenagem pluvial e sinalização viária na Rua: Vereador Ogenil de Oliveira, Bairro: Laranjeiras, Rio do Sul - S",
+          "contrato_id": "83102574000106-2-000526/2026"
+        },
+        {
+          "objeto": "Contratação de empresa especializada para execução de obras de pavimentação intertravada, drenagem pluvial e sinalização viária na Rua Israel, Bairro Barragem, Rio do Sul/SC.",
+          "contrato_id": "83102574000106-2-000595/2026"
+        },
+        {
+          "objeto": "Contratação de empresa especializada para execução de obras de pavimentação intertravada, drenagem pluvial e sinalização viária na Rua: Vereador Ogenil de Oliveira, Bairro: Laranjeiras, Rio do Sul - S",
+          "contrato_id": "83102574000106-2-000526/2026"
+        },
+        {
+          "objeto": "Contratação de empresa especializada para execução de obras de pavimentação intertravada, drenagem pluvial e sinalização viária na Rua Israel, Bairro Barragem, Rio do Sul/SC.",
+          "contrato_id": "83102574000106-2-000595/2026"
+        }
+      ],
+      "human_decision": null,
+      "human_reason": null,
+      "human_notes": null,
+      "allowed_decisions": [
+        "ACCEPT_FIT",
+        "REJECT_OUT_OF_SCOPE",
+        "REVIEW_MORE",
+        "DO_NOT_CONTACT"
+      ]
+    },
+    {
+      "rank": 7,
+      "cnpj14": "15247296000117",
+      "razao_social": "IBERICA CONSTRUÇÕES CIVIS E VIARIAS LTDA ME",
+      "supplier_sector_fit": "STRONG_ENGINEERING_FIT",
+      "supplier_sector_confidence": 0.8,
+      "cnaes": null,
+      "contract_relevance": "PASS",
+      "score_total": 8.9406,
+      "score_decomposition": {
+        "first_public_contract": 0.0,
+        "ticket_above_history": 0.0,
+        "quantity_growth": 0.0,
+        "value_growth": 0.0,
+        "new_agency": 0.0,
+        "new_region": 0.0,
+        "new_object_category": 0.0,
+        "concurrent_portfolio": 3.2,
+        "agency_concentration": 0.9406,
+        "contract_concentration": 0.0,
+        "near_expiry": 2.6,
+        "addendum_recurrence": 0.0,
+        "adverse_event": 0.0,
+        "diversity_increase": 0.0,
+        "win_recurrence": 2.2
+      },
+      "suggested_offer": "acompanhamento_admin",
+      "relevant_contracts": [
+        {
+          "objeto": "Contratação de empresa especializada para execução de obras de pavimentação asfáltica, drenagem pluvial e sinalização viária na Rua Humaitá, Bairro Centro, Rio do Sul/SC (Trecho II).",
+          "contrato_id": "83102574000106-2-000868/2026"
+        },
+        {
+          "objeto": "Contratação de empresa para execução de obras de pavimentação asfáltica e sinalização viária na Rua Humaitá, Bairro Centro, Rio do Sul/SC (Trecho I).",
+          "contrato_id": "83102574000106-2-000867/2026"
+        },
+        {
+          "objeto": "Contratação de empresa especializada para execução de obras de pavimentação asfáltica, drenagem pluvial e sinalização viária na Rua Humaitá, Bairro Centro, Rio do Sul/SC (Trecho II).",
+          "contrato_id": "83102574000106-2-000868/2026"
+        },
+        {
+          "objeto": "Contratação de empresa para execução de obras de pavimentação asfáltica e sinalização viária na Rua Humaitá, Bairro Centro, Rio do Sul/SC (Trecho I).",
+          "contrato_id": "83102574000106-2-000867/2026"
+        },
+        {
+          "objeto": "Contratação de empresa para execução de obras de pavimentação asfáltica e sinalização viária na Rua Humaitá, Bairro Centro, Rio do Sul/SC (Trecho I).",
+          "contrato_id": "83102574000106-2-000867/2026"
+        }
+      ],
+      "human_decision": null,
+      "human_reason": null,
+      "human_notes": null,
+      "allowed_decisions": [
+        "ACCEPT_FIT",
+        "REJECT_OUT_OF_SCOPE",
+        "REVIEW_MORE",
+        "DO_NOT_CONTACT"
+      ]
+    },
+    {
+      "rank": 8,
+      "cnpj14": "07192929000109",
+      "razao_social": "CONSTRUTORA JLV LTDA",
+      "supplier_sector_fit": "STRONG_ENGINEERING_FIT",
+      "supplier_sector_confidence": 0.8,
+      "cnaes": null,
+      "contract_relevance": "PASS",
+      "score_total": 8.7,
+      "score_decomposition": {
+        "first_public_contract": 0.0,
+        "ticket_above_history": 0.0,
+        "quantity_growth": 0.0,
+        "value_growth": 0.0,
+        "new_agency": 0.0,
+        "new_region": 0.0,
+        "new_object_category": 0.0,
+        "concurrent_portfolio": 2.8,
+        "agency_concentration": 1.1,
+        "contract_concentration": 0.0,
+        "near_expiry": 2.6,
+        "addendum_recurrence": 0.0,
+        "adverse_event": 0.0,
+        "diversity_increase": 0.0,
+        "win_recurrence": 2.2
+      },
+      "suggested_offer": "acompanhamento_admin",
+      "relevant_contracts": [
+        {
+          "objeto": "Execução de serviços de pavimentação asfáltica (capeamento), drenagem e sinalização viária (horizontal e vertical) e serviços complementares da Rua Dr. Schmitz, Bairro Rui Barbosa com fornecimento de ",
+          "contrato_id": "90895905000160-2-000166/2026"
+        },
+        {
+          "objeto": "Execução de serviços de pavimentação asfáltica (capeamento), drenagem e sinalização viária (horizontal e vertical)e serviços complementares das Ruas Delfina Dias Ferraz, Dr. Paulo Ribeiro Campos Cezar",
+          "contrato_id": "90895905000160-2-000121/2026"
+        },
+        {
+          "objeto": "Execução de serviços de pavimentação asfáltica (capeamento), drenagem e sinalização viária (horizontal e vertical) e serviços complementares da Rua Dr. Schmitz, Bairro Rui Barbosa com fornecimento de ",
+          "contrato_id": "90895905000160-2-000166/2026"
+        },
+        {
+          "objeto": "Execução de serviços de pavimentação asfáltica (capeamento), drenagem e sinalização viária (horizontal e vertical)e serviços complementares das Ruas Delfina Dias Ferraz, Dr. Paulo Ribeiro Campos Cezar",
+          "contrato_id": "90895905000160-2-000121/2026"
+        },
+        {
+          "objeto": "Execução de serviços de pavimentação asfáltica (capeamento), drenagem e sinalização viária (horizontal e vertical) e serviços complementares da Rua Dr. Schmitz, Bairro Rui Barbosa com fornecimento de ",
+          "contrato_id": "90895905000160-2-000166/2026"
+        }
+      ],
+      "human_decision": null,
+      "human_reason": null,
+      "human_notes": null,
+      "allowed_decisions": [
+        "ACCEPT_FIT",
+        "REJECT_OUT_OF_SCOPE",
+        "REVIEW_MORE",
+        "DO_NOT_CONTACT"
+      ]
+    },
+    {
+      "rank": 9,
+      "cnpj14": "52067902000149",
+      "razao_social": "WE TORRES ARTEFATOS DE CIMENTO E PRE MOLDADOS LTDA",
+      "supplier_sector_fit": "STRONG_ENGINEERING_FIT",
+      "supplier_sector_confidence": 0.72,
+      "cnaes": null,
+      "contract_relevance": "PASS",
+      "score_total": 8.7,
+      "score_decomposition": {
+        "first_public_contract": 0.0,
+        "ticket_above_history": 0.0,
+        "quantity_growth": 0.0,
+        "value_growth": 0.0,
+        "new_agency": 0.0,
+        "new_region": 0.0,
+        "new_object_category": 0.0,
+        "concurrent_portfolio": 2.8,
+        "agency_concentration": 1.1,
+        "contract_concentration": 0.0,
+        "near_expiry": 2.6,
+        "addendum_recurrence": 0.0,
+        "adverse_event": 0.0,
+        "diversity_increase": 0.0,
+        "win_recurrence": 2.2
+      },
+      "suggested_offer": "acompanhamento_admin",
+      "relevant_contracts": [
+        {
+          "objeto": "Contratação de empresa especializada para execução de obras de pavimentação intertravada, drenagem pluvial e sinalização viária na Rua Plásio Bilk Junior, Bairro Taboão, Rio do Sul/SC.",
+          "contrato_id": "83102574000106-2-000592/2026"
+        },
+        {
+          "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE OBRAS DE PAVIMENTAÇÃO INTERTRAVADA, DRENAGEM PLUVIAL E SINALIZAÇÃO VIÁRIA NO BECO: LUIZ FLORENTINO PORTO, BAIRRO: FUNDO CANOAS, RIO DO SUL - SC.",
+          "contrato_id": "83102574000106-2-000528/2026"
+        },
+        {
+          "objeto": "Contratação de empresa especializada para execução de obras de pavimentação intertravada, drenagem pluvial e sinalização viária na Rua Plásio Bilk Junior, Bairro Taboão, Rio do Sul/SC.",
+          "contrato_id": "83102574000106-2-000592/2026"
+        },
+        {
+          "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE OBRAS DE PAVIMENTAÇÃO INTERTRAVADA, DRENAGEM PLUVIAL E SINALIZAÇÃO VIÁRIA NO BECO: LUIZ FLORENTINO PORTO, BAIRRO: FUNDO CANOAS, RIO DO SUL - SC.",
+          "contrato_id": "83102574000106-2-000528/2026"
+        },
+        {
+          "objeto": "Contratação de empresa especializada para execução de obras de pavimentação intertravada, drenagem pluvial e sinalização viária na Rua Plásio Bilk Junior, Bairro Taboão, Rio do Sul/SC.",
+          "contrato_id": "83102574000106-2-000592/2026"
+        }
+      ],
+      "human_decision": null,
+      "human_reason": null,
+      "human_notes": null,
+      "allowed_decisions": [
+        "ACCEPT_FIT",
+        "REJECT_OUT_OF_SCOPE",
+        "REVIEW_MORE",
+        "DO_NOT_CONTACT"
+      ]
+    },
+    {
+      "rank": 10,
+      "cnpj14": "62913677000178",
+      "razao_social": "ALIANCA ENGENHARIA E PAVIMENTACAO LTDA",
+      "supplier_sector_fit": "STRONG_ENGINEERING_FIT",
+      "supplier_sector_confidence": 0.8,
+      "cnaes": null,
+      "contract_relevance": "PASS",
+      "score_total": 8.7,
+      "score_decomposition": {
+        "first_public_contract": 0.0,
+        "ticket_above_history": 0.0,
+        "quantity_growth": 0.0,
+        "value_growth": 0.0,
+        "new_agency": 0.0,
+        "new_region": 0.0,
+        "new_object_category": 0.0,
+        "concurrent_portfolio": 2.8,
+        "agency_concentration": 1.1,
+        "contract_concentration": 0.0,
+        "near_expiry": 2.6,
+        "addendum_recurrence": 0.0,
+        "adverse_event": 0.0,
+        "diversity_increase": 0.0,
+        "win_recurrence": 2.2
+      },
+      "suggested_offer": "acompanhamento_admin",
+      "relevant_contracts": [
+        {
+          "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE OBRAS DE PAVIMENTAÇÃO INTERTRAVADA, DRENAGEM PLUVIAL E SINALIZAÇÃO VIÁRIA NA RUA: RAULINO DEMARCHI, BAIRRO: LARANJEIRAS, RIO DO SUL - SC",
+          "contrato_id": "83102574000106-2-000577/2026"
+        },
+        {
+          "objeto": "CONTRATAÇÃO DE EMPRESA PARA EXECUÇÃO DE PAVIMENTAÇÃO INTERTRAVADA, DRENAGEM PLUVIAL E SINALIZAÇÃO VIÁRIA DA RUA JOSÉ CIMARDI, BAIRRO TABOÃO, RIO DO SUL/SC.",
+          "contrato_id": "83102574000106-2-000437/2026"
+        },
+        {
+          "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE OBRAS DE PAVIMENTAÇÃO INTERTRAVADA, DRENAGEM PLUVIAL E SINALIZAÇÃO VIÁRIA NA RUA: RAULINO DEMARCHI, BAIRRO: LARANJEIRAS, RIO DO SUL - SC",
+          "contrato_id": "83102574000106-2-000577/2026"
+        },
+        {
+          "objeto": "CONTRATAÇÃO DE EMPRESA PARA EXECUÇÃO DE PAVIMENTAÇÃO INTERTRAVADA, DRENAGEM PLUVIAL E SINALIZAÇÃO VIÁRIA DA RUA JOSÉ CIMARDI, BAIRRO TABOÃO, RIO DO SUL/SC.",
+          "contrato_id": "83102574000106-2-000437/2026"
+        },
+        {
+          "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE OBRAS DE PAVIMENTAÇÃO INTERTRAVADA, DRENAGEM PLUVIAL E SINALIZAÇÃO VIÁRIA NA RUA: RAULINO DEMARCHI, BAIRRO: LARANJEIRAS, RIO DO SUL - SC",
+          "contrato_id": "83102574000106-2-000577/2026"
+        }
+      ],
+      "human_decision": null,
+      "human_reason": null,
+      "human_notes": null,
+      "allowed_decisions": [
+        "ACCEPT_FIT",
+        "REJECT_OUT_OF_SCOPE",
+        "REVIEW_MORE",
+        "DO_NOT_CONTACT"
+      ]
+    },
+    {
+      "rank": 11,
+      "cnpj14": "29084108000191",
+      "razao_social": "AUTENTIKA ENGENHARIA E CONSTRUTORA LTDA",
+      "supplier_sector_fit": "STRONG_ENGINEERING_FIT",
+      "supplier_sector_confidence": 0.8,
+      "cnaes": null,
+      "contract_relevance": "PASS",
+      "score_total": 8.6559,
+      "score_decomposition": {
+        "first_public_contract": 0.0,
+        "ticket_above_history": 0.0,
+        "quantity_growth": 0.0,
+        "value_growth": 0.0,
+        "new_agency": 0.0,
+        "new_region": 0.0,
+        "new_object_category": 0.0,
+        "concurrent_portfolio": 3.6,
+        "agency_concentration": 0.9059,
+        "contract_concentration": 0.0,
+        "near_expiry": 1.95,
+        "addendum_recurrence": 0.0,
+        "adverse_event": 0.0,
+        "diversity_increase": 0.0,
+        "win_recurrence": 2.2
+      },
+      "suggested_offer": "acompanhamento_admin",
+      "relevant_contracts": [
+        {
+          "objeto": "Contratação de empresa para a execução de obra de contenção para estabilização de escorregamento na margem do Rio Itajaí-Açú na Rua Arnold Hemmer, nº 3.095, bairro: Badenfurt, Blumenau/SC - SEMOB.",
+          "contrato_id": "83108357000115-2-001141/2026"
+        },
+        {
+          "objeto": "Contratação de empresa para a execução de obra de pavimentação em lajota sextavada de concreto e drenagem da Via Projetada 64 - trecho 01 (entre as Ruas Jaco Brueckheimer e Dr. Max Tavares D'Amaral), ",
+          "contrato_id": "83108357000115-2-001093/2026"
+        },
+        {
+          "objeto": "Contratação de empresa para a execução de obra de contenção para estabilização de escorregamento na margem do Rio Itajaí-Açú na Rua Arnold Hemmer, nº 3.095, bairro: Badenfurt, Blumenau/SC - SEMOB.",
+          "contrato_id": "83108357000115-2-001141/2026"
+        },
+        {
+          "objeto": "Contratação de empresa para a execução de obra de pavimentação em lajota sextavada de concreto e drenagem da Via Projetada 64 - trecho 01 (entre as Ruas Jaco Brueckheimer e Dr. Max Tavares D'Amaral), ",
+          "contrato_id": "83108357000115-2-001093/2026"
+        },
+        {
+          "objeto": "Referente à contratação de empresa para a execução de pavimentação em lajota sextavada de concreto da Rua Recife (trecho final) e Rua Carijós, bairro Bom Retiro, Blumenau/SC.",
+          "contrato_id": "83108357000115-2-000477/2026"
+        }
+      ],
+      "human_decision": null,
+      "human_reason": null,
+      "human_notes": null,
+      "allowed_decisions": [
+        "ACCEPT_FIT",
+        "REJECT_OUT_OF_SCOPE",
+        "REVIEW_MORE",
+        "DO_NOT_CONTACT"
+      ]
+    },
+    {
+      "rank": 12,
+      "cnpj14": "22798043000105",
+      "razao_social": "KAENG INFRAESTRUTURA LTDA",
+      "supplier_sector_fit": "STRONG_ENGINEERING_FIT",
+      "supplier_sector_confidence": 0.8,
+      "cnaes": null,
+      "contract_relevance": "PASS",
+      "score_total": 8.5984,
+      "score_decomposition": {
+        "first_public_contract": 0.0,
+        "ticket_above_history": 0.0,
+        "quantity_growth": 0.0,
+        "value_growth": 0.0,
+        "new_agency": 0.0,
+        "new_region": 0.0,
+        "new_object_category": 0.0,
+        "concurrent_portfolio": 2.8,
+        "agency_concentration": 0.9984,
+        "contract_concentration": 0.0,
+        "near_expiry": 2.6,
+        "addendum_recurrence": 0.0,
+        "adverse_event": 0.0,
+        "diversity_increase": 0.0,
+        "win_recurrence": 2.2
+      },
+      "suggested_offer": "acompanhamento_admin",
+      "relevant_contracts": [
+        {
+          "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUTAR O SALDO REMANESCENTE DA PAVIMENTAÇÃO EM CONCRETO ASFÁLTICO NO PÁTIO DA EMPRESA RODOVIÁRIO MONTE SERENO LTDA, LOCALIZADA NA RODOVIA SC 135, BAIRRO NOS",
+          "contrato_id": "83039842000184-2-002101/2026"
+        },
+        {
+          "objeto": "SERVIÇOS DE REPAVIMENTAÇÃO ASFÁLTICA COM FORNECIMENTO DE MATERIAL NA RUA CINCO DE DEZEMBRO, BAIRRO VILA VERDE",
+          "contrato_id": "83039842000184-2-001913/2026"
+        },
+        {
+          "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUTAR O SALDO REMANESCENTE DA PAVIMENTAÇÃO EM CONCRETO ASFÁLTICO NO PÁTIO DA EMPRESA RODOVIÁRIO MONTE SERENO LTDA, LOCALIZADA NA RODOVIA SC 135, BAIRRO NOS",
+          "contrato_id": "83039842000184-2-002101/2026"
+        },
+        {
+          "objeto": "SERVIÇOS DE REPAVIMENTAÇÃO ASFÁLTICA COM FORNECIMENTO DE MATERIAL NA RUA CINCO DE DEZEMBRO, BAIRRO VILA VERDE",
+          "contrato_id": "83039842000184-2-001913/2026"
+        },
+        {
+          "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUTAR O SALDO REMANESCENTE DA PAVIMENTAÇÃO EM CONCRETO ASFÁLTICO NO PÁTIO DA EMPRESA RODOVIÁRIO MONTE SERENO LTDA, LOCALIZADA NA RODOVIA SC 135, BAIRRO NOS",
+          "contrato_id": "83039842000184-2-002101/2026"
+        }
+      ],
+      "human_decision": null,
+      "human_reason": null,
+      "human_notes": null,
+      "allowed_decisions": [
+        "ACCEPT_FIT",
+        "REJECT_OUT_OF_SCOPE",
+        "REVIEW_MORE",
+        "DO_NOT_CONTACT"
+      ]
+    },
+    {
+      "rank": 13,
+      "cnpj14": "20123886000178",
+      "razao_social": "PRE-MOLDADOS E CONSTRUTORA VIANA LTDA",
+      "supplier_sector_fit": "STRONG_ENGINEERING_FIT",
+      "supplier_sector_confidence": 0.8,
+      "cnaes": null,
+      "contract_relevance": "PASS",
+      "score_total": 8.5773,
+      "score_decomposition": {
+        "first_public_contract": 0.0,
+        "ticket_above_history": 0.0,
+        "quantity_growth": 0.0,
+        "value_growth": 0.0,
+        "new_agency": 0.0,
+        "new_region": 0.0,
+        "new_object_category": 0.0,
+        "concurrent_portfolio": 2.4,
+        "agency_concentration": 1.1,
+        "contract_concentration": 0.2773,
+        "near_expiry": 2.6,
+        "addendum_recurrence": 0.0,
+        "adverse_event": 0.0,
+        "diversity_increase": 0.0,
+        "win_recurrence": 2.2
+      },
+      "suggested_offer": "monitoramento",
+      "relevant_contracts": [
+        {
+          "objeto": "Registro de preços para futura e eventual contratação de empresa especializada para execução de obras de drenagem em estradas do Município de Guaraciaba/MG, consistentes na implantação de bueiros tubu",
+          "contrato_id": "19382647000153-2-000104/2026"
+        },
+        {
+          "objeto": "Registro de Preços para futura e eventual Contratação de empresa especializada para execução de obra de pavimentação em blocos intertravados (bloquetes) e implantação de sistema de drenagem pluvial em",
+          "contrato_id": "19382647000153-2-000097/2026"
+        },
+        {
+          "objeto": "Registro de preços para futura e eventual contratação de empresa especializada para execução de obras de drenagem em estradas do Município de Guaraciaba/MG, consistentes na implantação de bueiros tubu",
+          "contrato_id": "19382647000153-2-000104/2026"
+        },
+        {
+          "objeto": "Registro de Preços para futura e eventual Contratação de empresa especializada para execução de obra de pavimentação em blocos intertravados (bloquetes) e implantação de sistema de drenagem pluvial em",
+          "contrato_id": "19382647000153-2-000097/2026"
+        },
+        {
+          "objeto": "Registro de preços para futura e eventual contratação de empresa especializada para execução de obras de drenagem em estradas do Município de Guaraciaba/MG, consistentes na implantação de bueiros tubu",
+          "contrato_id": "19382647000153-2-000104/2026"
+        }
+      ],
+      "human_decision": null,
+      "human_reason": null,
+      "human_notes": null,
+      "allowed_decisions": [
+        "ACCEPT_FIT",
+        "REJECT_OUT_OF_SCOPE",
+        "REVIEW_MORE",
+        "DO_NOT_CONTACT"
+      ]
+    },
+    {
+      "rank": 14,
+      "cnpj14": "00472805000138",
+      "razao_social": "TRAÇADO CONSTRUÇÕES E SERVIÇOS LTDA",
+      "supplier_sector_fit": "STRONG_ENGINEERING_FIT",
+      "supplier_sector_confidence": 0.8,
+      "cnaes": null,
+      "contract_relevance": "PASS",
+      "score_total": 8.4,
+      "score_decomposition": {
+        "first_public_contract": 0.0,
+        "ticket_above_history": 0.0,
+        "quantity_growth": 0.0,
+        "value_growth": 0.0,
+        "new_agency": 0.0,
+        "new_region": 0.0,
+        "new_object_category": 0.0,
+        "concurrent_portfolio": 3.6,
+        "agency_concentration": 0.0,
+        "contract_concentration": 0.0,
+        "near_expiry": 2.6,
+        "addendum_recurrence": 0.0,
+        "adverse_event": 0.0,
+        "diversity_increase": 0.0,
+        "win_recurrence": 2.2
+      },
+      "suggested_offer": "acompanhamento_admin",
+      "relevant_contracts": [
+        {
+          "objeto": "PAVIMENTAÇÃO ASFÁLTICA EM CBUQ E SINALIZAÇÃO DA TRAVESSA ERS-359 A ERS-355 (PEDANCINO) E DO RECAPEAMENTO ASFÁLTICO EM CBUQ, DRENAGEM E SINALIZAÇÃO DA ESTRADA GERAL SANTA BÁRBARA, DE ACORDO COM O CONVÊ",
+          "contrato_id": "98671597000109-2-000221/2026"
+        },
+        {
+          "objeto": "PAVIMENTAÇÃO ASFÁLTICA EM CBUQ E SINALIZAÇÃO DA TRAVESSA ERS-359 A ERS-355 (PEDANCINO) E DO RECAPEAMENTO ASFÁLTICO EM CBUQ, DRENAGEM E SINALIZAÇÃO DA ESTRADA GERAL SANTA BÁRBARA, DE ACORDO COM O CONVÊ",
+          "contrato_id": "98671597000109-2-000232/2026"
+        },
+        {
+          "objeto": "PAVIMENTAÇÃO ASFÁLTICA EM CBUQ E SINALIZAÇÃO DA TRAVESSA ERS-359 A ERS-355 (PEDANCINO) E DO RECAPEAMENTO ASFÁLTICO EM CBUQ, DRENAGEM E SINALIZAÇÃO DA ESTRADA GERAL SANTA BÁRBARA, DE ACORDO COM O CONVÊ",
+          "contrato_id": "98671597000109-2-000232/2026"
+        },
+        {
+          "objeto": "CONTRATAÇÃO DE EMPRESA PARA EXECUÇÃO DA OBRA DE PAVIMENTAÇÃO ASFÁLTICA EM CBUQ NA LINHA CONDE DE PORTO ALEGRE - PERÍMETRO URBANO (MATERIAIS E MÃO DE OBRA).",
+          "contrato_id": "91566869000153-2-000159/2026"
+        },
+        {
+          "objeto": "PAVIMENTAÇÃO ASFÁLTICA EM CBUQ E SINALIZAÇÃO DA TRAVESSA ERS-359 A ERS-355 (PEDANCINO) E DO RECAPEAMENTO ASFÁLTICO EM CBUQ, DRENAGEM E SINALIZAÇÃO DA ESTRADA GERAL SANTA BÁRBARA, DE ACORDO COM O CONVÊ",
+          "contrato_id": "98671597000109-2-000221/2026"
+        }
+      ],
+      "human_decision": null,
+      "human_reason": null,
+      "human_notes": null,
+      "allowed_decisions": [
+        "ACCEPT_FIT",
+        "REJECT_OUT_OF_SCOPE",
+        "REVIEW_MORE",
+        "DO_NOT_CONTACT"
+      ]
+    },
+    {
+      "rank": 15,
+      "cnpj14": "00220982000127",
+      "razao_social": "MATT CONSTRUTORA LTDA",
+      "supplier_sector_fit": "STRONG_ENGINEERING_FIT",
+      "supplier_sector_confidence": 0.8,
+      "cnaes": null,
+      "contract_relevance": "PASS",
+      "score_total": 8.4,
+      "score_decomposition": {
+        "first_public_contract": 0.0,
+        "ticket_above_history": 0.0,
+        "quantity_growth": 0.0,
+        "value_growth": 0.0,
+        "new_agency": 0.0,
+        "new_region": 0.0,
+        "new_object_category": 0.0,
+        "concurrent_portfolio": 3.6,
+        "agency_concentration": 0.0,
+        "contract_concentration": 0.0,
+        "near_expiry": 2.6,
+        "addendum_recurrence": 0.0,
+        "adverse_event": 0.0,
+        "diversity_increase": 0.0,
+        "win_recurrence": 2.2
+      },
+      "suggested_offer": "acompanhamento_admin",
+      "relevant_contracts": [
+        {
+          "objeto": "Contratação de empresa ou de consórcio de empresas para a execução de obra de infraestrutura, visando a revitalização da Avenida Presidente Vargas, etapa 02, nos bairros São Cristóvão, Rodrigues e Cen",
+          "contrato_id": "87612537000190-2-000237/2026"
+        },
+        {
+          "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA A EXECUÇÃO DAS OBRAS DE CONSTRUÇÃO DE UMA NOVA PONTE EM CONCRETO ARMADO NA COMUNIDADE DA LINHA 16 DASSI, IMPORTANTE VIA DE LIGAÇÃO QUE GARANTE O ACESSO A COMU",
+          "contrato_id": "92406115000107-2-000004/2026"
+        },
+        {
+          "objeto": "Contratação de Empresa em regime de empreitada global por item, para a execução dos serviços, incluindo-se material e mão de obra, para:\nItem 01 - Pavimentação asfáltica com CBUQ, Terraplenagem, Drena",
+          "contrato_id": "04208358000165-2-000074/2026"
+        },
+        {
+          "objeto": "CONTRATAÇÃO DE EMPRESA PARA OBRA DE PAVIMENTAÇÃO ASFALTICA NA AVENIDA DA INTEGRAÇÃO NO MINICIPIO DE PANAMBI. PROGRAMA PAVIMEMENTA 3 - FPE 5160/2025",
+          "contrato_id": "88702089000189-2-000099/2026"
+        },
+        {
+          "objeto": "Contratação de empresa ou de consórcio de empresas para a execução de obra de infraestrutura, visando a revitalização da Avenida Presidente Vargas, etapa 02, nos bairros São Cristóvão, Rodrigues e Cen",
+          "contrato_id": "87612537000190-2-000237/2026"
+        }
+      ],
+      "human_decision": null,
+      "human_reason": null,
+      "human_notes": null,
+      "allowed_decisions": [
+        "ACCEPT_FIT",
+        "REJECT_OUT_OF_SCOPE",
+        "REVIEW_MORE",
+        "DO_NOT_CONTACT"
+      ]
+    },
+    {
+      "rank": 16,
+      "cnpj14": "61608477000149",
+      "razao_social": "DGB ENGENHARIA E CONSTRUCOES LTDA",
+      "supplier_sector_fit": "STRONG_ENGINEERING_FIT",
+      "supplier_sector_confidence": 0.8,
+      "cnaes": null,
+      "contract_relevance": "PASS",
+      "score_total": 8.4,
+      "score_decomposition": {
+        "first_public_contract": 0.0,
+        "ticket_above_history": 0.0,
+        "quantity_growth": 0.0,
+        "value_growth": 0.0,
+        "new_agency": 0.0,
+        "new_region": 0.0,
+        "new_object_category": 0.0,
+        "concurrent_portfolio": 3.6,
+        "agency_concentration": 0.0,
+        "contract_concentration": 0.0,
+        "near_expiry": 2.6,
+        "addendum_recurrence": 0.0,
+        "adverse_event": 0.0,
+        "diversity_increase": 0.0,
+        "win_recurrence": 2.2
+      },
+      "suggested_offer": "acompanhamento_admin",
+      "relevant_contracts": [
+        {
+          "objeto": "CONTRATAÇÃO DAS OBRAS E SERVIÇOS DE PAVIMENTAÇÃO DO REMANESCENTE DA ESTRADA VICINAL RCR-010, QUE INTERLIGA OS MUNICÍPIOS DE CRISTAIS PAULISTA, JERIQUARA E RIBEIRÃO CORRENTE (LOTE 10 – ESTACA 100+5M À ",
+          "contrato_id": "43052497000102-2-000066/2026"
+        },
+        {
+          "objeto": "DRENAGEM E RECUPERAÇÃO DAPAVIMENTAÇÃO ASFÁLTICA NA AVENIDA FRATERNIDADE PAULISTA NO BAIRRO JARDIM CAIÇARA",
+          "contrato_id": "44780609000104-2-000054/2026"
+        },
+        {
+          "objeto": "Contratação de empresa especializada para a execução de obras de adequação de infraestrutura viária no município de Sertãozinho/SP.",
+          "contrato_id": "45371820000128-2-001674/2026"
+        },
+        {
+          "objeto": "Contratação de empresa especializada para execução de obra e serviços de engenharia para EXECUÇÃO DE OBRAS DE RECAPEAMENTO ASFÁLTICO EM RUAS E AVENIDAS DO MUNICÍPIO DE PORTO FERREIRA – SP “PROGRAMA AS",
+          "contrato_id": "45339363000194-2-000037/2026"
+        },
+        {
+          "objeto": "CONTRATAÇÃO DAS OBRAS E SERVIÇOS DE PAVIMENTAÇÃO DO REMANESCENTE DA ESTRADA VICINAL RCR-010, QUE INTERLIGA OS MUNICÍPIOS DE CRISTAIS PAULISTA, JERIQUARA E RIBEIRÃO CORRENTE (LOTE 10 – ESTACA 100+5M À ",
+          "contrato_id": "43052497000102-2-000066/2026"
+        }
+      ],
+      "human_decision": null,
+      "human_reason": null,
+      "human_notes": null,
+      "allowed_decisions": [
+        "ACCEPT_FIT",
+        "REJECT_OUT_OF_SCOPE",
+        "REVIEW_MORE",
+        "DO_NOT_CONTACT"
+      ]
+    },
+    {
+      "rank": 17,
+      "cnpj14": "06145928000140",
+      "razao_social": "CONSTRUÇÃO CIVIL MG LTDA",
+      "supplier_sector_fit": "STRONG_ENGINEERING_FIT",
+      "supplier_sector_confidence": 0.8,
+      "cnaes": null,
+      "contract_relevance": "PASS",
+      "score_total": 8.4,
+      "score_decomposition": {
+        "first_public_contract": 0.0,
+        "ticket_above_history": 0.0,
+        "quantity_growth": 0.0,
+        "value_growth": 0.0,
+        "new_agency": 0.0,
+        "new_region": 0.0,
+        "new_object_category": 0.0,
+        "concurrent_portfolio": 3.6,
+        "agency_concentration": 0.0,
+        "contract_concentration": 0.0,
+        "near_expiry": 2.6,
+        "addendum_recurrence": 0.0,
+        "adverse_event": 0.0,
+        "diversity_increase": 0.0,
+        "win_recurrence": 2.2
+      },
+      "suggested_offer": "acompanhamento_admin",
+      "relevant_contracts": [
+        {
+          "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE OBRA DRENAGEM PLUVIAL DA RUA SANTA CATARINA, BAIRRO DAS LAGOAS, COM EXTENSÃO DA VIA EM 7.200 M² EM PERÍMETRO URBANO NO MUNICÍPIO DE VITOR MEIRELES",
+          "contrato_id": "79372520000185-2-000733/2026"
+        },
+        {
+          "objeto": "EXECUÇÃO DE OBRA DE PAVIMENTAÇÃO ASFÁLTICA DA RUA CRISTIANO SCHLISCHTING, BAIRRO CENTRO, COM REMOÇÃO DO REVESTIMENTO EXISTENTE, ADEQUAÇÃO DA BASE, APLICAÇÃO DE CBUQ, MEIO-FIO, SINALIZAÇÃO VIÁRIA E AJU",
+          "contrato_id": "83102640000130-2-000874/2026"
+        },
+        {
+          "objeto": "Contratação de empresa especializada para execução de obras de pavimentação asfáltica, drenagem pluvial e sinalização viária na Rua Henrique Degenhardt, Bairro Fundo Canoas, Rio do Sul - SC.",
+          "contrato_id": "83102574000106-2-000576/2026"
+        },
+        {
+          "objeto": "Contratação de empresa especializada para execução de obras de pavimentação asfáltica, drenagem pluvial e sinalização viária na Rua: Antônio Dolzani, Bairro: Valada São Paulo, Rio do Sul - SC.",
+          "contrato_id": "83102574000106-2-000527/2026"
+        },
+        {
+          "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE OBRA DRENAGEM PLUVIAL DA RUA SANTA CATARINA, BAIRRO DAS LAGOAS, COM EXTENSÃO DA VIA EM 7.200 M² EM PERÍMETRO URBANO NO MUNICÍPIO DE VITOR MEIRELES",
+          "contrato_id": "79372520000185-2-000733/2026"
+        }
+      ],
+      "human_decision": null,
+      "human_reason": null,
+      "human_notes": null,
+      "allowed_decisions": [
+        "ACCEPT_FIT",
+        "REJECT_OUT_OF_SCOPE",
+        "REVIEW_MORE",
+        "DO_NOT_CONTACT"
+      ]
+    },
+    {
+      "rank": 18,
+      "cnpj14": "03094645000129",
+      "razao_social": "INFRASUL - INFRAESTRUTURA E EMPREENDIMENTOS LTDA",
+      "supplier_sector_fit": "STRONG_ENGINEERING_FIT",
+      "supplier_sector_confidence": 0.8,
+      "cnaes": null,
+      "contract_relevance": "PASS",
+      "score_total": 8.4,
+      "score_decomposition": {
+        "first_public_contract": 0.0,
+        "ticket_above_history": 0.0,
+        "quantity_growth": 0.0,
+        "value_growth": 0.0,
+        "new_agency": 0.0,
+        "new_region": 0.0,
+        "new_object_category": 0.0,
+        "concurrent_portfolio": 3.6,
+        "agency_concentration": 0.0,
+        "contract_concentration": 0.0,
+        "near_expiry": 2.6,
+        "addendum_recurrence": 0.0,
+        "adverse_event": 0.0,
+        "diversity_increase": 0.0,
+        "win_recurrence": 2.2
+      },
+      "suggested_offer": "acompanhamento_admin",
+      "relevant_contracts": [
+        {
+          "objeto": "Aquisição de Rachão, Bica corrida, Material Britado, Material Bruto e Pedra Pulmão destinados ao atendimento das obras de pavimentação, drenagem e revestimento primário no município de Joinville.",
+          "contrato_id": "83169623000110-2-001618/2026"
+        },
+        {
+          "objeto": "Contratação de empresa especializada para execução de obras de pavimentação asfáltica em vias urbanas no Bairro Bom Jesus, no município de Itaiópolis/SC, contemplando as seguintes vias: Travessa João ",
+          "contrato_id": "83102517000119-2-001313/2026"
+        },
+        {
+          "objeto": "Contratação de pessoa jurídica para a prestação de serviços de engenharia, com fornecimento de materiais e mão de obra, destinados à pavimentação asfáltica, incluindo serviços preliminares, terraplena",
+          "contrato_id": "83102459000123-2-001498/2026"
+        },
+        {
+          "objeto": "Contratação de pessoa jurídica para a execução de serviços de engenharia, compreendendo o fornecimento de materiais e de mão de obra, destinados à pavimentação asfáltica, incluindo serviços preliminar",
+          "contrato_id": "83102459000123-2-001309/2026"
+        },
+        {
+          "objeto": "Aquisição de Rachão, Bica corrida, Material Britado, Material Bruto e Pedra Pulmão destinados ao atendimento das obras de pavimentação, drenagem e revestimento primário no município de Joinville.",
+          "contrato_id": "83169623000110-2-001618/2026"
+        }
+      ],
+      "human_decision": null,
+      "human_reason": null,
+      "human_notes": null,
+      "allowed_decisions": [
+        "ACCEPT_FIT",
+        "REJECT_OUT_OF_SCOPE",
+        "REVIEW_MORE",
+        "DO_NOT_CONTACT"
+      ]
+    },
+    {
+      "rank": 19,
+      "cnpj14": "22835076000170",
+      "razao_social": "CONSORCIO INTEGRADO MULTIFINALITARIO DO VALE DO JEQUITINHONH",
+      "supplier_sector_fit": "STRONG_ENGINEERING_FIT",
+      "supplier_sector_confidence": 0.72,
+      "cnaes": null,
+      "contract_relevance": "PASS",
+      "score_total": 8.4,
+      "score_decomposition": {
+        "first_public_contract": 0.0,
+        "ticket_above_history": 0.0,
+        "quantity_growth": 0.0,
+        "value_growth": 0.0,
+        "new_agency": 0.0,
+        "new_region": 0.0,
+        "new_object_category": 0.0,
+        "concurrent_portfolio": 3.6,
+        "agency_concentration": 0.0,
+        "contract_concentration": 0.0,
+        "near_expiry": 2.6,
+        "addendum_recurrence": 0.0,
+        "adverse_event": 0.0,
+        "diversity_increase": 0.0,
+        "win_recurrence": 2.2
+      },
+      "suggested_offer": "acompanhamento_admin",
+      "relevant_contracts": [
+        {
+          "objeto": "CONTRATAÇÃO DO CONSORCIO INTEGRADO MULTIFINALITARIO DO VALE DO JEQUITINHONHA  CIM JEQUITINHONHA PARA EXECUÇÃO DE OBRA DE PAVIMENTAÇÃO ASFÁLTICA EM TRATAMENTO SUPERFICIAL DUPLO TSD, COM SERVIÇOS DE TER",
+          "contrato_id": "18303255000199-2-000010/2026"
+        },
+        {
+          "objeto": "CONTRATAÇÃO DO CONSÓRCIO INTEGRADO MULTIFINALITÁRIO DO VALE DO JEQUITINHONHA CIM-JEQUITINHONHA PARA PRESTAÇÃO DOS SERVIÇOS DE MANUTENÇÃO PREVENTIVA EOU CORRETIVA DE PAVIMENTAÇÃO ASFÁLTICA COM TRATAMEN",
+          "contrato_id": "17754201000187-2-000051/2026"
+        },
+        {
+          "objeto": "Celebração de Contrato de Programa com o Consórcio Intermunicipal Multifinalitário do Vale do Jequitinhonha – CIMJequitinhonha para execução de obra de pavimentação em piso intertravado sextavado de c",
+          "contrato_id": "18303164000153-2-000024/2026"
+        },
+        {
+          "objeto": "CELEBRAÇÃO DE CONTRATO DE PROGRAMA JUNTO AO CIM - JEQUITINHONHA PARA PAVIMENTAÇÃO DE VIAS PÚBLICAS EM TSD - TRATAMENTO SUPERFICIAL DUPLO) SOB BASE NO MUNICÍPIO DE SABINÓPOLIS.",
+          "contrato_id": "18307454000175-2-000026/2026"
+        },
+        {
+          "objeto": "CONTRATAÇÃO DO CONSORCIO INTEGRADO MULTIFINALITARIO DO VALE DO JEQUITINHONHA  CIM JEQUITINHONHA PARA EXECUÇÃO DE OBRA DE PAVIMENTAÇÃO ASFÁLTICA EM TRATAMENTO SUPERFICIAL DUPLO TSD, COM SERVIÇOS DE TER",
+          "contrato_id": "18303255000199-2-000010/2026"
+        }
+      ],
+      "human_decision": null,
+      "human_reason": null,
+      "human_notes": null,
+      "allowed_decisions": [
+        "ACCEPT_FIT",
+        "REJECT_OUT_OF_SCOPE",
+        "REVIEW_MORE",
+        "DO_NOT_CONTACT"
+      ]
+    },
+    {
+      "rank": 20,
+      "cnpj14": "10249046000100",
+      "razao_social": "CONSTRUCOES SCHOROEDER LTDA",
+      "supplier_sector_fit": "STRONG_ENGINEERING_FIT",
+      "supplier_sector_confidence": 0.8,
+      "cnaes": null,
+      "contract_relevance": "PASS",
+      "score_total": 8.4,
+      "score_decomposition": {
+        "first_public_contract": 0.0,
+        "ticket_above_history": 0.0,
+        "quantity_growth": 0.0,
+        "value_growth": 0.0,
+        "new_agency": 0.0,
+        "new_region": 0.0,
+        "new_object_category": 0.0,
+        "concurrent_portfolio": 3.6,
+        "agency_concentration": 0.0,
+        "contract_concentration": 0.0,
+        "near_expiry": 2.6,
+        "addendum_recurrence": 0.0,
+        "adverse_event": 0.0,
+        "diversity_increase": 0.0,
+        "win_recurrence": 2.2
+      },
+      "suggested_offer": "acompanhamento_admin",
+      "relevant_contracts": [
+        {
+          "objeto": "FORNECIMENTO E EXECUÇÃO DE BASE, FRESAGEM E PAVIMENTAÇÃO ASFÁLTICA - Rua Poeta Bento Nascimento: R$ 122.605,05; Rua Silvestro Moser: R$ 288.168,24;  Rua Osvaldo Cruz e Rio Grande do Norte: R$ 527.508,",
+          "contrato_id": "83102277000152-2-000532/2026"
+        },
+        {
+          "objeto": "FORNECIMENTO E EXECUÇÃO DE BASE, FRESAGEM E PAVIMENTAÇÃO ASFÁLTICA NAS RUAS: HERCÍLIA MOSER, EURÍPEDES AMORIM LEAL, EREDES SERPA, JOSÉ ROSA, JOSÉ LOPES E FRANCISCO REIS",
+          "contrato_id": "83102277000152-2-000487/2026"
+        },
+        {
+          "objeto": "Contratação de empresa especializada para execução de obra de implantação de rótula de acesso ao Bairro Pamplona, Rio do Sul/SC.",
+          "contrato_id": "83102574000106-2-000593/2026"
+        },
+        {
+          "objeto": "Contratação de empresa para execução de projeto de construção da obra de pavimentação asfáltica e drenagem da Estrada Geral Fazenda de Dentro (Rua Manoel Mendes), Localidade de Fazenda de Dentro,Bigua",
+          "contrato_id": "82892308000153-2-000654/2026"
+        },
+        {
+          "objeto": "FORNECIMENTO E EXECUÇÃO DE BASE, FRESAGEM E PAVIMENTAÇÃO ASFÁLTICA - Rua Poeta Bento Nascimento: R$ 122.605,05; Rua Silvestro Moser: R$ 288.168,24;  Rua Osvaldo Cruz e Rio Grande do Norte: R$ 527.508,",
+          "contrato_id": "83102277000152-2-000532/2026"
+        }
+      ],
+      "human_decision": null,
+      "human_reason": null,
+      "human_notes": null,
+      "allowed_decisions": [
+        "ACCEPT_FIT",
+        "REJECT_OUT_OF_SCOPE",
+        "REVIEW_MORE",
+        "DO_NOT_CONTACT"
+      ]
+    }
+  ]
+}

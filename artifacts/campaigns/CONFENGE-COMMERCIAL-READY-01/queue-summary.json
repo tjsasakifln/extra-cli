@@ -1,0 +1,270 @@
+{
+  "run_id": "cl-20260725T225921Z-f9360478",
+  "status": "PASS",
+  "reason": null,
+  "git_sha": "1108c72a21d82e81670976cd9dd104fb4b153a82",
+  "run_git_sha": "1108c72a21d82e81670976cd9dd104fb4b153a82",
+  "artifact_git_sha": "1108c72a21d82e81670976cd9dd104fb4b153a82",
+  "population_mode": "FULL_POPULATION",
+  "source_state_mode": "RESTORED_SNAPSHOT_SINGLE_DB",
+  "snapshot_binding": {
+    "ok": true,
+    "status": "BOUND",
+    "declared_row_count": 60000,
+    "database_row_count": 60000,
+    "min_date": "2026-02-13",
+    "max_date": "2026-07-23",
+    "sample_hashes": [
+      "00000000000191-2-000004/2026:50052653000192:871dd87a1f8dd86e0e7db63314adce94",
+      "00000000000191-2-000009/2026:63056469000162:9d1f42e66ce0dfc826509cfaffeba22c",
+      "00000000000191-2-000013/2026:31834991000131:e3e30f0fb9f15d81639ab53fdcea37a6",
+      "00000000000191-2-000020/2026:89278519000140:fd2a1b4044d0f97f34ae9829f156088b",
+      "00000000000191-2-000024/2026:33624704000194:5b32f5760c24803cea3f8f35922e9cea"
+    ],
+    "table_snapshot_hash": "bb1fa54ececca5ab5d68a700e103d5103a5fa424f233344d41d955543cc4d8d3",
+    "schema_version": null,
+    "reasons": [],
+    "justified_filter": false,
+    "filter_note": null,
+    "table": "pncp_supplier_contracts"
+  },
+  "sector_fit_distribution": {
+    "STRONG_ENGINEERING_FIT": 4255,
+    "CONFLICTING": 312,
+    "POSSIBLE_ENGINEERING_FIT": 3001,
+    "OUT_OF_SCOPE": 975
+  },
+  "metrics": {
+    "eligible_companies": 8543,
+    "raw_contracts_loaded": 33682,
+    "relevance_pass_contracts": 17114,
+    "db_contract_count": 60000,
+    "exclusions": 249,
+    "scored_companies": 4255,
+    "validity_excluded": 4288,
+    "review_queue_size": 4288,
+    "ranked_leads": 20,
+    "do_not_contact_suppressed": 0,
+    "human_state_overrides": 23,
+    "queue_limit": 20,
+    "insufficient_queue": false,
+    "elapsed_seconds": 15.664,
+    "module_version": "1.2.0",
+    "population_mode": "FULL_POPULATION",
+    "limit_applied": null,
+    "sector_fit_distribution": {
+      "STRONG_ENGINEERING_FIT": 4255,
+      "CONFLICTING": 312,
+      "POSSIBLE_ENGINEERING_FIT": 3001,
+      "OUT_OF_SCOPE": 975
+    }
+  },
+  "top10_validation": {
+    "ok": true,
+    "issues": [],
+    "out_of_scope_in_top10": 0
+  },
+  "ranking_hash": "8f9fc2d103b048641c93750a7c928b8b4f1a96311a30b649b3c2dbd55dbec316",
+  "top20": [
+    {
+      "rank": 1,
+      "cnpj14": "12253900000120",
+      "razao_social": "BRANIX EMPREENDIMENTOS LTDA",
+      "score_total": 9.737,
+      "supplier_sector_fit": "STRONG_ENGINEERING_FIT",
+      "contract_relevance": "PASS",
+      "commercial_signal_fit": "PASS",
+      "geography_fit": "PASS"
+    },
+    {
+      "rank": 2,
+      "cnpj14": "95257945000108",
+      "razao_social": "CONSTRUBRÁS CONSTRUTORA LTDA",
+      "score_total": 9.5276,
+      "supplier_sector_fit": "STRONG_ENGINEERING_FIT",
+      "contract_relevance": "PASS",
+      "commercial_signal_fit": "PASS",
+      "geography_fit": "PASS"
+    },
+    {
+      "rank": 3,
+      "cnpj14": "27254414000101",
+      "razao_social": "FAK EMPREENDIMENTOS LTDA",
+      "score_total": 9.5,
+      "supplier_sector_fit": "STRONG_ENGINEERING_FIT",
+      "contract_relevance": "PASS",
+      "commercial_signal_fit": "PASS",
+      "geography_fit": "PASS"
+    },
+    {
+      "rank": 4,
+      "cnpj14": "19648512000197",
+      "razao_social": "KARAIBA CONSULTORIA E PROJETOS LTDA.",
+      "score_total": 9.5,
+      "supplier_sector_fit": "STRONG_ENGINEERING_FIT",
+      "contract_relevance": "PASS",
+      "commercial_signal_fit": "PASS",
+      "geography_fit": "PASS"
+    },
+    {
+      "rank": 5,
+      "cnpj14": "38517835000196",
+      "razao_social": "PROJESOL ENGENHARIA LTDA",
+      "score_total": 9.2243,
+      "supplier_sector_fit": "STRONG_ENGINEERING_FIT",
+      "contract_relevance": "PASS",
+      "commercial_signal_fit": "PASS",
+      "geography_fit": "PASS"
+    },
+    {
+      "rank": 6,
+      "cnpj14": "45145494000130",
+      "razao_social": "CONSTRUTORA IRMAOS WARTHA LTDA",
+      "score_total": 9.1,
+      "supplier_sector_fit": "STRONG_ENGINEERING_FIT",
+      "contract_relevance": "PASS",
+      "commercial_signal_fit": "PASS",
+      "geography_fit": "PASS"
+    },
+    {
+      "rank": 7,
+      "cnpj14": "15247296000117",
+      "razao_social": "IBERICA CONSTRUÇÕES CIVIS E VIARIAS LTDA ME",
+      "score_total": 8.9406,
+      "supplier_sector_fit": "STRONG_ENGINEERING_FIT",
+      "contract_relevance": "PASS",
+      "commercial_signal_fit": "PASS",
+      "geography_fit": "PASS"
+    },
+    {
+      "rank": 8,
+      "cnpj14": "07192929000109",
+      "razao_social": "CONSTRUTORA JLV LTDA",
+      "score_total": 8.7,
+      "supplier_sector_fit": "STRONG_ENGINEERING_FIT",
+      "contract_relevance": "PASS",
+      "commercial_signal_fit": "PASS",
+      "geography_fit": "PASS"
+    },
+    {
+      "rank": 9,
+      "cnpj14": "52067902000149",
+      "razao_social": "WE TORRES ARTEFATOS DE CIMENTO E PRE MOLDADOS LTDA",
+      "score_total": 8.7,
+      "supplier_sector_fit": "STRONG_ENGINEERING_FIT",
+      "contract_relevance": "PASS",
+      "commercial_signal_fit": "PASS",
+      "geography_fit": "PASS"
+    },
+    {
+      "rank": 10,
+      "cnpj14": "62913677000178",
+      "razao_social": "ALIANCA ENGENHARIA E PAVIMENTACAO LTDA",
+      "score_total": 8.7,
+      "supplier_sector_fit": "STRONG_ENGINEERING_FIT",
+      "contract_relevance": "PASS",
+      "commercial_signal_fit": "PASS",
+      "geography_fit": "PASS"
+    },
+    {
+      "rank": 11,
+      "cnpj14": "29084108000191",
+      "razao_social": "AUTENTIKA ENGENHARIA E CONSTRUTORA LTDA",
+      "score_total": 8.6559,
+      "supplier_sector_fit": "STRONG_ENGINEERING_FIT",
+      "contract_relevance": "PASS",
+      "commercial_signal_fit": "PASS",
+      "geography_fit": "PASS"
+    },
+    {
+      "rank": 12,
+      "cnpj14": "22798043000105",
+      "razao_social": "KAENG INFRAESTRUTURA LTDA",
+      "score_total": 8.5984,
+      "supplier_sector_fit": "STRONG_ENGINEERING_FIT",
+      "contract_relevance": "PASS",
+      "commercial_signal_fit": "PASS",
+      "geography_fit": "PASS"
+    },
+    {
+      "rank": 13,
+      "cnpj14": "20123886000178",
+      "razao_social": "PRE-MOLDADOS E CONSTRUTORA VIANA LTDA",
+      "score_total": 8.5773,
+      "supplier_sector_fit": "STRONG_ENGINEERING_FIT",
+      "contract_relevance": "PASS",
+      "commercial_signal_fit": "PASS",
+      "geography_fit": "PASS"
+    },
+    {
+      "rank": 14,
+      "cnpj14": "00472805000138",
+      "razao_social": "TRAÇADO CONSTRUÇÕES E SERVIÇOS LTDA",
+      "score_total": 8.4,
+      "supplier_sector_fit": "STRONG_ENGINEERING_FIT",
+      "contract_relevance": "PASS",
+      "commercial_signal_fit": "PASS",
+      "geography_fit": "PASS"
+    },
+    {
+      "rank": 15,
+      "cnpj14": "00220982000127",
+      "razao_social": "MATT CONSTRUTORA LTDA",
+      "score_total": 8.4,
+      "supplier_sector_fit": "STRONG_ENGINEERING_FIT",
+      "contract_relevance": "PASS",
+      "commercial_signal_fit": "PASS",
+      "geography_fit": "PASS"
+    },
+    {
+      "rank": 16,
+      "cnpj14": "61608477000149",
+      "razao_social": "DGB ENGENHARIA E CONSTRUCOES LTDA",
+      "score_total": 8.4,
+      "supplier_sector_fit": "STRONG_ENGINEERING_FIT",
+      "contract_relevance": "PASS",
+      "commercial_signal_fit": "PASS",
+      "geography_fit": "PASS"
+    },
+    {
+      "rank": 17,
+      "cnpj14": "06145928000140",
+      "razao_social": "CONSTRUÇÃO CIVIL MG LTDA",
+      "score_total": 8.4,
+      "supplier_sector_fit": "STRONG_ENGINEERING_FIT",
+      "contract_relevance": "PASS",
+      "commercial_signal_fit": "PASS",
+      "geography_fit": "PASS"
+    },
+    {
+      "rank": 18,
+      "cnpj14": "03094645000129",
+      "razao_social": "INFRASUL - INFRAESTRUTURA E EMPREENDIMENTOS LTDA",
+      "score_total": 8.4,
+      "supplier_sector_fit": "STRONG_ENGINEERING_FIT",
+      "contract_relevance": "PASS",
+      "commercial_signal_fit": "PASS",
+      "geography_fit": "PASS"
+    },
+    {
+      "rank": 19,
+      "cnpj14": "22835076000170",
+      "razao_social": "CONSORCIO INTEGRADO MULTIFINALITARIO DO VALE DO JEQUITINHONH",
+      "score_total": 8.4,
+      "supplier_sector_fit": "STRONG_ENGINEERING_FIT",
+      "contract_relevance": "PASS",
+      "commercial_signal_fit": "PASS",
+      "geography_fit": "PASS"
+    },
+    {
+      "rank": 20,
+      "cnpj14": "10249046000100",
+      "razao_social": "CONSTRUCOES SCHOROEDER LTDA",
+      "score_total": 8.4,
+      "supplier_sector_fit": "STRONG_ENGINEERING_FIT",
+      "contract_relevance": "PASS",
+      "commercial_signal_fit": "PASS",
+      "geography_fit": "PASS"
+    }
+  ]
+}
