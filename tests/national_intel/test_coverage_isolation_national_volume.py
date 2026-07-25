@@ -1,7 +1,7 @@
 """SC coverage isolation — real dual spine + load_canonical_universe.
 
 Supplements adversarial matrix (test_adversarial_nv_matrix.py).
-Does not depend on PR #121 campaign artifacts; uses shipped migration/spec 004.
+Does not depend on PR #121 campaign artifacts; uses shipped migration 060 + architecture note.
 """
 
 from __future__ import annotations
@@ -139,8 +139,8 @@ def test_intel_migration_preserves_coverage_spine() -> None:
     assert "success_zero" not in text or True  # isolation documented in comments/scope
 
 
-def test_scope_labels_in_migration_and_spec004() -> None:
-    """Scope labels live in migration 060 + spec 004 (not PR121 orphan paths)."""
+def test_scope_labels_in_migration_and_architecture_doc() -> None:
+    """Scope labels live in migration 060 + durable architecture note (not campaign packs)."""
     m060 = (ROOT / "db/migrations/060_national_contracts_intelligence_layers.sql").read_text(
         encoding="utf-8"
     )
@@ -149,7 +149,9 @@ def test_scope_labels_in_migration_and_spec004() -> None:
     assert "intel_product" in m060
     # Must not redefine dual operational coverage as national volume
     assert "canonical_sc_operational" not in m060 or "NOT" in m060
-    spec = ROOT / "specs/004-extra-live-consulting-pack/spec.md"
-    assert spec.is_file()
-    st = spec.read_text(encoding="utf-8")
-    assert "060" in st or "national_intel" in st or "FULL" in st or "elegível" in st.lower()
+    arch = ROOT / "docs/architecture/national-intel-foundation.md"
+    assert arch.is_file()
+    st = arch.read_text(encoding="utf-8")
+    assert "060" in st
+    assert "national" in st.lower()
+    assert "operational" in st.lower()
