@@ -16,10 +16,6 @@ from scripts.ops.hybrid_sector import (
     PIPELINE_VERSION,
     REQUIRED_HONEST_BLOCKERS,
 )
-
-# Paid LLM default model (never commit secrets; key from .env / OPENAI_API_KEY)
-DEFAULT_PAID_LLM_MODEL = "gpt-4o-mini"
-DEFAULT_PAID_LLM_PROVIDER = "openai_compatible"
 from scripts.ops.hybrid_sector.classification.selective import classify_selective
 from scripts.ops.hybrid_sector.config_runtime import (
     HybridSectorRuntimeConfig,
@@ -72,6 +68,10 @@ from scripts.ops.hybrid_sector.policy.review_queue import (
 from scripts.ops.hybrid_sector.raw_universe import build_raw_universe
 from scripts.ops.hybrid_sector.retrieval.hybrid import run_hybrid_retrieval
 from scripts.ops.hybrid_sector.retrieval.semantic import build_embedding_provider
+
+# Paid LLM default model (never commit secrets; key from .env / OPENAI_API_KEY)
+DEFAULT_PAID_LLM_MODEL = "gpt-4o-mini"
+DEFAULT_PAID_LLM_PROVIDER = "openai_compatible"
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_CONFIG = PROJECT_ROOT / "config/hybrid_sector/default.yaml"
