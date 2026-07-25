@@ -6,360 +6,290 @@
     "top20": [
       {
         "cnpj14": "12253900000120",
-        "razao": "BRANIX EMPREENDIMENTOS LTDA",
         "sector": "STRONG_ENGINEERING_FIT"
       },
       {
         "cnpj14": "95257945000108",
-        "razao": "CONSTRUBRÁS CONSTRUTORA LTDA",
         "sector": "STRONG_ENGINEERING_FIT"
       },
       {
         "cnpj14": "27254414000101",
-        "razao": "FAK EMPREENDIMENTOS LTDA",
         "sector": "STRONG_ENGINEERING_FIT"
       },
       {
         "cnpj14": "19648512000197",
-        "razao": "KARAIBA CONSULTORIA E PROJETOS LTDA.",
         "sector": "STRONG_ENGINEERING_FIT"
       },
       {
         "cnpj14": "38517835000196",
-        "razao": "PROJESOL ENGENHARIA LTDA",
         "sector": "STRONG_ENGINEERING_FIT"
       },
       {
         "cnpj14": "45145494000130",
-        "razao": "CONSTRUTORA IRMAOS WARTHA LTDA",
         "sector": "STRONG_ENGINEERING_FIT"
       },
       {
         "cnpj14": "15247296000117",
-        "razao": "IBERICA CONSTRUÇÕES CIVIS E VIARIAS LTDA ME",
         "sector": "STRONG_ENGINEERING_FIT"
       },
       {
         "cnpj14": "07192929000109",
-        "razao": "CONSTRUTORA JLV LTDA",
         "sector": "STRONG_ENGINEERING_FIT"
       },
       {
         "cnpj14": "52067902000149",
-        "razao": "WE TORRES ARTEFATOS DE CIMENTO E PRE MOLDADOS LTDA",
         "sector": "STRONG_ENGINEERING_FIT"
       },
       {
         "cnpj14": "62913677000178",
-        "razao": "ALIANCA ENGENHARIA E PAVIMENTACAO LTDA",
         "sector": "STRONG_ENGINEERING_FIT"
       },
       {
         "cnpj14": "29084108000191",
-        "razao": "AUTENTIKA ENGENHARIA E CONSTRUTORA LTDA",
         "sector": "STRONG_ENGINEERING_FIT"
       },
       {
         "cnpj14": "22798043000105",
-        "razao": "KAENG INFRAESTRUTURA LTDA",
         "sector": "STRONG_ENGINEERING_FIT"
       },
       {
         "cnpj14": "20123886000178",
-        "razao": "PRE-MOLDADOS E CONSTRUTORA VIANA LTDA",
         "sector": "STRONG_ENGINEERING_FIT"
       },
       {
         "cnpj14": "00472805000138",
-        "razao": "TRAÇADO CONSTRUÇÕES E SERVIÇOS LTDA",
         "sector": "STRONG_ENGINEERING_FIT"
       },
       {
         "cnpj14": "00220982000127",
-        "razao": "MATT CONSTRUTORA LTDA",
         "sector": "STRONG_ENGINEERING_FIT"
       },
       {
         "cnpj14": "61608477000149",
-        "razao": "DGB ENGENHARIA E CONSTRUCOES LTDA",
         "sector": "STRONG_ENGINEERING_FIT"
       },
       {
         "cnpj14": "06145928000140",
-        "razao": "CONSTRUÇÃO CIVIL MG LTDA",
         "sector": "STRONG_ENGINEERING_FIT"
       },
       {
         "cnpj14": "03094645000129",
-        "razao": "INFRASUL - INFRAESTRUTURA E EMPREENDIMENTOS LTDA",
         "sector": "STRONG_ENGINEERING_FIT"
       },
       {
         "cnpj14": "10249046000100",
-        "razao": "CONSTRUCOES SCHOROEDER LTDA",
         "sector": "STRONG_ENGINEERING_FIT"
       },
       {
         "cnpj14": "09223659000181",
-        "razao": "VIGA PAVIMENTAÇÃO E OBRAS LTDA",
         "sector": "STRONG_ENGINEERING_FIT"
       }
     ],
     "random_outside_top20": [
       {
         "cnpj14": "08705901000190",
-        "razao": "KROFMAN COMERCIO E SERVICOS LTDA",
         "sector": "CONFLICTING"
       },
       {
         "cnpj14": "27021157000150",
-        "razao": "CASA TOP EMPREENDIMENTOS IMOBILIARIOS E",
         "sector": "CONFLICTING"
       },
       {
         "cnpj14": "18765951000117",
-        "razao": "CCA AUTOMACAO PREDIAL LTDA",
         "sector": "POSSIBLE_ENGINEERING_FIT"
       },
       {
         "cnpj14": "07876589000135",
-        "razao": "SIGCORP TECNOLOGIA DA INFORMACAO LTDA",
         "sector": "OUT_OF_SCOPE"
       },
       {
         "cnpj14": "02873674000126",
-        "razao": "CCM COMERCIO DE MAQUINAS E SERVICOS LTDA",
         "sector": "OUT_OF_SCOPE"
       },
       {
         "cnpj14": "63315649000111",
-        "razao": "63.615.649 FABIO JUNIOR NUNES DA SILVA",
         "sector": "POSSIBLE_ENGINEERING_FIT"
       },
       {
         "cnpj14": "59373711000154",
-        "razao": "MARI SALETE BORTOLOSI",
         "sector": "POSSIBLE_ENGINEERING_FIT"
       },
       {
         "cnpj14": "39945511000111",
-        "razao": "VR CONTRUÇÕES LTDA",
         "sector": "POSSIBLE_ENGINEERING_FIT"
       },
       {
         "cnpj14": "40981837000183",
-        "razao": "JOSE MARTINS DE ALMEIDA 68891121991",
         "sector": "POSSIBLE_ENGINEERING_FIT"
       },
       {
         "cnpj14": "07683701000111",
-        "razao": "SBUS AUTOMACAO E ELETRONICOS EIRELI EPP",
         "sector": "POSSIBLE_ENGINEERING_FIT"
       },
       {
         "cnpj14": "53252404000139",
-        "razao": "53.252.404 VICTOR BARBOSA DE SOUZA",
         "sector": "POSSIBLE_ENGINEERING_FIT"
       },
       {
         "cnpj14": "27016837000185",
-        "razao": "CARLOS VALDECI BARBOSA  LTDA",
         "sector": "POSSIBLE_ENGINEERING_FIT"
       },
       {
         "cnpj14": "52699859000134",
-        "razao": "BRASIL SOLUCOES EMPREEDIMENTOS LTDA",
         "sector": "POSSIBLE_ENGINEERING_FIT"
       },
       {
         "cnpj14": "17558611000152",
-        "razao": "SERGIO AUGUSTO CESNIK - PRODUÇÕES - ME",
         "sector": "POSSIBLE_ENGINEERING_FIT"
       },
       {
         "cnpj14": "45686999000102",
-        "razao": "WGA XAVIER LTDA",
         "sector": "POSSIBLE_ENGINEERING_FIT"
       },
       {
         "cnpj14": "05584219000107",
-        "razao": "L D C DE MATOS E CIA LTDA",
         "sector": "OUT_OF_SCOPE"
       },
       {
         "cnpj14": "31039675000178",
-        "razao": "MARILIA SINALIZAÇÃO VIÁRIA",
         "sector": "OUT_OF_SCOPE"
       },
       {
         "cnpj14": "49973405000103",
-        "razao": "HIDRAUMAC PECAS E SERVICOS LTDA",
         "sector": "OUT_OF_SCOPE"
       },
       {
         "cnpj14": "22733199000108",
-        "razao": "TENDA PREST SERVICE LTDA - ME",
         "sector": "POSSIBLE_ENGINEERING_FIT"
       },
       {
         "cnpj14": "02668170000174",
-        "razao": "MECANICA GHELLER LTDA",
         "sector": "POSSIBLE_ENGINEERING_FIT"
       }
     ],
     "clear_out_of_scope": [
       {
         "cnpj14": "58109690000100",
-        "razao": "MG AUTO PECAS E SERVICOS LTDA",
         "sector": "OUT_OF_SCOPE"
       },
       {
         "cnpj14": "26445328000105",
-        "razao": "CHURRASCARIA E PIZZARIA CHOPINHO LTDA",
         "sector": "OUT_OF_SCOPE"
       },
       {
         "cnpj14": "07192414000109",
-        "razao": "COSTA OESTE SERVICOS LTDA",
         "sector": "OUT_OF_SCOPE"
       },
       {
         "cnpj14": "03720375000114",
-        "razao": "SAO MIGUEL MATERIAIS P CONSTRUCAO LTDA",
         "sector": "OUT_OF_SCOPE"
       },
       {
         "cnpj14": "10789336000139",
-        "razao": "CRAFT LOCACOES DE EQUIPAMENTOS LTDA",
         "sector": "OUT_OF_SCOPE"
       },
       {
         "cnpj14": "02316749000500",
-        "razao": "PAX COMERCIO DE PNEUS LTDA",
         "sector": "OUT_OF_SCOPE"
       },
       {
         "cnpj14": "54077847000101",
-        "razao": "AUTO ELETRICA MENDES LTDA",
         "sector": "OUT_OF_SCOPE"
       },
       {
         "cnpj14": "58569841000102",
-        "razao": "GM TRATORPECAS E SERVICOS LTDA",
         "sector": "OUT_OF_SCOPE"
       },
       {
         "cnpj14": "34339589000179",
-        "razao": "EXPRESSO BRASIL LOGISTICA",
         "sector": "OUT_OF_SCOPE"
       },
       {
         "cnpj14": "96355854000160",
-        "razao": "CONVIVA SERVICOS E GESTAO DE MAO DE OBRA",
         "sector": "OUT_OF_SCOPE"
       }
     ],
     "clear_in_sector": [
       {
         "cnpj14": "95257945000108",
-        "razao": "CONSTRUBRÁS CONSTRUTORA LTDA",
         "sector": "STRONG_ENGINEERING_FIT"
       },
       {
         "cnpj14": "38517835000196",
-        "razao": "PROJESOL ENGENHARIA LTDA",
         "sector": "STRONG_ENGINEERING_FIT"
       },
       {
         "cnpj14": "45145494000130",
-        "razao": "CONSTRUTORA IRMAOS WARTHA LTDA",
         "sector": "STRONG_ENGINEERING_FIT"
       },
       {
         "cnpj14": "07192929000109",
-        "razao": "CONSTRUTORA JLV LTDA",
         "sector": "STRONG_ENGINEERING_FIT"
       },
       {
         "cnpj14": "62913677000178",
-        "razao": "ALIANCA ENGENHARIA E PAVIMENTACAO LTDA",
         "sector": "STRONG_ENGINEERING_FIT"
       },
       {
         "cnpj14": "29084108000191",
-        "razao": "AUTENTIKA ENGENHARIA E CONSTRUTORA LTDA",
         "sector": "STRONG_ENGINEERING_FIT"
       },
       {
         "cnpj14": "22798043000105",
-        "razao": "KAENG INFRAESTRUTURA LTDA",
         "sector": "STRONG_ENGINEERING_FIT"
       },
       {
         "cnpj14": "20123886000178",
-        "razao": "PRE-MOLDADOS E CONSTRUTORA VIANA LTDA",
         "sector": "STRONG_ENGINEERING_FIT"
       },
       {
         "cnpj14": "00220982000127",
-        "razao": "MATT CONSTRUTORA LTDA",
         "sector": "STRONG_ENGINEERING_FIT"
       },
       {
         "cnpj14": "61608477000149",
-        "razao": "DGB ENGENHARIA E CONSTRUCOES LTDA",
         "sector": "STRONG_ENGINEERING_FIT"
       }
     ],
     "conflicting_sample": [
       {
         "cnpj14": "08705901000190",
-        "razao": "KROFMAN COMERCIO E SERVICOS LTDA",
         "sector": "CONFLICTING"
       },
       {
         "cnpj14": "27021157000150",
-        "razao": "CASA TOP EMPREENDIMENTOS IMOBILIARIOS E",
         "sector": "CONFLICTING"
       },
       {
         "cnpj14": "17856392000198",
-        "razao": "VIA SUL TERCEIRIZAÇÃO DE SERVIÇOS DE CONSTRUÇÃO CIVIL LTDA",
         "sector": "CONFLICTING"
       },
       {
         "cnpj14": "24642584000167",
-        "razao": "SUPERTINTAS INDUSTRIA E COMERCIO DE TINTAS LTDA   ME",
         "sector": "CONFLICTING"
       },
       {
         "cnpj14": "06053838000120",
-        "razao": "ROADE CONSTRUCAO CIVIL E LOCACAO DE EQUIPAMENTOS LTDA",
         "sector": "CONFLICTING"
       },
       {
         "cnpj14": "76388743000142",
-        "razao": "CONEX CONSTRUCOES E EMPREENDIMENTOS IMOBILIARIOS LTDA",
         "sector": "CONFLICTING"
       },
       {
         "cnpj14": "62533278000181",
-        "razao": "H E ENGENHARIA COMERCIO E REPRESENTACOES LTDA",
         "sector": "CONFLICTING"
       },
       {
         "cnpj14": "17398784000150",
-        "razao": "PATRIMAR CONSTRUTORA E PINTURAS EIRELI",
         "sector": "CONFLICTING"
       },
       {
         "cnpj14": "04123471000148",
-        "razao": "COMEL COMÉRCIO DE MATERIAIS ELÉTRICOS E HIDRÁULICOS LTDA",
         "sector": "CONFLICTING"
       },
       {
         "cnpj14": "26189890000115",
-        "razao": "HORIZON MEDICAL COMERCIO DE PRODUTOS HOSPITALARES LTDA",
         "sector": "CONFLICTING"
       }
     ],
