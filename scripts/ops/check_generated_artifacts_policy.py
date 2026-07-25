@@ -11,11 +11,27 @@ from __future__ import annotations
 
 import argparse
 import json
+import shutil
 import subprocess
 import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
+
+def _git_bin() -> str:
+    """Resolved git executable (absolute when possible)."""
+    return shutil.which("git") or "git"
+
+
+def _run_git(args: list[str]) -> str:
+    """Run git with a fixed argv list (no shell)."""
+    cmd = [_git_bin(), *args]
+    return subprocess.check_output(  # noqa: S603
+        cmd,
+        cwd=REPO_ROOT,
+        text=True,
+        stderr=subprocess.DEVNULL,
+    )
 
 # Per-file ceiling for artifacts/campaigns/**
 DEFAULT_MAX_BYTES = 512 * 1024
@@ -92,19 +108,11 @@ def _load_exceptions() -> dict[str, int]:
 
 def _git_diff_names(base: str) -> list[str]:
     try:
-        out = subprocess.check_output(  # nosec B603 B607 — fixed git argv
-            ["git", "diff", "--name-only", "--diff-filter=AM", f"{base}...HEAD"],
-            cwd=REPO_ROOT,
-            text=True,
-            stderr=subprocess.DEVNULL,
-        )
+        out = _run_git(["diff", "--name-only", "--diff-filter=AM", f"{base}...HEAD"])
     except subprocess.CalledProcessError:
-        out = subprocess.check_output(  # nosec B603 B607 — fixed git argv
-            ["git", "diff", "--name-only", "--diff-filter=AM", base],
-            cwd=REPO_ROOT,
-            text=True,
-        )
+        out = _run_git(["diff", "--name-only", "--diff-filter=AM", base])
     return [ln.strip() for ln in out.splitlines() if ln.strip()]
+
 
 
 def _file_size(path: str) -> int | None:
@@ -113,15 +121,11 @@ def _file_size(path: str) -> int | None:
         return fp.stat().st_size
     # try blob from HEAD
     try:
-        out = subprocess.check_output(  # nosec B603 B607 — fixed git argv
-            ["git", "cat-file", "-s", f"HEAD:{path}"],
-            cwd=REPO_ROOT,
-            text=True,
-            stderr=subprocess.DEVNULL,
-        )
+        out = _run_git(["cat-file", "-s", f"HEAD:{path}"])
         return int(out.strip())
     except (subprocess.CalledProcessError, ValueError):
         return None
+
 
 
 def classify_violation(path: str, size: int | None, exceptions: dict[str, int]) -> str | None:
