@@ -348,3 +348,39 @@ test-linkage:
 
 verify-linkage-foundation:
 	@test -f db/migrations/061_canonical_entity_linkage.sql
+
+# --- client-ready consulting cycle (integration; no bulk artifacts in git) ---
+.PHONY: test-client-ready client-ready-consulting-cycle \
+	campaign-gate-client-ready-recurring-consulting-cycle \
+	release-candidate-client-ready-recurring-consulting-cycle \
+	verify-client-ready-recurring-consulting-cycle-isolated \
+	dod-audit-client-ready-recurring-consulting-cycle
+
+test-client-ready:
+	python -m pytest \
+		tests/test_client_ready_consulting_cycle.py \
+		tests/test_commercial_rc_v2_gates.py \
+		tests/test_live_consulting_pack.py \
+		tests/test_sector_classifier_adversarial.py \
+		-q --tb=short
+
+client-ready-consulting-cycle:
+	@echo '==> client-ready-consulting-cycle (isolated DSN required)'
+	python -m scripts.ops.client_ready_consulting_cycle --help
+
+campaign-gate-client-ready-recurring-consulting-cycle: test-client-ready
+	@echo 'campaign-gate-client-ready-recurring-consulting-cycle OK (unit gates)'
+
+release-candidate-client-ready-recurring-consulting-cycle: campaign-gate-client-ready-recurring-consulting-cycle
+	@echo 'RC technical only — human acceptance remains PENDING_HUMAN'
+
+verify-client-ready-recurring-consulting-cycle-isolated: test-client-ready
+	@test -f scripts/ops/client_ready_consulting_cycle.py
+	@test -f db/migrations/060_national_contracts_intelligence_layers.sql
+	@test -f db/migrations/061_canonical_entity_linkage.sql
+	@echo 'verify-client-ready-recurring-consulting-cycle-isolated OK'
+
+dod-audit-client-ready-recurring-consulting-cycle:
+	@echo 'dod-audit-client-ready-recurring-consulting-cycle: technical audit via unit gates'
+	$(MAKE) test-client-ready
+
