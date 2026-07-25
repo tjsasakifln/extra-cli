@@ -77,7 +77,8 @@
     "pack_run_id": "live-pack-20260724-220350-da3bee0b",
     "product_rc_sha": "be96c8bc8eb2b017e491bfafe8cf99f81e321267",
     "branch_tip": "29bfbc360eadb10f027ab0e30260ad4ab19fb404",
-    "as_of": "2026-07-24T22:37:22.193868Z"
+    "as_of": "2026-07-24T22:37:22.193868Z",
+    "snapshot_commit": "ede157b00dcc33f5221c715016c9a5d760121391"
   },
   "binding": {
     "pack_run_id": "live-pack-20260724-220350-da3bee0b",

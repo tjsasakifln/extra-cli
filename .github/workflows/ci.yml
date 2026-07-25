@@ -452,6 +452,76 @@ jobs:
           python -m scripts.ops.check_generated_artifacts_policy --base "$BASE_REF"
 
   # ============================================================================
+  # CLIENT-READY FROZEN RC — human review artifact (exact freeze bytes, no regen)
+  # ============================================================================
+  client-ready-frozen-rc:
+    name: Client-ready frozen RC artifact
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code (full history for freeze snapshot)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Assemble client-ready-frozen-rc (exact freeze only)
+        id: assemble
+        env:
+          RUNNER_TEMP: ${{ runner.temp }}
+        run: |
+          set -euo pipefail
+          STAGING="${RUNNER_TEMP}/client-ready-frozen-rc"
+          set +e
+          python -m scripts.ops.client_ready_consulting_cycle publish-frozen-rc \
+            --out artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01 \
+            --staging "$STAGING"
+          code=$?
+          set -e
+          if [ "$code" -ne 0 ]; then
+            echo "status=BLOCKED_MISSING_FROZEN_RC_OUTPUTS"
+            echo "Exact frozen RC outputs unavailable; refusing silent regen."
+            exit 1
+          fi
+          test -f "$STAGING/ARTIFACT-IDENTITY.json"
+          test -f "$STAGING/executive-report.pdf"
+          test -f "$STAGING/consulting-pack.xlsx"
+          STAGING="$STAGING" python - <<'PY'
+          import hashlib, json, os, pathlib, sys
+          staging = pathlib.Path(os.environ["STAGING"])
+          ua = json.loads(pathlib.Path(
+              "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/user-acceptance.json"
+          ).read_text(encoding="utf-8"))
+          assert ua["status"] == "PENDING_HUMAN", ua["status"]
+          assert ua.get("accepted_by") is None
+          identity = json.loads((staging / "ARTIFACT-IDENTITY.json").read_text(encoding="utf-8"))
+          assert identity["classification"] == "HUMAN_REVIEW_ARTIFACT"
+          assert identity["run_id"] == ua["run_id"] == "live-pack-20260724-220350-da3bee0b"
+          assert identity["product_rc_sha"] == ua["rc_sha"] == "be96c8bc8eb2b017e491bfafe8cf99f81e321267"
+          assert identity["production_touched"] is False
+          assert identity["soak_touched"] is False
+          for name in ("executive-report.pdf", "consulting-pack.xlsx"):
+              digest = hashlib.sha256((staging / name).read_bytes()).hexdigest()
+              expected = ua["package_checksums"][name]
+              if digest != expected:
+                  print("checksum mismatch", name, digest, expected)
+                  sys.exit(1)
+          print("frozen_rc_ok", identity["run_id"], identity["product_rc_sha"])
+          PY
+          echo "staging=$STAGING" >> "$GITHUB_OUTPUT"
+
+      - name: Upload client-ready-frozen-rc artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: client-ready-frozen-rc
+          path: ${{ runner.temp }}/client-ready-frozen-rc/
+          if-no-files-found: error
+          retention-days: 30
+
+  # ============================================================================
   # SECURITY — bandit (fail-closed, sem continue-on-error)
   # ============================================================================
   security:

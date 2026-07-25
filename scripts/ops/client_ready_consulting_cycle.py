@@ -40,6 +40,24 @@ DEFAULT_DSN = os.getenv(
     ),
 )
 DEFAULT_OUT = _PROJECT_ROOT / "artifacts" / "campaigns" / CAMPAIGN_ID
+
+# Identity files that must exist on both sides of acceptance binding (fail-closed).
+REQUIRED_IDENTITY_FILES: tuple[str, ...] = (
+    "pack-manifest.json",
+    "executive-summary.md",
+    "consulting-pack.xlsx",
+    "executive-report.pdf",
+)
+
+# Frozen release candidate for human product review (PR #131).
+# Binaries are NOT re-versioned in Git; CI extracts exact bytes from freeze snapshot.
+FROZEN_RC_RUN_ID = "live-pack-20260724-220350-da3bee0b"
+FROZEN_RC_PRODUCT_SHA = "be96c8bc8eb2b017e491bfafe8cf99f81e321267"
+# Commit that still contains exact frozen pack binaries (pre-slim policy).
+FROZEN_RC_SNAPSHOT_COMMIT = "ede157b00dcc33f5221c715016c9a5d760121391"
+FROZEN_RC_ARTIFACT_NAME = "client-ready-frozen-rc"
+BLOCKED_MISSING_FROZEN_RC = "BLOCKED_MISSING_FROZEN_RC_OUTPUTS"
+
 # Dump package may live outside the worktree (large ADR-020 artifact). Search order:
 _DUMP_CANDIDATES = (
     _PROJECT_ROOT / "artifacts/migration/backfill-vps/pkg-20260723T195047Z",
@@ -793,6 +811,35 @@ def compute_pack_checksums(pack_dir: Path) -> dict[str, str]:
     return out
 
 
+def identity_checksum_mismatches(
+    accepted_ck: dict[str, str],
+    pack_checksums: dict[str, str],
+    *,
+    required: tuple[str, ...] = REQUIRED_IDENTITY_FILES,
+) -> list[str]:
+    """Fail-closed identity compare. Missing either side is a mismatch (not skipped)."""
+    mismatches: list[str] = []
+    for key in required:
+        if key not in accepted_ck:
+            mismatches.append(f"missing_expected_checksum:{key}")
+            continue
+        if key not in pack_checksums:
+            mismatches.append(f"missing_actual_artifact:{key}")
+            continue
+        if accepted_ck[key] != pack_checksums[key]:
+            mismatches.append(f"checksum_mismatch:{key}")
+    return mismatches
+
+
+def missing_required_frozen_binaries(pack_dir: Path) -> list[str]:
+    """Return relative names of required identity files absent under pack_dir."""
+    missing: list[str] = []
+    for key in REQUIRED_IDENTITY_FILES:
+        if not (pack_dir / key).is_file():
+            missing.append(key)
+    return missing
+
+
 def human_acceptance_status(campaign_dir: Path) -> dict[str, Any]:
     path = campaign_dir / "user-acceptance.json"
     if not path.exists():
@@ -826,22 +873,51 @@ def validate_acceptance_binding(
 ) -> dict[str, Any]:
     """Ensure ACCEPTED records bind to this exact RC identity — never rebind.
 
+    Fail-closed for identity files: each of REQUIRED_IDENTITY_FILES must exist
+    in both accepted package_checksums and pack_checksums with equal digests.
+    binding.valid=True only when run_id, product_rc_sha (rc_sha), and all
+    identity checksums match.
+
     Returns acceptance dict possibly demoted to PENDING_HUMAN if stale vs pack.
     """
     out = dict(acceptance)
     out["binding"] = {
         "pack_run_id": pack_run_id,
         "rc_sha": rc_sha,
+        "product_rc_sha": rc_sha,
         "checked_at": utc_now(),
     }
     if out.get("status") != "ACCEPTED":
-        # For pending forms, publish the RC identity humans must accept (not a rebind of ACCEPT)
+        # For pending forms: preserve freeze identity; never silently replace
+        # frozen package_checksums with an incomplete on-disk pack.
         if out.get("status") in {None, "PENDING_HUMAN", "REJECTED"}:
             out["status"] = out.get("status") or "PENDING_HUMAN"
-            out["run_id"] = pack_run_id
-            out["rc_sha"] = rc_sha
-            out["package_checksums"] = pack_checksums
-            out["accepted_by"] = None if out.get("status") != "REJECTED" else out.get("accepted_by")
+            frozen_ck = out.get("package_checksums") or {}
+            has_freeze = all(k in frozen_ck for k in REQUIRED_IDENTITY_FILES)
+            if not out.get("run_id") and pack_run_id:
+                out["run_id"] = pack_run_id
+            if not out.get("rc_sha") and rc_sha:
+                out["rc_sha"] = rc_sha
+            if not has_freeze and pack_checksums:
+                # Only publish pack checksums when identity set is complete.
+                if all(k in pack_checksums for k in REQUIRED_IDENTITY_FILES):
+                    out["package_checksums"] = pack_checksums
+            # Diagnostic binding vs on-disk pack (does not flip PENDING → ACCEPTED)
+            accepted_ck = out.get("package_checksums") or {}
+            diag: list[str] = []
+            if pack_run_id and out.get("run_id") and out.get("run_id") != pack_run_id:
+                diag.append(f"run_id:{out.get('run_id')}!={pack_run_id}")
+            if out.get("rc_sha") and rc_sha and out.get("rc_sha") != rc_sha:
+                diag.append(
+                    f"product_rc_sha:{str(out.get('rc_sha'))[:12]}!={rc_sha[:12]}"
+                )
+            if accepted_ck or pack_checksums:
+                diag.extend(identity_checksum_mismatches(accepted_ck, pack_checksums))
+            out["binding"]["valid"] = False  # never auto-valid without human ACCEPTED
+            out["binding"]["mismatches"] = diag
+            out["accepted_by"] = (
+                None if out.get("status") != "REJECTED" else out.get("accepted_by")
+            )
             if out.get("status") != "REJECTED":
                 out["accepted_at"] = None
         return out
@@ -852,26 +928,20 @@ def validate_acceptance_binding(
         out["binding"]["valid"] = False
         out["binding"]["reason"] = "invalid_accepted_by"
         out["notes"] = "auto-accept rejected; requires Tiago explicit acceptance"
+        out["accepted_by"] = None
+        out["accepted_at"] = None
         return out
 
     mismatches: list[str] = []
-    if pack_run_id and out.get("run_id") and out.get("run_id") != pack_run_id:
+    if out.get("run_id") != pack_run_id:
+        mismatches.append(f"run_id:{out.get('run_id')}!={pack_run_id}")
+    if out.get("rc_sha") != rc_sha:
         mismatches.append(
-            f"run_id:{out.get('run_id')}!={pack_run_id}"
+            f"product_rc_sha:{str(out.get('rc_sha'))[:12]}!={str(rc_sha)[:12]}"
         )
-    if out.get("rc_sha") and out.get("rc_sha") != rc_sha:
-        mismatches.append(f"rc_sha:{str(out.get('rc_sha'))[:12]}!={rc_sha[:12]}")
     accepted_ck = out.get("package_checksums") or {}
-    # Require identity files to match when both sides have them
-    for key in (
-        "pack-manifest.json",
-        "executive-summary.md",
-        "consulting-pack.xlsx",
-        "executive-report.pdf",
-    ):
-        if key in accepted_ck and key in pack_checksums:
-            if accepted_ck[key] != pack_checksums[key]:
-                mismatches.append(f"checksum:{key}")
+    mismatches.extend(identity_checksum_mismatches(accepted_ck, pack_checksums))
+
     if mismatches:
         # Stale ACCEPT must not be rewritten onto new RC — demote and keep prior fields for audit
         out["status"] = "PENDING_HUMAN"
@@ -886,15 +956,18 @@ def validate_acceptance_binding(
             "New release candidate requires explicit re-accept. "
             f"mismatches={mismatches}"
         )
-        # Publish current RC identity for the re-accept form (status stays PENDING)
+        # Publish current pack identity for re-accept when pack is complete;
+        # otherwise keep prior freeze checksums for audit (do not blank them).
         out["run_id"] = pack_run_id
         out["rc_sha"] = rc_sha
-        out["package_checksums"] = pack_checksums
+        if all(k in pack_checksums for k in REQUIRED_IDENTITY_FILES):
+            out["package_checksums"] = pack_checksums
         out["accepted_by"] = None
         out["accepted_at"] = None
         return out
 
     out["binding"]["valid"] = True
+    out["binding"]["mismatches"] = []
     return out
 
 
@@ -1405,10 +1478,40 @@ def cmd_guard(args: argparse.Namespace) -> int:
     return 0
 
 
+def resolve_verify_pack_dir(out_dir: Path, pack_dir_arg: str | None) -> Path:
+    """Pack directory for verify-accept: explicit --pack-dir or out/pack."""
+    if pack_dir_arg:
+        return Path(pack_dir_arg)
+    return out_dir / "pack"
+
+
 def cmd_verify_accept_binding(args: argparse.Namespace) -> int:
-    """Re-check acceptance binding against on-disk pack without regenerating."""
+    """Re-check acceptance binding against on-disk pack without regenerating.
+
+    Fails closed when required frozen binaries are missing under the pack dir.
+    Optional --pack-dir validates a downloaded GitHub Actions artifact tree
+    without re-adding binaries to the git worktree.
+    """
     out_dir = Path(args.out)
-    pack_dir = out_dir / "pack"
+    pack_dir = resolve_verify_pack_dir(out_dir, getattr(args, "pack_dir", None))
+    missing_bins = missing_required_frozen_binaries(pack_dir)
+    if missing_bins:
+        payload = {
+            "error": "missing_required_frozen_binaries",
+            "status": BLOCKED_MISSING_FROZEN_RC,
+            "pack_dir": str(pack_dir),
+            "missing": missing_bins,
+            "required": list(REQUIRED_IDENTITY_FILES),
+            "hint": (
+                "Download GitHub Actions artifact "
+                f"'{FROZEN_RC_ARTIFACT_NAME}' and pass --pack-dir <extracted>, "
+                "or place exact frozen PDF/XLSX under the pack directory. "
+                "Do not silently regenerate a different RC."
+            ),
+        }
+        print(json.dumps(payload, indent=2, ensure_ascii=False))
+        return 1
+
     pm_path = pack_dir / "pack-manifest.json"
     if not pm_path.exists():
         print(json.dumps({"error": "missing_pack_manifest", "path": str(pm_path)}))
@@ -1425,6 +1528,18 @@ def cmd_verify_accept_binding(args: argparse.Namespace) -> int:
         rc_sha=rc_sha,
         pack_checksums=checksums,
     )
+    # Never write ACCEPTED from this command; only refresh diagnostic binding.
+    if bound.get("status") == "ACCEPTED" and acceptance.get("status") != "ACCEPTED":
+        bound["status"] = "PENDING_HUMAN"
+        bound["accepted_by"] = None
+        bound["accepted_at"] = None
+    # Preserve freeze checksums already on disk when present
+    if acceptance.get("package_checksums") and all(
+        k in (acceptance.get("package_checksums") or {}) for k in REQUIRED_IDENTITY_FILES
+    ):
+        bound["package_checksums"] = acceptance["package_checksums"]
+        bound["run_id"] = acceptance.get("run_id") or bound.get("run_id")
+        bound["rc_sha"] = acceptance.get("rc_sha") or bound.get("rc_sha")
     (out_dir / "user-acceptance.json").write_text(
         json.dumps(bound, indent=2, ensure_ascii=False) + "\n",
         encoding="utf-8",
@@ -1434,18 +1549,19 @@ def cmd_verify_accept_binding(args: argparse.Namespace) -> int:
     result: dict[str, Any] = {}
     if result_path.exists():
         result = json.loads(result_path.read_text(encoding="utf-8"))
+    recon_path = out_dir / "package-reconciliation.json"
+    if not recon_path.exists() and (pack_dir / "package-reconciliation.json").exists():
+        recon_path = pack_dir / "package-reconciliation.json"
     pack = {
         "run_id": pack_run_id,
-        "reconcile": json.loads(
-            (out_dir / "package-reconciliation.json").read_text(encoding="utf-8")
-        )
-        if (out_dir / "package-reconciliation.json").exists()
-        else {"status": pm.get("reconcile", {}).get("status")},
+        "reconcile": json.loads(recon_path.read_text(encoding="utf-8"))
+        if recon_path.exists()
+        else {"status": (pm.get("reconcile") or {}).get("status")},
     }
     linkage = {"status": "completed"}
     if (out_dir / "linkage-quality.json").exists():
         linkage = json.loads((out_dir / "linkage-quality.json").read_text(encoding="utf-8"))
-    recurrence = {}
+    recurrence: dict[str, Any] = {}
     if (out_dir / "recurrence.json").exists():
         recurrence = json.loads((out_dir / "recurrence.json").read_text(encoding="utf-8"))
     monthly = {
@@ -1470,7 +1586,9 @@ def cmd_verify_accept_binding(args: argparse.Namespace) -> int:
     result["human_acceptance"] = bound.get("status")
     result["acceptance_binding"] = bound.get("binding")
     result["rc_sha"] = rc_sha
+    result["product_rc_sha"] = rc_sha
     result["run_id"] = pack_run_id
+    result["pack_dir"] = str(pack_dir)
     result_path.write_text(
         json.dumps(result, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
     )
@@ -1483,6 +1601,9 @@ def cmd_verify_accept_binding(args: argparse.Namespace) -> int:
                 "binding": bound.get("binding"),
                 "run_id": pack_run_id,
                 "rc_sha": rc_sha,
+                "product_rc_sha": rc_sha,
+                "pack_dir": str(pack_dir),
+                "required_binaries_present": True,
             },
             indent=2,
             ensure_ascii=False,
@@ -1493,6 +1614,216 @@ def cmd_verify_accept_binding(args: argparse.Namespace) -> int:
     if terminal == "BLOCKED":
         return 2
     return 1
+
+
+def _git_show_bytes(commit: str, rel_path: str, root: Path | None = None) -> bytes | None:
+    r = root or _PROJECT_ROOT
+    try:
+        return subprocess.check_output(  # noqa: S603
+            ["/usr/bin/git", "show", f"{commit}:{rel_path}"],
+            cwd=str(r),
+            stderr=subprocess.DEVNULL,
+        )
+    except (subprocess.CalledProcessError, FileNotFoundError, OSError):
+        return None
+
+
+def assemble_client_ready_frozen_rc(
+    *,
+    out_dir: Path | None = None,
+    staging_dir: Path | None = None,
+    snapshot_commit: str = FROZEN_RC_SNAPSHOT_COMMIT,
+    expected_run_id: str = FROZEN_RC_RUN_ID,
+    expected_product_rc_sha: str = FROZEN_RC_PRODUCT_SHA,
+    source_pack_dir: Path | None = None,
+) -> dict[str, Any]:
+    """Assemble HUMAN_REVIEW_ARTIFACT tree for GitHub Actions upload.
+
+    Uses exact frozen RC bytes (local pack with matching checksums, else git
+    snapshot). Never regenerates a different RC. On missing/mismatched bytes:
+    status BLOCKED_MISSING_FROZEN_RC_OUTPUTS.
+    """
+    campaign = out_dir or DEFAULT_OUT
+    acceptance_path = campaign / "user-acceptance.json"
+    if not acceptance_path.exists():
+        return {
+            "status": BLOCKED_MISSING_FROZEN_RC,
+            "error": "missing_user_acceptance",
+            "path": str(acceptance_path),
+        }
+    acceptance = json.loads(acceptance_path.read_text(encoding="utf-8"))
+    expected_ck: dict[str, str] = dict(acceptance.get("package_checksums") or {})
+    run_id = str(acceptance.get("run_id") or expected_run_id)
+    product_rc_sha = str(
+        acceptance.get("rc_sha")
+        or (acceptance.get("freeze") or {}).get("product_rc_sha")
+        or expected_product_rc_sha
+    )
+    if run_id != expected_run_id or product_rc_sha != expected_product_rc_sha:
+        return {
+            "status": BLOCKED_MISSING_FROZEN_RC,
+            "error": "freeze_identity_mismatch",
+            "run_id": run_id,
+            "product_rc_sha": product_rc_sha,
+            "expected_run_id": expected_run_id,
+            "expected_product_rc_sha": expected_product_rc_sha,
+        }
+
+    members: list[tuple[str, list[str]]] = [
+        (
+            "executive-report.pdf",
+            ["pack/executive-report.pdf", "pack/extra_live_consulting_pack.pdf"],
+        ),
+        (
+            "consulting-pack.xlsx",
+            ["pack/consulting-pack.xlsx", "pack/extra_live_consulting_pack.xlsx"],
+        ),
+        (
+            "executive-summary.md",
+            ["pack/executive-summary.md", "pack/executive_summary.md"],
+        ),
+        ("pack-manifest.json", ["pack/pack-manifest.json"]),
+        ("checksums.json", ["pack/checksums.json"]),
+        ("package-reconciliation.json", ["package-reconciliation.json"]),
+        ("claims.json", ["claims.json"]),
+        ("non-claims.json", ["non-claims.json"]),
+        (
+            "dossiers/dossier-opp-1.json",
+            ["pack/dossiers/dossier-opp-1.json", "dossiers/dossier-opp-1.json"],
+        ),
+    ]
+
+    if staging_dir is not None:
+        staging = staging_dir
+    elif os.environ.get("RUNNER_TEMP"):
+        staging = Path(os.environ["RUNNER_TEMP"]) / FROZEN_RC_ARTIFACT_NAME
+    else:
+        import tempfile
+
+        staging = Path(tempfile.gettempdir()) / FROZEN_RC_ARTIFACT_NAME
+    if staging.exists():
+        import shutil
+
+        shutil.rmtree(staging)
+    staging.mkdir(parents=True, exist_ok=True)
+
+    file_sha: dict[str, str] = {}
+    sources: dict[str, str] = {}
+    missing: list[str] = []
+
+    for art_name, rel_candidates in members:
+        data: bytes | None = None
+        source = ""
+        if source_pack_dir is not None:
+            for cand in [art_name, Path(art_name).name, *rel_candidates]:
+                p = source_pack_dir / cand
+                if p.is_file():
+                    data = p.read_bytes()
+                    source = f"pack_dir:{p}"
+                    break
+        if data is None:
+            for rel in rel_candidates:
+                p = campaign / rel
+                if p.is_file():
+                    data = p.read_bytes()
+                    source = f"workspace:{rel}"
+                    break
+        if data is None:
+            for rel in rel_candidates:
+                blob = _git_show_bytes(
+                    snapshot_commit, f"artifacts/campaigns/{CAMPAIGN_ID}/{rel}"
+                )
+                if blob is not None:
+                    data = blob
+                    source = f"git:{snapshot_commit}:{rel}"
+                    break
+        if data is None:
+            missing.append(art_name)
+            continue
+        digest = hashlib.sha256(data).hexdigest()
+        if art_name in expected_ck and expected_ck[art_name] != digest:
+            missing.append(f"checksum_mismatch:{art_name}")
+            continue
+        dest = staging / art_name
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        dest.write_bytes(data)
+        file_sha[art_name] = digest
+        sources[art_name] = source
+
+    required_missing = [
+        k
+        for k in REQUIRED_IDENTITY_FILES
+        if k not in file_sha or (k in expected_ck and file_sha[k] != expected_ck[k])
+    ]
+    if missing or required_missing:
+        return {
+            "status": BLOCKED_MISSING_FROZEN_RC,
+            "error": "exact_frozen_outputs_unavailable",
+            "missing": missing,
+            "required_missing": required_missing,
+            "staging": str(staging),
+            "snapshot_commit": snapshot_commit,
+            "run_id": run_id,
+            "product_rc_sha": product_rc_sha,
+        }
+
+    identity = {
+        "run_id": run_id,
+        "product_rc_sha": product_rc_sha,
+        "file_sha256": file_sha,
+        "freeze_date": (acceptance.get("freeze") or {}).get("as_of") or utc_now(),
+        "production_touched": False,
+        "soak_touched": False,
+        "snapshot_origin": {
+            "type": "frozen_rc_snapshot",
+            "snapshot_commit": snapshot_commit,
+            "campaign_id": CAMPAIGN_ID,
+            "sources": sources,
+        },
+        "classification": "HUMAN_REVIEW_ARTIFACT",
+        "artifact_name": FROZEN_RC_ARTIFACT_NAME,
+        "assembled_at": utc_now(),
+    }
+    (staging / "ARTIFACT-IDENTITY.json").write_text(
+        json.dumps(identity, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
+    file_sha["ARTIFACT-IDENTITY.json"] = sha256_file(staging / "ARTIFACT-IDENTITY.json")
+    identity["file_sha256"] = file_sha
+    (staging / "ARTIFACT-IDENTITY.json").write_text(
+        json.dumps(identity, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
+
+    return {
+        "status": "READY_FOR_ACTUAL_HUMAN_PRODUCT_REVIEW",
+        "artifact_name": FROZEN_RC_ARTIFACT_NAME,
+        "staging_dir": str(staging),
+        "run_id": run_id,
+        "product_rc_sha": product_rc_sha,
+        "file_sha256": file_sha,
+        "production_touched": False,
+        "soak_touched": False,
+        "classification": "HUMAN_REVIEW_ARTIFACT",
+    }
+
+
+def cmd_publish_frozen_rc(args: argparse.Namespace) -> int:
+    """Assemble client-ready-frozen-rc staging dir (CI artifact upload)."""
+    staging = Path(args.staging) if args.staging else None
+    source = Path(args.pack_dir) if getattr(args, "pack_dir", None) else None
+    result = assemble_client_ready_frozen_rc(
+        out_dir=Path(args.out),
+        staging_dir=staging,
+        source_pack_dir=source,
+    )
+    print(json.dumps(result, indent=2, ensure_ascii=False))
+    if result.get("status") == BLOCKED_MISSING_FROZEN_RC:
+        return 1
+    if result.get("staging_dir"):
+        marker = Path(args.out) / "frozen-rc-staging-path.txt"
+        marker.write_text(str(result["staging_dir"]) + "\n", encoding="utf-8")
+    return 0
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -1516,7 +1847,28 @@ def main(argv: list[str] | None = None) -> int:
         help="Validate user-acceptance binding to frozen pack (no pack regen)",
     )
     v.add_argument("--out", default=str(DEFAULT_OUT))
+    v.add_argument(
+        "--pack-dir",
+        default=None,
+        help=(
+            "Directory with frozen pack members (e.g. extracted "
+            f"{FROZEN_RC_ARTIFACT_NAME} artifact). Defaults to <out>/pack."
+        ),
+    )
     v.set_defaults(func=cmd_verify_accept_binding)
+
+    pub = sub.add_parser(
+        "publish-frozen-rc",
+        help="Assemble client-ready-frozen-rc for GitHub Actions artifact (no regen)",
+    )
+    pub.add_argument("--out", default=str(DEFAULT_OUT))
+    pub.add_argument("--staging", default=None, help="Staging directory for artifact files")
+    pub.add_argument(
+        "--pack-dir",
+        default=None,
+        help="Optional local pack dir with exact frozen binaries",
+    )
+    pub.set_defaults(func=cmd_publish_frozen_rc)
 
     args = p.parse_args(argv)
     return int(args.func(args))

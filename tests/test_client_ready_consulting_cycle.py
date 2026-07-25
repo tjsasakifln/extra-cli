@@ -10,14 +10,33 @@ from pathlib import Path
 import pytest
 
 from scripts.ops.client_ready_consulting_cycle import (
+    BLOCKED_MISSING_FROZEN_RC,
     CAMPAIGN_ID,
+    FROZEN_RC_ARTIFACT_NAME,
+    FROZEN_RC_PRODUCT_SHA,
+    FROZEN_RC_RUN_ID,
+    REQUIRED_IDENTITY_FILES,
+    assemble_client_ready_frozen_rc,
     decide_terminal,
+    identity_checksum_mismatches,
     isolation_guard,
     main,
+    missing_required_frozen_binaries,
     validate_acceptance_binding,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def _full_identity_ck(**overrides: str) -> dict[str, str]:
+    base = {
+        "pack-manifest.json": "a" * 64,
+        "executive-summary.md": "b" * 64,
+        "consulting-pack.xlsx": "c" * 64,
+        "executive-report.pdf": "d" * 64,
+    }
+    base.update(overrides)
+    return base
 
 
 def test_isolation_rejects_ec_prod() -> None:
@@ -173,36 +192,33 @@ def test_validate_acceptance_binding_rejects_stale_accept() -> None:
         "accepted_at": "2026-07-24T21:40:15Z",
         "run_id": "old-run",
         "rc_sha": "a" * 40,
-        "package_checksums": {
-            "pack-manifest.json": "0" * 64,
-            "executive-summary.md": "1" * 64,
-        },
+        "package_checksums": _full_identity_ck(
+            **{
+                "pack-manifest.json": "0" * 64,
+                "executive-summary.md": "1" * 64,
+            }
+        ),
     }
     out = validate_acceptance_binding(
         prior,
         pack_run_id="new-run",
         rc_sha="b" * 40,
-        pack_checksums={
-            "pack-manifest.json": "c" * 64,
-            "executive-summary.md": "d" * 64,
-        },
+        pack_checksums=_full_identity_ck(
+            **{
+                "pack-manifest.json": "c" * 64,
+                "executive-summary.md": "d" * 64,
+            }
+        ),
     )
     assert out["status"] == "PENDING_HUMAN"
     assert out["accepted_by"] is None
-    assert out["run_id"] == "new-run"
-    assert out["rc_sha"] == "b" * 40
     assert out["binding"]["valid"] is False
     assert out["binding"]["prior_accepted_run_id"] == "old-run"
     assert any("run_id" in m for m in out["binding"]["mismatches"])
 
 
 def test_validate_acceptance_binding_keeps_matching_accept() -> None:
-    ck = {
-        "pack-manifest.json": "a" * 64,
-        "executive-summary.md": "b" * 64,
-        "consulting-pack.xlsx": "c" * 64,
-        "executive-report.pdf": "d" * 64,
-    }
+    ck = _full_identity_ck()
     prior = {
         "status": "ACCEPTED",
         "accepted_by": "Tiago Sasaki",
@@ -217,6 +233,325 @@ def test_validate_acceptance_binding_keeps_matching_accept() -> None:
     assert out["status"] == "ACCEPTED"
     assert out["accepted_by"] == "Tiago Sasaki"
     assert out["binding"]["valid"] is True
+
+
+# --- Fail-closed identity binding (adversarial suite for PR #131 human accept) ---
+
+
+def _accepted_base(**ck_overrides: str) -> dict:
+    ck = _full_identity_ck(**ck_overrides)
+    return {
+        "status": "ACCEPTED",
+        "accepted_by": "Tiago Sasaki",
+        "accepted_at": "2026-07-24T21:40:15Z",
+        "run_id": "run-1",
+        "rc_sha": "e" * 40,
+        "package_checksums": ck,
+    }
+
+
+def test_binding_invalid_when_pdf_missing_from_pack() -> None:
+    """1. PDF absent in pack_checksums → binding invalid (missing_actual_artifact)."""
+    prior = _accepted_base()
+    pack_ck = _full_identity_ck()
+    del pack_ck["executive-report.pdf"]
+    out = validate_acceptance_binding(
+        prior, pack_run_id="run-1", rc_sha="e" * 40, pack_checksums=pack_ck
+    )
+    assert out["status"] == "PENDING_HUMAN"
+    assert out["binding"]["valid"] is False
+    assert "missing_actual_artifact:executive-report.pdf" in out["binding"]["mismatches"]
+
+
+def test_binding_invalid_when_xlsx_missing_from_pack() -> None:
+    """2. XLSX absent → binding invalid."""
+    prior = _accepted_base()
+    pack_ck = _full_identity_ck()
+    del pack_ck["consulting-pack.xlsx"]
+    out = validate_acceptance_binding(
+        prior, pack_run_id="run-1", rc_sha="e" * 40, pack_checksums=pack_ck
+    )
+    assert out["binding"]["valid"] is False
+    assert "missing_actual_artifact:consulting-pack.xlsx" in out["binding"]["mismatches"]
+
+
+def test_binding_invalid_when_manifest_missing_from_accepted() -> None:
+    """3. Manifest absent from accepted_ck → binding invalid."""
+    prior = _accepted_base()
+    del prior["package_checksums"]["pack-manifest.json"]
+    out = validate_acceptance_binding(
+        prior,
+        pack_run_id="run-1",
+        rc_sha="e" * 40,
+        pack_checksums=_full_identity_ck(),
+    )
+    assert out["binding"]["valid"] is False
+    assert "missing_expected_checksum:pack-manifest.json" in out["binding"]["mismatches"]
+
+
+def test_binding_invalid_when_summary_missing_from_accepted() -> None:
+    """4. Summary absent from accepted_ck → binding invalid."""
+    prior = _accepted_base()
+    del prior["package_checksums"]["executive-summary.md"]
+    out = validate_acceptance_binding(
+        prior,
+        pack_run_id="run-1",
+        rc_sha="e" * 40,
+        pack_checksums=_full_identity_ck(),
+    )
+    assert out["binding"]["valid"] is False
+    assert "missing_expected_checksum:executive-summary.md" in out["binding"]["mismatches"]
+
+
+def test_binding_invalid_on_checksum_mismatch() -> None:
+    """5. Checksum different → binding invalid with checksum_mismatch classification."""
+    prior = _accepted_base()
+    pack_ck = _full_identity_ck(**{"executive-report.pdf": "f" * 64})
+    out = validate_acceptance_binding(
+        prior, pack_run_id="run-1", rc_sha="e" * 40, pack_checksums=pack_ck
+    )
+    assert out["binding"]["valid"] is False
+    assert "checksum_mismatch:executive-report.pdf" in out["binding"]["mismatches"]
+
+
+def test_binding_invalid_on_run_id_divergence() -> None:
+    """6. run_id divergente → binding invalid."""
+    prior = _accepted_base()
+    out = validate_acceptance_binding(
+        prior,
+        pack_run_id="other-run",
+        rc_sha="e" * 40,
+        pack_checksums=_full_identity_ck(),
+    )
+    assert out["binding"]["valid"] is False
+    assert any(m.startswith("run_id:") for m in out["binding"]["mismatches"])
+
+
+def test_binding_invalid_on_product_rc_sha_divergence() -> None:
+    """7. product_rc_sha divergente → binding invalid."""
+    prior = _accepted_base()
+    out = validate_acceptance_binding(
+        prior,
+        pack_run_id="run-1",
+        rc_sha="f" * 40,
+        pack_checksums=_full_identity_ck(),
+    )
+    assert out["binding"]["valid"] is False
+    assert any("product_rc_sha" in m for m in out["binding"]["mismatches"])
+
+
+def test_binding_valid_when_all_identity_present_and_equal() -> None:
+    """8. Todos presentes e idênticos → binding.valid=true."""
+    ck = _full_identity_ck()
+    prior = _accepted_base()
+    out = validate_acceptance_binding(
+        prior, pack_run_id="run-1", rc_sha="e" * 40, pack_checksums=ck
+    )
+    assert out["status"] == "ACCEPTED"
+    assert out["binding"]["valid"] is True
+    assert out["binding"].get("mismatches") == []
+
+
+def test_agent_cannot_register_accepted() -> None:
+    """9. Um agente não consegue registrar ACCEPTED."""
+    for who in ("agent", "auto", "system", "null", None, ""):
+        prior = _accepted_base()
+        prior["accepted_by"] = who
+        out = validate_acceptance_binding(
+            prior,
+            pack_run_id="run-1",
+            rc_sha="e" * 40,
+            pack_checksums=_full_identity_ck(),
+        )
+        assert out["status"] == "PENDING_HUMAN", who
+        assert out["binding"]["valid"] is False, who
+        assert out.get("accepted_by") in (None, ""), who
+
+
+def test_later_doc_commits_do_not_invalidate_frozen_product_rc_sha() -> None:
+    """10. Commits documentais posteriores não invalidam product_rc_sha congelado.
+
+    Binding uses pack-manifest git_sha / freeze rc_sha, not HEAD tip.
+    """
+    frozen = FROZEN_RC_PRODUCT_SHA
+    head_tip = "5aa77eb9deadbeefdeadbeefdeadbeefdeadbeef"  # later docs tip
+    ck = _full_identity_ck()
+    prior = {
+        "status": "ACCEPTED",
+        "accepted_by": "Tiago Sasaki",
+        "accepted_at": "2026-07-24T21:40:15Z",
+        "run_id": FROZEN_RC_RUN_ID,
+        "rc_sha": frozen,
+        "package_checksums": ck,
+    }
+    out = validate_acceptance_binding(
+        prior,
+        pack_run_id=FROZEN_RC_RUN_ID,
+        rc_sha=frozen,
+        pack_checksums=ck,
+    )
+    assert out["status"] == "ACCEPTED"
+    assert out["binding"]["valid"] is True
+    assert out["binding"]["product_rc_sha"] == frozen
+    assert out["binding"]["product_rc_sha"] != head_tip
+    bad = validate_acceptance_binding(
+        prior,
+        pack_run_id=FROZEN_RC_RUN_ID,
+        rc_sha=head_tip,
+        pack_checksums=ck,
+    )
+    assert bad["binding"]["valid"] is False
+    assert any("product_rc_sha" in m for m in bad["binding"]["mismatches"])
+
+
+def test_identity_mismatches_not_both_present_short_circuit() -> None:
+    """Regression: 'if key in both' is not sufficient — missing either side fails."""
+    accepted = {"pack-manifest.json": "a" * 64}
+    pack = {"pack-manifest.json": "a" * 64}
+    ms = identity_checksum_mismatches(accepted, pack)
+    assert "missing_expected_checksum:executive-summary.md" in ms
+    assert "missing_expected_checksum:consulting-pack.xlsx" in ms
+    assert "missing_expected_checksum:executive-report.pdf" in ms
+    accepted2 = _full_identity_ck()
+    pack2 = _full_identity_ck()
+    del pack2["executive-report.pdf"]
+    ms2 = identity_checksum_mismatches(accepted2, pack2)
+    assert "missing_actual_artifact:executive-report.pdf" in ms2
+
+
+def test_verify_accept_fails_without_frozen_binaries(tmp_path: Path) -> None:
+    """CLI verify-accept fails when local tree lacks required frozen binaries."""
+    out = tmp_path / "campaign"
+    pack = out / "pack"
+    pack.mkdir(parents=True)
+    (pack / "pack-manifest.json").write_text(
+        json.dumps({"run_id": "r1", "git_sha": "a" * 40}), encoding="utf-8"
+    )
+    (pack / "executive-summary.md").write_text("summary\n", encoding="utf-8")
+    ua = {
+        "status": "PENDING_HUMAN",
+        "run_id": "r1",
+        "rc_sha": "a" * 40,
+        "package_checksums": {},
+        "accepted_by": None,
+        "accepted_at": None,
+    }
+    (out / "user-acceptance.json").write_text(json.dumps(ua), encoding="utf-8")
+    code = main(["verify-accept", "--out", str(out)])
+    assert code == 1
+    missing = set(missing_required_frozen_binaries(pack))
+    assert "consulting-pack.xlsx" in missing
+    assert "executive-report.pdf" in missing
+
+
+def test_verify_accept_pack_dir_option(tmp_path: Path) -> None:
+    """--pack-dir validates extracted artifact without putting binaries in git pack/."""
+    import hashlib
+
+    out = tmp_path / "campaign"
+    out.mkdir()
+    art = tmp_path / "extracted-artifact"
+    art.mkdir()
+    pdf = b"%PDF-1.4 frozen-rc"
+    xlsx = b"PK\x03\x04frozen-xlsx"
+    (art / "executive-report.pdf").write_bytes(pdf)
+    (art / "consulting-pack.xlsx").write_bytes(xlsx)
+    summary = "executive summary freeze\n"
+    (art / "executive-summary.md").write_text(summary, encoding="utf-8")
+
+    def h(b: bytes) -> str:
+        return hashlib.sha256(b).hexdigest()
+
+    manifest = {
+        "run_id": FROZEN_RC_RUN_ID,
+        "git_sha": FROZEN_RC_PRODUCT_SHA,
+        "reconcile": {"status": "PASS"},
+    }
+    (art / "pack-manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+    ck = {
+        "pack-manifest.json": h((art / "pack-manifest.json").read_bytes()),
+        "executive-summary.md": h(summary.encode()),
+        "consulting-pack.xlsx": h(xlsx),
+        "executive-report.pdf": h(pdf),
+    }
+    ua = {
+        "status": "PENDING_HUMAN",
+        "run_id": FROZEN_RC_RUN_ID,
+        "rc_sha": FROZEN_RC_PRODUCT_SHA,
+        "package_checksums": ck,
+        "accepted_by": None,
+        "accepted_at": None,
+        "agent_auto_accept_forbidden": True,
+    }
+    (out / "user-acceptance.json").write_text(json.dumps(ua, indent=2), encoding="utf-8")
+    (out / "package-reconciliation.json").write_text(
+        json.dumps({"status": "PASS", "run_id": FROZEN_RC_RUN_ID}), encoding="utf-8"
+    )
+    (out / "recurrence.json").write_text(
+        json.dumps(
+            {
+                "mode": "LABELED_DETERMINISTIC_REPLAY",
+                "live_dual_snapshot": False,
+            }
+        ),
+        encoding="utf-8",
+    )
+    (out / "pack").mkdir()
+    code = main(["verify-accept", "--out", str(out), "--pack-dir", str(art)])
+    assert code == 2
+    refreshed = json.loads((out / "user-acceptance.json").read_text(encoding="utf-8"))
+    assert refreshed["status"] == "PENDING_HUMAN"
+    assert refreshed["accepted_by"] is None
+
+
+def test_assemble_frozen_rc_produces_identity(tmp_path: Path) -> None:
+    """assemble_client_ready_frozen_rc extracts exact freeze bytes (git snapshot)."""
+    import hashlib
+
+    staging = tmp_path / "staging"
+    result = assemble_client_ready_frozen_rc(
+        out_dir=ROOT / "artifacts/campaigns" / CAMPAIGN_ID,
+        staging_dir=staging,
+    )
+    assert result["status"] in {
+        "READY_FOR_ACTUAL_HUMAN_PRODUCT_REVIEW",
+        BLOCKED_MISSING_FROZEN_RC,
+    }
+    if result["status"] == BLOCKED_MISSING_FROZEN_RC:
+        pytest.skip(f"freeze snapshot unavailable in this clone: {result}")
+    assert result["artifact_name"] == FROZEN_RC_ARTIFACT_NAME
+    assert result["run_id"] == FROZEN_RC_RUN_ID
+    assert result["product_rc_sha"] == FROZEN_RC_PRODUCT_SHA
+    assert result["production_touched"] is False
+    assert result["soak_touched"] is False
+    assert (staging / "ARTIFACT-IDENTITY.json").is_file()
+    identity = json.loads((staging / "ARTIFACT-IDENTITY.json").read_text(encoding="utf-8"))
+    assert identity["classification"] == "HUMAN_REVIEW_ARTIFACT"
+    assert identity["production_touched"] is False
+    assert (staging / "executive-report.pdf").is_file()
+    assert (staging / "consulting-pack.xlsx").is_file()
+    ua = json.loads(
+        (ROOT / "artifacts/campaigns" / CAMPAIGN_ID / "user-acceptance.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    for name in ("executive-report.pdf", "consulting-pack.xlsx"):
+        digest = hashlib.sha256((staging / name).read_bytes()).hexdigest()
+        assert digest == ua["package_checksums"][name]
+
+
+def test_pending_human_preserved_in_repo() -> None:
+    """Campaign user-acceptance remains PENDING_HUMAN (no agent ACCEPTED)."""
+    path = ROOT / "artifacts/campaigns" / CAMPAIGN_ID / "user-acceptance.json"
+    data = json.loads(path.read_text(encoding="utf-8"))
+    assert data["status"] == "PENDING_HUMAN"
+    assert data.get("accepted_by") is None
+    assert data.get("accepted_at") is None
+    assert data["run_id"] == FROZEN_RC_RUN_ID
+    assert data["rc_sha"] == FROZEN_RC_PRODUCT_SHA
+    for key in REQUIRED_IDENTITY_FILES:
+        assert key in data["package_checksums"]
+
 
 def test_cli_guard_exit_codes() -> None:
     assert main(["guard", "--dsn", "postgresql://test:test@127.0.0.1:5436/extra_live_pack_rc"]) == 0
