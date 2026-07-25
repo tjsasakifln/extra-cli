@@ -1,14 +1,14 @@
 {
   "schema_version": "1.3",
   "pr": 131,
-  "evaluated_at": "2026-07-25T01:27:52Z",
-  "head_sha": "abb0cf255f1b6400d7154e01390c10f28fde4199",
+  "evaluated_at": "2026-07-25T01:27:58Z",
+  "head_sha": "36aae9dc11c0c58343035b3621a2bd42d06c2e9a",
   "main_sha": "5d906f631f444dd803e92bb88b7c98972297f8d4",
   "ci_run_evidence": "https://github.com/tjsasakifln/extra-cli/actions/runs/30138432144",
   "gates": {
     "inventory": "PASS",
     "absorption_129_130": "FULLY_ABSORBED",
-    "absorption_scope": "product_code_migrations_tests_docs \u2014 generated pack outputs excluded by Phase-3 policy",
+    "absorption_scope": "product_code_migrations_tests_docs — generated pack outputs excluded by Phase-3 policy",
     "absorption_material_missing_129": [],
     "absorption_material_missing_130": [],
     "phase3_generated_exclusions_129": 3,
@@ -52,8 +52,8 @@
   "notes": [
     "11 main-owned evidence files restored blob-identical from origin/main",
     "Absorption FULLY_ABSORBED for product code/migrations/tests; Phase-3 generated pack exclusions intentional",
-    "CI 9/9 PASS on tip including Generated Artifacts Policy + full suite",
-    "user-acceptance.json remains PENDING_HUMAN \u2014 agents must not set ACCEPTED",
+    "CI 9/9 PASS including Generated Artifacts Policy + full suite (run 30138432144 on pre-final-docs tip; this tip is docs-only stamp)",
+    "user-acceptance.json remains PENDING_HUMAN — agents must not set ACCEPTED",
     "production_touched=false soak_touched=false"
   ]
 }
