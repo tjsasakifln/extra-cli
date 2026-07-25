@@ -1,0 +1,77 @@
+# Lightweight PR Reviewability Policy
+#
+# Revalidates size/capability/binary + body HEAD/PASS consistency without
+# re-running the full CI suite. Critical for body edits and draft→ready.
+#
+# Events:
+#   opened | synchronize | reopened — code / base changes
+#   ready_for_review — draft → ready (stricter non-draft limits apply)
+#   edited — title/body change (HEAD SHA / PASS claim consistency)
+#
+# Job name MUST stay "PR Reviewability Policy" — required on main protection.
+
+name: PR Reviewability
+
+on:
+  pull_request:
+    branches: [main]
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+      - edited
+
+concurrency:
+  group: pr-reviewability-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  PYTHON_VERSION: "3.12"
+
+jobs:
+  pr-reviewability-policy:
+    name: PR Reviewability Policy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Run PR reviewability gate
+        env:
+          PR_DRAFT: ${{ github.event.pull_request.draft }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_ACTION: ${{ github.event.action }}
+        run: |
+          set -euo pipefail
+          echo "pr-reviewability: action=${PR_ACTION} draft=${PR_DRAFT:-} head=${HEAD_SHA} pr=${PR_NUMBER}"
+          if [ -n "${{ github.event.pull_request.base.sha }}" ]; then
+            BASE_REF="${{ github.event.pull_request.base.sha }}"
+          else
+            git fetch --no-tags origin main
+            BASE_REF="origin/main"
+          fi
+          git rev-parse --verify "$BASE_REF"
+          DRAFT_FLAG=""
+          if [ "${PR_DRAFT:-false}" = "true" ]; then
+            DRAFT_FLAG="--draft"
+          fi
+          EXTRA=""
+          if [ -n "${PR_NUMBER}" ] && [ -n "${PR_BODY}" ]; then
+            printf '%s\n' "$PR_BODY" > /tmp/pr-body.md
+            EXTRA="--body-file /tmp/pr-body.md --head-sha ${HEAD_SHA}"
+          fi
+          # shellcheck disable=SC2086
+          python -m scripts.ops.check_pr_reviewability --base "$BASE_REF" $DRAFT_FLAG $EXTRA
