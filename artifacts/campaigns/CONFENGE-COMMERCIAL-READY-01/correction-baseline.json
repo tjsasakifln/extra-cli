@@ -1,214 +1,10 @@
 {
   "git_sha": "1108c72a21d82e81670976cd9dd104fb4b153a82",
   "base_sha": "8344254942ec48978566317df16d7b3e3caabd89",
-  "pr_head_sha": "1108c72a21d82e81670976cd9dd104fb4b153a82",
   "run_id": "cl-20260725T215053Z-310b8521",
-  "dataset_snapshot_id": "e916d721f5314a7b0453c5d910edd99b9594bf6ff163179965de92b4e78c59dd",
   "dataset_row_count": 60000,
   "contracts_loaded": 33709,
   "companies_scored": 14301,
-  "top20": [
-    {
-      "rank": 1,
-      "cnpj14": "07192414000109",
-      "razao_social": "COSTA OESTE SERVICOS LTDA",
-      "score_total": 10.0853,
-      "manual_sector_label": "OUT_OF_SCOPE",
-      "manual_review_note": "Terceirizacao generica",
-      "reviewed_by": "implementer-agent-baseline-review",
-      "reviewed_at": "2026-07-25T22:45:00Z"
-    },
-    {
-      "rank": 2,
-      "cnpj14": "02316749000500",
-      "razao_social": "PAX COMERCIO DE PNEUS LTDA",
-      "score_total": 10.0689,
-      "manual_sector_label": "OUT_OF_SCOPE",
-      "manual_review_note": "Comercio de pneus",
-      "reviewed_by": "implementer-agent-baseline-review",
-      "reviewed_at": "2026-07-25T22:45:00Z"
-    },
-    {
-      "rank": 3,
-      "cnpj14": "59457959000101",
-      "razao_social": "PRO ACTIVE TERCEIRIZACAO LTDA",
-      "score_total": 10.0429,
-      "manual_sector_label": "POSSIBLE_FIT",
-      "manual_review_note": "Terceirizacao com reforma ambigua",
-      "reviewed_by": "implementer-agent-baseline-review",
-      "reviewed_at": "2026-07-25T22:45:00Z"
-    },
-    {
-      "rank": 4,
-      "cnpj14": "12253900000120",
-      "razao_social": "BRANIX EMPREENDIMENTOS LTDA - ME.",
-      "score_total": 9.943,
-      "manual_sector_label": "CLEAR_FIT",
-      "manual_review_note": "Execucao de obra de engenharia",
-      "reviewed_by": "implementer-agent-baseline-review",
-      "reviewed_at": "2026-07-25T22:45:00Z"
-    },
-    {
-      "rank": 5,
-      "cnpj14": "58109690000100",
-      "razao_social": "MG AUTO PECAS E SERVICOS LTDA",
-      "score_total": 9.9414,
-      "manual_sector_label": "OUT_OF_SCOPE",
-      "manual_review_note": "AUTO PECAS",
-      "reviewed_by": "implementer-agent-baseline-review",
-      "reviewed_at": "2026-07-25T22:45:00Z"
-    },
-    {
-      "rank": 6,
-      "cnpj14": "27254414000101",
-      "razao_social": "FAK EMPREENDIMENTOS LTDA",
-      "score_total": 9.8843,
-      "manual_sector_label": "CLEAR_FIT",
-      "manual_review_note": "Servicos de engenharia",
-      "reviewed_by": "implementer-agent-baseline-review",
-      "reviewed_at": "2026-07-25T22:45:00Z"
-    },
-    {
-      "rank": 7,
-      "cnpj14": "95257945000108",
-      "razao_social": "CONSTRUBRÁS CONSTRUTORA LTDA",
-      "score_total": 9.7869,
-      "manual_sector_label": "CLEAR_FIT",
-      "manual_review_note": "Construtora",
-      "reviewed_by": "implementer-agent-baseline-review",
-      "reviewed_at": "2026-07-25T22:45:00Z"
-    },
-    {
-      "rank": 8,
-      "cnpj14": "60344157000166",
-      "razao_social": "CODESAN SERVICOS E OBRAS",
-      "score_total": 9.5455,
-      "manual_sector_label": "OUT_OF_SCOPE",
-      "manual_review_note": "Autarquia municipal",
-      "reviewed_by": "implementer-agent-baseline-review",
-      "reviewed_at": "2026-07-25T22:45:00Z"
-    },
-    {
-      "rank": 9,
-      "cnpj14": "96355854000160",
-      "razao_social": "CONVIVA SERVICOS E GESTAO DE MAO DE OBRA LTDA",
-      "score_total": 9.5,
-      "manual_sector_label": "OUT_OF_SCOPE",
-      "manual_review_note": "Gestao mao de obra",
-      "reviewed_by": "implementer-agent-baseline-review",
-      "reviewed_at": "2026-07-25T22:45:00Z"
-    },
-    {
-      "rank": 10,
-      "cnpj14": "08764222000192",
-      "razao_social": "IMK INDUSTRIA E COMERCIO DE PRE MOLDADOS LTDA",
-      "score_total": 9.5,
-      "manual_sector_label": "POSSIBLE_FIT",
-      "manual_review_note": "Pre-moldados",
-      "reviewed_by": "implementer-agent-baseline-review",
-      "reviewed_at": "2026-07-25T22:45:00Z"
-    },
-    {
-      "rank": 11,
-      "cnpj14": "10789336000139",
-      "razao_social": "CRAFT LOCACOES DE EQUIPAMENTOS LTDA",
-      "score_total": 9.5,
-      "manual_sector_label": "OUT_OF_SCOPE",
-      "manual_review_note": "Locacao equipamentos",
-      "reviewed_by": "implementer-agent-baseline-review",
-      "reviewed_at": "2026-07-25T22:45:00Z"
-    },
-    {
-      "rank": 12,
-      "cnpj14": "34339589000179",
-      "razao_social": "EXPRESSO BRASIL LOGISTICA TRANSPORTES E MAQUINAS LTDA",
-      "score_total": 9.5,
-      "manual_sector_label": "OUT_OF_SCOPE",
-      "manual_review_note": "Logistica/transporte",
-      "reviewed_by": "implementer-agent-baseline-review",
-      "reviewed_at": "2026-07-25T22:45:00Z"
-    },
-    {
-      "rank": 13,
-      "cnpj14": "03720375000114",
-      "razao_social": "SAO MIGUEL MATERIAIS P CONSTRUCAO LTDA",
-      "score_total": 9.5,
-      "manual_sector_label": "OUT_OF_SCOPE",
-      "manual_review_note": "Comercio materiais",
-      "reviewed_by": "implementer-agent-baseline-review",
-      "reviewed_at": "2026-07-25T22:45:00Z"
-    },
-    {
-      "rank": 14,
-      "cnpj14": "02019741000140",
-      "razao_social": "PATROMETAL LTDA ME",
-      "score_total": 9.5,
-      "manual_sector_label": "OUT_OF_SCOPE",
-      "manual_review_note": "Materiais metal",
-      "reviewed_by": "implementer-agent-baseline-review",
-      "reviewed_at": "2026-07-25T22:45:00Z"
-    },
-    {
-      "rank": 15,
-      "cnpj14": "58569841000102",
-      "razao_social": "GM TRATORPECAS E SERVICOS LTDA",
-      "score_total": 9.5,
-      "manual_sector_label": "OUT_OF_SCOPE",
-      "manual_review_note": "Tratorpecas mecanica",
-      "reviewed_by": "implementer-agent-baseline-review",
-      "reviewed_at": "2026-07-25T22:45:00Z"
-    },
-    {
-      "rank": 16,
-      "cnpj14": "19648512000197",
-      "razao_social": "KARAIBA CONSULTORIA E PROJETOS LTDA.",
-      "score_total": 9.5,
-      "manual_sector_label": "CLEAR_FIT",
-      "manual_review_note": "Consultoria engenharia",
-      "reviewed_by": "implementer-agent-baseline-review",
-      "reviewed_at": "2026-07-25T22:45:00Z"
-    },
-    {
-      "rank": 17,
-      "cnpj14": "26445328000105",
-      "razao_social": "CHURRASCARIA E PIZZARIA CHOPINHO LTDA",
-      "score_total": 9.5,
-      "manual_sector_label": "OUT_OF_SCOPE",
-      "manual_review_note": "Churrascaria",
-      "reviewed_by": "implementer-agent-baseline-review",
-      "reviewed_at": "2026-07-25T22:45:00Z"
-    },
-    {
-      "rank": 18,
-      "cnpj14": "24131976000161",
-      "razao_social": "GIGTRACTOR COMERCIO DE PECAS E SERVICOS PARA TRATO",
-      "score_total": 9.5,
-      "manual_sector_label": "OUT_OF_SCOPE",
-      "manual_review_note": "Pecas tratores",
-      "reviewed_by": "implementer-agent-baseline-review",
-      "reviewed_at": "2026-07-25T22:45:00Z"
-    },
-    {
-      "rank": 19,
-      "cnpj14": "54077847000101",
-      "razao_social": "AUTO ELETRICA MENDES LTDA",
-      "score_total": 9.5,
-      "manual_sector_label": "OUT_OF_SCOPE",
-      "manual_review_note": "Auto eletrica",
-      "reviewed_by": "implementer-agent-baseline-review",
-      "reviewed_at": "2026-07-25T22:45:00Z"
-    },
-    {
-      "rank": 20,
-      "cnpj14": "50337569000115",
-      "razao_social": "LIVIA BEATRIZ FRANCO DE SOUZA",
-      "score_total": 9.5,
-      "manual_sector_label": "INSUFFICIENT_EVIDENCE",
-      "manual_review_note": "Nome PF residual",
-      "reviewed_by": "implementer-agent-baseline-review",
-      "reviewed_at": "2026-07-25T22:45:00Z"
-    }
-  ],
   "sector_fit_distribution": {
     "CLEAR_FIT": 4,
     "POSSIBLE_FIT": 2,
@@ -216,150 +12,135 @@
     "INSUFFICIENT_EVIDENCE": 1
   },
   "false_positive_review": {
-    "out_of_scope_in_top20": [
-      {
-        "rank": 1,
-        "cnpj14": "07192414000109",
-        "razao_social": "COSTA OESTE SERVICOS LTDA",
-        "score_total": 10.0853,
-        "manual_sector_label": "OUT_OF_SCOPE",
-        "manual_review_note": "Terceirizacao generica",
-        "reviewed_by": "implementer-agent-baseline-review",
-        "reviewed_at": "2026-07-25T22:45:00Z"
-      },
-      {
-        "rank": 2,
-        "cnpj14": "02316749000500",
-        "razao_social": "PAX COMERCIO DE PNEUS LTDA",
-        "score_total": 10.0689,
-        "manual_sector_label": "OUT_OF_SCOPE",
-        "manual_review_note": "Comercio de pneus",
-        "reviewed_by": "implementer-agent-baseline-review",
-        "reviewed_at": "2026-07-25T22:45:00Z"
-      },
-      {
-        "rank": 5,
-        "cnpj14": "58109690000100",
-        "razao_social": "MG AUTO PECAS E SERVICOS LTDA",
-        "score_total": 9.9414,
-        "manual_sector_label": "OUT_OF_SCOPE",
-        "manual_review_note": "AUTO PECAS",
-        "reviewed_by": "implementer-agent-baseline-review",
-        "reviewed_at": "2026-07-25T22:45:00Z"
-      },
-      {
-        "rank": 8,
-        "cnpj14": "60344157000166",
-        "razao_social": "CODESAN SERVICOS E OBRAS",
-        "score_total": 9.5455,
-        "manual_sector_label": "OUT_OF_SCOPE",
-        "manual_review_note": "Autarquia municipal",
-        "reviewed_by": "implementer-agent-baseline-review",
-        "reviewed_at": "2026-07-25T22:45:00Z"
-      },
-      {
-        "rank": 9,
-        "cnpj14": "96355854000160",
-        "razao_social": "CONVIVA SERVICOS E GESTAO DE MAO DE OBRA LTDA",
-        "score_total": 9.5,
-        "manual_sector_label": "OUT_OF_SCOPE",
-        "manual_review_note": "Gestao mao de obra",
-        "reviewed_by": "implementer-agent-baseline-review",
-        "reviewed_at": "2026-07-25T22:45:00Z"
-      },
-      {
-        "rank": 11,
-        "cnpj14": "10789336000139",
-        "razao_social": "CRAFT LOCACOES DE EQUIPAMENTOS LTDA",
-        "score_total": 9.5,
-        "manual_sector_label": "OUT_OF_SCOPE",
-        "manual_review_note": "Locacao equipamentos",
-        "reviewed_by": "implementer-agent-baseline-review",
-        "reviewed_at": "2026-07-25T22:45:00Z"
-      },
-      {
-        "rank": 12,
-        "cnpj14": "34339589000179",
-        "razao_social": "EXPRESSO BRASIL LOGISTICA TRANSPORTES E MAQUINAS LTDA",
-        "score_total": 9.5,
-        "manual_sector_label": "OUT_OF_SCOPE",
-        "manual_review_note": "Logistica/transporte",
-        "reviewed_by": "implementer-agent-baseline-review",
-        "reviewed_at": "2026-07-25T22:45:00Z"
-      },
-      {
-        "rank": 13,
-        "cnpj14": "03720375000114",
-        "razao_social": "SAO MIGUEL MATERIAIS P CONSTRUCAO LTDA",
-        "score_total": 9.5,
-        "manual_sector_label": "OUT_OF_SCOPE",
-        "manual_review_note": "Comercio materiais",
-        "reviewed_by": "implementer-agent-baseline-review",
-        "reviewed_at": "2026-07-25T22:45:00Z"
-      },
-      {
-        "rank": 14,
-        "cnpj14": "02019741000140",
-        "razao_social": "PATROMETAL LTDA ME",
-        "score_total": 9.5,
-        "manual_sector_label": "OUT_OF_SCOPE",
-        "manual_review_note": "Materiais metal",
-        "reviewed_by": "implementer-agent-baseline-review",
-        "reviewed_at": "2026-07-25T22:45:00Z"
-      },
-      {
-        "rank": 15,
-        "cnpj14": "58569841000102",
-        "razao_social": "GM TRATORPECAS E SERVICOS LTDA",
-        "score_total": 9.5,
-        "manual_sector_label": "OUT_OF_SCOPE",
-        "manual_review_note": "Tratorpecas mecanica",
-        "reviewed_by": "implementer-agent-baseline-review",
-        "reviewed_at": "2026-07-25T22:45:00Z"
-      },
-      {
-        "rank": 17,
-        "cnpj14": "26445328000105",
-        "razao_social": "CHURRASCARIA E PIZZARIA CHOPINHO LTDA",
-        "score_total": 9.5,
-        "manual_sector_label": "OUT_OF_SCOPE",
-        "manual_review_note": "Churrascaria",
-        "reviewed_by": "implementer-agent-baseline-review",
-        "reviewed_at": "2026-07-25T22:45:00Z"
-      },
-      {
-        "rank": 18,
-        "cnpj14": "24131976000161",
-        "razao_social": "GIGTRACTOR COMERCIO DE PECAS E SERVICOS PARA TRATO",
-        "score_total": 9.5,
-        "manual_sector_label": "OUT_OF_SCOPE",
-        "manual_review_note": "Pecas tratores",
-        "reviewed_by": "implementer-agent-baseline-review",
-        "reviewed_at": "2026-07-25T22:45:00Z"
-      },
-      {
-        "rank": 19,
-        "cnpj14": "54077847000101",
-        "razao_social": "AUTO ELETRICA MENDES LTDA",
-        "score_total": 9.5,
-        "manual_sector_label": "OUT_OF_SCOPE",
-        "manual_review_note": "Auto eletrica",
-        "reviewed_by": "implementer-agent-baseline-review",
-        "reviewed_at": "2026-07-25T22:45:00Z"
-      }
-    ],
     "clear_fit_count": 4,
     "out_of_scope_count": 13,
     "manual_precision_at_10_clear_or_possible": 0.5,
     "manual_precision_at_20_clear_or_possible": 0.3,
-    "manual_precision_at_10_clear_only": 0.3
+    "manual_precision_at_10_clear_only": 0.3,
+    "known_false_positives": null
   },
-  "gate_results": {
-    "prior_technical_status": "RC_TECHNICAL_PASS",
-    "prior_result_git_sha": "a60109c89760762bae02c7a42e69d40030405d75",
-    "prior_result_sha_stale_vs_pr_head": true,
-    "assessment": "RC false: OUT_OF_SCOPE dominates top-20"
-  },
+  "top20_labels": [
+    {
+      "rank": 1,
+      "cnpj14": "07192414000109",
+      "razao_social": "COSTA OESTE SERVICOS LTDA",
+      "manual_sector_label": "OUT_OF_SCOPE"
+    },
+    {
+      "rank": 2,
+      "cnpj14": "02316749000500",
+      "razao_social": "PAX COMERCIO DE PNEUS LTDA",
+      "manual_sector_label": "OUT_OF_SCOPE"
+    },
+    {
+      "rank": 3,
+      "cnpj14": "59457959000101",
+      "razao_social": "PRO ACTIVE TERCEIRIZACAO LTDA",
+      "manual_sector_label": "POSSIBLE_FIT"
+    },
+    {
+      "rank": 4,
+      "cnpj14": "12253900000120",
+      "razao_social": "BRANIX EMPREENDIMENTOS LTDA - ME.",
+      "manual_sector_label": "CLEAR_FIT"
+    },
+    {
+      "rank": 5,
+      "cnpj14": "58109690000100",
+      "razao_social": "MG AUTO PECAS E SERVICOS LTDA",
+      "manual_sector_label": "OUT_OF_SCOPE"
+    },
+    {
+      "rank": 6,
+      "cnpj14": "27254414000101",
+      "razao_social": "FAK EMPREENDIMENTOS LTDA",
+      "manual_sector_label": "CLEAR_FIT"
+    },
+    {
+      "rank": 7,
+      "cnpj14": "95257945000108",
+      "razao_social": "CONSTRUBRÁS CONSTRUTORA LTDA",
+      "manual_sector_label": "CLEAR_FIT"
+    },
+    {
+      "rank": 8,
+      "cnpj14": "60344157000166",
+      "razao_social": "CODESAN SERVICOS E OBRAS",
+      "manual_sector_label": "OUT_OF_SCOPE"
+    },
+    {
+      "rank": 9,
+      "cnpj14": "96355854000160",
+      "razao_social": "CONVIVA SERVICOS E GESTAO DE MAO DE OBRA LTDA",
+      "manual_sector_label": "OUT_OF_SCOPE"
+    },
+    {
+      "rank": 10,
+      "cnpj14": "08764222000192",
+      "razao_social": "IMK INDUSTRIA E COMERCIO DE PRE MOLDADOS LTDA",
+      "manual_sector_label": "POSSIBLE_FIT"
+    },
+    {
+      "rank": 11,
+      "cnpj14": "10789336000139",
+      "razao_social": "CRAFT LOCACOES DE EQUIPAMENTOS LTDA",
+      "manual_sector_label": "OUT_OF_SCOPE"
+    },
+    {
+      "rank": 12,
+      "cnpj14": "34339589000179",
+      "razao_social": "EXPRESSO BRASIL LOGISTICA TRANSPORTES E MAQUINAS LTDA",
+      "manual_sector_label": "OUT_OF_SCOPE"
+    },
+    {
+      "rank": 13,
+      "cnpj14": "03720375000114",
+      "razao_social": "SAO MIGUEL MATERIAIS P CONSTRUCAO LTDA",
+      "manual_sector_label": "OUT_OF_SCOPE"
+    },
+    {
+      "rank": 14,
+      "cnpj14": "02019741000140",
+      "razao_social": "PATROMETAL LTDA ME",
+      "manual_sector_label": "OUT_OF_SCOPE"
+    },
+    {
+      "rank": 15,
+      "cnpj14": "58569841000102",
+      "razao_social": "GM TRATORPECAS E SERVICOS LTDA",
+      "manual_sector_label": "OUT_OF_SCOPE"
+    },
+    {
+      "rank": 16,
+      "cnpj14": "19648512000197",
+      "razao_social": "KARAIBA CONSULTORIA E PROJETOS LTDA.",
+      "manual_sector_label": "CLEAR_FIT"
+    },
+    {
+      "rank": 17,
+      "cnpj14": "26445328000105",
+      "razao_social": "CHURRASCARIA E PIZZARIA CHOPINHO LTDA",
+      "manual_sector_label": "OUT_OF_SCOPE"
+    },
+    {
+      "rank": 18,
+      "cnpj14": "24131976000161",
+      "razao_social": "GIGTRACTOR COMERCIO DE PECAS E SERVICOS PARA TRATO",
+      "manual_sector_label": "OUT_OF_SCOPE"
+    },
+    {
+      "rank": 19,
+      "cnpj14": "54077847000101",
+      "razao_social": "AUTO ELETRICA MENDES LTDA",
+      "manual_sector_label": "OUT_OF_SCOPE"
+    },
+    {
+      "rank": 20,
+      "cnpj14": "50337569000115",
+      "razao_social": "LIVIA BEATRIZ FRANCO DE SOUZA",
+      "manual_sector_label": "INSUFFICIENT_EVIDENCE"
+    }
+  ],
   "known_defects": [
     "weak ILIKE",
     "no sector_fit",
@@ -372,7 +153,12 @@
     "soak auto-false",
     "stale RC SHA"
   ],
+  "gate_results": {
+    "prior_technical_status": "RC_TECHNICAL_PASS",
+    "prior_result_git_sha": "a60109c89760762bae02c7a42e69d40030405d75",
+    "prior_result_sha_stale_vs_pr_head": true,
+    "assessment": "RC false: OUT_OF_SCOPE dominates top-20"
+  },
   "rules_changed": false,
-  "note": "Baseline BEFORE sector-fit hardening",
-  "hardening_commit_sha": "d9874b64c8b1adf953a24453944ae51d9bf5284b"
+  "note": "Baseline BEFORE sector-fit hardening"
 }
