@@ -113,7 +113,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install pytest pytest-asyncio pytest-cov
+          pip install pytest pytest-asyncio pytest-cov hypothesis
 
       - name: Run critical readiness tests with coverage
         run: >-
@@ -196,7 +196,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install pytest pytest-asyncio pytest-cov
+          pip install pytest pytest-asyncio pytest-cov hypothesis
 
       - name: Operational expanded unit suite
         run: >-
@@ -266,7 +266,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install pytest pytest-asyncio pytest-cov psycopg2-binary openpyxl prometheus_client
+          pip install pytest pytest-asyncio pytest-cov hypothesis psycopg2-binary openpyxl prometheus_client
 
       - name: Canonical full suite (migrations + seeds + pytest no marker exclusion)
         run: python -m scripts.ops.run_full_suite
@@ -311,7 +311,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install ruff mypy pytest pytest-asyncio pytest-cov psycopg2-binary prometheus_client
+          pip install ruff mypy pytest pytest-asyncio pytest-cov hypothesis psycopg2-binary prometheus_client
 
       - name: Ruff resilience modules
         run: >
@@ -501,6 +501,26 @@ jobs:
   # ============================================================================
   # SECURITY — bandit (fail-closed, sem continue-on-error)
   # ============================================================================
+  # ==========================================================================
+  # PYTEST SKIP POLICY — no module-level importorskip hiding adversarial suites
+  # ==========================================================================
+  pytest-skip-policy:
+    name: Pytest Skip Policy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Run pytest skip policy gate
+        run: |
+          set -euo pipefail
+          python -m scripts.ops.check_pytest_skip_policy --root tests
+
   security:
     name: Security (bandit)
     runs-on: ubuntu-latest
