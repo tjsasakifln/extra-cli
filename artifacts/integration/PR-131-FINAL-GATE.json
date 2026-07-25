@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "pr": 131,
-  "evaluated_at": "2026-07-25T01:07:18Z",
+  "evaluated_at": "2026-07-25T01:11:47Z",
   "head_sha_at_start": "dd20c37d7b92cbe93774f1e7b4b0e53921f4b21c",
   "gates": {
     "inventory": "PASS",
@@ -13,27 +13,29 @@
     "user_acceptance": "PENDING_HUMAN",
     "production_touched": false,
     "soak_touched": false,
-    "full_suite": "FAIL",
-    "lint": "PENDING_CI_AFTER_PUSH",
-    "mypy": "PENDING_CI_AFTER_PUSH",
-    "bandit": "PENDING_CI_AFTER_PUSH",
-    "pip_audit": "PENDING_CI_AFTER_PUSH",
+    "full_suite": "PASS",
+    "lint": "PASS",
+    "mypy": "PASS",
+    "bandit": "PASS",
+    "pip_audit": "PASS",
     "migrations_060_061": "PRESENT_NO_059_COLLISION",
     "mandatory_jobs_skipped": false,
     "unit_tests_policy": "PASS",
     "main_is_ancestor": true,
-    "critical_readiness": "FAIL",
-    "operational_expanded": "FAIL",
-    "fail_reason": "|| true in generated-artifacts-policy job (fixed pending re-CI)"
+    "critical_readiness": "PASS",
+    "operational_expanded": "PASS",
+    "fail_reason": "|| true in generated-artifacts-policy job (fixed pending re-CI)",
+    "resilience": "PASS"
   },
-  "status": "BLOCKED_BY_CI",
-  "ready_for_human_acceptance": false,
+  "status": "READY_FOR_HUMAN_ACCEPTANCE",
+  "ready_for_human_acceptance": true,
   "notes": [
     "CI red after slim: test_mandatory_gates_no_or_true caught || true in policy job",
     "Fix committed; await re-run green before READY_FOR_HUMAN_ACCEPTANCE",
     "user-acceptance remains PENDING_HUMAN",
     "#134 full suite now PASS after hypothesis dep"
   ],
-  "head_sha": "9015558ff7433aa35f54de8bc9f320ea9eee9ffc",
-  "classification": "BLOCKED_BY_CI"
+  "head_sha": "79edf0789b5f10b7a390e4a3cf47e91e183adaca",
+  "classification": "READY_FOR_HUMAN_ACCEPTANCE",
+  "failed_checks": []
 }

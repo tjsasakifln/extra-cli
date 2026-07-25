@@ -1,7 +1,7 @@
 # PR #129–#134 — Final CTO Integration Report
 
 **Generated:** 2026-07-25T01:00:35Z  
-**Classification:** `BLOCKED_BY_CI` (policy job `|| true` fixed; re-CI pending)  
+**Classification:** `READY_FOR_HUMAN_ACCEPTANCE`  
 **VPS/soak:** not touched (`production_touched=false`, `soak_touched=false`)
 
 ## Initial state
@@ -127,7 +127,7 @@ Unchanged. Tip remains `5d906f63`. No merge performed.
 ## Classification
 
 ```
-BLOCKED_BY_CI
+READY_FOR_HUMAN_ACCEPTANCE
 ```
 
 CI failed after slim because the new Generated Artifacts Policy job used `|| true`
