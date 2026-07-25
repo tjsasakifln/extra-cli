@@ -16,6 +16,7 @@ From `.github/workflows/ci.yml` job `name:` fields:
 - `Dependency Audit (pip-audit)`
 - `Generated Artifacts Policy`
 - `PR Reviewability Policy`
+- `Pytest Skip Policy`
 
 ## Apply via GitHub API
 
@@ -39,7 +40,8 @@ gh api -X PUT "repos/${REPO}/branches/main/protection" \
       "Security (bandit)",
       "Dependency Audit (pip-audit)",
       "Generated Artifacts Policy",
-      "PR Reviewability Policy"
+      "PR Reviewability Policy",
+      "Pytest Skip Policy"
     ]
   },
   "enforce_admins": true,

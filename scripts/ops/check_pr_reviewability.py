@@ -159,6 +159,60 @@ def is_textual(path: str) -> bool:
     return Path(path).suffix.lower() in TEXTUAL_SUFFIXES
 
 
+# Required canonical CI job names (must match .github/workflows/ci.yml `name:`)
+REQUIRED_CANONICAL_CHECKS = (
+    "Lint (ruff)",
+    "Type Check (mypy)",
+    "Test (critical readiness)",
+    "Test operational expanded (PR)",
+    "Test All (full suite)",
+    "Resilience Gate (pre-VPS)",
+    "Security (bandit)",
+    "Dependency Audit (pip-audit)",
+    "Generated Artifacts Policy",
+    "PR Reviewability Policy",
+    "Pytest Skip Policy",
+)
+
+# Match HEAD/CI SHA declarations including Markdown bold/backticks:
+#   **HEAD SHA:** `abc123...`
+#   HEAD SHA: abc123
+#   CI SHA: `abc`
+_CLAIMED_SHA_RES = (
+    re.compile(
+        r"(?is)(?:\*{0,2}|_{0,2})?(?:ci\s+|head\s+)?(?:sha|commit|head)"
+        r"(?:\s+sha)?(?:\*{0,2}|_{0,2})?\s*[:=]\s*"
+        r"(?:\*{0,2}|_{0,2})?\s*`?([0-9a-f]{7,40})`?",
+    ),
+    re.compile(
+        r"(?is)\*{0,2}head\s+sha\*{0,2}\s*[:=]\s*\*{0,2}\s*`?([0-9a-f]{7,40})`?",
+    ),
+)
+
+
+def extract_claimed_head_shas(body: str) -> list[str]:
+    """Return claimed HEAD/CI SHAs from PR body (Markdown-aware)."""
+    if not body:
+        return []
+    # Strip common Markdown emphasis so bold labels still match.
+    stripped = re.sub(r"[*_]{1,3}", "", body)
+    found: list[str] = []
+    for src in (body, stripped):
+        for cre in _CLAIMED_SHA_RES:
+            for m in cre.finditer(src):
+                sha = m.group(1).lower()
+                if sha not in found:
+                    found.append(sha)
+    return found
+
+
+def sha_matches_head(claimed: str, head_sha: str) -> bool:
+    head_l = head_sha.lower()
+    c = claimed.lower()
+    return head_l.startswith(c) or c.startswith(head_l[:7])
+
+
+
 def evaluate(
     *,
     base: str,
@@ -167,6 +221,7 @@ def evaluate(
     body: str | None = None,
     head_sha: str | None = None,
     required_checks_present: bool | None = None,
+    required_check_names: list[str] | None = None,
 ) -> list[dict[str, object]]:
     """Return list of violations. Draft PRs skip size/multi-cap hard fails."""
     violations: list[dict[str, object]] = []
@@ -275,34 +330,58 @@ def evaluate(
 
     # Body consistency checks (when provided by CI)
     if body:
-        sha_mentions = re.findall(r"\b([0-9a-f]{7,40})\b", body.lower())
-        if head_sha and sha_mentions:
-            head_l = head_sha.lower()
-            # if body claims a CI SHA that is not current head (explicit pattern)
-            for m in re.finditer(
-                r"(?:ci|head|sha|commit)\s*[:=]\s*`?([0-9a-f]{7,40})`?",
-                body,
-                re.I,
-            ):
-                claimed = m.group(1).lower()
-                if not (head_l.startswith(claimed) or claimed.startswith(head_l[:7])):
+        if head_sha:
+            for claimed in extract_claimed_head_shas(body):
+                if not sha_matches_head(claimed, head_sha):
                     maybe(
                         "body_ci_sha_mismatch",
                         {
                             "claimed": claimed,
                             "head": head_sha,
-                            "hint": "Update PR body to the exact HEAD SHA under test.",
+                            "hint": (
+                                "Update PR body so **HEAD SHA:** matches the exact "
+                                "tip under test (Markdown bold/backticks supported)."
+                            ),
                         },
                     )
-        if re.search(r"\b(PASS|CI_GREEN|READY_TO_MERGE)\b", body) and (
-            required_checks_present is False
-        ):
-            maybe(
-                "declared_pass_without_gates",
-                {
-                    "hint": "Do not declare PASS while required CI gates are missing.",
-                },
+        # Only treat status-like declarations as PASS claims — not prose that
+        # merely mentions the word "PASS" (e.g. "when body declares PASS").
+        declares_pass = bool(
+            re.search(
+                r"(?is)(?:status|verdict|result|ci(?:\s+status)?)\s*[:=]\s*"
+                r"`?(?:PASS|CI_GREEN|READY_TO_MERGE)`?\b"
+                r"|\bCI_GREEN\b|\bREADY_TO_MERGE\b"
+                r"|(?:^|\n)\s*PASS\s*(?:\n|$)",
+                body,
             )
+        )
+        if declares_pass:
+            # Fail-closed: PASS claims require explicit confirmation that
+            # required gates ran (not unknown / not false).
+            if required_checks_present is not True:
+                maybe(
+                    "declared_pass_without_gates",
+                    {
+                        "required_checks_present": required_checks_present,
+                        "hint": (
+                            "Do not declare PASS/CI_GREEN while required gates are "
+                            "missing or unverified (pass --required-checks-present true "
+                            "only when all REQUIRED_CANONICAL_CHECKS completed)."
+                        ),
+                    },
+                )
+            if required_check_names is not None:
+                present = set(required_check_names)
+                missing = [c for c in REQUIRED_CANONICAL_CHECKS if c not in present]
+                if missing:
+                    maybe(
+                        "missing_required_checks",
+                        {
+                            "missing": missing,
+                            "hint": "All REQUIRED_CANONICAL_CHECKS must be present.",
+                        },
+                    )
+
 
     if exception is None and (REPO_ROOT / EXCEPTION_PATH).is_file():
         # incomplete exception registry is itself a violation only if non-empty bad
@@ -340,6 +419,10 @@ def main(argv: list[str] | None = None) -> int:
         choices=("true", "false", "unknown"),
         default="unknown",
     )
+    parser.add_argument(
+        "--required-check-names-file",
+        help="file with one completed check name per line (optional)",
+    )
     parser.add_argument("--paths", nargs="*", help="explicit paths (tests)")
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args(argv)
@@ -356,6 +439,14 @@ def main(argv: list[str] | None = None) -> int:
     else:
         rcp = None
 
+    check_names: list[str] | None = None
+    if args.required_check_names_file:
+        check_names = [
+            ln.strip()
+            for ln in Path(args.required_check_names_file).read_text(encoding="utf-8").splitlines()
+            if ln.strip() and not ln.strip().startswith("#")
+        ]
+
     try:
         violations = evaluate(
             base=args.base,
@@ -364,6 +455,7 @@ def main(argv: list[str] | None = None) -> int:
             body=body,
             head_sha=args.head_sha,
             required_checks_present=rcp,
+            required_check_names=check_names,
         )
     except subprocess.CalledProcessError as exc:
         print(f"error: git failed: {exc}", file=sys.stderr)

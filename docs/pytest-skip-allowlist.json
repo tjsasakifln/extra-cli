@@ -1,0 +1,5 @@
+{
+  "schema_version": "1.0",
+  "module_level_skips": [],
+  "notes": "Empty by default. Module-level pytest.importorskip/skip must not hide security or adversarial suites. Prefer installing test deps in CI."
+}

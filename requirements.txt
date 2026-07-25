@@ -30,3 +30,6 @@ rapidfuzz>=3.0.0
 # selenium>=4.15.0  # descomentar se precisar de crawlers com Selenium
 # webdriver-manager>=4.0.0  # gerenciamento automatico de ChromeDriver
 prometheus_client>=0.20.0
+
+# Test / property-based (budget adversarial suite)
+hypothesis>=6.100.0
