@@ -3,8 +3,8 @@
 **Classification:** `READY_FOR_SECOND_HUMAN_PRODUCT_REVIEW`  
 **Status:** `PENDING_HUMAN` (never auto-ACCEPTED)  
 **Artifact:** `client-ready-frozen-rc-v2`  
-**run_id:** `live-pack-20260725-033723-8b07813e`  
-**product_rc_sha:** `91154b4857388c92a710fb16ebda0561547349ef`
+**run_id:** `live-pack-20260725-033723-8b07813e`
+**product_rc_sha:** `a4e9ce94a9c9e43e0981ce1412d0e03efc890e2f`
 
 ## What changed vs RC v1 (CHANGES_REQUESTED)
 
