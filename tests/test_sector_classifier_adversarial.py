@@ -235,3 +235,32 @@ def test_reforma_setimo_pavimento_is_building_work():
     assert clf.label in {"ENGINEERING_HIGH_CONFIDENCE", "ENGINEERING_REVIEW", "NON_ENGINEERING"}
     if clf.label in E_ALLOWED_LABELS:
         assert clf.subcategory in {"reformas", "edificacoes", "manutencao_predial", "obras_civis"}
+
+
+def test_arrecadacao_bancaria_instituicoes_financeiras():
+    """Serviços bancários / arrecadação nunca são engenharia — mesmo com 'esgotamento' no texto."""
+    clf = classify_object(
+        "CREDENCIAMENTO DE INSTITUIÇÕES FINANCEIRAS DEVIDAMENTE AUTORIZADAS A OPERAR "
+        "PELO BANCO CENTRAL DO BRASIL, NAS MODALIDADES DE ARRECADAÇÃO DE FATURAS DE "
+        "ESGOTAMENTO SANITÁRIO"
+    )
+    assert clf.label == "NON_ENGINEERING"
+    assert not is_engineering_for_e(clf)
+
+
+def test_aquisicao_airless_pintura_nao_obra():
+    clf = classify_object(
+        "AQUISIÇÃO DE EQUIPAMENTO DE PINTURA E DEMARCAÇÃO VIÁRIA DO TIPO AIRLESS, "
+        "DESTINADO À APLICAÇÃO DE TINTA EM SINALIZAÇÃO HORIZONTAL E MEIO-FIO"
+    )
+    assert clf.label == "NON_ENGINEERING"
+    assert not is_engineering_for_e(clf)
+
+
+def test_aquisicao_motobombas_nao_obra():
+    clf = classify_object(
+        "AQUISIÇÃO DE CONJUNTOS MOTOBOMBAS SUBMERSÍVEIS PARA SEREM UTILIZADOS NO "
+        "SISTEMA DE ESGOTAMENTO SANITÁRIO"
+    )
+    assert clf.label == "NON_ENGINEERING"
+    assert not is_engineering_for_e(clf)

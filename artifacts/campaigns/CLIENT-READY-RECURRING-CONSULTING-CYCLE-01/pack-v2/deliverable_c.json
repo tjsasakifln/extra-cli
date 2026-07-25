@@ -60,7 +60,7 @@
         "reason": "objeto de engenharia aderente (pos=0.40)",
         "confidence": 0.75,
         "textual_evidence": "CONCORRÊCIA ELETRÔNICA VISANDO A CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA FORNECIMENTO E INSTALAÇÃO DE RESERVATÓRIO METÁLICO DE 6.000 m³ NO BAIRRO SÃO DOMINGOS, PARA ATENDER AS NECESSIDADES DA SECRETARIA MUNICIPAL DE ÁGUA E SANEAMENTO BÁSICO DE NAVEGANTES/SC.",
-        "rule_version": "extra-sector-classifier/2.1.0",
+        "rule_version": "extra-sector-classifier/2.2.0",
         "sector_match": true
       },
       "segmento": "saneamento",
@@ -109,7 +109,7 @@
         "reason": "objeto de engenharia aderente (pos=0.45)",
         "confidence": 0.7625000000000001,
         "textual_evidence": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA A EXECUÇÃO DOS SERVIÇOS DE CONSTRUÇÃO DE CRECHE EM TEMPO INTEGRAL PADRÃO FNDE – TIPO 01, SITUADA NA RUA LEOLÁRIO DE ARAÚJO S/Nº, BAIRRO CENTRO, ILHOTA/SC. A INTERVENÇÃO ABRANGE UMA ÁREA A CONSTRUIR DE 1.514,30M², conforme termo de referên…",
-        "rule_version": "extra-sector-classifier/2.1.0",
+        "rule_version": "extra-sector-classifier/2.2.0",
         "sector_match": true
       },
       "segmento": "edificacoes",
@@ -159,7 +159,7 @@
         "reason": "objeto de engenharia aderente (pos=0.85)",
         "confidence": 0.8625,
         "textual_evidence": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE PAVIMENTAÇÃO ASFÁLTICA E SERVIÇOS COMPLEMENTARES EM DIVERSAS RUAS DO MUNICÍPIO DE PALMITOS/SC",
-        "rule_version": "extra-sector-classifier/2.1.0",
+        "rule_version": "extra-sector-classifier/2.2.0",
         "sector_match": true
       },
       "segmento": "pavimentacao",
@@ -208,7 +208,7 @@
         "reason": "objeto de engenharia aderente (pos=0.45)",
         "confidence": 0.7625000000000001,
         "textual_evidence": "PAVIMENTAÇÃO DA ESTRADA SANTO ANJO (TRECHO II) DO MUNICÍPIO DE MASSARANDUBA (SC)",
-        "rule_version": "extra-sector-classifier/2.1.0",
+        "rule_version": "extra-sector-classifier/2.2.0",
         "sector_match": true
       },
       "segmento": "pavimentacao",
@@ -260,7 +260,7 @@
         "reason": "objeto de engenharia aderente (pos=1.72)",
         "confidence": 0.99,
         "textual_evidence": "Contratação de empresa especializada, com fornecimento de materiais, mão de obra, equipamentos e insumos, para execução de obra de pavimentação asfáltica com concreto betuminoso usinado a quente (CBUQ), incluindo serviços de terraplenagem, base e sub-base, drenagem pluvial, meio-…",
-        "rule_version": "extra-sector-classifier/2.1.0",
+        "rule_version": "extra-sector-classifier/2.2.0",
         "sector_match": true
       },
       "segmento": "terraplenagem",
@@ -310,7 +310,7 @@
         "reason": "objeto de engenharia aderente (pos=0.87)",
         "confidence": 0.8675,
         "textual_evidence": "Contratação de empresa especializada para execução de obras de pavimentação intertravada, drenagem pluvial e sinalização viária na Rua Palestina, Bairro Barragem, Rio do Sul/SC.",
-        "rule_version": "extra-sector-classifier/2.1.0",
+        "rule_version": "extra-sector-classifier/2.2.0",
         "sector_match": true
       },
       "segmento": "pavimentacao",
@@ -359,7 +359,7 @@
         "reason": "objeto de engenharia aderente (pos=0.40)",
         "confidence": 0.75,
         "textual_evidence": "MÃO DE OBRA ESPECIALIZADA PARA PRESTAÇÃO DE SERVIÇOS PARA FINS DE MANUTENÇÃO PREVENTIVA E CORRETIVA DA USINA DE ASFALTO DO MUNICIPIO DE ITAJAÍ COM FORNECIMENTO DE PEÇAS ORIGINAIS/ GENUÍNAS.",
-        "rule_version": "extra-sector-classifier/2.1.0",
+        "rule_version": "extra-sector-classifier/2.2.0",
         "sector_match": true
       },
       "segmento": "pavimentacao",
@@ -409,7 +409,7 @@
         "reason": "objeto de engenharia aderente (pos=0.85)",
         "confidence": 0.8625,
         "textual_evidence": "Adesão à Ata de Registro de Preços nº 005/2024, originada do Processo Licitatório nº 018/2024 do Município de Bom Jardim da Serra/SC, cujo objeto é o Registro de Preços para contratação de empresa de engenharia para execução de serviços técnicos especializados na elaboração de pr…",
-        "rule_version": "extra-sector-classifier/2.1.0",
+        "rule_version": "extra-sector-classifier/2.2.0",
         "sector_match": true
       },
       "segmento": "pavimentacao",
@@ -458,7 +458,7 @@
         "reason": "objeto de engenharia aderente (pos=0.38)",
         "confidence": 0.745,
         "textual_evidence": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA REVITALIZAÇÃO DO EDIFÍCIO “MOINHO SÃO DOMINGOS”, BEM IMÓVEL TOMBADO DO MUNICÍPIO DE CORDILHEIRA ALTA/SC (DECRETO MUNICIPAL Nº 378/2022), SITUADO NA AVENIDA FERMINO TOZZO, Nº 454, BAIRRO CENTRO, CEP 89.819-000, CONFORME PROJETOS, MEMORIAL,…",
-        "rule_version": "extra-sector-classifier/2.1.0",
+        "rule_version": "extra-sector-classifier/2.2.0",
         "sector_match": true
       },
       "segmento": "infraestrutura_urbana",
@@ -507,7 +507,7 @@
         "reason": "objeto de engenharia aderente (pos=0.45)",
         "confidence": 0.7625000000000001,
         "textual_evidence": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA FORNECIMENTO DE MATERIAIS, MÃO DE OBRA E DEMAIS OBRIGAÇÕES NECESSÁRIAS PARA EXECUÇÃO DE PAVIMENTAÇÃO EM CONCRETO DA RUA ANTÔNIO GROSSKOPF, TRECHO PARCIAL, CONTEMPLANDO OS SERVIÇOS INICIAS, DRENAGEM, PAVIMENTAÇÃO EM CONCRETO, OBRAS COMPLEM…",
-        "rule_version": "extra-sector-classifier/2.1.0",
+        "rule_version": "extra-sector-classifier/2.2.0",
         "sector_match": true
       },
       "segmento": "pavimentacao",
@@ -558,7 +558,7 @@
         "reason": "objeto de engenharia aderente (pos=1.27)",
         "confidence": 0.9675,
         "textual_evidence": "Contratação de empresa especializada para a execução de obras de drenagem pluvial e pavimentação asfáltica na Rua do Peixe, contemplando o Trecho I.",
-        "rule_version": "extra-sector-classifier/2.1.0",
+        "rule_version": "extra-sector-classifier/2.2.0",
         "sector_match": true
       },
       "segmento": "pavimentacao",
@@ -608,7 +608,7 @@
         "reason": "objeto de engenharia aderente (pos=0.83)",
         "confidence": 0.8575,
         "textual_evidence": "Prestação  de  serviços  de engenharia para execução de    manutenção    predial corretiva     e     preventiva, contemplando  os  serviços de   manutenção   elétrica, civil,  hidráulica  e sistema preventivo  contra  incêndio no Blaco   B   do   Centro Administrativo   da   SSP …",
-        "rule_version": "extra-sector-classifier/2.1.0",
+        "rule_version": "extra-sector-classifier/2.2.0",
         "sector_match": true
       },
       "segmento": "obras_civis",
@@ -658,7 +658,7 @@
         "reason": "objeto de engenharia aderente (pos=0.83)",
         "confidence": 0.8575,
         "textual_evidence": "Prestação  de  serviços  de engenharia para execução de    manutenção    predial corretiva     e     preventiva, contemplando  os  serviços de   manutenção   elétrica, civil,  hidráulica  e sistema preventivo  contra  incêndio no Blaco   B   do   Centro Administrativo   da   SSP …",
-        "rule_version": "extra-sector-classifier/2.1.0",
+        "rule_version": "extra-sector-classifier/2.2.0",
         "sector_match": true
       },
       "segmento": "obras_civis",
@@ -707,7 +707,7 @@
         "reason": "objeto de engenharia aderente (pos=0.45)",
         "confidence": 0.7625000000000001,
         "textual_evidence": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM OBRAS DE ENGENHARIA PARA EXECUÇÃO DA REFORMA E ADEQUAÇÃO DA COBERTURA METÁLICA DO POSTO DE SAÚDE CENTRAL DE BELA VISTA DO TOLDO/SC E DEMAIS SERVIÇOS NECESSÁRIOS.",
-        "rule_version": "extra-sector-classifier/2.1.0",
+        "rule_version": "extra-sector-classifier/2.2.0",
         "sector_match": true
       },
       "segmento": "obras_civis",
@@ -756,7 +756,7 @@
         "reason": "projeto de engenharia/arquitetura — review de capacidade/CAT",
         "confidence": 0.664,
         "textual_evidence": "contratação de empresa para execução das obras de construção de biblioteca e reforma de sala de aula na E.M.E.F. Frei Modesto, no município de Timbé do Sul/SC, tudo de conformidade com o projeto básico, projetos executivos, planilhas orçamentárias, memorial descritivo e demais do…",
-        "rule_version": "extra-sector-classifier/2.1.0",
+        "rule_version": "extra-sector-classifier/2.2.0",
         "sector_match": true
       },
       "segmento": "projetos",
@@ -808,59 +808,10 @@
         "reason": "objeto de engenharia aderente (pos=1.72)",
         "confidence": 0.99,
         "textual_evidence": "Contratação de pessoa jurídica para a prestação de serviços de engenharia, com fornecimento de materiais e mão de obra, destinados à pavimentação asfáltica, incluindo serviços preliminares, terraplenagem, drenagem pluvial, obras complementares e sinalização viária, na Rua 283 – I…",
-        "rule_version": "extra-sector-classifier/2.1.0",
+        "rule_version": "extra-sector-classifier/2.2.0",
         "sector_match": true
       },
       "segmento": "terraplenagem",
-      "aderencia": "ENGINEERING_HIGH_CONFIDENCE"
-    },
-    {
-      "orgao": "Serviço Autônomo Municipal de Agua e Esgoto- Blumenau SC",
-      "objeto": "CREDENCIAMENTO DE INSTITUIÇÕES FINANCEIRAS DEVIDAMENTE AUTORIZADAS A OPERAR PELO BANCO CENTRAL DO BRASIL, NAS MODALIDADES DE BANCO MÚLTIPLO, BANCO COMERCIAL, BANCO COOPERATIVO OU COOPERATIVA DE CRÉDITO, COM A FINALIDADE DE EXECUTAR SERVIÇOS DE ARRECADAÇÃO DE FATURAS REFERENTES AO FORNECIMENTO DE ÁGUA, ESGOTAMENTO SANITÁRIO, COLETA DE RESÍDUOS SÓLIDOS, BEM COMO DA DÍVIDA ATIVA E DEMAIS RECEITAS SOB A RESPONSABILIDADE DESTA AUTARQUIA.",
-      "contratado": "BANCO COOPERATIVO SICOOB S/A",
-      "contratado_cnpj": "02038232000164",
-      "valor": 342000.0,
-      "valor_semantica": "CONTRATADO",
-      "inicio": "2025-10-26",
-      "termino_efetivo": "2026-10-25",
-      "termino_tipo": "CONTRATUAL",
-      "termino_fonte": "pncp_supplier_contracts",
-      "termino_verificado_em": "2026-07-23",
-      "aditivos_aplicados": [],
-      "relicitacao": {
-        "mode": "EVIDENCE_CLASS",
-        "methodology": "sinais observáveis (histórico de re-licitação do órgão, objeto recorrente, aditivos próximos do fim); NÃO percentual fabricado",
-        "signals": [],
-        "probability_pct": null,
-        "confidence": "BAIXA",
-        "limitations": [
-          "Sem modelo validado retrospectivamente",
-          "Sinais não são probabilidade"
-        ],
-        "fabricated_percent_forbidden": true
-      },
-      "confianca": "BAIXA",
-      "limitacoes": [
-        "Sem modelo validado retrospectivamente",
-        "Sinais não são probabilidade"
-      ],
-      "in_window": true,
-      "sector_classification": {
-        "label": "ENGINEERING_HIGH_CONFIDENCE",
-        "positive_terms": [
-          "esgoto_rede"
-        ],
-        "negative_terms": [],
-        "excluded_terms": [],
-        "category": "infraestrutura",
-        "subcategory": "saneamento",
-        "reason": "objeto de engenharia aderente (pos=0.38)",
-        "confidence": 0.745,
-        "textual_evidence": "CREDENCIAMENTO DE INSTITUIÇÕES FINANCEIRAS DEVIDAMENTE AUTORIZADAS A OPERAR PELO BANCO CENTRAL DO BRASIL, NAS MODALIDADES DE BANCO MÚLTIPLO, BANCO COMERCIAL, BANCO COOPERATIVO OU COOPERATIVA DE CRÉDITO, COM A FINALIDADE DE EXECUTAR SERVIÇOS DE ARRECADAÇÃO DE FATURAS REFERENTES AO…",
-        "rule_version": "extra-sector-classifier/2.1.0",
-        "sector_match": true
-      },
-      "segmento": "saneamento",
       "aderencia": "ENGINEERING_HIGH_CONFIDENCE"
     },
     {
@@ -906,7 +857,7 @@
         "reason": "objeto de engenharia aderente (pos=0.45)",
         "confidence": 0.7625000000000001,
         "textual_evidence": "Contratação de empresa especializada no ramo da construção civil, em regime de empreitada por preço unitário, com fornecimento de materiais e mão de obra, para execução de serviços referentes a construção de edificação destinada ao quiosque na Prainha de Linha Bonita, Município d…",
-        "rule_version": "extra-sector-classifier/2.1.0",
+        "rule_version": "extra-sector-classifier/2.2.0",
         "sector_match": true
       },
       "segmento": "edificacoes",
@@ -955,7 +906,7 @@
         "reason": "objeto de engenharia aderente (pos=0.38)",
         "confidence": 0.745,
         "textual_evidence": "REF.: O PRESENTE PROCEDIMENTO LICITATÓRIO TEM POR OBJETIVO SELECIONAR A PROPOSTA MAIS VANTAJOSA PARA FUTURA E EVENTUAL A CONTRATAÇÃO DE EMPRESA DE ENGENHARIA ESPECIALIZADA PARA EXECUÇÃO DA REFORMA E REVITALIZAÇÃO DO CEMITÉRIO NA COMUNIDADE DE VILA SÃO CRISTÓVÃO, MUNICÍPIO DE SANT…",
-        "rule_version": "extra-sector-classifier/2.1.0",
+        "rule_version": "extra-sector-classifier/2.2.0",
         "sector_match": true
       },
       "segmento": "infraestrutura_urbana",
@@ -1005,7 +956,7 @@
         "reason": "objeto de engenharia aderente (pos=0.83)",
         "confidence": 0.8575,
         "textual_evidence": "Contratação  de serviços de engenharia para  execução  de manutenção predial corretiva e preventiva (via ARP 201/2025) para imóvel SIGEP 4765, sede administrativa da CODAM Criciúma, localizada na Rua José de Patta, 120, Centro, Criciúma/SC.",
-        "rule_version": "extra-sector-classifier/2.1.0",
+        "rule_version": "extra-sector-classifier/2.2.0",
         "sector_match": true
       },
       "segmento": "obras_civis",
@@ -1055,7 +1006,7 @@
         "reason": "objeto de engenharia aderente (pos=0.83)",
         "confidence": 0.8575,
         "textual_evidence": "Contratação  de serviços de engenharia para  execução  de manutenção predial corretiva e preventiva (via ARP 201/2025) para imóvel SIGEP 4765, sede administrativa da CODAM Criciúma, localizada na Rua José de Patta, 120, Centro, Criciúma/SC.",
-        "rule_version": "extra-sector-classifier/2.1.0",
+        "rule_version": "extra-sector-classifier/2.2.0",
         "sector_match": true
       },
       "segmento": "obras_civis",
@@ -1105,7 +1056,7 @@
         "reason": "objeto de engenharia aderente (pos=0.83)",
         "confidence": 0.8575,
         "textual_evidence": "CONTRATAÇÃO DE EMPRESA PARA PRESTAÇÃO DE SERVIÇOS DE MÃO DE OBRA COM FORNECIMENTO DE MATERIAIS PARA EXECUÇÃO DE OBRA DE INFRAESTRUTURA URBANA - PAVIMENTAÇÃO COM PEDRAS IRREGULARES, NO TRECHO DA RUA GENERAL OSÓRIO, COM LARGURA DE RUA DE 15,00 METROS, TOTALIZANDO ÁREA DE 845,53 M²,…",
-        "rule_version": "extra-sector-classifier/2.1.0",
+        "rule_version": "extra-sector-classifier/2.2.0",
         "sector_match": true
       },
       "segmento": "pavimentacao",
@@ -1154,7 +1105,7 @@
         "reason": "objeto de engenharia aderente (pos=0.38)",
         "confidence": 0.745,
         "textual_evidence": "CONTRATAÇÃO DE EMPRESA OBJETIVANDO A EXECUÇÃO DA REVITALIZAÇÃO DA PRAÇA FRIDOLINO SCHUEROFF NO BAIRRO PRESIDENTE VARGAS, CONTANDO COM CERCA DE 8.605 M² DE ÁREA CONSTRUÍDA APÓS AMPLIAÇÃO.",
-        "rule_version": "extra-sector-classifier/2.1.0",
+        "rule_version": "extra-sector-classifier/2.2.0",
         "sector_match": true
       },
       "segmento": "infraestrutura_urbana",
@@ -1203,7 +1154,7 @@
         "reason": "manutenção predial — engineering/review (escopo e CAT)",
         "confidence": 0.633,
         "textual_evidence": "Serviços de manutenção predial preventiva, corretiva, bem como reformas prediais sem acréscimo de área construída, abrangendo as áreas civil, elétrica, hidráulica e de sistemas preventivos de combate a incêndio, em todas as unidades administrativas sob responsabilidade do Municíp…",
-        "rule_version": "extra-sector-classifier/2.1.0",
+        "rule_version": "extra-sector-classifier/2.2.0",
         "sector_match": true
       },
       "segmento": "manutencao_predial",
@@ -1253,7 +1204,7 @@
         "reason": "objeto de engenharia aderente (pos=0.87)",
         "confidence": 0.8675,
         "textual_evidence": "CONTRATAÇÃO DE EMPRESA PARA EXECUÇÃO DAS OBRAS DE PAVIMENTAÇÃO, DRENAGEM PLUVIAL, PASSEIO PÚBLICO E SINALIZAÇÃO VERTICAL NA RUA AUGUSTO CUGNIER",
-        "rule_version": "extra-sector-classifier/2.1.0",
+        "rule_version": "extra-sector-classifier/2.2.0",
         "sector_match": true
       },
       "segmento": "pavimentacao",
@@ -1303,7 +1254,7 @@
         "reason": "objeto de engenharia aderente (pos=0.87)",
         "confidence": 0.8675,
         "textual_evidence": "Contratação de empresa especializada para a execução de pavimentação em concreto rígido, drenagem pluvial e sinalização viária da Rua Prefeito August Heinrich Purnhagen, localizada no Bairro Universitário, Taió/SC, com extensão de 865,00 metros",
-        "rule_version": "extra-sector-classifier/2.1.0",
+        "rule_version": "extra-sector-classifier/2.2.0",
         "sector_match": true
       },
       "segmento": "pavimentacao",
@@ -1353,7 +1304,7 @@
         "reason": "objeto de engenharia aderente (pos=0.76)",
         "confidence": 0.8400000000000001,
         "textual_evidence": "CONTRATAÇÃO DE PESSOA JURÍDICA PARA PRESTAÇÃO DE SERVIÇOS DE ENGENHARIA COM FORNECIMENTO DE MATERIAIS, EQUIPAMENTOS E MÃO DE OBRA PARA CONSTRUÇÃO DE PORTAL DE ENTRADA E REVITALIZAÇÃO DA RUA TRENTO, BAIRRO DIVINÉIA, NO MUNICÍPIO DE RIO DOS CEDROS/SC, EM CONFORMIDADE COM O PROJETO …",
-        "rule_version": "extra-sector-classifier/2.1.0",
+        "rule_version": "extra-sector-classifier/2.2.0",
         "sector_match": true
       },
       "segmento": "infraestrutura_urbana",
@@ -1402,7 +1353,7 @@
         "reason": "objeto de engenharia aderente (pos=0.40)",
         "confidence": 0.75,
         "textual_evidence": "Adequação e reforma do 7º pavimento do prédio sede para instalação de 2 (dois) gabinetes de desembargadores.",
-        "rule_version": "extra-sector-classifier/2.1.0",
+        "rule_version": "extra-sector-classifier/2.2.0",
         "sector_match": true
       },
       "segmento": "reformas",
@@ -1451,7 +1402,7 @@
         "reason": "objeto de engenharia aderente (pos=0.38)",
         "confidence": 0.745,
         "textual_evidence": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE REVITALIZAÇÃO DA ILUMINAÇÃO DA PONTE ENTRE A DIVISA DE SANTA CATARINA (CHAPECÓ) COM O RIO GRANDE DO SUL (NONOAI).",
-        "rule_version": "extra-sector-classifier/2.1.0",
+        "rule_version": "extra-sector-classifier/2.2.0",
         "sector_match": true
       },
       "segmento": "infraestrutura_urbana",
@@ -1500,7 +1451,7 @@
         "reason": "projeto de engenharia/arquitetura — review de capacidade/CAT",
         "confidence": 0.664,
         "textual_evidence": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA A ELABORAÇÃO DE PROJETO DE ENGENHARIA EM NÍVEL EXECUTIVO VISANDO A EXTENSÃO DE VIA ATÉ A PONTE SOBRE O RIO PIÇARRAS, BEM COMO PARA A REALIZAÇÃO DE ESTUDOS, PROGRAMAS, PLANOS E PROJETOS AMBIENTAIS, INCLUINDO COMPLEMENTAÇÕES E ACOMPANHAMENT…",
-        "rule_version": "extra-sector-classifier/2.1.0",
+        "rule_version": "extra-sector-classifier/2.2.0",
         "sector_match": true
       },
       "segmento": "projetos",
@@ -1549,7 +1500,7 @@
         "reason": "projeto de engenharia/arquitetura — review de capacidade/CAT",
         "confidence": 0.664,
         "textual_evidence": "Contratação de empresa especializada para elaboração de projetos técnicos necessários à reforma do salão do CTG – CENTRO DE TRADIÇOES GAÚCHAS - URUBICI contemplando: Projeto Preventivo contra Incêndio (PPCI), projeto hidrossanitário, projeto elétrico, projeto de gás, projeto de c…",
-        "rule_version": "extra-sector-classifier/2.1.0",
+        "rule_version": "extra-sector-classifier/2.2.0",
         "sector_match": true
       },
       "segmento": "projetos",
@@ -1598,7 +1549,7 @@
         "reason": "objeto de engenharia aderente (pos=0.45)",
         "confidence": 0.7625000000000001,
         "textual_evidence": "Contratação de empresa especializada para prestação de serviços de pavimentação de vias urbanas, localizadas junto ao Bairro São Miguel, localizadas nesta cidade de Fraiburgo/SC, conforme especificações deste Termo, Projetos, Memoriais Descritivos e Quantitativos (anexos ao PAL e…",
-        "rule_version": "extra-sector-classifier/2.1.0",
+        "rule_version": "extra-sector-classifier/2.2.0",
         "sector_match": true
       },
       "segmento": "pavimentacao",
@@ -1647,7 +1598,7 @@
         "reason": "objeto de engenharia aderente (pos=0.40)",
         "confidence": 0.75,
         "textual_evidence": "CONCORRÊNCIA ELETRÔNICA PARA CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA REALIZAR ASFALTAMENTO DAS RUAS PADRE ADALBERTO ORTHMANN, PADRE FRANZ E ALWIN WEINRICH, LOCALIZADAS NO CENTRO DO MUNICÍPIO DE PRESIDENTE GETÚLIO.",
-        "rule_version": "extra-sector-classifier/2.1.0",
+        "rule_version": "extra-sector-classifier/2.2.0",
         "sector_match": true
       },
       "segmento": "pavimentacao",
@@ -1696,7 +1647,7 @@
         "reason": "objeto de engenharia aderente (pos=0.45)",
         "confidence": 0.7625000000000001,
         "textual_evidence": "Pavimentação em pedras irregulares de basalto nas Ruas \"A\" Trecho II, \"B\" Trecho III e \"H\" no Bairro Nossa Senhora Aparecida.",
-        "rule_version": "extra-sector-classifier/2.1.0",
+        "rule_version": "extra-sector-classifier/2.2.0",
         "sector_match": true
       },
       "segmento": "pavimentacao",
@@ -1746,59 +1697,10 @@
         "reason": "objeto de engenharia aderente (pos=0.83)",
         "confidence": 0.8575,
         "textual_evidence": "Execução de serviços de engenharia para Manutenção Predial e Civil das edificações do município de Indaial e de seus fundos e fundações.",
-        "rule_version": "extra-sector-classifier/2.1.0",
+        "rule_version": "extra-sector-classifier/2.2.0",
         "sector_match": true
       },
       "segmento": "obras_civis",
-      "aderencia": "ENGINEERING_HIGH_CONFIDENCE"
-    },
-    {
-      "orgao": "Prefeitura Municipal de Trombudo Central - SC",
-      "objeto": "AQUISIÇÃO DE EQUIPAMENTO DE PINTURA E DEMARCAÇÃO VIÁRIA DO TIPO AIRLESS,  DESTINADO À APLICAÇÃO DE TINTA EM SINALIZAÇÃO HORIZONTAL, CONTEMPLANDO PINTURA DE MEIO-FIO, EIXO DE CENTRO (1 OU 2 FAIXAS), FAIXAS DE PEDESTRES E LOMBADAS, COM CAPACIDADE OPERACIONAL E ESPECIFICAÇÕES TÉCNICAS ADEQUADAS PARA ATENDER AOS PADRÕES DE SEGURANÇA VIÁRIA ESTABELECIDOS PELA LEGISLAÇÃO VIGENTE. O EQUIPAMENTO SERÁ UTILIZADO PELAS EQUIPES MUNICIPAIS NA EXECUÇÃO E MANUTENÇÃO DA SINALIZAÇÃO VIÁRIA DE RUAS E VIAS PÚBL...",
-      "contratado": "SD COMERCIAL EQUIPAMENTOS LTDA",
-      "contratado_cnpj": "44802526000160",
-      "valor": 34000.0,
-      "valor_semantica": "CONTRATADO",
-      "inicio": "2025-10-28",
-      "termino_efetivo": "2026-10-28",
-      "termino_tipo": "CONTRATUAL",
-      "termino_fonte": "pncp_supplier_contracts",
-      "termino_verificado_em": "2026-07-23",
-      "aditivos_aplicados": [],
-      "relicitacao": {
-        "mode": "EVIDENCE_CLASS",
-        "methodology": "sinais observáveis (histórico de re-licitação do órgão, objeto recorrente, aditivos próximos do fim); NÃO percentual fabricado",
-        "signals": [],
-        "probability_pct": null,
-        "confidence": "BAIXA",
-        "limitations": [
-          "Sem modelo validado retrospectivamente",
-          "Sinais não são probabilidade"
-        ],
-        "fabricated_percent_forbidden": true
-      },
-      "confianca": "BAIXA",
-      "limitacoes": [
-        "Sem modelo validado retrospectivamente",
-        "Sinais não são probabilidade"
-      ],
-      "in_window": true,
-      "sector_classification": {
-        "label": "ENGINEERING_HIGH_CONFIDENCE",
-        "positive_terms": [
-          "drenagem"
-        ],
-        "negative_terms": [],
-        "excluded_terms": [],
-        "category": "infraestrutura",
-        "subcategory": "drenagem",
-        "reason": "objeto de engenharia aderente (pos=0.42)",
-        "confidence": 0.755,
-        "textual_evidence": "AQUISIÇÃO DE EQUIPAMENTO DE PINTURA E DEMARCAÇÃO VIÁRIA DO TIPO AIRLESS,  DESTINADO À APLICAÇÃO DE TINTA EM SINALIZAÇÃO HORIZONTAL, CONTEMPLANDO PINTURA DE MEIO-FIO, EIXO DE CENTRO (1 OU 2 FAIXAS), FAIXAS DE PEDESTRES E LOMBADAS, COM CAPACIDADE OPERACIONAL E ESPECIFICAÇÕES TÉCNIC…",
-        "rule_version": "extra-sector-classifier/2.1.0",
-        "sector_match": true
-      },
-      "segmento": "drenagem",
       "aderencia": "ENGINEERING_HIGH_CONFIDENCE"
     },
     {
@@ -1844,59 +1746,10 @@
         "reason": "objeto de engenharia aderente (pos=0.45)",
         "confidence": 0.7625000000000001,
         "textual_evidence": "Contratação de empresa especializada para execução de pavimentação nos estacionamentos centrais do Município, com fornecimento de matérias e mão de obra, conforme descritos no projeto, memorial descritivo e termo de referência (Anexo “II”) do presente edital.",
-        "rule_version": "extra-sector-classifier/2.1.0",
+        "rule_version": "extra-sector-classifier/2.2.0",
         "sector_match": true
       },
       "segmento": "pavimentacao",
-      "aderencia": "ENGINEERING_HIGH_CONFIDENCE"
-    },
-    {
-      "orgao": "EMASA - Empresa Municipal de Água e Saneamento de Balneário Camboriú",
-      "objeto": "AQUISIÇÃO DE CONJUNTOS MOTOBOMBAS SUBMERSÍVEIS PARA SEREM UTILIZADOS NO SISTEMA DE ESGOTAMENTO SANITÁRIO, NO MUNICÍPIO DE BALNEÁRIO CAMBORIÚ/SC.",
-      "contratado": "SULZER PUMPS WASTEWATER BRASIL LTDA",
-      "contratado_cnpj": "77153260001365",
-      "valor": 6454000.0,
-      "valor_semantica": "CONTRATADO",
-      "inicio": "2025-08-29",
-      "termino_efetivo": "2026-10-29",
-      "termino_tipo": "CONTRATUAL",
-      "termino_fonte": "pncp_supplier_contracts",
-      "termino_verificado_em": "2026-07-23",
-      "aditivos_aplicados": [],
-      "relicitacao": {
-        "mode": "EVIDENCE_CLASS",
-        "methodology": "sinais observáveis (histórico de re-licitação do órgão, objeto recorrente, aditivos próximos do fim); NÃO percentual fabricado",
-        "signals": [],
-        "probability_pct": null,
-        "confidence": "BAIXA",
-        "limitations": [
-          "Sem modelo validado retrospectivamente",
-          "Sinais não são probabilidade"
-        ],
-        "fabricated_percent_forbidden": true
-      },
-      "confianca": "BAIXA",
-      "limitacoes": [
-        "Sem modelo validado retrospectivamente",
-        "Sinais não são probabilidade"
-      ],
-      "in_window": true,
-      "sector_classification": {
-        "label": "ENGINEERING_HIGH_CONFIDENCE",
-        "positive_terms": [
-          "esgoto_rede"
-        ],
-        "negative_terms": [],
-        "excluded_terms": [],
-        "category": "infraestrutura",
-        "subcategory": "saneamento",
-        "reason": "objeto de engenharia aderente (pos=0.38)",
-        "confidence": 0.745,
-        "textual_evidence": "AQUISIÇÃO DE CONJUNTOS MOTOBOMBAS SUBMERSÍVEIS PARA SEREM UTILIZADOS NO SISTEMA DE ESGOTAMENTO SANITÁRIO, NO MUNICÍPIO DE BALNEÁRIO CAMBORIÚ/SC.",
-        "rule_version": "extra-sector-classifier/2.1.0",
-        "sector_match": true
-      },
-      "segmento": "saneamento",
       "aderencia": "ENGINEERING_HIGH_CONFIDENCE"
     },
     {
@@ -1943,7 +1796,7 @@
         "reason": "objeto de engenharia aderente (pos=0.85)",
         "confidence": 0.8625,
         "textual_evidence": "Contratação de empresa para execução de projeto de construção da obra de pavimentação asfáltica e drenagem da Estrada Geral Fazenda de Dentro (Rua Manoel Mendes), Localidade de Fazenda de Dentro,Biguaçu/SC",
-        "rule_version": "extra-sector-classifier/2.1.0",
+        "rule_version": "extra-sector-classifier/2.2.0",
         "sector_match": true
       },
       "segmento": "pavimentacao",
@@ -1993,11 +1846,159 @@
         "reason": "objeto de engenharia aderente (pos=0.85)",
         "confidence": 0.8625,
         "textual_evidence": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE RECUPERAÇÃO DE PAVIMENTAÇÃO ASFÁLTICA NA RUA AUGUSTO KUCHLER.",
-        "rule_version": "extra-sector-classifier/2.1.0",
+        "rule_version": "extra-sector-classifier/2.2.0",
         "sector_match": true
       },
       "segmento": "pavimentacao",
       "aderencia": "ENGINEERING_HIGH_CONFIDENCE"
+    },
+    {
+      "orgao": "Secretaria de Administração",
+      "objeto": "Contratação de empresa especializada para execução de pavimentação em Piso Intertravado, localizado Rua Emilio Figueiredo, no bairro Itinga no município de Araquari incluindo Drenagem Pluvial e Sinalização, com fornecimento de todos os materiais necessários a execução da obra",
+      "contratado": "BELGA CONSTRUCOES LTDA",
+      "contratado_cnpj": "81537672000132",
+      "valor": 370000.0,
+      "valor_semantica": "CONTRATADO",
+      "inicio": "2024-10-29",
+      "termino_efetivo": "2026-10-29",
+      "termino_tipo": "CONTRATUAL",
+      "termino_fonte": "pncp_supplier_contracts",
+      "termino_verificado_em": "2026-07-22",
+      "aditivos_aplicados": [],
+      "relicitacao": {
+        "mode": "EVIDENCE_CLASS",
+        "methodology": "sinais observáveis (histórico de re-licitação do órgão, objeto recorrente, aditivos próximos do fim); NÃO percentual fabricado",
+        "signals": [],
+        "probability_pct": null,
+        "confidence": "BAIXA",
+        "limitations": [
+          "Sem modelo validado retrospectivamente",
+          "Sinais não são probabilidade"
+        ],
+        "fabricated_percent_forbidden": true
+      },
+      "confianca": "BAIXA",
+      "limitacoes": [
+        "Sem modelo validado retrospectivamente",
+        "Sinais não são probabilidade"
+      ],
+      "in_window": true,
+      "sector_classification": {
+        "label": "ENGINEERING_HIGH_CONFIDENCE",
+        "positive_terms": [
+          "pavimentacao",
+          "drenagem"
+        ],
+        "negative_terms": [],
+        "excluded_terms": [],
+        "category": "infraestrutura",
+        "subcategory": "pavimentacao",
+        "reason": "objeto de engenharia aderente (pos=0.87)",
+        "confidence": 0.8675,
+        "textual_evidence": "Contratação de empresa especializada para execução de pavimentação em Piso Intertravado, localizado Rua Emilio Figueiredo, no bairro Itinga no município de Araquari incluindo Drenagem Pluvial e Sinalização, com fornecimento de todos os materiais necessários a execução da obra",
+        "rule_version": "extra-sector-classifier/2.2.0",
+        "sector_match": true
+      },
+      "segmento": "pavimentacao",
+      "aderencia": "ENGINEERING_HIGH_CONFIDENCE"
+    },
+    {
+      "orgao": "Departamento de Urbanismo",
+      "objeto": "Contratação de empresa especializada em serviços de engenharia necessários à execução de pavimentação rural poliédrica na EMNI 003 e EMNI 023 - Linha Bela Vista da Taquara, processo SCC 00005510/2025.",
+      "contratado": "MAGUI TRANSPORTES LTDA",
+      "contratado_cnpj": "06865712000150",
+      "valor": 358000.12,
+      "valor_semantica": "CONTRATADO",
+      "inicio": "2025-10-29",
+      "termino_efetivo": "2026-10-29",
+      "termino_tipo": "CONTRATUAL",
+      "termino_fonte": "pncp_supplier_contracts",
+      "termino_verificado_em": "2026-07-23",
+      "aditivos_aplicados": [],
+      "relicitacao": {
+        "mode": "EVIDENCE_CLASS",
+        "methodology": "sinais observáveis (histórico de re-licitação do órgão, objeto recorrente, aditivos próximos do fim); NÃO percentual fabricado",
+        "signals": [],
+        "probability_pct": null,
+        "confidence": "BAIXA",
+        "limitations": [
+          "Sem modelo validado retrospectivamente",
+          "Sinais não são probabilidade"
+        ],
+        "fabricated_percent_forbidden": true
+      },
+      "confianca": "BAIXA",
+      "limitacoes": [
+        "Sem modelo validado retrospectivamente",
+        "Sinais não são probabilidade"
+      ],
+      "in_window": true,
+      "sector_classification": {
+        "label": "ENGINEERING_HIGH_CONFIDENCE",
+        "positive_terms": [
+          "pavimentacao"
+        ],
+        "negative_terms": [],
+        "excluded_terms": [],
+        "category": "infraestrutura",
+        "subcategory": "pavimentacao",
+        "reason": "objeto de engenharia aderente (pos=0.45)",
+        "confidence": 0.7625000000000001,
+        "textual_evidence": "Contratação de empresa especializada em serviços de engenharia necessários à execução de pavimentação rural poliédrica na EMNI 003 e EMNI 023 - Linha Bela Vista da Taquara, processo SCC 00005510/2025.",
+        "rule_version": "extra-sector-classifier/2.2.0",
+        "sector_match": true
+      },
+      "segmento": "pavimentacao",
+      "aderencia": "ENGINEERING_HIGH_CONFIDENCE"
+    },
+    {
+      "orgao": "FUNDAÇÃO HOSPITALAR DR JOSÉ ATHANAZIO",
+      "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE ADEQUAÇÃO DA INFRAESTRUTURA ELÉTRICA E SUBSTITUIÇÃO DO PADRÃO ELÉTRICO DE ENTRADA ATUAL   - SUBESTAÇÃO 300 KVA DA FUNDAÇÃO HOSPITALAR DR. JOSÉ ATHANÁZIO, COM FORNECIMENTO DE MÃO DE OBRA E MATERIAIS, CONFORME PROJETO BÁSICO",
+      "contratado": "LUMINORTE INSTALACAO, MANUTENCAO E COMERCIO DE MATERIAIS ELETRICOS LTDA",
+      "contratado_cnpj": "40627004000119",
+      "valor": 242900.0,
+      "valor_semantica": "CONTRATADO",
+      "inicio": "2025-10-29",
+      "termino_efetivo": "2026-10-29",
+      "termino_tipo": "CONTRATUAL",
+      "termino_fonte": "pncp_supplier_contracts",
+      "termino_verificado_em": "2026-07-23",
+      "aditivos_aplicados": [],
+      "relicitacao": {
+        "mode": "EVIDENCE_CLASS",
+        "methodology": "sinais observáveis (histórico de re-licitação do órgão, objeto recorrente, aditivos próximos do fim); NÃO percentual fabricado",
+        "signals": [],
+        "probability_pct": null,
+        "confidence": "BAIXA",
+        "limitations": [
+          "Sem modelo validado retrospectivamente",
+          "Sinais não são probabilidade"
+        ],
+        "fabricated_percent_forbidden": true
+      },
+      "confianca": "BAIXA",
+      "limitacoes": [
+        "Sem modelo validado retrospectivamente",
+        "Sinais não são probabilidade"
+      ],
+      "in_window": true,
+      "sector_classification": {
+        "label": "ENGINEERING_REVIEW",
+        "positive_terms": [
+          "projeto_engenharia"
+        ],
+        "negative_terms": [],
+        "excluded_terms": [],
+        "category": "projetos_engenharia",
+        "subcategory": "projetos",
+        "reason": "projeto de engenharia/arquitetura — review de capacidade/CAT",
+        "confidence": 0.664,
+        "textual_evidence": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE ADEQUAÇÃO DA INFRAESTRUTURA ELÉTRICA E SUBSTITUIÇÃO DO PADRÃO ELÉTRICO DE ENTRADA ATUAL   - SUBESTAÇÃO 300 KVA DA FUNDAÇÃO HOSPITALAR DR. JOSÉ ATHANÁZIO, COM FORNECIMENTO DE MÃO DE OBRA E MATERIAIS, CONFORME PROJETO BÁSICO",
+        "rule_version": "extra-sector-classifier/2.2.0",
+        "sector_match": true
+      },
+      "segmento": "projetos",
+      "aderencia": "ENGINEERING_REVIEW"
     }
   ],
   "excluded_no_vigencia": 0,
@@ -2021,15 +2022,15 @@
     "Include non-engineering expiring contracts (health, fuel, courses, etc.)",
     "Invent probability percentage without model"
   ],
-  "generated_at": "2026-07-25T03:29:59Z",
-  "excluded_non_engineering": 14049,
+  "generated_at": "2026-07-25T03:39:35Z",
+  "excluded_non_engineering": 14070,
   "export_limit": 40,
   "export_is_not_universe": true,
-  "window_hits_total": 693,
+  "window_hits_total": 672,
   "window_hits_raw_before_sector": 14742,
   "success_zero": {
     "success_zero": false,
-    "n": 693,
+    "n": 672,
     "query_complete": true
   },
   "population": {
@@ -2044,16 +2045,16 @@
     "contracts_with_data_fim_scanned": 1179228,
     "window_start": "2026-10-23",
     "window_end": "2027-01-21",
-    "window_hits_total": 693,
-    "excluded_non_engineering": 14049,
+    "window_hits_total": 672,
+    "excluded_non_engineering": 14070,
     "query_complete": true,
     "export_is_not_universe": true,
     "sector_filter": "ENGINEERING_HIGH_CONFIDENCE|ENGINEERING_REVIEW",
     "no_invented_probability_pct": true
   },
-  "query_seconds": 7.049,
-  "run_id": "live-pack-20260725-032739-85524edc",
+  "query_seconds": 6.842,
+  "run_id": "live-pack-20260725-033723-8b07813e",
   "as_of": "2026-07-25",
-  "git_sha": "7706783a722d7b0a1469aa73b2d2a402b10117ae",
+  "git_sha": "c3b2495fc7c6ebc40e85f1a118e619a9ab4ef202",
   "schema_version": "coverage-2.4_entity_coverage_rebuild"
 }

@@ -18,7 +18,7 @@ from typing import Any
 
 import yaml
 
-RULE_VERSION = "extra-sector-classifier/2.1.0"
+RULE_VERSION = "extra-sector-classifier/2.2.0"
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_PROFILE_PATH = PROJECT_ROOT / "config/client_profiles/extra.yaml"
 
@@ -91,7 +91,10 @@ class SectorClassification:
 _FALLBACK_POSITIVE: list[tuple[str, str, str, float]] = [
     ("pavimentacao", r"\bpavimenta(c|ç)|\bpavimentacao\b|\bpavimentacao\s+asfalt|\brecapeamento\b|\bcapeamento\s+asfalt", "pavimentacao", 0.45),
     ("asfalto", r"\basfalt|\bcbu\b|\bcapeamento\b", "pavimentacao", 0.4),
-    ("drenagem", r"\bdrenagem\s+(urbana|pluvial|de\s+aguas|viaria)|\bgaleria\s+pluvial\b|\bsarjeta\b|\bmeio[- ]fio\b", "drenagem", 0.42),
+    # meio-fio/sarjeta só contam com contexto de obra/drenagem (não sozinhas em compra de equipamento)
+    ("drenagem", r"\bdrenagem\s+(urbana|pluvial|de\s+aguas|viaria)|\bgaleria\s+pluvial\b|"
+     r"\b(execucao|implantacao|obra).{0,40}\b(sarjeta|meio[- ]fio)\b|"
+     r"\b(sarjeta|meio[- ]fio).{0,40}\b(drenagem|pavimentacao|via)\b", "drenagem", 0.42),
     ("terraplenagem", r"\bterraplenagem\b|\bterraplanagem\b", "terraplenagem", 0.45),
     ("saneamento", r"\bsaneamento\s+(basico|ambiental|urbano)\b|\brede\s+de\s+esgoto\b|\badutora?\b|\brede\s+coletora\b|\bestacao\s+de\s+tratamento\b", "saneamento", 0.4),
     ("esgoto_rede", r"\brede\s+(de\s+)?esgoto\b|\besgotamento\s+sanitario\b|\bcoleta\s+de\s+esgoto\b", "saneamento", 0.38),
@@ -131,7 +134,11 @@ _FALLBACK_NEGATIVE: list[tuple[str, str, float]] = [
     ("combustivel", r"\bcombustivel\b|\bgasolina\b|\bdiesel\b|\betanol\s+combust", 0.5),
     ("cursos", r"\bcurso[s]?\s+(para|de)\b|\bcapacita[cç][aã]o\b|\btreinamento\b|\bprofessores?\b", 0.45),
     ("eventos_culturais", r"\boficina\s+de\s+karate\b|\bkarate\b|\bevento\s+cultural\b|\boficina\s+cultural\b", 0.5),
-    ("bancario", r"\barrecadacao\s+bancaria\b|\bservicos?\s+bancarios?\b|\btarifa\s+bancaria\b", 0.5),
+    ("bancario", r"\barrecadacao\s+(bancaria|de\s+faturas|de\s+tributos)\b|\bservicos?\s+bancarios?\b|"
+     r"\btarifa\s+bancaria\b|\binstituicoes?\s+financeiras?\b|\bbanco\s+central\b|"
+     r"\bcredenciamento\s+de\s+instituicoes?\s+financeiras?\b|\boperar\s+pelo\s+banco\b", 0.75),
+    ("equipamento_puro", r"\baquisicao\s+de\s+(equipamentos?|conjuntos?\s+motobomb\w*|motobomb\w*|"
+     r"airless|maquinas?|maquinario|veiculo)\b|\bfornecimento\s+de\s+equipamento\b", 0.65),
     ("equip_hospitalar", r"\bequipamento[s]?\s+hospitalar|\bmateriais?\s+medico.?hospitalar", 0.5),
     ("software", r"\bmanuten[cç][aã]o\s+de\s+software\b|\blicenca\s+de\s+uso\b|\bsistema\s+informat|\bsoftware\b|\bnuvem\b|\bcloud\b", 0.55),
     ("construcao_conhecimento", r"\bconstrucao\s+de\s+conhecimento\b|\bconstrucao\s+coletiva\s+de\s+saberes\b", 0.6),
@@ -160,6 +167,7 @@ _VETO_NEGATIVE_IDS = frozenset({
     "construcao_conhecimento",
     "bancario",
     "assessoria_juridica",
+    "equipamento_puro",
 })
 
 _FALLBACK_EXCLUSION: list[tuple[str, str]] = [
@@ -358,6 +366,25 @@ def classify_object(
             r"\bgrama\s+sintetica\b|\bgramado\s+sintetico\b|\bfifa\b",
             "grama_esporte",
             "grama sintética/esporte — não é infraestrutura de engenharia da Extra",
+        ),
+        (
+            r"\b(instituicoes?\s+financeiras?|arrecadacao\s+de\s+faturas|banco\s+central|"
+            r"credenciamento\s+de\s+instituicoes?\s+financeiras?|operar\s+pelo\s+banco|"
+            r"arrecadacao\s+bancaria)\b",
+            "servico_bancario",
+            "serviço/credenciamento bancário ou arrecadação — não é obra de engenharia",
+        ),
+        (
+            r"\baquisicao\s+de\s+(equipamentos?|conjuntos?\s+motobomb\w*|motobomb\w*|"
+            r"airless|maquinas?|maquinario)"
+            r"(?!.*\b(execucao\s+de\s+obra|empreitada)\b)",
+            "aquisicao_equipamento",
+            "aquisição de equipamento sem execução de obra — fora do perfil empreiteira",
+        ),
+        (
+            r"\bpintura\s+e\s+demarcacao\s+viaria\b|\bequipamento\s+de\s+pintura\b|\bairless\b",
+            "sinalizacao_pintura_equip",
+            "equipamento/serviço de pintura e demarcação viária — não é obra civil Extra",
         ),
     ]
     for pat, tid, reason in _FALSE_FRIENDS:

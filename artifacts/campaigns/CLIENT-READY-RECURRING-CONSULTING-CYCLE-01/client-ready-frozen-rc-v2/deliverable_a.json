@@ -212,12 +212,12 @@
       "orgao": "Serviço Municipal de Água Saneamento Básico e Infraestrutura - SEMASA",
       "orgao_cnpj": "05472936000139",
       "uf": "SC",
-      "qtd_contratacoes": 47,
-      "valor_total": 34564663.05,
+      "qtd_contratacoes": 40,
+      "valor_total": 29626854.05,
       "valor_semantica": "CONTRATADO",
-      "ticket_medio": 735418.36,
+      "ticket_medio": 740671.35,
       "ticket_medio_formula": "valor_total / qtd_contratacoes (same semantic as valor_total)",
-      "frequencia_temporal": "47 eventos no período (2023-07-20..2026-07-23)",
+      "frequencia_temporal": "40 eventos no período (2023-07-20..2026-07-23)",
       "modalidades": {},
       "periodo_inicio": "2023-07-20",
       "periodo_fim": "2026-07-23",
@@ -236,10 +236,10 @@
       "metric_basis": "engineering_reclassified_samples",
       "sample_objetos": [
         "Aquisição de eletrodo PH/temp Intellical cabo 1m (marca Hach) para laboratório de qualidade da Estação de Tratamento de Água (ETA) do Serviço Municipal de Água, Saneamento Básico e Infraestrutura – SE",
-        "Aquisição de equipamentos para desinfecção e fluoretação de águas para uso em poços do Serviço Municipal de Água, Saneamento Básico e Infraestrutura – SEMASA – de Itajaí/SC. Processo de origem: 2025-E",
-        "Aquisição de insumos, reagentes, vidrarias e materiais para análises nos laboratórios da Estação de Tratamento de Esgoto Cidade Nova e da Estação de Tratamento de Água São Roque do SEMASA - Itajaí/SC."
+        "Aquisição de insumos, reagentes, vidrarias e materiais para análises nos laboratórios da Estação de Tratamento de Esgoto Cidade Nova e da Estação de Tratamento de Água São Roque do SEMASA - Itajaí/SC.",
+        "Aquisição de KIT de Materiais e Montagem para Sistema de Soprador das Estações de Tratamento de Água (ETA’s) São Roque I e II do Serviço Municipal de Água, Saneamento Básico e Infraestrutura - SEMASA."
       ],
-      "sample_engineering_ratio": 0.583,
+      "sample_engineering_ratio": 0.5,
       "raw_prefilter_qtd": 80
     },
     {
@@ -821,44 +821,6 @@
     },
     {
       "rank": 23,
-      "orgao": "PREFEITURA MUNICIPAL DE MELEIRO - SC",
-      "orgao_cnpj": "82837741000196",
-      "uf": "SC",
-      "qtd_contratacoes": 20,
-      "valor_total": 6093831.66,
-      "valor_semantica": "CONTRATADO",
-      "ticket_medio": 304691.58,
-      "ticket_medio_formula": "valor_total / qtd_contratacoes (same semantic as valor_total)",
-      "frequencia_temporal": "20 eventos no período (2023-07-20..2026-07-23)",
-      "modalidades": {},
-      "periodo_inicio": "2023-07-20",
-      "periodo_fim": "2026-07-23",
-      "fontes": [
-        "pncp_supplier_contracts",
-        "isolated_snapshot",
-        "engineering_reclassified"
-      ],
-      "consultado": true,
-      "resultado_zero": false,
-      "data_quality_score": 0.85,
-      "data_quality_limitation": "data_quality_score=0.85 < 1.0 — ranking may over-represent entes with richer source data; not a pure market measure",
-      "tipos_obra": [
-        "infraestrutura_urbana",
-        "obras_civis",
-        "pavimentacao",
-        "terraplenagem"
-      ],
-      "metric_basis": "engineering_reclassified_samples",
-      "sample_objetos": [
-        "Aquisição de equipamentos (motores elétricos, componentes e ferragens) incluindo a prestação de serviços para a instalação e religação dos motores da Usina de Pavimentação Asfáltica do município de Me",
-        "Aquisição de materiais e mão de obra para a execução de serviços de instalação de pavimentação em paver e meio-fio, visando a modernização e melhoria das condições da Central Municipal de Segurança Pú",
-        "Contratação de caminhão caçamba (14 m³) para o transporte de materiais com finalidade de aplicação nas estradas vicinais visando à preparação para a execução de pavimentação asfáltica, conforme determ"
-      ],
-      "sample_engineering_ratio": 0.5,
-      "raw_prefilter_qtd": 39
-    },
-    {
-      "rank": 24,
       "orgao": "Secretário de Infraestrutura",
       "orgao_cnpj": "83102574000106",
       "uf": "SC",
@@ -893,7 +855,7 @@
       "raw_prefilter_qtd": 38
     },
     {
-      "rank": 25,
+      "rank": 24,
       "orgao": "PREFEITURA MUNICIPAL DE XAXIM - SC",
       "orgao_cnpj": "82854670000130",
       "uf": "SC",
@@ -929,7 +891,7 @@
       "raw_prefilter_qtd": 36
     },
     {
-      "rank": 26,
+      "rank": 25,
       "orgao": "PREFEITURA MUNICIPAL DE NOVA TRENTO",
       "orgao_cnpj": "82925025000160",
       "uf": "SC",
@@ -965,7 +927,7 @@
       "raw_prefilter_qtd": 35
     },
     {
-      "rank": 27,
+      "rank": 26,
       "orgao": "PREFEITURA MUNICIPAL DE TREZE DE MAIO - SC",
       "orgao_cnpj": "82928672000126",
       "uf": "SC",
@@ -1002,7 +964,7 @@
       "raw_prefilter_qtd": 35
     },
     {
-      "rank": 28,
+      "rank": 27,
       "orgao": "SECRETARIA DE OBRAS E TRANSPORTES",
       "orgao_cnpj": "82915232000134",
       "uf": "SC",
@@ -1037,43 +999,7 @@
       "raw_prefilter_qtd": 34
     },
     {
-      "rank": 29,
-      "orgao": "Secretaria de Administração",
-      "orgao_cnpj": "83102228000110",
-      "uf": "SC",
-      "qtd_contratacoes": 26,
-      "valor_total": 10253157.38,
-      "valor_semantica": "CONTRATADO",
-      "ticket_medio": 394352.21,
-      "ticket_medio_formula": "valor_total / qtd_contratacoes (same semantic as valor_total)",
-      "frequencia_temporal": "26 eventos no período (2023-07-20..2026-07-23)",
-      "modalidades": {},
-      "periodo_inicio": "2023-07-20",
-      "periodo_fim": "2026-07-23",
-      "fontes": [
-        "pncp_supplier_contracts",
-        "isolated_snapshot",
-        "engineering_reclassified"
-      ],
-      "consultado": true,
-      "resultado_zero": false,
-      "data_quality_score": 0.85,
-      "data_quality_limitation": "data_quality_score=0.85 < 1.0 — ranking may over-represent entes with richer source data; not a pure market measure",
-      "tipos_obra": [
-        "infraestrutura_urbana",
-        "pavimentacao"
-      ],
-      "metric_basis": "engineering_reclassified_samples",
-      "sample_objetos": [
-        "Aquisição de equipamentos para uso no serviço da Secretaria de Infraestrutura Urbana.",
-        "Aquisição de maquinário para oficina da secretaria de infraestrutura urbana.",
-        "Aquisição de maquinário para uso da oficina da Secretaria de Infraestrutura Urbana."
-      ],
-      "sample_engineering_ratio": 0.75,
-      "raw_prefilter_qtd": 34
-    },
-    {
-      "rank": 30,
+      "rank": 28,
       "orgao": "MOBILIDADE URBANA",
       "orgao_cnpj": "86051398000100",
       "uf": "SC",
@@ -1108,7 +1034,7 @@
       "raw_prefilter_qtd": 33
     },
     {
-      "rank": 31,
+      "rank": 29,
       "orgao": "PREFEITURA MUNICIPAL DE PALMITOS - SC",
       "orgao_cnpj": "85361863000147",
       "uf": "SC",
@@ -1145,7 +1071,7 @@
       "raw_prefilter_qtd": 32
     },
     {
-      "rank": 32,
+      "rank": 30,
       "orgao": "MUNICÍPIO DE SANTO AMARO DA IMPERATRIZ",
       "orgao_cnpj": "82892324000146",
       "uf": "SC",
@@ -1181,7 +1107,7 @@
       "raw_prefilter_qtd": 31
     },
     {
-      "rank": 33,
+      "rank": 31,
       "orgao": "SECRETARIA MUNICIPAL DE INFRA ESTRUTURA",
       "orgao_cnpj": "82926569000147",
       "uf": "SC",
@@ -1216,7 +1142,7 @@
       "raw_prefilter_qtd": 31
     },
     {
-      "rank": 34,
+      "rank": 32,
       "orgao": "Departamento de Obras Públicas",
       "orgao_cnpj": "81140303000101",
       "uf": "SC",
@@ -1251,7 +1177,7 @@
       "raw_prefilter_qtd": 30
     },
     {
-      "rank": 35,
+      "rank": 33,
       "orgao": "PREFEITURA MUNICIPAL DE CORDILHEIRA ALTA - SC",
       "orgao_cnpj": "95990198000104",
       "uf": "SC",
@@ -1288,7 +1214,7 @@
       "raw_prefilter_qtd": 29
     },
     {
-      "rank": 36,
+      "rank": 34,
       "orgao": "Prefeitura de Gaspar - SC",
       "orgao_cnpj": "83102244000102",
       "uf": "SC",
@@ -1323,7 +1249,7 @@
       "raw_prefilter_qtd": 28
     },
     {
-      "rank": 37,
+      "rank": 35,
       "orgao": "SECRETARIA MUNICIPAL DE OBRAS E PLANEJAMENTO",
       "orgao_cnpj": "83102319000155",
       "uf": "SC",
@@ -1360,7 +1286,7 @@
       "raw_prefilter_qtd": 28
     },
     {
-      "rank": 38,
+      "rank": 36,
       "orgao": "MUNICÍPIO DE ORLEANS",
       "orgao_cnpj": "82926544000143",
       "uf": "SC",
@@ -1397,7 +1323,7 @@
       "raw_prefilter_qtd": 28
     },
     {
-      "rank": 39,
+      "rank": 37,
       "orgao": "Departamento de Urbanismo",
       "orgao_cnpj": "83102640000130",
       "uf": "SC",
@@ -1432,7 +1358,7 @@
       "raw_prefilter_qtd": 28
     },
     {
-      "rank": 40,
+      "rank": 38,
       "orgao": "Câmara de Vereadores de Balneário Camboriú",
       "orgao_cnpj": "83551549000100",
       "uf": "SC",
@@ -1466,6 +1392,79 @@
       ],
       "sample_engineering_ratio": 0.545,
       "raw_prefilter_qtd": 28
+    },
+    {
+      "rank": 39,
+      "orgao": "PREFEITURA MUNICIPAL DE HERVAL D´OESTE - SC",
+      "orgao_cnpj": "82939430000138",
+      "uf": "SC",
+      "qtd_contratacoes": 22,
+      "valor_total": 21086567.78,
+      "valor_semantica": "CONTRATADO",
+      "ticket_medio": 958480.35,
+      "ticket_medio_formula": "valor_total / qtd_contratacoes (same semantic as valor_total)",
+      "frequencia_temporal": "22 eventos no período (2023-07-20..2026-07-23)",
+      "modalidades": {},
+      "periodo_inicio": "2023-07-20",
+      "periodo_fim": "2026-07-23",
+      "fontes": [
+        "pncp_supplier_contracts",
+        "isolated_snapshot",
+        "engineering_reclassified"
+      ],
+      "consultado": true,
+      "resultado_zero": false,
+      "data_quality_score": 0.85,
+      "data_quality_limitation": "data_quality_score=0.85 < 1.0 — ranking may over-represent entes with richer source data; not a pure market measure",
+      "tipos_obra": [
+        "infraestrutura_urbana",
+        "pavimentacao"
+      ],
+      "metric_basis": "engineering_reclassified_samples",
+      "sample_objetos": [
+        "Aquisição de Trator de Esteiras para as atividades de manutenção junto à infraestrutura urbana e rural, através da Secretaria de Obras, Urbanismo e Serviços Públicos",
+        "Contratação de empresa  especializada  para  a execução de revitalização da Praça Engenheiro Daniel Olímpio da Rocha, conforme projetos, memoriais e  demais  elementos técnicos,   com recursos proveni",
+        "Contratação de Empresa Especializada para Execução da \"Pavimentação em C.A.U.Q\" da Rua Santa Catarina (Etapa 2)”, localizada no Centro de Herval d´ Oeste, contemplando 11.589,00 m² de área de paviment"
+      ],
+      "sample_engineering_ratio": 0.833,
+      "raw_prefilter_qtd": 27
+    },
+    {
+      "rank": 40,
+      "orgao": "MUNICÍPIO DE LAURO MULLER",
+      "orgao_cnpj": "82558909000124",
+      "uf": "SC",
+      "qtd_contratacoes": 13,
+      "valor_total": 8786664.76,
+      "valor_semantica": "CONTRATADO",
+      "ticket_medio": 675897.29,
+      "ticket_medio_formula": "valor_total / qtd_contratacoes (same semantic as valor_total)",
+      "frequencia_temporal": "13 eventos no período (2023-07-20..2026-07-23)",
+      "modalidades": {},
+      "periodo_inicio": "2023-07-20",
+      "periodo_fim": "2026-07-23",
+      "fontes": [
+        "pncp_supplier_contracts",
+        "isolated_snapshot",
+        "engineering_reclassified"
+      ],
+      "consultado": true,
+      "resultado_zero": false,
+      "data_quality_score": 0.85,
+      "data_quality_limitation": "data_quality_score=0.85 < 1.0 — ranking may over-represent entes with richer source data; not a pure market measure",
+      "tipos_obra": [
+        "obras_civis",
+        "pavimentacao",
+        "terraplenagem"
+      ],
+      "metric_basis": "engineering_reclassified_samples",
+      "sample_objetos": [
+        "Contratação de empresa do ramo pertinente para execução das obras de “da Pavimentação Asfáltica e serviços correlatos previstos na planilha orçamentária e demais documentações técnicas afins, da Rua P",
+        "Contratação de empresa do ramo pertinente para execução das obras de “Terraplenagem, Pavimentação em Lajotas de Concreto e Drenagem Pluvial da Rua Paulo Balduino Lima com extensão total de 296,15 m”, ",
+        "Contratação de empresa especializada em serviços de engenharia para execução de Manutenção Predial, contemplando os serviços de Manutenção Elétrica, Civil, Hidráulica e do Sistema Preventivo Contra In"
+      ],
+      "sample_engineering_ratio": 0.5,
+      "raw_prefilter_qtd": 26
     }
   ],
   "zero_vs_not_consulted": {
@@ -1491,7 +1490,7 @@
     "Treat export_limit rows as statistical universe",
     "Call valor_total a unit price or valor pago"
   ],
-  "generated_at": "2026-07-25T03:28:28Z",
+  "generated_at": "2026-07-25T03:38:09Z",
   "population": {
     "eligible_population": 1179237,
     "active_contracts": 1179237,
@@ -1531,10 +1530,10 @@
       "sarjeta"
     ]
   },
-  "query_seconds": 48.094,
+  "query_seconds": 45.316,
   "valor_semantica": "CONTRATADO",
-  "run_id": "live-pack-20260725-032739-85524edc",
+  "run_id": "live-pack-20260725-033723-8b07813e",
   "as_of": "2026-07-25",
-  "git_sha": "7706783a722d7b0a1469aa73b2d2a402b10117ae",
+  "git_sha": "c3b2495fc7c6ebc40e85f1a118e619a9ab4ef202",
   "schema_version": "coverage-2.4_entity_coverage_rebuild"
 }

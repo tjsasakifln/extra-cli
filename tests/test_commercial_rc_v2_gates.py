@@ -35,14 +35,28 @@ def test_deliverable_c_only_engineering() -> None:
     if not (PACK / "deliverable_c.json").is_file():
         return
     c = json.loads((PACK / "deliverable_c.json").read_text(encoding="utf-8"))
+    banned_substr = (
+        "institui",
+        "arrecada",
+        "banco central",
+        "airless",
+        "motobomb",
+        "equipamento de pintura",
+        "castra",
+        "karate",
+        "combustivel",
+        "gasolina",
+    )
     for row in c.get("rows") or []:
         obj = str(row.get("objeto") or "")
         assert obj.strip(), "empty object in C"
+        low = obj.lower()
+        for ban in banned_substr:
+            assert ban not in low, f"C banned topic '{ban}': {obj[:120]}"
         clf = classify_object(obj)
         assert clf.label in E_OK, f"C FP: {clf.label} | {obj[:100]}"
         assert "probabilidade_pct" not in row
         assert "probability_pct" not in row
-        # stored classification must agree with live classifier
         stored = (row.get("sector_classification") or {}).get("label")
         assert stored in E_OK
         assert stored is not None
@@ -139,5 +153,8 @@ def test_classifier_rejects_v1_polluters() -> None:
         "LIMPEZA E JARDINAGEM EM AREAS PAVIMENTADAS",
         "GRAMA SINTETICA FIFA COM DRENAGEM",
         "SANEAMENTO DE INCONFORMIDADES LEGAIS",
+        "CREDENCIAMENTO DE INSTITUIÇÕES FINANCEIRAS PARA ARRECADAÇÃO DE FATURAS DE ESGOTAMENTO SANITÁRIO",
+        "AQUISIÇÃO DE EQUIPAMENTO DE PINTURA AIRLESS PARA MEIO-FIO",
+        "AQUISIÇÃO DE CONJUNTOS MOTOBOMBAS SUBMERSÍVEIS PARA ESGOTAMENTO SANITÁRIO",
     ):
         assert not is_engineering_for_e(classify_object(obj)), obj
