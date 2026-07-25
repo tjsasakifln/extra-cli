@@ -46,7 +46,8 @@ def retrieval_metrics(
     cand_ids = {c.record.canonical_id for c in candidates}
     retrieved_pos = gold_positive_ids & cand_ids
     n_pos = len(gold_positive_ids)
-    recall = len(retrieved_pos) / n_pos if n_pos else 0.0
+    # Absence of positives is not zero recall — report null for operational honesty
+    recall = (len(retrieved_pos) / n_pos) if n_pos else None
 
     by_channel: dict[str, set[str]] = defaultdict(set)
     for c in candidates:
@@ -54,7 +55,7 @@ def retrieval_metrics(
             by_channel[ch].add(c.record.canonical_id)
 
     recall_by_channel = {
-        ch: (len(ids & gold_positive_ids) / n_pos if n_pos else 0.0)
+        ch: (len(ids & gold_positive_ids) / n_pos if n_pos else None)
         for ch, ids in by_channel.items()
     }
 
@@ -77,7 +78,9 @@ def retrieval_metrics(
 
     return {
         "retrieval_recall": recall,
-        "retrieval_recall_lower_95": binomial_ci_lower_one_sided(len(retrieved_pos), n_pos),
+        "retrieval_recall_lower_95": (
+            binomial_ci_lower_one_sided(len(retrieved_pos), n_pos) if n_pos else None
+        ),
         "n_gold_positives": n_pos,
         "n_retrieved_positives": len(retrieved_pos),
         "missed_positive_ids": sorted(gold_positive_ids - cand_ids),
@@ -128,7 +131,8 @@ def decision_metrics(
                 critical_fn += 1
 
     n_pos = len(pos_ids)
-    safe_recall = preserved / n_pos if n_pos else 0.0
+    # Null when no positives — do not treat absence as 0.0 or 1.0 performance
+    safe_recall = (preserved / n_pos) if n_pos else None
 
     match_ids = [l.canonical_id for l in lineages if l.commercial_decision == "MATCH"]
     all_match_count = len(match_ids)
@@ -219,14 +223,16 @@ def decision_metrics(
 
     precision_lower = (
         binomial_ci_lower_one_sided(tp_all, all_match_count)
-        if all_match_count
-        else 0.0
+        if all_match_count and n_pos
+        else None
     )
 
     return {
         "safe_recall_match_plus_review": safe_recall,
-        "safe_recall_lower_95": binomial_ci_lower_one_sided(preserved, n_pos),
-        "false_negative_rate_no_match": fn_no_match / n_pos if n_pos else 0.0,
+        "safe_recall_lower_95": (
+            binomial_ci_lower_one_sided(preserved, n_pos) if n_pos else None
+        ),
+        "false_negative_rate_no_match": fn_no_match / n_pos if n_pos else None,
         "critical_false_negatives": critical_fn,
         "n_positives": n_pos,
         "n_preserved": preserved,
@@ -259,9 +265,10 @@ def decision_metrics(
         "match_count": all_match_count,  # alias
         "review_rate": review_rate,
         "review_yield": review_yield,
-        "llm_rescue_rate": llm_rescue / n_pos if n_pos else 0.0,
+        "llm_rescue_rate": llm_rescue / n_pos if n_pos else None,
         "deterministic_llm_disagreement": disagreement,
         "n_negatives_gold": len(neg_ids),
+        "n_lineages": len(lineages),
     }
 
 

@@ -34,15 +34,19 @@ ALLOWED_TERMINAL_STATES = frozenset(
     }
 )
 
-# Required honest multi-blocker set when not READY (must report all that apply)
+# Required operational multi-blocker set when not READY.
+# BLOCKED_REVIEW_CAPACITY is conditional (only with evaluable review data).
+# BLOCKED_INVALID_EVALUATION_CORPUS only for invalid structure/provenance.
+# Empty Level C real corpus → BLOCKED_INSUFFICIENT_REAL_GOLD_CORPUS (primary).
 REQUIRED_HONEST_BLOCKERS = frozenset(
     {
-        "BLOCKED_INVALID_EVALUATION_CORPUS",
         "BLOCKED_LLM_OPERATIONAL_VALIDATION",
-        "BLOCKED_REVIEW_CAPACITY",
         "BLOCKED_FULL_SUITE_VALIDATION",
     }
 )
+
+# Foundation PR status is separate from operational performance terminals.
+FOUNDATION_PR_STATUS_READY = "READY_TO_MERGE_AS_DISABLED_FOUNDATION"
 
 FORBIDDEN_CLAIMS = frozenset(
     {

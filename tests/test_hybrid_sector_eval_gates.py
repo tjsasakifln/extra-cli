@@ -135,6 +135,8 @@ def test_gates_insufficient_power_honest():
     assert "BLOCKED_INVALID_EVALUATION_CORPUS" in res["active_blockers"]
     assert "BLOCKED_LLM_OPERATIONAL_VALIDATION" in res["active_blockers"]
     assert "BLOCKED_FULL_SUITE_VALIDATION" in res["active_blockers"]
+    # Level B with observations but no capacity eval → review capacity not forced
+    assert res["gates"]["review_capacity"]["blocker_active"] is False
 
 
 def test_gates_ready_requires_all_real_evidence():
@@ -163,7 +165,7 @@ def test_gates_ready_requires_all_real_evidence():
         "precision_vacuous": False,
         "precision_evidence_sufficient": True,
     }
-    # Level B with perfect metrics still not READY + four honest blockers
+    # Level B with perfect metrics still not READY + operational honest blockers
     res_b = evaluate_gates(
         retrieval,
         decision,
@@ -182,10 +184,11 @@ def test_gates_ready_requires_all_real_evidence():
     for b in (
         "BLOCKED_INVALID_EVALUATION_CORPUS",
         "BLOCKED_LLM_OPERATIONAL_VALIDATION",
-        "BLOCKED_REVIEW_CAPACITY",
         "BLOCKED_FULL_SUITE_VALIDATION",
     ):
         assert b in res_b["active_blockers"]
+    # REVIEW_CAPACITY is not forced when not evaluable / not overflowing
+    assert "BLOCKED_REVIEW_CAPACITY" not in res_b["active_blockers"]
 
     # Level C with all evidence
     res_c = evaluate_gates(
@@ -337,7 +340,7 @@ def test_vacuous_precision_zero_match_not_perfect():
 
 
 def test_level_c_locked_campaign_has_four_honest_blockers(tmp_path):
-    """Level C empty real corpus must record all four REQUIRED honest blockers."""
+    """Level C empty real corpus: primary INSUFFICIENT, not invalid/review-capacity."""
     out = tmp_path / "level-c-honest"
     code = campaign_main(
         [
@@ -353,24 +356,50 @@ def test_level_c_locked_campaign_has_four_honest_blockers(tmp_path):
     result = json.loads((out / "result.json").read_text(encoding="utf-8"))
     blockers = set(result.get("active_blockers") or [])
     required = {
-        "BLOCKED_INVALID_EVALUATION_CORPUS",
+        "BLOCKED_INSUFFICIENT_REAL_GOLD_CORPUS",
         "BLOCKED_LLM_OPERATIONAL_VALIDATION",
-        "BLOCKED_REVIEW_CAPACITY",
         "BLOCKED_FULL_SUITE_VALIDATION",
+        "BLOCKED_EMBEDDING_OPERATIONAL_VALIDATION",
     }
     assert required <= blockers, f"missing {required - blockers}; have {blockers}"
+    # Empty corpus is valid-but-insufficient, not invalid evaluation structure
+    assert result.get("terminal_status") == "BLOCKED_INSUFFICIENT_REAL_GOLD_CORPUS"
+    assert result.get("primary_terminal_status") == "BLOCKED_INSUFFICIENT_REAL_GOLD_CORPUS"
+    assert "BLOCKED_REVIEW_CAPACITY" not in blockers
     assert result.get("required_honest_blockers_present") is True
     assert result.get("evaluation_level") == "C"
     assert result.get("all_core_pass") is False
-    assert result["terminal_status"] != "READY_FOR_RECALL_ASSURANCE_REVIEW"
-    # vacuous commercial
+    assert result.get("operational_claim_allowed") is not True
+    # Dual status: foundation vs operational
+    assert result.get("operational_pipeline_status") == "BLOCKED_INSUFFICIENT_REAL_GOLD_CORPUS"
+    assert result.get("foundation_pr_status") == "READY_TO_MERGE_AS_DISABLED_FOUNDATION"
+    # vacuous commercial / null metrics
     gates = result.get("gates") or {}
     g = gates.get("gates") or gates
     commercial = g.get("commercial") or {}
     assert commercial.get("pass") is not True
     assert commercial.get("operational_claim_allowed") is not True
+    assert commercial.get("point") is None
+    retrieval = g.get("retrieval") or {}
+    assert retrieval.get("point") is None
+    assert retrieval.get("operational_claim_allowed") is False
+    rev = g.get("review_capacity") or {}
+    assert rev.get("status") == "NOT_EVALUATED_INSUFFICIENT_REAL_CORPUS"
+    assert rev.get("blocker_active") is False
+    assert rev.get("pass") is False
     ready = gates.get("ready_requirements") or {}
     assert ready.get("real_precision_approved") is not True
+    # Separated objects — not ambiguous booleans
+    sep = result.get("separated_results") or {}
+    assert isinstance(sep.get("paid_llm_validation"), dict)
+    assert sep["paid_llm_validation"]["passed"] is False
+    assert sep["paid_llm_validation"]["artifact_present"] is True
+    assert isinstance(sep.get("full_suite"), dict)
+    assert sep["full_suite"]["passed"] is False
+    # RC v2 not falsely marked false when unchecked
+    rc = result.get("rc_v2_intact") or (g.get("rc_v2_intact") or {})
+    assert rc.get("status") == "NOT_CHECKED_IN_THIS_EXECUTION"
+    assert rc.get("passed") is None
 
 
 def test_locked_only_no_unlabeled_distractors():
@@ -437,6 +466,9 @@ def test_config_wiring_each_yaml_key_reaches_runtime(tmp_path):
         "llm.second_adjudication_value_threshold": 2_000_000.0,
         "llm.cache_enabled": False,
         "llm.provider": "openai_compatible",
+        "llm.temperature": 0.7,
+        "llm.prompt_version": "sector-arbiter-v2-test",
+        "operational.enabled": True,
         "retrieval.semantic.provider": "sentence_transformer",
         "retrieval.semantic.model_id": "mutated-embed-model",
         "retrieval.semantic.base_url": "https://embed.test/v1",
@@ -474,7 +506,6 @@ def test_campaign_entry_fixtures_twice(tmp_path):
     required = {
         "BLOCKED_INVALID_EVALUATION_CORPUS",
         "BLOCKED_LLM_OPERATIONAL_VALIDATION",
-        "BLOCKED_REVIEW_CAPACITY",
         "BLOCKED_FULL_SUITE_VALIDATION",
     }
     for out in (out1, out2):
@@ -513,15 +544,15 @@ def test_locked_real_corpus_campaign(tmp_path):
     )
     assert code == 0
     result = json.loads((out / "result.json").read_text(encoding="utf-8"))
-    assert result["terminal_status"] != "READY_FOR_RECALL_ASSURANCE_REVIEW"
+    assert result["terminal_status"] == "BLOCKED_INSUFFICIENT_REAL_GOLD_CORPUS"
     blockers = set(result.get("active_blockers") or [])
     required = {
-        "BLOCKED_INVALID_EVALUATION_CORPUS",
+        "BLOCKED_INSUFFICIENT_REAL_GOLD_CORPUS",
         "BLOCKED_LLM_OPERATIONAL_VALIDATION",
-        "BLOCKED_REVIEW_CAPACITY",
         "BLOCKED_FULL_SUITE_VALIDATION",
     }
     assert required <= blockers, blockers
+    assert "BLOCKED_REVIEW_CAPACITY" not in blockers
     assert result.get("required_honest_blockers_present") is True
     assert result.get("all_core_pass") is False
     assert result.get("evaluation_level") == "C"
@@ -530,6 +561,9 @@ def test_locked_real_corpus_campaign(tmp_path):
     assert (out / "full_suite_status.json").is_file()
     assert (out / "real_operational_results.json").is_file()
     assert (out / "annotation-provenance.json").is_file()
+    paid = json.loads((out / "paid_llm_validation.json").read_text(encoding="utf-8"))
+    assert paid.get("artifact_present") is True
+    assert paid.get("passed") is False
     # no vacuous commercial approval
     gates = result.get("gates") or {}
     g = gates.get("gates") or gates
@@ -627,3 +661,321 @@ def test_promotion_eligible_false_on_synthetic():
     shadow = result.evaluation.get("shadow_replay") or {}
     overall = shadow.get("overall") or shadow
     assert overall.get("promotion_eligible") is False
+
+
+def test_empty_corpus_null_metrics_not_vacuous():
+    """n_positives==0 → null metrics, claim false, gates cannot pass."""
+    retrieval = {
+        "retrieval_recall": None,
+        "retrieval_recall_lower_95": None,
+        "n_gold_positives": 0,
+    }
+    decision = {
+        "safe_recall_match_plus_review": None,
+        "safe_recall_lower_95": None,
+        "critical_false_negatives": 0,
+        "n_positives": 0,
+        "match_precision": None,
+        "match_precision_all": None,
+        "match_precision_lower_95": None,
+        "match_false_positives_hard": 0,
+        "unlabeled_match_count": 0,
+        "all_match_count": 0,
+        "evaluated_match_count": 0,
+        "precision_vacuous": True,
+        "review_rate": 0.0,
+        "n_lineages": 0,
+    }
+    res = evaluate_gates(
+        retrieval,
+        decision,
+        audit={
+            "invented_evidence_accepted": 0,
+            "llm_error_to_review_rate": 1.0,
+            "lineage_coverage": 1.0,
+            "silent_discards": 0,
+        },
+        corpus_audit={
+            "operational_gold_eligible": False,
+            "blockers": [BLOCKED_INSUFFICIENT_REAL_GOLD_CORPUS],
+            "quotas": {"ok": False},
+            "dual_review": {"ok": False},
+            "n_records": 0,
+        },
+        evaluation_level="C",
+        review_status={"operational_status": "WITHIN_CAPACITY", "review_count": 0},
+        full_suite={"passed": False, "status": "BLOCKED_FULL_SUITE_VALIDATION"},
+        llm_operational={"passed": False, "status": "BLOCKED_LLM_OPERATIONAL_VALIDATION"},
+        embedding_operational={
+            "passed": False,
+            "status": "BLOCKED_EMBEDDING_OPERATIONAL_VALIDATION",
+        },
+        rc_v2_intact=None,
+    )
+    assert res["primary_terminal_status"] == BLOCKED_INSUFFICIENT_REAL_GOLD_CORPUS
+    assert res["terminal_status"] == BLOCKED_INSUFFICIENT_REAL_GOLD_CORPUS
+    assert "BLOCKED_INVALID_EVALUATION_CORPUS" not in res["active_blockers"]
+    assert "BLOCKED_REVIEW_CAPACITY" not in res["active_blockers"]
+    assert res["gates"]["retrieval"]["point"] is None
+    assert res["gates"]["preservation"]["point"] is None
+    assert res["gates"]["commercial"]["point"] is None
+    assert res["gates"]["retrieval"]["pass"] is False
+    assert res["gates"]["preservation"]["pass"] is False
+    assert res["gates"]["commercial"]["pass"] is False
+    assert res["gates"]["retrieval"]["operational_claim_allowed"] is False
+    assert res["operational_claim_allowed"] is False
+    rc = res["gates"]["review_capacity"]
+    assert rc["status"] == "NOT_EVALUATED_INSUFFICIENT_REAL_CORPUS"
+    assert rc["pass"] is False
+    assert rc["blocker_active"] is False
+    assert res["gates"]["rc_v2_intact"]["status"] == "NOT_CHECKED_IN_THIS_EXECUTION"
+    assert res["gates"]["rc_v2_intact"]["passed"] is None
+
+
+def test_review_capacity_blocks_only_when_evaluable():
+    """With real Level C corpus + overflow → BLOCKED_REVIEW_CAPACITY active."""
+    retrieval = {
+        "retrieval_recall": 1.0,
+        "retrieval_recall_lower_95": 0.995,
+        "n_gold_positives": 300,
+    }
+    decision = {
+        "safe_recall_match_plus_review": 1.0,
+        "safe_recall_lower_95": 0.995,
+        "critical_false_negatives": 0,
+        "n_positives": 300,
+        "match_precision": 1.0,
+        "match_precision_all": 1.0,
+        "match_precision_conservative": 1.0,
+        "match_precision_lower_95": 0.95,
+        "match_false_positives_hard": 0,
+        "unlabeled_match_count": 0,
+        "all_match_count": 10,
+        "evaluated_match_count": 10,
+        "review_rate": 0.5,
+        "ambiguous_match_commercial_risk": 0,
+        "precision_vacuous": False,
+        "precision_evidence_sufficient": True,
+        "n_lineages": 200,
+    }
+    res = evaluate_gates(
+        retrieval,
+        decision,
+        audit={
+            "invented_evidence_accepted": 0,
+            "llm_error_to_review_rate": 1.0,
+            "lineage_coverage": 1.0,
+            "silent_discards": 0,
+        },
+        corpus_audit={
+            "operational_gold_eligible": True,
+            "blockers": [],
+            "quotas": {"ok": True},
+            "dual_review": {"ok": True},
+            "n_records": 600,
+        },
+        evaluation_level="C",
+        review_status={
+            "operational_status": "OPERATIONALLY_BLOCKED_REVIEW_VOLUME",
+            "review_count": 150,
+        },
+        full_suite={"passed": True, "status": "FULL_SUITE_GREEN"},
+        llm_operational={
+            "passed": True,
+            "n_samples": 200,
+            "min_required": 200,
+            "human_review_complete": True,
+        },
+        embedding_operational={
+            "passed": True,
+            "provider_class": "sentence_transformer",
+        },
+        rc_v2_intact=True,
+    )
+    assert res["gates"]["review_capacity"]["blocker_active"] is True
+    assert "BLOCKED_REVIEW_CAPACITY" in res["active_blockers"]
+    assert res["all_core_pass"] is False
+
+
+def test_provider_runtime_wiring_cache_temp_prompt_concurrency(tmp_path):
+    """build_provider must wire cache/temp/prompt/concurrency into real runtime."""
+    from scripts.ops.hybrid_sector.llm.protocol import (
+        NullResponseCache,
+        OpenAICompatibleProvider,
+        ResponseCache,
+    )
+    from scripts.ops.hybrid_sector.llm.schema import (
+        SectorArbitrationRequest,
+        SectorLLMDecision,
+    )
+    from scripts.ops.hybrid_sector.pipeline import build_provider
+
+    # cache_enabled=false → NullResponseCache
+    cfg_off = {
+        "operational": {"enabled": True},
+        "llm": {
+            "provider": "openai_compatible",
+            "model": "wire-model-a",
+            "base_url": "https://wire.example/v1",
+            "timeout_seconds": 9.0,
+            "max_retries": 3,
+            "max_cost_usd_per_cycle": 1.5,
+            "circuit_breaker_failures": 2,
+            "cache_enabled": False,
+            "temperature": 0.42,
+            "prompt_version": "wire-prompt-v9",
+            "max_concurrency": 3,
+        },
+    }
+    p = build_provider(cfg_off, force_fake=False)
+    assert isinstance(p, OpenAICompatibleProvider)
+    assert isinstance(p.cache, NullResponseCache)
+    assert p.cache_enabled is False
+    assert p.model == "wire-model-a"
+    assert p.base_url == "https://wire.example/v1"
+    assert p.timeout_seconds == 9.0
+    assert p.max_retries == 3
+    assert p.cost_guard.max_cost_usd == 1.5
+    assert p.circuit_breaker.failure_threshold == 2
+    assert p.temperature == 0.42
+    assert p.prompt_version == "wire-prompt-v9"
+    assert p.max_concurrency == 3
+    body = p.build_http_body("sys", "user")
+    assert body["temperature"] == 0.42
+    assert body["model"] == "wire-model-a"
+
+    # Null cache never stores
+    req = SectorArbitrationRequest(
+        canonical_id="x1",
+        objeto="pavimentação asfáltica",
+        titulo="t",
+        items=[],
+        categories=[],
+        orgao="obras",
+        valor_estimado=100.0,
+        modality="pregão",
+        deterministic_decision="GRAY_ZONE",
+        deterministic_reason="test",
+        retrieval_channels=["lexical"],
+        source_text="pavimentação asfáltica",
+    )
+    decision = SectorLLMDecision(
+        decision="REVIEW",
+        confidence=50,
+        evidence=[],
+        reasoning="r",
+        missing_information=[],
+        needs_more_data=True,
+    )
+    p.cache.put(req, decision)
+    assert p.cache.get(req) is None
+
+    # cache_enabled=true → ResponseCache with key including prompt/temp/model
+    cfg_on = {
+        "operational": {"enabled": True},
+        "llm": {
+            "provider": "openai_compatible",
+            "model": "wire-model-b",
+            "cache_enabled": True,
+            "temperature": 0.1,
+            "prompt_version": "wire-prompt-v1",
+            "max_concurrency": 1,
+        },
+    }
+    p2 = build_provider(cfg_on, force_fake=False)
+    assert isinstance(p2.cache, ResponseCache)
+    assert p2.cache_enabled is True
+    k1 = p2.cache.key_for(req)
+    p2.prompt_version = "wire-prompt-v2"
+    p2.cache.prompt_version = "wire-prompt-v2"
+    k2 = p2.cache.key_for(req)
+    assert k1 != k2
+    p2.cache.temperature = 0.9
+    k3 = p2.cache.key_for(req)
+    assert k3 != k2
+
+
+def test_operational_enabled_false_default_keeps_fake_and_offline():
+    """Default YAML: operational.enabled=false, fake LLM, lexical_fuzzy_hash."""
+    from scripts.ops.hybrid_sector.llm.fake_provider import FakeLLMProvider
+    from scripts.ops.hybrid_sector.pipeline import build_provider
+
+    rt = load_runtime_config()
+    assert rt.operational.enabled is False
+    assert rt.llm.provider == "fake"
+    assert rt.semantic.provider == "lexical_fuzzy_hash"
+    # Even if YAML were openai, build_provider with default operational stays fake
+    cfg = {
+        "operational": {"enabled": False},
+        "llm": {"provider": "openai_compatible", "model": "should-not-use"},
+    }
+    p = build_provider(cfg, force_fake=False)
+    assert isinstance(p, FakeLLMProvider)
+    # Import/run normal defaults do not activate challenger as commercial replacement
+    assert load_runtime_config().operational.enabled is False
+
+
+def test_rc_v2_not_false_when_unchecked():
+    res = evaluate_gates(
+        {"n_gold_positives": 0},
+        {"n_positives": 0, "all_match_count": 0, "evaluated_match_count": 0},
+        evaluation_level="C",
+        corpus_audit={
+            "operational_gold_eligible": False,
+            "blockers": [BLOCKED_INSUFFICIENT_REAL_GOLD_CORPUS],
+            "n_records": 0,
+            "quotas": {"ok": False},
+        },
+        rc_v2_intact=None,
+    )
+    rc = res["gates"]["rc_v2_intact"]
+    assert rc["status"] == "NOT_CHECKED_IN_THIS_EXECUTION"
+    assert rc["passed"] is None
+    assert rc["checked"] is False
+    # Explicit CI-checked form
+    res2 = evaluate_gates(
+        {"n_gold_positives": 0},
+        {"n_positives": 0, "all_match_count": 0, "evaluated_match_count": 0},
+        evaluation_level="C",
+        corpus_audit={
+            "operational_gold_eligible": False,
+            "blockers": [BLOCKED_INSUFFICIENT_REAL_GOLD_CORPUS],
+            "n_records": 0,
+            "quotas": {"ok": False},
+        },
+        rc_v2_intact={
+            "status": "CHECKED_BY_CI",
+            "passed": True,
+            "workflow": "hybrid-sector-recall",
+            "tested_sha": "abc123",
+        },
+    )
+    rc2 = res2["gates"]["rc_v2_intact"]
+    assert rc2["status"] == "CHECKED_BY_CI"
+    assert rc2["passed"] is True
+    assert rc2["tested_sha"] == "abc123"
+
+
+def test_artifact_presence_not_approval(tmp_path):
+    """Separated validation objects: artifact_present != passed."""
+    out = tmp_path / "sep"
+    assert campaign_main(["--corpus", str(REAL), "--split", "locked", "--out", str(out)]) == 0
+    result = json.loads((out / "result.json").read_text(encoding="utf-8"))
+    sep = result["separated_results"]
+    for key in ("paid_llm_validation", "full_suite", "real_operational_evaluation"):
+        obj = sep[key]
+        assert obj["artifact_present"] is True
+        assert obj["passed"] is False
+        assert obj["status"]
+    paid = json.loads((out / "paid_llm_validation.json").read_text(encoding="utf-8"))
+    assert paid["artifact_present"] is True
+    assert paid["passed"] is False
+
+
+def test_default_operational_disabled_in_shipped_yaml():
+    raw = yaml.safe_load(
+        (ROOT / "config/hybrid_sector/default.yaml").read_text(encoding="utf-8")
+    )
+    assert raw["operational"]["enabled"] is False
+    assert raw["llm"]["provider"] == "fake"
+    assert raw["retrieval"]["semantic"]["provider"] == "lexical_fuzzy_hash"

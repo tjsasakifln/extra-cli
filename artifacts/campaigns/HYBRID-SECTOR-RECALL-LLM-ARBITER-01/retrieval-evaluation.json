@@ -117,8 +117,8 @@
     "operational_semantic": false
   },
   "metrics": {
-    "retrieval_recall": 0.0,
-    "retrieval_recall_lower_95": 0.0,
+    "retrieval_recall": null,
+    "retrieval_recall_lower_95": null,
     "n_gold_positives": 0,
     "n_retrieved_positives": 0,
     "missed_positive_ids": [],

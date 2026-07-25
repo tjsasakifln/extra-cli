@@ -44,6 +44,13 @@ class LLMRuntimeConfig:
 
 
 @dataclass
+class OperationalRuntimeConfig:
+    """Disabled-by-default operational challenger switch."""
+
+    enabled: bool = False
+
+
+@dataclass
 class HybridSectorRuntimeConfig:
     """Typed runtime mirror of config/hybrid_sector/default.yaml."""
 
@@ -55,6 +62,9 @@ class HybridSectorRuntimeConfig:
     lexical_max_terms: int | None = None
     semantic: SemanticRuntimeConfig = field(default_factory=SemanticRuntimeConfig)
     llm: LLMRuntimeConfig = field(default_factory=LLMRuntimeConfig)
+    operational: OperationalRuntimeConfig = field(
+        default_factory=OperationalRuntimeConfig
+    )
     high_value_no_match_threshold: float = 500_000.0
     short_text_max_chars: int = 40
     high_value_threshold: float = 500_000.0
@@ -83,6 +93,7 @@ def load_runtime_config(path: Path | None = None) -> HybridSectorRuntimeConfig:
     sem = ret.get("semantic") or {}
     zm = ret.get("zero_match") or {}
     llm = raw.get("llm") or {}
+    op = raw.get("operational") or {}
     dp = raw.get("decision_policy") or {}
     ev = raw.get("evaluation") or {}
 
@@ -128,6 +139,10 @@ def load_runtime_config(path: Path | None = None) -> HybridSectorRuntimeConfig:
             cache_enabled=bool(llm.get("cache_enabled", True)),
             temperature=float(llm.get("temperature") or 0.0),
         ),
+        # Default: disabled foundation — commercial path untouched
+        operational=OperationalRuntimeConfig(
+            enabled=bool(op.get("enabled", False)),
+        ),
         high_value_no_match_threshold=float(
             dp.get("high_value_no_match_threshold") or 500_000.0
         ),
@@ -151,6 +166,9 @@ CONFIG_WIRING_MAP: dict[str, str] = {
     "llm.second_adjudication_value_threshold": "llm.second_adjudication_value_threshold",
     "llm.cache_enabled": "llm.cache_enabled",
     "llm.provider": "llm.provider",
+    "llm.temperature": "llm.temperature",
+    "llm.prompt_version": "llm.prompt_version",
+    "operational.enabled": "operational.enabled",
     "retrieval.semantic.provider": "semantic.provider",
     "retrieval.semantic.model_id": "semantic.model_id",
     "retrieval.semantic.base_url": "semantic.base_url",

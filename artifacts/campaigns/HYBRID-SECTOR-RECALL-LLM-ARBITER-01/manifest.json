@@ -1,16 +1,13 @@
 {
   "campaign_id": "HYBRID-SECTOR-RECALL-LLM-ARBITER-01",
   "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.1.0",
-  "terminal_status": "BLOCKED_INVALID_EVALUATION_CORPUS",
+  "terminal_status": "BLOCKED_INSUFFICIENT_REAL_GOLD_CORPUS",
   "active_blockers": [
     "BLOCKED_EMBEDDING_OPERATIONAL_VALIDATION",
     "BLOCKED_FULL_SUITE_VALIDATION",
     "BLOCKED_INSUFFICIENT_REAL_GOLD_CORPUS",
-    "BLOCKED_INSUFFICIENT_RECALL",
     "BLOCKED_INSUFFICIENT_STATISTICAL_POWER",
-    "BLOCKED_INVALID_EVALUATION_CORPUS",
-    "BLOCKED_LLM_OPERATIONAL_VALIDATION",
-    "BLOCKED_REVIEW_CAPACITY"
+    "BLOCKED_LLM_OPERATIONAL_VALIDATION"
   ],
   "summary": {
     "pipeline_version": "hybrid-sector-recall-llm-arbiter/1.1.0",
@@ -32,16 +29,13 @@
       "discarded": 0,
       "preserved_all": true
     },
-    "terminal_status": "BLOCKED_INVALID_EVALUATION_CORPUS",
+    "terminal_status": "BLOCKED_INSUFFICIENT_REAL_GOLD_CORPUS",
     "active_blockers": [
       "BLOCKED_EMBEDDING_OPERATIONAL_VALIDATION",
       "BLOCKED_FULL_SUITE_VALIDATION",
       "BLOCKED_INSUFFICIENT_REAL_GOLD_CORPUS",
-      "BLOCKED_INSUFFICIENT_RECALL",
       "BLOCKED_INSUFFICIENT_STATISTICAL_POWER",
-      "BLOCKED_INVALID_EVALUATION_CORPUS",
-      "BLOCKED_LLM_OPERATIONAL_VALIDATION",
-      "BLOCKED_REVIEW_CAPACITY"
+      "BLOCKED_LLM_OPERATIONAL_VALIDATION"
     ],
     "every_record_has_decision": true,
     "silent_drop_ids": [],

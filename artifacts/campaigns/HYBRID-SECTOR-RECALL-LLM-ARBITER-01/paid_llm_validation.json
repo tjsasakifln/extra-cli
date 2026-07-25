@@ -1,9 +1,8 @@
 {
+  "artifact_present": true,
   "passed": false,
   "status": "BLOCKED_LLM_OPERATIONAL_VALIDATION",
-  "reason": "insufficient stratified real samples",
   "n_samples": 0,
   "min_required": 200,
-  "human_review_complete": false,
-  "strata_counts": {}
+  "human_review_complete": false
 }

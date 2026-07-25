@@ -11,6 +11,7 @@ import yaml
 from scripts.ops.hybrid_sector import (
     ALLOWED_TERMINAL_STATES,
     FORBIDDEN_CLAIMS,
+    FOUNDATION_PR_STATUS_READY,
     PIPELINE_VERSION,
     REQUIRED_HONEST_BLOCKERS,
 )
@@ -53,6 +54,7 @@ from scripts.ops.hybrid_sector.llm.protocol import (
     CircuitBreaker,
     CostGuard,
     LLMProvider,
+    NullResponseCache,
     OpenAICompatibleProvider,
     ResponseCache,
 )
@@ -83,6 +85,7 @@ def build_provider(
     *,
     force_fake: bool = False,
 ) -> LLMProvider:
+    """Construct LLM provider with every YAML/runtime field wired to runtime behavior."""
     if isinstance(cfg, HybridSectorRuntimeConfig):
         llm = {
             "provider": cfg.llm.provider,
@@ -93,24 +96,49 @@ def build_provider(
             "max_cost_usd_per_cycle": cfg.llm.max_cost_usd_per_cycle,
             "circuit_breaker_failures": cfg.llm.circuit_breaker_failures,
             "cache_enabled": cfg.llm.cache_enabled,
+            "temperature": cfg.llm.temperature,
+            "prompt_version": cfg.llm.prompt_version,
+            "max_concurrency": cfg.llm.max_concurrency,
         }
+        operational_enabled = bool(cfg.operational.enabled)
     else:
-        llm = cfg.get("llm") or {}
+        llm = dict(cfg.get("llm") or {})
+        operational_enabled = bool((cfg.get("operational") or {}).get("enabled", False))
+    # Offline defaults: force fake unless operational explicitly enabled AND not forced fake
     provider_name = "fake" if force_fake else str(llm.get("provider") or "fake")
+    if not operational_enabled and not force_fake:
+        # Still allow openai when campaign explicitly sets provider AND force_fake=False
+        # but only if operational.enabled — otherwise stay on fake for safety.
+        if provider_name == "openai_compatible":
+            provider_name = "fake"
     if provider_name == "openai_compatible" and not force_fake:
         cost = CostGuard(max_cost_usd=float(llm.get("max_cost_usd_per_cycle") or 5.0))
         breaker = CircuitBreaker(
             failure_threshold=int(llm.get("circuit_breaker_failures") or 5)
         )
-        cache = ResponseCache() if llm.get("cache_enabled", True) else ResponseCache()
+        model = llm.get("model")
+        temperature = float(llm.get("temperature") or 0.0)
+        prompt_version = str(llm.get("prompt_version") or "sector-arbiter-v1")
+        max_concurrency = int(llm.get("max_concurrency") or 1)
+        if llm.get("cache_enabled", True):
+            cache: ResponseCache | NullResponseCache = ResponseCache(
+                model=str(model or ""),
+                prompt_version=prompt_version,
+                temperature=temperature,
+            )
+        else:
+            cache = NullResponseCache()
         return OpenAICompatibleProvider(
-            model=llm.get("model"),
+            model=model,
             base_url=llm.get("base_url"),
             timeout_seconds=float(llm.get("timeout_seconds") or 15),
             max_retries=int(llm.get("max_retries") or 2),
             cost_guard=cost,
             circuit_breaker=breaker,
             cache=cache,
+            temperature=temperature,
+            prompt_version=prompt_version,
+            max_concurrency=max_concurrency,
         )
     return FakeLLMProvider()
 
@@ -242,9 +270,14 @@ def run_pipeline(
         llm_cfg.get("second_adjudication_value_threshold")
         or rt.llm.second_adjudication_value_threshold
     )
+    max_concurrency = int(llm_cfg.get("max_concurrency") or rt.llm.max_concurrency or 1)
+    # When operational.enabled=false, pipeline still runs offline campaign/eval paths
+    # with force_fake; it never replaces commercial RC v2 Deliverable E outside campaign.
+    operational_enabled = bool(
+        (cfg.get("operational") or {}).get("enabled", rt.operational.enabled)
+    )
 
-    for cand in candidates:
-        cand_by_id[cand.record.canonical_id] = cand
+    def _arbitrate_one(cand: CandidateRecord) -> DecisionLineage:
         det = classify_selective(cand)
         arb = arbitrate(
             cand,
@@ -255,8 +288,31 @@ def run_pipeline(
             second_adjudication_value_threshold=second_adj,
             stratified_audit=cand.record.canonical_id in stratified_audit_ids,
         )
-        lin = map_to_commercial(cand, det, arb)
-        lineages.append(lin)
+        return map_to_commercial(cand, det, arb)
+
+    if max_concurrency <= 1 or len(candidates) <= 1:
+        for cand in candidates:
+            cand_by_id[cand.record.canonical_id] = cand
+            lineages.append(_arbitrate_one(cand))
+    else:
+        # Limited concurrency with deterministic output order
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+
+        for cand in candidates:
+            cand_by_id[cand.record.canonical_id] = cand
+        indexed = list(enumerate(candidates))
+        results: dict[int, DecisionLineage] = {}
+        workers = min(max_concurrency, len(candidates))
+        with ThreadPoolExecutor(max_workers=workers) as pool:
+            futures = {
+                pool.submit(_arbitrate_one, cand): idx for idx, cand in indexed
+            }
+            for fut in as_completed(futures):
+                idx = futures[fut]
+                results[idx] = fut.result()
+        lineages = [results[i] for i in range(len(candidates))]
+    # Attach operational flag for artifact honesty
+    _ = operational_enabled  # used in evaluation section below
 
     universe_ids = {r.canonical_id for r in universe}
     candidate_ids = {c.record.canonical_id for c in candidates}
@@ -298,7 +354,10 @@ def run_pipeline(
     if hasattr(embed_provider, "observed_cost_usd"):
         observed_cost += float(getattr(embed_provider, "observed_cost_usd", 0.0) or 0.0)
 
-    evaluation: dict[str, Any] = {"retrieval_report": retrieval_report}
+    evaluation: dict[str, Any] = {
+        "retrieval_report": retrieval_report,
+        "operational_enabled": operational_enabled,
+    }
     level = evaluation_level or (
         "C"
         if corpus_kind == "REAL_OPERATIONAL_LOCKED_GOLD"
@@ -307,10 +366,13 @@ def run_pipeline(
     corpus_audit = corpus_audit or {
         "corpus_kind": corpus_kind,
         "operational_gold_eligible": False,
+        "n_records": len(universe),
         "blockers": ["BLOCKED_INVALID_EVALUATION_CORPUS"]
         if level != "C"
         else ["BLOCKED_INSUFFICIENT_REAL_GOLD_CORPUS"],
     }
+    if "n_records" not in corpus_audit:
+        corpus_audit = {**corpus_audit, "n_records": corpus_audit.get("n_records", len(universe))}
     llm_operational = llm_operational or {
         "passed": False,
         "status": "BLOCKED_LLM_OPERATIONAL_VALIDATION",
@@ -438,25 +500,30 @@ def run_pipeline(
         if claim in terminal:
             raise RuntimeError(f"forbidden claim in terminal: {claim}")
 
-    # Ensure multi-blocker honesty when not READY
+    # Ensure operational multi-blocker honesty when not READY
+    # (do not force REVIEW_CAPACITY or INVALID on empty Level C)
     if terminal != "READY_FOR_RECALL_ASSURANCE_REVIEW":
         for b in REQUIRED_HONEST_BLOCKERS:
-            if b not in active_blockers:
-                # only add if still applicable
-                if b == "BLOCKED_INVALID_EVALUATION_CORPUS" and level != "C":
-                    active_blockers.append(b)
-                elif b == "BLOCKED_LLM_OPERATIONAL_VALIDATION" and not (
-                    llm_operational or {}
-                ).get("passed"):
-                    active_blockers.append(b)
-                elif b == "BLOCKED_REVIEW_CAPACITY" and review_status.get(
-                    "operational_status"
-                ) == "OPERATIONALLY_BLOCKED_REVIEW_VOLUME":
-                    active_blockers.append(b)
-                elif b == "BLOCKED_FULL_SUITE_VALIDATION" and not (
-                    full_suite or {}
-                ).get("passed"):
-                    active_blockers.append(b)
+            if b in active_blockers:
+                continue
+            if b == "BLOCKED_LLM_OPERATIONAL_VALIDATION" and not (
+                llm_operational or {}
+            ).get("passed"):
+                active_blockers.append(b)
+            elif b == "BLOCKED_FULL_SUITE_VALIDATION" and not (
+                full_suite or {}
+            ).get("passed"):
+                active_blockers.append(b)
+        # Conditional: review capacity only when operationally blocked by volume
+        if (
+            review_status.get("operational_status")
+            == "OPERATIONALLY_BLOCKED_REVIEW_VOLUME"
+            and "BLOCKED_REVIEW_CAPACITY" not in active_blockers
+        ):
+            active_blockers.append("BLOCKED_REVIEW_CAPACITY")
+        # Conditional: invalid evaluation only for non-C or explicit corpus blockers
+        if level != "C" and "BLOCKED_INVALID_EVALUATION_CORPUS" not in active_blockers:
+            active_blockers.append("BLOCKED_INVALID_EVALUATION_CORPUS")
         active_blockers = sorted(set(active_blockers))
 
     return PipelineResult(
@@ -600,13 +667,42 @@ def write_campaign_artifacts(
             "decision_metrics": dec_m,
         }
 
-    paid_llm_validation = eval_.get("llm_operational") or {
-        "passed": False,
-        "status": "BLOCKED_LLM_OPERATIONAL_VALIDATION",
+    llm_op_raw = eval_.get("llm_operational") or {}
+    paid_llm_validation = {
+        "artifact_present": True,
+        "passed": bool(llm_op_raw.get("passed")),
+        "status": llm_op_raw.get("status") or "BLOCKED_LLM_OPERATIONAL_VALIDATION",
+        "n_samples": llm_op_raw.get("n_samples") or 0,
+        "min_required": llm_op_raw.get("min_required") or 200,
+        "human_review_complete": bool(llm_op_raw.get("human_review_complete")),
     }
-    full_suite_status = (gates.get("gates") or {}).get("full_suite") or {
-        "pass": False,
-        "status": "BLOCKED_FULL_SUITE_VALIDATION",
+    suite_raw = (gates.get("gates") or {}).get("full_suite") or {}
+    full_suite_status = {
+        "artifact_present": True,
+        "passed": bool(suite_raw.get("passed") or suite_raw.get("pass")),
+        "status": suite_raw.get("status") or "BLOCKED_FULL_SUITE_VALIDATION",
+        "details": suite_raw.get("details"),
+    }
+    real_eval_status = {
+        "artifact_present": True,
+        "passed": False,
+        "status": (
+            "BLOCKED_INSUFFICIENT_REAL_GOLD_CORPUS"
+            if level == "C" and int(dec_m.get("n_positives") or 0) == 0
+            else (
+                result.terminal_status
+                if result.terminal_status != "READY_FOR_RECALL_ASSURANCE_REVIEW"
+                else "OK"
+            )
+        ),
+        "n_positives": dec_m.get("n_positives"),
+        "evaluation_level": level,
+        "corpus_kind": corpus_kind,
+    }
+    # RC v2 check object — do not claim false when not checked
+    rc_gate = (gates.get("gates") or {}).get("rc_v2_intact") or {
+        "status": "NOT_CHECKED_IN_THIS_EXECUTION",
+        "passed": None,
     }
 
     w(
@@ -662,28 +758,34 @@ def write_campaign_artifacts(
             "deterministic_confidence_hist": _conf_hist(result.lineages),
         },
     )
+    n_pos_ci = int(dec_m.get("n_positives") or ret_m.get("n_gold_positives") or 0)
+    ops_claim = bool(gates.get("operational_claim_allowed")) if isinstance(gates, dict) else False
     w(
         "confidence-intervals.json",
         {
             "evaluation_level": level,
-            "operational_claims_allowed": level == "C",
+            "operational_claims_allowed": ops_claim and level == "C" and n_pos_ci > 0,
             "retrieval_recall": {
-                "point": ret_m.get("retrieval_recall"),
-                "lower_95": ret_m.get("retrieval_recall_lower_95"),
+                "point": ret_m.get("retrieval_recall") if n_pos_ci > 0 else None,
+                "lower_95": ret_m.get("retrieval_recall_lower_95") if n_pos_ci > 0 else None,
             },
             "safe_recall": {
-                "point": dec_m.get("safe_recall_match_plus_review"),
-                "lower_95": dec_m.get("safe_recall_lower_95"),
+                "point": dec_m.get("safe_recall_match_plus_review") if n_pos_ci > 0 else None,
+                "lower_95": dec_m.get("safe_recall_lower_95") if n_pos_ci > 0 else None,
             },
             "match_precision": {
-                "point": dec_m.get("match_precision"),
-                "lower_95": dec_m.get("match_precision_lower_95"),
+                "point": dec_m.get("match_precision") if n_pos_ci > 0 else None,
+                "lower_95": dec_m.get("match_precision_lower_95") if n_pos_ci > 0 else None,
             },
             "gates": gates,
             "note": (
                 "Intervals from synthetic Level B must not be published as operational."
                 if level != "C"
-                else "Level C operational intervals"
+                else (
+                    "No operational intervals: zero gold positives."
+                    if n_pos_ci == 0
+                    else "Level C operational intervals"
+                )
             ),
         },
     )
@@ -795,16 +897,27 @@ def write_campaign_artifacts(
         else False
     )
     if not all_core:
-        # Hard guarantee: four honest blockers always on result when not READY
+        # Operational required blockers only (not vacuous REVIEW_CAPACITY)
         blockers = set(result.active_blockers)
         blockers |= set(REQUIRED_HONEST_BLOCKERS)
         result.active_blockers = sorted(blockers)
         honest_present = set(REQUIRED_HONEST_BLOCKERS) <= set(result.active_blockers)
 
+    # Dual status: foundation PR vs operational pipeline (never conflate)
+    operational_pipeline_status = result.terminal_status
+    foundation_pr_status = FOUNDATION_PR_STATUS_READY  # candidate; CI/human gate final
+
     w(
         "result.json",
         {
             "terminal_status": result.terminal_status,
+            "primary_terminal_status": (
+                gates.get("primary_terminal_status")
+                if isinstance(gates, dict)
+                else result.terminal_status
+            ),
+            "foundation_pr_status": foundation_pr_status,
+            "operational_pipeline_status": operational_pipeline_status,
             "active_blockers": result.active_blockers,
             "required_honest_blockers": sorted(REQUIRED_HONEST_BLOCKERS),
             "required_honest_blockers_present": honest_present,
@@ -815,12 +928,34 @@ def write_campaign_artifacts(
             "evaluation_level": level,
             "corpus_kind": corpus_kind,
             "all_core_pass": all_core,
+            "operational_claim_allowed": bool(
+                gates.get("operational_claim_allowed")
+            )
+            if isinstance(gates, dict)
+            else False,
             "separated_results": {
-                "synthetic_test_results": synthetic_test_results is not None,
-                "real_operational_results": real_operational_results is not None,
-                "paid_llm_validation": True,
-                "full_suite_status": True,
+                "synthetic_test_results": {
+                    "artifact_present": synthetic_test_results is not None,
+                    "passed": False,
+                    "status": (
+                        "SYNTHETIC_ADVERSARIAL_ONLY"
+                        if synthetic_test_results is not None
+                        else "not_run"
+                    ),
+                },
+                "real_operational_evaluation": real_eval_status,
+                "paid_llm_validation": {
+                    "artifact_present": paid_llm_validation["artifact_present"],
+                    "passed": paid_llm_validation["passed"],
+                    "status": paid_llm_validation["status"],
+                },
+                "full_suite": {
+                    "artifact_present": full_suite_status["artifact_present"],
+                    "passed": full_suite_status["passed"],
+                    "status": full_suite_status["status"],
+                },
             },
+            "rc_v2_intact": rc_gate,
             "pr_131": "CHANGES_REQUESTED_RECALL_ASSURANCE",
             "claims": {
                 "PROJECT_DONE": False,

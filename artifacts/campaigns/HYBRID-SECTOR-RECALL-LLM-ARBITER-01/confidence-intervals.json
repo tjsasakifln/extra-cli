@@ -1,17 +1,17 @@
 {
   "evaluation_level": "C",
-  "operational_claims_allowed": true,
+  "operational_claims_allowed": false,
   "retrieval_recall": {
-    "point": 0.0,
-    "lower_95": 0.0
+    "point": null,
+    "lower_95": null
   },
   "safe_recall": {
-    "point": 0.0,
-    "lower_95": 0.0
+    "point": null,
+    "lower_95": null
   },
   "match_precision": {
     "point": null,
-    "lower_95": 0.0
+    "lower_95": null
   },
   "gates": {
     "gates": {
@@ -33,18 +33,18 @@
       },
       "retrieval": {
         "pass": false,
-        "point": 0.0,
-        "lower_95": 0.0,
+        "point": null,
+        "lower_95": null,
         "blocked_insufficient_power": true,
-        "operational_claim_allowed": true
+        "operational_claim_allowed": false
       },
       "preservation": {
         "pass": false,
-        "point": 0.0,
-        "lower_95": 0.0,
+        "point": null,
+        "lower_95": null,
         "critical_false_negatives": 0,
         "blocked_insufficient_power": true,
-        "operational_claim_allowed": true
+        "operational_claim_allowed": false
       },
       "commercial": {
         "pass": false,
@@ -123,6 +123,8 @@
       },
       "llm_operational": {
         "pass": false,
+        "artifact_present": true,
+        "passed": false,
         "status": "BLOCKED_LLM_OPERATIONAL_VALIDATION",
         "n_samples": 0,
         "min_required": 200,
@@ -130,27 +132,35 @@
       },
       "embedding_operational": {
         "pass": false,
+        "artifact_present": true,
+        "passed": false,
         "status": "BLOCKED_EMBEDDING_OPERATIONAL_VALIDATION",
         "provider_class": "lexical_fuzzy_hash",
         "benchmark": null
       },
       "review_capacity": {
+        "status": "NOT_EVALUATED_INSUFFICIENT_REAL_CORPUS",
         "pass": false,
-        "review_rate": 0.0,
+        "blocker_active": false,
+        "review_rate": null,
         "max_review_rate": 0.2,
         "overflow": false,
-        "within_numeric": true,
+        "within_numeric": false,
         "review_count": 0,
         "operational_status": "WITHIN_CAPACITY",
-        "vacuous_empty_not_pass": true
+        "vacuous_empty_not_pass": true,
+        "evaluable": false
       },
       "full_suite": {
         "pass": false,
+        "artifact_present": true,
+        "passed": false,
         "status": "BLOCKED_FULL_SUITE_VALIDATION",
         "details": null
       },
       "rc_v2_intact": {
-        "pass": false,
+        "status": "NOT_CHECKED_IN_THIS_EXECUTION",
+        "passed": null,
         "checked": false,
         "value": null
       }
@@ -169,26 +179,22 @@
       "locked_min_positives_without_keywords": 100
     },
     "all_core_pass": false,
-    "terminal_status": "BLOCKED_INVALID_EVALUATION_CORPUS",
-    "primary_terminal_status": "BLOCKED_INVALID_EVALUATION_CORPUS",
+    "terminal_status": "BLOCKED_INSUFFICIENT_REAL_GOLD_CORPUS",
+    "primary_terminal_status": "BLOCKED_INSUFFICIENT_REAL_GOLD_CORPUS",
     "active_blockers": [
       "BLOCKED_EMBEDDING_OPERATIONAL_VALIDATION",
       "BLOCKED_FULL_SUITE_VALIDATION",
       "BLOCKED_INSUFFICIENT_REAL_GOLD_CORPUS",
-      "BLOCKED_INSUFFICIENT_RECALL",
       "BLOCKED_INSUFFICIENT_STATISTICAL_POWER",
-      "BLOCKED_INVALID_EVALUATION_CORPUS",
-      "BLOCKED_LLM_OPERATIONAL_VALIDATION",
-      "BLOCKED_REVIEW_CAPACITY"
+      "BLOCKED_LLM_OPERATIONAL_VALIDATION"
     ],
     "required_honest_blockers": [
-      "BLOCKED_INVALID_EVALUATION_CORPUS",
       "BLOCKED_LLM_OPERATIONAL_VALIDATION",
-      "BLOCKED_REVIEW_CAPACITY",
       "BLOCKED_FULL_SUITE_VALIDATION"
     ],
     "required_honest_blockers_present": true,
     "evaluation_level": "C",
+    "operational_claim_allowed": false,
     "ready_requirements": {
       "real_corpus_sufficient": false,
       "label_provenance_valid": false,
@@ -202,5 +208,5 @@
       "rc_v2_intact": false
     }
   },
-  "note": "Level C operational intervals"
+  "note": "No operational intervals: zero gold positives."
 }

@@ -1,8 +1,15 @@
 # Hybrid sector recall + LLM arbiter — default offline-safe config
 # No secrets. Paid LLM only via explicit operational gate.
 # Hash embeddings are lexical_fuzzy_hash only — not operational semantic.
+# Foundation is disabled by default: does not replace commercial RC v2 Deliverable E.
 
 pipeline_version: hybrid-sector-recall-llm-arbiter/1.1.0
+
+# When false: hybrid challenger does not replace commercial flow, does not call
+# paid LLM/embedding, and does not emit commercial opportunities except under
+# explicit campaign/test activation (force_fake / campaign entry).
+operational:
+  enabled: false
 
 raw_universe:
   full_universe_threshold: 500

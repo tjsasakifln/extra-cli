@@ -1,5 +1,6 @@
 {
-  "pass": false,
+  "artifact_present": true,
+  "passed": false,
   "status": "BLOCKED_FULL_SUITE_VALIDATION",
   "details": null
 }
