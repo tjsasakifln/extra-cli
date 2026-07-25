@@ -1,20 +1,14 @@
 {
   "campaign_id": "CONFENGE-COMMERCIAL-READY-01",
-  "git_sha": "1108c72a21d82e81670976cd9dd104fb4b153a82",
-  "production_touched": false,
-  "soak_touched": false,
+  "services_restarted": "UNKNOWN",
+  "operational_tables_written": "UNKNOWN",
   "timers_modified": "UNKNOWN",
-  "services_restarted": false,
-  "operational_tables_written": false,
-  "soak_artifacts_modified": "UNKNOWN",
   "campaign_did_not_request_write": true,
-  "no_write_observed": true,
+  "no_write_observed": null,
   "no_write_proven": false,
-  "status": "BLOCKED",
-  "reason": "no_write_proven_unavailable_without_host_observation",
-  "note": "Cannot claim no_write_proven without remote observation. Local campaign path did not target soak units.",
-  "at": "2026-07-25T23:01:54.713652Z",
-  "scope": "local_campaign_db_only",
-  "services_restarted_evidence": "not_applicable_local_no_systemd_target",
-  "operational_tables_evidence": "campaign writes only commercial_* ledger tables on confenge_commercial:5441 when persist enabled; this run used --skip-persist"
+  "status": "FAIL",
+  "ok": false,
+  "fail_reason": "UNKNOWN_observations_fail_closed",
+  "note": "Local campaign path has no systemd/WAL proof; UNKNOWN fails closed per \u00a718",
+  "at": "2026-07-25T23:17:37.324485Z"
 }

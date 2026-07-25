@@ -1,10 +1,12 @@
 {
-  "run_id": "cl-20260725T230559Z-242e4a71",
+  "run_id": "cl-20260725T231808Z-d04c06e2",
   "status": "PASS",
   "reason": null,
-  "git_sha": "ffefe2960f40469be02a1d7de68b13c5c2ccfad2",
-  "run_git_sha": "ffefe2960f40469be02a1d7de68b13c5c2ccfad2",
-  "artifact_git_sha": "ffefe2960f40469be02a1d7de68b13c5c2ccfad2",
+  "git_sha": "dbe190e7bf286c3c0096792cabc0ca375e204b30",
+  "run_git_sha": "dbe190e7bf286c3c0096792cabc0ca375e204b30",
+  "artifact_git_sha": "dbe190e7bf286c3c0096792cabc0ca375e204b30",
+  "gate_git_sha": "dbe190e7bf286c3c0096792cabc0ca375e204b30",
+  "review_git_sha": "dbe190e7bf286c3c0096792cabc0ca375e204b30",
   "population_mode": "FULL_POPULATION",
   "source_state_mode": "RESTORED_SNAPSHOT_SINGLE_DB",
   "snapshot_binding": {
@@ -29,34 +31,34 @@
     "table": "pncp_supplier_contracts"
   },
   "sector_fit_distribution": {
-    "STRONG_ENGINEERING_FIT": 4987,
-    "CONFLICTING": 312,
-    "POSSIBLE_ENGINEERING_FIT": 2269,
-    "OUT_OF_SCOPE": 975
+    "STRONG_ENGINEERING_FIT": 4791,
+    "CONFLICTING": 308,
+    "POSSIBLE_ENGINEERING_FIT": 1826,
+    "OUT_OF_SCOPE": 745
   },
   "metrics": {
-    "eligible_companies": 8543,
+    "eligible_companies": 7670,
     "raw_contracts_loaded": 33682,
-    "relevance_pass_contracts": 17114,
+    "relevance_pass_contracts": 15344,
     "db_contract_count": 60000,
-    "exclusions": 249,
-    "scored_companies": 4987,
-    "validity_excluded": 3556,
-    "review_queue_size": 3556,
+    "exclusions": 363,
+    "scored_companies": 4791,
+    "validity_excluded": 2879,
+    "review_queue_size": 2879,
     "ranked_leads": 20,
     "do_not_contact_suppressed": 0,
     "human_state_overrides": 23,
     "queue_limit": 20,
     "insufficient_queue": false,
-    "elapsed_seconds": 15.805,
+    "elapsed_seconds": 18.633,
     "module_version": "1.2.0",
     "population_mode": "FULL_POPULATION",
     "limit_applied": null,
     "sector_fit_distribution": {
-      "STRONG_ENGINEERING_FIT": 4987,
-      "CONFLICTING": 312,
-      "POSSIBLE_ENGINEERING_FIT": 2269,
-      "OUT_OF_SCOPE": 975
+      "STRONG_ENGINEERING_FIT": 4791,
+      "CONFLICTING": 308,
+      "POSSIBLE_ENGINEERING_FIT": 1826,
+      "OUT_OF_SCOPE": 745
     }
   },
   "top10_validation": {
@@ -64,7 +66,7 @@
     "issues": [],
     "out_of_scope_in_top10": 0
   },
-  "ranking_hash": "8f9fc2d103b048641c93750a7c928b8b4f1a96311a30b649b3c2dbd55dbec316",
+  "ranking_hash": "24e2f4fba35e741069a7d60efee2c33c8be3a1b20968f0879578b5762c622610",
   "top20": [
     {
       "rank": 1,
@@ -248,8 +250,8 @@
     },
     {
       "rank": 19,
-      "cnpj14": "22835076000170",
-      "razao_social": "CONSORCIO INTEGRADO MULTIFINALITARIO DO VALE DO JEQUITINHONH",
+      "cnpj14": "10249046000100",
+      "razao_social": "CONSTRUCOES SCHOROEDER LTDA",
       "score_total": 8.4,
       "supplier_sector_fit": "STRONG_ENGINEERING_FIT",
       "contract_relevance": "PASS",
@@ -258,8 +260,8 @@
     },
     {
       "rank": 20,
-      "cnpj14": "10249046000100",
-      "razao_social": "CONSTRUCOES SCHOROEDER LTDA",
+      "cnpj14": "09223659000181",
+      "razao_social": "VIGA PAVIMENTAÇÃO E OBRAS LTDA",
       "score_total": 8.4,
       "supplier_sector_fit": "STRONG_ENGINEERING_FIT",
       "contract_relevance": "PASS",

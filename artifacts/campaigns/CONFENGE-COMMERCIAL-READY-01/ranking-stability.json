@@ -1,7 +1,38 @@
 {
+  "same_snapshot": {
+    "ok": true,
+    "ranking_hash_run1": "24e2f4fba35e741069a7d60efee2c33c8be3a1b20968f0879578b5762c622610",
+    "ranking_hash_run2": "24e2f4fba35e741069a7d60efee2c33c8be3a1b20968f0879578b5762c622610",
+    "identical": true,
+    "profile": "confenge@1.0.0",
+    "catalog_hash": "a02e6c66adef2795c71906e4a3fd0d1a2c2c55c9449d2205940a637011e1004d",
+    "as_of": "2026-07-25"
+  },
+  "delta_snapshot": {
+    "ok": true,
+    "description": "Simulated new data: one lead replaced; delta explained",
+    "ranking_hash_before": "9afce7f2366be42f6afe33cf2fa4770ff2ef82492a2431d18339d18af3c5459f",
+    "ranking_hash_after": "dba271f95384d87a80572b76b2574cdc9354916d22d4e07201c05f695bb6dcd9",
+    "identical": false,
+    "new_leads": [
+      "99999999000199"
+    ],
+    "removed_leads": [
+      "09223659000181"
+    ],
+    "score_changes_explained": true,
+    "feedback_preserved": true
+  },
+  "profile_or_catalog_change": {
+    "ok": true,
+    "description": "Profile/catalog version bump invalidates prior acceptance",
+    "ranking_hash_before": "9afce7f2366be42f6afe33cf2fa4770ff2ef82492a2431d18339d18af3c5459f",
+    "ranking_hash_after": "b77533a356869bcd7f0b6e03ff343fd11c13d913bb82139c6306fd9611b3c8d9",
+    "new_profile_version": "1.0.0+sector-fit",
+    "prior_acceptance_invalidated": true,
+    "delta_explained": true
+  },
   "ok": true,
-  "ranking_hash_run1": "8f9fc2d103b048641c93750a7c928b8b4f1a96311a30b649b3c2dbd55dbec316",
-  "ranking_hash_run2": "8f9fc2d103b048641c93750a7c928b8b4f1a96311a30b649b3c2dbd55dbec316",
-  "identical": true,
-  "git_sha": "d9874b64c8b1adf953a24453944ae51d9bf5284b"
+  "required_for_rc": true,
+  "git_sha": "dbe190e7bf286c3c0096792cabc0ca375e204b30"
 }
