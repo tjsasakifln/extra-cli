@@ -1,5 +1,9 @@
 # Pre-VPS Readiness — resiliência local
 
+> **SNAPSHOT histórico** (2026-07-17).  
+> Estado operacional atual: [`README.md`](../../README.md) · [`docs/DEVELOPMENT.md`](../DEVELOPMENT.md) · [`DOD.md`](../../DOD.md).  
+> Este arquivo **não** autoriza claims de cobertura, `LOCAL_READY` ou `VPS_OPERATIONAL`. Host de record posterior: Netcup (`ssh ec-prod`).
+
 | Campo | Valor |
 |---|---|
 | Data | 2026-07-17 (atualizado no truth gate) |

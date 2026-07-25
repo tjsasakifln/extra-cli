@@ -1,13 +1,17 @@
 # Plano Hetzner + Supabase Self-Hosted — Extra Construtora (HISTÓRICO)
 
-> **Data:** 2026-07-10 | **Autor:** AIOX PM | **Status:** HISTÓRICO — substituído por ADR-007 e ADR-008
-> 
-> **Nota (2026-07-15):** Este documento é mantido como registro histórico. A direção arquitetural atual está documentada em:
-> - `docs/architecture/adr/ADR-007-cloud-hosting-strategy.md` — Estratégia de hospedagem
-> - `docs/architecture/adr/ADR-008-infrastructure-as-code-strategy.md` — Estratégia de IaC
-> - `docs/ops/cloud-deployment-plan.md` — Plano operacional
+> **SNAPSHOT histórico** (2026-07-10).  
+> Estado operacional atual: [`README.md`](../../README.md) · [`docs/DEVELOPMENT.md`](../DEVELOPMENT.md) · [`DOD.md`](../../DOD.md).  
+> Host de record: **Netcup** (`ssh ec-prod`). Este arquivo **não** autoriza claims de cobertura, `LOCAL_READY` ou `VPS_OPERATIONAL`.
 >
-> Hetzner não é mais baseline obrigatório. Supabase não é mais a direção assumida para o estágio inicial.
+> **Data:** 2026-07-10 | **Autor:** AIOX PM | **Status:** HISTÓRICO — substituído por ADR-007, ADR-008 e host Netcup live  
+>
+> **Notas:**  
+> - `docs/architecture/adr/ADR-007-cloud-hosting-strategy.md` — Estratégia de hospedagem  
+> - `docs/architecture/adr/ADR-008-infrastructure-as-code-strategy.md` — Estratégia de IaC  
+> - `docs/ops/README.md` — Índice operacional atual  
+>
+> Hetzner não é baseline obrigatório. Supabase não é a direção do estágio atual.
 
 ---
 

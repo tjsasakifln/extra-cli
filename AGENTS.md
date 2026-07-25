@@ -17,12 +17,17 @@ export LOCAL_DATALAKE_DSN="${LOCAL_DATALAKE_DSN:-postgresql://test:test@127.0.0.
 python3 -m scripts.ops.apply_migrations --dsn "$LOCAL_DATALAKE_DSN"
 python3 -m pytest tests/ -q --tb=no -x
 python3 -m scripts.golden_path --dsn "$LOCAL_DATALAKE_DSN"
+make extra-weekly   # ou: python3 -m scripts.ops.weekly_cycle --strict
+python3 -m scripts.workspace today
 python3 squads/extra-dod-roi/scripts/cli.py force-next
 ```
 
+Onboarding: [`README.md`](README.md) · Hub: [`docs/INDEX.md`](docs/INDEX.md)
+
 ## Escopo / arquitetura / operação
 
-Ver seções 2–3 de `docs/DEVELOPMENT.md`. Não inventar selos (`LOCAL_READY`, 95%, VPS) sem evidência.
+Ver seções 2–3 de `docs/DEVELOPMENT.md`. Não inventar selos (`LOCAL_READY`, 95%, VPS) sem evidência.  
+Host de record (Netcup / `ec-prod`) ≠ `VPS_OPERATIONAL`.
 
 ## DOD Convergence (obrigatório)
 

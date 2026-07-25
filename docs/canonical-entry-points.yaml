@@ -1,9 +1,11 @@
 # Canonical entry-point contract (DoD §32.1)
 # All tool adapters (CLAUDE.md, AGENTS.md, Cursor rules) MUST reference
 # docs/DEVELOPMENT.md and MUST NOT invent parallel product requirements.
-version: "1.0"
-updated_at: "2026-07-18"
+version: "1.1"
+updated_at: "2026-07-25"
 canonical_guide: docs/DEVELOPMENT.md
+product_onboarding: README.md
+docs_hub: docs/INDEX.md
 precedence:
   - DOD.md
   - ADR vigente
@@ -25,8 +27,14 @@ commands:
     # CANONICAL weekly operational cycle for Extra Construtora
     make extra-weekly
     # equivalent: python3 -m scripts.ops.weekly_cycle --strict
+  workspace: |
+    python3 -m scripts.workspace today
+    python3 -m scripts.workspace coverage
   campaign: |
     python3 squads/extra-dod-roi/scripts/cli.py force-next
+  dod: |
+    python3 tools/dod_controller.py status
+    python3 tools/dod_controller.py next
 
 # Substrings that every entry-point adapter must mention (or point to DEVELOPMENT.md)
 required_command_tokens:
@@ -49,6 +57,9 @@ documents:
   operations:
     - docs/ops/
     - docs/DEVELOPMENT.md
+  hub:
+    - docs/INDEX.md
+    - README.md
 
 adapters:
   claude:
@@ -69,3 +80,13 @@ product_requirement_roots:
   - scripts/
   - tests/
   - db/migrations/
+
+# Host of record (documentation only — not a readiness seal)
+host_of_record:
+  provider: Netcup
+  access: ssh ec-prod
+  app_path: /opt/extra-consultoria
+  non_claims:
+    - LOCAL_READY
+    - VPS_OPERATIONAL
+    - PROJECT_DONE

@@ -1,5 +1,9 @@
 # PRE-VPS Final Truth Report
 
+> **SNAPSHOT histórico** (2026-07-17).  
+> Estado operacional atual: [`README.md`](../../README.md) · [`docs/DEVELOPMENT.md`](../DEVELOPMENT.md) · [`DOD.md`](../../DOD.md).  
+> Este arquivo **não** autoriza claims de cobertura, `LOCAL_READY` ou `VPS_OPERATIONAL`.
+
 **Date:** 2026-07-17  
 **Branch:** `fix/pre-vps-final-truth-gate-20260717`  
 **Hypothesis destroyed:** `LOCAL_RESILIENCE_READY`

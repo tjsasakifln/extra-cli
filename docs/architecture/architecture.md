@@ -1,111 +1,102 @@
 # Arquitetura — Extra Consultoria
 
-## Visão Geral
+**Atualizado:** 2026-07-25  
+**Status:** visão viva (não substitui ADRs nem `DOD.md`)
 
-Plataforma CLI de inteligência em licitações. Single-user, single-client
-(Extra Construtora). DataLake PostgreSQL em VPS em nuvem. Multi-source data
-ingestion. Relatórios PDF Big Four aesthetic.
+## Visão geral
 
-Provedor de nuvem a definir. Ver `docs/architecture/adr/ADR-007-cloud-hosting-strategy.md`.
+Plataforma **CLI** de inteligência em licitações. Single-user, single-client (Extra Construtora).  
+DataLake PostgreSQL; ingestão multi-fonte; relatórios Excel/PDF; ciclo semanal e workspace operacional.
+
+| Dimensão | Valor atual |
+|----------|-------------|
+| Host de record | **Netcup** RS 2000 · Debian 13 · PG **17** · `ssh ec-prod` · `/opt/extra-consultoria` |
+| Runtime local | Python 3.12 + Docker Postgres de teste (ex. porta 5433) |
+| Agendamento | systemd timers em `deploy/systemd/` |
+| Universo | **1.093** entes (raio 200 km / planilha R-0) |
+| Decisões | ADRs em `docs/architecture/adr/` (ver `INDEX.md`) |
+
+Existência do host **não** implica `VPS_OPERATIONAL`. Detalhe de gates: `DOD.md` + `README.md`.
 
 ## C4 — Nível 1 (Contexto)
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│  Usuário: Tiago Sasaki (Consultor)                               │
-│  Acesso: SSH terminal (WSL → VPS em nuvem)                        │
+│  Usuário: Tiago Sasaki (Consultor)                              │
+│  Acesso: terminal local (WSL/Linux) e SSH → VPS (ec-prod)       │
 └──────────────────────────┬──────────────────────────────────────┘
                            │
                            ▼
 ┌──────────────────────────────────────────────────────────────────┐
-│  Extra Consultoria Platform (VPS em Nuvem)                        │
-│                                                                   │
-│  scripts/crawl/monitor.py  ← systemd timers                      │
-│  scripts/intel_pipeline.py ← CLI on-demand                       │
-│  scripts/reports/panorama.py ← scheduled + on-demand             │
+│  Extra Consultoria Platform                                      │
+│  scripts/* (CLI) · workspace · weekly_cycle · golden_path        │
+│  crawl/monitor · opportunity_intel · coverage · reports          │
 └──────────────────────────┬───────────────────────────────────────┘
                            │
-            ┌──────────────┼──────────────┬────────────┐
-            ▼              ▼              ▼            ▼
-     ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐
-     │  PNCP    │  │ DOM-SC   │  │ PCP v2   │  │ComprasGov│
-     │  API     │  │  Portal  │  │  API     │  │  API     │
-     └──────────┘  └──────────┘  └──────────┘  └──────────┘
+     ┌───────────┬─────────┼─────────┬───────────┬────────────┐
+     ▼           ▼         ▼         ▼           ▼            ▼
+  PNCP API    DOM/CIGA   DOE-SC    PCP       ComprasGov    outros
+  (editais +  publicações SC                 federal       (SC Compras,
+  contratos)                                               transparência…)
 ```
 
 ## C4 — Nível 2 (Containers)
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                     VPS em Nuvem (Ubuntu 24.04)                    │
-│                                                                   │
-│  ┌─────────────────────┐  ┌──────────────────────┐              │
-│  │ systemd timers      │  │ PostgreSQL 16         │              │
-│  │                     │  │                       │              │
-│  │ pncp-crawl-full     │  │ pncp_raw_bids         │              │
-│  │ pncp-crawl-inc      │  │ pncp_supplier_contracts│             │
-│  │ dom-sc-crawl        │  │ sc_public_entities    │              │
-│  │ pcp-crawl           │  │ entity_coverage       │              │
-│  │ compras-gov-crawl   │  │ enriched_entities     │              │
-│  │ coverage-report     │  │ ingestion_runs        │              │
-│  │ pncp-report-weekly  │  │ ingestion_checkpoints │              │
-│  └─────────────────────┘  └──────────────────────┘              │
-│                                                                   │
-│  ┌─────────────────────────────────────────────────────────────┐ │
-│  │ Python 3.12 scripts (CLI)                                    │ │
-│  │                                                              │ │
-│  │ monitor.py ──→ pncp_crawler_adapter.py ──→ PNCP API         │ │
-│  │             ──→ dom_sc_crawler.py ──→ DOM-SC                │ │
-│  │             ──→ pcp_crawler.py ──→ PCP API                  │ │
-│  │                                                              │ │
-│  │ intel_pipeline.py ──→ intel_collect.py ──→ datalake + live  │ │
-│  │                   ──→ intel_enrich.py                        │ │
-│  │                   ──→ intel_llm_gate.py                      │ │
-│  │                   ──→ intel_analyze.py ──→ OpenAI API       │ │
-│  │                   ──→ intel_report.py ──→ PDF                │ │
-│  └─────────────────────────────────────────────────────────────┘ │
-└──────────────────────────────────────────────────────────────────┘
+│              VPS Netcup (Debian 13) — host de record            │
+│                                                                 │
+│  ┌──────────────────────┐   ┌────────────────────────────────┐  │
+│  │ systemd timers       │   │ PostgreSQL 17                  │  │
+│  │ deploy/systemd/      │   │ pncp_* · contracts · entities  │  │
+│  │ pncp-crawl / contracts│  │ coverage_evidence · runs …     │  │
+│  │ ciga / doe / pcp …   │   │ checkpoints / provenance       │  │
+│  │ backup / health      │   └────────────────────────────────┘  │
+│  └──────────────────────┘                                       │
+│  ┌──────────────────────────────────────────────────────────┐   │
+│  │ Python 3.12 @ /opt/extra-consultoria                     │   │
+│  │ monitor · contracts crawler · weekly · ops health        │   │
+│  └──────────────────────────────────────────────────────────┘   │
+│  Backup off-site: Netcup Storagespace (NFS) quando provisionado │
+└─────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────┐
+│  Dev workstation                                                │
+│  pytest · ruff · golden_path · docker-compose test DB           │
+│  workspace CLI · force-next · dod_controller                    │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
-## Fluxo de Dados
+## Capacidades e medição
 
-```
-1. INGESTÃO (systemd timers)
-   PNCP/DOM-SC/PCP API → crawler → transform → upsert → entity_match
+Cobertura operacional é **por capability** (ADR-028 / ADR-030), não uma % única ambígua:
 
-2. COVERAGE (diário)
-   entity_coverage ← trigger after upsert
-   coverage-report → gap detection → alert
+- `open_tenders` — editais abertos / monitoramento de oportunidade  
+- `historical_contracts` — histórico de contratos (meta ≥95%; dual 100% observado na campanha HC)  
+- Sinal comercial e “qualquer linha no banco” **não** contam como cobertura  
 
-3. PIPELINE INTEL (CLI on-demand)
-   intel_collect → intel_enrich → intel_llm_gate →
-   intel_extract_docs → intel_analyze → intel_report → PDF+Excel
+Registry de fontes: `scripts/crawl/registry.py` + `config/source_applicability.yaml`.  
+Universo: `scripts.lib.universe.load_canonical_universe` (seed planilha).
 
-4. RELATÓRIOS (scheduled + on-demand)
-   panorama.py → terminal + Excel + PDF
-```
+## Superfície CLI principal
 
-## Decisões de Arquitetura
+| Entry | Papel |
+|-------|--------|
+| `python3 -m scripts.workspace …` | Facade diária (ADR-017) |
+| `make extra-weekly` | Ciclo semanal canônico |
+| `python3 -m scripts.golden_path` | Prova técnica de pipeline |
+| `python3 -m scripts.crawl.monitor` | Orquestração multi-fonte |
+| `python3 -m scripts.opportunity_intel.cli` | Vertical editais abertos |
+| `python3 -m scripts.ops.*` | Migrations, health, campanhas, weekly |
+| `tools/dod_controller.py` | Convergência DOD |
 
-| Decisão | Escolha | Justificativa |
-|---------|---------|---------------|
-| DB | PostgreSQL raw (psycopg2) | Single user, sem REST overhead |
-| Scheduler | systemd timers | Nativo Linux, sem Redis/ARQ |
-| Crawl | Sync HTTP (urllib) | Simples, sem asyncio para cron |
-| PDF | ReportLab | Código existente validado (10K+ linhas) |
-| LLM | GPT-4.1-nano | Custo baixo, qualidade suficiente |
-| Linguagem | Python 3.12 | Todo o source é Python |
-| Paths | Absolutos via Path(__file__) | Independe do CWD |
-| Config | Env vars + YAML | 12-factor, secrets fora do código |
+## Diagramas e docs relacionadas
 
-## Schema (tabelas core)
+- C4 detalhado / legado: `system-architecture.md`, `_reversa_sdd/c4-*.md` (extração Reversa — snapshot)
+- Contratos de cobertura: `coverage-contract.md`, ADR-018, ADR-030
+- Deploy: `docs/ops/`, `deploy/ansible/`, ADR-007 / ADR-008
+- Target B2G: `b2g-operational-target-architecture.md`
 
-```
-pncp_raw_bids          ← Licitações (multi-source unificado)
-pncp_supplier_contracts ← Contratos (histórico)
-enriched_entities      ← Cache BrasilAPI/IBGE
-sc_public_entities     ← 2.085 órgãos SC (planilha)
-entity_coverage        ← Tracking de cobertura
-ingestion_runs         ← Auditoria de crawls
-ingestion_checkpoints  ← Crawls resumable
-```
+## Non-claims
+
+Este documento **não** declara `LOCAL_READY`, `VPS_OPERATIONAL`, `PROJECT_DONE` nem open_tenders ≥95%.

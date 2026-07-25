@@ -1,11 +1,21 @@
 # Workspace Guide — Tiago (Extra Construtora)
 
-Guia operacional do dia a dia. Branch/épico: `epic/b2g-operational-platform-2026-07-17`.
+Guia operacional do dia a dia.  
+**Atualizado:** 2026-07-25 · Facade ADR-017 · Host de record: Netcup (`ssh ec-prod`)  
+**Onboarding:** [`README.md`](../../README.md) · **Dev canônico:** [`docs/DEVELOPMENT.md`](../DEVELOPMENT.md)
 
-## Amanhã de manhã (golden path, ~15 min)
+Ciclo semanal (não substituir por scripts ad hoc):
+
+```bash
+make extra-weekly
+# python3 -m scripts.ops.weekly_cycle --strict
+```
+
+## Rotina diária (~15 min)
 
 ```bash
 cd "/path/to/extra-consultoria"
+export LOCAL_DATALAKE_DSN="${LOCAL_DATALAKE_DSN:-postgresql://test:test@127.0.0.1:5433/extra_test}"
 
 # 1) Fila do dia (oportunidades, prazos, perfil pendente, fontes)
 python3 -m scripts.workspace today
@@ -13,6 +23,7 @@ python3 -m scripts.workspace today
 # 2) Contrato de cobertura (NÃO confundir sinal comercial com cobertura)
 python3 -m scripts.coverage.coverage_contract_cli report --format table
 python3 -m scripts.coverage.coverage_contract_cli report -o output/coverage/contract-report.json
+python3 -m scripts.workspace coverage
 
 # 3) Source registry / gaps nominais
 python3 -m scripts.source_registry stats
@@ -26,7 +37,7 @@ python3 -m scripts.workspace dossier <ID>
 # 5) Atualizar PNCP se freshness baixa
 python3 -m scripts.opportunity_intel.cli update --source pncp
 # ou multi-fonte:
-python3 scripts/crawl/monitor.py --source pncp --mode incremental
+python3 -m scripts.crawl.monitor --source pncp --mode incremental
 
 # 6) Briefing comercial
 python3 -m scripts.workspace briefing
@@ -65,10 +76,11 @@ python3 -m scripts.workspace decide --id <ID> --decision approve --reason "Fit r
 | `source_mapping_coverage` | Registro explícito de fontes | **100%** |
 | `operational_source_coverage` | Sete estágios, proveniência completa e sucesso dentro do SLA | **≥95%** |
 | `freshness_coverage` | Verificado dentro do SLA | **≥95%** |
-| `opportunity_recall` | Amostra estratificada de portais | **≥95%** |
+| `opportunity_recall` | Amostra estratificada de portais | **≥95%** (não claimar sem amostra-ouro atual) |
 | `required_field_completeness` | Campos de decisão preenchidos | alto |
+| Dual `historical_contracts` | Spine ADR-030 | Meta ≥95%; ver campanha HC / non-claims no README |
 
-As **14 recomendações GO** da sessão anterior são o melhor entre o que o sistema encontrou — **não** as 14 melhores do universo real.
+Recomendações GO/REVIEW são o melhor entre o que o sistema encontrou com dados disponíveis — **não** garantem recall do universo real.
 
 ## Perfil Extra (elicitação pendente)
 

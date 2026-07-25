@@ -65,49 +65,51 @@ Quando o usuário digitar `/reversa` ou a palavra `reversa` sozinha em uma mensa
 Nunca apague, modifique ou sobrescreva arquivos pré-existentes do projeto legado.
 O Reversa escreve apenas em `.reversa/`, `_reversa_sdd/`, `_reversa_docs/` e `_reversa_forward/`.
 
+## Guia canônico e onboarding
+
+- **Dev/ops:** [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md)
+- **Onboarding / estado honesto:** [`README.md`](README.md)
+- **Hub de docs:** [`docs/INDEX.md`](docs/INDEX.md)
+- **DoD:** [`DOD.md`](DOD.md) — não inventar selos sem evidência
+
 ## Comandos Frequentes (Extra Consultoria)
 
 ```bash
+# Setup / validação / golden path / weekly (canônicos)
+export LOCAL_DATALAKE_DSN="${LOCAL_DATALAKE_DSN:-postgresql://test:test@127.0.0.1:5433/extra_test}"
+python3 -m scripts.ops.apply_migrations --dsn "$LOCAL_DATALAKE_DSN"
+python3 -m pytest tests/ -q --tb=no -x
+python3 -m scripts.golden_path --dsn "$LOCAL_DATALAKE_DSN"
+make extra-weekly   # python3 -m scripts.ops.weekly_cycle --strict
+
+# Workspace (dia a dia)
+python3 -m scripts.workspace today
+python3 -m scripts.workspace coverage
+python3 -m scripts.workspace opportunities --status open --limit 20
+
 # Crawl
-python scripts/crawl/monitor.py --source pncp --mode full
-python scripts/crawl/monitor.py --source all --mode incremental
-python scripts/crawl/monitor.py --report-coverage
+python3 -m scripts.crawl.monitor --source pncp --mode full
+python3 -m scripts.crawl.monitor --source all --mode incremental
+python3 -m scripts.crawl.monitor --report-coverage
 
-# Testes
+# Testes / lint
 pytest tests/ -v
-pytest -m unit
-pytest --cov=scripts --cov-report=term-missing
-
-# Lint e Type Check
 ruff check scripts/
 ruff format scripts/
 mypy scripts/
 
-# Pipeline de Inteligencia
-python scripts/intel_pipeline.py --cnpj <CNPJ> --ufs SC
-python scripts/reports/panorama.py --output-excel
-
-# DataLake CLI
-python scripts/local_datalake.py search --uf SC --dias 30
-python scripts/local_datalake.py supplier --cnpj <CNPJ>
-python scripts/local_datalake.py stats
-
 # Opportunity Intelligence
-python scripts/opportunity_intel/cli.py list --status open --limit 20
-python scripts/opportunity_intel/cli.py show 1
-python scripts/opportunity_intel/cli.py explain 1
-python scripts/opportunity_intel/cli.py coverage
-python scripts/opportunity_intel/cli.py source-health
-python scripts/opportunity_intel/cli.py update --source pncp
-python scripts/opportunity_intel/cli.py export --format csv -o opportunities.csv
-python scripts/opportunity_intel/manifest.py
+python3 -m scripts.opportunity_intel.cli list --status open --limit 20
+python3 -m scripts.opportunity_intel.cli source-health
+python3 -m scripts.opportunity_intel.cli update --source pncp
 
-# Infra (VPS)
-ssh ec-prod "systemctl list-timers 'extra-*'"
-ssh ec-prod "journalctl -u extra-crawl-pncp.service -n 30"
+# DOD / campanha
+python3 tools/dod_controller.py next
+python3 squads/extra-dod-roi/scripts/cli.py force-next
 
-# Cache IBGE
-python -c "from scripts.crawl.enricher import _ibge_cache; _ibge_cache.clear()"
+# Infra (VPS — host de record Netcup; ≠ VPS_OPERATIONAL)
+ssh ec-prod "systemctl list-timers 'extra-*' 'pncp-*'"
+ssh ec-prod "journalctl -u pncp-contracts.service -n 30"
 ```
 
 ## Quality Assurance Toolkit (incorporado do ECC)

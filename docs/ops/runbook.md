@@ -1,9 +1,10 @@
 # Runbook Operacional — Extra Consultoria
 
-> **Criado em:** 2026-07-11
-> **Propósito:** Procedimentos operacionais para operacao e manutencao do sistema de inteligencia em licitacoes.
-> **Story:** TD-6.1 -- Documentacao Operacional
-> **Responsavel:** @devops (Gage) / @dev (Dex)
+> **Criado em:** 2026-07-11 · **Índice vivo:** [`docs/ops/README.md`](README.md)  
+> **Propósito:** Procedimentos operacionais para operação e manutenção do sistema de inteligência em licitações.  
+> **Story:** TD-6.1 -- Documentação Operacional  
+> **Host de record (2026-07+):** Netcup / `ssh ec-prod` — ver README; não claimar `VPS_OPERATIONAL` só por este runbook.  
+> **Responsável:** @devops (Gage) / @dev (Dex)
 
 ## Sumario
 

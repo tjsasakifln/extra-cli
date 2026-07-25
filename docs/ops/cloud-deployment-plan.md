@@ -1,8 +1,11 @@
 # Cloud Deployment Plan — Extra Consultoria
 
-> Plano operacional de deploy em nuvem.
-> Versão: 1.0 — 2026-07-15
-> Status: Proposed (pré-implantação)
+> **SNAPSHOT / planejamento** (v1.0 — 2026-07-15; pré-implantação original).  
+> Estado operacional atual: [`README.md`](../../README.md) · [`docs/DEVELOPMENT.md`](../DEVELOPMENT.md) · [`docs/ops/README.md`](README.md).  
+> Host de record: **Netcup** RS 2000 / Debian 13 / PG 17 (`ssh ec-prod`).  
+> Este arquivo **não** autoriza claims `LOCAL_READY` / `VPS_OPERATIONAL` / `PROJECT_DONE`.
+>
+> Plano operacional de deploy em nuvem (partes podem estar superadas pelo inventário live Netcup).
 
 ---
 

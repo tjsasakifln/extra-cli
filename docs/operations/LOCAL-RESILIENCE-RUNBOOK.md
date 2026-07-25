@@ -1,5 +1,9 @@
 # Runbook — ciclo local resiliente
 
+> **SNAPSHOT / procedimento local** (fase pré-host e gates offline).  
+> Estado operacional atual: [`README.md`](../../README.md) · [`docs/DEVELOPMENT.md`](../DEVELOPMENT.md) · [`DOD.md`](../../DOD.md).  
+> Este arquivo **não** autoriza claims `LOCAL_READY` / `VPS_OPERATIONAL` / `PROJECT_DONE`.
+
 Use `make resilience-gate` como entrada oficial. O target não acessa a internet:
 valida as units, executa os testes críticos e roda o ciclo com fixtures.
 

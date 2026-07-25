@@ -1,5 +1,9 @@
 # Diagnóstico pré-implementação — resiliência local
 
+> **SNAPSHOT histórico** (2026-07-17).  
+> Estado operacional atual: [`README.md`](../../README.md) · [`docs/DEVELOPMENT.md`](../DEVELOPMENT.md) · [`DOD.md`](../../DOD.md).  
+> Este arquivo **não** autoriza claims de cobertura, `LOCAL_READY` ou `VPS_OPERATIONAL`.
+
 Data: 2026-07-17  
 Branch de trabalho: `feat/local-resilience-ready-20260717`  
 Estado observado: **NOT_READY**

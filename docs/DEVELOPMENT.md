@@ -2,8 +2,11 @@
 
 **Path canônico:** `docs/DEVELOPMENT.md`  
 **Status:** canônico (DoD §32.1)  
+**Atualizado:** 2026-07-25  
 **Precedência em conflito:** `DOD.md` → ADR vigente → código testado → evidência reproduzível.  
-**Contrato de entry-points:** `docs/canonical-entry-points.yaml`
+**Contrato de entry-points:** `docs/canonical-entry-points.yaml`  
+**Onboarding / visão de produto:** `README.md`  
+**Hub de docs:** `docs/INDEX.md`
 
 Este documento é a **fonte compartilhada** de setup, validação e operação local.  
 Arquivos de ferramenta (`CLAUDE.md`, `AGENTS.md`, regras de editor) são **adaptadores finos** e devem apontar para cá — não inventar requisitos paralelos.
@@ -14,28 +17,32 @@ Arquivos de ferramenta (`CLAUDE.md`, `AGENTS.md`, regras de editor) são **adapt
 
 | Artefato | Papel |
 |----------|--------|
-| `DOD.md` | Definition of Done e gates (`LOCAL_READY`, etc.) |
-| `README.md` | Visão e onboarding |
+| `DOD.md` | Definition of Done e gates (`LOCAL_READY`, `VPS_OPERATIONAL`, …) |
+| `README.md` | Visão, estado honesto, onboarding |
+| `docs/INDEX.md` | Mapa living vs histórico vs evidência |
 | `docs/prd/` | Requisitos de produto |
 | `docs/architecture/` + ADRs | Arquitetura e decisões |
-| `docs/ops/` + runbooks | Operação e evidências |
+| `docs/ops/` + runbooks | Operação, campanhas, evidências |
+| `docs/GLOSSARY.md` | Termos e contagens que não se misturam |
 | `db/migrations/` | Schema |
 | `scripts/` | Código operacional CLI-first |
+| `specs/` | Spec Kit (capabilities / campanhas) |
 | `tests/` | Suíte de verificação |
 | `squads/extra-dod-roi/` | Campanha ROI / force-next |
+| `tools/dod_controller.py` | Convergência DOD |
 
 **Proibido:** decisões obrigatórias só em chat, memória de agente, prompt oculto ou sessão local.
 
 ---
 
-## 2. Comandos canônicos (setup / validação / golden path)
+## 2. Comandos canônicos (setup / validação / golden path / weekly)
 
 ```bash
 # Setup local (PostgreSQL de teste exemplo)
 export LOCAL_DATALAKE_DSN="${LOCAL_DATALAKE_DSN:-postgresql://test:test@127.0.0.1:5433/extra_test}"
 
 # Dependências
-pip install -r requirements.txt   # ou poetry/pipenv conforme o repo
+pip install -r requirements.txt
 
 # Migrations
 python3 -m scripts.ops.apply_migrations --dsn "$LOCAL_DATALAKE_DSN"
@@ -47,6 +54,7 @@ python3 -m scripts.ops.source_contract_tests --json
 
 # Golden path (fail-closed — prova técnica de pipeline)
 python3 -m scripts.golden_path --dsn "$LOCAL_DATALAKE_DSN"
+# ou: make golden-path
 
 # Ciclo semanal canônico Extra Construtora (produto consultivo)
 # Único entry point operacional semanal — não criar concorrentes.
@@ -55,26 +63,35 @@ make extra-weekly
 python3 -m scripts.ops.weekly_cycle --strict
 # flags úteis: WEEKLY_FLAGS="--force-collect" | "--skip-collect" | "--lookback-days 7"
 
+# Workspace (facade diária — ADR-017)
+python3 -m scripts.workspace today
+python3 -m scripts.workspace coverage
+
 # Coverage / operational outputs (componentes internos)
 python3 -m scripts.reports.operational_outputs --dsn "$LOCAL_DATALAKE_DSN" --out output/ops-lists --json
 python3 -m scripts.coverage.applicability_matrix --limit-entities 50 --out output/applicability --json
+python3 -m scripts.coverage.coverage_contract_cli report --format table
 
-# Campanha DoD ROI
+# DOD convergence + campanha ROI
+python3 tools/dod_controller.py status
+python3 tools/dod_controller.py next
 python3 squads/extra-dod-roi/scripts/cli.py status
 python3 squads/extra-dod-roi/scripts/cli.py force-next
 ```
 
-Os pontos de entrada (Claude / Codex-compat / Cursor) **devem** citar: setup → validação → golden path → **extra-weekly**.
+Os pontos de entrada (Claude / Codex-compat / Cursor) **devem** citar: setup → validação → golden path → **extra-weekly** → workspace (quando operação diária).
 
 ---
 
 ## 3. Escopo, arquitetura e operação
 
 - **Escopo produto:** `DOD.md` + PRD sharded  
-- **Arquitetura:** `docs/architecture/` e ADRs  
-- **Operação:** `docs/ops/`, runbooks, timers VPS (após PRE_VPS)  
-- **Universo:** `config/target_entities_200km.csv` (1093 entes / 200 km)  
-- **Fontes:** `scripts/crawl/registry.py` + `config/source_applicability.yaml`
+- **Arquitetura:** `docs/architecture/` e ADRs (028 freshness, 029 full suite, 030 dual coverage)  
+- **Operação:** `docs/ops/`, runbooks, `deploy/systemd/`  
+- **Universo:** planilha R-0 / seed canônica → **1.093** entes (200 km). CSV auxiliar: `config/target_entities_200km.csv`  
+- **Fontes:** `scripts/crawl/registry.py` + `config/source_applicability.yaml`  
+- **Host de record:** Netcup RS 2000 · Debian 13 · PostgreSQL 17 · `ssh ec-prod` · `/opt/extra-consultoria`  
+  (existência do host **não** implica `VPS_OPERATIONAL` / `LOCAL_READY` / `PROJECT_DONE`)
 
 ---
 
@@ -85,7 +102,9 @@ Os pontos de entrada (Claude / Codex-compat / Cursor) **devem** citar: setup →
 3. PR aberta ≠ código integrado.  
 4. Teste skipped ≠ aprovado.  
 5. Documento descrevendo comando ≠ comando funciona.  
-6. Não marcar `LOCAL_READY` / 95% / `PRE_VPS_FINAL_READY` / `VPS_OPERATIONAL` / `PROJECT_DONE` sem evidência no HEAD.
+6. Não marcar `LOCAL_READY` / 95% open_tenders / `PRE_VPS_FINAL_READY` / `VPS_OPERATIONAL` / `PROJECT_DONE` sem evidência no HEAD.  
+7. Dual `historical_contracts` 100% ≠ cobertura total de produto e ≠ `VPS_OPERATIONAL`.  
+8. Contagem ~2.085 (SC amplo) ≠ denominador 1.093.
 
 ---
 
@@ -103,14 +122,20 @@ Remover um adaptador **não** remove requisitos de produto: eles vivem em `DOD.m
 
 ## 6. Branch e publicação
 
-- Trabalho de produto: branch de feature / épica — **nunca** commitar produto direto na `main` durante campanha.  
+- Trabalho de produto: branch de feature / épica — **nunca** commitar produto direto na `main` durante campanha sem processo.  
 - Push/PR: autoridade `@devops` / gates AIOX.  
-- Campanha atual: `epic/advance-30d-local-ready-20260718`.
+- Specs de campanha: `specs/001-dual-capability-coverage-truth/`, `specs/002-historical-contracts-operational-coverage/`.
 
-## Private assets
-See [docs/ops/private-assets.md](ops/private-assets.md). Set `EXTRA_TARGET_SPREADSHEET` for the private planilha (not in public git).
+## 7. Private assets
 
-## Active campaign (2026-07-23)
+Ver [docs/ops/private-assets.md](ops/private-assets.md).  
+`EXTRA_TARGET_SPREADSHEET` para a planilha privada (não no git público).
 
-- **HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01** — Spec `specs/002-historical-contracts-operational-coverage/` — branch `campaign/historical-contracts-operational-closure-01`.
-- Host of record: Netcup RS 2000 / Debian 13 / PG 17 (`ssh ec-prod`).
+## 8. Campanhas e host (snapshot 2026-07-25 / `main`)
+
+- **Host de record:** Netcup / `ssh ec-prod` / PG 17.  
+- **HC:** `HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01` — dual historical_contracts 100%; backfill 3y; **BLOCKED** soak 7d.  
+- **Open tenders:** `OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01` — dual open_tenders 100%; weekly timer; **BLOCKED** soak 7d + recall residual.  
+- **Recall:** `STRATIFIED-RECALL-SOURCE-RESILIENCE-01` — não claimar 95% sem strata.  
+- **Próximo passo vivo:** [docs/ops/NEXT-DEV-STEP.md](ops/NEXT-DEV-STEP.md).  
+- **Non-claims:** não declarar `LOCAL_READY`, `VPS_OPERATIONAL`, `PROJECT_DONE` sem gates + evidência.
