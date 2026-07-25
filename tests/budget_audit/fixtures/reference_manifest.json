@@ -1,0 +1,16 @@
+{
+  "system": "SINAPI",
+  "publisher": "CAIXA/IBGE (sample snapshot for audit tooling — not live official feed)",
+  "source_url": "https://www.caixa.gov.br/site/Paginas/sinapi.aspx",
+  "acquired_at": "2026-07-24T21:40:15Z",
+  "reference_month": "2026-01",
+  "locality": "BR-SC",
+  "tax_regime": "nao_desonerado",
+  "file_name": "sinapi-sample-blob.bin",
+  "file_path": "/mnt/d/extra-cli-wt-budget-audit-01/tests/budget_audit/fixtures/sinapi-sample-blob.bin",
+  "items_path": "/mnt/d/extra-cli-wt-budget-audit-01/tests/budget_audit/fixtures/reference_items.jsonl",
+  "size": 46,
+  "sha256": "31de7eff8c60e0991161d2ba6bb03239d5bf83ce2455ed432a522e7b398c84fc",
+  "license_or_access_note": "Sample fixture for tooling tests; not a redistributed official table",
+  "parser_version": "1.0.0"
+}

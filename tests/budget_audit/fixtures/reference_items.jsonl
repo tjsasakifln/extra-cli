@@ -1,0 +1,5 @@
+{"code": "SINAPI-74001", "description": "Concreto fck 20 MPa", "unit": "m³", "unit_price": 430.0, "unit_direct_cost": 430.0}
+{"code": "SINAPI-74010", "description": "Concreto fck 25 MPa", "unit": "m³", "unit_price": 490.0, "unit_direct_cost": 490.0}
+{"code": "SINAPI-72321", "description": "Forma madeira compensado", "unit": "m²", "unit_price": 46.0, "unit_direct_cost": 46.0}
+{"code": "SINAPI-73128", "description": "Armação aço CA-50", "unit": "kg", "unit_price": 9.8, "unit_direct_cost": 9.8}
+{"code": "SINAPI-001", "description": "Concreto fck 25", "unit": "m³", "unit_price": 82.0, "unit_direct_cost": 82.0}

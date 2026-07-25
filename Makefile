@@ -388,3 +388,7 @@ dod-audit-client-ready-recurring-consulting-cycle:
 .PHONY: test-edital-case
 test-edital-case:
 	python -m pytest tests/edital_case/ -q --tb=short
+
+.PHONY: test-budget-audit
+test-budget-audit:
+	python -m pytest tests/budget_audit/ -q --tb=short
