@@ -1,7 +1,7 @@
 # PR #129–#134 — Final CTO Integration Report
 
 **Generated:** 2026-07-25T01:00:35Z  
-**Classification:** `READY_FOR_HUMAN_ACCEPTANCE`  
+**Classification:** `PARTIALLY_INTEGRATED` (await CI green on tip after main-evidence restore)  
 **VPS/soak:** not touched (`production_touched=false`, `soak_touched=false`)
 
 ## Initial state
@@ -81,6 +81,10 @@ Re-check with `gh pr checks` after pushes. Start-of-work rollup documented in in
 | 060 #131 | national intel views | OK additive |
 | 061 #131 | canonical linkage tables | OK additive |
 
+## Main evidence retention fix
+
+Slim initially deleted 11 **main-owned** files from HISTORICAL/OPEN-TENDERS/STRATIFIED. Restored blob-identical from `origin/main` (see `MAIN-EVIDENCE-RESTORE.md`). Phase-3 removals remain limited to outputs **introduced by #129/#130/#131**.
+
 ## Artifacts removed from #131 Git
 
 ~140+ campaign generated paths including PDF/XLSX, pack-full, dossiers, pack-rc/pack-verify duplicates, large CSVs, cycle-state. Regenerable per policy.
@@ -127,7 +131,7 @@ Unchanged. Tip remains `5d906f63`. No merge performed.
 ## Classification
 
 ```
-READY_FOR_HUMAN_ACCEPTANCE
+PARTIALLY_INTEGRATED
 ```
 
 CI failed after slim because the new Generated Artifacts Policy job used `|| true`

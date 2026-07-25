@@ -1,95 +1,186 @@
 {
-  "schema_version": "1.0",
-  "captured_at": "2026-07-25T00:55:01Z",
+  "schema_version": "1.1",
+  "captured_at": "2026-07-25T01:20:47Z",
   "integrator_pr": 131,
-  "integrator_head": "dd20c37d7b92cbe93774f1e7b4b0e53921f4b21c",
+  "integrator_head": "5db61599f0d6f058c44e70e205003b68fb270c11",
   "main_sha": "5d906f631f444dd803e92bb88b7c98972297f8d4",
+  "method": [
+    "git merge-base --is-ancestor <129|130> <131_tip>",
+    "path presence via git cat-file -e <131>:<path>",
+    "blob compare for present paths",
+    "material vs generated classification for Phase-3 exclusions"
+  ],
   "sources": {
     "129": {
+      "label": "CANONICAL-ENTITY-LINKAGE-01",
       "head": "bd6d404f77f715898cae6ca9824d315106f40d2c",
       "is_ancestor_of_131": true,
       "paths_in_pr_diff": 43,
-      "paths_missing_in_131_tree": [],
-      "blobs_identical_count": 40,
-      "blobs_diverged": [
-        {
-          "path": "Makefile",
-          "nature": "additive_targets_for_client_ready_cycle",
-          "semantic_risk": "LOW"
-        },
-        {
-          "path": "scripts/linkage/isolation.py",
-          "nature": "preferred_ports_include_5436_5439_for_integrated_cycle",
-          "semantic_risk": "LOW"
-        },
-        {
-          "path": "scripts/workspace/cli.py",
-          "nature": "integration_with_isolated_lake_at_scale",
-          "semantic_risk": "LOW"
-        }
+      "paths_present_in_131_tree": 40,
+      "paths_missing_in_131_tree": [
+        "artifacts/campaigns/CANONICAL-ENTITY-LINKAGE-01/operational-report-suppliers.csv",
+        "artifacts/campaigns/CANONICAL-ENTITY-LINKAGE-01/operational-report.html",
+        "artifacts/campaigns/CANONICAL-ENTITY-LINKAGE-01/tests.xml"
       ],
-      "commits_absorbed": "all commits reachable from 129 head are ancestors of 131",
-      "migrations": {
-        "061": "present identical path db/migrations/061_canonical_entity_linkage.sql"
+      "material_paths_missing": [],
+      "generated_paths_missing_phase3_intentional": [
+        "artifacts/campaigns/CANONICAL-ENTITY-LINKAGE-01/operational-report-suppliers.csv",
+        "artifacts/campaigns/CANONICAL-ENTITY-LINKAGE-01/operational-report.html",
+        "artifacts/campaigns/CANONICAL-ENTITY-LINKAGE-01/tests.xml"
+      ],
+      "other_paths_missing": [],
+      "blobs_identical_count": 37,
+      "blobs_diverged_material": [
+        "Makefile",
+        "scripts/linkage/isolation.py",
+        "scripts/workspace/cli.py"
+      ],
+      "blobs_diverged_generated": [],
+      "blobs_diverged_notes": {
+        "Makefile": "additive client-ready targets",
+        "scripts/linkage/isolation.py": "preferred ports 5436/5438/5439",
+        "scripts/workspace/cli.py": "isolated lake + linkage integration",
+        "scripts/ops/live_consulting_pack.py": "PDF/Excel reconcile + recurrence deltas",
+        "scripts/ops/strategic_monthly_monitor.py": "honest labeled recurrence",
+        "specs/004-extra-live-consulting-pack/converge-report.md": "docs",
+        "specs/004-extra-live-consulting-pack/spec.md": "docs"
       },
-      "tests": "linkage tests present under #131 tree",
-      "conclusion": "FULLY_ABSORBED"
+      "migrations": {
+        "present_on_131": [
+          "db/migrations/060_national_contracts_intelligence_layers.sql",
+          "db/migrations/061_canonical_entity_linkage.sql"
+        ]
+      },
+      "tests_present": true,
+      "conclusion_product_code_migrations_tests": "FULLY_ABSORBED",
+      "phase3_note": "Generated campaign pack outputs removed from #131 tip by design (docs/generated-artifacts-policy.md). Not a product absorption gap."
     },
     "130": {
+      "label": "EXTRA-LIVE-CONSULTING-PACK-01",
       "head": "6b5bc7678b5447e90b2e9df2de21d07de0fa42d2",
       "is_ancestor_of_131": true,
       "paths_in_pr_diff": 95,
-      "paths_missing_in_131_tree": [],
-      "blobs_identical_count": 89,
-      "blobs_diverged": [
-        {
-          "path": "Makefile",
-          "nature": "client_ready_targets",
-          "semantic_risk": "LOW"
-        },
-        {
-          "path": "scripts/ops/live_consulting_pack.py",
-          "nature": "PDF/Excel reconcile + recurrence deltas",
-          "semantic_risk": "LOW_INTENTIONAL_EVOLUTION"
-        },
-        {
-          "path": "scripts/ops/strategic_monthly_monitor.py",
-          "nature": "honest labeled recurrence",
-          "semantic_risk": "LOW"
-        },
-        {
-          "path": "scripts/workspace/cli.py",
-          "nature": "linkage integration",
-          "semantic_risk": "LOW"
-        },
-        {
-          "path": "specs/004-extra-live-consulting-pack/converge-report.md",
-          "nature": "docs update",
-          "semantic_risk": "NONE"
-        },
-        {
-          "path": "specs/004-extra-live-consulting-pack/spec.md",
-          "nature": "docs update",
-          "semantic_risk": "NONE"
-        }
+      "paths_present_in_131_tree": 61,
+      "paths_missing_in_131_tree": [
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/monthly/cycle-state.json",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/monthly/monthly-monitor-live.json",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/operational-report.html",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-rc/checksums.json",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-rc/competitors.csv",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-rc/deliverable_a.json",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-rc/deliverable_b.json",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-rc/deliverable_c.json",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-rc/deliverable_d.json",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-rc/deliverable_e.json",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-rc/executive_summary.md",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-rc/expiring.csv",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-rc/extra_live_consulting_pack.pdf",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-rc/extra_live_consulting_pack.xlsx",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-rc/orgaos_ranking.csv",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-rc/pack-full.json",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-rc/pack-manifest.json",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-verify/checksums.json",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-verify/competitors.csv",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-verify/deliverable_a.json",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-verify/deliverable_b.json",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-verify/deliverable_c.json",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-verify/deliverable_d.json",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-verify/deliverable_e.json",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-verify/executive_summary.md",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-verify/expiring.csv",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-verify/extra_live_consulting_pack.pdf",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-verify/extra_live_consulting_pack.xlsx",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-verify/orgaos_ranking.csv",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-verify/pack-full.json",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-verify/pack-manifest.json",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/weekly-isolated/gaps.csv",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/weekly-isolated/source_health.csv",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/weekly-isolated/summary.json"
       ],
-      "commits_absorbed": "all commits reachable from 130 head are ancestors of 131",
-      "migrations": {
-        "060": "present db/migrations/060_national_contracts_intelligence_layers.sql"
+      "material_paths_missing": [],
+      "generated_paths_missing_phase3_intentional": [
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/monthly/cycle-state.json",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/monthly/monthly-monitor-live.json",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/operational-report.html",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-rc/checksums.json",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-rc/competitors.csv",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-rc/deliverable_a.json",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-rc/deliverable_b.json",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-rc/deliverable_c.json",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-rc/deliverable_d.json",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-rc/deliverable_e.json",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-rc/executive_summary.md",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-rc/expiring.csv",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-rc/extra_live_consulting_pack.pdf",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-rc/extra_live_consulting_pack.xlsx",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-rc/orgaos_ranking.csv",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-rc/pack-full.json",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-rc/pack-manifest.json",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-verify/checksums.json",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-verify/competitors.csv",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-verify/deliverable_a.json",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-verify/deliverable_b.json",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-verify/deliverable_c.json",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-verify/deliverable_d.json",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-verify/deliverable_e.json",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-verify/executive_summary.md",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-verify/expiring.csv",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-verify/extra_live_consulting_pack.pdf",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-verify/extra_live_consulting_pack.xlsx",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-verify/orgaos_ranking.csv",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-verify/pack-full.json",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/pack-verify/pack-manifest.json",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/weekly-isolated/gaps.csv",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/weekly-isolated/source_health.csv",
+        "artifacts/campaigns/EXTRA-LIVE-CONSULTING-PACK-01/weekly-isolated/summary.json"
+      ],
+      "other_paths_missing": [],
+      "blobs_identical_count": 55,
+      "blobs_diverged_material": [
+        "Makefile",
+        "scripts/ops/live_consulting_pack.py",
+        "scripts/ops/strategic_monthly_monitor.py",
+        "scripts/workspace/cli.py",
+        "specs/004-extra-live-consulting-pack/converge-report.md",
+        "specs/004-extra-live-consulting-pack/spec.md"
+      ],
+      "blobs_diverged_generated": [],
+      "blobs_diverged_notes": {
+        "Makefile": "additive client-ready targets",
+        "scripts/linkage/isolation.py": "preferred ports 5436/5438/5439",
+        "scripts/workspace/cli.py": "isolated lake + linkage integration",
+        "scripts/ops/live_consulting_pack.py": "PDF/Excel reconcile + recurrence deltas",
+        "scripts/ops/strategic_monthly_monitor.py": "honest labeled recurrence",
+        "specs/004-extra-live-consulting-pack/converge-report.md": "docs",
+        "specs/004-extra-live-consulting-pack/spec.md": "docs"
       },
-      "tests": "consulting pack tests present under #131 tree",
-      "conclusion": "FULLY_ABSORBED"
+      "migrations": {
+        "present_on_131": [
+          "db/migrations/060_national_contracts_intelligence_layers.sql",
+          "db/migrations/061_canonical_entity_linkage.sql"
+        ]
+      },
+      "tests_present": true,
+      "conclusion_product_code_migrations_tests": "FULLY_ABSORBED",
+      "phase3_note": "Generated campaign pack outputs removed from #131 tip by design (docs/generated-artifacts-policy.md). Not a product absorption gap."
     }
   },
   "conflicts": [],
   "exclusive_important_content_missing": [],
-  "semantic_modifications_post_absorb": "Intentional evolution on integrator branch only; no silent drop of linkage or pack behavior.",
+  "phase3_intentional_exclusions_summary": {
+    "129_generated_missing_count": 3,
+    "130_generated_missing_count": 34,
+    "policy": "docs/generated-artifacts-policy.md",
+    "reproduce": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/REPRODUCIBLE-OUTPUTS.md"
+  },
+  "semantic_modifications_post_absorb": "Intentional evolution on integrator only (Makefile, isolation ports, live_consulting_pack reconcile, monthly monitor honesty, workspace cli). No silent drop of linkage tables, migrations 060/061, or pack code.",
   "overall_conclusion": "FULLY_ABSORBED",
+  "overall_scope": "product_code_migrations_tests_docs — generated pack outputs excluded by Phase-3 policy",
   "close_129_130_allowed": false,
   "close_129_130_preconditions": [
-    "overall_conclusion == FULLY_ABSORBED",
+    "overall_conclusion == FULLY_ABSORBED (product surface)",
     "PR #131 human acceptance ACCEPTED by Tiago",
     "PR #131 merged to main",
-    "comment on each PR with absorption file reference"
+    "comment on each PR with this absorption file at tip SHA"
   ]
 }
