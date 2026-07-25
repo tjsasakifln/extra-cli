@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0",
+  "pr": 131,
+  "evaluated_at": "2026-07-25T00:57:04Z",
+  "head_sha_at_start": "dd20c37d7b92cbe93774f1e7b4b0e53921f4b21c",
+  "gates": {
+    "inventory": "PASS",
+    "absorption_129_130": "FULLY_ABSORBED",
+    "artifacts_slim": "PASS",
+    "generated_artifacts_policy_doc": "PASS",
+    "generated_artifacts_policy_gate": "PENDING_LOCAL",
+    "cto_review_blocker_high": "PASS",
+    "user_acceptance": "PENDING_HUMAN",
+    "production_touched": false,
+    "soak_touched": false,
+    "full_suite": "PENDING_CI_AFTER_PUSH",
+    "lint": "PENDING_CI_AFTER_PUSH",
+    "mypy": "PENDING_CI_AFTER_PUSH",
+    "bandit": "PENDING_CI_AFTER_PUSH",
+    "pip_audit": "PENDING_CI_AFTER_PUSH",
+    "migrations_060_061": "PRESENT_NO_059_COLLISION",
+    "mandatory_jobs_skipped": false
+  },
+  "status": "IN_PROGRESS",
+  "ready_for_human_acceptance": false,
+  "notes": [
+    "Human must not be auto-accepted",
+    "Full CI re-run required after slim push",
+    "Local unit tests for policy gate required before READY"
+  ]
+}

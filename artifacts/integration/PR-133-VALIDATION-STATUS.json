@@ -1,0 +1,22 @@
+{
+  "pr_number": 133,
+  "head_sha": "a5d0bf47677785cc203d8d8278ca52b3e7067aaa",
+  "ci_status": "SUCCESS_8_8",
+  "privacy_gate": "ASSUMED_OK_FICTIONAL_ONLY",
+  "document_basis": "FICTIONAL_FIXTURES_ONLY",
+  "status_label": "EXPERIMENTAL_TECHNICAL_PASS",
+  "ready_to_submit_claimed": false,
+  "ready_to_submit_allowed": false,
+  "real_authorized_validation": false,
+  "recommended_action": "REBASE_AFTER_131_THEN_MERGE_IF_GREEN_KEEP_EXPERIMENTAL",
+  "merge_blocked_reasons": [
+    "await_131_merge_rebase",
+    "must_keep_experimental_label",
+    "no_real_client_docs_in_git"
+  ],
+  "future_real_validation": {
+    "git_versioning": "forbidden for real client docs",
+    "storage": "local ignored path or encrypted external store",
+    "required": ["redaction", "checksums", "isolation", "explicit authorization record"]
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "schema_version": "1.0",
+  "exceptions": [],
+  "notes": "Empty by default. Add {path, reason, max_bytes, owner} only with PR review."
+}

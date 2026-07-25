@@ -1,0 +1,95 @@
+{
+  "schema_version": "1.0",
+  "captured_at": "2026-07-25T00:55:01Z",
+  "integrator_pr": 131,
+  "integrator_head": "dd20c37d7b92cbe93774f1e7b4b0e53921f4b21c",
+  "main_sha": "5d906f631f444dd803e92bb88b7c98972297f8d4",
+  "sources": {
+    "129": {
+      "head": "bd6d404f77f715898cae6ca9824d315106f40d2c",
+      "is_ancestor_of_131": true,
+      "paths_in_pr_diff": 43,
+      "paths_missing_in_131_tree": [],
+      "blobs_identical_count": 40,
+      "blobs_diverged": [
+        {
+          "path": "Makefile",
+          "nature": "additive_targets_for_client_ready_cycle",
+          "semantic_risk": "LOW"
+        },
+        {
+          "path": "scripts/linkage/isolation.py",
+          "nature": "preferred_ports_include_5436_5439_for_integrated_cycle",
+          "semantic_risk": "LOW"
+        },
+        {
+          "path": "scripts/workspace/cli.py",
+          "nature": "integration_with_isolated_lake_at_scale",
+          "semantic_risk": "LOW"
+        }
+      ],
+      "commits_absorbed": "all commits reachable from 129 head are ancestors of 131",
+      "migrations": {
+        "061": "present identical path db/migrations/061_canonical_entity_linkage.sql"
+      },
+      "tests": "linkage tests present under #131 tree",
+      "conclusion": "FULLY_ABSORBED"
+    },
+    "130": {
+      "head": "6b5bc7678b5447e90b2e9df2de21d07de0fa42d2",
+      "is_ancestor_of_131": true,
+      "paths_in_pr_diff": 95,
+      "paths_missing_in_131_tree": [],
+      "blobs_identical_count": 89,
+      "blobs_diverged": [
+        {
+          "path": "Makefile",
+          "nature": "client_ready_targets",
+          "semantic_risk": "LOW"
+        },
+        {
+          "path": "scripts/ops/live_consulting_pack.py",
+          "nature": "PDF/Excel reconcile + recurrence deltas",
+          "semantic_risk": "LOW_INTENTIONAL_EVOLUTION"
+        },
+        {
+          "path": "scripts/ops/strategic_monthly_monitor.py",
+          "nature": "honest labeled recurrence",
+          "semantic_risk": "LOW"
+        },
+        {
+          "path": "scripts/workspace/cli.py",
+          "nature": "linkage integration",
+          "semantic_risk": "LOW"
+        },
+        {
+          "path": "specs/004-extra-live-consulting-pack/converge-report.md",
+          "nature": "docs update",
+          "semantic_risk": "NONE"
+        },
+        {
+          "path": "specs/004-extra-live-consulting-pack/spec.md",
+          "nature": "docs update",
+          "semantic_risk": "NONE"
+        }
+      ],
+      "commits_absorbed": "all commits reachable from 130 head are ancestors of 131",
+      "migrations": {
+        "060": "present db/migrations/060_national_contracts_intelligence_layers.sql"
+      },
+      "tests": "consulting pack tests present under #131 tree",
+      "conclusion": "FULLY_ABSORBED"
+    }
+  },
+  "conflicts": [],
+  "exclusive_important_content_missing": [],
+  "semantic_modifications_post_absorb": "Intentional evolution on integrator branch only; no silent drop of linkage or pack behavior.",
+  "overall_conclusion": "FULLY_ABSORBED",
+  "close_129_130_allowed": false,
+  "close_129_130_preconditions": [
+    "overall_conclusion == FULLY_ABSORBED",
+    "PR #131 human acceptance ACCEPTED by Tiago",
+    "PR #131 merged to main",
+    "comment on each PR with absorption file reference"
+  ]
+}

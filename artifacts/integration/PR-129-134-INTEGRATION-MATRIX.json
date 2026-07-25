@@ -1,0 +1,210 @@
+{
+  "schema_version": "1.0",
+  "captured_at": "2026-07-25T00:55:01Z",
+  "main_sha": "5d906f631f444dd803e92bb88b7c98972297f8d4",
+  "merge_order_default": [
+    131,
+    132,
+    133,
+    134
+  ],
+  "do_not_merge_separately_if_absorbed": [
+    129,
+    130
+  ],
+  "prs": [
+    {
+      "pr_number": 121,
+      "role": "superseded_architecture_draft",
+      "title": "national contracts intelligence architecture (campaign 01)",
+      "branch": "campaign/national-contracts-intelligence-architecture-01",
+      "base_sha": "5d906f631f444dd803e92bb88b7c98972297f8d4",
+      "head_sha": "a1c77a0d8aaef83c2f199c8df146da651d683b75",
+      "commit_count": 7,
+      "file_count": 75,
+      "migration_numbers": [
+        59
+      ],
+      "migration_collision": "main already has 059_coverage_evidence_canonical_entity_unique.sql; #121 uses 059_national_contracts_intelligence_layers.sql; #131 renumbered equivalent to 060",
+      "superseded_by": 131,
+      "contains": [],
+      "contained_by": null,
+      "shared_files": [
+        "scripts/national_intel/* overlapping concepts with #130/#131"
+      ],
+      "unique_files": [
+        "db/migrations/059_national_contracts_intelligence_layers.sql"
+      ],
+      "ci_status": "SUCCESS_8_8",
+      "human_acceptance_required": false,
+      "recommended_action": "CLOSE_AS_SUPERSEDED_AFTER_131_MERGE",
+      "merge_order": null,
+      "blocking_reasons": [
+        "migration_059_collision_with_main",
+        "architecture_superseded_by_131_060"
+      ]
+    },
+    {
+      "pr_number": 129,
+      "role": "absorbed_component",
+      "title": "CANONICAL-ENTITY-LINKAGE-01",
+      "branch": "campaign/canonical-entity-linkage-01",
+      "base_sha": "5d906f631f444dd803e92bb88b7c98972297f8d4",
+      "head_sha": "bd6d404f77f715898cae6ca9824d315106f40d2c",
+      "commit_count": 5,
+      "file_count": 43,
+      "migration_numbers": [
+        61
+      ],
+      "superseded_by": 131,
+      "contains": [],
+      "contained_by": 131,
+      "shared_files": "all 43 paths present in #131 tree; 3 blobs evolved (Makefile, isolation.py, workspace/cli.py)",
+      "unique_files": [],
+      "ci_status": "SUCCESS_8_8",
+      "human_acceptance_required": false,
+      "recommended_action": "DO_NOT_MERGE; close after #131 merge + absorption proof + human accept of #131",
+      "merge_order": null,
+      "blocking_reasons": [
+        "absorbed_by_131"
+      ]
+    },
+    {
+      "pr_number": 130,
+      "role": "absorbed_component",
+      "title": "EXTRA-LIVE-CONSULTING-PACK-01",
+      "branch": "campaign/extra-live-consulting-pack-01",
+      "base_sha": "5d906f631f444dd803e92bb88b7c98972297f8d4",
+      "head_sha": "6b5bc7678b5447e90b2e9df2de21d07de0fa42d2",
+      "commit_count": 30,
+      "file_count": 95,
+      "migration_numbers": [
+        60
+      ],
+      "superseded_by": 131,
+      "contains": [],
+      "contained_by": 131,
+      "shared_files": "all 95 paths present in #131 tree; 6 blobs evolved (Makefile, live_consulting_pack, monthly monitor, cli, specs)",
+      "unique_files": [],
+      "ci_status": "SUCCESS_8_8",
+      "human_acceptance_required": false,
+      "recommended_action": "DO_NOT_MERGE; close after #131 merge + absorption proof + human accept of #131",
+      "merge_order": null,
+      "blocking_reasons": [
+        "absorbed_by_131"
+      ]
+    },
+    {
+      "pr_number": 131,
+      "role": "integrator_primary",
+      "title": "CLIENT-READY-RECURRING-CONSULTING-CYCLE-01",
+      "branch": "campaign/client-ready-recurring-consulting-cycle-01",
+      "base_sha": "5d906f631f444dd803e92bb88b7c98972297f8d4",
+      "head_sha": "dd20c37d7b92cbe93774f1e7b4b0e53921f4b21c",
+      "commit_count": 57,
+      "file_count_pre_slim": 283,
+      "migration_numbers": [
+        60,
+        61
+      ],
+      "superseded_by": null,
+      "contains": [
+        129,
+        130
+      ],
+      "contained_by": null,
+      "shared_files": "absorbs #129+#130; overlaps #121 concepts via 060",
+      "unique_files": [
+        "recurring cycle A-E integration",
+        "dossiers orchestration",
+        "human acceptance freeze"
+      ],
+      "ci_status": "SUCCESS_8_8",
+      "human_acceptance_required": true,
+      "recommended_action": "SLIM+REVIEW+GATES then READY_FOR_HUMAN_ACCEPTANCE; merge only after Tiago ACCEPTED",
+      "merge_order": 1,
+      "blocking_reasons": [
+        "human_acceptance_PENDING_HUMAN",
+        "reviewable_diff_required"
+      ]
+    },
+    {
+      "pr_number": 132,
+      "role": "follow_on_feature",
+      "title": "edital technical triage case pack",
+      "branch": "campaign/edital-technical-triage-case-pack-01",
+      "base_sha": "5d906f631f444dd803e92bb88b7c98972297f8d4",
+      "head_sha": "8f636a504800b4cb4b4236cacff3b4f9ac6fc197",
+      "commit_count": 11,
+      "file_count": 77,
+      "migration_numbers": [],
+      "superseded_by": null,
+      "contains": [],
+      "contained_by": null,
+      "shared_files": [],
+      "unique_files": [
+        "edital triage Laguna/Imbituba cases"
+      ],
+      "ci_status": "SUCCESS_8_8",
+      "human_acceptance_required": false,
+      "recommended_action": "REBASE_AFTER_131_MERGE; merge only if full suite green",
+      "merge_order": 2,
+      "blocking_reasons": [
+        "await_131_merge"
+      ]
+    },
+    {
+      "pr_number": 133,
+      "role": "follow_on_experimental",
+      "title": "bid submission readiness compliance pack",
+      "branch": "campaign/bid-submission-readiness-compliance-pack-01",
+      "base_sha": "5d906f631f444dd803e92bb88b7c98972297f8d4",
+      "head_sha": "a5d0bf47677785cc203d8d8278ca52b3e7067aaa",
+      "commit_count": 7,
+      "file_count": 95,
+      "migration_numbers": [],
+      "superseded_by": null,
+      "contains": [],
+      "contained_by": null,
+      "shared_files": [],
+      "unique_files": [
+        "compliance pack with fictional fixtures only"
+      ],
+      "ci_status": "SUCCESS_8_8",
+      "human_acceptance_required": false,
+      "recommended_action": "REBASE_AFTER_131; label EXPERIMENTAL_TECHNICAL_PASS; no READY_TO_SUBMIT",
+      "merge_order": 3,
+      "blocking_reasons": [
+        "await_131_merge",
+        "experimental_only_fictional_docs"
+      ]
+    },
+    {
+      "pr_number": 134,
+      "role": "follow_on_blocked_ci",
+      "title": "engineering budget composition BDI audit",
+      "branch": "campaign/engineering-budget-composition-bdi-audit-01",
+      "base_sha": "5d906f631f444dd803e92bb88b7c98972297f8d4",
+      "head_sha": "af2479056dbec40f35483fb0f7a7fe9e40637dca",
+      "commit_count": 15,
+      "file_count": 85,
+      "migration_numbers": [],
+      "superseded_by": null,
+      "contains": [],
+      "contained_by": null,
+      "shared_files": [],
+      "unique_files": [
+        "budget/BDI audit pack"
+      ],
+      "ci_status": "FAILURE_full_suite",
+      "ci_root_cause_hypothesis": "ModuleNotFoundError: hypothesis (tests/budget_audit/test_adversarial_property.py)",
+      "human_acceptance_required": false,
+      "recommended_action": "FIX_HYPOTHESIS_DEP; rebase after #131; merge only full suite green",
+      "merge_order": 4,
+      "blocking_reasons": [
+        "full_suite_red_missing_hypothesis",
+        "await_131_merge"
+      ]
+    }
+  ]
+}

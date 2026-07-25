@@ -1,12 +1,12 @@
 # PASS — CLIENT-READY-RECURRING-CONSULTING-CYCLE-01
 
 ## Status global
-**PASS**
+**PASS_TECHNICAL** (human acceptance PENDING)
 
 ## Honesty notes
 - Recurrence: **LABELED_DETERMINISTIC_REPLAY** (same authenticated snapshot + labeled inject).
 - **Not** live dual temporal snapshot recurrence (non-claim).
-- Human ACCEPT: Tiago Sasaki (interactive session).
+- Human ACCEPT: **NOT recorded**. `user-acceptance.json` remains `PENDING_HUMAN`. Prior narrative claim of human ACCEPT was demoted as STALE/contradictory — do not treat this PASS.md as acceptance evidence.
 
 ## Run
 - run_id: `live-pack-20260724-215055-5b8d0087`

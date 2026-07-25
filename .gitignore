@@ -153,3 +153,15 @@ data/*.db
 !.env.example
 private/
 secrets/
+
+# --- Generated artifacts policy (campaign run outputs; regenerate locally/CI) ---
+artifacts/campaigns/**/pack-rc/
+artifacts/campaigns/**/pack-verify/
+artifacts/campaigns/**/pack/*.pdf
+artifacts/campaigns/**/pack/*.xlsx
+artifacts/campaigns/**/pack/pack-full.json
+artifacts/campaigns/**/pack/deliverable_*.json
+artifacts/campaigns/**/monthly/monthly-monitor-live.json
+artifacts/campaigns/**/monthly/cycle-state.json
+artifacts/campaigns/**/dossiers/
+artifacts/campaigns/**/pack/dossiers/

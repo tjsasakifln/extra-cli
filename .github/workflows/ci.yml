@@ -421,6 +421,34 @@ jobs:
           retention-days: 14
           if-no-files-found: ignore
 
+
+  # ============================================================================
+  # GENERATED ARTIFACTS POLICY — fail-closed (no heavy pack outputs in Git)
+  # ============================================================================
+  generated-artifacts-policy:
+    name: Generated Artifacts Policy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Run generated artifacts policy gate
+        run: |
+          BASE_REF="${{ github.event.pull_request.base.sha || 'origin/main' }}"
+          if git rev-parse --verify "$BASE_REF" >/dev/null 2>&1; then
+            python -m scripts.ops.check_generated_artifacts_policy --base "$BASE_REF"
+          else
+            git fetch origin main --depth=1 || true
+            python -m scripts.ops.check_generated_artifacts_policy --base origin/main
+          fi
+
   # ============================================================================
   # SECURITY — bandit (fail-closed, sem continue-on-error)
   # ============================================================================
