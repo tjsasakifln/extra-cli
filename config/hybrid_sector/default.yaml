@@ -1,0 +1,119 @@
+# Hybrid sector recall + LLM arbiter — default offline-safe config
+# No secrets. Paid LLM only via explicit operational gate.
+# Hash embeddings are lexical_fuzzy_hash only — not operational semantic.
+# Foundation is disabled by default: does not replace commercial RC v2 Deliverable E.
+
+pipeline_version: hybrid-sector-recall-llm-arbiter/1.1.0
+
+# When false: hybrid challenger does not replace commercial flow, does not call
+# paid LLM/embedding, and does not emit commercial opportunities except under
+# explicit campaign/test activation (force_fake / campaign entry).
+operational:
+  enabled: false
+
+raw_universe:
+  full_universe_threshold: 500
+
+manual_review:
+  max_items_per_cycle: 100
+  overflow_policy: preserve_and_flag
+  target_review_rate: 0.20
+
+retrieval:
+  rrf_k: 60
+  lexical:
+    max_terms: null  # null = no silent 80-term cap; log if capped
+  semantic:
+    # lexical_fuzzy_hash | sentence_transformer | openai_compatible
+    provider: lexical_fuzzy_hash
+    model_id: offline-hash-embedding-pt-v1
+    model_version: "1.0.0"
+    base_url: null
+    top_k: 200
+    min_similarity: 0.12
+    batch_size: 32
+    timeout_seconds: 60
+    max_retries: 2
+    normalize: true
+    dim: null
+    cache_path: null
+    cost_per_1k_tokens: 0.00002
+    # Operational real model example (not default CI):
+    # provider: sentence_transformer
+    # model_id: sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
+  metadata:
+    engineering_category_terms:
+      - obras
+      - engenharia
+      - construcao
+      - pavimentacao
+      - drenagem
+      - saneamento
+      - infraestrutura
+      - urbanismo
+      - terraplenagem
+      - edificacao
+      - reforma
+  organ_history:
+    engineering_org_keywords:
+      - obras
+      - infraestrutura
+      - saneamento
+      - urbanismo
+      - engenharia
+      - paviment
+      - der
+      - dem
+      - seinfra
+      - secretaria de obras
+  zero_match:
+    short_text_max_chars: 40
+    high_value_threshold: 500000.0
+
+llm:
+  enabled: true
+  provider: fake  # fake | openai_compatible
+  model: offline-fake
+  base_url: null  # set via env HYBRID_SECTOR_LLM_BASE_URL / OPENAI_BASE_URL
+  prompt_version: sector-arbiter-v1
+  timeout_seconds: 15
+  max_retries: 2
+  max_cost_usd_per_cycle: 5.0
+  max_concurrency: 4
+  circuit_breaker_failures: 5
+  min_confidence: 60
+  second_adjudication_value_threshold: 1000000.0
+  cache_enabled: true
+  temperature: 0.0
+  # Paid path (campaign --allow-paid-llm / operational.enabled=true):
+  #   provider: openai_compatible
+  #   model: gpt-4o-mini   # default paid model
+  #   OPENAI_API_KEY from .env (never commit secrets)
+  # Optional overrides: HYBRID_SECTOR_LLM_MODEL, OPENAI_MODEL, OPENAI_BASE_URL
+
+decision_policy:
+  commercial_match_requires:
+    - positive_evidence
+    - no_blocker
+    - auditable_classification
+    - official_source
+  high_value_no_match_threshold: 500000.0
+
+evaluation:
+  locked_min_positives: 300
+  locked_min_hard_negatives: 300
+  locked_min_ambiguous: 150
+  locked_min_positives_without_keywords: 100
+  retrieval_recall_point: 0.995
+  retrieval_recall_lower_95: 0.99
+  preservation_recall_point: 0.995
+  preservation_recall_lower_95: 0.99
+  match_precision_point: 0.95
+  match_precision_lower_95: 0.90
+  max_review_rate: 0.20
+
+no_match_audit:
+  # audit_size = all if total < 200 else min(1000, max(200, 5% of total))
+  min_sample: 200
+  max_sample: 1000
+  pct: 0.05

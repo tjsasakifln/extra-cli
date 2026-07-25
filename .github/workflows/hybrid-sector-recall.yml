@@ -1,0 +1,275 @@
+# Hybrid sector recall + LLM arbiter — OFFLINE by default (fake LLM only).
+# Paid provider validation is a separate explicitly named operational job and
+# is NOT on the default pull_request path.
+name: hybrid-sector-recall
+
+on:
+  pull_request:
+    paths:
+      - "scripts/ops/hybrid_sector/**"
+      - "scripts/ops/campaign_hybrid_sector_recall.py"
+      - "scripts/ops/sector_classifier.py"
+      - "tests/test_hybrid_sector*.py"
+      - "tests/fixtures/hybrid_sector/**"
+      - "config/hybrid_sector/**"
+      - "artifacts/campaigns/HYBRID-SECTOR-RECALL-LLM-ARBITER-01/**"
+      - ".github/workflows/hybrid-sector-recall.yml"
+  workflow_dispatch:
+    inputs:
+      allow_paid_llm:
+        description: "OPERATIONAL ONLY — run paid LLM validation (default false)"
+        required: false
+        default: "false"
+
+jobs:
+  isolation-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Freeze RC v2 intact (real diff)
+        run: |
+          set -euo pipefail
+          FROZEN="artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/client-ready-frozen-rc-v2"
+          BASELINE="artifacts/campaigns/HYBRID-SECTOR-RECALL-LLM-ARBITER-01/rc-v2-freeze-checksums.sha256"
+          test -f artifacts/campaigns/HYBRID-SECTOR-RECALL-LLM-ARBITER-01/isolation.json
+          test -f artifacts/campaigns/HYBRID-SECTOR-RECALL-LLM-ARBITER-01/baseline.json
+          test -f artifacts/campaigns/HYBRID-SECTOR-RECALL-LLM-ARBITER-01/scope.json
+          test -f artifacts/campaigns/HYBRID-SECTOR-RECALL-LLM-ARBITER-01/allowed-files.json
+          test -f artifacts/campaigns/HYBRID-SECTOR-RECALL-LLM-ARBITER-01/risk-register.md
+          if [ -f "$BASELINE" ] && [ -d "$FROZEN" ]; then
+            (cd "$FROZEN" && find . -type f | sort | xargs sha256sum) > /tmp/freeze-now.sha256
+            # Any difference MUST fail the job
+            diff -u "$BASELINE" /tmp/freeze-now.sha256
+          elif [ -f "$BASELINE" ]; then
+            echo "BASELINE present but FROZEN dir missing — fail closed"
+            exit 1
+          else
+            echo "No RC v2 baseline in this checkout — skip compare (stacked PR may lack freeze tree)"
+          fi
+      - name: Secrets scan (fail closed)
+        run: |
+          set -euo pipefail
+          if grep -RInE 'sk-[a-zA-Z0-9]{10,}|OPENAI_API_KEY\s*=\s*["'\''][^"'\'']+' \
+            config/hybrid_sector scripts/ops/hybrid_sector 2>/dev/null; then
+            echo "SECRET PATTERN FOUND — fail closed"
+            exit 1
+          fi
+          echo "secrets_scan_ok"
+
+  unit-adversarial-fake-llm:
+    runs-on: ubuntu-latest
+    needs: isolation-gate
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install deps
+        run: |
+          pip install -q pydantic pyyaml pytest pytest-cov "psycopg2-binary>=2.9.9"
+      - name: Unit + adversarial (fake LLM only)
+        env:
+          HYBRID_SECTOR_LLM_PROVIDER: fake
+          OPENAI_API_KEY: ""
+        run: |
+          python -m pytest \
+            tests/test_hybrid_sector_core.py \
+            tests/test_hybrid_sector_adversarial.py \
+            -q --tb=short -o addopts=
+
+  retrieval-benchmark-locked-eval:
+    runs-on: ubuntu-latest
+    needs: isolation-gate
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install deps
+        run: pip install -q pydantic pyyaml pytest pytest-cov "psycopg2-binary>=2.9.9" python-dotenv
+      - name: Locked eval on REAL corpus path (not --fixtures)
+        env:
+          HYBRID_SECTOR_LLM_PROVIDER: fake
+          OPENAI_API_KEY: ""
+        run: |
+          python -m pytest tests/test_hybrid_sector_eval_gates.py -q --tb=short -o addopts=
+          # Explicit locked evaluation — NEVER --fixtures for this job
+          python -m scripts.ops.campaign_hybrid_sector_recall \
+            --corpus tests/fixtures/hybrid_sector/real_operational_corpus.json \
+            --split locked \
+            --out artifacts/campaigns/HYBRID-SECTOR-RECALL-LLM-ARBITER-01
+          test -f artifacts/campaigns/HYBRID-SECTOR-RECALL-LLM-ARBITER-01/result.json
+          test -f artifacts/integration/SECTOR-CLASSIFIER-RECALL-GATE.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          r = json.loads(
+              Path("artifacts/campaigns/HYBRID-SECTOR-RECALL-LLM-ARBITER-01/result.json").read_text()
+          )
+          gates_wrap = r.get("gates") or {}
+          g = gates_wrap.get("gates") or gates_wrap
+          blockers = set(r.get("active_blockers") or [])
+          # Empty Level C: insufficient real gold (primary). REVIEW_CAPACITY is
+          # NOT forced when review universe is unevaluable (0 records).
+          required_operational = {
+              "BLOCKED_INSUFFICIENT_REAL_GOLD_CORPUS",
+              "BLOCKED_LLM_OPERATIONAL_VALIDATION",
+              "BLOCKED_FULL_SUITE_VALIDATION",
+          }
+
+          # Claims
+          assert r["claims"]["ACCEPTED"] is False
+          assert r["claims"]["MERGED"] is False
+          assert r["claims"]["NO_FALSE_NEGATIVES_100"] is False
+
+          # Not READY without real evidence; all_core_pass must not be true
+          assert r["terminal_status"] == "BLOCKED_INSUFFICIENT_REAL_GOLD_CORPUS"
+          assert r.get("all_core_pass") is False
+          assert r.get("foundation_pr_status") == "READY_TO_MERGE_AS_DISABLED_FOUNDATION"
+          assert r.get("operational_pipeline_status") == "BLOCKED_INSUFFICIENT_REAL_GOLD_CORPUS"
+
+          missing = required_operational - blockers
+          assert not missing, f"missing operational blockers: {missing}; have={sorted(blockers)}"
+          assert "BLOCKED_REVIEW_CAPACITY" not in blockers
+          assert r.get("required_honest_blockers_present") is not False
+
+          # evaluation level C for real locked path
+          assert r.get("evaluation_level") == "C", r.get("evaluation_level")
+          assert r.get("corpus_kind") == "REAL_OPERATIONAL_LOCKED_GOLD"
+
+          # Numeric integrity gates
+          um = g.get("unlabeled_match") or {}
+          assert um.get("pass") is True or um.get("unlabeled_match_count", 0) == 0
+
+          commercial = g.get("commercial") or {}
+          # Vacuous empty corpus: must NOT claim commercial pass / operational precision
+          assert commercial.get("pass") is not True
+          assert commercial.get("point") is None or commercial.get("precision_vacuous") is True
+          assert commercial.get("operational_claim_allowed") is not True
+          ready_req = gates_wrap.get("ready_requirements") or {}
+          assert ready_req.get("real_precision_approved") is not True
+
+          # Zero observations → null metrics, no operational claims
+          ret = g.get("retrieval") or {}
+          assert ret.get("operational_claim_allowed") is False
+          assert ret.get("point") is None
+          pres = g.get("preservation") or {}
+          assert pres.get("operational_claim_allowed") is False
+          assert pres.get("point") is None
+          rev = g.get("review_capacity") or {}
+          assert rev.get("status") == "NOT_EVALUATED_INSUFFICIENT_REAL_CORPUS"
+          assert rev.get("blocker_active") is False
+
+          audit = g.get("audit") or {}
+          details = audit.get("details") or audit
+          if "invented_evidence_accepted" in details:
+              assert int(details["invented_evidence_accepted"]) == 0
+          if "silent_discards" in details:
+              assert int(details["silent_discards"]) == 0
+          if "lineage_coverage" in details:
+              assert float(details["lineage_coverage"]) >= 1.0 or float(details["lineage_coverage"]) == 0.0
+
+          # Corpus not operational gold yet
+          corpus_gate = g.get("corpus") or {}
+          assert corpus_gate.get("pass") is not True
+
+          # Provenance artifacts written
+          out = Path("artifacts/campaigns/HYBRID-SECTOR-RECALL-LLM-ARBITER-01")
+          for name in (
+              "annotation-provenance.json",
+              "annotation-agreement.json",
+              "annotation-adjudications.json",
+              "paid_llm_validation.json",
+              "full_suite_status.json",
+              "real_operational_results.json",
+          ):
+              assert (out / name).is_file(), name
+
+          # Separated claims are explicit objects (artifact_present ≠ passed)
+          sep = r.get("separated_results") or {}
+          paid = sep.get("paid_llm_validation") or {}
+          suite = sep.get("full_suite") or {}
+          real_ev = sep.get("real_operational_evaluation") or {}
+          assert isinstance(paid, dict) and paid.get("artifact_present") is True
+          assert paid.get("passed") is False
+          assert isinstance(suite, dict) and suite.get("artifact_present") is True
+          assert suite.get("passed") is False
+          assert isinstance(real_ev, dict) and real_ev.get("passed") is False
+          assert real_ev.get("status") == "BLOCKED_INSUFFICIENT_REAL_GOLD_CORPUS"
+
+          print(
+              "numeric_gates_ok",
+              r["terminal_status"],
+              "blockers",
+              sorted(blockers),
+              "commercial_pass",
+              commercial.get("pass"),
+          )
+          PY
+
+  cost-guard-reproducibility:
+    runs-on: ubuntu-latest
+    needs: isolation-gate
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install deps
+        run: pip install -q pydantic pyyaml python-dotenv
+      - name: Reproducibility + cost guard (offline Level A fixtures)
+        env:
+          OPENAI_API_KEY: ""
+        run: |
+          python -m scripts.ops.campaign_hybrid_sector_recall --fixtures --out /tmp/hs-run-a
+          python -m scripts.ops.campaign_hybrid_sector_recall --fixtures --out /tmp/hs-run-b
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          a = json.loads(Path("/tmp/hs-run-a/result.json").read_text())
+          b = json.loads(Path("/tmp/hs-run-b/result.json").read_text())
+          assert a["terminal_status"] == b["terminal_status"]
+          cost = json.loads(Path("/tmp/hs-run-a/llm-cost.json").read_text())
+          assert cost.get("paid_calls_in_default_ci", 0) == 0
+          assert cost.get("not_yaml_copy") is True
+          assert "observed_cost_usd" in cost
+          # fixtures not READY; operational honesty (no vacuous REVIEW_CAPACITY)
+          blockers = set(a.get("active_blockers") or [])
+          required = {
+              "BLOCKED_INVALID_EVALUATION_CORPUS",
+              "BLOCKED_LLM_OPERATIONAL_VALIDATION",
+              "BLOCKED_FULL_SUITE_VALIDATION",
+          }
+          assert required <= blockers, blockers
+          assert "BLOCKED_REVIEW_CAPACITY" not in blockers
+          print("repro_ok", a["terminal_status"])
+          PY
+
+  operational-paid-llm-validation:
+    if: github.event_name == 'workflow_dispatch' && inputs.allow_paid_llm == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Paid LLM validation (explicit only; fail on provider error)
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          set -euo pipefail
+          pip install -q pydantic pyyaml
+          if [ -z "${OPENAI_API_KEY:-}" ]; then
+            echo "SKIP: OPENAI_API_KEY secret not configured (explicit skip, not success)"
+            mkdir -p artifacts/campaigns/HYBRID-SECTOR-RECALL-LLM-ARBITER-01/operational-paid
+            echo '{"status":"SKIPPED_NO_SECRET","passed":false}' > \
+              artifacts/campaigns/HYBRID-SECTOR-RECALL-LLM-ARBITER-01/operational-paid/paid_llm_validation.json
+            exit 0
+          fi
+          echo "OPERATIONAL GATE: paid LLM — secret present; provider failure MUST fail the job"
+          python -m scripts.ops.campaign_hybrid_sector_recall \
+            --corpus tests/fixtures/hybrid_sector/real_operational_corpus.json \
+            --split locked \
+            --allow-paid-llm \
+            --out artifacts/campaigns/HYBRID-SECTOR-RECALL-LLM-ARBITER-01/operational-paid

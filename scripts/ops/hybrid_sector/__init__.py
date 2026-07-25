@@ -1,0 +1,69 @@
+"""Hybrid sector discovery: retrieval → classify → LLM arbitrate → commercial decision.
+
+Stages (never mixed):
+  raw_universe → hybrid_retrieval → ranking_fusion → deterministic_classification
+  → llm_arbitration → decision_policy → human_review → evaluation
+
+No stage may silently discard a record.
+
+Evaluation levels:
+  A — small unit fixtures
+  B — synthetic adversarial (SYNTHETIC_ADVERSARIAL_FIXTURE)
+  C — real locked operational gold (only Level C sustains operational claims)
+"""
+from __future__ import annotations
+
+PIPELINE_VERSION = "hybrid-sector-recall-llm-arbiter/1.1.0"
+RULE_STAMP = "extra-sector-classifier/2.2.0+selective"
+PROMPT_VERSION = "sector-arbiter-v1"
+SCHEMA_VERSION = "SectorLLMDecision/1.0"
+
+ALLOWED_TERMINAL_STATES = frozenset(
+    {
+        "BLOCKED_INSUFFICIENT_RECALL",
+        "BLOCKED_INSUFFICIENT_STATISTICAL_POWER",
+        "BLOCKED_REVIEW_CAPACITY",
+        "BLOCKED_LLM_OPERATIONAL_VALIDATION",
+        "BLOCKED_INVALID_EVALUATION_CORPUS",
+        "BLOCKED_INSUFFICIENT_REAL_GOLD_CORPUS",
+        "BLOCKED_FULL_SUITE_VALIDATION",
+        "BLOCKED_UNLABELED_MATCH",
+        "BLOCKED_EMBEDDING_OPERATIONAL_VALIDATION",
+        "BLOCKED_RC_V2_INTEGRITY",
+        "READY_FOR_RECALL_ASSURANCE_REVIEW",
+    }
+)
+
+# Required operational multi-blocker set when not READY.
+# BLOCKED_REVIEW_CAPACITY is conditional (only with evaluable review data).
+# BLOCKED_INVALID_EVALUATION_CORPUS only for invalid structure/provenance.
+# Empty Level C real corpus → BLOCKED_INSUFFICIENT_REAL_GOLD_CORPUS (primary).
+REQUIRED_HONEST_BLOCKERS = frozenset(
+    {
+        "BLOCKED_LLM_OPERATIONAL_VALIDATION",
+        "BLOCKED_FULL_SUITE_VALIDATION",
+    }
+)
+
+# Foundation PR status is separate from operational performance terminals.
+FOUNDATION_PR_STATUS_READY = "READY_TO_MERGE_AS_DISABLED_FOUNDATION"
+
+FORBIDDEN_CLAIMS = frozenset(
+    {
+        "PROJECT_DONE",
+        "100% NO FALSE NEGATIVES",
+        "FULLY GUARANTEED",
+        "ACCEPTED",
+        "MERGED",
+    }
+)
+
+__all__ = [
+    "PIPELINE_VERSION",
+    "RULE_STAMP",
+    "PROMPT_VERSION",
+    "SCHEMA_VERSION",
+    "ALLOWED_TERMINAL_STATES",
+    "REQUIRED_HONEST_BLOCKERS",
+    "FORBIDDEN_CLAIMS",
+]

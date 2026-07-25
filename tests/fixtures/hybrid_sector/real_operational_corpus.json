@@ -1,0 +1,20 @@
+{
+  "corpus_id": "hybrid-sector-real-operational-locked-v0",
+  "version": "0.0.0",
+  "corpus_kind": "REAL_OPERATIONAL_LOCKED_GOLD",
+  "evaluation_level": "C",
+  "operational_gold": true,
+  "label_policy": "Independent human dual labeling of real public opportunities only. No invented objects. No Extra-private data.",
+  "dual_review_policy": "All critical POSITIVE dual-reviewed; all AMBIGUOUS dual-reviewed; ≥20% of remaining dual-reviewed; disagreements explicitly adjudicated.",
+  "quota_targets": {
+    "positives": 300,
+    "hard_negatives": 300,
+    "ambiguous_mixed": 150,
+    "positives_without_keywords": 100
+  },
+  "splits": {
+    "locked": "blocked evaluation only"
+  },
+  "records": [],
+  "status": "BLOCKED_INSUFFICIENT_REAL_GOLD_CORPUS"
+}
