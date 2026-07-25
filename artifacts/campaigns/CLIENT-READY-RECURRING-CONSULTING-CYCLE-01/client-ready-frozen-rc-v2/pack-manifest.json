@@ -2,7 +2,7 @@
   "campaign_id": "EXTRA-LIVE-CONSULTING-PACK-01",
   "run_id": "live-pack-20260725-033723-8b07813e",
   "as_of": "2026-07-25",
-  "git_sha": "c3b2495fc7c6ebc40e85f1a118e619a9ab4ef202",
+  "git_sha": "91154b4857388c92a710fb16ebda0561547349ef",
   "schema_version": "coverage-2.4_entity_coverage_rebuild",
   "profile": {
     "profile_path": "config/client_profiles/extra.yaml",

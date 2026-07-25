@@ -1,18 +1,23 @@
 {
   "status": "PASS",
   "run_id": "live-pack-20260725-033723-8b07813e",
-  "product_rc_sha": "c3b2495fc7c6ebc40e85f1a118e619a9ab4ef202",
+  "product_rc_sha": "91154b4857388c92a710fb16ebda0561547349ef",
   "artifact_name": "client-ready-frozen-rc-v2",
-  "same_run_id": true,
   "checksums_reconciled": true,
   "identity_self_hash": false,
   "production_touched": false,
   "soak_touched": false,
-  "generated_at": "2026-07-25T03:39:42Z",
+  "generated_at": "2026-07-25T03:40:28Z",
   "files": {
     "executive-report.pdf": "8815f3b0199fe2765f976c28a1f19ea82d9ccc9f1e29c97443d719bd441709b9",
     "consulting-pack.xlsx": "aa242a77a50ad1ea2b455afdbf000abe2e4a308a27a1e4796ecd228f6fa8192d",
     "executive-summary.md": "0b4d3edd4089fb7b565c1edcf5af5db167559c7880726f6f679b2cde5f398d4f",
-    "pack-manifest.json": "211d7040fddefb25a85b0207e9598bd754573c9e991be9faba0478040e888bf2"
+    "pack-manifest.json": "64485fb50ae59be4fe45508fcab0d98125ac732502d464fd485d9f0d9ec3329c",
+    "checksums.json": "cef5f598ada6527cda6559c14cabacd7314d69e12df380429617d8ea64e7c652",
+    "deliverable_a.json": "7bd26fe18906bee1dbfa452f54b684a68f41e943b405dae9291fc2b1d78084e1",
+    "deliverable_b.json": "8b7ad171d04a2c99ea644fb3d7bdf356aab84f1204a4f8d05455bb211f832775",
+    "deliverable_c.json": "d9c0383f8a324bb11fec17d943c08924985e81263625e9793752798bf03ddb1c",
+    "deliverable_d.json": "2c26edfcd0f79703c7fcb7cb0d05eaa7d74fac579b603c2444999eda94efdea9",
+    "deliverable_e.json": "18c116763fbf6cc7c021cbb916e0e7bf5a7938a8f814a6e0bea425fb2ee2952f"
   }
 }

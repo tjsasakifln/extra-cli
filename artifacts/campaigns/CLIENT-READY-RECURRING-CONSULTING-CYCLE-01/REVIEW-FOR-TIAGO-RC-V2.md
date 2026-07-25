@@ -4,7 +4,7 @@
 **Status:** `PENDING_HUMAN` (never auto-ACCEPTED)  
 **Artifact:** `client-ready-frozen-rc-v2`  
 **run_id:** `live-pack-20260725-033723-8b07813e`  
-**product_rc_sha:** `c3b2495fc7c6ebc40e85f1a118e619a9ab4ef202`
+**product_rc_sha:** `91154b4857388c92a710fb16ebda0561547349ef`
 
 ## What changed vs RC v1 (CHANGES_REQUESTED)
 
