@@ -471,7 +471,8 @@ jobs:
         env:
           PR_DRAFT: ${{ github.event.pull_request.draft }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
-          GH_TOKEN: ${{ github.token }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           set -euo pipefail
           if [ -n "${{ github.event.pull_request.base.sha }}" ]; then
@@ -485,16 +486,16 @@ jobs:
           if [ "${PR_DRAFT:-false}" = "true" ]; then
             DRAFT_FLAG="--draft"
           fi
-          if [ -z "${{ github.event.pull_request.number }}" ]; then
+          if [ -z "${PR_NUMBER}" ]; then
             DRAFT_FLAG="--draft"
           fi
+          # Body consistency from event payload (no soft-fail / || true).
           EXTRA=""
-          if [ -n "${{ github.event.pull_request.number }}" ] && command -v gh >/dev/null 2>&1; then
-            gh pr view "${{ github.event.pull_request.number }}" --json body -q .body > /tmp/pr-body.md || true
-            if [ -s /tmp/pr-body.md ]; then
-              EXTRA="--body-file /tmp/pr-body.md --head-sha $HEAD_SHA"
-            fi
+          if [ -n "${PR_NUMBER}" ] && [ -n "${PR_BODY}" ]; then
+            printf '%s\n' "$PR_BODY" > /tmp/pr-body.md
+            EXTRA="--body-file /tmp/pr-body.md --head-sha ${HEAD_SHA}"
           fi
+          # shellcheck disable=SC2086
           python -m scripts.ops.check_pr_reviewability --base "$BASE_REF" $DRAFT_FLAG $EXTRA
 
   # ============================================================================
