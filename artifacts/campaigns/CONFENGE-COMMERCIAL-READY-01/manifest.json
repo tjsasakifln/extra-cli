@@ -1,7 +1,7 @@
 {
   "campaign_id": "CONFENGE-COMMERCIAL-READY-01",
   "created_at": "2026-07-25T21:51:02Z",
-  "git_sha": "8344254942ec48978566317df16d7b3e3caabd89",
+  "git_sha": "bab090aaf70f7d7487c22dd728cc42c0ed04a6ab",
   "branch": "campaign/confenge-commercial-ready-01",
   "base_sha": "8344254942ec48978566317df16d7b3e3caabd89",
   "schema_version": "062",

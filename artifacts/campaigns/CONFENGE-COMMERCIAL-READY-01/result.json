@@ -4,7 +4,7 @@
   "technical_status": "RC_TECHNICAL_PASS",
   "campaign_id": "CONFENGE-COMMERCIAL-READY-01",
   "run_id": "cl-20260725T215053Z-310b8521",
-  "git_sha": "8344254942ec48978566317df16d7b3e3caabd89",
+  "git_sha": "bab090aaf70f7d7487c22dd728cc42c0ed04a6ab",
   "branch": "campaign/confenge-commercial-ready-01",
   "gate": {
     "ok": true,
