@@ -4,6 +4,6 @@
   "product_rc_sha": "be96c8bc8eb2b017e491bfafe8cf99f81e321267",
   "status": "CHANGES_REQUESTED",
   "reason": "Commercial rejection: non-engineering objects in E/C, organ ranking by general volume, invalid price panels, non-executive PDF/XLSX, hash drift",
-  "recorded_at": "2026-07-25T03:40:28Z",
+  "recorded_at": "2026-07-25T03:42:39Z",
   "note": "Historical only — not silently overwritten by v2"
 }
