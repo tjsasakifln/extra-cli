@@ -1,7 +1,7 @@
 # Fila comercial CONFENGE — resumo executivo
 
 - **Status técnico:** `PASS`
-- **Run ID:** `cl-20260725T220818Z-901bba0e`
+- **Run ID:** `cl-20260725T221018Z-f1c6a107`
 - **Profile:** `confenge` v`1.0.0`
 - **Snapshot hash:** `e916d721f5314a7b0453c5d910edd99b9594bf6ff163179965de92b4e78c59dd`
 - **Empresas elegíveis:** 14301

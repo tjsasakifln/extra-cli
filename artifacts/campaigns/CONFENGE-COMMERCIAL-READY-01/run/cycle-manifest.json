@@ -1,8 +1,8 @@
 {
   "campaign_id": "CONFENGE-COMMERCIAL-READY-01",
   "status": "PASS",
-  "run_id": "cl-20260725T220818Z-901bba0e",
-  "git_sha": "5e0ad0f4b605364eaccb8b0c0b7b50c6ac419367",
+  "run_id": "cl-20260725T221018Z-f1c6a107",
+  "git_sha": "a60109c89760762bae02c7a42e69d40030405d75",
   "profile_hash": "30637f6f532fa3c03a317344c01e5650884db8d38a132d9108330492d7bd3604",
   "catalog_hash": "a02e6c66adef2795c71906e4a3fd0d1a2c2c55c9449d2205940a637011e1004d",
   "snapshot_hash": "e916d721f5314a7b0453c5d910edd99b9594bf6ff163179965de92b4e78c59dd",
@@ -14,10 +14,10 @@
     "scored_companies": 14301,
     "ranked_leads": 20,
     "do_not_contact_suppressed": 2,
-    "human_state_overrides": 22,
+    "human_state_overrides": 23,
     "queue_limit": 20,
     "insufficient_queue": false,
-    "elapsed_seconds": 8.284,
+    "elapsed_seconds": 7.829,
     "module_version": "1.1.0"
   }
 }

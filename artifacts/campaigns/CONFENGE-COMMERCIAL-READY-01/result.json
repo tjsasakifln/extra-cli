@@ -3,15 +3,19 @@
   "reason": "BLOCKED_PENDING_HUMAN_ACCEPTANCE",
   "technical_status": "RC_TECHNICAL_PASS",
   "campaign_id": "CONFENGE-COMMERCIAL-READY-01",
-  "run_id": "cl-20260725T220818Z-901bba0e",
-  "git_sha": "5e0ad0f4b605364eaccb8b0c0b7b50c6ac419367",
-  "run_git_sha": "5e0ad0f4b605364eaccb8b0c0b7b50c6ac419367",
+  "run_id": "cl-20260725T221018Z-f1c6a107",
+  "git_sha": "a60109c89760762bae02c7a42e69d40030405d75",
+  "run_git_sha": "a60109c89760762bae02c7a42e69d40030405d75",
   "sha_match": true,
   "migrations": {
     "idempotent": true,
     "skipped": false
   },
   "do_not_contact_suppressed": 2,
+  "suppressed_do_not_contact": [
+    "02316749000500",
+    "07192414000109"
+  ],
   "gate_ok": true,
   "independent_review": "NO_CRITICAL_OR_HIGH_OPEN",
   "user_acceptance": "PENDING_HUMAN",
@@ -48,13 +52,6 @@
       "razao": "CONSTRUBRÁS CONSTRUTORA LTDA"
     }
   ],
-  "skeptic_fixes": [
-    "DNC applied in rank_leads + pipeline state_map",
-    "campaign-gate runs pytest/ruff/mypy/bandit/migrations",
-    "release-candidate.json with frozen hashes",
-    "required evidence artifacts generated",
-    "independent-review by non-implementer subagent",
-    "run git_sha bound to campaign HEAD; migrations not skipped",
-    "honest identity + DNC survive re-run tests"
-  ]
+  "branch": "campaign/confenge-commercial-ready-01",
+  "base_sha": "8344254942ec48978566317df16d7b3e3caabd89"
 }
