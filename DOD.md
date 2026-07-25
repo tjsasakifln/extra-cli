@@ -2,9 +2,9 @@
 
 > Checklist viva para acompanhar a evolução do desenvolvimento do projeto.
 >
-> **Natureza do projeto:** ferramenta pessoal, single-user, destinada a apoiar Tiago Sasaki na execução da proposta de consultoria para a Extra Construtora.
+> **Natureza do projeto:** ferramenta pessoal, single-user, operada por Tiago Sasaki na CONFENGE. A Extra Construtora é o cliente piloto; o mesmo núcleo de dados também apoia a prospecção e a entrega de consultoria B2G para outros clientes da CONFENGE, sem transformar o projeto em SaaS.
 >
-> **Escopo funcional:** inteligência sobre editais, contratos, concorrentes e referências de valores; monitoramento recorrente; triagem e análise técnica de editais; análise de planilhas, composições e BDI; apoio à decisão e à elaboração de propostas; acompanhamento administrativo de contratos sem acompanhamento de obra.
+> **Escopo funcional:** inteligência sobre editais, contratos, concorrentes e referências de valores; inteligência comercial para a CONFENGE; monitoramento recorrente; triagem e análise técnica de editais; análise de planilhas, composições e BDI; apoio à decisão e à elaboração de propostas; acompanhamento administrativo de contratos sem acompanhamento de obra.
 >
 > **Fora de escopo:** somente acompanhamento físico de obras (medição em campo, fiscalização física, diário de obra, avanço físico e inspeções presenciais). O acompanhamento administrativo de contratos, publicações, pagamentos públicos, prazos, reajustes, aditivos, garantias, renovações, sanções e possíveis relicitações permanece incluído.
 >
@@ -92,6 +92,8 @@ Um item pode ser marcado como concluído apenas quando pelo menos uma das evidê
 ### 2.1 Objetivo
 
 - [ ] O sistema ajuda a localizar editais relevantes para a Extra Construtora.
+- [ ] O sistema ajuda a CONFENGE a identificar, no dataset de contratos, empresas com sinais observáveis de necessidade e aderência aos serviços de consultoria B2G.
+- [ ] O sistema transforma sinais comerciais em uma fila pequena, explicável e acionável de prospecção, sem alegar desejo ou probabilidade de compra sem validação.
 - [ ] O sistema ajuda a verificar contratos históricos dos entes monitorados.
 - [x] O sistema ajuda a identificar vencedores e concorrentes observáveis. Evidência: M4-packages/competitors-top50.json · deliverable_b_competitors · EXTRA-OPS-95
 - [ ] O sistema ajuda a formar referências de valores com semântica explícita.
@@ -129,6 +131,7 @@ Um item pode ser marcado como concluído apenas quando pelo menos uma das evidê
 - [x] Apoio à decisão `GO`, `REVIEW` ou `NO_GO`. Evidência: opportunity_intel 401 opps GO=0 REVIEW≈397 NO_GO=4 · ranking demote · EXTRA-OPS-95
 - [ ] Apoio à organização e revisão de proposta, sem assumir assinatura ou responsabilidade da empresa.
 - [ ] Acompanhamento administrativo de contratos: prazos, publicações, aditivos, vigência, renovação e sinais de relicitação.
+- [ ] Prospecção orientada por dados para a CONFENGE a partir de sinais observáveis em contratos públicos.
 
 ### 2.3 Escopo excluído
 
@@ -359,6 +362,88 @@ Um item pode ser marcado como concluído apenas quando pelo menos uma das evidê
 - [ ] O relatório mensal apresenta status documental e publicações observadas.
 - [ ] O módulo não registra medição, diário, avanço físico, fotos, produção, produtividade ou fiscalização da obra.
 - [ ] O módulo não declara situação física ou financeira da execução sem dados oficiais e escopo formal adicional.
+
+---
+
+### 2.7 Inteligência comercial CONFENGE — prioridade imediata
+
+> **Objetivo imediato:** usar o dataset canônico de contratos para identificar pessoas jurídicas com dores, transições ou complexidade B2G observáveis e priorizar a prospecção humana da CONFENGE.
+>
+> **Regra de linguagem:** antes de validação com resultados comerciais reais, o sistema produz **sinais de necessidade/aderência** e um **score de priorização**. Não denomina esses resultados como desejo, intenção de compra, probabilidade de contratação ou propensão estatística.
+>
+> **Separação de universos:** o universo comercial é composto pelas empresas presentes no recorte versionado do dataset de contratos. Ele não altera o denominador canônico de 1.093 entes nem as métricas de cobertura de editais e contratos.
+
+#### Perfil comercial e unidade de análise
+
+- [ ] Existe perfil comercial versionado da CONFENGE com serviços ofertados, segmentos atendidos, região, porte/ticket desejado, critérios de exclusão e capacidade de atendimento.
+- [ ] O perfil relaciona cada dor observável a uma oferta concreta: diagnóstico B2G, monitoramento, análise de edital, apoio à proposta ou acompanhamento administrativo de contrato.
+- [ ] A unidade primária de lead é a pessoa jurídica identificada por CNPJ; nomes semelhantes, filiais e grupos econômicos não são fundidos sem regra e evidência.
+- [ ] Cada execução registra versão do perfil, janela temporal, filtros, versão/hash do dataset, data de corte e quantidade de empresas elegíveis.
+- [ ] Empresas sem CNPJ defensável ou fora do perfil permanecem visíveis como excluídas, com motivo, e não entram silenciosamente no ranking.
+- [ ] Órgãos públicos, pessoas físicas e registros sem relação com uma oferta da CONFENGE não são tratados como leads.
+
+#### Catálogo de sinais derivados de contratos
+
+- [ ] Existe catálogo versionado de pelo menos 12 sinais comerciais determinísticos ou estatísticos validados, cada um com nome, hipótese de dor, fórmula, campos necessários, janela, threshold, direção, confiança e oferta associada.
+- [ ] O catálogo cobre, quando os dados permitirem: primeiro contrato público relevante ou baixa maturidade observável no B2G.
+- [ ] O catálogo cobre ticket contratado materialmente acima do histórico da própria empresa.
+- [ ] O catálogo cobre crescimento acelerado de quantidade ou valor contratado.
+- [ ] O catálogo cobre entrada em novo órgão, região ou categoria de objeto.
+- [ ] O catálogo cobre carteira simultânea de contratos que indique maior complexidade administrativa.
+- [ ] O catálogo cobre concentração relevante de valor em um único órgão ou contrato.
+- [ ] O catálogo cobre contratos próximos do término, renovação ou relicitação.
+- [ ] O catálogo cobre recorrência de aditivos, apostilamentos ou prorrogações.
+- [ ] O catálogo cobre suspensão, rescisão, sanção ou outro evento adverso somente quando ligado a publicação oficial e com linguagem não acusatória.
+- [ ] O catálogo cobre contrato de alto valor incompatível com o histórico observável da empresa.
+- [ ] O catálogo cobre aumento de diversidade de órgãos ou objetos que indique expansão da operação B2G.
+- [ ] O catálogo cobre recorrência de vitórias ou contratos que indique volume suficiente para ganho de eficiência com consultoria.
+- [ ] Sinal não computável por ausência de campo recebe `NOT_COMPUTABLE`; ausência de evidência nunca é convertida em sinal negativo ou valor zero.
+- [ ] Thresholds absolutos, como valor alto, são configuráveis e comparados com referências relativas da empresa, segmento e período quando houver amostra defensável.
+
+#### Priorização explicável e evidência
+
+- [ ] Cada lead contém CNPJ, razão social, score, faixa de prioridade, sinais acionados, sinais não computáveis, oferta sugerida e próximo passo recomendado.
+- [ ] Cada sinal acionado aponta para contrato/evento de origem, órgão, objeto, valor com semântica explícita, data, fonte oficial e identificador ou URL reproduzível.
+- [ ] O score é decomponível por sinal; pesos, thresholds, regras de desempate e penalidades são versionados.
+- [ ] Fatores de confiança e qualidade dos dados não são confundidos com interesse comercial da empresa.
+- [ ] Um único contrato de alto valor não basta para afirmar necessidade de consultoria; a justificativa apresenta a hipótese e suas limitações.
+- [ ] Inferências produzidas por LLM não criam fatos nem sinais primários; quando usadas para síntese, permanecem vinculadas às evidências estruturadas.
+- [ ] O ranking deduplica empresas e limita repetição de sinais correlacionados para evitar inflação artificial do score.
+- [ ] O relatório apresenta a distribuição dos scores e a razão de corte da fila, inclusive quando nenhum lead atingir o mínimo.
+- [ ] Quando houver menos leads defensáveis do que o limite solicitado, o sistema entrega apenas os válidos e declara a insuficiência.
+
+#### Fila comercial e uso na rotina
+
+- [ ] Existe comando CLI canônico que gera uma fila priorizada e limitada, com modo `explain` por empresa.
+- [ ] A saída mínima contém os 20 leads prioritários ou todos os leads defensáveis quando houver menos de 20.
+- [ ] A fila pode ser exportada em formato aberto e revisável, sem depender de dashboard.
+- [ ] Cada item possui estado comercial controlado: `NEW`, `REVIEWED`, `QUALIFIED`, `DISQUALIFIED`, `CONTACTED`, `REPLIED`, `MEETING`, `PROPOSAL`, `WON`, `LOST` ou `DO_NOT_CONTACT`.
+- [ ] Revisões, overrides e desqualificações registram autor, data e motivo.
+- [ ] Dados de contato, quando enriquecidos, possuem origem lícita e data de verificação; o ranking funciona mesmo sem esse enriquecimento.
+- [ ] A fila informa uma ação humana concreta e uma mensagem de valor compatível com o sinal, sem automatizar contato em nome da CONFENGE.
+- [ ] A rotina evita milhares de alertas: há limite configurável, supressão de repetição e indicação do que mudou desde a execução anterior.
+
+#### Validação, aprendizado comercial e claims
+
+- [ ] Os top-20, ou todos os casos quando houver menos, passam por revisão manual inicial de Tiago contra o perfil comercial.
+- [ ] Cem por cento dos top-10 possuem CNPJ, evidência contratual reproduzível e pelo menos um sinal confirmado; caso contrário o gate falha.
+- [ ] A validação mede `precision@10`, `precision@20`, cobertura dos campos, estabilidade do ranking e concordância entre score e revisão humana.
+- [ ] O baseline inicial é comparado com uma seleção simples, como valor contratado ou recência, para provar ganho de priorização.
+- [ ] Após início da prospecção, o sistema mede taxa de qualificação, contato, resposta, reunião, proposta, vitória/perda e tempo até cada etapa.
+- [ ] “Propensão” ou probabilidade de compra só pode ser publicada depois de amostra suficiente, definição de outcome, separação temporal treino/teste, calibração e validação retrospectiva documentadas.
+- [ ] Resultados de contato real retroalimentam a avaliação e o ajuste de sinais, sem reescrever silenciosamente o histórico.
+- [ ] Não são usados atributos pessoais sensíveis ou proxies discriminatórios; `DO_NOT_CONTACT` e restrições legais/comerciais são respeitados.
+- [ ] O primeiro ciclo de uso real registra decisões de Tiago, contatos realizados e resultados observados, inclusive quando não houver conversão.
+
+#### Gate imediato `CONFENGE_COMMERCIAL_READY`
+
+- [ ] O perfil comercial e o catálogo de sinais estão versionados.
+- [ ] O pipeline lê o dataset canônico de contratos e gera a fila por um comando CLI reproduzível.
+- [ ] Pelo menos 12 sinais estão implementados, testados e explicáveis, ou os não computáveis estão explicitamente identificados sem falso-verde.
+- [ ] Os top-10 passam pela validação de evidência e os top-20 pela revisão humana inicial.
+- [ ] A fila registra estado, próximo passo, feedback e outcomes comerciais.
+- [ ] Existe relatório de baseline, limitações, métricas de qualidade e comparação com ranking simples.
+- [ ] Tiago aceita formalmente a fila como utilizável para iniciar a prospecção da CONFENGE.
 
 ---
 
@@ -1564,7 +1649,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] README descreve fontes. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `README.md`
 - [x] README descreve métricas de coverage. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `README.md`
 - [x] README não confunde alvo futuro com realidade atual. Evidência: `docs/GLOSSARY.md` + `docs/architecture/adr/INDEX.md` + `docs/ops/runbook.md` (rollback/schema-drift/cobertura<95%) + `scripts/ops/scan_ops_docs_honesty.py` + `tests/test_ops_docs_honesty.py` + QA PASS cyc-2026-07-18T131425Z (7/8; PRD alignment left open). · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
-- [x] PRD está alinhado ao DOD. Evidência: PRD v2.1 + CHANGELOG.md + docs/ops/NEXT-DEV-STEP.md + scan_ops_docs_honesty ok + QA PASS cyc-2026-07-18T132050Z. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
+- [ ] PRD está alinhado ao DOD. `REGRESSION` em 2026-07-25: o PRD v2.1 ainda não incorpora integralmente a inteligência comercial CONFENGE e a resiliência evolutiva das seções 2.7, 32.6 e 32.7; o aceite anterior permanece como evidência histórica do escopo de 2026-07-18.
 - [x] ADRs vigentes estão identificadas. Evidência: `docs/GLOSSARY.md` + `docs/architecture/adr/INDEX.md` + `docs/ops/runbook.md` (rollback/schema-drift/cobertura<95%) + `scripts/ops/scan_ops_docs_honesty.py` + `tests/test_ops_docs_honesty.py` + QA PASS cyc-2026-07-18T131425Z (7/8; PRD alignment left open). · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
 - [x] ADRs revogadas estão identificadas. Evidência: `docs/GLOSSARY.md` + `docs/architecture/adr/INDEX.md` + `docs/ops/runbook.md` (rollback/schema-drift/cobertura<95%) + `scripts/ops/scan_ops_docs_honesty.py` + `tests/test_ops_docs_honesty.py` + QA PASS cyc-2026-07-18T131425Z (7/8; PRD alignment left open). · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
 - [x] Existe runbook local. Evidência: canonical `DOCUMENT_CONTENT_PROOF` + `docs/ops/runbook.md`
@@ -1653,6 +1738,51 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] Divergências entre agentes são resolvidas por execução reproduzível, documentação canônica e decisão registrada, não por autoridade presumida do modelo.
 - [ ] Ferramentas proprietárias são conveniências opcionais e possuem alternativa manual ou aberta para operações críticas.
 
+### 32.6 Resiliência evolutiva contra obsolescência de IA
+
+> O projeto não tenta prever qual modelo vencerá o mercado. A proteção contra obsolescência vem de ativos duráveis — dados governados, proveniência, avaliações, contratos de interface, workflow e feedback real — que permitem incorporar modelos melhores sem reconstruir o produto.
+
+- [ ] Existe inventário versionado das capacidades que usam IA, com objetivo, input, output estruturado, risco, fallback, métricas e responsável.
+- [ ] Regras determinísticas, acesso a dados, prompts, modelos e apresentação permanecem separados o suficiente para trocar uma camada sem reescrever as demais.
+- [ ] Toda integração de modelo usa contrato de entrada e saída validável; JSON ou schema inválido falha fechado ou segue fallback explícito.
+- [ ] Provedor, modelo, versão, parâmetros, prompt/template, custo, latência e IDs das evidências são registrados por execução.
+- [ ] Nenhum requisito de negócio depende de nome comercial, versão específica de modelo, IDE, MCP ou recurso proprietário sem alternativa documentada.
+- [ ] Existe adaptador ou fronteira única para chamadas de modelo; chamadas dispersas diretamente a SDKs de provedores são proibidas.
+- [ ] A troca de modelo ou provedor não exige migration do dado canônico nem alteração dos contratos públicos de CLI e relatório.
+- [ ] Existe conjunto de avaliação versionado, derivado de casos reais representativos e revisado por humano, para cada capacidade de IA que afete uma decisão ou entrega.
+- [ ] O conjunto de avaliação preserva casos fáceis, difíceis, adversariais, documentos longos, dados ausentes e exemplos em que a resposta correta é abstenção.
+- [ ] Dados sensíveis ou de clientes usados em avaliação são minimizados, protegidos e não enviados a terceiros fora das condições aceitas.
+- [ ] Métricas são definidas por capacidade, incluindo quando aplicável precisão/recall, groundedness, cobertura de citação, taxa de abstenção correta, schema válido, latência e custo.
+- [ ] Uma média global não oculta regressão em caso crítico; existem thresholds e estratos por tipo de tarefa e risco.
+- [ ] Toda atualização relevante de modelo, prompt, retrieval ou ferramenta executa a suíte de avaliação antes de promoção.
+- [ ] Promoção ocorre por comparação com baseline, orçamento de regressão explícito e aceite humano proporcional ao risco.
+- [ ] Mudanças de IA entram gradualmente por shadow, canário ou amostra controlada e possuem rollback para a versão anterior.
+- [ ] Pelo menos uma alternativa de modelo ou provedor é avaliada em casos representativos a cada 90 dias ou diante de mudança material de preço, disponibilidade ou capacidade.
+- [ ] A substituição é exercitada ponta a ponta pelo menos a cada 180 dias, com tempo, incompatibilidades, custo e regressões registrados.
+- [ ] Documentos e conteúdo externo são tratados como entrada não confiável; instruções neles contidas não recebem autoridade de sistema e passam por controles contra prompt injection.
+- [ ] Respostas gerativas que sustentam entrega consultiva citam trechos ou registros de origem e distinguem fato, cálculo, inferência e recomendação.
+- [ ] Capacidades críticas mantêm modo degradado determinístico ou manual documentado quando a IA estiver indisponível, cara ou abaixo do threshold.
+- [ ] Orçamento mensal e limite por execução existem; atingir o limite interrompe ou degrada com transparência, sem loop autônomo ilimitado.
+- [ ] Logs permitem comparar qualidade, latência e custo entre versões sem armazenar conteúdo sensível desnecessário.
+- [ ] Existe radar trimestral de riscos e oportunidades tecnológicas com decisão explícita: `ADOPT`, `TRIAL`, `ASSESS`, `HOLD` ou `RETIRE`.
+- [ ] A adoção de uma novidade exige hipótese de valor, avaliação, custo total e plano de saída; novidade de mercado isolada não cria requisito.
+
+### 32.7 Aprendizado de produto e valor real na consultoria
+
+- [ ] Existe baseline do esforço manual atual para localizar oportunidade, analisar edital, preparar material e priorizar prospecção.
+- [ ] O sistema mede tempo até insight acionável, tempo economizado, taxa de uso das saídas e quantidade de decisões apoiadas.
+- [ ] Para inteligência comercial, são acompanhados leads revisados, qualificados, contatados, respostas, reuniões, propostas, vitórias, perdas e receita atribuível, sem confundir correlação com causalidade.
+- [ ] Para a entrega à Extra e a outros clientes, são acompanhados achados utilizados, decisões alteradas, riscos evitados e retrabalho reduzido.
+- [ ] Toda métrica de valor possui definição, denominador, período, origem e responsável; métricas de vaidade como volume bruto de registros não bastam.
+- [ ] Existe revisão mensal de valor com Tiago que relaciona uso real, erros, oportunidades perdidas, feedback e custo operacional.
+- [ ] Feedback humano é registrado em formato estruturado e vinculado à versão do dado, regra ou modelo que produziu a saída.
+- [ ] O backlog é repriorizado por valor esperado, confiança, esforço e risco; recursos sem uso comprovado podem ser simplificados ou retirados.
+- [ ] Experimentos possuem hipótese, público/caso, métrica primária, baseline, duração ou tamanho mínimo e critério de parar, adotar ou descartar.
+- [ ] O sistema preserva histórico suficiente para comparar versões sem mudar retrospectivamente o resultado antigo.
+- [ ] Pelo menos um ciclo trimestral demonstra melhoria mensurável em qualidade, tempo, custo ou resultado comercial, ou registra decisão explícita de não investir.
+- [ ] A manutenção de dados, avaliações e workflows recebe prioridade sobre camadas cosméticas quando houver conflito de capacidade.
+- [ ] Tiago consegue corrigir classificação, justificar override e incorporar aprendizado sem editar código disperso.
+
 ---
 
 ## 33. Governança pessoal do desenvolvimento
@@ -1694,6 +1824,8 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] O sistema permite investigar um objeto ou setor.
 - [ ] O sistema permite consultar contratos dos últimos três anos.
 - [ ] O sistema permite comparar fornecedores vencedores.
+- [ ] Tiago usa a fila comercial CONFENGE em pelo menos um ciclo real de prospecção e registra as decisões e outcomes observados.
+- [ ] Os leads prioritários possuem evidência suficiente para justificar por que foram selecionados e qual serviço pode gerar valor.
 - [ ] O sistema permite produzir referência de valores sem confundir grandezas.
 - [ ] O sistema gera material apresentável ao cliente.
 - [ ] O sistema reduz trabalho manual repetitivo.
@@ -1717,6 +1849,7 @@ O gate `LOCAL_READY` só pode ser marcado quando:
 
 - [ ] Todos os itens obrigatórios do ROL 1 estão concluídos.
 - [ ] Os itens aplicáveis do ROL 3 estão concluídos.
+- [ ] O gate imediato `CONFENGE_COMMERCIAL_READY` da seção 2.7 foi atingido.
 - [ ] O universo canônico está reconciliado.
 - [ ] A cobertura de editais é >= 95%.
 - [ ] A cobertura de contratos é >= 95%.
@@ -1771,8 +1904,10 @@ O gate `PROJECT_DONE` só pode ser marcado quando:
 - [ ] O projeto cumpre o escopo da proposta, exceto acompanhamento de obras.
 - [ ] Os cinco entregáveis do diagnóstico da seção 2.5 foram comprovados ou tiveram limitação formalmente aceita por Tiago antes da entrega.
 - [ ] As capacidades recorrentes aplicáveis da seção 2.6 foram comprovadas para o escopo efetivamente contratado.
+- [ ] A inteligência comercial CONFENGE da seção 2.7 foi usada em ciclo real e possui outcomes registrados.
 - [ ] O pacote PDF + Excel foi reconciliado e aceito.
 - [ ] A seção 32 de agnosticidade de agentes foi concluída.
+- [ ] A suíte de avaliação de IA, o teste de substituição de modelo/provedor e a revisão de valor estão dentro das cadências definidas nas seções 32.6 e 32.7.
 - [ ] O sistema é utilizado na rotina real.
 - [ ] As métricas são tecnicamente defensáveis.
 - [ ] As limitações são explícitas.
@@ -1808,7 +1943,6 @@ Os itens abaixo podem continuar evoluindo sem impedir o uso do sistema:
 - [ ] Cálculo futuro de win rate real.
 - [ ] Integração futura com pagamentos ou empenhos.
 - [ ] Expansão geográfica além do raio definido.
-- [ ] Expansão para outros clientes.
 - [ ] Interface multiusuário.
 - [ ] API externa.
 - [ ] Aplicativo móvel.
@@ -1819,6 +1953,7 @@ Os itens abaixo podem continuar evoluindo sem impedir o uso do sistema:
 
 | Data | Commit | Alteração | Motivo | Responsável |
 |---|---|---|---|---|
+| 2026-07-25 | main (docs-only) | §2, §32, §34–§36: inteligência comercial imediata para a CONFENGE, resiliência evolutiva de IA e métricas de valor real | Reduzir risco de obsolescência e converter o dataset de contratos em prospecção acionável | Tiago Sasaki / Morgan |
 | 2026-07-17 | fix/pre-vps-final-truth-gate → main | §45 truth gate: selo LOCAL_RESILIENCE_READY destruído; pipeline único + PG; CI resilience-gate verde; HTML atualizado | Auditoria adversarial pré-VPS | Truth gate session |
 | 2026-07-17 | aca4408→HEAD · main | §42 briefing executivo trabalho financiado + HTML diretoria; consolida §40–§41 com claims honestos | Apresentação à Extra Construtora | Diretoria / Principal Eng |
 | 2026-07-17 | 3bf1a3b · main | fix adversarial: sc-* ≠ pncp_number; 052 em `_migrations`; CIGA 221/295 + live_fetch | Auditoria independente | Multiagent §41 fix |
@@ -2714,4 +2849,3 @@ CI (PR #12):
 | PR | #12 |
 
 ---
-
