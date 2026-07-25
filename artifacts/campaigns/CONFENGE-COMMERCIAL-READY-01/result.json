@@ -3,42 +3,26 @@
   "reason": "BLOCKED_INSUFFICIENT_HUMAN_LABELS",
   "technical_status": "BLOCKED",
   "campaign_id": "CONFENGE-COMMERCIAL-READY-01",
-  "run_id": "cl-20260725T225921Z-f9360478",
-  "git_sha": "d9874b64c8b1adf953a24453944ae51d9bf5284b",
-  "run_git_sha": "d9874b64c8b1adf953a24453944ae51d9bf5284b",
-  "artifact_git_sha": "d9874b64c8b1adf953a24453944ae51d9bf5284b",
-  "gate_git_sha": "d9874b64c8b1adf953a24453944ae51d9bf5284b",
-  "review_git_sha": "d9874b64c8b1adf953a24453944ae51d9bf5284b",
+  "run_id": "cl-20260725T230439Z-2afabde7",
+  "git_sha": "b956f00ef632c26715ae4b4eaf20928d05abcb6a",
+  "run_git_sha": "b956f00ef632c26715ae4b4eaf20928d05abcb6a",
+  "artifact_git_sha": "b956f00ef632c26715ae4b4eaf20928d05abcb6a",
+  "gate_git_sha": "b956f00ef632c26715ae4b4eaf20928d05abcb6a",
+  "review_git_sha": "b956f00ef632c26715ae4b4eaf20928d05abcb6a",
   "base_sha": "8344254942ec48978566317df16d7b3e3caabd89",
   "branch": "campaign/confenge-commercial-ready-01",
   "population_mode": "FULL_POPULATION",
   "source_state_mode": "RESTORED_SNAPSHOT_SINGLE_DB",
-  "snapshot_binding": {
-    "ok": true,
-    "status": "BOUND",
-    "declared_row_count": 60000,
-    "database_row_count": 60000,
-    "min_date": "2026-02-13",
-    "max_date": "2026-07-23",
-    "sample_hashes": [
-      "00000000000191-2-000004/2026:50052653000192:871dd87a1f8dd86e0e7db63314adce94",
-      "00000000000191-2-000009/2026:63056469000162:9d1f42e66ce0dfc826509cfaffeba22c",
-      "00000000000191-2-000013/2026:31834991000131:e3e30f0fb9f15d81639ab53fdcea37a6",
-      "00000000000191-2-000020/2026:89278519000140:fd2a1b4044d0f97f34ae9829f156088b",
-      "00000000000191-2-000024/2026:33624704000194:5b32f5760c24803cea3f8f35922e9cea"
-    ],
-    "table_snapshot_hash": "bb1fa54ececca5ab5d68a700e103d5103a5fa424f233344d41d955543cc4d8d3",
-    "schema_version": null,
-    "reasons": [],
-    "justified_filter": false,
-    "filter_note": null,
-    "table": "pncp_supplier_contracts"
-  },
   "sector_fit_distribution": {
-    "STRONG_ENGINEERING_FIT": 4255,
+    "STRONG_ENGINEERING_FIT": 4987,
     "CONFLICTING": 312,
-    "POSSIBLE_ENGINEERING_FIT": 3001,
+    "POSSIBLE_ENGINEERING_FIT": 2269,
     "OUT_OF_SCOPE": 975
+  },
+  "top10_validation": {
+    "ok": true,
+    "issues": [],
+    "out_of_scope_in_top10": 0
   },
   "leads": 20,
   "top5": [
@@ -73,18 +57,12 @@
       "supplier_sector_fit": "STRONG_ENGINEERING_FIT"
     }
   ],
-  "top10_validation": {
-    "ok": true,
-    "issues": [],
-    "out_of_scope_in_top10": 0
-  },
   "rc_technical_pass_revoked": true,
   "blockers": [
     "BLOCKED_INSUFFICIENT_HUMAN_LABELS",
     "BLOCKED_PENDING_HUMAN_ACCEPTANCE",
-    "machine queue improved (no autopecas/terceirizacao in top20) but human precision thresholds not certified"
+    "machine top-10 has 0 OUT_OF_SCOPE and all STRONG sector fit; human precision thresholds not certified"
   ],
   "user_acceptance": "NOT_REQUESTED",
-  "independent_review": "see independent-review.json — high findings open on human labels",
-  "updated_at": "2026-07-25T23:04:09Z"
+  "updated_at": "2026-07-25T23:04:56Z"
 }

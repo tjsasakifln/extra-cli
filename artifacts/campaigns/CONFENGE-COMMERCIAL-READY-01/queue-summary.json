@@ -1,10 +1,10 @@
 {
-  "run_id": "cl-20260725T225921Z-f9360478",
+  "run_id": "cl-20260725T230439Z-2afabde7",
   "status": "PASS",
   "reason": null,
-  "git_sha": "1108c72a21d82e81670976cd9dd104fb4b153a82",
-  "run_git_sha": "1108c72a21d82e81670976cd9dd104fb4b153a82",
-  "artifact_git_sha": "d9874b64c8b1adf953a24453944ae51d9bf5284b",
+  "git_sha": "b956f00ef632c26715ae4b4eaf20928d05abcb6a",
+  "run_git_sha": "b956f00ef632c26715ae4b4eaf20928d05abcb6a",
+  "artifact_git_sha": "b956f00ef632c26715ae4b4eaf20928d05abcb6a",
   "population_mode": "FULL_POPULATION",
   "source_state_mode": "RESTORED_SNAPSHOT_SINGLE_DB",
   "snapshot_binding": {
@@ -29,9 +29,9 @@
     "table": "pncp_supplier_contracts"
   },
   "sector_fit_distribution": {
-    "STRONG_ENGINEERING_FIT": 4255,
+    "STRONG_ENGINEERING_FIT": 4987,
     "CONFLICTING": 312,
-    "POSSIBLE_ENGINEERING_FIT": 3001,
+    "POSSIBLE_ENGINEERING_FIT": 2269,
     "OUT_OF_SCOPE": 975
   },
   "metrics": {
@@ -40,22 +40,22 @@
     "relevance_pass_contracts": 17114,
     "db_contract_count": 60000,
     "exclusions": 249,
-    "scored_companies": 4255,
-    "validity_excluded": 4288,
-    "review_queue_size": 4288,
+    "scored_companies": 4987,
+    "validity_excluded": 3556,
+    "review_queue_size": 3556,
     "ranked_leads": 20,
     "do_not_contact_suppressed": 0,
     "human_state_overrides": 23,
     "queue_limit": 20,
     "insufficient_queue": false,
-    "elapsed_seconds": 15.664,
+    "elapsed_seconds": 15.805,
     "module_version": "1.2.0",
     "population_mode": "FULL_POPULATION",
     "limit_applied": null,
     "sector_fit_distribution": {
-      "STRONG_ENGINEERING_FIT": 4255,
+      "STRONG_ENGINEERING_FIT": 4987,
       "CONFLICTING": 312,
-      "POSSIBLE_ENGINEERING_FIT": 3001,
+      "POSSIBLE_ENGINEERING_FIT": 2269,
       "OUT_OF_SCOPE": 975
     }
   },
@@ -266,6 +266,5 @@
       "commercial_signal_fit": "PASS",
       "geography_fit": "PASS"
     }
-  ],
-  "commit_git_sha": "d9874b64c8b1adf953a24453944ae51d9bf5284b"
+  ]
 }
