@@ -1,6 +1,6 @@
 {
   "campaign_id": "CONFENGE-COMMERCIAL-READY-01",
-  "git_sha": "5e0ad0f4b605364eaccb8b0c0b7b50c6ac419367",
+  "git_sha": "e6b2b2dbc9b033ba4c5c594d2f837e95009393db",
   "steps": {
     "file:db/migrations/062_commercial_leads_ledger.sql": true,
     "file:config/commercial_profiles/confenge.yaml": true,
@@ -24,7 +24,7 @@
         "--junitxml=/mnt/d/extra consultoria/.worktrees/confenge-commercial-ready-01/artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/tests.xml"
       ],
       "exit_code": 0,
-      "stdout_tail": ".....................................                                    [100%]\n- generated xml file: /mnt/d/extra consultoria/.worktrees/confenge-commercial-ready-01/artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/tests.xml -\n37 passed in 2.67s\n",
+      "stdout_tail": ".....................................                                    [100%]\n- generated xml file: /mnt/d/extra consultoria/.worktrees/confenge-commercial-ready-01/artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/tests.xml -\n37 passed in 2.68s\n",
       "stderr_tail": "",
       "ok": true
     },
@@ -105,5 +105,5 @@
   "ok": true,
   "fails": [],
   "status": "PASS",
-  "at": "2026-07-25T22:09:04Z"
+  "at": "2026-07-25T22:14:52Z"
 }
