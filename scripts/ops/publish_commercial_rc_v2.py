@@ -54,6 +54,35 @@ def compute_checksums(pack_dir: Path) -> dict[str, str]:
     return out
 
 
+# Identity product set for stable non-git product_rc_sha (no tip chasing).
+# Exclude pack-manifest so product_rc_sha can be written into it without circularity.
+PRODUCT_RC_MEMBERS: tuple[str, ...] = (
+    "executive-report.pdf",
+    "consulting-pack.xlsx",
+    "executive-summary.md",
+    "deliverable_a.json",
+    "deliverable_b.json",
+    "deliverable_c.json",
+    "deliverable_d.json",
+    "deliverable_e.json",
+)
+
+
+def content_product_rc_sha(pack_dir: Path) -> str:
+    """SHA-256 over sorted name+file digests of identity products (not a git commit)."""
+    h = hashlib.sha256()
+    h.update(b"extra-client-ready-frozen-rc-v2/product-rc/1.0\n")
+    for name in PRODUCT_RC_MEMBERS:
+        p = pack_dir / name
+        if not p.is_file():
+            raise FileNotFoundError(f"missing product member for content_rc_sha: {name}")
+        h.update(name.encode("utf-8"))
+        h.update(b"\0")
+        h.update(sha256_file(p).encode("ascii"))
+        h.update(b"\n")
+    return h.hexdigest()
+
+
 def integrity_gate(pack_dir: Path, acceptance: dict[str, Any]) -> list[str]:
     """Fail-closed: real files vs checksums vs acceptance package_checksums."""
     divergences: list[str] = []
@@ -332,12 +361,11 @@ def main(argv: list[str] | None = None) -> int:
         pack = json.loads(pm.read_text(encoding="utf-8")) if pm.is_file() else {}
 
     run_id = str(pack.get("run_id") or "")
-    product_rc_sha = str(pack.get("git_sha") or "")
-    if not run_id or not product_rc_sha:
-        print(json.dumps({"status": "FAIL", "error": "missing_run_id_or_sha"}))
+    if not run_id:
+        print(json.dumps({"status": "FAIL", "error": "missing_run_id"}))
         return 2
 
-    # Final checksums after aliases
+    # Final aliases then content-addressed product_rc_sha (stable; not git HEAD tip)
     for src, dst in (
         ("extra_live_consulting_pack.pdf", "executive-report.pdf"),
         ("extra_live_consulting_pack.xlsx", "consulting-pack.xlsx"),
@@ -346,6 +374,20 @@ def main(argv: list[str] | None = None) -> int:
         sp, dp = pack_dir / src, pack_dir / dst
         if sp.is_file():
             dp.write_bytes(sp.read_bytes())
+
+    product_rc_sha = content_product_rc_sha(pack_dir)
+    pm_path = pack_dir / "pack-manifest.json"
+    if pm_path.is_file():
+        try:
+            pm = json.loads(pm_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            pm = {}
+        pm["run_id"] = run_id
+        pm["product_rc_sha"] = product_rc_sha
+        pm["product_rc_scheme"] = "content_sha256_v1"
+        # git_sha is provenance only — freeze identity is product_rc_sha
+        pm["git_sha_provenance"] = pm.get("git_sha") or pack.get("git_sha")
+        pm_path.write_text(json.dumps(pm, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
     checksums = compute_checksums(pack_dir)
     (pack_dir / "checksums.json").write_text(

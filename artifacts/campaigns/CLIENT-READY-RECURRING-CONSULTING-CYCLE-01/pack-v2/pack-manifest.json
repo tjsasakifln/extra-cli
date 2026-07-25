@@ -1,8 +1,8 @@
 {
   "campaign_id": "EXTRA-LIVE-CONSULTING-PACK-01",
-  "run_id": "live-pack-20260725-033723-8b07813e",
+  "run_id": "live-pack-20260725-034511-57554b1d",
   "as_of": "2026-07-25",
-  "git_sha": "a4e9ce94a9c9e43e0981ce1412d0e03efc890e2f",
+  "git_sha": "df2f45b343fc653175461a692f910c17bb1e4af9",
   "schema_version": "coverage-2.4_entity_coverage_rebuild",
   "profile": {
     "profile_path": "config/client_profiles/extra.yaml",
@@ -63,13 +63,13 @@
         "sarjeta"
       ]
     },
-    "query_seconds": 45.316
+    "query_seconds": 45.464
   },
   "deliverable_b": {
     "status": "OK",
     "valid_count": 15,
     "target_n": 15,
-    "query_seconds": 83.942
+    "query_seconds": 85.259
   },
   "deliverable_c": {
     "status": "OK",
@@ -79,12 +79,12 @@
       "n": 672,
       "query_complete": true
     },
-    "query_seconds": 6.842
+    "query_seconds": 6.971
   },
   "deliverable_d": {
     "status": "INSUFFICIENT_COMPARABLE_DATA",
     "n_panels": 6,
-    "query_seconds": 1.694
+    "query_seconds": 1.767
   },
   "deliverable_e": {
     "status": "SUCCESS_ZERO_ENGINEERING_OPPORTUNITIES",
@@ -107,17 +107,17 @@
     "status": "PASS",
     "same_run_id": true,
     "divergences": [],
-    "run_id": "live-pack-20260725-033723-8b07813e",
+    "run_id": "live-pack-20260725-034511-57554b1d",
     "eligible_population": 1179237,
-    "meta_pdf_run_id": "live-pack-20260725-033723-8b07813e",
-    "meta_excel_run_id": "live-pack-20260725-033723-8b07813e",
+    "meta_pdf_run_id": "live-pack-20260725-034511-57554b1d",
+    "meta_excel_run_id": "live-pack-20260725-034511-57554b1d",
     "artifact_checks": {
       "pdf_path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/pack-v2/extra_live_consulting_pack.pdf",
       "excel_path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/pack-v2/extra_live_consulting_pack.xlsx",
-      "pdf_sha256": "8815f3b0199fe2765f976c28a1f19ea82d9ccc9f1e29c97443d719bd441709b9",
-      "excel_sha256": "aa242a77a50ad1ea2b455afdbf000abe2e4a308a27a1e4796ecd228f6fa8192d",
+      "pdf_sha256": "3eb42413757280b4f086cf63a7d3f8018eff021d63adacf0a3f5c66ee40830bd",
+      "excel_sha256": "93f30b45a662f46254039b2f5164d9a17312da283d9675d92489842ba9a95475",
       "pdf_bytes": 13906,
-      "excel_bytes": 30672,
+      "excel_bytes": 30673,
       "binaries_distinct": true,
       "pdf_run_id_plaintext": false,
       "excel_sheet_rows": {
@@ -138,8 +138,11 @@
     "isolation_ok": true,
     "hits": [],
     "dsn_masked": "postgresql://test:***@127.0.0.1:5436/extra_live_pack_rc",
-    "checked_at": "2026-07-25T03:37:23Z"
+    "checked_at": "2026-07-25T03:45:11Z"
   },
   "production_touched": false,
-  "generated_at": "2026-07-25T03:39:42Z"
+  "generated_at": "2026-07-25T03:47:32Z",
+  "product_rc_sha": "db62911a3dc5f3fe1e632efa26d100a01780201c036659bf2707624fe1c320f0",
+  "product_rc_scheme": "content_sha256_v1",
+  "git_sha_provenance": "df2f45b343fc653175461a692f910c17bb1e4af9"
 }

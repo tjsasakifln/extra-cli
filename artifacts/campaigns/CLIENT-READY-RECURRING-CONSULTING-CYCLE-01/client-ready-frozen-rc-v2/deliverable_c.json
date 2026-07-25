@@ -2022,7 +2022,7 @@
     "Include non-engineering expiring contracts (health, fuel, courses, etc.)",
     "Invent probability percentage without model"
   ],
-  "generated_at": "2026-07-25T03:39:35Z",
+  "generated_at": "2026-07-25T03:47:25Z",
   "excluded_non_engineering": 14070,
   "export_limit": 40,
   "export_is_not_universe": true,
@@ -2052,9 +2052,9 @@
     "sector_filter": "ENGINEERING_HIGH_CONFIDENCE|ENGINEERING_REVIEW",
     "no_invented_probability_pct": true
   },
-  "query_seconds": 6.842,
-  "run_id": "live-pack-20260725-033723-8b07813e",
+  "query_seconds": 6.971,
+  "run_id": "live-pack-20260725-034511-57554b1d",
   "as_of": "2026-07-25",
-  "git_sha": "c3b2495fc7c6ebc40e85f1a118e619a9ab4ef202",
+  "git_sha": "df2f45b343fc653175461a692f910c17bb1e4af9",
   "schema_version": "coverage-2.4_entity_coverage_rebuild"
 }
