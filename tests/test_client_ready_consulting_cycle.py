@@ -505,29 +505,40 @@ def test_verify_accept_pack_dir_option(tmp_path: Path) -> None:
 
 
 def test_assemble_frozen_rc_produces_identity(tmp_path: Path) -> None:
-    """assemble_client_ready_frozen_rc extracts exact freeze bytes (git snapshot)."""
+    """assemble_client_ready_frozen_rc builds v2 freeze without identity self-hash."""
     import hashlib
 
     staging = tmp_path / "staging"
     result = assemble_client_ready_frozen_rc(
         out_dir=ROOT / "artifacts/campaigns" / CAMPAIGN_ID,
         staging_dir=staging,
+        source_pack_dir=ROOT
+        / "artifacts/campaigns"
+        / CAMPAIGN_ID
+        / "pack-v2",
     )
     assert result["status"] in {
+        "READY_FOR_SECOND_HUMAN_PRODUCT_REVIEW",
         "READY_FOR_ACTUAL_HUMAN_PRODUCT_REVIEW",
         BLOCKED_MISSING_FROZEN_RC,
     }
     if result["status"] == BLOCKED_MISSING_FROZEN_RC:
         pytest.skip(f"freeze snapshot unavailable in this clone: {result}")
     assert result["artifact_name"] == FROZEN_RC_ARTIFACT_NAME
+    assert FROZEN_RC_ARTIFACT_NAME == "client-ready-frozen-rc-v2"
     assert result["run_id"] == FROZEN_RC_RUN_ID
     assert result["product_rc_sha"] == FROZEN_RC_PRODUCT_SHA
     assert result["production_touched"] is False
     assert result["soak_touched"] is False
     assert (staging / "ARTIFACT-IDENTITY.json").is_file()
     identity = json.loads((staging / "ARTIFACT-IDENTITY.json").read_text(encoding="utf-8"))
-    assert identity["classification"] == "HUMAN_REVIEW_ARTIFACT"
+    assert identity["classification"] in {
+        "HUMAN_REVIEW_ARTIFACT",
+        "READY_FOR_SECOND_HUMAN_PRODUCT_REVIEW",
+    }
     assert identity["production_touched"] is False
+    assert "ARTIFACT-IDENTITY.json" not in (identity.get("file_sha256") or {})
+    assert (staging / "ARTIFACT-IDENTITY.sha256").is_file()
     assert (staging / "executive-report.pdf").is_file()
     assert (staging / "consulting-pack.xlsx").is_file()
     ua = json.loads(
@@ -549,8 +560,15 @@ def test_pending_human_preserved_in_repo() -> None:
     assert data.get("accepted_at") is None
     assert data["run_id"] == FROZEN_RC_RUN_ID
     assert data["rc_sha"] == FROZEN_RC_PRODUCT_SHA
+    assert data.get("classification") == "READY_FOR_SECOND_HUMAN_PRODUCT_REVIEW"
+    assert data.get("agent_auto_accept_forbidden") is True
     for key in REQUIRED_IDENTITY_FILES:
         assert key in data["package_checksums"]
+    # Prior RC remains historically CHANGES_REQUESTED
+    hist = ROOT / "artifacts/campaigns" / CAMPAIGN_ID / "rc-v1-CHANGES_REQUESTED.json"
+    assert hist.is_file()
+    h = json.loads(hist.read_text(encoding="utf-8"))
+    assert h["status"] == "CHANGES_REQUESTED"
 
 
 def test_cli_guard_exit_codes() -> None:

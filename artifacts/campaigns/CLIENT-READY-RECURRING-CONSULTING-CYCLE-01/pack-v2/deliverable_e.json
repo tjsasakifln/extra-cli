@@ -1,0 +1,38 @@
+{
+  "status": "SUCCESS_ZERO_ENGINEERING_OPPORTUNITIES",
+  "deliverable": "E",
+  "title": "Editais abertos e recomendação individual",
+  "profile": {
+    "profile_path": "config/client_profiles/extra.yaml",
+    "profile_id": "extra_construtora",
+    "display_name": "Extra Empreiteira e Construtora",
+    "version": 2,
+    "version_date": "2026-07-16",
+    "stamp": "extra_construtora@v2"
+  },
+  "cut_date": "2026-07-23",
+  "recommendations": [],
+  "excluded_not_open": 0,
+  "claims_allowed": [
+    "4 open editais with GO/REVIEW/NO_GO at cut=2026-07-23",
+    "Client labels PARTICIPAR/NÃO PARTICIPAR/REVIEW",
+    "Disclaimer: no victory promise; no substitute for final legal/accounting/tech analysis",
+    "SUCCESS_ZERO_ENGINEERING_OPPORTUNITIES is an honest commercial outcome"
+  ],
+  "claims_forbidden": [
+    "Promise vitória",
+    "Substitute análise jurídica/contábil/técnica final",
+    "Include closed editais as open without proof",
+    "Recommend without official data/doc reference when available path exists",
+    "Pad Deliverable E with NON_ENGINEERING or EXCLUDED_CATEGORY editais"
+  ],
+  "generated_at": "2026-07-24T00:12:41Z",
+  "incorporated_from": "/tmp/extra-cli-client-ready-01/artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/weekly-offline-rc/deliverable_e.json",
+  "source_class": "captured_real_evidence",
+  "excluded_non_engineering": 4,
+  "note": "Evidência capturada não contém editais abertos de engenharia aderente; não preenchemos com irrelevantes.",
+  "run_id": "live-pack-20260725-030451-7af94c4f",
+  "as_of": "2026-07-25",
+  "git_sha": "c17864f681776e7d12df1bd99edb7f4c8f89f4c4",
+  "schema_version": "coverage-2.4_entity_coverage_rebuild"
+}

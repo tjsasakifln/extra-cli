@@ -3,9 +3,9 @@
 
 profile_id: extra_construtora
 display_name: Extra Empreiteira e Construtora
-version: 2
-version_date: "2026-07-16"
-version_notes: "I4.1 — perfil operacional completo para janela 30d (região, modalidades, valores, restrições)"
+version: 3
+version_date: "2026-07-25"
+version_notes: "RC v2 — perfil comercial engenharia: vocabulário pos/neg/exclusão, faixas, capacidades PENDING intactas"
 
 # --- Região e universo ---
 region:
@@ -16,43 +16,262 @@ region:
   # denominador de metas: entes included no raio (baseline 1093 na planilha atual)
 
 desired_object_types:
-  - id: reforma_predial
-    label: Reforma predial
+  - id: obras_edificacoes
+    label: Obras de edificações
+    terms:
+      - construcao de edificio
+      - construcao de predio
+      - edificacao publica
+      - predio publico
+  - id: pavimentacao
+    label: Pavimentação
+    terms:
+      - pavimentacao
+      - pavimentacao asfaltica
+      - capeamento asfaltico
+      - CBU
+  - id: drenagem
+    label: Drenagem
+    terms:
+      - drenagem
+      - drenagem urbana
+      - galeria pluvial
+      - sarjeta
+  - id: terraplenagem
+    label: Terraplenagem
+    terms:
+      - terraplenagem
+      - terraplanagem
+      - muro de arrimo
+  - id: infraestrutura_urbana
+    label: Infraestrutura urbana
+    terms:
+      - infraestrutura urbana
+      - revitalizacao urbana
+      - calcada
+      - passeio publico
+  - id: saneamento
+    label: Saneamento
+    terms:
+      - saneamento
+      - rede coletora
+      - esgoto
+      - adutora
+  - id: reformas
+    label: Reformas
     terms:
       - reforma predial
       - reforma de edificio publico
-      - reforma de edificacao publica
+      - reforma de escola
+      - recuperacao estrutural
+  - id: ampliacoes
+    label: Ampliações
+    terms:
+      - ampliacao de escola
+      - ampliacao de predio
+      - ampliacao de creche
   - id: manutencao_predial
     label: Manutenção predial
     terms:
       - manutencao predial
       - manutencao de edificio publico
-      - manutencao de edificacao publica
-  - id: construcao_edificios_publicos
-    label: Construção de edifícios públicos
+      - manutencao civil das edificacoes
+  - id: projetos_engenharia
+    label: Projetos de engenharia (quando comercialmente relevantes)
     terms:
-      - construcao de edificio publico
-      - construcao de edificacao publica
-      - construcao de predio publico
-  - id: infraestrutura_urbana
-    label: Infraestrutura urbana (obras correlatas)
-    terms:
-      - pavimentacao
-      - drenagem
-      - calcada
-      - revitalizacao urbana
+      - projeto executivo
+      - projeto basico
+      - projeto de engenharia
+      - projetos complementares
+      - projeto arquitetonico
 
 positive_terms:
   - engenharia civil
   - obra de engenharia
-  - reforma
+  - reforma predial
   - manutencao predial
   - construcao de edificio
   - edificacao
-  - predial
+  - pavimentacao
+  - drenagem
+  - terraplenagem
+  - saneamento
+  - infraestrutura urbana
+  - ampliacao de escola
 
-# Sem termos negativos comerciais rígidos do cliente nesta fase.
-negative_terms: []
+# Vocabulário comercial explícito (classificador setorial auditável)
+negative_terms:
+  - manutencao de frota
+  - computador
+  - lencois e mantas
+  - exames laboratoriais
+  - combustivel
+  - cursos para professores
+  - oficina de karate
+  - arrecadacao bancaria
+  - equipamentos hospitalares
+  - castracao de animais
+  - manutencao de software
+  - construcao de conhecimento
+  - medicamentos
+  - generos alimenticios
+  - uniformes
+  - residuos da construcao civil
+
+# Exclusões setoriais (salvo override explícito no perfil)
+exclusion_categories:
+  - saude_assistencial
+  - medicamentos
+  - exames
+  - roupas_vestuario
+  - alimentos
+  - computadores_ti
+  - veiculos_frota
+  - combustiveis
+  - cursos_capacitacao
+  - eventos_culturais_esportivos
+  - servicos_bancarios
+  - oficinas_culturais_esportivas
+  - materiais_sem_obra
+  - credenciamentos_genericos
+  - objetos_puramente_administrativos
+
+# Regras: genéricos sozinhos NUNCA bastam
+generic_terms_insufficient_alone:
+  - servico
+  - servicos
+  - manutencao
+  - construcao
+  - projeto
+  - obra
+  - obras
+  - engenharia
+  - infraestrutura
+
+sector_vocabulary:
+  positive:
+    - id: pavimentacao
+      term: pavimentacao
+      pattern: "\\bpaviment"
+      subcategory: pavimentacao
+      weight: 0.45
+      sql_term: paviment
+    - id: drenagem
+      term: drenagem
+      pattern: "\\bdrenagem\\b"
+      subcategory: drenagem
+      weight: 0.42
+      sql_term: drenagem
+    - id: terraplenagem
+      term: terraplenagem
+      pattern: "\\bterraplenagem\\b|\\bterraplanagem\\b"
+      subcategory: terraplenagem
+      weight: 0.45
+      sql_term: terrapl
+    - id: saneamento
+      term: saneamento
+      pattern: "\\bsaneamento\\b|\\besgoto\\b"
+      subcategory: saneamento
+      weight: 0.4
+      sql_term: saneamento
+    - id: reforma_predial
+      term: reforma predial
+      pattern: "\\breforma\\s+(predial|de\\s+edif|de\\s+pred|de\\s+escola)"
+      subcategory: reformas
+      weight: 0.4
+      sql_term: reforma predial
+    - id: manutencao_predial
+      term: manutencao predial
+      pattern: "\\bmanuten[cç][aã]o\\s+(predial|de\\s+edif|civil\\s+das\\s+edifica)"
+      subcategory: manutencao_predial
+      weight: 0.38
+      sql_term: manutencao predial
+    - id: construcao_edificios
+      term: construcao de edificio
+      pattern: "\\bconstru[cç][aã]o\\s+de\\s+(edif|pred|escola|creche)"
+      subcategory: edificacoes
+      weight: 0.45
+      sql_term: construcao de edif
+    - id: ampliacao
+      term: ampliacao de escola
+      pattern: "\\bamplia[cç][aã]o\\s+de\\s+(escola|creche|pred|edif)"
+      subcategory: edificacoes
+      weight: 0.45
+      sql_term: ampliacao de
+    - id: obra_engenharia
+      term: obra de engenharia
+      pattern: "\\bobra[s]?\\s+de\\s+engenharia\\b|\\bexecu[cç][aã]o\\s+das\\s+obras\\s+de\\s+engenharia\\b|\\bservicos?\\s+de\\s+engenharia\\s+(civil|para)\\b"
+      subcategory: obras_civis
+      weight: 0.45
+      sql_term: obra de engenharia
+    - id: infraestrutura_urbana
+      term: infraestrutura urbana
+      pattern: "\\binfraestrutura\\s+urbana\\b|\\brevitaliza"
+      subcategory: infraestrutura_urbana
+      weight: 0.38
+      sql_term: infraestrutura urbana
+    - id: projeto_engenharia
+      term: projeto de engenharia
+      pattern: "\\bprojetos?\\s+(executivo|basico|de\\s+engenharia|arquitetonicos?|complementares?)|\\barquitetonicos?\\s+e\\s+complementares\\b"
+      subcategory: projetos
+      weight: 0.38
+      sql_term: projeto
+  negative:
+    - id: frota
+      term: manutencao de frota
+      pattern: "\\bmanuten[cç][aã]o\\s+da\\s+frota\\b|\\bfrota\\s+municipal\\b"
+      weight: 0.55
+    - id: computador
+      term: computador
+      pattern: "\\bcomputador\\b|\\bnotebook\\b|\\ball\\s+in\\s+one\\b"
+      weight: 0.55
+    - id: lencois
+      term: lencois e mantas
+      pattern: "\\blen[cç][oó]is?\\b|\\bmantas?\\s+destinad"
+      weight: 0.55
+    - id: exames
+      term: exames laboratoriais
+      pattern: "\\bexames?\\s+(laborator|clinico)|\\blaboratoriais\\b"
+      weight: 0.55
+    - id: combustivel
+      term: combustivel
+      pattern: "\\bcombustivel\\b|\\bgasolina\\b|\\bdiesel\\b"
+      weight: 0.5
+    - id: cursos
+      term: cursos
+      pattern: "\\bcurso[s]?\\s+(para|de)\\b|\\bcapacita[cç][aã]o\\b|\\bprofessores?\\b"
+      weight: 0.45
+    - id: karate
+      term: oficina de karate
+      pattern: "\\bkarat[eé]\\b|\\boficina\\s+de\\s+karate\\b"
+      weight: 0.5
+    - id: bancario
+      term: arrecadacao bancaria
+      pattern: "\\barrecada[cç][aã]o\\s+bancaria\\b|\\bservi[cç]os?\\s+bancarios?\\b"
+      weight: 0.5
+    - id: hospitalar
+      term: equipamentos hospitalares
+      pattern: "\\bequipamento[s]?\\s+hospitalar|\\bmateriais?\\s+medico"
+      weight: 0.5
+    - id: software
+      term: manutencao de software
+      pattern: "\\bmanuten[cç][aã]o\\s+de\\s+software\\b|\\bsoftware\\b"
+      weight: 0.55
+    - id: castracao
+      term: castracao
+      pattern: "\\bcastra[cç][aã]o\\b|\\besteriliza[cç][aã]o\\s+de\\s+animais\\b"
+      weight: 0.55
+    - id: residuos_cc
+      term: residuos construcao civil
+      pattern: "\\bresiduos?\\s+da\\s+constru[cç][aã]o\\s+civil\\b|\\bentulho\\b"
+      weight: 0.4
+  exclusion:
+    - id: credenciamento_generico
+      term: credenciamento generico
+      pattern: "\\bcredenciamento\\b(?!.*\\b(obra|engenharia|paviment|edifica|reforma\\s+predial))"
+    - id: saude_assistencial
+      term: saude assistencial
+      pattern: "\\b(unidade\\s+basica\\s+de\\s+saude|atencao\\s+basica|complementar\\s+ao\\s+sus)\\b"
 
 # Modalidades priorizadas (não exclusivas) — null = todas aceitas no score base
 allowed_modalities: null
@@ -82,10 +301,48 @@ documents:
   require_attachments: false
 
 engineering_categories:
-  - reforma_predial
-  - manutencao_predial
-  - construcao_edificios_publicos
+  - obras_edificacoes
+  - pavimentacao
+  - drenagem
+  - terraplenagem
   - infraestrutura_urbana
+  - saneamento
+  - reformas
+  - ampliacoes
+  - manutencao_predial
+  - projetos_engenharia
+
+# Atuação geográfica conhecida
+geographic_footprint:
+  headquarters_uf: SC
+  headquarters_municipio: São José
+  primary_radius_km: 200
+  uf_focus:
+    - SC
+  note: "Raio 200 km da planilha canônica; expansão interestadual requer decisão humana"
+
+# Capacidades conhecidas vs PENDING (NÃO inventar)
+known_capabilities:
+  - id: construcao_edificios
+    status: KNOWN_FOCUS
+    note: "CNAE principal 4120-4/00 — construção de edifícios"
+  - id: reforma_manutencao_predial
+    status: KNOWN_FOCUS
+    note: "Foco comercial declarado no perfil"
+  - id: infraestrutura_urbana_pavimentacao
+    status: KNOWN_FOCUS
+    note: "Objetos desejados: pavimentação, drenagem, revitalização"
+pending_capabilities:
+  - capital_giro
+  - capacidade_simultanea
+  - cats_atestados
+  - equipe
+  - equipamentos
+  - certidoes
+  - margem_minima
+  - risco_aceitavel
+  - capacidade_garantia
+  - apetite_consorcios
 
 # Restrições operacionais conhecidas
 operational_constraints:
@@ -250,9 +507,16 @@ commercial_preferences:
   municipalities_of_interest: []  # se vazio, usa raio 200km
   max_distance_km: 200
   work_types_focus:
-    - reforma_predial
+    - obras_edificacoes
+    - pavimentacao
+    - drenagem
+    - terraplenagem
+    - infraestrutura_urbana
+    - saneamento
+    - reformas
+    - ampliacoes
     - manutencao_predial
-    - construcao_edificios_publicos
+    - projetos_engenharia
 
 elicitation_queue:
   - field: capacity.simultaneous_works

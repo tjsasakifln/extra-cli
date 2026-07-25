@@ -50,12 +50,18 @@ REQUIRED_IDENTITY_FILES: tuple[str, ...] = (
 )
 
 # Frozen release candidate for human product review (PR #131).
-# Binaries are NOT re-versioned in Git; CI extracts exact bytes from freeze snapshot.
-FROZEN_RC_RUN_ID = "live-pack-20260724-220350-da3bee0b"
-FROZEN_RC_PRODUCT_SHA = "be96c8bc8eb2b017e491bfafe8cf99f81e321267"
-# Commit that still contains exact frozen pack binaries (pre-slim policy).
-FROZEN_RC_SNAPSHOT_COMMIT = "ede157b00dcc33f5221c715016c9a5d760121391"
-FROZEN_RC_ARTIFACT_NAME = "client-ready-frozen-rc"
+# v1 (CHANGES_REQUESTED): commercial irrelevance — kept historical only.
+# v2: sector-filtered engineering pack — PENDING_HUMAN (never auto-ACCEPTED).
+FROZEN_RC_V1_RUN_ID = "live-pack-20260724-220350-da3bee0b"
+FROZEN_RC_V1_PRODUCT_SHA = "be96c8bc8eb2b017e491bfafe8cf99f81e321267"
+FROZEN_RC_V1_ARTIFACT_NAME = "client-ready-frozen-rc"
+FROZEN_RC_V1_STATUS = "CHANGES_REQUESTED"
+
+# Active freeze identity — commercial RC v2 (sector-filtered engineering pack).
+FROZEN_RC_RUN_ID = "live-pack-20260725-030451-7af94c4f"
+FROZEN_RC_PRODUCT_SHA = "c17864f681776e7d12df1bd99edb7f4c8f89f4c4"
+FROZEN_RC_SNAPSHOT_COMMIT = "HEAD"
+FROZEN_RC_ARTIFACT_NAME = "client-ready-frozen-rc-v2"
 BLOCKED_MISSING_FROZEN_RC = "BLOCKED_MISSING_FROZEN_RC_OUTPUTS"
 
 # Dump package may live outside the worktree (large ADR-020 artifact). Search order:
@@ -1672,26 +1678,50 @@ def assemble_client_ready_frozen_rc(
     members: list[tuple[str, list[str]]] = [
         (
             "executive-report.pdf",
-            ["pack/executive-report.pdf", "pack/extra_live_consulting_pack.pdf"],
+            [
+                "pack-v2/executive-report.pdf",
+                "pack-v2/extra_live_consulting_pack.pdf",
+                "pack/executive-report.pdf",
+                "pack/extra_live_consulting_pack.pdf",
+            ],
         ),
         (
             "consulting-pack.xlsx",
-            ["pack/consulting-pack.xlsx", "pack/extra_live_consulting_pack.xlsx"],
+            [
+                "pack-v2/consulting-pack.xlsx",
+                "pack-v2/extra_live_consulting_pack.xlsx",
+                "pack/consulting-pack.xlsx",
+                "pack/extra_live_consulting_pack.xlsx",
+            ],
         ),
         (
             "executive-summary.md",
-            ["pack/executive-summary.md", "pack/executive_summary.md"],
+            [
+                "pack-v2/executive-summary.md",
+                "pack-v2/executive_summary.md",
+                "pack/executive-summary.md",
+                "pack/executive_summary.md",
+            ],
         ),
-        ("pack-manifest.json", ["pack/pack-manifest.json"]),
-        ("checksums.json", ["pack/checksums.json"]),
+        (
+            "pack-manifest.json",
+            ["pack-v2/pack-manifest.json", "pack/pack-manifest.json"],
+        ),
+        ("checksums.json", ["pack-v2/checksums.json", "pack/checksums.json"]),
         ("package-reconciliation.json", ["package-reconciliation.json"]),
         ("claims.json", ["claims.json"]),
         ("non-claims.json", ["non-claims.json"]),
+        # Optional dossiers (v1 had them; v2 commercial pack may be SUCCESS_ZERO on E)
         (
             "dossiers/dossier-opp-1.json",
-            ["pack/dossiers/dossier-opp-1.json", "dossiers/dossier-opp-1.json"],
+            [
+                "pack-v2/dossiers/dossier-opp-1.json",
+                "pack/dossiers/dossier-opp-1.json",
+                "dossiers/dossier-opp-1.json",
+            ],
         ),
     ]
+    optional_members = {"dossiers/dossier-opp-1.json", "claims.json", "non-claims.json"}
 
     if staging_dir is not None:
         staging = staging_dir
@@ -1738,6 +1768,8 @@ def assemble_client_ready_frozen_rc(
                     source = f"git:{snapshot_commit}:{rel}"
                     break
         if data is None:
+            if art_name in optional_members:
+                continue
             missing.append(art_name)
             continue
         digest = hashlib.sha256(data).hexdigest()
@@ -1755,7 +1787,9 @@ def assemble_client_ready_frozen_rc(
         for k in REQUIRED_IDENTITY_FILES
         if k not in file_sha or (k in expected_ck and file_sha[k] != expected_ck[k])
     ]
-    if missing or required_missing:
+    # Optional members missing is not a hard fail for v2
+    hard_missing = [m for m in missing if not str(m).startswith("dossiers/")]
+    if hard_missing or required_missing:
         return {
             "status": BLOCKED_MISSING_FROZEN_RC,
             "error": "exact_frozen_outputs_unavailable",
@@ -1767,10 +1801,11 @@ def assemble_client_ready_frozen_rc(
             "product_rc_sha": product_rc_sha,
         }
 
+    # Identity lists hashes of product members only — NEVER self-hash this JSON.
     identity = {
         "run_id": run_id,
         "product_rc_sha": product_rc_sha,
-        "file_sha256": file_sha,
+        "file_sha256": dict(file_sha),  # excludes ARTIFACT-IDENTITY.json itself
         "freeze_date": (acceptance.get("freeze") or {}).get("as_of") or utc_now(),
         "production_touched": False,
         "soak_touched": False,
@@ -1783,28 +1818,55 @@ def assemble_client_ready_frozen_rc(
         "classification": "HUMAN_REVIEW_ARTIFACT",
         "artifact_name": FROZEN_RC_ARTIFACT_NAME,
         "assembled_at": utc_now(),
+        "prior_rc": {
+            "artifact_name": FROZEN_RC_V1_ARTIFACT_NAME,
+            "run_id": FROZEN_RC_V1_RUN_ID,
+            "product_rc_sha": FROZEN_RC_V1_PRODUCT_SHA,
+            "status": FROZEN_RC_V1_STATUS,
+            "note": "Historical RC remains CHANGES_REQUESTED; not overwritten",
+        },
+        "self_hash_policy": "excluded — see ARTIFACT-IDENTITY.sha256 sidecar",
     }
-    (staging / "ARTIFACT-IDENTITY.json").write_text(
+    identity_path = staging / "ARTIFACT-IDENTITY.json"
+    identity_path.write_text(
         json.dumps(identity, indent=2, ensure_ascii=False) + "\n",
         encoding="utf-8",
     )
-    file_sha["ARTIFACT-IDENTITY.json"] = sha256_file(staging / "ARTIFACT-IDENTITY.json")
-    identity["file_sha256"] = file_sha
-    (staging / "ARTIFACT-IDENTITY.json").write_text(
-        json.dumps(identity, indent=2, ensure_ascii=False) + "\n",
-        encoding="utf-8",
-    )
+    # Sidecar after identity is frozen (not embedded inside the JSON)
+    sidecar = staging / "ARTIFACT-IDENTITY.sha256"
+    identity_digest = sha256_file(identity_path)
+    sidecar.write_text(f"{identity_digest}  ARTIFACT-IDENTITY.json\n", encoding="utf-8")
+
+    # Fail-closed integrity: recompute digests of staged product files
+    divergences: list[str] = []
+    for name, expected in file_sha.items():
+        actual = sha256_file(staging / name)
+        if actual != expected:
+            divergences.append(f"hash_divergence:{name}")
+        if name in expected_ck and expected_ck[name] != actual:
+            divergences.append(f"acceptance_checksum_mismatch:{name}")
+    if "ARTIFACT-IDENTITY.json" in (identity.get("file_sha256") or {}):
+        divergences.append("identity_self_hash_forbidden")
+    if divergences:
+        return {
+            "status": BLOCKED_MISSING_FROZEN_RC,
+            "error": "integrity_gate_failed",
+            "divergences": divergences,
+            "staging": str(staging),
+        }
 
     return {
-        "status": "READY_FOR_ACTUAL_HUMAN_PRODUCT_REVIEW",
+        "status": "READY_FOR_SECOND_HUMAN_PRODUCT_REVIEW",
         "artifact_name": FROZEN_RC_ARTIFACT_NAME,
         "staging_dir": str(staging),
         "run_id": run_id,
         "product_rc_sha": product_rc_sha,
         "file_sha256": file_sha,
+        "identity_sha256": identity_digest,
         "production_touched": False,
         "soak_touched": False,
         "classification": "HUMAN_REVIEW_ARTIFACT",
+        "prior_rc_status": FROZEN_RC_V1_STATUS,
     }
 
 

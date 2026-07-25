@@ -1,0 +1,144 @@
+{
+  "campaign_id": "EXTRA-LIVE-CONSULTING-PACK-01",
+  "run_id": "live-pack-20260725-030451-7af94c4f",
+  "as_of": "2026-07-25",
+  "git_sha": "c17864f681776e7d12df1bd99edb7f4c8f89f4c4",
+  "schema_version": "coverage-2.4_entity_coverage_rebuild",
+  "profile": {
+    "profile_path": "config/client_profiles/extra.yaml",
+    "profile_id": "extra_construtora",
+    "display_name": "Extra Empreiteira e Construtora",
+    "version": 3,
+    "version_date": "2026-07-25",
+    "stamp": "extra_construtora@v3"
+  },
+  "population": {
+    "eligible_population": 1179237,
+    "active_contracts": 1179237,
+    "uf_filter": "SC",
+    "period_min": "2023-07-20",
+    "period_max": "2026-07-23",
+    "sample_label": "FULL_ELIGIBLE_POPULATION",
+    "not_sample_of_n": true
+  },
+  "deliverable_a": {
+    "status": "OK",
+    "n_rows": 40,
+    "population": {
+      "eligible_population": 1179237,
+      "active_contracts": 1179237,
+      "uf_filter": "SC",
+      "period_min": "2023-07-20",
+      "period_max": "2026-07-23",
+      "sample_label": "FULL_ELIGIBLE_POPULATION",
+      "not_sample_of_n": true,
+      "n_orgaos_eligible": 820,
+      "n_contracts_eligible": 14177,
+      "n_contracts_eligible_engineering": 14177,
+      "valor_sum_eligible": 9693935892.64,
+      "export_limit": 40,
+      "export_is_not_universe": true,
+      "ranking_metric": "engineering_activity_not_general_volume",
+      "profile_object_terms": [
+        "paviment",
+        "drenagem",
+        "terrapl",
+        "saneamento",
+        "reforma predial",
+        "manutencao predial",
+        "construcao de edif",
+        "ampliacao de",
+        "obra de engenharia",
+        "infraestrutura urbana",
+        "projeto",
+        "construcao de edificio",
+        "construcao de predio",
+        "edificacao publica",
+        "predio publico",
+        "pavimentacao",
+        "pavimentacao asfaltica",
+        "capeamento asfaltico",
+        "drenagem urbana",
+        "galeria pluvial"
+      ]
+    },
+    "query_seconds": 41.346
+  },
+  "deliverable_b": {
+    "status": "OK",
+    "valid_count": 15,
+    "target_n": 15,
+    "query_seconds": 78.133
+  },
+  "deliverable_c": {
+    "status": "OK",
+    "n_rows": 40,
+    "success_zero": {
+      "success_zero": false,
+      "n": 795,
+      "query_complete": true
+    },
+    "query_seconds": 4.232
+  },
+  "deliverable_d": {
+    "status": "INSUFFICIENT_COMPARABLE_DATA",
+    "n_panels": 6,
+    "query_seconds": 1.691
+  },
+  "deliverable_e": {
+    "status": "SUCCESS_ZERO_ENGINEERING_OPPORTUNITIES",
+    "n_recs": 0,
+    "source_class": "captured_real_evidence"
+  },
+  "artifacts": {
+    "pdf": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/pack-v2/extra_live_consulting_pack.pdf",
+    "excel": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/pack-v2/extra_live_consulting_pack.xlsx",
+    "pdf_pages_estimate": 8,
+    "json": [
+      "deliverable_a.json",
+      "deliverable_b.json",
+      "deliverable_c.json",
+      "deliverable_d.json",
+      "deliverable_e.json"
+    ]
+  },
+  "reconcile": {
+    "status": "PASS",
+    "same_run_id": true,
+    "divergences": [],
+    "run_id": "live-pack-20260725-030451-7af94c4f",
+    "eligible_population": 1179237,
+    "meta_pdf_run_id": "live-pack-20260725-030451-7af94c4f",
+    "meta_excel_run_id": "live-pack-20260725-030451-7af94c4f",
+    "artifact_checks": {
+      "pdf_path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/pack-v2/extra_live_consulting_pack.pdf",
+      "excel_path": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/pack-v2/extra_live_consulting_pack.xlsx",
+      "pdf_sha256": "9aad0888753e66bb1f3938b47ba51fe59f19210ba58afbc23ec41a33366ad78a",
+      "excel_sha256": "2221b4aa1db6dfe37f29cdbdd2c39b612f5ad4caab9fda2bb0abea8029d5253c",
+      "pdf_bytes": 14055,
+      "excel_bytes": 30703,
+      "binaries_distinct": true,
+      "pdf_run_id_plaintext": false,
+      "excel_sheet_rows": {
+        "Dashboard": 30,
+        "Oportunidades": 2,
+        "Órgãos": 41,
+        "Concorrentes": 16,
+        "Vincendos": 41,
+        "Valores": 7,
+        "Metodologia": 11,
+        "Fontes": 6,
+        "Dados técnicos": 11
+      }
+    }
+  },
+  "isolation": {
+    "production_touched": false,
+    "isolation_ok": true,
+    "hits": [],
+    "dsn_masked": "postgresql://test:***@127.0.0.1:5436/extra_live_pack_rc",
+    "checked_at": "2026-07-25T03:04:51Z"
+  },
+  "production_touched": false,
+  "generated_at": "2026-07-25T03:06:57Z"
+}

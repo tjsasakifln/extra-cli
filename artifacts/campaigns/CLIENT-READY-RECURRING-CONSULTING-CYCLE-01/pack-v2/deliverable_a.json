@@ -1,0 +1,1479 @@
+{
+  "status": "OK",
+  "deliverable": "A",
+  "title": "Ranking dos órgãos públicos",
+  "profile": {
+    "profile_path": "config/client_profiles/extra.yaml",
+    "profile_id": "extra_construtora",
+    "display_name": "Extra Empreiteira e Construtora",
+    "version": 3,
+    "version_date": "2026-07-25",
+    "stamp": "extra_construtora@v3"
+  },
+  "period": {
+    "inicio": "2023-07-20",
+    "fim": "2026-07-23",
+    "as_of": "2026-07-25"
+  },
+  "sources": [
+    "pncp_supplier_contracts",
+    "engineering_filter"
+  ],
+  "coverage_notes": [
+    "Cobertura operacional do universo NÃO é inferida deste ranking.",
+    "Empty ranking with status=INSUFFICIENT means no contracts/bids in DSN for filters."
+  ],
+  "rows": [
+    {
+      "rank": 1,
+      "orgao": "PREFEITURA MUNICIPAL DE CURITIBANOS",
+      "orgao_cnpj": "83754044000134",
+      "uf": "SC",
+      "qtd_contratacoes": 174,
+      "valor_total": 32432459.15,
+      "valor_semantica": "CONTRATADO",
+      "ticket_medio": 186393.44,
+      "ticket_medio_formula": "valor_total / qtd_contratacoes (same semantic as valor_total)",
+      "frequencia_temporal": "174 eventos no período (2023-07-20..2026-07-23)",
+      "modalidades": {},
+      "periodo_inicio": "2023-07-20",
+      "periodo_fim": "2026-07-23",
+      "fontes": [
+        "pncp_supplier_contracts",
+        "isolated_snapshot",
+        "engineering_filter"
+      ],
+      "consultado": true,
+      "resultado_zero": false,
+      "data_quality_score": 1.0,
+      "data_quality_limitation": "",
+      "tipos_obra": [
+        "",
+        "pavimentacao"
+      ],
+      "metric_basis": "engineering_contracts_only",
+      "sample_objetos": [
+        "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA A PAVIMENTAÇÃO DA RUA BARÃO DO RIO BRANCO TECHO 1: DA RUA MAXIMINO DE MORAES ATÉ A HENRIQUE DE ALMEIDA SÊNIOR E O TREC",
+        "AQUISIÇÃO DE MUDAS DE PARREIRAS (VIDEIRAS) PARA O PROJETO DE UVA 2025 , DESTINADO AOS PRODUTORES RURAIS, CONFORME DOCUMENTAÇÃO E ANEXO I.",
+        "AQUISIÇÃO DE MUDAS DE VIDEIRAS (PARREIRA) PARA O PROJETO DE UVAS DE 2024 PARA OS PRODUTORES RURAIS, CONFORME DOCUMENTAÇÃO E ANEXO I DESTE EDITAL"
+      ]
+    },
+    {
+      "rank": 2,
+      "orgao": "MEC - UNIV. FED. DE SANTA CATARINA - SC",
+      "orgao_cnpj": "83899526000182",
+      "uf": "SC",
+      "qtd_contratacoes": 165,
+      "valor_total": 998155532.81,
+      "valor_semantica": "CONTRATADO",
+      "ticket_medio": 6049427.47,
+      "ticket_medio_formula": "valor_total / qtd_contratacoes (same semantic as valor_total)",
+      "frequencia_temporal": "165 eventos no período (2023-07-20..2026-07-23)",
+      "modalidades": {},
+      "periodo_inicio": "2023-07-20",
+      "periodo_fim": "2026-07-23",
+      "fontes": [
+        "pncp_supplier_contracts",
+        "isolated_snapshot",
+        "engineering_filter"
+      ],
+      "consultado": true,
+      "resultado_zero": false,
+      "data_quality_score": 1.0,
+      "data_quality_limitation": "",
+      "tipos_obra": [
+        "",
+        "saneamento"
+      ],
+      "metric_basis": "engineering_contracts_only",
+      "sample_objetos": [
+        "ABASTECIMENTO DE ÁGUA TRATADA E A COLETA E TRATAMENTO DE ESGOTO",
+        "APOIO ADMINISTRATIVO E FINANCEIRO AO PROJETO DE EXTENSÃO INTITULADO “FORMAÇÃO EM MÉTODOS CONTRACEPTIVOS DE LONGA DURAÇÃO (LARCS) PARA ENFERMEIRAS DA ATENÇÃO PRI",
+        "APOIO ADMINISTRATIVO E FINANCEIRO  EXECUÇÃO DO PROJETO DE EXTENSÃO INTITULADO 'MENTORIA MASTER NETIUNAPI', FINANCIADO PELA UNIVERSIDADE FEDERAL DE SANTA CATARIN"
+      ]
+    },
+    {
+      "rank": 3,
+      "orgao": "DEPARTAMENTO DE OBRAS E SERVIÇOS URBANOS",
+      "orgao_cnpj": "82911249000113",
+      "uf": "SC",
+      "qtd_contratacoes": 149,
+      "valor_total": 93062512.0,
+      "valor_semantica": "CONTRATADO",
+      "ticket_medio": 624580.62,
+      "ticket_medio_formula": "valor_total / qtd_contratacoes (same semantic as valor_total)",
+      "frequencia_temporal": "149 eventos no período (2023-07-20..2026-07-23)",
+      "modalidades": {},
+      "periodo_inicio": "2023-07-20",
+      "periodo_fim": "2026-07-23",
+      "fontes": [
+        "pncp_supplier_contracts",
+        "isolated_snapshot",
+        "engineering_filter"
+      ],
+      "consultado": true,
+      "resultado_zero": false,
+      "data_quality_score": 1.0,
+      "data_quality_limitation": "",
+      "tipos_obra": [
+        "",
+        "drenagem",
+        "pavimentacao"
+      ],
+      "metric_basis": "engineering_contracts_only",
+      "sample_objetos": [
+        "A CONTRATAÇÃO DE EMPRESA DO RAMO PERTINENTE OBJETIVANDO A IMPLANTAÇÃO, AMPLIAÇÃO E MANUTENÇÃO DOS SISTEMAS DE DRENAGEM PLUVIAL DO MUNICÍPIO DE ARARANGUÁ/SC, COM",
+        "A CONTRATAÇÃO DE SERVIÇOS DO LOTE 01 PARA IMPLANTAÇÃO E AMPLIAÇÃO DA DRENAGEM PLUVIAL E O REASSENTAMENTO DO PAVIMENTO EXISTENTE DA ÁREA DO CONSERTO, NOS MAIS DI",
+        "A CONTRATAÇÃO DE SERVIÇOS DO LOTE 02 PARA IMPLANTAÇÃO E AMPLIAÇÃO DA DRENAGEM PLUVIAL E O REASSENTAMENTO DO PAVIMENTO EXISTENTE DA ÁREA DO CONSERTO, NOS MAIS DI"
+      ]
+    },
+    {
+      "rank": 4,
+      "orgao": "Secretaria de Estado da Infraestrutura e Mobilidade",
+      "orgao_cnpj": "82951344000140",
+      "uf": "SC",
+      "qtd_contratacoes": 121,
+      "valor_total": 869613163.67,
+      "valor_semantica": "CONTRATADO",
+      "ticket_medio": 7186885.65,
+      "ticket_medio_formula": "valor_total / qtd_contratacoes (same semantic as valor_total)",
+      "frequencia_temporal": "121 eventos no período (2023-07-20..2026-07-23)",
+      "modalidades": {},
+      "periodo_inicio": "2023-07-20",
+      "periodo_fim": "2026-07-23",
+      "fontes": [
+        "pncp_supplier_contracts",
+        "isolated_snapshot",
+        "engineering_filter"
+      ],
+      "consultado": true,
+      "resultado_zero": false,
+      "data_quality_score": 1.0,
+      "data_quality_limitation": "",
+      "tipos_obra": [
+        "",
+        "pavimentacao",
+        "projetos"
+      ],
+      "metric_basis": "engineering_contracts_only",
+      "sample_objetos": [
+        "AQUISIÇÃO DE SEIXOS BRUTOS, SEM CARREGAMENTO E SEM TRANSPORTE, PRÓPRIO PARA A EXECUÇÃO DOS SERVIÇOS RODOVIÁRIOS PARA A OBRA DE IMPLANTAÇÃO E PAVIMENTAÇÃO DA ROD",
+        "Conservação estrutural de rodovias pavimentadas e não pavimentadas sob a jurisdição da Coordenadoria Regional Norte – SIE/CRNOR (Lote Único).",
+        "AQUISIÇÃO DE VANT (VEÍCULO AÉREO NÃO TRIPULADO) – TRADUÇÃO DO TERMO UAV – UNMANNED AERIAL VEHICLE, POPULARMENTE CHAMADO DE DRONE PARA INSPEÇÕES VISUAIS DE INFRA"
+      ]
+    },
+    {
+      "rank": 5,
+      "orgao": "VIDEIRA SANEAMENTO - VISAN",
+      "orgao_cnpj": "30753960000193",
+      "uf": "SC",
+      "qtd_contratacoes": 120,
+      "valor_total": 43551199.24,
+      "valor_semantica": "CONTRATADO",
+      "ticket_medio": 362926.66,
+      "ticket_medio_formula": "valor_total / qtd_contratacoes (same semantic as valor_total)",
+      "frequencia_temporal": "120 eventos no período (2023-07-20..2026-07-23)",
+      "modalidades": {},
+      "periodo_inicio": "2023-07-20",
+      "periodo_fim": "2026-07-23",
+      "fontes": [
+        "pncp_supplier_contracts",
+        "isolated_snapshot",
+        "engineering_filter"
+      ],
+      "consultado": true,
+      "resultado_zero": false,
+      "data_quality_score": 1.0,
+      "data_quality_limitation": "",
+      "tipos_obra": [
+        "",
+        "saneamento"
+      ],
+      "metric_basis": "engineering_contracts_only",
+      "sample_objetos": [
+        "AQUISIÇÃO DE ABRIGO METÁLICO PARA ESTAÇÃO DE BOMBEAMENTO COMPACTA TIPO BOOSTER INTELIGENTE PARA O SERVIÇO AUTÔNOMO DE ÁGUA E ESGOTO DO MUNICÍPIO DE VIDEIRA - VI",
+        "AQUISIÇÃO DE CONJUNTO DE MOTOBOMBAS SUBMERSAS PARA SEREM INSTALADAS NOS POÇOS PROFUNDOS PERTENCENTES AO SERVIÇO AUTÔNOMO DE ÁGUA E ESGOTO DO MUNICIPIO DE VIDEIR",
+        "AQUISIÇÃO DE CONJUNTOS MOTOBOMBA PARA O SERVIÇO AUTÔNOMO DE ÁGUA E ESGOTO DO MUNICÍPIO DE VIDEIRA - VISAN."
+      ]
+    },
+    {
+      "rank": 6,
+      "orgao": "PREFEITURA MUNICIPAL",
+      "orgao_cnpj": "82940776000156",
+      "uf": "SC",
+      "qtd_contratacoes": 117,
+      "valor_total": 3254020.23,
+      "valor_semantica": "CONTRATADO",
+      "ticket_medio": 27812.14,
+      "ticket_medio_formula": "valor_total / qtd_contratacoes (same semantic as valor_total)",
+      "frequencia_temporal": "117 eventos no período (2023-07-20..2026-07-23)",
+      "modalidades": {},
+      "periodo_inicio": "2023-07-20",
+      "periodo_fim": "2026-07-23",
+      "fontes": [
+        "pncp_supplier_contracts",
+        "isolated_snapshot",
+        "engineering_filter"
+      ],
+      "consultado": true,
+      "resultado_zero": false,
+      "data_quality_score": 1.0,
+      "data_quality_limitation": "",
+      "tipos_obra": [
+        "",
+        "pavimentacao"
+      ],
+      "metric_basis": "engineering_contracts_only",
+      "sample_objetos": [
+        "ART para fiscalizacao da OBRA  Nova Creche . ART para projeto de pavimentacao asfaltica na Rua Marechal Floriano.",
+        "A CONTRATACAO DE EMPRESA ESPECIALIZADA PARA A PRESTACAO DE SERVICOS EM ENGENHARIA CIVIL  PARA ELABORACAO DE PROJETOS DE RECURSOS DE TRANSFERENCIAS ESPECIAIS  CO",
+        "A CONTRATACAO DE EMPRESA PARA EXECUCAO INTEGRAL DA REFORMA DO GINASIO MUNICIPAL JULIO TURCATO  TUDO CONFORME PROJETO  ORCAMENTO E MEMORIAL DESCRITIVO ANEXOS."
+      ]
+    },
+    {
+      "rank": 7,
+      "orgao": "PREFEITURA MUNICIPAL DE SÃO MIGUEL DO OESTE",
+      "orgao_cnpj": "82821174000180",
+      "uf": "SC",
+      "qtd_contratacoes": 114,
+      "valor_total": 75959952.76,
+      "valor_semantica": "CONTRATADO",
+      "ticket_medio": 666315.38,
+      "ticket_medio_formula": "valor_total / qtd_contratacoes (same semantic as valor_total)",
+      "frequencia_temporal": "114 eventos no período (2023-07-20..2026-07-23)",
+      "modalidades": {},
+      "periodo_inicio": "2023-07-20",
+      "periodo_fim": "2026-07-23",
+      "fontes": [
+        "pncp_supplier_contracts",
+        "isolated_snapshot",
+        "engineering_filter"
+      ],
+      "consultado": true,
+      "resultado_zero": false,
+      "data_quality_score": 1.0,
+      "data_quality_limitation": "",
+      "tipos_obra": [
+        "",
+        "manutencao_predial",
+        "pavimentacao",
+        "saneamento"
+      ],
+      "metric_basis": "engineering_contracts_only",
+      "sample_objetos": [
+        "AQUISIÇÃO DE CONCRETO BETUMINOSO USINADO A QUENTE - CBUQ (MATERIAL), RETIRADO NA USINA DE ASFALTO DO CONDER, DESTINADO À EXECUÇÃO DE PAVIMENTAÇÃO ASFÁLTICA DA R",
+        "AQUISIÇÃO DE PRODUTO QUÍMICO (HIPOCLORITO DE SÓDIO), DESTINADO A MANUTENÇÃO DAS ETES (ESTAÇÕES DE TRATAMENTO DE ESGOTO) DO MUNICÍPIO DE SÃO MIGUEL DO OESTE/SC, ",
+        "CONTRATAÇÃO DE EMPRESA DE ENGENHARIA POR ESTIMATIVA PARA PRESTAÇÃO DE SERVIÇOS SOB DEMANDA DE MANUTENÇÃO PREDIAL COM FORNECIMENTO DE PEÇAS, MATERIAIS E MÃO DE O"
+      ]
+    },
+    {
+      "rank": 8,
+      "orgao": "Prefeitura Municipal de Balneário Camboriú",
+      "orgao_cnpj": "83102285000107",
+      "uf": "SC",
+      "qtd_contratacoes": 107,
+      "valor_total": 97274915.03,
+      "valor_semantica": "CONTRATADO",
+      "ticket_medio": 909111.36,
+      "ticket_medio_formula": "valor_total / qtd_contratacoes (same semantic as valor_total)",
+      "frequencia_temporal": "107 eventos no período (2023-07-20..2026-07-23)",
+      "modalidades": {},
+      "periodo_inicio": "2023-07-20",
+      "periodo_fim": "2026-07-23",
+      "fontes": [
+        "pncp_supplier_contracts",
+        "isolated_snapshot",
+        "engineering_filter"
+      ],
+      "consultado": true,
+      "resultado_zero": false,
+      "data_quality_score": 1.0,
+      "data_quality_limitation": "",
+      "tipos_obra": [
+        "",
+        "pavimentacao"
+      ],
+      "metric_basis": "engineering_contracts_only",
+      "sample_objetos": [
+        "Aquisição de base de brita graduada para utilização na pavimentação e requalificação asfáltica das ruas do Município. \nFORNECEDOR: - F J P TERRAPLANAGEM LTDA (2",
+        "Aquisição de macadame destinado a manutenção das ruas não pavimentadas do Município. Ruas: Venância Rita da Conceição, Napoleão Vieira, Taxista Olavo de Jesus e",
+        "Aquisição de 01 (um) contêiner marítimo do tipo dry/hc, adaptado e customizado, destinado à instalação de quiosque da vila do artesanato na praia de laranjeiras"
+      ]
+    },
+    {
+      "rank": 9,
+      "orgao": "SECRETARIA DE INFRAESTRUTURA URBANA",
+      "orgao_cnpj": "95815379000102",
+      "uf": "SC",
+      "qtd_contratacoes": 100,
+      "valor_total": 15104266.5,
+      "valor_semantica": "CONTRATADO",
+      "ticket_medio": 151042.67,
+      "ticket_medio_formula": "valor_total / qtd_contratacoes (same semantic as valor_total)",
+      "frequencia_temporal": "100 eventos no período (2023-07-20..2026-07-23)",
+      "modalidades": {},
+      "periodo_inicio": "2023-07-20",
+      "periodo_fim": "2026-07-23",
+      "fontes": [
+        "pncp_supplier_contracts",
+        "isolated_snapshot",
+        "engineering_filter"
+      ],
+      "consultado": true,
+      "resultado_zero": false,
+      "data_quality_score": 1.0,
+      "data_quality_limitation": "",
+      "tipos_obra": [
+        "",
+        "infraestrutura_urbana",
+        "pavimentacao"
+      ],
+      "metric_basis": "engineering_contracts_only",
+      "sample_objetos": [
+        "\"AQUISIÇÃO DE MATERIAIS PARA MANUTENÇÃO E PAVIMENTAÇÃO DE RUAS E VALAS DO MUNICÍPIO DE BOMBINHAS\".",
+        "Aquisição de mini escavadeira e pá carregadeira, novas, destinadas a atender às demandas operacionais da Secretaria Municipal de Infraestrutura Urbana do Municí",
+        "CONTRATAÇÃ DE EMPRESA PARA PAVIMENTAÇÃO DO GALPÃO DA SECRETARIA DE OBRAS DO MUNICÍPIO DE BOMBINHAS."
+      ]
+    },
+    {
+      "rank": 10,
+      "orgao": "PREFEITURA MUNICIPAL DE IÇARA - SC",
+      "orgao_cnpj": "82916800000111",
+      "uf": "SC",
+      "qtd_contratacoes": 94,
+      "valor_total": 59615325.94,
+      "valor_semantica": "CONTRATADO",
+      "ticket_medio": 634205.6,
+      "ticket_medio_formula": "valor_total / qtd_contratacoes (same semantic as valor_total)",
+      "frequencia_temporal": "94 eventos no período (2023-07-20..2026-07-23)",
+      "modalidades": {},
+      "periodo_inicio": "2023-07-20",
+      "periodo_fim": "2026-07-23",
+      "fontes": [
+        "pncp_supplier_contracts",
+        "isolated_snapshot",
+        "engineering_filter"
+      ],
+      "consultado": true,
+      "resultado_zero": false,
+      "data_quality_score": 1.0,
+      "data_quality_limitation": "",
+      "tipos_obra": [
+        "",
+        "saneamento"
+      ],
+      "metric_basis": "engineering_contracts_only",
+      "sample_objetos": [
+        "CONTRATAÇÃO DA COMPANHIA CATARINENSE DE ÁGUAS E SANEAMENTO (CASAN) PARA PRESTAÇÃO DE SERVIÇOS DE ABASTECIMENTO DE ÁGUA POTÁVEL E DE ESGOTAMENTO SANITÁRIO (COLET",
+        "ADESÃO À ATA DE REGISTRO DE PREÇOS N° 02/2024, PROVENIENTE DO PREGÃO ELETRÔNICO NO 05/2024, PROCESSO LICITATÓRIO N° 11/2024, CUJO OBJETO É O REGISTRO DE PREÇOS ",
+        "CONTRATAÇÃO DE EMPRESA DE ENGENHARIA ESPECIALIZADA PARA A EXECUÇÃO DAS OBRAS DE CONSTRUÇÃO DE 43 (QUARENTA E TRÊS) UNIDADES HABITACIONAIS, NO ÂMBITO DO PROGRAMA"
+      ]
+    },
+    {
+      "rank": 11,
+      "orgao": "Secretaria de Planejamento e Infraestrutura e Saneamento",
+      "orgao_cnpj": "82892316000108",
+      "uf": "SC",
+      "qtd_contratacoes": 89,
+      "valor_total": 60689708.45,
+      "valor_semantica": "CONTRATADO",
+      "ticket_medio": 681906.84,
+      "ticket_medio_formula": "valor_total / qtd_contratacoes (same semantic as valor_total)",
+      "frequencia_temporal": "89 eventos no período (2023-07-20..2026-07-23)",
+      "modalidades": {},
+      "periodo_inicio": "2023-07-20",
+      "periodo_fim": "2026-07-23",
+      "fontes": [
+        "pncp_supplier_contracts",
+        "isolated_snapshot",
+        "engineering_filter"
+      ],
+      "consultado": true,
+      "resultado_zero": false,
+      "data_quality_score": 1.0,
+      "data_quality_limitation": "",
+      "tipos_obra": [
+        "",
+        "pavimentacao"
+      ],
+      "metric_basis": "engineering_contracts_only",
+      "sample_objetos": [
+        "Contratação de Empresa Especializada para Execução de Drenagem, Pavimentação Asfáltica e Sinalização Viária da Rua Aníbal Nunes Pires, localizada no Bairro Pont",
+        "Contratação de empresa especializada para Execução de Drenagem, Pavimentação Asfáltica e Sinalização Viária da Rua José João Barcelos, trecho entre os Bairros C",
+        "Contratação de Empresa Especializada para Execução de Pavimentação Asfáltica, Sinalização viária e Substituição de rede de água da Rua José Cosme Pamplona, loca"
+      ]
+    },
+    {
+      "rank": 12,
+      "orgao": "Secretaria Municipal de Planejamento - SEPLAN",
+      "orgao_cnpj": "83024257000100",
+      "uf": "SC",
+      "qtd_contratacoes": 85,
+      "valor_total": 208808752.58,
+      "valor_semantica": "CONTRATADO",
+      "ticket_medio": 2456573.56,
+      "ticket_medio_formula": "valor_total / qtd_contratacoes (same semantic as valor_total)",
+      "frequencia_temporal": "85 eventos no período (2023-07-20..2026-07-23)",
+      "modalidades": {},
+      "periodo_inicio": "2023-07-20",
+      "periodo_fim": "2026-07-23",
+      "fontes": [
+        "pncp_supplier_contracts",
+        "isolated_snapshot",
+        "engineering_filter"
+      ],
+      "consultado": true,
+      "resultado_zero": false,
+      "data_quality_score": 1.0,
+      "data_quality_limitation": "",
+      "tipos_obra": [
+        "",
+        "edificacoes"
+      ],
+      "metric_basis": "engineering_contracts_only",
+      "sample_objetos": [
+        "Construção de edificação destinada a abrigar a Estratégica da Saúde da Família do Bairro Cristal, com recursos do Governo Estadual, conforme Portaria Conjunta S",
+        "Construção de edificação, para abrigar a Estratégia Saúde da Família no Bairro das Nações, localizado neste Município, com recursos estaduais provenientes da SC",
+        "A presente licitação tem por objeto a contratação de empresa do ramo de instalação e manutenção elétrica, em regime de empreitada global (material e mão de obra"
+      ]
+    },
+    {
+      "rank": 13,
+      "orgao": "PREFEITURA MUNICIPAL DE BALNEÁRIO RINCÃO",
+      "orgao_cnpj": "17243084000197",
+      "uf": "SC",
+      "qtd_contratacoes": 85,
+      "valor_total": 50948099.43,
+      "valor_semantica": "CONTRATADO",
+      "ticket_medio": 599389.41,
+      "ticket_medio_formula": "valor_total / qtd_contratacoes (same semantic as valor_total)",
+      "frequencia_temporal": "85 eventos no período (2023-07-20..2026-07-23)",
+      "modalidades": {},
+      "periodo_inicio": "2023-07-20",
+      "periodo_fim": "2026-07-23",
+      "fontes": [
+        "pncp_supplier_contracts",
+        "isolated_snapshot",
+        "engineering_filter"
+      ],
+      "consultado": true,
+      "resultado_zero": false,
+      "data_quality_score": 1.0,
+      "data_quality_limitation": "",
+      "tipos_obra": [
+        "",
+        "pavimentacao",
+        "projetos"
+      ],
+      "metric_basis": "engineering_contracts_only",
+      "sample_objetos": [
+        "A presente licitação tem por objetivo a contratação de empresa do ramo pertinente para a “Elaboração de projetos de pavimentação asfáltica, drenagem pluvial, si",
+        "A presente licitação tem por objetivo a contratação de empresa do ramo pertinente para a “Construção do Alambrado de Proteção do Campo de Futebol, localizado na",
+        "A presente licitação tem por objetivo a contratação de empresa do ramo pertinente para a contratação de empresa do ramo pertinente para “Execução de Reforma Par"
+      ]
+    },
+    {
+      "rank": 14,
+      "orgao": "MUNICÍPIO DE SÃO JOÃO DO OESTE",
+      "orgao_cnpj": "80911936000103",
+      "uf": "SC",
+      "qtd_contratacoes": 83,
+      "valor_total": 24031835.46,
+      "valor_semantica": "CONTRATADO",
+      "ticket_medio": 289540.19,
+      "ticket_medio_formula": "valor_total / qtd_contratacoes (same semantic as valor_total)",
+      "frequencia_temporal": "83 eventos no período (2023-07-20..2026-07-23)",
+      "modalidades": {},
+      "periodo_inicio": "2023-07-20",
+      "periodo_fim": "2026-07-23",
+      "fontes": [
+        "pncp_supplier_contracts",
+        "isolated_snapshot",
+        "engineering_filter"
+      ],
+      "consultado": true,
+      "resultado_zero": false,
+      "data_quality_score": 1.0,
+      "data_quality_limitation": "",
+      "tipos_obra": [
+        "",
+        "pavimentacao"
+      ],
+      "metric_basis": "engineering_contracts_only",
+      "sample_objetos": [
+        "Contratação de consórcio público multifinalitário para execução de pavimentação asfáltica de via pública, localizada em Linha Ervalzinho, município de São João ",
+        "Contratação de empresa especializada para execução de obra de engenharia destinada à implantação de pavimentação asfáltica da Estrada Linha Jaboticaba, compreen",
+        "Contratação de empresa de engenharia para elaboração de projeto elétrico para subestações de energia visando atender as necessidades de bombeamento de água da f"
+      ]
+    },
+    {
+      "rank": 15,
+      "orgao": "Consórcio Interfederativo Santa Catarina - CINCATARINA",
+      "orgao_cnpj": "12075748000132",
+      "uf": "SC",
+      "qtd_contratacoes": 83,
+      "valor_total": 6006073.99,
+      "valor_semantica": "CONTRATADO",
+      "ticket_medio": 72362.34,
+      "ticket_medio_formula": "valor_total / qtd_contratacoes (same semantic as valor_total)",
+      "frequencia_temporal": "83 eventos no período (2023-07-20..2026-07-23)",
+      "modalidades": {},
+      "periodo_inicio": "2023-07-20",
+      "periodo_fim": "2026-07-23",
+      "fontes": [
+        "pncp_supplier_contracts",
+        "isolated_snapshot",
+        "engineering_filter"
+      ],
+      "consultado": true,
+      "resultado_zero": false,
+      "data_quality_score": 1.0,
+      "data_quality_limitation": "",
+      "tipos_obra": [
+        "",
+        "pavimentacao",
+        "software"
+      ],
+      "metric_basis": "engineering_contracts_only",
+      "sample_objetos": [
+        "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA ELABORAR UM PROJETO DE ARQUITETURA E ENGENHARIA PARA ADAPTAR O IMÓVEL LOCALIZADO NO 10º PAVIMENTO DO EMPREENDIMENTO BL",
+        "CONTRATAÇÃO DIRETA, POR DISPENSA DE LICITAÇÃO, PRESTAÇÃO DE SERVIÇOS DE ELABORAÇÃO DE LAUDO TÉCNICO DE AVALIAÇÃO DE SALAS COMERCIAIS SITUADAS NO 13º PAVIMENTO (",
+        "CONTRATAÇÃO DIRETA, POR DISPENSA DE LICITAÇÃO, DE SOFTWARE DE GESTÃO E MONITORAMENTO DE PROJETOS E PROCESSOS PARA USO DO CINCATARINA."
+      ]
+    },
+    {
+      "rank": 16,
+      "orgao": "Serviço Municipal de Água Saneamento Básico e Infraestrutura - SEMASA",
+      "orgao_cnpj": "05472936000139",
+      "uf": "SC",
+      "qtd_contratacoes": 80,
+      "valor_total": 59253708.09,
+      "valor_semantica": "CONTRATADO",
+      "ticket_medio": 740671.35,
+      "ticket_medio_formula": "valor_total / qtd_contratacoes (same semantic as valor_total)",
+      "frequencia_temporal": "80 eventos no período (2023-07-20..2026-07-23)",
+      "modalidades": {},
+      "periodo_inicio": "2023-07-20",
+      "periodo_fim": "2026-07-23",
+      "fontes": [
+        "pncp_supplier_contracts",
+        "isolated_snapshot",
+        "engineering_filter"
+      ],
+      "consultado": true,
+      "resultado_zero": false,
+      "data_quality_score": 1.0,
+      "data_quality_limitation": "",
+      "tipos_obra": [
+        "",
+        "saneamento"
+      ],
+      "metric_basis": "engineering_contracts_only",
+      "sample_objetos": [
+        "Aquisição de água potável da EMASA (Empresa Municipal de Água e Saneamento) do município de Balneário Camboriú, com base nos requisitos estabelecidos no Art. 72",
+        "Aquisição de equipamentos para desinfecção e fluoretação de águas para uso em poços do Serviço Municipal de Água, Saneamento Básico e Infraestrutura – SEMASA – ",
+        "Aquisição de dois tanques com capacidade nominal de 15m³ cada (norma ABNT NBR 17505-2:2013), em PP ou PRFV, com as dimensões, aproximadas, listadas na descrição"
+      ]
+    },
+    {
+      "rank": 17,
+      "orgao": "SERVIÇO AUTÔNOMO MUNICIPAL DE ÁGUA E ESGOTO DE JARAGUÁ DO SUL",
+      "orgao_cnpj": "84438381000185",
+      "uf": "SC",
+      "qtd_contratacoes": 77,
+      "valor_total": 57262316.82,
+      "valor_semantica": "CONTRATADO",
+      "ticket_medio": 743666.45,
+      "ticket_medio_formula": "valor_total / qtd_contratacoes (same semantic as valor_total)",
+      "frequencia_temporal": "77 eventos no período (2023-07-20..2026-07-23)",
+      "modalidades": {},
+      "periodo_inicio": "2023-07-20",
+      "periodo_fim": "2026-07-23",
+      "fontes": [
+        "pncp_supplier_contracts",
+        "isolated_snapshot",
+        "engineering_filter"
+      ],
+      "consultado": true,
+      "resultado_zero": false,
+      "data_quality_score": 1.0,
+      "data_quality_limitation": "",
+      "tipos_obra": [
+        "",
+        "saneamento"
+      ],
+      "metric_basis": "engineering_contracts_only",
+      "sample_objetos": [
+        "AQUISIÇÃO DE AERADORES SUBMERSÍVEIS PARA A ESTAÇÃO DE TRATAMENTO DE ESGOTO – ETE NEREU RAMOS",
+        "AQUISIÇÃO DE DESENGRAXANTE PARA LIMPEZA E MANUTENÇÃO DE REDES DE ESGOTO",
+        "AQUISIÇÃO DE EQUIPAMENTO EXCLUSIVO PARA MEDIÇÃO DE ODOR, DESTINADO À ESTAÇÃO DE TRATAMENTO DE ESGOTO SÃO LUÍS."
+      ]
+    },
+    {
+      "rank": 18,
+      "orgao": "SERVIÇO INTERMUNICIPAL DE ÁGUA E ESGOTO JOAÇABA HERVAL DOESTE E LUZERNA",
+      "orgao_cnpj": "84591890000143",
+      "uf": "SC",
+      "qtd_contratacoes": 77,
+      "valor_total": 17314313.87,
+      "valor_semantica": "CONTRATADO",
+      "ticket_medio": 224861.22,
+      "ticket_medio_formula": "valor_total / qtd_contratacoes (same semantic as valor_total)",
+      "frequencia_temporal": "77 eventos no período (2023-07-20..2026-07-23)",
+      "modalidades": {},
+      "periodo_inicio": "2023-07-20",
+      "periodo_fim": "2026-07-23",
+      "fontes": [
+        "pncp_supplier_contracts",
+        "isolated_snapshot",
+        "engineering_filter"
+      ],
+      "consultado": true,
+      "resultado_zero": false,
+      "data_quality_score": 1.0,
+      "data_quality_limitation": "",
+      "tipos_obra": [
+        "",
+        "saneamento"
+      ],
+      "metric_basis": "engineering_contracts_only",
+      "sample_objetos": [
+        "Aquisição de bombas submersas para utilização nas elevatórias de esgoto EEL005 e EEL002",
+        "Aquisição de mangueiras flat para Elevatórias de Esgoto",
+        "Aquisição de impressoras térmicas portáteis, com capas protetoras e alças para os ombros, compatíveis com dispositivos móveis, destinadas à emissão de faturas d"
+      ]
+    },
+    {
+      "rank": 19,
+      "orgao": "Secretaria de Infraestrutura",
+      "orgao_cnpj": "83102574000106",
+      "uf": "SC",
+      "qtd_contratacoes": 76,
+      "valor_total": 51912217.48,
+      "valor_semantica": "CONTRATADO",
+      "ticket_medio": 683055.49,
+      "ticket_medio_formula": "valor_total / qtd_contratacoes (same semantic as valor_total)",
+      "frequencia_temporal": "76 eventos no período (2023-07-20..2026-07-23)",
+      "modalidades": {},
+      "periodo_inicio": "2023-07-20",
+      "periodo_fim": "2026-07-23",
+      "fontes": [
+        "pncp_supplier_contracts",
+        "isolated_snapshot",
+        "engineering_filter"
+      ],
+      "consultado": true,
+      "resultado_zero": false,
+      "data_quality_score": 1.0,
+      "data_quality_limitation": "",
+      "tipos_obra": [
+        "pavimentacao"
+      ],
+      "metric_basis": "engineering_contracts_only",
+      "sample_objetos": [
+        "Contratação de empresa especializada para execução de obras de pavimentação asfáltica, drenagem pluvial e sinalização viária na Estrada Navegantes, Bairro Naveg",
+        "Contratação de empresa especializada para execução de obras de pavimentação asfáltica, drenagem pluvial e sinalização viária na Rua: Antônio Dolzani, Bairro: Va",
+        "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE OBRAS DE PAVIMENTAÇÃO ASFÁLTICA, DRENAGEM PLUVIAL E SINALIZAÇÃO VIÁRIA NA RUA: CARLOS CHAGAS, BAIRRO: SUMA"
+      ]
+    },
+    {
+      "rank": 20,
+      "orgao": "Prefeitura Municipal de Jaraguá do Sul",
+      "orgao_cnpj": "83102459000123",
+      "uf": "SC",
+      "qtd_contratacoes": 75,
+      "valor_total": 98119607.89,
+      "valor_semantica": "CONTRATADO",
+      "ticket_medio": 1308261.44,
+      "ticket_medio_formula": "valor_total / qtd_contratacoes (same semantic as valor_total)",
+      "frequencia_temporal": "75 eventos no período (2023-07-20..2026-07-23)",
+      "modalidades": {},
+      "periodo_inicio": "2023-07-20",
+      "periodo_fim": "2026-07-23",
+      "fontes": [
+        "pncp_supplier_contracts",
+        "isolated_snapshot",
+        "engineering_filter"
+      ],
+      "consultado": true,
+      "resultado_zero": false,
+      "data_quality_score": 1.0,
+      "data_quality_limitation": "",
+      "tipos_obra": [
+        "",
+        "cursos",
+        "obras_civis"
+      ],
+      "metric_basis": "engineering_contracts_only",
+      "sample_objetos": [
+        "A presente licitação tem por objeto a contratação de pessoa jurídica especializada para a execução de obra de engenharia, com fornecimento de materiais, equipam",
+        "A contratação de instituição de ensino para a prestação de serviços técnicos especializados de capacitação profissional, visando à execução do Projeto Qualifica",
+        "A presente licitação tem por objeto a contratação de empresa especializada para execução de serviços de reforma da estrutura da cobertura metálica do Terminal R"
+      ]
+    },
+    {
+      "rank": 21,
+      "orgao": "PREFEITURA MUNICIPAL DE JOAÇABA",
+      "orgao_cnpj": "82939380000199",
+      "uf": "SC",
+      "qtd_contratacoes": 73,
+      "valor_total": 58297557.91,
+      "valor_semantica": "CONTRATADO",
+      "ticket_medio": 798596.68,
+      "ticket_medio_formula": "valor_total / qtd_contratacoes (same semantic as valor_total)",
+      "frequencia_temporal": "73 eventos no período (2023-07-20..2026-07-23)",
+      "modalidades": {},
+      "periodo_inicio": "2023-07-20",
+      "periodo_fim": "2026-07-23",
+      "fontes": [
+        "pncp_supplier_contracts",
+        "isolated_snapshot",
+        "engineering_filter"
+      ],
+      "consultado": true,
+      "resultado_zero": false,
+      "data_quality_score": 1.0,
+      "data_quality_limitation": "",
+      "tipos_obra": [
+        "",
+        "pavimentacao"
+      ],
+      "metric_basis": "engineering_contracts_only",
+      "sample_objetos": [
+        "A presente licitação tem por objeto a contratação de empresa (s) especializada (s) para a execução de pavimentação asfáltica e implantação de rede de esgoto, em",
+        "1.1.\tContratação de instituição especializada para a elaboração de estudos estratégicos, pesquisas de informações e orientação técnica para a revisão do Plano d",
+        "Abertura de processo de contratação direta emergencial para a construção de muro de contenção e recomposição asfáltica em parte da Rua Celso Brás de Carli, em v"
+      ]
+    },
+    {
+      "rank": 22,
+      "orgao": "SUPERINTENDENCIA REGIONAL SUL",
+      "orgao_cnpj": "29979036000140",
+      "uf": "SC",
+      "qtd_contratacoes": 72,
+      "valor_total": 43804496.42,
+      "valor_semantica": "CONTRATADO",
+      "ticket_medio": 608395.78,
+      "ticket_medio_formula": "valor_total / qtd_contratacoes (same semantic as valor_total)",
+      "frequencia_temporal": "72 eventos no período (2023-07-20..2026-07-23)",
+      "modalidades": {},
+      "periodo_inicio": "2023-07-20",
+      "periodo_fim": "2026-07-23",
+      "fontes": [
+        "pncp_supplier_contracts",
+        "isolated_snapshot",
+        "engineering_filter"
+      ],
+      "consultado": true,
+      "resultado_zero": false,
+      "data_quality_score": 1.0,
+      "data_quality_limitation": "",
+      "tipos_obra": [
+        "manutencao_predial",
+        "saneamento"
+      ],
+      "metric_basis": "engineering_contracts_only",
+      "sample_objetos": [
+        "A CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA PRESTAÇÃO DE SERVIÇOS DE MANUTENÇÃO PREDIAL PREVENTIVA E CORRETIVA, POR DEMANDA, DOS IMÓVEIS DO POLO REGIONAL V, VIN",
+        "ÁGUA E ESGOTO PARA A APS BANDEIRANTES/PR.",
+        "ÁGUA E ESGOTO PARA A APS BRUSQUE/SC."
+      ]
+    },
+    {
+      "rank": 23,
+      "orgao": "MUNICÍPIO DE CAMPOS NOVOS",
+      "orgao_cnpj": "82939232000174",
+      "uf": "SC",
+      "qtd_contratacoes": 71,
+      "valor_total": 32508670.4,
+      "valor_semantica": "CONTRATADO",
+      "ticket_medio": 457868.6,
+      "ticket_medio_formula": "valor_total / qtd_contratacoes (same semantic as valor_total)",
+      "frequencia_temporal": "71 eventos no período (2023-07-20..2026-07-23)",
+      "modalidades": {},
+      "periodo_inicio": "2023-07-20",
+      "periodo_fim": "2026-07-23",
+      "fontes": [
+        "pncp_supplier_contracts",
+        "isolated_snapshot",
+        "engineering_filter"
+      ],
+      "consultado": true,
+      "resultado_zero": false,
+      "data_quality_score": 1.0,
+      "data_quality_limitation": "",
+      "tipos_obra": [
+        "",
+        "pavimentacao"
+      ],
+      "metric_basis": "engineering_contracts_only",
+      "sample_objetos": [
+        "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA A EXECUÇÃO DE OBRA DE PAVIMENTAÇÃO ASFÁLTICA NOS TRECHOS II E III DE ACESSO AO GUARANI E NO TRECHO V DE ACESSO AO CAXA",
+        "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE OBRA DE PAVIMENTAÇÃO ASFÁLTICA DO ACESSO A LOCALIDADE DO GUARANI - TRECHO I, LOCALIZADA NA ÁREA RURAL DO M",
+        "AQUISIÇÃO DE MAQUETES E ACESSÓRIOS INTERATIVOS PARA DESTINAÇÃO AO PARQUE ESTADUAL RIO CANOAS VISANDO A IMPLANTAÇÃO DE PROJETO DE MELHORIA DA QUALIDADE AMBIENTAL"
+      ]
+    },
+    {
+      "rank": 24,
+      "orgao": "PREFEITURA MUNICIPAL DE SAO BERNARDINO",
+      "orgao_cnpj": "01612812000150",
+      "uf": "SC",
+      "qtd_contratacoes": 65,
+      "valor_total": 12322133.67,
+      "valor_semantica": "CONTRATADO",
+      "ticket_medio": 189571.29,
+      "ticket_medio_formula": "valor_total / qtd_contratacoes (same semantic as valor_total)",
+      "frequencia_temporal": "65 eventos no período (2023-07-20..2026-07-23)",
+      "modalidades": {},
+      "periodo_inicio": "2023-07-20",
+      "periodo_fim": "2026-07-23",
+      "fontes": [
+        "pncp_supplier_contracts",
+        "isolated_snapshot",
+        "engineering_filter"
+      ],
+      "consultado": true,
+      "resultado_zero": false,
+      "data_quality_score": 1.0,
+      "data_quality_limitation": "",
+      "tipos_obra": [
+        "",
+        "cursos",
+        "obras_civis"
+      ],
+      "metric_basis": "engineering_contracts_only",
+      "sample_objetos": [
+        "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA NO RAMO DE OBRAS E SERVIÇOS DE ENGENHARIA PARA ELABORAÇÃO DE PROJETO CIVIL COMPLETO (ESTRUTURAL, ARQUITETÔNICO, ORÇAMENTO, ",
+        "CONTRATAÇÃO DE AGÊNCIA DE VIAGEM PARA PRESTAÇÃO DE SERVIÇOS DE TRANSPORTE E EMISSÃO DE SEGURO VIAGEM PARA ESTUDANTES, PROFESSORES E PROFISSIONAIS DA SAUDE E EDU",
+        "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM CONSTRUÇÃO CIVIL PARA EXECUTAR A REFORMA DA ESTRUTURA DO CAMPO MUNICIPAL, LOCALIZADO NA RUA SANTA PERPÉTUA, CENTRO NA CI"
+      ]
+    },
+    {
+      "rank": 25,
+      "orgao": "Prefeitura Municipal de Chapecó",
+      "orgao_cnpj": "83021808000182",
+      "uf": "SC",
+      "qtd_contratacoes": 62,
+      "valor_total": 140908025.53,
+      "valor_semantica": "CONTRATADO",
+      "ticket_medio": 2272710.09,
+      "ticket_medio_formula": "valor_total / qtd_contratacoes (same semantic as valor_total)",
+      "frequencia_temporal": "62 eventos no período (2023-07-20..2026-07-23)",
+      "modalidades": {},
+      "periodo_inicio": "2023-07-20",
+      "periodo_fim": "2026-07-23",
+      "fontes": [
+        "pncp_supplier_contracts",
+        "isolated_snapshot",
+        "engineering_filter"
+      ],
+      "consultado": true,
+      "resultado_zero": false,
+      "data_quality_score": 1.0,
+      "data_quality_limitation": "",
+      "tipos_obra": [
+        "",
+        "drenagem",
+        "edificacoes",
+        "pavimentacao"
+      ],
+      "metric_basis": "engineering_contracts_only",
+      "sample_objetos": [
+        "AQUISIÇÃO DE TUBOS E GALERIAS DE CONCRETO PARA MANUTENÇÃO DA REDE DE DRENAGEM PLUVIAL DO MUNICÍPIO",
+        "CONSTRUÇÃO DE EDIFICAÇÃO DESTINADA AO FUNCIONAMENTO DA CIDADE DO AUTISTA NO MUNICÍPIO DE CHAPECÓ-SC",
+        "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM PAVIMENTAÇÃO ASFÁLTICA PARA OS TRECHOS DAS RUAS TUPINAMBÁS, HEITOR VILLA LOBOS E DA MARGINAL PLÍNIO ARLINDO DE NÊS, SITU"
+      ]
+    },
+    {
+      "rank": 26,
+      "orgao": "PREFEITURA",
+      "orgao_cnpj": "82916826000160",
+      "uf": "SC",
+      "qtd_contratacoes": 62,
+      "valor_total": 27402545.52,
+      "valor_semantica": "CONTRATADO",
+      "ticket_medio": 441976.54,
+      "ticket_medio_formula": "valor_total / qtd_contratacoes (same semantic as valor_total)",
+      "frequencia_temporal": "62 eventos no período (2023-07-20..2026-07-23)",
+      "modalidades": {},
+      "periodo_inicio": "2023-07-20",
+      "periodo_fim": "2026-07-23",
+      "fontes": [
+        "pncp_supplier_contracts",
+        "isolated_snapshot",
+        "engineering_filter"
+      ],
+      "consultado": true,
+      "resultado_zero": false,
+      "data_quality_score": 1.0,
+      "data_quality_limitation": "",
+      "tipos_obra": [
+        "",
+        "pavimentacao",
+        "saneamento"
+      ],
+      "metric_basis": "engineering_contracts_only",
+      "sample_objetos": [
+        "Contratação de empresa especializada em prestação de serviços de hidrojateamento para desobstrução de rede de esgoto, sucção para limpeza de resíduos de fossa s",
+        "Contratação de empresa especializada para elaboração de projetos de pavimentação asfáltica ou lajotas, drenagem pluvial e sinalização viária de ruas para o muni",
+        "ADESÃO à Ata de Registo de Preços n.º 01/2025, decorrente do Pregão Presencial Nº 81/2025, gerenciada pelo Município de Águas Mornas, cujo objeto é o registro d"
+      ]
+    },
+    {
+      "rank": 27,
+      "orgao": "Sombrio",
+      "orgao_cnpj": "82963216000117",
+      "uf": "SC",
+      "qtd_contratacoes": 60,
+      "valor_total": 52006778.89,
+      "valor_semantica": "CONTRATADO",
+      "ticket_medio": 866779.65,
+      "ticket_medio_formula": "valor_total / qtd_contratacoes (same semantic as valor_total)",
+      "frequencia_temporal": "60 eventos no período (2023-07-20..2026-07-23)",
+      "modalidades": {},
+      "periodo_inicio": "2023-07-20",
+      "periodo_fim": "2026-07-23",
+      "fontes": [
+        "pncp_supplier_contracts",
+        "isolated_snapshot",
+        "engineering_filter"
+      ],
+      "consultado": true,
+      "resultado_zero": false,
+      "data_quality_score": 1.0,
+      "data_quality_limitation": "",
+      "tipos_obra": [
+        "",
+        "drenagem",
+        "pavimentacao"
+      ],
+      "metric_basis": "engineering_contracts_only",
+      "sample_objetos": [
+        "Execução de dique na Lagoa da Guarita no bairro Nova Guarita (CASO 1), e drenagem de travessias no bairro Santa Fé (caso 3, meta 7 e 8), devido a desastre ambie",
+        "O objeto da presente dispensa é a prestação de serviços de projeto de implementação de pavimentação da Av. Luiz Carlos Coelho, nos bairros Januária e Guarita, n",
+        "O objeto da presente dispensa é a prestação de serviços de coordenação e de elaboração e desenvolvimento de projetos envolvendo artes plásticas e outras decoraç"
+      ]
+    },
+    {
+      "rank": 28,
+      "orgao": "Diretoria de Obras e Serviços Públicos",
+      "orgao_cnpj": "82960758000136",
+      "uf": "SC",
+      "qtd_contratacoes": 59,
+      "valor_total": 38088104.16,
+      "valor_semantica": "CONTRATADO",
+      "ticket_medio": 645561.09,
+      "ticket_medio_formula": "valor_total / qtd_contratacoes (same semantic as valor_total)",
+      "frequencia_temporal": "59 eventos no período (2023-07-20..2026-07-23)",
+      "modalidades": {},
+      "periodo_inicio": "2023-07-20",
+      "periodo_fim": "2026-07-23",
+      "fontes": [
+        "pncp_supplier_contracts",
+        "isolated_snapshot",
+        "engineering_filter"
+      ],
+      "consultado": true,
+      "resultado_zero": false,
+      "data_quality_score": 1.0,
+      "data_quality_limitation": "",
+      "tipos_obra": [
+        "",
+        "pavimentacao",
+        "terraplenagem"
+      ],
+      "metric_basis": "engineering_contracts_only",
+      "sample_objetos": [
+        "Aquisição parcelada de 3.000m³ de pó de brita produzida a partir de basalto para uso nas pavimentações, no município de Jacinto Machado/SC, durante o exercício ",
+        "Contratação de empresa para execução das obras de drenagem, terraplanagem e reforço de subleito de trechos da Av. Afonso Possamai Della e Av. Egídio Tomasi, nos",
+        "Contratação de empresa para execução das obras de reconstrução de pavimentação asfáltica, drenagem e contenção da estrada municipal Pinheirinho do Meio, no muni"
+      ]
+    },
+    {
+      "rank": 29,
+      "orgao": "INST.FED.DE EDUC., CIENC. E TEC. CATARINENSE",
+      "orgao_cnpj": "10635424000186",
+      "uf": "SC",
+      "qtd_contratacoes": 52,
+      "valor_total": 102905638.79,
+      "valor_semantica": "CONTRATADO",
+      "ticket_medio": 1978954.59,
+      "ticket_medio_formula": "valor_total / qtd_contratacoes (same semantic as valor_total)",
+      "frequencia_temporal": "52 eventos no período (2023-07-20..2026-07-23)",
+      "modalidades": {},
+      "periodo_inicio": "2023-07-20",
+      "periodo_fim": "2026-07-23",
+      "fontes": [
+        "pncp_supplier_contracts",
+        "isolated_snapshot",
+        "engineering_filter"
+      ],
+      "consultado": true,
+      "resultado_zero": false,
+      "data_quality_score": 1.0,
+      "data_quality_limitation": "",
+      "tipos_obra": [
+        "",
+        "saneamento"
+      ],
+      "metric_basis": "engineering_contracts_only",
+      "sample_objetos": [
+        "1.1 O OBJETO DO PRESENTE INSTRUMENTO É A CONTRATAÇÃO DE SERVIÇO DE FORNECIMENTO DE ÁGUA  TRATADA E COLETA DE LIXO JUNTO À VISAN (VIDEIRA SANEAMENTO), NAS CONDIÇ",
+        "ABASTECIMENTO DE ÁGUA TRATADA E A COLETA E TRATAMENTO DE ESGOTO",
+        "ABASTECIMENTO DE ÁGUA TRATADA E A COLETA E TRATAMENTO DE ESGOTO NAS UNIDADES DO CONTRATANTE SITUADOS NO MUNICÍPIO ARAQUARI MATRÍCULAS: 15094960  E 14949946."
+      ]
+    },
+    {
+      "rank": 30,
+      "orgao": "PREFEITURA MUNICIPAL DE FORQUILHINHA - SC",
+      "orgao_cnpj": "81531162000158",
+      "uf": "SC",
+      "qtd_contratacoes": 52,
+      "valor_total": 71402835.48,
+      "valor_semantica": "CONTRATADO",
+      "ticket_medio": 1373131.45,
+      "ticket_medio_formula": "valor_total / qtd_contratacoes (same semantic as valor_total)",
+      "frequencia_temporal": "52 eventos no período (2023-07-20..2026-07-23)",
+      "modalidades": {},
+      "periodo_inicio": "2023-07-20",
+      "periodo_fim": "2026-07-23",
+      "fontes": [
+        "pncp_supplier_contracts",
+        "isolated_snapshot",
+        "engineering_filter"
+      ],
+      "consultado": true,
+      "resultado_zero": false,
+      "data_quality_score": 1.0,
+      "data_quality_limitation": "",
+      "tipos_obra": [
+        "",
+        "pavimentacao",
+        "terraplenagem"
+      ],
+      "metric_basis": "engineering_contracts_only",
+      "sample_objetos": [
+        "A presente licitação tem por objetivo a contratação de empresa do ramo pertinente para a implantação da infraestrutura viária com a execução da pavimentação de ",
+        "A presente licitação tem por objetivo a contratação de empresa especializada em serviços de terraplanagem para as matrículas 17.029, 16.063 e 5.223, totalizando",
+        "A presente licitação tem por objetivo a contratação de empresa especializada para implantação da infraestrutura viária com a execução da pavimentação de diversa"
+      ]
+    },
+    {
+      "rank": 31,
+      "orgao": "PREFEITURA MUNICIPAL DE SCHROEDER - SC",
+      "orgao_cnpj": "83102491000109",
+      "uf": "SC",
+      "qtd_contratacoes": 52,
+      "valor_total": 10957763.87,
+      "valor_semantica": "CONTRATADO",
+      "ticket_medio": 210726.23,
+      "ticket_medio_formula": "valor_total / qtd_contratacoes (same semantic as valor_total)",
+      "frequencia_temporal": "52 eventos no período (2023-07-20..2026-07-23)",
+      "modalidades": {},
+      "periodo_inicio": "2023-07-20",
+      "periodo_fim": "2026-07-23",
+      "fontes": [
+        "pncp_supplier_contracts",
+        "isolated_snapshot",
+        "engineering_filter"
+      ],
+      "consultado": true,
+      "resultado_zero": false,
+      "data_quality_score": 1.0,
+      "data_quality_limitation": "",
+      "tipos_obra": [
+        "",
+        "saneamento",
+        "software"
+      ],
+      "metric_basis": "engineering_contracts_only",
+      "sample_objetos": [
+        "Aquisição de equipamentos permanentes, compreendendo Cortadora de Asfalto/Concreto e Placa Vibratória para a Secretaria de Saneamento do Município de Schroeder",
+        "Aquisição de AutoCAD LT Commercial New Single-user ELD Annual Subscription, software CAD para\nmodelagem 2D de projetos e documentação para Setores de Engenharia",
+        "Aquisição de software CAD para modelagem 2D de projetos e documentação para Setores de Engenharia e Defesa Civil"
+      ]
+    },
+    {
+      "rank": 32,
+      "orgao": "SECRETARIA DE ADMINISTRAÇÃO E PLANEJAMENTO",
+      "orgao_cnpj": "01613120000127",
+      "uf": "SC",
+      "qtd_contratacoes": 50,
+      "valor_total": 5096485.62,
+      "valor_semantica": "CONTRATADO",
+      "ticket_medio": 101929.71,
+      "ticket_medio_formula": "valor_total / qtd_contratacoes (same semantic as valor_total)",
+      "frequencia_temporal": "50 eventos no período (2023-07-20..2026-07-23)",
+      "modalidades": {},
+      "periodo_inicio": "2023-07-20",
+      "periodo_fim": "2026-07-23",
+      "fontes": [
+        "pncp_supplier_contracts",
+        "isolated_snapshot",
+        "engineering_filter"
+      ],
+      "consultado": true,
+      "resultado_zero": false,
+      "data_quality_score": 1.0,
+      "data_quality_limitation": "",
+      "tipos_obra": [
+        "",
+        "pavimentacao",
+        "projetos"
+      ],
+      "metric_basis": "engineering_contracts_only",
+      "sample_objetos": [
+        "A presente Licitação tem por objeto a Aquisição de materiais e contratação de mão-de-obra para execução de Pavimentação asfáltica da Avenida 29 de novembro - Tr",
+        "4.1 Constitui objeto da presente dispensa de licitação a contratação de empresa especializada para prestação de serviços técnicos de engenharia e arquitetura pa",
+        "A presente Licitação tem por objeto a aquisição de materiais e contratação de mão-de-obra para Execução da cobertura do corredor dos cavalos na cancha de laço d"
+      ]
+    },
+    {
+      "rank": 33,
+      "orgao": "SECRETARIA DE ADMINISTRACAO",
+      "orgao_cnpj": "83028639000102",
+      "uf": "SC",
+      "qtd_contratacoes": 47,
+      "valor_total": 11696716.4,
+      "valor_semantica": "CONTRATADO",
+      "ticket_medio": 248866.31,
+      "ticket_medio_formula": "valor_total / qtd_contratacoes (same semantic as valor_total)",
+      "frequencia_temporal": "47 eventos no período (2023-07-20..2026-07-23)",
+      "modalidades": {},
+      "periodo_inicio": "2023-07-20",
+      "periodo_fim": "2026-07-23",
+      "fontes": [
+        "pncp_supplier_contracts",
+        "isolated_snapshot",
+        "engineering_filter"
+      ],
+      "consultado": true,
+      "resultado_zero": false,
+      "data_quality_score": 1.0,
+      "data_quality_limitation": "",
+      "tipos_obra": [
+        "",
+        "infraestrutura_urbana",
+        "obras_civis"
+      ],
+      "metric_basis": "engineering_contracts_only",
+      "sample_objetos": [
+        "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM REFORMA E REVITALIZAÇÃO DA PRAÇA LELIA CALDATO CRESTANI, LOCALIZADA NO CENTRO DE PALMA SOLA/SC, CONFORME PROJETO, MEMORI",
+        "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM SERVIÇOS DE ENGENHARIA PARA ELABORAÇÃO DE TODOS OS PROJETOS DE INFRAESTRUTURA URBANA NECESSÁRIOS À IMPLANTAÇÃO DE LOTEAM",
+        "CONCESSÃO DE USO DE BEM PÚBLICO, COM ENCARGO, DE FRAÇÃO IDEAL DE 1.000 M² (MATR. 19.143 - CRI COMPETENTE), DESTINADA À CONSTRUÇÃO DE BARRACÃO INDUSTRIAL DE ATÉ "
+      ]
+    },
+    {
+      "rank": 34,
+      "orgao": "PREFEITURA MUNICIPAL DE ITAJAÍ - SC",
+      "orgao_cnpj": "83102277000152",
+      "uf": "SC",
+      "qtd_contratacoes": 46,
+      "valor_total": 92114566.14,
+      "valor_semantica": "CONTRATADO",
+      "ticket_medio": 2002490.57,
+      "ticket_medio_formula": "valor_total / qtd_contratacoes (same semantic as valor_total)",
+      "frequencia_temporal": "46 eventos no período (2023-07-20..2026-07-23)",
+      "modalidades": {},
+      "periodo_inicio": "2023-07-20",
+      "periodo_fim": "2026-07-23",
+      "fontes": [
+        "pncp_supplier_contracts",
+        "isolated_snapshot",
+        "engineering_filter"
+      ],
+      "consultado": true,
+      "resultado_zero": false,
+      "data_quality_score": 1.0,
+      "data_quality_limitation": "",
+      "tipos_obra": [
+        "",
+        "manutencao_predial",
+        "pavimentacao"
+      ],
+      "metric_basis": "engineering_contracts_only",
+      "sample_objetos": [
+        "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA NO RAMO DA ENGENHARIA PARA A EXECUÇÃO DE SERVIÇO COMUM DE ENGENHARIA REFERENTE À PAVIMENTAÇÃO ASFÁLTICA NAS RUAS MARCOS ALB",
+        "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA A PRESTAÇÃO DE SERVIÇOS DE ENGENHARIA COMUM, PARA MANUTENÇÃO PREDIAL, PEQUENOS REPAROS E MELHORIAS, PARA AS UNIDADES E",
+        "Contratação de empresa especializada e com expertise comprovada para analisar e formatar parecer sobre todos os projetos socioambientais inscritos no Programa S"
+      ]
+    },
+    {
+      "rank": 35,
+      "orgao": "PREFEITURA MUNICIPAL DE SÃO JOÃO BATISTA",
+      "orgao_cnpj": "82925652000100",
+      "uf": "SC",
+      "qtd_contratacoes": 46,
+      "valor_total": 41851317.33,
+      "valor_semantica": "CONTRATADO",
+      "ticket_medio": 909811.25,
+      "ticket_medio_formula": "valor_total / qtd_contratacoes (same semantic as valor_total)",
+      "frequencia_temporal": "46 eventos no período (2023-07-20..2026-07-23)",
+      "modalidades": {},
+      "periodo_inicio": "2023-07-20",
+      "periodo_fim": "2026-07-23",
+      "fontes": [
+        "pncp_supplier_contracts",
+        "isolated_snapshot",
+        "engineering_filter"
+      ],
+      "consultado": true,
+      "resultado_zero": false,
+      "data_quality_score": 1.0,
+      "data_quality_limitation": "",
+      "tipos_obra": [
+        "",
+        "obras_civis",
+        "pavimentacao"
+      ],
+      "metric_basis": "engineering_contracts_only",
+      "sample_objetos": [
+        "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM OBRAS E SERVIÇOS DE ENGENHARIA PARA A EXECUÇÃO/CONSTRUÇÃO DE DUAS SALAS DE AULA NA ESCOLA ALICE DA SILVA GOMES, CENTRO, ",
+        "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM OBRAS E SERVIÇOS DE ENGENHARIA PARA A EXECUÇÃO/CONSTRUÇÃO DE UMA ESTRUTURA COM ÁREA DE COZINHA, REFEITÓRIO, SALA DOS PRO",
+        "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM OBRAS E SERVIÇOS DE ENGENHARIA PARA A EXECUÇÃO DE DRENAGEM, PAVIMENTAÇÃO ASFÁLTICA E SINALIZAÇÃO VIÁRIA DAS RUAS BERNARD"
+      ]
+    },
+    {
+      "rank": 36,
+      "orgao": "ADMINISTRAÇÃO",
+      "orgao_cnpj": "83039842000184",
+      "uf": "SC",
+      "qtd_contratacoes": 46,
+      "valor_total": 16898830.34,
+      "valor_semantica": "CONTRATADO",
+      "ticket_medio": 367365.88,
+      "ticket_medio_formula": "valor_total / qtd_contratacoes (same semantic as valor_total)",
+      "frequencia_temporal": "46 eventos no período (2023-07-20..2026-07-23)",
+      "modalidades": {},
+      "periodo_inicio": "2023-07-20",
+      "periodo_fim": "2026-07-23",
+      "fontes": [
+        "pncp_supplier_contracts",
+        "isolated_snapshot",
+        "engineering_filter"
+      ],
+      "consultado": true,
+      "resultado_zero": false,
+      "data_quality_score": 1.0,
+      "data_quality_limitation": "",
+      "tipos_obra": [
+        "",
+        "drenagem",
+        "projetos"
+      ],
+      "metric_basis": "engineering_contracts_only",
+      "sample_objetos": [
+        "CONTRATAÇÃO DE EMPRESA PARA EXECUTAR REDE DE DRENAGEM COM TUBULAÇÃO DE PEAD (POLIETILENO DE ALTA DENSIDADE), SISTEMA DE RETENÇÃO, DETENÇÃO DE ÁGUAS PLUVIAIS COM",
+        "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA A PRODUÇÃO DE PLACAS EM PVC E ADESIVOS REFLEXIVOS COM SEQUÊNCIA ALFANUMÉRICA DE CARACTERES, VISANDO A IDENTIFICAÇÃO E ",
+        "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA INSTALAÇÃO DE ILUMINAÇÃO EM LED NA PISTA DE BICICROSS EM VIDEIRA CONFORME PROJETO BASICO, COM FORNECIMENTO DE MATERIAL"
+      ]
+    },
+    {
+      "rank": 37,
+      "orgao": "SECRETARIA MUNICIPAL DE AGUAS E SANEAMENTO DE LAGES - SEMASA",
+      "orgao_cnpj": "05532421000187",
+      "uf": "SC",
+      "qtd_contratacoes": 46,
+      "valor_total": 10694564.03,
+      "valor_semantica": "CONTRATADO",
+      "ticket_medio": 232490.52,
+      "ticket_medio_formula": "valor_total / qtd_contratacoes (same semantic as valor_total)",
+      "frequencia_temporal": "46 eventos no período (2023-07-20..2026-07-23)",
+      "modalidades": {},
+      "periodo_inicio": "2023-07-20",
+      "periodo_fim": "2026-07-23",
+      "fontes": [
+        "pncp_supplier_contracts",
+        "isolated_snapshot",
+        "engineering_filter"
+      ],
+      "consultado": true,
+      "resultado_zero": false,
+      "data_quality_score": 1.0,
+      "data_quality_limitation": "",
+      "tipos_obra": [
+        "",
+        "saneamento"
+      ],
+      "metric_basis": "engineering_contracts_only",
+      "sample_objetos": [
+        "Aquisição de Concreto Asfáltico Usinado a Quente para uso da Secretaria de Águas e Saneamento de\nLages/SC.",
+        "Aquisição de Concreto Betuminoso Usinado a Quente para Uso da Secretaria de Águas e Saneamento de Lages (Semasa) para Restaurar as Condições Originais dos Pavim",
+        "Aquisição de materiais diversos, para atender às demandas da Secretaria Municipal de Águas e Saneamento do município de Lages/SC."
+      ]
+    },
+    {
+      "rank": 38,
+      "orgao": "EMASA - Empresa Municipal de Água e Saneamento de Balneário Camboriú",
+      "orgao_cnpj": "07854402000100",
+      "uf": "SC",
+      "qtd_contratacoes": 45,
+      "valor_total": 74198955.61,
+      "valor_semantica": "CONTRATADO",
+      "ticket_medio": 1648865.68,
+      "ticket_medio_formula": "valor_total / qtd_contratacoes (same semantic as valor_total)",
+      "frequencia_temporal": "45 eventos no período (2023-07-20..2026-07-23)",
+      "modalidades": {},
+      "periodo_inicio": "2023-07-20",
+      "periodo_fim": "2026-07-23",
+      "fontes": [
+        "pncp_supplier_contracts",
+        "isolated_snapshot",
+        "engineering_filter"
+      ],
+      "consultado": true,
+      "resultado_zero": false,
+      "data_quality_score": 1.0,
+      "data_quality_limitation": "",
+      "tipos_obra": [
+        "",
+        "saneamento"
+      ],
+      "metric_basis": "engineering_contracts_only",
+      "sample_objetos": [
+        "AQUISIÇÃO DE 02 (DOIS) AERADORES FLUTUANTES A SEREM UTILIZADOS NA ESTAÇÃO DE TRATAMENTO DE ESGOTO DA EMASA, CONFORME PROCESSO 118.745/2025.",
+        "AQUISIÇÃO DE AMOSTRADOR DE LODO PARA OS LABORATÓRIOS DA ESTAÇÃO DE TRATAMENTO DE ESGOTO (ETE) DA EMASA. CONFORME PROCESSO 129737/2026.",
+        "AQUISIÇÃO DE ANEL RASPADOR PARA A PRENSA PARAFUSO DESTINADA A DESIDRATAÇÃO DO LODO PROVENIENTE DA ESTAÇÃO DE TRATAMENTO DE ESGOTO DA EMPRESA MUNICIPAL DE ÁGUA E"
+      ]
+    },
+    {
+      "rank": 39,
+      "orgao": "SECRETARIA MUNICIPAL DE OBRAS E INFRAESTRUTURA URBANA",
+      "orgao_cnpj": "82575812000120",
+      "uf": "SC",
+      "qtd_contratacoes": 44,
+      "valor_total": 32164002.64,
+      "valor_semantica": "CONTRATADO",
+      "ticket_medio": 731000.06,
+      "ticket_medio_formula": "valor_total / qtd_contratacoes (same semantic as valor_total)",
+      "frequencia_temporal": "44 eventos no período (2023-07-20..2026-07-23)",
+      "modalidades": {},
+      "periodo_inicio": "2023-07-20",
+      "periodo_fim": "2026-07-23",
+      "fontes": [
+        "pncp_supplier_contracts",
+        "isolated_snapshot",
+        "engineering_filter"
+      ],
+      "consultado": true,
+      "resultado_zero": false,
+      "data_quality_score": 1.0,
+      "data_quality_limitation": "",
+      "tipos_obra": [
+        "",
+        "infraestrutura_urbana",
+        "pavimentacao",
+        "projetos"
+      ],
+      "metric_basis": "engineering_contracts_only",
+      "sample_objetos": [
+        "Contratação de empresa especializada em prestação de serviços de engenharia para a realização de estudo de tráfego e avaliação estrutural do pavimento para o pr",
+        "Aquisição de placa vibratória à gasolina para atender as necessidades da Secretaria de Obras e Infraestrutura Urbana de Porto Belo",
+        "Contratação de empresa de arquitetura e/ou engenharia para a prestação de serviços técnicos-profissionais especializados para elaboração dos projetos básicos e "
+      ]
+    },
+    {
+      "rank": 40,
+      "orgao": "MUNICÍPIO DE TUBARÃO",
+      "orgao_cnpj": "82928656000133",
+      "uf": "SC",
+      "qtd_contratacoes": 43,
+      "valor_total": 26063470.08,
+      "valor_semantica": "CONTRATADO",
+      "ticket_medio": 606127.21,
+      "ticket_medio_formula": "valor_total / qtd_contratacoes (same semantic as valor_total)",
+      "frequencia_temporal": "43 eventos no período (2023-07-20..2026-07-23)",
+      "modalidades": {},
+      "periodo_inicio": "2023-07-20",
+      "periodo_fim": "2026-07-23",
+      "fontes": [
+        "pncp_supplier_contracts",
+        "isolated_snapshot",
+        "engineering_filter"
+      ],
+      "consultado": true,
+      "resultado_zero": false,
+      "data_quality_score": 1.0,
+      "data_quality_limitation": "",
+      "tipos_obra": [
+        "",
+        "manutencao_predial",
+        "pavimentacao"
+      ],
+      "metric_basis": "engineering_contracts_only",
+      "sample_objetos": [
+        "Constitui o objeto do presente instrumento o REGISTRO DE PREÇO para a eventual AQUISIÇÃO DE SERVIÇOS RELACIONADOS AS ATIVIDADES DE MANUTENÇÃO PREDIAL (CORRETIVA",
+        "Contratação de empresa especializada para a execução de obras de pavimentação em lajotas, drenagem pluvial e sinalização viária de um trecho de 01 (um) quilômet",
+        "Aquisição de máquinas de costura, sendo: 27 (vinte e sete) máquinas de costura doméstica, 03 (três) máquinas de costura industrial reta com corte de linha e mot"
+      ]
+    }
+  ],
+  "zero_vs_not_consulted": {
+    "consulted_with_data": 40,
+    "consulted_zero": 0,
+    "not_consulted": 0,
+    "rule": "resultado_zero only when consultado=true and qtd=0; not_consulted is separate"
+  },
+  "ranking_bias_warning": "Ranking pode favorecer entes com melhor qualidade de dados; data_quality_limitation é obrigatório por linha quando score < 1.0.",
+  "claims_allowed": [
+    "Ranking rows=40 status=OK",
+    "ticket_medio uses explicit formula on same value semantic",
+    "zero vs not_consulted distinguished",
+    "data_quality_limitation when score incomplete",
+    "Ranking by engineering-adherent contracts only",
+    "valor_total is CONTRATADO engineering magnitude, not paid/measured"
+  ],
+  "claims_forbidden": [
+    "ESTIMADO presented as CONTRATADO",
+    "Sample N=0 as complete SC market",
+    "Not consulted equals no licitation",
+    "Rank organs by general purchase volume",
+    "Treat export_limit rows as statistical universe",
+    "Call valor_total a unit price or valor pago"
+  ],
+  "generated_at": "2026-07-25T03:05:33Z",
+  "population": {
+    "eligible_population": 1179237,
+    "active_contracts": 1179237,
+    "uf_filter": "SC",
+    "period_min": "2023-07-20",
+    "period_max": "2026-07-23",
+    "sample_label": "FULL_ELIGIBLE_POPULATION",
+    "not_sample_of_n": true,
+    "n_orgaos_eligible": 820,
+    "n_contracts_eligible": 14177,
+    "n_contracts_eligible_engineering": 14177,
+    "valor_sum_eligible": 9693935892.64,
+    "export_limit": 40,
+    "export_is_not_universe": true,
+    "ranking_metric": "engineering_activity_not_general_volume",
+    "profile_object_terms": [
+      "paviment",
+      "drenagem",
+      "terrapl",
+      "saneamento",
+      "reforma predial",
+      "manutencao predial",
+      "construcao de edif",
+      "ampliacao de",
+      "obra de engenharia",
+      "infraestrutura urbana",
+      "projeto",
+      "construcao de edificio",
+      "construcao de predio",
+      "edificacao publica",
+      "predio publico",
+      "pavimentacao",
+      "pavimentacao asfaltica",
+      "capeamento asfaltico",
+      "drenagem urbana",
+      "galeria pluvial"
+    ]
+  },
+  "query_seconds": 41.346,
+  "valor_semantica": "CONTRATADO",
+  "run_id": "live-pack-20260725-030451-7af94c4f",
+  "as_of": "2026-07-25",
+  "git_sha": "c17864f681776e7d12df1bd99edb7f4c8f89f4c4",
+  "schema_version": "coverage-2.4_entity_coverage_rebuild"
+}

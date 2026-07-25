@@ -25,6 +25,10 @@ from scripts.ops.diagnostic_profile import profile_stamp
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_MIN_SAMPLE = 5
 VALUE_SEMANTICS = frozenset({"estimado", "homologado", "contratado", "pago"})
+# Status when observations are not unit-comparable (global contract totals etc.)
+INSUFFICIENT_COMPARABLE_DATA = "INSUFFICIENT_COMPARABLE_DATA"
+# Median above this for unit-like groups is treated as absurd (defensive)
+ABSURD_MEDIAN_BRL = 50_000_000.0
 
 # Full documented dimensions (DoD). Period is tracked for temporal evolution;
 # primary grouping excludes period so multi-period panels can show evolution.
@@ -228,17 +232,53 @@ def build_panel(
     limitations: list[str] = []
     if status == "INSUFFICIENT_SAMPLE":
         limitations.append(f"n={n} < min_sample={rule.min_sample}")
-    if any(o.is_global_heterogeneous for o in observations):
+    heterogeneous = any(o.is_global_heterogeneous for o in observations)
+    if heterogeneous:
         limitations.append(
             "grupo contém valores globais heterogêneos — não rotular como preço real praticado"
         )
+        # Fail-closed: global contract totals are not unit prices
+        status = INSUFFICIENT_COMPARABLE_DATA
+        med = None
+        p25 = None
+        p75 = None
+        # keep min/max as magnitude range only
+    # Semantic unit guard: contrato_global cannot be compared as unit price
+    unit = str(dims.get("unidade") or "")
+    if unit in {"contrato_global", "global", "heterogeneo", "heterogeneous"}:
+        status = INSUFFICIENT_COMPARABLE_DATA
+        limitations.append(
+            f"unidade semântica '{unit}' sem comparabilidade de preço unitário"
+        )
+        med = None
+        p25 = None
+        p75 = None
+    # Absurd median on supposedly comparable unit groups
+    if (
+        status == "OK"
+        and med is not None
+        and med > ABSURD_MEDIAN_BRL
+        and unit not in {"contrato_global", "global"}
+    ):
+        status = INSUFFICIENT_COMPARABLE_DATA
+        limitations.append(
+            f"mediana absurda R$ {med:,.2f} para unidade {unit} — grupo semanticamente inválido"
+        )
+        med = None
+        p25 = None
+        p75 = None
     claims = [
         f"stats over n={n} with semantics={semantics}",
         "min/max shown with outliers_flagged (not hidden)",
     ]
-    if temporal:
+    if status == INSUFFICIENT_COMPARABLE_DATA:
+        claims = [
+            INSUFFICIENT_COMPARABLE_DATA,
+            "Não comparar valores globais heterogêneos como preços unitários",
+        ]
+    if temporal and status == "OK":
         claims.append("temporal_evolution available")
-    else:
+    elif not temporal:
         limitations.append("amostra sem múltiplos períodos — evolução temporal N/A")
 
     return PriceGroupPanel(
@@ -254,7 +294,7 @@ def build_panel(
         outliers_flagged=outliers,
         outlier_rule=f"IQR k={rule.iqr_outlier_k}; drop={rule.drop_outliers}; always listed",
         value_semantics_present=semantics,
-        temporal_evolution=temporal,
+        temporal_evolution=temporal if status == "OK" else [],
         labels_forbidden_used=[],  # never emit "preço real praticado"
         claims=claims,
         limitations=limitations,
@@ -270,8 +310,18 @@ def build_report(
     for o in observations:
         buckets.setdefault(group_key(o, rule.group_dimensions), []).append(o)
     panels = [build_panel(bucket, rule) for bucket in buckets.values()]
+    # Drop / mark invalid heterogeneous groups honestly
     ok_n = sum(1 for p in panels if p.status == "OK")
-    status = "OK" if ok_n else ("INSUFFICIENT_SAMPLE" if panels else "EMPTY")
+    insuff_comp = sum(1 for p in panels if p.status == INSUFFICIENT_COMPARABLE_DATA)
+    insuff_sample = sum(1 for p in panels if p.status == "INSUFFICIENT_SAMPLE")
+    if ok_n:
+        status = "OK"
+    elif insuff_comp and not insuff_sample:
+        status = INSUFFICIENT_COMPARABLE_DATA
+    elif panels:
+        status = "INSUFFICIENT_SAMPLE"
+    else:
+        status = "EMPTY"
     return DeliverableDReport(
         status=status,
         profile=profile_stamp(),
@@ -280,6 +330,7 @@ def build_report(
         claims_allowed=[
             "References only within documented comparability dimensions",
             "INSUFFICIENT_SAMPLE when n < min_sample",
+            f"{INSUFFICIENT_COMPARABLE_DATA} when semantic comparability fails",
             "Value semantics explicit (estimado|homologado|contratado|pago)",
             "Outliers flagged; min/max not silently scrubbed",
         ],
@@ -288,6 +339,7 @@ def build_report(
             "Cross-group mix of tipo/unidade/região/período as one reference",
             "Hide outliers without recording exclusion rule",
             "Fabricate market prices from empty DSN",
+            "Median of mixed global contract totals as unit price",
         ],
         generated_at=utc_now(),
     )
