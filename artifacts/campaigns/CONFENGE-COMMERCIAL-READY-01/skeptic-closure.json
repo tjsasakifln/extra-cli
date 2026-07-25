@@ -1,0 +1,71 @@
+{
+  "at": "2026-07-25T22:13:28Z",
+  "implementation_sha": "a60109c89760762bae02c7a42e69d40030405d75",
+  "branch_head": "20c439e8f3ff68593f14fff880db15e5b8aee3c6",
+  "run_id": "cl-20260725T221018Z-f1c6a107",
+  "skeptic_findings_status": {
+    "DNC_hardcoded_NEW_and_rank_filter": {
+      "status": "FIXED",
+      "evidence": [
+        "scripts/commercial_leads/scoring.py rank_leads(suppressed_cnpjs, state_by_cnpj)",
+        "scripts/commercial_leads/pipeline.py load_state_map + dnc_set + commercial_state from state_map",
+        "persist uses lead commercial_state not hardcoded NEW",
+        "run metrics do_not_contact_suppressed=2; package has zero DO_NOT_CONTACT states",
+        "tests/commercial_leads/test_dnc_survives_rerun.py"
+      ]
+    },
+    "Makefile_gates_scaffold": {
+      "status": "FIXED",
+      "evidence": [
+        "make campaign-gate -> scripts.ops.confenge_commercial_gates campaign-gate (pytest/ruff/mypy/bandit/migrations)",
+        "make release-candidate -> confenge_commercial_gates release-candidate (release-candidate.json + hashes)",
+        "make dod-audit -> confenge_commercial_gates dod-audit"
+      ]
+    },
+    "missing_machine_evidence": {
+      "status": "FIXED",
+      "files_present": [
+        "release-candidate.json",
+        "requirement-traceability.json",
+        "tests.xml",
+        "security.json",
+        "performance.json",
+        "package-reconciliation.json",
+        "ranking-stability.json",
+        "state-events.jsonl"
+      ]
+    },
+    "tasks_md_not_converged": {
+      "status": "FIXED",
+      "note": "T01-T12 status=done; FR-13 human acceptance is terminal BLOCKED not incomplete task"
+    },
+    "independent_review_implementer": {
+      "status": "FIXED",
+      "reviewer": "independent-adversarial-subagent",
+      "independent": true,
+      "did_not_implement": true,
+      "status_verdict": "NO_CRITICAL_OR_HIGH_OPEN"
+    },
+    "run_sha_main_migrations_skipped": {
+      "status": "FIXED",
+      "run_git_sha": "a60109c89760762bae02c7a42e69d40030405d75",
+      "migrations": {
+        "idempotent": true,
+        "skipped": false
+      }
+    },
+    "vacuous_identity_and_no_dnc_test": {
+      "status": "FIXED",
+      "tests": [
+        "test_identity.py (unconditional natural person)",
+        "test_dnc_survives_rerun.py"
+      ]
+    }
+  },
+  "terminal": {
+    "status": "BLOCKED",
+    "reason": "BLOCKED_PENDING_HUMAN_ACCEPTANCE",
+    "technical_status": "RC_TECHNICAL_PASS",
+    "next": "Tiago ACCEPTED in user-acceptance.json bound to run_id/SHA/hashes"
+  }
+}
