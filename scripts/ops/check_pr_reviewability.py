@@ -344,8 +344,16 @@ def evaluate(
                             ),
                         },
                     )
+        # Only treat status-like declarations as PASS claims — not prose that
+        # merely mentions the word "PASS" (e.g. "when body declares PASS").
         declares_pass = bool(
-            re.search(r"\b(PASS|CI_GREEN|READY_TO_MERGE)\b", body)
+            re.search(
+                r"(?is)(?:status|verdict|result|ci(?:\s+status)?)\s*[:=]\s*"
+                r"`?(?:PASS|CI_GREEN|READY_TO_MERGE)`?\b"
+                r"|\bCI_GREEN\b|\bREADY_TO_MERGE\b"
+                r"|(?:^|\n)\s*PASS\s*(?:\n|$)",
+                body,
+            )
         )
         if declares_pass:
             # Fail-closed: PASS claims require explicit confirmation that

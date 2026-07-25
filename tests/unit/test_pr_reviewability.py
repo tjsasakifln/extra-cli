@@ -104,6 +104,27 @@ def test_declared_pass_without_gates(monkeypatch: pytest.MonkeyPatch) -> None:
     assert any(v["reason"] == "declared_pass_without_gates" for v in viol)
 
 
+def test_prose_mention_of_pass_is_not_status_claim(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Regression: describing the gate must not trip declared_pass_without_gates."""
+    import scripts.ops.check_pr_reviewability as mod
+
+    monkeypatch.setattr(mod, "_load_exception", lambda: None)
+    viol = evaluate(
+        base="origin/main",
+        draft=False,
+        paths=["scripts/a.py"],
+        body=(
+            "required_checks_present fail-closed when body declares PASS\n"
+            "awaiting canonical CI\n"
+        ),
+        head_sha="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        required_checks_present=None,
+    )
+    assert not any(v["reason"] == "declared_pass_without_gates" for v in viol)
+
+
 def test_main_with_paths(monkeypatch: pytest.MonkeyPatch) -> None:
     import scripts.ops.check_pr_reviewability as mod
 
