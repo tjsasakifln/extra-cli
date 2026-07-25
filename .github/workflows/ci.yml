@@ -450,53 +450,9 @@ jobs:
           git rev-parse --verify "$BASE_REF"
           python -m scripts.ops.check_generated_artifacts_policy --base "$BASE_REF"
 
-  # ==========================================================================
-  # PR REVIEWABILITY POLICY — fail-closed size/capability/binary gates
-  # ==========================================================================
-  pr-reviewability-policy:
-    name: PR Reviewability Policy
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Run PR reviewability gate
-        env:
-          PR_DRAFT: ${{ github.event.pull_request.draft }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
-          PR_BODY: ${{ github.event.pull_request.body }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: |
-          set -euo pipefail
-          if [ -n "${{ github.event.pull_request.base.sha }}" ]; then
-            BASE_REF="${{ github.event.pull_request.base.sha }}"
-          else
-            git fetch --no-tags origin main
-            BASE_REF="origin/main"
-          fi
-          git rev-parse --verify "$BASE_REF"
-          DRAFT_FLAG=""
-          if [ "${PR_DRAFT:-false}" = "true" ]; then
-            DRAFT_FLAG="--draft"
-          fi
-          if [ -z "${PR_NUMBER}" ]; then
-            DRAFT_FLAG="--draft"
-          fi
-          # Body consistency from event payload (no soft-fail / || true).
-          EXTRA=""
-          if [ -n "${PR_NUMBER}" ] && [ -n "${PR_BODY}" ]; then
-            printf '%s\n' "$PR_BODY" > /tmp/pr-body.md
-            EXTRA="--body-file /tmp/pr-body.md --head-sha ${HEAD_SHA}"
-          fi
-          # shellcheck disable=SC2086
-          python -m scripts.ops.check_pr_reviewability --base "$BASE_REF" $DRAFT_FLAG $EXTRA
+  # PR Reviewability Policy lives in .github/workflows/pr-reviewability.yml
+  # (light workflow: opened/synchronize/reopened/ready_for_review/edited).
+  # Job name remains "PR Reviewability Policy" — required on main protection.
 
   # ============================================================================
   # SECURITY — bandit (fail-closed, sem continue-on-error)
