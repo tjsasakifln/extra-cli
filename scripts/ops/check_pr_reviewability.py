@@ -269,6 +269,7 @@ def evaluate(
             "too_many_files",
             "too_many_textual_lines",
             "multi_capability_mix",
+            "body_ci_sha_mismatch",  # draft tip may move before body refresh
         }:
             # Draft may exceed size while being rebuilt; still flag binaries.
             return

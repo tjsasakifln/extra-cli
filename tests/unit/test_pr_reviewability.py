@@ -245,3 +245,20 @@ def test_missing_required_check_names(monkeypatch: pytest.MonkeyPatch) -> None:
         required_check_names=["Lint (ruff)", "Security (bandit)"],
     )
     assert any(v["reason"] == "missing_required_checks" for v in viol)
+
+
+def test_draft_allows_body_sha_mismatch(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Draft tips often move before the body is refreshed — do not block rebuilds."""
+    import scripts.ops.check_pr_reviewability as mod
+
+    monkeypatch.setattr(mod, "_load_exception", lambda: None)
+    body = "- **HEAD SHA:** `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`\n"
+    viol = evaluate(
+        base="origin/main",
+        draft=True,
+        paths=["scripts/a.py"],
+        body=body,
+        head_sha="bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        required_checks_present=True,
+    )
+    assert not any(v["reason"] == "body_ci_sha_mismatch" for v in viol)
