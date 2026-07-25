@@ -3,13 +3,13 @@
   "campaign_id": "CLIENT-READY-RECURRING-CONSULTING-CYCLE-01",
   "pr": "https://github.com/tjsasakifln/extra-cli/pull/131",
   "run_id": "live-pack-20260725-032739-85524edc",
-  "rc_sha": "7706783a722d7b0a1469aa73b2d2a402b10117ae",
+  "rc_sha": "26bec335710284b58e11853bb8798d6887ac9e33",
   "package_checksums": {
     "executive-report.pdf": "38945fa625bdbf9d6db3d3b16274571acfd9c9f988914ef34eb39eb4f54a3999",
     "consulting-pack.xlsx": "43de09c790e8e84b63afab8b3467798bd860ef258ca95e9ffe3a3eb655f15682",
     "executive-summary.md": "a0d8a491848ab7b3738f359c935521020785bf945357457fcd3e9a0bf396bb3f",
-    "pack-manifest.json": "83f7be64ab5955207ec66c1c467bb7f7e6f53776d6f40c157e673676b1622541",
-    "checksums.json": "4b9cefe6a1f548275baab141aee166928add73b6965862cc472b4d23058b923b",
+    "pack-manifest.json": "f2a17d545308d6dd9e8d675dde7a09497205cba17e2be0e2a989bbfb5c0bf55c",
+    "checksums.json": "343b4e354e2cd2b09b1561eeb717b46e1c0a9332080dfcc5d0053c7b7297a44b",
     "deliverable_a.json": "1f2e3ab5012c373e648cb3637f3e1438c3c901be21439a9f775fa2d1c07aefb0",
     "deliverable_b.json": "7b28c9d5f69b1274d2189f5f2da8afff4193e9399ebb2bce57b6ab89e3b9648a",
     "deliverable_c.json": "7d908ab6048f213a956bbbc8d1e41639ba6d121e37764099ecb441d28ffa5128",
@@ -18,7 +18,7 @@
   },
   "accepted_by": null,
   "accepted_at": null,
-  "notes": "Commercial RC v2 (sector-filtered engineering). RC v1 remains CHANGES_REQUESTED historically. Agent must not rebind ACCEPT.",
+  "notes": "Commercial RC v2 hardened classifier. RC v1 CHANGES_REQUESTED. No auto-ACCEPT.",
   "agent_auto_accept_forbidden": true,
   "decision_options": [
     "ACCEPTED",
@@ -27,9 +27,9 @@
   ],
   "freeze": {
     "pack_run_id": "live-pack-20260725-032739-85524edc",
-    "product_rc_sha": "7706783a722d7b0a1469aa73b2d2a402b10117ae",
+    "product_rc_sha": "26bec335710284b58e11853bb8798d6887ac9e33",
     "artifact_name": "client-ready-frozen-rc-v2",
-    "as_of": "2026-07-25T03:30:06Z",
+    "as_of": "2026-07-25T03:31:17Z",
     "prior_rc": {
       "run_id": "live-pack-20260724-220350-da3bee0b",
       "product_rc_sha": "be96c8bc8eb2b017e491bfafe8cf99f81e321267",
@@ -38,9 +38,9 @@
   },
   "binding": {
     "pack_run_id": "live-pack-20260725-032739-85524edc",
-    "rc_sha": "7706783a722d7b0a1469aa73b2d2a402b10117ae",
+    "rc_sha": "26bec335710284b58e11853bb8798d6887ac9e33",
     "valid": true,
-    "checked_at": "2026-07-25T03:30:06Z"
+    "checked_at": "2026-07-25T03:31:17Z"
   },
   "classification": "READY_FOR_SECOND_HUMAN_PRODUCT_REVIEW"
 }

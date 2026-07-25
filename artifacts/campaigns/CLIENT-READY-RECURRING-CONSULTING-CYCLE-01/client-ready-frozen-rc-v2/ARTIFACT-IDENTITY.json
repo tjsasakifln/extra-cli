@@ -1,22 +1,22 @@
 {
   "run_id": "live-pack-20260725-032739-85524edc",
-  "product_rc_sha": "7706783a722d7b0a1469aa73b2d2a402b10117ae",
+  "product_rc_sha": "26bec335710284b58e11853bb8798d6887ac9e33",
   "file_sha256": {
     "executive-report.pdf": "38945fa625bdbf9d6db3d3b16274571acfd9c9f988914ef34eb39eb4f54a3999",
     "consulting-pack.xlsx": "43de09c790e8e84b63afab8b3467798bd860ef258ca95e9ffe3a3eb655f15682",
     "executive-summary.md": "a0d8a491848ab7b3738f359c935521020785bf945357457fcd3e9a0bf396bb3f",
-    "pack-manifest.json": "83f7be64ab5955207ec66c1c467bb7f7e6f53776d6f40c157e673676b1622541",
-    "checksums.json": "704f956f29d4051d21c9fbf479b81854781eb12df8a1ce074c8cad1f8a020449",
+    "pack-manifest.json": "f2a17d545308d6dd9e8d675dde7a09497205cba17e2be0e2a989bbfb5c0bf55c",
+    "checksums.json": "4b729702b74cda96a8189739c7bce3094c6ce5e625e287b86df813deb284fe40",
     "deliverable_a.json": "1f2e3ab5012c373e648cb3637f3e1438c3c901be21439a9f775fa2d1c07aefb0",
     "deliverable_b.json": "7b28c9d5f69b1274d2189f5f2da8afff4193e9399ebb2bce57b6ab89e3b9648a",
     "deliverable_c.json": "7d908ab6048f213a956bbbc8d1e41639ba6d121e37764099ecb441d28ffa5128",
     "deliverable_d.json": "37b6f3e06d0d67a524471e11fdfdbb087a724d76c4e3a1e55c57568c90bb4f07",
     "deliverable_e.json": "4bfde6033c91dd8f93e9690f397788ce7819d4f745bb3b05a3a00b345a9742d3",
-    "package-reconciliation.json": "f75c12452a7291fc80809a7b82b39f34e8b958d48bc72176cdf28afd7450edfe",
-    "user-acceptance.json": "33a72f57485a0b0aa8da0c50dfbd9f73ce92969f1d02b8c2c9bdd287e90c4c46",
-    "rc-v1-CHANGES_REQUESTED.json": "3d5694efb1458a5b8a5559a2555dce444b7e1540d45b951c5687c62438b1f310"
+    "package-reconciliation.json": "2182dd3c9dbe0a387f8bbc002ab11bc1dede0ad377aebca3e0bb66fef7cda8cb",
+    "user-acceptance.json": "def5f46f1ff1785cf5adf50b1e87d4acd34a24cd110c7a2d9332648ae3466368",
+    "rc-v1-CHANGES_REQUESTED.json": "b4c22e03f583faca4b1bbbac6829e25d5f8305b8c70e38fa2f6d9755259ba0dc"
   },
-  "freeze_date": "2026-07-25T03:30:06Z",
+  "freeze_date": "2026-07-25T03:31:17Z",
   "production_touched": false,
   "soak_touched": false,
   "artifact_name": "client-ready-frozen-rc-v2",
@@ -43,5 +43,5 @@
     "rc-v1-CHANGES_REQUESTED.json": "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-01/rc-v1-CHANGES_REQUESTED.json"
   },
   "self_hash_policy": "excluded — ARTIFACT-IDENTITY.sha256 sidecar",
-  "assembled_at": "2026-07-25T03:30:06Z"
+  "assembled_at": "2026-07-25T03:31:17Z"
 }
