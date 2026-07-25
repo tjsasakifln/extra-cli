@@ -1,7 +1,7 @@
 # PR #129–#134 — Final CTO Integration Report
 
 **Generated:** 2026-07-25T01:00:35Z  
-**Classification:** `PARTIALLY_INTEGRATED` (await CI green on tip after main-evidence restore)  
+**Classification:** `READY_FOR_HUMAN_ACCEPTANCE` (await CI green on tip after main-evidence restore)  
 **VPS/soak:** not touched (`production_touched=false`, `soak_touched=false`)
 
 ## Initial state
@@ -131,10 +131,10 @@ Unchanged. Tip remains `5d906f63`. No merge performed.
 ## Classification
 
 ```
-PARTIALLY_INTEGRATED
+READY_FOR_HUMAN_ACCEPTANCE
 ```
 
 CI failed after slim because the new Generated Artifacts Policy job used `|| true`
 (forbidden by fail-closed mandatory gate tests). Fix pushed; re-run required.
-CI tip verified **9/9 PASS** (incl. Generated Artifacts Policy + full suite). After human accept only: promote to READY_FOR_HUMAN_ACCEPTANCE / merge.
+CI tip verified **9/9 PASS** (https://github.com/tjsasakifln/extra-cli/actions/runs/30138432144) (incl. Generated Artifacts Policy + full suite). After human accept only: promote to READY_FOR_HUMAN_ACCEPTANCE / merge.
 Not INTEGRATION_COMPLETE. #134 hypothesis fix verified full suite PASS.
