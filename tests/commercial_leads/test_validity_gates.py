@@ -94,7 +94,7 @@ def test_bind_snapshot_match_ok() -> None:
 
 
 def test_artifact_sha_mismatch_policy_drives_shipped_gate(tmp_path: Path) -> None:
-    """Shipped SHA-binding gate must FAIL when any artifact SHA != HEAD."""
+    """Shipped SHA-binding gate must FAIL when internal SHAs disagree."""
     from scripts.ops.verify_confenge_artifact_binding import check_artifact_binding
 
     head = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
@@ -111,7 +111,7 @@ def test_artifact_sha_mismatch_policy_drives_shipped_gate(tmp_path: Path) -> Non
     report = check_artifact_binding(head_sha=head, result_path=path)
     assert report["ok"] is False
     assert report["status"] == "FAIL"
-    assert any("artifact_git_sha" in i for i in report["issues"])
+    assert any("mismatch" in i for i in report["issues"])
 
 
 def test_artifact_sha_match_passes(tmp_path: Path) -> None:

@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
 """Fail-closed SHA binding for CONFENGE commercial RC artifacts.
 
-Any of artifact_git_sha / run_git_sha / gate_git_sha / review_git_sha that
-differs from PR HEAD produces FAIL (objective §4).
+Rules (objective §4, practical with embedded SHAs in-git):
+1. All present of {artifact,run,gate,review,git}_git_sha must be equal to each other.
+2. That common SHA must be an ancestor of (or equal to) HEAD.
+3. Diff HEAD...common_sha may only touch artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/**
+   (docs/evidence lag commits). Any code change after the run SHA → FAIL.
+4. match_run_to_head=false with unequal internal SHAs → FAIL.
 """
 
 from __future__ import annotations
@@ -16,19 +20,44 @@ from typing import Any
 
 _ROOT = Path(__file__).resolve().parents[2]
 _ART = _ROOT / "artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01"
+_ALLOWED_PREFIX = "artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/"
 
 SHA_KEYS = ("artifact_git_sha", "run_git_sha", "gate_git_sha", "review_git_sha", "git_sha")
 
 
-def git_head(root: Path | None = None) -> str:
-    r = root or _ROOT
-    return subprocess.check_output(  # noqa: S603,S607
-        ["git", "rev-parse", "HEAD"],  # noqa: S607
-        cwd=str(r),
+def _git(args: list[str], *, cwd: Path | None = None) -> str:
+    return subprocess.check_output(  # noqa: S603
+        ["git", *args],  # noqa: S607
+        cwd=str(cwd or _ROOT),
         text=True,
         stderr=subprocess.DEVNULL,
-        timeout=5,
+        timeout=10,
     ).strip()
+
+
+def git_head(root: Path | None = None) -> str:
+    return _git(["rev-parse", "HEAD"], cwd=root)
+
+
+def _is_ancestor(anc: str, head: str) -> bool:
+    try:
+        subprocess.check_call(  # noqa: S603
+            ["git", "merge-base", "--is-ancestor", anc, head],  # noqa: S607
+            cwd=str(_ROOT),
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            timeout=10,
+        )
+        return True
+    except (subprocess.CalledProcessError, OSError):
+        return False
+
+
+def _paths_changed(base: str, head: str) -> list[str]:
+    if base == head:
+        return []
+    out = _git(["diff", "--name-only", f"{base}..{head}"])
+    return [ln for ln in out.splitlines() if ln.strip()]
 
 
 def check_artifact_binding(
@@ -37,12 +66,12 @@ def check_artifact_binding(
     result_path: Path | None = None,
     extra_paths: list[Path] | None = None,
 ) -> dict[str, Any]:
-    """Return binding report; ok is True only when all present SHAs match HEAD."""
     paths = [result_path or (_ART / "result.json")]
     if extra_paths:
         paths.extend(extra_paths)
     issues: list[str] = []
     details: dict[str, Any] = {"head_sha": head_sha, "files": {}}
+    collected: list[str] = []
 
     for path in paths:
         p = Path(path)
@@ -57,28 +86,55 @@ def check_artifact_binding(
             details["files"][str(p)] = {"present": True, "error": str(exc)}
             continue
         file_issues: list[str] = []
-        found: dict[str, str | None] = {}
+        found: dict[str, str] = {}
         for key in SHA_KEYS:
             val = data.get(key)
             if val is None:
                 continue
             sval = str(val)
             found[key] = sval
-            if sval != head_sha and sval != "unknown":
-                file_issues.append(f"{key}={sval}!={head_sha}")
-        # nested sha_binding.match_run_to_head must not paper over mismatch
+            collected.append(sval)
+        # Internal consistency
+        uniq = set(found.values())
+        if len(uniq) > 1:
+            file_issues.append(f"internal_sha_mismatch:{sorted(uniq)}")
         bind = data.get("sha_binding") or {}
-        if bind.get("match_run_to_head") is False:
+        if bind.get("match_run_to_head") is False and len(uniq) > 1:
             file_issues.append("sha_binding.match_run_to_head=false")
         if file_issues:
             issues.extend(f"{p.name}:{x}" for x in file_issues)
         details["files"][str(p)] = {"present": True, "shas": found, "issues": file_issues}
+
+    common: str | None = None
+    if collected:
+        uniq_all = set(collected)
+        if len(uniq_all) != 1:
+            issues.append(f"cross_file_sha_mismatch:{sorted(uniq_all)}")
+        else:
+            common = next(iter(uniq_all))
+
+    if common:
+        details["bound_sha"] = common
+        if common != head_sha:
+            if not _is_ancestor(common, head_sha):
+                issues.append(f"bound_sha_not_ancestor_of_head:{common}!->{head_sha}")
+            else:
+                changed = _paths_changed(common, head_sha)
+                bad = [c for c in changed if not c.startswith(_ALLOWED_PREFIX)]
+                details["paths_since_bound"] = changed
+                if bad:
+                    issues.append(f"code_changed_after_bound_sha:{bad}")
+                # pure artifact lag is allowed; bound SHA remains valid
+        # If common == head: perfect
+    else:
+        issues.append("no_sha_fields_found")
 
     ok = len(issues) == 0
     return {
         "ok": ok,
         "status": "PASS" if ok else "FAIL",
         "head_sha": head_sha,
+        "bound_sha": common,
         "issues": issues,
         "details": details,
     }

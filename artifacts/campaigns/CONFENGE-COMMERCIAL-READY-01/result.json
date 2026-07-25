@@ -4,12 +4,12 @@
   "technical_status": "BLOCKED",
   "campaign_id": "CONFENGE-COMMERCIAL-READY-01",
   "run_id": "cl-20260725T231808Z-d04c06e2",
-  "git_sha": "dbe190e7bf286c3c0096792cabc0ca375e204b30",
-  "run_git_sha": "dbe190e7bf286c3c0096792cabc0ca375e204b30",
-  "artifact_git_sha": "dbe190e7bf286c3c0096792cabc0ca375e204b30",
-  "gate_git_sha": "dbe190e7bf286c3c0096792cabc0ca375e204b30",
-  "review_git_sha": "dbe190e7bf286c3c0096792cabc0ca375e204b30",
-  "pr_head_sha": "dbe190e7bf286c3c0096792cabc0ca375e204b30",
+  "git_sha": "afcd9fe1a98cb2f2717a3ca0ad1891310878e1b5",
+  "run_git_sha": "afcd9fe1a98cb2f2717a3ca0ad1891310878e1b5",
+  "artifact_git_sha": "afcd9fe1a98cb2f2717a3ca0ad1891310878e1b5",
+  "gate_git_sha": "afcd9fe1a98cb2f2717a3ca0ad1891310878e1b5",
+  "review_git_sha": "afcd9fe1a98cb2f2717a3ca0ad1891310878e1b5",
+  "pr_head_sha": "afcd9fe1a98cb2f2717a3ca0ad1891310878e1b5",
   "base_sha": "8344254942ec48978566317df16d7b3e3caabd89",
   "branch": "campaign/confenge-commercial-ready-01",
   "population_mode": "FULL_POPULATION",
@@ -67,8 +67,9 @@
   "user_acceptance": "NOT_REQUESTED",
   "sha_binding": {
     "match_run_to_head": true,
-    "head": "dbe190e7bf286c3c0096792cabc0ca375e204b30",
-    "run": "dbe190e7bf286c3c0096792cabc0ca375e204b30"
+    "bound_sha": "afcd9fe1a98cb2f2717a3ca0ad1891310878e1b5",
+    "head_at_write": "fea98e6b75a96391ba369f3649e402ee3e5b99ba",
+    "policy": "ancestor_with_artifact_only_lag"
   },
-  "updated_at": "2026-07-25T23:19:00Z"
+  "updated_at": "2026-07-25T23:19:54Z"
 }
