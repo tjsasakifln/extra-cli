@@ -1,0 +1,5 @@
+{
+  "schema_version": "1.0",
+  "active": null,
+  "notes": "Set active to an object with reason, owner, deadline, approved_by, waives[] only after explicit human approval. Incomplete active objects fail the reviewability gate."
+}

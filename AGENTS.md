@@ -58,3 +58,17 @@ python3 tools/dod_controller.py report
 - Somente estado `ACCEPTED` (evidência + main + CI) marca `[x]` no `DOD.md`.
 - Um item por vez (máx. 2 pré-requisitos). Spec Kit: integração `grok`, workflow `dod-convergence`.
 - Constituição: `.specify/memory/constitution.md`.
+
+## PR governance (fail-closed)
+
+Before opening or marking ready for review:
+
+```bash
+python3 -m scripts.ops.check_generated_artifacts_policy --base origin/main
+python3 -m scripts.ops.check_pr_reviewability --base origin/main   # add --draft if draft
+```
+
+Policies: `docs/generated-artifacts-policy.md`, `docs/pr-reviewability-policy.md`.
+Do not commit PDF/XLSX/bulk dumps/logs; keep heavy evidence as Actions artifacts.
+Ready PRs: ≤60 files, ≤10k textual lines, single capability. Exact HEAD SHA must match CI.
+

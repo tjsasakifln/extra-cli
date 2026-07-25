@@ -1,0 +1,5 @@
+{
+  "schema_version": "1.0",
+  "exceptions": [],
+  "notes": "Empty by default. Each exception requires path, reason, owner, deadline (YYYY-MM-DD), max_bytes. Silent exceptions are rejected by the gate."
+}
