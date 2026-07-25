@@ -31,8 +31,8 @@
   "source_class": "captured_real_evidence",
   "excluded_non_engineering": 4,
   "note": "Evidência capturada não contém editais abertos de engenharia aderente; não preenchemos com irrelevantes.",
-  "run_id": "live-pack-20260725-030451-7af94c4f",
+  "run_id": "live-pack-20260725-032739-85524edc",
   "as_of": "2026-07-25",
-  "git_sha": "c17864f681776e7d12df1bd99edb7f4c8f89f4c4",
+  "git_sha": "7706783a722d7b0a1469aa73b2d2a402b10117ae",
   "schema_version": "coverage-2.4_entity_coverage_rebuild"
 }

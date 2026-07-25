@@ -181,3 +181,57 @@ def test_real_v1_e_evidence_objects_excluded():
     for obj in bad:
         clf = classify_object(obj)
         assert not is_engineering_for_e(clf), obj
+
+
+# --- Skeptic FP suite (v2.1) ---
+
+
+def test_seguro_frota_even_with_esgoto_in_text():
+    clf = classify_object(
+        "SEGURO DE FROTA DE VEICULOS DO DEPARTAMENTO DE ESGOTO"
+    )
+    assert clf.label == "NON_ENGINEERING"
+    assert not is_engineering_for_e(clf)
+
+
+def test_voip_non_engineering():
+    clf = classify_object("CONTRATACAO DE SERVICOS DE TELEFONIA VOIP")
+    assert clf.label == "NON_ENGINEERING"
+
+
+def test_limpeza_areas_pavimentadas_non_engineering():
+    clf = classify_object(
+        "SERVICOS DE LIMPEZA E JARDINAGEM EM AREAS PAVIMENTADAS"
+    )
+    assert clf.label == "NON_ENGINEERING"
+
+
+def test_grama_sintetica_fifa_non_engineering():
+    clf = classify_object(
+        "FORNECIMENTO E INSTALACAO DE GRAMA SINTETICA FIFA COM DRENAGEM"
+    )
+    assert clf.label == "NON_ENGINEERING"
+
+
+def test_saneamento_inconformidades_non_engineering():
+    clf = classify_object(
+        "ASSESSORIA PARA SANEAMENTO DE INCONFORMIDADES LEGAIS"
+    )
+    assert clf.label == "NON_ENGINEERING"
+
+
+def test_setimo_pavimento_is_not_road_paving():
+    """'7º pavimento' is a building floor — not road pavement classification."""
+    clf = classify_object("7º pavimento do edifício sede")
+    assert clf.subcategory != "pavimentacao" or clf.label == "NON_ENGINEERING"
+    # Without reforma context, not engineering high for paving
+    assert clf.label != "ENGINEERING_HIGH_CONFIDENCE" or clf.subcategory == "reformas"
+
+
+def test_reforma_setimo_pavimento_is_building_work():
+    clf = classify_object("REFORMA DO 7 PAVIMENTO DO PREDIO ADMINISTRATIVO")
+    # Building floor renovation is obra — must not be labeled as road pavimentacao
+    assert clf.subcategory != "pavimentacao"
+    assert clf.label in {"ENGINEERING_HIGH_CONFIDENCE", "ENGINEERING_REVIEW", "NON_ENGINEERING"}
+    if clf.label in E_ALLOWED_LABELS:
+        assert clf.subcategory in {"reformas", "edificacoes", "manutencao_predial", "obras_civis"}

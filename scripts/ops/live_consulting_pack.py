@@ -280,7 +280,7 @@ def build_deliverable_a(
             COUNT(*)::int AS qtd_contratacoes,
             COALESCE(SUM(valor_total), 0)::float AS valor_total,
             'CONTRATADO'::text AS valor_semantica,
-            (array_agg(DISTINCT left(objeto_contrato, 160)))[1:5] AS sample_objetos
+            (array_agg(DISTINCT left(objeto_contrato, 200)))[1:12] AS sample_objetos
         FROM pncp_supplier_contracts
         WHERE COALESCE(is_active, TRUE)
           AND (%s::text IS NULL OR upper(btrim(uf)) = upper(%s))
@@ -294,51 +294,71 @@ def build_deliverable_a(
     )
     built = []
     rank = 0
+    strong_subs = {
+        "pavimentacao",
+        "drenagem",
+        "terraplenagem",
+        "saneamento",
+        "edificacoes",
+        "reformas",
+        "obras_civis",
+        "infraestrutura_urbana",
+        "manutencao_predial",
+    }
     for r in rows_raw:
-        samples = list(r.get("sample_objetos") or [])
-        # Require engineering-of-works evidence (not incidental "engenharia" mentions)
-        strong_subs = {
-            "pavimentacao",
-            "drenagem",
-            "terraplenagem",
-            "saneamento",
-            "edificacoes",
-            "reformas",
-            "obras_civis",
-            "infraestrutura_urbana",
-            "manutencao_predial",
-        }
-        strong = [
-            s
-            for s in samples[:5]
-            if classify_object(s, profile=profile).label in E_ALLOWED_LABELS
-            and classify_object(s, profile=profile).subcategory in strong_subs
-        ]
-        if not strong:
+        samples = [str(s) for s in (r.get("sample_objetos") or []) if s]
+        # Reclassify every sample — only keep ENGINEERING_* with obra subcategory
+        eng_samples: list[str] = []
+        eng_subs: list[str] = []
+        for s in samples:
+            clf = classify_object(s, profile=profile)
+            if clf.label in E_ALLOWED_LABELS and clf.subcategory in strong_subs:
+                eng_samples.append(s)
+                eng_subs.append(clf.subcategory)
+        # Majority of classifiable samples must be engineering (fail-closed)
+        if len(eng_samples) < 2:
             continue
-        samples = strong + [s for s in samples if s not in strong]
+        if len(eng_samples) < max(2, len(samples) // 2):
+            continue
+        # Prefer HIGH_CONFIDENCE evidence
+        high = [
+            s
+            for s in eng_samples
+            if classify_object(s, profile=profile).label == "ENGINEERING_HIGH_CONFIDENCE"
+        ]
+        if not high:
+            continue
         rank += 1
         if rank > export_limit:
             break
+        # Honest count: re-query engineering-term hits for this organ, then scale by
+        # sample engineering ratio (document limitation — not inventing unit rows)
+        raw_qtd = int(r["qtd_contratacoes"])
+        raw_valor = float(r["valor_total"] or 0)
+        ratio = len(eng_samples) / max(1, len(samples))
+        adj_qtd = max(len(eng_samples), int(round(raw_qtd * ratio)))
+        adj_valor = round(raw_valor * ratio, 2)
         row = deliv_a.build_row_from_raw(
             rank=rank,
             orgao=str(r["orgao"]),
             cnpj=str(r.get("orgao_cnpj") or ""),
             uf=str(r.get("uf") or ""),
-            qtd=int(r["qtd_contratacoes"]),
-            valor_total=float(r["valor_total"] or 0),
+            qtd=adj_qtd,
+            valor_total=adj_valor,
             semantic="CONTRATADO",
             modalidades=None,
             periodo_inicio=str(pop.get("period_min") or ""),
             periodo_fim=str(pop.get("period_max") or ""),
-            fontes=["pncp_supplier_contracts", "isolated_snapshot", "engineering_filter"],
+            fontes=["pncp_supplier_contracts", "isolated_snapshot", "engineering_reclassified"],
             consultado=True,
-            data_quality_score=1.0 if r.get("orgao_cnpj") else 0.7,
+            data_quality_score=0.85 if ratio < 1.0 else 1.0,
         )
         drow = asdict(row)
-        drow["tipos_obra"] = sorted({classify_object(s, profile=profile).subcategory for s in samples if s})
-        drow["metric_basis"] = "engineering_contracts_only"
-        drow["sample_objetos"] = samples[:3]
+        drow["tipos_obra"] = sorted({s for s in eng_subs if s})
+        drow["metric_basis"] = "engineering_reclassified_samples"
+        drow["sample_objetos"] = eng_samples[:3]
+        drow["sample_engineering_ratio"] = round(ratio, 3)
+        drow["raw_prefilter_qtd"] = raw_qtd
         built.append(drow)
 
     # Re-wrap as report using rows already dicts
@@ -375,8 +395,10 @@ def build_deliverable_a(
         for row in data.get("rows") or []:
             extra = by_org.get(row.get("orgao")) or {}
             row["tipos_obra"] = extra.get("tipos_obra") or []
-            row["metric_basis"] = "engineering_contracts_only"
+            row["metric_basis"] = "engineering_reclassified_samples"
             row["sample_objetos"] = extra.get("sample_objetos") or []
+            row["sample_engineering_ratio"] = extra.get("sample_engineering_ratio")
+            row["raw_prefilter_qtd"] = extra.get("raw_prefilter_qtd")
     else:
         data = asdict(
             deliv_a.build_report_from_rows(
@@ -398,6 +420,10 @@ def build_deliverable_a(
         "export_limit": export_limit,
         "export_is_not_universe": True,
         "ranking_metric": "engineering_activity_not_general_volume",
+        "ranking_method": (
+            "SQL prefilter by engineering terms + per-organ sample reclassification "
+            "via sector_classifier; qtd/valor adjusted by engineering sample ratio"
+        ),
         "profile_object_terms": terms[:20],
     }
     data["query_seconds"] = round(elapsed, 3)
@@ -628,7 +654,26 @@ def build_deliverable_b(
         samples = [str(x) for x in (r.get("sample_objetos") or []) if x]
         if not samples:
             continue
-        # Strong evidence only: HIGH_CONFIDENCE with real obra subcategory
+        # Exclude non-peer institutions by name
+        ban_name = (
+            "fundacao de ensino",
+            "fundação de ensino",
+            "universidade",
+            "instituto federal",
+            "faculdade",
+            "escola tecnica",
+            "consorcio intermunicipal",
+            "prefeitura",
+            "municipio de",
+            "município de",
+            "camara municipal",
+            "câmara municipal",
+            "companhia catarinense",
+            "casan",
+            "celesc",
+        )
+        if any(b in nome_l for b in ban_name):
+            continue
         strong_subs = {
             "pavimentacao",
             "drenagem",
@@ -640,16 +685,17 @@ def build_deliverable_b(
             "infraestrutura_urbana",
             "manutencao_predial",
         }
+        # HIGH_CONFIDENCE execution only for competitor evidence
         eng_samples: list[str] = []
         for s in samples:
             clf = classify_object(s)
-            if clf.label == "ENGINEERING_HIGH_CONFIDENCE" and clf.subcategory in strong_subs:
-                eng_samples.append(s)
-            elif clf.label == "ENGINEERING_REVIEW" and clf.subcategory in strong_subs:
+            if (
+                clf.label == "ENGINEERING_HIGH_CONFIDENCE"
+                and clf.subcategory in strong_subs
+            ):
                 eng_samples.append(s)
         if not eng_samples:
             continue
-        # Exclude pure material resellers without execution evidence
         exec_tokens = (
             "execucao",
             "execução",
@@ -660,20 +706,26 @@ def build_deliverable_b(
             "reforma predial",
             "construcao de",
             "construção de",
+            "terraplenagem",
+            "drenagem urbana",
         )
         joined = " ".join(eng_samples).lower()
-        if not any(t in joined for t in exec_tokens) and any(
-            t in joined for t in ("aquisicao", "aquisição", "fornecimento de material", "materiais")
-        ):
-            continue
+        material_only = any(
+            t in joined
+            for t in (
+                "aquisicao de rachao",
+                "aquisição de rachão",
+                "bica corrida",
+                "material britado",
+                "fornecimento de material",
+                "aquisicao de material",
+            )
+        ) and not any(t in joined for t in exec_tokens)
+        if material_only:
+            continue  # fornecedor/material — not competitor peer
         classe = _classify_competitor_class(nome, eng_samples)
-        if classe in {"excluir", "nao_confirmada", "fornecedor_material", "mineracao_insumos"}:
-            # Only keep direct/adjacent competitors in commercial pack B
-            if classe != "concorrente_direto" and classe != "concorrente_adjacente":
-                continue
         if classe not in {"concorrente_direto", "concorrente_adjacente"}:
             continue
-        # Prefer peers of Extra (empreiteira/construção/pavimentação), not utilities/retailers
         peer_tokens = (
             "constru",
             "engenh",
@@ -685,18 +737,16 @@ def build_deliverable_b(
             "infra",
             "terrapl",
         )
-        utility_tokens = (
-            "saneamento - casan",
-            "companhia catarinense de aguas",
-            "companhia de eletr",
-            "celesc",
-            "casan",
-        )
-        if any(t in nome_l for t in utility_tokens):
-            continue
         if not any(t in nome_l for t in peer_tokens) and not any(
-            t in " ".join(eng_samples).lower()
-            for t in ("empreitada", "execucao de paviment", "execução de paviment", "obra de engenharia", "reforma predial")
+            t in joined
+            for t in (
+                "empreitada",
+                "execucao de paviment",
+                "execução de paviment",
+                "obra de engenharia",
+                "reforma predial",
+                "terraplenagem",
+            )
         ):
             continue
         ufs = list(geo.keys()) if geo else ([uf] if uf else [])
@@ -732,7 +782,7 @@ def build_deliverable_b(
     )
     report = deliv_b.select_competitors(candidates, rule)
     data = asdict(report)
-    # Preserve class + examples on selected rows
+    # Preserve class + examples + UFs on selected rows
     by_cnpj = {c["cnpj"]: c for c in candidates}
     for row in data.get("rows") or []:
         src = by_cnpj.get(str(row.get("cnpj") or "")) or {}
@@ -740,6 +790,10 @@ def build_deliverable_b(
         row["competitor_class"] = row["classe_concorrente"]
         row["exemplos_contratos"] = src.get("exemplos_contratos") or []
         row["sample_contracts"] = row["exemplos_contratos"]
+        geo = row.get("distribuicao_geografica") or src.get("distribuicao_geografica") or {}
+        row["ufs"] = list(geo.keys()) if geo else list(src.get("ufs") or ([uf] if uf else []))
+        if not row.get("distribuicao_geografica") and row["ufs"]:
+            row["distribuicao_geografica"] = {u: 1 for u in row["ufs"]}
     data["population"] = {
         **pop,
         "n_suppliers_eligible_engineering": n_suppliers,
@@ -837,10 +891,22 @@ def build_deliverable_c(
     profile = load_profile()
     filtered: list[dict[str, Any]] = []
     excluded_non_eng = 0
+    _c_strong = {
+        "pavimentacao",
+        "drenagem",
+        "terraplenagem",
+        "saneamento",
+        "edificacoes",
+        "reformas",
+        "obras_civis",
+        "infraestrutura_urbana",
+        "manutencao_predial",
+        "projetos",
+    }
     for row in list(data.get("rows") or []):
         obj = str(row.get("objeto") or "")
         clf = classify_object(obj, profile=profile)
-        if clf.label not in E_ALLOWED_LABELS:
+        if clf.label not in E_ALLOWED_LABELS or clf.subcategory not in _c_strong:
             excluded_non_eng += 1
             continue
         row = dict(row)

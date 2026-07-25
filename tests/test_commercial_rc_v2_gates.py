@@ -12,6 +12,9 @@ CAMPAIGN = ROOT / "artifacts/campaigns/CLIENT-READY-RECURRING-CONSULTING-CYCLE-0
 PACK = CAMPAIGN / "pack-v2"
 STG = CAMPAIGN / "client-ready-frozen-rc-v2"
 
+E_OK = {"ENGINEERING_HIGH_CONFIDENCE", "ENGINEERING_REVIEW"}
+E_BAD = {"NON_ENGINEERING", "EXCLUDED_CATEGORY"}
+
 
 def test_deliverable_e_zero_non_engineering_when_present() -> None:
     if not (PACK / "deliverable_e.json").is_file():
@@ -19,7 +22,7 @@ def test_deliverable_e_zero_non_engineering_when_present() -> None:
     e = json.loads((PACK / "deliverable_e.json").read_text(encoding="utf-8"))
     for rec in e.get("recommendations") or []:
         lab = (rec.get("sector_classification") or {}).get("label")
-        assert lab in {"ENGINEERING_HIGH_CONFIDENCE", "ENGINEERING_REVIEW"}
+        assert lab in E_OK
         obj = rec.get("titulo") or rec.get("objeto") or ""
         if obj:
             assert is_engineering_for_e(classify_object(str(obj)))
@@ -28,20 +31,21 @@ def test_deliverable_e_zero_non_engineering_when_present() -> None:
 
 
 def test_deliverable_c_only_engineering() -> None:
+    """Reclassify every C object text — no label theater, no FP allowed."""
     if not (PACK / "deliverable_c.json").is_file():
         return
     c = json.loads((PACK / "deliverable_c.json").read_text(encoding="utf-8"))
     for row in c.get("rows") or []:
-        lab = (row.get("sector_classification") or {}).get("label")
-        assert lab in {"ENGINEERING_HIGH_CONFIDENCE", "ENGINEERING_REVIEW", None} or lab in {
-            "ENGINEERING_HIGH_CONFIDENCE",
-            "ENGINEERING_REVIEW",
-        }
-        if lab:
-            assert lab not in {"NON_ENGINEERING", "EXCLUDED_CATEGORY"}
-        # no invented probability fields
+        obj = str(row.get("objeto") or "")
+        assert obj.strip(), "empty object in C"
+        clf = classify_object(obj)
+        assert clf.label in E_OK, f"C FP: {clf.label} | {obj[:100]}"
         assert "probabilidade_pct" not in row
         assert "probability_pct" not in row
+        # stored classification must agree with live classifier
+        stored = (row.get("sector_classification") or {}).get("label")
+        assert stored in E_OK
+        assert stored is not None
 
 
 def test_deliverable_a_engineering_metric() -> None:
@@ -51,6 +55,29 @@ def test_deliverable_a_engineering_metric() -> None:
     assert (a.get("population") or {}).get("ranking_metric") == (
         "engineering_activity_not_general_volume"
     )
+    for row in a.get("rows") or []:
+        for s in row.get("sample_objetos") or []:
+            clf = classify_object(str(s))
+            assert clf.label in E_OK, f"A sample FP: {clf.label} | {s[:100]}"
+
+
+def test_deliverable_b_peer_competitors() -> None:
+    if not (PACK / "deliverable_b.json").is_file():
+        return
+    b = json.loads((PACK / "deliverable_b.json").read_text(encoding="utf-8"))
+    for row in b.get("rows") or []:
+        nome = str(row.get("nome") or "").lower()
+        assert "fundacao de ensino" not in nome
+        assert "universidade" not in nome
+        classe = row.get("classe_concorrente") or row.get("competitor_class")
+        assert classe in {"concorrente_direto", "concorrente_adjacente"}
+        ufs = row.get("ufs") or list((row.get("distribuicao_geografica") or {}).keys())
+        assert ufs, f"missing UFs for {row.get('nome')}"
+        for ex in row.get("exemplos_contratos") or []:
+            clf = classify_object(str(ex))
+            assert clf.label == "ENGINEERING_HIGH_CONFIDENCE", (
+                f"B evidence not HIGH_CONFIDENCE: {clf.label} | {ex[:80]}"
+            )
 
 
 def test_deliverable_d_no_absurd_ok_medians_on_global() -> None:
@@ -59,7 +86,6 @@ def test_deliverable_d_no_absurd_ok_medians_on_global() -> None:
     d = json.loads((PACK / "deliverable_d.json").read_text(encoding="utf-8"))
     for p in d.get("panels") or []:
         if p.get("status") == "OK":
-            # unit-comparable only
             unit = (p.get("dimensions") or {}).get("unidade")
             assert unit not in {"contrato_global", "global", "heterogeneo"}
             assert p.get("median") is not None
@@ -78,11 +104,21 @@ def test_identity_no_self_hash_and_pending() -> None:
     assert "ARTIFACT-IDENTITY.json" not in (identity.get("file_sha256") or {})
     assert identity.get("artifact_name") == "client-ready-frozen-rc-v2"
     assert (STG / "ARTIFACT-IDENTITY.sha256").is_file()
-    # files match acceptance
     for name in ("executive-report.pdf", "consulting-pack.xlsx"):
         if (STG / name).is_file() and name in ua.get("package_checksums", {}):
             dig = hashlib.sha256((STG / name).read_bytes()).hexdigest()
             assert dig == ua["package_checksums"][name]
+
+
+def test_frozen_checksums_only_existing_files() -> None:
+    """checksums.json must not reference files absent from the frozen artifact."""
+    if not (STG / "checksums.json").is_file():
+        return
+    ck = json.loads((STG / "checksums.json").read_text(encoding="utf-8"))
+    for name, digest in ck.items():
+        p = STG / name
+        assert p.is_file(), f"orphan checksum key: {name}"
+        assert hashlib.sha256(p.read_bytes()).hexdigest() == digest
 
 
 def test_v1_remains_changes_requested() -> None:
@@ -98,5 +134,10 @@ def test_classifier_rejects_v1_polluters() -> None:
         "computador All in One",
         "exames laboratoriais",
         "manutenção da frota municipal",
+        "SEGURO DE FROTA DE VEICULOS DO DEPARTAMENTO DE ESGOTO",
+        "TELEFONIA VOIP",
+        "LIMPEZA E JARDINAGEM EM AREAS PAVIMENTADAS",
+        "GRAMA SINTETICA FIFA COM DRENAGEM",
+        "SANEAMENTO DE INCONFORMIDADES LEGAIS",
     ):
-        assert not is_engineering_for_e(classify_object(obj))
+        assert not is_engineering_for_e(classify_object(obj)), obj

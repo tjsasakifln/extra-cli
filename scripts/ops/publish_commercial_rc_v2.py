@@ -187,10 +187,46 @@ def assemble_v2(
     if missing:
         return {"status": "FAIL", "error": "missing_members", "missing": missing}
 
+    # Rewrite checksums.json to list ONLY files actually staged (no orphan refs)
+    product_sha = {
+        k: v
+        for k, v in file_sha.items()
+        if k
+        not in {
+            "checksums.json",
+            "ARTIFACT-IDENTITY.json",
+            "user-acceptance.json",
+            "package-reconciliation.json",
+            "rc-v1-CHANGES_REQUESTED.json",
+        }
+    }
+    # Include deliverables + required identity products present on disk
+    for p in staging_dir.rglob("*"):
+        if not p.is_file():
+            continue
+        rel = str(p.relative_to(staging_dir)).replace("\\", "/")
+        if rel in {
+            "checksums.json",
+            "ARTIFACT-IDENTITY.json",
+            "ARTIFACT-IDENTITY.sha256",
+            "user-acceptance.json",
+            "package-reconciliation.json",
+            "rc-v1-CHANGES_REQUESTED.json",
+        }:
+            continue
+        product_sha[rel] = sha256_file(p)
+    ck_path = staging_dir / "checksums.json"
+    ck_path.write_text(
+        json.dumps(product_sha, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+    )
+    file_sha["checksums.json"] = sha256_file(ck_path)
+
     identity = {
         "run_id": run_id,
         "product_rc_sha": product_rc_sha,
-        "file_sha256": dict(file_sha),  # no self-hash of identity
+        "file_sha256": {
+            k: v for k, v in file_sha.items() if k != "ARTIFACT-IDENTITY.json"
+        },
         "freeze_date": utc_now(),
         "production_touched": False,
         "soak_touched": False,
@@ -212,13 +248,11 @@ def assemble_v2(
     (staging_dir / "ARTIFACT-IDENTITY.sha256").write_text(
         f"{id_sha}  ARTIFACT-IDENTITY.json\n", encoding="utf-8"
     )
-    # Verify no self-hash
     id_loaded = json.loads(id_path.read_text(encoding="utf-8"))
     if "ARTIFACT-IDENTITY.json" in (id_loaded.get("file_sha256") or {}):
         return {"status": "FAIL", "error": "identity_self_hash_forbidden"}
 
-    # Gate: acceptance checksums match staged identity files
-    divergences = []
+    divergences: list[str] = []
     acc_ck = acceptance.get("package_checksums") or {}
     for name in REQUIRED_IDENTITY_FILES:
         if name not in file_sha:
@@ -226,6 +260,13 @@ def assemble_v2(
             continue
         if name in acc_ck and acc_ck[name] != file_sha[name]:
             divergences.append(f"mismatch:{name}")
+    # checksums.json keys must exist as real staged files
+    for name, digest in product_sha.items():
+        p = staging_dir / name
+        if not p.is_file():
+            divergences.append(f"checksums_orphan:{name}")
+        elif sha256_file(p) != digest:
+            divergences.append(f"checksums_mismatch:{name}")
     if divergences:
         return {"status": "FAIL", "error": "integrity", "divergences": divergences}
 

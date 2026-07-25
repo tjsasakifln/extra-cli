@@ -60,6 +60,7 @@
         "SC": 93
       },
       "tipos_objeto": [
+        "obras_civis",
         "pavimentacao"
       ],
       "desagio": null,
@@ -76,14 +77,17 @@
       "classe_concorrente": "concorrente_direto",
       "competitor_class": "concorrente_direto",
       "exemplos_contratos": [
-        "Aquisição de Rachão, Bica corrida, Material Britado, Material Bruto e Pedra Pulmão destinados ao atendimento das obras de pavimentação, drenagem e revestimento primário no município de Joinville.",
         "Contratação de empresa especializada em obras e serviços de engenharia para executar por empreitada global a PAVIMENTAÇÃO, SERVIÇOS COMPLEMENTARES E SINALIZAÇÃO VIÁRIA DA RUA LEOPOLDO OTTO ALFREDO WUL",
-        "Contratação de empresa especializada em obras e serviços de engenharia para executar por empreitada global a PAVIMENTAÇÃO, SERVIÇOS COMPLEMENTARES E SINALIZAÇÃO VIÁRIA DA RUA RICARDO MARQUARDT PERTENC"
+        "Contratação de empresa especializada em obras e serviços de engenharia para executar por empreitada global a PAVIMENTAÇÃO, SERVIÇOS COMPLEMENTARES E SINALIZAÇÃO VIÁRIA DA RUA RICARDO MARQUARDT PERTENC",
+        "Contratação de empresa especializada em obras e serviços de engenharia para executar por empreitada global a PAVIMENTAÇÃO, SERVIÇOS COMPLEMENTARES E SINALIZAÇÃO VIÁRIA DAS RUAS RUDOLFO ENGEL E MARTIN "
       ],
       "sample_contracts": [
-        "Aquisição de Rachão, Bica corrida, Material Britado, Material Bruto e Pedra Pulmão destinados ao atendimento das obras de pavimentação, drenagem e revestimento primário no município de Joinville.",
         "Contratação de empresa especializada em obras e serviços de engenharia para executar por empreitada global a PAVIMENTAÇÃO, SERVIÇOS COMPLEMENTARES E SINALIZAÇÃO VIÁRIA DA RUA LEOPOLDO OTTO ALFREDO WUL",
-        "Contratação de empresa especializada em obras e serviços de engenharia para executar por empreitada global a PAVIMENTAÇÃO, SERVIÇOS COMPLEMENTARES E SINALIZAÇÃO VIÁRIA DA RUA RICARDO MARQUARDT PERTENC"
+        "Contratação de empresa especializada em obras e serviços de engenharia para executar por empreitada global a PAVIMENTAÇÃO, SERVIÇOS COMPLEMENTARES E SINALIZAÇÃO VIÁRIA DA RUA RICARDO MARQUARDT PERTENC",
+        "Contratação de empresa especializada em obras e serviços de engenharia para executar por empreitada global a PAVIMENTAÇÃO, SERVIÇOS COMPLEMENTARES E SINALIZAÇÃO VIÁRIA DAS RUAS RUDOLFO ENGEL E MARTIN "
+      ],
+      "ufs": [
+        "SC"
       ]
     },
     {
@@ -122,6 +126,7 @@
         "SC": 86
       },
       "tipos_objeto": [
+        "obras_civis",
         "pavimentacao"
       ],
       "desagio": null,
@@ -146,79 +151,20 @@
         "Constitui objeto da presente licitação, à contratação de pessoa jurídica para prestação de serviços de engenharia, com fornecimento de materiais e mão de obra para pavimentação asfáltica, serviços pre",
         "Constitui o objeto da presente licitação a Contratação de empresa especializada em obras e serviços de engenharia para executar por empreitada global a PAVIMENTAÇÃO, SERVIÇOS COMPLEMENTARES E SINALIZA",
         "Contratação de empresa do ramo para pavimentação asfáltica (CBUQ), drenagem pluvial e sinalização viária na RUA EURICO GASPAR DUTRA (Trecho I – E0 a E0 + 207) – Bairro Vila Nova, compreendendo a área "
+      ],
+      "ufs": [
+        "SC"
       ]
     },
     {
       "rank": 3,
-      "cnpj": "03094645000129",
-      "nome": "INFRASUL - INFRAESTUTURA E EMPREENDIMENTOS LTDA",
-      "identidade_canonica": "03094645000129",
-      "n_contratos": 70,
-      "valor_contratado_total": 177645328.14,
-      "valor_semantica": "CONTRATADO",
-      "ticket_contratado_medio": 2537790.4,
-      "ticket_formula": "valor_contratado_total / n_contratos",
-      "orgaos_em_que_venceu": [
-        "Camâra Municipal de Vereadores",
-        "CONSÓRCIO INTERFEDERATIVO SANTA CATARINA - CINCATARINA",
-        "DEPARTAMENTO DE OBRAS E URBANISMO",
-        "Departamento de Trânsito de Joinville - DETRANS ",
-        "Departamento de Urbanismo",
-        "Diretoria de Obras de Infraestrutura Viária",
-        "Gabinete do Vice-prefeito",
-        "Gerência de Planejamento e Meio Ambiente do Município de Massaranduba -SC",
-        "MOBILIDADE URBANA",
-        "MUNICÍPIO DE SCHROEDER",
-        "Prefeitura Municipal de Jaraguá do Sul",
-        "Prefeitura Municipal de Joinville - PMJ",
-        "PREFEITURA MUNICIPAL DE SCHROEDER - SC",
-        "Secretaria de Infra-estrutura",
-        "Secretaria de Planejamento e Desenvolv. Urbano",
-        "SECRETARIA DE PLANEJAMENTO URBANO",
-        "Secretaria Municipal de Infraestrutura Estratégica",
-        "SECRETARIA MUNICIPAL DE OBRAS E PLANEJAMENTO",
-        "SECRETARIA MUNICIPAL DE OBRAS, SERVIÇOS URBANOS E RURAIS",
-        "Secretaria Municipal de Planejamento - SEPLAN"
-      ],
-      "distribuicao_geografica": {
-        "SC": 70
-      },
-      "tipos_objeto": [
-        "pavimentacao"
-      ],
-      "desagio": null,
-      "desagio_status": "INSUFFICIENT_PAIR",
-      "desagio_evidence": "estimado/homologado not linked to same certame/lote/item",
-      "contratos_ativos": [],
-      "capacidade_operacional": {
-        "label": "HYPOTHESIS",
-        "claim_as_fact_forbidden": true,
-        "text": "Capacidade operacional não afirmada como fato sem evidência"
-      },
-      "selection_score": 247645328.14,
-      "selection_justification": "rank by ('n_contratos', 'valor_contratado_total'): n=70, valor=177645328.14; min_contracts>=2",
-      "classe_concorrente": "concorrente_adjacente",
-      "competitor_class": "concorrente_adjacente",
-      "exemplos_contratos": [
-        "Aquisição de Rachão, Bica corrida, Material Britado, Material Bruto e Pedra Pulmão destinados ao atendimento das obras de pavimentação, drenagem e revestimento primário no município de Joinville.",
-        "Constitui objeto da presente licitação a contratação de empresa especializada para execução, com fornecimento de mão de obra, materiais e equipamentos necessários, de pavimentação asfáltica da Estrada",
-        "Constitui objeto da presente licitação, a contratação de pessoa jurídica para prestação de serviços de engenharia, com fornecimento de materiais e mão de obra para pavimentação asfáltica, serviços pre"
-      ],
-      "sample_contracts": [
-        "Aquisição de Rachão, Bica corrida, Material Britado, Material Bruto e Pedra Pulmão destinados ao atendimento das obras de pavimentação, drenagem e revestimento primário no município de Joinville.",
-        "Constitui objeto da presente licitação a contratação de empresa especializada para execução, com fornecimento de mão de obra, materiais e equipamentos necessários, de pavimentação asfáltica da Estrada",
-        "Constitui objeto da presente licitação, a contratação de pessoa jurídica para prestação de serviços de engenharia, com fornecimento de materiais e mão de obra para pavimentação asfáltica, serviços pre"
-      ]
-    },
-    {
-      "rank": 4,
       "cnpj": "43887548000108",
       "nome": "CONSTRUTORA SCHROEDER E SCHMIDT LTDA EPP",
       "identidade_canonica": "43887548000108",
-      "n_contratos": 70,
-      "valor_contratado_total": 59936681.3,
+      "n_contratos": 69,
+      "valor_contratado_total": 56643181.3,
       "valor_semantica": "CONTRATADO",
-      "ticket_contratado_medio": 856238.3,
+      "ticket_contratado_medio": 820915.67,
       "ticket_formula": "valor_contratado_total / n_contratos",
       "orgaos_em_que_venceu": [
         "Departamento de Estradas de Rodagem",
@@ -243,7 +189,7 @@
         "Secretaria de Transporte Obras e Serviços Urbanos"
       ],
       "distribuicao_geografica": {
-        "SC": 70
+        "SC": 69
       },
       "tipos_objeto": [
         "pavimentacao"
@@ -257,8 +203,8 @@
         "claim_as_fact_forbidden": true,
         "text": "Capacidade operacional não afirmada como fato sem evidência"
       },
-      "selection_score": 129936681.3,
-      "selection_justification": "rank by ('n_contratos', 'valor_contratado_total'): n=70, valor=59936681.3; min_contracts>=2",
+      "selection_score": 125643181.3,
+      "selection_justification": "rank by ('n_contratos', 'valor_contratado_total'): n=69, valor=56643181.3; min_contracts>=2",
       "classe_concorrente": "concorrente_direto",
       "competitor_class": "concorrente_direto",
       "exemplos_contratos": [
@@ -270,24 +216,106 @@
         "CONCORRÊNCIA VISANDO A CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM PRESTAÇÃO DE SERVIÇOS COM FORNECIMENTO DE MATERIAIS E MÃO DE OBRA DE PAVIMENTAÇÃO ASFÁLTICA, DRENAGEM PLUVIAL, CALÇADAS, CICLOFAIXA E SIN",
         "Constitui objeto da presente licitação a Contratação de Empresa Especializada Para Pavimentação em Blocos de Concreto Intertravados (tijolão) da Rua Maria Tanchella.",
         "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA NA PRESTAÇÃO DE SERVIÇOS DE PAVIMENTAÇÃO ASFÁLTICA, DRENAGEM, SINALIZAÇÃO E PASSEIOS DE DIVERSAS RUAS E PRAÇA GETÚLIO VARGAS, NOS BAIRROS CENTRO E ESPRAIADO, INCLU"
+      ],
+      "ufs": [
+        "SC"
+      ]
+    },
+    {
+      "rank": 4,
+      "cnpj": "22798043000105",
+      "nome": "KAENG INFRAESTRUTURA LTDA",
+      "identidade_canonica": "22798043000105",
+      "n_contratos": 62,
+      "valor_contratado_total": 83878637.89,
+      "valor_semantica": "CONTRATADO",
+      "ticket_contratado_medio": 1352881.26,
+      "ticket_formula": "valor_contratado_total / n_contratos",
+      "orgaos_em_que_venceu": [
+        "ADMINISTRAÇÃO",
+        "ADM - Secret. Mun. de Obras e Serviços - SMOS",
+        "CONSÓRCIO INTERFEDERATIVO SANTA CATARINA - CINCATARINA",
+        "DESENVOLVIMENTO ECONÔMICO E INOVAÇÃO",
+        "MANUTENÇÃO SECRETARIA DE OBRAS E PROJETOS",
+        "Município de Arroio Trinta",
+        "MUNÍCIPIO DE ERVAL VELHO",
+        "Município de Luzerna",
+        "Município de Pinheiro Preto",
+        "MUNICÍPIO DE SALTO VELOSO",
+        "Prefeitura de Capinzal",
+        "Prefeitura Municipal de Catanduvas",
+        "Prefeitura Municipal de Erval Velho",
+        "PREFEITURA MUNICIPAL DE HERVAL D´OESTE - SC",
+        "PREFEITURA MUNICIPAL DE JOAÇABA",
+        "VIDEIRA SANEAMENTO - VISAN"
+      ],
+      "distribuicao_geografica": {
+        "SC": 62
+      },
+      "tipos_objeto": [
+        "pavimentacao"
+      ],
+      "desagio": null,
+      "desagio_status": "INSUFFICIENT_PAIR",
+      "desagio_evidence": "estimado/homologado not linked to same certame/lote/item",
+      "contratos_ativos": [],
+      "capacidade_operacional": {
+        "label": "HYPOTHESIS",
+        "claim_as_fact_forbidden": true,
+        "text": "Capacidade operacional não afirmada como fato sem evidência"
+      },
+      "selection_score": 145878637.89,
+      "selection_justification": "rank by ('n_contratos', 'valor_contratado_total'): n=62, valor=83878637.89; min_contracts>=2",
+      "classe_concorrente": "concorrente_adjacente",
+      "competitor_class": "concorrente_adjacente",
+      "exemplos_contratos": [
+        "A presente licitação tem por objeto a contratação de empresa especializada para execução de obra comum de engenharia, envolvendo o fornecimento de materiais e mão de obra necessários à pavimentação, d",
+        "A presente licitação tem por objeto a contratação de empresa especializada para fornecimento de materiais e mão de obra necessários à pavimentação em concreto nas Ruas 3 de Maio, Augustinho Zamboni, B",
+        "CONCORRÊNCIA ELETRÔNICA por EMPREITADA GLOBAL (material e mão de obra), Contratação de empresa especializada para execução de REPERFILAGEM E CAPEAMENTO ASFÁLTICO (pavimentação asfáltica sobre calçamen"
+      ],
+      "sample_contracts": [
+        "A presente licitação tem por objeto a contratação de empresa especializada para execução de obra comum de engenharia, envolvendo o fornecimento de materiais e mão de obra necessários à pavimentação, d",
+        "A presente licitação tem por objeto a contratação de empresa especializada para fornecimento de materiais e mão de obra necessários à pavimentação em concreto nas Ruas 3 de Maio, Augustinho Zamboni, B",
+        "CONCORRÊNCIA ELETRÔNICA por EMPREITADA GLOBAL (material e mão de obra), Contratação de empresa especializada para execução de REPERFILAGEM E CAPEAMENTO ASFÁLTICO (pavimentação asfáltica sobre calçamen"
+      ],
+      "ufs": [
+        "SC"
       ]
     },
     {
       "rank": 5,
-      "cnpj": "12547887000111",
-      "nome": "POLARIS SERVICOS E CONSTRUCOES LTDA-IR 1.2%",
-      "identidade_canonica": "12547887000111",
-      "n_contratos": 70,
-      "valor_contratado_total": 17402564.23,
+      "cnpj": "03094645000129",
+      "nome": "INFRASUL - INFRAESTUTURA E EMPREENDIMENTOS LTDA",
+      "identidade_canonica": "03094645000129",
+      "n_contratos": 61,
+      "valor_contratado_total": 148114556.25,
       "valor_semantica": "CONTRATADO",
-      "ticket_contratado_medio": 248608.06,
+      "ticket_contratado_medio": 2428107.48,
       "ticket_formula": "valor_contratado_total / n_contratos",
       "orgaos_em_que_venceu": [
-        "Fundo Municipal de Terras, Habitação Popular e Saneamento - FMTHPS",
-        "Prefeitura Municipal de Joinville - PMJ"
+        "Camâra Municipal de Vereadores",
+        "CONSÓRCIO INTERFEDERATIVO SANTA CATARINA - CINCATARINA",
+        "DEPARTAMENTO DE OBRAS E URBANISMO",
+        "Departamento de Urbanismo",
+        "Diretoria de Obras de Infraestrutura Viária",
+        "Gabinete do Vice-prefeito",
+        "Gerência de Planejamento e Meio Ambiente do Município de Massaranduba -SC",
+        "MOBILIDADE URBANA",
+        "MUNICÍPIO DE SCHROEDER",
+        "Prefeitura Municipal de Jaraguá do Sul",
+        "Prefeitura Municipal de Joinville - PMJ",
+        "PREFEITURA MUNICIPAL DE SCHROEDER - SC",
+        "Secretaria de Infra-estrutura",
+        "Secretaria de Planejamento e Desenvolv. Urbano",
+        "SECRETARIA DE PLANEJAMENTO URBANO",
+        "Secretaria Municipal de Infraestrutura Estratégica",
+        "SECRETARIA MUNICIPAL DE OBRAS E PLANEJAMENTO",
+        "SECRETARIA MUNICIPAL DE OBRAS, SERVIÇOS URBANOS E RURAIS",
+        "Secretaria Municipal de Planejamento - SEPLAN",
+        "SEOB - Secretaria de Obras de Pomerode"
       ],
       "distribuicao_geografica": {
-        "SC": 70
+        "SC": 61
       },
       "tipos_objeto": [
         "pavimentacao"
@@ -301,15 +329,22 @@
         "claim_as_fact_forbidden": true,
         "text": "Capacidade operacional não afirmada como fato sem evidência"
       },
-      "selection_score": 87402564.23,
-      "selection_justification": "rank by ('n_contratos', 'valor_contratado_total'): n=70, valor=17402564.23; min_contracts>=2",
-      "classe_concorrente": "concorrente_direto",
-      "competitor_class": "concorrente_direto",
+      "selection_score": 209114556.25,
+      "selection_justification": "rank by ('n_contratos', 'valor_contratado_total'): n=61, valor=148114556.25; min_contracts>=2",
+      "classe_concorrente": "concorrente_adjacente",
+      "competitor_class": "concorrente_adjacente",
       "exemplos_contratos": [
-        "Contratação de serviço de manutenção do calçamento de vias pavimentadas com lajotas, paralelepípedo ou bloco retangular de concreto e meio-fio, executado por equipes simultâneas, na área de abrangênci"
+        "Constitui objeto da presente licitação a contratação de empresa especializada para execução, com fornecimento de mão de obra, materiais e equipamentos necessários, de pavimentação asfáltica da Estrada",
+        "Constitui objeto da presente licitação, a contratação de pessoa jurídica para prestação de serviços de engenharia, com fornecimento de materiais e mão de obra para pavimentação asfáltica, serviços pre",
+        "Constitui objeto da presente licitação, à contratação de pessoa jurídica para prestação de serviços de engenharia, com fornecimento de materiais e mão de obra para pavimentação asfáltica, serviços pre"
       ],
       "sample_contracts": [
-        "Contratação de serviço de manutenção do calçamento de vias pavimentadas com lajotas, paralelepípedo ou bloco retangular de concreto e meio-fio, executado por equipes simultâneas, na área de abrangênci"
+        "Constitui objeto da presente licitação a contratação de empresa especializada para execução, com fornecimento de mão de obra, materiais e equipamentos necessários, de pavimentação asfáltica da Estrada",
+        "Constitui objeto da presente licitação, a contratação de pessoa jurídica para prestação de serviços de engenharia, com fornecimento de materiais e mão de obra para pavimentação asfáltica, serviços pre",
+        "Constitui objeto da presente licitação, à contratação de pessoa jurídica para prestação de serviços de engenharia, com fornecimento de materiais e mão de obra para pavimentação asfáltica, serviços pre"
+      ],
+      "ufs": [
+        "SC"
       ]
     },
     {
@@ -367,31 +402,31 @@
         "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM OBRAS PARA A TOTAL EXECUÇÃO (COMPREENDENDO TODOS OS INSUMOS NECESSÁRIOS) PARA A OBRA DE PAVIMENTAÇÃO DA RUA REPÚBLICA DOMINACANA, EM PLENA E TOTAL CONFORMIDADE ",
         "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM OBRAS PARA A TOTAL EXECUÇÃO (COMPREENDENDO TODOS OS INSUMOS NECESSÁRIOS) PARA A OBRA DE PAVIMENTAÇÃO DA RUA TAPAJÓS, EM PLENA E TOTAL CONFORMIDADE COM OS MEMORI",
         "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA (EMPREITADA GLOBAL) PARA EXECUÇÃO DE PAVIMENTAÇÃO ASFÁLTICA, DRENAGEM PLUVIAL, PASSEIOS EM PAVER E SINALIZAÇÃO VIÁRIA PARA A ELEVAÇÃO DO TREVO DA RUA FRANZ XAVIER "
+      ],
+      "ufs": [
+        "SC"
       ]
     },
     {
       "rank": 7,
-      "cnpj": "82895327000133",
-      "nome": "FUNDACAO DE ENSINO E ENGENHARIA DE SANTA CATARINA",
-      "identidade_canonica": "82895327000133",
-      "n_contratos": 59,
-      "valor_contratado_total": 227372981.41,
+      "cnpj": "02063876000102",
+      "nome": "CCT CONSTRUTORA DE OBRAS LTDA.",
+      "identidade_canonica": "02063876000102",
+      "n_contratos": 57,
+      "valor_contratado_total": 14796871.13,
       "valor_semantica": "CONTRATADO",
-      "ticket_contratado_medio": 3853779.35,
+      "ticket_contratado_medio": 259594.23,
       "ticket_formula": "valor_contratado_total / n_contratos",
       "orgaos_em_que_venceu": [
-        "CONSELHO REGIONAL DE ENGENHARIA  E AGRONOMIA",
-        "INST.FED.DE EDUC., CIENC. E TEC. CATARINENSE",
-        "INSTITUTO FEDERAL DE EDUC.CIENC.E TEC.DE SC",
-        "MEC - UNIV. FED. DE SANTA CATARINA - SC",
-        "SERVICO AUTONOMO MUNICIPAL DE AGUA E ESGOTO",
-        "UNIVERSIDADE FEDERAL DA FRONTEIRA SUL"
+        "Diretoria de Obras de Infraestrutura Viária",
+        "Prefeitura Municipal de Joinville - PMJ",
+        "PREFEITURA MUNICIPAL DE SCHROEDER - SC"
       ],
       "distribuicao_geografica": {
-        "SC": 59
+        "SC": 57
       },
       "tipos_objeto": [
-        "infraestrutura_urbana"
+        "terraplenagem"
       ],
       "desagio": null,
       "desagio_status": "INSUFFICIENT_PAIR",
@@ -402,83 +437,31 @@
         "claim_as_fact_forbidden": true,
         "text": "Capacidade operacional não afirmada como fato sem evidência"
       },
-      "selection_score": 286372981.40999997,
-      "selection_justification": "rank by ('n_contratos', 'valor_contratado_total'): n=59, valor=227372981.41; min_contracts>=2",
+      "selection_score": 71796871.13,
+      "selection_justification": "rank by ('n_contratos', 'valor_contratado_total'): n=57, valor=14796871.13; min_contracts>=2",
       "classe_concorrente": "concorrente_direto",
       "competitor_class": "concorrente_direto",
       "exemplos_contratos": [
-        "Apoio administrativo e financeiro para execução do Projeto de Extensão intitulado “50 Anos do CCA: Programa de Revitalização Institucional, Integração e Memória”"
+        "Contratação de empresa especializada para execução (com fornecimento de mão de obra, materiais e equipamentos necessários) mais serviços preliminares, drenagem, terraplanagem, serviços complementares ",
+        "Execução (com fornecimento de mão de obra, materiais e equipamentos necessários)\nmais serviços preliminares, drenagem, terraplanagem, serviços complementares e\nsinalização viária da pavimentação com p"
       ],
       "sample_contracts": [
-        "Apoio administrativo e financeiro para execução do Projeto de Extensão intitulado “50 Anos do CCA: Programa de Revitalização Institucional, Integração e Memória”"
+        "Contratação de empresa especializada para execução (com fornecimento de mão de obra, materiais e equipamentos necessários) mais serviços preliminares, drenagem, terraplanagem, serviços complementares ",
+        "Execução (com fornecimento de mão de obra, materiais e equipamentos necessários)\nmais serviços preliminares, drenagem, terraplanagem, serviços complementares e\nsinalização viária da pavimentação com p"
+      ],
+      "ufs": [
+        "SC"
       ]
     },
     {
       "rank": 8,
-      "cnpj": "22798043000105",
-      "nome": "KAENG INFRAESTRUTURA LTDA",
-      "identidade_canonica": "22798043000105",
-      "n_contratos": 59,
-      "valor_contratado_total": 82520640.58,
-      "valor_semantica": "CONTRATADO",
-      "ticket_contratado_medio": 1398654.93,
-      "ticket_formula": "valor_contratado_total / n_contratos",
-      "orgaos_em_que_venceu": [
-        "ADMINISTRAÇÃO",
-        "ADM - Secret. Mun. de Obras e Serviços - SMOS",
-        "CONSÓRCIO INTERFEDERATIVO SANTA CATARINA - CINCATARINA",
-        "DESENVOLVIMENTO ECONÔMICO E INOVAÇÃO",
-        "MANUTENÇÃO SECRETARIA DE OBRAS E PROJETOS",
-        "Município de Arroio Trinta",
-        "MUNÍCIPIO DE ERVAL VELHO",
-        "Município de Luzerna",
-        "MUNICÍPIO DE SALTO VELOSO",
-        "Prefeitura de Capinzal",
-        "Prefeitura Municipal de Catanduvas",
-        "Prefeitura Municipal de Erval Velho",
-        "PREFEITURA MUNICIPAL DE HERVAL D´OESTE - SC",
-        "PREFEITURA MUNICIPAL DE JOAÇABA",
-        "VIDEIRA SANEAMENTO - VISAN"
-      ],
-      "distribuicao_geografica": {
-        "SC": 59
-      },
-      "tipos_objeto": [
-        "pavimentacao"
-      ],
-      "desagio": null,
-      "desagio_status": "INSUFFICIENT_PAIR",
-      "desagio_evidence": "estimado/homologado not linked to same certame/lote/item",
-      "contratos_ativos": [],
-      "capacidade_operacional": {
-        "label": "HYPOTHESIS",
-        "claim_as_fact_forbidden": true,
-        "text": "Capacidade operacional não afirmada como fato sem evidência"
-      },
-      "selection_score": 141520640.57999998,
-      "selection_justification": "rank by ('n_contratos', 'valor_contratado_total'): n=59, valor=82520640.58; min_contracts>=2",
-      "classe_concorrente": "concorrente_adjacente",
-      "competitor_class": "concorrente_adjacente",
-      "exemplos_contratos": [
-        "A presente licitação tem por objeto a contratação de empresa especializada para execução de obra comum de engenharia, envolvendo o fornecimento de materiais e mão de obra necessários à pavimentação, d",
-        "A presente licitação tem por objeto a contratação de empresa especializada para fornecimento de materiais e mão de obra necessários à pavimentação em concreto nas Ruas 3 de Maio, Augustinho Zamboni, B",
-        "CONCORRÊNCIA ELETRÔNICA por EMPREITADA GLOBAL (material e mão de obra), Contratação de empresa especializada para execução de REPERFILAGEM E CAPEAMENTO ASFÁLTICO (pavimentação asfáltica sobre calçamen"
-      ],
-      "sample_contracts": [
-        "A presente licitação tem por objeto a contratação de empresa especializada para execução de obra comum de engenharia, envolvendo o fornecimento de materiais e mão de obra necessários à pavimentação, d",
-        "A presente licitação tem por objeto a contratação de empresa especializada para fornecimento de materiais e mão de obra necessários à pavimentação em concreto nas Ruas 3 de Maio, Augustinho Zamboni, B",
-        "CONCORRÊNCIA ELETRÔNICA por EMPREITADA GLOBAL (material e mão de obra), Contratação de empresa especializada para execução de REPERFILAGEM E CAPEAMENTO ASFÁLTICO (pavimentação asfáltica sobre calçamen"
-      ]
-    },
-    {
-      "rank": 9,
       "cnpj": "05895635000118",
       "nome": "JR CONSTRUÇÕES E TERRAPLENAGEM LTDA EPP - EPP",
       "identidade_canonica": "05895635000118",
-      "n_contratos": 58,
-      "valor_contratado_total": 111184145.08,
+      "n_contratos": 56,
+      "valor_contratado_total": 110856796.81,
       "valor_semantica": "CONTRATADO",
-      "ticket_contratado_medio": 1916968.02,
+      "ticket_contratado_medio": 1979585.66,
       "ticket_formula": "valor_contratado_total / n_contratos",
       "orgaos_em_que_venceu": [
         "DEPARTAMENTO DE ESTUDOS E PROJETOS URBANISTICOS",
@@ -503,55 +486,9 @@
         "PREFEITURA MUNICIPAL DE TREZE DE MAIO - SC"
       ],
       "distribuicao_geografica": {
-        "SC": 58
+        "SC": 56
       },
       "tipos_objeto": [
-        "pavimentacao"
-      ],
-      "desagio": null,
-      "desagio_status": "INSUFFICIENT_PAIR",
-      "desagio_evidence": "estimado/homologado not linked to same certame/lote/item",
-      "contratos_ativos": [],
-      "capacidade_operacional": {
-        "label": "HYPOTHESIS",
-        "claim_as_fact_forbidden": true,
-        "text": "Capacidade operacional não afirmada como fato sem evidência"
-      },
-      "selection_score": 169184145.07999998,
-      "selection_justification": "rank by ('n_contratos', 'valor_contratado_total'): n=58, valor=111184145.08; min_contracts>=2",
-      "classe_concorrente": "concorrente_direto",
-      "competitor_class": "concorrente_direto",
-      "exemplos_contratos": [
-        "A presente licitação tem por objetivo a contratação de empresa do ramo pertinente para a execução das obras de pavimentação asfáltica, contendo terraplenagem, drenagem pluvial e sinalização viária de ",
-        "A presente licitação tem por objetivo a contratação de empresa do ramo pertinente para a execução de contratação de empresa do ramo pertinente para “Execução das obras de pavimentação asfáltica – repe",
-        "A presente licitação tem por objetivo a pavimentação asfáltica com a Implantação da infraestrutura viária com a execução de drenagem, terraplanagem, sub-base, base, com fornecimento de materiais, mão "
-      ],
-      "sample_contracts": [
-        "A presente licitação tem por objetivo a contratação de empresa do ramo pertinente para a execução das obras de pavimentação asfáltica, contendo terraplenagem, drenagem pluvial e sinalização viária de ",
-        "A presente licitação tem por objetivo a contratação de empresa do ramo pertinente para a execução de contratação de empresa do ramo pertinente para “Execução das obras de pavimentação asfáltica – repe",
-        "A presente licitação tem por objetivo a pavimentação asfáltica com a Implantação da infraestrutura viária com a execução de drenagem, terraplanagem, sub-base, base, com fornecimento de materiais, mão "
-      ]
-    },
-    {
-      "rank": 10,
-      "cnpj": "02063876000102",
-      "nome": "CCT CONSTRUTORA DE OBRAS LTDA.",
-      "identidade_canonica": "02063876000102",
-      "n_contratos": 57,
-      "valor_contratado_total": 14796871.13,
-      "valor_semantica": "CONTRATADO",
-      "ticket_contratado_medio": 259594.23,
-      "ticket_formula": "valor_contratado_total / n_contratos",
-      "orgaos_em_que_venceu": [
-        "Diretoria de Obras de Infraestrutura Viária",
-        "Prefeitura Municipal de Joinville - PMJ",
-        "PREFEITURA MUNICIPAL DE SCHROEDER - SC"
-      ],
-      "distribuicao_geografica": {
-        "SC": 57
-      },
-      "tipos_objeto": [
-        "drenagem",
         "pavimentacao",
         "terraplenagem"
       ],
@@ -564,30 +501,33 @@
         "claim_as_fact_forbidden": true,
         "text": "Capacidade operacional não afirmada como fato sem evidência"
       },
-      "selection_score": 71796871.13,
-      "selection_justification": "rank by ('n_contratos', 'valor_contratado_total'): n=57, valor=14796871.13; min_contracts>=2",
+      "selection_score": 166856796.81,
+      "selection_justification": "rank by ('n_contratos', 'valor_contratado_total'): n=56, valor=110856796.81; min_contracts>=2",
       "classe_concorrente": "concorrente_direto",
       "competitor_class": "concorrente_direto",
       "exemplos_contratos": [
-        "Contratação de empresa especializada para execução (com fornecimento de mão de obra, materiais e equipamentos necessários) mais serviços preliminares, drenagem, terraplanagem, serviços complementares ",
-        "Contratação eventual de serviços de reparos em redes de drenagem, com 2 (duas) equipes simultâneas para área de abrangência da Unidade Regional de Obras Nordeste e com 1 (uma) equipe para área de abra",
-        "Contratação eventual de serviços de reparos em redes de drenagem, para as Unidades Regionais de Obras."
+        "A presente licitação tem por objetivo a contratação de empresa do ramo pertinente para a execução das obras de pavimentação asfáltica, contendo terraplenagem, drenagem pluvial e sinalização viária de ",
+        "A presente licitação tem por objetivo a contratação de empresa do ramo pertinente para a execução de contratação de empresa do ramo pertinente para “Execução das obras de pavimentação asfáltica – repe",
+        "A presente licitação tem por objetivo a pavimentação asfáltica com a Implantação da infraestrutura viária com a execução de drenagem, terraplanagem, sub-base, base, com fornecimento de materiais, mão "
       ],
       "sample_contracts": [
-        "Contratação de empresa especializada para execução (com fornecimento de mão de obra, materiais e equipamentos necessários) mais serviços preliminares, drenagem, terraplanagem, serviços complementares ",
-        "Contratação eventual de serviços de reparos em redes de drenagem, com 2 (duas) equipes simultâneas para área de abrangência da Unidade Regional de Obras Nordeste e com 1 (uma) equipe para área de abra",
-        "Contratação eventual de serviços de reparos em redes de drenagem, para as Unidades Regionais de Obras."
+        "A presente licitação tem por objetivo a contratação de empresa do ramo pertinente para a execução das obras de pavimentação asfáltica, contendo terraplenagem, drenagem pluvial e sinalização viária de ",
+        "A presente licitação tem por objetivo a contratação de empresa do ramo pertinente para a execução de contratação de empresa do ramo pertinente para “Execução das obras de pavimentação asfáltica – repe",
+        "A presente licitação tem por objetivo a pavimentação asfáltica com a Implantação da infraestrutura viária com a execução de drenagem, terraplanagem, sub-base, base, com fornecimento de materiais, mão "
+      ],
+      "ufs": [
+        "SC"
       ]
     },
     {
-      "rank": 11,
+      "rank": 9,
       "cnpj": "12218083000179",
       "nome": "BCL INFRAESTRUTURA LTDA.",
       "identidade_canonica": "12218083000179",
-      "n_contratos": 55,
-      "valor_contratado_total": 73227168.83,
+      "n_contratos": 54,
+      "valor_contratado_total": 72385168.83,
       "valor_semantica": "CONTRATADO",
-      "ticket_contratado_medio": 1331403.07,
+      "ticket_contratado_medio": 1340466.09,
       "ticket_formula": "valor_contratado_total / n_contratos",
       "orgaos_em_que_venceu": [
         "CONSÓRCIO INTERFEDERATIVO SANTA CATARINA - CINCATARINA",
@@ -609,7 +549,7 @@
         "SECRETARIA MUNICIPAL DE INFRA ESTRUTURA"
       ],
       "distribuicao_geografica": {
-        "SC": 55
+        "SC": 54
       },
       "tipos_objeto": [
         "pavimentacao"
@@ -623,8 +563,8 @@
         "claim_as_fact_forbidden": true,
         "text": "Capacidade operacional não afirmada como fato sem evidência"
       },
-      "selection_score": 128227168.83,
-      "selection_justification": "rank by ('n_contratos', 'valor_contratado_total'): n=55, valor=73227168.83; min_contracts>=2",
+      "selection_score": 126385168.83,
+      "selection_justification": "rank by ('n_contratos', 'valor_contratado_total'): n=54, valor=72385168.83; min_contracts>=2",
       "classe_concorrente": "concorrente_adjacente",
       "competitor_class": "concorrente_adjacente",
       "exemplos_contratos": [
@@ -636,10 +576,13 @@
         "A presente licitação tem por objetivo a contratação de empresa especializada para implantação da infraestrutura viária com a execução da pavimentação em 95,00 metros de extensão da Rua São Miguel e 11",
         "A presente licitação tem por objeto a CONCORRÊNCIA ELETRÔNICA PARA \"CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE OBRA DE PAVIMENTAÇÃO ASFÁLTICA, DRENAGEM PLUVIAL, URBANIZAÇÃO E SINALIZAÇÃO VI",
         "Contratação de empresa de engenharia para execução de Pavimentação em revestimento asfáltico, nas Estrada Geral Indaial - Trecho 02 e Rua Alvaro José de Medeiros - Trecho 02, com material e mão-de-obr"
+      ],
+      "ufs": [
+        "SC"
       ]
     },
     {
-      "rank": 12,
+      "rank": 10,
       "cnpj": "27743102000153",
       "nome": "FJ CONSTRUTORA LTDA EPP",
       "identidade_canonica": "27743102000153",
@@ -664,6 +607,7 @@
         "SC": 51
       },
       "tipos_objeto": [
+        "obras_civis",
         "pavimentacao"
       ],
       "desagio": null,
@@ -688,17 +632,20 @@
         "Contratação de concreto usinado para fornecimento e aplicação nas etapas de fundação, estrutura, pavimentação, ou qualquer outra fase do projeto que exija a utilização de concreto abrangendo todo muni",
         "CONTRATAÇÃO DE EMPRESA, EM REGIME DE EMPREITADA GLOBAL, PARA EXECUÇÃO DE PAVIMENTAÇÃO ASFÁLTICA NO TRECHO COM EXTENSÃO DE 282,85 METROS, LOCALIZADO NA ESTRADA GERAL RIO DA PRATA CENTRAL, MUNICÍPIO DE ",
         "CONTRATAÇÃO DE EMPRESA, EM REGIME DE EMPREITADA GLOBAL, PARA EXECUÇÃO DE PAVIMENTAÇÃO ASFÁLTICA NO TRECHO COM EXTENSÃO DE 40 METROS, LOCALIZADO NA ESTRADA GERAL RIO DA PRATA CENTRAL, MUNICÍPIO DE RIO "
+      ],
+      "ufs": [
+        "SC"
       ]
     },
     {
-      "rank": 13,
+      "rank": 11,
       "cnpj": "09223659000181",
       "nome": "VIGA PAVIMENTAÇÃO E OBRAS LTDA",
       "identidade_canonica": "09223659000181",
       "n_contratos": 46,
-      "valor_contratado_total": 116412862.38,
+      "valor_contratado_total": 98013872.52,
       "valor_semantica": "CONTRATADO",
-      "ticket_contratado_medio": 2530714.4,
+      "ticket_contratado_medio": 2130736.36,
       "ticket_formula": "valor_contratado_total / n_contratos",
       "orgaos_em_que_venceu": [
         "CONSÓRCIO INTERFEDERATIVO SANTA CATARINA - CINCATARINA",
@@ -710,7 +657,6 @@
         "PREFEITURA MUNICIPAL DE HERVAL D´OESTE - SC",
         "PREFEITURA MUNICIPAL DE JOAÇABA",
         "Sec. Mun. de Transportes",
-        "Secretaria de Estado da Infraestrutura e Mobilidade",
         "SERVIÇO INTERMUNICIPAL DE ÁGUA E ESGOTO JOAÇABA HERVAL DOESTE E LUZERNA"
       ],
       "distribuicao_geografica": {
@@ -728,23 +674,26 @@
         "claim_as_fact_forbidden": true,
         "text": "Capacidade operacional não afirmada como fato sem evidência"
       },
-      "selection_score": 162412862.38,
-      "selection_justification": "rank by ('n_contratos', 'valor_contratado_total'): n=46, valor=116412862.38; min_contracts>=2",
+      "selection_score": 144013872.51999998,
+      "selection_justification": "rank by ('n_contratos', 'valor_contratado_total'): n=46, valor=98013872.52; min_contracts>=2",
       "classe_concorrente": "concorrente_direto",
       "competitor_class": "concorrente_direto",
       "exemplos_contratos": [
-        "A presente licitação tem por objeto a contratação de empresa (s) especializada (s) para a execução de pavimentação asfáltica e implantação de rede de esgoto, em parte da Rua José Firmo Bernardi, local",
-        "Contratação de empresa especializada em engenharia para execução da obra de Pavimentação Asfáltica sobre paralelepípedos em parte da Rua Ermelinda Debastiani Thomazoni, extensão de 182,62 m, no Municí",
-        "Contratação de empresa especializada para a execução dos serviços e o fornecimento dos materiais e equipamentos necessários para pavimentação asfáltica da estrada municipal que dá acesso ao Distrito d"
+        "Abertura de processo de contratação direta emergencial para a construção de muro de contenção e recomposição asfáltica em parte da Rua Celso Brás de Carli, em virtude de deslizamento ocorrido no local",
+        "a execução dos serviços e o fornecimento dos materiais e equipamentos necessários para recapeamento de parte das Av. Barão do Rio Branco e Av. XV de Novembro e parte da Rua Salgado Filho, localizadas ",
+        "A presente licitação tem por objeto a contratação de empresa (s) especializada (s) para a execução de pavimentação asfáltica e implantação de rede de esgoto, em parte da Rua José Firmo Bernardi, local"
       ],
       "sample_contracts": [
-        "A presente licitação tem por objeto a contratação de empresa (s) especializada (s) para a execução de pavimentação asfáltica e implantação de rede de esgoto, em parte da Rua José Firmo Bernardi, local",
-        "Contratação de empresa especializada em engenharia para execução da obra de Pavimentação Asfáltica sobre paralelepípedos em parte da Rua Ermelinda Debastiani Thomazoni, extensão de 182,62 m, no Municí",
-        "Contratação de empresa especializada para a execução dos serviços e o fornecimento dos materiais e equipamentos necessários para pavimentação asfáltica da estrada municipal que dá acesso ao Distrito d"
+        "Abertura de processo de contratação direta emergencial para a construção de muro de contenção e recomposição asfáltica em parte da Rua Celso Brás de Carli, em virtude de deslizamento ocorrido no local",
+        "a execução dos serviços e o fornecimento dos materiais e equipamentos necessários para recapeamento de parte das Av. Barão do Rio Branco e Av. XV de Novembro e parte da Rua Salgado Filho, localizadas ",
+        "A presente licitação tem por objeto a contratação de empresa (s) especializada (s) para a execução de pavimentação asfáltica e implantação de rede de esgoto, em parte da Rua José Firmo Bernardi, local"
+      ],
+      "ufs": [
+        "SC"
       ]
     },
     {
-      "rank": 14,
+      "rank": 12,
       "cnpj": "34448864000192",
       "nome": "CONSTRUTORA D. BRANGER LTDA",
       "identidade_canonica": "34448864000192",
@@ -763,7 +712,7 @@
         "SC": 45
       },
       "tipos_objeto": [
-        "pavimentacao"
+        "terraplenagem"
       ],
       "desagio": null,
       "desagio_status": "INSUFFICIENT_PAIR",
@@ -787,10 +736,13 @@
         "Contratação de Empresa de engenharia/arquitetura para execução dos serviços de terraplanagem, drenagem e obras correntes, pavimentação em asfalto, urbanísticos e sinalização para AV. Aristeu Rodolfo, ",
         "Contratação de empresa de engenharia/arquitetura para Execução dos serviços de terraplanagem, drenagem e obras correntes, pavimentação em lajotas, urbanísticos e sinalização para a Rua Mauro Rambusch ",
         "Contratação de empresa de engenharia para execução dos serviços de terraplanagem, drenagem e obras correntes, pavimentação em asfalto, urbanísticos e sinalização para a revitalização da Rua Adolfo Fur"
+      ],
+      "ufs": [
+        "SC"
       ]
     },
     {
-      "rank": 15,
+      "rank": 13,
       "cnpj": "15129617000189",
       "nome": "DAVANTI ENGENHARIA LTDA",
       "identidade_canonica": "15129617000189",
@@ -835,6 +787,127 @@
         "CONTRATAÇÃO DE EMPRESA DE ENGENHARIA ESPECIALIZADA PARA ELABORAÇÃO DE PROJETOS DE PAVIMENTAÇÃO ASFÁLTICA PARA DIVERSAS RUAS DO MUNICÍPIO DE GUARAMIRIM/SC. LOTE 04.",
         "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA A ELABORAÇÃO DO PROJETO DE PAVIMENTAÇÃO ASFÁLTICA DE TRECHO DA ESTRADA SÃO MIGUEL NO MUNICÍPIO DE MASSARANDUBA/SC",
         "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA ELABORAR O PROJETO DE PAVIMENTAÇÃO ASFÁLTICA DAS RUAS WALTER SCHMITZ - BAIRRO VICTOR KONDER, PROFESSOR MARIO MARTINELLI - BAIRRO SÃO JOÃO E 12 DE FEVEREIRO - "
+      ],
+      "ufs": [
+        "SC"
+      ]
+    },
+    {
+      "rank": 14,
+      "cnpj": "80095466000157",
+      "nome": "CONSTRUTORA OLIVEIRA LTDA",
+      "identidade_canonica": "80095466000157",
+      "n_contratos": 40,
+      "valor_contratado_total": 115884123.65,
+      "valor_semantica": "CONTRATADO",
+      "ticket_contratado_medio": 2897103.09,
+      "ticket_formula": "valor_contratado_total / n_contratos",
+      "orgaos_em_que_venceu": [
+        "Departamento de Estradas de Rodagem do Município de  São Carlos/SC",
+        "Departamento de Estradas e Rodagem",
+        "Departamento de Obras e Serviços Públicos",
+        "Departamento de Transporte",
+        "Departamento de Transportes e Obras",
+        "Departamento de Urbanismo",
+        "MUNICÍPIO DE GALVÃO",
+        "Obras e Serviços Urbanos",
+        "Prefeitura Municipal de Chapecó",
+        "PREFEITURA MUNICIPAL DE CORDILHEIRA ALTA - SC",
+        "PREFEITURA MUNICIPAL DE PALMITOS - SC",
+        "SECRETARIA DE OBRAS",
+        "Transportes, Obras e Serviços"
+      ],
+      "distribuicao_geografica": {
+        "SC": 40
+      },
+      "tipos_objeto": [
+        "obras_civis",
+        "pavimentacao"
+      ],
+      "desagio": null,
+      "desagio_status": "INSUFFICIENT_PAIR",
+      "desagio_evidence": "estimado/homologado not linked to same certame/lote/item",
+      "contratos_ativos": [],
+      "capacidade_operacional": {
+        "label": "HYPOTHESIS",
+        "claim_as_fact_forbidden": true,
+        "text": "Capacidade operacional não afirmada como fato sem evidência"
+      },
+      "selection_score": 155884123.65,
+      "selection_justification": "rank by ('n_contratos', 'valor_contratado_total'): n=40, valor=115884123.65; min_contracts>=2",
+      "classe_concorrente": "concorrente_direto",
+      "competitor_class": "concorrente_direto",
+      "exemplos_contratos": [
+        "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM OBRAS E SERVIÇOS DE ENGENHARIA PARA A CONSTRUÇÃO DA PISTA DO AERÓDROMO DO MUNICIPIO DE PINHALZINHO - SC, DE ACORDO COM O TERMO DE REFERENCIA, COM O PROJETO E SE",
+        "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA A EXECUÇÃO DE OBRA DE PAVIMENTAÇÃO ASFÁLTICA, COMPREENDENDO O FORNECIMENTO DE MATERIAIS, MÃO DE OBRA, EQUIPAMENTOS NECESSÁRIOS, NO TRECHO LOCALIZADO NA COMUNI",
+        "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA A EXECUÇÃO DE OBRA DE REPERFILAGEM/RECAPEAMENTO ASFÁLTICO, COMPREENDENDO O FORNECIMENTO DE MATERIAIS, MÃO DE OBRA, EQUIPAMENTOS NECESSÁRIOS, NOS TRECHOS DAS R"
+      ],
+      "sample_contracts": [
+        "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM OBRAS E SERVIÇOS DE ENGENHARIA PARA A CONSTRUÇÃO DA PISTA DO AERÓDROMO DO MUNICIPIO DE PINHALZINHO - SC, DE ACORDO COM O TERMO DE REFERENCIA, COM O PROJETO E SE",
+        "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA A EXECUÇÃO DE OBRA DE PAVIMENTAÇÃO ASFÁLTICA, COMPREENDENDO O FORNECIMENTO DE MATERIAIS, MÃO DE OBRA, EQUIPAMENTOS NECESSÁRIOS, NO TRECHO LOCALIZADO NA COMUNI",
+        "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA A EXECUÇÃO DE OBRA DE REPERFILAGEM/RECAPEAMENTO ASFÁLTICO, COMPREENDENDO O FORNECIMENTO DE MATERIAIS, MÃO DE OBRA, EQUIPAMENTOS NECESSÁRIOS, NOS TRECHOS DAS R"
+      ],
+      "ufs": [
+        "SC"
+      ]
+    },
+    {
+      "rank": 15,
+      "cnpj": "06145928000140",
+      "nome": "CONSTRUÇÃO CIVIL MG LTDA",
+      "identidade_canonica": "06145928000140",
+      "n_contratos": 37,
+      "valor_contratado_total": 78164224.56,
+      "valor_semantica": "CONTRATADO",
+      "ticket_contratado_medio": 2112546.61,
+      "ticket_formula": "valor_contratado_total / n_contratos",
+      "orgaos_em_que_venceu": [
+        "Câmara Municipal de Vereadores",
+        "Departamento de Obras e Servicos Urbanos",
+        "Departamento de Urbanismo",
+        "MUNICÍPIO DE BRAÇO DO TROMBUDO",
+        "Prefeitura Municipal de Agronômica",
+        "Prefeitura Municipal de Laurentino - SC",
+        "Prefeitura Municipal de Trombudo Central - SC",
+        "Secretaria da Administração",
+        "SECRETARIA DE ADMINISTRAÇÃO E PLANEJAMENTO",
+        "Secretaria de Infraestrutura",
+        "Secretaria de Obras e Serviços Publicos de Vitor Meireles",
+        "Secretaria de Transportes e Obras",
+        "Secretário de Infraestrutura",
+        "Sistema Abast. de Agua e Tratamento Esgoto"
+      ],
+      "distribuicao_geografica": {
+        "SC": 37
+      },
+      "tipos_objeto": [
+        "pavimentacao"
+      ],
+      "desagio": null,
+      "desagio_status": "INSUFFICIENT_PAIR",
+      "desagio_evidence": "estimado/homologado not linked to same certame/lote/item",
+      "contratos_ativos": [],
+      "capacidade_operacional": {
+        "label": "HYPOTHESIS",
+        "claim_as_fact_forbidden": true,
+        "text": "Capacidade operacional não afirmada como fato sem evidência"
+      },
+      "selection_score": 115164224.56,
+      "selection_justification": "rank by ('n_contratos', 'valor_contratado_total'): n=37, valor=78164224.56; min_contracts>=2",
+      "classe_concorrente": "concorrente_direto",
+      "competitor_class": "concorrente_direto",
+      "exemplos_contratos": [
+        "A presente Licitação tem por objeto a Aquisição de materiais e contratação de mão-de-obra para execução de Pavimentação asfáltica da Avenida 29 de novembro - Trecho 05 - Estaca 28+2,50m a Estaca 55+9,",
+        "CONTRATAÇÃO DE E EMPRESA ESPECIALIZADA DE ENGENHARIA PARA A EXECUÇÃO DA PAVIMENTAÇÃO ASFÁLTICA CBUQ, DRENAGEM PLUVIAL E SINALIZAÇÃO VIÁRIA DA ESTRADA GERAL MARGEM ESQUERDA - TRECHO II NO MUNICÍPIO DE ",
+        "CONTRATAÇÃO DE E EMPRESA ESPECIALIZADA DE ENGENHARIA PARA A EXECUÇÃO DA PAVIMENTAÇÃO ASFÁLTICA CBUQ, DRENAGEM PLUVIAL E SINALIZAÇÃO VIÁRIA DA RUA BRUSQUE NO MUNICÍPIO DE APIÚNA/SC, OBJETIVANDO A EXECU"
+      ],
+      "sample_contracts": [
+        "A presente Licitação tem por objeto a Aquisição de materiais e contratação de mão-de-obra para execução de Pavimentação asfáltica da Avenida 29 de novembro - Trecho 05 - Estaca 28+2,50m a Estaca 55+9,",
+        "CONTRATAÇÃO DE E EMPRESA ESPECIALIZADA DE ENGENHARIA PARA A EXECUÇÃO DA PAVIMENTAÇÃO ASFÁLTICA CBUQ, DRENAGEM PLUVIAL E SINALIZAÇÃO VIÁRIA DA ESTRADA GERAL MARGEM ESQUERDA - TRECHO II NO MUNICÍPIO DE ",
+        "CONTRATAÇÃO DE E EMPRESA ESPECIALIZADA DE ENGENHARIA PARA A EXECUÇÃO DA PAVIMENTAÇÃO ASFÁLTICA CBUQ, DRENAGEM PLUVIAL E SINALIZAÇÃO VIÁRIA DA RUA BRUSQUE NO MUNICÍPIO DE APIÚNA/SC, OBJETIVANDO A EXECU"
+      ],
+      "ufs": [
+        "SC"
       ]
     }
   ],
@@ -862,7 +935,7 @@
     "Treat top suppliers by raw national volume as Extra peers",
     "Infer partnership from co-presence"
   ],
-  "generated_at": "2026-07-25T03:06:51Z",
+  "generated_at": "2026-07-25T03:29:57Z",
   "population": {
     "eligible_population": 1179237,
     "active_contracts": 1179237,
@@ -871,13 +944,13 @@
     "period_max": "2026-07-23",
     "sample_label": "FULL_ELIGIBLE_POPULATION",
     "not_sample_of_n": true,
-    "n_suppliers_eligible_engineering": 4336,
-    "n_contracts_eligible_engineering": 14177,
+    "n_suppliers_eligible_engineering": 4135,
+    "n_contracts_eligible_engineering": 13604,
     "profile_object_terms": [
-      "paviment",
-      "drenagem",
+      "pavimentacao",
+      "drenagem urbana",
       "terrapl",
-      "saneamento",
+      "saneamento basico",
       "reforma predial",
       "manutencao predial",
       "construcao de edif",
@@ -889,10 +962,9 @@
       "construcao de predio",
       "edificacao publica",
       "predio publico",
-      "pavimentacao",
       "pavimentacao asfaltica",
       "capeamento asfaltico",
-      "drenagem urbana",
+      "drenagem",
       "galeria pluvial",
       "sarjeta",
       "terraplenagem",
@@ -901,6 +973,7 @@
       "revitalizacao urbana",
       "calcada",
       "passeio publico",
+      "saneamento",
       "rede coletora",
       "esgoto",
       "adutora",
@@ -917,22 +990,25 @@
       "projeto de engenharia",
       "projetos complementares",
       "projeto arquitetonico",
+      "pavimentação",
+      "drenagem pluvial",
+      "saneamento básico",
+      "esgotamento sanitario",
+      "rede de esgoto",
       "manutenção predial",
       "construção de edif",
-      "engenharia civil",
-      "edificação",
-      "edificacao",
       "ampliação de escola",
       "revitalização urbana",
-      "projeto básico"
+      "projeto básico",
+      "recapeamento"
     ],
     "export_limit": 40,
     "export_is_not_universe": true,
     "selection_note": "Competitors ranked only on contracts whose objeto matches Extra engineering profile terms; hospital/office suppliers excluded."
   },
-  "query_seconds": 78.133,
-  "run_id": "live-pack-20260725-030451-7af94c4f",
+  "query_seconds": 88.995,
+  "run_id": "live-pack-20260725-032739-85524edc",
   "as_of": "2026-07-25",
-  "git_sha": "c17864f681776e7d12df1bd99edb7f4c8f89f4c4",
+  "git_sha": "7706783a722d7b0a1469aa73b2d2a402b10117ae",
   "schema_version": "coverage-2.4_entity_coverage_rebuild"
 }

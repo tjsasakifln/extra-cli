@@ -152,16 +152,16 @@ sector_vocabulary:
   positive:
     - id: pavimentacao
       term: pavimentacao
-      pattern: "\\bpaviment"
+      pattern: "\\bpavimenta(c|ç)|\\bpavimentacao\\b|\\brecapeamento\\b"
       subcategory: pavimentacao
       weight: 0.45
-      sql_term: paviment
+      sql_term: pavimentacao
     - id: drenagem
       term: drenagem
-      pattern: "\\bdrenagem\\b"
+      pattern: "\\bdrenagem\\s+(urbana|pluvial|de\\s+aguas|viaria)|\\bgaleria\\s+pluvial\\b"
       subcategory: drenagem
       weight: 0.42
-      sql_term: drenagem
+      sql_term: drenagem urbana
     - id: terraplenagem
       term: terraplenagem
       pattern: "\\bterraplenagem\\b|\\bterraplanagem\\b"
@@ -169,11 +169,11 @@ sector_vocabulary:
       weight: 0.45
       sql_term: terrapl
     - id: saneamento
-      term: saneamento
-      pattern: "\\bsaneamento\\b|\\besgoto\\b"
+      term: saneamento basico
+      pattern: "\\bsaneamento\\s+(basico|ambiental|urbano)\\b|\\brede\\s+de\\s+esgoto\\b|\\besgotamento\\s+sanitario\\b"
       subcategory: saneamento
       weight: 0.4
-      sql_term: saneamento
+      sql_term: saneamento basico
     - id: reforma_predial
       term: reforma predial
       pattern: "\\breforma\\s+(predial|de\\s+edif|de\\s+pred|de\\s+escola)"
@@ -217,10 +217,30 @@ sector_vocabulary:
       weight: 0.38
       sql_term: projeto
   negative:
+    - id: seguro
+      term: seguro de frota
+      pattern: "\\bseguro\\s+(de\\s+)?(frota|veiculo|automovel|total)|\\bseguradora\\b"
+      weight: 0.7
     - id: frota
       term: manutencao de frota
-      pattern: "\\bmanuten[cç][aã]o\\s+da\\s+frota\\b|\\bfrota\\s+municipal\\b"
-      weight: 0.55
+      pattern: "\\bmanuten[cç][aã]o\\s+da\\s+frota\\b|\\bfrota\\s+(municipal|de\\s+veiculo)|\\bveiculos?\\s+automotores\\b"
+      weight: 0.65
+    - id: voip_telecom
+      term: telefonia voip
+      pattern: "\\bvoip\\b|\\btelefonia\\b|\\bpabx\\b|\\bcentral\\s+telefonica\\b"
+      weight: 0.65
+    - id: limpeza_jardinagem
+      term: limpeza e jardinagem
+      pattern: "\\blimpeza\\s+(predial|urbana|publica)\\b|\\bjardinagem\\b|\\bro[cç]ada\\b|\\bcapeina\\b"
+      weight: 0.6
+    - id: grama_esporte
+      term: grama sintetica
+      pattern: "\\bgrama\\s+sintetica\\b|\\bgramado\\s+sintetico\\b|\\bfifa\\b"
+      weight: 0.6
+    - id: saneamento_metafora
+      term: saneamento de inconformidades
+      pattern: "\\bsaneamento\\s+de\\s+(inconformidades|pendencias|irregularidades|processos)\\b"
+      weight: 0.7
     - id: computador
       term: computador
       pattern: "\\bcomputador\\b|\\bnotebook\\b|\\ball\\s+in\\s+one\\b"

@@ -18,7 +18,7 @@ from typing import Any
 
 import yaml
 
-RULE_VERSION = "extra-sector-classifier/2.0.0"
+RULE_VERSION = "extra-sector-classifier/2.1.0"
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_PROFILE_PATH = PROJECT_ROOT / "config/client_profiles/extra.yaml"
 
@@ -87,16 +87,17 @@ class SectorClassification:
 
 
 # Fallback vocabulary if profile lacks sector_vocabulary block
+# pavimentacao: NÃO usar \bpaviment (casa "7º pavimento" / andar)
 _FALLBACK_POSITIVE: list[tuple[str, str, str, float]] = [
-    # (term_id, regex, subcategory, weight)
-    ("pavimentacao", r"\bpaviment", "pavimentacao", 0.45),
+    ("pavimentacao", r"\bpavimenta(c|ç)|\bpavimentacao\b|\bpavimentacao\s+asfalt|\brecapeamento\b|\bcapeamento\s+asfalt", "pavimentacao", 0.45),
     ("asfalto", r"\basfalt|\bcbu\b|\bcapeamento\b", "pavimentacao", 0.4),
-    ("drenagem", r"\bdrenagem\b|\bgaleria\s+pluvial\b|\bsarjeta\b|\bmeio[- ]fio\b", "drenagem", 0.42),
+    ("drenagem", r"\bdrenagem\s+(urbana|pluvial|de\s+aguas|viaria)|\bgaleria\s+pluvial\b|\bsarjeta\b|\bmeio[- ]fio\b", "drenagem", 0.42),
     ("terraplenagem", r"\bterraplenagem\b|\bterraplanagem\b", "terraplenagem", 0.45),
-    ("saneamento", r"\bsaneamento\b|\besgoto\b|\badutor|\brede\s+coletora\b", "saneamento", 0.4),
+    ("saneamento", r"\bsaneamento\s+(basico|ambiental|urbano)\b|\brede\s+de\s+esgoto\b|\badutora?\b|\brede\s+coletora\b|\bestacao\s+de\s+tratamento\b", "saneamento", 0.4),
+    ("esgoto_rede", r"\brede\s+(de\s+)?esgoto\b|\besgotamento\s+sanitario\b|\bcoleta\s+de\s+esgoto\b", "saneamento", 0.38),
     ("infraestrutura_urbana", r"\binfraestrutura\s+urbana\b|\burbaniza[cç]|\brevitaliza[cç][aã]o\s+urbana\b", "infraestrutura_urbana", 0.38),
     ("calcada", r"\bcal[cç]ad[ao]\b|\bpasseio\s+publico\b", "infraestrutura_urbana", 0.3),
-    ("edificacao", r"\bedifica|\bpredio\s+publico\b|\bedificio\s+publico\b", "edificacoes", 0.38),
+    ("edificacao", r"\bedificacao\b|\bedificacoes\b|\bpredio\s+publico\b|\bedificio\s+publico\b", "edificacoes", 0.38),
     ("construcao_edificios", r"\bconstru[cç][aã]o\s+de\s+(edif|pred|escola|creche|ubs|pronto.?socorro|ginasio|quadra)", "edificacoes", 0.45),
     ("ampliacao", r"\bamplia[cç][aã]o\s+de\s+(escola|creche|pred|edif|ubs|hospital|ginasio)", "edificacoes", 0.42),
     ("reforma_predial", r"\breforma\s+(predial|de\s+edif|de\s+pred|estrutural|de\s+escola|de\s+creche)", "reformas", 0.4),
@@ -115,26 +116,51 @@ _FALLBACK_POSITIVE: list[tuple[str, str, str, float]] = [
     ("obras_publicas", r"\bexecu[cç][aã]o\s+de\s+obras?\b|\bobras?\s+publicas?\b", "obras_civis", 0.28),
 ]
 
+# Negativos com veto forte (sempre >= 0.55 para poder anular pos fraco)
 _FALLBACK_NEGATIVE: list[tuple[str, str, float]] = [
-    ("frota", r"\bmanuten[cç][aã]o\s+da\s+frota\b|\bfrota\s+municipal\b|\boficina\s+mecanica\b|\bveiculo[s]?\b", 0.55),
+    ("seguro", r"\bseguro\s+(de\s+)?(frota|veiculo|automovel|total|contra)|apolice\s+de\s+seguro\b|\bseguradora\b", 0.7),
+    ("frota", r"\bmanuten[cç][aã]o\s+da\s+frota\b|\bfrota\s+(municipal|de\s+veiculo)|\boficina\s+mecanica\b|\bveiculos?\s+(da\s+frota|automotores)\b", 0.65),
+    ("voip_telecom", r"\bvoip\b|\btelefonia\b|\blink\s+de\s+dados\b|\binternet\s+dedicad|\bPABX\b|\bcentral\s+telefonica\b", 0.65),
+    ("limpeza_jardinagem", r"\blimpeza\s+(predial|urbana|publica)\b|\bjardinagem\b|\bro[cç]ada\b|\bcapeina\b|\bpoda\s+de\s+arvores\b|\bconservacao\s+e\s+limpeza\b", 0.6),
+    ("grama_esporte", r"\bgrama\s+sintetica\b|\bgramado\s+(sintetico|esportivo)\b|\bcampo\s+de\s+futebol\b|\bfifa\b|\bquadra\s+poliesportiva\b(?!.*\bconstru)", 0.6),
+    ("saneamento_metafora", r"\bsaneamento\s+de\s+(inconformidades|pendencias|irregularidades|processos|passivo|contas)\b", 0.7),
     ("computador", r"\bcomputador\b|\bnotebook\b|\ball\s+in\s+one\b|\bimpressora\b|\binformatica\b|\bhardware\b", 0.55),
     ("lencois", r"\blen[cç][oó]is?\b|\bmantas?\s+destinad|\bcama\s+hospitalar\b|\benxoval\b", 0.55),
     ("exames", r"\bexames?\s+(laborator|clinico|de\s+imagem)|\blaboratoriais\b|\bcomplementar\s+ao\s+sus\b", 0.55),
-    ("saude_assistencial", r"\bmedicamento\b|\bfarmaco\b|\bvacina\b|\bprótese\b|\bhospitalar\s+descart", 0.5),
+    ("saude_assistencial", r"\bmedicamento\b|\bfarmaco\b|\bvacina\b|\bprotese\b|\bhospitalar\s+descart", 0.5),
     ("combustivel", r"\bcombustivel\b|\bgasolina\b|\bdiesel\b|\betanol\s+combust", 0.5),
     ("cursos", r"\bcurso[s]?\s+(para|de)\b|\bcapacita[cç][aã]o\b|\btreinamento\b|\bprofessores?\b", 0.45),
-    ("eventos_culturais", r"\boficina\s+de\s+karate\b|\bkarat[eé]\b|\bevento\s+cultural\b|\boficina\s+cultural\b|\besportiv", 0.5),
-    ("bancario", r"\barrecada[cç][aã]o\s+bancaria\b|\bservi[cç]os?\s+bancarios?\b|\btarifa\s+bancaria\b", 0.5),
+    ("eventos_culturais", r"\boficina\s+de\s+karate\b|\bkarate\b|\bevento\s+cultural\b|\boficina\s+cultural\b", 0.5),
+    ("bancario", r"\barrecadacao\s+bancaria\b|\bservicos?\s+bancarios?\b|\btarifa\s+bancaria\b", 0.5),
     ("equip_hospitalar", r"\bequipamento[s]?\s+hospitalar|\bmateriais?\s+medico.?hospitalar", 0.5),
     ("software", r"\bmanuten[cç][aã]o\s+de\s+software\b|\blicenca\s+de\s+uso\b|\bsistema\s+informat|\bsoftware\b|\bnuvem\b|\bcloud\b", 0.55),
-    ("construcao_conhecimento", r"\bconstru[cç][aã]o\s+de\s+conhecimento\b|\bconstru[cç][aã]o\s+coletiva\s+de\s+saberes\b", 0.6),
+    ("construcao_conhecimento", r"\bconstrucao\s+de\s+conhecimento\b|\bconstrucao\s+coletiva\s+de\s+saberes\b", 0.6),
     ("alimentacao", r"\bgeneros\s+aliment|\bmerenda\b|\brefeicao\b|\balimentos?\b", 0.45),
-    ("roupas", r"\buniforme\b|\bvestuario\b|\broupa[s]?\b|\bcalcado\s+de\s+seguranca\b", 0.4),
-    ("castracao", r"\bcastra[cç][aã]o\b|\besteriliza[cç][aã]o\s+de\s+animais\b|\bzoonoses\b", 0.55),
-    ("residuos_cc", r"\bresiduos?\s+da\s+constru[cç][aã]o\s+civil\b|\bentulho\b|\bca[cç]amba\s+de\s+entulho\b", 0.4),
+    ("roupas", r"\buniforme\b|\bvestuario\b|\broupas?\b|\bcalcado\s+de\s+seguranca\b", 0.4),
+    ("castracao", r"\bcastracao\b|\besterilizacao\s+de\s+animais\b|\bzoonoses\b", 0.55),
+    ("residuos_cc", r"\bresiduos?\s+da\s+construcao\s+civil\b|\bentulho\b|\bcacamba\s+de\s+entulho\b", 0.4),
     ("vigilancia", r"\bvigilancia\s+(desarmada|armada)\b|\bseguranca\s+patrimonial\b", 0.4),
     ("publicidade", r"\bpublicidade\b|\bpropaganda\b|\bmidia\s+outdoor\b", 0.4),
+    ("assessoria_juridica", r"\bassessoria\s+(juridica|contabil|administrativa)\b|\bconsultoria\s+juridica\b", 0.55),
 ]
+
+# Negativos que SEMPRE vetam engenharia se presentes (salvo execução explícita de obra civil)
+_VETO_NEGATIVE_IDS = frozenset({
+    "seguro",
+    "frota",
+    "voip_telecom",
+    "limpeza_jardinagem",
+    "grama_esporte",
+    "saneamento_metafora",
+    "computador",
+    "lencois",
+    "exames",
+    "software",
+    "castracao",
+    "construcao_conhecimento",
+    "bancario",
+    "assessoria_juridica",
+})
 
 _FALLBACK_EXCLUSION: list[tuple[str, str]] = [
     ("credenciamento_generico", r"\bcredenciamento\b(?!.*\b(obra|engenharia|paviment|edifica|reforma\s+predial))"),
@@ -290,45 +316,136 @@ def classify_object(
 
     positives, negatives, exclusions = _compile_from_profile(prof)
 
-    # Explicit false friends first
-    if re.search(r"\b(aquisicao|compra)\b.+\b(livro|exemplares?\s+do\s+livro|publicacao)\b", blob, re.I):
+    # Explicit false friends first (always NON_ENGINEERING)
+    _FALSE_FRIENDS: list[tuple[str, str, str]] = [
+        (
+            r"\b(aquisicao|compra)\b.+\b(livro|exemplares?\s+do\s+livro|publicacao)\b",
+            "publicacao_livro",
+            "aquisição de livro/publicação — não é execução de obra",
+        ),
+        (
+            r"\bconstrucao\s+de\s+conhecimento\b|\bconstrucao\s+coletiva\s+de\s+saberes\b",
+            "construcao_conhecimento",
+            "metáfora educacional — não é obra",
+        ),
+        (
+            r"\bmanutencao\s+de\s+software\b|\blicenca\s+de\s+software\b",
+            "software",
+            "manutenção/licença de software — fora do mercado de obras",
+        ),
+        (
+            r"\bsaneamento\s+de\s+(inconformidades|pendencias|irregularidades|processos|passivo|contas)\b",
+            "saneamento_metafora",
+            "saneamento metafórico (jurídico/contábil) — não é saneamento de infraestrutura",
+        ),
+        (
+            r"\bseguro\b.+\b(frota|veiculo|automovel)\b|\b(frota|veiculo).+\bseguro\b|\bseguradora\b",
+            "seguro_frota",
+            "seguro de frota/veículos — não é obra de engenharia",
+        ),
+        (
+            r"\b(voip|telefonia|pabx|central\s+telefonica)\b",
+            "voip_telecom",
+            "telecom/VoIP — não é obra de engenharia",
+        ),
+        (
+            r"\b(limpeza|jardinagem|rocada|capeina)\b.+\b(pavimentad|calcada|via)\b|"
+            r"\b(areas?|vias?)\s+pavimentad.+\b(limpeza|jardinagem|rocada)\b",
+            "limpeza_sobre_pavimento",
+            "limpeza/jardinagem em área pavimentada — não é obra de pavimentação",
+        ),
+        (
+            r"\bgrama\s+sintetica\b|\bgramado\s+sintetico\b|\bfifa\b",
+            "grama_esporte",
+            "grama sintética/esporte — não é infraestrutura de engenharia da Extra",
+        ),
+    ]
+    for pat, tid, reason in _FALSE_FRIENDS:
+        if re.search(pat, blob, re.I):
+            return SectorClassification(
+                label="NON_ENGINEERING",
+                negative_terms=[tid],
+                reason=reason,
+                confidence=0.97,
+                textual_evidence=evidence,
+                category="nao_engenharia",
+                subcategory=tid,
+                sector_match=False,
+            )
+
+    # Agregados/materiais para obra sem execução → REVIEW (não HIGH, não peer direto)
+    if re.search(
+        r"\b(aquisicao|fornecimento|compra)\b.+\b(racha[oõ]|bica\s+corrida|material\s+britado|"
+        r"pedra\s+pulmao|seixo|brita\b)",
+        blob,
+        re.I,
+    ) and not re.search(r"\b(execucao|empreitada|obra\s+de\s+engenharia)\b", blob, re.I):
         return SectorClassification(
-            label="NON_ENGINEERING",
-            negative_terms=["publicacao_livro"],
-            reason="aquisição de livro/publicação — não é execução de obra",
-            confidence=0.95,
+            label="ENGINEERING_REVIEW",
+            positive_terms=["materiais_agregados"],
+            negative_terms=["sem_execucao"],
+            reason="aquisição de agregados/materiais sem execução de obra",
+            confidence=0.72,
             textual_evidence=evidence,
-            category="nao_engenharia",
-            subcategory="publicacao",
+            category="materiais",
+            subcategory="material_sem_execucao",
             sector_match=False,
         )
-    if re.search(r"\bconstru[cç][aã]o\s+de\s+conhecimento\b", blob, re.I):
-        return SectorClassification(
-            label="NON_ENGINEERING",
-            negative_terms=["construcao_conhecimento"],
-            reason="metáfora educacional 'construção de conhecimento' — não é obra",
-            confidence=0.98,
-            textual_evidence=evidence,
-            category="nao_engenharia",
-            subcategory="metafora_educacional",
-            sector_match=False,
+
+    # "7º pavimento" = andar (não pavimentação). Suprime positivos de via.
+    suppress_road_pavement = bool(
+        re.search(
+            r"\b\d+\s*[oºa]?\s*pavimento\b|\bpavimento\s+(do\s+)?(predio|edificio|bloco|torre)\b",
+            blob,
+            re.I,
         )
-    if re.search(r"\bmanuten[cç][aã]o\s+de\s+software\b", blob, re.I):
-        return SectorClassification(
-            label="NON_ENGINEERING",
-            negative_terms=["software"],
-            reason="manutenção de software — fora do mercado de obras da Extra",
-            confidence=0.98,
-            textual_evidence=evidence,
-            category="ti",
-            subcategory="software",
-            sector_match=False,
-        )
+    )
+
+    # Always merge fallback negatives (profile alone can miss seguro/VoIP/etc.)
+    fb_neg = [(tid, re.compile(pat, re.I), w) for tid, pat, w in _FALLBACK_NEGATIVE]
+    seen_neg = {t for t, _, _ in negatives}
+    for tid, cre, w in fb_neg:
+        if tid not in seen_neg:
+            negatives.append((tid, cre, w))
+
+    # Prefer precise fallback positives for critical terms (override broad profile patterns)
+    precise_pos = {
+        tid: (tid, re.compile(pat, re.I), sub, w)
+        for tid, pat, sub, w in _FALLBACK_POSITIVE
+        if tid
+        in {
+            "pavimentacao",
+            "saneamento",
+            "esgoto_rede",
+            "drenagem",
+            "asfalto",
+        }
+    }
+    filtered_pos = []
+    seen_pos = set()
+    for tid, cre, sub, w in positives:
+        if tid in precise_pos:
+            continue  # replaced by precise
+        filtered_pos.append((tid, cre, sub, w))
+        seen_pos.add(tid)
+    for tid, item in precise_pos.items():
+        filtered_pos.append(item)
+    positives = filtered_pos
 
     pos_hits: list[tuple[str, str, float]] = []
     for tid, cre, sub, w in positives:
         if cre.search(blob):
+            if suppress_road_pavement and tid in {"pavimentacao", "asfalto"}:
+                continue
             pos_hits.append((tid, sub, w))
+    # reforma de pavimento/andar de prédio → reforma predial se houver reforma+predio
+    if suppress_road_pavement and re.search(
+        r"\breforma\b.+\b(predio|edificio|pavimento)\b|\bpavimento\b.+\breforma\b",
+        blob,
+        re.I,
+    ):
+        if not any(h[1] == "reformas" for h in pos_hits):
+            pos_hits.append(("reforma_andar_predial", "reformas", 0.4))
 
     neg_hits: list[tuple[str, float]] = []
     for tid, cre, w in negatives:
@@ -345,6 +462,31 @@ def classify_object(
     pos_ids = [t for t, _, _ in pos_hits]
     neg_ids = [t for t, _ in neg_hits]
     category, subcategory = _pick_category(pos_hits)
+
+    # Veto: strong negatives always win unless clear obra-execution subject
+    has_veto = any(n in _VETO_NEGATIVE_IDS for n in neg_ids)
+    has_strong_exec = bool(
+        re.search(
+            r"\b(execucao\s+de\s+(obra|pavimentacao|drenagem)|empreitada|"
+            r"obra\s+de\s+engenharia|construcao\s+de\s+(edif|pred|escola)|"
+            r"reforma\s+predial|terraplenagem)\b",
+            blob,
+            re.I,
+        )
+    )
+    if has_veto and not has_strong_exec:
+        return SectorClassification(
+            label="NON_ENGINEERING",
+            positive_terms=pos_ids,
+            negative_terms=neg_ids,
+            excluded_terms=exc_hits,
+            reason=f"veto setorial ({', '.join(n for n in neg_ids if n in _VETO_NEGATIVE_IDS)})",
+            confidence=0.96,
+            textual_evidence=evidence,
+            category="nao_engenharia",
+            subcategory=next((n for n in neg_ids if n in _VETO_NEGATIVE_IDS), ""),
+            sector_match=False,
+        )
 
     # Residuos da construção civil: negative unless explicit obra execution for Extra
     if "residuos_cc" in neg_ids and not any(
@@ -392,8 +534,8 @@ def classify_object(
             sector_match=False,
         )
 
-    # Strong negatives dominate
-    if neg_score >= 0.45 and pos_score < 0.35:
+    # Strong negatives dominate whenever they outweigh positives
+    if neg_score >= 0.45 and neg_score >= pos_score:
         return SectorClassification(
             label="NON_ENGINEERING",
             positive_terms=pos_ids,
@@ -568,20 +710,22 @@ def sql_engineering_ilike_terms(profile: dict[str, Any] | None = None) -> list[s
                 terms.append(str(t))
     # Always include high-recall core
     core = [
-        "paviment",
-        "drenagem",
+        "pavimentacao",
+        "pavimentação",
+        "drenagem urbana",
+        "drenagem pluvial",
         "terraplenagem",
         "terraplanagem",
-        "saneamento",
+        "saneamento basico",
+        "saneamento básico",
+        "esgotamento sanitario",
+        "rede de esgoto",
         "reforma predial",
         "manutenção predial",
         "manutencao predial",
         "construção de edif",
         "construcao de edif",
         "obra de engenharia",
-        "engenharia civil",
-        "edificação",
-        "edificacao",
         "ampliação de escola",
         "ampliacao de escola",
         "infraestrutura urbana",
@@ -591,6 +735,7 @@ def sql_engineering_ilike_terms(profile: dict[str, Any] | None = None) -> list[s
         "projeto executivo",
         "projeto básico",
         "projeto basico",
+        "recapeamento",
     ]
     terms.extend(core)
     # unique preserve order
