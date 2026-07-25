@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import os
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -15,6 +16,10 @@ from scripts.ops.hybrid_sector import (
     PIPELINE_VERSION,
     REQUIRED_HONEST_BLOCKERS,
 )
+
+# Paid LLM default model (never commit secrets; key from .env / OPENAI_API_KEY)
+DEFAULT_PAID_LLM_MODEL = "gpt-4o-mini"
+DEFAULT_PAID_LLM_PROVIDER = "openai_compatible"
 from scripts.ops.hybrid_sector.classification.selective import classify_selective
 from scripts.ops.hybrid_sector.config_runtime import (
     HybridSectorRuntimeConfig,
@@ -70,6 +75,39 @@ from scripts.ops.hybrid_sector.retrieval.semantic import build_embedding_provide
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_CONFIG = PROJECT_ROOT / "config/hybrid_sector/default.yaml"
+_ENV_LOADED = False
+
+
+def load_project_env(*, override: bool = False) -> Path | None:
+    """Load OPENAI_API_KEY and related vars from nearest .env (never commit secrets).
+
+    Searches cwd and project root ancestors so worktrees pick up the main-repo `.env`.
+    Does not override already-exported process env by default.
+    """
+    global _ENV_LOADED
+    if _ENV_LOADED and not override:
+        env_path = os.environ.get("HYBRID_SECTOR_ENV_FILE")
+        return Path(env_path) if env_path else None
+
+    try:
+        from dotenv import load_dotenv
+    except ImportError:  # pragma: no cover — optional dep
+        load_dotenv = None  # type: ignore[assignment]
+
+    candidates: list[Path] = []
+    for start in (Path.cwd().resolve(), PROJECT_ROOT.resolve()):
+        for base in (start, *start.parents):
+            env_file = base / ".env"
+            if env_file.is_file():
+                candidates.append(env_file)
+                break
+    # Prefer the first found (cwd walk, then project root walk)
+    chosen = candidates[0] if candidates else None
+    if chosen is not None and load_dotenv is not None:
+        load_dotenv(chosen, override=override)
+        os.environ["HYBRID_SECTOR_ENV_FILE"] = str(chosen)
+    _ENV_LOADED = True
+    return chosen
 
 
 def load_config(path: Path | None = None) -> dict[str, Any]:
@@ -78,6 +116,35 @@ def load_config(path: Path | None = None) -> dict[str, Any]:
         return {}
     data = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
     return data if isinstance(data, dict) else {}
+
+
+def apply_paid_llm_config(cfg: dict[str, Any] | None = None) -> dict[str, Any]:
+    """Enable real OpenAI path: gpt-4o-mini + OPENAI_API_KEY from .env.
+
+    Default campaign remains offline; call this only for explicit paid runs
+    (e.g. ``--allow-paid-llm``).
+    """
+    load_project_env()
+    out: dict[str, Any] = dict(cfg or load_config())
+    op = dict(out.get("operational") or {})
+    op["enabled"] = True
+    out["operational"] = op
+    llm = dict(out.get("llm") or {})
+    llm["provider"] = DEFAULT_PAID_LLM_PROVIDER
+    # Force paid model: never keep offline-fake when real provider is active
+    model = str(llm.get("model") or "").strip()
+    if not model or model in {"offline-fake", "fake", "none"}:
+        model = (
+            os.environ.get("HYBRID_SECTOR_LLM_MODEL")
+            or os.environ.get("OPENAI_MODEL")
+            or DEFAULT_PAID_LLM_MODEL
+        )
+    # Prefer gpt-4o-mini as project default for paid LLM
+    if model == "offline-fake":
+        model = DEFAULT_PAID_LLM_MODEL
+    llm["model"] = model or DEFAULT_PAID_LLM_MODEL
+    out["llm"] = llm
+    return out
 
 
 def build_provider(
@@ -107,29 +174,36 @@ def build_provider(
     # Offline defaults: force fake unless operational explicitly enabled AND not forced fake
     provider_name = "fake" if force_fake else str(llm.get("provider") or "fake")
     if not operational_enabled and not force_fake:
-        # Still allow openai when campaign explicitly sets provider AND force_fake=False
-        # but only if operational.enabled — otherwise stay on fake for safety.
+        # Safety: paid provider only when operational.enabled (set by apply_paid_llm_config)
         if provider_name == "openai_compatible":
             provider_name = "fake"
     if provider_name == "openai_compatible" and not force_fake:
+        # Ensure .env is loaded so OPENAI_API_KEY is available
+        load_project_env()
         cost = CostGuard(max_cost_usd=float(llm.get("max_cost_usd_per_cycle") or 5.0))
         breaker = CircuitBreaker(
             failure_threshold=int(llm.get("circuit_breaker_failures") or 5)
         )
-        model = llm.get("model")
+        model = str(llm.get("model") or "").strip()
+        if not model or model in {"offline-fake", "fake", "none"}:
+            model = (
+                os.environ.get("HYBRID_SECTOR_LLM_MODEL")
+                or os.environ.get("OPENAI_MODEL")
+                or DEFAULT_PAID_LLM_MODEL
+            )
         temperature = float(llm.get("temperature") or 0.0)
         prompt_version = str(llm.get("prompt_version") or "sector-arbiter-v1")
         max_concurrency = int(llm.get("max_concurrency") or 1)
         if llm.get("cache_enabled", True):
             cache: ResponseCache | NullResponseCache = ResponseCache(
-                model=str(model or ""),
+                model=str(model or DEFAULT_PAID_LLM_MODEL),
                 prompt_version=prompt_version,
                 temperature=temperature,
             )
         else:
             cache = NullResponseCache()
         return OpenAICompatibleProvider(
-            model=model,
+            model=model or DEFAULT_PAID_LLM_MODEL,
             base_url=llm.get("base_url"),
             timeout_seconds=float(llm.get("timeout_seconds") or 15),
             max_retries=int(llm.get("max_retries") or 2),

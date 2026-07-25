@@ -142,7 +142,13 @@ class OpenAICompatibleProvider:
         prompt_version: str | None = None,
         max_concurrency: int = 1,
     ) -> None:
-        self.model = model or os.environ.get("HYBRID_SECTOR_LLM_MODEL", "gpt-4o-mini")
+        # Default paid model is gpt-4o-mini; OPENAI_API_KEY comes from env / .env
+        raw_model = model or os.environ.get("HYBRID_SECTOR_LLM_MODEL") or os.environ.get(
+            "OPENAI_MODEL"
+        )
+        if not raw_model or raw_model in {"offline-fake", "fake", "none"}:
+            raw_model = "gpt-4o-mini"
+        self.model = raw_model
         self.base_url = (
             base_url
             or os.environ.get("HYBRID_SECTOR_LLM_BASE_URL")

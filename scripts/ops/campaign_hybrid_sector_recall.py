@@ -29,7 +29,9 @@ from scripts.ops.hybrid_sector.evaluation.real_corpus import (
     ensure_real_corpus_file,
 )
 from scripts.ops.hybrid_sector.pipeline import (
+    apply_paid_llm_config,
     load_config,
+    load_project_env,
     run_from_gold_corpus,
     run_pipeline,
     write_campaign_artifacts,
@@ -123,7 +125,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--allow-paid-llm",
         action="store_true",
-        help="OPERATIONAL ONLY: use openai_compatible provider (not default CI)",
+        help=(
+            "OPERATIONAL ONLY: use OpenAI-compatible provider with model gpt-4o-mini "
+            "(or HYBRID_SECTOR_LLM_MODEL / OPENAI_MODEL). Loads OPENAI_API_KEY from .env. "
+            "Not default CI."
+        ),
     )
     parser.add_argument(
         "--include-distractors",
@@ -156,6 +162,33 @@ def main(argv: list[str] | None = None) -> int:
 
     cfg = load_config(args.config)
     force_fake = not args.allow_paid_llm
+    if args.allow_paid_llm:
+        # Real LLM path: gpt-4o-mini + OPENAI_API_KEY from nearest .env
+        env_file = load_project_env()
+        cfg = apply_paid_llm_config(cfg)
+        key_present = bool(
+            __import__("os").environ.get("OPENAI_API_KEY")
+            or __import__("os").environ.get("HYBRID_SECTOR_LLM_API_KEY")
+        )
+        print(
+            json.dumps(
+                {
+                    "paid_llm": True,
+                    "provider": (cfg.get("llm") or {}).get("provider"),
+                    "model": (cfg.get("llm") or {}).get("model"),
+                    "env_file": str(env_file) if env_file else None,
+                    "openai_api_key_present": key_present,
+                },
+                ensure_ascii=False,
+            ),
+            file=sys.stderr,
+        )
+        if not key_present:
+            print(
+                "ERROR: --allow-paid-llm requires OPENAI_API_KEY in environment or .env",
+                file=sys.stderr,
+            )
+            return 2
 
     full_suite = {
         "passed": bool(args.full_suite_passed),

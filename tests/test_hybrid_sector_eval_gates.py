@@ -1,6 +1,8 @@
 """Evaluation, statistical gates, gold corpus structure, campaign entry."""
 from __future__ import annotations
 
+import os
+
 import json
 from pathlib import Path
 
@@ -979,3 +981,42 @@ def test_default_operational_disabled_in_shipped_yaml():
     assert raw["operational"]["enabled"] is False
     assert raw["llm"]["provider"] == "fake"
     assert raw["retrieval"]["semantic"]["provider"] == "lexical_fuzzy_hash"
+
+
+def test_paid_llm_uses_gpt4o_mini_and_loads_env(monkeypatch, tmp_path):
+    """Paid path: model gpt-4o-mini; OPENAI_API_KEY from env/.env (no secrets in code)."""
+    from scripts.ops.hybrid_sector.llm.protocol import OpenAICompatibleProvider
+    from scripts.ops.hybrid_sector.pipeline import (
+        DEFAULT_PAID_LLM_MODEL,
+        apply_paid_llm_config,
+        build_provider,
+        load_project_env,
+    )
+
+    # Write a temporary .env and point discovery via cwd
+    env_file = tmp_path / ".env"
+    env_file.write_text("OPENAI_API_KEY=sk-test-hybrid-sector-unit\n", encoding="utf-8")
+    monkeypatch.chdir(tmp_path)
+    # clear prior load flag
+    import scripts.ops.hybrid_sector.pipeline as pipe
+
+    monkeypatch.setattr(pipe, "_ENV_LOADED", False)
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.delenv("HYBRID_SECTOR_ENV_FILE", raising=False)
+
+    found = load_project_env(override=True)
+    assert found is not None
+    assert found.name == ".env"
+    assert os.environ.get("OPENAI_API_KEY") == "sk-test-hybrid-sector-unit"
+
+    cfg = apply_paid_llm_config({"llm": {"provider": "fake", "model": "offline-fake"}})
+    assert cfg["operational"]["enabled"] is True
+    assert cfg["llm"]["provider"] == "openai_compatible"
+    assert cfg["llm"]["model"] == DEFAULT_PAID_LLM_MODEL == "gpt-4o-mini"
+
+    p = build_provider(cfg, force_fake=False)
+    assert isinstance(p, OpenAICompatibleProvider)
+    assert p.model == "gpt-4o-mini"
+    assert p.api_key == "sk-test-hybrid-sector-unit"
+    body = p.build_http_body("sys", "user")
+    assert body["model"] == "gpt-4o-mini"

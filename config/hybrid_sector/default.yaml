@@ -85,7 +85,11 @@ llm:
   second_adjudication_value_threshold: 1000000.0
   cache_enabled: true
   temperature: 0.0
-  # OPENAI_API_KEY / LLM_BASE_URL only via env — never commit secrets
+  # Paid path (campaign --allow-paid-llm / operational.enabled=true):
+  #   provider: openai_compatible
+  #   model: gpt-4o-mini   # default paid model
+  #   OPENAI_API_KEY from .env (never commit secrets)
+  # Optional overrides: HYBRID_SECTOR_LLM_MODEL, OPENAI_MODEL, OPENAI_BASE_URL
 
 decision_policy:
   commercial_match_requires:
