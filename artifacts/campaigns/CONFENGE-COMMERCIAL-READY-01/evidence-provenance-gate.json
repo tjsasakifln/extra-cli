@@ -1,18 +1,18 @@
 {
   "ok": true,
   "status": "PASS",
-  "current_pr_head_sha": "6dcab34860fb016aa1ef3152db4d9b0ae97adae6",
-  "pr_head_sha": "6dcab34860fb016aa1ef3152db4d9b0ae97adae6",
-  "checked_out_sha": "6dcab34860fb016aa1ef3152db4d9b0ae97adae6",
+  "current_pr_head_sha": "d5ee4fa3f0ae1afbfc6c5f3192b3697f96defa65",
+  "pr_head_sha": "d5ee4fa3f0ae1afbfc6c5f3192b3697f96defa65",
+  "checked_out_sha": "d5ee4fa3f0ae1afbfc6c5f3192b3697f96defa65",
   "workflow_merge_sha": null,
   "final_code_freeze_sha": "adc59faf6e4a204e545d401810601ebfa1f8bdb0",
   "final_integrity_code_freeze_sha": "adc59faf6e4a204e545d401810601ebfa1f8bdb0",
   "executed_code_sha": "adc59faf6e4a204e545d401810601ebfa1f8bdb0",
-  "evidence_commit_sha": "6dcab34860fb016aa1ef3152db4d9b0ae97adae6",
-  "workflow_head_sha": "6dcab34860fb016aa1ef3152db4d9b0ae97adae6",
+  "evidence_commit_sha": "d5ee4fa3f0ae1afbfc6c5f3192b3697f96defa65",
+  "workflow_head_sha": "d5ee4fa3f0ae1afbfc6c5f3192b3697f96defa65",
   "artifact_git_sha": "adc59faf6e4a204e545d401810601ebfa1f8bdb0",
   "code_tree_hash_at_execution": "57eca7d41ad852e149f07f9b103319639140cfcdb2cb2873a9ddb43ec3e4968d",
-  "code_tree_hash_at_current_head": "acb42dd89146d1ed45aa8cab4a5b0d27297bf6fbfee8c472a6c20c4ec2157fae",
+  "code_tree_hash_at_current_head": "6abfb164ee22ae0cc9cc7b34bd9efd33be3ead14e46d76fa8049d8f587fa7037",
   "code_changed_after_execution": false,
   "artifact_only_commits_after_execution": true,
   "non_artifact_files_changed_after_execution": [],
@@ -26,7 +26,7 @@
     "job_ids": null,
     "command": "make campaign-gate-confenge-commercial-ready",
     "started_at": null,
-    "finished_at": "2026-07-26T20:01:16Z",
+    "finished_at": "2026-07-26T20:03:43Z",
     "exit_code": 0
   },
   "match_run_to_head": false,
@@ -40,5 +40,5 @@
     "artifact_git_sha": "commit de c\u00f3digo da evid\u00eancia (executed)",
     "match_run_to_head_rule": "true only when executed_code_sha == pr_head_sha"
   },
-  "verified_at": "2026-07-26T20:01:16Z"
+  "verified_at": "2026-07-26T20:03:43Z"
 }
