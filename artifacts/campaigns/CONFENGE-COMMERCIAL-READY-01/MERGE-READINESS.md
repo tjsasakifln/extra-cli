@@ -1,6 +1,6 @@
 # MERGE READINESS — CONFENGE-COMMERCIAL-READY-01
 
-Generated: 2026-07-26T19:42:06Z
+Generated: 2026-07-26T19:50:25Z
 Aggregator: `build_final_campaign_status()`
 
 ## Declaration
@@ -21,12 +21,12 @@ CODE_MERGE_READY_COMMERCIAL_RELEASE_BLOCKED
 
 | Role | Value |
 |------|-------|
-| actual_pr_head_sha | `b73f89cf31fdfbbab9290f6ff4de7ea49685d983` |
+| actual_pr_head_sha | `adc59faf6e4a204e545d401810601ebfa1f8bdb0` |
 | workflow_merge_sha | `None` |
-| freeze_sha | `374ba2747b7c7a9b8faac544ae1529cbfa2a88bd` |
-| executed_code_sha | `374ba2747b7c7a9b8faac544ae1529cbfa2a88bd` |
-| match_run_to_head | `False` |
-| artifact_only_diff | `True` |
+| freeze_sha | `adc59faf6e4a204e545d401810601ebfa1f8bdb0` |
+| executed_code_sha | `adc59faf6e4a204e545d401810601ebfa1f8bdb0` |
+| match_run_to_head | `True` |
+| artifact_only_diff | `False` |
 | non_artifact_changes | `[]` |
 
 ## Workflow / artifacts
@@ -55,7 +55,7 @@ CODE_MERGE_READY_COMMERCIAL_RELEASE_BLOCKED
 
 ## Answers (objective §15)
 
-1. HEAD real da PR: `b73f89cf31fdfbbab9290f6ff4de7ea49685d983`
+1. HEAD real da PR: `adc59faf6e4a204e545d401810601ebfa1f8bdb0`
 2. Merge SHA Actions: `None`
 3. Execução comercial == freeze: `True`
 4. Código alterado após freeze: `False`
