@@ -1,0 +1,26 @@
+{
+  "schema_version": "edital-relevance-corpus/1.0.0",
+  "role": "pilot",
+  "campaign": "EDITAL-RELEVANCE-RECALL-95-01",
+  "frozen_at": "2026-07-26T21:49:28Z",
+  "sealed_before_classifier_edits": false,
+  "corpus_path": "evals/edital_relevance/pilot_36.jsonl",
+  "corpus_sha256": "2ec3c856dbb3f723014372bb1ef4f1b2ea8f863cb3c1e625eab082ef47381ae7",
+  "n_records": 36,
+  "n_relevant": 13,
+  "n_irrelevant": 18,
+  "n_undecidable": 5,
+  "dual_label_agreement_rate": 0.9444444444444444,
+  "sources": {
+    "pncp": 12,
+    "sc_compras": 12,
+    "ciga": 12
+  },
+  "selection_rule": "public_inventory_only; stratified content sample; NOT system_class/db_count/score/success_zero/operational_queue",
+  "stratum_blockers": {},
+  "reviewers": [
+    "criteria_A_inclusion_first",
+    "criteria_B_exclusion_first"
+  ],
+  "adjudication": "conflicts adjudicated; UNDECIDABLE never silent→IRRELEVANT"
+}

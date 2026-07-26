@@ -1,0 +1,441 @@
+{
+  "pass": false,
+  "exit_code": 1,
+  "metric": "relevance_recall",
+  "not_capture_recall": true,
+  "threshold": 0.95,
+  "relevance_recall": 0.9230769230769231,
+  "informative_precision": 1.0,
+  "confusion": {
+    "tp": 12,
+    "fp": 0,
+    "tn": 18,
+    "fn": 1,
+    "recall": 0.9230769230769231,
+    "precision": 1.0
+  },
+  "confidence_interval_wilson_95": {
+    "low": 0.6668546607175265,
+    "high": 0.9862899336203037
+  },
+  "relevant_denominator": 13,
+  "undecidable_excluded": 5,
+  "false_negatives": [
+    {
+      "official_id": "94704004000102-1-000056/2026",
+      "source": "pncp",
+      "municipio": "Barra Funda",
+      "natureza_juridica": "admin_direta",
+      "objeto": "contratação de empresa especializada, sob o Regime de Execução de EMPREITADA POR PREÇO GLOBAL, compreendendo mão?de?obra e materiais, construção do Centro de Convivência do Idoso do Município de Barra Funda/RS, com área total construída de 245,13m², com recursos próprios e oriundos do Piso Gaúcho Especial – Avançar Mais SUAS",
+      "url": "https://pncp.gov.br/app/editais/94704004000102/2026/56",
+      "predicted_label": "AMBIGUOUS",
+      "reason": "sem termos positivos ou negativos do vocabulário Extra"
+    }
+  ],
+  "false_positives_count": 0,
+  "false_positives_nominal": [],
+  "by_source": {
+    "ciga": {
+      "tp": 3,
+      "fp": 0,
+      "tn": 6,
+      "fn": 0,
+      "recall": 1.0,
+      "precision": 1.0
+    },
+    "pncp": {
+      "tp": 4,
+      "fp": 0,
+      "tn": 7,
+      "fn": 1,
+      "recall": 0.8,
+      "precision": 1.0
+    },
+    "sc_compras": {
+      "tp": 5,
+      "fp": 0,
+      "tn": 5,
+      "fn": 0,
+      "recall": 1.0,
+      "precision": 1.0
+    }
+  },
+  "by_municipio": {
+    "Balneário Camboriú": {
+      "tp": 0,
+      "fp": 0,
+      "tn": 1,
+      "fn": 0,
+      "recall": 0.0,
+      "precision": 0.0
+    },
+    "Barra Funda": {
+      "tp": 0,
+      "fp": 0,
+      "tn": 0,
+      "fn": 1,
+      "recall": 0.0,
+      "precision": 0.0
+    },
+    "Belém": {
+      "tp": 0,
+      "fp": 0,
+      "tn": 1,
+      "fn": 0,
+      "recall": 0.0,
+      "precision": 0.0
+    },
+    "Cajamar": {
+      "tp": 0,
+      "fp": 0,
+      "tn": 1,
+      "fn": 0,
+      "recall": 0.0,
+      "precision": 0.0
+    },
+    "Capinzal": {
+      "tp": 0,
+      "fp": 0,
+      "tn": 1,
+      "fn": 0,
+      "recall": 0.0,
+      "precision": 0.0
+    },
+    "Departamento Estadual de Trânsito - DETRAN/SC": {
+      "tp": 0,
+      "fp": 0,
+      "tn": 1,
+      "fn": 0,
+      "recall": 0.0,
+      "precision": 0.0
+    },
+    "Instituto de Metrologia de Santa Catarina - IMETRO/SC": {
+      "tp": 1,
+      "fp": 0,
+      "tn": 0,
+      "fn": 0,
+      "recall": 1.0,
+      "precision": 1.0
+    },
+    "Instituto do Meio Ambiente - IMA": {
+      "tp": 1,
+      "fp": 0,
+      "tn": 0,
+      "fn": 0,
+      "recall": 1.0,
+      "precision": 1.0
+    },
+    "Itacurubi": {
+      "tp": 0,
+      "fp": 0,
+      "tn": 1,
+      "fn": 0,
+      "recall": 0.0,
+      "precision": 0.0
+    },
+    "Jaguari": {
+      "tp": 1,
+      "fp": 0,
+      "tn": 0,
+      "fn": 0,
+      "recall": 1.0,
+      "precision": 1.0
+    },
+    "Linhares": {
+      "tp": 0,
+      "fp": 0,
+      "tn": 1,
+      "fn": 0,
+      "recall": 0.0,
+      "precision": 0.0
+    },
+    "Mafra": {
+      "tp": 1,
+      "fp": 0,
+      "tn": 0,
+      "fn": 0,
+      "recall": 1.0,
+      "precision": 1.0
+    },
+    "Pilar do Sul": {
+      "tp": 0,
+      "fp": 0,
+      "tn": 1,
+      "fn": 0,
+      "recall": 0.0,
+      "precision": 0.0
+    },
+    "Ressaquinha": {
+      "tp": 0,
+      "fp": 0,
+      "tn": 1,
+      "fn": 0,
+      "recall": 0.0,
+      "precision": 0.0
+    },
+    "SANTA CATARINA (ESTADUAL)": {
+      "tp": 3,
+      "fp": 0,
+      "tn": 4,
+      "fn": 0,
+      "recall": 1.0,
+      "precision": 1.0
+    },
+    "Santa Maria": {
+      "tp": 1,
+      "fp": 0,
+      "tn": 0,
+      "fn": 0,
+      "recall": 1.0,
+      "precision": 1.0
+    },
+    "Santa Rosa do Sul": {
+      "tp": 1,
+      "fp": 0,
+      "tn": 0,
+      "fn": 0,
+      "recall": 1.0,
+      "precision": 1.0
+    },
+    "São Pedro da União": {
+      "tp": 1,
+      "fp": 0,
+      "tn": 0,
+      "fn": 0,
+      "recall": 1.0,
+      "precision": 1.0
+    },
+    "Teresina": {
+      "tp": 1,
+      "fp": 0,
+      "tn": 0,
+      "fn": 0,
+      "recall": 1.0,
+      "precision": 1.0
+    },
+    "Tijucas": {
+      "tp": 1,
+      "fp": 0,
+      "tn": 0,
+      "fn": 0,
+      "recall": 1.0,
+      "precision": 1.0
+    },
+    "Uberlândia": {
+      "tp": 0,
+      "fp": 0,
+      "tn": 1,
+      "fn": 0,
+      "recall": 0.0,
+      "precision": 0.0
+    }
+  },
+  "by_natureza": {
+    "admin_direta": {
+      "tp": 9,
+      "fp": 0,
+      "tn": 12,
+      "fn": 1,
+      "recall": 0.9,
+      "precision": 1.0
+    },
+    "admin_indireta": {
+      "tp": 3,
+      "fp": 0,
+      "tn": 6,
+      "fn": 0,
+      "recall": 1.0,
+      "precision": 1.0
+    }
+  },
+  "stratum_counts": {
+    "source:pncp": 12,
+    "municipio_bucket:pequeno": 20,
+    "natureza:admin_direta": 26,
+    "municipio_bucket:grande": 2,
+    "natureza:admin_indireta": 10,
+    "source:sc_compras": 12,
+    "municipio_bucket:medio": 14,
+    "source:ciga": 12
+  },
+  "integrity": {
+    "ok": false,
+    "errors": [
+      "relevance_recall 0.923077 < threshold 0.95"
+    ],
+    "warnings": []
+  },
+  "versions": {
+    "evaluator_version": "edital-relevance-recall/1.0.0",
+    "schema_version": "edital-relevance-corpus/1.0.0",
+    "rule_version": "extra-sector-classifier/2.3.1",
+    "profile_hash": "aeaa8551547e167addfff707b642782b71d9526b8b8a8b8aa91b3a8cceaae92f",
+    "profile_path": "/mnt/d/extra consultoria/.worktrees/edital-relevance-corpus-01/config/client_profiles/extra.yaml",
+    "corpus_path": "evals/edital_relevance/pilot_36.jsonl",
+    "corpus_sha256": "2ec3c856dbb3f723014372bb1ef4f1b2ea8f863cb3c1e625eab082ef47381ae7",
+    "manifest_path": "evals/edital_relevance/pilot_36-manifest.json",
+    "git_sha": "5b1edf6318226b8afa6199d7a9f100b8ac24a1a7",
+    "evaluated_at": "2026-07-26T21:51:29Z"
+  },
+  "forbidden_proxies_used": false,
+  "per_record_sample": [
+    {
+      "official_id": "27834977000160-1-000044/2026",
+      "label_final": "IRRELEVANT",
+      "predicted_label": "AMBIGUOUS",
+      "predicted_relevant": false,
+      "bucket": "tn",
+      "rule_version": "extra-sector-classifier/2.3.1"
+    },
+    {
+      "official_id": "18666172000164-1-000042/2026",
+      "label_final": "RELEVANT",
+      "predicted_label": "ENGINEERING_HIGH_CONFIDENCE",
+      "predicted_relevant": true,
+      "bucket": "tp",
+      "rule_version": "extra-sector-classifier/2.3.1"
+    },
+    {
+      "official_id": "87572046000163-1-000072/2026",
+      "label_final": "RELEVANT",
+      "predicted_label": "ENGINEERING_HIGH_CONFIDENCE",
+      "predicted_relevant": true,
+      "bucket": "tp",
+      "rule_version": "extra-sector-classifier/2.3.1"
+    },
+    {
+      "official_id": "49502868000189-1-000155/2026",
+      "label_final": "RELEVANT",
+      "predicted_label": "ENGINEERING_HIGH_CONFIDENCE",
+      "predicted_relevant": true,
+      "bucket": "tp",
+      "rule_version": "extra-sector-classifier/2.3.1"
+    },
+    {
+      "official_id": "94704004000102-1-000056/2026",
+      "label_final": "RELEVANT",
+      "predicted_label": "AMBIGUOUS",
+      "predicted_relevant": false,
+      "bucket": "fn",
+      "rule_version": "extra-sector-classifier/2.3.1"
+    },
+    {
+      "official_id": "88488366000100-1-000235/2026",
+      "label_final": "RELEVANT",
+      "predicted_label": "ENGINEERING_HIGH_CONFIDENCE",
+      "predicted_relevant": true,
+      "bucket": "tp",
+      "rule_version": "extra-sector-classifier/2.3.1"
+    },
+    {
+      "official_id": "18094847000148-1-000093/2026",
+      "label_final": "IRRELEVANT",
+      "predicted_label": "NON_ENGINEERING",
+      "predicted_relevant": false,
+      "bucket": "tn",
+      "rule_version": "extra-sector-classifier/2.3.1"
+    },
+    {
+      "official_id": "00394429000100-1-004163/2025",
+      "label_final": "IRRELEVANT",
+      "predicted_label": "AMBIGUOUS",
+      "predicted_relevant": false,
+      "bucket": "tn",
+      "rule_version": "extra-sector-classifier/2.3.1"
+    },
+    {
+      "official_id": "46634473000141-1-000137/2026",
+      "label_final": "IRRELEVANT",
+      "predicted_label": "AMBIGUOUS",
+      "predicted_relevant": false,
+      "bucket": "tn",
+      "rule_version": "extra-sector-classifier/2.3.1"
+    },
+    {
+      "official_id": "46523023000181-1-000079/2026",
+      "label_final": "IRRELEVANT",
+      "predicted_label": "NON_ENGINEERING",
+      "predicted_relevant": false,
+      "bucket": "tn",
+      "rule_version": "extra-sector-classifier/2.3.1"
+    },
+    {
+      "official_id": "21238738000161-1-000133/2026",
+      "label_final": "IRRELEVANT",
+      "predicted_label": "AMBIGUOUS",
+      "predicted_relevant": false,
+      "bucket": "tn",
+      "rule_version": "extra-sector-classifier/2.3.1"
+    },
+    {
+      "official_id": "91573048000144-1-000189/2026",
+      "label_final": "IRRELEVANT",
+      "predicted_label": "AMBIGUOUS",
+      "predicted_relevant": false,
+      "bucket": "tn",
+      "rule_version": "extra-sector-classifier/2.3.1"
+    },
+    {
+      "official_id": "SC-58842",
+      "label_final": "RELEVANT",
+      "predicted_label": "ENGINEERING_REVIEW",
+      "predicted_relevant": true,
+      "bucket": "tp",
+      "rule_version": "extra-sector-classifier/2.3.1"
+    },
+    {
+      "official_id": "SC-59620",
+      "label_final": "RELEVANT",
+      "predicted_label": "ENGINEERING_HIGH_CONFIDENCE",
+      "predicted_relevant": true,
+      "bucket": "tp",
+      "rule_version": "extra-sector-classifier/2.3.1"
+    },
+    {
+      "official_id": "SC-58404",
+      "label_final": "RELEVANT",
+      "predicted_label": "ENGINEERING_HIGH_CONFIDENCE",
+      "predicted_relevant": true,
+      "bucket": "tp",
+      "rule_version": "extra-sector-classifier/2.3.1"
+    },
+    {
+      "official_id": "SC-60344",
+      "label_final": "UNDECIDABLE",
+      "skipped": true,
+      "reason": "UNDECIDABLE excluded from denominator"
+    },
+    {
+      "official_id": "SC-59393",
+      "label_final": "RELEVANT",
+      "predicted_label": "ENGINEERING_HIGH_CONFIDENCE",
+      "predicted_relevant": true,
+      "bucket": "tp",
+      "rule_version": "extra-sector-classifier/2.3.1"
+    },
+    {
+      "official_id": "SC-59184",
+      "label_final": "RELEVANT",
+      "predicted_label": "ENGINEERING_HIGH_CONFIDENCE",
+      "predicted_relevant": true,
+      "bucket": "tp",
+      "rule_version": "extra-sector-classifier/2.3.1"
+    },
+    {
+      "official_id": "SC-59037",
+      "label_final": "IRRELEVANT",
+      "predicted_label": "AMBIGUOUS",
+      "predicted_relevant": false,
+      "bucket": "tn",
+      "rule_version": "extra-sector-classifier/2.3.1"
+    },
+    {
+      "official_id": "SC-58930",
+      "label_final": "IRRELEVANT",
+      "predicted_label": "NON_ENGINEERING",
+      "predicted_relevant": false,
+      "bucket": "tn",
+      "rule_version": "extra-sector-classifier/2.3.1"
+    }
+  ]
+}

@@ -762,3 +762,18 @@ verify-confenge-evidence-provenance:
 	python3 -m scripts.ops.confenge_code_freeze verify-provenance
 
 
+
+.PHONY: campaign-gate-edital-relevance-recall test-edital-relevance-recall
+test-edital-relevance-recall:
+	python3 -m pytest -o addopts='' -q \
+		tests/coverage/test_edital_relevance_recall.py \
+		tests/test_sector_classifier_adversarial.py
+
+campaign-gate-edital-relevance-recall: test-edital-relevance-recall
+	python3 -m scripts.coverage.edital_relevance_recall evaluate \
+		--corpus evals/edital_relevance/locked_holdout.jsonl \
+		--manifest evals/edital_relevance/locked_holdout-manifest.json \
+		--profile config/client_profiles/extra.yaml \
+		--development evals/edital_relevance/development.jsonl \
+		--output artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01/edital-relevance-recall-result.json
+	@echo 'campaign-gate-edital-relevance-recall OK when exit 0 (relevance recall ≥95% on sealed holdout)'

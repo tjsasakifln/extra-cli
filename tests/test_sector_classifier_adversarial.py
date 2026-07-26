@@ -264,3 +264,56 @@ def test_aquisicao_motobombas_nao_obra():
     )
     assert clf.label == "NON_ENGINEERING"
     assert not is_engineering_for_e(clf)
+
+
+# --- EDITAL-RELEVANCE-RECALL-95-01 development-miss adversarial cases ---
+
+def test_execucao_obra_reforma_delegacia_engineering():
+    clf = classify_object(
+        "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE OBRA DE REFORMA E AMPLIAÇÃO DA DELEGACIA DE POLÍCIA"
+    )
+    _assert_audit(clf)
+    assert clf.label in {"ENGINEERING_HIGH_CONFIDENCE", "ENGINEERING_REVIEW"}
+    assert is_engineering_for_e(clf)
+
+
+def test_unidades_habitacionais_engineering():
+    clf = classify_object(
+        "execução de obra de construção de 20 unidades habitacionais de interesse social"
+    )
+    _assert_audit(clf)
+    assert clf.label in {"ENGINEERING_HIGH_CONFIDENCE", "ENGINEERING_REVIEW"}
+
+
+def test_empreitada_global_kit_ponte_engineering():
+    clf = classify_object(
+        "CONCORRÊNCIA ELETRÔNICA por EMPREITADA GLOBAL para Contratação de empresa de engenharia "
+        "para execução de serviços de obras preparatórias e INSTALAÇÃO DO KIT PONTE"
+    )
+    _assert_audit(clf)
+    assert clf.label in {"ENGINEERING_HIGH_CONFIDENCE", "ENGINEERING_REVIEW"}
+
+
+def test_boulevard_engenharia_engineering():
+    clf = classify_object(
+        "serviços técnicos de engenharia para EXECUÇÃO DE BOULEVARD NA AVENIDA ANCHIETA"
+    )
+    _assert_audit(clf)
+    assert clf.label in {"ENGINEERING_HIGH_CONFIDENCE", "ENGINEERING_REVIEW"}
+
+
+def test_construcao_quadras_escolares_engineering():
+    clf = classify_object(
+        "EXECUÇÃO DE CONSTRUÇÃO DE QUADRAS EM 03 UNIDADES ESCOLARES"
+    )
+    _assert_audit(clf)
+    assert clf.label in {"ENGINEERING_HIGH_CONFIDENCE", "ENGINEERING_REVIEW"}
+
+
+def test_medicamento_still_non_engineering_regression():
+    clf = classify_object(
+        "Aquisição de medicamento e insumos hospitalares para a farmácia básica municipal"
+    )
+    _assert_audit(clf)
+    assert clf.label in {"NON_ENGINEERING", "EXCLUDED_CATEGORY"}
+    assert not is_engineering_for_e(clf)

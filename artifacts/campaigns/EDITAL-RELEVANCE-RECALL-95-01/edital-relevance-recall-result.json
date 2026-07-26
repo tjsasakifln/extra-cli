@@ -1,0 +1,756 @@
+{
+  "pass": true,
+  "exit_code": 0,
+  "metric": "relevance_recall",
+  "not_capture_recall": true,
+  "threshold": 0.95,
+  "relevance_recall": 0.9642857142857143,
+  "informative_precision": 0.9507042253521126,
+  "confusion": {
+    "tp": 135,
+    "fp": 7,
+    "tn": 103,
+    "fn": 5,
+    "recall": 0.9642857142857143,
+    "precision": 0.9507042253521126
+  },
+  "confidence_interval_wilson_95": {
+    "low": 0.9191214161645802,
+    "high": 0.9846505107327846
+  },
+  "relevant_denominator": 140,
+  "undecidable_excluded": 0,
+  "false_negatives": [
+    {
+      "official_id": "SC-59467",
+      "source": "sc_compras",
+      "municipio": "Polícia Científica de Santa Catarina",
+      "natureza_juridica": "admin_direta",
+      "objeto": "Execução,    pela Celesc   Distribuição   S.A,   de Obra  no  Sistema  Elétrico  de Distribuição, destinada a atender     à     solicitação     do Protocolo  de  Nº  8065764186, cujo local de execução é: João Stoeberl, 710 , Rio negro, São Bento  do  Sul/SC,  visando  a realização    de  reforço  na  rede elétrica    para    acréscimo    de carga  para  o  Núcleo  Regional de  Polícia  Científica ",
+      "url": "https://www.sccompras.sc.gov.br/editais/59467",
+      "predicted_label": "AMBIGUOUS",
+      "reason": "sem termos positivos ou negativos do vocabulário Extra"
+    },
+    {
+      "official_id": "CIGA-8487266",
+      "source": "ciga",
+      "municipio": "Tubarão",
+      "natureza_juridica": "admin_direta",
+      "objeto": "LEI ORDINÁRIA Nº 6.530, DE 16 DE JUNHO DE 2026. ALTERA A LEI ORDINÁRIA N. 3.756/2012, QUE INSTITUI O PLANO DE SANEAMENTO BÁSICO QUE AGREGA O PLANO MUNICIPAL DE ABASTECIMENTO DE ÁGUA E ESGOTAMENTO SANITÁRIO – PMA E JÁ APROVADO PELO DECRETO Nº 2.538, DE 19 DE MARÇO DE 2008 E O PLANO DESTINADO À PREST — � 1. Lei Ordinaria-6530-2026.pdf LEI ORDINÁRIA Nº 6.530, DE 16 DE JUNHO DE 2026. ALTERA A LEI ORDI",
+      "url": "https://diariomunicipal.sc.gov.br/?q=id:8487266",
+      "predicted_label": "NON_ENGINEERING",
+      "reason": "veto setorial (limpeza_jardinagem)"
+    },
+    {
+      "official_id": "95719530000109-1-000021/2026",
+      "source": "pncp",
+      "municipio": "Entre Rios do Oeste",
+      "natureza_juridica": "admin_indireta",
+      "objeto": "Contratação de empresa especializada para prestação de serviço de substituição da iluminação do prédio do Plenário da Câmara Municipal, compreendendo a retirada das luminárias e lâmpadas existentes, fornecimento e instalação de novas luminárias sobrepor tipo plafon, novos spots de led embutidos, spots direcionáveis de sobrepor, iluminação decorativa em fita de led embutida, novos painéis led quadr",
+      "url": "https://pncp.gov.br/app/editais/95719530000109/2026/21",
+      "predicted_label": "AMBIGUOUS",
+      "reason": "sem termos positivos ou negativos do vocabulário Extra"
+    },
+    {
+      "official_id": "CIGA-8502187",
+      "source": "ciga",
+      "municipio": "Videira",
+      "natureza_juridica": "admin_direta",
+      "objeto": "HOMOLOGAÇÃO PE 54.2026 - PMV — � O Município de Videira comunica a homologação do seguinte ato: PREGÃO ELETRÔNICO Nº 54/2026-PMV PROCESSO Nº 128/2026 HOMOLOGAÇÃO.....: 09/07/2026 OBJETO..............: REGISTRO DE PREÇOS PARA EXECUÇÃO DE SERVIÇOS TÉCNICOS DEIMPLANTAÇÃO E MANUTENÇÃO DE REDES PLUVIAIS DE DRENAGEM,COMPREENDENDO ATIVIDADES DE ESCAVAÇÃO E ASSENTAMENTO DETUBULAÇÕES, PARA O MUNICÍPIO DE V",
+      "url": "https://diariomunicipal.sc.gov.br/?q=id:8502187",
+      "predicted_label": "AMBIGUOUS",
+      "reason": "sem termos positivos ou negativos do vocabulário Extra"
+    },
+    {
+      "official_id": "SC-58975",
+      "source": "sc_compras",
+      "municipio": "SANTA CATARINA (ESTADUAL)",
+      "natureza_juridica": "admin_direta",
+      "objeto": "Contratação de empresa especializada para execução de serviços de instalação, desinstalação e manutenção corretiva de aparelhos de ar condicionado sistema split, com capacidade entre 9.000 e 60.000 BTUs, incluindo execução de infraestrutura frigorígena, elétrica e de drenagem, bem como o fornecimento eventual de peças necessárias à manutenção corretiva, conforme demanda da Administração.\n\nOs servi",
+      "url": "https://www.sccompras.sc.gov.br/editais/58975",
+      "predicted_label": "AMBIGUOUS",
+      "reason": "sem termos positivos ou negativos do vocabulário Extra"
+    }
+  ],
+  "false_positives_count": 7,
+  "false_positives_nominal": [
+    {
+      "official_id": "CIGA-8474862",
+      "source": "ciga",
+      "objeto": "PROCESSO LICITATÓRIO 282/2026 INEXIGIBILIDADE 244/2026 — � CONSÓRCIO PÚBLICO INTERFEDERATIVO DE SAÚDE DO OESTE DE SANTA CATARINA Rua Euclides Prade, nº 200 Sala Comercial nº 09 do Condomínio Boulevard Das Acácias, Bairro Santa Maria, CEP 89.812-600, Chapecó/SC. PROCEDIMENTO ADMINISTRATIVO 1DOC Nº 40/2026 PROCESSO LICITATÓRIO N° 282/2026 INEXIGIBILIDADADE Nº 244/2026 1 INSTITUIÇÃO SOLICITANTE CONSÓ",
+      "predicted_label": "ENGINEERING_HIGH_CONFIDENCE"
+    },
+    {
+      "official_id": "25216102000170-1-000010/2026",
+      "source": "pncp",
+      "objeto": "VALOR REFERENTE A CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM RAMO DE OBRAS DE CONSTRUÇÃO CIVIL PARA A REFORMA DO GABINETE DA PRESIDÊNCIA, CONFORME PROCESSO LICITATÓRIO 0102026, DISPENSA 0092026, CONTRATO 0112026, ASSINADO EM 06042026.",
+      "predicted_label": "ENGINEERING_HIGH_CONFIDENCE"
+    },
+    {
+      "official_id": "CIGA-8487726",
+      "source": "ciga",
+      "objeto": "PROCESSO LICITATÓRIO Nº 350/2026 INEXIGIBILIDADE DE LICITAÇÃO N° 277/2026 — � PROCESSO LICITATÓRIO Nº 350/2026 INEXIGIBILIDADE DE LICITAÇÃO N° 277/2026 1. PREÂMBULO O CONSÓRCIO PÚBLICO INTERFEDERATIVO DE SAÚDE DO OESTE DE SANTA CATARINA, inscrito no CNPJ 01.336.261/0001-40, com sede na Rua Euclides Prade, n° 465-E, Sala Comercial nº 09, Condomínio Boulevard das Acácias, Bairro Santa Maria, CEP: 89",
+      "predicted_label": "ENGINEERING_HIGH_CONFIDENCE"
+    },
+    {
+      "official_id": "43052497000102-1-000361/2026",
+      "source": "pncp",
+      "objeto": "Contratação de obras e serviços de reconstrução de barragem de terra em área pertencente à Fazenda Santa Georgina, localizada em área lindeira à SP 345, no município de Franca/SP.",
+      "predicted_label": "ENGINEERING_HIGH_CONFIDENCE"
+    },
+    {
+      "official_id": "CIGA-8487898",
+      "source": "ciga",
+      "objeto": "TERMO DE PRORROGAÇÃO CHAMADA PÚBLICA PARA CREDENCIAMENTO N° 2/2025 — � TERMO DE PRORROGAÇÃO DE VIGÊNCIA EDITAL DE CHAMADA PÚBLICA PARA CREDENCIAMENTO Nº 02/2025 PROCESSO LICITATÓRIO Nº 189/2025 O CONSÓRCIO PÚBLICO INTERFEDERATIVO DE SAÚDE DO OESTE DE SANTA CATARINA – CIS, consórcio público, com personalidade jurídica de direito público e natureza autárquica, inscrito no CNPJ sob o nº 01.336.261/00",
+      "predicted_label": "ENGINEERING_HIGH_CONFIDENCE"
+    },
+    {
+      "official_id": "07226794000155-1-000087/2026",
+      "source": "pncp",
+      "objeto": "Aquisição de materiais hidráulicos",
+      "predicted_label": "ENGINEERING_REVIEW"
+    },
+    {
+      "official_id": "88201298000149-1-000804/2026",
+      "source": "pncp",
+      "objeto": "contratação de empresa especializada para realizar a Reforma do CME, Farmácia, Setor de Nutrição da Fundação Médico Hospitalar Dr. Honor Teixeira da Costa, conforme Portaria SES n.º 750/2023 – PROA n.º 23/2000.0149403-0 – Portaria de repasse SES n.º 360/2024, “AVANÇAR NA SAÚDE” celebrado entre o Estado do Rio Grande do Sul por intermédio da Secretaria Estadual de Saúde e o Município de Lavras do S",
+      "predicted_label": "ENGINEERING_HIGH_CONFIDENCE"
+    }
+  ],
+  "by_source": {
+    "ciga": {
+      "tp": 45,
+      "fp": 3,
+      "tn": 41,
+      "fn": 2,
+      "recall": 0.9574468085106383,
+      "precision": 0.9375
+    },
+    "pncp": {
+      "tp": 49,
+      "fp": 4,
+      "tn": 30,
+      "fn": 1,
+      "recall": 0.98,
+      "precision": 0.9245283018867925
+    },
+    "sc_compras": {
+      "tp": 41,
+      "fp": 0,
+      "tn": 32,
+      "fn": 2,
+      "recall": 0.9534883720930233,
+      "precision": 1.0
+    }
+  },
+  "by_municipio": {
+    "Abatiá": {
+      "tp": 0,
+      "fp": 0,
+      "tn": 1,
+      "fn": 0,
+      "recall": 0.0,
+      "precision": 0.0
+    },
+    "Agudos": {
+      "tp": 1,
+      "fp": 0,
+      "tn": 0,
+      "fn": 0,
+      "recall": 1.0,
+      "precision": 1.0
+    },
+    "Araranguá": {
+      "tp": 3,
+      "fp": 0,
+      "tn": 0,
+      "fn": 0,
+      "recall": 1.0,
+      "precision": 1.0
+    },
+    "Bagé": {
+      "tp": 0,
+      "fp": 0,
+      "tn": 1,
+      "fn": 0,
+      "recall": 0.0,
+      "precision": 0.0
+    },
+    "Balneário Camboriú": {
+      "tp": 0,
+      "fp": 0,
+      "tn": 1,
+      "fn": 0,
+      "recall": 0.0,
+      "precision": 0.0
+    },
+    "Balneário Piçarras": {
+      "tp": 0,
+      "fp": 0,
+      "tn": 2,
+      "fn": 0,
+      "recall": 0.0,
+      "precision": 0.0
+    },
+    "Balneário Rincão": {
+      "tp": 1,
+      "fp": 0,
+      "tn": 0,
+      "fn": 0,
+      "recall": 1.0,
+      "precision": 1.0
+    },
+    "Barbacena": {
+      "tp": 0,
+      "fp": 0,
+      "tn": 1,
+      "fn": 0,
+      "recall": 0.0,
+      "precision": 0.0
+    },
+    "Barra Funda": {
+      "tp": 1,
+      "fp": 0,
+      "tn": 0,
+      "fn": 0,
+      "recall": 1.0,
+      "precision": 1.0
+    },
+    "Barueri": {
+      "tp": 0,
+      "fp": 0,
+      "tn": 1,
+      "fn": 0,
+      "recall": 0.0,
+      "precision": 0.0
+    },
+    "Belmonte": {
+      "tp": 1,
+      "fp": 0,
+      "tn": 0,
+      "fn": 0,
+      "recall": 1.0,
+      "precision": 1.0
+    },
+    "Belo Horizonte": {
+      "tp": 1,
+      "fp": 0,
+      "tn": 0,
+      "fn": 0,
+      "recall": 1.0,
+      "precision": 1.0
+    },
+    "Bertioga": {
+      "tp": 1,
+      "fp": 0,
+      "tn": 0,
+      "fn": 0,
+      "recall": 1.0,
+      "precision": 1.0
+    },
+    "Biguaçu": {
+      "tp": 0,
+      "fp": 0,
+      "tn": 1,
+      "fn": 0,
+      "recall": 0.0,
+      "precision": 0.0
+    },
+    "Biritiba Mirim": {
+      "tp": 1,
+      "fp": 0,
+      "tn": 0,
+      "fn": 0,
+      "recall": 1.0,
+      "precision": 1.0
+    },
+    "Biritinga": {
+      "tp": 1,
+      "fp": 0,
+      "tn": 0,
+      "fn": 0,
+      "recall": 1.0,
+      "precision": 1.0
+    },
+    "Blumenau": {
+      "tp": 1,
+      "fp": 0,
+      "tn": 0,
+      "fn": 0,
+      "recall": 1.0,
+      "precision": 1.0
+    },
+    "Bodoquena": {
+      "tp": 1,
+      "fp": 0,
+      "tn": 0,
+      "fn": 0,
+      "recall": 1.0,
+      "precision": 1.0
+    },
+    "Brasília": {
+      "tp": 0,
+      "fp": 0,
+      "tn": 4,
+      "fn": 0,
+      "recall": 0.0,
+      "precision": 0.0
+    },
+    "Caibi": {
+      "tp": 2,
+      "fp": 0,
+      "tn": 0,
+      "fn": 0,
+      "recall": 1.0,
+      "precision": 1.0
+    },
+    "Campo Grande": {
+      "tp": 3,
+      "fp": 0,
+      "tn": 0,
+      "fn": 0,
+      "recall": 1.0,
+      "precision": 1.0
+    },
+    "Campos dos Goytacazes": {
+      "tp": 1,
+      "fp": 0,
+      "tn": 0,
+      "fn": 0,
+      "recall": 1.0,
+      "precision": 1.0
+    },
+    "Canoinhas": {
+      "tp": 4,
+      "fp": 0,
+      "tn": 0,
+      "fn": 0,
+      "recall": 1.0,
+      "precision": 1.0
+    },
+    "Canápolis": {
+      "tp": 1,
+      "fp": 0,
+      "tn": 0,
+      "fn": 0,
+      "recall": 1.0,
+      "precision": 1.0
+    },
+    "Caxambu do Sul": {
+      "tp": 0,
+      "fp": 0,
+      "tn": 1,
+      "fn": 0,
+      "recall": 0.0,
+      "precision": 0.0
+    },
+    "Caxias do Sul": {
+      "tp": 0,
+      "fp": 0,
+      "tn": 1,
+      "fn": 0,
+      "recall": 0.0,
+      "precision": 0.0
+    },
+    "Caçapava": {
+      "tp": 0,
+      "fp": 0,
+      "tn": 1,
+      "fn": 0,
+      "recall": 0.0,
+      "precision": 0.0
+    },
+    "Chapecó": {
+      "tp": 0,
+      "fp": 3,
+      "tn": 0,
+      "fn": 0,
+      "recall": 0.0,
+      "precision": 0.0
+    },
+    "Chavantes": {
+      "tp": 1,
+      "fp": 0,
+      "tn": 0,
+      "fn": 0,
+      "recall": 1.0,
+      "precision": 1.0
+    },
+    "Coari": {
+      "tp": 1,
+      "fp": 0,
+      "tn": 0,
+      "fn": 0,
+      "recall": 1.0,
+      "precision": 1.0
+    },
+    "Cocos": {
+      "tp": 1,
+      "fp": 0,
+      "tn": 0,
+      "fn": 0,
+      "recall": 1.0,
+      "precision": 1.0
+    },
+    "Companhia Integrada de Desenv. Agricola de Santa Catarina - CIDASC": {
+      "tp": 1,
+      "fp": 0,
+      "tn": 0,
+      "fn": 0,
+      "recall": 1.0,
+      "precision": 1.0
+    },
+    "Concórdia": {
+      "tp": 1,
+      "fp": 0,
+      "tn": 1,
+      "fn": 0,
+      "recall": 1.0,
+      "precision": 1.0
+    },
+    "Cordilheira Alta": {
+      "tp": 0,
+      "fp": 0,
+      "tn": 1,
+      "fn": 0,
+      "recall": 0.0,
+      "precision": 0.0
+    },
+    "Curitiba": {
+      "tp": 3,
+      "fp": 0,
+      "tn": 1,
+      "fn": 0,
+      "recall": 1.0,
+      "precision": 1.0
+    },
+    "Curitibanos": {
+      "tp": 0,
+      "fp": 0,
+      "tn": 1,
+      "fn": 0,
+      "recall": 0.0,
+      "precision": 0.0
+    },
+    "Curralinhos": {
+      "tp": 3,
+      "fp": 0,
+      "tn": 0,
+      "fn": 0,
+      "recall": 1.0,
+      "precision": 1.0
+    },
+    "Defesa Cívil - DC": {
+      "tp": 1,
+      "fp": 0,
+      "tn": 1,
+      "fn": 0,
+      "recall": 1.0,
+      "precision": 1.0
+    },
+    "Descanso": {
+      "tp": 1,
+      "fp": 0,
+      "tn": 0,
+      "fn": 0,
+      "recall": 1.0,
+      "precision": 1.0
+    },
+    "Empresa de Pesquisa Agropecuária e Extensão Rural de Santa Catarina - EPAGRI              ": {
+      "tp": 4,
+      "fp": 0,
+      "tn": 5,
+      "fn": 0,
+      "recall": 1.0,
+      "precision": 1.0
+    },
+    "Entre Rios do Oeste": {
+      "tp": 0,
+      "fp": 0,
+      "tn": 0,
+      "fn": 1,
+      "recall": 0.0,
+      "precision": 0.0
+    },
+    "Fraiburgo": {
+      "tp": 1,
+      "fp": 0,
+      "tn": 0,
+      "fn": 0,
+      "recall": 1.0,
+      "precision": 1.0
+    },
+    "Fundação Catarinense de Cultura - FCC": {
+      "tp": 0,
+      "fp": 0,
+      "tn": 2,
+      "fn": 0,
+      "recall": 0.0,
+      "precision": 0.0
+    },
+    "Fundação Escola de Governo - ENA": {
+      "tp": 1,
+      "fp": 0,
+      "tn": 3,
+      "fn": 0,
+      "recall": 1.0,
+      "precision": 1.0
+    },
+    "Governador Celso Ramos": {
+      "tp": 0,
+      "fp": 0,
+      "tn": 1,
+      "fn": 0,
+      "recall": 0.0,
+      "precision": 0.0
+    },
+    "Guanhães": {
+      "tp": 1,
+      "fp": 0,
+      "tn": 0,
+      "fn": 0,
+      "recall": 1.0,
+      "precision": 1.0
+    },
+    "Guarulhos": {
+      "tp": 1,
+      "fp": 0,
+      "tn": 0,
+      "fn": 0,
+      "recall": 1.0,
+      "precision": 1.0
+    },
+    "Ibiam": {
+      "tp": 1,
+      "fp": 0,
+      "tn": 0,
+      "fn": 0,
+      "recall": 1.0,
+      "precision": 1.0
+    },
+    "Ilhota": {
+      "tp": 1,
+      "fp": 0,
+      "tn": 0,
+      "fn": 0,
+      "recall": 1.0,
+      "precision": 1.0
+    },
+    "Imbituba": {
+      "tp": 2,
+      "fp": 0,
+      "tn": 1,
+      "fn": 0,
+      "recall": 1.0,
+      "precision": 1.0
+    }
+  },
+  "by_natureza": {
+    "admin_direta": {
+      "tp": 112,
+      "fp": 3,
+      "tn": 53,
+      "fn": 4,
+      "recall": 0.9655172413793104,
+      "precision": 0.9739130434782609
+    },
+    "admin_indireta": {
+      "tp": 23,
+      "fp": 4,
+      "tn": 50,
+      "fn": 1,
+      "recall": 0.9583333333333334,
+      "precision": 0.8518518518518519
+    }
+  },
+  "stratum_counts": {
+    "source:pncp": 84,
+    "municipio_bucket:pequeno": 117,
+    "natureza:admin_indireta": 78,
+    "municipio_bucket:medio": 83,
+    "natureza:admin_direta": 172,
+    "source:sc_compras": 75,
+    "source:ciga": 91,
+    "municipio_bucket:grande": 50
+  },
+  "integrity": {
+    "ok": true,
+    "errors": [],
+    "warnings": []
+  },
+  "versions": {
+    "evaluator_version": "edital-relevance-recall/1.0.0",
+    "schema_version": "edital-relevance-corpus/1.0.0",
+    "rule_version": "extra-sector-classifier/2.3.1",
+    "profile_hash": "aeaa8551547e167addfff707b642782b71d9526b8b8a8b8aa91b3a8cceaae92f",
+    "profile_path": "config/client_profiles/extra.yaml",
+    "corpus_path": "evals/edital_relevance/locked_holdout.jsonl",
+    "corpus_sha256": "f7c8d44d45b8f0fbee93f9f46ccbbdec21bc4a8f012ce1ed34baa35b87bf5f26",
+    "manifest_path": "evals/edital_relevance/locked_holdout-manifest.json",
+    "git_sha": "5b1edf6318226b8afa6199d7a9f100b8ac24a1a7",
+    "evaluated_at": "2026-07-26T21:51:08Z"
+  },
+  "forbidden_proxies_used": false,
+  "per_record_sample": [
+    {
+      "official_id": "04262366000190-1-000007/2026",
+      "label_final": "RELEVANT",
+      "predicted_label": "ENGINEERING_HIGH_CONFIDENCE",
+      "predicted_relevant": true,
+      "bucket": "tp",
+      "rule_version": "extra-sector-classifier/2.3.1"
+    },
+    {
+      "official_id": "82909409000190-1-000114/2026",
+      "label_final": "RELEVANT",
+      "predicted_label": "ENGINEERING_HIGH_CONFIDENCE",
+      "predicted_relevant": true,
+      "bucket": "tp",
+      "rule_version": "extra-sector-classifier/2.3.1"
+    },
+    {
+      "official_id": "SC-58456",
+      "label_final": "RELEVANT",
+      "predicted_label": "ENGINEERING_REVIEW",
+      "predicted_relevant": true,
+      "bucket": "tp",
+      "rule_version": "extra-sector-classifier/2.3.1"
+    },
+    {
+      "official_id": "91110296000159-1-000161/2026",
+      "label_final": "RELEVANT",
+      "predicted_label": "ENGINEERING_HIGH_CONFIDENCE",
+      "predicted_relevant": true,
+      "bucket": "tp",
+      "rule_version": "extra-sector-classifier/2.3.1"
+    },
+    {
+      "official_id": "CIGA-8474132",
+      "label_final": "RELEVANT",
+      "predicted_label": "ENGINEERING_HIGH_CONFIDENCE",
+      "predicted_relevant": true,
+      "bucket": "tp",
+      "rule_version": "extra-sector-classifier/2.3.1"
+    },
+    {
+      "official_id": "CIGA-8510316",
+      "label_final": "RELEVANT",
+      "predicted_label": "ENGINEERING_HIGH_CONFIDENCE",
+      "predicted_relevant": true,
+      "bucket": "tp",
+      "rule_version": "extra-sector-classifier/2.3.1"
+    },
+    {
+      "official_id": "76416932000181-1-000206/2026",
+      "label_final": "RELEVANT",
+      "predicted_label": "ENGINEERING_HIGH_CONFIDENCE",
+      "predicted_relevant": true,
+      "bucket": "tp",
+      "rule_version": "extra-sector-classifier/2.3.1"
+    },
+    {
+      "official_id": "SC-58954",
+      "label_final": "RELEVANT",
+      "predicted_label": "ENGINEERING_HIGH_CONFIDENCE",
+      "predicted_relevant": true,
+      "bucket": "tp",
+      "rule_version": "extra-sector-classifier/2.3.1"
+    },
+    {
+      "official_id": "CIGA-8510224",
+      "label_final": "RELEVANT",
+      "predicted_label": "ENGINEERING_REVIEW",
+      "predicted_relevant": true,
+      "bucket": "tp",
+      "rule_version": "extra-sector-classifier/2.3.1"
+    },
+    {
+      "official_id": "60509015000101-1-000104/2026",
+      "label_final": "RELEVANT",
+      "predicted_label": "ENGINEERING_HIGH_CONFIDENCE",
+      "predicted_relevant": true,
+      "bucket": "tp",
+      "rule_version": "extra-sector-classifier/2.3.1"
+    },
+    {
+      "official_id": "CIGA-8487397",
+      "label_final": "RELEVANT",
+      "predicted_label": "ENGINEERING_HIGH_CONFIDENCE",
+      "predicted_relevant": true,
+      "bucket": "tp",
+      "rule_version": "extra-sector-classifier/2.3.1"
+    },
+    {
+      "official_id": "SC-59360",
+      "label_final": "RELEVANT",
+      "predicted_label": "ENGINEERING_REVIEW",
+      "predicted_relevant": true,
+      "bucket": "tp",
+      "rule_version": "extra-sector-classifier/2.3.1"
+    },
+    {
+      "official_id": "SC-60086",
+      "label_final": "RELEVANT",
+      "predicted_label": "ENGINEERING_REVIEW",
+      "predicted_relevant": true,
+      "bucket": "tp",
+      "rule_version": "extra-sector-classifier/2.3.1"
+    },
+    {
+      "official_id": "01638918000123-1-000075/2026",
+      "label_final": "RELEVANT",
+      "predicted_label": "ENGINEERING_HIGH_CONFIDENCE",
+      "predicted_relevant": true,
+      "bucket": "tp",
+      "rule_version": "extra-sector-classifier/2.3.1"
+    },
+    {
+      "official_id": "SC-59207",
+      "label_final": "RELEVANT",
+      "predicted_label": "ENGINEERING_HIGH_CONFIDENCE",
+      "predicted_relevant": true,
+      "bucket": "tp",
+      "rule_version": "extra-sector-classifier/2.3.1"
+    },
+    {
+      "official_id": "01612579000106-1-000022/2026",
+      "label_final": "RELEVANT",
+      "predicted_label": "ENGINEERING_HIGH_CONFIDENCE",
+      "predicted_relevant": true,
+      "bucket": "tp",
+      "rule_version": "extra-sector-classifier/2.3.1"
+    },
+    {
+      "official_id": "CIGA-8509860",
+      "label_final": "RELEVANT",
+      "predicted_label": "ENGINEERING_HIGH_CONFIDENCE",
+      "predicted_relevant": true,
+      "bucket": "tp",
+      "rule_version": "extra-sector-classifier/2.3.1"
+    },
+    {
+      "official_id": "CIGA-8474641",
+      "label_final": "RELEVANT",
+      "predicted_label": "ENGINEERING_REVIEW",
+      "predicted_relevant": true,
+      "bucket": "tp",
+      "rule_version": "extra-sector-classifier/2.3.1"
+    },
+    {
+      "official_id": "46377800000127-1-002677/2026",
+      "label_final": "RELEVANT",
+      "predicted_label": "ENGINEERING_REVIEW",
+      "predicted_relevant": true,
+      "bucket": "tp",
+      "rule_version": "extra-sector-classifier/2.3.1"
+    },
+    {
+      "official_id": "SC-59570",
+      "label_final": "RELEVANT",
+      "predicted_label": "ENGINEERING_HIGH_CONFIDENCE",
+      "predicted_relevant": true,
+      "bucket": "tp",
+      "rule_version": "extra-sector-classifier/2.3.1"
+    }
+  ]
+}

@@ -18,7 +18,7 @@ from typing import Any
 
 import yaml
 
-RULE_VERSION = "extra-sector-classifier/2.2.0"
+RULE_VERSION = "extra-sector-classifier/2.3.1"
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_PROFILE_PATH = PROJECT_ROOT / "config/client_profiles/extra.yaml"
 
@@ -101,22 +101,60 @@ _FALLBACK_POSITIVE: list[tuple[str, str, str, float]] = [
     ("infraestrutura_urbana", r"\binfraestrutura\s+urbana\b|\burbaniza[cç]|\brevitaliza[cç][aã]o\s+urbana\b", "infraestrutura_urbana", 0.38),
     ("calcada", r"\bcal[cç]ad[ao]\b|\bpasseio\s+publico\b", "infraestrutura_urbana", 0.3),
     ("edificacao", r"\bedificacao\b|\bedificacoes\b|\bpredio\s+publico\b|\bedificio\s+publico\b", "edificacoes", 0.38),
-    ("construcao_edificios", r"\bconstru[cç][aã]o\s+de\s+(edif|pred|escola|creche|ubs|pronto.?socorro|ginasio|quadra)", "edificacoes", 0.45),
+    ("construcao_edificios", r"\bconstru[cç][aã]o\s+de\s+(edif|pred|escola|creche|ubs|pronto.?socorro|ginasio|quadra)|"
+     r"\bexecu[cç][aã]o\s+de\s+constru[cç][aã]o\s+de\s+quadras?\b|"
+     r"\bconstru[cç][aã]o\s+de\s+quadras?\b", "edificacoes", 0.45),
     ("ampliacao", r"\bamplia[cç][aã]o\s+de\s+(escola|creche|pred|edif|ubs|hospital|ginasio)", "edificacoes", 0.42),
     ("reforma_predial", r"\breforma\s+(predial|de\s+edif|de\s+pred|estrutural|de\s+escola|de\s+creche)", "reformas", 0.4),
     ("manutencao_predial", r"\bmanuten[cç][aã]o\s+(predial|de\s+edif|de\s+pred|civil\s+das\s+edifica|de\s+imovel)", "manutencao_predial", 0.38),
-    ("obra_engenharia", r"\bobra[s]?\s+de\s+engenharia\b|\bexecu[cç][aã]o\s+das\s+obras\s+de\s+engenharia\b|\bservicos?\s+de\s+engenharia\s+(civil|para)\b", "obras_civis", 0.45),
-    ("ponte_viaduto", r"\bponte\b|\bviaduto\b|\bpassarela\b|\bpontilh", "infraestrutura_urbana", 0.35),
+    ("obra_engenharia", r"\bobra[s]?\s+de\s+engenharia\b|\bexecu[cç][aã]o\s+das\s+obras\s+de\s+engenharia\b|"
+     r"\bservicos?\s+de\s+engenharia\s+(civil|para)\b|"
+     r"\bobras?\s+e\s+servicos?\s+de\s+engenharia\b|"
+     r"\bempresa\s+(de\s+)?engenharia\b.+\bexecu|"
+     r"\bempresa\s+especializada\s+(em\s+)?engenharia\b|"
+     r"\bempresa\s+de\s+engenharia\s+para\s+execu", "obras_civis", 0.45),
+    ("ponte_viaduto", r"\bponte\b|\bviaduto\b|\bpassarela\b|\bpontilh|\bkit\s+ponte\b", "infraestrutura_urbana", 0.35),
     ("contencao", r"\bconten[cç][aã]o\b|\bmuro\s+de\s+arrimo\b|\bgabiao\b", "terraplenagem", 0.35),
     ("demolicao", r"\bdemoli[cç]", "reformas", 0.28),
     ("projeto_engenharia", r"\bprojetos?\s+(executivo|basico|de\s+engenharia|arquitetonicos?|complementares?)", "projetos", 0.35),
     ("projetos_complementares", r"\bprojetos?\s+complementares\b|\bprojeto\s+estrutural\b|\bprojeto\s+hidrossanitario\b|\barquitetonicos?\s+e\s+complementares\b", "projetos", 0.35),
     ("fiscalizacao_obra", r"\bfiscaliza[cç][aã]o\s+(de\s+)?(obra|engenharia)", "projetos", 0.3),
     ("instalacoes_prediais", r"\binstala[cç][oõ]es\s+(eletricas|hidraulicas|prediais)\b", "manutencao_predial", 0.28),
-    ("cobertura_telhado", r"\bcobertura\s+(metalica|de\s+telha)|\btelhado\b", "reformas", 0.25),
+    ("cobertura_telhado", r"\bcobertura\s+(metalica|de\s+telha|de\s+quadra)|\btelhado\b|"
+     r"\bexecu[cç][aã]o\s+de\s+cobertura\b|\bimpermeabiliza[cç]", "reformas", 0.3),
     ("alvenaria_concreto", r"\balvenaria\b|\bestrutura\s+de\s+concreto\b", "edificacoes", 0.28),
-    ("recuperacao_estrutural", r"\brecupera[cç][aã]o\s+estrutural\b", "reformas", 0.35),
-    ("obras_publicas", r"\bexecu[cç][aã]o\s+de\s+obras?\b|\bobras?\s+publicas?\b", "obras_civis", 0.28),
+    ("recuperacao_estrutural", r"\brecupera[cç][aã]o\s+estrutural\b|\brefor[cç]o\s+estrutural\b", "reformas", 0.35),
+    ("obras_publicas", r"\bexecu[cç][aã]o\s+de\s+obras?\b|\bobras?\s+publicas?\b|"
+     r"\bexecu[cç][aã]o\s+de\s+obra\s+de\s+(reforma|construcao|ampliacao)\b|"
+     r"\bexecu[cç][aã]o\s+de\s+reforma\b|\bobra\s+emergencial\b|"
+     r"\bempreitada\s+(global|integral)\b", "obras_civis", 0.38),
+    ("construcao_habitacional", r"\bconstru[cç][aã]o\s+de\s+(\d+\s+)?(unidades?\s+habitacionais?|"
+     r"centros?\s+(culturais?|administrativos?)|complexo\s+educacional|"
+     r"sede|delegacia|maternidade|quadra\s+coberta|auditorio)\b|"
+     r"\bobras?\s+de\s+constru[cç][aã]o\b|"
+     r"\bexecu[cç][aã]o\s+das?\s+obras?\s+de\s+constru[cç][aã]o\b", "edificacoes", 0.42),
+    ("reforma_geral", r"\breforma\s+e\s+(amplia[cç]|adequa[cç])|"
+     r"\breforma\s+(da|de\s+a|para\s+conclusao|com\s+fornecimento|dos?\s+\w+|"
+     r"de\s+quadra|de\s+uma\s+sala)\b|"
+     r"\breforma\s+da\s+(delegacia|rede\s+eletrica|quadra)\b|"
+     r"\bexecu[cç][aã]o\s+da\s+reforma\b|"
+     r"\breforma\s+e\s+regulariza[cç]", "reformas", 0.38),
+    ("infra_viaria", r"\bviaduto\b|\bboulevard\b|\baumento\s+de\s+capacidade\s+da\s+rua\b|"
+     r"\brestauracao\s+com\s+aumento\s+de\s+capacidade\b|"
+     r"\bobra\s+de\s+restauracao\b.+\b(rua|rodovia|via)\b|"
+     r"\bexecu[cç][aã]o\s+obra\s+de\s+restauracao\b|"
+     r"\bcontencao\s+de\s+cheias\b|\bbarragem\b", "infraestrutura_urbana", 0.4),
+    ("engenharia_execucao", r"\bservicos?\s+(especializados\s+)?de\s+engenharia\b.+\bexecu|"
+     r"\bservicos?\s+tecnicos\s+de\s+engenharia\b.+\bexecu|"
+     r"\bexecu[cç][aã]o\s+de\s+obras?\s+de\s+arquitetura\s+e\s+engenharia\b|"
+     r"\bempresa\s+especializada\s+em\s+execucao\s+de\s+obras\b|"
+     r"\belaboracao\s+de\s+projetos\s+de\s+arquitetura\s+e\s+de\s+engenharia\b", "obras_civis", 0.4),
+    ("sondagem_geotecnia", r"\bsondagem\s+de\s+solo\b|\bsondagem\b.+\bSPT\b|\bgeotecni", "projetos", 0.35),
+    ("poco_artesiano", r"\bpoco\s+artesiano\b|\bperfuracao\s+de\s+poco\b", "saneamento", 0.38),
+    ("manutencao_rodovias", r"\bmanuten[cç][aã]o\b.+\b(rodovias?\s+pavimentadas|estradas?\s+nao\s+pavimentadas)\b|"
+     r"\bconservacao/recuperacao\b.+\brodovias?\b|"
+     r"\bmanuten[cç][aã]o\s+\(conservacao", "pavimentacao", 0.38),
+    ("obras_arte_especiais", r"\bobras?\s+de\s+arte\s+especiais?\b|\bOAE\b", "infraestrutura_urbana", 0.35),
 ]
 
 # Negativos com veto forte (sempre >= 0.55 para poder anular pos fraco)
@@ -435,28 +473,23 @@ def classify_object(
         if tid not in seen_neg:
             negatives.append((tid, cre, w))
 
-    # Prefer precise fallback positives for critical terms (override broad profile patterns)
-    precise_pos = {
+    # Always merge full fallback positives. Profile vocabulary alone is incomplete for
+    # civil-works phrasing (obra de reforma, unidades habitacionais, boulevard, etc.).
+    # Fallback wins on id collision for known engineering terms.
+    fb_pos_map = {
         tid: (tid, re.compile(pat, re.I), sub, w)
         for tid, pat, sub, w in _FALLBACK_POSITIVE
-        if tid
-        in {
-            "pavimentacao",
-            "saneamento",
-            "esgoto_rede",
-            "drenagem",
-            "asfalto",
-        }
     }
-    filtered_pos = []
-    seen_pos = set()
+    filtered_pos: list[tuple[str, re.Pattern[str], str, float]] = []
+    seen_pos: set[str] = set()
     for tid, cre, sub, w in positives:
-        if tid in precise_pos:
-            continue  # replaced by precise
+        if tid in fb_pos_map:
+            continue  # replaced by fallback
         filtered_pos.append((tid, cre, sub, w))
         seen_pos.add(tid)
-    for tid, item in precise_pos.items():
+    for tid, item in fb_pos_map.items():
         filtered_pos.append(item)
+        seen_pos.add(tid)
     positives = filtered_pos
 
     pos_hits: list[tuple[str, str, float]] = []

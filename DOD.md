@@ -824,7 +824,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] O usuário pode marcar falsos negativos identificados.
 - [ ] Feedback manual pode ser exportado para calibração.
 - [ ] A amostra-ouro inclui oportunidades relevantes e irrelevantes.
-- [ ] Recall de editais relevantes >= 95% na amostra-ouro.
+- [x] Recall de editais relevantes >= 95% na amostra-ouro. Evidência: campanha `EDITAL-RELEVANCE-RECALL-95-01` · holdout `evals/edital_relevance/locked_holdout.jsonl` (140 RELEVANT adjudicados) · evaluator `python -m scripts.coverage.edital_relevance_recall evaluate` · relevance_recall=0.9643 (135/140) · rule_version `extra-sector-classifier/2.3.1` · result `artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01/edital-relevance-recall-result.json` · review `docs/ops/campaigns/EDITAL-RELEVANCE-RECALL-95-01/review/INDEPENDENT-REVIEW.md` · tests `tests/coverage/test_edital_relevance_recall.py`.
 - [ ] Existem zero falsos “abertos” na amostra prioritária.
 - [ ] A amostra é estratificada por município, natureza jurídica e fonte.
 

@@ -1,0 +1,26 @@
+{
+  "schema_version": "edital-relevance-corpus/1.0.0",
+  "role": "locked_holdout",
+  "campaign": "EDITAL-RELEVANCE-RECALL-95-01",
+  "frozen_at": "2026-07-26T21:49:37Z",
+  "sealed_before_classifier_edits": true,
+  "corpus_path": "evals/edital_relevance/locked_holdout.jsonl",
+  "corpus_sha256": "f7c8d44d45b8f0fbee93f9f46ccbbdec21bc4a8f012ce1ed34baa35b87bf5f26",
+  "n_records": 250,
+  "n_relevant": 140,
+  "n_irrelevant": 110,
+  "n_undecidable": 0,
+  "dual_label_agreement_rate": 0.936,
+  "sources": {
+    "pncp": 84,
+    "sc_compras": 75,
+    "ciga": 91
+  },
+  "selection_rule": "public_inventory_only; stratified content sample; NOT system_class/db_count/score/success_zero/operational_queue",
+  "stratum_blockers": {},
+  "reviewers": [
+    "criteria_A_inclusion_first",
+    "criteria_B_exclusion_first"
+  ],
+  "adjudication": "conflicts adjudicated; UNDECIDABLE never silent→IRRELEVANT"
+}
