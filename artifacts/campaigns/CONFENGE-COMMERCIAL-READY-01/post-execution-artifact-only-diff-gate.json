@@ -1,11 +1,11 @@
 {
   "ok": true,
   "status": "PASS",
-  "current_pr_head_sha": "0afeeb132695b1b027f7d4a5e27bdac92826e5a1",
+  "current_pr_head_sha": "57854f025ba2ac7bb98adf6434623b49794378b5",
   "final_code_freeze_sha": "2eb139b576c11ad0bcac75edfb3fa610992c1777",
   "executed_code_sha": "2eb139b576c11ad0bcac75edfb3fa610992c1777",
   "code_tree_hash_at_execution": "04d4e147da64cfde5693ab084a008ddb2610cff5a48c2621f801d58c0a531d0e",
-  "code_tree_hash_at_current_head": "78eeb9afec7c9eacfd776f545c5d17f3e1505ceec5e932a99798b0f5a20b329e",
+  "code_tree_hash_at_current_head": "1907a1ba9085bdcd6b4068cebc22c8ba985460ff69a112938c32a59896986ed1",
   "code_changed_after_execution": false,
   "artifact_only_commits_after_execution": true,
   "files_changed_after_freeze": [
@@ -30,6 +30,6 @@
     "artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/result.json"
   ],
   "non_artifact_files_changed": [],
-  "verified_at": "2026-07-26T15:36:36Z",
+  "verified_at": "2026-07-26T15:37:45Z",
   "policy": "post-freeze commits only under artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/** and docs/ops/**"
 }
