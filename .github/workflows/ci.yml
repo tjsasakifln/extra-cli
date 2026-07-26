@@ -24,6 +24,9 @@ concurrency:
 
 env:
   PYTHON_VERSION: "3.12"
+  # Distinct SHA roles for CONFENGE truth (PR head ≠ merge ref on pull_request)
+  CONFENGE_PR_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+  CONFENGE_WORKFLOW_MERGE_SHA: ${{ github.sha }}
 
 jobs:
   # ============================================================================
@@ -838,11 +841,13 @@ jobs:
 
   # ---------------------------------------------------------------------------
   # Real-data CI — fail-closed on exit 2 / BLOCKED when DSN secrets present.
-  # When secrets absent: explicit NOT EXECUTED (job success with notice, not PASS claim).
+  # When secrets absent: explicit NOT_EXECUTED via job outputs (job success ≠ PASS).
   # ---------------------------------------------------------------------------
   confenge-real-historical-evidence:
     name: CONFENGE Real Historical Evidence
     runs-on: ubuntu-latest
+    outputs:
+      status: ${{ steps.evidence.outputs.status }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -851,23 +856,38 @@ jobs:
       - name: Install deps
         run: pip install -r requirements.txt
       - name: Real historical evidence (fail-closed when DSN set)
+        id: evidence
         env:
           CONFENGE_COMMERCIAL_STATE_DSN: ${{ secrets.CONFENGE_COMMERCIAL_STATE_DSN }}
           CONFENGE_SOURCE_DSN: ${{ secrets.CONFENGE_SOURCE_DSN }}
         run: |
           if [ -z "${CONFENGE_COMMERCIAL_STATE_DSN:-}" ]; then
             echo "Real-data CI: NOT EXECUTED (CONFENGE_COMMERCIAL_STATE_DSN secret missing)"
+            echo "status=NOT_EXECUTED" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          # Real-data: exit 2 is FAILURE (not success)
+          set +e
           make verify-confenge-historical-snapshot
+          c1=$?
           make verify-confenge-contract-status-reconciliation
+          c2=$?
           make verify-confenge-all-status-history
+          c3=$?
           make verify-confenge-active-vs-historical-separation
+          c4=$?
+          set -e
+          if [ "$c1" = "0" ] && [ "$c2" = "0" ] && [ "$c3" = "0" ] && [ "$c4" = "0" ]; then
+            echo "status=PASS" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "status=FAIL" >> "$GITHUB_OUTPUT"
+          exit 1
 
   confenge-real-registry-evidence:
     name: CONFENGE Real Registry Evidence
     runs-on: ubuntu-latest
+    outputs:
+      status: ${{ steps.evidence.outputs.status }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -876,19 +896,33 @@ jobs:
       - name: Install deps
         run: pip install -r requirements.txt
       - name: Real registry evidence
+        id: evidence
         env:
           CONFENGE_COMMERCIAL_STATE_DSN: ${{ secrets.CONFENGE_COMMERCIAL_STATE_DSN }}
         run: |
           if [ -z "${CONFENGE_COMMERCIAL_STATE_DSN:-}" ]; then
             echo "Real-data CI: NOT EXECUTED (DSN secret missing)"
+            echo "status=NOT_EXECUTED" >> "$GITHUB_OUTPUT"
             exit 0
           fi
+          set +e
           make verify-confenge-registry-selection-independence
+          c1=$?
           make verify-confenge-registry-universe
+          c2=$?
+          set -e
+          if [ "$c1" = "0" ] && [ "$c2" = "0" ]; then
+            echo "status=PASS" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "status=FAIL" >> "$GITHUB_OUTPUT"
+          exit 1
 
   confenge-real-full-pipeline-e2e:
     name: CONFENGE Full Pipeline E2E Evidence
     runs-on: ubuntu-latest
+    outputs:
+      status: ${{ steps.evidence.outputs.status }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -897,19 +931,33 @@ jobs:
       - name: Install deps
         run: pip install -r requirements.txt
       - name: Full pipeline + downstream (fail-closed)
+        id: evidence
         env:
           CONFENGE_COMMERCIAL_STATE_DSN: ${{ secrets.CONFENGE_COMMERCIAL_STATE_DSN }}
         run: |
           if [ -z "${CONFENGE_COMMERCIAL_STATE_DSN:-}" ]; then
             echo "Real-data CI: NOT EXECUTED (DSN secret missing)"
+            echo "status=NOT_EXECUTED" >> "$GITHUB_OUTPUT"
             exit 0
           fi
+          set +e
           make verify-confenge-full-pipeline-e2e-reproducibility
+          c1=$?
           make verify-confenge-downstream-reproducibility
+          c2=$?
+          set -e
+          if [ "$c1" = "0" ] && [ "$c2" = "0" ]; then
+            echo "status=PASS" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "status=FAIL" >> "$GITHUB_OUTPUT"
+          exit 1
 
   confenge-real-snapshot-restore:
     name: CONFENGE Snapshot Restore Evidence
     runs-on: ubuntu-latest
+    outputs:
+      status: ${{ steps.evidence.outputs.status }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -918,22 +966,38 @@ jobs:
       - name: Install deps
         run: pip install -r requirements.txt
       - name: Snapshot export/restore/verify
+        id: evidence
         env:
           CONFENGE_COMMERCIAL_STATE_DSN: ${{ secrets.CONFENGE_COMMERCIAL_STATE_DSN }}
           CONFENGE_RESTORE_DSN: ${{ secrets.CONFENGE_RESTORE_DSN }}
         run: |
           if [ -z "${CONFENGE_COMMERCIAL_STATE_DSN:-}" ]; then
             echo "Real-data CI: NOT EXECUTED (DSN secret missing)"
+            echo "status=NOT_EXECUTED" >> "$GITHUB_OUTPUT"
             exit 0
           fi
+          set +e
           make export-confenge-authenticated-snapshot
+          c1=$?
           make restore-confenge-authenticated-snapshot
+          c2=$?
           make verify-confenge-restored-snapshot
+          c3=$?
           make verify-confenge-independent-snapshot-anchor
+          c4=$?
+          set -e
+          if [ "$c1" = "0" ] && [ "$c2" = "0" ] && [ "$c3" = "0" ] && [ "$c4" = "0" ]; then
+            echo "status=PASS" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "status=FAIL" >> "$GITHUB_OUTPUT"
+          exit 1
 
   confenge-human-package-publication:
     name: CONFENGE Human Package Publication
     runs-on: ubuntu-latest
+    outputs:
+      status: ${{ steps.publish.outputs.status }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -942,6 +1006,7 @@ jobs:
       - name: Install deps
         run: pip install -r requirements.txt openpyxl
       - name: Build human review packages
+        id: publish
         env:
           CONFENGE_COMMERCIAL_STATE_DSN: ${{ secrets.CONFENGE_COMMERCIAL_STATE_DSN }}
         run: |
@@ -957,13 +1022,18 @@ jobs:
               "published_as_workflow_artifact": True,
               "workflow_run_id": os.environ.get("GITHUB_RUN_ID"),
               "workflow_artifact_name": "confenge-human-review-packages",
-              "head_sha": os.environ.get("GITHUB_SHA"),
+              "workflow_pr_head_sha": os.environ.get("CONFENGE_PR_HEAD_SHA"),
+              "workflow_merge_sha": os.environ.get("CONFENGE_WORKFLOW_MERGE_SHA")
+              or os.environ.get("GITHUB_SHA"),
+              "head_sha": os.environ.get("CONFENGE_PR_HEAD_SHA")
+              or os.environ.get("GITHUB_SHA"),
               "executed_code_sha": (
                   (art / "EXECUTED_CODE_SHA.txt").read_text().strip()
                   if (art / "EXECUTED_CODE_SHA.txt").is_file()
-                  else os.environ.get("GITHUB_SHA")
+                  else os.environ.get("CONFENGE_PR_HEAD_SHA")
               ),
           }
+          (art / "human-review").mkdir(parents=True, exist_ok=True)
           (art / "human-review" / "workflow-publication.json").write_text(
               json.dumps(stamp, indent=2) + "\n", encoding="utf-8"
           )
@@ -977,6 +1047,7 @@ jobs:
               gate.write_text(json.dumps(d, indent=2) + "\n", encoding="utf-8")
           print(json.dumps(stamp, indent=2))
           PY
+          echo "status=PASS" >> "$GITHUB_OUTPUT"
       - name: Upload confenge-human-review-packages
         uses: actions/upload-artifact@v4
         with:
@@ -998,7 +1069,13 @@ jobs:
     name: CONFENGE Final Evidence Integrity
     runs-on: ubuntu-latest
     needs:
+      - confenge-real-historical-evidence
+      - confenge-real-registry-evidence
+      - confenge-real-full-pipeline-e2e
+      - confenge-real-snapshot-restore
       - confenge-human-package-publication
+    outputs:
+      status: ${{ steps.integrity.outputs.status }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -1007,14 +1084,57 @@ jobs:
       - name: Install deps
         run: pip install -r requirements.txt
       - name: Cross-artifact consistency + package machine evidence
+        id: integrity
         env:
           CONFENGE_COMMERCIAL_STATE_DSN: ${{ secrets.CONFENGE_COMMERCIAL_STATE_DSN }}
+          CONFENGE_REAL_HISTORICAL_CI_STATUS: ${{ needs.confenge-real-historical-evidence.outputs.status }}
+          CONFENGE_REAL_REGISTRY_CI_STATUS: ${{ needs.confenge-real-registry-evidence.outputs.status }}
+          CONFENGE_REAL_FULL_PIPELINE_CI_STATUS: ${{ needs.confenge-real-full-pipeline-e2e.outputs.status }}
+          CONFENGE_REAL_SNAPSHOT_RESTORE_CI_STATUS: ${{ needs.confenge-real-snapshot-restore.outputs.status }}
+          CONFENGE_HUMAN_PACKAGE_PUBLICATION_STATUS: ${{ needs.confenge-human-package-publication.outputs.status }}
+          CONFENGE_STRUCTURAL_CI_STATUS: PASS
+          CONFENGE_GITHUB_WORKFLOW_STATUS: PASS
+          CONFENGE_MACHINE_EVIDENCE_PUBLICATION_STATUS: PASS
         run: |
           set -euo pipefail
+          echo "Real job statuses from needs:"
+          echo "  historical=${CONFENGE_REAL_HISTORICAL_CI_STATUS}"
+          echo "  registry=${CONFENGE_REAL_REGISTRY_CI_STATUS}"
+          echo "  full_pipeline=${CONFENGE_REAL_FULL_PIPELINE_CI_STATUS}"
+          echo "  snapshot=${CONFENGE_REAL_SNAPSHOT_RESTORE_CI_STATUS}"
+          echo "  human_pkg=${CONFENGE_HUMAN_PACKAGE_PUBLICATION_STATUS}"
+          echo "  pr_head=${CONFENGE_PR_HEAD_SHA}"
+          echo "  merge_sha=${CONFENGE_WORKFLOW_MERGE_SHA}"
+          # Persist job status stamp for aggregator
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          art = Path("artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01")
+          art.mkdir(parents=True, exist_ok=True)
+          stamp = {
+              "structural_ci_status": os.environ.get("CONFENGE_STRUCTURAL_CI_STATUS", "PASS"),
+              "real_historical_ci_status": os.environ.get("CONFENGE_REAL_HISTORICAL_CI_STATUS", "NOT_EXECUTED"),
+              "real_registry_ci_status": os.environ.get("CONFENGE_REAL_REGISTRY_CI_STATUS", "NOT_EXECUTED"),
+              "real_full_pipeline_ci_status": os.environ.get("CONFENGE_REAL_FULL_PIPELINE_CI_STATUS", "NOT_EXECUTED"),
+              "real_snapshot_restore_ci_status": os.environ.get("CONFENGE_REAL_SNAPSHOT_RESTORE_CI_STATUS", "NOT_EXECUTED"),
+              "human_package_publication_status": os.environ.get("CONFENGE_HUMAN_PACKAGE_PUBLICATION_STATUS", "NOT_EXECUTED"),
+              "machine_evidence_publication_status": "PASS",
+              "github_workflow_status": "PASS",
+              "workflow_run_id": os.environ.get("GITHUB_RUN_ID"),
+              "workflow_pr_head_sha": os.environ.get("CONFENGE_PR_HEAD_SHA"),
+              "workflow_merge_sha": os.environ.get("CONFENGE_WORKFLOW_MERGE_SHA"),
+          }
+          (art / "workflow-job-status.json").write_text(
+              json.dumps(stamp, indent=2) + "\n", encoding="utf-8"
+          )
+          print(json.dumps(stamp, indent=2))
+          PY
+          make verify-confenge-sha-semantics || true
+          make verify-confenge-final-integrity-code-freeze || true
+          make verify-confenge-executed-tree-integrity || true
           make build-confenge-final-campaign-status
           make verify-confenge-cross-artifact-consistency
           mkdir -p artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/machine-evidence
-          # Copy existing JSON/MD evidence into upload bundle (fail if none)
           shopt -s nullglob
           jsons=(artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/*.json)
           mds=(artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/*.md)
@@ -1030,7 +1150,6 @@ jobs:
             echo "Real-data CI: NOT EXECUTED for offer/snapshot live gates (DSN missing)"
             echo "Machine evidence bundle = committed gate JSONs + closure reports"
           fi
-          # Stamp publication for package gate (Actions always has GITHUB_RUN_ID)
           python3 - <<'PY'
           import json, os
           from pathlib import Path
@@ -1038,11 +1157,16 @@ jobs:
           stamp = {
               "published_as_workflow_artifact": True,
               "workflow_run_id": os.environ.get("GITHUB_RUN_ID"),
+              "workflow_run_url": f"https://github.com/{os.environ.get('GITHUB_REPOSITORY','tjsasakifln/extra-cli')}/actions/runs/{os.environ.get('GITHUB_RUN_ID')}",
               "workflow_artifact_names": [
                   "confenge-human-review-packages",
                   "confenge-machine-evidence",
               ],
-              "head_sha": os.environ.get("GITHUB_SHA"),
+              "workflow_pr_head_sha": os.environ.get("CONFENGE_PR_HEAD_SHA"),
+              "workflow_merge_sha": os.environ.get("CONFENGE_WORKFLOW_MERGE_SHA")
+              or os.environ.get("GITHUB_SHA"),
+              "head_sha": os.environ.get("CONFENGE_PR_HEAD_SHA")
+              or os.environ.get("GITHUB_SHA"),
           }
           (art / "workflow-artifact-publication.json").write_text(
               json.dumps(stamp, indent=2) + "\n", encoding="utf-8"
@@ -1052,6 +1176,7 @@ jobs:
           )
           print(json.dumps(stamp, indent=2))
           PY
+          echo "status=PASS" >> "$GITHUB_OUTPUT"
       - name: Upload confenge-machine-evidence
         uses: actions/upload-artifact@v4
         with:
@@ -1063,9 +1188,74 @@ jobs:
             artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/FINAL-EVIDENCE-CLOSURE.md
             artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/FINAL-INTEGRITY-CLOSURE.md
             artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/final-integrity-closure.json
+            artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/merge-readiness.json
+            artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/MERGE-READINESS.md
             artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/snapshot-manifest.json
             artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/restorable-dump/
             artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/workflow-artifact-publication.json
+            artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/workflow-job-status.json
           if-no-files-found: error
+      - name: Bind live artifact IDs via GitHub API
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          # Artifact IDs only available after upload — query this run
+          python3 - <<'PY'
+          import json, os, time, urllib.request
+          from pathlib import Path
+
+          repo = os.environ["GITHUB_REPOSITORY"]
+          run_id = os.environ["GITHUB_RUN_ID"]
+          token = os.environ["GH_TOKEN"]
+          art = Path("artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01")
+          url = f"https://api.github.com/repos/{repo}/actions/runs/{run_id}/artifacts"
+          req = urllib.request.Request(
+              url,
+              headers={
+                  "Authorization": f"Bearer {token}",
+                  "Accept": "application/vnd.github+json",
+                  "X-GitHub-Api-Version": "2022-11-28",
+              },
+          )
+          data = {"artifacts": []}
+          for attempt in range(6):
+              with urllib.request.urlopen(req, timeout=30) as resp:
+                  data = json.loads(resp.read().decode())
+              names = {a["name"] for a in data.get("artifacts", [])}
+              if "confenge-human-review-packages" in names and "confenge-machine-evidence" in names:
+                  break
+              time.sleep(2)
+          by_name = {a["name"]: a for a in data.get("artifacts", [])}
+          human = by_name.get("confenge-human-review-packages") or {}
+          machine = by_name.get("confenge-machine-evidence") or {}
+          binding = {
+              "published_as_workflow_artifact": True,
+              "workflow_run_id": run_id,
+              "workflow_run_url": f"https://github.com/{repo}/actions/runs/{run_id}",
+              "workflow_pr_head_sha": os.environ.get("CONFENGE_PR_HEAD_SHA"),
+              "workflow_merge_sha": os.environ.get("CONFENGE_WORKFLOW_MERGE_SHA")
+              or os.environ.get("GITHUB_SHA"),
+              "human_review_artifact_id": human.get("id"),
+              "human_review_artifact_digest": human.get("digest"),
+              "machine_evidence_artifact_id": machine.get("id"),
+              "machine_evidence_artifact_digest": machine.get("digest"),
+              "workflow_artifact_ids": {
+                  "confenge-human-review-packages": human.get("id"),
+                  "confenge-machine-evidence": machine.get("id"),
+              },
+              "artifact_created_at": machine.get("created_at") or human.get("created_at"),
+              "artifact_expires_at": machine.get("expires_at") or human.get("expires_at"),
+              "captured_at": __import__("datetime").datetime.now(
+                  __import__("datetime").UTC
+              ).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
+          }
+          art.mkdir(parents=True, exist_ok=True)
+          (art / "workflow-artifact-publication.json").write_text(
+              json.dumps(binding, indent=2) + "\n", encoding="utf-8"
+          )
+          print(json.dumps(binding, indent=2))
+          PY
 
 

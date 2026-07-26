@@ -93,11 +93,7 @@ def verify_code_freeze(*, freeze_sha: str | None = None) -> dict[str, Any]:
         freeze_path.write_text(freeze_sha + "\n", encoding="utf-8")
 
     exec_path = ART / "EXECUTED_CODE_SHA.txt"
-    executed = (
-        exec_path.read_text(encoding="utf-8").strip().split()[0]
-        if exec_path.is_file()
-        else freeze_sha
-    )
+    executed = exec_path.read_text(encoding="utf-8").strip().split()[0] if exec_path.is_file() else freeze_sha
 
     tree_freeze = code_tree_hash(freeze_sha)
     tree_head = code_tree_hash(head)
@@ -110,11 +106,7 @@ def verify_code_freeze(*, freeze_sha: str | None = None) -> dict[str, Any]:
             changed = _git("diff", "--name-only", f"{freeze_sha}..{head}").splitlines()
         except subprocess.CalledProcessError:
             changed = []
-    non_artifact = [
-        f
-        for f in changed
-        if not any(f.startswith(p) for p in ALLOWED_POST_FREEZE_PREFIXES)
-    ]
+    non_artifact = [f for f in changed if not any(f.startswith(p) for p in ALLOWED_POST_FREEZE_PREFIXES)]
     artifact_only = len(changed) > 0 and len(non_artifact) == 0
     ok = executed == freeze_sha and (not code_changed or artifact_only)
 
@@ -125,10 +117,7 @@ def verify_code_freeze(*, freeze_sha: str | None = None) -> dict[str, Any]:
             path_changed = _git("diff", "--name-only", f"{freeze_sha}..{head}").splitlines()
         except subprocess.CalledProcessError:
             path_changed = changed
-    path_non = [
-        f for f in path_changed
-        if not any(f.startswith(p) for p in ALLOWED_POST_FREEZE_PREFIXES)
-    ]
+    path_non = [f for f in path_changed if not any(f.startswith(p) for p in ALLOWED_POST_FREEZE_PREFIXES)]
     path_artifact_only = len(path_changed) == 0 or len(path_non) == 0
     ok = executed == freeze_sha and path_artifact_only
     report = {
@@ -155,10 +144,7 @@ def verify_post_execution_artifact_only_diff(*, freeze_sha: str | None = None) -
     fr = verify_code_freeze(freeze_sha=freeze_sha)
     ok = bool(
         fr.get("executed_code_sha") == fr.get("final_code_freeze_sha")
-        and (
-            not fr.get("code_changed_after_execution")
-            or fr.get("artifact_only_commits_after_execution")
-        )
+        and (not fr.get("code_changed_after_execution") or fr.get("artifact_only_commits_after_execution"))
         and not fr.get("non_artifact_files_changed")
     )
     report = {
@@ -229,10 +215,7 @@ def verify_evidence_provenance() -> dict[str, Any]:
         "code_tree_hash_at_current_head": freeze.get("code_tree_hash_at_current_head"),
         "code_changed_after_execution": freeze.get("code_changed_after_execution"),
         "artifact_only_commits_after_execution": artifact_only,
-        "non_artifact_files_changed_after_execution": freeze.get(
-            "non_artifact_files_changed"
-        )
-        or [],
+        "non_artifact_files_changed_after_execution": freeze.get("non_artifact_files_changed") or [],
         "execution": env,
         "match_run_to_head": match_run,
         "sha_semantics": {
@@ -246,9 +229,7 @@ def verify_evidence_provenance() -> dict[str, Any]:
         },
         "verified_at": utc_now(),
     }
-    (ART / "evidence-provenance-gate.json").write_text(
-        json.dumps(report, indent=2) + "\n", encoding="utf-8"
-    )
+    (ART / "evidence-provenance-gate.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     return report
 
 
@@ -281,11 +262,7 @@ def verify_final_integrity_code_freeze() -> dict[str, Any]:
     freeze_path = ART / "FINAL_INTEGRITY_CODE_FREEZE_SHA.txt"
     if not freeze_path.is_file():
         freeze_path = ART / "FINAL_CODE_FREEZE_SHA.txt"
-    freeze_sha = (
-        freeze_path.read_text(encoding="utf-8").strip().split()[0]
-        if freeze_path.is_file()
-        else None
-    )
+    freeze_sha = freeze_path.read_text(encoding="utf-8").strip().split()[0] if freeze_path.is_file() else None
     if not freeze_sha:
         rep = {
             "ok": False,
@@ -293,17 +270,11 @@ def verify_final_integrity_code_freeze() -> dict[str, Any]:
             "reason": "missing_FINAL_INTEGRITY_CODE_FREEZE_SHA",
             "current_pr_head_sha": head,
         }
-        (ART / "final-integrity-code-freeze-gate.json").write_text(
-            json.dumps(rep, indent=2) + "\n", encoding="utf-8"
-        )
+        (ART / "final-integrity-code-freeze-gate.json").write_text(json.dumps(rep, indent=2) + "\n", encoding="utf-8")
         return rep
 
     exec_path = ART / "EXECUTED_CODE_SHA.txt"
-    executed = (
-        exec_path.read_text(encoding="utf-8").strip().split()[0]
-        if exec_path.is_file()
-        else freeze_sha
-    )
+    executed = exec_path.read_text(encoding="utf-8").strip().split()[0] if exec_path.is_file() else freeze_sha
 
     changed: list[str] = []
     if freeze_sha != head:
@@ -311,25 +282,21 @@ def verify_final_integrity_code_freeze() -> dict[str, Any]:
             changed = _git("diff", "--name-only", f"{freeze_sha}..{head}").splitlines()
         except subprocess.CalledProcessError:
             changed = []
-    non_artifact = [
-        f
-        for f in changed
-        if not any(f.startswith(p) for p in ALLOWED_POST_FREEZE_PREFIXES)
-    ]
+    non_artifact = [f for f in changed if not any(f.startswith(p) for p in ALLOWED_POST_FREEZE_PREFIXES)]
     artifact_only = len(changed) > 0 and len(non_artifact) == 0
     code_changed = len(non_artifact) > 0
-    match_run = executed == head
-    ok = (
-        executed == freeze_sha
-        and len(non_artifact) == 0
-        and (match_run or artifact_only or freeze_sha == head)
-    )
-    # Fail closed: executed != head AND match_run claimed true is impossible here
-    # because match_run is derived, never self-declared.
+    pr_head = os.environ.get("CONFENGE_PR_HEAD_SHA") or head
+    merge = os.environ.get("CONFENGE_WORKFLOW_MERGE_SHA") or os.environ.get("GITHUB_SHA")
+    # match_run uses PR head (not merge checkout SHA)
+    match_run = executed == pr_head
+    ok = executed == freeze_sha and len(non_artifact) == 0 and (match_run or artifact_only or freeze_sha == head)
     rep = {
         "ok": ok,
         "status": "PASS" if ok else "BLOCKED_CODE_EXECUTION_SHA_MISMATCH",
-        "current_pr_head_sha": head,
+        "current_pr_head_sha": pr_head,
+        "pr_head_sha": pr_head,
+        "workflow_merge_sha": merge,
+        "checked_out_sha": head,
         "final_integrity_code_freeze_sha": freeze_sha,
         "final_code_freeze_sha": freeze_sha,
         "executed_code_sha": executed,
@@ -341,60 +308,78 @@ def verify_final_integrity_code_freeze() -> dict[str, Any]:
         "verified_at": utc_now(),
         "policy": (
             "post-freeze non-artifact tree must be empty; "
-            "match_run_to_head true only when executed_code_sha == current_pr_head_sha"
+            "match_run_to_head true only when executed_code_sha == pr_head_sha; "
+            "workflow_merge_sha is never labeled as current_pr_head_sha"
         ),
     }
-    (ART / "final-integrity-code-freeze-gate.json").write_text(
-        json.dumps(rep, indent=2) + "\n", encoding="utf-8"
-    )
+    (ART / "final-integrity-code-freeze-gate.json").write_text(json.dumps(rep, indent=2) + "\n", encoding="utf-8")
     return rep
 
 
-def compute_match_run_to_head(
-    *, executed_code_sha: str | None, current_pr_head_sha: str | None
-) -> bool:
+def compute_match_run_to_head(*, executed_code_sha: str | None, current_pr_head_sha: str | None) -> bool:
     """Authoritative rule: true only when both present and equal."""
     if not executed_code_sha or not current_pr_head_sha:
         return False
     return executed_code_sha == current_pr_head_sha
 
 
+def _is_dummy_sha(value: str | None) -> bool:
+    if not value:
+        return False
+    s = value.strip().lower()
+    if len(s) < 7:
+        return False
+    if s[0] * min(len(s), 40) == s[: min(len(s), 40)] and s[0] in "0123456789abcdef":
+        return True
+    if s.startswith(("deadbeef", "cafebabe")):
+        return True
+    return False
+
+
 def verify_sha_semantics(
     *,
     executed_code_sha: str | None = None,
     current_pr_head_sha: str | None = None,
+    workflow_merge_sha: str | None = None,
     match_run_to_head: bool | None = None,
     code_changed_after_execution: bool | None = None,
     artifact_only_commits_after_execution: bool | None = None,
+    write_artifact: bool = True,
 ) -> dict[str, Any]:
     """Validate SHA field meanings. Unit-testable without git for pure rules.
 
     FAIL when executed != head AND match_run_to_head == true.
+    Final campaign gate (write_artifact=True) never persists dummy SHAs.
     """
+    # Detect fixture-only call: explicit dummy SHAs must not clobber the gate file.
+    fixture_call = _is_dummy_sha(executed_code_sha) or _is_dummy_sha(current_pr_head_sha)
+    if fixture_call:
+        write_artifact = False
+
     head = current_pr_head_sha
     if head is None:
-        try:
-            head = _git("rev-parse", "HEAD")
-        except Exception:
-            head = None
+        # Prefer explicit PR head env over merge checkout
+        head = os.environ.get("CONFENGE_PR_HEAD_SHA")
+        if not head:
+            try:
+                head = _git("rev-parse", "HEAD")
+            except Exception:
+                head = None
     executed = executed_code_sha
     if executed is None:
         exec_path = ART / "EXECUTED_CODE_SHA.txt"
         if exec_path.is_file():
             executed = exec_path.read_text(encoding="utf-8").strip().split()[0]
 
-    derived_match = compute_match_run_to_head(
-        executed_code_sha=executed, current_pr_head_sha=head
-    )
+    merge = workflow_merge_sha or os.environ.get("CONFENGE_WORKFLOW_MERGE_SHA") or os.environ.get("GITHUB_SHA")
+
+    derived_match = compute_match_run_to_head(executed_code_sha=executed, current_pr_head_sha=head)
     issues: list[str] = []
     if match_run_to_head is True and not derived_match:
         issues.append("match_run_to_head_true_with_executed_ne_head")
     if match_run_to_head is True and executed and head and executed != head:
         issues.append("FORBIDDEN_match_run_to_head_with_sha_mismatch")
-    if (
-        code_changed_after_execution is True
-        and artifact_only_commits_after_execution is True
-    ):
+    if code_changed_after_execution is True and artifact_only_commits_after_execution is True:
         issues.append("code_changed_and_artifact_only_both_true")
     if (
         executed
@@ -406,6 +391,8 @@ def verify_sha_semantics(
     ):
         # lag without declaring artifact-only is inconsistent
         issues.append("sha_lag_without_artifact_only_or_code_change_flags")
+    if write_artifact and (_is_dummy_sha(executed) or _is_dummy_sha(head)):
+        issues.append("dummy_sha_refused_for_final_gate")
 
     ok = not issues
     # When only pure rule check with explicit mismatch+true → hard fail
@@ -417,17 +404,22 @@ def verify_sha_semantics(
         "status": "PASS" if ok else "BLOCKED_CODE_EXECUTION_SHA_MISMATCH",
         "executed_code_sha": executed,
         "current_pr_head_sha": head,
+        "pr_head_sha": head,
+        "workflow_merge_sha": merge,
         "match_run_to_head_declared": match_run_to_head,
         "match_run_to_head_derived": derived_match,
+        "match_run_to_head": derived_match if match_run_to_head is None else match_run_to_head,
         "code_changed_after_execution": code_changed_after_execution,
         "artifact_only_commits_after_execution": artifact_only_commits_after_execution,
         "issues": issues,
-        "rule": "match_run_to_head == true only when executed_code_sha == current_pr_head_sha",
+        "rule": (
+            "match_run_to_head == true only when executed_code_sha == pr_head_sha; "
+            "workflow_merge_sha must never be stored as current_pr_head_sha"
+        ),
         "verified_at": utc_now(),
     }
-    (ART / "sha-semantics-gate.json").write_text(
-        json.dumps(report, indent=2) + "\n", encoding="utf-8"
-    )
+    if write_artifact and not fixture_call:
+        (ART / "sha-semantics-gate.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     return report
 
 
@@ -439,9 +431,7 @@ def verify_executed_tree_integrity() -> dict[str, Any]:
         current_pr_head_sha=freeze.get("current_pr_head_sha"),
         match_run_to_head=freeze.get("match_run_to_head"),
         code_changed_after_execution=freeze.get("code_changed_after_execution"),
-        artifact_only_commits_after_execution=freeze.get(
-            "artifact_only_commits_after_execution"
-        ),
+        artifact_only_commits_after_execution=freeze.get("artifact_only_commits_after_execution"),
     )
     non = freeze.get("non_artifact_files_changed_after_execution") or []
     ok = (
@@ -501,4 +491,3 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
