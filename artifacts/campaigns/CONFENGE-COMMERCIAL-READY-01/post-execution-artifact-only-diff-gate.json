@@ -1,11 +1,11 @@
 {
   "ok": true,
   "status": "PASS",
-  "current_pr_head_sha": "bb1d1ab278ddb6eb37775cb961ee2d541560e8d2",
-  "final_code_freeze_sha": "4dc1ef995672605caec9cf30b885b47fe5bf0e5a",
-  "executed_code_sha": "4dc1ef995672605caec9cf30b885b47fe5bf0e5a",
+  "current_pr_head_sha": "2eb139b576c11ad0bcac75edfb3fa610992c1777",
+  "final_code_freeze_sha": "2eb139b576c11ad0bcac75edfb3fa610992c1777",
+  "executed_code_sha": "2eb139b576c11ad0bcac75edfb3fa610992c1777",
   "code_tree_hash_at_execution": "5e88beb54a55debbd49b11e0676312575c3539c0ad80c990ee5aa5e19737d9ea",
-  "code_tree_hash_at_current_head": "0875138afcd155cf142a73221c51548bb1bf23cec0989e0e8abdd1d33c9c4bc4",
+  "code_tree_hash_at_current_head": "35bb7005b815d06dbb10bd4a82101ff19ac57f006becdc8ddf2959209453ff32",
   "code_changed_after_execution": false,
   "artifact_only_commits_after_execution": true,
   "files_changed_after_freeze": [
@@ -57,6 +57,6 @@
     "artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/snapshot-manifest.json"
   ],
   "non_artifact_files_changed": [],
-  "verified_at": "2026-07-26T15:24:13Z",
+  "verified_at": "2026-07-26T15:25:23Z",
   "policy": "post-freeze commits only under artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/** and docs/ops/**"
 }

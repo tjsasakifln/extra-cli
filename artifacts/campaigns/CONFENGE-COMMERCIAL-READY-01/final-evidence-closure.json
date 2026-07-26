@@ -5,12 +5,12 @@
   "campaign_id": "CONFENGE-COMMERCIAL-READY-01",
   "pr": 144,
   "branch": "campaign/confenge-commercial-ready-01",
-  "generated_at": "2026-07-26T15:23:11Z",
-  "current_pr_head_sha": "650b1244a6557d5ec53f95a7c96d538bf2e9dca8",
+  "generated_at": "2026-07-26T15:35:49Z",
+  "current_pr_head_sha": "2eb139b576c11ad0bcac75edfb3fa610992c1777",
   "main_sha": "8344254942ec48978566317df16d7b3e3caabd89",
-  "final_code_freeze_sha": "4dc1ef995672605caec9cf30b885b47fe5bf0e5a",
-  "executed_code_sha": "4dc1ef995672605caec9cf30b885b47fe5bf0e5a",
-  "evidence_commit_sha": "650b1244a6557d5ec53f95a7c96d538bf2e9dca8",
+  "final_code_freeze_sha": "2eb139b576c11ad0bcac75edfb3fa610992c1777",
+  "executed_code_sha": "2eb139b576c11ad0bcac75edfb3fa610992c1777",
+  "evidence_commit_sha": "2eb139b576c11ad0bcac75edfb3fa610992c1777",
   "code_changed_after_execution": false,
   "snapshot": {
     "source": "pncp_datalake historical backfill \u2192 confenge_commercial",
@@ -61,26 +61,6 @@
     "top20_equal": true,
     "review_queue_equal": true,
     "status": "PASS",
-    "pass_a_hashes": {
-      "candidate_universe_hash": "5369218285385540ad5f48834ca8fede3704e7b7f9d7e9e0c71c418025a6ae2a",
-      "contract_history_hash": "1eb7cce36792bffdb0dfa7d4aebc8fe51cb68e0ada573f74b375ab5763483209",
-      "active_portfolio_hash": "ff87c5fe0e24d87c4a39e359a2df53034a381501de85a1668ea8d44ef3611f03",
-      "registry_snapshot_hash": "5369218285385540ad5f48834ca8fede3704e7b7f9d7e9e0c71c418025a6ae2a",
-      "sector_decision_hash": "3c500093e3da3e82b4196a0869c68ed66e4f41d6ad570ad7df921fd3ef29b334",
-      "eligible_universe_hash": "17e5d4fb65ad2f83e8e7ec260d2b13f34f287792ceae3f7038b552cde39f48b5",
-      "ranking_hash": "b661e95123ee76b8e7bbd98cf7b17076efe6656b9e54dbb8ac3a4f905c2c0cdb",
-      "review_queue_hash": "8555eaedab2df0a79a0e69e3b407f5382d14b874994e4710b59fc4e975690d2a"
-    },
-    "pass_b_hashes": {
-      "candidate_universe_hash": "5369218285385540ad5f48834ca8fede3704e7b7f9d7e9e0c71c418025a6ae2a",
-      "contract_history_hash": "1eb7cce36792bffdb0dfa7d4aebc8fe51cb68e0ada573f74b375ab5763483209",
-      "active_portfolio_hash": "ff87c5fe0e24d87c4a39e359a2df53034a381501de85a1668ea8d44ef3611f03",
-      "registry_snapshot_hash": "5369218285385540ad5f48834ca8fede3704e7b7f9d7e9e0c71c418025a6ae2a",
-      "sector_decision_hash": "3c500093e3da3e82b4196a0869c68ed66e4f41d6ad570ad7df921fd3ef29b334",
-      "eligible_universe_hash": "17e5d4fb65ad2f83e8e7ec260d2b13f34f287792ceae3f7038b552cde39f48b5",
-      "ranking_hash": "b661e95123ee76b8e7bbd98cf7b17076efe6656b9e54dbb8ac3a4f905c2c0cdb",
-      "review_queue_hash": "8555eaedab2df0a79a0e69e3b407f5382d14b874994e4710b59fc4e975690d2a"
-    },
     "top20_order": [
       "53640280000169",
       "47690102000140",
@@ -110,6 +90,9 @@
     "n_validation": 60,
     "n_holdout": 100,
     "human_labels_filled": 0,
+    "provenance_ok": true,
+    "packages_ready": true,
+    "top20_aligned_to_e2e": true,
     "packages": [
       "/mnt/d/extra consultoria/.worktrees/confenge-commercial-ready-01/artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/contract-relevance-human-review.xlsx",
       "/mnt/d/extra consultoria/.worktrees/confenge-commercial-ready-01/artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/contract-relevance-human-review.html",
@@ -128,7 +111,6 @@
       "contract_concentration": 0.05
     },
     "dominant_offer_rate": 1.0,
-    "offer_entropy": -1.6017132519074581e-15,
     "mean_selected_offer_margin": 1.84799,
     "uniform_justified_individually": true,
     "status": "PASS"
@@ -138,11 +120,11 @@
     "dump_restore": "PASS",
     "full_universe_e2e": "PASS",
     "offer_sensitivity": "PASS",
-    "code_freeze": "PASS",
+    "real_corpus_provenance": "PASS",
+    "human_packages": "PACKAGES_READY_BLOCKED_REAL_HOLDOUT_NOT_REVIEWED",
     "official_provenance_file": "PASS",
     "official_universe_resolution": "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE",
-    "operational_registry_universe": "PASS",
-    "human_packages": "PACKAGES_READY_BLOCKED_REAL_HOLDOUT_NOT_REVIEWED"
+    "operational_registry_universe": "PASS"
   },
   "human_blockers": [
     "BLOCKED_REAL_HOLDOUT_NOT_REVIEWED",
@@ -158,8 +140,8 @@
   "closure_qa": {
     "1_snapshot_covers_ge_365_days": true,
     "2_active_and_closed_real_contracts": true,
-    "3_registry_uses_verifiable_official_source": false,
-    "4_all_candidates_enriched_before_ranking": true,
+    "3_registry_uses_verifiable_official_source_full_universe": false,
+    "4_all_candidates_enriched_operational_before_ranking": true,
     "5_restorable_dump_exists": true,
     "6_restore_on_distinct_db": true,
     "7_hash_existed_before_restore": true,
