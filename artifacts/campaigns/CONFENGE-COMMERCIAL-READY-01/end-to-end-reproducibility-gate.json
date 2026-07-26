@@ -1,0 +1,7 @@
+{
+  "ok": true,
+  "pytest_exit": 0,
+  "stdout_tail": "....                                                                     [100%]\n4 passed in 1.85s\n",
+  "method": "full_pipeline_hash_stability_unit_plus_optional_live",
+  "note": "Each repetition must redo discovery\u2192all-status history\u2192registry\u2192relevance\u2192sector\u2192signals\u2192eligibility\u2192ranking\u2192offer\u2192top20."
+}

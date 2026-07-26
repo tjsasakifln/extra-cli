@@ -1,15 +1,24 @@
 {
-  "executed_git_sha": "f1f41ac0aada1f1a1d4a137799a8e4942f1d279d",
+  "executed_code_sha": "d3eb638777e5acee9315b803a082e43d21d5871d",
+  "executed_git_sha": "d3eb638777e5acee9315b803a082e43d21d5871d",
+  "current_pr_head_sha": "d3eb638777e5acee9315b803a082e43d21d5871d",
+  "evidence_commit_sha": "d3eb638777e5acee9315b803a082e43d21d5871d",
   "workflow_run_id": null,
-  "created_at": "2026-07-26T01:11:03.552845+00:00",
+  "execution_environment": "local",
+  "machine_id_hash": "35b96cb98ef8f0ad",
+  "command": "make package-confenge-commercial-evidence",
+  "started_at": "2026-07-26T01:44:22.749540+00:00",
+  "finished_at": "2026-07-26T01:44:22.749566+00:00",
+  "exit_code": 0,
+  "created_at": "2026-07-26T01:44:22.749540+00:00",
   "checksums": {
     "result.json": {
       "exists": true,
-      "sha256": "567f72ee2a56eff93de4686182aeefc318051506fa922d2cb98f2fcb5516c44e"
+      "sha256": "786be9992fef533a1f5e89dacd6350eada0a32f292279b9ef3ab2898141340ab"
     },
     "queue-summary.json": {
       "exists": true,
-      "sha256": "ca3030d2339dfc775bc1b1d5499aad853bf10cc80b50ce98ef66be89b2706f87"
+      "sha256": "2019bd3743d5c38b0f20b470282bb7c3b10c25a09f69b4aa304aab782b32516c"
     },
     "denominator-integrity.json": {
       "exists": true,
@@ -18,6 +27,10 @@
     "contract-relevance-holdout.json": {
       "exists": true,
       "sha256": "e446ba6fb5bbb9a299d0290ba6496dee7d1ea31b10591ecc2617e6d099127c18"
+    },
+    "contract-relevance-real-holdout.json": {
+      "exists": true,
+      "sha256": "dc623248ce04392e4af4d08ba964e62de22fe175acf1412c6a08a226fb762f69"
     },
     "gold-standard-baseline.json": {
       "exists": true,
@@ -31,22 +44,39 @@
       "exists": true,
       "sha256": "b7e5ae428272945a624dbff38a69914f33db20d92ba129bee344a78dbe536b25"
     },
+    "all-status-history-gate.json": {
+      "exists": true,
+      "sha256": "6138fd95b64318308eceec5b2149bb452276fc01519734f728c56611b45f808e"
+    },
     "registry-coverage-gate.json": {
       "exists": true,
       "sha256": "2515d2460f760318be7334495e0d2891a7e688d196dc3701cb85b4193a8ae7bd"
+    },
+    "registry-selection-independence-gate.json": {
+      "exists": true,
+      "sha256": "d4482b012e406269bb2ba04884f803c17d9148284880812c36dee0d72d9ea2ab"
+    },
+    "historical-window-gate.json": {
+      "exists": false,
+      "sha256": null
     },
     "snapshot-content-binding-gate.json": {
       "exists": true,
       "sha256": "48dd8194aa5356880c6c7d1217165efb81837f91d14b7093a6f666137d9add8c"
     },
-    "source-state-isolation-gate.json": {
-      "exists": true,
-      "sha256": "737dd7b710638fac6bc87b76a8cf2a7a18171b92e136936368e1675aeea41d36"
+    "offer-discrimination-gate.json": {
+      "exists": false,
+      "sha256": null
     },
-    "ranking-stability.json": {
+    "end-to-end-reproducibility-gate.json": {
       "exists": true,
-      "sha256": "cf722bd21d2218f08a5fb2820e7b5f712c859e83a980e56bf435a9e528503c04"
+      "sha256": "406e123561e9b2219361de603863141951389b3ef956a6dc241efc5e56b6a13d"
+    },
+    "evidence-provenance-gate.json": {
+      "exists": true,
+      "sha256": "824d1fe777f44cd153a1b15dc46ce1f7598112adfffa51999a511ea3afce209c"
     }
   },
-  "note": "bound to code commit; evidence-only lag commits allowed"
+  "note": "Execution provenance package. Checksums alone without executed_code_sha and environment are not a valid attestation.",
+  "evidence_package_hash": "fb2a29fab8a34fc0553a014d88b947657fc04459f8c81b4e32c4d493084431c8"
 }

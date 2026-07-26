@@ -207,7 +207,24 @@ def coverage_report(
     all_candidates: list[str],
     top100: list[str] | None = None,
     top20: list[str] | None = None,
+    resolution_status: dict[str, str] | None = None,
 ) -> dict[str, Any]:
+    """Coverage BEFORE publication.
+
+    Top-20-only coverage is never sufficient. Require either:
+      registry_coverage_all_candidates == 100%, or
+      registry_resolved_or_definitively_not_found == 100%
+    with explicit non-transient status per missing CNPJ.
+    """
+    definitive = {
+        "NOT_FOUND_IN_OFFICIAL_DATASET",
+        "INVALID_CNPJ",
+        "REGISTRY_DATA_CORRUPT",
+        "NOT_COMPUTABLE",
+    }
+    transient = {"LOOKUP_TRANSIENT_FAILURE"}
+    resolution_status = resolution_status or {}
+
     def _cov(cnpjs: list[str]) -> dict[str, Any]:
         if not cnpjs:
             return {
@@ -233,17 +250,39 @@ def coverage_report(
 
     top100 = top100 or []
     top20 = top20 or []
+    all_cov = _cov(all_candidates)
+    missing = [c for c in all_candidates if c not in registry]
+    resolved_or_definitive = 0
+    status_counts: dict[str, int] = {}
+    for c in all_candidates:
+        if c in registry:
+            resolved_or_definitive += 1
+            status_counts["RESOLVED"] = status_counts.get("RESOLVED", 0) + 1
+            continue
+        st = resolution_status.get(c) or "LOOKUP_TRANSIENT_FAILURE"
+        status_counts[st] = status_counts.get(st, 0) + 1
+        if st in definitive and st not in transient:
+            resolved_or_definitive += 1
+    n_all = len(all_candidates) or 1
+    resolved_rate = round(resolved_or_definitive / n_all, 4) if all_candidates else None
+
     report = {
         "rule_version": RULE_VERSION,
         "generated_at": utc_now(),
-        "registry_coverage_all_candidates": _cov(all_candidates),
+        "registry_coverage_all_candidates": all_cov,
         "registry_coverage_top100": _cov(top100),
         "registry_coverage_top20": _cov(top20),
-        "cnae_primary_coverage": _cov(all_candidates).get("cnae_primary_coverage"),
-        "cnae_secondary_coverage": _cov(all_candidates).get("cnae_secondary_coverage"),
+        "cnae_primary_coverage": all_cov.get("cnae_primary_coverage"),
+        "cnae_secondary_coverage": all_cov.get("cnae_secondary_coverage"),
         "registry_freshness": None,
         "top20_coverage_100pct": False,
+        "registry_universe_resolved": all_cov.get("coverage") == 1.0,
+        "registry_resolved_or_definitively_not_found": resolved_rate,
+        "registry_resolution_status_counts": status_counts,
+        "missing_candidates_sample": missing[:50],
+        "missing_candidates_n": len(missing),
         "block_reason": None,
+        "selection_bias_risk": False,
     }
     t20 = report["registry_coverage_top20"]
     if t20.get("n") and t20.get("coverage") == 1.0 and t20.get("cnae_primary_coverage") == 1.0:
@@ -251,6 +290,20 @@ def coverage_report(
     else:
         report["block_reason"] = "BLOCKED_MISSING_SUPPLIER_SECTOR_DATA"
         report["top20_coverage_100pct"] = False
+
+    # Endogenous coverage: top20 complete while universe incomplete → selection bias
+    all_rate = all_cov.get("coverage") or 0.0
+    if report["top20_coverage_100pct"] and all_rate < 1.0 and (resolved_rate or 0) < 1.0:
+        report["selection_bias_risk"] = True
+        report["block_reason"] = "BLOCKED_REGISTRY_SELECTION_BIAS"
+    elif all_rate < 1.0 and (resolved_rate or 0) < 1.0:
+        report["block_reason"] = "BLOCKED_REGISTRY_SELECTION_BIAS"
+        report["selection_bias_risk"] = True
+    elif all_rate == 1.0 or resolved_rate == 1.0:
+        # Universe resolved; keep top20 data-quality block if any
+        if report["block_reason"] == "BLOCKED_REGISTRY_SELECTION_BIAS":
+            report["block_reason"] = None
+        report["selection_bias_risk"] = False
 
     # freshness from loaded records
     dates = [r.source_date for r in registry.values() if r.source_date]

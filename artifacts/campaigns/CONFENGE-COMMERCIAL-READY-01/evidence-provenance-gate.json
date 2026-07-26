@@ -1,0 +1,11 @@
+{
+  "ok": true,
+  "current_repo_head": "d3eb638777e5acee9315b803a082e43d21d5871d",
+  "executed_code_sha": "d3eb638777e5acee9315b803a082e43d21d5871d",
+  "current_pr_head_sha": "d3eb638777e5acee9315b803a082e43d21d5871d",
+  "workflow_run_id": null,
+  "match_run_to_head": true,
+  "issues": [],
+  "local_fields_ok": true,
+  "note": "pr_head_sha and executed_code_sha are different fields; never claim match when PR advanced."
+}

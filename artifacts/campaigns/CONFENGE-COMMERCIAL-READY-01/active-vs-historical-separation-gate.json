@@ -1,0 +1,7 @@
+{
+  "ok": true,
+  "pytest_exit": 0,
+  "stdout_tail": "...                                                                      [100%]\n3 passed in 1.87s\n",
+  "active_view": "ACTIVE_COMMERCIAL_PORTFOLIO",
+  "historical_view": "ALL_SNAPSHOT_SUPPLIER_HISTORY"
+}

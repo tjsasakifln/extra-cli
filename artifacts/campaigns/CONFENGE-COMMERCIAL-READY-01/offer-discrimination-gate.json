@@ -1,0 +1,21 @@
+{
+  "offer_distribution": {
+    "acompanhamento_admin": 20
+  },
+  "offer_entropy": 0.0,
+  "dominant_offer_rate": 1.0,
+  "mean_selected_offer_margin": null,
+  "low_margin_offer_count": 0,
+  "robust_quantitative_justification": false,
+  "block": "BLOCKED_OFFER_MAPPING_NOT_DISCRIMINATIVE",
+  "explanation": {
+    "dominant_offer": "acompanhamento_admin",
+    "dominant_offer_rate": 1.0,
+    "why_uniform": "signal catalog collapsed to one offer bucket",
+    "mean_selected_offer_margin": null,
+    "catalog_degenerate": true
+  },
+  "n_leads": 20,
+  "selection_rule_version": "offer-selection-v3-discriminative",
+  "ok": false
+}

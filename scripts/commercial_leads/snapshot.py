@@ -421,10 +421,12 @@ def bind_snapshot_to_database(
 
     if require_canonical_match:
         if not manifest_canon:
-            # First bind can mint the hash — still not pre-authenticated dump, but content bound
-            reasons.append("manifest_canonical_table_hash_missing_minted_from_db")
-            # Content is verified against itself this run; caller should persist to manifest
-            content_bound = True
+            # Independent pre-restore anchor required. Computing hash from the DB
+            # under validation is tautological and is NEVER accepted as anchor.
+            ok = False
+            content_bound = False
+            reasons.append("manifest_canonical_table_hash_missing")
+            reasons.append("BLOCKED_MISSING_INDEPENDENT_SNAPSHOT_ANCHOR")
         elif str(manifest_canon).lower() != str(db_canon).lower():
             ok = False
             content_bound = False
@@ -435,13 +437,12 @@ def bind_snapshot_to_database(
     else:
         content_bound = bool(manifest_canon and str(manifest_canon).lower() == str(db_canon).lower())
 
-    # Never BOUND on row-count alone
-    if ok and not content_bound and require_canonical_match and not manifest_canon:
-        # Allow first-run mint: status CONTENT_FINGERPRINTED (not AUTHENTICATED dump)
-        status = "CONTENT_FINGERPRINTED_DB"
-        ok = True
-    elif ok and content_bound:
+    # Never BOUND on row-count alone; never accept post-restore self-minted hash
+    if ok and content_bound and manifest_canon:
         status = "BOUND"
+    elif not manifest_canon and require_canonical_match:
+        status = "BLOCKED_MISSING_INDEPENDENT_SNAPSHOT_ANCHOR"
+        ok = False
     else:
         status = "FAIL_SNAPSHOT_DB_MISMATCH"
         ok = False
@@ -517,3 +518,229 @@ def write_default_manifest(
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     return out_path
+
+
+def export_authenticated_snapshot(
+    conn: Any,
+    *,
+    dump_path: Path | str,
+    manifest_path: Path | str,
+    package: str = "confenge-authenticated-export",
+    source_database_identity: str | None = None,
+    export_command: str | None = None,
+    export_tool_version: str = "snapshot-export-v1",
+) -> dict[str, Any]:
+    """Export-time only: close independent snapshot anchor BEFORE restore/validate.
+
+    Writes dump fingerprint + canonical_table_hash into the manifest. Validation
+    must never call this, never mint hash from the DB under test, and never mutate
+    the closed manifest.
+    """
+    from datetime import UTC, datetime
+
+    dp = Path(dump_path)
+    mp = Path(manifest_path)
+    canon = compute_canonical_table_hash(conn)
+    if dp.is_file() and not _is_marker_dump(dp):
+        dump_sha = sha256_file(dp)
+    else:
+        # Logical package export: content hash of canonical fingerprint as dump id
+        dump_sha = hashlib.sha256(
+            f"canonical:{canon['canonical_table_hash']}:{canon['row_count']}".encode()
+        ).hexdigest()
+        dp.parent.mkdir(parents=True, exist_ok=True)
+        if not dp.exists():
+            dp.write_text(
+                json.dumps(
+                    {
+                        "kind": "logical_snapshot_package",
+                        "canonical_table_hash": canon["canonical_table_hash"],
+                        "row_count": canon["row_count"],
+                        "note": "Real binary dump preferred; logical package binds via canonical hash",
+                    },
+                    indent=2,
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            dump_sha = sha256_file(dp)
+
+    from scripts.commercial_leads.dbutil import fetch_all
+
+    date_rows = fetch_all(
+        conn,
+        "SELECT MIN(data_publicacao)::text AS min_d, MAX(data_publicacao)::text AS max_d "
+        "FROM public.pncp_supplier_contracts",
+    )
+    min_date = date_rows[0]["min_d"] if date_rows else None
+    max_date = date_rows[0]["max_d"] if date_rows else None
+    exported_at = datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+    payload = {
+        "kind": "authenticated_contract_snapshot",
+        "read_only": True,
+        "fixture": False,
+        "synthetic": False,
+        "dump_path": str(dp),
+        "sha256": dump_sha,
+        "dump_sha256": dump_sha,
+        "canonical_table_hash": canon["canonical_table_hash"],
+        "canonical_hash_algorithm": canon["canonical_hash_algorithm"],
+        "row_count": canon["row_count"],
+        "contracts_count": canon["row_count"],
+        "schema_version": "pncp_supplier_contracts@campaign",
+        "min_date": min_date,
+        "max_date": max_date,
+        "exported_at": exported_at,
+        "exported_at_utc": exported_at,
+        "source_database_identity": source_database_identity,
+        "export_command": export_command or "export_authenticated_snapshot",
+        "export_tool_version": export_tool_version,
+        "package": package,
+        "source": package,
+        "manifest_closed_before_restore": True,
+        "immutable_after_export": True,
+        "notes": (
+            "Independent pre-restore anchor. Validation must recompute DB hash and "
+            "compare; must NOT mint or rewrite this manifest."
+        ),
+    }
+    mp.parent.mkdir(parents=True, exist_ok=True)
+    mp.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    return payload
+
+
+def verify_authenticated_snapshot(
+    conn: Any,
+    manifest_path: Path | str,
+    *,
+    allow_manifest_mutation: bool = False,
+) -> dict[str, Any]:
+    """Post-restore validation: recompute DB hash; never alter manifest.
+
+    Fail-closed when independent pre-restore anchor is missing.
+    """
+    mp = Path(manifest_path)
+    if not mp.is_file():
+        return {
+            "ok": False,
+            "status": "BLOCKED_MISSING_INDEPENDENT_SNAPSHOT_ANCHOR",
+            "reasons": ["manifest_not_found"],
+        }
+
+    # Capture pre-validation bytes for immutability proof
+    before = mp.read_bytes()
+    man = json.loads(before.decode("utf-8"))
+    if not isinstance(man, dict):
+        return {"ok": False, "status": "FAIL", "reasons": ["manifest_not_object"]}
+
+    dump = man.get("dump_path")
+    dump_path = Path(str(dump)).expanduser() if dump else None
+    if dump_path is not None and not dump_path.is_absolute():
+        dump_path = (mp.parent / dump_path).resolve()
+
+    reasons: list[str] = []
+    if dump_path is not None and _is_marker_dump(dump_path):
+        reasons.append("dump_is_marker_not_authenticated_dump")
+        # Marker alone never authenticates a real release
+        if not man.get("canonical_table_hash"):
+            return {
+                "ok": False,
+                "status": "BLOCKED_MISSING_INDEPENDENT_SNAPSHOT_ANCHOR",
+                "reasons": reasons + ["marker_without_independent_canonical_anchor"],
+                "manifest_mutated": False,
+            }
+
+    expected_canon = man.get("canonical_table_hash")
+    if not expected_canon:
+        return {
+            "ok": False,
+            "status": "BLOCKED_MISSING_INDEPENDENT_SNAPSHOT_ANCHOR",
+            "reasons": ["manifest_without_canonical_table_hash", "post_restore_mint_forbidden"],
+            "manifest_mutated": False,
+        }
+
+    snap = validate_snapshot_manifest(mp, verify_file_hash=bool(man.get("dump_sha256")), allow_missing_dump=True)
+    binding = bind_snapshot_to_database(conn, snap, require_canonical_match=True)
+
+    after = mp.read_bytes()
+    mutated = after != before
+    if mutated and not allow_manifest_mutation:
+        return {
+            "ok": False,
+            "status": "FAIL",
+            "reasons": ["manifest_mutated_during_validation"],
+            "binding": binding,
+            "manifest_mutated": True,
+        }
+
+    # Ensure we did not accept a self-minted post-restore hash
+    if binding.get("status") == "BLOCKED_MISSING_INDEPENDENT_SNAPSHOT_ANCHOR":
+        return {
+            "ok": False,
+            "status": "BLOCKED_MISSING_INDEPENDENT_SNAPSHOT_ANCHOR",
+            "binding": binding,
+            "manifest_mutated": mutated,
+            "reasons": binding.get("reasons") or reasons,
+        }
+
+    ok = bool(binding.get("ok") and binding.get("status") == "BOUND")
+    return {
+        "ok": ok,
+        "status": binding.get("status") if ok else (binding.get("status") or "FAIL"),
+        "binding": binding,
+        "manifest_mutated": mutated,
+        "expected_canonical_table_hash": expected_canon,
+        "observed_canonical_table_hash": binding.get("canonical_table_hash"),
+        "reasons": reasons + list(binding.get("reasons") or []),
+        "note": "Validation never writes manifest; anchor must pre-exist from export.",
+    }
+
+
+def observation_window_metrics(
+    min_date: str | None,
+    max_date: str | None,
+    *,
+    strong_min_days: int = 180,
+    minimum_observation_days: int = 365,
+) -> dict[str, Any]:
+    """Snapshot temporal window vs STRONG observability requirements."""
+    from datetime import date
+
+    def _p(s: str | None) -> date | None:
+        if not s:
+            return None
+        try:
+            return date.fromisoformat(str(s)[:10])
+        except ValueError:
+            return None
+
+    d0, d1 = _p(min_date), _p(max_date)
+    if d0 is None or d1 is None:
+        return {
+            "snapshot_min_date": min_date,
+            "snapshot_max_date": max_date,
+            "snapshot_observation_days": None,
+            "strong_observable": False,
+            "strong_status": "STRONG_NOT_OBSERVABLE_IN_CURRENT_WINDOW",
+            "minimum_observation_window_days": minimum_observation_days,
+            "strong_min_time_span_days": strong_min_days,
+            "block": "BLOCKED_INSUFFICIENT_HISTORICAL_WINDOW",
+        }
+    days = (d1 - d0).days
+    strong_obs = days >= strong_min_days
+    block = None
+    if days < strong_min_days:
+        block = "BLOCKED_INSUFFICIENT_HISTORICAL_WINDOW"
+    elif days < minimum_observation_days:
+        block = "BLOCKED_INSUFFICIENT_HISTORICAL_WINDOW"
+    return {
+        "snapshot_min_date": d0.isoformat(),
+        "snapshot_max_date": d1.isoformat(),
+        "snapshot_observation_days": days,
+        "strong_observable": strong_obs,
+        "strong_status": None if strong_obs else "STRONG_NOT_OBSERVABLE_IN_CURRENT_WINDOW",
+        "minimum_observation_window_days": minimum_observation_days,
+        "strong_min_time_span_days": strong_min_days,
+        "block": block,
+    }

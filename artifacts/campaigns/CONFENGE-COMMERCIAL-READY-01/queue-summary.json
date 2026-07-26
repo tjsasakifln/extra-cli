@@ -435,5 +435,8 @@
     "human_review_status": "PENDING"
   },
   "run_git_sha": "f1f41ac0aada1f1a1d4a137799a8e4942f1d279d",
-  "artifact_git_sha": "f1f41ac0aada1f1a1d4a137799a8e4942f1d279d"
+  "artifact_git_sha": "f1f41ac0aada1f1a1d4a137799a8e4942f1d279d",
+  "reason": "BLOCKED_REGISTRY_SELECTION_BIAS",
+  "executed_code_sha": "d3eb638777e5acee9315b803a082e43d21d5871d",
+  "current_pr_head_sha": "d3eb638777e5acee9315b803a082e43d21d5871d"
 }

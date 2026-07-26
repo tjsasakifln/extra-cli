@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import subprocess
 import time
 import uuid
@@ -18,12 +19,17 @@ from scripts.commercial_leads import (
     DISCOVERY_FULL_SNAPSHOT,
     DISCOVERY_PREFILTERED,
     HISTORY_FULL_CANDIDATE,
+    HISTORY_VIEW_ACTIVE_PORTFOLIO,
+    HISTORY_VIEW_ALL_SNAPSHOT,
+    MINIMUM_OBSERVATION_WINDOW_DAYS,
     MODULE_VERSION,
     POPULATION_FULL,
     POPULATION_SAMPLE,
     RANKING_BOUNDED,
     RANKING_FULL_ELIGIBLE,
     SOURCE_STATE_RESTORED,
+    STRONG_MIN_TIME_SPAN_DAYS,
+    STRONG_NOT_OBSERVABLE,
 )
 from scripts.commercial_leads.baseline import compare_to_baselines
 from scripts.commercial_leads.commercial_validity import evaluate_supplier_validity
@@ -41,12 +47,16 @@ from scripts.commercial_leads.isolation import (
 )
 from scripts.commercial_leads.profile import CommercialProfile, load_profile
 from scripts.commercial_leads.review import load_state_map
-from scripts.commercial_leads.scoring import rank_leads, score_supplier
+from scripts.commercial_leads.scoring import (
+    diagnose_offer_distribution,
+    rank_leads,
+    score_supplier,
+)
 from scripts.commercial_leads.sector_fit import PUBLISHABLE, sector_fit_histogram
 from scripts.commercial_leads.signals import compute_signals_for_supplier, rows_from_dicts
 from scripts.commercial_leads.snapshot import (
     bind_snapshot_to_database,
-    compute_canonical_table_hash,
+    observation_window_metrics,
     validate_snapshot_manifest,
 )
 from scripts.commercial_leads.supplier_registry import (
@@ -156,7 +166,8 @@ def _segment_sql_prefilter(profile: CommercialProfile) -> tuple[str, list[Any]]:
 _CONTRACT_SELECT = (
     "contrato_id, orgao_cnpj, orgao_nome, "
     "fornecedor_cnpj, fornecedor_nome, objeto_contrato, valor_total, "
-    "data_inicio, data_fim, data_publicacao, uf, source, source_id"
+    "data_inicio, data_fim, data_publicacao, uf, source, source_id, "
+    "is_active"
 )
 
 
@@ -259,50 +270,157 @@ def discover_candidate_suppliers(
     return dict(evidence_by_cnpj), meta
 
 
+def _row_is_active(row: dict[str, Any]) -> bool:
+    """Interpret is_active from snapshot row (bool / text / null)."""
+    v = row.get("is_active")
+    if v is True:
+        return True
+    if v is False or v is None:
+        return False
+    s = str(v).strip().lower()
+    return s in {"t", "true", "1", "yes", "y"}
+
+
+def split_history_views(
+    contracts: list[dict[str, Any]],
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """Return (ALL_SNAPSHOT_SUPPLIER_HISTORY, ACTIVE_COMMERCIAL_PORTFOLIO)."""
+    all_hist = list(contracts)
+    active = [c for c in contracts if _row_is_active(c)]
+    return all_hist, active
+
+
+def compute_supplier_history_metrics(
+    contracts: list[dict[str, Any]],
+    *,
+    object_field: str = "objeto_contrato",
+) -> dict[str, Any]:
+    """Mandatory all-status vs active portfolio metrics for one supplier.
+
+    Sector concentration and mixed-activity detection MUST use the all-history
+    denominator, never the active portfolio alone.
+    """
+    from scripts.commercial_leads.contract_relevance import classify_contract_relevance
+    from scripts.commercial_leads.sector_fit import _parse_date, _row_object
+
+    all_hist, active = split_history_views(contracts)
+    n_all = len(all_hist)
+    n_active = len(active)
+    n_inactive = n_all - n_active
+
+    def _rel_counts(rows: list[dict[str, Any]]) -> tuple[int, int, int]:
+        rel = irr = rev = 0
+        for row in rows:
+            st = classify_contract_relevance(_row_object(row, object_field)).status
+            if st == "PASS":
+                rel += 1
+            elif st == "REVIEW":
+                rev += 1
+            else:
+                irr += 1
+        return rel, irr, rev
+
+    rel_all, irr_all, rev_all = _rel_counts(all_hist)
+    rel_act, _irr_act, _rev_act = _rel_counts(active)
+
+    def _span(rows: list[dict[str, Any]]) -> tuple[str | None, str | None, int | None]:
+        dates = []
+        for row in rows:
+            d = _parse_date(
+                row.get("data_publicacao") or row.get("data_inicio") or row.get("data_fim")
+            )
+            if d:
+                dates.append(d)
+        if not dates:
+            return None, None, None
+        mn, mx = min(dates), max(dates)
+        return mn.isoformat(), mx.isoformat(), (mx - mn).days
+
+    all_min, all_max, all_span = _span(all_hist)
+    _a_min, _a_max, act_span = _span(active)
+
+    relevant_all_ratio = round(rel_all / n_all, 4) if n_all else 0.0
+    active_relevant_ratio = round(rel_act / n_active, 4) if n_active else 0.0
+
+    metrics = {
+        "history_view_all": HISTORY_VIEW_ALL_SNAPSHOT,
+        "history_view_active": HISTORY_VIEW_ACTIVE_PORTFOLIO,
+        "all_snapshot_contract_count": n_all,
+        "active_contract_count": n_active,
+        "inactive_or_closed_contract_count": n_inactive,
+        "relevant_all_history_count": rel_all,
+        "irrelevant_all_history_count": irr_all,
+        "review_all_history_count": rev_all,
+        "relevant_all_history_ratio": relevant_all_ratio,
+        "active_relevant_count": rel_act,
+        "active_relevant_ratio": active_relevant_ratio,
+        "all_history_min_date": all_min,
+        "all_history_max_date": all_max,
+        "all_history_span_days": all_span,
+        "active_portfolio_span_days": act_span,
+        "invariant_active_plus_inactive": (n_active + n_inactive) == n_all,
+        "invariant_relevance_partition": (rel_all + irr_all + rev_all) == n_all,
+    }
+    return metrics
+
+
 def load_full_supplier_histories(
     conn: Any,
     candidate_cnpjs: list[str],
     *,
     per_supplier_limit: int | None = None,
+    active_only: bool = False,
 ) -> tuple[dict[str, list[dict[str, Any]]], dict[str, Any]]:
-    """Stage 2 — expand FULL contract history for each candidate CNPJ.
+    """Stage 2 — expand ALL-STATUS contract history for each candidate CNPJ.
 
-    Loads ALL active contracts for candidates regardless of keyword/prefilter.
-    per_supplier_limit must be None in production; if set, marks history incomplete.
+    Default (active_only=False) loads ALL_SNAPSHOT_SUPPLIER_HISTORY: every contract
+    for the CNPJ in the snapshot regardless of is_active, end date, operational
+    status, discovery membership, or object relevance.
+
+    FULL_CANDIDATE_HISTORY is only claimed when active_only is False and the
+    load reconciles with the snapshot all-status count.
+
+    ACTIVE_COMMERCIAL_PORTFOLIO is available via split_history_views / metrics;
+    never use the active portfolio as the historical sector denominator.
     """
     cleaned = sorted({c for c in (_normalize_cnpj_digits(x) for x in candidate_cnpjs) if c})
+    view_name = HISTORY_VIEW_ACTIVE_PORTFOLIO if active_only else HISTORY_VIEW_ALL_SNAPSHOT
     if not cleaned:
         return {}, {
             "stage": "full_history",
-            "history_expansion_mode": HISTORY_FULL_CANDIDATE,
+            "history_view": view_name,
+            "history_expansion_mode": (
+                HISTORY_FULL_CANDIDATE if not active_only else "ACTIVE_ONLY_INCOMPLETE_FOR_SECTOR"
+            ),
             "candidate_count": 0,
             "full_history_contract_count": 0,
             "per_supplier_limit": per_supplier_limit,
             "history_complete": True,
+            "active_only_filter": active_only,
         }
 
-    # Normalize fornecedor_cnpj digits in SQL for join
-    # select list constant; CNPJ filter bound via %s
+    # All contractual situations in the snapshot (no is_active filter unless active_only).
     sql = (  # noqa: S608
         "SELECT "
         + _CONTRACT_SELECT
         + ", regexp_replace(fornecedor_cnpj, '\\D', '', 'g') AS fornecedor_cnpj_digits "
         "FROM public.pncp_supplier_contracts "
-        "WHERE is_active = TRUE "
-        "AND fornecedor_cnpj IS NOT NULL "
+        "WHERE fornecedor_cnpj IS NOT NULL "
         "AND btrim(fornecedor_cnpj) <> '' "
         "AND right(regexp_replace(fornecedor_cnpj, '\\D', '', 'g'), 14) = ANY(%s) "
-        "ORDER BY data_publicacao DESC NULLS LAST, valor_total DESC NULLS LAST"
     )
+    if active_only:
+        sql += "AND is_active = TRUE "
+    sql += "ORDER BY data_publicacao DESC NULLS LAST, valor_total DESC NULLS LAST"
     raw = fetch_all(conn, sql, (cleaned,))
 
     groups: dict[str, list[dict[str, Any]]] = defaultdict(list)
     truncated: list[str] = []
+    cleaned_set = set(cleaned)
     for row in raw:
         digits = row.get("fornecedor_cnpj_digits") or _normalize_cnpj_digits(row.get("fornecedor_cnpj"))
         cnpj = _normalize_cnpj_digits(digits)
-        if not cnpj or cnpj not in set(cleaned):
-            # right(...,14) already applied; re-normalize
+        if not cnpj or cnpj not in cleaned_set:
             cnpj = _normalize_cnpj_digits(row.get("fornecedor_cnpj"))
         if not cnpj:
             continue
@@ -310,25 +428,22 @@ def load_full_supplier_histories(
             if cnpj not in truncated:
                 truncated.append(cnpj)
             continue
-        # drop helper column from contract dict used downstream
         clean = {k: v for k, v in row.items() if k != "fornecedor_cnpj_digits"}
         groups[cnpj].append(clean)
 
-    # Reconcile counts vs direct snapshot query for integrity
-    count_rows = fetch_all(
-        conn,
-        """
+    # Reconcile vs all-status (or active-only) snapshot counts — never silent drop
+    count_sql = """
         SELECT right(regexp_replace(fornecedor_cnpj, '\\D', '', 'g'), 14) AS cnpj14,
                COUNT(*)::int AS n
         FROM public.pncp_supplier_contracts
-        WHERE is_active = TRUE
-          AND fornecedor_cnpj IS NOT NULL
+        WHERE fornecedor_cnpj IS NOT NULL
           AND btrim(fornecedor_cnpj) <> ''
           AND right(regexp_replace(fornecedor_cnpj, '\\D', '', 'g'), 14) = ANY(%s)
-        GROUP BY 1
-        """,
-        (cleaned,),
-    )
+    """
+    if active_only:
+        count_sql += " AND is_active = TRUE "
+    count_sql += " GROUP BY 1"
+    count_rows = fetch_all(conn, count_sql, (cleaned,))
     snapshot_counts = {str(r["cnpj14"]): int(r["n"]) for r in count_rows}
     mismatches: list[dict[str, Any]] = []
     for cnpj in cleaned:
@@ -337,12 +452,23 @@ def load_full_supplier_histories(
         if per_supplier_limit is None and loaded != expected:
             mismatches.append({"cnpj14": cnpj, "loaded": loaded, "snapshot_count": expected})
 
-    history_complete = per_supplier_limit is None and not mismatches
+    history_complete = per_supplier_limit is None and not mismatches and not active_only
+    # FULL_CANDIDATE_HISTORY only when every contractual status was loaded
+    expansion_mode = (
+        HISTORY_FULL_CANDIDATE
+        if (history_complete and not active_only)
+        else (
+            "BOUNDED_PER_SUPPLIER"
+            if per_supplier_limit is not None
+            else ("ACTIVE_ONLY_INCOMPLETE_FOR_SECTOR" if active_only else "INCOMPLETE_HISTORY")
+        )
+    )
     meta = {
         "stage": "full_history",
-        "history_expansion_mode": (
-            HISTORY_FULL_CANDIDATE if per_supplier_limit is None else "BOUNDED_PER_SUPPLIER"
-        ),
+        "history_view": view_name,
+        "history_expansion_mode": expansion_mode,
+        "active_only_filter": active_only,
+        "all_statuses_loaded": not active_only and per_supplier_limit is None and not mismatches,
         "candidate_count": len(cleaned),
         "suppliers_with_history": len(groups),
         "full_history_contract_count": sum(len(v) for v in groups.values()),
@@ -360,6 +486,11 @@ def load_full_supplier_histories(
         "history_complete": history_complete,
         "snapshot_count_mismatches": mismatches[:50],
         "snapshot_count_mismatch_n": len(mismatches),
+        "note": (
+            "ALL_SNAPSHOT_SUPPLIER_HISTORY feeds sector classification, concentration, "
+            "diversity, agencies, mixed activity, materials detection. "
+            "ACTIVE_COMMERCIAL_PORTFOLIO is separate and never the historical denominator."
+        ),
     }
     return dict(groups), meta
 
@@ -647,37 +778,43 @@ def run_pipeline(
     snap = validate_snapshot_manifest(
         snapshot_manifest,
         verify_file_hash=verify_snapshot_hash,
-        allow_missing_dump=True,  # content binding uses canonical_table_hash
+        allow_missing_dump=True,  # content binding uses independent canonical_table_hash
     )
-    # Mint canonical_table_hash into manifest when missing (first bind) — never
-    # treat marker dumps as authenticated by themselves.
-    if (
-        not snap.ok
-        and "no_canonical_table_hash" in " ".join(snap.reasons or [])
-    ) or (
-        snap.ok and not (snap.canonical_table_hash or (snap.details or {}).get("canonical_table_hash"))
-    ):
-        # Will mint after source connection opens
-        pass
+    # Never mint canonical_table_hash from the DB under validation (tautological).
+    if not snap.canonical_table_hash and not (snap.details or {}).get("canonical_table_hash"):
+        result = {
+            "run_id": run_id,
+            "status": "BLOCKED",
+            "reason": "BLOCKED_MISSING_INDEPENDENT_SNAPSHOT_ANCHOR",
+            "snapshot": snap.as_dict(),
+            "isolation": isolation.as_dict(),
+            "campaign_id": CAMPAIGN_ID,
+            "artifact_git_sha": git,
+            "run_git_sha": git,
+            "executed_code_sha": git,
+        }
+        (out / "run-result.json").write_text(
+            json.dumps(result, indent=2, ensure_ascii=False, default=str) + "\n",
+            encoding="utf-8",
+        )
+        return result
     if not snap.ok and snap.status.startswith("BLOCKED"):
-        # Allow proceed only when we can mint canonical hash from live DB
-        reasons = " ".join(snap.reasons or [])
-        if "marker" not in reasons and "canonical" not in reasons and "dump_file_missing" not in reasons and "dump_file_absent" not in reasons:
-            result = {
-                "run_id": run_id,
-                "status": snap.status if snap.status.startswith("BLOCKED") else "FAIL",
-                "reason": "snapshot_validation_failed",
-                "snapshot": snap.as_dict(),
-                "isolation": isolation.as_dict(),
-                "campaign_id": CAMPAIGN_ID,
-                "artifact_git_sha": git,
-                "run_git_sha": git,
-            }
-            (out / "run-result.json").write_text(
-                json.dumps(result, indent=2, ensure_ascii=False, default=str) + "\n",
-                encoding="utf-8",
-            )
-            return result
+        result = {
+            "run_id": run_id,
+            "status": snap.status if snap.status.startswith("BLOCKED") else "FAIL",
+            "reason": "snapshot_validation_failed",
+            "snapshot": snap.as_dict(),
+            "isolation": isolation.as_dict(),
+            "campaign_id": CAMPAIGN_ID,
+            "artifact_git_sha": git,
+            "run_git_sha": git,
+            "executed_code_sha": git,
+        }
+        (out / "run-result.json").write_text(
+            json.dumps(result, indent=2, ensure_ascii=False, default=str) + "\n",
+            encoding="utf-8",
+        )
+        return result
 
     profile = load_profile(profile_path)
     mig: dict[str, Any]
@@ -725,55 +862,58 @@ def run_pipeline(
 
         logging.getLogger(__name__).warning("snapshot_guard_not_enabled: %s", guard_exc)
     try:
-        # Mint / refresh canonical_table_hash on manifest (content fingerprint)
+        # Snapshot ↔ DB binding — recompute only; never write/mint manifest (export is separate)
         man_path = Path(snapshot_manifest)
         try:
             man_data = json.loads(man_path.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError):
             man_data = {}
         if not man_data.get("canonical_table_hash"):
-            minted = compute_canonical_table_hash(source_conn)
-            man_data["canonical_table_hash"] = minted["canonical_table_hash"]
-            man_data["canonical_hash_algorithm"] = minted["canonical_hash_algorithm"]
-            man_data["row_count"] = minted["row_count"]
-            man_data["contracts_count"] = minted["row_count"]
-            man_data["min_date"] = None
-            man_data["max_date"] = None
-            man_path.write_text(
-                json.dumps(man_data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
-            )
-            snap = validate_snapshot_manifest(
-                man_path, verify_file_hash=False, allow_missing_dump=True
-            )
-
-        # Snapshot ↔ DB binding on source (full-table canonical hash required)
-        binding = bind_snapshot_to_database(source_conn, snap, require_canonical_match=True)
-        # Persist live dates into manifest for audit
-        if binding.get("ok") and man_data is not None:
-            man_data["canonical_table_hash"] = binding.get("canonical_table_hash")
-            man_data["canonical_hash_algorithm"] = binding.get("canonical_hash_algorithm")
-            man_data["min_date"] = binding.get("min_date")
-            man_data["max_date"] = binding.get("max_date")
-            man_data["row_count"] = binding.get("database_row_count")
-            man_data["contracts_count"] = binding.get("database_row_count")
-            man_path.write_text(
-                json.dumps(man_data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
-            )
-        if not binding.get("ok"):
             result = {
                 "run_id": run_id,
-                "status": "FAIL",
-                "reason": "snapshot_database_binding_failed",
-                "snapshot_binding": binding,
+                "status": "BLOCKED",
+                "reason": "BLOCKED_MISSING_INDEPENDENT_SNAPSHOT_ANCHOR",
                 "snapshot": snap.as_dict(),
                 "isolation": isolation.as_dict(),
                 "artifact_git_sha": git,
                 "run_git_sha": git,
+                "executed_code_sha": git,
+                "note": "export-confenge-authenticated-snapshot must close anchor before validate/run",
             }
             (out / "run-result.json").write_text(
                 json.dumps(result, indent=2, default=str) + "\n", encoding="utf-8"
             )
             return result
+
+        binding = bind_snapshot_to_database(source_conn, snap, require_canonical_match=True)
+        if not binding.get("ok"):
+            status_bind = binding.get("status") or "FAIL"
+            result = {
+                "run_id": run_id,
+                "status": "BLOCKED" if "BLOCKED" in str(status_bind) else "FAIL",
+                "reason": (
+                    status_bind
+                    if str(status_bind).startswith("BLOCKED")
+                    else "snapshot_database_binding_failed"
+                ),
+                "snapshot_binding": binding,
+                "snapshot": snap.as_dict(),
+                "isolation": isolation.as_dict(),
+                "artifact_git_sha": git,
+                "run_git_sha": git,
+                "executed_code_sha": git,
+            }
+            (out / "run-result.json").write_text(
+                json.dumps(result, indent=2, default=str) + "\n", encoding="utf-8"
+            )
+            return result
+
+        window = observation_window_metrics(
+            binding.get("min_date") or man_data.get("min_date"),
+            binding.get("max_date") or man_data.get("max_date"),
+            strong_min_days=STRONG_MIN_TIME_SPAN_DAYS,
+            minimum_observation_days=MINIMUM_OBSERVATION_WINDOW_DAYS,
+        )
 
         db_count = int(binding["database_row_count"])
         if db_count == 0:
@@ -844,6 +984,8 @@ def run_pipeline(
             **history_meta,
             "discovery_mode": discovery_meta.get("discovery_mode"),
             "history_expansion_mode": history_meta.get("history_expansion_mode"),
+            "history_view": history_meta.get("history_view") or HISTORY_VIEW_ALL_SNAPSHOT,
+            "all_statuses_loaded": history_meta.get("all_statuses_loaded"),
             "ranking_population_mode": (
                 RANKING_FULL_ELIGIBLE if pop_mode == POPULATION_FULL else RANKING_BOUNDED
             ),
@@ -908,12 +1050,19 @@ def run_pipeline(
 
         for cnpj14, crow in groups.items():
             contracts = rows_from_dicts(crow)
-            # FULL history dicts for sector/geo — never prefilter-only
+            # FULL all-status history dicts for sector/geo — never active-only / prefilter-only
             crow_dicts = list(crow)
+            hist_metrics = compute_supplier_history_metrics(crow_dicts)
+            _all_view, active_view = split_history_views(crow_dicts)
+            # Commercial signals may use active portfolio for concurrent load, but
+            # sector classification below always uses all-status history.
             reg = registry_map.get(cnpj14)
             cnae_principal = reg.cnae_principal if reg else None
             cnaes_sec = list(reg.cnaes_secundarios) if reg else []
-            sigs = compute_signals_for_supplier(contracts, profile, as_of=as_of_d, official_acts=None)
+            # Signals: prefer active portfolio when present for concurrent/near-expiry,
+            # fall back to all history if no active rows.
+            signal_rows = rows_from_dicts(active_view) if active_view else contracts
+            sigs = compute_signals_for_supplier(signal_rows, profile, as_of=as_of_d, official_acts=None)
             total_value = sum(float(c.valor_total or 0) for c in contracts if c.valor_total is not None)
             last_pub = None
             pubs = [c.data_publicacao for c in contracts if c.data_publicacao]
@@ -974,6 +1123,7 @@ def run_pipeline(
                 "publishable": validity.publishable,
                 "cnae_principal": cnae_principal,
                 "discovery_status": "CANDIDATE",
+                **hist_metrics,
             }
             candidates_meta.append(meta_row)
             lead_d_extra = {
@@ -987,6 +1137,7 @@ def run_pipeline(
                 "geography_fit": validity.geography_fit,
                 "exclusion_checks": validity.exclusion_checks,
                 "commercial_validity": validity.as_dict(),
+                "history_metrics": hist_metrics,
                 "data_quality": {
                     "relevant_contract_ratio": sector.relevant_contract_ratio_full_history,
                     "relevant_contract_ratio_full_history": sector.relevant_contract_ratio_full_history,
@@ -999,9 +1150,12 @@ def run_pipeline(
                     "object_diversity": sector.object_diversity,
                     "time_span_days": sector.time_span_days,
                     "denominator_invariant_ok": sector.denominator_invariant_ok,
-                    "history_source": sector.history_source,
+                    "history_source": HISTORY_VIEW_ALL_SNAPSHOT,
+                    "history_view": HISTORY_VIEW_ALL_SNAPSHOT,
+                    "active_portfolio_view": HISTORY_VIEW_ACTIVE_PORTFOLIO,
                     "cnae_principal": cnae_principal,
                     "cnae_status": "OK" if cnae_principal else "NOT_COMPUTABLE",
+                    **hist_metrics,
                 },
                 "limitations": limitations + list(lead_d.get("limitations") or []),
                 "manual_review_status": "PENDING",
@@ -1178,6 +1332,8 @@ def run_pipeline(
             top10_ok = False
             top10_issues.append("do_not_contact_in_published_queue")
 
+        offer_diag = diagnose_offer_distribution(lead_dicts)
+
         # Terminal status — never RC_TECHNICAL_PASS; never claim PASS without human labels
         if not history_meta.get("history_complete"):
             status = "FAIL"
@@ -1189,6 +1345,27 @@ def run_pipeline(
             status = "FAIL"
             reason = "FAIL_sector_distribution_anomaly"
             top10_issues.extend(anomaly_flags)
+        elif reg_cov.get("block_reason") == "BLOCKED_REGISTRY_SELECTION_BIAS":
+            status = "BLOCKED"
+            reason = "BLOCKED_REGISTRY_SELECTION_BIAS"
+        elif window.get("block") == "BLOCKED_INSUFFICIENT_HISTORICAL_WINDOW":
+            # Exception: full CNAE coverage + queue restricted to CONFIRMED_ENGINEERING only
+            only_confirmed = all(
+                L.get("supplier_sector_fit") == "CONFIRMED_ENGINEERING" for L in lead_dicts
+            )
+            cnae_full = (reg_cov.get("cnae_primary_coverage") or 0) >= 1.0
+            if only_confirmed and cnae_full and lead_dicts:
+                status = "BLOCKED"
+                reason = "BLOCKED_INSUFFICIENT_HUMAN_LABELS"
+                top10_issues.append(STRONG_NOT_OBSERVABLE)
+                top10_issues.append("queue_restricted_to_CONFIRMED_ENGINEERING_due_to_window")
+            else:
+                status = "BLOCKED"
+                reason = "BLOCKED_INSUFFICIENT_HISTORICAL_WINDOW"
+                top10_issues.append(window.get("strong_status") or STRONG_NOT_OBSERVABLE)
+        elif offer_diag.get("block") == "BLOCKED_OFFER_MAPPING_NOT_DISCRIMINATIVE":
+            status = "BLOCKED"
+            reason = "BLOCKED_OFFER_MAPPING_NOT_DISCRIMINATIVE"
         elif not lead_dicts:
             status = "BLOCKED"
             reason = "BLOCKED_COMMERCIAL_RELEVANCE_NOT_PROVEN"
@@ -1234,6 +1411,13 @@ def run_pipeline(
             "git_sha": git,
             "artifact_git_sha": git,
             "run_git_sha": git,
+            "executed_code_sha": git,
+            "evidence_commit_sha": git,
+            "current_pr_head_sha": os.environ.get("PR_HEAD_SHA") or os.environ.get("GITHUB_SHA") or git,
+            "workflow_run_id": os.environ.get("GITHUB_RUN_ID"),
+            "execution_environment": (
+                "github_actions" if os.environ.get("GITHUB_ACTIONS") else "local"
+            ),
             "profile_id": profile.profile_id,
             "profile_version": profile.version,
             "profile_hash": profile.profile_hash,
@@ -1241,6 +1425,8 @@ def run_pipeline(
             "snapshot_hash": snap.snapshot_hash,
             "snapshot": snap.as_dict(),
             "snapshot_binding": binding,
+            "observation_window": window,
+            "strong_observable": window.get("strong_observable"),
             "isolation": isolation.as_dict(),
             "source_state_mode": isolation.source_state_mode,
             # population_mode is a legacy CLI flag only — never a completeness claim
@@ -1251,11 +1437,13 @@ def run_pipeline(
             ),
             "discovery_mode": load_meta.get("discovery_mode"),
             "history_expansion_mode": load_meta.get("history_expansion_mode"),
+            "history_view": load_meta.get("history_view") or HISTORY_VIEW_ALL_SNAPSHOT,
             "ranking_population_mode": load_meta.get("ranking_population_mode"),
             "claims_full_snapshot_scan": False,
             "run_mode": run_mode_effective,
             "load_meta": load_meta,
             "registry_coverage": reg_cov,
+            "offer_mapping_diagnostic": offer_diag,
             "human_metrics": {
                 "precision_at_10": None,
                 "precision_at_20": None,

@@ -1,0 +1,9 @@
+{
+  "ok": false,
+  "pytest_exit": 0,
+  "run_all_candidates_coverage": 0.0165,
+  "run_top20_coverage": 1.0,
+  "selection_bias_detected": true,
+  "block": "BLOCKED_REGISTRY_SELECTION_BIAS",
+  "stdout_tail": ".....                                                                    [100%]\n5 passed in 1.66s\n"
+}

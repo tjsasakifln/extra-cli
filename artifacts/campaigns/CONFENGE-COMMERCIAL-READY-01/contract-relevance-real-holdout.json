@@ -1,0 +1,28 @@
+{
+  "smoke_adversarial_set": {
+    "set_type": "SMOKE_ADVERSARIAL_SET",
+    "n": 40,
+    "accuracy_smoke_only": 0.55,
+    "claim_allowed": false,
+    "note": "Smoke adversarial set only \u2014 never publish as real precision/recall."
+  },
+  "real_holdout": {
+    "ok": false,
+    "status": "BLOCKED_REAL_HOLDOUT_NOT_REVIEWED",
+    "reason": "insufficient_dual_human_labels",
+    "n_rows": 0,
+    "n_labeled": 0,
+    "min_required": 500,
+    "corpus_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "set_type": "holdout-real-v1",
+    "thresholds": {
+      "precision": 0.95,
+      "recall": 0.9,
+      "fpr": 0.05
+    },
+    "note": "Agents must not fill human label fields."
+  },
+  "ok": false,
+  "status": "BLOCKED_REAL_HOLDOUT_NOT_REVIEWED",
+  "claim_policy": "Never publish 100% precision from SMOKE_ADVERSARIAL_SET. Real holdout dual-human labels required."
+}

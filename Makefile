@@ -402,13 +402,28 @@ test-budget-audit:
 	dod-audit-confenge-commercial-ready \
 	test-commercial-leads \
 	test-confenge-contract-relevance \
+	test-confenge-contract-relevance-smoke \
 	test-confenge-sector-fit \
 	test-confenge-sector-fit-properties \
 	verify-confenge-denominator-integrity \
 	verify-confenge-full-candidate-history \
+	verify-confenge-all-status-history \
+	verify-confenge-active-vs-historical-separation \
 	verify-confenge-supplier-registry \
 	ingest-supplier-registry \
+	ingest-confenge-official-cnpj-registry \
+	resume-confenge-registry-ingestion \
 	verify-supplier-registry-coverage \
+	verify-confenge-registry-universe \
+	verify-confenge-registry-selection-independence \
+	verify-confenge-historical-window \
+	export-confenge-authenticated-snapshot \
+	verify-confenge-authenticated-snapshot \
+	verify-confenge-snapshot-manifest-immutability \
+	evaluate-confenge-real-contract-holdout \
+	verify-confenge-end-to-end-reproducibility \
+	verify-confenge-offer-discrimination \
+	verify-confenge-evidence-provenance \
 	verify-confenge-source-readonly \
 	verify-confenge-state-isolation \
 	verify-confenge-snapshot-binding \
@@ -437,6 +452,9 @@ test-confenge-contract-relevance:
 		--holdout evals/commercial_leads/holdout-v1.jsonl \
 		--out $(CONFENGE_COMMERCIAL_ART)/contract-relevance-holdout.json
 
+test-confenge-contract-relevance-smoke: test-confenge-contract-relevance
+	@echo 'SMOKE_ADVERSARIAL_SET only — not a real performance claim'
+
 test-confenge-sector-fit:
 	python3 -m pytest tests/commercial_leads/test_sector_fit.py -q --tb=short -o addopts=''
 
@@ -450,13 +468,64 @@ verify-confenge-denominator-integrity:
 verify-confenge-full-candidate-history:
 	python3 -m scripts.ops.confenge_make_gates full-candidate-history
 
+verify-confenge-all-status-history:
+	python3 -m scripts.ops.confenge_make_gates all-status-history
+
+verify-confenge-active-vs-historical-separation:
+	python3 -m scripts.ops.confenge_make_gates active-vs-historical-separation
+
 ingest-supplier-registry:
 	@test -n "$$CONFENGE_SUPPLIER_REGISTRY_JSONL" || (echo 'CONFENGE_SUPPLIER_REGISTRY_JSONL required' && exit 1)
 	@test -n "$$CONFENGE_COMMERCIAL_STATE_DSN" || (echo 'CONFENGE_COMMERCIAL_STATE_DSN required' && exit 1)
 	python3 -c "from scripts.commercial_leads.supplier_registry import ingest_from_jsonl; from scripts.commercial_leads.dbutil import connect; import os,json; c=connect(os.environ['CONFENGE_COMMERCIAL_STATE_DSN']); r=ingest_from_jsonl(c, os.environ['CONFENGE_SUPPLIER_REGISTRY_JSONL']); c.close(); print(json.dumps(r,indent=2))"
 
+ingest-confenge-official-cnpj-registry:
+	@test -n "$$CONFENGE_COMMERCIAL_STATE_DSN" || (echo 'CONFENGE_COMMERCIAL_STATE_DSN required' && exit 1)
+	python3 -m scripts.ops.confenge_registry_ingest \
+		--dsn "$$CONFENGE_COMMERCIAL_STATE_DSN" \
+		--run-result $(CONFENGE_COMMERCIAL_OUT)/run-result.json
+
+resume-confenge-registry-ingestion:
+	@test -n "$$CONFENGE_COMMERCIAL_STATE_DSN" || (echo 'CONFENGE_COMMERCIAL_STATE_DSN required' && exit 1)
+	python3 -m scripts.ops.confenge_registry_ingest \
+		--dsn "$$CONFENGE_COMMERCIAL_STATE_DSN" \
+		--run-result $(CONFENGE_COMMERCIAL_OUT)/run-result.json \
+		--resume --failures-only
+
 verify-supplier-registry-coverage:
 	python3 -m scripts.ops.confenge_make_gates registry-coverage
+
+verify-confenge-registry-universe:
+	python3 -m scripts.ops.confenge_make_gates registry-universe
+
+verify-confenge-registry-selection-independence:
+	python3 -m scripts.ops.confenge_make_gates registry-selection-independence
+
+verify-confenge-historical-window:
+	python3 -m scripts.ops.confenge_make_gates historical-window
+
+export-confenge-authenticated-snapshot:
+	python3 -m scripts.ops.confenge_make_gates export-authenticated-snapshot
+
+verify-confenge-authenticated-snapshot:
+	python3 -m scripts.ops.confenge_make_gates verify-authenticated-snapshot
+
+verify-confenge-snapshot-manifest-immutability:
+	python3 -m scripts.ops.confenge_make_gates snapshot-manifest-immutability
+
+evaluate-confenge-real-contract-holdout:
+	python3 -m scripts.ops.eval_contract_relevance_real_holdout \
+		--holdout evals/commercial_leads/real/holdout-real-v1.jsonl \
+		--out $(CONFENGE_COMMERCIAL_ART)/contract-relevance-real-holdout.json
+
+verify-confenge-end-to-end-reproducibility:
+	python3 -m scripts.ops.confenge_make_gates end-to-end-reproducibility
+
+verify-confenge-offer-discrimination:
+	python3 -m scripts.ops.confenge_make_gates offer-discrimination
+
+verify-confenge-evidence-provenance:
+	python3 -m scripts.ops.confenge_make_gates evidence-provenance
 
 verify-confenge-supplier-registry: verify-supplier-registry-coverage
 
@@ -540,5 +609,6 @@ verify-confenge-commercial-artifact-binding:
 	python3 -m scripts.ops.verify_confenge_artifact_binding \
 		--result $(CONFENGE_COMMERCIAL_ART)/result.json \
 		--queue-summary $(CONFENGE_COMMERCIAL_ART)/queue-summary.json
+
 
 
