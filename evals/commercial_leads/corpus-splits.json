@@ -1,0 +1,11 @@
+{
+  "holdout_version": "holdout-v1",
+  "frozen": true,
+  "n_holdout": 40,
+  "rule": "Do not tune keywords against holdout. New holdout requires formal justification.",
+  "thresholds": {
+    "precision": 0.95,
+    "recall": 0.9,
+    "false_positive_rate": 0.05
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "status": "PENDING_HUMAN",
+  "min_n": 200,
+  "strata": {
+    "published_or_strong": {
+      "target": 50,
+      "items": []
+    },
+    "possible": {
+      "target": 50,
+      "items": []
+    },
+    "conflicting_or_unknown": {
+      "target": 50,
+      "items": []
+    },
+    "out_of_scope": {
+      "target": 50,
+      "items": []
+    }
+  },
+  "dual_review_required": true,
+  "reviewers": [
+    "REVIEWER_A",
+    "REVIEWER_B"
+  ],
+  "note": "Populate from next full-history pipeline run; do not auto-fill labels."
+}

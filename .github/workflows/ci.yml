@@ -524,13 +524,50 @@ jobs:
       - name: Run pip-audit
         run: pip-audit --strict
 
-  confenge-commercial-validity:
-    name: CONFENGE Commercial Validity
+  confenge-contract-relevance:
+    name: CONFENGE Contract Relevance
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install deps
+        run: |
+          python -m pip install -U pip
+          pip install -r requirements.txt
+          pip install pytest
+      - name: Adversarial + holdout eval
+        run: |
+          make test-confenge-contract-relevance
+
+  confenge-sector-fit:
+    name: CONFENGE Sector Fit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install deps
+        run: |
+          python -m pip install -U pip
+          pip install -r requirements.txt
+          pip install pytest
+      - name: Sector fit + properties + anti-overfit
+        run: |
+          make test-confenge-sector-fit
+          make test-confenge-sector-fit-properties
+          python -m pytest tests/commercial_leads/test_anti_overfitting.py -q --tb=short -o addopts=
+      - name: Denominator integrity (synthetic adversarial)
+        run: make verify-confenge-denominator-integrity
+
+  confenge-commercial-code-quality:
+    name: CONFENGE Commercial Code Quality
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
-          # Full history so ancestor SHA binding works; PR merge HEAD != branch tip
           fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
@@ -543,13 +580,15 @@ jobs:
       - name: Profile + catalog schema
         run: |
           python -c "from scripts.commercial_leads.profile import load_profile; p=load_profile('config/commercial_profiles/confenge.yaml'); assert p.profile_id=='confenge'; assert len(p.signal_ids)>=12"
-      - name: Sector-fit + adversarial + validity unit tests
+      - name: Full commercial_leads unit suite
         run: |
           python -m pytest tests/commercial_leads/ -q --tb=short -o addopts=
-      - name: Sector-fit eval corpus present
+      - name: Holdout corpus frozen + sector eval present
         run: |
+          test -f evals/commercial_leads/holdout-v1.jsonl
           test -f evals/commercial_leads/sector-fit-v1.jsonl
-          python -c "from pathlib import Path; n=sum(1 for _ in Path('evals/commercial_leads/sector-fit-v1.jsonl').open()); assert n>=12, n"
+          test -f evals/commercial_leads/corpus-splits.json
+          python -c "from pathlib import Path; n=sum(1 for _ in Path('evals/commercial_leads/holdout-v1.jsonl').open()); assert n>=30, n"
       - name: No RC_TECHNICAL_PASS claim in result
         run: |
           python - <<'PY'
@@ -561,10 +600,23 @@ jobs:
           assert d.get("technical_status") != "RC_TECHNICAL_PASS"
           assert d.get("status") != "RC_TECHNICAL_PASS"
           assert d.get("status") in ("PASS", "BLOCKED", "FAIL"), d.get("status")
+          # Human metrics must be null or PENDING until dual human labels exist
+          hm = d.get("human_metrics") or {}
+          if "precision_at_10" in d or "precision_at_10" in hm:
+              assert d.get("precision_at_10") is None or hm.get("precision_at_10") is None or hm.get("human_review_status") == "COMPLETE"
+          PY
+      - name: Gold-standard baseline present
+        run: |
+          test -f artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/gold-standard-baseline.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d = json.loads(Path("artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/gold-standard-baseline.json").read_text())
+          assert d.get("status") == "BLOCKED_COMMERCIAL_RELEVANCE_NOT_PROVEN"
+          assert "DENOMINATOR_CONTAMINATION" in {x["id"] for x in d.get("known_methodological_defects") or []}
           PY
       - name: Artifact SHA binding gate
         env:
-          # On pull_request, GITHUB_SHA is a merge commit; bind against PR head.
           PR_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           python3 -m scripts.ops.verify_confenge_artifact_binding \
@@ -583,16 +635,25 @@ jobs:
           if d.get("ok") is not True and not d.get("same_snapshot", {}).get("ok"):
               raise SystemExit(f"ranking_stability incomplete: {d}")
           PY
-      - name: Independent review populations present
+      - name: Human evaluation honestly pending
         run: |
           python - <<'PY'
           import json
           from pathlib import Path
-          d = json.loads(Path("artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/independent-review.json").read_text())
-          pop = d.get("populations_reviewed") or {}
-          for key in ("top20", "random_outside_top20", "clear_out_of_scope", "clear_in_sector"):
-              assert key in pop, f"missing population {key}"
-          assert d.get("false_positives") is not None
-          assert d.get("precision_at_10") is not None or d.get("recommendation")
+          p = Path("artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/independent-review.json")
+          d = json.loads(p.read_text()) if p.is_file() else {}
+          # Agents must NOT claim human precision numbers
+          if d.get("human_review_status") in (None, "PENDING", "BLOCKED_INSUFFICIENT_HUMAN_LABELS"):
+              assert d.get("precision_at_10") in (None, "NOT_COMPUTABLE") or d.get("labels_are_human") is False
+          print({"human_review_status": d.get("human_review_status"), "precision_at_10": d.get("precision_at_10")})
           PY
+
+  # Keep alias job name for required-check compatibility during transition
+  confenge-commercial-validity:
+    name: CONFENGE Commercial Validity
+    needs: [confenge-contract-relevance, confenge-sector-fit, confenge-commercial-code-quality]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Aggregate structural commercial gates
+        run: echo "Structural commercial code gates passed; real-data / human / soak remain BLOCKED until evidence."
 

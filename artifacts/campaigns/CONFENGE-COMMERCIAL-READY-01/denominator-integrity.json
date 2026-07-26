@@ -1,0 +1,39 @@
+{
+  "gate": "verify-confenge-denominator-integrity",
+  "adversarial": [
+    {
+      "case": "1_pavement_9_food",
+      "ok": true,
+      "ratio": 0.1,
+      "classification": "POSSIBLE_ENGINEERING_FIT",
+      "relevant": 1,
+      "total": 10
+    },
+    {
+      "case": "2_obra_8_limpeza",
+      "ok": true,
+      "ratio": 0.2,
+      "classification": "POSSIBLE_ENGINEERING_FIT"
+    },
+    {
+      "case": "prefilter_only_incomplete_never_strong",
+      "ok": true,
+      "classification": "POSSIBLE_ENGINEERING_FIT",
+      "history_source": "prefilter_only_incomplete"
+    },
+    {
+      "case": "legitimate_strong_full_history",
+      "ok": true,
+      "classification": "STRONG_ENGINEERING_FIT",
+      "ratio": 1.0
+    }
+  ],
+  "adversarial_ok": true,
+  "db_sample": {
+    "ok": null,
+    "skipped": true,
+    "reason": "no DSN"
+  },
+  "db_ok": null,
+  "ok": true
+}

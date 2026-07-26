@@ -1,22 +1,33 @@
 profile_id: confenge
-version: 1.0.0
+version: 2.0.0
 version_date: '2026-07-25'
 display_name: CONFENGE — consultoria B2G
+# Eligible activity classes for published queue (sector gate + activity)
+eligible_activity_classes:
+- ENGINEERING_SERVICE_PROVIDER
+- CONSTRUCTION_CONTRACTOR
+- TECHNICAL_DESIGN_PROVIDER
+# Explicitly NOT eligible without additional evidence
+ineligible_activity_classes:
+- ENGINEERING_MATERIAL_SUPPLIER
+- EQUIPMENT_RENTAL
+- GENERAL_COMMERCE
+- OTHER
 services:
 - id: diagnostico_b2g
   label: Diagnóstico B2G
 - id: monitoramento
-  label: Monitoramento de oportunidades
+  label: Monitoramento de oportunidades / inteligência de mercado PNCP
 - id: analise_edital
   label: Análise técnica de edital
 - id: apoio_proposta
-  label: Apoio à elaboração de proposta
+  label: Apoio em licitações e propostas
 - id: acompanhamento_admin
-  label: Acompanhamento administrativo de contrato
+  label: Acompanhamento contratual / gestão documental e administrativa
 - id: auditoria_orcamento
   label: Auditoria de orçamento, composições e BDI
 - id: inteligencia_mercado
-  label: Inteligência de mercado público
+  label: Inteligência de mercado PNCP
 segments:
 - id: engenharia_obras
   label: Engenharia e obras públicas
@@ -133,20 +144,35 @@ tie_breakers: &id005
 - cnpj14_asc
 offers_by_signal: &id003
   first_public_contract: diagnostico_b2g
-  ticket_above_history: apoio_proposta
-  quantity_growth: monitoramento
-  value_growth: monitoramento
+  ticket_above_history: diagnostico_b2g
+  quantity_growth: inteligencia_mercado
+  value_growth: inteligencia_mercado
   new_agency: diagnostico_b2g
   new_region: diagnostico_b2g
   new_object_category: analise_edital
   concurrent_portfolio: acompanhamento_admin
   agency_concentration: acompanhamento_admin
   contract_concentration: acompanhamento_admin
-  near_expiry: monitoramento
+  near_expiry: acompanhamento_admin
   addendum_recurrence: acompanhamento_admin
-  adverse_event: diagnostico_b2g
-  diversity_increase: monitoramento
+  adverse_event: auditoria_orcamento
+  diversity_increase: inteligencia_mercado
   win_recurrence: apoio_proposta
+# Composite offer mappings (signal combinations → offer); versioned
+offer_mappings_version: offer-map-v2
+offer_mappings:
+- id: renewal_risk
+  when_signals: [near_expiry, agency_concentration]
+  offer: acompanhamento_admin
+  rationale: near_expiry + agency_concentration → acompanhamento contratual / renovação
+- id: market_entry
+  when_signals: [ticket_above_history, first_public_contract]
+  offer: diagnostico_b2g
+  rationale: ticket_above_history + first_public_contract → diagnóstico B2G / apoio de entrada
+- id: admin_load
+  when_signals: [concurrent_portfolio, addendum_recurrence]
+  offer: acompanhamento_admin
+  rationale: portfolio concurrency + addendum recurrence → acompanhamento administrativo
 next_steps_by_priority:
   CRITICAL: Revisar evidências e preparar abordagem consultiva em até 2 dias úteis.
   HIGH: Revisar sinais e incluir na cadência semanal de prospecção.

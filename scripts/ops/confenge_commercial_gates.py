@@ -116,6 +116,33 @@ def cmd_campaign_gate(_: argparse.Namespace) -> int:
     if not t["ok"]:
         fails.append("pytest")
 
+    # Gold-standard denominator integrity (synthetic adversarial always)
+    den = _run(
+        [
+            sys.executable,
+            "-m",
+            "scripts.ops.verify_confenge_denominator_integrity",
+            "--out",
+            str(_ART / "denominator-integrity.json"),
+        ]
+    )
+    results["steps"]["denominator_integrity"] = den
+    if not den["ok"]:
+        fails.append("denominator_integrity")
+
+    hold = _run(
+        [
+            sys.executable,
+            "-m",
+            "scripts.ops.eval_contract_relevance_holdout",
+            "--out",
+            str(_ART / "contract-relevance-holdout.json"),
+        ]
+    )
+    results["steps"]["contract_relevance_holdout"] = hold
+    if not hold["ok"]:
+        fails.append("contract_relevance_holdout")
+
     # ruff
     r = _run(
         [

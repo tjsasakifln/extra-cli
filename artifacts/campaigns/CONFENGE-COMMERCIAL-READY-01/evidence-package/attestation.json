@@ -1,0 +1,28 @@
+{
+  "executed_git_sha": "7c8b56b6063b8315422178e20f2a250bea752c85",
+  "workflow_run_id": null,
+  "created_at": "2026-07-26T00:07:02.904100+00:00",
+  "checksums": {
+    "result.json": {
+      "exists": true,
+      "sha256": "c81c1157e887e16070e84257d164d8fa25d704af61035b0d6c23e864a066e4e6"
+    },
+    "queue-summary.json": {
+      "exists": true,
+      "sha256": "a18472d85430dfb9bba27773d63e6251f25653237427ebcaded8374cc14f85e6"
+    },
+    "denominator-integrity.json": {
+      "exists": true,
+      "sha256": "518dd4354b399a74befb66e5ee9d25c8ad0a08359eb2285dfb74c29266877e53"
+    },
+    "contract-relevance-holdout.json": {
+      "exists": true,
+      "sha256": "b0b50a83281e50502ce03009f653df3c62af9109e2dc6bc2d7d0613e6aec9568"
+    },
+    "gold-standard-baseline.json": {
+      "exists": true,
+      "sha256": "f47f6e0c6b8c6a3ca08b29e7a182436e69560e64bd2582e777987037c900ae35"
+    }
+  },
+  "note": "execution artifacts; not self-referential commit SHA of this package"
+}

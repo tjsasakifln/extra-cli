@@ -1,0 +1,79 @@
+{
+  "reviewers": [
+    "data-methodology-reviewer",
+    "sector-domain-reviewer",
+    "commercial-validity-reviewer",
+    "database-isolation-reviewer",
+    "evidence-audit-reviewer",
+    "skeptical-red-team"
+  ],
+  "findings": [
+    {
+      "id": "F-GOLD-01",
+      "severity": "CRITICAL",
+      "reviewer": "data-methodology-reviewer",
+      "evidence": "Pre-gold pipeline used filter_relevant then sector ratio on filtered set",
+      "reproduction": "See gold-standard-baseline.json DENOMINATOR_CONTAMINATION; 4791 STRONG",
+      "impact": "False STRONG_ENGINEERING_FIT at scale",
+      "required_fix": "two-stage full history — implemented in pipeline.py + sector_fit v2",
+      "status": "FIXED_IN_CODE_PENDING_REAL_RERUN"
+    },
+    {
+      "id": "F-GOLD-02",
+      "severity": "HIGH",
+      "reviewer": "sector-domain-reviewer",
+      "evidence": "CNAE not loaded in previous pipeline path",
+      "reproduction": "evaluate_supplier_validity without cnae_principal",
+      "impact": "CONFIRMED path unused; contract-only STRONG inflated",
+      "required_fix": "supplier_registry + load_registry_map — schema ready; coverage still BLOCKED",
+      "status": "OPEN"
+    },
+    {
+      "id": "F-GOLD-03",
+      "severity": "HIGH",
+      "reviewer": "commercial-validity-reviewer",
+      "evidence": "Agent precision figures without dual human labels",
+      "reproduction": "independent-review.json prior claims",
+      "impact": "False commercial confidence",
+      "required_fix": "null metrics until dual human review",
+      "status": "FIXED_POLICY"
+    },
+    {
+      "id": "F-GOLD-04",
+      "severity": "HIGH",
+      "reviewer": "skeptical-red-team",
+      "evidence": "FULL_POPULATION meant prefilter not full snapshot",
+      "reproduction": "load_contract_universe SQL prefilter + FULL mode",
+      "impact": "False completeness claim",
+      "required_fix": "explicit discovery_mode/history_expansion_mode — implemented",
+      "status": "FIXED_IN_CODE_PENDING_REAL_RERUN"
+    },
+    {
+      "id": "F-GOLD-05",
+      "severity": "MEDIUM",
+      "reviewer": "evidence-audit-reviewer",
+      "evidence": "result.json/queue-summary still bound to pre-gold run SHA",
+      "reproduction": "artifact git_sha vs new code HEAD",
+      "impact": "Evidence lag until re-execution",
+      "required_fix": "re-run pipeline on authenticated snapshot after merge of code",
+      "status": "OPEN"
+    },
+    {
+      "id": "F-GOLD-06",
+      "severity": "MEDIUM",
+      "reviewer": "database-isolation-reviewer",
+      "evidence": "enforce_source_readonly often False in cycle",
+      "reproduction": "pipeline assert_source_state_isolation(enforce_source_readonly=False)",
+      "impact": "Isolation not fully proven in CI",
+      "required_fix": "live role tests with DSN",
+      "status": "OPEN"
+    }
+  ],
+  "open_critical_or_high": [
+    "F-GOLD-02",
+    "F-GOLD-05",
+    "F-GOLD-06"
+  ],
+  "verdict": "CODE_HARDENED_BUT_COMMERCIAL_PASS_BLOCKED",
+  "created_at": "2026-07-26T00:07:56.972064+00:00"
+}

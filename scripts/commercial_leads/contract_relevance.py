@@ -11,7 +11,7 @@ import unicodedata
 from dataclasses import asdict, dataclass, field
 from typing import Any
 
-RULE_VERSION = "contract-relevance-v1"
+RULE_VERSION = "contract-relevance-v2"
 
 # Layer A — strong engineering / construction phrases and tokens
 STRONG_PHRASES: tuple[str, ...] = (
@@ -178,9 +178,43 @@ NEGATIVE_CONTEXT: tuple[str, ...] = (
     "hospitalar",
     "locacao de veiculo",
     "locacao de veiculos",
+    "locacao de maquinas",
+    "locacao de equipamentos",
     "transporte escolar",
     "combustivel",
     "posto de combustivel",
+    "engenharia clinica",
+    "hospitalar",
+    "respirador",
+    "materiais de construcao",
+    "materiais para construcao",
+    "fornecimento de materiais",
+    "aquisicao de materiais",
+    "aquisicao de cimento",
+    "fornecimento de cimento",
+    "agregados",
+)
+
+# Supply / rental of materials-equipment is not engineering service execution
+SUPPLY_ONLY_PATTERNS: tuple[str, ...] = (
+    "fornecimento de materiais",
+    "aquisicao de materiais",
+    "materiais de construcao",
+    "materiais para construcao",
+    "aquisicao de cimento",
+    "fornecimento de cimento",
+    "fornecimento de agregados",
+    "locacao de maquinas",
+    "locacao de equipamentos",
+    "locacao de guindaste",
+)
+
+# Clinical / biomedical engineering is out of CONFENGE civil/infra scope
+CLINICAL_PATTERNS: tuple[str, ...] = (
+    "engenharia clinica",
+    "equipamentos de engenharia clinica",
+    "respirador",
+    "hospitalar",
 )
 
 
@@ -251,8 +285,45 @@ def classify_contract_relevance(objeto: str | None) -> ContractRelevanceResult:
     weak = _find_hits(norm, WEAK_TOKENS)
     pos = _find_hits(norm, POSITIVE_CONTEXT)
     neg = _find_hits(norm, NEGATIVE_CONTEXT)
+    supply_only = _find_hits(norm, SUPPLY_ONLY_PATTERNS)
+    clinical = _find_hits(norm, CLINICAL_PATTERNS)
 
     reasons: list[str] = []
+
+    # Materials supply / equipment rental without execution language → FAIL
+    if supply_only and not any(
+        x in norm
+        for x in (
+            "execucao de obra",
+            "empreitada",
+            "servicos de engenharia",
+            "fiscalizacao de obra",
+            "pavimentacao",
+        )
+    ):
+        return ContractRelevanceResult(
+            status="FAIL",
+            score=0.0,
+            strong_hits=strong,
+            weak_hits=weak,
+            positive_context=pos,
+            negative_context=neg + supply_only,
+            reason_codes=["materials_or_rental_supply_only"],
+            normalized_object=norm[:500],
+        )
+
+    # Clinical/biomedical engineering is outside civil/infra commercial scope
+    if clinical:
+        return ContractRelevanceResult(
+            status="FAIL",
+            score=0.0,
+            strong_hits=strong,
+            weak_hits=weak,
+            positive_context=pos,
+            negative_context=neg + clinical,
+            reason_codes=["clinical_biomedical_out_of_scope"],
+            normalized_object=norm[:500],
+        )
 
     # Strong negative without strong engineering → out
     strong_neg_only = bool(neg) and not strong and not (
@@ -291,6 +362,13 @@ def classify_contract_relevance(objeto: str | None) -> ContractRelevanceResult:
                 "infraestrutura de telecomunicacoes",
                 "tecnologia da informacao",
                 "informatica",
+                "engenharia clinica",
+                "hospitalar",
+                "materiais de construcao",
+                "fornecimento de materiais",
+                "aquisicao de materiais",
+                "locacao de maquinas",
+                "locacao de equipamentos",
             )
         )
         if hard_neg:

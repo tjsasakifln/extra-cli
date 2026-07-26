@@ -1,6 +1,6 @@
 {
   "status": "BLOCKED",
-  "reason": "BLOCKED_INSUFFICIENT_HUMAN_LABELS",
+  "reason": "BLOCKED_COMMERCIAL_RELEVANCE_NOT_PROVEN",
   "technical_status": "BLOCKED",
   "campaign_id": "CONFENGE-COMMERCIAL-READY-01",
   "run_id": "cl-20260725T232722Z-3e11387a",
@@ -60,9 +60,12 @@
   ],
   "rc_technical_pass_revoked": true,
   "blockers": [
+    "BLOCKED_COMMERCIAL_RELEVANCE_NOT_PROVEN",
+    "BLOCKED_MISSING_SUPPLIER_SECTOR_DATA",
     "BLOCKED_INSUFFICIENT_HUMAN_LABELS",
+    "BLOCKED_PREFILTER_RECALL_NOT_PROVEN",
     "BLOCKED_PENDING_HUMAN_ACCEPTANCE",
-    "soak_no_write_proven_unavailable"
+    "BLOCKED_SOAK_NON_INTERFERENCE_NOT_PROVEN"
   ],
   "user_acceptance": "NOT_REQUESTED",
   "sha_binding": {
@@ -70,5 +73,41 @@
     "bound_sha": "a277d63f28e95f9f9602bce528d06145ff1b2993",
     "policy": "ancestor_with_artifact_only_lag"
   },
-  "updated_at": "2026-07-25T23:27:58Z"
+  "updated_at": "2026-07-26T00:07:56Z",
+  "gold_standard": true,
+  "module_version": "2.0.0-gold",
+  "architecture": {
+    "discovery_mode": "PREFILTERED_CANDIDATE_DISCOVERY",
+    "history_expansion_mode": "FULL_CANDIDATE_HISTORY",
+    "ranking_population_mode": "FULL_ELIGIBLE_CANDIDATES",
+    "denominator": "full_supplier_history_required",
+    "sector_fit_rule_version": "supplier-sector-fit-v2-gold"
+  },
+  "human_metrics": {
+    "precision_at_10": null,
+    "precision_at_20": null,
+    "false_positives": null,
+    "false_negatives": null,
+    "human_review_status": "PENDING"
+  },
+  "implemented_gold": [
+    "two_stage_discovery_full_history",
+    "denominator_integrity_gate",
+    "sector_fit_v2_strict_thresholds",
+    "single_contract_cap_possible",
+    "activity_class_material_supplier",
+    "supplier_registry_schema_migration_063",
+    "holdout_contract_relevance_eval",
+    "human_metrics_null_until_labels",
+    "property_tests",
+    "anti_overfitting_tests",
+    "ci_split_jobs"
+  ],
+  "not_yet_validated_with_real_data": [
+    "full_pipeline_rerun_on_60k_snapshot",
+    "registry_cnae_coverage_top20",
+    "prefilter_recall_measurement",
+    "dual_human_review_200",
+    "baseline_superiority_with_labels"
+  ]
 }

@@ -14,9 +14,15 @@ from typing import Any
 
 from scripts.commercial_leads import (
     CAMPAIGN_ID,
+    CANDIDATE_DISCOVERY_RULE_VERSION,
+    DISCOVERY_FULL_SNAPSHOT,
+    DISCOVERY_PREFILTERED,
+    HISTORY_FULL_CANDIDATE,
     MODULE_VERSION,
     POPULATION_FULL,
     POPULATION_SAMPLE,
+    RANKING_BOUNDED,
+    RANKING_FULL_ELIGIBLE,
     SOURCE_STATE_RESTORED,
 )
 from scripts.commercial_leads.baseline import compare_to_baselines
@@ -38,6 +44,11 @@ from scripts.commercial_leads.scoring import rank_leads, score_supplier
 from scripts.commercial_leads.sector_fit import PUBLISHABLE, sector_fit_histogram
 from scripts.commercial_leads.signals import compute_signals_for_supplier, rows_from_dicts
 from scripts.commercial_leads.snapshot import bind_snapshot_to_database, validate_snapshot_manifest
+from scripts.commercial_leads.supplier_registry import (
+    coverage_report,
+    ensure_registry_table,
+    load_registry_map,
+)
 
 _PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
@@ -137,17 +148,36 @@ def _segment_sql_prefilter(profile: CommercialProfile) -> tuple[str, list[Any]]:
     return "(" + " OR ".join(clauses) + ")", params
 
 
-def load_contract_universe(
+_CONTRACT_SELECT = (
+    "contrato_id, orgao_cnpj, orgao_nome, "
+    "fornecedor_cnpj, fornecedor_nome, objeto_contrato, valor_total, "
+    "data_inicio, data_fim, data_publicacao, uf, source, source_id"
+)
+
+
+def _normalize_cnpj_digits(raw: Any) -> str | None:
+    import re
+
+    digits = re.sub(r"\D", "", str(raw or ""))
+    if len(digits) >= 14:
+        return digits[-14:]
+    if len(digits) == 14:
+        return digits
+    return None
+
+
+def discover_candidate_suppliers(
     conn: Any,
     profile: CommercialProfile,
     *,
     max_contracts: int | None = None,
-    as_of: date | None = None,
     population_mode: str = POPULATION_SAMPLE,
-) -> tuple[list[dict[str, Any]], dict[str, Any]]:
-    """Load active contracts; apply hierarchical relevance; never silent full claim.
+) -> tuple[dict[str, list[dict[str, Any]]], dict[str, Any]]:
+    """Stage 1 — discovery only.
 
-    Returns (relevant_rows, load_meta).
+    Find CNPJs with at least one potentially relevant contract via SQL prefilter
+    + hierarchical relevance. Does NOT declare sector fit.
+    Returns (discovery_evidence_by_cnpj, meta).
     """
     filt, params = _segment_sql_prefilter(profile)
     uf_list = list((profile.data.get("region") or {}).get("primary_ufs") or [])
@@ -155,16 +185,13 @@ def load_contract_universe(
     uf_list = [u.upper() for u in uf_list if u]
 
     sql = (
-        "SELECT contrato_id, orgao_cnpj, orgao_nome, "
-        "fornecedor_cnpj, fornecedor_nome, objeto_contrato, valor_total, "
-        "data_inicio, data_fim, data_publicacao, uf, source, source_id "
+        f"SELECT {_CONTRACT_SELECT} "
         "FROM public.pncp_supplier_contracts "
         "WHERE is_active = TRUE "
         "AND fornecedor_cnpj IS NOT NULL "
         "AND btrim(fornecedor_cnpj) <> '' "
         "AND (" + filt + ")"  # nosec B608
     )
-    # Geography: do NOT auto-include uf IS NULL when filter active
     if uf_list:
         sql += " AND uf IS NOT NULL AND upper(btrim(uf)) = ANY(%s)"
         params.append(uf_list)
@@ -173,30 +200,199 @@ def load_contract_universe(
 
     limit_applied = None
     if population_mode == POPULATION_FULL:
-        # No LIMIT — full eligible population for this prefilter
         pass
     elif max_contracts is not None:
         sql += " LIMIT %s"
         params.append(int(max_contracts))
         limit_applied = int(max_contracts)
     else:
-        # Explicit default sample bound (must be recorded, never silent full claim)
         limit_applied = 250_000
         sql += " LIMIT %s"
         params.append(limit_applied)
 
     raw = fetch_all(conn, sql, tuple(params))
     kept, excluded = filter_relevant_contracts(raw)
+
+    evidence_by_cnpj: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for row in kept:
+        cnpj = _normalize_cnpj_digits(row.get("fornecedor_cnpj"))
+        if not cnpj:
+            continue
+        evidence_by_cnpj[cnpj].append(row)
+
+    discovery_mode = (
+        DISCOVERY_PREFILTERED
+        if population_mode == POPULATION_FULL
+        else DISCOVERY_PREFILTERED
+    )
+    if population_mode == POPULATION_FULL and limit_applied is None and not uf_list:
+        # Still prefilter-based unless no keyword filter — never claim full snapshot
+        # unless SQL had no keyword prefilter.
+        discovery_mode = DISCOVERY_PREFILTERED
+
     meta = {
+        "stage": "discovery",
+        "discovery_mode": discovery_mode,
+        "candidate_discovery_rule_version": CANDIDATE_DISCOVERY_RULE_VERSION,
         "population_mode": population_mode,
         "limit_applied": limit_applied,
         "sql_prefilter_rows": len(raw),
         "relevance_pass_rows": len(kept),
         "relevance_fail_rows": len(excluded),
+        "candidate_supplier_count": len(evidence_by_cnpj),
+        "candidate_supplier_cnpjs": sorted(evidence_by_cnpj.keys()),
         "ufs_filter": uf_list,
         "uf_null_excluded_when_geo_filter": bool(uf_list),
+        "sector_fit_declared_in_discovery": False,
+        "note": (
+            "Prefilter used only for candidate discovery. "
+            "Sector classification requires Stage 2 full history expansion."
+        ),
     }
-    return kept, meta
+    return dict(evidence_by_cnpj), meta
+
+
+def load_full_supplier_histories(
+    conn: Any,
+    candidate_cnpjs: list[str],
+    *,
+    per_supplier_limit: int | None = None,
+) -> tuple[dict[str, list[dict[str, Any]]], dict[str, Any]]:
+    """Stage 2 — expand FULL contract history for each candidate CNPJ.
+
+    Loads ALL active contracts for candidates regardless of keyword/prefilter.
+    per_supplier_limit must be None in production; if set, marks history incomplete.
+    """
+    cleaned = sorted({c for c in (_normalize_cnpj_digits(x) for x in candidate_cnpjs) if c})
+    if not cleaned:
+        return {}, {
+            "stage": "full_history",
+            "history_expansion_mode": HISTORY_FULL_CANDIDATE,
+            "candidate_count": 0,
+            "full_history_contract_count": 0,
+            "per_supplier_limit": per_supplier_limit,
+            "history_complete": True,
+        }
+
+    # Normalize fornecedor_cnpj digits in SQL for join
+    sql = (
+        f"SELECT {_CONTRACT_SELECT}, "
+        "regexp_replace(fornecedor_cnpj, '\\D', '', 'g') AS fornecedor_cnpj_digits "
+        "FROM public.pncp_supplier_contracts "
+        "WHERE is_active = TRUE "
+        "AND fornecedor_cnpj IS NOT NULL "
+        "AND btrim(fornecedor_cnpj) <> '' "
+        "AND right(regexp_replace(fornecedor_cnpj, '\\D', '', 'g'), 14) = ANY(%s) "
+        "ORDER BY data_publicacao DESC NULLS LAST, valor_total DESC NULLS LAST"
+    )
+    raw = fetch_all(conn, sql, (cleaned,))
+
+    groups: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    truncated: list[str] = []
+    for row in raw:
+        digits = row.get("fornecedor_cnpj_digits") or _normalize_cnpj_digits(row.get("fornecedor_cnpj"))
+        cnpj = _normalize_cnpj_digits(digits)
+        if not cnpj or cnpj not in set(cleaned):
+            # right(...,14) already applied; re-normalize
+            cnpj = _normalize_cnpj_digits(row.get("fornecedor_cnpj"))
+        if not cnpj:
+            continue
+        if per_supplier_limit is not None and len(groups[cnpj]) >= int(per_supplier_limit):
+            if cnpj not in truncated:
+                truncated.append(cnpj)
+            continue
+        # drop helper column from contract dict used downstream
+        clean = {k: v for k, v in row.items() if k != "fornecedor_cnpj_digits"}
+        groups[cnpj].append(clean)
+
+    # Reconcile counts vs direct snapshot query for integrity
+    count_rows = fetch_all(
+        conn,
+        """
+        SELECT right(regexp_replace(fornecedor_cnpj, '\\D', '', 'g'), 14) AS cnpj14,
+               COUNT(*)::int AS n
+        FROM public.pncp_supplier_contracts
+        WHERE is_active = TRUE
+          AND fornecedor_cnpj IS NOT NULL
+          AND btrim(fornecedor_cnpj) <> ''
+          AND right(regexp_replace(fornecedor_cnpj, '\\D', '', 'g'), 14) = ANY(%s)
+        GROUP BY 1
+        """,
+        (cleaned,),
+    )
+    snapshot_counts = {str(r["cnpj14"]): int(r["n"]) for r in count_rows}
+    mismatches: list[dict[str, Any]] = []
+    for cnpj in cleaned:
+        loaded = len(groups.get(cnpj, []))
+        expected = snapshot_counts.get(cnpj, 0)
+        if per_supplier_limit is None and loaded != expected:
+            mismatches.append({"cnpj14": cnpj, "loaded": loaded, "snapshot_count": expected})
+
+    history_complete = per_supplier_limit is None and not mismatches
+    meta = {
+        "stage": "full_history",
+        "history_expansion_mode": (
+            HISTORY_FULL_CANDIDATE if per_supplier_limit is None else "BOUNDED_PER_SUPPLIER"
+        ),
+        "candidate_count": len(cleaned),
+        "suppliers_with_history": len(groups),
+        "full_history_contract_count": sum(len(v) for v in groups.values()),
+        "mean_contracts_per_candidate": (
+            round(sum(len(v) for v in groups.values()) / len(groups), 4) if groups else 0.0
+        ),
+        "median_contracts_per_candidate": _median([len(v) for v in groups.values()]),
+        "single_contract_candidate_rate": (
+            round(sum(1 for v in groups.values() if len(v) == 1) / len(groups), 4)
+            if groups
+            else 0.0
+        ),
+        "per_supplier_limit": per_supplier_limit,
+        "truncated_suppliers": truncated[:50],
+        "history_complete": history_complete,
+        "snapshot_count_mismatches": mismatches[:50],
+        "snapshot_count_mismatch_n": len(mismatches),
+    }
+    return dict(groups), meta
+
+
+def _median(values: list[int]) -> float | None:
+    if not values:
+        return None
+    s = sorted(values)
+    n = len(s)
+    mid = n // 2
+    if n % 2:
+        return float(s[mid])
+    return (s[mid - 1] + s[mid]) / 2.0
+
+
+def load_contract_universe(
+    conn: Any,
+    profile: CommercialProfile,
+    *,
+    max_contracts: int | None = None,
+    as_of: date | None = None,
+    population_mode: str = POPULATION_SAMPLE,
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    """Deprecated path: discovery prefilter only (does NOT return full history).
+
+    Prefer discover_candidate_suppliers + load_full_supplier_histories.
+    Kept for backward-compatible tests; marks history incomplete.
+    """
+    evidence, meta = discover_candidate_suppliers(
+        conn, profile, max_contracts=max_contracts, population_mode=population_mode
+    )
+    # Flatten discovery evidence (relevant-only) — NOT full history
+    rows: list[dict[str, Any]] = []
+    for lst in evidence.values():
+        rows.extend(lst)
+    meta["deprecated"] = True
+    meta["history_is_full"] = False
+    meta["warning"] = (
+        "load_contract_universe returns discovery-relevant rows only; "
+        "do not use for sector concentration"
+    )
+    return rows, meta
 
 
 def group_by_supplier(
@@ -538,24 +734,103 @@ def run_pipeline(
             )
             return result
 
-        raw_rows, load_meta = load_contract_universe(
+        # --- Stage 1: candidate discovery (prefilter only) ---
+        discovery_evidence, discovery_meta = discover_candidate_suppliers(
             source_conn,
             profile,
             max_contracts=max_contracts,
-            as_of=as_of_d,
             population_mode=pop_mode,
         )
-        groups, exclusions, names = group_by_supplier(raw_rows, profile)
+        candidate_cnpjs = list(discovery_meta.get("candidate_supplier_cnpjs") or discovery_evidence.keys())
+
+        # Identity / organ exclusions applied on discovery rows then full history
+        discovery_flat: list[dict[str, Any]] = []
+        for rows in discovery_evidence.values():
+            discovery_flat.extend(rows)
+        _disc_groups, exclusions, names_discovery = group_by_supplier(discovery_flat, profile)
+        # Keep only eligible discovery CNPJs
+        candidate_cnpjs = sorted(set(_disc_groups.keys()) | set(discovery_evidence.keys()))
+        # Re-filter candidates through identity on a synthetic row if needed
+        eligible_candidates: list[str] = []
+        for cnpj in candidate_cnpjs:
+            sample = (discovery_evidence.get(cnpj) or _disc_groups.get(cnpj) or [{}])[0]
+            resolved = resolve_supplier(
+                sample.get("fornecedor_cnpj") or cnpj,
+                sample.get("fornecedor_nome") or names_discovery.get(cnpj),
+                organ_markers=list((profile.data.get("exclusions") or {}).get("organ_name_markers") or []),
+                drop_organs=bool((profile.data.get("exclusions") or {}).get("drop_public_organs", True)),
+                drop_persons=bool((profile.data.get("exclusions") or {}).get("drop_natural_persons", True)),
+                drop_invalid=bool((profile.data.get("exclusions") or {}).get("drop_invalid_cnpj", True)),
+            )
+            if resolved.eligible and resolved.cnpj14:
+                eligible_candidates.append(resolved.cnpj14)
+                if resolved.razao_social:
+                    names_discovery[resolved.cnpj14] = resolved.razao_social
+        candidate_cnpjs = sorted(set(eligible_candidates))
+
+        # --- Stage 2: full history expansion (denominator integrity) ---
+        groups, history_meta = load_full_supplier_histories(
+            source_conn,
+            candidate_cnpjs,
+            per_supplier_limit=None,  # never silent LIMIT per supplier
+        )
+        # Refresh names from full history
+        names: dict[str, str] = dict(names_discovery)
+        for cnpj14, crow in groups.items():
+            if crow and crow[0].get("fornecedor_nome"):
+                names.setdefault(cnpj14, str(crow[0]["fornecedor_nome"]))
+
+        load_meta = {
+            **discovery_meta,
+            **history_meta,
+            "discovery_mode": discovery_meta.get("discovery_mode"),
+            "history_expansion_mode": history_meta.get("history_expansion_mode"),
+            "ranking_population_mode": (
+                RANKING_FULL_ELIGIBLE if pop_mode == POPULATION_FULL else RANKING_BOUNDED
+            ),
+            "history_is_full": bool(history_meta.get("history_complete")),
+            "sql_prefilter_rows": discovery_meta.get("sql_prefilter_rows"),
+            "relevance_pass_rows": discovery_meta.get("relevance_pass_rows"),
+        }
+        if not history_meta.get("history_complete"):
+            result = {
+                "run_id": run_id,
+                "status": "FAIL",
+                "reason": "FAIL_denominator_history_incomplete",
+                "load_meta": load_meta,
+                "snapshot_binding": binding,
+                "isolation": isolation.as_dict(),
+                "artifact_git_sha": git,
+                "run_git_sha": git,
+            }
+            (out / "run-result.json").write_text(
+                json.dumps(result, indent=2, default=str) + "\n", encoding="utf-8"
+            )
+            return result
 
         uf_list = list((profile.data.get("region") or {}).get("primary_ufs") or [])
         uf_list += list((profile.data.get("region") or {}).get("secondary_ufs") or [])
         uf_list = [u.upper() for u in uf_list if u]
+
+        # Supplier registry (CNAE) — never invent
+        try:
+            ensure_registry_table(state_conn)
+        except Exception:  # noqa: BLE001
+            pass
+        try:
+            registry_map = load_registry_map(source_conn, list(groups.keys()))
+        except Exception:  # noqa: BLE001
+            try:
+                registry_map = load_registry_map(state_conn, list(groups.keys()))
+            except Exception:  # noqa: BLE001
+                registry_map = {}
 
         candidates_meta: list[dict[str, Any]] = []
         scored = []
         sector_decisions = []
         review_queue: list[dict[str, Any]] = []
         validity_excluded = 0
+        denominator_failures = 0
 
         state_map: dict[str, str] = {}
         try:
@@ -570,8 +845,11 @@ def run_pipeline(
 
         for cnpj14, crow in groups.items():
             contracts = rows_from_dicts(crow)
-            # convert contracts back to dicts for sector/geo
+            # FULL history dicts for sector/geo — never prefilter-only
             crow_dicts = list(crow)
+            reg = registry_map.get(cnpj14)
+            cnae_principal = reg.cnae_principal if reg else None
+            cnaes_sec = list(reg.cnaes_secundarios) if reg else []
             sigs = compute_signals_for_supplier(contracts, profile, as_of=as_of_d, official_acts=None)
             total_value = sum(float(c.valor_total or 0) for c in contracts if c.valor_total is not None)
             last_pub = None
@@ -596,6 +874,8 @@ def run_pipeline(
                 signals_fired=lead_d.get("signals_fired") or [],
                 score_total=lead.score_total,
                 allowed_ufs=uf_list,
+                cnae_principal=cnae_principal,
+                cnaes_secundarios=cnaes_sec,
                 min_signals=int((profile.data.get("queue") or {}).get("min_signals_fired") or 1),
                 min_score=float((profile.data.get("queue") or {}).get("min_score") or 1.0),
                 exclusion_flags={
@@ -603,25 +883,41 @@ def run_pipeline(
                 },
                 run_id=run_id,
             )
+            if not sector.denominator_invariant_ok:
+                denominator_failures += 1
             sector_decisions.append(sector)
+            limitations: list[str] = []
+            if reg is None:
+                limitations.append("supplier_registry_missing")
+                limitations.append("cnae_NOT_COMPUTABLE")
+            elif reg.is_inactive:
+                limitations.append(f"situacao_cadastral:{reg.situacao_cadastral}")
+            if sector.history_source != "full_history":
+                limitations.append("history_incomplete")
             meta_row = {
                 "cnpj14": cnpj14,
                 "razao_social": razao,
                 "total_value": total_value,
                 "contract_count": len(contracts),
+                "total_contract_count_full_history": sector.total_contract_count_full_history,
+                "relevant_contract_count": sector.relevant_contract_count,
+                "relevant_contract_ratio_full_history": sector.relevant_contract_ratio_full_history,
                 "last_publication": last_pub,
                 "supplier_sector_fit": sector.classification,
+                "activity_class": sector.activity_class,
                 "contract_relevance": validity.contract_relevance,
                 "commercial_signal_fit": validity.commercial_signal_fit,
                 "geography_fit": validity.geography_fit,
                 "publishable": validity.publishable,
+                "cnae_principal": cnae_principal,
+                "discovery_status": "CANDIDATE",
             }
             candidates_meta.append(meta_row)
-            # Attach validity fields onto lead object via as_dict later
             lead_d_extra = {
                 "supplier_sector_fit": sector.classification,
                 "supplier_sector_confidence": sector.confidence,
                 "supplier_sector_evidence": sector.as_dict(),
+                "activity_class": sector.activity_class,
                 "contract_relevance": validity.contract_relevance,
                 "contract_relevance_evidence": (validity.evidence or {}).get("contract_relevance_sample"),
                 "commercial_signal_fit": validity.commercial_signal_fit,
@@ -629,18 +925,49 @@ def run_pipeline(
                 "exclusion_checks": validity.exclusion_checks,
                 "commercial_validity": validity.as_dict(),
                 "data_quality": {
-                    "relevant_contract_ratio": sector.relevant_contract_ratio,
+                    "relevant_contract_ratio": sector.relevant_contract_ratio_full_history,
+                    "relevant_contract_ratio_full_history": sector.relevant_contract_ratio_full_history,
                     "relevant_contract_count": sector.relevant_contract_count,
-                    "total_contract_count": sector.total_contract_count,
+                    "irrelevant_contract_count": sector.irrelevant_contract_count,
+                    "review_contract_count": sector.review_contract_count,
+                    "total_contract_count": sector.total_contract_count_full_history,
+                    "total_contract_count_full_history": sector.total_contract_count_full_history,
+                    "agency_count_relevant": sector.agency_count_relevant,
+                    "object_diversity": sector.object_diversity,
+                    "time_span_days": sector.time_span_days,
+                    "denominator_invariant_ok": sector.denominator_invariant_ok,
+                    "history_source": sector.history_source,
+                    "cnae_principal": cnae_principal,
+                    "cnae_status": "OK" if cnae_principal else "NOT_COMPUTABLE",
                 },
+                "limitations": limitations + list(lead_d.get("limitations") or []),
                 "manual_review_status": "PENDING",
+                "human_review_status": "PENDING",
+                "precision_at_10": None,
+                "precision_at_20": None,
             }
+            # Sector gate: only CONFIRMED/STRONG enter published queue (never POSSIBLE/OUT/UNKNOWN/CONFLICTING)
             if validity.publishable and cnpj14 not in dnc_set:
                 scored.append((lead, lead_d_extra))
             else:
                 validity_excluded += 1
                 if validity.review_queue:
                     review_queue.append({**meta_row, **lead_d_extra})
+
+        if denominator_failures:
+            result = {
+                "run_id": run_id,
+                "status": "FAIL",
+                "reason": "FAIL_denominator_invariant",
+                "denominator_failures": denominator_failures,
+                "load_meta": load_meta,
+                "artifact_git_sha": git,
+                "run_git_sha": git,
+            }
+            (out / "run-result.json").write_text(
+                json.dumps(result, indent=2, default=str) + "\n", encoding="utf-8"
+            )
+            return result
 
         pure_scored = [s[0] for s in scored]
         extras_by_cnpj = {s[0].cnpj14: s[1] for s in scored}
@@ -684,10 +1011,36 @@ def run_pipeline(
             for lead in lead_dicts
         ]
 
+        # Registry coverage (human metrics null until labeled)
+        top20_cnpjs = [L["cnpj14"] for L in lead_dicts[:20]]
+        top100_cnpjs = [m["cnpj14"] for m in sorted(
+            candidates_meta, key=lambda x: float(x.get("total_value") or 0), reverse=True
+        )[:100]]
+        reg_cov = coverage_report(
+            registry_map,
+            all_candidates=list(groups.keys()),
+            top100=top100_cnpjs,
+            top20=top20_cnpjs,
+        )
+
+        n_sector = max(sum(sector_dist.values()), 1)
+        publishable_rate = round(len(pure_scored) / n_sector, 4)
+        strong_rate = round(sector_dist.get("STRONG_ENGINEERING_FIT", 0) / n_sector, 4)
+        anomaly_flags: list[str] = []
+        if strong_rate > 0.25:
+            anomaly_flags.append(f"high_strong_rate:{strong_rate}")
+        if publishable_rate > 0.40:
+            anomaly_flags.append(f"high_publishable_rate:{publishable_rate}")
+
         metrics = {
             "eligible_companies": len(groups),
+            "candidate_count": len(groups),
             "raw_contracts_loaded": load_meta.get("sql_prefilter_rows"),
             "relevance_pass_contracts": load_meta.get("relevance_pass_rows"),
+            "full_history_contract_count": load_meta.get("full_history_contract_count"),
+            "mean_contracts_per_candidate": load_meta.get("mean_contracts_per_candidate"),
+            "median_contracts_per_candidate": load_meta.get("median_contracts_per_candidate"),
+            "single_contract_candidate_rate": load_meta.get("single_contract_candidate_rate"),
             "db_contract_count": db_count,
             "exclusions": len(exclusions),
             "scored_companies": len(pure_scored),
@@ -701,8 +1054,25 @@ def run_pipeline(
             "elapsed_seconds": round(time.time() - t0, 3),
             "module_version": MODULE_VERSION,
             "population_mode": pop_mode,
+            "discovery_mode": load_meta.get("discovery_mode"),
+            "history_expansion_mode": load_meta.get("history_expansion_mode"),
+            "ranking_population_mode": load_meta.get("ranking_population_mode"),
             "limit_applied": load_meta.get("limit_applied"),
             "sector_fit_distribution": sector_dist,
+            "publishable_rate": publishable_rate,
+            "out_of_scope_rate": round(sector_dist.get("OUT_OF_SCOPE", 0) / n_sector, 4),
+            "unknown_rate": round(sector_dist.get("UNKNOWN", 0) / n_sector, 4),
+            "conflicting_rate": round(sector_dist.get("CONFLICTING", 0) / n_sector, 4),
+            "review_queue_rate": round(len(review_queue) / n_sector, 4),
+            "cnae_coverage": reg_cov.get("cnae_primary_coverage"),
+            "registry_coverage": reg_cov,
+            "anomaly_flags": anomaly_flags,
+            # Human metrics: null until real dual human labels exist
+            "precision_at_10": None,
+            "precision_at_20": None,
+            "false_positives": None,
+            "false_negatives": None,
+            "human_review_status": "PENDING",
         }
 
         # Commercial top-10 gate
@@ -745,8 +1115,18 @@ def run_pipeline(
             top10_ok = False
             top10_issues.append("do_not_contact_in_published_queue")
 
-        # Terminal status — never RC_TECHNICAL_PASS
-        if not lead_dicts:
+        # Terminal status — never RC_TECHNICAL_PASS; never claim PASS without human labels
+        if not history_meta.get("history_complete"):
+            status = "FAIL"
+            reason = "FAIL_denominator_history_incomplete"
+        elif denominator_failures:
+            status = "FAIL"
+            reason = "FAIL_denominator_invariant"
+        elif anomaly_flags and strong_rate > 0.5:
+            status = "FAIL"
+            reason = "FAIL_sector_distribution_anomaly"
+            top10_issues.extend(anomaly_flags)
+        elif not lead_dicts:
             status = "BLOCKED"
             reason = "BLOCKED_COMMERCIAL_RELEVANCE_NOT_PROVEN"
             top10_issues.append("empty_queue")
@@ -756,19 +1136,29 @@ def run_pipeline(
         elif not top10_ok:
             status = "FAIL"
             reason = "FAIL_COMMERCIAL_QUALITY_GATE"
+        elif not reg_cov.get("top20_coverage_100pct"):
+            status = "BLOCKED"
+            reason = "BLOCKED_MISSING_SUPPLIER_SECTOR_DATA"
         else:
-            status = "PASS"
-            reason = None
+            # Technical machine ranking may be OK but commercial PASS requires human labels
+            status = "BLOCKED"
+            reason = "BLOCKED_INSUFFICIENT_HUMAN_LABELS"
 
         # Sample mode cannot claim final ranking
         claims = [
             "explainable_signals",
             "reproducible_ranking_inputs",
-            "sector_fit_layer_v1",
+            "sector_fit_layer_v2_gold",
             "hierarchical_contract_relevance_v1",
+            "two_stage_discovery_full_history",
+            "denominator_full_history",
         ]
-        if pop_mode == POPULATION_FULL and status == "PASS":
-            claims.append("full_population_ranking")
+        if pop_mode == POPULATION_FULL and load_meta.get("history_expansion_mode") == HISTORY_FULL_CANDIDATE:
+            claims.append("full_candidate_history_ranking")
+            claims.append("prefiltered_candidate_discovery")
+            # Never claim FULL_SNAPSHOT_SCAN unless discovery was unfiltered
+            if load_meta.get("discovery_mode") == DISCOVERY_FULL_SNAPSHOT:
+                claims.append("full_snapshot_discovery")
         else:
             claims.append("EXPERIMENTAL_SAMPLE" if pop_mode == POPULATION_SAMPLE else "partial_queue")
 
@@ -791,8 +1181,19 @@ def run_pipeline(
             "isolation": isolation.as_dict(),
             "source_state_mode": isolation.source_state_mode,
             "population_mode": pop_mode,
+            "discovery_mode": load_meta.get("discovery_mode"),
+            "history_expansion_mode": load_meta.get("history_expansion_mode"),
+            "ranking_population_mode": load_meta.get("ranking_population_mode"),
             "run_mode": run_mode_effective,
             "load_meta": load_meta,
+            "registry_coverage": reg_cov,
+            "human_metrics": {
+                "precision_at_10": None,
+                "precision_at_20": None,
+                "false_positives": None,
+                "false_negatives": None,
+                "human_review_status": "PENDING",
+            },
             "migrations": {
                 "idempotent": mig.get("idempotent"),
                 "skipped": mig.get("skipped", False),

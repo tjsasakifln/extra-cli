@@ -393,7 +393,7 @@ test-edital-case:
 test-budget-audit:
 	python -m pytest tests/budget_audit/ -q --tb=short
 
-# --- CONFENGE commercial ready (migration 062 + commercial_leads) ---
+# --- CONFENGE commercial ready (migration 062/063 + commercial_leads gold) ---
 .PHONY: confenge-commercial-cycle \
 	campaign-gate-confenge-commercial-ready \
 	release-candidate-confenge-commercial-ready \
@@ -401,12 +401,27 @@ test-budget-audit:
 	verify-soak-non-interference \
 	dod-audit-confenge-commercial-ready \
 	test-commercial-leads \
+	test-confenge-contract-relevance \
 	test-confenge-sector-fit \
+	test-confenge-sector-fit-properties \
+	verify-confenge-denominator-integrity \
+	verify-confenge-full-candidate-history \
+	verify-confenge-supplier-registry \
+	ingest-supplier-registry \
+	verify-supplier-registry-coverage \
 	verify-confenge-source-readonly \
+	verify-confenge-state-isolation \
 	verify-confenge-snapshot-binding \
+	verify-confenge-snapshot-content-binding \
 	verify-confenge-full-population \
+	verify-confenge-prefilter-recall \
 	verify-confenge-ranking-quality \
 	verify-confenge-ranking-stability \
+	verify-confenge-baseline-superiority \
+	verify-confenge-persistence \
+	verify-confenge-migrations \
+	package-confenge-commercial-evidence \
+	verify-confenge-evidence-attestation \
 	verify-confenge-commercial-artifact-binding
 
 CONFENGE_COMMERCIAL_PROFILE ?= config/commercial_profiles/confenge.yaml
@@ -416,8 +431,37 @@ CONFENGE_COMMERCIAL_ART ?= artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01
 test-commercial-leads:
 	python3 -m pytest tests/commercial_leads/ -q --tb=short -o addopts=''
 
+test-confenge-contract-relevance:
+	python3 -m pytest tests/commercial_leads/test_contract_relevance_adversarial.py -q --tb=short -o addopts=''
+	python3 -m scripts.ops.eval_contract_relevance_holdout \
+		--holdout evals/commercial_leads/holdout-v1.jsonl \
+		--out $(CONFENGE_COMMERCIAL_ART)/contract-relevance-holdout.json
+
+test-confenge-sector-fit:
+	python3 -m pytest tests/commercial_leads/test_sector_fit.py -q --tb=short -o addopts=''
+
+test-confenge-sector-fit-properties:
+	python3 -m pytest tests/commercial_leads/test_sector_fit_properties.py -q --tb=short -o addopts=''
+
+verify-confenge-denominator-integrity:
+	python3 -m scripts.ops.verify_confenge_denominator_integrity \
+		--out $(CONFENGE_COMMERCIAL_ART)/denominator-integrity.json
+
+verify-confenge-full-candidate-history:
+	python3 -m scripts.ops.confenge_make_gates full-candidate-history
+
+ingest-supplier-registry:
+	@test -n "$$CONFENGE_SUPPLIER_REGISTRY_JSONL" || (echo 'CONFENGE_SUPPLIER_REGISTRY_JSONL required' && exit 1)
+	@test -n "$$CONFENGE_COMMERCIAL_STATE_DSN" || (echo 'CONFENGE_COMMERCIAL_STATE_DSN required' && exit 1)
+	python3 -c "from scripts.commercial_leads.supplier_registry import ingest_from_jsonl; from scripts.commercial_leads.dbutil import connect; import os,json; c=connect(os.environ['CONFENGE_COMMERCIAL_STATE_DSN']); r=ingest_from_jsonl(c, os.environ['CONFENGE_SUPPLIER_REGISTRY_JSONL']); c.close(); print(json.dumps(r,indent=2))"
+
+verify-supplier-registry-coverage:
+	python3 -m scripts.ops.confenge_make_gates registry-coverage
+
+verify-confenge-supplier-registry: verify-supplier-registry-coverage
+
 confenge-commercial-cycle:
-	@echo '==> confenge-commercial-cycle (CONFENGE commercial intelligence)'
+	@echo '==> confenge-commercial-cycle (CONFENGE commercial intelligence gold)'
 	@echo '    Entry: python -m scripts.ops.confenge_commercial_cycle'
 	@echo '    Requires: CONFENGE_COMMERCIAL_STATE_DSN + CONFENGE_COMMERCIAL_SNAPSHOT'
 	python3 -m scripts.ops.confenge_commercial_cycle \
@@ -456,25 +500,48 @@ verify-soak-non-interference:
 dod-audit-confenge-commercial-ready:
 	python3 -m scripts.ops.confenge_commercial_gates dod-audit
 
-test-confenge-sector-fit:
-	python3 -m pytest tests/commercial_leads/test_contract_relevance_adversarial.py tests/commercial_leads/test_sector_fit.py -q --tb=short -o addopts=''
-
 verify-confenge-source-readonly:
-	python3 -c "from scripts.commercial_leads.isolation import assert_source_state_isolation, SOURCE_STATE_RESTORED; import os; d=os.environ.get('CONFENGE_COMMERCIAL_STATE_DSN') or os.environ.get('CONFENGE_COMMERCIAL_SOURCE_DSN'); r=assert_source_state_isolation(source_dsn=d, state_dsn=d, force_mode='RESTORED_SNAPSHOT_SINGLE_DB', enforce_source_readonly=False); print(r.as_dict()); raise SystemExit(0 if r.source_state_mode=='RESTORED_SNAPSHOT_SINGLE_DB' and not r.source_state_separated else 1)"
+	python3 -c "from scripts.commercial_leads.isolation import assert_source_state_isolation; import os,json; d=os.environ.get('CONFENGE_COMMERCIAL_STATE_DSN') or os.environ.get('CONFENGE_COMMERCIAL_SOURCE_DSN'); \
+r=assert_source_state_isolation(source_dsn=d, state_dsn=d, force_mode='RESTORED_SNAPSHOT_SINGLE_DB', enforce_source_readonly=bool(d)); \
+print(json.dumps(r.as_dict(),indent=2,default=str)); \
+raise SystemExit(0 if r.source_state_mode=='RESTORED_SNAPSHOT_SINGLE_DB' else 1)"
 
-verify-confenge-snapshot-binding:
+verify-confenge-state-isolation: verify-confenge-source-readonly
+	@echo 'state isolation: RESTORED_SNAPSHOT_SINGLE_DB declared; commercial tables only via state role'
+
+verify-confenge-snapshot-binding verify-confenge-snapshot-content-binding:
 	@test -n "$$CONFENGE_COMMERCIAL_STATE_DSN" || (echo 'CONFENGE_COMMERCIAL_STATE_DSN required' && exit 1)
 	@test -n "$$CONFENGE_COMMERCIAL_SNAPSHOT" || (echo 'CONFENGE_COMMERCIAL_SNAPSHOT required' && exit 1)
-	python3 -c "from scripts.commercial_leads.snapshot import validate_snapshot_manifest, bind_snapshot_to_database; from scripts.commercial_leads.isolation import open_source_connection; import os,json; m=os.environ['CONFENGE_COMMERCIAL_SNAPSHOT']; d=os.environ['CONFENGE_COMMERCIAL_STATE_DSN']; s=validate_snapshot_manifest(m, allow_missing_dump=True); c=open_source_connection(d); b=bind_snapshot_to_database(c,s); c.close(); print(json.dumps(b,indent=2)); raise SystemExit(0 if b.get('ok') else 1)"
+	python3 -c "from scripts.commercial_leads.snapshot import validate_snapshot_manifest, bind_snapshot_to_database; from scripts.commercial_leads.isolation import open_source_connection; import os,json; m=os.environ['CONFENGE_COMMERCIAL_SNAPSHOT']; d=os.environ['CONFENGE_COMMERCIAL_STATE_DSN']; s=validate_snapshot_manifest(m, allow_missing_dump=True); c=open_source_connection(d); b=bind_snapshot_to_database(c,s); c.close(); print(json.dumps(b,indent=2)); raise SystemExit(0 if b.get('ok') and b.get('table_snapshot_hash') else 1)"
 
 verify-confenge-full-population:
-	python3 -c "import json,sys; from pathlib import Path; p=Path('$(CONFENGE_COMMERCIAL_OUT)/run-result.json'); d=json.loads(p.read_text()); mode=d.get('population_mode'); lim=(d.get('load_meta') or {}).get('limit_applied') or (d.get('metrics') or {}).get('limit_applied'); ok=mode=='FULL_POPULATION' and not lim; print({'population_mode':mode,'limit_applied':lim,'ok':ok}); sys.exit(0 if ok else 1)"
+	python3 -m scripts.ops.confenge_make_gates full-population
+
+verify-confenge-prefilter-recall:
+	python3 -m scripts.ops.confenge_make_gates prefilter-recall
 
 verify-confenge-ranking-quality:
-	python3 -c "import json,sys; from pathlib import Path; d=json.loads(Path('$(CONFENGE_COMMERCIAL_OUT)/run-result.json').read_text()); leads=d.get('leads') or []; top=leads[:10]; oos=sum(1 for L in top if L.get('supplier_sector_fit')=='OUT_OF_SCOPE'); strong=all(L.get('supplier_sector_fit') in ('CONFIRMED_ENGINEERING','STRONG_ENGINEERING_FIT') for L in top) if top else False; print({'top10':len(top),'oos':oos,'strong':strong}); sys.exit(0 if strong and oos==0 and top else 1)"
+	python3 -m scripts.ops.confenge_make_gates ranking-quality
 
 verify-confenge-ranking-stability:
-	python3 -c "import json,sys; from pathlib import Path; p=Path('$(CONFENGE_COMMERCIAL_ART)/ranking-stability.json'); d=json.loads(p.read_text()) if p.is_file() else {}; print(d); sys.exit(0 if d.get('ok') else 1)"
+	python3 -m scripts.ops.confenge_make_gates ranking-stability
+
+verify-confenge-baseline-superiority:
+	python3 -m scripts.ops.confenge_make_gates baseline-superiority
+
+verify-confenge-persistence:
+	python3 -m pytest tests/commercial_leads/test_persistence_rollback.py -q --tb=short -o addopts=''
+
+verify-confenge-migrations:
+	@test -n "$$CONFENGE_COMMERCIAL_STATE_DSN" || (echo 'CONFENGE_COMMERCIAL_STATE_DSN required for live migration verify; running file presence check'; \
+	 test -f db/migrations/062_commercial_leads_ledger.sql && test -f db/migrations/063_supplier_registry.sql && exit 0)
+	python3 -c "from scripts.commercial_leads.pipeline import verify_migration_idempotence; import os,json; r=verify_migration_idempotence(os.environ['CONFENGE_COMMERCIAL_STATE_DSN']); print(json.dumps(r,indent=2,default=str)); raise SystemExit(0 if r.get('idempotent') and not r.get('skipped') else 1)"
+
+package-confenge-commercial-evidence:
+	python3 -m scripts.ops.confenge_make_gates package-evidence
+
+verify-confenge-evidence-attestation:
+	python3 -m scripts.ops.confenge_make_gates verify-attestation
 
 verify-confenge-commercial-artifact-binding:
 	python3 -m scripts.ops.verify_confenge_artifact_binding \

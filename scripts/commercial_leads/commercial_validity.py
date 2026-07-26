@@ -94,6 +94,7 @@ def evaluate_supplier_validity(
         cnaes_secundarios=cnaes_secundarios,
         object_field=object_field,
         run_id=run_id,
+        history_is_full=True,  # caller must pass full history; incomplete paths use sector_fit directly
     )
     geo = supplier_geography_from_contracts(contracts, allowed_ufs)
     sig_status, sig_reasons = commercial_signal_fit_from_score(

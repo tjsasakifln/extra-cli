@@ -1,0 +1,811 @@
+{
+  "status": "PENDING_HUMAN",
+  "instruction": "Fill reviewer_classification independently of model_classification. Dual review required for evaluation sample.",
+  "top20": [
+    {
+      "rank": 1,
+      "cnpj14": "12253900000120",
+      "razao_social": "BRANIX EMPREENDIMENTOS LTDA",
+      "cnae_principal": null,
+      "cnaes_secundarios": [],
+      "situacao_cadastral": null,
+      "relevant_contract_count": 9,
+      "total_contract_count_full_history": 9,
+      "relevant_contract_ratio_full_history": 1.0,
+      "model_classification": "STRONG_ENGINEERING_FIT",
+      "suggested_offer": "acompanhamento_admin",
+      "score_total": 9.737,
+      "evidence_summary": [
+        {
+          "signal_id": "concurrent_portfolio",
+          "status": "FIRED"
+        },
+        {
+          "signal_id": "agency_concentration",
+          "status": "FIRED"
+        },
+        {
+          "signal_id": "contract_concentration",
+          "status": "FIRED"
+        }
+      ],
+      "reviewer_classification": null,
+      "agreement": null,
+      "reviewer_reason": null,
+      "evidence_checked": null,
+      "revisor": null,
+      "data_revisao": null,
+      "allowed_labels": [
+        "CLEAR_FIT",
+        "POSSIBLE_FIT",
+        "OUT_OF_SCOPE",
+        "INSUFFICIENT_EVIDENCE"
+      ]
+    },
+    {
+      "rank": 2,
+      "cnpj14": "95257945000108",
+      "razao_social": "CONSTRUBRÁS CONSTRUTORA LTDA",
+      "cnae_principal": null,
+      "cnaes_secundarios": [],
+      "situacao_cadastral": null,
+      "relevant_contract_count": 20,
+      "total_contract_count_full_history": 20,
+      "relevant_contract_ratio_full_history": 1.0,
+      "model_classification": "STRONG_ENGINEERING_FIT",
+      "suggested_offer": "acompanhamento_admin",
+      "score_total": 9.5276,
+      "evidence_summary": [
+        {
+          "signal_id": "concurrent_portfolio",
+          "status": "FIRED"
+        },
+        {
+          "signal_id": "agency_concentration",
+          "status": "FIRED"
+        },
+        {
+          "signal_id": "contract_concentration",
+          "status": "FIRED"
+        }
+      ],
+      "reviewer_classification": null,
+      "agreement": null,
+      "reviewer_reason": null,
+      "evidence_checked": null,
+      "revisor": null,
+      "data_revisao": null,
+      "allowed_labels": [
+        "CLEAR_FIT",
+        "POSSIBLE_FIT",
+        "OUT_OF_SCOPE",
+        "INSUFFICIENT_EVIDENCE"
+      ]
+    },
+    {
+      "rank": 3,
+      "cnpj14": "27254414000101",
+      "razao_social": "FAK EMPREENDIMENTOS LTDA",
+      "cnae_principal": null,
+      "cnaes_secundarios": [],
+      "situacao_cadastral": null,
+      "relevant_contract_count": 9,
+      "total_contract_count_full_history": 9,
+      "relevant_contract_ratio_full_history": 1.0,
+      "model_classification": "STRONG_ENGINEERING_FIT",
+      "suggested_offer": "acompanhamento_admin",
+      "score_total": 9.5,
+      "evidence_summary": [
+        {
+          "signal_id": "concurrent_portfolio",
+          "status": "FIRED"
+        },
+        {
+          "signal_id": "agency_concentration",
+          "status": "FIRED"
+        },
+        {
+          "signal_id": "near_expiry",
+          "status": "FIRED"
+        }
+      ],
+      "reviewer_classification": null,
+      "agreement": null,
+      "reviewer_reason": null,
+      "evidence_checked": null,
+      "revisor": null,
+      "data_revisao": null,
+      "allowed_labels": [
+        "CLEAR_FIT",
+        "POSSIBLE_FIT",
+        "OUT_OF_SCOPE",
+        "INSUFFICIENT_EVIDENCE"
+      ]
+    },
+    {
+      "rank": 4,
+      "cnpj14": "19648512000197",
+      "razao_social": "KARAIBA CONSULTORIA E PROJETOS LTDA.",
+      "cnae_principal": null,
+      "cnaes_secundarios": [],
+      "situacao_cadastral": null,
+      "relevant_contract_count": 11,
+      "total_contract_count_full_history": 11,
+      "relevant_contract_ratio_full_history": 1.0,
+      "model_classification": "STRONG_ENGINEERING_FIT",
+      "suggested_offer": "acompanhamento_admin",
+      "score_total": 9.5,
+      "evidence_summary": [
+        {
+          "signal_id": "concurrent_portfolio",
+          "status": "FIRED"
+        },
+        {
+          "signal_id": "agency_concentration",
+          "status": "FIRED"
+        },
+        {
+          "signal_id": "near_expiry",
+          "status": "FIRED"
+        }
+      ],
+      "reviewer_classification": null,
+      "agreement": null,
+      "reviewer_reason": null,
+      "evidence_checked": null,
+      "revisor": null,
+      "data_revisao": null,
+      "allowed_labels": [
+        "CLEAR_FIT",
+        "POSSIBLE_FIT",
+        "OUT_OF_SCOPE",
+        "INSUFFICIENT_EVIDENCE"
+      ]
+    },
+    {
+      "rank": 5,
+      "cnpj14": "38517835000196",
+      "razao_social": "PROJESOL ENGENHARIA LTDA",
+      "cnae_principal": null,
+      "cnaes_secundarios": [],
+      "situacao_cadastral": null,
+      "relevant_contract_count": 10,
+      "total_contract_count_full_history": 10,
+      "relevant_contract_ratio_full_history": 1.0,
+      "model_classification": "STRONG_ENGINEERING_FIT",
+      "suggested_offer": "acompanhamento_admin",
+      "score_total": 9.2243,
+      "evidence_summary": [
+        {
+          "signal_id": "concurrent_portfolio",
+          "status": "FIRED"
+        },
+        {
+          "signal_id": "agency_concentration",
+          "status": "FIRED"
+        },
+        {
+          "signal_id": "near_expiry",
+          "status": "FIRED"
+        }
+      ],
+      "reviewer_classification": null,
+      "agreement": null,
+      "reviewer_reason": null,
+      "evidence_checked": null,
+      "revisor": null,
+      "data_revisao": null,
+      "allowed_labels": [
+        "CLEAR_FIT",
+        "POSSIBLE_FIT",
+        "OUT_OF_SCOPE",
+        "INSUFFICIENT_EVIDENCE"
+      ]
+    },
+    {
+      "rank": 6,
+      "cnpj14": "45145494000130",
+      "razao_social": "CONSTRUTORA IRMAOS WARTHA LTDA",
+      "cnae_principal": null,
+      "cnaes_secundarios": [],
+      "situacao_cadastral": null,
+      "relevant_contract_count": 8,
+      "total_contract_count_full_history": 8,
+      "relevant_contract_ratio_full_history": 1.0,
+      "model_classification": "STRONG_ENGINEERING_FIT",
+      "suggested_offer": "acompanhamento_admin",
+      "score_total": 9.1,
+      "evidence_summary": [
+        {
+          "signal_id": "concurrent_portfolio",
+          "status": "FIRED"
+        },
+        {
+          "signal_id": "agency_concentration",
+          "status": "FIRED"
+        },
+        {
+          "signal_id": "near_expiry",
+          "status": "FIRED"
+        }
+      ],
+      "reviewer_classification": null,
+      "agreement": null,
+      "reviewer_reason": null,
+      "evidence_checked": null,
+      "revisor": null,
+      "data_revisao": null,
+      "allowed_labels": [
+        "CLEAR_FIT",
+        "POSSIBLE_FIT",
+        "OUT_OF_SCOPE",
+        "INSUFFICIENT_EVIDENCE"
+      ]
+    },
+    {
+      "rank": 7,
+      "cnpj14": "15247296000117",
+      "razao_social": "IBERICA CONSTRUÇÕES CIVIS E VIARIAS LTDA ME",
+      "cnae_principal": null,
+      "cnaes_secundarios": [],
+      "situacao_cadastral": null,
+      "relevant_contract_count": 9,
+      "total_contract_count_full_history": 9,
+      "relevant_contract_ratio_full_history": 1.0,
+      "model_classification": "STRONG_ENGINEERING_FIT",
+      "suggested_offer": "acompanhamento_admin",
+      "score_total": 8.9406,
+      "evidence_summary": [
+        {
+          "signal_id": "concurrent_portfolio",
+          "status": "FIRED"
+        },
+        {
+          "signal_id": "agency_concentration",
+          "status": "FIRED"
+        },
+        {
+          "signal_id": "near_expiry",
+          "status": "FIRED"
+        }
+      ],
+      "reviewer_classification": null,
+      "agreement": null,
+      "reviewer_reason": null,
+      "evidence_checked": null,
+      "revisor": null,
+      "data_revisao": null,
+      "allowed_labels": [
+        "CLEAR_FIT",
+        "POSSIBLE_FIT",
+        "OUT_OF_SCOPE",
+        "INSUFFICIENT_EVIDENCE"
+      ]
+    },
+    {
+      "rank": 8,
+      "cnpj14": "07192929000109",
+      "razao_social": "CONSTRUTORA JLV LTDA",
+      "cnae_principal": null,
+      "cnaes_secundarios": [],
+      "situacao_cadastral": null,
+      "relevant_contract_count": 8,
+      "total_contract_count_full_history": 8,
+      "relevant_contract_ratio_full_history": 1.0,
+      "model_classification": "STRONG_ENGINEERING_FIT",
+      "suggested_offer": "acompanhamento_admin",
+      "score_total": 8.7,
+      "evidence_summary": [
+        {
+          "signal_id": "concurrent_portfolio",
+          "status": "FIRED"
+        },
+        {
+          "signal_id": "agency_concentration",
+          "status": "FIRED"
+        },
+        {
+          "signal_id": "near_expiry",
+          "status": "FIRED"
+        }
+      ],
+      "reviewer_classification": null,
+      "agreement": null,
+      "reviewer_reason": null,
+      "evidence_checked": null,
+      "revisor": null,
+      "data_revisao": null,
+      "allowed_labels": [
+        "CLEAR_FIT",
+        "POSSIBLE_FIT",
+        "OUT_OF_SCOPE",
+        "INSUFFICIENT_EVIDENCE"
+      ]
+    },
+    {
+      "rank": 9,
+      "cnpj14": "52067902000149",
+      "razao_social": "WE TORRES ARTEFATOS DE CIMENTO E PRE MOLDADOS LTDA",
+      "cnae_principal": null,
+      "cnaes_secundarios": [],
+      "situacao_cadastral": null,
+      "relevant_contract_count": 9,
+      "total_contract_count_full_history": 9,
+      "relevant_contract_ratio_full_history": 1.0,
+      "model_classification": "STRONG_ENGINEERING_FIT",
+      "suggested_offer": "acompanhamento_admin",
+      "score_total": 8.7,
+      "evidence_summary": [
+        {
+          "signal_id": "concurrent_portfolio",
+          "status": "FIRED"
+        },
+        {
+          "signal_id": "agency_concentration",
+          "status": "FIRED"
+        },
+        {
+          "signal_id": "near_expiry",
+          "status": "FIRED"
+        }
+      ],
+      "reviewer_classification": null,
+      "agreement": null,
+      "reviewer_reason": null,
+      "evidence_checked": null,
+      "revisor": null,
+      "data_revisao": null,
+      "allowed_labels": [
+        "CLEAR_FIT",
+        "POSSIBLE_FIT",
+        "OUT_OF_SCOPE",
+        "INSUFFICIENT_EVIDENCE"
+      ]
+    },
+    {
+      "rank": 10,
+      "cnpj14": "62913677000178",
+      "razao_social": "ALIANCA ENGENHARIA E PAVIMENTACAO LTDA",
+      "cnae_principal": null,
+      "cnaes_secundarios": [],
+      "situacao_cadastral": null,
+      "relevant_contract_count": 7,
+      "total_contract_count_full_history": 7,
+      "relevant_contract_ratio_full_history": 1.0,
+      "model_classification": "STRONG_ENGINEERING_FIT",
+      "suggested_offer": "acompanhamento_admin",
+      "score_total": 8.7,
+      "evidence_summary": [
+        {
+          "signal_id": "concurrent_portfolio",
+          "status": "FIRED"
+        },
+        {
+          "signal_id": "agency_concentration",
+          "status": "FIRED"
+        },
+        {
+          "signal_id": "near_expiry",
+          "status": "FIRED"
+        }
+      ],
+      "reviewer_classification": null,
+      "agreement": null,
+      "reviewer_reason": null,
+      "evidence_checked": null,
+      "revisor": null,
+      "data_revisao": null,
+      "allowed_labels": [
+        "CLEAR_FIT",
+        "POSSIBLE_FIT",
+        "OUT_OF_SCOPE",
+        "INSUFFICIENT_EVIDENCE"
+      ]
+    },
+    {
+      "rank": 11,
+      "cnpj14": "29084108000191",
+      "razao_social": "AUTENTIKA ENGENHARIA E CONSTRUTORA LTDA",
+      "cnae_principal": null,
+      "cnaes_secundarios": [],
+      "situacao_cadastral": null,
+      "relevant_contract_count": 10,
+      "total_contract_count_full_history": 10,
+      "relevant_contract_ratio_full_history": 1.0,
+      "model_classification": "STRONG_ENGINEERING_FIT",
+      "suggested_offer": "acompanhamento_admin",
+      "score_total": 8.6559,
+      "evidence_summary": [
+        {
+          "signal_id": "concurrent_portfolio",
+          "status": "FIRED"
+        },
+        {
+          "signal_id": "agency_concentration",
+          "status": "FIRED"
+        },
+        {
+          "signal_id": "near_expiry",
+          "status": "FIRED"
+        }
+      ],
+      "reviewer_classification": null,
+      "agreement": null,
+      "reviewer_reason": null,
+      "evidence_checked": null,
+      "revisor": null,
+      "data_revisao": null,
+      "allowed_labels": [
+        "CLEAR_FIT",
+        "POSSIBLE_FIT",
+        "OUT_OF_SCOPE",
+        "INSUFFICIENT_EVIDENCE"
+      ]
+    },
+    {
+      "rank": 12,
+      "cnpj14": "22798043000105",
+      "razao_social": "KAENG INFRAESTRUTURA LTDA",
+      "cnae_principal": null,
+      "cnaes_secundarios": [],
+      "situacao_cadastral": null,
+      "relevant_contract_count": 11,
+      "total_contract_count_full_history": 11,
+      "relevant_contract_ratio_full_history": 1.0,
+      "model_classification": "STRONG_ENGINEERING_FIT",
+      "suggested_offer": "acompanhamento_admin",
+      "score_total": 8.5984,
+      "evidence_summary": [
+        {
+          "signal_id": "concurrent_portfolio",
+          "status": "FIRED"
+        },
+        {
+          "signal_id": "agency_concentration",
+          "status": "FIRED"
+        },
+        {
+          "signal_id": "near_expiry",
+          "status": "FIRED"
+        }
+      ],
+      "reviewer_classification": null,
+      "agreement": null,
+      "reviewer_reason": null,
+      "evidence_checked": null,
+      "revisor": null,
+      "data_revisao": null,
+      "allowed_labels": [
+        "CLEAR_FIT",
+        "POSSIBLE_FIT",
+        "OUT_OF_SCOPE",
+        "INSUFFICIENT_EVIDENCE"
+      ]
+    },
+    {
+      "rank": 13,
+      "cnpj14": "20123886000178",
+      "razao_social": "PRE-MOLDADOS E CONSTRUTORA VIANA LTDA",
+      "cnae_principal": null,
+      "cnaes_secundarios": [],
+      "situacao_cadastral": null,
+      "relevant_contract_count": 6,
+      "total_contract_count_full_history": 6,
+      "relevant_contract_ratio_full_history": 1.0,
+      "model_classification": "STRONG_ENGINEERING_FIT",
+      "suggested_offer": "monitoramento",
+      "score_total": 8.5773,
+      "evidence_summary": [
+        {
+          "signal_id": "concurrent_portfolio",
+          "status": "FIRED"
+        },
+        {
+          "signal_id": "agency_concentration",
+          "status": "FIRED"
+        },
+        {
+          "signal_id": "contract_concentration",
+          "status": "FIRED"
+        }
+      ],
+      "reviewer_classification": null,
+      "agreement": null,
+      "reviewer_reason": null,
+      "evidence_checked": null,
+      "revisor": null,
+      "data_revisao": null,
+      "allowed_labels": [
+        "CLEAR_FIT",
+        "POSSIBLE_FIT",
+        "OUT_OF_SCOPE",
+        "INSUFFICIENT_EVIDENCE"
+      ]
+    },
+    {
+      "rank": 14,
+      "cnpj14": "00472805000138",
+      "razao_social": "TRAÇADO CONSTRUÇÕES E SERVIÇOS LTDA",
+      "cnae_principal": null,
+      "cnaes_secundarios": [],
+      "situacao_cadastral": null,
+      "relevant_contract_count": 27,
+      "total_contract_count_full_history": 27,
+      "relevant_contract_ratio_full_history": 1.0,
+      "model_classification": "STRONG_ENGINEERING_FIT",
+      "suggested_offer": "acompanhamento_admin",
+      "score_total": 8.4,
+      "evidence_summary": [
+        {
+          "signal_id": "concurrent_portfolio",
+          "status": "FIRED"
+        },
+        {
+          "signal_id": "near_expiry",
+          "status": "FIRED"
+        },
+        {
+          "signal_id": "win_recurrence",
+          "status": "FIRED"
+        }
+      ],
+      "reviewer_classification": null,
+      "agreement": null,
+      "reviewer_reason": null,
+      "evidence_checked": null,
+      "revisor": null,
+      "data_revisao": null,
+      "allowed_labels": [
+        "CLEAR_FIT",
+        "POSSIBLE_FIT",
+        "OUT_OF_SCOPE",
+        "INSUFFICIENT_EVIDENCE"
+      ]
+    },
+    {
+      "rank": 15,
+      "cnpj14": "00220982000127",
+      "razao_social": "MATT CONSTRUTORA LTDA",
+      "cnae_principal": null,
+      "cnaes_secundarios": [],
+      "situacao_cadastral": null,
+      "relevant_contract_count": 26,
+      "total_contract_count_full_history": 26,
+      "relevant_contract_ratio_full_history": 1.0,
+      "model_classification": "STRONG_ENGINEERING_FIT",
+      "suggested_offer": "acompanhamento_admin",
+      "score_total": 8.4,
+      "evidence_summary": [
+        {
+          "signal_id": "concurrent_portfolio",
+          "status": "FIRED"
+        },
+        {
+          "signal_id": "near_expiry",
+          "status": "FIRED"
+        },
+        {
+          "signal_id": "win_recurrence",
+          "status": "FIRED"
+        }
+      ],
+      "reviewer_classification": null,
+      "agreement": null,
+      "reviewer_reason": null,
+      "evidence_checked": null,
+      "revisor": null,
+      "data_revisao": null,
+      "allowed_labels": [
+        "CLEAR_FIT",
+        "POSSIBLE_FIT",
+        "OUT_OF_SCOPE",
+        "INSUFFICIENT_EVIDENCE"
+      ]
+    },
+    {
+      "rank": 16,
+      "cnpj14": "61608477000149",
+      "razao_social": "DGB ENGENHARIA E CONSTRUCOES LTDA",
+      "cnae_principal": null,
+      "cnaes_secundarios": [],
+      "situacao_cadastral": null,
+      "relevant_contract_count": 10,
+      "total_contract_count_full_history": 10,
+      "relevant_contract_ratio_full_history": 1.0,
+      "model_classification": "STRONG_ENGINEERING_FIT",
+      "suggested_offer": "acompanhamento_admin",
+      "score_total": 8.4,
+      "evidence_summary": [
+        {
+          "signal_id": "concurrent_portfolio",
+          "status": "FIRED"
+        },
+        {
+          "signal_id": "near_expiry",
+          "status": "FIRED"
+        },
+        {
+          "signal_id": "win_recurrence",
+          "status": "FIRED"
+        }
+      ],
+      "reviewer_classification": null,
+      "agreement": null,
+      "reviewer_reason": null,
+      "evidence_checked": null,
+      "revisor": null,
+      "data_revisao": null,
+      "allowed_labels": [
+        "CLEAR_FIT",
+        "POSSIBLE_FIT",
+        "OUT_OF_SCOPE",
+        "INSUFFICIENT_EVIDENCE"
+      ]
+    },
+    {
+      "rank": 17,
+      "cnpj14": "06145928000140",
+      "razao_social": "CONSTRUÇÃO CIVIL MG LTDA",
+      "cnae_principal": null,
+      "cnaes_secundarios": [],
+      "situacao_cadastral": null,
+      "relevant_contract_count": 18,
+      "total_contract_count_full_history": 18,
+      "relevant_contract_ratio_full_history": 1.0,
+      "model_classification": "STRONG_ENGINEERING_FIT",
+      "suggested_offer": "acompanhamento_admin",
+      "score_total": 8.4,
+      "evidence_summary": [
+        {
+          "signal_id": "concurrent_portfolio",
+          "status": "FIRED"
+        },
+        {
+          "signal_id": "near_expiry",
+          "status": "FIRED"
+        },
+        {
+          "signal_id": "win_recurrence",
+          "status": "FIRED"
+        }
+      ],
+      "reviewer_classification": null,
+      "agreement": null,
+      "reviewer_reason": null,
+      "evidence_checked": null,
+      "revisor": null,
+      "data_revisao": null,
+      "allowed_labels": [
+        "CLEAR_FIT",
+        "POSSIBLE_FIT",
+        "OUT_OF_SCOPE",
+        "INSUFFICIENT_EVIDENCE"
+      ]
+    },
+    {
+      "rank": 18,
+      "cnpj14": "03094645000129",
+      "razao_social": "INFRASUL - INFRAESTRUTURA E EMPREENDIMENTOS LTDA",
+      "cnae_principal": null,
+      "cnaes_secundarios": [],
+      "situacao_cadastral": null,
+      "relevant_contract_count": 21,
+      "total_contract_count_full_history": 21,
+      "relevant_contract_ratio_full_history": 1.0,
+      "model_classification": "STRONG_ENGINEERING_FIT",
+      "suggested_offer": "acompanhamento_admin",
+      "score_total": 8.4,
+      "evidence_summary": [
+        {
+          "signal_id": "concurrent_portfolio",
+          "status": "FIRED"
+        },
+        {
+          "signal_id": "near_expiry",
+          "status": "FIRED"
+        },
+        {
+          "signal_id": "win_recurrence",
+          "status": "FIRED"
+        }
+      ],
+      "reviewer_classification": null,
+      "agreement": null,
+      "reviewer_reason": null,
+      "evidence_checked": null,
+      "revisor": null,
+      "data_revisao": null,
+      "allowed_labels": [
+        "CLEAR_FIT",
+        "POSSIBLE_FIT",
+        "OUT_OF_SCOPE",
+        "INSUFFICIENT_EVIDENCE"
+      ]
+    },
+    {
+      "rank": 19,
+      "cnpj14": "22835076000170",
+      "razao_social": "CONSORCIO INTEGRADO MULTIFINALITARIO DO VALE DO JEQUITINHONH",
+      "cnae_principal": null,
+      "cnaes_secundarios": [],
+      "situacao_cadastral": null,
+      "relevant_contract_count": 15,
+      "total_contract_count_full_history": 15,
+      "relevant_contract_ratio_full_history": 1.0,
+      "model_classification": "STRONG_ENGINEERING_FIT",
+      "suggested_offer": "acompanhamento_admin",
+      "score_total": 8.4,
+      "evidence_summary": [
+        {
+          "signal_id": "concurrent_portfolio",
+          "status": "FIRED"
+        },
+        {
+          "signal_id": "near_expiry",
+          "status": "FIRED"
+        },
+        {
+          "signal_id": "win_recurrence",
+          "status": "FIRED"
+        }
+      ],
+      "reviewer_classification": null,
+      "agreement": null,
+      "reviewer_reason": null,
+      "evidence_checked": null,
+      "revisor": null,
+      "data_revisao": null,
+      "allowed_labels": [
+        "CLEAR_FIT",
+        "POSSIBLE_FIT",
+        "OUT_OF_SCOPE",
+        "INSUFFICIENT_EVIDENCE"
+      ]
+    },
+    {
+      "rank": 20,
+      "cnpj14": "10249046000100",
+      "razao_social": "CONSTRUCOES SCHOROEDER LTDA",
+      "cnae_principal": null,
+      "cnaes_secundarios": [],
+      "situacao_cadastral": null,
+      "relevant_contract_count": 14,
+      "total_contract_count_full_history": 14,
+      "relevant_contract_ratio_full_history": 1.0,
+      "model_classification": "STRONG_ENGINEERING_FIT",
+      "suggested_offer": "acompanhamento_admin",
+      "score_total": 8.4,
+      "evidence_summary": [
+        {
+          "signal_id": "concurrent_portfolio",
+          "status": "FIRED"
+        },
+        {
+          "signal_id": "near_expiry",
+          "status": "FIRED"
+        },
+        {
+          "signal_id": "win_recurrence",
+          "status": "FIRED"
+        }
+      ],
+      "reviewer_classification": null,
+      "agreement": null,
+      "reviewer_reason": null,
+      "evidence_checked": null,
+      "revisor": null,
+      "data_revisao": null,
+      "allowed_labels": [
+        "CLEAR_FIT",
+        "POSSIBLE_FIT",
+        "OUT_OF_SCOPE",
+        "INSUFFICIENT_EVIDENCE"
+      ]
+    }
+  ],
+  "human_metrics": {
+    "precision_at_10": null,
+    "precision_at_20": null,
+    "human_review_status": "PENDING"
+  }
+}

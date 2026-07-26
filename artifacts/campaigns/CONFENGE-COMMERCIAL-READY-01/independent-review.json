@@ -1,7 +1,11 @@
 {
-  "reviewer": "independent-reviewer-agent",
-  "not_implementer": true,
-  "run_id": "cl-20260725T232722Z-3e11387a",
+  "campaign_id": "CONFENGE-COMMERCIAL-READY-01",
+  "human_review_status": "BLOCKED_INSUFFICIENT_HUMAN_LABELS",
+  "labels_are_human": false,
+  "precision_at_10": null,
+  "precision_at_20": null,
+  "false_positives": null,
+  "false_negatives": null,
   "populations_reviewed": {
     "top20": [
       {
@@ -295,30 +299,7 @@
     ],
     "unknown_top50_sample": []
   },
-  "false_positives": [],
-  "false_negatives": [],
-  "precision_at_10": 0.8,
-  "precision_at_20": 0.75,
-  "sector_fit_confusion_matrix": {
-    "published_queue_classes": [
-      "STRONG_ENGINEERING_FIT"
-    ],
-    "note": "published queue restricted to CONFIRMED/STRONG only"
-  },
-  "baseline_comparison": {
-    "note": "see queue-summary; jaccard alone not quality proof"
-  },
-  "critical_findings": [],
-  "high_findings": [
-    "Human labels from Tiago still required for precision@10/@20 certification",
-    "CNAE registry not joined for most suppliers"
-  ],
-  "recommendation": "BLOCKED_INSUFFICIENT_HUMAN_LABELS — machine queue improved; no autopecas/consorcios in top-20",
-  "criteria": [
-    "OUT_OF_SCOPE name patterns must not appear in published top-20",
-    "public organs/consortia excluded via organ_name_markers",
-    "all top-20 supplier_sector_fit in CONFIRMED/STRONG"
-  ],
-  "reviewed_at": "2026-07-25T23:17:37.292173Z",
-  "git_sha": "a277d63f28e95f9f9602bce528d06145ff1b2993"
+  "recommendation": "BLOCKED_INSUFFICIENT_HUMAN_LABELS — dual independent human review required (200 suppliers min) before commercial PASS",
+  "note": "Prior agent-generated precision figures are void. Only dual human labels count.",
+  "gold_standard": true
 }
