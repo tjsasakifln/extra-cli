@@ -313,18 +313,35 @@ def inventory_field_agreement_issues(
     inventory: dict[str, dict[str, Any]],
     keys: tuple[str, ...] = _INVENTORY_AGREE_KEYS,
 ) -> list[str]:
-    """Fail when integrity/status inventory files disagree on a core key."""
+    """Fail when integrity/status inventory files disagree on a core key.
+
+    workflow_run_id is evaluated only among status narrators (result/queue/closures),
+    not workflow-artifact-publication.json (historical bind of uploaded artifacts) or
+    workflow-job-status.json (current evaluation run). That avoids false FAIL when CI
+    rewrites under a new GITHUB_RUN_ID without rebinding publication (no infinite rebind).
+    """
     issues: list[str] = []
+    run_id_narrators = {
+        "result.json",
+        "queue-summary.json",
+        "final-evidence-closure.json",
+        "final-integrity-closure.json",
+        "merge-readiness.json",
+    }
     for key in keys:
         present: dict[str, Any] = {}
         for rel, data in inventory.items():
             if not _is_integrity_status_rel(rel):
                 continue
+            base = rel.split("/")[-1]
             if key in (
                 "workflow_run_id",
                 "human_review_artifact_id",
                 "machine_evidence_artifact_id",
             ) and not _status_publication_rel(rel):
+                continue
+            # Publication bind run ≠ current CI evaluation run is expected after lag stamps
+            if key == "workflow_run_id" and base not in run_id_narrators:
                 continue
             if key == "pr_head_sha":
                 val = data.get("pr_head_sha") or data.get("current_pr_head_sha")
