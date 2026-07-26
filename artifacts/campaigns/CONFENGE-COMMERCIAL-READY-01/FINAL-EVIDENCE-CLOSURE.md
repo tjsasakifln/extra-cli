@@ -106,3 +106,13 @@ Required fields present: contract_id, object_original, agency, uf, publication_d
 - HEAD: `2eb139b576c11ad0bcac75edfb3fa610992c1777`
 - FREEZE/EXECUTED: `2eb139b576c11ad0bcac75edfb3fa610992c1777`
 - code_changed_after_execution: false (after re-freeze of package-builder fix)
+
+
+## SHAs (live tip binding)
+
+| Field | Value |
+|-------|-------|
+| current_pr_head_sha | `2cf1dcef5ff76be8b1d9e80d1d070214e1ef86e2` |
+| final_code_freeze_sha | `2eb139b576c11ad0bcac75edfb3fa610992c1777` |
+| executed_code_sha | `2eb139b576c11ad0bcac75edfb3fa610992c1777` |
+| evidence_commit_sha | `2cf1dcef5ff76be8b1d9e80d1d070214e1ef86e2` |
