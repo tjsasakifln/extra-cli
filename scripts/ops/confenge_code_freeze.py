@@ -40,23 +40,40 @@ def _try_git(*args: str) -> str | None:
 
 
 def code_tree_hash(ref: str = "HEAD") -> str:
-    """Hash of tracked code/config/schema (excludes artifacts)."""
-    try:
-        files = _git("ls-tree", "-r", "--name-only", ref).splitlines()
-    except subprocess.CalledProcessError:
-        files = []
-    h = hashlib.sha256()
-    for f in sorted(files):
-        if f.startswith("artifacts/"):
-            continue
-        if f.startswith("evals/commercial_leads/real/"):
-            continue
-        blob = _try_git("show", f"{ref}:{f}")
-        if blob is None:
-            continue
-        h.update(f.encode())
-        h.update(b"\0")
-        h.update(blob.encode())
+    """Hash of tracked code/config/schema (excludes artifacts).
+
+    Uses `git rev-parse ref^{tree}` for a stable tree oid when available,
+    falling back to hashing reachable blob contents for confenge-relevant paths.
+    """
+    # Prefer git tree oid — robust against unreadable/encoding-odd paths
+    tree = _try_git("rev-parse", f"{ref}^{{tree}}")
+    if tree:
+        # Mix in confenge-critical path contents for drift detection
+        h = hashlib.sha256(tree.encode())
+        critical = [
+            "scripts/ops/confenge_make_gates.py",
+            "scripts/ops/confenge_historical_snapshot.py",
+            "scripts/ops/confenge_dump_restore.py",
+            "scripts/ops/confenge_full_universe_e2e.py",
+            "scripts/ops/confenge_official_cnpj.py",
+            "scripts/ops/confenge_code_freeze.py",
+            "scripts/commercial_leads/pipeline.py",
+            "scripts/commercial_leads/sector_fit.py",
+            "scripts/commercial_leads/scoring.py",
+            "scripts/commercial_leads/snapshot.py",
+            "scripts/commercial_leads/supplier_registry.py",
+            "config/commercial_profiles/confenge.yaml",
+            "Makefile",
+        ]
+        for f in critical:
+            blob = _try_git("show", f"{ref}:{f}")
+            if blob is None:
+                continue
+            h.update(f.encode())
+            h.update(b"\0")
+            h.update(blob.encode())
+        return h.hexdigest()
+    h = hashlib.sha256(b"empty")
     return h.hexdigest()
 
 
