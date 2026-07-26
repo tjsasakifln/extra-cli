@@ -1,7 +1,7 @@
 {
   "run_id": "cl-20260726T003820Z-f8e90e36",
   "status": "BLOCKED",
-  "git_sha": "a78be53837ff6d75637f5ba2c78fa6d93aaff4a2",
+  "git_sha": "8d82d4d98cf0ff0154ce205cd1055459a4f6e96c",
   "discovery_mode": "PREFILTERED_CANDIDATE_DISCOVERY",
   "history_expansion_mode": "FULL_CANDIDATE_HISTORY",
   "ranking_population_mode": "FULL_ELIGIBLE_CANDIDATES",
@@ -201,18 +201,18 @@
     "human_review_status": "PENDING",
     "labels_are_human": false
   },
-  "run_git_sha": "a78be53837ff6d75637f5ba2c78fa6d93aaff4a2",
-  "artifact_git_sha": "a78be53837ff6d75637f5ba2c78fa6d93aaff4a2",
+  "run_git_sha": "8d82d4d98cf0ff0154ce205cd1055459a4f6e96c",
+  "artifact_git_sha": "8d82d4d98cf0ff0154ce205cd1055459a4f6e96c",
   "reason": "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE",
-  "executed_code_sha": "a78be53837ff6d75637f5ba2c78fa6d93aaff4a2",
-  "current_pr_head_sha": "ade4dcbf87b3bf9df6725a2c99f8280f86c86bd8",
+  "executed_code_sha": "8d82d4d98cf0ff0154ce205cd1055459a4f6e96c",
+  "current_pr_head_sha": "8d82d4d98cf0ff0154ce205cd1055459a4f6e96c",
   "executed_git_sha": "da9596aece9a661c0b4bf4cba0637cac5e20767c",
   "evidence_commit_sha": "c51ac9804b33a0300755d904f7a2ef9afd575b09",
-  "match_run_to_head": false,
-  "updated_at": "2026-07-26T18:04:24Z",
-  "pr_head_sha": "ade4dcbf87b3bf9df6725a2c99f8280f86c86bd8",
-  "gate_git_sha": "a78be53837ff6d75637f5ba2c78fa6d93aaff4a2",
-  "review_git_sha": "a78be53837ff6d75637f5ba2c78fa6d93aaff4a2",
+  "match_run_to_head": true,
+  "updated_at": "2026-07-26T18:06:50Z",
+  "pr_head_sha": "8d82d4d98cf0ff0154ce205cd1055459a4f6e96c",
+  "gate_git_sha": "8d82d4d98cf0ff0154ce205cd1055459a4f6e96c",
+  "review_git_sha": "8d82d4d98cf0ff0154ce205cd1055459a4f6e96c",
   "offer_mapping_diagnostic": {
     "offer_distribution": {
       "acompanhamento_contratual": 20
@@ -253,9 +253,9 @@
   },
   "terminal_reason": "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE",
   "technical_status": "BLOCKED",
-  "final_code_freeze_sha": "a78be53837ff6d75637f5ba2c78fa6d93aaff4a2",
+  "final_code_freeze_sha": "8d82d4d98cf0ff0154ce205cd1055459a4f6e96c",
   "code_changed_after_execution": false,
-  "artifact_only_commits_after_execution": true,
+  "artifact_only_commits_after_execution": false,
   "machine_blockers": [
     "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE"
   ],

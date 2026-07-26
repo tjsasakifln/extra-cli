@@ -8,8 +8,8 @@
   "machine_evidence_publication_status": "PASS",
   "github_workflow_status": "PASS",
   "workflow_run_id": "30212931293",
-  "workflow_pr_head_sha": "a78be53837ff6d75637f5ba2c78fa6d93aaff4a2",
+  "workflow_pr_head_sha": "8d82d4d98cf0ff0154ce205cd1055459a4f6e96c",
   "note": "Statuses reflect latest green CI run 30212931293 on d314e300; real-data jobs printed NOT EXECUTED (DSN missing). Integrity truth commit freezes at current HEAD.",
   "workflow_merge_sha": "a37d615d8b6b320fc4d4cc1b10d01bb0ba4cbd40",
-  "captured_at": "2026-07-26T18:03:39Z"
+  "captured_at": "2026-07-26T18:06:49Z"
 }
