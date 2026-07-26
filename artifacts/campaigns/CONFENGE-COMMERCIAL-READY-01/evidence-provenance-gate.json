@@ -1,18 +1,18 @@
 {
   "ok": true,
   "status": "PASS",
-  "current_pr_head_sha": "0e13cc898faf0ff89e98bfab919513c55248e7d0",
-  "pr_head_sha": "0e13cc898faf0ff89e98bfab919513c55248e7d0",
-  "checked_out_sha": "0e13cc898faf0ff89e98bfab919513c55248e7d0",
+  "current_pr_head_sha": "6dcab34860fb016aa1ef3152db4d9b0ae97adae6",
+  "pr_head_sha": "6dcab34860fb016aa1ef3152db4d9b0ae97adae6",
+  "checked_out_sha": "6dcab34860fb016aa1ef3152db4d9b0ae97adae6",
   "workflow_merge_sha": null,
   "final_code_freeze_sha": "adc59faf6e4a204e545d401810601ebfa1f8bdb0",
   "final_integrity_code_freeze_sha": "adc59faf6e4a204e545d401810601ebfa1f8bdb0",
   "executed_code_sha": "adc59faf6e4a204e545d401810601ebfa1f8bdb0",
-  "evidence_commit_sha": "0e13cc898faf0ff89e98bfab919513c55248e7d0",
-  "workflow_head_sha": "0e13cc898faf0ff89e98bfab919513c55248e7d0",
+  "evidence_commit_sha": "6dcab34860fb016aa1ef3152db4d9b0ae97adae6",
+  "workflow_head_sha": "6dcab34860fb016aa1ef3152db4d9b0ae97adae6",
   "artifact_git_sha": "adc59faf6e4a204e545d401810601ebfa1f8bdb0",
   "code_tree_hash_at_execution": "57eca7d41ad852e149f07f9b103319639140cfcdb2cb2873a9ddb43ec3e4968d",
-  "code_tree_hash_at_current_head": "92de9e5502315eb985d4e593a898881d30c7797111248612f55c4e0c13d9e4b0",
+  "code_tree_hash_at_current_head": "acb42dd89146d1ed45aa8cab4a5b0d27297bf6fbfee8c472a6c20c4ec2157fae",
   "code_changed_after_execution": false,
   "artifact_only_commits_after_execution": true,
   "non_artifact_files_changed_after_execution": [],
@@ -22,11 +22,11 @@
     "os": "Linux 6.18.33.2-microsoft-standard-WSL2",
     "python_version": "3.12.3",
     "postgres_version": null,
-    "workflow_run_id": "30215931047",
+    "workflow_run_id": "30217720692",
     "job_ids": null,
     "command": "make campaign-gate-confenge-commercial-ready",
     "started_at": null,
-    "finished_at": "2026-07-26T19:50:43Z",
+    "finished_at": "2026-07-26T20:01:16Z",
     "exit_code": 0
   },
   "match_run_to_head": false,
@@ -40,5 +40,5 @@
     "artifact_git_sha": "commit de c\u00f3digo da evid\u00eancia (executed)",
     "match_run_to_head_rule": "true only when executed_code_sha == pr_head_sha"
   },
-  "verified_at": "2026-07-26T19:50:43Z"
+  "verified_at": "2026-07-26T20:01:16Z"
 }

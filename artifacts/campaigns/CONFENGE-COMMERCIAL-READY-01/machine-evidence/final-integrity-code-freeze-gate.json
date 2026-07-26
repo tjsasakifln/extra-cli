@@ -1,10 +1,10 @@
 {
   "ok": true,
   "status": "PASS",
-  "current_pr_head_sha": "0e13cc898faf0ff89e98bfab919513c55248e7d0",
-  "pr_head_sha": "0e13cc898faf0ff89e98bfab919513c55248e7d0",
+  "current_pr_head_sha": "6dcab34860fb016aa1ef3152db4d9b0ae97adae6",
+  "pr_head_sha": "6dcab34860fb016aa1ef3152db4d9b0ae97adae6",
   "workflow_merge_sha": null,
-  "checked_out_sha": "0e13cc898faf0ff89e98bfab919513c55248e7d0",
+  "checked_out_sha": "6dcab34860fb016aa1ef3152db4d9b0ae97adae6",
   "final_integrity_code_freeze_sha": "adc59faf6e4a204e545d401810601ebfa1f8bdb0",
   "final_code_freeze_sha": "adc59faf6e4a204e545d401810601ebfa1f8bdb0",
   "executed_code_sha": "adc59faf6e4a204e545d401810601ebfa1f8bdb0",
@@ -52,6 +52,6 @@
     "artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/workflow-job-status.json"
   ],
   "non_artifact_files_changed_after_execution": [],
-  "verified_at": "2026-07-26T19:50:43Z",
+  "verified_at": "2026-07-26T20:01:16Z",
   "policy": "post-freeze non-artifact tree vs pr_head must be empty; match_run_to_head true only when executed_code_sha == pr_head_sha; workflow_merge_sha / checked_out merge ref is never used as pr_head"
 }

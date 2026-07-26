@@ -1,6 +1,6 @@
 # FINAL INTEGRITY CLOSURE — CONFENGE-COMMERCIAL-READY-01
 
-Generated: 2026-07-26T19:50:43Z
+Generated: 2026-07-26T20:01:16Z
 Aggregator: `build_final_campaign_status()`
 
 ## Terminal
@@ -18,7 +18,7 @@ Aggregator: `build_final_campaign_status()`
 
 | Field | Value |
 |-------|-------|
-| pr_head_sha | `0e13cc898faf0ff89e98bfab919513c55248e7d0` |
+| pr_head_sha | `6dcab34860fb016aa1ef3152db4d9b0ae97adae6` |
 | workflow_merge_sha | `None` |
 | executed_code_sha | `adc59faf6e4a204e545d401810601ebfa1f8bdb0` |
 | final_integrity_code_freeze_sha | `adc59faf6e4a204e545d401810601ebfa1f8bdb0` |

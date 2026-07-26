@@ -1,15 +1,15 @@
 {
   "ok": true,
   "status": "PASS",
-  "current_pr_head_sha": "0e13cc898faf0ff89e98bfab919513c55248e7d0",
-  "pr_head_sha": "0e13cc898faf0ff89e98bfab919513c55248e7d0",
-  "checked_out_sha": "0e13cc898faf0ff89e98bfab919513c55248e7d0",
+  "current_pr_head_sha": "6dcab34860fb016aa1ef3152db4d9b0ae97adae6",
+  "pr_head_sha": "6dcab34860fb016aa1ef3152db4d9b0ae97adae6",
+  "checked_out_sha": "6dcab34860fb016aa1ef3152db4d9b0ae97adae6",
   "workflow_merge_sha": null,
   "final_code_freeze_sha": "adc59faf6e4a204e545d401810601ebfa1f8bdb0",
   "final_integrity_code_freeze_sha": "adc59faf6e4a204e545d401810601ebfa1f8bdb0",
   "executed_code_sha": "adc59faf6e4a204e545d401810601ebfa1f8bdb0",
   "code_tree_hash_at_execution": "57eca7d41ad852e149f07f9b103319639140cfcdb2cb2873a9ddb43ec3e4968d",
-  "code_tree_hash_at_current_head": "92de9e5502315eb985d4e593a898881d30c7797111248612f55c4e0c13d9e4b0",
+  "code_tree_hash_at_current_head": "acb42dd89146d1ed45aa8cab4a5b0d27297bf6fbfee8c472a6c20c4ec2157fae",
   "code_changed_after_execution": false,
   "artifact_only_commits_after_execution": true,
   "files_changed_after_freeze": [
@@ -55,7 +55,7 @@
   "non_artifact_files_changed": [],
   "non_artifact_files_changed_after_execution": [],
   "artifact_only_path_check": true,
-  "verified_at": "2026-07-26T19:50:36Z",
+  "verified_at": "2026-07-26T20:01:13Z",
   "note": "pr_head from CONFENGE_PR_HEAD_SHA when set; never label merge checkout as pr_head",
   "policy": "post-freeze commits only under artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/** and docs/ops/**"
 }
