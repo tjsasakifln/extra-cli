@@ -95,10 +95,18 @@ def upsert_registry_rows(conn: Any, rows: list[dict[str, Any]]) -> int:
             if not cnpj:
                 continue
             source = row.get("source")
-            source_version = row.get("source_version")
+            source_version = row.get("source_version") or "unknown"
             source_date = row.get("source_date")
-            if not source or not source_version or not source_date:
+            if not source or not source_date:
                 raise ValueError(f"registry row missing source provenance for {cnpj}")
+            # Sanitize data_situacao — APIs sometimes return "0" / garbage
+            data_sit = row.get("data_situacao")
+            if data_sit is not None:
+                s = str(data_sit).strip()
+                if len(s) < 8 or s in {"0", "00", "0000-00-00", "None", "null"}:
+                    data_sit = None
+                else:
+                    data_sit = s[:10]
             cur.execute(
                 """
                 INSERT INTO public.supplier_registry (
@@ -129,7 +137,7 @@ def upsert_registry_rows(conn: Any, rows: list[dict[str, Any]]) -> int:
                     row.get("cnae_principal"),
                     Json(list(row.get("cnaes_secundarios") or [])),
                     row.get("situacao_cadastral"),
-                    row.get("data_situacao"),
+                    data_sit,
                     row.get("municipio"),
                     row.get("uf"),
                     source,

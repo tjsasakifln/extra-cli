@@ -622,4 +622,106 @@ verify-confenge-commercial-artifact-binding:
 		--queue-summary $(CONFENGE_COMMERCIAL_ART)/queue-summary.json
 
 
+# --- CONFENGE final evidence closure (PR #144) ---
+.PHONY: build-confenge-historical-snapshot \
+	verify-confenge-historical-snapshot \
+	verify-confenge-contract-status-reconciliation \
+	download-confenge-official-cnpj-dataset \
+	ingest-confenge-official-cnpj-dataset \
+	verify-confenge-official-registry-provenance \
+	export-confenge-authenticated-snapshot-real \
+	restore-confenge-authenticated-snapshot \
+	verify-confenge-restored-snapshot \
+	verify-confenge-independent-snapshot-anchor \
+	verify-confenge-full-universe-e2e-reproducibility \
+	extract-confenge-real-contract-corpus \
+	verify-confenge-real-corpus-provenance \
+	build-confenge-human-review-package \
+	verify-confenge-offer-sensitivity \
+	verify-confenge-code-freeze \
+	verify-confenge-post-execution-artifact-only-diff \
+	mark-confenge-code-freeze \
+	bulk-confenge-official-cnpj-opencnpj
+
+CONFENGE_COMMERCIAL_STATE_DSN ?= postgresql://postgres:postgres@127.0.0.1:5433/confenge_commercial
+CONFENGE_SOURCE_DSN ?= postgresql://postgres:postgres@127.0.0.1:5433/pncp_datalake
+CONFENGE_RESTORE_DSN ?= postgresql://postgres:postgres@127.0.0.1:5433/confenge_restore
+
+build-confenge-historical-snapshot:
+	python3 -m scripts.ops.confenge_historical_snapshot build \
+		--source-dsn "$$CONFENGE_SOURCE_DSN" \
+		--target-dsn "$$CONFENGE_COMMERCIAL_STATE_DSN" \
+		--preferred-days 730 --min-days 365
+
+verify-confenge-historical-snapshot:
+	python3 -m scripts.ops.confenge_historical_snapshot verify \
+		--target-dsn "$$CONFENGE_COMMERCIAL_STATE_DSN"
+
+verify-confenge-contract-status-reconciliation:
+	python3 -m scripts.ops.confenge_historical_snapshot reconcile \
+		--target-dsn "$$CONFENGE_COMMERCIAL_STATE_DSN"
+
+download-confenge-official-cnpj-dataset:
+	python3 -m scripts.ops.confenge_official_cnpj download || true
+	python3 -m scripts.ops.confenge_opencnpj_bulk --workers 12
+
+ingest-confenge-official-cnpj-dataset:
+	@test -n "$$CONFENGE_COMMERCIAL_STATE_DSN" || (echo 'CONFENGE_COMMERCIAL_STATE_DSN required' && exit 1)
+	python3 -m scripts.ops.confenge_official_cnpj ingest \
+		--dsn "$$CONFENGE_COMMERCIAL_STATE_DSN" \
+		--run-result $(CONFENGE_COMMERCIAL_OUT)/run-result.json
+
+verify-confenge-official-registry-provenance:
+	python3 -m scripts.ops.confenge_official_cnpj verify-provenance
+
+bulk-confenge-official-cnpj-opencnpj:
+	python3 -m scripts.ops.confenge_opencnpj_bulk --workers 12
+
+# Override export to use real restorable CSV package
+export-confenge-authenticated-snapshot:
+	python3 -m scripts.ops.confenge_dump_restore export \
+		--source-dsn "$$CONFENGE_COMMERCIAL_STATE_DSN"
+
+restore-confenge-authenticated-snapshot:
+	python3 -m scripts.ops.confenge_dump_restore restore \
+		--source-dsn "$$CONFENGE_COMMERCIAL_STATE_DSN" \
+		--restore-dsn "$$CONFENGE_RESTORE_DSN"
+
+verify-confenge-restored-snapshot:
+	python3 -m scripts.ops.confenge_dump_restore verify \
+		--source-dsn "$$CONFENGE_COMMERCIAL_STATE_DSN" \
+		--restore-dsn "$$CONFENGE_RESTORE_DSN"
+
+verify-confenge-independent-snapshot-anchor: verify-confenge-restored-snapshot
+
+verify-confenge-full-universe-e2e-reproducibility:
+	python3 -m scripts.ops.confenge_full_universe_e2e \
+		--dsn "$$CONFENGE_COMMERCIAL_STATE_DSN" \
+		--run-result $(CONFENGE_COMMERCIAL_OUT)/run-result.json
+
+extract-confenge-real-contract-corpus:
+	python3 -m scripts.ops.extract_confenge_real_holdout_corpus --min-n 500
+
+verify-confenge-real-corpus-provenance:
+	python3 -c "import json; from pathlib import Path; m=json.loads(Path('evals/commercial_leads/real/corpus-meta.json').read_text()); assert m.get('n_total',0)>=500; assert m.get('human_labels_filled') is False; print(json.dumps({'ok':True,'n_total':m['n_total'],'human_labels_filled':False},indent=2))"
+
+build-confenge-human-review-package:
+	python3 -m scripts.ops.confenge_human_review_packages
+
+verify-confenge-offer-sensitivity:
+	python3 -m scripts.ops.confenge_offer_sensitivity \
+		--dsn "$$CONFENGE_COMMERCIAL_STATE_DSN"
+
+verify-confenge-code-freeze:
+	python3 -m scripts.ops.confenge_code_freeze verify-freeze
+
+verify-confenge-post-execution-artifact-only-diff:
+	python3 -m scripts.ops.confenge_code_freeze verify-artifact-only
+
+mark-confenge-code-freeze:
+	python3 -m scripts.ops.confenge_code_freeze mark-freeze
+
+# re-bind evidence provenance to code freeze module
+verify-confenge-evidence-provenance:
+	python3 -m scripts.ops.confenge_code_freeze verify-provenance
 

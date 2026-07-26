@@ -793,143 +793,32 @@ def cmd_end_to_end_reproducibility(_: argparse.Namespace) -> int:
     from scripts.commercial_leads.signals import compute_signals_for_supplier, rows_from_dicts
     from scripts.commercial_leads.supplier_registry import load_registry_map
 
-    run = _load_run()
-    lm = run.get("load_meta") or {}
-    universe = list(lm.get("candidate_supplier_cnpjs") or [])
-    if not universe and run.get("leads"):
-        universe = [str(L["cnpj14"]) for L in run["leads"]]
-    # Practical bound for gate runtime while still >> top20
-    cnpjs = universe[:400] if len(universe) > 400 else universe
-    if len(cnpjs) < 20:
-        report = {
-            "ok": False,
-            "status": "BLOCKED_END_TO_END_REPRODUCIBILITY_NOT_PROVEN",
-            "reason": "frozen_universe_too_small",
-            "n": len(cnpjs),
-        }
-        (ART / "end-to-end-reproducibility-gate.json").write_text(
-            json.dumps(report, indent=2) + "\n", encoding="utf-8"
-        )
-        print(json.dumps(report, indent=2))
-        return 2
+    # Delegate to full-universe runner (n == frozen_candidate_count).
+    # CONFENGE_E2E_SAMPLE_LIMIT>0 labels result SAMPLED_E2E_TEST — never full PASS.
+    from scripts.ops.confenge_full_universe_e2e import run_full_universe_e2e
 
-    profile = load_profile(_ROOT / "config/commercial_profiles/confenge.yaml")
-    as_of = date.fromisoformat(str(run.get("as_of") or date.today().isoformat()))
-    names = {str(L.get("cnpj14")): L.get("razao_social") for L in (run.get("leads") or [])}
-
-    def full_pass() -> dict[str, Any]:
-        conn = connect(dsn)
-        try:
-            groups, hist = load_full_supplier_histories(conn, cnpjs, per_supplier_limit=None)
-            reg = load_registry_map(conn, cnpjs)
-        finally:
-            conn.close()
-        if not hist.get("all_statuses_loaded"):
-            return {"ok": False, "reason": "all_statuses_not_loaded", "hist": hist}
-        scored = []
-        sector_dist: dict[str, int] = {}
-        for cnpj in cnpjs:
-            crow = groups.get(cnpj) or []
-            if not crow:
-                continue
-            rec = reg.get(cnpj)
-            sector = classify_supplier_sector_fit(
-                razao_social=names.get(cnpj) or crow[0].get("fornecedor_nome"),
-                contracts=crow,
-                cnae_principal=rec.cnae_principal if rec else None,
-                cnaes_secundarios=list(rec.cnaes_secundarios) if rec else [],
-                history_is_full=True,
-            )
-            sector_dist[sector.classification] = sector_dist.get(sector.classification, 0) + 1
-            if sector.classification not in ("CONFIRMED_ENGINEERING", "STRONG_ENGINEERING_FIT"):
-                continue
-            contracts = rows_from_dicts(crow)
-            sigs = compute_signals_for_supplier(contracts, profile, as_of=as_of, official_acts=None)
-            total_value = sum(
-                float(c.valor_total or 0) for c in contracts if c.valor_total is not None
-            )
-            pubs = [c.data_publicacao for c in contracts if c.data_publicacao]
-            lead = score_supplier(
-                cnpj14=cnpj,
-                razao_social=names.get(cnpj) or crow[0].get("fornecedor_nome") or cnpj,
-                signal_results=sigs,
-                profile=profile,
-                total_value=total_value,
-                contract_count=len(contracts),
-                last_publication=max(pubs).isoformat() if pubs else None,
-            )
-            lead._sector = sector.classification  # type: ignore[attr-defined]
-            scored.append(lead)
-        ranked = rank_leads(scored, profile, suppressed_cnpjs=set(), state_by_cnpj={})
-        top20 = [
-            {
-                "cnpj14": x.cnpj14,
-                "score_total": round(x.score_total, 6),
-                "sector": getattr(x, "_sector", None),
-                "offer": x.selected_offer or x.suggested_offer,
-            }
-            for x in ranked[:20]
-        ]
-        hist_blob = json.dumps(
-            {
-                "n_groups": len(groups),
-                "n_contracts": sum(len(v) for v in groups.values()),
-                "mode": hist.get("history_expansion_mode"),
-                "view": hist.get("history_view"),
-            },
-            sort_keys=True,
-        )
-        return {
-            "ok": True,
-            "candidate_universe_hash": hashlib.sha256(
-                json.dumps(sorted(cnpjs)).encode()
-            ).hexdigest(),
-            "full_history_hash": hashlib.sha256(hist_blob.encode()).hexdigest(),
-            "registry_snapshot_hash": hashlib.sha256(
-                json.dumps(sorted(reg.keys())).encode()
-            ).hexdigest(),
-            "eligible_universe_hash": hashlib.sha256(
-                json.dumps([x.cnpj14 for x in scored], sort_keys=True).encode()
-            ).hexdigest(),
-            "ranking_hash": hashlib.sha256(json.dumps(top20, sort_keys=True).encode()).hexdigest(),
-            "top20_order": [x["cnpj14"] for x in top20],
-            "sector_classification_distribution": sector_dist,
-            "offer_mapping": [x["offer"] for x in top20],
-            "history_view": hist.get("history_view"),
-            "all_statuses_loaded": hist.get("all_statuses_loaded"),
-            "n_universe": len(cnpjs),
-            "n_eligible": len(scored),
-        }
-
-    a = full_pass()
-    b = full_pass()
-    same = (
-        a.get("ok")
-        and b.get("ok")
-        and a.get("ranking_hash") == b.get("ranking_hash")
-        and a.get("top20_order") == b.get("top20_order")
-        and a.get("full_history_hash") == b.get("full_history_hash")
-        and a.get("eligible_universe_hash") == b.get("eligible_universe_hash")
+    sample = int(os.environ.get("CONFENGE_E2E_SAMPLE_LIMIT") or "0")
+    report = run_full_universe_e2e(
+        dsn=dsn,
+        run_result=RUN if RUN.is_file() else None,
+        sample_limit=sample,
     )
-    report = {
-        "ok": bool(same) and unit.returncode == 0,
-        "status": "PASS" if same and unit.returncode == 0 else "FAIL",
-        "method": "live_double_full_pipeline_frozen_universe_all_status_history",
-        "pytest_exit": unit.returncode,
-        "unit_ok": unit.returncode == 0,
-        "pass_a": {k: a.get(k) for k in a if k != "hist"},
-        "pass_b": {k: b.get(k) for k in b if k != "hist"},
-        "same_inputs_same_complete_outputs": same,
-        "note": (
-            "Re-executed all-status history, registry join, sector, signals, "
-            "eligibility, ranking, offer, top20 — twice. No reuse of prior classes."
-        ),
-    }
+    report["pytest_exit"] = unit.returncode
+    report["unit_ok"] = unit.returncode == 0
+    if report.get("status") == "PASS" and unit.returncode != 0:
+        report["ok"] = False
+        report["status"] = "FAIL"
+        report["reason"] = "unit_reproducibility_helpers_failed"
     (ART / "end-to-end-reproducibility-gate.json").write_text(
         json.dumps(report, indent=2, default=str) + "\n", encoding="utf-8"
     )
-    print(json.dumps(report, indent=2, default=str))
-    return 0 if report["ok"] else 1
+    print(json.dumps({k: report.get(k) for k in (
+        "ok", "status", "frozen_candidate_count", "n_universe",
+        "n_universe_equals_frozen", "all_hashes_equal", "sampled", "unit_ok",
+    )}, indent=2, default=str))
+    if report.get("status") == "SAMPLED_E2E_TEST":
+        return 2  # sampled is not full-universe PASS
+    return 0 if report.get("ok") else 2
 
 
 def cmd_evidence_provenance(_: argparse.Namespace) -> int:
