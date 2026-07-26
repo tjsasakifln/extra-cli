@@ -438,12 +438,12 @@
   "artifact_git_sha": "6731f652231dd9d82d3e3fb18afcda03039493d7",
   "reason": "BLOCKED_REGISTRY_SELECTION_BIAS",
   "executed_code_sha": "6731f652231dd9d82d3e3fb18afcda03039493d7",
-  "current_pr_head_sha": "3b71e6afa6e195d8769ff70bd15624623c296458",
+  "current_pr_head_sha": "5868cfba76c802cccbc06992e335315012098f6e",
   "executed_git_sha": "6731f652231dd9d82d3e3fb18afcda03039493d7",
   "evidence_commit_sha": "6731f652231dd9d82d3e3fb18afcda03039493d7",
   "match_run_to_head": false,
   "updated_at": "2026-07-26T01:59:51Z",
-  "pr_head_sha": "3b71e6afa6e195d8769ff70bd15624623c296458",
+  "pr_head_sha": "5868cfba76c802cccbc06992e335315012098f6e",
   "gate_git_sha": "6731f652231dd9d82d3e3fb18afcda03039493d7",
   "review_git_sha": "6731f652231dd9d82d3e3fb18afcda03039493d7"
 }
