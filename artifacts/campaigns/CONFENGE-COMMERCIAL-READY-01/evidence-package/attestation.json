@@ -1,24 +1,24 @@
 {
-  "executed_code_sha": "d3eb638777e5acee9315b803a082e43d21d5871d",
-  "executed_git_sha": "d3eb638777e5acee9315b803a082e43d21d5871d",
-  "current_pr_head_sha": "d3eb638777e5acee9315b803a082e43d21d5871d",
-  "evidence_commit_sha": "d3eb638777e5acee9315b803a082e43d21d5871d",
+  "executed_code_sha": "0a861361929d98e28cac0274840fb0000971ad8e",
+  "executed_git_sha": "0a861361929d98e28cac0274840fb0000971ad8e",
+  "current_pr_head_sha": "0a861361929d98e28cac0274840fb0000971ad8e",
+  "evidence_commit_sha": "0a861361929d98e28cac0274840fb0000971ad8e",
   "workflow_run_id": null,
   "execution_environment": "local",
   "machine_id_hash": "35b96cb98ef8f0ad",
   "command": "make package-confenge-commercial-evidence",
-  "started_at": "2026-07-26T01:44:22.749540+00:00",
-  "finished_at": "2026-07-26T01:44:22.749566+00:00",
+  "started_at": "2026-07-26T01:46:22.236098+00:00",
+  "finished_at": "2026-07-26T01:46:22.236127+00:00",
   "exit_code": 0,
-  "created_at": "2026-07-26T01:44:22.749540+00:00",
+  "created_at": "2026-07-26T01:46:22.236098+00:00",
   "checksums": {
     "result.json": {
       "exists": true,
-      "sha256": "786be9992fef533a1f5e89dacd6350eada0a32f292279b9ef3ab2898141340ab"
+      "sha256": "72795545900e188710773fd3a8f16b0dcf27d9841f629cbeb610481124bdfb54"
     },
     "queue-summary.json": {
       "exists": true,
-      "sha256": "2019bd3743d5c38b0f20b470282bb7c3b10c25a09f69b4aa304aab782b32516c"
+      "sha256": "043d111cf8cf22983fe2e51ca67ca34ea2be6085ebf5e9d0465087321c1d49c9"
     },
     "denominator-integrity.json": {
       "exists": true,
@@ -57,16 +57,16 @@
       "sha256": "d4482b012e406269bb2ba04884f803c17d9148284880812c36dee0d72d9ea2ab"
     },
     "historical-window-gate.json": {
-      "exists": false,
-      "sha256": null
+      "exists": true,
+      "sha256": "5bb4984a1c0893174778922023d284731dfa6b3f48abf44b183ee1ea65032eb0"
     },
     "snapshot-content-binding-gate.json": {
       "exists": true,
       "sha256": "48dd8194aa5356880c6c7d1217165efb81837f91d14b7093a6f666137d9add8c"
     },
     "offer-discrimination-gate.json": {
-      "exists": false,
-      "sha256": null
+      "exists": true,
+      "sha256": "56f75a45e8822ba23923a7184748a917a33ea3adcfd21d8b7e6d92a5821193e2"
     },
     "end-to-end-reproducibility-gate.json": {
       "exists": true,
@@ -78,5 +78,5 @@
     }
   },
   "note": "Execution provenance package. Checksums alone without executed_code_sha and environment are not a valid attestation.",
-  "evidence_package_hash": "fb2a29fab8a34fc0553a014d88b947657fc04459f8c81b4e32c4d493084431c8"
+  "evidence_package_hash": "c560da3b31f5d6bb8a5732a5f073bce17542bdfec0cde0f80521ddbc0069da43"
 }
