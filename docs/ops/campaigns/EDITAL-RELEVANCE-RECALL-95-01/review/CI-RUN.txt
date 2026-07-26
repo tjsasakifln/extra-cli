@@ -1,4 +1,6 @@
 PR: https://github.com/tjsasakifln/extra-cli/pull/145
-HEAD: e1959560c7ab44b08b661a79d1ed45152dcab264
-CI: https://github.com/tjsasakifln/extra-cli/actions/runs/30222955268 (27/27 PASS)
-Campaign: BLOCKED_HUMAN_DUAL_LABELING — not §8.4 accept
+HEAD: f338652ccf2b4df628f279fc9c9f22d3d0687957
+CI: https://github.com/tjsasakifln/extra-cli/actions/runs/30223186769
+Result: 27/27 PASS
+Campaign: BLOCKED_HUMAN_DUAL_LABELING — §8.4 NOT accepted
+Final gate without human labels: exit 1 (fail-closed)
