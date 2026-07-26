@@ -382,14 +382,20 @@ def workflow_run_head_mismatch_issues(
     package: dict[str, Any],
     run_head_sha: str | None,
 ) -> list[str]:
-    """Fail when bound workflow run head disagrees with package workflow_artifact_head."""
+    """Fail when bound workflow run head disagrees with package workflow_artifact_head.
+
+    Dual-head model: workflow_artifact_head_sha is the GHA headSha of the bound run
+    and may differ from pr_head_sha when artifact-only commits follow the publishing tip.
+    Never fall back to pr_head when checking run-head provenance.
+    """
     issues: list[str] = []
     if not run_head_sha:
         return issues
-    claimed = (
-        package.get("workflow_artifact_head_sha") or package.get("pr_head_sha") or package.get("current_pr_head_sha")
-    )
-    if claimed and claimed != run_head_sha:
+    claimed = package.get("workflow_artifact_head_sha")
+    if not claimed:
+        issues.append(f"workflow_run_head_mismatch:missing_workflow_artifact_head_sha run_head={run_head_sha!r}")
+        return issues
+    if str(claimed) != str(run_head_sha):
         issues.append(f"workflow_run_head_mismatch:run_head={run_head_sha!r} claimed={claimed!r}")
     return issues
 
@@ -436,11 +442,18 @@ def resolve_sha_roles(
     executed_code_sha: str | None = None,
     freeze_sha: str | None = None,
     evidence_commit_sha: str | None = None,
+    workflow_artifact_head_sha: str | None = None,
     artifact_only: bool = False,
     code_changed: bool = False,
     non_artifact: list[str] | None = None,
 ) -> dict[str, Any]:
-    """Authoritative SHA role map. Never labels merge SHA as pr_head."""
+    """Authoritative SHA role map. Never labels merge SHA as pr_head.
+
+    Dual-head model:
+    - pr_head_sha = PR tip being documented (may lag after a single package commit)
+    - workflow_artifact_head_sha = GHA headSha of the bound publishing run (immutable once bound)
+    These may differ when artifact-only commits exist after the publishing tip.
+    """
     checked = checked_out_sha or _git_head()
     # PR head: explicit env (Actions) wins; else local HEAD is the PR tip.
     pr_head = (
@@ -469,6 +482,13 @@ def resolve_sha_roles(
     # When lag exists with only artifact commits: match false, code_changed false
     if executed and pr_head and executed != pr_head and artifact_only and not code_changed:
         match = False
+    # Publication head: explicit arg / env only — never silently equal to pr_head
+    art_head = (
+        workflow_artifact_head_sha
+        or os.environ.get("CONFENGE_WORKFLOW_ARTIFACT_HEAD_SHA")
+        or os.environ.get("CONFENGE_WORKFLOW_RUN_HEAD_SHA")
+        or None
+    )
     return {
         "pr_head_sha": pr_head,
         "current_pr_head_sha": pr_head,  # alias — must never be merge-only
@@ -479,7 +499,7 @@ def resolve_sha_roles(
         "final_code_freeze_sha": freeze,
         "freeze_sha": freeze,
         "evidence_commit_sha": evidence if evidence else (pr_head if (match or artifact_only) else None),
-        "workflow_artifact_head_sha": pr_head,
+        "workflow_artifact_head_sha": art_head,
         "match_run_to_head": match,
         "code_changed_after_execution": bool(code_changed),
         "artifact_only_commits_after_execution": bool(artifact_only),
@@ -569,12 +589,21 @@ def build_final_campaign_status() -> dict[str, Any]:
         except (subprocess.CalledProcessError, OSError):
             pass
 
+    # Publication provenance head is independent of pr_head (dual-head model)
+    pub_stamp = _load("workflow-artifact-publication.json") or _load("human-review/workflow-publication.json")
+    pub_art_head = (
+        pub_stamp.get("workflow_artifact_head_sha")
+        or pub_stamp.get("workflow_pr_head_sha")
+        or pub_stamp.get("source_tip")
+        or None
+    )
     sha = resolve_sha_roles(
         checked_out_sha=checked,
         executed_code_sha=executed,
         freeze_sha=freeze_sha,
         # evidence_commit follows pr_head (not merge checkout) when packaging for PR
         evidence_commit_sha=None,  # let resolve_sha_roles set from pr_head when match/artifact_only
+        workflow_artifact_head_sha=pub_art_head,
         artifact_only=artifact_only,
         code_changed=code_changed,
         non_artifact=non_art,
@@ -586,6 +615,9 @@ def build_final_campaign_status() -> dict[str, Any]:
         sha["evidence_commit_sha"] = sha["pr_head_sha"]
     else:
         sha["evidence_commit_sha"] = sha.get("evidence_commit_sha") or sha["pr_head_sha"]
+    # Never invent publication head from pr_head; keep bound stamp / env only
+    if not sha.get("workflow_artifact_head_sha") and pub_art_head:
+        sha["workflow_artifact_head_sha"] = pub_art_head
 
     machine_blockers: list[str] = []
     human_blockers: list[str] = []
@@ -910,9 +942,8 @@ def write_derived_artifacts(
     status = status or build_final_campaign_status()
     ART.mkdir(parents=True, exist_ok=True)
     bind_sha = _bind_sha(status)
-    # Ensure workflow_artifact_head_sha is the PR tip that owns published artifacts
-    if not status.get("workflow_artifact_head_sha"):
-        status["workflow_artifact_head_sha"] = status.get("pr_head_sha")
+    # Dual-head: workflow_artifact_head_sha comes from publication bind / explicit status only.
+    # Do not default it to pr_head — that conflates package tip with the GHA publishing head.
 
     result = {
         "status": status["status"],
@@ -1234,22 +1265,8 @@ all_other_machine_blockers: {status["all_other_machine_blockers"]}
     (ART / "FINAL-INTEGRITY-CLOSURE.md").write_text(imd, encoding="utf-8")
 
     write_merge_readiness(status)
-    # Keep publication stamp head fields aligned with rewritten package tip.
-    # Artifact IDs / run_id stay as bound publication proof; head must not lag result.
-    pub_path = ART / "workflow-artifact-publication.json"
-    if pub_path.is_file():
-        try:
-            pub = json.loads(pub_path.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError):
-            pub = {}
-        if isinstance(pub, dict) and pub:
-            tip = status.get("pr_head_sha") or status.get("current_pr_head_sha")
-            if tip:
-                pub["workflow_pr_head_sha"] = tip
-                pub["workflow_artifact_head_sha"] = tip
-                if status.get("workflow_merge_sha") is not None:
-                    pub["workflow_merge_sha"] = status.get("workflow_merge_sha")
-                pub_path.write_text(json.dumps(pub, indent=2) + "\n", encoding="utf-8")
+    # Publication stamp is provenance-preserving: never overwrite workflow_artifact_head_sha
+    # from package pr_head on rewrite. bind_workflow_publication owns those fields once.
     # Twin tree: machine-evidence must mirror root gates/status (no orphan dummy SHAs)
     mirror_status_tree_to_machine_evidence(ART)
     return status
@@ -1754,11 +1771,18 @@ def bind_workflow_publication(
     artifact_created_at: str | None = None,
     artifact_expires_at: str | None = None,
     run_url: str | None = None,
+    workflow_artifact_head_sha: str | None = None,
 ) -> dict[str, Any]:
-    """Write workflow-job-status + workflow-artifact-publication for one bound run."""
+    """Write workflow-job-status + workflow-artifact-publication for one bound run.
+
+    workflow_artifact_head_sha must be the GHA headSha of run_id (publishing tip).
+    pr_head_sha is the package/PR tip being documented and may differ.
+    """
     ART.mkdir(parents=True, exist_ok=True)
     now = utc_now()
     run_url = run_url or f"https://github.com/tjsasakifln/extra-cli/actions/runs/{run_id}"
+    # Publishing head is immutable provenance of the bound run — never equal to package tip by default
+    art_head = workflow_artifact_head_sha or os.environ.get("CONFENGE_WORKFLOW_ARTIFACT_HEAD_SHA") or pr_head_sha
     job = {
         "structural_ci_status": os.environ.get("CONFENGE_STRUCTURAL_CI_STATUS", "PASS"),
         "real_historical_ci_status": os.environ.get("CONFENGE_REAL_HISTORICAL_CI_STATUS", "NOT_EXECUTED"),
@@ -1769,9 +1793,10 @@ def bind_workflow_publication(
         "machine_evidence_publication_status": os.environ.get("CONFENGE_MACHINE_EVIDENCE_PUBLICATION_STATUS", "PASS"),
         "github_workflow_status": os.environ.get("CONFENGE_GITHUB_WORKFLOW_STATUS", "PASS"),
         "workflow_run_id": str(run_id),
-        "workflow_pr_head_sha": pr_head_sha,
+        "workflow_pr_head_sha": art_head,
         "workflow_merge_sha": merge_sha,
-        "workflow_run_head_sha": pr_head_sha,
+        "workflow_run_head_sha": art_head,
+        "package_pr_head_sha": pr_head_sha,
         "captured_at": now,
     }
     (ART / "workflow-job-status.json").write_text(json.dumps(job, indent=2) + "\n", encoding="utf-8")
@@ -1779,9 +1804,10 @@ def bind_workflow_publication(
         "published_as_workflow_artifact": True,
         "workflow_run_id": str(run_id),
         "workflow_run_url": run_url,
-        "workflow_pr_head_sha": pr_head_sha,
+        "workflow_pr_head_sha": art_head,
         "workflow_merge_sha": merge_sha,
-        "workflow_artifact_head_sha": pr_head_sha,
+        "workflow_artifact_head_sha": art_head,
+        "package_pr_head_sha": pr_head_sha,
         "human_review_artifact_id": int(human_artifact_id),
         "human_review_artifact_digest": human_digest,
         "machine_evidence_artifact_id": int(machine_artifact_id),
@@ -1793,11 +1819,12 @@ def bind_workflow_publication(
         "artifact_created_at": artifact_created_at,
         "artifact_expires_at": artifact_expires_at,
         "captured_at": now,
-        "source_tip": pr_head_sha,
+        "source_tip": art_head,
         "source_run": str(run_id),
     }
     (ART / "workflow-artifact-publication.json").write_text(json.dumps(pub, indent=2) + "\n", encoding="utf-8")
     (ART / "LIVE_TIP_SHA.txt").write_text(pr_head_sha + "\n", encoding="utf-8")
+    os.environ["CONFENGE_WORKFLOW_ARTIFACT_HEAD_SHA"] = art_head
     return {"job": job, "publication": pub}
 
 
@@ -1818,11 +1845,17 @@ def package_tip(
     """Atomic package tip: bind one run, write full tree, verify inventory once.
 
     Does not create git commits. Caller commits at most once after this returns.
-    pr_head_sha / workflow_artifact_head_sha are the publication tip (usually CI HEAD).
+
+    Dual-head:
+    - pr_head_sha = package/PR tip being documented
+    - run_head_sha / workflow_artifact_head_sha = GHA headSha of the bound publishing run
     """
     tip = pr_head_sha or independent_live_pr_head()
+    # Publishing head must be the Actions head of the bound run when provided
+    art_head = run_head_sha or os.environ.get("CONFENGE_WORKFLOW_ARTIFACT_HEAD_SHA") or tip
     merge = merge_sha or os.environ.get("CONFENGE_WORKFLOW_MERGE_SHA") or os.environ.get("GITHUB_SHA")
     os.environ["CONFENGE_PR_HEAD_SHA"] = tip
+    os.environ["CONFENGE_WORKFLOW_ARTIFACT_HEAD_SHA"] = art_head
     if merge:
         os.environ["CONFENGE_WORKFLOW_MERGE_SHA"] = merge
     if run_id:
@@ -1852,13 +1885,14 @@ def package_tip(
             artifact_created_at=artifact_created_at,
             artifact_expires_at=artifact_expires_at,
             run_url=run_url,
+            workflow_artifact_head_sha=art_head,
         )
 
     status = write_derived_artifacts(refresh_sha_gates=True)
-    # Force publication head fields onto status-derived files
+    # Package tip fields (pr_head) vs immutable publication head (art_head)
     status["pr_head_sha"] = tip
     status["current_pr_head_sha"] = tip
-    status["workflow_artifact_head_sha"] = tip
+    status["workflow_artifact_head_sha"] = art_head
     status["evidence_commit_sha"] = tip
     status["match_run_to_head"] = status["executed_code_sha"] == tip
     status["artifact_only_commits_after_execution"] = bool(
@@ -1870,8 +1904,12 @@ def package_tip(
         status["human_review_artifact_id"] = int(human_artifact_id)
     if machine_artifact_id is not None:
         status["machine_evidence_artifact_id"] = int(machine_artifact_id)
-    # Re-write with forced tip fields (mirrors machine-evidence)
+    # Re-write with forced tip fields (mirrors machine-evidence); does not mutate publication head
     status = write_derived_artifacts(status=status, refresh_sha_gates=False)
+    # Ensure derived status still carries dual heads after second write
+    status["pr_head_sha"] = tip
+    status["current_pr_head_sha"] = tip
+    status["workflow_artifact_head_sha"] = art_head
     # Write cross-artifact gate with tip SHAs BEFORE inventory so agreement holds
     provisional = {
         "ok": True,
@@ -1879,6 +1917,7 @@ def package_tip(
         "issues": [],
         "pr_head_sha": tip,
         "current_pr_head_sha": tip,
+        "workflow_artifact_head_sha": art_head,
         "executed_code_sha": status["executed_code_sha"],
         "evidence_commit_sha": tip,
         "workflow_merge_sha": status.get("workflow_merge_sha"),
@@ -1898,7 +1937,7 @@ def package_tip(
     rep = verify_package_inventory(
         art_dir=ART,
         expected_pr_head=tip,
-        run_head_sha=run_head_sha or tip,
+        run_head_sha=art_head,
     )
     final_gate = {
         **rep,
@@ -1906,6 +1945,7 @@ def package_tip(
         "terminal_declaration": status["terminal_declaration"],
         "pr_head_sha": tip,
         "current_pr_head_sha": tip,
+        "workflow_artifact_head_sha": art_head,
         "executed_code_sha": status["executed_code_sha"],
         "evidence_commit_sha": tip,
         "workflow_merge_sha": status.get("workflow_merge_sha"),
@@ -1922,7 +1962,9 @@ def package_tip(
     mr["answers"]["1_actual_pr_head_sha"] = tip
     mr["answers"]["8_all_status_files_agree"] = bool(rep.get("ok"))
     mr["actual_pr_head_sha"] = tip
-    mr["workflow_artifact_head_sha"] = tip
+    mr["workflow_artifact_head_sha"] = art_head
+    mr["package_tip_sha"] = tip
+    mr["bound_workflow_run_head_sha"] = art_head
     mr["latest_workflow_run_id"] = status.get("workflow_run_id")
     mr["human_artifact_id"] = status.get("human_review_artifact_id")
     mr["machine_artifact_id"] = status.get("machine_evidence_artifact_id")
@@ -1931,7 +1973,7 @@ def package_tip(
     rep2 = verify_package_inventory(
         art_dir=ART,
         expected_pr_head=tip,
-        run_head_sha=run_head_sha or tip,
+        run_head_sha=art_head,
     )
     return {
         "status": status,
@@ -1939,6 +1981,9 @@ def package_tip(
         "merge_readiness": mr,
         "pr_body": pr_body_status_block(status),
         "ok": bool(rep2.get("ok")) and bool(status.get("code_merge_ready")),
+        "pr_head_sha": tip,
+        "workflow_artifact_head_sha": art_head,
+        "workflow_run_id": str(run_id) if run_id else status.get("workflow_run_id"),
     }
 
 

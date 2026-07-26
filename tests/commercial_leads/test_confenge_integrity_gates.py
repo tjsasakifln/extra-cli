@@ -770,3 +770,132 @@ def test_cross_artifact_fails_on_stale_post_execution_gate_shas() -> None:
     )
     assert any("post_execution" in i and "executed_code_sha" in i for i in issues)
     assert any("post_execution" in i and "pr_head_sha" in i for i in issues)
+
+
+def test_resolve_sha_roles_dual_head_not_equal() -> None:
+    """workflow_artifact_head_sha must not default to pr_head (dual-head model)."""
+    from scripts.ops.confenge_final_status import resolve_sha_roles
+
+    sha = resolve_sha_roles(
+        checked_out_sha="package_tip_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        pr_head_sha="package_tip_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        executed_code_sha="freeze_bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        freeze_sha="freeze_bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        workflow_artifact_head_sha="gha_run_head_cccccccccccccccccccccccccc",
+        artifact_only=True,
+        code_changed=False,
+    )
+    assert sha["pr_head_sha"] == "package_tip_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    assert sha["workflow_artifact_head_sha"] == "gha_run_head_cccccccccccccccccccccccccc"
+    assert sha["pr_head_sha"] != sha["workflow_artifact_head_sha"]
+    assert sha["match_run_to_head"] is False
+    assert sha["artifact_only_commits_after_execution"] is True
+
+
+def test_resolve_sha_roles_does_not_invent_artifact_head_from_pr() -> None:
+    from scripts.ops.confenge_final_status import resolve_sha_roles
+
+    sha = resolve_sha_roles(
+        checked_out_sha="tip_dddddddddddddddddddddddddddddddddddd",
+        pr_head_sha="tip_dddddddddddddddddddddddddddddddddddd",
+        executed_code_sha="exec_eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        freeze_sha="exec_eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        artifact_only=True,
+        code_changed=False,
+    )
+    assert sha["workflow_artifact_head_sha"] is None
+
+
+def test_workflow_run_head_mismatch_uses_artifact_head_not_pr() -> None:
+    from scripts.ops.confenge_final_status import workflow_run_head_mismatch_issues
+
+    # Package tip differs from GHA head, but workflow_artifact_head matches run — OK
+    ok_issues = workflow_run_head_mismatch_issues(
+        package={
+            "pr_head_sha": "package_tip_ffffffffffffffffffffffffffffff",
+            "workflow_artifact_head_sha": "gha_head_gggggggggggggggggggggggggggggggg",
+        },
+        run_head_sha="gha_head_gggggggggggggggggggggggggggggggg",
+    )
+    assert ok_issues == []
+
+    # Claiming package tip as artifact head while run is different — FAIL
+    bad = workflow_run_head_mismatch_issues(
+        package={
+            "pr_head_sha": "package_tip_ffffffffffffffffffffffffffffff",
+            "workflow_artifact_head_sha": "package_tip_ffffffffffffffffffffffffffffff",
+        },
+        run_head_sha="gha_head_gggggggggggggggggggggggggggggggg",
+    )
+    assert any("workflow_run_head_mismatch" in i for i in bad)
+
+    # Missing artifact head when run_head provided — FAIL (no pr_head fallback)
+    missing = workflow_run_head_mismatch_issues(
+        package={"pr_head_sha": "package_tip_ffffffffffffffffffffffffffffff"},
+        run_head_sha="gha_head_gggggggggggggggggggggggggggggggg",
+    )
+    assert any("missing_workflow_artifact_head_sha" in i for i in missing)
+
+
+def test_inventory_allows_pr_head_ne_workflow_artifact_head(tmp_path) -> None:
+    """Inventory OK when pr_head != workflow_artifact_head but each role agrees across files."""
+    from scripts.ops.confenge_final_status import verify_package_inventory
+
+    art = tmp_path / "art"
+    art.mkdir()
+    pkg_tip = "pkg_tip_11111111111111111111111111111111111111"
+    gha_head = "gha_head_222222222222222222222222222222222222"
+    freeze = "freeze_333333333333333333333333333333333333"
+    for name in (
+        "result.json",
+        "queue-summary.json",
+        "final-evidence-closure.json",
+        "final-integrity-closure.json",
+        "workflow-artifact-publication.json",
+        "sha-semantics-gate.json",
+        "final-integrity-code-freeze-gate.json",
+        "post-execution-artifact-only-diff-gate.json",
+        "evidence-provenance-gate.json",
+        "executed-tree-integrity-gate.json",
+        "cross-artifact-consistency-gate.json",
+    ):
+        body = {
+            "ok": True,
+            "status": "BLOCKED",
+            "pr_head_sha": pkg_tip,
+            "current_pr_head_sha": pkg_tip,
+            "executed_code_sha": freeze,
+            "final_integrity_code_freeze_sha": freeze,
+            "final_code_freeze_sha": freeze,
+            "freeze_sha": freeze,
+            "evidence_commit_sha": pkg_tip,
+            "workflow_artifact_head_sha": gha_head,
+            "workflow_run_id": "999",
+            "match_run_to_head": False,
+            "code_changed_after_execution": False,
+            "artifact_only_commits_after_execution": True,
+            "real_data_ci_status": "NOT_EXECUTED",
+            "terminal_reason": "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE",
+            "reason": "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE",
+            "technical_status": "BLOCKED",
+            "machine_blockers": ["BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE"],
+        }
+        if name == "workflow-artifact-publication.json":
+            body.update(
+                {
+                    "published_as_workflow_artifact": True,
+                    "workflow_pr_head_sha": gha_head,
+                    "source_tip": gha_head,
+                    "human_review_artifact_id": 1,
+                    "machine_evidence_artifact_id": 2,
+                }
+            )
+        (art / name).write_text(json.dumps(body) + "\n", encoding="utf-8")
+
+    rep = verify_package_inventory(art_dir=art, expected_pr_head=pkg_tip, run_head_sha=gha_head)
+    assert rep["ok"] is True, rep.get("issues")
+
+    # Wrong run head must fail
+    bad = verify_package_inventory(art_dir=art, expected_pr_head=pkg_tip, run_head_sha=pkg_tip)
+    assert bad["ok"] is False
+    assert any("workflow_run_head_mismatch" in i for i in bad["issues"])
