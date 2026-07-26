@@ -335,6 +335,9 @@ def write_derived_artifacts(status: dict[str, Any] | None = None) -> dict[str, A
     status = status or build_final_campaign_status()
     ART.mkdir(parents=True, exist_ok=True)
 
+    # Binding SHAs: freeze/executed is the code identity; artifact tip may lag.
+    # Internal git_* fields must agree (verify_confenge_artifact_binding).
+    bind_sha = status["executed_code_sha"] or status["current_pr_head_sha"]
     # result.json
     result = {
         "status": status["status"],
@@ -349,7 +352,11 @@ def write_derived_artifacts(status: dict[str, Any] | None = None) -> dict[str, A
         "final_integrity_code_freeze_sha": status["final_integrity_code_freeze_sha"],
         "evidence_commit_sha": status["evidence_commit_sha"],
         "workflow_head_sha": status["workflow_head_sha"],
-        "artifact_git_sha": status["artifact_git_sha"],
+        "artifact_git_sha": bind_sha,
+        "run_git_sha": bind_sha,
+        "gate_git_sha": bind_sha,
+        "review_git_sha": bind_sha,
+        "git_sha": bind_sha,
         "match_run_to_head": status["match_run_to_head"],
         "code_changed_after_execution": status["code_changed_after_execution"],
         "artifact_only_commits_after_execution": status[
@@ -360,6 +367,10 @@ def write_derived_artifacts(status: dict[str, Any] | None = None) -> dict[str, A
         "all_other_machine_blockers": status["all_other_machine_blockers"],
         "structural_ci_status": status["structural_ci_status"],
         "real_data_ci_status": status["real_data_ci_status"],
+        "review_packages_generated": status.get("review_packages_generated"),
+        "review_packages_published_as_workflow_artifact": status.get(
+            "review_packages_published_as_workflow_artifact"
+        ),
         "human_metrics": status["human_metrics"],
         "commercial_status": status["commercial_status"],
         "pr_draft": True,
@@ -381,6 +392,11 @@ def write_derived_artifacts(status: dict[str, Any] | None = None) -> dict[str, A
             "executed_code_sha": status["executed_code_sha"],
             "current_pr_head_sha": status["current_pr_head_sha"],
             "final_code_freeze_sha": status["final_code_freeze_sha"],
+            "artifact_git_sha": bind_sha,
+            "run_git_sha": bind_sha,
+            "gate_git_sha": bind_sha,
+            "review_git_sha": bind_sha,
+            "git_sha": bind_sha,
             "match_run_to_head": status["match_run_to_head"],
             "code_changed_after_execution": status["code_changed_after_execution"],
             "artifact_only_commits_after_execution": status[

@@ -11,35 +11,35 @@
   "checksums": {
     "files": {
       "contract-relevance-human-review.xlsx": {
-        "sha256": "d06ff3563366f8710b355d673241e57239361496bf84d5afd01fc432b0ad7940",
-        "size_bytes": 108120
+        "sha256": "482b4dcb5b9e26ec956c890907b583c397e506062af5c18e20468a224c25a52b",
+        "size_bytes": 108119
       },
       "contract-relevance-human-review.html": {
-        "sha256": "622f755d02d99eb52232e661b54d820c6487c2ccdbfd6dc35dd3daaf8ec90bbe",
+        "sha256": "ba68b032566f8750871101ab87639ad1825f1d0a7fdbc7d94dd9d07d89390f32",
         "size_bytes": 289727
       },
       "commercial-top20-human-review.xlsx": {
-        "sha256": "e7fec72752119e3672333add8b5be081d2a1f3cd18a4ee89b73b578293546a22",
-        "size_bytes": 7000
+        "sha256": "a073d0e954eb58de3d8087e69dda635f6e230e2bf6befdbeca73e6ceaace1bcc",
+        "size_bytes": 6678
       },
       "commercial-top20-human-review.html": {
-        "sha256": "38a2501c52d317e1e961cbec9f393101f42dae84d53da6c51b52d1fd31af3675",
-        "size_bytes": 14522
+        "sha256": "56ebf16e217e441598ec67f686641875ce785e8b9b1188a677ff1d9b319c277f",
+        "size_bytes": 13885
       },
       "commercial-evaluation-200-human-review.xlsx": {
-        "sha256": "685f3f4fda6078ede5a84388a78e1a6c789dfaee816605698bb333b7bfcdae2b",
-        "size_bytes": 10040
+        "sha256": "d5d7e2f5b9dbd9268ef2b3e231ecee3d5db0c0a94b69fbcfdf9b3e0a4622bccd",
+        "size_bytes": 9671
       },
       "README-HUMAN-REVIEW.md": {
         "sha256": "0b521347ed1eb100342685f22adad6f92e6e3a5718f3e2269ea32c14edccc167",
         "size_bytes": 2186
       },
       "commercial-evaluation-200-human-review.html": {
-        "sha256": "fdef61a3e059f66a253466dc383ecd536e171ef32c15b1d4fa88d4508f30c9d0",
-        "size_bytes": 28744
+        "sha256": "7637ab061816ac0a68c6c8c1ad0cf2bc1540ee82b59943061a21128bb9b23dba",
+        "size_bytes": 28107
       }
     },
-    "generated_at": "2026-07-26T17:10:55Z",
+    "generated_at": "2026-07-26T17:16:26Z",
     "executed_code_sha": "5c8c796163574a8988b7a6d67d287438e75ced35",
     "workflow_run_id": null,
     "artifact_name": "confenge-human-review-packages"
@@ -127,6 +127,6 @@
     "BLOCKED_REAL_HOLDOUT_NOT_REVIEWED",
     "BLOCKED_INSUFFICIENT_HUMAN_LABELS"
   ],
-  "generated_at": "2026-07-26T17:10:55Z",
+  "generated_at": "2026-07-26T17:16:27Z",
   "note": "Agents must never fill human label fields. Required corpus fields validated. Top-20 bound to full-universe E2E freeze execution. Publish via CI artifact confenge-human-review-packages (not git)."
 }

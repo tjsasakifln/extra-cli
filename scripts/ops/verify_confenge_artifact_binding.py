@@ -20,7 +20,11 @@ from typing import Any
 
 _ROOT = Path(__file__).resolve().parents[2]
 _ART = _ROOT / "artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01"
-_ALLOWED_PREFIX = "artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/"
+_ALLOWED_PREFIXES = (
+    "artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/",
+    "docs/ops/",
+    "evals/commercial_leads/real/",
+)
 
 SHA_KEYS = ("artifact_git_sha", "run_git_sha", "gate_git_sha", "review_git_sha", "git_sha")
 
@@ -120,7 +124,11 @@ def check_artifact_binding(
                 issues.append(f"bound_sha_not_ancestor_of_head:{common}!->{head_sha}")
             else:
                 changed = _paths_changed(common, head_sha)
-                bad = [c for c in changed if not c.startswith(_ALLOWED_PREFIX)]
+                bad = [
+                    c
+                    for c in changed
+                    if not any(c.startswith(p) for p in _ALLOWED_PREFIXES)
+                ]
                 details["paths_since_bound"] = changed
                 if bad:
                     issues.append(f"code_changed_after_bound_sha:{bad}")

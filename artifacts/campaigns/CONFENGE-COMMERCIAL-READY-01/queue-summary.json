@@ -1,7 +1,7 @@
 {
   "run_id": "cl-20260726T003820Z-f8e90e36",
   "status": "BLOCKED",
-  "git_sha": "98d03e707315c5c5f4419db4834b1866c98d3852",
+  "git_sha": "5c8c796163574a8988b7a6d67d287438e75ced35",
   "discovery_mode": "PREFILTERED_CANDIDATE_DISCOVERY",
   "history_expansion_mode": "FULL_CANDIDATE_HISTORY",
   "ranking_population_mode": "FULL_ELIGIBLE_CANDIDATES",
@@ -201,18 +201,18 @@
     "human_review_status": "PENDING",
     "labels_are_human": false
   },
-  "run_git_sha": "98d03e707315c5c5f4419db4834b1866c98d3852",
-  "artifact_git_sha": "98d03e707315c5c5f4419db4834b1866c98d3852",
+  "run_git_sha": "5c8c796163574a8988b7a6d67d287438e75ced35",
+  "artifact_git_sha": "5c8c796163574a8988b7a6d67d287438e75ced35",
   "reason": "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE",
   "executed_code_sha": "5c8c796163574a8988b7a6d67d287438e75ced35",
-  "current_pr_head_sha": "5c8c796163574a8988b7a6d67d287438e75ced35",
+  "current_pr_head_sha": "f9a531f43fe931b623e78a2e426be608313fdc1e",
   "executed_git_sha": "da9596aece9a661c0b4bf4cba0637cac5e20767c",
   "evidence_commit_sha": "c51ac9804b33a0300755d904f7a2ef9afd575b09",
   "match_run_to_head": false,
-  "updated_at": "2026-07-26T17:10:55Z",
+  "updated_at": "2026-07-26T17:16:25Z",
   "pr_head_sha": "af690c6642031f2eaf41db933cd300af8fec7325",
-  "gate_git_sha": "98d03e707315c5c5f4419db4834b1866c98d3852",
-  "review_git_sha": "98d03e707315c5c5f4419db4834b1866c98d3852",
+  "gate_git_sha": "5c8c796163574a8988b7a6d67d287438e75ced35",
+  "review_git_sha": "5c8c796163574a8988b7a6d67d287438e75ced35",
   "offer_mapping_diagnostic": {
     "offer_distribution": {
       "acompanhamento_contratual": 20

@@ -25,10 +25,10 @@ from scripts.commercial_leads.dbutil import connect  # noqa: E402
 from scripts.commercial_leads.pipeline import load_full_supplier_histories  # noqa: E402
 from scripts.commercial_leads.profile import load_profile  # noqa: E402
 from scripts.commercial_leads.scoring import (  # noqa: E402
+    _SIGNAL_OFFER_WEIGHTS,
     MAX_SINGLE_SIGNAL_OFFER_CHANGE_RATE,
     MIN_SELECTED_OFFER_MARGIN,
     OFFER_SCORE_KEYS,
-    _SIGNAL_OFFER_WEIGHTS,
     diagnose_offer_distribution,
     rank_leads,
     score_supplier,
@@ -452,14 +452,6 @@ def run_offer_analysis(*, dsn: str, run_result: Path | None = None) -> dict[str,
         (ART / "offer-sensitivity-gate.json").write_text(
             json.dumps(report, indent=2, default=str) + "\n", encoding="utf-8"
         )
-        disc_ok = (
-            decision["ok"]
-            or decision["status"]
-            not in (
-                "BLOCKED_OFFER_MAPPING_NOT_DISCRIMINATIVE",
-                "BLOCKED_OFFER_MAPPING_NOT_VALIDATED",
-            )
-        ) and decision["diagnose_block"] is None and not decision["catalog_degenerate"]
         # Discrimination gate: same decision (no separate text loophole)
         disc = {
             "ok": decision["ok"],
