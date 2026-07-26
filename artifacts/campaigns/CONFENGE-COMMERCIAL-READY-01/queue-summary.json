@@ -1,7 +1,7 @@
 {
   "run_id": "cl-20260726T003820Z-f8e90e36",
   "status": "BLOCKED",
-  "git_sha": "da9596aece9a661c0b4bf4cba0637cac5e20767c",
+  "git_sha": "fd0007a7f0ed9edc7b3a72ce515c691a6cb081da",
   "discovery_mode": "PREFILTERED_CANDIDATE_DISCOVERY",
   "history_expansion_mode": "FULL_CANDIDATE_HISTORY",
   "ranking_population_mode": "FULL_ELIGIBLE_CANDIDATES",
@@ -202,18 +202,18 @@
     "false_negatives": null,
     "human_review_status": "PENDING"
   },
-  "run_git_sha": "da9596aece9a661c0b4bf4cba0637cac5e20767c",
-  "artifact_git_sha": "da9596aece9a661c0b4bf4cba0637cac5e20767c",
+  "run_git_sha": "fd0007a7f0ed9edc7b3a72ce515c691a6cb081da",
+  "artifact_git_sha": "fd0007a7f0ed9edc7b3a72ce515c691a6cb081da",
   "reason": "BLOCKED_INSUFFICIENT_HISTORICAL_WINDOW",
-  "executed_code_sha": "6731f652231dd9d82d3e3fb18afcda03039493d7",
-  "current_pr_head_sha": "41c4007f0b4b736414492717bb7cead64b1cf02e",
-  "executed_git_sha": "6731f652231dd9d82d3e3fb18afcda03039493d7",
-  "evidence_commit_sha": "6731f652231dd9d82d3e3fb18afcda03039493d7",
-  "match_run_to_head": false,
-  "updated_at": "2026-07-26T01:59:51Z",
-  "pr_head_sha": "5868cfba76c802cccbc06992e335315012098f6e",
-  "gate_git_sha": "da9596aece9a661c0b4bf4cba0637cac5e20767c",
-  "review_git_sha": "da9596aece9a661c0b4bf4cba0637cac5e20767c",
+  "executed_code_sha": "da9596aece9a661c0b4bf4cba0637cac5e20767c",
+  "current_pr_head_sha": "fd0007a7f0ed9edc7b3a72ce515c691a6cb081da",
+  "executed_git_sha": "da9596aece9a661c0b4bf4cba0637cac5e20767c",
+  "evidence_commit_sha": "fd0007a7f0ed9edc7b3a72ce515c691a6cb081da",
+  "match_run_to_head": true,
+  "updated_at": "2026-07-26T16:16:59Z",
+  "pr_head_sha": "fd0007a7f0ed9edc7b3a72ce515c691a6cb081da",
+  "gate_git_sha": "fd0007a7f0ed9edc7b3a72ce515c691a6cb081da",
+  "review_git_sha": "fd0007a7f0ed9edc7b3a72ce515c691a6cb081da",
   "offer_mapping_diagnostic": {
     "offer_distribution": {
       "acompanhamento_contratual": 20
