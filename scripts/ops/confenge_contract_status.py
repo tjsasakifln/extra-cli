@@ -181,7 +181,10 @@ def normalize_contract_status(
         or row.get("contrato_situacao")
     )
     token = _norm_token(source_status)
-    observed_at = datetime.now(UTC).replace(microsecond=0).isoformat() + "Z"
+    # Postgres timestamptz rejects "...+00:00Z"; use Z-normalized ISO or datetime.
+    observed_at = (
+        datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+    )
 
     mapped = _map_source_status_token(token) if token else None
     if mapped:

@@ -216,7 +216,13 @@ def build_historical_snapshot(
                 "normalized_status": st["normalized_status"],
                 "status_reason": st["status_reason"],
                 "status_source": st["status_source"],
-                "status_observed_at": st["status_observed_at"],
+                "status_observed_at": (
+                    # accept ISO Z or datetime for timestamptz
+                    st["status_observed_at"].replace("Z", "+00:00")
+                    if isinstance(st.get("status_observed_at"), str)
+                    and str(st.get("status_observed_at")).endswith("Z")
+                    else st["status_observed_at"]
+                ),
             }
             cur.execute(insert_sql, payload)
             normalized_rows.append(
@@ -421,6 +427,7 @@ def main(argv: list[str] | None = None) -> int:
     v.add_argument("--min-days", type=int, default=MIN_DAYS)
     r = sub.add_parser("reconcile")
     r.add_argument("--target-dsn", default=os.environ.get("CONFENGE_COMMERCIAL_STATE_DSN", DEFAULT_TARGET_DSN))
+    r.add_argument("--min-days", type=int, default=MIN_DAYS)
     args = ap.parse_args(argv)
     if args.cmd == "build":
         rep = build_historical_snapshot(
