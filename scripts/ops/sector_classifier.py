@@ -8,6 +8,7 @@ Labels canônicos (fail-closed comercial):
 Nenhum objeto vira aderente só por palavra genérica (serviço, manutenção,
 construção, projeto). Regras versionadas; output sempre auditável.
 """
+
 from __future__ import annotations
 
 import re
@@ -89,82 +90,196 @@ class SectorClassification:
 # Fallback vocabulary if profile lacks sector_vocabulary block
 # pavimentacao: NÃO usar \bpaviment (casa "7º pavimento" / andar)
 _FALLBACK_POSITIVE: list[tuple[str, str, str, float]] = [
-    ("pavimentacao", r"\bpavimenta(c|ç)|\bpavimentacao\b|\bpavimentacao\s+asfalt|\brecapeamento\b|\bcapeamento\s+asfalt", "pavimentacao", 0.45),
+    (
+        "pavimentacao",
+        r"\bpavimenta(c|ç)|\bpavimentacao\b|\bpavimentacao\s+asfalt|\brecapeamento\b|\bcapeamento\s+asfalt",
+        "pavimentacao",
+        0.45,
+    ),
     ("asfalto", r"\basfalt|\bcbu\b|\bcapeamento\b", "pavimentacao", 0.4),
     # meio-fio/sarjeta só contam com contexto de obra/drenagem (não sozinhas em compra de equipamento)
-    ("drenagem", r"\bdrenagem\s+(urbana|pluvial|de\s+aguas|viaria)|\bgaleria\s+pluvial\b|"
-     r"\b(execucao|implantacao|obra).{0,40}\b(sarjeta|meio[- ]fio)\b|"
-     r"\b(sarjeta|meio[- ]fio).{0,40}\b(drenagem|pavimentacao|via)\b", "drenagem", 0.42),
+    (
+        "drenagem",
+        r"\bdrenagem\s+(urbana|pluvial|de\s+aguas|viaria)|\bgaleria\s+pluvial\b|"
+        r"\b(execucao|implantacao|obra).{0,40}\b(sarjeta|meio[- ]fio)\b|"
+        r"\b(sarjeta|meio[- ]fio).{0,40}\b(drenagem|pavimentacao|via)\b",
+        "drenagem",
+        0.42,
+    ),
     ("terraplenagem", r"\bterraplenagem\b|\bterraplanagem\b", "terraplenagem", 0.45),
-    ("saneamento", r"\bsaneamento\s+(basico|ambiental|urbano)\b|\brede\s+de\s+esgoto\b|\badutora?\b|\brede\s+coletora\b|\bestacao\s+de\s+tratamento\b", "saneamento", 0.4),
-    ("esgoto_rede", r"\brede\s+(de\s+)?esgoto\b|\besgotamento\s+sanitario\b|\bcoleta\s+de\s+esgoto\b", "saneamento", 0.38),
-    ("infraestrutura_urbana", r"\binfraestrutura\s+urbana\b|\burbaniza[cç]|\brevitaliza[cç][aã]o\s+urbana\b", "infraestrutura_urbana", 0.38),
+    (
+        "saneamento",
+        r"\bsaneamento\s+(basico|ambiental|urbano)\b|\brede\s+de\s+esgoto\b|\badutora?\b|\brede\s+coletora\b|\bestacao\s+de\s+tratamento\b",
+        "saneamento",
+        0.4,
+    ),
+    (
+        "esgoto_rede",
+        r"\brede\s+(de\s+)?esgoto\b|\besgotamento\s+sanitario\b|\bcoleta\s+de\s+esgoto\b",
+        "saneamento",
+        0.38,
+    ),
+    (
+        "infraestrutura_urbana",
+        r"\binfraestrutura\s+urbana\b|\burbaniza[cç]|\brevitaliza[cç][aã]o\s+urbana\b",
+        "infraestrutura_urbana",
+        0.38,
+    ),
     ("calcada", r"\bcal[cç]ad[ao]\b|\bpasseio\s+publico\b", "infraestrutura_urbana", 0.3),
     ("edificacao", r"\bedificacao\b|\bedificacoes\b|\bpredio\s+publico\b|\bedificio\s+publico\b", "edificacoes", 0.38),
-    ("construcao_edificios", r"\bconstru[cç][aã]o\s+de\s+(edif|pred|escola|creche|ubs|pronto.?socorro|ginasio|quadra)|"
-     r"\bexecu[cç][aã]o\s+de\s+constru[cç][aã]o\s+de\s+quadras?\b|"
-     r"\bconstru[cç][aã]o\s+de\s+quadras?\b", "edificacoes", 0.45),
+    (
+        "construcao_edificios",
+        r"\bconstru[cç][aã]o\s+de\s+(edif|pred|escola|creche|ubs|pronto.?socorro|ginasio|quadra)|"
+        r"\bexecu[cç][aã]o\s+de\s+constru[cç][aã]o\s+de\s+quadras?\b|"
+        r"\bconstru[cç][aã]o\s+de\s+quadras?\b",
+        "edificacoes",
+        0.45,
+    ),
     ("ampliacao", r"\bamplia[cç][aã]o\s+de\s+(escola|creche|pred|edif|ubs|hospital|ginasio)", "edificacoes", 0.42),
-    ("reforma_predial", r"\breforma\s+(predial|de\s+edif|de\s+pred|estrutural|de\s+escola|de\s+creche)", "reformas", 0.4),
-    ("manutencao_predial", r"\bmanuten[cç][aã]o\s+(predial|de\s+edif|de\s+pred|civil\s+das\s+edifica|de\s+imovel)", "manutencao_predial", 0.38),
-    ("obra_engenharia", r"\bobra[s]?\s+de\s+engenharia\b|\bexecu[cç][aã]o\s+das\s+obras\s+de\s+engenharia\b|"
-     r"\bservicos?\s+de\s+engenharia\s+(civil|para)\b|"
-     r"\bobras?\s+e\s+servicos?\s+de\s+engenharia\b|"
-     r"\bempresa\s+(de\s+)?engenharia\b.+\bexecu|"
-     r"\bempresa\s+especializada\s+(em\s+)?engenharia\b|"
-     r"\bempresa\s+de\s+engenharia\s+para\s+execu", "obras_civis", 0.45),
+    (
+        "reforma_predial",
+        r"\breforma\s+(predial|de\s+edif|de\s+pred|estrutural|de\s+escola|de\s+creche)",
+        "reformas",
+        0.4,
+    ),
+    (
+        "manutencao_predial",
+        r"\bmanuten[cç][aã]o\s+(predial|de\s+edif|de\s+pred|civil\s+das\s+edifica|de\s+imovel)",
+        "manutencao_predial",
+        0.38,
+    ),
+    (
+        "obra_engenharia",
+        r"\bobra[s]?\s+de\s+engenharia\b|\bexecu[cç][aã]o\s+das\s+obras\s+de\s+engenharia\b|"
+        r"\bservicos?\s+de\s+engenharia\s+(civil|para)\b|"
+        r"\bobras?\s+e\s+servicos?\s+de\s+engenharia\b|"
+        r"\bempresa\s+(de\s+)?engenharia\b.+\bexecu|"
+        r"\bempresa\s+especializada\s+(em\s+)?engenharia\b|"
+        r"\bempresa\s+de\s+engenharia\s+para\s+execu",
+        "obras_civis",
+        0.45,
+    ),
     ("ponte_viaduto", r"\bponte\b|\bviaduto\b|\bpassarela\b|\bpontilh|\bkit\s+ponte\b", "infraestrutura_urbana", 0.35),
     ("contencao", r"\bconten[cç][aã]o\b|\bmuro\s+de\s+arrimo\b|\bgabiao\b", "terraplenagem", 0.35),
     ("demolicao", r"\bdemoli[cç]", "reformas", 0.28),
-    ("projeto_engenharia", r"\bprojetos?\s+(executivo|basico|de\s+engenharia|arquitetonicos?|complementares?)", "projetos", 0.35),
-    ("projetos_complementares", r"\bprojetos?\s+complementares\b|\bprojeto\s+estrutural\b|\bprojeto\s+hidrossanitario\b|\barquitetonicos?\s+e\s+complementares\b", "projetos", 0.35),
+    (
+        "projeto_engenharia",
+        r"\bprojetos?\s+(executivo|basico|de\s+engenharia|arquitetonicos?|complementares?)",
+        "projetos",
+        0.35,
+    ),
+    (
+        "projetos_complementares",
+        r"\bprojetos?\s+complementares\b|\bprojeto\s+estrutural\b|\bprojeto\s+hidrossanitario\b|\barquitetonicos?\s+e\s+complementares\b",
+        "projetos",
+        0.35,
+    ),
     ("fiscalizacao_obra", r"\bfiscaliza[cç][aã]o\s+(de\s+)?(obra|engenharia)", "projetos", 0.3),
     ("instalacoes_prediais", r"\binstala[cç][oõ]es\s+(eletricas|hidraulicas|prediais)\b", "manutencao_predial", 0.28),
-    ("cobertura_telhado", r"\bcobertura\s+(metalica|de\s+telha|de\s+quadra)|\btelhado\b|"
-     r"\bexecu[cç][aã]o\s+de\s+cobertura\b|\bimpermeabiliza[cç]", "reformas", 0.3),
+    (
+        "cobertura_telhado",
+        r"\bcobertura\s+(metalica|de\s+telha|de\s+quadra)|\btelhado\b|"
+        r"\bexecu[cç][aã]o\s+de\s+cobertura\b|\bimpermeabiliza[cç]",
+        "reformas",
+        0.3,
+    ),
     ("alvenaria_concreto", r"\balvenaria\b|\bestrutura\s+de\s+concreto\b", "edificacoes", 0.28),
     ("recuperacao_estrutural", r"\brecupera[cç][aã]o\s+estrutural\b|\brefor[cç]o\s+estrutural\b", "reformas", 0.35),
-    ("obras_publicas", r"\bexecu[cç][aã]o\s+de\s+obras?\b|\bobras?\s+publicas?\b|"
-     r"\bexecu[cç][aã]o\s+de\s+obra\s+de\s+(reforma|construcao|ampliacao)\b|"
-     r"\bexecu[cç][aã]o\s+de\s+reforma\b|\bobra\s+emergencial\b|"
-     r"\bempreitada\s+(global|integral)\b", "obras_civis", 0.38),
-    ("construcao_habitacional", r"\bconstru[cç][aã]o\s+de\s+(\d+\s+)?(unidades?\s+habitacionais?|"
-     r"centros?\s+(culturais?|administrativos?)|complexo\s+educacional|"
-     r"sede|delegacia|maternidade|quadra\s+coberta|auditorio)\b|"
-     r"\bobras?\s+de\s+constru[cç][aã]o\b|"
-     r"\bexecu[cç][aã]o\s+das?\s+obras?\s+de\s+constru[cç][aã]o\b", "edificacoes", 0.42),
-    ("reforma_geral", r"\breforma\s+e\s+(amplia[cç]|adequa[cç])|"
-     r"\breforma\s+(da|de\s+a|para\s+conclusao|com\s+fornecimento|dos?\s+\w+|"
-     r"de\s+quadra|de\s+uma\s+sala)\b|"
-     r"\breforma\s+da\s+(delegacia|rede\s+eletrica|quadra)\b|"
-     r"\bexecu[cç][aã]o\s+da\s+reforma\b|"
-     r"\breforma\s+e\s+regulariza[cç]", "reformas", 0.38),
-    ("infra_viaria", r"\bviaduto\b|\bboulevard\b|\baumento\s+de\s+capacidade\s+da\s+rua\b|"
-     r"\brestauracao\s+com\s+aumento\s+de\s+capacidade\b|"
-     r"\bobra\s+de\s+restauracao\b.+\b(rua|rodovia|via)\b|"
-     r"\bexecu[cç][aã]o\s+obra\s+de\s+restauracao\b|"
-     r"\bcontencao\s+de\s+cheias\b|\bbarragem\b", "infraestrutura_urbana", 0.4),
-    ("engenharia_execucao", r"\bservicos?\s+(especializados\s+)?de\s+engenharia\b.+\bexecu|"
-     r"\bservicos?\s+tecnicos\s+de\s+engenharia\b.+\bexecu|"
-     r"\bexecu[cç][aã]o\s+de\s+obras?\s+de\s+arquitetura\s+e\s+engenharia\b|"
-     r"\bempresa\s+especializada\s+em\s+execucao\s+de\s+obras\b|"
-     r"\belaboracao\s+de\s+projetos\s+de\s+arquitetura\s+e\s+de\s+engenharia\b", "obras_civis", 0.4),
+    (
+        "obras_publicas",
+        r"\bexecu[cç][aã]o\s+de\s+obras?\b|\bobras?\s+publicas?\b|"
+        r"\bexecu[cç][aã]o\s+de\s+obra\s+de\s+(reforma|construcao|ampliacao)\b|"
+        r"\bexecu[cç][aã]o\s+de\s+reforma\b|\bobra\s+emergencial\b|"
+        r"\bempreitada\s+(global|integral)\b",
+        "obras_civis",
+        0.38,
+    ),
+    (
+        "construcao_habitacional",
+        r"\bconstru[cç][aã]o\s+de\s+(\d+\s+)?(unidades?\s+habitacionais?|"
+        r"centros?\s+(culturais?|administrativos?)|complexo\s+educacional|"
+        r"sede|delegacia|maternidade|quadra\s+coberta|auditorio)\b|"
+        r"\bobras?\s+de\s+constru[cç][aã]o\b|"
+        r"\bexecu[cç][aã]o\s+das?\s+obras?\s+de\s+constru[cç][aã]o\b",
+        "edificacoes",
+        0.42,
+    ),
+    (
+        "reforma_geral",
+        r"\breforma\s+e\s+(amplia[cç]|adequa[cç])|"
+        r"\breforma\s+(da|de\s+a|para\s+conclusao|com\s+fornecimento|dos?\s+\w+|"
+        r"de\s+quadra|de\s+uma\s+sala)\b|"
+        r"\breforma\s+da\s+(delegacia|rede\s+eletrica|quadra)\b|"
+        r"\bexecu[cç][aã]o\s+da\s+reforma\b|"
+        r"\breforma\s+e\s+regulariza[cç]",
+        "reformas",
+        0.38,
+    ),
+    (
+        "infra_viaria",
+        r"\bviaduto\b|\bboulevard\b|\baumento\s+de\s+capacidade\s+da\s+rua\b|"
+        r"\brestauracao\s+com\s+aumento\s+de\s+capacidade\b|"
+        r"\bobra\s+de\s+restauracao\b.+\b(rua|rodovia|via)\b|"
+        r"\bexecu[cç][aã]o\s+obra\s+de\s+restauracao\b|"
+        r"\bcontencao\s+de\s+cheias\b|\bbarragem\b",
+        "infraestrutura_urbana",
+        0.4,
+    ),
+    (
+        "engenharia_execucao",
+        r"\bservicos?\s+(especializados\s+)?de\s+engenharia\b.+\bexecu|"
+        r"\bservicos?\s+tecnicos\s+de\s+engenharia\b.+\bexecu|"
+        r"\bexecu[cç][aã]o\s+de\s+obras?\s+de\s+arquitetura\s+e\s+engenharia\b|"
+        r"\bempresa\s+especializada\s+em\s+execucao\s+de\s+obras\b|"
+        r"\belaboracao\s+de\s+projetos\s+de\s+arquitetura\s+e\s+de\s+engenharia\b",
+        "obras_civis",
+        0.4,
+    ),
     ("sondagem_geotecnia", r"\bsondagem\s+de\s+solo\b|\bsondagem\b.+\bSPT\b|\bgeotecni", "projetos", 0.35),
     ("poco_artesiano", r"\bpoco\s+artesiano\b|\bperfuracao\s+de\s+poco\b", "saneamento", 0.38),
-    ("manutencao_rodovias", r"\bmanuten[cç][aã]o\b.+\b(rodovias?\s+pavimentadas|estradas?\s+nao\s+pavimentadas)\b|"
-     r"\bconservacao/recuperacao\b.+\brodovias?\b|"
-     r"\bmanuten[cç][aã]o\s+\(conservacao", "pavimentacao", 0.38),
+    (
+        "manutencao_rodovias",
+        r"\bmanuten[cç][aã]o\b.+\b(rodovias?\s+pavimentadas|estradas?\s+nao\s+pavimentadas)\b|"
+        r"\bconservacao/recuperacao\b.+\brodovias?\b|"
+        r"\bmanuten[cç][aã]o\s+\(conservacao",
+        "pavimentacao",
+        0.38,
+    ),
     ("obras_arte_especiais", r"\bobras?\s+de\s+arte\s+especiais?\b|\bOAE\b", "infraestrutura_urbana", 0.35),
 ]
 
 # Negativos com veto forte (sempre >= 0.55 para poder anular pos fraco)
 _FALLBACK_NEGATIVE: list[tuple[str, str, float]] = [
-    ("seguro", r"\bseguro\s+(de\s+)?(frota|veiculo|automovel|total|contra)|apolice\s+de\s+seguro\b|\bseguradora\b", 0.7),
-    ("frota", r"\bmanuten[cç][aã]o\s+da\s+frota\b|\bfrota\s+(municipal|de\s+veiculo)|\boficina\s+mecanica\b|\bveiculos?\s+(da\s+frota|automotores)\b", 0.65),
-    ("voip_telecom", r"\bvoip\b|\btelefonia\b|\blink\s+de\s+dados\b|\binternet\s+dedicad|\bPABX\b|\bcentral\s+telefonica\b", 0.65),
-    ("limpeza_jardinagem", r"\blimpeza\s+(predial|urbana|publica)\b|\bjardinagem\b|\bro[cç]ada\b|\bcapeina\b|\bpoda\s+de\s+arvores\b|\bconservacao\s+e\s+limpeza\b", 0.6),
-    ("grama_esporte", r"\bgrama\s+sintetica\b|\bgramado\s+(sintetico|esportivo)\b|\bcampo\s+de\s+futebol\b|\bfifa\b|\bquadra\s+poliesportiva\b(?!.*\bconstru)", 0.6),
-    ("saneamento_metafora", r"\bsaneamento\s+de\s+(inconformidades|pendencias|irregularidades|processos|passivo|contas)\b", 0.7),
+    (
+        "seguro",
+        r"\bseguro\s+(de\s+)?(frota|veiculo|automovel|total|contra)|apolice\s+de\s+seguro\b|\bseguradora\b",
+        0.7,
+    ),
+    (
+        "frota",
+        r"\bmanuten[cç][aã]o\s+da\s+frota\b|\bfrota\s+(municipal|de\s+veiculo)|\boficina\s+mecanica\b|\bveiculos?\s+(da\s+frota|automotores)\b",
+        0.65,
+    ),
+    (
+        "voip_telecom",
+        r"\bvoip\b|\btelefonia\b|\blink\s+de\s+dados\b|\binternet\s+dedicad|\bPABX\b|\bcentral\s+telefonica\b",
+        0.65,
+    ),
+    (
+        "limpeza_jardinagem",
+        r"\blimpeza\s+(predial|urbana|publica)\b|\bjardinagem\b|\bro[cç]ada\b|\bcapeina\b|\bpoda\s+de\s+arvores\b|\bconservacao\s+e\s+limpeza\b",
+        0.6,
+    ),
+    (
+        "grama_esporte",
+        r"\bgrama\s+sintetica\b|\bgramado\s+(sintetico|esportivo)\b|\bcampo\s+de\s+futebol\b|\bfifa\b|\bquadra\s+poliesportiva\b(?!.*\bconstru)",
+        0.6,
+    ),
+    (
+        "saneamento_metafora",
+        r"\bsaneamento\s+de\s+(inconformidades|pendencias|irregularidades|processos|passivo|contas)\b",
+        0.7,
+    ),
     ("computador", r"\bcomputador\b|\bnotebook\b|\ball\s+in\s+one\b|\bimpressora\b|\binformatica\b|\bhardware\b", 0.55),
     ("lencois", r"\blen[cç][oó]is?\b|\bmantas?\s+destinad|\bcama\s+hospitalar\b|\benxoval\b", 0.55),
     ("exames", r"\bexames?\s+(laborator|clinico|de\s+imagem)|\blaboratoriais\b|\bcomplementar\s+ao\s+sus\b", 0.55),
@@ -172,13 +287,25 @@ _FALLBACK_NEGATIVE: list[tuple[str, str, float]] = [
     ("combustivel", r"\bcombustivel\b|\bgasolina\b|\bdiesel\b|\betanol\s+combust", 0.5),
     ("cursos", r"\bcurso[s]?\s+(para|de)\b|\bcapacita[cç][aã]o\b|\btreinamento\b|\bprofessores?\b", 0.45),
     ("eventos_culturais", r"\boficina\s+de\s+karate\b|\bkarate\b|\bevento\s+cultural\b|\boficina\s+cultural\b", 0.5),
-    ("bancario", r"\barrecadacao\s+(bancaria|de\s+faturas|de\s+tributos)\b|\bservicos?\s+bancarios?\b|"
-     r"\btarifa\s+bancaria\b|\binstituicoes?\s+financeiras?\b|\bbanco\s+central\b|"
-     r"\bcredenciamento\s+de\s+instituicoes?\s+financeiras?\b|\boperar\s+pelo\s+banco\b", 0.75),
-    ("equipamento_puro", r"\baquisicao\s+de\s+(equipamentos?|conjuntos?\s+motobomb\w*|motobomb\w*|"
-     r"airless|maquinas?|maquinario|veiculo)\b|\bfornecimento\s+de\s+equipamento\b", 0.65),
+    (
+        "bancario",
+        r"\barrecadacao\s+(bancaria|de\s+faturas|de\s+tributos)\b|\bservicos?\s+bancarios?\b|"
+        r"\btarifa\s+bancaria\b|\binstituicoes?\s+financeiras?\b|\bbanco\s+central\b|"
+        r"\bcredenciamento\s+de\s+instituicoes?\s+financeiras?\b|\boperar\s+pelo\s+banco\b",
+        0.75,
+    ),
+    (
+        "equipamento_puro",
+        r"\baquisicao\s+de\s+(equipamentos?|conjuntos?\s+motobomb\w*|motobomb\w*|"
+        r"airless|maquinas?|maquinario|veiculo)\b|\bfornecimento\s+de\s+equipamento\b",
+        0.65,
+    ),
     ("equip_hospitalar", r"\bequipamento[s]?\s+hospitalar|\bmateriais?\s+medico.?hospitalar", 0.5),
-    ("software", r"\bmanuten[cç][aã]o\s+de\s+software\b|\blicenca\s+de\s+uso\b|\bsistema\s+informat|\bsoftware\b|\bnuvem\b|\bcloud\b", 0.55),
+    (
+        "software",
+        r"\bmanuten[cç][aã]o\s+de\s+software\b|\blicenca\s+de\s+uso\b|\bsistema\s+informat|\bsoftware\b|\bnuvem\b|\bcloud\b",
+        0.55,
+    ),
     ("construcao_conhecimento", r"\bconstrucao\s+de\s+conhecimento\b|\bconstrucao\s+coletiva\s+de\s+saberes\b", 0.6),
     ("alimentacao", r"\bgeneros\s+aliment|\bmerenda\b|\brefeicao\b|\balimentos?\b", 0.45),
     ("roupas", r"\buniforme\b|\bvestuario\b|\broupas?\b|\bcalcado\s+de\s+seguranca\b", 0.4),
@@ -190,23 +317,25 @@ _FALLBACK_NEGATIVE: list[tuple[str, str, float]] = [
 ]
 
 # Negativos que SEMPRE vetam engenharia se presentes (salvo execução explícita de obra civil)
-_VETO_NEGATIVE_IDS = frozenset({
-    "seguro",
-    "frota",
-    "voip_telecom",
-    "limpeza_jardinagem",
-    "grama_esporte",
-    "saneamento_metafora",
-    "computador",
-    "lencois",
-    "exames",
-    "software",
-    "castracao",
-    "construcao_conhecimento",
-    "bancario",
-    "assessoria_juridica",
-    "equipamento_puro",
-})
+_VETO_NEGATIVE_IDS = frozenset(
+    {
+        "seguro",
+        "frota",
+        "voip_telecom",
+        "limpeza_jardinagem",
+        "grama_esporte",
+        "saneamento_metafora",
+        "computador",
+        "lencois",
+        "exames",
+        "software",
+        "castracao",
+        "construcao_conhecimento",
+        "bancario",
+        "assessoria_juridica",
+        "equipamento_puro",
+    }
+)
 
 _FALLBACK_EXCLUSION: list[tuple[str, str]] = [
     ("credenciamento_generico", r"\bcredenciamento\b(?!.*\b(obra|engenharia|paviment|edifica|reforma\s+predial))"),
@@ -237,7 +366,9 @@ def load_profile(path: Path | None = None) -> dict[str, Any]:
     return data if isinstance(data, dict) else {}
 
 
-def _compile_from_profile(profile: dict[str, Any]) -> tuple[
+def _compile_from_profile(
+    profile: dict[str, Any],
+) -> tuple[
     list[tuple[str, re.Pattern[str], str, float]],
     list[tuple[str, re.Pattern[str], float]],
     list[tuple[str, re.Pattern[str]]],
@@ -346,9 +477,7 @@ def classify_object(
         )
 
     # Generic-only short text
-    if _GENERIC_ALONE.match(blob) or (
-        len(blob.split()) <= 2 and all(w in _GENERIC_WEAK for w in blob.split())
-    ):
+    if _GENERIC_ALONE.match(blob) or (len(blob.split()) <= 2 and all(w in _GENERIC_WEAK for w in blob.split())):
         return SectorClassification(
             label="NON_ENGINEERING",
             reason="apenas termo genérico (serviço/manutenção/construção/projeto) sem contexto de obra",
@@ -476,10 +605,7 @@ def classify_object(
     # Always merge full fallback positives. Profile vocabulary alone is incomplete for
     # civil-works phrasing (obra de reforma, unidades habitacionais, boulevard, etc.).
     # Fallback wins on id collision for known engineering terms.
-    fb_pos_map = {
-        tid: (tid, re.compile(pat, re.I), sub, w)
-        for tid, pat, sub, w in _FALLBACK_POSITIVE
-    }
+    fb_pos_map = {tid: (tid, re.compile(pat, re.I), sub, w) for tid, pat, sub, w in _FALLBACK_POSITIVE}
     filtered_pos: list[tuple[str, re.Pattern[str], str, float]] = []
     seen_pos: set[str] = set()
     for tid, cre, sub, w in positives:
@@ -550,8 +676,7 @@ def classify_object(
 
     # Residuos da construção civil: negative unless explicit obra execution for Extra
     if "residuos_cc" in neg_ids and not any(
-        s in {h[1] for h in pos_hits}
-        for s in ("edificacoes", "reformas", "pavimentacao", "obras_civis")
+        s in {h[1] for h in pos_hits} for s in ("edificacoes", "reformas", "pavimentacao", "obras_civis")
     ):
         return SectorClassification(
             label="NON_ENGINEERING",

@@ -5,6 +5,7 @@ Selection is from public inventories only (PNCP API live, SC Compras public
 API snapshot, CIGA DOM official zip). Never uses classifier output, DB counts,
 scores, success_zero, or operational queues.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -26,16 +27,52 @@ from scripts.campaigns.edital_relevance.dual_label import dual_label_record  # n
 
 # Approx population buckets for SC + Brazil municipalities in sample
 GRANDE = {
-    "JOINVILLE", "FLORIANOPOLIS", "BLUMENAU", "SAO JOSE", "CHAPECO", "CRICIUMA",
-    "ITAJAI", "LAGES", "JARAGUA DO SUL", "PALHOCA", "BRUSQUE", "TUBARAO",
-    "BALNEARIO CAMBORIU", "SAO PAULO", "RIO DE JANEIRO", "BELO HORIZONTE",
-    "CURITIBA", "PORTO ALEGRE", "BRASILIA", "SALVADOR", "FORTALEZA", "RECIFE",
-    "MANAUS", "BELEM", "GOIANIA", "GUARULHOS", "CAMPINAS",
+    "JOINVILLE",
+    "FLORIANOPOLIS",
+    "BLUMENAU",
+    "SAO JOSE",
+    "CHAPECO",
+    "CRICIUMA",
+    "ITAJAI",
+    "LAGES",
+    "JARAGUA DO SUL",
+    "PALHOCA",
+    "BRUSQUE",
+    "TUBARAO",
+    "BALNEARIO CAMBORIU",
+    "SAO PAULO",
+    "RIO DE JANEIRO",
+    "BELO HORIZONTE",
+    "CURITIBA",
+    "PORTO ALEGRE",
+    "BRASILIA",
+    "SALVADOR",
+    "FORTALEZA",
+    "RECIFE",
+    "MANAUS",
+    "BELEM",
+    "GOIANIA",
+    "GUARULHOS",
+    "CAMPINAS",
 }
 MEDIO = {
-    "CACADOR", "CONCORDIA", "NAVEGANTES", "SAO BENTO DO SUL", "MAFRA",
-    "RIO DO SUL", "INDAIAL", "GASPAR", "BIGUACU", "ARARANGUA", "VIDEIRA",
-    "CANOINHAS", "XANXERE", "BRUSQUE", "TIMBO", "PENHA", "IMBITUBA",
+    "CACADOR",
+    "CONCORDIA",
+    "NAVEGANTES",
+    "SAO BENTO DO SUL",
+    "MAFRA",
+    "RIO DO SUL",
+    "INDAIAL",
+    "GASPAR",
+    "BIGUACU",
+    "ARARANGUA",
+    "VIDEIRA",
+    "CANOINHAS",
+    "XANXERE",
+    "BRUSQUE",
+    "TIMBO",
+    "PENHA",
+    "IMBITUBA",
 }
 
 
@@ -113,11 +150,29 @@ def enrich(rec: dict[str, Any]) -> dict[str, Any]:
 def rough_eng(obj: str) -> bool:
     o = (obj or "").lower()
     keys = (
-        "paviment", "drenagem", "terrapl", "saneamento", "asfalt", "galeria pluvial",
-        "reforma de escola", "ampliação de", "ampliacao de", "construção de escola",
-        "construcao de escola", "obra de engenharia", "manutenção predial",
-        "manutencao predial", "empreitada", "muro de arrimo", "esgoto", "adutora",
-        "edificação", "edificacao", "passeio", "calçada", "calcada",
+        "paviment",
+        "drenagem",
+        "terrapl",
+        "saneamento",
+        "asfalt",
+        "galeria pluvial",
+        "reforma de escola",
+        "ampliação de",
+        "ampliacao de",
+        "construção de escola",
+        "construcao de escola",
+        "obra de engenharia",
+        "manutenção predial",
+        "manutencao predial",
+        "empreitada",
+        "muro de arrimo",
+        "esgoto",
+        "adutora",
+        "edificação",
+        "edificacao",
+        "passeio",
+        "calçada",
+        "calcada",
     )
     return any(k in o for k in keys)
 
@@ -125,10 +180,29 @@ def rough_eng(obj: str) -> bool:
 def rough_non(obj: str) -> bool:
     o = (obj or "").lower()
     keys = (
-        "medicamento", "computador", "combustivel", "combustível", "uniforme",
-        "merenda", "software", "fisioterapia", "exame", "alimento", "gasolina",
-        "diesel", "notebook", "vacina", "lençol", "lencol", "telefonia", "voip",
-        "jardinagem", "frota", "capacitação", "capacitacao", "karate",
+        "medicamento",
+        "computador",
+        "combustivel",
+        "combustível",
+        "uniforme",
+        "merenda",
+        "software",
+        "fisioterapia",
+        "exame",
+        "alimento",
+        "gasolina",
+        "diesel",
+        "notebook",
+        "vacina",
+        "lençol",
+        "lencol",
+        "telefonia",
+        "voip",
+        "jardinagem",
+        "frota",
+        "capacitação",
+        "capacitacao",
+        "karate",
     )
     return any(k in o for k in keys)
 
@@ -168,7 +242,7 @@ def build_pilot(
     *,
     seed: int = 42,
 ) -> list[dict[str, Any]]:
-    rng = random.Random(seed)
+    rng = random.Random(seed)  # noqa: S311 — deterministic sample split, not crypto
     parts = [
         sample_balanced(pncp, 12, rng=rng),
         sample_balanced(sc, 12, rng=rng),
@@ -199,7 +273,7 @@ def expand_sets(
     dev_target: int = 120,
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     """Build development + locked_holdout with stratification."""
-    rng = random.Random(seed)
+    rng = random.Random(seed)  # noqa: S311 — deterministic sample split, not crypto
     all_rows: list[dict[str, Any]] = []
     for src_rows in (pncp, sc, ciga):
         for r in src_rows:
@@ -215,9 +289,7 @@ def expand_sets(
     rng.shuffle(irrelevant)
     rng.shuffle(undec)
 
-    def take_stratified(
-        pool: list[dict[str, Any]], n: int, used: set[str]
-    ) -> list[dict[str, Any]]:
+    def take_stratified(pool: list[dict[str, Any]], n: int, used: set[str]) -> list[dict[str, Any]]:
         """Prefer diversity of source, municipio_bucket, natureza."""
         buckets: dict[str, list[dict[str, Any]]] = {}
         for r in pool:
@@ -423,16 +495,12 @@ def main() -> int:
         "holdout_relevant": sum(1 for r in holdout if r["label_final"] == "RELEVANT"),
         "holdout_stratum_counts": scounts,
         "stratum_blockers": blockers,
-        "dual_label_agreement_pilot": (
-            sum(1 for r in pilot if r.get("labels_agreed")) / len(pilot) if pilot else 0
-        ),
+        "dual_label_agreement_pilot": (sum(1 for r in pilot if r.get("labels_agreed")) / len(pilot) if pilot else 0),
         "dual_label_agreement_holdout": (
             sum(1 for r in holdout if r.get("labels_agreed")) / len(holdout) if holdout else 0
         ),
     }
-    (out_dir / "sampling_plan.json").write_text(
-        json.dumps(plan, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
-    )
+    (out_dir / "sampling_plan.json").write_text(json.dumps(plan, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(plan, ensure_ascii=False, indent=2))
     return 0
 

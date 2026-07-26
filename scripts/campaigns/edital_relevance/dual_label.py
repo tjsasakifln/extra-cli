@@ -7,6 +7,7 @@ output (avoids circular selection/labeling contamination).
 
 Labels: RELEVANT | IRRELEVANT | UNDECIDABLE
 """
+
 from __future__ import annotations
 
 import re

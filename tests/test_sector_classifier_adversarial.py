@@ -1,4 +1,5 @@
 """Testes adversariais do classificador setorial Extra Construtora."""
+
 from __future__ import annotations
 
 from scripts.ops.sector_classifier import (
@@ -7,7 +8,6 @@ from scripts.ops.sector_classifier import (
     classify_object,
     is_engineering_for_e,
 )
-
 
 AUDIT_KEYS = {
     "label",
@@ -38,9 +38,7 @@ def _assert_audit(clf) -> None:
 
 
 def test_pavimentacao_asfaltica_engineering():
-    clf = classify_object(
-        "Contratação de empresa para execução de pavimentação asfáltica em vias urbanas"
-    )
+    clf = classify_object("Contratação de empresa para execução de pavimentação asfáltica em vias urbanas")
     _assert_audit(clf)
     assert clf.label == "ENGINEERING_HIGH_CONFIDENCE"
     assert is_engineering_for_e(clf)
@@ -59,50 +57,38 @@ def test_drenagem_urbana_engineering():
 
 
 def test_manutencao_predial_engineering_or_review():
-    clf = classify_object(
-        "Execução de serviços de engenharia para Manutenção Predial e Civil das edificações"
-    )
+    clf = classify_object("Execução de serviços de engenharia para Manutenção Predial e Civil das edificações")
     _assert_audit(clf)
     assert clf.label in {"ENGINEERING_HIGH_CONFIDENCE", "ENGINEERING_REVIEW"}
 
 
 def test_projetos_arquitetonicos_review():
-    clf = classify_object(
-        "Elaboração de projetos arquitetônicos e complementares de engenharia"
-    )
+    clf = classify_object("Elaboração de projetos arquitetônicos e complementares de engenharia")
     _assert_audit(clf)
     assert clf.label in {"ENGINEERING_HIGH_CONFIDENCE", "ENGINEERING_REVIEW"}
 
 
 def test_manutencao_frota_non_engineering():
-    clf = classify_object(
-        "Credenciamento de empresa para prestação de serviços de manutenção da frota municipal"
-    )
+    clf = classify_object("Credenciamento de empresa para prestação de serviços de manutenção da frota municipal")
     _assert_audit(clf)
     assert clf.label in {"NON_ENGINEERING", "EXCLUDED_CATEGORY"}
     assert not is_engineering_for_e(clf)
 
 
 def test_computador_non_engineering():
-    clf = classify_object(
-        "Aquisição de 01 (um) computador do tipo All in One, processador Intel"
-    )
+    clf = classify_object("Aquisição de 01 (um) computador do tipo All in One, processador Intel")
     _assert_audit(clf)
     assert clf.label == "NON_ENGINEERING"
 
 
 def test_lencois_mantas_non_engineering():
-    clf = classify_object(
-        "AQUISIÇÃO DE LENÇÓIS E MANTAS DESTINADOS AOS LEITOS DA UNIDADE BÁSICA DE SAÚDE"
-    )
+    clf = classify_object("AQUISIÇÃO DE LENÇÓIS E MANTAS DESTINADOS AOS LEITOS DA UNIDADE BÁSICA DE SAÚDE")
     _assert_audit(clf)
     assert clf.label in {"NON_ENGINEERING", "EXCLUDED_CATEGORY"}
 
 
 def test_exames_laboratoriais_non_engineering():
-    clf = classify_object(
-        "CREDENCIAMENTO PARA EXECUÇÃO DE EXAMES LABORATORIAIS COMPLEMENTARES AO SUS"
-    )
+    clf = classify_object("CREDENCIAMENTO PARA EXECUÇÃO DE EXAMES LABORATORIAIS COMPLEMENTARES AO SUS")
     _assert_audit(clf)
     assert clf.label in {"NON_ENGINEERING", "EXCLUDED_CATEGORY"}
 
@@ -126,17 +112,13 @@ def test_manutencao_software_non_engineering():
 
 
 def test_material_construcao_isolado_review_or_exclude():
-    clf = classify_object(
-        "Registro de preços para futura e eventual aquisição de materiais para uso nas pavimentações"
-    )
+    clf = classify_object("Registro de preços para futura e eventual aquisição de materiais para uso nas pavimentações")
     _assert_audit(clf)
     assert clf.label in {"ENGINEERING_REVIEW", "EXCLUDED_CATEGORY", "NON_ENGINEERING", "AMBIGUOUS"}
 
 
 def test_residuos_cc_not_auto_obra():
-    clf = classify_object(
-        "Contratação de coleta e destinação de resíduos da construção civil e entulho"
-    )
+    clf = classify_object("Contratação de coleta e destinação de resíduos da construção civil e entulho")
     _assert_audit(clf)
     assert clf.label in {"NON_ENGINEERING", "AMBIGUOUS", "EXCLUDED_CATEGORY"}
 
@@ -187,9 +169,7 @@ def test_real_v1_e_evidence_objects_excluded():
 
 
 def test_seguro_frota_even_with_esgoto_in_text():
-    clf = classify_object(
-        "SEGURO DE FROTA DE VEICULOS DO DEPARTAMENTO DE ESGOTO"
-    )
+    clf = classify_object("SEGURO DE FROTA DE VEICULOS DO DEPARTAMENTO DE ESGOTO")
     assert clf.label == "NON_ENGINEERING"
     assert not is_engineering_for_e(clf)
 
@@ -200,23 +180,17 @@ def test_voip_non_engineering():
 
 
 def test_limpeza_areas_pavimentadas_non_engineering():
-    clf = classify_object(
-        "SERVICOS DE LIMPEZA E JARDINAGEM EM AREAS PAVIMENTADAS"
-    )
+    clf = classify_object("SERVICOS DE LIMPEZA E JARDINAGEM EM AREAS PAVIMENTADAS")
     assert clf.label == "NON_ENGINEERING"
 
 
 def test_grama_sintetica_fifa_non_engineering():
-    clf = classify_object(
-        "FORNECIMENTO E INSTALACAO DE GRAMA SINTETICA FIFA COM DRENAGEM"
-    )
+    clf = classify_object("FORNECIMENTO E INSTALACAO DE GRAMA SINTETICA FIFA COM DRENAGEM")
     assert clf.label == "NON_ENGINEERING"
 
 
 def test_saneamento_inconformidades_non_engineering():
-    clf = classify_object(
-        "ASSESSORIA PARA SANEAMENTO DE INCONFORMIDADES LEGAIS"
-    )
+    clf = classify_object("ASSESSORIA PARA SANEAMENTO DE INCONFORMIDADES LEGAIS")
     assert clf.label == "NON_ENGINEERING"
 
 
@@ -259,14 +233,14 @@ def test_aquisicao_airless_pintura_nao_obra():
 
 def test_aquisicao_motobombas_nao_obra():
     clf = classify_object(
-        "AQUISIÇÃO DE CONJUNTOS MOTOBOMBAS SUBMERSÍVEIS PARA SEREM UTILIZADOS NO "
-        "SISTEMA DE ESGOTAMENTO SANITÁRIO"
+        "AQUISIÇÃO DE CONJUNTOS MOTOBOMBAS SUBMERSÍVEIS PARA SEREM UTILIZADOS NO SISTEMA DE ESGOTAMENTO SANITÁRIO"
     )
     assert clf.label == "NON_ENGINEERING"
     assert not is_engineering_for_e(clf)
 
 
 # --- EDITAL-RELEVANCE-RECALL-95-01 development-miss adversarial cases ---
+
 
 def test_execucao_obra_reforma_delegacia_engineering():
     clf = classify_object(
@@ -278,9 +252,7 @@ def test_execucao_obra_reforma_delegacia_engineering():
 
 
 def test_unidades_habitacionais_engineering():
-    clf = classify_object(
-        "execução de obra de construção de 20 unidades habitacionais de interesse social"
-    )
+    clf = classify_object("execução de obra de construção de 20 unidades habitacionais de interesse social")
     _assert_audit(clf)
     assert clf.label in {"ENGINEERING_HIGH_CONFIDENCE", "ENGINEERING_REVIEW"}
 
@@ -295,25 +267,19 @@ def test_empreitada_global_kit_ponte_engineering():
 
 
 def test_boulevard_engenharia_engineering():
-    clf = classify_object(
-        "serviços técnicos de engenharia para EXECUÇÃO DE BOULEVARD NA AVENIDA ANCHIETA"
-    )
+    clf = classify_object("serviços técnicos de engenharia para EXECUÇÃO DE BOULEVARD NA AVENIDA ANCHIETA")
     _assert_audit(clf)
     assert clf.label in {"ENGINEERING_HIGH_CONFIDENCE", "ENGINEERING_REVIEW"}
 
 
 def test_construcao_quadras_escolares_engineering():
-    clf = classify_object(
-        "EXECUÇÃO DE CONSTRUÇÃO DE QUADRAS EM 03 UNIDADES ESCOLARES"
-    )
+    clf = classify_object("EXECUÇÃO DE CONSTRUÇÃO DE QUADRAS EM 03 UNIDADES ESCOLARES")
     _assert_audit(clf)
     assert clf.label in {"ENGINEERING_HIGH_CONFIDENCE", "ENGINEERING_REVIEW"}
 
 
 def test_medicamento_still_non_engineering_regression():
-    clf = classify_object(
-        "Aquisição de medicamento e insumos hospitalares para a farmácia básica municipal"
-    )
+    clf = classify_object("Aquisição de medicamento e insumos hospitalares para a farmácia básica municipal")
     _assert_audit(clf)
     assert clf.label in {"NON_ENGINEERING", "EXCLUDED_CATEGORY"}
     assert not is_engineering_for_e(clf)

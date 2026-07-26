@@ -13,19 +13,20 @@ Exit 0 only when integrity gates + global relevance recall ≥ 95% all hold.
 UNDECIDABLE is excluded from the recall denominator and must never be
 silently converted to IRRELEVANT.
 """
+
 from __future__ import annotations
 
 import argparse
 import hashlib
 import json
 import math
-import re
 import subprocess
 import sys
-from dataclasses import asdict, dataclass, field
+from collections.abc import Iterable
+from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
@@ -90,7 +91,7 @@ def profile_hash(path: Path) -> str:
 def git_sha() -> str:
     try:
         out = subprocess.check_output(
-            ["git", "rev-parse", "HEAD"],
+            ["git", "rev-parse", "HEAD"],  # noqa: S607
             cwd=PROJECT_ROOT,
             stderr=subprocess.DEVNULL,
             text=True,
@@ -197,9 +198,11 @@ def check_corpus_integrity(
         if lb is not None and str(lb) not in FINAL_LABELS:
             rep.fail(f"{oid}: invalid label_reviewer_b={lb!r}")
         # Silent UNDECIDABLE → IRRELEVANT conversion is forbidden
-        if final == "IRRELEVANT" and (
-            la == "UNDECIDABLE" or lb == "UNDECIDABLE"
-        ) and rec.get("adjudication_reason") in (None, "", "silent_undecidable"):
+        if (
+            final == "IRRELEVANT"
+            and (la == "UNDECIDABLE" or lb == "UNDECIDABLE")
+            and rec.get("adjudication_reason") in (None, "", "silent_undecidable")
+        ):
             rep.fail(f"{oid}: UNDECIDABLE silently converted to IRRELEVANT")
         if not rec.get("url"):
             rep.fail(f"{oid}: missing official url")
@@ -239,9 +242,7 @@ def check_corpus_integrity(
 
     relevant = [r for r in records if r.get("label_final") == "RELEVANT"]
     if require_holdout_floor and len(relevant) < MIN_RELEVANT_HOLDOUT:
-        rep.fail(
-            f"RELEVANT floor not met: {len(relevant)} < {MIN_RELEVANT_HOLDOUT}"
-        )
+        rep.fail(f"RELEVANT floor not met: {len(relevant)} < {MIN_RELEVANT_HOLDOUT}")
 
     # Strata
     if require_holdout_floor:
@@ -252,8 +253,7 @@ def check_corpus_integrity(
             if n < MIN_PER_REQUIRED_STRATUM:
                 if key in blockers and blockers[key]:
                     rep.warn(
-                        f"stratum {key} has {n} < {MIN_PER_REQUIRED_STRATUM} "
-                        f"with documented blocker: {blockers[key]}"
+                        f"stratum {key} has {n} < {MIN_PER_REQUIRED_STRATUM} with documented blocker: {blockers[key]}"
                     )
                 else:
                     rep.fail(
@@ -267,9 +267,7 @@ def check_corpus_integrity(
         if expected:
             actual = sha256_file(corpus_path)
             if actual != expected:
-                rep.fail(
-                    f"manifest corpus_sha256 mismatch: expected={expected} actual={actual}"
-                )
+                rep.fail(f"manifest corpus_sha256 mismatch: expected={expected} actual={actual}")
         freeze_ts = manifest.get("frozen_at")
         if not freeze_ts:
             rep.fail("manifest missing frozen_at")
@@ -442,16 +440,12 @@ def score_records(
         "relevance_recall": conf.recall,
         "informative_precision": conf.precision,
         "relevant_denominator": relevant_n,
-        "undecidable_excluded": sum(
-            1 for r in records if r.get("label_final") == "UNDECIDABLE"
-        ),
+        "undecidable_excluded": sum(1 for r in records if r.get("label_final") == "UNDECIDABLE"),
         "confidence_interval_wilson_95": {"low": ci_low, "high": ci_high},
         "false_negatives": false_negatives,
         "false_positives": false_positives,
         "by_source": {k: v.to_dict() for k, v in sorted(by_source.items())},
-        "by_municipio": {
-            k: v.to_dict() for k, v in sorted(by_municipio.items())[:50]
-        },
+        "by_municipio": {k: v.to_dict() for k, v in sorted(by_municipio.items())[:50]},
         "by_natureza": {k: v.to_dict() for k, v in sorted(by_natureza.items())},
         "per_record": per_record,
     }
@@ -513,9 +507,7 @@ def evaluate(
     if relevant_n == 0:
         errors.append("relevant denominator is zero (only IRRELEVANT/UNDECIDABLE)")
     if recall + 1e-15 < RECALL_THRESHOLD:
-        errors.append(
-            f"relevance_recall {recall:.6f} < threshold {RECALL_THRESHOLD}"
-        )
+        errors.append(f"relevance_recall {recall:.6f} < threshold {RECALL_THRESHOLD}")
     if not records:
         errors.append("empty result set")
 
@@ -548,9 +540,7 @@ def evaluate(
         "by_natureza": metrics["by_natureza"],
         "stratum_counts": count_strata(records),
         "integrity": {
-            "ok": integrity.ok and not any(
-                e.startswith("relevance_recall") or "denominator" in e for e in errors
-            )
+            "ok": integrity.ok and not any(e.startswith("relevance_recall") or "denominator" in e for e in errors)
             if integrity.ok
             else False,
             "errors": errors,

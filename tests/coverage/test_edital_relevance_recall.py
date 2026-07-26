@@ -1,4 +1,5 @@
 """Unit tests for fail-closed edital relevance recall evaluator (DOD §8.4)."""
+
 from __future__ import annotations
 
 import json
@@ -82,13 +83,9 @@ def test_confusion_math_via_score_records(tmp_path, monkeypatch):
     assert m["undecidable_excluded"] == 1
     # recall = tp/(tp+fn)
     if conf["tp"] + conf["fn"]:
-        assert math.isclose(
-            conf["recall"], conf["tp"] / (conf["tp"] + conf["fn"]), rel_tol=1e-9
-        )
+        assert math.isclose(conf["recall"], conf["tp"] / (conf["tp"] + conf["fn"]), rel_tol=1e-9)
     if conf["tp"] + conf["fp"]:
-        assert math.isclose(
-            conf["precision"], conf["tp"] / (conf["tp"] + conf["fp"]), rel_tol=1e-9
-        )
+        assert math.isclose(conf["precision"], conf["tp"] / (conf["tp"] + conf["fp"]), rel_tol=1e-9)
 
 
 def test_db_presence_and_success_zero_do_not_influence(tmp_path):
@@ -219,9 +216,7 @@ def test_stratum_floor_fails_without_blocker(tmp_path):
     }
     mp = tmp_path / "m.json"
     mp.write_text(json.dumps(man), encoding="utf-8")
-    code, result = evaluate(
-        p, manifest_path=mp, require_holdout_floor=True, allow_synthetic=True
-    )
+    code, result = evaluate(p, manifest_path=mp, require_holdout_floor=True, allow_synthetic=True)
     assert code != 0
 
 
@@ -347,9 +342,7 @@ def test_recall_95_percent_with_stubbed_predictions(tmp_path, monkeypatch):
             return FakeClf("NON_ENGINEERING")  # FN
         return FakeClf("NON_ENGINEERING")  # TN for irrelevant
 
-    monkeypatch.setattr(
-        "scripts.coverage.edital_relevance_recall.classify_object", fake_classify2
-    )
+    monkeypatch.setattr("scripts.coverage.edital_relevance_recall.classify_object", fake_classify2)
     monkeypatch.setattr(
         "scripts.coverage.edital_relevance_recall.is_engineering_for_e",
         lambda clf: clf.label in {"ENGINEERING_HIGH_CONFIDENCE", "ENGINEERING_REVIEW"},
@@ -378,9 +371,7 @@ def test_recall_95_percent_with_stubbed_predictions(tmp_path, monkeypatch):
             return FakeClf("NON_ENGINEERING")
         return FakeClf("NON_ENGINEERING")
 
-    monkeypatch.setattr(
-        "scripts.coverage.edital_relevance_recall.classify_object", fake_classify_94
-    )
+    monkeypatch.setattr("scripts.coverage.edital_relevance_recall.classify_object", fake_classify_94)
     code2, result2 = evaluate(
         p,
         manifest_path=mp,
