@@ -6,11 +6,11 @@
   "pr": 144,
   "branch": "campaign/confenge-commercial-ready-01",
   "generated_at": "2026-07-26T15:23:11Z",
-  "current_pr_head_sha": "02fd2cd8b61f8e63c7eda66746a7a231d796c9ec",
+  "current_pr_head_sha": "650b1244a6557d5ec53f95a7c96d538bf2e9dca8",
   "main_sha": "8344254942ec48978566317df16d7b3e3caabd89",
   "final_code_freeze_sha": "4dc1ef995672605caec9cf30b885b47fe5bf0e5a",
   "executed_code_sha": "4dc1ef995672605caec9cf30b885b47fe5bf0e5a",
-  "evidence_commit_sha": "02fd2cd8b61f8e63c7eda66746a7a231d796c9ec",
+  "evidence_commit_sha": "650b1244a6557d5ec53f95a7c96d538bf2e9dca8",
   "code_changed_after_execution": false,
   "snapshot": {
     "source": "pncp_datalake historical backfill \u2192 confenge_commercial",
