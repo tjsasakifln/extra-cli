@@ -125,14 +125,10 @@ def export_restorable_dump(
     try:
         source_id = _db_identity(source_dsn, conn)
         canon = compute_canonical_table_hash(conn)
-        rows = fetch_all(
-            conn,
-            f"""
-            SELECT {", ".join(COLUMNS)}
-            FROM public.pncp_supplier_contracts
-            ORDER BY contrato_id NULLS LAST, fornecedor_cnpj NULLS LAST
-            """,
-        )
+        # COLUMNS is a fixed module allowlist (not user input).
+        col_sql = ", ".join(COLUMNS)
+        select_sql = "SELECT " + col_sql + " FROM public.pncp_supplier_contracts ORDER BY contrato_id NULLS LAST, fornecedor_cnpj NULLS LAST"  # noqa: S608
+        rows = fetch_all(conn, select_sql)
         csv_path = out_dir / "contracts.csv"
         with csv_path.open("w", encoding="utf-8", newline="") as f:
             w = csv.DictWriter(f, fieldnames=COLUMNS, extrasaction="ignore")
@@ -336,14 +332,10 @@ def restore_restorable_dump(
         cur.execute("TRUNCATE public.pncp_supplier_contracts RESTART IDENTITY")
         conn.commit()
 
-        insert_sql = f"""
-            INSERT INTO public.pncp_supplier_contracts (
-              {", ".join(COLUMNS)}
-            ) VALUES (
-              {", ".join("%s" for _ in COLUMNS)}
-            )
-            ON CONFLICT (contrato_id) DO NOTHING
-        """
+        # COLUMNS is a fixed module allowlist (not user input).
+        col_sql = ", ".join(COLUMNS)
+        placeholders = ", ".join(["%s"] * len(COLUMNS))
+        insert_sql = "INSERT INTO public.pncp_supplier_contracts (" + col_sql + ") VALUES (" + placeholders + ") ON CONFLICT (contrato_id) DO NOTHING"  # noqa: S608
         n = 0
         with csv_path.open(encoding="utf-8", newline="") as f:
             reader = csv.DictReader(f)

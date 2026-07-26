@@ -208,12 +208,14 @@ def split_write(rows: list[dict[str, Any]], out_dir: Path) -> dict[str, Any]:
         st = r.get("stratum") or "unknown"
         meta["strata_counts"][st] = meta["strata_counts"].get(st, 0) + 1
     try:
+        import shutil
         import subprocess
 
-        meta["freeze_commit"] = subprocess.check_output(
-            ["git", "rev-parse", "HEAD"], cwd=str(_ROOT), text=True
+        git = shutil.which("git") or "git"
+        meta["freeze_commit"] = subprocess.check_output(  # noqa: S603
+            [git, "rev-parse", "HEAD"], cwd=str(_ROOT), text=True
         ).strip()
-    except Exception:  # noqa: BLE001
+    except Exception:  # noqa: BLE001 — freeze stamp is best-effort metadata only
         meta["freeze_commit"] = "unknown"
     (out_dir / "corpus-meta.json").write_text(
         json.dumps(meta, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"

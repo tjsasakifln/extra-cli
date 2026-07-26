@@ -7,6 +7,7 @@ import argparse
 import hashlib
 import json
 import os
+import shutil
 import subprocess
 import sys
 from datetime import UTC, datetime
@@ -29,7 +30,10 @@ def utc_now() -> str:
 
 
 def _git(*args: str) -> str:
-    return subprocess.check_output(["git", *args], cwd=str(_ROOT), text=True).strip()
+    git = shutil.which("git") or "git"
+    return subprocess.check_output(  # noqa: S603
+        [git, *args], cwd=str(_ROOT), text=True
+    ).strip()
 
 
 def _try_git(*args: str) -> str | None:
@@ -185,19 +189,19 @@ def verify_evidence_provenance() -> dict[str, Any]:
         "finished_at": utc_now(),
         "exit_code": 0,
     }
-    try:
-        import subprocess as sp
-
-        dsn = os.environ.get("CONFENGE_COMMERCIAL_STATE_DSN", "")
-        if dsn:
-            out = sp.check_output(
-                ["psql", dsn, "-tAc", "SHOW server_version"],
-                text=True,
-                stderr=sp.DEVNULL,
-            ).strip()
-            env["postgres_version"] = out
-    except Exception:
-        pass
+    dsn = os.environ.get("CONFENGE_COMMERCIAL_STATE_DSN", "")
+    if dsn:
+        psql = shutil.which("psql")
+        if psql:
+            try:
+                out = subprocess.check_output(  # noqa: S603
+                    [psql, dsn, "-tAc", "SHOW server_version"],
+                    text=True,
+                    stderr=subprocess.DEVNULL,
+                ).strip()
+                env["postgres_version"] = out
+            except (subprocess.CalledProcessError, OSError) as exc:
+                env["postgres_version_error"] = type(exc).__name__
 
     ok = bool(
         freeze.get("executed_code_sha") == freeze.get("final_code_freeze_sha")

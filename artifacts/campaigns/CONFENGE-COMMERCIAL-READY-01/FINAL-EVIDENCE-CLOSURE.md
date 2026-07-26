@@ -14,10 +14,10 @@ Generated: `2026-07-26T15:49:50Z`
 
 | Field | Value |
 |-------|-------|
-| current_pr_head_sha | `915e1364a762d1005f63774f46d980831a9d091d` |
+| current_pr_head_sha | `87da179930295e0478ff326939ca1438da8b76b7` |
 | final_code_freeze_sha | `da9596aece9a661c0b4bf4cba0637cac5e20767c` |
 | executed_code_sha | `da9596aece9a661c0b4bf4cba0637cac5e20767c` |
-| evidence_commit_sha | `915e1364a762d1005f63774f46d980831a9d091d` |
+| evidence_commit_sha | `87da179930295e0478ff326939ca1438da8b76b7` |
 | code_changed_after_execution | `false` (freeze..HEAD is artifact-only) |
 
 ## Snapshot

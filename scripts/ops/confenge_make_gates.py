@@ -745,7 +745,6 @@ def cmd_end_to_end_reproducibility(_: argparse.Namespace) -> int:
     signals → eligibility → ranking → offer → top20. Does not reuse prior classes.
     Unit tests alone never suffice for PASS.
     """
-    from datetime import date
 
     unit = subprocess.run(  # noqa: S603
         [
@@ -783,15 +782,8 @@ def cmd_end_to_end_reproducibility(_: argparse.Namespace) -> int:
             json.dumps(report, indent=2) + "\n", encoding="utf-8"
         )
         print(json.dumps(report, indent=2))
-        return 2
-
-    from scripts.commercial_leads.dbutil import connect
-    from scripts.commercial_leads.pipeline import load_full_supplier_histories
-    from scripts.commercial_leads.profile import load_profile
-    from scripts.commercial_leads.scoring import rank_leads, score_supplier
-    from scripts.commercial_leads.sector_fit import classify_supplier_sector_fit
-    from scripts.commercial_leads.signals import compute_signals_for_supplier, rows_from_dicts
-    from scripts.commercial_leads.supplier_registry import load_registry_map
+        # 1 = unit failure (CI red); 2 = honest BLOCKED without DSN after unit OK
+        return 1 if unit.returncode != 0 else 2
 
     # Delegate to full-universe runner (n == frozen_candidate_count).
     # CONFENGE_E2E_SAMPLE_LIMIT>0 labels result SAMPLED_E2E_TEST — never full PASS.

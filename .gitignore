@@ -153,3 +153,21 @@ data/*.db
 !.env.example
 private/
 secrets/
+
+# CONFENGE large local evidence (not in git; use GH Actions artifacts / local data/)
+artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/**/*.xlsx
+artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/**/*.html
+artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/restorable-dump/contracts.csv
+artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/operational-cnpj-registry-fallback.jsonl
+artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/official-cnpj-dataset/*.jsonl
+artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/official-cnpj-registry-snapshot.jsonl
+artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/reproduce/
+artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/run/commercial-leads.json
+artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/run/leads.json
+artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/run/review-queue.json
+artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/run/lead-explanations.jsonl
+artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/run/run-result.json
+artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/run/*.html
+artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/run/*.xlsx
+artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/real-run.json
+data/official_cnpj/

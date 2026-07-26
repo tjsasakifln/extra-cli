@@ -17,7 +17,6 @@ import argparse
 import hashlib
 import json
 import os
-import re
 import sys
 import urllib.error
 import urllib.request
@@ -87,8 +86,8 @@ def load_candidates(run_result: Path | None) -> list[str]:
             cc = re_cnpj14(c)
             if cc:
                 out.append(cc)
-        for L in d.get("leads") or []:
-            cc = re_cnpj14(L.get("cnpj14"))
+        for lead in d.get("leads") or []:
+            cc = re_cnpj14(lead.get("cnpj14"))
             if cc:
                 out.append(cc)
     # dedupe preserve order

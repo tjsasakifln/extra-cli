@@ -158,7 +158,7 @@ def _excel_clean(value: Any) -> Any:
         from openpyxl.cell.cell import ILLEGAL_CHARACTERS_RE  # type: ignore
 
         return ILLEGAL_CHARACTERS_RE.sub("", value)
-    except Exception:
+    except ImportError:
         return value
 
 
@@ -310,33 +310,34 @@ def build_packages() -> dict[str, Any]:
                 names = {str(r["cnpj14"]): str(r.get("razao_social") or "") for r in rows}
             finally:
                 conn.close()
-    except Exception:
+    except (OSError, ImportError, RuntimeError) as exc:
         names = {}
+        _ = exc  # registry enrichment is best-effort
 
     top_rows: list[dict[str, Any]] = []
-    for L in top20_src[:20]:
-        cnpj = str(L.get("cnpj14") or "")
-        offer = L.get("selected_offer") or L.get("suggested_offer")
+    for lead in top20_src[:20]:
+        cnpj = str(lead.get("cnpj14") or "")
+        offer = lead.get("selected_offer") or lead.get("suggested_offer")
         top_rows.append(
             {
                 "cnpj14": cnpj,
-                "razao_social": L.get("razao_social") or names.get(cnpj) or "",
-                "score_total": L.get("score_total"),
+                "razao_social": lead.get("razao_social") or names.get(cnpj) or "",
+                "score_total": lead.get("score_total"),
                 "selected_offer": offer,
-                "alternative_offer": L.get("alternative_offer"),
-                "selected_offer_margin": L.get("selected_offer_margin"),
-                "supporting_signals": json.dumps(L.get("supporting_signals") or [], ensure_ascii=False)
-                if not isinstance(L.get("supporting_signals"), str)
-                else L.get("supporting_signals"),
+                "alternative_offer": lead.get("alternative_offer"),
+                "selected_offer_margin": lead.get("selected_offer_margin"),
+                "supporting_signals": json.dumps(lead.get("supporting_signals") or [], ensure_ascii=False)
+                if not isinstance(lead.get("supporting_signals"), str)
+                else lead.get("supporting_signals"),
                 "contradicting_signals": json.dumps(
-                    L.get("contradicting_signals") or [], ensure_ascii=False
+                    lead.get("contradicting_signals") or [], ensure_ascii=False
                 )
-                if not isinstance(L.get("contradicting_signals"), str)
-                else L.get("contradicting_signals"),
-                "offer_scores": json.dumps(L.get("offer_scores") or {}, ensure_ascii=False)
-                if not isinstance(L.get("offer_scores"), str)
-                else L.get("offer_scores"),
-                "priority": L.get("priority"),
+                if not isinstance(lead.get("contradicting_signals"), str)
+                else lead.get("contradicting_signals"),
+                "offer_scores": json.dumps(lead.get("offer_scores") or {}, ensure_ascii=False)
+                if not isinstance(lead.get("offer_scores"), str)
+                else lead.get("offer_scores"),
+                "priority": lead.get("priority"),
                 **{k: None for k in HUMAN_EMPTY_FIELDS},
             }
         )
@@ -360,14 +361,14 @@ def build_packages() -> dict[str, Any]:
 
     # Commercial evaluation 200 — use top20 + additional registry/suppliers with empty labels
     eval_rows: list[dict[str, Any]] = []
-    for i, L in enumerate(top_rows):
+    for i, lead in enumerate(top_rows):
         eval_rows.append(
             {
                 "row_id": i + 1,
-                "cnpj14": L.get("cnpj14"),
-                "razao_social": L.get("razao_social"),
-                "score_total": L.get("score_total"),
-                "selected_offer": L.get("selected_offer"),
+                "cnpj14": lead.get("cnpj14"),
+                "razao_social": lead.get("razao_social"),
+                "score_total": lead.get("score_total"),
+                "selected_offer": lead.get("selected_offer"),
                 **{k: None for k in HUMAN_EMPTY_FIELDS},
             }
         )

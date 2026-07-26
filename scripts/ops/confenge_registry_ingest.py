@@ -70,9 +70,9 @@ def load_candidate_cnpjs(run_result: Path | None, explicit: list[str] | None) ->
         lm = d.get("load_meta") or {}
         for c in lm.get("candidate_supplier_cnpjs") or []:
             out.append(str(c))
-        for L in d.get("leads") or []:
-            if L.get("cnpj14"):
-                out.append(str(L["cnpj14"]))
+        for lead in d.get("leads") or []:
+            if lead.get("cnpj14"):
+                out.append(str(lead["cnpj14"]))
     cleaned = []
     seen = set()
     for raw in out:

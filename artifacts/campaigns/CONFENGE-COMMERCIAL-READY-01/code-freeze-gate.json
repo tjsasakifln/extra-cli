@@ -1,7 +1,7 @@
 {
   "ok": true,
   "status": "PASS",
-  "current_pr_head_sha": "915e1364a762d1005f63774f46d980831a9d091d",
+  "current_pr_head_sha": "87da179930295e0478ff326939ca1438da8b76b7",
   "final_code_freeze_sha": "da9596aece9a661c0b4bf4cba0637cac5e20767c",
   "executed_code_sha": "da9596aece9a661c0b4bf4cba0637cac5e20767c",
   "code_tree_hash_at_execution": "973928bae4922a5d3679ed8dd0c1e059db2839f83161ffe519c514c5ea2e5499",
@@ -19,5 +19,5 @@
   "artifact_only_path_check": true,
   "verified_at": "2026-07-26T15:47:45Z",
   "note": "current_pr_head_sha is always live git tip at verify time",
-  "evidence_commit_sha": "915e1364a762d1005f63774f46d980831a9d091d"
+  "evidence_commit_sha": "87da179930295e0478ff326939ca1438da8b76b7"
 }

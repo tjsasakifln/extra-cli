@@ -197,11 +197,7 @@ def main(argv: list[str] | None = None) -> int:
 
     # Compare to previous published top20
     prev = [str(L.get("cnpj14")) for L in (run.get("leads") or [])[:20]]
-    newly_visible = [c for c in top20 if c not in set(prev) and c not in set(list(reg_map.keys())[:117])]
-    # firms that were invisible under 2% coverage: not in first 117 registry keys of old run
-    old_reg_top = set()
-    old_cov = (run.get("registry_coverage") or {}).get("registry_coverage_all_candidates") or {}
-    # better: CNPJs in top20 now that were not in previous top20
+    # CNPJs in top20 now that were not in previous top20
     introduced = [c for c in top20 if c not in set(prev)]
 
     report = {
