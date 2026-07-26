@@ -1,6 +1,6 @@
 # MERGE READINESS — CONFENGE-COMMERCIAL-READY-01
 
-Generated: 2026-07-26T18:14:24Z
+Generated: 2026-07-26T18:20:09Z
 Aggregator: `build_final_campaign_status()`
 
 ## Declaration
@@ -21,22 +21,22 @@ CODE_MERGE_READY_COMMERCIAL_RELEASE_BLOCKED
 
 | Role | Value |
 |------|-------|
-| actual_pr_head_sha | `554d6984db7cc1a8d4945319ecc393ea50abfde9` |
-| workflow_merge_sha | `None` |
+| actual_pr_head_sha | `c719d3104d9a726b60944d8fab491966db52a351` |
+| workflow_merge_sha | `9a4077836faa84edda996e9911a158011abf4880` |
 | freeze_sha | `554d6984db7cc1a8d4945319ecc393ea50abfde9` |
 | executed_code_sha | `554d6984db7cc1a8d4945319ecc393ea50abfde9` |
-| match_run_to_head | `True` |
-| artifact_only_diff | `False` |
+| match_run_to_head | `False` |
+| artifact_only_diff | `True` |
 | non_artifact_changes | `[]` |
 
 ## Workflow / artifacts
 
 | Field | Value |
 |-------|-------|
-| latest_workflow_run_id | `30214044675` |
+| latest_workflow_run_id | `30214302257` |
 | latest_workflow_status | `PASS` |
-| human_artifact_id | `8634984051` |
-| machine_artifact_id | `8634989832` |
+| human_artifact_id | `8635350157` |
+| machine_artifact_id | `8635355792` |
 
 ## Layer status
 
@@ -55,8 +55,8 @@ CODE_MERGE_READY_COMMERCIAL_RELEASE_BLOCKED
 
 ## Answers (objective §15)
 
-1. HEAD real da PR: `554d6984db7cc1a8d4945319ecc393ea50abfde9`
-2. Merge SHA Actions: `None`
+1. HEAD real da PR: `c719d3104d9a726b60944d8fab491966db52a351`
+2. Merge SHA Actions: `9a4077836faa84edda996e9911a158011abf4880`
 3. Execução comercial == freeze: `True`
 4. Código alterado após freeze: `False`
 5. Jobs real-data executados (PASS): `[]`

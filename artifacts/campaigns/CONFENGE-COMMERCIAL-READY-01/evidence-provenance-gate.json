@@ -1,17 +1,17 @@
 {
   "ok": true,
   "status": "PASS",
-  "current_pr_head_sha": "554d6984db7cc1a8d4945319ecc393ea50abfde9",
+  "current_pr_head_sha": "c719d3104d9a726b60944d8fab491966db52a351",
   "final_code_freeze_sha": "554d6984db7cc1a8d4945319ecc393ea50abfde9",
   "final_integrity_code_freeze_sha": "554d6984db7cc1a8d4945319ecc393ea50abfde9",
   "executed_code_sha": "554d6984db7cc1a8d4945319ecc393ea50abfde9",
-  "evidence_commit_sha": "554d6984db7cc1a8d4945319ecc393ea50abfde9",
-  "workflow_head_sha": "554d6984db7cc1a8d4945319ecc393ea50abfde9",
-  "artifact_git_sha": "554d6984db7cc1a8d4945319ecc393ea50abfde9",
+  "evidence_commit_sha": "c719d3104d9a726b60944d8fab491966db52a351",
+  "workflow_head_sha": "c719d3104d9a726b60944d8fab491966db52a351",
+  "artifact_git_sha": "c719d3104d9a726b60944d8fab491966db52a351",
   "code_tree_hash_at_execution": "aaec304c3ed7f4f0eb16a227dde42b73838bc2dbf37175d341e61379d0bc95a8",
-  "code_tree_hash_at_current_head": "aaec304c3ed7f4f0eb16a227dde42b73838bc2dbf37175d341e61379d0bc95a8",
+  "code_tree_hash_at_current_head": "9788cdbf61049f431ee1112b70e283742cd2803c47d7cfcf54c1b54ad3d78e3a",
   "code_changed_after_execution": false,
-  "artifact_only_commits_after_execution": false,
+  "artifact_only_commits_after_execution": true,
   "non_artifact_files_changed_after_execution": [],
   "execution": {
     "execution_environment": "local",
@@ -19,14 +19,14 @@
     "os": "Linux 6.18.33.2-microsoft-standard-WSL2",
     "python_version": "3.12.3",
     "postgres_version": null,
-    "workflow_run_id": "30214044675",
+    "workflow_run_id": "30214302257",
     "job_ids": null,
     "command": "make campaign-gate-confenge-commercial-ready",
     "started_at": null,
-    "finished_at": "2026-07-26T18:14:23Z",
+    "finished_at": "2026-07-26T18:20:08Z",
     "exit_code": 0
   },
-  "match_run_to_head": true,
+  "match_run_to_head": false,
   "sha_semantics": {
     "current_pr_head_sha": "HEAD atual real da PR",
     "executed_code_sha": "commit cujo c\u00f3digo foi executado",
@@ -36,5 +36,5 @@
     "artifact_git_sha": "commit que cont\u00e9m ou referencia o pacote de evid\u00eancia",
     "match_run_to_head_rule": "true only when executed_code_sha == current_pr_head_sha"
   },
-  "verified_at": "2026-07-26T18:14:23Z"
+  "verified_at": "2026-07-26T18:20:08Z"
 }

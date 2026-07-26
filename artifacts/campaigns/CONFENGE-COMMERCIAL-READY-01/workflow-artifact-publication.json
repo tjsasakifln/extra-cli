@@ -1,22 +1,20 @@
 {
   "published_as_workflow_artifact": true,
-  "workflow_run_id": "30212931293",
-  "workflow_run_url": "https://github.com/tjsasakifln/extra-cli/actions/runs/30212931293",
-  "workflow_pr_head_sha": "8d82d4d98cf0ff0154ce205cd1055459a4f6e96c",
-  "workflow_merge_sha": "a37d615d8b6b320fc4d4cc1b10d01bb0ba4cbd40",
-  "human_review_artifact_id": 8634984051,
-  "human_review_artifact_digest": "sha256:d706e58f3f7dddc21c4d1f544fc9c8595128e5be2d605679e77eb86d181948aa",
-  "machine_evidence_artifact_id": 8634989832,
-  "machine_evidence_artifact_digest": "sha256:a08cd30ad036f925758b8e2d24e212144ecaa8b649529686d522673914dd6188",
+  "workflow_run_id": "30214302257",
+  "workflow_run_url": "https://github.com/tjsasakifln/extra-cli/actions/runs/30214302257",
+  "workflow_pr_head_sha": "c719d3104d9a726b60944d8fab491966db52a351",
+  "workflow_merge_sha": "9a4077836faa84edda996e9911a158011abf4880",
+  "human_review_artifact_id": 8635350157,
+  "human_review_artifact_digest": "sha256:04372c253c3af4ecc237f15349243c839ad1a222e4b4c056e328016cef5a7738",
+  "machine_evidence_artifact_id": 8635355792,
+  "machine_evidence_artifact_digest": "sha256:031acab40188dfd3e41bff5da0849fd278c8cd648f00e9d789180f06aa2951ea",
   "workflow_artifact_ids": {
-    "confenge-human-review-packages": 8634984051,
-    "confenge-machine-evidence": 8634989832
+    "confenge-human-review-packages": 8635350157,
+    "confenge-machine-evidence": 8635355792
   },
-  "artifact_created_at": "2026-07-26T17:37:39Z",
-  "artifact_expires_at": "2026-10-24T17:36:31Z",
-  "executed_code_sha": "51df3beb10d4f3a498d61e4f400a5479ee203b22",
-  "captured_at": "2026-07-26T18:06:49Z",
-  "note": "Artifact IDs from CI run 30212931293 (PR head d314e300). Integrity re-freeze is post-run; next push will rebind IDs via workflow API step.",
-  "evidence_commit_sha": "16493742a9c2d58b38a6185fd6999ccb99ff4ef3",
-  "artifact_only_commits_after_execution": true
+  "artifact_created_at": "2026-07-26T18:15:43Z",
+  "artifact_expires_at": "2026-10-24T18:14:39Z",
+  "executed_code_sha": "554d6984db7cc1a8d4945319ecc393ea50abfde9",
+  "captured_at": "2026-07-26T18:20:09Z",
+  "source_run": "30214302257"
 }

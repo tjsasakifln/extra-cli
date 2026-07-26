@@ -7,7 +7,9 @@
   "human_package_publication_status": "PASS",
   "machine_evidence_publication_status": "PASS",
   "github_workflow_status": "PASS",
-  "workflow_run_id": "30214044675",
-  "workflow_pr_head_sha": "554d6984db7cc1a8d4945319ecc393ea50abfde9",
-  "note": "Statuses pending rebind from next green tip CI; real-data remain NOT_EXECUTED"
+  "workflow_run_id": "30214302257",
+  "workflow_pr_head_sha": "c719d3104d9a726b60944d8fab491966db52a351",
+  "workflow_merge_sha": "9a4077836faa84edda996e9911a158011abf4880",
+  "captured_at": "2026-07-26T18:20:09Z",
+  "source": "gh run 30214302257 conclusion=success on tip c719d310"
 }
