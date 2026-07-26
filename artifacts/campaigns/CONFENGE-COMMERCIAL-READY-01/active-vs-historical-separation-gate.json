@@ -1,7 +1,64 @@
 {
   "ok": true,
-  "pytest_exit": 0,
-  "stdout_tail": "...                                                                      [100%]\n3 passed in 1.87s\n",
+  "status": "PASS",
   "active_view": "ACTIVE_COMMERCIAL_PORTFOLIO",
-  "historical_view": "ALL_SNAPSHOT_SUPPLIER_HISTORY"
+  "historical_view": "ALL_SNAPSHOT_SUPPLIER_HISTORY",
+  "unit_adversarial_ok": true,
+  "pytest_exit": 0,
+  "stdout_tail": "....                                                                     [100%]\n4 passed in 1.84s\n",
+  "live_separation": {
+    "attempted": true,
+    "ok": true,
+    "method": "live_split_views_and_sector_denominator",
+    "snapshot_all_contracts": 60000,
+    "snapshot_active_contracts": 60000,
+    "snapshot_inactive_or_closed": 0,
+    "snapshot_contains_only_active_rows": true,
+    "suppliers_with_both_active_and_closed": 0,
+    "separation_cases": [],
+    "all_active_only_samples": [
+      {
+        "cnpj14": "00061493000170",
+        "all_snapshot_contract_count": 12,
+        "active_contract_count": 12,
+        "inactive_or_closed_contract_count": 0,
+        "note": "snapshot row is_active=TRUE only; ratios may match"
+      },
+      {
+        "cnpj14": "00082024000137",
+        "all_snapshot_contract_count": 5,
+        "active_contract_count": 5,
+        "inactive_or_closed_contract_count": 0,
+        "note": "snapshot row is_active=TRUE only; ratios may match"
+      },
+      {
+        "cnpj14": "00341351000166",
+        "all_snapshot_contract_count": 22,
+        "active_contract_count": 22,
+        "inactive_or_closed_contract_count": 0,
+        "note": "snapshot row is_active=TRUE only; ratios may match"
+      },
+      {
+        "cnpj14": "00103498000118",
+        "all_snapshot_contract_count": 1,
+        "active_contract_count": 1,
+        "inactive_or_closed_contract_count": 0,
+        "note": "snapshot row is_active=TRUE only; ratios may match"
+      },
+      {
+        "cnpj14": "00280757000186",
+        "all_snapshot_contract_count": 3,
+        "active_contract_count": 3,
+        "inactive_or_closed_contract_count": 0,
+        "note": "snapshot row is_active=TRUE only; ratios may match"
+      }
+    ],
+    "invariant_ok_suppliers": 40,
+    "suppliers_checked": 40,
+    "violations": [],
+    "history_view": "ALL_SNAPSHOT_SUPPLIER_HISTORY",
+    "active_view": "ACTIVE_COMMERCIAL_PORTFOLIO",
+    "note": "Closed-contract separation proven by unit adversarial fixtures when live snapshot has is_active=TRUE for every row. Live proves ALL_SNAPSHOT load + sector denom + metric invariants."
+  },
+  "note": "ACTIVE portfolio feeds concurrent/near-expiry signals only. Sector concentration, mixed activity, materials detection use ALL_SNAPSHOT_SUPPLIER_HISTORY. Never reuse active as historical denom."
 }

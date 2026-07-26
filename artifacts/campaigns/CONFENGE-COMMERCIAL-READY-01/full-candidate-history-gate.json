@@ -1,9 +1,11 @@
 {
   "ok": true,
   "rechecked_cnpjs": 40,
+  "history_view": "ALL_SNAPSHOT_SUPPLIER_HISTORY",
   "history_expansion_mode": "FULL_CANDIDATE_HISTORY",
   "history_complete": true,
+  "all_statuses_loaded": true,
   "mismatches": [],
   "run_claimed_history_is_full": true,
-  "method": "live_db_recount_vs_full_history_loader"
+  "method": "live_db_all_status_recount_vs_full_history_loader"
 }

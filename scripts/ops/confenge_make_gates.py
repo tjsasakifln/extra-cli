@@ -105,8 +105,12 @@ def cmd_full_candidate_history(_: argparse.Namespace) -> int:
 
 
 def cmd_all_status_history(_: argparse.Namespace) -> int:
-    """Unit + structural proof that loader uses ALL_SNAPSHOT_SUPPLIER_HISTORY."""
-    # Prefer unit suite (always available); live DSN optional
+    """Prove ALL_SNAPSHOT_SUPPLIER_HISTORY via unit fixtures + live DB recount.
+
+    Live path (required when DSN set): load full history without is_active filter,
+    independently COUNT(*) all statuses and active-only, verify loader matches
+    all-status count and exceeds active-only when closed contracts exist.
+    """
     proc = subprocess.run(  # noqa: S603
         [
             sys.executable,
@@ -123,21 +127,160 @@ def cmd_all_status_history(_: argparse.Namespace) -> int:
         text=True,
         check=False,
     )
+    unit_ok = proc.returncode == 0
+    live: dict[str, Any] = {"attempted": False}
+    dsn = os.environ.get("CONFENGE_COMMERCIAL_STATE_DSN") or os.environ.get(
+        "CONFENGE_COMMERCIAL_SOURCE_DSN"
+    )
+    if dsn:
+        from scripts.commercial_leads.dbutil import connect, fetch_all
+        from scripts.commercial_leads.pipeline import (
+            compute_supplier_history_metrics,
+            load_full_supplier_histories,
+        )
+
+        d = _load_run()
+        lm = d.get("load_meta") or {}
+        cnpjs = list(lm.get("candidate_supplier_cnpjs") or [])[:50]
+        if not cnpjs and d.get("leads"):
+            cnpjs = [str(L["cnpj14"]) for L in d["leads"][:20]]
+        live["attempted"] = True
+        live["cnpjs_n"] = len(cnpjs)
+        if not cnpjs:
+            live["ok"] = False
+            live["reason"] = "no_candidates_for_live_recount"
+        else:
+            conn = connect(dsn)
+            try:
+                groups_all, hist_all = load_full_supplier_histories(
+                    conn, cnpjs, per_supplier_limit=None, active_only=False
+                )
+                groups_act, hist_act = load_full_supplier_histories(
+                    conn, cnpjs, per_supplier_limit=None, active_only=True
+                )
+                mismatches_all = []
+                mismatches_act = []
+                metric_samples = []
+                invariant_fails = []
+                for cnpj in cnpjs:
+                    rows_all = fetch_all(
+                        conn,
+                        """
+                        SELECT COUNT(*)::int AS n
+                        FROM public.pncp_supplier_contracts
+                        WHERE right(regexp_replace(fornecedor_cnpj, '\\D', '', 'g'), 14) = %s
+                        """,
+                        (cnpj,),
+                    )
+                    rows_act = fetch_all(
+                        conn,
+                        """
+                        SELECT COUNT(*)::int AS n
+                        FROM public.pncp_supplier_contracts
+                        WHERE is_active = TRUE
+                          AND right(regexp_replace(fornecedor_cnpj, '\\D', '', 'g'), 14) = %s
+                        """,
+                        (cnpj,),
+                    )
+                    exp_all = int(rows_all[0]["n"]) if rows_all else 0
+                    exp_act = int(rows_act[0]["n"]) if rows_act else 0
+                    got_all = len(groups_all.get(cnpj, []))
+                    got_act = len(groups_act.get(cnpj, []))
+                    if got_all != exp_all:
+                        mismatches_all.append(
+                            {"cnpj14": cnpj, "loaded": got_all, "snapshot_all": exp_all}
+                        )
+                    if got_act != exp_act:
+                        mismatches_act.append(
+                            {"cnpj14": cnpj, "loaded": got_act, "snapshot_active": exp_act}
+                        )
+                    m = compute_supplier_history_metrics(groups_all.get(cnpj, []))
+                    if not m.get("invariant_active_plus_inactive") or not m.get(
+                        "invariant_relevance_partition"
+                    ):
+                        invariant_fails.append({"cnpj14": cnpj, **m})
+                    if len(metric_samples) < 5:
+                        metric_samples.append({"cnpj14": cnpj, **m})
+                total_all = sum(len(v) for v in groups_all.values())
+                total_act = sum(len(v) for v in groups_act.values())
+                live_ok = (
+                    hist_all.get("history_view") == "ALL_SNAPSHOT_SUPPLIER_HISTORY"
+                    and hist_all.get("all_statuses_loaded") is True
+                    and hist_all.get("history_expansion_mode") == "FULL_CANDIDATE_HISTORY"
+                    and not mismatches_all
+                    and not mismatches_act
+                    and not invariant_fails
+                    and total_all >= total_act
+                )
+                live.update(
+                    {
+                        "ok": live_ok,
+                        "method": "live_db_all_status_and_active_recount",
+                        "history_view": hist_all.get("history_view"),
+                        "history_expansion_mode": hist_all.get("history_expansion_mode"),
+                        "all_statuses_loaded": hist_all.get("all_statuses_loaded"),
+                        "active_only_view": hist_act.get("history_view"),
+                        "loaded_all_status_contracts": total_all,
+                        "loaded_active_only_contracts": total_act,
+                        "all_minus_active": total_all - total_act,
+                        "mismatches_all_status": mismatches_all[:20],
+                        "mismatches_active": mismatches_act[:20],
+                        "invariant_failures": invariant_fails[:10],
+                        "metric_samples": metric_samples,
+                        "FAIL_if_active_only_claimed_as_full": (
+                            hist_all.get("active_only_filter") is True
+                        ),
+                    }
+                )
+            finally:
+                conn.close()
+    else:
+        live = {
+            "attempted": False,
+            "ok": False,
+            "reason": "CONFENGE_COMMERCIAL_STATE_DSN required for live recount",
+            "status": "BLOCKED_ALL_STATUS_HISTORY_NOT_PROVEN",
+        }
+
+    live_ok = bool(live.get("ok"))
+    # Unit alone never suffices for PASS when DSN available; without DSN = BLOCKED not green
+    if dsn:
+        ok = unit_ok and live_ok
+        status = "PASS" if ok else "FAIL"
+        exit_code = 0 if ok else 1
+    else:
+        ok = False
+        status = "BLOCKED_ALL_STATUS_HISTORY_NOT_PROVEN" if unit_ok else "FAIL"
+        exit_code = 2 if unit_ok else 1
+
     report = {
-        "ok": proc.returncode == 0,
-        "pytest_exit": proc.returncode,
-        "stdout_tail": (proc.stdout or "")[-2000:],
-        "stderr_tail": (proc.stderr or "")[-1000:],
+        "ok": ok,
+        "status": status,
         "history_view_required": "ALL_SNAPSHOT_SUPPLIER_HISTORY",
+        "unit_adversarial_ok": unit_ok,
+        "pytest_exit": proc.returncode,
+        "stdout_tail": (proc.stdout or "")[-1500:],
+        "live_recount": live,
+        "note": (
+            "PASS requires adversarial unit fixtures AND live all-status COUNT(*) "
+            "reconciliation. Active-only load must not equal all-status when closed "
+            "rows exist. JSON ok theater without live recount is rejected."
+        ),
     }
     (ART / "all-status-history-gate.json").write_text(
-        json.dumps(report, indent=2) + "\n", encoding="utf-8"
+        json.dumps(report, indent=2, default=str) + "\n", encoding="utf-8"
     )
-    print(json.dumps(report, indent=2))
-    return 0 if report["ok"] else 1
+    print(json.dumps(report, indent=2, default=str))
+    return exit_code
 
 
 def cmd_active_vs_historical_separation(_: argparse.Namespace) -> int:
+    """Prove ACTIVE_COMMERCIAL_PORTFOLIO is never used as historical denominator.
+
+    Unit adversarial fixtures + live DB: for sample suppliers, active metrics
+    must not equal all-history metrics when inactive contracts exist; sector
+    ratio must use all-history denominator.
+    """
     proc = subprocess.run(  # noqa: S603
         [
             sys.executable,
@@ -146,6 +289,7 @@ def cmd_active_vs_historical_separation(_: argparse.Namespace) -> int:
             "tests/commercial_leads/test_all_status_history.py::test_active_portfolio_not_historical_denominator",
             "tests/commercial_leads/test_all_status_history.py::test_adversarial_one_active_relevant_nine_closed_food",
             "tests/commercial_leads/test_all_status_history.py::test_adversarial_active_eng_historical_materials",
+            "tests/commercial_leads/test_all_status_history.py::test_split_views_and_invariants",
             "-q",
             "--tb=short",
             "-o",
@@ -156,18 +300,192 @@ def cmd_active_vs_historical_separation(_: argparse.Namespace) -> int:
         text=True,
         check=False,
     )
+    unit_ok = proc.returncode == 0
+    dsn = os.environ.get("CONFENGE_COMMERCIAL_STATE_DSN") or os.environ.get(
+        "CONFENGE_COMMERCIAL_SOURCE_DSN"
+    )
+    live: dict[str, Any] = {"attempted": False}
+    if dsn:
+        from scripts.commercial_leads.dbutil import connect, fetch_all
+        from scripts.commercial_leads.pipeline import (
+            compute_supplier_history_metrics,
+            load_full_supplier_histories,
+            split_history_views,
+        )
+        from scripts.commercial_leads.sector_fit import classify_supplier_sector_fit
+
+        d = _load_run()
+        lm = d.get("load_meta") or {}
+        cnpjs = list(lm.get("candidate_supplier_cnpjs") or [])[:40]
+        if not cnpjs and d.get("leads"):
+            cnpjs = [str(L["cnpj14"]) for L in d["leads"][:20]]
+        live["attempted"] = True
+        if not cnpjs:
+            live["ok"] = False
+            live["reason"] = "no_candidates"
+        else:
+            conn = connect(dsn)
+            try:
+                groups, hist = load_full_supplier_histories(
+                    conn, cnpjs, per_supplier_limit=None, active_only=False
+                )
+                # Live checks for every loaded supplier
+                separation_cases = []
+                all_active_only_cases = []
+                violations = []
+                invariant_ok_n = 0
+                for cnpj, crow in groups.items():
+                    m = compute_supplier_history_metrics(crow)
+                    all_h, active = split_history_views(crow)
+                    if not m.get("invariant_active_plus_inactive") or not m.get(
+                        "invariant_relevance_partition"
+                    ):
+                        violations.append({"cnpj14": cnpj, "reason": "metric_invariant_failed", **m})
+                    else:
+                        invariant_ok_n += 1
+                    # Sector denom must always be all-history size (even if all active)
+                    sector = classify_supplier_sector_fit(
+                        razao_social=crow[0].get("fornecedor_nome"),
+                        contracts=crow,
+                        history_is_full=True,
+                    )
+                    if sector.total_contract_count_full_history != m["all_snapshot_contract_count"]:
+                        violations.append(
+                            {
+                                "cnpj14": cnpj,
+                                "reason": "sector_denominator_not_all_history",
+                                "sector_total": sector.total_contract_count_full_history,
+                                "all_snapshot": m["all_snapshot_contract_count"],
+                            }
+                        )
+                    if m["inactive_or_closed_contract_count"] >= 1 and m["active_contract_count"] >= 1:
+                        if (
+                            m["relevant_all_history_count"] != m["active_relevant_count"]
+                            and m["relevant_all_history_ratio"] == m["active_relevant_ratio"]
+                            and m["all_snapshot_contract_count"] != m["active_contract_count"]
+                        ):
+                            violations.append(
+                                {
+                                    "cnpj14": cnpj,
+                                    "reason": "ratios_collapsed_despite_closed_rows",
+                                    **m,
+                                }
+                            )
+                        if len(separation_cases) < 10:
+                            separation_cases.append(
+                                {
+                                    "cnpj14": cnpj,
+                                    "all_snapshot_contract_count": m["all_snapshot_contract_count"],
+                                    "active_contract_count": m["active_contract_count"],
+                                    "inactive_or_closed_contract_count": m[
+                                        "inactive_or_closed_contract_count"
+                                    ],
+                                    "relevant_all_history_ratio": m["relevant_all_history_ratio"],
+                                    "active_relevant_ratio": m["active_relevant_ratio"],
+                                    "sector_total_full_history": sector.total_contract_count_full_history,
+                                }
+                            )
+                    elif len(all_active_only_cases) < 5:
+                        all_active_only_cases.append(
+                            {
+                                "cnpj14": cnpj,
+                                "all_snapshot_contract_count": m["all_snapshot_contract_count"],
+                                "active_contract_count": m["active_contract_count"],
+                                "inactive_or_closed_contract_count": m[
+                                    "inactive_or_closed_contract_count"
+                                ],
+                                "note": "snapshot row is_active=TRUE only; ratios may match",
+                            }
+                        )
+                # Global snapshot: all vs active counts
+                snap_all = fetch_all(
+                    conn, "SELECT COUNT(*)::int AS n FROM public.pncp_supplier_contracts"
+                )
+                snap_act = fetch_all(
+                    conn,
+                    "SELECT COUNT(*)::int AS n FROM public.pncp_supplier_contracts WHERE is_active = TRUE",
+                )
+                n_all = int(snap_all[0]["n"]) if snap_all else 0
+                n_act = int(snap_act[0]["n"]) if snap_act else 0
+                snapshot_all_active = n_all == n_act and n_all > 0
+                # When snapshot has zero closed rows, live cannot exhibit ratio divergence;
+                # adversarial unit fixtures prove that path. Live still must: load all-status
+                # view, enforce sector denom = all history, and pass metric invariants.
+                live_ok = (
+                    hist.get("history_view") == "ALL_SNAPSHOT_SUPPLIER_HISTORY"
+                    and hist.get("all_statuses_loaded") is True
+                    and not violations
+                    and invariant_ok_n == len(groups)
+                    and n_all >= n_act
+                    and (
+                        len(separation_cases) >= 1
+                        or (snapshot_all_active and unit_ok and len(groups) > 0)
+                    )
+                )
+                live.update(
+                    {
+                        "ok": live_ok,
+                        "method": "live_split_views_and_sector_denominator",
+                        "snapshot_all_contracts": n_all,
+                        "snapshot_active_contracts": n_act,
+                        "snapshot_inactive_or_closed": n_all - n_act,
+                        "snapshot_contains_only_active_rows": snapshot_all_active,
+                        "suppliers_with_both_active_and_closed": len(separation_cases),
+                        "separation_cases": separation_cases,
+                        "all_active_only_samples": all_active_only_cases,
+                        "invariant_ok_suppliers": invariant_ok_n,
+                        "suppliers_checked": len(groups),
+                        "violations": violations[:20],
+                        "history_view": hist.get("history_view"),
+                        "active_view": "ACTIVE_COMMERCIAL_PORTFOLIO",
+                        "note": (
+                            "Closed-contract separation proven by unit adversarial fixtures "
+                            "when live snapshot has is_active=TRUE for every row. "
+                            "Live proves ALL_SNAPSHOT load + sector denom + metric invariants."
+                            if snapshot_all_active
+                            else "Live snapshot has inactive/closed rows; separation checked live."
+                        ),
+                    }
+                )
+            finally:
+                conn.close()
+    else:
+        live = {
+            "attempted": False,
+            "ok": False,
+            "status": "BLOCKED_ALL_STATUS_HISTORY_NOT_PROVEN",
+            "reason": "DSN required for live separation proof",
+        }
+
+    if dsn:
+        ok = unit_ok and bool(live.get("ok"))
+        status = "PASS" if ok else "FAIL"
+        exit_code = 0 if ok else 1
+    else:
+        ok = False
+        status = "BLOCKED_ALL_STATUS_HISTORY_NOT_PROVEN" if unit_ok else "FAIL"
+        exit_code = 2 if unit_ok else 1
+
     report = {
-        "ok": proc.returncode == 0,
-        "pytest_exit": proc.returncode,
-        "stdout_tail": (proc.stdout or "")[-2000:],
+        "ok": ok,
+        "status": status,
         "active_view": "ACTIVE_COMMERCIAL_PORTFOLIO",
         "historical_view": "ALL_SNAPSHOT_SUPPLIER_HISTORY",
+        "unit_adversarial_ok": unit_ok,
+        "pytest_exit": proc.returncode,
+        "stdout_tail": (proc.stdout or "")[-1500:],
+        "live_separation": live,
+        "note": (
+            "ACTIVE portfolio feeds concurrent/near-expiry signals only. "
+            "Sector concentration, mixed activity, materials detection use "
+            "ALL_SNAPSHOT_SUPPLIER_HISTORY. Never reuse active as historical denom."
+        ),
     }
     (ART / "active-vs-historical-separation-gate.json").write_text(
-        json.dumps(report, indent=2) + "\n", encoding="utf-8"
+        json.dumps(report, indent=2, default=str) + "\n", encoding="utf-8"
     )
-    print(json.dumps(report, indent=2))
-    return 0 if report["ok"] else 1
+    print(json.dumps(report, indent=2, default=str))
+    return exit_code
 
 
 def cmd_registry_coverage(_: argparse.Namespace) -> int:
