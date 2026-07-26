@@ -9,5 +9,5 @@
   "artifact_only_commits_after_execution": true,
   "issues": [],
   "rule": "match_run_to_head == true only when executed_code_sha == current_pr_head_sha",
-  "verified_at": "2026-07-26T17:16:34Z"
+  "verified_at": "2026-07-26T17:24:28Z"
 }
