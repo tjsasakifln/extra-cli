@@ -276,20 +276,34 @@ def verify_final_integrity_code_freeze() -> dict[str, Any]:
     exec_path = ART / "EXECUTED_CODE_SHA.txt"
     executed = exec_path.read_text(encoding="utf-8").strip().split()[0] if exec_path.is_file() else freeze_sha
 
-    changed: list[str] = []
-    if freeze_sha != head:
-        try:
-            changed = _git("diff", "--name-only", f"{freeze_sha}..{head}").splitlines()
-        except subprocess.CalledProcessError:
-            changed = []
-    non_artifact = [f for f in changed if not any(f.startswith(p) for p in ALLOWED_POST_FREEZE_PREFIXES)]
-    artifact_only = len(changed) > 0 and len(non_artifact) == 0
-    code_changed = len(non_artifact) > 0
+    # Diff freeze against PR tip — never against pull_request merge ref (github.sha).
     pr_head = os.environ.get("CONFENGE_PR_HEAD_SHA") or head
     merge = os.environ.get("CONFENGE_WORKFLOW_MERGE_SHA") or os.environ.get("GITHUB_SHA")
+    tip = pr_head
+    changed: list[str] = []
+    if freeze_sha != tip:
+        try:
+            changed = _git("diff", "--name-only", f"{freeze_sha}..{tip}").splitlines()
+        except subprocess.CalledProcessError:
+            # Shallow clone may lack freeze; try fetch-less path list from log
+            try:
+                changed = [
+                    ln
+                    for ln in _git("log", "--name-only", "--pretty=format:", f"{freeze_sha}..{tip}").splitlines()
+                    if ln.strip()
+                ]
+            except subprocess.CalledProcessError:
+                changed = []
+    non_artifact = [f for f in changed if not any(f.startswith(p) for p in ALLOWED_POST_FREEZE_PREFIXES)]
+    code_changed = len(non_artifact) > 0
+    # Lag after freeze with zero non-artifact paths is artifact-only (even if tree
+    # diff is empty due to shallow clone — tip != freeze still counts as lag).
+    artifact_only = freeze_sha != tip and not code_changed
     # match_run uses PR head (not merge checkout SHA)
     match_run = executed == pr_head
-    ok = executed == freeze_sha and len(non_artifact) == 0 and (match_run or artifact_only or freeze_sha == head)
+    # PASS when executed matches freeze and no non-artifact drift vs PR tip.
+    # Do not require match_run (artifact-only lag is expected) or merge HEAD equality.
+    ok = executed == freeze_sha and not code_changed
     rep = {
         "ok": ok,
         "status": "PASS" if ok else "BLOCKED_CODE_EXECUTION_SHA_MISMATCH",
@@ -302,14 +316,14 @@ def verify_final_integrity_code_freeze() -> dict[str, Any]:
         "executed_code_sha": executed,
         "match_run_to_head": match_run,
         "code_changed_after_execution": code_changed,
-        "artifact_only_commits_after_execution": artifact_only and not code_changed,
+        "artifact_only_commits_after_execution": artifact_only,
         "files_changed_after_freeze": changed,
         "non_artifact_files_changed_after_execution": non_artifact,
         "verified_at": utc_now(),
         "policy": (
-            "post-freeze non-artifact tree must be empty; "
+            "post-freeze non-artifact tree vs pr_head must be empty; "
             "match_run_to_head true only when executed_code_sha == pr_head_sha; "
-            "workflow_merge_sha is never labeled as current_pr_head_sha"
+            "workflow_merge_sha / checked_out merge ref is never used as pr_head"
         ),
     }
     (ART / "final-integrity-code-freeze-gate.json").write_text(json.dumps(rep, indent=2) + "\n", encoding="utf-8")

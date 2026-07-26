@@ -1077,7 +1077,10 @@ jobs:
     outputs:
       status: ${{ steps.integrity.outputs.status }}
     steps:
+      # Full history so freeze..pr_head diffs work; PR head env is separate from merge ref
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
