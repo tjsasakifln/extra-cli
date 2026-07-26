@@ -665,9 +665,18 @@ jobs:
           pip install pytest
       - name: Structural commercial gates (unit/synthetic)
         run: |
+          # 0 = live/full PASS; 2 = honest BLOCKED without DSN after unit helpers
+          set +e
           make verify-confenge-all-status-history
+          c1=$?
           make verify-confenge-active-vs-historical-separation
+          c2=$?
           make verify-confenge-end-to-end-reproducibility
+          c3=$?
+          set -e
+          test "$c1" = "0" -o "$c1" = "2"
+          test "$c2" = "0" -o "$c2" = "2"
+          test "$c3" = "0" -o "$c3" = "2"
           make verify-confenge-snapshot-manifest-immutability
           # Registry independence detector unit tests (bias on last run is BLOCKED exit 2)
           python3 -m pytest tests/commercial_leads/test_registry_selection_independence.py -q --tb=short -o addopts=
