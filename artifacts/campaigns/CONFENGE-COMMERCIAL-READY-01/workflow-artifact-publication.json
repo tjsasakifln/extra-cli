@@ -2,7 +2,7 @@
   "published_as_workflow_artifact": true,
   "workflow_run_id": "30214302257",
   "workflow_run_url": "https://github.com/tjsasakifln/extra-cli/actions/runs/30214302257",
-  "workflow_pr_head_sha": "c719d3104d9a726b60944d8fab491966db52a351",
+  "workflow_pr_head_sha": "7262d2bf4840dda61a134cace76c41b32a1694c0",
   "workflow_merge_sha": "9a4077836faa84edda996e9911a158011abf4880",
   "human_review_artifact_id": 8635350157,
   "human_review_artifact_digest": "sha256:04372c253c3af4ecc237f15349243c839ad1a222e4b4c056e328016cef5a7738",
@@ -14,7 +14,7 @@
   },
   "artifact_created_at": "2026-07-26T18:15:43Z",
   "artifact_expires_at": "2026-10-24T18:14:39Z",
-  "executed_code_sha": "554d6984db7cc1a8d4945319ecc393ea50abfde9",
-  "captured_at": "2026-07-26T18:20:09Z",
-  "source_run": "30214302257"
+  "executed_code_sha": "7262d2bf4840dda61a134cace76c41b32a1694c0",
+  "captured_at": "2026-07-26T18:32:33Z",
+  "note": "IDs from green run 30214302257 (tip c719d310); integrity re-freeze is later tip"
 }

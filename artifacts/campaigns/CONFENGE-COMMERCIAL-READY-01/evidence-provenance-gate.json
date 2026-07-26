@@ -1,17 +1,20 @@
 {
   "ok": true,
   "status": "PASS",
-  "current_pr_head_sha": "c719d3104d9a726b60944d8fab491966db52a351",
-  "final_code_freeze_sha": "554d6984db7cc1a8d4945319ecc393ea50abfde9",
-  "final_integrity_code_freeze_sha": "554d6984db7cc1a8d4945319ecc393ea50abfde9",
-  "executed_code_sha": "554d6984db7cc1a8d4945319ecc393ea50abfde9",
-  "evidence_commit_sha": "c719d3104d9a726b60944d8fab491966db52a351",
-  "workflow_head_sha": "c719d3104d9a726b60944d8fab491966db52a351",
-  "artifact_git_sha": "c719d3104d9a726b60944d8fab491966db52a351",
-  "code_tree_hash_at_execution": "aaec304c3ed7f4f0eb16a227dde42b73838bc2dbf37175d341e61379d0bc95a8",
-  "code_tree_hash_at_current_head": "9788cdbf61049f431ee1112b70e283742cd2803c47d7cfcf54c1b54ad3d78e3a",
+  "current_pr_head_sha": "7262d2bf4840dda61a134cace76c41b32a1694c0",
+  "pr_head_sha": "7262d2bf4840dda61a134cace76c41b32a1694c0",
+  "checked_out_sha": "7262d2bf4840dda61a134cace76c41b32a1694c0",
+  "workflow_merge_sha": "9a4077836faa84edda996e9911a158011abf4880",
+  "final_code_freeze_sha": "7262d2bf4840dda61a134cace76c41b32a1694c0",
+  "final_integrity_code_freeze_sha": "7262d2bf4840dda61a134cace76c41b32a1694c0",
+  "executed_code_sha": "7262d2bf4840dda61a134cace76c41b32a1694c0",
+  "evidence_commit_sha": "7262d2bf4840dda61a134cace76c41b32a1694c0",
+  "workflow_head_sha": "9a4077836faa84edda996e9911a158011abf4880",
+  "artifact_git_sha": "7262d2bf4840dda61a134cace76c41b32a1694c0",
+  "code_tree_hash_at_execution": "2ce4acfa0fdc98ce17c00792171da75364511466f94214312990929baa5e2991",
+  "code_tree_hash_at_current_head": "2ce4acfa0fdc98ce17c00792171da75364511466f94214312990929baa5e2991",
   "code_changed_after_execution": false,
-  "artifact_only_commits_after_execution": true,
+  "artifact_only_commits_after_execution": false,
   "non_artifact_files_changed_after_execution": [],
   "execution": {
     "execution_environment": "local",
@@ -23,18 +26,19 @@
     "job_ids": null,
     "command": "make campaign-gate-confenge-commercial-ready",
     "started_at": null,
-    "finished_at": "2026-07-26T18:20:08Z",
+    "finished_at": "2026-07-26T18:32:33Z",
     "exit_code": 0
   },
-  "match_run_to_head": false,
+  "match_run_to_head": true,
   "sha_semantics": {
-    "current_pr_head_sha": "HEAD atual real da PR",
+    "current_pr_head_sha": "PR tip (CONFENGE_PR_HEAD_SHA / live tip)",
     "executed_code_sha": "commit cujo c\u00f3digo foi executado",
     "evidence_commit_sha": "commit que adicionou os artefatos gerados",
-    "workflow_head_sha": "SHA executado pelo GitHub Actions",
+    "workflow_head_sha": "merge ref / github.sha no evento pull_request",
+    "workflow_merge_sha": "mesmo que workflow_head_sha no PR Actions",
     "final_code_freeze_sha": "commit congelado antes da execu\u00e7\u00e3o final",
-    "artifact_git_sha": "commit que cont\u00e9m ou referencia o pacote de evid\u00eancia",
-    "match_run_to_head_rule": "true only when executed_code_sha == current_pr_head_sha"
+    "artifact_git_sha": "commit de c\u00f3digo da evid\u00eancia (executed)",
+    "match_run_to_head_rule": "true only when executed_code_sha == pr_head_sha"
   },
-  "verified_at": "2026-07-26T18:20:08Z"
+  "verified_at": "2026-07-26T18:32:33Z"
 }
