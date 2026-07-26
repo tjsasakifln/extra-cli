@@ -601,6 +601,7 @@ def write_derived_artifacts(status: dict[str, Any] | None = None) -> dict[str, A
         "machine_blockers": status["machine_blockers"],
         "human_blockers": status["human_blockers"],
         "all_other_machine_blockers": status["all_other_machine_blockers"],
+        "official_registry_coverage": status.get("official_registry_coverage"),
         "structural_ci_status": status["structural_ci_status"],
         "real_historical_ci_status": status["real_historical_ci_status"],
         "real_registry_ci_status": status["real_registry_ci_status"],
