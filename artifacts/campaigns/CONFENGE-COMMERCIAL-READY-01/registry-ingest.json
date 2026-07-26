@@ -1,0 +1,10 @@
+{
+  "requested": 500,
+  "fetched_with_cnae": 100,
+  "failed_or_empty": 400,
+  "upserted": 100,
+  "source": "brasilapi",
+  "source_version": "cnpj/v1",
+  "source_date": "2026-07-25",
+  "elapsed_s": 8.39
+}

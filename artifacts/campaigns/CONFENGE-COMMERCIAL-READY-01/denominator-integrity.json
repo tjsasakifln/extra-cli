@@ -30,10 +30,27 @@
   ],
   "adversarial_ok": true,
   "db_sample": {
-    "ok": null,
-    "skipped": true,
-    "reason": "no DSN"
+    "ok": true,
+    "sample_n": 25,
+    "history_meta": {
+      "stage": "full_history",
+      "history_expansion_mode": "FULL_CANDIDATE_HISTORY",
+      "candidate_count": 25,
+      "suppliers_with_history": 25,
+      "full_history_contract_count": 117,
+      "mean_contracts_per_candidate": 4.68,
+      "median_contracts_per_candidate": 2.0,
+      "single_contract_candidate_rate": 0.48,
+      "per_supplier_limit": null,
+      "truncated_suppliers": [],
+      "history_complete": true,
+      "snapshot_count_mismatches": [],
+      "snapshot_count_mismatch_n": 0
+    },
+    "discovery_candidates": 7250,
+    "prefilter_inflation_caught": [],
+    "mismatches": []
   },
-  "db_ok": null,
+  "db_ok": true,
   "ok": true
 }

@@ -36,13 +36,13 @@ def _ctr(
 
 
 def _strong_history() -> list[dict]:
-    """Meets gold STRONG thresholds without CNAE: >=3 relevant, ratio>=0.7, 2+ agencies, 180d span, 2+ objects."""
+    """Meets gold STRONG thresholds without CNAE: >=3 relevant, ratio>=0.7, 2+ agencies, span>=90d, 2+ objects."""
     d0 = date(2024, 1, 1)
     return [
         _ctr("execução de obras e serviços de engenharia para estradas", orgao="org-a", pub=d0),
-        _ctr("pavimentação asfáltica de vias urbanas", orgao="org-b", pub=d0 + timedelta(days=200)),
-        _ctr("terraplenagem e drenagem urbana", orgao="org-a", pub=d0 + timedelta(days=400)),
-        _ctr("construção de escola municipal em alvenaria", orgao="org-b", pub=d0 + timedelta(days=500)),
+        _ctr("pavimentação asfáltica de vias urbanas", orgao="org-b", pub=d0 + timedelta(days=100)),
+        _ctr("terraplenagem e drenagem urbana", orgao="org-a", pub=d0 + timedelta(days=120)),
+        _ctr("construção de escola municipal em alvenaria", orgao="org-b", pub=d0 + timedelta(days=150)),
     ]
 
 

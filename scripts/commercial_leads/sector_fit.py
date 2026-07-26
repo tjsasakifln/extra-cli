@@ -21,7 +21,11 @@ from scripts.commercial_leads.contract_relevance import (
     normalize_text,
 )
 
-RULE_VERSION = "supplier-sector-fit-v2-gold"
+RULE_VERSION = "supplier-sector-fit-v2.1-gold"
+# v2.1: STRONG_MIN_TIME_SPAN_DAYS 180→90 justified by campaign snapshot
+# observation windows (~160d). 90d still requires multi-month multi-agency
+# evidence; 180d was unachievable by construction on this snapshot and
+# blocked all CONFIRMED-less engineering contractors.
 
 # Classes required by goal
 CLASS_CONFIRMED = "CONFIRMED_ENGINEERING"
@@ -117,6 +121,12 @@ NAME_OUT_OF_SCOPE: tuple[str, ...] = (
     "advogados",
     "imobiliario",
     "imobiliarios",
+    "artefatos de cimento",
+    "artefatos de concreto",
+    "pre moldados",
+    "premoldados",
+    "concreto usinado",
+    "concreteira",
 )
 
 CNAE_ENGINEERING_PREFIXES: tuple[str, ...] = (
@@ -142,11 +152,19 @@ CNAE_OUT_PREFIXES: tuple[str, ...] = (
     "80",  # segurança/vigilância
 )
 
+# Manufacturing / materials (not engineering service providers)
+CNAE_MATERIAL_PREFIXES: tuple[str, ...] = (
+    "23",  # produtos de minerais não-metálicos (cimento, pré-moldados, cerâmica)
+    "24",  # metalurgia
+    "25",  # produtos de metal (exceto máquinas)
+)
+
 # Gold-standard STRONG thresholds (without CNAE principal)
 STRONG_MIN_RELEVANT = 3
 STRONG_MIN_RATIO = 0.70
 STRONG_MIN_AGENCIES = 2
-STRONG_MIN_TIME_SPAN_DAYS = 180
+# 90d (v2.1): multi-month evidence; 180d was unachievable on ~160d snapshots
+STRONG_MIN_TIME_SPAN_DAYS = 90
 STRONG_MIN_OBJECT_DIVERSITY = 2
 
 # Material / supply markers
@@ -475,6 +493,7 @@ def classify_supplier_sector_fit(
 
     cnae_eng = _cnae_matches(cnae_principal, CNAE_ENGINEERING_PREFIXES)
     cnae_out = _cnae_matches(cnae_principal, CNAE_OUT_PREFIXES)
+    cnae_material = _cnae_matches(cnae_principal, CNAE_MATERIAL_PREFIXES)
     sec_eng = any(_cnae_matches(c, CNAE_ENGINEERING_PREFIXES) for c in cnaes_secundarios)
     if cnae_principal:
         sources.append("cnae_principal")
@@ -494,16 +513,24 @@ def classify_supplier_sector_fit(
         pos_name=pos_name,
         neg_name=neg_name,
         cnae_eng=cnae_eng,
-        cnae_out=cnae_out,
+        cnae_out=cnae_out or cnae_material,
     )
+    if cnae_material and not cnae_eng:
+        activity = ACTIVITY_MATERIAL
 
     classification = CLASS_UNKNOWN
     confidence = 0.2
 
     # --- Decision tree (gold standard) ---
 
+    # Materials manufacturer (CNAE 23/24/25) is not an engineering service firm
+    if cnae_material and not cnae_eng:
+        classification = CLASS_OUT if ratio < 0.85 else CLASS_CONFLICTING
+        confidence = 0.86
+        reasons.append("cnae_material_manufacturer")
+        activity = ACTIVITY_MATERIAL
     # Name engineering + CNAE retail + commercial history → CONFLICTING
-    if pos_name and cnae_out and not cnae_eng and ratio < STRONG_MIN_RATIO:
+    elif pos_name and cnae_out and not cnae_eng and ratio < STRONG_MIN_RATIO:
         classification = CLASS_CONFLICTING
         confidence = 0.7
         reasons.append("name_engineering_cnae_out_conflicting")

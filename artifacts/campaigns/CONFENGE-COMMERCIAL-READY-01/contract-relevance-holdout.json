@@ -1,5 +1,5 @@
 {
-  "holdout_path": "evals/commercial_leads/holdout-v1.jsonl",
+  "holdout_path": "/mnt/d/extra consultoria/.worktrees/confenge-commercial-ready-01/evals/commercial_leads/holdout-v1.jsonl",
   "thresholds": {
     "precision": 0.95,
     "recall": 0.9,

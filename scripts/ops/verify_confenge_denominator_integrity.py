@@ -106,12 +106,11 @@ def adversarial_cases() -> list[dict[str, Any]]:
     )
 
     # Case 4: full strong history still works
-    d0 = date(2024, 1, 1)
     strong_rows = [
         _c("execução de obras e serviços de engenharia para estradas", "org-a", 0),
-        _c("pavimentação asfáltica de vias urbanas", "org-b", 200),
-        _c("terraplenagem e drenagem urbana", "org-a", 400),
-        _c("construção de escola municipal em alvenaria", "org-b", 500),
+        _c("pavimentação asfáltica de vias urbanas", "org-b", 100),
+        _c("terraplenagem e drenagem urbana", "org-a", 120),
+        _c("construção de escola municipal em alvenaria", "org-b", 150),
     ]
     d4 = classify_supplier_sector_fit(
         razao_social="CONSTRUTORA REAL LTDA",

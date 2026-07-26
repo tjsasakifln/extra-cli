@@ -1,0 +1,77 @@
+{
+  "method": "same_universe_uf_filter_hash_sample_no_keyword_prefilter",
+  "ufs": [
+    "SC",
+    "PR",
+    "RS",
+    "SP",
+    "RJ",
+    "MG"
+  ],
+  "sample_contracts": 2898,
+  "gold_relevant_suppliers_in_sample": 993,
+  "discovered_among_gold": 984,
+  "missed": 9,
+  "candidate_discovery_recall": 0.9909,
+  "threshold": 0.95,
+  "ok": true,
+  "status": "PASS",
+  "discovery_meta_candidate_count": 7250,
+  "missed_examples": [
+    {
+      "cnpj": "06941912000144",
+      "objeto": "Serviços de desinsetização e desratização nos seguintes imóveis do Coren-RS:\n\na) (Sede) - 01 (um) imóvel localizado à Av",
+      "uf": "RS"
+    },
+    {
+      "cnpj": "12547887000111",
+      "objeto": "Contratação de serviço de manutenção do calçamento de vias pavimentadas com lajotas, paralelepípedo ou bloco retangular ",
+      "uf": "SC"
+    },
+    {
+      "cnpj": "43307487000162",
+      "objeto": "Contratação de empresa especializada no fornecimento e confecção de logomarca\r\ninstitucional em estrutura 3D, produzida ",
+      "uf": "SP"
+    },
+    {
+      "cnpj": "12547887000111",
+      "objeto": "Contratação de serviço de manutenção do calçamento de vias pavimentadas com lajotas, paralelepípedo ou bloco retangular ",
+      "uf": "SC"
+    },
+    {
+      "cnpj": "57266325000138",
+      "objeto": "REGISTRO DE PREÇOS PARA FORNECIMENTO E INSTALAÇÃO DE PAVIMENTO ARTICULADO PARA AS UNIDADES ESCOLARES DA REDE MUNICIPAL D",
+      "uf": "SP"
+    },
+    {
+      "cnpj": "01382443000157",
+      "objeto": "SERVIÇO DE DESMOBILIZAÇÃO DAS EDIFICAÇÕES E-033 (GALVANOPLASTIA), E-045 (ESTAÇÃO DE TRATAMENTO DE EFLUENTES) E E-038 (OF",
+      "uf": "SP"
+    },
+    {
+      "cnpj": "09413300000177",
+      "objeto": "CP 001 2025   de REGISTRO DE PRECOS DE EMPRESA ESPECIALIZADA PARA EXECUCAO DE SERVICOS DE REPAROS EM EDIFICIOS DA PREFEI",
+      "uf": "SP"
+    },
+    {
+      "cnpj": "52693395000159",
+      "objeto": "CONTRATAÇÃO DE EMPRESA PARA PRESTAÇÃO DE SERVIÇO DE MANUTENÇÃO VIÁRIA EM VIAS PÚBLICAS NÃO PAVIMENTADAS COM MELHORAMENTO",
+      "uf": "RS"
+    },
+    {
+      "cnpj": "09240553000196",
+      "objeto": "REGISTRO DE PRECOS para futura e eventual aquisicao  de forma parcelada  de materiais britados  po de brita  britas n  0",
+      "uf": "RS"
+    },
+    {
+      "cnpj": "12547887000111",
+      "objeto": "Contratação de serviço de manutenção do calçamento de vias pavimentadas com lajotas, paralelepípedo ou bloco retangular ",
+      "uf": "SC"
+    },
+    {
+      "cnpj": "21367212000181",
+      "objeto": "Contratação de empresa especializada para a elaboração de Anteprojeto, Projeto Executivo e Renderização de Imagens desti",
+      "uf": "SC"
+    }
+  ]
+}
