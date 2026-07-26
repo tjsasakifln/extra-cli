@@ -1,15 +1,15 @@
 {
-  "executed_git_sha": "c7b2cd1de15ae2232f48e4af4cc500229a265cdb",
+  "executed_git_sha": "f1f41ac0aada1f1a1d4a137799a8e4942f1d279d",
   "workflow_run_id": null,
-  "created_at": "2026-07-26T00:53:31.448117+00:00",
+  "created_at": "2026-07-26T01:11:03.552845+00:00",
   "checksums": {
     "result.json": {
       "exists": true,
-      "sha256": "21aebd9d431a2556ab42a66bd9823832bc28cfc3b2a26b9f804ef5f842d22742"
+      "sha256": "567f72ee2a56eff93de4686182aeefc318051506fa922d2cb98f2fcb5516c44e"
     },
     "queue-summary.json": {
       "exists": true,
-      "sha256": "9577e7727ba8ae9287d17a93a1529cbbab1165cbcf7719066a99d6959c81c741"
+      "sha256": "ca3030d2339dfc775bc1b1d5499aad853bf10cc80b50ce98ef66be89b2706f87"
     },
     "denominator-integrity.json": {
       "exists": true,
@@ -38,7 +38,15 @@
     "snapshot-content-binding-gate.json": {
       "exists": true,
       "sha256": "48dd8194aa5356880c6c7d1217165efb81837f91d14b7093a6f666137d9add8c"
+    },
+    "source-state-isolation-gate.json": {
+      "exists": true,
+      "sha256": "737dd7b710638fac6bc87b76a8cf2a7a18171b92e136936368e1675aeea41d36"
+    },
+    "ranking-stability.json": {
+      "exists": true,
+      "sha256": "cf722bd21d2218f08a5fb2820e7b5f712c859e83a980e56bf435a9e528503c04"
     }
   },
-  "note": "execution artifacts; not self-referential commit SHA of this package"
+  "note": "bound to code commit; evidence-only lag commits allowed"
 }

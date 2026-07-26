@@ -1,7 +1,7 @@
 {
   "run_id": "cl-20260726T003820Z-f8e90e36",
   "status": "BLOCKED",
-  "git_sha": "691878853160b85ab7736d36f8265ed427f64d88",
+  "git_sha": "f1f41ac0aada1f1a1d4a137799a8e4942f1d279d",
   "discovery_mode": "PREFILTERED_CANDIDATE_DISCOVERY",
   "history_expansion_mode": "FULL_CANDIDATE_HISTORY",
   "ranking_population_mode": "FULL_ELIGIBLE_CANDIDATES",
@@ -433,5 +433,7 @@
     "false_positives": null,
     "false_negatives": null,
     "human_review_status": "PENDING"
-  }
+  },
+  "run_git_sha": "f1f41ac0aada1f1a1d4a137799a8e4942f1d279d",
+  "artifact_git_sha": "f1f41ac0aada1f1a1d4a137799a8e4942f1d279d"
 }
