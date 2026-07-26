@@ -6,11 +6,11 @@
   "pr": 144,
   "branch": "campaign/confenge-commercial-ready-01",
   "generated_at": "2026-07-26T15:35:49Z",
-  "current_pr_head_sha": "da9596aece9a661c0b4bf4cba0637cac5e20767c",
+  "current_pr_head_sha": "de90b4dfb702ee94f95e9bab51fd0b1b37d57224",
   "main_sha": "8344254942ec48978566317df16d7b3e3caabd89",
   "final_code_freeze_sha": "da9596aece9a661c0b4bf4cba0637cac5e20767c",
   "executed_code_sha": "da9596aece9a661c0b4bf4cba0637cac5e20767c",
-  "evidence_commit_sha": "da9596aece9a661c0b4bf4cba0637cac5e20767c",
+  "evidence_commit_sha": "de90b4dfb702ee94f95e9bab51fd0b1b37d57224",
   "code_changed_after_execution": false,
   "snapshot": {
     "source": "pncp_datalake historical backfill \u2192 confenge_commercial",
@@ -155,7 +155,7 @@
   },
   "execution_environment": "local",
   "workflow_run_id": null,
-  "artifact_only_commits_after_execution": false,
+  "artifact_only_commits_after_execution": true,
   "files_changed_after_freeze": [
     "artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/EXECUTED_CODE_SHA.txt",
     "artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/FINAL-EVIDENCE-CLOSURE.md",
