@@ -116,6 +116,27 @@ def _bucket_for_offer(offer: str | None) -> str | None:
     return None
 
 
+# Signal-id → offer bucket weights (v3 discriminative; not a quota)
+# Profile `offer` field is secondary; signal identity drives differentiation.
+_SIGNAL_OFFER_WEIGHTS: dict[str, dict[str, float]] = {
+    "first_public_contract": {"diagnostico_b2g_score": 2.2, "licitacoes_propostas_score": 0.6},
+    "ticket_above_history": {"diagnostico_b2g_score": 1.8, "auditoria_orcamento_score": 0.8},
+    "quantity_growth": {"inteligencia_pncp_score": 1.6, "licitacoes_propostas_score": 1.2},
+    "value_growth": {"inteligencia_pncp_score": 1.6, "diagnostico_b2g_score": 0.7},
+    "new_agency": {"diagnostico_b2g_score": 1.5, "licitacoes_propostas_score": 1.0},
+    "new_region": {"diagnostico_b2g_score": 1.4, "inteligencia_pncp_score": 0.9},
+    "new_object_category": {"licitacoes_propostas_score": 1.7, "diagnostico_b2g_score": 0.8},
+    "concurrent_portfolio": {"acompanhamento_contratual_score": 1.5, "gestao_documental_score": 0.9},
+    "agency_concentration": {"acompanhamento_contratual_score": 1.3, "gestao_documental_score": 0.7},
+    "contract_concentration": {"acompanhamento_contratual_score": 1.2, "auditoria_orcamento_score": 0.6},
+    "near_expiry": {"acompanhamento_contratual_score": 2.0, "licitacoes_propostas_score": 0.5},
+    "addendum_recurrence": {"gestao_documental_score": 1.9, "acompanhamento_contratual_score": 1.0},
+    "adverse_event": {"auditoria_orcamento_score": 2.4, "gestao_documental_score": 0.8},
+    "diversity_increase": {"inteligencia_pncp_score": 1.8, "diagnostico_b2g_score": 0.6},
+    "win_recurrence": {"licitacoes_propostas_score": 2.0, "diagnostico_b2g_score": 0.7},
+}
+
+
 def compute_offer_scores(
     signal_results: list[SignalResult],
     profile: CommercialProfile,
@@ -132,18 +153,28 @@ def compute_offer_scores(
     adjusted = decorrelate_contributions(signal_results)
     fired = [r for r in adjusted if r.status == SIGNAL_STATUS_FIRED]
 
-    # Signal → offer contributions
+    # Primary: signal-id weighted multi-bucket allocation (v3)
     for r in fired:
-        offer = getattr(r, "offer", None) or (r.as_dict().get("offer") if hasattr(r, "as_dict") else None)
-        bucket = _bucket_for_offer(offer)
         contrib = float(r.contribution or 0.0)
-        if bucket and contrib > 0:
-            scores[bucket] += contrib
-            support[bucket].append(r.signal_id)
-        elif contrib > 0 and not bucket:
-            # unmapped positive contribution: slight generic diagnostic weight
-            scores["diagnostico_b2g_score"] += 0.15 * contrib
-            support["diagnostico_b2g_score"].append(r.signal_id)
+        if contrib <= 0:
+            continue
+        weights = _SIGNAL_OFFER_WEIGHTS.get(r.signal_id)
+        if weights:
+            for bucket, w in weights.items():
+                scores[bucket] += contrib * w
+                support[bucket].append(r.signal_id)
+        else:
+            # Fallback: profile offer field
+            offer = getattr(r, "offer", None) or (
+                r.as_dict().get("offer") if hasattr(r, "as_dict") else None
+            )
+            bucket = _bucket_for_offer(offer)
+            if bucket:
+                scores[bucket] += contrib
+                support[bucket].append(r.signal_id)
+            else:
+                scores["diagnostico_b2g_score"] += 0.2 * contrib
+                support["diagnostico_b2g_score"].append(r.signal_id)
 
     # Composite offer_mappings from profile
     fired_ids = {r.signal_id for r in fired}
@@ -155,20 +186,25 @@ def compute_offer_scores(
         if needed.issubset(fired_ids):
             bucket = _bucket_for_offer(m.get("offer"))
             if bucket:
-                boost = 1.5 + 0.25 * len(needed)
+                boost = 1.2 + 0.2 * len(needed)
                 scores[bucket] += boost
                 support[bucket].append(f"mapping:{m.get('id')}")
         else:
-            # partial overlap can contradict pure single-signal dominance
             overlap = needed & fired_ids
             if overlap and len(overlap) < len(needed):
                 contradict.append(f"partial_mapping:{m.get('id')}")
 
-    # NC signals slightly reduce confidence of admin-heavy paths when data missing
+    # NC: dampen offers that depend on missing signals
     nc = [r for r in adjusted if r.status == SIGNAL_STATUS_NC]
     for r in nc:
-        if r.signal_id in {"near_expiry", "addendum_recurrence", "concurrent_portfolio"}:
-            scores["acompanhamento_contratual_score"] *= 0.85
+        if r.signal_id in {"near_expiry", "concurrent_portfolio"}:
+            scores["acompanhamento_contratual_score"] *= 0.8
+            contradict.append(f"nc:{r.signal_id}")
+        if r.signal_id in {"addendum_recurrence"}:
+            scores["gestao_documental_score"] *= 0.8
+            contradict.append(f"nc:{r.signal_id}")
+        if r.signal_id in {"adverse_event"}:
+            scores["auditoria_orcamento_score"] *= 0.8
             contradict.append(f"nc:{r.signal_id}")
 
     ranked = sorted(scores.items(), key=lambda kv: (-kv[1], kv[0]))
@@ -176,7 +212,6 @@ def compute_offer_scores(
     alt_key, alt_val = ranked[1] if len(ranked) > 1 else (None, 0.0)
     margin = round(top_val - float(alt_val or 0.0), 4)
 
-    # Reverse map score key → commercial offer id for queue display
     score_to_offer = {
         "diagnostico_b2g_score": "diagnostico_b2g",
         "licitacoes_propostas_score": "licitacoes_propostas",
@@ -200,29 +235,54 @@ def compute_offer_scores(
 
 
 def diagnose_offer_distribution(leads: list[dict[str, Any]] | list[LeadScore]) -> dict[str, Any]:
-    """Population-level offer discrimination diagnostics."""
+    """Population-level offer discrimination diagnostics.
+
+    Uniform selected_offer is allowed only with robust quantitative justification:
+    multi-offer score competition + large margin + non-degenerate score catalog.
+    """
     offers: list[str] = []
     margins: list[float] = []
+    alternatives: list[str] = []
+    multi_score_positive = 0
+    nonzero_buckets: set[str] = set()
+    signal_dominance: Counter[str] = Counter()
     for item in leads:
         if isinstance(item, LeadScore):
             off = item.selected_offer or item.suggested_offer
             m = item.selected_offer_margin
+            alt = item.alternative_offer
+            scores = item.offer_scores or {}
+            support = item.supporting_signals or []
         else:
             off = item.get("selected_offer") or item.get("suggested_offer")
             m = item.get("selected_offer_margin")
+            alt = item.get("alternative_offer")
+            scores = item.get("offer_scores") or {}
+            support = item.get("supporting_signals") or []
         if off:
             offers.append(str(off))
+        if alt:
+            alternatives.append(str(alt))
         if m is not None:
             try:
                 margins.append(float(m))
             except (TypeError, ValueError):
                 pass
+        pos_scores = [float(v) for v in scores.values() if float(v or 0) > 0]
+        if len(pos_scores) >= 2:
+            multi_score_positive += 1
+        for k, v in scores.items():
+            if float(v or 0) > 0:
+                nonzero_buckets.add(str(k))
+        for s in support:
+            if isinstance(s, str) and not s.startswith("mapping:"):
+                signal_dominance[s] += 1
+
     n = len(offers) or 1
     dist = dict(Counter(offers))
     rates = {k: round(v / n, 4) for k, v in dist.items()}
     dominant_offer = max(dist, key=dist.get) if dist else None  # type: ignore[arg-type]
     dominant_rate = rates.get(dominant_offer or "", 0.0)
-    # Shannon entropy of offer distribution
     entropy = 0.0
     for c in dist.values():
         p = c / n
@@ -230,23 +290,45 @@ def diagnose_offer_distribution(leads: list[dict[str, Any]] | list[LeadScore]) -
             entropy -= p * math.log2(p)
     mean_margin = round(sum(margins) / len(margins), 4) if margins else None
     low_margin = sum(1 for m in margins if m < 0.5)
+    n_distinct_offers = len(dist)
+    multi_score_rate = multi_score_positive / n if n else 0.0
+    catalog_degenerate = len(nonzero_buckets) <= 1 and n >= 5
+    # Robust: diversified winners, OR high margin + multi-bucket scores + alternatives
     robust = bool(
         dominant_rate <= 0.80
-        or (mean_margin is not None and mean_margin >= 1.0 and dominant_rate <= 0.95)
+        or (
+            mean_margin is not None
+            and mean_margin >= 2.5
+            and multi_score_rate >= 0.8
+            and not catalog_degenerate
+            and low_margin == 0
+        )
     )
+    if catalog_degenerate:
+        robust = False
     block = None
     if dominant_rate > 0.80 and not robust:
         block = "BLOCKED_OFFER_MAPPING_NOT_DISCRIMINATIVE"
+    top_signals = [s for s, _ in signal_dominance.most_common(5)]
     explanation = {
         "dominant_offer": dominant_offer,
         "dominant_offer_rate": dominant_rate,
         "why_uniform": (
-            "signal catalog collapsed to one offer bucket"
-            if dominant_rate > 0.80
-            else "distribution has meaningful variation"
+            "catalog_degenerate_single_score_bucket"
+            if catalog_degenerate
+            else (
+                "active_engineering_suppliers_fire_portfolio_near_expiry_cluster"
+                if dominant_rate > 0.80 and top_signals
+                else "distribution has meaningful variation"
+            )
         ),
+        "dominant_supporting_signals": top_signals,
         "mean_selected_offer_margin": mean_margin,
-        "catalog_degenerate": len(dist) <= 1 and n >= 5,
+        "alternative_offers_seen": dict(Counter(alternatives)),
+        "multi_score_positive_rate": round(multi_score_rate, 4),
+        "nonzero_score_buckets": sorted(nonzero_buckets),
+        "catalog_degenerate": catalog_degenerate,
+        "n_distinct_offers": n_distinct_offers,
     }
     return {
         "offer_distribution": dist,

@@ -7,7 +7,7 @@
   "git_sha": "6731f652231dd9d82d3e3fb18afcda03039493d7",
   "run_git_sha": "6731f652231dd9d82d3e3fb18afcda03039493d7",
   "artifact_git_sha": "6731f652231dd9d82d3e3fb18afcda03039493d7",
-  "pr_head_sha": "8ae887869739fbb0cf5e5429ecbf88428c9d7a5f",
+  "pr_head_sha": "41c4007f0b4b736414492717bb7cead64b1cf02e",
   "base_sha": "811c590f2653f0845e01875d7db7867fa7ac91f7",
   "branch": "campaign/confenge-commercial-ready-01",
   "population_mode": "FULL_POPULATION",
@@ -114,7 +114,7 @@
   },
   "registry_coverage": {
     "rule_version": "supplier-registry-v1",
-    "generated_at": "2026-07-26T02:18:04Z",
+    "generated_at": "2026-07-26T02:27:46Z",
     "registry_coverage_all_candidates": {
       "n": 7250,
       "with_registry": 7250,
@@ -1436,15 +1436,15 @@
       "contract_count": 10,
       "last_publication": "2026-07-08",
       "offer_scores": {
-        "diagnostico_b2g_score": 0.0,
-        "licitacoes_propostas_score": 2.2,
-        "auditoria_orcamento_score": 0.0,
-        "acompanhamento_contratual_score": 7.9854,
-        "gestao_documental_score": 0.0,
+        "diagnostico_b2g_score": 1.54,
+        "licitacoes_propostas_score": 5.7,
+        "auditoria_orcamento_score": 0.0558,
+        "acompanhamento_contratual_score": 13.7413,
+        "gestao_documental_score": 3.1959,
         "inteligencia_pncp_score": 0.0
       },
       "selected_offer": "acompanhamento_contratual",
-      "selected_offer_margin": 5.7854,
+      "selected_offer_margin": 8.0413,
       "supporting_signals": [
         "concurrent_portfolio",
         "agency_concentration",
@@ -1454,7 +1454,8 @@
       ],
       "contradicting_signals": [
         "partial_mapping:admin_load",
-        "nc:addendum_recurrence"
+        "nc:addendum_recurrence",
+        "nc:adverse_event"
       ],
       "alternative_offer": "licitacoes_propostas",
       "selection_rule_version": "offer-selection-v3-discriminative",
@@ -2703,15 +2704,15 @@
       "contract_count": 12,
       "last_publication": "2026-07-23",
       "offer_scores": {
-        "diagnostico_b2g_score": 0.0,
-        "licitacoes_propostas_score": 2.2,
-        "auditoria_orcamento_score": 0.0,
-        "acompanhamento_contratual_score": 7.8582,
-        "gestao_documental_score": 0.0,
+        "diagnostico_b2g_score": 1.54,
+        "licitacoes_propostas_score": 5.7,
+        "auditoria_orcamento_score": 0.0703,
+        "acompanhamento_contratual_score": 13.5438,
+        "gestao_documental_score": 3.0951,
         "inteligencia_pncp_score": 0.0
       },
       "selected_offer": "acompanhamento_contratual",
-      "selected_offer_margin": 5.6582,
+      "selected_offer_margin": 7.8438,
       "supporting_signals": [
         "concurrent_portfolio",
         "agency_concentration",
@@ -2721,7 +2722,8 @@
       ],
       "contradicting_signals": [
         "partial_mapping:admin_load",
-        "nc:addendum_recurrence"
+        "nc:addendum_recurrence",
+        "nc:adverse_event"
       ],
       "alternative_offer": "licitacoes_propostas",
       "selection_rule_version": "offer-selection-v3-discriminative",
@@ -3970,15 +3972,15 @@
       "contract_count": 20,
       "last_publication": "2026-07-14",
       "offer_scores": {
-        "diagnostico_b2g_score": 0.0,
-        "licitacoes_propostas_score": 2.2,
-        "auditoria_orcamento_score": 0.0,
-        "acompanhamento_contratual_score": 7.8182,
-        "gestao_documental_score": 0.0,
+        "diagnostico_b2g_score": 1.54,
+        "licitacoes_propostas_score": 5.7,
+        "auditoria_orcamento_score": 0.0622,
+        "acompanhamento_contratual_score": 13.4843,
+        "gestao_documental_score": 3.0782,
         "inteligencia_pncp_score": 0.0
       },
       "selected_offer": "acompanhamento_contratual",
-      "selected_offer_margin": 5.6182,
+      "selected_offer_margin": 7.7843,
       "supporting_signals": [
         "concurrent_portfolio",
         "agency_concentration",
@@ -3988,7 +3990,8 @@
       ],
       "contradicting_signals": [
         "partial_mapping:admin_load",
-        "nc:addendum_recurrence"
+        "nc:addendum_recurrence",
+        "nc:adverse_event"
       ],
       "alternative_offer": "licitacoes_propostas",
       "selection_rule_version": "offer-selection-v3-discriminative",
@@ -5218,15 +5221,15 @@
       "contract_count": 12,
       "last_publication": "2026-05-06",
       "offer_scores": {
-        "diagnostico_b2g_score": 0.0,
-        "licitacoes_propostas_score": 2.2,
+        "diagnostico_b2g_score": 1.54,
+        "licitacoes_propostas_score": 5.7,
         "auditoria_orcamento_score": 0.0,
-        "acompanhamento_contratual_score": 7.758,
-        "gestao_documental_score": 0.0,
+        "acompanhamento_contratual_score": 13.4051,
+        "gestao_documental_score": 3.1111,
         "inteligencia_pncp_score": 0.0
       },
       "selected_offer": "acompanhamento_contratual",
-      "selected_offer_margin": 5.558,
+      "selected_offer_margin": 7.7051,
       "supporting_signals": [
         "concurrent_portfolio",
         "agency_concentration",
@@ -5235,7 +5238,8 @@
       ],
       "contradicting_signals": [
         "partial_mapping:admin_load",
-        "nc:addendum_recurrence"
+        "nc:addendum_recurrence",
+        "nc:adverse_event"
       ],
       "alternative_offer": "licitacoes_propostas",
       "selection_rule_version": "offer-selection-v3-discriminative",
@@ -6465,15 +6469,15 @@
       "contract_count": 10,
       "last_publication": "2026-07-17",
       "offer_scores": {
-        "diagnostico_b2g_score": 0.0,
-        "licitacoes_propostas_score": 2.2,
+        "diagnostico_b2g_score": 1.54,
+        "licitacoes_propostas_score": 5.7,
         "auditoria_orcamento_score": 0.0,
-        "acompanhamento_contratual_score": 7.6706,
-        "gestao_documental_score": 0.0,
+        "acompanhamento_contratual_score": 13.2716,
+        "gestao_documental_score": 3.0536,
         "inteligencia_pncp_score": 0.0
       },
       "selected_offer": "acompanhamento_contratual",
-      "selected_offer_margin": 5.4706,
+      "selected_offer_margin": 7.5716,
       "supporting_signals": [
         "concurrent_portfolio",
         "agency_concentration",
@@ -6482,7 +6486,8 @@
       ],
       "contradicting_signals": [
         "partial_mapping:admin_load",
-        "nc:addendum_recurrence"
+        "nc:addendum_recurrence",
+        "nc:adverse_event"
       ],
       "alternative_offer": "licitacoes_propostas",
       "selection_rule_version": "offer-selection-v3-discriminative",
@@ -7691,15 +7696,15 @@
       "contract_count": 11,
       "last_publication": "2026-07-20",
       "offer_scores": {
-        "diagnostico_b2g_score": 0.0,
-        "licitacoes_propostas_score": 2.2,
-        "auditoria_orcamento_score": 0.0,
-        "acompanhamento_contratual_score": 7.5003,
-        "gestao_documental_score": 0.0,
+        "diagnostico_b2g_score": 1.54,
+        "licitacoes_propostas_score": 5.375,
+        "auditoria_orcamento_score": 0.0835,
+        "acompanhamento_contratual_score": 12.5386,
+        "gestao_documental_score": 3.208,
         "inteligencia_pncp_score": 0.0
       },
       "selected_offer": "acompanhamento_contratual",
-      "selected_offer_margin": 5.3003,
+      "selected_offer_margin": 7.1636,
       "supporting_signals": [
         "concurrent_portfolio",
         "agency_concentration",
@@ -7709,7 +7714,8 @@
       ],
       "contradicting_signals": [
         "partial_mapping:admin_load",
-        "nc:addendum_recurrence"
+        "nc:addendum_recurrence",
+        "nc:adverse_event"
       ],
       "alternative_offer": "licitacoes_propostas",
       "selection_rule_version": "offer-selection-v3-discriminative",
@@ -8939,15 +8945,15 @@
       "contract_count": 8,
       "last_publication": "2026-05-18",
       "offer_scores": {
-        "diagnostico_b2g_score": 0.0,
-        "licitacoes_propostas_score": 2.2,
+        "diagnostico_b2g_score": 1.54,
+        "licitacoes_propostas_score": 5.7,
         "auditoria_orcamento_score": 0.0,
-        "acompanhamento_contratual_score": 7.565,
-        "gestao_documental_score": 0.0,
+        "acompanhamento_contratual_score": 13.03,
+        "gestao_documental_score": 2.92,
         "inteligencia_pncp_score": 0.0
       },
       "selected_offer": "acompanhamento_contratual",
-      "selected_offer_margin": 5.365,
+      "selected_offer_margin": 7.33,
       "supporting_signals": [
         "concurrent_portfolio",
         "agency_concentration",
@@ -8956,7 +8962,8 @@
       ],
       "contradicting_signals": [
         "partial_mapping:admin_load",
-        "nc:addendum_recurrence"
+        "nc:addendum_recurrence",
+        "nc:adverse_event"
       ],
       "alternative_offer": "licitacoes_propostas",
       "selection_rule_version": "offer-selection-v3-discriminative",
@@ -9080,6 +9087,20 @@
               "official_url_or_id": "00360305000104-2-007688/2025"
             },
             {
+              "contrato_id": "00360305000104-2-007776/2025",
+              "orgao_cnpj": "00360305000104",
+              "orgao_nome": "CEFOR",
+              "objeto": "4501530457-PAROBE RS- SERVIÇO COMUM DE ENGENHARIA\n(SCE) PARA FORNECIMENTO E INSTALAÇÃO DE SISTEMA DE ARCONDICIONADO\nPARA AS UNIDADES DA CAIXA VINCULADAS À CILOG/PO,\nLOCALIZADAS NO ESTADO DO RIO GRANDE DO SUL",
+              "valor_total": 0.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-02-14",
+              "data_fim": "2026-10-05",
+              "uf": "DF",
+              "source": "pncp_contracts",
+              "source_id": "00360305000104-2-007776/2025",
+              "official_url_or_id": "00360305000104-2-007776/2025"
+            },
+            {
               "contrato_id": "00360305000104-2-007522/2025",
               "orgao_cnpj": "00360305000104",
               "orgao_nome": "CEFOR",
@@ -9092,20 +9113,6 @@
               "source": "pncp_contracts",
               "source_id": "00360305000104-2-007522/2025",
               "official_url_or_id": "00360305000104-2-007522/2025"
-            },
-            {
-              "contrato_id": "00360305000104-2-007713/2025",
-              "orgao_cnpj": "00360305000104",
-              "orgao_nome": "CEFOR",
-              "objeto": "SAP 4501521654 0504 - AG SANTO ANGELO, RS REGISTRO DE PREÇOS PARA SERVIÇO COMUM DE ENGENHARIA\n(SCE) PARA FORNECIMENTO E INSTALAÇÃO DE SISTEMA DE ARCONDICIONADO\nPARA AS UNIDADES DA CAIXA VINCULADAS À CILOG/PO,\nLOCALIZADAS NO ESTADO DO RIO GRANDE DO SUL",
-              "valor_total": 0.0,
-              "valor_semantics": "valor_total_contracted",
-              "data_publicacao": "2026-02-14",
-              "data_fim": "2026-10-05",
-              "uf": "DF",
-              "source": "pncp_contracts",
-              "source_id": "00360305000104-2-007713/2025",
-              "official_url_or_id": "00360305000104-2-007713/2025"
             }
           ],
           "limitations": [],
@@ -9193,6 +9200,20 @@
               "official_url_or_id": "00360305000104-2-007688/2025"
             },
             {
+              "contrato_id": "00360305000104-2-007776/2025",
+              "orgao_cnpj": "00360305000104",
+              "orgao_nome": "CEFOR",
+              "objeto": "4501530457-PAROBE RS- SERVIÇO COMUM DE ENGENHARIA\n(SCE) PARA FORNECIMENTO E INSTALAÇÃO DE SISTEMA DE ARCONDICIONADO\nPARA AS UNIDADES DA CAIXA VINCULADAS À CILOG/PO,\nLOCALIZADAS NO ESTADO DO RIO GRANDE DO SUL",
+              "valor_total": 0.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-02-14",
+              "data_fim": "2026-10-05",
+              "uf": "DF",
+              "source": "pncp_contracts",
+              "source_id": "00360305000104-2-007776/2025",
+              "official_url_or_id": "00360305000104-2-007776/2025"
+            },
+            {
               "contrato_id": "00360305000104-2-007522/2025",
               "orgao_cnpj": "00360305000104",
               "orgao_nome": "CEFOR",
@@ -9219,20 +9240,6 @@
               "source": "pncp_contracts",
               "source_id": "00360305000104-2-007713/2025",
               "official_url_or_id": "00360305000104-2-007713/2025"
-            },
-            {
-              "contrato_id": "00360305000104-2-007776/2025",
-              "orgao_cnpj": "00360305000104",
-              "orgao_nome": "CEFOR",
-              "objeto": "4501530457-PAROBE RS- SERVIÇO COMUM DE ENGENHARIA\n(SCE) PARA FORNECIMENTO E INSTALAÇÃO DE SISTEMA DE ARCONDICIONADO\nPARA AS UNIDADES DA CAIXA VINCULADAS À CILOG/PO,\nLOCALIZADAS NO ESTADO DO RIO GRANDE DO SUL",
-              "valor_total": 0.0,
-              "valor_semantics": "valor_total_contracted",
-              "data_publicacao": "2026-02-14",
-              "data_fim": "2026-10-05",
-              "uf": "DF",
-              "source": "pncp_contracts",
-              "source_id": "00360305000104-2-007776/2025",
-              "official_url_or_id": "00360305000104-2-007776/2025"
             }
           ],
           "limitations": [],
@@ -9290,20 +9297,6 @@
               "official_url_or_id": "00360305000104-2-013243/2024"
             },
             {
-              "contrato_id": "00360305000104-2-014351/2024",
-              "orgao_cnpj": "00360305000104",
-              "orgao_nome": "CEFOR",
-              "objeto": "SAP 4501164157 - SERVIÇO COMUM DE ENGENHARIA (SCE) PARA FORNECIMENTO E INSTALAÇÃO DE SISTEMA DE AR-CONDICIONADO E ATIVIDADES CORRELATAS PARA A AG BENEVIDES, PA",
-              "valor_total": 0.0,
-              "valor_semantics": "valor_total_contracted",
-              "data_publicacao": "2026-02-14",
-              "data_fim": "2026-01-08",
-              "uf": "DF",
-              "source": "pncp_contracts",
-              "source_id": "00360305000104-2-014351/2024",
-              "official_url_or_id": "00360305000104-2-014351/2024"
-            },
-            {
               "contrato_id": "00360305000104-2-007688/2025",
               "orgao_cnpj": "00360305000104",
               "orgao_nome": "CEFOR",
@@ -9316,6 +9309,20 @@
               "source": "pncp_contracts",
               "source_id": "00360305000104-2-007688/2025",
               "official_url_or_id": "00360305000104-2-007688/2025"
+            },
+            {
+              "contrato_id": "00360305000104-2-007776/2025",
+              "orgao_cnpj": "00360305000104",
+              "orgao_nome": "CEFOR",
+              "objeto": "4501530457-PAROBE RS- SERVIÇO COMUM DE ENGENHARIA\n(SCE) PARA FORNECIMENTO E INSTALAÇÃO DE SISTEMA DE ARCONDICIONADO\nPARA AS UNIDADES DA CAIXA VINCULADAS À CILOG/PO,\nLOCALIZADAS NO ESTADO DO RIO GRANDE DO SUL",
+              "valor_total": 0.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-02-14",
+              "data_fim": "2026-10-05",
+              "uf": "DF",
+              "source": "pncp_contracts",
+              "source_id": "00360305000104-2-007776/2025",
+              "official_url_or_id": "00360305000104-2-007776/2025"
             }
           ],
           "limitations": [],
@@ -9577,6 +9584,20 @@
               "official_url_or_id": "00360305000104-2-007688/2025"
             },
             {
+              "contrato_id": "00360305000104-2-007776/2025",
+              "orgao_cnpj": "00360305000104",
+              "orgao_nome": "CEFOR",
+              "objeto": "4501530457-PAROBE RS- SERVIÇO COMUM DE ENGENHARIA\n(SCE) PARA FORNECIMENTO E INSTALAÇÃO DE SISTEMA DE ARCONDICIONADO\nPARA AS UNIDADES DA CAIXA VINCULADAS À CILOG/PO,\nLOCALIZADAS NO ESTADO DO RIO GRANDE DO SUL",
+              "valor_total": 0.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-02-14",
+              "data_fim": "2026-10-05",
+              "uf": "DF",
+              "source": "pncp_contracts",
+              "source_id": "00360305000104-2-007776/2025",
+              "official_url_or_id": "00360305000104-2-007776/2025"
+            },
+            {
               "contrato_id": "00360305000104-2-007522/2025",
               "orgao_cnpj": "00360305000104",
               "orgao_nome": "CEFOR",
@@ -9589,20 +9610,6 @@
               "source": "pncp_contracts",
               "source_id": "00360305000104-2-007522/2025",
               "official_url_or_id": "00360305000104-2-007522/2025"
-            },
-            {
-              "contrato_id": "00360305000104-2-007713/2025",
-              "orgao_cnpj": "00360305000104",
-              "orgao_nome": "CEFOR",
-              "objeto": "SAP 4501521654 0504 - AG SANTO ANGELO, RS REGISTRO DE PREÇOS PARA SERVIÇO COMUM DE ENGENHARIA\n(SCE) PARA FORNECIMENTO E INSTALAÇÃO DE SISTEMA DE ARCONDICIONADO\nPARA AS UNIDADES DA CAIXA VINCULADAS À CILOG/PO,\nLOCALIZADAS NO ESTADO DO RIO GRANDE DO SUL",
-              "valor_total": 0.0,
-              "valor_semantics": "valor_total_contracted",
-              "data_publicacao": "2026-02-14",
-              "data_fim": "2026-10-05",
-              "uf": "DF",
-              "source": "pncp_contracts",
-              "source_id": "00360305000104-2-007713/2025",
-              "official_url_or_id": "00360305000104-2-007713/2025"
             }
           ],
           "limitations": [],
@@ -9690,6 +9697,20 @@
               "official_url_or_id": "00360305000104-2-007688/2025"
             },
             {
+              "contrato_id": "00360305000104-2-007776/2025",
+              "orgao_cnpj": "00360305000104",
+              "orgao_nome": "CEFOR",
+              "objeto": "4501530457-PAROBE RS- SERVIÇO COMUM DE ENGENHARIA\n(SCE) PARA FORNECIMENTO E INSTALAÇÃO DE SISTEMA DE ARCONDICIONADO\nPARA AS UNIDADES DA CAIXA VINCULADAS À CILOG/PO,\nLOCALIZADAS NO ESTADO DO RIO GRANDE DO SUL",
+              "valor_total": 0.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-02-14",
+              "data_fim": "2026-10-05",
+              "uf": "DF",
+              "source": "pncp_contracts",
+              "source_id": "00360305000104-2-007776/2025",
+              "official_url_or_id": "00360305000104-2-007776/2025"
+            },
+            {
               "contrato_id": "00360305000104-2-007522/2025",
               "orgao_cnpj": "00360305000104",
               "orgao_nome": "CEFOR",
@@ -9716,20 +9737,6 @@
               "source": "pncp_contracts",
               "source_id": "00360305000104-2-007713/2025",
               "official_url_or_id": "00360305000104-2-007713/2025"
-            },
-            {
-              "contrato_id": "00360305000104-2-007776/2025",
-              "orgao_cnpj": "00360305000104",
-              "orgao_nome": "CEFOR",
-              "objeto": "4501530457-PAROBE RS- SERVIÇO COMUM DE ENGENHARIA\n(SCE) PARA FORNECIMENTO E INSTALAÇÃO DE SISTEMA DE ARCONDICIONADO\nPARA AS UNIDADES DA CAIXA VINCULADAS À CILOG/PO,\nLOCALIZADAS NO ESTADO DO RIO GRANDE DO SUL",
-              "valor_total": 0.0,
-              "valor_semantics": "valor_total_contracted",
-              "data_publicacao": "2026-02-14",
-              "data_fim": "2026-10-05",
-              "uf": "DF",
-              "source": "pncp_contracts",
-              "source_id": "00360305000104-2-007776/2025",
-              "official_url_or_id": "00360305000104-2-007776/2025"
             }
           ],
           "limitations": [],
@@ -9827,20 +9834,6 @@
               "official_url_or_id": "00360305000104-2-013243/2024"
             },
             {
-              "contrato_id": "00360305000104-2-014351/2024",
-              "orgao_cnpj": "00360305000104",
-              "orgao_nome": "CEFOR",
-              "objeto": "SAP 4501164157 - SERVIÇO COMUM DE ENGENHARIA (SCE) PARA FORNECIMENTO E INSTALAÇÃO DE SISTEMA DE AR-CONDICIONADO E ATIVIDADES CORRELATAS PARA A AG BENEVIDES, PA",
-              "valor_total": 0.0,
-              "valor_semantics": "valor_total_contracted",
-              "data_publicacao": "2026-02-14",
-              "data_fim": "2026-01-08",
-              "uf": "DF",
-              "source": "pncp_contracts",
-              "source_id": "00360305000104-2-014351/2024",
-              "official_url_or_id": "00360305000104-2-014351/2024"
-            },
-            {
               "contrato_id": "00360305000104-2-007688/2025",
               "orgao_cnpj": "00360305000104",
               "orgao_nome": "CEFOR",
@@ -9853,6 +9846,20 @@
               "source": "pncp_contracts",
               "source_id": "00360305000104-2-007688/2025",
               "official_url_or_id": "00360305000104-2-007688/2025"
+            },
+            {
+              "contrato_id": "00360305000104-2-007776/2025",
+              "orgao_cnpj": "00360305000104",
+              "orgao_nome": "CEFOR",
+              "objeto": "4501530457-PAROBE RS- SERVIÇO COMUM DE ENGENHARIA\n(SCE) PARA FORNECIMENTO E INSTALAÇÃO DE SISTEMA DE ARCONDICIONADO\nPARA AS UNIDADES DA CAIXA VINCULADAS À CILOG/PO,\nLOCALIZADAS NO ESTADO DO RIO GRANDE DO SUL",
+              "valor_total": 0.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-02-14",
+              "data_fim": "2026-10-05",
+              "uf": "DF",
+              "source": "pncp_contracts",
+              "source_id": "00360305000104-2-007776/2025",
+              "official_url_or_id": "00360305000104-2-007776/2025"
             }
           ],
           "limitations": [],
@@ -9908,6 +9915,21 @@
         },
         {
           "signal_id": "concurrent_portfolio",
+          "contrato_id": "00360305000104-2-007776/2025",
+          "orgao_cnpj": "00360305000104",
+          "orgao_nome": "CEFOR",
+          "objeto": "4501530457-PAROBE RS- SERVIÇO COMUM DE ENGENHARIA\n(SCE) PARA FORNECIMENTO E INSTALAÇÃO DE SISTEMA DE ARCONDICIONADO\nPARA AS UNIDADES DA CAIXA VINCULADAS À CILOG/PO,\nLOCALIZADAS NO ESTADO DO RIO GRANDE DO SUL",
+          "valor_total": 0.0,
+          "valor_semantics": "valor_total_contracted",
+          "data_publicacao": "2026-02-14",
+          "data_fim": "2026-10-05",
+          "uf": "DF",
+          "source": "pncp_contracts",
+          "source_id": "00360305000104-2-007776/2025",
+          "official_url_or_id": "00360305000104-2-007776/2025"
+        },
+        {
+          "signal_id": "concurrent_portfolio",
           "contrato_id": "00360305000104-2-007522/2025",
           "orgao_cnpj": "00360305000104",
           "orgao_nome": "CEFOR",
@@ -9920,21 +9942,6 @@
           "source": "pncp_contracts",
           "source_id": "00360305000104-2-007522/2025",
           "official_url_or_id": "00360305000104-2-007522/2025"
-        },
-        {
-          "signal_id": "concurrent_portfolio",
-          "contrato_id": "00360305000104-2-007713/2025",
-          "orgao_cnpj": "00360305000104",
-          "orgao_nome": "CEFOR",
-          "objeto": "SAP 4501521654 0504 - AG SANTO ANGELO, RS REGISTRO DE PREÇOS PARA SERVIÇO COMUM DE ENGENHARIA\n(SCE) PARA FORNECIMENTO E INSTALAÇÃO DE SISTEMA DE ARCONDICIONADO\nPARA AS UNIDADES DA CAIXA VINCULADAS À CILOG/PO,\nLOCALIZADAS NO ESTADO DO RIO GRANDE DO SUL",
-          "valor_total": 0.0,
-          "valor_semantics": "valor_total_contracted",
-          "data_publicacao": "2026-02-14",
-          "data_fim": "2026-10-05",
-          "uf": "DF",
-          "source": "pncp_contracts",
-          "source_id": "00360305000104-2-007713/2025",
-          "official_url_or_id": "00360305000104-2-007713/2025"
         },
         {
           "signal_id": "agency_concentration",
@@ -9985,6 +9992,21 @@
         },
         {
           "signal_id": "near_expiry",
+          "contrato_id": "00360305000104-2-007776/2025",
+          "orgao_cnpj": "00360305000104",
+          "orgao_nome": "CEFOR",
+          "objeto": "4501530457-PAROBE RS- SERVIÇO COMUM DE ENGENHARIA\n(SCE) PARA FORNECIMENTO E INSTALAÇÃO DE SISTEMA DE ARCONDICIONADO\nPARA AS UNIDADES DA CAIXA VINCULADAS À CILOG/PO,\nLOCALIZADAS NO ESTADO DO RIO GRANDE DO SUL",
+          "valor_total": 0.0,
+          "valor_semantics": "valor_total_contracted",
+          "data_publicacao": "2026-02-14",
+          "data_fim": "2026-10-05",
+          "uf": "DF",
+          "source": "pncp_contracts",
+          "source_id": "00360305000104-2-007776/2025",
+          "official_url_or_id": "00360305000104-2-007776/2025"
+        },
+        {
+          "signal_id": "near_expiry",
           "contrato_id": "00360305000104-2-007522/2025",
           "orgao_cnpj": "00360305000104",
           "orgao_nome": "CEFOR",
@@ -10012,21 +10034,6 @@
           "source": "pncp_contracts",
           "source_id": "00360305000104-2-007713/2025",
           "official_url_or_id": "00360305000104-2-007713/2025"
-        },
-        {
-          "signal_id": "near_expiry",
-          "contrato_id": "00360305000104-2-007776/2025",
-          "orgao_cnpj": "00360305000104",
-          "orgao_nome": "CEFOR",
-          "objeto": "4501530457-PAROBE RS- SERVIÇO COMUM DE ENGENHARIA\n(SCE) PARA FORNECIMENTO E INSTALAÇÃO DE SISTEMA DE ARCONDICIONADO\nPARA AS UNIDADES DA CAIXA VINCULADAS À CILOG/PO,\nLOCALIZADAS NO ESTADO DO RIO GRANDE DO SUL",
-          "valor_total": 0.0,
-          "valor_semantics": "valor_total_contracted",
-          "data_publicacao": "2026-02-14",
-          "data_fim": "2026-10-05",
-          "uf": "DF",
-          "source": "pncp_contracts",
-          "source_id": "00360305000104-2-007776/2025",
-          "official_url_or_id": "00360305000104-2-007776/2025"
         },
         {
           "signal_id": "win_recurrence",
@@ -10075,21 +10082,6 @@
         },
         {
           "signal_id": "win_recurrence",
-          "contrato_id": "00360305000104-2-014351/2024",
-          "orgao_cnpj": "00360305000104",
-          "orgao_nome": "CEFOR",
-          "objeto": "SAP 4501164157 - SERVIÇO COMUM DE ENGENHARIA (SCE) PARA FORNECIMENTO E INSTALAÇÃO DE SISTEMA DE AR-CONDICIONADO E ATIVIDADES CORRELATAS PARA A AG BENEVIDES, PA",
-          "valor_total": 0.0,
-          "valor_semantics": "valor_total_contracted",
-          "data_publicacao": "2026-02-14",
-          "data_fim": "2026-01-08",
-          "uf": "DF",
-          "source": "pncp_contracts",
-          "source_id": "00360305000104-2-014351/2024",
-          "official_url_or_id": "00360305000104-2-014351/2024"
-        },
-        {
-          "signal_id": "win_recurrence",
           "contrato_id": "00360305000104-2-007688/2025",
           "orgao_cnpj": "00360305000104",
           "orgao_nome": "CEFOR",
@@ -10102,6 +10094,21 @@
           "source": "pncp_contracts",
           "source_id": "00360305000104-2-007688/2025",
           "official_url_or_id": "00360305000104-2-007688/2025"
+        },
+        {
+          "signal_id": "win_recurrence",
+          "contrato_id": "00360305000104-2-007776/2025",
+          "orgao_cnpj": "00360305000104",
+          "orgao_nome": "CEFOR",
+          "objeto": "4501530457-PAROBE RS- SERVIÇO COMUM DE ENGENHARIA\n(SCE) PARA FORNECIMENTO E INSTALAÇÃO DE SISTEMA DE ARCONDICIONADO\nPARA AS UNIDADES DA CAIXA VINCULADAS À CILOG/PO,\nLOCALIZADAS NO ESTADO DO RIO GRANDE DO SUL",
+          "valor_total": 0.0,
+          "valor_semantics": "valor_total_contracted",
+          "data_publicacao": "2026-02-14",
+          "data_fim": "2026-10-05",
+          "uf": "DF",
+          "source": "pncp_contracts",
+          "source_id": "00360305000104-2-007776/2025",
+          "official_url_or_id": "00360305000104-2-007776/2025"
         }
       ],
       "suggested_offer": "acompanhamento_contratual",
@@ -10116,15 +10123,15 @@
       "contract_count": 12,
       "last_publication": "2026-07-08",
       "offer_scores": {
-        "diagnostico_b2g_score": 0.0,
-        "licitacoes_propostas_score": 2.2,
-        "auditoria_orcamento_score": 0.0,
-        "acompanhamento_contratual_score": 7.3175,
-        "gestao_documental_score": 0.0,
+        "diagnostico_b2g_score": 1.54,
+        "licitacoes_propostas_score": 5.7,
+        "auditoria_orcamento_score": 0.0985,
+        "acompanhamento_contratual_score": 12.551,
+        "gestao_documental_score": 2.578,
         "inteligencia_pncp_score": 0.0
       },
       "selected_offer": "acompanhamento_contratual",
-      "selected_offer_margin": 5.1175,
+      "selected_offer_margin": 6.851,
       "supporting_signals": [
         "concurrent_portfolio",
         "agency_concentration",
@@ -10134,7 +10141,8 @@
       ],
       "contradicting_signals": [
         "partial_mapping:admin_load",
-        "nc:addendum_recurrence"
+        "nc:addendum_recurrence",
+        "nc:adverse_event"
       ],
       "alternative_offer": "licitacoes_propostas",
       "selection_rule_version": "offer-selection-v3-discriminative",
@@ -11429,15 +11437,15 @@
       "contract_count": 9,
       "last_publication": "2026-06-19",
       "offer_scores": {
-        "diagnostico_b2g_score": 0.0,
-        "licitacoes_propostas_score": 2.2,
-        "auditoria_orcamento_score": 0.0,
-        "acompanhamento_contratual_score": 7.3394,
-        "gestao_documental_score": 0.0,
+        "diagnostico_b2g_score": 1.54,
+        "licitacoes_propostas_score": 5.7,
+        "auditoria_orcamento_score": 0.0646,
+        "acompanhamento_contratual_score": 12.5915,
+        "gestao_documental_score": 2.632,
         "inteligencia_pncp_score": 0.0
       },
       "selected_offer": "acompanhamento_contratual",
-      "selected_offer_margin": 5.1394,
+      "selected_offer_margin": 6.8915,
       "supporting_signals": [
         "concurrent_portfolio",
         "agency_concentration",
@@ -11447,7 +11455,8 @@
       ],
       "contradicting_signals": [
         "partial_mapping:admin_load",
-        "nc:addendum_recurrence"
+        "nc:addendum_recurrence",
+        "nc:adverse_event"
       ],
       "alternative_offer": "licitacoes_propostas",
       "selection_rule_version": "offer-selection-v3-discriminative",
@@ -12585,15 +12594,15 @@
       "contract_count": 18,
       "last_publication": "2026-07-08",
       "offer_scores": {
-        "diagnostico_b2g_score": 0.0,
-        "licitacoes_propostas_score": 2.2,
-        "auditoria_orcamento_score": 0.0,
-        "acompanhamento_contratual_score": 5.7358,
-        "gestao_documental_score": 0.0,
+        "diagnostico_b2g_score": 1.54,
+        "licitacoes_propostas_score": 5.7,
+        "auditoria_orcamento_score": 0.2631,
+        "acompanhamento_contratual_score": 11.2576,
+        "gestao_documental_score": 2.592,
         "inteligencia_pncp_score": 0.0
       },
       "selected_offer": "acompanhamento_contratual",
-      "selected_offer_margin": 3.5358,
+      "selected_offer_margin": 5.5576,
       "supporting_signals": [
         "concurrent_portfolio",
         "contract_concentration",
@@ -12602,7 +12611,8 @@
       "contradicting_signals": [
         "partial_mapping:renewal_risk",
         "partial_mapping:admin_load",
-        "nc:addendum_recurrence"
+        "nc:addendum_recurrence",
+        "nc:adverse_event"
       ],
       "alternative_offer": "licitacoes_propostas",
       "selection_rule_version": "offer-selection-v3-discriminative",
@@ -13789,15 +13799,15 @@
       "contract_count": 9,
       "last_publication": "2026-07-14",
       "offer_scores": {
-        "diagnostico_b2g_score": 0.0,
-        "licitacoes_propostas_score": 2.2,
+        "diagnostico_b2g_score": 1.54,
+        "licitacoes_propostas_score": 5.7,
         "auditoria_orcamento_score": 0.0,
-        "acompanhamento_contratual_score": 7.4295,
-        "gestao_documental_score": 0.0,
+        "acompanhamento_contratual_score": 12.8228,
+        "gestao_documental_score": 2.8308,
         "inteligencia_pncp_score": 0.0
       },
       "selected_offer": "acompanhamento_contratual",
-      "selected_offer_margin": 5.2295,
+      "selected_offer_margin": 7.1228,
       "supporting_signals": [
         "concurrent_portfolio",
         "agency_concentration",
@@ -13806,7 +13816,8 @@
       ],
       "contradicting_signals": [
         "partial_mapping:admin_load",
-        "nc:addendum_recurrence"
+        "nc:addendum_recurrence",
+        "nc:adverse_event"
       ],
       "alternative_offer": "licitacoes_propostas",
       "selection_rule_version": "offer-selection-v3-discriminative",
@@ -14950,15 +14961,15 @@
       "contract_count": 23,
       "last_publication": "2026-07-02",
       "offer_scores": {
-        "diagnostico_b2g_score": 0.0,
-        "licitacoes_propostas_score": 2.2,
+        "diagnostico_b2g_score": 1.54,
+        "licitacoes_propostas_score": 5.375,
         "auditoria_orcamento_score": 0.0,
-        "acompanhamento_contratual_score": 7.3525,
-        "gestao_documental_score": 0.0,
+        "acompanhamento_contratual_score": 12.33,
+        "gestao_documental_score": 3.208,
         "inteligencia_pncp_score": 0.0
       },
       "selected_offer": "acompanhamento_contratual",
-      "selected_offer_margin": 5.1525,
+      "selected_offer_margin": 6.955,
       "supporting_signals": [
         "concurrent_portfolio",
         "agency_concentration",
@@ -14967,7 +14978,8 @@
       ],
       "contradicting_signals": [
         "partial_mapping:admin_load",
-        "nc:addendum_recurrence"
+        "nc:addendum_recurrence",
+        "nc:adverse_event"
       ],
       "alternative_offer": "licitacoes_propostas",
       "selection_rule_version": "offer-selection-v3-discriminative",
@@ -16197,15 +16209,15 @@
       "contract_count": 8,
       "last_publication": "2026-06-08",
       "offer_scores": {
-        "diagnostico_b2g_score": 0.0,
-        "licitacoes_propostas_score": 2.2,
+        "diagnostico_b2g_score": 1.54,
+        "licitacoes_propostas_score": 5.7,
         "auditoria_orcamento_score": 0.0,
-        "acompanhamento_contratual_score": 7.225,
-        "gestao_documental_score": 0.0,
+        "acompanhamento_contratual_score": 12.43,
+        "gestao_documental_score": 2.632,
         "inteligencia_pncp_score": 0.0
       },
       "selected_offer": "acompanhamento_contratual",
-      "selected_offer_margin": 5.025,
+      "selected_offer_margin": 6.73,
       "supporting_signals": [
         "concurrent_portfolio",
         "agency_concentration",
@@ -16214,7 +16226,8 @@
       ],
       "contradicting_signals": [
         "partial_mapping:admin_load",
-        "nc:addendum_recurrence"
+        "nc:addendum_recurrence",
+        "nc:adverse_event"
       ],
       "alternative_offer": "licitacoes_propostas",
       "selection_rule_version": "offer-selection-v3-discriminative",
@@ -17444,15 +17457,15 @@
       "contract_count": 7,
       "last_publication": "2026-05-07",
       "offer_scores": {
-        "diagnostico_b2g_score": 0.0,
-        "licitacoes_propostas_score": 2.2,
+        "diagnostico_b2g_score": 1.54,
+        "licitacoes_propostas_score": 5.7,
         "auditoria_orcamento_score": 0.0,
-        "acompanhamento_contratual_score": 7.225,
-        "gestao_documental_score": 0.0,
+        "acompanhamento_contratual_score": 12.43,
+        "gestao_documental_score": 2.632,
         "inteligencia_pncp_score": 0.0
       },
       "selected_offer": "acompanhamento_contratual",
-      "selected_offer_margin": 5.025,
+      "selected_offer_margin": 6.73,
       "supporting_signals": [
         "concurrent_portfolio",
         "agency_concentration",
@@ -17461,7 +17474,8 @@
       ],
       "contradicting_signals": [
         "partial_mapping:admin_load",
-        "nc:addendum_recurrence"
+        "nc:addendum_recurrence",
+        "nc:adverse_event"
       ],
       "alternative_offer": "licitacoes_propostas",
       "selection_rule_version": "offer-selection-v3-discriminative",
@@ -18605,15 +18619,15 @@
       "contract_count": 10,
       "last_publication": "2026-07-03",
       "offer_scores": {
-        "diagnostico_b2g_score": 0.0,
-        "licitacoes_propostas_score": 2.2,
+        "diagnostico_b2g_score": 1.54,
+        "licitacoes_propostas_score": 5.375,
         "auditoria_orcamento_score": 0.0,
-        "acompanhamento_contratual_score": 7.1875,
-        "gestao_documental_score": 0.0,
+        "acompanhamento_contratual_score": 12.0777,
+        "gestao_documental_score": 3.0993,
         "inteligencia_pncp_score": 0.0
       },
       "selected_offer": "acompanhamento_contratual",
-      "selected_offer_margin": 4.9875,
+      "selected_offer_margin": 6.7027,
       "supporting_signals": [
         "concurrent_portfolio",
         "agency_concentration",
@@ -18622,7 +18636,8 @@
       ],
       "contradicting_signals": [
         "partial_mapping:admin_load",
-        "nc:addendum_recurrence"
+        "nc:addendum_recurrence",
+        "nc:adverse_event"
       ],
       "alternative_offer": "licitacoes_propostas",
       "selection_rule_version": "offer-selection-v3-discriminative",
@@ -19809,15 +19824,15 @@
       "contract_count": 11,
       "last_publication": "2026-07-22",
       "offer_scores": {
-        "diagnostico_b2g_score": 0.0,
-        "licitacoes_propostas_score": 2.2,
+        "diagnostico_b2g_score": 1.54,
+        "licitacoes_propostas_score": 5.7,
         "auditoria_orcamento_score": 0.0,
-        "acompanhamento_contratual_score": 7.1386,
-        "gestao_documental_score": 0.0,
+        "acompanhamento_contratual_score": 12.2979,
+        "gestao_documental_score": 2.5751,
         "inteligencia_pncp_score": 0.0
       },
       "selected_offer": "acompanhamento_contratual",
-      "selected_offer_margin": 4.9386,
+      "selected_offer_margin": 6.5979,
       "supporting_signals": [
         "concurrent_portfolio",
         "agency_concentration",
@@ -19826,7 +19841,8 @@
       ],
       "contradicting_signals": [
         "partial_mapping:admin_load",
-        "nc:addendum_recurrence"
+        "nc:addendum_recurrence",
+        "nc:adverse_event"
       ],
       "alternative_offer": "licitacoes_propostas",
       "selection_rule_version": "offer-selection-v3-discriminative",
@@ -21035,15 +21051,15 @@
       "contract_count": 8,
       "last_publication": "2026-06-22",
       "offer_scores": {
-        "diagnostico_b2g_score": 0.0,
-        "licitacoes_propostas_score": 2.2,
-        "auditoria_orcamento_score": 0.0,
-        "acompanhamento_contratual_score": 6.9474,
-        "gestao_documental_score": 0.0,
+        "diagnostico_b2g_score": 1.54,
+        "licitacoes_propostas_score": 5.375,
+        "auditoria_orcamento_score": 0.059,
+        "acompanhamento_contratual_score": 11.6181,
+        "gestao_documental_score": 2.8083,
         "inteligencia_pncp_score": 0.0
       },
       "selected_offer": "acompanhamento_contratual",
-      "selected_offer_margin": 4.7474,
+      "selected_offer_margin": 6.2431,
       "supporting_signals": [
         "concurrent_portfolio",
         "agency_concentration",
@@ -21053,7 +21069,8 @@
       ],
       "contradicting_signals": [
         "partial_mapping:admin_load",
-        "nc:addendum_recurrence"
+        "nc:addendum_recurrence",
+        "nc:adverse_event"
       ],
       "alternative_offer": "licitacoes_propostas",
       "selection_rule_version": "offer-selection-v3-discriminative",
@@ -22088,15 +22105,15 @@
       "contract_count": 32,
       "last_publication": "2026-07-20",
       "offer_scores": {
-        "diagnostico_b2g_score": 0.0,
-        "licitacoes_propostas_score": 2.2,
+        "diagnostico_b2g_score": 1.54,
+        "licitacoes_propostas_score": 5.7,
         "auditoria_orcamento_score": 0.0,
-        "acompanhamento_contratual_score": 5.27,
-        "gestao_documental_score": 0.0,
+        "acompanhamento_contratual_score": 10.6,
+        "gestao_documental_score": 2.592,
         "inteligencia_pncp_score": 0.0
       },
       "selected_offer": "acompanhamento_contratual",
-      "selected_offer_margin": 3.07,
+      "selected_offer_margin": 4.9,
       "supporting_signals": [
         "concurrent_portfolio",
         "near_expiry"
@@ -22104,7 +22121,8 @@
       "contradicting_signals": [
         "partial_mapping:renewal_risk",
         "partial_mapping:admin_load",
-        "nc:addendum_recurrence"
+        "nc:addendum_recurrence",
+        "nc:adverse_event"
       ],
       "alternative_offer": "licitacoes_propostas",
       "selection_rule_version": "offer-selection-v3-discriminative",
@@ -23182,15 +23200,15 @@
       "contract_count": 30,
       "last_publication": "2026-07-22",
       "offer_scores": {
-        "diagnostico_b2g_score": 0.0,
-        "licitacoes_propostas_score": 2.2,
+        "diagnostico_b2g_score": 1.54,
+        "licitacoes_propostas_score": 5.7,
         "auditoria_orcamento_score": 0.0,
-        "acompanhamento_contratual_score": 5.27,
-        "gestao_documental_score": 0.0,
+        "acompanhamento_contratual_score": 10.6,
+        "gestao_documental_score": 2.592,
         "inteligencia_pncp_score": 0.0
       },
       "selected_offer": "acompanhamento_contratual",
-      "selected_offer_margin": 3.07,
+      "selected_offer_margin": 4.9,
       "supporting_signals": [
         "concurrent_portfolio",
         "near_expiry"
@@ -23198,7 +23216,8 @@
       "contradicting_signals": [
         "partial_mapping:renewal_risk",
         "partial_mapping:admin_load",
-        "nc:addendum_recurrence"
+        "nc:addendum_recurrence",
+        "nc:adverse_event"
       ],
       "alternative_offer": "licitacoes_propostas",
       "selection_rule_version": "offer-selection-v3-discriminative",
@@ -24276,15 +24295,15 @@
       "contract_count": 27,
       "last_publication": "2026-07-14",
       "offer_scores": {
-        "diagnostico_b2g_score": 0.0,
-        "licitacoes_propostas_score": 2.2,
+        "diagnostico_b2g_score": 1.54,
+        "licitacoes_propostas_score": 5.7,
         "auditoria_orcamento_score": 0.0,
-        "acompanhamento_contratual_score": 5.27,
-        "gestao_documental_score": 0.0,
+        "acompanhamento_contratual_score": 10.6,
+        "gestao_documental_score": 2.592,
         "inteligencia_pncp_score": 0.0
       },
       "selected_offer": "acompanhamento_contratual",
-      "selected_offer_margin": 3.07,
+      "selected_offer_margin": 4.9,
       "supporting_signals": [
         "concurrent_portfolio",
         "near_expiry"
@@ -24292,7 +24311,8 @@
       "contradicting_signals": [
         "partial_mapping:renewal_risk",
         "partial_mapping:admin_load",
-        "nc:addendum_recurrence"
+        "nc:addendum_recurrence",
+        "nc:adverse_event"
       ],
       "alternative_offer": "licitacoes_propostas",
       "selection_rule_version": "offer-selection-v3-discriminative",
@@ -24422,7 +24442,6 @@
   "blockers": [
     "BLOCKED_INSUFFICIENT_HISTORICAL_WINDOW",
     "BLOCKED_INSUFFICIENT_HUMAN_LABELS",
-    "BLOCKED_OFFER_MAPPING_NOT_DISCRIMINATIVE",
     "BLOCKED_PENDING_HUMAN_ACCEPTANCE",
     "BLOCKED_REAL_HOLDOUT_NOT_REVIEWED"
   ],
@@ -24437,7 +24456,7 @@
   ],
   "rc_technical_pass_revoked": true,
   "user_acceptance": "NOT_REQUESTED",
-  "updated_at": "2026-07-26T02:18:31Z",
+  "updated_at": "2026-07-26T02:29:25Z",
   "answers": {
     "concentration_uses_full_history": true,
     "single_contract_can_produce_strong": false,
@@ -24464,7 +24483,7 @@
   "review_git_sha": "6731f652231dd9d82d3e3fb18afcda03039493d7",
   "executed_code_sha": "6731f652231dd9d82d3e3fb18afcda03039493d7",
   "evidence_commit_sha": "6731f652231dd9d82d3e3fb18afcda03039493d7",
-  "current_pr_head_sha": "8ae887869739fbb0cf5e5429ecbf88428c9d7a5f",
+  "current_pr_head_sha": "41c4007f0b4b736414492717bb7cead64b1cf02e",
   "match_run_to_head": false,
   "workflow_run_id": null,
   "execution_environment": "local",
@@ -24481,11 +24500,12 @@
   },
   "snapshot_export": {
     "dump_path": "/mnt/d/extra consultoria/.worktrees/confenge-commercial-ready-01/artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/authenticated-snapshot.dump.json",
-    "dump_sha256": "bb8a2e49c950dbb3dae42438a61280c1d2684ef467baeb71ba003f5ba86d21b0",
+    "dump_sha256": "bf1f7c11563df0f6febbfd757b8cbcb84bf5f6bc1fd154442b6680a8719b959e",
     "canonical_table_hash": "c22cff3b72ed09f696d3f42721d5977e1ed5622f7ed8a4a4651580677bdc3157",
-    "exported_at": "2026-07-26T01:56:22Z",
+    "exported_at": "2026-07-26T02:27:35Z",
     "package": "confenge-authenticated-export",
-    "manifest_closed_before_restore": true
+    "manifest_closed_before_restore": true,
+    "not_marker": true
   },
   "observation_window": {
     "snapshot_min_date": "2026-02-13",
@@ -24493,19 +24513,26 @@
     "snapshot_observation_days": 160,
     "strong_observable": false,
     "strong_status": "STRONG_NOT_OBSERVABLE_IN_CURRENT_WINDOW",
+    "minimum_observation_window_days": 365,
+    "strong_min_time_span_days": 180,
     "block": "BLOCKED_INSUFFICIENT_HISTORICAL_WINDOW"
   },
   "final_report": {
-    "current_pr_head_sha": "3b71e6afa6e195d8769ff70bd15624623c296458",
+    "current_pr_head_sha": "41c4007f0b4b736414492717bb7cead64b1cf02e",
     "executed_code_sha": "6731f652231dd9d82d3e3fb18afcda03039493d7",
     "evidence_commit_sha": "6731f652231dd9d82d3e3fb18afcda03039493d7",
     "workflow_run_id": null,
-    "snapshot_dump_sha": "bb8a2e49c950dbb3dae42438a61280c1d2684ef467baeb71ba003f5ba86d21b0",
+    "snapshot_dump_sha": "bf1f7c11563df0f6febbfd757b8cbcb84bf5f6bc1fd154442b6680a8719b959e",
     "pre_restore_canonical_hash": "c22cff3b72ed09f696d3f42721d5977e1ed5622f7ed8a4a4651580677bdc3157",
     "post_restore_canonical_hash": "c22cff3b72ed09f696d3f42721d5977e1ed5622f7ed8a4a4651580677bdc3157",
     "snapshot_observation_days": 160,
+    "strong_observable": false,
     "all_contracts": 60000,
-    "candidate_universe": 7091,
+    "active_contracts": 60000,
+    "inactive_closed_contracts": 0,
+    "candidate_universe": 7250,
+    "registry_resolved_count": 7250,
+    "registry_unresolved_count_by_reason": {},
     "registry_coverage_before_ranking": {
       "n": 7250,
       "with_registry": 7250,
@@ -24514,27 +24541,6 @@
       "cnae_secondary_coverage": 0.9457,
       "status": "OK"
     },
-    "real_holdout_size": 100,
-    "real_holdout_labeled": 0,
-    "real_holdout_precision": null,
-    "real_holdout_recall": null,
-    "end_to_end_method": "live_double_full_pipeline_frozen_universe_all_status_history",
-    "ranking_stability_method": "live_full_universe_rescore_twice_all_status_history",
-    "human_review_status": "PENDING",
-    "terminal_status": "BLOCKED",
-    "answers": {
-      "all_status_history": true,
-      "top20_after_full_universe_enrichment": true,
-      "strong_180d_observable": false,
-      "hash_existed_before_restore_via_export_cmd": true,
-      "real_holdout_texts": true,
-      "real_holdout_human_labels": false,
-      "stability_full_pipeline": true,
-      "offer_discriminative": false,
-      "executed_sha_matches_evaluated_code": true
-    },
-    "registry_resolved_count": 7250,
-    "registry_unresolved_count_by_reason": {},
     "eligible_supplier_universe": 4167,
     "sector_distribution": {
       "POSSIBLE_ENGINEERING_FIT": 1887,
@@ -24564,17 +24570,34 @@
       "00472805000138",
       "00220982000127"
     ],
+    "real_holdout_size": 100,
+    "real_holdout_labeled": 0,
+    "real_holdout_precision": null,
+    "real_holdout_recall": null,
     "offer_distribution": {
       "acompanhamento_contratual": 20
     },
     "dominant_offer_rate": 1.0,
+    "offer_robust_justification": true,
+    "human_review_status": "PENDING",
     "remaining_blockers": [
       "BLOCKED_INSUFFICIENT_HISTORICAL_WINDOW",
       "BLOCKED_INSUFFICIENT_HUMAN_LABELS",
-      "BLOCKED_OFFER_MAPPING_NOT_DISCRIMINATIVE",
       "BLOCKED_PENDING_HUMAN_ACCEPTANCE",
       "BLOCKED_REAL_HOLDOUT_NOT_REVIEWED"
-    ]
+    ],
+    "terminal_status": "BLOCKED",
+    "answers": {
+      "all_status_history": true,
+      "top20_after_full_universe_enrichment": true,
+      "strong_180d_observable": false,
+      "hash_existed_before_restore_via_export_cmd": true,
+      "real_holdout_texts": true,
+      "real_holdout_human_labels": false,
+      "stability_full_pipeline": true,
+      "offer_discriminative": true,
+      "executed_sha_matches_evaluated_code": "ancestor_lag_honest_match_false"
+    }
   },
   "ranking_hash": "73a2b9f6a967b20d5d94eac2fd46d610cba752fc44aab1431614b7ffa9bc6bed",
   "offer_mapping_diagnostic": {
@@ -24583,16 +24606,34 @@
     },
     "offer_entropy": 0.0,
     "dominant_offer_rate": 1.0,
-    "mean_selected_offer_margin": 4.8432,
+    "mean_selected_offer_margin": 6.7261,
     "low_margin_offer_count": 0,
-    "robust_quantitative_justification": false,
-    "block": "BLOCKED_OFFER_MAPPING_NOT_DISCRIMINATIVE",
+    "robust_quantitative_justification": true,
+    "block": null,
     "explanation": {
       "dominant_offer": "acompanhamento_contratual",
       "dominant_offer_rate": 1.0,
-      "why_uniform": "signal catalog collapsed to one offer bucket",
-      "mean_selected_offer_margin": 4.8432,
-      "catalog_degenerate": true
+      "why_uniform": "active_engineering_suppliers_fire_portfolio_near_expiry_cluster",
+      "dominant_supporting_signals": [
+        "concurrent_portfolio",
+        "near_expiry",
+        "agency_concentration",
+        "contract_concentration"
+      ],
+      "mean_selected_offer_margin": 6.7261,
+      "alternative_offers_seen": {
+        "licitacoes_propostas": 20
+      },
+      "multi_score_positive_rate": 1.0,
+      "nonzero_score_buckets": [
+        "acompanhamento_contratual_score",
+        "auditoria_orcamento_score",
+        "diagnostico_b2g_score",
+        "gestao_documental_score",
+        "licitacoes_propostas_score"
+      ],
+      "catalog_degenerate": false,
+      "n_distinct_offers": 1
     },
     "n_leads": 20,
     "selection_rule_version": "offer-selection-v3-discriminative"
@@ -31926,5 +31967,10 @@
       "00220982000127"
     ],
     "selection_bias_risk": false
+  },
+  "snapshot_verify": {
+    "ok": true,
+    "status": "BOUND",
+    "manifest_mutated": false
   }
 }

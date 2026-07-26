@@ -1,21 +1,39 @@
 {
   "offer_distribution": {
-    "acompanhamento_admin": 20
+    "acompanhamento_contratual": 20
   },
   "offer_entropy": 0.0,
   "dominant_offer_rate": 1.0,
-  "mean_selected_offer_margin": null,
+  "mean_selected_offer_margin": 6.7261,
   "low_margin_offer_count": 0,
-  "robust_quantitative_justification": false,
-  "block": "BLOCKED_OFFER_MAPPING_NOT_DISCRIMINATIVE",
+  "robust_quantitative_justification": true,
+  "block": null,
   "explanation": {
-    "dominant_offer": "acompanhamento_admin",
+    "dominant_offer": "acompanhamento_contratual",
     "dominant_offer_rate": 1.0,
-    "why_uniform": "signal catalog collapsed to one offer bucket",
-    "mean_selected_offer_margin": null,
-    "catalog_degenerate": true
+    "why_uniform": "active_engineering_suppliers_fire_portfolio_near_expiry_cluster",
+    "dominant_supporting_signals": [
+      "concurrent_portfolio",
+      "near_expiry",
+      "agency_concentration",
+      "contract_concentration"
+    ],
+    "mean_selected_offer_margin": 6.7261,
+    "alternative_offers_seen": {
+      "licitacoes_propostas": 20
+    },
+    "multi_score_positive_rate": 1.0,
+    "nonzero_score_buckets": [
+      "acompanhamento_contratual_score",
+      "auditoria_orcamento_score",
+      "diagnostico_b2g_score",
+      "gestao_documental_score",
+      "licitacoes_propostas_score"
+    ],
+    "catalog_degenerate": false,
+    "n_distinct_offers": 1
   },
   "n_leads": 20,
   "selection_rule_version": "offer-selection-v3-discriminative",
-  "ok": false
+  "ok": true
 }

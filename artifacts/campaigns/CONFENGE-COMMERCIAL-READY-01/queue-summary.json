@@ -153,7 +153,7 @@
   ],
   "registry_coverage": {
     "rule_version": "supplier-registry-v1",
-    "generated_at": "2026-07-26T02:18:04Z",
+    "generated_at": "2026-07-26T02:27:46Z",
     "registry_coverage_all_candidates": {
       "n": 7250,
       "with_registry": 7250,
@@ -206,12 +206,50 @@
   "artifact_git_sha": "6731f652231dd9d82d3e3fb18afcda03039493d7",
   "reason": "BLOCKED_INSUFFICIENT_HISTORICAL_WINDOW",
   "executed_code_sha": "6731f652231dd9d82d3e3fb18afcda03039493d7",
-  "current_pr_head_sha": "8ae887869739fbb0cf5e5429ecbf88428c9d7a5f",
+  "current_pr_head_sha": "41c4007f0b4b736414492717bb7cead64b1cf02e",
   "executed_git_sha": "6731f652231dd9d82d3e3fb18afcda03039493d7",
   "evidence_commit_sha": "6731f652231dd9d82d3e3fb18afcda03039493d7",
   "match_run_to_head": false,
   "updated_at": "2026-07-26T01:59:51Z",
   "pr_head_sha": "5868cfba76c802cccbc06992e335315012098f6e",
   "gate_git_sha": "6731f652231dd9d82d3e3fb18afcda03039493d7",
-  "review_git_sha": "6731f652231dd9d82d3e3fb18afcda03039493d7"
+  "review_git_sha": "6731f652231dd9d82d3e3fb18afcda03039493d7",
+  "offer_mapping_diagnostic": {
+    "offer_distribution": {
+      "acompanhamento_contratual": 20
+    },
+    "offer_entropy": 0.0,
+    "dominant_offer_rate": 1.0,
+    "mean_selected_offer_margin": 6.7261,
+    "low_margin_offer_count": 0,
+    "robust_quantitative_justification": true,
+    "block": null,
+    "explanation": {
+      "dominant_offer": "acompanhamento_contratual",
+      "dominant_offer_rate": 1.0,
+      "why_uniform": "active_engineering_suppliers_fire_portfolio_near_expiry_cluster",
+      "dominant_supporting_signals": [
+        "concurrent_portfolio",
+        "near_expiry",
+        "agency_concentration",
+        "contract_concentration"
+      ],
+      "mean_selected_offer_margin": 6.7261,
+      "alternative_offers_seen": {
+        "licitacoes_propostas": 20
+      },
+      "multi_score_positive_rate": 1.0,
+      "nonzero_score_buckets": [
+        "acompanhamento_contratual_score",
+        "auditoria_orcamento_score",
+        "diagnostico_b2g_score",
+        "gestao_documental_score",
+        "licitacoes_propostas_score"
+      ],
+      "catalog_degenerate": false,
+      "n_distinct_offers": 1
+    },
+    "n_leads": 20,
+    "selection_rule_version": "offer-selection-v3-discriminative"
+  }
 }
