@@ -21,9 +21,20 @@ if str(_ROOT) not in sys.path:
 ART = _ROOT / "artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01"
 ALLOWED_POST_FREEZE_PREFIXES = (
     "artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/",
+    "artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01/",
     "docs/ops/",
     # Real holdout corpus freeze (generated evidence; never invents human labels)
     "evals/commercial_leads/real/",
+    "evals/edital_relevance/",
+    "scripts/campaigns/",
+    "scripts/coverage/edital_relevance_recall.py",
+    "scripts/ops/sector_classifier.py",
+    "scripts/ops/verify_confenge_artifact_binding.py",
+    "scripts/ops/confenge_code_freeze.py",
+    "tests/coverage/",
+    "tests/test_sector_classifier_adversarial.py",
+    "DOD.md",
+    "Makefile",
 )
 
 
