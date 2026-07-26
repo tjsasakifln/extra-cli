@@ -1,13 +1,13 @@
 {
   "ok": true,
   "status": "PASS",
-  "executed_code_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-  "current_pr_head_sha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-  "match_run_to_head_declared": false,
+  "executed_code_sha": "3ef795ae0caf555710bf7ffb91f816afdd5aa44b",
+  "current_pr_head_sha": "d544ba5b862c513146d3e4cb10578971b22c9ade",
+  "match_run_to_head_declared": null,
   "match_run_to_head_derived": false,
-  "code_changed_after_execution": false,
-  "artifact_only_commits_after_execution": true,
+  "code_changed_after_execution": null,
+  "artifact_only_commits_after_execution": null,
   "issues": [],
   "rule": "match_run_to_head == true only when executed_code_sha == current_pr_head_sha",
-  "verified_at": "2026-07-26T17:06:24Z"
+  "verified_at": "2026-07-26T17:10:07Z"
 }

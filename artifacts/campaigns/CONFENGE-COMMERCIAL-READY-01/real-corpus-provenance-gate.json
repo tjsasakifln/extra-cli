@@ -233,5 +233,5 @@
     "note": "Real PNCP objects extracted from snapshot (v2 freeze). Human dual labels are null on all splits including holdout. Agents must never fill reviewer_*/adjudicated_* fields. Scarce strata are declared with query/availability — never fabricated."
   },
   "method": "normalize_and_validate_real_jsonl_splits",
-  "verified_at": "2026-07-26T17:08:38Z"
+  "verified_at": "2026-07-26T17:10:55Z"
 }

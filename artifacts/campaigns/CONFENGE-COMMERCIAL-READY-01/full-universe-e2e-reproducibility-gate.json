@@ -1155,6 +1155,6 @@
   "top20_equal": true,
   "review_queue_equal": true,
   "same_inputs_same_complete_outputs": true,
-  "executed_at": "2026-07-26T17:08:37Z",
+  "executed_at": "2026-07-26T17:10:54Z",
   "note": "DOWNSTREAM gate only: starts from frozen candidate CNPJ universe. Does NOT re-run raw snapshot discovery. Full-pipeline E2E is scripts.ops.confenge_full_pipeline_e2e. Sampled runs are SAMPLED_E2E_TEST only."
 }

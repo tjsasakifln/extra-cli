@@ -173,6 +173,6 @@
   "top20_equal": true,
   "review_queue_equal": true,
   "same_frozen_raw_inputs_same_complete_outputs": true,
-  "executed_at": "2026-07-26T17:08:27Z",
+  "executed_at": "2026-07-26T17:10:44Z",
   "note": "Full-pipeline E2E re-executes discovery from pncp_supplier_contracts. Downstream reproducibility (frozen universe) is a separate gate."
 }
