@@ -1129,9 +1129,10 @@ jobs:
           )
           print(json.dumps(stamp, indent=2))
           PY
-          make verify-confenge-sha-semantics || true
-          make verify-confenge-final-integrity-code-freeze || true
-          make verify-confenge-executed-tree-integrity || true
+          # Fail-closed: no || true on mandatory gates (tests/test_mandatory_gates_no_or_true.py)
+          make verify-confenge-sha-semantics
+          make verify-confenge-final-integrity-code-freeze
+          make verify-confenge-executed-tree-integrity
           make build-confenge-final-campaign-status
           make verify-confenge-cross-artifact-consistency
           mkdir -p artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/machine-evidence
