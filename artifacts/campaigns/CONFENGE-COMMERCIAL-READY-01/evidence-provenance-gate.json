@@ -1,17 +1,17 @@
 {
   "ok": true,
   "status": "PASS",
-  "current_pr_head_sha": "a78be53837ff6d75637f5ba2c78fa6d93aaff4a2",
+  "current_pr_head_sha": "ade4dcbf87b3bf9df6725a2c99f8280f86c86bd8",
   "final_code_freeze_sha": "a78be53837ff6d75637f5ba2c78fa6d93aaff4a2",
   "final_integrity_code_freeze_sha": "a78be53837ff6d75637f5ba2c78fa6d93aaff4a2",
   "executed_code_sha": "a78be53837ff6d75637f5ba2c78fa6d93aaff4a2",
-  "evidence_commit_sha": "a78be53837ff6d75637f5ba2c78fa6d93aaff4a2",
-  "workflow_head_sha": "a78be53837ff6d75637f5ba2c78fa6d93aaff4a2",
-  "artifact_git_sha": "a78be53837ff6d75637f5ba2c78fa6d93aaff4a2",
+  "evidence_commit_sha": "ade4dcbf87b3bf9df6725a2c99f8280f86c86bd8",
+  "workflow_head_sha": "ade4dcbf87b3bf9df6725a2c99f8280f86c86bd8",
+  "artifact_git_sha": "ade4dcbf87b3bf9df6725a2c99f8280f86c86bd8",
   "code_tree_hash_at_execution": "78f655b949c0da93bc47b9a4bf784d5b03fda24c1ffcb91e78039c355ed93538",
-  "code_tree_hash_at_current_head": "78f655b949c0da93bc47b9a4bf784d5b03fda24c1ffcb91e78039c355ed93538",
+  "code_tree_hash_at_current_head": "399bf437280e049aeb3efedc3fd3bbb9cf2a49e9f04bfb8298150e7282cc01d5",
   "code_changed_after_execution": false,
-  "artifact_only_commits_after_execution": false,
+  "artifact_only_commits_after_execution": true,
   "non_artifact_files_changed_after_execution": [],
   "execution": {
     "execution_environment": "local",
@@ -23,10 +23,10 @@
     "job_ids": null,
     "command": "make campaign-gate-confenge-commercial-ready",
     "started_at": null,
-    "finished_at": "2026-07-26T18:03:38Z",
+    "finished_at": "2026-07-26T18:04:19Z",
     "exit_code": 0
   },
-  "match_run_to_head": true,
+  "match_run_to_head": false,
   "sha_semantics": {
     "current_pr_head_sha": "HEAD atual real da PR",
     "executed_code_sha": "commit cujo c\u00f3digo foi executado",
@@ -36,5 +36,5 @@
     "artifact_git_sha": "commit que cont\u00e9m ou referencia o pacote de evid\u00eancia",
     "match_run_to_head_rule": "true only when executed_code_sha == current_pr_head_sha"
   },
-  "verified_at": "2026-07-26T18:03:38Z"
+  "verified_at": "2026-07-26T18:04:19Z"
 }
