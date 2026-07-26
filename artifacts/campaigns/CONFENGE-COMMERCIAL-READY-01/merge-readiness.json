@@ -1,11 +1,11 @@
 {
-  "actual_pr_head_sha": "ac616e7291f8b6fc25ce83c88ce5a5be43f68c9b",
-  "workflow_merge_sha": "a37d615d8b6b320fc4d4cc1b10d01bb0ba4cbd40",
-  "freeze_sha": "8d82d4d98cf0ff0154ce205cd1055459a4f6e96c",
-  "executed_code_sha": "8d82d4d98cf0ff0154ce205cd1055459a4f6e96c",
-  "artifact_only_diff": true,
+  "actual_pr_head_sha": "554d6984db7cc1a8d4945319ecc393ea50abfde9",
+  "workflow_merge_sha": null,
+  "freeze_sha": "554d6984db7cc1a8d4945319ecc393ea50abfde9",
+  "executed_code_sha": "554d6984db7cc1a8d4945319ecc393ea50abfde9",
+  "artifact_only_diff": false,
   "non_artifact_changes": [],
-  "latest_workflow_run_id": "30212931293",
+  "latest_workflow_run_id": "30214044675",
   "latest_workflow_status": "PASS",
   "each_structural_job_status": {
     "structural_ci_status": "PASS"
@@ -18,8 +18,8 @@
   },
   "human_package_publication_status": "PASS",
   "machine_evidence_publication_status": "PASS",
-  "human_artifact_id": "8634984051",
-  "machine_artifact_id": "8634989832",
+  "human_artifact_id": 8634984051,
+  "machine_artifact_id": 8634989832,
   "cross_artifact_consistency": "PASS",
   "code_merge_ready": true,
   "commercial_release_ready": false,
@@ -36,8 +36,8 @@
   "terminal_declaration": "CODE_MERGE_READY_COMMERCIAL_RELEASE_BLOCKED",
   "terminal_reason": "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE",
   "answers": {
-    "1_actual_pr_head_sha": "ac616e7291f8b6fc25ce83c88ce5a5be43f68c9b",
-    "2_workflow_merge_sha": "a37d615d8b6b320fc4d4cc1b10d01bb0ba4cbd40",
+    "1_actual_pr_head_sha": "554d6984db7cc1a8d4945319ecc393ea50abfde9",
+    "2_workflow_merge_sha": null,
     "3_commercial_execution_matches_freeze": true,
     "4_code_changed_after_freeze": false,
     "5_real_data_jobs_executed": [],
@@ -52,6 +52,6 @@
     "9_code_merge_ready": true,
     "10_commercial_release_ready": false
   },
-  "updated_at": "2026-07-26T18:07:11Z",
+  "updated_at": "2026-07-26T18:14:24Z",
   "aggregator": "build_final_campaign_status"
 }
