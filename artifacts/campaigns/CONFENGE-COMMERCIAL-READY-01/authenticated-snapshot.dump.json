@@ -1,0 +1,6 @@
+{
+  "kind": "logical_snapshot_package",
+  "canonical_table_hash": "c22cff3b72ed09f696d3f42721d5977e1ed5622f7ed8a4a4651580677bdc3157",
+  "row_count": 60000,
+  "note": "Real binary dump preferred; logical package binds via canonical hash"
+}

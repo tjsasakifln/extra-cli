@@ -421,10 +421,15 @@ def cmd_offer_discrimination(_: argparse.Namespace) -> int:
 
 
 def cmd_end_to_end_reproducibility(_: argparse.Namespace) -> int:
-    """Re-run pipeline twice on frozen candidate universe when DSN available;
-    otherwise structural unit proof of hash stability helpers.
+    """Re-run the commercial pipeline twice end-to-end on the frozen universe.
+
+    Each pass redoes: history expansion (all-status) → registry join → sector →
+    signals → eligibility → ranking → offer → top20. Does not reuse prior classes.
+    Unit tests alone never suffice for PASS.
     """
-    proc = subprocess.run(  # noqa: S603
+    from datetime import date
+
+    unit = subprocess.run(  # noqa: S603
         [
             sys.executable,
             "-m",
@@ -440,20 +445,172 @@ def cmd_end_to_end_reproducibility(_: argparse.Namespace) -> int:
         text=True,
         check=False,
     )
+    dsn = os.environ.get("CONFENGE_COMMERCIAL_STATE_DSN") or os.environ.get(
+        "CONFENGE_COMMERCIAL_SOURCE_DSN"
+    )
+    if not dsn:
+        report = {
+            "ok": False,
+            "status": "BLOCKED_END_TO_END_REPRODUCIBILITY_NOT_PROVEN",
+            "pytest_exit": unit.returncode,
+            "unit_ok": unit.returncode == 0,
+            "method": "requires_live_double_pipeline_run",
+            "reason": "CONFENGE_COMMERCIAL_STATE_DSN required for full e2e re-run",
+            "note": (
+                "Unit helpers are insufficient. Gate must re-execute full pipeline "
+                "twice on frozen candidate universe."
+            ),
+        }
+        (ART / "end-to-end-reproducibility-gate.json").write_text(
+            json.dumps(report, indent=2) + "\n", encoding="utf-8"
+        )
+        print(json.dumps(report, indent=2))
+        return 2
+
+    from scripts.commercial_leads.dbutil import connect
+    from scripts.commercial_leads.pipeline import load_full_supplier_histories
+    from scripts.commercial_leads.profile import load_profile
+    from scripts.commercial_leads.scoring import rank_leads, score_supplier
+    from scripts.commercial_leads.sector_fit import classify_supplier_sector_fit
+    from scripts.commercial_leads.signals import compute_signals_for_supplier, rows_from_dicts
+    from scripts.commercial_leads.supplier_registry import load_registry_map
+
+    run = _load_run()
+    lm = run.get("load_meta") or {}
+    universe = list(lm.get("candidate_supplier_cnpjs") or [])
+    if not universe and run.get("leads"):
+        universe = [str(L["cnpj14"]) for L in run["leads"]]
+    # Practical bound for gate runtime while still >> top20
+    cnpjs = universe[:400] if len(universe) > 400 else universe
+    if len(cnpjs) < 20:
+        report = {
+            "ok": False,
+            "status": "BLOCKED_END_TO_END_REPRODUCIBILITY_NOT_PROVEN",
+            "reason": "frozen_universe_too_small",
+            "n": len(cnpjs),
+        }
+        (ART / "end-to-end-reproducibility-gate.json").write_text(
+            json.dumps(report, indent=2) + "\n", encoding="utf-8"
+        )
+        print(json.dumps(report, indent=2))
+        return 2
+
+    profile = load_profile(_ROOT / "config/commercial_profiles/confenge.yaml")
+    as_of = date.fromisoformat(str(run.get("as_of") or date.today().isoformat()))
+    names = {str(L.get("cnpj14")): L.get("razao_social") for L in (run.get("leads") or [])}
+
+    def full_pass() -> dict[str, Any]:
+        conn = connect(dsn)
+        try:
+            groups, hist = load_full_supplier_histories(conn, cnpjs, per_supplier_limit=None)
+            reg = load_registry_map(conn, cnpjs)
+        finally:
+            conn.close()
+        if not hist.get("all_statuses_loaded"):
+            return {"ok": False, "reason": "all_statuses_not_loaded", "hist": hist}
+        scored = []
+        sector_dist: dict[str, int] = {}
+        for cnpj in cnpjs:
+            crow = groups.get(cnpj) or []
+            if not crow:
+                continue
+            rec = reg.get(cnpj)
+            sector = classify_supplier_sector_fit(
+                razao_social=names.get(cnpj) or crow[0].get("fornecedor_nome"),
+                contracts=crow,
+                cnae_principal=rec.cnae_principal if rec else None,
+                cnaes_secundarios=list(rec.cnaes_secundarios) if rec else [],
+                history_is_full=True,
+            )
+            sector_dist[sector.classification] = sector_dist.get(sector.classification, 0) + 1
+            if sector.classification not in ("CONFIRMED_ENGINEERING", "STRONG_ENGINEERING_FIT"):
+                continue
+            contracts = rows_from_dicts(crow)
+            sigs = compute_signals_for_supplier(contracts, profile, as_of=as_of, official_acts=None)
+            total_value = sum(
+                float(c.valor_total or 0) for c in contracts if c.valor_total is not None
+            )
+            pubs = [c.data_publicacao for c in contracts if c.data_publicacao]
+            lead = score_supplier(
+                cnpj14=cnpj,
+                razao_social=names.get(cnpj) or crow[0].get("fornecedor_nome") or cnpj,
+                signal_results=sigs,
+                profile=profile,
+                total_value=total_value,
+                contract_count=len(contracts),
+                last_publication=max(pubs).isoformat() if pubs else None,
+            )
+            lead._sector = sector.classification  # type: ignore[attr-defined]
+            scored.append(lead)
+        ranked = rank_leads(scored, profile, suppressed_cnpjs=set(), state_by_cnpj={})
+        top20 = [
+            {
+                "cnpj14": x.cnpj14,
+                "score_total": round(x.score_total, 6),
+                "sector": getattr(x, "_sector", None),
+                "offer": x.selected_offer or x.suggested_offer,
+            }
+            for x in ranked[:20]
+        ]
+        hist_blob = json.dumps(
+            {
+                "n_groups": len(groups),
+                "n_contracts": sum(len(v) for v in groups.values()),
+                "mode": hist.get("history_expansion_mode"),
+                "view": hist.get("history_view"),
+            },
+            sort_keys=True,
+        )
+        return {
+            "ok": True,
+            "candidate_universe_hash": hashlib.sha256(
+                json.dumps(sorted(cnpjs)).encode()
+            ).hexdigest(),
+            "full_history_hash": hashlib.sha256(hist_blob.encode()).hexdigest(),
+            "registry_snapshot_hash": hashlib.sha256(
+                json.dumps(sorted(reg.keys())).encode()
+            ).hexdigest(),
+            "eligible_universe_hash": hashlib.sha256(
+                json.dumps([x.cnpj14 for x in scored], sort_keys=True).encode()
+            ).hexdigest(),
+            "ranking_hash": hashlib.sha256(json.dumps(top20, sort_keys=True).encode()).hexdigest(),
+            "top20_order": [x["cnpj14"] for x in top20],
+            "sector_classification_distribution": sector_dist,
+            "offer_mapping": [x["offer"] for x in top20],
+            "history_view": hist.get("history_view"),
+            "all_statuses_loaded": hist.get("all_statuses_loaded"),
+            "n_universe": len(cnpjs),
+            "n_eligible": len(scored),
+        }
+
+    a = full_pass()
+    b = full_pass()
+    same = (
+        a.get("ok")
+        and b.get("ok")
+        and a.get("ranking_hash") == b.get("ranking_hash")
+        and a.get("top20_order") == b.get("top20_order")
+        and a.get("full_history_hash") == b.get("full_history_hash")
+        and a.get("eligible_universe_hash") == b.get("eligible_universe_hash")
+    )
     report = {
-        "ok": proc.returncode == 0,
-        "pytest_exit": proc.returncode,
-        "stdout_tail": (proc.stdout or "")[-2000:],
-        "method": "full_pipeline_hash_stability_unit_plus_optional_live",
+        "ok": bool(same) and unit.returncode == 0,
+        "status": "PASS" if same and unit.returncode == 0 else "FAIL",
+        "method": "live_double_full_pipeline_frozen_universe_all_status_history",
+        "pytest_exit": unit.returncode,
+        "unit_ok": unit.returncode == 0,
+        "pass_a": {k: a.get(k) for k in a if k != "hist"},
+        "pass_b": {k: b.get(k) for k in b if k != "hist"},
+        "same_inputs_same_complete_outputs": same,
         "note": (
-            "Each repetition must redo discovery→all-status history→registry→"
-            "relevance→sector→signals→eligibility→ranking→offer→top20."
+            "Re-executed all-status history, registry join, sector, signals, "
+            "eligibility, ranking, offer, top20 — twice. No reuse of prior classes."
         ),
     }
     (ART / "end-to-end-reproducibility-gate.json").write_text(
-        json.dumps(report, indent=2) + "\n", encoding="utf-8"
+        json.dumps(report, indent=2, default=str) + "\n", encoding="utf-8"
     )
-    print(json.dumps(report, indent=2))
+    print(json.dumps(report, indent=2, default=str))
     return 0 if report["ok"] else 1
 
 
@@ -477,9 +634,15 @@ def cmd_evidence_provenance(_: argparse.Namespace) -> int:
     issues = []
     if not executed:
         issues.append("missing_executed_code_sha")
-    if pr_head and executed and pr_head != head and match_flag is True:
-        issues.append("false_match_run_to_head_with_stale_pr_head")
-    if pr_head and pr_head != head and executed == pr_head and match_flag is True:
+    # match_run_to_head may only be true when both fields equal current HEAD
+    if match_flag is True:
+        if executed != head:
+            issues.append("false_match_run_to_head_with_stale_executed_code_sha")
+        if pr_head and pr_head != head:
+            issues.append("false_match_run_to_head_with_stale_pr_head")
+        if pr_head and pr_head != head and executed == pr_head:
+            issues.append("stale_pr_head_claimed_as_current")
+    if pr_head and pr_head != head and match_flag is True:
         issues.append("stale_pr_head_claimed_as_current")
     # Local execution provenance
     local_fields_ok = True
@@ -829,11 +992,28 @@ def cmd_snapshot_content_binding(_: argparse.Namespace) -> int:
         print(json.dumps(report, indent=2))
         return 2
     snap = validate_snapshot_manifest(manifest, allow_missing_dump=True)
-    if not snap.canonical_table_hash:
+    if not snap.ok or not snap.canonical_table_hash:
+        report = {
+            "ok": False,
+            "status": snap.status
+            if str(snap.status).startswith("BLOCKED")
+            else "BLOCKED_MISSING_INDEPENDENT_SNAPSHOT_ANCHOR",
+            "reasons": list(snap.reasons or [])
+            + (["manifest_without_canonical_table_hash"] if not snap.canonical_table_hash else []),
+            "snapshot": snap.as_dict(),
+        }
+        (ART / "snapshot-content-binding-gate.json").write_text(
+            json.dumps(report, indent=2, default=str) + "\n", encoding="utf-8"
+        )
+        print(json.dumps(report, indent=2, default=str))
+        return 2
+    # Explicit marker rejection even if validation path changes
+    dump = snap.dump_path or ""
+    if "marker" in str(dump).lower():
         report = {
             "ok": False,
             "status": "BLOCKED_MISSING_INDEPENDENT_SNAPSHOT_ANCHOR",
-            "reasons": ["manifest_without_canonical_table_hash"],
+            "reasons": ["marker_dump_cannot_sustain_release"],
             "snapshot": snap.as_dict(),
         }
         (ART / "snapshot-content-binding-gate.json").write_text(

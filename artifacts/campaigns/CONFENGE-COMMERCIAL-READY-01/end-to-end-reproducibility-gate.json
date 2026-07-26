@@ -1,7 +1,89 @@
 {
   "ok": true,
+  "status": "PASS",
+  "method": "live_double_full_pipeline_frozen_universe_all_status_history",
   "pytest_exit": 0,
-  "stdout_tail": "....                                                                     [100%]\n4 passed in 1.85s\n",
-  "method": "full_pipeline_hash_stability_unit_plus_optional_live",
-  "note": "Each repetition must redo discovery\u2192all-status history\u2192registry\u2192relevance\u2192sector\u2192signals\u2192eligibility\u2192ranking\u2192offer\u2192top20."
+  "unit_ok": true,
+  "pass_a": {
+    "ok": true,
+    "candidate_universe_hash": "a776c130f5b1d5b65cde2d55b92f79f1cde126e3f9715ad748a0bedf85505c25",
+    "full_history_hash": "53bdee42f407c8a367d80fad0d7b3a96d9c28baa5a23e95dffa5226544e5996e",
+    "registry_snapshot_hash": "1b36d6e3c0c03ed2a729ba9e550f9294abf563ce04d66cfaed9450f1e839af2e",
+    "eligible_universe_hash": "53eb631eab920b01f975c5ef3e2c70a2a4cd4e172173a0143e296d79f7c108d8",
+    "ranking_hash": "9d793d081bc500ebda359edfd2969ac87007d93745fe912a85444cef48b97b15",
+    "top20_order": [
+      "00472805000138",
+      "00220982000127",
+      "03094645000129",
+      "02740940000142",
+      "00061493000170",
+      "00688529000140",
+      "00629952000179",
+      "00341351000166",
+      "00280757000186"
+    ],
+    "sector_classification_distribution": {
+      "POSSIBLE_ENGINEERING_FIT": 334,
+      "CONFIRMED_ENGINEERING": 9,
+      "OUT_OF_SCOPE": 32,
+      "CONFLICTING": 25
+    },
+    "offer_mapping": [
+      "acompanhamento_contratual",
+      "acompanhamento_contratual",
+      "acompanhamento_contratual",
+      "acompanhamento_contratual",
+      "acompanhamento_contratual",
+      "acompanhamento_contratual",
+      "acompanhamento_contratual",
+      "acompanhamento_contratual",
+      "acompanhamento_contratual"
+    ],
+    "history_view": "ALL_SNAPSHOT_SUPPLIER_HISTORY",
+    "all_statuses_loaded": true,
+    "n_universe": 400,
+    "n_eligible": 9
+  },
+  "pass_b": {
+    "ok": true,
+    "candidate_universe_hash": "a776c130f5b1d5b65cde2d55b92f79f1cde126e3f9715ad748a0bedf85505c25",
+    "full_history_hash": "53bdee42f407c8a367d80fad0d7b3a96d9c28baa5a23e95dffa5226544e5996e",
+    "registry_snapshot_hash": "1b36d6e3c0c03ed2a729ba9e550f9294abf563ce04d66cfaed9450f1e839af2e",
+    "eligible_universe_hash": "53eb631eab920b01f975c5ef3e2c70a2a4cd4e172173a0143e296d79f7c108d8",
+    "ranking_hash": "9d793d081bc500ebda359edfd2969ac87007d93745fe912a85444cef48b97b15",
+    "top20_order": [
+      "00472805000138",
+      "00220982000127",
+      "03094645000129",
+      "02740940000142",
+      "00061493000170",
+      "00688529000140",
+      "00629952000179",
+      "00341351000166",
+      "00280757000186"
+    ],
+    "sector_classification_distribution": {
+      "POSSIBLE_ENGINEERING_FIT": 334,
+      "CONFIRMED_ENGINEERING": 9,
+      "OUT_OF_SCOPE": 32,
+      "CONFLICTING": 25
+    },
+    "offer_mapping": [
+      "acompanhamento_contratual",
+      "acompanhamento_contratual",
+      "acompanhamento_contratual",
+      "acompanhamento_contratual",
+      "acompanhamento_contratual",
+      "acompanhamento_contratual",
+      "acompanhamento_contratual",
+      "acompanhamento_contratual",
+      "acompanhamento_contratual"
+    ],
+    "history_view": "ALL_SNAPSHOT_SUPPLIER_HISTORY",
+    "all_statuses_loaded": true,
+    "n_universe": 400,
+    "n_eligible": 9
+  },
+  "same_inputs_same_complete_outputs": true,
+  "note": "Re-executed all-status history, registry join, sector, signals, eligibility, ranking, offer, top20 \u2014 twice. No reuse of prior classes."
 }

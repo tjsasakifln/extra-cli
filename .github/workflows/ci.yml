@@ -720,11 +720,12 @@ jobs:
         run: pip install -r requirements.txt && pip install pytest
       - name: Selection independence (structural)
         run: make verify-confenge-registry-selection-independence
-      - name: Universe coverage requires DSN — report BLOCKED without it
+      - name: Universe coverage requires DSN — must not green-pass without proof
         run: |
           if [ -z "${CONFENGE_COMMERCIAL_STATE_DSN:-}" ]; then
-            echo "BLOCKED_REGISTRY_SELECTION_BIAS / no DSN for live universe gate"
-            exit 0
+            echo "::error::BLOCKED_REGISTRY_UNIVERSE_INCOMPLETE — CONFENGE_COMMERCIAL_STATE_DSN unset; cannot claim registry universe PASS"
+            # Non-zero exit: not a green success (objective §10)
+            exit 2
           fi
           make verify-confenge-registry-universe
 

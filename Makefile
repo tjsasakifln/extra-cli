@@ -513,6 +513,9 @@ verify-confenge-authenticated-snapshot:
 verify-confenge-snapshot-manifest-immutability:
 	python3 -m scripts.ops.confenge_make_gates snapshot-manifest-immutability
 
+extract-confenge-real-holdout-corpus:
+	python3 -m scripts.ops.extract_confenge_real_holdout_corpus --min-n 500
+
 evaluate-confenge-real-contract-holdout:
 	python3 -m scripts.ops.eval_contract_relevance_real_holdout \
 		--holdout evals/commercial_leads/real/holdout-real-v1.jsonl \

@@ -75,11 +75,15 @@ def test_marker_dump_without_canonical_hash_blocked(tmp_path):
     )
     r = validate_snapshot_manifest(man, verify_file_hash=False, allow_missing_dump=True)
     assert not r.ok
-    assert r.status == "BLOCKED_MISSING_AUTHENTICATED_REAL_SNAPSHOT"
+    assert r.status in (
+        "BLOCKED_MISSING_AUTHENTICATED_REAL_SNAPSHOT",
+        "BLOCKED_MISSING_INDEPENDENT_SNAPSHOT_ANCHOR",
+    )
     assert any("marker" in x for x in r.reasons)
 
 
-def test_marker_dump_with_canonical_hash_allowed_for_db_bind(tmp_path):
+def test_marker_dump_with_canonical_hash_blocked_for_release(tmp_path):
+    """Marker + hash is NOT an independent pre-restore anchor for release."""
     marker = tmp_path / "db-content-binding.marker"
     marker.write_text("pncp_supplier_contracts row_count=60000\n", encoding="utf-8")
     man = tmp_path / "m.json"
@@ -98,9 +102,9 @@ def test_marker_dump_with_canonical_hash_allowed_for_db_bind(tmp_path):
         encoding="utf-8",
     )
     r = validate_snapshot_manifest(man, verify_file_hash=False, allow_missing_dump=True)
-    assert r.ok
-    assert r.canonical_table_hash == "f" * 64
-    assert "MARKER" in r.status or "canonical" in r.status.lower()
+    assert not r.ok
+    assert r.status == "BLOCKED_MISSING_INDEPENDENT_SNAPSHOT_ANCHOR"
+    assert any("marker" in x for x in r.reasons)
 
 
 def test_manifest_missing_canonical_hash_blocked_for_independent_anchor(tmp_path):

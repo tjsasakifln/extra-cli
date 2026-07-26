@@ -1,10 +1,10 @@
 {
   "ok": true,
-  "current_repo_head": "0a861361929d98e28cac0274840fb0000971ad8e",
-  "executed_code_sha": "0a861361929d98e28cac0274840fb0000971ad8e",
-  "current_pr_head_sha": "0a861361929d98e28cac0274840fb0000971ad8e",
+  "current_repo_head": "7c88a55704be9806d6326dc532ae7e35358b68d6",
+  "executed_code_sha": "7c88a55704be9806d6326dc532ae7e35358b68d6",
+  "current_pr_head_sha": "7c88a55704be9806d6326dc532ae7e35358b68d6",
   "workflow_run_id": null,
-  "match_run_to_head": true,
+  "match_run_to_head": false,
   "issues": [],
   "local_fields_ok": true,
   "note": "pr_head_sha and executed_code_sha are different fields; never claim match when PR advanced."

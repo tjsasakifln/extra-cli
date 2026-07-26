@@ -10,10 +10,10 @@
     "ok": false,
     "status": "BLOCKED_REAL_HOLDOUT_NOT_REVIEWED",
     "reason": "insufficient_dual_human_labels",
-    "n_rows": 0,
+    "n_rows": 100,
     "n_labeled": 0,
     "min_required": 500,
-    "corpus_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "corpus_sha256": "441a43bfb0e6663eafba20fdf04b7ef6099fd6ef02cbe84a6c585caf36740f26",
     "set_type": "holdout-real-v1",
     "thresholds": {
       "precision": 0.95,

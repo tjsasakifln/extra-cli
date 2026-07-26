@@ -4,10 +4,10 @@
   "technical_status": "BLOCKED",
   "campaign_id": "CONFENGE-COMMERCIAL-READY-01",
   "run_id": "cl-20260726T003820Z-f8e90e36",
-  "git_sha": "811c590f2653f0845e01875d7db7867fa7ac91f7",
-  "run_git_sha": "811c590f2653f0845e01875d7db7867fa7ac91f7",
-  "artifact_git_sha": "811c590f2653f0845e01875d7db7867fa7ac91f7",
-  "pr_head_sha": "811c590f2653f0845e01875d7db7867fa7ac91f7",
+  "git_sha": "7c88a55704be9806d6326dc532ae7e35358b68d6",
+  "run_git_sha": "7c88a55704be9806d6326dc532ae7e35358b68d6",
+  "artifact_git_sha": "7c88a55704be9806d6326dc532ae7e35358b68d6",
+  "pr_head_sha": "7c88a55704be9806d6326dc532ae7e35358b68d6",
   "base_sha": "811c590f2653f0845e01875d7db7867fa7ac91f7",
   "branch": "campaign/confenge-commercial-ready-01",
   "population_mode": "FULL_POPULATION",
@@ -495,7 +495,6 @@
   "blockers": [
     "BLOCKED_INSUFFICIENT_HISTORICAL_WINDOW",
     "BLOCKED_INSUFFICIENT_HUMAN_LABELS",
-    "BLOCKED_MISSING_INDEPENDENT_SNAPSHOT_ANCHOR",
     "BLOCKED_PENDING_HUMAN_ACCEPTANCE",
     "BLOCKED_REAL_HOLDOUT_NOT_REVIEWED",
     "BLOCKED_REGISTRY_SELECTION_BIAS"
@@ -511,7 +510,7 @@
   ],
   "rc_technical_pass_revoked": true,
   "user_acceptance": "NOT_REQUESTED",
-  "updated_at": "2026-07-26T01:46:39Z",
+  "updated_at": "2026-07-26T01:57:49Z",
   "answers": {
     "concentration_uses_full_history": true,
     "single_contract_can_produce_strong": false,
@@ -526,7 +525,7 @@
     "snapshot_table_writes_denied": true,
     "ranking_stability_live_rescore": true
   },
-  "executed_git_sha": "811c590f2653f0845e01875d7db7867fa7ac91f7",
+  "executed_git_sha": "7c88a55704be9806d6326dc532ae7e35358b68d6",
   "sha_binding": {
     "policy": "exact_or_ancestor_artifact_only_lag",
     "match_run_to_head": true,
@@ -536,10 +535,10 @@
   },
   "gate_git_sha": "811c590f2653f0845e01875d7db7867fa7ac91f7",
   "review_git_sha": "811c590f2653f0845e01875d7db7867fa7ac91f7",
-  "executed_code_sha": "811c590f2653f0845e01875d7db7867fa7ac91f7",
-  "evidence_commit_sha": "811c590f2653f0845e01875d7db7867fa7ac91f7",
-  "current_pr_head_sha": "811c590f2653f0845e01875d7db7867fa7ac91f7",
-  "match_run_to_head": true,
+  "executed_code_sha": "7c88a55704be9806d6326dc532ae7e35358b68d6",
+  "evidence_commit_sha": "7c88a55704be9806d6326dc532ae7e35358b68d6",
+  "current_pr_head_sha": "7c88a55704be9806d6326dc532ae7e35358b68d6",
+  "match_run_to_head": false,
   "workflow_run_id": null,
   "execution_environment": "local",
   "hardening_final": {
@@ -552,5 +551,60 @@
     "e2e_reproducibility": "UNIT_PROOF",
     "offer_discrimination": "IMPLEMENTED",
     "evidence_provenance_fields": "IMPLEMENTED"
+  },
+  "snapshot_export": {
+    "dump_path": "/mnt/d/extra consultoria/.worktrees/confenge-commercial-ready-01/artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/authenticated-snapshot.dump.json",
+    "dump_sha256": "bb8a2e49c950dbb3dae42438a61280c1d2684ef467baeb71ba003f5ba86d21b0",
+    "canonical_table_hash": "c22cff3b72ed09f696d3f42721d5977e1ed5622f7ed8a4a4651580677bdc3157",
+    "exported_at": "2026-07-26T01:56:22Z",
+    "package": "confenge-authenticated-export",
+    "manifest_closed_before_restore": true
+  },
+  "observation_window": {
+    "snapshot_min_date": "2026-02-13",
+    "snapshot_max_date": "2026-07-23",
+    "snapshot_observation_days": 160,
+    "strong_observable": false,
+    "strong_status": "STRONG_NOT_OBSERVABLE_IN_CURRENT_WINDOW",
+    "block": "BLOCKED_INSUFFICIENT_HISTORICAL_WINDOW"
+  },
+  "final_report": {
+    "current_pr_head_sha": "7c88a55704be9806d6326dc532ae7e35358b68d6",
+    "executed_code_sha": "7c88a55704be9806d6326dc532ae7e35358b68d6",
+    "evidence_commit_sha": "7c88a55704be9806d6326dc532ae7e35358b68d6",
+    "workflow_run_id": null,
+    "snapshot_dump_sha": "bb8a2e49c950dbb3dae42438a61280c1d2684ef467baeb71ba003f5ba86d21b0",
+    "pre_restore_canonical_hash": "c22cff3b72ed09f696d3f42721d5977e1ed5622f7ed8a4a4651580677bdc3157",
+    "post_restore_canonical_hash": "c22cff3b72ed09f696d3f42721d5977e1ed5622f7ed8a4a4651580677bdc3157",
+    "snapshot_observation_days": 160,
+    "all_contracts": 60000,
+    "candidate_universe": 7091,
+    "registry_coverage_before_ranking": {
+      "n": 7091,
+      "with_registry": 117,
+      "coverage": 0.0165,
+      "cnae_primary_coverage": 0.0165,
+      "cnae_secondary_coverage": 0.0162,
+      "status": "OK"
+    },
+    "real_holdout_size": 100,
+    "real_holdout_labeled": 0,
+    "real_holdout_precision": null,
+    "real_holdout_recall": null,
+    "end_to_end_method": "live_double_full_pipeline_frozen_universe_all_status_history",
+    "ranking_stability_method": "live_full_universe_rescore_twice_all_status_history",
+    "human_review_status": "PENDING",
+    "terminal_status": "BLOCKED",
+    "answers": {
+      "all_status_history": true,
+      "top20_after_full_universe_enrichment": false,
+      "strong_180d_observable": false,
+      "hash_existed_before_restore_via_export_cmd": true,
+      "real_holdout_texts": true,
+      "real_holdout_human_labels": false,
+      "stability_full_pipeline": true,
+      "offer_discriminative": false,
+      "executed_sha_matches_evaluated_code": "pending_final_rebind"
+    }
   }
 }

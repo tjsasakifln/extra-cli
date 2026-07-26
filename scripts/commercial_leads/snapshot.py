@@ -158,35 +158,26 @@ def validate_snapshot_manifest(
     dump_is_marker = dump_path is not None and _is_marker_dump(dump_path)
     dump_missing = dump_path is None or not dump_path.is_file() or dump_is_marker
 
-    # Marker dumps never authenticate the snapshot by themselves
+    # Marker dumps never authenticate a release — even with a declared hash.
+    # Independent anchors require a real dump/package from export_authenticated_snapshot.
     if dump_is_marker:
-        if canon:
-            # May still bind via DB canonical hash later
-            return SnapshotValidation(
-                ok=True,
-                status="CANONICAL_HASH_DECLARED_DUMP_IS_MARKER",
-                manifest_path=str(mp),
-                snapshot_hash=str(expected) if expected else None,
-                expected_hash=str(expected) if expected else None,
-                dump_path=str(dump_path),
-                contracts_count_declared=int(count) if count is not None else None,
-                source=str(source) if source else None,
-                reasons=["dump_is_marker_not_authenticated_dump", "rely_on_canonical_table_hash"],
-                details=man,
-                canonical_table_hash=str(canon),
-                canonical_hash_algorithm=str(canon_algo),
-            )
         return SnapshotValidation(
             ok=False,
-            status="BLOCKED_MISSING_AUTHENTICATED_REAL_SNAPSHOT",
+            status="BLOCKED_MISSING_INDEPENDENT_SNAPSHOT_ANCHOR",
             manifest_path=str(mp),
-            snapshot_hash=None,
+            snapshot_hash=str(expected) if expected else None,
             expected_hash=str(expected) if expected else None,
             dump_path=str(dump_path) if dump_path else None,
             contracts_count_declared=int(count) if count is not None else None,
             source=str(source) if source else None,
-            reasons=["dump_path_is_marker_not_real_dump", "no_canonical_table_hash"],
+            reasons=[
+                "dump_path_is_marker_not_real_dump",
+                "db-content-binding.marker_cannot_sustain_release",
+                "require_export_confenge_authenticated_snapshot",
+            ],
             details=man,
+            canonical_table_hash=str(canon) if canon else None,
+            canonical_hash_algorithm=str(canon_algo) if canon else None,
         )
 
     if dump_missing:

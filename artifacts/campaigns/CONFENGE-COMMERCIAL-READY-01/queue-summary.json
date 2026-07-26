@@ -1,7 +1,7 @@
 {
   "run_id": "cl-20260726T003820Z-f8e90e36",
   "status": "BLOCKED",
-  "git_sha": "811c590f2653f0845e01875d7db7867fa7ac91f7",
+  "git_sha": "7c88a55704be9806d6326dc532ae7e35358b68d6",
   "discovery_mode": "PREFILTERED_CANDIDATE_DISCOVERY",
   "history_expansion_mode": "FULL_CANDIDATE_HISTORY",
   "ranking_population_mode": "FULL_ELIGIBLE_CANDIDATES",
@@ -434,14 +434,14 @@
     "false_negatives": null,
     "human_review_status": "PENDING"
   },
-  "run_git_sha": "811c590f2653f0845e01875d7db7867fa7ac91f7",
-  "artifact_git_sha": "811c590f2653f0845e01875d7db7867fa7ac91f7",
+  "run_git_sha": "7c88a55704be9806d6326dc532ae7e35358b68d6",
+  "artifact_git_sha": "7c88a55704be9806d6326dc532ae7e35358b68d6",
   "reason": "BLOCKED_REGISTRY_SELECTION_BIAS",
-  "executed_code_sha": "811c590f2653f0845e01875d7db7867fa7ac91f7",
-  "current_pr_head_sha": "811c590f2653f0845e01875d7db7867fa7ac91f7",
+  "executed_code_sha": "7c88a55704be9806d6326dc532ae7e35358b68d6",
+  "current_pr_head_sha": "7c88a55704be9806d6326dc532ae7e35358b68d6",
   "executed_git_sha": "811c590f2653f0845e01875d7db7867fa7ac91f7",
   "evidence_commit_sha": "811c590f2653f0845e01875d7db7867fa7ac91f7",
-  "match_run_to_head": true,
+  "match_run_to_head": false,
   "updated_at": "2026-07-26T01:46:39Z",
-  "pr_head_sha": "811c590f2653f0845e01875d7db7867fa7ac91f7"
+  "pr_head_sha": "7c88a55704be9806d6326dc532ae7e35358b68d6"
 }

@@ -1,14 +1,37 @@
 {
   "ok": true,
-  "method": "live_rescore_twice_same_snapshot_profile",
+  "method": "live_full_universe_rescore_twice_all_status_history",
+  "candidate_universe_n": 5000,
+  "eligible_rescored_n": 63,
   "same_snapshot": {
     "ok": true,
-    "hash_a": "254a7903e3d4a48ffab8d297c55b9df430ed1fe24902e6123b94e88849f5e065",
-    "hash_b": "254a7903e3d4a48ffab8d297c55b9df430ed1fe24902e6123b94e88849f5e065"
+    "hash_a": "d1a28ce8992e429fe28a7a5d9e673aff8a0a859d3432f2096975d7c42f8f871d",
+    "hash_b": "d1a28ce8992e429fe28a7a5d9e673aff8a0a859d3432f2096975d7c42f8f871d"
   },
   "order_stable": true,
-  "matches_published_queue": true,
-  "published_order": [
+  "top20_rescored": [
+    "27254414000101",
+    "13591585000103",
+    "15247296000117",
+    "29084108000191",
+    "22798043000105",
+    "10558895000138",
+    "00472805000138",
+    "00220982000127",
+    "06145928000140",
+    "03094645000129",
+    "21763372000140",
+    "10249046000100",
+    "09223659000181",
+    "26277170000101",
+    "02740940000142",
+    "12535370000102",
+    "36073134000180",
+    "05895635000118",
+    "00061493000170",
+    "00688529000140"
+  ],
+  "published_top20": [
     "27254414000101",
     "95257945000108",
     "13591585000103",
@@ -30,28 +53,8 @@
     "93336030000154",
     "12535370000102"
   ],
-  "rescored_order": [
-    "27254414000101",
-    "95257945000108",
-    "13591585000103",
-    "15247296000117",
-    "29084108000191",
-    "22798043000105",
-    "10558895000138",
-    "00472805000138",
-    "00220982000127",
-    "61608477000149",
-    "06145928000140",
-    "03094645000129",
-    "21763372000140",
-    "10249046000100",
-    "09223659000181",
-    "26277170000101",
-    "43887548000108",
-    "02740940000142",
-    "93336030000154",
-    "12535370000102"
-  ],
+  "history_view": "ALL_SNAPSHOT_SUPPLIER_HISTORY",
   "history_complete": true,
-  "n_leads": 20
+  "all_statuses_loaded": true,
+  "note": "Does not reuse prior sector classes, scores, offers, or top20 list. Re-expands ALL_SNAPSHOT_SUPPLIER_HISTORY for the frozen candidate universe."
 }
