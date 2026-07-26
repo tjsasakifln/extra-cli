@@ -1,4 +1,4 @@
-CI run: https://github.com/tjsasakifln/extra-cli/actions/runs/30222189983
 PR: https://github.com/tjsasakifln/extra-cli/pull/145
-HEAD: 3e92a107b51ae4c16c5bec6491127469c7230d32
-All 27 checks PASS
+HEAD: e1959560c7ab44b08b661a79d1ed45152dcab264
+CI: https://github.com/tjsasakifln/extra-cli/actions/runs/30222955268 (27/27 PASS)
+Campaign: BLOCKED_HUMAN_DUAL_LABELING — not §8.4 accept
