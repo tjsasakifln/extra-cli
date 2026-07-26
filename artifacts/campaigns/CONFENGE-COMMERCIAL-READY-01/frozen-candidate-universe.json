@@ -1,6 +1,4 @@
 {
-  "candidate_count": 5640,
-  "candidate_universe_hash": "222d78ecb14935e16a1b30340699ba359de76318eb5092725f76b3f4eeeacddd",
   "candidate_supplier_cnpjs": [
     "00000000000191",
     "00000000037788",
@@ -5643,6 +5641,6 @@
     "97542434000155",
     "97752851000475"
   ],
-  "source": "historical_snapshot_confenge_commercial",
-  "frozen_before_enrichment": true
+  "n": 5640,
+  "frozen_at": "reexec"
 }

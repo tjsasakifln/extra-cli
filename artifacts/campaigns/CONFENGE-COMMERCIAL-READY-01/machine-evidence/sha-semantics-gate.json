@@ -1,0 +1,13 @@
+{
+  "ok": true,
+  "status": "PASS",
+  "executed_code_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "current_pr_head_sha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "match_run_to_head_declared": false,
+  "match_run_to_head_derived": false,
+  "code_changed_after_execution": false,
+  "artifact_only_commits_after_execution": true,
+  "issues": [],
+  "rule": "match_run_to_head == true only when executed_code_sha == current_pr_head_sha",
+  "verified_at": "2026-07-26T17:06:24Z"
+}

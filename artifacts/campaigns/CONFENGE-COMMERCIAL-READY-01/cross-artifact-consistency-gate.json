@@ -1,0 +1,8 @@
+{
+  "ok": true,
+  "status": "PASS",
+  "issues": [],
+  "terminal_reason": "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE",
+  "terminal_declaration": "BLOCKED_ONLY_OFFICIAL_REGISTRY_AND_HUMAN_REVIEW",
+  "verified_at": "2026-07-26T17:08:18Z"
+}

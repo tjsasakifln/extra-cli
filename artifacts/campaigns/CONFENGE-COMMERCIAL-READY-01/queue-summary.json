@@ -198,19 +198,18 @@
   "human_metrics": {
     "precision_at_10": null,
     "precision_at_20": null,
-    "false_positives": null,
-    "false_negatives": null,
-    "human_review_status": "PENDING"
+    "human_review_status": "PENDING",
+    "labels_are_human": false
   },
   "run_git_sha": "98d03e707315c5c5f4419db4834b1866c98d3852",
   "artifact_git_sha": "98d03e707315c5c5f4419db4834b1866c98d3852",
-  "reason": "BLOCKED_INSUFFICIENT_HISTORICAL_WINDOW",
-  "executed_code_sha": "da9596aece9a661c0b4bf4cba0637cac5e20767c",
-  "current_pr_head_sha": "af690c6642031f2eaf41db933cd300af8fec7325",
+  "reason": "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE",
+  "executed_code_sha": "3ef795ae0caf555710bf7ffb91f816afdd5aa44b",
+  "current_pr_head_sha": "3ef795ae0caf555710bf7ffb91f816afdd5aa44b",
   "executed_git_sha": "da9596aece9a661c0b4bf4cba0637cac5e20767c",
   "evidence_commit_sha": "98d03e707315c5c5f4419db4834b1866c98d3852",
   "match_run_to_head": true,
-  "updated_at": "2026-07-26T16:23:37Z",
+  "updated_at": "2026-07-26T17:08:42Z",
   "pr_head_sha": "af690c6642031f2eaf41db933cd300af8fec7325",
   "gate_git_sha": "98d03e707315c5c5f4419db4834b1866c98d3852",
   "review_git_sha": "98d03e707315c5c5f4419db4834b1866c98d3852",
@@ -251,5 +250,20 @@
     },
     "n_leads": 20,
     "selection_rule_version": "offer-selection-v3-discriminative"
-  }
+  },
+  "terminal_reason": "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE",
+  "technical_status": "BLOCKED",
+  "final_code_freeze_sha": "3ef795ae0caf555710bf7ffb91f816afdd5aa44b",
+  "code_changed_after_execution": false,
+  "artifact_only_commits_after_execution": false,
+  "machine_blockers": [
+    "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE"
+  ],
+  "human_blockers": [
+    "BLOCKED_REAL_HOLDOUT_NOT_REVIEWED",
+    "BLOCKED_INSUFFICIENT_HUMAN_LABELS",
+    "BLOCKED_PENDING_HUMAN_ACCEPTANCE"
+  ],
+  "structural_ci_status": "PASS",
+  "real_data_ci_status": "NOT_EXECUTED"
 }

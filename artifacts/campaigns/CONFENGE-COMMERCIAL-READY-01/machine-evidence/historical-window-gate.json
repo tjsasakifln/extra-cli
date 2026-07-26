@@ -1,0 +1,14 @@
+{
+  "snapshot_min_date": "2024-07-26",
+  "snapshot_max_date": "2026-07-26",
+  "snapshot_observation_days": 730,
+  "strong_observable": true,
+  "strong_status": null,
+  "minimum_observation_window_days": 365,
+  "strong_min_time_span_days": 180,
+  "block": null,
+  "ok": true,
+  "status": "PASS",
+  "strong_not_observable_declared": false,
+  "source": "historical_snapshot_build"
+}

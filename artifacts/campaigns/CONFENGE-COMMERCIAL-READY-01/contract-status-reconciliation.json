@@ -7,8 +7,8 @@
   "minimum_observation_window_days": 365,
   "supplier_count": 6046,
   "status_distribution": {
-    "COMPLETED": 4442,
-    "ACTIVE": 7532
+    "ACTIVE": 7532,
+    "COMPLETED": 4442
   },
   "snapshot_total_contracts": 11974,
   "snapshot_active_contracts": 7532,
@@ -22,6 +22,6 @@
   "has_active": true,
   "has_closed_lifecycle": true,
   "block": null,
-  "verified_at": "2026-07-26T15:16:57Z",
+  "verified_at": "2026-07-26T17:00:58Z",
   "method": "live_db_status_recount"
 }

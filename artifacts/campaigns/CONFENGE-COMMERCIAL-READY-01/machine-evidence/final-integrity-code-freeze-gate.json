@@ -1,0 +1,18 @@
+{
+  "ok": true,
+  "status": "PASS",
+  "current_pr_head_sha": "3ef795ae0caf555710bf7ffb91f816afdd5aa44b",
+  "final_code_freeze_sha": "3ef795ae0caf555710bf7ffb91f816afdd5aa44b",
+  "executed_code_sha": "3ef795ae0caf555710bf7ffb91f816afdd5aa44b",
+  "code_tree_hash_at_execution": "3a0216d1deeb6ac17a71897f4433de08b5503600934780f14d1cb67f49a3a356",
+  "code_tree_hash_at_current_head": "3a0216d1deeb6ac17a71897f4433de08b5503600934780f14d1cb67f49a3a356",
+  "code_changed_after_execution": false,
+  "artifact_only_commits_after_execution": false,
+  "files_changed_after_freeze": [],
+  "non_artifact_files_changed": [],
+  "artifact_only_path_check": true,
+  "verified_at": "2026-07-26T17:08:15Z",
+  "note": "current_pr_head_sha is always live git tip at verify time",
+  "final_integrity_code_freeze_sha": "3ef795ae0caf555710bf7ffb91f816afdd5aa44b",
+  "freeze_kind": "FINAL_INTEGRITY_CODE_FREEZE"
+}

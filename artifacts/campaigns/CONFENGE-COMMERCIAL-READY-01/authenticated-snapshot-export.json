@@ -36,16 +36,16 @@
     "checksums.json": "/mnt/d/extra consultoria/.worktrees/confenge-commercial-ready-01/artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/restorable-dump/checksums.json"
   },
   "file_sha256": {
-    "contracts.csv": "57312c3492daf1184c659ffbbe39a34c6c6d3785bde2247cd584e0d88769620e",
+    "contracts.csv": "305ffa803dec866ad212a8a3e3d279beba844471477b9a7748714d6b21bead1b",
     "schema.json": "44e29012dc69f314132356ca3055c744935e62f543244ddb3582512fddfd2ede"
   },
-  "dump_sha256": "566ffa1d74e20cc5efcea65b60d3bf874c3567da70b0e24e08ffe28049f0adb5",
+  "dump_sha256": "d0a8e1a7f6098717e636d9b5e32f17da22b0b1aea5eb2f1975d24eb8c29dcab6",
   "pre_restore_canonical_hash": "2a4d690e7249b450891a2ec43454fef18709bb9662897064cec91c16a64b937f",
   "canonical_hash_algorithm": "sha256-rowmd5-ordered-agg-v1",
   "source_database_identity": "a86b9307a5384c4a6ab0e181",
-  "export_started_at": "2026-07-26T15:01:12Z",
-  "export_finished_at": "2026-07-26T15:01:13Z",
-  "manifest_closed_at": "2026-07-26T15:01:13Z",
+  "export_started_at": "2026-07-26T17:01:10Z",
+  "export_finished_at": "2026-07-26T17:01:11Z",
+  "manifest_closed_at": "2026-07-26T17:01:11Z",
   "immutable_after_export": true,
   "manifest_closed_before_restore": true,
   "package_bytes": 5844293

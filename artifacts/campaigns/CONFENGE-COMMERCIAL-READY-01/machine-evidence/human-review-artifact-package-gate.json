@@ -1,0 +1,15 @@
+{
+  "ok": true,
+  "status": "PASS_LOCAL_READY_AWAITING_WORKFLOW_UPLOAD",
+  "review_packages_generated": true,
+  "missing": [],
+  "checksums_present": true,
+  "executed_code_sha": "3ef795ae0caf555710bf7ffb91f816afdd5aa44b",
+  "checksum_executed_code_sha": "3ef795ae0caf555710bf7ffb91f816afdd5aa44b",
+  "bound_to_executed_sha": true,
+  "published_as_workflow_artifact": false,
+  "workflow_artifact_name": "confenge-human-review-packages",
+  "workflow_run_id": null,
+  "package_dir": "/mnt/d/extra consultoria/.worktrees/confenge-commercial-ready-01/artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/human-review",
+  "verified_at": "2026-07-26T17:08:38Z"
+}

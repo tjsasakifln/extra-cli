@@ -2,7 +2,7 @@
   "kind": "authenticated_snapshot_package_pointer_v2",
   "replaced_metadata_only_dump": true,
   "restorable_package_dir": "/mnt/d/extra consultoria/.worktrees/confenge-commercial-ready-01/artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/restorable-dump",
-  "dump_sha256": "566ffa1d74e20cc5efcea65b60d3bf874c3567da70b0e24e08ffe28049f0adb5",
+  "dump_sha256": "d0a8e1a7f6098717e636d9b5e32f17da22b0b1aea5eb2f1975d24eb8c29dcab6",
   "canonical_table_hash": "2a4d690e7249b450891a2ec43454fef18709bb9662897064cec91c16a64b937f",
   "row_count": 11974,
   "dump_file_is_restorable": true,
