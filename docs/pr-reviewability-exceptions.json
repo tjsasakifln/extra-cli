@@ -1,5 +1,17 @@
 {
   "schema_version": "1.0",
-  "active": null,
+  "active": {
+    "reason": "PR #144 CONFENGE-COMMERCIAL-READY-01 is a single campaign closure (integrity gates, dual-head SHA/CI truth, campaign artifacts, migrations, commercial scripts/tests). Scope cannot be split without losing fail-closed freeze/evidence linkage. Code merge ready; commercial release remains blocked (registry+human).",
+    "owner": "tjsasakifln",
+    "deadline": "2026-08-15",
+    "approved_by": "tjsasakifln (goal PR-144-FINAL-TRUTH-AND-MERGE-READINESS / operator)",
+    "waives": [
+      "too_many_files",
+      "too_many_textual_lines",
+      "multi_capability_mix"
+    ],
+    "pr": 144,
+    "branch": "campaign/confenge-commercial-ready-01"
+  },
   "notes": "Set active to an object with reason, owner, deadline, approved_by, waives[] only after explicit human approval. Incomplete active objects fail the reviewability gate."
 }
