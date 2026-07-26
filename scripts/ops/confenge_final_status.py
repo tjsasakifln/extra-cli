@@ -627,17 +627,26 @@ def write_derived_artifacts(status: dict[str, Any] | None = None) -> dict[str, A
     (ART / "result.json").write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
 
     qs = _load("queue-summary.json")
+    # Full SHA/status overwrite — never leave stale evidence_commit_sha / executed_git_sha
     qs.update(
         {
             "status": status["status"],
             "reason": status["terminal_reason"],
             "terminal_reason": status["terminal_reason"],
+            "terminal_declaration": status["terminal_declaration"],
             "technical_status": status["technical_status"],
             "executed_code_sha": status["executed_code_sha"],
+            "executed_git_sha": status["executed_code_sha"],  # legacy alias — must track executed
             "pr_head_sha": status["pr_head_sha"],
             "current_pr_head_sha": status["current_pr_head_sha"],
             "workflow_merge_sha": status["workflow_merge_sha"],
+            "workflow_head_sha": status["workflow_head_sha"],
+            "checked_out_sha": status["checked_out_sha"],
+            "evidence_commit_sha": status["evidence_commit_sha"],
             "final_code_freeze_sha": status["final_code_freeze_sha"],
+            "final_integrity_code_freeze_sha": status["final_integrity_code_freeze_sha"],
+            "freeze_sha": status["freeze_sha"],
+            "workflow_artifact_head_sha": status.get("workflow_artifact_head_sha"),
             "artifact_git_sha": bind_sha,
             "run_git_sha": bind_sha,
             "gate_git_sha": bind_sha,
@@ -646,8 +655,10 @@ def write_derived_artifacts(status: dict[str, Any] | None = None) -> dict[str, A
             "match_run_to_head": status["match_run_to_head"],
             "code_changed_after_execution": status["code_changed_after_execution"],
             "artifact_only_commits_after_execution": status["artifact_only_commits_after_execution"],
+            "non_artifact_files_changed_after_execution": status["non_artifact_files_changed_after_execution"],
             "machine_blockers": status["machine_blockers"],
             "human_blockers": status["human_blockers"],
+            "all_other_machine_blockers": status["all_other_machine_blockers"],
             "structural_ci_status": status["structural_ci_status"],
             "real_historical_ci_status": status["real_historical_ci_status"],
             "real_registry_ci_status": status["real_registry_ci_status"],
@@ -657,6 +668,11 @@ def write_derived_artifacts(status: dict[str, Any] | None = None) -> dict[str, A
             "machine_evidence_publication_status": status["machine_evidence_publication_status"],
             "real_data_ci_status": status["real_data_ci_status"],
             "github_workflow_status": status["github_workflow_status"],
+            "workflow_run_id": status.get("workflow_run_id"),
+            "human_review_artifact_id": status.get("human_review_artifact_id"),
+            "machine_evidence_artifact_id": status.get("machine_evidence_artifact_id"),
+            "code_merge_ready": status.get("code_merge_ready"),
+            "commercial_release_ready": status.get("commercial_release_ready"),
             "human_metrics": status["human_metrics"],
             "updated_at": status["updated_at"],
         }
@@ -1026,21 +1042,26 @@ def collect_cross_artifact_issues(
     evidence: dict[str, Any],
     integrity: dict[str, Any] | None = None,
     sha_semantics: dict[str, Any] | None = None,
+    provenance: dict[str, Any] | None = None,
     expected_pr_head: str | None = None,
 ) -> list[str]:
     """Pure consistency checks — unit-testable without writing files."""
     issues: list[str] = []
     integrity = integrity or {}
     sha_semantics = sha_semantics or {}
+    provenance = provenance or {}
 
     keys = (
         "status",
         "terminal_reason",
         "technical_status",
         "executed_code_sha",
+        "evidence_commit_sha",
         "match_run_to_head",
         "machine_blockers",
         "real_data_ci_status",
+        "pr_head_sha",
+        "workflow_merge_sha",
     )
     for k in keys:
         if k == "terminal_reason":
@@ -1049,14 +1070,28 @@ def collect_cross_artifact_issues(
         elif k == "status":
             rv = result.get("status")
             qv = queue.get("status")
+        elif k == "pr_head_sha":
+            rv = result.get("pr_head_sha") or result.get("current_pr_head_sha")
+            qv = queue.get("pr_head_sha") or queue.get("current_pr_head_sha")
         else:
             rv = result.get(k)
             qv = queue.get(k)
         cv = evidence.get(k)
-        if rv != cv:
+        if k == "pr_head_sha":
+            cv = evidence.get("pr_head_sha") or evidence.get("current_pr_head_sha")
+        if rv is not None and cv is not None and rv != cv:
             issues.append(f"result_vs_evidence:{k}:{rv!r}!={cv!r}")
-        if qv is not None and qv != cv:
+        if qv is not None and cv is not None and qv != cv:
             issues.append(f"queue_vs_evidence:{k}:{qv!r}!={cv!r}")
+        if rv is not None and qv is not None and rv != qv:
+            issues.append(f"result_vs_queue:{k}:{rv!r}!={qv!r}")
+
+    # Legacy alias executed_git_sha must equal executed_code_sha when present
+    for src_name, src in (("queue", queue), ("result", result), ("evidence", evidence)):
+        leg = src.get("executed_git_sha")
+        exe = src.get("executed_code_sha")
+        if leg is not None and exe is not None and leg != exe:
+            issues.append(f"legacy_executed_git_sha_stale:{src_name}:{leg!r}!={exe!r}")
 
     if integrity:
         ir = integrity.get("real_data_ci_status")
@@ -1071,12 +1106,45 @@ def collect_cross_artifact_issues(
         em = evidence.get("machine_blockers")
         if im is not None and em is not None and list(im) != list(em):
             issues.append("integrity_vs_evidence:machine_blockers_diverge")
+        for k in (
+            "executed_code_sha",
+            "evidence_commit_sha",
+            "pr_head_sha",
+            "workflow_merge_sha",
+        ):
+            iv = integrity.get(k) or (integrity.get("current_pr_head_sha") if k == "pr_head_sha" else None)
+            ev = evidence.get(k) or (evidence.get("current_pr_head_sha") if k == "pr_head_sha" else None)
+            if iv is not None and ev is not None and iv != ev:
+                issues.append(f"integrity_vs_evidence:{k}:{iv!r}!={ev!r}")
 
         # merge SHA must not be stored as current_pr_head when both known and differ
         pr = integrity.get("current_pr_head_sha") or integrity.get("pr_head_sha")
         merge = integrity.get("workflow_merge_sha")
-        if pr and merge and pr == merge and result.get("pr_head_sha") not in (None, pr):
+        if (
+            pr
+            and merge
+            and pr == merge
+            and result.get("pr_head_sha") not in (None, pr)
+            and result.get("pr_head_sha") != merge
+        ):
             issues.append("current_pr_head_sha_equals_merge_but_pr_head_differs")
+
+    # workflow_head_sha must mean merge SHA when both merge and head are present
+    for src_name, src in (
+        ("result", result),
+        ("evidence", evidence),
+        ("integrity", integrity),
+        ("provenance", provenance),
+    ):
+        if not src:
+            continue
+        wh = src.get("workflow_head_sha")
+        merge = src.get("workflow_merge_sha") or result.get("workflow_merge_sha")
+        pr = src.get("pr_head_sha") or src.get("current_pr_head_sha") or result.get("pr_head_sha")
+        if wh and merge and wh == pr and merge != pr:
+            issues.append(f"workflow_head_sha_is_pr_head_not_merge:{src_name}:{wh!r}")
+        if wh and merge and wh != merge and wh == pr:
+            issues.append(f"workflow_head_sha_conflated_with_pr_head:{src_name}")
 
     # Dummy SHAs forbidden in final sha-semantics gate
     for field in ("executed_code_sha", "current_pr_head_sha", "pr_head_sha"):
@@ -1112,23 +1180,42 @@ def collect_cross_artifact_issues(
     return issues
 
 
-def verify_cross_artifact_consistency() -> dict[str, Any]:
-    """Assert all derived status files agree; fail on dummy SHAs / divergences."""
-    status = build_final_campaign_status()
-    write_derived_artifacts(status)
+def independent_live_pr_head() -> str:
+    """PR head independent of package contents (env or live git tip)."""
+    return os.environ.get("CONFENGE_PR_HEAD_SHA") or os.environ.get("GITHUB_EVENT_PULL_REQUEST_HEAD_SHA") or _git_head()
+
+
+def verify_cross_artifact_consistency(
+    *,
+    rewrite: bool = True,
+    check_live_head: bool = True,
+) -> dict[str, Any]:
+    """Assert all derived status files agree; fail on dummy SHAs / divergences.
+
+    When rewrite=True (default, sole-writer path), regenerates derived files first.
+    Live PR head is taken independently (env / git), not from the package under test.
+    """
+    live_head = independent_live_pr_head()
+    if rewrite:
+        status = write_derived_artifacts()
+    else:
+        status = build_final_campaign_status()
     result = _load("result.json")
     qs = _load("queue-summary.json")
     evidence = _load("final-evidence-closure.json")
     integrity = _load("final-integrity-closure.json")
     sha_sem = _load("sha-semantics-gate.json")
+    provenance = _load("evidence-provenance-gate.json")
 
-    expected_head = status["pr_head_sha"]
+    # Independent expected tip — not status['pr_head_sha'] after rewrite alone
+    expected_head = live_head if check_live_head else status.get("pr_head_sha")
     issues = collect_cross_artifact_issues(
         result=result,
         queue=qs,
         evidence=evidence,
         integrity=integrity,
         sha_semantics=sha_sem,
+        provenance=provenance,
         expected_pr_head=expected_head,
     )
 
@@ -1147,8 +1234,10 @@ def verify_cross_artifact_consistency() -> dict[str, Any]:
         "terminal_reason": status["terminal_reason"],
         "terminal_declaration": status["terminal_declaration"],
         "pr_head_sha": status["pr_head_sha"],
+        "live_pr_head_sha": live_head,
         "workflow_merge_sha": status.get("workflow_merge_sha"),
         "executed_code_sha": status["executed_code_sha"],
+        "evidence_commit_sha": status.get("evidence_commit_sha"),
         "real_data_ci_status": status["real_data_ci_status"],
         "match_run_to_head": status["match_run_to_head"],
         "verified_at": utc_now(),

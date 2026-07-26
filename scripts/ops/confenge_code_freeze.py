@@ -160,7 +160,9 @@ def verify_post_execution_artifact_only_diff(*, freeze_sha: str | None = None) -
 
 
 def verify_evidence_provenance() -> dict[str, Any]:
-    head = _git("rev-parse", "HEAD")
+    checked_out = _git("rev-parse", "HEAD")
+    pr_head = os.environ.get("CONFENGE_PR_HEAD_SHA") or checked_out
+    merge = os.environ.get("CONFENGE_WORKFLOW_MERGE_SHA") or os.environ.get("GITHUB_SHA") or None
     freeze = verify_code_freeze()
     env = {
         "execution_environment": os.environ.get("CONFENGE_EXECUTION_ENV", "local"),
@@ -192,40 +194,50 @@ def verify_evidence_provenance() -> dict[str, Any]:
                 env["postgres_version_error"] = type(exc).__name__
 
     executed = freeze.get("executed_code_sha")
-    # match_run_to_head ONLY when executed code SHA equals live HEAD
-    match_run = bool(executed and executed == head)
+    # match_run_to_head ONLY when executed equals PR head (never merge checkout)
+    match_run = bool(executed and executed == pr_head)
     artifact_only = bool(freeze.get("artifact_only_commits_after_execution"))
+    if freeze_sha := freeze.get("final_code_freeze_sha"):
+        if freeze_sha != pr_head and not freeze.get("code_changed_after_execution"):
+            artifact_only = True
     ok = bool(
         executed == freeze.get("final_code_freeze_sha")
         and freeze.get("ok")
-        # forbid match_run_to_head=true with lag
-        and (match_run or artifact_only or executed == head)
+        and (match_run or artifact_only or executed == pr_head)
     )
+    # workflow_head_sha == merge ref on pull_request; never the PR head alone
+    workflow_head = merge or checked_out
     report = {
         "ok": ok,
         "status": "PASS" if ok else "BLOCKED_CODE_EXECUTION_SHA_MISMATCH",
-        "current_pr_head_sha": head,
+        "current_pr_head_sha": pr_head,
+        "pr_head_sha": pr_head,
+        "checked_out_sha": checked_out,
+        "workflow_merge_sha": merge,
         "final_code_freeze_sha": freeze.get("final_code_freeze_sha"),
         "final_integrity_code_freeze_sha": freeze.get("final_code_freeze_sha"),
         "executed_code_sha": executed,
-        "evidence_commit_sha": head if artifact_only or match_run else None,
-        "workflow_head_sha": os.environ.get("GITHUB_SHA") or head,
-        "artifact_git_sha": head,
+        "evidence_commit_sha": pr_head if artifact_only or match_run else None,
+        "workflow_head_sha": workflow_head,
+        "artifact_git_sha": executed or pr_head,
         "code_tree_hash_at_execution": freeze.get("code_tree_hash_at_execution"),
         "code_tree_hash_at_current_head": freeze.get("code_tree_hash_at_current_head"),
         "code_changed_after_execution": freeze.get("code_changed_after_execution"),
         "artifact_only_commits_after_execution": artifact_only,
-        "non_artifact_files_changed_after_execution": freeze.get("non_artifact_files_changed") or [],
+        "non_artifact_files_changed_after_execution": freeze.get("non_artifact_files_changed")
+        or freeze.get("non_artifact_files_changed_after_execution")
+        or [],
         "execution": env,
         "match_run_to_head": match_run,
         "sha_semantics": {
-            "current_pr_head_sha": "HEAD atual real da PR",
+            "current_pr_head_sha": "PR tip (CONFENGE_PR_HEAD_SHA / live tip)",
             "executed_code_sha": "commit cujo código foi executado",
             "evidence_commit_sha": "commit que adicionou os artefatos gerados",
-            "workflow_head_sha": "SHA executado pelo GitHub Actions",
+            "workflow_head_sha": "merge ref / github.sha no evento pull_request",
+            "workflow_merge_sha": "mesmo que workflow_head_sha no PR Actions",
             "final_code_freeze_sha": "commit congelado antes da execução final",
-            "artifact_git_sha": "commit que contém ou referencia o pacote de evidência",
-            "match_run_to_head_rule": "true only when executed_code_sha == current_pr_head_sha",
+            "artifact_git_sha": "commit de código da evidência (executed)",
+            "match_run_to_head_rule": "true only when executed_code_sha == pr_head_sha",
         },
         "verified_at": utc_now(),
     }

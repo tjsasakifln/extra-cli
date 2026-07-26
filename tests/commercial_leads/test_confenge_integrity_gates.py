@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+
 from scripts.commercial_leads.scoring import (
     MAX_SINGLE_SIGNAL_OFFER_CHANGE_RATE,
     MIN_SELECTED_OFFER_MARGIN,
@@ -437,3 +439,170 @@ def test_publication_pass_does_not_imply_real_data_pass() -> None:
     assert real == "NOT_EXECUTED"
     human_pkg = "PASS"
     assert human_pkg == "PASS" and real != "PASS"
+
+
+def test_queue_summary_overwrites_stale_evidence_and_legacy_executed(tmp_path, monkeypatch) -> None:
+    """queue-summary must not retain ancient evidence_commit_sha / executed_git_sha."""
+    from scripts.ops import confenge_final_status as fs
+
+    art = tmp_path / "art"
+    art.mkdir()
+    monkeypatch.setattr(fs, "ART", art)
+    monkeypatch.setattr(fs, "_git_head", lambda: "livehead11111111111111111111111111111111")
+    (art / "EXECUTED_CODE_SHA.txt").write_text("execsha22222222222222222222222222222222\n")
+    (art / "FINAL_INTEGRITY_CODE_FREEZE_SHA.txt").write_text("execsha22222222222222222222222222222222\n")
+    (art / "full-pipeline-e2e-reproducibility-gate.json").write_text('{"ok": true, "status": "PASS"}\n')
+    (art / "downstream-reproducibility-gate.json").write_text('{"ok": true, "status": "PASS"}\n')
+    (art / "offer-sensitivity-gate.json").write_text(
+        '{"ok": true, "status": "PASS", "diagnose": {"block": null, '
+        '"robust_quantitative_justification": true, '
+        '"explanation": {"catalog_degenerate": false}}}\n'
+    )
+    (art / "offer-discrimination-gate.json").write_text(
+        '{"ok": true, "status": "PASS", "diagnose": {"block": null, '
+        '"robust_quantitative_justification": true, '
+        '"explanation": {"catalog_degenerate": false}}}\n'
+    )
+    (art / "human-review-packages-gate.json").write_text(
+        '{"ok": true, "status": "PACKAGES_READY", "published_as_workflow_artifact": true}\n'
+    )
+    (art / "real-corpus-provenance-gate.json").write_text('{"ok": true, "status": "PASS"}\n')
+    (art / "registry-universe-gate.json").write_text(
+        '{"ok": false, "status": "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE", "official_coverage": 0.053}\n'
+    )
+    (art / "historical-window-gate.json").write_text('{"ok": true, "status": "PASS"}\n')
+    (art / "restored-snapshot-verify.json").write_text('{"ok": true}\n')
+    (art / "queue-summary.json").write_text(
+        json.dumps(
+            {
+                "status": "BLOCKED",
+                "evidence_commit_sha": "c51ac9804b33a0300755d904f7a2ef9afd575b09",
+                "executed_git_sha": "da9596aece9a661c0b4bf4cba0637cac5e20767c",
+                "executed_code_sha": "old",
+            }
+        )
+        + "\n"
+    )
+    (art / "final-integrity-code-freeze-gate.json").write_text(
+        json.dumps(
+            {
+                "ok": True,
+                "executed_code_sha": "execsha22222222222222222222222222222222",
+                "final_integrity_code_freeze_sha": "execsha22222222222222222222222222222222",
+                "artifact_only_commits_after_execution": True,
+                "code_changed_after_execution": False,
+                "non_artifact_files_changed_after_execution": [],
+            }
+        )
+        + "\n"
+    )
+
+    fs.write_derived_artifacts()
+    qs = fs._load("queue-summary.json")
+    result = fs._load("result.json")
+    assert qs["evidence_commit_sha"] == result["evidence_commit_sha"]
+    assert qs["evidence_commit_sha"] != "c51ac9804b33a0300755d904f7a2ef9afd575b09"
+    assert qs["executed_git_sha"] == result["executed_code_sha"]
+    assert qs["executed_git_sha"] != "da9596aece9a661c0b4bf4cba0637cac5e20767c"
+    assert qs["executed_code_sha"] == "execsha22222222222222222222222222222222"
+
+
+def test_cross_artifact_fails_on_evidence_commit_divergence() -> None:
+    from scripts.ops.confenge_final_status import collect_cross_artifact_issues
+
+    issues = collect_cross_artifact_issues(
+        result={
+            "status": "BLOCKED",
+            "terminal_reason": "X",
+            "technical_status": "BLOCKED",
+            "executed_code_sha": "exec1",
+            "evidence_commit_sha": "ev1",
+            "match_run_to_head": False,
+            "machine_blockers": [],
+            "real_data_ci_status": "NOT_EXECUTED",
+            "pr_head_sha": "h1",
+        },
+        queue={
+            "status": "BLOCKED",
+            "reason": "X",
+            "technical_status": "BLOCKED",
+            "executed_code_sha": "exec1",
+            "evidence_commit_sha": "stale_old",
+            "executed_git_sha": "stale_exec",
+            "match_run_to_head": False,
+            "machine_blockers": [],
+            "real_data_ci_status": "NOT_EXECUTED",
+            "pr_head_sha": "h1",
+        },
+        evidence={
+            "status": "BLOCKED",
+            "terminal_reason": "X",
+            "technical_status": "BLOCKED",
+            "executed_code_sha": "exec1",
+            "evidence_commit_sha": "ev1",
+            "match_run_to_head": False,
+            "machine_blockers": [],
+            "real_data_ci_status": "NOT_EXECUTED",
+            "pr_head_sha": "h1",
+        },
+    )
+    assert any("evidence_commit_sha" in i for i in issues)
+    assert any("legacy_executed_git_sha_stale" in i for i in issues)
+
+
+def test_cross_artifact_fails_when_workflow_head_is_pr_not_merge() -> None:
+    from scripts.ops.confenge_final_status import collect_cross_artifact_issues
+
+    issues = collect_cross_artifact_issues(
+        result={
+            "status": "BLOCKED",
+            "terminal_reason": "X",
+            "technical_status": "BLOCKED",
+            "executed_code_sha": "e",
+            "evidence_commit_sha": "h",
+            "match_run_to_head": False,
+            "machine_blockers": [],
+            "real_data_ci_status": "NOT_EXECUTED",
+            "pr_head_sha": "prhead",
+            "workflow_merge_sha": "mergesha",
+            "workflow_head_sha": "prhead",
+        },
+        queue={
+            "status": "BLOCKED",
+            "reason": "X",
+            "technical_status": "BLOCKED",
+            "executed_code_sha": "e",
+            "evidence_commit_sha": "h",
+            "match_run_to_head": False,
+            "machine_blockers": [],
+            "real_data_ci_status": "NOT_EXECUTED",
+            "pr_head_sha": "prhead",
+            "workflow_merge_sha": "mergesha",
+        },
+        evidence={
+            "status": "BLOCKED",
+            "terminal_reason": "X",
+            "technical_status": "BLOCKED",
+            "executed_code_sha": "e",
+            "evidence_commit_sha": "h",
+            "match_run_to_head": False,
+            "machine_blockers": [],
+            "real_data_ci_status": "NOT_EXECUTED",
+            "pr_head_sha": "prhead",
+            "workflow_merge_sha": "mergesha",
+            "workflow_head_sha": "prhead",
+        },
+        provenance={
+            "workflow_head_sha": "prhead",
+            "workflow_merge_sha": "mergesha",
+            "pr_head_sha": "prhead",
+        },
+    )
+    assert any("workflow_head_sha" in i for i in issues)
+
+
+def test_independent_live_pr_head_not_from_package(monkeypatch) -> None:
+    from scripts.ops import confenge_final_status as fs
+
+    monkeypatch.setenv("CONFENGE_PR_HEAD_SHA", "envprhead3333333333333333333333333333")
+    assert fs.independent_live_pr_head() == "envprhead3333333333333333333333333333"
