@@ -1,5 +1,5 @@
 {
   "ok": true,
   "pytest_exit": 0,
-  "stdout_tail": "...                                                                      [100%]\n3 passed, 5 deselected in 1.62s\n"
+  "stdout_tail": "...                                                                      [100%]\n3 passed, 5 deselected in 1.74s\n"
 }
