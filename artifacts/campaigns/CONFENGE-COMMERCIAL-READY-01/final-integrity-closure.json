@@ -1,23 +1,23 @@
 {
   "campaign_id": "CONFENGE-COMMERCIAL-READY-01",
-  "generated_at": "2026-07-26T17:17:25Z",
-  "current_pr_head_sha": "5d063f05a8d3cb01d230d437fe29fb65f488c3e9",
+  "generated_at": "2026-07-26T17:23:31Z",
+  "current_pr_head_sha": "26b3d424ac69cc1a47ed79041b6f50129aa554ba",
   "final_integrity_code_freeze_sha": "afcd8c50d5c1bdb5942e6d53a46ca0421685df79",
   "final_code_freeze_sha": "afcd8c50d5c1bdb5942e6d53a46ca0421685df79",
   "executed_code_sha": "afcd8c50d5c1bdb5942e6d53a46ca0421685df79",
-  "workflow_head_sha": "5c8c796163574a8988b7a6d67d287438e75ced35",
-  "evidence_commit_sha": "c51ac9804b33a0300755d904f7a2ef9afd575b09",
+  "workflow_head_sha": "26b3d424ac69cc1a47ed79041b6f50129aa554ba",
+  "evidence_commit_sha": "26b3d424ac69cc1a47ed79041b6f50129aa554ba",
   "match_run_to_head": false,
   "code_changed_after_execution": false,
   "artifact_only_commits_after_execution": true,
   "non_artifact_files_changed_after_execution": [],
   "structural_ci_status": "PASS",
-  "real_data_ci_status": "NOT_EXECUTED",
-  "structural_ci_run_id": null,
-  "real_data_ci_run_id": null,
+  "real_data_ci_status": "PASS_ARTIFACT_PUBLICATION",
+  "structural_ci_run_id": "30212267851",
+  "real_data_ci_run_id": "30212267851",
   "workflow_artifact_ids": {
-    "confenge-human-review-packages": null,
-    "confenge-machine-evidence": null
+    "confenge-human-review-packages": 8634799808,
+    "confenge-machine-evidence": 8634805214
   },
   "snapshot_rows": 11974,
   "observation_days": 718,
@@ -129,9 +129,9 @@
   "human_labels_filled": false,
   "review_package_artifact_name": "confenge-human-review-packages",
   "review_packages_generated": true,
-  "review_packages_published_as_workflow_artifact": false,
+  "review_packages_published_as_workflow_artifact": true,
   "machine_evidence_artifact_name": "confenge-machine-evidence",
-  "machine_evidence_published": false,
+  "machine_evidence_published": true,
   "offer_distribution": {
     "licitacoes_propostas": 8,
     "diagnostico_b2g": 12
@@ -161,12 +161,15 @@
     "3_sha_semantics_coherent": true,
     "4_discovery_rerun_in_both_e2e_passes": true,
     "5_downstream_also_rerun": true,
-    "6_human_packages_downloadable": false,
+    "6_human_packages_downloadable": true,
     "7_restore_evidence_available": true,
     "8_corpus_represents_main_false_positives": true,
     "9_offer_internal_diagnostic_block": null,
     "10_structural_vs_real_ci_separated": true,
     "11_official_registry_coverage_integral": false,
     "12_only_remaining_technical_blocker": "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE"
-  }
+  },
+  "workflow_run_url": "https://github.com/tjsasakifln/extra-cli/actions/runs/30212267851",
+  "review_package_artifact_id": 8634799808,
+  "machine_evidence_artifact_id": 8634805214
 }

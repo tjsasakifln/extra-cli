@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import shutil
 import subprocess
 import sys
 from datetime import UTC, datetime
@@ -51,8 +52,9 @@ def utc_now() -> str:
 
 def _git_head() -> str:
     try:
-        return subprocess.check_output(  # noqa: S603,S607
-            ["git", "rev-parse", "HEAD"],
+        git = shutil.which("git") or "git"
+        return subprocess.check_output(  # noqa: S603
+            [git, "rev-parse", "HEAD"],
             cwd=str(_ROOT),
             text=True,
         ).strip()

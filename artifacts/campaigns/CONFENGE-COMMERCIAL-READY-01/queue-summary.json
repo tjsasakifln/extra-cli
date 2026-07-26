@@ -205,11 +205,11 @@
   "artifact_git_sha": "afcd8c50d5c1bdb5942e6d53a46ca0421685df79",
   "reason": "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE",
   "executed_code_sha": "afcd8c50d5c1bdb5942e6d53a46ca0421685df79",
-  "current_pr_head_sha": "5d063f05a8d3cb01d230d437fe29fb65f488c3e9",
+  "current_pr_head_sha": "26b3d424ac69cc1a47ed79041b6f50129aa554ba",
   "executed_git_sha": "da9596aece9a661c0b4bf4cba0637cac5e20767c",
   "evidence_commit_sha": "c51ac9804b33a0300755d904f7a2ef9afd575b09",
   "match_run_to_head": false,
-  "updated_at": "2026-07-26T17:17:24Z",
+  "updated_at": "2026-07-26T17:23:56Z",
   "pr_head_sha": "af690c6642031f2eaf41db933cd300af8fec7325",
   "gate_git_sha": "afcd8c50d5c1bdb5942e6d53a46ca0421685df79",
   "review_git_sha": "afcd8c50d5c1bdb5942e6d53a46ca0421685df79",
@@ -265,5 +265,5 @@
     "BLOCKED_PENDING_HUMAN_ACCEPTANCE"
   ],
   "structural_ci_status": "PASS",
-  "real_data_ci_status": "NOT_EXECUTED"
+  "real_data_ci_status": "PASS_ARTIFACT_PUBLICATION"
 }

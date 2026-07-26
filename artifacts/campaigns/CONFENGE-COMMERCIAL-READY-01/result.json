@@ -5,12 +5,12 @@
   "terminal_declaration": "BLOCKED_ONLY_OFFICIAL_REGISTRY_AND_HUMAN_REVIEW",
   "technical_status": "BLOCKED",
   "campaign_id": "CONFENGE-COMMERCIAL-READY-01",
-  "current_pr_head_sha": "5d063f05a8d3cb01d230d437fe29fb65f488c3e9",
+  "current_pr_head_sha": "26b3d424ac69cc1a47ed79041b6f50129aa554ba",
   "executed_code_sha": "afcd8c50d5c1bdb5942e6d53a46ca0421685df79",
   "final_code_freeze_sha": "afcd8c50d5c1bdb5942e6d53a46ca0421685df79",
   "final_integrity_code_freeze_sha": "afcd8c50d5c1bdb5942e6d53a46ca0421685df79",
-  "evidence_commit_sha": "5d063f05a8d3cb01d230d437fe29fb65f488c3e9",
-  "workflow_head_sha": "5d063f05a8d3cb01d230d437fe29fb65f488c3e9",
+  "evidence_commit_sha": "26b3d424ac69cc1a47ed79041b6f50129aa554ba",
+  "workflow_head_sha": "26b3d424ac69cc1a47ed79041b6f50129aa554ba",
   "artifact_git_sha": "afcd8c50d5c1bdb5942e6d53a46ca0421685df79",
   "run_git_sha": "afcd8c50d5c1bdb5942e6d53a46ca0421685df79",
   "gate_git_sha": "afcd8c50d5c1bdb5942e6d53a46ca0421685df79",
@@ -29,9 +29,9 @@
   ],
   "all_other_machine_blockers": [],
   "structural_ci_status": "PASS",
-  "real_data_ci_status": "NOT_EXECUTED",
+  "real_data_ci_status": "PASS_ARTIFACT_PUBLICATION",
   "review_packages_generated": true,
-  "review_packages_published_as_workflow_artifact": false,
+  "review_packages_published_as_workflow_artifact": true,
   "human_metrics": {
     "precision_at_10": null,
     "precision_at_20": null,
@@ -41,5 +41,5 @@
   "commercial_status": "BLOCKED_PENDING_HUMAN_ACCEPTANCE",
   "pr_draft": true,
   "branch": "campaign/confenge-commercial-ready-01",
-  "updated_at": "2026-07-26T17:17:24Z"
+  "updated_at": "2026-07-26T17:23:56Z"
 }

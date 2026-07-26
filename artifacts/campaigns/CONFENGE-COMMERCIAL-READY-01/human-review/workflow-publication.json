@@ -1,0 +1,10 @@
+{
+  "published_as_workflow_artifact": true,
+  "workflow_run_id": "30212267851",
+  "workflow_artifact_name": "confenge-human-review-packages",
+  "workflow_artifact_id": 8634799808,
+  "artifact_download_url": "https://github.com/tjsasakifln/extra-cli/actions/runs/30212267851/artifacts/8634799808",
+  "head_sha": "26b3d424ac69cc1a47ed79041b6f50129aa554ba",
+  "executed_code_sha": "afcd8c50d5c1bdb5942e6d53a46ca0421685df79",
+  "captured_at": "2026-07-26T17:23:31Z"
+}

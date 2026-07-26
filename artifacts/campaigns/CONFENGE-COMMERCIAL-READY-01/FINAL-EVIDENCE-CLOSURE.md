@@ -1,6 +1,6 @@
 # FINAL EVIDENCE CLOSURE — CONFENGE-COMMERCIAL-READY-01
 
-Generated: 2026-07-26T17:17:24Z
+Generated: 2026-07-26T17:23:56Z
 Aggregator: `build_final_campaign_status()`
 
 ## Terminal
@@ -16,7 +16,7 @@ Aggregator: `build_final_campaign_status()`
 
 | Field | Value |
 |-------|-------|
-| current_pr_head_sha | `5d063f05a8d3cb01d230d437fe29fb65f488c3e9` |
+| current_pr_head_sha | `26b3d424ac69cc1a47ed79041b6f50129aa554ba` |
 | executed_code_sha | `afcd8c50d5c1bdb5942e6d53a46ca0421685df79` |
 | final_integrity_code_freeze_sha | `afcd8c50d5c1bdb5942e6d53a46ca0421685df79` |
 | match_run_to_head | `False` |
@@ -28,7 +28,7 @@ Aggregator: `build_final_campaign_status()`
 | Layer | Status |
 |-------|--------|
 | Structural CI | `PASS` |
-| Real-data CI | `NOT_EXECUTED` |
+| Real-data CI | `PASS_ARTIFACT_PUBLICATION` |
 
 ## Machine blockers
 
