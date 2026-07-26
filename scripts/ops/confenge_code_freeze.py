@@ -112,6 +112,19 @@ def verify_code_freeze(*, freeze_sha: str | None = None) -> dict[str, Any]:
     artifact_only = len(changed) > 0 and len(non_artifact) == 0
     ok = executed == freeze_sha and (not code_changed or artifact_only)
 
+    # Path-based artifact-only proof freeze..HEAD (authoritative for post-freeze lag)
+    path_changed: list[str] = []
+    if freeze_sha != head:
+        try:
+            path_changed = _git("diff", "--name-only", f"{freeze_sha}..{head}").splitlines()
+        except subprocess.CalledProcessError:
+            path_changed = changed
+    path_non = [
+        f for f in path_changed
+        if not any(f.startswith(p) for p in ALLOWED_POST_FREEZE_PREFIXES)
+    ]
+    path_artifact_only = len(path_changed) == 0 or len(path_non) == 0
+    ok = executed == freeze_sha and path_artifact_only
     report = {
         "ok": ok,
         "status": "PASS" if ok else "BLOCKED_CODE_EXECUTION_SHA_MISMATCH",
@@ -120,11 +133,13 @@ def verify_code_freeze(*, freeze_sha: str | None = None) -> dict[str, Any]:
         "executed_code_sha": executed,
         "code_tree_hash_at_execution": tree_freeze,
         "code_tree_hash_at_current_head": tree_head,
-        "code_changed_after_execution": code_changed and not artifact_only,
-        "artifact_only_commits_after_execution": artifact_only,
-        "files_changed_after_freeze": changed,
-        "non_artifact_files_changed": non_artifact,
+        "code_changed_after_execution": not path_artifact_only,
+        "artifact_only_commits_after_execution": path_artifact_only and len(path_changed) > 0,
+        "files_changed_after_freeze": path_changed,
+        "non_artifact_files_changed": path_non,
+        "artifact_only_path_check": path_artifact_only,
         "verified_at": utc_now(),
+        "note": "current_pr_head_sha is always live git tip at verify time",
     }
     (ART / "code-freeze-gate.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     return report
