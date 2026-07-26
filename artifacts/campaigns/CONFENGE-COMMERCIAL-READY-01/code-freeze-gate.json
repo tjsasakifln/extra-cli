@@ -1,16 +1,16 @@
 {
   "ok": true,
   "status": "PASS",
-  "current_pr_head_sha": "5c8c796163574a8988b7a6d67d287438e75ced35",
-  "final_code_freeze_sha": "5c8c796163574a8988b7a6d67d287438e75ced35",
-  "executed_code_sha": "5c8c796163574a8988b7a6d67d287438e75ced35",
-  "code_tree_hash_at_execution": "50b07bc4cb0a7f2be88d2e3dfd96c9dc663126e47d8e60cfc12fc71d66e08185",
-  "code_tree_hash_at_current_head": "50b07bc4cb0a7f2be88d2e3dfd96c9dc663126e47d8e60cfc12fc71d66e08185",
+  "current_pr_head_sha": "afcd8c50d5c1bdb5942e6d53a46ca0421685df79",
+  "final_code_freeze_sha": "afcd8c50d5c1bdb5942e6d53a46ca0421685df79",
+  "executed_code_sha": "afcd8c50d5c1bdb5942e6d53a46ca0421685df79",
+  "code_tree_hash_at_execution": "09e9db3bac298224a60f4d6bb2f6d684ef0eceff110de88a05c893565122d2a3",
+  "code_tree_hash_at_current_head": "09e9db3bac298224a60f4d6bb2f6d684ef0eceff110de88a05c893565122d2a3",
   "code_changed_after_execution": false,
   "artifact_only_commits_after_execution": false,
   "files_changed_after_freeze": [],
   "non_artifact_files_changed": [],
   "artifact_only_path_check": true,
-  "verified_at": "2026-07-26T17:10:40Z",
+  "verified_at": "2026-07-26T17:17:08Z",
   "note": "current_pr_head_sha is always live git tip at verify time"
 }
