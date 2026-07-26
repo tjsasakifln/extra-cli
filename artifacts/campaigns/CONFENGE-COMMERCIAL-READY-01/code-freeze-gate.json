@@ -1,11 +1,11 @@
 {
   "ok": true,
   "status": "PASS",
-  "current_pr_head_sha": "77be3876d4cbcd42d6899a2216ee5f7056af3dcf",
+  "current_pr_head_sha": "1ceb9cdad3b57726c629c36f3f43a70eff74efe0",
   "final_code_freeze_sha": "51df3beb10d4f3a498d61e4f400a5479ee203b22",
   "executed_code_sha": "51df3beb10d4f3a498d61e4f400a5479ee203b22",
   "code_tree_hash_at_execution": "53d29a39eca3d3343d6044448bc7609913b2423f4066c9b6d26907449718e99a",
-  "code_tree_hash_at_current_head": "bc9002c6c59d2341493bd4ae4fee50e92fd283f4a3ac58ae26d8a8dff318d6a0",
+  "code_tree_hash_at_current_head": "ae44e6636dd28ece317356283026c2333c749045f6da130de86ae9f40b31d487",
   "code_changed_after_execution": false,
   "artifact_only_commits_after_execution": true,
   "files_changed_after_freeze": [
@@ -34,6 +34,6 @@
   ],
   "non_artifact_files_changed": [],
   "artifact_only_path_check": true,
-  "verified_at": "2026-07-26T18:00:34Z",
+  "verified_at": "2026-07-26T18:01:10Z",
   "note": "current_pr_head_sha is always live git tip at verify time"
 }

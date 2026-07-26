@@ -4,10 +4,10 @@
   "issues": [],
   "terminal_reason": "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE",
   "terminal_declaration": "BLOCKED_ONLY_OFFICIAL_REGISTRY_AND_HUMAN_REVIEW",
-  "pr_head_sha": "77be3876d4cbcd42d6899a2216ee5f7056af3dcf",
+  "pr_head_sha": "1ceb9cdad3b57726c629c36f3f43a70eff74efe0",
   "workflow_merge_sha": "a37d615d8b6b320fc4d4cc1b10d01bb0ba4cbd40",
   "executed_code_sha": "51df3beb10d4f3a498d61e4f400a5479ee203b22",
   "real_data_ci_status": "NOT_EXECUTED",
   "match_run_to_head": false,
-  "verified_at": "2026-07-26T18:00:35Z"
+  "verified_at": "2026-07-26T18:01:11Z"
 }
