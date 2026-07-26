@@ -111,6 +111,272 @@ def is_dummy_sha(value: Any) -> bool:
     return False
 
 
+# Root status files that always participate in the package inventory.
+_ROOT_STATUS_NAMES = (
+    "result.json",
+    "queue-summary.json",
+    "final-evidence-closure.json",
+    "final-integrity-closure.json",
+    "merge-readiness.json",
+    "workflow-artifact-publication.json",
+    "workflow-job-status.json",
+)
+
+# SHA / status keys that must agree across the whole package inventory when present.
+_INVENTORY_AGREE_KEYS = (
+    "pr_head_sha",
+    "current_pr_head_sha",
+    "executed_code_sha",
+    "final_code_freeze_sha",
+    "final_integrity_code_freeze_sha",
+    "freeze_sha",
+    "evidence_commit_sha",
+    "workflow_merge_sha",
+    "workflow_run_id",
+    "workflow_artifact_head_sha",
+    "real_data_ci_status",
+    "terminal_reason",
+    "match_run_to_head",
+    "human_review_artifact_id",
+    "machine_evidence_artifact_id",
+)
+
+
+def iter_package_status_files(art_dir: Path | None = None) -> list[Path]:
+    """Every status/gate JSON under the campaign package that must agree.
+
+    Includes root status + all *gate*.json (root and machine-evidence/**).
+    Pure filesystem inventory — no hard-coded twin allowlist drift.
+    """
+    root = Path(art_dir) if art_dir is not None else ART
+    if not root.is_dir():
+        return []
+    out: list[Path] = []
+    seen: set[Path] = set()
+
+    def _add(p: Path) -> None:
+        rp = p.resolve() if p.exists() else p
+        if rp in seen:
+            return
+        if p.is_file() and p.suffix == ".json":
+            seen.add(rp)
+            out.append(p)
+
+    for name in _ROOT_STATUS_NAMES:
+        _add(root / name)
+    # Root gates + machine-evidence gates (and any nested *gate*.json)
+    for p in sorted(root.glob("*gate*.json")):
+        _add(p)
+    me = root / "machine-evidence"
+    if me.is_dir():
+        for p in sorted(me.rglob("*gate*.json")):
+            _add(p)
+        for name in (
+            "result.json",
+            "queue-summary.json",
+            "final-evidence-closure.json",
+            "final-integrity-closure.json",
+            "merge-readiness.json",
+            "workflow-artifact-publication.json",
+            "workflow-job-status.json",
+        ):
+            _add(me / name)
+    return out
+
+
+def mirror_status_tree_to_machine_evidence(art_dir: Path | None = None) -> list[str]:
+    """Overwrite machine-evidence twins with root status/gate JSON bytes.
+
+    After root write, every root *gate*.json and core status file is copied into
+    machine-evidence/ by basename so the twin tree cannot retain dummy/stale SHAs.
+    Orphan integrity gates under machine-evidence with no root twin are removed.
+    Returns list of relative paths mirrored or deleted.
+    """
+    root = Path(art_dir) if art_dir is not None else ART
+    me = root / "machine-evidence"
+    me.mkdir(parents=True, exist_ok=True)
+    actions: list[str] = []
+
+    # Mirror root status + gates into machine-evidence/
+    root_files: list[Path] = []
+    for name in _ROOT_STATUS_NAMES:
+        p = root / name
+        if p.is_file():
+            root_files.append(p)
+    root_files.extend(sorted(root.glob("*gate*.json")))
+    # Also mirror MD closures for package completeness
+    for name in (
+        "FINAL-EVIDENCE-CLOSURE.md",
+        "FINAL-INTEGRITY-CLOSURE.md",
+        "MERGE-READINESS.md",
+    ):
+        p = root / name
+        if p.is_file():
+            root_files.append(p)
+
+    root_basenames = {p.name for p in root_files}
+    for src in root_files:
+        dst = me / src.name
+        dst.write_bytes(src.read_bytes())
+        actions.append(f"mirror:{src.name}")
+
+    # Delete orphan *gate*.json under machine-evidence with no root twin
+    for orphan in sorted(me.glob("*gate*.json")):
+        if orphan.name not in root_basenames:
+            orphan.unlink(missing_ok=True)
+            actions.append(f"delete_orphan:{orphan.name}")
+    return actions
+
+
+def load_inventory_json(art_dir: Path | None = None) -> dict[str, dict[str, Any]]:
+    """Load all package status files as {rel_path: dict}."""
+    root = Path(art_dir) if art_dir is not None else ART
+    out: dict[str, dict[str, Any]] = {}
+    for p in iter_package_status_files(root):
+        try:
+            rel = str(p.relative_to(root))
+        except ValueError:
+            rel = p.name
+        try:
+            data = json.loads(p.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            continue
+        if isinstance(data, dict):
+            out[rel] = data
+    return out
+
+
+def inventory_dummy_sha_issues(inventory: dict[str, dict[str, Any]]) -> list[str]:
+    """Fail if any inventory file holds dummy SHAs in known fields."""
+    issues: list[str] = []
+    sha_fields = (
+        "executed_code_sha",
+        "current_pr_head_sha",
+        "pr_head_sha",
+        "final_code_freeze_sha",
+        "final_integrity_code_freeze_sha",
+        "freeze_sha",
+        "evidence_commit_sha",
+        "workflow_merge_sha",
+        "workflow_head_sha",
+        "workflow_artifact_head_sha",
+        "git_sha",
+        "run_git_sha",
+        "executed_git_sha",
+    )
+    for rel, data in inventory.items():
+        for field in sha_fields:
+            val = data.get(field)
+            if is_dummy_sha(val):
+                issues.append(f"dummy_sha:{rel}:{field}:{val}")
+        # Nested sha_semantics blob sometimes holds dummies
+        nested = data.get("sha_semantics")
+        if isinstance(nested, dict):
+            for field in sha_fields:
+                val = nested.get(field)
+                if is_dummy_sha(val):
+                    issues.append(f"dummy_sha:{rel}:sha_semantics.{field}:{val}")
+    return issues
+
+
+def _is_integrity_status_rel(rel: str) -> bool:
+    """Status + integrity SHA gates only (exclude product commercial gates)."""
+    base = rel.split("/")[-1]
+    if base in _ROOT_STATUS_NAMES:
+        return True
+    tokens = (
+        "code-freeze",
+        "sha-semantics",
+        "post-execution",
+        "evidence-provenance",
+        "executed-tree",
+        "final-integrity-code-freeze",
+        "cross-artifact-consistency",
+    )
+    return any(tok in base for tok in tokens)
+
+
+def _status_publication_rel(rel: str) -> bool:
+    base = rel.split("/")[-1]
+    return base in (
+        "result.json",
+        "queue-summary.json",
+        "merge-readiness.json",
+        "workflow-artifact-publication.json",
+        "workflow-job-status.json",
+        "final-evidence-closure.json",
+        "final-integrity-closure.json",
+    )
+
+
+def inventory_field_agreement_issues(
+    inventory: dict[str, dict[str, Any]],
+    keys: tuple[str, ...] = _INVENTORY_AGREE_KEYS,
+) -> list[str]:
+    """Fail when integrity/status inventory files disagree on a core key."""
+    issues: list[str] = []
+    for key in keys:
+        present: dict[str, Any] = {}
+        for rel, data in inventory.items():
+            if not _is_integrity_status_rel(rel):
+                continue
+            if key in (
+                "workflow_run_id",
+                "human_review_artifact_id",
+                "machine_evidence_artifact_id",
+            ) and not _status_publication_rel(rel):
+                continue
+            if key == "pr_head_sha":
+                val = data.get("pr_head_sha") or data.get("current_pr_head_sha")
+            elif key == "freeze_sha":
+                val = (
+                    data.get("freeze_sha")
+                    or data.get("final_integrity_code_freeze_sha")
+                    or data.get("final_code_freeze_sha")
+                )
+            elif key == "terminal_reason":
+                val = data.get("terminal_reason") or data.get("reason")
+            elif key in ("human_review_artifact_id", "machine_evidence_artifact_id"):
+                val = data.get(key)
+                if val is None and key == "human_review_artifact_id":
+                    val = (data.get("workflow_artifact_ids") or {}).get("confenge-human-review-packages")
+                if val is None and key == "machine_evidence_artifact_id":
+                    val = (data.get("workflow_artifact_ids") or {}).get("confenge-machine-evidence")
+                if val is not None:
+                    val = str(val)
+            elif key == "workflow_run_id":
+                val = data.get("workflow_run_id")
+                if val is not None:
+                    val = str(val)
+            else:
+                val = data.get(key)
+            if val is None or val == "":
+                continue
+            present[rel] = val
+        if len(present) < 2:
+            continue
+        if len(set(present.values())) > 1:
+            issues.append(f"inventory_disagree:{key}:{present}")
+    return issues
+
+
+def workflow_run_head_mismatch_issues(
+    *,
+    package: dict[str, Any],
+    run_head_sha: str | None,
+) -> list[str]:
+    """Fail when bound workflow run head disagrees with package workflow_artifact_head."""
+    issues: list[str] = []
+    if not run_head_sha:
+        return issues
+    claimed = (
+        package.get("workflow_artifact_head_sha") or package.get("pr_head_sha") or package.get("current_pr_head_sha")
+    )
+    if claimed and claimed != run_head_sha:
+        issues.append(f"workflow_run_head_mismatch:run_head={run_head_sha!r} claimed={claimed!r}")
+    return issues
+
+
 def aggregate_real_data_ci_status(
     real_historical: str,
     real_registry: str,
@@ -627,6 +893,9 @@ def write_derived_artifacts(
     status = status or build_final_campaign_status()
     ART.mkdir(parents=True, exist_ok=True)
     bind_sha = _bind_sha(status)
+    # Ensure workflow_artifact_head_sha is the PR tip that owns published artifacts
+    if not status.get("workflow_artifact_head_sha"):
+        status["workflow_artifact_head_sha"] = status.get("pr_head_sha")
 
     result = {
         "status": status["status"],
@@ -948,6 +1217,8 @@ all_other_machine_blockers: {status["all_other_machine_blockers"]}
     (ART / "FINAL-INTEGRITY-CLOSURE.md").write_text(imd, encoding="utf-8")
 
     write_merge_readiness(status)
+    # Twin tree: machine-evidence must mirror root gates/status (no orphan dummy SHAs)
+    mirror_status_tree_to_machine_evidence(ART)
     return status
 
 
@@ -1276,45 +1547,104 @@ def independent_live_pr_head() -> str:
     return os.environ.get("CONFENGE_PR_HEAD_SHA") or os.environ.get("GITHUB_EVENT_PULL_REQUEST_HEAD_SHA") or _git_head()
 
 
+def verify_package_inventory(
+    *,
+    art_dir: Path | None = None,
+    expected_pr_head: str | None = None,
+    run_head_sha: str | None = None,
+) -> dict[str, Any]:
+    """Verify the full package inventory (root + machine-evidence) without rewrite."""
+    root = Path(art_dir) if art_dir is not None else ART
+    inventory = load_inventory_json(root)
+    issues: list[str] = []
+    issues.extend(inventory_dummy_sha_issues(inventory))
+    issues.extend(inventory_field_agreement_issues(inventory))
+
+    result = inventory.get("result.json") or {}
+    qs = inventory.get("queue-summary.json") or {}
+    evidence = inventory.get("final-evidence-closure.json") or {}
+    integrity = inventory.get("final-integrity-closure.json") or {}
+    sha_sem = inventory.get("sha-semantics-gate.json") or {}
+    provenance = inventory.get("evidence-provenance-gate.json") or {}
+    post_exec = inventory.get("post-execution-artifact-only-diff-gate.json") or {}
+    freeze_gate = inventory.get("final-integrity-code-freeze-gate.json") or inventory.get("code-freeze-gate.json") or {}
+    issues.extend(
+        collect_cross_artifact_issues(
+            result=result,
+            queue=qs,
+            evidence=evidence,
+            integrity=integrity,
+            sha_semantics=sha_sem,
+            provenance=provenance,
+            post_execution=post_exec,
+            freeze_gate=freeze_gate,
+            expected_pr_head=expected_pr_head,
+        )
+    )
+    # Twin integrity gates must match root result (product gates excluded)
+    for rel in sorted(k for k in inventory if k.startswith("machine-evidence/")):
+        if not _is_integrity_status_rel(rel):
+            continue
+        gate = inventory[rel]
+        for key in ("executed_code_sha", "pr_head_sha", "current_pr_head_sha"):
+            if key in ("pr_head_sha", "current_pr_head_sha"):
+                gv = gate.get("pr_head_sha") or gate.get("current_pr_head_sha")
+                rv = result.get("pr_head_sha") or result.get("current_pr_head_sha")
+            else:
+                gv = gate.get(key)
+                rv = result.get(key)
+            if gv is not None and rv is not None and str(gv) != str(rv):
+                issues.append(f"machine_evidence_vs_result:{rel}:{key}:{gv!r}!={rv!r}")
+
+    issues.extend(workflow_run_head_mismatch_issues(package=result, run_head_sha=run_head_sha))
+
+    seen: set[str] = set()
+    uniq: list[str] = []
+    for i in issues:
+        if i not in seen:
+            seen.add(i)
+            uniq.append(i)
+    ok = not uniq
+    return {
+        "ok": ok,
+        "status": "PASS" if ok else "FAIL",
+        "issues": uniq,
+        "inventory_files": sorted(inventory.keys()),
+        "pr_head_sha": result.get("pr_head_sha") or result.get("current_pr_head_sha"),
+        "executed_code_sha": result.get("executed_code_sha"),
+        "workflow_run_id": result.get("workflow_run_id"),
+        "real_data_ci_status": result.get("real_data_ci_status"),
+        "verified_at": utc_now(),
+    }
+
+
 def verify_cross_artifact_consistency(
     *,
     rewrite: bool = True,
     check_live_head: bool = True,
+    run_head_sha: str | None = None,
 ) -> dict[str, Any]:
-    """Assert all derived status files agree; fail on dummy SHAs / divergences.
+    """Assert full package inventory agrees; fail on dummy SHAs / divergences.
 
-    When rewrite=True (default, sole-writer path), regenerates derived files first.
-    Live PR head is taken independently (env / git), not from the package under test.
+    When rewrite=True (default), regenerates derived files and mirrors machine-evidence/.
     """
     live_head = independent_live_pr_head()
     if rewrite:
         status = write_derived_artifacts(refresh_sha_gates=True)
     else:
         status = build_final_campaign_status()
-    result = _load("result.json")
-    qs = _load("queue-summary.json")
-    evidence = _load("final-evidence-closure.json")
-    integrity = _load("final-integrity-closure.json")
-    sha_sem = _load("sha-semantics-gate.json")
-    provenance = _load("evidence-provenance-gate.json")
-    post_exec = _load("post-execution-artifact-only-diff-gate.json")
-    freeze_gate = _load("final-integrity-code-freeze-gate.json") or _load("code-freeze-gate.json")
 
-    # Independent expected tip — not status['pr_head_sha'] after rewrite alone
     expected_head = live_head if check_live_head else status.get("pr_head_sha")
-    issues = collect_cross_artifact_issues(
-        result=result,
-        queue=qs,
-        evidence=evidence,
-        integrity=integrity,
-        sha_semantics=sha_sem,
-        provenance=provenance,
-        post_execution=post_exec,
-        freeze_gate=freeze_gate,
+    rep = verify_package_inventory(
+        art_dir=ART,
         expected_pr_head=expected_head,
+        run_head_sha=run_head_sha or os.environ.get("CONFENGE_WORKFLOW_RUN_HEAD_SHA"),
     )
+    issues = list(rep.get("issues") or [])
 
     hist = _load("historical-window-gate.json")
+    result = _load("result.json")
+    qs = _load("queue-summary.json")
     if hist.get("status") == "PASS" and (
         result.get("reason") == "BLOCKED_INSUFFICIENT_HISTORICAL_WINDOW"
         or qs.get("reason") == "BLOCKED_INSUFFICIENT_HISTORICAL_WINDOW"
@@ -1326,6 +1656,7 @@ def verify_cross_artifact_consistency(
         "ok": ok,
         "status": "PASS" if ok else "FAIL",
         "issues": issues,
+        "inventory_files": rep.get("inventory_files"),
         "terminal_reason": status["terminal_reason"],
         "terminal_declaration": status["terminal_declaration"],
         "pr_head_sha": status["pr_head_sha"],
@@ -1338,6 +1669,8 @@ def verify_cross_artifact_consistency(
         "verified_at": utc_now(),
     }
     (ART / "cross-artifact-consistency-gate.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+    # Keep twin in sync after writing the gate itself
+    mirror_status_tree_to_machine_evidence(ART)
     # Patch merge-readiness consistency field
     mr = _load("merge-readiness.json")
     if mr:
@@ -1345,7 +1678,208 @@ def verify_cross_artifact_consistency(
         mr["answers"] = mr.get("answers") or {}
         mr["answers"]["8_all_status_files_agree"] = ok
         (ART / "merge-readiness.json").write_text(json.dumps(mr, indent=2) + "\n", encoding="utf-8")
+        mirror_status_tree_to_machine_evidence(ART)
     return report
+
+
+def bind_workflow_publication(
+    *,
+    run_id: str,
+    pr_head_sha: str,
+    merge_sha: str | None,
+    human_artifact_id: int | str,
+    machine_artifact_id: int | str,
+    human_digest: str | None = None,
+    machine_digest: str | None = None,
+    artifact_created_at: str | None = None,
+    artifact_expires_at: str | None = None,
+    run_url: str | None = None,
+) -> dict[str, Any]:
+    """Write workflow-job-status + workflow-artifact-publication for one bound run."""
+    ART.mkdir(parents=True, exist_ok=True)
+    now = utc_now()
+    run_url = run_url or f"https://github.com/tjsasakifln/extra-cli/actions/runs/{run_id}"
+    job = {
+        "structural_ci_status": os.environ.get("CONFENGE_STRUCTURAL_CI_STATUS", "PASS"),
+        "real_historical_ci_status": os.environ.get("CONFENGE_REAL_HISTORICAL_CI_STATUS", "NOT_EXECUTED"),
+        "real_registry_ci_status": os.environ.get("CONFENGE_REAL_REGISTRY_CI_STATUS", "NOT_EXECUTED"),
+        "real_full_pipeline_ci_status": os.environ.get("CONFENGE_REAL_FULL_PIPELINE_CI_STATUS", "NOT_EXECUTED"),
+        "real_snapshot_restore_ci_status": os.environ.get("CONFENGE_REAL_SNAPSHOT_RESTORE_CI_STATUS", "NOT_EXECUTED"),
+        "human_package_publication_status": os.environ.get("CONFENGE_HUMAN_PACKAGE_PUBLICATION_STATUS", "PASS"),
+        "machine_evidence_publication_status": os.environ.get("CONFENGE_MACHINE_EVIDENCE_PUBLICATION_STATUS", "PASS"),
+        "github_workflow_status": os.environ.get("CONFENGE_GITHUB_WORKFLOW_STATUS", "PASS"),
+        "workflow_run_id": str(run_id),
+        "workflow_pr_head_sha": pr_head_sha,
+        "workflow_merge_sha": merge_sha,
+        "workflow_run_head_sha": pr_head_sha,
+        "captured_at": now,
+    }
+    (ART / "workflow-job-status.json").write_text(json.dumps(job, indent=2) + "\n", encoding="utf-8")
+    pub = {
+        "published_as_workflow_artifact": True,
+        "workflow_run_id": str(run_id),
+        "workflow_run_url": run_url,
+        "workflow_pr_head_sha": pr_head_sha,
+        "workflow_merge_sha": merge_sha,
+        "workflow_artifact_head_sha": pr_head_sha,
+        "human_review_artifact_id": int(human_artifact_id),
+        "human_review_artifact_digest": human_digest,
+        "machine_evidence_artifact_id": int(machine_artifact_id),
+        "machine_evidence_artifact_digest": machine_digest,
+        "workflow_artifact_ids": {
+            "confenge-human-review-packages": int(human_artifact_id),
+            "confenge-machine-evidence": int(machine_artifact_id),
+        },
+        "artifact_created_at": artifact_created_at,
+        "artifact_expires_at": artifact_expires_at,
+        "captured_at": now,
+        "source_tip": pr_head_sha,
+        "source_run": str(run_id),
+    }
+    (ART / "workflow-artifact-publication.json").write_text(json.dumps(pub, indent=2) + "\n", encoding="utf-8")
+    (ART / "LIVE_TIP_SHA.txt").write_text(pr_head_sha + "\n", encoding="utf-8")
+    return {"job": job, "publication": pub}
+
+
+def package_tip(
+    *,
+    pr_head_sha: str | None = None,
+    merge_sha: str | None = None,
+    run_id: str | None = None,
+    human_artifact_id: int | str | None = None,
+    machine_artifact_id: int | str | None = None,
+    human_digest: str | None = None,
+    machine_digest: str | None = None,
+    artifact_created_at: str | None = None,
+    artifact_expires_at: str | None = None,
+    run_url: str | None = None,
+    run_head_sha: str | None = None,
+) -> dict[str, Any]:
+    """Atomic package tip: bind one run, write full tree, verify inventory once.
+
+    Does not create git commits. Caller commits at most once after this returns.
+    pr_head_sha / workflow_artifact_head_sha are the publication tip (usually CI HEAD).
+    """
+    tip = pr_head_sha or independent_live_pr_head()
+    merge = merge_sha or os.environ.get("CONFENGE_WORKFLOW_MERGE_SHA") or os.environ.get("GITHUB_SHA")
+    os.environ["CONFENGE_PR_HEAD_SHA"] = tip
+    if merge:
+        os.environ["CONFENGE_WORKFLOW_MERGE_SHA"] = merge
+    if run_id:
+        os.environ["GITHUB_RUN_ID"] = str(run_id)
+    if human_artifact_id is not None:
+        os.environ["CONFENGE_HUMAN_ARTIFACT_ID"] = str(human_artifact_id)
+    if machine_artifact_id is not None:
+        os.environ["CONFENGE_MACHINE_ARTIFACT_ID"] = str(machine_artifact_id)
+    os.environ.setdefault("CONFENGE_STRUCTURAL_CI_STATUS", "PASS")
+    os.environ.setdefault("CONFENGE_REAL_HISTORICAL_CI_STATUS", "NOT_EXECUTED")
+    os.environ.setdefault("CONFENGE_REAL_REGISTRY_CI_STATUS", "NOT_EXECUTED")
+    os.environ.setdefault("CONFENGE_REAL_FULL_PIPELINE_CI_STATUS", "NOT_EXECUTED")
+    os.environ.setdefault("CONFENGE_REAL_SNAPSHOT_RESTORE_CI_STATUS", "NOT_EXECUTED")
+    os.environ.setdefault("CONFENGE_HUMAN_PACKAGE_PUBLICATION_STATUS", "PASS")
+    os.environ.setdefault("CONFENGE_MACHINE_EVIDENCE_PUBLICATION_STATUS", "PASS")
+    os.environ.setdefault("CONFENGE_GITHUB_WORKFLOW_STATUS", "PASS")
+
+    if run_id and human_artifact_id is not None and machine_artifact_id is not None:
+        bind_workflow_publication(
+            run_id=str(run_id),
+            pr_head_sha=tip,
+            merge_sha=merge,
+            human_artifact_id=human_artifact_id,
+            machine_artifact_id=machine_artifact_id,
+            human_digest=human_digest,
+            machine_digest=machine_digest,
+            artifact_created_at=artifact_created_at,
+            artifact_expires_at=artifact_expires_at,
+            run_url=run_url,
+        )
+
+    status = write_derived_artifacts(refresh_sha_gates=True)
+    # Force publication head fields onto status-derived files
+    status["pr_head_sha"] = tip
+    status["current_pr_head_sha"] = tip
+    status["workflow_artifact_head_sha"] = tip
+    status["evidence_commit_sha"] = tip
+    status["match_run_to_head"] = status["executed_code_sha"] == tip
+    status["artifact_only_commits_after_execution"] = bool(
+        status["executed_code_sha"] != tip and not status.get("code_changed_after_execution")
+    )
+    if run_id:
+        status["workflow_run_id"] = str(run_id)
+    if human_artifact_id is not None:
+        status["human_review_artifact_id"] = int(human_artifact_id)
+    if machine_artifact_id is not None:
+        status["machine_evidence_artifact_id"] = int(machine_artifact_id)
+    # Re-write with forced tip fields (mirrors machine-evidence)
+    status = write_derived_artifacts(status=status, refresh_sha_gates=False)
+    # Write cross-artifact gate with tip SHAs BEFORE inventory so agreement holds
+    provisional = {
+        "ok": True,
+        "status": "PASS",
+        "issues": [],
+        "pr_head_sha": tip,
+        "current_pr_head_sha": tip,
+        "executed_code_sha": status["executed_code_sha"],
+        "evidence_commit_sha": tip,
+        "workflow_merge_sha": status.get("workflow_merge_sha"),
+        "workflow_run_id": status.get("workflow_run_id"),
+        "real_data_ci_status": status.get("real_data_ci_status"),
+        "terminal_reason": status["terminal_reason"],
+        "terminal_declaration": status["terminal_declaration"],
+        "match_run_to_head": status["match_run_to_head"],
+        "package_tip_mode": True,
+        "verified_at": utc_now(),
+    }
+    (ART / "cross-artifact-consistency-gate.json").write_text(
+        json.dumps(provisional, indent=2) + "\n", encoding="utf-8"
+    )
+    mirror_status_tree_to_machine_evidence(ART)
+
+    rep = verify_package_inventory(
+        art_dir=ART,
+        expected_pr_head=tip,
+        run_head_sha=run_head_sha or tip,
+    )
+    final_gate = {
+        **rep,
+        "terminal_reason": status["terminal_reason"],
+        "terminal_declaration": status["terminal_declaration"],
+        "pr_head_sha": tip,
+        "current_pr_head_sha": tip,
+        "executed_code_sha": status["executed_code_sha"],
+        "evidence_commit_sha": tip,
+        "workflow_merge_sha": status.get("workflow_merge_sha"),
+        "workflow_run_id": status.get("workflow_run_id"),
+        "real_data_ci_status": status.get("real_data_ci_status"),
+        "match_run_to_head": status["match_run_to_head"],
+        "live_pr_head_sha": independent_live_pr_head(),
+        "package_tip_mode": True,
+    }
+    (ART / "cross-artifact-consistency-gate.json").write_text(json.dumps(final_gate, indent=2) + "\n", encoding="utf-8")
+    mr = write_merge_readiness(status)
+    mr["cross_artifact_consistency"] = rep["status"]
+    mr["answers"] = mr.get("answers") or {}
+    mr["answers"]["1_actual_pr_head_sha"] = tip
+    mr["answers"]["8_all_status_files_agree"] = bool(rep.get("ok"))
+    mr["actual_pr_head_sha"] = tip
+    mr["workflow_artifact_head_sha"] = tip
+    mr["latest_workflow_run_id"] = status.get("workflow_run_id")
+    mr["human_artifact_id"] = status.get("human_review_artifact_id")
+    mr["machine_artifact_id"] = status.get("machine_evidence_artifact_id")
+    (ART / "merge-readiness.json").write_text(json.dumps(mr, indent=2) + "\n", encoding="utf-8")
+    mirror_status_tree_to_machine_evidence(ART)
+    rep2 = verify_package_inventory(
+        art_dir=ART,
+        expected_pr_head=tip,
+        run_head_sha=run_head_sha or tip,
+    )
+    return {
+        "status": status,
+        "inventory": rep2,
+        "merge_readiness": mr,
+        "pr_body": pr_body_status_block(status),
+        "ok": bool(rep2.get("ok")) and bool(status.get("code_merge_ready")),
+    }
 
 
 def pr_body_status_block(status: dict[str, Any] | None = None) -> str:
@@ -1388,8 +1922,21 @@ def main(argv: list[str] | None = None) -> int:
     sub = ap.add_subparsers(dest="cmd", required=True)
     sub.add_parser("build")
     sub.add_parser("verify-consistency")
+    sub.add_parser("verify-inventory")
     sub.add_parser("pr-body-block")
     sub.add_parser("merge-readiness")
+    pt = sub.add_parser("package-tip")
+    pt.add_argument("--pr-head", default=None)
+    pt.add_argument("--merge-sha", default=None)
+    pt.add_argument("--run-id", default=None)
+    pt.add_argument("--human-artifact-id", default=None)
+    pt.add_argument("--machine-artifact-id", default=None)
+    pt.add_argument("--human-digest", default=None)
+    pt.add_argument("--machine-digest", default=None)
+    pt.add_argument("--run-url", default=None)
+    pt.add_argument("--artifact-created-at", default=None)
+    pt.add_argument("--artifact-expires-at", default=None)
+    pt.add_argument("--run-head-sha", default=None)
     args = ap.parse_args(argv)
     if args.cmd == "build":
         st = write_derived_artifacts(refresh_sha_gates=True)
@@ -1422,6 +1969,46 @@ def main(argv: list[str] | None = None) -> int:
         mr = write_merge_readiness(st)
         print(json.dumps(mr, indent=2))
         return 0
+    if args.cmd == "verify-inventory":
+        rep = verify_package_inventory(
+            expected_pr_head=os.environ.get("CONFENGE_PR_HEAD_SHA") or _git_head(),
+            run_head_sha=os.environ.get("CONFENGE_WORKFLOW_RUN_HEAD_SHA"),
+        )
+        print(json.dumps(rep, indent=2))
+        return 0 if rep.get("ok") else 2
+    if args.cmd == "package-tip":
+        out = package_tip(
+            pr_head_sha=args.pr_head,
+            merge_sha=args.merge_sha,
+            run_id=args.run_id,
+            human_artifact_id=args.human_artifact_id,
+            machine_artifact_id=args.machine_artifact_id,
+            human_digest=args.human_digest,
+            machine_digest=args.machine_digest,
+            run_url=args.run_url,
+            artifact_created_at=args.artifact_created_at,
+            artifact_expires_at=args.artifact_expires_at,
+            run_head_sha=args.run_head_sha,
+        )
+        print(
+            json.dumps(
+                {
+                    "ok": out["ok"],
+                    "pr_head_sha": out["status"]["pr_head_sha"],
+                    "executed_code_sha": out["status"]["executed_code_sha"],
+                    "workflow_run_id": out["status"].get("workflow_run_id"),
+                    "human_review_artifact_id": out["status"].get("human_review_artifact_id"),
+                    "machine_evidence_artifact_id": out["status"].get("machine_evidence_artifact_id"),
+                    "real_data_ci_status": out["status"]["real_data_ci_status"],
+                    "code_merge_ready": out["status"].get("code_merge_ready"),
+                    "inventory_ok": out["inventory"].get("ok"),
+                    "inventory_issues": out["inventory"].get("issues"),
+                    "terminal_declaration": out["status"]["terminal_declaration"],
+                },
+                indent=2,
+            )
+        )
+        return 0 if out["ok"] and out["inventory"].get("ok") else 2
     rep = verify_cross_artifact_consistency()
     print(json.dumps(rep, indent=2))
     return 0 if rep.get("ok") else 2

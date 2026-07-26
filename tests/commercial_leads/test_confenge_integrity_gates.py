@@ -608,6 +608,116 @@ def test_independent_live_pr_head_not_from_package(monkeypatch) -> None:
     assert fs.independent_live_pr_head() == "envprhead3333333333333333333333333333"
 
 
+def test_iter_package_status_files_includes_machine_evidence_twin(tmp_path) -> None:
+    from scripts.ops.confenge_final_status import iter_package_status_files
+
+    art = tmp_path / "art"
+    me = art / "machine-evidence"
+    me.mkdir(parents=True)
+    (art / "result.json").write_text("{}\n")
+    (art / "sha-semantics-gate.json").write_text("{}\n")
+    (me / "sha-semantics-gate.json").write_text("{}\n")
+    (me / "post-execution-artifact-only-diff-gate.json").write_text("{}\n")
+    paths = {p.name for p in iter_package_status_files(art)}
+    rels = {str(p.relative_to(art)) for p in iter_package_status_files(art)}
+    assert "result.json" in paths
+    assert "sha-semantics-gate.json" in paths
+    assert "machine-evidence/sha-semantics-gate.json" in rels
+    assert "machine-evidence/post-execution-artifact-only-diff-gate.json" in rels
+
+
+def test_write_mirrors_and_purges_dummy_machine_evidence_gates(tmp_path, monkeypatch) -> None:
+    """One write clears dummy SHAs under machine-evidence/ and mirrors root."""
+    from scripts.ops import confenge_final_status as fs
+
+    art = tmp_path / "art"
+    me = art / "machine-evidence"
+    me.mkdir(parents=True)
+    monkeypatch.setattr(fs, "ART", art)
+    monkeypatch.setattr(fs, "_git_head", lambda: "livehead11111111111111111111111111111111")
+    (art / "EXECUTED_CODE_SHA.txt").write_text("execsha22222222222222222222222222222222\n")
+    (art / "FINAL_INTEGRITY_CODE_FREEZE_SHA.txt").write_text("execsha22222222222222222222222222222222\n")
+    for name, body in (
+        ("full-pipeline-e2e-reproducibility-gate.json", '{"ok": true, "status": "PASS"}'),
+        ("downstream-reproducibility-gate.json", '{"ok": true, "status": "PASS"}'),
+        (
+            "offer-sensitivity-gate.json",
+            '{"ok": true, "status": "PASS", "diagnose": {"block": null, '
+            '"robust_quantitative_justification": true, '
+            '"explanation": {"catalog_degenerate": false}}}',
+        ),
+        (
+            "offer-discrimination-gate.json",
+            '{"ok": true, "status": "PASS", "diagnose": {"block": null, '
+            '"robust_quantitative_justification": true, '
+            '"explanation": {"catalog_degenerate": false}}}',
+        ),
+        (
+            "human-review-packages-gate.json",
+            '{"ok": true, "status": "PACKAGES_READY", "published_as_workflow_artifact": true}',
+        ),
+        ("real-corpus-provenance-gate.json", '{"ok": true, "status": "PASS"}'),
+        (
+            "registry-universe-gate.json",
+            '{"ok": false, "status": "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE", "official_coverage": 0.053}',
+        ),
+        ("historical-window-gate.json", '{"ok": true, "status": "PASS"}'),
+        ("restored-snapshot-verify.json", '{"ok": true}'),
+        (
+            "final-integrity-code-freeze-gate.json",
+            json.dumps(
+                {
+                    "ok": True,
+                    "executed_code_sha": "execsha22222222222222222222222222222222",
+                    "final_integrity_code_freeze_sha": "execsha22222222222222222222222222222222",
+                    "final_code_freeze_sha": "execsha22222222222222222222222222222222",
+                    "pr_head_sha": "livehead11111111111111111111111111111111",
+                    "current_pr_head_sha": "livehead11111111111111111111111111111111",
+                    "artifact_only_commits_after_execution": True,
+                    "code_changed_after_execution": False,
+                    "non_artifact_files_changed_after_execution": [],
+                }
+            ),
+        ),
+        (
+            "sha-semantics-gate.json",
+            json.dumps(
+                {
+                    "ok": True,
+                    "status": "PASS",
+                    "executed_code_sha": "execsha22222222222222222222222222222222",
+                    "current_pr_head_sha": "livehead11111111111111111111111111111111",
+                    "pr_head_sha": "livehead11111111111111111111111111111111",
+                }
+            ),
+        ),
+    ):
+        (art / name).write_text(body + "\n")
+    # Plant dummy twin + orphan
+    (me / "sha-semantics-gate.json").write_text(
+        json.dumps(
+            {
+                "ok": True,
+                "status": "PASS",
+                "executed_code_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                "current_pr_head_sha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            }
+        )
+        + "\n"
+    )
+    (me / "orphan-only-gate.json").write_text('{"ok": true}\n')
+
+    fs.write_derived_artifacts(refresh_sha_gates=False)
+    result = json.loads((art / "result.json").read_text())
+    twin = json.loads((me / "sha-semantics-gate.json").read_text())
+    assert twin["executed_code_sha"] == result["executed_code_sha"]
+    assert twin["executed_code_sha"] != "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    assert not (me / "orphan-only-gate.json").exists()
+    # Inventory must not report dummies
+    inv = fs.load_inventory_json(art)
+    assert not fs.inventory_dummy_sha_issues(inv)
+
+
 def test_cross_artifact_fails_on_stale_post_execution_gate_shas() -> None:
     """§5: post-execution gate with old freeze/pr SHAs must fail cross-artifact."""
     from scripts.ops.confenge_final_status import collect_cross_artifact_issues

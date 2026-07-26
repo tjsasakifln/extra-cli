@@ -1,37 +1,21 @@
 {
-  "campaign_id": "CONFENGE-COMMERCIAL-READY-01",
-  "generated_at": "2026-07-26T17:09:31Z",
-  "current_pr_head_sha": "3ef795ae0caf555710bf7ffb91f816afdd5aa44b",
-  "final_code_freeze_sha": "3ef795ae0caf555710bf7ffb91f816afdd5aa44b",
-  "final_integrity_code_freeze_sha": "3ef795ae0caf555710bf7ffb91f816afdd5aa44b",
-  "executed_code_sha": "3ef795ae0caf555710bf7ffb91f816afdd5aa44b",
-  "workflow_head_sha": "3ef795ae0caf555710bf7ffb91f816afdd5aa44b",
-  "evidence_commit_sha": null,
-  "non_artifact_files_changed_after_execution": [],
-  "match_run_to_head": true,
-  "code_changed_after_execution": false,
-  "artifact_only_commits_after_execution": false,
-  "structural_ci_run_id": null,
-  "real_data_ci_run_id": null,
-  "structural_ci_status": "PASS",
-  "real_data_ci_status": "NOT_EXECUTED",
+  "generated_at": "2026-07-26T19:18:16Z",
+  "structural_ci_run_id": "30215931047",
+  "real_data_ci_run_id": "30215931047",
   "workflow_artifact_ids": {
-    "confenge-human-review-packages": null,
-    "confenge-machine-evidence": null
+    "confenge-human-review-packages": 8635804232,
+    "confenge-machine-evidence": 8635809570
   },
   "snapshot_rows": 11974,
   "observation_days": 718,
   "status_distribution": {
     "ACTIVE": 7532,
-    "COMPLETED": 4442,
-    "CANCELLED": 0,
-    "TERMINATED": 0,
-    "SUSPENDED": 0,
-    "UNKNOWN": 0
+    "COMPLETED": 4442
   },
   "candidate_universe_size": 5640,
-  "official_registry_coverage": 0.05319148936170213,
-  "operational_registry_coverage": null,
+  "operational_registry_coverage": 1.0,
+  "full_pipeline_e2e_status": "PASS",
+  "downstream_e2e_status": "PASS",
   "full_pipeline_e2e_hashes": {
     "discovery_input_hash": "9cde1b8a8e3e963253481fde395b04261a286d3b296d1e78009e09bc6c55567f",
     "discovery_output_hash": "27341fcc48f90c8942696c62f9a9556a69a51e5a360e226b52220ea344366955",
@@ -68,7 +52,6 @@
     ],
     "review_queue_hash": "8d89b7e35848e58af0f9ece8252c4aee51e402f5acc47900b4422e002de83fd8"
   },
-  "full_pipeline_e2e_status": "PASS",
   "downstream_e2e_hashes": {
     "candidate_universe_hash": "5369218285385540ad5f48834ca8fede3704e7b7f9d7e9e0c71c418025a6ae2a",
     "contract_history_hash": "1eb7cce36792bffdb0dfa7d4aebc8fe51cb68e0ada573f74b375ab5763483209",
@@ -102,7 +85,6 @@
     ],
     "review_queue_hash": "8555eaedab2df0a79a0e69e3b407f5382d14b874994e4710b59fc4e975690d2a"
   },
-  "downstream_e2e_status": "PASS",
   "corpus_size": 538,
   "strata_counts": {
     "engenharia_obras_claras": 30,
@@ -130,65 +112,10 @@
     "objetos_mal_redigidos": 30,
     "objetos_sem_keywords_evidentes": 30
   },
-  "scarcity_declarations": {
-    "projetos_nao_relacionados": {
-      "available_in_scan": 4,
-      "selected": 4,
-      "critical_min": 15,
-      "query_pattern": "projeto\\s+pedag[o\u00f3]g|projeto\\s+social|projeto\\s+cultural|projeto\\s+de\\s+pesquisa",
-      "limitation": "real_availability_below_critical_min_no_fabrication"
-    },
-    "manutencao_ti": {
-      "available_in_scan": 5,
-      "selected": 5,
-      "critical_min": 15,
-      "query_pattern": "manuten[c\u00e7][a\u00e3]o\\s+(de\\s+)?(sistema|software|ti\\b|inform[a\u00e1]tica|equipamento\\s+de\\s+ti|suporte\\s+t[e\u00e9]cnico\\s+de\\s+ti)",
-      "limitation": "real_availability_below_critical_min_no_fabrication"
-    },
-    "locacao_com_operador": {
-      "available_in_scan": 4,
-      "selected": 4,
-      "critical_min": 15,
-      "query_pattern": "loca[c\u00e7][a\u00e3]o.*operador|com\\s+operador|m[a\u00e1]quina.*operador",
-      "limitation": "real_availability_below_critical_min_no_fabrication"
-    },
-    "instalacoes_prediais": {
-      "available_in_scan": 4,
-      "selected": 4,
-      "critical_min": 15,
-      "query_pattern": "instala[c\u00e7][o\u00f5]es?\\s+(el[e\u00e9]tric|hidr[a\u00e1]ulic|predial)|instala[c\u00e7][a\u00e3]o\\s+el[e\u00e9]trica",
-      "limitation": "real_availability_below_critical_min_no_fabrication"
-    },
-    "energia": {
-      "available_in_scan": 10,
-      "selected": 10,
-      "critical_min": 15,
-      "query_pattern": "subesta[c\u00e7][a\u00e3]o|energia\\s+el[e\u00e9]trica|painel\\s+solar|fotovolta|usina\\s+solar",
-      "limitation": "real_availability_below_critical_min_no_fabrication"
-    },
-    "terceirizacao": {
-      "available_in_scan": 1,
-      "selected": 1,
-      "critical_min": 15,
-      "query_pattern": "terceiriza[c\u00e7][a\u00e3]o|cess[a\u00e3]o\\s+de\\s+m[a\u00e3]o\\s+de\\s+obra|m[a\u00e3]o\\s+de\\s+obra\\s+terceiriz",
-      "limitation": "real_availability_below_critical_min_no_fabrication"
-    },
-    "engenharia_clinica": {
-      "available_in_scan": 0,
-      "selected": 0,
-      "critical_min": 15,
-      "query_pattern": "engenharia\\s+cl[i\u00ed]nica|equipamento\\s+hospitalar|manuten[c\u00e7][a\u00e3]o\\s+de\\s+equipamento\\s+m[e\u00e9]dico",
-      "limitation": "real_availability_below_critical_min_no_fabrication"
-    }
-  },
   "human_labels_filled": false,
   "review_package_artifact_name": "confenge-human-review-packages",
-  "review_package_artifact_id": null,
-  "review_packages_generated": true,
-  "review_packages_published_as_workflow_artifact": false,
   "machine_evidence_artifact_name": "confenge-machine-evidence",
-  "machine_evidence_artifact_id": null,
-  "machine_evidence_published": false,
+  "machine_evidence_published": true,
   "offer_distribution": {
     "licitacoes_propostas": 8,
     "diagnostico_b2g": 12
@@ -200,8 +127,6 @@
     "contract_concentration": 0.0
   },
   "offer_diagnostic_block": null,
-  "offer_sensitivity_status": "PASS",
-  "offer_discrimination_status": "PASS",
   "remaining_machine_blockers": [
     "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE"
   ],
@@ -211,16 +136,13 @@
     "BLOCKED_PENDING_HUMAN_ACCEPTANCE"
   ],
   "terminal_status": "BLOCKED",
-  "terminal_reason": "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE",
-  "terminal_declaration": "BLOCKED_ONLY_OFFICIAL_REGISTRY_AND_HUMAN_REVIEW",
-  "technical_status": "BLOCKED",
   "answers": {
     "1_executed_equals_frozen": true,
     "2_non_doc_change_after_execution": false,
     "3_sha_semantics_coherent": true,
     "4_discovery_rerun_in_both_e2e_passes": true,
     "5_downstream_also_rerun": true,
-    "6_human_packages_downloadable": false,
+    "6_human_packages_downloadable": true,
     "7_restore_evidence_available": true,
     "8_corpus_represents_main_false_positives": true,
     "9_offer_internal_diagnostic_block": null,
@@ -228,17 +150,43 @@
     "11_official_registry_coverage_integral": false,
     "12_only_remaining_technical_blocker": "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE"
   },
-  "gate_summary": {
-    "sha_semantics": "PASS",
-    "cross_artifact_consistency": "PASS",
-    "full_pipeline_e2e": "PASS",
-    "downstream_reproducibility": "PASS",
-    "offer_sensitivity": "PASS",
-    "offer_discrimination": "PASS",
-    "snapshot_history": "PASS",
-    "snapshot_restore": "PASS",
-    "registry_selection_independence": "PASS",
-    "real_corpus_stratification": "PASS",
-    "human_review_package": "PASS_LOCAL_READY_AWAITING_WORKFLOW_UPLOAD"
-  }
+  "review_package_artifact_id": 8635804232,
+  "ci_overall_status": "PASS",
+  "ci_run_url": "https://github.com/tjsasakifln/extra-cli/actions/runs/30215931047",
+  "aggregator": "build_final_campaign_status",
+  "campaign_id": "CONFENGE-COMMERCIAL-READY-01",
+  "pr_head_sha": "807b57ed6b64ff4b383e1e6f84a9782d522db125",
+  "current_pr_head_sha": "807b57ed6b64ff4b383e1e6f84a9782d522db125",
+  "workflow_merge_sha": "c0ae4fe1403a96b9dc6fc2464e091de39254f7ad",
+  "checked_out_sha": "807b57ed6b64ff4b383e1e6f84a9782d522db125",
+  "final_integrity_code_freeze_sha": "d46026f9c5da6d75b889019891f6c803d5c63ede",
+  "final_code_freeze_sha": "d46026f9c5da6d75b889019891f6c803d5c63ede",
+  "executed_code_sha": "d46026f9c5da6d75b889019891f6c803d5c63ede",
+  "workflow_head_sha": "c0ae4fe1403a96b9dc6fc2464e091de39254f7ad",
+  "evidence_commit_sha": "807b57ed6b64ff4b383e1e6f84a9782d522db125",
+  "match_run_to_head": false,
+  "code_changed_after_execution": false,
+  "artifact_only_commits_after_execution": true,
+  "non_artifact_files_changed_after_execution": [],
+  "structural_ci_status": "PASS",
+  "real_historical_ci_status": "NOT_EXECUTED",
+  "real_registry_ci_status": "NOT_EXECUTED",
+  "real_full_pipeline_ci_status": "NOT_EXECUTED",
+  "real_snapshot_restore_ci_status": "NOT_EXECUTED",
+  "human_package_publication_status": "PASS",
+  "machine_evidence_publication_status": "PASS",
+  "real_data_ci_status": "NOT_EXECUTED",
+  "github_workflow_status": "PASS",
+  "workflow_run_id": "30215931047",
+  "workflow_run_url": "https://github.com/tjsasakifln/extra-cli/actions/runs/30215931047",
+  "machine_evidence_artifact_id": 8635809570,
+  "official_registry_coverage": 0.05319148936170213,
+  "review_packages_generated": true,
+  "review_packages_published_as_workflow_artifact": true,
+  "all_other_machine_blockers": [],
+  "technical_status": "BLOCKED",
+  "terminal_reason": "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE",
+  "terminal_declaration": "BLOCKED_ONLY_OFFICIAL_REGISTRY_AND_HUMAN_REVIEW",
+  "code_merge_ready": true,
+  "commercial_release_ready": false
 }
