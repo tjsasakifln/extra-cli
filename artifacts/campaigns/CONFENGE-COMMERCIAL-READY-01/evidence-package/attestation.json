@@ -1,24 +1,24 @@
 {
-  "executed_code_sha": "3b71e6afa6e195d8769ff70bd15624623c296458",
-  "executed_git_sha": "3b71e6afa6e195d8769ff70bd15624623c296458",
-  "current_pr_head_sha": "3b71e6afa6e195d8769ff70bd15624623c296458",
-  "evidence_commit_sha": "3b71e6afa6e195d8769ff70bd15624623c296458",
+  "executed_code_sha": "8ae887869739fbb0cf5e5429ecbf88428c9d7a5f",
+  "executed_git_sha": "8ae887869739fbb0cf5e5429ecbf88428c9d7a5f",
+  "current_pr_head_sha": "8ae887869739fbb0cf5e5429ecbf88428c9d7a5f",
+  "evidence_commit_sha": "8ae887869739fbb0cf5e5429ecbf88428c9d7a5f",
   "workflow_run_id": null,
   "execution_environment": "local",
   "machine_id_hash": "35b96cb98ef8f0ad",
   "command": "make package-confenge-commercial-evidence",
-  "started_at": "2026-07-26T01:59:52.183202+00:00",
-  "finished_at": "2026-07-26T01:59:52.183234+00:00",
+  "started_at": "2026-07-26T02:19:11.019273+00:00",
+  "finished_at": "2026-07-26T02:19:11.019302+00:00",
   "exit_code": 0,
-  "created_at": "2026-07-26T01:59:52.183202+00:00",
+  "created_at": "2026-07-26T02:19:11.019273+00:00",
   "checksums": {
     "result.json": {
       "exists": true,
-      "sha256": "654ba8eee9467678b8e5767f9dcedb7e2501b6e2b11cacfdc2700817a1c3c4b5"
+      "sha256": "9eff79895e3ca22d7749f5ef0bade60b45e14bb01bcbf104125c7cb0f14873fc"
     },
     "queue-summary.json": {
       "exists": true,
-      "sha256": "08bab1fc3f20d1d2d8b92f294fcb97eb98ec1b2370ccc8e27b560d8974aedcbd"
+      "sha256": "9ce14ebc8277ba5ed8a4a8aaade795cb749bd1954b9fd6e25ad76564c28b241a"
     },
     "denominator-integrity.json": {
       "exists": true,
@@ -50,11 +50,11 @@
     },
     "registry-coverage-gate.json": {
       "exists": true,
-      "sha256": "2515d2460f760318be7334495e0d2891a7e688d196dc3701cb85b4193a8ae7bd"
+      "sha256": "b0b3b9e1022deb4ec186d10844b65aefc8f63d080ffb5ae27f6bc6a13f449c67"
     },
     "registry-selection-independence-gate.json": {
       "exists": true,
-      "sha256": "d4482b012e406269bb2ba04884f803c17d9148284880812c36dee0d72d9ea2ab"
+      "sha256": "aa8adc991d0c9b4b309e6a6e44461792b4187a0d12add1f5fef583f115c939ac"
     },
     "historical-window-gate.json": {
       "exists": true,
@@ -74,9 +74,9 @@
     },
     "evidence-provenance-gate.json": {
       "exists": true,
-      "sha256": "3575ffaec563d72b1e2bff7a4646d98097ab8572e007bc2074581c789906a3e9"
+      "sha256": "d391955e68be9157d86d6dee44f5fa17371eaf90e1d0f253d9fa327c82d8f49b"
     }
   },
   "note": "Execution provenance package. Checksums alone without executed_code_sha and environment are not a valid attestation.",
-  "evidence_package_hash": "445b6e0725d18dfcea56011f74c919a8a43a868989efad433b66f7a8e5a530a7"
+  "evidence_package_hash": "9368944cefaf3de728611964af67406e8128d3444bce707a3e1725bdebe2d661"
 }

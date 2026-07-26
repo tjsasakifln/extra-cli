@@ -1,11 +1,47 @@
 {
-  "ok": true,
-  "method": "live_db_supplier_registry_lookup",
-  "top20_n": 20,
-  "with_registry": 20,
-  "coverage": 1.0,
+  "rule_version": "supplier-registry-v1",
+  "generated_at": "2026-07-26T02:18:59Z",
+  "registry_coverage_all_candidates": {
+    "n": 7250,
+    "with_registry": 7250,
+    "coverage": 1.0,
+    "cnae_primary_coverage": 1.0,
+    "cnae_secondary_coverage": 0.9457,
+    "status": "OK"
+  },
+  "registry_coverage_top100": {
+    "n": 100,
+    "with_registry": 100,
+    "coverage": 1.0,
+    "cnae_primary_coverage": 1.0,
+    "cnae_secondary_coverage": 0.93,
+    "status": "OK"
+  },
+  "registry_coverage_top20": {
+    "n": 20,
+    "with_registry": 20,
+    "coverage": 1.0,
+    "cnae_primary_coverage": 1.0,
+    "cnae_secondary_coverage": 1.0,
+    "status": "OK"
+  },
   "cnae_primary_coverage": 1.0,
-  "missing": [],
-  "no_cnae": [],
-  "block": null
+  "cnae_secondary_coverage": 0.9457,
+  "registry_freshness": {
+    "min_source_date": "2026-07-25",
+    "max_source_date": "2026-07-25"
+  },
+  "top20_coverage_100pct": true,
+  "registry_universe_resolved": true,
+  "registry_resolved_or_definitively_not_found": 1.0,
+  "registry_resolution_status_counts": {
+    "RESOLVED": 7250
+  },
+  "missing_candidates_sample": [],
+  "missing_candidates_n": 0,
+  "block_reason": null,
+  "selection_bias_risk": false,
+  "live_top20_rows": 20,
+  "ok": true,
+  "method": "universe_registry_coverage_before_publication"
 }

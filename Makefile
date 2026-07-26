@@ -495,6 +495,14 @@ resume-confenge-registry-ingestion:
 verify-supplier-registry-coverage:
 	python3 -m scripts.ops.confenge_make_gates registry-coverage
 
+
+rerank-confenge-after-registry:
+	@test -n "$$CONFENGE_COMMERCIAL_STATE_DSN" || (echo 'CONFENGE_COMMERCIAL_STATE_DSN required' && exit 1)
+	python3 -m scripts.ops.confenge_rerank_after_registry \
+		--dsn "$$CONFENGE_COMMERCIAL_STATE_DSN" \
+		--run-result $(CONFENGE_COMMERCIAL_OUT)/run-result.json \
+		--out $(CONFENGE_COMMERCIAL_ART)/rerank-after-registry.json
+
 verify-confenge-registry-universe:
 	python3 -m scripts.ops.confenge_make_gates registry-universe
 

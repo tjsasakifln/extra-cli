@@ -1,0 +1,227 @@
+{
+  "catalog_version": "1.0.0",
+  "signals": [
+    {
+      "id": "first_public_contract",
+      "hypothesis": "Empresa com primeiro contrato público recente pode ter baixa maturidade B2G observável.",
+      "formula": "first_publication_date within recent_window AND contract_count_total <= 2",
+      "required_fields": [
+        "data_publicacao",
+        "fornecedor_cnpj",
+        "valor_total"
+      ],
+      "window_days": 365,
+      "threshold": "first contract within 365d and total contracts <= 2",
+      "direction": "higher_is_stronger",
+      "confidence": "medium",
+      "offer": "diagnostico_b2g",
+      "not_computable_when": "missing data_publicacao for all contracts"
+    },
+    {
+      "id": "ticket_above_history",
+      "hypothesis": "Ticket materialmente acima da mediana histórica da própria empresa indica salto de complexidade.",
+      "formula": "max(valor_total recent) >= median(valor_total prior) * ticket_vs_median_ratio AND max >= material_ticket",
+      "required_fields": [
+        "valor_total",
+        "data_publicacao"
+      ],
+      "window_days": 180,
+      "threshold": "ratio >= 3.0 vs own median",
+      "direction": "higher_is_stronger",
+      "confidence": "medium",
+      "offer": "apoio_proposta",
+      "not_computable_when": "fewer than 3 historical contracts with valor_total"
+    },
+    {
+      "id": "quantity_growth",
+      "hypothesis": "Crescimento acelerado de quantidade de contratos sugere operação B2G em expansão.",
+      "formula": "count(recent) >= growth_ratio * count(prior) AND count(recent) >= 2",
+      "required_fields": [
+        "data_publicacao"
+      ],
+      "window_days": 180,
+      "threshold": "ratio >= 2.0",
+      "direction": "higher_is_stronger",
+      "confidence": "medium",
+      "offer": "monitoramento",
+      "not_computable_when": "prior window empty or dates missing"
+    },
+    {
+      "id": "value_growth",
+      "hypothesis": "Crescimento de valor contratado sugere maior exposição e necessidade de gestão.",
+      "formula": "sum(valor recent) >= growth_ratio * sum(valor prior) AND sum(recent) >= material_ticket",
+      "required_fields": [
+        "valor_total",
+        "data_publicacao"
+      ],
+      "window_days": 180,
+      "threshold": "ratio >= 2.0",
+      "direction": "higher_is_stronger",
+      "confidence": "medium",
+      "offer": "monitoramento",
+      "not_computable_when": "missing valor_total in either window"
+    },
+    {
+      "id": "new_agency",
+      "hypothesis": "Entrada em novo órgão amplia complexidade relacional e de compliance.",
+      "formula": "exists orgao in recent not in prior",
+      "required_fields": [
+        "orgao_cnpj",
+        "orgao_nome",
+        "data_publicacao"
+      ],
+      "window_days": 180,
+      "threshold": ">=1 new agency",
+      "direction": "higher_is_stronger",
+      "confidence": "medium",
+      "offer": "diagnostico_b2g",
+      "not_computable_when": "agency identifiers missing"
+    },
+    {
+      "id": "new_region",
+      "hypothesis": "Entrada em nova UF indica expansão geográfica observável.",
+      "formula": "exists uf in recent not in prior",
+      "required_fields": [
+        "uf",
+        "data_publicacao"
+      ],
+      "window_days": 180,
+      "threshold": ">=1 new UF",
+      "direction": "higher_is_stronger",
+      "confidence": "medium",
+      "offer": "diagnostico_b2g",
+      "not_computable_when": "uf missing on contracts"
+    },
+    {
+      "id": "new_object_category",
+      "hypothesis": "Nova categoria de objeto indica diversificação operacional.",
+      "formula": "exists object keyword bucket in recent not in prior",
+      "required_fields": [
+        "objeto_contrato",
+        "data_publicacao"
+      ],
+      "window_days": 180,
+      "threshold": ">=1 new category",
+      "direction": "higher_is_stronger",
+      "confidence": "low",
+      "offer": "analise_edital",
+      "not_computable_when": "objeto_contrato missing"
+    },
+    {
+      "id": "concurrent_portfolio",
+      "hypothesis": "Carteira simultânea relevante indica carga administrativa.",
+      "formula": "count(active contracts with data_fim >= as_of or null with recent start) >= concurrent_min",
+      "required_fields": [
+        "data_inicio",
+        "data_fim"
+      ],
+      "window_days": 365,
+      "threshold": ">=3 concurrent",
+      "direction": "higher_is_stronger",
+      "confidence": "medium",
+      "offer": "acompanhamento_admin",
+      "not_computable_when": "both data_inicio and data_fim missing"
+    },
+    {
+      "id": "agency_concentration",
+      "hypothesis": "Concentração em um órgão eleva risco de dependência e complexidade de relacionamento.",
+      "formula": "max_orgao_value_share >= agency_concentration_share",
+      "required_fields": [
+        "orgao_cnpj",
+        "valor_total"
+      ],
+      "window_days": 365,
+      "threshold": "share >= 0.70",
+      "direction": "higher_is_stronger",
+      "confidence": "medium",
+      "offer": "acompanhamento_admin",
+      "not_computable_when": "orgao or valor missing"
+    },
+    {
+      "id": "contract_concentration",
+      "hypothesis": "Concentração em um único contrato eleva risco operacional.",
+      "formula": "max_contract_value_share >= contract_concentration_share",
+      "required_fields": [
+        "contrato_id",
+        "valor_total"
+      ],
+      "window_days": 365,
+      "threshold": "share >= 0.50",
+      "direction": "higher_is_stronger",
+      "confidence": "medium",
+      "offer": "acompanhamento_admin",
+      "not_computable_when": "valor_total missing"
+    },
+    {
+      "id": "near_expiry",
+      "hypothesis": "Contratos próximos do término abrem janela de renovação/relicitação.",
+      "formula": "exists data_fim in [as_of, as_of+near_expiry_days]",
+      "required_fields": [
+        "data_fim"
+      ],
+      "window_days": 120,
+      "threshold": "ending within 120d",
+      "direction": "higher_is_stronger",
+      "confidence": "high",
+      "offer": "monitoramento",
+      "not_computable_when": "data_fim missing for all contracts"
+    },
+    {
+      "id": "addendum_recurrence",
+      "hypothesis": "Recorrência de aditivos/prorrogações (atos oficiais) indica gestão contratual complexa.",
+      "formula": "count(official_acts of type addendum/extension linked to supplier) >= 2",
+      "required_fields": [
+        "official_acts linkage"
+      ],
+      "window_days": 730,
+      "threshold": ">=2 acts",
+      "direction": "higher_is_stronger",
+      "confidence": "low",
+      "offer": "acompanhamento_admin",
+      "not_computable_when": "no official_acts data for supplier"
+    },
+    {
+      "id": "adverse_event",
+      "hypothesis": "Evento adverso publicado oficialmente (não acusatório) exige atenção consultiva.",
+      "formula": "exists official adverse act linked to supplier",
+      "required_fields": [
+        "official_acts"
+      ],
+      "window_days": 730,
+      "threshold": ">=1 adverse act with official URL",
+      "direction": "higher_is_stronger",
+      "confidence": "low",
+      "offer": "diagnostico_b2g",
+      "not_computable_when": "no official_acts coverage"
+    },
+    {
+      "id": "diversity_increase",
+      "hypothesis": "Aumento de diversidade de órgãos indica expansão da operação B2G.",
+      "formula": "count(distinct orgao recent) - count(distinct orgao prior) >= diversity_new_organs_min",
+      "required_fields": [
+        "orgao_cnpj",
+        "data_publicacao"
+      ],
+      "window_days": 180,
+      "threshold": "delta >= 2",
+      "direction": "higher_is_stronger",
+      "confidence": "medium",
+      "offer": "monitoramento",
+      "not_computable_when": "agency ids missing"
+    },
+    {
+      "id": "win_recurrence",
+      "hypothesis": "Recorrência de contratos/vitórias indica volume onde consultoria pode gerar eficiência.",
+      "formula": "count(contracts in recent+prior windows) >= win_recurrence_min",
+      "required_fields": [
+        "data_publicacao"
+      ],
+      "window_days": 365,
+      "threshold": ">=3 contracts",
+      "direction": "higher_is_stronger",
+      "confidence": "medium",
+      "offer": "apoio_proposta",
+      "not_computable_when": "dates missing"
+    }
+  ]
+}

@@ -1,0 +1,645 @@
+{
+  "language_note": "Comparação usa labels humanas quando disponíveis. Jaccard sozinho NÃO prova qualidade comercial.",
+  "proposed_count": 20,
+  "proposed_cnpjs": [
+    "12253900000120",
+    "95257945000108",
+    "27254414000101",
+    "19648512000197",
+    "38517835000196",
+    "45145494000130",
+    "15247296000117",
+    "07192929000109",
+    "52067902000149",
+    "62913677000178",
+    "29084108000191",
+    "22798043000105",
+    "20123886000178",
+    "00472805000138",
+    "00220982000127",
+    "61608477000149",
+    "06145928000140",
+    "03094645000129",
+    "22835076000170",
+    "10249046000100"
+  ],
+  "baselines": {
+    "by_value": [
+      {
+        "rank": 1,
+        "cnpj14": "63800186000183",
+        "razao_social": "INFINITY INFRA EDUCACIONAL S.A.",
+        "metric": "total_value_contracted",
+        "metric_value": 2833610421.43
+      },
+      {
+        "rank": 2,
+        "cnpj14": "44120297000102",
+        "razao_social": "BR FRANCO CONSTRUCOES LTDA",
+        "metric": "total_value_contracted",
+        "metric_value": 883350149.59
+      },
+      {
+        "rank": 3,
+        "cnpj14": "16432951000170",
+        "razao_social": "LASANT CONSTRUCOES LTDA",
+        "metric": "total_value_contracted",
+        "metric_value": 620857200.0
+      },
+      {
+        "rank": 4,
+        "cnpj14": "64873827000192",
+        "razao_social": "CONSÓRCIO DESENVOLVE SAUDE HCFMRP",
+        "metric": "total_value_contracted",
+        "metric_value": 604989320.96
+      },
+      {
+        "rank": 5,
+        "cnpj14": "10547330000155",
+        "razao_social": "HYDRA ENGENHARIA E SANEAMENTO LTDA",
+        "metric": "total_value_contracted",
+        "metric_value": 598587483.38
+      },
+      {
+        "rank": 6,
+        "cnpj14": "53275036000144",
+        "razao_social": "VECCI CONSTRUCOES LTDA",
+        "metric": "total_value_contracted",
+        "metric_value": 589759565.52
+      },
+      {
+        "rank": 7,
+        "cnpj14": "55951227000104",
+        "razao_social": "B. RANGEL ENGENHARIA LTDA",
+        "metric": "total_value_contracted",
+        "metric_value": 583350149.59
+      },
+      {
+        "rank": 8,
+        "cnpj14": "59134233000120",
+        "razao_social": "HONRA ENGENHARIA LTDA",
+        "metric": "total_value_contracted",
+        "metric_value": 583350149.59
+      },
+      {
+        "rank": 9,
+        "cnpj14": "63970934000176",
+        "razao_social": "CONSÓRCIO CONSTRUTOR PR-466 - PORTO UBÁ",
+        "metric": "total_value_contracted",
+        "metric_value": 558590020.0
+      },
+      {
+        "rank": 10,
+        "cnpj14": "65766119000115",
+        "razao_social": "LUZ DE BAURU SPE S.A",
+        "metric": "total_value_contracted",
+        "metric_value": 466260903.0
+      },
+      {
+        "rank": 11,
+        "cnpj14": "66148259000192",
+        "razao_social": "CONSÓRCIO RESTAURAÇÃO RODOVIA PR-272",
+        "metric": "total_value_contracted",
+        "metric_value": 384000000.0
+      },
+      {
+        "rank": 12,
+        "cnpj14": "54686528000195",
+        "razao_social": "ALESSANDRA S. PAULA ROSA LTDA",
+        "metric": "total_value_contracted",
+        "metric_value": 382656066.0
+      },
+      {
+        "rank": 13,
+        "cnpj14": "64686335000198",
+        "razao_social": "CONSÓRCIO IVAÍ SETEP II",
+        "metric": "total_value_contracted",
+        "metric_value": 350000000.0
+      },
+      {
+        "rank": 14,
+        "cnpj14": "19230918000155",
+        "razao_social": "GUAXIMA ENGENHARIA LTDA   EPP",
+        "metric": "total_value_contracted",
+        "metric_value": 326128629.57
+      },
+      {
+        "rank": 15,
+        "cnpj14": "01901632000199",
+        "razao_social": "FALK CONSTRUTORA LTDA",
+        "metric": "total_value_contracted",
+        "metric_value": 307066813.39
+      },
+      {
+        "rank": 16,
+        "cnpj14": "28040114000184",
+        "razao_social": "META TERRAPLANAGEM E LOGISTICA LTDA",
+        "metric": "total_value_contracted",
+        "metric_value": 305315364.59
+      },
+      {
+        "rank": 17,
+        "cnpj14": "20999087000160",
+        "razao_social": "TERRACOTA ENGENHARIA LTDA",
+        "metric": "total_value_contracted",
+        "metric_value": 304422153.29
+      },
+      {
+        "rank": 18,
+        "cnpj14": "28777689000184",
+        "razao_social": "SCS ENGENHARIA  SEGURANCA DO TRABALHO LTDA",
+        "metric": "total_value_contracted",
+        "metric_value": 300560773.49
+      },
+      {
+        "rank": 19,
+        "cnpj14": "12082620000104",
+        "razao_social": "VAGNER RODRIGUES DA SILVA - RS CONSTRUTORA LTDA",
+        "metric": "total_value_contracted",
+        "metric_value": 300000000.0
+      },
+      {
+        "rank": 20,
+        "cnpj14": "15204568000100",
+        "razao_social": "CONSTRUTORA MACHADO ALVES LTDA",
+        "metric": "total_value_contracted",
+        "metric_value": 300000000.0
+      }
+    ],
+    "by_recency": [
+      {
+        "rank": 1,
+        "cnpj14": "95024857000158",
+        "razao_social": "LED CONSTRUTORA E URBANIZADORA LTDA. - ME",
+        "metric": "last_publication",
+        "metric_value": "2026-07-23"
+      },
+      {
+        "rank": 2,
+        "cnpj14": "92746882000157",
+        "razao_social": "DEVAL MATERIAL DE CONSTRUCAO EIRELI   ME",
+        "metric": "last_publication",
+        "metric_value": "2026-07-23"
+      },
+      {
+        "rank": 3,
+        "cnpj14": "80237555000190",
+        "razao_social": "ANTONIO MORO & CIA LTDA",
+        "metric": "last_publication",
+        "metric_value": "2026-07-23"
+      },
+      {
+        "rank": 4,
+        "cnpj14": "63315649000111",
+        "razao_social": "63.615.649 FABIO JUNIOR NUNES DA SILVA",
+        "metric": "last_publication",
+        "metric_value": "2026-07-23"
+      },
+      {
+        "rank": 5,
+        "cnpj14": "62585996000100",
+        "razao_social": "S. MATOS FERREIRA PUBLICIDADE LTDA",
+        "metric": "last_publication",
+        "metric_value": "2026-07-23"
+      },
+      {
+        "rank": 6,
+        "cnpj14": "62434403000104",
+        "razao_social": "FATIMA ELISABETE TEIXEIRA",
+        "metric": "last_publication",
+        "metric_value": "2026-07-23"
+      },
+      {
+        "rank": 7,
+        "cnpj14": "62371489000165",
+        "razao_social": "S FIGUEIREDO CONSTRUTORA LTDA",
+        "metric": "last_publication",
+        "metric_value": "2026-07-23"
+      },
+      {
+        "rank": 8,
+        "cnpj14": "61624535000128",
+        "razao_social": "AGUATANQUE RESERVATORIOS DE AGUA LTDA",
+        "metric": "last_publication",
+        "metric_value": "2026-07-23"
+      },
+      {
+        "rank": 9,
+        "cnpj14": "59373711000154",
+        "razao_social": "MARI SALETE BORTOLOSI",
+        "metric": "last_publication",
+        "metric_value": "2026-07-23"
+      },
+      {
+        "rank": 10,
+        "cnpj14": "59241072000173",
+        "razao_social": "COESAO ENGENHARIA LTDA",
+        "metric": "last_publication",
+        "metric_value": "2026-07-23"
+      },
+      {
+        "rank": 11,
+        "cnpj14": "58923116000182",
+        "razao_social": "CARVALHO SOLUCOES CONSTRUTIVAS LTDA",
+        "metric": "last_publication",
+        "metric_value": "2026-07-23"
+      },
+      {
+        "rank": 12,
+        "cnpj14": "58382534000100",
+        "razao_social": "OLGUINS CONSTRUTORA E INCORPORADORA LTDA",
+        "metric": "last_publication",
+        "metric_value": "2026-07-23"
+      },
+      {
+        "rank": 13,
+        "cnpj14": "57623761000117",
+        "razao_social": "DNP - TERRAPLEN. E PAVIMEN. FORESTO LTDA",
+        "metric": "last_publication",
+        "metric_value": "2026-07-23"
+      },
+      {
+        "rank": 14,
+        "cnpj14": "57152502000155",
+        "razao_social": "KAPA INFRAESTRUTURA S.A.",
+        "metric": "last_publication",
+        "metric_value": "2026-07-23"
+      },
+      {
+        "rank": 15,
+        "cnpj14": "57068231000154",
+        "razao_social": "PEDREIRA SANSON LTDA",
+        "metric": "last_publication",
+        "metric_value": "2026-07-23"
+      },
+      {
+        "rank": 16,
+        "cnpj14": "55901119000127",
+        "razao_social": "VALE METALURGICA LTDA",
+        "metric": "last_publication",
+        "metric_value": "2026-07-23"
+      },
+      {
+        "rank": 17,
+        "cnpj14": "55528189000181",
+        "razao_social": "PILLARIS COMERCIO - SERVICOS E PREMOLDADOS LTDA",
+        "metric": "last_publication",
+        "metric_value": "2026-07-23"
+      },
+      {
+        "rank": 18,
+        "cnpj14": "55445094000102",
+        "razao_social": "ENGENHARIA VELLOSO LTDA",
+        "metric": "last_publication",
+        "metric_value": "2026-07-23"
+      },
+      {
+        "rank": 19,
+        "cnpj14": "54883916000166",
+        "razao_social": "CENTRAL SERVICOS LTDA",
+        "metric": "last_publication",
+        "metric_value": "2026-07-23"
+      },
+      {
+        "rank": 20,
+        "cnpj14": "53557090000182",
+        "razao_social": "ELEVA ENGENHARIA LTDA",
+        "metric": "last_publication",
+        "metric_value": "2026-07-23"
+      }
+    ],
+    "by_quantity": [
+      {
+        "rank": 1,
+        "cnpj14": "36682582000180",
+        "razao_social": "FORZA VERTRE ENGENHARIA E OBRAS LTDA",
+        "metric": "contract_count",
+        "metric_value": 75
+      },
+      {
+        "rank": 2,
+        "cnpj14": "11402871000158",
+        "razao_social": "TEOTONIO MATERIAIS PARA CONSTRUCAO LTDA",
+        "metric": "contract_count",
+        "metric_value": 46
+      },
+      {
+        "rank": 3,
+        "cnpj14": "00844138000177",
+        "razao_social": "ATLANTICA CONSTRUCOES COMERCIO E SERVICOS LTDA",
+        "metric": "contract_count",
+        "metric_value": 39
+      },
+      {
+        "rank": 4,
+        "cnpj14": "25398116000151",
+        "razao_social": "CASA ALBERTON LTDA",
+        "metric": "contract_count",
+        "metric_value": 36
+      },
+      {
+        "rank": 5,
+        "cnpj14": "61243036000190",
+        "razao_social": "CONSTRUTORA TECNIBRAS LTDA",
+        "metric": "contract_count",
+        "metric_value": 36
+      },
+      {
+        "rank": 6,
+        "cnpj14": "11352766000151",
+        "razao_social": "LEVICON CONSTRUCOES LTDA.",
+        "metric": "contract_count",
+        "metric_value": 34
+      },
+      {
+        "rank": 7,
+        "cnpj14": "17856392000198",
+        "razao_social": "VIA SUL TERCEIRIZAÇÃO DE SERVIÇOS DE CONSTRUÇÃO CIVIL LTDA",
+        "metric": "contract_count",
+        "metric_value": 31
+      },
+      {
+        "rank": 8,
+        "cnpj14": "43887548000108",
+        "razao_social": "CONSTRUTORA SCHROEDER E SCHMIDT LTDA",
+        "metric": "contract_count",
+        "metric_value": 30
+      },
+      {
+        "rank": 9,
+        "cnpj14": "02811333000126",
+        "razao_social": "E. E. C. ENGENHARIA E CONSTRUÇÕES LTDA",
+        "metric": "contract_count",
+        "metric_value": 29
+      },
+      {
+        "rank": 10,
+        "cnpj14": "04517114000164",
+        "razao_social": "KIN ENGENHARIA LTDA",
+        "metric": "contract_count",
+        "metric_value": 28
+      },
+      {
+        "rank": 11,
+        "cnpj14": "00472805000138",
+        "razao_social": "TRAÇADO CONSTRUÇÕES E SERVIÇOS LTDA",
+        "metric": "contract_count",
+        "metric_value": 27
+      },
+      {
+        "rank": 12,
+        "cnpj14": "34339589000179",
+        "razao_social": "EXPRESSO BRASIL LOGISTICA TRANSPORTES E MAQUINAS LTDA",
+        "metric": "contract_count",
+        "metric_value": 27
+      },
+      {
+        "rank": 13,
+        "cnpj14": "60122306000142",
+        "razao_social": "ELETRO CENTRAL COMERCIAL E SERVICOS LTDA",
+        "metric": "contract_count",
+        "metric_value": 27
+      },
+      {
+        "rank": 14,
+        "cnpj14": "00220982000127",
+        "razao_social": "MATT CONSTRUTORA LTDA",
+        "metric": "contract_count",
+        "metric_value": 26
+      },
+      {
+        "rank": 15,
+        "cnpj14": "46899464000506",
+        "razao_social": "GRANTEL COMÉRCIO DE MATERIAL PARA CONSTRUÇÃO LTDA",
+        "metric": "contract_count",
+        "metric_value": 26
+      },
+      {
+        "rank": 16,
+        "cnpj14": "59137174000143",
+        "razao_social": "GILBERTO GIRALDI EIRELI",
+        "metric": "contract_count",
+        "metric_value": 26
+      },
+      {
+        "rank": 17,
+        "cnpj14": "64676778000106",
+        "razao_social": "PB FER MATERIAIS PARA CONSTRUÇÃO LTDA - EPP",
+        "metric": "contract_count",
+        "metric_value": 26
+      },
+      {
+        "rank": 18,
+        "cnpj14": "77744134000141",
+        "razao_social": "PEDREIRA SANTIAGO LTDA",
+        "metric": "contract_count",
+        "metric_value": 26
+      },
+      {
+        "rank": 19,
+        "cnpj14": "03574370000120",
+        "razao_social": "EMPREITEIRA DE MÃO DE OBRA ADRIMAR EIRELI",
+        "metric": "contract_count",
+        "metric_value": 25
+      },
+      {
+        "rank": 20,
+        "cnpj14": "22516278000159",
+        "razao_social": "CCF NUTRI LTDA",
+        "metric": "contract_count",
+        "metric_value": 25
+      }
+    ]
+  },
+  "comparison": {
+    "vs_value": {
+      "overlap_count": 0,
+      "overlap_cnpjs": [],
+      "only_proposed": [
+        "12253900000120",
+        "95257945000108",
+        "27254414000101",
+        "19648512000197",
+        "38517835000196",
+        "45145494000130",
+        "15247296000117",
+        "07192929000109",
+        "52067902000149",
+        "62913677000178",
+        "29084108000191",
+        "22798043000105",
+        "20123886000178",
+        "00472805000138",
+        "00220982000127",
+        "61608477000149",
+        "06145928000140",
+        "03094645000129",
+        "22835076000170",
+        "10249046000100"
+      ],
+      "only_baseline": [
+        "63800186000183",
+        "44120297000102",
+        "16432951000170",
+        "64873827000192",
+        "10547330000155",
+        "53275036000144",
+        "55951227000104",
+        "59134233000120",
+        "63970934000176",
+        "65766119000115",
+        "66148259000192",
+        "54686528000195",
+        "64686335000198",
+        "19230918000155",
+        "01901632000199",
+        "28040114000184",
+        "20999087000160",
+        "28777689000184",
+        "12082620000104",
+        "15204568000100"
+      ],
+      "jaccard": 0.0
+    },
+    "vs_recency": {
+      "overlap_count": 0,
+      "overlap_cnpjs": [],
+      "only_proposed": [
+        "12253900000120",
+        "95257945000108",
+        "27254414000101",
+        "19648512000197",
+        "38517835000196",
+        "45145494000130",
+        "15247296000117",
+        "07192929000109",
+        "52067902000149",
+        "62913677000178",
+        "29084108000191",
+        "22798043000105",
+        "20123886000178",
+        "00472805000138",
+        "00220982000127",
+        "61608477000149",
+        "06145928000140",
+        "03094645000129",
+        "22835076000170",
+        "10249046000100"
+      ],
+      "only_baseline": [
+        "95024857000158",
+        "92746882000157",
+        "80237555000190",
+        "63315649000111",
+        "62585996000100",
+        "62434403000104",
+        "62371489000165",
+        "61624535000128",
+        "59373711000154",
+        "59241072000173",
+        "58923116000182",
+        "58382534000100",
+        "57623761000117",
+        "57152502000155",
+        "57068231000154",
+        "55901119000127",
+        "55528189000181",
+        "55445094000102",
+        "54883916000166",
+        "53557090000182"
+      ],
+      "jaccard": 0.0
+    },
+    "vs_quantity": {
+      "overlap_count": 2,
+      "overlap_cnpjs": [
+        "00472805000138",
+        "00220982000127"
+      ],
+      "only_proposed": [
+        "12253900000120",
+        "95257945000108",
+        "27254414000101",
+        "19648512000197",
+        "38517835000196",
+        "45145494000130",
+        "15247296000117",
+        "07192929000109",
+        "52067902000149",
+        "62913677000178",
+        "29084108000191",
+        "22798043000105",
+        "20123886000178",
+        "61608477000149",
+        "06145928000140",
+        "03094645000129",
+        "22835076000170",
+        "10249046000100"
+      ],
+      "only_baseline": [
+        "36682582000180",
+        "11402871000158",
+        "00844138000177",
+        "25398116000151",
+        "61243036000190",
+        "11352766000151",
+        "17856392000198",
+        "43887548000108",
+        "02811333000126",
+        "04517114000164",
+        "34339589000179",
+        "60122306000142",
+        "46899464000506",
+        "59137174000143",
+        "64676778000106",
+        "77744134000141",
+        "03574370000120",
+        "22516278000159"
+      ],
+      "jaccard": 0.05263157894736842
+    }
+  },
+  "human_metrics": {
+    "proposed": {
+      "status": "BLOCKED_INSUFFICIENT_HUMAN_LABELS",
+      "labeled_count": 0,
+      "precision_at_10": null,
+      "precision_at_20": null,
+      "out_of_scope_rate": null,
+      "unknown_rate": null,
+      "mean_relevance_grade": null
+    },
+    "baseline_value": {
+      "status": "BLOCKED_INSUFFICIENT_HUMAN_LABELS",
+      "labeled_count": 0,
+      "precision_at_10": null,
+      "precision_at_20": null,
+      "out_of_scope_rate": null,
+      "unknown_rate": null,
+      "mean_relevance_grade": null
+    },
+    "baseline_recency": {
+      "status": "BLOCKED_INSUFFICIENT_HUMAN_LABELS",
+      "labeled_count": 0,
+      "precision_at_10": null,
+      "precision_at_20": null,
+      "out_of_scope_rate": null,
+      "unknown_rate": null,
+      "mean_relevance_grade": null
+    },
+    "baseline_quantity": {
+      "status": "BLOCKED_INSUFFICIENT_HUMAN_LABELS",
+      "labeled_count": 0,
+      "precision_at_10": null,
+      "precision_at_20": null,
+      "out_of_scope_rate": null,
+      "unknown_rate": null,
+      "mean_relevance_grade": null
+    }
+  },
+  "ranking_quality_status": "BLOCKED_INSUFFICIENT_HUMAN_LABELS",
+  "hypotheses": [
+    "Ranking setorial deve reduzir OUT_OF_SCOPE vs valor/recência/quantidade brutos.",
+    "Sobreposição alta com valor não prova qualidade comercial."
+  ]
+}
