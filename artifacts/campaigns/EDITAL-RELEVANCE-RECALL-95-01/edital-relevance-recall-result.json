@@ -583,12 +583,13 @@
     "schema_version": "edital-relevance-corpus/1.0.0",
     "rule_version": "extra-sector-classifier/2.3.1",
     "profile_hash": "aeaa8551547e167addfff707b642782b71d9526b8b8a8b8aa91b3a8cceaae92f",
-    "profile_path": "config/client_profiles/extra.yaml",
+    "profile_path": "/mnt/d/extra consultoria/.worktrees/edital-relevance-corpus-01/config/client_profiles/extra.yaml",
     "corpus_path": "evals/edital_relevance/locked_holdout.jsonl",
     "corpus_sha256": "f7c8d44d45b8f0fbee93f9f46ccbbdec21bc4a8f012ce1ed34baa35b87bf5f26",
     "manifest_path": "evals/edital_relevance/locked_holdout-manifest.json",
-    "git_sha": "5b1edf6318226b8afa6199d7a9f100b8ac24a1a7",
-    "evaluated_at": "2026-07-26T21:51:08Z"
+    "git_sha": "5a4dd86b181f9f94a10189d5e652fcf06835ffac",
+    "evaluated_at": "2026-07-26T21:52:37Z",
+    "result_note": "git_sha is HEAD at evaluate time; evidence commits may advance tip by one commit. CI must re-run evaluate on PR tip and get pass."
   },
   "forbidden_proxies_used": false,
   "per_record_sample": [
