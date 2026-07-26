@@ -1,7 +1,7 @@
 {
   "run_id": "cl-20260726T003820Z-f8e90e36",
   "status": "BLOCKED",
-  "git_sha": "087f5e74a3c7e951bec1ddfb2ce7686d94375a15",
+  "git_sha": "6731f652231dd9d82d3e3fb18afcda03039493d7",
   "discovery_mode": "PREFILTERED_CANDIDATE_DISCOVERY",
   "history_expansion_mode": "FULL_CANDIDATE_HISTORY",
   "ranking_population_mode": "FULL_ELIGIBLE_CANDIDATES",
@@ -434,16 +434,16 @@
     "false_negatives": null,
     "human_review_status": "PENDING"
   },
-  "run_git_sha": "087f5e74a3c7e951bec1ddfb2ce7686d94375a15",
-  "artifact_git_sha": "087f5e74a3c7e951bec1ddfb2ce7686d94375a15",
+  "run_git_sha": "6731f652231dd9d82d3e3fb18afcda03039493d7",
+  "artifact_git_sha": "6731f652231dd9d82d3e3fb18afcda03039493d7",
   "reason": "BLOCKED_REGISTRY_SELECTION_BIAS",
-  "executed_code_sha": "087f5e74a3c7e951bec1ddfb2ce7686d94375a15",
-  "current_pr_head_sha": "087f5e74a3c7e951bec1ddfb2ce7686d94375a15",
+  "executed_code_sha": "6731f652231dd9d82d3e3fb18afcda03039493d7",
+  "current_pr_head_sha": "3b71e6afa6e195d8769ff70bd15624623c296458",
   "executed_git_sha": "6731f652231dd9d82d3e3fb18afcda03039493d7",
   "evidence_commit_sha": "6731f652231dd9d82d3e3fb18afcda03039493d7",
-  "match_run_to_head": true,
-  "updated_at": "2026-07-26T01:58:45Z",
-  "pr_head_sha": "087f5e74a3c7e951bec1ddfb2ce7686d94375a15",
+  "match_run_to_head": false,
+  "updated_at": "2026-07-26T01:59:51Z",
+  "pr_head_sha": "3b71e6afa6e195d8769ff70bd15624623c296458",
   "gate_git_sha": "6731f652231dd9d82d3e3fb18afcda03039493d7",
   "review_git_sha": "6731f652231dd9d82d3e3fb18afcda03039493d7"
 }

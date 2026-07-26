@@ -4,10 +4,10 @@
   "technical_status": "BLOCKED",
   "campaign_id": "CONFENGE-COMMERCIAL-READY-01",
   "run_id": "cl-20260726T003820Z-f8e90e36",
-  "git_sha": "087f5e74a3c7e951bec1ddfb2ce7686d94375a15",
-  "run_git_sha": "087f5e74a3c7e951bec1ddfb2ce7686d94375a15",
-  "artifact_git_sha": "087f5e74a3c7e951bec1ddfb2ce7686d94375a15",
-  "pr_head_sha": "087f5e74a3c7e951bec1ddfb2ce7686d94375a15",
+  "git_sha": "6731f652231dd9d82d3e3fb18afcda03039493d7",
+  "run_git_sha": "6731f652231dd9d82d3e3fb18afcda03039493d7",
+  "artifact_git_sha": "6731f652231dd9d82d3e3fb18afcda03039493d7",
+  "pr_head_sha": "3b71e6afa6e195d8769ff70bd15624623c296458",
   "base_sha": "811c590f2653f0845e01875d7db7867fa7ac91f7",
   "branch": "campaign/confenge-commercial-ready-01",
   "population_mode": "FULL_POPULATION",
@@ -510,7 +510,7 @@
   ],
   "rc_technical_pass_revoked": true,
   "user_acceptance": "NOT_REQUESTED",
-  "updated_at": "2026-07-26T01:58:49Z",
+  "updated_at": "2026-07-26T01:59:51Z",
   "answers": {
     "concentration_uses_full_history": true,
     "single_contract_can_produce_strong": false,
@@ -525,7 +525,7 @@
     "snapshot_table_writes_denied": true,
     "ranking_stability_live_rescore": true
   },
-  "executed_git_sha": "087f5e74a3c7e951bec1ddfb2ce7686d94375a15",
+  "executed_git_sha": "6731f652231dd9d82d3e3fb18afcda03039493d7",
   "sha_binding": {
     "policy": "exact_or_ancestor_artifact_only_lag",
     "match_run_to_head": true,
@@ -535,10 +535,10 @@
   },
   "gate_git_sha": "6731f652231dd9d82d3e3fb18afcda03039493d7",
   "review_git_sha": "6731f652231dd9d82d3e3fb18afcda03039493d7",
-  "executed_code_sha": "087f5e74a3c7e951bec1ddfb2ce7686d94375a15",
-  "evidence_commit_sha": "087f5e74a3c7e951bec1ddfb2ce7686d94375a15",
-  "current_pr_head_sha": "087f5e74a3c7e951bec1ddfb2ce7686d94375a15",
-  "match_run_to_head": true,
+  "executed_code_sha": "6731f652231dd9d82d3e3fb18afcda03039493d7",
+  "evidence_commit_sha": "6731f652231dd9d82d3e3fb18afcda03039493d7",
+  "current_pr_head_sha": "3b71e6afa6e195d8769ff70bd15624623c296458",
+  "match_run_to_head": false,
   "workflow_run_id": null,
   "execution_environment": "local",
   "hardening_final": {
@@ -569,7 +569,7 @@
     "block": "BLOCKED_INSUFFICIENT_HISTORICAL_WINDOW"
   },
   "final_report": {
-    "current_pr_head_sha": "6731f652231dd9d82d3e3fb18afcda03039493d7",
+    "current_pr_head_sha": "3b71e6afa6e195d8769ff70bd15624623c296458",
     "executed_code_sha": "6731f652231dd9d82d3e3fb18afcda03039493d7",
     "evidence_commit_sha": "6731f652231dd9d82d3e3fb18afcda03039493d7",
     "workflow_run_id": null,

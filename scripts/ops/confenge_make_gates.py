@@ -615,7 +615,18 @@ def cmd_end_to_end_reproducibility(_: argparse.Namespace) -> int:
 
 
 def cmd_evidence_provenance(_: argparse.Namespace) -> int:
-    """current_pr_head_sha vs executed_code_sha must be distinct fields; no false match."""
+    """Provenance: executed_code_sha vs live HEAD; never false match_run_to_head.
+
+    Fields in result.json:
+      executed_code_sha — code that produced evidence (may be ancestor of tip when
+        only evidence/docs lag commits follow)
+      current_pr_head_sha — tip claimed at packaging (must not be newer than HEAD
+        falsely; live HEAD is authoritative)
+      match_run_to_head — may be true ONLY when executed_code_sha == live HEAD
+
+    Self-referential tip embedding is impossible without lag; ancestor lag with
+    match_run_to_head=false is allowed. match_run_to_head=true + stale SHA = FAIL.
+    """
     head = subprocess.check_output(
         ["git", "rev-parse", "HEAD"],  # noqa: S603,S607
         cwd=str(_ROOT),
@@ -631,23 +642,39 @@ def cmd_evidence_provenance(_: argparse.Namespace) -> int:
     executed = d.get("executed_code_sha") or d.get("executed_git_sha") or d.get("run_git_sha")
     pr_head = d.get("current_pr_head_sha") or d.get("pr_head_sha")
     match_flag = d.get("match_run_to_head")
-    issues = []
+    issues: list[str] = []
     if not executed:
         issues.append("missing_executed_code_sha")
-    # match_run_to_head may only be true when both fields equal current HEAD
-    if match_flag is True:
-        if executed != head:
-            issues.append("false_match_run_to_head_with_stale_executed_code_sha")
+
+    def _is_ancestor(sha: str, tip: str) -> bool:
+        if not sha or not tip:
+            return False
+        if sha == tip:
+            return True
+        try:
+            subprocess.check_call(  # noqa: S603
+                ["git", "merge-base", "--is-ancestor", sha, tip],  # noqa: S603,S607
+                cwd=str(_ROOT),
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+            return True
+        except (subprocess.CalledProcessError, OSError):
+            return False
+
+    live_match = bool(executed and executed == head)
+    # Forbidden: claim match when SHAs are stale relative to live HEAD
+    if match_flag is True and not live_match:
+        issues.append("false_match_run_to_head_with_stale_executed_code_sha")
         if pr_head and pr_head != head:
             issues.append("false_match_run_to_head_with_stale_pr_head")
-        if pr_head and pr_head != head and executed == pr_head:
             issues.append("stale_pr_head_claimed_as_current")
-    if pr_head and pr_head != head and match_flag is True:
-        issues.append("stale_pr_head_claimed_as_current")
+    # executed must be this tip or an ancestor (evidence-only lag commits)
+    if executed and not _is_ancestor(str(executed), head):
+        issues.append("executed_code_sha_not_ancestor_of_head")
     # Local execution provenance
     local_fields_ok = True
     if not os.environ.get("GITHUB_ACTIONS"):
-        # require package attestation to record environment when present
         att = ART / "evidence-package" / "attestation.json"
         if att.is_file():
             a = json.loads(att.read_text(encoding="utf-8"))
@@ -659,12 +686,18 @@ def cmd_evidence_provenance(_: argparse.Namespace) -> int:
         "ok": ok,
         "current_repo_head": head,
         "executed_code_sha": executed,
-        "current_pr_head_sha": pr_head,
+        "current_pr_head_sha_declared": pr_head,
+        "live_head": head,
         "workflow_run_id": d.get("workflow_run_id") or os.environ.get("GITHUB_RUN_ID"),
-        "match_run_to_head": match_flag,
+        "match_run_to_head_declared": match_flag,
+        "live_match_executed_to_head": live_match,
+        "executed_is_ancestor_of_head": _is_ancestor(str(executed or ""), head),
         "issues": issues,
         "local_fields_ok": local_fields_ok,
-        "note": "pr_head_sha and executed_code_sha are different fields; never claim match when PR advanced.",
+        "note": (
+            "match_run_to_head=true only valid when executed_code_sha == live HEAD. "
+            "Ancestor lag with match_run_to_head=false is honest evidence packaging."
+        ),
     }
     (ART / "evidence-provenance-gate.json").write_text(
         json.dumps(report, indent=2) + "\n", encoding="utf-8"

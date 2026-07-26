@@ -1,24 +1,24 @@
 {
-  "executed_code_sha": "087f5e74a3c7e951bec1ddfb2ce7686d94375a15",
-  "executed_git_sha": "087f5e74a3c7e951bec1ddfb2ce7686d94375a15",
-  "current_pr_head_sha": "087f5e74a3c7e951bec1ddfb2ce7686d94375a15",
-  "evidence_commit_sha": "087f5e74a3c7e951bec1ddfb2ce7686d94375a15",
+  "executed_code_sha": "3b71e6afa6e195d8769ff70bd15624623c296458",
+  "executed_git_sha": "3b71e6afa6e195d8769ff70bd15624623c296458",
+  "current_pr_head_sha": "3b71e6afa6e195d8769ff70bd15624623c296458",
+  "evidence_commit_sha": "3b71e6afa6e195d8769ff70bd15624623c296458",
   "workflow_run_id": null,
   "execution_environment": "local",
   "machine_id_hash": "35b96cb98ef8f0ad",
   "command": "make package-confenge-commercial-evidence",
-  "started_at": "2026-07-26T01:58:50.241137+00:00",
-  "finished_at": "2026-07-26T01:58:50.241176+00:00",
+  "started_at": "2026-07-26T01:59:52.183202+00:00",
+  "finished_at": "2026-07-26T01:59:52.183234+00:00",
   "exit_code": 0,
-  "created_at": "2026-07-26T01:58:50.241137+00:00",
+  "created_at": "2026-07-26T01:59:52.183202+00:00",
   "checksums": {
     "result.json": {
       "exists": true,
-      "sha256": "0689190e872bc9b2ae8e2552baa97900193ff84a90a4938eb3df9b24e40bba0a"
+      "sha256": "654ba8eee9467678b8e5767f9dcedb7e2501b6e2b11cacfdc2700817a1c3c4b5"
     },
     "queue-summary.json": {
       "exists": true,
-      "sha256": "8935cc04b251c446a1292e6a9778bdf814d1f6212ae01728d937d4f96354cccd"
+      "sha256": "08bab1fc3f20d1d2d8b92f294fcb97eb98ec1b2370ccc8e27b560d8974aedcbd"
     },
     "denominator-integrity.json": {
       "exists": true,
@@ -74,9 +74,9 @@
     },
     "evidence-provenance-gate.json": {
       "exists": true,
-      "sha256": "6d2bdae6121a639e522e4548b80e5eab5dbb51a6e54f44a0c908c6c584171c50"
+      "sha256": "3575ffaec563d72b1e2bff7a4646d98097ab8572e007bc2074581c789906a3e9"
     }
   },
   "note": "Execution provenance package. Checksums alone without executed_code_sha and environment are not a valid attestation.",
-  "evidence_package_hash": "eccb6822121e413b4e3c9b2c348b629f28205c36172c1d391b14b3a62e771fd0"
+  "evidence_package_hash": "445b6e0725d18dfcea56011f74c919a8a43a868989efad433b66f7a8e5a530a7"
 }

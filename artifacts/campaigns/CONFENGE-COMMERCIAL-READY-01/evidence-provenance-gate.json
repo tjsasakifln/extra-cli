@@ -1,11 +1,14 @@
 {
   "ok": true,
-  "current_repo_head": "087f5e74a3c7e951bec1ddfb2ce7686d94375a15",
-  "executed_code_sha": "087f5e74a3c7e951bec1ddfb2ce7686d94375a15",
-  "current_pr_head_sha": "087f5e74a3c7e951bec1ddfb2ce7686d94375a15",
+  "current_repo_head": "3b71e6afa6e195d8769ff70bd15624623c296458",
+  "executed_code_sha": "6731f652231dd9d82d3e3fb18afcda03039493d7",
+  "current_pr_head_sha_declared": "3b71e6afa6e195d8769ff70bd15624623c296458",
+  "live_head": "3b71e6afa6e195d8769ff70bd15624623c296458",
   "workflow_run_id": null,
-  "match_run_to_head": true,
+  "match_run_to_head_declared": false,
+  "live_match_executed_to_head": false,
+  "executed_is_ancestor_of_head": true,
   "issues": [],
   "local_fields_ok": true,
-  "note": "pr_head_sha and executed_code_sha are different fields; never claim match when PR advanced."
+  "note": "match_run_to_head=true only valid when executed_code_sha == live HEAD. Ancestor lag with match_run_to_head=false is honest evidence packaging."
 }
