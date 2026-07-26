@@ -1,0 +1,25 @@
+{
+  "isolation": {
+    "ok": true,
+    "production_touched": false,
+    "soak_touched": false,
+    "dsn_masked": "postgresql://confenge:***@127.0.0.1:5441/confenge_commercial",
+    "host": "127.0.0.1",
+    "port": 5441,
+    "database": "confenge_commercial",
+    "reasons": [],
+    "forbidden_hits": [],
+    "campaign_id": "CONFENGE-COMMERCIAL-READY-01",
+    "source_state_mode": "RESTORED_SNAPSHOT_SINGLE_DB",
+    "source_dsn_masked": "postgresql://confenge:***@127.0.0.1:5441/confenge_commercial",
+    "state_dsn_masked": "postgresql://confenge:***@127.0.0.1:5441/confenge_commercial",
+    "source_read_only_enforced": true,
+    "source_state_separated": false
+  },
+  "write_tests": {
+    "select_snapshot": "ok",
+    "insert_ledger": "ok"
+  },
+  "ok": true,
+  "note": "RESTORED_SNAPSHOT_SINGLE_DB: same physical DB; ledger write proven; true OS-level source readonly requires separate role (not claimed as SEPARATED)."
+}

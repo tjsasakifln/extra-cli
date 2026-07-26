@@ -43,7 +43,11 @@ from scripts.commercial_leads.review import load_state_map
 from scripts.commercial_leads.scoring import rank_leads, score_supplier
 from scripts.commercial_leads.sector_fit import PUBLISHABLE, sector_fit_histogram
 from scripts.commercial_leads.signals import compute_signals_for_supplier, rows_from_dicts
-from scripts.commercial_leads.snapshot import bind_snapshot_to_database, validate_snapshot_manifest
+from scripts.commercial_leads.snapshot import (
+    bind_snapshot_to_database,
+    compute_canonical_table_hash,
+    validate_snapshot_manifest,
+)
 from scripts.commercial_leads.supplier_registry import (
     coverage_report,
     ensure_registry_table,
@@ -638,11 +642,22 @@ def run_pipeline(
     snap = validate_snapshot_manifest(
         snapshot_manifest,
         verify_file_hash=verify_snapshot_hash,
-        allow_missing_dump=True,  # bind to DB is the real gate
+        allow_missing_dump=True,  # content binding uses canonical_table_hash
     )
+    # Mint canonical_table_hash into manifest when missing (first bind) — never
+    # treat marker dumps as authenticated by themselves.
+    if (
+        not snap.ok
+        and "no_canonical_table_hash" in " ".join(snap.reasons or [])
+    ) or (
+        snap.ok and not (snap.canonical_table_hash or (snap.details or {}).get("canonical_table_hash"))
+    ):
+        # Will mint after source connection opens
+        pass
     if not snap.ok and snap.status.startswith("BLOCKED"):
-        # Allow DB-bound path when dump absent but hash declared
-        if "dump_file_missing" not in (snap.reasons or []) and "dump_file_absent" not in str(snap.reasons):
+        # Allow proceed only when we can mint canonical hash from live DB
+        reasons = " ".join(snap.reasons or [])
+        if "marker" not in reasons and "canonical" not in reasons and "dump_file_missing" not in reasons and "dump_file_absent" not in reasons:
             result = {
                 "run_id": run_id,
                 "status": snap.status if snap.status.startswith("BLOCKED") else "FAIL",
@@ -698,8 +713,40 @@ def run_pipeline(
     source_conn = open_source_connection(source)
     state_conn = connect(state)
     try:
-        # Snapshot ↔ DB binding on source
-        binding = bind_snapshot_to_database(source_conn, snap)
+        # Mint / refresh canonical_table_hash on manifest (content fingerprint)
+        man_path = Path(snapshot_manifest)
+        try:
+            man_data = json.loads(man_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            man_data = {}
+        if not man_data.get("canonical_table_hash"):
+            minted = compute_canonical_table_hash(source_conn)
+            man_data["canonical_table_hash"] = minted["canonical_table_hash"]
+            man_data["canonical_hash_algorithm"] = minted["canonical_hash_algorithm"]
+            man_data["row_count"] = minted["row_count"]
+            man_data["contracts_count"] = minted["row_count"]
+            man_data["min_date"] = None
+            man_data["max_date"] = None
+            man_path.write_text(
+                json.dumps(man_data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+            )
+            snap = validate_snapshot_manifest(
+                man_path, verify_file_hash=False, allow_missing_dump=True
+            )
+
+        # Snapshot ↔ DB binding on source (full-table canonical hash required)
+        binding = bind_snapshot_to_database(source_conn, snap, require_canonical_match=True)
+        # Persist live dates into manifest for audit
+        if binding.get("ok") and man_data is not None:
+            man_data["canonical_table_hash"] = binding.get("canonical_table_hash")
+            man_data["canonical_hash_algorithm"] = binding.get("canonical_hash_algorithm")
+            man_data["min_date"] = binding.get("min_date")
+            man_data["max_date"] = binding.get("max_date")
+            man_data["row_count"] = binding.get("database_row_count")
+            man_data["contracts_count"] = binding.get("database_row_count")
+            man_path.write_text(
+                json.dumps(man_data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+            )
         if not binding.get("ok"):
             result = {
                 "run_id": run_id,
@@ -1180,10 +1227,16 @@ def run_pipeline(
             "snapshot_binding": binding,
             "isolation": isolation.as_dict(),
             "source_state_mode": isolation.source_state_mode,
+            # population_mode is a legacy CLI flag only — never a completeness claim
             "population_mode": pop_mode,
+            "population_mode_semantics": (
+                "legacy_cli_flag_only_not_completeness_claim;"
+                "see discovery_mode/history_expansion_mode/ranking_population_mode"
+            ),
             "discovery_mode": load_meta.get("discovery_mode"),
             "history_expansion_mode": load_meta.get("history_expansion_mode"),
             "ranking_population_mode": load_meta.get("ranking_population_mode"),
+            "claims_full_snapshot_scan": False,
             "run_mode": run_mode_effective,
             "load_meta": load_meta,
             "registry_coverage": reg_cov,

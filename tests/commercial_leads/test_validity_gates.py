@@ -36,40 +36,34 @@ def test_false_separation_claim_fails() -> None:
 
 
 def test_bind_snapshot_row_count_mismatch_fails() -> None:
+    import scripts.commercial_leads.snapshot as snap_mod
+
     conn = MagicMock()
-    # fetch_all is used inside bind — patch it
-    with patch("scripts.commercial_leads.dbutil.fetch_all") as fa:
-        fa.side_effect = [
-            [{"n": 100}],  # count
+    with patch("scripts.commercial_leads.dbutil.fetch_all") as fa3:
+        fa3.side_effect = [
+            [{"n": 100}],
             [{"min_d": "2020-01-01", "max_d": "2026-01-01"}],
             [{"contrato_id": "a", "fornecedor_cnpj": "1", "obj_md5": "x"}],
         ]
-        # re-import path uses fetch_all from dbutil inside function via local import
-        with patch("scripts.commercial_leads.snapshot.fetch_all", create=True):
-            pass
-    # Call with patched fetch_all inside snapshot module's import site
-    with patch("scripts.commercial_leads.dbutil.fetch_all") as fa2:
-        # bind_snapshot_to_database imports fetch_all from dbutil at call time
-        import scripts.commercial_leads.snapshot as snap_mod
-
         with patch.object(
             snap_mod,
-            "bind_snapshot_to_database",
-            wraps=snap_mod.bind_snapshot_to_database,
+            "compute_canonical_table_hash",
+            return_value={
+                "canonical_table_hash": "abc",
+                "canonical_hash_algorithm": "sha256-rowmd5-ordered-agg-v1",
+                "row_count": 100,
+                "rows_hashed": 100,
+                "table": "pncp_supplier_contracts",
+            },
         ):
-            # Patch at the import location used inside the function
-            with patch("scripts.commercial_leads.dbutil.fetch_all") as fa3:
-                fa3.side_effect = [
-                    [{"n": 100}],
-                    [{"min_d": "2020-01-01", "max_d": "2026-01-01"}],
-                    [{"contrato_id": "a", "fornecedor_cnpj": "1", "obj_md5": "x"}],
-                ]
-                # The function does: from scripts.commercial_leads.dbutil import fetch_all
-                # so we need to patch before call - the import is inside the function
-                result = snap_mod.bind_snapshot_to_database(
-                    conn,
-                    {"contracts_count_declared": 999, "details": {}},
-                )
+            result = snap_mod.bind_snapshot_to_database(
+                conn,
+                {
+                    "contracts_count_declared": 999,
+                    "details": {},
+                    "canonical_table_hash": "abc",
+                },
+            )
     assert result["ok"] is False
     assert "manifest_row_count_ne_database_row_count" in result["reasons"]
 
@@ -84,14 +78,62 @@ def test_bind_snapshot_match_ok() -> None:
             [{"min_d": "2020-01-01", "max_d": "2026-07-01"}],
             [{"contrato_id": "a", "fornecedor_cnpj": "1", "obj_md5": "x"}],
         ]
-        result = snap_mod.bind_snapshot_to_database(
-            conn,
-            {"contracts_count_declared": 60000, "details": {}},
-        )
+        with patch.object(
+            snap_mod,
+            "compute_canonical_table_hash",
+            return_value={
+                "canonical_table_hash": "deadbeef",
+                "canonical_hash_algorithm": "sha256-rowmd5-ordered-agg-v1",
+                "row_count": 60000,
+                "rows_hashed": 60000,
+                "table": "pncp_supplier_contracts",
+            },
+        ):
+            result = snap_mod.bind_snapshot_to_database(
+                conn,
+                {
+                    "contracts_count_declared": 60000,
+                    "details": {},
+                    "canonical_table_hash": "deadbeef",
+                },
+            )
     assert result["ok"] is True
     assert result["database_row_count"] == 60000
-    assert result["table_snapshot_hash"]
+    assert result["canonical_table_hash"] == "deadbeef"
+    assert result["status"] == "BOUND"
 
+
+def test_bind_snapshot_canonical_mismatch_fails() -> None:
+    import scripts.commercial_leads.snapshot as snap_mod
+
+    conn = MagicMock()
+    with patch("scripts.commercial_leads.dbutil.fetch_all") as fa:
+        fa.side_effect = [
+            [{"n": 60000}],
+            [{"min_d": "2020-01-01", "max_d": "2026-07-01"}],
+            [{"contrato_id": "a", "fornecedor_cnpj": "1", "obj_md5": "x"}],
+        ]
+        with patch.object(
+            snap_mod,
+            "compute_canonical_table_hash",
+            return_value={
+                "canonical_table_hash": "livehash",
+                "canonical_hash_algorithm": "sha256-rowmd5-ordered-agg-v1",
+                "row_count": 60000,
+                "rows_hashed": 60000,
+                "table": "pncp_supplier_contracts",
+            },
+        ):
+            result = snap_mod.bind_snapshot_to_database(
+                conn,
+                {
+                    "contracts_count_declared": 60000,
+                    "canonical_table_hash": "oldhash",
+                    "details": {},
+                },
+            )
+    assert result["ok"] is False
+    assert "canonical_table_hash_mismatch" in result["reasons"]
 
 def test_artifact_sha_mismatch_policy_drives_shipped_gate(tmp_path: Path) -> None:
     """Shipped SHA-binding gate must FAIL when internal SHAs disagree."""

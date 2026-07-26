@@ -1,0 +1,9 @@
+{
+  "ok": true,
+  "rechecked_cnpjs": 40,
+  "history_expansion_mode": "FULL_CANDIDATE_HISTORY",
+  "history_complete": true,
+  "mismatches": [],
+  "run_claimed_history_is_full": true,
+  "method": "live_db_recount_vs_full_history_loader"
+}

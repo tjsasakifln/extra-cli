@@ -21,11 +21,10 @@ from scripts.commercial_leads.contract_relevance import (
     normalize_text,
 )
 
-RULE_VERSION = "supplier-sector-fit-v2.1-gold"
-# v2.1: STRONG_MIN_TIME_SPAN_DAYS 180→90 justified by campaign snapshot
-# observation windows (~160d). 90d still requires multi-month multi-agency
-# evidence; 180d was unachievable by construction on this snapshot and
-# blocked all CONFIRMED-less engineering contractors.
+RULE_VERSION = "supplier-sector-fit-v2.2-gold"
+# v2.2 restores STRONG_MIN_TIME_SPAN_DAYS=180 (objective non-negotiable).
+# Short observation windows (~160d campaign snapshots) cannot mint STRONG
+# without CNAE: CONFIRMED via official CNAE is the publishable path.
 
 # Classes required by goal
 CLASS_CONFIRMED = "CONFIRMED_ENGINEERING"
@@ -163,8 +162,7 @@ CNAE_MATERIAL_PREFIXES: tuple[str, ...] = (
 STRONG_MIN_RELEVANT = 3
 STRONG_MIN_RATIO = 0.70
 STRONG_MIN_AGENCIES = 2
-# 90d (v2.1): multi-month evidence; 180d was unachievable on ~160d snapshots
-STRONG_MIN_TIME_SPAN_DAYS = 90
+STRONG_MIN_TIME_SPAN_DAYS = 180  # objective non-negotiable (v2.2)
 STRONG_MIN_OBJECT_DIVERSITY = 2
 
 # Material / supply markers

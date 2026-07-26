@@ -501,18 +501,13 @@ dod-audit-confenge-commercial-ready:
 	python3 -m scripts.ops.confenge_commercial_gates dod-audit
 
 verify-confenge-source-readonly:
-	python3 -c "from scripts.commercial_leads.isolation import assert_source_state_isolation; import os,json; d=os.environ.get('CONFENGE_COMMERCIAL_STATE_DSN') or os.environ.get('CONFENGE_COMMERCIAL_SOURCE_DSN'); \
-r=assert_source_state_isolation(source_dsn=d, state_dsn=d, force_mode='RESTORED_SNAPSHOT_SINGLE_DB', enforce_source_readonly=bool(d)); \
-print(json.dumps(r.as_dict(),indent=2,default=str)); \
-raise SystemExit(0 if r.source_state_mode=='RESTORED_SNAPSHOT_SINGLE_DB' else 1)"
+	python3 -m scripts.ops.confenge_make_gates source-state-isolation
 
-verify-confenge-state-isolation: verify-confenge-source-readonly
-	@echo 'state isolation: RESTORED_SNAPSHOT_SINGLE_DB declared; commercial tables only via state role'
+verify-confenge-state-isolation:
+	python3 -m scripts.ops.confenge_make_gates source-state-isolation
 
 verify-confenge-snapshot-binding verify-confenge-snapshot-content-binding:
-	@test -n "$$CONFENGE_COMMERCIAL_STATE_DSN" || (echo 'CONFENGE_COMMERCIAL_STATE_DSN required' && exit 1)
-	@test -n "$$CONFENGE_COMMERCIAL_SNAPSHOT" || (echo 'CONFENGE_COMMERCIAL_SNAPSHOT required' && exit 1)
-	python3 -c "from scripts.commercial_leads.snapshot import validate_snapshot_manifest, bind_snapshot_to_database; from scripts.commercial_leads.isolation import open_source_connection; import os,json; m=os.environ['CONFENGE_COMMERCIAL_SNAPSHOT']; d=os.environ['CONFENGE_COMMERCIAL_STATE_DSN']; s=validate_snapshot_manifest(m, allow_missing_dump=True); c=open_source_connection(d); b=bind_snapshot_to_database(c,s); c.close(); print(json.dumps(b,indent=2)); raise SystemExit(0 if b.get('ok') and b.get('table_snapshot_hash') else 1)"
+	python3 -m scripts.ops.confenge_make_gates snapshot-content-binding
 
 verify-confenge-full-population:
 	python3 -m scripts.ops.confenge_make_gates full-population
@@ -533,9 +528,7 @@ verify-confenge-persistence:
 	python3 -m pytest tests/commercial_leads/test_persistence_rollback.py -q --tb=short -o addopts=''
 
 verify-confenge-migrations:
-	@test -n "$$CONFENGE_COMMERCIAL_STATE_DSN" || (echo 'CONFENGE_COMMERCIAL_STATE_DSN required for live migration verify; running file presence check'; \
-	 test -f db/migrations/062_commercial_leads_ledger.sql && test -f db/migrations/063_supplier_registry.sql && exit 0)
-	python3 -c "from scripts.commercial_leads.pipeline import verify_migration_idempotence; import os,json; r=verify_migration_idempotence(os.environ['CONFENGE_COMMERCIAL_STATE_DSN']); print(json.dumps(r,indent=2,default=str)); raise SystemExit(0 if r.get('idempotent') and not r.get('skipped') else 1)"
+	python3 -m scripts.ops.confenge_make_gates migrations
 
 package-confenge-commercial-evidence:
 	python3 -m scripts.ops.confenge_make_gates package-evidence

@@ -1,19 +1,19 @@
 {
-  "executed_git_sha": "ce56c4a9ee3b362f6ea22e87932459d2f784014a",
+  "executed_git_sha": "691878853160b85ab7736d36f8265ed427f64d88",
   "workflow_run_id": null,
-  "created_at": "2026-07-26T00:23:06.919506+00:00",
+  "created_at": "2026-07-26T00:41:32.703140+00:00",
   "checksums": {
     "result.json": {
       "exists": true,
-      "sha256": "ccb920b9e9ab9d94820bdc6290e7b9e790b7c63f9fe27047de1c3118ecc10f83"
+      "sha256": "e97aaae5a165b222c1761b5548a9b9f7e3a05f033da63ff5cc3b2db0ee6ebad2"
     },
     "queue-summary.json": {
       "exists": true,
-      "sha256": "a47e49cf5443ff105fa5c7a7b8b1693f897057ef9f546eb63fc53a7adb98018f"
+      "sha256": "9577e7727ba8ae9287d17a93a1529cbbab1165cbcf7719066a99d6959c81c741"
     },
     "denominator-integrity.json": {
       "exists": true,
-      "sha256": "80fa68ddc30f0591d763cc3af0eb094a36704b8a28d80ac0775fba2f749ef6dd"
+      "sha256": "62bb4d3612f605bedf9ef326a67f885d1be2fb6a06603b6668b135d205cb44da"
     },
     "contract-relevance-holdout.json": {
       "exists": true,
@@ -22,6 +22,22 @@
     "gold-standard-baseline.json": {
       "exists": true,
       "sha256": "f47f6e0c6b8c6a3ca08b29e7a182436e69560e64bd2582e777987037c900ae35"
+    },
+    "prefilter-recall.json": {
+      "exists": true,
+      "sha256": "1afa06ebea7f44e5ff8e420470ff6e9d31f5682ae90c68aedbf964d40c706571"
+    },
+    "full-candidate-history-gate.json": {
+      "exists": true,
+      "sha256": "b7e5ae428272945a624dbff38a69914f33db20d92ba129bee344a78dbe536b25"
+    },
+    "registry-coverage-gate.json": {
+      "exists": true,
+      "sha256": "2515d2460f760318be7334495e0d2891a7e688d196dc3701cb85b4193a8ae7bd"
+    },
+    "snapshot-content-binding-gate.json": {
+      "exists": true,
+      "sha256": "48dd8194aa5356880c6c7d1217165efb81837f91d14b7093a6f666137d9add8c"
     }
   },
   "note": "execution artifacts; not self-referential commit SHA of this package"

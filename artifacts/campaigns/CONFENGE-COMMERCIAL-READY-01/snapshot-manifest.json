@@ -1,0 +1,16 @@
+{
+  "kind": "authenticated_contract_snapshot",
+  "read_only": true,
+  "fixture": false,
+  "synthetic": false,
+  "dump_path": "/mnt/d/extra consultoria/.worktrees/confenge-commercial-ready-01/artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/db-content-binding.marker",
+  "sha256": "9624f50f368953f1007f6efbff403665d47e6d92bc83ccc4d579483b4028d86b",
+  "contracts_count": 60000,
+  "package": "CONFENGE-COMMERCIAL-READY-01-restored-snapshot",
+  "exported_at_utc": "2026-07-25T21:46:02Z",
+  "canonical_table_hash": "c22cff3b72ed09f696d3f42721d5977e1ed5622f7ed8a4a4651580677bdc3157",
+  "canonical_hash_algorithm": "sha256-rowmd5-ordered-agg-v1",
+  "row_count": 60000,
+  "min_date": "2026-02-13",
+  "max_date": "2026-07-23"
+}

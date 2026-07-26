@@ -1,0 +1,11 @@
+{
+  "ok": true,
+  "method": "live_db_supplier_registry_lookup",
+  "top20_n": 20,
+  "with_registry": 20,
+  "coverage": 1.0,
+  "cnae_primary_coverage": 1.0,
+  "missing": [],
+  "no_cnae": [],
+  "block": null
+}
