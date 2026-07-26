@@ -8,7 +8,7 @@
   "machine_evidence_publication_status": "PASS",
   "github_workflow_status": "PASS",
   "workflow_run_id": "30214972722",
-  "workflow_pr_head_sha": "ee72cc90b05a82519b18535a4d9769ba95d4752c",
+  "workflow_pr_head_sha": "0af7356e8b1ddd237d8d0b591a2d29e148673efe",
   "workflow_merge_sha": "3add74d8da1459f4c17dacd80e4f811a21c54762",
   "captured_at": "2026-07-26T18:44:27Z",
   "note": "IDs from green CI 30214972722 (fcf177d2); re-freeze tip may lag until next CI"
