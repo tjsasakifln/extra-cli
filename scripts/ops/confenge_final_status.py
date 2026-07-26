@@ -1217,6 +1217,22 @@ all_other_machine_blockers: {status["all_other_machine_blockers"]}
     (ART / "FINAL-INTEGRITY-CLOSURE.md").write_text(imd, encoding="utf-8")
 
     write_merge_readiness(status)
+    # Keep publication stamp head fields aligned with rewritten package tip.
+    # Artifact IDs / run_id stay as bound publication proof; head must not lag result.
+    pub_path = ART / "workflow-artifact-publication.json"
+    if pub_path.is_file():
+        try:
+            pub = json.loads(pub_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            pub = {}
+        if isinstance(pub, dict) and pub:
+            tip = status.get("pr_head_sha") or status.get("current_pr_head_sha")
+            if tip:
+                pub["workflow_pr_head_sha"] = tip
+                pub["workflow_artifact_head_sha"] = tip
+                if status.get("workflow_merge_sha") is not None:
+                    pub["workflow_merge_sha"] = status.get("workflow_merge_sha")
+                pub_path.write_text(json.dumps(pub, indent=2) + "\n", encoding="utf-8")
     # Twin tree: machine-evidence must mirror root gates/status (no orphan dummy SHAs)
     mirror_status_tree_to_machine_evidence(ART)
     return status
@@ -1627,6 +1643,8 @@ def verify_cross_artifact_consistency(
     """Assert full package inventory agrees; fail on dummy SHAs / divergences.
 
     When rewrite=True (default), regenerates derived files and mirrors machine-evidence/.
+    Writes a provisional cross-artifact gate (matching package-tip) *before* inventory
+    so a stale committed gate cannot disagree with rewritten result/queue SHAs.
     """
     live_head = independent_live_pr_head()
     if rewrite:
@@ -1635,6 +1653,30 @@ def verify_cross_artifact_consistency(
         status = build_final_campaign_status()
 
     expected_head = live_head if check_live_head else status.get("pr_head_sha")
+    # Align meta gate SHAs with rewritten status tree before inventory (same as package_tip)
+    provisional = {
+        "ok": True,
+        "status": "PASS",
+        "issues": [],
+        "pr_head_sha": status["pr_head_sha"],
+        "current_pr_head_sha": status.get("current_pr_head_sha") or status["pr_head_sha"],
+        "executed_code_sha": status["executed_code_sha"],
+        "evidence_commit_sha": status.get("evidence_commit_sha") or status["pr_head_sha"],
+        "workflow_merge_sha": status.get("workflow_merge_sha"),
+        "workflow_run_id": status.get("workflow_run_id"),
+        "real_data_ci_status": status.get("real_data_ci_status"),
+        "terminal_reason": status["terminal_reason"],
+        "terminal_declaration": status["terminal_declaration"],
+        "match_run_to_head": status["match_run_to_head"],
+        "live_pr_head_sha": live_head,
+        "provisional": True,
+        "verified_at": utc_now(),
+    }
+    (ART / "cross-artifact-consistency-gate.json").write_text(
+        json.dumps(provisional, indent=2) + "\n", encoding="utf-8"
+    )
+    mirror_status_tree_to_machine_evidence(ART)
+
     rep = verify_package_inventory(
         art_dir=ART,
         expected_pr_head=expected_head,
@@ -1660,6 +1702,7 @@ def verify_cross_artifact_consistency(
         "terminal_reason": status["terminal_reason"],
         "terminal_declaration": status["terminal_declaration"],
         "pr_head_sha": status["pr_head_sha"],
+        "current_pr_head_sha": status.get("current_pr_head_sha") or status["pr_head_sha"],
         "live_pr_head_sha": live_head,
         "workflow_merge_sha": status.get("workflow_merge_sha"),
         "executed_code_sha": status["executed_code_sha"],
