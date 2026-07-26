@@ -4,10 +4,10 @@
   "technical_status": "PARTIAL_TECHNICAL_PASS_REAL_DATA",
   "campaign_id": "CONFENGE-COMMERCIAL-READY-01",
   "run_id": "cl-20260726T003820Z-f8e90e36",
-  "git_sha": "979bceb69ce6eab26e8c1dc0461c33a866a8a46a",
+  "git_sha": "c7b2cd1de15ae2232f48e4af4cc500229a265cdb",
   "run_git_sha": "691878853160b85ab7736d36f8265ed427f64d88",
   "artifact_git_sha": "979bceb69ce6eab26e8c1dc0461c33a866a8a46a",
-  "pr_head_sha": "1ddc9d91536bdb325fab7ef6d5050c111c87583e",
+  "pr_head_sha": "c7b2cd1de15ae2232f48e4af4cc500229a265cdb",
   "base_sha": "8344254942ec48978566317df16d7b3e3caabd89",
   "branch": "campaign/confenge-commercial-ready-01",
   "population_mode": "FULL_POPULATION",
@@ -505,7 +505,7 @@
   ],
   "rc_technical_pass_revoked": true,
   "user_acceptance": "NOT_REQUESTED",
-  "updated_at": "2026-07-26T00:52:37Z",
+  "updated_at": "2026-07-26T00:53:31Z",
   "answers": {
     "concentration_uses_full_history": true,
     "single_contract_can_produce_strong": false,
@@ -520,10 +520,10 @@
     "snapshot_table_writes_denied": true,
     "ranking_stability_live_rescore": true
   },
-  "executed_git_sha": "f98703e9e829625e8d7ed21b9e4ed6b4b821366d",
+  "executed_git_sha": "c7b2cd1de15ae2232f48e4af4cc500229a265cdb",
   "sha_binding": {
     "policy": "exact_or_ancestor_artifact_only_lag",
-    "executed": "f98703e9e829625e8d7ed21b9e4ed6b4b821366d",
-    "pr_head": "979bceb69ce6eab26e8c1dc0461c33a866a8a46a"
+    "executed": "c7b2cd1de15ae2232f48e4af4cc500229a265cdb",
+    "pr_head": "c7b2cd1de15ae2232f48e4af4cc500229a265cdb"
   }
 }
