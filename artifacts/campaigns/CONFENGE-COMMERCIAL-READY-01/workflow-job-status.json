@@ -8,11 +8,8 @@
   "machine_evidence_publication_status": "PASS",
   "github_workflow_status": "PASS",
   "workflow_run_id": "30214972722",
-  "workflow_pr_head_sha": "f9607672714b3193c7fff2a9267c5363f8af4654",
+  "workflow_pr_head_sha": "ee72cc90b05a82519b18535a4d9769ba95d4752c",
   "workflow_merge_sha": "3add74d8da1459f4c17dacd80e4f811a21c54762",
-  "captured_at": "2026-07-26T18:40:22Z",
-  "source": "CI run 30214972722 success on tip fcf177d2",
-  "bound_to_ci_tip": "fcf177d24b55ab4e2ab223635a57bd2c5af9b212",
-  "bound_to_ci_run": "30214972722",
-  "note": "Artifact IDs from green CI on fcf177d2 (30214972722). Package pr_head is current tip after evidence stamp; artifact-only lag from freeze; CI artifacts inherited from parent tip."
+  "captured_at": "2026-07-26T18:44:27Z",
+  "note": "IDs from green CI 30214972722 (fcf177d2); re-freeze tip may lag until next CI"
 }

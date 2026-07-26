@@ -2,7 +2,7 @@
   "published_as_workflow_artifact": true,
   "workflow_run_id": "30214972722",
   "workflow_run_url": "https://github.com/tjsasakifln/extra-cli/actions/runs/30214972722",
-  "workflow_pr_head_sha": "f9607672714b3193c7fff2a9267c5363f8af4654",
+  "workflow_pr_head_sha": "ee72cc90b05a82519b18535a4d9769ba95d4752c",
   "workflow_merge_sha": "3add74d8da1459f4c17dacd80e4f811a21c54762",
   "human_review_artifact_id": 8635542541,
   "human_review_artifact_digest": "sha256:38bd43f3a5123b2d69f69bcfc022a253afacfbe5222b48bd454d1ed78c83c6e4",
@@ -14,11 +14,9 @@
   },
   "artifact_created_at": "2026-07-26T18:34:43Z",
   "artifact_expires_at": "2026-10-24T18:33:35Z",
-  "executed_code_sha": "7262d2bf4840dda61a134cace76c41b32a1694c0",
-  "captured_at": "2026-07-26T18:40:22Z",
+  "executed_code_sha": "4d54d93112229c2c8ac6838a3df7b6d6481ea366",
+  "captured_at": "2026-07-26T18:44:27Z",
   "source_run": "30214972722",
-  "source_tip": "fcf177d24b55ab4e2ab223635a57bd2c5af9b212",
-  "bound_to_ci_tip": "fcf177d24b55ab4e2ab223635a57bd2c5af9b212",
-  "bound_to_ci_run": "30214972722",
-  "note": "Artifact IDs from green CI on fcf177d2 (30214972722). Package pr_head is current tip after evidence stamp; artifact-only lag from freeze; CI artifacts inherited from parent tip."
+  "source_ci_tip": "fcf177d24b55ab4e2ab223635a57bd2c5af9b212",
+  "binding": "inherited_from_parent_green_ci"
 }

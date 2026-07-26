@@ -1,13 +1,13 @@
 {
   "ok": true,
   "status": "PASS",
-  "current_pr_head_sha": "f9607672714b3193c7fff2a9267c5363f8af4654",
-  "pr_head_sha": "f9607672714b3193c7fff2a9267c5363f8af4654",
+  "current_pr_head_sha": "ee72cc90b05a82519b18535a4d9769ba95d4752c",
+  "pr_head_sha": "ee72cc90b05a82519b18535a4d9769ba95d4752c",
   "workflow_merge_sha": "3add74d8da1459f4c17dacd80e4f811a21c54762",
-  "checked_out_sha": "f9607672714b3193c7fff2a9267c5363f8af4654",
-  "final_integrity_code_freeze_sha": "7262d2bf4840dda61a134cace76c41b32a1694c0",
-  "final_code_freeze_sha": "7262d2bf4840dda61a134cace76c41b32a1694c0",
-  "executed_code_sha": "7262d2bf4840dda61a134cace76c41b32a1694c0",
+  "checked_out_sha": "ee72cc90b05a82519b18535a4d9769ba95d4752c",
+  "final_integrity_code_freeze_sha": "4d54d93112229c2c8ac6838a3df7b6d6481ea366",
+  "final_code_freeze_sha": "4d54d93112229c2c8ac6838a3df7b6d6481ea366",
+  "executed_code_sha": "4d54d93112229c2c8ac6838a3df7b6d6481ea366",
   "match_run_to_head": false,
   "code_changed_after_execution": false,
   "artifact_only_commits_after_execution": true,
@@ -27,7 +27,6 @@
     "artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/final-integrity-closure.json",
     "artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/final-integrity-code-freeze-gate.json",
     "artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/merge-readiness.json",
-    "artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/post-execution-artifact-only-diff-gate.json",
     "artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/queue-summary.json",
     "artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/result.json",
     "artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/sha-semantics-gate.json",
@@ -35,6 +34,6 @@
     "artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/workflow-job-status.json"
   ],
   "non_artifact_files_changed_after_execution": [],
-  "verified_at": "2026-07-26T18:40:22Z",
+  "verified_at": "2026-07-26T18:44:27Z",
   "policy": "post-freeze non-artifact tree vs pr_head must be empty; match_run_to_head true only when executed_code_sha == pr_head_sha; workflow_merge_sha / checked_out merge ref is never used as pr_head"
 }

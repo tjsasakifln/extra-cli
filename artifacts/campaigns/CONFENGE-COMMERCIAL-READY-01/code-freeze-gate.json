@@ -1,11 +1,11 @@
 {
   "ok": true,
   "status": "PASS",
-  "current_pr_head_sha": "f9607672714b3193c7fff2a9267c5363f8af4654",
-  "final_code_freeze_sha": "7262d2bf4840dda61a134cace76c41b32a1694c0",
-  "executed_code_sha": "7262d2bf4840dda61a134cace76c41b32a1694c0",
-  "code_tree_hash_at_execution": "2ce4acfa0fdc98ce17c00792171da75364511466f94214312990929baa5e2991",
-  "code_tree_hash_at_current_head": "3aa500ead2610d5ab6fb8f68bb6c294df520cd235c909f7c29ef1a5e4af88169",
+  "current_pr_head_sha": "ee72cc90b05a82519b18535a4d9769ba95d4752c",
+  "final_code_freeze_sha": "4d54d93112229c2c8ac6838a3df7b6d6481ea366",
+  "executed_code_sha": "4d54d93112229c2c8ac6838a3df7b6d6481ea366",
+  "code_tree_hash_at_execution": "38a99b00b75d0b0d6ba1f7a75d6b762bb510641e714f90139aa12be74106b357",
+  "code_tree_hash_at_current_head": "e4c39f864238071dbf622f03d9cc70efe6c4c17d894d5023d026f0af615f0ffc",
   "code_changed_after_execution": false,
   "artifact_only_commits_after_execution": true,
   "files_changed_after_freeze": [
@@ -24,7 +24,6 @@
     "artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/final-integrity-closure.json",
     "artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/final-integrity-code-freeze-gate.json",
     "artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/merge-readiness.json",
-    "artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/post-execution-artifact-only-diff-gate.json",
     "artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/queue-summary.json",
     "artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/result.json",
     "artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/sha-semantics-gate.json",
@@ -33,6 +32,6 @@
   ],
   "non_artifact_files_changed": [],
   "artifact_only_path_check": true,
-  "verified_at": "2026-07-26T18:40:21Z",
+  "verified_at": "2026-07-26T18:44:26Z",
   "note": "current_pr_head_sha is always live git tip at verify time"
 }
