@@ -1,25 +1,40 @@
 # Handoff — EDITAL-RELEVANCE-RECALL-95-01
 
+## Campaign status
+
+**`BLOCKED_HUMAN_DUAL_LABELING`**
+
+DOD §8.4 remains **unchecked**. No accept claim.
+
 ## Claimed
 
-- DOD §8.4: **Recall de editais relevantes >= 95% na amostra-ouro** proved on sealed `locked_holdout` with fail-closed evaluator.
+- Infrastructure for fail-closed relevance recall evaluation.  
+- Public inventory sampling pipeline and machine-draft corpus schema.  
+- Honest blocker documentation for missing human dual labels.
 
-## Evidence pointers
+## Not claimed
 
-| Artifact | Path |
-|----------|------|
-| Onda zero ownership | `docs/ops/campaigns/EDITAL-RELEVANCE-RECALL-95-01/ONDA-ZERO-OWNERSHIP-MANIFEST.md` |
-| Sampling plan | `docs/ops/campaigns/EDITAL-RELEVANCE-RECALL-95-01/corpus-sampling-plan.json` + `evals/edital_relevance/sampling_plan.json` |
-| Pilot 36 | `evals/edital_relevance/pilot_36.jsonl` |
-| Development | `evals/edital_relevance/development.jsonl` |
-| Locked holdout + manifest | `evals/edital_relevance/locked_holdout.jsonl`, `locked_holdout-manifest.json` |
-| Evaluator | `scripts/coverage/edital_relevance_recall.py` |
-| Unit tests | `tests/coverage/test_edital_relevance_recall.py` |
-| Final result | `artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01/edital-relevance-recall-result.json` |
-| Independent review | `docs/ops/campaigns/EDITAL-RELEVANCE-RECALL-95-01/review/INDEPENDENT-REVIEW.md` |
-| Makefile gate | `make campaign-gate-edital-relevance-recall` |
+- DOD §8.4 accept  
+- Human dual-independent gold labels  
+- Pilot human approval  
+- Pre-repair sealed holdout proof  
+- 95% relevance recall on human gold  
+- Any other DOD item  
 
-## Canonical command
+## Commands
+
+### Final accept (must fail on current machine drafts)
+
+```bash
+python3 -m scripts.coverage.edital_relevance_recall evaluate \
+  --corpus evals/edital_relevance/locked_holdout.jsonl \
+  --manifest evals/edital_relevance/locked_holdout-manifest.json \
+  --profile config/client_profiles/extra.yaml \
+  --development evals/edital_relevance/development.jsonl
+# expected: exit != 0 until human dual labels + seal + pilot approval
+```
+
+### Diagnostic only (machine drafts — NOT accept)
 
 ```bash
 python3 -m scripts.coverage.edital_relevance_recall evaluate \
@@ -27,21 +42,16 @@ python3 -m scripts.coverage.edital_relevance_recall evaluate \
   --manifest evals/edital_relevance/locked_holdout-manifest.json \
   --profile config/client_profiles/extra.yaml \
   --development evals/edital_relevance/development.jsonl \
-  --output artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01/edital-relevance-recall-result.json
+  --allow-machine-labels \
+  --no-holdout-floor
 ```
 
-## Not claimed
+## Next action for humans
 
-- Capture recall / STRATIFIED-RECALL-SOURCE-RESILIENCE-01 substitute  
-- Operational coverage ≥95%  
-- VPS_OPERATIONAL / LOCAL_READY / PROJECT_DONE  
-- PR #139 full hybrid architecture  
-- PR #133 automated proposal  
-- Commercial queue human accept (PR #144)  
-- Any other DOD checkbox  
+See `BLOCKED.md` — dual human labeling + pilot approval + re-freeze + final evaluate + main merge.
 
 ## Residual limitations
 
-- 5 nominal FN on sealed holdout (listed in result JSON).  
-- Dual-label reviewers are independent criteria engines, not two live human panels.  
-- Holdout frozen for this accept; do not retune classifier on this same sealed set for a second final claim.
+Machine criteria drafts share vocabulary with the classifier → circular risk.  
+First wave integrated on one PR branch (ownership documented in Onda Zero).  
+CONFENGE freeze allowlist expanded so monorepo work does not false-fail commercial bind gates.

@@ -52,6 +52,9 @@ def _base_rec(oid: str, label: str, objeto: str, **extra) -> dict:
         "selected_by_db_presence": False,
         "selected_by_success_zero": False,
         "synthetic": False,
+        "label_authority": "machine_criteria_draft",
+        "human_reviewer_a_id": "",
+        "human_reviewer_b_id": "",
     }
     rec.update(extra)
     return rec
@@ -216,7 +219,9 @@ def test_stratum_floor_fails_without_blocker(tmp_path):
     }
     mp = tmp_path / "m.json"
     mp.write_text(json.dumps(man), encoding="utf-8")
-    code, result = evaluate(p, manifest_path=mp, require_holdout_floor=True, allow_synthetic=True)
+    code, result = evaluate(
+        p, manifest_path=mp, require_holdout_floor=True, allow_machine_labels=True, allow_synthetic=True
+    )
     assert code != 0
 
 
@@ -352,6 +357,7 @@ def test_recall_95_percent_with_stubbed_predictions(tmp_path, monkeypatch):
         p,
         manifest_path=mp,
         require_holdout_floor=True,
+        allow_machine_labels=True,
         allow_synthetic=True,
         development_path=tmp_path / "empty-dev.jsonl",
     )
@@ -376,6 +382,7 @@ def test_recall_95_percent_with_stubbed_predictions(tmp_path, monkeypatch):
         p,
         manifest_path=mp,
         require_holdout_floor=True,
+        allow_machine_labels=True,
         allow_synthetic=True,
         development_path=tmp_path / "empty-dev.jsonl",
     )
@@ -408,3 +415,113 @@ def test_real_classifier_on_known_engineering():
         "ENGINEERING_HIGH_CONFIDENCE",
         "ENGINEERING_REVIEW",
     }
+
+
+def test_final_gate_rejects_machine_labels(tmp_path):
+    """Final accept must fail-closed without human dual-independent labels."""
+    rows = []
+    sources = ["pncp", "sc_compras", "ciga"]
+    buckets = ["grande", "medio", "pequeno"]
+    naturezas = ["admin_direta", "admin_indireta"]
+    for i in range(100):
+        rows.append(
+            _base_rec(
+                f"R{i}",
+                "RELEVANT",
+                ENG_OBJ,
+                source=sources[i % 3],
+                municipio_bucket=buckets[i % 3],
+                natureza_juridica=naturezas[i % 2],
+                label_authority="machine_criteria_draft",
+            )
+        )
+    for i in range(20):
+        rows.append(
+            _base_rec(
+                f"I{i}",
+                "IRRELEVANT",
+                NON_OBJ,
+                source=sources[i % 3],
+                municipio_bucket=buckets[i % 3],
+                natureza_juridica=naturezas[i % 2],
+                label_authority="machine_criteria_draft",
+            )
+        )
+    p = tmp_path / "hold.jsonl"
+    _write_jsonl(p, rows)
+    man = {
+        "role": "locked_holdout",
+        "frozen_at": "2026-07-26T00:00:00Z",
+        "sealed_before_classifier_edits": True,
+        "corpus_sha256": sha256_file(p),
+        "stratum_blockers": {},
+        "label_authority": "machine_criteria_draft",
+    }
+    mp = tmp_path / "m.json"
+    mp.write_text(json.dumps(man), encoding="utf-8")
+    code, result = evaluate(
+        p,
+        manifest_path=mp,
+        require_holdout_floor=True,
+        allow_machine_labels=False,
+        allow_synthetic=True,
+        development_path=tmp_path / "empty-dev.jsonl",
+    )
+    assert code != 0
+    assert result["pass"] is False
+    errs = " ".join(result["integrity"]["errors"])
+    assert "human" in errs.lower() or "machine" in errs.lower()
+
+
+def test_final_gate_rejects_missing_seal(tmp_path):
+    rows = [
+        _base_rec(
+            f"R{i}",
+            "RELEVANT",
+            ENG_OBJ,
+            source=["pncp", "sc_compras", "ciga"][i % 3],
+            municipio_bucket=["grande", "medio", "pequeno"][i % 3],
+            natureza_juridica=["admin_direta", "admin_indireta"][i % 2],
+            label_authority="human_dual_independent",
+            human_reviewer_a_id="reviewer_alpha",
+            human_reviewer_b_id="reviewer_beta",
+        )
+        for i in range(100)
+    ]
+    for i in range(20):
+        rows.append(
+            _base_rec(
+                f"I{i}",
+                "IRRELEVANT",
+                NON_OBJ,
+                source=["pncp", "sc_compras", "ciga"][i % 3],
+                municipio_bucket=["grande", "medio", "pequeno"][i % 3],
+                natureza_juridica=["admin_direta", "admin_indireta"][i % 2],
+                label_authority="human_dual_independent",
+                human_reviewer_a_id="reviewer_alpha",
+                human_reviewer_b_id="reviewer_beta",
+            )
+        )
+    p = tmp_path / "hold.jsonl"
+    _write_jsonl(p, rows)
+    man = {
+        "role": "locked_holdout",
+        "frozen_at": "2026-07-26T00:00:00Z",
+        "sealed_before_classifier_edits": False,  # explicit fail
+        "corpus_sha256": sha256_file(p),
+        "stratum_blockers": {},
+        "label_authority": "human_dual_independent",
+        "pilot_human_approved_at": "2026-07-26T00:00:00Z",
+    }
+    mp = tmp_path / "m.json"
+    mp.write_text(json.dumps(man), encoding="utf-8")
+    code, result = evaluate(
+        p,
+        manifest_path=mp,
+        require_holdout_floor=True,
+        allow_machine_labels=False,
+        allow_synthetic=True,
+        development_path=tmp_path / "empty-dev.jsonl",
+    )
+    assert code != 0
+    assert any("sealed" in e for e in result["integrity"]["errors"])

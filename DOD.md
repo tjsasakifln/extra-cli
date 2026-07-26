@@ -824,7 +824,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] O usuário pode marcar falsos negativos identificados.
 - [ ] Feedback manual pode ser exportado para calibração.
 - [ ] A amostra-ouro inclui oportunidades relevantes e irrelevantes.
-- [x] Recall de editais relevantes >= 95% na amostra-ouro. Evidência: campanha `EDITAL-RELEVANCE-RECALL-95-01` · holdout `evals/edital_relevance/locked_holdout.jsonl` (140 RELEVANT adjudicados) · evaluator `python -m scripts.coverage.edital_relevance_recall evaluate` · relevance_recall=0.9643 (135/140) · rule_version `extra-sector-classifier/2.3.1` · result `artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01/edital-relevance-recall-result.json` · review `docs/ops/campaigns/EDITAL-RELEVANCE-RECALL-95-01/review/INDEPENDENT-REVIEW.md` · tests `tests/coverage/test_edital_relevance_recall.py`.
+- [ ] Recall de editais relevantes >= 95% na amostra-ouro. **BLOCKED_HUMAN_DUAL_LABELING** (campanha `EDITAL-RELEVANCE-RECALL-95-01`, 2026-07-26): evaluator fail-closed + inventário público + rascunho machine criteria existem; falta dupla rotulagem humana independente, aprovação humana do piloto, freeze temporal pre-repair e evaluate final com `label_authority=human_dual_independent`. Não usar recall de machine-draft como aceite. Evidência: `docs/ops/campaigns/EDITAL-RELEVANCE-RECALL-95-01/BLOCKED.md` · PR #145.
 - [ ] Existem zero falsos “abertos” na amostra prioritária.
 - [ ] A amostra é estratificada por município, natureza jurídica e fonte.
 

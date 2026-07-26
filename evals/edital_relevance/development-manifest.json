@@ -2,10 +2,15 @@
   "schema_version": "edital-relevance-corpus/1.0.0",
   "role": "development",
   "campaign": "EDITAL-RELEVANCE-RECALL-95-01",
-  "frozen_at": "2026-07-26T21:49:37Z",
+  "campaign_status": "BLOCKED_HUMAN_DUAL_LABELING",
+  "frozen_at": "2026-07-26T22:14:18Z",
   "sealed_before_classifier_edits": false,
+  "classifier_first_edit_at": "2026-07-26T21:40:00Z",
+  "seal_note": "Inventory freeze after machine draft labeling. NOT a pre-repair human-gold seal. Cannot support DOD accept until: (1) dual human labels, (2) pilot human approval, (3) re-freeze holdout BEFORE any further classifier edit, (4) single final evaluate.",
+  "label_authority": "machine_criteria_draft",
+  "pilot_human_approved_at": null,
   "corpus_path": "evals/edital_relevance/development.jsonl",
-  "corpus_sha256": "3a669a999c3131287367fd0f0d56b69f4e0a088a79de92a03505612bede2ed01",
+  "corpus_sha256": "15d353a9a35a435129c1b5e7b928aac80e3209bac3eadcfae68bca3ec9cab3a8",
   "n_records": 135,
   "n_relevant": 60,
   "n_irrelevant": 60,
@@ -19,8 +24,9 @@
   "selection_rule": "public_inventory_only; stratified content sample; NOT system_class/db_count/score/success_zero/operational_queue",
   "stratum_blockers": {},
   "reviewers": [
-    "criteria_A_inclusion_first",
-    "criteria_B_exclusion_first"
+    "criteria_A_inclusion_first_MACHINE_DRAFT",
+    "criteria_B_exclusion_first_MACHINE_DRAFT"
   ],
-  "adjudication": "conflicts adjudicated; UNDECIDABLE never silent→IRRELEVANT"
+  "adjudication": "machine criteria adjudication only — NOT human dual-independent",
+  "blocked_reason": "P1 unmet: dual independent human labels + adjudication + pilot human approval absent"
 }

@@ -25,5 +25,8 @@
   },
   "stratum_blockers": {},
   "dual_label_agreement_pilot": 0.9444444444444444,
-  "dual_label_agreement_holdout": 0.936
+  "dual_label_agreement_holdout": 0.936,
+  "label_authority": "machine_criteria_draft",
+  "campaign_status": "BLOCKED_HUMAN_DUAL_LABELING",
+  "warning": "Machine draft labels only — not human dual-independent gold"
 }

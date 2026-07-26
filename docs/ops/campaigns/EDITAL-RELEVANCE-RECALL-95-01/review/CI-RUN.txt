@@ -1,0 +1,4 @@
+CI run: https://github.com/tjsasakifln/extra-cli/actions/runs/30222189983
+PR: https://github.com/tjsasakifln/extra-cli/pull/145
+HEAD: 3e92a107b51ae4c16c5bec6491127469c7230d32
+All 27 checks PASS

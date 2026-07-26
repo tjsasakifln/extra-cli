@@ -164,6 +164,23 @@ class IntegrityReport:
         self.warnings.append(msg)
 
 
+MACHINE_LABEL_AUTHORITIES = frozenset(
+    {
+        "machine_criteria_draft",
+        "criteria_engine",
+        "dual_engine",
+        "synthetic_labeler",
+        "",
+    }
+)
+HUMAN_LABEL_AUTHORITIES = frozenset(
+    {
+        "human_dual_independent",
+        "human_adjudicated",
+    }
+)
+
+
 def check_corpus_integrity(
     records: list[dict[str, Any]],
     *,
@@ -171,14 +188,17 @@ def check_corpus_integrity(
     development_ids: set[str] | None = None,
     require_holdout_floor: bool = False,
     allow_synthetic: bool = False,
+    allow_machine_labels: bool = False,
     corpus_path: Path | None = None,
 ) -> IntegrityReport:
+    """Integrity checks. Final accept (require_holdout_floor) demands human dual labels."""
     rep = IntegrityReport()
     if not records:
         rep.fail("corpus empty")
         return rep
 
     ids: list[str] = []
+    machine_label_n = 0
     for i, rec in enumerate(records):
         oid = str(rec.get("official_id") or "").strip()
         if not oid:
@@ -224,6 +244,30 @@ def check_corpus_integrity(
         if rec.get("selected_by_classifier") is True:
             rep.fail(f"{oid}: selected by classifier output")
 
+        # Label authority (human dual independent required for final accept)
+        auth = str(rec.get("label_authority") or "").strip().lower()
+        human_a = str(rec.get("human_reviewer_a_id") or rec.get("human_reviewer_a") or "").strip()
+        human_b = str(rec.get("human_reviewer_b_id") or rec.get("human_reviewer_b") or "").strip()
+        is_machine = (
+            auth in MACHINE_LABEL_AUTHORITIES or auth.startswith("machine") or auth.startswith("criteria") or not auth
+        )
+        if is_machine:
+            machine_label_n += 1
+        if require_holdout_floor and not allow_machine_labels:
+            if is_machine or auth not in HUMAN_LABEL_AUTHORITIES:
+                rep.fail(
+                    f"{oid}: final gate requires human dual-independent labels "
+                    f"(label_authority={auth!r}; got machine/criteria draft)"
+                )
+            if not human_a or not human_b or human_a == human_b:
+                rep.fail(
+                    f"{oid}: final gate requires two distinct human reviewer ids "
+                    f"(human_reviewer_a_id / human_reviewer_b_id)"
+                )
+            if not rec.get("pilot_human_approval") and manifest and manifest.get("role") == "locked_holdout":
+                # pilot approval is manifest-level; checked below
+                pass
+
     # Duplicates
     seen: set[str] = set()
     dups: set[str] = set()
@@ -261,7 +305,7 @@ def check_corpus_integrity(
                         "without explicit population blocker"
                     )
 
-    # Manifest hash check
+    # Manifest hash + freeze-before-repair (strict for final holdout)
     if manifest is not None and corpus_path is not None:
         expected = manifest.get("corpus_sha256")
         if expected:
@@ -271,10 +315,33 @@ def check_corpus_integrity(
         freeze_ts = manifest.get("frozen_at")
         if not freeze_ts:
             rep.fail("manifest missing frozen_at")
-        if manifest.get("role") == "locked_holdout" and not manifest.get("sealed_before_classifier_edits"):
-            # Allow true for sealed; fail if explicitly false
-            if manifest.get("sealed_before_classifier_edits") is False:
-                rep.fail("holdout not sealed before classifier edits")
+        role = manifest.get("role")
+        sealed = manifest.get("sealed_before_classifier_edits")
+        if role == "locked_holdout" and require_holdout_floor and not allow_machine_labels:
+            # Final accept: seal must be explicit True (missing/false fail)
+            if sealed is not True:
+                rep.fail(f"locked_holdout sealed_before_classifier_edits must be true for final gate (got {sealed!r})")
+            clf_edit = manifest.get("classifier_first_edit_at")
+            if clf_edit and freeze_ts and str(clf_edit) < str(freeze_ts):
+                rep.fail(f"classifier_first_edit_at {clf_edit} is before frozen_at {freeze_ts}")
+            if not manifest.get("pilot_human_approved_at"):
+                rep.fail(
+                    "manifest missing pilot_human_approved_at "
+                    "(Tiago/authorized reviewer must approve pilot before scale-up)"
+                )
+            if manifest.get("label_authority") not in HUMAN_LABEL_AUTHORITIES and not allow_machine_labels:
+                rep.fail(
+                    "manifest label_authority must be human_dual_independent for final gate "
+                    f"(got {manifest.get('label_authority')!r})"
+                )
+        elif role == "locked_holdout" and sealed is False and require_holdout_floor and not allow_machine_labels:
+            rep.fail("holdout not sealed before classifier edits")
+
+    if require_holdout_floor and not allow_machine_labels and machine_label_n:
+        rep.fail(
+            f"{machine_label_n} records use machine/criteria draft labels; "
+            "human dual-independent labeling required for DOD accept"
+        )
 
     return rep
 
@@ -459,6 +526,7 @@ def evaluate(
     development_path: Path | None = None,
     require_holdout_floor: bool = True,
     allow_synthetic: bool = False,
+    allow_machine_labels: bool = False,
     output_path: Path | None = None,
 ) -> tuple[int, dict[str, Any]]:
     """Full fail-closed evaluation. Returns (exit_code, result_dict)."""
@@ -495,6 +563,7 @@ def evaluate(
         development_ids=development_ids or None,
         require_holdout_floor=require_holdout_floor,
         allow_synthetic=allow_synthetic,
+        allow_machine_labels=allow_machine_labels,
         corpus_path=corpus_path,
     )
 
@@ -514,8 +583,14 @@ def evaluate(
     # Partial failure: any integrity error means fail
     passed = integrity.ok and not errors and recall >= RECALL_THRESHOLD - 1e-15
 
-    # Freeze-before-repair: if manifest declares freeze time and repair_started_at after
-    if manifest and manifest.get("classifier_first_edit_at") and manifest.get("frozen_at"):
+    # Freeze-before-repair (final accept only)
+    if (
+        require_holdout_floor
+        and not allow_machine_labels
+        and manifest
+        and manifest.get("classifier_first_edit_at")
+        and manifest.get("frozen_at")
+    ):
         if str(manifest["classifier_first_edit_at"]) < str(manifest["frozen_at"]):
             errors.append("classifier edited before holdout freeze")
             passed = False
@@ -600,6 +675,7 @@ def cmd_evaluate(args: argparse.Namespace) -> int:
         development_path=Path(args.development) if args.development else None,
         require_holdout_floor=not args.no_holdout_floor,
         allow_synthetic=bool(args.allow_synthetic),
+        allow_machine_labels=bool(args.allow_machine_labels),
         output_path=Path(args.output) if args.output else None,
     )
     # Compact stdout
@@ -647,6 +723,11 @@ def build_parser() -> argparse.ArgumentParser:
         help="Skip ≥100 RELEVANT / stratum floors (pilot/dev only)",
     )
     e.add_argument("--allow-synthetic", action="store_true")
+    e.add_argument(
+        "--allow-machine-labels",
+        action="store_true",
+        help="Diagnostic only: permit criteria-engine draft labels (NOT DOD accept)",
+    )
     e.set_defaults(func=cmd_evaluate)
     return p
 
