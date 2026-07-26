@@ -2,9 +2,9 @@
   "published_as_workflow_artifact": true,
   "workflow_run_id": "30215931047",
   "workflow_run_url": "https://github.com/tjsasakifln/extra-cli/actions/runs/30215931047",
-  "workflow_pr_head_sha": "807b57ed6b64ff4b383e1e6f84a9782d522db125",
-  "workflow_merge_sha": "c0ae4fe1403a96b9dc6fc2464e091de39254f7ad",
-  "workflow_artifact_head_sha": "807b57ed6b64ff4b383e1e6f84a9782d522db125",
+  "workflow_pr_head_sha": "da77c8405ad01c8027e179afe0148f75909817d9",
+  "workflow_merge_sha": null,
+  "workflow_artifact_head_sha": "da77c8405ad01c8027e179afe0148f75909817d9",
   "human_review_artifact_id": 8635804232,
   "human_review_artifact_digest": "sha256:833b75674b7faa3bca3c2993534519d134778c83ee8cbaad1bc78be9534fd6bb",
   "machine_evidence_artifact_id": 8635809570,
@@ -15,7 +15,7 @@
   },
   "artifact_created_at": "2026-07-26T19:00:58Z",
   "artifact_expires_at": "2026-10-24T19:00:28Z",
-  "captured_at": "2026-07-26T19:18:10Z",
-  "source_tip": "807b57ed6b64ff4b383e1e6f84a9782d522db125",
+  "captured_at": "2026-07-26T19:27:37Z",
+  "source_tip": "da77c8405ad01c8027e179afe0148f75909817d9",
   "source_run": "30215931047"
 }

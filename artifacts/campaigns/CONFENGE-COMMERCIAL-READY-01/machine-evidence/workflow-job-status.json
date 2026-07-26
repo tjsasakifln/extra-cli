@@ -8,8 +8,8 @@
   "machine_evidence_publication_status": "PASS",
   "github_workflow_status": "PASS",
   "workflow_run_id": "30215931047",
-  "workflow_pr_head_sha": "807b57ed6b64ff4b383e1e6f84a9782d522db125",
-  "workflow_merge_sha": "c0ae4fe1403a96b9dc6fc2464e091de39254f7ad",
-  "workflow_run_head_sha": "807b57ed6b64ff4b383e1e6f84a9782d522db125",
-  "captured_at": "2026-07-26T19:18:10Z"
+  "workflow_pr_head_sha": "da77c8405ad01c8027e179afe0148f75909817d9",
+  "workflow_merge_sha": null,
+  "workflow_run_head_sha": "da77c8405ad01c8027e179afe0148f75909817d9",
+  "captured_at": "2026-07-26T19:27:37Z"
 }
