@@ -9,12 +9,12 @@
   "executed_code_sha": "5c8c796163574a8988b7a6d67d287438e75ced35",
   "final_code_freeze_sha": "5c8c796163574a8988b7a6d67d287438e75ced35",
   "final_integrity_code_freeze_sha": "5c8c796163574a8988b7a6d67d287438e75ced35",
-  "evidence_commit_sha": "5c8c796163574a8988b7a6d67d287438e75ced35",
+  "evidence_commit_sha": "c51ac9804b33a0300755d904f7a2ef9afd575b09",
   "workflow_head_sha": "5c8c796163574a8988b7a6d67d287438e75ced35",
   "artifact_git_sha": "5c8c796163574a8988b7a6d67d287438e75ced35",
-  "match_run_to_head": true,
+  "match_run_to_head": false,
   "code_changed_after_execution": false,
-  "artifact_only_commits_after_execution": false,
+  "artifact_only_commits_after_execution": true,
   "non_artifact_files_changed_after_execution": [],
   "machine_blockers": [
     "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE"
