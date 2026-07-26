@@ -223,17 +223,24 @@ def assert_source_state_isolation(
         separated = True
 
     source_ro: bool | None = None
+    snapshot_write_probe: dict[str, Any] | None = None
     if enforce_source_readonly and source_dsn:
-        source_ro = _probe_source_read_only(source_dsn)
+        snapshot_write_probe = probe_snapshot_write_denied(source_dsn)
+        source_ro = True if snapshot_write_probe.get("ok") else False
         if source_ro is False:
-            reasons.append("source_dsn_writable")
-            hits.append("source_not_read_only")
+            reasons.append("source_snapshot_table_writable")
+            hits.append("snapshot_write_not_denied")
+            if snapshot_write_probe.get("residual_probe_rows"):
+                hits.append("residual_probe_rows_left_in_snapshot")
+        if snapshot_write_probe.get("select") != "ok":
+            reasons.append("source_select_failed")
+            hits.append("source_select_failed")
 
     ok = not hits and state_res.ok and source_res.ok
     if hits and "isolation_violation" not in reasons:
         reasons.append("isolation_violation")
 
-    return IsolationResult(
+    result = IsolationResult(
         ok=ok,
         production_touched=production,
         soak_touched=soak,
@@ -249,39 +256,143 @@ def assert_source_state_isolation(
         source_read_only_enforced=source_ro,
         source_state_separated=separated and mode == SOURCE_STATE_SEPARATED,
     )
+    if snapshot_write_probe is not None:
+        setattr(result, "snapshot_write_probe", snapshot_write_probe)
+    return result
+
+
+def probe_snapshot_write_denied(dsn: str) -> dict[str, Any]:
+    """Prove INSERT/UPDATE/DELETE on snapshot table FAIL without mutation flag.
+
+    Does NOT set session readonly first — tests DB-level protection (trigger/role).
+    Returns {ok, insert, update, delete, select, residual_probe_rows}.
+    """
+    import psycopg2
+
+    out: dict[str, Any] = {
+        "ok": False,
+        "insert": None,
+        "update": None,
+        "delete": None,
+        "select": None,
+        "residual_probe_rows": None,
+        "method": "live_mutate_pncp_supplier_contracts_expect_fail",
+    }
+    probe_id = "confenge-isolation-probe-must-fail"
+    try:
+        conn = psycopg2.connect(dsn, connect_timeout=10)
+    except Exception as exc:  # noqa: BLE001
+        out["error"] = f"connect:{exc}"
+        return out
+    try:
+        conn.autocommit = True
+        with conn.cursor() as cur:
+            # SELECT must work
+            try:
+                cur.execute(
+                    "SELECT COUNT(*)::bigint FROM public.pncp_supplier_contracts"
+                )
+                out["select"] = "ok"
+            except Exception as exc:  # noqa: BLE001
+                out["select"] = f"fail:{exc}"
+
+            # INSERT must FAIL
+            try:
+                cur.execute(
+                    """
+                    INSERT INTO public.pncp_supplier_contracts (contrato_id)
+                    VALUES (%s)
+                    """,
+                    (probe_id,),
+                )
+                out["insert"] = "UNEXPECTED_SUCCESS"
+            except Exception as exc:  # noqa: BLE001
+                out["insert"] = f"denied:{type(exc).__name__}"
+
+            # UPDATE must FAIL (even if no matching row — trigger fires per row;
+            # if zero rows updated without trigger, still not a successful mutation)
+            try:
+                cur.execute(
+                    """
+                    UPDATE public.pncp_supplier_contracts
+                    SET objeto_contrato = objeto_contrato
+                    WHERE contrato_id = %s
+                    """,
+                    (probe_id,),
+                )
+                # If probe insert failed, UPDATE affects 0 rows — still OK if no exception
+                # and no residual probe. Require that a broad write is denied when possible.
+                out["update"] = "ok_no_row_or_denied"
+            except Exception as exc:  # noqa: BLE001
+                out["update"] = f"denied:{type(exc).__name__}"
+
+            # Stronger UPDATE probe: touch a real row must fail via trigger
+            try:
+                cur.execute(
+                    """
+                    UPDATE public.pncp_supplier_contracts
+                    SET objeto_contrato = coalesce(objeto_contrato, '')
+                    WHERE contrato_id IN (
+                        SELECT contrato_id FROM public.pncp_supplier_contracts
+                        ORDER BY contrato_id NULLS LAST LIMIT 1
+                    )
+                    """
+                )
+                out["update_real_row"] = "UNEXPECTED_SUCCESS"
+            except Exception as exc:  # noqa: BLE001
+                out["update_real_row"] = f"denied:{type(exc).__name__}"
+
+            # DELETE must FAIL
+            try:
+                cur.execute(
+                    """
+                    DELETE FROM public.pncp_supplier_contracts
+                    WHERE contrato_id IN (
+                        SELECT contrato_id FROM public.pncp_supplier_contracts
+                        ORDER BY contrato_id NULLS LAST LIMIT 1
+                    )
+                    """
+                )
+                out["delete"] = "UNEXPECTED_SUCCESS"
+            except Exception as exc:  # noqa: BLE001
+                out["delete"] = f"denied:{type(exc).__name__}"
+
+            # residual probes
+            cur.execute(
+                "SELECT COUNT(*)::int FROM public.pncp_supplier_contracts WHERE contrato_id = %s",
+                (probe_id,),
+            )
+            residual = cur.fetchone()
+            out["residual_probe_rows"] = int(residual[0]) if residual else 0
+
+        out["ok"] = (
+            out.get("select") == "ok"
+            and str(out.get("insert", "")).startswith("denied")
+            and str(out.get("update_real_row", "")).startswith("denied")
+            and str(out.get("delete", "")).startswith("denied")
+            and out.get("residual_probe_rows") == 0
+        )
+        return out
+    finally:
+        try:
+            conn.close()
+        except Exception:  # noqa: BLE001
+            pass
 
 
 def _probe_source_read_only(dsn: str) -> bool | None:
-    """Return True if session is read-only, False if write succeeds, None if probe failed."""
-    try:
-        import psycopg2
-
-        conn = psycopg2.connect(dsn, connect_timeout=5)
-        try:
-            conn.set_session(readonly=True, autocommit=True)
-            with conn.cursor() as cur:
-                cur.execute("SHOW default_transaction_read_only")
-                row = cur.fetchone()
-                if row and str(row[0]).lower() in ("on", "true", "1"):
-                    return True
-                # try a no-op write that must fail under readonly
-                try:
-                    cur.execute(
-                        "CREATE TEMP TABLE _confenge_ro_probe(x int)"
-                    )
-                    cur.execute("DROP TABLE IF EXISTS _confenge_ro_probe")
-                    return False
-                except Exception:  # noqa: BLE001
-                    conn.rollback()
-                    return True
-        finally:
-            conn.close()
-    except Exception:  # noqa: BLE001
+    """Return True only if snapshot writes are denied at DB level (not session self-set)."""
+    report = probe_snapshot_write_denied(dsn)
+    if report.get("select") != "ok":
         return None
+    return True if report.get("ok") else False
 
 
 def open_source_connection(dsn: str) -> Any:
-    """Open source DB connection with default_transaction_read_only=on."""
+    """Open source DB connection with default_transaction_read_only=on (defense in depth).
+
+    Real immutability of snapshot tables is enforced by DB trigger (migration 064).
+    """
     import psycopg2
     from psycopg2.extras import RealDictCursor
 

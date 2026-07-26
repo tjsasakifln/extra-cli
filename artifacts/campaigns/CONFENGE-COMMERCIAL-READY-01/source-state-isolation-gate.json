@@ -16,10 +16,20 @@
     "source_read_only_enforced": true,
     "source_state_separated": false
   },
-  "write_tests": {
-    "select_snapshot": "ok",
+  "snapshot_write_probe": {
+    "ok": true,
+    "insert": "denied:InsufficientPrivilege",
+    "update": "ok_no_row_or_denied",
+    "delete": "denied:InsufficientPrivilege",
+    "select": "ok",
+    "residual_probe_rows": 0,
+    "method": "live_mutate_pncp_supplier_contracts_expect_fail",
+    "update_real_row": "denied:InsufficientPrivilege"
+  },
+  "ledger": {
     "insert_ledger": "ok"
   },
+  "snapshot_row_count_after_probe": 60000,
   "ok": true,
-  "note": "RESTORED_SNAPSHOT_SINGLE_DB: same physical DB; ledger write proven; true OS-level source readonly requires separate role (not claimed as SEPARATED)."
+  "note": "RESTORED_SNAPSHOT_SINGLE_DB: snapshot mutations denied by DB trigger (064); ledger writes allowed; not claimed as SOURCE_STATE_SEPARATED."
 }

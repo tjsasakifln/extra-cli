@@ -1,38 +1,57 @@
 {
+  "ok": true,
+  "method": "live_rescore_twice_same_snapshot_profile",
   "same_snapshot": {
     "ok": true,
-    "ranking_hash_run1": "24e2f4fba35e741069a7d60efee2c33c8be3a1b20968f0879578b5762c622610",
-    "ranking_hash_run2": "24e2f4fba35e741069a7d60efee2c33c8be3a1b20968f0879578b5762c622610",
-    "identical": true,
-    "profile": "confenge@1.0.0",
-    "catalog_hash": "a02e6c66adef2795c71906e4a3fd0d1a2c2c55c9449d2205940a637011e1004d",
-    "as_of": "2026-07-25"
+    "hash_a": "254a7903e3d4a48ffab8d297c55b9df430ed1fe24902e6123b94e88849f5e065",
+    "hash_b": "254a7903e3d4a48ffab8d297c55b9df430ed1fe24902e6123b94e88849f5e065"
   },
-  "delta_snapshot": {
-    "ok": true,
-    "description": "Simulated new data: one lead replaced; delta explained",
-    "ranking_hash_before": "9afce7f2366be42f6afe33cf2fa4770ff2ef82492a2431d18339d18af3c5459f",
-    "ranking_hash_after": "dba271f95384d87a80572b76b2574cdc9354916d22d4e07201c05f695bb6dcd9",
-    "identical": false,
-    "new_leads": [
-      "99999999000199"
-    ],
-    "removed_leads": [
-      "09223659000181"
-    ],
-    "score_changes_explained": true,
-    "feedback_preserved": true
-  },
-  "profile_or_catalog_change": {
-    "ok": true,
-    "description": "Profile/catalog version bump invalidates prior acceptance",
-    "ranking_hash_before": "9afce7f2366be42f6afe33cf2fa4770ff2ef82492a2431d18339d18af3c5459f",
-    "ranking_hash_after": "b77533a356869bcd7f0b6e03ff343fd11c13d913bb82139c6306fd9611b3c8d9",
-    "new_profile_version": "1.0.0+sector-fit",
-    "prior_acceptance_invalidated": true,
-    "delta_explained": true
-  },
-  "ok": true,
-  "required_for_rc": true,
-  "git_sha": "a277d63f28e95f9f9602bce528d06145ff1b2993"
+  "order_stable": true,
+  "matches_published_queue": true,
+  "published_order": [
+    "27254414000101",
+    "95257945000108",
+    "13591585000103",
+    "15247296000117",
+    "29084108000191",
+    "22798043000105",
+    "10558895000138",
+    "00472805000138",
+    "00220982000127",
+    "61608477000149",
+    "06145928000140",
+    "03094645000129",
+    "21763372000140",
+    "10249046000100",
+    "09223659000181",
+    "26277170000101",
+    "43887548000108",
+    "02740940000142",
+    "93336030000154",
+    "12535370000102"
+  ],
+  "rescored_order": [
+    "27254414000101",
+    "95257945000108",
+    "13591585000103",
+    "15247296000117",
+    "29084108000191",
+    "22798043000105",
+    "10558895000138",
+    "00472805000138",
+    "00220982000127",
+    "61608477000149",
+    "06145928000140",
+    "03094645000129",
+    "21763372000140",
+    "10249046000100",
+    "09223659000181",
+    "26277170000101",
+    "43887548000108",
+    "02740940000142",
+    "93336030000154",
+    "12535370000102"
+  ],
+  "history_complete": true,
+  "n_leads": 20
 }

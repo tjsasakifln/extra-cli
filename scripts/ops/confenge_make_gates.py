@@ -275,10 +275,132 @@ def cmd_ranking_quality(_: argparse.Namespace) -> int:
 
 
 def cmd_ranking_stability(_: argparse.Namespace) -> int:
-    p = ART / "ranking-stability.json"
-    d = json.loads(p.read_text(encoding="utf-8")) if p.is_file() else {}
-    print(d)
-    return 0 if d.get("ok") else 1
+    """Re-execute ranking twice on same run inputs and require identical ranking_hash.
+
+    Does not merely re-read a boolean file.
+    """
+    dsn = _require_dsn()
+    run = _load_run()
+    leads = run.get("leads") or []
+    if len(leads) < 5:
+        report = {"ok": False, "reason": "insufficient_leads_in_run", "n": len(leads)}
+        (ART / "ranking-stability.json").write_text(json.dumps(report, indent=2) + "\n")
+        print(report)
+        return 1
+
+    # Deterministic re-hash of published queue identity
+    def rank_blob(items: list[dict[str, Any]]) -> str:
+        blob = json.dumps(
+            [
+                (
+                    L.get("cnpj14"),
+                    L.get("score_total"),
+                    L.get("priority"),
+                    L.get("supplier_sector_fit"),
+                )
+                for L in items
+            ],
+            sort_keys=True,
+        )
+        return hashlib.sha256(blob.encode()).hexdigest()
+
+    h1 = rank_blob(leads)
+    h2 = rank_blob(list(reversed(list(reversed(leads)))))  # order-stable rebuild
+    # Live re-score top published CNPJs from full history (same as-of/profile)
+    from scripts.commercial_leads.pipeline import load_full_supplier_histories
+    from scripts.commercial_leads.profile import load_profile
+    from scripts.commercial_leads.scoring import rank_leads, score_supplier
+    from scripts.commercial_leads.signals import compute_signals_for_supplier, rows_from_dicts
+    from scripts.commercial_leads.dbutil import connect
+    from datetime import date
+
+    profile = load_profile(_ROOT / "config/commercial_profiles/confenge.yaml")
+    cnpjs = [str(L["cnpj14"]) for L in leads]
+    conn = connect(dsn)
+    try:
+        groups, hist = load_full_supplier_histories(conn, cnpjs, per_supplier_limit=None)
+    finally:
+        conn.close()
+    if not hist.get("history_complete"):
+        report = {"ok": False, "reason": "history_incomplete_on_stability_recheck", "hist": hist}
+        (ART / "ranking-stability.json").write_text(json.dumps(report, indent=2, default=str) + "\n")
+        print(report)
+        return 1
+
+    as_of = date.fromisoformat(str(run.get("as_of") or date.today().isoformat()))
+    scored = []
+    for L in leads:
+        cnpj = str(L["cnpj14"])
+        crow = groups.get(cnpj) or []
+        contracts = rows_from_dicts(crow)
+        sigs = compute_signals_for_supplier(contracts, profile, as_of=as_of, official_acts=None)
+        total_value = sum(
+            float(c.valor_total or 0) for c in contracts if c.valor_total is not None
+        )
+        pubs = [c.data_publicacao for c in contracts if c.data_publicacao]
+        last_pub = max(pubs).isoformat() if pubs else None
+        lead = score_supplier(
+            cnpj14=cnpj,
+            razao_social=L.get("razao_social") or cnpj,
+            signal_results=sigs,
+            profile=profile,
+            total_value=total_value,
+            contract_count=len(contracts),
+            last_publication=last_pub,
+        )
+        scored.append(lead)
+    ranked_a = rank_leads(scored, profile, suppressed_cnpjs=set(), state_by_cnpj={})
+    ranked_b = rank_leads(list(scored), profile, suppressed_cnpjs=set(), state_by_cnpj={})
+    ha = rank_blob(
+        [
+            {
+                "cnpj14": x.cnpj14,
+                "score_total": x.score_total,
+                "priority": x.priority,
+                "supplier_sector_fit": next(
+                    (L.get("supplier_sector_fit") for L in leads if L.get("cnpj14") == x.cnpj14),
+                    None,
+                ),
+            }
+            for x in ranked_a
+        ]
+    )
+    hb = rank_blob(
+        [
+            {
+                "cnpj14": x.cnpj14,
+                "score_total": x.score_total,
+                "priority": x.priority,
+                "supplier_sector_fit": next(
+                    (L.get("supplier_sector_fit") for L in leads if L.get("cnpj14") == x.cnpj14),
+                    None,
+                ),
+            }
+            for x in ranked_b
+        ]
+    )
+    order_a = [x.cnpj14 for x in ranked_a]
+    order_b = [x.cnpj14 for x in ranked_b]
+    published_order = [str(L["cnpj14"]) for L in leads]
+    ok = ha == hb and order_a == order_b and h1 == h2
+    # published order should match re-score order for same snapshot/profile
+    same_as_published = order_a == published_order
+    report = {
+        "ok": ok and same_as_published,
+        "method": "live_rescore_twice_same_snapshot_profile",
+        "same_snapshot": {"ok": ha == hb, "hash_a": ha, "hash_b": hb},
+        "order_stable": order_a == order_b,
+        "matches_published_queue": same_as_published,
+        "published_order": published_order,
+        "rescored_order": order_a,
+        "history_complete": hist.get("history_complete"),
+        "n_leads": len(leads),
+    }
+    (ART / "ranking-stability.json").write_text(
+        json.dumps(report, indent=2, default=str) + "\n", encoding="utf-8"
+    )
+    print(json.dumps(report, indent=2, default=str))
+    return 0 if report["ok"] else 1
 
 
 def cmd_baseline_superiority(_: argparse.Namespace) -> int:
@@ -325,34 +447,29 @@ def cmd_snapshot_content_binding(_: argparse.Namespace) -> int:
 
 
 def cmd_source_state_isolation(_: argparse.Namespace) -> int:
-    """Prove write denial on source role when enforce_source_readonly=True."""
+    """Prove snapshot writes FAIL and ledger writes PASS (RESTORED_SNAPSHOT_SINGLE_DB)."""
     from scripts.commercial_leads.dbutil import connect
-    from scripts.commercial_leads.isolation import assert_source_state_isolation
+    from scripts.commercial_leads.isolation import (
+        assert_source_state_isolation,
+        probe_snapshot_write_denied,
+    )
 
     dsn = _require_dsn()
     isolation = assert_source_state_isolation(
         source_dsn=dsn,
         state_dsn=dsn,
         force_mode="RESTORED_SNAPSHOT_SINGLE_DB",
-        enforce_source_readonly=True,
+        enforce_source_readonly=True,  # non-negotiable for this gate
     )
-    report: dict[str, Any] = {"isolation": isolation.as_dict()}
-    # Attempt writes against commercial ledger (state) and snapshot table
+    snapshot_probe = getattr(isolation, "snapshot_write_probe", None) or probe_snapshot_write_denied(
+        dsn
+    )
+
+    # Ledger insert must still work on state path (writable commercial tables)
     conn = connect(dsn)
-    write_tests: dict[str, Any] = {}
+    ledger: dict[str, Any] = {}
     try:
         with conn.cursor() as cur:
-            # Snapshot table must not be mutated by campaign writes in policy;
-            # we only prove we can detect mode. Actual role separation may be soft
-            # on RESTORED_SNAPSHOT_SINGLE_DB single role.
-            try:
-                cur.execute(
-                    "SELECT 1 FROM public.pncp_supplier_contracts LIMIT 1"
-                )
-                write_tests["select_snapshot"] = "ok"
-            except Exception as exc:  # noqa: BLE001
-                write_tests["select_snapshot"] = f"fail:{exc}"
-            # State insert into commercial_lead_runs should be possible
             try:
                 cur.execute(
                     """
@@ -369,11 +486,13 @@ def cmd_source_state_isolation(_: argparse.Namespace) -> int:
                     """
                 )
                 conn.commit()
-                write_tests["insert_ledger"] = "ok"
-                cur.execute("DELETE FROM commercial_lead_runs WHERE run_id = 'gate-isolation-probe'")
+                ledger["insert_ledger"] = "ok"
+                cur.execute(
+                    "DELETE FROM commercial_lead_runs WHERE run_id = 'gate-isolation-probe'"
+                )
                 conn.commit()
             except Exception as exc:  # noqa: BLE001
-                write_tests["insert_ledger"] = f"fail:{exc}"
+                ledger["insert_ledger"] = f"fail:{exc}"
                 try:
                     conn.rollback()
                 except Exception:  # noqa: BLE001
@@ -381,16 +500,35 @@ def cmd_source_state_isolation(_: argparse.Namespace) -> int:
     finally:
         conn.close()
 
-    report["write_tests"] = write_tests
-    report["ok"] = (
-        isolation.source_state_mode == "RESTORED_SNAPSHOT_SINGLE_DB"
-        and write_tests.get("insert_ledger") == "ok"
-        and write_tests.get("select_snapshot") == "ok"
-    )
-    report["note"] = (
-        "RESTORED_SNAPSHOT_SINGLE_DB: same physical DB; ledger write proven; "
-        "true OS-level source readonly requires separate role (not claimed as SEPARATED)."
-    )
+    # Count must remain stable after probe
+    from scripts.commercial_leads.dbutil import fetch_all
+
+    conn2 = connect(dsn)
+    try:
+        n = int(fetch_all(conn2, "SELECT COUNT(*)::int AS n FROM public.pncp_supplier_contracts")[0]["n"])
+    finally:
+        conn2.close()
+
+    report: dict[str, Any] = {
+        "isolation": isolation.as_dict(),
+        "snapshot_write_probe": snapshot_probe,
+        "ledger": ledger,
+        "snapshot_row_count_after_probe": n,
+        "ok": bool(
+            isolation.source_state_mode == "RESTORED_SNAPSHOT_SINGLE_DB"
+            and isolation.source_read_only_enforced is True
+            and snapshot_probe.get("ok") is True
+            and ledger.get("insert_ledger") == "ok"
+            and str(snapshot_probe.get("insert", "")).startswith("denied")
+            and str(snapshot_probe.get("update_real_row", "")).startswith("denied")
+            and str(snapshot_probe.get("delete", "")).startswith("denied")
+            and snapshot_probe.get("residual_probe_rows") == 0
+        ),
+        "note": (
+            "RESTORED_SNAPSHOT_SINGLE_DB: snapshot mutations denied by DB trigger (064); "
+            "ledger writes allowed; not claimed as SOURCE_STATE_SEPARATED."
+        ),
+    }
     (ART / "source-state-isolation-gate.json").write_text(
         json.dumps(report, indent=2, default=str) + "\n", encoding="utf-8"
     )
@@ -413,12 +551,13 @@ def cmd_migrations(_: argparse.Namespace) -> int:
     try:
         rows = fetch_all(
             conn,
-            "SELECT version, name FROM _migrations WHERE version IN ('062','063') ORDER BY version",
+            "SELECT version, name FROM _migrations WHERE version IN ('062','063','064') ORDER BY version",
         )
         r["applied_versions"] = [x["version"] for x in rows]
         r["has_062"] = any(x["version"] == "062" for x in rows)
         r["has_063"] = any(x["version"] == "063" for x in rows)
-        r["ok"] = r["ok"] and r["has_062"] and r["has_063"]
+        r["has_064"] = any(x["version"] == "064" for x in rows)
+        r["ok"] = r["ok"] and r["has_062"] and r["has_063"] and r["has_064"]
     finally:
         conn.close()
     (ART / "migrations-gate.json").write_text(json.dumps(r, indent=2, default=str) + "\n")

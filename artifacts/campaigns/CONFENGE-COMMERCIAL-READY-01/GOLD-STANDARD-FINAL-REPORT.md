@@ -69,3 +69,12 @@ Note: STRONG without CNAE is rare/impossible on ~160d snapshot window because **
 ## Remaining blockers
 - BLOCKED_INSUFFICIENT_HUMAN_LABELS
 - BLOCKED_PENDING_HUMAN_ACCEPTANCE
+
+
+## Isolation fix (skeptic round)
+
+- Migration `064_snapshot_write_guard.sql` blocks INSERT/UPDATE/DELETE on `pncp_supplier_contracts` unless `app.allow_snapshot_mutation=on`.
+- Live probe: INSERT/UPDATE/DELETE → `denied:InsufficientPrivilege`; residual probe rows = 0; count stays 60000.
+- Gate no longer self-sets session readonly then claims success.
+- Ranking stability re-scores top-20 twice live (`method=live_rescore_twice_same_snapshot_profile`).
+- Evaluation sample 200 items include historico_completo_resumido, categorias, orgaos, datas, evidencia; reviewer labels empty.

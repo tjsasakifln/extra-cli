@@ -7,7 +7,7 @@
   "git_sha": "979bceb69ce6eab26e8c1dc0461c33a866a8a46a",
   "run_git_sha": "691878853160b85ab7736d36f8265ed427f64d88",
   "artifact_git_sha": "979bceb69ce6eab26e8c1dc0461c33a866a8a46a",
-  "pr_head_sha": "979bceb69ce6eab26e8c1dc0461c33a866a8a46a",
+  "pr_head_sha": "1ddc9d91536bdb325fab7ef6d5050c111c87583e",
   "base_sha": "8344254942ec48978566317df16d7b3e3caabd89",
   "branch": "campaign/confenge-commercial-ready-01",
   "population_mode": "FULL_POPULATION",
@@ -458,8 +458,18 @@
       "conflicting_or_unknown": true,
       "out_of_scope": true
     },
+    "fields_present_check": {
+      "historico_completo_resumido": true,
+      "categorias": true,
+      "orgaos": true,
+      "datas": true,
+      "evidencia": true,
+      "model_classification": true,
+      "reviewer_slots_empty": true
+    },
     "dual_review_required": true,
-    "labels_filled": false
+    "labels_filled": false,
+    "ok_structural": true
   },
   "gates": {
     "denominator_integrity": "PASS",
@@ -473,7 +483,12 @@
     "top10_out_of_scope": 0,
     "persistence": "PASS",
     "migrations": "PASS",
-    "strong_min_time_span_days": 180
+    "strong_min_time_span_days": 180,
+    "source_readonly": "PASS",
+    "state_isolation": "PASS",
+    "ranking_stability": "PASS",
+    "snapshot_write_insert": "denied:InsufficientPrivilege",
+    "snapshot_write_delete": "denied:InsufficientPrivilege"
   },
   "blockers": [
     "BLOCKED_INSUFFICIENT_HUMAN_LABELS",
@@ -490,7 +505,7 @@
   ],
   "rc_technical_pass_revoked": true,
   "user_acceptance": "NOT_REQUESTED",
-  "updated_at": "2026-07-26T00:43:10Z",
+  "updated_at": "2026-07-26T00:52:37Z",
   "answers": {
     "concentration_uses_full_history": true,
     "single_contract_can_produce_strong": false,
@@ -501,7 +516,9 @@
     "beats_simple_baselines": "NOT_COMPUTABLE_WITHOUT_HUMAN_LABELS",
     "top20_operationally_usable": "PENDING_HUMAN_REVIEW",
     "claim_exceeds_evidence": false,
-    "strong_time_span_days": 180
+    "strong_time_span_days": 180,
+    "snapshot_table_writes_denied": true,
+    "ranking_stability_live_rescore": true
   },
   "executed_git_sha": "f98703e9e829625e8d7ed21b9e4ed6b4b821366d",
   "sha_binding": {
