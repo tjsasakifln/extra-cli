@@ -205,12 +205,12 @@
   "artifact_git_sha": "8d82d4d98cf0ff0154ce205cd1055459a4f6e96c",
   "reason": "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE",
   "executed_code_sha": "8d82d4d98cf0ff0154ce205cd1055459a4f6e96c",
-  "current_pr_head_sha": "8d82d4d98cf0ff0154ce205cd1055459a4f6e96c",
+  "current_pr_head_sha": "ac616e7291f8b6fc25ce83c88ce5a5be43f68c9b",
   "executed_git_sha": "da9596aece9a661c0b4bf4cba0637cac5e20767c",
   "evidence_commit_sha": "c51ac9804b33a0300755d904f7a2ef9afd575b09",
-  "match_run_to_head": true,
-  "updated_at": "2026-07-26T18:06:50Z",
-  "pr_head_sha": "8d82d4d98cf0ff0154ce205cd1055459a4f6e96c",
+  "match_run_to_head": false,
+  "updated_at": "2026-07-26T18:07:11Z",
+  "pr_head_sha": "ac616e7291f8b6fc25ce83c88ce5a5be43f68c9b",
   "gate_git_sha": "8d82d4d98cf0ff0154ce205cd1055459a4f6e96c",
   "review_git_sha": "8d82d4d98cf0ff0154ce205cd1055459a4f6e96c",
   "offer_mapping_diagnostic": {
@@ -255,7 +255,7 @@
   "technical_status": "BLOCKED",
   "final_code_freeze_sha": "8d82d4d98cf0ff0154ce205cd1055459a4f6e96c",
   "code_changed_after_execution": false,
-  "artifact_only_commits_after_execution": false,
+  "artifact_only_commits_after_execution": true,
   "machine_blockers": [
     "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE"
   ],

@@ -2,15 +2,15 @@
   "ok": true,
   "status": "PASS",
   "executed_code_sha": "8d82d4d98cf0ff0154ce205cd1055459a4f6e96c",
-  "current_pr_head_sha": "8d82d4d98cf0ff0154ce205cd1055459a4f6e96c",
-  "pr_head_sha": "8d82d4d98cf0ff0154ce205cd1055459a4f6e96c",
+  "current_pr_head_sha": "ac616e7291f8b6fc25ce83c88ce5a5be43f68c9b",
+  "pr_head_sha": "ac616e7291f8b6fc25ce83c88ce5a5be43f68c9b",
   "workflow_merge_sha": "a37d615d8b6b320fc4d4cc1b10d01bb0ba4cbd40",
-  "match_run_to_head_declared": true,
-  "match_run_to_head_derived": true,
-  "match_run_to_head": true,
+  "match_run_to_head_declared": false,
+  "match_run_to_head_derived": false,
+  "match_run_to_head": false,
   "code_changed_after_execution": false,
-  "artifact_only_commits_after_execution": false,
+  "artifact_only_commits_after_execution": true,
   "issues": [],
   "rule": "match_run_to_head == true only when executed_code_sha == pr_head_sha; workflow_merge_sha must never be stored as current_pr_head_sha",
-  "verified_at": "2026-07-26T18:06:49Z"
+  "verified_at": "2026-07-26T18:07:10Z"
 }
