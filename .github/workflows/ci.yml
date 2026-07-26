@@ -1133,9 +1133,12 @@ jobs:
           print(json.dumps(stamp, indent=2))
           PY
           # Fail-closed: no || true on mandatory gates (tests/test_mandatory_gates_no_or_true.py)
+          # All SHA/freeze gates must be regenerated before cross-artifact (no stale post-execution)
           make verify-confenge-sha-semantics
           make verify-confenge-final-integrity-code-freeze
+          make verify-confenge-post-execution-artifact-only-diff
           make verify-confenge-executed-tree-integrity
+          make verify-confenge-evidence-provenance
           make build-confenge-final-campaign-status
           make verify-confenge-cross-artifact-consistency
           mkdir -p artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/machine-evidence

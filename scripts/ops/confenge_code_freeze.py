@@ -84,57 +84,59 @@ def code_tree_hash(ref: str = "HEAD") -> str:
 
 
 def verify_code_freeze(*, freeze_sha: str | None = None) -> dict[str, Any]:
-    head = _git("rev-parse", "HEAD")
+    checked_out = _git("rev-parse", "HEAD")
+    # Diff and pr_head use PR tip when Actions sets CONFENGE_PR_HEAD_SHA
+    pr_head = os.environ.get("CONFENGE_PR_HEAD_SHA") or checked_out
+    merge = os.environ.get("CONFENGE_WORKFLOW_MERGE_SHA") or os.environ.get("GITHUB_SHA")
+    tip = pr_head
     freeze_path = ART / "FINAL_CODE_FREEZE_SHA.txt"
-    if freeze_sha is None and freeze_path.is_file():
-        freeze_sha = freeze_path.read_text(encoding="utf-8").strip().split()[0]
+    integrity_path = ART / "FINAL_INTEGRITY_CODE_FREEZE_SHA.txt"
+    if freeze_sha is None:
+        if integrity_path.is_file():
+            freeze_sha = integrity_path.read_text(encoding="utf-8").strip().split()[0]
+        elif freeze_path.is_file():
+            freeze_sha = freeze_path.read_text(encoding="utf-8").strip().split()[0]
     if not freeze_sha:
-        freeze_sha = head
+        freeze_sha = tip
         freeze_path.write_text(freeze_sha + "\n", encoding="utf-8")
 
     exec_path = ART / "EXECUTED_CODE_SHA.txt"
     executed = exec_path.read_text(encoding="utf-8").strip().split()[0] if exec_path.is_file() else freeze_sha
 
     tree_freeze = code_tree_hash(freeze_sha)
-    tree_head = code_tree_hash(head)
-    code_changed = tree_freeze != tree_head
+    tree_tip = code_tree_hash(tip)
 
-    # Files changed after freeze
-    changed: list[str] = []
-    if freeze_sha != head:
-        try:
-            changed = _git("diff", "--name-only", f"{freeze_sha}..{head}").splitlines()
-        except subprocess.CalledProcessError:
-            changed = []
-    non_artifact = [f for f in changed if not any(f.startswith(p) for p in ALLOWED_POST_FREEZE_PREFIXES)]
-    artifact_only = len(changed) > 0 and len(non_artifact) == 0
-    ok = executed == freeze_sha and (not code_changed or artifact_only)
-
-    # Path-based artifact-only proof freeze..HEAD (authoritative for post-freeze lag)
+    # Path-based artifact-only proof freeze..pr_head (not merge checkout)
     path_changed: list[str] = []
-    if freeze_sha != head:
+    if freeze_sha != tip:
         try:
-            path_changed = _git("diff", "--name-only", f"{freeze_sha}..{head}").splitlines()
+            path_changed = _git("diff", "--name-only", f"{freeze_sha}..{tip}").splitlines()
         except subprocess.CalledProcessError:
-            path_changed = changed
+            path_changed = []
     path_non = [f for f in path_changed if not any(f.startswith(p) for p in ALLOWED_POST_FREEZE_PREFIXES)]
-    path_artifact_only = len(path_changed) == 0 or len(path_non) == 0
-    ok = executed == freeze_sha and path_artifact_only
+    path_artifact_only = len(path_non) == 0 and freeze_sha != tip
+    no_non_artifact = len(path_non) == 0
+    ok = executed == freeze_sha and no_non_artifact
     report = {
         "ok": ok,
         "status": "PASS" if ok else "BLOCKED_CODE_EXECUTION_SHA_MISMATCH",
-        "current_pr_head_sha": head,
+        "current_pr_head_sha": pr_head,
+        "pr_head_sha": pr_head,
+        "checked_out_sha": checked_out,
+        "workflow_merge_sha": merge,
         "final_code_freeze_sha": freeze_sha,
+        "final_integrity_code_freeze_sha": freeze_sha,
         "executed_code_sha": executed,
         "code_tree_hash_at_execution": tree_freeze,
-        "code_tree_hash_at_current_head": tree_head,
-        "code_changed_after_execution": not path_artifact_only,
-        "artifact_only_commits_after_execution": path_artifact_only and len(path_changed) > 0,
+        "code_tree_hash_at_current_head": tree_tip,
+        "code_changed_after_execution": not no_non_artifact,
+        "artifact_only_commits_after_execution": path_artifact_only and no_non_artifact,
         "files_changed_after_freeze": path_changed,
         "non_artifact_files_changed": path_non,
-        "artifact_only_path_check": path_artifact_only,
+        "non_artifact_files_changed_after_execution": path_non,
+        "artifact_only_path_check": no_non_artifact,
         "verified_at": utc_now(),
-        "note": "current_pr_head_sha is always live git tip at verify time",
+        "note": "pr_head from CONFENGE_PR_HEAD_SHA when set; never label merge checkout as pr_head",
     }
     (ART / "code-freeze-gate.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     return report

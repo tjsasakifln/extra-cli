@@ -573,8 +573,57 @@ def _bind_sha(status: dict[str, Any]) -> str:
     return status["executed_code_sha"] or status["pr_head_sha"] or status["current_pr_head_sha"]
 
 
-def write_derived_artifacts(status: dict[str, Any] | None = None) -> dict[str, Any]:
-    """Write all status files derived from the single aggregator."""
+def refresh_integrity_sha_gates() -> dict[str, Any]:
+    """Regenerate all SHA/freeze gates so package never retains stale post-execution SHAs.
+
+    Called by the sole aggregator path before writing derived status files.
+    """
+    from scripts.ops.confenge_code_freeze import (
+        verify_evidence_provenance,
+        verify_executed_tree_integrity,
+        verify_final_integrity_code_freeze,
+        verify_post_execution_artifact_only_diff,
+        verify_sha_semantics,
+    )
+
+    freeze_rep = verify_final_integrity_code_freeze()
+    post_rep = verify_post_execution_artifact_only_diff(
+        freeze_sha=freeze_rep.get("final_integrity_code_freeze_sha") or freeze_rep.get("final_code_freeze_sha")
+    )
+    prov_rep = verify_evidence_provenance()
+    # Align sha-semantics with live freeze flags (real SHAs only)
+    sem_rep = verify_sha_semantics(
+        executed_code_sha=freeze_rep.get("executed_code_sha"),
+        current_pr_head_sha=freeze_rep.get("pr_head_sha") or freeze_rep.get("current_pr_head_sha"),
+        workflow_merge_sha=freeze_rep.get("workflow_merge_sha"),
+        match_run_to_head=freeze_rep.get("match_run_to_head"),
+        code_changed_after_execution=freeze_rep.get("code_changed_after_execution"),
+        artifact_only_commits_after_execution=freeze_rep.get("artifact_only_commits_after_execution"),
+        write_artifact=True,
+    )
+    tree_rep = verify_executed_tree_integrity()
+    return {
+        "final_integrity_code_freeze": freeze_rep,
+        "post_execution_artifact_only_diff": post_rep,
+        "evidence_provenance": prov_rep,
+        "sha_semantics": sem_rep,
+        "executed_tree_integrity": tree_rep,
+    }
+
+
+def write_derived_artifacts(
+    status: dict[str, Any] | None = None,
+    *,
+    refresh_sha_gates: bool = False,
+) -> dict[str, Any]:
+    """Write all status files derived from the single aggregator.
+
+    refresh_sha_gates=True regenerates freeze/post-execution/provenance/sha-semantics
+    gates (required for sole-writer production path via verify-consistency / CLI build).
+    Unit tests leave it False so they can isolate status aggregation on a temp ART.
+    """
+    if refresh_sha_gates:
+        refresh_integrity_sha_gates()
     status = status or build_final_campaign_status()
     ART.mkdir(parents=True, exist_ok=True)
     bind_sha = _bind_sha(status)
@@ -1051,6 +1100,8 @@ def collect_cross_artifact_issues(
     integrity: dict[str, Any] | None = None,
     sha_semantics: dict[str, Any] | None = None,
     provenance: dict[str, Any] | None = None,
+    post_execution: dict[str, Any] | None = None,
+    freeze_gate: dict[str, Any] | None = None,
     expected_pr_head: str | None = None,
 ) -> list[str]:
     """Pure consistency checks — unit-testable without writing files."""
@@ -1058,6 +1109,8 @@ def collect_cross_artifact_issues(
     integrity = integrity or {}
     sha_semantics = sha_semantics or {}
     provenance = provenance or {}
+    post_execution = post_execution or {}
+    freeze_gate = freeze_gate or {}
 
     keys = (
         "status",
@@ -1185,6 +1238,36 @@ def collect_cross_artifact_issues(
         if len(set(present.values())) > 1:
             issues.append(f"status_divergence:{field}:{present}")
 
+    # §5: post-execution / freeze gates must agree with result on core SHAs
+    result_exec = result.get("executed_code_sha")
+    result_pr = result.get("pr_head_sha") or result.get("current_pr_head_sha")
+    result_freeze = (
+        result.get("final_integrity_code_freeze_sha") or result.get("final_code_freeze_sha") or result.get("freeze_sha")
+    )
+    for gate_name, gate in (
+        ("post_execution", post_execution),
+        ("freeze_gate", freeze_gate),
+        ("sha_semantics", sha_semantics),
+        ("provenance", provenance),
+    ):
+        if not gate:
+            continue
+        g_exec = gate.get("executed_code_sha")
+        g_pr = gate.get("pr_head_sha") or gate.get("current_pr_head_sha")
+        g_freeze = (
+            gate.get("final_integrity_code_freeze_sha") or gate.get("final_code_freeze_sha") or gate.get("freeze_sha")
+        )
+        if result_exec and g_exec and result_exec != g_exec:
+            issues.append(f"gate_vs_result:{gate_name}:executed_code_sha:{g_exec!r}!={result_exec!r}")
+        if result_pr and g_pr and result_pr != g_pr:
+            issues.append(f"gate_vs_result:{gate_name}:pr_head_sha:{g_pr!r}!={result_pr!r}")
+        if result_freeze and g_freeze and result_freeze != g_freeze:
+            issues.append(f"gate_vs_result:{gate_name}:freeze_sha:{g_freeze!r}!={result_freeze!r}")
+        # Dummy SHAs forbidden in final gates
+        for field in ("executed_code_sha", "current_pr_head_sha", "pr_head_sha", "final_code_freeze_sha"):
+            if is_dummy_sha(gate.get(field)):
+                issues.append(f"dummy_sha_in_{gate_name}:{field}:{gate.get(field)}")
+
     return issues
 
 
@@ -1205,7 +1288,7 @@ def verify_cross_artifact_consistency(
     """
     live_head = independent_live_pr_head()
     if rewrite:
-        status = write_derived_artifacts()
+        status = write_derived_artifacts(refresh_sha_gates=True)
     else:
         status = build_final_campaign_status()
     result = _load("result.json")
@@ -1214,6 +1297,8 @@ def verify_cross_artifact_consistency(
     integrity = _load("final-integrity-closure.json")
     sha_sem = _load("sha-semantics-gate.json")
     provenance = _load("evidence-provenance-gate.json")
+    post_exec = _load("post-execution-artifact-only-diff-gate.json")
+    freeze_gate = _load("final-integrity-code-freeze-gate.json") or _load("code-freeze-gate.json")
 
     # Independent expected tip — not status['pr_head_sha'] after rewrite alone
     expected_head = live_head if check_live_head else status.get("pr_head_sha")
@@ -1224,6 +1309,8 @@ def verify_cross_artifact_consistency(
         integrity=integrity,
         sha_semantics=sha_sem,
         provenance=provenance,
+        post_execution=post_exec,
+        freeze_gate=freeze_gate,
         expected_pr_head=expected_head,
     )
 
@@ -1305,7 +1392,7 @@ def main(argv: list[str] | None = None) -> int:
     sub.add_parser("merge-readiness")
     args = ap.parse_args(argv)
     if args.cmd == "build":
-        st = write_derived_artifacts()
+        st = write_derived_artifacts(refresh_sha_gates=True)
         print(
             json.dumps(
                 {
@@ -1331,7 +1418,7 @@ def main(argv: list[str] | None = None) -> int:
         print(pr_body_status_block())
         return 0
     if args.cmd == "merge-readiness":
-        st = write_derived_artifacts()
+        st = write_derived_artifacts(refresh_sha_gates=True)
         mr = write_merge_readiness(st)
         print(json.dumps(mr, indent=2))
         return 0

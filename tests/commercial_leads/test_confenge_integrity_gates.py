@@ -606,3 +606,57 @@ def test_independent_live_pr_head_not_from_package(monkeypatch) -> None:
 
     monkeypatch.setenv("CONFENGE_PR_HEAD_SHA", "envprhead3333333333333333333333333333")
     assert fs.independent_live_pr_head() == "envprhead3333333333333333333333333333"
+
+
+def test_cross_artifact_fails_on_stale_post_execution_gate_shas() -> None:
+    """§5: post-execution gate with old freeze/pr SHAs must fail cross-artifact."""
+    from scripts.ops.confenge_final_status import collect_cross_artifact_issues
+
+    issues = collect_cross_artifact_issues(
+        result={
+            "status": "BLOCKED",
+            "terminal_reason": "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE",
+            "technical_status": "BLOCKED",
+            "executed_code_sha": "4d54d93112229c2c8ac6838a3df7b6d6481ea366",
+            "final_integrity_code_freeze_sha": "4d54d93112229c2c8ac6838a3df7b6d6481ea366",
+            "final_code_freeze_sha": "4d54d93112229c2c8ac6838a3df7b6d6481ea366",
+            "pr_head_sha": "0af7356e8b1ddd237d8d0b591a2d29e148673efe",
+            "current_pr_head_sha": "0af7356e8b1ddd237d8d0b591a2d29e148673efe",
+            "evidence_commit_sha": "0af7356e8b1ddd237d8d0b591a2d29e148673efe",
+            "match_run_to_head": False,
+            "machine_blockers": ["BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE"],
+            "real_data_ci_status": "NOT_EXECUTED",
+        },
+        queue={
+            "status": "BLOCKED",
+            "reason": "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE",
+            "technical_status": "BLOCKED",
+            "executed_code_sha": "4d54d93112229c2c8ac6838a3df7b6d6481ea366",
+            "pr_head_sha": "0af7356e8b1ddd237d8d0b591a2d29e148673efe",
+            "evidence_commit_sha": "0af7356e8b1ddd237d8d0b591a2d29e148673efe",
+            "match_run_to_head": False,
+            "machine_blockers": ["BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE"],
+            "real_data_ci_status": "NOT_EXECUTED",
+        },
+        evidence={
+            "status": "BLOCKED",
+            "terminal_reason": "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE",
+            "technical_status": "BLOCKED",
+            "executed_code_sha": "4d54d93112229c2c8ac6838a3df7b6d6481ea366",
+            "pr_head_sha": "0af7356e8b1ddd237d8d0b591a2d29e148673efe",
+            "evidence_commit_sha": "0af7356e8b1ddd237d8d0b591a2d29e148673efe",
+            "match_run_to_head": False,
+            "machine_blockers": ["BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE"],
+            "real_data_ci_status": "NOT_EXECUTED",
+        },
+        post_execution={
+            "ok": True,
+            "status": "PASS",
+            "executed_code_sha": "7262d2bf4840dda61a134cace76c41b32a1694c0",
+            "final_code_freeze_sha": "7262d2bf4840dda61a134cace76c41b32a1694c0",
+            "current_pr_head_sha": "fcf177d24b55ab4e2ab223635a57bd2c5af9b212",
+            "artifact_only_commits_after_execution": True,
+        },
+    )
+    assert any("post_execution" in i and "executed_code_sha" in i for i in issues)
+    assert any("post_execution" in i and "pr_head_sha" in i for i in issues)
