@@ -9,7 +9,7 @@
   "artifact_git_sha": "98d03e707315c5c5f4419db4834b1866c98d3852",
   "gate_git_sha": "98d03e707315c5c5f4419db4834b1866c98d3852",
   "review_git_sha": "98d03e707315c5c5f4419db4834b1866c98d3852",
-  "pr_head_sha": "98d03e707315c5c5f4419db4834b1866c98d3852",
+  "pr_head_sha": "af690c6642031f2eaf41db933cd300af8fec7325",
   "final_code_freeze_sha": "da9596aece9a661c0b4bf4cba0637cac5e20767c",
   "executed_code_sha": "da9596aece9a661c0b4bf4cba0637cac5e20767c",
   "human_metrics": {
