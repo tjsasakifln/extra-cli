@@ -290,11 +290,19 @@ def build_final_campaign_status() -> dict[str, Any]:
         checked_out_sha=checked,
         executed_code_sha=executed,
         freeze_sha=freeze_sha,
-        evidence_commit_sha=checked if (artifact_only or executed == checked) else None,
+        # evidence_commit follows pr_head (not merge checkout) when packaging for PR
+        evidence_commit_sha=None,  # let resolve_sha_roles set from pr_head when match/artifact_only
         artifact_only=artifact_only,
         code_changed=code_changed,
         non_artifact=non_art,
     )
+    # Authoritative: evidence commit is the PR tip that carries this package, never merge ref
+    if sha["match_run_to_head"] or sha["artifact_only_commits_after_execution"]:
+        sha["evidence_commit_sha"] = sha["pr_head_sha"]
+    elif executed and executed == sha["pr_head_sha"]:
+        sha["evidence_commit_sha"] = sha["pr_head_sha"]
+    else:
+        sha["evidence_commit_sha"] = sha.get("evidence_commit_sha") or sha["pr_head_sha"]
 
     machine_blockers: list[str] = []
     human_blockers: list[str] = []
