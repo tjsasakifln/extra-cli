@@ -1,0 +1,13 @@
+{
+  "structural_ci_status": "PASS",
+  "real_historical_ci_status": "NOT_EXECUTED",
+  "real_registry_ci_status": "NOT_EXECUTED",
+  "real_full_pipeline_ci_status": "NOT_EXECUTED",
+  "real_snapshot_restore_ci_status": "NOT_EXECUTED",
+  "human_package_publication_status": "PASS",
+  "machine_evidence_publication_status": "PASS",
+  "github_workflow_status": "PASS",
+  "workflow_run_id": "30212931293",
+  "workflow_pr_head_sha": "51df3beb10d4f3a498d61e4f400a5479ee203b22",
+  "note": "Statuses reflect latest green CI run 30212931293 on d314e300; real-data jobs printed NOT EXECUTED (DSN missing). Integrity truth commit freezes at current HEAD."
+}

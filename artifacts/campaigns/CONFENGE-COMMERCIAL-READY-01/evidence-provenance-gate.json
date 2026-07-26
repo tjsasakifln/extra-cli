@@ -1,15 +1,15 @@
 {
   "ok": true,
   "status": "PASS",
-  "current_pr_head_sha": "3ef795ae0caf555710bf7ffb91f816afdd5aa44b",
-  "final_code_freeze_sha": "3ef795ae0caf555710bf7ffb91f816afdd5aa44b",
-  "final_integrity_code_freeze_sha": "3ef795ae0caf555710bf7ffb91f816afdd5aa44b",
-  "executed_code_sha": "3ef795ae0caf555710bf7ffb91f816afdd5aa44b",
-  "evidence_commit_sha": "3ef795ae0caf555710bf7ffb91f816afdd5aa44b",
-  "workflow_head_sha": "3ef795ae0caf555710bf7ffb91f816afdd5aa44b",
-  "artifact_git_sha": "3ef795ae0caf555710bf7ffb91f816afdd5aa44b",
-  "code_tree_hash_at_execution": "3a0216d1deeb6ac17a71897f4433de08b5503600934780f14d1cb67f49a3a356",
-  "code_tree_hash_at_current_head": "3a0216d1deeb6ac17a71897f4433de08b5503600934780f14d1cb67f49a3a356",
+  "current_pr_head_sha": "51df3beb10d4f3a498d61e4f400a5479ee203b22",
+  "final_code_freeze_sha": "51df3beb10d4f3a498d61e4f400a5479ee203b22",
+  "final_integrity_code_freeze_sha": "51df3beb10d4f3a498d61e4f400a5479ee203b22",
+  "executed_code_sha": "51df3beb10d4f3a498d61e4f400a5479ee203b22",
+  "evidence_commit_sha": "51df3beb10d4f3a498d61e4f400a5479ee203b22",
+  "workflow_head_sha": "51df3beb10d4f3a498d61e4f400a5479ee203b22",
+  "artifact_git_sha": "51df3beb10d4f3a498d61e4f400a5479ee203b22",
+  "code_tree_hash_at_execution": "53d29a39eca3d3343d6044448bc7609913b2423f4066c9b6d26907449718e99a",
+  "code_tree_hash_at_current_head": "53d29a39eca3d3343d6044448bc7609913b2423f4066c9b6d26907449718e99a",
   "code_changed_after_execution": false,
   "artifact_only_commits_after_execution": false,
   "non_artifact_files_changed_after_execution": [],
@@ -18,12 +18,12 @@
     "machine_id_hash": "72aa0c75ebd3851a",
     "os": "Linux 6.18.33.2-microsoft-standard-WSL2",
     "python_version": "3.12.3",
-    "postgres_version": "18.4 (Ubuntu 18.4-1.pgdg24.04+1)",
-    "workflow_run_id": null,
+    "postgres_version": null,
+    "workflow_run_id": "30212931293",
     "job_ids": null,
     "command": "make campaign-gate-confenge-commercial-ready",
     "started_at": null,
-    "finished_at": "2026-07-26T17:08:41Z",
+    "finished_at": "2026-07-26T17:59:16Z",
     "exit_code": 0
   },
   "match_run_to_head": true,
@@ -36,5 +36,5 @@
     "artifact_git_sha": "commit que cont\u00e9m ou referencia o pacote de evid\u00eancia",
     "match_run_to_head_rule": "true only when executed_code_sha == current_pr_head_sha"
   },
-  "verified_at": "2026-07-26T17:08:41Z"
+  "verified_at": "2026-07-26T17:59:16Z"
 }

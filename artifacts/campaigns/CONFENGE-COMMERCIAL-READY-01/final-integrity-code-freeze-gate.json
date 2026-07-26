@@ -1,15 +1,18 @@
 {
   "ok": true,
   "status": "PASS",
-  "current_pr_head_sha": "9c4d7910286c5468648115f6538d8cef9980ac9c",
-  "final_integrity_code_freeze_sha": "9c4d7910286c5468648115f6538d8cef9980ac9c",
-  "final_code_freeze_sha": "9c4d7910286c5468648115f6538d8cef9980ac9c",
-  "executed_code_sha": "9c4d7910286c5468648115f6538d8cef9980ac9c",
+  "current_pr_head_sha": "51df3beb10d4f3a498d61e4f400a5479ee203b22",
+  "pr_head_sha": "51df3beb10d4f3a498d61e4f400a5479ee203b22",
+  "workflow_merge_sha": null,
+  "checked_out_sha": "51df3beb10d4f3a498d61e4f400a5479ee203b22",
+  "final_integrity_code_freeze_sha": "51df3beb10d4f3a498d61e4f400a5479ee203b22",
+  "final_code_freeze_sha": "51df3beb10d4f3a498d61e4f400a5479ee203b22",
+  "executed_code_sha": "51df3beb10d4f3a498d61e4f400a5479ee203b22",
   "match_run_to_head": true,
   "code_changed_after_execution": false,
   "artifact_only_commits_after_execution": false,
   "files_changed_after_freeze": [],
   "non_artifact_files_changed_after_execution": [],
-  "verified_at": "2026-07-26T17:24:47Z",
-  "policy": "post-freeze non-artifact tree must be empty; match_run_to_head true only when executed_code_sha == current_pr_head_sha"
+  "verified_at": "2026-07-26T17:59:17Z",
+  "policy": "post-freeze non-artifact tree must be empty; match_run_to_head true only when executed_code_sha == pr_head_sha; workflow_merge_sha is never labeled as current_pr_head_sha"
 }

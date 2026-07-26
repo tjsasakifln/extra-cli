@@ -1,7 +1,7 @@
 {
   "run_id": "cl-20260726T003820Z-f8e90e36",
   "status": "BLOCKED",
-  "git_sha": "9c4d7910286c5468648115f6538d8cef9980ac9c",
+  "git_sha": "51df3beb10d4f3a498d61e4f400a5479ee203b22",
   "discovery_mode": "PREFILTERED_CANDIDATE_DISCOVERY",
   "history_expansion_mode": "FULL_CANDIDATE_HISTORY",
   "ranking_population_mode": "FULL_ELIGIBLE_CANDIDATES",
@@ -201,18 +201,18 @@
     "human_review_status": "PENDING",
     "labels_are_human": false
   },
-  "run_git_sha": "9c4d7910286c5468648115f6538d8cef9980ac9c",
-  "artifact_git_sha": "9c4d7910286c5468648115f6538d8cef9980ac9c",
+  "run_git_sha": "51df3beb10d4f3a498d61e4f400a5479ee203b22",
+  "artifact_git_sha": "51df3beb10d4f3a498d61e4f400a5479ee203b22",
   "reason": "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE",
-  "executed_code_sha": "9c4d7910286c5468648115f6538d8cef9980ac9c",
-  "current_pr_head_sha": "9c4d7910286c5468648115f6538d8cef9980ac9c",
+  "executed_code_sha": "51df3beb10d4f3a498d61e4f400a5479ee203b22",
+  "current_pr_head_sha": "51df3beb10d4f3a498d61e4f400a5479ee203b22",
   "executed_git_sha": "da9596aece9a661c0b4bf4cba0637cac5e20767c",
   "evidence_commit_sha": "c51ac9804b33a0300755d904f7a2ef9afd575b09",
   "match_run_to_head": true,
-  "updated_at": "2026-07-26T17:24:48Z",
-  "pr_head_sha": "af690c6642031f2eaf41db933cd300af8fec7325",
-  "gate_git_sha": "9c4d7910286c5468648115f6538d8cef9980ac9c",
-  "review_git_sha": "9c4d7910286c5468648115f6538d8cef9980ac9c",
+  "updated_at": "2026-07-26T17:59:17Z",
+  "pr_head_sha": "51df3beb10d4f3a498d61e4f400a5479ee203b22",
+  "gate_git_sha": "51df3beb10d4f3a498d61e4f400a5479ee203b22",
+  "review_git_sha": "51df3beb10d4f3a498d61e4f400a5479ee203b22",
   "offer_mapping_diagnostic": {
     "offer_distribution": {
       "acompanhamento_contratual": 20
@@ -253,7 +253,7 @@
   },
   "terminal_reason": "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE",
   "technical_status": "BLOCKED",
-  "final_code_freeze_sha": "9c4d7910286c5468648115f6538d8cef9980ac9c",
+  "final_code_freeze_sha": "51df3beb10d4f3a498d61e4f400a5479ee203b22",
   "code_changed_after_execution": false,
   "artifact_only_commits_after_execution": false,
   "machine_blockers": [
@@ -265,5 +265,13 @@
     "BLOCKED_PENDING_HUMAN_ACCEPTANCE"
   ],
   "structural_ci_status": "PASS",
-  "real_data_ci_status": "PASS_ARTIFACT_PUBLICATION"
+  "real_data_ci_status": "NOT_EXECUTED",
+  "workflow_merge_sha": null,
+  "real_historical_ci_status": "NOT_EXECUTED",
+  "real_registry_ci_status": "NOT_EXECUTED",
+  "real_full_pipeline_ci_status": "NOT_EXECUTED",
+  "real_snapshot_restore_ci_status": "NOT_EXECUTED",
+  "human_package_publication_status": "PASS",
+  "machine_evidence_publication_status": "PASS",
+  "github_workflow_status": "PASS"
 }

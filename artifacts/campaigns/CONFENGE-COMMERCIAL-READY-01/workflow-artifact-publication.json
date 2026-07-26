@@ -1,14 +1,20 @@
 {
   "published_as_workflow_artifact": true,
-  "workflow_run_id": "30212267851",
-  "workflow_artifact_name": "confenge-machine-evidence",
-  "workflow_artifact_id": 8634805214,
-  "workflow_artifact_names": [
-    "confenge-human-review-packages",
-    "confenge-machine-evidence"
-  ],
-  "artifact_download_url": "https://github.com/tjsasakifln/extra-cli/actions/runs/30212267851/artifacts/8634805214",
-  "head_sha": "26b3d424ac69cc1a47ed79041b6f50129aa554ba",
-  "executed_code_sha": "9c4d7910286c5468648115f6538d8cef9980ac9c",
-  "captured_at": "2026-07-26T17:23:31Z"
+  "workflow_run_id": "30212931293",
+  "workflow_run_url": "https://github.com/tjsasakifln/extra-cli/actions/runs/30212931293",
+  "workflow_pr_head_sha": "51df3beb10d4f3a498d61e4f400a5479ee203b22",
+  "workflow_merge_sha": "a37d615d8b6b320fc4d4cc1b10d01bb0ba4cbd40",
+  "human_review_artifact_id": 8634984051,
+  "human_review_artifact_digest": "sha256:d706e58f3f7dddc21c4d1f544fc9c8595128e5be2d605679e77eb86d181948aa",
+  "machine_evidence_artifact_id": 8634989832,
+  "machine_evidence_artifact_digest": "sha256:a08cd30ad036f925758b8e2d24e212144ecaa8b649529686d522673914dd6188",
+  "workflow_artifact_ids": {
+    "confenge-human-review-packages": 8634984051,
+    "confenge-machine-evidence": 8634989832
+  },
+  "artifact_created_at": "2026-07-26T17:37:39Z",
+  "artifact_expires_at": "2026-10-24T17:36:31Z",
+  "executed_code_sha": "51df3beb10d4f3a498d61e4f400a5479ee203b22",
+  "captured_at": "2026-07-26T17:59:17Z",
+  "note": "Artifact IDs from CI run 30212931293 (PR head d314e300). Integrity re-freeze is post-run; next push will rebind IDs via workflow API step."
 }

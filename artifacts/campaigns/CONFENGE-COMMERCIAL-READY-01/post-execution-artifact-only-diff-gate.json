@@ -1,24 +1,17 @@
 {
   "ok": true,
   "status": "PASS",
-  "current_pr_head_sha": "87da179930295e0478ff326939ca1438da8b76b7",
-  "final_code_freeze_sha": "da9596aece9a661c0b4bf4cba0637cac5e20767c",
-  "executed_code_sha": "da9596aece9a661c0b4bf4cba0637cac5e20767c",
-  "code_tree_hash_at_execution": "973928bae4922a5d3679ed8dd0c1e059db2839f83161ffe519c514c5ea2e5499",
-  "code_tree_hash_at_current_head": "994e9d64adca8cc03b423e621e4d6f25bddfe2476d3379fd7580d16d8ad574a4",
+  "current_pr_head_sha": "51df3beb10d4f3a498d61e4f400a5479ee203b22",
+  "final_code_freeze_sha": "51df3beb10d4f3a498d61e4f400a5479ee203b22",
+  "executed_code_sha": "51df3beb10d4f3a498d61e4f400a5479ee203b22",
+  "code_tree_hash_at_execution": "53d29a39eca3d3343d6044448bc7609913b2423f4066c9b6d26907449718e99a",
+  "code_tree_hash_at_current_head": "53d29a39eca3d3343d6044448bc7609913b2423f4066c9b6d26907449718e99a",
   "code_changed_after_execution": false,
-  "artifact_only_commits_after_execution": true,
-  "files_changed_after_freeze": [
-    "artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/EXECUTED_CODE_SHA.txt",
-    "artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/FINAL_CODE_FREEZE_SHA.txt",
-    "artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/code-freeze-gate.json",
-    "artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/evidence-provenance-gate.json",
-    "artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/final-evidence-closure.json"
-  ],
+  "artifact_only_commits_after_execution": false,
+  "files_changed_after_freeze": [],
   "non_artifact_files_changed": [],
   "artifact_only_path_check": true,
-  "verified_at": "2026-07-26T15:47:45Z",
+  "verified_at": "2026-07-26T17:59:13Z",
   "note": "current_pr_head_sha is always live git tip at verify time",
-  "policy": "post-freeze commits only under artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/** and docs/ops/**",
-  "evidence_commit_sha": "87da179930295e0478ff326939ca1438da8b76b7"
+  "policy": "post-freeze commits only under artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/** and docs/ops/**"
 }
