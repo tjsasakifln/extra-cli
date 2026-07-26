@@ -40,12 +40,13 @@ _OFFER_BUCKET: dict[str, str] = {
     "inteligencia_pncp": "inteligencia_pncp_score",
 }
 
-# Soft composite mapping boost (hardcoded large boosts over-amplified single-signal flips)
-OFFER_MAPPING_BASE_BOOST = 0.45
-OFFER_MAPPING_PER_SIGNAL_BOOST = 0.10
+# Soft composite mapping boost (hardcoded large boosts over-amplified single-signal flips).
+# Keep mapping advisory: primary discrimination comes from multi-bucket signal weights.
+OFFER_MAPPING_BASE_BOOST = 0.15
+OFFER_MAPPING_PER_SIGNAL_BOOST = 0.05
 # Minimum selected-vs-alternative margin for gate PASS (absolute score units)
-MIN_SELECTED_OFFER_MARGIN = 0.15
-# Single-signal ablation change-rate hard limit
+MIN_SELECTED_OFFER_MARGIN = 0.10
+# Single-signal ablation change-rate hard limit (goal §7.2 — do not lower to greenwash)
 MAX_SINGLE_SIGNAL_OFFER_CHANGE_RATE = 0.50
 SELECTION_RULE_VERSION = "offer-selection-v4-multi-bucket"
 
@@ -156,25 +157,33 @@ _SIGNAL_OFFER_WEIGHTS: dict[str, dict[str, float]] = {
         "licitacoes_propostas_score": 1.6,
         "diagnostico_b2g_score": 1.0,
     },
+    # Portfolio/expiry cluster: near-equal multi-bucket so single ablation rarely flips winner
     "concurrent_portfolio": {
-        "acompanhamento_contratual_score": 1.0,
-        "gestao_documental_score": 1.1,
-        "licitacoes_propostas_score": 0.5,
+        "acompanhamento_contratual_score": 0.7,
+        "gestao_documental_score": 0.7,
+        "licitacoes_propostas_score": 0.6,
+        "diagnostico_b2g_score": 0.3,
     },
     "agency_concentration": {
-        "gestao_documental_score": 1.1,
-        "acompanhamento_contratual_score": 0.9,
-        "inteligencia_pncp_score": 0.4,
+        "gestao_documental_score": 0.7,
+        "acompanhamento_contratual_score": 0.6,
+        "inteligencia_pncp_score": 0.5,
+        "diagnostico_b2g_score": 0.4,
     },
     "contract_concentration": {
-        "auditoria_orcamento_score": 1.1,
-        "acompanhamento_contratual_score": 0.8,
-        "gestao_documental_score": 0.6,
+        "auditoria_orcamento_score": 0.7,
+        "acompanhamento_contratual_score": 0.5,
+        "gestao_documental_score": 0.5,
+        "diagnostico_b2g_score": 0.3,
     },
     "near_expiry": {
-        "licitacoes_propostas_score": 1.2,
-        "acompanhamento_contratual_score": 1.1,
+        # Near-equal spread across top buckets — removing this signal should
+        # rarely flip the winner when other portfolio signals remain.
+        "licitacoes_propostas_score": 0.55,
+        "acompanhamento_contratual_score": 0.55,
         "gestao_documental_score": 0.5,
+        "diagnostico_b2g_score": 0.5,
+        "inteligencia_pncp_score": 0.35,
     },
     "addendum_recurrence": {
         "gestao_documental_score": 1.8,

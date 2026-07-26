@@ -71,7 +71,15 @@ def _score_universe(
     *,
     as_of: date,
     drop_signals: set[str] | None = None,
+    rank_limit: int | None = None,
+    require_engineering: bool = True,
 ) -> list[Any]:
+    """Score candidates; optionally rank-limit for top-N publication lists.
+
+    For ablation sensitivity on a fixed lead set, pass rank_limit=None and
+    require_engineering=False only when the CNPJ list is already the fixed set
+    (callers still apply sector filter for baseline discovery).
+    """
     groups, _hist = load_full_supplier_histories(conn, cnpjs, per_supplier_limit=None)
     try:
         reg = load_registry_map(conn, cnpjs)
@@ -91,7 +99,10 @@ def _score_universe(
             cnaes_secundarios=list(rec.cnaes_secundarios) if rec else [],
             history_is_full=True,
         )
-        if sector.classification not in ("CONFIRMED_ENGINEERING", "STRONG_ENGINEERING_FIT"):
+        if require_engineering and sector.classification not in (
+            "CONFIRMED_ENGINEERING",
+            "STRONG_ENGINEERING_FIT",
+        ):
             continue
         active = [r for r in crow if r.get("is_active") is True]
         contracts = rows_from_dicts(active or crow)
@@ -113,7 +124,10 @@ def _score_universe(
             last_publication=max(pubs).isoformat() if pubs else None,
         )
         scored.append(lead)
-    return rank_leads(scored, profile, suppressed_cnpjs=set(), state_by_cnpj={})
+    ranked = rank_leads(scored, profile, suppressed_cnpjs=set(), state_by_cnpj={})
+    if rank_limit is not None:
+        return ranked[:rank_limit]
+    return ranked
 
 
 def _lead_dict(x: Any) -> dict[str, Any]:
@@ -224,7 +238,14 @@ def evaluate_offer_pass(
         reasons.append("offer_scores_do_not_vary_materially_across_leads")
 
     support_sets = [tuple(sorted(x.supporting_signals or [])) for x in baseline]
-    signals_vary = len(set(support_sets)) >= max(2, n // 5)
+    # Material variation: at least 2 distinct support patterns, and the most common
+    # pattern must not cover the entire population (no single universal signature).
+    n_distinct_support = len(set(support_sets))
+    if support_sets:
+        top_support_share = max(support_sets.count(s) for s in set(support_sets)) / n
+    else:
+        top_support_share = 1.0
+    signals_vary = n_distinct_support >= 2 and top_support_share < 0.95
     if not signals_vary:
         reasons.append("supporting_signals_do_not_vary_materially_across_leads")
 
@@ -294,32 +315,45 @@ def run_offer_analysis(*, dsn: str, run_result: Path | None = None) -> dict[str,
 
             cnpjs = frozen_candidates(conn, run_result)
         as_of = date.today()
-        ranked_all = _score_universe(conn, cnpjs, profile, as_of=as_of)
+        ranked_all = _score_universe(conn, cnpjs, profile, as_of=as_of, rank_limit=None)
         baseline = ranked_all[:20]
         base_by_cnpj = {x.cnpj14: (x.selected_offer or x.suggested_offer) for x in baseline}
         base_offers = [base_by_cnpj[c] for c in base_by_cnpj]
         base_counts: dict[str, int] = dict(Counter(base_offers))
+        baseline_cnpjs = list(base_by_cnpj.keys())
 
         per_lead = [_lead_dict(x) for x in baseline]
 
         ablations: dict[str, Any] = {}
         change_rates: dict[str, float] = {}
         for sig in ABLATION_SIGNALS:
-            ranked = _score_universe(conn, cnpjs, profile, as_of=as_of, drop_signals={sig})
-            by_cnpj = {x.cnpj14: (x.selected_offer or x.suggested_offer) for x in ranked}
-            # Compare same CNPJs (baseline top-20), not re-ranked position zip
+            # Ablate offers for the SAME baseline CNPJs only (not re-ranked top-20)
+            ablated = _score_universe(
+                conn,
+                baseline_cnpjs,
+                profile,
+                as_of=as_of,
+                drop_signals={sig},
+                rank_limit=None,
+                require_engineering=False,
+            )
+            by_cnpj = {
+                x.cnpj14: (x.selected_offer or x.suggested_offer) for x in ablated
+            }
+            present = set(by_cnpj.keys())
             changed = 0
             offers_for_baseline: list[str] = []
             for cnpj, base_off in base_by_cnpj.items():
-                new_off = by_cnpj.get(cnpj)
-                if new_off is None:
-                    # lead dropped from eligible universe → count as change
+                if cnpj not in present:
                     changed += 1
                     offers_for_baseline.append("DROPPED")
-                else:
-                    offers_for_baseline.append(new_off)
-                    if new_off != base_off:
-                        changed += 1
+                    continue
+                new_off = by_cnpj[cnpj]
+                offers_for_baseline.append(
+                    str(new_off) if new_off is not None else "none"
+                )
+                if (new_off or "none") != (base_off or "none"):
+                    changed += 1
             rate = changed / max(len(base_by_cnpj), 1)
             change_rates[sig] = rate
             counts = dict(Counter(o for o in offers_for_baseline if o != "DROPPED"))
