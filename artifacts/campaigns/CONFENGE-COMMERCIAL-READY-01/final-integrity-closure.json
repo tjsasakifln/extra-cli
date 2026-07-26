@@ -1,7 +1,7 @@
 {
   "campaign_id": "CONFENGE-COMMERCIAL-READY-01",
-  "generated_at": "2026-07-26T17:31:05Z",
-  "current_pr_head_sha": "e5cb5efec111c51868d13a8e2a403df0e5674e69",
+  "generated_at": "2026-07-26T17:36:21Z",
+  "current_pr_head_sha": "e8bb0c992459cc6f2514e4d5659e27bf80911319",
   "final_integrity_code_freeze_sha": "9c4d7910286c5468648115f6538d8cef9980ac9c",
   "final_code_freeze_sha": "9c4d7910286c5468648115f6538d8cef9980ac9c",
   "executed_code_sha": "9c4d7910286c5468648115f6538d8cef9980ac9c",
@@ -13,8 +13,8 @@
   "non_artifact_files_changed_after_execution": [],
   "structural_ci_status": "PASS",
   "real_data_ci_status": "PASS",
-  "structural_ci_run_id": "30212543736",
-  "real_data_ci_run_id": "30212543736",
+  "structural_ci_run_id": "30212747058",
+  "real_data_ci_run_id": "30212747058",
   "workflow_artifact_ids": {
     "confenge-human-review-packages": 8634799808,
     "confenge-machine-evidence": 8634805214
@@ -173,5 +173,5 @@
   "review_package_artifact_id": 8634799808,
   "machine_evidence_artifact_id": 8634805214,
   "ci_overall_status": "PASS",
-  "ci_run_url": "https://github.com/tjsasakifln/extra-cli/actions/runs/30212543736"
+  "ci_run_url": "https://github.com/tjsasakifln/extra-cli/actions/runs/30212747058"
 }
