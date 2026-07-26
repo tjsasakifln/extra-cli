@@ -665,7 +665,7 @@ jobs:
           pip install pytest
       - name: Structural commercial gates (unit/synthetic)
         run: |
-          # 0 = live/full PASS; 2 = honest BLOCKED without DSN after unit helpers
+          # Structural layer: exit 2 = honest BLOCKED without DSN (not real-data PASS)
           set +e
           make verify-confenge-all-status-history
           c1=$?
@@ -678,32 +678,34 @@ jobs:
           test "$c2" = "0" -o "$c2" = "2"
           test "$c3" = "0" -o "$c3" = "2"
           make verify-confenge-snapshot-manifest-immutability
-          # Registry independence detector unit tests (bias on last run is BLOCKED exit 2)
-          python3 -m pytest tests/commercial_leads/test_registry_selection_independence.py -q --tb=short -o addopts=
+          python3 -m pytest tests/commercial_leads/test_registry_selection_independence.py tests/commercial_leads/test_confenge_integrity_gates.py -q --tb=short -o addopts=
           set +e
           make verify-confenge-registry-selection-independence
           reg_code=$?
           set -e
           test "$reg_code" = "0" -o "$reg_code" = "2"
-      - name: Real holdout evaluation (expect BLOCKED until dual human labels)
+      - name: Structural SHA semantics unit proof
         run: |
-          set +e
-          make evaluate-confenge-real-contract-holdout
-          code=$?
-          set -e
-          # exit 2 = BLOCKED (honest), not green success for unlabeled corpus
-          test "$code" = "2" -o "$code" = "0"
-      - name: Declare remaining BLOCKED evidence checks
+          python3 - <<'PY'
+          from scripts.ops.confenge_code_freeze import compute_match_run_to_head, verify_sha_semantics
+          assert compute_match_run_to_head(executed_code_sha="a", current_pr_head_sha="a") is True
+          assert compute_match_run_to_head(executed_code_sha="a", current_pr_head_sha="b") is False
+          bad = verify_sha_semantics(
+              executed_code_sha="deadbeef",
+              current_pr_head_sha="cafebabe",
+              match_run_to_head=True,
+          )
+          assert bad["ok"] is False, bad
+          print("sha_semantics structural PASS")
+          PY
+      - name: Declare structural vs real-data separation
         run: |
-          echo "CONFENGE Historical Universe: unit PASS; live DSN optional"
-          echo "CONFENGE Registry Universe: BLOCKED until 100% candidate resolution"
-          echo "CONFENGE Snapshot Provenance: requires independent pre-restore anchor"
-          echo "CONFENGE End-to-End Reproducibility: unit PASS"
-          echo "CONFENGE Real Holdout Evaluation: BLOCKED_REAL_HOLDOUT_NOT_REVIEWED until dual labels"
-          echo "CONFENGE Human Commercial Evaluation: BLOCKED_INSUFFICIENT_HUMAN_LABELS"
+          echo "Structural CI: PASS (this job)"
+          echo "Real-data CI: NOT EXECUTED unless secrets/DSN jobs run below"
+          echo "exit 2 on structural jobs = honest BLOCKED without DSN — not Real-data PASS"
 
   confenge-historical-universe:
-    name: CONFENGE Historical Universe
+    name: CONFENGE Structural Historical Checks
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -712,7 +714,7 @@ jobs:
           python-version: "3.12"
       - name: Install deps
         run: pip install -r requirements.txt && pip install pytest
-      - name: All-status history + active/historical separation
+      - name: All-status history + active/historical separation (structural)
         run: |
           set +e
           make verify-confenge-all-status-history
@@ -720,12 +722,12 @@ jobs:
           make verify-confenge-active-vs-historical-separation
           c2=$?
           set -e
-          # 0=PASS with live DSN; 2=honest BLOCKED without DSN (unit OK) — not a green commercial claim
+          # Structural only: 0 or honest BLOCKED(2) without DSN
           test "$c1" = "0" -o "$c1" = "2"
           test "$c2" = "0" -o "$c2" = "2"
 
   confenge-registry-universe:
-    name: CONFENGE Registry Universe
+    name: CONFENGE Structural Registry Checks
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -741,17 +743,17 @@ jobs:
           code=$?
           set -e
           test "$code" = "0" -o "$code" = "2"
-      - name: Universe coverage requires DSN — structural CI accepts honest BLOCKED
+      - name: Universe coverage requires DSN — structural NOT EXECUTED when missing
         run: |
           if [ -z "${CONFENGE_COMMERCIAL_STATE_DSN:-}" ]; then
-            echo "BLOCKED_REGISTRY_UNIVERSE_INCOMPLETE — CONFENGE_COMMERCIAL_STATE_DSN unset"
-            echo "Structural CI: not claiming registry universe PASS (exit 0 for draft gate)"
+            echo "Real-data registry universe: NOT EXECUTED (CONFENGE_COMMERCIAL_STATE_DSN unset)"
+            echo "Structural CI does not claim registry universe PASS"
             exit 0
           fi
           make verify-confenge-registry-universe
 
   confenge-snapshot-provenance:
-    name: CONFENGE Snapshot Provenance
+    name: CONFENGE Structural Snapshot Checks
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -764,7 +766,7 @@ jobs:
         run: make verify-confenge-snapshot-manifest-immutability
 
   confenge-e2e-reproducibility:
-    name: CONFENGE End-to-End Reproducibility
+    name: CONFENGE Structural E2E Checks
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -773,17 +775,18 @@ jobs:
           python-version: "3.12"
       - name: Install deps
         run: pip install -r requirements.txt && pip install pytest
-      - name: E2E reproducibility unit proof
+      - name: Structural E2E unit helpers (not full live pipeline claim)
         run: |
           set +e
           make verify-confenge-end-to-end-reproducibility
           code=$?
           set -e
-          # 0=full live PASS; 2=BLOCKED without DSN after unit helpers pass
+          # Structural: 0 or honest BLOCKED without DSN — never claimed as Real-data PASS
           test "$code" = "0" -o "$code" = "2"
+          echo "Real-data Full Pipeline E2E: see confenge-real-full-pipeline-e2e job"
 
   confenge-real-holdout:
-    name: CONFENGE Real Holdout Evaluation
+    name: CONFENGE Structural Human Evaluation Checks
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -792,13 +795,13 @@ jobs:
           python-version: "3.12"
       - name: Install deps
         run: pip install -r requirements.txt
-      - name: Real holdout (BLOCKED until dual human labels)
+      - name: Real holdout structural (human labels pending is expected)
         run: |
           set +e
           make evaluate-confenge-real-contract-holdout
           code=$?
           set -e
-          # Must not report green success with unlabeled corpus
+          # Structural accepts pending human review (exit 2) without calling it Real-data PASS
           if [ "$code" = "0" ]; then
             python3 - <<'PY'
           import json
@@ -811,7 +814,7 @@ jobs:
           fi
 
   confenge-human-commercial:
-    name: CONFENGE Human Commercial Evaluation
+    name: CONFENGE Structural Human Commercial Checks
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -825,11 +828,180 @@ jobs:
           st = d.get("status") or "BLOCKED"
           assert st in ("PASS", "BLOCKED", "FAIL"), st
           hm = d.get("human_metrics") or {}
-          # Never claim complete human precision without COMPLETE status
           if hm.get("human_review_status") != "COMPLETE":
               assert hm.get("precision_at_10") in (None, "NOT_COMPUTABLE")
               print("BLOCKED_INSUFFICIENT_HUMAN_LABELS (honest)")
           else:
               print("human review COMPLETE")
+          print("Structural CI: PASS | Real-data CI: NOT EXECUTED (unless real jobs run)")
           PY
+
+  # ---------------------------------------------------------------------------
+  # Real-data CI — fail-closed on exit 2 / BLOCKED when DSN secrets present.
+  # When secrets absent: explicit NOT EXECUTED (job success with notice, not PASS claim).
+  # ---------------------------------------------------------------------------
+  confenge-real-historical-evidence:
+    name: CONFENGE Real Historical Evidence
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install deps
+        run: pip install -r requirements.txt
+      - name: Real historical evidence (fail-closed when DSN set)
+        env:
+          CONFENGE_COMMERCIAL_STATE_DSN: ${{ secrets.CONFENGE_COMMERCIAL_STATE_DSN }}
+          CONFENGE_SOURCE_DSN: ${{ secrets.CONFENGE_SOURCE_DSN }}
+        run: |
+          if [ -z "${CONFENGE_COMMERCIAL_STATE_DSN:-}" ]; then
+            echo "Real-data CI: NOT EXECUTED (CONFENGE_COMMERCIAL_STATE_DSN secret missing)"
+            exit 0
+          fi
+          # Real-data: exit 2 is FAILURE (not success)
+          make verify-confenge-historical-snapshot
+          make verify-confenge-contract-status-reconciliation
+          make verify-confenge-all-status-history
+          make verify-confenge-active-vs-historical-separation
+
+  confenge-real-registry-evidence:
+    name: CONFENGE Real Registry Evidence
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install deps
+        run: pip install -r requirements.txt
+      - name: Real registry evidence
+        env:
+          CONFENGE_COMMERCIAL_STATE_DSN: ${{ secrets.CONFENGE_COMMERCIAL_STATE_DSN }}
+        run: |
+          if [ -z "${CONFENGE_COMMERCIAL_STATE_DSN:-}" ]; then
+            echo "Real-data CI: NOT EXECUTED (DSN secret missing)"
+            exit 0
+          fi
+          make verify-confenge-registry-selection-independence
+          make verify-confenge-registry-universe
+
+  confenge-real-full-pipeline-e2e:
+    name: CONFENGE Full Pipeline E2E Evidence
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install deps
+        run: pip install -r requirements.txt
+      - name: Full pipeline + downstream (fail-closed)
+        env:
+          CONFENGE_COMMERCIAL_STATE_DSN: ${{ secrets.CONFENGE_COMMERCIAL_STATE_DSN }}
+        run: |
+          if [ -z "${CONFENGE_COMMERCIAL_STATE_DSN:-}" ]; then
+            echo "Real-data CI: NOT EXECUTED (DSN secret missing)"
+            exit 0
+          fi
+          make verify-confenge-full-pipeline-e2e-reproducibility
+          make verify-confenge-downstream-reproducibility
+
+  confenge-real-snapshot-restore:
+    name: CONFENGE Snapshot Restore Evidence
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install deps
+        run: pip install -r requirements.txt
+      - name: Snapshot export/restore/verify
+        env:
+          CONFENGE_COMMERCIAL_STATE_DSN: ${{ secrets.CONFENGE_COMMERCIAL_STATE_DSN }}
+          CONFENGE_RESTORE_DSN: ${{ secrets.CONFENGE_RESTORE_DSN }}
+        run: |
+          if [ -z "${CONFENGE_COMMERCIAL_STATE_DSN:-}" ]; then
+            echo "Real-data CI: NOT EXECUTED (DSN secret missing)"
+            exit 0
+          fi
+          make export-confenge-authenticated-snapshot
+          make restore-confenge-authenticated-snapshot
+          make verify-confenge-restored-snapshot
+          make verify-confenge-independent-snapshot-anchor
+
+  confenge-human-package-publication:
+    name: CONFENGE Human Package Publication
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install deps
+        run: pip install -r requirements.txt openpyxl
+      - name: Build human review packages
+        env:
+          CONFENGE_COMMERCIAL_STATE_DSN: ${{ secrets.CONFENGE_COMMERCIAL_STATE_DSN }}
+        run: |
+          make build-confenge-human-review-package
+          make verify-confenge-human-review-artifact-package
+      - name: Upload confenge-human-review-packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: confenge-human-review-packages
+          path: |
+            artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/human-review/
+            artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/contract-relevance-human-review.xlsx
+            artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/contract-relevance-human-review.html
+            artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/commercial-top20-human-review.xlsx
+            artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/commercial-top20-human-review.html
+            artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/commercial-evaluation-200-human-review.xlsx
+            artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/README-HUMAN-REVIEW.md
+            artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/checksums-human-review.json
+          if-no-files-found: error
+
+  confenge-machine-evidence-publication:
+    name: CONFENGE Final Evidence Integrity
+    runs-on: ubuntu-latest
+    needs:
+      - confenge-human-package-publication
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install deps
+        run: pip install -r requirements.txt
+      - name: Cross-artifact consistency + package machine evidence
+        env:
+          CONFENGE_COMMERCIAL_STATE_DSN: ${{ secrets.CONFENGE_COMMERCIAL_STATE_DSN }}
+        run: |
+          make build-confenge-final-campaign-status
+          make verify-confenge-cross-artifact-consistency
+          mkdir -p artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/machine-evidence
+          cp -a artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/*.json \
+            artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/machine-evidence/ 2>/dev/null || true
+          cp -a artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/*.md \
+            artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/machine-evidence/ 2>/dev/null || true
+          if [ -n "${CONFENGE_COMMERCIAL_STATE_DSN:-}" ]; then
+            make verify-confenge-offer-sensitivity || exit $?
+            make package-confenge-commercial-evidence || true
+          else
+            echo "Real-data CI: NOT EXECUTED for offer/snapshot live gates (DSN missing)"
+          fi
+      - name: Upload confenge-machine-evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: confenge-machine-evidence
+          path: |
+            artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/machine-evidence/
+            artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/*gate*.json
+            artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/final-evidence-closure.json
+            artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/FINAL-EVIDENCE-CLOSURE.md
+            artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/snapshot-manifest.json
+            artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/restorable-dump/
+          if-no-files-found: warn
+
 

@@ -40,7 +40,14 @@ _OFFER_BUCKET: dict[str, str] = {
     "inteligencia_pncp": "inteligencia_pncp_score",
 }
 
-SELECTION_RULE_VERSION = "offer-selection-v3-discriminative"
+# Soft composite mapping boost (hardcoded large boosts over-amplified single-signal flips)
+OFFER_MAPPING_BASE_BOOST = 0.45
+OFFER_MAPPING_PER_SIGNAL_BOOST = 0.10
+# Minimum selected-vs-alternative margin for gate PASS (absolute score units)
+MIN_SELECTED_OFFER_MARGIN = 0.15
+# Single-signal ablation change-rate hard limit
+MAX_SINGLE_SIGNAL_OFFER_CHANGE_RATE = 0.50
+SELECTION_RULE_VERSION = "offer-selection-v4-multi-bucket"
 
 
 @dataclass
@@ -116,24 +123,75 @@ def _bucket_for_offer(offer: str | None) -> str | None:
     return None
 
 
-# Signal-id → offer bucket weights (v3 discriminative; not a quota)
-# Profile `offer` field is secondary; signal identity drives differentiation.
+# Signal-id → offer bucket weights (v4 multi-bucket; not a quota).
+# Each signal feeds ≥2 buckets so a single ablation cannot monopolize selection.
+# Portfolio/expiry cluster deliberately multi-maps (gestao/licitacoes/auditoria)
+# to avoid catalog collapse into acompanhamento_contratual alone.
 _SIGNAL_OFFER_WEIGHTS: dict[str, dict[str, float]] = {
-    "first_public_contract": {"diagnostico_b2g_score": 2.2, "licitacoes_propostas_score": 0.6},
-    "ticket_above_history": {"diagnostico_b2g_score": 1.8, "auditoria_orcamento_score": 0.8},
-    "quantity_growth": {"inteligencia_pncp_score": 1.6, "licitacoes_propostas_score": 1.2},
-    "value_growth": {"inteligencia_pncp_score": 1.6, "diagnostico_b2g_score": 0.7},
-    "new_agency": {"diagnostico_b2g_score": 1.5, "licitacoes_propostas_score": 1.0},
-    "new_region": {"diagnostico_b2g_score": 1.4, "inteligencia_pncp_score": 0.9},
-    "new_object_category": {"licitacoes_propostas_score": 1.7, "diagnostico_b2g_score": 0.8},
-    "concurrent_portfolio": {"acompanhamento_contratual_score": 1.5, "gestao_documental_score": 0.9},
-    "agency_concentration": {"acompanhamento_contratual_score": 1.3, "gestao_documental_score": 0.7},
-    "contract_concentration": {"acompanhamento_contratual_score": 1.2, "auditoria_orcamento_score": 0.6},
-    "near_expiry": {"acompanhamento_contratual_score": 2.0, "licitacoes_propostas_score": 0.5},
-    "addendum_recurrence": {"gestao_documental_score": 1.9, "acompanhamento_contratual_score": 1.0},
-    "adverse_event": {"auditoria_orcamento_score": 2.4, "gestao_documental_score": 0.8},
-    "diversity_increase": {"inteligencia_pncp_score": 1.8, "diagnostico_b2g_score": 0.6},
-    "win_recurrence": {"licitacoes_propostas_score": 2.0, "diagnostico_b2g_score": 0.7},
+    "first_public_contract": {
+        "diagnostico_b2g_score": 2.0,
+        "licitacoes_propostas_score": 1.0,
+    },
+    "ticket_above_history": {
+        "diagnostico_b2g_score": 1.5,
+        "auditoria_orcamento_score": 1.2,
+    },
+    "quantity_growth": {
+        "inteligencia_pncp_score": 1.5,
+        "licitacoes_propostas_score": 1.2,
+    },
+    "value_growth": {
+        "inteligencia_pncp_score": 1.5,
+        "diagnostico_b2g_score": 1.0,
+    },
+    "new_agency": {
+        "diagnostico_b2g_score": 1.2,
+        "licitacoes_propostas_score": 1.2,
+    },
+    "new_region": {
+        "diagnostico_b2g_score": 1.1,
+        "inteligencia_pncp_score": 1.1,
+    },
+    "new_object_category": {
+        "licitacoes_propostas_score": 1.6,
+        "diagnostico_b2g_score": 1.0,
+    },
+    "concurrent_portfolio": {
+        "acompanhamento_contratual_score": 1.0,
+        "gestao_documental_score": 1.1,
+        "licitacoes_propostas_score": 0.5,
+    },
+    "agency_concentration": {
+        "gestao_documental_score": 1.1,
+        "acompanhamento_contratual_score": 0.9,
+        "inteligencia_pncp_score": 0.4,
+    },
+    "contract_concentration": {
+        "auditoria_orcamento_score": 1.1,
+        "acompanhamento_contratual_score": 0.8,
+        "gestao_documental_score": 0.6,
+    },
+    "near_expiry": {
+        "licitacoes_propostas_score": 1.2,
+        "acompanhamento_contratual_score": 1.1,
+        "gestao_documental_score": 0.5,
+    },
+    "addendum_recurrence": {
+        "gestao_documental_score": 1.8,
+        "acompanhamento_contratual_score": 0.6,
+    },
+    "adverse_event": {
+        "auditoria_orcamento_score": 2.2,
+        "gestao_documental_score": 0.9,
+    },
+    "diversity_increase": {
+        "inteligencia_pncp_score": 1.7,
+        "diagnostico_b2g_score": 0.8,
+    },
+    "win_recurrence": {
+        "licitacoes_propostas_score": 1.9,
+        "diagnostico_b2g_score": 0.8,
+    },
 }
 
 
@@ -176,7 +234,7 @@ def compute_offer_scores(
                 scores["diagnostico_b2g_score"] += 0.2 * contrib
                 support["diagnostico_b2g_score"].append(r.signal_id)
 
-    # Composite offer_mappings from profile
+    # Composite offer_mappings from profile (soft boost — avoids single-signal monopoly)
     fired_ids = {r.signal_id for r in fired}
     mappings = list(profile.data.get("offer_mappings") or [])
     for m in mappings:
@@ -186,7 +244,9 @@ def compute_offer_scores(
         if needed.issubset(fired_ids):
             bucket = _bucket_for_offer(m.get("offer"))
             if bucket:
-                boost = 1.2 + 0.2 * len(needed)
+                boost = OFFER_MAPPING_BASE_BOOST + OFFER_MAPPING_PER_SIGNAL_BOOST * len(
+                    needed
+                )
                 scores[bucket] += boost
                 support[bucket].append(f"mapping:{m.get('id')}")
         else:

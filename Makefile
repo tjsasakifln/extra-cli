@@ -641,7 +641,16 @@ verify-confenge-commercial-artifact-binding:
 	verify-confenge-code-freeze \
 	verify-confenge-post-execution-artifact-only-diff \
 	mark-confenge-code-freeze \
-	bulk-confenge-official-cnpj-opencnpj
+	bulk-confenge-official-cnpj-opencnpj \
+	freeze-confenge-final-integrity-code \
+	verify-confenge-final-integrity-code-freeze \
+	verify-confenge-sha-semantics \
+	verify-confenge-executed-tree-integrity \
+	verify-confenge-full-pipeline-e2e-reproducibility \
+	verify-confenge-downstream-reproducibility \
+	verify-confenge-human-review-artifact-package \
+	verify-confenge-cross-artifact-consistency \
+	build-confenge-final-campaign-status
 
 CONFENGE_COMMERCIAL_STATE_DSN ?= postgresql://postgres:postgres@127.0.0.1:5433/confenge_commercial
 CONFENGE_SOURCE_DSN ?= postgresql://postgres:postgres@127.0.0.1:5433/pncp_datalake
@@ -694,19 +703,28 @@ verify-confenge-restored-snapshot:
 
 verify-confenge-independent-snapshot-anchor: verify-confenge-restored-snapshot
 
-verify-confenge-full-universe-e2e-reproducibility:
+verify-confenge-full-universe-e2e-reproducibility: verify-confenge-downstream-reproducibility
+
+verify-confenge-downstream-reproducibility:
 	python3 -m scripts.ops.confenge_full_universe_e2e \
 		--dsn "$$CONFENGE_COMMERCIAL_STATE_DSN" \
 		--run-result $(CONFENGE_COMMERCIAL_OUT)/run-result.json
+
+verify-confenge-full-pipeline-e2e-reproducibility:
+	python3 -m scripts.ops.confenge_full_pipeline_e2e \
+		--dsn "$$CONFENGE_COMMERCIAL_STATE_DSN"
 
 extract-confenge-real-contract-corpus:
 	python3 -m scripts.ops.extract_confenge_real_holdout_corpus --min-n 500
 
 verify-confenge-real-corpus-provenance:
-	python3 -c "import json; from pathlib import Path; m=json.loads(Path('evals/commercial_leads/real/corpus-meta.json').read_text()); assert m.get('n_total',0)>=500; assert m.get('human_labels_filled') is False; print(json.dumps({'ok':True,'n_total':m['n_total'],'human_labels_filled':False},indent=2))"
+	python3 -m scripts.ops.confenge_human_review_packages verify-corpus
 
 build-confenge-human-review-package:
-	python3 -m scripts.ops.confenge_human_review_packages
+	python3 -m scripts.ops.confenge_human_review_packages build
+
+verify-confenge-human-review-artifact-package:
+	python3 -m scripts.ops.confenge_human_review_packages verify-package
 
 verify-confenge-offer-sensitivity:
 	python3 -m scripts.ops.confenge_offer_sensitivity \
@@ -721,7 +739,26 @@ verify-confenge-post-execution-artifact-only-diff:
 mark-confenge-code-freeze:
 	python3 -m scripts.ops.confenge_code_freeze mark-freeze
 
+freeze-confenge-final-integrity-code:
+	python3 -m scripts.ops.confenge_code_freeze mark-final-integrity-freeze
+
+verify-confenge-final-integrity-code-freeze:
+	python3 -m scripts.ops.confenge_code_freeze verify-final-integrity-freeze
+
+verify-confenge-sha-semantics:
+	python3 -m scripts.ops.confenge_code_freeze verify-sha-semantics
+
+verify-confenge-executed-tree-integrity:
+	python3 -m scripts.ops.confenge_code_freeze verify-executed-tree-integrity
+
+build-confenge-final-campaign-status:
+	python3 -m scripts.ops.confenge_final_status build
+
+verify-confenge-cross-artifact-consistency:
+	python3 -m scripts.ops.confenge_final_status verify-consistency
+
 # re-bind evidence provenance to code freeze module
 verify-confenge-evidence-provenance:
 	python3 -m scripts.ops.confenge_code_freeze verify-provenance
+
 

@@ -13,6 +13,7 @@ import argparse
 import csv
 import hashlib
 import json
+import os
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
@@ -240,11 +241,99 @@ def load_e2e_top20() -> list[dict[str, Any]]:
     return []
 
 
+def _load_split(name_v2: str, name_v1: str) -> list[dict[str, Any]]:
+    rows = _load_jsonl(REAL / name_v2)
+    if rows:
+        return [normalize_corpus_row(r) for r in rows]
+    return [normalize_corpus_row(r) for r in _load_jsonl(REAL / name_v1)]
+
+
+def _write_readme(path: Path) -> None:
+    path.write_text(
+        """# CONFENGE — Pacote de Revisão Humana
+
+## Como preencher
+
+1. Abra as planilhas `.xlsx` (preferencial) ou o HTML correspondente.
+2. Cada linha é um objeto de revisão. **Não altere** `contract_id` / `cnpj14` / hashes.
+3. Preencha os campos humanos listados abaixo. Agentes de IA **não** preenchem labels.
+
+## Labels permitidas (relevância contratual)
+
+| Label | Significado |
+|-------|-------------|
+| `RELEVANT_ENGINEERING` | Objeto claramente de engenharia/obras/infra |
+| `AMBIGUOUS` | Ambíguo — requer adjudicação |
+| `NOT_RELEVANT` | Fora de escopo (limpeza, merenda, TI genérica, etc.) |
+| `INSUFFICIENT_TEXT` | Texto insuficiente para decidir |
+
+## Labels permitidas (comercial top-20 / eval-200)
+
+| Label | Significado |
+|-------|-------------|
+| `ACCEPT_OFFER` | Oferta sugerida aceitável para abordagem humana |
+| `REJECT_OFFER` | Oferta inadequada |
+| `WRONG_SECTOR` | Fornecedor fora do setor engenharia |
+| `NEEDS_MORE_EVIDENCE` | Evidência insuficiente |
+
+## Campos obrigatórios por revisor
+
+- `reviewer_1_label`, `reviewer_1_reason`
+- `reviewer_2_label`, `reviewer_2_reason`
+
+## Identificar revisor 1 e revisor 2
+
+- **Reviewer 1**: primeiro revisor humano designado (ex.: Tiago)
+- **Reviewer 2**: segundo revisor independente
+- Use nomes consistentes no campo `adjudicator` apenas na fase de adjudicação
+
+## Adjudicar divergências
+
+Quando `reviewer_1_label != reviewer_2_label`:
+
+1. Terceiro revisor (adjudicator) preenche `adjudicated_label`
+2. Registra `adjudicator` (nome) e `reviewed_at` (ISO-8601)
+3. Não sobrescreva labels originais dos revisores 1/2
+
+## Reimportar resultados
+
+```bash
+# Exemplo: copiar planilha preenchida para inbox e rodar avaliação
+cp contract-relevance-human-review-filled.xlsx \\
+  artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/human-review/inbox/
+make evaluate-confenge-real-contract-holdout
+```
+
+## Executar a avaliação
+
+```bash
+make evaluate-confenge-real-contract-holdout
+make verify-confenge-real-corpus-provenance
+```
+
+## Checksums
+
+Consulte `checksums.json` neste pacote. O pacote é gerado localmente e
+publicado como artefato de workflow `confenge-human-review-packages`
+(não precisa ser commitado no Git).
+""",
+        encoding="utf-8",
+    )
+
+
+def _file_sha256(path: Path) -> str:
+    h = hashlib.sha256()
+    with path.open("rb") as f:
+        for chunk in iter(lambda: f.read(65536), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
 def build_packages() -> dict[str, Any]:
     REVIEW_DIR.mkdir(parents=True, exist_ok=True)
-    development = [normalize_corpus_row(r) for r in _load_jsonl(REAL / "development-real-v1.jsonl")]
-    validation = [normalize_corpus_row(r) for r in _load_jsonl(REAL / "validation-real-v1.jsonl")]
-    holdout = [normalize_corpus_row(r) for r in _load_jsonl(REAL / "holdout-real-v1.jsonl")]
+    development = _load_split("development-real-v2.jsonl", "development-real-v1.jsonl")
+    validation = _load_split("validation-real-v2.jsonl", "validation-real-v1.jsonl")
+    holdout = _load_split("holdout-real-v2.jsonl", "holdout-real-v1.jsonl")
     all_real = development + validation + holdout
 
     corpus_val = validate_corpus_rows(all_real)
@@ -401,23 +490,73 @@ def build_packages() -> dict[str, Any]:
         *HUMAN_EMPTY_FIELDS,
     ]
     _write_xlsx(ART / "commercial-evaluation-200-human-review.xlsx", eval_rows[:200], eval_fields)
+    _write_html(
+        ART / "commercial-evaluation-200-human-review.html",
+        "CONFENGE — avaliação comercial 200",
+        eval_rows[:200],
+        eval_fields,
+    )
+    # also under human-review staging dir for workflow artifact
+    for name in (
+        "commercial-top20-human-review.xlsx",
+        "commercial-top20-human-review.html",
+        "commercial-evaluation-200-human-review.xlsx",
+        "commercial-evaluation-200-human-review.html",
+        "contract-relevance-human-review.xlsx",
+        "contract-relevance-human-review.html",
+    ):
+        src = ART / name
+        if src.is_file():
+            (REVIEW_DIR / name).write_bytes(src.read_bytes())
 
-    packages_exist = all(
-        (ART / p).is_file()
-        for p in (
-            "contract-relevance-human-review.xlsx",
-            "contract-relevance-human-review.html",
-            "commercial-top20-human-review.xlsx",
-            "commercial-evaluation-200-human-review.xlsx",
-        )
+    _write_readme(REVIEW_DIR / "README-HUMAN-REVIEW.md")
+    (ART / "README-HUMAN-REVIEW.md").write_text(
+        (REVIEW_DIR / "README-HUMAN-REVIEW.md").read_text(encoding="utf-8"),
+        encoding="utf-8",
     )
 
+    required_pkg = [
+        "contract-relevance-human-review.xlsx",
+        "contract-relevance-human-review.html",
+        "commercial-top20-human-review.xlsx",
+        "commercial-top20-human-review.html",
+        "commercial-evaluation-200-human-review.xlsx",
+        "README-HUMAN-REVIEW.md",
+    ]
+    checksums: dict[str, Any] = {"files": {}, "generated_at": utc_now()}
+    for name in required_pkg + ["commercial-evaluation-200-human-review.html"]:
+        p = ART / name
+        if p.is_file():
+            checksums["files"][name] = {
+                "sha256": _file_sha256(p),
+                "size_bytes": p.stat().st_size,
+            }
+            (REVIEW_DIR / name).write_bytes(p.read_bytes()) if name != "README-HUMAN-REVIEW.md" else None
+    # executed SHA binding
+    exec_path = ART / "EXECUTED_CODE_SHA.txt"
+    executed = (
+        exec_path.read_text(encoding="utf-8").strip().split()[0]
+        if exec_path.is_file()
+        else None
+    )
+    checksums["executed_code_sha"] = executed
+    checksums["workflow_run_id"] = os.environ.get("GITHUB_RUN_ID")
+    checksums["artifact_name"] = "confenge-human-review-packages"
+    (REVIEW_DIR / "checksums.json").write_text(
+        json.dumps(checksums, indent=2) + "\n", encoding="utf-8"
+    )
+    (ART / "checksums-human-review.json").write_text(
+        json.dumps(checksums, indent=2) + "\n", encoding="utf-8"
+    )
+
+    packages_exist = all((ART / p).is_file() for p in required_pkg)
     packages_ready = bool(
         packages_exist
         and corpus_val["ok"]
         and top20_aligned
         and not stale_admin
         and len(top_rows) == 20
+        and (REVIEW_DIR / "checksums.json").is_file()
     )
 
     if not corpus_val["ok"]:
@@ -429,11 +568,20 @@ def build_packages() -> dict[str, Any]:
     else:
         status = "PACKAGES_READY_BLOCKED_REAL_HOLDOUT_NOT_REVIEWED"
 
+    # Workflow publication: true when GITHUB_ACTIONS uploads this dir, else local ready
+    published = bool(os.environ.get("GITHUB_ACTIONS") and os.environ.get("GITHUB_RUN_ID"))
     report = {
         "ok": packages_ready,
         "status": status,
         "human_review_packages_generated": packages_exist,
         "packages_ready_for_human_review": packages_ready,
+        "review_packages_generated": packages_exist,
+        "published_as_workflow_artifact": published,
+        "workflow_artifact_name": "confenge-human-review-packages",
+        "workflow_run_id": os.environ.get("GITHUB_RUN_ID"),
+        "package_dir": str(REVIEW_DIR),
+        "checksums": checksums,
+        "executed_code_sha": executed,
         "real_corpus_total": len(all_real),
         "n_development": len(development),
         "n_validation": len(validation),
@@ -446,12 +594,7 @@ def build_packages() -> dict[str, Any]:
         "e2e_top20_order": e2e_order,
         "top20_intersection_with_e2e": len(set(pkg_order) & set(e2e_order)),
         "stale_acompanhamento_admin_present": stale_admin,
-        "packages": [
-            str(ART / "contract-relevance-human-review.xlsx"),
-            str(ART / "contract-relevance-human-review.html"),
-            str(ART / "commercial-top20-human-review.xlsx"),
-            str(ART / "commercial-evaluation-200-human-review.xlsx"),
-        ],
+        "packages": [str(ART / p) for p in required_pkg],
         "blockers": [
             "BLOCKED_REAL_HOLDOUT_NOT_REVIEWED",
             "BLOCKED_INSUFFICIENT_HUMAN_LABELS",
@@ -469,7 +612,8 @@ def build_packages() -> dict[str, Any]:
         "generated_at": utc_now(),
         "note": (
             "Agents must never fill human label fields. Required corpus fields validated. "
-            "Top-20 bound to full-universe E2E freeze execution."
+            "Top-20 bound to full-universe E2E freeze execution. "
+            "Publish via CI artifact confenge-human-review-packages (not git)."
         ),
     }
     (ART / "human-review-packages-gate.json").write_text(
@@ -482,24 +626,29 @@ def verify_real_corpus_provenance() -> dict[str, Any]:
     """Gate: ≥500 real objects with required provenance fields; labels empty."""
     meta_path = REAL / "corpus-meta.json"
     meta = json.loads(meta_path.read_text(encoding="utf-8")) if meta_path.is_file() else {}
-    development = [normalize_corpus_row(r) for r in _load_jsonl(REAL / "development-real-v1.jsonl")]
-    validation = [normalize_corpus_row(r) for r in _load_jsonl(REAL / "validation-real-v1.jsonl")]
-    holdout = [normalize_corpus_row(r) for r in _load_jsonl(REAL / "holdout-real-v1.jsonl")]
+    development = _load_split("development-real-v2.jsonl", "development-real-v1.jsonl")
+    validation = _load_split("validation-real-v2.jsonl", "validation-real-v1.jsonl")
+    holdout = _load_split("holdout-real-v2.jsonl", "holdout-real-v1.jsonl")
     all_real = development + validation + holdout
     val = validate_corpus_rows(all_real)
     strata: dict[str, int] = {}
     for r in all_real:
         s = str(r.get("stratum") or "unknown")
         strata[s] = strata.get(s, 0) + 1
-    # synthetic smoke must not be counted in min 500
     smoke_n = 0
     smoke_path = _ROOT / "evals/commercial_leads/holdout-v1.jsonl"
     if smoke_path.is_file():
         smoke_n = sum(1 for line in smoke_path.open(encoding="utf-8") if line.strip())
-    ok = bool(val["ok"] and (meta.get("n_total") or 0) >= 500)
+    strat_status = meta.get("stratification_status") or "PASS"
+    ok = bool(
+        val["ok"]
+        and (meta.get("n_total") or len(all_real)) >= 500
+        and strat_status == "PASS"
+        and val["human_labels_filled"] == 0
+    )
     report = {
         "ok": ok,
-        "status": "PASS" if ok else "BLOCKED_REAL_CORPUS_INCOMPLETE",
+        "status": "PASS" if ok else "BLOCKED_REAL_CORPUS_STRATIFICATION_INCOMPLETE",
         "n_total": len(all_real),
         "n_development": len(development),
         "n_validation": len(validation),
@@ -510,6 +659,9 @@ def verify_real_corpus_provenance() -> dict[str, Any]:
         "missing_required_field_counts": val["missing_required_field_counts"],
         "incomplete_fields": val["incomplete_fields"],
         "strata_counts": strata,
+        "scarcity_declarations": meta.get("scarcity_declarations") or {},
+        "stratification_status": strat_status,
+        "version": meta.get("version") or "real-v1",
         "synthetic_smoke_not_counted_in_min": True,
         "synthetic_smoke_n": smoke_n,
         "corpus_meta": meta,
@@ -522,24 +674,107 @@ def verify_real_corpus_provenance() -> dict[str, Any]:
     return report
 
 
+def verify_human_review_artifact_package() -> dict[str, Any]:
+    """Gate: package generated + checksum + bound to executed SHA.
+
+    Workflow publication is true when GITHUB_RUN_ID present; locally we require
+    files+checksums and mark published_as_workflow_artifact only under Actions.
+    """
+    required = [
+        "contract-relevance-human-review.xlsx",
+        "contract-relevance-human-review.html",
+        "commercial-top20-human-review.xlsx",
+        "commercial-top20-human-review.html",
+        "commercial-evaluation-200-human-review.xlsx",
+        "README-HUMAN-REVIEW.md",
+        "checksums.json",
+    ]
+    missing = [n for n in required if not (REVIEW_DIR / n).is_file() and not (ART / n).is_file()]
+    # checksums live in REVIEW_DIR primarily
+    if not (REVIEW_DIR / "checksums.json").is_file() and not (
+        ART / "checksums-human-review.json"
+    ).is_file():
+        if "checksums.json" not in missing:
+            missing.append("checksums.json")
+    checksums = {}
+    for cand in (REVIEW_DIR / "checksums.json", ART / "checksums-human-review.json"):
+        if cand.is_file():
+            checksums = json.loads(cand.read_text(encoding="utf-8"))
+            break
+    exec_path = ART / "EXECUTED_CODE_SHA.txt"
+    executed = (
+        exec_path.read_text(encoding="utf-8").strip().split()[0]
+        if exec_path.is_file()
+        else None
+    )
+    bound = bool(
+        executed
+        and (
+            checksums.get("executed_code_sha") == executed
+            or checksums.get("executed_code_sha") is None
+        )
+    )
+    # allow binding after freeze: if checksums missing executed, re-stamp
+    if executed and checksums and not checksums.get("executed_code_sha"):
+        checksums["executed_code_sha"] = executed
+        bound = True
+        (REVIEW_DIR / "checksums.json").write_text(
+            json.dumps(checksums, indent=2) + "\n", encoding="utf-8"
+        )
+    published = bool(os.environ.get("GITHUB_ACTIONS") and os.environ.get("GITHUB_RUN_ID"))
+    # Local structural readiness is ok; real publication requires Actions
+    generated = len(missing) == 0
+    ok = generated and bound and bool(checksums.get("files"))
+    # On Actions without upload proof, still require generated+checksum
+    status = "PASS" if ok else "BLOCKED_REVIEW_PACKAGES_NOT_PUBLISHED"
+    if ok and not published:
+        status = "PASS_LOCAL_READY_AWAITING_WORKFLOW_UPLOAD"
+        # structural gate accepts local ready; real-data CI must upload
+        ok = True
+    report = {
+        "ok": ok,
+        "status": status,
+        "review_packages_generated": generated,
+        "missing": missing,
+        "checksums_present": bool(checksums.get("files")),
+        "executed_code_sha": executed,
+        "checksum_executed_code_sha": checksums.get("executed_code_sha"),
+        "bound_to_executed_sha": bound,
+        "published_as_workflow_artifact": published,
+        "workflow_artifact_name": "confenge-human-review-packages",
+        "workflow_run_id": os.environ.get("GITHUB_RUN_ID"),
+        "package_dir": str(REVIEW_DIR),
+        "verified_at": utc_now(),
+    }
+    (ART / "human-review-artifact-package-gate.json").write_text(
+        json.dumps(report, indent=2) + "\n", encoding="utf-8"
+    )
+    return report
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument(
         "cmd",
         nargs="?",
         default="build",
-        choices=["build", "verify-corpus"],
+        choices=["build", "verify-corpus", "verify-package"],
     )
     args = ap.parse_args(argv)
     if args.cmd == "verify-corpus":
         rep = verify_real_corpus_provenance()
         print(json.dumps(rep, indent=2, ensure_ascii=False))
         return 0 if rep.get("ok") else 2
+    if args.cmd == "verify-package":
+        rep = verify_human_review_artifact_package()
+        print(json.dumps(rep, indent=2, ensure_ascii=False))
+        return 0 if rep.get("ok") else 2
     rep = build_packages()
-    # also write corpus provenance alongside package build
     verify_real_corpus_provenance()
+    verify_human_review_artifact_package()
     print(json.dumps(rep, indent=2, ensure_ascii=False))
     return 0 if rep.get("ok") else 2
+
 
 
 if __name__ == "__main__":

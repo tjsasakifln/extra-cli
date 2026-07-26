@@ -276,13 +276,16 @@ def run_full_universe_e2e(
             status = "PASS"
             ok = True
         else:
-            status = "BLOCKED_FULL_UNIVERSE_E2E_NOT_PROVEN"
+            status = "BLOCKED_FULL_UNIVERSE_DOWNSTREAM_NOT_PROVEN"
             ok = False
 
         report = {
             "ok": ok,
             "status": status,
-            "method": "live_double_full_pipeline_frozen_universe_all_status_history",
+            "gate_kind": "FULL_UNIVERSE_DOWNSTREAM_REPRODUCIBILITY",
+            "method": "live_double_downstream_from_frozen_candidate_universe",
+            "starts_from_frozen_cnpj_list": True,
+            "starts_from_raw_snapshot_discovery": False,
             "frozen_candidate_count": frozen_n,
             "n_universe": pass_a.get("n_universe"),
             "n_universe_equals_frozen": n_match,
@@ -297,17 +300,18 @@ def run_full_universe_e2e(
             "same_inputs_same_complete_outputs": all_equal,
             "executed_at": utc_now(),
             "note": (
-                "Full-universe PASS requires n_universe == frozen_candidate_count and "
-                "identical stage hashes across two independent passes. "
+                "DOWNSTREAM gate only: starts from frozen candidate CNPJ universe. "
+                "Does NOT re-run raw snapshot discovery. "
+                "Full-pipeline E2E is scripts.ops.confenge_full_pipeline_e2e. "
                 "Sampled runs are SAMPLED_E2E_TEST only."
             ),
         }
         out = ART / "full-universe-e2e-reproducibility-gate.json"
         out.write_text(json.dumps(report, indent=2, default=str) + "\n", encoding="utf-8")
-        if not sampled:
-            (ART / "end-to-end-reproducibility-gate.json").write_text(
-                json.dumps(report, indent=2, default=str) + "\n", encoding="utf-8"
-            )
+        # Downstream-only report (never claim full-pipeline E2E)
+        (ART / "downstream-reproducibility-gate.json").write_text(
+            json.dumps(report, indent=2, default=str) + "\n", encoding="utf-8"
+        )
         return report
     finally:
         conn.close()
