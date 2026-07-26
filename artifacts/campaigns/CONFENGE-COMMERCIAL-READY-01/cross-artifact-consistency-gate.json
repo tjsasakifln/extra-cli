@@ -4,12 +4,12 @@
   "issues": [],
   "terminal_reason": "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE",
   "terminal_declaration": "BLOCKED_ONLY_OFFICIAL_REGISTRY_AND_HUMAN_REVIEW",
-  "pr_head_sha": "0af7356e8b1ddd237d8d0b591a2d29e148673efe",
-  "live_pr_head_sha": "0af7356e8b1ddd237d8d0b591a2d29e148673efe",
+  "pr_head_sha": "d46026f9c5da6d75b889019891f6c803d5c63ede",
+  "live_pr_head_sha": "d46026f9c5da6d75b889019891f6c803d5c63ede",
   "workflow_merge_sha": "3add74d8da1459f4c17dacd80e4f811a21c54762",
-  "executed_code_sha": "4d54d93112229c2c8ac6838a3df7b6d6481ea366",
-  "evidence_commit_sha": "0af7356e8b1ddd237d8d0b591a2d29e148673efe",
+  "executed_code_sha": "d46026f9c5da6d75b889019891f6c803d5c63ede",
+  "evidence_commit_sha": "d46026f9c5da6d75b889019891f6c803d5c63ede",
   "real_data_ci_status": "NOT_EXECUTED",
-  "match_run_to_head": false,
-  "verified_at": "2026-07-26T18:45:23Z"
+  "match_run_to_head": true,
+  "verified_at": "2026-07-26T18:59:26Z"
 }

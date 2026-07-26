@@ -1,26 +1,26 @@
 {
   "ok": true,
   "status": "PASS",
-  "executed_code_sha": "4d54d93112229c2c8ac6838a3df7b6d6481ea366",
-  "final_integrity_code_freeze_sha": "4d54d93112229c2c8ac6838a3df7b6d6481ea366",
-  "current_pr_head_sha": "0af7356e8b1ddd237d8d0b591a2d29e148673efe",
-  "match_run_to_head": false,
+  "executed_code_sha": "d46026f9c5da6d75b889019891f6c803d5c63ede",
+  "final_integrity_code_freeze_sha": "d46026f9c5da6d75b889019891f6c803d5c63ede",
+  "current_pr_head_sha": "d46026f9c5da6d75b889019891f6c803d5c63ede",
+  "match_run_to_head": true,
   "non_artifact_files_changed_after_execution": [],
   "sha_semantics": {
     "ok": true,
     "status": "PASS",
-    "executed_code_sha": "4d54d93112229c2c8ac6838a3df7b6d6481ea366",
-    "current_pr_head_sha": "0af7356e8b1ddd237d8d0b591a2d29e148673efe",
-    "pr_head_sha": "0af7356e8b1ddd237d8d0b591a2d29e148673efe",
+    "executed_code_sha": "d46026f9c5da6d75b889019891f6c803d5c63ede",
+    "current_pr_head_sha": "d46026f9c5da6d75b889019891f6c803d5c63ede",
+    "pr_head_sha": "d46026f9c5da6d75b889019891f6c803d5c63ede",
     "workflow_merge_sha": "3add74d8da1459f4c17dacd80e4f811a21c54762",
-    "match_run_to_head_declared": false,
-    "match_run_to_head_derived": false,
-    "match_run_to_head": false,
+    "match_run_to_head_declared": true,
+    "match_run_to_head_derived": true,
+    "match_run_to_head": true,
     "code_changed_after_execution": false,
-    "artifact_only_commits_after_execution": true,
+    "artifact_only_commits_after_execution": false,
     "issues": [],
     "rule": "match_run_to_head == true only when executed_code_sha == pr_head_sha; workflow_merge_sha must never be stored as current_pr_head_sha",
-    "verified_at": "2026-07-26T18:45:22Z"
+    "verified_at": "2026-07-26T18:59:26Z"
   },
-  "verified_at": "2026-07-26T18:45:22Z"
+  "verified_at": "2026-07-26T18:59:26Z"
 }
