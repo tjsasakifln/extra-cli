@@ -255,20 +255,20 @@ def cmd_ranking_quality(_: argparse.Namespace) -> int:
     d = _load_run()
     leads = d.get("leads") or []
     top = leads[:10]
-    oos = sum(1 for L in top if L.get("supplier_sector_fit") == "OUT_OF_SCOPE")
+    oos = sum(1 for item in top if item.get("supplier_sector_fit") == "OUT_OF_SCOPE")
     strong = (
         all(
-            L.get("supplier_sector_fit")
+            item.get("supplier_sector_fit")
             in ("CONFIRMED_ENGINEERING", "STRONG_ENGINEERING_FIT")
-            for L in top
+            for item in top
         )
         if top
         else False
     )
     # also require data_quality full history fields present
     hist_ok = all(
-        (L.get("data_quality") or {}).get("total_contract_count_full_history") is not None
-        for L in top
+        (item.get("data_quality") or {}).get("total_contract_count_full_history") is not None
+        for item in top
     ) if top else False
     print({"top10": len(top), "oos": oos, "strong": strong, "full_history_fields": hist_ok})
     return 0 if strong and oos == 0 and top and hist_ok else 1
@@ -293,12 +293,12 @@ def cmd_ranking_stability(_: argparse.Namespace) -> int:
         blob = json.dumps(
             [
                 (
-                    L.get("cnpj14"),
-                    L.get("score_total"),
-                    L.get("priority"),
-                    L.get("supplier_sector_fit"),
+                    item.get("cnpj14"),
+                    item.get("score_total"),
+                    item.get("priority"),
+                    item.get("supplier_sector_fit"),
                 )
-                for L in items
+                for item in items
             ],
             sort_keys=True,
         )
@@ -307,15 +307,16 @@ def cmd_ranking_stability(_: argparse.Namespace) -> int:
     h1 = rank_blob(leads)
     h2 = rank_blob(list(reversed(list(reversed(leads)))))  # order-stable rebuild
     # Live re-score top published CNPJs from full history (same as-of/profile)
+    from datetime import date
+
+    from scripts.commercial_leads.dbutil import connect
     from scripts.commercial_leads.pipeline import load_full_supplier_histories
     from scripts.commercial_leads.profile import load_profile
     from scripts.commercial_leads.scoring import rank_leads, score_supplier
     from scripts.commercial_leads.signals import compute_signals_for_supplier, rows_from_dicts
-    from scripts.commercial_leads.dbutil import connect
-    from datetime import date
 
     profile = load_profile(_ROOT / "config/commercial_profiles/confenge.yaml")
-    cnpjs = [str(L["cnpj14"]) for L in leads]
+    cnpjs = [str(item["cnpj14"]) for item in leads]
     conn = connect(dsn)
     try:
         groups, hist = load_full_supplier_histories(conn, cnpjs, per_supplier_limit=None)
@@ -329,8 +330,11 @@ def cmd_ranking_stability(_: argparse.Namespace) -> int:
 
     as_of = date.fromisoformat(str(run.get("as_of") or date.today().isoformat()))
     scored = []
-    for L in leads:
-        cnpj = str(L["cnpj14"])
+    sector_by_cnpj = {
+        str(item.get("cnpj14")): item.get("supplier_sector_fit") for item in leads
+    }
+    for item in leads:
+        cnpj = str(item["cnpj14"])
         crow = groups.get(cnpj) or []
         contracts = rows_from_dicts(crow)
         sigs = compute_signals_for_supplier(contracts, profile, as_of=as_of, official_acts=None)
@@ -341,7 +345,7 @@ def cmd_ranking_stability(_: argparse.Namespace) -> int:
         last_pub = max(pubs).isoformat() if pubs else None
         lead = score_supplier(
             cnpj14=cnpj,
-            razao_social=L.get("razao_social") or cnpj,
+            razao_social=item.get("razao_social") or cnpj,
             signal_results=sigs,
             profile=profile,
             total_value=total_value,
@@ -357,10 +361,7 @@ def cmd_ranking_stability(_: argparse.Namespace) -> int:
                 "cnpj14": x.cnpj14,
                 "score_total": x.score_total,
                 "priority": x.priority,
-                "supplier_sector_fit": next(
-                    (L.get("supplier_sector_fit") for L in leads if L.get("cnpj14") == x.cnpj14),
-                    None,
-                ),
+                "supplier_sector_fit": sector_by_cnpj.get(x.cnpj14),
             }
             for x in ranked_a
         ]
@@ -371,10 +372,7 @@ def cmd_ranking_stability(_: argparse.Namespace) -> int:
                 "cnpj14": x.cnpj14,
                 "score_total": x.score_total,
                 "priority": x.priority,
-                "supplier_sector_fit": next(
-                    (L.get("supplier_sector_fit") for L in leads if L.get("cnpj14") == x.cnpj14),
-                    None,
-                ),
+                "supplier_sector_fit": sector_by_cnpj.get(x.cnpj14),
             }
             for x in ranked_b
         ]
@@ -495,8 +493,8 @@ def cmd_source_state_isolation(_: argparse.Namespace) -> int:
                 ledger["insert_ledger"] = f"fail:{exc}"
                 try:
                     conn.rollback()
-                except Exception:  # noqa: BLE001
-                    pass
+                except Exception as rb_exc:  # noqa: BLE001
+                    ledger["rollback_error"] = str(rb_exc)
     finally:
         conn.close()
 
@@ -568,8 +566,10 @@ def cmd_migrations(_: argparse.Namespace) -> int:
 def cmd_package_evidence(_: argparse.Namespace) -> int:
     out = ART / "evidence-package"
     out.mkdir(parents=True, exist_ok=True)
-    sha = subprocess.check_output(  # noqa: S603,S607
-        ["git", "rev-parse", "HEAD"], cwd=str(_ROOT), text=True
+    sha = subprocess.check_output(
+        ["git", "rev-parse", "HEAD"],  # noqa: S603,S607
+        cwd=str(_ROOT),
+        text=True,
     ).strip()
     files = [
         "result.json",
@@ -611,8 +611,10 @@ def cmd_verify_attestation(_: argparse.Namespace) -> int:
     """
     p = ART / "evidence-package" / "attestation.json"
     d = json.loads(p.read_text(encoding="utf-8")) if p.is_file() else {}
-    head = subprocess.check_output(  # noqa: S603,S607
-        ["git", "rev-parse", "HEAD"], cwd=str(_ROOT), text=True
+    head = subprocess.check_output(
+        ["git", "rev-parse", "HEAD"],  # noqa: S603,S607
+        cwd=str(_ROOT),
+        text=True,
     ).strip()
     executed = d.get("executed_git_sha") or ""
     exact = executed == head
@@ -620,7 +622,7 @@ def cmd_verify_attestation(_: argparse.Namespace) -> int:
     if executed and not exact:
         try:
             subprocess.check_call(  # noqa: S603
-                ["git", "merge-base", "--is-ancestor", executed, head],  # noqa: S607
+                ["git", "merge-base", "--is-ancestor", executed, head],  # noqa: S603,S607
                 cwd=str(_ROOT),
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,

@@ -338,7 +338,9 @@ def compute_canonical_table_hash(
                     r["is_active"],
                 ]
             )
-            row_md5 = hashlib.md5(line.encode("utf-8")).hexdigest()  # noqa: S324 — content FP not crypto secret
+            row_md5 = hashlib.md5(  # noqa: S324
+                line.encode("utf-8"), usedforsecurity=False
+            ).hexdigest()
             h.update(row_md5.encode("ascii"))
             hashed += 1
         offset += batch_size

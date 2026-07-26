@@ -24,8 +24,8 @@ if str(_ROOT) not in sys.path:
 from scripts.commercial_leads.sector_fit import (  # noqa: E402
     CLASS_CONFIRMED,
     CLASS_STRONG,
-    classify_supplier_sector_fit,
     assert_denominator_invariant,
+    classify_supplier_sector_fit,
 )
 
 
@@ -132,7 +132,7 @@ def adversarial_cases() -> list[dict[str, Any]]:
 
 def verify_db_sample(dsn: str, sample_n: int = 20) -> dict[str, Any]:
     """Stratified sample: reconcile loaded full history vs COUNT(*) on snapshot."""
-    from scripts.commercial_leads.dbutil import connect, fetch_all
+    from scripts.commercial_leads.dbutil import connect
     from scripts.commercial_leads.pipeline import (
         discover_candidate_suppliers,
         load_full_supplier_histories,

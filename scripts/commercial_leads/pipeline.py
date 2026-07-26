@@ -35,6 +35,7 @@ from scripts.commercial_leads.exports import export_all, reconcile_exports
 from scripts.commercial_leads.identity import ExclusionRecord, resolve_supplier
 from scripts.commercial_leads.isolation import (
     assert_source_state_isolation,
+    enable_snapshot_guard,
     mask_dsn,
     open_source_connection,
 )
@@ -188,13 +189,15 @@ def discover_candidate_suppliers(
     uf_list += list((profile.data.get("region") or {}).get("secondary_ufs") or [])
     uf_list = [u.upper() for u in uf_list if u]
 
+    # select list is constant; filt built from controlled keyword params only
     sql = (
-        f"SELECT {_CONTRACT_SELECT} "
-        "FROM public.pncp_supplier_contracts "
+        "SELECT "  # noqa: S608
+        + _CONTRACT_SELECT
+        + " FROM public.pncp_supplier_contracts "
         "WHERE is_active = TRUE "
         "AND fornecedor_cnpj IS NOT NULL "
         "AND btrim(fornecedor_cnpj) <> '' "
-        "AND (" + filt + ")"  # nosec B608
+        "AND (" + filt + ")"
     )
     if uf_list:
         sql += " AND uf IS NOT NULL AND upper(btrim(uf)) = ANY(%s)"
@@ -279,9 +282,11 @@ def load_full_supplier_histories(
         }
 
     # Normalize fornecedor_cnpj digits in SQL for join
-    sql = (
-        f"SELECT {_CONTRACT_SELECT}, "
-        "regexp_replace(fornecedor_cnpj, '\\D', '', 'g') AS fornecedor_cnpj_digits "
+    # select list constant; CNPJ filter bound via %s
+    sql = (  # noqa: S608
+        "SELECT "
+        + _CONTRACT_SELECT
+        + ", regexp_replace(fornecedor_cnpj, '\\D', '', 'g') AS fornecedor_cnpj_digits "
         "FROM public.pncp_supplier_contracts "
         "WHERE is_active = TRUE "
         "AND fornecedor_cnpj IS NOT NULL "
@@ -713,6 +718,13 @@ def run_pipeline(
     source_conn = open_source_connection(source)
     state_conn = connect(state)
     try:
+        enable_snapshot_guard(state_conn)
+    except Exception as guard_exc:  # noqa: BLE001
+        # Guard is best-effort on DBs without migration 064 yet
+        import logging
+
+        logging.getLogger(__name__).warning("snapshot_guard_not_enabled: %s", guard_exc)
+    try:
         # Mint / refresh canonical_table_hash on manifest (content fingerprint)
         man_path = Path(snapshot_manifest)
         try:
@@ -862,14 +874,18 @@ def run_pipeline(
         # Supplier registry (CNAE) — never invent
         try:
             ensure_registry_table(state_conn)
-        except Exception:  # noqa: BLE001
-            pass
+        except Exception as reg_exc:  # noqa: BLE001
+            import logging
+            logging.getLogger(__name__).warning("ensure_registry_table failed: %s", reg_exc)
         try:
             registry_map = load_registry_map(source_conn, list(groups.keys()))
-        except Exception:  # noqa: BLE001
+        except Exception as reg_exc:  # noqa: BLE001
+            import logging
+            logging.getLogger(__name__).warning("load_registry_map source failed: %s", reg_exc)
             try:
                 registry_map = load_registry_map(state_conn, list(groups.keys()))
-            except Exception:  # noqa: BLE001
+            except Exception as reg_exc2:  # noqa: BLE001
+                logging.getLogger(__name__).warning("load_registry_map state failed: %s", reg_exc2)
                 registry_map = {}
 
         candidates_meta: list[dict[str, Any]] = []

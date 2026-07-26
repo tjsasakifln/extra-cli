@@ -287,6 +287,9 @@ def probe_snapshot_write_denied(dsn: str) -> dict[str, Any]:
     try:
         conn.autocommit = True
         with conn.cursor() as cur:
+            # Enable campaign snapshot guard (opt-in; CI seeds leave it off)
+            cur.execute("SELECT set_config('app.confenge_snapshot_guard', 'on', false)")
+
             # SELECT must work
             try:
                 cur.execute(
@@ -296,7 +299,7 @@ def probe_snapshot_write_denied(dsn: str) -> dict[str, Any]:
             except Exception as exc:  # noqa: BLE001
                 out["select"] = f"fail:{exc}"
 
-            # INSERT must FAIL
+            # INSERT must FAIL under guard without allow flag
             try:
                 cur.execute(
                     """
@@ -376,8 +379,8 @@ def probe_snapshot_write_denied(dsn: str) -> dict[str, Any]:
     finally:
         try:
             conn.close()
-        except Exception:  # noqa: BLE001
-            pass
+        except Exception as close_exc:  # noqa: BLE001
+            out["close_error"] = str(close_exc)
 
 
 def _probe_source_read_only(dsn: str) -> bool | None:
@@ -389,9 +392,10 @@ def _probe_source_read_only(dsn: str) -> bool | None:
 
 
 def open_source_connection(dsn: str) -> Any:
-    """Open source DB connection with default_transaction_read_only=on (defense in depth).
+    """Open source DB connection with read-only session + snapshot guard enabled.
 
-    Real immutability of snapshot tables is enforced by DB trigger (migration 064).
+    Campaign connections set app.confenge_snapshot_guard=on so migration 064
+    blocks writes to pncp_supplier_contracts. CI seeds leave the guard off.
     """
     import psycopg2
     from psycopg2.extras import RealDictCursor
@@ -400,5 +404,12 @@ def open_source_connection(dsn: str) -> Any:
     conn.set_session(readonly=True, autocommit=True)
     with conn.cursor() as cur:
         cur.execute("SET default_transaction_read_only = on")
+        cur.execute("SELECT set_config('app.confenge_snapshot_guard', 'on', false)")
     conn.cursor_factory = RealDictCursor
     return conn
+
+
+def enable_snapshot_guard(conn: Any) -> None:
+    """Enable snapshot write guard on an open (state) connection."""
+    with conn.cursor() as cur:
+        cur.execute("SELECT set_config('app.confenge_snapshot_guard', 'on', false)")
