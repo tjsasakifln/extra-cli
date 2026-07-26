@@ -1,20 +1,20 @@
 {
   "ok": true,
   "status": "PASS",
-  "current_pr_head_sha": "7262d2bf4840dda61a134cace76c41b32a1694c0",
-  "pr_head_sha": "7262d2bf4840dda61a134cace76c41b32a1694c0",
-  "checked_out_sha": "7262d2bf4840dda61a134cace76c41b32a1694c0",
+  "current_pr_head_sha": "a0d778e65c0a0aa757fa4d86b49bb5d9c19189ce",
+  "pr_head_sha": "a0d778e65c0a0aa757fa4d86b49bb5d9c19189ce",
+  "checked_out_sha": "a0d778e65c0a0aa757fa4d86b49bb5d9c19189ce",
   "workflow_merge_sha": "9a4077836faa84edda996e9911a158011abf4880",
   "final_code_freeze_sha": "7262d2bf4840dda61a134cace76c41b32a1694c0",
   "final_integrity_code_freeze_sha": "7262d2bf4840dda61a134cace76c41b32a1694c0",
   "executed_code_sha": "7262d2bf4840dda61a134cace76c41b32a1694c0",
-  "evidence_commit_sha": "7262d2bf4840dda61a134cace76c41b32a1694c0",
+  "evidence_commit_sha": "a0d778e65c0a0aa757fa4d86b49bb5d9c19189ce",
   "workflow_head_sha": "9a4077836faa84edda996e9911a158011abf4880",
   "artifact_git_sha": "7262d2bf4840dda61a134cace76c41b32a1694c0",
   "code_tree_hash_at_execution": "2ce4acfa0fdc98ce17c00792171da75364511466f94214312990929baa5e2991",
-  "code_tree_hash_at_current_head": "2ce4acfa0fdc98ce17c00792171da75364511466f94214312990929baa5e2991",
+  "code_tree_hash_at_current_head": "b2b1595171308eaf337ab90f01babd4ca87b6be17593f3c0b9fa2a6517defe34",
   "code_changed_after_execution": false,
-  "artifact_only_commits_after_execution": false,
+  "artifact_only_commits_after_execution": true,
   "non_artifact_files_changed_after_execution": [],
   "execution": {
     "execution_environment": "local",
@@ -26,10 +26,10 @@
     "job_ids": null,
     "command": "make campaign-gate-confenge-commercial-ready",
     "started_at": null,
-    "finished_at": "2026-07-26T18:32:33Z",
+    "finished_at": "2026-07-26T18:33:19Z",
     "exit_code": 0
   },
-  "match_run_to_head": true,
+  "match_run_to_head": false,
   "sha_semantics": {
     "current_pr_head_sha": "PR tip (CONFENGE_PR_HEAD_SHA / live tip)",
     "executed_code_sha": "commit cujo c\u00f3digo foi executado",
@@ -40,5 +40,5 @@
     "artifact_git_sha": "commit de c\u00f3digo da evid\u00eancia (executed)",
     "match_run_to_head_rule": "true only when executed_code_sha == pr_head_sha"
   },
-  "verified_at": "2026-07-26T18:32:33Z"
+  "verified_at": "2026-07-26T18:33:19Z"
 }
