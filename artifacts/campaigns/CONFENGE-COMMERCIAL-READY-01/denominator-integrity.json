@@ -1,0 +1,56 @@
+{
+  "gate": "verify-confenge-denominator-integrity",
+  "adversarial": [
+    {
+      "case": "1_pavement_9_food",
+      "ok": true,
+      "ratio": 0.1,
+      "classification": "POSSIBLE_ENGINEERING_FIT",
+      "relevant": 1,
+      "total": 10
+    },
+    {
+      "case": "2_obra_8_limpeza",
+      "ok": true,
+      "ratio": 0.2,
+      "classification": "POSSIBLE_ENGINEERING_FIT"
+    },
+    {
+      "case": "prefilter_only_incomplete_never_strong",
+      "ok": true,
+      "classification": "POSSIBLE_ENGINEERING_FIT",
+      "history_source": "prefilter_only_incomplete"
+    },
+    {
+      "case": "legitimate_strong_full_history",
+      "ok": true,
+      "classification": "STRONG_ENGINEERING_FIT",
+      "ratio": 1.0
+    }
+  ],
+  "adversarial_ok": true,
+  "db_sample": {
+    "ok": true,
+    "sample_n": 20,
+    "history_meta": {
+      "stage": "full_history",
+      "history_expansion_mode": "FULL_CANDIDATE_HISTORY",
+      "candidate_count": 20,
+      "suppliers_with_history": 20,
+      "full_history_contract_count": 74,
+      "mean_contracts_per_candidate": 3.7,
+      "median_contracts_per_candidate": 1.0,
+      "single_contract_candidate_rate": 0.55,
+      "per_supplier_limit": null,
+      "truncated_suppliers": [],
+      "history_complete": true,
+      "snapshot_count_mismatches": [],
+      "snapshot_count_mismatch_n": 0
+    },
+    "discovery_candidates": 7250,
+    "prefilter_inflation_caught": [],
+    "mismatches": []
+  },
+  "db_ok": true,
+  "ok": true
+}

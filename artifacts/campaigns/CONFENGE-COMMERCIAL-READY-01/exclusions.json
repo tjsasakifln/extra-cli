@@ -1,0 +1,1208 @@
+{
+  "counts": {
+    "public_organ_name": 101,
+    "natural_person": 373
+  },
+  "sample": [
+    {
+      "raw_tax_id": "43942358000146",
+      "raw_name": "FUNDACAO INSTITUTO DE PESQUISAS ECONOMICAS FIPE",
+      "reason_code": "public_organ_name",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "54112800010",
+      "raw_name": "NEI BAGATINI",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "02385669000174",
+      "raw_name": "FIOTEC - FUNDACAO PARA O DESENVOLVIMENTO CIENTIFICO E TECNOLOGICO EM SAUDE",
+      "reason_code": "public_organ_name",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "00103498000118",
+      "raw_name": "EMPREITEIRA UNIAO LTDA",
+      "reason_code": "public_organ_name",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "00516769901",
+      "raw_name": "LAIS FERRER AMORIM",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "39680193934",
+      "raw_name": "Pedro Joao de Souza",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "35998689000170",
+      "raw_name": "UNIÃO AUTO PEÇAS",
+      "reason_code": "public_organ_name",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "20885172000105",
+      "raw_name": "CODAMMA CONSORCIO DESENVOLVIMENTO DA ÁREA DOS MUNICÍPIOS DA MICRORREGIÃO DA MANTIQUEIRA",
+      "reason_code": "public_organ_name",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "64332870000",
+      "raw_name": "MARIA DA GRACA VIEIRA OLIVEIRA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "82804642000108",
+      "raw_name": "FUNDACAO UNIVERSITARIA DO DESENVOLVIMENTO DO OESTE",
+      "reason_code": "public_organ_name",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "83661074000104",
+      "raw_name": "FUNDACAO EDUCACIONAL DE CRICIUMA",
+      "reason_code": "public_organ_name",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "04201461998",
+      "raw_name": "ANA CAROLINE ZANDONÁ FERREIRA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "42714680968",
+      "raw_name": "LUIZA JANDIRA ROSSETO",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "39503526000",
+      "raw_name": "MARCELINO JOSE KAEFER",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "63225271934",
+      "raw_name": "LUIZ CARLOS OLIVEIRA DA SILVA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "80776914987",
+      "raw_name": "JOÃO CLAUDIO AMARANTE",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "38327210963",
+      "raw_name": "NILTON DE SOUZA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "95523669920",
+      "raw_name": "JACIR LUIZ SZCZEPANIK",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "52083225953",
+      "raw_name": "VALENTIM COMANDOLLI",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "07457687840",
+      "raw_name": "AGMA JUCI MACHADO TRAINA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "51174001000193",
+      "raw_name": "TRIBUNAL DE JUSTIÇA DO ESTADO DE SÃO PAULO",
+      "reason_code": "public_organ_name",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "09202597901",
+      "raw_name": "HELEN PRISCILA ZART",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "49325434000150",
+      "raw_name": "FUNDACAO 'PROF.DR.MANOEL PEDRO PIMENTEL'-FUNAP",
+      "reason_code": "public_organ_name",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "01323236643",
+      "raw_name": "JOICE ROBERTA RIBEIRO",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "00896702138",
+      "raw_name": "ED CASSIO DE JESUS",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "02026926638",
+      "raw_name": "THAYLAN PEREIRA DE JESUS",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "01557906920",
+      "raw_name": "UBIRAJARA FRANCO MORENO",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "31486878768",
+      "raw_name": "VILMA ALVES DE OLIVEIRA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "09786585747",
+      "raw_name": "GUILHERME GONTIJO FLORES",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "04369223989",
+      "raw_name": "RICARDO LUIZ MULINARI",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "72318422915",
+      "raw_name": "RONALDO ROSA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "22678874000135",
+      "raw_name": "PREFEITURA MUNICIPAL DE MONTES CLAROS",
+      "reason_code": "public_organ_name",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "43588755000161",
+      "raw_name": "FUNDAÇÃO PARA DESENVOLVIMENTO TECNOLOGICO DA ENGENHARIA",
+      "reason_code": "public_organ_name",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "17455200072",
+      "raw_name": "VILMAR VIEIRA NUNES",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "07360092647",
+      "raw_name": "Daniel Henrique dos Santos Garcia",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "00849774000191",
+      "raw_name": "FUNDACAO DE APOIO A PESQUISA E AO DESENVOLVIMENTO-FAPED",
+      "reason_code": "public_organ_name",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "82662958000102",
+      "raw_name": "FUNDACAO UNIVERSIDADE REGIONAL DE BLUMENAU - FURB",
+      "reason_code": "public_organ_name",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "49189891015",
+      "raw_name": "LUCIANA PORCHER NEDEL",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "19954267840",
+      "raw_name": "EDUARDO FONTOURA COSTA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "36897329991",
+      "raw_name": "BIRATAM EVANGELISTA FERREIRA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "85784023000197",
+      "raw_name": "FUNDACAO UNIVERSIDADE PARA O DESENVOLVIMENTO DO ALTO VALE DO ITAJAI - UNIDAVI -",
+      "reason_code": "public_organ_name",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "84592369000201",
+      "raw_name": "FUNDACAO UNIVERSIDADE DO OESTE DE SANTA CATARINA",
+      "reason_code": "public_organ_name",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "04008342000109",
+      "raw_name": "FUNDAÇÃO VALE DO TAQUARI DE EDUCAÇÃO E DESENVOLVIM",
+      "reason_code": "public_organ_name",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "16636540000104",
+      "raw_name": "COMPANHIA DE TECNOLOGIA DA INFORMACAO DO ESTADO DE MINAS GERAIS-PRODEMGE",
+      "reason_code": "public_organ_name",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "18720938000141",
+      "raw_name": "FUNDACAO DE DESENVOLVIMENTO DA PESQUISA",
+      "reason_code": "public_organ_name",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "67707521668",
+      "raw_name": "GERSON MARTINS CALDAS",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "10558289665",
+      "raw_name": "Lorena Aparecida da Silva Lucio",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "43120024600",
+      "raw_name": "NORALDINO RAMOS DE OLIVEIRA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "53931912604",
+      "raw_name": "JESUS JOSE DA SILVA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "09529052642",
+      "raw_name": "MAXUEL JOSE DOS REIS SILVA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "47865597000109",
+      "raw_name": "COMPANHIA DE DESENVOLVIMENTO HABITACIONAL E URBANO DO ESTADO DE SAO PAULO - CDHU",
+      "reason_code": "public_organ_name",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "90592042049",
+      "raw_name": "JELSON LUIZ NUNES",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "93674945991",
+      "raw_name": "EDMAR BUSANA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "62577929000135",
+      "raw_name": "COMPANHIA DE PROCESSAMENTO DE DADOS DO ESTADO DE SAO PAULO - PRODESP",
+      "reason_code": "public_organ_name",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "08574460000135",
+      "raw_name": "FAUEPG - FUNDAÇÃO DE APOIO AO DESENVOLVIMENTO INSTITUCIONAL, CIENTÍFICO E TECNOLÓGICO DA UNIVERSIDADE ESTADUAL DE PONTA GROSSA",
+      "reason_code": "public_organ_name",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "10498981681",
+      "raw_name": "SAMYR VALE SATLER PESSOA FISICA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "37375849900",
+      "raw_name": "JOSE PEDRO DE OLIVEIRA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "46359865000140",
+      "raw_name": "FUNDACAO INSTITUTO DE PESQUISAS CONTABEIS, ATUARIAIS E FINANCEIRAS - FIPECAFI",
+      "reason_code": "public_organ_name",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "10287852911",
+      "raw_name": "MATHEUS COSTA DOS SANTOS",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "60808062000156",
+      "raw_name": "CIMI - CONSORCIO INTERMUNICIPAL DOS MUNICIPIOS INOVADORES",
+      "reason_code": "public_organ_name",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "76435512604",
+      "raw_name": "NILTON CARDOSO DE OLIVEIRA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "26006251787",
+      "raw_name": "SANDRA HOELZ FERNANDES",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "02324078007",
+      "raw_name": "RODRIGO PASSOS DA SILVEIRA MEIRELLES",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "95032363715",
+      "raw_name": "CARLOS ROBERTO QUARESMA SALGADO",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "16636540000104",
+      "raw_name": "COMPANHIA DE TECNOLOGIA DA INFORMACAO DO ESTADO DE MINAS GERAIS - PRODEMGE",
+      "reason_code": "public_organ_name",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "15486354649",
+      "raw_name": "ROBERTUS FERDINANDUS MARIA VAN DOORNIK",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "61367060753",
+      "raw_name": "JAQUELINE DE CARVALHO JORDAO CARDOSO",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "02183564717",
+      "raw_name": "VERA NEVES HENRIQUES BANDOLI",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "02914787944",
+      "raw_name": "Junio Garcia da Silva",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "72586176049",
+      "raw_name": "LUCIA GIROLOMETTO BAROSSI",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "00841164045",
+      "raw_name": "OLAVO COLLARES POESTER",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "18532302602",
+      "raw_name": "CAUA SIQUEIRA MARTINS",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "16636540000104",
+      "raw_name": "COMPANHIA DE TECNOLOGIA DA INFORMACAO DO ESTADO DE MINAS GER",
+      "reason_code": "public_organ_name",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "12274945802",
+      "raw_name": "RICARDO DEMICIO INFORZATO",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "60610425668",
+      "raw_name": "GERALDO MAGELA DE ASSIS SILVA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "72060999000175",
+      "raw_name": "FUNDACAO COORDENACAO DE PROJETOS,PESQUISAS E ESTUDOS TECNOLOGICOS COPPETEC",
+      "reason_code": "public_organ_name",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "71927832772",
+      "raw_name": "MANOEL RICARDO MACHADO FRANÇA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "81853220078",
+      "raw_name": "PATRICIA WURFEL SOARES",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "04063331000121",
+      "raw_name": "CIRURGICA UNIÃO LTDA",
+      "reason_code": "public_organ_name",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "31302808000157",
+      "raw_name": "Fundacao de Apoio a Cultura, a Pesquisa e Ao Desen",
+      "reason_code": "public_organ_name",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "05805795574",
+      "raw_name": "HERIKSON KEOMA SANTANA SILVA RIBEIRO",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "06494152643",
+      "raw_name": "NELI OLIVEIRA NERES",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "08985901000191",
+      "raw_name": "UNIÃO PRESTADORA DE SERVIÇOS LTDA",
+      "reason_code": "public_organ_name",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "02780605286",
+      "raw_name": "FLAVIO CARVALHO VIEIRA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "98798251015",
+      "raw_name": "MICHELE WEISS KLEINA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "96698977004",
+      "raw_name": "Joao Vianei Menezes",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "09156234635",
+      "raw_name": "ARIANE EVANGELISTA RAMOS",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "59980788615",
+      "raw_name": "SHYRLEI APARECIDA FERREIRA MAPA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "04836476674",
+      "raw_name": "MARTA MARIA RAMOS",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "67183476634",
+      "raw_name": "SHYRLANE ALOISIA FERREIRA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "09553977669",
+      "raw_name": "MISLENE CLARIMAR DE OLIVEIRA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "37469118691",
+      "raw_name": "ANTONIO FRANCISCO FERREIRA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "95686975604",
+      "raw_name": "ELÓI RIBEIRO DE LAIA JÚNIOR",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "10629596638",
+      "raw_name": "WANDER ALOISIO SOARES JUNIOR",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "10629597600",
+      "raw_name": "WALMO LUCIO SOARES",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "16816433670",
+      "raw_name": "KAUÃ JESSE EVANGELISTA ARRUDA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "11907661670",
+      "raw_name": "TAISSON CLEMENTE MIGUEL",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "03414184630",
+      "raw_name": "RODRIGO DE JESUS SANTOS",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "03256257607",
+      "raw_name": "PEDRO LUIZ VIANA DA SILVA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "03254652665",
+      "raw_name": "MARIA APARECIDA INACIO VIANA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "10882390643",
+      "raw_name": "FREDERICO AUGUSTO GONÇALVES FERREIRA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "60961968000106",
+      "raw_name": "FUNDACAO ANTONIO PRUDENTE",
+      "reason_code": "public_organ_name",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "66373743004",
+      "raw_name": "MARCIO MOTA DA SILVA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "24768869807",
+      "raw_name": "DAGOBERTO DUTRA DE ALMEIDA FILHO",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "11342078675",
+      "raw_name": "ANDRÉ FELIPE DE ARAÚJO RIBEIRO",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "49729551049",
+      "raw_name": "ADEMIR NIED",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "03737163707",
+      "raw_name": "ANTONIO CARLOS SIQUEIRA DE LIMA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "93888147034",
+      "raw_name": "CASSIANO RECH",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "65877101749",
+      "raw_name": "DOMINGOS SAVIO LYRIO SIMONETTI",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "21415112000183",
+      "raw_name": "FUNDACAO THEODOMIRO SANTIAGO",
+      "reason_code": "public_organ_name",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "02558157000",
+      "raw_name": "TELEFONICA BRASIL S.A",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "56479590678",
+      "raw_name": "LEA MARIA SIQUEIRA DE RESENDE",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "52233332687",
+      "raw_name": "MARIA BERNADETE DE RESENDE DUTRA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "38083523615",
+      "raw_name": "MARILEA SIQUEIRA DE RESENDE",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "28396405620",
+      "raw_name": "ELISA APARECIDA DE RESENDE SOUZA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "07756395670",
+      "raw_name": "GABRIEL RESENDE DE ANDRADE",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "06672629629",
+      "raw_name": "LUIS HENRIQUE RESENDE DE ANDRADE",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "07854902640",
+      "raw_name": "ALVARO RESENDE DE ANDRADE",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "64531910672",
+      "raw_name": "MARIA APARECIDA COUTINHO DE RESENDE",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "03570633098",
+      "raw_name": "LUAN BAGGIO",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "48614998953",
+      "raw_name": "MARIA ELISA ZUMBLICK GELOSA - PIS 11376503233",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "07034544980",
+      "raw_name": "JESSE SILVESTRE RAIFFER",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "58804765615",
+      "raw_name": "FLÁVIO FONSECA REIS",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "10663610000129",
+      "raw_name": "DESENVOLVE SP AGENCIA DE FOMENTO DO ESTADO DE SAO PAULO S.A.",
+      "reason_code": "public_organ_name",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "86843596000107",
+      "raw_name": "FUNDACAO MUNICIPAL DE ESPORTES",
+      "reason_code": "public_organ_name",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "19268267000192",
+      "raw_name": "FUNDACAO DOM CABRAL",
+      "reason_code": "public_organ_name",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "04008342000109",
+      "raw_name": "FUNDACAO VALE TAQUARI  EDUC E DES.SOCIAL",
+      "reason_code": "public_organ_name",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "49325434000150",
+      "raw_name": "FUNDACAO PROF. DR. MANOEL PEDRO PIMENTEL- FUNAP",
+      "reason_code": "public_organ_name",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "93593821672",
+      "raw_name": "JOSE OSMAR MARQUES COSTA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "76356248653",
+      "raw_name": "MARCONE OLIVEIRA SANTOS",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "41926250672",
+      "raw_name": "JOSE CARLOS RODRIGUES PEREIRA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "07099417657",
+      "raw_name": "JOSÉ VALDINEY DIAS DE SOUSA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "02667085604",
+      "raw_name": "MARIO SILVA PRATES",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "27808482862",
+      "raw_name": "SINEGILDO FERREIRA LOPES",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "07137607888",
+      "raw_name": "JOSE GERALDO ALVES COSTA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "05331837662",
+      "raw_name": "JOSE ALTEMIR GONCALVES CUNHA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "83458891668",
+      "raw_name": "CARLOS VIEIRA AMORIM",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "14936124680",
+      "raw_name": "MARCOS BARBOSA DE JESUS",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "70938024604",
+      "raw_name": "MANOEL PEREIRA NUNES",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "19025510604",
+      "raw_name": "ROBSON JÚNIOR ALMEIDA SANTOS",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "85184667687",
+      "raw_name": "JOAO CARLOS OLIVEIRA FONSECA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "70643889604",
+      "raw_name": "ANDRÉ LUIZ FONSECA MARTINS",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "04767759650",
+      "raw_name": "JOSE APARECIDO MIRANDA SIQUEIRA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "09371629657",
+      "raw_name": "MARCIO LUIZ AGUILAR",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "70595369650",
+      "raw_name": "RIAN FERREIRA DE AMORIM",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "70452735688",
+      "raw_name": "EULER SILVA MARTINS",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "02934139670",
+      "raw_name": "GILDASIO DE SOUZA NUNES",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "14188756608",
+      "raw_name": "JOSE VENANCIO PEREIRA SANTOS",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "70457149639",
+      "raw_name": "LEANDRO GONÇALVES AGUILAR",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "14226776640",
+      "raw_name": "MARCELO SANTOS ALMEIDA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "14186684600",
+      "raw_name": "GENISVALDO SOBRINHO COSTA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "24282189649",
+      "raw_name": "JOSE SOARES VIEIRA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "08261488756",
+      "raw_name": "EMANUEL TEIXEIRA DA COSTA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "07239494683",
+      "raw_name": "ARILSON DA CRUZ RIBEIRO",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "10154103675",
+      "raw_name": "ERICSON VIEIRA ALMEIDA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "14892419656",
+      "raw_name": "LEONARDO SOUSA MARTINS",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "08943639643",
+      "raw_name": "DANIEL MARQUES BARBOSA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "11072260662",
+      "raw_name": "WAGNER SANTOS CUNHA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "08193526597",
+      "raw_name": "DENILSON SENA SILVA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "06393446072",
+      "raw_name": "ARY ANTAO SAVIAN",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "26268640802",
+      "raw_name": "VITOR DE CINQUE ALMEIDA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "08985901000191",
+      "raw_name": "UNIAO PRESTADORA DE SERVICO LTDA",
+      "reason_code": "public_organ_name",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "82895327000133",
+      "raw_name": "FUNDACAO DE ENSINO E ENGENHARIA DE SANTA CATARINA",
+      "reason_code": "public_organ_name",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "09877546965",
+      "raw_name": "DIEYSON SCHNEIDER",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "61402974787",
+      "raw_name": "JOSEMAR VIEIRA D. COELHO",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "01716399602",
+      "raw_name": "VICTOR ROSALINI SPACEK",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "03103468000108",
+      "raw_name": "UNICAPA - UNIAO DOS APLICADORES DE PAVIMENTO ASFALTICO LTDA",
+      "reason_code": "public_organ_name",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "21238738000161",
+      "raw_name": "FUNDACAO DE APOIO UNIVERSITARIO",
+      "reason_code": "public_organ_name",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "52872726691",
+      "raw_name": "REGINA ALVES DA SILVA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "01024643000138",
+      "raw_name": "UNIAO DOS VEREADORES DO ESTADO DE SAO PAULO UVESP",
+      "reason_code": "public_organ_name",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "43897207915",
+      "raw_name": "LUIZ VITOR SAVARIZ",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "02441720643",
+      "raw_name": "ROSANE QUARESMA DALTON SANTOS",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "60131098004",
+      "raw_name": "Tania Norma Fiss",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "01472188616",
+      "raw_name": "LUCAS RAFAEL ANTUNES MOREIRA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "09929112650",
+      "raw_name": "TABATA LARISSA DOS SANTOS BOZ SANTANA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "09008488639",
+      "raw_name": "ANNE CAROLINE DOS SANTOS BOZ SILVA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "09399659682",
+      "raw_name": "LIDIA HELEN DUTRA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "38831554034",
+      "raw_name": "CLARY BELLORINI HAHN",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "01568669607",
+      "raw_name": "ROMUALDO AMARAL SILVA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "09655166600",
+      "raw_name": "RENATO DE OLIVEIRA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "43776517000180",
+      "raw_name": "COMPANHIA DE SANEAMENTO BASICO DO ESTADO DE SAO PAULO - SABESP",
+      "reason_code": "public_organ_name",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "10115441999",
+      "raw_name": "Ana Carolina Ferraz",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "41933876824",
+      "raw_name": "EDSON CESAR BIAJANTE LEME",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "25495281829",
+      "raw_name": "ANDRÉ LUIS MACIEL",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "52286711968",
+      "raw_name": "CELSO ANTONIO RIFFEL",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "80228119987",
+      "raw_name": "EMILIA KALED",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "48188487000104",
+      "raw_name": "COOPERATIVA DOS AGRICULTORES FAMILIARES DOS MUNICIPIOS DA AMENORTE - COOANORTE",
+      "reason_code": "public_organ_name",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "05871602924",
+      "raw_name": "ELIZAMARA CELORIA BRAZ",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "18805038830",
+      "raw_name": "VALDIR RODRIGUES DOS SANTOS",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "08618456926",
+      "raw_name": "VANESSA MAIARA RIBEIRO COTIAN GARCIA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "07116903917",
+      "raw_name": "ELIANE FERREIRA DOS SANTOS TEXEIRA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "07967760913",
+      "raw_name": "SANDY VALENÇOLA GAZOLA",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "17663104000189",
+      "raw_name": "UNIAO LOCAÇÕES E SERVIÇOS EIRELI - ME",
+      "reason_code": "public_organ_name",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "07612808000179",
+      "raw_name": "UNIAO PRE-MOLDADOS LTDA",
+      "reason_code": "public_organ_name",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "03438229000109",
+      "raw_name": "FUNDACAO EUCLIDES DA CUNHA DE APOIO INSTITUCIONAL A UFF",
+      "reason_code": "public_organ_name",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "91982819000157",
+      "raw_name": "FUNDACAO CASA DAS ARTES DE BENTO GONCALVES",
+      "reason_code": "public_organ_name",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "60985017000177",
+      "raw_name": "CREA - CONSELHO REGIONAL DE ENGENHARIA E AGRONOMIA DO ESTADO DE SÃO PAULO",
+      "reason_code": "public_organ_name",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "11837471959",
+      "raw_name": "LUCAS MONTEIRO GUIMARAES",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "09646874614",
+      "raw_name": "RAFAELA MACEDO SOARES",
+      "reason_code": "natural_person",
+      "detail": null
+    },
+    {
+      "raw_tax_id": "12217872680",
+      "raw_name": "JEAN CARLOS CORREA",
+      "reason_code": "natural_person",
+      "detail": null
+    }
+  ]
+}

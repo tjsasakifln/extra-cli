@@ -1,0 +1,12 @@
+{
+  "ok": true,
+  "structural_ok": true,
+  "pytest_exit": 0,
+  "run_all_candidates_coverage": null,
+  "run_top20_coverage": null,
+  "selection_bias_detected": false,
+  "block": null,
+  "status": "PASS",
+  "stdout_tail": ".....                                                                    [100%]\n5 passed in 1.51s\n",
+  "note": "Detector unit tests must pass. Incomplete universe coverage is BLOCKED, not a silent green pass on top20-only coverage."
+}

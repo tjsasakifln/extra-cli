@@ -1,0 +1,2038 @@
+{
+  "status": "PENDING_HUMAN",
+  "min_n": 200,
+  "n": 200,
+  "dual_review_required": true,
+  "reviewers": [
+    "REVIEWER_A",
+    "REVIEWER_B"
+  ],
+  "run_id": "cl-20260726T003820Z-f8e90e36",
+  "method": "stratified_live_full_history_reclassify_pool1500",
+  "strata_counts": {
+    "published_or_strong": 50,
+    "possible": 50,
+    "conflicting_or_unknown": 50,
+    "out_of_scope": 50
+  },
+  "strata_targets_met": {
+    "published_or_strong": true,
+    "possible": true,
+    "conflicting_or_unknown": true,
+    "out_of_scope": true
+  },
+  "fields_present_check": {
+    "historico_completo_resumido": true,
+    "categorias": true,
+    "orgaos": true,
+    "datas": true,
+    "evidencia": true,
+    "model_classification": true,
+    "reviewer_slots_empty": true
+  },
+  "ok_structural": true,
+  "cnpj_index": [
+    {
+      "stratum": "published_or_strong",
+      "cnpj14": "21763372000140",
+      "razao_social": "RIBEIRO E ANJOS EMPREENDIMENTOS E ENGENHARIA LTDA",
+      "model_classification": "CONFIRMED_ENGINEERING",
+      "relevant_contract_count": 12,
+      "total_contract_count_full_history": 13,
+      "relevant_contract_ratio_full_history": 0.9231,
+      "cnae_principal": "4120400 - Construção de edifícios"
+    },
+    {
+      "stratum": "published_or_strong",
+      "cnpj14": "27254414000101",
+      "razao_social": "FAK EMPREENDIMENTOS LTDA",
+      "model_classification": "CONFIRMED_ENGINEERING",
+      "relevant_contract_count": 9,
+      "total_contract_count_full_history": 12,
+      "relevant_contract_ratio_full_history": 0.75,
+      "cnae_principal": "4330499 - Outras obras de acabamento da construção"
+    },
+    {
+      "stratum": "published_or_strong",
+      "cnpj14": "00472805000138",
+      "razao_social": "TRACADO CONSTRUCOES E SERVICOS LTDA",
+      "model_classification": "CONFIRMED_ENGINEERING",
+      "relevant_contract_count": 27,
+      "total_contract_count_full_history": 30,
+      "relevant_contract_ratio_full_history": 0.9,
+      "cnae_principal": "7112000 - Serviços de engenharia"
+    },
+    {
+      "stratum": "published_or_strong",
+      "cnpj14": "22798043000105",
+      "razao_social": "KAENG INFRAESTRUTURA LTDA",
+      "model_classification": "CONFIRMED_ENGINEERING",
+      "relevant_contract_count": 11,
+      "total_contract_count_full_history": 11,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": "7112000 - Serviços de engenharia"
+    },
+    {
+      "stratum": "published_or_strong",
+      "cnpj14": "03094645000129",
+      "razao_social": "INFRASUL - INFRAESTRUTURA E EMPREENDIMENTOS LTDA",
+      "model_classification": "CONFIRMED_ENGINEERING",
+      "relevant_contract_count": 21,
+      "total_contract_count_full_history": 21,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": "4211101 - Construção de rodovias e ferrovias"
+    },
+    {
+      "stratum": "published_or_strong",
+      "cnpj14": "10558895000138",
+      "razao_social": "NOROMIX CONCRETO S/A",
+      "model_classification": "CONFIRMED_ENGINEERING",
+      "relevant_contract_count": 26,
+      "total_contract_count_full_history": 32,
+      "relevant_contract_ratio_full_history": 0.8125,
+      "cnae_principal": "4213800 - Obras de urbanização - ruas, praças e calçadas"
+    },
+    {
+      "stratum": "published_or_strong",
+      "cnpj14": "06145928000140",
+      "razao_social": "CONSTRUÇÃO CIVIL MG LTDA",
+      "model_classification": "CONFIRMED_ENGINEERING",
+      "relevant_contract_count": 18,
+      "total_contract_count_full_history": 18,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": "4213800 - Obras de urbanização - ruas, praças e calçadas"
+    },
+    {
+      "stratum": "published_or_strong",
+      "cnpj14": "09223659000181",
+      "razao_social": "VIGA - PAVIMENTACAO E OBRAS LTDA.",
+      "model_classification": "CONFIRMED_ENGINEERING",
+      "relevant_contract_count": 16,
+      "total_contract_count_full_history": 18,
+      "relevant_contract_ratio_full_history": 0.8889,
+      "cnae_principal": "4211101 - Construção de rodovias e ferrovias"
+    },
+    {
+      "stratum": "published_or_strong",
+      "cnpj14": "43887548000108",
+      "razao_social": "CONSTRUTORA SCHROEDER E SCHMIDT LTDA",
+      "model_classification": "CONFIRMED_ENGINEERING",
+      "relevant_contract_count": 30,
+      "total_contract_count_full_history": 30,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": "4213800 - Obras de urbanização - ruas, praças e calçadas"
+    },
+    {
+      "stratum": "published_or_strong",
+      "cnpj14": "00220982000127",
+      "razao_social": "MATT CONSTRUTORA LTDA",
+      "model_classification": "CONFIRMED_ENGINEERING",
+      "relevant_contract_count": 26,
+      "total_contract_count_full_history": 27,
+      "relevant_contract_ratio_full_history": 0.963,
+      "cnae_principal": "4211101 - Construção de rodovias e ferrovias"
+    },
+    {
+      "stratum": "published_or_strong",
+      "cnpj14": "15247296000117",
+      "razao_social": "IBERICA CONSTRUÇÕES CIVIS E VIARIAS LTDA ME",
+      "model_classification": "CONFIRMED_ENGINEERING",
+      "relevant_contract_count": 9,
+      "total_contract_count_full_history": 9,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": "4213800 - Obras de urbanização - ruas, praças e calçadas"
+    },
+    {
+      "stratum": "published_or_strong",
+      "cnpj14": "95257945000108",
+      "razao_social": "CONSTRUBRAS CONSTRUTORA LTDA",
+      "model_classification": "CONFIRMED_ENGINEERING",
+      "relevant_contract_count": 20,
+      "total_contract_count_full_history": 20,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": "4211101 - Construção de rodovias e ferrovias"
+    },
+    {
+      "stratum": "published_or_strong",
+      "cnpj14": "26277170000101",
+      "razao_social": "CONCRESUL ENGENHARIA LTDA",
+      "model_classification": "CONFIRMED_ENGINEERING",
+      "relevant_contract_count": 20,
+      "total_contract_count_full_history": 20,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": "4211101 - Construção de rodovias e ferrovias"
+    },
+    {
+      "stratum": "published_or_strong",
+      "cnpj14": "10249046000100",
+      "razao_social": "CONSTRUCOES SCHOROEDER LTDA",
+      "model_classification": "CONFIRMED_ENGINEERING",
+      "relevant_contract_count": 14,
+      "total_contract_count_full_history": 14,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": "4329199 - Outras obras de instalações em construções não especificadas anteriormente"
+    },
+    {
+      "stratum": "published_or_strong",
+      "cnpj14": "13591585000103",
+      "razao_social": "ARMANT SOLUCÕES EM CLIMATIZACAO LTDA",
+      "model_classification": "CONFIRMED_ENGINEERING",
+      "relevant_contract_count": 12,
+      "total_contract_count_full_history": 12,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": "4322302 - Instalação e manutenção de sistemas centrais de ar condicionado, de ventilação e refrigeração"
+    },
+    {
+      "stratum": "published_or_strong",
+      "cnpj14": "29084108000191",
+      "razao_social": "AUTENTIKA CONSTRUÇÕES LTDA",
+      "model_classification": "CONFIRMED_ENGINEERING",
+      "relevant_contract_count": 9,
+      "total_contract_count_full_history": 10,
+      "relevant_contract_ratio_full_history": 0.9,
+      "cnae_principal": "7112000 - Serviços de engenharia"
+    },
+    {
+      "stratum": "published_or_strong",
+      "cnpj14": "02740940000142",
+      "razao_social": "TERRA E TECNICA ENGENHARIA E EMPREENDIMENTOS LTDA",
+      "model_classification": "CONFIRMED_ENGINEERING",
+      "relevant_contract_count": 9,
+      "total_contract_count_full_history": 10,
+      "relevant_contract_ratio_full_history": 0.9,
+      "cnae_principal": "7112000 - Serviços de engenharia"
+    },
+    {
+      "stratum": "published_or_strong",
+      "cnpj14": "93336030000154",
+      "razao_social": "ENPHASE PAVIMENTACOES LTDA",
+      "model_classification": "CONFIRMED_ENGINEERING",
+      "relevant_contract_count": 15,
+      "total_contract_count_full_history": 15,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": "4211101 - Construção de rodovias e ferrovias"
+    },
+    {
+      "stratum": "published_or_strong",
+      "cnpj14": "61608477000149",
+      "razao_social": "DGB ENGENHARIA E CONSTRUCOES LTDA",
+      "model_classification": "CONFIRMED_ENGINEERING",
+      "relevant_contract_count": 10,
+      "total_contract_count_full_history": 12,
+      "relevant_contract_ratio_full_history": 0.8333,
+      "cnae_principal": "4211101 - Construção de rodovias e ferrovias"
+    },
+    {
+      "stratum": "published_or_strong",
+      "cnpj14": "12535370000102",
+      "razao_social": "TERRABASE TERRAPLENAGEM LTDA",
+      "model_classification": "CONFIRMED_ENGINEERING",
+      "relevant_contract_count": 13,
+      "total_contract_count_full_history": 13,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": "4313400 - Obras de terraplenagem"
+    },
+    {
+      "stratum": "published_or_strong",
+      "cnpj14": "80237555000190",
+      "razao_social": "ANTÔNIO MORO & CIA LTDA",
+      "model_classification": "CONFIRMED_ENGINEERING",
+      "relevant_contract_count": 14,
+      "total_contract_count_full_history": 14,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": "4211101 - Construção de rodovias e ferrovias"
+    },
+    {
+      "stratum": "published_or_strong",
+      "cnpj14": "30905111000108",
+      "razao_social": "ERWIL CONSTRUCOES LTDA",
+      "model_classification": "CONFIRMED_ENGINEERING",
+      "relevant_contract_count": 2,
+      "total_contract_count_full_history": 3,
+      "relevant_contract_ratio_full_history": 0.6667,
+      "cnae_principal": "4299599 - Outras obras de engenharia civil não especificadas anteriormente"
+    },
+    {
+      "stratum": "published_or_strong",
+      "cnpj14": "11790782000126",
+      "razao_social": "LOREDO CONSTRUCOES E EMPREENDIMENTOS LTDA",
+      "model_classification": "CONFIRMED_ENGINEERING",
+      "relevant_contract_count": 9,
+      "total_contract_count_full_history": 10,
+      "relevant_contract_ratio_full_history": 0.9,
+      "cnae_principal": "4212000 - Construção de obras de arte especiais"
+    },
+    {
+      "stratum": "published_or_strong",
+      "cnpj14": "05895635000118",
+      "razao_social": "JR CONSTRUCOES E TERRAPLENAGEM LTDA EPP",
+      "model_classification": "CONFIRMED_ENGINEERING",
+      "relevant_contract_count": 21,
+      "total_contract_count_full_history": 21,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": "4211101 - Construção de rodovias e ferrovias"
+    },
+    {
+      "stratum": "published_or_strong",
+      "cnpj14": "00061493000170",
+      "razao_social": "ENCOPAV ENGENHARIA LTDA",
+      "model_classification": "CONFIRMED_ENGINEERING",
+      "relevant_contract_count": 12,
+      "total_contract_count_full_history": 12,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": "4211101 - Construção de rodovias e ferrovias"
+    },
+    {
+      "stratum": "published_or_strong",
+      "cnpj14": "62371489000165",
+      "razao_social": "S FIGUEIREDO CONSTRUTORA LTDA",
+      "model_classification": "CONFIRMED_ENGINEERING",
+      "relevant_contract_count": 10,
+      "total_contract_count_full_history": 29,
+      "relevant_contract_ratio_full_history": 0.3448,
+      "cnae_principal": "4120400 - Construção de edifícios"
+    },
+    {
+      "stratum": "published_or_strong",
+      "cnpj14": "53543898000100",
+      "razao_social": "PROFAC ENGENHARIA E COMERCIO LTDA",
+      "model_classification": "CONFIRMED_ENGINEERING",
+      "relevant_contract_count": 3,
+      "total_contract_count_full_history": 26,
+      "relevant_contract_ratio_full_history": 0.1154,
+      "cnae_principal": "4120400 - Construção de edifícios"
+    },
+    {
+      "stratum": "published_or_strong",
+      "cnpj14": "50476917000135",
+      "razao_social": "LCF CONSTRUTORA LTDA",
+      "model_classification": "CONFIRMED_ENGINEERING",
+      "relevant_contract_count": 7,
+      "total_contract_count_full_history": 8,
+      "relevant_contract_ratio_full_history": 0.875,
+      "cnae_principal": "4120400 - Construção de edifícios"
+    },
+    {
+      "stratum": "published_or_strong",
+      "cnpj14": "31329981000149",
+      "razao_social": "AMBROZIN E CANDIDO CONSTRUTORA E ENGENHARIA LTDA",
+      "model_classification": "CONFIRMED_ENGINEERING",
+      "relevant_contract_count": 2,
+      "total_contract_count_full_history": 2,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": "4120400 - Construção de edifícios"
+    },
+    {
+      "stratum": "published_or_strong",
+      "cnpj14": "58382534000100",
+      "razao_social": "OLGUINS CONSTRUTORA E INCORPORADORA LTDA",
+      "model_classification": "CONFIRMED_ENGINEERING",
+      "relevant_contract_count": 4,
+      "total_contract_count_full_history": 5,
+      "relevant_contract_ratio_full_history": 0.8,
+      "cnae_principal": "4120400 - Construção de edifícios"
+    },
+    {
+      "stratum": "published_or_strong",
+      "cnpj14": "57152502000155",
+      "razao_social": "KAPA INFRAESTRUTURA SA",
+      "model_classification": "CONFIRMED_ENGINEERING",
+      "relevant_contract_count": 13,
+      "total_contract_count_full_history": 13,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": "4212000 - Construção de obras de arte especiais"
+    },
+    {
+      "stratum": "published_or_strong",
+      "cnpj14": "95024857000158",
+      "razao_social": "LED CONSTRUTORA E URBANIZADORA LTDA. - ME",
+      "model_classification": "CONFIRMED_ENGINEERING",
+      "relevant_contract_count": 5,
+      "total_contract_count_full_history": 5,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": "4120400 - Construção de edifícios"
+    },
+    {
+      "stratum": "published_or_strong",
+      "cnpj14": "41994319000167",
+      "razao_social": "SA EMPREEDIMENTOS E CONSTRUTORA LTDA",
+      "model_classification": "CONFIRMED_ENGINEERING",
+      "relevant_contract_count": 3,
+      "total_contract_count_full_history": 3,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": "4120400 - Construção de edifícios"
+    },
+    {
+      "stratum": "published_or_strong",
+      "cnpj14": "27620452000122",
+      "razao_social": "DITREVI ENGENHARIA LTDA",
+      "model_classification": "CONFIRMED_ENGINEERING",
+      "relevant_contract_count": 6,
+      "total_contract_count_full_history": 7,
+      "relevant_contract_ratio_full_history": 0.8571,
+      "cnae_principal": "4313400 - Obras de terraplenagem"
+    },
+    {
+      "stratum": "published_or_strong",
+      "cnpj14": "53086795000169",
+      "razao_social": "JJF EMPREENDIMENTOS LTDA",
+      "model_classification": "CONFIRMED_ENGINEERING",
+      "relevant_contract_count": 5,
+      "total_contract_count_full_history": 5,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": "4120400 - Construção de edifícios"
+    },
+    {
+      "stratum": "published_or_strong",
+      "cnpj14": "57623761000117",
+      "razao_social": "Dnp Terraplenagem e Pavimentadora Foresto Ltda",
+      "model_classification": "CONFIRMED_ENGINEERING",
+      "relevant_contract_count": 24,
+      "total_contract_count_full_history": 25,
+      "relevant_contract_ratio_full_history": 0.96,
+      "cnae_principal": "4213800 - Obras de urbanização - ruas, praças e calçadas"
+    },
+    {
+      "stratum": "published_or_strong",
+      "cnpj14": "49876138000148",
+      "razao_social": "MLR ASSESSORIA E CONSTR",
+      "model_classification": "CONFIRMED_ENGINEERING",
+      "relevant_contract_count": 3,
+      "total_contract_count_full_history": 3,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": "7112000 - Serviços de engenharia"
+    },
+    {
+      "stratum": "published_or_strong",
+      "cnpj14": "08345176000197",
+      "razao_social": "W E G EMPREITEIRA DE MÃO DE OBRA LTDA",
+      "model_classification": "CONFIRMED_ENGINEERING",
+      "relevant_contract_count": 2,
+      "total_contract_count_full_history": 2,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": "4213800 - Obras de urbanização - ruas, praças e calçadas"
+    },
+    {
+      "stratum": "published_or_strong",
+      "cnpj14": "19507426000164",
+      "razao_social": "R. P. CONSTRUBASE MOGI GUACU LTDA",
+      "model_classification": "CONFIRMED_ENGINEERING",
+      "relevant_contract_count": 11,
+      "total_contract_count_full_history": 11,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": "4313400 - Obras de terraplenagem"
+    },
+    {
+      "stratum": "published_or_strong",
+      "cnpj14": "46442456000102",
+      "razao_social": "R3 ENGENHARIA E ASSESSORIA LTDA",
+      "model_classification": "CONFIRMED_ENGINEERING",
+      "relevant_contract_count": 4,
+      "total_contract_count_full_history": 7,
+      "relevant_contract_ratio_full_history": 0.5714,
+      "cnae_principal": "4399103 - Obras de alvenaria"
+    },
+    {
+      "stratum": "published_or_strong",
+      "cnpj14": "14666709000135",
+      "razao_social": "SYSTEM SEG SERVICOS LTDA",
+      "model_classification": "CONFIRMED_ENGINEERING",
+      "relevant_contract_count": 6,
+      "total_contract_count_full_history": 8,
+      "relevant_contract_ratio_full_history": 0.75,
+      "cnae_principal": "8129000 - Atividades de limpeza não especificadas anteriormente"
+    },
+    {
+      "stratum": "published_or_strong",
+      "cnpj14": "24344713000130",
+      "razao_social": "MULT SERVICE ENGENHARIA LTDA",
+      "model_classification": "CONFIRMED_ENGINEERING",
+      "relevant_contract_count": 7,
+      "total_contract_count_full_history": 9,
+      "relevant_contract_ratio_full_history": 0.7778,
+      "cnae_principal": "4120400 - Construção de edifícios"
+    },
+    {
+      "stratum": "published_or_strong",
+      "cnpj14": "05940787000195",
+      "razao_social": "MAXWELL ENGENHARIA LTDA",
+      "model_classification": "CONFIRMED_ENGINEERING",
+      "relevant_contract_count": 2,
+      "total_contract_count_full_history": 2,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": "4321500 - Instalação e manutenção elétrica"
+    },
+    {
+      "stratum": "published_or_strong",
+      "cnpj14": "45905226000170",
+      "razao_social": "QUADRAT INCORPORACAO E GEOTECNOLOGIAS LTDA",
+      "model_classification": "CONFIRMED_ENGINEERING",
+      "relevant_contract_count": 2,
+      "total_contract_count_full_history": 2,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": "4110700 - Incorporação de empreendimentos imobiliários"
+    },
+    {
+      "stratum": "published_or_strong",
+      "cnpj14": "49200882000128",
+      "razao_social": "ARGEMIRO TADEU MUNIZ",
+      "model_classification": "CONFIRMED_ENGINEERING",
+      "relevant_contract_count": 2,
+      "total_contract_count_full_history": 2,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": "7112000 - Serviços de engenharia"
+    },
+    {
+      "stratum": "published_or_strong",
+      "cnpj14": "50861946000110",
+      "razao_social": "CS CONSTRUTORA LTDA",
+      "model_classification": "CONFIRMED_ENGINEERING",
+      "relevant_contract_count": 2,
+      "total_contract_count_full_history": 2,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": "4120400 - Construção de edifícios"
+    },
+    {
+      "stratum": "published_or_strong",
+      "cnpj14": "08022820000196",
+      "razao_social": "SER-RIO CONSTRUTORA LTDA",
+      "model_classification": "CONFIRMED_ENGINEERING",
+      "relevant_contract_count": 8,
+      "total_contract_count_full_history": 8,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": "4399101 - Administração de obras"
+    },
+    {
+      "stratum": "published_or_strong",
+      "cnpj14": "46534246000144",
+      "razao_social": "LUCANO INFRAESTRUTURA LTDA",
+      "model_classification": "CONFIRMED_ENGINEERING",
+      "relevant_contract_count": 4,
+      "total_contract_count_full_history": 5,
+      "relevant_contract_ratio_full_history": 0.8,
+      "cnae_principal": "4313400 - Obras de terraplenagem"
+    },
+    {
+      "stratum": "published_or_strong",
+      "cnpj14": "20182155000101",
+      "razao_social": "FELDP CONSTRUÇÕES LTDA EPP",
+      "model_classification": "CONFIRMED_ENGINEERING",
+      "relevant_contract_count": 7,
+      "total_contract_count_full_history": 8,
+      "relevant_contract_ratio_full_history": 0.875,
+      "cnae_principal": "4120400 - Construção de edifícios"
+    },
+    {
+      "stratum": "published_or_strong",
+      "cnpj14": "05926726000173",
+      "razao_social": "MODULO CONSULTORIA E GERENCIA PREDIAL LTDA",
+      "model_classification": "CONFIRMED_ENGINEERING",
+      "relevant_contract_count": 5,
+      "total_contract_count_full_history": 7,
+      "relevant_contract_ratio_full_history": 0.7143,
+      "cnae_principal": "4329103 - Instalação, manutenção e reparação de elevadores, escadas e esteiras rolantes"
+    },
+    {
+      "stratum": "possible",
+      "cnpj14": "23472751000106",
+      "razao_social": "JOARES SIMOES HELLMAN LTDA",
+      "model_classification": "POSSIBLE_ENGINEERING_FIT",
+      "relevant_contract_count": 2,
+      "total_contract_count_full_history": 2,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": "7732201 - Aluguel de máquinas e equipamentos para construção sem operador, exceto andaimes"
+    },
+    {
+      "stratum": "possible",
+      "cnpj14": "16898251000175",
+      "razao_social": "CONSTRUTORA HGB LTDA EPP",
+      "model_classification": "POSSIBLE_ENGINEERING_FIT",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 1,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "possible",
+      "cnpj14": "18765951000117",
+      "razao_social": "CCA AUTOMACAO PREDIAL LTDA",
+      "model_classification": "POSSIBLE_ENGINEERING_FIT",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 1,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "possible",
+      "cnpj14": "22835076000170",
+      "razao_social": "CONSORCIO INTEGRADO MULTIFINALITARIO DO VALE DO JEQUITINHONHA",
+      "model_classification": "POSSIBLE_ENGINEERING_FIT",
+      "relevant_contract_count": 16,
+      "total_contract_count_full_history": 18,
+      "relevant_contract_ratio_full_history": 0.8889,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "possible",
+      "cnpj14": "59373711000154",
+      "razao_social": "MARI SALETE BORTOLOSI",
+      "model_classification": "POSSIBLE_ENGINEERING_FIT",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 1,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "possible",
+      "cnpj14": "63315649000111",
+      "razao_social": "63.615.649 FABIO JUNIOR NUNES DA SILVA",
+      "model_classification": "POSSIBLE_ENGINEERING_FIT",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 1,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "possible",
+      "cnpj14": "34401728000147",
+      "razao_social": "ED BLOCOS LTDA",
+      "model_classification": "POSSIBLE_ENGINEERING_FIT",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 1,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "possible",
+      "cnpj14": "00476605000153",
+      "razao_social": "LIMONGE TERRAPLENAGEM LTDA",
+      "model_classification": "POSSIBLE_ENGINEERING_FIT",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 1,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "possible",
+      "cnpj14": "08593703000344",
+      "razao_social": "PAS - PROJETOS, ASSESSORIA E SISTEMAS LTDA",
+      "model_classification": "POSSIBLE_ENGINEERING_FIT",
+      "relevant_contract_count": 2,
+      "total_contract_count_full_history": 2,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": "7119703 - Serviços de desenho técnico relacionados à arquitetura e engenharia"
+    },
+    {
+      "stratum": "possible",
+      "cnpj14": "30776622000177",
+      "razao_social": "Queiroz Miguel Empreendimentos e Construções",
+      "model_classification": "POSSIBLE_ENGINEERING_FIT",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 3,
+      "relevant_contract_ratio_full_history": 0.3333,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "possible",
+      "cnpj14": "48897774000193",
+      "razao_social": "RSA ENGENHARIA LTDA",
+      "model_classification": "POSSIBLE_ENGINEERING_FIT",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 5,
+      "relevant_contract_ratio_full_history": 0.2,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "possible",
+      "cnpj14": "53252404000139",
+      "razao_social": "53.252.404 VICTOR BARBOSA DE SOUZA",
+      "model_classification": "POSSIBLE_ENGINEERING_FIT",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 1,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "possible",
+      "cnpj14": "27016837000185",
+      "razao_social": "CARLOS VALDECI BARBOSA  LTDA",
+      "model_classification": "POSSIBLE_ENGINEERING_FIT",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 1,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "possible",
+      "cnpj14": "50228663000136",
+      "razao_social": "A35 EMPREENDIMENTOS LTDA",
+      "model_classification": "POSSIBLE_ENGINEERING_FIT",
+      "relevant_contract_count": 2,
+      "total_contract_count_full_history": 2,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": "4723700 - Comércio varejista de bebidas"
+    },
+    {
+      "stratum": "possible",
+      "cnpj14": "00082024000137",
+      "razao_social": "COMPANHIA DE SANEAMENTO AMBIENTAL DO DISTRITO FEDERAL",
+      "model_classification": "POSSIBLE_ENGINEERING_FIT",
+      "relevant_contract_count": 5,
+      "total_contract_count_full_history": 5,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": "3600601 - Captação, tratamento e distribuição de água"
+    },
+    {
+      "stratum": "possible",
+      "cnpj14": "24902127000164",
+      "razao_social": "WAGNER FERREIRA MACHADO ENGENHARIA LTDA",
+      "model_classification": "POSSIBLE_ENGINEERING_FIT",
+      "relevant_contract_count": 2,
+      "total_contract_count_full_history": 2,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": "161099 - Atividades de apoio à agricultura não especificadas anteriormente"
+    },
+    {
+      "stratum": "possible",
+      "cnpj14": "17558611000152",
+      "razao_social": "SERGIO AUGUSTO CESNIK - PRODUÇÕES - ME",
+      "model_classification": "POSSIBLE_ENGINEERING_FIT",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 1,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "possible",
+      "cnpj14": "45686999000102",
+      "razao_social": "WGA XAVIER LTDA",
+      "model_classification": "POSSIBLE_ENGINEERING_FIT",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 1,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "possible",
+      "cnpj14": "60087399000111",
+      "razao_social": "STONE ASFALTO RAPIDO LTDA",
+      "model_classification": "POSSIBLE_ENGINEERING_FIT",
+      "relevant_contract_count": 5,
+      "total_contract_count_full_history": 6,
+      "relevant_contract_ratio_full_history": 0.8333,
+      "cnae_principal": "4744099 - Comércio varejista de materiais de construção em geral"
+    },
+    {
+      "stratum": "possible",
+      "cnpj14": "39870333000107",
+      "razao_social": "CLAREAR SOLUCOES EM ENERGIA LTDA",
+      "model_classification": "POSSIBLE_ENGINEERING_FIT",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 1,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "possible",
+      "cnpj14": "41364679000185",
+      "razao_social": "H B TREINAMENTOS LTDA",
+      "model_classification": "POSSIBLE_ENGINEERING_FIT",
+      "relevant_contract_count": 3,
+      "total_contract_count_full_history": 3,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": "8599604 - Treinamento em desenvolvimento profissional e gerencial"
+    },
+    {
+      "stratum": "possible",
+      "cnpj14": "61198164000160",
+      "razao_social": "PORTO SEGURO COMPANHIA DE SEGUROS GERAIS",
+      "model_classification": "POSSIBLE_ENGINEERING_FIT",
+      "relevant_contract_count": 8,
+      "total_contract_count_full_history": 18,
+      "relevant_contract_ratio_full_history": 0.4444,
+      "cnae_principal": "6512000 - Sociedade seguradora de seguros não vida"
+    },
+    {
+      "stratum": "possible",
+      "cnpj14": "47799315000104",
+      "razao_social": "ELAINE CRISTINA R C DE RESENDE SERVICOS DE ENGENHARIA LTDA",
+      "model_classification": "POSSIBLE_ENGINEERING_FIT",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 4,
+      "relevant_contract_ratio_full_history": 0.25,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "possible",
+      "cnpj14": "06217899000185",
+      "razao_social": "S S PRODUTORA DE EVENTOS LTDA",
+      "model_classification": "POSSIBLE_ENGINEERING_FIT",
+      "relevant_contract_count": 3,
+      "total_contract_count_full_history": 5,
+      "relevant_contract_ratio_full_history": 0.6,
+      "cnae_principal": "7739003 - Aluguel de palcos, coberturas e outras estruturas de uso temporário, exceto andaimes"
+    },
+    {
+      "stratum": "possible",
+      "cnpj14": "57068231000154",
+      "razao_social": "PEDREIRA SANSON LTDA.",
+      "model_classification": "POSSIBLE_ENGINEERING_FIT",
+      "relevant_contract_count": 6,
+      "total_contract_count_full_history": 6,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": "810099 - Extração e britamento de pedras e outros materiais para construção e beneficiamento associado"
+    },
+    {
+      "stratum": "possible",
+      "cnpj14": "12433027000157",
+      "razao_social": "BORGES E ARAUJO RETIFICA LTDA",
+      "model_classification": "POSSIBLE_ENGINEERING_FIT",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 7,
+      "relevant_contract_ratio_full_history": 0.1429,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "possible",
+      "cnpj14": "03118191000189",
+      "razao_social": "PREMIER EVENTOS LTDA",
+      "model_classification": "POSSIBLE_ENGINEERING_FIT",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 1,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "possible",
+      "cnpj14": "21466841000169",
+      "razao_social": "CONSORCIO INTERMUNICIPAL MULTIFINALITARIO DO VALE DOACO",
+      "model_classification": "POSSIBLE_ENGINEERING_FIT",
+      "relevant_contract_count": 3,
+      "total_contract_count_full_history": 3,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "possible",
+      "cnpj14": "37652826000145",
+      "razao_social": "OMNIS SERVICE",
+      "model_classification": "POSSIBLE_ENGINEERING_FIT",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 3,
+      "relevant_contract_ratio_full_history": 0.3333,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "possible",
+      "cnpj14": "02385669000174",
+      "razao_social": "FIOTEC - FUNDACAO PARA O DESENVOLVIMENTO CIENTIFICO E TECNOLOGICO EM SAUDE",
+      "model_classification": "POSSIBLE_ENGINEERING_FIT",
+      "relevant_contract_count": 5,
+      "total_contract_count_full_history": 6,
+      "relevant_contract_ratio_full_history": 0.8333,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "possible",
+      "cnpj14": "54727555000169",
+      "razao_social": "STONE JD PAVIMENTAÇÕES LTDA",
+      "model_classification": "POSSIBLE_ENGINEERING_FIT",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 1,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "possible",
+      "cnpj14": "57148767000180",
+      "razao_social": "OLIVIERA BUSINESS GESTAO, COMERCIO E SERVICOS LTDA",
+      "model_classification": "POSSIBLE_ENGINEERING_FIT",
+      "relevant_contract_count": 3,
+      "total_contract_count_full_history": 6,
+      "relevant_contract_ratio_full_history": 0.5,
+      "cnae_principal": "7020400 - Atividades de consultoria em gestão empresarial, exceto consultoria técnica específica"
+    },
+    {
+      "stratum": "possible",
+      "cnpj14": "48488278000186",
+      "razao_social": "CONSTRUTORA TOMBINI LTDA",
+      "model_classification": "POSSIBLE_ENGINEERING_FIT",
+      "relevant_contract_count": 2,
+      "total_contract_count_full_history": 7,
+      "relevant_contract_ratio_full_history": 0.2857,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "possible",
+      "cnpj14": "53640280000169",
+      "razao_social": "ENGENHARIA E COMERCIO RIGEL LTDA",
+      "model_classification": "POSSIBLE_ENGINEERING_FIT",
+      "relevant_contract_count": 4,
+      "total_contract_count_full_history": 26,
+      "relevant_contract_ratio_full_history": 0.1538,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "possible",
+      "cnpj14": "51027691000158",
+      "razao_social": "BENEDETTI E FUGALI ENGENHARIA LTDA",
+      "model_classification": "POSSIBLE_ENGINEERING_FIT",
+      "relevant_contract_count": 6,
+      "total_contract_count_full_history": 6,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "possible",
+      "cnpj14": "31948148000186",
+      "razao_social": "CLUBE EMPREENDEDOR INTERMEDIACAO E NEGOCIOS LTDA",
+      "model_classification": "POSSIBLE_ENGINEERING_FIT",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 1,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "possible",
+      "cnpj14": "11466953000166",
+      "razao_social": "EME ENGENHARIA AMBIENTAL LTDA",
+      "model_classification": "POSSIBLE_ENGINEERING_FIT",
+      "relevant_contract_count": 2,
+      "total_contract_count_full_history": 2,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "possible",
+      "cnpj14": "27254415000148",
+      "razao_social": "BIO GS CONSULTORIA AMBIENTAL LTDA",
+      "model_classification": "POSSIBLE_ENGINEERING_FIT",
+      "relevant_contract_count": 2,
+      "total_contract_count_full_history": 2,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "possible",
+      "cnpj14": "45207275000139",
+      "razao_social": "MARCOS RIBAS EMPREITEIRA DE OBRAS LTDA",
+      "model_classification": "POSSIBLE_ENGINEERING_FIT",
+      "relevant_contract_count": 2,
+      "total_contract_count_full_history": 2,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "possible",
+      "cnpj14": "35883382000123",
+      "razao_social": "UNIVERSIDADE DE DIREITO PUBLICO LTDA",
+      "model_classification": "POSSIBLE_ENGINEERING_FIT",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 1,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "possible",
+      "cnpj14": "41053832000153",
+      "razao_social": "DOUGLAS RICHETTI",
+      "model_classification": "POSSIBLE_ENGINEERING_FIT",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 1,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "possible",
+      "cnpj14": "43436985000105",
+      "razao_social": "EDER ADORNO FERREIRA LINHARES  ME",
+      "model_classification": "POSSIBLE_ENGINEERING_FIT",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 7,
+      "relevant_contract_ratio_full_history": 0.1429,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "possible",
+      "cnpj14": "02013755000156",
+      "razao_social": "FERRAGEM ELETROCOR LTDA",
+      "model_classification": "POSSIBLE_ENGINEERING_FIT",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 5,
+      "relevant_contract_ratio_full_history": 0.2,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "possible",
+      "cnpj14": "03597359000186",
+      "razao_social": "JOSE CARLOS BRUM EVANGELHO LTDA",
+      "model_classification": "POSSIBLE_ENGINEERING_FIT",
+      "relevant_contract_count": 2,
+      "total_contract_count_full_history": 24,
+      "relevant_contract_ratio_full_history": 0.0833,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "possible",
+      "cnpj14": "09426728000154",
+      "razao_social": "ACLIVE CONSTRUCOES LTDA",
+      "model_classification": "POSSIBLE_ENGINEERING_FIT",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 1,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "possible",
+      "cnpj14": "04330193000108",
+      "razao_social": "AB MARTYN CONSTRUTORA LTDA",
+      "model_classification": "POSSIBLE_ENGINEERING_FIT",
+      "relevant_contract_count": 2,
+      "total_contract_count_full_history": 2,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "possible",
+      "cnpj14": "13440390000162",
+      "razao_social": "DDA CONSTRUTORA LTDA",
+      "model_classification": "POSSIBLE_ENGINEERING_FIT",
+      "relevant_contract_count": 3,
+      "total_contract_count_full_history": 3,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "possible",
+      "cnpj14": "14905688000163",
+      "razao_social": "FAUSTO TERRAPLANAGEM PAVIMENTACAO E SERVICOS LTDA",
+      "model_classification": "POSSIBLE_ENGINEERING_FIT",
+      "relevant_contract_count": 7,
+      "total_contract_count_full_history": 7,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "possible",
+      "cnpj14": "36361382000126",
+      "razao_social": "CR ENGENHARIA LTDA.",
+      "model_classification": "POSSIBLE_ENGINEERING_FIT",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 1,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "possible",
+      "cnpj14": "03574370000120",
+      "razao_social": "EMPREITEIRA DE MAO DE OBRA ADRIMAR LTDA",
+      "model_classification": "POSSIBLE_ENGINEERING_FIT",
+      "relevant_contract_count": 24,
+      "total_contract_count_full_history": 26,
+      "relevant_contract_ratio_full_history": 0.9231,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "conflicting_or_unknown",
+      "cnpj14": "27021157000150",
+      "razao_social": "CASA TOP EMPREENDIMENTOS IMOBILIARIOS E FABRICACAO DE LAJES PARA CONSTRUCAO LTDA",
+      "model_classification": "CONFLICTING",
+      "relevant_contract_count": 2,
+      "total_contract_count_full_history": 3,
+      "relevant_contract_ratio_full_history": 0.6667,
+      "cnae_principal": "4744099 - Comércio varejista de materiais de construção em geral"
+    },
+    {
+      "stratum": "conflicting_or_unknown",
+      "cnpj14": "55528189000181",
+      "razao_social": "PILLARIS COMERCIO - SERVICOS E PREMOLDADOS LTDA",
+      "model_classification": "CONFLICTING",
+      "relevant_contract_count": 2,
+      "total_contract_count_full_history": 2,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": "4744099 - Comércio varejista de materiais de construção em geral"
+    },
+    {
+      "stratum": "conflicting_or_unknown",
+      "cnpj14": "10655655000151",
+      "razao_social": "ROSS ESQUADRIAS DE FERRO LTDA",
+      "model_classification": "CONFLICTING",
+      "relevant_contract_count": 3,
+      "total_contract_count_full_history": 3,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": "2512800 - Fabricação de esquadrias de metal"
+    },
+    {
+      "stratum": "conflicting_or_unknown",
+      "cnpj14": "22691862000140",
+      "razao_social": "FALER BLOCOS LTDA ME",
+      "model_classification": "CONFLICTING",
+      "relevant_contract_count": 2,
+      "total_contract_count_full_history": 2,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": "2330302 - Fabricação de artefatos de cimento para uso na construção"
+    },
+    {
+      "stratum": "conflicting_or_unknown",
+      "cnpj14": "07617116000113",
+      "razao_social": "SCHIMITT ARTEFATOS DE CIMENTO LTDA",
+      "model_classification": "CONFLICTING",
+      "relevant_contract_count": 3,
+      "total_contract_count_full_history": 3,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": "2330302 - Fabricação de artefatos de cimento para uso na construção"
+    },
+    {
+      "stratum": "conflicting_or_unknown",
+      "cnpj14": "11402871000158",
+      "razao_social": "TEOTONIO MATERIAIS PARA CONSTRUCAO LTDA ME",
+      "model_classification": "CONFLICTING",
+      "relevant_contract_count": 23,
+      "total_contract_count_full_history": 61,
+      "relevant_contract_ratio_full_history": 0.377,
+      "cnae_principal": "4744099 - Comércio varejista de materiais de construção em geral"
+    },
+    {
+      "stratum": "conflicting_or_unknown",
+      "cnpj14": "17856392000198",
+      "razao_social": "VIA SUL TERCEIRIZACAO DE SERVICOS LTDA",
+      "model_classification": "CONFLICTING",
+      "relevant_contract_count": 31,
+      "total_contract_count_full_history": 32,
+      "relevant_contract_ratio_full_history": 0.9688,
+      "cnae_principal": "4213800 - Obras de urbanização - ruas, praças e calçadas"
+    },
+    {
+      "stratum": "conflicting_or_unknown",
+      "cnpj14": "05558257000187",
+      "razao_social": "CONSTRUMONTE MATERIAIS PARA CONSTRUCAO LTDA",
+      "model_classification": "CONFLICTING",
+      "relevant_contract_count": 3,
+      "total_contract_count_full_history": 23,
+      "relevant_contract_ratio_full_history": 0.1304,
+      "cnae_principal": "4744005 - Comércio varejista de materiais de construção não especificados anteriormente"
+    },
+    {
+      "stratum": "conflicting_or_unknown",
+      "cnpj14": "26917005000258",
+      "razao_social": "DISBRAL - DISTRIBUIDORA BRASILEIRA DE ASFALTO LTDA",
+      "model_classification": "CONFLICTING",
+      "relevant_contract_count": 2,
+      "total_contract_count_full_history": 2,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": "2021500 - Fabricação de produtos petroquímicos básicos"
+    },
+    {
+      "stratum": "conflicting_or_unknown",
+      "cnpj14": "62533278000181",
+      "razao_social": "H E ENGENHARIA COMERCIO E REPRESENTACOES LTDA",
+      "model_classification": "CONFLICTING",
+      "relevant_contract_count": 3,
+      "total_contract_count_full_history": 7,
+      "relevant_contract_ratio_full_history": 0.4286,
+      "cnae_principal": "4120400 - Construção de edifícios"
+    },
+    {
+      "stratum": "conflicting_or_unknown",
+      "cnpj14": "17398784000150",
+      "razao_social": "PATRIMAR CONSTRUTORA E PINTURAS EIRELI",
+      "model_classification": "CONFLICTING",
+      "relevant_contract_count": 4,
+      "total_contract_count_full_history": 6,
+      "relevant_contract_ratio_full_history": 0.6667,
+      "cnae_principal": "4330404 - Serviços de pintura de edifícios em geral"
+    },
+    {
+      "stratum": "conflicting_or_unknown",
+      "cnpj14": "04123471000148",
+      "razao_social": "COMEL COMÉRCIO DE MATERIAIS ELÉTRICOS E HIDRÁULICOS LTDA",
+      "model_classification": "CONFLICTING",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 1,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "conflicting_or_unknown",
+      "cnpj14": "72024599000104",
+      "razao_social": "OFOS TECNOLOGIA, COMERCIO E SERVICOS LTDA",
+      "model_classification": "CONFLICTING",
+      "relevant_contract_count": 2,
+      "total_contract_count_full_history": 2,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "conflicting_or_unknown",
+      "cnpj14": "07198760000102",
+      "razao_social": "CEMTEC   COMERCIO E CONSTRUCOES LTDA",
+      "model_classification": "CONFLICTING",
+      "relevant_contract_count": 2,
+      "total_contract_count_full_history": 2,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "conflicting_or_unknown",
+      "cnpj14": "06933224000132",
+      "razao_social": "MATERIAIS DE CONSTRUÇÃO JPC LTDA",
+      "model_classification": "CONFLICTING",
+      "relevant_contract_count": 2,
+      "total_contract_count_full_history": 4,
+      "relevant_contract_ratio_full_history": 0.5,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "conflicting_or_unknown",
+      "cnpj14": "30907068000110",
+      "razao_social": "ALEX MATERIAIS DE CONSTRUCAO LTDA",
+      "model_classification": "CONFLICTING",
+      "relevant_contract_count": 8,
+      "total_contract_count_full_history": 9,
+      "relevant_contract_ratio_full_history": 0.8889,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "conflicting_or_unknown",
+      "cnpj14": "55235512000129",
+      "razao_social": "INNOVATE COMERCIO E SERVICOS DE ENGENHARIA LTDA",
+      "model_classification": "CONFLICTING",
+      "relevant_contract_count": 4,
+      "total_contract_count_full_history": 4,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "conflicting_or_unknown",
+      "cnpj14": "06218782000116",
+      "razao_social": "CASA DO ASFALTO DISTRIBUIDORA, INDUSTRIA E COMERCIO DE ASFALTO LTDA",
+      "model_classification": "CONFLICTING",
+      "relevant_contract_count": 8,
+      "total_contract_count_full_history": 8,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "conflicting_or_unknown",
+      "cnpj14": "27283149000181",
+      "razao_social": "AUROPEL COMERCIO E SERVICOS LTDA",
+      "model_classification": "CONFLICTING",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 1,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "conflicting_or_unknown",
+      "cnpj14": "20629369000175",
+      "razao_social": "LB COMÉRCIO E CONSTRUÇÕES EIRELI",
+      "model_classification": "CONFLICTING",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 1,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "conflicting_or_unknown",
+      "cnpj14": "11894708000150",
+      "razao_social": "ENGETEC ENGENHARIA TRANSPORTES E CONSTRUCOES LTDA",
+      "model_classification": "CONFLICTING",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 2,
+      "relevant_contract_ratio_full_history": 0.5,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "conflicting_or_unknown",
+      "cnpj14": "08738826000164",
+      "razao_social": "ART-CON INDUSTRIA E COMERCIO DE ARTEFATOS DE CIMENTO LTDA",
+      "model_classification": "CONFLICTING",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 1,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "conflicting_or_unknown",
+      "cnpj14": "47405165000107",
+      "razao_social": "OBRAZEM MATERIAIS DE CONSTRUCAO LTDA",
+      "model_classification": "CONFLICTING",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 1,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "conflicting_or_unknown",
+      "cnpj14": "12721248000120",
+      "razao_social": "ENGETELA COMERCIO E SERVICOS LTDA",
+      "model_classification": "CONFLICTING",
+      "relevant_contract_count": 5,
+      "total_contract_count_full_history": 6,
+      "relevant_contract_ratio_full_history": 0.8333,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "conflicting_or_unknown",
+      "cnpj14": "40647849000176",
+      "razao_social": "ARTEFATOS DE CIMENTO RIVERSUL LTDA",
+      "model_classification": "CONFLICTING",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 2,
+      "relevant_contract_ratio_full_history": 0.5,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "conflicting_or_unknown",
+      "cnpj14": "14271474000182",
+      "razao_social": "FRAGNARI DISTRIBUIDORA DE MEDICAMENTOS LTDA",
+      "model_classification": "CONFLICTING",
+      "relevant_contract_count": 6,
+      "total_contract_count_full_history": 6,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "conflicting_or_unknown",
+      "cnpj14": "76324094000116",
+      "razao_social": "COMERCIO E TRANSPORTES BRESOLA LTDA",
+      "model_classification": "CONFLICTING",
+      "relevant_contract_count": 6,
+      "total_contract_count_full_history": 6,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "conflicting_or_unknown",
+      "cnpj14": "49666446000149",
+      "razao_social": "PONTUALIDADE ASSESSORIA CONTABIL LTDA",
+      "model_classification": "CONFLICTING",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 1,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "conflicting_or_unknown",
+      "cnpj14": "17472278000164",
+      "razao_social": "GOLDENPLUS-COMÉRCIO DE MEDICAMENTOS E PRODUTOS HOSPITALARES LTDA",
+      "model_classification": "CONFLICTING",
+      "relevant_contract_count": 5,
+      "total_contract_count_full_history": 5,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "conflicting_or_unknown",
+      "cnpj14": "51205028000104",
+      "razao_social": "GMC DISTRIBUIDORA DE MEDICAMENTOS LTDA",
+      "model_classification": "CONFLICTING",
+      "relevant_contract_count": 6,
+      "total_contract_count_full_history": 6,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "conflicting_or_unknown",
+      "cnpj14": "39435028000197",
+      "razao_social": "LUVI COMERCIO DE MERCADORIAS E SERVICOS CORPORATIVOS LTDA",
+      "model_classification": "CONFLICTING",
+      "relevant_contract_count": 6,
+      "total_contract_count_full_history": 6,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "conflicting_or_unknown",
+      "cnpj14": "15411811000152",
+      "razao_social": "AWA DISTRIBUIDORA DE MERCADORIAS E SERVICOS LTDA",
+      "model_classification": "CONFLICTING",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 1,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "conflicting_or_unknown",
+      "cnpj14": "23085630000101",
+      "razao_social": "PAVANI & PAVANI COMÉRCIO DE PEDRA E AREIA LTDA",
+      "model_classification": "CONFLICTING",
+      "relevant_contract_count": 3,
+      "total_contract_count_full_history": 4,
+      "relevant_contract_ratio_full_history": 0.75,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "conflicting_or_unknown",
+      "cnpj14": "61774066000123",
+      "razao_social": "VALLE ADM E NEGOCIOS IMOBILIARIOS LTDA",
+      "model_classification": "CONFLICTING",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 1,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "conflicting_or_unknown",
+      "cnpj14": "30669454000110",
+      "razao_social": "LBN EDIFICAÇÕES E TRANSPORTES LTDA",
+      "model_classification": "CONFLICTING",
+      "relevant_contract_count": 3,
+      "total_contract_count_full_history": 3,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "conflicting_or_unknown",
+      "cnpj14": "04874449000130",
+      "razao_social": "AGABO COMERCIO E SERVICOS LTDA",
+      "model_classification": "CONFLICTING",
+      "relevant_contract_count": 6,
+      "total_contract_count_full_history": 6,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "conflicting_or_unknown",
+      "cnpj14": "01650178000140",
+      "razao_social": "C. R. ARTEFATOS DE CIMENTO LTDA",
+      "model_classification": "CONFLICTING",
+      "relevant_contract_count": 14,
+      "total_contract_count_full_history": 16,
+      "relevant_contract_ratio_full_history": 0.875,
+      "cnae_principal": "2330301 - Fabricação de estruturas pré-moldadas de concreto armado, em série e sob encomenda"
+    },
+    {
+      "stratum": "conflicting_or_unknown",
+      "cnpj14": "29846957000135",
+      "razao_social": "VKOHL EMPREENDIMENTOS IMOBILIARIOS LTDA",
+      "model_classification": "CONFLICTING",
+      "relevant_contract_count": 14,
+      "total_contract_count_full_history": 14,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "conflicting_or_unknown",
+      "cnpj14": "08769477000148",
+      "razao_social": "TECHNOVA COMERCIO E SERVIÇOS NA AREA DA CONSTRUÇÃO LTDA",
+      "model_classification": "CONFLICTING",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 1,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "conflicting_or_unknown",
+      "cnpj14": "04995921000192",
+      "razao_social": "GICAFER CONSTRUÇÃO COMÉRCIO E SERVIÇOS LTDA",
+      "model_classification": "CONFLICTING",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 1,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "conflicting_or_unknown",
+      "cnpj14": "00159291000165",
+      "razao_social": "ITAIPU INDUSTRIA E COMERCIO DE BRITAS E ASFALTO LTDA.",
+      "model_classification": "CONFLICTING",
+      "relevant_contract_count": 11,
+      "total_contract_count_full_history": 11,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "conflicting_or_unknown",
+      "cnpj14": "36770097000169",
+      "razao_social": "CIB EMPREENDIMENTOS IMOBILIARIOS LTDA",
+      "model_classification": "CONFLICTING",
+      "relevant_contract_count": 2,
+      "total_contract_count_full_history": 2,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "conflicting_or_unknown",
+      "cnpj14": "21879483000116",
+      "razao_social": "Ricci Materiais de Construcao Adamantina Ltda",
+      "model_classification": "CONFLICTING",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 1,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "conflicting_or_unknown",
+      "cnpj14": "07095113000167",
+      "razao_social": "CREDLAR EMPREENDIMENTOS IMOBILIARIOS LTDA",
+      "model_classification": "CONFLICTING",
+      "relevant_contract_count": 3,
+      "total_contract_count_full_history": 3,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "conflicting_or_unknown",
+      "cnpj14": "01857076000109",
+      "razao_social": "VALINPHARMA COMÉRCIO E REPRESENTAÇÕES LTDA",
+      "model_classification": "CONFLICTING",
+      "relevant_contract_count": 2,
+      "total_contract_count_full_history": 2,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "conflicting_or_unknown",
+      "cnpj14": "17251171000196",
+      "razao_social": "GSG TRANSPORTES E SERVIÇOS DE ITAMBE LTDA",
+      "model_classification": "CONFLICTING",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 1,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "conflicting_or_unknown",
+      "cnpj14": "10987133000157",
+      "razao_social": "COMERCIO DE COMBUSTIVEIS BISSIGO ROSA LTDA.",
+      "model_classification": "CONFLICTING",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 1,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "conflicting_or_unknown",
+      "cnpj14": "40995218000148",
+      "razao_social": "ELETROMEGA COMERCIO DE MATERIAIS ELETRICOS E OBRAS LTDA",
+      "model_classification": "CONFLICTING",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 2,
+      "relevant_contract_ratio_full_history": 0.5,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "conflicting_or_unknown",
+      "cnpj14": "00196198000120",
+      "razao_social": "AFM ARTEFATOS DE CIMENTO LTDA",
+      "model_classification": "CONFLICTING",
+      "relevant_contract_count": 8,
+      "total_contract_count_full_history": 8,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "conflicting_or_unknown",
+      "cnpj14": "14567322000121",
+      "razao_social": "SM COMÉRCIO E SERVIÇOS LTDA ME",
+      "model_classification": "CONFLICTING",
+      "relevant_contract_count": 4,
+      "total_contract_count_full_history": 4,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "out_of_scope",
+      "cnpj14": "45693777000117",
+      "razao_social": "URBANIZADORA MUNICIPAL S.A. URBAM",
+      "model_classification": "OUT_OF_SCOPE",
+      "relevant_contract_count": 2,
+      "total_contract_count_full_history": 4,
+      "relevant_contract_ratio_full_history": 0.5,
+      "cnae_principal": "8129000 - Atividades de limpeza não especificadas anteriormente"
+    },
+    {
+      "stratum": "out_of_scope",
+      "cnpj14": "91395426000147",
+      "razao_social": "capinames prestadora de servicos eireli",
+      "model_classification": "OUT_OF_SCOPE",
+      "relevant_contract_count": 4,
+      "total_contract_count_full_history": 9,
+      "relevant_contract_ratio_full_history": 0.4444,
+      "cnae_principal": "7820500 - Locação de mão-de-obra temporária"
+    },
+    {
+      "stratum": "out_of_scope",
+      "cnpj14": "05258784000176",
+      "razao_social": "TDB INDUSTRIAL METALMECANICA LTDA",
+      "model_classification": "OUT_OF_SCOPE",
+      "relevant_contract_count": 3,
+      "total_contract_count_full_history": 6,
+      "relevant_contract_ratio_full_history": 0.5,
+      "cnae_principal": "2599399 - Fabricação de outros produtos de metal não especificados anteriormente"
+    },
+    {
+      "stratum": "out_of_scope",
+      "cnpj14": "33683111000107",
+      "razao_social": "SERVICO FEDERAL DE PROCESSAMENTO DE DADOS (SERPRO)",
+      "model_classification": "OUT_OF_SCOPE",
+      "relevant_contract_count": 11,
+      "total_contract_count_full_history": 21,
+      "relevant_contract_ratio_full_history": 0.5238,
+      "cnae_principal": "6204000 - Consultoria em tecnologia da informação"
+    },
+    {
+      "stratum": "out_of_scope",
+      "cnpj14": "49973405000103",
+      "razao_social": "HIDRAUMAC PECAS E SERVICOS LTDA",
+      "model_classification": "OUT_OF_SCOPE",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 1,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "out_of_scope",
+      "cnpj14": "04957426000199",
+      "razao_social": "SUNRISE EVENTOS, TRANSPORTES E LOCACAO DE BANHEIROS QUIMICOS LTDA",
+      "model_classification": "OUT_OF_SCOPE",
+      "relevant_contract_count": 2,
+      "total_contract_count_full_history": 4,
+      "relevant_contract_ratio_full_history": 0.5,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "out_of_scope",
+      "cnpj14": "11920102000141",
+      "razao_social": "BERTINATTO MAQUINAS EIRELI",
+      "model_classification": "OUT_OF_SCOPE",
+      "relevant_contract_count": 4,
+      "total_contract_count_full_history": 14,
+      "relevant_contract_ratio_full_history": 0.2857,
+      "cnae_principal": "4662100 - Comércio atacadista de máquinas, equipamentos para terraplenagem, mineração e construção; partes e peças"
+    },
+    {
+      "stratum": "out_of_scope",
+      "cnpj14": "49554873000135",
+      "razao_social": "PHC INSTALAÇÕES ELETRICAS LTDA",
+      "model_classification": "OUT_OF_SCOPE",
+      "relevant_contract_count": 4,
+      "total_contract_count_full_history": 6,
+      "relevant_contract_ratio_full_history": 0.6667,
+      "cnae_principal": "4742300 - Comércio varejista de material elétrico"
+    },
+    {
+      "stratum": "out_of_scope",
+      "cnpj14": "25398116000151",
+      "razao_social": "CASA ALBERTON LTDA",
+      "model_classification": "OUT_OF_SCOPE",
+      "relevant_contract_count": 19,
+      "total_contract_count_full_history": 44,
+      "relevant_contract_ratio_full_history": 0.4318,
+      "cnae_principal": "4744099 - Comércio varejista de materiais de construção em geral"
+    },
+    {
+      "stratum": "out_of_scope",
+      "cnpj14": "46164641000182",
+      "razao_social": "JEFLEX COMERCIO DE MANGUEIRAS, CORREIAS, BORRACHAS",
+      "model_classification": "OUT_OF_SCOPE",
+      "relevant_contract_count": 3,
+      "total_contract_count_full_history": 9,
+      "relevant_contract_ratio_full_history": 0.3333,
+      "cnae_principal": "4744003 - Comércio varejista de materiais hidráulicos"
+    },
+    {
+      "stratum": "out_of_scope",
+      "cnpj14": "62717397000194",
+      "razao_social": "GAUDERIO MAQUINAS E MOTORES LTDA",
+      "model_classification": "OUT_OF_SCOPE",
+      "relevant_contract_count": 2,
+      "total_contract_count_full_history": 3,
+      "relevant_contract_ratio_full_history": 0.6667,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "out_of_scope",
+      "cnpj14": "23334784000190",
+      "razao_social": "DR ROCHA MATERIAIS DE CONSTRUCAO LTDA",
+      "model_classification": "OUT_OF_SCOPE",
+      "relevant_contract_count": 2,
+      "total_contract_count_full_history": 6,
+      "relevant_contract_ratio_full_history": 0.3333,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "out_of_scope",
+      "cnpj14": "49549220000168",
+      "razao_social": "SILVA E DUMONT SERVICOS E MANUTENCOES LTDA",
+      "model_classification": "OUT_OF_SCOPE",
+      "relevant_contract_count": 2,
+      "total_contract_count_full_history": 5,
+      "relevant_contract_ratio_full_history": 0.4,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "out_of_scope",
+      "cnpj14": "11552540000102",
+      "razao_social": "F.S. COMERCIO E SERVICOS LTDA",
+      "model_classification": "OUT_OF_SCOPE",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 4,
+      "relevant_contract_ratio_full_history": 0.25,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "out_of_scope",
+      "cnpj14": "52691953000147",
+      "razao_social": "CONSTRUNORTE ENGENHARIA COMERCIO E CONSTRUCOES LTDA",
+      "model_classification": "OUT_OF_SCOPE",
+      "relevant_contract_count": 5,
+      "total_contract_count_full_history": 15,
+      "relevant_contract_ratio_full_history": 0.3333,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "out_of_scope",
+      "cnpj14": "46760367000104",
+      "razao_social": "FSP COMERCIO E SERVICOS DE AR CONDICIONADO LTDA",
+      "model_classification": "OUT_OF_SCOPE",
+      "relevant_contract_count": 2,
+      "total_contract_count_full_history": 4,
+      "relevant_contract_ratio_full_history": 0.5,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "out_of_scope",
+      "cnpj14": "10786517000101",
+      "razao_social": "WORKSERV DESENVOLVIMENTO E COMERCIO DE SOFTWARES LTDA",
+      "model_classification": "OUT_OF_SCOPE",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 6,
+      "relevant_contract_ratio_full_history": 0.1667,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "out_of_scope",
+      "cnpj14": "13417073000125",
+      "razao_social": "URIB COMERCIO E SERVICOS DE CONSERVACAO E MANUTENCAO LTDA",
+      "model_classification": "OUT_OF_SCOPE",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 1,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "out_of_scope",
+      "cnpj14": "51659136000149",
+      "razao_social": "SOUL DISTRIBUIDORA DE PRODUTOS E  QUIPAMENTOS INDUSTRIAIS LTDA",
+      "model_classification": "OUT_OF_SCOPE",
+      "relevant_contract_count": 13,
+      "total_contract_count_full_history": 57,
+      "relevant_contract_ratio_full_history": 0.2281,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "out_of_scope",
+      "cnpj14": "12931140000162",
+      "razao_social": "MUNDIAL INDUSTRIA E COMERCIO DE PISOS ESPORTIVOS LTDA",
+      "model_classification": "OUT_OF_SCOPE",
+      "relevant_contract_count": 2,
+      "total_contract_count_full_history": 4,
+      "relevant_contract_ratio_full_history": 0.5,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "out_of_scope",
+      "cnpj14": "19061289000187",
+      "razao_social": "MARES SERVICOS E COMERCIO DE EQUIPAMENTOS LTDA",
+      "model_classification": "OUT_OF_SCOPE",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 1,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "out_of_scope",
+      "cnpj14": "26632518000131",
+      "razao_social": "AUTO PECAS SAO DOMINGOS COMERCIO DE PECAS PARA CAM",
+      "model_classification": "OUT_OF_SCOPE",
+      "relevant_contract_count": 15,
+      "total_contract_count_full_history": 16,
+      "relevant_contract_ratio_full_history": 0.9375,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "out_of_scope",
+      "cnpj14": "22048632000168",
+      "razao_social": "ELIANE SCHREIBER COMERCIO E SERVICOS DE REFRIGERACAO LTDA",
+      "model_classification": "OUT_OF_SCOPE",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 1,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "out_of_scope",
+      "cnpj14": "22580442000197",
+      "razao_social": "PROCEDERE MANUTENCAO AUTOMACAO E PROJETOS INDUSTRIAIS LTDA",
+      "model_classification": "OUT_OF_SCOPE",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 7,
+      "relevant_contract_ratio_full_history": 0.1429,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "out_of_scope",
+      "cnpj14": "44080975000142",
+      "razao_social": "MDA COMERCIO E SERVICOS DE INFORMATICA LTDA",
+      "model_classification": "OUT_OF_SCOPE",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 1,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "out_of_scope",
+      "cnpj14": "43607976000130",
+      "razao_social": "CONSTRUTORA PADILHA LTDA",
+      "model_classification": "OUT_OF_SCOPE",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 2,
+      "relevant_contract_ratio_full_history": 0.5,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "out_of_scope",
+      "cnpj14": "24451654000108",
+      "razao_social": "L. DA SILVA - COMERCIO",
+      "model_classification": "OUT_OF_SCOPE",
+      "relevant_contract_count": 5,
+      "total_contract_count_full_history": 23,
+      "relevant_contract_ratio_full_history": 0.2174,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "out_of_scope",
+      "cnpj14": "42968202000171",
+      "razao_social": "ZURICH ENGENHARIA LTDA",
+      "model_classification": "OUT_OF_SCOPE",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 2,
+      "relevant_contract_ratio_full_history": 0.5,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "out_of_scope",
+      "cnpj14": "24298472000130",
+      "razao_social": "METAL GIACHINI LTDA",
+      "model_classification": "OUT_OF_SCOPE",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 6,
+      "relevant_contract_ratio_full_history": 0.1667,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "out_of_scope",
+      "cnpj14": "54687720000104",
+      "razao_social": "BERETTA PECAS E SERVICOS LTDA",
+      "model_classification": "OUT_OF_SCOPE",
+      "relevant_contract_count": 11,
+      "total_contract_count_full_history": 59,
+      "relevant_contract_ratio_full_history": 0.1864,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "out_of_scope",
+      "cnpj14": "35865938000159",
+      "razao_social": "PHL DISTRIBUIDORA LABORATORIAL LTDA",
+      "model_classification": "OUT_OF_SCOPE",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 4,
+      "relevant_contract_ratio_full_history": 0.25,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "out_of_scope",
+      "cnpj14": "29715701000199",
+      "razao_social": "PI R2 ENGENHARIA WORK - LTDA",
+      "model_classification": "OUT_OF_SCOPE",
+      "relevant_contract_count": 4,
+      "total_contract_count_full_history": 8,
+      "relevant_contract_ratio_full_history": 0.5,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "out_of_scope",
+      "cnpj14": "56097539000165",
+      "razao_social": "BISPO ENGENHARIA REFORMAS E LICITACOES LTDA",
+      "model_classification": "OUT_OF_SCOPE",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 2,
+      "relevant_contract_ratio_full_history": 0.5,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "out_of_scope",
+      "cnpj14": "20063556000134",
+      "razao_social": "AUTOLUK COMERCIO DE PNEUMATICOS E PECAS LTDA EPP",
+      "model_classification": "OUT_OF_SCOPE",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 7,
+      "relevant_contract_ratio_full_history": 0.1429,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "out_of_scope",
+      "cnpj14": "26979673000129",
+      "razao_social": "JARDEL JACOBS PEREIRA DA SILVA   ME",
+      "model_classification": "OUT_OF_SCOPE",
+      "relevant_contract_count": 3,
+      "total_contract_count_full_history": 5,
+      "relevant_contract_ratio_full_history": 0.6,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "out_of_scope",
+      "cnpj14": "73107948000114",
+      "razao_social": "S4 CONSTRUTORA LTDA - EPP",
+      "model_classification": "OUT_OF_SCOPE",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 2,
+      "relevant_contract_ratio_full_history": 0.5,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "out_of_scope",
+      "cnpj14": "48061510000103",
+      "razao_social": "V2 DISTRIBUIDORA DE EQUIPAMENTOS E SERVICOS TERCEIRIZADOS LTDA",
+      "model_classification": "OUT_OF_SCOPE",
+      "relevant_contract_count": 6,
+      "total_contract_count_full_history": 7,
+      "relevant_contract_ratio_full_history": 0.8571,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "out_of_scope",
+      "cnpj14": "37278673000118",
+      "razao_social": "EREMASTER DISTRIBUIDORA DE FERRAGENS E FERRAMENTAS LTDA",
+      "model_classification": "OUT_OF_SCOPE",
+      "relevant_contract_count": 6,
+      "total_contract_count_full_history": 14,
+      "relevant_contract_ratio_full_history": 0.4286,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "out_of_scope",
+      "cnpj14": "02753224000108",
+      "razao_social": "VIVEIRO CAMPO LINDO COMERCIO DE PLANTAS LTDA",
+      "model_classification": "OUT_OF_SCOPE",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 1,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "out_of_scope",
+      "cnpj14": "07412297000141",
+      "razao_social": "ACACMAR COMERCIAL E TRANSPORTES LTDA",
+      "model_classification": "OUT_OF_SCOPE",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 13,
+      "relevant_contract_ratio_full_history": 0.0769,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "out_of_scope",
+      "cnpj14": "05656364000148",
+      "razao_social": "AUTO PECAS E OFICINA DO BAIANO LTDA",
+      "model_classification": "OUT_OF_SCOPE",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 1,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "out_of_scope",
+      "cnpj14": "11833114000139",
+      "razao_social": "SAMIL TERRAPLANAGENS E TRANSPORTES LTDA",
+      "model_classification": "OUT_OF_SCOPE",
+      "relevant_contract_count": 2,
+      "total_contract_count_full_history": 2,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "out_of_scope",
+      "cnpj14": "30401055000174",
+      "razao_social": "ARMACOES NORTE COMERCIO DE FERRAGENS LTDA",
+      "model_classification": "OUT_OF_SCOPE",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 4,
+      "relevant_contract_ratio_full_history": 0.25,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "out_of_scope",
+      "cnpj14": "62410930000170",
+      "razao_social": "MECTRAMAC COMERCIO DE PEÇAS E SERVIÇOS LTDA",
+      "model_classification": "OUT_OF_SCOPE",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 2,
+      "relevant_contract_ratio_full_history": 0.5,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "out_of_scope",
+      "cnpj14": "19452240000155",
+      "razao_social": "NETWARE TELECOMUNICACOES E INFORMATICA LTDA",
+      "model_classification": "OUT_OF_SCOPE",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 1,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "out_of_scope",
+      "cnpj14": "00862223000168",
+      "razao_social": "COMERCIAL PRIOTTO LTDA",
+      "model_classification": "OUT_OF_SCOPE",
+      "relevant_contract_count": 2,
+      "total_contract_count_full_history": 2,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "out_of_scope",
+      "cnpj14": "35279491000136",
+      "razao_social": "VENDOR COMERCIO DE PRODUTOS LTDA",
+      "model_classification": "OUT_OF_SCOPE",
+      "relevant_contract_count": 2,
+      "total_contract_count_full_history": 5,
+      "relevant_contract_ratio_full_history": 0.4,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "out_of_scope",
+      "cnpj14": "15373985000178",
+      "razao_social": "TWR CONSTRUTORA LTDA",
+      "model_classification": "OUT_OF_SCOPE",
+      "relevant_contract_count": 2,
+      "total_contract_count_full_history": 3,
+      "relevant_contract_ratio_full_history": 0.6667,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "out_of_scope",
+      "cnpj14": "56607352000164",
+      "razao_social": "LICITA INFORMATICA LTDA",
+      "model_classification": "OUT_OF_SCOPE",
+      "relevant_contract_count": 1,
+      "total_contract_count_full_history": 2,
+      "relevant_contract_ratio_full_history": 0.5,
+      "cnae_principal": null
+    },
+    {
+      "stratum": "out_of_scope",
+      "cnpj14": "14539629000119",
+      "razao_social": "POCAIA SERVICOS E TERCEIRIZACOES LTDA",
+      "model_classification": "OUT_OF_SCOPE",
+      "relevant_contract_count": 2,
+      "total_contract_count_full_history": 2,
+      "relevant_contract_ratio_full_history": 1.0,
+      "cnae_principal": null
+    }
+  ],
+  "note": "Slim index for Git reviewability. Full history/evidence pack is produced by python -m scripts.ops.build_commercial_evaluation_sample + enrich (local/ops), not committed as a bulk blob. Dual human labels remain empty.",
+  "labels_filled": false
+}

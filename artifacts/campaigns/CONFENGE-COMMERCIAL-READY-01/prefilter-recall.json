@@ -1,0 +1,20 @@
+{
+  "method": "live_same_universe_uf_hash_sample_no_keyword_prefilter",
+  "ufs": [
+    "SC",
+    "PR",
+    "RS",
+    "SP",
+    "RJ",
+    "MG"
+  ],
+  "sample_contracts": 2898,
+  "gold_relevant_suppliers_in_sample": 993,
+  "discovered_among_gold": 984,
+  "missed": 9,
+  "candidate_discovery_recall": 0.9909,
+  "threshold": 0.95,
+  "ok": true,
+  "status": "PASS",
+  "discovery_meta_candidate_count": 7250
+}

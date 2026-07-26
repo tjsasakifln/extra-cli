@@ -1,0 +1,40 @@
+{
+  "ok": true,
+  "status": "BOUND",
+  "binding": {
+    "ok": true,
+    "status": "BOUND",
+    "declared_row_count": 60000,
+    "database_row_count": 60000,
+    "min_date": "2026-02-13",
+    "max_date": "2026-07-23",
+    "sample_hashes": [
+      "00000000000191-2-000004/2026:50052653000192:871dd87a1f8dd86e0e7db63314adce94",
+      "00000000000191-2-000009/2026:63056469000162:9d1f42e66ce0dfc826509cfaffeba22c",
+      "00000000000191-2-000013/2026:31834991000131:e3e30f0fb9f15d81639ab53fdcea37a6",
+      "00000000000191-2-000020/2026:89278519000140:fd2a1b4044d0f97f34ae9829f156088b",
+      "00000000000191-2-000024/2026:33624704000194:5b32f5760c24803cea3f8f35922e9cea"
+    ],
+    "table_snapshot_hash": "bb1fa54ececca5ab5d68a700e103d5103a5fa424f233344d41d955543cc4d8d3",
+    "canonical_table_hash": "c22cff3b72ed09f696d3f42721d5977e1ed5622f7ed8a4a4651580677bdc3157",
+    "canonical_hash_algorithm": "sha256-rowmd5-ordered-agg-v1",
+    "rows_hashed": 60000,
+    "manifest_canonical_table_hash": "c22cff3b72ed09f696d3f42721d5977e1ed5622f7ed8a4a4651580677bdc3157",
+    "canonical_match": true,
+    "schema_version": "pncp_supplier_contracts@campaign",
+    "reasons": [
+      "canonical_table_hash_match"
+    ],
+    "justified_filter": false,
+    "filter_note": null,
+    "table": "pncp_supplier_contracts",
+    "note": "BOUND requires canonical_table_hash match over all rows. row_count + sample_hashes alone never suffice."
+  },
+  "manifest_mutated": false,
+  "expected_canonical_table_hash": "c22cff3b72ed09f696d3f42721d5977e1ed5622f7ed8a4a4651580677bdc3157",
+  "observed_canonical_table_hash": "c22cff3b72ed09f696d3f42721d5977e1ed5622f7ed8a4a4651580677bdc3157",
+  "reasons": [
+    "canonical_table_hash_match"
+  ],
+  "note": "Validation never writes manifest; anchor must pre-exist from export."
+}

@@ -1,0 +1,23 @@
+{
+  "ok": true,
+  "generated_at": "2026-07-26T02:17:08Z",
+  "inputs": 7250,
+  "processed_this_run": 1,
+  "seeded_from_db": 7249,
+  "upserted": 1,
+  "resolved": 7250,
+  "definitive_resolution_count": 7250,
+  "registry_resolved_or_definitively_not_found": 1.0,
+  "unresolved_by_reason": {},
+  "error_counts": {},
+  "status_counts": {
+    "RESOLVED": 7250
+  },
+  "official_dataset_rows": 0,
+  "exported_registry_jsonl": "/mnt/d/extra consultoria/.worktrees/confenge-commercial-ready-01/artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/official-cnpj-registry-snapshot.jsonl",
+  "exported_registry_n": 7250,
+  "workers": 1,
+  "fallback_api": "brasilapi",
+  "checkpoint": "/mnt/d/extra consultoria/.worktrees/confenge-commercial-ready-01/artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/registry-ingest-checkpoint.json",
+  "note": "Release requires registry_resolved_or_definitively_not_found == 100% BEFORE top20 selection. HTTP timeouts are LOOKUP_TRANSIENT_FAILURE, never NOT_FOUND. Official JSONL is preferred; BrasilAPI is fallback."
+}

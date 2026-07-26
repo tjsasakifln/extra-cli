@@ -1,0 +1,76 @@
+{
+  "ok": true,
+  "status": "PASS",
+  "dominant_offer_rate": 0.6,
+  "offer_entropy": 0.9709505944546659,
+  "mean_selected_offer_margin": 1.818215,
+  "offer_distribution": {
+    "licitacoes_propostas": 8,
+    "diagnostico_b2g": 12
+  },
+  "per_lead_n": 20,
+  "uniform_but_justified": false,
+  "diagnose": {
+    "offer_distribution": {
+      "licitacoes_propostas": 8,
+      "diagnostico_b2g": 12
+    },
+    "offer_entropy": 0.971,
+    "dominant_offer_rate": 0.6,
+    "mean_selected_offer_margin": 1.8182,
+    "low_margin_offer_count": 0,
+    "robust_quantitative_justification": true,
+    "block": null,
+    "explanation": {
+      "dominant_offer": "diagnostico_b2g",
+      "dominant_offer_rate": 0.6,
+      "why_uniform": "distribution has meaningful variation",
+      "dominant_supporting_signals": [
+        "near_expiry",
+        "first_public_contract",
+        "agency_concentration",
+        "contract_concentration",
+        "concurrent_portfolio"
+      ],
+      "mean_selected_offer_margin": 1.8182,
+      "alternative_offers_seen": {
+        "diagnostico_b2g": 7,
+        "acompanhamento_contratual": 1,
+        "licitacoes_propostas": 12
+      },
+      "multi_score_positive_rate": 1.0,
+      "nonzero_score_buckets": [
+        "acompanhamento_contratual_score",
+        "auditoria_orcamento_score",
+        "diagnostico_b2g_score",
+        "gestao_documental_score",
+        "inteligencia_pncp_score",
+        "licitacoes_propostas_score"
+      ],
+      "catalog_degenerate": false,
+      "n_distinct_offers": 2
+    },
+    "n_leads": 20,
+    "selection_rule_version": "offer-selection-v4-multi-bucket"
+  },
+  "pass_decision": {
+    "ok": true,
+    "status": "PASS",
+    "reasons": [],
+    "diagnose_block": null,
+    "catalog_degenerate": false,
+    "robust_quantitative_justification": true,
+    "multi_buckets_all": true,
+    "alternative_offer_all": true,
+    "margin_all_above_min": true,
+    "hardcoded_selection": false,
+    "offer_scores_vary": true,
+    "supporting_signals_vary": true,
+    "excessive_sensitivity_signals": [],
+    "max_single_signal_change_rate_threshold": 0.5,
+    "min_selected_offer_margin": 0.1,
+    "individual_justification_override_forbidden": true
+  },
+  "catalog_degenerate": false,
+  "robust_quantitative_justification": true
+}

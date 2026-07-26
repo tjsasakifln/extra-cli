@@ -1,0 +1,22 @@
+{
+  "ok": true,
+  "status": "PASS",
+  "current_pr_head_sha": "f82eb9615995abd88ffd8e14dfc003f0dcd859b7",
+  "pr_head_sha": "f82eb9615995abd88ffd8e14dfc003f0dcd859b7",
+  "checked_out_sha": "f82eb9615995abd88ffd8e14dfc003f0dcd859b7",
+  "workflow_merge_sha": null,
+  "final_code_freeze_sha": "f82eb9615995abd88ffd8e14dfc003f0dcd859b7",
+  "final_integrity_code_freeze_sha": "f82eb9615995abd88ffd8e14dfc003f0dcd859b7",
+  "executed_code_sha": "f82eb9615995abd88ffd8e14dfc003f0dcd859b7",
+  "code_tree_hash_at_execution": "12d6c239313f2af1e3ffdde61848c9c024c70855b703284ee4d6f30e6cbd88e4",
+  "code_tree_hash_at_current_head": "12d6c239313f2af1e3ffdde61848c9c024c70855b703284ee4d6f30e6cbd88e4",
+  "code_changed_after_execution": false,
+  "artifact_only_commits_after_execution": false,
+  "files_changed_after_freeze": [],
+  "non_artifact_files_changed": [],
+  "non_artifact_files_changed_after_execution": [],
+  "artifact_only_path_check": true,
+  "verified_at": "2026-07-26T20:39:16Z",
+  "note": "pr_head from CONFENGE_PR_HEAD_SHA when set; never label merge checkout as pr_head",
+  "policy": "post-freeze commits only under artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/** and docs/ops/**"
+}

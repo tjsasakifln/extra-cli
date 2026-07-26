@@ -1,0 +1,132 @@
+{
+  "ok": true,
+  "status": "PACKAGES_READY_BLOCKED_REAL_HOLDOUT_NOT_REVIEWED",
+  "human_review_packages_generated": true,
+  "packages_ready_for_human_review": true,
+  "review_packages_generated": true,
+  "published_as_workflow_artifact": false,
+  "workflow_artifact_name": "confenge-human-review-packages",
+  "workflow_run_id": null,
+  "package_dir": "/mnt/d/extra consultoria/.worktrees/confenge-commercial-ready-01/artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/human-review",
+  "checksums": {
+    "files": {
+      "contract-relevance-human-review.xlsx": {
+        "sha256": "482b4dcb5b9e26ec956c890907b583c397e506062af5c18e20468a224c25a52b",
+        "size_bytes": 108119
+      },
+      "contract-relevance-human-review.html": {
+        "sha256": "ba68b032566f8750871101ab87639ad1825f1d0a7fdbc7d94dd9d07d89390f32",
+        "size_bytes": 289727
+      },
+      "commercial-top20-human-review.xlsx": {
+        "sha256": "a073d0e954eb58de3d8087e69dda635f6e230e2bf6befdbeca73e6ceaace1bcc",
+        "size_bytes": 6678
+      },
+      "commercial-top20-human-review.html": {
+        "sha256": "56ebf16e217e441598ec67f686641875ce785e8b9b1188a677ff1d9b319c277f",
+        "size_bytes": 13885
+      },
+      "commercial-evaluation-200-human-review.xlsx": {
+        "sha256": "d5d7e2f5b9dbd9268ef2b3e231ecee3d5db0c0a94b69fbcfdf9b3e0a4622bccd",
+        "size_bytes": 9671
+      },
+      "README-HUMAN-REVIEW.md": {
+        "sha256": "0b521347ed1eb100342685f22adad6f92e6e3a5718f3e2269ea32c14edccc167",
+        "size_bytes": 2186
+      },
+      "commercial-evaluation-200-human-review.html": {
+        "sha256": "7637ab061816ac0a68c6c8c1ad0cf2bc1540ee82b59943061a21128bb9b23dba",
+        "size_bytes": 28107
+      }
+    },
+    "generated_at": "2026-07-26T17:16:26Z",
+    "executed_code_sha": "5c8c796163574a8988b7a6d67d287438e75ced35",
+    "workflow_run_id": null,
+    "artifact_name": "confenge-human-review-packages"
+  },
+  "executed_code_sha": "5c8c796163574a8988b7a6d67d287438e75ced35",
+  "real_corpus_total": 538,
+  "n_development": 368,
+  "n_validation": 70,
+  "n_holdout": 100,
+  "human_labels_filled": 0,
+  "corpus_validation": {
+    "ok": true,
+    "n_rows": 538,
+    "missing_required_field_counts": {
+      "contract_id": 0,
+      "object_original": 0,
+      "agency": 0,
+      "uf": 0,
+      "publication_date": 0,
+      "snapshot_id": 0,
+      "source_row_hash": 0,
+      "stratum": 0
+    },
+    "incomplete_fields": {},
+    "human_labels_filled": 0,
+    "min_required": 500
+  },
+  "top20_source": "full-universe-e2e-reproducibility-gate.pass_a.offer_detail_top20",
+  "top20_aligned_to_e2e": true,
+  "top20_order": [
+    "53640280000169",
+    "47690102000140",
+    "33347913000138",
+    "34219868000107",
+    "27254414000101",
+    "27743102000153",
+    "14190481000150",
+    "33220938000176",
+    "28857380000102",
+    "07814038000147",
+    "40593578000113",
+    "18245956000119",
+    "39534812000152",
+    "00827454000130",
+    "20594387000169",
+    "00541146000144",
+    "15723058000130",
+    "42786044000139",
+    "61917876000191",
+    "08756015000196"
+  ],
+  "e2e_top20_order": [
+    "53640280000169",
+    "47690102000140",
+    "33347913000138",
+    "34219868000107",
+    "27254414000101",
+    "27743102000153",
+    "14190481000150",
+    "33220938000176",
+    "28857380000102",
+    "07814038000147",
+    "40593578000113",
+    "18245956000119",
+    "39534812000152",
+    "00827454000130",
+    "20594387000169",
+    "00541146000144",
+    "15723058000130",
+    "42786044000139",
+    "61917876000191",
+    "08756015000196"
+  ],
+  "top20_intersection_with_e2e": 20,
+  "stale_acompanhamento_admin_present": false,
+  "packages": [
+    "/mnt/d/extra consultoria/.worktrees/confenge-commercial-ready-01/artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/contract-relevance-human-review.xlsx",
+    "/mnt/d/extra consultoria/.worktrees/confenge-commercial-ready-01/artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/contract-relevance-human-review.html",
+    "/mnt/d/extra consultoria/.worktrees/confenge-commercial-ready-01/artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/commercial-top20-human-review.xlsx",
+    "/mnt/d/extra consultoria/.worktrees/confenge-commercial-ready-01/artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/commercial-top20-human-review.html",
+    "/mnt/d/extra consultoria/.worktrees/confenge-commercial-ready-01/artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/commercial-evaluation-200-human-review.xlsx",
+    "/mnt/d/extra consultoria/.worktrees/confenge-commercial-ready-01/artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/README-HUMAN-REVIEW.md"
+  ],
+  "blockers": [
+    "BLOCKED_REAL_HOLDOUT_NOT_REVIEWED",
+    "BLOCKED_INSUFFICIENT_HUMAN_LABELS"
+  ],
+  "generated_at": "2026-07-26T17:16:27Z",
+  "note": "Agents must never fill human label fields. Required corpus fields validated. Top-20 bound to full-universe E2E freeze execution. Publish via CI artifact confenge-human-review-packages (not git)."
+}

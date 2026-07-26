@@ -1,0 +1,40 @@
+{"id": "h01", "objeto": "execução de obra de engenharia sob empreitada global", "relevant": true, "category": "obra"}
+{"id": "h02", "objeto": "pavimentação asfáltica de vias urbanas do município", "relevant": true, "category": "pavimentacao"}
+{"id": "h03", "objeto": "projeto estrutural de edificação escolar", "relevant": true, "category": "projeto"}
+{"id": "h04", "objeto": "fiscalização de obra de pavimentação asfáltica", "relevant": true, "category": "fiscalizacao"}
+{"id": "h05", "objeto": "saneamento básico e rede de esgoto sanitário", "relevant": true, "category": "saneamento"}
+{"id": "h06", "objeto": "terraplenagem e infraestrutura viária", "relevant": true, "category": "obra"}
+{"id": "h07", "objeto": "reforma predial com recuperação estrutural", "relevant": true, "category": "manutencao_predial"}
+{"id": "h08", "objeto": "drenagem urbana e galerias pluviais", "relevant": true, "category": "obra"}
+{"id": "h09", "objeto": "serviços de geotecnia e sondagem do solo", "relevant": true, "category": "geotecnia"}
+{"id": "h10", "objeto": "levantamento topográfico e georreferenciamento", "relevant": true, "category": "topografia"}
+{"id": "h11", "objeto": "projeto arquitetônico e complementar de engenharia", "relevant": true, "category": "arquitetura"}
+{"id": "h12", "objeto": "construção de escola municipal em alvenaria", "relevant": true, "category": "obra"}
+{"id": "h13", "objeto": "manutenção de veículo leve e pesado", "relevant": false, "category": "manutencao_veicular"}
+{"id": "h14", "objeto": "manutenção de impressora e multifuncionais de TI", "relevant": false, "category": "manutencao_ti"}
+{"id": "h15", "objeto": "infraestrutura de rede de dados e switches", "relevant": false, "category": "infra_rede"}
+{"id": "h16", "objeto": "infraestrutura de TI e cloud", "relevant": false, "category": "infra_rede"}
+{"id": "h17", "objeto": "fornecimento de materiais de construção diversos", "relevant": false, "category": "materiais"}
+{"id": "h18", "objeto": "locação de máquinas e equipamentos sem operador", "relevant": false, "category": "locacao"}
+{"id": "h19", "objeto": "serviço de limpeza e conservação predial", "relevant": false, "category": "limpeza"}
+{"id": "h20", "objeto": "terceirização de mão de obra com dedicação exclusiva", "relevant": false, "category": "terceirizacao"}
+{"id": "h21", "objeto": "aquisição de refeições para servidores", "relevant": false, "category": "alimentacao"}
+{"id": "h22", "objeto": "manutenção de equipamentos de engenharia clínica hospitalar", "relevant": false, "category": "engenharia_clinica"}
+{"id": "h23", "objeto": "serviços de telecomunicação e links dedicados", "relevant": false, "category": "telecom"}
+{"id": "h24", "objeto": "projeto de software para gestão escolar", "relevant": false, "category": "ti"}
+{"id": "h25", "objeto": "consultoria contábil e fiscal", "relevant": false, "category": "contabil"}
+{"id": "h26", "objeto": "fornecimento de autopeças e componentes automotivos", "relevant": false, "category": "autopecas"}
+{"id": "h27", "objeto": "locação de veículos com motorista", "relevant": false, "category": "locacao"}
+{"id": "h28", "objeto": "serviços técnicos genéricos de apoio administrativo", "relevant": false, "category": "generico"}
+{"id": "h29", "objeto": "energia elétrica e fornecimento de medidores", "relevant": false, "category": "energia"}
+{"id": "h30", "objeto": "infraestrutura de telecomunicações e antenas", "relevant": false, "category": "telecom"}
+{"id": "h31", "objeto": "obras de infraestrutura urbana e pavimentação", "relevant": true, "category": "infraestrutura_urbana"}
+{"id": "h32", "objeto": "manutenção predial com recuperação de estrutura de concreto", "relevant": true, "category": "manutencao_predial"}
+{"id": "h33", "objeto": "serviços técnicos especializados de engenharia e arquitetura", "relevant": true, "category": "projeto"}
+{"id": "h34", "objeto": "execução de ponte e obras de arte especiais", "relevant": true, "category": "obra"}
+{"id": "h35", "objeto": "projeto de saneamento e ETA", "relevant": true, "category": "saneamento"}
+{"id": "h36", "objeto": "aquisição de cimento e agregados para estoque", "relevant": false, "category": "materiais"}
+{"id": "h37", "objeto": "locação de guindaste e máquinas pesadas", "relevant": false, "category": "locacao"}
+{"id": "h38", "objeto": "limpeza predial e jardinagem", "relevant": false, "category": "limpeza"}
+{"id": "h39", "objeto": "engenharia clínica manutenção de respiradores", "relevant": false, "category": "engenharia_clinica"}
+{"id": "h40", "objeto": "serviços de topografia para obra viária", "relevant": true, "category": "topografia"}

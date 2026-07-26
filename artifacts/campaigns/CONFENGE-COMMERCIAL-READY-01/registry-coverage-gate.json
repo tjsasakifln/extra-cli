@@ -1,0 +1,46 @@
+{
+  "rule_version": "supplier-registry-v1",
+  "generated_at": "2026-07-26T17:01:44Z",
+  "registry_coverage_all_candidates": {
+    "n": 5640,
+    "with_registry": 5640,
+    "coverage": 1.0,
+    "cnae_primary_coverage": 1.0,
+    "cnae_secondary_coverage": 0.9298,
+    "status": "OK"
+  },
+  "registry_coverage_top100": {
+    "n": 100,
+    "with_registry": 100,
+    "coverage": 1.0,
+    "cnae_primary_coverage": 1.0,
+    "cnae_secondary_coverage": 0.9,
+    "status": "OK"
+  },
+  "registry_coverage_top20": {
+    "n": 0,
+    "with_registry": 0,
+    "coverage": null,
+    "cnae_primary_coverage": null,
+    "cnae_secondary_coverage": null,
+    "status": "NOT_COMPUTABLE"
+  },
+  "cnae_primary_coverage": 1.0,
+  "cnae_secondary_coverage": 0.9298,
+  "registry_freshness": {
+    "min_source_date": "2026-07-25",
+    "max_source_date": "2026-07-26"
+  },
+  "top20_coverage_100pct": false,
+  "registry_universe_resolved": true,
+  "registry_resolved_or_definitively_not_found": 1.0,
+  "registry_resolution_status_counts": {
+    "RESOLVED": 5640
+  },
+  "missing_candidates_sample": [],
+  "missing_candidates_n": 0,
+  "block_reason": "BLOCKED_MISSING_SUPPLIER_SECTOR_DATA",
+  "selection_bias_risk": false,
+  "ok": true,
+  "method": "universe_registry_coverage_before_publication"
+}

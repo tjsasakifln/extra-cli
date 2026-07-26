@@ -1,0 +1,1167 @@
+{
+  "ok": true,
+  "status": "PASS",
+  "method": "live_double_full_pipeline_frozen_universe_all_status_history",
+  "frozen_candidate_count": 5640,
+  "n_universe": 5640,
+  "n_universe_equals_frozen": true,
+  "sampled": false,
+  "pass_a": {
+    "ok": true,
+    "n_universe": 5640,
+    "candidate_universe_hash": "5369218285385540ad5f48834ca8fede3704e7b7f9d7e9e0c71c418025a6ae2a",
+    "contract_history_hash": "1eb7cce36792bffdb0dfa7d4aebc8fe51cb68e0ada573f74b375ab5763483209",
+    "full_history_hash": "2ac8257fac4776854fda85109428a9b42cadadc3bf1a8b14db841be11958d8d8",
+    "active_portfolio_hash": "ff87c5fe0e24d87c4a39e359a2df53034a381501de85a1668ea8d44ef3611f03",
+    "registry_snapshot_hash": "5369218285385540ad5f48834ca8fede3704e7b7f9d7e9e0c71c418025a6ae2a",
+    "registry_join_hash": "c718c9b6fba36f50419651c91333af3af2125ac5f455fe2566ef2b42b40759f1",
+    "sector_decision_hash": "3c500093e3da3e82b4196a0869c68ed66e4f41d6ad570ad7df921fd3ef29b334",
+    "eligible_universe_hash": "17e5d4fb65ad2f83e8e7ec260d2b13f34f287792ceae3f7038b552cde39f48b5",
+    "signal_results_hash": "3be66398fb6336071175eca375e48d12551e4facd51e6a0cbcbd8915c78c446d",
+    "offer_scores_hash": "e61954bcf7abf489a704b3d062eeadc794151711ca2838c7f2d73fb679ddfb68",
+    "ranking_hash": "b661e95123ee76b8e7bbd98cf7b17076efe6656b9e54dbb8ac3a4f905c2c0cdb",
+    "top20_order": [
+      "53640280000169",
+      "47690102000140",
+      "33347913000138",
+      "34219868000107",
+      "27254414000101",
+      "27743102000153",
+      "14190481000150",
+      "33220938000176",
+      "28857380000102",
+      "07814038000147",
+      "40593578000113",
+      "18245956000119",
+      "39534812000152",
+      "00827454000130",
+      "20594387000169",
+      "00541146000144",
+      "15723058000130",
+      "42786044000139",
+      "61917876000191",
+      "08756015000196"
+    ],
+    "review_queue_hash": "8555eaedab2df0a79a0e69e3b407f5382d14b874994e4710b59fc4e975690d2a",
+    "history_view": "ALL_SNAPSHOT_SUPPLIER_HISTORY",
+    "all_statuses_loaded": true,
+    "n_eligible": 470,
+    "sector_classification_distribution": {
+      "UNKNOWN": 1746,
+      "CONFIRMED_ENGINEERING": 470,
+      "OUT_OF_SCOPE": 3087,
+      "POSSIBLE_ENGINEERING_FIT": 227,
+      "CONFLICTING": 110
+    },
+    "offer_mapping": [
+      "acompanhamento_contratual",
+      "acompanhamento_contratual",
+      "acompanhamento_contratual",
+      "acompanhamento_contratual",
+      "acompanhamento_contratual",
+      "acompanhamento_contratual",
+      "acompanhamento_contratual",
+      "acompanhamento_contratual",
+      "acompanhamento_contratual",
+      "acompanhamento_contratual",
+      "acompanhamento_contratual",
+      "acompanhamento_contratual",
+      "acompanhamento_contratual",
+      "acompanhamento_contratual",
+      "acompanhamento_contratual",
+      "acompanhamento_contratual",
+      "acompanhamento_contratual",
+      "acompanhamento_contratual",
+      "acompanhamento_contratual",
+      "acompanhamento_contratual"
+    ],
+    "offer_detail_top20": [
+      {
+        "cnpj14": "53640280000169",
+        "selected_offer": "acompanhamento_contratual",
+        "alternative_offer": "licitacoes_propostas",
+        "selected_offer_margin": 2.43,
+        "offer_scores": {
+          "diagnostico_b2g_score": 1.54,
+          "licitacoes_propostas_score": 4.4,
+          "auditoria_orcamento_score": 0.0,
+          "acompanhamento_contratual_score": 6.83,
+          "gestao_documental_score": 3.208,
+          "inteligencia_pncp_score": 0.0
+        },
+        "supporting_signals": [
+          "concurrent_portfolio",
+          "agency_concentration"
+        ],
+        "contradicting_signals": [
+          "partial_mapping:renewal_risk",
+          "partial_mapping:admin_load",
+          "nc:addendum_recurrence",
+          "nc:adverse_event"
+        ]
+      },
+      {
+        "cnpj14": "47690102000140",
+        "selected_offer": "acompanhamento_contratual",
+        "alternative_offer": "licitacoes_propostas",
+        "selected_offer_margin": 1.83,
+        "offer_scores": {
+          "diagnostico_b2g_score": 1.54,
+          "licitacoes_propostas_score": 4.4,
+          "auditoria_orcamento_score": 0.0,
+          "acompanhamento_contratual_score": 6.23,
+          "gestao_documental_score": 2.92,
+          "inteligencia_pncp_score": 0.0
+        },
+        "supporting_signals": [
+          "concurrent_portfolio",
+          "agency_concentration"
+        ],
+        "contradicting_signals": [
+          "partial_mapping:renewal_risk",
+          "partial_mapping:admin_load",
+          "nc:addendum_recurrence",
+          "nc:adverse_event"
+        ]
+      },
+      {
+        "cnpj14": "33347913000138",
+        "selected_offer": "acompanhamento_contratual",
+        "alternative_offer": "licitacoes_propostas",
+        "selected_offer_margin": 0.7703,
+        "offer_scores": {
+          "diagnostico_b2g_score": 1.54,
+          "licitacoes_propostas_score": 4.4,
+          "auditoria_orcamento_score": 0.05611159097579006,
+          "acompanhamento_contratual_score": 5.170278977439475,
+          "gestao_documental_score": 2.3440000000000003,
+          "inteligencia_pncp_score": 0.0
+        },
+        "supporting_signals": [
+          "concurrent_portfolio",
+          "agency_concentration",
+          "contract_concentration"
+        ],
+        "contradicting_signals": [
+          "partial_mapping:renewal_risk",
+          "partial_mapping:admin_load",
+          "nc:addendum_recurrence",
+          "nc:adverse_event"
+        ]
+      },
+      {
+        "cnpj14": "34219868000107",
+        "selected_offer": "acompanhamento_contratual",
+        "alternative_offer": "licitacoes_propostas",
+        "selected_offer_margin": 0.9514,
+        "offer_scores": {
+          "diagnostico_b2g_score": 1.2833333333333334,
+          "licitacoes_propostas_score": 3.666666666666667,
+          "auditoria_orcamento_score": 0.07522239954256969,
+          "acompanhamento_contratual_score": 4.618055998856424,
+          "gestao_documental_score": 2.0560000000000005,
+          "inteligencia_pncp_score": 0.0
+        },
+        "supporting_signals": [
+          "concurrent_portfolio",
+          "agency_concentration",
+          "contract_concentration"
+        ],
+        "contradicting_signals": [
+          "partial_mapping:renewal_risk",
+          "partial_mapping:admin_load",
+          "nc:addendum_recurrence",
+          "nc:adverse_event"
+        ]
+      },
+      {
+        "cnpj14": "27254414000101",
+        "selected_offer": "acompanhamento_contratual",
+        "alternative_offer": "licitacoes_propostas",
+        "selected_offer_margin": 4.7803,
+        "offer_scores": {
+          "diagnostico_b2g_score": 0.77,
+          "licitacoes_propostas_score": 2.85,
+          "auditoria_orcamento_score": 0.08011261159561157,
+          "acompanhamento_contratual_score": 7.630281528989029,
+          "gestao_documental_score": 1.4800000000000002,
+          "inteligencia_pncp_score": 0.0
+        },
+        "supporting_signals": [
+          "concurrent_portfolio",
+          "agency_concentration",
+          "contract_concentration",
+          "near_expiry",
+          "mapping:renewal_risk"
+        ],
+        "contradicting_signals": [
+          "partial_mapping:admin_load",
+          "nc:addendum_recurrence",
+          "nc:adverse_event"
+        ]
+      },
+      {
+        "cnpj14": "27743102000153",
+        "selected_offer": "acompanhamento_contratual",
+        "alternative_offer": "licitacoes_propostas",
+        "selected_offer_margin": 0.7633,
+        "offer_scores": {
+          "diagnostico_b2g_score": 1.2833333333333334,
+          "licitacoes_propostas_score": 3.666666666666667,
+          "auditoria_orcamento_score": 0.0,
+          "acompanhamento_contratual_score": 4.43,
+          "gestao_documental_score": 2.0560000000000005,
+          "inteligencia_pncp_score": 0.0
+        },
+        "supporting_signals": [
+          "concurrent_portfolio",
+          "agency_concentration"
+        ],
+        "contradicting_signals": [
+          "partial_mapping:renewal_risk",
+          "partial_mapping:admin_load",
+          "nc:addendum_recurrence",
+          "nc:adverse_event"
+        ]
+      },
+      {
+        "cnpj14": "14190481000150",
+        "selected_offer": "acompanhamento_contratual",
+        "alternative_offer": "licitacoes_propostas",
+        "selected_offer_margin": 0.8845,
+        "offer_scores": {
+          "diagnostico_b2g_score": 0.77,
+          "licitacoes_propostas_score": 2.2,
+          "auditoria_orcamento_score": 0.08160572940612071,
+          "acompanhamento_contratual_score": 3.0845346295407885,
+          "gestao_documental_score": 1.329454901057133,
+          "inteligencia_pncp_score": 0.0
+        },
+        "supporting_signals": [
+          "concurrent_portfolio",
+          "agency_concentration",
+          "contract_concentration"
+        ],
+        "contradicting_signals": [
+          "partial_mapping:renewal_risk",
+          "partial_mapping:admin_load",
+          "nc:addendum_recurrence",
+          "nc:adverse_event"
+        ]
+      },
+      {
+        "cnpj14": "33220938000176",
+        "selected_offer": "acompanhamento_contratual",
+        "alternative_offer": "licitacoes_propostas",
+        "selected_offer_margin": 1.03,
+        "offer_scores": {
+          "diagnostico_b2g_score": 0.77,
+          "licitacoes_propostas_score": 2.2,
+          "auditoria_orcamento_score": 0.0,
+          "acompanhamento_contratual_score": 3.23,
+          "gestao_documental_score": 1.4800000000000002,
+          "inteligencia_pncp_score": 0.0
+        },
+        "supporting_signals": [
+          "concurrent_portfolio",
+          "agency_concentration"
+        ],
+        "contradicting_signals": [
+          "partial_mapping:renewal_risk",
+          "partial_mapping:admin_load",
+          "nc:addendum_recurrence",
+          "nc:adverse_event"
+        ]
+      },
+      {
+        "cnpj14": "28857380000102",
+        "selected_offer": "acompanhamento_contratual",
+        "alternative_offer": "diagnostico_b2g",
+        "selected_offer_margin": 1.96,
+        "offer_scores": {
+          "diagnostico_b2g_score": 2.64,
+          "licitacoes_propostas_score": 1.045,
+          "auditoria_orcamento_score": 0.10800000000000001,
+          "acompanhamento_contratual_score": 4.6,
+          "gestao_documental_score": 0.6160000000000001,
+          "inteligencia_pncp_score": 0.0
+        },
+        "supporting_signals": [
+          "agency_concentration",
+          "contract_concentration",
+          "near_expiry",
+          "mapping:renewal_risk"
+        ],
+        "contradicting_signals": [
+          "partial_mapping:market_entry",
+          "nc:addendum_recurrence",
+          "nc:adverse_event"
+        ]
+      },
+      {
+        "cnpj14": "07814038000147",
+        "selected_offer": "acompanhamento_contratual",
+        "alternative_offer": "diagnostico_b2g",
+        "selected_offer_margin": 1.96,
+        "offer_scores": {
+          "diagnostico_b2g_score": 2.64,
+          "licitacoes_propostas_score": 1.045,
+          "auditoria_orcamento_score": 0.10800000000000001,
+          "acompanhamento_contratual_score": 4.6,
+          "gestao_documental_score": 0.6160000000000001,
+          "inteligencia_pncp_score": 0.0
+        },
+        "supporting_signals": [
+          "agency_concentration",
+          "contract_concentration",
+          "near_expiry",
+          "mapping:renewal_risk"
+        ],
+        "contradicting_signals": [
+          "partial_mapping:market_entry",
+          "nc:addendum_recurrence",
+          "nc:adverse_event"
+        ]
+      },
+      {
+        "cnpj14": "40593578000113",
+        "selected_offer": "acompanhamento_contratual",
+        "alternative_offer": "diagnostico_b2g",
+        "selected_offer_margin": 1.96,
+        "offer_scores": {
+          "diagnostico_b2g_score": 2.64,
+          "licitacoes_propostas_score": 1.045,
+          "auditoria_orcamento_score": 0.10800000000000001,
+          "acompanhamento_contratual_score": 4.6,
+          "gestao_documental_score": 0.6160000000000001,
+          "inteligencia_pncp_score": 0.0
+        },
+        "supporting_signals": [
+          "agency_concentration",
+          "contract_concentration",
+          "near_expiry",
+          "mapping:renewal_risk"
+        ],
+        "contradicting_signals": [
+          "partial_mapping:market_entry",
+          "nc:addendum_recurrence",
+          "nc:adverse_event"
+        ]
+      },
+      {
+        "cnpj14": "18245956000119",
+        "selected_offer": "acompanhamento_contratual",
+        "alternative_offer": "diagnostico_b2g",
+        "selected_offer_margin": 1.96,
+        "offer_scores": {
+          "diagnostico_b2g_score": 2.64,
+          "licitacoes_propostas_score": 1.045,
+          "auditoria_orcamento_score": 0.10800000000000001,
+          "acompanhamento_contratual_score": 4.6,
+          "gestao_documental_score": 0.6160000000000001,
+          "inteligencia_pncp_score": 0.0
+        },
+        "supporting_signals": [
+          "agency_concentration",
+          "contract_concentration",
+          "near_expiry",
+          "mapping:renewal_risk"
+        ],
+        "contradicting_signals": [
+          "partial_mapping:market_entry",
+          "nc:addendum_recurrence",
+          "nc:adverse_event"
+        ]
+      },
+      {
+        "cnpj14": "39534812000152",
+        "selected_offer": "acompanhamento_contratual",
+        "alternative_offer": "diagnostico_b2g",
+        "selected_offer_margin": 1.96,
+        "offer_scores": {
+          "diagnostico_b2g_score": 2.64,
+          "licitacoes_propostas_score": 1.045,
+          "auditoria_orcamento_score": 0.10800000000000001,
+          "acompanhamento_contratual_score": 4.6,
+          "gestao_documental_score": 0.6160000000000001,
+          "inteligencia_pncp_score": 0.0
+        },
+        "supporting_signals": [
+          "agency_concentration",
+          "contract_concentration",
+          "near_expiry",
+          "mapping:renewal_risk"
+        ],
+        "contradicting_signals": [
+          "partial_mapping:market_entry",
+          "nc:addendum_recurrence",
+          "nc:adverse_event"
+        ]
+      },
+      {
+        "cnpj14": "00827454000130",
+        "selected_offer": "acompanhamento_contratual",
+        "alternative_offer": "diagnostico_b2g",
+        "selected_offer_margin": 1.96,
+        "offer_scores": {
+          "diagnostico_b2g_score": 2.64,
+          "licitacoes_propostas_score": 1.045,
+          "auditoria_orcamento_score": 0.10800000000000001,
+          "acompanhamento_contratual_score": 4.6,
+          "gestao_documental_score": 0.6160000000000001,
+          "inteligencia_pncp_score": 0.0
+        },
+        "supporting_signals": [
+          "agency_concentration",
+          "contract_concentration",
+          "near_expiry",
+          "mapping:renewal_risk"
+        ],
+        "contradicting_signals": [
+          "partial_mapping:market_entry",
+          "nc:addendum_recurrence",
+          "nc:adverse_event"
+        ]
+      },
+      {
+        "cnpj14": "20594387000169",
+        "selected_offer": "acompanhamento_contratual",
+        "alternative_offer": "diagnostico_b2g",
+        "selected_offer_margin": 1.96,
+        "offer_scores": {
+          "diagnostico_b2g_score": 2.64,
+          "licitacoes_propostas_score": 1.045,
+          "auditoria_orcamento_score": 0.10800000000000001,
+          "acompanhamento_contratual_score": 4.6,
+          "gestao_documental_score": 0.6160000000000001,
+          "inteligencia_pncp_score": 0.0
+        },
+        "supporting_signals": [
+          "agency_concentration",
+          "contract_concentration",
+          "near_expiry",
+          "mapping:renewal_risk"
+        ],
+        "contradicting_signals": [
+          "partial_mapping:market_entry",
+          "nc:addendum_recurrence",
+          "nc:adverse_event"
+        ]
+      },
+      {
+        "cnpj14": "00541146000144",
+        "selected_offer": "acompanhamento_contratual",
+        "alternative_offer": "diagnostico_b2g",
+        "selected_offer_margin": 1.96,
+        "offer_scores": {
+          "diagnostico_b2g_score": 2.64,
+          "licitacoes_propostas_score": 1.045,
+          "auditoria_orcamento_score": 0.10800000000000001,
+          "acompanhamento_contratual_score": 4.6,
+          "gestao_documental_score": 0.6160000000000001,
+          "inteligencia_pncp_score": 0.0
+        },
+        "supporting_signals": [
+          "agency_concentration",
+          "contract_concentration",
+          "near_expiry",
+          "mapping:renewal_risk"
+        ],
+        "contradicting_signals": [
+          "partial_mapping:market_entry",
+          "nc:addendum_recurrence",
+          "nc:adverse_event"
+        ]
+      },
+      {
+        "cnpj14": "15723058000130",
+        "selected_offer": "acompanhamento_contratual",
+        "alternative_offer": "diagnostico_b2g",
+        "selected_offer_margin": 1.96,
+        "offer_scores": {
+          "diagnostico_b2g_score": 2.64,
+          "licitacoes_propostas_score": 1.045,
+          "auditoria_orcamento_score": 0.10800000000000001,
+          "acompanhamento_contratual_score": 4.6,
+          "gestao_documental_score": 0.6160000000000001,
+          "inteligencia_pncp_score": 0.0
+        },
+        "supporting_signals": [
+          "agency_concentration",
+          "contract_concentration",
+          "near_expiry",
+          "mapping:renewal_risk"
+        ],
+        "contradicting_signals": [
+          "partial_mapping:market_entry",
+          "nc:addendum_recurrence",
+          "nc:adverse_event"
+        ]
+      },
+      {
+        "cnpj14": "42786044000139",
+        "selected_offer": "acompanhamento_contratual",
+        "alternative_offer": "diagnostico_b2g",
+        "selected_offer_margin": 1.96,
+        "offer_scores": {
+          "diagnostico_b2g_score": 2.64,
+          "licitacoes_propostas_score": 1.045,
+          "auditoria_orcamento_score": 0.10800000000000001,
+          "acompanhamento_contratual_score": 4.6,
+          "gestao_documental_score": 0.6160000000000001,
+          "inteligencia_pncp_score": 0.0
+        },
+        "supporting_signals": [
+          "agency_concentration",
+          "contract_concentration",
+          "near_expiry",
+          "mapping:renewal_risk"
+        ],
+        "contradicting_signals": [
+          "partial_mapping:market_entry",
+          "nc:addendum_recurrence",
+          "nc:adverse_event"
+        ]
+      },
+      {
+        "cnpj14": "61917876000191",
+        "selected_offer": "acompanhamento_contratual",
+        "alternative_offer": "diagnostico_b2g",
+        "selected_offer_margin": 1.96,
+        "offer_scores": {
+          "diagnostico_b2g_score": 2.64,
+          "licitacoes_propostas_score": 1.045,
+          "auditoria_orcamento_score": 0.10800000000000001,
+          "acompanhamento_contratual_score": 4.6,
+          "gestao_documental_score": 0.6160000000000001,
+          "inteligencia_pncp_score": 0.0
+        },
+        "supporting_signals": [
+          "agency_concentration",
+          "contract_concentration",
+          "near_expiry",
+          "mapping:renewal_risk"
+        ],
+        "contradicting_signals": [
+          "partial_mapping:market_entry",
+          "nc:addendum_recurrence",
+          "nc:adverse_event"
+        ]
+      },
+      {
+        "cnpj14": "08756015000196",
+        "selected_offer": "acompanhamento_contratual",
+        "alternative_offer": "diagnostico_b2g",
+        "selected_offer_margin": 1.96,
+        "offer_scores": {
+          "diagnostico_b2g_score": 2.64,
+          "licitacoes_propostas_score": 1.045,
+          "auditoria_orcamento_score": 0.10800000000000001,
+          "acompanhamento_contratual_score": 4.6,
+          "gestao_documental_score": 0.6160000000000001,
+          "inteligencia_pncp_score": 0.0
+        },
+        "supporting_signals": [
+          "agency_concentration",
+          "contract_concentration",
+          "near_expiry",
+          "mapping:renewal_risk"
+        ],
+        "contradicting_signals": [
+          "partial_mapping:market_entry",
+          "nc:addendum_recurrence",
+          "nc:adverse_event"
+        ]
+      }
+    ]
+  },
+  "pass_b": {
+    "ok": true,
+    "n_universe": 5640,
+    "candidate_universe_hash": "5369218285385540ad5f48834ca8fede3704e7b7f9d7e9e0c71c418025a6ae2a",
+    "contract_history_hash": "1eb7cce36792bffdb0dfa7d4aebc8fe51cb68e0ada573f74b375ab5763483209",
+    "full_history_hash": "2ac8257fac4776854fda85109428a9b42cadadc3bf1a8b14db841be11958d8d8",
+    "active_portfolio_hash": "ff87c5fe0e24d87c4a39e359a2df53034a381501de85a1668ea8d44ef3611f03",
+    "registry_snapshot_hash": "5369218285385540ad5f48834ca8fede3704e7b7f9d7e9e0c71c418025a6ae2a",
+    "registry_join_hash": "c718c9b6fba36f50419651c91333af3af2125ac5f455fe2566ef2b42b40759f1",
+    "sector_decision_hash": "3c500093e3da3e82b4196a0869c68ed66e4f41d6ad570ad7df921fd3ef29b334",
+    "eligible_universe_hash": "17e5d4fb65ad2f83e8e7ec260d2b13f34f287792ceae3f7038b552cde39f48b5",
+    "signal_results_hash": "3be66398fb6336071175eca375e48d12551e4facd51e6a0cbcbd8915c78c446d",
+    "offer_scores_hash": "e61954bcf7abf489a704b3d062eeadc794151711ca2838c7f2d73fb679ddfb68",
+    "ranking_hash": "b661e95123ee76b8e7bbd98cf7b17076efe6656b9e54dbb8ac3a4f905c2c0cdb",
+    "top20_order": [
+      "53640280000169",
+      "47690102000140",
+      "33347913000138",
+      "34219868000107",
+      "27254414000101",
+      "27743102000153",
+      "14190481000150",
+      "33220938000176",
+      "28857380000102",
+      "07814038000147",
+      "40593578000113",
+      "18245956000119",
+      "39534812000152",
+      "00827454000130",
+      "20594387000169",
+      "00541146000144",
+      "15723058000130",
+      "42786044000139",
+      "61917876000191",
+      "08756015000196"
+    ],
+    "review_queue_hash": "8555eaedab2df0a79a0e69e3b407f5382d14b874994e4710b59fc4e975690d2a",
+    "history_view": "ALL_SNAPSHOT_SUPPLIER_HISTORY",
+    "all_statuses_loaded": true,
+    "n_eligible": 470,
+    "sector_classification_distribution": {
+      "UNKNOWN": 1746,
+      "CONFIRMED_ENGINEERING": 470,
+      "OUT_OF_SCOPE": 3087,
+      "POSSIBLE_ENGINEERING_FIT": 227,
+      "CONFLICTING": 110
+    },
+    "offer_mapping": [
+      "acompanhamento_contratual",
+      "acompanhamento_contratual",
+      "acompanhamento_contratual",
+      "acompanhamento_contratual",
+      "acompanhamento_contratual",
+      "acompanhamento_contratual",
+      "acompanhamento_contratual",
+      "acompanhamento_contratual",
+      "acompanhamento_contratual",
+      "acompanhamento_contratual",
+      "acompanhamento_contratual",
+      "acompanhamento_contratual",
+      "acompanhamento_contratual",
+      "acompanhamento_contratual",
+      "acompanhamento_contratual",
+      "acompanhamento_contratual",
+      "acompanhamento_contratual",
+      "acompanhamento_contratual",
+      "acompanhamento_contratual",
+      "acompanhamento_contratual"
+    ],
+    "offer_detail_top20": [
+      {
+        "cnpj14": "53640280000169",
+        "selected_offer": "acompanhamento_contratual",
+        "alternative_offer": "licitacoes_propostas",
+        "selected_offer_margin": 2.43,
+        "offer_scores": {
+          "diagnostico_b2g_score": 1.54,
+          "licitacoes_propostas_score": 4.4,
+          "auditoria_orcamento_score": 0.0,
+          "acompanhamento_contratual_score": 6.83,
+          "gestao_documental_score": 3.208,
+          "inteligencia_pncp_score": 0.0
+        },
+        "supporting_signals": [
+          "concurrent_portfolio",
+          "agency_concentration"
+        ],
+        "contradicting_signals": [
+          "partial_mapping:renewal_risk",
+          "partial_mapping:admin_load",
+          "nc:addendum_recurrence",
+          "nc:adverse_event"
+        ]
+      },
+      {
+        "cnpj14": "47690102000140",
+        "selected_offer": "acompanhamento_contratual",
+        "alternative_offer": "licitacoes_propostas",
+        "selected_offer_margin": 1.83,
+        "offer_scores": {
+          "diagnostico_b2g_score": 1.54,
+          "licitacoes_propostas_score": 4.4,
+          "auditoria_orcamento_score": 0.0,
+          "acompanhamento_contratual_score": 6.23,
+          "gestao_documental_score": 2.92,
+          "inteligencia_pncp_score": 0.0
+        },
+        "supporting_signals": [
+          "concurrent_portfolio",
+          "agency_concentration"
+        ],
+        "contradicting_signals": [
+          "partial_mapping:renewal_risk",
+          "partial_mapping:admin_load",
+          "nc:addendum_recurrence",
+          "nc:adverse_event"
+        ]
+      },
+      {
+        "cnpj14": "33347913000138",
+        "selected_offer": "acompanhamento_contratual",
+        "alternative_offer": "licitacoes_propostas",
+        "selected_offer_margin": 0.7703,
+        "offer_scores": {
+          "diagnostico_b2g_score": 1.54,
+          "licitacoes_propostas_score": 4.4,
+          "auditoria_orcamento_score": 0.05611159097579006,
+          "acompanhamento_contratual_score": 5.170278977439475,
+          "gestao_documental_score": 2.3440000000000003,
+          "inteligencia_pncp_score": 0.0
+        },
+        "supporting_signals": [
+          "concurrent_portfolio",
+          "agency_concentration",
+          "contract_concentration"
+        ],
+        "contradicting_signals": [
+          "partial_mapping:renewal_risk",
+          "partial_mapping:admin_load",
+          "nc:addendum_recurrence",
+          "nc:adverse_event"
+        ]
+      },
+      {
+        "cnpj14": "34219868000107",
+        "selected_offer": "acompanhamento_contratual",
+        "alternative_offer": "licitacoes_propostas",
+        "selected_offer_margin": 0.9514,
+        "offer_scores": {
+          "diagnostico_b2g_score": 1.2833333333333334,
+          "licitacoes_propostas_score": 3.666666666666667,
+          "auditoria_orcamento_score": 0.07522239954256969,
+          "acompanhamento_contratual_score": 4.618055998856424,
+          "gestao_documental_score": 2.0560000000000005,
+          "inteligencia_pncp_score": 0.0
+        },
+        "supporting_signals": [
+          "concurrent_portfolio",
+          "agency_concentration",
+          "contract_concentration"
+        ],
+        "contradicting_signals": [
+          "partial_mapping:renewal_risk",
+          "partial_mapping:admin_load",
+          "nc:addendum_recurrence",
+          "nc:adverse_event"
+        ]
+      },
+      {
+        "cnpj14": "27254414000101",
+        "selected_offer": "acompanhamento_contratual",
+        "alternative_offer": "licitacoes_propostas",
+        "selected_offer_margin": 4.7803,
+        "offer_scores": {
+          "diagnostico_b2g_score": 0.77,
+          "licitacoes_propostas_score": 2.85,
+          "auditoria_orcamento_score": 0.08011261159561157,
+          "acompanhamento_contratual_score": 7.630281528989029,
+          "gestao_documental_score": 1.4800000000000002,
+          "inteligencia_pncp_score": 0.0
+        },
+        "supporting_signals": [
+          "concurrent_portfolio",
+          "agency_concentration",
+          "contract_concentration",
+          "near_expiry",
+          "mapping:renewal_risk"
+        ],
+        "contradicting_signals": [
+          "partial_mapping:admin_load",
+          "nc:addendum_recurrence",
+          "nc:adverse_event"
+        ]
+      },
+      {
+        "cnpj14": "27743102000153",
+        "selected_offer": "acompanhamento_contratual",
+        "alternative_offer": "licitacoes_propostas",
+        "selected_offer_margin": 0.7633,
+        "offer_scores": {
+          "diagnostico_b2g_score": 1.2833333333333334,
+          "licitacoes_propostas_score": 3.666666666666667,
+          "auditoria_orcamento_score": 0.0,
+          "acompanhamento_contratual_score": 4.43,
+          "gestao_documental_score": 2.0560000000000005,
+          "inteligencia_pncp_score": 0.0
+        },
+        "supporting_signals": [
+          "concurrent_portfolio",
+          "agency_concentration"
+        ],
+        "contradicting_signals": [
+          "partial_mapping:renewal_risk",
+          "partial_mapping:admin_load",
+          "nc:addendum_recurrence",
+          "nc:adverse_event"
+        ]
+      },
+      {
+        "cnpj14": "14190481000150",
+        "selected_offer": "acompanhamento_contratual",
+        "alternative_offer": "licitacoes_propostas",
+        "selected_offer_margin": 0.8845,
+        "offer_scores": {
+          "diagnostico_b2g_score": 0.77,
+          "licitacoes_propostas_score": 2.2,
+          "auditoria_orcamento_score": 0.08160572940612071,
+          "acompanhamento_contratual_score": 3.0845346295407885,
+          "gestao_documental_score": 1.329454901057133,
+          "inteligencia_pncp_score": 0.0
+        },
+        "supporting_signals": [
+          "concurrent_portfolio",
+          "agency_concentration",
+          "contract_concentration"
+        ],
+        "contradicting_signals": [
+          "partial_mapping:renewal_risk",
+          "partial_mapping:admin_load",
+          "nc:addendum_recurrence",
+          "nc:adverse_event"
+        ]
+      },
+      {
+        "cnpj14": "33220938000176",
+        "selected_offer": "acompanhamento_contratual",
+        "alternative_offer": "licitacoes_propostas",
+        "selected_offer_margin": 1.03,
+        "offer_scores": {
+          "diagnostico_b2g_score": 0.77,
+          "licitacoes_propostas_score": 2.2,
+          "auditoria_orcamento_score": 0.0,
+          "acompanhamento_contratual_score": 3.23,
+          "gestao_documental_score": 1.4800000000000002,
+          "inteligencia_pncp_score": 0.0
+        },
+        "supporting_signals": [
+          "concurrent_portfolio",
+          "agency_concentration"
+        ],
+        "contradicting_signals": [
+          "partial_mapping:renewal_risk",
+          "partial_mapping:admin_load",
+          "nc:addendum_recurrence",
+          "nc:adverse_event"
+        ]
+      },
+      {
+        "cnpj14": "28857380000102",
+        "selected_offer": "acompanhamento_contratual",
+        "alternative_offer": "diagnostico_b2g",
+        "selected_offer_margin": 1.96,
+        "offer_scores": {
+          "diagnostico_b2g_score": 2.64,
+          "licitacoes_propostas_score": 1.045,
+          "auditoria_orcamento_score": 0.10800000000000001,
+          "acompanhamento_contratual_score": 4.6,
+          "gestao_documental_score": 0.6160000000000001,
+          "inteligencia_pncp_score": 0.0
+        },
+        "supporting_signals": [
+          "agency_concentration",
+          "contract_concentration",
+          "near_expiry",
+          "mapping:renewal_risk"
+        ],
+        "contradicting_signals": [
+          "partial_mapping:market_entry",
+          "nc:addendum_recurrence",
+          "nc:adverse_event"
+        ]
+      },
+      {
+        "cnpj14": "07814038000147",
+        "selected_offer": "acompanhamento_contratual",
+        "alternative_offer": "diagnostico_b2g",
+        "selected_offer_margin": 1.96,
+        "offer_scores": {
+          "diagnostico_b2g_score": 2.64,
+          "licitacoes_propostas_score": 1.045,
+          "auditoria_orcamento_score": 0.10800000000000001,
+          "acompanhamento_contratual_score": 4.6,
+          "gestao_documental_score": 0.6160000000000001,
+          "inteligencia_pncp_score": 0.0
+        },
+        "supporting_signals": [
+          "agency_concentration",
+          "contract_concentration",
+          "near_expiry",
+          "mapping:renewal_risk"
+        ],
+        "contradicting_signals": [
+          "partial_mapping:market_entry",
+          "nc:addendum_recurrence",
+          "nc:adverse_event"
+        ]
+      },
+      {
+        "cnpj14": "40593578000113",
+        "selected_offer": "acompanhamento_contratual",
+        "alternative_offer": "diagnostico_b2g",
+        "selected_offer_margin": 1.96,
+        "offer_scores": {
+          "diagnostico_b2g_score": 2.64,
+          "licitacoes_propostas_score": 1.045,
+          "auditoria_orcamento_score": 0.10800000000000001,
+          "acompanhamento_contratual_score": 4.6,
+          "gestao_documental_score": 0.6160000000000001,
+          "inteligencia_pncp_score": 0.0
+        },
+        "supporting_signals": [
+          "agency_concentration",
+          "contract_concentration",
+          "near_expiry",
+          "mapping:renewal_risk"
+        ],
+        "contradicting_signals": [
+          "partial_mapping:market_entry",
+          "nc:addendum_recurrence",
+          "nc:adverse_event"
+        ]
+      },
+      {
+        "cnpj14": "18245956000119",
+        "selected_offer": "acompanhamento_contratual",
+        "alternative_offer": "diagnostico_b2g",
+        "selected_offer_margin": 1.96,
+        "offer_scores": {
+          "diagnostico_b2g_score": 2.64,
+          "licitacoes_propostas_score": 1.045,
+          "auditoria_orcamento_score": 0.10800000000000001,
+          "acompanhamento_contratual_score": 4.6,
+          "gestao_documental_score": 0.6160000000000001,
+          "inteligencia_pncp_score": 0.0
+        },
+        "supporting_signals": [
+          "agency_concentration",
+          "contract_concentration",
+          "near_expiry",
+          "mapping:renewal_risk"
+        ],
+        "contradicting_signals": [
+          "partial_mapping:market_entry",
+          "nc:addendum_recurrence",
+          "nc:adverse_event"
+        ]
+      },
+      {
+        "cnpj14": "39534812000152",
+        "selected_offer": "acompanhamento_contratual",
+        "alternative_offer": "diagnostico_b2g",
+        "selected_offer_margin": 1.96,
+        "offer_scores": {
+          "diagnostico_b2g_score": 2.64,
+          "licitacoes_propostas_score": 1.045,
+          "auditoria_orcamento_score": 0.10800000000000001,
+          "acompanhamento_contratual_score": 4.6,
+          "gestao_documental_score": 0.6160000000000001,
+          "inteligencia_pncp_score": 0.0
+        },
+        "supporting_signals": [
+          "agency_concentration",
+          "contract_concentration",
+          "near_expiry",
+          "mapping:renewal_risk"
+        ],
+        "contradicting_signals": [
+          "partial_mapping:market_entry",
+          "nc:addendum_recurrence",
+          "nc:adverse_event"
+        ]
+      },
+      {
+        "cnpj14": "00827454000130",
+        "selected_offer": "acompanhamento_contratual",
+        "alternative_offer": "diagnostico_b2g",
+        "selected_offer_margin": 1.96,
+        "offer_scores": {
+          "diagnostico_b2g_score": 2.64,
+          "licitacoes_propostas_score": 1.045,
+          "auditoria_orcamento_score": 0.10800000000000001,
+          "acompanhamento_contratual_score": 4.6,
+          "gestao_documental_score": 0.6160000000000001,
+          "inteligencia_pncp_score": 0.0
+        },
+        "supporting_signals": [
+          "agency_concentration",
+          "contract_concentration",
+          "near_expiry",
+          "mapping:renewal_risk"
+        ],
+        "contradicting_signals": [
+          "partial_mapping:market_entry",
+          "nc:addendum_recurrence",
+          "nc:adverse_event"
+        ]
+      },
+      {
+        "cnpj14": "20594387000169",
+        "selected_offer": "acompanhamento_contratual",
+        "alternative_offer": "diagnostico_b2g",
+        "selected_offer_margin": 1.96,
+        "offer_scores": {
+          "diagnostico_b2g_score": 2.64,
+          "licitacoes_propostas_score": 1.045,
+          "auditoria_orcamento_score": 0.10800000000000001,
+          "acompanhamento_contratual_score": 4.6,
+          "gestao_documental_score": 0.6160000000000001,
+          "inteligencia_pncp_score": 0.0
+        },
+        "supporting_signals": [
+          "agency_concentration",
+          "contract_concentration",
+          "near_expiry",
+          "mapping:renewal_risk"
+        ],
+        "contradicting_signals": [
+          "partial_mapping:market_entry",
+          "nc:addendum_recurrence",
+          "nc:adverse_event"
+        ]
+      },
+      {
+        "cnpj14": "00541146000144",
+        "selected_offer": "acompanhamento_contratual",
+        "alternative_offer": "diagnostico_b2g",
+        "selected_offer_margin": 1.96,
+        "offer_scores": {
+          "diagnostico_b2g_score": 2.64,
+          "licitacoes_propostas_score": 1.045,
+          "auditoria_orcamento_score": 0.10800000000000001,
+          "acompanhamento_contratual_score": 4.6,
+          "gestao_documental_score": 0.6160000000000001,
+          "inteligencia_pncp_score": 0.0
+        },
+        "supporting_signals": [
+          "agency_concentration",
+          "contract_concentration",
+          "near_expiry",
+          "mapping:renewal_risk"
+        ],
+        "contradicting_signals": [
+          "partial_mapping:market_entry",
+          "nc:addendum_recurrence",
+          "nc:adverse_event"
+        ]
+      },
+      {
+        "cnpj14": "15723058000130",
+        "selected_offer": "acompanhamento_contratual",
+        "alternative_offer": "diagnostico_b2g",
+        "selected_offer_margin": 1.96,
+        "offer_scores": {
+          "diagnostico_b2g_score": 2.64,
+          "licitacoes_propostas_score": 1.045,
+          "auditoria_orcamento_score": 0.10800000000000001,
+          "acompanhamento_contratual_score": 4.6,
+          "gestao_documental_score": 0.6160000000000001,
+          "inteligencia_pncp_score": 0.0
+        },
+        "supporting_signals": [
+          "agency_concentration",
+          "contract_concentration",
+          "near_expiry",
+          "mapping:renewal_risk"
+        ],
+        "contradicting_signals": [
+          "partial_mapping:market_entry",
+          "nc:addendum_recurrence",
+          "nc:adverse_event"
+        ]
+      },
+      {
+        "cnpj14": "42786044000139",
+        "selected_offer": "acompanhamento_contratual",
+        "alternative_offer": "diagnostico_b2g",
+        "selected_offer_margin": 1.96,
+        "offer_scores": {
+          "diagnostico_b2g_score": 2.64,
+          "licitacoes_propostas_score": 1.045,
+          "auditoria_orcamento_score": 0.10800000000000001,
+          "acompanhamento_contratual_score": 4.6,
+          "gestao_documental_score": 0.6160000000000001,
+          "inteligencia_pncp_score": 0.0
+        },
+        "supporting_signals": [
+          "agency_concentration",
+          "contract_concentration",
+          "near_expiry",
+          "mapping:renewal_risk"
+        ],
+        "contradicting_signals": [
+          "partial_mapping:market_entry",
+          "nc:addendum_recurrence",
+          "nc:adverse_event"
+        ]
+      },
+      {
+        "cnpj14": "61917876000191",
+        "selected_offer": "acompanhamento_contratual",
+        "alternative_offer": "diagnostico_b2g",
+        "selected_offer_margin": 1.96,
+        "offer_scores": {
+          "diagnostico_b2g_score": 2.64,
+          "licitacoes_propostas_score": 1.045,
+          "auditoria_orcamento_score": 0.10800000000000001,
+          "acompanhamento_contratual_score": 4.6,
+          "gestao_documental_score": 0.6160000000000001,
+          "inteligencia_pncp_score": 0.0
+        },
+        "supporting_signals": [
+          "agency_concentration",
+          "contract_concentration",
+          "near_expiry",
+          "mapping:renewal_risk"
+        ],
+        "contradicting_signals": [
+          "partial_mapping:market_entry",
+          "nc:addendum_recurrence",
+          "nc:adverse_event"
+        ]
+      },
+      {
+        "cnpj14": "08756015000196",
+        "selected_offer": "acompanhamento_contratual",
+        "alternative_offer": "diagnostico_b2g",
+        "selected_offer_margin": 1.96,
+        "offer_scores": {
+          "diagnostico_b2g_score": 2.64,
+          "licitacoes_propostas_score": 1.045,
+          "auditoria_orcamento_score": 0.10800000000000001,
+          "acompanhamento_contratual_score": 4.6,
+          "gestao_documental_score": 0.6160000000000001,
+          "inteligencia_pncp_score": 0.0
+        },
+        "supporting_signals": [
+          "agency_concentration",
+          "contract_concentration",
+          "near_expiry",
+          "mapping:renewal_risk"
+        ],
+        "contradicting_signals": [
+          "partial_mapping:market_entry",
+          "nc:addendum_recurrence",
+          "nc:adverse_event"
+        ]
+      }
+    ]
+  },
+  "hash_equality": {
+    "candidate_universe_hash": true,
+    "contract_history_hash": true,
+    "active_portfolio_hash": true,
+    "registry_snapshot_hash": true,
+    "registry_join_hash": true,
+    "sector_decision_hash": true,
+    "eligible_universe_hash": true,
+    "signal_results_hash": true,
+    "offer_scores_hash": true,
+    "ranking_hash": true,
+    "top20_order": true,
+    "review_queue_hash": true
+  },
+  "all_hashes_equal": true,
+  "top20_equal": true,
+  "review_queue_equal": true,
+  "same_inputs_same_complete_outputs": true,
+  "executed_at": "2026-07-26T15:16:34Z",
+  "note": "Full-universe PASS requires n_universe == frozen_candidate_count and identical stage hashes across two independent passes. Sampled runs are SAMPLED_E2E_TEST only."
+}

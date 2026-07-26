@@ -1,0 +1,60 @@
+{
+  "actual_pr_head_sha": "f82eb9615995abd88ffd8e14dfc003f0dcd859b7",
+  "workflow_merge_sha": null,
+  "freeze_sha": "f82eb9615995abd88ffd8e14dfc003f0dcd859b7",
+  "executed_code_sha": "f82eb9615995abd88ffd8e14dfc003f0dcd859b7",
+  "artifact_only_diff": false,
+  "non_artifact_changes": [],
+  "latest_workflow_run_id": "30217720692",
+  "latest_workflow_status": "PASS",
+  "each_structural_job_status": {
+    "structural_ci_status": "PASS"
+  },
+  "each_real_data_job_status": {
+    "real_historical_ci_status": "NOT_EXECUTED",
+    "real_registry_ci_status": "NOT_EXECUTED",
+    "real_full_pipeline_ci_status": "NOT_EXECUTED",
+    "real_snapshot_restore_ci_status": "NOT_EXECUTED"
+  },
+  "human_package_publication_status": "PASS",
+  "machine_evidence_publication_status": "PASS",
+  "human_artifact_id": 8636290007,
+  "machine_artifact_id": 8636294876,
+  "cross_artifact_consistency": "PASS",
+  "code_merge_ready": true,
+  "commercial_release_ready": false,
+  "remaining_machine_blockers": [
+    "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE"
+  ],
+  "remaining_human_blockers": [
+    "BLOCKED_REAL_HOLDOUT_NOT_REVIEWED",
+    "BLOCKED_INSUFFICIENT_HUMAN_LABELS",
+    "BLOCKED_PENDING_HUMAN_ACCEPTANCE"
+  ],
+  "all_other_machine_blockers": [],
+  "real_data_ci_status": "NOT_EXECUTED",
+  "terminal_declaration": "CODE_MERGE_READY_COMMERCIAL_RELEASE_BLOCKED",
+  "terminal_reason": "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE",
+  "answers": {
+    "1_actual_pr_head_sha": "f82eb9615995abd88ffd8e14dfc003f0dcd859b7",
+    "2_workflow_merge_sha": null,
+    "3_commercial_execution_matches_freeze": true,
+    "4_code_changed_after_freeze": false,
+    "5_real_data_jobs_executed": [],
+    "6_real_data_jobs_not_executed": [
+      "real_historical_ci_status",
+      "real_registry_ci_status",
+      "real_full_pipeline_ci_status",
+      "real_snapshot_restore_ci_status"
+    ],
+    "7_package_publication_pass": true,
+    "8_all_status_files_agree": true,
+    "9_code_merge_ready": true,
+    "10_commercial_release_ready": false
+  },
+  "updated_at": "2026-07-26T20:39:20Z",
+  "aggregator": "build_final_campaign_status",
+  "workflow_artifact_head_sha": "6dcab34860fb016aa1ef3152db4d9b0ae97adae6",
+  "package_tip_sha": "f82eb9615995abd88ffd8e14dfc003f0dcd859b7",
+  "bound_workflow_run_head_sha": "6dcab34860fb016aa1ef3152db4d9b0ae97adae6"
+}

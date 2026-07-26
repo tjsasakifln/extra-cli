@@ -1,0 +1,14 @@
+{
+  "campaign_id": "CONFENGE-COMMERCIAL-READY-01",
+  "services_restarted": "UNKNOWN",
+  "operational_tables_written": "UNKNOWN",
+  "timers_modified": "UNKNOWN",
+  "campaign_did_not_request_write": true,
+  "no_write_observed": null,
+  "no_write_proven": false,
+  "status": "FAIL",
+  "ok": false,
+  "fail_reason": "UNKNOWN_observations_fail_closed",
+  "note": "Local campaign path has no systemd/WAL proof; UNKNOWN fails closed per \u00a718",
+  "at": "2026-07-25T23:17:37.324485Z"
+}

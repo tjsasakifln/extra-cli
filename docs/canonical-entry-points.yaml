@@ -90,3 +90,20 @@ host_of_record:
     - LOCAL_READY
     - VPS_OPERATIONAL
     - PROJECT_DONE
+
+# CONFENGE commercial intelligence (campaign CONFENGE-COMMERCIAL-READY-01)
+confenge_commercial:
+  cycle: make confenge-commercial-cycle
+  module: python -m scripts.ops.confenge_commercial_cycle
+  cli: python -m scripts.commercial_leads
+  workspace:
+    - python -m scripts.workspace commercial-leads --limit 20
+    - python -m scripts.workspace commercial-lead <CNPJ> --explain
+    - python -m scripts.workspace commercial-review <CNPJ> --status REVIEWED --reason "..."
+  profile: config/commercial_profiles/confenge.yaml
+  catalog: config/commercial_profiles/signal_catalog.yaml
+  gates:
+    - make campaign-gate-confenge-commercial-ready
+    - make verify-confenge-commercial-ready-real
+    - make verify-soak-non-interference
+  notes: Separado de make extra-weekly (Extra Construtora). Não automatiza contato.

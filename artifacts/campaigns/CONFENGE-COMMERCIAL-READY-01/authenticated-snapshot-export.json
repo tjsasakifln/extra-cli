@@ -1,0 +1,52 @@
+{
+  "ok": true,
+  "status": "EXPORTED",
+  "kind": "confenge_restorable_csv_package_v1",
+  "dump_format": "csv_package",
+  "dump_file_is_restorable": true,
+  "not_metadata_only": true,
+  "integrity_padding": null,
+  "not_a_marker": null,
+  "row_count": 11974,
+  "columns": [
+    "contrato_id",
+    "orgao_cnpj",
+    "orgao_nome",
+    "fornecedor_cnpj",
+    "fornecedor_nome",
+    "objeto_contrato",
+    "valor_total",
+    "data_inicio",
+    "data_fim",
+    "data_publicacao",
+    "uf",
+    "municipio",
+    "source",
+    "source_id",
+    "is_active",
+    "source_status",
+    "normalized_status",
+    "status_reason",
+    "status_source",
+    "status_observed_at"
+  ],
+  "files": {
+    "contracts.csv": "/mnt/d/extra consultoria/.worktrees/confenge-commercial-ready-01/artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/restorable-dump/contracts.csv",
+    "schema.json": "/mnt/d/extra consultoria/.worktrees/confenge-commercial-ready-01/artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/restorable-dump/schema.json",
+    "checksums.json": "/mnt/d/extra consultoria/.worktrees/confenge-commercial-ready-01/artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/restorable-dump/checksums.json"
+  },
+  "file_sha256": {
+    "contracts.csv": "305ffa803dec866ad212a8a3e3d279beba844471477b9a7748714d6b21bead1b",
+    "schema.json": "44e29012dc69f314132356ca3055c744935e62f543244ddb3582512fddfd2ede"
+  },
+  "dump_sha256": "d0a8e1a7f6098717e636d9b5e32f17da22b0b1aea5eb2f1975d24eb8c29dcab6",
+  "pre_restore_canonical_hash": "2a4d690e7249b450891a2ec43454fef18709bb9662897064cec91c16a64b937f",
+  "canonical_hash_algorithm": "sha256-rowmd5-ordered-agg-v1",
+  "source_database_identity": "a86b9307a5384c4a6ab0e181",
+  "export_started_at": "2026-07-26T17:01:10Z",
+  "export_finished_at": "2026-07-26T17:01:11Z",
+  "manifest_closed_at": "2026-07-26T17:01:11Z",
+  "immutable_after_export": true,
+  "manifest_closed_before_restore": true,
+  "package_bytes": 5844293
+}

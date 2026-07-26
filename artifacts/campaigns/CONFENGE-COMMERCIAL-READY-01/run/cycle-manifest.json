@@ -1,0 +1,90 @@
+{
+  "campaign_id": "CONFENGE-COMMERCIAL-READY-01",
+  "status": "BLOCKED",
+  "run_id": "cl-20260726T003820Z-f8e90e36",
+  "git_sha": "691878853160b85ab7736d36f8265ed427f64d88",
+  "profile_hash": "f029dcd688f6e533e52ebab94f53e496fa04c6a9ebe36bfea8f291142b9c048a",
+  "catalog_hash": "a02e6c66adef2795c71906e4a3fd0d1a2c2c55c9449d2205940a637011e1004d",
+  "snapshot_hash": "9624f50f368953f1007f6efbff403665d47e6d92bc83ccc4d579483b4028d86b",
+  "metrics": {
+    "eligible_companies": 7091,
+    "candidate_count": 7091,
+    "raw_contracts_loaded": 33682,
+    "relevance_pass_contracts": 13864,
+    "full_history_contract_count": 19328,
+    "mean_contracts_per_candidate": 2.7257,
+    "median_contracts_per_candidate": 1.0,
+    "single_contract_candidate_rate": 0.537,
+    "db_contract_count": 60000,
+    "exclusions": 205,
+    "scored_companies": 86,
+    "validity_excluded": 7005,
+    "review_queue_size": 7005,
+    "ranked_leads": 20,
+    "do_not_contact_suppressed": 0,
+    "human_state_overrides": 42,
+    "queue_limit": 20,
+    "insufficient_queue": false,
+    "elapsed_seconds": 32.136,
+    "module_version": "2.0.0-gold",
+    "population_mode": "FULL_POPULATION",
+    "discovery_mode": "PREFILTERED_CANDIDATE_DISCOVERY",
+    "history_expansion_mode": "FULL_CANDIDATE_HISTORY",
+    "ranking_population_mode": "FULL_ELIGIBLE_CANDIDATES",
+    "limit_applied": null,
+    "sector_fit_distribution": {
+      "CONFIRMED_ENGINEERING": 86,
+      "OUT_OF_SCOPE": 474,
+      "POSSIBLE_ENGINEERING_FIT": 6193,
+      "CONFLICTING": 338
+    },
+    "publishable_rate": 0.0121,
+    "out_of_scope_rate": 0.0668,
+    "unknown_rate": 0.0,
+    "conflicting_rate": 0.0477,
+    "review_queue_rate": 0.9879,
+    "cnae_coverage": 0.0165,
+    "registry_coverage": {
+      "rule_version": "supplier-registry-v1",
+      "generated_at": "2026-07-26T00:38:52Z",
+      "registry_coverage_all_candidates": {
+        "n": 7091,
+        "with_registry": 117,
+        "coverage": 0.0165,
+        "cnae_primary_coverage": 0.0165,
+        "cnae_secondary_coverage": 0.0162,
+        "status": "OK"
+      },
+      "registry_coverage_top100": {
+        "n": 100,
+        "with_registry": 9,
+        "coverage": 0.09,
+        "cnae_primary_coverage": 0.09,
+        "cnae_secondary_coverage": 0.09,
+        "status": "OK"
+      },
+      "registry_coverage_top20": {
+        "n": 20,
+        "with_registry": 20,
+        "coverage": 1.0,
+        "cnae_primary_coverage": 1.0,
+        "cnae_secondary_coverage": 1.0,
+        "status": "OK"
+      },
+      "cnae_primary_coverage": 0.0165,
+      "cnae_secondary_coverage": 0.0162,
+      "registry_freshness": {
+        "min_source_date": "2026-07-25",
+        "max_source_date": "2026-07-25"
+      },
+      "top20_coverage_100pct": true,
+      "block_reason": null
+    },
+    "anomaly_flags": [],
+    "precision_at_10": null,
+    "precision_at_20": null,
+    "false_positives": null,
+    "false_negatives": null,
+    "human_review_status": "PENDING"
+  }
+}

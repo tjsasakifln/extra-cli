@@ -1,0 +1,82 @@
+{
+  "executed_code_sha": "3ef795ae0caf555710bf7ffb91f816afdd5aa44b",
+  "executed_git_sha": "3ef795ae0caf555710bf7ffb91f816afdd5aa44b",
+  "current_pr_head_sha": "3ef795ae0caf555710bf7ffb91f816afdd5aa44b",
+  "evidence_commit_sha": "3ef795ae0caf555710bf7ffb91f816afdd5aa44b",
+  "workflow_run_id": null,
+  "execution_environment": "local",
+  "machine_id_hash": "35b96cb98ef8f0ad",
+  "command": "make package-confenge-commercial-evidence",
+  "started_at": "2026-07-26T17:08:38.975647+00:00",
+  "finished_at": "2026-07-26T17:08:38.975672+00:00",
+  "exit_code": 0,
+  "created_at": "2026-07-26T17:08:38.975647+00:00",
+  "checksums": {
+    "result.json": {
+      "exists": true,
+      "sha256": "def864e077ef43aa9836cfdecb531cb921c79b4dae2c51284305ffe4ab0a2677"
+    },
+    "queue-summary.json": {
+      "exists": true,
+      "sha256": "d8730eb7a904fe4a1ec4f9aa6aecaf15d7ac419c51eab868dd74cf86a6a523a9"
+    },
+    "denominator-integrity.json": {
+      "exists": true,
+      "sha256": "62bb4d3612f605bedf9ef326a67f885d1be2fb6a06603b6668b135d205cb44da"
+    },
+    "contract-relevance-holdout.json": {
+      "exists": true,
+      "sha256": "e446ba6fb5bbb9a299d0290ba6496dee7d1ea31b10591ecc2617e6d099127c18"
+    },
+    "contract-relevance-real-holdout.json": {
+      "exists": true,
+      "sha256": "53d7ea02e38a9abf9be0a2a3fdde707e267867f79613eed4e639f37d3a6589e6"
+    },
+    "gold-standard-baseline.json": {
+      "exists": true,
+      "sha256": "f47f6e0c6b8c6a3ca08b29e7a182436e69560e64bd2582e777987037c900ae35"
+    },
+    "prefilter-recall.json": {
+      "exists": true,
+      "sha256": "1afa06ebea7f44e5ff8e420470ff6e9d31f5682ae90c68aedbf964d40c706571"
+    },
+    "full-candidate-history-gate.json": {
+      "exists": true,
+      "sha256": "641612281a9d98a744c89fabd0ab87e4956b883ca6a86dce41f44cf0ce5df12d"
+    },
+    "all-status-history-gate.json": {
+      "exists": true,
+      "sha256": "f36004b8015ec168169ec87e17ac09674b587816c7a2f2fd9869a3a858728db2"
+    },
+    "registry-coverage-gate.json": {
+      "exists": true,
+      "sha256": "2cda56da86d0466003277b18debf6da86e99a43495521c0ae70acfd90a322da1"
+    },
+    "registry-selection-independence-gate.json": {
+      "exists": true,
+      "sha256": "8b37f208017ede23c2d381be40c3fd757d32eab74b88ff5ff67096d3409a88d3"
+    },
+    "historical-window-gate.json": {
+      "exists": true,
+      "sha256": "aa8e46e4fc7b5761ad82ccb6b5fe42c9b6aeeb3bdd1aee80bbcad8f000589c60"
+    },
+    "snapshot-content-binding-gate.json": {
+      "exists": true,
+      "sha256": "48dd8194aa5356880c6c7d1217165efb81837f91d14b7093a6f666137d9add8c"
+    },
+    "offer-discrimination-gate.json": {
+      "exists": true,
+      "sha256": "62be5cebcc75fb1dfad956b9a67676ca319bd74960d269fa5c6609a7b20fdc95"
+    },
+    "end-to-end-reproducibility-gate.json": {
+      "exists": true,
+      "sha256": "2593449ee0323b42e643bcc8794f5bccc3d465fd4a4c2b514e6f59887bb10f4b"
+    },
+    "evidence-provenance-gate.json": {
+      "exists": true,
+      "sha256": "e318c46deaf7accc8a221417a8db4cfc43ece0a42cdef239e1943733b8cf9a49"
+    }
+  },
+  "note": "Execution provenance package. Checksums alone without executed_code_sha and environment are not a valid attestation.",
+  "evidence_package_hash": "d41ea331ebc95e638ed94f5540aa9b1eb02303219911a0e91104ea4aae486892"
+}

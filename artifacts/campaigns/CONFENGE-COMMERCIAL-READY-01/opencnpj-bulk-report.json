@@ -1,0 +1,30 @@
+{
+  "ok": true,
+  "status": "DOWNLOADED_RFB_VIA_OPENCNPJ",
+  "source_name": "rfb_public_cadastral_via_opencnpj",
+  "source_authority": "receita_federal_dados_abertos",
+  "source_distributor": "opencnpj.org",
+  "source_files": [
+    "/mnt/d/extra consultoria/.worktrees/confenge-commercial-ready-01/data/official_cnpj/rfb_via_opencnpj_universe.jsonl"
+  ],
+  "source_urls_or_identifiers": [
+    "https://api.opencnpj.org/{cnpj14}",
+    "Receita Federal \u2014 Dados Abertos CNPJ (public cadastral base redistributed by OpenCNPJ)",
+    "https://www.gov.br/receitafederal/pt-br/assuntos/orientacao-tributaria/cadastros/consultas/dados-publicos-cnpj"
+  ],
+  "source_reference_date": "2026-07-26",
+  "downloaded_at": "2026-07-26T15:09:54Z",
+  "download_started_at": "2026-07-26T15:08:39Z",
+  "file_sha256": {
+    "rfb_via_opencnpj_universe.jsonl": "f9f60b1765ef305060ba6f662a201603f9fd95363d5fe1f4c836903ef414f59a"
+  },
+  "record_count": 300,
+  "schema_version": "official-cnpj-v1",
+  "ingestion_version": "confenge-opencnpj-bulk-v1",
+  "universe_requested": 5656,
+  "status_counts": {
+    "RESOLVED_OFFICIAL": 300,
+    "TRANSIENT": 5356
+  },
+  "note": "Cadastral fields originate from RFB public CNPJ open data as served by OpenCNPJ API redistributor. Direct multi-GB RFB zip was not staged; this is the operational official-equivalent extract for the frozen universe."
+}

@@ -1,0 +1,174 @@
+{
+  "holdout_path": "/mnt/d/extra consultoria/.worktrees/confenge-commercial-ready-01/evals/commercial_leads/holdout-v1.jsonl",
+  "thresholds": {
+    "precision": 0.95,
+    "recall": 0.9,
+    "false_positive_rate": 0.05
+  },
+  "metrics": {
+    "n": 40,
+    "tp": 18,
+    "fp": 0,
+    "tn": 22,
+    "fn": 0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1": 1.0,
+    "false_positive_rate": 0.0,
+    "by_category": {
+      "obra": {
+        "tp": 5,
+        "fp": 0,
+        "tn": 0,
+        "fn": 0
+      },
+      "pavimentacao": {
+        "tp": 1,
+        "fp": 0,
+        "tn": 0,
+        "fn": 0
+      },
+      "projeto": {
+        "tp": 2,
+        "fp": 0,
+        "tn": 0,
+        "fn": 0
+      },
+      "fiscalizacao": {
+        "tp": 1,
+        "fp": 0,
+        "tn": 0,
+        "fn": 0
+      },
+      "saneamento": {
+        "tp": 2,
+        "fp": 0,
+        "tn": 0,
+        "fn": 0
+      },
+      "manutencao_predial": {
+        "tp": 2,
+        "fp": 0,
+        "tn": 0,
+        "fn": 0
+      },
+      "geotecnia": {
+        "tp": 1,
+        "fp": 0,
+        "tn": 0,
+        "fn": 0
+      },
+      "topografia": {
+        "tp": 2,
+        "fp": 0,
+        "tn": 0,
+        "fn": 0
+      },
+      "arquitetura": {
+        "tp": 1,
+        "fp": 0,
+        "tn": 0,
+        "fn": 0
+      },
+      "manutencao_veicular": {
+        "tp": 0,
+        "fp": 0,
+        "tn": 1,
+        "fn": 0
+      },
+      "manutencao_ti": {
+        "tp": 0,
+        "fp": 0,
+        "tn": 1,
+        "fn": 0
+      },
+      "infra_rede": {
+        "tp": 0,
+        "fp": 0,
+        "tn": 2,
+        "fn": 0
+      },
+      "materiais": {
+        "tp": 0,
+        "fp": 0,
+        "tn": 2,
+        "fn": 0
+      },
+      "locacao": {
+        "tp": 0,
+        "fp": 0,
+        "tn": 3,
+        "fn": 0
+      },
+      "limpeza": {
+        "tp": 0,
+        "fp": 0,
+        "tn": 2,
+        "fn": 0
+      },
+      "terceirizacao": {
+        "tp": 0,
+        "fp": 0,
+        "tn": 1,
+        "fn": 0
+      },
+      "alimentacao": {
+        "tp": 0,
+        "fp": 0,
+        "tn": 1,
+        "fn": 0
+      },
+      "engenharia_clinica": {
+        "tp": 0,
+        "fp": 0,
+        "tn": 2,
+        "fn": 0
+      },
+      "telecom": {
+        "tp": 0,
+        "fp": 0,
+        "tn": 2,
+        "fn": 0
+      },
+      "ti": {
+        "tp": 0,
+        "fp": 0,
+        "tn": 1,
+        "fn": 0
+      },
+      "contabil": {
+        "tp": 0,
+        "fp": 0,
+        "tn": 1,
+        "fn": 0
+      },
+      "autopecas": {
+        "tp": 0,
+        "fp": 0,
+        "tn": 1,
+        "fn": 0
+      },
+      "generico": {
+        "tp": 0,
+        "fp": 0,
+        "tn": 1,
+        "fn": 0
+      },
+      "energia": {
+        "tp": 0,
+        "fp": 0,
+        "tn": 1,
+        "fn": 0
+      },
+      "infraestrutura_urbana": {
+        "tp": 1,
+        "fp": 0,
+        "tn": 0,
+        "fn": 0
+      }
+    },
+    "errors": []
+  },
+  "ok": true,
+  "status": "PASS"
+}

@@ -1,0 +1,237 @@
+{
+  "ok": true,
+  "status": "PASS",
+  "n_total": 538,
+  "n_development": 368,
+  "n_validation": 70,
+  "n_holdout": 100,
+  "meta_n_total": 538,
+  "human_labels_filled": 0,
+  "required_fields": [
+    "contract_id",
+    "object_original",
+    "agency",
+    "uf",
+    "publication_date",
+    "snapshot_id",
+    "source_row_hash",
+    "stratum"
+  ],
+  "missing_required_field_counts": {
+    "contract_id": 0,
+    "object_original": 0,
+    "agency": 0,
+    "uf": 0,
+    "publication_date": 0,
+    "snapshot_id": 0,
+    "source_row_hash": 0,
+    "stratum": 0
+  },
+  "incomplete_fields": {},
+  "strata_counts": {
+    "engenharia_obras_claras": 30,
+    "infraestrutura_urbana": 30,
+    "projetos_engenharia": 22,
+    "projetos_nao_relacionados": 4,
+    "manutencao_predial": 30,
+    "manutencao_veicular": 30,
+    "manutencao_ti": 5,
+    "infraestrutura_ti": 30,
+    "infraestrutura_telecom": 16,
+    "materiais_construcao": 30,
+    "fornecimento_sem_servico": 30,
+    "locacao_com_operador": 4,
+    "locacao_sem_operador": 22,
+    "instalacoes_prediais": 4,
+    "climatizacao": 30,
+    "energia": 10,
+    "limpeza": 30,
+    "alimentacao": 30,
+    "terceirizacao": 1,
+    "servicos_tecnicos_genericos": 30,
+    "engenharia_ambigua": 30,
+    "objetos_extensos": 30,
+    "objetos_mal_redigidos": 30,
+    "objetos_sem_keywords_evidentes": 30
+  },
+  "scarcity_declarations": {
+    "projetos_nao_relacionados": {
+      "available_in_scan": 4,
+      "selected": 4,
+      "critical_min": 15,
+      "query_pattern": "projeto\\s+pedag[oó]g|projeto\\s+social|projeto\\s+cultural|projeto\\s+de\\s+pesquisa",
+      "limitation": "real_availability_below_critical_min_no_fabrication"
+    },
+    "manutencao_ti": {
+      "available_in_scan": 5,
+      "selected": 5,
+      "critical_min": 15,
+      "query_pattern": "manuten[cç][aã]o\\s+(de\\s+)?(sistema|software|ti\\b|inform[aá]tica|equipamento\\s+de\\s+ti|suporte\\s+t[eé]cnico\\s+de\\s+ti)",
+      "limitation": "real_availability_below_critical_min_no_fabrication"
+    },
+    "locacao_com_operador": {
+      "available_in_scan": 4,
+      "selected": 4,
+      "critical_min": 15,
+      "query_pattern": "loca[cç][aã]o.*operador|com\\s+operador|m[aá]quina.*operador",
+      "limitation": "real_availability_below_critical_min_no_fabrication"
+    },
+    "instalacoes_prediais": {
+      "available_in_scan": 4,
+      "selected": 4,
+      "critical_min": 15,
+      "query_pattern": "instala[cç][oõ]es?\\s+(el[eé]tric|hidr[aá]ulic|predial)|instala[cç][aã]o\\s+el[eé]trica",
+      "limitation": "real_availability_below_critical_min_no_fabrication"
+    },
+    "energia": {
+      "available_in_scan": 10,
+      "selected": 10,
+      "critical_min": 15,
+      "query_pattern": "subesta[cç][aã]o|energia\\s+el[eé]trica|painel\\s+solar|fotovolta|usina\\s+solar",
+      "limitation": "real_availability_below_critical_min_no_fabrication"
+    },
+    "terceirizacao": {
+      "available_in_scan": 1,
+      "selected": 1,
+      "critical_min": 15,
+      "query_pattern": "terceiriza[cç][aã]o|cess[aã]o\\s+de\\s+m[aã]o\\s+de\\s+obra|m[aã]o\\s+de\\s+obra\\s+terceiriz",
+      "limitation": "real_availability_below_critical_min_no_fabrication"
+    },
+    "engenharia_clinica": {
+      "available_in_scan": 0,
+      "selected": 0,
+      "critical_min": 15,
+      "query_pattern": "engenharia\\s+cl[ií]nica|equipamento\\s+hospitalar|manuten[cç][aã]o\\s+de\\s+equipamento\\s+m[eé]dico",
+      "limitation": "real_availability_below_critical_min_no_fabrication"
+    }
+  },
+  "stratification_status": "PASS",
+  "version": "real-v2",
+  "synthetic_smoke_not_counted_in_min": true,
+  "synthetic_smoke_n": 40,
+  "corpus_meta": {
+    "generated_at": "2026-07-26T17:01:51Z",
+    "n_total": 538,
+    "n_development": 368,
+    "n_validation": 70,
+    "n_holdout": 100,
+    "strata_counts": {
+      "engenharia_obras_claras": 30,
+      "infraestrutura_urbana": 30,
+      "projetos_engenharia": 22,
+      "projetos_nao_relacionados": 4,
+      "manutencao_predial": 30,
+      "manutencao_veicular": 30,
+      "manutencao_ti": 5,
+      "infraestrutura_ti": 30,
+      "infraestrutura_telecom": 16,
+      "materiais_construcao": 30,
+      "fornecimento_sem_servico": 30,
+      "locacao_com_operador": 4,
+      "locacao_sem_operador": 22,
+      "instalacoes_prediais": 4,
+      "climatizacao": 30,
+      "energia": 10,
+      "limpeza": 30,
+      "alimentacao": 30,
+      "terceirizacao": 1,
+      "servicos_tecnicos_genericos": 30,
+      "engenharia_ambigua": 30,
+      "objetos_extensos": 30,
+      "objetos_mal_redigidos": 30,
+      "objetos_sem_keywords_evidentes": 30
+    },
+    "corpus_sha256": {
+      "development-real-v2": "cc66b0a20cf3984ca59ab554acb690be2034435c9efd4f756394887b3f1b82aa",
+      "validation-real-v2": "4aab0391ac86c747786b978bf82de4517887b553f72c79285e5cd4b541ab693d",
+      "holdout-real-v2": "ba231982a7ed65bbf5c83de77c9411acd4ee2c5cd60dc7ed727fe01fcb55e77e"
+    },
+    "freeze_commit": "ad613e43557fdb5850cc1bc8ee68112359e130a7",
+    "human_labels_filled": false,
+    "holdout_human_labels_filled": false,
+    "version": "real-v2",
+    "stratification_status": "PASS",
+    "critical_min": 15,
+    "scarcity_declarations": {
+      "projetos_nao_relacionados": {
+        "available_in_scan": 4,
+        "selected": 4,
+        "critical_min": 15,
+        "query_pattern": "projeto\\s+pedag[oó]g|projeto\\s+social|projeto\\s+cultural|projeto\\s+de\\s+pesquisa",
+        "limitation": "real_availability_below_critical_min_no_fabrication"
+      },
+      "manutencao_ti": {
+        "available_in_scan": 5,
+        "selected": 5,
+        "critical_min": 15,
+        "query_pattern": "manuten[cç][aã]o\\s+(de\\s+)?(sistema|software|ti\\b|inform[aá]tica|equipamento\\s+de\\s+ti|suporte\\s+t[eé]cnico\\s+de\\s+ti)",
+        "limitation": "real_availability_below_critical_min_no_fabrication"
+      },
+      "locacao_com_operador": {
+        "available_in_scan": 4,
+        "selected": 4,
+        "critical_min": 15,
+        "query_pattern": "loca[cç][aã]o.*operador|com\\s+operador|m[aá]quina.*operador",
+        "limitation": "real_availability_below_critical_min_no_fabrication"
+      },
+      "instalacoes_prediais": {
+        "available_in_scan": 4,
+        "selected": 4,
+        "critical_min": 15,
+        "query_pattern": "instala[cç][oõ]es?\\s+(el[eé]tric|hidr[aá]ulic|predial)|instala[cç][aã]o\\s+el[eé]trica",
+        "limitation": "real_availability_below_critical_min_no_fabrication"
+      },
+      "energia": {
+        "available_in_scan": 10,
+        "selected": 10,
+        "critical_min": 15,
+        "query_pattern": "subesta[cç][aã]o|energia\\s+el[eé]trica|painel\\s+solar|fotovolta|usina\\s+solar",
+        "limitation": "real_availability_below_critical_min_no_fabrication"
+      },
+      "terceirizacao": {
+        "available_in_scan": 1,
+        "selected": 1,
+        "critical_min": 15,
+        "query_pattern": "terceiriza[cç][aã]o|cess[aã]o\\s+de\\s+m[aã]o\\s+de\\s+obra|m[aã]o\\s+de\\s+obra\\s+terceiriz",
+        "limitation": "real_availability_below_critical_min_no_fabrication"
+      },
+      "engenharia_clinica": {
+        "available_in_scan": 0,
+        "selected": 0,
+        "critical_min": 15,
+        "query_pattern": "engenharia\\s+cl[ií]nica|equipamento\\s+hospitalar|manuten[cç][aã]o\\s+de\\s+equipamento\\s+m[eé]dico",
+        "limitation": "real_availability_below_critical_min_no_fabrication"
+      }
+    },
+    "available_by_stratum_in_scan": {
+      "objetos_sem_keywords_evidentes": 5739,
+      "limpeza": 340,
+      "objetos_mal_redigidos": 3022,
+      "objetos_extensos": 819,
+      "infraestrutura_ti": 116,
+      "infraestrutura_urbana": 57,
+      "fornecimento_sem_servico": 570,
+      "engenharia_obras_claras": 347,
+      "materiais_construcao": 50,
+      "manutencao_veicular": 38,
+      "servicos_tecnicos_genericos": 52,
+      "climatizacao": 64,
+      "alimentacao": 345,
+      "energia": 10,
+      "manutencao_predial": 32,
+      "projetos_engenharia": 22,
+      "engenharia_ambigua": 36,
+      "infraestrutura_telecom": 16,
+      "projetos_nao_relacionados": 4,
+      "instalacoes_prediais": 4,
+      "locacao_sem_operador": 22,
+      "manutencao_ti": 5,
+      "locacao_com_operador": 4,
+      "terceirizacao": 1
+    },
+    "scan_rows": 11715,
+    "note": "Real PNCP objects extracted from snapshot (v2 freeze). Human dual labels are null on all splits including holdout. Agents must never fill reviewer_*/adjudicated_* fields. Scarce strata are declared with query/availability — never fabricated."
+  },
+  "method": "normalize_and_validate_real_jsonl_splits",
+  "verified_at": "2026-07-26T17:16:27Z"
+}

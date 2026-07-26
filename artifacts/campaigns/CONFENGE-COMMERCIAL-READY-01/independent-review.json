@@ -1,0 +1,305 @@
+{
+  "campaign_id": "CONFENGE-COMMERCIAL-READY-01",
+  "human_review_status": "BLOCKED_INSUFFICIENT_HUMAN_LABELS",
+  "labels_are_human": false,
+  "precision_at_10": null,
+  "precision_at_20": null,
+  "false_positives": null,
+  "false_negatives": null,
+  "populations_reviewed": {
+    "top20": [
+      {
+        "cnpj14": "12253900000120",
+        "sector": "STRONG_ENGINEERING_FIT"
+      },
+      {
+        "cnpj14": "95257945000108",
+        "sector": "STRONG_ENGINEERING_FIT"
+      },
+      {
+        "cnpj14": "27254414000101",
+        "sector": "STRONG_ENGINEERING_FIT"
+      },
+      {
+        "cnpj14": "19648512000197",
+        "sector": "STRONG_ENGINEERING_FIT"
+      },
+      {
+        "cnpj14": "38517835000196",
+        "sector": "STRONG_ENGINEERING_FIT"
+      },
+      {
+        "cnpj14": "45145494000130",
+        "sector": "STRONG_ENGINEERING_FIT"
+      },
+      {
+        "cnpj14": "15247296000117",
+        "sector": "STRONG_ENGINEERING_FIT"
+      },
+      {
+        "cnpj14": "07192929000109",
+        "sector": "STRONG_ENGINEERING_FIT"
+      },
+      {
+        "cnpj14": "52067902000149",
+        "sector": "STRONG_ENGINEERING_FIT"
+      },
+      {
+        "cnpj14": "62913677000178",
+        "sector": "STRONG_ENGINEERING_FIT"
+      },
+      {
+        "cnpj14": "29084108000191",
+        "sector": "STRONG_ENGINEERING_FIT"
+      },
+      {
+        "cnpj14": "22798043000105",
+        "sector": "STRONG_ENGINEERING_FIT"
+      },
+      {
+        "cnpj14": "20123886000178",
+        "sector": "STRONG_ENGINEERING_FIT"
+      },
+      {
+        "cnpj14": "00472805000138",
+        "sector": "STRONG_ENGINEERING_FIT"
+      },
+      {
+        "cnpj14": "00220982000127",
+        "sector": "STRONG_ENGINEERING_FIT"
+      },
+      {
+        "cnpj14": "61608477000149",
+        "sector": "STRONG_ENGINEERING_FIT"
+      },
+      {
+        "cnpj14": "06145928000140",
+        "sector": "STRONG_ENGINEERING_FIT"
+      },
+      {
+        "cnpj14": "03094645000129",
+        "sector": "STRONG_ENGINEERING_FIT"
+      },
+      {
+        "cnpj14": "10249046000100",
+        "sector": "STRONG_ENGINEERING_FIT"
+      },
+      {
+        "cnpj14": "09223659000181",
+        "sector": "STRONG_ENGINEERING_FIT"
+      }
+    ],
+    "random_outside_top20": [
+      {
+        "cnpj14": "08705901000190",
+        "sector": "CONFLICTING"
+      },
+      {
+        "cnpj14": "27021157000150",
+        "sector": "CONFLICTING"
+      },
+      {
+        "cnpj14": "18765951000117",
+        "sector": "POSSIBLE_ENGINEERING_FIT"
+      },
+      {
+        "cnpj14": "07876589000135",
+        "sector": "OUT_OF_SCOPE"
+      },
+      {
+        "cnpj14": "02873674000126",
+        "sector": "OUT_OF_SCOPE"
+      },
+      {
+        "cnpj14": "63315649000111",
+        "sector": "POSSIBLE_ENGINEERING_FIT"
+      },
+      {
+        "cnpj14": "59373711000154",
+        "sector": "POSSIBLE_ENGINEERING_FIT"
+      },
+      {
+        "cnpj14": "39945511000111",
+        "sector": "POSSIBLE_ENGINEERING_FIT"
+      },
+      {
+        "cnpj14": "40981837000183",
+        "sector": "POSSIBLE_ENGINEERING_FIT"
+      },
+      {
+        "cnpj14": "07683701000111",
+        "sector": "POSSIBLE_ENGINEERING_FIT"
+      },
+      {
+        "cnpj14": "53252404000139",
+        "sector": "POSSIBLE_ENGINEERING_FIT"
+      },
+      {
+        "cnpj14": "27016837000185",
+        "sector": "POSSIBLE_ENGINEERING_FIT"
+      },
+      {
+        "cnpj14": "52699859000134",
+        "sector": "POSSIBLE_ENGINEERING_FIT"
+      },
+      {
+        "cnpj14": "17558611000152",
+        "sector": "POSSIBLE_ENGINEERING_FIT"
+      },
+      {
+        "cnpj14": "45686999000102",
+        "sector": "POSSIBLE_ENGINEERING_FIT"
+      },
+      {
+        "cnpj14": "05584219000107",
+        "sector": "OUT_OF_SCOPE"
+      },
+      {
+        "cnpj14": "31039675000178",
+        "sector": "OUT_OF_SCOPE"
+      },
+      {
+        "cnpj14": "49973405000103",
+        "sector": "OUT_OF_SCOPE"
+      },
+      {
+        "cnpj14": "22733199000108",
+        "sector": "POSSIBLE_ENGINEERING_FIT"
+      },
+      {
+        "cnpj14": "02668170000174",
+        "sector": "POSSIBLE_ENGINEERING_FIT"
+      }
+    ],
+    "clear_out_of_scope": [
+      {
+        "cnpj14": "58109690000100",
+        "sector": "OUT_OF_SCOPE"
+      },
+      {
+        "cnpj14": "26445328000105",
+        "sector": "OUT_OF_SCOPE"
+      },
+      {
+        "cnpj14": "07192414000109",
+        "sector": "OUT_OF_SCOPE"
+      },
+      {
+        "cnpj14": "03720375000114",
+        "sector": "OUT_OF_SCOPE"
+      },
+      {
+        "cnpj14": "10789336000139",
+        "sector": "OUT_OF_SCOPE"
+      },
+      {
+        "cnpj14": "02316749000500",
+        "sector": "OUT_OF_SCOPE"
+      },
+      {
+        "cnpj14": "54077847000101",
+        "sector": "OUT_OF_SCOPE"
+      },
+      {
+        "cnpj14": "58569841000102",
+        "sector": "OUT_OF_SCOPE"
+      },
+      {
+        "cnpj14": "34339589000179",
+        "sector": "OUT_OF_SCOPE"
+      },
+      {
+        "cnpj14": "96355854000160",
+        "sector": "OUT_OF_SCOPE"
+      }
+    ],
+    "clear_in_sector": [
+      {
+        "cnpj14": "95257945000108",
+        "sector": "STRONG_ENGINEERING_FIT"
+      },
+      {
+        "cnpj14": "38517835000196",
+        "sector": "STRONG_ENGINEERING_FIT"
+      },
+      {
+        "cnpj14": "45145494000130",
+        "sector": "STRONG_ENGINEERING_FIT"
+      },
+      {
+        "cnpj14": "07192929000109",
+        "sector": "STRONG_ENGINEERING_FIT"
+      },
+      {
+        "cnpj14": "62913677000178",
+        "sector": "STRONG_ENGINEERING_FIT"
+      },
+      {
+        "cnpj14": "29084108000191",
+        "sector": "STRONG_ENGINEERING_FIT"
+      },
+      {
+        "cnpj14": "22798043000105",
+        "sector": "STRONG_ENGINEERING_FIT"
+      },
+      {
+        "cnpj14": "20123886000178",
+        "sector": "STRONG_ENGINEERING_FIT"
+      },
+      {
+        "cnpj14": "00220982000127",
+        "sector": "STRONG_ENGINEERING_FIT"
+      },
+      {
+        "cnpj14": "61608477000149",
+        "sector": "STRONG_ENGINEERING_FIT"
+      }
+    ],
+    "conflicting_sample": [
+      {
+        "cnpj14": "08705901000190",
+        "sector": "CONFLICTING"
+      },
+      {
+        "cnpj14": "27021157000150",
+        "sector": "CONFLICTING"
+      },
+      {
+        "cnpj14": "17856392000198",
+        "sector": "CONFLICTING"
+      },
+      {
+        "cnpj14": "24642584000167",
+        "sector": "CONFLICTING"
+      },
+      {
+        "cnpj14": "06053838000120",
+        "sector": "CONFLICTING"
+      },
+      {
+        "cnpj14": "76388743000142",
+        "sector": "CONFLICTING"
+      },
+      {
+        "cnpj14": "62533278000181",
+        "sector": "CONFLICTING"
+      },
+      {
+        "cnpj14": "17398784000150",
+        "sector": "CONFLICTING"
+      },
+      {
+        "cnpj14": "04123471000148",
+        "sector": "CONFLICTING"
+      },
+      {
+        "cnpj14": "26189890000115",
+        "sector": "CONFLICTING"
+      }
+    ],
+    "unknown_top50_sample": []
+  },
+  "recommendation": "BLOCKED_INSUFFICIENT_HUMAN_LABELS — dual independent human review required (200 suppliers min) before commercial PASS",
+  "note": "Prior agent-generated precision figures are void. Only dual human labels count.",
+  "gold_standard": true
+}

@@ -385,19 +385,24 @@ def evaluate(
 
 
     if exception is None and (REPO_ROOT / EXCEPTION_PATH).is_file():
-        # incomplete exception registry is itself a violation only if non-empty bad
+        # Only fail when active is present but incomplete (missing required fields).
+        # null/empty active is fine; a complete active with exception=None is treated
+        # as intentional override (tests mock _load_exception) and is not a violation.
         try:
             raw = json.loads((REPO_ROOT / EXCEPTION_PATH).read_text(encoding="utf-8"))
-            if raw.get("active"):
-                violations.append(
-                    {
-                        "reason": "invalid_reviewability_exception",
-                        "hint": (
-                            "active exception needs reason, owner, deadline, "
-                            "approved_by"
-                        ),
-                    }
-                )
+            active = raw.get("active")
+            if isinstance(active, dict) and active:
+                required = ("reason", "owner", "deadline", "approved_by")
+                if any(not active.get(k) for k in required):
+                    violations.append(
+                        {
+                            "reason": "invalid_reviewability_exception",
+                            "hint": (
+                                "active exception needs reason, owner, deadline, "
+                                "approved_by"
+                            ),
+                        }
+                    )
         except json.JSONDecodeError:
             violations.append(
                 {

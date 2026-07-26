@@ -125,12 +125,42 @@ def test_prose_mention_of_pass_is_not_status_claim(
     assert not any(v["reason"] == "declared_pass_without_gates" for v in viol)
 
 
-def test_main_with_paths(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_main_with_paths(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     import scripts.ops.check_pr_reviewability as mod
 
+    # Isolate from repo exception registry so a real active waiver cannot interfere
+    monkeypatch.setattr(mod, "REPO_ROOT", tmp_path)
     monkeypatch.setattr(mod, "_load_exception", lambda: None)
     rc = main(["--paths", "scripts/a.py", "--draft"])
     assert rc == 0
+
+
+def test_complete_active_exception_not_flagged_when_load_returns_none(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Regression: complete active in file + mocked None load must not be 'invalid'."""
+    import scripts.ops.check_pr_reviewability as mod
+
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "pr-reviewability-exceptions.json").write_text(
+        json.dumps(
+            {
+                "active": {
+                    "reason": "campaign",
+                    "owner": "ops",
+                    "deadline": "2026-08-15",
+                    "approved_by": "ops",
+                    "waives": ["too_many_files"],
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(mod, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(mod, "_load_exception", lambda: None)
+    viol = evaluate(base="origin/main", draft=False, paths=["scripts/a.py"])
+    assert not any(v["reason"] == "invalid_reviewability_exception" for v in viol)
 
 
 def test_exception_waives(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:

@@ -1,0 +1,15 @@
+{
+  "ok": false,
+  "status": "FAIL",
+  "history_view_required": "ALL_SNAPSHOT_SUPPLIER_HISTORY",
+  "unit_adversarial_ok": true,
+  "pytest_exit": 0,
+  "stdout_tail": ".....                                                                    [100%]\n5 passed in 1.74s\n",
+  "live_recount": {
+    "attempted": true,
+    "cnpjs_n": 0,
+    "ok": false,
+    "reason": "no_candidates_for_live_recount"
+  },
+  "note": "PASS requires adversarial unit fixtures AND live all-status COUNT(*) reconciliation. Active-only load must not equal all-status when closed rows exist. JSON ok theater without live recount is rejected."
+}

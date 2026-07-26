@@ -1,0 +1,18 @@
+{
+  "ok": true,
+  "status": "PASS",
+  "current_pr_head_sha": "f82eb9615995abd88ffd8e14dfc003f0dcd859b7",
+  "pr_head_sha": "f82eb9615995abd88ffd8e14dfc003f0dcd859b7",
+  "workflow_merge_sha": null,
+  "checked_out_sha": "f82eb9615995abd88ffd8e14dfc003f0dcd859b7",
+  "final_integrity_code_freeze_sha": "f82eb9615995abd88ffd8e14dfc003f0dcd859b7",
+  "final_code_freeze_sha": "f82eb9615995abd88ffd8e14dfc003f0dcd859b7",
+  "executed_code_sha": "f82eb9615995abd88ffd8e14dfc003f0dcd859b7",
+  "match_run_to_head": true,
+  "code_changed_after_execution": false,
+  "artifact_only_commits_after_execution": false,
+  "files_changed_after_freeze": [],
+  "non_artifact_files_changed_after_execution": [],
+  "verified_at": "2026-07-26T20:39:19Z",
+  "policy": "post-freeze non-artifact tree vs pr_head must be empty; match_run_to_head true only when executed_code_sha == pr_head_sha; workflow_merge_sha / checked_out merge ref is never used as pr_head"
+}

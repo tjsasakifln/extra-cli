@@ -1,0 +1,16 @@
+{
+  "structural_ci_status": "PASS",
+  "real_historical_ci_status": "NOT_EXECUTED",
+  "real_registry_ci_status": "NOT_EXECUTED",
+  "real_full_pipeline_ci_status": "NOT_EXECUTED",
+  "real_snapshot_restore_ci_status": "NOT_EXECUTED",
+  "human_package_publication_status": "PASS",
+  "machine_evidence_publication_status": "PASS",
+  "github_workflow_status": "PASS",
+  "workflow_run_id": "30217720692",
+  "workflow_pr_head_sha": "6dcab34860fb016aa1ef3152db4d9b0ae97adae6",
+  "workflow_merge_sha": null,
+  "workflow_run_head_sha": "6dcab34860fb016aa1ef3152db4d9b0ae97adae6",
+  "package_pr_head_sha": "f82eb9615995abd88ffd8e14dfc003f0dcd859b7",
+  "captured_at": "2026-07-26T20:39:14Z"
+}
