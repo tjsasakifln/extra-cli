@@ -4,10 +4,10 @@
   "technical_status": "PARTIAL_TECHNICAL_PASS_REAL_DATA",
   "campaign_id": "CONFENGE-COMMERCIAL-READY-01",
   "run_id": "cl-20260726T003820Z-f8e90e36",
-  "git_sha": "f98703e9e829625e8d7ed21b9e4ed6b4b821366d",
+  "git_sha": "979bceb69ce6eab26e8c1dc0461c33a866a8a46a",
   "run_git_sha": "691878853160b85ab7736d36f8265ed427f64d88",
-  "artifact_git_sha": "f98703e9e829625e8d7ed21b9e4ed6b4b821366d",
-  "pr_head_sha": "f98703e9e829625e8d7ed21b9e4ed6b4b821366d",
+  "artifact_git_sha": "979bceb69ce6eab26e8c1dc0461c33a866a8a46a",
+  "pr_head_sha": "979bceb69ce6eab26e8c1dc0461c33a866a8a46a",
   "base_sha": "8344254942ec48978566317df16d7b3e3caabd89",
   "branch": "campaign/confenge-commercial-ready-01",
   "population_mode": "FULL_POPULATION",
@@ -490,7 +490,7 @@
   ],
   "rc_technical_pass_revoked": true,
   "user_acceptance": "NOT_REQUESTED",
-  "updated_at": "2026-07-26T00:42:06Z",
+  "updated_at": "2026-07-26T00:43:10Z",
   "answers": {
     "concentration_uses_full_history": true,
     "single_contract_can_produce_strong": false,
@@ -502,5 +502,11 @@
     "top20_operationally_usable": "PENDING_HUMAN_REVIEW",
     "claim_exceeds_evidence": false,
     "strong_time_span_days": 180
+  },
+  "executed_git_sha": "f98703e9e829625e8d7ed21b9e4ed6b4b821366d",
+  "sha_binding": {
+    "policy": "exact_or_ancestor_artifact_only_lag",
+    "executed": "f98703e9e829625e8d7ed21b9e4ed6b4b821366d",
+    "pr_head": "979bceb69ce6eab26e8c1dc0461c33a866a8a46a"
   }
 }

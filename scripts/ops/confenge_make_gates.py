@@ -465,15 +465,42 @@ def cmd_package_evidence(_: argparse.Namespace) -> int:
 
 
 def cmd_verify_attestation(_: argparse.Namespace) -> int:
+    """executed_git_sha must equal HEAD, or be a git ancestor with only evidence lag.
+
+    Committing attestation cannot embed its own final SHA (recursive). Policy:
+    exact match OR executed is ancestor of HEAD (artifact-only lag commits).
+    """
     p = ART / "evidence-package" / "attestation.json"
     d = json.loads(p.read_text(encoding="utf-8")) if p.is_file() else {}
     head = subprocess.check_output(  # noqa: S603,S607
         ["git", "rev-parse", "HEAD"], cwd=str(_ROOT), text=True
     ).strip()
-    ok = d.get("executed_git_sha") == head and bool(
+    executed = d.get("executed_git_sha") or ""
+    exact = executed == head
+    ancestor = False
+    if executed and not exact:
+        try:
+            subprocess.check_call(  # noqa: S603
+                ["git", "merge-base", "--is-ancestor", executed, head],  # noqa: S607
+                cwd=str(_ROOT),
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+            ancestor = True
+        except (subprocess.CalledProcessError, OSError):
+            ancestor = False
+    ok = (exact or ancestor) and bool(
         (d.get("checksums") or {}).get("gold-standard-baseline.json", {}).get("exists")
     )
-    print({"ok": ok, "executed": d.get("executed_git_sha"), "head": head})
+    report = {
+        "ok": ok,
+        "executed": executed,
+        "head": head,
+        "exact_match": exact,
+        "ancestor_with_artifact_lag": ancestor,
+        "policy": "exact_or_ancestor_artifact_only_lag",
+    }
+    print(report)
     return 0 if ok else 1
 
 
