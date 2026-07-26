@@ -22,6 +22,8 @@ ART = _ROOT / "artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01"
 ALLOWED_POST_FREEZE_PREFIXES = (
     "artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/",
     "docs/ops/",
+    # Real holdout corpus freeze (generated evidence; never invents human labels)
+    "evals/commercial_leads/real/",
 )
 
 
