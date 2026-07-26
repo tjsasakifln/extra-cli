@@ -6,11 +6,11 @@
   "pr": 144,
   "branch": "campaign/confenge-commercial-ready-01",
   "generated_at": "2026-07-26T15:47:45Z",
-  "current_pr_head_sha": "56ef83fc40247c6230d31d33aa35bb04d031ec96",
+  "current_pr_head_sha": "f8c911ec63b1dfaee36a09b4801a07c44b07b5ba",
   "main_sha": "8344254942ec48978566317df16d7b3e3caabd89",
   "final_code_freeze_sha": "da9596aece9a661c0b4bf4cba0637cac5e20767c",
   "executed_code_sha": "da9596aece9a661c0b4bf4cba0637cac5e20767c",
-  "evidence_commit_sha": "56ef83fc40247c6230d31d33aa35bb04d031ec96",
+  "evidence_commit_sha": "f8c911ec63b1dfaee36a09b4801a07c44b07b5ba",
   "code_changed_after_execution": false,
   "artifact_only_commits_after_execution": true,
   "files_changed_after_freeze": [
