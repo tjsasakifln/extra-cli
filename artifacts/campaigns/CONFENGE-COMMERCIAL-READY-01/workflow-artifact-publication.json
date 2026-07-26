@@ -2,7 +2,7 @@
   "published_as_workflow_artifact": true,
   "workflow_run_id": "30212931293",
   "workflow_run_url": "https://github.com/tjsasakifln/extra-cli/actions/runs/30212931293",
-  "workflow_pr_head_sha": "51df3beb10d4f3a498d61e4f400a5479ee203b22",
+  "workflow_pr_head_sha": "77be3876d4cbcd42d6899a2216ee5f7056af3dcf",
   "workflow_merge_sha": "a37d615d8b6b320fc4d4cc1b10d01bb0ba4cbd40",
   "human_review_artifact_id": 8634984051,
   "human_review_artifact_digest": "sha256:d706e58f3f7dddc21c4d1f544fc9c8595128e5be2d605679e77eb86d181948aa",
@@ -15,6 +15,8 @@
   "artifact_created_at": "2026-07-26T17:37:39Z",
   "artifact_expires_at": "2026-10-24T17:36:31Z",
   "executed_code_sha": "51df3beb10d4f3a498d61e4f400a5479ee203b22",
-  "captured_at": "2026-07-26T17:59:17Z",
-  "note": "Artifact IDs from CI run 30212931293 (PR head d314e300). Integrity re-freeze is post-run; next push will rebind IDs via workflow API step."
+  "captured_at": "2026-07-26T18:00:34Z",
+  "note": "Artifact IDs from CI run 30212931293 (PR head d314e300). Integrity re-freeze is post-run; next push will rebind IDs via workflow API step.",
+  "evidence_commit_sha": "16493742a9c2d58b38a6185fd6999ccb99ff4ef3",
+  "artifact_only_commits_after_execution": true
 }
