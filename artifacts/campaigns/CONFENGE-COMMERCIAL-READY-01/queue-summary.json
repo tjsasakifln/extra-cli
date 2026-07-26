@@ -207,8 +207,8 @@
   "executed_code_sha": "3ef795ae0caf555710bf7ffb91f816afdd5aa44b",
   "current_pr_head_sha": "3ef795ae0caf555710bf7ffb91f816afdd5aa44b",
   "executed_git_sha": "da9596aece9a661c0b4bf4cba0637cac5e20767c",
-  "evidence_commit_sha": "98d03e707315c5c5f4419db4834b1866c98d3852",
-  "match_run_to_head": true,
+  "evidence_commit_sha": "246438b70c63bcba9963066b5a6343fa9c6da32e",
+  "match_run_to_head": false,
   "updated_at": "2026-07-26T17:08:42Z",
   "pr_head_sha": "af690c6642031f2eaf41db933cd300af8fec7325",
   "gate_git_sha": "98d03e707315c5c5f4419db4834b1866c98d3852",
@@ -255,7 +255,7 @@
   "technical_status": "BLOCKED",
   "final_code_freeze_sha": "3ef795ae0caf555710bf7ffb91f816afdd5aa44b",
   "code_changed_after_execution": false,
-  "artifact_only_commits_after_execution": false,
+  "artifact_only_commits_after_execution": true,
   "machine_blockers": [
     "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE"
   ],
