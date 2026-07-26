@@ -1,10 +1,10 @@
 {
   "ok": true,
   "status": "PASS",
-  "current_pr_head_sha": "cdd29888786c7c9f992d7b7b64858388655d2144",
-  "final_code_freeze_sha": "2eb139b576c11ad0bcac75edfb3fa610992c1777",
-  "executed_code_sha": "2eb139b576c11ad0bcac75edfb3fa610992c1777",
-  "evidence_commit_sha": "cdd29888786c7c9f992d7b7b64858388655d2144",
+  "current_pr_head_sha": "da9596aece9a661c0b4bf4cba0637cac5e20767c",
+  "final_code_freeze_sha": "da9596aece9a661c0b4bf4cba0637cac5e20767c",
+  "executed_code_sha": "da9596aece9a661c0b4bf4cba0637cac5e20767c",
+  "evidence_commit_sha": "da9596aece9a661c0b4bf4cba0637cac5e20767c",
   "code_tree_hash_at_execution": "04d4e147da64cfde5693ab084a008ddb2610cff5a48c2621f801d58c0a531d0e",
   "code_tree_hash_at_current_head": "04d4e147da64cfde5693ab084a008ddb2610cff5a48c2621f801d58c0a531d0e",
   "code_changed_after_execution": false,
@@ -23,5 +23,6 @@
     "exit_code": 0
   },
   "match_run_to_head": true,
-  "verified_at": "2026-07-26T15:36:21Z"
+  "verified_at": "2026-07-26T15:36:21Z",
+  "non_artifact_files_changed": []
 }
