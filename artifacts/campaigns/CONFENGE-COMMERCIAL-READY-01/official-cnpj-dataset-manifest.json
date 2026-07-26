@@ -1,0 +1,27 @@
+{
+  "ok": true,
+  "status": "PARTIAL_OFFICIAL_OPENCNPJ",
+  "source_name": "rfb_public_cadastral_via_opencnpj",
+  "source_authority": "receita_federal_dados_abertos",
+  "source_distributor": "opencnpj.org",
+  "source_files": [
+    "data/official_cnpj/rfb_via_opencnpj_universe.jsonl",
+    "artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/official-cnpj-registry-snapshot.jsonl"
+  ],
+  "source_urls_or_identifiers": [
+    "https://api.opencnpj.org/{cnpj14}",
+    "Receita Federal \u2014 Dados Abertos CNPJ (redistributed by OpenCNPJ)"
+  ],
+  "source_reference_date": "2026-07-26",
+  "downloaded_at": "2026-07-26T15:17:25Z",
+  "file_sha256": {
+    "rfb_via_opencnpj_universe.jsonl": "f9f60b1765ef305060ba6f662a201603f9fd95363d5fe1f4c836903ef414f59a",
+    "official-cnpj-registry-snapshot.jsonl": "f9f60b1765ef305060ba6f662a201603f9fd95363d5fe1f4c836903ef414f59a"
+  },
+  "record_count": 300,
+  "schema_version": "official-cnpj-v1",
+  "ingestion_version": "confenge-opencnpj-bulk-v1",
+  "universe_required": 5640,
+  "official_coverage_of_universe": 0.05319148936170213,
+  "note": "Official JSONL now contains only RFB-via-OpenCNPJ rows. Operational fallback lives in operational-cnpj-registry-fallback.jsonl / supplier_registry. Full-universe official coverage is partial until bulk RFB extract or complete OpenCNPJ fetch finishes."
+}

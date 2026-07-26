@@ -1,0 +1,30 @@
+{
+  "table": "public.pncp_supplier_contracts",
+  "columns": [
+    "contrato_id",
+    "orgao_cnpj",
+    "orgao_nome",
+    "fornecedor_cnpj",
+    "fornecedor_nome",
+    "objeto_contrato",
+    "valor_total",
+    "data_inicio",
+    "data_fim",
+    "data_publicacao",
+    "uf",
+    "municipio",
+    "source",
+    "source_id",
+    "is_active",
+    "source_status",
+    "normalized_status",
+    "status_reason",
+    "status_source",
+    "status_observed_at"
+  ],
+  "format": "csv",
+  "encoding": "utf-8",
+  "null_representation": "empty_string",
+  "boolean_representation": "true|false",
+  "schema_version": "confenge-restorable-dump-v1"
+}

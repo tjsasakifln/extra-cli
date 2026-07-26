@@ -1,0 +1,42 @@
+{
+  "ok": true,
+  "status": "PASS",
+  "built_at": "2026-07-26T15:01:04Z",
+  "source_dsn_hash": "b0a85a03d31297e5",
+  "target_dsn_hash": "b45c830543c292f8",
+  "snapshot_min_date": "2024-07-26",
+  "snapshot_max_date": "2026-07-26",
+  "snapshot_observation_days": 730,
+  "minimum_observation_window_days": 365,
+  "preferred_observation_window_days": 730,
+  "as_of": "2026-07-26",
+  "supplier_count": 5640,
+  "status_reason_distribution": {
+    "data_fim_before_as_of_v1": 4442,
+    "data_fim_null_or_future_v1": 7532
+  },
+  "normalization_rules": [
+    "source_feed_field first",
+    "data_fim_before_as_of_v1 → COMPLETED",
+    "data_fim_null_or_future_v1 → ACTIVE",
+    "never invent CANCELLED/TERMINATED without source token"
+  ],
+  "snapshot_total_contracts": 11974,
+  "snapshot_active_contracts": 7532,
+  "snapshot_completed_contracts": 4442,
+  "snapshot_cancelled_contracts": 0,
+  "snapshot_terminated_contracts": 0,
+  "snapshot_suspended_contracts": 0,
+  "snapshot_unknown_status_contracts": 0,
+  "status_sum": 11974,
+  "status_sum_matches_total": true,
+  "lifecycle_classes_present": [
+    "ACTIVE",
+    "COMPLETED"
+  ],
+  "has_active": true,
+  "has_closed_lifecycle": true,
+  "block": null,
+  "source_row_count": 11974,
+  "note": "Historical snapshot includes ALL contracts in window (not active-only). Status classes derived with explicit rules; CLOSED rows are not fabricated."
+}

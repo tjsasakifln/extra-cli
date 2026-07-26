@@ -1,14 +1,14 @@
 {
-  "snapshot_min_date": "2026-02-13",
-  "snapshot_max_date": "2026-07-23",
-  "snapshot_observation_days": 160,
-  "strong_observable": false,
-  "strong_status": "STRONG_NOT_OBSERVABLE_IN_CURRENT_WINDOW",
+  "snapshot_min_date": "2024-07-26",
+  "snapshot_max_date": "2026-07-26",
+  "snapshot_observation_days": 730,
+  "strong_observable": true,
+  "strong_status": null,
   "minimum_observation_window_days": 365,
   "strong_min_time_span_days": 180,
-  "block": "BLOCKED_INSUFFICIENT_HISTORICAL_WINDOW",
-  "ok": false,
-  "status": "BLOCKED_INSUFFICIENT_HISTORICAL_WINDOW",
-  "strong_not_observable_declared": true,
-  "note": "Absence of STRONG is not proof none exist when window < 180d. STRONG_MIN_TIME_SPAN_DAYS remains 180."
+  "block": null,
+  "ok": true,
+  "status": "PASS",
+  "strong_not_observable_declared": false,
+  "source": "historical_snapshot_build"
 }

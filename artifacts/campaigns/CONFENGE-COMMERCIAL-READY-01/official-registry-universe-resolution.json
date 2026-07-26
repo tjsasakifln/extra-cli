@@ -1,0 +1,17 @@
+{
+  "ok": false,
+  "status": "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE",
+  "candidate_count": 5640,
+  "RESOLVED_OFFICIAL": 300,
+  "RESOLVED_FALLBACK_OPERATIONAL": 5340,
+  "NOT_FOUND_OFFICIAL": 0,
+  "NOT_COMPUTABLE": 0,
+  "official_coverage": 0.05319148936170213,
+  "operational_coverage": 1.0,
+  "registry_resolved_or_definitively_not_found_operational": 1.0,
+  "registry_resolved_or_definitively_not_found_official": 0.05319148936170213,
+  "transient_failures": 0,
+  "selection_bias_risk": false,
+  "block_reason": "official_rfb_authority_coverage_partial_only_300_of_universe; OpenCNPJ rate-limited; RFB bulk zip not staged",
+  "note": "Operational join is 100% via fallback. Official RFB-authority resolution is partial. MACHINE_COMPLETE requires official 100%."
+}

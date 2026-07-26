@@ -1,0 +1,176 @@
+{
+  "status": "BLOCKED",
+  "technical_status": "BLOCKED",
+  "terminal_reason": "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE",
+  "campaign_id": "CONFENGE-COMMERCIAL-READY-01",
+  "pr": 144,
+  "branch": "campaign/confenge-commercial-ready-01",
+  "generated_at": "2026-07-26T15:23:11Z",
+  "current_pr_head_sha": "4dc1ef995672605caec9cf30b885b47fe5bf0e5a",
+  "main_sha": "8344254942ec48978566317df16d7b3e3caabd89",
+  "final_code_freeze_sha": "4dc1ef995672605caec9cf30b885b47fe5bf0e5a",
+  "executed_code_sha": "4dc1ef995672605caec9cf30b885b47fe5bf0e5a",
+  "evidence_commit_sha": null,
+  "code_changed_after_execution": false,
+  "snapshot": {
+    "source": "pncp_datalake historical backfill \u2192 confenge_commercial",
+    "snapshot_total_rows": 11974,
+    "snapshot_observation_days": 718,
+    "snapshot_min_date": "2024-08-07",
+    "snapshot_max_date": "2026-07-26",
+    "status_distribution": {
+      "COMPLETED": 4442,
+      "ACTIVE": 7532
+    },
+    "active_rows": 7532,
+    "closed_rows": 4442,
+    "unknown_status_rows": 0,
+    "supplier_count": 6046
+  },
+  "dump": {
+    "format": "csv_package",
+    "dump_sha256": "566ffa1d74e20cc5efcea65b60d3bf874c3567da70b0e24e08ffe28049f0adb5",
+    "package_bytes": 5844293,
+    "source_database_identity": "a86b9307a5384c4a6ab0e181",
+    "restored_database_identity": "ddca7d60a3330ffebe9a6796",
+    "pre_restore_canonical_hash": "2a4d690e7249b450891a2ec43454fef18709bb9662897064cec91c16a64b937f",
+    "post_restore_canonical_hash": "2a4d690e7249b450891a2ec43454fef18709bb9662897064cec91c16a64b937f",
+    "identities_are_distinct": true,
+    "ok": true
+  },
+  "registry": {
+    "candidate_universe_size": 5640,
+    "candidate_universe_hash": "222d78ecb14935e16a1b30340699ba359de76318eb5092725f76b3f4eeeacddd",
+    "operational_resolved": 1.0,
+    "official_resolved": 300,
+    "official_coverage": 0.05319148936170213,
+    "fallback_usage_rate": 0.9468085106382979,
+    "official_provenance_ok": true,
+    "official_universe_ok": false,
+    "source_distribution": {
+      "rfb_public_cadastral_via_opencnpj": 300,
+      "minhareceita_fallback": 5262,
+      "brasilapi": 12,
+      "brasilapi_fallback": 66
+    }
+  },
+  "e2e": {
+    "n_universe": 5640,
+    "frozen_candidate_count": 5640,
+    "all_hashes_equal": true,
+    "top20_equal": true,
+    "review_queue_equal": true,
+    "status": "PASS",
+    "pass_a_hashes": {
+      "candidate_universe_hash": "5369218285385540ad5f48834ca8fede3704e7b7f9d7e9e0c71c418025a6ae2a",
+      "contract_history_hash": "1eb7cce36792bffdb0dfa7d4aebc8fe51cb68e0ada573f74b375ab5763483209",
+      "active_portfolio_hash": "ff87c5fe0e24d87c4a39e359a2df53034a381501de85a1668ea8d44ef3611f03",
+      "registry_snapshot_hash": "5369218285385540ad5f48834ca8fede3704e7b7f9d7e9e0c71c418025a6ae2a",
+      "sector_decision_hash": "3c500093e3da3e82b4196a0869c68ed66e4f41d6ad570ad7df921fd3ef29b334",
+      "eligible_universe_hash": "17e5d4fb65ad2f83e8e7ec260d2b13f34f287792ceae3f7038b552cde39f48b5",
+      "ranking_hash": "b661e95123ee76b8e7bbd98cf7b17076efe6656b9e54dbb8ac3a4f905c2c0cdb",
+      "review_queue_hash": "8555eaedab2df0a79a0e69e3b407f5382d14b874994e4710b59fc4e975690d2a"
+    },
+    "pass_b_hashes": {
+      "candidate_universe_hash": "5369218285385540ad5f48834ca8fede3704e7b7f9d7e9e0c71c418025a6ae2a",
+      "contract_history_hash": "1eb7cce36792bffdb0dfa7d4aebc8fe51cb68e0ada573f74b375ab5763483209",
+      "active_portfolio_hash": "ff87c5fe0e24d87c4a39e359a2df53034a381501de85a1668ea8d44ef3611f03",
+      "registry_snapshot_hash": "5369218285385540ad5f48834ca8fede3704e7b7f9d7e9e0c71c418025a6ae2a",
+      "sector_decision_hash": "3c500093e3da3e82b4196a0869c68ed66e4f41d6ad570ad7df921fd3ef29b334",
+      "eligible_universe_hash": "17e5d4fb65ad2f83e8e7ec260d2b13f34f287792ceae3f7038b552cde39f48b5",
+      "ranking_hash": "b661e95123ee76b8e7bbd98cf7b17076efe6656b9e54dbb8ac3a4f905c2c0cdb",
+      "review_queue_hash": "8555eaedab2df0a79a0e69e3b407f5382d14b874994e4710b59fc4e975690d2a"
+    },
+    "top20_order": [
+      "53640280000169",
+      "47690102000140",
+      "33347913000138",
+      "34219868000107",
+      "27254414000101",
+      "27743102000153",
+      "14190481000150",
+      "33220938000176",
+      "28857380000102",
+      "07814038000147",
+      "40593578000113",
+      "18245956000119",
+      "39534812000152",
+      "00827454000130",
+      "20594387000169",
+      "00541146000144",
+      "15723058000130",
+      "42786044000139",
+      "61917876000191",
+      "08756015000196"
+    ]
+  },
+  "corpus": {
+    "real_corpus_total": 500,
+    "n_development": 340,
+    "n_validation": 60,
+    "n_holdout": 100,
+    "human_labels_filled": 0,
+    "packages": [
+      "/mnt/d/extra consultoria/.worktrees/confenge-commercial-ready-01/artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/contract-relevance-human-review.xlsx",
+      "/mnt/d/extra consultoria/.worktrees/confenge-commercial-ready-01/artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/contract-relevance-human-review.html",
+      "/mnt/d/extra consultoria/.worktrees/confenge-commercial-ready-01/artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/commercial-top20-human-review.xlsx",
+      "/mnt/d/extra consultoria/.worktrees/confenge-commercial-ready-01/artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/commercial-evaluation-200-human-review.xlsx"
+    ]
+  },
+  "offer": {
+    "distribution": {
+      "acompanhamento_contratual": 20
+    },
+    "sensitivity_change_rates": {
+      "near_expiry": 0.55,
+      "concurrent_portfolio": 0.05,
+      "agency_concentration": 0.75,
+      "contract_concentration": 0.05
+    },
+    "dominant_offer_rate": 1.0,
+    "offer_entropy": -1.6017132519074581e-15,
+    "mean_selected_offer_margin": 1.84799,
+    "uniform_justified_individually": true,
+    "status": "PASS"
+  },
+  "machine_gates_summary": {
+    "historical_snapshot": "PASS",
+    "dump_restore": "PASS",
+    "full_universe_e2e": "PASS",
+    "offer_sensitivity": "PASS",
+    "code_freeze": "PASS",
+    "official_provenance_file": "PASS",
+    "official_universe_resolution": "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE",
+    "operational_registry_universe": "PASS",
+    "human_packages": "PACKAGES_READY_BLOCKED_REAL_HOLDOUT_NOT_REVIEWED"
+  },
+  "human_blockers": [
+    "BLOCKED_REAL_HOLDOUT_NOT_REVIEWED",
+    "BLOCKED_INSUFFICIENT_HUMAN_LABELS",
+    "BLOCKED_PENDING_HUMAN_ACCEPTANCE"
+  ],
+  "ci_blockers": [
+    "BLOCKED_CI_ENVIRONMENT_EVIDENCE_PENDING"
+  ],
+  "machine_blockers": [
+    "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE"
+  ],
+  "closure_qa": {
+    "1_snapshot_covers_ge_365_days": true,
+    "2_active_and_closed_real_contracts": true,
+    "3_registry_uses_verifiable_official_source": false,
+    "4_all_candidates_enriched_before_ranking": true,
+    "5_restorable_dump_exists": true,
+    "6_restore_on_distinct_db": true,
+    "7_hash_existed_before_restore": true,
+    "8_reproducibility_used_full_universe": true,
+    "9_real_corpus_ge_500": true,
+    "10_human_review_packages_ready": true,
+    "11_execution_matches_code_freeze": true,
+    "12_remaining_technical_blockers_beyond_ci_human": [
+      "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE"
+    ]
+  },
+  "execution_environment": "local",
+  "workflow_run_id": null
+}

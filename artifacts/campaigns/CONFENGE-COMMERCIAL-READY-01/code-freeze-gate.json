@@ -1,0 +1,14 @@
+{
+  "ok": true,
+  "status": "PASS",
+  "current_pr_head_sha": "4dc1ef995672605caec9cf30b885b47fe5bf0e5a",
+  "final_code_freeze_sha": "4dc1ef995672605caec9cf30b885b47fe5bf0e5a",
+  "executed_code_sha": "4dc1ef995672605caec9cf30b885b47fe5bf0e5a",
+  "code_tree_hash_at_execution": "5e88beb54a55debbd49b11e0676312575c3539c0ad80c990ee5aa5e19737d9ea",
+  "code_tree_hash_at_current_head": "5e88beb54a55debbd49b11e0676312575c3539c0ad80c990ee5aa5e19737d9ea",
+  "code_changed_after_execution": false,
+  "artifact_only_commits_after_execution": false,
+  "files_changed_after_freeze": [],
+  "non_artifact_files_changed": [],
+  "verified_at": "2026-07-26T15:22:15Z"
+}

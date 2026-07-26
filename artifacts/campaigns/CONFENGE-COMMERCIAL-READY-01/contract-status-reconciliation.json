@@ -1,0 +1,27 @@
+{
+  "ok": true,
+  "status": "PASS",
+  "snapshot_min_date": "2024-08-07",
+  "snapshot_max_date": "2026-07-26",
+  "snapshot_observation_days": 718,
+  "minimum_observation_window_days": 365,
+  "supplier_count": 6046,
+  "status_distribution": {
+    "COMPLETED": 4442,
+    "ACTIVE": 7532
+  },
+  "snapshot_total_contracts": 11974,
+  "snapshot_active_contracts": 7532,
+  "snapshot_completed_contracts": 4442,
+  "snapshot_cancelled_contracts": 0,
+  "snapshot_terminated_contracts": 0,
+  "snapshot_suspended_contracts": 0,
+  "snapshot_unknown_status_contracts": 0,
+  "status_sum": 11974,
+  "status_sum_matches_total": true,
+  "has_active": true,
+  "has_closed_lifecycle": true,
+  "block": null,
+  "verified_at": "2026-07-26T15:16:57Z",
+  "method": "live_db_status_recount"
+}

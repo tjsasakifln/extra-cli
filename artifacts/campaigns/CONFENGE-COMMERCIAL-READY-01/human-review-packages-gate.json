@@ -1,0 +1,22 @@
+{
+  "ok": true,
+  "status": "PACKAGES_READY_BLOCKED_REAL_HOLDOUT_NOT_REVIEWED",
+  "human_review_packages_generated": true,
+  "real_corpus_total": 500,
+  "n_development": 340,
+  "n_validation": 60,
+  "n_holdout": 100,
+  "human_labels_filled": 0,
+  "packages": [
+    "/mnt/d/extra consultoria/.worktrees/confenge-commercial-ready-01/artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/contract-relevance-human-review.xlsx",
+    "/mnt/d/extra consultoria/.worktrees/confenge-commercial-ready-01/artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/contract-relevance-human-review.html",
+    "/mnt/d/extra consultoria/.worktrees/confenge-commercial-ready-01/artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/commercial-top20-human-review.xlsx",
+    "/mnt/d/extra consultoria/.worktrees/confenge-commercial-ready-01/artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/commercial-evaluation-200-human-review.xlsx"
+  ],
+  "blockers": [
+    "BLOCKED_REAL_HOLDOUT_NOT_REVIEWED",
+    "BLOCKED_INSUFFICIENT_HUMAN_LABELS"
+  ],
+  "generated_at": "2026-07-26T15:07:35Z",
+  "note": "Agents must never fill human label fields. Ready for Tiago + second reviewer."
+}

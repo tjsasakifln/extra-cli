@@ -1,14 +1,27 @@
 {
   "ok": true,
-  "current_repo_head": "41c4007f0b4b736414492717bb7cead64b1cf02e",
-  "executed_code_sha": "6731f652231dd9d82d3e3fb18afcda03039493d7",
-  "current_pr_head_sha_declared": "41c4007f0b4b736414492717bb7cead64b1cf02e",
-  "live_head": "41c4007f0b4b736414492717bb7cead64b1cf02e",
-  "workflow_run_id": null,
-  "match_run_to_head_declared": false,
-  "live_match_executed_to_head": false,
-  "executed_is_ancestor_of_head": true,
-  "issues": [],
-  "local_fields_ok": true,
-  "note": "match_run_to_head=true only valid when executed_code_sha == live HEAD. Ancestor lag with match_run_to_head=false is honest evidence packaging."
+  "status": "PASS",
+  "current_pr_head_sha": "4dc1ef995672605caec9cf30b885b47fe5bf0e5a",
+  "final_code_freeze_sha": "4dc1ef995672605caec9cf30b885b47fe5bf0e5a",
+  "executed_code_sha": "4dc1ef995672605caec9cf30b885b47fe5bf0e5a",
+  "evidence_commit_sha": "4dc1ef995672605caec9cf30b885b47fe5bf0e5a",
+  "code_tree_hash_at_execution": "5e88beb54a55debbd49b11e0676312575c3539c0ad80c990ee5aa5e19737d9ea",
+  "code_tree_hash_at_current_head": "5e88beb54a55debbd49b11e0676312575c3539c0ad80c990ee5aa5e19737d9ea",
+  "code_changed_after_execution": false,
+  "artifact_only_commits_after_execution": false,
+  "execution": {
+    "execution_environment": "local",
+    "machine_id_hash": "72aa0c75ebd3851a",
+    "os": "Linux 6.18.33.2-microsoft-standard-WSL2",
+    "python_version": "3.12.3",
+    "postgres_version": "18.4 (Ubuntu 18.4-1.pgdg24.04+1)",
+    "workflow_run_id": null,
+    "job_ids": null,
+    "command": "make campaign-gate-confenge-commercial-ready",
+    "started_at": null,
+    "finished_at": "2026-07-26T15:22:13Z",
+    "exit_code": 0
+  },
+  "match_run_to_head": true,
+  "verified_at": "2026-07-26T15:22:13Z"
 }

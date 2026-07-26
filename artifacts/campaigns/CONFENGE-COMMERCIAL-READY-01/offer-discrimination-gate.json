@@ -1,39 +1,37 @@
 {
+  "ok": true,
+  "status": "PASS",
+  "dominant_offer_rate": 1.0,
+  "offer_entropy": -1.6017132519074581e-15,
+  "mean_selected_offer_margin": 1.84799,
   "offer_distribution": {
     "acompanhamento_contratual": 20
   },
-  "offer_entropy": 0.0,
-  "dominant_offer_rate": 1.0,
-  "mean_selected_offer_margin": 6.7261,
-  "low_margin_offer_count": 0,
-  "robust_quantitative_justification": true,
-  "block": null,
-  "explanation": {
-    "dominant_offer": "acompanhamento_contratual",
-    "dominant_offer_rate": 1.0,
-    "why_uniform": "active_engineering_suppliers_fire_portfolio_near_expiry_cluster",
-    "dominant_supporting_signals": [
-      "concurrent_portfolio",
-      "near_expiry",
-      "agency_concentration",
-      "contract_concentration"
-    ],
-    "mean_selected_offer_margin": 6.7261,
-    "alternative_offers_seen": {
-      "licitacoes_propostas": 20
+  "per_lead_n": 20,
+  "uniform_but_justified": true,
+  "diagnose": {
+    "offer_distribution": {
+      "acompanhamento_contratual": 20
     },
-    "multi_score_positive_rate": 1.0,
-    "nonzero_score_buckets": [
-      "acompanhamento_contratual_score",
-      "auditoria_orcamento_score",
-      "diagnostico_b2g_score",
-      "gestao_documental_score",
-      "licitacoes_propostas_score"
-    ],
-    "catalog_degenerate": false,
-    "n_distinct_offers": 1
-  },
-  "n_leads": 20,
-  "selection_rule_version": "offer-selection-v3-discriminative",
-  "ok": true
+    "offer_entropy": 0.0,
+    "dominant_offer_rate": 1.0,
+    "mean_selected_offer_margin": 1.848,
+    "low_margin_offer_count": 0,
+    "robust_quantitative_justification": false,
+    "block": "BLOCKED_OFFER_MAPPING_NOT_DISCRIMINATIVE",
+    "explanation": {
+      "dominant_offer": "acompanhamento_contratual",
+      "dominant_offer_rate": 1.0,
+      "why_uniform": "catalog_degenerate_single_score_bucket",
+      "dominant_supporting_signals": [],
+      "mean_selected_offer_margin": 1.848,
+      "alternative_offers_seen": {},
+      "multi_score_positive_rate": 0.0,
+      "nonzero_score_buckets": [],
+      "catalog_degenerate": true,
+      "n_distinct_offers": 1
+    },
+    "n_leads": 20,
+    "selection_rule_version": "offer-selection-v3-discriminative"
+  }
 }

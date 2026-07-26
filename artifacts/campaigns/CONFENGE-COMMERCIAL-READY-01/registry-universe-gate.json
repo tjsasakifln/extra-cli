@@ -1,0 +1,21 @@
+{
+  "ok": true,
+  "status": "PASS",
+  "candidate_count": 5640,
+  "candidate_universe_hash": "222d78ecb14935e16a1b30340699ba359de76318eb5092725f76b3f4eeeacddd",
+  "registry_resolved_or_definitively_not_found": 1.0,
+  "official_registry_match_rate": 0.05319148936170213,
+  "fallback_usage_rate": 0.9468085106382979,
+  "field_conflict_rate": 0.0,
+  "transient_failures": 0,
+  "selection_bias_risk": false,
+  "source_distribution": {
+    "rfb_public_cadastral_via_opencnpj": 300,
+    "minhareceita_fallback": 5262,
+    "brasilapi": 12,
+    "brasilapi_fallback": 66
+  },
+  "missing_n": 0,
+  "method": "live_db_universe_join",
+  "note": "Operational universe join 100%. Official RFB-authority share tracked separately in provenance gate."
+}

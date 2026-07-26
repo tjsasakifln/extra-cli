@@ -1,0 +1,26 @@
+{
+  "ok": true,
+  "status": "PASS",
+  "source_database_identity": "a86b9307a5384c4a6ab0e181",
+  "restored_database_identity": "ddca7d60a3330ffebe9a6796",
+  "identities_are_distinct": true,
+  "export_started_at": "2026-07-26T15:01:12Z",
+  "export_finished_at": "2026-07-26T15:01:13Z",
+  "manifest_closed_at": "2026-07-26T15:01:13Z",
+  "restore_started_at": "2026-07-26T15:16:57Z",
+  "restore_finished_at": "2026-07-26T15:17:02Z",
+  "dump_sha256": "566ffa1d74e20cc5efcea65b60d3bf874c3567da70b0e24e08ffe28049f0adb5",
+  "pre_restore_canonical_hash": "2a4d690e7249b450891a2ec43454fef18709bb9662897064cec91c16a64b937f",
+  "post_restore_canonical_hash": "2a4d690e7249b450891a2ec43454fef18709bb9662897064cec91c16a64b937f",
+  "manifest_mutated_during_validation": false,
+  "dump_file_is_restorable": true,
+  "rows_restored": 11974,
+  "manifest_closed_before_restore": true,
+  "criteria": {
+    "source_database_identity_ne_restored": true,
+    "dump_file_is_restorable": true,
+    "manifest_closed_at_le_restore_started_at": true,
+    "pre_equals_post_canonical_hash": true,
+    "manifest_mutated_during_validation": false
+  }
+}
