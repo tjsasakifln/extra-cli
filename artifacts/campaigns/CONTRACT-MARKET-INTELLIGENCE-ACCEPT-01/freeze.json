@@ -1,0 +1,2115 @@
+{
+  "campaign_id": "CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01",
+  "bundle_id": "CMI-CONCORRENTES-VALORES-01",
+  "bundle_class": "REPAIR_AND_ACCEPT_BUNDLE",
+  "created_at": "2026-07-27T21:12:21Z",
+  "main_baseline_sha": "c5b4cdb91b0727b5e7a537c8eb47daf001b74552",
+  "dod_baseline_hash": "df2388b7fc3887558c17efe2bd6318c8ce73b2a8",
+  "dod_path": "DOD.md",
+  "n_total": 1462,
+  "n_accepted": 354,
+  "n_open_initial": 1107,
+  "n_blocked_initial": 1,
+  "w_total": 4386,
+  "w_accepted": 1062,
+  "w_open_initial": 3321,
+  "weight_convention": "selected items use campaign weights; open universe prior weight=3 per item for weighted %",
+  "percentual_atual_audited": 2.87,
+  "percentual_claimed": 24.35,
+  "target_raw_dod_delta": 47,
+  "target_weighted_dod_delta": 197,
+  "target_raw_progress_percent": 4.2457,
+  "target_weighted_progress_percent": 5.9319,
+  "selected_item_ids": [
+    "DOD-rol-1-definition-of-done-ad5ffdc575",
+    "DOD-rol-1-definition-of-done-7fc5475f5f",
+    "DOD-rol-1-definition-of-done-aaad858820",
+    "DOD-rol-1-definition-of-done-29ddb3c2f5",
+    "DOD-rol-1-definition-of-done-af4d2329d5",
+    "DOD-rol-1-definition-of-done-e2debb6d90",
+    "DOD-rol-1-definition-of-done-24581047c4",
+    "DOD-rol-1-definition-of-done-7114069aad",
+    "DOD-rol-1-definition-of-done-180363f3c6",
+    "DOD-rol-1-definition-of-done-5eb2fbdae2",
+    "DOD-rol-1-definition-of-done-24d8ac6823",
+    "DOD-rol-1-definition-of-done-72ffefd4fe",
+    "DOD-rol-1-definition-of-done-28a1c47d70",
+    "DOD-rol-1-definition-of-done-f32083927c",
+    "DOD-rol-1-definition-of-done-f11737c2bf",
+    "DOD-rol-1-definition-of-done-e5557d5607",
+    "DOD-rol-1-definition-of-done-df0c666a5f",
+    "DOD-rol-1-definition-of-done-ff54a45a75",
+    "DOD-rol-1-definition-of-done-926290cde1",
+    "DOD-rol-1-definition-of-done-849f610ada",
+    "DOD-rol-1-definition-of-done-fd5b78c29d",
+    "DOD-rol-1-definition-of-done-96ca22dde7",
+    "DOD-rol-1-definition-of-done-e26def5c74",
+    "DOD-rol-1-definition-of-done-2c30e375c5",
+    "DOD-rol-1-definition-of-done-3f13a31ef1",
+    "DOD-rol-1-definition-of-done-58f3b88564",
+    "DOD-rol-1-definition-of-done-f2cc2a2ae5",
+    "DOD-rol-1-definition-of-done-7e3e9e1447",
+    "DOD-rol-1-definition-of-done-9138b9d0df",
+    "DOD-rol-1-definition-of-done-532d802562",
+    "DOD-rol-1-definition-of-done-76039ae8d2",
+    "DOD-rol-1-definition-of-done-7d7b10b055",
+    "DOD-rol-1-definition-of-done-3bb3874141",
+    "DOD-rol-1-definition-of-done-4fc2390171",
+    "DOD-rol-1-definition-of-done-262f17e7ec",
+    "DOD-rol-1-definition-of-done-53115f162e",
+    "DOD-rol-1-definition-of-done-50bb794fc7",
+    "DOD-rol-1-definition-of-done-dc5790ffeb",
+    "DOD-rol-1-definition-of-done-c8739f5734",
+    "DOD-rol-1-definition-of-done-04da3e4902",
+    "DOD-rol-1-definition-of-done-a9b1b6e0c3",
+    "DOD-rol-1-definition-of-done-31211a0281",
+    "DOD-rol-1-definition-of-done-589da36904",
+    "DOD-rol-1-definition-of-done-8aae30ee2e",
+    "DOD-rol-1-definition-of-done-55a430a39c",
+    "DOD-rol-1-definition-of-done-91752931c3",
+    "DOD-rol-1-definition-of-done-bcbbd65023"
+  ],
+  "selected_item_texts": [
+    "O sistema diferencia vencedor identificado de participante identificado.",
+    "O sistema não afirma conhecer todos os concorrentes quando a fonte não expõe participantes.",
+    "O sistema não calcula win rate sem denominador de propostas apresentadas.",
+    "O sistema não calcula deságio sem valor estimado e valor homologado comparáveis.",
+    "O sistema não infere capacidade ociosa do concorrente sem dado apropriado.",
+    "O sistema não trata quantidade de contratos como sinônimo de capacidade técnica.",
+    "O sistema informa as limitações de cada indicador.",
+    "Ranking de fornecedores vencedores.",
+    "Quantidade de contratos por fornecedor.",
+    "Valor contratado por fornecedor.",
+    "Ticket contratado médio por fornecedor.",
+    "Número de entes atendidos por fornecedor.",
+    "Distribuição por município.",
+    "Distribuição por natureza do ente.",
+    "Distribuição por setor ou tipo de objeto.",
+    "Recorrência de contratação.",
+    "Última contratação conhecida.",
+    "Concentração por órgão.",
+    "Concentração por fornecedor.",
+    "Market share contratual quando semanticamente válido.",
+    "HHI quando semanticamente válido.",
+    "Fonte e data de corte em todas as métricas.",
+    "Exportação para Excel.",
+    "Relatório de concorrentes para revisão manual.",
+    "Queries executadas em PostgreSQL real.",
+    "Testes validam nomes reais de tabelas e colunas.",
+    "O relatório distingue métricas prontas, parciais e indisponíveis.",
+    "`valor_estimado` possui definição explícita.",
+    "`valor_homologado` possui definição explícita.",
+    "`valor_contratado` possui definição explícita.",
+    "`valor_pago` possui definição explícita.",
+    "Os quatro campos não são intercambiáveis.",
+    "O relatório exibe o tipo de valor.",
+    "O relatório exibe a fonte do valor.",
+    "O relatório exibe a data de referência.",
+    "O relatório exibe a unidade de comparação.",
+    "O relatório exibe se o valor é global, por lote, por item ou unitário.",
+    "Valor ausente não é substituído por zero.",
+    "Valor inferido é marcado como inferido.",
+    "Valor oficial é marcado como oficial.",
+    "Valores de objetos heterogêneos não são agregados sem classificação adequada.",
+    "Valores de períodos muito distintos são acompanhados de data.",
+    "Atualização monetária, quando usada, é explicitada.",
+    "Percentis só são calculados sobre amostra comparável.",
+    "O tamanho da amostra é informado.",
+    "Outliers são identificados.",
+    "O sistema não chama percentil de contratos globais de “preço real praticado” sem base técnica."
+  ],
+  "selected_item_weights": [
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    3,
+    5,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    5,
+    5,
+    5,
+    3,
+    3,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    3,
+    5,
+    3,
+    3,
+    5,
+    5,
+    5,
+    5,
+    5,
+    3,
+    3,
+    5,
+    3,
+    3,
+    5
+  ],
+  "selected_item_initial_states": [
+    "OPEN",
+    "OPEN",
+    "OPEN",
+    "OPEN",
+    "OPEN",
+    "OPEN",
+    "OPEN",
+    "OPEN",
+    "OPEN",
+    "OPEN",
+    "OPEN",
+    "OPEN",
+    "OPEN",
+    "OPEN",
+    "OPEN",
+    "OPEN",
+    "OPEN",
+    "OPEN",
+    "OPEN",
+    "OPEN",
+    "OPEN",
+    "OPEN",
+    "OPEN",
+    "OPEN",
+    "OPEN",
+    "OPEN",
+    "OPEN",
+    "OPEN",
+    "OPEN",
+    "OPEN",
+    "OPEN",
+    "OPEN",
+    "OPEN",
+    "OPEN",
+    "OPEN",
+    "OPEN",
+    "OPEN",
+    "OPEN",
+    "OPEN",
+    "OPEN",
+    "OPEN",
+    "OPEN",
+    "OPEN",
+    "OPEN",
+    "OPEN",
+    "OPEN",
+    "OPEN"
+  ],
+  "selected_item_aliases": [
+    "CMI-10.1-01",
+    "CMI-10.1-02",
+    "CMI-10.1-03",
+    "CMI-10.1-04",
+    "CMI-10.1-05",
+    "CMI-10.1-06",
+    "CMI-10.1-07",
+    "CMI-10.2-01",
+    "CMI-10.2-02",
+    "CMI-10.2-03",
+    "CMI-10.2-04",
+    "CMI-10.2-05",
+    "CMI-10.2-06",
+    "CMI-10.2-07",
+    "CMI-10.2-08",
+    "CMI-10.2-09",
+    "CMI-10.2-10",
+    "CMI-10.2-11",
+    "CMI-10.2-12",
+    "CMI-10.2-13",
+    "CMI-10.2-14",
+    "CMI-10.2-15",
+    "CMI-10.2-16",
+    "CMI-10.2-17",
+    "CMI-10.2-18",
+    "CMI-10.2-19",
+    "CMI-10.2-20",
+    "CMI-11.1-01",
+    "CMI-11.1-02",
+    "CMI-11.1-03",
+    "CMI-11.1-04",
+    "CMI-11.1-05",
+    "CMI-11.1-06",
+    "CMI-11.1-07",
+    "CMI-11.1-08",
+    "CMI-11.1-09",
+    "CMI-11.1-10",
+    "CMI-11.1-11",
+    "CMI-11.1-12",
+    "CMI-11.1-13",
+    "CMI-11.1-14",
+    "CMI-11.1-15",
+    "CMI-11.1-16",
+    "CMI-11.1-17",
+    "CMI-11.1-18",
+    "CMI-11.1-19",
+    "CMI-11.1-20"
+  ],
+  "selected_item_acceptance_criteria": [
+    "Executable proof that: O sistema diferencia vencedor identificado de participante identificado.",
+    "Executable proof that: O sistema não afirma conhecer todos os concorrentes quando a fonte não expõe participantes.",
+    "Executable proof that: O sistema não calcula win rate sem denominador de propostas apresentadas.",
+    "Executable proof that: O sistema não calcula deságio sem valor estimado e valor homologado comparáveis.",
+    "Executable proof that: O sistema não infere capacidade ociosa do concorrente sem dado apropriado.",
+    "Executable proof that: O sistema não trata quantidade de contratos como sinônimo de capacidade técnica.",
+    "Executable proof that: O sistema informa as limitações de cada indicador.",
+    "Executable proof that: Ranking de fornecedores vencedores.",
+    "Executable proof that: Quantidade de contratos por fornecedor.",
+    "Executable proof that: Valor contratado por fornecedor.",
+    "Executable proof that: Ticket contratado médio por fornecedor.",
+    "Executable proof that: Número de entes atendidos por fornecedor.",
+    "Executable proof that: Distribuição por município.",
+    "Executable proof that: Distribuição por natureza do ente.",
+    "Executable proof that: Distribuição por setor ou tipo de objeto.",
+    "Executable proof that: Recorrência de contratação.",
+    "Executable proof that: Última contratação conhecida.",
+    "Executable proof that: Concentração por órgão.",
+    "Executable proof that: Concentração por fornecedor.",
+    "Executable proof that: Market share contratual quando semanticamente válido.",
+    "Executable proof that: HHI quando semanticamente válido.",
+    "Executable proof that: Fonte e data de corte em todas as métricas.",
+    "Executable proof that: Exportação para Excel.",
+    "Executable proof that: Relatório de concorrentes para revisão manual.",
+    "Executable proof that: Queries executadas em PostgreSQL real.",
+    "Executable proof that: Testes validam nomes reais de tabelas e colunas.",
+    "Executable proof that: O relatório distingue métricas prontas, parciais e indisponíveis.",
+    "Executable proof that: `valor_estimado` possui definição explícita.",
+    "Executable proof that: `valor_homologado` possui definição explícita.",
+    "Executable proof that: `valor_contratado` possui definição explícita.",
+    "Executable proof that: `valor_pago` possui definição explícita.",
+    "Executable proof that: Os quatro campos não são intercambiáveis.",
+    "Executable proof that: O relatório exibe o tipo de valor.",
+    "Executable proof that: O relatório exibe a fonte do valor.",
+    "Executable proof that: O relatório exibe a data de referência.",
+    "Executable proof that: O relatório exibe a unidade de comparação.",
+    "Executable proof that: O relatório exibe se o valor é global, por lote, por item ou unitário.",
+    "Executable proof that: Valor ausente não é substituído por zero.",
+    "Executable proof that: Valor inferido é marcado como inferido.",
+    "Executable proof that: Valor oficial é marcado como oficial.",
+    "Executable proof that: Valores de objetos heterogêneos não são agregados sem classificação adequada.",
+    "Executable proof that: Valores de períodos muito distintos são acompanhados de data.",
+    "Executable proof that: Atualização monetária, quando usada, é explicitada.",
+    "Executable proof that: Percentis só são calculados sobre amostra comparável.",
+    "Executable proof that: O tamanho da amostra é informado.",
+    "Executable proof that: Outliers são identificados.",
+    "Executable proof that: O sistema não chama percentil de contratos globais de “preço real praticado” sem base técnica."
+  ],
+  "selected_item_test_commands": [
+    "python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts=''",
+    "REQUIRE_REAL_DB=1 python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts='' -k real_db"
+  ],
+  "selected_item_acceptance_commands": "per-item dod_controller start/verify/accept",
+  "selected_item_evidence_requirements": [
+    "proof.json linked to code SHA",
+    "ledger with commands and exit codes",
+    "artifact path material for deliverable items",
+    "test nodeids green for item"
+  ],
+  "selected_item_authorities": [
+    "DOD.md",
+    "freeze",
+    "reproducible execution",
+    "CI",
+    "dod_controller.accept"
+  ],
+  "selected_item_dependencies": [],
+  "selected_item_files": [
+    "scripts/ops/contract_market_intelligence.py",
+    "scripts/ops/deliverable_b_competitors.py",
+    "scripts/ops/deliverable_d_prices.py",
+    "scripts/lib/value_semantics.py",
+    "scripts/reports/concorrentes_report.py",
+    "scripts/reports/operational_reports.py",
+    "scripts/ops/live_consulting_pack.py"
+  ],
+  "selected_item_terminal_states": [
+    "ACCEPTED",
+    "ACCEPTED",
+    "ACCEPTED",
+    "ACCEPTED",
+    "ACCEPTED",
+    "ACCEPTED",
+    "ACCEPTED",
+    "ACCEPTED",
+    "ACCEPTED",
+    "ACCEPTED",
+    "ACCEPTED",
+    "ACCEPTED",
+    "ACCEPTED",
+    "ACCEPTED",
+    "ACCEPTED",
+    "ACCEPTED",
+    "ACCEPTED",
+    "ACCEPTED",
+    "ACCEPTED",
+    "ACCEPTED",
+    "ACCEPTED",
+    "ACCEPTED",
+    "ACCEPTED",
+    "ACCEPTED",
+    "ACCEPTED",
+    "ACCEPTED",
+    "ACCEPTED",
+    "ACCEPTED",
+    "ACCEPTED",
+    "ACCEPTED",
+    "ACCEPTED",
+    "ACCEPTED",
+    "ACCEPTED",
+    "ACCEPTED",
+    "ACCEPTED",
+    "ACCEPTED",
+    "ACCEPTED",
+    "ACCEPTED",
+    "ACCEPTED",
+    "ACCEPTED",
+    "ACCEPTED",
+    "ACCEPTED",
+    "ACCEPTED",
+    "ACCEPTED",
+    "ACCEPTED",
+    "ACCEPTED",
+    "ACCEPTED"
+  ],
+  "selected_items": [
+    {
+      "alias": "CMI-10.1-01",
+      "id": "DOD-rol-1-definition-of-done-ad5ffdc575",
+      "text": "O sistema diferencia vencedor identificado de participante identificado.",
+      "weight": 5,
+      "initial_state": "OPEN",
+      "acceptance_criteria": "Executable proof that: O sistema diferencia vencedor identificado de participante identificado.",
+      "test_commands": [
+        "python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts=''",
+        "REQUIRE_REAL_DB=1 python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts='' -k real_db"
+      ],
+      "acceptance_commands": [
+        "python3 tools/dod_controller.py start DOD-rol-1-definition-of-done-ad5ffdc575",
+        "python3 tools/dod_controller.py verify DOD-rol-1-definition-of-done-ad5ffdc575",
+        "python3 tools/dod_controller.py accept DOD-rol-1-definition-of-done-ad5ffdc575"
+      ],
+      "evidence_requirements": [
+        "proof.json linked to code SHA",
+        "ledger with commands and exit codes",
+        "artifact path material for deliverable items",
+        "test nodeids green for item"
+      ],
+      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "dependencies": [],
+      "files": [
+        "scripts/ops/contract_market_intelligence.py",
+        "scripts/ops/deliverable_b_competitors.py",
+        "scripts/ops/deliverable_d_prices.py",
+        "scripts/lib/value_semantics.py",
+        "scripts/reports/concorrentes_report.py",
+        "scripts/reports/operational_reports.py",
+        "scripts/ops/live_consulting_pack.py"
+      ],
+      "terminal_state": "ACCEPTED"
+    },
+    {
+      "alias": "CMI-10.1-02",
+      "id": "DOD-rol-1-definition-of-done-7fc5475f5f",
+      "text": "O sistema não afirma conhecer todos os concorrentes quando a fonte não expõe participantes.",
+      "weight": 5,
+      "initial_state": "OPEN",
+      "acceptance_criteria": "Executable proof that: O sistema não afirma conhecer todos os concorrentes quando a fonte não expõe participantes.",
+      "test_commands": [
+        "python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts=''",
+        "REQUIRE_REAL_DB=1 python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts='' -k real_db"
+      ],
+      "acceptance_commands": [
+        "python3 tools/dod_controller.py start DOD-rol-1-definition-of-done-7fc5475f5f",
+        "python3 tools/dod_controller.py verify DOD-rol-1-definition-of-done-7fc5475f5f",
+        "python3 tools/dod_controller.py accept DOD-rol-1-definition-of-done-7fc5475f5f"
+      ],
+      "evidence_requirements": [
+        "proof.json linked to code SHA",
+        "ledger with commands and exit codes",
+        "artifact path material for deliverable items",
+        "test nodeids green for item"
+      ],
+      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "dependencies": [],
+      "files": [
+        "scripts/ops/contract_market_intelligence.py",
+        "scripts/ops/deliverable_b_competitors.py",
+        "scripts/ops/deliverable_d_prices.py",
+        "scripts/lib/value_semantics.py",
+        "scripts/reports/concorrentes_report.py",
+        "scripts/reports/operational_reports.py",
+        "scripts/ops/live_consulting_pack.py"
+      ],
+      "terminal_state": "ACCEPTED"
+    },
+    {
+      "alias": "CMI-10.1-03",
+      "id": "DOD-rol-1-definition-of-done-aaad858820",
+      "text": "O sistema não calcula win rate sem denominador de propostas apresentadas.",
+      "weight": 5,
+      "initial_state": "OPEN",
+      "acceptance_criteria": "Executable proof that: O sistema não calcula win rate sem denominador de propostas apresentadas.",
+      "test_commands": [
+        "python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts=''",
+        "REQUIRE_REAL_DB=1 python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts='' -k real_db"
+      ],
+      "acceptance_commands": [
+        "python3 tools/dod_controller.py start DOD-rol-1-definition-of-done-aaad858820",
+        "python3 tools/dod_controller.py verify DOD-rol-1-definition-of-done-aaad858820",
+        "python3 tools/dod_controller.py accept DOD-rol-1-definition-of-done-aaad858820"
+      ],
+      "evidence_requirements": [
+        "proof.json linked to code SHA",
+        "ledger with commands and exit codes",
+        "artifact path material for deliverable items",
+        "test nodeids green for item"
+      ],
+      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "dependencies": [],
+      "files": [
+        "scripts/ops/contract_market_intelligence.py",
+        "scripts/ops/deliverable_b_competitors.py",
+        "scripts/ops/deliverable_d_prices.py",
+        "scripts/lib/value_semantics.py",
+        "scripts/reports/concorrentes_report.py",
+        "scripts/reports/operational_reports.py",
+        "scripts/ops/live_consulting_pack.py"
+      ],
+      "terminal_state": "ACCEPTED"
+    },
+    {
+      "alias": "CMI-10.1-04",
+      "id": "DOD-rol-1-definition-of-done-29ddb3c2f5",
+      "text": "O sistema não calcula deságio sem valor estimado e valor homologado comparáveis.",
+      "weight": 5,
+      "initial_state": "OPEN",
+      "acceptance_criteria": "Executable proof that: O sistema não calcula deságio sem valor estimado e valor homologado comparáveis.",
+      "test_commands": [
+        "python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts=''",
+        "REQUIRE_REAL_DB=1 python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts='' -k real_db"
+      ],
+      "acceptance_commands": [
+        "python3 tools/dod_controller.py start DOD-rol-1-definition-of-done-29ddb3c2f5",
+        "python3 tools/dod_controller.py verify DOD-rol-1-definition-of-done-29ddb3c2f5",
+        "python3 tools/dod_controller.py accept DOD-rol-1-definition-of-done-29ddb3c2f5"
+      ],
+      "evidence_requirements": [
+        "proof.json linked to code SHA",
+        "ledger with commands and exit codes",
+        "artifact path material for deliverable items",
+        "test nodeids green for item"
+      ],
+      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "dependencies": [],
+      "files": [
+        "scripts/ops/contract_market_intelligence.py",
+        "scripts/ops/deliverable_b_competitors.py",
+        "scripts/ops/deliverable_d_prices.py",
+        "scripts/lib/value_semantics.py",
+        "scripts/reports/concorrentes_report.py",
+        "scripts/reports/operational_reports.py",
+        "scripts/ops/live_consulting_pack.py"
+      ],
+      "terminal_state": "ACCEPTED"
+    },
+    {
+      "alias": "CMI-10.1-05",
+      "id": "DOD-rol-1-definition-of-done-af4d2329d5",
+      "text": "O sistema não infere capacidade ociosa do concorrente sem dado apropriado.",
+      "weight": 5,
+      "initial_state": "OPEN",
+      "acceptance_criteria": "Executable proof that: O sistema não infere capacidade ociosa do concorrente sem dado apropriado.",
+      "test_commands": [
+        "python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts=''",
+        "REQUIRE_REAL_DB=1 python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts='' -k real_db"
+      ],
+      "acceptance_commands": [
+        "python3 tools/dod_controller.py start DOD-rol-1-definition-of-done-af4d2329d5",
+        "python3 tools/dod_controller.py verify DOD-rol-1-definition-of-done-af4d2329d5",
+        "python3 tools/dod_controller.py accept DOD-rol-1-definition-of-done-af4d2329d5"
+      ],
+      "evidence_requirements": [
+        "proof.json linked to code SHA",
+        "ledger with commands and exit codes",
+        "artifact path material for deliverable items",
+        "test nodeids green for item"
+      ],
+      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "dependencies": [],
+      "files": [
+        "scripts/ops/contract_market_intelligence.py",
+        "scripts/ops/deliverable_b_competitors.py",
+        "scripts/ops/deliverable_d_prices.py",
+        "scripts/lib/value_semantics.py",
+        "scripts/reports/concorrentes_report.py",
+        "scripts/reports/operational_reports.py",
+        "scripts/ops/live_consulting_pack.py"
+      ],
+      "terminal_state": "ACCEPTED"
+    },
+    {
+      "alias": "CMI-10.1-06",
+      "id": "DOD-rol-1-definition-of-done-e2debb6d90",
+      "text": "O sistema não trata quantidade de contratos como sinônimo de capacidade técnica.",
+      "weight": 5,
+      "initial_state": "OPEN",
+      "acceptance_criteria": "Executable proof that: O sistema não trata quantidade de contratos como sinônimo de capacidade técnica.",
+      "test_commands": [
+        "python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts=''",
+        "REQUIRE_REAL_DB=1 python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts='' -k real_db"
+      ],
+      "acceptance_commands": [
+        "python3 tools/dod_controller.py start DOD-rol-1-definition-of-done-e2debb6d90",
+        "python3 tools/dod_controller.py verify DOD-rol-1-definition-of-done-e2debb6d90",
+        "python3 tools/dod_controller.py accept DOD-rol-1-definition-of-done-e2debb6d90"
+      ],
+      "evidence_requirements": [
+        "proof.json linked to code SHA",
+        "ledger with commands and exit codes",
+        "artifact path material for deliverable items",
+        "test nodeids green for item"
+      ],
+      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "dependencies": [],
+      "files": [
+        "scripts/ops/contract_market_intelligence.py",
+        "scripts/ops/deliverable_b_competitors.py",
+        "scripts/ops/deliverable_d_prices.py",
+        "scripts/lib/value_semantics.py",
+        "scripts/reports/concorrentes_report.py",
+        "scripts/reports/operational_reports.py",
+        "scripts/ops/live_consulting_pack.py"
+      ],
+      "terminal_state": "ACCEPTED"
+    },
+    {
+      "alias": "CMI-10.1-07",
+      "id": "DOD-rol-1-definition-of-done-24581047c4",
+      "text": "O sistema informa as limitações de cada indicador.",
+      "weight": 5,
+      "initial_state": "OPEN",
+      "acceptance_criteria": "Executable proof that: O sistema informa as limitações de cada indicador.",
+      "test_commands": [
+        "python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts=''",
+        "REQUIRE_REAL_DB=1 python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts='' -k real_db"
+      ],
+      "acceptance_commands": [
+        "python3 tools/dod_controller.py start DOD-rol-1-definition-of-done-24581047c4",
+        "python3 tools/dod_controller.py verify DOD-rol-1-definition-of-done-24581047c4",
+        "python3 tools/dod_controller.py accept DOD-rol-1-definition-of-done-24581047c4"
+      ],
+      "evidence_requirements": [
+        "proof.json linked to code SHA",
+        "ledger with commands and exit codes",
+        "artifact path material for deliverable items",
+        "test nodeids green for item"
+      ],
+      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "dependencies": [],
+      "files": [
+        "scripts/ops/contract_market_intelligence.py",
+        "scripts/ops/deliverable_b_competitors.py",
+        "scripts/ops/deliverable_d_prices.py",
+        "scripts/lib/value_semantics.py",
+        "scripts/reports/concorrentes_report.py",
+        "scripts/reports/operational_reports.py",
+        "scripts/ops/live_consulting_pack.py"
+      ],
+      "terminal_state": "ACCEPTED"
+    },
+    {
+      "alias": "CMI-10.2-01",
+      "id": "DOD-rol-1-definition-of-done-7114069aad",
+      "text": "Ranking de fornecedores vencedores.",
+      "weight": 5,
+      "initial_state": "OPEN",
+      "acceptance_criteria": "Executable proof that: Ranking de fornecedores vencedores.",
+      "test_commands": [
+        "python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts=''",
+        "REQUIRE_REAL_DB=1 python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts='' -k real_db"
+      ],
+      "acceptance_commands": [
+        "python3 tools/dod_controller.py start DOD-rol-1-definition-of-done-7114069aad",
+        "python3 tools/dod_controller.py verify DOD-rol-1-definition-of-done-7114069aad",
+        "python3 tools/dod_controller.py accept DOD-rol-1-definition-of-done-7114069aad"
+      ],
+      "evidence_requirements": [
+        "proof.json linked to code SHA",
+        "ledger with commands and exit codes",
+        "artifact path material for deliverable items",
+        "test nodeids green for item"
+      ],
+      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "dependencies": [],
+      "files": [
+        "scripts/ops/contract_market_intelligence.py",
+        "scripts/ops/deliverable_b_competitors.py",
+        "scripts/ops/deliverable_d_prices.py",
+        "scripts/lib/value_semantics.py",
+        "scripts/reports/concorrentes_report.py",
+        "scripts/reports/operational_reports.py",
+        "scripts/ops/live_consulting_pack.py"
+      ],
+      "terminal_state": "ACCEPTED"
+    },
+    {
+      "alias": "CMI-10.2-02",
+      "id": "DOD-rol-1-definition-of-done-180363f3c6",
+      "text": "Quantidade de contratos por fornecedor.",
+      "weight": 3,
+      "initial_state": "OPEN",
+      "acceptance_criteria": "Executable proof that: Quantidade de contratos por fornecedor.",
+      "test_commands": [
+        "python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts=''",
+        "REQUIRE_REAL_DB=1 python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts='' -k real_db"
+      ],
+      "acceptance_commands": [
+        "python3 tools/dod_controller.py start DOD-rol-1-definition-of-done-180363f3c6",
+        "python3 tools/dod_controller.py verify DOD-rol-1-definition-of-done-180363f3c6",
+        "python3 tools/dod_controller.py accept DOD-rol-1-definition-of-done-180363f3c6"
+      ],
+      "evidence_requirements": [
+        "proof.json linked to code SHA",
+        "ledger with commands and exit codes",
+        "artifact path material for deliverable items",
+        "test nodeids green for item"
+      ],
+      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "dependencies": [],
+      "files": [
+        "scripts/ops/contract_market_intelligence.py",
+        "scripts/ops/deliverable_b_competitors.py",
+        "scripts/ops/deliverable_d_prices.py",
+        "scripts/lib/value_semantics.py",
+        "scripts/reports/concorrentes_report.py",
+        "scripts/reports/operational_reports.py",
+        "scripts/ops/live_consulting_pack.py"
+      ],
+      "terminal_state": "ACCEPTED"
+    },
+    {
+      "alias": "CMI-10.2-03",
+      "id": "DOD-rol-1-definition-of-done-5eb2fbdae2",
+      "text": "Valor contratado por fornecedor.",
+      "weight": 5,
+      "initial_state": "OPEN",
+      "acceptance_criteria": "Executable proof that: Valor contratado por fornecedor.",
+      "test_commands": [
+        "python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts=''",
+        "REQUIRE_REAL_DB=1 python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts='' -k real_db"
+      ],
+      "acceptance_commands": [
+        "python3 tools/dod_controller.py start DOD-rol-1-definition-of-done-5eb2fbdae2",
+        "python3 tools/dod_controller.py verify DOD-rol-1-definition-of-done-5eb2fbdae2",
+        "python3 tools/dod_controller.py accept DOD-rol-1-definition-of-done-5eb2fbdae2"
+      ],
+      "evidence_requirements": [
+        "proof.json linked to code SHA",
+        "ledger with commands and exit codes",
+        "artifact path material for deliverable items",
+        "test nodeids green for item"
+      ],
+      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "dependencies": [],
+      "files": [
+        "scripts/ops/contract_market_intelligence.py",
+        "scripts/ops/deliverable_b_competitors.py",
+        "scripts/ops/deliverable_d_prices.py",
+        "scripts/lib/value_semantics.py",
+        "scripts/reports/concorrentes_report.py",
+        "scripts/reports/operational_reports.py",
+        "scripts/ops/live_consulting_pack.py"
+      ],
+      "terminal_state": "ACCEPTED"
+    },
+    {
+      "alias": "CMI-10.2-04",
+      "id": "DOD-rol-1-definition-of-done-24d8ac6823",
+      "text": "Ticket contratado médio por fornecedor.",
+      "weight": 3,
+      "initial_state": "OPEN",
+      "acceptance_criteria": "Executable proof that: Ticket contratado médio por fornecedor.",
+      "test_commands": [
+        "python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts=''",
+        "REQUIRE_REAL_DB=1 python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts='' -k real_db"
+      ],
+      "acceptance_commands": [
+        "python3 tools/dod_controller.py start DOD-rol-1-definition-of-done-24d8ac6823",
+        "python3 tools/dod_controller.py verify DOD-rol-1-definition-of-done-24d8ac6823",
+        "python3 tools/dod_controller.py accept DOD-rol-1-definition-of-done-24d8ac6823"
+      ],
+      "evidence_requirements": [
+        "proof.json linked to code SHA",
+        "ledger with commands and exit codes",
+        "artifact path material for deliverable items",
+        "test nodeids green for item"
+      ],
+      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "dependencies": [],
+      "files": [
+        "scripts/ops/contract_market_intelligence.py",
+        "scripts/ops/deliverable_b_competitors.py",
+        "scripts/ops/deliverable_d_prices.py",
+        "scripts/lib/value_semantics.py",
+        "scripts/reports/concorrentes_report.py",
+        "scripts/reports/operational_reports.py",
+        "scripts/ops/live_consulting_pack.py"
+      ],
+      "terminal_state": "ACCEPTED"
+    },
+    {
+      "alias": "CMI-10.2-05",
+      "id": "DOD-rol-1-definition-of-done-72ffefd4fe",
+      "text": "Número de entes atendidos por fornecedor.",
+      "weight": 3,
+      "initial_state": "OPEN",
+      "acceptance_criteria": "Executable proof that: Número de entes atendidos por fornecedor.",
+      "test_commands": [
+        "python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts=''",
+        "REQUIRE_REAL_DB=1 python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts='' -k real_db"
+      ],
+      "acceptance_commands": [
+        "python3 tools/dod_controller.py start DOD-rol-1-definition-of-done-72ffefd4fe",
+        "python3 tools/dod_controller.py verify DOD-rol-1-definition-of-done-72ffefd4fe",
+        "python3 tools/dod_controller.py accept DOD-rol-1-definition-of-done-72ffefd4fe"
+      ],
+      "evidence_requirements": [
+        "proof.json linked to code SHA",
+        "ledger with commands and exit codes",
+        "artifact path material for deliverable items",
+        "test nodeids green for item"
+      ],
+      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "dependencies": [],
+      "files": [
+        "scripts/ops/contract_market_intelligence.py",
+        "scripts/ops/deliverable_b_competitors.py",
+        "scripts/ops/deliverable_d_prices.py",
+        "scripts/lib/value_semantics.py",
+        "scripts/reports/concorrentes_report.py",
+        "scripts/reports/operational_reports.py",
+        "scripts/ops/live_consulting_pack.py"
+      ],
+      "terminal_state": "ACCEPTED"
+    },
+    {
+      "alias": "CMI-10.2-06",
+      "id": "DOD-rol-1-definition-of-done-28a1c47d70",
+      "text": "Distribuição por município.",
+      "weight": 3,
+      "initial_state": "OPEN",
+      "acceptance_criteria": "Executable proof that: Distribuição por município.",
+      "test_commands": [
+        "python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts=''",
+        "REQUIRE_REAL_DB=1 python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts='' -k real_db"
+      ],
+      "acceptance_commands": [
+        "python3 tools/dod_controller.py start DOD-rol-1-definition-of-done-28a1c47d70",
+        "python3 tools/dod_controller.py verify DOD-rol-1-definition-of-done-28a1c47d70",
+        "python3 tools/dod_controller.py accept DOD-rol-1-definition-of-done-28a1c47d70"
+      ],
+      "evidence_requirements": [
+        "proof.json linked to code SHA",
+        "ledger with commands and exit codes",
+        "artifact path material for deliverable items",
+        "test nodeids green for item"
+      ],
+      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "dependencies": [],
+      "files": [
+        "scripts/ops/contract_market_intelligence.py",
+        "scripts/ops/deliverable_b_competitors.py",
+        "scripts/ops/deliverable_d_prices.py",
+        "scripts/lib/value_semantics.py",
+        "scripts/reports/concorrentes_report.py",
+        "scripts/reports/operational_reports.py",
+        "scripts/ops/live_consulting_pack.py"
+      ],
+      "terminal_state": "ACCEPTED"
+    },
+    {
+      "alias": "CMI-10.2-07",
+      "id": "DOD-rol-1-definition-of-done-f32083927c",
+      "text": "Distribuição por natureza do ente.",
+      "weight": 3,
+      "initial_state": "OPEN",
+      "acceptance_criteria": "Executable proof that: Distribuição por natureza do ente.",
+      "test_commands": [
+        "python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts=''",
+        "REQUIRE_REAL_DB=1 python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts='' -k real_db"
+      ],
+      "acceptance_commands": [
+        "python3 tools/dod_controller.py start DOD-rol-1-definition-of-done-f32083927c",
+        "python3 tools/dod_controller.py verify DOD-rol-1-definition-of-done-f32083927c",
+        "python3 tools/dod_controller.py accept DOD-rol-1-definition-of-done-f32083927c"
+      ],
+      "evidence_requirements": [
+        "proof.json linked to code SHA",
+        "ledger with commands and exit codes",
+        "artifact path material for deliverable items",
+        "test nodeids green for item"
+      ],
+      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "dependencies": [],
+      "files": [
+        "scripts/ops/contract_market_intelligence.py",
+        "scripts/ops/deliverable_b_competitors.py",
+        "scripts/ops/deliverable_d_prices.py",
+        "scripts/lib/value_semantics.py",
+        "scripts/reports/concorrentes_report.py",
+        "scripts/reports/operational_reports.py",
+        "scripts/ops/live_consulting_pack.py"
+      ],
+      "terminal_state": "ACCEPTED"
+    },
+    {
+      "alias": "CMI-10.2-08",
+      "id": "DOD-rol-1-definition-of-done-f11737c2bf",
+      "text": "Distribuição por setor ou tipo de objeto.",
+      "weight": 3,
+      "initial_state": "OPEN",
+      "acceptance_criteria": "Executable proof that: Distribuição por setor ou tipo de objeto.",
+      "test_commands": [
+        "python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts=''",
+        "REQUIRE_REAL_DB=1 python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts='' -k real_db"
+      ],
+      "acceptance_commands": [
+        "python3 tools/dod_controller.py start DOD-rol-1-definition-of-done-f11737c2bf",
+        "python3 tools/dod_controller.py verify DOD-rol-1-definition-of-done-f11737c2bf",
+        "python3 tools/dod_controller.py accept DOD-rol-1-definition-of-done-f11737c2bf"
+      ],
+      "evidence_requirements": [
+        "proof.json linked to code SHA",
+        "ledger with commands and exit codes",
+        "artifact path material for deliverable items",
+        "test nodeids green for item"
+      ],
+      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "dependencies": [],
+      "files": [
+        "scripts/ops/contract_market_intelligence.py",
+        "scripts/ops/deliverable_b_competitors.py",
+        "scripts/ops/deliverable_d_prices.py",
+        "scripts/lib/value_semantics.py",
+        "scripts/reports/concorrentes_report.py",
+        "scripts/reports/operational_reports.py",
+        "scripts/ops/live_consulting_pack.py"
+      ],
+      "terminal_state": "ACCEPTED"
+    },
+    {
+      "alias": "CMI-10.2-09",
+      "id": "DOD-rol-1-definition-of-done-e5557d5607",
+      "text": "Recorrência de contratação.",
+      "weight": 3,
+      "initial_state": "OPEN",
+      "acceptance_criteria": "Executable proof that: Recorrência de contratação.",
+      "test_commands": [
+        "python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts=''",
+        "REQUIRE_REAL_DB=1 python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts='' -k real_db"
+      ],
+      "acceptance_commands": [
+        "python3 tools/dod_controller.py start DOD-rol-1-definition-of-done-e5557d5607",
+        "python3 tools/dod_controller.py verify DOD-rol-1-definition-of-done-e5557d5607",
+        "python3 tools/dod_controller.py accept DOD-rol-1-definition-of-done-e5557d5607"
+      ],
+      "evidence_requirements": [
+        "proof.json linked to code SHA",
+        "ledger with commands and exit codes",
+        "artifact path material for deliverable items",
+        "test nodeids green for item"
+      ],
+      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "dependencies": [],
+      "files": [
+        "scripts/ops/contract_market_intelligence.py",
+        "scripts/ops/deliverable_b_competitors.py",
+        "scripts/ops/deliverable_d_prices.py",
+        "scripts/lib/value_semantics.py",
+        "scripts/reports/concorrentes_report.py",
+        "scripts/reports/operational_reports.py",
+        "scripts/ops/live_consulting_pack.py"
+      ],
+      "terminal_state": "ACCEPTED"
+    },
+    {
+      "alias": "CMI-10.2-10",
+      "id": "DOD-rol-1-definition-of-done-df0c666a5f",
+      "text": "Última contratação conhecida.",
+      "weight": 3,
+      "initial_state": "OPEN",
+      "acceptance_criteria": "Executable proof that: Última contratação conhecida.",
+      "test_commands": [
+        "python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts=''",
+        "REQUIRE_REAL_DB=1 python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts='' -k real_db"
+      ],
+      "acceptance_commands": [
+        "python3 tools/dod_controller.py start DOD-rol-1-definition-of-done-df0c666a5f",
+        "python3 tools/dod_controller.py verify DOD-rol-1-definition-of-done-df0c666a5f",
+        "python3 tools/dod_controller.py accept DOD-rol-1-definition-of-done-df0c666a5f"
+      ],
+      "evidence_requirements": [
+        "proof.json linked to code SHA",
+        "ledger with commands and exit codes",
+        "artifact path material for deliverable items",
+        "test nodeids green for item"
+      ],
+      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "dependencies": [],
+      "files": [
+        "scripts/ops/contract_market_intelligence.py",
+        "scripts/ops/deliverable_b_competitors.py",
+        "scripts/ops/deliverable_d_prices.py",
+        "scripts/lib/value_semantics.py",
+        "scripts/reports/concorrentes_report.py",
+        "scripts/reports/operational_reports.py",
+        "scripts/ops/live_consulting_pack.py"
+      ],
+      "terminal_state": "ACCEPTED"
+    },
+    {
+      "alias": "CMI-10.2-11",
+      "id": "DOD-rol-1-definition-of-done-ff54a45a75",
+      "text": "Concentração por órgão.",
+      "weight": 3,
+      "initial_state": "OPEN",
+      "acceptance_criteria": "Executable proof that: Concentração por órgão.",
+      "test_commands": [
+        "python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts=''",
+        "REQUIRE_REAL_DB=1 python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts='' -k real_db"
+      ],
+      "acceptance_commands": [
+        "python3 tools/dod_controller.py start DOD-rol-1-definition-of-done-ff54a45a75",
+        "python3 tools/dod_controller.py verify DOD-rol-1-definition-of-done-ff54a45a75",
+        "python3 tools/dod_controller.py accept DOD-rol-1-definition-of-done-ff54a45a75"
+      ],
+      "evidence_requirements": [
+        "proof.json linked to code SHA",
+        "ledger with commands and exit codes",
+        "artifact path material for deliverable items",
+        "test nodeids green for item"
+      ],
+      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "dependencies": [],
+      "files": [
+        "scripts/ops/contract_market_intelligence.py",
+        "scripts/ops/deliverable_b_competitors.py",
+        "scripts/ops/deliverable_d_prices.py",
+        "scripts/lib/value_semantics.py",
+        "scripts/reports/concorrentes_report.py",
+        "scripts/reports/operational_reports.py",
+        "scripts/ops/live_consulting_pack.py"
+      ],
+      "terminal_state": "ACCEPTED"
+    },
+    {
+      "alias": "CMI-10.2-12",
+      "id": "DOD-rol-1-definition-of-done-926290cde1",
+      "text": "Concentração por fornecedor.",
+      "weight": 3,
+      "initial_state": "OPEN",
+      "acceptance_criteria": "Executable proof that: Concentração por fornecedor.",
+      "test_commands": [
+        "python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts=''",
+        "REQUIRE_REAL_DB=1 python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts='' -k real_db"
+      ],
+      "acceptance_commands": [
+        "python3 tools/dod_controller.py start DOD-rol-1-definition-of-done-926290cde1",
+        "python3 tools/dod_controller.py verify DOD-rol-1-definition-of-done-926290cde1",
+        "python3 tools/dod_controller.py accept DOD-rol-1-definition-of-done-926290cde1"
+      ],
+      "evidence_requirements": [
+        "proof.json linked to code SHA",
+        "ledger with commands and exit codes",
+        "artifact path material for deliverable items",
+        "test nodeids green for item"
+      ],
+      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "dependencies": [],
+      "files": [
+        "scripts/ops/contract_market_intelligence.py",
+        "scripts/ops/deliverable_b_competitors.py",
+        "scripts/ops/deliverable_d_prices.py",
+        "scripts/lib/value_semantics.py",
+        "scripts/reports/concorrentes_report.py",
+        "scripts/reports/operational_reports.py",
+        "scripts/ops/live_consulting_pack.py"
+      ],
+      "terminal_state": "ACCEPTED"
+    },
+    {
+      "alias": "CMI-10.2-13",
+      "id": "DOD-rol-1-definition-of-done-849f610ada",
+      "text": "Market share contratual quando semanticamente válido.",
+      "weight": 5,
+      "initial_state": "OPEN",
+      "acceptance_criteria": "Executable proof that: Market share contratual quando semanticamente válido.",
+      "test_commands": [
+        "python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts=''",
+        "REQUIRE_REAL_DB=1 python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts='' -k real_db"
+      ],
+      "acceptance_commands": [
+        "python3 tools/dod_controller.py start DOD-rol-1-definition-of-done-849f610ada",
+        "python3 tools/dod_controller.py verify DOD-rol-1-definition-of-done-849f610ada",
+        "python3 tools/dod_controller.py accept DOD-rol-1-definition-of-done-849f610ada"
+      ],
+      "evidence_requirements": [
+        "proof.json linked to code SHA",
+        "ledger with commands and exit codes",
+        "artifact path material for deliverable items",
+        "test nodeids green for item"
+      ],
+      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "dependencies": [],
+      "files": [
+        "scripts/ops/contract_market_intelligence.py",
+        "scripts/ops/deliverable_b_competitors.py",
+        "scripts/ops/deliverable_d_prices.py",
+        "scripts/lib/value_semantics.py",
+        "scripts/reports/concorrentes_report.py",
+        "scripts/reports/operational_reports.py",
+        "scripts/ops/live_consulting_pack.py"
+      ],
+      "terminal_state": "ACCEPTED"
+    },
+    {
+      "alias": "CMI-10.2-14",
+      "id": "DOD-rol-1-definition-of-done-fd5b78c29d",
+      "text": "HHI quando semanticamente válido.",
+      "weight": 5,
+      "initial_state": "OPEN",
+      "acceptance_criteria": "Executable proof that: HHI quando semanticamente válido.",
+      "test_commands": [
+        "python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts=''",
+        "REQUIRE_REAL_DB=1 python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts='' -k real_db"
+      ],
+      "acceptance_commands": [
+        "python3 tools/dod_controller.py start DOD-rol-1-definition-of-done-fd5b78c29d",
+        "python3 tools/dod_controller.py verify DOD-rol-1-definition-of-done-fd5b78c29d",
+        "python3 tools/dod_controller.py accept DOD-rol-1-definition-of-done-fd5b78c29d"
+      ],
+      "evidence_requirements": [
+        "proof.json linked to code SHA",
+        "ledger with commands and exit codes",
+        "artifact path material for deliverable items",
+        "test nodeids green for item"
+      ],
+      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "dependencies": [],
+      "files": [
+        "scripts/ops/contract_market_intelligence.py",
+        "scripts/ops/deliverable_b_competitors.py",
+        "scripts/ops/deliverable_d_prices.py",
+        "scripts/lib/value_semantics.py",
+        "scripts/reports/concorrentes_report.py",
+        "scripts/reports/operational_reports.py",
+        "scripts/ops/live_consulting_pack.py"
+      ],
+      "terminal_state": "ACCEPTED"
+    },
+    {
+      "alias": "CMI-10.2-15",
+      "id": "DOD-rol-1-definition-of-done-96ca22dde7",
+      "text": "Fonte e data de corte em todas as métricas.",
+      "weight": 5,
+      "initial_state": "OPEN",
+      "acceptance_criteria": "Executable proof that: Fonte e data de corte em todas as métricas.",
+      "test_commands": [
+        "python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts=''",
+        "REQUIRE_REAL_DB=1 python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts='' -k real_db"
+      ],
+      "acceptance_commands": [
+        "python3 tools/dod_controller.py start DOD-rol-1-definition-of-done-96ca22dde7",
+        "python3 tools/dod_controller.py verify DOD-rol-1-definition-of-done-96ca22dde7",
+        "python3 tools/dod_controller.py accept DOD-rol-1-definition-of-done-96ca22dde7"
+      ],
+      "evidence_requirements": [
+        "proof.json linked to code SHA",
+        "ledger with commands and exit codes",
+        "artifact path material for deliverable items",
+        "test nodeids green for item"
+      ],
+      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "dependencies": [],
+      "files": [
+        "scripts/ops/contract_market_intelligence.py",
+        "scripts/ops/deliverable_b_competitors.py",
+        "scripts/ops/deliverable_d_prices.py",
+        "scripts/lib/value_semantics.py",
+        "scripts/reports/concorrentes_report.py",
+        "scripts/reports/operational_reports.py",
+        "scripts/ops/live_consulting_pack.py"
+      ],
+      "terminal_state": "ACCEPTED"
+    },
+    {
+      "alias": "CMI-10.2-16",
+      "id": "DOD-rol-1-definition-of-done-e26def5c74",
+      "text": "Exportação para Excel.",
+      "weight": 3,
+      "initial_state": "OPEN",
+      "acceptance_criteria": "Executable proof that: Exportação para Excel.",
+      "test_commands": [
+        "python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts=''",
+        "REQUIRE_REAL_DB=1 python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts='' -k real_db"
+      ],
+      "acceptance_commands": [
+        "python3 tools/dod_controller.py start DOD-rol-1-definition-of-done-e26def5c74",
+        "python3 tools/dod_controller.py verify DOD-rol-1-definition-of-done-e26def5c74",
+        "python3 tools/dod_controller.py accept DOD-rol-1-definition-of-done-e26def5c74"
+      ],
+      "evidence_requirements": [
+        "proof.json linked to code SHA",
+        "ledger with commands and exit codes",
+        "artifact path material for deliverable items",
+        "test nodeids green for item"
+      ],
+      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "dependencies": [],
+      "files": [
+        "scripts/ops/contract_market_intelligence.py",
+        "scripts/ops/deliverable_b_competitors.py",
+        "scripts/ops/deliverable_d_prices.py",
+        "scripts/lib/value_semantics.py",
+        "scripts/reports/concorrentes_report.py",
+        "scripts/reports/operational_reports.py",
+        "scripts/ops/live_consulting_pack.py"
+      ],
+      "terminal_state": "ACCEPTED"
+    },
+    {
+      "alias": "CMI-10.2-17",
+      "id": "DOD-rol-1-definition-of-done-2c30e375c5",
+      "text": "Relatório de concorrentes para revisão manual.",
+      "weight": 3,
+      "initial_state": "OPEN",
+      "acceptance_criteria": "Executable proof that: Relatório de concorrentes para revisão manual.",
+      "test_commands": [
+        "python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts=''",
+        "REQUIRE_REAL_DB=1 python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts='' -k real_db"
+      ],
+      "acceptance_commands": [
+        "python3 tools/dod_controller.py start DOD-rol-1-definition-of-done-2c30e375c5",
+        "python3 tools/dod_controller.py verify DOD-rol-1-definition-of-done-2c30e375c5",
+        "python3 tools/dod_controller.py accept DOD-rol-1-definition-of-done-2c30e375c5"
+      ],
+      "evidence_requirements": [
+        "proof.json linked to code SHA",
+        "ledger with commands and exit codes",
+        "artifact path material for deliverable items",
+        "test nodeids green for item"
+      ],
+      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "dependencies": [],
+      "files": [
+        "scripts/ops/contract_market_intelligence.py",
+        "scripts/ops/deliverable_b_competitors.py",
+        "scripts/ops/deliverable_d_prices.py",
+        "scripts/lib/value_semantics.py",
+        "scripts/reports/concorrentes_report.py",
+        "scripts/reports/operational_reports.py",
+        "scripts/ops/live_consulting_pack.py"
+      ],
+      "terminal_state": "ACCEPTED"
+    },
+    {
+      "alias": "CMI-10.2-18",
+      "id": "DOD-rol-1-definition-of-done-3f13a31ef1",
+      "text": "Queries executadas em PostgreSQL real.",
+      "weight": 5,
+      "initial_state": "OPEN",
+      "acceptance_criteria": "Executable proof that: Queries executadas em PostgreSQL real.",
+      "test_commands": [
+        "python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts=''",
+        "REQUIRE_REAL_DB=1 python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts='' -k real_db"
+      ],
+      "acceptance_commands": [
+        "python3 tools/dod_controller.py start DOD-rol-1-definition-of-done-3f13a31ef1",
+        "python3 tools/dod_controller.py verify DOD-rol-1-definition-of-done-3f13a31ef1",
+        "python3 tools/dod_controller.py accept DOD-rol-1-definition-of-done-3f13a31ef1"
+      ],
+      "evidence_requirements": [
+        "proof.json linked to code SHA",
+        "ledger with commands and exit codes",
+        "artifact path material for deliverable items",
+        "test nodeids green for item"
+      ],
+      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "dependencies": [],
+      "files": [
+        "scripts/ops/contract_market_intelligence.py",
+        "scripts/ops/deliverable_b_competitors.py",
+        "scripts/ops/deliverable_d_prices.py",
+        "scripts/lib/value_semantics.py",
+        "scripts/reports/concorrentes_report.py",
+        "scripts/reports/operational_reports.py",
+        "scripts/ops/live_consulting_pack.py"
+      ],
+      "terminal_state": "ACCEPTED"
+    },
+    {
+      "alias": "CMI-10.2-19",
+      "id": "DOD-rol-1-definition-of-done-58f3b88564",
+      "text": "Testes validam nomes reais de tabelas e colunas.",
+      "weight": 5,
+      "initial_state": "OPEN",
+      "acceptance_criteria": "Executable proof that: Testes validam nomes reais de tabelas e colunas.",
+      "test_commands": [
+        "python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts=''",
+        "REQUIRE_REAL_DB=1 python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts='' -k real_db"
+      ],
+      "acceptance_commands": [
+        "python3 tools/dod_controller.py start DOD-rol-1-definition-of-done-58f3b88564",
+        "python3 tools/dod_controller.py verify DOD-rol-1-definition-of-done-58f3b88564",
+        "python3 tools/dod_controller.py accept DOD-rol-1-definition-of-done-58f3b88564"
+      ],
+      "evidence_requirements": [
+        "proof.json linked to code SHA",
+        "ledger with commands and exit codes",
+        "artifact path material for deliverable items",
+        "test nodeids green for item"
+      ],
+      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "dependencies": [],
+      "files": [
+        "scripts/ops/contract_market_intelligence.py",
+        "scripts/ops/deliverable_b_competitors.py",
+        "scripts/ops/deliverable_d_prices.py",
+        "scripts/lib/value_semantics.py",
+        "scripts/reports/concorrentes_report.py",
+        "scripts/reports/operational_reports.py",
+        "scripts/ops/live_consulting_pack.py"
+      ],
+      "terminal_state": "ACCEPTED"
+    },
+    {
+      "alias": "CMI-10.2-20",
+      "id": "DOD-rol-1-definition-of-done-f2cc2a2ae5",
+      "text": "O relatório distingue métricas prontas, parciais e indisponíveis.",
+      "weight": 5,
+      "initial_state": "OPEN",
+      "acceptance_criteria": "Executable proof that: O relatório distingue métricas prontas, parciais e indisponíveis.",
+      "test_commands": [
+        "python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts=''",
+        "REQUIRE_REAL_DB=1 python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts='' -k real_db"
+      ],
+      "acceptance_commands": [
+        "python3 tools/dod_controller.py start DOD-rol-1-definition-of-done-f2cc2a2ae5",
+        "python3 tools/dod_controller.py verify DOD-rol-1-definition-of-done-f2cc2a2ae5",
+        "python3 tools/dod_controller.py accept DOD-rol-1-definition-of-done-f2cc2a2ae5"
+      ],
+      "evidence_requirements": [
+        "proof.json linked to code SHA",
+        "ledger with commands and exit codes",
+        "artifact path material for deliverable items",
+        "test nodeids green for item"
+      ],
+      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "dependencies": [],
+      "files": [
+        "scripts/ops/contract_market_intelligence.py",
+        "scripts/ops/deliverable_b_competitors.py",
+        "scripts/ops/deliverable_d_prices.py",
+        "scripts/lib/value_semantics.py",
+        "scripts/reports/concorrentes_report.py",
+        "scripts/reports/operational_reports.py",
+        "scripts/ops/live_consulting_pack.py"
+      ],
+      "terminal_state": "ACCEPTED"
+    },
+    {
+      "alias": "CMI-11.1-01",
+      "id": "DOD-rol-1-definition-of-done-7e3e9e1447",
+      "text": "`valor_estimado` possui definição explícita.",
+      "weight": 5,
+      "initial_state": "OPEN",
+      "acceptance_criteria": "Executable proof that: `valor_estimado` possui definição explícita.",
+      "test_commands": [
+        "python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts=''",
+        "REQUIRE_REAL_DB=1 python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts='' -k real_db"
+      ],
+      "acceptance_commands": [
+        "python3 tools/dod_controller.py start DOD-rol-1-definition-of-done-7e3e9e1447",
+        "python3 tools/dod_controller.py verify DOD-rol-1-definition-of-done-7e3e9e1447",
+        "python3 tools/dod_controller.py accept DOD-rol-1-definition-of-done-7e3e9e1447"
+      ],
+      "evidence_requirements": [
+        "proof.json linked to code SHA",
+        "ledger with commands and exit codes",
+        "artifact path material for deliverable items",
+        "test nodeids green for item"
+      ],
+      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "dependencies": [],
+      "files": [
+        "scripts/ops/contract_market_intelligence.py",
+        "scripts/ops/deliverable_b_competitors.py",
+        "scripts/ops/deliverable_d_prices.py",
+        "scripts/lib/value_semantics.py",
+        "scripts/reports/concorrentes_report.py",
+        "scripts/reports/operational_reports.py",
+        "scripts/ops/live_consulting_pack.py"
+      ],
+      "terminal_state": "ACCEPTED"
+    },
+    {
+      "alias": "CMI-11.1-02",
+      "id": "DOD-rol-1-definition-of-done-9138b9d0df",
+      "text": "`valor_homologado` possui definição explícita.",
+      "weight": 5,
+      "initial_state": "OPEN",
+      "acceptance_criteria": "Executable proof that: `valor_homologado` possui definição explícita.",
+      "test_commands": [
+        "python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts=''",
+        "REQUIRE_REAL_DB=1 python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts='' -k real_db"
+      ],
+      "acceptance_commands": [
+        "python3 tools/dod_controller.py start DOD-rol-1-definition-of-done-9138b9d0df",
+        "python3 tools/dod_controller.py verify DOD-rol-1-definition-of-done-9138b9d0df",
+        "python3 tools/dod_controller.py accept DOD-rol-1-definition-of-done-9138b9d0df"
+      ],
+      "evidence_requirements": [
+        "proof.json linked to code SHA",
+        "ledger with commands and exit codes",
+        "artifact path material for deliverable items",
+        "test nodeids green for item"
+      ],
+      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "dependencies": [],
+      "files": [
+        "scripts/ops/contract_market_intelligence.py",
+        "scripts/ops/deliverable_b_competitors.py",
+        "scripts/ops/deliverable_d_prices.py",
+        "scripts/lib/value_semantics.py",
+        "scripts/reports/concorrentes_report.py",
+        "scripts/reports/operational_reports.py",
+        "scripts/ops/live_consulting_pack.py"
+      ],
+      "terminal_state": "ACCEPTED"
+    },
+    {
+      "alias": "CMI-11.1-03",
+      "id": "DOD-rol-1-definition-of-done-532d802562",
+      "text": "`valor_contratado` possui definição explícita.",
+      "weight": 5,
+      "initial_state": "OPEN",
+      "acceptance_criteria": "Executable proof that: `valor_contratado` possui definição explícita.",
+      "test_commands": [
+        "python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts=''",
+        "REQUIRE_REAL_DB=1 python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts='' -k real_db"
+      ],
+      "acceptance_commands": [
+        "python3 tools/dod_controller.py start DOD-rol-1-definition-of-done-532d802562",
+        "python3 tools/dod_controller.py verify DOD-rol-1-definition-of-done-532d802562",
+        "python3 tools/dod_controller.py accept DOD-rol-1-definition-of-done-532d802562"
+      ],
+      "evidence_requirements": [
+        "proof.json linked to code SHA",
+        "ledger with commands and exit codes",
+        "artifact path material for deliverable items",
+        "test nodeids green for item"
+      ],
+      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "dependencies": [],
+      "files": [
+        "scripts/ops/contract_market_intelligence.py",
+        "scripts/ops/deliverable_b_competitors.py",
+        "scripts/ops/deliverable_d_prices.py",
+        "scripts/lib/value_semantics.py",
+        "scripts/reports/concorrentes_report.py",
+        "scripts/reports/operational_reports.py",
+        "scripts/ops/live_consulting_pack.py"
+      ],
+      "terminal_state": "ACCEPTED"
+    },
+    {
+      "alias": "CMI-11.1-04",
+      "id": "DOD-rol-1-definition-of-done-76039ae8d2",
+      "text": "`valor_pago` possui definição explícita.",
+      "weight": 5,
+      "initial_state": "OPEN",
+      "acceptance_criteria": "Executable proof that: `valor_pago` possui definição explícita.",
+      "test_commands": [
+        "python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts=''",
+        "REQUIRE_REAL_DB=1 python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts='' -k real_db"
+      ],
+      "acceptance_commands": [
+        "python3 tools/dod_controller.py start DOD-rol-1-definition-of-done-76039ae8d2",
+        "python3 tools/dod_controller.py verify DOD-rol-1-definition-of-done-76039ae8d2",
+        "python3 tools/dod_controller.py accept DOD-rol-1-definition-of-done-76039ae8d2"
+      ],
+      "evidence_requirements": [
+        "proof.json linked to code SHA",
+        "ledger with commands and exit codes",
+        "artifact path material for deliverable items",
+        "test nodeids green for item"
+      ],
+      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "dependencies": [],
+      "files": [
+        "scripts/ops/contract_market_intelligence.py",
+        "scripts/ops/deliverable_b_competitors.py",
+        "scripts/ops/deliverable_d_prices.py",
+        "scripts/lib/value_semantics.py",
+        "scripts/reports/concorrentes_report.py",
+        "scripts/reports/operational_reports.py",
+        "scripts/ops/live_consulting_pack.py"
+      ],
+      "terminal_state": "ACCEPTED"
+    },
+    {
+      "alias": "CMI-11.1-05",
+      "id": "DOD-rol-1-definition-of-done-7d7b10b055",
+      "text": "Os quatro campos não são intercambiáveis.",
+      "weight": 5,
+      "initial_state": "OPEN",
+      "acceptance_criteria": "Executable proof that: Os quatro campos não são intercambiáveis.",
+      "test_commands": [
+        "python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts=''",
+        "REQUIRE_REAL_DB=1 python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts='' -k real_db"
+      ],
+      "acceptance_commands": [
+        "python3 tools/dod_controller.py start DOD-rol-1-definition-of-done-7d7b10b055",
+        "python3 tools/dod_controller.py verify DOD-rol-1-definition-of-done-7d7b10b055",
+        "python3 tools/dod_controller.py accept DOD-rol-1-definition-of-done-7d7b10b055"
+      ],
+      "evidence_requirements": [
+        "proof.json linked to code SHA",
+        "ledger with commands and exit codes",
+        "artifact path material for deliverable items",
+        "test nodeids green for item"
+      ],
+      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "dependencies": [],
+      "files": [
+        "scripts/ops/contract_market_intelligence.py",
+        "scripts/ops/deliverable_b_competitors.py",
+        "scripts/ops/deliverable_d_prices.py",
+        "scripts/lib/value_semantics.py",
+        "scripts/reports/concorrentes_report.py",
+        "scripts/reports/operational_reports.py",
+        "scripts/ops/live_consulting_pack.py"
+      ],
+      "terminal_state": "ACCEPTED"
+    },
+    {
+      "alias": "CMI-11.1-06",
+      "id": "DOD-rol-1-definition-of-done-3bb3874141",
+      "text": "O relatório exibe o tipo de valor.",
+      "weight": 3,
+      "initial_state": "OPEN",
+      "acceptance_criteria": "Executable proof that: O relatório exibe o tipo de valor.",
+      "test_commands": [
+        "python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts=''",
+        "REQUIRE_REAL_DB=1 python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts='' -k real_db"
+      ],
+      "acceptance_commands": [
+        "python3 tools/dod_controller.py start DOD-rol-1-definition-of-done-3bb3874141",
+        "python3 tools/dod_controller.py verify DOD-rol-1-definition-of-done-3bb3874141",
+        "python3 tools/dod_controller.py accept DOD-rol-1-definition-of-done-3bb3874141"
+      ],
+      "evidence_requirements": [
+        "proof.json linked to code SHA",
+        "ledger with commands and exit codes",
+        "artifact path material for deliverable items",
+        "test nodeids green for item"
+      ],
+      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "dependencies": [],
+      "files": [
+        "scripts/ops/contract_market_intelligence.py",
+        "scripts/ops/deliverable_b_competitors.py",
+        "scripts/ops/deliverable_d_prices.py",
+        "scripts/lib/value_semantics.py",
+        "scripts/reports/concorrentes_report.py",
+        "scripts/reports/operational_reports.py",
+        "scripts/ops/live_consulting_pack.py"
+      ],
+      "terminal_state": "ACCEPTED"
+    },
+    {
+      "alias": "CMI-11.1-07",
+      "id": "DOD-rol-1-definition-of-done-4fc2390171",
+      "text": "O relatório exibe a fonte do valor.",
+      "weight": 5,
+      "initial_state": "OPEN",
+      "acceptance_criteria": "Executable proof that: O relatório exibe a fonte do valor.",
+      "test_commands": [
+        "python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts=''",
+        "REQUIRE_REAL_DB=1 python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts='' -k real_db"
+      ],
+      "acceptance_commands": [
+        "python3 tools/dod_controller.py start DOD-rol-1-definition-of-done-4fc2390171",
+        "python3 tools/dod_controller.py verify DOD-rol-1-definition-of-done-4fc2390171",
+        "python3 tools/dod_controller.py accept DOD-rol-1-definition-of-done-4fc2390171"
+      ],
+      "evidence_requirements": [
+        "proof.json linked to code SHA",
+        "ledger with commands and exit codes",
+        "artifact path material for deliverable items",
+        "test nodeids green for item"
+      ],
+      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "dependencies": [],
+      "files": [
+        "scripts/ops/contract_market_intelligence.py",
+        "scripts/ops/deliverable_b_competitors.py",
+        "scripts/ops/deliverable_d_prices.py",
+        "scripts/lib/value_semantics.py",
+        "scripts/reports/concorrentes_report.py",
+        "scripts/reports/operational_reports.py",
+        "scripts/ops/live_consulting_pack.py"
+      ],
+      "terminal_state": "ACCEPTED"
+    },
+    {
+      "alias": "CMI-11.1-08",
+      "id": "DOD-rol-1-definition-of-done-262f17e7ec",
+      "text": "O relatório exibe a data de referência.",
+      "weight": 3,
+      "initial_state": "OPEN",
+      "acceptance_criteria": "Executable proof that: O relatório exibe a data de referência.",
+      "test_commands": [
+        "python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts=''",
+        "REQUIRE_REAL_DB=1 python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts='' -k real_db"
+      ],
+      "acceptance_commands": [
+        "python3 tools/dod_controller.py start DOD-rol-1-definition-of-done-262f17e7ec",
+        "python3 tools/dod_controller.py verify DOD-rol-1-definition-of-done-262f17e7ec",
+        "python3 tools/dod_controller.py accept DOD-rol-1-definition-of-done-262f17e7ec"
+      ],
+      "evidence_requirements": [
+        "proof.json linked to code SHA",
+        "ledger with commands and exit codes",
+        "artifact path material for deliverable items",
+        "test nodeids green for item"
+      ],
+      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "dependencies": [],
+      "files": [
+        "scripts/ops/contract_market_intelligence.py",
+        "scripts/ops/deliverable_b_competitors.py",
+        "scripts/ops/deliverable_d_prices.py",
+        "scripts/lib/value_semantics.py",
+        "scripts/reports/concorrentes_report.py",
+        "scripts/reports/operational_reports.py",
+        "scripts/ops/live_consulting_pack.py"
+      ],
+      "terminal_state": "ACCEPTED"
+    },
+    {
+      "alias": "CMI-11.1-09",
+      "id": "DOD-rol-1-definition-of-done-53115f162e",
+      "text": "O relatório exibe a unidade de comparação.",
+      "weight": 3,
+      "initial_state": "OPEN",
+      "acceptance_criteria": "Executable proof that: O relatório exibe a unidade de comparação.",
+      "test_commands": [
+        "python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts=''",
+        "REQUIRE_REAL_DB=1 python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts='' -k real_db"
+      ],
+      "acceptance_commands": [
+        "python3 tools/dod_controller.py start DOD-rol-1-definition-of-done-53115f162e",
+        "python3 tools/dod_controller.py verify DOD-rol-1-definition-of-done-53115f162e",
+        "python3 tools/dod_controller.py accept DOD-rol-1-definition-of-done-53115f162e"
+      ],
+      "evidence_requirements": [
+        "proof.json linked to code SHA",
+        "ledger with commands and exit codes",
+        "artifact path material for deliverable items",
+        "test nodeids green for item"
+      ],
+      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "dependencies": [],
+      "files": [
+        "scripts/ops/contract_market_intelligence.py",
+        "scripts/ops/deliverable_b_competitors.py",
+        "scripts/ops/deliverable_d_prices.py",
+        "scripts/lib/value_semantics.py",
+        "scripts/reports/concorrentes_report.py",
+        "scripts/reports/operational_reports.py",
+        "scripts/ops/live_consulting_pack.py"
+      ],
+      "terminal_state": "ACCEPTED"
+    },
+    {
+      "alias": "CMI-11.1-10",
+      "id": "DOD-rol-1-definition-of-done-50bb794fc7",
+      "text": "O relatório exibe se o valor é global, por lote, por item ou unitário.",
+      "weight": 5,
+      "initial_state": "OPEN",
+      "acceptance_criteria": "Executable proof that: O relatório exibe se o valor é global, por lote, por item ou unitário.",
+      "test_commands": [
+        "python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts=''",
+        "REQUIRE_REAL_DB=1 python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts='' -k real_db"
+      ],
+      "acceptance_commands": [
+        "python3 tools/dod_controller.py start DOD-rol-1-definition-of-done-50bb794fc7",
+        "python3 tools/dod_controller.py verify DOD-rol-1-definition-of-done-50bb794fc7",
+        "python3 tools/dod_controller.py accept DOD-rol-1-definition-of-done-50bb794fc7"
+      ],
+      "evidence_requirements": [
+        "proof.json linked to code SHA",
+        "ledger with commands and exit codes",
+        "artifact path material for deliverable items",
+        "test nodeids green for item"
+      ],
+      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "dependencies": [],
+      "files": [
+        "scripts/ops/contract_market_intelligence.py",
+        "scripts/ops/deliverable_b_competitors.py",
+        "scripts/ops/deliverable_d_prices.py",
+        "scripts/lib/value_semantics.py",
+        "scripts/reports/concorrentes_report.py",
+        "scripts/reports/operational_reports.py",
+        "scripts/ops/live_consulting_pack.py"
+      ],
+      "terminal_state": "ACCEPTED"
+    },
+    {
+      "alias": "CMI-11.1-11",
+      "id": "DOD-rol-1-definition-of-done-dc5790ffeb",
+      "text": "Valor ausente não é substituído por zero.",
+      "weight": 5,
+      "initial_state": "OPEN",
+      "acceptance_criteria": "Executable proof that: Valor ausente não é substituído por zero.",
+      "test_commands": [
+        "python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts=''",
+        "REQUIRE_REAL_DB=1 python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts='' -k real_db"
+      ],
+      "acceptance_commands": [
+        "python3 tools/dod_controller.py start DOD-rol-1-definition-of-done-dc5790ffeb",
+        "python3 tools/dod_controller.py verify DOD-rol-1-definition-of-done-dc5790ffeb",
+        "python3 tools/dod_controller.py accept DOD-rol-1-definition-of-done-dc5790ffeb"
+      ],
+      "evidence_requirements": [
+        "proof.json linked to code SHA",
+        "ledger with commands and exit codes",
+        "artifact path material for deliverable items",
+        "test nodeids green for item"
+      ],
+      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "dependencies": [],
+      "files": [
+        "scripts/ops/contract_market_intelligence.py",
+        "scripts/ops/deliverable_b_competitors.py",
+        "scripts/ops/deliverable_d_prices.py",
+        "scripts/lib/value_semantics.py",
+        "scripts/reports/concorrentes_report.py",
+        "scripts/reports/operational_reports.py",
+        "scripts/ops/live_consulting_pack.py"
+      ],
+      "terminal_state": "ACCEPTED"
+    },
+    {
+      "alias": "CMI-11.1-12",
+      "id": "DOD-rol-1-definition-of-done-c8739f5734",
+      "text": "Valor inferido é marcado como inferido.",
+      "weight": 5,
+      "initial_state": "OPEN",
+      "acceptance_criteria": "Executable proof that: Valor inferido é marcado como inferido.",
+      "test_commands": [
+        "python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts=''",
+        "REQUIRE_REAL_DB=1 python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts='' -k real_db"
+      ],
+      "acceptance_commands": [
+        "python3 tools/dod_controller.py start DOD-rol-1-definition-of-done-c8739f5734",
+        "python3 tools/dod_controller.py verify DOD-rol-1-definition-of-done-c8739f5734",
+        "python3 tools/dod_controller.py accept DOD-rol-1-definition-of-done-c8739f5734"
+      ],
+      "evidence_requirements": [
+        "proof.json linked to code SHA",
+        "ledger with commands and exit codes",
+        "artifact path material for deliverable items",
+        "test nodeids green for item"
+      ],
+      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "dependencies": [],
+      "files": [
+        "scripts/ops/contract_market_intelligence.py",
+        "scripts/ops/deliverable_b_competitors.py",
+        "scripts/ops/deliverable_d_prices.py",
+        "scripts/lib/value_semantics.py",
+        "scripts/reports/concorrentes_report.py",
+        "scripts/reports/operational_reports.py",
+        "scripts/ops/live_consulting_pack.py"
+      ],
+      "terminal_state": "ACCEPTED"
+    },
+    {
+      "alias": "CMI-11.1-13",
+      "id": "DOD-rol-1-definition-of-done-04da3e4902",
+      "text": "Valor oficial é marcado como oficial.",
+      "weight": 5,
+      "initial_state": "OPEN",
+      "acceptance_criteria": "Executable proof that: Valor oficial é marcado como oficial.",
+      "test_commands": [
+        "python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts=''",
+        "REQUIRE_REAL_DB=1 python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts='' -k real_db"
+      ],
+      "acceptance_commands": [
+        "python3 tools/dod_controller.py start DOD-rol-1-definition-of-done-04da3e4902",
+        "python3 tools/dod_controller.py verify DOD-rol-1-definition-of-done-04da3e4902",
+        "python3 tools/dod_controller.py accept DOD-rol-1-definition-of-done-04da3e4902"
+      ],
+      "evidence_requirements": [
+        "proof.json linked to code SHA",
+        "ledger with commands and exit codes",
+        "artifact path material for deliverable items",
+        "test nodeids green for item"
+      ],
+      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "dependencies": [],
+      "files": [
+        "scripts/ops/contract_market_intelligence.py",
+        "scripts/ops/deliverable_b_competitors.py",
+        "scripts/ops/deliverable_d_prices.py",
+        "scripts/lib/value_semantics.py",
+        "scripts/reports/concorrentes_report.py",
+        "scripts/reports/operational_reports.py",
+        "scripts/ops/live_consulting_pack.py"
+      ],
+      "terminal_state": "ACCEPTED"
+    },
+    {
+      "alias": "CMI-11.1-14",
+      "id": "DOD-rol-1-definition-of-done-a9b1b6e0c3",
+      "text": "Valores de objetos heterogêneos não são agregados sem classificação adequada.",
+      "weight": 5,
+      "initial_state": "OPEN",
+      "acceptance_criteria": "Executable proof that: Valores de objetos heterogêneos não são agregados sem classificação adequada.",
+      "test_commands": [
+        "python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts=''",
+        "REQUIRE_REAL_DB=1 python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts='' -k real_db"
+      ],
+      "acceptance_commands": [
+        "python3 tools/dod_controller.py start DOD-rol-1-definition-of-done-a9b1b6e0c3",
+        "python3 tools/dod_controller.py verify DOD-rol-1-definition-of-done-a9b1b6e0c3",
+        "python3 tools/dod_controller.py accept DOD-rol-1-definition-of-done-a9b1b6e0c3"
+      ],
+      "evidence_requirements": [
+        "proof.json linked to code SHA",
+        "ledger with commands and exit codes",
+        "artifact path material for deliverable items",
+        "test nodeids green for item"
+      ],
+      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "dependencies": [],
+      "files": [
+        "scripts/ops/contract_market_intelligence.py",
+        "scripts/ops/deliverable_b_competitors.py",
+        "scripts/ops/deliverable_d_prices.py",
+        "scripts/lib/value_semantics.py",
+        "scripts/reports/concorrentes_report.py",
+        "scripts/reports/operational_reports.py",
+        "scripts/ops/live_consulting_pack.py"
+      ],
+      "terminal_state": "ACCEPTED"
+    },
+    {
+      "alias": "CMI-11.1-15",
+      "id": "DOD-rol-1-definition-of-done-31211a0281",
+      "text": "Valores de períodos muito distintos são acompanhados de data.",
+      "weight": 3,
+      "initial_state": "OPEN",
+      "acceptance_criteria": "Executable proof that: Valores de períodos muito distintos são acompanhados de data.",
+      "test_commands": [
+        "python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts=''",
+        "REQUIRE_REAL_DB=1 python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts='' -k real_db"
+      ],
+      "acceptance_commands": [
+        "python3 tools/dod_controller.py start DOD-rol-1-definition-of-done-31211a0281",
+        "python3 tools/dod_controller.py verify DOD-rol-1-definition-of-done-31211a0281",
+        "python3 tools/dod_controller.py accept DOD-rol-1-definition-of-done-31211a0281"
+      ],
+      "evidence_requirements": [
+        "proof.json linked to code SHA",
+        "ledger with commands and exit codes",
+        "artifact path material for deliverable items",
+        "test nodeids green for item"
+      ],
+      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "dependencies": [],
+      "files": [
+        "scripts/ops/contract_market_intelligence.py",
+        "scripts/ops/deliverable_b_competitors.py",
+        "scripts/ops/deliverable_d_prices.py",
+        "scripts/lib/value_semantics.py",
+        "scripts/reports/concorrentes_report.py",
+        "scripts/reports/operational_reports.py",
+        "scripts/ops/live_consulting_pack.py"
+      ],
+      "terminal_state": "ACCEPTED"
+    },
+    {
+      "alias": "CMI-11.1-16",
+      "id": "DOD-rol-1-definition-of-done-589da36904",
+      "text": "Atualização monetária, quando usada, é explicitada.",
+      "weight": 3,
+      "initial_state": "OPEN",
+      "acceptance_criteria": "Executable proof that: Atualização monetária, quando usada, é explicitada.",
+      "test_commands": [
+        "python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts=''",
+        "REQUIRE_REAL_DB=1 python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts='' -k real_db"
+      ],
+      "acceptance_commands": [
+        "python3 tools/dod_controller.py start DOD-rol-1-definition-of-done-589da36904",
+        "python3 tools/dod_controller.py verify DOD-rol-1-definition-of-done-589da36904",
+        "python3 tools/dod_controller.py accept DOD-rol-1-definition-of-done-589da36904"
+      ],
+      "evidence_requirements": [
+        "proof.json linked to code SHA",
+        "ledger with commands and exit codes",
+        "artifact path material for deliverable items",
+        "test nodeids green for item"
+      ],
+      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "dependencies": [],
+      "files": [
+        "scripts/ops/contract_market_intelligence.py",
+        "scripts/ops/deliverable_b_competitors.py",
+        "scripts/ops/deliverable_d_prices.py",
+        "scripts/lib/value_semantics.py",
+        "scripts/reports/concorrentes_report.py",
+        "scripts/reports/operational_reports.py",
+        "scripts/ops/live_consulting_pack.py"
+      ],
+      "terminal_state": "ACCEPTED"
+    },
+    {
+      "alias": "CMI-11.1-17",
+      "id": "DOD-rol-1-definition-of-done-8aae30ee2e",
+      "text": "Percentis só são calculados sobre amostra comparável.",
+      "weight": 5,
+      "initial_state": "OPEN",
+      "acceptance_criteria": "Executable proof that: Percentis só são calculados sobre amostra comparável.",
+      "test_commands": [
+        "python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts=''",
+        "REQUIRE_REAL_DB=1 python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts='' -k real_db"
+      ],
+      "acceptance_commands": [
+        "python3 tools/dod_controller.py start DOD-rol-1-definition-of-done-8aae30ee2e",
+        "python3 tools/dod_controller.py verify DOD-rol-1-definition-of-done-8aae30ee2e",
+        "python3 tools/dod_controller.py accept DOD-rol-1-definition-of-done-8aae30ee2e"
+      ],
+      "evidence_requirements": [
+        "proof.json linked to code SHA",
+        "ledger with commands and exit codes",
+        "artifact path material for deliverable items",
+        "test nodeids green for item"
+      ],
+      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "dependencies": [],
+      "files": [
+        "scripts/ops/contract_market_intelligence.py",
+        "scripts/ops/deliverable_b_competitors.py",
+        "scripts/ops/deliverable_d_prices.py",
+        "scripts/lib/value_semantics.py",
+        "scripts/reports/concorrentes_report.py",
+        "scripts/reports/operational_reports.py",
+        "scripts/ops/live_consulting_pack.py"
+      ],
+      "terminal_state": "ACCEPTED"
+    },
+    {
+      "alias": "CMI-11.1-18",
+      "id": "DOD-rol-1-definition-of-done-55a430a39c",
+      "text": "O tamanho da amostra é informado.",
+      "weight": 3,
+      "initial_state": "OPEN",
+      "acceptance_criteria": "Executable proof that: O tamanho da amostra é informado.",
+      "test_commands": [
+        "python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts=''",
+        "REQUIRE_REAL_DB=1 python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts='' -k real_db"
+      ],
+      "acceptance_commands": [
+        "python3 tools/dod_controller.py start DOD-rol-1-definition-of-done-55a430a39c",
+        "python3 tools/dod_controller.py verify DOD-rol-1-definition-of-done-55a430a39c",
+        "python3 tools/dod_controller.py accept DOD-rol-1-definition-of-done-55a430a39c"
+      ],
+      "evidence_requirements": [
+        "proof.json linked to code SHA",
+        "ledger with commands and exit codes",
+        "artifact path material for deliverable items",
+        "test nodeids green for item"
+      ],
+      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "dependencies": [],
+      "files": [
+        "scripts/ops/contract_market_intelligence.py",
+        "scripts/ops/deliverable_b_competitors.py",
+        "scripts/ops/deliverable_d_prices.py",
+        "scripts/lib/value_semantics.py",
+        "scripts/reports/concorrentes_report.py",
+        "scripts/reports/operational_reports.py",
+        "scripts/ops/live_consulting_pack.py"
+      ],
+      "terminal_state": "ACCEPTED"
+    },
+    {
+      "alias": "CMI-11.1-19",
+      "id": "DOD-rol-1-definition-of-done-91752931c3",
+      "text": "Outliers são identificados.",
+      "weight": 3,
+      "initial_state": "OPEN",
+      "acceptance_criteria": "Executable proof that: Outliers são identificados.",
+      "test_commands": [
+        "python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts=''",
+        "REQUIRE_REAL_DB=1 python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts='' -k real_db"
+      ],
+      "acceptance_commands": [
+        "python3 tools/dod_controller.py start DOD-rol-1-definition-of-done-91752931c3",
+        "python3 tools/dod_controller.py verify DOD-rol-1-definition-of-done-91752931c3",
+        "python3 tools/dod_controller.py accept DOD-rol-1-definition-of-done-91752931c3"
+      ],
+      "evidence_requirements": [
+        "proof.json linked to code SHA",
+        "ledger with commands and exit codes",
+        "artifact path material for deliverable items",
+        "test nodeids green for item"
+      ],
+      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "dependencies": [],
+      "files": [
+        "scripts/ops/contract_market_intelligence.py",
+        "scripts/ops/deliverable_b_competitors.py",
+        "scripts/ops/deliverable_d_prices.py",
+        "scripts/lib/value_semantics.py",
+        "scripts/reports/concorrentes_report.py",
+        "scripts/reports/operational_reports.py",
+        "scripts/ops/live_consulting_pack.py"
+      ],
+      "terminal_state": "ACCEPTED"
+    },
+    {
+      "alias": "CMI-11.1-20",
+      "id": "DOD-rol-1-definition-of-done-bcbbd65023",
+      "text": "O sistema não chama percentil de contratos globais de “preço real praticado” sem base técnica.",
+      "weight": 5,
+      "initial_state": "OPEN",
+      "acceptance_criteria": "Executable proof that: O sistema não chama percentil de contratos globais de “preço real praticado” sem base técnica.",
+      "test_commands": [
+        "python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts=''",
+        "REQUIRE_REAL_DB=1 python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts='' -k real_db"
+      ],
+      "acceptance_commands": [
+        "python3 tools/dod_controller.py start DOD-rol-1-definition-of-done-bcbbd65023",
+        "python3 tools/dod_controller.py verify DOD-rol-1-definition-of-done-bcbbd65023",
+        "python3 tools/dod_controller.py accept DOD-rol-1-definition-of-done-bcbbd65023"
+      ],
+      "evidence_requirements": [
+        "proof.json linked to code SHA",
+        "ledger with commands and exit codes",
+        "artifact path material for deliverable items",
+        "test nodeids green for item"
+      ],
+      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "dependencies": [],
+      "files": [
+        "scripts/ops/contract_market_intelligence.py",
+        "scripts/ops/deliverable_b_competitors.py",
+        "scripts/ops/deliverable_d_prices.py",
+        "scripts/lib/value_semantics.py",
+        "scripts/reports/concorrentes_report.py",
+        "scripts/reports/operational_reports.py",
+        "scripts/ops/live_consulting_pack.py"
+      ],
+      "terminal_state": "ACCEPTED"
+    }
+  ],
+  "reserve_items_included": [],
+  "excluded_scope": [
+    "edital coverage/recall/dual labeling",
+    "CONFENGE commercial ready claims",
+    "VPS/deploy/Netcup",
+    "new crawler",
+    "dashboard/SaaS/auth",
+    "new CI/artifact policy",
+    "DOD controller changes unless blocking promotion"
+  ],
+  "existing_pr_decisions": {
+    "133": "out of scope - bid readiness",
+    "139": "out of scope - recall foundation",
+    "144": "merged commercial - reusable only if compatible; no CONFENGE_COMMERCIAL_READY",
+    "145": "closed contaminated recall - no cherry-pick",
+    "146": "merged foundation recall - out of scope; §8.4 remains open",
+    "147-150": "policy/refreeze merged - do not reopen",
+    "open_prs": [
+      133,
+      139
+    ],
+    "no_open_pr_implements_cmi": true
+  },
+  "convergence_failure_detected": true,
+  "convergence_notes": [
+    "PRs 141-143 reviewability/hardening",
+    "PR 144 commercial merged but release blocked",
+    "PR 145 closed contaminated",
+    "PR 146 foundation only",
+    "PRs 147-150 policy/refreeze",
+    "prefer repair+accept competitors/values over third recall PR"
+  ],
+  "dataset_contract": {
+    "dataset_name": "cmi_local_postgresql_eligible_contracts",
+    "database_dsn_masked": "postgresql://test:***@127.0.0.1:5433/extra_test",
+    "require_real_db": true,
+    "complete_population_aggregated": true,
+    "forbid_limit_as_silent_denominator": true
+  },
+  "metric_contract": {
+    "win_rate_without_proposals": "NOT_COMPUTABLE",
+    "desagio_without_pair": "NOT_COMPUTABLE",
+    "market_share_without_common_denominator": "NOT_COMPUTABLE",
+    "hhi_without_valid_shares": "NOT_COMPUTABLE",
+    "missing_value": "null never zero",
+    "capacity_from_contract_count": "forbidden"
+  },
+  "abort_conditions": [
+    "FAILED_PREMORTEM if package incoherent",
+    "BLOCKED_HUMAN only if human gold indispensable",
+    "no third technical PR without replan on recall"
+  ],
+  "forbidden_claims": [
+    "LOCAL_READY",
+    "95% coverage",
+    "CONFENGE_COMMERCIAL_READY",
+    "full national competitor universe known",
+    "preço real praticado for heterogeneous globals",
+    "win rate without proposal denominator",
+    "idle capacity inference"
+  ],
+  "guardrails": [
+    "max 3 PRs",
+    "no denominator fabrication",
+    "no policy/refreeze without repro defect",
+    "no recall work",
+    "evidence per item"
+  ],
+  "recent_pr_count": 10,
+  "recent_raw_dod_delta": "unknown_low",
+  "recent_weighted_dod_delta": "unknown_low",
+  "foundation_count_recent": 2,
+  "repair_count_recent": 0,
+  "policy_and_ci_count_recent": 6
+}

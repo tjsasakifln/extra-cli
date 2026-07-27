@@ -1,0 +1,8 @@
+{
+  "campaign_id": "CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01",
+  "verdict": "PASS_FOR_MERGE",
+  "blocking_findings": 0,
+  "attacks_total": 20,
+  "attacks_pass": 20,
+  "notes": "See adversarial-review.md"
+}
