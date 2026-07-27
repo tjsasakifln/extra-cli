@@ -66,3 +66,12 @@ Human dual labeling of pilot → import → adjudication → pilot approval → 
 - No classifier repair in this PR
 - No CONFENGE freeze/binding weaken
 - No independent-human claim from agents/scripts
+
+## Monorepo note (CONFENGE freeze)
+
+`scripts/ops/confenge_code_freeze.py` and `verify_confenge_artifact_binding.py` are **byte-identical to main** (no allowlist expansion).
+
+CONFENGE Commercial Code Quality / Final Evidence Integrity jobs will report path drift for any non-allowlisted monorepo work after the commercial freeze SHA. Those jobs are **not** required branch-protection checks for merge. This foundation does **not** weaken CONFENGE gates to pass CI.
+
+Required merge checks + dedicated job `Edital Relevance Foundation` are the CI evidence for this PR.
+

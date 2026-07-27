@@ -1294,10 +1294,13 @@ jobs:
       RESILIENCE_ENV: test
       CI: true
     steps:
-      - name: Checkout code
+      # Checkout the PR head commit (not the ephemeral merge ref) so evidence
+      # binds to the exact tip SHA under review.
+      - name: Checkout PR head SHA
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Setup Python ${{ env.PYTHON_VERSION }}
         uses: actions/setup-python@v5
@@ -1317,13 +1320,12 @@ jobs:
           HEAD_SHA=$(git rev-parse HEAD)
           echo "head_sha=$HEAD_SHA" >> "$GITHUB_OUTPUT"
           echo "Executing foundation checks on SHA $HEAD_SHA"
-          if [ -n "${{ github.event.pull_request.head.sha }}" ]; then
-            echo "PR head: ${{ github.event.pull_request.head.sha }}"
-            test "$HEAD_SHA" = "${{ github.event.pull_request.head.sha }}" || {
-              echo "ERROR: checkout SHA != PR head SHA"
-              exit 1
-            }
-          fi
+          EXPECTED="${{ github.event.pull_request.head.sha || github.sha }}"
+          echo "Expected PR head / push SHA: $EXPECTED"
+          test "$HEAD_SHA" = "$EXPECTED" || {
+            echo "ERROR: checkout SHA ($HEAD_SHA) != expected ($EXPECTED)"
+            exit 1
+          }
 
       - name: Foundation unit tests + diagnostic
         run: make test-edital-relevance-foundation
