@@ -1,4 +1,4 @@
-# Handoff — EDITAL-RELEVANCE-RECALL-95-01 (foundation residual hardening)
+# Handoff — EDITAL-RELEVANCE-RECALL-95-01 (fail-closed residual patch)
 
 ## Campaign status
 
@@ -24,19 +24,21 @@ Existing CONFENGE commercial jobs reject this PR's edital paths because they are
 outside the freeze allowlist. **Allowlists were not re-expanded** (forbidden).
 **Commercial evidence was not rewritten** (forbidden).
 
-## Residual hardening delivered (this execution)
+## Fail-closed residual patch delivered
 
 | Item | State |
 |------|-------|
-| Real non-empty development corpus | `development_candidate_pool.jsonl` (n≥20) |
-| Development manifest + mandatory hash | verified `corpus_sha256` |
+| `FAILED_DEVELOPMENT_INTEGRITY` taxonomy | technical ≠ human |
+| Precedence (dev > structural > human > final) | enforced |
+| Development integrity must pass for human blocker meta-test | yes |
+| Final evaluator validates reviewer IDs (normalized) | direct, not importer-only |
+| Final evaluator validates timezone-aware timestamps | direct |
+| Final evaluator requires per-reviewer reasons | `label_reviewer_a_reason` / `label_reviewer_b_reason` |
+| Path identity exact (no basename-only) | yes |
+| Provenance `selection_rule` / `selection_basis` | standardized |
+| Real non-empty development corpus | `development_candidate_pool.jsonl` (n=24) |
 | Overlap development ∩ pilot | **0** |
-| Empty development theater | **removed** |
-| `evaluate-final --development` + `--development-manifest` | required, fail-closed |
-| `development_integrity` in final result | full-set dups/overlap/hash |
-| Human timestamps | timezone-aware only; UTC-Z normalize |
-| Reviewer IDs | distinct after case/whitespace normalize |
-| Three Makefile targets | semantics preserved |
+| Three Makefile targets | semantics preserved + strengthened meta asserts |
 | DOD §8.4 | still open `[ ]` |
 | PR draft / no merge | required while CONFENGE red |
 
@@ -52,7 +54,7 @@ outside the freeze allowlist. **Allowlists were not re-expanded** (forbidden).
 - Makefile targets (distinct semantics):
   - `test-edital-relevance-foundation` → green when infrastructure is correct
   - `verify-edital-relevance-final` → real final gate with real development; **non-zero** while blocked
-  - `test-edital-relevance-final-blocker` → meta-test; **zero** when block is correct
+  - `test-edital-relevance-final-blocker` → meta-test; **zero** when block is correct **and** `development_integrity.pass is true`
 - CI job: `Edital Relevance Foundation`
 
 ## Pilot contamination (not final holdout)
@@ -76,7 +78,9 @@ Contaminated and **forbidden** as final holdout. Allowed: pilot source, process 
 | role | `development` |
 | acceptance_eligible | `false` |
 | sealed_holdout | `false` |
-| selection_rule | `public_inventory_only` |
+| selection_rule | `public_inventory_stratified_content_sample` |
+| selection_basis | `public_inventory_only` |
+| selection_independent_of_classifier | `true` |
 | never reusable as final holdout | **yes** |
 
 ## Gate results (expected state)
@@ -84,8 +88,8 @@ Contaminated and **forbidden** as final holdout. Allowed: pilot source, process 
 | Target | Expected |
 |--------|----------|
 | `make test-edital-relevance-foundation` | **PASS** (exit 0) |
-| `make verify-edital-relevance-final` | **NON-ZERO** + `BLOCKED_HUMAN_DUAL_LABELING` |
-| `make test-edital-relevance-final-blocker` | **PASS** (exit 0; meta proves block) |
+| `make verify-edital-relevance-final` | **NON-ZERO** + `BLOCKED_HUMAN_DUAL_LABELING` + `development_integrity.pass=true` |
+| `make test-edital-relevance-final-blocker` | **PASS** (exit 0; meta proves human block only) |
 
 ## Human labels pending
 

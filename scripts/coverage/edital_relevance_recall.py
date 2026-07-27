@@ -54,12 +54,27 @@ from scripts.ops.sector_classifier import (  # noqa: E402
 )
 
 SCHEMA_VERSION = "edital-relevance-corpus/1.1.0"
-EVALUATOR_VERSION = "edital-relevance-recall/1.1.0"
+EVALUATOR_VERSION = "edital-relevance-recall/1.2.0"
 RECALL_THRESHOLD = 0.95
 MIN_RELEVANT_HOLDOUT = 100
 MIN_PER_REQUIRED_STRATUM = 10
+# Fail-closed blocker taxonomy (primary blocker selected by precedence, never mask technical as human).
+FAILED_DEVELOPMENT_INTEGRITY = "FAILED_DEVELOPMENT_INTEGRITY"
 BLOCKED_HUMAN_DUAL_LABELING = "BLOCKED_HUMAN_DUAL_LABELING"
+FAILED_FINAL_GATE = "FAILED_FINAL_GATE"
 DIAGNOSTIC_ONLY = "DIAGNOSTIC_ONLY"
+# Deterministic precedence: lower rank wins as primary ``blocker``.
+# 1) technical development integrity
+# 2) human dual-labeling / seal / pilot absence (operational blocker of this foundation)
+# 3) pure metric/final residual (recall threshold etc.) — never masks (1) or (2)
+BLOCKER_PRECEDENCE: dict[str, int] = {
+    FAILED_DEVELOPMENT_INTEGRITY: 1,
+    BLOCKED_HUMAN_DUAL_LABELING: 2,
+    FAILED_FINAL_GATE: 3,
+}
+# Development selection provenance (must match real selection process).
+DEV_SELECTION_RULE = "public_inventory_stratified_content_sample"
+DEV_SELECTION_BASIS = "public_inventory_only"
 
 REQUIRED_STRATA_KEYS = (
     "source:pncp",
@@ -113,6 +128,63 @@ NON_SEAL_ROLES = frozenset(
 
 def utc_now() -> str:
     return datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+
+def normalize_reviewer_id(value: str) -> str:
+    """Case- and whitespace-insensitive identity key (same rule as human importer)."""
+    return " ".join((value or "").strip().split()).casefold()
+
+
+def parse_timezone_aware_iso(value: str) -> datetime:
+    """Parse ISO-8601 requiring explicit timezone; reject naive/placeholders.
+
+    Accepts Z, +00:00, -03:00. Rejects date-only, time-only, naive, tbd/pending/null.
+    """
+    v = (value or "").strip()
+    if not v:
+        raise ValueError("missing timestamp")
+    if v.lower() in {"tbd", "pending", "null", "none", "n/a", "na"}:
+        raise ValueError(f"placeholder timestamp {v!r}")
+    if "T" not in v and " " not in v:
+        raise ValueError(f"date-only timestamp rejected {v!r}")
+    try:
+        parsed = datetime.fromisoformat(v.replace("Z", "+00:00"))
+    except ValueError as exc:
+        raise ValueError(f"invalid ISO-8601 timestamp {v!r}") from exc
+    if parsed.tzinfo is None or parsed.utcoffset() is None:
+        raise ValueError(f"timezone-naive timestamp rejected {v!r}")
+    return parsed
+
+
+def resolve_manifest_corpus_path(manifest_corpus_path: str) -> Path:
+    """Resolve manifest corpus_path: absolute as-is, relative against PROJECT_ROOT."""
+    p = Path(manifest_corpus_path)
+    if p.is_absolute():
+        return p.resolve()
+    return (PROJECT_ROOT / p).resolve()
+
+
+def paths_refer_to_same_file(manifest_corpus_path: str, provided: Path) -> bool:
+    """Exact path identity only — same basename in another directory must fail."""
+    try:
+        return resolve_manifest_corpus_path(manifest_corpus_path) == provided.resolve()
+    except OSError:
+        return False
+
+
+def primary_blocker(blockers: Iterable[str | None]) -> str | None:
+    """Select primary blocker by deterministic precedence (lowest rank wins)."""
+    present = [b for b in blockers if b]
+    if not present:
+        return None
+    # Deduplicate preserving first-seen order for stable listing
+    ordered: list[str] = []
+    seen: set[str] = set()
+    for b in present:
+        if b not in seen:
+            seen.add(b)
+            ordered.append(b)
+    return min(ordered, key=lambda b: BLOCKER_PRECEDENCE.get(b, 99))
 
 
 def sha256_file(path: Path) -> str:
@@ -308,30 +380,13 @@ def check_development_integrity(
     if not man_path:
         errors.append("development manifest requires corpus_path")
     else:
-        # Accept absolute path, repo-relative path, or same basename of the same file.
-        candidates = [Path(man_path)]
-        if not Path(man_path).is_absolute():
-            candidates.append(PROJECT_ROOT / man_path)
-        matched = False
-        try:
-            actual_resolved = development_path.resolve()
-            for cand in candidates:
-                try:
-                    if cand.resolve() == actual_resolved:
-                        matched = True
-                        break
-                except OSError:
-                    continue
-            if not matched and Path(man_path).name == development_path.name:
-                # Tests often write temp files; require basename match only when
-                # manifest corpus_path is a bare filename or ends with the file name.
-                if man_path.replace("\\", "/").endswith(development_path.name):
-                    matched = True
-        except OSError:
-            matched = Path(man_path).name == development_path.name
-        if not matched:
+        # Exact path identity only (absolute resolve or PROJECT_ROOT-relative).
+        # Same basename in another directory is NOT sufficient.
+        if not paths_refer_to_same_file(man_path, development_path):
             errors.append(
-                f"development corpus_path mismatch: manifest={man_path!r} file={development_path}"
+                f"development corpus_path mismatch: manifest={man_path!r} file={development_path} "
+                f"(resolved manifest={resolve_manifest_corpus_path(man_path)} "
+                f"resolved file={development_path.resolve()})"
             )
 
     role = str(dev_manifest.get("role") or "")
@@ -345,6 +400,24 @@ def check_development_integrity(
         errors.append("development manifest must not set sealed_holdout=true")
     if dev_manifest.get("sealed_holdout") is not False:
         errors.append("development manifest requires sealed_holdout=false")
+
+    # Provenance must describe the real selection process (not a coarser alias alone).
+    sel_rule = str(dev_manifest.get("selection_rule") or "").strip()
+    if sel_rule != DEV_SELECTION_RULE:
+        errors.append(
+            f"development manifest selection_rule must be {DEV_SELECTION_RULE!r} "
+            f"(got {sel_rule!r})"
+        )
+    sel_basis = str(dev_manifest.get("selection_basis") or "").strip()
+    if sel_basis != DEV_SELECTION_BASIS:
+        errors.append(
+            f"development manifest selection_basis must be {DEV_SELECTION_BASIS!r} "
+            f"(got {sel_basis!r})"
+        )
+    if dev_manifest.get("selection_independent_of_classifier") is not True:
+        errors.append(
+            "development manifest requires selection_independent_of_classifier=true"
+        )
 
     expected_n = dev_manifest.get("n_records")
     if expected_n is None:
@@ -415,12 +488,16 @@ class IntegrityReport:
     errors: list[str] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
     blocker: str | None = None
+    blockers: list[str] = field(default_factory=list)
 
     def fail(self, msg: str, *, blocker: str | None = None) -> None:
         self.ok = False
         self.errors.append(msg)
-        if blocker and not self.blocker:
-            self.blocker = blocker
+        if blocker:
+            if blocker not in self.blockers:
+                self.blockers.append(blocker)
+            # Precedence: technical development integrity always outranks human dual labeling.
+            self.blocker = primary_blocker(self.blockers)
 
     def warn(self, msg: str) -> None:
         self.warnings.append(msg)
@@ -512,9 +589,60 @@ def check_corpus_integrity(
                     f"{oid}: final gate requires human dual-independent labels (label_authority={auth!r})",
                     blocker=BLOCKED_HUMAN_DUAL_LABELING,
                 )
-            if not human_a or not human_b or human_a == human_b:
+            # Direct reviewer identity validation (do not rely solely on importer).
+            # Normalize with the same rule as the human importer.
+            norm_a = normalize_reviewer_id(human_a)
+            norm_b = normalize_reviewer_id(human_b)
+            if not norm_a or not norm_b:
                 rep.fail(
-                    f"{oid}: final gate requires two distinct human reviewer ids",
+                    f"{oid}: final gate requires two distinct human reviewer ids "
+                    f"(human_reviewer_a_id / human_reviewer_b_id)",
+                    blocker=BLOCKED_HUMAN_DUAL_LABELING,
+                )
+            elif norm_a == norm_b:
+                rep.fail(
+                    f"{oid}: final gate requires two distinct human reviewer identities "
+                    f"after case/whitespace normalize "
+                    f"(a={human_a!r} b={human_b!r} → {norm_a!r})",
+                    blocker=BLOCKED_HUMAN_DUAL_LABELING,
+                )
+            # Timestamps: timezone-aware ISO-8601 required on every record.
+            for ts_field in ("reviewed_at_a", "reviewed_at_b"):
+                raw_ts = rec.get(ts_field)
+                if raw_ts is None or str(raw_ts).strip() == "":
+                    rep.fail(
+                        f"{oid}: final gate requires {ts_field} (timezone-aware ISO-8601)",
+                        blocker=BLOCKED_HUMAN_DUAL_LABELING,
+                    )
+                else:
+                    try:
+                        parse_timezone_aware_iso(str(raw_ts))
+                    except ValueError as exc:
+                        rep.fail(
+                            f"{oid}: invalid {ts_field}={raw_ts!r}: {exc}",
+                            blocker=BLOCKED_HUMAN_DUAL_LABELING,
+                        )
+            # Individual human reasons (importer fields); adjudication_reason is not a substitute.
+            reason_a = str(
+                rec.get("label_reviewer_a_reason")
+                or rec.get("reason_reviewer_a")
+                or rec.get("reviewer_a_reason")
+                or ""
+            ).strip()
+            reason_b = str(
+                rec.get("label_reviewer_b_reason")
+                or rec.get("reason_reviewer_b")
+                or rec.get("reviewer_b_reason")
+                or ""
+            ).strip()
+            if not reason_a:
+                rep.fail(
+                    f"{oid}: final gate requires non-empty label_reviewer_a_reason",
+                    blocker=BLOCKED_HUMAN_DUAL_LABELING,
+                )
+            if not reason_b:
+                rep.fail(
+                    f"{oid}: final gate requires non-empty label_reviewer_b_reason",
                     blocker=BLOCKED_HUMAN_DUAL_LABELING,
                 )
             # Dual labels are mandatory for final accept (forged/missing duals cannot pass).
@@ -580,12 +708,12 @@ def check_corpus_integrity(
             rep.fail(
                 "final gate requires development corpus for leak check "
                 "(--development is mandatory)",
-                blocker=BLOCKED_HUMAN_DUAL_LABELING,
+                blocker=FAILED_DEVELOPMENT_INTEGRITY,
             )
         elif not development_path.is_file():
             rep.fail(
                 f"development corpus missing: {development_path}",
-                blocker=BLOCKED_HUMAN_DUAL_LABELING,
+                blocker=FAILED_DEVELOPMENT_INTEGRITY,
             )
 
     relevant = [r for r in records if r.get("label_final") == "RELEVANT"]
@@ -943,48 +1071,80 @@ def evaluate(
             holdout_ids=holdout_ids,
             required=True,
         )
+        # Technical development failures MUST NOT be classified as human dual-labeling.
         for msg in dev_errors:
-            integrity.fail(msg, blocker=BLOCKED_HUMAN_DUAL_LABELING)
+            integrity.fail(msg, blocker=FAILED_DEVELOPMENT_INTEGRITY)
         # Also fail closed on holdout internal dups explicitly for final reporting
         if len(holdout_ids) != len(set(holdout_ids)):
-            integrity.fail("holdout corpus has duplicate official_id values")
+            integrity.fail(
+                "holdout corpus has duplicate official_id values",
+                blocker=FAILED_FINAL_GATE,
+            )
 
     prof = load_profile(profile_path)
     metrics = score_records(records, profile=prof, profile_path=profile_path)
     recall = float(metrics["relevance_recall"])
     relevant_n = int(metrics["relevant_denominator"])
-    errors = list(integrity.errors)
 
     if mode == "final":
+        # Metric residual errors: message always recorded; blocker only if no
+        # higher-precedence development/human blockers are already present.
+        metric_msgs: list[str] = []
         if relevant_n == 0:
-            errors.append("relevant denominator is zero (only IRRELEVANT/UNDECIDABLE)")
+            metric_msgs.append(
+                "relevant denominator is zero (only IRRELEVANT/UNDECIDABLE)"
+            )
         if relevant_n > 0 and recall + 1e-15 < RECALL_THRESHOLD:
-            errors.append(f"relevance_recall {recall:.6f} < threshold {RECALL_THRESHOLD}")
+            metric_msgs.append(
+                f"relevance_recall {recall:.6f} < threshold {RECALL_THRESHOLD}"
+            )
+        higher = {
+            b
+            for b in integrity.blockers
+            if b in {FAILED_DEVELOPMENT_INTEGRITY, BLOCKED_HUMAN_DUAL_LABELING}
+        }
+        for msg in metric_msgs:
+            if higher:
+                integrity.fail(msg)  # keep error, do not promote FAILED_FINAL_GATE over human/dev
+            else:
+                integrity.fail(msg, blocker=FAILED_FINAL_GATE)
 
+    errors = list(integrity.errors)
+
+    # Precedence: FAILED_DEVELOPMENT_INTEGRITY > BLOCKED_HUMAN_DUAL_LABELING > FAILED_FINAL_GATE
     blocker = integrity.blocker
-    if mode == "final" and not blocker:
-        # human dual labeling is the primary structural blocker when machine present
+    if mode == "final":
+        candidate_blockers: list[str] = list(integrity.blockers)
+        if development_integrity is not None and development_integrity.get("pass") is not True:
+            if FAILED_DEVELOPMENT_INTEGRITY not in candidate_blockers:
+                candidate_blockers.append(FAILED_DEVELOPMENT_INTEGRITY)
         man_auth = str((manifest or {}).get("label_authority") or "")
-        if is_machine_authority(man_auth) or any(
+        human_pending = is_machine_authority(man_auth) or any(
             is_machine_authority(str(r.get("label_authority") or "")) for r in records
+        )
+        joined = " ".join(errors).lower()
+        if human_pending or any(
+            k in joined
+            for k in (
+                "human",
+                "pilot",
+                "seal",
+                "machine",
+                "reviewer",
+                "adjudicat",
+                "role=",
+                "reviewed_at",
+                "label_reviewer_a_reason",
+                "label_reviewer_b_reason",
+            )
         ):
-            blocker = BLOCKED_HUMAN_DUAL_LABELING
-        elif not integrity.ok or errors:
-            # still blocked, prefer human dual labeling string when pilot/seal missing
-            joined = " ".join(errors).lower()
-            if any(
-                k in joined
-                for k in (
-                    "human",
-                    "pilot",
-                    "seal",
-                    "machine",
-                    "reviewer",
-                    "adjudicat",
-                    "role=",
-                )
-            ):
-                blocker = BLOCKED_HUMAN_DUAL_LABELING
+            if BLOCKED_HUMAN_DUAL_LABELING not in candidate_blockers:
+                candidate_blockers.append(BLOCKED_HUMAN_DUAL_LABELING)
+        if (not integrity.ok or errors) and not candidate_blockers:
+            candidate_blockers.append(FAILED_FINAL_GATE)
+        blocker = primary_blocker(candidate_blockers)
+        integrity.blockers = [b for b in candidate_blockers if b]
+        integrity.blocker = blocker
 
     if mode == "diagnostic":
         # Diagnostic never accepts, even if metrics look good against machine labels.
@@ -1106,9 +1266,29 @@ def evaluate(
             ],
         }
     else:
-        passed = integrity.ok and not errors and recall >= RECALL_THRESHOLD - 1e-15
+        # Final accept only when integrity ok, no residual errors, recall met,
+        # AND development integrity explicitly passes (never mask technical fail as human).
+        dev_ok = bool(development_integrity and development_integrity.get("pass") is True)
+        passed = (
+            integrity.ok
+            and not errors
+            and recall >= RECALL_THRESHOLD - 1e-15
+            and dev_ok
+        )
         exit_code = 0 if passed else 1
-        status = "ACCEPTED" if passed else (blocker or "FAILED_FINAL_GATE")
+        if passed:
+            status = "ACCEPTED"
+            result_blocker = None
+            result_blockers: list[str] = []
+        else:
+            result_blocker = blocker or FAILED_FINAL_GATE
+            result_blockers = list(integrity.blockers) if integrity.blockers else [result_blocker]
+            # Hard rule: if development failed, primary cannot be human dual labeling.
+            if development_integrity is not None and development_integrity.get("pass") is not True:
+                if FAILED_DEVELOPMENT_INTEGRITY not in result_blockers:
+                    result_blockers.insert(0, FAILED_DEVELOPMENT_INTEGRITY)
+                result_blocker = primary_blocker(result_blockers) or FAILED_DEVELOPMENT_INTEGRITY
+            status = result_blocker or FAILED_FINAL_GATE
         result = {
             "pass": passed,
             "status": status,
@@ -1119,7 +1299,8 @@ def evaluate(
                 (manifest or {}).get("sealed_holdout") is True
                 and (manifest or {}).get("sealed_before_classifier_edits") is True
             ),
-            "blocker": None if passed else (blocker or "FAILED_FINAL_GATE"),
+            "blocker": result_blocker,
+            "blockers": result_blockers,
             "exit_code": exit_code,
             "metric": "relevance_recall",
             "not_capture_recall": True,
@@ -1211,9 +1392,10 @@ def cmd_evaluate_final(args: argparse.Namespace) -> int:
         output_path=Path(args.output) if args.output else None,
     )
     print(json.dumps(result, ensure_ascii=False, indent=2))
-    # Always non-zero while blocked on human dual labeling
-    if result.get("blocker") == BLOCKED_HUMAN_DUAL_LABELING:
-        print(BLOCKED_HUMAN_DUAL_LABELING, file=sys.stderr)
+    # Always non-zero while blocked; emit primary blocker to stderr for meta-tests/CI.
+    primary = result.get("blocker")
+    if primary:
+        print(str(primary), file=sys.stderr)
         return 1 if code == 0 else code
     return code
 

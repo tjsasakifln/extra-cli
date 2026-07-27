@@ -8,7 +8,9 @@
   "corpus_path": "evals/edital_relevance/development_candidate_pool.jsonl",
   "corpus_sha256": "1981ee95f0733d4024924a5f934d128628f1bde0b3297c514abde343f40f0fde",
   "n_records": 24,
-  "selection_rule": "public_inventory_only",
+  "selection_rule": "public_inventory_stratified_content_sample",
+  "selection_basis": "public_inventory_only",
+  "selection_independent_of_classifier": true,
   "contamination_note": "Development-only corpus. Never eligible for final holdout or DOD acceptance.",
   "sources": {
     "ciga": 8,

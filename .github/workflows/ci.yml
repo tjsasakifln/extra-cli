@@ -1389,10 +1389,20 @@ jobs:
           assert not overlap, overlap
           fr = json.loads(Path("artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01/final-gate-result.json").read_text())
           di = fr.get("development_integrity") or {}
-          assert di.get("pass") is True or di.get("holdout_overlap_count") == 0
-          assert di.get("n_records", 0) >= 20
+          # Cumulative: pass AND zero overlap AND exact hash/n_records (never relax with OR).
+          assert di.get("pass") is True
           assert di.get("holdout_overlap_count") == 0
-          print("development integrity OK", sha, len(rows))
+          assert di.get("n_records") == 24
+          assert di.get("duplicate_ids") == []
+          assert di.get("holdout_overlap_ids") == []
+          assert di.get("sha256") == man["corpus_sha256"] == sha
+          assert fr.get("blocker") == "BLOCKED_HUMAN_DUAL_LABELING"
+          assert fr.get("development_integrity", {}).get("pass") is True
+          assert "FAILED_DEVELOPMENT_INTEGRITY" not in {
+              fr.get("blocker"),
+              *(fr.get("blockers") or []),
+          }
+          print("development integrity OK", sha, len(rows), "blocker=", fr.get("blocker"))
           PY
 
       - name: DOD §8.4 remains open with human blocker

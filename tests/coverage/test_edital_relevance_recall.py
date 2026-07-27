@@ -10,7 +10,10 @@ import pytest
 
 from scripts.coverage.edital_relevance_recall import (
     BLOCKED_HUMAN_DUAL_LABELING,
+    DEV_SELECTION_BASIS,
+    DEV_SELECTION_RULE,
     DIAGNOSTIC_ONLY,
+    FAILED_DEVELOPMENT_INTEGRITY,
     RECALL_THRESHOLD,
     check_corpus_integrity,
     check_development_integrity,
@@ -60,6 +63,10 @@ def _base_rec(oid: str, label: str, objeto: str, **extra) -> dict:
         "label_authority": "machine_criteria_draft",
         "human_reviewer_a_id": "",
         "human_reviewer_b_id": "",
+        "reviewed_at_a": "",
+        "reviewed_at_b": "",
+        "label_reviewer_a_reason": "",
+        "label_reviewer_b_reason": "",
     }
     rec.update(extra)
     return rec
@@ -225,6 +232,15 @@ def _human_holdout_rows(n_relevant: int = 100, n_irrelevant: int = 20) -> list[d
     sources = ["pncp", "sc_compras", "ciga"]
     buckets = ["grande", "medio", "pequeno"]
     naturezas = ["admin_direta", "admin_indireta"]
+    human_fields = {
+        "label_authority": "human_dual_independent",
+        "human_reviewer_a_id": "tiago",
+        "human_reviewer_b_id": "reviewer2",
+        "reviewed_at_a": "2026-07-27T03:15:00Z",
+        "reviewed_at_b": "2026-07-27T04:15:00+00:00",
+        "label_reviewer_a_reason": "objeto de engenharia aderente",
+        "label_reviewer_b_reason": "pavimentacao/obras civis",
+    }
     for i in range(n_relevant):
         rows.append(
             _base_rec(
@@ -234,12 +250,10 @@ def _human_holdout_rows(n_relevant: int = 100, n_irrelevant: int = 20) -> list[d
                 source=sources[i % 3],
                 municipio_bucket=buckets[i % 3],
                 natureza_juridica=naturezas[i % 2],
-                label_authority="human_dual_independent",
-                human_reviewer_a_id="tiago",
-                human_reviewer_b_id="reviewer2",
                 label_reviewer_a="RELEVANT",
                 label_reviewer_b="RELEVANT",
                 adjudication_reason="agreement:RELEVANT",
+                **human_fields,
             )
         )
     for i in range(n_irrelevant):
@@ -251,12 +265,10 @@ def _human_holdout_rows(n_relevant: int = 100, n_irrelevant: int = 20) -> list[d
                 source=sources[i % 3],
                 municipio_bucket=buckets[i % 3],
                 natureza_juridica=naturezas[i % 2],
-                label_authority="human_dual_independent",
-                human_reviewer_a_id="tiago",
-                human_reviewer_b_id="reviewer2",
                 label_reviewer_a="IRRELEVANT",
                 label_reviewer_b="IRRELEVANT",
                 adjudication_reason="agreement:IRRELEVANT",
+                **human_fields,
             )
         )
     return rows
@@ -302,7 +314,11 @@ def _dev_record(oid: str, **extra) -> dict:
 
 
 def _write_dev_pair(tmp_path: Path, rows: list[dict], **man_extra) -> tuple[Path, Path]:
-    """Write development corpus + manifest with matching sha/n_records/role flags."""
+    """Write development corpus + manifest with matching sha/n_records/role flags.
+
+    Uses absolute resolved path in the manifest (production requires exact path identity;
+    basename-only matching is forbidden).
+    """
     dev = tmp_path / "development_candidate_pool.jsonl"
     _write_jsonl(dev, rows)
     man = {
@@ -312,10 +328,12 @@ def _write_dev_pair(tmp_path: Path, rows: list[dict], **man_extra) -> tuple[Path
         "acceptance_eligible": False,
         "sealed_holdout": False,
         "label_authority": "machine_criteria_draft",
-        "corpus_path": dev.name,
+        "corpus_path": str(dev.resolve()),
         "corpus_sha256": sha256_file(dev),
         "n_records": len(rows),
-        "selection_rule": "public_inventory_only",
+        "selection_rule": DEV_SELECTION_RULE,
+        "selection_basis": DEV_SELECTION_BASIS,
+        "selection_independent_of_classifier": True,
         "contamination_note": (
             "Development-only corpus. Never eligible for final holdout or DOD acceptance."
         ),
@@ -325,6 +343,8 @@ def _write_dev_pair(tmp_path: Path, rows: list[dict], **man_extra) -> tuple[Path
         man["corpus_sha256"] = sha256_file(dev)
     if "n_records" not in man_extra:
         man["n_records"] = len(rows)
+    if "corpus_path" not in man_extra:
+        man["corpus_path"] = str(dev.resolve())
     mp = tmp_path / "development_candidate_pool-manifest.json"
     mp.write_text(json.dumps(man), encoding="utf-8")
     return dev, mp
@@ -528,6 +548,16 @@ def test_final_gate_rejects_omitted_development(tmp_path):
     code, result = evaluate(p, manifest_path=mp, mode="final", development_path=None)
     assert code != 0
     assert any("development" in e.lower() for e in result["integrity"]["errors"])
+    assert result["blocker"] == FAILED_DEVELOPMENT_INTEGRITY
+
+
+def _assert_dev_integrity_blocker(result: dict) -> None:
+    """Development technical failure must never surface as human dual-labeling primary."""
+    assert result["development_integrity"]["pass"] is False
+    assert result["blocker"] == FAILED_DEVELOPMENT_INTEGRITY
+    assert result["blocker"] != BLOCKED_HUMAN_DUAL_LABELING
+    blockers = set(result.get("blockers") or [])
+    assert FAILED_DEVELOPMENT_INTEGRITY in blockers or result["blocker"] == FAILED_DEVELOPMENT_INTEGRITY
 
 
 def test_final_gate_rejects_empty_development(tmp_path):
@@ -545,9 +575,12 @@ def test_final_gate_rejects_empty_development(tmp_path):
                 "role": "development",
                 "acceptance_eligible": False,
                 "sealed_holdout": False,
-                "corpus_path": dev.name,
+                "corpus_path": str(dev.resolve()),
                 "corpus_sha256": sha256_file(dev),
                 "n_records": 0,
+                "selection_rule": DEV_SELECTION_RULE,
+                "selection_basis": DEV_SELECTION_BASIS,
+                "selection_independent_of_classifier": True,
             }
         ),
         encoding="utf-8",
@@ -557,7 +590,7 @@ def test_final_gate_rejects_empty_development(tmp_path):
     )
     assert code != 0
     assert any("empty" in e.lower() for e in result["integrity"]["errors"])
-    assert result["development_integrity"]["pass"] is False
+    _assert_dev_integrity_blocker(result)
 
 
 def test_final_gate_rejects_missing_development_manifest(tmp_path):
@@ -573,6 +606,7 @@ def test_final_gate_rejects_missing_development_manifest(tmp_path):
     assert code != 0
     assert any("development-manifest" in e.lower() or "development manifest" in e.lower()
                for e in result["integrity"]["errors"])
+    _assert_dev_integrity_blocker(result)
 
 
 def test_final_gate_rejects_development_missing_hash(tmp_path):
@@ -587,6 +621,7 @@ def test_final_gate_rejects_development_missing_hash(tmp_path):
     )
     assert code != 0
     assert any("corpus_sha256" in e for e in result["integrity"]["errors"])
+    _assert_dev_integrity_blocker(result)
 
 
 def test_final_gate_rejects_development_wrong_hash(tmp_path):
@@ -603,6 +638,7 @@ def test_final_gate_rejects_development_wrong_hash(tmp_path):
     )
     assert code != 0
     assert any("mismatch" in e.lower() for e in result["integrity"]["errors"])
+    _assert_dev_integrity_blocker(result)
 
 
 def test_final_gate_rejects_development_wrong_n_records(tmp_path):
@@ -617,6 +653,7 @@ def test_final_gate_rejects_development_wrong_n_records(tmp_path):
     )
     assert code != 0
     assert any("n_records" in e for e in result["integrity"]["errors"])
+    _assert_dev_integrity_blocker(result)
 
 
 def test_final_gate_rejects_development_wrong_role(tmp_path):
@@ -631,6 +668,7 @@ def test_final_gate_rejects_development_wrong_role(tmp_path):
     )
     assert code != 0
     assert any("role" in e.lower() for e in result["integrity"]["errors"])
+    _assert_dev_integrity_blocker(result)
 
 
 def test_final_gate_rejects_development_acceptance_eligible(tmp_path):
@@ -647,6 +685,7 @@ def test_final_gate_rejects_development_acceptance_eligible(tmp_path):
     )
     assert code != 0
     assert any("acceptance_eligible" in e for e in result["integrity"]["errors"])
+    _assert_dev_integrity_blocker(result)
 
 
 def test_final_gate_rejects_development_sealed_holdout(tmp_path):
@@ -661,6 +700,7 @@ def test_final_gate_rejects_development_sealed_holdout(tmp_path):
     )
     assert code != 0
     assert any("sealed_holdout" in e for e in result["integrity"]["errors"])
+    _assert_dev_integrity_blocker(result)
 
 
 def test_final_gate_rejects_development_duplicate_ids(tmp_path):
@@ -677,6 +717,7 @@ def test_final_gate_rejects_development_duplicate_ids(tmp_path):
     assert code != 0
     assert result["development_integrity"]["duplicate_ids"]
     assert any("duplicate" in e.lower() for e in result["integrity"]["errors"])
+    _assert_dev_integrity_blocker(result)
 
 
 def test_final_gate_rejects_development_leak(tmp_path):
@@ -695,6 +736,7 @@ def test_final_gate_rejects_development_leak(tmp_path):
     assert code != 0
     assert result["development_integrity"]["holdout_overlap_count"] >= 1
     assert any("leakage" in e.lower() for e in result["integrity"]["errors"])
+    _assert_dev_integrity_blocker(result)
 
 
 def test_final_gate_rejects_synthetic_development(tmp_path):
@@ -709,6 +751,7 @@ def test_final_gate_rejects_synthetic_development(tmp_path):
     )
     assert code != 0
     assert any("synthetic" in e.lower() for e in result["integrity"]["errors"])
+    _assert_dev_integrity_blocker(result)
 
 
 def test_final_gate_rejects_classifier_selected_development(tmp_path):
@@ -725,6 +768,7 @@ def test_final_gate_rejects_classifier_selected_development(tmp_path):
     )
     assert code != 0
     assert any("selected_by_classifier" in e for e in result["integrity"]["errors"])
+    _assert_dev_integrity_blocker(result)
 
 
 def test_final_gate_rejects_db_presence_selected_development(tmp_path):
@@ -741,6 +785,7 @@ def test_final_gate_rejects_db_presence_selected_development(tmp_path):
     )
     assert code != 0
     assert any("selected_by_db_presence" in e for e in result["integrity"]["errors"])
+    _assert_dev_integrity_blocker(result)
 
 
 def test_final_gate_rejects_success_zero_selected_development(tmp_path):
@@ -757,6 +802,7 @@ def test_final_gate_rejects_success_zero_selected_development(tmp_path):
     )
     assert code != 0
     assert any("selected_by_success_zero" in e for e in result["integrity"]["errors"])
+    _assert_dev_integrity_blocker(result)
 
 
 def test_final_gate_valid_development_no_overlap(tmp_path):
@@ -805,6 +851,7 @@ def test_committed_development_candidate_pool_integrity():
 
 
 def test_cli_evaluate_final_on_pilot_36_blocks(tmp_path):
+    """Operational honest state: valid development + human dual labeling absent."""
     root = Path(__file__).resolve().parents[2]
     corpus = root / "evals" / "edital_relevance" / "pilot_36.jsonl"
     manifest = root / "evals" / "edital_relevance" / "pilot_36-manifest.json"
@@ -832,8 +879,18 @@ def test_cli_evaluate_final_on_pilot_36_blocks(tmp_path):
     assert result["blocker"] == BLOCKED_HUMAN_DUAL_LABELING
     assert result["dod_item_accepted"] is False
     assert result["acceptance_eligible"] is False
-    assert result["development_integrity"]["n_records"] >= 20
-    assert result["development_integrity"]["holdout_overlap_count"] == 0
+    assert result["sealed_holdout"] is False
+    di = result["development_integrity"]
+    assert di["pass"] is True
+    assert di["n_records"] == 24
+    assert di["duplicate_ids"] == []
+    assert di["holdout_overlap_count"] == 0
+    assert di["holdout_overlap_ids"] == []
+    assert di["sha256"]
+    assert FAILED_DEVELOPMENT_INTEGRITY not in {
+        result.get("blocker"),
+        *(result.get("blockers") or []),
+    }
 
 
 def test_final_gate_cli_requires_development_flag(tmp_path):
@@ -928,3 +985,255 @@ def test_final_gate_accepts_agreed_human_duals_with_integrity(tmp_path, monkeypa
     assert code == 0
     assert result["pass"] is True
     assert result["dod_item_accepted"] is False
+
+
+# ---------------------------------------------------------------------------
+# Fail-closed residual patch: precedence, path identity, reviewer final gate
+# ---------------------------------------------------------------------------
+
+
+def test_precedence_wrong_hash_is_development_not_human(tmp_path):
+    rows = _human_holdout_rows()
+    p = tmp_path / "hold.jsonl"
+    _write_jsonl(p, rows)
+    mp = tmp_path / "m.json"
+    mp.write_text(json.dumps(_final_manifest(p)), encoding="utf-8")
+    dev, dman = _write_dev_pair(
+        tmp_path, [_dev_record("DEV-HASH")], corpus_sha256="deadbeef" * 8
+    )
+    code, result = evaluate(
+        p, manifest_path=mp, mode="final", development_path=dev, development_manifest_path=dman
+    )
+    assert code != 0
+    assert result["blocker"] == FAILED_DEVELOPMENT_INTEGRITY
+    assert result["blocker"] != BLOCKED_HUMAN_DUAL_LABELING
+    assert result["development_integrity"]["pass"] is False
+
+
+def test_precedence_overlap_is_development_integrity(tmp_path):
+    rows = _human_holdout_rows()
+    p = tmp_path / "hold.jsonl"
+    _write_jsonl(p, rows)
+    mp = tmp_path / "m.json"
+    mp.write_text(json.dumps(_final_manifest(p)), encoding="utf-8")
+    dev, dman = _write_dev_pair(tmp_path, [_dev_record(str(rows[0]["official_id"]))])
+    code, result = evaluate(
+        p, manifest_path=mp, mode="final", development_path=dev, development_manifest_path=dman
+    )
+    assert code != 0
+    assert result["blocker"] == FAILED_DEVELOPMENT_INTEGRITY
+    assert result["development_integrity"]["holdout_overlap_count"] >= 1
+
+
+def test_precedence_multiple_dev_invalid_and_human_absent(tmp_path):
+    """Development invalid + human gold absent → primary is technical."""
+    # Machine pilot-like holdout (human absent) + wrong development hash
+    rows = [
+        _base_rec(
+            f"R{i}",
+            "RELEVANT",
+            ENG_OBJ,
+            source=["pncp", "sc_compras", "ciga"][i % 3],
+            municipio_bucket=["grande", "medio", "pequeno"][i % 3],
+            natureza_juridica=["admin_direta", "admin_indireta"][i % 2],
+            label_authority="machine_criteria_draft",
+        )
+        for i in range(100)
+    ]
+    p = tmp_path / "hold.jsonl"
+    _write_jsonl(p, rows)
+    mp = tmp_path / "m.json"
+    man = _final_manifest(
+        p,
+        role="pilot_candidate",
+        sealed_holdout=False,
+        sealed_before_classifier_edits=False,
+        label_authority="machine_criteria_draft",
+        acceptance_eligible=False,
+        pilot_human_approved_at=None,
+        pilot_human_approved_by=None,
+    )
+    mp.write_text(json.dumps(man), encoding="utf-8")
+    dev, dman = _write_dev_pair(
+        tmp_path, [_dev_record("DEV-MULTI")], corpus_sha256="0" * 64
+    )
+    code, result = evaluate(
+        p, manifest_path=mp, mode="final", development_path=dev, development_manifest_path=dman
+    )
+    assert code != 0
+    assert result["blocker"] == FAILED_DEVELOPMENT_INTEGRITY
+    # Human may appear as secondary, never as primary when development fails.
+    blockers = result.get("blockers") or []
+    assert FAILED_DEVELOPMENT_INTEGRITY in blockers or result["blocker"] == FAILED_DEVELOPMENT_INTEGRITY
+    if BLOCKED_HUMAN_DUAL_LABELING in blockers:
+        assert result["blocker"] != BLOCKED_HUMAN_DUAL_LABELING
+
+
+def test_development_manifest_wrong_path_same_basename(tmp_path):
+    """Manifest path in dir A + CLI file in dir B with same basename must fail."""
+    rows = _human_holdout_rows()
+    p = tmp_path / "hold.jsonl"
+    _write_jsonl(p, rows)
+    mp = tmp_path / "m.json"
+    mp.write_text(json.dumps(_final_manifest(p)), encoding="utf-8")
+    dir_a = tmp_path / "dir_a"
+    dir_b = tmp_path / "dir_b"
+    dir_a.mkdir()
+    dir_b.mkdir()
+    dev_a = dir_a / "development_candidate_pool.jsonl"
+    dev_b = dir_b / "development_candidate_pool.jsonl"
+    recs = [_dev_record("DEV-PATH-A"), _dev_record("DEV-PATH-B"), _dev_record("DEV-PATH-C")]
+    _write_jsonl(dev_a, recs)
+    _write_jsonl(dev_b, recs)
+    # Manifest points at dir_a; CLI provides dir_b (same basename).
+    dman = tmp_path / "dev-man.json"
+    dman.write_text(
+        json.dumps(
+            {
+                "role": "development",
+                "acceptance_eligible": False,
+                "sealed_holdout": False,
+                "corpus_path": str(dev_a.resolve()),
+                "corpus_sha256": sha256_file(dev_b),  # hash of CLI file
+                "n_records": 3,
+                "selection_rule": DEV_SELECTION_RULE,
+                "selection_basis": DEV_SELECTION_BASIS,
+                "selection_independent_of_classifier": True,
+            }
+        ),
+        encoding="utf-8",
+    )
+    code, result = evaluate(
+        p,
+        manifest_path=mp,
+        mode="final",
+        development_path=dev_b,
+        development_manifest_path=dman,
+    )
+    assert code != 0
+    assert result["blocker"] == FAILED_DEVELOPMENT_INTEGRITY
+    assert any("corpus_path mismatch" in e for e in result["integrity"]["errors"])
+
+
+@pytest.mark.parametrize(
+    "a_id,b_id",
+    [
+        ("Tiago", "tiago"),
+        ("Tiago", "TIAGO"),
+        ("Tiago", " Tiago "),
+        ("A  B", "a b"),
+    ],
+)
+def test_final_evaluator_rejects_normalized_same_reviewer(tmp_path, a_id, b_id):
+    rows = _human_holdout_rows()
+    for r in rows:
+        r["human_reviewer_a_id"] = a_id
+        r["human_reviewer_b_id"] = b_id
+    code, result = _run_final(tmp_path, rows)
+    assert code != 0
+    assert result["blocker"] == BLOCKED_HUMAN_DUAL_LABELING
+    errs = " ".join(result["integrity"]["errors"]).lower()
+    assert "distinct" in errs or "normalize" in errs
+
+
+@pytest.mark.parametrize(
+    "ts",
+    [
+        "2026-07-27T03:15:00",  # naive
+        "2026-07-27",  # date-only
+        "03:15:00",
+        "pending",
+        "null",
+        "tbd",
+        "",
+    ],
+)
+def test_final_evaluator_rejects_invalid_reviewed_at(tmp_path, ts):
+    rows = _human_holdout_rows()
+    for r in rows:
+        r["reviewed_at_a"] = ts
+    code, result = _run_final(tmp_path, rows)
+    assert code != 0
+    assert result["blocker"] == BLOCKED_HUMAN_DUAL_LABELING
+    assert any("reviewed_at_a" in e for e in result["integrity"]["errors"])
+
+
+def test_final_evaluator_rejects_missing_reason_a(tmp_path):
+    rows = _human_holdout_rows()
+    for r in rows:
+        r["label_reviewer_a_reason"] = ""
+    code, result = _run_final(tmp_path, rows)
+    assert code != 0
+    assert any("label_reviewer_a_reason" in e for e in result["integrity"]["errors"])
+
+
+def test_final_evaluator_rejects_missing_reason_b(tmp_path):
+    rows = _human_holdout_rows()
+    for r in rows:
+        r["label_reviewer_b_reason"] = ""
+    code, result = _run_final(tmp_path, rows)
+    assert code != 0
+    assert any("label_reviewer_b_reason" in e for e in result["integrity"]["errors"])
+
+
+def test_final_evaluator_accepts_timezone_variants(tmp_path, monkeypatch):
+    rows = _human_holdout_rows()
+    for r in rows:
+        r["reviewed_at_a"] = "2026-07-27T03:15:00Z"
+        r["reviewed_at_b"] = "2026-07-27T00:15:00-03:00"
+
+    class FakeClf:
+        def __init__(self, label: str):
+            self.label = label
+            self.reason = "stub"
+            self.rule_version = "extra-sector-classifier/test"
+
+    monkeypatch.setattr(
+        "scripts.coverage.edital_relevance_recall.classify_object",
+        lambda *a, **k: FakeClf("ENGINEERING_HIGH_CONFIDENCE"),
+    )
+    monkeypatch.setattr(
+        "scripts.coverage.edital_relevance_recall.is_engineering_for_e",
+        lambda clf: True,
+    )
+    code, result = _run_final(tmp_path, rows)
+    assert not any("reviewed_at" in e for e in result["integrity"]["errors"])
+    assert result["development_integrity"]["pass"] is True
+    assert code == 0
+    assert result["pass"] is True
+
+
+def test_valid_development_human_pending_blocker(tmp_path):
+    """Valid development + machine holdout → BLOCKED_HUMAN_DUAL_LABELING only."""
+    rows = [
+        _base_rec(
+            f"R{i}",
+            "RELEVANT",
+            ENG_OBJ,
+            source=["pncp", "sc_compras", "ciga"][i % 3],
+            municipio_bucket=["grande", "medio", "pequeno"][i % 3],
+            natureza_juridica=["admin_direta", "admin_indireta"][i % 2],
+            label_authority="machine_criteria_draft",
+        )
+        for i in range(100)
+    ]
+    code, result = _run_final(
+        tmp_path,
+        rows,
+        {
+            "role": "pilot_candidate",
+            "sealed_holdout": False,
+            "sealed_before_classifier_edits": False,
+            "label_authority": "machine_criteria_draft",
+            "acceptance_eligible": False,
+            "pilot_human_approved_at": None,
+            "pilot_human_approved_by": None,
+        },
+    )
+    assert code != 0
+    assert result["blocker"] == BLOCKED_HUMAN_DUAL_LABELING
+    assert result["development_integrity"]["pass"] is True
+    assert FAILED_DEVELOPMENT_INTEGRITY not in {
+        result.get("blocker"),
+        *(result.get("blockers") or []),
+    }
