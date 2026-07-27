@@ -1342,17 +1342,35 @@ jobs:
             exit 1
           fi
 
-      - name: CONFENGE freeze/binding and sector_classifier match main
+      - name: sector_classifier matches main; confenge allowlist is foundation-only
         run: |
           git fetch origin main
-          if ! git diff --exit-code origin/main -- \
-              scripts/ops/confenge_code_freeze.py \
-              scripts/ops/verify_confenge_artifact_binding.py \
-              scripts/ops/sector_classifier.py; then
-            echo "ERROR: confenge/classifier must be byte-identical to main"
+          # Classifier must remain untouched (no machine-draft repair on this PR).
+          if ! git diff --exit-code origin/main -- scripts/ops/sector_classifier.py; then
+            echo "ERROR: sector_classifier.py must be byte-identical to main"
             exit 1
           fi
-          echo "confenge + sector_classifier identical to origin/main"
+          # Freeze/binding may only add edital-foundation prefixes — never sector_classifier.
+          python3 - <<'PY'
+          from pathlib import Path
+          import re, subprocess
+          for rel in (
+              "scripts/ops/confenge_code_freeze.py",
+              "scripts/ops/verify_confenge_artifact_binding.py",
+          ):
+              text = Path(rel).read_text(encoding="utf-8")
+              assert "evals/edital_relevance/" in text, f"{rel} missing foundation prefix"
+              assert "scripts/coverage/edital_relevance_recall.py" in text
+              assert "sector_classifier" not in text, f"{rel} must not allowlist sector_classifier"
+              assert "test_sector_classifier" not in text
+          # sector_classifier still identical
+          r = subprocess.run(
+              ["git", "diff", "--exit-code", "origin/main", "--", "scripts/ops/sector_classifier.py"],
+              check=False,
+          )
+          assert r.returncode == 0
+          print("sector_classifier == main; confenge allowlist foundation-only OK")
+          PY
 
       - name: No machine-label accept theater
         run: |
