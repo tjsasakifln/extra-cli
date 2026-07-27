@@ -1412,43 +1412,48 @@ jobs:
             exit 1
           fi
 
-      - name: sector_classifier == main; confenge allowlist foundation-only coexistence
+      - name: sector_classifier + CONFENGE policy isolation (no feature allowlist)
         run: |
           git fetch origin main
-          # Product classifier must remain untouched (no repair via this foundation PR).
-          if ! git diff --exit-code origin/main -- scripts/ops/sector_classifier.py; then
-            echo "ERROR: sector_classifier.py must be byte-identical to origin/main"
-            exit 1
-          fi
-          # Freeze/binding may only add edital-foundation prefixes — never sector_classifier.
-          # Import live constants (regex over source fails on parentheses inside comments).
+          # Product classifier and commercial freeze policy must be byte-identical to main.
+          for f in \
+            scripts/ops/sector_classifier.py \
+            scripts/ops/confenge_code_freeze.py \
+            scripts/ops/verify_confenge_artifact_binding.py \
+            scripts/ops/confenge_frozen_inputs.py
+          do
+            if ! git diff --exit-code origin/main -- "$f"; then
+              echo "ERROR: $f must be byte-identical to origin/main (no policy self-edit in foundation PR)"
+              exit 1
+            fi
+          done
+          # Frozen-inputs policy must be active; foundation free paths must not protect-fail.
           python3 - <<'PY'
-          from scripts.ops.confenge_code_freeze import ALLOWED_POST_FREEZE_PREFIXES
-          from scripts.ops.verify_confenge_artifact_binding import _ALLOWED_PREFIXES
+          import os
+          import subprocess
+          from scripts.ops.confenge_code_freeze import ALLOWED_POST_FREEZE_PREFIXES, verify_code_freeze
+          from scripts.ops.confenge_frozen_inputs import EVIDENCE_LAG_PREFIXES
 
-          required = (
+          # Evidence lag prefixes only — never permanent edital feature allowlist.
+          assert ALLOWED_POST_FREEZE_PREFIXES == EVIDENCE_LAG_PREFIXES
+          for banned in (
               "evals/edital_relevance/",
               "scripts/coverage/edital_relevance_recall.py",
               "scripts/campaigns/",
               "tests/coverage/",
-          )
-          forbidden = (
-              "sector_classifier",
-              "test_sector_classifier",
-              "scripts/ops/sector_classifier",
-          )
-          for name, entries in (
-              ("ALLOWED_POST_FREEZE_PREFIXES", ALLOWED_POST_FREEZE_PREFIXES),
-              ("_ALLOWED_PREFIXES", _ALLOWED_PREFIXES),
           ):
-              for req in required:
-                  assert any(e == req or e.startswith(req) for e in entries), (
-                      f"{name} missing {req!r}: {entries}"
-                  )
-              joined = "\n".join(entries)
-              for bad in forbidden:
-                  assert bad not in joined, f"{name} must not allowlist {bad!r}"
-          print("sector_classifier == main; confenge allowlist foundation-only OK")
+              assert banned not in ALLOWED_POST_FREEZE_PREFIXES, banned
+
+          os.environ["CONFENGE_PR_HEAD_SHA"] = os.environ.get(
+              "CONFENGE_PR_HEAD_SHA"
+          ) or subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
+          rep = verify_code_freeze()
+          assert rep.get("freeze_policy") == "frozen_confenge_inputs_v1", rep
+          assert rep.get("ok") is True, rep
+          assert not rep.get("protected_changed"), rep.get("protected_changed")
+          free = rep.get("free_changed") or []
+          assert any("edital_relevance" in p or "coverage/edital" in p for p in free) or free, free
+          print("sector_classifier+confenge policy isolation OK; freeze free-path PASS")
           PY
 
       - name: No machine-label accept theater / banned terms on pilot
