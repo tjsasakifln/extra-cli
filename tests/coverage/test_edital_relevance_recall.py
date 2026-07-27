@@ -384,3 +384,183 @@ def test_no_allow_machine_labels_flag_in_parser():
     help_text = build_parser().format_help()
     assert "allow-machine-labels" not in help_text
     assert "allow_machine" not in help_text
+
+
+def _human_holdout_rows(n_relevant: int = 100, n_irrelevant: int = 20) -> list[dict]:
+    """Build stratified human dual-labeled rows for final-gate tests."""
+    rows: list[dict] = []
+    sources = ["pncp", "sc_compras", "ciga"]
+    buckets = ["grande", "medio", "pequeno"]
+    naturezas = ["admin_direta", "admin_indireta"]
+    for i in range(n_relevant):
+        rows.append(
+            _base_rec(
+                f"R{i}",
+                "RELEVANT",
+                ENG_OBJ,
+                source=sources[i % 3],
+                municipio_bucket=buckets[i % 3],
+                natureza_juridica=naturezas[i % 2],
+                label_authority="human_dual_independent",
+                human_reviewer_a_id="tiago",
+                human_reviewer_b_id="reviewer2",
+                label_reviewer_a="RELEVANT",
+                label_reviewer_b="RELEVANT",
+                adjudication_reason="agreement:RELEVANT",
+            )
+        )
+    for i in range(n_irrelevant):
+        rows.append(
+            _base_rec(
+                f"I{i}",
+                "IRRELEVANT",
+                NON_OBJ,
+                source=sources[i % 3],
+                municipio_bucket=buckets[i % 3],
+                natureza_juridica=naturezas[i % 2],
+                label_authority="human_dual_independent",
+                human_reviewer_a_id="tiago",
+                human_reviewer_b_id="reviewer2",
+                label_reviewer_a="IRRELEVANT",
+                label_reviewer_b="IRRELEVANT",
+                adjudication_reason="agreement:IRRELEVANT",
+            )
+        )
+    return rows
+
+
+def _final_manifest(corpus_path: Path, **extra) -> dict:
+    man = {
+        "role": "human_sealed_holdout",
+        "frozen_at": "2026-07-26T00:00:00Z",
+        "sealed_holdout": True,
+        "sealed_before_classifier_edits": True,
+        "corpus_sha256": sha256_file(corpus_path),
+        "stratum_blockers": {},
+        "label_authority": "human_dual_independent",
+        "pilot_human_approved_at": "2026-07-26T00:00:00Z",
+        "acceptance_eligible": True,
+        "dod_item_accepted": False,
+    }
+    man.update(extra)
+    return man
+
+
+def test_final_gate_rejects_missing_dual_labels(tmp_path):
+    """Forged corpus with human ids but omitted dual labels must not ACCEPTED."""
+    rows = _human_holdout_rows()
+    for r in rows:
+        r.pop("label_reviewer_a", None)
+        r.pop("label_reviewer_b", None)
+    p = tmp_path / "hold.jsonl"
+    _write_jsonl(p, rows)
+    mp = tmp_path / "m.json"
+    mp.write_text(json.dumps(_final_manifest(p)), encoding="utf-8")
+    code, result = evaluate(p, manifest_path=mp, mode="final")
+    assert code != 0
+    assert result["pass"] is False
+    assert result.get("status") != "ACCEPTED"
+    assert result["blocker"] == BLOCKED_HUMAN_DUAL_LABELING
+    errs = " ".join(result["integrity"]["errors"]).lower()
+    assert "label_reviewer_a" in errs or "label_reviewer_b" in errs
+
+
+def test_final_gate_rejects_label_final_contradicting_agreed_duals(tmp_path):
+    """Both duals IRRELEVANT but label_final RELEVANT is silent override — reject."""
+    rows = _human_holdout_rows()
+    # Poison one agreed-irrelevant row into false RELEVANT final
+    for r in rows:
+        if r["official_id"] == "I0":
+            r["label_final"] = "RELEVANT"
+            r["label_reviewer_a"] = "IRRELEVANT"
+            r["label_reviewer_b"] = "IRRELEVANT"
+            r["adjudication_reason"] = "agreement:IRRELEVANT"
+            break
+    p = tmp_path / "hold.jsonl"
+    _write_jsonl(p, rows)
+    mp = tmp_path / "m.json"
+    mp.write_text(json.dumps(_final_manifest(p)), encoding="utf-8")
+    code, result = evaluate(p, manifest_path=mp, mode="final")
+    assert code != 0
+    assert result["pass"] is False
+    assert result.get("status") != "ACCEPTED"
+    assert any("contradicts agreed dual" in e for e in result["integrity"]["errors"])
+
+
+def test_final_gate_rejects_divergence_without_adjudication(tmp_path):
+    rows = _human_holdout_rows()
+    for r in rows:
+        if r["official_id"] == "R0":
+            r["label_reviewer_a"] = "RELEVANT"
+            r["label_reviewer_b"] = "IRRELEVANT"
+            r["label_final"] = "RELEVANT"
+            r["adjudication_reason"] = ""
+            r["labels_agreed"] = False
+            break
+    p = tmp_path / "hold.jsonl"
+    _write_jsonl(p, rows)
+    mp = tmp_path / "m.json"
+    mp.write_text(json.dumps(_final_manifest(p)), encoding="utf-8")
+    code, result = evaluate(p, manifest_path=mp, mode="final")
+    assert code != 0
+    assert result["pass"] is False
+    assert any("adjudication" in e.lower() for e in result["integrity"]["errors"])
+
+
+def test_final_gate_accepts_agreed_human_duals_with_integrity(tmp_path, monkeypatch):
+    """Honest path: dual labels present, agree with final, seal + pilot → integrity ok.
+
+    Prediction is stubbed only so recall gate can pass; dual/integrity path is real.
+    """
+    rows = _human_holdout_rows()
+    p = tmp_path / "hold.jsonl"
+    _write_jsonl(p, rows)
+    mp = tmp_path / "m.json"
+    mp.write_text(json.dumps(_final_manifest(p)), encoding="utf-8")
+
+    class FakeClf:
+        def __init__(self, label: str):
+            self.label = label
+            self.reason = "stub"
+            self.rule_version = "extra-sector-classifier/test"
+
+    def always_eng(objeto=None, **kwargs):
+        return FakeClf("ENGINEERING_HIGH_CONFIDENCE")
+
+    monkeypatch.setattr(
+        "scripts.coverage.edital_relevance_recall.classify_object",
+        always_eng,
+    )
+    monkeypatch.setattr(
+        "scripts.coverage.edital_relevance_recall.is_engineering_for_e",
+        lambda clf: True,
+    )
+    code, result = evaluate(p, manifest_path=mp, mode="final")
+    assert result["integrity"]["ok"] is True or not any(
+        "dual" in e.lower() or "contradict" in e.lower() or "label_reviewer" in e.lower()
+        for e in result["integrity"]["errors"]
+    )
+    # Integrity dual/agreement path must not be the failure mode
+    dual_errs = [
+        e
+        for e in result["integrity"]["errors"]
+        if any(
+            k in e.lower()
+            for k in (
+                "label_reviewer",
+                "contradict",
+                "adjudication",
+                "human dual",
+                "machine",
+                "sealed",
+                "pilot",
+            )
+        )
+    ]
+    assert dual_errs == [], dual_errs
+    # With stubbed classifier, recall on 100 RELEVANT eng objects should pass
+    assert result["relevance_recall"] == pytest.approx(1.0)
+    assert code == 0
+    assert result["pass"] is True
+    # DOD checkbox still never auto-set by evaluator
+    assert result["dod_item_accepted"] is False

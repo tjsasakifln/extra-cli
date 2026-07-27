@@ -246,17 +246,24 @@ def check_corpus_integrity(
             rep.fail(f"record[{i}] missing official_id")
             continue
         ids.append(oid)
-        final = rec.get("label_final")
-        if final is None or str(final).strip() == "":
+        final_raw = rec.get("label_final")
+        final = str(final_raw).strip() if final_raw is not None else ""
+        if not final:
             rep.fail(f"{oid}: missing label_final")
-        elif str(final) not in FINAL_LABELS:
-            rep.fail(f"{oid}: invalid label_final={final!r}")
-        la = rec.get("label_reviewer_a")
-        lb = rec.get("label_reviewer_b")
-        if la is not None and str(la) not in FINAL_LABELS:
-            rep.fail(f"{oid}: invalid label_reviewer_a={la!r}")
-        if lb is not None and str(lb) not in FINAL_LABELS:
-            rep.fail(f"{oid}: invalid label_reviewer_b={lb!r}")
+            final = ""
+        elif final not in FINAL_LABELS:
+            rep.fail(f"{oid}: invalid label_final={final_raw!r}")
+            final = ""
+
+        la_raw = rec.get("label_reviewer_a")
+        lb_raw = rec.get("label_reviewer_b")
+        la = str(la_raw).strip() if la_raw is not None else ""
+        lb = str(lb_raw).strip() if lb_raw is not None else ""
+        # Diagnostic may omit dual labels; final never may.
+        if la and la not in FINAL_LABELS:
+            rep.fail(f"{oid}: invalid label_reviewer_a={la_raw!r}")
+        if lb and lb not in FINAL_LABELS:
+            rep.fail(f"{oid}: invalid label_reviewer_b={lb_raw!r}")
         if (
             final == "IRRELEVANT"
             and (la == "UNDECIDABLE" or lb == "UNDECIDABLE")
@@ -299,11 +306,47 @@ def check_corpus_integrity(
                     f"{oid}: final gate requires two distinct human reviewer ids",
                     blocker=BLOCKED_HUMAN_DUAL_LABELING,
                 )
-            if la != lb and not str(rec.get("adjudication_reason") or "").strip():
+            # Dual labels are mandatory for final accept (forged/missing duals cannot pass).
+            if not la or la not in FINAL_LABELS:
                 rep.fail(
-                    f"{oid}: divergence between reviewers requires explicit adjudication",
+                    f"{oid}: final gate requires label_reviewer_a in {sorted(FINAL_LABELS)}",
                     blocker=BLOCKED_HUMAN_DUAL_LABELING,
                 )
+            if not lb or lb not in FINAL_LABELS:
+                rep.fail(
+                    f"{oid}: final gate requires label_reviewer_b in {sorted(FINAL_LABELS)}",
+                    blocker=BLOCKED_HUMAN_DUAL_LABELING,
+                )
+            adj = str(rec.get("adjudication_reason") or "").strip()
+            if la and lb and la in FINAL_LABELS and lb in FINAL_LABELS:
+                if la != lb:
+                    if not adj or adj.lower() in {"silent_undecidable", "auto"}:
+                        rep.fail(
+                            f"{oid}: divergence between reviewers requires explicit adjudication",
+                            blocker=BLOCKED_HUMAN_DUAL_LABELING,
+                        )
+                    # Adjudicated final must be one of the two reviewer labels or explicit UNDECIDABLE.
+                    if final and final not in {la, lb, "UNDECIDABLE"} and final in FINAL_LABELS:
+                        # Allow adjudicator to pick any valid label only with non-empty reason already required.
+                        # Still require final itself valid (already checked) and reason present.
+                        if not adj:
+                            rep.fail(
+                                f"{oid}: adjudicated label_final={final!r} without adjudication_reason",
+                                blocker=BLOCKED_HUMAN_DUAL_LABELING,
+                            )
+                else:
+                    # Agreement: label_final must match both dual labels (no silent override).
+                    if final and final != la:
+                        rep.fail(
+                            f"{oid}: label_final={final!r} contradicts agreed dual labels {la!r}",
+                            blocker=BLOCKED_HUMAN_DUAL_LABELING,
+                        )
+                    if not adj:
+                        # agreement reason should be recorded (import path writes agreement:LABEL)
+                        rep.fail(
+                            f"{oid}: missing adjudication_reason for agreed dual labels",
+                            blocker=BLOCKED_HUMAN_DUAL_LABELING,
+                        )
 
     seen: set[str] = set()
     dups: set[str] = set()
