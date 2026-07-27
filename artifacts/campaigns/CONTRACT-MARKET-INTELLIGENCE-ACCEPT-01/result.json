@@ -10,7 +10,7 @@
     "n_accepted": 354
   },
   "final_state": {
-    "main_sha": "b15f8f0de3cd18f8a5bb5d4ff0cf0d99702a02bf",
+    "main_sha": "22534d083f5e08867c0722fc8e8a7c075335ca84",
     "n_accepted": 401,
     "n_open": 1060,
     "acceptance_pct_audited": 6.09
@@ -134,10 +134,11 @@
     "95% coverage",
     "CONFENGE_COMMERCIAL_READY",
     "full national competitor universe known",
-    "pre\u00e7o real praticado for heterogeneous globals",
+    "preço real praticado for heterogeneous globals",
     "win rate without proposal denominator",
     "idle capacity inference"
   ],
   "post_merge_validation": "post-merge-validation.json",
-  "next_action": "NONE \u2014 campaign complete"
+  "next_action": "NONE — campaign complete",
+  "evidence_remediation_sha": "22534d083f5e08867c0722fc8e8a7c075335ca84"
 }

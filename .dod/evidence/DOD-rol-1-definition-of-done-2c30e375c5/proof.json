@@ -6,10 +6,10 @@
   "campaign_id": "CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01",
   "main_baseline_sha": "c5b4cdb91b0727b5e7a537c8eb47daf001b74552",
   "implementation_sha": "241ec41f0badf5bd463b66dafe36faa1e2e66876",
-  "executed_sha": "b15f8f0de3cd18f8a5bb5d4ff0cf0d99702a02bf",
-  "post_merge_main_sha": "b15f8f0de3cd18f8a5bb5d4ff0cf0d99702a02bf",
+  "executed_sha": "22534d083f5e08867c0722fc8e8a7c075335ca84",
+  "post_merge_main_sha": "22534d083f5e08867c0722fc8e8a7c075335ca84",
   "command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-17 --json",
-  "timestamp": "2026-07-27T23:07:36Z",
+  "timestamp": "2026-07-27T23:11:18Z",
   "source": "pncp_supplier_contracts",
   "parameters": {
     "uf_filter": "SC",
@@ -43,7 +43,7 @@
     "ok": true,
     "alias": "CMI-10.2-17",
     "campaign_id": "CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01",
-    "as_of": "2026-07-27T23:07:38Z",
+    "as_of": "2026-07-27T23:11:18Z",
     "detail": {
       "bytes": 4409
     },
@@ -57,21 +57,21 @@
     "proof_pkg": "artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/final-package/proof.json"
   },
   "artifact_hashes": {
-    "final-package/acceptance-manifest.json": "a560e1aeea96ee05fe9eb1a818e16cad0cbfce48984c6160cea7eef1e915105f",
-    "final-package/competitor-review.md": "af59759a8d98a0fdf767eacc55502492e141a1d9fef51c54d6581e545694f759",
+    "final-package/acceptance-manifest.json": "0bf59d42314dfb68b6203ac3e7615d0502e7ea8723697de419c37e38d02004bc",
+    "final-package/competitor-review.md": "928af7f112b14bcc3a246568d7d77edba20492c49f5cdb7762ca8176b71b5a29",
     "final-package/concentration-by-entity.csv": "af87f8012cfbf1186eccb560106e43adf6ab875740f3eb687f0ef516c6a0a6ae",
     "final-package/concentration-by-supplier.csv": "b147db7f03f0447361e34992b06d8e568c5d59f195b54f9c31ce148cfef7c086",
-    "final-package/executive-review.xlsx.sha256": "e11062c67b8d8a0d32ef37ea57d25a0e4bebca80faa61a53a9f326350d6c70b6",
-    "final-package/ledger.json": "dfd464deeee776e27c3e2fb1aa4a38d0d79cb1e74b4b72d7b6865b802a8f86b6",
+    "final-package/executive-review.xlsx.sha256": "b62399a0407ae4f69d236a241f0bf7d7fc52acd2a0f6cf7bba741acdb3a3fb33",
+    "final-package/ledger.json": "cc7947e2a210f3d807227a1a9c6c27acc1dd9d2083e3f7b215c156cf99aa60b0",
     "final-package/limitations.json": "ca68ee220e16877fc3335dfef3fb7bd16890d1ac3e17f13a9a9d39c2828b92a9",
-    "final-package/metadata.json": "f7ba138a08acca19ea9ab3810ed8bb18e3564335c0b929c52db5c763e35ac646",
-    "final-package/proof.json": "770cd2889f7d10e7f41598429dea916e9ec83a2ae161e2be82dc21359c36b29c",
+    "final-package/metadata.json": "076b2cdb5ebc14e5fd44c43620969cb9d3c268914d1db694e407aab47c37e16f",
+    "final-package/proof.json": "f19f2b895027c609a382078e89f4d074ba6a1852604d15d70d430b7ec7795736",
     "final-package/reliability-status.json": "1b33e5e092d9ef5ad817a746c57f59fb40dd2dd5bfc3cff55d155abd2655f6b1",
-    "final-package/suppliers-ranking.csv": "eee895347def1c5a6400f726ee1cbf79f1644aa0a41b23feebc79965dd881ce5",
-    "final-package/suppliers-ranking.json": "c7550edb18758f2b154a5205001a167a2b7141f5ffd0e7a455912e35498d0dae",
+    "final-package/suppliers-ranking.csv": "9f4793d9132888e4e01a237e08ce7ae1ea7c46d99cc952ab4dcb22998787e393",
+    "final-package/suppliers-ranking.json": "0bcd3fd63d20383ab3670491441d69fdf7375a7372a41f0d7dbd6648fa2ab41e",
     "final-package/value-references.csv": "1540d9055d4f9517a0b460ae3d4bd60d7b3f5a3afb21b3cc1736637739186ce1",
-    "final-package/value-references.json": "d17def0e4b41ec216b2c340f1281590bc58cc93cf24ee97e46e1429c1d697b72",
-    "final-package/executive-review.xlsx": "221a0e250c15c871008cd72909df1705265a4e76cca200c168d81787965f039d"
+    "final-package/value-references.json": "95218329252dbcc0608e71ed45e987495db9411274494c8319dd29ba2d7f7796",
+    "final-package/executive-review.xlsx": "408c33aeaf8fcf6c1938d08bbfd12afa1d5a1a56a02b5bae09b49309b88c7bd9"
   },
   "ci_run_id": {
     "functional_pr": "30307668529",

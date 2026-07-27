@@ -1,13 +1,13 @@
 {
-  "code_sha": "b15f8f0de3cd18f8a5bb5d4ff0cf0d99702a02bf",
-  "as_of": "2026-07-27T23:07:36Z",
+  "code_sha": "22534d083f5e08867c0722fc8e8a7c075335ca84",
+  "as_of": "2026-07-27T23:11:18Z",
   "files": {
     "final-package/acceptance-manifest.json": {
-      "sha256": "a560e1aeea96ee05fe9eb1a818e16cad0cbfce48984c6160cea7eef1e915105f",
+      "sha256": "0bf59d42314dfb68b6203ac3e7615d0502e7ea8723697de419c37e38d02004bc",
       "bytes": 2532
     },
     "final-package/competitor-review.md": {
-      "sha256": "af59759a8d98a0fdf767eacc55502492e141a1d9fef51c54d6581e545694f759",
+      "sha256": "928af7f112b14bcc3a246568d7d77edba20492c49f5cdb7762ca8176b71b5a29",
       "bytes": 4409
     },
     "final-package/concentration-by-entity.csv": {
@@ -19,11 +19,11 @@
       "bytes": 234
     },
     "final-package/executive-review.xlsx.sha256": {
-      "sha256": "e11062c67b8d8a0d32ef37ea57d25a0e4bebca80faa61a53a9f326350d6c70b6",
+      "sha256": "b62399a0407ae4f69d236a241f0bf7d7fc52acd2a0f6cf7bba741acdb3a3fb33",
       "bytes": 303
     },
     "final-package/ledger.json": {
-      "sha256": "dfd464deeee776e27c3e2fb1aa4a38d0d79cb1e74b4b72d7b6865b802a8f86b6",
+      "sha256": "cc7947e2a210f3d807227a1a9c6c27acc1dd9d2083e3f7b215c156cf99aa60b0",
       "bytes": 2173
     },
     "final-package/limitations.json": {
@@ -31,11 +31,11 @@
       "bytes": 1025
     },
     "final-package/metadata.json": {
-      "sha256": "f7ba138a08acca19ea9ab3810ed8bb18e3564335c0b929c52db5c763e35ac646",
+      "sha256": "076b2cdb5ebc14e5fd44c43620969cb9d3c268914d1db694e407aab47c37e16f",
       "bytes": 3252
     },
     "final-package/proof.json": {
-      "sha256": "770cd2889f7d10e7f41598429dea916e9ec83a2ae161e2be82dc21359c36b29c",
+      "sha256": "f19f2b895027c609a382078e89f4d074ba6a1852604d15d70d430b7ec7795736",
       "bytes": 5491
     },
     "final-package/reliability-status.json": {
@@ -43,11 +43,11 @@
       "bytes": 1144
     },
     "final-package/suppliers-ranking.csv": {
-      "sha256": "eee895347def1c5a6400f726ee1cbf79f1644aa0a41b23feebc79965dd881ce5",
+      "sha256": "9f4793d9132888e4e01a237e08ce7ae1ea7c46d99cc952ab4dcb22998787e393",
       "bytes": 3885
     },
     "final-package/suppliers-ranking.json": {
-      "sha256": "c7550edb18758f2b154a5205001a167a2b7141f5ffd0e7a455912e35498d0dae",
+      "sha256": "0bcd3fd63d20383ab3670491441d69fdf7375a7372a41f0d7dbd6648fa2ab41e",
       "bytes": 5816
     },
     "final-package/value-references.csv": {
@@ -55,13 +55,13 @@
       "bytes": 1919
     },
     "final-package/value-references.json": {
-      "sha256": "d17def0e4b41ec216b2c340f1281590bc58cc93cf24ee97e46e1429c1d697b72",
+      "sha256": "95218329252dbcc0608e71ed45e987495db9411274494c8319dd29ba2d7f7796",
       "bytes": 11272
     },
     "final-package/executive-review.xlsx": {
-      "sha256": "221a0e250c15c871008cd72909df1705265a4e76cca200c168d81787965f039d",
-      "bytes": 15972,
-      "git_policy": "binary excluded; regenerate via CLI; sha committed"
+      "sha256": "408c33aeaf8fcf6c1938d08bbfd12afa1d5a1a56a02b5bae09b49309b88c7bd9",
+      "bytes": 15971,
+      "git_policy": "sha pointer"
     }
   }
 }

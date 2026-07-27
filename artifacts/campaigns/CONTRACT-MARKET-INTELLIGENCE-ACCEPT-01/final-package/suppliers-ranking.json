@@ -35,7 +35,7 @@
     },
     "ultima_contratacao_conhecida": "2024-11-01",
     "source": "pncp_supplier_contracts",
-    "as_of": "2026-07-27T23:10:18Z",
+    "as_of": "2026-07-27T23:11:17Z",
     "capacity_claim": {
       "label": "HYPOTHESIS",
       "claim_as_fact_forbidden": true,
@@ -95,7 +95,7 @@
     },
     "ultima_contratacao_conhecida": "2025-01-15",
     "source": "pncp_supplier_contracts",
-    "as_of": "2026-07-27T23:10:18Z",
+    "as_of": "2026-07-27T23:11:17Z",
     "capacity_claim": {
       "label": "HYPOTHESIS",
       "claim_as_fact_forbidden": true,
@@ -153,7 +153,7 @@
     },
     "ultima_contratacao_conhecida": "2025-02-01",
     "source": "pncp_supplier_contracts",
-    "as_of": "2026-07-27T23:10:18Z",
+    "as_of": "2026-07-27T23:11:17Z",
     "capacity_claim": {
       "label": "HYPOTHESIS",
       "claim_as_fact_forbidden": true,

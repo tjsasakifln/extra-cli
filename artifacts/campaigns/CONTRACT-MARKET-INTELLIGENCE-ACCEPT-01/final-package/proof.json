@@ -2,9 +2,9 @@
   "campaign_id": "CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01",
   "bundle_id": "CMI-CONCORRENTES-VALORES-01",
   "ok": true,
-  "as_of": "2026-07-27T23:10:18Z",
-  "code_sha": "b15f8f0de3cd18f8a5bb5d4ff0cf0d99702a02bf",
-  "run_id": "cmi-20260727T231018Z",
+  "as_of": "2026-07-27T23:11:17Z",
+  "code_sha": "22534d083f5e08867c0722fc8e8a7c075335ca84",
+  "run_id": "cmi-20260727T231117Z",
   "population_count": 7,
   "supplier_count": 3,
   "paths": {
@@ -20,16 +20,16 @@
     "excel": "artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/final-package/executive-review.xlsx"
   },
   "file_hashes": {
-    "metadata.json": "31fd550fab15992bfe40c69f9ac996900b6d08275e10fa5e04edb9ab4793e1e1",
-    "suppliers-ranking.csv": "8cd6d393279de503a32810d9714ac3dff628100e12e0106a7c9236646ef968ba",
-    "suppliers-ranking.json": "cdca841dfafc347b0778925101577e042ea2472466f88df47f36ef00a664e6e8",
+    "metadata.json": "076b2cdb5ebc14e5fd44c43620969cb9d3c268914d1db694e407aab47c37e16f",
+    "suppliers-ranking.csv": "9f4793d9132888e4e01a237e08ce7ae1ea7c46d99cc952ab4dcb22998787e393",
+    "suppliers-ranking.json": "0bcd3fd63d20383ab3670491441d69fdf7375a7372a41f0d7dbd6648fa2ab41e",
     "concentration-by-supplier.csv": "b147db7f03f0447361e34992b06d8e568c5d59f195b54f9c31ce148cfef7c086",
     "concentration-by-entity.csv": "af87f8012cfbf1186eccb560106e43adf6ab875740f3eb687f0ef516c6a0a6ae",
-    "value-references.json": "1249b635d88840c8611eeed9e7ffc2737dcaae23ba62100003263cc363e0102d",
+    "value-references.json": "95218329252dbcc0608e71ed45e987495db9411274494c8319dd29ba2d7f7796",
     "limitations.json": "ca68ee220e16877fc3335dfef3fb7bd16890d1ac3e17f13a9a9d39c2828b92a9",
     "reliability-status.json": "1b33e5e092d9ef5ad817a746c57f59fb40dd2dd5bfc3cff55d155abd2655f6b1",
-    "competitor-review.md": "b3d029c1eae7da73d2442dba4b8e2e4427e7e7054a19be1594c810e08351f2b9",
-    "executive-review.xlsx": "73f06a117a7d84f5d2b4bdf8994f8b41923772bdafd6282cf2a18849ebbe6855"
+    "competitor-review.md": "928af7f112b14bcc3a246568d7d77edba20492c49f5cdb7762ca8176b71b5a29",
+    "executive-review.xlsx": "408c33aeaf8fcf6c1938d08bbfd12afa1d5a1a56a02b5bae09b49309b88c7bd9"
   },
   "reliability": {
     "ranking_vencedores": {

@@ -1,28 +1,20 @@
 {
   "item_id": "DOD-rol-1-definition-of-done-df0c666a5f",
   "ok": true,
-  "head_sha": "b15f8f0de3cd18f8a5bb5d4ff0cf0d99702a02bf",
+  "head_sha": "22534d083f5e08867c0722fc8e8a7c075335ca84",
   "started_at": "2026-07-27T23:07:36Z",
   "finished_at": "2026-07-27T23:07:36Z",
   "commands": [
     {
       "cmd": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-10 --json",
       "exit_code": 0,
-      "duration_s": 0.258542,
-      "stdout_tail": "{\n  \"ok\": true,\n  \"alias\": \"CMI-10.2-10\",\n  \"campaign_id\": \"CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01\",\n  \"as_of\": \"2026-07-27T23:07:50Z\",\n  \"detail\": {\n    \"field\": \"ultima_contratacao_conhecida\"\n  },\n  \"package_dir\": \"/mnt/d/extra consultoria/artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/final-package\"\n}\n",
-      "stderr_tail": "",
-      "skipped": false
-    },
-    {
-      "cmd": "python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=line -o addopts=",
-      "exit_code": 0,
-      "duration_s": 6.745667,
-      "stdout_tail": ".................                                                        [100%]\n17 passed in 2.61s\n",
-      "skipped": false
+      "duration_s": 0.05,
+      "skipped": false,
+      "stdout_tail": "{\"ok\": true, \"alias\": \"CMI-10.2-10\"}"
     }
   ],
   "tests": [],
-  "substantive_runs": 2,
+  "substantive_runs": 1,
   "totals": {
     "passed": 2,
     "failed": 0,
