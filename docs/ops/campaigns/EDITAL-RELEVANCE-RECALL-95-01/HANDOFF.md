@@ -88,7 +88,7 @@ Contaminated and **forbidden** as final holdout. Allowed: pilot source, process 
 | Target | Expected |
 |--------|----------|
 | `make test-edital-relevance-foundation` | **PASS** (exit 0) |
-| `make verify-edital-relevance-final` | **NON-ZERO** + `BLOCKED_HUMAN_DUAL_LABELING` + `development_integrity.pass=true` |
+| `make verify-edital-relevance-final` | **NON-ZERO** + `BLOCKED_HUMAN_DUAL_LABELING` + development integrity passes |
 | `make test-edital-relevance-final-blocker` | **PASS** (exit 0; meta proves human block only) |
 
 ## Human labels pending
