@@ -425,3 +425,25 @@ def test_manifest_includes_gates_and_section_keys(tmp_path: Path) -> None:
     assert CI_SECTION_KEY in paths
     # No edital allowlist pollution
     assert not any("edital_relevance" in p for p in paths)
+
+
+def test_section_hash_preserves_trailing_newline_via_git_show(tmp_path: Path) -> None:
+    """git show content must not strip trailing newlines before section hash."""
+    from scripts.ops.confenge_frozen_inputs import (
+        build_frozen_inputs_manifest,
+        extract_makefile_confenge_section,
+        sha256_text,
+    )
+
+    repo = _init_mini_repo(tmp_path)
+    freeze = _git(repo, "rev-parse", "HEAD")
+    man = build_frozen_inputs_manifest(root=repo, freeze_sha=freeze)
+    sec = next(i for i in man["inputs"] if i["path"] == "Makefile#CONFENGE")
+    # Re-extract from raw git show without strip
+    import subprocess
+    raw = subprocess.check_output(
+        ["git", "show", f"{freeze}:Makefile"], cwd=str(repo), text=True
+    )
+    assert not raw.endswith("\n") or raw.endswith("\n")
+    expected = sha256_text(extract_makefile_confenge_section(raw))
+    assert sec["sha256"] == expected

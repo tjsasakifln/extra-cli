@@ -114,19 +114,21 @@ _CI_CONFENGE_JOB_KEY_RE = re.compile(r"^\s{2}(confenge-[A-Za-z0-9_-]+):\s*$")
 _CI_JOB_KEY_RE = re.compile(r"^\s{2}([A-Za-z0-9_-]+):\s*$")
 
 
-def _git(root: Path, *args: str) -> str:
+def _git(root: Path, *args: str, *, strip: bool = True) -> str:
     git = shutil.which("git") or "git"
-    return subprocess.check_output(  # noqa: S603
+    out = subprocess.check_output(  # noqa: S603
         [git, *args],
         cwd=str(root),
         text=True,
         stderr=subprocess.DEVNULL,
-    ).strip()
+    )
+    # File blob contents must keep trailing newlines for stable section hashes.
+    return out.strip() if strip else out
 
 
-def _try_git(root: Path, *args: str) -> str | None:
+def _try_git(root: Path, *args: str, strip: bool = True) -> str | None:
     try:
-        return _git(root, *args)
+        return _git(root, *args, strip=strip)
     except (subprocess.CalledProcessError, OSError):
         return None
 
@@ -316,7 +318,7 @@ def discover_frozen_input_paths(root: Path) -> list[str]:
 def _blob_and_hash_at_ref(root: Path, ref: str, path: str) -> tuple[str | None, str | None]:
     """Return (git blob oid, sha256 of content) for path at ref."""
     blob = _try_git(root, "rev-parse", f"{ref}:{path}")
-    content = _try_git(root, "show", f"{ref}:{path}")
+    content = _try_git(root, "show", f"{ref}:{path}", strip=False)
     if content is None:
         # Working tree fallback when path is new (not yet committed)
         p = root / path
@@ -363,7 +365,7 @@ def build_frozen_inputs_manifest(
         )
 
     # Shared surfaces: section hashes only
-    makefile_text = _try_git(root, "show", f"{freeze_sha}:Makefile")
+    makefile_text = _try_git(root, "show", f"{freeze_sha}:Makefile", strip=False)
     if makefile_text is None and (root / "Makefile").is_file():
         makefile_text = (root / "Makefile").read_text(encoding="utf-8")
     if makefile_text is None:
@@ -372,7 +374,7 @@ def build_frozen_inputs_manifest(
     inputs.append(_section_entry(MAKEFILE_SECTION_KEY, mk_section))
 
     ci_path = ".github/workflows/ci.yml"
-    ci_text = _try_git(root, "show", f"{freeze_sha}:{ci_path}")
+    ci_text = _try_git(root, "show", f"{freeze_sha}:{ci_path}", strip=False)
     if ci_text is None and (root / ci_path).is_file():
         ci_text = (root / ci_path).read_text(encoding="utf-8")
     if ci_text is None:
@@ -512,7 +514,7 @@ def verify_shared_surface_sections(
     issues: list[str] = []
     current: dict[str, str] = {}
 
-    makefile_text = _try_git(root, "show", f"{tip}:Makefile")
+    makefile_text = _try_git(root, "show", f"{tip}:Makefile", strip=False)
     if makefile_text is None and (root / "Makefile").is_file():
         # uncommitted tip: use working tree when tip == HEAD
         head = _try_git(root, "rev-parse", "HEAD")
@@ -531,7 +533,7 @@ def verify_shared_surface_sections(
             issues.append(f"makefile_section_extract_failed:{exc}")
 
     ci_path = ".github/workflows/ci.yml"
-    ci_text = _try_git(root, "show", f"{tip}:{ci_path}")
+    ci_text = _try_git(root, "show", f"{tip}:{ci_path}", strip=False)
     if ci_text is None and (root / ci_path).is_file():
         head = _try_git(root, "rev-parse", "HEAD")
         if tip == head:
