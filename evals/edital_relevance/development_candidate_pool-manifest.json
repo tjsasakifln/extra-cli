@@ -1,0 +1,21 @@
+{
+  "schema_version": "edital-relevance-corpus/1.1.0",
+  "role": "development",
+  "campaign": "EDITAL-RELEVANCE-RECALL-95-01",
+  "acceptance_eligible": false,
+  "sealed_holdout": false,
+  "label_authority": "machine_criteria_draft",
+  "corpus_path": "evals/edital_relevance/development_candidate_pool.jsonl",
+  "corpus_sha256": "1981ee95f0733d4024924a5f934d128628f1bde0b3297c514abde343f40f0fde",
+  "n_records": 24,
+  "selection_rule": "public_inventory_stratified_content_sample",
+  "selection_basis": "public_inventory_only",
+  "selection_independent_of_classifier": true,
+  "contamination_note": "Development-only corpus. Never eligible for final holdout or DOD acceptance.",
+  "sources": {
+    "ciga": 8,
+    "pncp": 8,
+    "sc_compras": 8
+  },
+  "note": "Scrubbed public-inventory candidate pool for development/process/leak checks only. Machine labels intentionally omitted."
+}

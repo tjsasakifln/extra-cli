@@ -762,3 +762,62 @@ verify-confenge-evidence-provenance:
 	python3 -m scripts.ops.confenge_code_freeze verify-provenance
 
 
+# --- Edital relevance foundation (DOD §8.4; not CONFENGE) ---
+# Edital relevance recall foundation (DOD §8.4) — blocked on human dual labeling
+# Foundation green ≠ DOD accept. Final gate must fail until human gold exists.
+# =============================================================================
+.PHONY: test-edital-relevance-foundation verify-edital-relevance-final test-edital-relevance-final-blocker
+
+# Foundation infrastructure gate (must exit 0): unit tests + diagnose on pilot_36.
+# pilot_36 is contaminated (role=pilot_candidate, machine_criteria_draft) and is NOT final holdout.
+test-edital-relevance-foundation:
+	@echo "=== Edital relevance foundation (unit + diagnose pilot_36) ==="
+	python3 -m pytest \
+		tests/coverage/test_edital_relevance_recall.py \
+		tests/coverage/test_human_labeling.py \
+		-q --tb=short -o addopts=''
+	@mkdir -p artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01
+	python3 -m scripts.coverage.edital_relevance_recall diagnose \
+		--corpus evals/edital_relevance/pilot_36.jsonl \
+		--manifest evals/edital_relevance/pilot_36-manifest.json \
+		--output artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01/machine_diagnostic_result.json \
+		> artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01/machine_diagnostic_stdout.txt
+	@python3 -c "import json; r=json.load(open('artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01/machine_diagnostic_result.json')); assert r['status']=='DIAGNOSTIC_ONLY' and r['pass'] is False and r['acceptance_eligible'] is False and r['dod_item_accepted'] is False and r.get('sealed_holdout') is False; print('diagnostic OK: DIAGNOSTIC_ONLY / non-accept')"
+	@test -f evals/edital_relevance/pilot_36_reviewer_a.csv
+	@test -f evals/edital_relevance/pilot_36_reviewer_b.csv
+	@echo "foundation gate PASS"
+
+# Real final acceptance gate: preserves evaluate-final exit code (non-zero while blocked).
+# Uses real non-empty development corpus + manifest (never an empty JSONL stand-in).
+# Do NOT wrap/transform the expected failure into success here.
+verify-edital-relevance-final:
+	@echo "=== Edital relevance FINAL accept gate (real evaluate-final; expect non-zero) ==="
+	@mkdir -p artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01
+	@test -s evals/edital_relevance/development_candidate_pool.jsonl
+	@test -f evals/edital_relevance/development_candidate_pool-manifest.json
+	python3 -m scripts.coverage.edital_relevance_recall evaluate-final \
+		--corpus evals/edital_relevance/pilot_36.jsonl \
+		--manifest evals/edital_relevance/pilot_36-manifest.json \
+		--development evals/edital_relevance/development_candidate_pool.jsonl \
+		--development-manifest evals/edital_relevance/development_candidate_pool-manifest.json \
+		--output artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01/final-gate-result.json
+
+# Meta-test used by CI: requires real final gate non-zero + exact blocker string; exits 0 when block is correct.
+test-edital-relevance-final-blocker:
+	@echo "=== Meta-test: final gate correctly blocked (BLOCKED_HUMAN_DUAL_LABELING) ==="
+	@mkdir -p artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01
+	@set +e; \
+	$(MAKE) verify-edital-relevance-final \
+		> artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01/final-gate-stdout.txt \
+		2> artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01/final-gate-stderr.txt; \
+	code=$$?; \
+	set -e; \
+	if [ $$code -eq 0 ]; then echo "ERROR: final gate must not pass without human gold"; exit 1; fi; \
+	if ! grep -q 'BLOCKED_HUMAN_DUAL_LABELING' \
+		artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01/final-gate-stderr.txt \
+		artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01/final-gate-stdout.txt \
+		artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01/final-gate-result.json; then \
+		echo "ERROR: missing blocker BLOCKED_HUMAN_DUAL_LABELING"; exit 1; fi; \
+	python3 -c "import json; r=json.load(open('artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01/final-gate-result.json')); assert r.get('pass') is False; assert r.get('acceptance_eligible') is False; assert r.get('dod_item_accepted') is False; assert r.get('sealed_holdout') is False; assert r.get('blocker')=='BLOCKED_HUMAN_DUAL_LABELING'; assert 'FAILED_DEVELOPMENT_INTEGRITY' not in {r.get('blocker'), *(r.get('blockers') or [])}; di=r.get('development_integrity') or {}; assert di.get('pass') is True; assert di.get('n_records')==24; assert di.get('duplicate_ids')==[]; assert di.get('holdout_overlap_count')==0; assert di.get('holdout_overlap_ids')==[]; assert di.get('sha256'); print('result fields OK; development_integrity pass=', di.get('pass'), 'n=', di.get('n_records'), 'overlap=', di.get('holdout_overlap_count'))"; \
+	echo "blocker meta-test PASS (final gate non-zero + BLOCKED_HUMAN_DUAL_LABELING + development integrity)"
+

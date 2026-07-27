@@ -1,0 +1,14 @@
+{
+  "schema_version": "edital-relevance-corpus/1.1.0",
+  "role": "pilot_candidate",
+  "campaign": "EDITAL-RELEVANCE-RECALL-95-01",
+  "campaign_status": "BLOCKED_HUMAN_DUAL_LABELING",
+  "label_authority": "machine_criteria_draft",
+  "acceptance_eligible": false,
+  "dod_item_accepted": false,
+  "sealed_holdout": false,
+  "corpus_path": "evals/edital_relevance/pilot_36.jsonl",
+  "corpus_sha256": "69ddde117404080ded2a0f4aad166e503f4c9fb801b54f4b92af330f77836533",
+  "n_records": 36,
+  "note": "Source for blind human pilot packages; machine labels not authority for accept"
+}

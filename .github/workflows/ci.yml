@@ -1266,3 +1266,249 @@ jobs:
           PY
 
 
+  edital-relevance-foundation:
+    # EDITAL RELEVANCE FOUNDATION — DOD §8.4 infrastructure (not accept)
+    name: Edital Relevance Foundation
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: extra_full_suite
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U test -d extra_full_suite"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://test:test@localhost:5432/extra_full_suite
+      LOCAL_DATALAKE_DSN: postgresql://test:test@localhost:5432/extra_full_suite
+      REQUIRE_REAL_DB: "1"
+      RESILIENCE_REQUIRE_DB: "1"
+      RESILIENCE_ENV: test
+      CI: true
+    steps:
+      # Checkout the PR head commit (not the ephemeral merge ref) so evidence
+      # binds to the exact tip SHA under review.
+      - name: Checkout PR head SHA
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Setup Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-asyncio pytest-cov hypothesis psycopg2-binary openpyxl prometheus_client
+
+      - name: Record exact HEAD SHA
+        id: sha
+        run: |
+          HEAD_SHA=$(git rev-parse HEAD)
+          echo "head_sha=$HEAD_SHA" >> "$GITHUB_OUTPUT"
+          echo "Executing foundation checks on SHA $HEAD_SHA"
+          EXPECTED="${{ github.event.pull_request.head.sha || github.sha }}"
+          echo "Expected PR head / push SHA: $EXPECTED"
+          test "$HEAD_SHA" = "$EXPECTED" || {
+            echo "ERROR: checkout SHA ($HEAD_SHA) != expected ($EXPECTED)"
+            exit 1
+          }
+
+      - name: Foundation unit tests + diagnostic (must PASS)
+        run: make test-edital-relevance-foundation
+
+      - name: Final-blocker meta-test (must PASS; proves final gate is correctly blocked)
+        run: make test-edital-relevance-final-blocker
+
+      - name: Real final accept gate must be NON-ZERO
+        run: |
+          set +e
+          make verify-edital-relevance-final
+          code=$?
+          set -e
+          if [ "$code" -eq 0 ]; then
+            echo "ERROR: verify-edital-relevance-final must not pass without human gold"
+            exit 1
+          fi
+          echo "verify-edital-relevance-final correctly non-zero (code=$code)"
+          grep -q 'BLOCKED_HUMAN_DUAL_LABELING' \
+            artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01/final-gate-result.json
+
+      - name: Development corpus real + hash + zero overlap
+        run: |
+          test -s evals/edital_relevance/development_candidate_pool.jsonl
+          test -f evals/edital_relevance/development_candidate_pool-manifest.json
+          # Fail only on operational use of empty-development artifacts/paths (not ban-text).
+          if grep -nE -- 'empty-development\.jsonl|artifacts/.*/empty-development' Makefile; then
+            echo "ERROR: empty-development artifact path must not be used in Makefile"
+            exit 1
+          fi
+          if test -e artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01/empty-development.jsonl; then
+            echo "ERROR: empty-development.jsonl artifact must not exist"
+            exit 1
+          fi
+          python3 - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          dev = Path("evals/edital_relevance/development_candidate_pool.jsonl")
+          man = json.loads(Path("evals/edital_relevance/development_candidate_pool-manifest.json").read_text())
+          rows = [json.loads(l) for l in dev.read_text().splitlines() if l.strip()]
+          assert len(rows) >= 20, len(rows)
+          ids = [str(r.get("official_id") or "").strip() for r in rows]
+          assert all(ids), "missing official_id"
+          assert len(ids) == len(set(ids)), "duplicate development ids"
+          sha = hashlib.sha256(dev.read_bytes()).hexdigest()
+          assert man.get("corpus_sha256") == sha, (man.get("corpus_sha256"), sha)
+          assert man.get("n_records") == len(rows)
+          assert man.get("role") == "development"
+          assert man.get("acceptance_eligible") is False
+          assert man.get("sealed_holdout") is False
+          assert all(r.get("synthetic") is False for r in rows)
+          assert all(r.get("selected_by_classifier") is False for r in rows)
+          assert all(r.get("selected_by_db_presence") is False for r in rows)
+          assert all(r.get("selected_by_success_zero") is False for r in rows)
+          pilot_ids = {
+              json.loads(l)["official_id"]
+              for l in Path("evals/edital_relevance/pilot_36.jsonl").read_text().splitlines()
+              if l.strip()
+          }
+          overlap = set(ids) & pilot_ids
+          assert not overlap, overlap
+          fr = json.loads(Path("artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01/final-gate-result.json").read_text())
+          di = fr.get("development_integrity") or {}
+          # Cumulative: pass AND zero overlap AND exact hash/n_records (never relax with OR).
+          assert di.get("pass") is True
+          assert di.get("holdout_overlap_count") == 0
+          assert di.get("n_records") == 24
+          assert di.get("duplicate_ids") == []
+          assert di.get("holdout_overlap_ids") == []
+          assert di.get("sha256") == man["corpus_sha256"] == sha
+          assert fr.get("blocker") == "BLOCKED_HUMAN_DUAL_LABELING"
+          assert fr.get("development_integrity", {}).get("pass") is True
+          assert "FAILED_DEVELOPMENT_INTEGRITY" not in {
+              fr.get("blocker"),
+              *(fr.get("blockers") or []),
+          }
+          print("development integrity OK", sha, len(rows), "blocker=", fr.get("blocker"))
+          PY
+
+      - name: DOD §8.4 remains open with human blocker
+        run: |
+          grep -F -- '- [ ] Recall de editais relevantes >= 95% na amostra-ouro.' DOD.md
+          grep -F 'BLOCKED_HUMAN_DUAL_LABELING' DOD.md
+          if grep -E -- '- \[x\] Recall de editais relevantes >= 95% na amostra-ouro' DOD.md; then
+            echo "ERROR: §8.4 marked done"
+            exit 1
+          fi
+
+      - name: sector_classifier + CONFENGE policy isolation (no feature allowlist)
+        run: |
+          git fetch origin main
+          # Product classifier and commercial freeze policy must be byte-identical to main.
+          for f in \
+            scripts/ops/sector_classifier.py \
+            scripts/ops/confenge_code_freeze.py \
+            scripts/ops/verify_confenge_artifact_binding.py \
+            scripts/ops/confenge_frozen_inputs.py
+          do
+            if ! git diff --exit-code origin/main -- "$f"; then
+              echo "ERROR: $f must be byte-identical to origin/main (no policy self-edit in foundation PR)"
+              exit 1
+            fi
+          done
+          # Frozen-inputs policy must be active; foundation free paths must not protect-fail.
+          python3 - <<'PY'
+          import os
+          import subprocess
+          from scripts.ops.confenge_code_freeze import ALLOWED_POST_FREEZE_PREFIXES, verify_code_freeze
+          from scripts.ops.confenge_frozen_inputs import EVIDENCE_LAG_PREFIXES
+
+          # Evidence lag prefixes only — never permanent edital feature allowlist.
+          assert ALLOWED_POST_FREEZE_PREFIXES == EVIDENCE_LAG_PREFIXES
+          for banned in (
+              "evals/edital_relevance/",
+              "scripts/coverage/edital_relevance_recall.py",
+              "scripts/campaigns/",
+              "tests/coverage/",
+          ):
+              assert banned not in ALLOWED_POST_FREEZE_PREFIXES, banned
+
+          os.environ["CONFENGE_PR_HEAD_SHA"] = os.environ.get(
+              "CONFENGE_PR_HEAD_SHA"
+          ) or subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
+          rep = verify_code_freeze()
+          assert rep.get("freeze_policy") == "frozen_confenge_inputs_v1", rep
+          assert rep.get("ok") is True, rep
+          assert not rep.get("protected_changed"), rep.get("protected_changed")
+          free = rep.get("free_changed") or []
+          assert any("edital_relevance" in p or "coverage/edital" in p for p in free) or free, free
+          print("sector_classifier+confenge policy isolation OK; freeze free-path PASS")
+          PY
+
+      - name: No machine-label accept theater / banned terms on pilot
+        run: |
+          python3 - <<'PY'
+          import json, pathlib, re
+          p = pathlib.Path("artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01/machine_diagnostic_result.json")
+          r = json.loads(p.read_text())
+          assert r.get("pass") is False
+          assert r.get("status") == "DIAGNOSTIC_ONLY"
+          assert r.get("acceptance_eligible") is False
+          assert r.get("dod_item_accepted") is False
+          assert r.get("sealed_holdout") is False
+          f = pathlib.Path("artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01/final-gate-result.json")
+          fr = json.loads(f.read_text())
+          assert fr.get("pass") is False
+          assert fr.get("blocker") == "BLOCKED_HUMAN_DUAL_LABELING"
+          banned_name_bits = ("locked_holdout",)
+          for path in pathlib.Path("evals/edital_relevance").glob("*"):
+              name = path.name.lower()
+              for bad in banned_name_bits:
+                  assert bad not in name, path
+              assert not name.startswith("gold"), path
+              assert "machine_draft_candidate_pool" not in name, path
+              assert name != "empty-development.jsonl", path
+          # Pilot / diagnostic docs must not claim accept theater
+          for path in (
+              pathlib.Path("evals/edital_relevance/pilot_36-manifest.json"),
+              pathlib.Path("docs/ops/campaigns/EDITAL-RELEVANCE-RECALL-95-01/HANDOFF.md"),
+              pathlib.Path("docs/ops/campaigns/EDITAL-RELEVANCE-RECALL-95-01/BLOCKED.md"),
+          ):
+              text = path.read_text(encoding="utf-8")
+              low = text.lower()
+              assert "locked_holdout" not in low, path
+              # pilot must not claim ACCEPTED / pass=true as accept
+              if "pilot" in path.name or "HANDOFF" in path.name or "BLOCKED" in path.name:
+                  assert "pass=true" not in low.replace(" ", ""), path
+          man = json.loads(pathlib.Path("evals/edital_relevance/pilot_36-manifest.json").read_text())
+          assert man.get("role") == "pilot_candidate"
+          assert man.get("label_authority") == "machine_criteria_draft"
+          assert man.get("acceptance_eligible") is False
+          assert man.get("sealed_holdout") is False
+          print("no machine-label accept theater")
+          PY
+
+      - name: Lint + typecheck + targeted coverage tests
+        run: |
+          python -m pip install ruff mypy types-requests
+          ruff check scripts/coverage/edital_relevance_recall.py scripts/campaigns/edital_relevance/ tests/coverage/test_edital_relevance_recall.py tests/coverage/test_human_labeling.py
+          python3 -m pytest tests/coverage/test_edital_relevance_recall.py tests/coverage/test_human_labeling.py -q --tb=short -o addopts=''
+
+      - name: Canonical full suite
+        run: python -m scripts.ops.run_full_suite
+
+      - name: Confirm executed SHA is still HEAD
+        run: |
+          test "$(git rev-parse HEAD)" = "${{ steps.sha.outputs.head_sha }}"
+          echo "CI foundation checks executed on exact HEAD ${{ steps.sha.outputs.head_sha }}"
