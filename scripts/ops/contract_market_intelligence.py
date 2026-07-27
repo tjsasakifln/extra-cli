@@ -140,14 +140,14 @@ def normalize_cnpj(raw: str | None) -> str:
     return digits.zfill(14) if digits else ""
 
 
-def _conn(dsn: str):
+def _conn(dsn: str) -> Any:
     import psycopg2
     import psycopg2.extras
 
     return psycopg2.connect(dsn, cursor_factory=psycopg2.extras.RealDictCursor)
 
 
-def table_exists(conn, name: str) -> bool:
+def table_exists(conn: Any, name: str) -> bool:
     with conn.cursor() as cur:
         cur.execute(
             """
@@ -161,7 +161,7 @@ def table_exists(conn, name: str) -> bool:
         return row is not None
 
 
-def require_table_columns(conn, table: str, columns: list[str]) -> dict[str, Any]:
+def require_table_columns(conn: Any, table: str, columns: list[str]) -> dict[str, Any]:
     """Prove real schema names exist (DOD §10.2-19). Raises on mismatch."""
     if not table_exists(conn, table):
         raise RuntimeError(f"required table missing: {table}")
@@ -396,6 +396,27 @@ REQUIRED_CONTRACT_COLS = [
 ]
 
 
+def cleanup_cmi_fixture(dsn: str) -> dict[str, Any]:
+    """Remove only CMI-prefixed fixture rows (safe for shared test DBs)."""
+    conn = _conn(dsn)
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                "DELETE FROM pncp_supplier_contracts WHERE contrato_id LIKE 'CMI-%'"
+            )
+            deleted_contracts = cur.rowcount
+            cur.execute("DELETE FROM pncp_raw_bids WHERE pncp_id LIKE 'CMI-%'")
+            deleted_bids = cur.rowcount
+        conn.commit()
+        return {
+            "ok": True,
+            "deleted_contracts": deleted_contracts,
+            "deleted_bids": deleted_bids,
+        }
+    finally:
+        conn.close()
+
+
 def seed_cmi_fixture(dsn: str) -> dict[str, Any]:
     """Insert a minimal realistic eligible population into isolated test DB."""
     conn = _conn(dsn)
@@ -406,6 +427,13 @@ def seed_cmi_fixture(dsn: str) -> dict[str, Any]:
             "pncp_raw_bids",
             ["pncp_id", "objeto_compra", "valor_total_estimado", "orgao_cnpj", "is_active"],
         )
+        # Replace prior CMI fixture only — never truncate operational tables.
+        with conn.cursor() as cur:
+            cur.execute(
+                "DELETE FROM pncp_supplier_contracts WHERE contrato_id LIKE 'CMI-%'"
+            )
+            cur.execute("DELETE FROM pncp_raw_bids WHERE pncp_id LIKE 'CMI-%'")
+        conn.commit()
         rows = [
             # supplier A — multiple orgs, SC, contracted values
             ("CMI-C-001", "11111111000111", "Prefeitura Alpha", "22222222000191", "Fornecedor Alfa Eng", "reforma predial sede", 150000.0, "2024-03-01", "2025-03-01", "SC", "Florianópolis", "pncp", True, "reforma_predial", "municipal"),
@@ -496,7 +524,7 @@ def seed_cmi_fixture(dsn: str) -> dict[str, Any]:
 
 
 def load_eligible_contracts(
-    conn,
+    conn: Any,
     *,
     uf_filter: str | None = "SC",
     period_start: str | None = None,

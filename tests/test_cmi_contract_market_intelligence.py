@@ -235,105 +235,110 @@ def test_ticket_medio_records_denominator():
 def test_real_db_schema_and_package(tmp_path: Path):
     import psycopg2
 
-    conn = psycopg2.connect(DSN)
     try:
-        info = cmi.require_table_columns(
-            conn, "pncp_supplier_contracts", cmi.REQUIRED_CONTRACT_COLS
+        conn = psycopg2.connect(DSN)
+        try:
+            info = cmi.require_table_columns(
+                conn, "pncp_supplier_contracts", cmi.REQUIRED_CONTRACT_COLS
+            )
+            assert info["table"] == "pncp_supplier_contracts"
+            with pytest.raises(RuntimeError, match="missing"):
+                cmi.require_table_columns(
+                    conn, "pncp_supplier_contracts", ["no_such_col_xyz"]
+                )
+        finally:
+            conn.close()
+
+        out = tmp_path / "cmi-run"
+        result = cmi.run_package(DSN, out, seed_if_empty=True, uf_filter="SC")
+        assert result["ok"] is True
+        assert result["population_count"] >= 1
+        assert result["supplier_count"] >= 1
+
+        # required artifacts
+        required = [
+            "metadata.json",
+            "suppliers-ranking.csv",
+            "suppliers-ranking.json",
+            "concentration-by-supplier.csv",
+            "concentration-by-entity.csv",
+            "value-references.csv",
+            "value-references.json",
+            "limitations.json",
+            "reliability-status.json",
+            "executive-review.xlsx",
+            "competitor-review.md",
+            "proof.json",
+            "ledger.json",
+            "acceptance-manifest.json",
+        ]
+        for name in required:
+            p = out / name
+            assert p.is_file(), name
+            assert p.stat().st_size > 20, name
+
+        meta = json.loads((out / "metadata.json").read_text(encoding="utf-8"))
+        assert meta["complete_population_aggregated"] is True
+        assert meta["population_count"] == result["population_count"]
+        assert "valor_estimado" in meta["value_definitions"]
+        assert meta["code_sha"]
+
+        suppliers = json.loads((out / "suppliers-ranking.json").read_text(encoding="utf-8"))
+        assert suppliers
+        for s in suppliers:
+            assert s["role"] == "winner_identified"
+            assert s["participant_identified"] is False
+            assert s["win_rate"]["status"] == "NOT_COMPUTABLE"
+            assert s["capacity_claim"]["claim_as_fact_forbidden"] is True
+            # no orgao as supplier: CNPJ of supplier present
+            assert len(s["fornecedor_cnpj"]) == 14
+
+        rel = json.loads((out / "reliability-status.json").read_text(encoding="utf-8"))
+        assert rel["win_rate"]["status"] == "NOT_COMPUTABLE"
+        assert rel["participantes"]["status"] == "SOURCE_UNAVAILABLE"
+        assert rel["ranking_vencedores"]["status"] == "READY"
+
+        proof = json.loads((out / "proof.json").read_text(encoding="utf-8"))
+        assert proof["ok"] is True
+        assert proof["population_count"] >= 1
+        assert proof["claims_scan"]["ok"] is True
+
+        md = (out / "competitor-review.md").read_text(encoding="utf-8")
+        assert "vencedor" in md.lower()
+        assert "NOT_COMPUTABLE" in md or "not_computable" in md.lower()
+        assert "preço real praticado" in md.lower()  # mentioned as forbidden explanation
+        assert "limita" in md.lower()
+
+        # Excel sheets
+        from openpyxl import load_workbook
+
+        wb = load_workbook(out / "executive-review.xlsx")
+        names = set(wb.sheetnames)
+        for need in (
+            "Metadados",
+            "Fornecedores",
+            "Contratos",
+            "Concentracao",
+            "ReferenciasValores",
+            "Limitacoes",
+            "Confiabilidade",
+        ):
+            assert need in names, need
+
+        # material rows not header-only
+        csv_text = (out / "suppliers-ranking.csv").read_text(encoding="utf-8")
+        assert csv_text.count("\n") >= 2
+
+        # null valor preserved in typed values
+        vrefs = json.loads((out / "value-references.json").read_text(encoding="utf-8"))
+        typed = vrefs["typed_values"]
+        assert any(t["value"] is None and t["status"] == "MISSING" for t in typed) or any(
+            t.get("value") is not None for t in typed
         )
-        assert info["table"] == "pncp_supplier_contracts"
-        with pytest.raises(RuntimeError, match="missing"):
-            cmi.require_table_columns(conn, "pncp_supplier_contracts", ["no_such_col_xyz"])
+        # never claim four fields interchangeable
+        assert vrefs["fields_not_interchangeable"] is True
     finally:
-        conn.close()
-
-    out = tmp_path / "cmi-run"
-    result = cmi.run_package(DSN, out, seed_if_empty=True, uf_filter="SC")
-    assert result["ok"] is True
-    assert result["population_count"] >= 1
-    assert result["supplier_count"] >= 1
-
-    # required artifacts
-    required = [
-        "metadata.json",
-        "suppliers-ranking.csv",
-        "suppliers-ranking.json",
-        "concentration-by-supplier.csv",
-        "concentration-by-entity.csv",
-        "value-references.csv",
-        "value-references.json",
-        "limitations.json",
-        "reliability-status.json",
-        "executive-review.xlsx",
-        "competitor-review.md",
-        "proof.json",
-        "ledger.json",
-        "acceptance-manifest.json",
-    ]
-    for name in required:
-        p = out / name
-        assert p.is_file(), name
-        assert p.stat().st_size > 20, name
-
-    meta = json.loads((out / "metadata.json").read_text(encoding="utf-8"))
-    assert meta["complete_population_aggregated"] is True
-    assert meta["population_count"] == result["population_count"]
-    assert "valor_estimado" in meta["value_definitions"]
-    assert meta["code_sha"]
-
-    suppliers = json.loads((out / "suppliers-ranking.json").read_text(encoding="utf-8"))
-    assert suppliers
-    for s in suppliers:
-        assert s["role"] == "winner_identified"
-        assert s["participant_identified"] is False
-        assert s["win_rate"]["status"] == "NOT_COMPUTABLE"
-        assert s["capacity_claim"]["claim_as_fact_forbidden"] is True
-        # no orgao as supplier: CNPJ of supplier present
-        assert len(s["fornecedor_cnpj"]) == 14
-
-    rel = json.loads((out / "reliability-status.json").read_text(encoding="utf-8"))
-    assert rel["win_rate"]["status"] == "NOT_COMPUTABLE"
-    assert rel["participantes"]["status"] == "SOURCE_UNAVAILABLE"
-    assert rel["ranking_vencedores"]["status"] == "READY"
-
-    proof = json.loads((out / "proof.json").read_text(encoding="utf-8"))
-    assert proof["ok"] is True
-    assert proof["population_count"] >= 1
-    assert proof["claims_scan"]["ok"] is True
-
-    md = (out / "competitor-review.md").read_text(encoding="utf-8")
-    assert "vencedor" in md.lower()
-    assert "NOT_COMPUTABLE" in md or "not_computable" in md.lower()
-    assert "preço real praticado" in md.lower()  # mentioned as forbidden explanation
-    assert "limita" in md.lower()
-
-    # Excel sheets
-    from openpyxl import load_workbook
-
-    wb = load_workbook(out / "executive-review.xlsx")
-    names = set(wb.sheetnames)
-    for need in (
-        "Metadados",
-        "Fornecedores",
-        "Contratos",
-        "Concentracao",
-        "ReferenciasValores",
-        "Limitacoes",
-        "Confiabilidade",
-    ):
-        assert need in names, need
-
-    # material rows not header-only
-    csv_text = (out / "suppliers-ranking.csv").read_text(encoding="utf-8")
-    assert csv_text.count("\n") >= 2
-
-    # null valor preserved in typed values
-    vrefs = json.loads((out / "value-references.json").read_text(encoding="utf-8"))
-    typed = vrefs["typed_values"]
-    assert any(t["value"] is None and t["status"] == "MISSING" for t in typed) or any(
-        t.get("value") is not None for t in typed
-    )
-    # never claim four fields interchangeable
-    assert vrefs["fields_not_interchangeable"] is True
+        cmi.cleanup_cmi_fixture(DSN)
 
 
 @pytest.mark.real_db
@@ -344,19 +349,24 @@ def test_operational_reports_no_orgao_as_competitor():
 
     from scripts.reports.operational_reports import report_concorrentes
 
-    cmi.seed_cmi_fixture(DSN)
-    conn = psycopg2.connect(DSN, cursor_factory=psycopg2.extras.RealDictCursor)
     try:
-        rows = report_concorrentes(conn)
-        assert not any(r.get("provenance") == "fallback_orgao_not_supplier" for r in rows)
-        if rows and "_error" not in rows[0]:
-            for r in rows:
-                assert r.get("role") == "winner_identified" or r.get("provenance") == (
-                    "from_pncp_supplier_contracts"
-                )
-                assert r.get("n_contratos") is not None
+        cmi.seed_cmi_fixture(DSN)
+        conn = psycopg2.connect(DSN, cursor_factory=psycopg2.extras.RealDictCursor)
+        try:
+            rows = report_concorrentes(conn)
+            assert not any(
+                r.get("provenance") == "fallback_orgao_not_supplier" for r in rows
+            )
+            if rows and "_error" not in rows[0]:
+                for r in rows:
+                    assert r.get("role") == "winner_identified" or r.get(
+                        "provenance"
+                    ) == ("from_pncp_supplier_contracts")
+                    assert r.get("n_contratos") is not None
+        finally:
+            conn.close()
     finally:
-        conn.close()
+        cmi.cleanup_cmi_fixture(DSN)
 
 
 @pytest.mark.real_db
