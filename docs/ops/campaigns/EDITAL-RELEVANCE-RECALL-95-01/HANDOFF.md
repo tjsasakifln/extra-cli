@@ -13,6 +13,16 @@ DOD §8.4 remains **`[ ]`**. Merge of this foundation ≠ DOD accept.
 - `scripts/ops/sector_classifier.py` — **byte-identical to `origin/main`**
 - No CONFENGE allowlist expansion, bypass, skip, or gate rewrite in this PR.
 
+### Residual monorepo freeze collision
+
+After restoring freeze/binding to `origin/main`, existing CONFENGE commercial jobs
+(`CONFENGE Commercial Code Quality` → Artifact SHA binding gate) reject this PR's
+edital paths because they are outside the freeze allowlist. **Allowlists were not
+re-expanded** (forbidden). **Commercial evidence was not rewritten** (forbidden).
+
+Campaign escalates as: **`BLOCKED_BY_EXISTING_CONFENGE_FREEZE_POLICY`**
+(in addition to residual human dual-labeling blocker for §8.4).
+
 ## Infrastructure delivered
 
 - Evaluator: `scripts/coverage/edital_relevance_recall.py`
