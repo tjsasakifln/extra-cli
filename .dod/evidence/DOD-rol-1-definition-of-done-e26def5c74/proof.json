@@ -1,0 +1,15 @@
+{
+  "item_id": "DOD-rol-1-definition-of-done-e26def5c74",
+  "alias": "CMI-10.2-16",
+  "text": "Exportação para Excel.",
+  "campaign_id": "CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01",
+  "code_sha": "241ec41f0badf5bd463b66dafe36faa1e2e66876",
+  "pr": "151",
+  "as_of": "2026-07-27T21:45:19Z",
+  "ok": true,
+  "shared_artifacts": [
+    "artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/execution-proof-summary.json",
+    "artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/freeze.json",
+    "artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/adversarial-review.md"
+  ]
+}

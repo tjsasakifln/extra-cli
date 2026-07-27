@@ -1,0 +1,9 @@
+{
+  "conclusion": "success",
+  "head_sha": "241ec41f0badf5bd463b66dafe36faa1e2e66876",
+  "pr": "151",
+  "main_ci_run": "30308032565",
+  "pr_ci_run": "30307668529",
+  "url": "https://github.com/tjsasakifln/extra-cli/actions/runs/30308032565",
+  "mandatory_jobs_skipped": []
+}

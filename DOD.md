@@ -901,36 +901,36 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 
 ### 10.1 Escopo honesto
 
-- [ ] O sistema diferencia vencedor identificado de participante identificado.
-- [ ] O sistema não afirma conhecer todos os concorrentes quando a fonte não expõe participantes.
-- [ ] O sistema não calcula win rate sem denominador de propostas apresentadas.
-- [ ] O sistema não calcula deságio sem valor estimado e valor homologado comparáveis.
-- [ ] O sistema não infere capacidade ociosa do concorrente sem dado apropriado.
-- [ ] O sistema não trata quantidade de contratos como sinônimo de capacidade técnica.
-- [ ] O sistema informa as limitações de cada indicador.
+- [x] O sistema diferencia vencedor identificado de participante identificado.
+- [x] O sistema não afirma conhecer todos os concorrentes quando a fonte não expõe participantes.
+- [x] O sistema não calcula win rate sem denominador de propostas apresentadas.
+- [x] O sistema não calcula deságio sem valor estimado e valor homologado comparáveis.
+- [x] O sistema não infere capacidade ociosa do concorrente sem dado apropriado.
+- [x] O sistema não trata quantidade de contratos como sinônimo de capacidade técnica.
+- [x] O sistema informa as limitações de cada indicador.
 
 ### 10.2 Entregas mínimas
 
-- [ ] Ranking de fornecedores vencedores.
-- [ ] Quantidade de contratos por fornecedor.
-- [ ] Valor contratado por fornecedor.
-- [ ] Ticket contratado médio por fornecedor.
-- [ ] Número de entes atendidos por fornecedor.
-- [ ] Distribuição por município.
-- [ ] Distribuição por natureza do ente.
-- [ ] Distribuição por setor ou tipo de objeto.
-- [ ] Recorrência de contratação.
-- [ ] Última contratação conhecida.
-- [ ] Concentração por órgão.
-- [ ] Concentração por fornecedor.
-- [ ] Market share contratual quando semanticamente válido.
-- [ ] HHI quando semanticamente válido.
-- [ ] Fonte e data de corte em todas as métricas.
-- [ ] Exportação para Excel.
-- [ ] Relatório de concorrentes para revisão manual.
-- [ ] Queries executadas em PostgreSQL real.
-- [ ] Testes validam nomes reais de tabelas e colunas.
-- [ ] O relatório distingue métricas prontas, parciais e indisponíveis.
+- [x] Ranking de fornecedores vencedores.
+- [x] Quantidade de contratos por fornecedor.
+- [x] Valor contratado por fornecedor.
+- [x] Ticket contratado médio por fornecedor.
+- [x] Número de entes atendidos por fornecedor.
+- [x] Distribuição por município.
+- [x] Distribuição por natureza do ente.
+- [x] Distribuição por setor ou tipo de objeto.
+- [x] Recorrência de contratação.
+- [x] Última contratação conhecida.
+- [x] Concentração por órgão.
+- [x] Concentração por fornecedor.
+- [x] Market share contratual quando semanticamente válido.
+- [x] HHI quando semanticamente válido.
+- [x] Fonte e data de corte em todas as métricas.
+- [x] Exportação para Excel.
+- [x] Relatório de concorrentes para revisão manual.
+- [x] Queries executadas em PostgreSQL real.
+- [x] Testes validam nomes reais de tabelas e colunas.
+- [x] O relatório distingue métricas prontas, parciais e indisponíveis.
 
 ---
 
@@ -938,26 +938,26 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 
 ### 11.1 Semântica obrigatória
 
-- [ ] `valor_estimado` possui definição explícita.
-- [ ] `valor_homologado` possui definição explícita.
-- [ ] `valor_contratado` possui definição explícita.
-- [ ] `valor_pago` possui definição explícita.
-- [ ] Os quatro campos não são intercambiáveis.
-- [ ] O relatório exibe o tipo de valor.
-- [ ] O relatório exibe a fonte do valor.
-- [ ] O relatório exibe a data de referência.
-- [ ] O relatório exibe a unidade de comparação.
-- [ ] O relatório exibe se o valor é global, por lote, por item ou unitário.
-- [ ] Valor ausente não é substituído por zero.
-- [ ] Valor inferido é marcado como inferido.
-- [ ] Valor oficial é marcado como oficial.
-- [ ] Valores de objetos heterogêneos não são agregados sem classificação adequada.
-- [ ] Valores de períodos muito distintos são acompanhados de data.
-- [ ] Atualização monetária, quando usada, é explicitada.
-- [ ] Percentis só são calculados sobre amostra comparável.
-- [ ] O tamanho da amostra é informado.
-- [ ] Outliers são identificados.
-- [ ] O sistema não chama percentil de contratos globais de “preço real praticado” sem base técnica.
+- [x] `valor_estimado` possui definição explícita.
+- [x] `valor_homologado` possui definição explícita.
+- [x] `valor_contratado` possui definição explícita.
+- [x] `valor_pago` possui definição explícita.
+- [x] Os quatro campos não são intercambiáveis.
+- [x] O relatório exibe o tipo de valor.
+- [x] O relatório exibe a fonte do valor.
+- [x] O relatório exibe a data de referência.
+- [x] O relatório exibe a unidade de comparação.
+- [x] O relatório exibe se o valor é global, por lote, por item ou unitário.
+- [x] Valor ausente não é substituído por zero.
+- [x] Valor inferido é marcado como inferido.
+- [x] Valor oficial é marcado como oficial.
+- [x] Valores de objetos heterogêneos não são agregados sem classificação adequada.
+- [x] Valores de períodos muito distintos são acompanhados de data.
+- [x] Atualização monetária, quando usada, é explicitada.
+- [x] Percentis só são calculados sobre amostra comparável.
+- [x] O tamanho da amostra é informado.
+- [x] Outliers são identificados.
+- [x] O sistema não chama percentil de contratos globais de “preço real praticado” sem base técnica.
 
 ### 11.2 Encadeamento do certame
 
