@@ -202,7 +202,9 @@ def test_final_gate_rejects_machine_labels(tmp_path):
     }
     mp = tmp_path / "m.json"
     mp.write_text(json.dumps(man), encoding="utf-8")
-    code, result = evaluate(p, manifest_path=mp, mode="final")
+    dev = tmp_path / "dev.jsonl"
+    dev.write_text("", encoding="utf-8")
+    code, result = evaluate(p, manifest_path=mp, mode="final", development_path=dev)
     assert code != 0
     assert result["pass"] is False
     assert result["blocker"] == BLOCKED_HUMAN_DUAL_LABELING
@@ -237,10 +239,14 @@ def test_final_gate_rejects_legacy_locked_holdout_role(tmp_path):
         "stratum_blockers": {},
         "label_authority": "human_dual_independent",
         "pilot_human_approved_at": "2026-07-26T00:00:00Z",
+        "pilot_human_approved_by": "tiago",
+        "acceptance_eligible": True,
     }
     mp = tmp_path / "m.json"
     mp.write_text(json.dumps(man), encoding="utf-8")
-    code, result = evaluate(p, manifest_path=mp, mode="final")
+    dev = tmp_path / "dev.jsonl"
+    dev.write_text("", encoding="utf-8")
+    code, result = evaluate(p, manifest_path=mp, mode="final", development_path=dev)
     assert code != 0
     assert result["blocker"] == BLOCKED_HUMAN_DUAL_LABELING
     assert any("human_sealed_holdout" in e or "locked_holdout" in e for e in result["integrity"]["errors"])
@@ -286,13 +292,16 @@ def test_final_gate_rejects_missing_seal(tmp_path):
         "stratum_blockers": {},
         "label_authority": "human_dual_independent",
         "pilot_human_approved_at": "2026-07-26T00:00:00Z",
+        "pilot_human_approved_by": "tiago",
+        "acceptance_eligible": True,
     }
     mp = tmp_path / "m.json"
     mp.write_text(json.dumps(man), encoding="utf-8")
-    code, result = evaluate(p, manifest_path=mp, mode="final")
+    dev = tmp_path / "dev.jsonl"
+    dev.write_text("", encoding="utf-8")
+    code, result = evaluate(p, manifest_path=mp, mode="final", development_path=dev)
     assert code != 0
     assert any("sealed" in e for e in result["integrity"]["errors"])
-
 
 def test_denominator_only_adjudicated_relevant():
     rows = [
@@ -319,13 +328,14 @@ def test_recall_threshold_gate_math():
     assert (94.99 / 100) < RECALL_THRESHOLD
 
 
-def test_cli_evaluate_final_on_machine_draft_blocks(tmp_path):
-    """Drive real CLI entrypoint: final mode on machine draft must non-zero + blocker."""
+def test_cli_evaluate_final_on_pilot_36_blocks(tmp_path):
+    """Drive real CLI entrypoint: final mode on pilot_36 must non-zero + blocker."""
     root = Path(__file__).resolve().parents[2]
-    corpus = root / "evals" / "edital_relevance" / "machine_draft_candidate_pool.jsonl"
-    manifest = root / "evals" / "edital_relevance" / "machine_draft_candidate_pool-manifest.json"
-    if not corpus.is_file():
-        pytest.skip("machine draft corpus not present")
+    corpus = root / "evals" / "edital_relevance" / "pilot_36.jsonl"
+    manifest = root / "evals" / "edital_relevance" / "pilot_36-manifest.json"
+    assert corpus.is_file() and manifest.is_file()
+    dev = tmp_path / "dev.jsonl"
+    dev.write_text("", encoding="utf-8")
     out = tmp_path / "final.json"
     code = main(
         [
@@ -334,6 +344,8 @@ def test_cli_evaluate_final_on_machine_draft_blocks(tmp_path):
             str(corpus),
             "--manifest",
             str(manifest),
+            "--development",
+            str(dev),
             "--output",
             str(out),
         ]
@@ -346,12 +358,11 @@ def test_cli_evaluate_final_on_machine_draft_blocks(tmp_path):
     assert result["acceptance_eligible"] is False
 
 
-def test_cli_diagnose_on_machine_draft_is_diagnostic_only(tmp_path):
+def test_cli_diagnose_on_pilot_36_is_diagnostic_only(tmp_path):
     root = Path(__file__).resolve().parents[2]
-    corpus = root / "evals" / "edital_relevance" / "machine_draft_candidate_pool.jsonl"
-    manifest = root / "evals" / "edital_relevance" / "machine_draft_candidate_pool-manifest.json"
-    if not corpus.is_file():
-        pytest.skip("machine draft corpus not present")
+    corpus = root / "evals" / "edital_relevance" / "pilot_36.jsonl"
+    manifest = root / "evals" / "edital_relevance" / "pilot_36-manifest.json"
+    assert corpus.is_file() and manifest.is_file()
     out = tmp_path / "diag.json"
     code = main(
         [
@@ -439,11 +450,18 @@ def _final_manifest(corpus_path: Path, **extra) -> dict:
         "stratum_blockers": {},
         "label_authority": "human_dual_independent",
         "pilot_human_approved_at": "2026-07-26T00:00:00Z",
+        "pilot_human_approved_by": "tiago",
         "acceptance_eligible": True,
         "dod_item_accepted": False,
     }
     man.update(extra)
     return man
+
+
+def _empty_dev(tmp_path: Path) -> Path:
+    p = tmp_path / "empty-dev.jsonl"
+    p.write_text("", encoding="utf-8")
+    return p
 
 
 def test_final_gate_rejects_missing_dual_labels(tmp_path):
@@ -456,7 +474,9 @@ def test_final_gate_rejects_missing_dual_labels(tmp_path):
     _write_jsonl(p, rows)
     mp = tmp_path / "m.json"
     mp.write_text(json.dumps(_final_manifest(p)), encoding="utf-8")
-    code, result = evaluate(p, manifest_path=mp, mode="final")
+    code, result = evaluate(
+        p, manifest_path=mp, mode="final", development_path=_empty_dev(tmp_path)
+    )
     assert code != 0
     assert result["pass"] is False
     assert result.get("status") != "ACCEPTED"
@@ -480,7 +500,9 @@ def test_final_gate_rejects_label_final_contradicting_agreed_duals(tmp_path):
     _write_jsonl(p, rows)
     mp = tmp_path / "m.json"
     mp.write_text(json.dumps(_final_manifest(p)), encoding="utf-8")
-    code, result = evaluate(p, manifest_path=mp, mode="final")
+    code, result = evaluate(
+        p, manifest_path=mp, mode="final", development_path=_empty_dev(tmp_path)
+    )
     assert code != 0
     assert result["pass"] is False
     assert result.get("status") != "ACCEPTED"
@@ -501,10 +523,91 @@ def test_final_gate_rejects_divergence_without_adjudication(tmp_path):
     _write_jsonl(p, rows)
     mp = tmp_path / "m.json"
     mp.write_text(json.dumps(_final_manifest(p)), encoding="utf-8")
-    code, result = evaluate(p, manifest_path=mp, mode="final")
+    code, result = evaluate(
+        p, manifest_path=mp, mode="final", development_path=_empty_dev(tmp_path)
+    )
     assert code != 0
     assert result["pass"] is False
     assert any("adjudication" in e.lower() for e in result["integrity"]["errors"])
+
+
+def test_final_gate_requires_both_seal_flags_and(tmp_path):
+    """Only one of sealed_holdout / sealed_before_classifier_edits true must fail."""
+    rows = _human_holdout_rows()
+    p = tmp_path / "hold.jsonl"
+    _write_jsonl(p, rows)
+    for seal, before in ((True, False), (False, True)):
+        man = _final_manifest(
+            p,
+            sealed_holdout=seal,
+            sealed_before_classifier_edits=before,
+        )
+        mp = tmp_path / f"m_{seal}_{before}.json"
+        mp.write_text(json.dumps(man), encoding="utf-8")
+        code, result = evaluate(
+            p, manifest_path=mp, mode="final", development_path=_empty_dev(tmp_path)
+        )
+        assert code != 0
+        assert result["pass"] is False
+        errs = " ".join(result["integrity"]["errors"])
+        assert "sealed_holdout" in errs or "sealed_before_classifier_edits" in errs
+
+
+def test_final_gate_rejects_missing_corpus_sha256(tmp_path):
+    rows = _human_holdout_rows()
+    p = tmp_path / "hold.jsonl"
+    _write_jsonl(p, rows)
+    man = _final_manifest(p)
+    man.pop("corpus_sha256", None)
+    mp = tmp_path / "m.json"
+    mp.write_text(json.dumps(man), encoding="utf-8")
+    code, result = evaluate(
+        p, manifest_path=mp, mode="final", development_path=_empty_dev(tmp_path)
+    )
+    assert code != 0
+    assert any("corpus_sha256" in e for e in result["integrity"]["errors"])
+
+
+def test_final_gate_rejects_omitted_development(tmp_path):
+    """Development leak check cannot be silently omitted in final mode."""
+    rows = _human_holdout_rows()
+    p = tmp_path / "hold.jsonl"
+    _write_jsonl(p, rows)
+    mp = tmp_path / "m.json"
+    mp.write_text(json.dumps(_final_manifest(p)), encoding="utf-8")
+    code, result = evaluate(p, manifest_path=mp, mode="final", development_path=None)
+    assert code != 0
+    assert any("development" in e.lower() for e in result["integrity"]["errors"])
+
+
+def test_final_gate_rejects_development_leak(tmp_path):
+    rows = _human_holdout_rows()
+    p = tmp_path / "hold.jsonl"
+    _write_jsonl(p, rows)
+    dev = tmp_path / "dev.jsonl"
+    # same ID as holdout → leakage
+    _write_jsonl(dev, [rows[0]])
+    mp = tmp_path / "m.json"
+    mp.write_text(json.dumps(_final_manifest(p)), encoding="utf-8")
+    code, result = evaluate(p, manifest_path=mp, mode="final", development_path=dev)
+    assert code != 0
+    assert any("leakage" in e.lower() for e in result["integrity"]["errors"])
+
+
+def test_final_gate_cli_requires_development_flag(tmp_path):
+    root = Path(__file__).resolve().parents[2]
+    corpus = root / "evals" / "edital_relevance" / "pilot_36.jsonl"
+    manifest = root / "evals" / "edital_relevance" / "pilot_36-manifest.json"
+    with pytest.raises(SystemExit):
+        main(
+            [
+                "evaluate-final",
+                "--corpus",
+                str(corpus),
+                "--manifest",
+                str(manifest),
+            ]
+        )
 
 
 def test_final_gate_accepts_agreed_human_duals_with_integrity(tmp_path, monkeypatch):
@@ -517,6 +620,7 @@ def test_final_gate_accepts_agreed_human_duals_with_integrity(tmp_path, monkeypa
     _write_jsonl(p, rows)
     mp = tmp_path / "m.json"
     mp.write_text(json.dumps(_final_manifest(p)), encoding="utf-8")
+    dev = _empty_dev(tmp_path)
 
     class FakeClf:
         def __init__(self, label: str):
@@ -535,7 +639,7 @@ def test_final_gate_accepts_agreed_human_duals_with_integrity(tmp_path, monkeypa
         "scripts.coverage.edital_relevance_recall.is_engineering_for_e",
         lambda clf: True,
     )
-    code, result = evaluate(p, manifest_path=mp, mode="final")
+    code, result = evaluate(p, manifest_path=mp, mode="final", development_path=dev)
     assert result["integrity"]["ok"] is True or not any(
         "dual" in e.lower() or "contradict" in e.lower() or "label_reviewer" in e.lower()
         for e in result["integrity"]["errors"]
@@ -554,6 +658,8 @@ def test_final_gate_accepts_agreed_human_duals_with_integrity(tmp_path, monkeypa
                 "machine",
                 "sealed",
                 "pilot",
+                "development",
+                "corpus_sha256",
             )
         )
     ]

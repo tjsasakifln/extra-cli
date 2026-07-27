@@ -18,12 +18,13 @@ Two explicit modes — no flag can promote machine labels to DOD accept:
 Canonical commands::
 
     python -m scripts.coverage.edital_relevance_recall diagnose \\
-      --corpus evals/edital_relevance/machine_draft_candidate_pool.jsonl \\
-      --manifest evals/edital_relevance/machine_draft_candidate_pool-manifest.json
+      --corpus evals/edital_relevance/pilot_36.jsonl \\
+      --manifest evals/edital_relevance/pilot_36-manifest.json
 
     python -m scripts.coverage.edital_relevance_recall evaluate-final \\
-      --corpus evals/edital_relevance/machine_draft_candidate_pool.jsonl \\
-      --manifest evals/edital_relevance/machine_draft_candidate_pool-manifest.json
+      --corpus evals/edital_relevance/pilot_36.jsonl \\
+      --manifest evals/edital_relevance/pilot_36-manifest.json \\
+      --development path/to/development.jsonl
 """
 
 from __future__ import annotations
@@ -103,6 +104,7 @@ NON_SEAL_ROLES = frozenset(
         "machine_draft_candidate_pool",
         "development",
         "pilot",
+        "pilot_candidate",
         "locked_holdout",  # legacy name from contaminated PR — never accept
     }
 )
@@ -223,13 +225,16 @@ def check_corpus_integrity(
     *,
     manifest: dict[str, Any] | None = None,
     development_ids: set[str] | None = None,
+    development_path: Path | None = None,
+    development_required: bool = False,
     mode: str = "diagnostic",
     corpus_path: Path | None = None,
 ) -> IntegrityReport:
     """Integrity checks.
 
     ``mode`` is ``diagnostic`` or ``final``. Final never accepts machine labels
-    and has no promote-to-accept switch.
+    and has no promote-to-accept switch. Final requires both seal flags (AND),
+    mandatory ``corpus_sha256``, and a non-omissible development leak check.
     """
     rep = IntegrityReport()
     final_mode = mode == "final"
@@ -357,7 +362,38 @@ def check_corpus_integrity(
     if dups:
         rep.fail(f"duplicate official_id: {sorted(dups)[:20]}")
 
-    if development_ids:
+    # Development leak check: final mode cannot silently omit it.
+    if final_mode or development_required:
+        if development_path is None and development_ids is None:
+            rep.fail(
+                "final gate requires development corpus for leak check "
+                "(--development or manifest development_path + development_sha256)",
+                blocker=BLOCKED_HUMAN_DUAL_LABELING,
+            )
+        elif development_path is not None:
+            if not development_path.is_file():
+                rep.fail(
+                    f"development corpus missing: {development_path}",
+                    blocker=BLOCKED_HUMAN_DUAL_LABELING,
+                )
+            else:
+                expected_dev_sha = (manifest or {}).get("development_sha256")
+                if expected_dev_sha:
+                    actual_dev = sha256_file(development_path)
+                    if actual_dev != expected_dev_sha:
+                        rep.fail(
+                            f"development_sha256 mismatch: expected={expected_dev_sha} actual={actual_dev}"
+                        )
+                # duplicate IDs inside development
+                if development_ids is not None:
+                    # re-derive from path was done by caller; check intersection
+                    pass
+        if development_ids is not None:
+            # also catch internal dups in development set vs holdout
+            leak = sorted(seen & development_ids)
+            if leak:
+                rep.fail(f"development leakage into holdout: {leak[:20]}")
+    elif development_ids:
         leak = sorted(seen & development_ids)
         if leak:
             rep.fail(f"development leakage into holdout: {leak[:20]}")
@@ -382,17 +418,23 @@ def check_corpus_integrity(
                         "without explicit population blocker"
                     )
 
-    if manifest is not None and corpus_path is not None:
-        expected = manifest.get("corpus_sha256")
-        if expected:
-            actual = sha256_file(corpus_path)
-            if actual != expected:
-                rep.fail(f"manifest corpus_sha256 mismatch: expected={expected} actual={actual}")
-
     if final_mode:
+        # corpus_sha256 is mandatory in final mode (missing hash fails).
+        if corpus_path is None or not corpus_path.is_file():
+            rep.fail("final gate requires corpus_path for sha256 check")
         if manifest is None:
             rep.fail("final gate requires manifest", blocker=BLOCKED_HUMAN_DUAL_LABELING)
         else:
+            expected = manifest.get("corpus_sha256")
+            if not expected:
+                rep.fail(
+                    "final gate requires manifest corpus_sha256 (missing hash is not optional)",
+                    blocker=BLOCKED_HUMAN_DUAL_LABELING,
+                )
+            elif corpus_path is not None and corpus_path.is_file():
+                actual = sha256_file(corpus_path)
+                if actual != expected:
+                    rep.fail(f"manifest corpus_sha256 mismatch: expected={expected} actual={actual}")
             role = str(manifest.get("role") or "")
             if role in NON_SEAL_ROLES or role != "human_sealed_holdout":
                 rep.fail(
@@ -400,23 +442,36 @@ def check_corpus_integrity(
                     "machine-draft / contaminated / legacy locked_holdout roles are rejected",
                     blocker=BLOCKED_HUMAN_DUAL_LABELING,
                 )
+            if manifest.get("acceptance_eligible") is not True:
+                rep.fail(
+                    "final gate requires acceptance_eligible=true",
+                    blocker=BLOCKED_HUMAN_DUAL_LABELING,
+                )
             if manifest.get("acceptance_eligible") is True and is_machine_authority(
                 str(manifest.get("label_authority") or "")
             ):
                 rep.fail("manifest claims acceptance_eligible with machine label authority")
-            if (
-                manifest.get("sealed_holdout") is not True
-                and manifest.get("sealed_before_classifier_edits") is not True
-            ):
+            # BOTH seal flags required (AND — no OR).
+            if manifest.get("sealed_holdout") is not True:
                 rep.fail(
-                    "final gate requires sealed_holdout=true (new sample sealed before classifier edits)",
+                    "final gate requires sealed_holdout=true",
+                    blocker=BLOCKED_HUMAN_DUAL_LABELING,
+                )
+            if manifest.get("sealed_before_classifier_edits") is not True:
+                rep.fail(
+                    "final gate requires sealed_before_classifier_edits=true",
                     blocker=BLOCKED_HUMAN_DUAL_LABELING,
                 )
             if not manifest.get("frozen_at"):
-                rep.fail("manifest missing frozen_at")
+                rep.fail("manifest missing frozen_at", blocker=BLOCKED_HUMAN_DUAL_LABELING)
             if not manifest.get("pilot_human_approved_at"):
                 rep.fail(
                     "manifest missing pilot_human_approved_at",
+                    blocker=BLOCKED_HUMAN_DUAL_LABELING,
+                )
+            if not manifest.get("pilot_human_approved_by"):
+                rep.fail(
+                    "manifest missing pilot_human_approved_by",
                     blocker=BLOCKED_HUMAN_DUAL_LABELING,
                 )
             man_auth = str(manifest.get("label_authority") or "")
@@ -434,6 +489,13 @@ def check_corpus_integrity(
             freeze_ts = manifest.get("frozen_at")
             if clf_edit and freeze_ts and str(clf_edit) < str(freeze_ts):
                 rep.fail(f"classifier_first_edit_at {clf_edit} is before frozen_at {freeze_ts}")
+    elif manifest is not None and corpus_path is not None:
+        # Diagnostic: hash check only when provided.
+        expected = manifest.get("corpus_sha256")
+        if expected:
+            actual = sha256_file(corpus_path)
+            if actual != expected:
+                rep.fail(f"manifest corpus_sha256 mismatch: expected={expected} actual={actual}")
 
     if not final_mode and machine_label_n:
         rep.warn(f"{machine_label_n} records use machine_criteria_draft — diagnostic only; not eligible for DOD accept")
@@ -643,20 +705,41 @@ def evaluate(
         # missing manifest handled in integrity
         pass
 
+    # Resolve development corpus: CLI path wins; else final-manifest path (non-omissible in final).
+    resolved_dev_path: Path | None = development_path
+    if mode == "final" and resolved_dev_path is None and manifest is not None:
+        man_dev = str(manifest.get("development_path") or "").strip()
+        if man_dev:
+            candidate = Path(man_dev)
+            if not candidate.is_absolute():
+                candidate = PROJECT_ROOT / candidate
+            resolved_dev_path = candidate
+
     development_ids: set[str] = set()
-    if development_path and development_path.is_file():
-        for rec in load_jsonl(development_path):
+    development_id_list: list[str] = []
+    if resolved_dev_path is not None and resolved_dev_path.is_file():
+        for rec in load_jsonl(resolved_dev_path):
             oid = str(rec.get("official_id") or "").strip()
             if oid:
+                development_id_list.append(oid)
                 development_ids.add(oid)
+        # Flag internal duplicates in development corpus
+        if len(development_id_list) != len(development_ids):
+            # integrity will still check holdout∩dev; surface dups via evaluate errors after integrity
+            pass
 
     integrity = check_corpus_integrity(
         records,
         manifest=manifest,
-        development_ids=development_ids or None,
+        development_ids=development_ids if resolved_dev_path is not None else None,
+        development_path=resolved_dev_path,
+        development_required=(mode == "final"),
         mode=mode,
         corpus_path=corpus_path,
     )
+    if mode == "final" and resolved_dev_path is not None and resolved_dev_path.is_file():
+        if len(development_id_list) != len(development_ids):
+            integrity.fail("development corpus has duplicate official_id values")
 
     prof = load_profile(profile_path)
     metrics = score_records(records, profile=prof, profile_path=profile_path)
@@ -824,7 +907,8 @@ def evaluate(
             "acceptance_eligible": passed,
             "dod_item_accepted": False,  # only main merge + human process can set DOD [x]
             "sealed_holdout": bool(
-                (manifest or {}).get("sealed_holdout") or (manifest or {}).get("sealed_before_classifier_edits")
+                (manifest or {}).get("sealed_holdout") is True
+                and (manifest or {}).get("sealed_before_classifier_edits") is True
             ),
             "blocker": None if passed else (blocker or "FAILED_FINAL_GATE"),
             "exit_code": exit_code,
@@ -890,6 +974,9 @@ def cmd_diagnose(args: argparse.Namespace) -> int:
 
 
 def cmd_evaluate_final(args: argparse.Namespace) -> int:
+    # --development is required for final mode (leak check cannot be omitted).
+    # Manifest may still supply development_path if CLI flag is present but empty
+    # is rejected by argparse required=True on the final subparser.
     code, result = evaluate(
         Path(args.corpus),
         manifest_path=Path(args.manifest) if args.manifest else None,
@@ -953,7 +1040,6 @@ def build_parser() -> argparse.ArgumentParser:
         "--profile",
         default=str(PROJECT_ROOT / "config" / "client_profiles" / "extra.yaml"),
     )
-    common.add_argument("--development", default=None, help="Development split for leakage check")
     common.add_argument("--output", default=None, help="Write result JSON")
 
     d = sub.add_parser(
@@ -961,12 +1047,22 @@ def build_parser() -> argparse.ArgumentParser:
         parents=[common],
         help="Diagnostic mode: machine drafts allowed; never accept (DIAGNOSTIC_ONLY).",
     )
+    d.add_argument(
+        "--development",
+        default=None,
+        help="Optional development split for leakage check (diagnose may omit).",
+    )
     d.set_defaults(func=cmd_diagnose)
 
     f = sub.add_parser(
         "evaluate-final",
         parents=[common],
         help="Final accept mode: human dual labels required; fail-closed.",
+    )
+    f.add_argument(
+        "--development",
+        required=True,
+        help="Development split for leak check (required; cannot be omitted in final mode).",
     )
     f.set_defaults(func=cmd_evaluate_final)
 

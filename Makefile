@@ -766,18 +766,20 @@ verify-confenge-evidence-provenance:
 # Edital relevance recall foundation (DOD §8.4) — blocked on human dual labeling
 # Foundation green ≠ DOD accept. Final gate must fail until human gold exists.
 # =============================================================================
-.PHONY: test-edital-relevance-foundation verify-edital-relevance-final
+.PHONY: test-edital-relevance-foundation verify-edital-relevance-final test-edital-relevance-final-blocker
 
+# Foundation infrastructure gate (must exit 0): unit tests + diagnose on pilot_36.
+# pilot_36 is contaminated (role=pilot_candidate, machine_criteria_draft) and is NOT final holdout.
 test-edital-relevance-foundation:
-	@echo "=== Edital relevance foundation (evaluator + human workflow) ==="
+	@echo "=== Edital relevance foundation (unit + diagnose pilot_36) ==="
 	python3 -m pytest \
 		tests/coverage/test_edital_relevance_recall.py \
 		tests/coverage/test_human_labeling.py \
 		-q --tb=short -o addopts=''
 	@mkdir -p artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01
 	python3 -m scripts.coverage.edital_relevance_recall diagnose \
-		--corpus evals/edital_relevance/machine_draft_candidate_pool.jsonl \
-		--manifest evals/edital_relevance/machine_draft_candidate_pool-manifest.json \
+		--corpus evals/edital_relevance/pilot_36.jsonl \
+		--manifest evals/edital_relevance/pilot_36-manifest.json \
 		--output artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01/machine_diagnostic_result.json \
 		> artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01/machine_diagnostic_stdout.txt
 	@python3 -c "import json; r=json.load(open('artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01/machine_diagnostic_result.json')); assert r['status']=='DIAGNOSTIC_ONLY' and r['pass'] is False and r['acceptance_eligible'] is False and r['dod_item_accepted'] is False and r.get('sealed_holdout') is False; print('diagnostic OK: DIAGNOSTIC_ONLY / non-accept')"
@@ -785,18 +787,33 @@ test-edital-relevance-foundation:
 	@test -f evals/edital_relevance/pilot_36_reviewer_b.csv
 	@echo "foundation gate PASS"
 
+# Real final acceptance gate: preserves evaluate-final exit code (non-zero while blocked).
+# Do NOT wrap/transform the expected failure into success here.
 verify-edital-relevance-final:
-	@echo "=== Edital relevance FINAL accept gate (expect BLOCKED_HUMAN_DUAL_LABELING) ==="
-	@set +e; \
+	@echo "=== Edital relevance FINAL accept gate (real evaluate-final; expect non-zero) ==="
+	@mkdir -p artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01
+	@printf '' > artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01/empty-development.jsonl
 	python3 -m scripts.coverage.edital_relevance_recall evaluate-final \
-		--corpus evals/edital_relevance/machine_draft_candidate_pool.jsonl \
-		--manifest evals/edital_relevance/machine_draft_candidate_pool-manifest.json \
-		--output artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01/final-gate-result.json \
-		> artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01/final-gate-stdout.txt 2> artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01/final-gate-stderr.txt; \
+		--corpus evals/edital_relevance/pilot_36.jsonl \
+		--manifest evals/edital_relevance/pilot_36-manifest.json \
+		--development artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01/empty-development.jsonl \
+		--output artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01/final-gate-result.json
+
+# Meta-test used by CI: requires real final gate non-zero + exact blocker string; exits 0 when block is correct.
+test-edital-relevance-final-blocker:
+	@echo "=== Meta-test: final gate correctly blocked (BLOCKED_HUMAN_DUAL_LABELING) ==="
+	@mkdir -p artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01
+	@set +e; \
+	$(MAKE) verify-edital-relevance-final \
+		> artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01/final-gate-stdout.txt \
+		2> artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01/final-gate-stderr.txt; \
 	code=$$?; \
 	set -e; \
 	if [ $$code -eq 0 ]; then echo "ERROR: final gate must not pass without human gold"; exit 1; fi; \
-	if ! grep -q 'BLOCKED_HUMAN_DUAL_LABELING' artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01/final-gate-stderr.txt artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01/final-gate-stdout.txt artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01/final-gate-result.json; then \
+	if ! grep -q 'BLOCKED_HUMAN_DUAL_LABELING' \
+		artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01/final-gate-stderr.txt \
+		artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01/final-gate-stdout.txt \
+		artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01/final-gate-result.json; then \
 		echo "ERROR: missing blocker BLOCKED_HUMAN_DUAL_LABELING"; exit 1; fi; \
-	echo "final gate correctly blocked: BLOCKED_HUMAN_DUAL_LABELING"
+	echo "blocker meta-test PASS (final gate non-zero + BLOCKED_HUMAN_DUAL_LABELING)"
 

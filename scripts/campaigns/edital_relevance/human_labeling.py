@@ -29,13 +29,17 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 ALLOWED_LABELS = frozenset({"RELEVANT", "IRRELEVANT", "UNDECIDABLE"})
-BLIND_COLUMNS = (
+# Immutable content fields: humans may only edit label/reason.
+IMMUTABLE_FIELDS = (
     "official_id",
     "source",
     "url",
     "titulo",
     "objeto",
     "observed_at",
+)
+BLIND_COLUMNS = (
+    *IMMUTABLE_FIELDS,
     "label",
     "reason",
 )
@@ -205,6 +209,10 @@ def _parse_ts(value: str, *, field_name: str, rep: ImportReport) -> str | None:
     return v
 
 
+def _immutable_snapshot(row: dict[str, Any]) -> dict[str, str]:
+    return {f: str(row.get(f) or "").strip() for f in IMMUTABLE_FIELDS}
+
+
 def import_human_labels(
     *,
     package_a: Path,
@@ -213,13 +221,17 @@ def import_human_labels(
     reviewer_b_id: str,
     reviewed_at_a: str,
     reviewed_at_b: str,
+    expected_corpus: Path | None = None,
     expected_ids: set[str] | None = None,
+    expected_records: dict[str, dict[str, Any]] | None = None,
     adjudication: dict[str, dict[str, str]] | None = None,
 ) -> ImportReport:
     """Import two filled human packages and validate dual-label integrity.
 
     ``adjudication`` maps official_id → {label, reason} for every divergence.
     Labels are never auto-filled. UNDECIDABLE is never silently converted.
+    Immutable content fields must match the expected corpus and A↔B packages.
+    Only ``label`` and ``reason`` may be edited by humans.
     """
     rep = ImportReport()
     ra = (reviewer_a_id or "").strip()
@@ -241,6 +253,24 @@ def import_human_labels(
     ts_b = _parse_ts(reviewed_at_b, field_name="reviewed_at_b", rep=rep)
     if not rep.ok:
         return rep
+
+    # Load expected corpus (required at CLI; optional only for pure unit helpers
+    # that already supply expected_records / expected_ids).
+    exp_by_id: dict[str, dict[str, Any]] = dict(expected_records or {})
+    if expected_corpus is not None:
+        if not expected_corpus.is_file():
+            rep.fail(f"expected corpus missing: {expected_corpus}")
+            return rep
+        for rec in load_jsonl(expected_corpus):
+            oid = str(rec.get("official_id") or "").strip()
+            if not oid:
+                continue
+            if oid in exp_by_id:
+                rep.fail(f"expected corpus duplicate official_id {oid}")
+                continue
+            exp_by_id[oid] = rec
+    if expected_ids is None and exp_by_id:
+        expected_ids = set(exp_by_id)
 
     rows_a = read_blind_csv(package_a)
     rows_b = read_blind_csv(package_b)
@@ -283,8 +313,35 @@ def import_human_labels(
     for oid in sorted(ids_a):
         a = idx_a[oid]
         b = idx_b[oid]
+        snap_a = _immutable_snapshot(a)
+        snap_b = _immutable_snapshot(b)
+        if snap_a != snap_b:
+            for field in IMMUTABLE_FIELDS:
+                if snap_a[field] != snap_b[field]:
+                    rep.fail(
+                        f"{oid}: immutable field {field} differs between packages A/B "
+                        f"(a={snap_a[field]!r} b={snap_b[field]!r})"
+                    )
+            continue
+        if exp_by_id:
+            exp = exp_by_id.get(oid)
+            if exp is None:
+                rep.fail(f"{oid}: not present in expected corpus")
+                continue
+            snap_exp = _immutable_snapshot(exp)
+            if snap_a != snap_exp:
+                for field in IMMUTABLE_FIELDS:
+                    if snap_a[field] != snap_exp[field]:
+                        rep.fail(
+                            f"{oid}: immutable field {field} was edited "
+                            f"(package={snap_a[field]!r} expected={snap_exp[field]!r})"
+                        )
+                continue
+
         la = (a.get("label") or "").strip().upper()
         lb = (b.get("label") or "").strip().upper()
+        ra_reason = str(a.get("reason") or "").strip()
+        rb_reason = str(b.get("reason") or "").strip()
         if not la or not lb:
             rep.fail(f"{oid}: empty label (auto-fill forbidden)")
             continue
@@ -293,6 +350,12 @@ def import_human_labels(
             continue
         if lb not in ALLOWED_LABELS:
             rep.fail(f"{oid}: invalid label from reviewer_b={lb!r}")
+            continue
+        if not ra_reason:
+            rep.fail(f"{oid}: empty reason from reviewer_a (required)")
+            continue
+        if not rb_reason:
+            rep.fail(f"{oid}: empty reason from reviewer_b (required)")
             continue
 
         agreed = la == lb
@@ -343,15 +406,15 @@ def import_human_labels(
         merged.append(
             {
                 "official_id": oid,
-                "source": a.get("source") or b.get("source"),
-                "url": a.get("url") or b.get("url"),
-                "titulo": a.get("titulo") or b.get("titulo"),
-                "objeto": a.get("objeto") or b.get("objeto"),
-                "observed_at": a.get("observed_at") or b.get("observed_at"),
+                "source": snap_a["source"],
+                "url": snap_a["url"],
+                "titulo": snap_a["titulo"],
+                "objeto": snap_a["objeto"],
+                "observed_at": snap_a["observed_at"],
                 "label_reviewer_a": la,
                 "label_reviewer_b": lb,
-                "label_reviewer_a_reason": a.get("reason") or "",
-                "label_reviewer_b_reason": b.get("reason") or "",
+                "label_reviewer_a_reason": ra_reason,
+                "label_reviewer_b_reason": rb_reason,
                 "label_final": final_label,
                 "labels_agreed": agreed,
                 "adjudication_reason": adj_reason,
@@ -392,14 +455,6 @@ def cmd_import(args: argparse.Namespace) -> int:
             return 1
         adjudication = {str(k): dict(v) for k, v in raw.items()}
 
-    expected = None
-    if args.expected_corpus:
-        expected = {
-            str(r.get("official_id") or "").strip()
-            for r in load_jsonl(Path(args.expected_corpus))
-            if r.get("official_id")
-        }
-
     rep = import_human_labels(
         package_a=Path(args.package_a),
         package_b=Path(args.package_b),
@@ -407,7 +462,7 @@ def cmd_import(args: argparse.Namespace) -> int:
         reviewer_b_id=args.reviewer_b_id,
         reviewed_at_a=args.reviewed_at_a,
         reviewed_at_b=args.reviewed_at_b,
-        expected_ids=expected,
+        expected_corpus=Path(args.expected_corpus),
         adjudication=adjudication,
     )
     out = {
@@ -451,7 +506,11 @@ def build_parser() -> argparse.ArgumentParser:
     i.add_argument("--reviewed-at-a", required=True)
     i.add_argument("--reviewed-at-b", required=True)
     i.add_argument("--adjudication", default=None, help="JSON map of divergences → label/reason")
-    i.add_argument("--expected-corpus", default=None)
+    i.add_argument(
+        "--expected-corpus",
+        required=True,
+        help="Expected source corpus JSONL (IDs + immutable fields must match A/B packages).",
+    )
     i.add_argument("--output", default=None, help="Write merged human-labeled JSONL")
     i.set_defaults(func=cmd_import)
 

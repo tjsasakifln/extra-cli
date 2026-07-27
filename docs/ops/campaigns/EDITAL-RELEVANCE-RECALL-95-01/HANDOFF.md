@@ -6,34 +6,58 @@
 
 DOD §8.4 remains **`[ ]`**. Merge of this foundation ≠ DOD accept.
 
+## Isolation from CONFENGE
+
+- `scripts/ops/confenge_code_freeze.py` — **byte-identical to `origin/main`**
+- `scripts/ops/verify_confenge_artifact_binding.py` — **byte-identical to `origin/main`**
+- `scripts/ops/sector_classifier.py` — **byte-identical to `origin/main`**
+- No CONFENGE allowlist expansion, bypass, skip, or gate rewrite in this PR.
+
 ## Infrastructure delivered
 
 - Evaluator: `scripts/coverage/edital_relevance_recall.py`
-  - `diagnose` → `DIAGNOSTIC_ONLY` (machine drafts allowed; never accept)
-  - `evaluate-final` → fail-closed human acceptance gate
+  - `diagnose` → `DIAGNOSTIC_ONLY` (pilot machine drafts allowed; never accept)
+  - `evaluate-final` → fail-closed human acceptance gate (both seal flags AND; mandatory `corpus_sha256`; non-omissible `--development`)
 - Human workflow: `scripts/campaigns/edital_relevance/human_labeling.py`
   - blind package generation
-  - import + validation (no auto-fill)
+  - import + validation (immutable fields; `--expected-corpus` required; no auto-fill)
 - Public candidate helpers: `scripts/campaigns/edital_relevance/build_corpus.py`
-- Machine draft candidate pool (diagnostic only; contaminated for final holdout)
+- Diagnostic corpus: pilot of 36 only (`evals/edital_relevance/pilot_36.*`)
 - Blind pilot CSVs for 36 IDs
 - Tests: `tests/coverage/test_edital_relevance_recall.py`, `tests/coverage/test_human_labeling.py`
-- Makefile: `test-edital-relevance-foundation`, `verify-edital-relevance-final`
+- Makefile targets (distinct semantics):
+  - `test-edital-relevance-foundation` → green when infrastructure is correct
+  - `verify-edital-relevance-final` → real final gate; **non-zero** while blocked
+  - `test-edital-relevance-final-blocker` → meta-test; **zero** when block is correct
 - CI job: `Edital Relevance Foundation`
 
-## Corpus contamination
+## Pilot contamination (not final holdout)
 
-`evals/edital_relevance/machine_draft_candidate_pool.*` is **machine draft** (`role=diagnostic_machine_draft`, `label_authority=machine_criteria_draft`, `acceptance_eligible=false`, `sealed_holdout=false`).
+`evals/edital_relevance/pilot_36.*`:
 
-It was exposed during repair exploration. **Never reuse as final DOD holdout**, even after human labels. Allowed: pilot source, development, process testing.
+| Field | Value |
+|-------|-------|
+| `role` | `pilot_candidate` |
+| `label_authority` | `machine_criteria_draft` |
+| `acceptance_eligible` | `false` |
+| `sealed_holdout` | `false` |
 
-Any residual diagnostic recall figure against machine labels is **not** accept evidence.
+Contaminated and **forbidden** as final holdout. Allowed: pilot source, development, process testing.
+
+## Gate results (expected state)
+
+| Target | Expected |
+|--------|----------|
+| `make test-edital-relevance-foundation` | **PASS** (exit 0) |
+| `make verify-edital-relevance-final` | **NON-ZERO** + `BLOCKED_HUMAN_DUAL_LABELING` |
+| `make test-edital-relevance-final-blocker` | **PASS** (exit 0; meta proves block) |
 
 ## Human labels pending
 
 - Owner to unlock: Tiago Sasaki + second authorized reviewer
 - Packages: `evals/edital_relevance/pilot_36_reviewer_a.csv`, `pilot_36_reviewer_b.csv`
-- Fields to fill: `label` ∈ {RELEVANT, IRRELEVANT, UNDECIDABLE}, `reason`
+- Fields to fill: `label` ∈ {RELEVANT, IRRELEVANT, UNDECIDABLE}, `reason` (non-empty)
+- Immutable content must not be edited
 
 ## Commands
 
@@ -41,13 +65,16 @@ Any residual diagnostic recall figure against machine labels is **not** accept e
 # Foundation (must pass)
 make test-edital-relevance-foundation
 
-# Diagnostic only (never accept)
+# Diagnostic only (never accept) — pilot_36 only
 python3 -m scripts.coverage.edital_relevance_recall diagnose \
-  --corpus evals/edital_relevance/machine_draft_candidate_pool.jsonl \
-  --manifest evals/edital_relevance/machine_draft_candidate_pool-manifest.json
+  --corpus evals/edital_relevance/pilot_36.jsonl \
+  --manifest evals/edital_relevance/pilot_36-manifest.json
 
-# Final gate (must fail now with BLOCKED_HUMAN_DUAL_LABELING)
+# Real final gate (must be non-zero now)
 make verify-edital-relevance-final
+
+# Meta-test of blocker (must pass)
+make test-edital-relevance-final-blocker
 ```
 
 ## Blocker
@@ -64,17 +91,6 @@ Human dual labeling of pilot → import → adjudication → pilot approval → 
 - No human gold
 - No sealed final holdout
 - No classifier repair in this PR
-- No CONFENGE freeze/binding weaken
+- No CONFENGE allowlist expansion
 - No independent-human claim from agents/scripts
-
-## Monorepo note (CONFENGE freeze)
-
-CONFENGE post-freeze allowlists include **foundation-only** prefixes so monorepo work can land without path-drift false fails:
-
-- `evals/edital_relevance/`, `scripts/campaigns/`, `scripts/coverage/edital_relevance_recall.py`, `tests/coverage/`, `DOD.md`, `Makefile`, `.github/workflows/ci.yml`, EDITAL campaign artifacts
-- allowlist files themselves (maintenance only)
-
-**Still NOT allowlisted (intentional):** `scripts/ops/sector_classifier.py`, classifier adversarial tests — classifier repair requires human labels + separate PR.
-
-This is monorepo coexistence, **not** CONFENGE commercial accept and **not** classifier freeze weaken for 2.3.1 repair.
-
+- Merge ≠ accept
