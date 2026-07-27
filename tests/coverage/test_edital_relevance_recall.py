@@ -788,9 +788,9 @@ def test_committed_development_candidate_pool_integrity():
     assert dev.is_file() and dman.is_file()
     assert dev.stat().st_size > 0
     pilot_ids = [
-        __import__("json").loads(l)["official_id"]
-        for l in pilot.read_text(encoding="utf-8").splitlines()
-        if l.strip()
+        __import__("json").loads(line)["official_id"]
+        for line in pilot.read_text(encoding="utf-8").splitlines()
+        if line.strip()
     ]
     di, errs = check_development_integrity(
         development_path=dev,
