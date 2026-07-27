@@ -19,12 +19,17 @@ if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
 
 ART = _ROOT / "artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01"
-ALLOWED_POST_FREEZE_PREFIXES = (
-    "artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/",
-    "docs/ops/",
-    # Real holdout corpus freeze (generated evidence; never invents human labels)
-    "evals/commercial_leads/real/",
+
+# Backward-compat name: evidence lag prefixes only (NOT a feature allowlist).
+# Freeze protection is driven by frozen-inputs-manifest.json (see confenge_frozen_inputs).
+from scripts.ops.confenge_frozen_inputs import (  # noqa: E402
+    EVIDENCE_LAG_PREFIXES,
+    build_frozen_inputs_manifest,
+    evaluate_post_freeze_diff,
+    write_frozen_inputs_manifest,
 )
+
+ALLOWED_POST_FREEZE_PREFIXES = EVIDENCE_LAG_PREFIXES  # deprecated alias; do not expand for features
 
 
 def utc_now() -> str:
@@ -106,16 +111,22 @@ def verify_code_freeze(*, freeze_sha: str | None = None) -> dict[str, Any]:
     tree_freeze = code_tree_hash(freeze_sha)
     tree_tip = code_tree_hash(tip)
 
-    # Path-based artifact-only proof freeze..pr_head (not merge checkout)
-    path_changed: list[str] = []
-    if freeze_sha != tip:
-        try:
-            path_changed = _git("diff", "--name-only", f"{freeze_sha}..{tip}").splitlines()
-        except subprocess.CalledProcessError:
-            path_changed = []
-    path_non = [f for f in path_changed if not any(f.startswith(p) for p in ALLOWED_POST_FREEZE_PREFIXES)]
-    path_artifact_only = len(path_non) == 0 and freeze_sha != tip
-    no_non_artifact = len(path_non) == 0
+    # Frozen-inputs policy: only CONFENGE protected inputs may not change freeze..tip.
+    # Unrelated monorepo paths (e.g. edital relevance) are free without allowlist edits.
+    eval_diff = evaluate_post_freeze_diff(
+        root=_ROOT,
+        freeze_sha=str(freeze_sha),
+        tip=tip,
+        art_dir=ART,
+    )
+    path_changed = list(eval_diff.get("files_changed_after_freeze") or [])
+    path_non = list(eval_diff.get("non_artifact_files_changed") or [])
+    path_artifact_only = (
+        freeze_sha != tip
+        and len(path_non) == 0
+        and bool(eval_diff.get("ok"))
+    )
+    no_non_artifact = len(path_non) == 0 and bool(eval_diff.get("ok"))
     ok = executed == freeze_sha and no_non_artifact
     report = {
         "ok": ok,
@@ -135,8 +146,21 @@ def verify_code_freeze(*, freeze_sha: str | None = None) -> dict[str, Any]:
         "non_artifact_files_changed": path_non,
         "non_artifact_files_changed_after_execution": path_non,
         "artifact_only_path_check": no_non_artifact,
+        "freeze_policy": "frozen_confenge_inputs_v1",
+        "protected_changed": list(eval_diff.get("protected_changed") or []),
+        "free_changed": list(eval_diff.get("free_changed") or []),
+        "evidence_lag_changed": list(eval_diff.get("evidence_lag_changed") or []),
+        "frozen_inputs_eval": {
+            "ok": eval_diff.get("ok"),
+            "status": eval_diff.get("status"),
+            "protected_input_count": eval_diff.get("protected_input_count"),
+            "manifest_freeze_sha": eval_diff.get("manifest_freeze_sha"),
+        },
         "verified_at": utc_now(),
-        "note": "pr_head from CONFENGE_PR_HEAD_SHA when set; never label merge checkout as pr_head",
+        "note": (
+            "pr_head from CONFENGE_PR_HEAD_SHA when set; never label merge checkout as pr_head; "
+            "freeze protects explicit CONFENGE inputs only (not monorepo-wide allowlist)"
+        ),
     }
     (ART / "code-freeze-gate.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     return report
@@ -153,7 +177,7 @@ def verify_post_execution_artifact_only_diff(*, freeze_sha: str | None = None) -
         "ok": ok,
         "status": "PASS" if ok else "BLOCKED_CODE_EXECUTION_SHA_MISMATCH",
         **{k: fr[k] for k in fr if k not in {"ok", "status"}},
-        "policy": "post-freeze commits only under artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/** and docs/ops/**",
+        "policy": "post-freeze: only frozen CONFENGE inputs are protected; evidence lag under campaign artifacts/docs/ops/evals real",
     }
     (ART / "post-execution-artifact-only-diff-gate.json").write_text(
         json.dumps(report, indent=2) + "\n", encoding="utf-8"
@@ -251,6 +275,9 @@ def mark_freeze() -> dict[str, Any]:
     head = _git("rev-parse", "HEAD")
     (ART / "FINAL_CODE_FREEZE_SHA.txt").write_text(head + "\n", encoding="utf-8")
     (ART / "EXECUTED_CODE_SHA.txt").write_text(head + "\n", encoding="utf-8")
+    # Real hashes from git/working tree — never hand-edited SHAs.
+    man = build_frozen_inputs_manifest(root=_ROOT, freeze_sha=head)
+    write_frozen_inputs_manifest(man, art_dir=ART)
     return verify_code_freeze(freeze_sha=head)
 
 
@@ -261,6 +288,8 @@ def mark_final_integrity_code_freeze() -> dict[str, Any]:
     (ART / "FINAL_INTEGRITY_CODE_FREEZE_SHA.txt").write_text(head + "\n", encoding="utf-8")
     (ART / "FINAL_CODE_FREEZE_SHA.txt").write_text(head + "\n", encoding="utf-8")
     (ART / "EXECUTED_CODE_SHA.txt").write_text(head + "\n", encoding="utf-8")
+    man = build_frozen_inputs_manifest(root=_ROOT, freeze_sha=head)
+    write_frozen_inputs_manifest(man, art_dir=ART)
     rep = verify_code_freeze(freeze_sha=head)
     rep["final_integrity_code_freeze_sha"] = head
     rep["freeze_kind"] = "FINAL_INTEGRITY_CODE_FREEZE"
@@ -308,15 +337,20 @@ def verify_final_integrity_code_freeze() -> dict[str, Any]:
                 ]
             except subprocess.CalledProcessError:
                 changed = []
-    non_artifact = [f for f in changed if not any(f.startswith(p) for p in ALLOWED_POST_FREEZE_PREFIXES)]
-    code_changed = len(non_artifact) > 0
-    # Lag after freeze with zero non-artifact paths is artifact-only (even if tree
-    # diff is empty due to shallow clone — tip != freeze still counts as lag).
+    eval_diff = evaluate_post_freeze_diff(
+        root=_ROOT,
+        freeze_sha=str(freeze_sha),
+        tip=tip,
+        art_dir=ART,
+    )
+    changed = list(eval_diff.get("files_changed_after_freeze") or changed)
+    non_artifact = list(eval_diff.get("non_artifact_files_changed") or [])
+    code_changed = len(non_artifact) > 0 or not bool(eval_diff.get("ok"))
+    # Lag after freeze with zero protected-input drift is artifact-only / free-path lag.
     artifact_only = freeze_sha != tip and not code_changed
     # match_run uses PR head (not merge checkout SHA)
     match_run = executed == pr_head
-    # PASS when executed matches freeze and no non-artifact drift vs PR tip.
-    # Do not require match_run (artifact-only lag is expected) or merge HEAD equality.
+    # PASS when executed matches freeze and no protected CONFENGE input drift vs PR tip.
     ok = executed == freeze_sha and not code_changed
     rep = {
         "ok": ok,
@@ -333,9 +367,13 @@ def verify_final_integrity_code_freeze() -> dict[str, Any]:
         "artifact_only_commits_after_execution": artifact_only,
         "files_changed_after_freeze": changed,
         "non_artifact_files_changed_after_execution": non_artifact,
+        "freeze_policy": "frozen_confenge_inputs_v1",
+        "protected_changed": list(eval_diff.get("protected_changed") or []),
+        "free_changed": list(eval_diff.get("free_changed") or []),
         "verified_at": utc_now(),
         "policy": (
-            "post-freeze non-artifact tree vs pr_head must be empty; "
+            "post-freeze protected CONFENGE inputs vs pr_head must be unchanged; "
+            "unrelated monorepo paths are free; "
             "match_run_to_head true only when executed_code_sha == pr_head_sha; "
             "workflow_merge_sha / checked_out merge ref is never used as pr_head"
         ),
