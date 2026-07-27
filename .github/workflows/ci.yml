@@ -1344,6 +1344,51 @@ jobs:
             exit 1
           fi
           echo "verify-edital-relevance-final correctly non-zero (code=$code)"
+          grep -q 'BLOCKED_HUMAN_DUAL_LABELING' \
+            artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01/final-gate-result.json
+
+      - name: Development corpus real + hash + zero overlap
+        run: |
+          test -s evals/edital_relevance/development_candidate_pool.jsonl
+          test -f evals/edital_relevance/development_candidate_pool-manifest.json
+          if grep -R --line-number 'empty-development' Makefile .github/workflows/ci.yml; then
+            echo "ERROR: empty-development must not be used"
+            exit 1
+          fi
+          python3 - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          dev = Path("evals/edital_relevance/development_candidate_pool.jsonl")
+          man = json.loads(Path("evals/edital_relevance/development_candidate_pool-manifest.json").read_text())
+          rows = [json.loads(l) for l in dev.read_text().splitlines() if l.strip()]
+          assert len(rows) >= 20, len(rows)
+          ids = [str(r.get("official_id") or "").strip() for r in rows]
+          assert all(ids), "missing official_id"
+          assert len(ids) == len(set(ids)), "duplicate development ids"
+          sha = hashlib.sha256(dev.read_bytes()).hexdigest()
+          assert man.get("corpus_sha256") == sha, (man.get("corpus_sha256"), sha)
+          assert man.get("n_records") == len(rows)
+          assert man.get("role") == "development"
+          assert man.get("acceptance_eligible") is False
+          assert man.get("sealed_holdout") is False
+          assert all(r.get("synthetic") is False for r in rows)
+          assert all(r.get("selected_by_classifier") is False for r in rows)
+          assert all(r.get("selected_by_db_presence") is False for r in rows)
+          assert all(r.get("selected_by_success_zero") is False for r in rows)
+          pilot_ids = {
+              json.loads(l)["official_id"]
+              for l in Path("evals/edital_relevance/pilot_36.jsonl").read_text().splitlines()
+              if l.strip()
+          }
+          overlap = set(ids) & pilot_ids
+          assert not overlap, overlap
+          fr = json.loads(Path("artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01/final-gate-result.json").read_text())
+          di = fr.get("development_integrity") or {}
+          assert di.get("pass") is True or di.get("holdout_overlap_count") == 0
+          assert di.get("n_records", 0) >= 20
+          assert di.get("holdout_overlap_count") == 0
+          print("development integrity OK", sha, len(rows))
+          PY
 
       - name: DOD §8.4 remains open with human blocker
         run: |
@@ -1391,6 +1436,7 @@ jobs:
                   assert bad not in name, path
               assert not name.startswith("gold"), path
               assert "machine_draft_candidate_pool" not in name, path
+              assert "empty-development" not in name, path
           # Pilot / diagnostic docs must not claim accept theater
           for path in (
               pathlib.Path("evals/edital_relevance/pilot_36-manifest.json"),

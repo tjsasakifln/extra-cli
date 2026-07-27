@@ -190,23 +190,46 @@ class ImportReport:
         self.errors.append(msg)
 
 
+def normalize_reviewer_id(value: str) -> str:
+    """Case- and whitespace-insensitive identity key (original value is stored elsewhere)."""
+    return " ".join((value or "").strip().split()).casefold()
+
+
+def parse_human_timestamp(value: str) -> str:
+    """Parse ISO-8601 timestamp requiring explicit timezone; return UTC with Z suffix.
+
+    Accepts ``Z``, ``+00:00``, ``-03:00``. Rejects naive datetimes, date-only,
+    time-only, and placeholders (tbd/pending/null).
+    """
+    v = (value or "").strip()
+    if not v:
+        raise ValueError("missing timestamp")
+    if v.lower() in {"tbd", "pending", "null", "none", "n/a", "na"}:
+        raise ValueError(f"placeholder timestamp {v!r}")
+    # Date-only / bare time without timezone are never accepted.
+    if "T" not in v and " " not in v:
+        raise ValueError(f"date-only timestamp rejected {v!r}")
+    try:
+        normalized = v.replace("Z", "+00:00")
+        parsed = datetime.fromisoformat(normalized)
+    except ValueError as exc:
+        raise ValueError(f"invalid ISO-8601 timestamp {v!r}") from exc
+    if parsed.tzinfo is None or parsed.utcoffset() is None:
+        raise ValueError(f"timezone-naive timestamp rejected {v!r}")
+    utc_dt = parsed.astimezone(UTC).replace(microsecond=0)
+    return utc_dt.isoformat().replace("+00:00", "Z")
+
+
 def _parse_ts(value: str, *, field_name: str, rep: ImportReport) -> str | None:
     v = (value or "").strip()
     if not v:
         rep.fail(f"missing {field_name}")
         return None
-    # Accept ISO-8601; reject obvious placeholders
-    if v.lower() in {"tbd", "pending", "null", "none"}:
-        rep.fail(f"invalid {field_name}={v!r}")
-        return None
     try:
-        # fromisoformat handles offset or Z after normalize
-        normalized = v.replace("Z", "+00:00")
-        datetime.fromisoformat(normalized)
-    except ValueError:
-        rep.fail(f"invalid timestamp {field_name}={v!r}")
+        return parse_human_timestamp(v)
+    except ValueError as exc:
+        rep.fail(f"invalid {field_name}={v!r}: {exc}")
         return None
-    return v
 
 
 def _immutable_snapshot(row: dict[str, Any]) -> dict[str, str]:
@@ -234,13 +257,17 @@ def import_human_labels(
     Only ``label`` and ``reason`` may be edited by humans.
     """
     rep = ImportReport()
+    # Preserve original reviewer IDs for persistence; compare with normalized keys.
     ra = (reviewer_a_id or "").strip()
     rb = (reviewer_b_id or "").strip()
     if not ra or not rb:
         rep.fail("reviewer_id required for both reviewers")
         return rep
-    if ra == rb:
-        rep.fail("reviewer_a and reviewer_b must be distinct human identities")
+    if normalize_reviewer_id(ra) == normalize_reviewer_id(rb):
+        rep.fail(
+            "reviewer_a and reviewer_b must be distinct human identities "
+            "(case/whitespace-insensitive)"
+        )
         return rep
     if ra.lower().startswith("criteria_") or rb.lower().startswith("criteria_"):
         rep.fail("machine criteria engines are not human reviewers")

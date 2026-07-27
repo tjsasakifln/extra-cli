@@ -15,6 +15,8 @@ from scripts.campaigns.edital_relevance.human_labeling import (
     generate_blind_packages,
     import_human_labels,
     main,
+    normalize_reviewer_id,
+    parse_human_timestamp,
     read_blind_csv,
 )
 
@@ -432,3 +434,94 @@ def test_import_ok_with_expected_corpus_immutable_match(tmp_path):
     assert len(rep.records) == 2
     assert all(r["label_authority"] == "human_dual_independent" for r in rep.records)
     assert set(IMMUTABLE_FIELDS)  # constant exported
+
+
+def test_parse_human_timestamp_accepts_z_and_offsets():
+    assert parse_human_timestamp("2026-07-27T03:15:00Z") == "2026-07-27T03:15:00Z"
+    assert parse_human_timestamp("2026-07-27T03:15:00+00:00") == "2026-07-27T03:15:00Z"
+    assert parse_human_timestamp("2026-07-27T00:15:00-03:00") == "2026-07-27T03:15:00Z"
+
+
+def test_parse_human_timestamp_rejects_naive_and_placeholders():
+    for bad in (
+        "2026-07-27T03:15:00",
+        "2026-07-27",
+        "03:15:00",
+        "pending",
+        "null",
+        "tbd",
+        "",
+    ):
+        with pytest.raises(ValueError):
+            parse_human_timestamp(bad)
+
+
+def test_import_rejects_naive_reviewed_at(tmp_path):
+    records = [_candidate("A1")]
+    pa, pb, corpus = _fill_packages(records, tmp_path)
+    rep = import_human_labels(
+        package_a=pa,
+        package_b=pb,
+        reviewer_a_id="tiago",
+        reviewer_b_id="reviewer2",
+        reviewed_at_a="2026-07-26T12:00:00",
+        reviewed_at_b="2026-07-26T13:00:00Z",
+        expected_corpus=corpus,
+    )
+    assert not rep.ok
+    assert any("reviewed_at_a" in e for e in rep.errors)
+
+
+def test_import_normalizes_timestamps_to_utc_z(tmp_path):
+    records = [_candidate("A1")]
+    pa, pb, corpus = _fill_packages(records, tmp_path)
+    rep = import_human_labels(
+        package_a=pa,
+        package_b=pb,
+        reviewer_a_id="tiago",
+        reviewer_b_id="reviewer2",
+        reviewed_at_a="2026-07-27T00:15:00-03:00",
+        reviewed_at_b="2026-07-27T03:15:00+00:00",
+        expected_corpus=corpus,
+    )
+    assert rep.ok, rep.errors
+    assert rep.records[0]["reviewed_at_a"] == "2026-07-27T03:15:00Z"
+    assert rep.records[0]["reviewed_at_b"] == "2026-07-27T03:15:00Z"
+
+
+def test_normalize_reviewer_id_case_and_space():
+    assert normalize_reviewer_id("Tiago") == normalize_reviewer_id("tiago")
+    assert normalize_reviewer_id(" TIAGO ") == normalize_reviewer_id("tiago")
+    assert normalize_reviewer_id("A B") == normalize_reviewer_id("a  b")
+
+
+def test_import_rejects_reviewer_ids_equal_ignoring_case(tmp_path):
+    records = [_candidate("A1")]
+    pa, pb, corpus = _fill_packages(records, tmp_path)
+    rep = import_human_labels(
+        package_a=pa,
+        package_b=pb,
+        reviewer_a_id="Tiago",
+        reviewer_b_id="tiago",
+        reviewed_at_a="2026-07-26T12:00:00Z",
+        reviewed_at_b="2026-07-26T13:00:00Z",
+        expected_corpus=corpus,
+    )
+    assert not rep.ok
+    assert any("distinct" in e.lower() for e in rep.errors)
+
+
+def test_import_rejects_reviewer_ids_equal_ignoring_spaces(tmp_path):
+    records = [_candidate("A1")]
+    pa, pb, corpus = _fill_packages(records, tmp_path)
+    rep = import_human_labels(
+        package_a=pa,
+        package_b=pb,
+        reviewer_a_id="tiago",
+        reviewer_b_id=" TIAGO ",
+        reviewed_at_a="2026-07-26T12:00:00Z",
+        reviewed_at_b="2026-07-26T13:00:00Z",
+        expected_corpus=corpus,
+    )
+    assert not rep.ok
+    assert any("distinct" in e.lower() for e in rep.errors)

@@ -1,8 +1,13 @@
-# Handoff — EDITAL-RELEVANCE-RECALL-95-01 (foundation)
+# Handoff — EDITAL-RELEVANCE-RECALL-95-01 (foundation residual hardening)
 
 ## Campaign status
 
-**`BLOCKED_HUMAN_DUAL_LABELING`**
+```text
+IMPLEMENTATION_READY_BUT_EXTERNALLY_BLOCKED
+BLOCKED_BY_EXISTING_CONFENGE_FREEZE_POLICY
+BLOCKED_HUMAN_DUAL_LABELING
+DO_NOT_MERGE
+```
 
 DOD §8.4 remains **`[ ]`**. Merge of this foundation ≠ DOD accept.
 
@@ -15,29 +20,38 @@ DOD §8.4 remains **`[ ]`**. Merge of this foundation ≠ DOD accept.
 
 ### Residual monorepo freeze collision
 
-After restoring freeze/binding to `origin/main`, existing CONFENGE commercial jobs
-(`CONFENGE Commercial Code Quality` → Artifact SHA binding gate) reject this PR's
-edital paths because they are outside the freeze allowlist. **Allowlists were not
-re-expanded** (forbidden). **Commercial evidence was not rewritten** (forbidden).
+Existing CONFENGE commercial jobs reject this PR's edital paths because they are
+outside the freeze allowlist. **Allowlists were not re-expanded** (forbidden).
+**Commercial evidence was not rewritten** (forbidden).
 
-Campaign escalates as: **`BLOCKED_BY_EXISTING_CONFENGE_FREEZE_POLICY`**
-(in addition to residual human dual-labeling blocker for §8.4).
+## Residual hardening delivered (this execution)
 
-## Infrastructure delivered
+| Item | State |
+|------|-------|
+| Real non-empty development corpus | `development_candidate_pool.jsonl` (n≥20) |
+| Development manifest + mandatory hash | verified `corpus_sha256` |
+| Overlap development ∩ pilot | **0** |
+| Empty development theater | **removed** |
+| `evaluate-final --development` + `--development-manifest` | required, fail-closed |
+| `development_integrity` in final result | full-set dups/overlap/hash |
+| Human timestamps | timezone-aware only; UTC-Z normalize |
+| Reviewer IDs | distinct after case/whitespace normalize |
+| Three Makefile targets | semantics preserved |
+| DOD §8.4 | still open `[ ]` |
+| PR draft / no merge | required while CONFENGE red |
+
+## Infrastructure
 
 - Evaluator: `scripts/coverage/edital_relevance_recall.py`
   - `diagnose` → `DIAGNOSTIC_ONLY` (pilot machine drafts allowed; never accept)
-  - `evaluate-final` → fail-closed human acceptance gate (both seal flags AND; mandatory `corpus_sha256`; non-omissible `--development`)
+  - `evaluate-final` → fail-closed human acceptance gate + mandatory development integrity
 - Human workflow: `scripts/campaigns/edital_relevance/human_labeling.py`
-  - blind package generation
-  - import + validation (immutable fields; `--expected-corpus` required; no auto-fill)
-- Public candidate helpers: `scripts/campaigns/edital_relevance/build_corpus.py`
+- Development pool: `evals/edital_relevance/development_candidate_pool.jsonl` + manifest
 - Diagnostic corpus: pilot of 36 only (`evals/edital_relevance/pilot_36.*`)
-- Blind pilot CSVs for 36 IDs
 - Tests: `tests/coverage/test_edital_relevance_recall.py`, `tests/coverage/test_human_labeling.py`
 - Makefile targets (distinct semantics):
   - `test-edital-relevance-foundation` → green when infrastructure is correct
-  - `verify-edital-relevance-final` → real final gate; **non-zero** while blocked
+  - `verify-edital-relevance-final` → real final gate with real development; **non-zero** while blocked
   - `test-edital-relevance-final-blocker` → meta-test; **zero** when block is correct
 - CI job: `Edital Relevance Foundation`
 
@@ -52,7 +66,18 @@ Campaign escalates as: **`BLOCKED_BY_EXISTING_CONFENGE_FREEZE_POLICY`**
 | `acceptance_eligible` | `false` |
 | `sealed_holdout` | `false` |
 
-Contaminated and **forbidden** as final holdout. Allowed: pilot source, development, process testing.
+Contaminated and **forbidden** as final holdout. Allowed: pilot source, process testing.
+
+## Development candidate pool
+
+| Field | Value |
+|-------|-------|
+| path | `evals/edital_relevance/development_candidate_pool.jsonl` |
+| role | `development` |
+| acceptance_eligible | `false` |
+| sealed_holdout | `false` |
+| selection_rule | `public_inventory_only` |
+| never reusable as final holdout | **yes** |
 
 ## Gate results (expected state)
 
@@ -67,6 +92,7 @@ Contaminated and **forbidden** as final holdout. Allowed: pilot source, developm
 - Owner to unlock: Tiago Sasaki + second authorized reviewer
 - Packages: `evals/edital_relevance/pilot_36_reviewer_a.csv`, `pilot_36_reviewer_b.csv`
 - Fields to fill: `label` ∈ {RELEVANT, IRRELEVANT, UNDECIDABLE}, `reason` (non-empty)
+- Timestamps: ISO-8601 with timezone (`Z` or offset); naive rejected
 - Immutable content must not be edited
 
 ## Commands
@@ -81,19 +107,20 @@ python3 -m scripts.coverage.edital_relevance_recall diagnose \
   --manifest evals/edital_relevance/pilot_36-manifest.json
 
 # Real final gate (must be non-zero now)
-make verify-edital-relevance-final
+python3 -m scripts.coverage.edital_relevance_recall evaluate-final \
+  --corpus evals/edital_relevance/pilot_36.jsonl \
+  --manifest evals/edital_relevance/pilot_36-manifest.json \
+  --development evals/edital_relevance/development_candidate_pool.jsonl \
+  --development-manifest evals/edital_relevance/development_candidate_pool-manifest.json \
+  --output artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01/final-gate-result.json
 
 # Meta-test of blocker (must pass)
 make test-edital-relevance-final-blocker
 ```
 
-## Blocker
-
-`BLOCKED_HUMAN_DUAL_LABELING`
-
 ## Next test
 
-Human dual labeling of pilot → import → adjudication → pilot approval → **new** sealed holdout after classifier freeze → `evaluate-final` exit 0 → only then consider §8.4.
+Human dual labeling of pilot → import → adjudication → pilot approval → **new** sealed holdout after classifier freeze → `evaluate-final` exit 0 → only then consider §8.4. CONFENGE freeze policy remains a separate external unblock.
 
 ## Non-claims
 
@@ -102,5 +129,7 @@ Human dual labeling of pilot → import → adjudication → pilot approval → 
 - No sealed final holdout
 - No classifier repair in this PR
 - No CONFENGE allowlist expansion
+- No overall CI green claim
+- No `READY_FOR_FINAL_CTO_REVIEW` while CONFENGE jobs red
 - No independent-human claim from agents/scripts
 - Merge ≠ accept

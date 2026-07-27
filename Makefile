@@ -788,15 +788,18 @@ test-edital-relevance-foundation:
 	@echo "foundation gate PASS"
 
 # Real final acceptance gate: preserves evaluate-final exit code (non-zero while blocked).
+# Uses real non-empty development corpus + manifest (never empty-development).
 # Do NOT wrap/transform the expected failure into success here.
 verify-edital-relevance-final:
 	@echo "=== Edital relevance FINAL accept gate (real evaluate-final; expect non-zero) ==="
 	@mkdir -p artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01
-	@printf '' > artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01/empty-development.jsonl
+	@test -s evals/edital_relevance/development_candidate_pool.jsonl
+	@test -f evals/edital_relevance/development_candidate_pool-manifest.json
 	python3 -m scripts.coverage.edital_relevance_recall evaluate-final \
 		--corpus evals/edital_relevance/pilot_36.jsonl \
 		--manifest evals/edital_relevance/pilot_36-manifest.json \
-		--development artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01/empty-development.jsonl \
+		--development evals/edital_relevance/development_candidate_pool.jsonl \
+		--development-manifest evals/edital_relevance/development_candidate_pool-manifest.json \
 		--output artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01/final-gate-result.json
 
 # Meta-test used by CI: requires real final gate non-zero + exact blocker string; exits 0 when block is correct.
@@ -815,5 +818,6 @@ test-edital-relevance-final-blocker:
 		artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01/final-gate-stdout.txt \
 		artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01/final-gate-result.json; then \
 		echo "ERROR: missing blocker BLOCKED_HUMAN_DUAL_LABELING"; exit 1; fi; \
+	python3 -c "import json; r=json.load(open('artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01/final-gate-result.json')); assert r.get('pass') is False; assert r.get('acceptance_eligible') is False; assert r.get('dod_item_accepted') is False; assert r.get('sealed_holdout') is False; assert r.get('blocker')=='BLOCKED_HUMAN_DUAL_LABELING'; di=r.get('development_integrity') or {}; assert di.get('n_records',0)>0; assert di.get('holdout_overlap_count',1)==0; print('result fields OK; development_integrity n=', di.get('n_records'), 'overlap=', di.get('holdout_overlap_count'))"; \
 	echo "blocker meta-test PASS (final gate non-zero + BLOCKED_HUMAN_DUAL_LABELING)"
 

@@ -24,7 +24,8 @@ Canonical commands::
     python -m scripts.coverage.edital_relevance_recall evaluate-final \\
       --corpus evals/edital_relevance/pilot_36.jsonl \\
       --manifest evals/edital_relevance/pilot_36-manifest.json \\
-      --development path/to/development.jsonl
+      --development evals/edital_relevance/development_candidate_pool.jsonl \\
+      --development-manifest evals/edital_relevance/development_candidate_pool-manifest.json
 """
 
 from __future__ import annotations
@@ -203,6 +204,211 @@ def is_machine_authority(auth: str) -> bool:
     return False
 
 
+def _record_has_forbidden_proxy(rec: dict[str, Any]) -> str | None:
+    """Return proxy name if record was selected via a forbidden proxy; else None."""
+    if rec.get("selected_by_classifier") is True:
+        return "selected_by_classifier"
+    if rec.get("selected_by_db_presence") is True:
+        return "selected_by_db_presence"
+    if rec.get("selected_by_success_zero") is True:
+        return "selected_by_success_zero"
+    sel = str(rec.get("selection_method") or rec.get("selection_provenance") or "")
+    sel_norm = sel.lower().replace("-", "_")
+    for proxy in FORBIDDEN_SELECTION_PROXIES:
+        if proxy in sel_norm:
+            return proxy
+    return None
+
+
+def check_development_integrity(
+    *,
+    development_path: Path | None,
+    development_manifest_path: Path | None,
+    holdout_ids: list[str],
+    required: bool = False,
+) -> tuple[dict[str, Any], list[str]]:
+    """Fail-closed development corpus integrity for final mode.
+
+    Validates presence, non-empty JSONL, unique official_ids, no holdout overlap,
+    mandatory development-manifest hash/path/n_records/role/flags, and rejects
+    synthetic or forbidden-proxy selection. Decision uses the full ID set.
+    """
+    errors: list[str] = []
+    integrity: dict[str, Any] = {
+        "path": str(development_path) if development_path else None,
+        "manifest_path": str(development_manifest_path) if development_manifest_path else None,
+        "sha256": None,
+        "n_records": 0,
+        "duplicate_ids": [],
+        "holdout_overlap_count": 0,
+        "holdout_overlap_ids": [],
+        "pass": False,
+    }
+
+    if not required and development_path is None and development_manifest_path is None:
+        integrity["pass"] = True
+        return integrity, errors
+
+    if development_path is None:
+        errors.append(
+            "final gate requires development corpus for leak check "
+            "(--development is mandatory; empty/omitted is not allowed)"
+        )
+        return integrity, errors
+    if development_manifest_path is None:
+        errors.append(
+            "final gate requires --development-manifest "
+            "(development hash/role/flags cannot be omitted)"
+        )
+        return integrity, errors
+
+    integrity["path"] = str(development_path)
+    integrity["manifest_path"] = str(development_manifest_path)
+
+    if not development_path.is_file():
+        errors.append(f"development corpus missing: {development_path}")
+        return integrity, errors
+    if not development_manifest_path.is_file():
+        errors.append(f"development manifest missing: {development_manifest_path}")
+        return integrity, errors
+
+    try:
+        records = load_jsonl(development_path)
+    except ValueError as exc:
+        errors.append(f"development corpus invalid JSONL: {exc}")
+        return integrity, errors
+
+    if not records:
+        errors.append("development corpus empty (non-empty development required for final gate)")
+        return integrity, errors
+
+    try:
+        dev_manifest = json.loads(development_manifest_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        errors.append(f"development manifest unreadable/invalid JSON: {exc}")
+        return integrity, errors
+    if not isinstance(dev_manifest, dict):
+        errors.append("development manifest must be a JSON object")
+        return integrity, errors
+
+    actual_sha = sha256_file(development_path)
+    integrity["sha256"] = actual_sha
+    expected_sha = dev_manifest.get("corpus_sha256")
+    if expected_sha is None or str(expected_sha).strip() == "":
+        errors.append(
+            "development manifest requires corpus_sha256 "
+            "(missing/empty hash is not optional)"
+        )
+    elif str(expected_sha) != actual_sha:
+        errors.append(
+            f"development corpus_sha256 mismatch: expected={expected_sha} actual={actual_sha}"
+        )
+
+    man_path = str(dev_manifest.get("corpus_path") or "").strip()
+    if not man_path:
+        errors.append("development manifest requires corpus_path")
+    else:
+        # Accept absolute path, repo-relative path, or same basename of the same file.
+        candidates = [Path(man_path)]
+        if not Path(man_path).is_absolute():
+            candidates.append(PROJECT_ROOT / man_path)
+        matched = False
+        try:
+            actual_resolved = development_path.resolve()
+            for cand in candidates:
+                try:
+                    if cand.resolve() == actual_resolved:
+                        matched = True
+                        break
+                except OSError:
+                    continue
+            if not matched and Path(man_path).name == development_path.name:
+                # Tests often write temp files; require basename match only when
+                # manifest corpus_path is a bare filename or ends with the file name.
+                if man_path.replace("\\", "/").endswith(development_path.name):
+                    matched = True
+        except OSError:
+            matched = Path(man_path).name == development_path.name
+        if not matched:
+            errors.append(
+                f"development corpus_path mismatch: manifest={man_path!r} file={development_path}"
+            )
+
+    role = str(dev_manifest.get("role") or "")
+    if role != "development":
+        errors.append(f"development manifest role must be 'development' (got {role!r})")
+    if dev_manifest.get("acceptance_eligible") is True:
+        errors.append("development manifest must not set acceptance_eligible=true")
+    if dev_manifest.get("acceptance_eligible") is not False:
+        errors.append("development manifest requires acceptance_eligible=false")
+    if dev_manifest.get("sealed_holdout") is True:
+        errors.append("development manifest must not set sealed_holdout=true")
+    if dev_manifest.get("sealed_holdout") is not False:
+        errors.append("development manifest requires sealed_holdout=false")
+
+    expected_n = dev_manifest.get("n_records")
+    if expected_n is None:
+        errors.append("development manifest requires n_records")
+    else:
+        try:
+            expected_n_int = int(expected_n)
+        except (TypeError, ValueError):
+            errors.append(f"development manifest n_records invalid: {expected_n!r}")
+            expected_n_int = -1
+        if expected_n_int != len(records):
+            errors.append(
+                f"development n_records mismatch: manifest={expected_n_int} actual={len(records)}"
+            )
+
+    development_id_list: list[str] = []
+    for i, rec in enumerate(records):
+        if not isinstance(rec, dict):
+            errors.append(f"development record[{i}] is not an object")
+            continue
+        oid = str(rec.get("official_id") or "").strip()
+        if not oid:
+            errors.append(f"development record[{i}] missing official_id")
+            continue
+        development_id_list.append(oid)
+        if is_synthetic_record(rec):
+            errors.append(f"development {oid}: synthetic record not allowed")
+        proxy = _record_has_forbidden_proxy(rec)
+        if proxy:
+            errors.append(f"development {oid}: forbidden selection proxy {proxy}")
+
+    integrity["n_records"] = len(records)
+    # Full-set duplicate detection (no truncated decision).
+    seen: set[str] = set()
+    dups: list[str] = []
+    for oid in development_id_list:
+        if oid in seen:
+            if oid not in dups:
+                dups.append(oid)
+        else:
+            seen.add(oid)
+    integrity["duplicate_ids"] = dups
+    if dups:
+        errors.append(f"development corpus has duplicate official_id: {dups}")
+    if len(development_id_list) != len(set(development_id_list)):
+        # already recorded above; ensure fail even if list formatting differs
+        if not dups:
+            errors.append("development corpus has duplicate official_id values")
+
+    holdout_set = {str(x).strip() for x in holdout_ids if str(x).strip()}
+    # Detect internal holdout dups separately is done by holdout integrity;
+    # here compute full intersection.
+    overlap = sorted(holdout_set & set(development_id_list))
+    integrity["holdout_overlap_ids"] = overlap
+    integrity["holdout_overlap_count"] = len(overlap)
+    if overlap:
+        errors.append(
+            f"development leakage into holdout: count={len(overlap)} ids={overlap[:20]}"
+        )
+
+    integrity["pass"] = len(errors) == 0
+    return integrity, errors
+
+
 @dataclass
 class IntegrityReport:
     ok: bool = True
@@ -362,41 +568,25 @@ def check_corpus_integrity(
     if dups:
         rep.fail(f"duplicate official_id: {sorted(dups)[:20]}")
 
-    # Development leak check: final mode cannot silently omit it.
-    if final_mode or development_required:
-        if development_path is None and development_ids is None:
-            rep.fail(
-                "final gate requires development corpus for leak check "
-                "(--development or manifest development_path + development_sha256)",
-                blocker=BLOCKED_HUMAN_DUAL_LABELING,
-            )
-        elif development_path is not None:
-            if not development_path.is_file():
-                rep.fail(
-                    f"development corpus missing: {development_path}",
-                    blocker=BLOCKED_HUMAN_DUAL_LABELING,
-                )
-            else:
-                expected_dev_sha = (manifest or {}).get("development_sha256")
-                if expected_dev_sha:
-                    actual_dev = sha256_file(development_path)
-                    if actual_dev != expected_dev_sha:
-                        rep.fail(
-                            f"development_sha256 mismatch: expected={expected_dev_sha} actual={actual_dev}"
-                        )
-                # duplicate IDs inside development
-                if development_ids is not None:
-                    # re-derive from path was done by caller; check intersection
-                    pass
-        if development_ids is not None:
-            # also catch internal dups in development set vs holdout
-            leak = sorted(seen & development_ids)
-            if leak:
-                rep.fail(f"development leakage into holdout: {leak[:20]}")
-    elif development_ids:
+    # Lightweight development leak check for diagnostic / callers that only pass IDs.
+    # Final-mode mandatory development+manifest validation lives in
+    # ``check_development_integrity`` (hash/role/empty/dups/full overlap).
+    if development_ids is not None:
         leak = sorted(seen & development_ids)
         if leak:
             rep.fail(f"development leakage into holdout: {leak[:20]}")
+    elif final_mode or development_required:
+        if development_path is None:
+            rep.fail(
+                "final gate requires development corpus for leak check "
+                "(--development is mandatory)",
+                blocker=BLOCKED_HUMAN_DUAL_LABELING,
+            )
+        elif not development_path.is_file():
+            rep.fail(
+                f"development corpus missing: {development_path}",
+                blocker=BLOCKED_HUMAN_DUAL_LABELING,
+            )
 
     relevant = [r for r in records if r.get("label_final") == "RELEVANT"]
     if final_mode and len(relevant) < MIN_RELEVANT_HOLDOUT:
@@ -683,6 +873,7 @@ def evaluate(
     manifest_path: Path | None = None,
     profile_path: Path | None = None,
     development_path: Path | None = None,
+    development_manifest_path: Path | None = None,
     mode: str = "diagnostic",
     output_path: Path | None = None,
 ) -> tuple[int, dict[str, Any]]:
@@ -691,7 +882,8 @@ def evaluate(
     mode=diagnostic → always non-accept (DIAGNOSTIC_ONLY), exit 0 if integrity
     for diagnostic holds (machine labels allowed).
     mode=final → accept only when all human gates + recall ≥95%; otherwise
-    non-zero exit with blocker.
+    non-zero exit with blocker. Final mode requires real non-empty development
+    corpus + development-manifest with mandatory hash/role/flags.
     """
     if mode not in {"diagnostic", "final"}:
         raise ValueError(f"unknown mode {mode!r}")
@@ -705,27 +897,32 @@ def evaluate(
         # missing manifest handled in integrity
         pass
 
-    # Resolve development corpus: CLI path wins; else final-manifest path (non-omissible in final).
+    # Final mode: --development and --development-manifest are mandatory
+    # (no silent inference from holdout manifest alone).
     resolved_dev_path: Path | None = development_path
-    if mode == "final" and resolved_dev_path is None and manifest is not None:
-        man_dev = str(manifest.get("development_path") or "").strip()
-        if man_dev:
-            candidate = Path(man_dev)
-            if not candidate.is_absolute():
-                candidate = PROJECT_ROOT / candidate
-            resolved_dev_path = candidate
+    resolved_dev_manifest: Path | None = development_manifest_path
+
+    holdout_ids: list[str] = [
+        str(r.get("official_id") or "").strip()
+        for r in records
+        if str(r.get("official_id") or "").strip()
+    ]
+    # Detect holdout internal duplicate IDs (full set).
+    if len(holdout_ids) != len(set(holdout_ids)):
+        # check_corpus_integrity also reports dups; keep list for development block
+        pass
 
     development_ids: set[str] = set()
     development_id_list: list[str] = []
     if resolved_dev_path is not None and resolved_dev_path.is_file():
-        for rec in load_jsonl(resolved_dev_path):
-            oid = str(rec.get("official_id") or "").strip()
-            if oid:
-                development_id_list.append(oid)
-                development_ids.add(oid)
-        # Flag internal duplicates in development corpus
-        if len(development_id_list) != len(development_ids):
-            # integrity will still check holdout∩dev; surface dups via evaluate errors after integrity
+        try:
+            for rec in load_jsonl(resolved_dev_path):
+                oid = str(rec.get("official_id") or "").strip()
+                if oid:
+                    development_id_list.append(oid)
+                    development_ids.add(oid)
+        except ValueError:
+            # invalid JSONL handled by check_development_integrity
             pass
 
     integrity = check_corpus_integrity(
@@ -737,9 +934,20 @@ def evaluate(
         mode=mode,
         corpus_path=corpus_path,
     )
-    if mode == "final" and resolved_dev_path is not None and resolved_dev_path.is_file():
-        if len(development_id_list) != len(development_ids):
-            integrity.fail("development corpus has duplicate official_id values")
+
+    development_integrity: dict[str, Any] | None = None
+    if mode == "final":
+        development_integrity, dev_errors = check_development_integrity(
+            development_path=resolved_dev_path,
+            development_manifest_path=resolved_dev_manifest,
+            holdout_ids=holdout_ids,
+            required=True,
+        )
+        for msg in dev_errors:
+            integrity.fail(msg, blocker=BLOCKED_HUMAN_DUAL_LABELING)
+        # Also fail closed on holdout internal dups explicitly for final reporting
+        if len(holdout_ids) != len(set(holdout_ids)):
+            integrity.fail("holdout corpus has duplicate official_id values")
 
     prof = load_profile(profile_path)
     metrics = score_records(records, profile=prof, profile_path=profile_path)
@@ -889,6 +1097,7 @@ def evaluate(
             },
             "forbidden_proxies_used": False,
             "per_record_sample": metrics["per_record"][:20],
+            "development_integrity": development_integrity,
             "non_claims": [
                 "Not DOD §8.4 accept",
                 "Not human gold",
@@ -934,6 +1143,17 @@ def evaluate(
                 "errors": errors,
                 "warnings": integrity.warnings,
             },
+            "development_integrity": development_integrity
+            or {
+                "path": str(resolved_dev_path) if resolved_dev_path else None,
+                "manifest_path": str(resolved_dev_manifest) if resolved_dev_manifest else None,
+                "sha256": None,
+                "n_records": 0,
+                "duplicate_ids": [],
+                "holdout_overlap_count": 0,
+                "holdout_overlap_ids": [],
+                "pass": False,
+            },
             "versions": {
                 "evaluator_version": EVALUATOR_VERSION,
                 "schema_version": SCHEMA_VERSION,
@@ -966,6 +1186,9 @@ def cmd_diagnose(args: argparse.Namespace) -> int:
         manifest_path=Path(args.manifest) if args.manifest else None,
         profile_path=Path(args.profile) if args.profile else None,
         development_path=Path(args.development) if args.development else None,
+        development_manifest_path=(
+            Path(args.development_manifest) if getattr(args, "development_manifest", None) else None
+        ),
         mode="diagnostic",
         output_path=Path(args.output) if args.output else None,
     )
@@ -974,14 +1197,16 @@ def cmd_diagnose(args: argparse.Namespace) -> int:
 
 
 def cmd_evaluate_final(args: argparse.Namespace) -> int:
-    # --development is required for final mode (leak check cannot be omitted).
-    # Manifest may still supply development_path if CLI flag is present but empty
-    # is rejected by argparse required=True on the final subparser.
+    # --development and --development-manifest are required for final mode
+    # (leak/hash check cannot be omitted; argparse enforces presence).
     code, result = evaluate(
         Path(args.corpus),
         manifest_path=Path(args.manifest) if args.manifest else None,
         profile_path=Path(args.profile) if args.profile else None,
         development_path=Path(args.development) if args.development else None,
+        development_manifest_path=(
+            Path(args.development_manifest) if args.development_manifest else None
+        ),
         mode="final",
         output_path=Path(args.output) if args.output else None,
     )
@@ -1062,7 +1287,15 @@ def build_parser() -> argparse.ArgumentParser:
     f.add_argument(
         "--development",
         required=True,
-        help="Development split for leak check (required; cannot be omitted in final mode).",
+        help="Development split for leak check (required non-empty; cannot be omitted).",
+    )
+    f.add_argument(
+        "--development-manifest",
+        required=True,
+        help=(
+            "Development corpus manifest JSON (required; corpus_sha256, role=development, "
+            "acceptance_eligible=false, sealed_holdout=false, n_records)."
+        ),
     )
     f.set_defaults(func=cmd_evaluate_final)
 
