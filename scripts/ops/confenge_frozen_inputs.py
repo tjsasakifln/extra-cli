@@ -114,7 +114,7 @@ _CI_CONFENGE_JOB_KEY_RE = re.compile(r"^\s{2}(confenge-[A-Za-z0-9_-]+):\s*$")
 _CI_JOB_KEY_RE = re.compile(r"^\s{2}([A-Za-z0-9_-]+):\s*$")
 
 
-def _git(root: Path, *args: str, *, strip: bool = True) -> str:
+def _git(root: Path, *args: str, strip: bool = True) -> str:
     git = shutil.which("git") or "git"
     out = subprocess.check_output(  # noqa: S603
         [git, *args],
