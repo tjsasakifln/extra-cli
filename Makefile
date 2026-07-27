@@ -762,7 +762,7 @@ verify-confenge-evidence-provenance:
 	python3 -m scripts.ops.confenge_code_freeze verify-provenance
 
 
-# =============================================================================
+# --- Edital relevance foundation (DOD §8.4; not CONFENGE) ---
 # Edital relevance recall foundation (DOD §8.4) — blocked on human dual labeling
 # Foundation green ≠ DOD accept. Final gate must fail until human gold exists.
 # =============================================================================

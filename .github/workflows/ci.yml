@@ -1266,10 +1266,8 @@ jobs:
           PY
 
 
-  # ============================================================================
-  # EDITAL RELEVANCE FOUNDATION — DOD §8.4 infrastructure (not accept)
-  # ============================================================================
   edital-relevance-foundation:
+    # EDITAL RELEVANCE FOUNDATION — DOD §8.4 infrastructure (not accept)
     name: Edital Relevance Foundation
     runs-on: ubuntu-latest
     services:
