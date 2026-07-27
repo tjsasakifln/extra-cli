@@ -1351,45 +1351,33 @@ jobs:
             exit 1
           fi
           # Freeze/binding may only add edital-foundation prefixes — never sector_classifier path.
+          # Import live constants (regex over source fails on parentheses inside comments).
           python3 - <<'PY'
-          from pathlib import Path
-          import re, subprocess
+          from scripts.ops.confenge_code_freeze import ALLOWED_POST_FREEZE_PREFIXES
+          from scripts.ops.verify_confenge_artifact_binding import _ALLOWED_PREFIXES
 
-          def allowlist_entries(path: Path) -> list[str]:
-              text = path.read_text(encoding="utf-8")
-              # Only quoted path entries inside the allowlist tuple (ignore comments).
-              # Match either ALLOWED_POST_FREEZE_PREFIXES or _ALLOWED_PREFIXES.
-              m = re.search(
-                  r"(?:ALLOWED_POST_FREEZE_PREFIXES|_ALLOWED_PREFIXES)\s*=\s*\((.*?)\)",
-                  text,
-                  re.S,
-              )
-              assert m, f"{path}: allowlist tuple not found"
-              return re.findall(r'"([^"]+)"', m.group(1))
-
-          required = {
+          required = (
               "evals/edital_relevance/",
               "scripts/coverage/edital_relevance_recall.py",
               "scripts/campaigns/",
               "tests/coverage/",
-          }
-          forbidden_substrings = (
+          )
+          forbidden = (
               "sector_classifier",
               "test_sector_classifier",
               "scripts/ops/sector_classifier",
           )
-          for rel in (
-              "scripts/ops/confenge_code_freeze.py",
-              "scripts/ops/verify_confenge_artifact_binding.py",
+          for name, entries in (
+              ("ALLOWED_POST_FREEZE_PREFIXES", ALLOWED_POST_FREEZE_PREFIXES),
+              ("_ALLOWED_PREFIXES", _ALLOWED_PREFIXES),
           ):
-              entries = allowlist_entries(Path(rel))
-              joined = "\n".join(entries)
               for req in required:
-                  assert any(e.startswith(req) or e == req for e in entries), (
-                      f"{rel} missing foundation prefix {req!r}; got {entries}"
+                  assert any(e == req or e.startswith(req) for e in entries), (
+                      f"{name} missing {req!r}: {entries}"
                   )
-              for bad in forbidden_substrings:
-                  assert bad not in joined, f"{rel} allowlist must not include {bad!r}"
+              joined = "\n".join(entries)
+              for bad in forbidden:
+                  assert bad not in joined, f"{name} must not allowlist {bad!r}"
           print("sector_classifier == main; confenge allowlist foundation-only OK")
           PY
 
