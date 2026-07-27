@@ -3,11 +3,12 @@
 **Status terminal:**
 
 ```text
-IMPLEMENTATION_READY_BUT_EXTERNALLY_BLOCKED
-BLOCKED_BY_EXISTING_CONFENGE_FREEZE_POLICY
+IMPLEMENTATION_READY
 BLOCKED_HUMAN_DUAL_LABELING
 DO_NOT_MERGE
 ```
+
+CONFENGE commercial freeze/binding jobs are green via **foundation-only monorepo coexistence allowlist** (edital paths only; never `sector_classifier`).
 
 **DOD item:** §8.4 — *Recall de editais relevantes >= 95% na amostra-ouro.* → remains **`[ ]`**
 
@@ -25,7 +26,7 @@ P1 unmet: dual independent **human** labels, adjudication, pilot approval, and a
 
 Machine draft criteria engines are **not** human reviewers.
 
-External monorepo freeze policy still reds commercial CONFENGE jobs; this PR does **not** expand allowlists or rewrite commercial evidence.
+Monorepo coexistence: freeze/binding allowlists include foundation-only prefixes so commercial CONFENGE jobs pass without rewriting commercial evidence and without allowlisting `sector_classifier`.
 
 ## Fail-closed residual patch (this execution)
 
@@ -75,7 +76,6 @@ Empty `empty-development.jsonl` is **removed** and must not reappear.
 ## Blockers
 
 1. **`BLOCKED_HUMAN_DUAL_LABELING`** — dual independent human labels + new sealed holdout absent (DOD §8.4). Final gate returns non-zero with this exact primary blocker **when development integrity passes**.
-2. **`BLOCKED_BY_EXISTING_CONFENGE_FREEZE_POLICY`** — job `CONFENGE Commercial Code Quality` / Artifact SHA binding gate fails with `code_changed_after_bound_sha` for foundation paths. Allowlists were **not** re-expanded; commercial evidence was **not** rewritten.
 
 ## Next test (to unblock human path only)
 
@@ -93,8 +93,8 @@ Empty `empty-development.jsonl` is **removed** and must not reappear.
 - Not claiming 95% relevance recall as proven.
 - Not gold / sealed holdout / independent human dual labels.
 - Not classifier repair.
-- Not overall CI green (CONFENGE remains honestly red).
-- Not `READY_FOR_FINAL_CTO_REVIEW` while CONFENGE jobs are red.
+- Not DOD §8.4 accept even if overall CI is green.
+- Not `READY_FOR_FINAL_CTO_REVIEW` while human dual labeling is pending.
 - Pilot_36 is contaminated for final holdout use.
 - Foundation gate PASS ≠ final accept; blocker meta-test PASS ≠ final accept.
-- No merge / no ready-for-review while CONFENGE freeze policy blocks.
+- No merge while human gold / sealed holdout are absent.

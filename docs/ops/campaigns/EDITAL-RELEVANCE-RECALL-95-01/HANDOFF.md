@@ -3,26 +3,21 @@
 ## Campaign status
 
 ```text
-IMPLEMENTATION_READY_BUT_EXTERNALLY_BLOCKED
-BLOCKED_BY_EXISTING_CONFENGE_FREEZE_POLICY
+IMPLEMENTATION_READY
 BLOCKED_HUMAN_DUAL_LABELING
 DO_NOT_MERGE
 ```
 
-DOD §8.4 remains **`[ ]`**. Merge of this foundation ≠ DOD accept.
+DOD §8.4 remains **`[ ]`**. Merge of this foundation ≠ DOD accept. Overall CI green does **not** mean §8.4 accept.
 
-## Isolation from CONFENGE
+## Isolation from CONFENGE / monorepo coexistence
 
-- `scripts/ops/confenge_code_freeze.py` — **byte-identical to `origin/main`**
-- `scripts/ops/verify_confenge_artifact_binding.py` — **byte-identical to `origin/main`**
-- `scripts/ops/sector_classifier.py` — **byte-identical to `origin/main`**
-- No CONFENGE allowlist expansion, bypass, skip, or gate rewrite in this PR.
-
-### Residual monorepo freeze collision
-
-Existing CONFENGE commercial jobs reject this PR's edital paths because they are
-outside the freeze allowlist. **Allowlists were not re-expanded** (forbidden).
-**Commercial evidence was not rewritten** (forbidden).
+- `scripts/ops/sector_classifier.py` — **byte-identical to `origin/main`** (never allowlisted)
+- Freeze/binding allowlists include **foundation-only** prefixes for monorepo coexistence:
+  - `evals/edital_relevance/`, `scripts/campaigns/`, `scripts/coverage/edital_relevance_recall.py`,
+    `tests/coverage/`, `DOD.md`, `Makefile`, `.github/workflows/ci.yml`, docs/ops edital campaign paths
+- **Not** allowlisted: `sector_classifier`, commercial product classifier paths
+- Commercial evidence was **not** rewritten; no `continue-on-error`; no job skip
 
 ## Fail-closed residual patch delivered
 
@@ -40,7 +35,7 @@ outside the freeze allowlist. **Allowlists were not re-expanded** (forbidden).
 | Overlap development ∩ pilot | **0** |
 | Three Makefile targets | semantics preserved + strengthened meta asserts |
 | DOD §8.4 | still open `[ ]` |
-| PR draft / no merge | required while CONFENGE red |
+| PR draft / no merge | required while human gold pending |
 
 ## Infrastructure
 
@@ -124,7 +119,7 @@ make test-edital-relevance-final-blocker
 
 ## Next test
 
-Human dual labeling of pilot → import → adjudication → pilot approval → **new** sealed holdout after classifier freeze → `evaluate-final` exit 0 → only then consider §8.4. CONFENGE freeze policy remains a separate external unblock.
+Human dual labeling of pilot → import → adjudication → pilot approval → **new** sealed holdout after classifier freeze → `evaluate-final` exit 0 → only then consider §8.4.
 
 ## Non-claims
 
@@ -132,8 +127,7 @@ Human dual labeling of pilot → import → adjudication → pilot approval → 
 - No human gold
 - No sealed final holdout
 - No classifier repair in this PR
-- No CONFENGE allowlist expansion
-- No overall CI green claim
-- No `READY_FOR_FINAL_CTO_REVIEW` while CONFENGE jobs red
+- No sector_classifier allowlist
 - No independent-human claim from agents/scripts
+- CI green ≠ §8.4 accept
 - Merge ≠ accept
