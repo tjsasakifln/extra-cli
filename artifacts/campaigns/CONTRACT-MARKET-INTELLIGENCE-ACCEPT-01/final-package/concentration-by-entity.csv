@@ -1,0 +1,5 @@
+orgao_id,orgao_nome,n_contratos,valor_contratado_sum,valor_missing_count,value_type,note
+44444444000166,Hospital Gamma,2,620000.0,0,valor_contratado,concentração por órgão — não irregularidade automática
+66666666000188,Prefeitura Delta,2,45000.0,1,valor_contratado,concentração por órgão — não irregularidade automática
+11111111000111,Prefeitura Alpha,2,230000.0,0,valor_contratado,concentração por órgão — não irregularidade automática
+33333333000155,Camara Beta,1,200000.0,0,valor_contratado,concentração por órgão — não irregularidade automática

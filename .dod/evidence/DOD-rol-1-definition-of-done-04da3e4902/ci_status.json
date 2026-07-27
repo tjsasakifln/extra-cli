@@ -1,9 +1,13 @@
 {
   "conclusion": "success",
-  "head_sha": "241ec41f0badf5bd463b66dafe36faa1e2e66876",
-  "pr": "151",
+  "head_sha": "1f395831d24bd19dfef7a8dcdfde8ee90f38e3d0",
+  "pr": "152",
+  "functional_merge_sha": "241ec41f0badf5bd463b66dafe36faa1e2e66876",
+  "acceptance_merge_sha": "b15f8f0de3cd18f8a5bb5d4ff0cf0d99702a02bf",
   "main_ci_run": "30308032565",
-  "pr_ci_run": "30307668529",
-  "url": "https://github.com/tjsasakifln/extra-cli/actions/runs/30308032565",
+  "pr_ci_runs": [
+    "30307668529",
+    "30312150348"
+  ],
   "mandatory_jobs_skipped": []
 }

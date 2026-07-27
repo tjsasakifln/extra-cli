@@ -1,0 +1,38 @@
+{
+  "ranking_vencedores": {
+    "status": "READY",
+    "note": "vencedores com CNPJ a partir de contratos"
+  },
+  "participantes": {
+    "status": "SOURCE_UNAVAILABLE",
+    "note": "fonte de contratos não expõe participantes"
+  },
+  "win_rate": {
+    "status": "NOT_COMPUTABLE",
+    "note": "sem denominador de propostas"
+  },
+  "desagio": {
+    "status": "NOT_COMPUTABLE",
+    "note": "sem par estimado/homologado encadeado no recorte"
+  },
+  "market_share": {
+    "status": "READY",
+    "note": "all active pncp_supplier_contracts with identifiable supplier CNPJ; uf=SC; period_start>=2023-01-01; period_end<=2026-07-27; value_type=valor_contratado; complete_population_aggregated=true"
+  },
+  "hhi": {
+    "status": "READY",
+    "note": "mesma população do market share"
+  },
+  "valor_contratado": {
+    "status": "PARTIAL",
+    "note": "nulos preservados; ticket usa apenas válidos"
+  },
+  "capacidade": {
+    "status": "NOT_APPLICABLE",
+    "note": "não inferida; n_contratos ≠ capacidade"
+  },
+  "value_references": {
+    "status": "OK",
+    "note": "percentis só em grupos comparáveis; globais heterogêneos sinalizados"
+  }
+}

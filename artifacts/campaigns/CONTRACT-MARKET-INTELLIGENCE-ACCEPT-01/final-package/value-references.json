@@ -1,0 +1,328 @@
+{
+  "definitions": {
+    "valor_estimado": {
+      "field": "valor_estimado",
+      "definition": "Valor de referência ou estimativa anterior ao resultado, conforme a fonte (ex.: valor_total_estimado do edital).",
+      "enum": "valor_estimado",
+      "label": "Valor estimado (edital)"
+    },
+    "valor_homologado": {
+      "field": "valor_homologado",
+      "definition": "Valor do resultado homologado ou adjudicado quando a fonte assim o representar.",
+      "enum": "valor_homologado",
+      "label": "Valor homologado (resultado da licitacao)"
+    },
+    "valor_contratado": {
+      "field": "valor_contratado",
+      "definition": "Valor formal do contrato ou instrumento equivalente (ex.: pncp_supplier_contracts.valor_total).",
+      "enum": "valor_contratado",
+      "label": "Valor contratado (contrato assinado)"
+    },
+    "valor_pago": {
+      "field": "valor_pago",
+      "definition": "Desembolso, pagamento ou execução financeira oficialmente registrada — não intercambiável com contratado.",
+      "enum": "valor_pago",
+      "label": "Valor pago (empenhos efetivos)"
+    }
+  },
+  "fields_not_interchangeable": true,
+  "value_semantics_version": "cmi-value-semantics/1.0.0",
+  "comparability_rule_version": "cmi-comparability/1.0.0",
+  "typed_values": [
+    {
+      "value": 500000.0,
+      "value_type": "valor_contratado",
+      "value_type_definition": "Valor formal do contrato ou instrumento equivalente (ex.: pncp_supplier_contracts.valor_total).",
+      "value_scope": "global",
+      "currency": "BRL",
+      "source": "pncp",
+      "reference_date": "2023-08-01",
+      "official_or_inferred": "official",
+      "inference_method": null,
+      "comparison_unit": "contrato_global",
+      "status": "READY",
+      "monetary_adjustment_applied": false,
+      "contrato_id": "CMI-C-004",
+      "fornecedor_cnpj": "55555555000177",
+      "tipo_obra_servico": "obra_civil",
+      "uf": "SC",
+      "municipio": "Blumenau"
+    },
+    {
+      "value": null,
+      "value_type": "valor_contratado",
+      "value_type_definition": "Valor formal do contrato ou instrumento equivalente (ex.: pncp_supplier_contracts.valor_total).",
+      "value_scope": "global",
+      "currency": "BRL",
+      "source": "pncp",
+      "reference_date": "2024-02-01",
+      "official_or_inferred": "official",
+      "inference_method": null,
+      "comparison_unit": "contrato_global",
+      "status": "MISSING",
+      "monetary_adjustment_applied": false,
+      "contrato_id": "CMI-C-006",
+      "fornecedor_cnpj": "77777777000199",
+      "tipo_obra_servico": "manutencao_predial",
+      "uf": "SC",
+      "municipio": "Joinville"
+    },
+    {
+      "value": 150000.0,
+      "value_type": "valor_contratado",
+      "value_type_definition": "Valor formal do contrato ou instrumento equivalente (ex.: pncp_supplier_contracts.valor_total).",
+      "value_scope": "global",
+      "currency": "BRL",
+      "source": "pncp",
+      "reference_date": "2024-03-01",
+      "official_or_inferred": "official",
+      "inference_method": null,
+      "comparison_unit": "contrato_global",
+      "status": "READY",
+      "monetary_adjustment_applied": false,
+      "contrato_id": "CMI-C-001",
+      "fornecedor_cnpj": "22222222000191",
+      "tipo_obra_servico": "reforma_predial",
+      "uf": "SC",
+      "municipio": "Florianópolis"
+    },
+    {
+      "value": 80000.0,
+      "value_type": "valor_contratado",
+      "value_type_definition": "Valor formal do contrato ou instrumento equivalente (ex.: pncp_supplier_contracts.valor_total).",
+      "value_scope": "global",
+      "currency": "BRL",
+      "source": "pncp",
+      "reference_date": "2024-06-01",
+      "official_or_inferred": "official",
+      "inference_method": null,
+      "comparison_unit": "contrato_global",
+      "status": "READY",
+      "monetary_adjustment_applied": false,
+      "contrato_id": "CMI-C-002",
+      "fornecedor_cnpj": "22222222000191",
+      "tipo_obra_servico": "manutencao_predial",
+      "uf": "SC",
+      "municipio": "Florianópolis"
+    },
+    {
+      "value": 120000.0,
+      "value_type": "valor_contratado",
+      "value_type_definition": "Valor formal do contrato ou instrumento equivalente (ex.: pncp_supplier_contracts.valor_total).",
+      "value_scope": "global",
+      "currency": "BRL",
+      "source": "pncp",
+      "reference_date": "2024-11-01",
+      "official_or_inferred": "official",
+      "inference_method": null,
+      "comparison_unit": "contrato_global",
+      "status": "READY",
+      "monetary_adjustment_applied": false,
+      "contrato_id": "CMI-C-005",
+      "fornecedor_cnpj": "55555555000177",
+      "tipo_obra_servico": "reforma_predial",
+      "uf": "SC",
+      "municipio": "Blumenau"
+    },
+    {
+      "value": 200000.0,
+      "value_type": "valor_contratado",
+      "value_type_definition": "Valor formal do contrato ou instrumento equivalente (ex.: pncp_supplier_contracts.valor_total).",
+      "value_scope": "global",
+      "currency": "BRL",
+      "source": "pncp",
+      "reference_date": "2025-01-15",
+      "official_or_inferred": "official",
+      "inference_method": null,
+      "comparison_unit": "contrato_global",
+      "status": "READY",
+      "monetary_adjustment_applied": false,
+      "contrato_id": "CMI-C-003",
+      "fornecedor_cnpj": "22222222000191",
+      "tipo_obra_servico": "reforma_predial",
+      "uf": "SC",
+      "municipio": "São José"
+    },
+    {
+      "value": 45000.0,
+      "value_type": "valor_contratado",
+      "value_type_definition": "Valor formal do contrato ou instrumento equivalente (ex.: pncp_supplier_contracts.valor_total).",
+      "value_scope": "global",
+      "currency": "BRL",
+      "source": "pncp",
+      "reference_date": "2025-02-01",
+      "official_or_inferred": "official",
+      "inference_method": null,
+      "comparison_unit": "contrato_global",
+      "status": "READY",
+      "monetary_adjustment_applied": false,
+      "contrato_id": "CMI-C-007",
+      "fornecedor_cnpj": "77777777000199",
+      "tipo_obra_servico": "limpeza",
+      "uf": "SC",
+      "municipio": "Joinville"
+    }
+  ],
+  "panels": [
+    {
+      "group_key": "tipo_obra_servico=obra_civil|unidade=contrato_global|lote=unico|porte=n/d|regiao=SC",
+      "dimensions": {
+        "tipo_obra_servico": "obra_civil",
+        "unidade": "contrato_global",
+        "lote": "unico",
+        "porte": "n/d",
+        "regiao": "SC"
+      },
+      "n_observations": 1,
+      "status": "INSUFFICIENT_SAMPLE",
+      "median": 500000.0,
+      "p25": 500000.0,
+      "p75": 500000.0,
+      "min_value": 500000.0,
+      "max_value": 500000.0,
+      "outliers_flagged": [],
+      "outlier_rule": "IQR k=1.5; drop=False; always listed",
+      "value_semantics_present": [
+        "contratado"
+      ],
+      "temporal_evolution": [],
+      "labels_forbidden_used": [],
+      "claims": [
+        "stats over n=1 with semantics=['contratado']",
+        "min/max shown with outliers_flagged (not hidden)"
+      ],
+      "limitations": [
+        "n=1 < min_sample=3",
+        "grupo contém valores globais heterogêneos — não rotular como preço real praticado",
+        "amostra sem múltiplos períodos — evolução temporal N/A"
+      ]
+    },
+    {
+      "group_key": "tipo_obra_servico=reforma_predial|unidade=contrato_global|lote=unico|porte=n/d|regiao=SC",
+      "dimensions": {
+        "tipo_obra_servico": "reforma_predial",
+        "unidade": "contrato_global",
+        "lote": "unico",
+        "porte": "n/d",
+        "regiao": "SC"
+      },
+      "n_observations": 3,
+      "status": "OK",
+      "median": 150000.0,
+      "p25": 135000.0,
+      "p75": 175000.0,
+      "min_value": 120000.0,
+      "max_value": 200000.0,
+      "outliers_flagged": [],
+      "outlier_rule": "IQR k=1.5; drop=False; always listed",
+      "value_semantics_present": [
+        "contratado"
+      ],
+      "temporal_evolution": [
+        {
+          "periodo": "2024-03",
+          "n": 1,
+          "median": 150000.0,
+          "status": "INSUFFICIENT_SAMPLE"
+        },
+        {
+          "periodo": "2024-11",
+          "n": 1,
+          "median": 120000.0,
+          "status": "INSUFFICIENT_SAMPLE"
+        },
+        {
+          "periodo": "2025-01",
+          "n": 1,
+          "median": 200000.0,
+          "status": "INSUFFICIENT_SAMPLE"
+        }
+      ],
+      "labels_forbidden_used": [],
+      "claims": [
+        "stats over n=3 with semantics=['contratado']",
+        "min/max shown with outliers_flagged (not hidden)",
+        "temporal_evolution available"
+      ],
+      "limitations": [
+        "grupo contém valores globais heterogêneos — não rotular como preço real praticado"
+      ]
+    },
+    {
+      "group_key": "tipo_obra_servico=manutencao_predial|unidade=contrato_global|lote=unico|porte=n/d|regiao=SC",
+      "dimensions": {
+        "tipo_obra_servico": "manutencao_predial",
+        "unidade": "contrato_global",
+        "lote": "unico",
+        "porte": "n/d",
+        "regiao": "SC"
+      },
+      "n_observations": 1,
+      "status": "INSUFFICIENT_SAMPLE",
+      "median": 80000.0,
+      "p25": 80000.0,
+      "p75": 80000.0,
+      "min_value": 80000.0,
+      "max_value": 80000.0,
+      "outliers_flagged": [],
+      "outlier_rule": "IQR k=1.5; drop=False; always listed",
+      "value_semantics_present": [
+        "contratado"
+      ],
+      "temporal_evolution": [],
+      "labels_forbidden_used": [],
+      "claims": [
+        "stats over n=1 with semantics=['contratado']",
+        "min/max shown with outliers_flagged (not hidden)"
+      ],
+      "limitations": [
+        "n=1 < min_sample=3",
+        "grupo contém valores globais heterogêneos — não rotular como preço real praticado",
+        "amostra sem múltiplos períodos — evolução temporal N/A"
+      ]
+    },
+    {
+      "group_key": "tipo_obra_servico=limpeza|unidade=contrato_global|lote=unico|porte=n/d|regiao=SC",
+      "dimensions": {
+        "tipo_obra_servico": "limpeza",
+        "unidade": "contrato_global",
+        "lote": "unico",
+        "porte": "n/d",
+        "regiao": "SC"
+      },
+      "n_observations": 1,
+      "status": "INSUFFICIENT_SAMPLE",
+      "median": 45000.0,
+      "p25": 45000.0,
+      "p75": 45000.0,
+      "min_value": 45000.0,
+      "max_value": 45000.0,
+      "outliers_flagged": [],
+      "outlier_rule": "IQR k=1.5; drop=False; always listed",
+      "value_semantics_present": [
+        "contratado"
+      ],
+      "temporal_evolution": [],
+      "labels_forbidden_used": [],
+      "claims": [
+        "stats over n=1 with semantics=['contratado']",
+        "min/max shown with outliers_flagged (not hidden)"
+      ],
+      "limitations": [
+        "n=1 < min_sample=3",
+        "grupo contém valores globais heterogêneos — não rotular como preço real praticado",
+        "amostra sem múltiplos períodos — evolução temporal N/A"
+      ]
+    }
+  ],
+  "report_status": "OK",
+  "claims_forbidden": [
+    "preço real praticado for heterogeneous global values",
+    "Cross-group mix of tipo/unidade/região/período as one reference",
+    "Hide outliers without recording exclusion rule",
+    "Fabricate market prices from empty DSN",
+    "preço real praticado for heterogeneous global contracts"
+  ],
+  "monetary_adjustment_applied": false,
+  "as_of": "2026-07-27T23:11:57Z"
+}

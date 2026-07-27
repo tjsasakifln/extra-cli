@@ -171,3 +171,6 @@ artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/run/*.html
 artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/run/*.xlsx
 artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/real-run.json
 data/official_cnpj/
+
+# CMI campaign Excel (regenerate; sha committed)
+artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/final-package/*.xlsx

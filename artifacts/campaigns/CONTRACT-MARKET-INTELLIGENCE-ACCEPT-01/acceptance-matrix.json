@@ -1,6 +1,8 @@
 {
   "campaign_id": "CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01",
   "main_baseline_sha": "c5b4cdb91b0727b5e7a537c8eb47daf001b74552",
+  "executed_sha": "1f395831d24bd19dfef7a8dcdfde8ee90f38e3d0",
+  "status": "CLOSED",
   "items": [
     {
       "alias": "CMI-10.1-01",
@@ -8,10 +10,10 @@
       "text": "O sistema diferencia vencedor identificado de participante identificado.",
       "weight": 5,
       "initial_state": "OPEN",
-      "implementation": "PENDING_FIRST_WAVE",
-      "test": "PENDING",
-      "evidence": "PENDING",
-      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "implementation": "SHIPPED scripts/ops/contract_market_intelligence.py + operational_reports repair",
+      "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.1-01 (exit 0); tests/test_cmi_contract_market_intelligence.py",
+      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-ad5ffdc575/proof.json + final-package/",
+      "authority": "DOD.md + freeze + item proof + CI + dod_controller accept",
       "terminal_state": "ACCEPTED"
     },
     {
@@ -20,10 +22,10 @@
       "text": "O sistema não afirma conhecer todos os concorrentes quando a fonte não expõe participantes.",
       "weight": 5,
       "initial_state": "OPEN",
-      "implementation": "PENDING_FIRST_WAVE",
-      "test": "PENDING",
-      "evidence": "PENDING",
-      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "implementation": "SHIPPED scripts/ops/contract_market_intelligence.py + operational_reports repair",
+      "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.1-02 (exit 0); tests/test_cmi_contract_market_intelligence.py",
+      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-7fc5475f5f/proof.json + final-package/",
+      "authority": "DOD.md + freeze + item proof + CI + dod_controller accept",
       "terminal_state": "ACCEPTED"
     },
     {
@@ -32,10 +34,10 @@
       "text": "O sistema não calcula win rate sem denominador de propostas apresentadas.",
       "weight": 5,
       "initial_state": "OPEN",
-      "implementation": "PENDING_FIRST_WAVE",
-      "test": "PENDING",
-      "evidence": "PENDING",
-      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "implementation": "SHIPPED scripts/ops/contract_market_intelligence.py + operational_reports repair",
+      "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.1-03 (exit 0); tests/test_cmi_contract_market_intelligence.py",
+      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-aaad858820/proof.json + final-package/",
+      "authority": "DOD.md + freeze + item proof + CI + dod_controller accept",
       "terminal_state": "ACCEPTED"
     },
     {
@@ -44,10 +46,10 @@
       "text": "O sistema não calcula deságio sem valor estimado e valor homologado comparáveis.",
       "weight": 5,
       "initial_state": "OPEN",
-      "implementation": "PENDING_FIRST_WAVE",
-      "test": "PENDING",
-      "evidence": "PENDING",
-      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "implementation": "SHIPPED scripts/ops/contract_market_intelligence.py + operational_reports repair",
+      "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.1-04 (exit 0); tests/test_cmi_contract_market_intelligence.py",
+      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-29ddb3c2f5/proof.json + final-package/",
+      "authority": "DOD.md + freeze + item proof + CI + dod_controller accept",
       "terminal_state": "ACCEPTED"
     },
     {
@@ -56,10 +58,10 @@
       "text": "O sistema não infere capacidade ociosa do concorrente sem dado apropriado.",
       "weight": 5,
       "initial_state": "OPEN",
-      "implementation": "PENDING_FIRST_WAVE",
-      "test": "PENDING",
-      "evidence": "PENDING",
-      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "implementation": "SHIPPED scripts/ops/contract_market_intelligence.py + operational_reports repair",
+      "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.1-05 (exit 0); tests/test_cmi_contract_market_intelligence.py",
+      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-af4d2329d5/proof.json + final-package/",
+      "authority": "DOD.md + freeze + item proof + CI + dod_controller accept",
       "terminal_state": "ACCEPTED"
     },
     {
@@ -68,10 +70,10 @@
       "text": "O sistema não trata quantidade de contratos como sinônimo de capacidade técnica.",
       "weight": 5,
       "initial_state": "OPEN",
-      "implementation": "PENDING_FIRST_WAVE",
-      "test": "PENDING",
-      "evidence": "PENDING",
-      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "implementation": "SHIPPED scripts/ops/contract_market_intelligence.py + operational_reports repair",
+      "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.1-06 (exit 0); tests/test_cmi_contract_market_intelligence.py",
+      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-e2debb6d90/proof.json + final-package/",
+      "authority": "DOD.md + freeze + item proof + CI + dod_controller accept",
       "terminal_state": "ACCEPTED"
     },
     {
@@ -80,10 +82,10 @@
       "text": "O sistema informa as limitações de cada indicador.",
       "weight": 5,
       "initial_state": "OPEN",
-      "implementation": "PENDING_FIRST_WAVE",
-      "test": "PENDING",
-      "evidence": "PENDING",
-      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "implementation": "SHIPPED scripts/ops/contract_market_intelligence.py + operational_reports repair",
+      "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.1-07 (exit 0); tests/test_cmi_contract_market_intelligence.py",
+      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-24581047c4/proof.json + final-package/",
+      "authority": "DOD.md + freeze + item proof + CI + dod_controller accept",
       "terminal_state": "ACCEPTED"
     },
     {
@@ -92,10 +94,10 @@
       "text": "Ranking de fornecedores vencedores.",
       "weight": 5,
       "initial_state": "OPEN",
-      "implementation": "PENDING_FIRST_WAVE",
-      "test": "PENDING",
-      "evidence": "PENDING",
-      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "implementation": "SHIPPED scripts/ops/contract_market_intelligence.py + operational_reports repair",
+      "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-01 (exit 0); tests/test_cmi_contract_market_intelligence.py",
+      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-7114069aad/proof.json + final-package/",
+      "authority": "DOD.md + freeze + item proof + CI + dod_controller accept",
       "terminal_state": "ACCEPTED"
     },
     {
@@ -104,10 +106,10 @@
       "text": "Quantidade de contratos por fornecedor.",
       "weight": 3,
       "initial_state": "OPEN",
-      "implementation": "PENDING_FIRST_WAVE",
-      "test": "PENDING",
-      "evidence": "PENDING",
-      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "implementation": "SHIPPED scripts/ops/contract_market_intelligence.py + operational_reports repair",
+      "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-02 (exit 0); tests/test_cmi_contract_market_intelligence.py",
+      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-180363f3c6/proof.json + final-package/",
+      "authority": "DOD.md + freeze + item proof + CI + dod_controller accept",
       "terminal_state": "ACCEPTED"
     },
     {
@@ -116,10 +118,10 @@
       "text": "Valor contratado por fornecedor.",
       "weight": 5,
       "initial_state": "OPEN",
-      "implementation": "PENDING_FIRST_WAVE",
-      "test": "PENDING",
-      "evidence": "PENDING",
-      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "implementation": "SHIPPED scripts/ops/contract_market_intelligence.py + operational_reports repair",
+      "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-03 (exit 0); tests/test_cmi_contract_market_intelligence.py",
+      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-5eb2fbdae2/proof.json + final-package/",
+      "authority": "DOD.md + freeze + item proof + CI + dod_controller accept",
       "terminal_state": "ACCEPTED"
     },
     {
@@ -128,10 +130,10 @@
       "text": "Ticket contratado médio por fornecedor.",
       "weight": 3,
       "initial_state": "OPEN",
-      "implementation": "PENDING_FIRST_WAVE",
-      "test": "PENDING",
-      "evidence": "PENDING",
-      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "implementation": "SHIPPED scripts/ops/contract_market_intelligence.py + operational_reports repair",
+      "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-04 (exit 0); tests/test_cmi_contract_market_intelligence.py",
+      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-24d8ac6823/proof.json + final-package/",
+      "authority": "DOD.md + freeze + item proof + CI + dod_controller accept",
       "terminal_state": "ACCEPTED"
     },
     {
@@ -140,10 +142,10 @@
       "text": "Número de entes atendidos por fornecedor.",
       "weight": 3,
       "initial_state": "OPEN",
-      "implementation": "PENDING_FIRST_WAVE",
-      "test": "PENDING",
-      "evidence": "PENDING",
-      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "implementation": "SHIPPED scripts/ops/contract_market_intelligence.py + operational_reports repair",
+      "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-05 (exit 0); tests/test_cmi_contract_market_intelligence.py",
+      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-72ffefd4fe/proof.json + final-package/",
+      "authority": "DOD.md + freeze + item proof + CI + dod_controller accept",
       "terminal_state": "ACCEPTED"
     },
     {
@@ -152,10 +154,10 @@
       "text": "Distribuição por município.",
       "weight": 3,
       "initial_state": "OPEN",
-      "implementation": "PENDING_FIRST_WAVE",
-      "test": "PENDING",
-      "evidence": "PENDING",
-      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "implementation": "SHIPPED scripts/ops/contract_market_intelligence.py + operational_reports repair",
+      "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-06 (exit 0); tests/test_cmi_contract_market_intelligence.py",
+      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-28a1c47d70/proof.json + final-package/",
+      "authority": "DOD.md + freeze + item proof + CI + dod_controller accept",
       "terminal_state": "ACCEPTED"
     },
     {
@@ -164,10 +166,10 @@
       "text": "Distribuição por natureza do ente.",
       "weight": 3,
       "initial_state": "OPEN",
-      "implementation": "PENDING_FIRST_WAVE",
-      "test": "PENDING",
-      "evidence": "PENDING",
-      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "implementation": "SHIPPED scripts/ops/contract_market_intelligence.py + operational_reports repair",
+      "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-07 (exit 0); tests/test_cmi_contract_market_intelligence.py",
+      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-f32083927c/proof.json + final-package/",
+      "authority": "DOD.md + freeze + item proof + CI + dod_controller accept",
       "terminal_state": "ACCEPTED"
     },
     {
@@ -176,10 +178,10 @@
       "text": "Distribuição por setor ou tipo de objeto.",
       "weight": 3,
       "initial_state": "OPEN",
-      "implementation": "PENDING_FIRST_WAVE",
-      "test": "PENDING",
-      "evidence": "PENDING",
-      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "implementation": "SHIPPED scripts/ops/contract_market_intelligence.py + operational_reports repair",
+      "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-08 (exit 0); tests/test_cmi_contract_market_intelligence.py",
+      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-f11737c2bf/proof.json + final-package/",
+      "authority": "DOD.md + freeze + item proof + CI + dod_controller accept",
       "terminal_state": "ACCEPTED"
     },
     {
@@ -188,10 +190,10 @@
       "text": "Recorrência de contratação.",
       "weight": 3,
       "initial_state": "OPEN",
-      "implementation": "PENDING_FIRST_WAVE",
-      "test": "PENDING",
-      "evidence": "PENDING",
-      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "implementation": "SHIPPED scripts/ops/contract_market_intelligence.py + operational_reports repair",
+      "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-09 (exit 0); tests/test_cmi_contract_market_intelligence.py",
+      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-e5557d5607/proof.json + final-package/",
+      "authority": "DOD.md + freeze + item proof + CI + dod_controller accept",
       "terminal_state": "ACCEPTED"
     },
     {
@@ -200,10 +202,10 @@
       "text": "Última contratação conhecida.",
       "weight": 3,
       "initial_state": "OPEN",
-      "implementation": "PENDING_FIRST_WAVE",
-      "test": "PENDING",
-      "evidence": "PENDING",
-      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "implementation": "SHIPPED scripts/ops/contract_market_intelligence.py + operational_reports repair",
+      "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-10 (exit 0); tests/test_cmi_contract_market_intelligence.py",
+      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-df0c666a5f/proof.json + final-package/",
+      "authority": "DOD.md + freeze + item proof + CI + dod_controller accept",
       "terminal_state": "ACCEPTED"
     },
     {
@@ -212,10 +214,10 @@
       "text": "Concentração por órgão.",
       "weight": 3,
       "initial_state": "OPEN",
-      "implementation": "PENDING_FIRST_WAVE",
-      "test": "PENDING",
-      "evidence": "PENDING",
-      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "implementation": "SHIPPED scripts/ops/contract_market_intelligence.py + operational_reports repair",
+      "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-11 (exit 0); tests/test_cmi_contract_market_intelligence.py",
+      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-ff54a45a75/proof.json + final-package/",
+      "authority": "DOD.md + freeze + item proof + CI + dod_controller accept",
       "terminal_state": "ACCEPTED"
     },
     {
@@ -224,10 +226,10 @@
       "text": "Concentração por fornecedor.",
       "weight": 3,
       "initial_state": "OPEN",
-      "implementation": "PENDING_FIRST_WAVE",
-      "test": "PENDING",
-      "evidence": "PENDING",
-      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "implementation": "SHIPPED scripts/ops/contract_market_intelligence.py + operational_reports repair",
+      "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-12 (exit 0); tests/test_cmi_contract_market_intelligence.py",
+      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-926290cde1/proof.json + final-package/",
+      "authority": "DOD.md + freeze + item proof + CI + dod_controller accept",
       "terminal_state": "ACCEPTED"
     },
     {
@@ -236,10 +238,10 @@
       "text": "Market share contratual quando semanticamente válido.",
       "weight": 5,
       "initial_state": "OPEN",
-      "implementation": "PENDING_FIRST_WAVE",
-      "test": "PENDING",
-      "evidence": "PENDING",
-      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "implementation": "SHIPPED scripts/ops/contract_market_intelligence.py + operational_reports repair",
+      "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-13 (exit 0); tests/test_cmi_contract_market_intelligence.py",
+      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-849f610ada/proof.json + final-package/",
+      "authority": "DOD.md + freeze + item proof + CI + dod_controller accept",
       "terminal_state": "ACCEPTED"
     },
     {
@@ -248,10 +250,10 @@
       "text": "HHI quando semanticamente válido.",
       "weight": 5,
       "initial_state": "OPEN",
-      "implementation": "PENDING_FIRST_WAVE",
-      "test": "PENDING",
-      "evidence": "PENDING",
-      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "implementation": "SHIPPED scripts/ops/contract_market_intelligence.py + operational_reports repair",
+      "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-14 (exit 0); tests/test_cmi_contract_market_intelligence.py",
+      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-fd5b78c29d/proof.json + final-package/",
+      "authority": "DOD.md + freeze + item proof + CI + dod_controller accept",
       "terminal_state": "ACCEPTED"
     },
     {
@@ -260,10 +262,10 @@
       "text": "Fonte e data de corte em todas as métricas.",
       "weight": 5,
       "initial_state": "OPEN",
-      "implementation": "PENDING_FIRST_WAVE",
-      "test": "PENDING",
-      "evidence": "PENDING",
-      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "implementation": "SHIPPED scripts/ops/contract_market_intelligence.py + operational_reports repair",
+      "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-15 (exit 0); tests/test_cmi_contract_market_intelligence.py",
+      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-96ca22dde7/proof.json + final-package/",
+      "authority": "DOD.md + freeze + item proof + CI + dod_controller accept",
       "terminal_state": "ACCEPTED"
     },
     {
@@ -272,10 +274,10 @@
       "text": "Exportação para Excel.",
       "weight": 3,
       "initial_state": "OPEN",
-      "implementation": "PENDING_FIRST_WAVE",
-      "test": "PENDING",
-      "evidence": "PENDING",
-      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "implementation": "SHIPPED scripts/ops/contract_market_intelligence.py + operational_reports repair",
+      "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-16 (exit 0); tests/test_cmi_contract_market_intelligence.py",
+      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-e26def5c74/proof.json + final-package/",
+      "authority": "DOD.md + freeze + item proof + CI + dod_controller accept",
       "terminal_state": "ACCEPTED"
     },
     {
@@ -284,10 +286,10 @@
       "text": "Relatório de concorrentes para revisão manual.",
       "weight": 3,
       "initial_state": "OPEN",
-      "implementation": "PENDING_FIRST_WAVE",
-      "test": "PENDING",
-      "evidence": "PENDING",
-      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "implementation": "SHIPPED scripts/ops/contract_market_intelligence.py + operational_reports repair",
+      "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-17 (exit 0); tests/test_cmi_contract_market_intelligence.py",
+      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-2c30e375c5/proof.json + final-package/",
+      "authority": "DOD.md + freeze + item proof + CI + dod_controller accept",
       "terminal_state": "ACCEPTED"
     },
     {
@@ -296,10 +298,10 @@
       "text": "Queries executadas em PostgreSQL real.",
       "weight": 5,
       "initial_state": "OPEN",
-      "implementation": "PENDING_FIRST_WAVE",
-      "test": "PENDING",
-      "evidence": "PENDING",
-      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "implementation": "SHIPPED scripts/ops/contract_market_intelligence.py + operational_reports repair",
+      "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-18 (exit 0); tests/test_cmi_contract_market_intelligence.py",
+      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-3f13a31ef1/proof.json + final-package/",
+      "authority": "DOD.md + freeze + item proof + CI + dod_controller accept",
       "terminal_state": "ACCEPTED"
     },
     {
@@ -308,10 +310,10 @@
       "text": "Testes validam nomes reais de tabelas e colunas.",
       "weight": 5,
       "initial_state": "OPEN",
-      "implementation": "PENDING_FIRST_WAVE",
-      "test": "PENDING",
-      "evidence": "PENDING",
-      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "implementation": "SHIPPED scripts/ops/contract_market_intelligence.py + operational_reports repair",
+      "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-19 (exit 0); tests/test_cmi_contract_market_intelligence.py",
+      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-58f3b88564/proof.json + final-package/",
+      "authority": "DOD.md + freeze + item proof + CI + dod_controller accept",
       "terminal_state": "ACCEPTED"
     },
     {
@@ -320,10 +322,10 @@
       "text": "O relatório distingue métricas prontas, parciais e indisponíveis.",
       "weight": 5,
       "initial_state": "OPEN",
-      "implementation": "PENDING_FIRST_WAVE",
-      "test": "PENDING",
-      "evidence": "PENDING",
-      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "implementation": "SHIPPED scripts/ops/contract_market_intelligence.py + operational_reports repair",
+      "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-20 (exit 0); tests/test_cmi_contract_market_intelligence.py",
+      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-f2cc2a2ae5/proof.json + final-package/",
+      "authority": "DOD.md + freeze + item proof + CI + dod_controller accept",
       "terminal_state": "ACCEPTED"
     },
     {
@@ -332,10 +334,10 @@
       "text": "`valor_estimado` possui definição explícita.",
       "weight": 5,
       "initial_state": "OPEN",
-      "implementation": "PENDING_FIRST_WAVE",
-      "test": "PENDING",
-      "evidence": "PENDING",
-      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "implementation": "SHIPPED scripts/ops/contract_market_intelligence.py + operational_reports repair",
+      "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-01 (exit 0); tests/test_cmi_contract_market_intelligence.py",
+      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-7e3e9e1447/proof.json + final-package/",
+      "authority": "DOD.md + freeze + item proof + CI + dod_controller accept",
       "terminal_state": "ACCEPTED"
     },
     {
@@ -344,10 +346,10 @@
       "text": "`valor_homologado` possui definição explícita.",
       "weight": 5,
       "initial_state": "OPEN",
-      "implementation": "PENDING_FIRST_WAVE",
-      "test": "PENDING",
-      "evidence": "PENDING",
-      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "implementation": "SHIPPED scripts/ops/contract_market_intelligence.py + operational_reports repair",
+      "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-02 (exit 0); tests/test_cmi_contract_market_intelligence.py",
+      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-9138b9d0df/proof.json + final-package/",
+      "authority": "DOD.md + freeze + item proof + CI + dod_controller accept",
       "terminal_state": "ACCEPTED"
     },
     {
@@ -356,10 +358,10 @@
       "text": "`valor_contratado` possui definição explícita.",
       "weight": 5,
       "initial_state": "OPEN",
-      "implementation": "PENDING_FIRST_WAVE",
-      "test": "PENDING",
-      "evidence": "PENDING",
-      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "implementation": "SHIPPED scripts/ops/contract_market_intelligence.py + operational_reports repair",
+      "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-03 (exit 0); tests/test_cmi_contract_market_intelligence.py",
+      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-532d802562/proof.json + final-package/",
+      "authority": "DOD.md + freeze + item proof + CI + dod_controller accept",
       "terminal_state": "ACCEPTED"
     },
     {
@@ -368,10 +370,10 @@
       "text": "`valor_pago` possui definição explícita.",
       "weight": 5,
       "initial_state": "OPEN",
-      "implementation": "PENDING_FIRST_WAVE",
-      "test": "PENDING",
-      "evidence": "PENDING",
-      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "implementation": "SHIPPED scripts/ops/contract_market_intelligence.py + operational_reports repair",
+      "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-04 (exit 0); tests/test_cmi_contract_market_intelligence.py",
+      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-76039ae8d2/proof.json + final-package/",
+      "authority": "DOD.md + freeze + item proof + CI + dod_controller accept",
       "terminal_state": "ACCEPTED"
     },
     {
@@ -380,10 +382,10 @@
       "text": "Os quatro campos não são intercambiáveis.",
       "weight": 5,
       "initial_state": "OPEN",
-      "implementation": "PENDING_FIRST_WAVE",
-      "test": "PENDING",
-      "evidence": "PENDING",
-      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "implementation": "SHIPPED scripts/ops/contract_market_intelligence.py + operational_reports repair",
+      "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-05 (exit 0); tests/test_cmi_contract_market_intelligence.py",
+      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-7d7b10b055/proof.json + final-package/",
+      "authority": "DOD.md + freeze + item proof + CI + dod_controller accept",
       "terminal_state": "ACCEPTED"
     },
     {
@@ -392,10 +394,10 @@
       "text": "O relatório exibe o tipo de valor.",
       "weight": 3,
       "initial_state": "OPEN",
-      "implementation": "PENDING_FIRST_WAVE",
-      "test": "PENDING",
-      "evidence": "PENDING",
-      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "implementation": "SHIPPED scripts/ops/contract_market_intelligence.py + operational_reports repair",
+      "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-06 (exit 0); tests/test_cmi_contract_market_intelligence.py",
+      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-3bb3874141/proof.json + final-package/",
+      "authority": "DOD.md + freeze + item proof + CI + dod_controller accept",
       "terminal_state": "ACCEPTED"
     },
     {
@@ -404,10 +406,10 @@
       "text": "O relatório exibe a fonte do valor.",
       "weight": 5,
       "initial_state": "OPEN",
-      "implementation": "PENDING_FIRST_WAVE",
-      "test": "PENDING",
-      "evidence": "PENDING",
-      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "implementation": "SHIPPED scripts/ops/contract_market_intelligence.py + operational_reports repair",
+      "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-07 (exit 0); tests/test_cmi_contract_market_intelligence.py",
+      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-4fc2390171/proof.json + final-package/",
+      "authority": "DOD.md + freeze + item proof + CI + dod_controller accept",
       "terminal_state": "ACCEPTED"
     },
     {
@@ -416,10 +418,10 @@
       "text": "O relatório exibe a data de referência.",
       "weight": 3,
       "initial_state": "OPEN",
-      "implementation": "PENDING_FIRST_WAVE",
-      "test": "PENDING",
-      "evidence": "PENDING",
-      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "implementation": "SHIPPED scripts/ops/contract_market_intelligence.py + operational_reports repair",
+      "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-08 (exit 0); tests/test_cmi_contract_market_intelligence.py",
+      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-262f17e7ec/proof.json + final-package/",
+      "authority": "DOD.md + freeze + item proof + CI + dod_controller accept",
       "terminal_state": "ACCEPTED"
     },
     {
@@ -428,10 +430,10 @@
       "text": "O relatório exibe a unidade de comparação.",
       "weight": 3,
       "initial_state": "OPEN",
-      "implementation": "PENDING_FIRST_WAVE",
-      "test": "PENDING",
-      "evidence": "PENDING",
-      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "implementation": "SHIPPED scripts/ops/contract_market_intelligence.py + operational_reports repair",
+      "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-09 (exit 0); tests/test_cmi_contract_market_intelligence.py",
+      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-53115f162e/proof.json + final-package/",
+      "authority": "DOD.md + freeze + item proof + CI + dod_controller accept",
       "terminal_state": "ACCEPTED"
     },
     {
@@ -440,10 +442,10 @@
       "text": "O relatório exibe se o valor é global, por lote, por item ou unitário.",
       "weight": 5,
       "initial_state": "OPEN",
-      "implementation": "PENDING_FIRST_WAVE",
-      "test": "PENDING",
-      "evidence": "PENDING",
-      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "implementation": "SHIPPED scripts/ops/contract_market_intelligence.py + operational_reports repair",
+      "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-10 (exit 0); tests/test_cmi_contract_market_intelligence.py",
+      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-50bb794fc7/proof.json + final-package/",
+      "authority": "DOD.md + freeze + item proof + CI + dod_controller accept",
       "terminal_state": "ACCEPTED"
     },
     {
@@ -452,10 +454,10 @@
       "text": "Valor ausente não é substituído por zero.",
       "weight": 5,
       "initial_state": "OPEN",
-      "implementation": "PENDING_FIRST_WAVE",
-      "test": "PENDING",
-      "evidence": "PENDING",
-      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "implementation": "SHIPPED scripts/ops/contract_market_intelligence.py + operational_reports repair",
+      "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-11 (exit 0); tests/test_cmi_contract_market_intelligence.py",
+      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-dc5790ffeb/proof.json + final-package/",
+      "authority": "DOD.md + freeze + item proof + CI + dod_controller accept",
       "terminal_state": "ACCEPTED"
     },
     {
@@ -464,10 +466,10 @@
       "text": "Valor inferido é marcado como inferido.",
       "weight": 5,
       "initial_state": "OPEN",
-      "implementation": "PENDING_FIRST_WAVE",
-      "test": "PENDING",
-      "evidence": "PENDING",
-      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "implementation": "SHIPPED scripts/ops/contract_market_intelligence.py + operational_reports repair",
+      "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-12 (exit 0); tests/test_cmi_contract_market_intelligence.py",
+      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-c8739f5734/proof.json + final-package/",
+      "authority": "DOD.md + freeze + item proof + CI + dod_controller accept",
       "terminal_state": "ACCEPTED"
     },
     {
@@ -476,10 +478,10 @@
       "text": "Valor oficial é marcado como oficial.",
       "weight": 5,
       "initial_state": "OPEN",
-      "implementation": "PENDING_FIRST_WAVE",
-      "test": "PENDING",
-      "evidence": "PENDING",
-      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "implementation": "SHIPPED scripts/ops/contract_market_intelligence.py + operational_reports repair",
+      "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-13 (exit 0); tests/test_cmi_contract_market_intelligence.py",
+      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-04da3e4902/proof.json + final-package/",
+      "authority": "DOD.md + freeze + item proof + CI + dod_controller accept",
       "terminal_state": "ACCEPTED"
     },
     {
@@ -488,10 +490,10 @@
       "text": "Valores de objetos heterogêneos não são agregados sem classificação adequada.",
       "weight": 5,
       "initial_state": "OPEN",
-      "implementation": "PENDING_FIRST_WAVE",
-      "test": "PENDING",
-      "evidence": "PENDING",
-      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "implementation": "SHIPPED scripts/ops/contract_market_intelligence.py + operational_reports repair",
+      "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-14 (exit 0); tests/test_cmi_contract_market_intelligence.py",
+      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-a9b1b6e0c3/proof.json + final-package/",
+      "authority": "DOD.md + freeze + item proof + CI + dod_controller accept",
       "terminal_state": "ACCEPTED"
     },
     {
@@ -500,10 +502,10 @@
       "text": "Valores de períodos muito distintos são acompanhados de data.",
       "weight": 3,
       "initial_state": "OPEN",
-      "implementation": "PENDING_FIRST_WAVE",
-      "test": "PENDING",
-      "evidence": "PENDING",
-      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "implementation": "SHIPPED scripts/ops/contract_market_intelligence.py + operational_reports repair",
+      "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-15 (exit 0); tests/test_cmi_contract_market_intelligence.py",
+      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-31211a0281/proof.json + final-package/",
+      "authority": "DOD.md + freeze + item proof + CI + dod_controller accept",
       "terminal_state": "ACCEPTED"
     },
     {
@@ -512,10 +514,10 @@
       "text": "Atualização monetária, quando usada, é explicitada.",
       "weight": 3,
       "initial_state": "OPEN",
-      "implementation": "PENDING_FIRST_WAVE",
-      "test": "PENDING",
-      "evidence": "PENDING",
-      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "implementation": "SHIPPED scripts/ops/contract_market_intelligence.py + operational_reports repair",
+      "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-16 (exit 0); tests/test_cmi_contract_market_intelligence.py",
+      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-589da36904/proof.json + final-package/",
+      "authority": "DOD.md + freeze + item proof + CI + dod_controller accept",
       "terminal_state": "ACCEPTED"
     },
     {
@@ -524,10 +526,10 @@
       "text": "Percentis só são calculados sobre amostra comparável.",
       "weight": 5,
       "initial_state": "OPEN",
-      "implementation": "PENDING_FIRST_WAVE",
-      "test": "PENDING",
-      "evidence": "PENDING",
-      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "implementation": "SHIPPED scripts/ops/contract_market_intelligence.py + operational_reports repair",
+      "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-17 (exit 0); tests/test_cmi_contract_market_intelligence.py",
+      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-8aae30ee2e/proof.json + final-package/",
+      "authority": "DOD.md + freeze + item proof + CI + dod_controller accept",
       "terminal_state": "ACCEPTED"
     },
     {
@@ -536,10 +538,10 @@
       "text": "O tamanho da amostra é informado.",
       "weight": 3,
       "initial_state": "OPEN",
-      "implementation": "PENDING_FIRST_WAVE",
-      "test": "PENDING",
-      "evidence": "PENDING",
-      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "implementation": "SHIPPED scripts/ops/contract_market_intelligence.py + operational_reports repair",
+      "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-18 (exit 0); tests/test_cmi_contract_market_intelligence.py",
+      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-55a430a39c/proof.json + final-package/",
+      "authority": "DOD.md + freeze + item proof + CI + dod_controller accept",
       "terminal_state": "ACCEPTED"
     },
     {
@@ -548,10 +550,10 @@
       "text": "Outliers são identificados.",
       "weight": 3,
       "initial_state": "OPEN",
-      "implementation": "PENDING_FIRST_WAVE",
-      "test": "PENDING",
-      "evidence": "PENDING",
-      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "implementation": "SHIPPED scripts/ops/contract_market_intelligence.py + operational_reports repair",
+      "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-19 (exit 0); tests/test_cmi_contract_market_intelligence.py",
+      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-91752931c3/proof.json + final-package/",
+      "authority": "DOD.md + freeze + item proof + CI + dod_controller accept",
       "terminal_state": "ACCEPTED"
     },
     {
@@ -560,10 +562,10 @@
       "text": "O sistema não chama percentil de contratos globais de “preço real praticado” sem base técnica.",
       "weight": 5,
       "initial_state": "OPEN",
-      "implementation": "PENDING_FIRST_WAVE",
-      "test": "PENDING",
-      "evidence": "PENDING",
-      "authority": "DOD.md + freeze + reproducible run + CI + dod_controller accept",
+      "implementation": "SHIPPED scripts/ops/contract_market_intelligence.py + operational_reports repair",
+      "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-20 (exit 0); tests/test_cmi_contract_market_intelligence.py",
+      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-bcbbd65023/proof.json + final-package/",
+      "authority": "DOD.md + freeze + item proof + CI + dod_controller accept",
       "terminal_state": "ACCEPTED"
     }
   ]

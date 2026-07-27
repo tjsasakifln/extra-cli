@@ -1,0 +1,8 @@
+{
+  "win_rate_without_proposals": "NOT_COMPUTABLE",
+  "desagio_without_pair": "NOT_COMPUTABLE",
+  "market_share_without_common_denominator": "NOT_COMPUTABLE",
+  "hhi_without_valid_shares": "NOT_COMPUTABLE",
+  "missing_value": "null never zero",
+  "capacity_from_contract_count": "forbidden"
+}

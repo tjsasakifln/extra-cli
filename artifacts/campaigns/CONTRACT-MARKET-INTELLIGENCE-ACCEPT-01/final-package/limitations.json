@@ -1,0 +1,12 @@
+{
+  "limitations": [
+    "Pacote de inteligência contratual comparativa — não cobertura operacional 95%.",
+    "Participantes do certame não são conhecidos quando a fonte só expõe o vencedor contratado.",
+    "Win rate e deságio fail-closed sem denominador/par comparável.",
+    "Market share/HHI usam valor_contratado no recorte declarado; não são 'preço real praticado'.",
+    "n_contratos e recorrência são observáveis — não capacidade técnica/ociosa.",
+    "Órgão contratante nunca é apresentado como concorrente.",
+    "Fixture seed only when isolated DB empty — labeled as non-live market.",
+    "seed_applied: {'ok': True, 'seeded_contracts': 8, 'schema': {'table': 'pncp_supplier_contracts', 'columns_ok': ['contrato_id', 'orgao_cnpj', 'orgao_nome', 'fornecedor_cnpj', 'fornecedor_nome', 'objeto_contrato', 'valor_total', 'data_inicio', 'data_fim', 'uf', 'municipio', 'source', 'is_active'], 'present_count': 31}, 'note': 'fixture for isolated CMI proof — not live market coverage'}"
+  ]
+}

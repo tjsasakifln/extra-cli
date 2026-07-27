@@ -2,14 +2,95 @@
   "item_id": "DOD-rol-1-definition-of-done-7fc5475f5f",
   "alias": "CMI-10.1-02",
   "text": "O sistema não afirma conhecer todos os concorrentes quando a fonte não expõe participantes.",
+  "weight": 5,
   "campaign_id": "CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01",
-  "code_sha": "241ec41f0badf5bd463b66dafe36faa1e2e66876",
-  "pr": "151",
-  "as_of": "2026-07-27T21:45:19Z",
+  "main_baseline_sha": "c5b4cdb91b0727b5e7a537c8eb47daf001b74552",
+  "implementation_sha": "241ec41f0badf5bd463b66dafe36faa1e2e66876",
+  "executed_sha": "1f395831d24bd19dfef7a8dcdfde8ee90f38e3d0",
+  "post_merge_main_sha": "1f395831d24bd19dfef7a8dcdfde8ee90f38e3d0",
+  "command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.1-02 --json",
+  "timestamp": "2026-07-27T23:11:57Z",
+  "source": "pncp_supplier_contracts",
+  "parameters": {
+    "uf_filter": "SC",
+    "period_start": "2023-01-01",
+    "period_end": "2026-07-27",
+    "complete_population_aggregated": true
+  },
+  "dataset_hash": "{\"note\": \"fixture for isolated CMI proof \\u2014 not live market coverage\", \"ok\": true, \"schema\": {\"columns_ok\": [\"contrato_id\", \"orgao_cnpj\", \"orgao_nome\", \"fornecedor_cnpj\", \"fornecedor_nome\", \"objeto_contrato\", \"valor_total\", \"data_inicio\", \"data_fim\", \"uf\", \"municipio\", \"source\", \"is_active\"], \"present_count\": 31, \"table\": \"pncp_supplier_contracts\"}, \"seeded_contracts\": 8}",
+  "schema_version": {
+    "table": "pncp_supplier_contracts",
+    "columns_ok": [
+      "contrato_id",
+      "orgao_cnpj",
+      "orgao_nome",
+      "fornecedor_cnpj",
+      "fornecedor_nome",
+      "objeto_contrato",
+      "valor_total",
+      "data_inicio",
+      "data_fim",
+      "uf",
+      "municipio",
+      "source",
+      "is_active"
+    ],
+    "present_count": 31
+  },
+  "profile_hash": null,
+  "run_id": "cmi-20260727T230522Z",
+  "result": {
+    "ok": true,
+    "alias": "CMI-10.1-02",
+    "campaign_id": "CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01",
+    "as_of": "2026-07-27T23:11:57Z",
+    "detail": {
+      "participantes": {
+        "status": "SOURCE_UNAVAILABLE",
+        "note": "fonte de contratos não expõe participantes"
+      }
+    },
+    "package_dir": "/mnt/d/extra consultoria/artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/final-package"
+  },
+  "exit_code": 0,
+  "artifact_paths": {
+    "package": "artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/final-package",
+    "metadata": "artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/final-package/metadata.json",
+    "suppliers": "artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/final-package/suppliers-ranking.json",
+    "proof_pkg": "artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/final-package/proof.json"
+  },
+  "artifact_hashes": {
+    "final-package/acceptance-manifest.json": "7a1921e20950d1b3c83246d5d0a277b39f9af82195bb113fc75ec046a26a96f8",
+    "final-package/competitor-review.md": "fbac8e887117d489c592d699d8c5203d252e101e976597fb9613f63b703b5d6d",
+    "final-package/concentration-by-entity.csv": "af87f8012cfbf1186eccb560106e43adf6ab875740f3eb687f0ef516c6a0a6ae",
+    "final-package/concentration-by-supplier.csv": "b147db7f03f0447361e34992b06d8e568c5d59f195b54f9c31ce148cfef7c086",
+    "final-package/executive-review.xlsx.sha256": "b62399a0407ae4f69d236a241f0bf7d7fc52acd2a0f6cf7bba741acdb3a3fb33",
+    "final-package/ledger.json": "116133b6a3de3b179a5c0f5076e65dbb0ced875ea69f7836285d37d45dce33ad",
+    "final-package/limitations.json": "ca68ee220e16877fc3335dfef3fb7bd16890d1ac3e17f13a9a9d39c2828b92a9",
+    "final-package/metadata.json": "882b4ae7a089bd2982fdaa882c56b8db23ab634758ba46bd523c799a4c79c6c9",
+    "final-package/proof.json": "146978c2833476306427a6a4a00028ca0236d93ed1e1dd0823727002c65ba974",
+    "final-package/reliability-status.json": "1b33e5e092d9ef5ad817a746c57f59fb40dd2dd5bfc3cff55d155abd2655f6b1",
+    "final-package/suppliers-ranking.csv": "29c6b49d9e87fb8211c9b03472e838833fe9d322d82e56ce8cf23297bb850fe6",
+    "final-package/suppliers-ranking.json": "5e541a803981ab74d21af49cea186c2b7e7e6c37ceb068f9d24eadb0311d5bd4",
+    "final-package/value-references.csv": "1540d9055d4f9517a0b460ae3d4bd60d7b3f5a3afb21b3cc1736637739186ce1",
+    "final-package/value-references.json": "83fdd49dbbc1cfdff9ae6c13730db3c3d313834826df8e243fc5b4f06bb45713",
+    "final-package/executive-review.xlsx": "4ebb1e79a52cfdbdafe36dc36a2b1d64d6a50419c99df3be47c698d97a5e551b"
+  },
+  "ci_run_id": {
+    "functional_pr": "30307668529",
+    "functional_main": "30308032565",
+    "acceptance_pr": "30312150348"
+  },
+  "ci_job_names": [
+    "Test All (full suite)",
+    "Lint (ruff)",
+    "PR Reviewability Policy"
+  ],
+  "review_status": "PASS_FOR_MERGE",
+  "promotion_authority": "DOD.md + freeze + cmi_item_proofs + CI green + dod_controller accept",
   "ok": true,
-  "shared_artifacts": [
-    "artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/execution-proof-summary.json",
-    "artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/freeze.json",
-    "artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/adversarial-review.md"
+  "pr": [
+    "151",
+    "152"
   ]
 }

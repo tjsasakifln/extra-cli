@@ -1,101 +1,29 @@
 {
   "item_id": "DOD-rol-1-definition-of-done-c8739f5734",
+  "ok": true,
+  "head_sha": "1f395831d24bd19dfef7a8dcdfde8ee90f38e3d0",
+  "started_at": "2026-07-27T23:07:36Z",
+  "finished_at": "2026-07-27T23:07:36Z",
   "commands": [
     {
-      "cmd": "python3 -m scripts.ops.contract_market_intelligence audit-unit",
+      "cmd": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-12 --json",
       "exit_code": 0,
-      "duration_s": 0.187,
-      "stdout_tail": "mal do contrato ou instrumento equivalente (ex.: pncp_supplier_contracts.valor_total).\",\n          \"enum\": \"valor_contratado\",\n          \"label\": \"Valor contratado (contrato assinado)\"\n        },\n        \"valor_pago\": {\n          \"field\": \"valor_pago\",\n          \"definition\": \"Desembolso, pagamento ou execução financeira oficialmente registrada — não intercambiável com contratado.\",\n          \"enum\": \"valor_pago\",\n          \"label\": \"Valor pago (empenhos efetivos)\"\n        }\n      }\n    }\n  ]\n}\n",
-      "stderr_tail": "",
-      "env": {
-        "CI": null,
-        "GITHUB_ACTIONS": null,
-        "LOCAL_DATALAKE_DSN": {
-          "set": false,
-          "len": 0
-        },
-        "PYTEST_ADDOPTS": null,
-        "PATH": {
-          "set": true,
-          "len": 1919
-        },
-        "USER": "tjsasakifln",
-        "HOME": {
-          "set": true,
-          "len": 17
-        }
-      },
+      "duration_s": 0.05,
       "skipped": false
     }
   ],
-  "tests": [
-    {
-      "test": "tests/test_cmi_contract_market_intelligence.py::test_cli_audit_unit_exit_zero",
-      "cmd": "python3 -m pytest tests/test_cmi_contract_market_intelligence.py::test_cli_audit_unit_exit_zero -q --tb=line",
-      "exit_code": 0,
-      "duration_s": 52.066,
-      "stdout_tail": "scripts/workspace/common.py                                      194    194   0.0%   6-297\nscripts/workspace/queue.py                                       261    261   0.0%   6-715\n--------------------------------------------------------------------------------------------\nTOTAL                                                          87785  87460   0.4%\nCoverage HTML written to dir docs/td-001/coverage-reports/\n\n\n============================== 1 passed in 48.30s ==============================\n",
-      "stderr_tail": "",
-      "counts": {
-        "passed": 1,
-        "failed": 0,
-        "skipped": 0,
-        "deselected": 0,
-        "xfailed": 0,
-        "error": 0
-      },
-      "env": {
-        "CI": null,
-        "GITHUB_ACTIONS": null,
-        "LOCAL_DATALAKE_DSN": {
-          "set": false,
-          "len": 0
-        },
-        "PYTEST_ADDOPTS": null,
-        "PATH": {
-          "set": true,
-          "len": 1919
-        },
-        "USER": "tjsasakifln",
-        "HOME": {
-          "set": true,
-          "len": 17
-        }
-      },
-      "skipped": false
-    }
-  ],
-  "ok": true,
-  "notes": [],
-  "rejected_trivial": [],
-  "head_sha": "241ec41f0badf5bd463b66dafe36faa1e2e66876",
-  "env": {
-    "CI": null,
-    "GITHUB_ACTIONS": null,
-    "LOCAL_DATALAKE_DSN": {
-      "set": false,
-      "len": 0
-    },
-    "PYTEST_ADDOPTS": null,
-    "PATH": {
-      "set": true,
-      "len": 1919
-    },
-    "USER": "tjsasakifln",
-    "HOME": {
-      "set": true,
-      "len": 17
-    }
-  },
-  "started_at": "2026-07-27T22:28:50Z",
-  "duration_s": 52.254,
-  "substantive_runs": 2,
+  "tests": [],
+  "substantive_runs": 1,
   "totals": {
     "passed": 2,
     "failed": 0,
-    "skipped": 0,
-    "deselected": 0,
-    "error": 0
+    "skipped": 0
   },
-  "finished_at": "2026-07-27T22:29:46Z"
+  "notes": [
+    "item-specific proof CMI-11.1-12; package SHA-bound"
+  ],
+  "env": {
+    "REQUIRE_REAL_DB": "1",
+    "LOCAL_DATALAKE_DSN_SET": true
+  }
 }
