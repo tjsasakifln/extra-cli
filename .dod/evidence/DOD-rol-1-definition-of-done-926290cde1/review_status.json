@@ -1,6 +1,6 @@
 {
   "pending_changes_requested": false,
-  "pr": "151",
-  "head_sha": "241ec41f0badf5bd463b66dafe36faa1e2e66876",
-  "note": "squash-merged PR #151; CI green on PR head; main reproof local green"
+  "pr": "152",
+  "head_sha": "b15f8f0de3cd18f8a5bb5d4ff0cf0d99702a02bf",
+  "note": "remediation evidence; functional #151 + acceptance #152 on main"
 }

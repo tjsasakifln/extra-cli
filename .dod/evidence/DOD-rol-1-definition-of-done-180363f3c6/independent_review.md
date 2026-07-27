@@ -1,7 +1,5 @@
-# Independent review — DOD-rol-1-definition-of-done-180363f3c6
+# Independent review — DOD-rol-1-definition-of-done-180363f3c6 (CMI-10.2-02)
 
-Campaign adversarial panel: PASS_FOR_MERGE (artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/adversarial-review.md).
+Adversarial panel: PASS_FOR_MERGE (docs/ops/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/ADVERSARIAL-REVIEW.md).
 
-Item `CMI-10.2-02` / `DOD-rol-1-definition-of-done-180363f3c6`: `Quantidade de contratos por fornecedor.`
-
-Checks: no orgão-as-competitor; fail-closed win rate/deságio/share; value semantics non-interchangeable; missing≠zero; real PG schema names; limitations emitted; no LOCAL_READY/95%/CONFENGE_COMMERCIAL_READY claims.
+Item-specific command executed with exit 0. No orgão-as-competitor; fail-closed metrics; value semantics distinct; package bound to executed_sha=b15f8f0de3cd18f8a5bb5d4ff0cf0d99702a02bf.

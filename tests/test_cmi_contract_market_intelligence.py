@@ -48,7 +48,8 @@ def test_winner_not_auto_sole_participant():
     rows = cmi.aggregate_suppliers(contracts, as_of="2026-07-27T00:00:00Z", source="t")
     assert rows[0]["role"] == "winner_identified"
     assert rows[0]["participant_identified"] is False
-    assert "participantes" in " ".join(rows[0]["limitations"]).lower() or True
+    lim_blob = " ".join(rows[0]["limitations"]).lower()
+    assert "particip" in lim_blob or "proposta" in lim_blob or "fonte" in lim_blob
     assert rows[0]["win_rate"]["status"] == "NOT_COMPUTABLE"
 
 
@@ -189,19 +190,20 @@ def test_percentiles_comparable_only_and_no_preco_real_label():
         for i in range(6)
     ]
     report = build_report(obs, ComparabilityRule(min_sample=3))
-    # Explanatory limitations may mention the ban; labels_forbidden_used must stay empty.
+    # labels_forbidden_used must stay empty; claims must not assert "preço real praticado".
     for p in report.panels:
         assert not p.get("labels_forbidden_used")
-    assert "preço real praticado" in " ".join(
+        claims = " ".join(p.get("claims") or []).lower()
+        assert "preço real praticado" not in claims
+        assert "preco real praticado" not in claims
+    # Heterogeneous globals surface a limitation (honest ban), not a marketing claim.
+    lim_blob = " ".join(
         " ".join(p.get("limitations") or []) for p in report.panels
-    ).lower() or True
+    ).lower()
+    assert "heterogen" in lim_blob or "preço real" in lim_blob or "preco real" in lim_blob
     assert any(p["status"] == "OK" for p in report.panels)
     assert any(p.get("outliers_flagged") is not None for p in report.panels)
     assert any(p.get("n_observations", 0) >= 3 for p in report.panels)
-    assert all(
-        "preço real praticado" not in " ".join(p.get("claims") or []).lower()
-        for p in report.panels
-    )
 
 
 def test_market_share_hhi_fail_closed_and_ready():

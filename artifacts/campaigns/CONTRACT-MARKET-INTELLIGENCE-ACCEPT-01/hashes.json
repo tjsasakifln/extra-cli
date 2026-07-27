@@ -1,0 +1,67 @@
+{
+  "code_sha": "b15f8f0de3cd18f8a5bb5d4ff0cf0d99702a02bf",
+  "as_of": "2026-07-27T23:07:36Z",
+  "files": {
+    "final-package/acceptance-manifest.json": {
+      "sha256": "a560e1aeea96ee05fe9eb1a818e16cad0cbfce48984c6160cea7eef1e915105f",
+      "bytes": 2532
+    },
+    "final-package/competitor-review.md": {
+      "sha256": "af59759a8d98a0fdf767eacc55502492e141a1d9fef51c54d6581e545694f759",
+      "bytes": 4409
+    },
+    "final-package/concentration-by-entity.csv": {
+      "sha256": "af87f8012cfbf1186eccb560106e43adf6ab875740f3eb687f0ef516c6a0a6ae",
+      "bytes": 586
+    },
+    "final-package/concentration-by-supplier.csv": {
+      "sha256": "b147db7f03f0447361e34992b06d8e568c5d59f195b54f9c31ce148cfef7c086",
+      "bytes": 234
+    },
+    "final-package/executive-review.xlsx.sha256": {
+      "sha256": "e11062c67b8d8a0d32ef37ea57d25a0e4bebca80faa61a53a9f326350d6c70b6",
+      "bytes": 303
+    },
+    "final-package/ledger.json": {
+      "sha256": "dfd464deeee776e27c3e2fb1aa4a38d0d79cb1e74b4b72d7b6865b802a8f86b6",
+      "bytes": 2173
+    },
+    "final-package/limitations.json": {
+      "sha256": "ca68ee220e16877fc3335dfef3fb7bd16890d1ac3e17f13a9a9d39c2828b92a9",
+      "bytes": 1025
+    },
+    "final-package/metadata.json": {
+      "sha256": "f7ba138a08acca19ea9ab3810ed8bb18e3564335c0b929c52db5c763e35ac646",
+      "bytes": 3252
+    },
+    "final-package/proof.json": {
+      "sha256": "770cd2889f7d10e7f41598429dea916e9ec83a2ae161e2be82dc21359c36b29c",
+      "bytes": 5491
+    },
+    "final-package/reliability-status.json": {
+      "sha256": "1b33e5e092d9ef5ad817a746c57f59fb40dd2dd5bfc3cff55d155abd2655f6b1",
+      "bytes": 1144
+    },
+    "final-package/suppliers-ranking.csv": {
+      "sha256": "eee895347def1c5a6400f726ee1cbf79f1644aa0a41b23feebc79965dd881ce5",
+      "bytes": 3885
+    },
+    "final-package/suppliers-ranking.json": {
+      "sha256": "c7550edb18758f2b154a5205001a167a2b7141f5ffd0e7a455912e35498d0dae",
+      "bytes": 5816
+    },
+    "final-package/value-references.csv": {
+      "sha256": "1540d9055d4f9517a0b460ae3d4bd60d7b3f5a3afb21b3cc1736637739186ce1",
+      "bytes": 1919
+    },
+    "final-package/value-references.json": {
+      "sha256": "d17def0e4b41ec216b2c340f1281590bc58cc93cf24ee97e46e1429c1d697b72",
+      "bytes": 11272
+    },
+    "final-package/executive-review.xlsx": {
+      "sha256": "221a0e250c15c871008cd72909df1705265a4e76cca200c168d81787965f039d",
+      "bytes": 15972,
+      "git_policy": "binary excluded; regenerate via CLI; sha committed"
+    }
+  }
+}

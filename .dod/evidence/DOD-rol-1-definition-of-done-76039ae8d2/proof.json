@@ -2,14 +2,95 @@
   "item_id": "DOD-rol-1-definition-of-done-76039ae8d2",
   "alias": "CMI-11.1-04",
   "text": "`valor_pago` possui definição explícita.",
+  "weight": 5,
   "campaign_id": "CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01",
-  "code_sha": "241ec41f0badf5bd463b66dafe36faa1e2e66876",
-  "pr": "151",
-  "as_of": "2026-07-27T21:45:19Z",
+  "main_baseline_sha": "c5b4cdb91b0727b5e7a537c8eb47daf001b74552",
+  "implementation_sha": "241ec41f0badf5bd463b66dafe36faa1e2e66876",
+  "executed_sha": "b15f8f0de3cd18f8a5bb5d4ff0cf0d99702a02bf",
+  "post_merge_main_sha": "b15f8f0de3cd18f8a5bb5d4ff0cf0d99702a02bf",
+  "command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-04 --json",
+  "timestamp": "2026-07-27T23:07:36Z",
+  "source": "pncp_supplier_contracts",
+  "parameters": {
+    "uf_filter": "SC",
+    "period_start": "2023-01-01",
+    "period_end": "2026-07-27",
+    "complete_population_aggregated": true
+  },
+  "dataset_hash": "{\"note\": \"fixture for isolated CMI proof \\u2014 not live market coverage\", \"ok\": true, \"schema\": {\"columns_ok\": [\"contrato_id\", \"orgao_cnpj\", \"orgao_nome\", \"fornecedor_cnpj\", \"fornecedor_nome\", \"objeto_contrato\", \"valor_total\", \"data_inicio\", \"data_fim\", \"uf\", \"municipio\", \"source\", \"is_active\"], \"present_count\": 31, \"table\": \"pncp_supplier_contracts\"}, \"seeded_contracts\": 8}",
+  "schema_version": {
+    "table": "pncp_supplier_contracts",
+    "columns_ok": [
+      "contrato_id",
+      "orgao_cnpj",
+      "orgao_nome",
+      "fornecedor_cnpj",
+      "fornecedor_nome",
+      "objeto_contrato",
+      "valor_total",
+      "data_inicio",
+      "data_fim",
+      "uf",
+      "municipio",
+      "source",
+      "is_active"
+    ],
+    "present_count": 31
+  },
+  "profile_hash": null,
+  "run_id": "cmi-20260727T230522Z",
+  "result": {
+    "ok": true,
+    "alias": "CMI-11.1-04",
+    "campaign_id": "CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01",
+    "as_of": "2026-07-27T23:07:38Z",
+    "detail": {
+      "field": "valor_pago",
+      "definition": "Desembolso, pagamento ou execução financeira oficialmente registrada — não intercambiável com contratado.",
+      "enum": "valor_pago",
+      "label": "Valor pago (empenhos efetivos)"
+    },
+    "package_dir": "/mnt/d/extra consultoria/artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/final-package"
+  },
+  "exit_code": 0,
+  "artifact_paths": {
+    "package": "artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/final-package",
+    "metadata": "artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/final-package/metadata.json",
+    "suppliers": "artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/final-package/suppliers-ranking.json",
+    "proof_pkg": "artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/final-package/proof.json"
+  },
+  "artifact_hashes": {
+    "final-package/acceptance-manifest.json": "a560e1aeea96ee05fe9eb1a818e16cad0cbfce48984c6160cea7eef1e915105f",
+    "final-package/competitor-review.md": "af59759a8d98a0fdf767eacc55502492e141a1d9fef51c54d6581e545694f759",
+    "final-package/concentration-by-entity.csv": "af87f8012cfbf1186eccb560106e43adf6ab875740f3eb687f0ef516c6a0a6ae",
+    "final-package/concentration-by-supplier.csv": "b147db7f03f0447361e34992b06d8e568c5d59f195b54f9c31ce148cfef7c086",
+    "final-package/executive-review.xlsx.sha256": "e11062c67b8d8a0d32ef37ea57d25a0e4bebca80faa61a53a9f326350d6c70b6",
+    "final-package/ledger.json": "dfd464deeee776e27c3e2fb1aa4a38d0d79cb1e74b4b72d7b6865b802a8f86b6",
+    "final-package/limitations.json": "ca68ee220e16877fc3335dfef3fb7bd16890d1ac3e17f13a9a9d39c2828b92a9",
+    "final-package/metadata.json": "f7ba138a08acca19ea9ab3810ed8bb18e3564335c0b929c52db5c763e35ac646",
+    "final-package/proof.json": "770cd2889f7d10e7f41598429dea916e9ec83a2ae161e2be82dc21359c36b29c",
+    "final-package/reliability-status.json": "1b33e5e092d9ef5ad817a746c57f59fb40dd2dd5bfc3cff55d155abd2655f6b1",
+    "final-package/suppliers-ranking.csv": "eee895347def1c5a6400f726ee1cbf79f1644aa0a41b23feebc79965dd881ce5",
+    "final-package/suppliers-ranking.json": "c7550edb18758f2b154a5205001a167a2b7141f5ffd0e7a455912e35498d0dae",
+    "final-package/value-references.csv": "1540d9055d4f9517a0b460ae3d4bd60d7b3f5a3afb21b3cc1736637739186ce1",
+    "final-package/value-references.json": "d17def0e4b41ec216b2c340f1281590bc58cc93cf24ee97e46e1429c1d697b72",
+    "final-package/executive-review.xlsx": "221a0e250c15c871008cd72909df1705265a4e76cca200c168d81787965f039d"
+  },
+  "ci_run_id": {
+    "functional_pr": "30307668529",
+    "functional_main": "30308032565",
+    "acceptance_pr": "30312150348"
+  },
+  "ci_job_names": [
+    "Test All (full suite)",
+    "Lint (ruff)",
+    "PR Reviewability Policy"
+  ],
+  "review_status": "PASS_FOR_MERGE",
+  "promotion_authority": "DOD.md + freeze + cmi_item_proofs + CI green + dod_controller accept",
   "ok": true,
-  "shared_artifacts": [
-    "artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/execution-proof-summary.json",
-    "artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/freeze.json",
-    "artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/adversarial-review.md"
+  "pr": [
+    "151",
+    "152"
   ]
 }

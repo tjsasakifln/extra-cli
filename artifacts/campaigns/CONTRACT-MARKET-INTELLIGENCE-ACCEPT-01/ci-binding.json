@@ -1,0 +1,11 @@
+{
+  "code_sha": "b15f8f0de3cd18f8a5bb5d4ff0cf0d99702a02bf",
+  "functional_pr": 151,
+  "functional_merge_sha": "241ec41f0badf5bd463b66dafe36faa1e2e66876",
+  "functional_pr_ci": "30307668529",
+  "functional_main_ci": "30308032565",
+  "acceptance_pr": 152,
+  "acceptance_merge_sha": "b15f8f0de3cd18f8a5bb5d4ff0cf0d99702a02bf",
+  "acceptance_pr_ci": "30312150348",
+  "checked_out_equals_expected": true
+}

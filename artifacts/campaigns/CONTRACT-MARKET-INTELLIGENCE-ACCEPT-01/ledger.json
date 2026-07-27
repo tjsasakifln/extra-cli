@@ -1,0 +1,124 @@
+{
+  "campaign_id": "CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01",
+  "code_sha": "b15f8f0de3cd18f8a5bb5d4ff0cf0d99702a02bf",
+  "as_of": "2026-07-27T23:07:36Z",
+  "steps": [
+    {
+      "step": "package_run",
+      "ok": true,
+      "path": "/mnt/d/extra consultoria/artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/final-package"
+    },
+    {
+      "step": "item_proofs_all",
+      "ok": true,
+      "passed_n": 47
+    },
+    {
+      "step": "pytest_cmi",
+      "ok": true,
+      "exit_code": 0,
+      "duration_s": 6.745667
+    },
+    {
+      "step": "per_item_evidence",
+      "ok": true,
+      "n": 47
+    }
+  ],
+  "package_ledger": {
+    "run_id": "cmi-20260727T230522Z",
+    "campaign_id": "CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01",
+    "code_sha": "b15f8f0de3cd18f8a5bb5d4ff0cf0d99702a02bf",
+    "dsn_masked": "postgresql://***",
+    "steps": [
+      {
+        "step": "schema_check",
+        "ok": true,
+        "detail": {
+          "table": "pncp_supplier_contracts",
+          "columns_ok": [
+            "contrato_id",
+            "orgao_cnpj",
+            "orgao_nome",
+            "fornecedor_cnpj",
+            "fornecedor_nome",
+            "objeto_contrato",
+            "valor_total",
+            "data_inicio",
+            "data_fim",
+            "uf",
+            "municipio",
+            "source",
+            "is_active"
+          ],
+          "present_count": 31
+        }
+      },
+      {
+        "step": "seed_if_empty",
+        "ok": true,
+        "detail": {
+          "ok": true,
+          "seeded_contracts": 8,
+          "schema": {
+            "table": "pncp_supplier_contracts",
+            "columns_ok": [
+              "contrato_id",
+              "orgao_cnpj",
+              "orgao_nome",
+              "fornecedor_cnpj",
+              "fornecedor_nome",
+              "objeto_contrato",
+              "valor_total",
+              "data_inicio",
+              "data_fim",
+              "uf",
+              "municipio",
+              "source",
+              "is_active"
+            ],
+            "present_count": 31
+          },
+          "note": "fixture for isolated CMI proof — not live market coverage"
+        }
+      },
+      {
+        "step": "load_eligible_contracts",
+        "ok": true,
+        "population_count": 7
+      },
+      {
+        "step": "aggregate_suppliers",
+        "ok": true,
+        "n": 3
+      },
+      {
+        "step": "concentration",
+        "ok": true,
+        "status": "READY"
+      },
+      {
+        "step": "value_references",
+        "ok": true,
+        "status": "OK"
+      },
+      {
+        "step": "write_artifacts",
+        "ok": true,
+        "paths": [
+          "metadata",
+          "suppliers_ranking_csv",
+          "suppliers_ranking_json",
+          "concentration_supplier",
+          "concentration_entity",
+          "value_references",
+          "limitations",
+          "reliability",
+          "competitor_review",
+          "excel"
+        ]
+      }
+    ],
+    "finished_at": "2026-07-27T23:05:22Z"
+  }
+}

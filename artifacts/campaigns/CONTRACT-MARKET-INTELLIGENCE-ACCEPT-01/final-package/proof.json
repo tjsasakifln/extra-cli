@@ -1,0 +1,135 @@
+{
+  "campaign_id": "CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01",
+  "bundle_id": "CMI-CONCORRENTES-VALORES-01",
+  "ok": true,
+  "as_of": "2026-07-27T23:10:18Z",
+  "code_sha": "b15f8f0de3cd18f8a5bb5d4ff0cf0d99702a02bf",
+  "run_id": "cmi-20260727T231018Z",
+  "population_count": 7,
+  "supplier_count": 3,
+  "paths": {
+    "metadata": "artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/final-package/metadata.json",
+    "suppliers_ranking_csv": "artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/final-package/suppliers-ranking.csv",
+    "suppliers_ranking_json": "artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/final-package/suppliers-ranking.json",
+    "concentration_supplier": "artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/final-package/concentration-by-supplier.csv",
+    "concentration_entity": "artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/final-package/concentration-by-entity.csv",
+    "value_references": "artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/final-package/value-references.json",
+    "limitations": "artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/final-package/limitations.json",
+    "reliability": "artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/final-package/reliability-status.json",
+    "competitor_review": "artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/final-package/competitor-review.md",
+    "excel": "artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/final-package/executive-review.xlsx"
+  },
+  "file_hashes": {
+    "metadata.json": "31fd550fab15992bfe40c69f9ac996900b6d08275e10fa5e04edb9ab4793e1e1",
+    "suppliers-ranking.csv": "8cd6d393279de503a32810d9714ac3dff628100e12e0106a7c9236646ef968ba",
+    "suppliers-ranking.json": "cdca841dfafc347b0778925101577e042ea2472466f88df47f36ef00a664e6e8",
+    "concentration-by-supplier.csv": "b147db7f03f0447361e34992b06d8e568c5d59f195b54f9c31ce148cfef7c086",
+    "concentration-by-entity.csv": "af87f8012cfbf1186eccb560106e43adf6ab875740f3eb687f0ef516c6a0a6ae",
+    "value-references.json": "1249b635d88840c8611eeed9e7ffc2737dcaae23ba62100003263cc363e0102d",
+    "limitations.json": "ca68ee220e16877fc3335dfef3fb7bd16890d1ac3e17f13a9a9d39c2828b92a9",
+    "reliability-status.json": "1b33e5e092d9ef5ad817a746c57f59fb40dd2dd5bfc3cff55d155abd2655f6b1",
+    "competitor-review.md": "b3d029c1eae7da73d2442dba4b8e2e4427e7e7054a19be1594c810e08351f2b9",
+    "executive-review.xlsx": "73f06a117a7d84f5d2b4bdf8994f8b41923772bdafd6282cf2a18849ebbe6855"
+  },
+  "reliability": {
+    "ranking_vencedores": {
+      "status": "READY",
+      "note": "vencedores com CNPJ a partir de contratos"
+    },
+    "participantes": {
+      "status": "SOURCE_UNAVAILABLE",
+      "note": "fonte de contratos não expõe participantes"
+    },
+    "win_rate": {
+      "status": "NOT_COMPUTABLE",
+      "note": "sem denominador de propostas"
+    },
+    "desagio": {
+      "status": "NOT_COMPUTABLE",
+      "note": "sem par estimado/homologado encadeado no recorte"
+    },
+    "market_share": {
+      "status": "READY",
+      "note": "all active pncp_supplier_contracts with identifiable supplier CNPJ; uf=SC; period_start>=2023-01-01; period_end<=2026-07-27; value_type=valor_contratado; complete_population_aggregated=true"
+    },
+    "hhi": {
+      "status": "READY",
+      "note": "mesma população do market share"
+    },
+    "valor_contratado": {
+      "status": "PARTIAL",
+      "note": "nulos preservados; ticket usa apenas válidos"
+    },
+    "capacidade": {
+      "status": "NOT_APPLICABLE",
+      "note": "não inferida; n_contratos ≠ capacidade"
+    },
+    "value_references": {
+      "status": "OK",
+      "note": "percentis só em grupos comparáveis; globais heterogêneos sinalizados"
+    }
+  },
+  "metric_samples": {
+    "win_rate_without_proposals": {
+      "value": null,
+      "status": "NOT_COMPUTABLE",
+      "reason": "missing or zero proposal denominator",
+      "wins": 3,
+      "proposals_presented": null,
+      "limitations": [
+        "Fonte não expõe propostas apresentadas; não se afirma win rate nem universo completo de concorrentes."
+      ]
+    },
+    "desagio_without_pair": {
+      "value": null,
+      "status": "NOT_COMPUTABLE",
+      "desagio_status": "INSUFFICIENT_PAIR",
+      "evidence": "estimado/homologado not linked to same certame/lote/item",
+      "value_types": [
+        "valor_estimado",
+        "valor_homologado"
+      ],
+      "limitations": [
+        "Deságio exige par estimado/homologado comparável no mesmo certame/lote/item."
+      ]
+    },
+    "ticket_excludes_missing": {
+      "value": 20.0,
+      "status": "READY",
+      "numerator": 40.0,
+      "denominator": 2,
+      "excluded_missing_value_count": 1,
+      "excluded_invalid_value_count": 0,
+      "formula": "sum(valor_contratado válido) / count(válidos)"
+    },
+    "capacity_hypothesis": {
+      "label": "HYPOTHESIS",
+      "claim_as_fact_forbidden": true,
+      "text": "Capacidade operacional não afirmada como fato sem evidência"
+    }
+  },
+  "schema": {
+    "table": "pncp_supplier_contracts",
+    "columns_ok": [
+      "contrato_id",
+      "orgao_cnpj",
+      "orgao_nome",
+      "fornecedor_cnpj",
+      "fornecedor_nome",
+      "objeto_contrato",
+      "valor_total",
+      "data_inicio",
+      "data_fim",
+      "uf",
+      "municipio",
+      "source",
+      "is_active"
+    ],
+    "present_count": 31
+  },
+  "forbidden_claims_present": false,
+  "claims_scan": {
+    "hits": [],
+    "ok": true
+  }
+}

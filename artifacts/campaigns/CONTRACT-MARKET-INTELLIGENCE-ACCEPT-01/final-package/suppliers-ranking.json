@@ -1,0 +1,178 @@
+[
+  {
+    "rank": 1,
+    "fornecedor_cnpj": "55555555000177",
+    "fornecedor_nome": "Construtora Beta SA",
+    "role": "winner_identified",
+    "participant_identified": false,
+    "n_contratos": 2,
+    "valor_contratado_total": 620000.0,
+    "valor_contratado_total_status": "READY",
+    "valor_type": "valor_contratado",
+    "valor_scope": "global",
+    "ticket_contratado_medio": 310000.0,
+    "ticket_status": "READY",
+    "ticket_numerator": 620000.0,
+    "ticket_denominator": 2,
+    "ticket_excluded_missing_value_count": 0,
+    "n_entes_atendidos": 1,
+    "distribuicao_municipio": {
+      "Blumenau": 2
+    },
+    "distribuicao_natureza_ente": {
+      "autarquia": 2
+    },
+    "distribuicao_setor": {
+      "obra_civil": 1,
+      "reforma_predial": 1
+    },
+    "recorrencia": {
+      "contract_count": 2,
+      "distinct_entities": 1,
+      "first_known_contract_date": "2023-08-01",
+      "last_known_contract_date": "2024-11-01",
+      "note": "frequência observável — não capacidade disponível"
+    },
+    "ultima_contratacao_conhecida": "2024-11-01",
+    "source": "pncp_supplier_contracts",
+    "as_of": "2026-07-27T23:10:18Z",
+    "capacity_claim": {
+      "label": "HYPOTHESIS",
+      "claim_as_fact_forbidden": true,
+      "text": "n_contratos não é sinônimo de capacidade técnica"
+    },
+    "win_rate": {
+      "value": null,
+      "status": "NOT_COMPUTABLE",
+      "reason": "missing or zero proposal denominator",
+      "wins": 2,
+      "proposals_presented": null,
+      "limitations": [
+        "Fonte não expõe propostas apresentadas; não se afirma win rate nem universo completo de concorrentes."
+      ]
+    },
+    "limitations": [
+      "Vencedor observado em contratos; participantes do certame não expostos pela fonte PNCP contracts.",
+      "n_contratos não implica capacidade técnica ou ociosa.",
+      "Win rate NOT_COMPUTABLE sem denominador de propostas."
+    ]
+  },
+  {
+    "rank": 2,
+    "fornecedor_cnpj": "22222222000191",
+    "fornecedor_nome": "Fornecedor Alfa Eng",
+    "role": "winner_identified",
+    "participant_identified": false,
+    "n_contratos": 3,
+    "valor_contratado_total": 430000.0,
+    "valor_contratado_total_status": "READY",
+    "valor_type": "valor_contratado",
+    "valor_scope": "global",
+    "ticket_contratado_medio": 143333.33,
+    "ticket_status": "READY",
+    "ticket_numerator": 430000.0,
+    "ticket_denominator": 3,
+    "ticket_excluded_missing_value_count": 0,
+    "n_entes_atendidos": 2,
+    "distribuicao_municipio": {
+      "Florianópolis": 2,
+      "São José": 1
+    },
+    "distribuicao_natureza_ente": {
+      "municipal": 2,
+      "legislativo": 1
+    },
+    "distribuicao_setor": {
+      "reforma_predial": 2,
+      "manutencao_predial": 1
+    },
+    "recorrencia": {
+      "contract_count": 3,
+      "distinct_entities": 2,
+      "first_known_contract_date": "2024-03-01",
+      "last_known_contract_date": "2025-01-15",
+      "note": "frequência observável — não capacidade disponível"
+    },
+    "ultima_contratacao_conhecida": "2025-01-15",
+    "source": "pncp_supplier_contracts",
+    "as_of": "2026-07-27T23:10:18Z",
+    "capacity_claim": {
+      "label": "HYPOTHESIS",
+      "claim_as_fact_forbidden": true,
+      "text": "n_contratos não é sinônimo de capacidade técnica"
+    },
+    "win_rate": {
+      "value": null,
+      "status": "NOT_COMPUTABLE",
+      "reason": "missing or zero proposal denominator",
+      "wins": 3,
+      "proposals_presented": null,
+      "limitations": [
+        "Fonte não expõe propostas apresentadas; não se afirma win rate nem universo completo de concorrentes."
+      ]
+    },
+    "limitations": [
+      "Vencedor observado em contratos; participantes do certame não expostos pela fonte PNCP contracts.",
+      "n_contratos não implica capacidade técnica ou ociosa.",
+      "Win rate NOT_COMPUTABLE sem denominador de propostas."
+    ]
+  },
+  {
+    "rank": 3,
+    "fornecedor_cnpj": "77777777000199",
+    "fornecedor_nome": "Servicos Gama Ltda",
+    "role": "winner_identified",
+    "participant_identified": false,
+    "n_contratos": 2,
+    "valor_contratado_total": 45000.0,
+    "valor_contratado_total_status": "READY",
+    "valor_type": "valor_contratado",
+    "valor_scope": "global",
+    "ticket_contratado_medio": 45000.0,
+    "ticket_status": "READY",
+    "ticket_numerator": 45000.0,
+    "ticket_denominator": 1,
+    "ticket_excluded_missing_value_count": 1,
+    "n_entes_atendidos": 1,
+    "distribuicao_municipio": {
+      "Joinville": 2
+    },
+    "distribuicao_natureza_ente": {
+      "municipal": 2
+    },
+    "distribuicao_setor": {
+      "manutencao_predial": 1,
+      "limpeza": 1
+    },
+    "recorrencia": {
+      "contract_count": 2,
+      "distinct_entities": 1,
+      "first_known_contract_date": "2024-02-01",
+      "last_known_contract_date": "2025-02-01",
+      "note": "frequência observável — não capacidade disponível"
+    },
+    "ultima_contratacao_conhecida": "2025-02-01",
+    "source": "pncp_supplier_contracts",
+    "as_of": "2026-07-27T23:10:18Z",
+    "capacity_claim": {
+      "label": "HYPOTHESIS",
+      "claim_as_fact_forbidden": true,
+      "text": "n_contratos não é sinônimo de capacidade técnica"
+    },
+    "win_rate": {
+      "value": null,
+      "status": "NOT_COMPUTABLE",
+      "reason": "missing or zero proposal denominator",
+      "wins": 2,
+      "proposals_presented": null,
+      "limitations": [
+        "Fonte não expõe propostas apresentadas; não se afirma win rate nem universo completo de concorrentes."
+      ]
+    },
+    "limitations": [
+      "Vencedor observado em contratos; participantes do certame não expostos pela fonte PNCP contracts.",
+      "n_contratos não implica capacidade técnica ou ociosa.",
+      "Win rate NOT_COMPUTABLE sem denominador de propostas."
+    ]
+  }
+]

@@ -1,0 +1,102 @@
+{
+  "campaign_id": "CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01",
+  "bundle_id": "CMI-CONCORRENTES-VALORES-01",
+  "package_version": "cmi-package/1.0.0",
+  "run_id": "cmi-20260727T231018Z",
+  "as_of": "2026-07-27T23:10:18Z",
+  "period_start": "2023-01-01",
+  "period_end": "2026-07-27",
+  "uf_filter": "SC",
+  "source": "pncp_supplier_contracts",
+  "database_dsn_masked": "postgresql://***@***/***",
+  "schema_check": {
+    "table": "pncp_supplier_contracts",
+    "columns_ok": [
+      "contrato_id",
+      "orgao_cnpj",
+      "orgao_nome",
+      "fornecedor_cnpj",
+      "fornecedor_nome",
+      "objeto_contrato",
+      "valor_total",
+      "data_inicio",
+      "data_fim",
+      "uf",
+      "municipio",
+      "source",
+      "is_active"
+    ],
+    "present_count": 31
+  },
+  "code_sha": "b15f8f0de3cd18f8a5bb5d4ff0cf0d99702a02bf",
+  "value_semantics_version": "cmi-value-semantics/1.0.0",
+  "comparability_rule_version": "cmi-comparability/1.0.0",
+  "population_count": 7,
+  "eligible_supplier_count": 3,
+  "distinct_contracting_entities": 4,
+  "distinct_municipalities": 4,
+  "exported_row_count": 3,
+  "ranking_limit": null,
+  "selection_rule": "full population aggregated; optional display limit only",
+  "complete_population_aggregated": true,
+  "seed_info": {
+    "ok": true,
+    "seeded_contracts": 8,
+    "schema": {
+      "table": "pncp_supplier_contracts",
+      "columns_ok": [
+        "contrato_id",
+        "orgao_cnpj",
+        "orgao_nome",
+        "fornecedor_cnpj",
+        "fornecedor_nome",
+        "objeto_contrato",
+        "valor_total",
+        "data_inicio",
+        "data_fim",
+        "uf",
+        "municipio",
+        "source",
+        "is_active"
+      ],
+      "present_count": 31
+    },
+    "note": "fixture for isolated CMI proof — not live market coverage"
+  },
+  "forbidden_claims": [
+    "LOCAL_READY",
+    "95% coverage",
+    "CONFENGE_COMMERCIAL_READY",
+    "complete national competitor universe known",
+    "preço real praticado for heterogeneous global contracts",
+    "win rate without proposal denominator",
+    "idle capacity inferred from contract count",
+    "orgao presented as competitor"
+  ],
+  "value_definitions": {
+    "valor_estimado": {
+      "field": "valor_estimado",
+      "definition": "Valor de referência ou estimativa anterior ao resultado, conforme a fonte (ex.: valor_total_estimado do edital).",
+      "enum": "valor_estimado",
+      "label": "Valor estimado (edital)"
+    },
+    "valor_homologado": {
+      "field": "valor_homologado",
+      "definition": "Valor do resultado homologado ou adjudicado quando a fonte assim o representar.",
+      "enum": "valor_homologado",
+      "label": "Valor homologado (resultado da licitacao)"
+    },
+    "valor_contratado": {
+      "field": "valor_contratado",
+      "definition": "Valor formal do contrato ou instrumento equivalente (ex.: pncp_supplier_contracts.valor_total).",
+      "enum": "valor_contratado",
+      "label": "Valor contratado (contrato assinado)"
+    },
+    "valor_pago": {
+      "field": "valor_pago",
+      "definition": "Desembolso, pagamento ou execução financeira oficialmente registrada — não intercambiável com contratado.",
+      "enum": "valor_pago",
+      "label": "Valor pago (empenhos efetivos)"
+    }
+  }
+}
