@@ -1,7 +1,7 @@
 {
   "item_id": "DOD-rol-1-definition-of-done-e5557d5607",
   "ok": true,
-  "head_sha": "22534d083f5e08867c0722fc8e8a7c075335ca84",
+  "head_sha": "1f395831d24bd19dfef7a8dcdfde8ee90f38e3d0",
   "started_at": "2026-07-27T23:07:36Z",
   "finished_at": "2026-07-27T23:07:36Z",
   "commands": [
@@ -9,8 +9,7 @@
       "cmd": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-09 --json",
       "exit_code": 0,
       "duration_s": 0.05,
-      "skipped": false,
-      "stdout_tail": "{\"ok\": true, \"alias\": \"CMI-10.2-09\"}"
+      "skipped": false
     }
   ],
   "tests": [],

@@ -1,67 +1,51 @@
 {
-  "code_sha": "22534d083f5e08867c0722fc8e8a7c075335ca84",
-  "as_of": "2026-07-27T23:11:18Z",
+  "code_sha": "1f395831d24bd19dfef7a8dcdfde8ee90f38e3d0",
+  "as_of": "2026-07-27T23:11:57Z",
   "files": {
     "final-package/acceptance-manifest.json": {
-      "sha256": "0bf59d42314dfb68b6203ac3e7615d0502e7ea8723697de419c37e38d02004bc",
-      "bytes": 2532
+      "sha256": "7a1921e20950d1b3c83246d5d0a277b39f9af82195bb113fc75ec046a26a96f8"
     },
     "final-package/competitor-review.md": {
-      "sha256": "928af7f112b14bcc3a246568d7d77edba20492c49f5cdb7762ca8176b71b5a29",
-      "bytes": 4409
+      "sha256": "fbac8e887117d489c592d699d8c5203d252e101e976597fb9613f63b703b5d6d"
     },
     "final-package/concentration-by-entity.csv": {
-      "sha256": "af87f8012cfbf1186eccb560106e43adf6ab875740f3eb687f0ef516c6a0a6ae",
-      "bytes": 586
+      "sha256": "af87f8012cfbf1186eccb560106e43adf6ab875740f3eb687f0ef516c6a0a6ae"
     },
     "final-package/concentration-by-supplier.csv": {
-      "sha256": "b147db7f03f0447361e34992b06d8e568c5d59f195b54f9c31ce148cfef7c086",
-      "bytes": 234
+      "sha256": "b147db7f03f0447361e34992b06d8e568c5d59f195b54f9c31ce148cfef7c086"
     },
     "final-package/executive-review.xlsx.sha256": {
-      "sha256": "b62399a0407ae4f69d236a241f0bf7d7fc52acd2a0f6cf7bba741acdb3a3fb33",
-      "bytes": 303
+      "sha256": "b62399a0407ae4f69d236a241f0bf7d7fc52acd2a0f6cf7bba741acdb3a3fb33"
     },
     "final-package/ledger.json": {
-      "sha256": "cc7947e2a210f3d807227a1a9c6c27acc1dd9d2083e3f7b215c156cf99aa60b0",
-      "bytes": 2173
+      "sha256": "116133b6a3de3b179a5c0f5076e65dbb0ced875ea69f7836285d37d45dce33ad"
     },
     "final-package/limitations.json": {
-      "sha256": "ca68ee220e16877fc3335dfef3fb7bd16890d1ac3e17f13a9a9d39c2828b92a9",
-      "bytes": 1025
+      "sha256": "ca68ee220e16877fc3335dfef3fb7bd16890d1ac3e17f13a9a9d39c2828b92a9"
     },
     "final-package/metadata.json": {
-      "sha256": "076b2cdb5ebc14e5fd44c43620969cb9d3c268914d1db694e407aab47c37e16f",
-      "bytes": 3252
+      "sha256": "882b4ae7a089bd2982fdaa882c56b8db23ab634758ba46bd523c799a4c79c6c9"
     },
     "final-package/proof.json": {
-      "sha256": "f19f2b895027c609a382078e89f4d074ba6a1852604d15d70d430b7ec7795736",
-      "bytes": 5491
+      "sha256": "146978c2833476306427a6a4a00028ca0236d93ed1e1dd0823727002c65ba974"
     },
     "final-package/reliability-status.json": {
-      "sha256": "1b33e5e092d9ef5ad817a746c57f59fb40dd2dd5bfc3cff55d155abd2655f6b1",
-      "bytes": 1144
+      "sha256": "1b33e5e092d9ef5ad817a746c57f59fb40dd2dd5bfc3cff55d155abd2655f6b1"
     },
     "final-package/suppliers-ranking.csv": {
-      "sha256": "9f4793d9132888e4e01a237e08ce7ae1ea7c46d99cc952ab4dcb22998787e393",
-      "bytes": 3885
+      "sha256": "29c6b49d9e87fb8211c9b03472e838833fe9d322d82e56ce8cf23297bb850fe6"
     },
     "final-package/suppliers-ranking.json": {
-      "sha256": "0bcd3fd63d20383ab3670491441d69fdf7375a7372a41f0d7dbd6648fa2ab41e",
-      "bytes": 5816
+      "sha256": "5e541a803981ab74d21af49cea186c2b7e7e6c37ceb068f9d24eadb0311d5bd4"
     },
     "final-package/value-references.csv": {
-      "sha256": "1540d9055d4f9517a0b460ae3d4bd60d7b3f5a3afb21b3cc1736637739186ce1",
-      "bytes": 1919
+      "sha256": "1540d9055d4f9517a0b460ae3d4bd60d7b3f5a3afb21b3cc1736637739186ce1"
     },
     "final-package/value-references.json": {
-      "sha256": "95218329252dbcc0608e71ed45e987495db9411274494c8319dd29ba2d7f7796",
-      "bytes": 11272
+      "sha256": "83fdd49dbbc1cfdff9ae6c13730db3c3d313834826df8e243fc5b4f06bb45713"
     },
     "final-package/executive-review.xlsx": {
-      "sha256": "408c33aeaf8fcf6c1938d08bbfd12afa1d5a1a56a02b5bae09b49309b88c7bd9",
-      "bytes": 15971,
-      "git_policy": "sha pointer"
+      "sha256": "4ebb1e79a52cfdbdafe36dc36a2b1d64d6a50419c99df3be47c698d97a5e551b"
     }
   }
 }

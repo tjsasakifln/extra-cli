@@ -1,7 +1,7 @@
 {
-  "run_id": "cmi-20260727T231117Z",
+  "run_id": "cmi-20260727T231157Z",
   "campaign_id": "CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01",
-  "code_sha": "22534d083f5e08867c0722fc8e8a7c075335ca84",
+  "code_sha": "1f395831d24bd19dfef7a8dcdfde8ee90f38e3d0",
   "dsn_masked": "postgresql://***",
   "steps": [
     {
@@ -92,5 +92,5 @@
       ]
     }
   ],
-  "finished_at": "2026-07-27T23:11:18Z"
+  "finished_at": "2026-07-27T23:11:57Z"
 }

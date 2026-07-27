@@ -10,7 +10,7 @@
     "n_accepted": 354
   },
   "final_state": {
-    "main_sha": "22534d083f5e08867c0722fc8e8a7c075335ca84",
+    "main_sha": "1f395831d24bd19dfef7a8dcdfde8ee90f38e3d0",
     "n_accepted": 401,
     "n_open": 1060,
     "acceptance_pct_audited": 6.09
@@ -140,5 +140,5 @@
   ],
   "post_merge_validation": "post-merge-validation.json",
   "next_action": "NONE — campaign complete",
-  "evidence_remediation_sha": "22534d083f5e08867c0722fc8e8a7c075335ca84"
+  "evidence_remediation_sha": "1f395831d24bd19dfef7a8dcdfde8ee90f38e3d0"
 }
