@@ -26,9 +26,10 @@ Machine draft criteria engines are **not** human reviewers.
 5. Automated integrity tests + Makefile/CI foundation targets.
 6. CONFENGE freeze/binding and sector classifier unchanged vs `main`.
 
-## Blocker
+## Blockers
 
-`BLOCKED_HUMAN_DUAL_LABELING`
+1. **`BLOCKED_HUMAN_DUAL_LABELING`** — dual independent human labels + new sealed holdout absent (DOD §8.4).
+2. **`BLOCKED_BY_EXISTING_CONFENGE_FREEZE_POLICY`** — after restoring freeze/binding scripts to `origin/main`, job `CONFENGE Commercial Code Quality` / step `Artifact SHA binding gate` fails with `code_changed_after_bound_sha` for foundation paths. Allowlists were **not** re-expanded; commercial evidence was **not** rewritten. Unblock requires monorepo-level re-freeze or a separate authorized coexistence story — not this PR.
 
 ## Next test (to unblock)
 
