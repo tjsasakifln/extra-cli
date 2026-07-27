@@ -1,29 +1,65 @@
 {
   "item_id": "DOD-rol-1-definition-of-done-91752931c3",
-  "ok": true,
-  "head_sha": "1f395831d24bd19dfef7a8dcdfde8ee90f38e3d0",
-  "started_at": "2026-07-27T23:07:36Z",
-  "finished_at": "2026-07-27T23:07:36Z",
   "commands": [
     {
       "cmd": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-19 --json",
       "exit_code": 0,
-      "duration_s": 0.05,
+      "duration_s": 0.219,
+      "stdout_tail": "{\n  \"ok\": true,\n  \"alias\": \"CMI-11.1-19\",\n  \"campaign_id\": \"CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01\",\n  \"as_of\": \"2026-07-27T23:45:04Z\",\n  \"detail\": {\n    \"outliers\": [\n      300.0\n    ]\n  },\n  \"package_dir\": \"/mnt/d/extra consultoria/artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/final-package\"\n}\n",
+      "stderr_tail": "",
+      "env": {
+        "CI": "true",
+        "GITHUB_ACTIONS": null,
+        "LOCAL_DATALAKE_DSN": {
+          "set": true,
+          "len": 48
+        },
+        "PYTEST_ADDOPTS": null,
+        "PATH": {
+          "set": true,
+          "len": 1919
+        },
+        "USER": "tjsasakifln",
+        "HOME": {
+          "set": true,
+          "len": 17
+        }
+      },
       "skipped": false
     }
   ],
   "tests": [],
+  "ok": true,
+  "notes": [],
+  "rejected_trivial": [],
+  "head_sha": "ff9b78a86268e63248694d56a99fcf1a4336a60f",
+  "env": {
+    "CI": "true",
+    "GITHUB_ACTIONS": null,
+    "LOCAL_DATALAKE_DSN": {
+      "set": true,
+      "len": 48
+    },
+    "PYTEST_ADDOPTS": null,
+    "PATH": {
+      "set": true,
+      "len": 1919
+    },
+    "USER": "tjsasakifln",
+    "HOME": {
+      "set": true,
+      "len": 17
+    }
+  },
+  "started_at": "2026-07-27T23:45:04Z",
+  "duration_s": 0.219,
   "substantive_runs": 1,
   "totals": {
-    "passed": 2,
+    "passed": 1,
     "failed": 0,
-    "skipped": 0
+    "skipped": 0,
+    "deselected": 0,
+    "error": 0
   },
-  "notes": [
-    "item-specific proof CMI-11.1-19; package SHA-bound"
-  ],
-  "env": {
-    "REQUIRE_REAL_DB": "1",
-    "LOCAL_DATALAKE_DSN_SET": true
-  }
+  "finished_at": "2026-07-27T23:45:04Z"
 }

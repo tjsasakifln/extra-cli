@@ -1,10 +1,10 @@
 # Revisão de concorrentes / vencedores — CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01
 
-- run_id: `cmi-20260727T231157Z`
-- as_of: `2026-07-27T23:11:57Z`
+- run_id: `cmi-20260727T232914Z`
+- as_of: `2026-07-27T23:29:14Z`
 - period: `2023-01-01` → `2026-07-27`
 - source: `pncp_supplier_contracts`
-- code_sha: `1f395831d24bd19dfef7a8dcdfde8ee90f38e3d0`
+- code_sha: `ff9b78a86268e63248694d56a99fcf1a4336a60f`
 - population_count: **7** contratos elegíveis
 - complete_population_aggregated: `True`
 

@@ -6,18 +6,19 @@
   "campaign_id": "CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01",
   "main_baseline_sha": "c5b4cdb91b0727b5e7a537c8eb47daf001b74552",
   "implementation_sha": "241ec41f0badf5bd463b66dafe36faa1e2e66876",
-  "executed_sha": "1f395831d24bd19dfef7a8dcdfde8ee90f38e3d0",
-  "post_merge_main_sha": "1f395831d24bd19dfef7a8dcdfde8ee90f38e3d0",
+  "executed_sha": "ff9b78a86268e63248694d56a99fcf1a4336a60f",
+  "post_merge_main_sha": "ff9b78a86268e63248694d56a99fcf1a4336a60f",
   "command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-20 --json",
-  "timestamp": "2026-07-27T23:11:57Z",
+  "timestamp": "2026-07-27T23:28:34Z",
   "source": "pncp_supplier_contracts",
   "parameters": {
     "uf_filter": "SC",
     "period_start": "2023-01-01",
     "period_end": "2026-07-27",
-    "complete_population_aggregated": true
+    "complete_population_aggregated": true,
+    "REQUIRE_REAL_DB": "1"
   },
-  "dataset_hash": "{\"note\": \"fixture for isolated CMI proof \\u2014 not live market coverage\", \"ok\": true, \"schema\": {\"columns_ok\": [\"contrato_id\", \"orgao_cnpj\", \"orgao_nome\", \"fornecedor_cnpj\", \"fornecedor_nome\", \"objeto_contrato\", \"valor_total\", \"data_inicio\", \"data_fim\", \"uf\", \"municipio\", \"source\", \"is_active\"], \"present_count\": 31, \"table\": \"pncp_supplier_contracts\"}, \"seeded_contracts\": 8}",
+  "dataset_hash": null,
   "schema_version": {
     "table": "pncp_supplier_contracts",
     "columns_ok": [
@@ -38,12 +39,12 @@
     "present_count": 31
   },
   "profile_hash": null,
-  "run_id": "cmi-20260727T230522Z",
+  "run_id": "cmi-20260727T232737Z",
   "result": {
     "ok": true,
     "alias": "CMI-10.2-20",
     "campaign_id": "CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01",
-    "as_of": "2026-07-27T23:11:58Z",
+    "as_of": "2026-07-27T23:28:35Z",
     "detail": {
       "statuses": [
         "NOT_APPLICABLE",
@@ -57,33 +58,34 @@
     "package_dir": "/mnt/d/extra consultoria/artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/final-package"
   },
   "exit_code": 0,
+  "stdout_tail": "{\n  \"ok\": true,\n  \"alias\": \"CMI-10.2-20\",\n  \"campaign_id\": \"CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01\",\n  \"as_of\": \"2026-07-27T23:28:41Z\",\n  \"detail\": {\n    \"statuses\": [\n      \"NOT_APPLICABLE\",\n      \"NOT_COMPUTABLE\",\n      \"OK\",\n      \"PARTIAL\",\n      \"READY\",\n      \"SOURCE_UNAVAILABLE\"\n    ]\n  },\n  \"package_dir\": \"/mnt/d/extra consultoria/artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/final-package\"\n}\n",
   "artifact_paths": {
     "package": "artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/final-package",
     "metadata": "artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/final-package/metadata.json",
-    "suppliers": "artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/final-package/suppliers-ranking.json",
-    "proof_pkg": "artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/final-package/proof.json"
+    "suppliers": "artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/final-package/suppliers-ranking.json"
   },
   "artifact_hashes": {
-    "final-package/acceptance-manifest.json": "7a1921e20950d1b3c83246d5d0a277b39f9af82195bb113fc75ec046a26a96f8",
-    "final-package/competitor-review.md": "fbac8e887117d489c592d699d8c5203d252e101e976597fb9613f63b703b5d6d",
+    "final-package/acceptance-manifest.json": "051b5895e27cb3d7b118f5c3fdf806023590f94f5c3854fb616e1576aa7487e3",
+    "final-package/competitor-review.md": "b79e8d3dfca17283967be1622e5308e176908f32161860aa1c741c93d8a903be",
     "final-package/concentration-by-entity.csv": "af87f8012cfbf1186eccb560106e43adf6ab875740f3eb687f0ef516c6a0a6ae",
     "final-package/concentration-by-supplier.csv": "b147db7f03f0447361e34992b06d8e568c5d59f195b54f9c31ce148cfef7c086",
-    "final-package/executive-review.xlsx.sha256": "b62399a0407ae4f69d236a241f0bf7d7fc52acd2a0f6cf7bba741acdb3a3fb33",
-    "final-package/ledger.json": "116133b6a3de3b179a5c0f5076e65dbb0ced875ea69f7836285d37d45dce33ad",
-    "final-package/limitations.json": "ca68ee220e16877fc3335dfef3fb7bd16890d1ac3e17f13a9a9d39c2828b92a9",
-    "final-package/metadata.json": "882b4ae7a089bd2982fdaa882c56b8db23ab634758ba46bd523c799a4c79c6c9",
-    "final-package/proof.json": "146978c2833476306427a6a4a00028ca0236d93ed1e1dd0823727002c65ba974",
+    "final-package/executive-review.xlsx.sha256": "b95d0a1b2bbc751eb381b8fa3a7bd7faa1f7da8a5403b10ecb57a9dbdb569fe5",
+    "final-package/ledger.json": "27a7d499fd676b296b56b4f2831f8a06972ab4bf93930263e9e5aaf4c4e2b06f",
+    "final-package/limitations.json": "fc6b0007978255efcd7610d44e58c363d0031adbbaa187b9ecea2c40b336b902",
+    "final-package/metadata.json": "c3961df204476f3a57c16314788d31726e2ee9385357e1c80621d77a6b96802a",
+    "final-package/proof.json": "99c14ecaa9632e342b173adfc56042ac850cc78c65eaf77d055c20ebb4b95c92",
     "final-package/reliability-status.json": "1b33e5e092d9ef5ad817a746c57f59fb40dd2dd5bfc3cff55d155abd2655f6b1",
-    "final-package/suppliers-ranking.csv": "29c6b49d9e87fb8211c9b03472e838833fe9d322d82e56ce8cf23297bb850fe6",
-    "final-package/suppliers-ranking.json": "5e541a803981ab74d21af49cea186c2b7e7e6c37ceb068f9d24eadb0311d5bd4",
+    "final-package/suppliers-ranking.csv": "476d52299800f9a51bc392feda418c2548030dc4e9d9ee2438ae6d5318df99e6",
+    "final-package/suppliers-ranking.json": "bff3b59bdad3ce014a848a9dec7f2ded51fed9cc9b0c44842f8f641f56231e58",
     "final-package/value-references.csv": "1540d9055d4f9517a0b460ae3d4bd60d7b3f5a3afb21b3cc1736637739186ce1",
-    "final-package/value-references.json": "83fdd49dbbc1cfdff9ae6c13730db3c3d313834826df8e243fc5b4f06bb45713",
-    "final-package/executive-review.xlsx": "4ebb1e79a52cfdbdafe36dc36a2b1d64d6a50419c99df3be47c698d97a5e551b"
+    "final-package/value-references.json": "fe8868aa2c8d1fe003b40453a20b97b9e80d39b33fc9c9de929a6c5ac9e27443",
+    "final-package/executive-review.xlsx": "5177ca9631f695f8a7ec676a16e418e0016f62c313a0473672f0d750dd776e71"
   },
   "ci_run_id": {
     "functional_pr": "30307668529",
     "functional_main": "30308032565",
-    "acceptance_pr": "30312150348"
+    "acceptance_pr": "30312150348",
+    "evidence_pr": "30313763458"
   },
   "ci_job_names": [
     "Test All (full suite)",
@@ -91,10 +93,11 @@
     "PR Reviewability Policy"
   ],
   "review_status": "PASS_FOR_MERGE",
-  "promotion_authority": "DOD.md + freeze + cmi_item_proofs + CI green + dod_controller accept",
+  "promotion_authority": "DOD.md + freeze + cmi_item_proofs + CI + dod_controller accept",
   "ok": true,
   "pr": [
     "151",
-    "152"
+    "152",
+    "153"
   ]
 }

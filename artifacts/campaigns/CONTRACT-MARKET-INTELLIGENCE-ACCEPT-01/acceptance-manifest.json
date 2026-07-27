@@ -1,6 +1,6 @@
 {
   "campaign_id": "CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01",
-  "code_sha": "1f395831d24bd19dfef7a8dcdfde8ee90f38e3d0",
+  "code_sha": "ff9b78a86268e63248694d56a99fcf1a4336a60f",
   "items": [
     {
       "alias": "CMI-10.1-01",
@@ -8,7 +8,7 @@
       "text": "O sistema diferencia vencedor identificado de participante identificado.",
       "weight": 5,
       "terminal_state": "ACCEPTED",
-      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.1-01",
+      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.1-01 --json",
       "evidence_pack": ".dod/evidence/DOD-rol-1-definition-of-done-ad5ffdc575/"
     },
     {
@@ -17,7 +17,7 @@
       "text": "O sistema não afirma conhecer todos os concorrentes quando a fonte não expõe participantes.",
       "weight": 5,
       "terminal_state": "ACCEPTED",
-      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.1-02",
+      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.1-02 --json",
       "evidence_pack": ".dod/evidence/DOD-rol-1-definition-of-done-7fc5475f5f/"
     },
     {
@@ -26,7 +26,7 @@
       "text": "O sistema não calcula win rate sem denominador de propostas apresentadas.",
       "weight": 5,
       "terminal_state": "ACCEPTED",
-      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.1-03",
+      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.1-03 --json",
       "evidence_pack": ".dod/evidence/DOD-rol-1-definition-of-done-aaad858820/"
     },
     {
@@ -35,7 +35,7 @@
       "text": "O sistema não calcula deságio sem valor estimado e valor homologado comparáveis.",
       "weight": 5,
       "terminal_state": "ACCEPTED",
-      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.1-04",
+      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.1-04 --json",
       "evidence_pack": ".dod/evidence/DOD-rol-1-definition-of-done-29ddb3c2f5/"
     },
     {
@@ -44,7 +44,7 @@
       "text": "O sistema não infere capacidade ociosa do concorrente sem dado apropriado.",
       "weight": 5,
       "terminal_state": "ACCEPTED",
-      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.1-05",
+      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.1-05 --json",
       "evidence_pack": ".dod/evidence/DOD-rol-1-definition-of-done-af4d2329d5/"
     },
     {
@@ -53,7 +53,7 @@
       "text": "O sistema não trata quantidade de contratos como sinônimo de capacidade técnica.",
       "weight": 5,
       "terminal_state": "ACCEPTED",
-      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.1-06",
+      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.1-06 --json",
       "evidence_pack": ".dod/evidence/DOD-rol-1-definition-of-done-e2debb6d90/"
     },
     {
@@ -62,7 +62,7 @@
       "text": "O sistema informa as limitações de cada indicador.",
       "weight": 5,
       "terminal_state": "ACCEPTED",
-      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.1-07",
+      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.1-07 --json",
       "evidence_pack": ".dod/evidence/DOD-rol-1-definition-of-done-24581047c4/"
     },
     {
@@ -71,7 +71,7 @@
       "text": "Ranking de fornecedores vencedores.",
       "weight": 5,
       "terminal_state": "ACCEPTED",
-      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-01",
+      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-01 --json",
       "evidence_pack": ".dod/evidence/DOD-rol-1-definition-of-done-7114069aad/"
     },
     {
@@ -80,7 +80,7 @@
       "text": "Quantidade de contratos por fornecedor.",
       "weight": 3,
       "terminal_state": "ACCEPTED",
-      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-02",
+      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-02 --json",
       "evidence_pack": ".dod/evidence/DOD-rol-1-definition-of-done-180363f3c6/"
     },
     {
@@ -89,7 +89,7 @@
       "text": "Valor contratado por fornecedor.",
       "weight": 5,
       "terminal_state": "ACCEPTED",
-      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-03",
+      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-03 --json",
       "evidence_pack": ".dod/evidence/DOD-rol-1-definition-of-done-5eb2fbdae2/"
     },
     {
@@ -98,7 +98,7 @@
       "text": "Ticket contratado médio por fornecedor.",
       "weight": 3,
       "terminal_state": "ACCEPTED",
-      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-04",
+      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-04 --json",
       "evidence_pack": ".dod/evidence/DOD-rol-1-definition-of-done-24d8ac6823/"
     },
     {
@@ -107,7 +107,7 @@
       "text": "Número de entes atendidos por fornecedor.",
       "weight": 3,
       "terminal_state": "ACCEPTED",
-      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-05",
+      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-05 --json",
       "evidence_pack": ".dod/evidence/DOD-rol-1-definition-of-done-72ffefd4fe/"
     },
     {
@@ -116,7 +116,7 @@
       "text": "Distribuição por município.",
       "weight": 3,
       "terminal_state": "ACCEPTED",
-      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-06",
+      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-06 --json",
       "evidence_pack": ".dod/evidence/DOD-rol-1-definition-of-done-28a1c47d70/"
     },
     {
@@ -125,7 +125,7 @@
       "text": "Distribuição por natureza do ente.",
       "weight": 3,
       "terminal_state": "ACCEPTED",
-      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-07",
+      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-07 --json",
       "evidence_pack": ".dod/evidence/DOD-rol-1-definition-of-done-f32083927c/"
     },
     {
@@ -134,7 +134,7 @@
       "text": "Distribuição por setor ou tipo de objeto.",
       "weight": 3,
       "terminal_state": "ACCEPTED",
-      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-08",
+      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-08 --json",
       "evidence_pack": ".dod/evidence/DOD-rol-1-definition-of-done-f11737c2bf/"
     },
     {
@@ -143,7 +143,7 @@
       "text": "Recorrência de contratação.",
       "weight": 3,
       "terminal_state": "ACCEPTED",
-      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-09",
+      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-09 --json",
       "evidence_pack": ".dod/evidence/DOD-rol-1-definition-of-done-e5557d5607/"
     },
     {
@@ -152,7 +152,7 @@
       "text": "Última contratação conhecida.",
       "weight": 3,
       "terminal_state": "ACCEPTED",
-      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-10",
+      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-10 --json",
       "evidence_pack": ".dod/evidence/DOD-rol-1-definition-of-done-df0c666a5f/"
     },
     {
@@ -161,7 +161,7 @@
       "text": "Concentração por órgão.",
       "weight": 3,
       "terminal_state": "ACCEPTED",
-      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-11",
+      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-11 --json",
       "evidence_pack": ".dod/evidence/DOD-rol-1-definition-of-done-ff54a45a75/"
     },
     {
@@ -170,7 +170,7 @@
       "text": "Concentração por fornecedor.",
       "weight": 3,
       "terminal_state": "ACCEPTED",
-      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-12",
+      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-12 --json",
       "evidence_pack": ".dod/evidence/DOD-rol-1-definition-of-done-926290cde1/"
     },
     {
@@ -179,7 +179,7 @@
       "text": "Market share contratual quando semanticamente válido.",
       "weight": 5,
       "terminal_state": "ACCEPTED",
-      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-13",
+      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-13 --json",
       "evidence_pack": ".dod/evidence/DOD-rol-1-definition-of-done-849f610ada/"
     },
     {
@@ -188,7 +188,7 @@
       "text": "HHI quando semanticamente válido.",
       "weight": 5,
       "terminal_state": "ACCEPTED",
-      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-14",
+      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-14 --json",
       "evidence_pack": ".dod/evidence/DOD-rol-1-definition-of-done-fd5b78c29d/"
     },
     {
@@ -197,7 +197,7 @@
       "text": "Fonte e data de corte em todas as métricas.",
       "weight": 5,
       "terminal_state": "ACCEPTED",
-      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-15",
+      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-15 --json",
       "evidence_pack": ".dod/evidence/DOD-rol-1-definition-of-done-96ca22dde7/"
     },
     {
@@ -206,7 +206,7 @@
       "text": "Exportação para Excel.",
       "weight": 3,
       "terminal_state": "ACCEPTED",
-      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-16",
+      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-16 --json",
       "evidence_pack": ".dod/evidence/DOD-rol-1-definition-of-done-e26def5c74/"
     },
     {
@@ -215,7 +215,7 @@
       "text": "Relatório de concorrentes para revisão manual.",
       "weight": 3,
       "terminal_state": "ACCEPTED",
-      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-17",
+      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-17 --json",
       "evidence_pack": ".dod/evidence/DOD-rol-1-definition-of-done-2c30e375c5/"
     },
     {
@@ -224,7 +224,7 @@
       "text": "Queries executadas em PostgreSQL real.",
       "weight": 5,
       "terminal_state": "ACCEPTED",
-      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-18",
+      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-18 --json",
       "evidence_pack": ".dod/evidence/DOD-rol-1-definition-of-done-3f13a31ef1/"
     },
     {
@@ -233,7 +233,7 @@
       "text": "Testes validam nomes reais de tabelas e colunas.",
       "weight": 5,
       "terminal_state": "ACCEPTED",
-      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-19",
+      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-19 --json",
       "evidence_pack": ".dod/evidence/DOD-rol-1-definition-of-done-58f3b88564/"
     },
     {
@@ -242,7 +242,7 @@
       "text": "O relatório distingue métricas prontas, parciais e indisponíveis.",
       "weight": 5,
       "terminal_state": "ACCEPTED",
-      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-20",
+      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-20 --json",
       "evidence_pack": ".dod/evidence/DOD-rol-1-definition-of-done-f2cc2a2ae5/"
     },
     {
@@ -251,7 +251,7 @@
       "text": "`valor_estimado` possui definição explícita.",
       "weight": 5,
       "terminal_state": "ACCEPTED",
-      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-01",
+      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-01 --json",
       "evidence_pack": ".dod/evidence/DOD-rol-1-definition-of-done-7e3e9e1447/"
     },
     {
@@ -260,7 +260,7 @@
       "text": "`valor_homologado` possui definição explícita.",
       "weight": 5,
       "terminal_state": "ACCEPTED",
-      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-02",
+      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-02 --json",
       "evidence_pack": ".dod/evidence/DOD-rol-1-definition-of-done-9138b9d0df/"
     },
     {
@@ -269,7 +269,7 @@
       "text": "`valor_contratado` possui definição explícita.",
       "weight": 5,
       "terminal_state": "ACCEPTED",
-      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-03",
+      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-03 --json",
       "evidence_pack": ".dod/evidence/DOD-rol-1-definition-of-done-532d802562/"
     },
     {
@@ -278,7 +278,7 @@
       "text": "`valor_pago` possui definição explícita.",
       "weight": 5,
       "terminal_state": "ACCEPTED",
-      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-04",
+      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-04 --json",
       "evidence_pack": ".dod/evidence/DOD-rol-1-definition-of-done-76039ae8d2/"
     },
     {
@@ -287,7 +287,7 @@
       "text": "Os quatro campos não são intercambiáveis.",
       "weight": 5,
       "terminal_state": "ACCEPTED",
-      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-05",
+      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-05 --json",
       "evidence_pack": ".dod/evidence/DOD-rol-1-definition-of-done-7d7b10b055/"
     },
     {
@@ -296,7 +296,7 @@
       "text": "O relatório exibe o tipo de valor.",
       "weight": 3,
       "terminal_state": "ACCEPTED",
-      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-06",
+      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-06 --json",
       "evidence_pack": ".dod/evidence/DOD-rol-1-definition-of-done-3bb3874141/"
     },
     {
@@ -305,7 +305,7 @@
       "text": "O relatório exibe a fonte do valor.",
       "weight": 5,
       "terminal_state": "ACCEPTED",
-      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-07",
+      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-07 --json",
       "evidence_pack": ".dod/evidence/DOD-rol-1-definition-of-done-4fc2390171/"
     },
     {
@@ -314,7 +314,7 @@
       "text": "O relatório exibe a data de referência.",
       "weight": 3,
       "terminal_state": "ACCEPTED",
-      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-08",
+      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-08 --json",
       "evidence_pack": ".dod/evidence/DOD-rol-1-definition-of-done-262f17e7ec/"
     },
     {
@@ -323,7 +323,7 @@
       "text": "O relatório exibe a unidade de comparação.",
       "weight": 3,
       "terminal_state": "ACCEPTED",
-      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-09",
+      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-09 --json",
       "evidence_pack": ".dod/evidence/DOD-rol-1-definition-of-done-53115f162e/"
     },
     {
@@ -332,7 +332,7 @@
       "text": "O relatório exibe se o valor é global, por lote, por item ou unitário.",
       "weight": 5,
       "terminal_state": "ACCEPTED",
-      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-10",
+      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-10 --json",
       "evidence_pack": ".dod/evidence/DOD-rol-1-definition-of-done-50bb794fc7/"
     },
     {
@@ -341,7 +341,7 @@
       "text": "Valor ausente não é substituído por zero.",
       "weight": 5,
       "terminal_state": "ACCEPTED",
-      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-11",
+      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-11 --json",
       "evidence_pack": ".dod/evidence/DOD-rol-1-definition-of-done-dc5790ffeb/"
     },
     {
@@ -350,7 +350,7 @@
       "text": "Valor inferido é marcado como inferido.",
       "weight": 5,
       "terminal_state": "ACCEPTED",
-      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-12",
+      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-12 --json",
       "evidence_pack": ".dod/evidence/DOD-rol-1-definition-of-done-c8739f5734/"
     },
     {
@@ -359,7 +359,7 @@
       "text": "Valor oficial é marcado como oficial.",
       "weight": 5,
       "terminal_state": "ACCEPTED",
-      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-13",
+      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-13 --json",
       "evidence_pack": ".dod/evidence/DOD-rol-1-definition-of-done-04da3e4902/"
     },
     {
@@ -368,7 +368,7 @@
       "text": "Valores de objetos heterogêneos não são agregados sem classificação adequada.",
       "weight": 5,
       "terminal_state": "ACCEPTED",
-      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-14",
+      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-14 --json",
       "evidence_pack": ".dod/evidence/DOD-rol-1-definition-of-done-a9b1b6e0c3/"
     },
     {
@@ -377,7 +377,7 @@
       "text": "Valores de períodos muito distintos são acompanhados de data.",
       "weight": 3,
       "terminal_state": "ACCEPTED",
-      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-15",
+      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-15 --json",
       "evidence_pack": ".dod/evidence/DOD-rol-1-definition-of-done-31211a0281/"
     },
     {
@@ -386,7 +386,7 @@
       "text": "Atualização monetária, quando usada, é explicitada.",
       "weight": 3,
       "terminal_state": "ACCEPTED",
-      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-16",
+      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-16 --json",
       "evidence_pack": ".dod/evidence/DOD-rol-1-definition-of-done-589da36904/"
     },
     {
@@ -395,7 +395,7 @@
       "text": "Percentis só são calculados sobre amostra comparável.",
       "weight": 5,
       "terminal_state": "ACCEPTED",
-      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-17",
+      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-17 --json",
       "evidence_pack": ".dod/evidence/DOD-rol-1-definition-of-done-8aae30ee2e/"
     },
     {
@@ -404,7 +404,7 @@
       "text": "O tamanho da amostra é informado.",
       "weight": 3,
       "terminal_state": "ACCEPTED",
-      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-18",
+      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-18 --json",
       "evidence_pack": ".dod/evidence/DOD-rol-1-definition-of-done-55a430a39c/"
     },
     {
@@ -413,7 +413,7 @@
       "text": "Outliers são identificados.",
       "weight": 3,
       "terminal_state": "ACCEPTED",
-      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-19",
+      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-19 --json",
       "evidence_pack": ".dod/evidence/DOD-rol-1-definition-of-done-91752931c3/"
     },
     {
@@ -422,7 +422,7 @@
       "text": "O sistema não chama percentil de contratos globais de “preço real praticado” sem base técnica.",
       "weight": 5,
       "terminal_state": "ACCEPTED",
-      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-20",
+      "proof_command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-20 --json",
       "evidence_pack": ".dod/evidence/DOD-rol-1-definition-of-done-bcbbd65023/"
     }
   ],

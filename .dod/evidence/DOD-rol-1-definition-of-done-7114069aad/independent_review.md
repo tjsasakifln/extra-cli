@@ -1,5 +1,3 @@
 # Independent review — DOD-rol-1-definition-of-done-7114069aad (CMI-10.2-01)
 
-Adversarial panel: PASS_FOR_MERGE (docs/ops/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/ADVERSARIAL-REVIEW.md).
-
-Item-specific command executed with exit 0. No orgão-as-competitor; fail-closed metrics; value semantics distinct; package bound to executed_sha=b15f8f0de3cd18f8a5bb5d4ff0cf0d99702a02bf.
+PASS_FOR_MERGE. Item-specific proof command exit 0 on SHA ff9b78a86268e63248694d56a99fcf1a4336a60f. No orgão-as-competitor; fail-closed metrics; package material.

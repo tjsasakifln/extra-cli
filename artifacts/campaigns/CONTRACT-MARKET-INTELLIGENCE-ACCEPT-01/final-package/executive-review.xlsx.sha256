@@ -1,2 +1,3 @@
-4ebb1e79a52cfdbdafe36dc36a2b1d64d6a50419c99df3be47c698d97a5e551b  executive-review.xlsx
-size_bytes=15973
+619f238a9ec6990b509d276292e7b61ca51cc9cbdd055d5f0817ccacd32362ff  executive-review.xlsx
+size_bytes=15976
+regenerate: python3 -m scripts.ops.contract_market_intelligence run --dsn $LOCAL_DATALAKE_DSN --out /mnt/d/extra consultoria/artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/final-package
