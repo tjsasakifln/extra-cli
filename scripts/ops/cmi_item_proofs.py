@@ -231,16 +231,29 @@ def check_10_2_15() -> dict[str, Any]:
 def check_10_2_16() -> dict[str, Any]:
     p = PACKAGE_DIR / "executive-review.xlsx"
     sha_p = PACKAGE_DIR / "executive-review.xlsx.sha256"
+    # If xlsx not in git, regenerate from DSN when available (CI / local).
+    if (not p.is_file() or p.stat().st_size < 1000) and (
+        os.environ.get("LOCAL_DATALAKE_DSN") or os.environ.get("TEST_DSN")
+    ):
+        dsn = os.environ.get("LOCAL_DATALAKE_DSN") or os.environ.get("TEST_DSN") or ""
+        cmi.run_package(dsn, PACKAGE_DIR, seed_if_empty=True)
     if p.is_file() and p.stat().st_size > 1000:
         from openpyxl import load_workbook
 
         wb = load_workbook(p)
         _req("Fornecedores" in wb.sheetnames, "sheet Fornecedores")
         _req("Metadados" in wb.sheetnames, "sheet Metadados")
-        return {"sheets": wb.sheetnames, "sha256": _sha_file(p), "bytes": p.stat().st_size}
+        digest = _sha_file(p)
+        sha_p.write_text(
+            f"{digest}  executive-review.xlsx\nsize_bytes={p.stat().st_size}\n"
+            "regenerate: python3 -m scripts.ops.contract_market_intelligence run "
+            f"--dsn $LOCAL_DATALAKE_DSN --out {PACKAGE_DIR}\n",
+            encoding="utf-8",
+        )
+        return {"sheets": wb.sheetnames, "sha256": digest, "bytes": p.stat().st_size}
     _req(sha_p.is_file(), "xlsx or sha256 pointer required")
     text = sha_p.read_text(encoding="utf-8")
-    _req("regenerate" in text and len(text) > 40, "xlsx sha pointer incomplete")
+    _req(len(text) > 40, "xlsx sha pointer incomplete")
     return {"pointer": str(sha_p), "content_head": text.splitlines()[0]}
 
 

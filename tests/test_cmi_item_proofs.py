@@ -29,11 +29,12 @@ def test_unit_value_and_win_rate_gates():
 @pytest.mark.real_db
 @pytest.mark.skipif(not REQUIRE, reason="REQUIRE_REAL_DB")
 def test_all_item_proofs_against_package():
-    if not PKG.is_dir():
-        cmi.run_package(DSN, PKG, seed_if_empty=True)
+    # Always regenerate package so Excel and material rows exist in CI.
+    cmi.run_package(DSN, PKG, seed_if_empty=True)
     try:
         out = proofs.run_all()
         assert out["ok"] is True, out.get("failed")
         assert len(out["passed"]) == 47
+        assert (PKG / "executive-review.xlsx").is_file()
     finally:
         cmi.cleanup_cmi_fixture(DSN)
