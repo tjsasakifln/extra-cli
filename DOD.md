@@ -824,7 +824,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] O usuário pode marcar falsos negativos identificados.
 - [ ] Feedback manual pode ser exportado para calibração.
 - [ ] A amostra-ouro inclui oportunidades relevantes e irrelevantes.
-- [ ] Recall de editais relevantes >= 95% na amostra-ouro.
+- [ ] Recall de editais relevantes >= 95% na amostra-ouro. `BLOCKED_HUMAN_DUAL_LABELING` — foundation only (evaluator + blind human workflow); not accepted. See `docs/ops/campaigns/EDITAL-RELEVANCE-RECALL-95-01/HANDOFF.md`.
 - [ ] Existem zero falsos “abertos” na amostra prioritária.
 - [ ] A amostra é estratificada por município, natureza jurídica e fonte.
 

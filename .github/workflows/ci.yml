@@ -1266,3 +1266,118 @@ jobs:
           PY
 
 
+  # ============================================================================
+  # EDITAL RELEVANCE FOUNDATION — DOD §8.4 infrastructure (not accept)
+  # ============================================================================
+  edital-relevance-foundation:
+    name: Edital Relevance Foundation
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: extra_full_suite
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U test -d extra_full_suite"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://test:test@localhost:5432/extra_full_suite
+      LOCAL_DATALAKE_DSN: postgresql://test:test@localhost:5432/extra_full_suite
+      REQUIRE_REAL_DB: "1"
+      RESILIENCE_REQUIRE_DB: "1"
+      RESILIENCE_ENV: test
+      CI: true
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-asyncio pytest-cov hypothesis psycopg2-binary openpyxl prometheus_client
+
+      - name: Record exact HEAD SHA
+        id: sha
+        run: |
+          HEAD_SHA=$(git rev-parse HEAD)
+          echo "head_sha=$HEAD_SHA" >> "$GITHUB_OUTPUT"
+          echo "Executing foundation checks on SHA $HEAD_SHA"
+          if [ -n "${{ github.event.pull_request.head.sha }}" ]; then
+            echo "PR head: ${{ github.event.pull_request.head.sha }}"
+            test "$HEAD_SHA" = "${{ github.event.pull_request.head.sha }}" || {
+              echo "ERROR: checkout SHA != PR head SHA"
+              exit 1
+            }
+          fi
+
+      - name: Foundation unit tests + diagnostic
+        run: make test-edital-relevance-foundation
+
+      - name: Final gate must fail with BLOCKED_HUMAN_DUAL_LABELING
+        run: make verify-edital-relevance-final
+
+      - name: DOD §8.4 remains open with human blocker
+        run: |
+          grep -F -- '- [ ] Recall de editais relevantes >= 95% na amostra-ouro.' DOD.md
+          grep -F 'BLOCKED_HUMAN_DUAL_LABELING' DOD.md
+          if grep -E -- '- \[x\] Recall de editais relevantes >= 95% na amostra-ouro' DOD.md; then
+            echo "ERROR: §8.4 marked done"
+            exit 1
+          fi
+
+      - name: CONFENGE freeze/binding and sector_classifier match main
+        run: |
+          git fetch origin main
+          if ! git diff --exit-code origin/main -- \
+              scripts/ops/confenge_code_freeze.py \
+              scripts/ops/verify_confenge_artifact_binding.py \
+              scripts/ops/sector_classifier.py; then
+            echo "ERROR: confenge/classifier must be byte-identical to main"
+            exit 1
+          fi
+          echo "confenge + sector_classifier identical to origin/main"
+
+      - name: No machine-label accept theater
+        run: |
+          python3 - <<'PY'
+          import json, pathlib
+          p = pathlib.Path("artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01/machine_diagnostic_result.json")
+          r = json.loads(p.read_text())
+          assert r.get("pass") is False
+          assert r.get("status") == "DIAGNOSTIC_ONLY"
+          assert r.get("acceptance_eligible") is False
+          assert r.get("dod_item_accepted") is False
+          assert r.get("sealed_holdout") is False
+          f = pathlib.Path("artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01/final-gate-result.json")
+          fr = json.loads(f.read_text())
+          assert fr.get("pass") is False
+          assert fr.get("blocker") == "BLOCKED_HUMAN_DUAL_LABELING"
+          for path in pathlib.Path("evals/edital_relevance").glob("*"):
+              name = path.name.lower()
+              assert "locked_holdout" not in name, path
+              assert not name.startswith("gold"), path
+          print("no machine-label accept theater")
+          PY
+
+      - name: Canonical full suite
+        run: python -m scripts.ops.run_full_suite
+
+      - name: Confirm executed SHA is still HEAD
+        run: |
+          test "$(git rev-parse HEAD)" = "${{ steps.sha.outputs.head_sha }}"
+          echo "CI foundation checks executed on exact HEAD ${{ steps.sha.outputs.head_sha }}"
