@@ -788,7 +788,7 @@ test-edital-relevance-foundation:
 	@echo "foundation gate PASS"
 
 # Real final acceptance gate: preserves evaluate-final exit code (non-zero while blocked).
-# Uses real non-empty development corpus + manifest (never empty-development).
+# Uses real non-empty development corpus + manifest (never an empty JSONL stand-in).
 # Do NOT wrap/transform the expected failure into success here.
 verify-edital-relevance-final:
 	@echo "=== Edital relevance FINAL accept gate (real evaluate-final; expect non-zero) ==="

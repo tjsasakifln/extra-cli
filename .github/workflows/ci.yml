@@ -1351,8 +1351,13 @@ jobs:
         run: |
           test -s evals/edital_relevance/development_candidate_pool.jsonl
           test -f evals/edital_relevance/development_candidate_pool-manifest.json
-          if grep -R --line-number 'empty-development' Makefile .github/workflows/ci.yml; then
-            echo "ERROR: empty-development must not be used"
+          # Fail only on operational use of empty-development artifacts/paths (not ban-text).
+          if grep -nE -- 'empty-development\.jsonl|artifacts/.*/empty-development' Makefile; then
+            echo "ERROR: empty-development artifact path must not be used in Makefile"
+            exit 1
+          fi
+          if test -e artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01/empty-development.jsonl; then
+            echo "ERROR: empty-development.jsonl artifact must not exist"
             exit 1
           fi
           python3 - <<'PY'
@@ -1436,7 +1441,7 @@ jobs:
                   assert bad not in name, path
               assert not name.startswith("gold"), path
               assert "machine_draft_candidate_pool" not in name, path
-              assert "empty-development" not in name, path
+              assert name != "empty-development.jsonl", path
           # Pilot / diagnostic docs must not claim accept theater
           for path in (
               pathlib.Path("evals/edital_relevance/pilot_36-manifest.json"),
