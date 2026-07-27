@@ -99,8 +99,9 @@ def _write_csv(path: Path, rows: list[dict[str, Any]], headers: list[str] | None
 
 def report_contratos_por_ente(conn) -> list[dict[str, Any]]:
     if not _table_exists(conn, "pncp_supplier_contracts"):
-        return []
+        return [{"_error": "table pncp_supplier_contracts missing"}]
     # Schema canonical: orgao_cnpj, orgao_nome, valor_total (not valor_global/homologado)
+    # SUM only over non-null valor_total; missing values are not coerced into the fact row as zero fill.
     rows = _q(
         conn,
         """
@@ -108,8 +109,9 @@ def report_contratos_por_ente(conn) -> list[dict[str, Any]]:
             COALESCE(orgao_cnpj, 'UNKNOWN') AS ente_id,
             COALESCE(orgao_nome, 'N/I') AS ente_nome,
             COUNT(*) AS n_contratos,
-            SUM(COALESCE(valor_total, 0)) AS valor_total,
-            'valor_total (schema pncp_supplier_contracts)' AS valor_semantica
+            SUM(valor_total) FILTER (WHERE valor_total IS NOT NULL) AS valor_total,
+            COUNT(*) FILTER (WHERE valor_total IS NULL) AS n_valor_ausente,
+            'valor_total (schema pncp_supplier_contracts); nulls not zero-filled' AS valor_semantica
         FROM pncp_supplier_contracts
         WHERE is_active IS TRUE
         GROUP BY 1, 2
@@ -118,14 +120,13 @@ def report_contratos_por_ente(conn) -> list[dict[str, Any]]:
         LIMIT 500
         """,
     )
-    if rows and "_error" in rows[0]:
-        return []
+    # Propagate query failure — never silent empty success
     return rows
 
 
 def report_contratos_por_fornecedor(conn) -> list[dict[str, Any]]:
     if not _table_exists(conn, "pncp_supplier_contracts"):
-        return []
+        return [{"_error": "table pncp_supplier_contracts missing"}]
     rows = _q(
         conn,
         """
@@ -133,66 +134,64 @@ def report_contratos_por_fornecedor(conn) -> list[dict[str, Any]]:
             COALESCE(fornecedor_cnpj, 'UNKNOWN') AS fornecedor_id,
             COALESCE(fornecedor_nome, 'N/I') AS nome_fornecedor,
             COUNT(*) AS n_contratos,
-            SUM(COALESCE(valor_total, 0)) AS valor_total,
-            CASE WHEN COUNT(*) > 0
-                 THEN SUM(COALESCE(valor_total, 0)) / COUNT(*)
+            SUM(valor_total) FILTER (WHERE valor_total IS NOT NULL) AS valor_total,
+            COUNT(*) FILTER (WHERE valor_total IS NULL) AS n_valor_ausente,
+            CASE WHEN COUNT(*) FILTER (WHERE valor_total IS NOT NULL) > 0
+                 THEN SUM(valor_total) FILTER (WHERE valor_total IS NOT NULL)
+                      / COUNT(*) FILTER (WHERE valor_total IS NOT NULL)
                  ELSE NULL END AS ticket_medio,
-            'ticket_medio = valor_total / n_contratos (schema valor_total)' AS valor_semantica
+            'ticket_medio = sum(valor_total válido) / n_válidos; nulls not zero-filled' AS valor_semantica
         FROM pncp_supplier_contracts
         WHERE is_active IS TRUE
+          AND fornecedor_cnpj IS NOT NULL
+          AND btrim(fornecedor_cnpj) <> ''
         GROUP BY 1, 2
         HAVING COUNT(*) > 0
         ORDER BY n_contratos DESC, valor_total DESC NULLS LAST
         LIMIT 500
         """,
     )
-    if rows and "_error" in rows[0]:
-        return []
     return rows
 
 
 def report_concorrentes(conn) -> list[dict[str, Any]]:
-    """Observable competitors from contracts; fallback orgaos if no suppliers."""
-    if _table_exists(conn, "pncp_supplier_contracts"):
-        rows = _q(
-            conn,
-            """
-            SELECT
-                COALESCE(fornecedor_cnpj, 'UNKNOWN') AS concorrente_id,
-                COALESCE(fornecedor_nome, 'N/I') AS nome,
-                COUNT(*) AS n_contratos,
-                SUM(COALESCE(valor_total, 0)) AS valor_total,
-                'from_pncp_supplier_contracts' AS provenance
-            FROM pncp_supplier_contracts
-            WHERE is_active IS TRUE
-            GROUP BY 1, 2
-            HAVING COUNT(*) > 0
-            ORDER BY n_contratos DESC
-            LIMIT 15
-            """,
-        )
-        if rows and "_error" not in rows[0]:
-            n_total = sum(int(r.get("n_contratos") or 0) for r in rows if "_error" not in r)
-            if n_total > 0:
-                return rows
-    if not _table_exists(conn, "pncp_raw_bids"):
-        return []
-    return _q(
+    """Observable winners/competitors from supplier contracts only.
+
+    Fail-closed: never present contracting authority (órgão) as competitor.
+    When suppliers are unavailable, return empty list with explicit provenance
+    marker row only if query fails; otherwise empty (callers must read limitations).
+    """
+    if not _table_exists(conn, "pncp_supplier_contracts"):
+        return [{"_error": "table pncp_supplier_contracts missing"}]
+    rows = _q(
         conn,
         """
         SELECT
-            COALESCE(orgao_cnpj, 'UNKNOWN') AS concorrente_id,
-            COALESCE(orgao_razao_social, 'N/I') AS nome,
-            COUNT(*) AS n_editais,
-            SUM(COALESCE(valor_total_estimado, 0)) AS valor_estimado_total,
-            'fallback_orgao_not_supplier' AS provenance
-        FROM pncp_raw_bids
-        WHERE is_active IS TRUE AND orgao_cnpj IS NOT NULL
+            fornecedor_cnpj AS concorrente_id,
+            COALESCE(fornecedor_nome, 'N/I') AS nome,
+            COUNT(*) AS n_contratos,
+            SUM(valor_total) FILTER (WHERE valor_total IS NOT NULL) AS valor_total,
+            COUNT(*) FILTER (WHERE valor_total IS NULL) AS n_valor_ausente,
+            'from_pncp_supplier_contracts' AS provenance,
+            'winner_identified' AS role
+        FROM pncp_supplier_contracts
+        WHERE is_active IS TRUE
+          AND fornecedor_cnpj IS NOT NULL
+          AND btrim(fornecedor_cnpj) <> ''
+          AND (
+                orgao_cnpj IS NULL
+                OR btrim(fornecedor_cnpj) <> btrim(orgao_cnpj)
+              )
         GROUP BY 1, 2
-        ORDER BY n_editais DESC
+        HAVING COUNT(*) > 0
+        ORDER BY n_contratos DESC
         LIMIT 15
         """,
     )
+    if rows and "_error" in rows[0]:
+        return rows
+    # No orgao fallback — empty list is honest absence of observable suppliers
+    return rows
 
 
 def report_concentracao(conn) -> tuple[list[dict[str, Any]], list[str]]:
