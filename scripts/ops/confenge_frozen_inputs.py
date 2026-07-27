@@ -651,7 +651,12 @@ def evaluate_post_freeze_diff(
         if out:
             changed = [ln.strip() for ln in out.splitlines() if ln.strip()]
 
-    protected = protected_path_set(manifest)
+    # Protected path *names* always come from code-defined discovery (not only
+    # the artifact manifest, which lives under an evidence-lag prefix and must
+    # not be a soft self-weakening surface). Digests still come from the
+    # freeze-time manifest when present.
+    discovered = set(discover_frozen_input_paths(root))
+    protected = discovered | protected_path_set(manifest)
     classified = classify_changed_paths(changed, protected=protected)
     digest_check = verify_frozen_input_digests_at_tip(
         root=root,
