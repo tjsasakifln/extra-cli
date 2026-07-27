@@ -1,7 +1,7 @@
 {
   "schema_version": "confenge-frozen-inputs/1.0",
   "campaign": "CONFENGE-COMMERCIAL-READY-01",
-  "freeze_sha": "47788e4b0148ce513e893cdd1d92f0ce6b341e3f",
+  "freeze_sha": "c4a67abcec41124986d7e7cc3ded57e972575d56",
   "policy": "frozen_confenge_inputs_v1",
   "inputs": [
     {
@@ -207,8 +207,8 @@
     {
       "path": "scripts/ops/confenge_frozen_inputs.py",
       "kind": "file",
-      "blob_sha": "e34b359d8b37d8590982f60dce4be220babab8cd",
-      "sha256": "7aded28da5e7e1774749c27bf2fbb9dbe464a143d1d84b9447de898be6cf0a23"
+      "blob_sha": "4a9837485488e1a7074823bf6b7a71e670512f49",
+      "sha256": "0cade9bac1d4ba3d4edff4264b1688dcbe410210f3bbcb26c43a2baf53e3f805"
     },
     {
       "path": "scripts/ops/confenge_full_pipeline_e2e.py",
@@ -291,8 +291,8 @@
     {
       "path": "scripts/ops/verify_confenge_artifact_binding.py",
       "kind": "file",
-      "blob_sha": "34fc25845c5c1c4665e8260c864e175aababe5d6",
-      "sha256": "56d67fb77503afdc00a5c9c1bf7e0c341d22d93b090eb75ad74ad0a070f4169b"
+      "blob_sha": "197efe5c66fd0510bf851ec8ae925e37bbd70bde",
+      "sha256": "c57ce4758709995728e377446f419829ad4a3f489a22bb724818f11bef457c74"
     },
     {
       "path": "scripts/ops/verify_confenge_denominator_integrity.py",
