@@ -1,6 +1,6 @@
 schema_version: '1.0'
 source: DOD.md
-updated_at: '2026-07-27T22:48:17Z'
+updated_at: '2026-07-27T23:45:35Z'
 items:
 - id: DOD-definition-of-done-extra-934b7e1a8d
   text: 'O denominador estratégico permaneceu fixo em **1.093 entidades**. Evidência: `output/coverage/contract-report.json`;
@@ -43554,9 +43554,8 @@ items:
   dependencies: []
   blockers: []
   acceptance_commands:
-  - python3 -m scripts.ops.contract_market_intelligence audit-unit
-  tests:
-  - tests/test_cmi_contract_market_intelligence.py::test_cli_audit_unit_exit_zero
+  - python3 -m scripts.ops.cmi_item_proofs --item CMI-10.1-01 --json
+  tests: []
   files:
   - scripts/ops/contract_market_intelligence.py
   - scripts/reports/operational_reports.py
@@ -43568,9 +43567,9 @@ items:
   evidence:
   - .dod/evidence/DOD-rol-1-definition-of-done-ad5ffdc575/proof.json
   - artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/execution-proof-summary.json
-  acceptance_commit: 241ec41f0badf5bd463b66dafe36faa1e2e66876
-  acceptance_pr: '151'
-  accepted_at: '2026-07-27T22:39:13Z'
+  acceptance_commit: ff9b78a86268e63248694d56a99fcf1a4336a60f
+  acceptance_pr: '153'
+  accepted_at: '2026-07-27T23:29:30Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -43615,6 +43614,12 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=904
+  - at: '2026-07-27T23:29:21Z'
+    event: verify
+    detail: VERIFIED head=ff9b78a86268e63248694d56a99fcf1a4336a60f runs=1
+  - at: '2026-07-27T23:29:30Z'
+    event: accept
+    detail: commit=ff9b78a86268e63248694d56a99fcf1a4336a60f branch=main gates_ok=True
   content_fingerprint: ad5ffdc575
   evidence_audit:
     status: ok
@@ -43638,9 +43643,8 @@ items:
   dependencies: []
   blockers: []
   acceptance_commands:
-  - python3 -m scripts.ops.contract_market_intelligence audit-unit
-  tests:
-  - tests/test_cmi_contract_market_intelligence.py::test_cli_audit_unit_exit_zero
+  - python3 -m scripts.ops.cmi_item_proofs --item CMI-10.1-02 --json
+  tests: []
   files:
   - scripts/ops/contract_market_intelligence.py
   - scripts/reports/operational_reports.py
@@ -43652,9 +43656,9 @@ items:
   evidence:
   - .dod/evidence/DOD-rol-1-definition-of-done-7fc5475f5f/proof.json
   - artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/execution-proof-summary.json
-  acceptance_commit: 241ec41f0badf5bd463b66dafe36faa1e2e66876
-  acceptance_pr: '151'
-  accepted_at: '2026-07-27T22:39:24Z'
+  acceptance_commit: ff9b78a86268e63248694d56a99fcf1a4336a60f
+  acceptance_pr: '153'
+  accepted_at: '2026-07-27T23:29:52Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -43699,6 +43703,12 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=905
+  - at: '2026-07-27T23:29:44Z'
+    event: verify
+    detail: VERIFIED head=ff9b78a86268e63248694d56a99fcf1a4336a60f runs=1
+  - at: '2026-07-27T23:29:52Z'
+    event: accept
+    detail: commit=ff9b78a86268e63248694d56a99fcf1a4336a60f branch=main gates_ok=True
   content_fingerprint: 7fc5475f5f
   evidence_audit:
     status: ok
@@ -43722,9 +43732,8 @@ items:
   dependencies: []
   blockers: []
   acceptance_commands:
-  - python3 -m scripts.ops.contract_market_intelligence audit-unit
-  tests:
-  - tests/test_cmi_contract_market_intelligence.py::test_cli_audit_unit_exit_zero
+  - python3 -m scripts.ops.cmi_item_proofs --item CMI-10.1-03 --json
+  tests: []
   files:
   - scripts/ops/contract_market_intelligence.py
   - scripts/reports/operational_reports.py
@@ -43736,9 +43745,9 @@ items:
   evidence:
   - .dod/evidence/DOD-rol-1-definition-of-done-aaad858820/proof.json
   - artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/execution-proof-summary.json
-  acceptance_commit: 241ec41f0badf5bd463b66dafe36faa1e2e66876
-  acceptance_pr: '151'
-  accepted_at: '2026-07-27T22:39:38Z'
+  acceptance_commit: ff9b78a86268e63248694d56a99fcf1a4336a60f
+  acceptance_pr: '153'
+  accepted_at: '2026-07-27T23:30:11Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -43783,6 +43792,12 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=906
+  - at: '2026-07-27T23:30:03Z'
+    event: verify
+    detail: VERIFIED head=ff9b78a86268e63248694d56a99fcf1a4336a60f runs=1
+  - at: '2026-07-27T23:30:11Z'
+    event: accept
+    detail: commit=ff9b78a86268e63248694d56a99fcf1a4336a60f branch=main gates_ok=True
   content_fingerprint: aaad858820
   evidence_audit:
     status: ok
@@ -43806,9 +43821,8 @@ items:
   dependencies: []
   blockers: []
   acceptance_commands:
-  - python3 -m scripts.ops.contract_market_intelligence audit-unit
-  tests:
-  - tests/test_cmi_contract_market_intelligence.py::test_cli_audit_unit_exit_zero
+  - python3 -m scripts.ops.cmi_item_proofs --item CMI-10.1-04 --json
+  tests: []
   files:
   - scripts/ops/contract_market_intelligence.py
   - scripts/reports/operational_reports.py
@@ -43820,9 +43834,9 @@ items:
   evidence:
   - .dod/evidence/DOD-rol-1-definition-of-done-29ddb3c2f5/proof.json
   - artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/execution-proof-summary.json
-  acceptance_commit: 241ec41f0badf5bd463b66dafe36faa1e2e66876
-  acceptance_pr: '151'
-  accepted_at: '2026-07-27T22:39:49Z'
+  acceptance_commit: ff9b78a86268e63248694d56a99fcf1a4336a60f
+  acceptance_pr: '153'
+  accepted_at: '2026-07-27T23:30:34Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -43867,6 +43881,12 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=907
+  - at: '2026-07-27T23:30:26Z'
+    event: verify
+    detail: VERIFIED head=ff9b78a86268e63248694d56a99fcf1a4336a60f runs=1
+  - at: '2026-07-27T23:30:34Z'
+    event: accept
+    detail: commit=ff9b78a86268e63248694d56a99fcf1a4336a60f branch=main gates_ok=True
   content_fingerprint: 29ddb3c2f5
   evidence_audit:
     status: ok
@@ -43890,9 +43910,8 @@ items:
   dependencies: []
   blockers: []
   acceptance_commands:
-  - python3 -m scripts.ops.contract_market_intelligence audit-unit
-  tests:
-  - tests/test_cmi_contract_market_intelligence.py::test_cli_audit_unit_exit_zero
+  - python3 -m scripts.ops.cmi_item_proofs --item CMI-10.1-05 --json
+  tests: []
   files:
   - scripts/ops/contract_market_intelligence.py
   - scripts/reports/operational_reports.py
@@ -43904,9 +43923,9 @@ items:
   evidence:
   - .dod/evidence/DOD-rol-1-definition-of-done-af4d2329d5/proof.json
   - artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/execution-proof-summary.json
-  acceptance_commit: 241ec41f0badf5bd463b66dafe36faa1e2e66876
-  acceptance_pr: '151'
-  accepted_at: '2026-07-27T22:39:59Z'
+  acceptance_commit: ff9b78a86268e63248694d56a99fcf1a4336a60f
+  acceptance_pr: '153'
+  accepted_at: '2026-07-27T23:30:56Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -43951,6 +43970,12 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=908
+  - at: '2026-07-27T23:30:44Z'
+    event: verify
+    detail: VERIFIED head=ff9b78a86268e63248694d56a99fcf1a4336a60f runs=1
+  - at: '2026-07-27T23:30:56Z'
+    event: accept
+    detail: commit=ff9b78a86268e63248694d56a99fcf1a4336a60f branch=main gates_ok=True
   content_fingerprint: af4d2329d5
   evidence_audit:
     status: ok
@@ -43974,9 +43999,8 @@ items:
   dependencies: []
   blockers: []
   acceptance_commands:
-  - python3 -m scripts.ops.contract_market_intelligence audit-unit
-  tests:
-  - tests/test_cmi_contract_market_intelligence.py::test_cli_audit_unit_exit_zero
+  - python3 -m scripts.ops.cmi_item_proofs --item CMI-10.1-06 --json
+  tests: []
   files:
   - scripts/ops/contract_market_intelligence.py
   - scripts/reports/operational_reports.py
@@ -43988,9 +44012,9 @@ items:
   evidence:
   - .dod/evidence/DOD-rol-1-definition-of-done-e2debb6d90/proof.json
   - artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/execution-proof-summary.json
-  acceptance_commit: 241ec41f0badf5bd463b66dafe36faa1e2e66876
-  acceptance_pr: '151'
-  accepted_at: '2026-07-27T22:40:13Z'
+  acceptance_commit: ff9b78a86268e63248694d56a99fcf1a4336a60f
+  acceptance_pr: '153'
+  accepted_at: '2026-07-27T23:31:15Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -44035,6 +44059,12 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=909
+  - at: '2026-07-27T23:31:07Z'
+    event: verify
+    detail: VERIFIED head=ff9b78a86268e63248694d56a99fcf1a4336a60f runs=1
+  - at: '2026-07-27T23:31:15Z'
+    event: accept
+    detail: commit=ff9b78a86268e63248694d56a99fcf1a4336a60f branch=main gates_ok=True
   content_fingerprint: e2debb6d90
   evidence_audit:
     status: ok
@@ -44058,9 +44088,8 @@ items:
   dependencies: []
   blockers: []
   acceptance_commands:
-  - python3 -m scripts.ops.contract_market_intelligence audit-unit
-  tests:
-  - tests/test_cmi_contract_market_intelligence.py::test_cli_audit_unit_exit_zero
+  - python3 -m scripts.ops.cmi_item_proofs --item CMI-10.1-07 --json
+  tests: []
   files:
   - scripts/ops/contract_market_intelligence.py
   - scripts/reports/operational_reports.py
@@ -44072,9 +44101,9 @@ items:
   evidence:
   - .dod/evidence/DOD-rol-1-definition-of-done-24581047c4/proof.json
   - artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/execution-proof-summary.json
-  acceptance_commit: 241ec41f0badf5bd463b66dafe36faa1e2e66876
-  acceptance_pr: '151'
-  accepted_at: '2026-07-27T22:40:23Z'
+  acceptance_commit: ff9b78a86268e63248694d56a99fcf1a4336a60f
+  acceptance_pr: '153'
+  accepted_at: '2026-07-27T23:31:37Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -44119,6 +44148,12 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=910
+  - at: '2026-07-27T23:31:29Z'
+    event: verify
+    detail: VERIFIED head=ff9b78a86268e63248694d56a99fcf1a4336a60f runs=1
+  - at: '2026-07-27T23:31:37Z'
+    event: accept
+    detail: commit=ff9b78a86268e63248694d56a99fcf1a4336a60f branch=main gates_ok=True
   content_fingerprint: 24581047c4
   evidence_audit:
     status: ok
@@ -44142,9 +44177,8 @@ items:
   dependencies: []
   blockers: []
   acceptance_commands:
-  - python3 -m scripts.ops.contract_market_intelligence audit-unit
-  tests:
-  - tests/test_cmi_contract_market_intelligence.py::test_cli_audit_unit_exit_zero
+  - python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-01 --json
+  tests: []
   files:
   - scripts/ops/contract_market_intelligence.py
   - scripts/reports/operational_reports.py
@@ -44156,9 +44190,9 @@ items:
   evidence:
   - .dod/evidence/DOD-rol-1-definition-of-done-7114069aad/proof.json
   - artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/execution-proof-summary.json
-  acceptance_commit: 241ec41f0badf5bd463b66dafe36faa1e2e66876
-  acceptance_pr: '151'
-  accepted_at: '2026-07-27T22:40:33Z'
+  acceptance_commit: ff9b78a86268e63248694d56a99fcf1a4336a60f
+  acceptance_pr: '153'
+  accepted_at: '2026-07-27T23:31:55Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -44203,6 +44237,12 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=914
+  - at: '2026-07-27T23:31:47Z'
+    event: verify
+    detail: VERIFIED head=ff9b78a86268e63248694d56a99fcf1a4336a60f runs=1
+  - at: '2026-07-27T23:31:55Z'
+    event: accept
+    detail: commit=ff9b78a86268e63248694d56a99fcf1a4336a60f branch=main gates_ok=True
   content_fingerprint: 7114069aad
   evidence_audit:
     status: ok
@@ -44226,9 +44266,8 @@ items:
   dependencies: []
   blockers: []
   acceptance_commands:
-  - python3 -m scripts.ops.contract_market_intelligence audit-unit
-  tests:
-  - tests/test_cmi_contract_market_intelligence.py::test_cli_audit_unit_exit_zero
+  - python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-02 --json
+  tests: []
   files:
   - scripts/ops/contract_market_intelligence.py
   - scripts/reports/operational_reports.py
@@ -44240,9 +44279,9 @@ items:
   evidence:
   - .dod/evidence/DOD-rol-1-definition-of-done-180363f3c6/proof.json
   - artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/execution-proof-summary.json
-  acceptance_commit: 241ec41f0badf5bd463b66dafe36faa1e2e66876
-  acceptance_pr: '151'
-  accepted_at: '2026-07-27T22:40:47Z'
+  acceptance_commit: ff9b78a86268e63248694d56a99fcf1a4336a60f
+  acceptance_pr: '153'
+  accepted_at: '2026-07-27T23:32:20Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -44287,6 +44326,12 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=915
+  - at: '2026-07-27T23:32:11Z'
+    event: verify
+    detail: VERIFIED head=ff9b78a86268e63248694d56a99fcf1a4336a60f runs=1
+  - at: '2026-07-27T23:32:20Z'
+    event: accept
+    detail: commit=ff9b78a86268e63248694d56a99fcf1a4336a60f branch=main gates_ok=True
   content_fingerprint: 180363f3c6
   evidence_audit:
     status: ok
@@ -44310,9 +44355,8 @@ items:
   dependencies: []
   blockers: []
   acceptance_commands:
-  - python3 -m scripts.ops.contract_market_intelligence audit-unit
-  tests:
-  - tests/test_cmi_contract_market_intelligence.py::test_cli_audit_unit_exit_zero
+  - python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-03 --json
+  tests: []
   files:
   - scripts/ops/contract_market_intelligence.py
   - scripts/reports/operational_reports.py
@@ -44324,9 +44368,9 @@ items:
   evidence:
   - .dod/evidence/DOD-rol-1-definition-of-done-5eb2fbdae2/proof.json
   - artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/execution-proof-summary.json
-  acceptance_commit: 241ec41f0badf5bd463b66dafe36faa1e2e66876
-  acceptance_pr: '151'
-  accepted_at: '2026-07-27T22:40:57Z'
+  acceptance_commit: ff9b78a86268e63248694d56a99fcf1a4336a60f
+  acceptance_pr: '153'
+  accepted_at: '2026-07-27T23:32:42Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -44371,6 +44415,12 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=916
+  - at: '2026-07-27T23:32:31Z'
+    event: verify
+    detail: VERIFIED head=ff9b78a86268e63248694d56a99fcf1a4336a60f runs=1
+  - at: '2026-07-27T23:32:42Z'
+    event: accept
+    detail: commit=ff9b78a86268e63248694d56a99fcf1a4336a60f branch=main gates_ok=True
   content_fingerprint: 5eb2fbdae2
   evidence_audit:
     status: ok
@@ -44394,9 +44444,8 @@ items:
   dependencies: []
   blockers: []
   acceptance_commands:
-  - python3 -m scripts.ops.contract_market_intelligence audit-unit
-  tests:
-  - tests/test_cmi_contract_market_intelligence.py::test_cli_audit_unit_exit_zero
+  - python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-04 --json
+  tests: []
   files:
   - scripts/ops/contract_market_intelligence.py
   - scripts/reports/operational_reports.py
@@ -44408,9 +44457,9 @@ items:
   evidence:
   - .dod/evidence/DOD-rol-1-definition-of-done-24d8ac6823/proof.json
   - artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/execution-proof-summary.json
-  acceptance_commit: 241ec41f0badf5bd463b66dafe36faa1e2e66876
-  acceptance_pr: '151'
-  accepted_at: '2026-07-27T22:41:07Z'
+  acceptance_commit: ff9b78a86268e63248694d56a99fcf1a4336a60f
+  acceptance_pr: '153'
+  accepted_at: '2026-07-27T23:33:02Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -44455,6 +44504,12 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=917
+  - at: '2026-07-27T23:32:53Z'
+    event: verify
+    detail: VERIFIED head=ff9b78a86268e63248694d56a99fcf1a4336a60f runs=1
+  - at: '2026-07-27T23:33:02Z'
+    event: accept
+    detail: commit=ff9b78a86268e63248694d56a99fcf1a4336a60f branch=main gates_ok=True
   content_fingerprint: 24d8ac6823
   evidence_audit:
     status: ok
@@ -44478,9 +44533,8 @@ items:
   dependencies: []
   blockers: []
   acceptance_commands:
-  - python3 -m scripts.ops.contract_market_intelligence audit-unit
-  tests:
-  - tests/test_cmi_contract_market_intelligence.py::test_cli_audit_unit_exit_zero
+  - python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-05 --json
+  tests: []
   files:
   - scripts/ops/contract_market_intelligence.py
   - scripts/reports/operational_reports.py
@@ -44492,9 +44546,9 @@ items:
   evidence:
   - .dod/evidence/DOD-rol-1-definition-of-done-72ffefd4fe/proof.json
   - artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/execution-proof-summary.json
-  acceptance_commit: 241ec41f0badf5bd463b66dafe36faa1e2e66876
-  acceptance_pr: '151'
-  accepted_at: '2026-07-27T22:41:21Z'
+  acceptance_commit: ff9b78a86268e63248694d56a99fcf1a4336a60f
+  acceptance_pr: '153'
+  accepted_at: '2026-07-27T23:33:24Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -44539,6 +44593,12 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=918
+  - at: '2026-07-27T23:33:16Z'
+    event: verify
+    detail: VERIFIED head=ff9b78a86268e63248694d56a99fcf1a4336a60f runs=1
+  - at: '2026-07-27T23:33:24Z'
+    event: accept
+    detail: commit=ff9b78a86268e63248694d56a99fcf1a4336a60f branch=main gates_ok=True
   content_fingerprint: 72ffefd4fe
   evidence_audit:
     status: ok
@@ -44562,9 +44622,8 @@ items:
   dependencies: []
   blockers: []
   acceptance_commands:
-  - python3 -m scripts.ops.contract_market_intelligence audit-unit
-  tests:
-  - tests/test_cmi_contract_market_intelligence.py::test_cli_audit_unit_exit_zero
+  - python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-06 --json
+  tests: []
   files:
   - scripts/ops/contract_market_intelligence.py
   - scripts/reports/operational_reports.py
@@ -44576,9 +44635,9 @@ items:
   evidence:
   - .dod/evidence/DOD-rol-1-definition-of-done-28a1c47d70/proof.json
   - artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/execution-proof-summary.json
-  acceptance_commit: 241ec41f0badf5bd463b66dafe36faa1e2e66876
-  acceptance_pr: '151'
-  accepted_at: '2026-07-27T22:41:31Z'
+  acceptance_commit: ff9b78a86268e63248694d56a99fcf1a4336a60f
+  acceptance_pr: '153'
+  accepted_at: '2026-07-27T23:33:44Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -44623,6 +44682,12 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=919
+  - at: '2026-07-27T23:33:36Z'
+    event: verify
+    detail: VERIFIED head=ff9b78a86268e63248694d56a99fcf1a4336a60f runs=1
+  - at: '2026-07-27T23:33:44Z'
+    event: accept
+    detail: commit=ff9b78a86268e63248694d56a99fcf1a4336a60f branch=main gates_ok=True
   content_fingerprint: 28a1c47d70
   evidence_audit:
     status: ok
@@ -44646,9 +44711,8 @@ items:
   dependencies: []
   blockers: []
   acceptance_commands:
-  - python3 -m scripts.ops.contract_market_intelligence audit-unit
-  tests:
-  - tests/test_cmi_contract_market_intelligence.py::test_cli_audit_unit_exit_zero
+  - python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-07 --json
+  tests: []
   files:
   - scripts/ops/contract_market_intelligence.py
   - scripts/reports/operational_reports.py
@@ -44660,9 +44724,9 @@ items:
   evidence:
   - .dod/evidence/DOD-rol-1-definition-of-done-f32083927c/proof.json
   - artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/execution-proof-summary.json
-  acceptance_commit: 241ec41f0badf5bd463b66dafe36faa1e2e66876
-  acceptance_pr: '151'
-  accepted_at: '2026-07-27T22:41:41Z'
+  acceptance_commit: ff9b78a86268e63248694d56a99fcf1a4336a60f
+  acceptance_pr: '153'
+  accepted_at: '2026-07-27T23:34:07Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -44707,6 +44771,12 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=920
+  - at: '2026-07-27T23:33:59Z'
+    event: verify
+    detail: VERIFIED head=ff9b78a86268e63248694d56a99fcf1a4336a60f runs=1
+  - at: '2026-07-27T23:34:07Z'
+    event: accept
+    detail: commit=ff9b78a86268e63248694d56a99fcf1a4336a60f branch=main gates_ok=True
   content_fingerprint: f32083927c
   evidence_audit:
     status: ok
@@ -44730,9 +44800,8 @@ items:
   dependencies: []
   blockers: []
   acceptance_commands:
-  - python3 -m scripts.ops.contract_market_intelligence audit-unit
-  tests:
-  - tests/test_cmi_contract_market_intelligence.py::test_cli_audit_unit_exit_zero
+  - python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-08 --json
+  tests: []
   files:
   - scripts/ops/contract_market_intelligence.py
   - scripts/reports/operational_reports.py
@@ -44744,9 +44813,9 @@ items:
   evidence:
   - .dod/evidence/DOD-rol-1-definition-of-done-f11737c2bf/proof.json
   - artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/execution-proof-summary.json
-  acceptance_commit: 241ec41f0badf5bd463b66dafe36faa1e2e66876
-  acceptance_pr: '151'
-  accepted_at: '2026-07-27T22:41:55Z'
+  acceptance_commit: ff9b78a86268e63248694d56a99fcf1a4336a60f
+  acceptance_pr: '153'
+  accepted_at: '2026-07-27T23:34:30Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -44791,6 +44860,12 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=921
+  - at: '2026-07-27T23:34:18Z'
+    event: verify
+    detail: VERIFIED head=ff9b78a86268e63248694d56a99fcf1a4336a60f runs=1
+  - at: '2026-07-27T23:34:30Z'
+    event: accept
+    detail: commit=ff9b78a86268e63248694d56a99fcf1a4336a60f branch=main gates_ok=True
   content_fingerprint: f11737c2bf
   evidence_audit:
     status: ok
@@ -44814,9 +44889,8 @@ items:
   dependencies: []
   blockers: []
   acceptance_commands:
-  - python3 -m scripts.ops.contract_market_intelligence audit-unit
-  tests:
-  - tests/test_cmi_contract_market_intelligence.py::test_cli_audit_unit_exit_zero
+  - python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-09 --json
+  tests: []
   files:
   - scripts/ops/contract_market_intelligence.py
   - scripts/reports/operational_reports.py
@@ -44828,9 +44902,9 @@ items:
   evidence:
   - .dod/evidence/DOD-rol-1-definition-of-done-e5557d5607/proof.json
   - artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/execution-proof-summary.json
-  acceptance_commit: 241ec41f0badf5bd463b66dafe36faa1e2e66876
-  acceptance_pr: '151'
-  accepted_at: '2026-07-27T22:42:05Z'
+  acceptance_commit: ff9b78a86268e63248694d56a99fcf1a4336a60f
+  acceptance_pr: '153'
+  accepted_at: '2026-07-27T23:34:49Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -44875,6 +44949,12 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=922
+  - at: '2026-07-27T23:34:41Z'
+    event: verify
+    detail: VERIFIED head=ff9b78a86268e63248694d56a99fcf1a4336a60f runs=1
+  - at: '2026-07-27T23:34:49Z'
+    event: accept
+    detail: commit=ff9b78a86268e63248694d56a99fcf1a4336a60f branch=main gates_ok=True
   content_fingerprint: e5557d5607
   evidence_audit:
     status: ok
@@ -44898,9 +44978,8 @@ items:
   dependencies: []
   blockers: []
   acceptance_commands:
-  - python3 -m scripts.ops.contract_market_intelligence audit-unit
-  tests:
-  - tests/test_cmi_contract_market_intelligence.py::test_cli_audit_unit_exit_zero
+  - python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-10 --json
+  tests: []
   files:
   - scripts/ops/contract_market_intelligence.py
   - scripts/reports/operational_reports.py
@@ -44912,9 +44991,9 @@ items:
   evidence:
   - .dod/evidence/DOD-rol-1-definition-of-done-df0c666a5f/proof.json
   - artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/execution-proof-summary.json
-  acceptance_commit: 241ec41f0badf5bd463b66dafe36faa1e2e66876
-  acceptance_pr: '151'
-  accepted_at: '2026-07-27T22:42:15Z'
+  acceptance_commit: ff9b78a86268e63248694d56a99fcf1a4336a60f
+  acceptance_pr: '153'
+  accepted_at: '2026-07-27T23:35:11Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -44959,6 +45038,12 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=923
+  - at: '2026-07-27T23:35:03Z'
+    event: verify
+    detail: VERIFIED head=ff9b78a86268e63248694d56a99fcf1a4336a60f runs=1
+  - at: '2026-07-27T23:35:11Z'
+    event: accept
+    detail: commit=ff9b78a86268e63248694d56a99fcf1a4336a60f branch=main gates_ok=True
   content_fingerprint: df0c666a5f
   evidence_audit:
     status: ok
@@ -44982,9 +45067,8 @@ items:
   dependencies: []
   blockers: []
   acceptance_commands:
-  - python3 -m scripts.ops.contract_market_intelligence audit-unit
-  tests:
-  - tests/test_cmi_contract_market_intelligence.py::test_cli_audit_unit_exit_zero
+  - python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-11 --json
+  tests: []
   files:
   - scripts/ops/contract_market_intelligence.py
   - scripts/reports/operational_reports.py
@@ -44996,9 +45080,9 @@ items:
   evidence:
   - .dod/evidence/DOD-rol-1-definition-of-done-ff54a45a75/proof.json
   - artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/execution-proof-summary.json
-  acceptance_commit: 241ec41f0badf5bd463b66dafe36faa1e2e66876
-  acceptance_pr: '151'
-  accepted_at: '2026-07-27T22:42:29Z'
+  acceptance_commit: ff9b78a86268e63248694d56a99fcf1a4336a60f
+  acceptance_pr: '153'
+  accepted_at: '2026-07-27T23:35:29Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -45043,6 +45127,12 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=924
+  - at: '2026-07-27T23:35:21Z'
+    event: verify
+    detail: VERIFIED head=ff9b78a86268e63248694d56a99fcf1a4336a60f runs=1
+  - at: '2026-07-27T23:35:29Z'
+    event: accept
+    detail: commit=ff9b78a86268e63248694d56a99fcf1a4336a60f branch=main gates_ok=True
   content_fingerprint: ff54a45a75
   evidence_audit:
     status: ok
@@ -45066,9 +45156,8 @@ items:
   dependencies: []
   blockers: []
   acceptance_commands:
-  - python3 -m scripts.ops.contract_market_intelligence audit-unit
-  tests:
-  - tests/test_cmi_contract_market_intelligence.py::test_cli_audit_unit_exit_zero
+  - python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-12 --json
+  tests: []
   files:
   - scripts/ops/contract_market_intelligence.py
   - scripts/reports/operational_reports.py
@@ -45080,9 +45169,9 @@ items:
   evidence:
   - .dod/evidence/DOD-rol-1-definition-of-done-926290cde1/proof.json
   - artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/execution-proof-summary.json
-  acceptance_commit: 241ec41f0badf5bd463b66dafe36faa1e2e66876
-  acceptance_pr: '151'
-  accepted_at: '2026-07-27T22:42:39Z'
+  acceptance_commit: ff9b78a86268e63248694d56a99fcf1a4336a60f
+  acceptance_pr: '153'
+  accepted_at: '2026-07-27T23:35:51Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -45127,6 +45216,12 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=925
+  - at: '2026-07-27T23:35:43Z'
+    event: verify
+    detail: VERIFIED head=ff9b78a86268e63248694d56a99fcf1a4336a60f runs=1
+  - at: '2026-07-27T23:35:51Z'
+    event: accept
+    detail: commit=ff9b78a86268e63248694d56a99fcf1a4336a60f branch=main gates_ok=True
   content_fingerprint: 926290cde1
   evidence_audit:
     status: ok
@@ -45150,9 +45245,8 @@ items:
   dependencies: []
   blockers: []
   acceptance_commands:
-  - python3 -m scripts.ops.contract_market_intelligence audit-unit
-  tests:
-  - tests/test_cmi_contract_market_intelligence.py::test_cli_audit_unit_exit_zero
+  - python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-13 --json
+  tests: []
   files:
   - scripts/ops/contract_market_intelligence.py
   - scripts/reports/operational_reports.py
@@ -45164,9 +45258,9 @@ items:
   evidence:
   - .dod/evidence/DOD-rol-1-definition-of-done-849f610ada/proof.json
   - artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/execution-proof-summary.json
-  acceptance_commit: 241ec41f0badf5bd463b66dafe36faa1e2e66876
-  acceptance_pr: '151'
-  accepted_at: '2026-07-27T22:42:49Z'
+  acceptance_commit: ff9b78a86268e63248694d56a99fcf1a4336a60f
+  acceptance_pr: '153'
+  accepted_at: '2026-07-27T23:36:14Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -45211,6 +45305,12 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=926
+  - at: '2026-07-27T23:36:02Z'
+    event: verify
+    detail: VERIFIED head=ff9b78a86268e63248694d56a99fcf1a4336a60f runs=1
+  - at: '2026-07-27T23:36:14Z'
+    event: accept
+    detail: commit=ff9b78a86268e63248694d56a99fcf1a4336a60f branch=main gates_ok=True
   content_fingerprint: 849f610ada
   evidence_audit:
     status: ok
@@ -45234,9 +45334,8 @@ items:
   dependencies: []
   blockers: []
   acceptance_commands:
-  - python3 -m scripts.ops.contract_market_intelligence audit-unit
-  tests:
-  - tests/test_cmi_contract_market_intelligence.py::test_cli_audit_unit_exit_zero
+  - python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-14 --json
+  tests: []
   files:
   - scripts/ops/contract_market_intelligence.py
   - scripts/reports/operational_reports.py
@@ -45248,9 +45347,9 @@ items:
   evidence:
   - .dod/evidence/DOD-rol-1-definition-of-done-fd5b78c29d/proof.json
   - artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/execution-proof-summary.json
-  acceptance_commit: 241ec41f0badf5bd463b66dafe36faa1e2e66876
-  acceptance_pr: '151'
-  accepted_at: '2026-07-27T22:43:00Z'
+  acceptance_commit: ff9b78a86268e63248694d56a99fcf1a4336a60f
+  acceptance_pr: '153'
+  accepted_at: '2026-07-27T23:36:32Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -45295,6 +45394,12 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=927
+  - at: '2026-07-27T23:36:24Z'
+    event: verify
+    detail: VERIFIED head=ff9b78a86268e63248694d56a99fcf1a4336a60f runs=1
+  - at: '2026-07-27T23:36:32Z'
+    event: accept
+    detail: commit=ff9b78a86268e63248694d56a99fcf1a4336a60f branch=main gates_ok=True
   content_fingerprint: fd5b78c29d
   evidence_audit:
     status: ok
@@ -45318,9 +45423,8 @@ items:
   dependencies: []
   blockers: []
   acceptance_commands:
-  - python3 -m scripts.ops.contract_market_intelligence audit-unit
-  tests:
-  - tests/test_cmi_contract_market_intelligence.py::test_cli_audit_unit_exit_zero
+  - python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-15 --json
+  tests: []
   files:
   - scripts/ops/contract_market_intelligence.py
   - scripts/reports/operational_reports.py
@@ -45332,9 +45436,9 @@ items:
   evidence:
   - .dod/evidence/DOD-rol-1-definition-of-done-96ca22dde7/proof.json
   - artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/execution-proof-summary.json
-  acceptance_commit: 241ec41f0badf5bd463b66dafe36faa1e2e66876
-  acceptance_pr: '151'
-  accepted_at: '2026-07-27T22:43:13Z'
+  acceptance_commit: ff9b78a86268e63248694d56a99fcf1a4336a60f
+  acceptance_pr: '153'
+  accepted_at: '2026-07-27T23:36:55Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -45379,6 +45483,12 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=928
+  - at: '2026-07-27T23:36:43Z'
+    event: verify
+    detail: VERIFIED head=ff9b78a86268e63248694d56a99fcf1a4336a60f runs=1
+  - at: '2026-07-27T23:36:55Z'
+    event: accept
+    detail: commit=ff9b78a86268e63248694d56a99fcf1a4336a60f branch=main gates_ok=True
   content_fingerprint: 96ca22dde7
   evidence_audit:
     status: ok
@@ -45402,9 +45512,8 @@ items:
   dependencies: []
   blockers: []
   acceptance_commands:
-  - python3 -m scripts.ops.contract_market_intelligence audit-unit
-  tests:
-  - tests/test_cmi_contract_market_intelligence.py::test_cli_audit_unit_exit_zero
+  - python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-16 --json
+  tests: []
   files:
   - scripts/ops/contract_market_intelligence.py
   - scripts/reports/operational_reports.py
@@ -45416,9 +45525,9 @@ items:
   evidence:
   - .dod/evidence/DOD-rol-1-definition-of-done-e26def5c74/proof.json
   - artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/execution-proof-summary.json
-  acceptance_commit: 241ec41f0badf5bd463b66dafe36faa1e2e66876
-  acceptance_pr: '151'
-  accepted_at: '2026-07-27T22:43:23Z'
+  acceptance_commit: ff9b78a86268e63248694d56a99fcf1a4336a60f
+  acceptance_pr: '153'
+  accepted_at: '2026-07-27T23:37:14Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -45463,6 +45572,12 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=929
+  - at: '2026-07-27T23:37:06Z'
+    event: verify
+    detail: VERIFIED head=ff9b78a86268e63248694d56a99fcf1a4336a60f runs=1
+  - at: '2026-07-27T23:37:14Z'
+    event: accept
+    detail: commit=ff9b78a86268e63248694d56a99fcf1a4336a60f branch=main gates_ok=True
   content_fingerprint: e26def5c74
   evidence_audit:
     status: ok
@@ -45486,9 +45601,8 @@ items:
   dependencies: []
   blockers: []
   acceptance_commands:
-  - python3 -m scripts.ops.contract_market_intelligence audit-unit
-  tests:
-  - tests/test_cmi_contract_market_intelligence.py::test_cli_audit_unit_exit_zero
+  - python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-17 --json
+  tests: []
   files:
   - scripts/ops/contract_market_intelligence.py
   - scripts/reports/operational_reports.py
@@ -45500,9 +45614,9 @@ items:
   evidence:
   - .dod/evidence/DOD-rol-1-definition-of-done-2c30e375c5/proof.json
   - artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/execution-proof-summary.json
-  acceptance_commit: 241ec41f0badf5bd463b66dafe36faa1e2e66876
-  acceptance_pr: '151'
-  accepted_at: '2026-07-27T22:43:34Z'
+  acceptance_commit: ff9b78a86268e63248694d56a99fcf1a4336a60f
+  acceptance_pr: '153'
+  accepted_at: '2026-07-27T23:37:36Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -45547,6 +45661,12 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=930
+  - at: '2026-07-27T23:37:28Z'
+    event: verify
+    detail: VERIFIED head=ff9b78a86268e63248694d56a99fcf1a4336a60f runs=1
+  - at: '2026-07-27T23:37:36Z'
+    event: accept
+    detail: commit=ff9b78a86268e63248694d56a99fcf1a4336a60f branch=main gates_ok=True
   content_fingerprint: 2c30e375c5
   evidence_audit:
     status: ok
@@ -45570,9 +45690,8 @@ items:
   dependencies: []
   blockers: []
   acceptance_commands:
-  - python3 -m scripts.ops.contract_market_intelligence audit-unit
-  tests:
-  - tests/test_cmi_contract_market_intelligence.py::test_cli_audit_unit_exit_zero
+  - python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-18 --json
+  tests: []
   files:
   - scripts/ops/contract_market_intelligence.py
   - scripts/reports/operational_reports.py
@@ -45584,9 +45703,9 @@ items:
   evidence:
   - .dod/evidence/DOD-rol-1-definition-of-done-3f13a31ef1/proof.json
   - artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/execution-proof-summary.json
-  acceptance_commit: 241ec41f0badf5bd463b66dafe36faa1e2e66876
-  acceptance_pr: '151'
-  accepted_at: '2026-07-27T22:43:47Z'
+  acceptance_commit: ff9b78a86268e63248694d56a99fcf1a4336a60f
+  acceptance_pr: '153'
+  accepted_at: '2026-07-27T23:37:55Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -45631,6 +45750,12 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=931
+  - at: '2026-07-27T23:37:47Z'
+    event: verify
+    detail: VERIFIED head=ff9b78a86268e63248694d56a99fcf1a4336a60f runs=1
+  - at: '2026-07-27T23:37:55Z'
+    event: accept
+    detail: commit=ff9b78a86268e63248694d56a99fcf1a4336a60f branch=main gates_ok=True
   content_fingerprint: 3f13a31ef1
   evidence_audit:
     status: ok
@@ -45654,9 +45779,8 @@ items:
   dependencies: []
   blockers: []
   acceptance_commands:
-  - python3 -m scripts.ops.contract_market_intelligence audit-unit
-  tests:
-  - tests/test_cmi_contract_market_intelligence.py::test_cli_audit_unit_exit_zero
+  - python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-19 --json
+  tests: []
   files:
   - scripts/ops/contract_market_intelligence.py
   - scripts/reports/operational_reports.py
@@ -45668,9 +45792,9 @@ items:
   evidence:
   - .dod/evidence/DOD-rol-1-definition-of-done-58f3b88564/proof.json
   - artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/execution-proof-summary.json
-  acceptance_commit: 241ec41f0badf5bd463b66dafe36faa1e2e66876
-  acceptance_pr: '151'
-  accepted_at: '2026-07-27T22:43:57Z'
+  acceptance_commit: ff9b78a86268e63248694d56a99fcf1a4336a60f
+  acceptance_pr: '153'
+  accepted_at: '2026-07-27T23:38:17Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -45715,6 +45839,12 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=932
+  - at: '2026-07-27T23:38:09Z'
+    event: verify
+    detail: VERIFIED head=ff9b78a86268e63248694d56a99fcf1a4336a60f runs=1
+  - at: '2026-07-27T23:38:17Z'
+    event: accept
+    detail: commit=ff9b78a86268e63248694d56a99fcf1a4336a60f branch=main gates_ok=True
   content_fingerprint: 58f3b88564
   evidence_audit:
     status: ok
@@ -45738,9 +45868,8 @@ items:
   dependencies: []
   blockers: []
   acceptance_commands:
-  - python3 -m scripts.ops.contract_market_intelligence audit-unit
-  tests:
-  - tests/test_cmi_contract_market_intelligence.py::test_cli_audit_unit_exit_zero
+  - python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-20 --json
+  tests: []
   files:
   - scripts/ops/contract_market_intelligence.py
   - scripts/reports/operational_reports.py
@@ -45752,9 +45881,9 @@ items:
   evidence:
   - .dod/evidence/DOD-rol-1-definition-of-done-f2cc2a2ae5/proof.json
   - artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/execution-proof-summary.json
-  acceptance_commit: 241ec41f0badf5bd463b66dafe36faa1e2e66876
-  acceptance_pr: '151'
-  accepted_at: '2026-07-27T22:44:08Z'
+  acceptance_commit: ff9b78a86268e63248694d56a99fcf1a4336a60f
+  acceptance_pr: '153'
+  accepted_at: '2026-07-27T23:38:40Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -45799,6 +45928,12 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=933
+  - at: '2026-07-27T23:38:28Z'
+    event: verify
+    detail: VERIFIED head=ff9b78a86268e63248694d56a99fcf1a4336a60f runs=1
+  - at: '2026-07-27T23:38:40Z'
+    event: accept
+    detail: commit=ff9b78a86268e63248694d56a99fcf1a4336a60f branch=main gates_ok=True
   content_fingerprint: f2cc2a2ae5
   evidence_audit:
     status: ok
@@ -45822,9 +45957,8 @@ items:
   dependencies: []
   blockers: []
   acceptance_commands:
-  - python3 -m scripts.ops.contract_market_intelligence audit-unit
-  tests:
-  - tests/test_cmi_contract_market_intelligence.py::test_cli_audit_unit_exit_zero
+  - python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-01 --json
+  tests: []
   files:
   - scripts/ops/contract_market_intelligence.py
   - scripts/reports/operational_reports.py
@@ -45836,9 +45970,9 @@ items:
   evidence:
   - .dod/evidence/DOD-rol-1-definition-of-done-7e3e9e1447/proof.json
   - artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/execution-proof-summary.json
-  acceptance_commit: 241ec41f0badf5bd463b66dafe36faa1e2e66876
-  acceptance_pr: '151'
-  accepted_at: '2026-07-27T22:44:21Z'
+  acceptance_commit: ff9b78a86268e63248694d56a99fcf1a4336a60f
+  acceptance_pr: '153'
+  accepted_at: '2026-07-27T23:38:59Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -45883,6 +46017,12 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=941
+  - at: '2026-07-27T23:38:51Z'
+    event: verify
+    detail: VERIFIED head=ff9b78a86268e63248694d56a99fcf1a4336a60f runs=1
+  - at: '2026-07-27T23:38:59Z'
+    event: accept
+    detail: commit=ff9b78a86268e63248694d56a99fcf1a4336a60f branch=main gates_ok=True
   content_fingerprint: 7e3e9e1447
   evidence_audit:
     status: ok
@@ -45906,9 +46046,8 @@ items:
   dependencies: []
   blockers: []
   acceptance_commands:
-  - python3 -m scripts.ops.contract_market_intelligence audit-unit
-  tests:
-  - tests/test_cmi_contract_market_intelligence.py::test_cli_audit_unit_exit_zero
+  - python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-02 --json
+  tests: []
   files:
   - scripts/ops/contract_market_intelligence.py
   - scripts/reports/operational_reports.py
@@ -45920,9 +46059,9 @@ items:
   evidence:
   - .dod/evidence/DOD-rol-1-definition-of-done-9138b9d0df/proof.json
   - artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/execution-proof-summary.json
-  acceptance_commit: 241ec41f0badf5bd463b66dafe36faa1e2e66876
-  acceptance_pr: '151'
-  accepted_at: '2026-07-27T22:44:32Z'
+  acceptance_commit: ff9b78a86268e63248694d56a99fcf1a4336a60f
+  acceptance_pr: '153'
+  accepted_at: '2026-07-27T23:39:21Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -45967,6 +46106,12 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=942
+  - at: '2026-07-27T23:39:13Z'
+    event: verify
+    detail: VERIFIED head=ff9b78a86268e63248694d56a99fcf1a4336a60f runs=1
+  - at: '2026-07-27T23:39:21Z'
+    event: accept
+    detail: commit=ff9b78a86268e63248694d56a99fcf1a4336a60f branch=main gates_ok=True
   content_fingerprint: 9138b9d0df
   evidence_audit:
     status: ok
@@ -45990,9 +46135,8 @@ items:
   dependencies: []
   blockers: []
   acceptance_commands:
-  - python3 -m scripts.ops.contract_market_intelligence audit-unit
-  tests:
-  - tests/test_cmi_contract_market_intelligence.py::test_cli_audit_unit_exit_zero
+  - python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-03 --json
+  tests: []
   files:
   - scripts/ops/contract_market_intelligence.py
   - scripts/reports/operational_reports.py
@@ -46004,9 +46148,9 @@ items:
   evidence:
   - .dod/evidence/DOD-rol-1-definition-of-done-532d802562/proof.json
   - artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/execution-proof-summary.json
-  acceptance_commit: 241ec41f0badf5bd463b66dafe36faa1e2e66876
-  acceptance_pr: '151'
-  accepted_at: '2026-07-27T22:44:42Z'
+  acceptance_commit: ff9b78a86268e63248694d56a99fcf1a4336a60f
+  acceptance_pr: '153'
+  accepted_at: '2026-07-27T23:39:40Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -46051,6 +46195,12 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=943
+  - at: '2026-07-27T23:39:32Z'
+    event: verify
+    detail: VERIFIED head=ff9b78a86268e63248694d56a99fcf1a4336a60f runs=1
+  - at: '2026-07-27T23:39:40Z'
+    event: accept
+    detail: commit=ff9b78a86268e63248694d56a99fcf1a4336a60f branch=main gates_ok=True
   content_fingerprint: 532d802562
   evidence_audit:
     status: ok
@@ -46074,9 +46224,8 @@ items:
   dependencies: []
   blockers: []
   acceptance_commands:
-  - python3 -m scripts.ops.contract_market_intelligence audit-unit
-  tests:
-  - tests/test_cmi_contract_market_intelligence.py::test_cli_audit_unit_exit_zero
+  - python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-04 --json
+  tests: []
   files:
   - scripts/ops/contract_market_intelligence.py
   - scripts/reports/operational_reports.py
@@ -46088,9 +46237,9 @@ items:
   evidence:
   - .dod/evidence/DOD-rol-1-definition-of-done-76039ae8d2/proof.json
   - artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/execution-proof-summary.json
-  acceptance_commit: 241ec41f0badf5bd463b66dafe36faa1e2e66876
-  acceptance_pr: '151'
-  accepted_at: '2026-07-27T22:44:56Z'
+  acceptance_commit: ff9b78a86268e63248694d56a99fcf1a4336a60f
+  acceptance_pr: '153'
+  accepted_at: '2026-07-27T23:40:02Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -46135,6 +46284,12 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=944
+  - at: '2026-07-27T23:39:54Z'
+    event: verify
+    detail: VERIFIED head=ff9b78a86268e63248694d56a99fcf1a4336a60f runs=1
+  - at: '2026-07-27T23:40:02Z'
+    event: accept
+    detail: commit=ff9b78a86268e63248694d56a99fcf1a4336a60f branch=main gates_ok=True
   content_fingerprint: 76039ae8d2
   evidence_audit:
     status: ok
@@ -46158,9 +46313,8 @@ items:
   dependencies: []
   blockers: []
   acceptance_commands:
-  - python3 -m scripts.ops.contract_market_intelligence audit-unit
-  tests:
-  - tests/test_cmi_contract_market_intelligence.py::test_cli_audit_unit_exit_zero
+  - python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-05 --json
+  tests: []
   files:
   - scripts/ops/contract_market_intelligence.py
   - scripts/reports/operational_reports.py
@@ -46172,9 +46326,9 @@ items:
   evidence:
   - .dod/evidence/DOD-rol-1-definition-of-done-7d7b10b055/proof.json
   - artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/execution-proof-summary.json
-  acceptance_commit: 241ec41f0badf5bd463b66dafe36faa1e2e66876
-  acceptance_pr: '151'
-  accepted_at: '2026-07-27T22:45:07Z'
+  acceptance_commit: ff9b78a86268e63248694d56a99fcf1a4336a60f
+  acceptance_pr: '153'
+  accepted_at: '2026-07-27T23:40:25Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -46219,6 +46373,12 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=945
+  - at: '2026-07-27T23:40:13Z'
+    event: verify
+    detail: VERIFIED head=ff9b78a86268e63248694d56a99fcf1a4336a60f runs=1
+  - at: '2026-07-27T23:40:25Z'
+    event: accept
+    detail: commit=ff9b78a86268e63248694d56a99fcf1a4336a60f branch=main gates_ok=True
   content_fingerprint: 7d7b10b055
   evidence_audit:
     status: ok
@@ -46242,9 +46402,8 @@ items:
   dependencies: []
   blockers: []
   acceptance_commands:
-  - python3 -m scripts.ops.contract_market_intelligence audit-unit
-  tests:
-  - tests/test_cmi_contract_market_intelligence.py::test_cli_audit_unit_exit_zero
+  - python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-06 --json
+  tests: []
   files:
   - scripts/ops/contract_market_intelligence.py
   - scripts/reports/operational_reports.py
@@ -46256,9 +46415,9 @@ items:
   evidence:
   - .dod/evidence/DOD-rol-1-definition-of-done-3bb3874141/proof.json
   - artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/execution-proof-summary.json
-  acceptance_commit: 241ec41f0badf5bd463b66dafe36faa1e2e66876
-  acceptance_pr: '151'
-  accepted_at: '2026-07-27T22:45:17Z'
+  acceptance_commit: ff9b78a86268e63248694d56a99fcf1a4336a60f
+  acceptance_pr: '153'
+  accepted_at: '2026-07-27T23:40:43Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -46303,6 +46462,12 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=946
+  - at: '2026-07-27T23:40:35Z'
+    event: verify
+    detail: VERIFIED head=ff9b78a86268e63248694d56a99fcf1a4336a60f runs=1
+  - at: '2026-07-27T23:40:43Z'
+    event: accept
+    detail: commit=ff9b78a86268e63248694d56a99fcf1a4336a60f branch=main gates_ok=True
   content_fingerprint: 3bb3874141
   evidence_audit:
     status: ok
@@ -46326,9 +46491,8 @@ items:
   dependencies: []
   blockers: []
   acceptance_commands:
-  - python3 -m scripts.ops.contract_market_intelligence audit-unit
-  tests:
-  - tests/test_cmi_contract_market_intelligence.py::test_cli_audit_unit_exit_zero
+  - python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-07 --json
+  tests: []
   files:
   - scripts/ops/contract_market_intelligence.py
   - scripts/reports/operational_reports.py
@@ -46340,9 +46504,9 @@ items:
   evidence:
   - .dod/evidence/DOD-rol-1-definition-of-done-4fc2390171/proof.json
   - artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/execution-proof-summary.json
-  acceptance_commit: 241ec41f0badf5bd463b66dafe36faa1e2e66876
-  acceptance_pr: '151'
-  accepted_at: '2026-07-27T22:45:31Z'
+  acceptance_commit: ff9b78a86268e63248694d56a99fcf1a4336a60f
+  acceptance_pr: '153'
+  accepted_at: '2026-07-27T23:41:05Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -46387,6 +46551,12 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=947
+  - at: '2026-07-27T23:40:53Z'
+    event: verify
+    detail: VERIFIED head=ff9b78a86268e63248694d56a99fcf1a4336a60f runs=1
+  - at: '2026-07-27T23:41:05Z'
+    event: accept
+    detail: commit=ff9b78a86268e63248694d56a99fcf1a4336a60f branch=main gates_ok=True
   content_fingerprint: 4fc2390171
   evidence_audit:
     status: ok
@@ -46410,9 +46580,8 @@ items:
   dependencies: []
   blockers: []
   acceptance_commands:
-  - python3 -m scripts.ops.contract_market_intelligence audit-unit
-  tests:
-  - tests/test_cmi_contract_market_intelligence.py::test_cli_audit_unit_exit_zero
+  - python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-08 --json
+  tests: []
   files:
   - scripts/ops/contract_market_intelligence.py
   - scripts/reports/operational_reports.py
@@ -46424,9 +46593,9 @@ items:
   evidence:
   - .dod/evidence/DOD-rol-1-definition-of-done-262f17e7ec/proof.json
   - artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/execution-proof-summary.json
-  acceptance_commit: 241ec41f0badf5bd463b66dafe36faa1e2e66876
-  acceptance_pr: '151'
-  accepted_at: '2026-07-27T22:45:41Z'
+  acceptance_commit: ff9b78a86268e63248694d56a99fcf1a4336a60f
+  acceptance_pr: '153'
+  accepted_at: '2026-07-27T23:41:24Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -46471,6 +46640,12 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=948
+  - at: '2026-07-27T23:41:16Z'
+    event: verify
+    detail: VERIFIED head=ff9b78a86268e63248694d56a99fcf1a4336a60f runs=1
+  - at: '2026-07-27T23:41:24Z'
+    event: accept
+    detail: commit=ff9b78a86268e63248694d56a99fcf1a4336a60f branch=main gates_ok=True
   content_fingerprint: 262f17e7ec
   evidence_audit:
     status: ok
@@ -46494,9 +46669,8 @@ items:
   dependencies: []
   blockers: []
   acceptance_commands:
-  - python3 -m scripts.ops.contract_market_intelligence audit-unit
-  tests:
-  - tests/test_cmi_contract_market_intelligence.py::test_cli_audit_unit_exit_zero
+  - python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-09 --json
+  tests: []
   files:
   - scripts/ops/contract_market_intelligence.py
   - scripts/reports/operational_reports.py
@@ -46508,9 +46682,9 @@ items:
   evidence:
   - .dod/evidence/DOD-rol-1-definition-of-done-53115f162e/proof.json
   - artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/execution-proof-summary.json
-  acceptance_commit: 241ec41f0badf5bd463b66dafe36faa1e2e66876
-  acceptance_pr: '151'
-  accepted_at: '2026-07-27T22:45:51Z'
+  acceptance_commit: ff9b78a86268e63248694d56a99fcf1a4336a60f
+  acceptance_pr: '153'
+  accepted_at: '2026-07-27T23:41:47Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -46555,6 +46729,12 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=949
+  - at: '2026-07-27T23:41:39Z'
+    event: verify
+    detail: VERIFIED head=ff9b78a86268e63248694d56a99fcf1a4336a60f runs=1
+  - at: '2026-07-27T23:41:47Z'
+    event: accept
+    detail: commit=ff9b78a86268e63248694d56a99fcf1a4336a60f branch=main gates_ok=True
   content_fingerprint: 53115f162e
   evidence_audit:
     status: ok
@@ -46578,9 +46758,8 @@ items:
   dependencies: []
   blockers: []
   acceptance_commands:
-  - python3 -m scripts.ops.contract_market_intelligence audit-unit
-  tests:
-  - tests/test_cmi_contract_market_intelligence.py::test_cli_audit_unit_exit_zero
+  - python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-10 --json
+  tests: []
   files:
   - scripts/ops/contract_market_intelligence.py
   - scripts/reports/operational_reports.py
@@ -46592,9 +46771,9 @@ items:
   evidence:
   - .dod/evidence/DOD-rol-1-definition-of-done-50bb794fc7/proof.json
   - artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/execution-proof-summary.json
-  acceptance_commit: 241ec41f0badf5bd463b66dafe36faa1e2e66876
-  acceptance_pr: '151'
-  accepted_at: '2026-07-27T22:46:04Z'
+  acceptance_commit: ff9b78a86268e63248694d56a99fcf1a4336a60f
+  acceptance_pr: '153'
+  accepted_at: '2026-07-27T23:42:06Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -46639,6 +46818,12 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=950
+  - at: '2026-07-27T23:41:58Z'
+    event: verify
+    detail: VERIFIED head=ff9b78a86268e63248694d56a99fcf1a4336a60f runs=1
+  - at: '2026-07-27T23:42:06Z'
+    event: accept
+    detail: commit=ff9b78a86268e63248694d56a99fcf1a4336a60f branch=main gates_ok=True
   content_fingerprint: 50bb794fc7
   evidence_audit:
     status: ok
@@ -46662,9 +46847,8 @@ items:
   dependencies: []
   blockers: []
   acceptance_commands:
-  - python3 -m scripts.ops.contract_market_intelligence audit-unit
-  tests:
-  - tests/test_cmi_contract_market_intelligence.py::test_cli_audit_unit_exit_zero
+  - python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-11 --json
+  tests: []
   files:
   - scripts/ops/contract_market_intelligence.py
   - scripts/reports/operational_reports.py
@@ -46676,9 +46860,9 @@ items:
   evidence:
   - .dod/evidence/DOD-rol-1-definition-of-done-dc5790ffeb/proof.json
   - artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/execution-proof-summary.json
-  acceptance_commit: 241ec41f0badf5bd463b66dafe36faa1e2e66876
-  acceptance_pr: '151'
-  accepted_at: '2026-07-27T22:46:14Z'
+  acceptance_commit: ff9b78a86268e63248694d56a99fcf1a4336a60f
+  acceptance_pr: '153'
+  accepted_at: '2026-07-27T23:42:29Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -46723,6 +46907,12 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=951
+  - at: '2026-07-27T23:42:21Z'
+    event: verify
+    detail: VERIFIED head=ff9b78a86268e63248694d56a99fcf1a4336a60f runs=1
+  - at: '2026-07-27T23:42:29Z'
+    event: accept
+    detail: commit=ff9b78a86268e63248694d56a99fcf1a4336a60f branch=main gates_ok=True
   content_fingerprint: dc5790ffeb
   evidence_audit:
     status: ok
@@ -46746,9 +46936,8 @@ items:
   dependencies: []
   blockers: []
   acceptance_commands:
-  - python3 -m scripts.ops.contract_market_intelligence audit-unit
-  tests:
-  - tests/test_cmi_contract_market_intelligence.py::test_cli_audit_unit_exit_zero
+  - python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-12 --json
+  tests: []
   files:
   - scripts/ops/contract_market_intelligence.py
   - scripts/reports/operational_reports.py
@@ -46760,9 +46949,9 @@ items:
   evidence:
   - .dod/evidence/DOD-rol-1-definition-of-done-c8739f5734/proof.json
   - artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/execution-proof-summary.json
-  acceptance_commit: 241ec41f0badf5bd463b66dafe36faa1e2e66876
-  acceptance_pr: '151'
-  accepted_at: '2026-07-27T22:46:25Z'
+  acceptance_commit: ff9b78a86268e63248694d56a99fcf1a4336a60f
+  acceptance_pr: '153'
+  accepted_at: '2026-07-27T23:42:51Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -46807,6 +46996,12 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=952
+  - at: '2026-07-27T23:42:39Z'
+    event: verify
+    detail: VERIFIED head=ff9b78a86268e63248694d56a99fcf1a4336a60f runs=1
+  - at: '2026-07-27T23:42:51Z'
+    event: accept
+    detail: commit=ff9b78a86268e63248694d56a99fcf1a4336a60f branch=main gates_ok=True
   content_fingerprint: c8739f5734
   evidence_audit:
     status: ok
@@ -46830,9 +47025,8 @@ items:
   dependencies: []
   blockers: []
   acceptance_commands:
-  - python3 -m scripts.ops.contract_market_intelligence audit-unit
-  tests:
-  - tests/test_cmi_contract_market_intelligence.py::test_cli_audit_unit_exit_zero
+  - python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-13 --json
+  tests: []
   files:
   - scripts/ops/contract_market_intelligence.py
   - scripts/reports/operational_reports.py
@@ -46844,9 +47038,9 @@ items:
   evidence:
   - .dod/evidence/DOD-rol-1-definition-of-done-04da3e4902/proof.json
   - artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/execution-proof-summary.json
-  acceptance_commit: 241ec41f0badf5bd463b66dafe36faa1e2e66876
-  acceptance_pr: '151'
-  accepted_at: '2026-07-27T22:46:34Z'
+  acceptance_commit: ff9b78a86268e63248694d56a99fcf1a4336a60f
+  acceptance_pr: '153'
+  accepted_at: '2026-07-27T23:43:09Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -46891,6 +47085,12 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=953
+  - at: '2026-07-27T23:43:01Z'
+    event: verify
+    detail: VERIFIED head=ff9b78a86268e63248694d56a99fcf1a4336a60f runs=1
+  - at: '2026-07-27T23:43:09Z'
+    event: accept
+    detail: commit=ff9b78a86268e63248694d56a99fcf1a4336a60f branch=main gates_ok=True
   content_fingerprint: 04da3e4902
   evidence_audit:
     status: ok
@@ -46914,9 +47114,8 @@ items:
   dependencies: []
   blockers: []
   acceptance_commands:
-  - python3 -m scripts.ops.contract_market_intelligence audit-unit
-  tests:
-  - tests/test_cmi_contract_market_intelligence.py::test_cli_audit_unit_exit_zero
+  - python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-14 --json
+  tests: []
   files:
   - scripts/ops/contract_market_intelligence.py
   - scripts/reports/operational_reports.py
@@ -46928,9 +47127,9 @@ items:
   evidence:
   - .dod/evidence/DOD-rol-1-definition-of-done-a9b1b6e0c3/proof.json
   - artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/execution-proof-summary.json
-  acceptance_commit: 241ec41f0badf5bd463b66dafe36faa1e2e66876
-  acceptance_pr: '151'
-  accepted_at: '2026-07-27T22:46:48Z'
+  acceptance_commit: ff9b78a86268e63248694d56a99fcf1a4336a60f
+  acceptance_pr: '153'
+  accepted_at: '2026-07-27T23:43:31Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -46975,6 +47174,12 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=954
+  - at: '2026-07-27T23:43:20Z'
+    event: verify
+    detail: VERIFIED head=ff9b78a86268e63248694d56a99fcf1a4336a60f runs=1
+  - at: '2026-07-27T23:43:31Z'
+    event: accept
+    detail: commit=ff9b78a86268e63248694d56a99fcf1a4336a60f branch=main gates_ok=True
   content_fingerprint: a9b1b6e0c3
   evidence_audit:
     status: ok
@@ -46998,9 +47203,8 @@ items:
   dependencies: []
   blockers: []
   acceptance_commands:
-  - python3 -m scripts.ops.contract_market_intelligence audit-unit
-  tests:
-  - tests/test_cmi_contract_market_intelligence.py::test_cli_audit_unit_exit_zero
+  - python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-15 --json
+  tests: []
   files:
   - scripts/ops/contract_market_intelligence.py
   - scripts/reports/operational_reports.py
@@ -47012,9 +47216,9 @@ items:
   evidence:
   - .dod/evidence/DOD-rol-1-definition-of-done-31211a0281/proof.json
   - artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/execution-proof-summary.json
-  acceptance_commit: 241ec41f0badf5bd463b66dafe36faa1e2e66876
-  acceptance_pr: '151'
-  accepted_at: '2026-07-27T22:46:58Z'
+  acceptance_commit: ff9b78a86268e63248694d56a99fcf1a4336a60f
+  acceptance_pr: '153'
+  accepted_at: '2026-07-27T23:43:50Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -47059,6 +47263,12 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=955
+  - at: '2026-07-27T23:43:42Z'
+    event: verify
+    detail: VERIFIED head=ff9b78a86268e63248694d56a99fcf1a4336a60f runs=1
+  - at: '2026-07-27T23:43:50Z'
+    event: accept
+    detail: commit=ff9b78a86268e63248694d56a99fcf1a4336a60f branch=main gates_ok=True
   content_fingerprint: 31211a0281
   evidence_audit:
     status: ok
@@ -47082,9 +47292,8 @@ items:
   dependencies: []
   blockers: []
   acceptance_commands:
-  - python3 -m scripts.ops.contract_market_intelligence audit-unit
-  tests:
-  - tests/test_cmi_contract_market_intelligence.py::test_cli_audit_unit_exit_zero
+  - python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-16 --json
+  tests: []
   files:
   - scripts/ops/contract_market_intelligence.py
   - scripts/reports/operational_reports.py
@@ -47096,9 +47305,9 @@ items:
   evidence:
   - .dod/evidence/DOD-rol-1-definition-of-done-589da36904/proof.json
   - artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/execution-proof-summary.json
-  acceptance_commit: 241ec41f0badf5bd463b66dafe36faa1e2e66876
-  acceptance_pr: '151'
-  accepted_at: '2026-07-27T22:47:08Z'
+  acceptance_commit: ff9b78a86268e63248694d56a99fcf1a4336a60f
+  acceptance_pr: '153'
+  accepted_at: '2026-07-27T23:44:12Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -47143,6 +47352,12 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=956
+  - at: '2026-07-27T23:44:04Z'
+    event: verify
+    detail: VERIFIED head=ff9b78a86268e63248694d56a99fcf1a4336a60f runs=1
+  - at: '2026-07-27T23:44:12Z'
+    event: accept
+    detail: commit=ff9b78a86268e63248694d56a99fcf1a4336a60f branch=main gates_ok=True
   content_fingerprint: 589da36904
   evidence_audit:
     status: ok
@@ -47166,9 +47381,8 @@ items:
   dependencies: []
   blockers: []
   acceptance_commands:
-  - python3 -m scripts.ops.contract_market_intelligence audit-unit
-  tests:
-  - tests/test_cmi_contract_market_intelligence.py::test_cli_audit_unit_exit_zero
+  - python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-17 --json
+  tests: []
   files:
   - scripts/ops/contract_market_intelligence.py
   - scripts/reports/operational_reports.py
@@ -47180,9 +47394,9 @@ items:
   evidence:
   - .dod/evidence/DOD-rol-1-definition-of-done-8aae30ee2e/proof.json
   - artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/execution-proof-summary.json
-  acceptance_commit: 241ec41f0badf5bd463b66dafe36faa1e2e66876
-  acceptance_pr: '151'
-  accepted_at: '2026-07-27T22:47:22Z'
+  acceptance_commit: ff9b78a86268e63248694d56a99fcf1a4336a60f
+  acceptance_pr: '153'
+  accepted_at: '2026-07-27T23:44:31Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -47227,6 +47441,12 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=957
+  - at: '2026-07-27T23:44:23Z'
+    event: verify
+    detail: VERIFIED head=ff9b78a86268e63248694d56a99fcf1a4336a60f runs=1
+  - at: '2026-07-27T23:44:31Z'
+    event: accept
+    detail: commit=ff9b78a86268e63248694d56a99fcf1a4336a60f branch=main gates_ok=True
   content_fingerprint: 8aae30ee2e
   evidence_audit:
     status: ok
@@ -47250,9 +47470,8 @@ items:
   dependencies: []
   blockers: []
   acceptance_commands:
-  - python3 -m scripts.ops.contract_market_intelligence audit-unit
-  tests:
-  - tests/test_cmi_contract_market_intelligence.py::test_cli_audit_unit_exit_zero
+  - python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-18 --json
+  tests: []
   files:
   - scripts/ops/contract_market_intelligence.py
   - scripts/reports/operational_reports.py
@@ -47264,9 +47483,9 @@ items:
   evidence:
   - .dod/evidence/DOD-rol-1-definition-of-done-55a430a39c/proof.json
   - artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/execution-proof-summary.json
-  acceptance_commit: 241ec41f0badf5bd463b66dafe36faa1e2e66876
-  acceptance_pr: '151'
-  accepted_at: '2026-07-27T22:47:32Z'
+  acceptance_commit: ff9b78a86268e63248694d56a99fcf1a4336a60f
+  acceptance_pr: '153'
+  accepted_at: '2026-07-27T23:44:53Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -47311,6 +47530,12 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=958
+  - at: '2026-07-27T23:44:45Z'
+    event: verify
+    detail: VERIFIED head=ff9b78a86268e63248694d56a99fcf1a4336a60f runs=1
+  - at: '2026-07-27T23:44:53Z'
+    event: accept
+    detail: commit=ff9b78a86268e63248694d56a99fcf1a4336a60f branch=main gates_ok=True
   content_fingerprint: 55a430a39c
   evidence_audit:
     status: ok
@@ -47334,9 +47559,8 @@ items:
   dependencies: []
   blockers: []
   acceptance_commands:
-  - python3 -m scripts.ops.contract_market_intelligence audit-unit
-  tests:
-  - tests/test_cmi_contract_market_intelligence.py::test_cli_audit_unit_exit_zero
+  - python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-19 --json
+  tests: []
   files:
   - scripts/ops/contract_market_intelligence.py
   - scripts/reports/operational_reports.py
@@ -47348,9 +47572,9 @@ items:
   evidence:
   - .dod/evidence/DOD-rol-1-definition-of-done-91752931c3/proof.json
   - artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/execution-proof-summary.json
-  acceptance_commit: 241ec41f0badf5bd463b66dafe36faa1e2e66876
-  acceptance_pr: '151'
-  accepted_at: '2026-07-27T22:47:42Z'
+  acceptance_commit: ff9b78a86268e63248694d56a99fcf1a4336a60f
+  acceptance_pr: '153'
+  accepted_at: '2026-07-27T23:45:16Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -47395,6 +47619,12 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=959
+  - at: '2026-07-27T23:45:04Z'
+    event: verify
+    detail: VERIFIED head=ff9b78a86268e63248694d56a99fcf1a4336a60f runs=1
+  - at: '2026-07-27T23:45:16Z'
+    event: accept
+    detail: commit=ff9b78a86268e63248694d56a99fcf1a4336a60f branch=main gates_ok=True
   content_fingerprint: 91752931c3
   evidence_audit:
     status: ok
@@ -47418,9 +47648,8 @@ items:
   dependencies: []
   blockers: []
   acceptance_commands:
-  - python3 -m scripts.ops.contract_market_intelligence audit-unit
-  tests:
-  - tests/test_cmi_contract_market_intelligence.py::test_cli_audit_unit_exit_zero
+  - python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-20 --json
+  tests: []
   files:
   - scripts/ops/contract_market_intelligence.py
   - scripts/reports/operational_reports.py
@@ -47432,9 +47661,9 @@ items:
   evidence:
   - .dod/evidence/DOD-rol-1-definition-of-done-bcbbd65023/proof.json
   - artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/execution-proof-summary.json
-  acceptance_commit: 241ec41f0badf5bd463b66dafe36faa1e2e66876
-  acceptance_pr: '151'
-  accepted_at: '2026-07-27T22:47:55Z'
+  acceptance_commit: ff9b78a86268e63248694d56a99fcf1a4336a60f
+  acceptance_pr: '153'
+  accepted_at: '2026-07-27T23:45:35Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -47479,6 +47708,12 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=960
+  - at: '2026-07-27T23:45:26Z'
+    event: verify
+    detail: VERIFIED head=ff9b78a86268e63248694d56a99fcf1a4336a60f runs=1
+  - at: '2026-07-27T23:45:35Z'
+    event: accept
+    detail: commit=ff9b78a86268e63248694d56a99fcf1a4336a60f branch=main gates_ok=True
   content_fingerprint: bcbbd65023
   evidence_audit:
     status: ok

@@ -1,12 +1,10 @@
 {
-  "code_sha": "1f395831d24bd19dfef7a8dcdfde8ee90f38e3d0",
+  "code_sha": "ff9b78a86268e63248694d56a99fcf1a4336a60f",
   "functional_pr": 151,
   "functional_merge_sha": "241ec41f0badf5bd463b66dafe36faa1e2e66876",
-  "functional_pr_ci": "30307668529",
-  "functional_main_ci": "30308032565",
   "acceptance_pr": 152,
   "acceptance_merge_sha": "b15f8f0de3cd18f8a5bb5d4ff0cf0d99702a02bf",
-  "acceptance_pr_ci": "30312150348",
-  "checked_out_equals_expected": true,
-  "remediation_branch_head": "22534d083f5e08867c0722fc8e8a7c075335ca84"
+  "evidence_pr": 153,
+  "evidence_merge_sha": "ff9b78a86268e63248694d56a99fcf1a4336a60f",
+  "checked_out_equals_expected": true
 }

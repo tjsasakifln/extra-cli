@@ -315,8 +315,8 @@
     "Executable proof that: O sistema não chama percentil de contratos globais de “preço real praticado” sem base técnica."
   ],
   "selected_item_test_commands": [
-    "python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts=''",
-    "REQUIRE_REAL_DB=1 python3 -m pytest tests/test_cmi_contract_market_intelligence.py -q --tb=short -o addopts='' -k real_db"
+    "REQUIRE_REAL_DB=1 python3 -m scripts.ops.cmi_item_proofs --item <ALIAS> --json",
+    "REQUIRE_REAL_DB=1 python3 -m pytest tests/test_cmi_item_proofs.py tests/test_cmi_contract_market_intelligence.py -q -o addopts="
   ],
   "selected_item_acceptance_commands": "per-item dod_controller start/verify/accept",
   "selected_item_evidence_requirements": [

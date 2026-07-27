@@ -1,16 +1,14 @@
 {
-  "as_of": "2026-07-27T23:07:36Z",
-  "main_sha": "1f395831d24bd19dfef7a8dcdfde8ee90f38e3d0",
+  "as_of": "2026-07-27T23:28:34Z",
+  "main_sha": "ff9b78a86268e63248694d56a99fcf1a4336a60f",
+  "package_code_sha": "ff9b78a86268e63248694d56a99fcf1a4336a60f",
+  "package_matches_head": true,
+  "item_proofs_all_ok": true,
+  "item_proofs_passed_n": 47,
   "dod_controller_status": {
     "total": 1462,
     "accepted": 401,
     "open": 1060,
-    "acceptance_pct_audited": 6.09,
-    "claimed_pct": 27.56
-  },
-  "item_proofs_all_ok": true,
-  "pytest_cmi_ok": true,
-  "package_population_count": 7,
-  "package_code_sha_field": "b15f8f0de3cd18f8a5bb5d4ff0cf0d99702a02bf",
-  "note": "package regenerated on acceptance HEAD; item proofs all green"
+    "acceptance_pct_audited": 6.09
+  }
 }
