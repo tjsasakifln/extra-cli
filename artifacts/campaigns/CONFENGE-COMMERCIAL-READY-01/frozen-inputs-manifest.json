@@ -1,0 +1,316 @@
+{
+  "schema_version": "confenge-frozen-inputs/1.0",
+  "campaign": "CONFENGE-COMMERCIAL-READY-01",
+  "freeze_sha": "47788e4b0148ce513e893cdd1d92f0ce6b341e3f",
+  "policy": "frozen_confenge_inputs_v1",
+  "inputs": [
+    {
+      "path": ".github/workflows/ci.yml#CONFENGE",
+      "kind": "section_hash",
+      "blob_sha": null,
+      "sha256": "a8943bade1c33c331d4551c91700fc4b55947cb11f55097a0d5af1dfa31b2228",
+      "content_length": 32919
+    },
+    {
+      "path": "Makefile#CONFENGE",
+      "kind": "section_hash",
+      "blob_sha": null,
+      "sha256": "7a9ec2946450ac82a5ea15338b102925356f818f04700d79c1dc9a42d5653cf8",
+      "content_length": 15362
+    },
+    {
+      "path": "config/commercial_profiles/confenge.yaml",
+      "kind": "file",
+      "blob_sha": "1d036c05cfe11d92acc8135283f0b746bb7351cb",
+      "sha256": "efa05fb7d5a931b86ee8a048f254b63cee02e7de5cf12b3441ea97c123563eb3"
+    },
+    {
+      "path": "config/commercial_profiles/signal_catalog.yaml",
+      "kind": "file",
+      "blob_sha": "1546e72c91ec726218c5437eda1fcaf83a66d263",
+      "sha256": "dfe1cfeca2ca842b71bfdd7f2793fd9f594e7e0b8c9c56a9af4c902074915fae"
+    },
+    {
+      "path": "db/migrations/062_commercial_leads_ledger.sql",
+      "kind": "file",
+      "blob_sha": "433611349c2c45a16caa4fc98c056a09f0dd79c5",
+      "sha256": "ef2e90636116bc92c4853be6f220f3a235d1f754ffd03e7725da2bb2f856f859"
+    },
+    {
+      "path": "db/migrations/063_supplier_registry.sql",
+      "kind": "file",
+      "blob_sha": "6019041363636166a2fa8412adf879fef68fea6a",
+      "sha256": "371ed3b7be3162b3117006c5765202d326613bf86076cbb4bbbedc16709600ff"
+    },
+    {
+      "path": "db/migrations/064_snapshot_write_guard.sql",
+      "kind": "file",
+      "blob_sha": "6ece5718c0b1fee6b780cb197fb9ba46030755b7",
+      "sha256": "3dffcc74063788b20b287bdffa7d46c859cb52bcdb66a30759f073a3e7645797"
+    },
+    {
+      "path": "scripts/commercial_leads/__init__.py",
+      "kind": "file",
+      "blob_sha": "a48752f237a6169168b9957c81a55c9f9451977a",
+      "sha256": "5afd23bdb899d1bf561ffd5fa9949367a79404018ce89e3bae1c50f862e56cd6"
+    },
+    {
+      "path": "scripts/commercial_leads/__main__.py",
+      "kind": "file",
+      "blob_sha": "e31a24d5416fcc3d7e3781c5e8a287026077d680",
+      "sha256": "91a10b665bbec99b21792ac5732df884845ba6a1614c58fc7a3800ce10f453c7"
+    },
+    {
+      "path": "scripts/commercial_leads/baseline.py",
+      "kind": "file",
+      "blob_sha": "6fe9a8a6e5a48020aa149d3962c67cab29fd5626",
+      "sha256": "264d625441a820dbc1c5e35d9e8886eb0aa35db0b2c6cbaa7199139c87d12947"
+    },
+    {
+      "path": "scripts/commercial_leads/cli.py",
+      "kind": "file",
+      "blob_sha": "4b67020bf40a3ed4bdc0d65234b8050e9ec55cc0",
+      "sha256": "e6576cda3e814ac44a3bebb5b7ba7ab0b278de35d516a8eb817bc06631536495"
+    },
+    {
+      "path": "scripts/commercial_leads/commercial_validity.py",
+      "kind": "file",
+      "blob_sha": "f4868168c611ef55fa7313d8ad3cdbca0e72c961",
+      "sha256": "d6e9d48a33f26de51151c6c259fc766e6482a70f070b14f2088e287eeaccc8c6"
+    },
+    {
+      "path": "scripts/commercial_leads/contract_relevance.py",
+      "kind": "file",
+      "blob_sha": "cfb40c2211c5f27ca19b72d2e0b29329be40a8e9",
+      "sha256": "6feb1e65ffe7140b8989c69f25e4bdd0226c74fcb4a965f3b2d8b46aa506a76b"
+    },
+    {
+      "path": "scripts/commercial_leads/dbutil.py",
+      "kind": "file",
+      "blob_sha": "f1d4a11fd9d5d7f0094a16e1d9f6f8644d8f7e5a",
+      "sha256": "2d2811390394c90b8ab6134da0ac0fccb30982769273f9c07a2ac2d1495b8212"
+    },
+    {
+      "path": "scripts/commercial_leads/exports.py",
+      "kind": "file",
+      "blob_sha": "12a2a5b7df2d4d5ebaf4ec6217788ef033c9e65b",
+      "sha256": "26d6b32bcf48febda0517c2bb52fb440c1d05e53b2b3b3547aaf956c96cdee02"
+    },
+    {
+      "path": "scripts/commercial_leads/geography.py",
+      "kind": "file",
+      "blob_sha": "e0f7e09fda7a182bdc49fed93dd50f7fd23514d4",
+      "sha256": "d7d3c316a42ea08904e66637b18b46873cfc2ec5a442232b1cedd1099866671a"
+    },
+    {
+      "path": "scripts/commercial_leads/identity.py",
+      "kind": "file",
+      "blob_sha": "5aa37648b78b99e1fe60e1982319d0d8159309f2",
+      "sha256": "3b9537dc761c08a8ec538c924544327364915767f6725b8c3dc7f05301f6021a"
+    },
+    {
+      "path": "scripts/commercial_leads/isolation.py",
+      "kind": "file",
+      "blob_sha": "99d38191e75d05af26b195010f19fee20f10441d",
+      "sha256": "f2dbddc5c2e6fd337fbbed8af722e4a532e6140be2cd54b22c57feed730e2b62"
+    },
+    {
+      "path": "scripts/commercial_leads/pipeline.py",
+      "kind": "file",
+      "blob_sha": "f701868056fa59c8e0185e59610c822d45fb3dfe",
+      "sha256": "19ad558496dcbca842134691e1796485b0db01c8ec30b5e7127f81fe8efb9ba3"
+    },
+    {
+      "path": "scripts/commercial_leads/profile.py",
+      "kind": "file",
+      "blob_sha": "793e449f4fd0b34a83a59e95da293692593844c6",
+      "sha256": "76f0864c4fb6eb698b836f0eab966755ea924850b8e4ec1516ae4f7049912455"
+    },
+    {
+      "path": "scripts/commercial_leads/review.py",
+      "kind": "file",
+      "blob_sha": "b968f5f6d8cf2d741c36c97387c13ed39d92efd8",
+      "sha256": "1f32dca9af6f1a528f66ebc8a462059b15a2ffcf0d585e401d24b9a486fe1d67"
+    },
+    {
+      "path": "scripts/commercial_leads/scoring.py",
+      "kind": "file",
+      "blob_sha": "d42cbe3ab49f2922efb50279453980c4ab7f686b",
+      "sha256": "0bf9ba628f9657c2c13ced8a5cbed35a74bf24e6a06497ac037ee0341512cfee"
+    },
+    {
+      "path": "scripts/commercial_leads/sector_fit.py",
+      "kind": "file",
+      "blob_sha": "b33db8d88e47a313a078e7907bb9c235a79d592a",
+      "sha256": "d2b7d89b1649bffcbc9a6adbfb2f39afeacbc1aa069f162f743c7d00770a43a5"
+    },
+    {
+      "path": "scripts/commercial_leads/signals.py",
+      "kind": "file",
+      "blob_sha": "2b868c7161ea2a6c8fc00ae269e40e8be18cd4c5",
+      "sha256": "0db35d2fe0dac5fcaadd17a784874d1ef2c25f703d4b23ab3d4a6fbb69e0ad7a"
+    },
+    {
+      "path": "scripts/commercial_leads/snapshot.py",
+      "kind": "file",
+      "blob_sha": "9e01cb84445966fc05e37476019ddd85957f7847",
+      "sha256": "4693e31d15d38479478a10f9ce1bb083db68927c6277f80a806a73d3abc1bdee"
+    },
+    {
+      "path": "scripts/commercial_leads/supplier_registry.py",
+      "kind": "file",
+      "blob_sha": "206097894950e057eb2957d0d770d42894a8eb4d",
+      "sha256": "019fd45c0c7e55f9261b97b9717b7a2649dd14c1c60e6bcfeea66f6a7c018b9f"
+    },
+    {
+      "path": "scripts/linkage/keys.py",
+      "kind": "file",
+      "blob_sha": "cf344e78cbb52f5a0acc19a02f7fb0df544f9b28",
+      "sha256": "9c4951c01976183f367560f42df4b7ce57c9411e3d53df323c263800a60f35ab"
+    },
+    {
+      "path": "scripts/ops/confenge_code_freeze.py",
+      "kind": "file",
+      "blob_sha": "6972924e9f5394dd0fd2c96abeb0f563d5ecd16f",
+      "sha256": "fd63006c3736dbb5c1e69d5248c58489fa6f00a2a18ec3e7839de23288e97b8e"
+    },
+    {
+      "path": "scripts/ops/confenge_commercial_cycle.py",
+      "kind": "file",
+      "blob_sha": "7b5c2c76ec52bf2d03e9dec5f54ca2b7fbbce167",
+      "sha256": "5dd61c39d4c4f1f6f4b7c3a771bac86251a381a999e15fe5ca9f734fd60b34a0"
+    },
+    {
+      "path": "scripts/ops/confenge_commercial_gates.py",
+      "kind": "file",
+      "blob_sha": "885841e676d207bee4d01815c01fc7fba33c01e5",
+      "sha256": "6c8d5be3b2c136f6a9fef765083d8f42ef81e88e215c7686d88d9bfcb3d73ce2"
+    },
+    {
+      "path": "scripts/ops/confenge_contract_status.py",
+      "kind": "file",
+      "blob_sha": "382fea3de5cba5010728b4a8e19959dc2974dbad",
+      "sha256": "d84f98ed2c4dc61272d6c50a86109be7e46de2855afc492ea5addffc1d865b49"
+    },
+    {
+      "path": "scripts/ops/confenge_dump_restore.py",
+      "kind": "file",
+      "blob_sha": "76ea573a110cd68aefb55268a6a19db889d95cb6",
+      "sha256": "41cf292680632746c8acfd8b2d784aca57e34682f8236f97287cb5de8bc3641c"
+    },
+    {
+      "path": "scripts/ops/confenge_final_status.py",
+      "kind": "file",
+      "blob_sha": "cebaa100a0784c49acaea8bd45dd06c7747a9b1b",
+      "sha256": "8d722a69d8bf05e9ced38ba4780ac5ae9fb733fab8e9ecb40635a585d65501fa"
+    },
+    {
+      "path": "scripts/ops/confenge_frozen_inputs.py",
+      "kind": "file",
+      "blob_sha": "e34b359d8b37d8590982f60dce4be220babab8cd",
+      "sha256": "7aded28da5e7e1774749c27bf2fbb9dbe464a143d1d84b9447de898be6cf0a23"
+    },
+    {
+      "path": "scripts/ops/confenge_full_pipeline_e2e.py",
+      "kind": "file",
+      "blob_sha": "2c471d14a987c428553d0b29cc89274ddf5a5117",
+      "sha256": "2f3ff2263e123ffd474537fd89a0082af0af17095929cea63016e12b503137a6"
+    },
+    {
+      "path": "scripts/ops/confenge_full_universe_e2e.py",
+      "kind": "file",
+      "blob_sha": "7de3bef5b99ca7184df74cdb412a35148dea9c4d",
+      "sha256": "aa3881bfa5fcd322de86d9d03e91e14a128d5355e8f12db1a8cc0ae3b16c1726"
+    },
+    {
+      "path": "scripts/ops/confenge_historical_snapshot.py",
+      "kind": "file",
+      "blob_sha": "cb33162b4e8bc8eead9626434c0b781a43e96cb2",
+      "sha256": "a29bc471c9b08e62fc89a288c3c77f7677dca35cdd6b5aba3f8e3127554d0320"
+    },
+    {
+      "path": "scripts/ops/confenge_human_review_packages.py",
+      "kind": "file",
+      "blob_sha": "233b8713328e0f08cae8aaeb3f7e087d27ca3eef",
+      "sha256": "8142934c1a79a3126e223a4445fdf1ef66e1a6873e8f93eb01124a375a797c8f"
+    },
+    {
+      "path": "scripts/ops/confenge_make_gates.py",
+      "kind": "file",
+      "blob_sha": "b8d3da899ee9d11b5b0d2299e3167201cb27169f",
+      "sha256": "2c83977b924df3241f990e02be101027bffc5c9b340f7ca92bf767d91611a713"
+    },
+    {
+      "path": "scripts/ops/confenge_offer_sensitivity.py",
+      "kind": "file",
+      "blob_sha": "459bcd58bd966a9e752b2275d9da95b499b3103e",
+      "sha256": "ebce3e438379da29689be711b93c0be3557f69a925998215a879315079ee1377"
+    },
+    {
+      "path": "scripts/ops/confenge_official_cnpj.py",
+      "kind": "file",
+      "blob_sha": "866e281464801e9f53d649cc403e7e88cddbeb1a",
+      "sha256": "cf602deee7a6f5c970645c730f1bb8e24ca5b3efe052bcdb938b7b422d5a0f64"
+    },
+    {
+      "path": "scripts/ops/confenge_opencnpj_bulk.py",
+      "kind": "file",
+      "blob_sha": "109113740401255bd20b4dc4d996f4b6fe19288a",
+      "sha256": "45424a2674c76456778aec7681824c03e7ff1a13de3538abf3b68f31beae8ed4"
+    },
+    {
+      "path": "scripts/ops/confenge_registry_ingest.py",
+      "kind": "file",
+      "blob_sha": "2c8b02cf3c60aa1db4878e8003661bccab23d036",
+      "sha256": "40ff2ce01338a8aa3a8a9c6fb28c94e49f802bec3f4e3a2c8e61b646e27d00a4"
+    },
+    {
+      "path": "scripts/ops/confenge_rerank_after_registry.py",
+      "kind": "file",
+      "blob_sha": "562d846b4cc9cf699f47bf0a0bd2f6a7bb6ebf2f",
+      "sha256": "8cc6e04dbe37352b28ef4656402e4810fd382d7c71f07a2e4359551af58cfed4"
+    },
+    {
+      "path": "scripts/ops/eval_contract_relevance_holdout.py",
+      "kind": "file",
+      "blob_sha": "bd8afb51b09a9e2aa27ed053261be425785452f4",
+      "sha256": "fab587954a59520c29e8171cecee9b5922bcc73d3f5c8c7833a34196a36b9b21"
+    },
+    {
+      "path": "scripts/ops/eval_contract_relevance_real_holdout.py",
+      "kind": "file",
+      "blob_sha": "ec27b7deb8e8dfa3f3ba3e485e25e5b70f86ef50",
+      "sha256": "9869cee33bab619484f32eb1d892803782fe1f7b1498929fb9e6975e78b00b2a"
+    },
+    {
+      "path": "scripts/ops/extract_confenge_real_holdout_corpus.py",
+      "kind": "file",
+      "blob_sha": "c1143198491251ccbdc94852c15b3c8fa65570e9",
+      "sha256": "883a98da3bc75984ad69052dffa68b5cc0e9329049a9c3bfe1e5cb637938aaf6"
+    },
+    {
+      "path": "scripts/ops/verify_confenge_artifact_binding.py",
+      "kind": "file",
+      "blob_sha": "34fc25845c5c1c4665e8260c864e175aababe5d6",
+      "sha256": "56d67fb77503afdc00a5c9c1bf7e0c341d22d93b090eb75ad74ad0a070f4169b"
+    },
+    {
+      "path": "scripts/ops/verify_confenge_denominator_integrity.py",
+      "kind": "file",
+      "blob_sha": "bfa14badcca4e268277be06cb262158f98b6cac9",
+      "sha256": "7f8a0bc2e9c3a41cf5188919c02449c05a2f6c33e2df63253800e22cf2f26c20"
+    }
+  ],
+  "missing_at_build": [],
+  "evidence_lag_prefixes": [
+    "artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/",
+    "docs/ops/",
+    "evals/commercial_leads/real/"
+  ],
+  "notes": [
+    "Protected set is explicit CONFENGE inputs, not monorepo-wide freeze.",
+    "Gates themselves are protected; changing them requires re-freeze.",
+    "Makefile/CI only freeze CONFENGE sections (tested extractors).",
+    "Unrelated paths (e.g. edital relevance) do not require allowlist edits."
+  ]
+}
