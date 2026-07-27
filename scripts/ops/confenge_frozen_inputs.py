@@ -28,8 +28,9 @@ import json
 import re
 import shutil
 import subprocess
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 SCHEMA_VERSION = "confenge-frozen-inputs/1.0"
 CAMPAIGN = "CONFENGE-COMMERCIAL-READY-01"
@@ -436,7 +437,9 @@ def load_frozen_inputs_manifest(
             raise ValueError(
                 f"unsupported frozen-inputs schema: {data.get('schema_version')!r}"
             )
-        return data
+        if not isinstance(data, dict):
+            raise ValueError("frozen-inputs manifest must be a JSON object")
+        return dict(data)
     if root is None or not freeze_sha:
         raise FileNotFoundError(f"missing frozen-inputs-manifest.json at {path}")
     # Rebuild (used during transition / first mark after policy)

@@ -24,8 +24,6 @@ _ART = _ROOT / "artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01"
 from scripts.ops.confenge_frozen_inputs import (  # noqa: E402
     EVIDENCE_LAG_PREFIXES,
     evaluate_post_freeze_diff,
-    load_frozen_inputs_manifest,
-    protected_path_set,
 )
 
 # Deprecated alias: evidence lag only — not a feature allowlist.

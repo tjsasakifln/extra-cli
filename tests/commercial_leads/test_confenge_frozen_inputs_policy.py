@@ -11,8 +11,6 @@ Required outcomes (mission):
 from __future__ import annotations
 
 import json
-import os
-import shutil
 import subprocess
 import textwrap
 from pathlib import Path
@@ -376,8 +374,8 @@ def test_binding_allows_edital_fails_on_pipeline(tmp_path: Path, monkeypatch: py
     write_frozen_inputs_manifest(man, art_dir=art)
 
     # Point binding module at mini-repo
-    import scripts.ops.verify_confenge_artifact_binding as bind
     import scripts.ops.confenge_frozen_inputs as fi
+    import scripts.ops.verify_confenge_artifact_binding as bind
 
     monkeypatch.setattr(bind, "_ROOT", repo)
     monkeypatch.setattr(bind, "_ART", art)
