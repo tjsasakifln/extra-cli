@@ -4,8 +4,8 @@
 Rules (objective §4, practical with embedded SHAs in-git):
 1. All present of {artifact,run,gate,review,git}_git_sha must be equal to each other.
 2. That common SHA must be an ancestor of (or equal to) HEAD.
-3. Diff HEAD...common_sha may only touch artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/**
-   (docs/evidence lag commits). Any code change after the run SHA → FAIL.
+3. Diff HEAD...common_sha may change evidence lag + unrelated monorepo paths.
+   Protected CONFENGE frozen inputs after the run SHA → FAIL (requires re-freeze).
 4. match_run_to_head=false with unequal internal SHAs → FAIL.
 """
 
@@ -20,11 +20,14 @@ from typing import Any
 
 _ROOT = Path(__file__).resolve().parents[2]
 _ART = _ROOT / "artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01"
-_ALLOWED_PREFIXES = (
-    "artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/",
-    "docs/ops/",
-    "evals/commercial_leads/real/",
+
+from scripts.ops.confenge_frozen_inputs import (  # noqa: E402
+    EVIDENCE_LAG_PREFIXES,
+    evaluate_post_freeze_diff,
 )
+
+# Deprecated alias: evidence lag only — not a feature allowlist.
+_ALLOWED_PREFIXES = EVIDENCE_LAG_PREFIXES
 
 SHA_KEYS = ("artifact_git_sha", "run_git_sha", "gate_git_sha", "review_git_sha", "git_sha")
 
@@ -123,16 +126,22 @@ def check_artifact_binding(
             if not _is_ancestor(common, head_sha):
                 issues.append(f"bound_sha_not_ancestor_of_head:{common}!->{head_sha}")
             else:
-                changed = _paths_changed(common, head_sha)
-                bad = [
-                    c
-                    for c in changed
-                    if not any(c.startswith(p) for p in _ALLOWED_PREFIXES)
-                ]
+                # Frozen-inputs policy: only protected CONFENGE inputs invalidate binding.
+                eval_diff = evaluate_post_freeze_diff(
+                    root=_ROOT,
+                    freeze_sha=common,
+                    tip=head_sha,
+                    art_dir=_ART,
+                )
+                changed = list(eval_diff.get("files_changed_after_freeze") or [])
+                bad = list(eval_diff.get("protected_changed") or [])
                 details["paths_since_bound"] = changed
-                if bad:
-                    issues.append(f"code_changed_after_bound_sha:{bad}")
-                # pure artifact lag is allowed; bound SHA remains valid
+                details["freeze_policy"] = "frozen_confenge_inputs_v1"
+                details["protected_changed"] = bad
+                details["free_changed"] = list(eval_diff.get("free_changed") or [])
+                if bad or not eval_diff.get("ok"):
+                    issues.append(f"protected_input_changed_after_bound_sha:{bad}")
+                # pure artifact lag + unrelated monorepo work is allowed
         # If common == head: perfect
     else:
         issues.append("no_sha_fields_found")
