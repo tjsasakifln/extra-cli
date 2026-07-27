@@ -1,0 +1,22 @@
+{
+  "campaign_id": "CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01",
+  "bundle_id": "CMI-CONCORRENTES-VALORES-01",
+  "terminal_state": "BUNDLE_ACCEPTED",
+  "finished_at": "2026-07-27T22:48:52Z",
+  "main_baseline_sha": "c5b4cdb91b0727b5e7a537c8eb47daf001b74552",
+  "merge_sha": "241ec41f0badf5bd463b66dafe36faa1e2e66876",
+  "pr": 151,
+  "n_open_initial": 1107,
+  "n_accepted_initial": 354,
+  "raw_dod_delta": 47,
+  "weighted_dod_delta": 197,
+  "raw_progress_percent": 4.2457,
+  "weighted_progress_percent": 5.9319,
+  "n_accepted_final": 401,
+  "n_open_final": 1060,
+  "acceptance_pct_audited_final": 6.09,
+  "claimed_pct_final": 27.56,
+  "items_accepted": 47,
+  "ci_main_run": "30308032565",
+  "ci_pr_run": "30307668529"
+}
