@@ -1,0 +1,36 @@
+{
+  "item_id": "DOD-rol-1-definition-of-done-9b7e025eca",
+  "alias": "ORPT-12.2-07",
+  "text": "Lista de runs stale.",
+  "weight": 5,
+  "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+  "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+  "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+  "command": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-07 --json",
+  "timestamp": "2026-07-28T02:07:56Z",
+  "source": "postgresql:extra_test",
+  "parameters": {
+    "REQUIRE_REAL_DB": "1"
+  },
+  "assertion_result": {
+    "alias": "ORPT-12.2-07",
+    "item_id": "DOD-rol-1-definition-of-done-9b7e025eca",
+    "ok": true,
+    "error": null,
+    "detail": {
+      "path": "/mnt/d/extra consultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/lists/runs_stale.csv",
+      "bytes": 88,
+      "count_key": "stale_runs",
+      "count": 0,
+      "status": "SUCCESS_ZERO",
+      "ok": true
+    },
+    "as_of": "2026-07-28T02:08:01Z",
+    "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+    "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+  },
+  "reliability": "SUCCESS_ZERO",
+  "limitations": [],
+  "artifact_hashes": {},
+  "run_ids": []
+}

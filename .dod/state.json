@@ -1,9 +1,9 @@
 {
   "schema_version": "1.0",
   "campaign_id": "DOD-CONVERGENCE-EXTRA-CONTINUE-03",
-  "updated_at": "2026-07-27T23:45:40Z",
+  "updated_at": "2026-07-28T02:40:01Z",
   "active_item_id": null,
-  "active_run_id": "run-20260724T005823Z",
+  "active_run_id": "run-20260728T022047Z",
   "active_branch": "campaign/continue-03-report-concorrentes",
   "main_sha": "241ec41f0badf5bd463b66dafe36faa1e2e66876",
   "phase": "audit",
@@ -11,24 +11,24 @@
   "last_report_path": "/mnt/d/extra-consultoria-dod-conv/.dod/evidence/report-2026-07-21T020044Z.json",
   "metrics": {
     "total": 1462,
-    "accepted": 401,
-    "accepted_state": 401,
-    "claimed_checked": 403,
-    "audited_accepted": 89,
-    "evidence_located": 203,
-    "evidence_reproduced": 94,
+    "accepted": 441,
+    "accepted_state": 441,
+    "claimed_checked": 443,
+    "audited_accepted": 129,
+    "evidence_located": 243,
+    "evidence_reproduced": 134,
     "proof_debt": 319,
     "verified": 0,
     "in_progress": 0,
     "implemented": 0,
-    "open": 1060,
+    "open": 1020,
     "blocked": 1,
     "deferred": 0,
-    "acceptance_pct": 6.09,
-    "claimed_pct": 27.56,
+    "acceptance_pct": 8.82,
+    "claimed_pct": 30.3,
     "by_state": {
-      "ACCEPTED": 401,
-      "OPEN": 1060,
+      "ACCEPTED": 441,
+      "OPEN": 1020,
       "BLOCKED_HUMAN": 1
     },
     "by_category": {
@@ -43,9 +43,9 @@
       "HUMAN_ACCEPTANCE": 40,
       "CREDENTIAL_REQUIRED": 16
     },
-    "dod_checked_count": 403
+    "dod_checked_count": 443
   },
-  "resume_step": "accept",
+  "resume_step": "next",
   "notes": "CONTINUE-03: implementing concorrentes (44e0c95c6e). editais+contratos ACCEPTED.",
   "billing_blocker": {
     "status": "RESOLVED",
@@ -56,5 +56,5 @@
       "29831727568"
     ]
   },
-  "next_step": "accept"
+  "next_step": "next"
 }

@@ -1,0 +1,65 @@
+{
+  "item_id": "DOD-rol-1-definition-of-done-d94e5ff604",
+  "commands": [
+    {
+      "cmd": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-13.2-04 --json",
+      "exit_code": 0,
+      "duration_s": 0.305,
+      "stdout_tail": "{\n  \"alias\": \"ORPT-13.2-04\",\n  \"item_id\": \"DOD-rol-1-definition-of-done-d94e5ff604\",\n  \"ok\": true,\n  \"error\": null,\n  \"detail\": {\n    \"path\": \"artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/package_final/ops-export-20260728-020731-1fac0338.xlsx\",\n    \"ok\": true\n  },\n  \"as_of\": \"2026-07-28T02:28:54Z\",\n  \"campaign_id\": \"OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01\",\n  \"executed_sha\": \"ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10\"\n}\n",
+      "stderr_tail": "",
+      "env": {
+        "CI": null,
+        "GITHUB_ACTIONS": null,
+        "LOCAL_DATALAKE_DSN": {
+          "set": false,
+          "len": 0
+        },
+        "PYTEST_ADDOPTS": null,
+        "PATH": {
+          "set": true,
+          "len": 1919
+        },
+        "USER": "tjsasakifln",
+        "HOME": {
+          "set": true,
+          "len": 17
+        }
+      },
+      "skipped": false
+    }
+  ],
+  "tests": [],
+  "ok": true,
+  "notes": [],
+  "rejected_trivial": [],
+  "head_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+  "env": {
+    "CI": null,
+    "GITHUB_ACTIONS": null,
+    "LOCAL_DATALAKE_DSN": {
+      "set": false,
+      "len": 0
+    },
+    "PYTEST_ADDOPTS": null,
+    "PATH": {
+      "set": true,
+      "len": 1919
+    },
+    "USER": "tjsasakifln",
+    "HOME": {
+      "set": true,
+      "len": 17
+    }
+  },
+  "started_at": "2026-07-28T02:28:53Z",
+  "duration_s": 0.305,
+  "substantive_runs": 1,
+  "totals": {
+    "passed": 1,
+    "failed": 0,
+    "skipped": 0,
+    "deselected": 0,
+    "error": 0
+  },
+  "finished_at": "2026-07-28T02:28:54Z"
+}

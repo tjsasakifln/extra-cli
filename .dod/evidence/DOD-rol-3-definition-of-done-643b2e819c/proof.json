@@ -1,0 +1,34 @@
+{
+  "item_id": "DOD-rol-3-definition-of-done-643b2e819c",
+  "alias": "ORPT-29-05",
+  "text": "A evid\u00eancia de snapshot pode ser reconstru\u00edda.",
+  "weight": 5,
+  "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+  "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+  "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+  "command": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-29-05 --json",
+  "timestamp": "2026-07-28T02:07:56Z",
+  "source": "postgresql:extra_test",
+  "parameters": {
+    "REQUIRE_REAL_DB": "1"
+  },
+  "assertion_result": {
+    "alias": "ORPT-29-05",
+    "item_id": "DOD-rol-3-definition-of-done-643b2e819c",
+    "ok": true,
+    "error": null,
+    "detail": {
+      "path": "/mnt/d/extra consultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/lists/oportunidades_removidas_snapshot.csv",
+      "dataset_hash": "45898ae2d10c36319935c3955f90d67c61928f07968dda0a6f8efe8c0aec60f2",
+      "run_id": "ops-lists-20260728-020730-159518b5",
+      "ok": true
+    },
+    "as_of": "2026-07-28T02:08:03Z",
+    "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+    "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+  },
+  "reliability": "READY",
+  "limitations": [],
+  "artifact_hashes": {},
+  "run_ids": []
+}

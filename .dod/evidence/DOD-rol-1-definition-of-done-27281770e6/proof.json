@@ -1,0 +1,34 @@
+{
+  "item_id": "DOD-rol-1-definition-of-done-27281770e6",
+  "alias": "ORPT-12.2-17",
+  "text": "Exporta\u00e7\u00e3o Excel.",
+  "weight": 3,
+  "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+  "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+  "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+  "command": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-17 --json",
+  "timestamp": "2026-07-28T02:07:56Z",
+  "source": "postgresql:extra_test",
+  "parameters": {
+    "REQUIRE_REAL_DB": "1"
+  },
+  "assertion_result": {
+    "alias": "ORPT-12.2-17",
+    "item_id": "DOD-rol-1-definition-of-done-27281770e6",
+    "ok": true,
+    "error": null,
+    "detail": {
+      "path": "artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/export/export-ops-export-20260728-020731-ab0f40f5.xlsx",
+      "bytes": 8242,
+      "run_id": "ops-export-20260728-020731-ab0f40f5",
+      "ok": true
+    },
+    "as_of": "2026-07-28T02:08:02Z",
+    "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+    "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+  },
+  "reliability": "READY",
+  "limitations": [],
+  "artifact_hashes": {},
+  "run_ids": []
+}

@@ -993,7 +993,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] O golden path gera relatório de editais.
 - [x] O golden path gera relatório de contratos.
 - [x] O golden path gera relatório de concorrentes.
-- [ ] O golden path gera relatório de referências de valores.
+- [x] O golden path gera relatório de referências de valores.
 - [x] O golden path gera Excel. Evidência: PR #90 · panorama Excel size≥100 openpyxl · reproof CONTINUE-03 · `.dod/evidence/DOD-rol-1-definition-of-done-d5c6584cb7/` · **não** prova relatórios de editais/contratos/concorrentes/valores.
 - [x] O golden path gera PDF. Evidência: PR #90 · panorama PDF magic %PDF · reproof CONTINUE-03 · `.dod/evidence/DOD-rol-1-definition-of-done-ddfcf1ec8a/` · **não** prova relatórios específicos de domínio.
 - [x] O golden path gera ledger. Evidência: PR #85 · ledger JSON com steps · tests/test_golden_path_ledger_meta.py · CONTINUE-03 QA PASS · `.dod/evidence/DOD-rol-1-definition-of-done-7d4698cf6a/`.
@@ -1005,36 +1005,36 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] A versão do código é registrada. Evidência: PR #97 · ledger meta.git_sha via _save_final_ledger · tests/test_golden_path_ledger_meta.py · .
 - [x] O hash da planilha é registrado. Evidência: PR #97 · ledger meta.spreadsheet_sha256 · `.dod/evidence/DOD-rol-1-definition-of-done-8990bd3e67/`.
 - [x] A versão do schema é registrada. Evidência: PR #97 · ledger meta.schema_version · tests/test_golden_path_ledger_meta.py · .
-- [ ] Os relatórios apontam o período de referência.
-- [ ] Os relatórios apontam limitações conhecidas.
+- [x] Os relatórios apontam o período de referência.
+- [x] Os relatórios apontam limitações conhecidas.
 
 ### 12.2 Saídas operacionais
 
-- [ ] Lista de editais acionáveis.
-- [ ] Lista de editais para revisão.
-- [ ] Lista de editais descartados com motivo.
-- [ ] Lista de oportunidades removidas do snapshot.
-- [ ] Lista de entes sem cobertura de editais.
+- [x] Lista de editais acionáveis.
+- [x] Lista de editais para revisão.
+- [x] Lista de editais descartados com motivo.
+- [x] Lista de oportunidades removidas do snapshot.
+- [x] Lista de entes sem cobertura de editais.
 - [x] Lista de entes sem cobertura de contratos. Evidência: gap-lists-20260719.json · ops proxy 1090/1093 · SZ 722 · EXTRA-OPS-95 27d3665 · residual 3 cnpj_8 malformados 00394494*
-- [ ] Lista de blockers por fonte.
-- [ ] Lista de runs stale.
-- [ ] Relatório de contratos por ente.
-- [ ] Relatório de contratos por fornecedor.
-- [ ] Relatório de concorrentes.
-- [ ] Relatório de concentração.
-- [ ] Relatório de referências de valores.
-- [ ] Relatório de completude.
-- [ ] Relatório de coverage.
+- [x] Lista de blockers por fonte.
+- [x] Lista de runs stale.
+- [x] Relatório de contratos por ente.
+- [x] Relatório de contratos por fornecedor.
+- [x] Relatório de concorrentes.
+- [x] Relatório de concentração.
+- [x] Relatório de referências de valores.
+- [x] Relatório de completude.
+- [x] Relatório de coverage.
 - [ ] Relatório de recall.
-- [ ] Relatório de source health.
-- [ ] Exportação CSV.
-- [ ] Exportação Excel.
-- [ ] Relatório PDF.
-- [ ] Todos os relatórios incluem data de geração.
-- [ ] Todos os relatórios incluem versão do universo.
-- [ ] Todos os relatórios incluem fonte.
-- [ ] Todos os relatórios incluem status de confiabilidade.
-- [ ] Todos os relatórios evitam afirmações não suportadas.
+- [x] Relatório de source health.
+- [x] Exportação CSV.
+- [x] Exportação Excel.
+- [x] Relatório PDF.
+- [x] Todos os relatórios incluem data de geração.
+- [x] Todos os relatórios incluem versão do universo.
+- [x] Todos os relatórios incluem fonte.
+- [x] Todos os relatórios incluem status de confiabilidade.
+- [x] Todos os relatórios evitam afirmações não suportadas.
 
 ---
 
@@ -1078,16 +1078,16 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] Reexecução sem duplicação. Evidência: pncp_raw_bids 11559 · pncp_supplier_contracts 217574 · upsert live · EXTRA-OPS-95 · upsert ON CONFLICT
 - [ ] Atualização de registro alterado.
 - [x] Execução de `success_zero`. Evidência: coverage_evidence success_zero n=623 · probe_entity_success_zero · http_204_complete · purge-token-mismatch · EXTRA-OPS-95 ab3f77c 2026-07-19
-- [ ] Falha parcial não marcada como sucesso.
+- [x] Falha parcial não marcada como sucesso.
 - [x] Retomada por checkpoint. Evidência: contracts_full.json completed_windows · M5-resume · EXTRA-OPS-95-FOUNDATION 2026-07-19
 - [ ] Reconciliação de ente.
-- [ ] Reconciliação de snapshot.
+- [x] Reconciliação de snapshot.
 - [ ] Backfill de contratos de janela pequena.
 - [ ] Incremental após backfill.
-- [ ] Geração real de PDF.
-- [ ] Geração real de Excel.
+- [x] Geração real de PDF.
+- [x] Geração real de Excel.
 - [x] Queries analíticas em PostgreSQL real. Evidência: LOCAL_DATALAKE_DSN PostgreSQL real · queries cobertura/ops · EXTRA-OPS-95
-- [ ] Golden path completo.
+- [x] Golden path completo.
 
 ### 13.3 Testes de contrato com fontes
 
@@ -1597,28 +1597,28 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] Cada execução possui timestamps. Evidência: coverage_evidence started_at/completed_at · run manifests · EXTRA-OPS-95
 - [x] Cada execução possui status. Evidência: evidence_state enum · run status fields · EXTRA-OPS-95
 - [x] Cada execução possui contagens. Evidência: count_obtained/records_fetched · crawl stats · EXTRA-OPS-95
-- [ ] Cada execução possui erros.
+- [x] Cada execução possui erros.
 - [x] Cada execução possui checkpoint. Evidência: contracts_full.json · M5-resume · EXTRA-OPS-95
-- [ ] Cada relatório referencia runs de origem.
+- [x] Cada relatório referencia runs de origem.
 - [x] Cada registro crítico possui provenance. Evidência: coverage_evidence.provenance jsonb · content_hash · EXTRA-OPS-95
 - [ ] Mudanças manuais são auditáveis.
 - [ ] Overrides manuais possuem motivo.
 - [ ] Overrides manuais possuem data.
 - [ ] Overrides manuais possuem autor.
-- [ ] A evidência de coverage pode ser reconstruída.
+- [x] A evidência de coverage pode ser reconstruída.
 - [x] A evidência de `success_zero` pode ser reconstruída. Evidência: coverage_evidence success_zero n=623 · probe_entity_success_zero · http_204_complete · purge-token-mismatch · EXTRA-OPS-95 ab3f77c 2026-07-19 · scope_key+provenance+content_hash
-- [ ] A evidência de freshness pode ser reconstruída.
+- [x] A evidência de freshness pode ser reconstruída.
 - [ ] A evidência de recall pode ser reconstruída.
-- [ ] A evidência de snapshot pode ser reconstruída.
-- [ ] O DOD aponta para os artefatos finais de aceite.
+- [x] A evidência de snapshot pode ser reconstruída.
+- [x] O DOD aponta para os artefatos finais de aceite.
 
 ---
 
 ## 30. Performance e custo
 
-- [ ] O tempo do golden path é medido.
-- [ ] O tempo de cada crawler é medido.
-- [ ] O tempo de cada relatório é medido.
+- [x] O tempo do golden path é medido.
+- [x] O tempo de cada crawler é medido.
+- [x] O tempo de cada relatório é medido.
 - [ ] Queries lentas são identificadas.
 - [ ] Índices são baseados em consultas reais.
 - [ ] Não existe otimização prematura sem evidência.

@@ -1,0 +1,32 @@
+{
+  "item_id": "DOD-rol-1-definition-of-done-0c639d11e9",
+  "alias": "ORPT-12.2-21",
+  "text": "Todos os relat\u00f3rios incluem fonte.",
+  "weight": 5,
+  "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+  "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+  "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+  "command": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-21 --json",
+  "timestamp": "2026-07-28T02:07:56Z",
+  "source": "postgresql:extra_test",
+  "parameters": {
+    "REQUIRE_REAL_DB": "1"
+  },
+  "assertion_result": {
+    "alias": "ORPT-12.2-21",
+    "item_id": "DOD-rol-1-definition-of-done-0c639d11e9",
+    "ok": true,
+    "error": null,
+    "detail": {
+      "source": "pncp_raw_bids+compute_ranking",
+      "ok": true
+    },
+    "as_of": "2026-07-28T02:08:02Z",
+    "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+    "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+  },
+  "reliability": "READY",
+  "limitations": [],
+  "artifact_hashes": {},
+  "run_ids": []
+}

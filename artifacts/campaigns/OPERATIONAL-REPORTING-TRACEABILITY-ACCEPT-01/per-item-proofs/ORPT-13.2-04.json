@@ -1,0 +1,37 @@
+{
+  "alias": "ORPT-13.2-04",
+  "id": "DOD-rol-1-definition-of-done-d94e5ff604",
+  "exact_text": "Geração real de Excel.",
+  "weight": 5,
+  "initial_state": "OPEN",
+  "implementation": "operational_outputs/reports/export_pack/deliverable_package_final/golden_path/weekly_cycle",
+  "test_specific": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-13.2-04 --json",
+  "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-13.2-04 --json",
+  "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-d94e5ff604/proof.json",
+  "hashes": {},
+  "run_id": null,
+  "source": "postgresql:extra_test",
+  "period": {
+    "as_of": "2026-07-28"
+  },
+  "reliability": "READY",
+  "limitations": [],
+  "exit_code": 0,
+  "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+  "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+  "authority": "DOD.md + freeze + orpt_item_proofs + CI PR1/PR2 + accept",
+  "terminal_state": "ACCEPTED",
+  "assertion_result": {
+    "alias": "ORPT-13.2-04",
+    "item_id": "DOD-rol-1-definition-of-done-d94e5ff604",
+    "ok": true,
+    "error": null,
+    "detail": {
+      "path": "artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/package_final/ops-export-20260728-020731-1fac0338.xlsx",
+      "ok": true
+    },
+    "as_of": "2026-07-28T02:40:40Z",
+    "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+    "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+  }
+}

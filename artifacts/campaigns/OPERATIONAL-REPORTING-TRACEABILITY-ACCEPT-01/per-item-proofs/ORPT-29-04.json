@@ -1,0 +1,38 @@
+{
+  "alias": "ORPT-29-04",
+  "id": "DOD-rol-3-definition-of-done-9ae341d9ef",
+  "exact_text": "A evidência de freshness pode ser reconstruída.",
+  "weight": 5,
+  "initial_state": "OPEN",
+  "implementation": "operational_outputs/reports/export_pack/deliverable_package_final/golden_path/weekly_cycle",
+  "test_specific": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-29-04 --json",
+  "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-29-04 --json",
+  "artifact": ".dod/evidence/DOD-rol-3-definition-of-done-9ae341d9ef/proof.json",
+  "hashes": {},
+  "run_id": "ops-export-20260728-020731-ab0f40f5",
+  "source": "postgresql:extra_test",
+  "period": {
+    "as_of": "2026-07-28"
+  },
+  "reliability": "READY",
+  "limitations": [],
+  "exit_code": 0,
+  "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+  "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+  "authority": "DOD.md + freeze + orpt_item_proofs + CI PR1/PR2 + accept",
+  "terminal_state": "ACCEPTED",
+  "assertion_result": {
+    "alias": "ORPT-29-04",
+    "item_id": "DOD-rol-3-definition-of-done-9ae341d9ef",
+    "ok": true,
+    "error": null,
+    "detail": {
+      "path": "/mnt/d/extra consultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/export/csv/source_health.csv",
+      "run_id": "ops-export-20260728-020731-ab0f40f5",
+      "ok": true
+    },
+    "as_of": "2026-07-28T02:40:40Z",
+    "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+    "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+  }
+}

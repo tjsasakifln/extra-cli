@@ -1,0 +1,38 @@
+{
+  "item_id": "DOD-rol-1-definition-of-done-b43fd305c7",
+  "alias": "ORPT-12.1-03",
+  "text": "Os relat\u00f3rios apontam limita\u00e7\u00f5es conhecidas.",
+  "weight": 5,
+  "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+  "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+  "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+  "command": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.1-03 --json",
+  "timestamp": "2026-07-28T02:07:56Z",
+  "source": "postgresql:extra_test",
+  "parameters": {
+    "REQUIRE_REAL_DB": "1"
+  },
+  "assertion_result": {
+    "alias": "ORPT-12.1-03",
+    "item_id": "DOD-rol-1-definition-of-done-b43fd305c7",
+    "ok": true,
+    "error": null,
+    "detail": {
+      "limitations": [
+        "No active pncp_raw_bids / opportunity_intel; GO/REVIEW/NO_GO lists empty (SUCCESS_ZERO)",
+        "sc_public_entities empty \u2014 gap lists cannot enumerate universe entities"
+      ],
+      "ok": true
+    },
+    "as_of": "2026-07-28T02:08:01Z",
+    "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+    "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+  },
+  "reliability": "READY",
+  "limitations": [
+    "No active pncp_raw_bids / opportunity_intel; GO/REVIEW/NO_GO lists empty (SUCCESS_ZERO)",
+    "sc_public_entities empty \u2014 gap lists cannot enumerate universe entities"
+  ],
+  "artifact_hashes": {},
+  "run_ids": []
+}

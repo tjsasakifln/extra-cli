@@ -1,0 +1,24 @@
+{
+  "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+  "pr1": {
+    "number": 159,
+    "merge": "936746b9f554fa6c2387e961e7f404ac977384fa"
+  },
+  "pr2": {
+    "number": 160,
+    "merge": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+  },
+  "required_checks": [
+    "Lint (ruff)",
+    "Type Check (mypy)",
+    "Test (critical readiness)",
+    "Test operational expanded (PR)",
+    "Test All (full suite)",
+    "Resilience Gate (pre-VPS)",
+    "Security (bandit)",
+    "Dependency Audit (pip-audit)",
+    "Generated Artifacts Policy",
+    "PR Reviewability Policy",
+    "Pytest Skip Policy"
+  ]
+}

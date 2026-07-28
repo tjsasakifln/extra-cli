@@ -1,0 +1,40 @@
+{
+  "item_id": "DOD-rol-1-definition-of-done-9c23f31815",
+  "alias": "ORPT-13.2-02",
+  "text": "Reconcilia\u00e7\u00e3o de snapshot.",
+  "weight": 5,
+  "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+  "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+  "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+  "command": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-13.2-02 --json",
+  "timestamp": "2026-07-28T02:07:56Z",
+  "source": "postgresql:extra_test",
+  "parameters": {
+    "REQUIRE_REAL_DB": "1"
+  },
+  "assertion_result": {
+    "alias": "ORPT-13.2-02",
+    "item_id": "DOD-rol-1-definition-of-done-9c23f31815",
+    "ok": true,
+    "error": null,
+    "detail": {
+      "path": "/mnt/d/extra consultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/lists/oportunidades_removidas_snapshot.csv",
+      "status": "SUCCESS_ZERO",
+      "limitations": [
+        "No active pncp_raw_bids / opportunity_intel; GO/REVIEW/NO_GO lists empty (SUCCESS_ZERO)",
+        "sc_public_entities empty \u2014 gap lists cannot enumerate universe entities"
+      ],
+      "ok": true
+    },
+    "as_of": "2026-07-28T02:08:03Z",
+    "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+    "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+  },
+  "reliability": "SUCCESS_ZERO",
+  "limitations": [
+    "No active pncp_raw_bids / opportunity_intel; GO/REVIEW/NO_GO lists empty (SUCCESS_ZERO)",
+    "sc_public_entities empty \u2014 gap lists cannot enumerate universe entities"
+  ],
+  "artifact_hashes": {},
+  "run_ids": []
+}

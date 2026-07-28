@@ -1,6 +1,6 @@
 schema_version: '1.0'
 source: DOD.md
-updated_at: '2026-07-27T23:45:35Z'
+updated_at: '2026-07-28T02:39:55Z'
 items:
 - id: DOD-definition-of-done-extra-934b7e1a8d
   text: 'O denominador estratégico permaneceu fixo em **1.093 entidades**. Evidência: `output/coverage/contract-report.json`;
@@ -49712,12 +49712,13 @@ items:
     - 12. Pipeline de inteligência e relatórios
     - 12.1 Golden path local
   category: DOCUMENTATION_WITH_PROOF
-  state: OPEN
-  dod_checked: false
+  state: ACCEPTED
+  dod_checked: true
   evidence_type: system_report
   dependencies: []
   blockers: []
-  acceptance_commands: []
+  acceptance_commands:
+  - python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.1-01 --json
   tests: []
   files: []
   environment: local
@@ -49725,9 +49726,9 @@ items:
   needs_live_source: false
   needs_human_eval: false
   evidence: []
-  acceptance_commit: null
-  acceptance_pr: null
-  accepted_at: null
+  acceptance_commit: ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10
+  acceptance_pr: ORPT-PR3
+  accepted_at: '2026-07-28T02:32:03Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -49766,8 +49767,19 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=996
+  - at: '2026-07-28T02:08:12Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-28T02:21:51Z'
+    event: verify
+    detail: VERIFIED head=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 runs=1
+  - at: '2026-07-28T02:32:03Z'
+    event: accept
+    detail: commit=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 branch=main gates_ok=True
   content_fingerprint: 7b7184ebb4
-  evidence_audit: null
+  evidence_audit:
+    status: ok
+    notes: accepted via fail-closed gates; path_audit=n/a; evidence pack verify_result+criteria present
   priority_boost: 0
 - id: DOD-rol-1-definition-of-done-d5c6584cb7
   text: 'O golden path gera Excel. Evidência: PR #90 · panorama Excel size≥100 openpyxl · reproof CONTINUE-03 · `.dod/evidence/DOD-rol-1-definition-of-done-d5c6584cb7/`
@@ -50619,12 +50631,13 @@ items:
     - 12. Pipeline de inteligência e relatórios
     - 12.1 Golden path local
   category: DOCUMENTATION_WITH_PROOF
-  state: OPEN
-  dod_checked: false
+  state: ACCEPTED
+  dod_checked: true
   evidence_type: system_report
   dependencies: []
   blockers: []
-  acceptance_commands: []
+  acceptance_commands:
+  - python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.1-02 --json
   tests: []
   files: []
   environment: local
@@ -50632,9 +50645,9 @@ items:
   needs_live_source: false
   needs_human_eval: false
   evidence: []
-  acceptance_commit: null
-  acceptance_pr: null
-  accepted_at: null
+  acceptance_commit: ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10
+  acceptance_pr: ORPT-PR3
+  accepted_at: '2026-07-28T02:32:16Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -50673,8 +50686,19 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=1008
+  - at: '2026-07-28T02:08:33Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-28T02:22:05Z'
+    event: verify
+    detail: VERIFIED head=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 runs=1
+  - at: '2026-07-28T02:32:16Z'
+    event: accept
+    detail: commit=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 branch=main gates_ok=True
   content_fingerprint: 36fa52b0a8
-  evidence_audit: null
+  evidence_audit:
+    status: ok
+    notes: accepted via fail-closed gates; path_audit=n/a; evidence pack verify_result+criteria present
   priority_boost: 0
 - id: DOD-rol-1-definition-of-done-b43fd305c7
   text: Os relatórios apontam limitações conhecidas.
@@ -50688,12 +50712,13 @@ items:
     - 12. Pipeline de inteligência e relatórios
     - 12.1 Golden path local
   category: DOCUMENTATION_WITH_PROOF
-  state: OPEN
-  dod_checked: false
+  state: ACCEPTED
+  dod_checked: true
   evidence_type: system_report
   dependencies: []
   blockers: []
-  acceptance_commands: []
+  acceptance_commands:
+  - python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.1-03 --json
   tests: []
   files: []
   environment: local
@@ -50701,9 +50726,9 @@ items:
   needs_live_source: false
   needs_human_eval: false
   evidence: []
-  acceptance_commit: null
-  acceptance_pr: null
-  accepted_at: null
+  acceptance_commit: ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10
+  acceptance_pr: ORPT-PR3
+  accepted_at: '2026-07-28T02:32:34Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -50742,8 +50767,19 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=1009
+  - at: '2026-07-28T02:08:51Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-28T02:22:22Z'
+    event: verify
+    detail: VERIFIED head=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 runs=1
+  - at: '2026-07-28T02:32:34Z'
+    event: accept
+    detail: commit=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 branch=main gates_ok=True
   content_fingerprint: b43fd305c7
-  evidence_audit: null
+  evidence_audit:
+    status: ok
+    notes: accepted via fail-closed gates; path_audit=n/a; evidence pack verify_result+criteria present
   priority_boost: 0
 - id: DOD-rol-1-definition-of-done-b87c19a57c
   text: Lista de editais acionáveis.
@@ -50757,12 +50793,13 @@ items:
     - 12. Pipeline de inteligência e relatórios
     - 12.2 Saídas operacionais
   category: MACHINE_ACTIONABLE
-  state: OPEN
-  dod_checked: false
+  state: ACCEPTED
+  dod_checked: true
   evidence_type: mixed_or_unspecified
   dependencies: []
   blockers: []
-  acceptance_commands: []
+  acceptance_commands:
+  - python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-01 --json
   tests: []
   files: []
   environment: local
@@ -50770,9 +50807,9 @@ items:
   needs_live_source: false
   needs_human_eval: false
   evidence: []
-  acceptance_commit: null
-  acceptance_pr: null
-  accepted_at: null
+  acceptance_commit: ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10
+  acceptance_pr: ORPT-PR3
+  accepted_at: '2026-07-28T02:32:45Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -50811,8 +50848,19 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=1013
+  - at: '2026-07-28T02:09:11Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-28T02:22:35Z'
+    event: verify
+    detail: VERIFIED head=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 runs=1
+  - at: '2026-07-28T02:32:45Z'
+    event: accept
+    detail: commit=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 branch=main gates_ok=True
   content_fingerprint: b87c19a57c
-  evidence_audit: null
+  evidence_audit:
+    status: ok
+    notes: accepted via fail-closed gates; path_audit=n/a; evidence pack verify_result+criteria present
   priority_boost: 0
 - id: DOD-rol-1-definition-of-done-9c1555da8e
   text: Lista de editais para revisão.
@@ -50826,12 +50874,13 @@ items:
     - 12. Pipeline de inteligência e relatórios
     - 12.2 Saídas operacionais
   category: MACHINE_ACTIONABLE
-  state: OPEN
-  dod_checked: false
+  state: ACCEPTED
+  dod_checked: true
   evidence_type: mixed_or_unspecified
   dependencies: []
   blockers: []
-  acceptance_commands: []
+  acceptance_commands:
+  - python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-02 --json
   tests: []
   files: []
   environment: local
@@ -50839,9 +50888,9 @@ items:
   needs_live_source: false
   needs_human_eval: false
   evidence: []
-  acceptance_commit: null
-  acceptance_pr: null
-  accepted_at: null
+  acceptance_commit: ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10
+  acceptance_pr: ORPT-PR3
+  accepted_at: '2026-07-28T02:32:55Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -50880,8 +50929,19 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=1014
+  - at: '2026-07-28T02:09:29Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-28T02:22:51Z'
+    event: verify
+    detail: VERIFIED head=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 runs=1
+  - at: '2026-07-28T02:32:55Z'
+    event: accept
+    detail: commit=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 branch=main gates_ok=True
   content_fingerprint: 9c1555da8e
-  evidence_audit: null
+  evidence_audit:
+    status: ok
+    notes: accepted via fail-closed gates; path_audit=n/a; evidence pack verify_result+criteria present
   priority_boost: 0
 - id: DOD-rol-1-definition-of-done-037e1ea8b8
   text: Lista de editais descartados com motivo.
@@ -50895,12 +50955,13 @@ items:
     - 12. Pipeline de inteligência e relatórios
     - 12.2 Saídas operacionais
   category: MACHINE_ACTIONABLE
-  state: OPEN
-  dod_checked: false
+  state: ACCEPTED
+  dod_checked: true
   evidence_type: mixed_or_unspecified
   dependencies: []
   blockers: []
-  acceptance_commands: []
+  acceptance_commands:
+  - python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-03 --json
   tests: []
   files: []
   environment: local
@@ -50908,9 +50969,9 @@ items:
   needs_live_source: false
   needs_human_eval: false
   evidence: []
-  acceptance_commit: null
-  acceptance_pr: null
-  accepted_at: null
+  acceptance_commit: ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10
+  acceptance_pr: ORPT-PR3
+  accepted_at: '2026-07-28T02:33:10Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -50949,8 +51010,19 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=1015
+  - at: '2026-07-28T02:09:49Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-28T02:23:04Z'
+    event: verify
+    detail: VERIFIED head=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 runs=1
+  - at: '2026-07-28T02:33:10Z'
+    event: accept
+    detail: commit=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 branch=main gates_ok=True
   content_fingerprint: 037e1ea8b8
-  evidence_audit: null
+  evidence_audit:
+    status: ok
+    notes: accepted via fail-closed gates; path_audit=n/a; evidence pack verify_result+criteria present
   priority_boost: 0
 - id: DOD-rol-1-definition-of-done-9c590c7a80
   text: Lista de oportunidades removidas do snapshot.
@@ -50964,12 +51036,13 @@ items:
     - 12. Pipeline de inteligência e relatórios
     - 12.2 Saídas operacionais
   category: MACHINE_ACTIONABLE
-  state: OPEN
-  dod_checked: false
+  state: ACCEPTED
+  dod_checked: true
   evidence_type: mixed_or_unspecified
   dependencies: []
   blockers: []
-  acceptance_commands: []
+  acceptance_commands:
+  - python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-04 --json
   tests: []
   files: []
   environment: local
@@ -50977,9 +51050,9 @@ items:
   needs_live_source: false
   needs_human_eval: false
   evidence: []
-  acceptance_commit: null
-  acceptance_pr: null
-  accepted_at: null
+  acceptance_commit: ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10
+  acceptance_pr: ORPT-PR3
+  accepted_at: '2026-07-28T02:33:21Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -51018,8 +51091,19 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=1016
+  - at: '2026-07-28T02:10:06Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-28T02:23:17Z'
+    event: verify
+    detail: VERIFIED head=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 runs=1
+  - at: '2026-07-28T02:33:21Z'
+    event: accept
+    detail: commit=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 branch=main gates_ok=True
   content_fingerprint: 9c590c7a80
-  evidence_audit: null
+  evidence_audit:
+    status: ok
+    notes: accepted via fail-closed gates; path_audit=n/a; evidence pack verify_result+criteria present
   priority_boost: 0
 - id: DOD-rol-1-definition-of-done-736a47b268
   text: Lista de entes sem cobertura de editais.
@@ -51033,12 +51117,13 @@ items:
     - 12. Pipeline de inteligência e relatórios
     - 12.2 Saídas operacionais
   category: MACHINE_ACTIONABLE
-  state: OPEN
-  dod_checked: false
+  state: ACCEPTED
+  dod_checked: true
   evidence_type: mixed_or_unspecified
   dependencies: []
   blockers: []
-  acceptance_commands: []
+  acceptance_commands:
+  - python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-05 --json
   tests: []
   files: []
   environment: local
@@ -51046,9 +51131,9 @@ items:
   needs_live_source: false
   needs_human_eval: false
   evidence: []
-  acceptance_commit: null
-  acceptance_pr: null
-  accepted_at: null
+  acceptance_commit: ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10
+  acceptance_pr: ORPT-PR3
+  accepted_at: '2026-07-28T02:33:32Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -51087,8 +51172,19 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=1017
+  - at: '2026-07-28T02:10:27Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-28T02:23:34Z'
+    event: verify
+    detail: VERIFIED head=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 runs=1
+  - at: '2026-07-28T02:33:32Z'
+    event: accept
+    detail: commit=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 branch=main gates_ok=True
   content_fingerprint: 736a47b268
-  evidence_audit: null
+  evidence_audit:
+    status: ok
+    notes: accepted via fail-closed gates; path_audit=n/a; evidence pack verify_result+criteria present
   priority_boost: 0
 - id: DOD-rol-1-definition-of-done-4cf9b80939
   text: 'Lista de entes sem cobertura de contratos. Evidência: gap-lists-20260719.json · ops proxy 1090/1093 · SZ 722 · EXTRA-OPS-95
@@ -51176,12 +51272,13 @@ items:
     - 12. Pipeline de inteligência e relatórios
     - 12.2 Saídas operacionais
   category: MACHINE_ACTIONABLE
-  state: OPEN
-  dod_checked: false
+  state: ACCEPTED
+  dod_checked: true
   evidence_type: mixed_or_unspecified
   dependencies: []
   blockers: []
-  acceptance_commands: []
+  acceptance_commands:
+  - python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-06 --json
   tests: []
   files: []
   environment: local
@@ -51189,9 +51286,9 @@ items:
   needs_live_source: false
   needs_human_eval: false
   evidence: []
-  acceptance_commit: null
-  acceptance_pr: null
-  accepted_at: null
+  acceptance_commit: ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10
+  acceptance_pr: ORPT-PR3
+  accepted_at: '2026-07-28T02:33:46Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -51230,8 +51327,19 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=1019
+  - at: '2026-07-28T02:10:45Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-28T02:23:47Z'
+    event: verify
+    detail: VERIFIED head=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 runs=1
+  - at: '2026-07-28T02:33:46Z'
+    event: accept
+    detail: commit=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 branch=main gates_ok=True
   content_fingerprint: 42843ef00c
-  evidence_audit: null
+  evidence_audit:
+    status: ok
+    notes: accepted via fail-closed gates; path_audit=n/a; evidence pack verify_result+criteria present
   priority_boost: 0
 - id: DOD-rol-1-definition-of-done-9b7e025eca
   text: Lista de runs stale.
@@ -51245,12 +51353,13 @@ items:
     - 12. Pipeline de inteligência e relatórios
     - 12.2 Saídas operacionais
   category: MACHINE_ACTIONABLE
-  state: OPEN
-  dod_checked: false
+  state: ACCEPTED
+  dod_checked: true
   evidence_type: mixed_or_unspecified
   dependencies: []
   blockers: []
-  acceptance_commands: []
+  acceptance_commands:
+  - python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-07 --json
   tests: []
   files: []
   environment: local
@@ -51258,9 +51367,9 @@ items:
   needs_live_source: false
   needs_human_eval: false
   evidence: []
-  acceptance_commit: null
-  acceptance_pr: null
-  accepted_at: null
+  acceptance_commit: ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10
+  acceptance_pr: ORPT-PR3
+  accepted_at: '2026-07-28T02:33:57Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -51299,8 +51408,19 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=1020
+  - at: '2026-07-28T02:11:05Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-28T02:24:03Z'
+    event: verify
+    detail: VERIFIED head=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 runs=1
+  - at: '2026-07-28T02:33:57Z'
+    event: accept
+    detail: commit=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 branch=main gates_ok=True
   content_fingerprint: 9b7e025eca
-  evidence_audit: null
+  evidence_audit:
+    status: ok
+    notes: accepted via fail-closed gates; path_audit=n/a; evidence pack verify_result+criteria present
   priority_boost: 0
 - id: DOD-rol-1-definition-of-done-967f4833f6
   text: Relatório de contratos por ente.
@@ -51314,12 +51434,13 @@ items:
     - 12. Pipeline de inteligência e relatórios
     - 12.2 Saídas operacionais
   category: DOCUMENTATION_WITH_PROOF
-  state: OPEN
-  dod_checked: false
+  state: ACCEPTED
+  dod_checked: true
   evidence_type: system_report
   dependencies: []
   blockers: []
-  acceptance_commands: []
+  acceptance_commands:
+  - python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-08 --json
   tests: []
   files: []
   environment: local
@@ -51327,9 +51448,9 @@ items:
   needs_live_source: false
   needs_human_eval: false
   evidence: []
-  acceptance_commit: null
-  acceptance_pr: null
-  accepted_at: null
+  acceptance_commit: ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10
+  acceptance_pr: ORPT-PR3
+  accepted_at: '2026-07-28T02:34:08Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -51368,8 +51489,19 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=1021
+  - at: '2026-07-28T02:11:23Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-28T02:24:16Z'
+    event: verify
+    detail: VERIFIED head=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 runs=1
+  - at: '2026-07-28T02:34:08Z'
+    event: accept
+    detail: commit=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 branch=main gates_ok=True
   content_fingerprint: 967f4833f6
-  evidence_audit: null
+  evidence_audit:
+    status: ok
+    notes: accepted via fail-closed gates; path_audit=n/a; evidence pack verify_result+criteria present
   priority_boost: 0
 - id: DOD-rol-1-definition-of-done-7ed332dbad
   text: Relatório de contratos por fornecedor.
@@ -51383,12 +51515,13 @@ items:
     - 12. Pipeline de inteligência e relatórios
     - 12.2 Saídas operacionais
   category: EXTERNAL_DEPENDENCY
-  state: OPEN
-  dod_checked: false
+  state: ACCEPTED
+  dod_checked: true
   evidence_type: system_report
   dependencies: []
   blockers: []
-  acceptance_commands: []
+  acceptance_commands:
+  - python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-09 --json
   tests: []
   files: []
   environment: local
@@ -51396,9 +51529,9 @@ items:
   needs_live_source: false
   needs_human_eval: false
   evidence: []
-  acceptance_commit: null
-  acceptance_pr: null
-  accepted_at: null
+  acceptance_commit: ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10
+  acceptance_pr: ORPT-PR3
+  accepted_at: '2026-07-28T02:34:22Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -51437,8 +51570,19 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=1022
+  - at: '2026-07-28T02:11:44Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-28T02:24:29Z'
+    event: verify
+    detail: VERIFIED head=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 runs=1
+  - at: '2026-07-28T02:34:22Z'
+    event: accept
+    detail: commit=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 branch=main gates_ok=True
   content_fingerprint: 7ed332dbad
-  evidence_audit: null
+  evidence_audit:
+    status: ok
+    notes: accepted via fail-closed gates; path_audit=n/a; evidence pack verify_result+criteria present
   priority_boost: 0
 - id: DOD-rol-1-definition-of-done-58aa2af147
   text: Relatório de concorrentes.
@@ -51452,12 +51596,13 @@ items:
     - 12. Pipeline de inteligência e relatórios
     - 12.2 Saídas operacionais
   category: DOCUMENTATION_WITH_PROOF
-  state: OPEN
-  dod_checked: false
+  state: ACCEPTED
+  dod_checked: true
   evidence_type: system_report
   dependencies: []
   blockers: []
-  acceptance_commands: []
+  acceptance_commands:
+  - python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-10 --json
   tests: []
   files: []
   environment: local
@@ -51465,9 +51610,9 @@ items:
   needs_live_source: false
   needs_human_eval: false
   evidence: []
-  acceptance_commit: null
-  acceptance_pr: null
-  accepted_at: null
+  acceptance_commit: ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10
+  acceptance_pr: ORPT-PR3
+  accepted_at: '2026-07-28T02:34:33Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -51506,8 +51651,19 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=1023
+  - at: '2026-07-28T02:12:01Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-28T02:24:46Z'
+    event: verify
+    detail: VERIFIED head=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 runs=1
+  - at: '2026-07-28T02:34:33Z'
+    event: accept
+    detail: commit=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 branch=main gates_ok=True
   content_fingerprint: 58aa2af147
-  evidence_audit: null
+  evidence_audit:
+    status: ok
+    notes: accepted via fail-closed gates; path_audit=n/a; evidence pack verify_result+criteria present
   priority_boost: 0
 - id: DOD-rol-1-definition-of-done-a9c29d1d0f
   text: Relatório de concentração.
@@ -51521,12 +51677,13 @@ items:
     - 12. Pipeline de inteligência e relatórios
     - 12.2 Saídas operacionais
   category: DOCUMENTATION_WITH_PROOF
-  state: OPEN
-  dod_checked: false
+  state: ACCEPTED
+  dod_checked: true
   evidence_type: system_report
   dependencies: []
   blockers: []
-  acceptance_commands: []
+  acceptance_commands:
+  - python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-11 --json
   tests: []
   files: []
   environment: local
@@ -51534,9 +51691,9 @@ items:
   needs_live_source: false
   needs_human_eval: false
   evidence: []
-  acceptance_commit: null
-  acceptance_pr: null
-  accepted_at: null
+  acceptance_commit: ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10
+  acceptance_pr: ORPT-PR3
+  accepted_at: '2026-07-28T02:34:48Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -51575,8 +51732,19 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=1024
+  - at: '2026-07-28T02:12:22Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-28T02:24:59Z'
+    event: verify
+    detail: VERIFIED head=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 runs=1
+  - at: '2026-07-28T02:34:48Z'
+    event: accept
+    detail: commit=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 branch=main gates_ok=True
   content_fingerprint: a9c29d1d0f
-  evidence_audit: null
+  evidence_audit:
+    status: ok
+    notes: accepted via fail-closed gates; path_audit=n/a; evidence pack verify_result+criteria present
   priority_boost: 0
 - id: DOD-rol-1-definition-of-done-a68e171fd2
   text: Relatório de referências de valores.
@@ -51590,12 +51758,13 @@ items:
     - 12. Pipeline de inteligência e relatórios
     - 12.2 Saídas operacionais
   category: DOCUMENTATION_WITH_PROOF
-  state: OPEN
-  dod_checked: false
+  state: ACCEPTED
+  dod_checked: true
   evidence_type: system_report
   dependencies: []
   blockers: []
-  acceptance_commands: []
+  acceptance_commands:
+  - python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-12 --json
   tests: []
   files: []
   environment: local
@@ -51603,9 +51772,9 @@ items:
   needs_live_source: false
   needs_human_eval: false
   evidence: []
-  acceptance_commit: null
-  acceptance_pr: null
-  accepted_at: null
+  acceptance_commit: ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10
+  acceptance_pr: ORPT-PR3
+  accepted_at: '2026-07-28T02:34:59Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -51644,8 +51813,19 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=1025
+  - at: '2026-07-28T02:12:43Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-28T02:25:16Z'
+    event: verify
+    detail: VERIFIED head=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 runs=1
+  - at: '2026-07-28T02:34:59Z'
+    event: accept
+    detail: commit=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 branch=main gates_ok=True
   content_fingerprint: a68e171fd2
-  evidence_audit: null
+  evidence_audit:
+    status: ok
+    notes: accepted via fail-closed gates; path_audit=n/a; evidence pack verify_result+criteria present
   priority_boost: 0
 - id: DOD-rol-1-definition-of-done-3806883175
   text: Relatório de completude.
@@ -51659,12 +51839,13 @@ items:
     - 12. Pipeline de inteligência e relatórios
     - 12.2 Saídas operacionais
   category: DOCUMENTATION_WITH_PROOF
-  state: OPEN
-  dod_checked: false
+  state: ACCEPTED
+  dod_checked: true
   evidence_type: system_report
   dependencies: []
   blockers: []
-  acceptance_commands: []
+  acceptance_commands:
+  - python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-13 --json
   tests: []
   files: []
   environment: local
@@ -51672,9 +51853,9 @@ items:
   needs_live_source: false
   needs_human_eval: false
   evidence: []
-  acceptance_commit: null
-  acceptance_pr: null
-  accepted_at: null
+  acceptance_commit: ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10
+  acceptance_pr: ORPT-PR3
+  accepted_at: '2026-07-28T02:35:09Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -51713,8 +51894,19 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=1026
+  - at: '2026-07-28T02:13:00Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-28T02:25:29Z'
+    event: verify
+    detail: VERIFIED head=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 runs=1
+  - at: '2026-07-28T02:35:09Z'
+    event: accept
+    detail: commit=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 branch=main gates_ok=True
   content_fingerprint: '3806883175'
-  evidence_audit: null
+  evidence_audit:
+    status: ok
+    notes: accepted via fail-closed gates; path_audit=n/a; evidence pack verify_result+criteria present
   priority_boost: 0
 - id: DOD-rol-1-definition-of-done-0e137584b0
   text: Relatório de coverage.
@@ -51728,12 +51920,13 @@ items:
     - 12. Pipeline de inteligência e relatórios
     - 12.2 Saídas operacionais
   category: DOCUMENTATION_WITH_PROOF
-  state: OPEN
-  dod_checked: false
+  state: ACCEPTED
+  dod_checked: true
   evidence_type: system_report
   dependencies: []
   blockers: []
-  acceptance_commands: []
+  acceptance_commands:
+  - python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-14 --json
   tests: []
   files: []
   environment: local
@@ -51741,9 +51934,9 @@ items:
   needs_live_source: false
   needs_human_eval: false
   evidence: []
-  acceptance_commit: null
-  acceptance_pr: null
-  accepted_at: null
+  acceptance_commit: ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10
+  acceptance_pr: ORPT-PR3
+  accepted_at: '2026-07-28T02:35:24Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -51782,8 +51975,19 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=1027
+  - at: '2026-07-28T02:13:21Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-28T02:25:42Z'
+    event: verify
+    detail: VERIFIED head=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 runs=1
+  - at: '2026-07-28T02:35:24Z'
+    event: accept
+    detail: commit=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 branch=main gates_ok=True
   content_fingerprint: 0e137584b0
-  evidence_audit: null
+  evidence_audit:
+    status: ok
+    notes: accepted via fail-closed gates; path_audit=n/a; evidence pack verify_result+criteria present
   priority_boost: 0
 - id: DOD-rol-1-definition-of-done-501a8867ad
   text: Relatório de recall.
@@ -51866,12 +52070,13 @@ items:
     - 12. Pipeline de inteligência e relatórios
     - 12.2 Saídas operacionais
   category: DOCUMENTATION_WITH_PROOF
-  state: OPEN
-  dod_checked: false
+  state: ACCEPTED
+  dod_checked: true
   evidence_type: system_report
   dependencies: []
   blockers: []
-  acceptance_commands: []
+  acceptance_commands:
+  - python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-15 --json
   tests: []
   files: []
   environment: local
@@ -51879,9 +52084,9 @@ items:
   needs_live_source: false
   needs_human_eval: false
   evidence: []
-  acceptance_commit: null
-  acceptance_pr: null
-  accepted_at: null
+  acceptance_commit: ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10
+  acceptance_pr: ORPT-PR3
+  accepted_at: '2026-07-28T02:35:35Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -51920,8 +52125,19 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=1029
+  - at: '2026-07-28T02:13:39Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-28T02:25:58Z'
+    event: verify
+    detail: VERIFIED head=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 runs=1
+  - at: '2026-07-28T02:35:35Z'
+    event: accept
+    detail: commit=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 branch=main gates_ok=True
   content_fingerprint: eba916b20b
-  evidence_audit: null
+  evidence_audit:
+    status: ok
+    notes: accepted via fail-closed gates; path_audit=n/a; evidence pack verify_result+criteria present
   priority_boost: 0
 - id: DOD-rol-1-definition-of-done-77b6ac88f9
   text: Exportação CSV.
@@ -51935,12 +52151,13 @@ items:
     - 12. Pipeline de inteligência e relatórios
     - 12.2 Saídas operacionais
   category: MACHINE_ACTIONABLE
-  state: OPEN
-  dod_checked: false
+  state: ACCEPTED
+  dod_checked: true
   evidence_type: mixed_or_unspecified
   dependencies: []
   blockers: []
-  acceptance_commands: []
+  acceptance_commands:
+  - python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-16 --json
   tests: []
   files: []
   environment: local
@@ -51948,9 +52165,9 @@ items:
   needs_live_source: false
   needs_human_eval: false
   evidence: []
-  acceptance_commit: null
-  acceptance_pr: null
-  accepted_at: null
+  acceptance_commit: ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10
+  acceptance_pr: ORPT-PR3
+  accepted_at: '2026-07-28T02:35:45Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -51989,8 +52206,19 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=1030
+  - at: '2026-07-28T02:13:59Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-28T02:26:11Z'
+    event: verify
+    detail: VERIFIED head=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 runs=1
+  - at: '2026-07-28T02:35:45Z'
+    event: accept
+    detail: commit=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 branch=main gates_ok=True
   content_fingerprint: 77b6ac88f9
-  evidence_audit: null
+  evidence_audit:
+    status: ok
+    notes: accepted via fail-closed gates; path_audit=n/a; evidence pack verify_result+criteria present
   priority_boost: 0
 - id: DOD-rol-1-definition-of-done-27281770e6
   text: Exportação Excel.
@@ -52004,12 +52232,13 @@ items:
     - 12. Pipeline de inteligência e relatórios
     - 12.2 Saídas operacionais
   category: MACHINE_ACTIONABLE
-  state: OPEN
-  dod_checked: false
+  state: ACCEPTED
+  dod_checked: true
   evidence_type: mixed_or_unspecified
   dependencies: []
   blockers: []
-  acceptance_commands: []
+  acceptance_commands:
+  - python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-17 --json
   tests: []
   files: []
   environment: local
@@ -52017,9 +52246,9 @@ items:
   needs_live_source: false
   needs_human_eval: false
   evidence: []
-  acceptance_commit: null
-  acceptance_pr: null
-  accepted_at: null
+  acceptance_commit: ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10
+  acceptance_pr: ORPT-PR3
+  accepted_at: '2026-07-28T02:36:00Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -52058,8 +52287,19 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=1031
+  - at: '2026-07-28T02:14:17Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-28T02:26:28Z'
+    event: verify
+    detail: VERIFIED head=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 runs=1
+  - at: '2026-07-28T02:36:00Z'
+    event: accept
+    detail: commit=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 branch=main gates_ok=True
   content_fingerprint: 27281770e6
-  evidence_audit: null
+  evidence_audit:
+    status: ok
+    notes: accepted via fail-closed gates; path_audit=n/a; evidence pack verify_result+criteria present
   priority_boost: 0
 - id: DOD-rol-1-definition-of-done-fd81b987ec
   text: Relatório PDF.
@@ -52073,12 +52313,13 @@ items:
     - 12. Pipeline de inteligência e relatórios
     - 12.2 Saídas operacionais
   category: DOCUMENTATION_WITH_PROOF
-  state: OPEN
-  dod_checked: false
+  state: ACCEPTED
+  dod_checked: true
   evidence_type: system_report
   dependencies: []
   blockers: []
-  acceptance_commands: []
+  acceptance_commands:
+  - python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-18 --json
   tests: []
   files: []
   environment: local
@@ -52086,9 +52327,9 @@ items:
   needs_live_source: false
   needs_human_eval: false
   evidence: []
-  acceptance_commit: null
-  acceptance_pr: null
-  accepted_at: null
+  acceptance_commit: ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10
+  acceptance_pr: ORPT-PR3
+  accepted_at: '2026-07-28T02:36:11Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -52127,8 +52368,19 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=1032
+  - at: '2026-07-28T02:14:37Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-28T02:26:41Z'
+    event: verify
+    detail: VERIFIED head=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 runs=1
+  - at: '2026-07-28T02:36:11Z'
+    event: accept
+    detail: commit=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 branch=main gates_ok=True
   content_fingerprint: fd81b987ec
-  evidence_audit: null
+  evidence_audit:
+    status: ok
+    notes: accepted via fail-closed gates; path_audit=n/a; evidence pack verify_result+criteria present
   priority_boost: 0
 - id: DOD-rol-1-definition-of-done-0b5cf13b3e
   text: Todos os relatórios incluem data de geração.
@@ -52142,12 +52394,13 @@ items:
     - 12. Pipeline de inteligência e relatórios
     - 12.2 Saídas operacionais
   category: DOCUMENTATION_WITH_PROOF
-  state: OPEN
-  dod_checked: false
+  state: ACCEPTED
+  dod_checked: true
   evidence_type: system_report
   dependencies: []
   blockers: []
-  acceptance_commands: []
+  acceptance_commands:
+  - python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-19 --json
   tests: []
   files: []
   environment: local
@@ -52155,9 +52408,9 @@ items:
   needs_live_source: false
   needs_human_eval: false
   evidence: []
-  acceptance_commit: null
-  acceptance_pr: null
-  accepted_at: null
+  acceptance_commit: ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10
+  acceptance_pr: ORPT-PR3
+  accepted_at: '2026-07-28T02:36:21Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -52196,8 +52449,19 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=1033
+  - at: '2026-07-28T02:14:55Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-28T02:26:54Z'
+    event: verify
+    detail: VERIFIED head=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 runs=1
+  - at: '2026-07-28T02:36:21Z'
+    event: accept
+    detail: commit=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 branch=main gates_ok=True
   content_fingerprint: 0b5cf13b3e
-  evidence_audit: null
+  evidence_audit:
+    status: ok
+    notes: accepted via fail-closed gates; path_audit=n/a; evidence pack verify_result+criteria present
   priority_boost: 0
 - id: DOD-rol-1-definition-of-done-7cae8aa5a9
   text: Todos os relatórios incluem versão do universo.
@@ -52211,12 +52475,13 @@ items:
     - 12. Pipeline de inteligência e relatórios
     - 12.2 Saídas operacionais
   category: DOCUMENTATION_WITH_PROOF
-  state: OPEN
-  dod_checked: false
+  state: ACCEPTED
+  dod_checked: true
   evidence_type: system_report
   dependencies: []
   blockers: []
-  acceptance_commands: []
+  acceptance_commands:
+  - python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-20 --json
   tests: []
   files: []
   environment: local
@@ -52224,9 +52489,9 @@ items:
   needs_live_source: false
   needs_human_eval: false
   evidence: []
-  acceptance_commit: null
-  acceptance_pr: null
-  accepted_at: null
+  acceptance_commit: ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10
+  acceptance_pr: ORPT-PR3
+  accepted_at: '2026-07-28T02:36:36Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -52265,8 +52530,19 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=1034
+  - at: '2026-07-28T02:15:16Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-28T02:27:11Z'
+    event: verify
+    detail: VERIFIED head=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 runs=1
+  - at: '2026-07-28T02:36:36Z'
+    event: accept
+    detail: commit=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 branch=main gates_ok=True
   content_fingerprint: 7cae8aa5a9
-  evidence_audit: null
+  evidence_audit:
+    status: ok
+    notes: accepted via fail-closed gates; path_audit=n/a; evidence pack verify_result+criteria present
   priority_boost: 0
 - id: DOD-rol-1-definition-of-done-0c639d11e9
   text: Todos os relatórios incluem fonte.
@@ -52280,12 +52556,13 @@ items:
     - 12. Pipeline de inteligência e relatórios
     - 12.2 Saídas operacionais
   category: DOCUMENTATION_WITH_PROOF
-  state: OPEN
-  dod_checked: false
+  state: ACCEPTED
+  dod_checked: true
   evidence_type: system_report
   dependencies: []
   blockers: []
-  acceptance_commands: []
+  acceptance_commands:
+  - python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-21 --json
   tests: []
   files: []
   environment: local
@@ -52293,9 +52570,9 @@ items:
   needs_live_source: false
   needs_human_eval: false
   evidence: []
-  acceptance_commit: null
-  acceptance_pr: null
-  accepted_at: null
+  acceptance_commit: ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10
+  acceptance_pr: ORPT-PR3
+  accepted_at: '2026-07-28T02:36:46Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -52334,8 +52611,19 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=1035
+  - at: '2026-07-28T02:15:33Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-28T02:27:24Z'
+    event: verify
+    detail: VERIFIED head=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 runs=1
+  - at: '2026-07-28T02:36:46Z'
+    event: accept
+    detail: commit=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 branch=main gates_ok=True
   content_fingerprint: 0c639d11e9
-  evidence_audit: null
+  evidence_audit:
+    status: ok
+    notes: accepted via fail-closed gates; path_audit=n/a; evidence pack verify_result+criteria present
   priority_boost: 0
 - id: DOD-rol-1-definition-of-done-d269363a06
   text: Todos os relatórios incluem status de confiabilidade.
@@ -52349,12 +52637,13 @@ items:
     - 12. Pipeline de inteligência e relatórios
     - 12.2 Saídas operacionais
   category: DOCUMENTATION_WITH_PROOF
-  state: OPEN
-  dod_checked: false
+  state: ACCEPTED
+  dod_checked: true
   evidence_type: system_report
   dependencies: []
   blockers: []
-  acceptance_commands: []
+  acceptance_commands:
+  - python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-22 --json
   tests: []
   files: []
   environment: local
@@ -52362,9 +52651,9 @@ items:
   needs_live_source: false
   needs_human_eval: false
   evidence: []
-  acceptance_commit: null
-  acceptance_pr: null
-  accepted_at: null
+  acceptance_commit: ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10
+  acceptance_pr: ORPT-PR3
+  accepted_at: '2026-07-28T02:36:57Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -52403,8 +52692,19 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=1036
+  - at: '2026-07-28T02:15:54Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-28T02:27:41Z'
+    event: verify
+    detail: VERIFIED head=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 runs=1
+  - at: '2026-07-28T02:36:57Z'
+    event: accept
+    detail: commit=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 branch=main gates_ok=True
   content_fingerprint: d269363a06
-  evidence_audit: null
+  evidence_audit:
+    status: ok
+    notes: accepted via fail-closed gates; path_audit=n/a; evidence pack verify_result+criteria present
   priority_boost: 0
 - id: DOD-rol-1-definition-of-done-135268780a
   text: Todos os relatórios evitam afirmações não suportadas.
@@ -52418,12 +52718,13 @@ items:
     - 12. Pipeline de inteligência e relatórios
     - 12.2 Saídas operacionais
   category: DOCUMENTATION_WITH_PROOF
-  state: OPEN
-  dod_checked: false
+  state: ACCEPTED
+  dod_checked: true
   evidence_type: system_report
   dependencies: []
   blockers: []
-  acceptance_commands: []
+  acceptance_commands:
+  - python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-23 --json
   tests: []
   files: []
   environment: local
@@ -52431,9 +52732,9 @@ items:
   needs_live_source: false
   needs_human_eval: false
   evidence: []
-  acceptance_commit: null
-  acceptance_pr: null
-  accepted_at: null
+  acceptance_commit: ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10
+  acceptance_pr: ORPT-PR3
+  accepted_at: '2026-07-28T02:37:12Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -52472,8 +52773,19 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=1037
+  - at: '2026-07-28T02:16:11Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-28T02:27:54Z'
+    event: verify
+    detail: VERIFIED head=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 runs=1
+  - at: '2026-07-28T02:37:12Z'
+    event: accept
+    detail: commit=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 branch=main gates_ok=True
   content_fingerprint: 135268780a
-  evidence_audit: null
+  evidence_audit:
+    status: ok
+    notes: accepted via fail-closed gates; path_audit=n/a; evidence pack verify_result+criteria present
   priority_boost: 0
 - id: DOD-rol-1-definition-of-done-c3e36a2c4f
   text: Normalização de CNPJ.
@@ -54842,12 +55154,13 @@ items:
     - 13. Testes do estágio atual
     - 13.2 Testes de integração
   category: MACHINE_ACTIONABLE
-  state: OPEN
-  dod_checked: false
+  state: ACCEPTED
+  dod_checked: true
   evidence_type: mixed_or_unspecified
   dependencies: []
   blockers: []
-  acceptance_commands: []
+  acceptance_commands:
+  - python3 -m scripts.ops.orpt_item_proofs --item ORPT-13.2-01 --json
   tests: []
   files: []
   environment: local
@@ -54855,9 +55168,9 @@ items:
   needs_live_source: false
   needs_human_eval: false
   evidence: []
-  acceptance_commit: null
-  acceptance_pr: null
-  accepted_at: null
+  acceptance_commit: ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10
+  acceptance_pr: ORPT-PR3
+  accepted_at: '2026-07-28T02:37:22Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -54896,8 +55209,19 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=1081
+  - at: '2026-07-28T02:16:32Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-28T02:28:07Z'
+    event: verify
+    detail: VERIFIED head=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 runs=1
+  - at: '2026-07-28T02:37:22Z'
+    event: accept
+    detail: commit=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 branch=main gates_ok=True
   content_fingerprint: aeda284a54
-  evidence_audit: null
+  evidence_audit:
+    status: ok
+    notes: accepted via fail-closed gates; path_audit=n/a; evidence pack verify_result+criteria present
   priority_boost: 0
 - id: DOD-rol-1-definition-of-done-74a3a2b9b4
   text: 'Retomada por checkpoint. Evidência: contracts_full.json completed_windows · M5-resume · EXTRA-OPS-95-FOUNDATION 2026-07-19'
@@ -55053,12 +55377,13 @@ items:
     - 13. Testes do estágio atual
     - 13.2 Testes de integração
   category: MACHINE_ACTIONABLE
-  state: OPEN
-  dod_checked: false
+  state: ACCEPTED
+  dod_checked: true
   evidence_type: mixed_or_unspecified
   dependencies: []
   blockers: []
-  acceptance_commands: []
+  acceptance_commands:
+  - python3 -m scripts.ops.orpt_item_proofs --item ORPT-13.2-02 --json
   tests: []
   files: []
   environment: local
@@ -55066,9 +55391,9 @@ items:
   needs_live_source: false
   needs_human_eval: false
   evidence: []
-  acceptance_commit: null
-  acceptance_pr: null
-  accepted_at: null
+  acceptance_commit: ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10
+  acceptance_pr: ORPT-PR3
+  accepted_at: '2026-07-28T02:37:33Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -55107,8 +55432,19 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=1084
+  - at: '2026-07-28T02:16:54Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-28T02:28:23Z'
+    event: verify
+    detail: VERIFIED head=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 runs=1
+  - at: '2026-07-28T02:37:33Z'
+    event: accept
+    detail: commit=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 branch=main gates_ok=True
   content_fingerprint: 9c23f31815
-  evidence_audit: null
+  evidence_audit:
+    status: ok
+    notes: accepted via fail-closed gates; path_audit=n/a; evidence pack verify_result+criteria present
   priority_boost: 0
 - id: DOD-rol-1-definition-of-done-a3e4d26f8a
   text: Backfill de contratos de janela pequena.
@@ -55260,12 +55596,13 @@ items:
     - 13. Testes do estágio atual
     - 13.2 Testes de integração
   category: MACHINE_ACTIONABLE
-  state: OPEN
-  dod_checked: false
+  state: ACCEPTED
+  dod_checked: true
   evidence_type: mixed_or_unspecified
   dependencies: []
   blockers: []
-  acceptance_commands: []
+  acceptance_commands:
+  - python3 -m scripts.ops.orpt_item_proofs --item ORPT-13.2-03 --json
   tests: []
   files: []
   environment: local
@@ -55273,9 +55610,9 @@ items:
   needs_live_source: false
   needs_human_eval: false
   evidence: []
-  acceptance_commit: null
-  acceptance_pr: null
-  accepted_at: null
+  acceptance_commit: ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10
+  acceptance_pr: ORPT-PR3
+  accepted_at: '2026-07-28T02:37:47Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -55314,8 +55651,19 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=1087
+  - at: '2026-07-28T02:17:11Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-28T02:28:37Z'
+    event: verify
+    detail: VERIFIED head=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 runs=1
+  - at: '2026-07-28T02:37:47Z'
+    event: accept
+    detail: commit=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 branch=main gates_ok=True
   content_fingerprint: 8dc9efb9a9
-  evidence_audit: null
+  evidence_audit:
+    status: ok
+    notes: accepted via fail-closed gates; path_audit=n/a; evidence pack verify_result+criteria present
   priority_boost: 0
 - id: DOD-rol-1-definition-of-done-d94e5ff604
   text: Geração real de Excel.
@@ -55329,12 +55677,13 @@ items:
     - 13. Testes do estágio atual
     - 13.2 Testes de integração
   category: MACHINE_ACTIONABLE
-  state: OPEN
-  dod_checked: false
+  state: ACCEPTED
+  dod_checked: true
   evidence_type: mixed_or_unspecified
   dependencies: []
   blockers: []
-  acceptance_commands: []
+  acceptance_commands:
+  - python3 -m scripts.ops.orpt_item_proofs --item ORPT-13.2-04 --json
   tests: []
   files: []
   environment: local
@@ -55342,9 +55691,9 @@ items:
   needs_live_source: false
   needs_human_eval: false
   evidence: []
-  acceptance_commit: null
-  acceptance_pr: null
-  accepted_at: null
+  acceptance_commit: ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10
+  acceptance_pr: ORPT-PR3
+  accepted_at: '2026-07-28T02:37:58Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -55383,8 +55732,19 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=1088
+  - at: '2026-07-28T02:17:32Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-28T02:28:54Z'
+    event: verify
+    detail: VERIFIED head=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 runs=1
+  - at: '2026-07-28T02:37:58Z'
+    event: accept
+    detail: commit=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 branch=main gates_ok=True
   content_fingerprint: d94e5ff604
-  evidence_audit: null
+  evidence_audit:
+    status: ok
+    notes: accepted via fail-closed gates; path_audit=n/a; evidence pack verify_result+criteria present
   priority_boost: 0
 - id: DOD-rol-1-definition-of-done-246209d8f7
   text: 'Queries analíticas em PostgreSQL real. Evidência: LOCAL_DATALAKE_DSN PostgreSQL real · queries cobertura/ops · EXTRA-OPS-95'
@@ -55470,12 +55830,13 @@ items:
     - 13. Testes do estágio atual
     - 13.2 Testes de integração
   category: MACHINE_ACTIONABLE
-  state: OPEN
-  dod_checked: false
+  state: ACCEPTED
+  dod_checked: true
   evidence_type: mixed_or_unspecified
   dependencies: []
   blockers: []
-  acceptance_commands: []
+  acceptance_commands:
+  - python3 -m scripts.ops.orpt_item_proofs --item ORPT-13.2-05 --json
   tests: []
   files: []
   environment: local
@@ -55483,9 +55844,9 @@ items:
   needs_live_source: false
   needs_human_eval: false
   evidence: []
-  acceptance_commit: null
-  acceptance_pr: null
-  accepted_at: null
+  acceptance_commit: ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10
+  acceptance_pr: ORPT-PR3
+  accepted_at: '2026-07-28T02:38:08Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -55524,8 +55885,19 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=1090
+  - at: '2026-07-28T02:17:49Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-28T02:29:07Z'
+    event: verify
+    detail: VERIFIED head=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 runs=1
+  - at: '2026-07-28T02:38:08Z'
+    event: accept
+    detail: commit=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 branch=main gates_ok=True
   content_fingerprint: 42d45a6bd7
-  evidence_audit: null
+  evidence_audit:
+    status: ok
+    notes: accepted via fail-closed gates; path_audit=n/a; evidence pack verify_result+criteria present
   priority_boost: 0
 - id: DOD-rol-1-definition-of-done-dc633c8351
   text: Endpoint PNCP válido.
@@ -83662,12 +84034,13 @@ items:
     - ROL 3 — DEFINITION OF DONE INDEPENDENTE DA INFRAESTRUTURA
     - 29. Rastreabilidade e auditoria
   category: MACHINE_ACTIONABLE
-  state: OPEN
-  dod_checked: false
+  state: ACCEPTED
+  dod_checked: true
   evidence_type: mixed_or_unspecified
   dependencies: []
   blockers: []
-  acceptance_commands: []
+  acceptance_commands:
+  - python3 -m scripts.ops.orpt_item_proofs --item ORPT-29-01 --json
   tests: []
   files: []
   environment: local
@@ -83675,9 +84048,9 @@ items:
   needs_live_source: false
   needs_human_eval: false
   evidence: []
-  acceptance_commit: null
-  acceptance_pr: null
-  accepted_at: null
+  acceptance_commit: ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10
+  acceptance_pr: ORPT-PR3
+  accepted_at: '2026-07-28T02:38:23Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -83716,8 +84089,19 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=1600
+  - at: '2026-07-28T02:18:10Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-28T02:29:21Z'
+    event: verify
+    detail: VERIFIED head=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 runs=1
+  - at: '2026-07-28T02:38:23Z'
+    event: accept
+    detail: commit=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 branch=main gates_ok=True
   content_fingerprint: ee5d3e69cb
-  evidence_audit: null
+  evidence_audit:
+    status: ok
+    notes: accepted via fail-closed gates; path_audit=n/a; evidence pack verify_result+criteria present
   priority_boost: 0
 - id: DOD-rol-3-definition-of-done-fa9d0fb8a2
   text: 'Cada execução possui checkpoint. Evidência: contracts_full.json · M5-resume · EXTRA-OPS-95'
@@ -83802,12 +84186,13 @@ items:
     - ROL 3 — DEFINITION OF DONE INDEPENDENTE DA INFRAESTRUTURA
     - 29. Rastreabilidade e auditoria
   category: DOCUMENTATION_WITH_PROOF
-  state: OPEN
-  dod_checked: false
+  state: ACCEPTED
+  dod_checked: true
   evidence_type: system_report
   dependencies: []
   blockers: []
-  acceptance_commands: []
+  acceptance_commands:
+  - python3 -m scripts.ops.orpt_item_proofs --item ORPT-29-02 --json
   tests: []
   files: []
   environment: local
@@ -83815,9 +84200,9 @@ items:
   needs_live_source: false
   needs_human_eval: false
   evidence: []
-  acceptance_commit: null
-  acceptance_pr: null
-  accepted_at: null
+  acceptance_commit: ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10
+  acceptance_pr: ORPT-PR3
+  accepted_at: '2026-07-28T02:38:34Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -83856,8 +84241,19 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=1602
+  - at: '2026-07-28T02:18:28Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-28T02:29:40Z'
+    event: verify
+    detail: VERIFIED head=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 runs=1
+  - at: '2026-07-28T02:38:34Z'
+    event: accept
+    detail: commit=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 branch=main gates_ok=True
   content_fingerprint: 5f7e8477a1
-  evidence_audit: null
+  evidence_audit:
+    status: ok
+    notes: accepted via fail-closed gates; path_audit=n/a; evidence pack verify_result+criteria present
   priority_boost: 0
 - id: DOD-rol-3-definition-of-done-c40363562f
   text: 'Cada registro crítico possui provenance. Evidência: coverage_evidence.provenance jsonb · content_hash · EXTRA-OPS-95'
@@ -84213,12 +84609,13 @@ items:
     - ROL 3 — DEFINITION OF DONE INDEPENDENTE DA INFRAESTRUTURA
     - 29. Rastreabilidade e auditoria
   category: MACHINE_ACTIONABLE
-  state: OPEN
-  dod_checked: false
+  state: ACCEPTED
+  dod_checked: true
   evidence_type: mixed_or_unspecified
   dependencies: []
   blockers: []
-  acceptance_commands: []
+  acceptance_commands:
+  - python3 -m scripts.ops.orpt_item_proofs --item ORPT-29-03 --json
   tests: []
   files: []
   environment: local
@@ -84226,9 +84623,9 @@ items:
   needs_live_source: false
   needs_human_eval: false
   evidence: []
-  acceptance_commit: null
-  acceptance_pr: null
-  accepted_at: null
+  acceptance_commit: ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10
+  acceptance_pr: ORPT-PR3
+  accepted_at: '2026-07-28T02:38:44Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -84267,8 +84664,19 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=1608
+  - at: '2026-07-28T02:18:49Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-28T02:29:53Z'
+    event: verify
+    detail: VERIFIED head=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 runs=1
+  - at: '2026-07-28T02:38:44Z'
+    event: accept
+    detail: commit=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 branch=main gates_ok=True
   content_fingerprint: d1e60357c0
-  evidence_audit: null
+  evidence_audit:
+    status: ok
+    notes: accepted via fail-closed gates; path_audit=n/a; evidence pack verify_result+criteria present
   priority_boost: 0
 - id: DOD-rol-3-definition-of-done-719240a1b4
   text: 'A evidência de `success_zero` pode ser reconstruída. Evidência: coverage_evidence success_zero n=623 · probe_entity_success_zero
@@ -84353,12 +84761,13 @@ items:
     - ROL 3 — DEFINITION OF DONE INDEPENDENTE DA INFRAESTRUTURA
     - 29. Rastreabilidade e auditoria
   category: MACHINE_ACTIONABLE
-  state: OPEN
-  dod_checked: false
+  state: ACCEPTED
+  dod_checked: true
   evidence_type: mixed_or_unspecified
   dependencies: []
   blockers: []
-  acceptance_commands: []
+  acceptance_commands:
+  - python3 -m scripts.ops.orpt_item_proofs --item ORPT-29-04 --json
   tests: []
   files: []
   environment: local
@@ -84366,9 +84775,9 @@ items:
   needs_live_source: false
   needs_human_eval: false
   evidence: []
-  acceptance_commit: null
-  acceptance_pr: null
-  accepted_at: null
+  acceptance_commit: ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10
+  acceptance_pr: ORPT-PR3
+  accepted_at: '2026-07-28T02:38:59Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -84407,8 +84816,19 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=1610
+  - at: '2026-07-28T02:19:06Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-28T02:30:10Z'
+    event: verify
+    detail: VERIFIED head=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 runs=1
+  - at: '2026-07-28T02:38:59Z'
+    event: accept
+    detail: commit=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 branch=main gates_ok=True
   content_fingerprint: 9ae341d9ef
-  evidence_audit: null
+  evidence_audit:
+    status: ok
+    notes: accepted via fail-closed gates; path_audit=n/a; evidence pack verify_result+criteria present
   priority_boost: 0
 - id: DOD-rol-3-definition-of-done-aa157d4767
   text: A evidência de recall pode ser reconstruída.
@@ -84489,12 +84909,13 @@ items:
     - ROL 3 — DEFINITION OF DONE INDEPENDENTE DA INFRAESTRUTURA
     - 29. Rastreabilidade e auditoria
   category: MACHINE_ACTIONABLE
-  state: OPEN
-  dod_checked: false
+  state: ACCEPTED
+  dod_checked: true
   evidence_type: mixed_or_unspecified
   dependencies: []
   blockers: []
-  acceptance_commands: []
+  acceptance_commands:
+  - python3 -m scripts.ops.orpt_item_proofs --item ORPT-29-05 --json
   tests: []
   files: []
   environment: local
@@ -84502,9 +84923,9 @@ items:
   needs_live_source: false
   needs_human_eval: false
   evidence: []
-  acceptance_commit: null
-  acceptance_pr: null
-  accepted_at: null
+  acceptance_commit: ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10
+  acceptance_pr: ORPT-PR3
+  accepted_at: '2026-07-28T02:39:09Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -84543,8 +84964,19 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=1612
+  - at: '2026-07-28T02:19:27Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-28T02:30:23Z'
+    event: verify
+    detail: VERIFIED head=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 runs=1
+  - at: '2026-07-28T02:39:09Z'
+    event: accept
+    detail: commit=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 branch=main gates_ok=True
   content_fingerprint: 643b2e819c
-  evidence_audit: null
+  evidence_audit:
+    status: ok
+    notes: accepted via fail-closed gates; path_audit=n/a; evidence pack verify_result+criteria present
   priority_boost: 0
 - id: DOD-rol-3-definition-of-done-c980ae3941
   text: O DOD aponta para os artefatos finais de aceite.
@@ -84557,12 +84989,13 @@ items:
     - ROL 3 — DEFINITION OF DONE INDEPENDENTE DA INFRAESTRUTURA
     - 29. Rastreabilidade e auditoria
   category: MACHINE_ACTIONABLE
-  state: OPEN
-  dod_checked: false
+  state: ACCEPTED
+  dod_checked: true
   evidence_type: mixed_or_unspecified
   dependencies: []
   blockers: []
-  acceptance_commands: []
+  acceptance_commands:
+  - python3 -m scripts.ops.orpt_item_proofs --item ORPT-29-06 --json
   tests: []
   files: []
   environment: local
@@ -84570,9 +85003,9 @@ items:
   needs_live_source: false
   needs_human_eval: false
   evidence: []
-  acceptance_commit: null
-  acceptance_pr: null
-  accepted_at: null
+  acceptance_commit: ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10
+  acceptance_pr: ORPT-PR3
+  accepted_at: '2026-07-28T02:39:19Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -84611,8 +85044,19 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=1613
+  - at: '2026-07-28T02:19:44Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-28T02:30:40Z'
+    event: verify
+    detail: VERIFIED head=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 runs=1
+  - at: '2026-07-28T02:39:19Z'
+    event: accept
+    detail: commit=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 branch=main gates_ok=True
   content_fingerprint: c980ae3941
-  evidence_audit: null
+  evidence_audit:
+    status: ok
+    notes: accepted via fail-closed gates; path_audit=n/a; evidence pack verify_result+criteria present
   priority_boost: 0
 - id: DOD-rol-3-definition-of-done-38861a819b
   text: O tempo do golden path é medido.
@@ -84625,12 +85069,13 @@ items:
     - ROL 3 — DEFINITION OF DONE INDEPENDENTE DA INFRAESTRUTURA
     - 30. Performance e custo
   category: MACHINE_ACTIONABLE
-  state: OPEN
-  dod_checked: false
+  state: ACCEPTED
+  dod_checked: true
   evidence_type: mixed_or_unspecified
   dependencies: []
   blockers: []
-  acceptance_commands: []
+  acceptance_commands:
+  - python3 -m scripts.ops.orpt_item_proofs --item ORPT-30-01 --json
   tests: []
   files: []
   environment: local
@@ -84638,9 +85083,9 @@ items:
   needs_live_source: false
   needs_human_eval: false
   evidence: []
-  acceptance_commit: null
-  acceptance_pr: null
-  accepted_at: null
+  acceptance_commit: ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10
+  acceptance_pr: ORPT-PR3
+  accepted_at: '2026-07-28T02:39:30Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -84679,8 +85124,19 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=1619
+  - at: '2026-07-28T02:20:06Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-28T02:30:53Z'
+    event: verify
+    detail: VERIFIED head=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 runs=1
+  - at: '2026-07-28T02:39:30Z'
+    event: accept
+    detail: commit=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 branch=main gates_ok=True
   content_fingerprint: 38861a819b
-  evidence_audit: null
+  evidence_audit:
+    status: ok
+    notes: accepted via fail-closed gates; path_audit=n/a; evidence pack verify_result+criteria present
   priority_boost: 0
 - id: DOD-rol-3-definition-of-done-80407f0504
   text: O tempo de cada crawler é medido.
@@ -84693,12 +85149,13 @@ items:
     - ROL 3 — DEFINITION OF DONE INDEPENDENTE DA INFRAESTRUTURA
     - 30. Performance e custo
   category: MACHINE_ACTIONABLE
-  state: OPEN
-  dod_checked: false
+  state: ACCEPTED
+  dod_checked: true
   evidence_type: mixed_or_unspecified
   dependencies: []
   blockers: []
-  acceptance_commands: []
+  acceptance_commands:
+  - python3 -m scripts.ops.orpt_item_proofs --item ORPT-30-02 --json
   tests: []
   files: []
   environment: local
@@ -84706,9 +85163,9 @@ items:
   needs_live_source: false
   needs_human_eval: false
   evidence: []
-  acceptance_commit: null
-  acceptance_pr: null
-  accepted_at: null
+  acceptance_commit: ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10
+  acceptance_pr: ORPT-PR3
+  accepted_at: '2026-07-28T02:39:45Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -84747,8 +85204,19 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=1620
+  - at: '2026-07-28T02:20:23Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-28T02:31:07Z'
+    event: verify
+    detail: VERIFIED head=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 runs=1
+  - at: '2026-07-28T02:39:45Z'
+    event: accept
+    detail: commit=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 branch=main gates_ok=True
   content_fingerprint: 80407f0504
-  evidence_audit: null
+  evidence_audit:
+    status: ok
+    notes: accepted via fail-closed gates; path_audit=n/a; evidence pack verify_result+criteria present
   priority_boost: 0
 - id: DOD-rol-3-definition-of-done-8e1aefe571
   text: O tempo de cada relatório é medido.
@@ -84761,12 +85229,13 @@ items:
     - ROL 3 — DEFINITION OF DONE INDEPENDENTE DA INFRAESTRUTURA
     - 30. Performance e custo
   category: DOCUMENTATION_WITH_PROOF
-  state: OPEN
-  dod_checked: false
+  state: ACCEPTED
+  dod_checked: true
   evidence_type: system_report
   dependencies: []
   blockers: []
-  acceptance_commands: []
+  acceptance_commands:
+  - python3 -m scripts.ops.orpt_item_proofs --item ORPT-30-03 --json
   tests: []
   files: []
   environment: local
@@ -84774,9 +85243,9 @@ items:
   needs_live_source: false
   needs_human_eval: false
   evidence: []
-  acceptance_commit: null
-  acceptance_pr: null
-  accepted_at: null
+  acceptance_commit: ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10
+  acceptance_pr: ORPT-PR3
+  accepted_at: '2026-07-28T02:39:55Z'
   justification: null
   history:
   - at: '2026-07-21T01:35:02Z'
@@ -84815,8 +85284,19 @@ items:
   - at: '2026-07-27T22:48:16Z'
     event: rescan
     detail: line=1621
+  - at: '2026-07-28T02:20:44Z'
+    event: start
+    detail: campaign start
+  - at: '2026-07-28T02:31:24Z'
+    event: verify
+    detail: VERIFIED head=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 runs=1
+  - at: '2026-07-28T02:39:55Z'
+    event: accept
+    detail: commit=ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10 branch=main gates_ok=True
   content_fingerprint: 8e1aefe571
-  evidence_audit: null
+  evidence_audit:
+    status: ok
+    notes: accepted via fail-closed gates; path_audit=n/a; evidence pack verify_result+criteria present
   priority_boost: 0
 - id: DOD-rol-3-definition-of-done-8de083a45f
   text: Queries lentas são identificadas.

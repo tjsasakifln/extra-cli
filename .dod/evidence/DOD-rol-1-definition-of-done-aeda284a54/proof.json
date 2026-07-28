@@ -1,0 +1,32 @@
+{
+  "item_id": "DOD-rol-1-definition-of-done-aeda284a54",
+  "alias": "ORPT-13.2-01",
+  "text": "Falha parcial n\u00e3o marcada como sucesso.",
+  "weight": 5,
+  "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+  "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+  "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+  "command": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-13.2-01 --json",
+  "timestamp": "2026-07-28T02:07:56Z",
+  "source": "postgresql:extra_test",
+  "parameters": {
+    "REQUIRE_REAL_DB": "1"
+  },
+  "assertion_result": {
+    "alias": "ORPT-13.2-01",
+    "item_id": "DOD-rol-1-definition-of-done-aeda284a54",
+    "ok": true,
+    "error": null,
+    "detail": {
+      "exit_code": 1,
+      "ok": true
+    },
+    "as_of": "2026-07-28T02:08:03Z",
+    "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+    "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+  },
+  "reliability": "READY",
+  "limitations": [],
+  "artifact_hashes": {},
+  "run_ids": []
+}

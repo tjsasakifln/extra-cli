@@ -1,0 +1,36 @@
+{
+  "item_id": "DOD-rol-1-definition-of-done-36fa52b0a8",
+  "alias": "ORPT-12.1-02",
+  "text": "Os relat\u00f3rios apontam o per\u00edodo de refer\u00eancia.",
+  "weight": 3,
+  "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+  "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+  "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+  "command": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.1-02 --json",
+  "timestamp": "2026-07-28T02:07:56Z",
+  "source": "postgresql:extra_test",
+  "parameters": {
+    "REQUIRE_REAL_DB": "1"
+  },
+  "assertion_result": {
+    "alias": "ORPT-12.1-02",
+    "item_id": "DOD-rol-1-definition-of-done-36fa52b0a8",
+    "ok": true,
+    "error": null,
+    "detail": {
+      "period": {
+        "as_of_date": "2026-07-28",
+        "data_window": "all_active"
+      },
+      "generated_at": "2026-07-28T02:07:30.682495Z",
+      "ok": true
+    },
+    "as_of": "2026-07-28T02:08:01Z",
+    "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+    "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+  },
+  "reliability": "READY",
+  "limitations": [],
+  "artifact_hashes": {},
+  "run_ids": []
+}

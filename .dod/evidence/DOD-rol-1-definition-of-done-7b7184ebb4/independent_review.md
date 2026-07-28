@@ -1,12 +1,6 @@
-# Independent review — referências de valores
+# Independent review ORPT-12.1-01
 
-MERGE-ready: YES (domain report real)
-ACCEPTED-ready: after main reproof + CI + pack
-
-- Identity: relatorio-valores-* + report_type=referencias_valores
-- Estimated only disclaimer in limitations / valor_semantica
-- Hard-fail connect/query/table missing
-- Step 4e + --execute-valores-report-only
-- Residual: header-only empty OK by AC; not pinned in critical CI by name
-
-Reviewer: adversarial-qa-continue-03
+Status: PASS
+SHA: `ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10`
+Campaign: OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01
+Assertion: per-alias orpt_item_proofs
