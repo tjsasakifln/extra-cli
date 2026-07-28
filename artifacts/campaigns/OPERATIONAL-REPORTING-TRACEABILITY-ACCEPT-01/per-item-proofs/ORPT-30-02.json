@@ -7,11 +7,11 @@
   "terminal_state": "ACCEPTED",
   "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-30-02 --json",
   "exit_code": 0,
-  "executed_sha": "7a85358ef6eaa3582950976bfc7c798194ba12f3",
+  "executed_sha": "605233da3bc3208379a0dd98b88559abcc5a04a6",
   "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
   "run_ids": [
-    "ops-export-20260728-030634-0cc0af16",
-    "ops-lists-20260728-030633-562eb9dc"
+    "ops-export-20260728-032304-5b7e9e8e",
+    "ops-lists-20260728-032303-471b6e41"
   ],
   "artifact_hashes": {
     "lists/editais_acionaveis.csv": "1d37da36077c3ca72aa8423d7b2b07a96ff7923e03b7a7c56d232bb14be606e5",
@@ -21,22 +21,33 @@
     "lists/entes_sem_cobertura_editais.csv": "ae9f50a1d7e6710e216ed5c4ff0b6f7f11852622d44888d6b1c05882e0610e85",
     "lists/entes_sem_cobertura_contratos.csv": "02bebca65f531da4a5e7052ae5eadab1d9f04b3588fe2a0f3422652707fcdbce",
     "lists/blockers_por_fonte.csv": "9f0a2fbd989ad71c1f23b14c0b2d2e5c9075eab201c1dd28fa0db97add786952",
-    "lists/runs_stale.csv": "95aca707c149d254c4c4547a3ea3802f42fd642b2884e05acf6483feb1bf0b09"
+    "lists/runs_stale.csv": "95aca707c149d254c4c4547a3ea3802f42fd642b2884e05acf6483feb1bf0b09",
+    "pncp-duration.json": "c32b4864c290ab56f98d73d77d7988cce5a6ae8988a4d01457c47fcf59688af6"
   },
   "schema_version": "064",
   "dataset_hash": "45898ae2d10c36319935c3955f90d67c61928f07968dda0a6f8efe8c0aec60f2",
-  "reliability": "READY",
-  "limitations": [],
+  "reliability": "PARTIAL",
+  "limitations": [
+    "crawl timeout on empty/slow network; duration still measured"
+  ],
   "test_result": "PASS",
   "assertion_result": {
-    "duration_ms": 45046.77642000024,
-    "duration_seconds": 45.0468,
+    "duration_ms": 8347.498380004254,
+    "duration_seconds": 8.3475,
     "status": "fail",
-    "output_json": null,
-    "record": "SourceRecord(name='pncp', status='fail', duration_ms=45046.77642000024, attempts=1, metrics=None, error='timeout after 45s')",
+    "crawl_success": false,
+    "duration_measured": true,
+    "output_json": "/mnt/d/extra consultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/crawler/pncp-duration.json",
+    "record": "SourceRecord(name='pncp', status='fail', duration_ms=8347.498380004254, attempts=1, metrics=None, error=\"'str' object has no attribute 'get'\")",
     "ok": true,
-    "reliability": "READY"
+    "reliability": "PARTIAL",
+    "artifact_hashes": {
+      "pncp-duration.json": "c32b4864c290ab56f98d73d77d7988cce5a6ae8988a4d01457c47fcf59688af6"
+    }
   },
+  "verify_duration_s": 8.6637,
+  "verify_stdout_len": 2897,
   "authority": "DOD.md + freeze + live orpt_item_proofs + CI",
-  "artifact": ".dod/evidence/DOD-rol-3-definition-of-done-80407f0504/proof.json"
+  "artifact": ".dod/evidence/DOD-rol-3-definition-of-done-80407f0504/proof.json",
+  "package_integrity_note": "Aligned with acceptance-matrix + .dod/evidence proof: fail/timeout → PARTIAL (not READY). Does not authorize BUNDLE_ACCEPTED."
 }

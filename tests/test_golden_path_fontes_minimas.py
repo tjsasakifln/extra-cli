@@ -165,6 +165,57 @@ def test_crawl_source_honors_json_failed_status(monkeypatch: pytest.MonkeyPatch,
     assert rec.metrics and int(rec.metrics.get("fetched") or 0) == 10
 
 
+def test_crawl_source_ignores_non_dict_result_rows(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """Non-dict entries in monitor results must not raise AttributeError on .get."""
+    import scripts.golden_path as gp
+
+    def fake_run(cmd, **kwargs):
+        out = Path(cmd[cmd.index("--output-json") + 1])
+        source = cmd[cmd.index("--source") + 1]
+        out.write_text(
+            json.dumps(
+                {
+                    "summary": {
+                        "total_fetched": 3,
+                        "total_transformed": 0,
+                        "total_inserted": 0,
+                        "total_updated": 0,
+                        "total_matched": 0,
+                        "total_persisted_opportunities": 0,
+                        "total_external_failures": 0,
+                        "sources_failed": 0,
+                    },
+                    "results": [
+                        "not-a-dict",
+                        None,
+                        42,
+                        {
+                            "source": source,
+                            "status": "success",
+                            "metadata": {},
+                        },
+                    ],
+                }
+            ),
+            encoding="utf-8",
+        )
+
+        class R:
+            returncode = 0
+            stdout = ""
+            stderr = ""
+
+        return R()
+
+    monkeypatch.setattr(gp.subprocess, "run", fake_run)
+    src = SourceDef(name="pncp", essential=True, description="t", max_retries=1, timeout_s=5)
+    rec = crawl_source(src, "postgresql://x", tmp_path / "pncp.json")
+    assert rec.status in {"success", "success_zero"}
+    assert rec.error is None or "has no attribute" not in str(rec.error)
+
+
 def test_help_documents_execute_sources_only() -> None:
     r = subprocess.run(
         [sys.executable, "-m", "scripts.golden_path", "--help"],

@@ -3,7 +3,7 @@
   "bundle_id": "OPERATIONAL-REPORTING-TRACEABILITY-01",
   "bundle_class": "REPAIR_AND_ACCEPT_BUNDLE",
   "terminal_state": "FAILED_PREMORTEM",
-  "as_of": "2026-07-28T03:30:03Z",
+  "as_of": "2026-07-28T04:06:14Z",
   "abort": {
     "reason_code": "MAXIMUM_PR_COUNT_EXCEEDED",
     "max_prs": 3,
@@ -76,6 +76,12 @@
     "BUNDLE_ACCEPTED requires ≤3 PRs — not claimed",
     "verify_result must be live capture — recaptured this tip",
     "failed crawl must not be reliability READY — fixed (PARTIAL)",
-    "stdout of --json must be pure JSON — redirect_stdout on crawl_source"
-  ]
+    "stdout of --json must be pure JSON — redirect_stdout on crawl_source",
+    "per-item-proofs/ORPT-30-02 aligned PARTIAL with matrix/evidence (stale READY-on-fail capture corrected)"
+  ],
+  "package_integrity": {
+    "orpt_30_02_per_item_proofs": "PARTIAL",
+    "bundle_accepted_authorized": false,
+    "note": "Package integrity fix only; campaign terminal remains FAILED_PREMORTEM (PR budget 4>3)"
+  }
 }
