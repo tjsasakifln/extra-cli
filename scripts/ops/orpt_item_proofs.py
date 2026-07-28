@@ -7,11 +7,12 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
+import subprocess
 import sys
+from collections.abc import Callable
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 _ROOT = Path(__file__).resolve().parents[2]
 if str(_ROOT) not in sys.path:
@@ -163,9 +164,6 @@ def prove_report_csv(filename: str, key: str) -> dict[str, Any]:
 
 def prove_export_csv() -> dict[str, Any]:
     m = _export_manifest()
-    arts = m.get("artifacts") or {}
-    p = Path((arts.get("source_health_csv") or arts.get("editais_csv") or {}).get("path") or "")
-    # paths nested
     csv_dir = LIVE / "export" / "csv"
     files = list(csv_dir.glob("*.csv")) if csv_dir.is_dir() else []
     _assert(bool(files), "no export CSV")
@@ -203,14 +201,17 @@ def prove_no_unsupported_claims() -> dict[str, Any]:
 
 def prove_partial_not_success() -> dict[str, Any]:
     # fail-closed: OperationalQueryError path exists
-    from scripts.reports.operational_outputs import OperationalQueryError, main
+    import tempfile
     from unittest.mock import patch
 
-    with patch(
-        "scripts.reports.operational_outputs.run",
-        side_effect=OperationalQueryError("injected"),
-    ):
-        code = main(["--dsn", "postgresql://x", "--out", "/tmp/orpt-fail"])
+    from scripts.reports.operational_outputs import OperationalQueryError, main
+
+    with tempfile.TemporaryDirectory() as tmp:
+        with patch(
+            "scripts.reports.operational_outputs.run",
+            side_effect=OperationalQueryError("injected"),
+        ):
+            code = main(["--dsn", "postgresql://x", "--out", tmp])
     _assert(code == 1, "partial/SQL failure must exit non-zero")
     return {"exit_code": code, "ok": True}
 
@@ -416,8 +417,25 @@ def prove_alias(alias: str) -> dict[str, Any]:
         "detail": detail,
         "as_of": datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
         "campaign_id": CAMPAIGN,
-        "executed_sha": os.popen("git rev-parse HEAD").read().strip(),  # noqa: S605
+        "executed_sha": _git_head(),
     }
+
+
+def _git_head() -> str:
+    try:
+        import shutil
+
+        git_bin = shutil.which("git")
+        if not git_bin:
+            return "unknown"
+        return subprocess.check_output(  # noqa: S603
+            [git_bin, "rev-parse", "HEAD"],
+            cwd=str(_ROOT),
+            text=True,
+            stderr=subprocess.DEVNULL,
+        ).strip()
+    except (OSError, subprocess.SubprocessError):
+        return "unknown"
 
 
 def main(argv: list[str] | None = None) -> int:
