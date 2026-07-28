@@ -23,11 +23,13 @@
 
 services:
   # ------------------------------------------------------------------
-  # PostgreSQL 16 + PostGIS — banco para tests de integracao
-  # Mantido exatamente como no docker-compose.yml original (reuso total)
+  # PostgreSQL 16 + pgvector (+ stack PostGIS-compatible) — parity with
+  # docker-compose.yml test-db (W006). migration 014 needs CREATE EXTENSION vector;
+  # postgis/postgis alone BLOCKS fresh install. Evidência: docs/baseline/l1-fresh-migrations.md
   # ------------------------------------------------------------------
   test-db:
-    image: postgis/postgis:16-3.4
+    # Must match docker-compose.yml test-db (image + volume persistence).
+    image: pgvector/pgvector:pg16
     container_name: extra-test-db
     environment:
       POSTGRES_DB: extra_test
@@ -35,7 +37,8 @@ services:
       POSTGRES_PASSWORD: test
     ports:
       - "5433:5432"
-    tmpfs: /var/lib/postgresql/data
+    volumes:
+      - pgdata:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U test -d extra_test"]
       interval: 2s
@@ -73,6 +76,11 @@ services:
         condition: service_healthy
     networks:
       - extra-network
+
+volumes:
+  # Same named volume pattern as docker-compose.yml (W006 parity).
+  pgdata:
+    driver: local
 
 networks:
   extra-network:

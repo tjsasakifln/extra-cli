@@ -154,10 +154,12 @@ step_create_db() {
         fi
     fi
 
-    # --reset: destroy and recreate container (tmpfs guarantees clean state)
+    # --reset: destroy container + named volume for clean state.
+    # W006: test-db uses pgdata (same as docker-compose.yml), not tmpfs —
+    # volume must be removed or data survives container recreate.
     if [ "$RESET" = true ]; then
-        echo "  [--reset] Stopping and removing test-db container..."
-        docker compose -f "${COMPOSE_FILE}" down test-db 2>/dev/null || true
+        echo "  [--reset] Stopping test-db and removing named volumes (pgdata)..."
+        docker compose -f "${COMPOSE_FILE}" down -v 2>/dev/null || true
         # Small pause to ensure clean state
         sleep 2
     fi

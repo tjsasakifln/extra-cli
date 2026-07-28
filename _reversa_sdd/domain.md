@@ -1,9 +1,9 @@
 # Domínio — Extra Consultoria
 
-> Gerado pelo Detective em 2026-07-13T17:00:00Z
-> doc_level: completo
-> Base: commit 249340d (QW-01 Radar + Competitive Intel + Readiness Gates)
-> Delta: 30 commits desde e9729e1 (182 arquivos, +47K/-20K LOC)
+> Base Detective 2026-07-13 | refresh 2026-07-17 | **delta auditoria 2026-07-28**  
+> HEAD atual da re-extração: `ffbb9608` | doc_level: completo  
+> **Delta completo (R41–R60, glossário novo):** [`domain-delta-2026-07-28.md`](./domain-delta-2026-07-28.md)  
+> Regras R1–R40 abaixo permanecem válidas salvo sobrescrita explícita no delta (ex.: dual capability > entity_coverage como autoridade de monitoring).
 
 ---
 

@@ -1,41 +1,13 @@
-# Flowcharts — módulo `source_registry`
+# Flowcharts — `source_registry`
 
-> 🟢 CONFIRMADO — 2026-07-17
-
-## 1. Build registry 1093
+> 🟢 2026-07-28 | HEAD `ffbb9608`
 
 ```mermaid
 flowchart TD
-    A[target_entities_200km.csv] --> B[build_registry_from_csv]
-    C[transparencia_config.yaml] --> B
-    D[platform detection JSON] --> B
-    E[residual portals] --> B
-    F[source_applicability.yaml] --> B
-    B --> G[EntitySourceRecord por entidade]
-    G --> H[_decide_status_and_strategy]
-    H --> I[persist JSONL + summary]
-    I --> J[sync_registry_to_postgres opcional]
-```
-
-## 2. Discovery + gaps
-
-```mermaid
-flowchart TD
-    A[records] --> B[discover_batch]
-    B --> C[build_candidates URLs]
-    C --> D[probe_url]
-    D --> E[DiscoveryResult]
-    E --> F[append candidates]
-    A --> G[gap_rows]
-    G --> H[derive_blocker_class]
-    H --> I[generate_gap_report MD/JSON]
-```
-
-## 3. Strict operational
-
-```mermaid
-flowchart LR
-    A[EntitySourceRecord] --> B{is_strict_operational?}
-    B -->|sim| C[conta no operational coverage]
-    B -->|não| D[gap / mapped only / blocked]
+  A[build_registry_from_csv] --> B[seed platforms + indexes]
+  B --> C[decide status + strategy per entity]
+  C --> D[persist JSON + optional sync_db]
+  E[discover_batch] --> F[probe candidates]
+  F --> G[append discovery candidates]
+  H[gap_report] --> I[blocker class + markdown]
 ```

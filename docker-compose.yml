@@ -4,8 +4,8 @@
 #   docker compose down
 #
 # Databases:
-#   extra_test     — integration tests (tmpfs, volatile)
-#   pncp_datalake  — production data (volume, persistent)
+#   extra_test     — integration tests (named volume pgdata; wipe with down -v)
+#   pncp_datalake  — same volume host (create DB separately if needed)
 #
 # Connection strings:
 #   DATABASE_URL=postgresql://test:test@localhost:5433/pncp_datalake

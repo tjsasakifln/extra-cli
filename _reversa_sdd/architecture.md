@@ -1,7 +1,8 @@
 # Arquitetura — Extra Consultoria
 
-> Re-extração Architect **2026-07-17** | HEAD `d3e82ba`  
-> `doc_level`: completo | Delta: 131 commits, +8 módulos, ADRs 017–022
+> Re-extração Architect **2026-07-28** | HEAD `ffbb9608`  
+> `doc_level`: completo | Delta: ~445 commits desde d3e82ba | ADRs 017–030 | 38 módulos  
+> Camadas novas as-is: ops/CONFENGE/CMI, commercial_leads, budget_audit, national_intel, linkage, ORPT reports, dual capability, DoD controller.
 
 ---
 
@@ -26,15 +27,18 @@ Plataforma **CLI-first / single-tenant** de inteligência B2G para consultoria e
 | **5. Pipeline analítico legado** | 7 estágios + LLM | `intel_pipeline` + scripts intel_* |
 | **6. Relatórios** | PDF/Excel/amostra comercial | `reports/*` |
 | **7. Gates & CI** | Readiness, freshness, coverage, ruff/mypy/pytest | root_scripts + GH Actions |
-| **8. Dados** | Postgres + migrations 001–054 | `db/`, docker pgvector:pg16 |
-| **9. Ops** | systemd, health, resilient cycle | `deploy/`, `ops/` |
+| **8. Dados** | Postgres + migrations 001–064 | `db/`, docker `pgvector/pgvector:pg16` (local + base; W006 unificado) |
+| **9. Ops / Campanhas** | systemd, health, resilient, CONFENGE, CMI, weekly, PR gates | `deploy/`, `ops/*`, `tools/dod_controller.py` |
+| **10. Commercial** | leads, supplier registry, offer scoring non-claim | `commercial_leads` |
+| **11. Linkage & National** | golden records + intel_product layers | `linkage`, `national_intel` |
+| **12. Budget & Edital case** | arithmetic audit + case pipeline | `budget_audit`, `edital_case` |
 
-**Stack:** Python 3.12 (~179K LOC) · PostgreSQL 16+pgvector · systemd · pip · GitHub Actions fail-closed  
+**Stack:** Python 3.12 (~294K LOC) · PostgreSQL 16+pgvector · systemd · pip · GitHub Actions fail-closed  
 **Não há** API REST de produto nem UI web de multi-tenant.
 
 ---
 
-## 2. Decisões arquiteturais (22 ADRs)
+## 2. Decisões arquiteturais (30 ADRs documentados no Reversa)
 
 | # | Decisão |
 |---|---------|
