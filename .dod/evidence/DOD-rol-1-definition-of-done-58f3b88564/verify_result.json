@@ -1,65 +1,10 @@
 {
   "item_id": "DOD-rol-1-definition-of-done-58f3b88564",
-  "commands": [
-    {
-      "cmd": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-19 --json",
-      "exit_code": 0,
-      "duration_s": 0.235,
-      "stdout_tail": "pncp_supplier_contracts\",\n      \"columns_ok\": [\n        \"contrato_id\",\n        \"orgao_cnpj\",\n        \"orgao_nome\",\n        \"fornecedor_cnpj\",\n        \"fornecedor_nome\",\n        \"objeto_contrato\",\n        \"valor_total\",\n        \"data_inicio\",\n        \"data_fim\",\n        \"uf\",\n        \"municipio\",\n        \"source\",\n        \"is_active\"\n      ],\n      \"present_count\": 31\n    }\n  },\n  \"package_dir\": \"/mnt/d/extra consultoria/artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/final-package\"\n}\n",
-      "stderr_tail": "",
-      "env": {
-        "CI": "true",
-        "GITHUB_ACTIONS": null,
-        "LOCAL_DATALAKE_DSN": {
-          "set": true,
-          "len": 48
-        },
-        "PYTEST_ADDOPTS": null,
-        "PATH": {
-          "set": true,
-          "len": 1919
-        },
-        "USER": "tjsasakifln",
-        "HOME": {
-          "set": true,
-          "len": 17
-        }
-      },
-      "skipped": false
-    }
-  ],
-  "tests": [],
   "ok": true,
-  "notes": [],
-  "rejected_trivial": [],
-  "head_sha": "ff9b78a86268e63248694d56a99fcf1a4336a60f",
-  "env": {
-    "CI": "true",
-    "GITHUB_ACTIONS": null,
-    "LOCAL_DATALAKE_DSN": {
-      "set": true,
-      "len": 48
-    },
-    "PYTEST_ADDOPTS": null,
-    "PATH": {
-      "set": true,
-      "len": 1919
-    },
-    "USER": "tjsasakifln",
-    "HOME": {
-      "set": true,
-      "len": 17
-    }
-  },
-  "started_at": "2026-07-27T23:38:09Z",
-  "duration_s": 0.235,
-  "substantive_runs": 1,
-  "totals": {
-    "passed": 1,
-    "failed": 0,
-    "skipped": 0,
-    "deselected": 0,
-    "error": 0
-  },
-  "finished_at": "2026-07-27T23:38:09Z"
+  "command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-19 --json",
+  "exit_code": 0,
+  "as_of": "2026-07-28T00:05:18Z",
+  "executed_sha": "aeb7663e710624cd260f80dfefba19a9525a1a88",
+  "package_code_sha": "aeb7663e710624cd260f80dfefba19a9525a1a88",
+  "artifact_hash_check": "match"
 }

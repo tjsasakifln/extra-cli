@@ -1,8 +1,11 @@
 {
-  "as_of": "2026-07-27T23:28:34Z",
-  "main_sha": "ff9b78a86268e63248694d56a99fcf1a4336a60f",
-  "package_code_sha": "ff9b78a86268e63248694d56a99fcf1a4336a60f",
-  "package_matches_head": true,
+  "as_of": "2026-07-28T00:06:26Z",
+  "main_sha": "ea25c0ff3a382c7df11316344ba129942f40b572",
+  "integrity_branch_tip": "7e717782f2cac25f25520bb60083dd9254a353ac",
+  "package_code_sha": "aeb7663e710624cd260f80dfefba19a9525a1a88",
+  "package_matches_head": false,
+  "package_hash_integrity": "verified_match_disk",
+  "file_hash_mismatches": 0,
   "item_proofs_all_ok": true,
   "item_proofs_passed_n": 47,
   "dod_controller_status": {
@@ -10,5 +13,12 @@
     "accepted": 401,
     "open": 1060,
     "acceptance_pct_audited": 6.09
-  }
+  },
+  "prs_merged": [
+    151,
+    152,
+    153,
+    154
+  ],
+  "note": "hashes match final-package bytes; main_sha is last merged main; package run on integrity branch"
 }

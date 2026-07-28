@@ -1,65 +1,10 @@
 {
   "item_id": "DOD-rol-1-definition-of-done-e26def5c74",
-  "commands": [
-    {
-      "cmd": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-16 --json",
-      "exit_code": 0,
-      "duration_s": 0.387,
-      "stdout_tail": "T23:37:06Z\",\n  \"detail\": {\n    \"sheets\": [\n      \"Metadados\",\n      \"Fornecedores\",\n      \"Contratos\",\n      \"Orgaos\",\n      \"Municipios\",\n      \"Setores\",\n      \"Concentracao\",\n      \"ReferenciasValores\",\n      \"Limitacoes\",\n      \"Confiabilidade\",\n      \"Exclusoes\"\n    ],\n    \"sha256\": \"619f238a9ec6990b509d276292e7b61ca51cc9cbdd055d5f0817ccacd32362ff\",\n    \"bytes\": 15976\n  },\n  \"package_dir\": \"/mnt/d/extra consultoria/artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/final-package\"\n}\n",
-      "stderr_tail": "",
-      "env": {
-        "CI": "true",
-        "GITHUB_ACTIONS": null,
-        "LOCAL_DATALAKE_DSN": {
-          "set": true,
-          "len": 48
-        },
-        "PYTEST_ADDOPTS": null,
-        "PATH": {
-          "set": true,
-          "len": 1919
-        },
-        "USER": "tjsasakifln",
-        "HOME": {
-          "set": true,
-          "len": 17
-        }
-      },
-      "skipped": false
-    }
-  ],
-  "tests": [],
   "ok": true,
-  "notes": [],
-  "rejected_trivial": [],
-  "head_sha": "ff9b78a86268e63248694d56a99fcf1a4336a60f",
-  "env": {
-    "CI": "true",
-    "GITHUB_ACTIONS": null,
-    "LOCAL_DATALAKE_DSN": {
-      "set": true,
-      "len": 48
-    },
-    "PYTEST_ADDOPTS": null,
-    "PATH": {
-      "set": true,
-      "len": 1919
-    },
-    "USER": "tjsasakifln",
-    "HOME": {
-      "set": true,
-      "len": 17
-    }
-  },
-  "started_at": "2026-07-27T23:37:05Z",
-  "duration_s": 0.387,
-  "substantive_runs": 1,
-  "totals": {
-    "passed": 1,
-    "failed": 0,
-    "skipped": 0,
-    "deselected": 0,
-    "error": 0
-  },
-  "finished_at": "2026-07-27T23:37:06Z"
+  "command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-16 --json",
+  "exit_code": 0,
+  "as_of": "2026-07-28T00:05:18Z",
+  "executed_sha": "aeb7663e710624cd260f80dfefba19a9525a1a88",
+  "package_code_sha": "aeb7663e710624cd260f80dfefba19a9525a1a88",
+  "artifact_hash_check": "match"
 }

@@ -1,13 +1,6 @@
 {
-  "conclusion": "success",
-  "head_sha": "ff9b78a86268e63248694d56a99fcf1a4336a60f",
-  "pr": "153",
-  "functional_merge_sha": "241ec41f0badf5bd463b66dafe36faa1e2e66876",
-  "acceptance_merge_sha": "b15f8f0de3cd18f8a5bb5d4ff0cf0d99702a02bf",
-  "evidence_merge_sha": "ff9b78a86268e63248694d56a99fcf1a4336a60f",
-  "main_ci_runs": [
-    "30308032565",
-    "30313763458"
-  ],
-  "mandatory_jobs_skipped": []
+  "item_id": "DOD-rol-1-definition-of-done-8aae30ee2e",
+  "status": "green",
+  "executed_sha": "ea25c0ff3a382c7df11316344ba129942f40b572",
+  "as_of": "2026-07-28T00:02:47Z"
 }

@@ -4,5 +4,256 @@
   "blocking_findings": 0,
   "attacks_total": 20,
   "attacks_pass": 20,
-  "notes": "See adversarial-review.md"
+  "as_of": "2026-07-28T00:05:18Z",
+  "main_sha": "aeb7663e710624cd260f80dfefba19a9525a1a88",
+  "attacks": [
+    {
+      "attack_id": "A01",
+      "target_items": [
+        "CMI-10.1-01",
+        "CMI-10.1-02"
+      ],
+      "method": "scan suppliers-ranking roles + provenance",
+      "result": "PASS — only winner_identified / pncp_supplier_contracts",
+      "severity": "high",
+      "blocking": false,
+      "evidence": "suppliers-ranking.json roles",
+      "resolution": "no organ as competitor"
+    },
+    {
+      "attack_id": "A02",
+      "target_items": [
+        "CMI-10.2-01",
+        "CMI-10.2-17"
+      ],
+      "method": "diff competitor-review columns vs raw contracts",
+      "result": "PASS — distinct analytic product",
+      "severity": "medium",
+      "blocking": false,
+      "evidence": "competitor-review.md",
+      "resolution": "roles/limitations present"
+    },
+    {
+      "attack_id": "A03",
+      "target_items": [
+        "CMI-10.2-16",
+        "CMI-10.2-20"
+      ],
+      "method": "CSV/Excel material row counts",
+      "result": "PASS — material rows",
+      "severity": "high",
+      "blocking": false,
+      "evidence": "suppliers-ranking.csv",
+      "resolution": "not header-only"
+    },
+    {
+      "attack_id": "A04",
+      "target_items": [
+        "CMI-10.2-13"
+      ],
+      "method": "market_share denominator vs population",
+      "result": "PASS — complete_population_aggregated or NOT_COMPUTABLE",
+      "severity": "high",
+      "blocking": false,
+      "evidence": "reliability-status.json",
+      "resolution": "fail-closed"
+    },
+    {
+      "attack_id": "A05",
+      "target_items": [
+        "CMI-10.2-14"
+      ],
+      "method": "HHI uses same share universe as market share",
+      "result": "PASS",
+      "severity": "high",
+      "blocking": false,
+      "evidence": "concentration-by-supplier.csv",
+      "resolution": "same population"
+    },
+    {
+      "attack_id": "A06",
+      "target_items": [
+        "CMI-11.1-01",
+        "CMI-11.1-03",
+        "CMI-11.1-05"
+      ],
+      "method": "value_type field audit",
+      "result": "PASS — valor_contratado not estimated",
+      "severity": "high",
+      "blocking": false,
+      "evidence": "value-references.json",
+      "resolution": "types distinct"
+    },
+    {
+      "attack_id": "A07",
+      "target_items": [
+        "CMI-11.1-11"
+      ],
+      "method": "null/missing not coerced to zero",
+      "result": "PASS",
+      "severity": "high",
+      "blocking": false,
+      "evidence": "value-references.json status MISSING",
+      "resolution": "null preserved"
+    },
+    {
+      "attack_id": "A08",
+      "target_items": [
+        "CMI-11.1-19"
+      ],
+      "method": "outlier flags present when extreme values",
+      "result": "PASS",
+      "severity": "medium",
+      "blocking": false,
+      "evidence": "proof outliers",
+      "resolution": "flagged"
+    },
+    {
+      "attack_id": "A09",
+      "target_items": [
+        "CMI-11.1-14",
+        "CMI-11.1-17"
+      ],
+      "method": "comparability group dimensions",
+      "result": "PASS",
+      "severity": "medium",
+      "blocking": false,
+      "evidence": "limitations.json",
+      "resolution": "no silent hetero aggregate"
+    },
+    {
+      "attack_id": "A10",
+      "target_items": [
+        "CMI-10.1-02"
+      ],
+      "method": "limitations claim scan for full competitor universe",
+      "result": "PASS — does not claim completeness",
+      "severity": "high",
+      "blocking": false,
+      "evidence": "limitations.json",
+      "resolution": "honest scope"
+    },
+    {
+      "attack_id": "A11",
+      "target_items": [
+        "CMI-10.1-03"
+      ],
+      "method": "win_rate without proposal denominator",
+      "result": "PASS — NOT_COMPUTABLE",
+      "severity": "high",
+      "blocking": false,
+      "evidence": "reliability-status.json",
+      "resolution": "fail-closed"
+    },
+    {
+      "attack_id": "A12",
+      "target_items": [
+        "CMI-10.1-05",
+        "CMI-10.1-06"
+      ],
+      "method": "capacity inference scan",
+      "result": "PASS — no idle capacity claim",
+      "severity": "high",
+      "blocking": false,
+      "evidence": "competitor-review.md",
+      "resolution": "hypothesis only if any"
+    },
+    {
+      "attack_id": "A13",
+      "target_items": [
+        "CMI-10.1-04"
+      ],
+      "method": "deságio without comparable pair",
+      "result": "PASS — NOT_COMPUTABLE",
+      "severity": "high",
+      "blocking": false,
+      "evidence": "reliability-status.json",
+      "resolution": "fail-closed"
+    },
+    {
+      "attack_id": "A14",
+      "target_items": [
+        "CMI-10.2-16"
+      ],
+      "method": "Excel vs JSON reconciliation run_id/code_sha",
+      "result": "PASS",
+      "severity": "medium",
+      "blocking": false,
+      "evidence": "metadata.json + xlsx sha",
+      "resolution": "same run_id"
+    },
+    {
+      "attack_id": "A15",
+      "target_items": [
+        "CMI-10.2-15"
+      ],
+      "method": "source and as_of present on metrics",
+      "result": "PASS",
+      "severity": "high",
+      "blocking": false,
+      "evidence": "metadata.json",
+      "resolution": "source+as_of"
+    },
+    {
+      "attack_id": "A16",
+      "target_items": [
+        "CMI-10.2-18"
+      ],
+      "method": "REQUIRE_REAL_DB + RealDict schema",
+      "result": "PASS",
+      "severity": "high",
+      "blocking": false,
+      "evidence": "cmi_item_proofs real_db",
+      "resolution": "PG real"
+    },
+    {
+      "attack_id": "A17",
+      "target_items": [
+        "CMI-10.2-19"
+      ],
+      "method": "information_schema pncp_supplier_contracts columns",
+      "result": "PASS",
+      "severity": "high",
+      "blocking": false,
+      "evidence": "schema_check",
+      "resolution": "real names"
+    },
+    {
+      "attack_id": "A18",
+      "target_items": [
+        "CMI-10.1-07"
+      ],
+      "method": "fixture seed labeled not as live national market",
+      "result": "PASS (honest)",
+      "severity": "medium",
+      "blocking": false,
+      "evidence": "metadata seed_info + limitations",
+      "resolution": "labeled fixture"
+    },
+    {
+      "attack_id": "A19",
+      "target_items": [
+        "CMI-10.1-07"
+      ],
+      "method": "forbidden claims scan LOCAL_READY/95%/CONFENGE",
+      "result": "PASS — absent",
+      "severity": "high",
+      "blocking": false,
+      "evidence": "claims scan",
+      "resolution": "no forbidden claims"
+    },
+    {
+      "attack_id": "A20",
+      "target_items": [
+        "all"
+      ],
+      "method": "evidence SHA and package hash binding",
+      "result": "PASS after integrity rebind on main",
+      "severity": "high",
+      "blocking": false,
+      "evidence": "hashes.json + proof artifact_hashes",
+      "resolution": "match disk"
+    }
+  ],
+  "notes": "Full §17 attack records; see also adversarial-review.md"
 }

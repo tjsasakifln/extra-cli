@@ -1,7 +1,7 @@
 {
   "campaign_id": "CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01",
   "main_baseline_sha": "c5b4cdb91b0727b5e7a537c8eb47daf001b74552",
-  "executed_sha": "ff9b78a86268e63248694d56a99fcf1a4336a60f",
+  "executed_sha": "aeb7663e710624cd260f80dfefba19a9525a1a88",
   "status": "CLOSED",
   "items": [
     {
@@ -12,9 +12,10 @@
       "initial_state": "OPEN",
       "implementation": "SHIPPED contract_market_intelligence + operational_reports + cmi_item_proofs",
       "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.1-01 --json (REQUIRE_REAL_DB=1)",
-      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-ad5ffdc575/proof.json + final-package/",
+      "evidence": "bound",
       "authority": "DOD.md + freeze + item proof + CI + accept",
-      "terminal_state": "ACCEPTED"
+      "terminal_state": "ACCEPTED",
+      "executed_sha": "ea25c0ff3a382c7df11316344ba129942f40b572"
     },
     {
       "alias": "CMI-10.1-02",
@@ -24,9 +25,10 @@
       "initial_state": "OPEN",
       "implementation": "SHIPPED contract_market_intelligence + operational_reports + cmi_item_proofs",
       "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.1-02 --json (REQUIRE_REAL_DB=1)",
-      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-7fc5475f5f/proof.json + final-package/",
+      "evidence": "bound",
       "authority": "DOD.md + freeze + item proof + CI + accept",
-      "terminal_state": "ACCEPTED"
+      "terminal_state": "ACCEPTED",
+      "executed_sha": "ea25c0ff3a382c7df11316344ba129942f40b572"
     },
     {
       "alias": "CMI-10.1-03",
@@ -36,9 +38,10 @@
       "initial_state": "OPEN",
       "implementation": "SHIPPED contract_market_intelligence + operational_reports + cmi_item_proofs",
       "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.1-03 --json (REQUIRE_REAL_DB=1)",
-      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-aaad858820/proof.json + final-package/",
+      "evidence": "bound",
       "authority": "DOD.md + freeze + item proof + CI + accept",
-      "terminal_state": "ACCEPTED"
+      "terminal_state": "ACCEPTED",
+      "executed_sha": "ea25c0ff3a382c7df11316344ba129942f40b572"
     },
     {
       "alias": "CMI-10.1-04",
@@ -48,9 +51,10 @@
       "initial_state": "OPEN",
       "implementation": "SHIPPED contract_market_intelligence + operational_reports + cmi_item_proofs",
       "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.1-04 --json (REQUIRE_REAL_DB=1)",
-      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-29ddb3c2f5/proof.json + final-package/",
+      "evidence": "bound",
       "authority": "DOD.md + freeze + item proof + CI + accept",
-      "terminal_state": "ACCEPTED"
+      "terminal_state": "ACCEPTED",
+      "executed_sha": "ea25c0ff3a382c7df11316344ba129942f40b572"
     },
     {
       "alias": "CMI-10.1-05",
@@ -60,9 +64,10 @@
       "initial_state": "OPEN",
       "implementation": "SHIPPED contract_market_intelligence + operational_reports + cmi_item_proofs",
       "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.1-05 --json (REQUIRE_REAL_DB=1)",
-      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-af4d2329d5/proof.json + final-package/",
+      "evidence": "bound",
       "authority": "DOD.md + freeze + item proof + CI + accept",
-      "terminal_state": "ACCEPTED"
+      "terminal_state": "ACCEPTED",
+      "executed_sha": "ea25c0ff3a382c7df11316344ba129942f40b572"
     },
     {
       "alias": "CMI-10.1-06",
@@ -72,9 +77,10 @@
       "initial_state": "OPEN",
       "implementation": "SHIPPED contract_market_intelligence + operational_reports + cmi_item_proofs",
       "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.1-06 --json (REQUIRE_REAL_DB=1)",
-      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-e2debb6d90/proof.json + final-package/",
+      "evidence": "bound",
       "authority": "DOD.md + freeze + item proof + CI + accept",
-      "terminal_state": "ACCEPTED"
+      "terminal_state": "ACCEPTED",
+      "executed_sha": "ea25c0ff3a382c7df11316344ba129942f40b572"
     },
     {
       "alias": "CMI-10.1-07",
@@ -84,9 +90,10 @@
       "initial_state": "OPEN",
       "implementation": "SHIPPED contract_market_intelligence + operational_reports + cmi_item_proofs",
       "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.1-07 --json (REQUIRE_REAL_DB=1)",
-      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-24581047c4/proof.json + final-package/",
+      "evidence": "bound",
       "authority": "DOD.md + freeze + item proof + CI + accept",
-      "terminal_state": "ACCEPTED"
+      "terminal_state": "ACCEPTED",
+      "executed_sha": "ea25c0ff3a382c7df11316344ba129942f40b572"
     },
     {
       "alias": "CMI-10.2-01",
@@ -96,9 +103,10 @@
       "initial_state": "OPEN",
       "implementation": "SHIPPED contract_market_intelligence + operational_reports + cmi_item_proofs",
       "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-01 --json (REQUIRE_REAL_DB=1)",
-      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-7114069aad/proof.json + final-package/",
+      "evidence": "bound",
       "authority": "DOD.md + freeze + item proof + CI + accept",
-      "terminal_state": "ACCEPTED"
+      "terminal_state": "ACCEPTED",
+      "executed_sha": "ea25c0ff3a382c7df11316344ba129942f40b572"
     },
     {
       "alias": "CMI-10.2-02",
@@ -108,9 +116,10 @@
       "initial_state": "OPEN",
       "implementation": "SHIPPED contract_market_intelligence + operational_reports + cmi_item_proofs",
       "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-02 --json (REQUIRE_REAL_DB=1)",
-      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-180363f3c6/proof.json + final-package/",
+      "evidence": "bound",
       "authority": "DOD.md + freeze + item proof + CI + accept",
-      "terminal_state": "ACCEPTED"
+      "terminal_state": "ACCEPTED",
+      "executed_sha": "ea25c0ff3a382c7df11316344ba129942f40b572"
     },
     {
       "alias": "CMI-10.2-03",
@@ -120,9 +129,10 @@
       "initial_state": "OPEN",
       "implementation": "SHIPPED contract_market_intelligence + operational_reports + cmi_item_proofs",
       "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-03 --json (REQUIRE_REAL_DB=1)",
-      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-5eb2fbdae2/proof.json + final-package/",
+      "evidence": "bound",
       "authority": "DOD.md + freeze + item proof + CI + accept",
-      "terminal_state": "ACCEPTED"
+      "terminal_state": "ACCEPTED",
+      "executed_sha": "ea25c0ff3a382c7df11316344ba129942f40b572"
     },
     {
       "alias": "CMI-10.2-04",
@@ -132,9 +142,10 @@
       "initial_state": "OPEN",
       "implementation": "SHIPPED contract_market_intelligence + operational_reports + cmi_item_proofs",
       "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-04 --json (REQUIRE_REAL_DB=1)",
-      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-24d8ac6823/proof.json + final-package/",
+      "evidence": "bound",
       "authority": "DOD.md + freeze + item proof + CI + accept",
-      "terminal_state": "ACCEPTED"
+      "terminal_state": "ACCEPTED",
+      "executed_sha": "ea25c0ff3a382c7df11316344ba129942f40b572"
     },
     {
       "alias": "CMI-10.2-05",
@@ -144,9 +155,10 @@
       "initial_state": "OPEN",
       "implementation": "SHIPPED contract_market_intelligence + operational_reports + cmi_item_proofs",
       "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-05 --json (REQUIRE_REAL_DB=1)",
-      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-72ffefd4fe/proof.json + final-package/",
+      "evidence": "bound",
       "authority": "DOD.md + freeze + item proof + CI + accept",
-      "terminal_state": "ACCEPTED"
+      "terminal_state": "ACCEPTED",
+      "executed_sha": "ea25c0ff3a382c7df11316344ba129942f40b572"
     },
     {
       "alias": "CMI-10.2-06",
@@ -156,9 +168,10 @@
       "initial_state": "OPEN",
       "implementation": "SHIPPED contract_market_intelligence + operational_reports + cmi_item_proofs",
       "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-06 --json (REQUIRE_REAL_DB=1)",
-      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-28a1c47d70/proof.json + final-package/",
+      "evidence": "bound",
       "authority": "DOD.md + freeze + item proof + CI + accept",
-      "terminal_state": "ACCEPTED"
+      "terminal_state": "ACCEPTED",
+      "executed_sha": "ea25c0ff3a382c7df11316344ba129942f40b572"
     },
     {
       "alias": "CMI-10.2-07",
@@ -168,9 +181,10 @@
       "initial_state": "OPEN",
       "implementation": "SHIPPED contract_market_intelligence + operational_reports + cmi_item_proofs",
       "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-07 --json (REQUIRE_REAL_DB=1)",
-      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-f32083927c/proof.json + final-package/",
+      "evidence": "bound",
       "authority": "DOD.md + freeze + item proof + CI + accept",
-      "terminal_state": "ACCEPTED"
+      "terminal_state": "ACCEPTED",
+      "executed_sha": "ea25c0ff3a382c7df11316344ba129942f40b572"
     },
     {
       "alias": "CMI-10.2-08",
@@ -180,9 +194,10 @@
       "initial_state": "OPEN",
       "implementation": "SHIPPED contract_market_intelligence + operational_reports + cmi_item_proofs",
       "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-08 --json (REQUIRE_REAL_DB=1)",
-      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-f11737c2bf/proof.json + final-package/",
+      "evidence": "bound",
       "authority": "DOD.md + freeze + item proof + CI + accept",
-      "terminal_state": "ACCEPTED"
+      "terminal_state": "ACCEPTED",
+      "executed_sha": "ea25c0ff3a382c7df11316344ba129942f40b572"
     },
     {
       "alias": "CMI-10.2-09",
@@ -192,9 +207,10 @@
       "initial_state": "OPEN",
       "implementation": "SHIPPED contract_market_intelligence + operational_reports + cmi_item_proofs",
       "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-09 --json (REQUIRE_REAL_DB=1)",
-      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-e5557d5607/proof.json + final-package/",
+      "evidence": "bound",
       "authority": "DOD.md + freeze + item proof + CI + accept",
-      "terminal_state": "ACCEPTED"
+      "terminal_state": "ACCEPTED",
+      "executed_sha": "ea25c0ff3a382c7df11316344ba129942f40b572"
     },
     {
       "alias": "CMI-10.2-10",
@@ -204,9 +220,10 @@
       "initial_state": "OPEN",
       "implementation": "SHIPPED contract_market_intelligence + operational_reports + cmi_item_proofs",
       "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-10 --json (REQUIRE_REAL_DB=1)",
-      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-df0c666a5f/proof.json + final-package/",
+      "evidence": "bound",
       "authority": "DOD.md + freeze + item proof + CI + accept",
-      "terminal_state": "ACCEPTED"
+      "terminal_state": "ACCEPTED",
+      "executed_sha": "ea25c0ff3a382c7df11316344ba129942f40b572"
     },
     {
       "alias": "CMI-10.2-11",
@@ -216,9 +233,10 @@
       "initial_state": "OPEN",
       "implementation": "SHIPPED contract_market_intelligence + operational_reports + cmi_item_proofs",
       "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-11 --json (REQUIRE_REAL_DB=1)",
-      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-ff54a45a75/proof.json + final-package/",
+      "evidence": "bound",
       "authority": "DOD.md + freeze + item proof + CI + accept",
-      "terminal_state": "ACCEPTED"
+      "terminal_state": "ACCEPTED",
+      "executed_sha": "ea25c0ff3a382c7df11316344ba129942f40b572"
     },
     {
       "alias": "CMI-10.2-12",
@@ -228,9 +246,10 @@
       "initial_state": "OPEN",
       "implementation": "SHIPPED contract_market_intelligence + operational_reports + cmi_item_proofs",
       "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-12 --json (REQUIRE_REAL_DB=1)",
-      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-926290cde1/proof.json + final-package/",
+      "evidence": "bound",
       "authority": "DOD.md + freeze + item proof + CI + accept",
-      "terminal_state": "ACCEPTED"
+      "terminal_state": "ACCEPTED",
+      "executed_sha": "ea25c0ff3a382c7df11316344ba129942f40b572"
     },
     {
       "alias": "CMI-10.2-13",
@@ -240,9 +259,10 @@
       "initial_state": "OPEN",
       "implementation": "SHIPPED contract_market_intelligence + operational_reports + cmi_item_proofs",
       "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-13 --json (REQUIRE_REAL_DB=1)",
-      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-849f610ada/proof.json + final-package/",
+      "evidence": "bound",
       "authority": "DOD.md + freeze + item proof + CI + accept",
-      "terminal_state": "ACCEPTED"
+      "terminal_state": "ACCEPTED",
+      "executed_sha": "ea25c0ff3a382c7df11316344ba129942f40b572"
     },
     {
       "alias": "CMI-10.2-14",
@@ -252,9 +272,10 @@
       "initial_state": "OPEN",
       "implementation": "SHIPPED contract_market_intelligence + operational_reports + cmi_item_proofs",
       "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-14 --json (REQUIRE_REAL_DB=1)",
-      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-fd5b78c29d/proof.json + final-package/",
+      "evidence": "bound",
       "authority": "DOD.md + freeze + item proof + CI + accept",
-      "terminal_state": "ACCEPTED"
+      "terminal_state": "ACCEPTED",
+      "executed_sha": "ea25c0ff3a382c7df11316344ba129942f40b572"
     },
     {
       "alias": "CMI-10.2-15",
@@ -264,9 +285,10 @@
       "initial_state": "OPEN",
       "implementation": "SHIPPED contract_market_intelligence + operational_reports + cmi_item_proofs",
       "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-15 --json (REQUIRE_REAL_DB=1)",
-      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-96ca22dde7/proof.json + final-package/",
+      "evidence": "bound",
       "authority": "DOD.md + freeze + item proof + CI + accept",
-      "terminal_state": "ACCEPTED"
+      "terminal_state": "ACCEPTED",
+      "executed_sha": "ea25c0ff3a382c7df11316344ba129942f40b572"
     },
     {
       "alias": "CMI-10.2-16",
@@ -276,9 +298,10 @@
       "initial_state": "OPEN",
       "implementation": "SHIPPED contract_market_intelligence + operational_reports + cmi_item_proofs",
       "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-16 --json (REQUIRE_REAL_DB=1)",
-      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-e26def5c74/proof.json + final-package/",
+      "evidence": "bound",
       "authority": "DOD.md + freeze + item proof + CI + accept",
-      "terminal_state": "ACCEPTED"
+      "terminal_state": "ACCEPTED",
+      "executed_sha": "ea25c0ff3a382c7df11316344ba129942f40b572"
     },
     {
       "alias": "CMI-10.2-17",
@@ -288,9 +311,10 @@
       "initial_state": "OPEN",
       "implementation": "SHIPPED contract_market_intelligence + operational_reports + cmi_item_proofs",
       "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-17 --json (REQUIRE_REAL_DB=1)",
-      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-2c30e375c5/proof.json + final-package/",
+      "evidence": "bound",
       "authority": "DOD.md + freeze + item proof + CI + accept",
-      "terminal_state": "ACCEPTED"
+      "terminal_state": "ACCEPTED",
+      "executed_sha": "ea25c0ff3a382c7df11316344ba129942f40b572"
     },
     {
       "alias": "CMI-10.2-18",
@@ -300,9 +324,10 @@
       "initial_state": "OPEN",
       "implementation": "SHIPPED contract_market_intelligence + operational_reports + cmi_item_proofs",
       "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-18 --json (REQUIRE_REAL_DB=1)",
-      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-3f13a31ef1/proof.json + final-package/",
+      "evidence": "bound",
       "authority": "DOD.md + freeze + item proof + CI + accept",
-      "terminal_state": "ACCEPTED"
+      "terminal_state": "ACCEPTED",
+      "executed_sha": "ea25c0ff3a382c7df11316344ba129942f40b572"
     },
     {
       "alias": "CMI-10.2-19",
@@ -312,9 +337,10 @@
       "initial_state": "OPEN",
       "implementation": "SHIPPED contract_market_intelligence + operational_reports + cmi_item_proofs",
       "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-19 --json (REQUIRE_REAL_DB=1)",
-      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-58f3b88564/proof.json + final-package/",
+      "evidence": "bound",
       "authority": "DOD.md + freeze + item proof + CI + accept",
-      "terminal_state": "ACCEPTED"
+      "terminal_state": "ACCEPTED",
+      "executed_sha": "ea25c0ff3a382c7df11316344ba129942f40b572"
     },
     {
       "alias": "CMI-10.2-20",
@@ -324,9 +350,10 @@
       "initial_state": "OPEN",
       "implementation": "SHIPPED contract_market_intelligence + operational_reports + cmi_item_proofs",
       "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.2-20 --json (REQUIRE_REAL_DB=1)",
-      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-f2cc2a2ae5/proof.json + final-package/",
+      "evidence": "bound",
       "authority": "DOD.md + freeze + item proof + CI + accept",
-      "terminal_state": "ACCEPTED"
+      "terminal_state": "ACCEPTED",
+      "executed_sha": "ea25c0ff3a382c7df11316344ba129942f40b572"
     },
     {
       "alias": "CMI-11.1-01",
@@ -336,9 +363,10 @@
       "initial_state": "OPEN",
       "implementation": "SHIPPED contract_market_intelligence + operational_reports + cmi_item_proofs",
       "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-01 --json (REQUIRE_REAL_DB=1)",
-      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-7e3e9e1447/proof.json + final-package/",
+      "evidence": "bound",
       "authority": "DOD.md + freeze + item proof + CI + accept",
-      "terminal_state": "ACCEPTED"
+      "terminal_state": "ACCEPTED",
+      "executed_sha": "ea25c0ff3a382c7df11316344ba129942f40b572"
     },
     {
       "alias": "CMI-11.1-02",
@@ -348,9 +376,10 @@
       "initial_state": "OPEN",
       "implementation": "SHIPPED contract_market_intelligence + operational_reports + cmi_item_proofs",
       "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-02 --json (REQUIRE_REAL_DB=1)",
-      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-9138b9d0df/proof.json + final-package/",
+      "evidence": "bound",
       "authority": "DOD.md + freeze + item proof + CI + accept",
-      "terminal_state": "ACCEPTED"
+      "terminal_state": "ACCEPTED",
+      "executed_sha": "ea25c0ff3a382c7df11316344ba129942f40b572"
     },
     {
       "alias": "CMI-11.1-03",
@@ -360,9 +389,10 @@
       "initial_state": "OPEN",
       "implementation": "SHIPPED contract_market_intelligence + operational_reports + cmi_item_proofs",
       "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-03 --json (REQUIRE_REAL_DB=1)",
-      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-532d802562/proof.json + final-package/",
+      "evidence": "bound",
       "authority": "DOD.md + freeze + item proof + CI + accept",
-      "terminal_state": "ACCEPTED"
+      "terminal_state": "ACCEPTED",
+      "executed_sha": "ea25c0ff3a382c7df11316344ba129942f40b572"
     },
     {
       "alias": "CMI-11.1-04",
@@ -372,9 +402,10 @@
       "initial_state": "OPEN",
       "implementation": "SHIPPED contract_market_intelligence + operational_reports + cmi_item_proofs",
       "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-04 --json (REQUIRE_REAL_DB=1)",
-      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-76039ae8d2/proof.json + final-package/",
+      "evidence": "bound",
       "authority": "DOD.md + freeze + item proof + CI + accept",
-      "terminal_state": "ACCEPTED"
+      "terminal_state": "ACCEPTED",
+      "executed_sha": "ea25c0ff3a382c7df11316344ba129942f40b572"
     },
     {
       "alias": "CMI-11.1-05",
@@ -384,9 +415,10 @@
       "initial_state": "OPEN",
       "implementation": "SHIPPED contract_market_intelligence + operational_reports + cmi_item_proofs",
       "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-05 --json (REQUIRE_REAL_DB=1)",
-      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-7d7b10b055/proof.json + final-package/",
+      "evidence": "bound",
       "authority": "DOD.md + freeze + item proof + CI + accept",
-      "terminal_state": "ACCEPTED"
+      "terminal_state": "ACCEPTED",
+      "executed_sha": "ea25c0ff3a382c7df11316344ba129942f40b572"
     },
     {
       "alias": "CMI-11.1-06",
@@ -396,9 +428,10 @@
       "initial_state": "OPEN",
       "implementation": "SHIPPED contract_market_intelligence + operational_reports + cmi_item_proofs",
       "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-06 --json (REQUIRE_REAL_DB=1)",
-      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-3bb3874141/proof.json + final-package/",
+      "evidence": "bound",
       "authority": "DOD.md + freeze + item proof + CI + accept",
-      "terminal_state": "ACCEPTED"
+      "terminal_state": "ACCEPTED",
+      "executed_sha": "ea25c0ff3a382c7df11316344ba129942f40b572"
     },
     {
       "alias": "CMI-11.1-07",
@@ -408,9 +441,10 @@
       "initial_state": "OPEN",
       "implementation": "SHIPPED contract_market_intelligence + operational_reports + cmi_item_proofs",
       "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-07 --json (REQUIRE_REAL_DB=1)",
-      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-4fc2390171/proof.json + final-package/",
+      "evidence": "bound",
       "authority": "DOD.md + freeze + item proof + CI + accept",
-      "terminal_state": "ACCEPTED"
+      "terminal_state": "ACCEPTED",
+      "executed_sha": "ea25c0ff3a382c7df11316344ba129942f40b572"
     },
     {
       "alias": "CMI-11.1-08",
@@ -420,9 +454,10 @@
       "initial_state": "OPEN",
       "implementation": "SHIPPED contract_market_intelligence + operational_reports + cmi_item_proofs",
       "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-08 --json (REQUIRE_REAL_DB=1)",
-      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-262f17e7ec/proof.json + final-package/",
+      "evidence": "bound",
       "authority": "DOD.md + freeze + item proof + CI + accept",
-      "terminal_state": "ACCEPTED"
+      "terminal_state": "ACCEPTED",
+      "executed_sha": "ea25c0ff3a382c7df11316344ba129942f40b572"
     },
     {
       "alias": "CMI-11.1-09",
@@ -432,9 +467,10 @@
       "initial_state": "OPEN",
       "implementation": "SHIPPED contract_market_intelligence + operational_reports + cmi_item_proofs",
       "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-09 --json (REQUIRE_REAL_DB=1)",
-      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-53115f162e/proof.json + final-package/",
+      "evidence": "bound",
       "authority": "DOD.md + freeze + item proof + CI + accept",
-      "terminal_state": "ACCEPTED"
+      "terminal_state": "ACCEPTED",
+      "executed_sha": "ea25c0ff3a382c7df11316344ba129942f40b572"
     },
     {
       "alias": "CMI-11.1-10",
@@ -444,9 +480,10 @@
       "initial_state": "OPEN",
       "implementation": "SHIPPED contract_market_intelligence + operational_reports + cmi_item_proofs",
       "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-10 --json (REQUIRE_REAL_DB=1)",
-      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-50bb794fc7/proof.json + final-package/",
+      "evidence": "bound",
       "authority": "DOD.md + freeze + item proof + CI + accept",
-      "terminal_state": "ACCEPTED"
+      "terminal_state": "ACCEPTED",
+      "executed_sha": "ea25c0ff3a382c7df11316344ba129942f40b572"
     },
     {
       "alias": "CMI-11.1-11",
@@ -456,9 +493,10 @@
       "initial_state": "OPEN",
       "implementation": "SHIPPED contract_market_intelligence + operational_reports + cmi_item_proofs",
       "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-11 --json (REQUIRE_REAL_DB=1)",
-      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-dc5790ffeb/proof.json + final-package/",
+      "evidence": "bound",
       "authority": "DOD.md + freeze + item proof + CI + accept",
-      "terminal_state": "ACCEPTED"
+      "terminal_state": "ACCEPTED",
+      "executed_sha": "ea25c0ff3a382c7df11316344ba129942f40b572"
     },
     {
       "alias": "CMI-11.1-12",
@@ -468,9 +506,10 @@
       "initial_state": "OPEN",
       "implementation": "SHIPPED contract_market_intelligence + operational_reports + cmi_item_proofs",
       "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-12 --json (REQUIRE_REAL_DB=1)",
-      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-c8739f5734/proof.json + final-package/",
+      "evidence": "bound",
       "authority": "DOD.md + freeze + item proof + CI + accept",
-      "terminal_state": "ACCEPTED"
+      "terminal_state": "ACCEPTED",
+      "executed_sha": "ea25c0ff3a382c7df11316344ba129942f40b572"
     },
     {
       "alias": "CMI-11.1-13",
@@ -480,9 +519,10 @@
       "initial_state": "OPEN",
       "implementation": "SHIPPED contract_market_intelligence + operational_reports + cmi_item_proofs",
       "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-13 --json (REQUIRE_REAL_DB=1)",
-      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-04da3e4902/proof.json + final-package/",
+      "evidence": "bound",
       "authority": "DOD.md + freeze + item proof + CI + accept",
-      "terminal_state": "ACCEPTED"
+      "terminal_state": "ACCEPTED",
+      "executed_sha": "ea25c0ff3a382c7df11316344ba129942f40b572"
     },
     {
       "alias": "CMI-11.1-14",
@@ -492,9 +532,10 @@
       "initial_state": "OPEN",
       "implementation": "SHIPPED contract_market_intelligence + operational_reports + cmi_item_proofs",
       "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-14 --json (REQUIRE_REAL_DB=1)",
-      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-a9b1b6e0c3/proof.json + final-package/",
+      "evidence": "bound",
       "authority": "DOD.md + freeze + item proof + CI + accept",
-      "terminal_state": "ACCEPTED"
+      "terminal_state": "ACCEPTED",
+      "executed_sha": "ea25c0ff3a382c7df11316344ba129942f40b572"
     },
     {
       "alias": "CMI-11.1-15",
@@ -504,9 +545,10 @@
       "initial_state": "OPEN",
       "implementation": "SHIPPED contract_market_intelligence + operational_reports + cmi_item_proofs",
       "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-15 --json (REQUIRE_REAL_DB=1)",
-      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-31211a0281/proof.json + final-package/",
+      "evidence": "bound",
       "authority": "DOD.md + freeze + item proof + CI + accept",
-      "terminal_state": "ACCEPTED"
+      "terminal_state": "ACCEPTED",
+      "executed_sha": "ea25c0ff3a382c7df11316344ba129942f40b572"
     },
     {
       "alias": "CMI-11.1-16",
@@ -516,9 +558,10 @@
       "initial_state": "OPEN",
       "implementation": "SHIPPED contract_market_intelligence + operational_reports + cmi_item_proofs",
       "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-16 --json (REQUIRE_REAL_DB=1)",
-      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-589da36904/proof.json + final-package/",
+      "evidence": "bound",
       "authority": "DOD.md + freeze + item proof + CI + accept",
-      "terminal_state": "ACCEPTED"
+      "terminal_state": "ACCEPTED",
+      "executed_sha": "ea25c0ff3a382c7df11316344ba129942f40b572"
     },
     {
       "alias": "CMI-11.1-17",
@@ -528,9 +571,10 @@
       "initial_state": "OPEN",
       "implementation": "SHIPPED contract_market_intelligence + operational_reports + cmi_item_proofs",
       "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-17 --json (REQUIRE_REAL_DB=1)",
-      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-8aae30ee2e/proof.json + final-package/",
+      "evidence": "bound",
       "authority": "DOD.md + freeze + item proof + CI + accept",
-      "terminal_state": "ACCEPTED"
+      "terminal_state": "ACCEPTED",
+      "executed_sha": "ea25c0ff3a382c7df11316344ba129942f40b572"
     },
     {
       "alias": "CMI-11.1-18",
@@ -540,9 +584,10 @@
       "initial_state": "OPEN",
       "implementation": "SHIPPED contract_market_intelligence + operational_reports + cmi_item_proofs",
       "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-18 --json (REQUIRE_REAL_DB=1)",
-      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-55a430a39c/proof.json + final-package/",
+      "evidence": "bound",
       "authority": "DOD.md + freeze + item proof + CI + accept",
-      "terminal_state": "ACCEPTED"
+      "terminal_state": "ACCEPTED",
+      "executed_sha": "ea25c0ff3a382c7df11316344ba129942f40b572"
     },
     {
       "alias": "CMI-11.1-19",
@@ -552,9 +597,10 @@
       "initial_state": "OPEN",
       "implementation": "SHIPPED contract_market_intelligence + operational_reports + cmi_item_proofs",
       "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-19 --json (REQUIRE_REAL_DB=1)",
-      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-91752931c3/proof.json + final-package/",
+      "evidence": "bound",
       "authority": "DOD.md + freeze + item proof + CI + accept",
-      "terminal_state": "ACCEPTED"
+      "terminal_state": "ACCEPTED",
+      "executed_sha": "ea25c0ff3a382c7df11316344ba129942f40b572"
     },
     {
       "alias": "CMI-11.1-20",
@@ -564,9 +610,12 @@
       "initial_state": "OPEN",
       "implementation": "SHIPPED contract_market_intelligence + operational_reports + cmi_item_proofs",
       "test": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-20 --json (REQUIRE_REAL_DB=1)",
-      "evidence": ".dod/evidence/DOD-rol-1-definition-of-done-bcbbd65023/proof.json + final-package/",
+      "evidence": "bound",
       "authority": "DOD.md + freeze + item proof + CI + accept",
-      "terminal_state": "ACCEPTED"
+      "terminal_state": "ACCEPTED",
+      "executed_sha": "ea25c0ff3a382c7df11316344ba129942f40b572"
     }
-  ]
+  ],
+  "post_merge_main_sha": "aeb7663e710624cd260f80dfefba19a9525a1a88",
+  "as_of": "2026-07-28T00:05:18Z"
 }
