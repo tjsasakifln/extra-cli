@@ -41,14 +41,19 @@ def _conn(dsn: str):
     return psycopg2.connect(dsn, cursor_factory=psycopg2.extras.RealDictCursor)
 
 
+class OperationalExportError(RuntimeError):
+    """Fail-closed error for operational export pack."""
+
+
 def _q(conn, sql: str, params: tuple | list | None = None) -> list[dict[str, Any]]:
     with conn.cursor() as cur:
         try:
             cur.execute(sql, params or ())
             return [dict(r) for r in cur.fetchall()]
         except Exception as exc:  # noqa: BLE001
-            conn.rollback()
-            return [{"_error": str(exc)}]
+            if hasattr(conn, "rollback"):
+                conn.rollback()
+            raise OperationalExportError(str(exc)) from exc
 
 
 def _table_exists(conn, name: str) -> bool:
@@ -57,7 +62,7 @@ def _table_exists(conn, name: str) -> bool:
         "SELECT 1 AS ok FROM information_schema.tables WHERE table_schema='public' AND table_name=%s",
         (name,),
     )
-    return bool(rows) and "_error" not in rows[0]
+    return bool(rows)
 
 
 def universe_version(conn) -> str:
@@ -65,18 +70,22 @@ def universe_version(conn) -> str:
         rows = _q(
             conn,
             """
-            SELECT id, started_at, status
+            SELECT id, created_at, seed_sha256, included_rows
             FROM target_universe_runs
-            ORDER BY started_at DESC NULLS LAST
+            ORDER BY created_at DESC NULLS LAST
             LIMIT 1
             """,
         )
-        if rows and "_error" not in rows[0]:
+        if rows:
             r = rows[0]
-            return f"target_universe_run:{r.get('id')}:{r.get('status')}"
+            seed = str(r.get("seed_sha256") or "")[:12]
+            return (
+                f"target_universe_run:{r.get('id')}:seed={seed}:"
+                f"included={r.get('included_rows')}"
+            )
     if _table_exists(conn, "sc_public_entities"):
         rows = _q(conn, "SELECT COUNT(*) AS n FROM sc_public_entities WHERE is_active IS TRUE")
-        n = int((rows[0] or {}).get("n") or 0) if rows and "_error" not in rows[0] else 0
+        n = int((rows[0] or {}).get("n") or 0) if rows else 0
         return f"sc_public_entities:n={n}"
     return "universe:unknown"
 
@@ -112,8 +121,6 @@ def source_health(conn) -> list[dict[str, Any]]:
     )
     out: list[dict[str, Any]] = []
     for r in rows:
-        if "_error" in r:
-            continue
         n = int(r.get("n_runs") or 0)
         ok = int(r.get("n_ok") or 0)
         rate = round(ok / n * 100, 2) if n else None
@@ -138,7 +145,9 @@ def source_health(conn) -> list[dict[str, Any]]:
 
 def _write_csv(path: Path, rows: list[dict[str, Any]]) -> int:
     path.parent.mkdir(parents=True, exist_ok=True)
-    clean = [r for r in rows if "_error" not in r]
+    if any(isinstance(r, dict) and "_error" in r for r in rows):
+        raise OperationalExportError("refusing to write CSV containing _error rows")
+    clean = list(rows)
     headers: list[str] = []
     for r in clean:
         for k in r:
@@ -176,21 +185,63 @@ def write_excel(path: Path, sheets: dict[str, list[dict[str, Any]]], meta: dict[
     from openpyxl import Workbook
 
     wb = Workbook()
-    # metadata sheet first
+    # Canonical required sheets for package final reconciliation
     ws0 = wb.active
-    ws0.title = "metadata"
+    ws0.title = "Metadados"
     ws0.append(["key", "value"])
     for k, v in meta.items():
         ws0.append([k, json.dumps(v, ensure_ascii=False) if isinstance(v, (list, dict)) else v])
 
-    for name, rows in sheets.items():
-        title = name[:31]
-        ws = wb.create_sheet(title)
-        clean = [r for r in rows if "_error" not in r]
-        if not clean:
-            ws.append(["note"])
-            continue
+    # Flatten first data sheet into Dados (no Demo A/B fixtures)
+    first_rows: list[dict[str, Any]] = []
+    for rows in sheets.values():
+        if rows:
+            first_rows = list(rows)
+            break
+    ws_dados = wb.create_sheet("Dados")
+    if first_rows:
         headers: list[str] = []
+        for r in first_rows:
+            for k in r:
+                if k not in headers:
+                    headers.append(k)
+        ws_dados.append(headers)
+        for r in first_rows:
+            ws_dados.append([r.get(h) for h in headers])
+    else:
+        ws_dados.append(["note", "empty_dataset_SUCCESS_ZERO"])
+
+    ws_filtros = wb.create_sheet("Filtros")
+    filters = meta.get("filters") or meta.get("parameters") or {}
+    ws_filtros.append(["key", "value"])
+    if isinstance(filters, dict) and filters:
+        for k, v in filters.items():
+            ws_filtros.append([k, str(v)])
+    else:
+        ws_filtros.append(["uf", str(meta.get("uf") or "SC")])
+        ws_filtros.append(["source", str(meta.get("source") or "")])
+
+    ws_cob = wb.create_sheet("Cobertura")
+    ws_cob.append(["metric", "value"])
+    ws_cob.append(["universe_version", str(meta.get("universe_version") or "")])
+    ws_cob.append(["reliability", str(meta.get("reliability") or "")])
+    ws_cob.append(["sample_label", str((meta.get("sample_size") or {}).get("label") or "")])
+
+    ws_lim = wb.create_sheet("Limitacoes")
+    ws_lim.append(["limitation"])
+    for lim in meta.get("limitations") or ["(none)"]:
+        ws_lim.append([str(lim)])
+
+    for name, rows in sheets.items():
+        title = str(name)[:31]
+        if title in {"Metadados", "Dados", "Filtros", "Cobertura", "Limitacoes"}:
+            title = f"raw_{title}"[:31]
+        ws = wb.create_sheet(title)
+        clean = list(rows)
+        if not clean:
+            ws.append(["note", "empty"])
+            continue
+        headers = []
         for r in clean:
             for k in r:
                 if k not in headers:
@@ -271,9 +322,7 @@ def build_pack(dsn: str, out_dir: Path) -> dict[str, Any]:
                 FROM pncp_raw_bids WHERE is_active IS TRUE LIMIT 100
                 """,
             )
-            if bids and "_error" in bids[0]:
-                limitations.append(bids[0]["_error"])
-                bids = []
+            # fail-closed: query errors raise OperationalExportError
     finally:
         conn.close()
 
@@ -375,6 +424,17 @@ def main(argv: list[str] | None = None) -> int:
     if not args.dsn:
         print("ERROR: --dsn required", file=sys.stderr)
         return 2
+    try:
+        return _main_impl(args)
+    except OperationalExportError as exc:
+        print(json.dumps({"ok": False, "error": str(exc)}, ensure_ascii=False), file=sys.stderr)
+        return 1
+    except Exception as exc:  # noqa: BLE001
+        print(json.dumps({"ok": False, "error": str(exc), "type": type(exc).__name__}, ensure_ascii=False), file=sys.stderr)
+        return 1
+
+
+def _main_impl(args: argparse.Namespace) -> int:
     if args.dry_run:
         conn = _conn(args.dsn)
         try:

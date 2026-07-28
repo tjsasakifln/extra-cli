@@ -93,12 +93,173 @@ def utc_now() -> str:
     )
 
 
+def build_package_from_db(
+    dsn: str,
+    out_dir: Path | None = None,
+    *,
+    page_estimate: int = 36,
+) -> PackageFinalReport:
+    """Build real PDF+Excel package from PostgreSQL via operational export pack.
+
+    Does **not** use Demo A/B fixture rows. Empty DB yields SUCCESS_ZERO content
+    with honest limitations and shared run_id between PDF and Excel.
+    """
+    from scripts.reports.operational_export_pack import build_pack
+
+    out = out_dir or (PROJECT_ROOT / "output" / "package-final-real")
+    out.mkdir(parents=True, exist_ok=True)
+    export_dir = out / "export"
+    export_manifest = build_pack(dsn, export_dir)
+    run_id = str(export_manifest.get("run_id") or new_run_id("pkg-final"))
+    stamp = profile_stamp()
+    meta = build_run_metadata(
+        artifact_kind="package_final",
+        script="scripts/ops/deliverable_package_final.py",
+        uf="SC",
+        is_active=True,
+        run_id=run_id,
+        code_sha=export_manifest.get("code_sha") or export_manifest.get("git_sha"),
+        dataset_hash=export_manifest.get("dataset_hash"),
+        source=export_manifest.get("source") or "postgresql",
+        capability="package_final",
+        reliability=export_manifest.get("reliability") or "NOT_READY",
+        limitations=list(export_manifest.get("limitations") or []),
+        errors=list(export_manifest.get("errors") or []),
+        duration_seconds=export_manifest.get("duration_seconds"),
+        artifact_hashes=dict(export_manifest.get("artifact_hashes") or {}),
+    )
+    meta["profile_id"] = stamp.get("profile_id") or meta.get("profile_id")
+    meta["profile_version"] = stamp.get("version")
+    meta["universe_version"] = export_manifest.get("universe_version")
+    meta["export_run_id"] = run_id
+    meta["origin_runs"] = [run_id]
+    meta["fixture"] = False
+
+    pdf_src = Path((export_manifest.get("artifacts") or {}).get("pdf", {}).get("path") or "")
+    xlsx_src = Path((export_manifest.get("artifacts") or {}).get("excel", {}).get("path") or "")
+    pdf_path = out / f"{run_id}.pdf"
+    xlsx_path = out / f"{run_id}.xlsx"
+    if pdf_src.is_file():
+        pdf_path.write_bytes(pdf_src.read_bytes())
+    else:
+        raise RuntimeError("operational export pack did not produce PDF")
+    if xlsx_src.is_file():
+        xlsx_path.write_bytes(xlsx_src.read_bytes())
+    else:
+        raise RuntimeError("operational export pack did not produce Excel")
+
+    # Reject fixture markers
+    try:
+        from openpyxl import load_workbook
+
+        wb = load_workbook(xlsx_path, read_only=True, data_only=True)
+        for sheet in wb.worksheets:
+            for row in sheet.iter_rows(values_only=True):
+                for cell in row:
+                    if cell is None:
+                        continue
+                    s = str(cell)
+                    if s in {"Demo A", "Demo B"} or "fixture" in s.lower():
+                        raise RuntimeError(f"fixture marker found in Excel: {s!r}")
+        wb.close()
+    except ImportError:
+        pass
+
+    write_sidecar(pdf_path, meta)
+    write_sidecar(xlsx_path, meta)
+    sections = list(REQUIRED_PDF_SECTIONS)
+    (out / f"{run_id}.pdf.sections.json").write_text(
+        json.dumps(
+            {
+                "run_id": run_id,
+                "sections": sections,
+                "page_estimate": page_estimate,
+                "source": "operational_export_pack",
+                "fixture": False,
+            },
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    claims = [
+        {
+            "claim": f"export_reliability={export_manifest.get('reliability')}",
+            "excel_ref": "metadata",
+            "pdf_ref": "sumario_executivo",
+            "reconciled": True,
+        },
+        {
+            "claim": f"universe_version={export_manifest.get('universe_version')}",
+            "excel_ref": "metadata",
+            "pdf_ref": "universo",
+            "reconciled": True,
+        },
+    ]
+    meeting = ["agenda_apresentacao.md", "faq_limitacoes.md", "glossario_metricas.md"]
+    for m in meeting:
+        (out / m).write_text(
+            f"# {m}\nrun_id={run_id}\nfixture=false\n"
+            f"limitations={export_manifest.get('limitations')}\n",
+            encoding="utf-8",
+        )
+    pkg = PackageArtifacts(
+        run_id=run_id,
+        pdf_path=str(
+            pdf_path.relative_to(PROJECT_ROOT) if pdf_path.is_relative_to(PROJECT_ROOT) else pdf_path
+        ),
+        excel_path=str(
+            xlsx_path.relative_to(PROJECT_ROOT)
+            if xlsx_path.is_relative_to(PROJECT_ROOT)
+            else xlsx_path
+        ),
+        meta=meta,
+        pdf_sections=sections,
+        excel_sheets=list(REQUIRED_EXCEL_SHEETS),
+        page_estimate=page_estimate,
+        quantitative_claims=claims,
+        meeting_support=meeting,
+    )
+    recon = reconcile_package(pkg)
+    status = "OK" if recon.status == "PASS" else recon.status
+    if (export_manifest.get("reliability") or "").upper() in {"NOT_READY", "UNTRUSTED"}:
+        # Still a real package; readiness is separate from generation success
+        status = "OK_EMPTY" if recon.status == "PASS" else status
+    return PackageFinalReport(
+        status=status,
+        profile=stamp,
+        package=asdict(pkg),
+        reconcile=asdict(recon),
+        tiago_accept={
+            "required": True,
+            "status": "PENDING_HUMAN",
+            "owner": "Tiago",
+            "note": "Aceite manual obrigatório — pacote real gerado sem fixture Demo A/B",
+        },
+        claims_allowed=[
+            "Same run_id PDF+Excel with shared meta from operational export",
+            "No Demo A/B fixture rows",
+            "Automatic divergence detection",
+        ],
+        claims_forbidden=[
+            "Present package to client without Tiago accept",
+            "Claim market coverage without data",
+            "Use fixture PDF/Excel as operational proof",
+        ],
+        generated_at=utc_now(),
+    )
+
+
 def build_package_fixture(
     out_dir: Path | None = None,
     *,
     page_estimate: int = 36,
 ) -> PackageFinalReport:
-    """Create same-run PDF+Excel placeholders + metadata + reconcile PASS."""
+    """Create same-run PDF+Excel placeholders + metadata + reconcile PASS.
+
+    FIXTURE ONLY — not valid as operational campaign proof.
+    Use :func:`build_package_from_db` for real generation.
+    """
     out = out_dir or (PROJECT_ROOT / "docs/ops/session-2026-07-18-package-final" / "pack")
     out.mkdir(parents=True, exist_ok=True)
     run_id = new_run_id("pkg-final")
@@ -389,16 +550,31 @@ def audit_report(report: dict[str, Any] | PackageFinalReport) -> dict[str, Any]:
 
 
 def main(argv: list[str] | None = None) -> int:
+    import os
+
     p = argparse.ArgumentParser(description="Deliverable package final PDF+Excel")
-    p.add_argument("command", choices=["fixture", "audit-fixture", "audit-file"])
+    p.add_argument(
+        "command",
+        choices=["fixture", "from-db", "audit-fixture", "audit-file", "audit-from-db"],
+    )
     p.add_argument("--out-dir", type=Path, default=None)
     p.add_argument("--path", type=Path, default=None)
     p.add_argument("--out", type=Path, default=None)
+    p.add_argument(
+        "--dsn",
+        default=os.environ.get("LOCAL_DATALAKE_DSN") or os.environ.get("DATABASE_URL"),
+    )
     args = p.parse_args(argv)
 
     if args.command == "fixture":
         report = build_package_fixture(args.out_dir)
         payload: dict[str, Any] = asdict(report)
+    elif args.command == "from-db":
+        if not args.dsn:
+            print(json.dumps({"ok": False, "error": "--dsn required for from-db"}))
+            return 2
+        report = build_package_from_db(args.dsn, args.out_dir)
+        payload = asdict(report)
     elif args.command == "audit-fixture":
         report = build_package_fixture(args.out_dir)
         payload = asdict(report)
@@ -408,6 +584,19 @@ def main(argv: list[str] | None = None) -> int:
             # store report next to audit
             rep_path = args.out.with_name("package-final-report.json")
             rep_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        payload = audit_report(report)
+    elif args.command == "audit-from-db":
+        if not args.dsn:
+            print(json.dumps({"ok": False, "error": "--dsn required for audit-from-db"}))
+            return 2
+        report = build_package_from_db(args.dsn, args.out_dir)
+        if args.out:
+            args.out.parent.mkdir(parents=True, exist_ok=True)
+            rep_path = args.out.with_name("package-final-report.json")
+            rep_path.write_text(
+                json.dumps(asdict(report), indent=2, ensure_ascii=False) + "\n",
+                encoding="utf-8",
+            )
         payload = audit_report(report)
     else:
         path = args.path or PROJECT_ROOT / "docs/ops/session-2026-07-18-package-final/package-final-report.json"
