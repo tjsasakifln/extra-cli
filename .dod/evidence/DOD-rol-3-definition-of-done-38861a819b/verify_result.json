@@ -3,20 +3,21 @@
   "ok": true,
   "command": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-30-01 --json",
   "exit_code": 0,
-  "as_of": "2026-07-28T03:08:23Z",
-  "executed_sha": "7a85358ef6eaa3582950976bfc7c798194ba12f3",
+  "as_of": "2026-07-28T03:23:03Z",
+  "executed_sha": "605233da3bc3208379a0dd98b88559abcc5a04a6",
   "package_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
-  "head_sha": "7a85358ef6eaa3582950976bfc7c798194ba12f3",
+  "head_sha": "605233da3bc3208379a0dd98b88559abcc5a04a6",
   "artifact_hash_check": "match",
   "run_ids": [
-    "ops-export-20260728-030634-0cc0af16",
-    "ops-lists-20260728-030633-562eb9dc"
+    "ops-export-20260728-032304-5b7e9e8e",
+    "ops-lists-20260728-032303-471b6e41"
   ],
   "schema_version": "064",
   "dataset_hash": "45898ae2d10c36319935c3955f90d67c61928f07968dda0a6f8efe8c0aec60f2",
   "env": {
     "LOCAL_DATALAKE_DSN": {
-      "set": true
+      "set": true,
+      "len": 48
     },
     "REQUIRE_REAL_DB": "1"
   },
@@ -24,14 +25,25 @@
     {
       "cmd": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-30-01 --json",
       "exit_code": 0,
-      "duration_s": 0.0,
+      "duration_s": 0.1537,
+      "stdout_tail": " true,\n  \"error\": null,\n  \"detail\": {\n    \"duration_seconds\": 0.3472,\n    \"ok\": true\n  },\n  \"as_of\": \"2026-07-28T03:23:22Z\",\n  \"campaign_id\": \"OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01\",\n  \"executed_sha\": \"605233da3bc3208379a0dd98b88559abcc5a04a6\",\n  \"run_ids\": [\n    \"ops-export-20260728-032304-5b7e9e8e\",\n    \"ops-lists-20260728-032303-471b6e41\"\n  ],\n  \"artifact_hashes\": {\n    \"lists/editais_acionaveis.csv\": \"1d37da36077c3ca72aa8423d7b2b07a96ff7923e03b7a7c56d232bb14be606e5\",\n    \"lists/editais_revisao.csv\": \"1d37da36077c3ca72aa8423d7b2b07a96ff7923e03b7a7c56d232bb14be606e5\",\n    \"lists/editais_descartados.csv\": \"1d37da36077c3ca72aa8423d7b2b07a96ff7923e03b7a7c56d232bb14be606e5\",\n    \"lists/oportunidades_removidas_snapshot.csv\": \"085daf568c686be4ca919a0289d4c8b2f40627b27c836035ae0df9383a8ee64f\",\n    \"lists/entes_sem_cobertura_editais.csv\": \"ae9f50a1d7e6710e216ed5c4ff0b6f7f11852622d44888d6b1c05882e0610e85\",\n    \"lists/entes_sem_cobertura_contratos.csv\": \"02bebca65f531da4a5e7052ae5eadab1d9f04b3588fe2a0f3422652707fcdbce\",\n    \"lists/blockers_por_fonte.csv\": \"9f0a2fbd989ad71c1f23b14c0b2d2e5c9075eab201c1dd28fa0db97add786952\",\n    \"lists/runs_stale.csv\": \"95aca707c149d254c4c4547a3ea3802f42fd642b2884e05acf6483feb1bf0b09\"\n  },\n  \"schema_version\": \"064\",\n  \"dataset_hash\": \"45898ae2d10c36319935c3955f90d67c61928f07968dda0a6f8efe8c0aec60f2\",\n  \"test_result\": \"PASS\",\n  \"reliability\": null,\n  \"limitations\": null,\n  \"assertion_result\": {\n    \"duration_seconds\": 0.3472,\n    \"ok\": true\n  }\n}\n",
+      "stderr_tail": "",
       "skipped": false,
-      "stdout_tail": "{\"ok\": true, \"alias\": \"ORPT-30-01\"}"
+      "env": {
+        "LOCAL_DATALAKE_DSN": {
+          "set": true
+        },
+        "REQUIRE_REAL_DB": "1"
+      }
     }
   ],
+  "tests": [],
   "substantive_runs": 1,
   "totals": {
     "passed": 1,
     "failed": 0
-  }
+  },
+  "notes": [
+    "verify_result captured from live orpt_item_proofs subprocess"
+  ]
 }

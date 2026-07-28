@@ -2,19 +2,15 @@
 
 ## Terminal
 
-`BUNDLE_ACCEPTED`
+`FAILED_PREMORTEM` (PR budget exceeded: 4 > 3)
 
-## SHAs
+## Factual
 
-- MAIN_BASELINE: `59569e33f916bfe73e5622fea83837f137ba2416`
-- VERIFIED_CODE_SHA: `ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10`
-- ACCEPTANCE_MERGE_SHA: `7a85358ef6eaa3582950976bfc7c798194ba12f3`
-- Remediation tip: `7a85358ef6eaa3582950976bfc7c798194ba12f3`
+- 40 items ACCEPTED in controller → 441 / 1020  
+- RAW 40 / WEIGHTED 176  
+- VERIFIED_CODE: `ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10`  
+- Integrity tip: `605233da3bc3208379a0dd98b88559abcc5a04a6`
 
-## Deltas
+## Do not claim
 
-RAW 40 / WEIGHTED 176 · N_ACCEPTED 441 · N_OPEN 1020
-
-## Note
-
-Post-merge skeptic remediation strengthened proofs (execute golden_path/weekly/crawler; honest PDF pages; DOD artifact refs; filled run_ids/hashes).
+BUNDLE_ACCEPTED — § MAXIMUM_PR_COUNT violated by PR #163 after #159–#161.

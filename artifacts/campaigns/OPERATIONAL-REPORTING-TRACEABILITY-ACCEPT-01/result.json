@@ -2,34 +2,80 @@
   "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
   "bundle_id": "OPERATIONAL-REPORTING-TRACEABILITY-01",
   "bundle_class": "REPAIR_AND_ACCEPT_BUNDLE",
-  "terminal_state": "BUNDLE_ACCEPTED",
-  "as_of": "2026-07-28T03:08:23Z",
-  "main_baseline_sha": "59569e33f916bfe73e5622fea83837f137ba2416",
-  "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
-  "acceptance_merge_sha": "7a85358ef6eaa3582950976bfc7c798194ba12f3",
-  "remediation_tip_sha": "7a85358ef6eaa3582950976bfc7c798194ba12f3",
-  "raw_dod_delta": 40,
-  "weighted_dod_delta": 176,
-  "raw_progress_percent": 3.7736,
-  "weighted_progress_percent": 5.6338,
-  "n_accepted_final": 441,
-  "n_open_final": 1020,
-  "w_accepted_final": 1435,
-  "w_open_final": 2948,
+  "terminal_state": "FAILED_PREMORTEM",
+  "as_of": "2026-07-28T03:30:03Z",
+  "abort": {
+    "reason_code": "MAXIMUM_PR_COUNT_EXCEEDED",
+    "max_prs": 3,
+    "actual_prs": 4,
+    "prs": [
+      159,
+      160,
+      161,
+      163
+    ],
+    "premortem_clause": "BUNDLE_ACCEPTED requires campaign PR train ≤ 3",
+    "note": "Functional vertical and 40 controller ACCEPTED items landed. Campaign success criterion MAXIMUM_PR_COUNT=3 fails after evidence-integrity PR #163. Terminal is FAILED_PREMORTEM for the campaign claim — not a rollback of ACCEPTED items."
+  },
+  "section_pr_budget": {
+    "max_prs": 3,
+    "actual_merged_prs": 4,
+    "prs": [
+      159,
+      160,
+      161,
+      163
+    ],
+    "within_budget": false,
+    "bundle_accepted_authorized": false,
+    "interpretation": "BUNDLE_ACCEPTED requires PR train ≤ 3. Renaming #163 as integrity does not satisfy MAXIMUM_PR_COUNT. Floors and controller accepts are factual but do not authorize BUNDLE_ACCEPTED."
+  },
+  "factual_outcomes": {
+    "raw_dod_delta": 40,
+    "weighted_dod_delta": 176,
+    "raw_progress_percent": 3.7736,
+    "weighted_progress_percent": 5.6338,
+    "floors_numerically_met": true,
+    "items_selected": 40,
+    "items_accepted_in_controller": 40,
+    "n_accepted_final": 441,
+    "n_open_final": 1020,
+    "w_accepted_final": 1435,
+    "w_open_final": 2948,
+    "main_baseline_sha": "59569e33f916bfe73e5622fea83837f137ba2416",
+    "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+    "acceptance_merge_sha_pr3": "7a85358ef6eaa3582950976bfc7c798194ba12f3",
+    "evidence_integrity_merge_sha": "605233da3bc3208379a0dd98b88559abcc5a04a6",
+    "honest_verify_result_recapture_tip": "605233da3bc3208379a0dd98b88559abcc5a04a6",
+    "live_proofs_ok": 40
+  },
   "prs": [
-    159,
-    160,
-    161
+    {
+      "number": 159,
+      "role": "PR1_failclosed",
+      "state": "MERGED"
+    },
+    {
+      "number": 160,
+      "role": "PR2_vertical",
+      "state": "MERGED"
+    },
+    {
+      "number": 161,
+      "role": "PR3_promotion",
+      "state": "MERGED"
+    },
+    {
+      "number": 163,
+      "role": "PR4_evidence_integrity_technical",
+      "state": "MERGED"
+    }
   ],
-  "pr_count": 3,
-  "remediation": "evidence integrity: live golden_path/weekly/crawler durations, PDF sections, DOD refs, non-empty hashes/run_ids",
-  "skeptic_gaps_addressed": [
-    "ORPT-13.2-05 executes golden_path",
-    "ORPT-30-02 measures crawl duration",
-    "ORPT-29-06 DOD refs campaign evidence",
-    "PDF sections authored with honest page count",
-    "proof fields run_ids+artifact_hashes filled",
-    "acceptance-run includes golden_path+weekly_cycle",
-    "verify env LOCAL_DATALAKE_DSN set"
+  "pr_count": 4,
+  "claims_forbidden_applied": [
+    "BUNDLE_ACCEPTED requires ≤3 PRs — not claimed",
+    "verify_result must be live capture — recaptured this tip",
+    "failed crawl must not be reliability READY — fixed (PARTIAL)",
+    "stdout of --json must be pure JSON — redirect_stdout on crawl_source"
   ]
 }

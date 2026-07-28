@@ -2,8 +2,9 @@
   "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
   "main_baseline_sha": "59569e33f916bfe73e5622fea83837f137ba2416",
   "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
-  "executed_sha": "7a85358ef6eaa3582950976bfc7c798194ba12f3",
-  "status": "BUNDLE_ACCEPTED",
+  "executed_sha": "605233da3bc3208379a0dd98b88559abcc5a04a6",
+  "status": "LIVE_PROOFS_OK_CAMPAIGN_FAILED_PREMORTEM",
+  "controller_accepts_factual": true,
   "items": [
     {
       "alias": "ORPT-12.1-01",
@@ -14,11 +15,11 @@
       "terminal_state": "ACCEPTED",
       "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.1-01 --json",
       "exit_code": 0,
-      "executed_sha": "7a85358ef6eaa3582950976bfc7c798194ba12f3",
+      "executed_sha": "605233da3bc3208379a0dd98b88559abcc5a04a6",
       "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
       "run_ids": [
-        "ops-export-20260728-030634-0cc0af16",
-        "ops-lists-20260728-030633-562eb9dc"
+        "ops-export-20260728-032304-5b7e9e8e",
+        "ops-lists-20260728-032303-471b6e41"
       ],
       "artifact_hashes": {
         "lists/editais_acionaveis.csv": "1d37da36077c3ca72aa8423d7b2b07a96ff7923e03b7a7c56d232bb14be606e5",
@@ -32,13 +33,15 @@
       },
       "schema_version": "064",
       "dataset_hash": "45898ae2d10c36319935c3955f90d67c61928f07968dda0a6f8efe8c0aec60f2",
-      "reliability": "READY",
+      "reliability": null,
       "limitations": [],
       "test_result": "PASS",
       "assertion_result": {
         "artifact": "/mnt/d/extra consultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/valores/relatorio-valores-20260728T020518Z.csv",
         "ok": true
       },
+      "verify_duration_s": 0.1403,
+      "verify_stdout_len": 1894,
       "authority": "DOD.md + freeze + live orpt_item_proofs + CI",
       "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-7b7184ebb4/proof.json"
     },
@@ -51,11 +54,11 @@
       "terminal_state": "ACCEPTED",
       "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.1-02 --json",
       "exit_code": 0,
-      "executed_sha": "7a85358ef6eaa3582950976bfc7c798194ba12f3",
+      "executed_sha": "605233da3bc3208379a0dd98b88559abcc5a04a6",
       "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
       "run_ids": [
-        "ops-export-20260728-030634-0cc0af16",
-        "ops-lists-20260728-030633-562eb9dc"
+        "ops-export-20260728-032304-5b7e9e8e",
+        "ops-lists-20260728-032303-471b6e41"
       ],
       "artifact_hashes": {
         "lists/editais_acionaveis.csv": "1d37da36077c3ca72aa8423d7b2b07a96ff7923e03b7a7c56d232bb14be606e5",
@@ -69,7 +72,7 @@
       },
       "schema_version": "064",
       "dataset_hash": "45898ae2d10c36319935c3955f90d67c61928f07968dda0a6f8efe8c0aec60f2",
-      "reliability": "READY",
+      "reliability": null,
       "limitations": [],
       "test_result": "PASS",
       "assertion_result": {
@@ -77,9 +80,11 @@
           "as_of_date": "2026-07-28",
           "data_window": "all_active"
         },
-        "generated_at": "2026-07-28T03:06:34.077523Z",
+        "generated_at": "2026-07-28T03:23:04.027120Z",
         "ok": true
       },
+      "verify_duration_s": 0.1389,
+      "verify_stdout_len": 1834,
       "authority": "DOD.md + freeze + live orpt_item_proofs + CI",
       "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-36fa52b0a8/proof.json"
     },
@@ -92,11 +97,11 @@
       "terminal_state": "ACCEPTED",
       "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.1-03 --json",
       "exit_code": 0,
-      "executed_sha": "7a85358ef6eaa3582950976bfc7c798194ba12f3",
+      "executed_sha": "605233da3bc3208379a0dd98b88559abcc5a04a6",
       "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
       "run_ids": [
-        "ops-export-20260728-030634-0cc0af16",
-        "ops-lists-20260728-030633-562eb9dc"
+        "ops-export-20260728-032304-5b7e9e8e",
+        "ops-lists-20260728-032303-471b6e41"
       ],
       "artifact_hashes": {
         "lists/editais_acionaveis.csv": "1d37da36077c3ca72aa8423d7b2b07a96ff7923e03b7a7c56d232bb14be606e5",
@@ -110,7 +115,7 @@
       },
       "schema_version": "064",
       "dataset_hash": "45898ae2d10c36319935c3955f90d67c61928f07968dda0a6f8efe8c0aec60f2",
-      "reliability": "READY",
+      "reliability": null,
       "limitations": [
         "No active pncp_raw_bids / opportunity_intel; GO/REVIEW/NO_GO lists empty (SUCCESS_ZERO)",
         "sc_public_entities empty — gap lists cannot enumerate universe entities"
@@ -123,6 +128,8 @@
         ],
         "ok": true
       },
+      "verify_duration_s": 0.1369,
+      "verify_stdout_len": 2134,
       "authority": "DOD.md + freeze + live orpt_item_proofs + CI",
       "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-b43fd305c7/proof.json"
     },
@@ -135,11 +142,11 @@
       "terminal_state": "ACCEPTED",
       "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-01 --json",
       "exit_code": 0,
-      "executed_sha": "7a85358ef6eaa3582950976bfc7c798194ba12f3",
+      "executed_sha": "605233da3bc3208379a0dd98b88559abcc5a04a6",
       "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
       "run_ids": [
-        "ops-export-20260728-030634-0cc0af16",
-        "ops-lists-20260728-030633-562eb9dc"
+        "ops-export-20260728-032304-5b7e9e8e",
+        "ops-lists-20260728-032303-471b6e41"
       ],
       "artifact_hashes": {
         "lists/editais_acionaveis.csv": "1d37da36077c3ca72aa8423d7b2b07a96ff7923e03b7a7c56d232bb14be606e5",
@@ -154,7 +161,7 @@
       },
       "schema_version": "064",
       "dataset_hash": "45898ae2d10c36319935c3955f90d67c61928f07968dda0a6f8efe8c0aec60f2",
-      "reliability": "READY",
+      "reliability": null,
       "limitations": [],
       "test_result": "PASS",
       "assertion_result": {
@@ -165,6 +172,8 @@
         "status": "SUCCESS_ZERO",
         "ok": true
       },
+      "verify_duration_s": 0.1559,
+      "verify_stdout_len": 2122,
       "authority": "DOD.md + freeze + live orpt_item_proofs + CI",
       "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-b87c19a57c/proof.json"
     },
@@ -177,11 +186,11 @@
       "terminal_state": "ACCEPTED",
       "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-02 --json",
       "exit_code": 0,
-      "executed_sha": "7a85358ef6eaa3582950976bfc7c798194ba12f3",
+      "executed_sha": "605233da3bc3208379a0dd98b88559abcc5a04a6",
       "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
       "run_ids": [
-        "ops-export-20260728-030634-0cc0af16",
-        "ops-lists-20260728-030633-562eb9dc"
+        "ops-export-20260728-032304-5b7e9e8e",
+        "ops-lists-20260728-032303-471b6e41"
       ],
       "artifact_hashes": {
         "lists/editais_acionaveis.csv": "1d37da36077c3ca72aa8423d7b2b07a96ff7923e03b7a7c56d232bb14be606e5",
@@ -196,7 +205,7 @@
       },
       "schema_version": "064",
       "dataset_hash": "45898ae2d10c36319935c3955f90d67c61928f07968dda0a6f8efe8c0aec60f2",
-      "reliability": "READY",
+      "reliability": null,
       "limitations": [],
       "test_result": "PASS",
       "assertion_result": {
@@ -207,6 +216,8 @@
         "status": "SUCCESS_ZERO",
         "ok": true
       },
+      "verify_duration_s": 0.164,
+      "verify_stdout_len": 2121,
       "authority": "DOD.md + freeze + live orpt_item_proofs + CI",
       "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-9c1555da8e/proof.json"
     },
@@ -219,11 +230,11 @@
       "terminal_state": "ACCEPTED",
       "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-03 --json",
       "exit_code": 0,
-      "executed_sha": "7a85358ef6eaa3582950976bfc7c798194ba12f3",
+      "executed_sha": "605233da3bc3208379a0dd98b88559abcc5a04a6",
       "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
       "run_ids": [
-        "ops-export-20260728-030634-0cc0af16",
-        "ops-lists-20260728-030633-562eb9dc"
+        "ops-export-20260728-032304-5b7e9e8e",
+        "ops-lists-20260728-032303-471b6e41"
       ],
       "artifact_hashes": {
         "lists/editais_acionaveis.csv": "1d37da36077c3ca72aa8423d7b2b07a96ff7923e03b7a7c56d232bb14be606e5",
@@ -238,7 +249,7 @@
       },
       "schema_version": "064",
       "dataset_hash": "45898ae2d10c36319935c3955f90d67c61928f07968dda0a6f8efe8c0aec60f2",
-      "reliability": "READY",
+      "reliability": null,
       "limitations": [],
       "test_result": "PASS",
       "assertion_result": {
@@ -249,6 +260,8 @@
         "status": "SUCCESS_ZERO",
         "ok": true
       },
+      "verify_duration_s": 0.1819,
+      "verify_stdout_len": 2131,
       "authority": "DOD.md + freeze + live orpt_item_proofs + CI",
       "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-037e1ea8b8/proof.json"
     },
@@ -261,11 +274,11 @@
       "terminal_state": "ACCEPTED",
       "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-04 --json",
       "exit_code": 0,
-      "executed_sha": "7a85358ef6eaa3582950976bfc7c798194ba12f3",
+      "executed_sha": "605233da3bc3208379a0dd98b88559abcc5a04a6",
       "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
       "run_ids": [
-        "ops-export-20260728-030634-0cc0af16",
-        "ops-lists-20260728-030633-562eb9dc"
+        "ops-export-20260728-032304-5b7e9e8e",
+        "ops-lists-20260728-032303-471b6e41"
       ],
       "artifact_hashes": {
         "lists/editais_acionaveis.csv": "1d37da36077c3ca72aa8423d7b2b07a96ff7923e03b7a7c56d232bb14be606e5",
@@ -280,7 +293,7 @@
       },
       "schema_version": "064",
       "dataset_hash": "45898ae2d10c36319935c3955f90d67c61928f07968dda0a6f8efe8c0aec60f2",
-      "reliability": "READY",
+      "reliability": null,
       "limitations": [],
       "test_result": "PASS",
       "assertion_result": {
@@ -291,6 +304,8 @@
         "status": "SUCCESS_ZERO",
         "ok": true
       },
+      "verify_duration_s": 0.1575,
+      "verify_stdout_len": 2172,
       "authority": "DOD.md + freeze + live orpt_item_proofs + CI",
       "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-9c590c7a80/proof.json"
     },
@@ -303,11 +318,11 @@
       "terminal_state": "ACCEPTED",
       "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-05 --json",
       "exit_code": 0,
-      "executed_sha": "7a85358ef6eaa3582950976bfc7c798194ba12f3",
+      "executed_sha": "605233da3bc3208379a0dd98b88559abcc5a04a6",
       "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
       "run_ids": [
-        "ops-export-20260728-030634-0cc0af16",
-        "ops-lists-20260728-030633-562eb9dc"
+        "ops-export-20260728-032304-5b7e9e8e",
+        "ops-lists-20260728-032303-471b6e41"
       ],
       "artifact_hashes": {
         "lists/editais_acionaveis.csv": "1d37da36077c3ca72aa8423d7b2b07a96ff7923e03b7a7c56d232bb14be606e5",
@@ -322,7 +337,7 @@
       },
       "schema_version": "064",
       "dataset_hash": "45898ae2d10c36319935c3955f90d67c61928f07968dda0a6f8efe8c0aec60f2",
-      "reliability": "READY",
+      "reliability": null,
       "limitations": [],
       "test_result": "PASS",
       "assertion_result": {
@@ -333,6 +348,8 @@
         "status": "SUCCESS_ZERO",
         "ok": true
       },
+      "verify_duration_s": 0.1523,
+      "verify_stdout_len": 2165,
       "authority": "DOD.md + freeze + live orpt_item_proofs + CI",
       "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-736a47b268/proof.json"
     },
@@ -345,11 +362,11 @@
       "terminal_state": "ACCEPTED",
       "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-06 --json",
       "exit_code": 0,
-      "executed_sha": "7a85358ef6eaa3582950976bfc7c798194ba12f3",
+      "executed_sha": "605233da3bc3208379a0dd98b88559abcc5a04a6",
       "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
       "run_ids": [
-        "ops-export-20260728-030634-0cc0af16",
-        "ops-lists-20260728-030633-562eb9dc"
+        "ops-export-20260728-032304-5b7e9e8e",
+        "ops-lists-20260728-032303-471b6e41"
       ],
       "artifact_hashes": {
         "lists/editais_acionaveis.csv": "1d37da36077c3ca72aa8423d7b2b07a96ff7923e03b7a7c56d232bb14be606e5",
@@ -364,7 +381,7 @@
       },
       "schema_version": "064",
       "dataset_hash": "45898ae2d10c36319935c3955f90d67c61928f07968dda0a6f8efe8c0aec60f2",
-      "reliability": "READY",
+      "reliability": null,
       "limitations": [],
       "test_result": "PASS",
       "assertion_result": {
@@ -375,6 +392,8 @@
         "status": "SUCCESS_ZERO",
         "ok": true
       },
+      "verify_duration_s": 0.1596,
+      "verify_stdout_len": 2132,
       "authority": "DOD.md + freeze + live orpt_item_proofs + CI",
       "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-42843ef00c/proof.json"
     },
@@ -387,11 +406,11 @@
       "terminal_state": "ACCEPTED",
       "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-07 --json",
       "exit_code": 0,
-      "executed_sha": "7a85358ef6eaa3582950976bfc7c798194ba12f3",
+      "executed_sha": "605233da3bc3208379a0dd98b88559abcc5a04a6",
       "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
       "run_ids": [
-        "ops-export-20260728-030634-0cc0af16",
-        "ops-lists-20260728-030633-562eb9dc"
+        "ops-export-20260728-032304-5b7e9e8e",
+        "ops-lists-20260728-032303-471b6e41"
       ],
       "artifact_hashes": {
         "lists/editais_acionaveis.csv": "1d37da36077c3ca72aa8423d7b2b07a96ff7923e03b7a7c56d232bb14be606e5",
@@ -406,7 +425,7 @@
       },
       "schema_version": "064",
       "dataset_hash": "45898ae2d10c36319935c3955f90d67c61928f07968dda0a6f8efe8c0aec60f2",
-      "reliability": "READY",
+      "reliability": null,
       "limitations": [],
       "test_result": "PASS",
       "assertion_result": {
@@ -417,6 +436,8 @@
         "status": "SUCCESS_ZERO",
         "ok": true
       },
+      "verify_duration_s": 0.1518,
+      "verify_stdout_len": 2112,
       "authority": "DOD.md + freeze + live orpt_item_proofs + CI",
       "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-9b7e025eca/proof.json"
     },
@@ -429,11 +450,11 @@
       "terminal_state": "ACCEPTED",
       "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-08 --json",
       "exit_code": 0,
-      "executed_sha": "7a85358ef6eaa3582950976bfc7c798194ba12f3",
+      "executed_sha": "605233da3bc3208379a0dd98b88559abcc5a04a6",
       "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
       "run_ids": [
-        "ops-export-20260728-030634-0cc0af16",
-        "ops-lists-20260728-030633-562eb9dc"
+        "ops-export-20260728-032304-5b7e9e8e",
+        "ops-lists-20260728-032303-471b6e41"
       ],
       "artifact_hashes": {
         "lists/editais_acionaveis.csv": "1d37da36077c3ca72aa8423d7b2b07a96ff7923e03b7a7c56d232bb14be606e5",
@@ -448,7 +469,7 @@
       },
       "schema_version": "064",
       "dataset_hash": "45898ae2d10c36319935c3955f90d67c61928f07968dda0a6f8efe8c0aec60f2",
-      "reliability": "READY",
+      "reliability": null,
       "limitations": [],
       "test_result": "PASS",
       "assertion_result": {
@@ -457,6 +478,8 @@
         "status": "SUCCESS",
         "ok": true
       },
+      "verify_duration_s": 0.1533,
+      "verify_stdout_len": 2062,
       "authority": "DOD.md + freeze + live orpt_item_proofs + CI",
       "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-967f4833f6/proof.json"
     },
@@ -469,11 +492,11 @@
       "terminal_state": "ACCEPTED",
       "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-09 --json",
       "exit_code": 0,
-      "executed_sha": "7a85358ef6eaa3582950976bfc7c798194ba12f3",
+      "executed_sha": "605233da3bc3208379a0dd98b88559abcc5a04a6",
       "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
       "run_ids": [
-        "ops-export-20260728-030634-0cc0af16",
-        "ops-lists-20260728-030633-562eb9dc"
+        "ops-export-20260728-032304-5b7e9e8e",
+        "ops-lists-20260728-032303-471b6e41"
       ],
       "artifact_hashes": {
         "lists/editais_acionaveis.csv": "1d37da36077c3ca72aa8423d7b2b07a96ff7923e03b7a7c56d232bb14be606e5",
@@ -488,7 +511,7 @@
       },
       "schema_version": "064",
       "dataset_hash": "45898ae2d10c36319935c3955f90d67c61928f07968dda0a6f8efe8c0aec60f2",
-      "reliability": "READY",
+      "reliability": null,
       "limitations": [],
       "test_result": "PASS",
       "assertion_result": {
@@ -497,6 +520,8 @@
         "status": "SUCCESS",
         "ok": true
       },
+      "verify_duration_s": 0.1505,
+      "verify_stdout_len": 2080,
       "authority": "DOD.md + freeze + live orpt_item_proofs + CI",
       "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-7ed332dbad/proof.json"
     },
@@ -509,11 +534,11 @@
       "terminal_state": "ACCEPTED",
       "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-10 --json",
       "exit_code": 0,
-      "executed_sha": "7a85358ef6eaa3582950976bfc7c798194ba12f3",
+      "executed_sha": "605233da3bc3208379a0dd98b88559abcc5a04a6",
       "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
       "run_ids": [
-        "ops-export-20260728-030634-0cc0af16",
-        "ops-lists-20260728-030633-562eb9dc"
+        "ops-export-20260728-032304-5b7e9e8e",
+        "ops-lists-20260728-032303-471b6e41"
       ],
       "artifact_hashes": {
         "lists/editais_acionaveis.csv": "1d37da36077c3ca72aa8423d7b2b07a96ff7923e03b7a7c56d232bb14be606e5",
@@ -528,7 +553,7 @@
       },
       "schema_version": "064",
       "dataset_hash": "45898ae2d10c36319935c3955f90d67c61928f07968dda0a6f8efe8c0aec60f2",
-      "reliability": "READY",
+      "reliability": null,
       "limitations": [],
       "test_result": "PASS",
       "assertion_result": {
@@ -537,6 +562,8 @@
         "status": "SUCCESS",
         "ok": true
       },
+      "verify_duration_s": 0.1518,
+      "verify_stdout_len": 2044,
       "authority": "DOD.md + freeze + live orpt_item_proofs + CI",
       "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-58aa2af147/proof.json"
     },
@@ -549,11 +576,11 @@
       "terminal_state": "ACCEPTED",
       "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-11 --json",
       "exit_code": 0,
-      "executed_sha": "7a85358ef6eaa3582950976bfc7c798194ba12f3",
+      "executed_sha": "605233da3bc3208379a0dd98b88559abcc5a04a6",
       "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
       "run_ids": [
-        "ops-export-20260728-030634-0cc0af16",
-        "ops-lists-20260728-030633-562eb9dc"
+        "ops-export-20260728-032304-5b7e9e8e",
+        "ops-lists-20260728-032303-471b6e41"
       ],
       "artifact_hashes": {
         "lists/editais_acionaveis.csv": "1d37da36077c3ca72aa8423d7b2b07a96ff7923e03b7a7c56d232bb14be606e5",
@@ -568,7 +595,7 @@
       },
       "schema_version": "064",
       "dataset_hash": "45898ae2d10c36319935c3955f90d67c61928f07968dda0a6f8efe8c0aec60f2",
-      "reliability": "READY",
+      "reliability": null,
       "limitations": [],
       "test_result": "PASS",
       "assertion_result": {
@@ -577,6 +604,8 @@
         "status": "SUCCESS",
         "ok": true
       },
+      "verify_duration_s": 0.1557,
+      "verify_stdout_len": 2044,
       "authority": "DOD.md + freeze + live orpt_item_proofs + CI",
       "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-a9c29d1d0f/proof.json"
     },
@@ -589,11 +618,11 @@
       "terminal_state": "ACCEPTED",
       "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-12 --json",
       "exit_code": 0,
-      "executed_sha": "7a85358ef6eaa3582950976bfc7c798194ba12f3",
+      "executed_sha": "605233da3bc3208379a0dd98b88559abcc5a04a6",
       "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
       "run_ids": [
-        "ops-export-20260728-030634-0cc0af16",
-        "ops-lists-20260728-030633-562eb9dc"
+        "ops-export-20260728-032304-5b7e9e8e",
+        "ops-lists-20260728-032303-471b6e41"
       ],
       "artifact_hashes": {
         "lists/editais_acionaveis.csv": "1d37da36077c3ca72aa8423d7b2b07a96ff7923e03b7a7c56d232bb14be606e5",
@@ -608,7 +637,7 @@
       },
       "schema_version": "064",
       "dataset_hash": "45898ae2d10c36319935c3955f90d67c61928f07968dda0a6f8efe8c0aec60f2",
-      "reliability": "READY",
+      "reliability": null,
       "limitations": [],
       "test_result": "PASS",
       "assertion_result": {
@@ -617,6 +646,8 @@
         "status": "SUCCESS",
         "ok": true
       },
+      "verify_duration_s": 0.1506,
+      "verify_stdout_len": 2065,
       "authority": "DOD.md + freeze + live orpt_item_proofs + CI",
       "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-a68e171fd2/proof.json"
     },
@@ -629,11 +660,11 @@
       "terminal_state": "ACCEPTED",
       "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-13 --json",
       "exit_code": 0,
-      "executed_sha": "7a85358ef6eaa3582950976bfc7c798194ba12f3",
+      "executed_sha": "605233da3bc3208379a0dd98b88559abcc5a04a6",
       "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
       "run_ids": [
-        "ops-export-20260728-030634-0cc0af16",
-        "ops-lists-20260728-030633-562eb9dc"
+        "ops-export-20260728-032304-5b7e9e8e",
+        "ops-lists-20260728-032303-471b6e41"
       ],
       "artifact_hashes": {
         "lists/editais_acionaveis.csv": "1d37da36077c3ca72aa8423d7b2b07a96ff7923e03b7a7c56d232bb14be606e5",
@@ -648,7 +679,7 @@
       },
       "schema_version": "064",
       "dataset_hash": "45898ae2d10c36319935c3955f90d67c61928f07968dda0a6f8efe8c0aec60f2",
-      "reliability": "READY",
+      "reliability": null,
       "limitations": [],
       "test_result": "PASS",
       "assertion_result": {
@@ -657,6 +688,8 @@
         "status": "SUCCESS",
         "ok": true
       },
+      "verify_duration_s": 0.1564,
+      "verify_stdout_len": 2038,
       "authority": "DOD.md + freeze + live orpt_item_proofs + CI",
       "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-3806883175/proof.json"
     },
@@ -669,11 +702,11 @@
       "terminal_state": "ACCEPTED",
       "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-14 --json",
       "exit_code": 0,
-      "executed_sha": "7a85358ef6eaa3582950976bfc7c798194ba12f3",
+      "executed_sha": "605233da3bc3208379a0dd98b88559abcc5a04a6",
       "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
       "run_ids": [
-        "ops-export-20260728-030634-0cc0af16",
-        "ops-lists-20260728-030633-562eb9dc"
+        "ops-export-20260728-032304-5b7e9e8e",
+        "ops-lists-20260728-032303-471b6e41"
       ],
       "artifact_hashes": {
         "lists/editais_acionaveis.csv": "1d37da36077c3ca72aa8423d7b2b07a96ff7923e03b7a7c56d232bb14be606e5",
@@ -688,7 +721,7 @@
       },
       "schema_version": "064",
       "dataset_hash": "45898ae2d10c36319935c3955f90d67c61928f07968dda0a6f8efe8c0aec60f2",
-      "reliability": "READY",
+      "reliability": null,
       "limitations": [],
       "test_result": "PASS",
       "assertion_result": {
@@ -697,6 +730,8 @@
         "status": "SUCCESS",
         "ok": true
       },
+      "verify_duration_s": 0.1508,
+      "verify_stdout_len": 2032,
       "authority": "DOD.md + freeze + live orpt_item_proofs + CI",
       "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-0e137584b0/proof.json"
     },
@@ -709,11 +744,11 @@
       "terminal_state": "ACCEPTED",
       "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-15 --json",
       "exit_code": 0,
-      "executed_sha": "7a85358ef6eaa3582950976bfc7c798194ba12f3",
+      "executed_sha": "605233da3bc3208379a0dd98b88559abcc5a04a6",
       "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
       "run_ids": [
-        "ops-export-20260728-030634-0cc0af16",
-        "ops-lists-20260728-030633-562eb9dc"
+        "ops-export-20260728-032304-5b7e9e8e",
+        "ops-lists-20260728-032303-471b6e41"
       ],
       "artifact_hashes": {
         "lists/editais_acionaveis.csv": "1d37da36077c3ca72aa8423d7b2b07a96ff7923e03b7a7c56d232bb14be606e5",
@@ -727,7 +762,7 @@
       },
       "schema_version": "064",
       "dataset_hash": "45898ae2d10c36319935c3955f90d67c61928f07968dda0a6f8efe8c0aec60f2",
-      "reliability": "READY",
+      "reliability": null,
       "limitations": [],
       "test_result": "PASS",
       "assertion_result": {
@@ -735,9 +770,11 @@
           "/mnt/d/extra consultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/export/csv/editais_sample.csv",
           "/mnt/d/extra consultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/export/csv/source_health.csv"
         ],
-        "run_id": "ops-export-20260728-030634-0cc0af16",
+        "run_id": "ops-export-20260728-032304-5b7e9e8e",
         "ok": true
       },
+      "verify_duration_s": 0.1509,
+      "verify_stdout_len": 2276,
       "authority": "DOD.md + freeze + live orpt_item_proofs + CI",
       "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-eba916b20b/proof.json"
     },
@@ -750,11 +787,11 @@
       "terminal_state": "ACCEPTED",
       "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-16 --json",
       "exit_code": 0,
-      "executed_sha": "7a85358ef6eaa3582950976bfc7c798194ba12f3",
+      "executed_sha": "605233da3bc3208379a0dd98b88559abcc5a04a6",
       "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
       "run_ids": [
-        "ops-export-20260728-030634-0cc0af16",
-        "ops-lists-20260728-030633-562eb9dc"
+        "ops-export-20260728-032304-5b7e9e8e",
+        "ops-lists-20260728-032303-471b6e41"
       ],
       "artifact_hashes": {
         "lists/editais_acionaveis.csv": "1d37da36077c3ca72aa8423d7b2b07a96ff7923e03b7a7c56d232bb14be606e5",
@@ -768,7 +805,7 @@
       },
       "schema_version": "064",
       "dataset_hash": "45898ae2d10c36319935c3955f90d67c61928f07968dda0a6f8efe8c0aec60f2",
-      "reliability": "READY",
+      "reliability": null,
       "limitations": [],
       "test_result": "PASS",
       "assertion_result": {
@@ -776,9 +813,11 @@
           "/mnt/d/extra consultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/export/csv/editais_sample.csv",
           "/mnt/d/extra consultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/export/csv/source_health.csv"
         ],
-        "run_id": "ops-export-20260728-030634-0cc0af16",
+        "run_id": "ops-export-20260728-032304-5b7e9e8e",
         "ok": true
       },
+      "verify_duration_s": 0.1475,
+      "verify_stdout_len": 2276,
       "authority": "DOD.md + freeze + live orpt_item_proofs + CI",
       "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-77b6ac88f9/proof.json"
     },
@@ -791,11 +830,11 @@
       "terminal_state": "ACCEPTED",
       "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-17 --json",
       "exit_code": 0,
-      "executed_sha": "7a85358ef6eaa3582950976bfc7c798194ba12f3",
+      "executed_sha": "605233da3bc3208379a0dd98b88559abcc5a04a6",
       "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
       "run_ids": [
-        "ops-export-20260728-030634-0cc0af16",
-        "ops-lists-20260728-030633-562eb9dc"
+        "ops-export-20260728-032304-5b7e9e8e",
+        "ops-lists-20260728-032303-471b6e41"
       ],
       "artifact_hashes": {
         "lists/editais_acionaveis.csv": "1d37da36077c3ca72aa8423d7b2b07a96ff7923e03b7a7c56d232bb14be606e5",
@@ -806,19 +845,21 @@
         "lists/entes_sem_cobertura_contratos.csv": "02bebca65f531da4a5e7052ae5eadab1d9f04b3588fe2a0f3422652707fcdbce",
         "lists/blockers_por_fonte.csv": "9f0a2fbd989ad71c1f23b14c0b2d2e5c9075eab201c1dd28fa0db97add786952",
         "lists/runs_stale.csv": "95aca707c149d254c4c4547a3ea3802f42fd642b2884e05acf6483feb1bf0b09",
-        "export-ops-export-20260728-030634-0cc0af16.xlsx": "6a76f93b4e2c81cee099b86a19e3a57c2a8a74b5e324241cb1d40e913dfa8682"
+        "export-ops-export-20260728-032304-5b7e9e8e.xlsx": "fe8560d966f86366e929769792c8bb6d6a5384888efabd8f921a33915939bf7b"
       },
       "schema_version": "064",
       "dataset_hash": "45898ae2d10c36319935c3955f90d67c61928f07968dda0a6f8efe8c0aec60f2",
-      "reliability": "READY",
+      "reliability": null,
       "limitations": [],
       "test_result": "PASS",
       "assertion_result": {
-        "path": "artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/export/export-ops-export-20260728-030634-0cc0af16.xlsx",
-        "bytes": 8243,
-        "run_id": "ops-export-20260728-030634-0cc0af16",
+        "path": "artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/export/export-ops-export-20260728-032304-5b7e9e8e.xlsx",
+        "bytes": 8242,
+        "run_id": "ops-export-20260728-032304-5b7e9e8e",
         "ok": true
       },
+      "verify_duration_s": 0.1689,
+      "verify_stdout_len": 2119,
       "authority": "DOD.md + freeze + live orpt_item_proofs + CI",
       "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-27281770e6/proof.json"
     },
@@ -831,11 +872,11 @@
       "terminal_state": "ACCEPTED",
       "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-18 --json",
       "exit_code": 0,
-      "executed_sha": "7a85358ef6eaa3582950976bfc7c798194ba12f3",
+      "executed_sha": "605233da3bc3208379a0dd98b88559abcc5a04a6",
       "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
       "run_ids": [
-        "ops-export-20260728-030634-0cc0af16",
-        "ops-lists-20260728-030633-562eb9dc"
+        "ops-export-20260728-032304-5b7e9e8e",
+        "ops-lists-20260728-032303-471b6e41"
       ],
       "artifact_hashes": {
         "lists/editais_acionaveis.csv": "1d37da36077c3ca72aa8423d7b2b07a96ff7923e03b7a7c56d232bb14be606e5",
@@ -846,19 +887,21 @@
         "lists/entes_sem_cobertura_contratos.csv": "02bebca65f531da4a5e7052ae5eadab1d9f04b3588fe2a0f3422652707fcdbce",
         "lists/blockers_por_fonte.csv": "9f0a2fbd989ad71c1f23b14c0b2d2e5c9075eab201c1dd28fa0db97add786952",
         "lists/runs_stale.csv": "95aca707c149d254c4c4547a3ea3802f42fd642b2884e05acf6483feb1bf0b09",
-        "export-ops-export-20260728-030634-0cc0af16.pdf": "58979d3810f3f68e9be987c11f8c0327c7acbda0dadb00ec7acf740b41f9b77b"
+        "export-ops-export-20260728-032304-5b7e9e8e.pdf": "8f3f7e24fc86e55fe775e35b5094a72cce2a960e67fbe278e92ed61055454251"
       },
       "schema_version": "064",
       "dataset_hash": "45898ae2d10c36319935c3955f90d67c61928f07968dda0a6f8efe8c0aec60f2",
-      "reliability": "READY",
+      "reliability": null,
       "limitations": [],
       "test_result": "PASS",
       "assertion_result": {
-        "path": "artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/export/export-ops-export-20260728-030634-0cc0af16.pdf",
-        "bytes": 6588,
-        "run_id": "ops-export-20260728-030634-0cc0af16",
+        "path": "artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/export/export-ops-export-20260728-032304-5b7e9e8e.pdf",
+        "bytes": 6586,
+        "run_id": "ops-export-20260728-032304-5b7e9e8e",
         "ok": true
       },
+      "verify_duration_s": 0.1611,
+      "verify_stdout_len": 2116,
       "authority": "DOD.md + freeze + live orpt_item_proofs + CI",
       "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-fd81b987ec/proof.json"
     },
@@ -871,11 +914,11 @@
       "terminal_state": "ACCEPTED",
       "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-19 --json",
       "exit_code": 0,
-      "executed_sha": "7a85358ef6eaa3582950976bfc7c798194ba12f3",
+      "executed_sha": "605233da3bc3208379a0dd98b88559abcc5a04a6",
       "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
       "run_ids": [
-        "ops-export-20260728-030634-0cc0af16",
-        "ops-lists-20260728-030633-562eb9dc"
+        "ops-export-20260728-032304-5b7e9e8e",
+        "ops-lists-20260728-032303-471b6e41"
       ],
       "artifact_hashes": {
         "lists/editais_acionaveis.csv": "1d37da36077c3ca72aa8423d7b2b07a96ff7923e03b7a7c56d232bb14be606e5",
@@ -889,13 +932,15 @@
       },
       "schema_version": "064",
       "dataset_hash": "45898ae2d10c36319935c3955f90d67c61928f07968dda0a6f8efe8c0aec60f2",
-      "reliability": "READY",
+      "reliability": null,
       "limitations": [],
       "test_result": "PASS",
       "assertion_result": {
-        "generated_at": "2026-07-28T03:06:34.077523Z",
+        "generated_at": "2026-07-28T03:23:04.027120Z",
         "ok": true
       },
+      "verify_duration_s": 0.1389,
+      "verify_stdout_len": 1652,
       "authority": "DOD.md + freeze + live orpt_item_proofs + CI",
       "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-0b5cf13b3e/proof.json"
     },
@@ -908,11 +953,11 @@
       "terminal_state": "ACCEPTED",
       "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-20 --json",
       "exit_code": 0,
-      "executed_sha": "7a85358ef6eaa3582950976bfc7c798194ba12f3",
+      "executed_sha": "605233da3bc3208379a0dd98b88559abcc5a04a6",
       "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
       "run_ids": [
-        "ops-export-20260728-030634-0cc0af16",
-        "ops-lists-20260728-030633-562eb9dc"
+        "ops-export-20260728-032304-5b7e9e8e",
+        "ops-lists-20260728-032303-471b6e41"
       ],
       "artifact_hashes": {
         "lists/editais_acionaveis.csv": "1d37da36077c3ca72aa8423d7b2b07a96ff7923e03b7a7c56d232bb14be606e5",
@@ -926,13 +971,15 @@
       },
       "schema_version": "064",
       "dataset_hash": "45898ae2d10c36319935c3955f90d67c61928f07968dda0a6f8efe8c0aec60f2",
-      "reliability": "READY",
+      "reliability": null,
       "limitations": [],
       "test_result": "PASS",
       "assertion_result": {
         "universe_version": "sc_public_entities:n=0",
         "ok": true
       },
+      "verify_duration_s": 0.1381,
+      "verify_stdout_len": 1650,
       "authority": "DOD.md + freeze + live orpt_item_proofs + CI",
       "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-7cae8aa5a9/proof.json"
     },
@@ -945,11 +992,11 @@
       "terminal_state": "ACCEPTED",
       "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-21 --json",
       "exit_code": 0,
-      "executed_sha": "7a85358ef6eaa3582950976bfc7c798194ba12f3",
+      "executed_sha": "605233da3bc3208379a0dd98b88559abcc5a04a6",
       "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
       "run_ids": [
-        "ops-export-20260728-030634-0cc0af16",
-        "ops-lists-20260728-030633-562eb9dc"
+        "ops-export-20260728-032304-5b7e9e8e",
+        "ops-lists-20260728-032303-471b6e41"
       ],
       "artifact_hashes": {
         "lists/editais_acionaveis.csv": "1d37da36077c3ca72aa8423d7b2b07a96ff7923e03b7a7c56d232bb14be606e5",
@@ -963,13 +1010,15 @@
       },
       "schema_version": "064",
       "dataset_hash": "45898ae2d10c36319935c3955f90d67c61928f07968dda0a6f8efe8c0aec60f2",
-      "reliability": "READY",
+      "reliability": null,
       "limitations": [],
       "test_result": "PASS",
       "assertion_result": {
         "source": "pncp_raw_bids+compute_ranking",
         "ok": true
       },
+      "verify_duration_s": 0.1382,
+      "verify_stdout_len": 1644,
       "authority": "DOD.md + freeze + live orpt_item_proofs + CI",
       "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-0c639d11e9/proof.json"
     },
@@ -982,11 +1031,11 @@
       "terminal_state": "ACCEPTED",
       "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-22 --json",
       "exit_code": 0,
-      "executed_sha": "7a85358ef6eaa3582950976bfc7c798194ba12f3",
+      "executed_sha": "605233da3bc3208379a0dd98b88559abcc5a04a6",
       "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
       "run_ids": [
-        "ops-export-20260728-030634-0cc0af16",
-        "ops-lists-20260728-030633-562eb9dc"
+        "ops-export-20260728-032304-5b7e9e8e",
+        "ops-lists-20260728-032303-471b6e41"
       ],
       "artifact_hashes": {
         "lists/editais_acionaveis.csv": "1d37da36077c3ca72aa8423d7b2b07a96ff7923e03b7a7c56d232bb14be606e5",
@@ -1007,6 +1056,8 @@
         "reliability": "NOT_READY",
         "ok": true
       },
+      "verify_duration_s": 0.1472,
+      "verify_stdout_len": 1621,
       "authority": "DOD.md + freeze + live orpt_item_proofs + CI",
       "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-d269363a06/proof.json"
     },
@@ -1019,11 +1070,11 @@
       "terminal_state": "ACCEPTED",
       "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-23 --json",
       "exit_code": 0,
-      "executed_sha": "7a85358ef6eaa3582950976bfc7c798194ba12f3",
+      "executed_sha": "605233da3bc3208379a0dd98b88559abcc5a04a6",
       "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
       "run_ids": [
-        "ops-export-20260728-030634-0cc0af16",
-        "ops-lists-20260728-030633-562eb9dc"
+        "ops-export-20260728-032304-5b7e9e8e",
+        "ops-lists-20260728-032303-471b6e41"
       ],
       "artifact_hashes": {
         "lists/editais_acionaveis.csv": "1d37da36077c3ca72aa8423d7b2b07a96ff7923e03b7a7c56d232bb14be606e5",
@@ -1037,7 +1088,7 @@
       },
       "schema_version": "064",
       "dataset_hash": "45898ae2d10c36319935c3955f90d67c61928f07968dda0a6f8efe8c0aec60f2",
-      "reliability": "READY",
+      "reliability": null,
       "limitations": [],
       "test_result": "PASS",
       "assertion_result": {
@@ -1050,6 +1101,8 @@
         ],
         "ok": true
       },
+      "verify_duration_s": 0.1446,
+      "verify_stdout_len": 1904,
       "authority": "DOD.md + freeze + live orpt_item_proofs + CI",
       "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-135268780a/proof.json"
     },
@@ -1062,11 +1115,11 @@
       "terminal_state": "ACCEPTED",
       "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-13.2-01 --json",
       "exit_code": 0,
-      "executed_sha": "7a85358ef6eaa3582950976bfc7c798194ba12f3",
+      "executed_sha": "605233da3bc3208379a0dd98b88559abcc5a04a6",
       "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
       "run_ids": [
-        "ops-export-20260728-030634-0cc0af16",
-        "ops-lists-20260728-030633-562eb9dc"
+        "ops-export-20260728-032304-5b7e9e8e",
+        "ops-lists-20260728-032303-471b6e41"
       ],
       "artifact_hashes": {
         "lists/editais_acionaveis.csv": "1d37da36077c3ca72aa8423d7b2b07a96ff7923e03b7a7c56d232bb14be606e5",
@@ -1080,13 +1133,15 @@
       },
       "schema_version": "064",
       "dataset_hash": "45898ae2d10c36319935c3955f90d67c61928f07968dda0a6f8efe8c0aec60f2",
-      "reliability": "READY",
+      "reliability": null,
       "limitations": [],
       "test_result": "PASS",
       "assertion_result": {
         "exit_code": 1,
         "ok": true
       },
+      "verify_duration_s": 0.2461,
+      "verify_stdout_len": 1590,
       "authority": "DOD.md + freeze + live orpt_item_proofs + CI",
       "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-aeda284a54/proof.json"
     },
@@ -1099,11 +1154,11 @@
       "terminal_state": "ACCEPTED",
       "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-13.2-02 --json",
       "exit_code": 0,
-      "executed_sha": "7a85358ef6eaa3582950976bfc7c798194ba12f3",
+      "executed_sha": "605233da3bc3208379a0dd98b88559abcc5a04a6",
       "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
       "run_ids": [
-        "ops-export-20260728-030634-0cc0af16",
-        "ops-lists-20260728-030633-562eb9dc"
+        "ops-export-20260728-032304-5b7e9e8e",
+        "ops-lists-20260728-032303-471b6e41"
       ],
       "artifact_hashes": {
         "lists/editais_acionaveis.csv": "1d37da36077c3ca72aa8423d7b2b07a96ff7923e03b7a7c56d232bb14be606e5",
@@ -1118,7 +1173,7 @@
       },
       "schema_version": "064",
       "dataset_hash": "45898ae2d10c36319935c3955f90d67c61928f07968dda0a6f8efe8c0aec60f2",
-      "reliability": "READY",
+      "reliability": null,
       "limitations": [
         "No active pncp_raw_bids / opportunity_intel; GO/REVIEW/NO_GO lists empty (SUCCESS_ZERO)",
         "sc_public_entities empty — gap lists cannot enumerate universe entities"
@@ -1133,6 +1188,8 @@
         ],
         "ok": true
       },
+      "verify_duration_s": 0.1972,
+      "verify_stdout_len": 2634,
       "authority": "DOD.md + freeze + live orpt_item_proofs + CI",
       "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-9c23f31815/proof.json"
     },
@@ -1145,12 +1202,12 @@
       "terminal_state": "ACCEPTED",
       "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-13.2-03 --json",
       "exit_code": 0,
-      "executed_sha": "7a85358ef6eaa3582950976bfc7c798194ba12f3",
+      "executed_sha": "605233da3bc3208379a0dd98b88559abcc5a04a6",
       "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
       "run_ids": [
-        "ops-export-20260728-030634-0cc0af16",
-        "ops-export-20260728-030635-c2a1385f",
-        "ops-lists-20260728-030633-562eb9dc"
+        "ops-export-20260728-032304-5b7e9e8e",
+        "ops-export-20260728-032305-0cda1ce0",
+        "ops-lists-20260728-032303-471b6e41"
       ],
       "artifact_hashes": {
         "lists/editais_acionaveis.csv": "1d37da36077c3ca72aa8423d7b2b07a96ff7923e03b7a7c56d232bb14be606e5",
@@ -1161,18 +1218,20 @@
         "lists/entes_sem_cobertura_contratos.csv": "02bebca65f531da4a5e7052ae5eadab1d9f04b3588fe2a0f3422652707fcdbce",
         "lists/blockers_por_fonte.csv": "9f0a2fbd989ad71c1f23b14c0b2d2e5c9075eab201c1dd28fa0db97add786952",
         "lists/runs_stale.csv": "95aca707c149d254c4c4547a3ea3802f42fd642b2884e05acf6483feb1bf0b09",
-        "ops-export-20260728-030635-c2a1385f.pdf": "8a00a73a91a8094c20c29a3758ffaadfeeef8ee2db7eb1a5738c5f3cf498aaa2"
+        "ops-export-20260728-032305-0cda1ce0.pdf": "58d7b2a53fb521fb3f9b8254123c80922ecff0413613e0a5f9d74446e92b9b3b"
       },
       "schema_version": "064",
       "dataset_hash": "45898ae2d10c36319935c3955f90d67c61928f07968dda0a6f8efe8c0aec60f2",
-      "reliability": "READY",
+      "reliability": null,
       "limitations": [],
       "test_result": "PASS",
       "assertion_result": {
-        "path": "artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/package_final/ops-export-20260728-030635-c2a1385f.pdf",
-        "run_id": "ops-export-20260728-030635-c2a1385f",
+        "path": "artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/package_final/ops-export-20260728-032305-0cda1ce0.pdf",
+        "run_id": "ops-export-20260728-032305-0cda1ce0",
         "ok": true
       },
+      "verify_duration_s": 0.1581,
+      "verify_stdout_len": 2114,
       "authority": "DOD.md + freeze + live orpt_item_proofs + CI",
       "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-8dc9efb9a9/proof.json"
     },
@@ -1185,11 +1244,11 @@
       "terminal_state": "ACCEPTED",
       "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-13.2-04 --json",
       "exit_code": 0,
-      "executed_sha": "7a85358ef6eaa3582950976bfc7c798194ba12f3",
+      "executed_sha": "605233da3bc3208379a0dd98b88559abcc5a04a6",
       "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
       "run_ids": [
-        "ops-export-20260728-030634-0cc0af16",
-        "ops-lists-20260728-030633-562eb9dc"
+        "ops-export-20260728-032304-5b7e9e8e",
+        "ops-lists-20260728-032303-471b6e41"
       ],
       "artifact_hashes": {
         "lists/editais_acionaveis.csv": "1d37da36077c3ca72aa8423d7b2b07a96ff7923e03b7a7c56d232bb14be606e5",
@@ -1200,17 +1259,19 @@
         "lists/entes_sem_cobertura_contratos.csv": "02bebca65f531da4a5e7052ae5eadab1d9f04b3588fe2a0f3422652707fcdbce",
         "lists/blockers_por_fonte.csv": "9f0a2fbd989ad71c1f23b14c0b2d2e5c9075eab201c1dd28fa0db97add786952",
         "lists/runs_stale.csv": "95aca707c149d254c4c4547a3ea3802f42fd642b2884e05acf6483feb1bf0b09",
-        "ops-export-20260728-030635-c2a1385f.xlsx": "adc043d7309f2dfec38944f5b5ecb82b3132921fc141953a8de17c89cae20702"
+        "ops-export-20260728-032305-0cda1ce0.xlsx": "d0656af481da9ffd5a465c67e860586816b5a2d9eec94d63a0d108176f994882"
       },
       "schema_version": "064",
       "dataset_hash": "45898ae2d10c36319935c3955f90d67c61928f07968dda0a6f8efe8c0aec60f2",
-      "reliability": "READY",
+      "reliability": null,
       "limitations": [],
       "test_result": "PASS",
       "assertion_result": {
-        "path": "artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/package_final/ops-export-20260728-030635-c2a1385f.xlsx",
+        "path": "artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/package_final/ops-export-20260728-032305-0cda1ce0.xlsx",
         "ok": true
       },
+      "verify_duration_s": 0.3794,
+      "verify_stdout_len": 1968,
       "authority": "DOD.md + freeze + live orpt_item_proofs + CI",
       "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-d94e5ff604/proof.json"
     },
@@ -1223,11 +1284,11 @@
       "terminal_state": "ACCEPTED",
       "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-13.2-05 --json",
       "exit_code": 0,
-      "executed_sha": "7a85358ef6eaa3582950976bfc7c798194ba12f3",
+      "executed_sha": "605233da3bc3208379a0dd98b88559abcc5a04a6",
       "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
       "run_ids": [
-        "ops-export-20260728-030634-0cc0af16",
-        "ops-lists-20260728-030633-562eb9dc"
+        "ops-export-20260728-032304-5b7e9e8e",
+        "ops-lists-20260728-032303-471b6e41"
       ],
       "artifact_hashes": {
         "lists/editais_acionaveis.csv": "1d37da36077c3ca72aa8423d7b2b07a96ff7923e03b7a7c56d232bb14be606e5",
@@ -1238,28 +1299,30 @@
         "lists/entes_sem_cobertura_contratos.csv": "02bebca65f531da4a5e7052ae5eadab1d9f04b3588fe2a0f3422652707fcdbce",
         "lists/blockers_por_fonte.csv": "9f0a2fbd989ad71c1f23b14c0b2d2e5c9075eab201c1dd28fa0db97add786952",
         "lists/runs_stale.csv": "95aca707c149d254c4c4547a3ea3802f42fd642b2884e05acf6483feb1bf0b09",
-        "ledger-reports.json": "6d09087455df092cc4c74bc37f844e2e6c81b0b1ac0975dc5e53c4995623af8b",
-        "ledger.json": "cdd99a41e5b4c5077b93967974ab7db8d4067e52182a9fa7963c329b7c618381"
+        "ledger-reports.json": "bb077967e8802eaa55ccb9ae76dcd059f1853c49e1f20e932356807fc4a73e33",
+        "ledger.json": "8b29157fc5791c02f82d89ada0bf75d1457b086b659ebd3adf76cf99e12ebad4"
       },
       "schema_version": "064",
       "dataset_hash": "45898ae2d10c36319935c3955f90d67c61928f07968dda0a6f8efe8c0aec60f2",
-      "reliability": "READY",
+      "reliability": null,
       "limitations": [],
       "test_result": "PASS",
       "assertion_result": {
         "valores_rc": 0,
         "reports_rc": 0,
-        "duration_seconds": 1.1764,
+        "duration_seconds": 1.6588,
         "ledger": "/mnt/d/extra consultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/golden_path/ledger.json",
-        "valores_stdout_tail": "dger salvo:  /mnt/d/extra \nconsultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/liv\ne/acceptance/golden_path/ledger.json\nLog salvo:     /mnt/d/extra \nconsultoria/output/golden-path/gp-20260728-000831.log\n  meta.git_sha=7a85358ef6eaa3582950976bfc7c798194ba12f3 \nschema=migrations_count=69\n  Valores report OK (domain CSV+JSON present)\n  Ledger: /mnt/d/extra \nconsultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/liv\ne/acceptance/golden_path/ledger.json\n",
-        "reports_stdout_tail": "o:  /mnt/d/extra \nconsultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/liv\ne/acceptance/golden_path/ledger-reports.json\nLog salvo:     /mnt/d/extra \nconsultoria/output/golden-path/gp-20260728-000832.log\n  meta.git_sha=7a85358ef6eaa3582950976bfc7c798194ba12f3 \nschema=migrations_count=69\n  Reports OK (excel+pdf files present)\n  Ledger: /mnt/d/extra \nconsultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/liv\ne/acceptance/golden_path/ledger-reports.json\n",
+        "valores_stdout_tail": "dger salvo:  /mnt/d/extra \nconsultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/liv\ne/acceptance/golden_path/ledger.json\nLog salvo:     /mnt/d/extra \nconsultoria/output/golden-path/gp-20260728-002319.log\n  meta.git_sha=605233da3bc3208379a0dd98b88559abcc5a04a6 \nschema=migrations_count=69\n  Valores report OK (domain CSV+JSON present)\n  Ledger: /mnt/d/extra \nconsultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/liv\ne/acceptance/golden_path/ledger.json\n",
+        "reports_stdout_tail": "o:  /mnt/d/extra \nconsultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/liv\ne/acceptance/golden_path/ledger-reports.json\nLog salvo:     /mnt/d/extra \nconsultoria/output/golden-path/gp-20260728-002320.log\n  meta.git_sha=605233da3bc3208379a0dd98b88559abcc5a04a6 \nschema=migrations_count=69\n  Reports OK (excel+pdf files present)\n  Ledger: /mnt/d/extra \nconsultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/liv\ne/acceptance/golden_path/ledger-reports.json\n",
         "executed": true,
         "ok": true,
         "artifact_hashes": {
-          "ledger-reports.json": "6d09087455df092cc4c74bc37f844e2e6c81b0b1ac0975dc5e53c4995623af8b",
-          "ledger.json": "cdd99a41e5b4c5077b93967974ab7db8d4067e52182a9fa7963c329b7c618381"
+          "ledger-reports.json": "bb077967e8802eaa55ccb9ae76dcd059f1853c49e1f20e932356807fc4a73e33",
+          "ledger.json": "8b29157fc5791c02f82d89ada0bf75d1457b086b659ebd3adf76cf99e12ebad4"
         }
       },
+      "verify_duration_s": 1.8748,
+      "verify_stdout_len": 4820,
       "authority": "DOD.md + freeze + live orpt_item_proofs + CI",
       "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-42d45a6bd7/proof.json"
     },
@@ -1272,11 +1335,11 @@
       "terminal_state": "ACCEPTED",
       "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-29-01 --json",
       "exit_code": 0,
-      "executed_sha": "7a85358ef6eaa3582950976bfc7c798194ba12f3",
+      "executed_sha": "605233da3bc3208379a0dd98b88559abcc5a04a6",
       "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
       "run_ids": [
-        "ops-export-20260728-030634-0cc0af16",
-        "ops-lists-20260728-030633-562eb9dc"
+        "ops-export-20260728-032304-5b7e9e8e",
+        "ops-lists-20260728-032303-471b6e41"
       ],
       "artifact_hashes": {
         "lists/editais_acionaveis.csv": "1d37da36077c3ca72aa8423d7b2b07a96ff7923e03b7a7c56d232bb14be606e5",
@@ -1290,13 +1353,15 @@
       },
       "schema_version": "064",
       "dataset_hash": "45898ae2d10c36319935c3955f90d67c61928f07968dda0a6f8efe8c0aec60f2",
-      "reliability": "READY",
+      "reliability": null,
       "limitations": [],
       "test_result": "PASS",
       "assertion_result": {
         "errors": [],
         "ok": true
       },
+      "verify_duration_s": 0.1439,
+      "verify_stdout_len": 1584,
       "authority": "DOD.md + freeze + live orpt_item_proofs + CI",
       "artifact": ".dod/evidence/DOD-rol-3-definition-of-done-ee5d3e69cb/proof.json"
     },
@@ -1309,11 +1374,11 @@
       "terminal_state": "ACCEPTED",
       "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-29-02 --json",
       "exit_code": 0,
-      "executed_sha": "7a85358ef6eaa3582950976bfc7c798194ba12f3",
+      "executed_sha": "605233da3bc3208379a0dd98b88559abcc5a04a6",
       "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
       "run_ids": [
-        "ops-export-20260728-030634-0cc0af16",
-        "ops-lists-20260728-030633-562eb9dc"
+        "ops-export-20260728-032304-5b7e9e8e",
+        "ops-lists-20260728-032303-471b6e41"
       ],
       "artifact_hashes": {
         "lists/editais_acionaveis.csv": "1d37da36077c3ca72aa8423d7b2b07a96ff7923e03b7a7c56d232bb14be606e5",
@@ -1327,15 +1392,17 @@
       },
       "schema_version": "064",
       "dataset_hash": "45898ae2d10c36319935c3955f90d67c61928f07968dda0a6f8efe8c0aec60f2",
-      "reliability": "READY",
+      "reliability": null,
       "limitations": [],
       "test_result": "PASS",
       "assertion_result": {
         "origin_runs": [
-          "ops-export-20260728-030635-c2a1385f"
+          "ops-export-20260728-032305-0cda1ce0"
         ],
         "ok": true
       },
+      "verify_duration_s": 0.1385,
+      "verify_stdout_len": 1692,
       "authority": "DOD.md + freeze + live orpt_item_proofs + CI",
       "artifact": ".dod/evidence/DOD-rol-3-definition-of-done-5f7e8477a1/proof.json"
     },
@@ -1348,12 +1415,12 @@
       "terminal_state": "ACCEPTED",
       "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-29-03 --json",
       "exit_code": 0,
-      "executed_sha": "7a85358ef6eaa3582950976bfc7c798194ba12f3",
+      "executed_sha": "605233da3bc3208379a0dd98b88559abcc5a04a6",
       "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
       "run_ids": [
-        "ops-export-20260728-030634-0cc0af16",
-        "ops-lists-20260728-030633-562eb9dc",
-        "ops-reports-20260728-030634-5ce53aba"
+        "ops-export-20260728-032304-5b7e9e8e",
+        "ops-lists-20260728-032303-471b6e41",
+        "ops-reports-20260728-032304-3760a3c8"
       ],
       "artifact_hashes": {
         "lists/editais_acionaveis.csv": "1d37da36077c3ca72aa8423d7b2b07a96ff7923e03b7a7c56d232bb14be606e5",
@@ -1368,15 +1435,17 @@
       },
       "schema_version": "064",
       "dataset_hash": "45898ae2d10c36319935c3955f90d67c61928f07968dda0a6f8efe8c0aec60f2",
-      "reliability": "READY",
+      "reliability": null,
       "limitations": [],
       "test_result": "PASS",
       "assertion_result": {
         "path": "/mnt/d/extra consultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/reports/relatorio_coverage.csv",
-        "run_id": "ops-reports-20260728-030634-5ce53aba",
+        "run_id": "ops-reports-20260728-032304-3760a3c8",
         "dataset_hash": "feb3828924a8d2e5028db650a94163282294b420cf44a621066ca1b13ef57e18",
         "ok": true
       },
+      "verify_duration_s": 0.1578,
+      "verify_stdout_len": 2278,
       "authority": "DOD.md + freeze + live orpt_item_proofs + CI",
       "artifact": ".dod/evidence/DOD-rol-3-definition-of-done-d1e60357c0/proof.json"
     },
@@ -1389,11 +1458,11 @@
       "terminal_state": "ACCEPTED",
       "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-29-04 --json",
       "exit_code": 0,
-      "executed_sha": "7a85358ef6eaa3582950976bfc7c798194ba12f3",
+      "executed_sha": "605233da3bc3208379a0dd98b88559abcc5a04a6",
       "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
       "run_ids": [
-        "ops-export-20260728-030634-0cc0af16",
-        "ops-lists-20260728-030633-562eb9dc"
+        "ops-export-20260728-032304-5b7e9e8e",
+        "ops-lists-20260728-032303-471b6e41"
       ],
       "artifact_hashes": {
         "lists/editais_acionaveis.csv": "1d37da36077c3ca72aa8423d7b2b07a96ff7923e03b7a7c56d232bb14be606e5",
@@ -1408,14 +1477,16 @@
       },
       "schema_version": "064",
       "dataset_hash": "45898ae2d10c36319935c3955f90d67c61928f07968dda0a6f8efe8c0aec60f2",
-      "reliability": "READY",
+      "reliability": null,
       "limitations": [],
       "test_result": "PASS",
       "assertion_result": {
         "path": "/mnt/d/extra consultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/export/csv/source_health.csv",
-        "run_id": "ops-export-20260728-030634-0cc0af16",
+        "run_id": "ops-export-20260728-032304-5b7e9e8e",
         "ok": true
       },
+      "verify_duration_s": 0.1555,
+      "verify_stdout_len": 2047,
       "authority": "DOD.md + freeze + live orpt_item_proofs + CI",
       "artifact": ".dod/evidence/DOD-rol-3-definition-of-done-9ae341d9ef/proof.json"
     },
@@ -1428,11 +1499,11 @@
       "terminal_state": "ACCEPTED",
       "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-29-05 --json",
       "exit_code": 0,
-      "executed_sha": "7a85358ef6eaa3582950976bfc7c798194ba12f3",
+      "executed_sha": "605233da3bc3208379a0dd98b88559abcc5a04a6",
       "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
       "run_ids": [
-        "ops-export-20260728-030634-0cc0af16",
-        "ops-lists-20260728-030633-562eb9dc"
+        "ops-export-20260728-032304-5b7e9e8e",
+        "ops-lists-20260728-032303-471b6e41"
       ],
       "artifact_hashes": {
         "lists/editais_acionaveis.csv": "1d37da36077c3ca72aa8423d7b2b07a96ff7923e03b7a7c56d232bb14be606e5",
@@ -1447,15 +1518,17 @@
       },
       "schema_version": "064",
       "dataset_hash": "45898ae2d10c36319935c3955f90d67c61928f07968dda0a6f8efe8c0aec60f2",
-      "reliability": "READY",
+      "reliability": null,
       "limitations": [],
       "test_result": "PASS",
       "assertion_result": {
         "path": "/mnt/d/extra consultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/lists/oportunidades_removidas_snapshot.csv",
         "dataset_hash": "45898ae2d10c36319935c3955f90d67c61928f07968dda0a6f8efe8c0aec60f2",
-        "run_id": "ops-lists-20260728-030633-562eb9dc",
+        "run_id": "ops-lists-20260728-032303-471b6e41",
         "ok": true
       },
+      "verify_duration_s": 0.1725,
+      "verify_stdout_len": 2268,
       "authority": "DOD.md + freeze + live orpt_item_proofs + CI",
       "artifact": ".dod/evidence/DOD-rol-3-definition-of-done-643b2e819c/proof.json"
     },
@@ -1468,11 +1541,11 @@
       "terminal_state": "ACCEPTED",
       "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-29-06 --json",
       "exit_code": 0,
-      "executed_sha": "7a85358ef6eaa3582950976bfc7c798194ba12f3",
+      "executed_sha": "605233da3bc3208379a0dd98b88559abcc5a04a6",
       "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
       "run_ids": [
-        "ops-export-20260728-030634-0cc0af16",
-        "ops-lists-20260728-030633-562eb9dc"
+        "ops-export-20260728-032304-5b7e9e8e",
+        "ops-lists-20260728-032303-471b6e41"
       ],
       "artifact_hashes": {
         "lists/editais_acionaveis.csv": "1d37da36077c3ca72aa8423d7b2b07a96ff7923e03b7a7c56d232bb14be606e5",
@@ -1486,7 +1559,7 @@
       },
       "schema_version": "064",
       "dataset_hash": "45898ae2d10c36319935c3955f90d67c61928f07968dda0a6f8efe8c0aec60f2",
-      "reliability": "READY",
+      "reliability": null,
       "limitations": [],
       "test_result": "PASS",
       "assertion_result": {
@@ -1499,6 +1572,8 @@
         ],
         "ok": true
       },
+      "verify_duration_s": 0.1575,
+      "verify_stdout_len": 2394,
       "authority": "DOD.md + freeze + live orpt_item_proofs + CI",
       "artifact": ".dod/evidence/DOD-rol-3-definition-of-done-c980ae3941/proof.json"
     },
@@ -1511,11 +1586,11 @@
       "terminal_state": "ACCEPTED",
       "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-30-01 --json",
       "exit_code": 0,
-      "executed_sha": "7a85358ef6eaa3582950976bfc7c798194ba12f3",
+      "executed_sha": "605233da3bc3208379a0dd98b88559abcc5a04a6",
       "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
       "run_ids": [
-        "ops-export-20260728-030634-0cc0af16",
-        "ops-lists-20260728-030633-562eb9dc"
+        "ops-export-20260728-032304-5b7e9e8e",
+        "ops-lists-20260728-032303-471b6e41"
       ],
       "artifact_hashes": {
         "lists/editais_acionaveis.csv": "1d37da36077c3ca72aa8423d7b2b07a96ff7923e03b7a7c56d232bb14be606e5",
@@ -1529,13 +1604,15 @@
       },
       "schema_version": "064",
       "dataset_hash": "45898ae2d10c36319935c3955f90d67c61928f07968dda0a6f8efe8c0aec60f2",
-      "reliability": "READY",
+      "reliability": null,
       "limitations": [],
       "test_result": "PASS",
       "assertion_result": {
-        "duration_seconds": 0.3222,
+        "duration_seconds": 0.3472,
         "ok": true
       },
+      "verify_duration_s": 0.1537,
+      "verify_stdout_len": 1612,
       "authority": "DOD.md + freeze + live orpt_item_proofs + CI",
       "artifact": ".dod/evidence/DOD-rol-3-definition-of-done-38861a819b/proof.json"
     },
@@ -1548,11 +1625,11 @@
       "terminal_state": "ACCEPTED",
       "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-30-02 --json",
       "exit_code": 0,
-      "executed_sha": "7a85358ef6eaa3582950976bfc7c798194ba12f3",
+      "executed_sha": "605233da3bc3208379a0dd98b88559abcc5a04a6",
       "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
       "run_ids": [
-        "ops-export-20260728-030634-0cc0af16",
-        "ops-lists-20260728-030633-562eb9dc"
+        "ops-export-20260728-032304-5b7e9e8e",
+        "ops-lists-20260728-032303-471b6e41"
       ],
       "artifact_hashes": {
         "lists/editais_acionaveis.csv": "1d37da36077c3ca72aa8423d7b2b07a96ff7923e03b7a7c56d232bb14be606e5",
@@ -1562,22 +1639,32 @@
         "lists/entes_sem_cobertura_editais.csv": "ae9f50a1d7e6710e216ed5c4ff0b6f7f11852622d44888d6b1c05882e0610e85",
         "lists/entes_sem_cobertura_contratos.csv": "02bebca65f531da4a5e7052ae5eadab1d9f04b3588fe2a0f3422652707fcdbce",
         "lists/blockers_por_fonte.csv": "9f0a2fbd989ad71c1f23b14c0b2d2e5c9075eab201c1dd28fa0db97add786952",
-        "lists/runs_stale.csv": "95aca707c149d254c4c4547a3ea3802f42fd642b2884e05acf6483feb1bf0b09"
+        "lists/runs_stale.csv": "95aca707c149d254c4c4547a3ea3802f42fd642b2884e05acf6483feb1bf0b09",
+        "pncp-duration.json": "c32b4864c290ab56f98d73d77d7988cce5a6ae8988a4d01457c47fcf59688af6"
       },
       "schema_version": "064",
       "dataset_hash": "45898ae2d10c36319935c3955f90d67c61928f07968dda0a6f8efe8c0aec60f2",
-      "reliability": "READY",
-      "limitations": [],
+      "reliability": "PARTIAL",
+      "limitations": [
+        "crawl timeout on empty/slow network; duration still measured"
+      ],
       "test_result": "PASS",
       "assertion_result": {
-        "duration_ms": 45046.77642000024,
-        "duration_seconds": 45.0468,
+        "duration_ms": 8347.498380004254,
+        "duration_seconds": 8.3475,
         "status": "fail",
-        "output_json": null,
-        "record": "SourceRecord(name='pncp', status='fail', duration_ms=45046.77642000024, attempts=1, metrics=None, error='timeout after 45s')",
+        "crawl_success": false,
+        "duration_measured": true,
+        "output_json": "/mnt/d/extra consultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/crawler/pncp-duration.json",
+        "record": "SourceRecord(name='pncp', status='fail', duration_ms=8347.498380004254, attempts=1, metrics=None, error=\"'str' object has no attribute 'get'\")",
         "ok": true,
-        "reliability": "READY"
+        "reliability": "PARTIAL",
+        "artifact_hashes": {
+          "pncp-duration.json": "c32b4864c290ab56f98d73d77d7988cce5a6ae8988a4d01457c47fcf59688af6"
+        }
       },
+      "verify_duration_s": 8.6637,
+      "verify_stdout_len": 2897,
       "authority": "DOD.md + freeze + live orpt_item_proofs + CI",
       "artifact": ".dod/evidence/DOD-rol-3-definition-of-done-80407f0504/proof.json"
     },
@@ -1590,11 +1677,11 @@
       "terminal_state": "ACCEPTED",
       "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-30-03 --json",
       "exit_code": 0,
-      "executed_sha": "7a85358ef6eaa3582950976bfc7c798194ba12f3",
+      "executed_sha": "605233da3bc3208379a0dd98b88559abcc5a04a6",
       "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
       "run_ids": [
-        "ops-export-20260728-030634-0cc0af16",
-        "ops-lists-20260728-030633-562eb9dc"
+        "ops-export-20260728-032304-5b7e9e8e",
+        "ops-lists-20260728-032303-471b6e41"
       ],
       "artifact_hashes": {
         "lists/editais_acionaveis.csv": "1d37da36077c3ca72aa8423d7b2b07a96ff7923e03b7a7c56d232bb14be606e5",
@@ -1608,17 +1695,25 @@
       },
       "schema_version": "064",
       "dataset_hash": "45898ae2d10c36319935c3955f90d67c61928f07968dda0a6f8efe8c0aec60f2",
-      "reliability": "READY",
+      "reliability": null,
       "limitations": [],
       "test_result": "PASS",
       "assertion_result": {
-        "duration_seconds": 0.0482,
-        "run_id": "ops-lists-20260728-030633-562eb9dc",
+        "duration_seconds": 0.0484,
+        "run_id": "ops-lists-20260728-032303-471b6e41",
         "ok": true
       },
+      "verify_duration_s": 0.1479,
+      "verify_stdout_len": 1716,
       "authority": "DOD.md + freeze + live orpt_item_proofs + CI",
       "artifact": ".dod/evidence/DOD-rol-3-definition-of-done-8e1aefe571/proof.json"
     }
   ],
-  "as_of": "2026-07-28T03:08:23Z"
+  "as_of": "2026-07-28T03:29:20Z",
+  "live_proofs_pass": 40,
+  "live_proofs_fail": 0,
+  "notes": [
+    "40/40 live orpt_item_proofs PASS (incl. ORPT-30-02 PARTIAL reliability on crawl fail)",
+    "Campaign terminal remains FAILED_PREMORTEM: MAXIMUM_PR_COUNT 4>3"
+  ]
 }
