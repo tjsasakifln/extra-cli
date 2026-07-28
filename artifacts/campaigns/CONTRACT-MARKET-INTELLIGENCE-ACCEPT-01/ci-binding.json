@@ -1,6 +1,7 @@
 {
-  "code_sha": "aeb7663e710624cd260f80dfefba19a9525a1a88",
   "package_code_sha": "aeb7663e710624cd260f80dfefba19a9525a1a88",
+  "verified_main_sha": "71566879eaca70b9cfc4810ba49032578171d840",
+  "main_at_claim_write": "9b4ad968b91174fa5728d6bdb43a227f79a3b1de",
   "functional_pr": 151,
   "functional_merge_sha": "241ec41f0badf5bd463b66dafe36faa1e2e66876",
   "acceptance_pr": 152,
@@ -9,10 +10,31 @@
   "evidence_merge_sha": "ff9b78a86268e63248694d56a99fcf1a4336a60f",
   "rebind_pr": 154,
   "rebind_merge_sha": "ea25c0ff3a382c7df11316344ba129942f40b572",
-  "integrity_branch_tip": "7e717782f2cac25f25520bb60083dd9254a353ac",
-  "checked_out_equals_expected": true,
-  "note": "§18 max 3 PRs exceeded for rebind/integrity only; no new functional scope",
-  "last_merged_main": "71566879eaca70b9cfc4810ba49032578171d840",
   "integrity_pr": 155,
-  "integrity_merge_sha": "71566879eaca70b9cfc4810ba49032578171d840"
+  "integrity_merge_sha": "71566879eaca70b9cfc4810ba49032578171d840",
+  "stamp_pr": 156,
+  "stamp_merge_sha": "9b4ad968b91174fa5728d6bdb43a227f79a3b1de",
+  "capability_prs": [
+    151,
+    152,
+    153
+  ],
+  "integrity_followups": [
+    154,
+    155,
+    156
+  ],
+  "checked_out_equals_expected": true,
+  "package_hash_integrity": "verified_match_disk_tracked",
+  "tracked_hash_mismatches": 0,
+  "claim_closure_pr": 157,
+  "prs_all": [
+    151,
+    152,
+    153,
+    154,
+    155,
+    156,
+    157
+  ]
 }

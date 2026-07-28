@@ -1,10 +1,31 @@
 {
-  "as_of": "2026-07-28T00:13:47Z",
+  "as_of": "2026-07-28T00:35:58Z",
+  "sha_model": {
+    "package_code_sha": "aeb7663e710624cd260f80dfefba19a9525a1a88",
+    "implementation_sha": "241ec41f0badf5bd463b66dafe36faa1e2e66876",
+    "verified_main_sha": "71566879eaca70b9cfc4810ba49032578171d840",
+    "main_at_claim_write": "9b4ad968b91174fa5728d6bdb43a227f79a3b1de",
+    "package_matches_head": false,
+    "package_matches_verified_main": true,
+    "package_hash_integrity": "verified_match_disk_tracked",
+    "tracked_hash_mismatches": 0,
+    "gitignore_only_hash_mismatches": [
+      "final-package/executive-review.xlsx"
+    ],
+    "note": "package_matches_head is false by design under squash merges: verified_main_sha is the tip where package hashes and item accepts were proven; later metadata commits may move HEAD without changing final-package tracked bytes. Do not re-stamp post_merge_main_sha on all item proofs for tip chase."
+  },
   "main_sha": "71566879eaca70b9cfc4810ba49032578171d840",
+  "verified_main_sha": "71566879eaca70b9cfc4810ba49032578171d840",
+  "main_at_claim_write": "9b4ad968b91174fa5728d6bdb43a227f79a3b1de",
   "package_code_sha": "aeb7663e710624cd260f80dfefba19a9525a1a88",
   "package_matches_head": false,
-  "package_hash_integrity": "verified_match_disk",
+  "package_matches_verified_main": true,
+  "package_hash_integrity": "verified_match_disk_tracked",
   "file_hash_mismatches": 0,
+  "tracked_hash_mismatches": 0,
+  "gitignore_only_hash_mismatches": [
+    "final-package/executive-review.xlsx"
+  ],
   "item_proofs_all_ok": true,
   "item_proofs_passed_n": 47,
   "dod_controller_status": {
@@ -13,13 +34,48 @@
     "open": 1060,
     "acceptance_pct_audited": 6.09
   },
+  "prs": {
+    "all": [
+      151,
+      152,
+      153,
+      154,
+      155,
+      156,
+      157
+    ],
+    "capability": [
+      151,
+      152,
+      153
+    ],
+    "integrity_followups": [
+      154,
+      155,
+      156
+    ],
+    "claim_closure": [
+      157
+    ],
+    "roles": {
+      "151": "functional vertical / repair",
+      "152": "accept / promotion",
+      "153": "evidence package",
+      "154": "SHA rebind (skeptic)",
+      "155": "hash integrity + adversarial §17 (skeptic)",
+      "156": "post-merge stamp (skeptic; closed)"
+    }
+  },
   "prs_merged": [
     151,
     152,
     153,
     154,
-    155
+    155,
+    156,
+    157
   ],
-  "integrity_pr": 155,
-  "note": "post-merge SHA stamp after integrity PR #155; package hashes verified against final-package bytes"
+  "integrity_followups_closed": true,
+  "claim_status": "BUNDLE_ACCEPTED_under_capability_train_budget",
+  "note": "Post-merge complete for verified_main_sha. HEAD may advance via claim-closure metadata only; operational package bytes unchanged."
 }
