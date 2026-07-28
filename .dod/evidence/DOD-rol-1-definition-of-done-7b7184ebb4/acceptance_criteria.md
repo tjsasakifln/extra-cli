@@ -1,14 +1,8 @@
-# O golden path gera relatório de referências de valores
+# ORPT-12.1-01
 
-## Acceptance
+O golden path gera relatório de referências de valores.
 
-Given DSN with pncp_raw_bids (or honest empty + limitations)
-When golden_path runs valores report (`--execute-valores-report-only` or full path)
-Then domain file under output/reports with size>=50
-And columns include modalidade, n, valor_semantica
-And report distinct from panorama and other domain reports
-And metadata: git_sha, as_of, limitations; no LOCAL_READY/95%/homologated claims
-And specific automated tests pass
+Weight: 5
 
-## OUT
-- Live crawl; editais/contratos/concorrentes; 95%; homologated prices as fact
+Authority: freeze + orpt_item_proofs + operational entry points
+Command: `python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.1-01 --json`

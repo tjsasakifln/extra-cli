@@ -1,0 +1,21 @@
+# HANDOFF — OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01
+
+## Terminal (pre-PR3 merge)
+
+`BUNDLE_READY_FOR_HUMAN_MERGE` after PR3 CI green.
+
+## SHAs
+
+- MAIN_BASELINE: `59569e33f916bfe73e5622fea83837f137ba2416`
+- VERIFIED_CODE_SHA (post PR2 #160): `ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10`
+- PR1 merge: `936746b9f554fa6c2387e961e7f404ac977384fa` (#159)
+- PR2 merge: `ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10` (#160)
+
+## Deltas
+
+- RAW 40 / WEIGHTED 176
+- N_ACCEPTED 401→441 / N_OPEN 1060→1020
+
+## Human action
+
+Merge PR3 (promotion only). Then observe ACCEPTANCE_MERGE_SHA and confirm status 441/1020.

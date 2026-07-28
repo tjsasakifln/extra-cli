@@ -1,0 +1,34 @@
+{
+  "item_id": "DOD-rol-1-definition-of-done-0e137584b0",
+  "alias": "ORPT-12.2-14",
+  "text": "Relat\u00f3rio de coverage.",
+  "weight": 5,
+  "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+  "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+  "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+  "command": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-14 --json",
+  "timestamp": "2026-07-28T02:07:56Z",
+  "source": "postgresql:extra_test",
+  "parameters": {
+    "REQUIRE_REAL_DB": "1"
+  },
+  "assertion_result": {
+    "alias": "ORPT-12.2-14",
+    "item_id": "DOD-rol-1-definition-of-done-0e137584b0",
+    "ok": true,
+    "error": null,
+    "detail": {
+      "path": "/mnt/d/extra consultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/reports/relatorio_coverage.csv",
+      "rows": 5,
+      "status": "SUCCESS",
+      "ok": true
+    },
+    "as_of": "2026-07-28T02:08:02Z",
+    "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+    "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+  },
+  "reliability": "SUCCESS",
+  "limitations": [],
+  "artifact_hashes": {},
+  "run_ids": []
+}

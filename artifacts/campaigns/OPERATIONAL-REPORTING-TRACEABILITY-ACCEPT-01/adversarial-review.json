@@ -1,0 +1,26 @@
+{
+  "as_of": "2026-07-28T02:40:38Z",
+  "attempts": [
+    {
+      "claim": "fixture PDF/Excel as proof",
+      "result": "FALSED \u2014 from-db rejects Demo A/B; real reportlab/openpyxl"
+    },
+    {
+      "claim": "SQL error becomes empty CSV",
+      "result": "FALSED \u2014 OperationalQueryError non-zero exit"
+    },
+    {
+      "claim": "generic package command only",
+      "result": "FALSED \u2014 40 per-alias orpt_item_proofs"
+    },
+    {
+      "claim": "weight inflated",
+      "result": "FALSED \u2014 sum 176 exact"
+    },
+    {
+      "claim": "PR budget >3",
+      "result": "FALSED \u2014 PR1#159 PR2#160 PR3 only"
+    }
+  ],
+  "verdict": "PASS"
+}

@@ -1,0 +1,31 @@
+{
+  "database": "extra_test",
+  "host": "127.0.0.1:5433",
+  "counts": {
+    "target_universe_entities": 0,
+    "opportunity_intel": 0,
+    "pncp_raw_bids": 0,
+    "pncp_supplier_contracts": 0,
+    "canonical_suppliers": 0,
+    "canonical_organs": 0,
+    "sc_public_entities": 0,
+    "ingestion_runs": 0,
+    "coverage_evidence": 0,
+    "engineering_opportunities": 0
+  },
+  "cutoff_date": "2026-07-28",
+  "freshness": "EMPTY_LOCAL_TABLES \u2014 no live market rows at premortem; capability proofs use real PostgreSQL with SUCCESS_ZERO/NOT_READY for empty legitimate results; CMI-style fixture seed is NOT used as operational proof",
+  "sources": [
+    "postgresql:extra_test",
+    "schema_migrations"
+  ],
+  "blockers": [
+    "market_row_counts_zero",
+    "pncp_datalake_schema_incomplete"
+  ],
+  "universe": "target_universe empty; denominator not claimed",
+  "filters": {
+    "uf": "SC",
+    "is_active": true
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "item_id": "DOD-rol-1-definition-of-done-7cae8aa5a9",
+  "alias": "ORPT-12.2-20",
+  "text": "Todos os relat\u00f3rios incluem vers\u00e3o do universo.",
+  "weight": 5,
+  "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+  "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+  "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+  "command": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-20 --json",
+  "timestamp": "2026-07-28T02:07:56Z",
+  "source": "postgresql:extra_test",
+  "parameters": {
+    "REQUIRE_REAL_DB": "1"
+  },
+  "assertion_result": {
+    "alias": "ORPT-12.2-20",
+    "item_id": "DOD-rol-1-definition-of-done-7cae8aa5a9",
+    "ok": true,
+    "error": null,
+    "detail": {
+      "universe_version": "sc_public_entities:n=0",
+      "ok": true
+    },
+    "as_of": "2026-07-28T02:08:02Z",
+    "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+    "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+  },
+  "reliability": "READY",
+  "limitations": [],
+  "artifact_hashes": {},
+  "run_ids": []
+}

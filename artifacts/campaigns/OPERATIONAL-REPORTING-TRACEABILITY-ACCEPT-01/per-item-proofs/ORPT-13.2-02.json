@@ -1,0 +1,45 @@
+{
+  "alias": "ORPT-13.2-02",
+  "id": "DOD-rol-1-definition-of-done-9c23f31815",
+  "exact_text": "Reconciliação de snapshot.",
+  "weight": 5,
+  "initial_state": "OPEN",
+  "implementation": "operational_outputs/reports/export_pack/deliverable_package_final/golden_path/weekly_cycle",
+  "test_specific": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-13.2-02 --json",
+  "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-13.2-02 --json",
+  "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-9c23f31815/proof.json",
+  "hashes": {},
+  "run_id": null,
+  "source": "postgresql:extra_test",
+  "period": {
+    "as_of": "2026-07-28"
+  },
+  "reliability": "SUCCESS_ZERO",
+  "limitations": [
+    "No active pncp_raw_bids / opportunity_intel; GO/REVIEW/NO_GO lists empty (SUCCESS_ZERO)",
+    "sc_public_entities empty — gap lists cannot enumerate universe entities"
+  ],
+  "exit_code": 0,
+  "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+  "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+  "authority": "DOD.md + freeze + orpt_item_proofs + CI PR1/PR2 + accept",
+  "terminal_state": "ACCEPTED",
+  "assertion_result": {
+    "alias": "ORPT-13.2-02",
+    "item_id": "DOD-rol-1-definition-of-done-9c23f31815",
+    "ok": true,
+    "error": null,
+    "detail": {
+      "path": "/mnt/d/extra consultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/lists/oportunidades_removidas_snapshot.csv",
+      "status": "SUCCESS_ZERO",
+      "limitations": [
+        "No active pncp_raw_bids / opportunity_intel; GO/REVIEW/NO_GO lists empty (SUCCESS_ZERO)",
+        "sc_public_entities empty — gap lists cannot enumerate universe entities"
+      ],
+      "ok": true
+    },
+    "as_of": "2026-07-28T02:40:40Z",
+    "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+    "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+  }
+}

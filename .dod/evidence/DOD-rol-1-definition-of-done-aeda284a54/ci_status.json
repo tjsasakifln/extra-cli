@@ -1,0 +1,14 @@
+{
+  "item_id": "DOD-rol-1-definition-of-done-aeda284a54",
+  "conclusion": "success",
+  "status": "green",
+  "head_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+  "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+  "mandatory_jobs_skipped": [],
+  "prs": [
+    159,
+    160
+  ],
+  "note": "PR1 #159 and PR2 #160 CI green on exact tips; main VERIFIED_CODE_SHA after merge",
+  "as_of": "2026-07-28T02:32:00Z"
+}

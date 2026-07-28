@@ -1,0 +1,17 @@
+{
+  "formulas": {
+    "raw_delta": "count(items_accepted_in_campaign)",
+    "weighted_delta": "sum(weight of accepted campaign items)",
+    "raw_progress_pct": "raw_delta / n_open_initial * 100",
+    "weighted_progress_pct": "weighted_delta / w_open_initial * 100",
+    "denominators_frozen": true
+  },
+  "reliability": {
+    "READY": "executed successfully with non-error SQL and validated artifact present; zero rows allowed only with SUCCESS_ZERO + documented limitations",
+    "PARTIAL": "partial evidence produced with explicit errors list non-empty OR incomplete product set",
+    "NOT_READY": "missing required inputs/tables/data for product; artifact may exist as empty with reason",
+    "BLOCKED": "explicit external/human/credential blocker preventing execution"
+  },
+  "zero_records": "SUCCESS_ZERO or NOT_READY with limitations; never invent GO/rows",
+  "partial_error": "fail-closed: non-zero exit; errors surface in manifest; never convert SQL/_error/rollback into trustworthy empty CSV success"
+}

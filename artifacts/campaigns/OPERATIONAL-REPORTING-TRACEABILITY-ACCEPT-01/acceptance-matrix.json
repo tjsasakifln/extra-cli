@@ -1,0 +1,1577 @@
+{
+  "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+  "main_baseline_sha": "59569e33f916bfe73e5622fea83837f137ba2416",
+  "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+  "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+  "status": "ACCEPTED_PENDING_PR3_MERGE",
+  "items": [
+    {
+      "alias": "ORPT-12.1-01",
+      "id": "DOD-rol-1-definition-of-done-7b7184ebb4",
+      "exact_text": "O golden path gera relatório de referências de valores.",
+      "weight": 5,
+      "initial_state": "OPEN",
+      "implementation": "operational_outputs/reports/export_pack/deliverable_package_final/golden_path/weekly_cycle",
+      "test_specific": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.1-01 --json",
+      "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.1-01 --json",
+      "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-7b7184ebb4/proof.json",
+      "hashes": {},
+      "run_id": null,
+      "source": "postgresql:extra_test",
+      "period": {
+        "as_of": "2026-07-28"
+      },
+      "reliability": "READY",
+      "limitations": [],
+      "exit_code": 0,
+      "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "authority": "DOD.md + freeze + orpt_item_proofs + CI PR1/PR2 + accept",
+      "terminal_state": "ACCEPTED",
+      "assertion_result": {
+        "alias": "ORPT-12.1-01",
+        "item_id": "DOD-rol-1-definition-of-done-7b7184ebb4",
+        "ok": true,
+        "error": null,
+        "detail": {
+          "artifact": "/mnt/d/extra consultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/valores/relatorio-valores-20260728T020518Z.csv",
+          "ok": true
+        },
+        "as_of": "2026-07-28T02:40:38Z",
+        "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+        "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+      }
+    },
+    {
+      "alias": "ORPT-12.1-02",
+      "id": "DOD-rol-1-definition-of-done-36fa52b0a8",
+      "exact_text": "Os relatórios apontam o período de referência.",
+      "weight": 3,
+      "initial_state": "OPEN",
+      "implementation": "operational_outputs/reports/export_pack/deliverable_package_final/golden_path/weekly_cycle",
+      "test_specific": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.1-02 --json",
+      "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.1-02 --json",
+      "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-36fa52b0a8/proof.json",
+      "hashes": {},
+      "run_id": null,
+      "source": "postgresql:extra_test",
+      "period": {
+        "as_of": "2026-07-28"
+      },
+      "reliability": "READY",
+      "limitations": [],
+      "exit_code": 0,
+      "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "authority": "DOD.md + freeze + orpt_item_proofs + CI PR1/PR2 + accept",
+      "terminal_state": "ACCEPTED",
+      "assertion_result": {
+        "alias": "ORPT-12.1-02",
+        "item_id": "DOD-rol-1-definition-of-done-36fa52b0a8",
+        "ok": true,
+        "error": null,
+        "detail": {
+          "period": {
+            "as_of_date": "2026-07-28",
+            "data_window": "all_active"
+          },
+          "generated_at": "2026-07-28T02:07:30.682495Z",
+          "ok": true
+        },
+        "as_of": "2026-07-28T02:40:38Z",
+        "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+        "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+      }
+    },
+    {
+      "alias": "ORPT-12.1-03",
+      "id": "DOD-rol-1-definition-of-done-b43fd305c7",
+      "exact_text": "Os relatórios apontam limitações conhecidas.",
+      "weight": 5,
+      "initial_state": "OPEN",
+      "implementation": "operational_outputs/reports/export_pack/deliverable_package_final/golden_path/weekly_cycle",
+      "test_specific": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.1-03 --json",
+      "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.1-03 --json",
+      "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-b43fd305c7/proof.json",
+      "hashes": {},
+      "run_id": null,
+      "source": "postgresql:extra_test",
+      "period": {
+        "as_of": "2026-07-28"
+      },
+      "reliability": "READY",
+      "limitations": [
+        "No active pncp_raw_bids / opportunity_intel; GO/REVIEW/NO_GO lists empty (SUCCESS_ZERO)",
+        "sc_public_entities empty — gap lists cannot enumerate universe entities"
+      ],
+      "exit_code": 0,
+      "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "authority": "DOD.md + freeze + orpt_item_proofs + CI PR1/PR2 + accept",
+      "terminal_state": "ACCEPTED",
+      "assertion_result": {
+        "alias": "ORPT-12.1-03",
+        "item_id": "DOD-rol-1-definition-of-done-b43fd305c7",
+        "ok": true,
+        "error": null,
+        "detail": {
+          "limitations": [
+            "No active pncp_raw_bids / opportunity_intel; GO/REVIEW/NO_GO lists empty (SUCCESS_ZERO)",
+            "sc_public_entities empty — gap lists cannot enumerate universe entities"
+          ],
+          "ok": true
+        },
+        "as_of": "2026-07-28T02:40:38Z",
+        "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+        "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+      }
+    },
+    {
+      "alias": "ORPT-12.2-01",
+      "id": "DOD-rol-1-definition-of-done-b87c19a57c",
+      "exact_text": "Lista de editais acionáveis.",
+      "weight": 5,
+      "initial_state": "OPEN",
+      "implementation": "operational_outputs/reports/export_pack/deliverable_package_final/golden_path/weekly_cycle",
+      "test_specific": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-01 --json",
+      "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-01 --json",
+      "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-b87c19a57c/proof.json",
+      "hashes": {},
+      "run_id": null,
+      "source": "postgresql:extra_test",
+      "period": {
+        "as_of": "2026-07-28"
+      },
+      "reliability": "SUCCESS_ZERO",
+      "limitations": [],
+      "exit_code": 0,
+      "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "authority": "DOD.md + freeze + orpt_item_proofs + CI PR1/PR2 + accept",
+      "terminal_state": "ACCEPTED",
+      "assertion_result": {
+        "alias": "ORPT-12.2-01",
+        "item_id": "DOD-rol-1-definition-of-done-b87c19a57c",
+        "ok": true,
+        "error": null,
+        "detail": {
+          "path": "/mnt/d/extra consultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/lists/editais_acionaveis.csv",
+          "bytes": 149,
+          "count_key": "GO",
+          "count": 0,
+          "status": "SUCCESS_ZERO",
+          "ok": true
+        },
+        "as_of": "2026-07-28T02:40:38Z",
+        "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+        "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+      }
+    },
+    {
+      "alias": "ORPT-12.2-02",
+      "id": "DOD-rol-1-definition-of-done-9c1555da8e",
+      "exact_text": "Lista de editais para revisão.",
+      "weight": 5,
+      "initial_state": "OPEN",
+      "implementation": "operational_outputs/reports/export_pack/deliverable_package_final/golden_path/weekly_cycle",
+      "test_specific": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-02 --json",
+      "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-02 --json",
+      "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-9c1555da8e/proof.json",
+      "hashes": {},
+      "run_id": null,
+      "source": "postgresql:extra_test",
+      "period": {
+        "as_of": "2026-07-28"
+      },
+      "reliability": "SUCCESS_ZERO",
+      "limitations": [],
+      "exit_code": 0,
+      "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "authority": "DOD.md + freeze + orpt_item_proofs + CI PR1/PR2 + accept",
+      "terminal_state": "ACCEPTED",
+      "assertion_result": {
+        "alias": "ORPT-12.2-02",
+        "item_id": "DOD-rol-1-definition-of-done-9c1555da8e",
+        "ok": true,
+        "error": null,
+        "detail": {
+          "path": "/mnt/d/extra consultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/lists/editais_revisao.csv",
+          "bytes": 149,
+          "count_key": "REVIEW",
+          "count": 0,
+          "status": "SUCCESS_ZERO",
+          "ok": true
+        },
+        "as_of": "2026-07-28T02:40:38Z",
+        "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+        "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+      }
+    },
+    {
+      "alias": "ORPT-12.2-03",
+      "id": "DOD-rol-1-definition-of-done-037e1ea8b8",
+      "exact_text": "Lista de editais descartados com motivo.",
+      "weight": 5,
+      "initial_state": "OPEN",
+      "implementation": "operational_outputs/reports/export_pack/deliverable_package_final/golden_path/weekly_cycle",
+      "test_specific": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-03 --json",
+      "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-03 --json",
+      "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-037e1ea8b8/proof.json",
+      "hashes": {},
+      "run_id": null,
+      "source": "postgresql:extra_test",
+      "period": {
+        "as_of": "2026-07-28"
+      },
+      "reliability": "SUCCESS_ZERO",
+      "limitations": [],
+      "exit_code": 0,
+      "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "authority": "DOD.md + freeze + orpt_item_proofs + CI PR1/PR2 + accept",
+      "terminal_state": "ACCEPTED",
+      "assertion_result": {
+        "alias": "ORPT-12.2-03",
+        "item_id": "DOD-rol-1-definition-of-done-037e1ea8b8",
+        "ok": true,
+        "error": null,
+        "detail": {
+          "path": "/mnt/d/extra consultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/lists/editais_descartados.csv",
+          "bytes": 149,
+          "count_key": "NO_GO",
+          "count": 0,
+          "status": "SUCCESS_ZERO",
+          "ok": true
+        },
+        "as_of": "2026-07-28T02:40:39Z",
+        "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+        "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+      }
+    },
+    {
+      "alias": "ORPT-12.2-04",
+      "id": "DOD-rol-1-definition-of-done-9c590c7a80",
+      "exact_text": "Lista de oportunidades removidas do snapshot.",
+      "weight": 3,
+      "initial_state": "OPEN",
+      "implementation": "operational_outputs/reports/export_pack/deliverable_package_final/golden_path/weekly_cycle",
+      "test_specific": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-04 --json",
+      "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-04 --json",
+      "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-9c590c7a80/proof.json",
+      "hashes": {},
+      "run_id": null,
+      "source": "postgresql:extra_test",
+      "period": {
+        "as_of": "2026-07-28"
+      },
+      "reliability": "SUCCESS_ZERO",
+      "limitations": [],
+      "exit_code": 0,
+      "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "authority": "DOD.md + freeze + orpt_item_proofs + CI PR1/PR2 + accept",
+      "terminal_state": "ACCEPTED",
+      "assertion_result": {
+        "alias": "ORPT-12.2-04",
+        "item_id": "DOD-rol-1-definition-of-done-9c590c7a80",
+        "ok": true,
+        "error": null,
+        "detail": {
+          "path": "/mnt/d/extra consultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/lists/oportunidades_removidas_snapshot.csv",
+          "bytes": 97,
+          "count_key": "removed",
+          "count": 0,
+          "status": "SUCCESS_ZERO",
+          "ok": true
+        },
+        "as_of": "2026-07-28T02:40:39Z",
+        "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+        "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+      }
+    },
+    {
+      "alias": "ORPT-12.2-05",
+      "id": "DOD-rol-1-definition-of-done-736a47b268",
+      "exact_text": "Lista de entes sem cobertura de editais.",
+      "weight": 5,
+      "initial_state": "OPEN",
+      "implementation": "operational_outputs/reports/export_pack/deliverable_package_final/golden_path/weekly_cycle",
+      "test_specific": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-05 --json",
+      "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-05 --json",
+      "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-736a47b268/proof.json",
+      "hashes": {},
+      "run_id": null,
+      "source": "postgresql:extra_test",
+      "period": {
+        "as_of": "2026-07-28"
+      },
+      "reliability": "SUCCESS_ZERO",
+      "limitations": [],
+      "exit_code": 0,
+      "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "authority": "DOD.md + freeze + orpt_item_proofs + CI PR1/PR2 + accept",
+      "terminal_state": "ACCEPTED",
+      "assertion_result": {
+        "alias": "ORPT-12.2-05",
+        "item_id": "DOD-rol-1-definition-of-done-736a47b268",
+        "ok": true,
+        "error": null,
+        "detail": {
+          "path": "/mnt/d/extra consultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/lists/entes_sem_cobertura_editais.csv",
+          "bytes": 63,
+          "count_key": "gap_editais",
+          "count": 0,
+          "status": "SUCCESS_ZERO",
+          "ok": true
+        },
+        "as_of": "2026-07-28T02:40:39Z",
+        "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+        "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+      }
+    },
+    {
+      "alias": "ORPT-12.2-06",
+      "id": "DOD-rol-1-definition-of-done-42843ef00c",
+      "exact_text": "Lista de blockers por fonte.",
+      "weight": 5,
+      "initial_state": "OPEN",
+      "implementation": "operational_outputs/reports/export_pack/deliverable_package_final/golden_path/weekly_cycle",
+      "test_specific": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-06 --json",
+      "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-06 --json",
+      "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-42843ef00c/proof.json",
+      "hashes": {},
+      "run_id": null,
+      "source": "postgresql:extra_test",
+      "period": {
+        "as_of": "2026-07-28"
+      },
+      "reliability": "SUCCESS_ZERO",
+      "limitations": [],
+      "exit_code": 0,
+      "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "authority": "DOD.md + freeze + orpt_item_proofs + CI PR1/PR2 + accept",
+      "terminal_state": "ACCEPTED",
+      "assertion_result": {
+        "alias": "ORPT-12.2-06",
+        "item_id": "DOD-rol-1-definition-of-done-42843ef00c",
+        "ok": true,
+        "error": null,
+        "detail": {
+          "path": "/mnt/d/extra consultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/lists/blockers_por_fonte.csv",
+          "bytes": 43,
+          "count_key": "blockers",
+          "count": 0,
+          "status": "SUCCESS_ZERO",
+          "ok": true
+        },
+        "as_of": "2026-07-28T02:40:39Z",
+        "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+        "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+      }
+    },
+    {
+      "alias": "ORPT-12.2-07",
+      "id": "DOD-rol-1-definition-of-done-9b7e025eca",
+      "exact_text": "Lista de runs stale.",
+      "weight": 5,
+      "initial_state": "OPEN",
+      "implementation": "operational_outputs/reports/export_pack/deliverable_package_final/golden_path/weekly_cycle",
+      "test_specific": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-07 --json",
+      "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-07 --json",
+      "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-9b7e025eca/proof.json",
+      "hashes": {},
+      "run_id": null,
+      "source": "postgresql:extra_test",
+      "period": {
+        "as_of": "2026-07-28"
+      },
+      "reliability": "SUCCESS_ZERO",
+      "limitations": [],
+      "exit_code": 0,
+      "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "authority": "DOD.md + freeze + orpt_item_proofs + CI PR1/PR2 + accept",
+      "terminal_state": "ACCEPTED",
+      "assertion_result": {
+        "alias": "ORPT-12.2-07",
+        "item_id": "DOD-rol-1-definition-of-done-9b7e025eca",
+        "ok": true,
+        "error": null,
+        "detail": {
+          "path": "/mnt/d/extra consultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/lists/runs_stale.csv",
+          "bytes": 88,
+          "count_key": "stale_runs",
+          "count": 0,
+          "status": "SUCCESS_ZERO",
+          "ok": true
+        },
+        "as_of": "2026-07-28T02:40:39Z",
+        "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+        "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+      }
+    },
+    {
+      "alias": "ORPT-12.2-08",
+      "id": "DOD-rol-1-definition-of-done-967f4833f6",
+      "exact_text": "Relatório de contratos por ente.",
+      "weight": 5,
+      "initial_state": "OPEN",
+      "implementation": "operational_outputs/reports/export_pack/deliverable_package_final/golden_path/weekly_cycle",
+      "test_specific": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-08 --json",
+      "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-08 --json",
+      "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-967f4833f6/proof.json",
+      "hashes": {},
+      "run_id": null,
+      "source": "postgresql:extra_test",
+      "period": {
+        "as_of": "2026-07-28"
+      },
+      "reliability": "SUCCESS",
+      "limitations": [],
+      "exit_code": 0,
+      "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "authority": "DOD.md + freeze + orpt_item_proofs + CI PR1/PR2 + accept",
+      "terminal_state": "ACCEPTED",
+      "assertion_result": {
+        "alias": "ORPT-12.2-08",
+        "item_id": "DOD-rol-1-definition-of-done-967f4833f6",
+        "ok": true,
+        "error": null,
+        "detail": {
+          "path": "/mnt/d/extra consultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/reports/relatorio_contratos_por_ente.csv",
+          "rows": 0,
+          "status": "SUCCESS",
+          "ok": true
+        },
+        "as_of": "2026-07-28T02:40:39Z",
+        "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+        "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+      }
+    },
+    {
+      "alias": "ORPT-12.2-09",
+      "id": "DOD-rol-1-definition-of-done-7ed332dbad",
+      "exact_text": "Relatório de contratos por fornecedor.",
+      "weight": 5,
+      "initial_state": "OPEN",
+      "implementation": "operational_outputs/reports/export_pack/deliverable_package_final/golden_path/weekly_cycle",
+      "test_specific": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-09 --json",
+      "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-09 --json",
+      "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-7ed332dbad/proof.json",
+      "hashes": {},
+      "run_id": null,
+      "source": "postgresql:extra_test",
+      "period": {
+        "as_of": "2026-07-28"
+      },
+      "reliability": "SUCCESS",
+      "limitations": [],
+      "exit_code": 0,
+      "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "authority": "DOD.md + freeze + orpt_item_proofs + CI PR1/PR2 + accept",
+      "terminal_state": "ACCEPTED",
+      "assertion_result": {
+        "alias": "ORPT-12.2-09",
+        "item_id": "DOD-rol-1-definition-of-done-7ed332dbad",
+        "ok": true,
+        "error": null,
+        "detail": {
+          "path": "/mnt/d/extra consultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/reports/relatorio_contratos_por_fornecedor.csv",
+          "rows": 0,
+          "status": "SUCCESS",
+          "ok": true
+        },
+        "as_of": "2026-07-28T02:40:39Z",
+        "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+        "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+      }
+    },
+    {
+      "alias": "ORPT-12.2-10",
+      "id": "DOD-rol-1-definition-of-done-58aa2af147",
+      "exact_text": "Relatório de concorrentes.",
+      "weight": 5,
+      "initial_state": "OPEN",
+      "implementation": "operational_outputs/reports/export_pack/deliverable_package_final/golden_path/weekly_cycle",
+      "test_specific": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-10 --json",
+      "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-10 --json",
+      "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-58aa2af147/proof.json",
+      "hashes": {},
+      "run_id": null,
+      "source": "postgresql:extra_test",
+      "period": {
+        "as_of": "2026-07-28"
+      },
+      "reliability": "SUCCESS",
+      "limitations": [],
+      "exit_code": 0,
+      "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "authority": "DOD.md + freeze + orpt_item_proofs + CI PR1/PR2 + accept",
+      "terminal_state": "ACCEPTED",
+      "assertion_result": {
+        "alias": "ORPT-12.2-10",
+        "item_id": "DOD-rol-1-definition-of-done-58aa2af147",
+        "ok": true,
+        "error": null,
+        "detail": {
+          "path": "/mnt/d/extra consultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/reports/relatorio_concorrentes.csv",
+          "rows": 0,
+          "status": "SUCCESS",
+          "ok": true
+        },
+        "as_of": "2026-07-28T02:40:39Z",
+        "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+        "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+      }
+    },
+    {
+      "alias": "ORPT-12.2-11",
+      "id": "DOD-rol-1-definition-of-done-a9c29d1d0f",
+      "exact_text": "Relatório de concentração.",
+      "weight": 5,
+      "initial_state": "OPEN",
+      "implementation": "operational_outputs/reports/export_pack/deliverable_package_final/golden_path/weekly_cycle",
+      "test_specific": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-11 --json",
+      "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-11 --json",
+      "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-a9c29d1d0f/proof.json",
+      "hashes": {},
+      "run_id": null,
+      "source": "postgresql:extra_test",
+      "period": {
+        "as_of": "2026-07-28"
+      },
+      "reliability": "SUCCESS",
+      "limitations": [],
+      "exit_code": 0,
+      "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "authority": "DOD.md + freeze + orpt_item_proofs + CI PR1/PR2 + accept",
+      "terminal_state": "ACCEPTED",
+      "assertion_result": {
+        "alias": "ORPT-12.2-11",
+        "item_id": "DOD-rol-1-definition-of-done-a9c29d1d0f",
+        "ok": true,
+        "error": null,
+        "detail": {
+          "path": "/mnt/d/extra consultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/reports/relatorio_concentracao.csv",
+          "rows": 0,
+          "status": "SUCCESS",
+          "ok": true
+        },
+        "as_of": "2026-07-28T02:40:39Z",
+        "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+        "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+      }
+    },
+    {
+      "alias": "ORPT-12.2-12",
+      "id": "DOD-rol-1-definition-of-done-a68e171fd2",
+      "exact_text": "Relatório de referências de valores.",
+      "weight": 5,
+      "initial_state": "OPEN",
+      "implementation": "operational_outputs/reports/export_pack/deliverable_package_final/golden_path/weekly_cycle",
+      "test_specific": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-12 --json",
+      "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-12 --json",
+      "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-a68e171fd2/proof.json",
+      "hashes": {},
+      "run_id": null,
+      "source": "postgresql:extra_test",
+      "period": {
+        "as_of": "2026-07-28"
+      },
+      "reliability": "SUCCESS",
+      "limitations": [],
+      "exit_code": 0,
+      "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "authority": "DOD.md + freeze + orpt_item_proofs + CI PR1/PR2 + accept",
+      "terminal_state": "ACCEPTED",
+      "assertion_result": {
+        "alias": "ORPT-12.2-12",
+        "item_id": "DOD-rol-1-definition-of-done-a68e171fd2",
+        "ok": true,
+        "error": null,
+        "detail": {
+          "path": "/mnt/d/extra consultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/reports/relatorio_referencias_valores.csv",
+          "rows": 0,
+          "status": "SUCCESS",
+          "ok": true
+        },
+        "as_of": "2026-07-28T02:40:39Z",
+        "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+        "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+      }
+    },
+    {
+      "alias": "ORPT-12.2-13",
+      "id": "DOD-rol-1-definition-of-done-3806883175",
+      "exact_text": "Relatório de completude.",
+      "weight": 3,
+      "initial_state": "OPEN",
+      "implementation": "operational_outputs/reports/export_pack/deliverable_package_final/golden_path/weekly_cycle",
+      "test_specific": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-13 --json",
+      "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-13 --json",
+      "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-3806883175/proof.json",
+      "hashes": {},
+      "run_id": null,
+      "source": "postgresql:extra_test",
+      "period": {
+        "as_of": "2026-07-28"
+      },
+      "reliability": "SUCCESS",
+      "limitations": [],
+      "exit_code": 0,
+      "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "authority": "DOD.md + freeze + orpt_item_proofs + CI PR1/PR2 + accept",
+      "terminal_state": "ACCEPTED",
+      "assertion_result": {
+        "alias": "ORPT-12.2-13",
+        "item_id": "DOD-rol-1-definition-of-done-3806883175",
+        "ok": true,
+        "error": null,
+        "detail": {
+          "path": "/mnt/d/extra consultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/reports/relatorio_completude.csv",
+          "rows": 8,
+          "status": "SUCCESS",
+          "ok": true
+        },
+        "as_of": "2026-07-28T02:40:39Z",
+        "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+        "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+      }
+    },
+    {
+      "alias": "ORPT-12.2-14",
+      "id": "DOD-rol-1-definition-of-done-0e137584b0",
+      "exact_text": "Relatório de coverage.",
+      "weight": 5,
+      "initial_state": "OPEN",
+      "implementation": "operational_outputs/reports/export_pack/deliverable_package_final/golden_path/weekly_cycle",
+      "test_specific": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-14 --json",
+      "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-14 --json",
+      "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-0e137584b0/proof.json",
+      "hashes": {},
+      "run_id": null,
+      "source": "postgresql:extra_test",
+      "period": {
+        "as_of": "2026-07-28"
+      },
+      "reliability": "SUCCESS",
+      "limitations": [],
+      "exit_code": 0,
+      "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "authority": "DOD.md + freeze + orpt_item_proofs + CI PR1/PR2 + accept",
+      "terminal_state": "ACCEPTED",
+      "assertion_result": {
+        "alias": "ORPT-12.2-14",
+        "item_id": "DOD-rol-1-definition-of-done-0e137584b0",
+        "ok": true,
+        "error": null,
+        "detail": {
+          "path": "/mnt/d/extra consultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/reports/relatorio_coverage.csv",
+          "rows": 5,
+          "status": "SUCCESS",
+          "ok": true
+        },
+        "as_of": "2026-07-28T02:40:39Z",
+        "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+        "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+      }
+    },
+    {
+      "alias": "ORPT-12.2-15",
+      "id": "DOD-rol-1-definition-of-done-eba916b20b",
+      "exact_text": "Relatório de source health.",
+      "weight": 5,
+      "initial_state": "OPEN",
+      "implementation": "operational_outputs/reports/export_pack/deliverable_package_final/golden_path/weekly_cycle",
+      "test_specific": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-15 --json",
+      "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-15 --json",
+      "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-eba916b20b/proof.json",
+      "hashes": {},
+      "run_id": "ops-export-20260728-020731-ab0f40f5",
+      "source": "postgresql:extra_test",
+      "period": {
+        "as_of": "2026-07-28"
+      },
+      "reliability": "READY",
+      "limitations": [],
+      "exit_code": 0,
+      "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "authority": "DOD.md + freeze + orpt_item_proofs + CI PR1/PR2 + accept",
+      "terminal_state": "ACCEPTED",
+      "assertion_result": {
+        "alias": "ORPT-12.2-15",
+        "item_id": "DOD-rol-1-definition-of-done-eba916b20b",
+        "ok": true,
+        "error": null,
+        "detail": {
+          "files": [
+            "/mnt/d/extra consultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/export/csv/editais_sample.csv",
+            "/mnt/d/extra consultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/export/csv/source_health.csv"
+          ],
+          "run_id": "ops-export-20260728-020731-ab0f40f5",
+          "ok": true
+        },
+        "as_of": "2026-07-28T02:40:39Z",
+        "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+        "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+      }
+    },
+    {
+      "alias": "ORPT-12.2-16",
+      "id": "DOD-rol-1-definition-of-done-77b6ac88f9",
+      "exact_text": "Exportação CSV.",
+      "weight": 3,
+      "initial_state": "OPEN",
+      "implementation": "operational_outputs/reports/export_pack/deliverable_package_final/golden_path/weekly_cycle",
+      "test_specific": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-16 --json",
+      "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-16 --json",
+      "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-77b6ac88f9/proof.json",
+      "hashes": {},
+      "run_id": "ops-export-20260728-020731-ab0f40f5",
+      "source": "postgresql:extra_test",
+      "period": {
+        "as_of": "2026-07-28"
+      },
+      "reliability": "READY",
+      "limitations": [],
+      "exit_code": 0,
+      "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "authority": "DOD.md + freeze + orpt_item_proofs + CI PR1/PR2 + accept",
+      "terminal_state": "ACCEPTED",
+      "assertion_result": {
+        "alias": "ORPT-12.2-16",
+        "item_id": "DOD-rol-1-definition-of-done-77b6ac88f9",
+        "ok": true,
+        "error": null,
+        "detail": {
+          "files": [
+            "/mnt/d/extra consultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/export/csv/editais_sample.csv",
+            "/mnt/d/extra consultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/export/csv/source_health.csv"
+          ],
+          "run_id": "ops-export-20260728-020731-ab0f40f5",
+          "ok": true
+        },
+        "as_of": "2026-07-28T02:40:39Z",
+        "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+        "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+      }
+    },
+    {
+      "alias": "ORPT-12.2-17",
+      "id": "DOD-rol-1-definition-of-done-27281770e6",
+      "exact_text": "Exportação Excel.",
+      "weight": 3,
+      "initial_state": "OPEN",
+      "implementation": "operational_outputs/reports/export_pack/deliverable_package_final/golden_path/weekly_cycle",
+      "test_specific": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-17 --json",
+      "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-17 --json",
+      "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-27281770e6/proof.json",
+      "hashes": {},
+      "run_id": "ops-export-20260728-020731-ab0f40f5",
+      "source": "postgresql:extra_test",
+      "period": {
+        "as_of": "2026-07-28"
+      },
+      "reliability": "READY",
+      "limitations": [],
+      "exit_code": 0,
+      "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "authority": "DOD.md + freeze + orpt_item_proofs + CI PR1/PR2 + accept",
+      "terminal_state": "ACCEPTED",
+      "assertion_result": {
+        "alias": "ORPT-12.2-17",
+        "item_id": "DOD-rol-1-definition-of-done-27281770e6",
+        "ok": true,
+        "error": null,
+        "detail": {
+          "path": "artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/export/export-ops-export-20260728-020731-ab0f40f5.xlsx",
+          "bytes": 8242,
+          "run_id": "ops-export-20260728-020731-ab0f40f5",
+          "ok": true
+        },
+        "as_of": "2026-07-28T02:40:39Z",
+        "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+        "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+      }
+    },
+    {
+      "alias": "ORPT-12.2-18",
+      "id": "DOD-rol-1-definition-of-done-fd81b987ec",
+      "exact_text": "Relatório PDF.",
+      "weight": 3,
+      "initial_state": "OPEN",
+      "implementation": "operational_outputs/reports/export_pack/deliverable_package_final/golden_path/weekly_cycle",
+      "test_specific": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-18 --json",
+      "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-18 --json",
+      "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-fd81b987ec/proof.json",
+      "hashes": {},
+      "run_id": "ops-export-20260728-020731-ab0f40f5",
+      "source": "postgresql:extra_test",
+      "period": {
+        "as_of": "2026-07-28"
+      },
+      "reliability": "READY",
+      "limitations": [],
+      "exit_code": 0,
+      "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "authority": "DOD.md + freeze + orpt_item_proofs + CI PR1/PR2 + accept",
+      "terminal_state": "ACCEPTED",
+      "assertion_result": {
+        "alias": "ORPT-12.2-18",
+        "item_id": "DOD-rol-1-definition-of-done-fd81b987ec",
+        "ok": true,
+        "error": null,
+        "detail": {
+          "path": "artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/export/export-ops-export-20260728-020731-ab0f40f5.pdf",
+          "bytes": 2213,
+          "run_id": "ops-export-20260728-020731-ab0f40f5",
+          "ok": true
+        },
+        "as_of": "2026-07-28T02:40:39Z",
+        "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+        "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+      }
+    },
+    {
+      "alias": "ORPT-12.2-19",
+      "id": "DOD-rol-1-definition-of-done-0b5cf13b3e",
+      "exact_text": "Todos os relatórios incluem data de geração.",
+      "weight": 3,
+      "initial_state": "OPEN",
+      "implementation": "operational_outputs/reports/export_pack/deliverable_package_final/golden_path/weekly_cycle",
+      "test_specific": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-19 --json",
+      "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-19 --json",
+      "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-0b5cf13b3e/proof.json",
+      "hashes": {},
+      "run_id": null,
+      "source": "postgresql:extra_test",
+      "period": {
+        "as_of": "2026-07-28"
+      },
+      "reliability": "READY",
+      "limitations": [],
+      "exit_code": 0,
+      "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "authority": "DOD.md + freeze + orpt_item_proofs + CI PR1/PR2 + accept",
+      "terminal_state": "ACCEPTED",
+      "assertion_result": {
+        "alias": "ORPT-12.2-19",
+        "item_id": "DOD-rol-1-definition-of-done-0b5cf13b3e",
+        "ok": true,
+        "error": null,
+        "detail": {
+          "generated_at": "2026-07-28T02:07:30.682495Z",
+          "ok": true
+        },
+        "as_of": "2026-07-28T02:40:39Z",
+        "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+        "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+      }
+    },
+    {
+      "alias": "ORPT-12.2-20",
+      "id": "DOD-rol-1-definition-of-done-7cae8aa5a9",
+      "exact_text": "Todos os relatórios incluem versão do universo.",
+      "weight": 5,
+      "initial_state": "OPEN",
+      "implementation": "operational_outputs/reports/export_pack/deliverable_package_final/golden_path/weekly_cycle",
+      "test_specific": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-20 --json",
+      "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-20 --json",
+      "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-7cae8aa5a9/proof.json",
+      "hashes": {},
+      "run_id": null,
+      "source": "postgresql:extra_test",
+      "period": {
+        "as_of": "2026-07-28"
+      },
+      "reliability": "READY",
+      "limitations": [],
+      "exit_code": 0,
+      "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "authority": "DOD.md + freeze + orpt_item_proofs + CI PR1/PR2 + accept",
+      "terminal_state": "ACCEPTED",
+      "assertion_result": {
+        "alias": "ORPT-12.2-20",
+        "item_id": "DOD-rol-1-definition-of-done-7cae8aa5a9",
+        "ok": true,
+        "error": null,
+        "detail": {
+          "universe_version": "sc_public_entities:n=0",
+          "ok": true
+        },
+        "as_of": "2026-07-28T02:40:39Z",
+        "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+        "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+      }
+    },
+    {
+      "alias": "ORPT-12.2-21",
+      "id": "DOD-rol-1-definition-of-done-0c639d11e9",
+      "exact_text": "Todos os relatórios incluem fonte.",
+      "weight": 5,
+      "initial_state": "OPEN",
+      "implementation": "operational_outputs/reports/export_pack/deliverable_package_final/golden_path/weekly_cycle",
+      "test_specific": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-21 --json",
+      "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-21 --json",
+      "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-0c639d11e9/proof.json",
+      "hashes": {},
+      "run_id": null,
+      "source": "postgresql:extra_test",
+      "period": {
+        "as_of": "2026-07-28"
+      },
+      "reliability": "READY",
+      "limitations": [],
+      "exit_code": 0,
+      "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "authority": "DOD.md + freeze + orpt_item_proofs + CI PR1/PR2 + accept",
+      "terminal_state": "ACCEPTED",
+      "assertion_result": {
+        "alias": "ORPT-12.2-21",
+        "item_id": "DOD-rol-1-definition-of-done-0c639d11e9",
+        "ok": true,
+        "error": null,
+        "detail": {
+          "source": "pncp_raw_bids+compute_ranking",
+          "ok": true
+        },
+        "as_of": "2026-07-28T02:40:39Z",
+        "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+        "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+      }
+    },
+    {
+      "alias": "ORPT-12.2-22",
+      "id": "DOD-rol-1-definition-of-done-d269363a06",
+      "exact_text": "Todos os relatórios incluem status de confiabilidade.",
+      "weight": 5,
+      "initial_state": "OPEN",
+      "implementation": "operational_outputs/reports/export_pack/deliverable_package_final/golden_path/weekly_cycle",
+      "test_specific": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-22 --json",
+      "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-22 --json",
+      "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-d269363a06/proof.json",
+      "hashes": {},
+      "run_id": null,
+      "source": "postgresql:extra_test",
+      "period": {
+        "as_of": "2026-07-28"
+      },
+      "reliability": "READY",
+      "limitations": [],
+      "exit_code": 0,
+      "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "authority": "DOD.md + freeze + orpt_item_proofs + CI PR1/PR2 + accept",
+      "terminal_state": "ACCEPTED",
+      "assertion_result": {
+        "alias": "ORPT-12.2-22",
+        "item_id": "DOD-rol-1-definition-of-done-d269363a06",
+        "ok": true,
+        "error": null,
+        "detail": {
+          "reliability": "NOT_READY",
+          "ok": true
+        },
+        "as_of": "2026-07-28T02:40:39Z",
+        "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+        "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+      }
+    },
+    {
+      "alias": "ORPT-12.2-23",
+      "id": "DOD-rol-1-definition-of-done-135268780a",
+      "exact_text": "Todos os relatórios evitam afirmações não suportadas.",
+      "weight": 5,
+      "initial_state": "OPEN",
+      "implementation": "operational_outputs/reports/export_pack/deliverable_package_final/golden_path/weekly_cycle",
+      "test_specific": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-23 --json",
+      "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-23 --json",
+      "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-135268780a/proof.json",
+      "hashes": {},
+      "run_id": null,
+      "source": "postgresql:extra_test",
+      "period": {
+        "as_of": "2026-07-28"
+      },
+      "reliability": "READY",
+      "limitations": [],
+      "exit_code": 0,
+      "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "authority": "DOD.md + freeze + orpt_item_proofs + CI PR1/PR2 + accept",
+      "terminal_state": "ACCEPTED",
+      "assertion_result": {
+        "alias": "ORPT-12.2-23",
+        "item_id": "DOD-rol-1-definition-of-done-135268780a",
+        "ok": true,
+        "error": null,
+        "detail": {
+          "forbidden": [
+            "LOCAL_READY",
+            "operational coverage 95%",
+            "PRE_VPS_FINAL_READY",
+            "PROJECT_DONE",
+            "empty CSV after SQL error as success"
+          ],
+          "ok": true
+        },
+        "as_of": "2026-07-28T02:40:39Z",
+        "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+        "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+      }
+    },
+    {
+      "alias": "ORPT-13.2-01",
+      "id": "DOD-rol-1-definition-of-done-aeda284a54",
+      "exact_text": "Falha parcial não marcada como sucesso.",
+      "weight": 5,
+      "initial_state": "OPEN",
+      "implementation": "operational_outputs/reports/export_pack/deliverable_package_final/golden_path/weekly_cycle",
+      "test_specific": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-13.2-01 --json",
+      "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-13.2-01 --json",
+      "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-aeda284a54/proof.json",
+      "hashes": {},
+      "run_id": null,
+      "source": "postgresql:extra_test",
+      "period": {
+        "as_of": "2026-07-28"
+      },
+      "reliability": "READY",
+      "limitations": [],
+      "exit_code": 0,
+      "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "authority": "DOD.md + freeze + orpt_item_proofs + CI PR1/PR2 + accept",
+      "terminal_state": "ACCEPTED",
+      "assertion_result": {
+        "alias": "ORPT-13.2-01",
+        "item_id": "DOD-rol-1-definition-of-done-aeda284a54",
+        "ok": true,
+        "error": null,
+        "detail": {
+          "exit_code": 1,
+          "ok": true
+        },
+        "as_of": "2026-07-28T02:40:40Z",
+        "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+        "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+      }
+    },
+    {
+      "alias": "ORPT-13.2-02",
+      "id": "DOD-rol-1-definition-of-done-9c23f31815",
+      "exact_text": "Reconciliação de snapshot.",
+      "weight": 5,
+      "initial_state": "OPEN",
+      "implementation": "operational_outputs/reports/export_pack/deliverable_package_final/golden_path/weekly_cycle",
+      "test_specific": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-13.2-02 --json",
+      "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-13.2-02 --json",
+      "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-9c23f31815/proof.json",
+      "hashes": {},
+      "run_id": null,
+      "source": "postgresql:extra_test",
+      "period": {
+        "as_of": "2026-07-28"
+      },
+      "reliability": "SUCCESS_ZERO",
+      "limitations": [
+        "No active pncp_raw_bids / opportunity_intel; GO/REVIEW/NO_GO lists empty (SUCCESS_ZERO)",
+        "sc_public_entities empty — gap lists cannot enumerate universe entities"
+      ],
+      "exit_code": 0,
+      "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "authority": "DOD.md + freeze + orpt_item_proofs + CI PR1/PR2 + accept",
+      "terminal_state": "ACCEPTED",
+      "assertion_result": {
+        "alias": "ORPT-13.2-02",
+        "item_id": "DOD-rol-1-definition-of-done-9c23f31815",
+        "ok": true,
+        "error": null,
+        "detail": {
+          "path": "/mnt/d/extra consultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/lists/oportunidades_removidas_snapshot.csv",
+          "status": "SUCCESS_ZERO",
+          "limitations": [
+            "No active pncp_raw_bids / opportunity_intel; GO/REVIEW/NO_GO lists empty (SUCCESS_ZERO)",
+            "sc_public_entities empty — gap lists cannot enumerate universe entities"
+          ],
+          "ok": true
+        },
+        "as_of": "2026-07-28T02:40:40Z",
+        "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+        "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+      }
+    },
+    {
+      "alias": "ORPT-13.2-03",
+      "id": "DOD-rol-1-definition-of-done-8dc9efb9a9",
+      "exact_text": "Geração real de PDF.",
+      "weight": 5,
+      "initial_state": "OPEN",
+      "implementation": "operational_outputs/reports/export_pack/deliverable_package_final/golden_path/weekly_cycle",
+      "test_specific": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-13.2-03 --json",
+      "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-13.2-03 --json",
+      "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-8dc9efb9a9/proof.json",
+      "hashes": {},
+      "run_id": "ops-export-20260728-020731-1fac0338",
+      "source": "postgresql:extra_test",
+      "period": {
+        "as_of": "2026-07-28"
+      },
+      "reliability": "READY",
+      "limitations": [],
+      "exit_code": 0,
+      "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "authority": "DOD.md + freeze + orpt_item_proofs + CI PR1/PR2 + accept",
+      "terminal_state": "ACCEPTED",
+      "assertion_result": {
+        "alias": "ORPT-13.2-03",
+        "item_id": "DOD-rol-1-definition-of-done-8dc9efb9a9",
+        "ok": true,
+        "error": null,
+        "detail": {
+          "path": "artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/package_final/ops-export-20260728-020731-1fac0338.pdf",
+          "run_id": "ops-export-20260728-020731-1fac0338",
+          "ok": true
+        },
+        "as_of": "2026-07-28T02:40:40Z",
+        "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+        "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+      }
+    },
+    {
+      "alias": "ORPT-13.2-04",
+      "id": "DOD-rol-1-definition-of-done-d94e5ff604",
+      "exact_text": "Geração real de Excel.",
+      "weight": 5,
+      "initial_state": "OPEN",
+      "implementation": "operational_outputs/reports/export_pack/deliverable_package_final/golden_path/weekly_cycle",
+      "test_specific": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-13.2-04 --json",
+      "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-13.2-04 --json",
+      "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-d94e5ff604/proof.json",
+      "hashes": {},
+      "run_id": null,
+      "source": "postgresql:extra_test",
+      "period": {
+        "as_of": "2026-07-28"
+      },
+      "reliability": "READY",
+      "limitations": [],
+      "exit_code": 0,
+      "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "authority": "DOD.md + freeze + orpt_item_proofs + CI PR1/PR2 + accept",
+      "terminal_state": "ACCEPTED",
+      "assertion_result": {
+        "alias": "ORPT-13.2-04",
+        "item_id": "DOD-rol-1-definition-of-done-d94e5ff604",
+        "ok": true,
+        "error": null,
+        "detail": {
+          "path": "artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/package_final/ops-export-20260728-020731-1fac0338.xlsx",
+          "ok": true
+        },
+        "as_of": "2026-07-28T02:40:40Z",
+        "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+        "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+      }
+    },
+    {
+      "alias": "ORPT-13.2-05",
+      "id": "DOD-rol-1-definition-of-done-42d45a6bd7",
+      "exact_text": "Golden path completo.",
+      "weight": 5,
+      "initial_state": "OPEN",
+      "implementation": "operational_outputs/reports/export_pack/deliverable_package_final/golden_path/weekly_cycle",
+      "test_specific": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-13.2-05 --json",
+      "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-13.2-05 --json",
+      "artifact": ".dod/evidence/DOD-rol-1-definition-of-done-42d45a6bd7/proof.json",
+      "hashes": {},
+      "run_id": null,
+      "source": "postgresql:extra_test",
+      "period": {
+        "as_of": "2026-07-28"
+      },
+      "reliability": "READY",
+      "limitations": [],
+      "exit_code": 0,
+      "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "authority": "DOD.md + freeze + orpt_item_proofs + CI PR1/PR2 + accept",
+      "terminal_state": "ACCEPTED",
+      "assertion_result": {
+        "alias": "ORPT-13.2-05",
+        "item_id": "DOD-rol-1-definition-of-done-42d45a6bd7",
+        "ok": true,
+        "error": null,
+        "detail": {
+          "structural": true,
+          "ok": true
+        },
+        "as_of": "2026-07-28T02:40:40Z",
+        "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+        "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+      }
+    },
+    {
+      "alias": "ORPT-29-01",
+      "id": "DOD-rol-3-definition-of-done-ee5d3e69cb",
+      "exact_text": "Cada execução possui erros.",
+      "weight": 3,
+      "initial_state": "OPEN",
+      "implementation": "operational_outputs/reports/export_pack/deliverable_package_final/golden_path/weekly_cycle",
+      "test_specific": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-29-01 --json",
+      "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-29-01 --json",
+      "artifact": ".dod/evidence/DOD-rol-3-definition-of-done-ee5d3e69cb/proof.json",
+      "hashes": {},
+      "run_id": null,
+      "source": "postgresql:extra_test",
+      "period": {
+        "as_of": "2026-07-28"
+      },
+      "reliability": "READY",
+      "limitations": [],
+      "exit_code": 0,
+      "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "authority": "DOD.md + freeze + orpt_item_proofs + CI PR1/PR2 + accept",
+      "terminal_state": "ACCEPTED",
+      "assertion_result": {
+        "alias": "ORPT-29-01",
+        "item_id": "DOD-rol-3-definition-of-done-ee5d3e69cb",
+        "ok": true,
+        "error": null,
+        "detail": {
+          "errors": [],
+          "ok": true
+        },
+        "as_of": "2026-07-28T02:40:40Z",
+        "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+        "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+      }
+    },
+    {
+      "alias": "ORPT-29-02",
+      "id": "DOD-rol-3-definition-of-done-5f7e8477a1",
+      "exact_text": "Cada relatório referencia runs de origem.",
+      "weight": 5,
+      "initial_state": "OPEN",
+      "implementation": "operational_outputs/reports/export_pack/deliverable_package_final/golden_path/weekly_cycle",
+      "test_specific": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-29-02 --json",
+      "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-29-02 --json",
+      "artifact": ".dod/evidence/DOD-rol-3-definition-of-done-5f7e8477a1/proof.json",
+      "hashes": {},
+      "run_id": null,
+      "source": "postgresql:extra_test",
+      "period": {
+        "as_of": "2026-07-28"
+      },
+      "reliability": "READY",
+      "limitations": [],
+      "exit_code": 0,
+      "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "authority": "DOD.md + freeze + orpt_item_proofs + CI PR1/PR2 + accept",
+      "terminal_state": "ACCEPTED",
+      "assertion_result": {
+        "alias": "ORPT-29-02",
+        "item_id": "DOD-rol-3-definition-of-done-5f7e8477a1",
+        "ok": true,
+        "error": null,
+        "detail": {
+          "origin_runs": [
+            "ops-export-20260728-020731-1fac0338"
+          ],
+          "ok": true
+        },
+        "as_of": "2026-07-28T02:40:40Z",
+        "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+        "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+      }
+    },
+    {
+      "alias": "ORPT-29-03",
+      "id": "DOD-rol-3-definition-of-done-d1e60357c0",
+      "exact_text": "A evidência de coverage pode ser reconstruída.",
+      "weight": 5,
+      "initial_state": "OPEN",
+      "implementation": "operational_outputs/reports/export_pack/deliverable_package_final/golden_path/weekly_cycle",
+      "test_specific": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-29-03 --json",
+      "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-29-03 --json",
+      "artifact": ".dod/evidence/DOD-rol-3-definition-of-done-d1e60357c0/proof.json",
+      "hashes": {},
+      "run_id": "ops-reports-20260728-020730-82243529",
+      "source": "postgresql:extra_test",
+      "period": {
+        "as_of": "2026-07-28"
+      },
+      "reliability": "READY",
+      "limitations": [],
+      "exit_code": 0,
+      "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "authority": "DOD.md + freeze + orpt_item_proofs + CI PR1/PR2 + accept",
+      "terminal_state": "ACCEPTED",
+      "assertion_result": {
+        "alias": "ORPT-29-03",
+        "item_id": "DOD-rol-3-definition-of-done-d1e60357c0",
+        "ok": true,
+        "error": null,
+        "detail": {
+          "path": "/mnt/d/extra consultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/reports/relatorio_coverage.csv",
+          "run_id": "ops-reports-20260728-020730-82243529",
+          "dataset_hash": "feb3828924a8d2e5028db650a94163282294b420cf44a621066ca1b13ef57e18",
+          "ok": true
+        },
+        "as_of": "2026-07-28T02:40:40Z",
+        "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+        "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+      }
+    },
+    {
+      "alias": "ORPT-29-04",
+      "id": "DOD-rol-3-definition-of-done-9ae341d9ef",
+      "exact_text": "A evidência de freshness pode ser reconstruída.",
+      "weight": 5,
+      "initial_state": "OPEN",
+      "implementation": "operational_outputs/reports/export_pack/deliverable_package_final/golden_path/weekly_cycle",
+      "test_specific": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-29-04 --json",
+      "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-29-04 --json",
+      "artifact": ".dod/evidence/DOD-rol-3-definition-of-done-9ae341d9ef/proof.json",
+      "hashes": {},
+      "run_id": "ops-export-20260728-020731-ab0f40f5",
+      "source": "postgresql:extra_test",
+      "period": {
+        "as_of": "2026-07-28"
+      },
+      "reliability": "READY",
+      "limitations": [],
+      "exit_code": 0,
+      "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "authority": "DOD.md + freeze + orpt_item_proofs + CI PR1/PR2 + accept",
+      "terminal_state": "ACCEPTED",
+      "assertion_result": {
+        "alias": "ORPT-29-04",
+        "item_id": "DOD-rol-3-definition-of-done-9ae341d9ef",
+        "ok": true,
+        "error": null,
+        "detail": {
+          "path": "/mnt/d/extra consultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/export/csv/source_health.csv",
+          "run_id": "ops-export-20260728-020731-ab0f40f5",
+          "ok": true
+        },
+        "as_of": "2026-07-28T02:40:40Z",
+        "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+        "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+      }
+    },
+    {
+      "alias": "ORPT-29-05",
+      "id": "DOD-rol-3-definition-of-done-643b2e819c",
+      "exact_text": "A evidência de snapshot pode ser reconstruída.",
+      "weight": 5,
+      "initial_state": "OPEN",
+      "implementation": "operational_outputs/reports/export_pack/deliverable_package_final/golden_path/weekly_cycle",
+      "test_specific": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-29-05 --json",
+      "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-29-05 --json",
+      "artifact": ".dod/evidence/DOD-rol-3-definition-of-done-643b2e819c/proof.json",
+      "hashes": {},
+      "run_id": "ops-lists-20260728-020730-159518b5",
+      "source": "postgresql:extra_test",
+      "period": {
+        "as_of": "2026-07-28"
+      },
+      "reliability": "READY",
+      "limitations": [],
+      "exit_code": 0,
+      "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "authority": "DOD.md + freeze + orpt_item_proofs + CI PR1/PR2 + accept",
+      "terminal_state": "ACCEPTED",
+      "assertion_result": {
+        "alias": "ORPT-29-05",
+        "item_id": "DOD-rol-3-definition-of-done-643b2e819c",
+        "ok": true,
+        "error": null,
+        "detail": {
+          "path": "/mnt/d/extra consultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/lists/oportunidades_removidas_snapshot.csv",
+          "dataset_hash": "45898ae2d10c36319935c3955f90d67c61928f07968dda0a6f8efe8c0aec60f2",
+          "run_id": "ops-lists-20260728-020730-159518b5",
+          "ok": true
+        },
+        "as_of": "2026-07-28T02:40:40Z",
+        "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+        "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+      }
+    },
+    {
+      "alias": "ORPT-29-06",
+      "id": "DOD-rol-3-definition-of-done-c980ae3941",
+      "exact_text": "O DOD aponta para os artefatos finais de aceite.",
+      "weight": 3,
+      "initial_state": "OPEN",
+      "implementation": "operational_outputs/reports/export_pack/deliverable_package_final/golden_path/weekly_cycle",
+      "test_specific": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-29-06 --json",
+      "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-29-06 --json",
+      "artifact": ".dod/evidence/DOD-rol-3-definition-of-done-c980ae3941/proof.json",
+      "hashes": {},
+      "run_id": null,
+      "source": "postgresql:extra_test",
+      "period": {
+        "as_of": "2026-07-28"
+      },
+      "reliability": "READY",
+      "limitations": [],
+      "exit_code": 0,
+      "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "authority": "DOD.md + freeze + orpt_item_proofs + CI PR1/PR2 + accept",
+      "terminal_state": "ACCEPTED",
+      "assertion_result": {
+        "alias": "ORPT-29-06",
+        "item_id": "DOD-rol-3-definition-of-done-c980ae3941",
+        "ok": true,
+        "error": null,
+        "detail": {
+          "freeze": "/mnt/d/extra consultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/freeze.json",
+          "acceptance": "/mnt/d/extra consultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/acceptance-run.json",
+          "ok": true
+        },
+        "as_of": "2026-07-28T02:40:40Z",
+        "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+        "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+      }
+    },
+    {
+      "alias": "ORPT-30-01",
+      "id": "DOD-rol-3-definition-of-done-38861a819b",
+      "exact_text": "O tempo do golden path é medido.",
+      "weight": 3,
+      "initial_state": "OPEN",
+      "implementation": "operational_outputs/reports/export_pack/deliverable_package_final/golden_path/weekly_cycle",
+      "test_specific": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-30-01 --json",
+      "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-30-01 --json",
+      "artifact": ".dod/evidence/DOD-rol-3-definition-of-done-38861a819b/proof.json",
+      "hashes": {},
+      "run_id": null,
+      "source": "postgresql:extra_test",
+      "period": {
+        "as_of": "2026-07-28"
+      },
+      "reliability": "READY",
+      "limitations": [],
+      "exit_code": 0,
+      "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "authority": "DOD.md + freeze + orpt_item_proofs + CI PR1/PR2 + accept",
+      "terminal_state": "ACCEPTED",
+      "assertion_result": {
+        "alias": "ORPT-30-01",
+        "item_id": "DOD-rol-3-definition-of-done-38861a819b",
+        "ok": true,
+        "error": null,
+        "detail": {
+          "duration_seconds": 0.2149,
+          "ok": true
+        },
+        "as_of": "2026-07-28T02:40:40Z",
+        "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+        "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+      }
+    },
+    {
+      "alias": "ORPT-30-02",
+      "id": "DOD-rol-3-definition-of-done-80407f0504",
+      "exact_text": "O tempo de cada crawler é medido.",
+      "weight": 3,
+      "initial_state": "OPEN",
+      "implementation": "operational_outputs/reports/export_pack/deliverable_package_final/golden_path/weekly_cycle",
+      "test_specific": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-30-02 --json",
+      "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-30-02 --json",
+      "artifact": ".dod/evidence/DOD-rol-3-definition-of-done-80407f0504/proof.json",
+      "hashes": {},
+      "run_id": null,
+      "source": "postgresql:extra_test",
+      "period": {
+        "as_of": "2026-07-28"
+      },
+      "reliability": "READY",
+      "limitations": [],
+      "exit_code": 0,
+      "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "authority": "DOD.md + freeze + orpt_item_proofs + CI PR1/PR2 + accept",
+      "terminal_state": "ACCEPTED",
+      "assertion_result": {
+        "alias": "ORPT-30-02",
+        "item_id": "DOD-rol-3-definition-of-done-80407f0504",
+        "ok": true,
+        "error": null,
+        "detail": {
+          "structural": true,
+          "ok": true
+        },
+        "as_of": "2026-07-28T02:40:40Z",
+        "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+        "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+      }
+    },
+    {
+      "alias": "ORPT-30-03",
+      "id": "DOD-rol-3-definition-of-done-8e1aefe571",
+      "exact_text": "O tempo de cada relatório é medido.",
+      "weight": 3,
+      "initial_state": "OPEN",
+      "implementation": "operational_outputs/reports/export_pack/deliverable_package_final/golden_path/weekly_cycle",
+      "test_specific": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-30-03 --json",
+      "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-30-03 --json",
+      "artifact": ".dod/evidence/DOD-rol-3-definition-of-done-8e1aefe571/proof.json",
+      "hashes": {},
+      "run_id": null,
+      "source": "postgresql:extra_test",
+      "period": {
+        "as_of": "2026-07-28"
+      },
+      "reliability": "READY",
+      "limitations": [],
+      "exit_code": 0,
+      "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+      "authority": "DOD.md + freeze + orpt_item_proofs + CI PR1/PR2 + accept",
+      "terminal_state": "ACCEPTED",
+      "assertion_result": {
+        "alias": "ORPT-30-03",
+        "item_id": "DOD-rol-3-definition-of-done-8e1aefe571",
+        "ok": true,
+        "error": null,
+        "detail": {
+          "duration_seconds": 0.0488,
+          "ok": true
+        },
+        "as_of": "2026-07-28T02:40:40Z",
+        "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+        "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+      }
+    }
+  ],
+  "as_of": "2026-07-28T02:40:38Z"
+}

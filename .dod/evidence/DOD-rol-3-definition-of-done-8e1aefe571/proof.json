@@ -1,0 +1,32 @@
+{
+  "item_id": "DOD-rol-3-definition-of-done-8e1aefe571",
+  "alias": "ORPT-30-03",
+  "text": "O tempo de cada relat\u00f3rio \u00e9 medido.",
+  "weight": 3,
+  "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+  "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+  "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+  "command": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-30-03 --json",
+  "timestamp": "2026-07-28T02:07:56Z",
+  "source": "postgresql:extra_test",
+  "parameters": {
+    "REQUIRE_REAL_DB": "1"
+  },
+  "assertion_result": {
+    "alias": "ORPT-30-03",
+    "item_id": "DOD-rol-3-definition-of-done-8e1aefe571",
+    "ok": true,
+    "error": null,
+    "detail": {
+      "duration_seconds": 0.0488,
+      "ok": true
+    },
+    "as_of": "2026-07-28T02:08:04Z",
+    "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+    "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+  },
+  "reliability": "READY",
+  "limitations": [],
+  "artifact_hashes": {},
+  "run_ids": []
+}

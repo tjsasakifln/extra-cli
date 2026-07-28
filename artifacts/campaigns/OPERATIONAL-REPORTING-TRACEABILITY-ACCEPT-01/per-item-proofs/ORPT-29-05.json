@@ -1,0 +1,39 @@
+{
+  "alias": "ORPT-29-05",
+  "id": "DOD-rol-3-definition-of-done-643b2e819c",
+  "exact_text": "A evidência de snapshot pode ser reconstruída.",
+  "weight": 5,
+  "initial_state": "OPEN",
+  "implementation": "operational_outputs/reports/export_pack/deliverable_package_final/golden_path/weekly_cycle",
+  "test_specific": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-29-05 --json",
+  "command_of_proof": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-29-05 --json",
+  "artifact": ".dod/evidence/DOD-rol-3-definition-of-done-643b2e819c/proof.json",
+  "hashes": {},
+  "run_id": "ops-lists-20260728-020730-159518b5",
+  "source": "postgresql:extra_test",
+  "period": {
+    "as_of": "2026-07-28"
+  },
+  "reliability": "READY",
+  "limitations": [],
+  "exit_code": 0,
+  "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+  "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+  "authority": "DOD.md + freeze + orpt_item_proofs + CI PR1/PR2 + accept",
+  "terminal_state": "ACCEPTED",
+  "assertion_result": {
+    "alias": "ORPT-29-05",
+    "item_id": "DOD-rol-3-definition-of-done-643b2e819c",
+    "ok": true,
+    "error": null,
+    "detail": {
+      "path": "/mnt/d/extra consultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/lists/oportunidades_removidas_snapshot.csv",
+      "dataset_hash": "45898ae2d10c36319935c3955f90d67c61928f07968dda0a6f8efe8c0aec60f2",
+      "run_id": "ops-lists-20260728-020730-159518b5",
+      "ok": true
+    },
+    "as_of": "2026-07-28T02:40:40Z",
+    "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+    "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+  }
+}

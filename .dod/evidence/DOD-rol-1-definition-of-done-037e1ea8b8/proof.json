@@ -1,0 +1,36 @@
+{
+  "item_id": "DOD-rol-1-definition-of-done-037e1ea8b8",
+  "alias": "ORPT-12.2-03",
+  "text": "Lista de editais descartados com motivo.",
+  "weight": 5,
+  "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+  "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+  "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+  "command": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-03 --json",
+  "timestamp": "2026-07-28T02:07:56Z",
+  "source": "postgresql:extra_test",
+  "parameters": {
+    "REQUIRE_REAL_DB": "1"
+  },
+  "assertion_result": {
+    "alias": "ORPT-12.2-03",
+    "item_id": "DOD-rol-1-definition-of-done-037e1ea8b8",
+    "ok": true,
+    "error": null,
+    "detail": {
+      "path": "/mnt/d/extra consultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/lists/editais_descartados.csv",
+      "bytes": 149,
+      "count_key": "NO_GO",
+      "count": 0,
+      "status": "SUCCESS_ZERO",
+      "ok": true
+    },
+    "as_of": "2026-07-28T02:08:01Z",
+    "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+    "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+  },
+  "reliability": "SUCCESS_ZERO",
+  "limitations": [],
+  "artifact_hashes": {},
+  "run_ids": []
+}
