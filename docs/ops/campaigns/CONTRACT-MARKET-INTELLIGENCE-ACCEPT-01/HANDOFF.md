@@ -21,3 +21,12 @@
 - capability PRs: #151–#153 (≤3)
 - integrity followups closed: #154–#156
 - stop rebind loop: yes
+
+## Terminal honesty (post-skeptic)
+
+- **terminal_state:** `FAILED_PREMORTEM` (`SECTION_18_PR_BUDGET_EXCEEDED`)
+- **PRs:** [151, 152, 153, 154, 155, 156, 157] (count=7 > max 3)
+- **main tip at honesty write:** `b2eaa52a3dc1bb829c49e128913190ad3902aac5`
+- **verified operational main:** `71566879eaca70b9cfc4810ba49032578171d840`
+- **BUNDLE_ACCEPTED:** not authorized under OBJECTIVE §18/§32
+- Floors numerically met; controller accepts retained; campaign success claim withdrawn

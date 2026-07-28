@@ -2,8 +2,113 @@
   "campaign_id": "CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01",
   "bundle_id": "CMI-CONCORRENTES-VALORES-01",
   "bundle_class": "REPAIR_AND_ACCEPT_BUNDLE",
-  "terminal_state": "BUNDLE_ACCEPTED",
-  "as_of": "2026-07-28T00:35:58Z",
+  "terminal_state": "FAILED_PREMORTEM",
+  "as_of": "2026-07-28T00:52:17Z",
+  "abort": {
+    "reason_code": "SECTION_18_PR_BUDGET_EXCEEDED",
+    "max_prs": 3,
+    "actual_prs": 8,
+    "prs": [
+      151,
+      152,
+      153,
+      154,
+      155,
+      156,
+      157,
+      158
+    ],
+    "premortem_clause": "campaign requires more than three PRs without remaining within OBJECTIVE §18 success gate",
+    "note": "Functional vertical and individual DOD accepts already landed. Campaign success criterion §18/§32 fails. Terminal is FAILED_PREMORTEM for the campaign claim — not a rollback of ACCEPTED items."
+  },
+  "section_18_compliance": {
+    "max_prs": 3,
+    "actual_merged_prs": 8,
+    "prs": [
+      151,
+      152,
+      153,
+      154,
+      155,
+      156,
+      157,
+      158
+    ],
+    "within_budget": false,
+    "capability_split_authorized": false,
+    "capability_split_rejected_by": "OBJECTIVE §18 / plan AC5 / §32 — total PR train, not a re-labeled subset",
+    "bundle_accepted_authorized": false,
+    "interpretation": "BUNDLE_ACCEPTED requires the campaign PR train ≤ 3. This campaign merged 7 PRs (151–157). Renaming a subset as 'capability' does not satisfy §18. Floors and controller accepts are factual but do not authorize BUNDLE_ACCEPTED."
+  },
+  "factual_outcomes": {
+    "raw_dod_delta": 47,
+    "weighted_dod_delta": 197,
+    "raw_progress_percent": 4.2457,
+    "weighted_progress_percent": 5.9319,
+    "floors_numerically_met": true,
+    "raw_floor_pct": 3.0,
+    "weighted_floor_pct": 5.0,
+    "items_selected": 47,
+    "items_accepted_in_controller": 47,
+    "item_ids": [
+      "DOD-rol-1-definition-of-done-ad5ffdc575",
+      "DOD-rol-1-definition-of-done-7fc5475f5f",
+      "DOD-rol-1-definition-of-done-aaad858820",
+      "DOD-rol-1-definition-of-done-29ddb3c2f5",
+      "DOD-rol-1-definition-of-done-af4d2329d5",
+      "DOD-rol-1-definition-of-done-e2debb6d90",
+      "DOD-rol-1-definition-of-done-24581047c4",
+      "DOD-rol-1-definition-of-done-7114069aad",
+      "DOD-rol-1-definition-of-done-180363f3c6",
+      "DOD-rol-1-definition-of-done-5eb2fbdae2",
+      "DOD-rol-1-definition-of-done-24d8ac6823",
+      "DOD-rol-1-definition-of-done-72ffefd4fe",
+      "DOD-rol-1-definition-of-done-28a1c47d70",
+      "DOD-rol-1-definition-of-done-f32083927c",
+      "DOD-rol-1-definition-of-done-f11737c2bf",
+      "DOD-rol-1-definition-of-done-e5557d5607",
+      "DOD-rol-1-definition-of-done-df0c666a5f",
+      "DOD-rol-1-definition-of-done-ff54a45a75",
+      "DOD-rol-1-definition-of-done-926290cde1",
+      "DOD-rol-1-definition-of-done-849f610ada",
+      "DOD-rol-1-definition-of-done-fd5b78c29d",
+      "DOD-rol-1-definition-of-done-96ca22dde7",
+      "DOD-rol-1-definition-of-done-e26def5c74",
+      "DOD-rol-1-definition-of-done-2c30e375c5",
+      "DOD-rol-1-definition-of-done-3f13a31ef1",
+      "DOD-rol-1-definition-of-done-58f3b88564",
+      "DOD-rol-1-definition-of-done-f2cc2a2ae5",
+      "DOD-rol-1-definition-of-done-7e3e9e1447",
+      "DOD-rol-1-definition-of-done-9138b9d0df",
+      "DOD-rol-1-definition-of-done-532d802562",
+      "DOD-rol-1-definition-of-done-76039ae8d2",
+      "DOD-rol-1-definition-of-done-7d7b10b055",
+      "DOD-rol-1-definition-of-done-3bb3874141",
+      "DOD-rol-1-definition-of-done-4fc2390171",
+      "DOD-rol-1-definition-of-done-262f17e7ec",
+      "DOD-rol-1-definition-of-done-53115f162e",
+      "DOD-rol-1-definition-of-done-50bb794fc7",
+      "DOD-rol-1-definition-of-done-dc5790ffeb",
+      "DOD-rol-1-definition-of-done-c8739f5734",
+      "DOD-rol-1-definition-of-done-04da3e4902",
+      "DOD-rol-1-definition-of-done-a9b1b6e0c3",
+      "DOD-rol-1-definition-of-done-31211a0281",
+      "DOD-rol-1-definition-of-done-589da36904",
+      "DOD-rol-1-definition-of-done-8aae30ee2e",
+      "DOD-rol-1-definition-of-done-55a430a39c",
+      "DOD-rol-1-definition-of-done-91752931c3",
+      "DOD-rol-1-definition-of-done-bcbbd65023"
+    ],
+    "n_accepted_final": 401,
+    "n_open_final": 1060,
+    "package_tracked_hash_mismatches": 0,
+    "adversarial_attacks": 20,
+    "adversarial_blocking": 0,
+    "verified_operational_main_sha": "71566879eaca70b9cfc4810ba49032578171d840",
+    "package_code_sha": "aeb7663e710624cd260f80dfefba19a9525a1a88",
+    "implementation_sha": "241ec41f0badf5bd463b66dafe36faa1e2e66876",
+    "bundle_accepted_authorized": false
+  },
   "baseline": {
     "main_sha": "c5b4cdb91b0727b5e7a537c8eb47daf001b74552",
     "dod_hash": "df2388b7fc3887558c17efe2bd6318c8ce73b2a8",
@@ -12,29 +117,17 @@
     "w_open": 3321
   },
   "final_state": {
-    "main_sha": "71566879eaca70b9cfc4810ba49032578171d840",
-    "verified_main_sha": "71566879eaca70b9cfc4810ba49032578171d840",
-    "main_at_claim_write": "9b4ad968b91174fa5728d6bdb43a227f79a3b1de",
+    "main_sha": "b2eaa52a3dc1bb829c49e128913190ad3902aac5",
+    "tip_at_honesty_write": "b2eaa52a3dc1bb829c49e128913190ad3902aac5",
+    "verified_operational_main_sha": "71566879eaca70b9cfc4810ba49032578171d840",
     "n_accepted": 401,
     "n_open": 1060,
     "acceptance_pct_audited": 6.09,
     "package_code_sha": "aeb7663e710624cd260f80dfefba19a9525a1a88",
     "package_hash_integrity": "verified_match_disk_tracked",
-    "tracked_hash_mismatches": 0
-  },
-  "sha_model": {
-    "package_code_sha": "aeb7663e710624cd260f80dfefba19a9525a1a88",
-    "implementation_sha": "241ec41f0badf5bd463b66dafe36faa1e2e66876",
-    "verified_main_sha": "71566879eaca70b9cfc4810ba49032578171d840",
-    "main_at_claim_write": "9b4ad968b91174fa5728d6bdb43a227f79a3b1de",
-    "package_matches_head": false,
-    "package_matches_verified_main": true,
-    "package_hash_integrity": "verified_match_disk_tracked",
     "tracked_hash_mismatches": 0,
-    "gitignore_only_hash_mismatches": [
-      "final-package/executive-review.xlsx"
-    ],
-    "note": "package_matches_head is false by design under squash merges: verified_main_sha is the tip where package hashes and item accepts were proven; later metadata commits may move HEAD without changing final-package tracked bytes. Do not re-stamp post_merge_main_sha on all item proofs for tip chase."
+    "package_matches_head": false,
+    "package_matches_head_note": "package run SHA ≠ tip; under FAILED_PREMORTEM no post-merge-complete success claim. Operational proof held at verified_operational_main_sha."
   },
   "selected_items": [
     "DOD-rol-1-definition-of-done-ad5ffdc575",
@@ -139,10 +232,8 @@
   "weighted_dod_delta": 197,
   "raw_progress_percent": 4.2457,
   "weighted_progress_percent": 5.9319,
-  "floors_met": {
-    "raw_ge_3pct": true,
-    "weighted_ge_5pct": true
-  },
+  "floors_met_numerically": true,
+  "floors_authorize_bundle_accepted": false,
   "item_proofs_all_ok": true,
   "package_code_sha": "aeb7663e710624cd260f80dfefba19a9525a1a88",
   "prs": {
@@ -153,61 +244,42 @@
       154,
       155,
       156,
-      157
+      157,
+      158
     ],
-    "capability": [
-      151,
-      152,
-      153
-    ],
-    "integrity_followups": [
-      154,
-      155,
-      156
-    ],
-    "claim_closure": [
-      157
-    ],
+    "count": 8,
+    "max_for_bundle_accepted": 3,
     "roles": {
       "151": "functional vertical / repair",
       "152": "accept / promotion",
       "153": "evidence package",
       "154": "SHA rebind (skeptic)",
       "155": "hash integrity + adversarial §17 (skeptic)",
-      "156": "post-merge stamp (skeptic; closed)",
-      "157": "claim-closure metadata (capability/integrity split; stop rebind)"
-    }
-  },
-  "section_18_compliance": {
-    "max_capability_prs": 3,
-    "capability_pr_count": 3,
-    "capability_within_budget": true,
-    "integrity_followups_closed": true,
-    "integrity_followup_count": 3,
-    "total_train_prs_before_claim_closure": 6,
-    "interpretation": "OBJECTIVE §18 / plan AC5 bind the capability/repair train (repair + operational package + promotion), not skeptic-driven evidence hygiene PRs. Capability train is exactly 3 PRs: #151–#153. Followups #154–#156 are closed; claim-closure is metadata-only.",
-    "claim_closure_pr": 157,
-    "total_train_prs_including_claim_closure": 7
-  },
-  "section_18_note": "OBJECTIVE §18 / plan AC5 bind the capability/repair train (repair + operational package + promotion), not skeptic-driven evidence hygiene PRs. Capability train is exactly 3 PRs: #151–#153. Followups #154–#156 are closed; claim-closure is metadata-only.",
-  "post_merge_validation": {
-    "verified_main_sha": "71566879eaca70b9cfc4810ba49032578171d840",
-    "main_at_claim_write": "9b4ad968b91174fa5728d6bdb43a227f79a3b1de",
-    "package_code_sha": "aeb7663e710624cd260f80dfefba19a9525a1a88",
-    "package_matches_head": false,
-    "package_matches_verified_main": true,
-    "hash_mismatches": 0,
-    "tracked_hash_mismatches": 0,
-    "package_hash_integrity": "verified_match_disk_tracked"
+      "156": "post-merge stamp (skeptic)",
+      "157": "claim-closure metadata (rejected as BUNDLE_ACCEPTED path)",
+      "158": "honesty terminal FAILED_PREMORTEM (this PR)"
+    },
+    "honesty_fix_pr": 158
   },
   "forbidden_claims_checked": [
+    "BUNDLE_ACCEPTED with >3 PRs",
+    "capability-only PR budget as §18 compliance",
     "LOCAL_READY",
     "95% coverage",
-    "CONFENGE_COMMERCIAL_READY",
-    "complete national competitor universe",
-    "win rate without proposals",
-    "BUNDLE_ACCEPTED under unsplit 6-PR capability train"
+    "CONFENGE_COMMERCIAL_READY"
   ],
-  "next_action": "NONE — claim closed; no further integrity/stamp PRs",
-  "stop_rebind_loop": true
+  "post_merge_validation": {
+    "status": "NOT_CLAIMING_POST_MERGE_COMPLETE_FOR_BUNDLE_ACCEPTED",
+    "main_sha": "b2eaa52a3dc1bb829c49e128913190ad3902aac5",
+    "verified_operational_main_sha": "71566879eaca70b9cfc4810ba49032578171d840",
+    "package_code_sha": "aeb7663e710624cd260f80dfefba19a9525a1a88",
+    "package_matches_head": false,
+    "tracked_hash_mismatches": 0,
+    "package_hash_integrity": "verified_match_disk_tracked",
+    "item_proofs_post_merge_sha": "71566879eaca70b9cfc4810ba49032578171d840",
+    "item_proofs_note": "47 item proofs remain bound to operational verification tip 71566879eaca70b9cfc4810ba49032578171d840; not re-stamped to every metadata tip (rebind loop stopped)."
+  },
+  "next_action": "NONE — campaign terminal FAILED_PREMORTEM; do not open further rebind/stamp/claim PRs for BUNDLE_ACCEPTED",
+  "stop_rebind_loop": true,
+  "bundle_accepted_claim": false
 }
