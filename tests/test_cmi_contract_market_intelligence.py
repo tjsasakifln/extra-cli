@@ -374,21 +374,19 @@ def test_operational_reports_no_orgao_as_competitor():
 @pytest.mark.real_db
 @pytest.mark.skipif(not REQUIRE_REAL_DB, reason="REQUIRE_REAL_DB not set")
 def test_query_failure_not_silent_empty():
-    """Broken SQL surfaces _error instead of SUCCESS_ZERO-looking empty."""
+    """Broken SQL raises fail-closed error (never SUCCESS_ZERO-looking empty)."""
     import psycopg2
     import psycopg2.extras
+    import pytest
 
     from scripts.reports import operational_reports as op
 
     conn = psycopg2.connect(DSN, cursor_factory=psycopg2.extras.RealDictCursor)
     try:
-        rows = op._q(conn, "SELECT * FROM definitely_missing_table_cmi_xyz")
-        assert rows, "expected error marker row, got empty"
-        assert "_error" in rows[0]
-        assert "definitely_missing_table_cmi_xyz" in str(rows[0]["_error"])
-        # missing supplier table path also non-silent
+        with pytest.raises(op.OperationalReportError, match="definitely_missing_table_cmi_xyz"):
+            op._q(conn, "SELECT * FROM definitely_missing_table_cmi_xyz")
+        # missing supplier table path also non-silent empty-or-rows (never orgao fallback)
         missing = op.report_concorrentes(conn)
-        # either real rows or explicit error — never orgao fallback
         assert not any(
             r.get("provenance") == "fallback_orgao_not_supplier" for r in missing
         )

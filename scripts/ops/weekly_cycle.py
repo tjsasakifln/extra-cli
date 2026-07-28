@@ -1360,6 +1360,73 @@ def stage_delivery(
     else:
         delivery_status = "fail"
 
+
+    # ORPT: register operational lists / analytical reports / export pack on same cycle
+    # without forcing all READY (READY|PARTIAL|NOT_READY|BLOCKED).
+    operational_ledger: dict[str, Any] = {}
+    dsn_env = os.environ.get("LOCAL_DATALAKE_DSN") or os.environ.get("DATABASE_URL")
+    if dsn_env:
+        try:
+            from scripts.reports.operational_outputs import run as run_lists
+
+            lists_dir = out_dir / "operational_lists"
+            lists_man = run_lists(dsn_env, lists_dir)
+            operational_ledger["operational_lists"] = {
+                "status": lists_man.get("status") or lists_man.get("reliability") or "READY",
+                "reliability": lists_man.get("reliability"),
+                "run_id": lists_man.get("run_id"),
+                "manifest": lists_man.get("manifest_path"),
+                "duration_seconds": lists_man.get("duration_seconds"),
+                "limitations": lists_man.get("limitations") or [],
+            }
+        except Exception as exc:  # noqa: BLE001
+            operational_ledger["operational_lists"] = {
+                "status": "BLOCKED",
+                "error": str(exc),
+            }
+        try:
+            from scripts.reports.operational_reports import run as run_reports
+
+            rep_dir = out_dir / "operational_reports"
+            rep_man = run_reports(dsn_env, rep_dir)
+            operational_ledger["operational_reports"] = {
+                "status": rep_man.get("status") or rep_man.get("reliability") or "READY",
+                "reliability": rep_man.get("reliability"),
+                "run_id": rep_man.get("run_id"),
+                "manifest": rep_man.get("manifest_path"),
+                "duration_seconds": rep_man.get("duration_seconds"),
+                "limitations": rep_man.get("limitations") or [],
+            }
+        except Exception as exc:  # noqa: BLE001
+            operational_ledger["operational_reports"] = {
+                "status": "BLOCKED",
+                "error": str(exc),
+            }
+        try:
+            from scripts.reports.operational_export_pack import build_pack
+
+            exp_dir = out_dir / "operational_export"
+            exp_man = build_pack(dsn_env, exp_dir)
+            operational_ledger["operational_export"] = {
+                "status": exp_man.get("reliability") or "READY",
+                "reliability": exp_man.get("reliability"),
+                "run_id": exp_man.get("run_id"),
+                "manifest": exp_man.get("manifest_path"),
+                "pdf": (exp_man.get("artifacts") or {}).get("pdf"),
+                "excel": (exp_man.get("artifacts") or {}).get("excel"),
+                "limitations": exp_man.get("limitations") or [],
+            }
+        except Exception as exc:  # noqa: BLE001
+            operational_ledger["operational_export"] = {
+                "status": "BLOCKED",
+                "error": str(exc),
+            }
+    else:
+        operational_ledger["operational_lists"] = {
+            "status": "NOT_READY",
+            "reason": "LOCAL_DATALAKE_DSN unset",
+        }
+
     products = {
         "executive_md": str(md_path),
         "excel": str(xlsx_path),
@@ -1375,6 +1442,7 @@ def stage_delivery(
         "checksums_file": str(checksums_path),
         "checksums_file_meta": checksums_file_meta,
         "product_checksums": checksums,
+        "operational_products": operational_ledger,
         "claims_count": len(claims),
     }
     return StageResult(

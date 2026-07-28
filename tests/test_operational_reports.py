@@ -29,7 +29,14 @@ def test_write_reports_creates_eight_files(tmp_path: Path):
     for filename in REPORT_FILES.values():
         assert (tmp_path / filename).is_file()
     data = json.loads((tmp_path / "manifest.json").read_text(encoding="utf-8"))
-    assert data["reliability"] in {"TRUSTED", "DEGRADED", "UNTRUSTED"}
+    assert data["reliability"] in {
+        "TRUSTED",
+        "DEGRADED",
+        "UNTRUSTED",
+        "READY",
+        "PARTIAL",
+        "NOT_READY",
+    }
 
 
 def test_recall_not_ready_without_gold():
