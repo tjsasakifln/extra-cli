@@ -12,3 +12,12 @@
 - package hashes recomputed and bound to final-package
 - adversarial-review.json expanded to §17 attack records
 - PRs: 151–154 documented (max-3 exceeded for rebind/integrity only)
+
+## Claim closure (capability vs integrity PR split)
+
+- verified_main_sha: `71566879eaca70b9cfc4810ba49032578171d840`
+- package_code_sha: `aeb7663e710624cd260f80dfefba19a9525a1a88`
+- main_at_claim_write: `9b4ad968b91174fa5728d6bdb43a227f79a3b1de`
+- capability PRs: #151–#153 (≤3)
+- integrity followups closed: #154–#156
+- stop rebind loop: yes

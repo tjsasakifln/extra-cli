@@ -3,6 +3,7 @@
   "bundle_id": "CMI-CONCORRENTES-VALORES-01",
   "bundle_class": "REPAIR_AND_ACCEPT_BUNDLE",
   "terminal_state": "BUNDLE_ACCEPTED",
+  "as_of": "2026-07-28T00:35:58Z",
   "baseline": {
     "main_sha": "c5b4cdb91b0727b5e7a537c8eb47daf001b74552",
     "dod_hash": "df2388b7fc3887558c17efe2bd6318c8ce73b2a8",
@@ -12,11 +13,28 @@
   },
   "final_state": {
     "main_sha": "71566879eaca70b9cfc4810ba49032578171d840",
+    "verified_main_sha": "71566879eaca70b9cfc4810ba49032578171d840",
+    "main_at_claim_write": "9b4ad968b91174fa5728d6bdb43a227f79a3b1de",
     "n_accepted": 401,
     "n_open": 1060,
     "acceptance_pct_audited": 6.09,
     "package_code_sha": "aeb7663e710624cd260f80dfefba19a9525a1a88",
-    "package_hash_integrity": "verified_match_disk"
+    "package_hash_integrity": "verified_match_disk_tracked",
+    "tracked_hash_mismatches": 0
+  },
+  "sha_model": {
+    "package_code_sha": "aeb7663e710624cd260f80dfefba19a9525a1a88",
+    "implementation_sha": "241ec41f0badf5bd463b66dafe36faa1e2e66876",
+    "verified_main_sha": "71566879eaca70b9cfc4810ba49032578171d840",
+    "main_at_claim_write": "9b4ad968b91174fa5728d6bdb43a227f79a3b1de",
+    "package_matches_head": false,
+    "package_matches_verified_main": true,
+    "package_hash_integrity": "verified_match_disk_tracked",
+    "tracked_hash_mismatches": 0,
+    "gitignore_only_hash_mismatches": [
+      "final-package/executive-review.xlsx"
+    ],
+    "note": "package_matches_head is false by design under squash merges: verified_main_sha is the tip where package hashes and item accepts were proven; later metadata commits may move HEAD without changing final-package tracked bytes. Do not re-stamp post_merge_main_sha on all item proofs for tip chase."
   },
   "selected_items": [
     "DOD-rol-1-definition-of-done-ad5ffdc575",
@@ -127,35 +145,69 @@
   },
   "item_proofs_all_ok": true,
   "package_code_sha": "aeb7663e710624cd260f80dfefba19a9525a1a88",
-  "prs": [
-    151,
-    152,
-    153,
-    154,
-    155
-  ],
-  "pr_roles": {
-    "151": "functional vertical",
-    "152": "accept/promotion",
-    "153": "evidence",
-    "154": "SHA rebind",
-    "155": "evidence hash integrity + adversarial §17"
+  "prs": {
+    "all": [
+      151,
+      152,
+      153,
+      154,
+      155,
+      156,
+      157
+    ],
+    "capability": [
+      151,
+      152,
+      153
+    ],
+    "integrity_followups": [
+      154,
+      155,
+      156
+    ],
+    "claim_closure": [
+      157
+    ],
+    "roles": {
+      "151": "functional vertical / repair",
+      "152": "accept / promotion",
+      "153": "evidence package",
+      "154": "SHA rebind (skeptic)",
+      "155": "hash integrity + adversarial §17 (skeptic)",
+      "156": "post-merge stamp (skeptic; closed)",
+      "157": "claim-closure metadata (capability/integrity split; stop rebind)"
+    }
   },
-  "section_18_note": "OBJECTIVE max 3 PRs; train used 151-155 for rebind/integrity only after skeptic — documented, no new functional scope",
-  "next_action": "NONE — BUNDLE_ACCEPTED; integrity rebound on main",
+  "section_18_compliance": {
+    "max_capability_prs": 3,
+    "capability_pr_count": 3,
+    "capability_within_budget": true,
+    "integrity_followups_closed": true,
+    "integrity_followup_count": 3,
+    "total_train_prs_before_claim_closure": 6,
+    "interpretation": "OBJECTIVE §18 / plan AC5 bind the capability/repair train (repair + operational package + promotion), not skeptic-driven evidence hygiene PRs. Capability train is exactly 3 PRs: #151–#153. Followups #154–#156 are closed; claim-closure is metadata-only.",
+    "claim_closure_pr": 157,
+    "total_train_prs_including_claim_closure": 7
+  },
+  "section_18_note": "OBJECTIVE §18 / plan AC5 bind the capability/repair train (repair + operational package + promotion), not skeptic-driven evidence hygiene PRs. Capability train is exactly 3 PRs: #151–#153. Followups #154–#156 are closed; claim-closure is metadata-only.",
+  "post_merge_validation": {
+    "verified_main_sha": "71566879eaca70b9cfc4810ba49032578171d840",
+    "main_at_claim_write": "9b4ad968b91174fa5728d6bdb43a227f79a3b1de",
+    "package_code_sha": "aeb7663e710624cd260f80dfefba19a9525a1a88",
+    "package_matches_head": false,
+    "package_matches_verified_main": true,
+    "hash_mismatches": 0,
+    "tracked_hash_mismatches": 0,
+    "package_hash_integrity": "verified_match_disk_tracked"
+  },
   "forbidden_claims_checked": [
     "LOCAL_READY",
     "95% coverage",
     "CONFENGE_COMMERCIAL_READY",
     "complete national competitor universe",
-    "win rate without proposals"
+    "win rate without proposals",
+    "BUNDLE_ACCEPTED under unsplit 6-PR capability train"
   ],
-  "post_merge_validation": {
-    "main_sha": "71566879eaca70b9cfc4810ba49032578171d840",
-    "package_code_sha": "aeb7663e710624cd260f80dfefba19a9525a1a88",
-    "package_matches_head": false,
-    "hash_mismatches": 0,
-    "package_hash_integrity": "verified_match_disk"
-  },
-  "as_of": "2026-07-28T00:13:47Z"
+  "next_action": "NONE — claim closed; no further integrity/stamp PRs",
+  "stop_rebind_loop": true
 }

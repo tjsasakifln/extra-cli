@@ -1,7 +1,7 @@
 {
   "campaign_id": "CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01",
   "code_sha": "aeb7663e710624cd260f80dfefba19a9525a1a88",
-  "as_of": "2026-07-28T00:05:18Z",
+  "as_of": "2026-07-28T00:34:40Z",
   "steps": [
     {
       "step": "apply_migrations",
@@ -29,6 +29,15 @@
       "step": "per_item_evidence_rebind",
       "ok": true,
       "n": 47
+    },
+    {
+      "step": "claim_closure_metadata",
+      "ok": true,
+      "as_of": "2026-07-28T00:34:40Z",
+      "main_at_claim_write": "9b4ad968b91174fa5728d6bdb43a227f79a3b1de",
+      "verified_main_sha": "71566879eaca70b9cfc4810ba49032578171d840",
+      "note": "capability/integrity PR split; stop rebind loop"
     }
-  ]
+  ],
+  "verified_main_sha": "71566879eaca70b9cfc4810ba49032578171d840"
 }
