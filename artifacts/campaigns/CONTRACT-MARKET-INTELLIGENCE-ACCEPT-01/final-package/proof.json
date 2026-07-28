@@ -2,9 +2,9 @@
   "campaign_id": "CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01",
   "bundle_id": "CMI-CONCORRENTES-VALORES-01",
   "ok": true,
-  "as_of": "2026-07-27T23:29:14Z",
-  "code_sha": "ff9b78a86268e63248694d56a99fcf1a4336a60f",
-  "run_id": "cmi-20260727T232914Z",
+  "as_of": "2026-07-28T00:05:17Z",
+  "code_sha": "aeb7663e710624cd260f80dfefba19a9525a1a88",
+  "run_id": "cmi-20260728T000517Z",
   "population_count": 7,
   "supplier_count": 3,
   "paths": {
@@ -20,16 +20,16 @@
     "excel": "artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/final-package/executive-review.xlsx"
   },
   "file_hashes": {
-    "metadata.json": "72d571ea5ca71574015d7211cf6aebc04ce95fddeb91a8eddf914d6b5999c430",
-    "suppliers-ranking.csv": "5626719cc4958d878f592ff2cfb4843da49433c103519b4da600fcf012160335",
-    "suppliers-ranking.json": "6ae78fe20c47078018edaf6a18dff401bdb8f1392779b38a1bede1af970d7c4c",
+    "metadata.json": "0f5b73d47900812b4c272a5834a098cb44ec0b318dd485b358762853652fc703",
+    "suppliers-ranking.csv": "83cd5bb2b5b29e555ff9e560bb0d4e275cd4ee4cbde6cec3800e8d80215e8069",
+    "suppliers-ranking.json": "87a4d428f5b443c6a0199670e3a4e2c657c882c8b60d932b5ee5a524e00d6bdb",
     "concentration-by-supplier.csv": "b147db7f03f0447361e34992b06d8e568c5d59f195b54f9c31ce148cfef7c086",
     "concentration-by-entity.csv": "af87f8012cfbf1186eccb560106e43adf6ab875740f3eb687f0ef516c6a0a6ae",
-    "value-references.json": "c7712df6c59bf6077b201df069a0ca3d1828d04750c05000d7b92ff6afeaf3d2",
-    "limitations.json": "ca68ee220e16877fc3335dfef3fb7bd16890d1ac3e17f13a9a9d39c2828b92a9",
-    "reliability-status.json": "1b33e5e092d9ef5ad817a746c57f59fb40dd2dd5bfc3cff55d155abd2655f6b1",
-    "competitor-review.md": "d104e9053067a9ee2b4c58ffc51f128516e325fe31c1775686e8b3e2ef3f1395",
-    "executive-review.xlsx": "619f238a9ec6990b509d276292e7b61ca51cc9cbdd055d5f0817ccacd32362ff"
+    "value-references.json": "d91b3dd5e1a6add56f827c8be0d70db463892102b891c6e82e70116ff798b987",
+    "limitations.json": "fc6b0007978255efcd7610d44e58c363d0031adbbaa187b9ecea2c40b336b902",
+    "reliability-status.json": "57c68ead21803f9fcadad58696853ca040049a5074be1188be8a84b064cc0698",
+    "competitor-review.md": "923342576d575c8b0ff0b2b1fb9b349ed2e196f491dec87a95423d78d0453192",
+    "executive-review.xlsx": "5a43230a6fb3af46c220a184c59356f573b48b7669d95fd34de35f0fad8be23f"
   },
   "reliability": {
     "ranking_vencedores": {
@@ -50,7 +50,7 @@
     },
     "market_share": {
       "status": "READY",
-      "note": "all active pncp_supplier_contracts with identifiable supplier CNPJ; uf=SC; period_start>=2023-01-01; period_end<=2026-07-27; value_type=valor_contratado; complete_population_aggregated=true"
+      "note": "all active pncp_supplier_contracts with identifiable supplier CNPJ; uf=SC; period_start>=2023-01-01; period_end<=2026-07-28; value_type=valor_contratado; complete_population_aggregated=true"
     },
     "hhi": {
       "status": "READY",

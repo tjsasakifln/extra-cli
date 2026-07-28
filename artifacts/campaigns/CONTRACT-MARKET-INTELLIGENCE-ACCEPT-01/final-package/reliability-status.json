@@ -17,7 +17,7 @@
   },
   "market_share": {
     "status": "READY",
-    "note": "all active pncp_supplier_contracts with identifiable supplier CNPJ; uf=SC; period_start>=2023-01-01; period_end<=2026-07-27; value_type=valor_contratado; complete_population_aggregated=true"
+    "note": "all active pncp_supplier_contracts with identifiable supplier CNPJ; uf=SC; period_start>=2023-01-01; period_end<=2026-07-28; value_type=valor_contratado; complete_population_aggregated=true"
   },
   "hhi": {
     "status": "READY",

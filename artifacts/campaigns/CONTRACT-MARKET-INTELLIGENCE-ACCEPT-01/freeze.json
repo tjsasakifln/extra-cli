@@ -2111,5 +2111,11 @@
   "recent_weighted_dod_delta": "unknown_low",
   "foundation_count_recent": 2,
   "repair_count_recent": 0,
-  "policy_and_ci_count_recent": 6
+  "policy_and_ci_count_recent": 6,
+  "integrity_rebind": {
+    "as_of": "2026-07-28T00:02:47Z",
+    "main_sha": "ea25c0ff3a382c7df11316344ba129942f40b572",
+    "package_code_sha": "ea25c0ff3a382c7df11316344ba129942f40b572",
+    "note": "evidence hashes rebound to package on main after PR #154 merge; denominators unchanged"
+  }
 }

@@ -7,13 +7,17 @@
     "main_sha": "c5b4cdb91b0727b5e7a537c8eb47daf001b74552",
     "dod_hash": "df2388b7fc3887558c17efe2bd6318c8ce73b2a8",
     "n_open": 1107,
-    "n_accepted": 354
+    "n_accepted": 354,
+    "w_open": 3321
   },
   "final_state": {
-    "main_sha": "ff9b78a86268e63248694d56a99fcf1a4336a60f",
+    "main_sha": "ea25c0ff3a382c7df11316344ba129942f40b572",
+    "integrity_branch_tip": "7e717782f2cac25f25520bb60083dd9254a353ac",
     "n_accepted": 401,
     "n_open": 1060,
-    "acceptance_pct_audited": 6.09
+    "acceptance_pct_audited": 6.09,
+    "package_code_sha": "aeb7663e710624cd260f80dfefba19a9525a1a88",
+    "package_hash_integrity": "verified_match_disk"
   },
   "selected_items": [
     "DOD-rol-1-definition-of-done-ad5ffdc575",
@@ -118,13 +122,41 @@
   "weighted_dod_delta": 197,
   "raw_progress_percent": 4.2457,
   "weighted_progress_percent": 5.9319,
+  "floors_met": {
+    "raw_ge_3pct": true,
+    "weighted_ge_5pct": true
+  },
+  "item_proofs_all_ok": true,
+  "package_code_sha": "aeb7663e710624cd260f80dfefba19a9525a1a88",
   "prs": [
     151,
     152,
-    153
+    153,
+    154
   ],
-  "item_proofs_all_ok": true,
-  "package_code_sha": "ff9b78a86268e63248694d56a99fcf1a4336a60f",
-  "floors_met": true,
-  "next_action": "NONE"
+  "pr_roles": {
+    "151": "functional vertical",
+    "152": "accept/promotion",
+    "153": "evidence",
+    "154": "SHA rebind",
+    "integrity_followup": "hash integrity + adversarial §17 + post-merge SHA"
+  },
+  "section_18_note": "OBJECTIVE max 3 PRs; campaign required 4 merged PRs after skeptic rebind — documented, no fifth functional scope",
+  "next_action": "NONE — BUNDLE_ACCEPTED; integrity rebound on main",
+  "forbidden_claims_checked": [
+    "LOCAL_READY",
+    "95% coverage",
+    "CONFENGE_COMMERCIAL_READY",
+    "complete national competitor universe",
+    "win rate without proposals"
+  ],
+  "post_merge_validation": {
+    "main_sha": "ea25c0ff3a382c7df11316344ba129942f40b572",
+    "integrity_branch_tip": "7e717782f2cac25f25520bb60083dd9254a353ac",
+    "package_code_sha": "aeb7663e710624cd260f80dfefba19a9525a1a88",
+    "package_matches_head": false,
+    "hash_mismatches": 0,
+    "package_hash_integrity": "verified_match_disk"
+  },
+  "as_of": "2026-07-28T00:06:26Z"
 }

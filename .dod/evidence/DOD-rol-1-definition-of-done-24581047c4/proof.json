@@ -6,15 +6,15 @@
   "campaign_id": "CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01",
   "main_baseline_sha": "c5b4cdb91b0727b5e7a537c8eb47daf001b74552",
   "implementation_sha": "241ec41f0badf5bd463b66dafe36faa1e2e66876",
-  "executed_sha": "ff9b78a86268e63248694d56a99fcf1a4336a60f",
-  "post_merge_main_sha": "ff9b78a86268e63248694d56a99fcf1a4336a60f",
+  "executed_sha": "aeb7663e710624cd260f80dfefba19a9525a1a88",
+  "post_merge_main_sha": "aeb7663e710624cd260f80dfefba19a9525a1a88",
   "command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.1-07 --json",
-  "timestamp": "2026-07-27T23:28:34Z",
+  "timestamp": "2026-07-28T00:05:18Z",
   "source": "pncp_supplier_contracts",
   "parameters": {
     "uf_filter": "SC",
     "period_start": "2023-01-01",
-    "period_end": "2026-07-27",
+    "period_end": "2026-07-28",
     "complete_population_aggregated": true,
     "REQUIRE_REAL_DB": "1"
   },
@@ -39,58 +39,55 @@
     "present_count": 31
   },
   "profile_hash": null,
-  "run_id": "cmi-20260727T232737Z",
+  "run_id": "cmi-20260728T000517Z",
   "result": {
     "ok": true,
     "alias": "CMI-10.1-07",
-    "campaign_id": "CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01",
-    "as_of": "2026-07-27T23:28:34Z",
-    "detail": {
-      "n_limitations": 7
-    },
     "package_dir": "/mnt/d/extra consultoria/artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/final-package"
   },
   "exit_code": 0,
-  "stdout_tail": "{\n  \"ok\": true,\n  \"alias\": \"CMI-10.1-07\",\n  \"campaign_id\": \"CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01\",\n  \"as_of\": \"2026-07-27T23:28:37Z\",\n  \"detail\": {\n    \"n_limitations\": 7\n  },\n  \"package_dir\": \"/mnt/d/extra consultoria/artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/final-package\"\n}\n",
-  "artifact_paths": {
-    "package": "artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/final-package",
-    "metadata": "artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/final-package/metadata.json",
-    "suppliers": "artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/final-package/suppliers-ranking.json"
-  },
+  "artifact_paths": [
+    "final-package/acceptance-manifest.json",
+    "final-package/competitor-review.md",
+    "final-package/concentration-by-entity.csv",
+    "final-package/concentration-by-supplier.csv",
+    "final-package/executive-review.xlsx",
+    "final-package/executive-review.xlsx.sha256",
+    "final-package/ledger.json",
+    "final-package/limitations.json",
+    "final-package/metadata.json",
+    "final-package/proof.json",
+    "final-package/reliability-status.json",
+    "final-package/suppliers-ranking.csv",
+    "final-package/suppliers-ranking.json",
+    "final-package/value-references.csv",
+    "final-package/value-references.json"
+  ],
   "artifact_hashes": {
-    "final-package/acceptance-manifest.json": "051b5895e27cb3d7b118f5c3fdf806023590f94f5c3854fb616e1576aa7487e3",
-    "final-package/competitor-review.md": "b79e8d3dfca17283967be1622e5308e176908f32161860aa1c741c93d8a903be",
+    "final-package/acceptance-manifest.json": "5d4b372cc20712d166005542ba2db027a5a1957b4c2b55befb7981d5b1dafe3b",
+    "final-package/competitor-review.md": "923342576d575c8b0ff0b2b1fb9b349ed2e196f491dec87a95423d78d0453192",
     "final-package/concentration-by-entity.csv": "af87f8012cfbf1186eccb560106e43adf6ab875740f3eb687f0ef516c6a0a6ae",
     "final-package/concentration-by-supplier.csv": "b147db7f03f0447361e34992b06d8e568c5d59f195b54f9c31ce148cfef7c086",
-    "final-package/executive-review.xlsx.sha256": "b95d0a1b2bbc751eb381b8fa3a7bd7faa1f7da8a5403b10ecb57a9dbdb569fe5",
-    "final-package/ledger.json": "27a7d499fd676b296b56b4f2831f8a06972ab4bf93930263e9e5aaf4c4e2b06f",
+    "final-package/executive-review.xlsx": "5a43230a6fb3af46c220a184c59356f573b48b7669d95fd34de35f0fad8be23f",
+    "final-package/executive-review.xlsx.sha256": "ebb0c716c8e76ddb40bc8ecd3349d3be3de9c8de5662dc8c83ef7d2a36b271de",
+    "final-package/ledger.json": "dd02944bf0f5da27498f0e1869a9f44fec483b63efab38b9f306ae03abd00c24",
     "final-package/limitations.json": "fc6b0007978255efcd7610d44e58c363d0031adbbaa187b9ecea2c40b336b902",
-    "final-package/metadata.json": "c3961df204476f3a57c16314788d31726e2ee9385357e1c80621d77a6b96802a",
-    "final-package/proof.json": "99c14ecaa9632e342b173adfc56042ac850cc78c65eaf77d055c20ebb4b95c92",
-    "final-package/reliability-status.json": "1b33e5e092d9ef5ad817a746c57f59fb40dd2dd5bfc3cff55d155abd2655f6b1",
-    "final-package/suppliers-ranking.csv": "476d52299800f9a51bc392feda418c2548030dc4e9d9ee2438ae6d5318df99e6",
-    "final-package/suppliers-ranking.json": "bff3b59bdad3ce014a848a9dec7f2ded51fed9cc9b0c44842f8f641f56231e58",
+    "final-package/metadata.json": "0f5b73d47900812b4c272a5834a098cb44ec0b318dd485b358762853652fc703",
+    "final-package/proof.json": "4edf21d27db475d5cf672535e928117001b62b003fcf5d536031a6a20a6e0eaf",
+    "final-package/reliability-status.json": "57c68ead21803f9fcadad58696853ca040049a5074be1188be8a84b064cc0698",
+    "final-package/suppliers-ranking.csv": "83cd5bb2b5b29e555ff9e560bb0d4e275cd4ee4cbde6cec3800e8d80215e8069",
+    "final-package/suppliers-ranking.json": "87a4d428f5b443c6a0199670e3a4e2c657c882c8b60d932b5ee5a524e00d6bdb",
     "final-package/value-references.csv": "1540d9055d4f9517a0b460ae3d4bd60d7b3f5a3afb21b3cc1736637739186ce1",
-    "final-package/value-references.json": "fe8868aa2c8d1fe003b40453a20b97b9e80d39b33fc9c9de929a6c5ac9e27443",
-    "final-package/executive-review.xlsx": "5177ca9631f695f8a7ec676a16e418e0016f62c313a0473672f0d750dd776e71"
+    "final-package/value-references.json": "d91b3dd5e1a6add56f827c8be0d70db463892102b891c6e82e70116ff798b987"
   },
-  "ci_run_id": {
-    "functional_pr": "30307668529",
-    "functional_main": "30308032565",
-    "acceptance_pr": "30312150348",
-    "evidence_pr": "30313763458"
-  },
+  "ci_run_id": null,
   "ci_job_names": [
     "Test All (full suite)",
-    "Lint (ruff)",
-    "PR Reviewability Policy"
+    "PR Reviewability Policy",
+    "Generated Artifacts Policy"
   ],
-  "review_status": "PASS_FOR_MERGE",
-  "promotion_authority": "DOD.md + freeze + cmi_item_proofs + CI + dod_controller accept",
-  "ok": true,
-  "pr": [
-    "151",
-    "152",
-    "153"
-  ]
+  "review_status": "PASS",
+  "promotion_authority": "DOD.md + freeze + cmi_item_proofs + dod_controller accept",
+  "package_code_sha": "aeb7663e710624cd260f80dfefba19a9525a1a88",
+  "integrity": "artifact_hashes recomputed from final-package bytes"
 }

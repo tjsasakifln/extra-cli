@@ -1,10 +1,10 @@
 # Revisão de concorrentes / vencedores — CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01
 
-- run_id: `cmi-20260727T232914Z`
-- as_of: `2026-07-27T23:29:14Z`
-- period: `2023-01-01` → `2026-07-27`
+- run_id: `cmi-20260728T000517Z`
+- as_of: `2026-07-28T00:05:17Z`
+- period: `2023-01-01` → `2026-07-28`
 - source: `pncp_supplier_contracts`
-- code_sha: `ff9b78a86268e63248694d56a99fcf1a4336a60f`
+- code_sha: `aeb7663e710624cd260f80dfefba19a9525a1a88`
 - population_count: **7** contratos elegíveis
 - complete_population_aggregated: `True`
 
@@ -33,7 +33,7 @@
 - status: `READY`
 - HHI: `4764.9132` (escala 0_10000)
 - denominador valor: `1095000.0`
-- população: all active pncp_supplier_contracts with identifiable supplier CNPJ; uf=SC; period_start>=2023-01-01; period_end<=2026-07-27; value_type=valor_contratado; complete_population_aggregated=true
+- população: all active pncp_supplier_contracts with identifiable supplier CNPJ; uf=SC; period_start>=2023-01-01; period_end<=2026-07-28; value_type=valor_contratado; complete_population_aggregated=true
 
 Concentração elevada **não** é irregularidade automática; concentração baixa **não** prova competição saudável.
 
@@ -54,7 +54,7 @@ Percentis de contratos globais heterogêneos **não** são rotulados como «pre�
 - `participantes`: **SOURCE_UNAVAILABLE** — fonte de contratos não expõe participantes
 - `win_rate`: **NOT_COMPUTABLE** — sem denominador de propostas
 - `desagio`: **NOT_COMPUTABLE** — sem par estimado/homologado encadeado no recorte
-- `market_share`: **READY** — all active pncp_supplier_contracts with identifiable supplier CNPJ; uf=SC; period_start>=2023-01-01; period_end<=2026-07-27; value_type=valor_contratado; complete_population_aggregated=true
+- `market_share`: **READY** — all active pncp_supplier_contracts with identifiable supplier CNPJ; uf=SC; period_start>=2023-01-01; period_end<=2026-07-28; value_type=valor_contratado; complete_population_aggregated=true
 - `hhi`: **READY** — mesma população do market share
 - `valor_contratado`: **PARTIAL** — nulos preservados; ticket usa apenas válidos
 - `capacidade`: **NOT_APPLICABLE** — não inferida; n_contratos ≠ capacidade
@@ -69,4 +69,3 @@ Percentis de contratos globais heterogêneos **não** são rotulados como «pre�
 - n_contratos e recorrência são observáveis — não capacidade técnica/ociosa.
 - Órgão contratante nunca é apresentado como concorrente.
 - Fixture seed only when isolated DB empty — labeled as non-live market.
-- seed_applied: {'ok': True, 'seeded_contracts': 8, 'schema': {'table': 'pncp_supplier_contracts', 'columns_ok': ['contrato_id', 'orgao_cnpj', 'orgao_nome', 'fornecedor_cnpj', 'fornecedor_nome', 'objeto_contrato', 'valor_total', 'data_inicio', 'data_fim', 'uf', 'municipio', 'source', 'is_active'], 'present_count': 31}, 'note': 'fixture for isolated CMI proof — not live market coverage'}

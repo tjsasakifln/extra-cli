@@ -2,10 +2,10 @@
   "campaign_id": "CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01",
   "bundle_id": "CMI-CONCORRENTES-VALORES-01",
   "package_version": "cmi-package/1.0.0",
-  "run_id": "cmi-20260727T232914Z",
-  "as_of": "2026-07-27T23:29:14Z",
+  "run_id": "cmi-20260728T000517Z",
+  "as_of": "2026-07-28T00:05:17Z",
   "period_start": "2023-01-01",
-  "period_end": "2026-07-27",
+  "period_end": "2026-07-28",
   "uf_filter": "SC",
   "source": "pncp_supplier_contracts",
   "database_dsn_masked": "postgresql://***@***/***",
@@ -28,7 +28,7 @@
     ],
     "present_count": 31
   },
-  "code_sha": "ff9b78a86268e63248694d56a99fcf1a4336a60f",
+  "code_sha": "aeb7663e710624cd260f80dfefba19a9525a1a88",
   "value_semantics_version": "cmi-value-semantics/1.0.0",
   "comparability_rule_version": "cmi-comparability/1.0.0",
   "population_count": 7,
@@ -39,30 +39,7 @@
   "ranking_limit": null,
   "selection_rule": "full population aggregated; optional display limit only",
   "complete_population_aggregated": true,
-  "seed_info": {
-    "ok": true,
-    "seeded_contracts": 8,
-    "schema": {
-      "table": "pncp_supplier_contracts",
-      "columns_ok": [
-        "contrato_id",
-        "orgao_cnpj",
-        "orgao_nome",
-        "fornecedor_cnpj",
-        "fornecedor_nome",
-        "objeto_contrato",
-        "valor_total",
-        "data_inicio",
-        "data_fim",
-        "uf",
-        "municipio",
-        "source",
-        "is_active"
-      ],
-      "present_count": 31
-    },
-    "note": "fixture for isolated CMI proof — not live market coverage"
-  },
+  "seed_info": null,
   "forbidden_claims": [
     "LOCAL_READY",
     "95% coverage",

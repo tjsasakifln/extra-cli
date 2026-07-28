@@ -1,65 +1,10 @@
 {
   "item_id": "DOD-rol-1-definition-of-done-589da36904",
-  "commands": [
-    {
-      "cmd": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-16 --json",
-      "exit_code": 0,
-      "duration_s": 0.201,
-      "stdout_tail": "{\n  \"ok\": true,\n  \"alias\": \"CMI-11.1-16\",\n  \"campaign_id\": \"CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01\",\n  \"as_of\": \"2026-07-27T23:44:04Z\",\n  \"detail\": {\n    \"monetary_adjustment_applied\": false\n  },\n  \"package_dir\": \"/mnt/d/extra consultoria/artifacts/campaigns/CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01/final-package\"\n}\n",
-      "stderr_tail": "",
-      "env": {
-        "CI": "true",
-        "GITHUB_ACTIONS": null,
-        "LOCAL_DATALAKE_DSN": {
-          "set": true,
-          "len": 48
-        },
-        "PYTEST_ADDOPTS": null,
-        "PATH": {
-          "set": true,
-          "len": 1919
-        },
-        "USER": "tjsasakifln",
-        "HOME": {
-          "set": true,
-          "len": 17
-        }
-      },
-      "skipped": false
-    }
-  ],
-  "tests": [],
   "ok": true,
-  "notes": [],
-  "rejected_trivial": [],
-  "head_sha": "ff9b78a86268e63248694d56a99fcf1a4336a60f",
-  "env": {
-    "CI": "true",
-    "GITHUB_ACTIONS": null,
-    "LOCAL_DATALAKE_DSN": {
-      "set": true,
-      "len": 48
-    },
-    "PYTEST_ADDOPTS": null,
-    "PATH": {
-      "set": true,
-      "len": 1919
-    },
-    "USER": "tjsasakifln",
-    "HOME": {
-      "set": true,
-      "len": 17
-    }
-  },
-  "started_at": "2026-07-27T23:44:04Z",
-  "duration_s": 0.201,
-  "substantive_runs": 1,
-  "totals": {
-    "passed": 1,
-    "failed": 0,
-    "skipped": 0,
-    "deselected": 0,
-    "error": 0
-  },
-  "finished_at": "2026-07-27T23:44:04Z"
+  "command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-11.1-16 --json",
+  "exit_code": 0,
+  "as_of": "2026-07-28T00:05:18Z",
+  "executed_sha": "aeb7663e710624cd260f80dfefba19a9525a1a88",
+  "package_code_sha": "aeb7663e710624cd260f80dfefba19a9525a1a88",
+  "artifact_hash_check": "match"
 }
