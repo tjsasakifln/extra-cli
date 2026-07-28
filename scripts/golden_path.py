@@ -1270,7 +1270,10 @@ def crawl_source(
                             "external_failures": summary.get("total_external_failures", 0),
                         }
                         # Honor per-source status even when process exit code is 0.
+                        # Guard non-dict rows: monitor payloads may include bare strings.
                         for row in data.get("results") or []:
+                            if not isinstance(row, dict):
+                                continue
                             if str(row.get("source") or "") != source.name:
                                 continue
                             st = str(row.get("status") or "").lower()
@@ -1278,11 +1281,14 @@ def crawl_source(
                                 adapter_failed = True
                                 adapter_error = (row.get("error_message") or st)[:400]
                             meta = row.get("metadata") or {}
+                            if not isinstance(meta, dict):
+                                meta = {}
                             wm = meta.get("watermark") or {}
                             ck = (wm.get("checkpoint") or {}) if isinstance(wm, dict) else {}
                             pages = int(ck.get("pages_fetched") or 0)
                             if (
-                                wm.get("status") == "committed"
+                                isinstance(wm, dict)
+                                and wm.get("status") == "committed"
                                 and wm.get("db_committed")
                                 and pages > 0
                                 and int(metrics.get("fetched") or 0) == 0
@@ -1294,6 +1300,8 @@ def crawl_source(
                         if int(summary.get("sources_failed") or 0) > 0 and not adapter_failed:
                             # Summary indicates failure for this run
                             for row in data.get("results") or []:
+                                if not isinstance(row, dict):
+                                    continue
                                 if str(row.get("status") or "").lower() in {
                                     "failed",
                                     "fail",
@@ -1302,7 +1310,7 @@ def crawl_source(
                                     adapter_failed = True
                                     adapter_error = (row.get("error_message") or "sources_failed")[:400]
                                     break
-                    except (json.JSONDecodeError, KeyError, TypeError, ValueError):
+                    except (json.JSONDecodeError, KeyError, TypeError, ValueError, AttributeError):
                         pass
 
                 if adapter_failed:
