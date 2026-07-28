@@ -1,11 +1,22 @@
-# Perguntas para validação humana — 2026-07-17
+# Perguntas para validação humana — 2026-07-28
 
-| # | Pergunta | Impacto | Default se sem resposta |
-|---|----------|---------|-------------------------|
-| Q1 | A meta comercial de comunicação externa deve continuar dual (M1 116 + M2 0) até M2 subir? | Comms | **Sim** — ADR-018 |
-| Q2 | Client Profile `extra` é o único profile em produção? | Scoring | Assumir sim (ADR-022) |
-| Q3 | Há VPS com dados que devamos re-extrair via Data Master em sessão dedicada? | ERD runtime | Não nesta sessão |
-| Q4 | `scripts/clients` e `scripts/ingestion` top-level serão fundidos em crawl? | Arch | Manter como módulos distintos até story AIOX |
-| Q5 | Forward `001-modulos-alta-confianca` ainda é a feature ativa de regressão? | step-04 | Sim se regression-watch existir |
+> answer_mode: **chat** (Tiago)  
+> Prioridade para fechar gaps de auditoria.
 
-Respostas: preencher no chat (`answer_mode: chat`).
+| # | Pergunta | Impacto | Default se sem resposta | Status |
+|---|----------|---------|-------------------------|--------|
+| Q1 | W006 deve ser **corrigido** (alinhar compose) ou **redefinido** o watch (local postgis intencional)? | Regression vermelho | Manter 🔴 até decisão | ✅ **Respondida 2026-07-27** |
+| Q2 | Specs SDD completas para `commercial_leads` / `budget_audit` / `ops` CONFENGE são prioridade agora ou só audit docs bastam? | Writer effort | Audit docs = suficiente neste ciclo | aberta |
+| Q3 | Há dump/DSN de produção seguro para Data Master / row counts? | G02 | Continuar 🔴 lacuna runtime | aberta |
+| Q4 | National intel e CMI podem ser citados em propostas a clientes sob qual claim class? | Risco comercial | intel_product + non-claim only | aberta |
+| Q5 | doc_level **detalhado** (flowcharts por função) vale uma segunda passagem? | Esforço | Manter **completo** | aberta |
+
+---
+
+## Respondidas
+
+| Item | Resposta |
+|------|----------|
+| **Q1 / W006** | **Unificar.** Local deve igualar o oficial; extensão vector obrigatória; persistência de dados no PC não importa (prod Netcup VPS). Ação: alinhar `docker-compose.local.yml` test-db a `docker-compose.yml` (`pgvector/pgvector:pg16` + volume). **Não** redefinir o watch para aceitar postgis+tmpfs. Veredito W006 após unificação: 🟢 (evidência nos compose do root). |
+| Nível de documentação | **2 Completo** |
+| Objetivo | Atualizar completa e profundamente documentos de auditoria Reversa |

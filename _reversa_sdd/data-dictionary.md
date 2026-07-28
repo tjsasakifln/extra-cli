@@ -1,224 +1,244 @@
 # Dicionário de Dados — Extra Consultoria
 
-> 🟢 **CONFIRMADO** onde há migration/código; 🟡 **INFERIDO** onde só há uso sem DDL lido linha a linha  
-> Re-extração 2026-07-17 | Migrations 001–054 (59 arquivos)
+> 🟢 **CONFIRMADO** (schema via migrations + dataclasses) | 🟡 inferido de uso  
+> Re-extração 2026-07-28 | HEAD `ffbb9608`  
+> Foco: entidades novas/alteradas desde 2026-07-17 (mig 055–064) + entidades canônicas de auditoria
 
 ---
 
-## 1. Entidades canônicas de domínio (código)
+## 1. Convenções
 
-### 1.1 SourceInfo (`scripts/crawl/registry.py`)
+| Marca | Significado |
+|-------|-------------|
+| 🟢 | Extraído de migration/SQL ou dataclass |
+| 🟡 | Inferido do código de leitura/escrita |
+| PK / FK / UK | Primary / Foreign / Unique key |
+| JSONB | Estrutura flexível — ver campos documentados |
 
-| Campo | Tipo | Obrigatório | Descrição |
-|-------|------|:-----------:|-----------|
-| name | str | sim | Nome canônico underscore |
-| aliases | list[str] | não | Sinônimos (hífen/underscore) |
-| module | str | sim | Módulo em `scripts.crawl.*` |
-| purpose | Literal | sim | bids / contracts / coverage_only / hybrid |
-| capabilities | list | não | open_tenders, historical_contracts, competitors, prices, entity_matching, coverage_truth, source_health |
-| authority_level | Literal | não | federal / estadual / municipal / multi |
-| entity_types | list | não | Tipos de entidade aplicáveis |
-| credential_names | list | não | Credenciais necessárias |
-| snapshot_semantics | Literal | não | full_refresh / incremental / append_only / coverage_only |
-| freshness_sla_hours | int | não | SLA de frescor |
-| supports_pagination | bool | não | Paginação |
-| supports_zero_proof | bool | não | Aceita success_zero |
-| reconciliation_strategy | str | não | Estratégia de reconciliação |
-| is_contract_source | bool | não | True se fonte de contratos (≠ bids) |
+---
 
-### 1.2 EntitySourceRecord (`source_registry/models.py` + migration 053)
+## 2. Coverage & evidence
 
-| Campo | Tipo | Obrigatório | Descrição |
-|-------|------|:-----------:|-----------|
-| canonical_id | TEXT | sim | ID estável da entidade |
-| razao_social | TEXT | sim | Nome legal |
-| nome_fantasia | TEXT | não | Nome fantasia |
-| cnpj | TEXT | sim | 14 ou 8 dígitos |
-| natureza_juridica / entity_type | TEXT | sim | Tipo (generated AS natureza) |
-| municipio, uf, ibge_code | TEXT | parcial | Localização |
-| lat, lon, distance_km | float | não | Geo / raio 200km |
-| portal_institucional / transparencia / licitacoes / diario_oficial | TEXT | não | URLs |
-| plataformas | TEXT[] | sim default {} | Plataformas detectadas |
-| external_ids | JSONB | sim default {} | IDs externos |
-| url_patterns | JSONB | sim default {} | Padrões de URL |
-| integration_type | TEXT | sim | api_json, html, pdf, js, ckan, rss, shared_portal, unknown |
-| access_status | TEXT | sim | mapped…operational…blocked… |
-| last_success_at / last_attempt_at | TIMESTAMPTZ | não | Timestamps |
-| sla_hours | INT | não | SLA |
-| collection_strategy | TEXT | sim | Estratégia de coleta |
-| current_blocker | TEXT | não | Bloqueador atual |
-| next_action | TEXT | sim | Próxima ação |
-| priority | INT 1–10 | sim default 5 | Prioridade |
-| mapping_confidence | float 0–1 | sim | Confiança do mapeamento |
-| evidences | JSONB | sim | Evidências |
+### 2.1 `coverage_evidence` (pré-existente, autoridade dual)
 
-### 1.3 Official acts (migration 052)
+| Campo | Tipo | Obrig. | Notas |
+|-------|------|:------:|-------|
+| id | bigserial | PK | 🟢 |
+| entity_id | text/uuid | sim | 🟢 |
+| source | text | sim | 🟢 |
+| data_type / capability | text | | dual: open_tenders \| historical_contracts |
+| applicability | text | | 🟢 |
+| state | text | | 9 estados CoverageState |
+| run_id | text | | 🟢 |
+| counts (expected/processed/obtained/…) | int | | 🟢 |
+| freshness_status | text | | 🟢 |
+| error_code / error_message | text | | 🟢 |
+| metadata | jsonb | | 🟢 |
 
-#### official_act_resources
+### 2.2 View `v_dual_capability_evidence_latest` (mig 058) 🟢
+
+Latest row por `(entity_id, source, COALESCE(capability, data_type))` ordenado por `completed_at DESC`.
+
+### 2.3 `entity_coverage` (legado) 🟢
+
+**NÃO** autoridade para dual capability. Comentário SQL ADR-029: diagnostic only.
+
+---
+
+## 3. National intelligence (mig 060) 🟢
+
+Views analíticas sobre `pncp_supplier_contracts` (`is_active = TRUE`):
+
+| View | Granularidade | scope_label |
+|------|---------------|-------------|
+| `v_intel_contracts_raw_national` | contrato | raw_national |
+| `v_intel_contracts_geo_sc` | contrato UF=SC | geo_sc |
+| `v_intel_supplier_geo` | fornecedor (cnpj8) | intel_product |
+| `v_intel_agency_profile` | órgão (cnpj8) | intel_product |
+
+Campos agregados típicos: `contract_count`, `valor_sum`, `valor_p50`, `uf_count`/`ufs`, `has_sc`, datas first/last publicação.
+
+---
+
+## 4. Canonical entity linkage (mig 061) 🟢
+
+### 4.1 `canonical_organs`
 
 | Campo | Tipo | Notas |
 |-------|------|-------|
-| source | TEXT | ciga_ckan, doe_sc, dom_sc, … |
-| resource_id / package_id / package_name | TEXT | identidade do recurso |
-| resource_url, format | TEXT | origem |
-| content_sha256, etag, last_modified, size_bytes | * | integridade |
-| run_id | TEXT | soft ref pipeline_runs |
-| fetch_status | TEXT | discovered\|fetched\|parsed\|failed\|stale |
-| metadata | JSONB | livre |
+| id | bigserial PK | |
+| canonical_key | text UK | cnpj14 ou cnpj8:norm_name |
+| entity_kind | text | organ \| unit |
+| cnpj14 / cnpj8 / ibge_code | text | strong keys |
+| raw_name / normalized_name | text | |
+| uf / municipio | text | |
+| source | text | default pncp |
+| source_record_ids | jsonb | |
+| decision_history | jsonb | |
+| first/last_seen_run_id | text | |
 
-#### official_acts (resumo)
-
-| Conceito | Campos-chave |
-|----------|--------------|
-| Identidade | source, external_id, record_hash |
-| Conteúdo | title, raw_json, raw_text |
-| Datas | publication_date, edition_date, event_date, date_semantics |
-| Provenance | resource_id, run_id |
-| Classificação | via official_act_classifications |
-| Links | official_act_links |
-| Matches PNCP | official_act_matches |
-
-### 1.4 CoverageEvidence / CoverageState (`coverage/states.py` + mig 054)
+### 4.2 `canonical_suppliers`
 
 | Campo | Tipo | Notas |
 |-------|------|-------|
-| state | enum/str | success_with_data, success_zero, partial, error, … |
-| request_scope | TEXT | escopo da requisição |
-| pages_fetched / pages_expected | INT | completude de paginação |
-| provenance | JSONB | deve ser ≠ {} se satisfactory |
-| satisfactory | BOOLEAN | CHECK: só true se success_* + scope + provenance + pages OK + sem error |
-| error_code | TEXT | falha |
+| id | bigserial PK | |
+| canonical_key | text UK | prefer cnpj14 |
+| person_kind | text | cnpj \| cpf \| unknown |
+| cnpj14 / cnpj8 / cpf11 | text | UK parcial em cnpj14 |
+| raw_name / normalized_name | text | |
+| source_record_ids / decision_history | jsonb | |
 
-### 1.5 DLQ (`dlq_entries` mig 045 + 054)
+### 4.3 Links (padrão)
+
+Links opportunity↔organ, contract↔opportunity, contract↔supplier com:
+
+| Campo | Notas |
+|-------|-------|
+| classification | exact / deterministic_composite / heuristic_reviewable / ambiguous / unresolved |
+| score | float |
+| reason_codes | text[]/jsonb |
+| rule_version | versionamento de regras |
+| run_id | idempotência |
+| claim_level | fact / similarity / inference / none 🟡 (código) |
+
+---
+
+## 5. Commercial leads (mig 062) 🟢
+
+### 5.1 `commercial_lead_runs`
+
+| Campo | Tipo | Check / default |
+|-------|------|-----------------|
+| run_id | text PK | |
+| as_of | timestamptz | now() |
+| profile_id / version / hash | text | |
+| snapshot_hash | text | |
+| snapshot_manifest | jsonb | |
+| git_sha | text | |
+| status | text | RUNNING \| PASS \| BLOCKED \| FAIL |
+| queue_limit | int | 20 |
+| eligible/ranked_companies | int | |
+| metrics / non_claims | jsonb | |
+| finished_at | timestamptz | |
+
+### 5.2 `commercial_leads`
+
+| Campo | Tipo | Check |
+|-------|------|-------|
+| id | bigserial PK | |
+| run_id | FK → runs | CASCADE |
+| cnpj14 | text | UK (run_id, cnpj14) |
+| cnpj8 | text | |
+| razao_social | text | |
+| score_total | numeric(12,4) | |
+| priority | text | CRITICAL\|HIGH\|MEDIUM\|LOW\|WATCH |
+| score_decomposition / signals_* / evidence | jsonb | |
+| suggested_offer / next_human_step | text | |
+| limitations | jsonb | |
+| commercial_state | text | NEW…DO_NOT_CONTACT |
+| rank_position | int | |
+
+### 5.3 `commercial_lead_state_overrides`
+
+Override humano: cnpj14, author, previous/new_state, reason, run_id.
+
+### 5.4 `commercial_feedback_ledger`
+
+Ledger de feedback comercial (extensão da mig 062).
+
+---
+
+## 6. `supplier_registry` (mig 063) 🟢
 
 | Campo | Tipo | Notas |
 |-------|------|-------|
-| source, run_id, phase | TEXT | fetch/parse/transform/upsert |
-| payload | JSONB | registro original |
-| payload_hash | TEXT | dedup pending (054) |
-| error_code / error_message / error_traceback | TEXT | erro |
-| error_kind | TEXT | default 'record' (054) |
-| retry_count / max_retries | INT | retries |
-| status | TEXT | pending, replayed, dead, archived |
-| purge_after | TIMESTAMPTZ | retenção ~90d |
-
-### 1.6 pipeline_watermarks (046)
-
-| Campo | Tipo | Notas |
-|-------|------|-------|
-| source, scope_key | TEXT | escopo |
-| watermark_type | TEXT | page, date, entity, chunk |
-| watermark_value | TEXT | valor |
-| run_id | TEXT | run |
-| status | TEXT | committed, in_progress, stalled |
-
-### 1.7 CanonicalEntity / CanonicalUniverse (`lib/universe.py`)
-
-| Campo / coleção | Descrição |
-|-----------------|-----------|
-| included / excluded / unresolved | partições do universo |
-| cnpj8, entity_id, geo | identidade |
-| conservative_monitoring_population | população conservadora |
-| resolution_coverage | % resolvida |
-| resolve_opportunity(...) | resolve opp → entidade |
-
-### 1.8 ValorSemantica (`lib/value_semantics.py`)
-
-| Enum | Significado | Exemplo fonte |
-|------|-------------|---------------|
-| ESTIMADO | valor esperado no edital | PNCP bids |
-| HOMOLOGADO | valor adjudicado | ComprasGov |
-| CONTRATADO | valor assinado | PNCP contracts |
-| PAGO | empenho/desembolso | TCE-SC (futuro) |
-| GLOBAL | total indiferenciado | label PNCP — **≠ preço praticado** |
-
-### 1.9 BuyerProfile (`buyer_intel/ranking.py`)
-
-| Campo | Tipo | Descrição |
-|-------|------|-----------|
-| cnpj_8, razao_social, municipio, distancia_km | * | identidade |
-| total_contratos, contratos_aec, valores, tickets, percentis | num | volume |
-| primeira_data, ultima_data, frequencia_anual | * | temporal |
-| fornecedores_distintos, top_fornecedores, hhi_concentracao | * | competitividade |
-| contratos_vincendo_90d/180d/365d | int | pipeline comercial |
-
-### 1.10 Opportunity scoring (`opportunity_intel/scoring.py`)
-
-| Campo RadarScores (conceitual) | Origem |
-|--------------------------------|--------|
-| match objeto × profile | texto + profile |
-| freshness | janela de dias |
-| missing fields penalty | campos obrigatórios |
-| status evidence | status.py |
-
-### 1.11 Workspace SectionResult
-
-| Campo | Descrição |
-|-------|-----------|
-| section id/title | nome da seção |
-| rows | itens da fila |
-| meta | contagens / erros soft |
+| cnpj14 | text PK | |
+| razao_social / nome_fantasia | text | |
+| cnae_principal | text | index |
+| cnaes_secundarios | jsonb | |
+| situacao_cadastral | text | |
+| data_situacao | date | |
+| municipio / uf | text | |
+| source / source_version / source_date | text/date | never invent |
 
 ---
 
-## 2. Tabelas históricas (núcleo DataLake) 🟢/🟡
+## 7. Snapshot write guard (mig 064) 🟢
 
-| Tabela | Papel | Confiança |
-|--------|-------|-----------|
-| pncp_raw_bids | editais/lances brutos PNCP | 🟢 |
-| pncp_supplier_contracts | contratos/fornecedores | 🟢 |
-| enriched_entities | entidades enriquecidas | 🟢 |
-| ingestion_runs | runs de ingestão | 🟢 |
-| entity_coverage / capability_coverage | cobertura por entidade/capability | 🟢/🟡 |
-| opportunity_intel* | oportunidades QW-01 | 🟢 |
-| coverage_evidence | evidências de cobertura | 🟢 |
-| target_universe_* | snapshot universo-alvo | 🟢 |
-| official_acts* | atos oficiais unificados | 🟢 |
-| entity_source_registry | registry 1093 | 🟢 |
-| dlq_entries | dead letter | 🟢 |
-| pipeline_watermarks / pipeline_runs | retomada e runs | 🟢 |
-| record_hashes | integridade de registros | 🟢 |
-| entity_aliases | aliases de matching | 🟢 |
+| Objeto | Papel |
+|--------|-------|
+| `prevent_pncp_snapshot_mutation()` | Trigger function |
+| `trg_prevent_pncp_snapshot_mutation` | BEFORE I/U/D em `pncp_supplier_contracts` |
+| `app.confenge_snapshot_guard` | GUC session: `on` ativa proteção |
+| `app.allow_snapshot_mutation` | GUC LOCAL: `on` permite restore controlado |
 
 ---
 
-## 3. Enums e CHECK constraints relevantes
+## 8. FK relaxations (mig 055–056) 🟢
 
-| Domínio | Valores |
-|---------|---------|
-| integration_type | api_json, html, pdf, js, ckan, rss, shared_portal, unknown |
-| access_status | mapped, accessible, collected, verified, operational, failed, blocked, unknown, source_not_identified |
-| fetch_status (resources) | discovered, fetched, parsed, failed, stale |
-| dlq status | pending, replayed, dead, archived |
-| watermark status | committed, in_progress, stalled |
-| SourcePurpose | bids, contracts, coverage_only, hybrid |
-| AuthorityLevel | federal, estadual, municipal, multi |
+| Mig | Mudança |
+|-----|---------|
+| 055 | Drop orgao_entity FK national PNCP |
+| 056 | Drop supplier_entity FK contracts |
+
+Objetivo: permitir contratos/órgãos nacionais sem entity local obrigatória.
 
 ---
 
-## 4. Artefatos de sessão (filesystem) 🟢
+## 9. Opportunity content hash (mig 057) 🟢
 
-| Path típico | Conteúdo |
-|-------------|----------|
-| output/ reconciliation / evidence / sessions | JSON/JSONL de runs |
-| resilience checkpoint/raw/dlq/evidence paths | pré-VPS ADR-021 |
-| config/target_entities_200km.csv | seed universo |
-| config/coverage_slas.yaml | SLAs do coverage contract |
-| config/source_applicability.yaml | aplicabilidade de fontes |
+Fix upsert opportunity com content hash (integridade de conteúdo).
 
 ---
 
-## 5. Relacionamentos lógicos (ER resumido)
+## 10. Coverage evidence uniqueness (mig 059) 🟢
 
-```
-CanonicalUniverse 1──* EntitySourceRecord
-EntitySourceRecord *──* SourceInfo (via plataformas / applicability)
-SourceInfo 1──* CrawlRun / pipeline_runs
-CrawlRun 1──* official_act_resources 1──* official_acts
-official_acts *──* pncp_raw_bids/contracts (official_act_matches)
-Entity 1──* coverage_evidence
-Entity 1──* opportunity records
-opportunity ──► workspace queue sections
-```
+Unique canônico entity em coverage_evidence (hardening).
 
-Detalhamento C4/ERD: fase Architect (`erd-complete.md`).
+---
+
+## 11. Dataclasses de domínio (código) 🟢
+
+| Tipo | Módulo | Campos-chave |
+|------|--------|--------------|
+| `SourceInfo` | crawl/registry | name, capabilities, authority, SLA, zero_proof |
+| `CoverageState` | coverage/states | 9 estados enum |
+| `LeadScore` | commercial_leads/scoring | score_total, offer_scores, priority |
+| `LinkDecision` | linkage/resolve | classification, score, auto_accept |
+| `StrongKeys` | linkage/keys | cnpj14/8, cpf, ibge |
+| `CanonicalEntity` | lib/universe | cnpj8, ibge, identity |
+| `ValorSemantica` | lib/value_semantics | tipos de valor |
+| `CommercialClassification` | coverage/commercial_status | status comercial |
+| `MetricResult` / `CoverageContractReport` | coverage/coverage_contract | multi-métrica |
+| `DualCoverageReport` | coverage/dual_capability | open_tenders + historical |
+| `EntitySourceRecord` | source_registry/models | status, strategy |
+| `TargetEntity` | contract_intel/target_universe | 200km |
+| `StageResult` / `WeeklyCycleReport` | ops/weekly_cycle | stages |
+
+---
+
+## 12. Tabelas canônicas pré-existentes (referência)
+
+| Tabela | Papel |
+|--------|-------|
+| `pncp_supplier_contracts` | Fatos de contratos |
+| `sc_public_entities` | Universo SC |
+| `opportunity_intel` | Oportunidades |
+| `entity_source_registry` | ESR (053) |
+| `official_acts` | Atos unificados (052) |
+| `dlq_entries` / watermarks / pipeline_runs | Resilience (045–048) |
+| `entity_aliases` | Matching |
+
+---
+
+## 13. Lacunas 🔴
+
+| ID | Item |
+|----|------|
+| DD-01 | Dump live / row counts produção não medidos nesta sessão |
+| DD-02 | JSONB schemas internos de metrics/evidence não formalizados em JSON Schema |
+| DD-03 | commercial_feedback_ledger colunas detalhadas — ver mig 062 completa se estender |
+
+---
+
+*Data Dictionary — Archaeologist 2026-07-28*

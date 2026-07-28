@@ -1,23 +1,24 @@
 # Relatório de Confiança — Reversa
 
-> Reviewer consolidado **2026-07-17** | Re-extração completa  
-> HEAD `d3e82ba` | doc_level completo | 25 módulos
+> Reviewer consolidado **2026-07-28** | Re-extração auditoria completa e profunda  
+> HEAD `ffbb9608` | doc_level **completo** | **38 módulos**  
+> Delta vs 2026-07-17 (`d3e82ba`): ~445 commits | +13 módulos | ADRs 023–030
 
 ---
 
-## Score geral: **82% 🟡→🟢**
+## Score geral: **84% 🟢**
 
 | Dimensão | Score | Notas |
 |----------|------:|-------|
-| Superfície / inventário | 95% | Scout quantificado via git ls-files |
-| Análise de código | 85% | Delta profundo; módulos estáveis com refresh transversal |
-| Domínio / regras | 88% | R27–R40 + ADRs 017–022 🟢 |
-| Arquitetura / ERD | 85% | C4 + ERD 052–054 |
-| Specs SDD por unit | 72% | Novos 100%; legados 2026-07-13 mantidos com ponte |
-| Testes ↔ specs | 80% | chaos/unit coverage/registry/workspace |
-| Runtime DB live | 40% | 🔴 sem dump live nesta sessão |
+| Superfície / inventário | 96% | Scout quantificado git ls-files 5721 / 797 py |
+| Análise de código | 86% | Prioridade ops/coverage/reports/commercial/budget/linkage lidos em profundidade; ops 90+ files por clusters |
+| Domínio / regras | 90% | R41–R60 + ADRs 023–030 🟢; base R1–R40 mantida |
+| Arquitetura / ERD | 84% | architecture + ERD entities 055–064; C4 não redesenhados pixel-a-pixel |
+| Specs SDD por unit | 70% | Novos módulos com code-analysis/flowcharts; unit folders Writer parciais (delta) |
+| Testes ↔ specs | 82% | ~250 testes; gates campaign/adversarial presentes |
+| Runtime DB live | 40% | 🔴 sem dump live / row counts produção nesta sessão |
 
-**Comparativo:** 78% (2026-07-13) → **82%** (2026-07-17) — ganho por ADRs nativos do projeto e código de coverage/ESR/resilience lido diretamente; perda residual em specs unit legadas não reescritas linha a linha.
+**Comparativo:** 82% (2026-07-17) → **84%** (2026-07-28) — ganho por dual coverage, commercial_leads, linkage, ORPT, ADRs nativos e migrations 055–064 lidos; residual em specs unit e DB live.
 
 ---
 
@@ -25,55 +26,69 @@
 
 | Módulo | Confiança | Motivo |
 |--------|:---------:|--------|
-| crawl | 🟢 88% | registry + resilience lidos |
-| source_registry | 🟢 90% | código + mig 053 |
-| coverage | 🟢 92% | contract + ADR-018 + tests |
-| workspace | 🟢 88% | ADR-017 + queue/actions |
-| matching | 🟢 85% | reconcile determinístico lido |
-| schema | 🟢 85% | store + mig 052 |
-| ops | 🟢 80% | resilient_cycle |
-| lib | 🟢 85% | universe + value semantics |
-| opportunity_intel | 🟡 78% | scoring/status; radar não re-lido integralmente |
-| buyer_intel | 🟢 85% | ranking completo |
-| reports | 🟡 70% | superfície; internals parciais |
-| root_scripts | 🟡 70% | muitos entry points |
-| db | 🟢 88% | migrations lidas 045–054 |
-| deploy | 🟡 75% | contagem units |
-| tests | 🟢 80% | layout + chaos |
-| demais | 🟡 65–75% | inventário + residual |
+| ops | 🟢 88% | Clusters CONFENGE/CMI/weekly/gates lidos |
+| coverage | 🟢 93% | dual + contract + recall + states |
+| reports | 🟢 88% | ORPT outputs/metadata/executive |
+| commercial_leads | 🟢 90% | scoring + mig 062/063 |
+| budget_audit | 🟢 88% | bdi + pipeline + non-claim |
+| linkage | 🟢 90% | resolve + keys + mig 061 |
+| national_intel | 🟢 88% | views + CLI thin |
+| edital_case | 🟢 82% | pipeline/gate amostrados |
+| crawl | 🟢 86% | registry+monitor+dlq; crawlers individuais parciais |
+| source_registry | 🟢 88% | builder/discovery |
+| workspace | 🟢 86% | cli+queue |
+| matching | 🟢 85% | cascade + reconcile |
+| lib | 🟢 86% | universe/value semantics |
+| schema / db | 🟢 88% | mig 055–064 |
+| contract_intel | 🟢 80% | CLI + universe; CMI proofs em ops |
+| campaigns | 🟢 80% | edital relevance helpers |
+| opportunity_intel | 🟡 78% | scoring/radar amostrados; não re-lido integral |
+| tools | 🟢 85% | dod_controller superfície+normas |
+| satélites (quality/ocds/…) | 🟡 60–70% | inventário apenas |
+| root_scripts | 🟡 70% | volume alto |
+| deploy / tests / docs / config | 🟢 80–90% | inventário + samples |
 
 ---
 
-## Lacunas consolidadas
+## Veredito
 
-### 🔴 Críticas (produto, não doc)
-1. M2 operational strict **0/1093** vs meta 95%  
-2. Runtime DB/prod não validado nesta extração  
+**PASS with CONCERNS**
 
-### 🟠 Altas (doc/código)
-3. Specs SDD de módulos legados não reescritas integralmente (ponte via code-analysis/domain)  
-4. ADR-022 sole law — aderência total de scorers legados 🟡  
-5. Duplicação `scripts/clients|ingestion` vs `crawl/*`  
+### PASS (evidência forte)
+- Dual capability e commercial non-claim documentados
+- Migrations 058–064 e ADRs 023–030
+- ORPT fail-closed + metadata
+- Regression watch revalidado (ver step-04)
 
-### 🟡 Médias
-6. Sem pip lockfile  
-7. mypy boundary parcial  
-8. Win rate NOT_READY  
-9. M3/M5 coverage backlog  
+### CONCERNS
+- Specs SDD por pasta de unit não reescritas 100% para 13 módulos novos
+- C4 diagrams não regenerados do zero (architecture textual atualizada)
+- DB live / VPS runtime 🔴
+- W006 docker-compose: decisão owner **unificar** (local=oficial, vector obrig.); após unificação no root → 🟢 (`pgvector/pgvector:pg16` + volume `pgdata` em ambos os compose)
 
-### 🟢 Baixas
-10. orchestrator deprecated ainda no tree  
-11. Visor/Design System N/A (sem UI produto)  
+### NÃO declarar
+- `LOCAL_READY`, `VPS_OPERATIONAL`, `PROJECT_DONE`, 95% operacional — sem evidência DoD ACCEPTED desta sessão
 
 ---
 
-## Correções in-place nesta re-extração
-- Inventário/deps/surface regenerados  
-- code-analysis + data-dictionary + 9 flowcharts  
-- domain R27–R40, MS11–MS16, ADRs 017–022  
-- architecture/C4/ERD/impact matrix  
-- SDD units novos: source_registry, workspace, buyer_intel, extra_ledger, ops, schema, clients, ingestion + refresh crawl/coverage  
+## Artefatos de auditoria atualizados nesta re-extração
 
-## Veredito Reviewer
-**PASS com CONCERNS** — artefatos de auditoria atualizados em profundidade no eixo transversal e nos módulos delta; units legados aceitos com cobertura transversal + matrix.  
-Próximo ciclo Writer pode reescrever opportunity_intel/reports/root_scripts se necessário para 90%+.
+| Artefato | Status |
+|----------|--------|
+| inventory.md | ✅ |
+| dependencies.md | ✅ |
+| code-analysis.md | ✅ |
+| data-dictionary.md | ✅ |
+| domain.md + domain-delta | ✅ |
+| state-machines.md | ✅ |
+| adrs/023–030 | ✅ |
+| architecture.md | ✅ (header + camadas) |
+| flowcharts/* | ✅ 14 |
+| confidence-report.md | ✅ este |
+| gaps.md | ✅ |
+| questions.md | ✅ |
+| regression-watch history | ✅ |
+
+---
+
+*Reviewer Reversa — 2026-07-28*

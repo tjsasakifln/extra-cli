@@ -13,7 +13,7 @@
 | W003 | `_reversa_sdd/architecture.md#adr-014` | CI gate (ci_gate.sh) executado antes de commit DEVE ter exit 0. Coverage gate fail-closed: exit 2 se qualquer módulo < 80%. | presença | Commit passa sem ci_gate.sh executado, ou ci_gate.sh exit 0 com módulo < 80% |
 | W004 | `_reversa_sdd/architecture.md#adr-013` | Toda reconciliação de snapshot DEVE registrar evento em `coverage_evidence` com `event_type='snapshot_reconciled'`. | presença | `coverage_evidence` sem registro após execução completa do QW-01 Radar |
 | W005 | `_reversa_sdd/deploy/design.md#riscos-e-lacunas` | Bootstrap local (`bootstrap_local.sh`) executado 2× DEVE ser no-op na segunda execução. | presença | Segunda execução do bootstrap tenta recriar DB ou reaplicar migrations |
-| W006 | `docker-compose.local.yml` | Serviço `test-db` permanece inalterado em relação ao `docker-compose.yml` original. | presença | docker-compose.local.yml tem porta, volume ou env var diferente no serviço test-db |
+| W006 | `docker-compose.local.yml` | Local **deve igualar** o oficial: `test-db` com mesma image/volume/env/porta que `docker-compose.yml` (`pgvector/pgvector:pg16` + volume persistente; vector obrigatório). | presença | local com image, volume (ex.: tmpfs-only), porta ou env diferente do oficial no serviço test-db |
 | W007 | `scripts/ci_gate.sh` | Pipeline executa nessa ordem: ruff → pyright → bandit → pytest → coverage_gate. | presença | Ordem alterada ou etapa removida do ci_gate.sh |
 
 ## Observações
@@ -29,6 +29,53 @@ Itens sem peso de regressão (regras originalmente 🟡 ou 🔴, ou artefatos no
 > Nenhuma. Primeira execução do regression-watch para esta feature.
 
 ## Histórico de re-extrações
+
+### Decisão + unificação W006 — 2026-07-27 (owner)
+
+**Decisão do owner (chat):**
+
+1. Local **deve** igualar o compose oficial (`docker-compose.yml`)
+2. Extensão **vector** (pgvector) é obrigatória
+3. Persistência de dados no PC local **não importa** (prod no Netcup VPS)
+4. Ação: **unificar** (não aceitar divergência postgis+tmpfs)
+
+| ID | Veredito | Observação |
+|----|----------|------------|
+| W006 | 🟢 verde | **Unificado.** `docker-compose.local.yml` `test-db` = `pgvector/pgvector:pg16` + volume nomeado `pgdata` (não tmpfs-only postgis). Paridade com `docker-compose.yml` (image, env, porta 5433, volume, healthcheck). Diffs aceitos no local: `container_name`, `networks`, serviço `app` (stack de dev, fora do contrato test-db). Evidência: `docker-compose.yml` L15–32; `docker-compose.local.yml` L30–46 + volumes L80–83. |
+
+| Data | Extração / evento | Resultado W006 | Notas |
+|------|-------------------|----------------|-------|
+| 2026-07-27 | Decisão owner + unificação compose (W006) | 🟢 | Unifyado: unificar; vector obrigatório; persistência local irrelevante; fix aplicado nos arquivos oficiais do workspace root |
+
+### Re-extração 2026-07-27 (W006 fix — unify test-db)
+
+| ID | Veredito | Observação |
+|----|----------|------------|
+| W006 | 🟢 verde | `docker-compose.local.yml` test-db = `pgvector/pgvector:pg16`, ports 5433:5432, volume `pgdata`, env test/test/extra_test — paridade com `docker-compose.yml` (extras locais: container_name, network). `bootstrap_local.sh --reset` usa `down -v`. |
+
+| Data | Extração | Resultado | Watch items violados |
+|------|----------|-----------|---------------------|
+| 2026-07-27 | fix W006 unify test-db | W006🟢 | — |
+| 2026-07-28 | re-extração auditoria HEAD ffbb9608 | 4🟢 2🟡 1🔴 | W006 (pré-fix) |
+| 2026-07-17 | re-extração completa HEAD d3e82ba | 4🟢 2🟡 1🔴 | W006 |
+
+### Re-extração 2026-07-28 (auditoria profunda HEAD ffbb9608)
+
+| ID | Veredito | Observação |
+|----|----------|------------|
+| W001 | 🟡 amarelo | `reconciliation.py` existe; não revalidado como etapa 12 embutida end-to-end no radar nesta sessão. |
+| W002 | 🟢 verde | `scoring.py`: `require_official_url` hard block; triage PRIORITARIA com regras de notice/url. |
+| W003 | 🟢 verde | `ci_gate.sh` fail-closed exit 2; stages ruff→pyright→bandit→pytest→coverage_gate. |
+| W004 | 🟡 amarelo | Sem confirmação de `event_type='snapshot_reconciled'` em coverage_evidence no código amostrado. |
+| W005 | 🟢 verde | `bootstrap_local.sh` ainda presente (idempotência não re-executada live). |
+| W006 | 🔴 vermelho | **Pré-fix (histórico):** local=`postgis/postgis:16-3.4`+tmpfs; base=`pgvector/pgvector:pg16`+volume pgdata. Corrigido em 2026-07-27. |
+| W007 | 🟢 verde | Ordem ruff → pyright → bandit → pytest → coverage_gate confirmada em `scripts/ci_gate.sh`. |
+
+| Data | Extração | Resultado | Watch items violados |
+|------|----------|-----------|---------------------|
+| 2026-07-28 | re-extração auditoria HEAD ffbb9608 | 4🟢 2🟡 1🔴 | W006 (pré-fix) |
+| 2026-07-17 | re-extração completa HEAD d3e82ba | 4🟢 2🟡 1🔴 | W006 |
+
 
 ### Re-extração 2026-07-17 21:30
 

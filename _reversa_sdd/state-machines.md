@@ -188,3 +188,56 @@ flowchart LR
     F --> K[coverage contract M2]
     I --> L[coverage contract M1]
 ```
+
+---
+
+## Delta 2026-07-28 (HEAD `ffbb9608`)
+
+> Complemento Detective re-extração auditoria. MS1–MS16 anteriores permanecem.
+
+### MS17: Coverage 9-state machine (refresh) 🟢
+
+**Fonte:** `scripts/coverage/states.py`
+
+Estados: not_applicable (terminal), pending, running, success_with_data, success_zero, partial, error, blocked, stale.  
+Covered = {success_with_data, success_zero}. Ver flowchart `flowcharts/coverage.md`.
+
+### MS18: Commercial lead funnel 🟢
+
+**Fonte:** mig 062 `commercial_state`
+
+```mermaid
+stateDiagram-v2
+    [*] --> NEW
+    NEW --> REVIEWED
+    REVIEWED --> QUALIFIED
+    REVIEWED --> DISQUALIFIED
+    QUALIFIED --> CONTACTED
+    CONTACTED --> REPLIED
+    REPLIED --> MEETING
+    MEETING --> PROPOSAL
+    PROPOSAL --> WON
+    PROPOSAL --> LOST
+    NEW --> DO_NOT_CONTACT
+    REVIEWED --> DO_NOT_CONTACT
+```
+
+Overrides humanos em `commercial_lead_state_overrides`.
+
+### MS19: Commercial lead run status 🟢
+
+RUNNING → PASS | BLOCKED | FAIL (`commercial_lead_runs.status`).
+
+### MS20: Linkage classification 🟢
+
+exact | deterministic_composite | heuristic_reviewable | ambiguous | unresolved  
+auto_accept só exact/deterministic + score≥0.99.
+
+### MS21: CONFENGE / campaign package terminal 🟢
+
+Agregação em `confenge_final_status`: PASS / FAIL / BLOCKED com checks de SHA, inventário, CI dual-head.
+
+### MS22: DoD item lifecycle (controller) 🟢
+
+scan → next → start → verify → accept (ACCEPTED só com evidência + main + CI).  
+skipped ≠ aprovado.

@@ -1,26 +1,18 @@
-# Flowcharts — módulo `db` (schema evolution)
+# Flowcharts — `db` / migrations delta
 
-> 🟢 CONFIRMADO — 2026-07-17
-
-## 1. Camadas de migrations
+> 🟢 2026-07-28 | HEAD `ffbb9608`
 
 ```mermaid
 flowchart TD
-    A[001-010 núcleo PNCP/ingestion] --> B[011-029 intel/radar/coverage truth]
-    B --> C[030-040 reconciliation capability universe]
-    C --> D[041-050 FK aliases DLQ watermarks runs hashes]
-    D --> E[051 date semantics]
-    E --> F[052 official_acts]
-    F --> G[053 entity_source_registry]
-    G --> H[054 local_resilience projections]
-```
-
-## 2. Official acts write path
-
-```mermaid
-flowchart LR
-    A[crawler / load session] --> B[OfficialActsStore.upsert_resource]
-    B --> C[upsert_acts]
-    C --> D[add_classification / add_link]
-    D --> E[reconcile matches optional]
+  A[apply_migrations] --> B[list SQL checksum ledger]
+  B --> C[apply 055-064 if pending]
+  C --> D[055-056 drop FKs national]
+  C --> E[057 opportunity content hash]
+  C --> F[058 dual capability view]
+  C --> G[059 coverage unique]
+  C --> H[060 national intel views]
+  C --> I[061 linkage tables]
+  C --> J[062 commercial leads]
+  C --> K[063 supplier_registry]
+  C --> L[064 snapshot write guard]
 ```

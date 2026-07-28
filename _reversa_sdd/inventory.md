@@ -1,8 +1,9 @@
 # Inventário do Sistema — Extra Consultoria
 
-> 🟢 **CONFIRMADO** — re-extração Scout em 2026-07-17  
-> HEAD: `d3e82ba` | Última extração anterior: 2026-07-13  
-> Motivo: atualização completa e profunda pós **131 commits** (754 arquivos, +159.888 / −11.442 LOC)
+> 🟢 **CONFIRMADO** — re-extração Scout em **2026-07-27**  
+> HEAD: `ffbb9608` | Última extração: 2026-07-17 (`d3e82ba`)  
+> Motivo: atualização **completa e profunda** dos documentos de auditoria pós **~445 commits**  
+> Delta: **2.547 arquivos** tocados desde `d3e82ba` (**+615.389 / −11.033** LOC no diff global)
 
 > **Escopo almejado:** `DOD.md` (raiz) é a definição canônica do que o projeto deve ser. Inventário abaixo = superfície **as-is**. Ver `_reversa_sdd/target-scope-dod.md`.
 
@@ -14,234 +15,186 @@
 |----------|-------|
 | **Projeto** | Extra Consultoria — plataforma B2G / DataLake de compras públicas |
 | **Linguagem principal** | Python 3.12 |
-| **Arquivos rastreados (git)** | 3.352 |
-| **LOC Python** | ~178.915 |
-| **Arquivos Python** | 435 |
-| **Banco** | PostgreSQL 16 + PostGIS + pgvector (local via Docker; produção VPS) |
-| **Orquestração** | systemd timers (25 services / 24 timers) + CLI scripts |
-| **CI** | GitHub Actions fail-closed (ruff, mypy, pytest, bandit, pip-audit) |
-| **Testes** | 126 arquivos de teste, ~32.473 LOC (unit / integration / smoke / chaos) |
+| **Arquivos rastreados (git)** | **5.721** (era 3.352 em 2026-07-17) |
+| **LOC Python** | **~293.574** (era ~178.915) |
+| **Arquivos Python** | **797** (era 435) |
+| **Banco** | PostgreSQL 16 + PostGIS (+ pgvector onde aplicável); local via Docker; produção VPS Netcup |
+| **Orquestração** | systemd timers (**26 services / 25 timers**) + CLI scripts + campanhas CONFENGE/CMI |
+| **CI** | GitHub Actions fail-closed (`ci.yml`, `pr-reviewability.yml`) — ruff, mypy, pytest, bandit; sem `\|\| true` em gates de integridade |
+| **Testes** | **~250** arquivos de teste (unit / integration / smoke / chaos / adversarial) |
+| **DoD / CMI** | Campanha de market intelligence com 47 itens ACCEPTED; evidence packages + rebind de SHA |
 
-Sistema **batch/CLI-first** de inteligência de licitações e contratos públicos (foco SC, raio 200 km e cobertura multi-fonte), sem frontend de produto. Documentação e AIOX/Reversa convivem no monorepo.
+Sistema **batch/CLI-first** de inteligência de licitações e contratos públicos (SC, nacional, multi-fonte), sem frontend de produto. Documentação, AIOX, Reversa e artefatos de campanha convivem no monorepo.
 
 ---
 
-## 2. Contagem por linguagem
+## 2. Contagem por linguagem (git ls-files)
 
-| Linguagem | Extensões | Arquivos (git) | Observação |
-|-----------|-----------|----------------|------------|
-| Python | `.py` | 435 | Núcleo de negócio |
-| Markdown | `.md` | 1.524 | docs, stories, DoD, AIOX |
+| Linguagem | Extensões | Arquivos | Observação |
+|-----------|-----------|---------:|------------|
+| Markdown | `.md` | 2.135 | docs, stories, DoD, campanhas, AIOX |
+| JSON | `.json` | 1.292 | configs, evidências, packages de campanha |
+| **Python** | `.py` | **797** | Núcleo de negócio |
 | JavaScript | `.js` | 579 | tooling AIOX / vendors |
-| JSON | `.json` | 253 | configs, evidências, fixtures |
-| YAML | `.yaml`/`.yml` | 173 | setores, CI, configs |
-| SQL | `.sql` | 87 | migrations + schema |
-| Shell | `.sh` | 23 | deploy, bootstrap, gates |
+| YAML | `.yaml` / `.yml` | 197 | setores, CI, configs |
+| Texto | `.txt` | 140 | logs/listas/evidence text |
+| SQL | `.sql` | 97 | migrations + schema |
+| Shell | `.sh` | 31 | deploy, bootstrap, gates |
+| systemd | `.service` / `.timer` | 51 | operação VPS |
 | TOML | `.toml` | 16 | pyproject, configs |
-| CSS / HTML | `.css`/`.html` | 20 | relatórios executivos pontuais |
+| CSV | `.csv` | 56 | universos, samples |
+| Outros | png, jsonl, xlsx, hbs… | — | relatórios e fixtures |
 
 ---
 
-## 3. Módulos identificados (25)
+## 3. Módulos identificados (**37** unidades de spec)
 
 ### 3.1 Domínio de aplicação (`scripts/`)
 
-| Módulo | `.py` | LOC (approx) | Papel |
-|--------|------:|-------------:|-------|
-| **crawl** | 102 | 39.830 | Crawlers multi-fonte, ingestion, resilience fail-closed, DLQ, watermarks, provenance |
-| **root_scripts** | 50 | 52.870 | Entry points top-level: gates, intel pipeline, datalake, health, B2G collectors |
-| **coverage** | 16 | 8.421 | Contrato de cobertura, multi-source, commercial status, matching, session pipeline |
-| **reports** | 12 | 7.938 | PDF/Excel executivo, panorama, commercial sample, coverage weekly/gaps |
-| **opportunity_intel** | 18 | 6.864 | Radar QW-01, ranking competitivo, scoring, dedup, CLI |
-| **fix** | 7 | 4.236 | Repair: residual portals, evidence ledger, entity resolve, geocode |
-| **lib** | 19 | 4.110 | Universe, geocode, name normalizer, value semantics, victory profile |
-| **matching** | 4 | 2.700 | Entity matcher cascade + reconcile official_acts |
-| **workspace** | 6 | 2.707 | Workspace operacional do consultor (fila, actions, CLI) ✨ **NOVO** |
-| **source_registry** | 12 | 2.601 | Registro de fontes por entidade, discovery, gap report, promote ✨ **NOVO** |
-| **schema** | 3 | 1.774 | official_acts helpers, diagnostics, audit SQL refs ✨ **NOVO** |
-| **contract_intel** | 3 | 1.660 | Universo-alvo e CLI de contratos |
-| **ingestion** | 9 | 1.137 | Camada de ingestão top-level (paralela a crawl/ingestion) |
-| **clients** | 8 | 1.022 | Clientes HTTP compartilhados |
-| **pipeline** | 2 | 876 | Backfill multi-fonte |
-| **buyer_intel** | 2 | 695 | Ranking de compradores ✨ **NOVO** |
-| **diagnose** | 1 | 651 | Diagnóstico DOM-SC / portais |
-| **ops** | 6 | 546 | Health, resilient cycle, schema audit, validate systemd ✨ **NOVO** |
-| **extra_ledger** | 1 | 470 | Ledger operacional ✨ **NOVO** |
-| **transparencia** | 1 | 406 | Detecção / utilitários de portais de transparência |
+| Módulo | `.py` | LOC (approx) | Papel | Status vs 2026-07-17 |
+|--------|------:|-------------:|-------|----------------------|
+| **crawl** | 108 | 42.684 | Crawlers multi-fonte, resilience, DLQ, watermarks, provenance | Expandido |
+| **ops** | 92 | 39.140 | Gates, CONFENGE, CMI, weekly, migrations, hygiene, campaigns | ✨ **explodiu** (era ~0,5K LOC) |
+| **coverage** | 26 | 18.484 | Coverage contract, dual capability, edital relevance recall, evidence | Expandido forte |
+| **reports** | 20 | 11.238 | ORPT vertical: PDF/Excel, listas operacionais fail-closed, metadata | Expandido (ORPT #159–#160) |
+| **commercial_leads** | 19 | 8.052 | Ledger de leads comerciais, scoring, supplier registry | ✨ **NOVO** |
+| **opportunity_intel** | 18 | 7.117 | Radar QW-01, ranking, scoring, CLI | Estável/refresh |
+| **budget_audit** | 26 | 5.359 | Auditoria orçamentária (BDI, compositions, materiality, gates) | ✨ **NOVO** |
+| **lib** | 23 | 5.196 | Universe, geocode, value semantics, normalizers | Expandido |
+| **edital_case** | 14 | 4.871 | Pipeline de caso de edital (acquire→analyze→report) | ✨ **NOVO** |
+| **fix** | 7 | 4.236 | Repair residual, evidence, entity resolve | Estável |
+| **source_registry** | 12 | 3.015 | ESR: discovery, gap, promote, política canônica | Expandido |
+| **workspace** | 6 | 3.017 | Fila operacional do consultor | Estável |
+| **matching** | 4 | 2.700 | Entity matcher cascade + reconcile | Estável |
+| **linkage** | 8 | 1.888 | Canonical entity linkage / dossier | ✨ **NOVO** |
+| **schema** | 3 | 1.774 | official_acts helpers, diagnostics | Estável |
+| **contract_intel** | 3 | 1.660 | Inteligência de contratos + CMI (competitors/values/concentration) | Expandido (CMI) |
+| **ingestion** | 9 | 1.137 | Ingestão top-level | Estável |
+| **clients** | 8 | 1.022 | Clientes HTTP compartilhados | Estável |
+| **pipeline** | 2 | 876 | Backfill multi-fonte | Estável |
+| **campaigns** | 4 | 771 | Campanhas (ex.: edital relevance) | ✨ **NOVO** |
+| **buyer_intel** | 2 | 695 | Ranking de compradores | Estável |
+| **integrations** | 2 | 673 | Integrações pontuais | ✨ **NOVO** |
+| **diagnose** | 1 | 651 | Diagnóstico DOM-SC / portais | Estável |
+| **national_intel** | 9 | 598 | Camada nacional de contratos (agencies, competitors, benchmarks) | ✨ **NOVO** |
+| **extra_ledger** | 1 | 470 | Ledger operacional | Estável |
+| **transparencia** | 1 | 406 | Portais de transparência | Estável |
+| **collect** | 2 | 331 | Coletores auxiliares | ✨ **NOVO** |
+| **quality** | 2 | 225 | Qualidade / checks | ✨ **NOVO** |
+| **ocds_bridge** | 2 | 150 | Ponte OCDS | ✨ **NOVO** |
+| **entity_identity** | 2 | 116 | Identidade canônica de entidades | ✨ **NOVO** |
+| **data_contracts** | 2 | 115 | Contratos de dados | ✨ **NOVO** |
+| **root_scripts** | ~50 | alto | Entry points CLI: intel_*, golden_path, health, B2G collectors | Expandido |
 
 ### 3.2 Infraestrutura e conhecimento
 
 | Módulo | Conteúdo | Papel |
 |--------|----------|-------|
-| **config** | `settings.py`, `constants.py`, YAMLs de setores/SLA/aplicabilidade, CSV universo 200 km | Configuração central |
-| **db** | 59 migrations em `db/migrations/` (+ 8 supabase) | Schema DataLake |
-| **deploy** | 25 services / 24 timers systemd, install, provision, hardening | Operação VPS |
-| **tests** | unit / integration / smoke / chaos / fixtures | Qualidade e fail-closed |
-| **docs** | ~340 MD em `docs/` (ops, audits, baseline, stories, architecture) | Operação, DoD, ADRs |
+| **config** | `settings.py`, `constants.py`, YAMLs de setores/SLA/aplicabilidade, CSV universo, client/commercial profiles | Configuração central |
+| **db** | **69** migrations em `db/migrations/` (+ 8 supabase); latest **064_snapshot_write_guard** | Schema DataLake |
+| **deploy** | **26** services / **25** timers em `deploy/systemd/`, install, provision, hardening, ansible | Operação VPS |
+| **tests** | ~250 testes (unit / integration / smoke / chaos / adversarial / campaign) | Qualidade fail-closed |
+| **docs** | ~529 MD em `docs/` (+ DoD, stories, campaigns, ADRs) | Operação e auditoria humana |
+| **tools** | `tools/dod_controller.py` (~2,2K LOC) | Harness de convergência DoD |
 
 ---
 
-## 4. Pontos de entrada principais
+## 4. Entry points principais
 
-### 4.1 Orquestração de crawl
+### 4.1 CLI / Makefile (canônicos)
 
-| Path | Tipo |
-|------|------|
-| `scripts/crawl/monitor.py` | Orquestrador monitor multi-fonte |
-| `scripts/crawl/orchestrator.py` | Orquestração de pipeline de crawl |
-| `scripts/pipeline/backfill_multi_source.py` | Backfill multi-fonte |
-| `scripts/ops/resilient_cycle.py` | Ciclo resiliente local (pré-VPS) |
+| Comando / target | Função |
+|------------------|--------|
+| `make extra-weekly` / `scripts.ops.weekly_cycle` | Ciclo semanal |
+| `make golden-path` | Smoke path local |
+| `python3 -m scripts.workspace` | Workspace do consultor |
+| `python3 -m scripts.crawl.monitor` | Orquestração de crawlers |
+| `python3 -m scripts.opportunity_intel.cli` | Radar / opportunities |
+| `python3 -m scripts.ops.apply_migrations` | Migrations |
+| `python3 tools/dod_controller.py` | DoD harness |
+| `make resilience-gate` / `resilient-local-cycle` | Gates de resiliência local |
+| `make campaign-gate-*` / CONFENGE targets | Gates de campanha comercial |
+| `make test-national-intel` / `test-linkage` / `test-client-ready` | Gates de verticais novas |
 
-### 4.2 Inteligência e produto B2G
+### 4.2 systemd (amostra)
 
-| Path | Tipo |
-|------|------|
-| `scripts/opportunity_intel/cli.py` | CLI opportunity intel |
-| `scripts/opportunity_intel/radar.py` | Radar auditável QW-01 |
-| `scripts/contract_intel/cli.py` | CLI contract intel |
-| `scripts/buyer_intel/cli.py` | CLI buyer ranking |
-| `scripts/source_registry/cli.py` | CLI registry de fontes |
-| `scripts/workspace/cli.py` | CLI workspace operacional |
-| `scripts/intel_pipeline.py` | Pipeline de inteligência setorial |
-| `scripts/local_datalake.py` | DataLake CLI local |
+`pncp-crawl-*`, `pncp-contracts`, `extra-weekly`, `extra-health-check`, `extra-db-backup`, `coverage-report*`, crawlers SC/DOM/transparência/CIGA, etc. — sob `deploy/systemd/`.
 
-### 4.3 Gates e verdade operacional
+### 4.3 CI/CD
 
-| Path | Tipo |
-|------|------|
-| `scripts/consulting_readiness.py` | Consulting Readiness Gate |
-| `scripts/freshness_gate.py` | Freshness / SLA |
-| `scripts/coverage_truth.py` | Coverage Truth |
-| `scripts/coverage_gate.py` | Coverage gate |
-| `scripts/coverage/coverage_contract_cli.py` | Contrato de cobertura |
-| `scripts/golden_path.py` | Golden path operacional |
-| `scripts/ci_gate.sh` | Gate local espelhando CI |
-
-### 4.4 Relatórios
-
-| Path | Tipo |
-|------|------|
-| `scripts/reports/panorama.py` | Panorama executivo |
-| `scripts/reports/coverage_weekly.py` | Cobertura semanal |
-| `scripts/reports/commercial_sample_sc.py` | Amostra comercial SC |
-| `scripts/reports/executive_report.py` / `executive_excel.py` | Entregáveis PDF/Excel |
+| Workflow | Papel |
+|----------|-------|
+| `.github/workflows/ci.yml` | Lint → typecheck → test + security; CONFENGE dual-head SHA truth |
+| `.github/workflows/pr-reviewability.yml` | Política de reviewability de PRs |
 
 ---
 
-## 5. Integrações externas
+## 5. Banco de dados (superfície)
 
-| Fonte | Tipo | Evidência em código |
-|-------|------|---------------------|
-| PNCP gov.br | REST API | múltiplos crawlers PNCP + bids/contracts |
-| Compras.gov | REST API | `compras_gov_crawler.py` |
-| SC Compras | scrape | `sc_compras_crawler.py` + fail-closed resilience |
-| TCE-SC | scrape | `tce_sc_crawler.py` |
-| DOE-SC | scrape + Selenium | `doe_sc_crawler.py`, `doe_sc_selenium_crawler.py` |
-| DOM-SC / CIGA DOM | scrape | `dom_sc_crawler.py`, `ciga_dom_publications.py` |
-| CIGA CKAN | CKAN API | `ciga_ckan_crawler.py`, discovery packages |
-| Dados Abertos SC | open data | `dados_abertos_sc_crawler.py` |
-| MIDES BigQuery | BigQuery | `mides_bigquery_crawler.py` |
-| Portais Transparência | multi-template | `transparencia_crawler.py` + betha/egov/ipam/generico |
-| PCP | scrape | `pcp_crawler.py` |
-| E-Lic SC | stub | `elic_sc_stub.py` |
-| IBGE | API + cache | enricher / geocode |
-| OpenAI | LLM | `intel_llm_gate.py`, pipeline intel |
-| Supabase / Postgres | DB | `supabase_client.py`, DSN env |
+- **Migrations `db/migrations/`:** 045–064 (novas desde última extração): national intel layers, linkage, commercial leads ledger, supplier registry, snapshot write guard, dual capability coverage views, etc.
+- **Supabase:** 8 migrations legadas em `supabase/migrations/`
+- **Docker local:** `docker-compose.local.yml` + `docker-compose.yml` — `pgvector/pgvector:pg16` (test-db :5433, volume `pgdata`; W006 unificado)
 
 ---
 
-## 6. Banco de dados (superfície)
+## 6. Testes
 
-| Item | Valor |
-|------|------:|
-| Migrations `db/migrations/` | **59** (001 → 054 + variantes 041a/b) |
-| Migrations Supabase | 8 |
-| Dump schema | `supabase/current-schema.sql` |
-
-**Migrations novas desde 2026-07-13 (amostra crítica 030–054):**
-
-- reconciliação de snapshots, capability coverage, versionamento de contratos  
-- supplier identity, value observations, reporting views  
-- target universe snapshot/active  
-- FK fixes, entity aliases, upsert dedup  
-- **DLQ**, **pipeline watermarks/runs**, **record hashes**, PNCP resumable backfill  
-- **contract date semantics**, **official_acts**, **entity_source_registry**, **local_resilience_contract**
+| Aspecto | Valor 🟢 |
+|---------|----------|
+| Framework | pytest (+ hypothesis para adversarial/budget) |
+| Arquivos de teste | ~250 |
+| Categorias | unit, integration, smoke, chaos, adversarial, campaign gates |
+| Políticas | skip policy, generated-artifacts, PR reviewability |
 
 ---
 
-## 7. Infra / deploy
+## 7. Delta material desde 2026-07-17 (auditoria)
 
-| Componente | Detalhe |
-|------------|---------|
-| Docker Compose | `test-db` — `pgvector/pgvector:pg16` (port 5433) |
-| systemd | 25 `.service` + 24 `.timer` em `deploy/systemd/` |
-| Fontes agendadas | PNCP full/inc, contracts, CIGA, DOE, DOM, SC Compras, TCE, Transparência, Selenium, métricas, backup, health |
-| Provisionamento | `deploy/provision-vps.sh`, `deploy/install.sh`, `deploy/hardening/` |
-| Env template | `.env.example` (DATABASE_URL, PNCP_*, INGESTION_*, etc.) |
-
----
-
-## 8. CI/CD e qualidade
-
-Workflow: `.github/workflows/ci.yml`
-
-| Stage | Ferramenta | Política |
-|-------|------------|----------|
-| Lint | ruff `scripts/` | fail-closed |
-| Type check | mypy (boundary crítica) | fail-closed |
-| Test | pytest critical readiness | fail-closed |
-| Security | bandit, pip-audit | fail-closed (Regra #10 B2G) |
-
-Dev tools em `pyproject.toml`: ruff (E/F/I/N/S/W/UP), target py312, line-length 120.
+| Tema | Evidência (commits / módulos) |
+|------|--------------------------------|
+| **ORPT / reports** | #159 fail-closed lists + metadata; #160 vertical PDF/Excel |
+| **CMI** | #151–#158 competitors, values, concentration; 47 itens ACCEPTED; evidence rebind |
+| **CONFENGE** | Pipeline comercial + freeze/gates fail-closed massivos |
+| **Coverage** | Edital relevance recall foundation; dual capability views |
+| **Ops explosion** | CONFENGE, CMI proofs, campaign gates, hygiene, weekly |
+| **Novas verticais** | `commercial_leads`, `budget_audit`, `edital_case`, `national_intel`, `linkage`, `campaigns` |
+| **Schema** | mig 055–064 |
+| **DoD harness** | `tools/dod_controller.py` |
 
 ---
 
-## 9. Cobertura de testes
+## 8. Integrações externas (detectadas)
 
-| Dimensão | Valor |
-|----------|------:|
-| Arquivos de teste | 126 |
-| LOC testes | ~32.473 |
-| Layout | `tests/unit`, `integration`, `smoke`, `chaos`, `fixtures`, `scripts` |
-| Focos novos | source_registry, workspace, coverage, resilience/chaos |
-
----
-
-## 10. Delta vs extração 2026-07-13
-
-| Métrica | 2026-07-13 | 2026-07-17 | Δ |
-|---------|------------|------------|---|
-| LOC Python | ~137k | ~179k | +~42k |
-| `.py` (git) | 277 (surface) | 435 | +158 |
-| Módulos Scout | 17 | **25** | +8 |
-| Migrations db | ~33 | **59** | +26 |
-| Testes | 64 | **126** | +62 |
-| systemd services | ~20 | **25** | +5 |
-
-**Novos módulos de domínio:** `source_registry`, `workspace`, `buyer_intel`, `extra_ledger`, `ops`, `schema`, `clients`, `ingestion` (top-level).
-
-**Temas dominantes do delta:**
-
-1. Plataforma B2G operacional (coverage contract, source registry, workspace)  
-2. Ingestão real multi-fonte SC (DOE/DOM/Compras) + `official_acts`  
-3. Evidence ledger / path proof / sellos de sessão (DoD §40–§44)  
-4. Local resilience fail-closed (pré-VPS)  
-5. Honestidade de cobertura comercial (0/1093 strict → headlines operacionais auditáveis)
+| Integração | Tipo | Notas |
+|------------|------|-------|
+| PNCP | API HTTP | Crawlers + contratos |
+| Portais SC / transparência / CIGA / DOM / TCE | HTTP / HTML | Multi-fonte |
+| OpenAI | API | Classificação / intel (gpt-nano lineage) |
+| PostgreSQL | DB | Core |
+| Docker / PostGIS | Local stack | test-db |
+| GitHub Actions | CI | Fail-closed |
+| Prometheus client | Metrics | Opcional |
 
 ---
 
-## 11. Organização sugerida das specs
+## 9. Organização sugerida das specs
 
-- **Granularidade:** `module` 🟢  
-- **Razão:** pastas top-level em `scripts/` por domínio funcional; já persistido em `.reversa/config.toml`.  
-- **Não alterar** `scout_suggestion` em re-run (RF-14).
+| Campo | Valor |
+|-------|-------|
+| **granularity** | `module` |
+| **rationale** | Pastas top-level em `scripts/<domínio>/` com papéis de negócio distintos; re-extração mantém organização por módulo já persistida. |
+| **signals** | `scripts/crawl/`, `scripts/ops/`, `scripts/coverage/`, `scripts/commercial_leads/`, `scripts/national_intel/`, etc. |
 
 ---
 
-## 12. Artefatos gerados nesta fase
+## 10. Lacunas de inventário (Scout)
 
-| Artefato | Path |
-|----------|------|
-| Inventário | `_reversa_sdd/inventory.md` |
-| Dependências | `_reversa_sdd/dependencies.md` |
-| Superfície estruturada | `.reversa/context/surface.json` |
+| ID | Descrição | Confiança |
+|----|-----------|-----------|
+| INV-01 | LOC de `root_scripts` top-level parece inflado por arquivos grandes/gerados — Archaeologist deve revalidar | 🟡 |
+| INV-02 | Worktrees `.worktrees/*` no filesystem não entram no inventário canônico (git tracked) | 🟢 |
+| INV-03 | Runtime VPS e dumps live não inspecionados nesta sessão | 🔴 |
+
+---
+
+*Gerado pelo Scout Reversa — 2026-07-27 | HEAD `ffbb9608`*

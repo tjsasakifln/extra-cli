@@ -1,60 +1,55 @@
-# Flowcharts — módulo `coverage`
+# Flowcharts — `coverage`
 
-> 🟢 CONFIRMADO — 2026-07-17
+> 🟢 2026-07-28 | HEAD `ffbb9608`
 
-## 1. Coverage contract report
+## 1. Dual capability coverage
 
 ```mermaid
 flowchart TD
-    A[build_contract_report] --> B[resolve_denominator 1093]
-    B --> C[load SLA YAML]
-    C --> D[compute_source_mapping_coverage]
-    C --> E[compute_operational_source_coverage strict]
-    C --> F[compute_freshness_coverage]
-    C --> G[compute_opportunity_recall]
-    C --> H[compute_required_field_completeness]
-    C --> I[compute_commercial_signal]
-    D --> J[CoverageContractReport]
-    E --> J
-    F --> J
-    G --> J
-    H --> J
-    I --> J
-    J --> K[format_report_table / JSON]
-    E -->|sem evidência| L[MetricStatus not_ready / 0]
+  A[build_universe_identity] --> B[load source_policy]
+  B --> C[for each entity x required source combo]
+  C --> D[load latest coverage_evidence]
+  D --> E{applicability}
+  E -->|not_applicable| N[exclude from denom correctly]
+  E -->|required| F{observation state}
+  F -->|success_with_data / success_zero + fresh| G[counts as covered]
+  F -->|partial/error/blocked/stale/pending| H[not covered]
+  G --> I[CapabilityCoverageResult]
+  H --> I
+  N --> I
+  I --> J[DualCoverageReport open_tenders + historical_contracts]
 ```
 
-## 2. Coverage state machine
+## 2. Coverage state machine (9 estados)
 
 ```mermaid
 stateDiagram-v2
-    [*] --> unknown
-    unknown --> mapped: applicability known
-    mapped --> accessible: probe OK
-    accessible --> collected: crawl OK
-    collected --> verified: evidence sealed
-    verified --> operational: strict criteria
-    operational --> stale: freshness SLA fail
-    stale --> operational: re-collect OK
-    accessible --> blocked: auth/rate/portal down
-    blocked --> accessible: unblock
-    collected --> failed: transform/upsert fail
-    failed --> accessible: retry
+  [*] --> pending
+  pending --> running
+  pending --> blocked
+  pending --> not_applicable
+  running --> success_with_data
+  running --> success_zero
+  running --> partial
+  running --> error
+  running --> blocked
+  success_with_data --> stale
+  success_zero --> stale
+  stale --> running
+  partial --> running
+  error --> running
+  blocked --> running
+  not_applicable --> [*]
 ```
 
-## 3. Evidence satisfactory (mig 054)
+## 3. Edital relevance recall
 
 ```mermaid
 flowchart TD
-    A[CoverageEvidence] --> B{state in success_with_data success_zero?}
-    B -->|não| C[satisfactory=false]
-    B -->|sim| D{request_scope set?}
-    D -->|não| C
-    D -->|sim| E{provenance non-empty?}
-    E -->|não| C
-    E -->|sim| F{pages_expected null OR fetched >= expected?}
-    F -->|não| C
-    F -->|sim| G{error_code null?}
-    G -->|não| C
-    G -->|sim| H[satisfactory=true]
+  A[load corpus + human labels] --> B[integrity checks]
+  B -->|synthetic/machine authority abuse| X[FAIL]
+  B --> C[predicted_relevant vs labels]
+  C --> D[Confusion matrix]
+  D --> E[Wilson CI]
+  E --> F[IntegrityReport + metrics]
 ```
