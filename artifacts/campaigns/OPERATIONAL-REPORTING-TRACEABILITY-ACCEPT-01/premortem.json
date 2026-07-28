@@ -1,0 +1,166 @@
+{
+  "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
+  "as_of": "2026-07-28T01:37:01Z",
+  "verdict": "PASS_PREMORTEM",
+  "baseline": {
+    "main_sha": "59569e33f916bfe73e5622fea83837f137ba2416",
+    "main_sha_match": true,
+    "dod_blob": "f14d18cad021d4f911ede49b036638e82f79648a",
+    "dod_blob_match": true,
+    "dod_sha256": "29217f4958d404c2cf3fda64daff20267e98ed9e6d0c75834888c5272cd662d7",
+    "working_tree_note": "untracked local worktrees/artifacts present; no tracked modifications on main baseline"
+  },
+  "controller": {
+    "scan": "total=1462 accepted=401 open=1060",
+    "status": "state_ACCEPTED=401 OPEN=1060 blocked=1",
+    "audit": "divergences=398 proof_debt=319",
+    "n_total": 1462,
+    "n_accepted": 401,
+    "n_open": 1060,
+    "n_blocked": 1,
+    "counts_match_objective": true
+  },
+  "weights": {
+    "items": 40,
+    "weighted_delta": 176,
+    "raw_progress_pct": 3.7736,
+    "weighted_progress_pct": 5.6338,
+    "meets_raw_floor_ge_3": true,
+    "meets_weighted_floor_ge_5": true,
+    "all_40_ids_resolved_in_manifest": true,
+    "all_40_initial_state_OPEN": true
+  },
+  "branch_protection": {
+    "required_status_checks": [
+      "Lint (ruff)",
+      "Type Check (mypy)",
+      "Test (critical readiness)",
+      "Test operational expanded (PR)",
+      "Test All (full suite)",
+      "Resilience Gate (pre-VPS)",
+      "Security (bandit)",
+      "Dependency Audit (pip-audit)",
+      "Generated Artifacts Policy",
+      "PR Reviewability Policy",
+      "Pytest Skip Policy"
+    ],
+    "pr_reviewability_policy_required": true,
+    "required_approving_review_count": 0,
+    "require_conversation_resolution": true,
+    "enforce_admins": true,
+    "required_linear_history": true,
+    "human_merge_likely": true,
+    "observable": true
+  },
+  "prs": {
+    "open_contending_central_files": [],
+    "pr_139": {
+      "destination": "SUPERSEDED_BY_PR_146",
+      "do_not_merge": true,
+      "do_not_rebase_into_this_campaign": true,
+      "state": "DRAFT",
+      "action": "registered_destination_only_no_branch_touch",
+      "close_attempt": "deferred_no_authority_required_for_premortem_pass"
+    },
+    "cmi_151_158": "MERGED_CLOSED_do_not_continue",
+    "pr_budget_max": 3
+  },
+  "database": {
+    "accessible": true,
+    "dsn_masked": "postgresql://test:***@127.0.0.1:5433/extra_test",
+    "env_local_datalake_points_to": "pncp_datalake (incomplete schema; not used for campaign)",
+    "campaign_dsn": "extra_test with full migrations schema_version=064",
+    "migrations_ok": true,
+    "schema_version": "064",
+    "counts": {
+      "entes": 0,
+      "editais": 0,
+      "contratos": 0,
+      "fornecedores": 0
+    },
+    "dataset_hash": "99c8a66a860670ed869ce695b2861f41901b253fa26fd83ced38b2489d95b3d2",
+    "cutoff": "2026-07-28",
+    "freshness": "EMPTY",
+    "sources": [
+      "local_postgresql_extra_test"
+    ],
+    "blockers": [
+      "market_rows_zero"
+    ],
+    "usable_for_capability_proof": true,
+    "usable_for_market_coverage_claims": false,
+    "note": "Empty real PostgreSQL is legitimate SUCCESS_ZERO/NOT_READY substrate. Fixture seed (CMI-*) forbidden as operational proof. Not FAILED_PREMORTEM: DB+schema real and queryable."
+  },
+  "baseline_pytest": {
+    "command": "REQUIRE_REAL_DB=1 pytest tests/test_operational_outputs.py tests/test_deliverable_package_final.py tests/test_weekly_cycle.py tests/test_golden_path_* -q",
+    "result": "67 passed in 12.69s",
+    "skips": 0,
+    "exit_code": 0
+  },
+  "known_defects_pre_edit": [
+    "operational_outputs._q swallows SQL errors into [{_error}] and _write_csv filters them to empty trustworthy CSV",
+    "deliverable_package_final.build_package_fixture produces placeholder PDF/Excel not real market package",
+    "no unified operational manifest across all report products",
+    "live integration may accept empty without SUCCESS_ZERO documentation in some paths"
+  ],
+  "adversarial_review_readonly": {
+    "attempts": [
+      {
+        "claim": "40 items not a vertical",
+        "result": "FALSED — all map to operational lists+analytic reports+export+traceability+durations on same weekly/golden path surface"
+      },
+      {
+        "claim": "weights inflated",
+        "result": "FALSED — sum 176 exact; majority weight 5 on machine-actionable report items; 3 only on lightweight metadata/duration items"
+      },
+      {
+        "claim": "report is only fixture",
+        "result": "OPEN_RISK — deliverable_package_final still has fixture builder; campaign must replace proof path with real generators"
+      },
+      {
+        "claim": "SQL error becomes empty CSV",
+        "result": "CONFIRMED_DEFECT — _q+_write_csv; PR1 must fail-close"
+      },
+      {
+        "claim": "golden path does not call real reports",
+        "result": "PARTIAL — golden path has valores/contratos/concorrentes hooks; need verify valores registration"
+      },
+      {
+        "claim": "PDF and Excel do not share runs",
+        "result": "PARTIAL — run_metadata contract exists; package_final fixture shares run_id but is not real proof"
+      },
+      {
+        "claim": "package needs >3 PRs",
+        "result": "FALSED if vertical kept to 3 waves (repair, integrate, promote)"
+      },
+      {
+        "claim": "evidence depends on implementation as oracle",
+        "result": "MITIGATED by per-alias assertions + external artifact inspection + controller gates"
+      },
+      {
+        "claim": "depends on human recall or 7-day soak",
+        "result": "FALSED — no soak/recall items in the 40"
+      },
+      {
+        "claim": "existing PR collides",
+        "result": "FALSED — #139 superseded; no open PR on operational_outputs/weekly/golden"
+      }
+    ],
+    "block_campaign": false
+  },
+  "failed_premortem_checks": {
+    "baseline_sha_divergent": false,
+    "counts_divergent": false,
+    "weighted_progress_lt_5": false,
+    "raw_progress_lt_3": false,
+    "db_inaccessible": false,
+    "no_usable_data": false,
+    "needs_more_than_3_prs": false,
+    "contending_pr_without_destination": false,
+    "human_calendar_credential_blocker": false,
+    "cannot_produce_real_pdf_excel": false,
+    "cannot_promote_individually": false,
+    "branch_protection_unobservable": false
+  },
+  "decision": "PROCEED_TO_PR1"
+}
