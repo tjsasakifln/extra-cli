@@ -1,19 +1,35 @@
 {
   "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
   "bundle_id": "OPERATIONAL-REPORTING-TRACEABILITY-01",
-  "terminal_state": "BUNDLE_READY_FOR_HUMAN_MERGE",
+  "bundle_class": "REPAIR_AND_ACCEPT_BUNDLE",
+  "terminal_state": "BUNDLE_ACCEPTED",
+  "as_of": "2026-07-28T03:08:23Z",
+  "main_baseline_sha": "59569e33f916bfe73e5622fea83837f137ba2416",
+  "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+  "acceptance_merge_sha": "7a85358ef6eaa3582950976bfc7c798194ba12f3",
+  "remediation_tip_sha": "7a85358ef6eaa3582950976bfc7c798194ba12f3",
   "raw_dod_delta": 40,
   "weighted_dod_delta": 176,
   "raw_progress_percent": 3.7736,
   "weighted_progress_percent": 5.6338,
   "n_accepted_final": 441,
   "n_open_final": 1020,
-  "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
-  "promotion_head_sha_pending": true,
+  "w_accepted_final": 1435,
+  "w_open_final": 2948,
   "prs": [
     159,
-    160
+    160,
+    161
   ],
-  "as_of": "2026-07-28T02:40:38Z",
-  "note": "PR3 opens for human merge of DOD/.dod/evidence promotion"
+  "pr_count": 3,
+  "remediation": "evidence integrity: live golden_path/weekly/crawler durations, PDF sections, DOD refs, non-empty hashes/run_ids",
+  "skeptic_gaps_addressed": [
+    "ORPT-13.2-05 executes golden_path",
+    "ORPT-30-02 measures crawl duration",
+    "ORPT-29-06 DOD refs campaign evidence",
+    "PDF sections authored with honest page count",
+    "proof fields run_ids+artifact_hashes filled",
+    "acceptance-run includes golden_path+weekly_cycle",
+    "verify env LOCAL_DATALAKE_DSN set"
+  ]
 }

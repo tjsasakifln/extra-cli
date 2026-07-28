@@ -1,6 +1,3 @@
-# Evidence pack — DOD-rol-3-definition-of-done-38861a819b
+# Evidence ORPT-30-01
 
-Text: O tempo do golden path é medido.
-
-Started: 2026-07-28T02:20:09Z
-Run: run-20260728T022009Z
+DOD-rol-3-definition-of-done-38861a819b

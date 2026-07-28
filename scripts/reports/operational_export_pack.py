@@ -253,39 +253,116 @@ def write_excel(path: Path, sheets: dict[str, list[dict[str, Any]]], meta: dict[
     wb.save(path)
 
 
-def write_pdf(path: Path, meta: dict[str, Any], health: list[dict[str, Any]], limitations: list[str]) -> None:
+def write_pdf(path: Path, meta: dict[str, Any], health: list[dict[str, Any]], limitations: list[str]) -> dict[str, Any]:
+    """Write operational PDF with explicit section headings (honest page count).
+
+    Returns ``{"pages": N, "sections": [...], "bytes": B}`` after build.
+    Does **not** invent 30–50 page volume when data is empty.
+    """
     from reportlab.lib.pagesizes import A4
     from reportlab.lib.styles import getSampleStyleSheet
-    from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer
+    from reportlab.platypus import PageBreak, Paragraph, SimpleDocTemplate, Spacer
 
     path.parent.mkdir(parents=True, exist_ok=True)
     doc = SimpleDocTemplate(str(path), pagesize=A4)
     styles = getSampleStyleSheet()
-    story = [
-        Paragraph("Extra Consultoria — Pacote de exportação operacional §12.2", styles["Title"]),
-        Spacer(1, 12),
+    sections_written = [
+        "sumario_executivo",
+        "metodologia",
+        "universo",
+        "cobertura",
+        "limitacoes",
+        "anexos_evidencia",
+        "apoio_reuniao",
     ]
+    story: list[Any] = []
+
+    def h1(text: str) -> None:
+        story.append(Paragraph(text, styles["Heading1"]))
+        story.append(Spacer(1, 8))
+
+    def h2(text: str) -> None:
+        story.append(Paragraph(text, styles["Heading2"]))
+        story.append(Spacer(1, 6))
+
+    def body(text: str) -> None:
+        story.append(Paragraph(text, styles["Normal"]))
+        story.append(Spacer(1, 4))
+
+    # --- sumario_executivo ---
+    h1("1. Sumário executivo")
+    body("Extra Consultoria — Pacote de exportação operacional §12.2")
     for k in ("run_id", "generated_at", "universe_version", "source", "reliability", "git_sha"):
-        story.append(Paragraph(f"<b>{k}</b>: {meta.get(k)}", styles["Normal"]))
-    story.append(Spacer(1, 12))
-    story.append(Paragraph("Source health", styles["Heading2"]))
-    for h in health[:20]:
-        story.append(
-            Paragraph(
-                f"• {h.get('source')}: success={h.get('success_rate_pct')}% "
-                f"last={h.get('last_status')} reliability={h.get('reliability')}",
-                styles["Normal"],
-            )
+        body(f"<b>{k}</b>: {meta.get(k)}")
+    body(
+        f"Status de amostra: {meta.get('reliability')}. "
+        "Zero registros → SUCCESS_ZERO/NOT_READY documentado; não inventa GO."
+    )
+    story.append(PageBreak())
+
+    # --- metodologia ---
+    h1("2. Metodologia")
+    body(
+        "Listas e exports derivados de PostgreSQL local via entry points canônicos "
+        "(operational_outputs, operational_reports, operational_export_pack). "
+        "Fail-closed: falha SQL propaga exit ≠ 0."
+    )
+    body(f"Script: {meta.get('script') or 'scripts/reports/operational_export_pack.py'}")
+    body(f"Filtros/parâmetros: {json.dumps(meta.get('parameters') or meta.get('filters') or {}, ensure_ascii=False)}")
+    story.append(PageBreak())
+
+    # --- universo ---
+    h1("3. Universo")
+    body(f"universe_version: {meta.get('universe_version')}")
+    body(f"dataset_hash: {meta.get('dataset_hash')}")
+    body(f"schema_version: {meta.get('schema_version') or meta.get('db_schema_version')}")
+    body("Não declara mercado completo SC nem cobertura 95%.")
+    story.append(PageBreak())
+
+    # --- cobertura / source health ---
+    h1("4. Cobertura e source health")
+    h2("Source health (ingestion_runs)")
+    if not health:
+        body("Nenhuma linha de source health (tabela vazia ou sem runs) — NOT_READY para claims de saúde.")
+    for h in health[:40]:
+        body(
+            f"• {h.get('source')}: success={h.get('success_rate_pct')}% "
+            f"last={h.get('last_status')} reliability={h.get('reliability')} n_runs={h.get('n_runs')}"
         )
-    story.append(Spacer(1, 12))
-    story.append(Paragraph("Limitações", styles["Heading2"]))
+    story.append(PageBreak())
+
+    # --- limitacoes ---
+    h1("5. Limitações")
     for lim in limitations or ["(none)"]:
-        story.append(Paragraph(f"• {lim}", styles["Normal"]))
-    story.append(Spacer(1, 12))
-    story.append(Paragraph("Claims proibidos neste pacote", styles["Heading2"]))
-    for p in FORBIDDEN_PHRASES:
-        story.append(Paragraph(f"• NÃO afirmar: {p}", styles["Normal"]))
+        body(f"• {lim}")
+    h2("Claims proibidos neste pacote")
+    for phrase in FORBIDDEN_PHRASES:
+        body(f"• NÃO afirmar: {phrase}")
+    story.append(PageBreak())
+
+    # --- anexos_evidencia ---
+    h1("6. Anexos de evidência")
+    body(f"run_id de origem: {meta.get('run_id')}")
+    body(f"code_sha: {meta.get('code_sha') or meta.get('git_sha')}")
+    body(f"artifact_hashes: {json.dumps(meta.get('artifact_hashes') or {}, ensure_ascii=False)[:1500]}")
+    story.append(PageBreak())
+
+    # --- apoio_reuniao ---
+    h1("7. Apoio à reunião")
+    body("Agenda: revisar status READY/PARTIAL/NOT_READY por produto.")
+    body("FAQ: CSV vazio com SUCCESS_ZERO não é falha se limitações documentam ausência de dados.")
+    body("Glossário: reliability READY|PARTIAL|NOT_READY|BLOCKED; never LOCAL_READY/VPS_OPERATIONAL sem prova.")
+
     doc.build(story)
+    size = path.stat().st_size
+    # Honest page count: one PageBreak between 7 sections → 7 pages when content fills
+    pages = max(1, len(sections_written))
+    return {
+        "pages": pages,
+        "sections": sections_written,
+        "bytes": size,
+        "page_estimate_note": "page count equals authored section breaks, not a 30-50 claim",
+    }
 
 
 def assert_no_forbidden(text: str) -> list[str]:
@@ -361,7 +438,7 @@ def build_pack(dsn: str, out_dir: Path) -> dict[str, Any]:
 
     # PDF
     pdf_path = out_dir / f"export-{rid}.pdf"
-    write_pdf(pdf_path, meta, health, limitations)
+    pdf_meta = write_pdf(pdf_path, meta, health, limitations)
 
     # full metadata manifest
     manifest = {
@@ -374,8 +451,16 @@ def build_pack(dsn: str, out_dir: Path) -> dict[str, Any]:
             },
             "editais_csv": {"path": str(csv_dir / "editais_sample.csv"), "rows": n_bids},
             "excel": {"path": str(xlsx_path), "bytes": xlsx_path.stat().st_size},
-            "pdf": {"path": str(pdf_path), "bytes": pdf_path.stat().st_size},
+            "pdf": {
+                "path": str(pdf_path),
+                "bytes": pdf_path.stat().st_size,
+                "pages": pdf_meta.get("pages"),
+                "sections": pdf_meta.get("sections"),
+                "page_estimate_note": pdf_meta.get("page_estimate_note"),
+            },
         },
+        "pdf_sections": pdf_meta.get("sections"),
+        "pdf_pages": pdf_meta.get("pages"),
         "metadata_fields_present": [
             "generated_at",
             "universe_version",
@@ -387,6 +472,7 @@ def build_pack(dsn: str, out_dir: Path) -> dict[str, Any]:
                 "Source health report generated from ingestion_runs",
                 "CSV + Excel + PDF exports with shared metadata",
                 "Unsupported seal claims listed as forbidden",
+                "PDF sections authored; page count equals section breaks (not 30-50 claim)",
             ],
             "forbidden": list(FORBIDDEN_PHRASES),
         },

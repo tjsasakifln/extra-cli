@@ -927,7 +927,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] HHI quando semanticamente válido.
 - [x] Fonte e data de corte em todas as métricas.
 - [x] Exportação para Excel.
-- [x] Relatório de concorrentes para revisão manual.
+- [x] Relatório de concorrentes para revisão manual. Evidência: ORPT 12.2-10 · `DOD-rol-1-definition-of-done-58aa2af147` · `.dod/evidence/DOD-rol-1-definition-of-done-58aa2af147/` · `artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/per-item-proofs/ORPT-12.2-10.json` · orpt_item_proofs · campaign OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01.
 - [x] Queries executadas em PostgreSQL real.
 - [x] Testes validam nomes reais de tabelas e colunas.
 - [x] O relatório distingue métricas prontas, parciais e indisponíveis.
@@ -993,7 +993,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] O golden path gera relatório de editais.
 - [x] O golden path gera relatório de contratos.
 - [x] O golden path gera relatório de concorrentes.
-- [x] O golden path gera relatório de referências de valores.
+- [x] O golden path gera relatório de referências de valores. Evidência: ORPT 12.1-01 · `DOD-rol-1-definition-of-done-7b7184ebb4` · `.dod/evidence/DOD-rol-1-definition-of-done-7b7184ebb4/` · `artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/per-item-proofs/ORPT-12.1-01.json` · orpt_item_proofs · campaign OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01.
 - [x] O golden path gera Excel. Evidência: PR #90 · panorama Excel size≥100 openpyxl · reproof CONTINUE-03 · `.dod/evidence/DOD-rol-1-definition-of-done-d5c6584cb7/` · **não** prova relatórios de editais/contratos/concorrentes/valores.
 - [x] O golden path gera PDF. Evidência: PR #90 · panorama PDF magic %PDF · reproof CONTINUE-03 · `.dod/evidence/DOD-rol-1-definition-of-done-ddfcf1ec8a/` · **não** prova relatórios específicos de domínio.
 - [x] O golden path gera ledger. Evidência: PR #85 · ledger JSON com steps · tests/test_golden_path_ledger_meta.py · CONTINUE-03 QA PASS · `.dod/evidence/DOD-rol-1-definition-of-done-7d4698cf6a/`.
@@ -1005,36 +1005,36 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] A versão do código é registrada. Evidência: PR #97 · ledger meta.git_sha via _save_final_ledger · tests/test_golden_path_ledger_meta.py · .
 - [x] O hash da planilha é registrado. Evidência: PR #97 · ledger meta.spreadsheet_sha256 · `.dod/evidence/DOD-rol-1-definition-of-done-8990bd3e67/`.
 - [x] A versão do schema é registrada. Evidência: PR #97 · ledger meta.schema_version · tests/test_golden_path_ledger_meta.py · .
-- [x] Os relatórios apontam o período de referência.
-- [x] Os relatórios apontam limitações conhecidas.
+- [x] Os relatórios apontam o período de referência. Evidência: ORPT 12.1-02 · `DOD-rol-1-definition-of-done-36fa52b0a8` · `.dod/evidence/DOD-rol-1-definition-of-done-36fa52b0a8/` · `artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/per-item-proofs/ORPT-12.1-02.json` · orpt_item_proofs · campaign OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01.
+- [x] Os relatórios apontam limitações conhecidas. Evidência: ORPT 12.1-03 · `DOD-rol-1-definition-of-done-b43fd305c7` · `.dod/evidence/DOD-rol-1-definition-of-done-b43fd305c7/` · `artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/per-item-proofs/ORPT-12.1-03.json` · orpt_item_proofs · campaign OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01.
 
 ### 12.2 Saídas operacionais
 
-- [x] Lista de editais acionáveis.
-- [x] Lista de editais para revisão.
-- [x] Lista de editais descartados com motivo.
-- [x] Lista de oportunidades removidas do snapshot.
-- [x] Lista de entes sem cobertura de editais.
+- [x] Lista de editais acionáveis. Evidência: ORPT 12.2-01 · `DOD-rol-1-definition-of-done-b87c19a57c` · `.dod/evidence/DOD-rol-1-definition-of-done-b87c19a57c/` · `artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/per-item-proofs/ORPT-12.2-01.json` · orpt_item_proofs · campaign OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01.
+- [x] Lista de editais para revisão. Evidência: ORPT 12.2-02 · `DOD-rol-1-definition-of-done-9c1555da8e` · `.dod/evidence/DOD-rol-1-definition-of-done-9c1555da8e/` · `artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/per-item-proofs/ORPT-12.2-02.json` · orpt_item_proofs · campaign OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01.
+- [x] Lista de editais descartados com motivo. Evidência: ORPT 12.2-03 · `DOD-rol-1-definition-of-done-037e1ea8b8` · `.dod/evidence/DOD-rol-1-definition-of-done-037e1ea8b8/` · `artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/per-item-proofs/ORPT-12.2-03.json` · orpt_item_proofs · campaign OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01.
+- [x] Lista de oportunidades removidas do snapshot. Evidência: ORPT 12.2-04 · `DOD-rol-1-definition-of-done-9c590c7a80` · `.dod/evidence/DOD-rol-1-definition-of-done-9c590c7a80/` · `artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/per-item-proofs/ORPT-12.2-04.json` · orpt_item_proofs · campaign OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01.
+- [x] Lista de entes sem cobertura de editais. Evidência: ORPT 12.2-05 · `DOD-rol-1-definition-of-done-736a47b268` · `.dod/evidence/DOD-rol-1-definition-of-done-736a47b268/` · `artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/per-item-proofs/ORPT-12.2-05.json` · orpt_item_proofs · campaign OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01.
 - [x] Lista de entes sem cobertura de contratos. Evidência: gap-lists-20260719.json · ops proxy 1090/1093 · SZ 722 · EXTRA-OPS-95 27d3665 · residual 3 cnpj_8 malformados 00394494*
-- [x] Lista de blockers por fonte.
-- [x] Lista de runs stale.
-- [x] Relatório de contratos por ente.
-- [x] Relatório de contratos por fornecedor.
-- [x] Relatório de concorrentes.
-- [x] Relatório de concentração.
-- [x] Relatório de referências de valores.
-- [x] Relatório de completude.
-- [x] Relatório de coverage.
+- [x] Lista de blockers por fonte. Evidência: ORPT 12.2-06 · `DOD-rol-1-definition-of-done-42843ef00c` · `.dod/evidence/DOD-rol-1-definition-of-done-42843ef00c/` · `artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/per-item-proofs/ORPT-12.2-06.json` · orpt_item_proofs · campaign OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01.
+- [x] Lista de runs stale. Evidência: ORPT 12.2-07 · `DOD-rol-1-definition-of-done-9b7e025eca` · `.dod/evidence/DOD-rol-1-definition-of-done-9b7e025eca/` · `artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/per-item-proofs/ORPT-12.2-07.json` · orpt_item_proofs · campaign OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01.
+- [x] Relatório de contratos por ente. Evidência: ORPT 12.2-08 · `DOD-rol-1-definition-of-done-967f4833f6` · `.dod/evidence/DOD-rol-1-definition-of-done-967f4833f6/` · `artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/per-item-proofs/ORPT-12.2-08.json` · orpt_item_proofs · campaign OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01.
+- [x] Relatório de contratos por fornecedor. Evidência: ORPT 12.2-09 · `DOD-rol-1-definition-of-done-7ed332dbad` · `.dod/evidence/DOD-rol-1-definition-of-done-7ed332dbad/` · `artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/per-item-proofs/ORPT-12.2-09.json` · orpt_item_proofs · campaign OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01.
+- [x] Relatório de concorrentes. Evidência: ORPT 12.2-10 · `DOD-rol-1-definition-of-done-58aa2af147` · `.dod/evidence/DOD-rol-1-definition-of-done-58aa2af147/` · `artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/per-item-proofs/ORPT-12.2-10.json` · orpt_item_proofs · campaign OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01.
+- [x] Relatório de concentração. Evidência: ORPT 12.2-11 · `DOD-rol-1-definition-of-done-a9c29d1d0f` · `.dod/evidence/DOD-rol-1-definition-of-done-a9c29d1d0f/` · `artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/per-item-proofs/ORPT-12.2-11.json` · orpt_item_proofs · campaign OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01.
+- [x] Relatório de referências de valores. Evidência: ORPT 12.2-12 · `DOD-rol-1-definition-of-done-a68e171fd2` · `.dod/evidence/DOD-rol-1-definition-of-done-a68e171fd2/` · `artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/per-item-proofs/ORPT-12.2-12.json` · orpt_item_proofs · campaign OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01.
+- [x] Relatório de completude. Evidência: ORPT 12.2-13 · `DOD-rol-1-definition-of-done-3806883175` · `.dod/evidence/DOD-rol-1-definition-of-done-3806883175/` · `artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/per-item-proofs/ORPT-12.2-13.json` · orpt_item_proofs · campaign OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01.
+- [x] Relatório de coverage. Evidência: ORPT 12.2-14 · `DOD-rol-1-definition-of-done-0e137584b0` · `.dod/evidence/DOD-rol-1-definition-of-done-0e137584b0/` · `artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/per-item-proofs/ORPT-12.2-14.json` · orpt_item_proofs · campaign OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01.
 - [ ] Relatório de recall.
-- [x] Relatório de source health.
-- [x] Exportação CSV.
-- [x] Exportação Excel.
-- [x] Relatório PDF.
-- [x] Todos os relatórios incluem data de geração.
-- [x] Todos os relatórios incluem versão do universo.
-- [x] Todos os relatórios incluem fonte.
-- [x] Todos os relatórios incluem status de confiabilidade.
-- [x] Todos os relatórios evitam afirmações não suportadas.
+- [x] Relatório de source health. Evidência: ORPT 12.2-15 · `DOD-rol-1-definition-of-done-eba916b20b` · `.dod/evidence/DOD-rol-1-definition-of-done-eba916b20b/` · `artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/per-item-proofs/ORPT-12.2-15.json` · orpt_item_proofs · campaign OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01.
+- [x] Exportação CSV. Evidência: ORPT 12.2-16 · `DOD-rol-1-definition-of-done-77b6ac88f9` · `.dod/evidence/DOD-rol-1-definition-of-done-77b6ac88f9/` · `artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/per-item-proofs/ORPT-12.2-16.json` · orpt_item_proofs · campaign OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01.
+- [x] Exportação Excel. Evidência: ORPT 12.2-17 · `DOD-rol-1-definition-of-done-27281770e6` · `.dod/evidence/DOD-rol-1-definition-of-done-27281770e6/` · `artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/per-item-proofs/ORPT-12.2-17.json` · orpt_item_proofs · campaign OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01.
+- [x] Relatório PDF. Evidência: ORPT 12.2-18 · `DOD-rol-1-definition-of-done-fd81b987ec` · `.dod/evidence/DOD-rol-1-definition-of-done-fd81b987ec/` · `artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/per-item-proofs/ORPT-12.2-18.json` · orpt_item_proofs · campaign OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01.
+- [x] Todos os relatórios incluem data de geração. Evidência: ORPT 12.2-19 · `DOD-rol-1-definition-of-done-0b5cf13b3e` · `.dod/evidence/DOD-rol-1-definition-of-done-0b5cf13b3e/` · `artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/per-item-proofs/ORPT-12.2-19.json` · orpt_item_proofs · campaign OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01.
+- [x] Todos os relatórios incluem versão do universo. Evidência: ORPT 12.2-20 · `DOD-rol-1-definition-of-done-7cae8aa5a9` · `.dod/evidence/DOD-rol-1-definition-of-done-7cae8aa5a9/` · `artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/per-item-proofs/ORPT-12.2-20.json` · orpt_item_proofs · campaign OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01.
+- [x] Todos os relatórios incluem fonte. Evidência: ORPT 12.2-21 · `DOD-rol-1-definition-of-done-0c639d11e9` · `.dod/evidence/DOD-rol-1-definition-of-done-0c639d11e9/` · `artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/per-item-proofs/ORPT-12.2-21.json` · orpt_item_proofs · campaign OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01.
+- [x] Todos os relatórios incluem status de confiabilidade. Evidência: ORPT 12.2-22 · `DOD-rol-1-definition-of-done-d269363a06` · `.dod/evidence/DOD-rol-1-definition-of-done-d269363a06/` · `artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/per-item-proofs/ORPT-12.2-22.json` · orpt_item_proofs · campaign OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01.
+- [x] Todos os relatórios evitam afirmações não suportadas. Evidência: ORPT 12.2-23 · `DOD-rol-1-definition-of-done-135268780a` · `.dod/evidence/DOD-rol-1-definition-of-done-135268780a/` · `artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/per-item-proofs/ORPT-12.2-23.json` · orpt_item_proofs · campaign OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01.
 
 ---
 
@@ -1059,7 +1059,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] Checkpoint.
 - [x] Resume.
 - [x] Deduplicação.
-- [ ] Reconciliação de snapshot.
+- [ ] Reconciliação de snapshot. Evidência: ORPT 13.2-02 · `DOD-rol-1-definition-of-done-9c23f31815` · `.dod/evidence/DOD-rol-1-definition-of-done-9c23f31815/` · `artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/per-item-proofs/ORPT-13.2-02.json` · orpt_item_proofs · campaign OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01.
 - [x] Classificação de status.
 - [ ] Classificação AEC.
 - [x] Regras de score.
@@ -1078,16 +1078,16 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] Reexecução sem duplicação. Evidência: pncp_raw_bids 11559 · pncp_supplier_contracts 217574 · upsert live · EXTRA-OPS-95 · upsert ON CONFLICT
 - [ ] Atualização de registro alterado.
 - [x] Execução de `success_zero`. Evidência: coverage_evidence success_zero n=623 · probe_entity_success_zero · http_204_complete · purge-token-mismatch · EXTRA-OPS-95 ab3f77c 2026-07-19
-- [x] Falha parcial não marcada como sucesso.
+- [x] Falha parcial não marcada como sucesso. Evidência: ORPT 13.2-01 · `DOD-rol-1-definition-of-done-aeda284a54` · `.dod/evidence/DOD-rol-1-definition-of-done-aeda284a54/` · `artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/per-item-proofs/ORPT-13.2-01.json` · orpt_item_proofs · campaign OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01.
 - [x] Retomada por checkpoint. Evidência: contracts_full.json completed_windows · M5-resume · EXTRA-OPS-95-FOUNDATION 2026-07-19
 - [ ] Reconciliação de ente.
-- [x] Reconciliação de snapshot.
+- [x] Reconciliação de snapshot. Evidência: ORPT 13.2-02 · `DOD-rol-1-definition-of-done-9c23f31815` · `.dod/evidence/DOD-rol-1-definition-of-done-9c23f31815/` · `artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/per-item-proofs/ORPT-13.2-02.json` · orpt_item_proofs · campaign OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01.
 - [ ] Backfill de contratos de janela pequena.
 - [ ] Incremental após backfill.
-- [x] Geração real de PDF.
-- [x] Geração real de Excel.
+- [x] Geração real de PDF. Evidência: ORPT 13.2-03 · `DOD-rol-1-definition-of-done-8dc9efb9a9` · `.dod/evidence/DOD-rol-1-definition-of-done-8dc9efb9a9/` · `artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/per-item-proofs/ORPT-13.2-03.json` · orpt_item_proofs · campaign OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01.
+- [x] Geração real de Excel. Evidência: ORPT 13.2-04 · `DOD-rol-1-definition-of-done-d94e5ff604` · `.dod/evidence/DOD-rol-1-definition-of-done-d94e5ff604/` · `artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/per-item-proofs/ORPT-13.2-04.json` · orpt_item_proofs · campaign OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01.
 - [x] Queries analíticas em PostgreSQL real. Evidência: LOCAL_DATALAKE_DSN PostgreSQL real · queries cobertura/ops · EXTRA-OPS-95
-- [x] Golden path completo.
+- [x] Golden path completo. Evidência: ORPT 13.2-05 · `DOD-rol-1-definition-of-done-42d45a6bd7` · `.dod/evidence/DOD-rol-1-definition-of-done-42d45a6bd7/` · `artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/per-item-proofs/ORPT-13.2-05.json` · orpt_item_proofs · campaign OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01.
 
 ### 13.3 Testes de contrato com fontes
 
@@ -1597,28 +1597,28 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [x] Cada execução possui timestamps. Evidência: coverage_evidence started_at/completed_at · run manifests · EXTRA-OPS-95
 - [x] Cada execução possui status. Evidência: evidence_state enum · run status fields · EXTRA-OPS-95
 - [x] Cada execução possui contagens. Evidência: count_obtained/records_fetched · crawl stats · EXTRA-OPS-95
-- [x] Cada execução possui erros.
+- [x] Cada execução possui erros. Evidência: ORPT 29-01 · `DOD-rol-3-definition-of-done-ee5d3e69cb` · `.dod/evidence/DOD-rol-3-definition-of-done-ee5d3e69cb/` · `artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/per-item-proofs/ORPT-29-01.json` · orpt_item_proofs · campaign OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01.
 - [x] Cada execução possui checkpoint. Evidência: contracts_full.json · M5-resume · EXTRA-OPS-95
-- [x] Cada relatório referencia runs de origem.
+- [x] Cada relatório referencia runs de origem. Evidência: ORPT 29-02 · `DOD-rol-3-definition-of-done-5f7e8477a1` · `.dod/evidence/DOD-rol-3-definition-of-done-5f7e8477a1/` · `artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/per-item-proofs/ORPT-29-02.json` · orpt_item_proofs · campaign OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01.
 - [x] Cada registro crítico possui provenance. Evidência: coverage_evidence.provenance jsonb · content_hash · EXTRA-OPS-95
 - [ ] Mudanças manuais são auditáveis.
 - [ ] Overrides manuais possuem motivo.
 - [ ] Overrides manuais possuem data.
 - [ ] Overrides manuais possuem autor.
-- [x] A evidência de coverage pode ser reconstruída.
+- [x] A evidência de coverage pode ser reconstruída. Evidência: ORPT 29-03 · `DOD-rol-3-definition-of-done-d1e60357c0` · `.dod/evidence/DOD-rol-3-definition-of-done-d1e60357c0/` · `artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/per-item-proofs/ORPT-29-03.json` · orpt_item_proofs · campaign OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01.
 - [x] A evidência de `success_zero` pode ser reconstruída. Evidência: coverage_evidence success_zero n=623 · probe_entity_success_zero · http_204_complete · purge-token-mismatch · EXTRA-OPS-95 ab3f77c 2026-07-19 · scope_key+provenance+content_hash
-- [x] A evidência de freshness pode ser reconstruída.
+- [x] A evidência de freshness pode ser reconstruída. Evidência: ORPT 29-04 · `DOD-rol-3-definition-of-done-9ae341d9ef` · `.dod/evidence/DOD-rol-3-definition-of-done-9ae341d9ef/` · `artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/per-item-proofs/ORPT-29-04.json` · orpt_item_proofs · campaign OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01.
 - [ ] A evidência de recall pode ser reconstruída.
-- [x] A evidência de snapshot pode ser reconstruída.
-- [x] O DOD aponta para os artefatos finais de aceite.
+- [x] A evidência de snapshot pode ser reconstruída. Evidência: ORPT 29-05 · `DOD-rol-3-definition-of-done-643b2e819c` · `.dod/evidence/DOD-rol-3-definition-of-done-643b2e819c/` · `artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/per-item-proofs/ORPT-29-05.json` · orpt_item_proofs · campaign OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01.
+- [x] O DOD aponta para os artefatos finais de aceite. Evidência: ORPT 29-06 · `DOD-rol-3-definition-of-done-c980ae3941` · `.dod/evidence/DOD-rol-3-definition-of-done-c980ae3941/` · `artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/per-item-proofs/ORPT-29-06.json` · orpt_item_proofs · campaign OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01.
 
 ---
 
 ## 30. Performance e custo
 
-- [x] O tempo do golden path é medido.
-- [x] O tempo de cada crawler é medido.
-- [x] O tempo de cada relatório é medido.
+- [x] O tempo do golden path é medido. Evidência: ORPT 30-01 · `DOD-rol-3-definition-of-done-38861a819b` · `.dod/evidence/DOD-rol-3-definition-of-done-38861a819b/` · `artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/per-item-proofs/ORPT-30-01.json` · orpt_item_proofs · campaign OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01.
+- [x] O tempo de cada crawler é medido. Evidência: ORPT 30-02 · `DOD-rol-3-definition-of-done-80407f0504` · `.dod/evidence/DOD-rol-3-definition-of-done-80407f0504/` · `artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/per-item-proofs/ORPT-30-02.json` · orpt_item_proofs · campaign OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01.
+- [x] O tempo de cada relatório é medido. Evidência: ORPT 30-03 · `DOD-rol-3-definition-of-done-8e1aefe571` · `.dod/evidence/DOD-rol-3-definition-of-done-8e1aefe571/` · `artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/per-item-proofs/ORPT-30-03.json` · orpt_item_proofs · campaign OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01.
 - [ ] Queries lentas são identificadas.
 - [ ] Índices são baseados em consultas reais.
 - [ ] Não existe otimização prematura sem evidência.
