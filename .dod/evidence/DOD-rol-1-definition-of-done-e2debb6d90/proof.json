@@ -7,9 +7,9 @@
   "main_baseline_sha": "c5b4cdb91b0727b5e7a537c8eb47daf001b74552",
   "implementation_sha": "241ec41f0badf5bd463b66dafe36faa1e2e66876",
   "executed_sha": "aeb7663e710624cd260f80dfefba19a9525a1a88",
-  "post_merge_main_sha": "aeb7663e710624cd260f80dfefba19a9525a1a88",
+  "post_merge_main_sha": "71566879eaca70b9cfc4810ba49032578171d840",
   "command": "python3 -m scripts.ops.cmi_item_proofs --item CMI-10.1-06 --json",
-  "timestamp": "2026-07-28T00:05:18Z",
+  "timestamp": "2026-07-28T00:13:47Z",
   "source": "pncp_supplier_contracts",
   "parameters": {
     "uf_filter": "SC",

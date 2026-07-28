@@ -1,7 +1,6 @@
 {
-  "as_of": "2026-07-28T00:06:26Z",
-  "main_sha": "ea25c0ff3a382c7df11316344ba129942f40b572",
-  "integrity_branch_tip": "7e717782f2cac25f25520bb60083dd9254a353ac",
+  "as_of": "2026-07-28T00:13:47Z",
+  "main_sha": "71566879eaca70b9cfc4810ba49032578171d840",
   "package_code_sha": "aeb7663e710624cd260f80dfefba19a9525a1a88",
   "package_matches_head": false,
   "package_hash_integrity": "verified_match_disk",
@@ -18,7 +17,9 @@
     151,
     152,
     153,
-    154
+    154,
+    155
   ],
-  "note": "hashes match final-package bytes; main_sha is last merged main; package run on integrity branch"
+  "integrity_pr": 155,
+  "note": "post-merge SHA stamp after integrity PR #155; package hashes verified against final-package bytes"
 }
