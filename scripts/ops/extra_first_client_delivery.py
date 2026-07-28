@@ -2073,14 +2073,22 @@ def run_delivery(
             raise SystemExit(2)
         dsn_note = "DSN isolado fornecido (não usado para escrita em produção)"
 
-    # Write core artifacts
+    # Terminal state is fixed BEFORE writing client narratives (PDF/MD/LEIA-ME once).
+    if shortlist_result.get("insufficient") or weekly.exit_code not in (0, None):
+        terminal_state = "BUNDLE_READY_FOR_HUMAN_MERGE"
+        package_quality = "PARTIAL_VISIBLE_LIMITATIONS"
+    else:
+        terminal_state = "BUNDLE_READY_FOR_HUMAN_MERGE"
+        package_quality = "COMPLETE_PENDING_HUMAN"
+
+    # Write all content artifacts with FINAL terminal_state (no rewrite after hash).
     write_readme(
         delivery_out / "00-LEIA-ME.md",
         run_id=run_id,
         package_title=PACKAGE_TITLE,
         shortlist_result=shortlist_result,
         weekly=weekly,
-        terminal_state="PENDING_BUILD",
+        terminal_state=terminal_state,
     )
     write_executive_md(
         delivery_out / "01-resumo-executivo.md",
@@ -2091,7 +2099,7 @@ def run_delivery(
         shortlist_result=shortlist_result,
         deep_dive=deep_dive,
         intake=intake,
-        terminal_state="PENDING_BUILD",
+        terminal_state=terminal_state,
     )
     pdf_pages = write_executive_pdf(
         delivery_out / "01-resumo-executivo.pdf",
@@ -2102,7 +2110,7 @@ def run_delivery(
         shortlist_result=shortlist_result,
         deep_dive=deep_dive,
         intake=intake,
-        terminal_state="PENDING_BUILD",
+        terminal_state=terminal_state,
     )
     pdf_meta = {
         "run_id": run_id,
@@ -2115,6 +2123,7 @@ def run_delivery(
         "collection_id": weekly.collection_id,
         "cycle_run_id": weekly.cycle_id,
         "page_estimate": pdf_pages,
+        "terminal_state": terminal_state,
     }
 
     sh_rows: list[dict[str, str]] = []
@@ -2136,7 +2145,6 @@ def run_delivery(
         orgaos_rows=org_rows,
     )
 
-    # ledger files
     ledger_json_path = delivery_out / "03-decision-ledger.json"
     ledger_json_path.write_text(
         json.dumps(
@@ -2210,7 +2218,6 @@ def run_delivery(
         intake=intake,
     )
 
-    # Dossiê: without official docs → NOT_AVAILABLE (do not invent corpus / PR133)
     dossie_status = "NOT_AVAILABLE"
     if deep_dive and deep_dive.get("url_oficial"):
         write_dossie_not_available(
@@ -2248,7 +2255,23 @@ def run_delivery(
         deep_dive["documents_available"] = False
         deep_dive["dossie_status"] = dossie_status
 
-    # Reconcile
+    # shortlist sidecar BEFORE integrity hashing (must be covered by checksums + HR)
+    (delivery_out / "shortlist.json").write_text(
+        json.dumps(
+            {
+                "run_id": run_id,
+                "shortlist": shortlist_result.get("shortlist"),
+                "insufficient": shortlist_result.get("insufficient"),
+                "insufficiency_reason": shortlist_result.get("insufficiency_reason"),
+                "context_recent_no_go": shortlist_result.get("context_recent_no_go"),
+            },
+            indent=2,
+            ensure_ascii=False,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
     recon = reconcile_package_counts(
         shortlist_result=shortlist_result,
         excel_meta=excel_meta,
@@ -2270,17 +2293,8 @@ def run_delivery(
         print(json.dumps(result, indent=2, ensure_ascii=False))
         raise SystemExit(2)
 
-    # Terminal state
-    if shortlist_result.get("insufficient") or weekly.exit_code not in (0, None):
-        terminal_state = "BUNDLE_READY_FOR_HUMAN_MERGE"
-        # PARTIAL is allowed only when limitation is visible — already written
-        package_quality = "PARTIAL_VISIBLE_LIMITATIONS"
-    else:
-        terminal_state = "BUNDLE_READY_FOR_HUMAN_MERGE"
-        package_quality = "COMPLETE_PENDING_HUMAN"
-
-    # Checksums of delivery artifacts
-    artifact_names = [
+    # Content artifacts hashed once — no post-hash rewrites of client narratives.
+    content_artifact_names = [
         "00-LEIA-ME.md",
         "01-resumo-executivo.pdf",
         "01-resumo-executivo.md",
@@ -2293,18 +2307,30 @@ def run_delivery(
         "06-roteiro-reuniao.md",
         "07-dossie-edital-NOT_AVAILABLE.md",
         "profile-patch-candidate.yaml",
+        "shortlist.json",
     ]
-    checksums: dict[str, str] = {}
-    for name in artifact_names:
+    content_checksums: dict[str, str] = {}
+    for name in content_artifact_names:
         p = delivery_out / name
-        if p.is_file():
-            checksums[name] = sha256_file(p)
+        if not p.is_file():
+            result = {
+                "terminal_state": "FAILED_VALIDATION",
+                "exit_code": 2,
+                "errors": [f"artefato obrigatório ausente antes do hash: {name}"],
+                "run_id": run_id,
+            }
+            print(json.dumps(result, indent=2, ensure_ascii=False))
+            raise SystemExit(2)
+        content_checksums[name] = sha256_file(p)
 
-    human_review = build_human_review(run_id, checksums)
+    human_review = build_human_review(run_id, content_checksums)
     assert_not_auto_accepted(human_review)
     (delivery_out / "human-review.json").write_text(
         json.dumps(human_review, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
     )
+
+    # Full integrity set: content + human-review (checksums.json lists all of these)
+    checksums = dict(content_checksums)
     checksums["human-review.json"] = sha256_file(delivery_out / "human-review.json")
 
     checksums_doc = {
@@ -2320,7 +2346,28 @@ def run_delivery(
         json.dumps(checksums_doc, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
     )
 
-    # Sanitize shortlist for manifest (no private dump)
+    # Fail-closed: HR package_checksums must equal on-disk content digests
+    for name, expected in content_checksums.items():
+        actual = sha256_file(delivery_out / name)
+        if actual != expected:
+            result = {
+                "terminal_state": "FAILED_VALIDATION",
+                "exit_code": 2,
+                "errors": [f"integridade pós-finalização: {name} divergiu após hash"],
+                "run_id": run_id,
+            }
+            print(json.dumps(result, indent=2, ensure_ascii=False))
+            raise SystemExit(2)
+        if human_review.get("package_checksums", {}).get(name) != actual:
+            result = {
+                "terminal_state": "FAILED_VALIDATION",
+                "exit_code": 2,
+                "errors": [f"human-review.package_checksums stale para {name}"],
+                "run_id": run_id,
+            }
+            print(json.dumps(result, indent=2, ensure_ascii=False))
+            raise SystemExit(2)
+
     manifest = {
         "schema": SCHEMA,
         "package_title": PACKAGE_TITLE,
@@ -2377,54 +2424,6 @@ def run_delivery(
     }
     (delivery_out / "manifest.json").write_text(
         json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
-    )
-
-    # Rewrite LEIA-ME / executive with final terminal state (content-level)
-    write_readme(
-        delivery_out / "00-LEIA-ME.md",
-        run_id=run_id,
-        package_title=PACKAGE_TITLE,
-        shortlist_result=shortlist_result,
-        weekly=weekly,
-        terminal_state=terminal_state,
-    )
-    write_executive_md(
-        delivery_out / "01-resumo-executivo.md",
-        run_id=run_id,
-        package_title=PACKAGE_TITLE,
-        profile=profile,
-        weekly=weekly,
-        shortlist_result=shortlist_result,
-        deep_dive=deep_dive,
-        intake=intake,
-        terminal_state=terminal_state,
-    )
-    # refresh checksums for rewritten md files
-    for name in ("00-LEIA-ME.md", "01-resumo-executivo.md"):
-        checksums[name] = sha256_file(delivery_out / name)
-    checksums_doc["artifacts"] = {
-        name: {"path": name, "sha256": h, "bytes": (delivery_out / name).stat().st_size}
-        for name, h in checksums.items()
-    }
-    (delivery_out / "checksums.json").write_text(
-        json.dumps(checksums_doc, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
-    )
-
-    # shortlist sidecar for operators (not required but useful; keep outside private data)
-    (delivery_out / "shortlist.json").write_text(
-        json.dumps(
-            {
-                "run_id": run_id,
-                "shortlist": shortlist_result.get("shortlist"),
-                "insufficient": shortlist_result.get("insufficient"),
-                "insufficiency_reason": shortlist_result.get("insufficiency_reason"),
-                "context_recent_no_go": shortlist_result.get("context_recent_no_go"),
-            },
-            indent=2,
-            ensure_ascii=False,
-        )
-        + "\n",
-        encoding="utf-8",
     )
 
     result = {

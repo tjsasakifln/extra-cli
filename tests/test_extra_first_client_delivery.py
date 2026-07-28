@@ -345,25 +345,50 @@ def test_package_run_produces_required_artifacts(tmp_path: Path) -> None:
         "checksums.json",
         "human-review.json",
         "07-dossie-edital-NOT_AVAILABLE.md",
+        "shortlist.json",
     ]
     for name in required:
         assert (out / name).is_file(), name
     man = json.loads((out / "manifest.json").read_text(encoding="utf-8"))
     assert man["counts"]["go_count"] == 0
     assert man["counts"]["shortlist_count"] >= 5
+    assert man["terminal_state"] == result["terminal_state"]
     hr = json.loads((out / "human-review.json").read_text(encoding="utf-8"))
     assert hr["status"] == "PENDING_HUMAN"
     assert hr["reviewed_by"] is None
+    assert hr["decision"] is None
     # ledger client_decision empty
     ledger = json.loads((out / "03-decision-ledger.json").read_text(encoding="utf-8"))
     for item in ledger["items"]:
         assert item["client_decision"] == ""
         assert item["recommendation"] != "GO"
-    # checksums
+    # checksums.json must match on-disk files
     cs = json.loads((out / "checksums.json").read_text(encoding="utf-8"))
     for name, meta in cs["artifacts"].items():
         h = hashlib.sha256((out / name).read_bytes()).hexdigest()
-        assert h == meta["sha256"]
+        assert h == meta["sha256"], name
+    # shortlist.json must be integrity-covered
+    assert "shortlist.json" in cs["artifacts"]
+    # human-review.package_checksums must bind to FINAL content digests (post-finalization)
+    hr_cs = hr.get("package_checksums") or {}
+    assert hr_cs, "human-review must carry package_checksums"
+    for name, expected in hr_cs.items():
+        actual = hashlib.sha256((out / name).read_bytes()).hexdigest()
+        assert actual == expected, f"HR checksum stale for {name}"
+        assert cs["artifacts"][name]["sha256"] == expected
+    # PDF and MD must show final terminal state (not PENDING_BUILD)
+    md = (out / "01-resumo-executivo.md").read_text(encoding="utf-8")
+    leia = (out / "00-LEIA-ME.md").read_text(encoding="utf-8")
+    assert result["terminal_state"] in md
+    assert result["terminal_state"] in leia
+    assert "PENDING_BUILD" not in md
+    assert "PENDING_BUILD" not in leia
+    # PDF streams are compressed — extract text rather than raw-byte search
+    from PyPDF2 import PdfReader
+
+    pdf_text = "\n".join(page.extract_text() or "" for page in PdfReader(str(out / "01-resumo-executivo.pdf")).pages)
+    assert "PENDING_BUILD" not in pdf_text
+    assert result["terminal_state"] in pdf_text
     # null value preserved for empty valor row
     shortlist = json.loads((out / "shortlist.json").read_text(encoding="utf-8"))["shortlist"]
     null_vals = [s for s in shortlist if s.get("numero_controle", "").endswith("000100/2026")]

@@ -1,9 +1,8 @@
 {
-  "run_id": "extra-first-20260728T122819Z-d06a0010d6",
+  "run_id": "extra-first-20260728T123450Z-4fce77ba22",
   "shortlist_count": 0,
   "go_count": 0,
   "insufficient": true,
-  "context_recent_count": 10,
   "human_review_pending": true,
   "required_files_present": [
     "00-LEIA-ME.md",
@@ -24,19 +23,6 @@
     "shortlist.json"
   ],
   "checksums_verified": true,
-  "pdf_pages": 5,
-  "excel_sheets": [
-    "Resumo",
-    "Oportunidades",
-    "Evidências",
-    "Dados_Pendentes_Extra",
-    "Órgãos",
-    "Concorrentes",
-    "Valores",
-    "Contexto_Recente",
-    "Source_Health",
-    "Limitações",
-    "Metadados",
-    "Decision_Ledger"
-  ]
+  "hr_binds_final_files": true,
+  "pdf_pages": 5
 }
