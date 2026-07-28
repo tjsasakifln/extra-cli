@@ -1,0 +1,42 @@
+{
+  "run_id": "extra-first-20260728T122819Z-d06a0010d6",
+  "shortlist_count": 0,
+  "go_count": 0,
+  "insufficient": true,
+  "context_recent_count": 10,
+  "human_review_pending": true,
+  "required_files_present": [
+    "00-LEIA-ME.md",
+    "01-resumo-executivo.md",
+    "01-resumo-executivo.pdf",
+    "02-oportunidades-priorizadas.xlsx",
+    "03-decision-ledger.csv",
+    "03-decision-ledger.json",
+    "04-intake-operacional-extra.json",
+    "04-intake-operacional-extra.md",
+    "05-limitacoes-e-confiabilidade.md",
+    "06-roteiro-reuniao.md",
+    "07-dossie-edital-NOT_AVAILABLE.md",
+    "checksums.json",
+    "human-review.json",
+    "manifest.json",
+    "profile-patch-candidate.yaml",
+    "shortlist.json"
+  ],
+  "checksums_verified": true,
+  "pdf_pages": 5,
+  "excel_sheets": [
+    "Resumo",
+    "Oportunidades",
+    "Evidências",
+    "Dados_Pendentes_Extra",
+    "Órgãos",
+    "Concorrentes",
+    "Valores",
+    "Contexto_Recente",
+    "Source_Health",
+    "Limitações",
+    "Metadados",
+    "Decision_Ledger"
+  ]
+}

@@ -366,6 +366,8 @@ test-client-ready:
 
 client-ready-consulting-cycle:
 	@echo '==> client-ready-consulting-cycle (isolated DSN required)'
+	@echo '    Default: show help. For real run: make client-ready-consulting-cycle-run CLIENT_READY_DSN=... CLIENT_READY_OUT=...'
+	@echo '    Client decision package: make extra-first-client-delivery WEEKLY_INPUT=... DELIVERY_OUT=...'
 	python -m scripts.ops.client_ready_consulting_cycle --help
 
 campaign-gate-client-ready-recurring-consulting-cycle: test-client-ready
@@ -821,3 +823,34 @@ test-edital-relevance-final-blocker:
 	python3 -c "import json; r=json.load(open('artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01/final-gate-result.json')); assert r.get('pass') is False; assert r.get('acceptance_eligible') is False; assert r.get('dod_item_accepted') is False; assert r.get('sealed_holdout') is False; assert r.get('blocker')=='BLOCKED_HUMAN_DUAL_LABELING'; assert 'FAILED_DEVELOPMENT_INTEGRITY' not in {r.get('blocker'), *(r.get('blockers') or [])}; di=r.get('development_integrity') or {}; assert di.get('pass') is True; assert di.get('n_records')==24; assert di.get('duplicate_ids')==[]; assert di.get('holdout_overlap_count')==0; assert di.get('holdout_overlap_ids')==[]; assert di.get('sha256'); print('result fields OK; development_integrity pass=', di.get('pass'), 'n=', di.get('n_records'), 'overlap=', di.get('holdout_overlap_count'))"; \
 	echo "blocker meta-test PASS (final gate non-zero + BLOCKED_HUMAN_DUAL_LABELING + development integrity)"
 
+
+
+# --- Extra First Client Decision Delivery (piloto Extra Construtora) ---
+.PHONY: extra-first-client-delivery test-extra-first-client-delivery
+# Canonical delivery command. Requires real WEEKLY_INPUT + external DELIVERY_OUT.
+# Optional: CLIENT_READY_DSN (isolated only), AS_OF=YYYY-MM-DD
+extra-first-client-delivery:
+	@test -n "$(WEEKLY_INPUT)" || (echo "ERROR: set WEEKLY_INPUT=/path/to/weekly-run"; exit 2)
+	@test -n "$(DELIVERY_OUT)" || (echo "ERROR: set DELIVERY_OUT=/path/external"; exit 2)
+	@echo "==> Extra First Client Decision Delivery"
+	@echo "    WEEKLY_INPUT=$(WEEKLY_INPUT)"
+	@echo "    DELIVERY_OUT=$(DELIVERY_OUT)"
+	python3 -m scripts.ops.extra_first_client_delivery run \
+		--weekly-input "$(WEEKLY_INPUT)" \
+		--delivery-out "$(DELIVERY_OUT)" \
+		$(if $(CLIENT_READY_DSN),--client-ready-dsn "$(CLIENT_READY_DSN)",) \
+		$(if $(AS_OF),--as-of "$(AS_OF)",)
+	@echo "==> done (see DELIVERY_OUT, RUN_ID, TERMINAL_STATE in stdout)"
+
+test-extra-first-client-delivery:
+	python3 -m pytest tests/test_extra_first_client_delivery.py -q --tb=short
+
+# Fix: client-ready-consulting-cycle previously only printed --help.
+# Keep help as default when CLIENT_READY_DSN/OUT unset; run when both provided.
+client-ready-consulting-cycle-run:
+	@test -n "$(CLIENT_READY_DSN)" || (echo "ERROR: set CLIENT_READY_DSN (isolated)"; exit 2)
+	@test -n "$(CLIENT_READY_OUT)" || (echo "ERROR: set CLIENT_READY_OUT"; exit 2)
+	python3 -m scripts.ops.client_ready_consulting_cycle run \
+		--dsn "$(CLIENT_READY_DSN)" \
+		--out "$(CLIENT_READY_OUT)" \
+		$(if $(CLIENT_READY_E_EVIDENCE),--e-evidence "$(CLIENT_READY_E_EVIDENCE)",)
