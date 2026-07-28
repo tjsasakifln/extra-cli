@@ -469,8 +469,12 @@ def prove_duration_crawler() -> dict[str, Any]:
     out.mkdir(parents=True, exist_ok=True)
     out_json = out / "pncp-duration.json"
     t0 = time.perf_counter()
-    # Prefer API that records duration_ms
+    # Prefer API that records duration_ms. Silence golden_path _echo so --json
+    # CLI stays pure JSON on stdout.
     try:
+        import contextlib
+        import io
+
         from scripts.golden_path import SourceDef, crawl_source
 
         src = SourceDef(
@@ -480,7 +484,9 @@ def prove_duration_crawler() -> dict[str, Any]:
             max_retries=1,
             timeout_s=45,
         )
-        rec = crawl_source(src, dsn, out_json)
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf), contextlib.redirect_stderr(buf):
+            rec = crawl_source(src, dsn, out_json)
         duration_ms = float(getattr(rec, "duration_ms", 0) or 0)
         status = getattr(rec, "status", None) or getattr(rec, "ok", None)
     except Exception as exc:  # noqa: BLE001
@@ -517,15 +523,31 @@ def prove_duration_crawler() -> dict[str, Any]:
         status = f"rc={proc.returncode}"
         rec = {"fallback": str(exc)[:200], "rc": proc.returncode}
     wall = round(time.perf_counter() - t0, 4)
-    _assert(duration_ms > 0 or wall > 0, "crawler duration not measured")
+    measured = (duration_ms or 0) > 0 or wall > 0
+    _assert(measured, "crawler duration not measured")
+    status_s = str(status).lower()
+    crawl_success = status_s in {"success", "success_zero"} or status_s in {
+        "rc=0",
+        "0",
+    }
+    # Item ORPT-30-02: duration must be measured. Fail/timeout is still a measured
+    # run, but reliability must not claim READY for a failed crawl.
+    if crawl_success:
+        reliability = "READY"
+    elif measured:
+        reliability = "PARTIAL"
+    else:
+        reliability = "NOT_READY"
     payload = {
         "duration_ms": duration_ms or wall * 1000,
         "duration_seconds": round((duration_ms / 1000.0) if duration_ms else wall, 4),
         "status": str(status),
+        "crawl_success": crawl_success,
+        "duration_measured": measured,
         "output_json": str(out_json) if out_json.is_file() else None,
         "record": str(rec)[:500],
-        "ok": True,
-        "reliability": "READY" if (duration_ms or wall) > 0 else "NOT_READY",
+        "ok": measured,  # time-was-measured is the AC; not crawl market success
+        "reliability": reliability,
     }
     if out_json.is_file():
         payload["artifact_hashes"] = {out_json.name: _sha256_file(out_json)}

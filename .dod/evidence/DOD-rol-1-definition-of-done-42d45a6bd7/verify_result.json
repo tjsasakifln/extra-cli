@@ -3,20 +3,21 @@
   "ok": true,
   "command": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-13.2-05 --json",
   "exit_code": 0,
-  "as_of": "2026-07-28T03:08:23Z",
-  "executed_sha": "7a85358ef6eaa3582950976bfc7c798194ba12f3",
+  "as_of": "2026-07-28T03:23:03Z",
+  "executed_sha": "605233da3bc3208379a0dd98b88559abcc5a04a6",
   "package_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
-  "head_sha": "7a85358ef6eaa3582950976bfc7c798194ba12f3",
+  "head_sha": "605233da3bc3208379a0dd98b88559abcc5a04a6",
   "artifact_hash_check": "match",
   "run_ids": [
-    "ops-export-20260728-030634-0cc0af16",
-    "ops-lists-20260728-030633-562eb9dc"
+    "ops-export-20260728-032304-5b7e9e8e",
+    "ops-lists-20260728-032303-471b6e41"
   ],
   "schema_version": "064",
   "dataset_hash": "45898ae2d10c36319935c3955f90d67c61928f07968dda0a6f8efe8c0aec60f2",
   "env": {
     "LOCAL_DATALAKE_DSN": {
-      "set": true
+      "set": true,
+      "len": 48
     },
     "REQUIRE_REAL_DB": "1"
   },
@@ -24,14 +25,25 @@
     {
       "cmd": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-13.2-05 --json",
       "exit_code": 0,
-      "duration_s": 0.0,
+      "duration_s": 1.8748,
+      "stdout_tail": " 1.6588,\n    \"ledger\": \"/mnt/d/extra consultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/golden_path/ledger.json\",\n    \"valores_stdout_tail\": \"dger salvo:  /mnt/d/extra \\nconsultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/liv\\ne/acceptance/golden_path/ledger.json\\nLog salvo:     /mnt/d/extra \\nconsultoria/output/golden-path/gp-20260728-002319.log\\n  meta.git_sha=605233da3bc3208379a0dd98b88559abcc5a04a6 \\nschema=migrations_count=69\\n  Valores report OK (domain CSV+JSON present)\\n  Ledger: /mnt/d/extra \\nconsultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/liv\\ne/acceptance/golden_path/ledger.json\\n\",\n    \"reports_stdout_tail\": \"o:  /mnt/d/extra \\nconsultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/liv\\ne/acceptance/golden_path/ledger-reports.json\\nLog salvo:     /mnt/d/extra \\nconsultoria/output/golden-path/gp-20260728-002320.log\\n  meta.git_sha=605233da3bc3208379a0dd98b88559abcc5a04a6 \\nschema=migrations_count=69\\n  Reports OK (excel+pdf files present)\\n  Ledger: /mnt/d/extra \\nconsultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/liv\\ne/acceptance/golden_path/ledger-reports.json\\n\",\n    \"executed\": true,\n    \"ok\": true,\n    \"artifact_hashes\": {\n      \"ledger-reports.json\": \"bb077967e8802eaa55ccb9ae76dcd059f1853c49e1f20e932356807fc4a73e33\",\n      \"ledger.json\": \"8b29157fc5791c02f82d89ada0bf75d1457b086b659ebd3adf76cf99e12ebad4\"\n    }\n  }\n}\n",
+      "stderr_tail": "",
       "skipped": false,
-      "stdout_tail": "{\"ok\": true, \"alias\": \"ORPT-13.2-05\"}"
+      "env": {
+        "LOCAL_DATALAKE_DSN": {
+          "set": true
+        },
+        "REQUIRE_REAL_DB": "1"
+      }
     }
   ],
+  "tests": [],
   "substantive_runs": 1,
   "totals": {
     "passed": 1,
     "failed": 0
-  }
+  },
+  "notes": [
+    "verify_result captured from live orpt_item_proofs subprocess"
+  ]
 }
