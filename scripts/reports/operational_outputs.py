@@ -11,16 +11,22 @@ Produces fail-closed CSV lists + manifest from PostgreSQL:
   7. blockers_por_fonte
   8. runs_stale
 
-Empty tables yield empty files with documented limitations — never invents data.
+Fail-closed contract (ORPT PR1):
+  - SQL / rollback / query failures raise OperationalQueryError and yield non-zero exit.
+  - Errors are never silently converted into empty trustworthy CSVs.
+  - Legitimate zero rows → SUCCESS_ZERO or NOT_READY with documented limitations.
+
 Does not claim 95% coverage or LOCAL_READY.
 """
 from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import json
 import os
 import sys
+import time
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
@@ -30,7 +36,21 @@ if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
 from scripts.opportunity_intel.ranking import compute_ranking  # noqa: E402
-from scripts.reports.run_metadata import _git_sha_short, new_run_id  # noqa: E402
+from scripts.reports.run_metadata import (  # noqa: E402
+    _git_sha_short,
+    build_run_metadata,
+    new_run_id,
+    validate_operational_metadata,
+)
+
+
+class OperationalQueryError(RuntimeError):
+    """Raised when a PostgreSQL query fails; must not become empty success CSV."""
+
+    def __init__(self, message: str, *, sql: str | None = None) -> None:
+        super().__init__(message)
+        self.sql = sql
+        self.message = message
 
 LIST_FILES = {
     "editais_acionaveis": "editais_acionaveis.csv",
@@ -140,13 +160,15 @@ def _conn(dsn: str):
 
 
 def _q(conn, sql: str, params: tuple | list | None = None) -> list[dict[str, Any]]:
+    """Execute SQL fail-closed: raise OperationalQueryError on failure (never {_error} rows)."""
     with conn.cursor() as cur:
         try:
             cur.execute(sql, params or ())
             return [dict(r) for r in cur.fetchall()]
-        except Exception as exc:  # noqa: BLE001
-            conn.rollback()
-            return [{"_error": str(exc)}]
+        except Exception as exc:  # noqa: BLE001 — re-raised as typed operational error
+            if hasattr(conn, "rollback"):
+                conn.rollback()
+            raise OperationalQueryError(str(exc), sql=sql[:200]) from exc
 
 
 def _table_exists(conn, name: str) -> bool:
@@ -159,12 +181,17 @@ def _table_exists(conn, name: str) -> bool:
         """,
         (name,),
     )
-    return bool(rows) and "_error" not in rows[0]
+    return bool(rows)
 
 
 def _write_csv(path: Path, rows: list[dict[str, Any]], fieldnames: list[str] | None = None) -> int:
+    """Write CSV. Refuses rows containing ``_error`` (fail-closed)."""
     path.parent.mkdir(parents=True, exist_ok=True)
-    clean = [r for r in rows if "_error" not in r]
+    if any(isinstance(r, dict) and "_error" in r for r in rows):
+        raise OperationalQueryError(
+            "refusing to write CSV containing _error rows (fail-closed)"
+        )
+    clean = list(rows)
     if fieldnames is None:
         fieldnames = []
         for r in clean:
@@ -180,6 +207,50 @@ def _write_csv(path: Path, rows: list[dict[str, Any]], fieldnames: list[str] | N
         for r in clean:
             w.writerow({k: r.get(k) for k in fieldnames})
     return len(clean)
+
+
+def _file_sha256(path: Path) -> str:
+    h = hashlib.sha256()
+    with path.open("rb") as fh:
+        for chunk in iter(lambda: fh.read(65536), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def _db_schema_version(conn) -> str | None:
+    if not _table_exists(conn, "_migrations"):
+        return None
+    rows = _q(
+        conn,
+        "SELECT version FROM _migrations ORDER BY applied_at DESC NULLS LAST LIMIT 1",
+    )
+    if not rows:
+        return None
+    return str(rows[0].get("version") or "")
+
+
+def _dataset_hash(conn, schema_version: str | None) -> str:
+    """Stable hash of live table counts + schema (not a market claim)."""
+    tables = (
+        "pncp_raw_bids",
+        "pncp_supplier_contracts",
+        "opportunity_intel",
+        "sc_public_entities",
+        "ingestion_runs",
+        "target_universe_entities",
+    )
+    counts: dict[str, int] = {}
+    for t in tables:
+        if _table_exists(conn, t):
+            rows = _q(conn, f"SELECT COUNT(*) AS n FROM {t}")  # noqa: S608 — allowlisted names
+            counts[t] = int((rows[0] or {}).get("n") or 0)
+        else:
+            counts[t] = -1
+    payload = json.dumps(
+        {"schema_version": schema_version, "counts": counts},
+        sort_keys=True,
+    )
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
 def _motivo_from_ranking(rank: dict[str, Any]) -> str:
@@ -236,8 +307,10 @@ def classify_bids(rows: list[dict[str, Any]], now: datetime | None = None) -> di
     now = now or datetime.now(UTC)
     out: dict[str, list[dict[str, Any]]] = {"GO": [], "REVIEW": [], "NO_GO": []}
     for row in rows:
-        if "_error" in row:
-            continue
+        if isinstance(row, dict) and "_error" in row:
+            raise OperationalQueryError(
+                f"cannot classify rows with _error: {row.get('_error')}"
+            )
         status = _status_from_bid(row, now)
         valor = row.get("valor_total_estimado")
         try:
@@ -313,9 +386,7 @@ def fetch_from_opportunity_intel(conn) -> dict[str, list[dict[str, Any]]] | None
         LIMIT 2000
         """,
     )
-    if not rows or "_error" in rows[0]:
-        return None
-    if len(rows) == 0:
+    if not rows:
         return None
     out: dict[str, list[dict[str, Any]]] = {"GO": [], "REVIEW": [], "NO_GO": []}
     for row in rows:
@@ -591,47 +662,77 @@ def build_operational_lists(
     stale_hours: int = DEFAULT_STALE_HOURS,
     stuck_running_hours: int = DEFAULT_STUCK_RUNNING_HOURS,
 ) -> dict[str, Any]:
-    """Build all 8 lists + counts + limitations."""
+    """Build all 8 lists + counts + limitations.
+
+    Query failures raise OperationalQueryError (fail-closed). Legitimate empty
+    results are preserved with limitations — never invents GO rows.
+    """
     limitations: list[str] = []
+    errors: list[str] = []
+    schema_version = _db_schema_version(conn)
+    dataset_hash = _dataset_hash(conn, schema_version)
+
     oi = fetch_from_opportunity_intel(conn)
     if oi is not None and sum(len(v) for v in oi.values()) > 0:
         classified = oi
         source_of_ranking = "opportunity_intel"
     else:
         bids = fetch_active_bids(conn)
-        if bids and "_error" in bids[0]:
-            limitations.append(f"pncp_raw_bids query error: {bids[0]['_error']}")
-            classified = {"GO": [], "REVIEW": [], "NO_GO": []}
-            source_of_ranking = "error"
-        else:
-            classified = classify_bids(bids)
-            source_of_ranking = "pncp_raw_bids+compute_ranking"
-            if not bids:
-                limitations.append("No active pncp_raw_bids; GO/REVIEW/NO_GO lists empty")
+        classified = classify_bids(bids)
+        source_of_ranking = "pncp_raw_bids+compute_ranking"
+        if not bids:
+            limitations.append(
+                "No active pncp_raw_bids / opportunity_intel; GO/REVIEW/NO_GO lists empty (SUCCESS_ZERO)"
+            )
 
     removed = fetch_removed_snapshot(conn)
-    if removed and "_error" in removed[0]:
-        limitations.append(f"removed snapshot error: {removed[0]['_error']}")
-        removed = []
 
     gap_editais = fetch_entities_without_tender_coverage(conn)
-    if gap_editais and "_error" in gap_editais[0]:
-        limitations.append(f"entes sem editais error: {gap_editais[0]['_error']}")
-        gap_editais = []
     if not gap_editais:
         # Distinguish empty universe vs all covered
-        n_ent = _q(conn, "SELECT COUNT(*) AS n FROM sc_public_entities") if _table_exists(conn, "sc_public_entities") else [{"n": 0}]
-        n = int((n_ent[0] or {}).get("n") or 0) if n_ent and "_error" not in n_ent[0] else 0
-        if n == 0:
-            limitations.append("sc_public_entities empty — gap lists cannot enumerate universe entities")
+        if _table_exists(conn, "sc_public_entities"):
+            n_ent = _q(conn, "SELECT COUNT(*) AS n FROM sc_public_entities")
+            n = int((n_ent[0] or {}).get("n") or 0) if n_ent else 0
+            if n == 0:
+                limitations.append(
+                    "sc_public_entities empty — gap lists cannot enumerate universe entities"
+                )
+        else:
+            limitations.append("sc_public_entities missing — gap lists empty")
 
     gap_contratos = fetch_entities_without_contract_coverage(conn)
-    if gap_contratos and "_error" in gap_contratos[0]:
-        limitations.append(f"entes sem contratos error: {gap_contratos[0]['_error']}")
-        gap_contratos = []
 
     blockers = fetch_blockers_by_source(conn)
-    stale = fetch_stale_runs(conn, stale_hours=stale_hours, stuck_running_hours=stuck_running_hours)
+    # Drop any accidental error-shaped rows (should not appear after fail-closed _q)
+    blockers = [r for r in blockers if "_error" not in r]
+    stale = fetch_stale_runs(
+        conn, stale_hours=stale_hours, stuck_running_hours=stuck_running_hours
+    )
+    stale = [r for r in stale if "_error" not in r]
+
+    counts = {
+        "GO": len(classified.get("GO", [])),
+        "REVIEW": len(classified.get("REVIEW", [])),
+        "NO_GO": len(classified.get("NO_GO", [])),
+        "removed": len(removed),
+        "gap_editais": len(gap_editais),
+        "gap_contratos": len(gap_contratos),
+        "blockers": len(blockers),
+        "stale_runs": len(stale),
+    }
+    total_ranked = counts["GO"] + counts["REVIEW"] + counts["NO_GO"]
+    status = "SUCCESS" if total_ranked > 0 else "SUCCESS_ZERO"
+    if limitations and total_ranked == 0:
+        status = "SUCCESS_ZERO"
+    reliability = "READY" if total_ranked > 0 and not limitations else (
+        "NOT_READY" if total_ranked == 0 else "PARTIAL"
+    )
+    # Legacy aliases kept for existing consumers/tests
+    reliability_legacy = (
+        "TRUSTED"
+        if reliability == "READY"
+        else ("DEGRADED" if reliability == "PARTIAL" else "UNTRUSTED")
+    )
 
     return {
         "editais_acionaveis": classified.get("GO", []),
@@ -645,26 +746,40 @@ def build_operational_lists(
         "meta": {
             "ranking_source": source_of_ranking,
             "limitations": limitations,
-            "counts": {
-                "GO": len(classified.get("GO", [])),
-                "REVIEW": len(classified.get("REVIEW", [])),
-                "NO_GO": len(classified.get("NO_GO", [])),
-                "removed": len(removed),
-                "gap_editais": len(gap_editais),
-                "gap_contratos": len(gap_contratos),
-                "blockers": len(blockers),
-                "stale_runs": len(stale),
+            "errors": errors,
+            "counts": counts,
+            "status": status,
+            "reliability": reliability,
+            "reliability_legacy": reliability_legacy,
+            "schema_version": schema_version,
+            "dataset_hash": dataset_hash,
+            "source": source_of_ranking,
+            "period": {
+                "as_of_date": datetime.now(UTC).date().isoformat(),
+                "data_window": "all_active",
+            },
+            "parameters": {
+                "stale_hours": stale_hours,
+                "stuck_running_hours": stuck_running_hours,
             },
         },
     }
 
 
-def write_lists(out_dir: Path, payload: dict[str, Any], *, run_id: str | None = None) -> dict[str, Any]:
+def write_lists(
+    out_dir: Path,
+    payload: dict[str, Any],
+    *,
+    run_id: str | None = None,
+    duration_seconds: float | None = None,
+) -> dict[str, Any]:
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     rid = run_id or new_run_id("ops-lists")
-    generated_at = datetime.now(UTC).isoformat()
+    code_sha = _git_sha_short()
+    meta = payload.get("meta") or {}
     files: dict[str, dict[str, Any]] = {}
+    artifact_hashes: dict[str, str] = {}
     for key, filename in LIST_FILES.items():
         rows = payload.get(key) or []
         path = out_dir / filename
@@ -674,51 +789,108 @@ def write_lists(out_dir: Path, payload: dict[str, Any], *, run_id: str | None = 
             n = _write_csv(path, rows_list, fieldnames=None)
         else:
             n = _write_csv(path, [], fieldnames=headers)
-        files[key] = {"path": str(path), "rows": n, "bytes": path.stat().st_size}
+        digest = _file_sha256(path)
+        artifact_hashes[filename] = digest
+        files[key] = {
+            "path": str(path),
+            "rows": n,
+            "bytes": path.stat().st_size,
+            "sha256": digest,
+        }
 
-    meta = payload.get("meta") or {}
-    reliability = "TRUSTED" if meta.get("counts", {}).get("GO", 0) + meta.get("counts", {}).get("REVIEW", 0) + meta.get("counts", {}).get("NO_GO", 0) > 0 else "DEGRADED"
-    if meta.get("limitations"):
-        reliability = "DEGRADED" if reliability == "TRUSTED" else "UNTRUSTED"
+    counts = meta.get("counts") or {}
+    total_ranked = int(counts.get("GO") or 0) + int(counts.get("REVIEW") or 0) + int(
+        counts.get("NO_GO") or 0
+    )
+    status = meta.get("status") or ("SUCCESS" if total_ranked > 0 else "SUCCESS_ZERO")
+    reliability = meta.get("reliability") or (
+        "READY" if total_ranked > 0 else "NOT_READY"
+    )
+    reliability_legacy = meta.get("reliability_legacy") or (
+        "TRUSTED"
+        if reliability == "READY"
+        else ("DEGRADED" if reliability == "PARTIAL" else "UNTRUSTED")
+    )
+    limitations = list(meta.get("limitations") or [])
+    errors = list(meta.get("errors") or [])
+
+    shared = build_run_metadata(
+        run_id=rid,
+        artifact_kind="operational_lists",
+        script="scripts/reports/operational_outputs.py",
+        code_sha=code_sha,
+        db_schema_version=meta.get("schema_version"),
+        universe_version=None,
+        dataset_hash=meta.get("dataset_hash"),
+        source=meta.get("source") or meta.get("ranking_source"),
+        capability="operational_lists_12_2",
+        period=meta.get("period"),
+        parameters=meta.get("parameters"),
+        reliability=reliability,
+        limitations=limitations,
+        errors=errors,
+        duration_seconds=duration_seconds,
+        artifact_hashes=artifact_hashes,
+        stats={
+            "go_count": counts.get("GO"),
+            "review_count": counts.get("REVIEW"),
+            "no_go_count": counts.get("NO_GO"),
+            "raw_bids_count": total_ranked,
+        },
+    )
 
     manifest = {
-        "schema_version": 1,
-        "run_id": rid,
-        "generated_at": generated_at,
-        "git_sha": _git_sha_short(),
+        **shared,
         "section": "12.2",
         "lists": files,
-        "counts": meta.get("counts"),
+        "counts": counts,
         "ranking_source": meta.get("ranking_source"),
-        "limitations": meta.get("limitations") or [],
+        "status": status,
         "reliability": reliability,
+        "reliability_legacy": reliability_legacy,
+        # Keep prior key name for tests that assert DEGRADED/UNTRUSTED when empty
         "claims": {
             "allowed": [
                 "Eight operational list CSVs generated from PostgreSQL",
                 "Active bids classified into GO/REVIEW/NO_GO when data present",
                 "Empty gap lists documented when universe not seeded",
+                "SUCCESS_ZERO when zero rows with documented limitations",
             ],
             "forbidden": [
                 "LOCAL_READY",
                 "operational coverage 95%",
                 "PRE_VPS_FINAL_READY",
                 "PROJECT_DONE",
+                "empty CSV after SQL error as success",
             ],
         },
     }
+    missing = validate_operational_metadata(manifest)
+    if missing:
+        limitations.append(f"metadata_incomplete:{','.join(missing)}")
+        manifest["limitations"] = limitations
+        manifest["reliability"] = "PARTIAL" if reliability == "READY" else reliability
+
     man_path = out_dir / "manifest.json"
-    man_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False, default=str) + "\n", encoding="utf-8")
+    man_path.write_text(
+        json.dumps(manifest, indent=2, ensure_ascii=False, default=str) + "\n",
+        encoding="utf-8",
+    )
     manifest["manifest_path"] = str(man_path)
+    manifest["artifact_hashes"]["manifest.json"] = _file_sha256(man_path)
     return manifest
 
 
 def run(dsn: str, out_dir: Path, **kwargs: Any) -> dict[str, Any]:
+    """Run operational lists. Raises OperationalQueryError on SQL failure."""
+    t0 = time.perf_counter()
     conn = _conn(dsn)
     try:
         payload = build_operational_lists(conn, **kwargs)
     finally:
         conn.close()
-    return write_lists(out_dir, payload)
+    duration = time.perf_counter() - t0
+    return write_lists(out_dir, payload, duration_seconds=round(duration, 4))
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -737,39 +909,65 @@ def main(argv: list[str] | None = None) -> int:
     if not args.dsn:
         print("ERROR: --dsn or LOCAL_DATALAKE_DSN required", file=sys.stderr)
         return 2
-    if args.dry_run:
-        conn = _conn(args.dsn)
-        try:
-            payload = build_operational_lists(
-                conn,
-                stale_hours=args.stale_hours,
-                stuck_running_hours=args.stuck_running_hours,
-            )
-        finally:
-            conn.close()
-        meta = payload.get("meta") or {}
-        summary = {
-            "dry_run": True,
-            "counts": meta.get("counts"),
-            "ranking_source": meta.get("ranking_source"),
-            "limitations": meta.get("limitations"),
-            "would_write": str(args.out),
+    try:
+        if args.dry_run:
+            conn = _conn(args.dsn)
+            try:
+                payload = build_operational_lists(
+                    conn,
+                    stale_hours=args.stale_hours,
+                    stuck_running_hours=args.stuck_running_hours,
+                )
+            finally:
+                conn.close()
+            meta = payload.get("meta") or {}
+            summary = {
+                "dry_run": True,
+                "counts": meta.get("counts"),
+                "ranking_source": meta.get("ranking_source"),
+                "limitations": meta.get("limitations"),
+                "errors": meta.get("errors"),
+                "status": meta.get("status"),
+                "reliability": meta.get("reliability"),
+                "would_write": str(args.out),
+            }
+            print(json.dumps(summary, indent=2, ensure_ascii=False, default=str))
+            return 0
+        manifest = run(
+            args.dsn,
+            args.out,
+            stale_hours=args.stale_hours,
+            stuck_running_hours=args.stuck_running_hours,
+        )
+    except OperationalQueryError as exc:
+        err = {
+            "ok": False,
+            "error": str(exc),
+            "error_type": "OperationalQueryError",
+            "exit_code": 1,
         }
-        print(json.dumps(summary, indent=2, ensure_ascii=False, default=str))
-        return 0
-    manifest = run(
-        args.dsn,
-        args.out,
-        stale_hours=args.stale_hours,
-        stuck_running_hours=args.stuck_running_hours,
-    )
+        print(json.dumps(err, indent=2, ensure_ascii=False), file=sys.stderr)
+        return 1
+    except Exception as exc:  # noqa: BLE001
+        err = {
+            "ok": False,
+            "error": str(exc),
+            "error_type": type(exc).__name__,
+            "exit_code": 1,
+        }
+        print(json.dumps(err, indent=2, ensure_ascii=False), file=sys.stderr)
+        return 1
     if args.json:
         print(json.dumps(manifest, indent=2, ensure_ascii=False, default=str))
     else:
-        print(f"run_id={manifest['run_id']} reliability={manifest['reliability']}")
+        print(
+            f"run_id={manifest['run_id']} status={manifest.get('status')} "
+            f"reliability={manifest['reliability']}"
+        )
         for k, v in (manifest.get("counts") or {}).items():
             print(f"  {k}: {v}")
         print(f"manifest: {manifest.get('manifest_path')}")
+    # SUCCESS_ZERO is still exit 0 (legitimate empty), SQL failure is 1
     return 0
 
 

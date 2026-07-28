@@ -52,10 +52,30 @@ from pathlib import Path
 from typing import Any
 
 SCHEMA_VERSION = 1
+OPERATIONAL_METADATA_SCHEMA_VERSION = 2
 DEFAULT_UF = "SC"
 DEFAULT_VINCENDOS_DAYS = 180
 PROFILE_ID = "extra"
 PROFILE_VERSION: int | str | None = None
+
+# Minimum fields required by OPERATIONAL-REPORTING-TRACEABILITY campaigns.
+OPERATIONAL_METADATA_REQUIRED_FIELDS = (
+    "run_id",
+    "generated_at",
+    "code_sha",
+    "schema_version",
+    "universe_version",
+    "dataset_hash",
+    "source",
+    "capability",
+    "period",
+    "parameters",
+    "reliability",
+    "limitations",
+    "errors",
+    "duration_seconds",
+    "artifact_hashes",
+)
 
 
 def _load_profile_version() -> int | str | None:
@@ -154,6 +174,20 @@ def build_run_metadata(
     vincendos_horizon_days: int = DEFAULT_VINCENDOS_DAYS,
     stats: dict[str, Any] | None = None,
     generated_at: datetime | None = None,
+    # Operational traceability extensions (schema v2 fields; backward-compatible).
+    code_sha: str | None = None,
+    db_schema_version: str | None = None,
+    universe_version: str | None = None,
+    dataset_hash: str | None = None,
+    source: str | None = None,
+    capability: str | None = None,
+    period: dict[str, Any] | None = None,
+    parameters: dict[str, Any] | None = None,
+    reliability: str | None = None,
+    limitations: list[str] | None = None,
+    errors: list[str] | None = None,
+    duration_seconds: float | None = None,
+    artifact_hashes: dict[str, str] | None = None,
 ) -> dict[str, Any]:
     """Build the canonical metadata dict shared by PDF and Excel."""
     stats = stats or {}
@@ -168,8 +202,10 @@ def build_run_metadata(
     ultima = stats.get("ultima_atualizacao") or stats.get("ultima_atualizacao_db") or "N/I"
 
     label = sample_size_label(n_opps, n_vinc, n_bids)
+    sha = code_sha or _git_sha_short()
+    as_of = now.date().isoformat()
 
-    return {
+    meta: dict[str, Any] = {
         "schema_version": SCHEMA_VERSION,
         "run_id": run_id or new_run_id(),
         "generated_at": now.isoformat().replace("+00:00", "Z"),
@@ -183,7 +219,7 @@ def build_run_metadata(
             "orgao_ranking_uf": uf,
         },
         "cutoff": {
-            "as_of_date": now.date().isoformat(),
+            "as_of_date": as_of,
             "data_window": "all_active",
             "ultima_atualizacao_db": str(ultima),
         },
@@ -197,7 +233,7 @@ def build_run_metadata(
             "vincendos_180d": n_vinc,
             "label": label,
         },
-        "git_sha": _git_sha_short(),
+        "git_sha": sha,
         "profile_id": PROFILE_ID,
         "profile_version": PROFILE_VERSION if PROFILE_VERSION is not None else _load_profile_version(),
         "dsn_host": _dsn_host_hint(),
@@ -205,7 +241,46 @@ def build_run_metadata(
             "allowed": list(CLAIMS_ALLOWED),
             "forbidden": list(CLAIMS_FORBIDDEN),
         },
+        # Operational reporting contract (unified across lists / PDF / Excel / weekly).
+        "code_sha": sha,
+        "db_schema_version": db_schema_version,
+        "universe_version": universe_version,
+        "dataset_hash": dataset_hash,
+        "source": source or "postgresql",
+        "capability": capability or artifact_kind,
+        "period": period
+        or {
+            "as_of_date": as_of,
+            "data_window": "all_active",
+        },
+        "parameters": parameters
+        or {
+            "uf": uf,
+            "is_active": is_active,
+            "vincendos_horizon_days": vincendos_horizon_days,
+        },
+        "reliability": reliability or ("INSUFFICIENT" if label == "INSUFFICIENT" else "READY"),
+        "limitations": list(limitations or []),
+        "errors": list(errors or []),
+        "duration_seconds": duration_seconds,
+        "artifact_hashes": dict(artifact_hashes or {}),
+        "operational_metadata_schema_version": OPERATIONAL_METADATA_SCHEMA_VERSION,
     }
+    return meta
+
+
+def validate_operational_metadata(meta: dict[str, Any]) -> list[str]:
+    """Return list of missing required operational metadata fields (empty = OK)."""
+    missing: list[str] = []
+    for field in OPERATIONAL_METADATA_REQUIRED_FIELDS:
+        if field not in meta:
+            missing.append(field)
+            continue
+        val = meta.get(field)
+        if val is None and field not in ("duration_seconds", "universe_version", "dataset_hash"):
+            # duration/universe/dataset may be None when not yet measured; still present as keys.
+            missing.append(f"{field}:null")
+    return missing
 
 
 def _dsn_host_hint() -> str:
