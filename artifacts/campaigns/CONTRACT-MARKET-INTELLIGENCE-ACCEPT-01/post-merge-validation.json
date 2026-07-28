@@ -1,70 +1,22 @@
 {
-  "as_of": "2026-07-28T00:35:58Z",
-  "sha_model": {
-    "package_code_sha": "aeb7663e710624cd260f80dfefba19a9525a1a88",
-    "implementation_sha": "241ec41f0badf5bd463b66dafe36faa1e2e66876",
-    "verified_main_sha": "71566879eaca70b9cfc4810ba49032578171d840",
-    "main_at_claim_write": "9b4ad968b91174fa5728d6bdb43a227f79a3b1de",
-    "package_matches_head": false,
-    "package_matches_verified_main": true,
-    "package_hash_integrity": "verified_match_disk_tracked",
-    "tracked_hash_mismatches": 0,
-    "gitignore_only_hash_mismatches": [
-      "final-package/executive-review.xlsx"
-    ],
-    "note": "package_matches_head is false by design under squash merges: verified_main_sha is the tip where package hashes and item accepts were proven; later metadata commits may move HEAD without changing final-package tracked bytes. Do not re-stamp post_merge_main_sha on all item proofs for tip chase."
-  },
-  "main_sha": "71566879eaca70b9cfc4810ba49032578171d840",
-  "verified_main_sha": "71566879eaca70b9cfc4810ba49032578171d840",
-  "main_at_claim_write": "9b4ad968b91174fa5728d6bdb43a227f79a3b1de",
+  "as_of": "2026-07-28T00:52:17Z",
+  "status": "NOT_CLAIMING_POST_MERGE_COMPLETE_FOR_BUNDLE_ACCEPTED",
+  "main_sha": "b2eaa52a3dc1bb829c49e128913190ad3902aac5",
+  "tip_at_honesty_write": "b2eaa52a3dc1bb829c49e128913190ad3902aac5",
+  "verified_operational_main_sha": "71566879eaca70b9cfc4810ba49032578171d840",
   "package_code_sha": "aeb7663e710624cd260f80dfefba19a9525a1a88",
   "package_matches_head": false,
-  "package_matches_verified_main": true,
   "package_hash_integrity": "verified_match_disk_tracked",
   "file_hash_mismatches": 0,
   "tracked_hash_mismatches": 0,
-  "gitignore_only_hash_mismatches": [
-    "final-package/executive-review.xlsx"
-  ],
   "item_proofs_all_ok": true,
   "item_proofs_passed_n": 47,
+  "item_proofs_post_merge_sha": "71566879eaca70b9cfc4810ba49032578171d840",
   "dod_controller_status": {
     "total": 1462,
     "accepted": 401,
     "open": 1060,
     "acceptance_pct_audited": 6.09
-  },
-  "prs": {
-    "all": [
-      151,
-      152,
-      153,
-      154,
-      155,
-      156,
-      157
-    ],
-    "capability": [
-      151,
-      152,
-      153
-    ],
-    "integrity_followups": [
-      154,
-      155,
-      156
-    ],
-    "claim_closure": [
-      157
-    ],
-    "roles": {
-      "151": "functional vertical / repair",
-      "152": "accept / promotion",
-      "153": "evidence package",
-      "154": "SHA rebind (skeptic)",
-      "155": "hash integrity + adversarial §17 (skeptic)",
-      "156": "post-merge stamp (skeptic; closed)"
-    }
   },
   "prs_merged": [
     151,
@@ -73,9 +25,11 @@
     154,
     155,
     156,
-    157
+    157,
+    158
   ],
-  "integrity_followups_closed": true,
-  "claim_status": "BUNDLE_ACCEPTED_under_capability_train_budget",
-  "note": "Post-merge complete for verified_main_sha. HEAD may advance via claim-closure metadata only; operational package bytes unchanged."
+  "section_18_within_budget": false,
+  "bundle_accepted_authorized": false,
+  "campaign_terminal": "FAILED_PREMORTEM",
+  "note": "Functional vertical and individual DOD accepts already landed. Campaign success criterion §18/§32 fails. Terminal is FAILED_PREMORTEM for the campaign claim — not a rollback of ACCEPTED items."
 }

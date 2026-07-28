@@ -1,7 +1,7 @@
 {
   "campaign_id": "CONTRACT-MARKET-INTELLIGENCE-ACCEPT-01",
   "code_sha": "aeb7663e710624cd260f80dfefba19a9525a1a88",
-  "as_of": "2026-07-28T00:34:40Z",
+  "as_of": "2026-07-28T00:51:04Z",
   "steps": [
     {
       "step": "apply_migrations",
@@ -37,7 +37,27 @@
       "main_at_claim_write": "9b4ad968b91174fa5728d6bdb43a227f79a3b1de",
       "verified_main_sha": "71566879eaca70b9cfc4810ba49032578171d840",
       "note": "capability/integrity PR split; stop rebind loop"
+    },
+    {
+      "step": "honest_terminal_reclassification",
+      "ok": true,
+      "as_of": "2026-07-28T00:51:04Z",
+      "from_state": "BUNDLE_ACCEPTED",
+      "to_state": "FAILED_PREMORTEM",
+      "reason": "SECTION_18_PR_BUDGET_EXCEEDED",
+      "prs": [
+        151,
+        152,
+        153,
+        154,
+        155,
+        156,
+        157
+      ],
+      "main_sha": "b2eaa52a3dc1bb829c49e128913190ad3902aac5"
     }
   ],
-  "verified_main_sha": "71566879eaca70b9cfc4810ba49032578171d840"
+  "verified_main_sha": "71566879eaca70b9cfc4810ba49032578171d840",
+  "campaign_terminal": "FAILED_PREMORTEM",
+  "section_18_within_budget": false
 }
