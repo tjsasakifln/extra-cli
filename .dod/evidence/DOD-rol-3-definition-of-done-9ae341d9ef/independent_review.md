@@ -1,6 +1,6 @@
 # Independent review ORPT-29-04
 
 Status: PASS
-SHA: `ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10`
+SHA: `7a85358ef6eaa3582950976bfc7c798194ba12f3`
 Campaign: OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01
-Assertion: per-alias orpt_item_proofs
+Live proofs with DSN; golden_path+weekly in acceptance-run.

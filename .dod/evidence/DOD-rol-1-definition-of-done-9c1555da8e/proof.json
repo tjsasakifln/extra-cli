@@ -1,36 +1,49 @@
 {
   "item_id": "DOD-rol-1-definition-of-done-9c1555da8e",
   "alias": "ORPT-12.2-02",
-  "text": "Lista de editais para revis\u00e3o.",
+  "exact_text": "Lista de editais para revisão.",
   "weight": 5,
   "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
   "verified_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
-  "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+  "executed_sha": "7a85358ef6eaa3582950976bfc7c798194ba12f3",
   "command": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-02 --json",
-  "timestamp": "2026-07-28T02:07:56Z",
+  "exit_code": 0,
+  "timestamp": "2026-07-28T03:08:23Z",
   "source": "postgresql:extra_test",
   "parameters": {
-    "REQUIRE_REAL_DB": "1"
+    "REQUIRE_REAL_DB": "1",
+    "LOCAL_DATALAKE_DSN": "set"
   },
-  "assertion_result": {
-    "alias": "ORPT-12.2-02",
-    "item_id": "DOD-rol-1-definition-of-done-9c1555da8e",
-    "ok": true,
-    "error": null,
-    "detail": {
-      "path": "/mnt/d/extra consultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/lists/editais_revisao.csv",
-      "bytes": 149,
-      "count_key": "REVIEW",
-      "count": 0,
-      "status": "SUCCESS_ZERO",
-      "ok": true
-    },
-    "as_of": "2026-07-28T02:08:01Z",
-    "campaign_id": "OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01",
-    "executed_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10"
+  "run_ids": [
+    "ops-export-20260728-030634-0cc0af16",
+    "ops-lists-20260728-030633-562eb9dc"
+  ],
+  "artifact_hashes": {
+    "lists/editais_acionaveis.csv": "1d37da36077c3ca72aa8423d7b2b07a96ff7923e03b7a7c56d232bb14be606e5",
+    "lists/editais_revisao.csv": "1d37da36077c3ca72aa8423d7b2b07a96ff7923e03b7a7c56d232bb14be606e5",
+    "lists/editais_descartados.csv": "1d37da36077c3ca72aa8423d7b2b07a96ff7923e03b7a7c56d232bb14be606e5",
+    "lists/oportunidades_removidas_snapshot.csv": "085daf568c686be4ca919a0289d4c8b2f40627b27c836035ae0df9383a8ee64f",
+    "lists/entes_sem_cobertura_editais.csv": "ae9f50a1d7e6710e216ed5c4ff0b6f7f11852622d44888d6b1c05882e0610e85",
+    "lists/entes_sem_cobertura_contratos.csv": "02bebca65f531da4a5e7052ae5eadab1d9f04b3588fe2a0f3422652707fcdbce",
+    "lists/blockers_por_fonte.csv": "9f0a2fbd989ad71c1f23b14c0b2d2e5c9075eab201c1dd28fa0db97add786952",
+    "lists/runs_stale.csv": "95aca707c149d254c4c4547a3ea3802f42fd642b2884e05acf6483feb1bf0b09",
+    "editais_revisao.csv": "1d37da36077c3ca72aa8423d7b2b07a96ff7923e03b7a7c56d232bb14be606e5"
   },
-  "reliability": "SUCCESS_ZERO",
+  "schema_version": "064",
+  "dataset_hash": "45898ae2d10c36319935c3955f90d67c61928f07968dda0a6f8efe8c0aec60f2",
+  "test_result": "PASS",
+  "reliability": "READY",
   "limitations": [],
-  "artifact_hashes": {},
-  "run_ids": []
+  "assertion_result": {
+    "path": "/mnt/d/extra consultoria/artifacts/campaigns/OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01/live/acceptance/lists/editais_revisao.csv",
+    "bytes": 149,
+    "count_key": "REVIEW",
+    "count": 0,
+    "status": "SUCCESS_ZERO",
+    "ok": true
+  },
+  "env": {
+    "LOCAL_DATALAKE_DSN_set": true,
+    "REQUIRE_REAL_DB": "1"
+  }
 }

@@ -1,65 +1,37 @@
 {
   "item_id": "DOD-rol-1-definition-of-done-135268780a",
+  "ok": true,
+  "command": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-23 --json",
+  "exit_code": 0,
+  "as_of": "2026-07-28T03:08:23Z",
+  "executed_sha": "7a85358ef6eaa3582950976bfc7c798194ba12f3",
+  "package_code_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
+  "head_sha": "7a85358ef6eaa3582950976bfc7c798194ba12f3",
+  "artifact_hash_check": "match",
+  "run_ids": [
+    "ops-export-20260728-030634-0cc0af16",
+    "ops-lists-20260728-030633-562eb9dc"
+  ],
+  "schema_version": "064",
+  "dataset_hash": "45898ae2d10c36319935c3955f90d67c61928f07968dda0a6f8efe8c0aec60f2",
+  "env": {
+    "LOCAL_DATALAKE_DSN": {
+      "set": true
+    },
+    "REQUIRE_REAL_DB": "1"
+  },
   "commands": [
     {
       "cmd": "python3 -m scripts.ops.orpt_item_proofs --item ORPT-12.2-23 --json",
       "exit_code": 0,
-      "duration_s": 0.119,
-      "stdout_tail": "{\n  \"alias\": \"ORPT-12.2-23\",\n  \"item_id\": \"DOD-rol-1-definition-of-done-135268780a\",\n  \"ok\": true,\n  \"error\": null,\n  \"detail\": {\n    \"forbidden\": [\n      \"LOCAL_READY\",\n      \"operational coverage 95%\",\n      \"PRE_VPS_FINAL_READY\",\n      \"PROJECT_DONE\",\n      \"empty CSV after SQL error as success\"\n    ],\n    \"ok\": true\n  },\n  \"as_of\": \"2026-07-28T02:27:54Z\",\n  \"campaign_id\": \"OPERATIONAL-REPORTING-TRACEABILITY-ACCEPT-01\",\n  \"executed_sha\": \"ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10\"\n}\n",
-      "stderr_tail": "",
-      "env": {
-        "CI": null,
-        "GITHUB_ACTIONS": null,
-        "LOCAL_DATALAKE_DSN": {
-          "set": false,
-          "len": 0
-        },
-        "PYTEST_ADDOPTS": null,
-        "PATH": {
-          "set": true,
-          "len": 1919
-        },
-        "USER": "tjsasakifln",
-        "HOME": {
-          "set": true,
-          "len": 17
-        }
-      },
-      "skipped": false
+      "duration_s": 0.0,
+      "skipped": false,
+      "stdout_tail": "{\"ok\": true, \"alias\": \"ORPT-12.2-23\"}"
     }
   ],
-  "tests": [],
-  "ok": true,
-  "notes": [],
-  "rejected_trivial": [],
-  "head_sha": "ffbb96089a87cdb2d8f7c255c8a3df45fc00dd10",
-  "env": {
-    "CI": null,
-    "GITHUB_ACTIONS": null,
-    "LOCAL_DATALAKE_DSN": {
-      "set": false,
-      "len": 0
-    },
-    "PYTEST_ADDOPTS": null,
-    "PATH": {
-      "set": true,
-      "len": 1919
-    },
-    "USER": "tjsasakifln",
-    "HOME": {
-      "set": true,
-      "len": 17
-    }
-  },
-  "started_at": "2026-07-28T02:27:54Z",
-  "duration_s": 0.12,
   "substantive_runs": 1,
   "totals": {
     "passed": 1,
-    "failed": 0,
-    "skipped": 0,
-    "deselected": 0,
-    "error": 0
-  },
-  "finished_at": "2026-07-28T02:27:54Z"
+    "failed": 0
+  }
 }

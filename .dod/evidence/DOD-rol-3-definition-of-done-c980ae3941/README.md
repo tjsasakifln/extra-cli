@@ -1,6 +1,3 @@
-# Evidence pack — DOD-rol-3-definition-of-done-c980ae3941
+# Evidence ORPT-29-06
 
-Text: O DOD aponta para os artefatos finais de aceite.
-
-Started: 2026-07-28T02:19:47Z
-Run: run-20260728T021947Z
+DOD-rol-3-definition-of-done-c980ae3941
