@@ -317,6 +317,110 @@ Não é probabilidade de compra. Revisão de Tiago não preenchida automaticamen
     _write_json(p, run)
     paths["run-result.json"] = str(p)
 
+    # Canonical coverage singleton (all consumers must use this file or run.canonical_coverage)
+    canon = run.get("canonical_coverage") or (run.get("metrics") or {}).get("canonical_coverage")
+    if canon:
+        p = out_dir / "canonical-coverage.json"
+        _write_json(p, canon)
+        paths["canonical-coverage.json"] = str(p)
+
+    # queue-summary must reuse the same coverage numbers (no independent recalculation)
+    queue_summary = {
+        "status": run.get("status"),
+        "reason": run.get("reason"),
+        "terminal_reason": run.get("reason"),
+        "run_id": run.get("run_id"),
+        "campaign_id": run.get("campaign_id"),
+        "metrics": {
+            "candidate_count": (run.get("metrics") or {}).get("candidate_count"),
+            "full_history_contract_count": (run.get("metrics") or {}).get(
+                "full_history_contract_count"
+            ),
+            "db_contract_count": (run.get("metrics") or {}).get("db_contract_count"),
+            "discovery_mode": (run.get("metrics") or {}).get("discovery_mode"),
+            "cnae_coverage": (run.get("metrics") or {}).get("cnae_coverage"),
+            "human_review_status": (run.get("metrics") or {}).get("human_review_status"),
+            "registry_coverage": run.get("registry_coverage")
+            or (run.get("metrics") or {}).get("registry_coverage"),
+            "canonical_coverage": canon,
+        },
+        "official_registry_coverage": run.get("official_registry_coverage"),
+        "canonical_coverage": canon,
+        "handoff": run.get("handoff"),
+        "commercial_release_ready": run.get("commercial_release_ready", False),
+    }
+    p = out_dir / "queue-summary.json"
+    _write_json(p, queue_summary)
+    paths["queue-summary.json"] = str(p)
+
+    # Dossiers (Top 20) + outreach kits (Top 5)
+    try:
+        from scripts.commercial_leads.dossiers import export_dossiers
+        from scripts.commercial_leads.outreach_kits import export_outreach_kits
+
+        d_paths = export_dossiers(
+            out_dir, leads, run_id=run.get("run_id"), limit=min(20, len(leads))
+        )
+        paths.update(d_paths)
+        k_paths = export_outreach_kits(
+            out_dir, leads, run_id=run.get("run_id"), limit=min(5, len(leads))
+        )
+        paths.update(k_paths)
+    except Exception as exc:  # noqa: BLE001
+        paths["dossier_kit_export_error"] = str(exc)
+
+    # TIAGO-REVIEW lightweight handoff
+    review_md = out_dir / "TIAGO-REVIEW.md"
+    review_md.write_text(
+        "\n".join(
+            [
+                "# Revisão humana — Tiago Sasaki",
+                "",
+                f"- Status do run: `{run.get('status')}` / `{run.get('reason')}`",
+                f"- Handoff: `{run.get('handoff')}`",
+                f"- Run ID: `{run.get('run_id')}`",
+                f"- Leads na fila: {len(leads)}",
+                f"- commercial_release_ready: `{run.get('commercial_release_ready')}`",
+                f"- precision@10 / @20: `null` (somente após seus labels)",
+                "",
+                "## O que revisar",
+                "",
+                "1. Top 20 em `leads.json` / `commercial-review.csv`",
+                "2. Dossiers em `top20-dossiers/`",
+                "3. Kits manuais em `top5-outreach-kits/` (não enviar automaticamente)",
+                "4. Holdout / exclusões em artefatos de gate quando presentes",
+                "5. Preencher `user-acceptance.template.json` apenas se aceitar",
+                "",
+                "## Regras",
+                "",
+                "- Somente você pode marcar ACCEPTED.",
+                "- Não use avaliações de agentes como label humano.",
+                "- Contatos ausentes são NOT_AVAILABLE — não inventar.",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    paths["TIAGO-REVIEW.md"] = str(review_md)
+
+    accept_tpl = {
+        "schema_version": "user-acceptance-v1",
+        "campaign_id": run.get("campaign_id"),
+        "run_id": run.get("run_id"),
+        "status": "PENDING",
+        "author": None,
+        "accepted_at": None,
+        "required_author": "Tiago Sasaki",
+        "notes": None,
+        "artifact_checksums": {},
+        "labels_are_human": False,
+        "precision_at_10": None,
+        "precision_at_20": None,
+    }
+    p = out_dir / "user-acceptance.template.json"
+    _write_json(p, accept_tpl)
+    paths["user-acceptance.template.json"] = str(p)
+
     return paths
 
 
