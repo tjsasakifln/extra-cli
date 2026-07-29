@@ -1,0 +1,33 @@
+{
+  "run_id": "extra-first-20260728T123450Z-4fce77ba22",
+  "historical_classification": "HISTORICAL_BLOCKED_EXTERNAL",
+  "not_client_delivery": true,
+  "not_for_dod_promotion": true,
+  "terminal_state": "BLOCKED_EXTERNAL",
+  "source_weekly_exit_code": 2,
+  "shortlist_count": 0,
+  "go_count": 0,
+  "insufficient": true,
+  "human_review_pending": true,
+  "required_files_present": [
+    "00-LEIA-ME.md",
+    "01-resumo-executivo.md",
+    "01-resumo-executivo.pdf",
+    "02-oportunidades-priorizadas.xlsx",
+    "03-decision-ledger.csv",
+    "03-decision-ledger.json",
+    "04-intake-operacional-extra.json",
+    "04-intake-operacional-extra.md",
+    "05-limitacoes-e-confiabilidade.md",
+    "06-roteiro-reuniao.md",
+    "07-dossie-edital-NOT_AVAILABLE.md",
+    "checksums.json",
+    "human-review.json",
+    "manifest.json",
+    "profile-patch-candidate.yaml",
+    "shortlist.json"
+  ],
+  "checksums_verified": true,
+  "hr_binds_final_files": true,
+  "pdf_pages": 5
+}

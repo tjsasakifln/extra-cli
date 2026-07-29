@@ -1,0 +1,12 @@
+{
+  "preferred": "VPS extra-weekly product pack",
+  "source_weekly_run_id": "weekly-20260727T063446Z-0d158e9c60",
+  "collection_id": "col-extra-weekly-20260727T063446Z-3d36cee7",
+  "source_weekly_exit_code": 2,
+  "historical_classification": "HISTORICAL_BLOCKED_EXTERNAL",
+  "not_client_delivery": true,
+  "not_for_dod_promotion": true,
+  "checksums_validated": true,
+  "production_mutations": false,
+  "note": "Historical diagnosis pack only; final client delivery requires weekly exit_code=0 post-merge"
+}

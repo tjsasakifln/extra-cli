@@ -1,0 +1,61 @@
+{
+  "hr_binds": true,
+  "checks": [
+    {
+      "name": "00-LEIA-ME.md",
+      "match": true
+    },
+    {
+      "name": "01-resumo-executivo.pdf",
+      "match": true
+    },
+    {
+      "name": "01-resumo-executivo.md",
+      "match": true
+    },
+    {
+      "name": "02-oportunidades-priorizadas.xlsx",
+      "match": true
+    },
+    {
+      "name": "03-decision-ledger.csv",
+      "match": true
+    },
+    {
+      "name": "03-decision-ledger.json",
+      "match": true
+    },
+    {
+      "name": "04-intake-operacional-extra.md",
+      "match": true
+    },
+    {
+      "name": "04-intake-operacional-extra.json",
+      "match": true
+    },
+    {
+      "name": "05-limitacoes-e-confiabilidade.md",
+      "match": true
+    },
+    {
+      "name": "06-roteiro-reuniao.md",
+      "match": true
+    },
+    {
+      "name": "07-dossie-edital-NOT_AVAILABLE.md",
+      "match": true
+    },
+    {
+      "name": "profile-patch-candidate.yaml",
+      "match": true
+    },
+    {
+      "name": "shortlist.json",
+      "match": true
+    }
+  ],
+  "pdf_pages": 5,
+  "pdf_has_pending_build": false,
+  "pdf_has_terminal": true,
+  "shortlist_in_checksums": true
+}

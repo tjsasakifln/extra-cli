@@ -60,6 +60,9 @@ EXIT_TECH = 1
 EXIT_UNRELIABLE = 2
 EXIT_BLOCKED = 3
 
+# Canonical Extra 200km universe size (fail-closed if not met).
+CANONICAL_UNIVERSE_N = 1093
+
 
 def _utc_now() -> datetime:
     return datetime.now(UTC)
@@ -120,9 +123,17 @@ def _atomic_json(path: Path, payload: Any) -> None:
 
 
 def _write_csv(path: Path, rows: list[dict[str, Any]]) -> None:
+    """Write CSV product. Empty result is explicit: headers + zero data rows.
+
+    Never write a blank file that could be confused with a failed write.
+    When no rows and no known headers, emit a single ``row_count`` column with 0.
+    """
     path.parent.mkdir(parents=True, exist_ok=True)
     if not rows:
-        path.write_text("", encoding="utf-8")
+        with path.open("w", encoding="utf-8", newline="") as fh:
+            w = csv.DictWriter(fh, fieldnames=["row_count"])
+            w.writeheader()
+            w.writerow({"row_count": 0})
         return
     # stable field order: union of keys preserving first-row order
     fields: list[str] = []
@@ -226,13 +237,18 @@ def stage_validate_db(conn: Any) -> StageResult:
         """,
     )
     n = int((uni[0] or {}).get("n") or 0) if uni else 0
-    detail = {"tables": present, "universe_200km": n, "expected_universe": 1093}
-    if n != 1093:
+    detail = {"tables": present, "universe_200km": n, "expected_universe": CANONICAL_UNIVERSE_N}
+    if n != CANONICAL_UNIVERSE_N:
+        # Fail-closed: Extra weekly pack requires the canonical 200km seed.
+        # Never continue with silent SC-wide geographic proxy.
         return StageResult(
             name="validate_db",
-            status="warn",
+            status="fail",
             detail=detail,
-            error=f"universe_200km={n} != 1093 (scope drift)",
+            error=(
+                "CANONICAL_200KM_UNIVERSE_UNAVAILABLE: "
+                f"universe_200km={n} != {CANONICAL_UNIVERSE_N} (scope drift or seed missing)"
+            ),
         )
     return StageResult(name="validate_db", status="ok", detail=detail)
 
@@ -474,7 +490,20 @@ def _collect_pncp_opportunities(
         universe = load_canonical_universe(seed_path=seed, conn=conn)
         external_run_id = f"weekly-{collection_id}"
         period_start = date.today() - timedelta(days=lookback_days)
-        period_end = date.today()
+        # Forward horizon for PNCP /proposta dataFinal (upper bound of end dates).
+        # PncpOpportunityCrawler also expands past/today values; keep period_end
+        # forward so run metadata matches the API window actually queried.
+        horizon_days = max(
+            1, min(365, int(os.getenv("PNCP_OPEN_PROPOSAL_HORIZON_DAYS", "30")))
+        )
+        period_end = date.today() + timedelta(days=horizon_days)
+        timeout = max(30, int(os.getenv("OI_READ_TIMEOUT", "90")))
+        request_delay = float(
+            os.getenv("PNCP_REQUEST_DELAY")
+            or os.getenv("OI_REQUEST_DELAY")
+            or "1.0"
+        )
+        max_retries = max(1, int(os.getenv("OI_MAX_RETRIES", "5")))
         outcome = run_pncp_open_monitoring(
             dsn=dsn,
             external_run_id=external_run_id,
@@ -483,6 +512,9 @@ def _collect_pncp_opportunities(
             period_end=period_end,
             mode="full",
             persist=True,
+            timeout=timeout,
+            max_retries=max_retries,
+            request_delay=request_delay,
         )
         fetched = int(outcome.records_fetched or 0)
         persisted = int(outcome.records_inserted or 0) + int(outcome.records_updated or 0)
@@ -589,19 +621,31 @@ def _contracts_incremental_run(
             / "contracts"
             / f"incremental-weekly-{collection_id}.json"
         )
-        rc = inc_main(
-            [
-                "--dsn",
-                dsn,
-                "--days",
-                str(days),
-                "--output-json",
-                str(out),
-                "--checkpoint-dir",
-                "data/contracts_checkpoints/weekly_incremental",
-                "--reset-checkpoint",
-            ]
-        )
+        # Reset + rebind: weekly always uses a fresh cycle run_id; the
+        # incremental checkpoint may still carry a prior run_id binding.
+        # Allow operational rebind after explicit --reset-checkpoint so a
+        # stale checkpoint cannot force EXIT_UNRELIABLE / blocked contracts.
+        prev_allow = os.environ.get("CONTRACTS_ALLOW_CROSS_RUN_RESUME")
+        os.environ["CONTRACTS_ALLOW_CROSS_RUN_RESUME"] = "1"
+        try:
+            rc = inc_main(
+                [
+                    "--dsn",
+                    dsn,
+                    "--days",
+                    str(days),
+                    "--output-json",
+                    str(out),
+                    "--checkpoint-dir",
+                    "data/contracts_checkpoints/weekly_incremental",
+                    "--reset-checkpoint",
+                ]
+            )
+        finally:
+            if prev_allow is None:
+                os.environ.pop("CONTRACTS_ALLOW_CROSS_RUN_RESUME", None)
+            else:
+                os.environ["CONTRACTS_ALLOW_CROSS_RUN_RESUME"] = prev_allow
         payload: dict[str, Any] = {}
         if out.is_file():
             payload = json.loads(out.read_text(encoding="utf-8"))
@@ -809,8 +853,19 @@ def stage_intelligence(
                  WHERE e.is_active IS TRUE AND e.raio_200km IS TRUE
                )
           )
+          AND (
+            data_encerramento IS NULL
+            OR data_encerramento::date >= CURRENT_DATE
+          )
         ORDER BY
           CASE ranking WHEN 'GO' THEN 0 WHEN 'REVIEW' THEN 1 ELSE 2 END,
+          -- Prefer actionable consulting window (1–21 days), then same-day, then later.
+          CASE
+            WHEN data_encerramento::date BETWEEN CURRENT_DATE + 1 AND CURRENT_DATE + 21 THEN 0
+            WHEN data_encerramento::date = CURRENT_DATE THEN 1
+            WHEN data_encerramento IS NULL THEN 3
+            ELSE 2
+          END,
           data_encerramento NULLS LAST,
           ranking_score DESC NULLS LAST
         LIMIT %s
@@ -841,6 +896,54 @@ def stage_intelligence(
         o["source_record_run_id"] = o.get("run_id") or o.get("last_seen_source_run_id")
         o["scope"] = "extra_sc_or_universe_200km"
 
+    # Canonical 200km universe is mandatory. Never fall back to UF=SC-only:
+    # that silently expands scope beyond Extra's territorial contract.
+    universe_n = 0
+    universe_err: str | None = None
+    try:
+        urows = _q(
+            conn,
+            """
+            SELECT COUNT(*)::int AS n
+            FROM sc_public_entities e
+            WHERE e.is_active IS TRUE AND e.raio_200km IS TRUE
+            """,
+        )
+        universe_n = int((urows[0] or {}).get("n") or 0) if urows else 0
+    except Exception as exc:  # noqa: BLE001
+        universe_n = 0
+        universe_err = str(exc)
+    if universe_n != CANONICAL_UNIVERSE_N:
+        err = (
+            "CANONICAL_200KM_UNIVERSE_UNAVAILABLE: "
+            f"universe_200km={universe_n} != {CANONICAL_UNIVERSE_N}"
+            + (f" ({universe_err})" if universe_err else "")
+        )
+        return StageResult(
+            name="intelligence",
+            status="fail",
+            detail={
+                "opportunities": opps,
+                "contracts": [],
+                "competitors": [],
+                "orgaos": [],
+                "counts": {
+                    "opportunities": len(opps),
+                    "contracts": 0,
+                    "competitors": 0,
+                    "orgaos": 0,
+                    "universe_200km": universe_n,
+                    "expected_universe": CANONICAL_UNIVERSE_N,
+                },
+                "scope": "CANONICAL_200KM_UNIVERSE_UNAVAILABLE",
+                "contracts_scope_sql_applied": False,
+                "sc_uf_fallback": False,
+            },
+            error=err,
+        )
+    contracts_scope_sql = _EXTRA_UNIVERSE_ORGAO
+    contracts_scope_label = "extra_universe_200km"
+
     contracts = _q(
         conn,
         # Constant fragment only — not user input (S608 false positive)
@@ -851,7 +954,7 @@ def stage_intelligence(
                c.orgao_cnpj_8
         FROM pncp_supplier_contracts c
         WHERE COALESCE(c.is_active, TRUE)
-          AND {_EXTRA_UNIVERSE_ORGAO}
+          AND {contracts_scope_sql}
           AND (
             c.data_publicacao >= CURRENT_DATE - INTERVAL '90 days'
             OR c.data_fim >= CURRENT_DATE - INTERVAL '30 days'
@@ -871,7 +974,7 @@ def stage_intelligence(
         # source_id is a record identifier, not an execution run — do not mislabel it
         c["source_record_run_id"] = None
         c["source_record_id"] = c.get("source_id") or c.get("contrato_id")
-        c["scope"] = "extra_universe_200km"
+        c["scope"] = contracts_scope_label
         c["normalized_table"] = "pncp_supplier_contracts"
 
     competitors = _q(
@@ -883,7 +986,7 @@ def stage_intelligence(
                COUNT(DISTINCT c.orgao_cnpj)::int AS n_orgaos
         FROM pncp_supplier_contracts c
         WHERE COALESCE(c.is_active, TRUE)
-          AND {_EXTRA_UNIVERSE_ORGAO}
+          AND {contracts_scope_sql}
           AND c.fornecedor_cnpj IS NOT NULL
           AND COALESCE(c.data_publicacao, c.data_inicio, c.ingested_at)
               >= CURRENT_DATE - INTERVAL '365 days'
@@ -898,7 +1001,7 @@ def stage_intelligence(
         c["valor_nao_e_pago"] = True
         c["cycle_collection_id"] = collection_id
         c["cycle_run_id"] = ct_cycle.run_id if ct_cycle else None
-        c["scope"] = "extra_universe_200km"
+        c["scope"] = contracts_scope_label
         c["normalized_table"] = "pncp_supplier_contracts_agg"
 
     orgaos = _q(
@@ -938,8 +1041,12 @@ def stage_intelligence(
                 "contracts": len(contracts),
                 "competitors": len(competitors),
                 "orgaos": len(orgaos),
+                "universe_200km": universe_n,
+                "expected_universe": CANONICAL_UNIVERSE_N,
             },
             "scope": "extra_universe_200km",
+            "contracts_scope_sql_applied": True,
+            "sc_uf_fallback": False,
         },
     )
 
@@ -1555,6 +1662,13 @@ def compute_exit_code(
     quality = next((s for s in stages if s.name == "quality"), None)
     intel = next((s for s in stages if s.name == "intelligence"), None)
 
+    # Territorial scope failure is technical (seed/universe), not consultive grey-area.
+    if intel and intel.status == "fail":
+        err = str(intel.error or "")
+        if "CANONICAL_200KM_UNIVERSE_UNAVAILABLE" in err:
+            return EXIT_TECH
+        return EXIT_UNRELIABLE
+
     if delivery and delivery.status == "fail":
         # Missing Excel / incomplete pack is technical delivery failure under strict;
         # still non-zero outside strict (unreliable for consultive use).
@@ -1580,6 +1694,15 @@ def compute_exit_code(
             "reused_fresh",
         }:
             return EXIT_UNRELIABLE
+        # success_zero must never hide incomplete collection (scope/error).
+        if ct.terminal_status == "success_zero" and (
+            not ct.scope_complete or ct.terminal_error
+        ):
+            return EXIT_UNRELIABLE
+        if opp and opp.terminal_status == "success_zero" and (
+            not opp.scope_complete or opp.terminal_error
+        ):
+            return EXIT_UNRELIABLE
 
     if (
         intel
@@ -1594,6 +1717,11 @@ def compute_exit_code(
             "success_zero",
             "reused_fresh",
         }:
+            return EXIT_UNRELIABLE
+        # Explicit zero only when the collection run itself completed cleanly.
+        if opp.terminal_status == "success_zero" and (
+            not opp.request_completed or not opp.scope_complete or opp.terminal_error
+        ):
             return EXIT_UNRELIABLE
         return EXIT_OK
     return EXIT_UNRELIABLE
@@ -1734,6 +1862,29 @@ def run_weekly_cycle(
                 dsn=resolved,
                 days=contracts_incremental_days,
             )
+            # Fail-closed for incomplete incremental, but prefer lake reuse when
+            # the contracts lake is already fresh within SLA (avoid EXIT_UNRELIABLE
+            # solely due to checkpoint rebind / rate-limit on a 7d delta).
+            if r_ct.terminal_status not in {
+                "success",
+                "success_zero",
+                "reused_fresh",
+            }:
+                r_reuse = _contracts_reuse_run(
+                    conn,
+                    collection_id=collection_id,
+                    freshness_rows=freshness_rows,
+                )
+                if r_reuse.terminal_status in {
+                    "success",
+                    "success_zero",
+                    "reused_fresh",
+                }:
+                    r_reuse.notes.append(
+                        "fallback_after_incremental_"
+                        f"{r_ct.terminal_status}:{r_ct.terminal_error or 'n/a'}"
+                    )
+                    r_ct = r_reuse
         else:
             r_ct = _contracts_reuse_run(
                 conn, collection_id=collection_id, freshness_rows=freshness_rows

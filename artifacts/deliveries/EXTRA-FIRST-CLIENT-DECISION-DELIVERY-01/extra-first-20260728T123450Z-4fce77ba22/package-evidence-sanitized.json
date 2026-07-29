@@ -1,0 +1,42 @@
+{
+  "run_id": "extra-first-20260728T123450Z-4fce77ba22",
+  "terminal_state": "BLOCKED_EXTERNAL",
+  "historical_classification": "HISTORICAL_BLOCKED_EXTERNAL",
+  "not_client_delivery": true,
+  "not_for_dod_promotion": true,
+  "package_quality": "HISTORICAL_INSUFFICIENT_SOURCE",
+  "delivery_out_external": "/home/tjsasakifln/extra-deliveries/EXTRA-FIRST-CLIENT-DECISION-B2G-20260728",
+  "source_weekly_run_id": "weekly-20260727T063446Z-0d158e9c60",
+  "collection_id": "col-extra-weekly-20260727T063446Z-3d36cee7",
+  "cut_date": "2026-07-27",
+  "counts": {
+    "candidates_total": 50,
+    "blocked_total": 50,
+    "review_defensible_total": 0,
+    "shortlist_count": 0,
+    "review_count": 0,
+    "no_go_count": 0,
+    "go_count": 0,
+    "insufficient": true
+  },
+  "dossie_status": "NOT_AVAILABLE",
+  "human_review_status": "PENDING_HUMAN",
+  "artifact_sha256": {
+    "00-LEIA-ME.md": "59a541e6809865bb7dcc053f288417b0685102bcd0f250867dd55b4fb3215681",
+    "01-resumo-executivo.pdf": "de04eafa7d19e31e3335a5ca27eeab36cc6f3a92c27b23007250119f7330599e",
+    "01-resumo-executivo.md": "2ea2c8e6eae2994391e79d40c56030c9022ec36ce2c8945f7995ba2266be98ea",
+    "02-oportunidades-priorizadas.xlsx": "75552582affb21a464d99b8dcb62d46ab22808c91441557076b5a407c341c265",
+    "03-decision-ledger.csv": "5bfb44c598fc9a109ae0703d5fe85949d3253715a6d6aa66b8c81aa3ab6f977b",
+    "03-decision-ledger.json": "d6bbaac9f1a8f961fa75cbd2334d11132fdeab2b09b6f1065ef2a582b9bc7df2",
+    "04-intake-operacional-extra.md": "03c4d1e74235fe71b4e74aae42081a2106b1f900fdc219fb89f5dc26f46a2034",
+    "04-intake-operacional-extra.json": "b5563d6563d692d5f30edfd5ed180e194dc490dbd9fa5e14575c15acb8472924",
+    "05-limitacoes-e-confiabilidade.md": "0aa93508e08359efc0662f750ab3eacd87ebc32ee2accb39f47f01eba1501f74",
+    "06-roteiro-reuniao.md": "cfe43f6f36a9c1600b98b3967ffeace019a0364ca5f3a622c7638dcc52dc76dc",
+    "07-dossie-edital-NOT_AVAILABLE.md": "e99384594623af404559699d0ca62c8cd7ecc4dde55fa55bffba43c57a45f482",
+    "profile-patch-candidate.yaml": "2cc0fd7feef1682abe83e8a3b2b6013c49b583588fad507808adc9545d100f1f",
+    "shortlist.json": "0b6ef41241eea0d10b44eb8c57220b5d62ea1c8ebb59f7e3274adbde358080bd",
+    "human-review.json": "a7e88961dfad6da7d992415150ab01aa2efac305665db713a050ba5c2adffbda"
+  },
+  "hr_package_checksums_bind_final": true,
+  "pdf_terminal_state_ok": true
+}

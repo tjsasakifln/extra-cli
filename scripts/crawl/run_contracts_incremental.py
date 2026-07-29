@@ -84,8 +84,60 @@ def main(argv: list[str] | None = None) -> int:
         cp.total_windows_failed = 0
         cp.total_contracts_fetched = 0
         cp.last_error = None
+        # Clear bound run_id so the next pilot can rebind without foreign-resume
+        # hard-fail (weekly cycle always generates a new contracts run_id).
+        meta = dict(cp.meta or {})
+        old_run = meta.get("run_id")
+        if old_run:
+            prev = list(meta.get("previous_run_ids") or [])
+            if old_run not in prev:
+                prev.append(old_run)
+            meta["previous_run_ids"] = prev
+            meta.pop("run_id", None)
+            meta["reset_cleared_run_id"] = True
+        meta.pop("foreign_resume", None)
+        meta["incremental_days"] = int(args.days)
+        meta["campaign_role"] = "historical_contracts_incremental"
+        cp.meta = meta
         save_checkpoint(cp)
         logger.info("Incremental checkpoint reset")
+    else:
+        # Fail-closed: never silently resume a foreign or wrong-parameter checkpoint.
+        # Each CLI invocation gets a new pilot run_id; resuming completed_windows
+        # from another run requires explicit CONTRACTS_ALLOW_CROSS_RUN_RESUME=1
+        # and matching incremental_days.
+        cp = load_checkpoint("full")
+        meta = dict(cp.meta or {})
+        existing_run = meta.get("run_id")
+        bound_days = meta.get("incremental_days")
+        has_progress = bool(cp.completed_windows) or bool(existing_run)
+        if has_progress:
+            allow_cross = os.getenv("CONTRACTS_ALLOW_CROSS_RUN_RESUME", "0") == "1"
+            if bound_days is not None and int(bound_days) != int(args.days):
+                print(
+                    "ERROR: checkpoint incremental_days="
+                    f"{bound_days} != --days={args.days}; "
+                    "refusing wrong-window resume. Use --reset-checkpoint.",
+                    file=sys.stderr,
+                )
+                return 1
+            if existing_run and not allow_cross:
+                print(
+                    f"ERROR: checkpoint bound to run_id={existing_run!r}; "
+                    "refusing silent foreign resume. Use --reset-checkpoint "
+                    "or set CONTRACTS_ALLOW_CROSS_RUN_RESUME=1.",
+                    file=sys.stderr,
+                )
+                return 1
+            if not allow_cross and cp.completed_windows:
+                # No run_id but leftover windows from another process/context
+                print(
+                    "ERROR: checkpoint has completed_windows without explicit "
+                    "cross-run allow; refusing silent resume. "
+                    "Use --reset-checkpoint or CONTRACTS_ALLOW_CROSS_RUN_RESUME=1.",
+                    file=sys.stderr,
+                )
+                return 1
 
     report = run_pilot(
         dsn=args.dsn,
@@ -94,6 +146,16 @@ def main(argv: list[str] | None = None) -> int:
         checkpoint_dir=args.checkpoint_dir,
         dry_run=bool(args.dry_run),
     )
+    # Persist parameter binding for the next invocation's wrong-window guard.
+    try:
+        cp_after = load_checkpoint("full")
+        meta_after = dict(cp_after.meta or {})
+        meta_after["incremental_days"] = int(args.days)
+        meta_after["campaign_role"] = "historical_contracts_incremental"
+        cp_after.meta = meta_after
+        save_checkpoint(cp_after)
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("Could not annotate incremental checkpoint meta: %s", exc)
     # Annotate as incremental product surface
     report["command"] = "run_contracts_incremental"
     report["incremental_days"] = args.days

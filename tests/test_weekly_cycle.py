@@ -611,6 +611,15 @@ def test_extra_universe_scope_sql_targets_raio_200km() -> None:
     assert "c.uf = 'SC'" in sql or 'c.uf = "SC"' in sql or "uf = 'SC'" in sql
 
 
+def test_intelligence_source_has_no_sc_uf_fallback() -> None:
+    """D4: no silent empty-universe SC fallback label in source."""
+    from scripts.ops import weekly_cycle as wc
+
+    src = open(wc.__file__, encoding="utf-8").read()
+    assert "extra_sc_uf_fallback_empty_universe" not in src
+    assert "CANONICAL_200KM_UNIVERSE_UNAVAILABLE" in src
+
+
 def test_identity_pick_match_rejects_cross_root() -> None:
     from scripts.entity_identity.pncp_orgao_resolve import pick_match
 
@@ -673,7 +682,18 @@ def test_weekly_cycle_offline_skip_collect(tmp_path: Path) -> None:
     assert "collection_id" in claims_text or "cycle_run_id" in claims_text
     assert report.human_accept.get("status") == "PENDING_HUMAN"
     assert "LOCAL_READY" in report.claims_forbidden
-    assert report.exit_code in {0, 2, 3}
+    # 0=ok, 1=tech (e.g. universe != 1093), 2=unreliable, 3=blocked
+    assert report.exit_code in {0, 1, 2, 3}
+    if report.exit_code == EXIT_TECH:
+        # Fail-closed path: universe seed missing/wrong must surface CANONICAL code.
+        stage_errs = " ".join(
+            str(s.get("error") or "") for s in (report.stages or []) if isinstance(s, dict)
+        )
+        assert "CANONICAL_200KM_UNIVERSE_UNAVAILABLE" in stage_errs or any(
+            s.get("name") == "validate_db" and s.get("status") == "fail"
+            for s in (report.stages or [])
+            if isinstance(s, dict)
+        )
 
 
 # ---------------------------------------------------------------------------
