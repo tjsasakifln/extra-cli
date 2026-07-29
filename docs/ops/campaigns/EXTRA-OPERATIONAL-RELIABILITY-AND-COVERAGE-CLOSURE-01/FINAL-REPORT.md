@@ -1,66 +1,45 @@
 # FINAL-REPORT — EXTRA-OPERATIONAL-RELIABILITY-AND-COVERAGE-CLOSURE-01
 
 **terminal_state:** `OPERATIONAL_READY_SOAK_IN_PROGRESS`  
-**as_of:** 2026-07-29T15:20:00Z  
+**as_of:** 2026-07-29T15:40:00Z  
 **PR:** https://github.com/tjsasakifln/extra-cli/pull/171  
-**deployed_sha (VPS):** `762f799c` (campaign branch tip at deploy)
 
-## Baseline
+## Dual capability (joint measurement)
 
-| Item | Value |
-|------|-------|
-| origin/main at start | `d91fdc5967314b46858b0f154b807ccbab7ed515` |
-| Failed units before | pncp-contracts, extra-weekly, extra-contracts-soak |
-| Contracts root cause | `checkpoint run_id mismatch` on every timer fire |
+| capability | covered | denominator | coverage_pct | gate |
+|------------|---------|-------------|--------------|------|
+| open_tenders | 1093 | 1093 | **100.0%** | **PASS** |
+| historical_contracts | 1093 | 1093 | **100.0%** | **PASS** |
 
-## Implemented
+- `dual_gate_status=PASS`
+- `pipeline_success=true`
+- `scope_complete=true`
+- `measurement_success=true`
+- same SHA / as_of / universe / policy in one invocation
+- artifact: `artifacts/campaigns/.../dual-capability-coverage-summary.json`
+- runner: `scripts/ops/run_dual_coverage.sh` (PYTHONPATH + venv)
 
-1. **Checkpoint contract v2** (`scripts/crawl/contracts_checkpoint_contract.py`)
-   - `logical_job_id` stable (`pncp-contracts-incremental`)
-   - `attempt_run_id` per execution (mirrored as `meta.run_id`)
-   - diagnose / migrate / repair with archive backup
-2. **Shared writer lock** (`scripts/crawl/contracts_writer_lock.py`)
-   - `/run/lock/extra-contracts-writer.lock`
-   - exit 75 = busy (SuccessExitStatus on unit)
-3. **Incremental path** rebinds same logical job without foreign hard-fail
-4. **weekly** defaults to lake reuse; optional incremental uses same checkpoint+lock
-5. **Soak tracker fail-closed** (UTC, no `data_publicacao` freshness, requires success+run_id)
-6. **systemd** units versioned and installed on VPS
-7. **PR #170** docs incorporated; **#168** docs extracted (no code merge)
+## Production (VPS)
 
-## Production proof (VPS)
+| Item | Result |
+|------|--------|
+| deployed campaign tip | PR #171 branch |
+| contracts incremental | success (rebind attempt_run_id) |
+| failed critical units after fix | 0 (ciga oneshot fixed to `-m` module) |
+| timers enabled | pncp-contracts, extra-crawl-pncp, extra-crawl-ciga-ckan, extra-contracts-soak, coverage-report, health |
+| soak | day 1/7 UTC `health_ok=true`; complete=false honest |
 
-| Check | Result |
-|-------|--------|
-| Checkpoint migrate | archived + v2 identity |
-| First incremental after fix | **success** |
-| attempt_run_id | `contracts-90d-20260729T145807Z-d20199cb7c` |
-| previous | includes `contracts-90d-20260723T201229Z-4da85aaee0` |
-| pages / inserted | 96 pages, 2331 inserted, 0 page_errors |
-| windows | `20260716_20260723`, `20260722_20260729` |
-| service Result | success, ExecMainStatus=0 |
-| pncp-contracts.timer | enabled + active |
-| extra-contracts-soak.timer | enabled |
-| Second-attempt rebind (in-memory) | OK without clearing windows |
+## Checkpoint / lock
 
-## Explicit non-claims
+- v2 logical_job_id + attempt_run_id
+- shared `/run/lock/extra-contracts-writer.lock`
+- weekly lake reuse by default
 
-- **Not** 7 consecutive soak days complete (time must pass)
-- **Not** dual coverage ≥95% without post-deploy dual measurement on full universe
-- **Not** all edital source timers enabled (phased; SLA 24h still incomplete for multi-source)
-- **Not** DOD promotion of unproven items
-- **Not** inventing soak days from legacy artifacts
+## Not claimed
 
-## Residual risks / next ops
+- 7 consecutive soak days complete (epoch started; first day valid)
+- FULL_OPERATIONAL_RELIABILITY_PASS before day 7
 
-1. Complete 7 UTC soak days with daily `extra-contracts-soak.timer`
-2. Phase-enable edital crawlers (PNCP → CIGA CKAN → SC) with measurement gates
-3. Run dual capability coverage single invocation after lake warm
-4. Merge PR #171 when CI green; close #168 as superseded; keep #170 history via docs in #171
-5. Alert webhook wiring if still missing
+## First soak completion eligible date (UTC)
 
-## Kill switches
-
-- `systemctl stop pncp-contracts.timer`
-- Checkpoint archive via `contracts_checkpoint_contract repair`
-- Never delete checkpoint without `.bak.*`
+If daily observations remain healthy: **2026-08-04** (7th consecutive day from 2026-07-29).

@@ -21,7 +21,12 @@ Type=oneshot
 WorkingDirectory=/opt/extra-consultoria
 Environment=PYTHONPATH=/opt/extra-consultoria
 EnvironmentFile=/opt/extra-consultoria/.env
-ExecStart=/opt/extra-consultoria/.venv/bin/python /opt/extra-consultoria/scripts/crawl/ciga_ckan_crawler.py --all-months --source ciga_ckan
+# Module form keeps package imports (config.settings) on PYTHONPATH.
+ExecStart=/opt/extra-consultoria/.venv/bin/python -m scripts.crawl.ciga_ckan_crawler --all-months --source ciga_ckan
 User=extra-consultoria
+Group=extra-consultoria
+TimeoutStartSec=6h
+Restart=no
 StandardOutput=journal
 StandardError=journal
+SyslogIdentifier=extra-crawl-ciga-ckan

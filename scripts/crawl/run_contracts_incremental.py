@@ -123,8 +123,8 @@ def _run_incremental(args: argparse.Namespace) -> int:
     )
 
     started = datetime.now(UTC)
-    os.environ["CONTRACTS_INCREMENTAL_MODE"] = "1"
-    os.environ["CONTRACTS_LOGICAL_JOB_ID"] = str(args.logical_job_id)
+    # Do not permanently mutate process env (pollutes subsequent tests/jobs).
+    # Pass logical_job_id explicitly into run_pilot instead.
 
     _configure_checkpoint_dir(args.checkpoint_dir)
     cp_path = checkpoint_file(args.checkpoint_dir, "full")
