@@ -536,6 +536,16 @@ def test_package_run_produces_required_artifacts(tmp_path: Path) -> None:
     null_vals = [s for s in shortlist if s.get("numero_controle", "").endswith("000100/2026")]
     assert null_vals
     assert null_vals[0]["valor"] is None
+    # Renumber: entrypoint and resumo must point to 08-roteiro / 09-dossie (not stale 06/07)
+    leia_full = (out / "00-LEIA-ME.md").read_text(encoding="utf-8")
+    assert "08-roteiro-reuniao.md" in leia_full
+    assert "09-dossie" in leia_full
+    assert "06-roteiro-reuniao.md" not in leia_full
+    assert "07-dossie" not in leia_full
+    assert "07-plano-30-dias.md" in leia_full
+    assert "06-baseline-mercado-extra" in leia_full
+    assert "07-dossie-edital" not in md
+    assert "ver 07" not in md.lower() or "09-dossie" in md
 
 
 def test_production_dsn_rejected(tmp_path: Path) -> None:

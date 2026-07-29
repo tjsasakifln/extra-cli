@@ -871,7 +871,7 @@ def write_readme(
         "2. Abra `02-oportunidades-priorizadas.xlsx` → aba Oportunidades.",
         "3. Registre decisões em `03-decision-ledger.csv` (coluna `client_decision`).",
         "4. Use `04-intake-operacional-extra.md` na reunião de onboarding.",
-        "5. Siga `06-roteiro-reuniao.md` (30–45 min).",
+        "5. Siga `08-roteiro-reuniao.md` (30–45 min).",
         "6. Tiago preenche `human-review.json` (ACCEPTED / ACCEPTED_WITH_LIMITATIONS / REJECTED).",
         "",
         "## Conteúdo",
@@ -883,10 +883,13 @@ def write_readme(
         "| `03-decision-ledger.csv` / `.json` | Registro de decisões |",
         "| `04-intake-operacional-extra.*` | Dados da Extra ainda PENDING |",
         "| `05-limitacoes-e-confiabilidade.md` | O que não pode ser afirmado |",
-        "| `06-roteiro-reuniao.md` | Roteiro 30–45 min |",
-        "| `07-dossie-*` | Aprofundamento ou bloqueio honesto |",
+        "| `06-baseline-mercado-extra.*` | Referências históricas (≠ oportunidades atuais) |",
+        "| `07-plano-30-dias.md` | Cadência e decisões dos próximos 30 dias |",
+        "| `08-roteiro-reuniao.md` | Roteiro 30–45 min |",
+        "| `09-dossie-*` | Aprofundamento ou bloqueio honesto |",
+        "| `diagnostico-weekly-source.*` | Funil do weekly atual + original exit 2 |",
         "| `manifest.json` / `checksums.json` | Integridade |",
-        "| `human-review.json` | Aceite humano (PENDING_HUMAN) |",
+        "| `human-review.json` | Aceite humano (PENDING_HUMAN) + claims |",
         "",
         "## Identidade desta rodada",
         "",
@@ -1049,7 +1052,10 @@ def write_meeting_script(
             ]
         )
     else:
-        lines.append("- Nenhuma oportunidade elegível para dossiê nesta rodada (ver 07-dossie-edital-NOT_AVAILABLE.md).")
+        lines.append(
+            "- Nenhuma oportunidade elegível para dossiê nesta rodada "
+            "(ver `09-dossie-edital-NOT_AVAILABLE.md`)."
+        )
     lines.extend(
         [
             "",
@@ -1191,11 +1197,11 @@ def write_executive_md(
                 f"- **Motivo:** {deep_dive.get('motivo_selecao')}",
                 f"- **URL:** {deep_dive.get('url_oficial') or '—'}",
                 f"- **Documentos oficiais no dossiê:** "
-                f"{'sim' if deep_dive.get('documents_available') else 'não (ver 07)'}",
+                f"{'sim' if deep_dive.get('documents_available') else 'não (ver 09-dossie-edital-NOT_AVAILABLE.md)'}",
             ]
         )
     else:
-        lines.append("- Nenhum caso elegível; ver `07-dossie-edital-NOT_AVAILABLE.md`.")
+        lines.append("- Nenhum caso elegível; ver `09-dossie-edital-NOT_AVAILABLE.md`.")
     lines.extend(
         [
             "",
@@ -1470,7 +1476,7 @@ def write_executive_pdf(
         story.append(
             Paragraph(
                 "Nenhum caso elegível para dossiê com documentos oficiais e prazo futuro útil "
-                "nesta rodada. Ver 07-dossie-edital-NOT_AVAILABLE.md.",
+                "nesta rodada. Ver 09-dossie-edital-NOT_AVAILABLE.md.",
                 styles["BodyJust"],
             )
         )
