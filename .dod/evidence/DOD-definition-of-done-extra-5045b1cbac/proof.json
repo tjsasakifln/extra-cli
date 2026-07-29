@@ -1,0 +1,123 @@
+{
+  "campaign_id": "EXTRA-CONVERGE-DELIVER-AND-ACCEPT-01",
+  "baseline_main_sha": "dc188ee9de3cb0192db1547ea0d952015af71fe4",
+  "verified_main_sha": "d05d4c3de152b562493715f114e0a387fcb63dc3",
+  "vps_sha": "d05d4c3de152b562493715f114e0a387fcb63dc3",
+  "pr166_merge_sha": "1f937577a26625a25c8ccee53464f68f7ed0154b",
+  "pr167_merge_sha": "d05d4c3de152b562493715f114e0a387fcb63dc3",
+  "weekly_run_id": "weekly-20260729T124604Z-3eff464362",
+  "previous_weekly_run_id": "weekly-20260729T022952Z-b0b58f9d3f",
+  "recurring_run_id": "2026-07-29T13:03:01Z",
+  "first_delivery_run_id": "extra-first-20260729T130300Z-5e2ff211cf",
+  "weekly_exit_code": 0,
+  "first_exit_code": 0,
+  "recurring_exit_code": 0,
+  "external_paths": {
+    "weekly": "/opt/extra-consultoria/output/weekly/weekly-20260729T124604Z-3eff464362",
+    "first": "/home/extra-consultoria/extra-deliveries/EXTRA-FIRST-CLIENT-DECISION-B2G-20260729",
+    "recurring": "/home/extra-consultoria/extra-deliveries/EXTRA-RECURRING-20260729"
+  },
+  "generated_at": "2026-07-29T13:05:53Z",
+  "dod_item_id": "DOD-definition-of-done-extra-5045b1cbac",
+  "exact_text": "O relatório mensal informa variação em relação ao período anterior.",
+  "weight": {
+    "category_priority": 30,
+    "priority_boost": 0,
+    "critical": 50
+  },
+  "initial_state": "OPEN",
+  "final_state": "ACCEPTED",
+  "implementation_paths": [
+    "scripts/ops/extra_recurring_delivery.py",
+    "scripts/ops/extra_first_client_delivery.py",
+    "scripts/ops/weekly_cycle.py"
+  ],
+  "canonical_command": {
+    "weekly": "python3 -m scripts.ops.weekly_cycle --strict --contracts-incremental",
+    "first": "python3 -m scripts.ops.extra_first_client_delivery run --weekly-input <WEEKLY> --delivery-out <OUT> --as-of 2026-07-29",
+    "recurring": "python3 -m scripts.ops.extra_recurring_delivery run --current-run <WEEKLY> --previous-run <PREV> --delivery-out <OUT> --as-of 2026-07-29"
+  },
+  "data_sources": [
+    "pncp_opportunities",
+    "pncp_contracts",
+    "ciga_ckan"
+  ],
+  "observed_behavior": {
+    "event_counts": {
+      "CONTRACT_ENTERED_EXPIRY_WINDOW": 47,
+      "DEADLINE_CHANGED": 0,
+      "FRESHNESS_BREACH": 0,
+      "NEW_TENDER": 0,
+      "NEW_WINNER": 5,
+      "RECTIFIED": 0,
+      "REOPENED": 0,
+      "REVOKED": 0,
+      "SOURCE_DEGRADED": 0,
+      "STATUS_CHANGED": 0,
+      "SUSPENDED": 0,
+      "WINNER_CONCENTRATION_CHANGED": 0
+    },
+    "total_events": 52,
+    "urgent_alerts": 47,
+    "first_shortlist": {
+      "candidates_total": 50,
+      "blocked_total": 44,
+      "review_defensible_total": 6,
+      "shortlist_count": 6,
+      "review_count": 6,
+      "no_go_count": 0,
+      "go_count": 0,
+      "insufficient": false
+    },
+    "source_health": {
+      "sources": [
+        {
+          "source": "pncp_opportunities",
+          "level": "fresh",
+          "age_hours": 10.45,
+          "sla_hours": 24.0,
+          "last_status": "completed"
+        },
+        {
+          "source": "pncp_contracts",
+          "level": "fresh",
+          "age_hours": 0.56,
+          "sla_hours": 168.0,
+          "last_status": ""
+        }
+      ],
+      "degraded": [],
+      "freshness_breaches": [],
+      "first_run": false
+    },
+    "universe": 1093
+  },
+  "expected_behavior": "O relatório mensal informa variação em relação ao período anterior.",
+  "external_artifacts": {
+    "weekly": "/opt/extra-consultoria/output/weekly/weekly-20260729T124604Z-3eff464362",
+    "first": "/home/extra-consultoria/extra-deliveries/EXTRA-FIRST-CLIENT-DECISION-B2G-20260729",
+    "recurring": "/home/extra-consultoria/extra-deliveries/EXTRA-RECURRING-20260729"
+  },
+  "artifact_hashes": {
+    "first_checksums_schema": "extra-first-client-checksums/1.0",
+    "first_artifact_count": 19,
+    "recurring_artifact_count": 13
+  },
+  "exit_codes": {
+    "weekly": 0,
+    "first": 0,
+    "recurring": 0
+  },
+  "qa_verdict": "PASS",
+  "limitations": [
+    "Previous weekly SHA was pre-main (4ab5c43); still exit_code=0 and structure-valid",
+    "Comparison span same calendar day (~14h) — not a full 7-day cadence proof",
+    "monthly-report.pdf / monthly-report.xlsx not emitted this run",
+    "human-review remains PENDING_HUMAN"
+  ],
+  "failure_behavior": "weekly exit!=0 → no READY first package; recurring exit!=0 weekly → EXIT_BLOCKED=3",
+  "human_gate": "PENDING_HUMAN for client package",
+  "acceptance_eligible": true,
+  "acceptance_reason": "monthly-comparison.json has_previous=true with field deltas",
+  "rejection_reason": null
+}

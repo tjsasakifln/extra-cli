@@ -1081,6 +1081,12 @@ def build_weekly_xlsx(
         return False
 
     wb = Workbook()
+    # Deterministic workbook metadata so checksums are stable across identical runs.
+    fixed_dt = datetime(2026, 1, 1, 12, 0, 0)
+    wb.properties.created = fixed_dt
+    wb.properties.modified = fixed_dt
+    wb.properties.creator = "extra-recurring-delivery"
+    wb.properties.lastModifiedBy = "extra-recurring-delivery"
     meta = wb.active
     meta.title = "Metadados"
     meta.append(["key", "value"])

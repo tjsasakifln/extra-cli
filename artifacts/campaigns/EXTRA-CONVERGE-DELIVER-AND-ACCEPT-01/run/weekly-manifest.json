@@ -1,0 +1,298 @@
+{
+  "cycle_id": "weekly-20260729T124604Z-3eff464362",
+  "collection_id": "col-extra-weekly-20260729T124604Z-3ea94fd3",
+  "exit_code": 0,
+  "started_at": "2026-07-29T12:46:04Z",
+  "finished_at": "2026-07-29T13:02:41Z",
+  "git": {
+    "git_sha": "d05d4c3de152b562493715f114e0a387fcb63dc3",
+    "git_branch": "main"
+  },
+  "source_health": [
+    {
+      "source": "pncp_opportunities",
+      "level": "fresh",
+      "sla_hours": 24,
+      "age_hours": 10.45,
+      "last_run_id": 5,
+      "last_status": "completed",
+      "scope_complete": true,
+      "records_fetched": 1707,
+      "indicator": "freshness_source"
+    },
+    {
+      "source": "pncp_contracts",
+      "level": "fresh",
+      "sla_hours": 168,
+      "age_hours": 0.56,
+      "row_count": 4464399,
+      "indicator": "freshness_source",
+      "note": "freshness by max(ingested_at); not a full re-collect this cycle"
+    }
+  ],
+  "stages_summary": [
+    {
+      "name": "validate_config",
+      "status": "ok",
+      "error": null,
+      "detail_keys": [
+        "dsn_host_set",
+        "notes"
+      ]
+    },
+    {
+      "name": "validate_db",
+      "status": "ok",
+      "error": null,
+      "detail_keys": [
+        "tables",
+        "universe_200km",
+        "expected_universe"
+      ]
+    },
+    {
+      "name": "freshness",
+      "status": "ok",
+      "error": null,
+      "detail_keys": [
+        "sources"
+      ]
+    },
+    {
+      "name": "collect",
+      "status": "ok",
+      "error": null,
+      "detail_keys": [
+        "runs"
+      ]
+    },
+    {
+      "name": "process",
+      "status": "ok",
+      "error": null,
+      "detail_keys": [
+        "note",
+        "open_tenders_collect_path",
+        "opportunity_runs_id",
+        "reconcile_policy",
+        "ciga_dual_projection"
+      ]
+    },
+    {
+      "name": "quality",
+      "status": "ok",
+      "error": null,
+      "detail_keys": [
+        "catalog_size",
+        "opportunity_counts",
+        "issues",
+        "runs"
+      ]
+    },
+    {
+      "name": "intelligence",
+      "status": "ok",
+      "error": null,
+      "detail_keys": [
+        "opportunities",
+        "contracts",
+        "competitors",
+        "orgaos",
+        "counts",
+        "scope",
+        "contracts_scope_sql_applied",
+        "sc_uf_fallback"
+      ]
+    },
+    {
+      "name": "delivery",
+      "status": "ok",
+      "error": null,
+      "detail_keys": [
+        "executive_md",
+        "excel",
+        "excel_ok",
+        "excel_note",
+        "deliverable_e",
+        "deliverable_e_audit",
+        "deliverable_e_ok",
+        "deliverable_e_note",
+        "pdf",
+        "pdf_status",
+        "csvs",
+        "checksums_file",
+        "checksums_file_meta",
+        "product_checksums",
+        "operational_products",
+        "claims_count"
+      ]
+    }
+  ],
+  "products": {
+    "executive_md": "/opt/extra-consultoria/output/weekly/weekly-20260729T124604Z-3eff464362/executive_summary.md",
+    "excel": "/opt/extra-consultoria/output/weekly/weekly-20260729T124604Z-3eff464362/extra_weekly_pack.xlsx",
+    "excel_ok": true,
+    "excel_note": "",
+    "deliverable_e": "/opt/extra-consultoria/output/weekly/weekly-20260729T124604Z-3eff464362/deliverable_e.json",
+    "deliverable_e_audit": "/opt/extra-consultoria/output/weekly/weekly-20260729T124604Z-3eff464362/deliverable_e_audit.json",
+    "deliverable_e_ok": true,
+    "deliverable_e_note": "OK n=50",
+    "pdf": null,
+    "pdf_status": "RESIDUAL_NOT_GENERATED",
+    "csvs": {
+      "opportunities_csv": "/opt/extra-consultoria/output/weekly/weekly-20260729T124604Z-3eff464362/opportunities.csv",
+      "contracts_csv": "/opt/extra-consultoria/output/weekly/weekly-20260729T124604Z-3eff464362/contracts.csv",
+      "competitors_csv": "/opt/extra-consultoria/output/weekly/weekly-20260729T124604Z-3eff464362/competitors.csv",
+      "orgaos_csv": "/opt/extra-consultoria/output/weekly/weekly-20260729T124604Z-3eff464362/orgaos.csv",
+      "source_health_csv": "/opt/extra-consultoria/output/weekly/weekly-20260729T124604Z-3eff464362/source_health.csv",
+      "gaps_csv": "/opt/extra-consultoria/output/weekly/weekly-20260729T124604Z-3eff464362/gaps.csv",
+      "claims_csv": "/opt/extra-consultoria/output/weekly/weekly-20260729T124604Z-3eff464362/claims_provenance.csv"
+    },
+    "checksums_file": "/opt/extra-consultoria/output/weekly/weekly-20260729T124604Z-3eff464362/checksums.json",
+    "checksums_file_meta": {
+      "path": "output/weekly/weekly-20260729T124604Z-3eff464362/checksums.json",
+      "sha256": "a7af32f8d99378d851b75fb681e55a120977a98f8a8e102f3a237d93e8d6fe0b",
+      "bytes": 2660
+    },
+    "product_checksums": {
+      "opportunities_csv": {
+        "path": "output/weekly/weekly-20260729T124604Z-3eff464362/opportunities.csv",
+        "sha256": "7107f32a0d7ecfc2e7b6450133d200cca398c35250405a89f4e5bad26b40d397",
+        "bytes": 56089
+      },
+      "contracts_csv": {
+        "path": "output/weekly/weekly-20260729T124604Z-3eff464362/contracts.csv",
+        "sha256": "77fbfef04762c4887fcc9e7bb8e53a0658c134915d434aa99d268062f9ad83b3",
+        "bytes": 31215
+      },
+      "competitors_csv": {
+        "path": "output/weekly/weekly-20260729T124604Z-3eff464362/competitors.csv",
+        "sha256": "2fa2bf1019374b9f090cd5a01c2396f20708829e8f92928ccb1ab06125750975",
+        "bytes": 12657
+      },
+      "orgaos_csv": {
+        "path": "output/weekly/weekly-20260729T124604Z-3eff464362/orgaos.csv",
+        "sha256": "157975a1499477e58ea7fcc253d9de277730c5002c8e61d5eebce863c8c51f1e",
+        "bytes": 6608
+      },
+      "source_health_csv": {
+        "path": "output/weekly/weekly-20260729T124604Z-3eff464362/source_health.csv",
+        "sha256": "40006928173e2a15a212b25dee20555ba0337f312e796b887626d53dac73c237",
+        "bytes": 314
+      },
+      "gaps_csv": {
+        "path": "output/weekly/weekly-20260729T124604Z-3eff464362/gaps.csv",
+        "sha256": "aa429b5f7865d75cb2cebab26a3e24bf4dc070a3ae90ed063d7f28a4ddd8c902",
+        "bytes": 350
+      },
+      "claims_csv": {
+        "path": "output/weekly/weekly-20260729T124604Z-3eff464362/claims_provenance.csv",
+        "sha256": "af10ee5f893f0ed177d900c015842a56d982df5afcab1ab0a5bdaf6eaad7940c",
+        "bytes": 68586
+      },
+      "executive_md": {
+        "path": "output/weekly/weekly-20260729T124604Z-3eff464362/executive_summary.md",
+        "sha256": "5ccc4ccfa54bbe1589af92b695634d0b56d5a8aec018f79fe36e4ff7ca38bdec",
+        "bytes": 6740
+      },
+      "excel": {
+        "path": "output/weekly/weekly-20260729T124604Z-3eff464362/extra_weekly_pack.xlsx",
+        "sha256": "616a117dc08e409285082e78797329ac4586b60d2de2c2cddff0443bfb602a54",
+        "bytes": 44478
+      },
+      "deliverable_e": {
+        "path": "output/weekly/weekly-20260729T124604Z-3eff464362/deliverable_e.json",
+        "sha256": "08f3e84993ae1006625e5b8abc2f995db1b8cd2896a4a6437a3e62ff6a1668f8",
+        "bytes": 79988
+      },
+      "deliverable_e_audit": {
+        "path": "output/weekly/weekly-20260729T124604Z-3eff464362/deliverable_e_audit.json",
+        "sha256": "2332529d904ed7ed6dcea8ea1dda6817abf405010ed4da706c142677d3163c67",
+        "bytes": 3082
+      }
+    },
+    "operational_products": {
+      "operational_lists": {
+        "status": "SUCCESS",
+        "reliability": "READY",
+        "run_id": "ops-lists-20260729-130228-085acf19",
+        "manifest": "/opt/extra-consultoria/output/weekly/weekly-20260729T124604Z-3eff464362/operational_lists/manifest.json",
+        "duration_seconds": 0.2345,
+        "limitations": []
+      },
+      "operational_reports": {
+        "status": "SUCCESS",
+        "reliability": "PARTIAL",
+        "run_id": "ops-reports-20260729-130241-7b8571ba",
+        "manifest": "/opt/extra-consultoria/output/weekly/weekly-20260729T124604Z-3eff464362/operational_reports/manifest.json",
+        "duration_seconds": 12.8187,
+        "limitations": [
+          "referencias_valores empty",
+          "No stratified gold sample loaded in this DB \u2014 recall NOT_READY",
+          "Do not treat presence of bids as recall \u226595%"
+        ]
+      },
+      "operational_export": {
+        "status": "DEGRADED",
+        "reliability": "DEGRADED",
+        "run_id": "ops-export-20260729-130241-22b5a91e",
+        "manifest": "/opt/extra-consultoria/output/weekly/weekly-20260729T124604Z-3eff464362/operational_export/manifest.json",
+        "pdf": {
+          "path": "/opt/extra-consultoria/output/weekly/weekly-20260729T124604Z-3eff464362/operational_export/export-ops-export-20260729-130241-22b5a91e.pdf",
+          "bytes": 6592,
+          "pages": 7,
+          "sections": [
+            "sumario_executivo",
+            "metodologia",
+            "universo",
+            "cobertura",
+            "limitacoes",
+            "anexos_evidencia",
+            "apoio_reuniao"
+          ],
+          "page_estimate_note": "page count equals authored section breaks, not a 30-50 claim"
+        },
+        "excel": {
+          "path": "/opt/extra-consultoria/output/weekly/weekly-20260729T124604Z-3eff464362/operational_export/export-ops-export-20260729-130241-22b5a91e.xlsx",
+          "bytes": 8247
+        },
+        "limitations": [
+          "source health empty"
+        ]
+      }
+    },
+    "claims_count": 154,
+    "manifest": "/opt/extra-consultoria/output/weekly/weekly-20260729T124604Z-3eff464362/manifest.json",
+    "manifest_integrity": "product hashes live in checksums.json; manifest is not self-hashed"
+  },
+  "intelligence_counts": {
+    "opportunities": 50,
+    "contracts": 50,
+    "competitors": 50,
+    "orgaos": 50,
+    "counts": {
+      "opportunities": 50,
+      "contracts": 50,
+      "competitors": 50,
+      "orgaos": 50,
+      "universe_200km": 1093,
+      "expected_universe": 1093
+    },
+    "scope": "extra_universe_200km",
+    "contracts_scope_sql_applied": true,
+    "sc_uf_fallback": false
+  },
+  "full_manifest_external": "/opt/extra-consultoria/output/weekly/weekly-20260729T124604Z-3eff464362/manifest.json",
+  "note": "Sanitized summary for PR reviewability; full live manifest remains on VPS only",
+  "validate_db": {
+    "tables": {
+      "sc_public_entities": true,
+      "opportunity_intel": true,
+      "opportunity_runs": true,
+      "pipeline_runs": true,
+      "pncp_supplier_contracts": true
+    },
+    "universe_200km": 1093,
+    "expected_universe": 1093
+  }
+}

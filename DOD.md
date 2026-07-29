@@ -275,17 +275,17 @@ Um item pode ser marcado como concluído apenas quando pelo menos uma das evidê
 
 #### Monitoramento mensal estratégico
 
-- [ ] O sistema executa ou apoia ciclo recorrente de monitoramento sem exigir reconstrução manual do diagnóstico.
+- [x] O sistema executa ou apoia ciclo recorrente de monitoramento sem exigir reconstrução manual do diagnóstico.
 - [ ] O ciclo identifica editais novos desde a última execução.
 - [ ] O ciclo identifica retificações, suspensões, revogações, reaberturas e alterações de prazo.
-- [ ] O ciclo identifica contratos que entraram na janela de vencimento configurada.
-- [ ] O ciclo atualiza o panorama de órgãos e vencedores com base em dados novos.
-- [ ] O sistema gera relatório semanal de oportunidades ou periodicidade formalmente definida.
-- [ ] O sistema gera relatório mensal consolidado.
-- [ ] O relatório mensal informa variação em relação ao período anterior.
+- [x] O ciclo identifica contratos que entraram na janela de vencimento configurada.
+- [x] O ciclo atualiza o panorama de órgãos e vencedores com base em dados novos.
+- [x] O sistema gera relatório semanal de oportunidades ou periodicidade formalmente definida.
+- [x] O sistema gera relatório mensal consolidado.
+- [x] O relatório mensal informa variação em relação ao período anterior.
 - [ ] O relatório mensal registra cobertura, freshness, blockers e fontes degradadas.
-- [ ] O pacote mensal contém material de apoio para a reunião com o cliente.
-- [ ] Alertas não substituem relatório consolidado e relatório não substitui alertas urgentes.
+- [x] O pacote mensal contém material de apoio para a reunião com o cliente.
+- [x] Alertas não substituem relatório consolidado e relatório não substitui alertas urgentes.
 
 #### Triagem de edital
 

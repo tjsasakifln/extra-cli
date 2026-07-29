@@ -1,0 +1,102 @@
+{
+  "schema": "extra-first-client-checksums/1.0",
+  "run_id": "extra-first-20260729T130300Z-5e2ff211cf",
+  "generated_at": "2026-07-29T13:03:01Z",
+  "artifacts": {
+    "00-LEIA-ME.md": {
+      "path": "00-LEIA-ME.md",
+      "sha256": "7e8233221ad43667f21e83ddc1c24356235de8078b97ce2432137d00f6402605",
+      "bytes": 2155
+    },
+    "01-resumo-executivo.pdf": {
+      "path": "01-resumo-executivo.pdf",
+      "sha256": "feab57ea85d8d8ef297591aa1341d018d91956e98d46e56a2f83ed6f25753b94",
+      "bytes": 12971
+    },
+    "01-resumo-executivo.md": {
+      "path": "01-resumo-executivo.md",
+      "sha256": "d69915d3e1747e75cb6485823e8da8aac910c46a2c9daf886addcd69f59db583",
+      "bytes": 5971
+    },
+    "02-oportunidades-priorizadas.xlsx": {
+      "path": "02-oportunidades-priorizadas.xlsx",
+      "sha256": "118924a797eebdf63d6eaef75467e51687836cc705bda751ae308ae368636ee8",
+      "bytes": 20907
+    },
+    "03-decision-ledger.csv": {
+      "path": "03-decision-ledger.csv",
+      "sha256": "aa0bf73ce543555db440b9a8a7c9b0ebe902fd680ff8977fd84ec0fc787186a9",
+      "bytes": 2221
+    },
+    "03-decision-ledger.json": {
+      "path": "03-decision-ledger.json",
+      "sha256": "50dac412a07c70dcf460ae9cbfd268535be00997fa7e13cc87c3b508d903d6b0",
+      "bytes": 4298
+    },
+    "04-intake-operacional-extra.md": {
+      "path": "04-intake-operacional-extra.md",
+      "sha256": "e78e3f86474fa5c4874856658d2dd0f76b510c837251e13c31558a3b41e9076b",
+      "bytes": 3177
+    },
+    "04-intake-operacional-extra.json": {
+      "path": "04-intake-operacional-extra.json",
+      "sha256": "899a24dfb8a62e3bf9b23aca736c7950437e74100788cfee9a7a48eb813a6a59",
+      "bytes": 6087
+    },
+    "05-limitacoes-e-confiabilidade.md": {
+      "path": "05-limitacoes-e-confiabilidade.md",
+      "sha256": "3458662164131f7e9fa3fdeb1580d3e66337b827e699ab082b49f74ca21c61e8",
+      "bytes": 2269
+    },
+    "06-baseline-mercado-extra.md": {
+      "path": "06-baseline-mercado-extra.md",
+      "sha256": "20feb3cb1eb7c14100634ef77b0b3cac3fd6bd8c54e1bc92c048291bc3bfcf90",
+      "bytes": 2661
+    },
+    "06-baseline-mercado-extra.json": {
+      "path": "06-baseline-mercado-extra.json",
+      "sha256": "db4e69ee0be02c8ed24c9c5459f537dfac4b884b91e74452d8a71e946a4cc5f3",
+      "bytes": 7570
+    },
+    "07-plano-30-dias.md": {
+      "path": "07-plano-30-dias.md",
+      "sha256": "ed07c95ed5d75ebf12b0eea3699e9eaf628b22dc863f391fe1fe9e2e30bb2179",
+      "bytes": 3290
+    },
+    "08-roteiro-reuniao.md": {
+      "path": "08-roteiro-reuniao.md",
+      "sha256": "5c5fa94cb05f739ed5882a2172623cb46fe48e26829f713227d773d7522ee978",
+      "bytes": 4100
+    },
+    "09-dossie-edital-NOT_AVAILABLE.md": {
+      "path": "09-dossie-edital-NOT_AVAILABLE.md",
+      "sha256": "93b682fdd1bd5f2a620121977e6318d23d98ad0f467ec40fdff8616841bf9b8a",
+      "bytes": 1322
+    },
+    "diagnostico-weekly-source.json": {
+      "path": "diagnostico-weekly-source.json",
+      "sha256": "e87f00a8d27ad3783f98182b6cd8e91ad9b23092fcdd58885805776b71b134ca",
+      "bytes": 8171
+    },
+    "diagnostico-weekly-source.md": {
+      "path": "diagnostico-weekly-source.md",
+      "sha256": "94429efcf418925b011fac80a4cbaf038e6fa751ae5e45e31cbda2195073211c",
+      "bytes": 3062
+    },
+    "profile-patch-candidate.yaml": {
+      "path": "profile-patch-candidate.yaml",
+      "sha256": "2cc0fd7feef1682abe83e8a3b2b6013c49b583588fad507808adc9545d100f1f",
+      "bytes": 1518
+    },
+    "shortlist.json": {
+      "path": "shortlist.json",
+      "sha256": "2c7e7ddeab2cd620ba5f5ed576fbfb4ff90895d15641f42c76eb927cd824e8fd",
+      "bytes": 14096
+    },
+    "human-review.json": {
+      "path": "human-review.json",
+      "sha256": "0657d6b763e59eb3cb4b785dcc5568767022bf30923cd1c35595dc5cd6c9efa6",
+      "bytes": 19483
+    }
+  }
+}

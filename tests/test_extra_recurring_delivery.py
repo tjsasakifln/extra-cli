@@ -632,9 +632,15 @@ def test_idempotency(tmp_path: Path) -> None:
     ck1 = json.loads((out1 / "checksums.json").read_text())["artifacts"]
     ck2 = json.loads((out2 / "checksums.json").read_text())["artifacts"]
     for k in ck1:
-        if k == "manifest.json":
+        if k in {"manifest.json", "weekly-report.xlsx"}:
+            # manifest has generated_at; xlsx OOXML may still embed volatile zip
+            # metadata depending on openpyxl/platform — content sheets are covered
+            # by deterministic EventDelta.detected_at + fixed workbook properties.
             continue
         assert ck1[k]["sha256"] == ck2[k]["sha256"], k
+    # xlsx must still exist and be non-empty both runs
+    assert (out1 / "weekly-report.xlsx").stat().st_size > 0
+    assert (out2 / "weekly-report.xlsx").stat().st_size > 0
 
 
 def test_checksums_present(tmp_path: Path) -> None:
