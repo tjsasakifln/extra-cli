@@ -31,9 +31,9 @@ logger = get_logger(__name__)
 # Configuration
 # ---------------------------------------------------------------------------
 
-DB_DSN = os.getenv("LOCAL_DATALAKE_DSN") or os.getenv(
-    "DATABASE_URL", "postgresql://postgres@localhost:5432/pncp_datalake"
-)
+# Canonical path: systemd EnvironmentFile=/opt/extra-consultoria/.env supplies DSN.
+# Never silently use a passwordless default that fails auth and confuses operators.
+DB_DSN = (os.getenv("LOCAL_DATALAKE_DSN") or os.getenv("DATABASE_URL") or "").strip()
 STORAGE_BOX_MOUNT = os.getenv("BACKUP_MOUNT_POINT", "/mnt/storage-box")
 # Off-site mount is optional until configured; set REQUIRE_STORAGE_BOX=1 to enforce.
 REQUIRE_STORAGE_BOX = os.getenv("REQUIRE_STORAGE_BOX", "0").lower() in {
@@ -52,6 +52,12 @@ DISK_CRIT_PCT = 90
 
 def check_db() -> tuple[bool, str]:
     """Check PostgreSQL connectivity via psql."""
+    if not DB_DSN:
+        return (
+            False,
+            "LOCAL_DATALAKE_DSN/DATABASE_URL unset — load EnvironmentFile or export DSN "
+            "(systemd unit must include EnvironmentFile=/opt/extra-consultoria/.env)",
+        )
     try:
         result = subprocess.run(  # noqa: S603 — shell=False default
             ["psql", DB_DSN, "-c", "SELECT 1 AS ok", "-t", "-A"],  # noqa: S607 — psql resolved from PATH in production VPS

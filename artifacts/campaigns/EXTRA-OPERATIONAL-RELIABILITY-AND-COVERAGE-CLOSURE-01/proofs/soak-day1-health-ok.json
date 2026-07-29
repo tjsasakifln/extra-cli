@@ -1,0 +1,24 @@
+{
+  "captured_at": "2026-07-29T16:14:37.999937Z",
+  "deployed_sha": "a993ef3da370e2aeef229922a27cfb49e7ef9559",
+  "day_utc": "2026-07-29",
+  "observation_count": 10,
+  "rollup_health_ok": true,
+  "latest": {
+    "health_ok": true,
+    "automatic_execution": true,
+    "run_id": "contracts-90d-20260729T145807Z-d20199cb7c",
+    "contracts_freshness_hours": 0.99,
+    "open_tenders_freshness_hours": 0.73,
+    "contracts_coverage": 1.0,
+    "open_tenders_coverage": 1.0,
+    "health_fail_reasons": [],
+    "editais_pncp_timer": "active",
+    "editais_pncp_timer_enabled": "enabled",
+    "editais_ciga_timer": "active",
+    "editais_ciga_timer_enabled": "enabled"
+  },
+  "soak_epoch_started_at": "2026-07-29T15:59:54.898990Z",
+  "first_eligible_completion_date_utc": "2026-08-04",
+  "complete": false
+}

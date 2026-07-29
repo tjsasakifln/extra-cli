@@ -1,0 +1,58 @@
+tick 1 success 0 inactive dead 
+=== systemctl show ===
+Result=success
+NRestarts=0
+ExecMainStatus=0
+ActiveState=inactive
+SubState=dead
+=== journal last ===
+Jul 29 12:30:49 v2202607385716487230 extra-health-check[89376]: {"event": "health_check", "timestamp": "2026-07-29T15:30:49.108035+00:00", "host": "v2202607385716487230", "exit_code": 0, "results": {"db": {"status": "pass", "message": "PostgreSQL OK"}, "storage_box": {"status": "pass", "message": "Storage Box OK (1 entries)"}, "disk": {"status": "pass", "message": "Disk: 16.4G / 502.7G (3%) \u2014 465.8G free"}, "system": {"status": "pass", "message": "Load: 0.1 0.0 0.0 | Mem: 28% used (11460M avail / 15996M total)"}}}
+Jul 29 12:30:49 v2202607385716487230 systemd[1]: extra-health-check.service: Deactivated successfully.
+Jul 29 12:30:49 v2202607385716487230 systemd[1]: Finished extra-health-check.service - Extra Consultoria — Health Check.
+Jul 29 13:00:43 v2202607385716487230 systemd[1]: Starting extra-health-check.service - Extra Consultoria — Health Check...
+Jul 29 13:00:43 v2202607385716487230 extra-health-check[90795]: {"timestamp": "2026-07-29T16:00:43.400797+00:00", "level": "INFO", "module": "__main__", "correlation_id": "5338a3e4af77", "message": "Health check started", "extra_data": {"host": "v2202607385716487230"}}
+Jul 29 13:00:43 v2202607385716487230 extra-health-check[90795]: {"timestamp": "2026-07-29T16:00:43.679151+00:00", "level": "INFO", "module": "__main__", "correlation_id": "5338a3e4af77", "message": "Health check completed: exit_code=0", "extra_data": {"report": {"event": "health_check", "timestamp": "2026-07-29T16:00:43.400726+00:00", "host": "v2202607385716487230", "exit_code": 0, "results": {"db": {"status": "pass", "message": "PostgreSQL OK"}, "storage_box": {"status": "pass", "message": "Storage Box OK (1 entries)"}, "disk": {"status": "pass", "message": "Disk: 16.4G / 502.7G (3%) — 465.8G free"}, "system": {"status": "pass", "message": "Load: 0.0 0.1 0.0 | Mem: 27% used (11651M avail / 15996M total)"}, "failed_units": {"status": "pass", "message": "no critical failed units (total_failed=0)"}, "critical_timers": {"status": "pass", "message": "critical timers OK (5)"}, "dual_coverage": {"status": "pass", "message": "dual PASS artifact dual-capability-coverage-summary.json"}}}}}
+Jul 29 13:00:43 v2202607385716487230 extra-health-check[90795]: {"event": "health_check", "timestamp": "2026-07-29T16:00:43.400726+00:00", "host": "v2202607385716487230", "exit_code": 0, "results": {"db": {"status": "pass", "message": "PostgreSQL OK"}, "storage_box": {"status": "pass", "message": "Storage Box OK (1 entries)"}, "disk": {"status": "pass", "message": "Disk: 16.4G / 502.7G (3%) \u2014 465.8G free"}, "system": {"status": "pass", "message": "Load: 0.0 0.1 0.0 | Mem: 27% used (11651M avail / 15996M total)"}, "failed_units": {"status": "pass", "message": "no critical failed units (total_failed=0)"}, "critical_timers": {"status": "pass", "message": "critical timers OK (5)"}, "dual_coverage": {"status": "pass", "message": "dual PASS artifact dual-capability-coverage-summary.json"}}}
+Jul 29 13:00:43 v2202607385716487230 systemd[1]: extra-health-check.service: Deactivated successfully.
+Jul 29 13:00:43 v2202607385716487230 systemd[1]: Finished extra-health-check.service - Extra Consultoria — Health Check.
+Jul 29 13:13:58 v2202607385716487230 systemd[1]: Starting extra-health-check.service - Extra Consultoria — Health Check...
+Jul 29 13:13:58 v2202607385716487230 extra-health-check[91547]: {"timestamp": "2026-07-29T16:13:58.330178+00:00", "level": "INFO", "module": "__main__", "correlation_id": "67f3e38eecc5", "message": "Health check started", "extra_data": {"host": "v2202607385716487230"}}
+Jul 29 13:13:58 v2202607385716487230 extra-health-check[91547]: {"timestamp": "2026-07-29T16:13:58.606760+00:00", "level": "INFO", "module": "__main__", "correlation_id": "67f3e38eecc5", "message": "Health check completed: exit_code=0", "extra_data": {"report": {"event": "health_check", "timestamp": "2026-07-29T16:13:58.330072+00:00", "host": "v2202607385716487230", "exit_code": 0, "results": {"db": {"status": "pass", "message": "PostgreSQL OK"}, "storage_box": {"status": "pass", "message": "Storage Box OK (1 entries)"}, "disk": {"status": "pass", "message": "Disk: 16.4G / 502.7G (3%) — 465.8G free"}, "system": {"status": "pass", "message": "Load: 0.0 0.0 0.0 | Mem: 27% used (11672M avail / 15996M total)"}, "failed_units": {"status": "pass", "message": "no critical failed units (total_failed=0)"}, "critical_timers": {"status": "pass", "message": "critical timers OK (5)"}, "dual_coverage": {"status": "pass", "message": "dual PASS artifact dual-capability-coverage-summary.json"}}}}}
+Jul 29 13:13:58 v2202607385716487230 extra-health-check[91547]: {"event": "health_check", "timestamp": "2026-07-29T16:13:58.330072+00:00", "host": "v2202607385716487230", "exit_code": 0, "results": {"db": {"status": "pass", "message": "PostgreSQL OK"}, "storage_box": {"status": "pass", "message": "Storage Box OK (1 entries)"}, "disk": {"status": "pass", "message": "Disk: 16.4G / 502.7G (3%) \u2014 465.8G free"}, "system": {"status": "pass", "message": "Load: 0.0 0.0 0.0 | Mem: 27% used (11672M avail / 15996M total)"}, "failed_units": {"status": "pass", "message": "no critical failed units (total_failed=0)"}, "critical_timers": {"status": "pass", "message": "critical timers OK (5)"}, "dual_coverage": {"status": "pass", "message": "dual PASS artifact dual-capability-coverage-summary.json"}}}
+Jul 29 13:13:58 v2202607385716487230 systemd[1]: extra-health-check.service: Deactivated successfully.
+Jul 29 13:13:58 v2202607385716487230 systemd[1]: Finished extra-health-check.service - Extra Consultoria — Health Check.
+=== also env-sourced CLI (explicit) ===
+HEALTH_CLI_RC:0
+{
+  "exit_code": 0,
+  "results": {
+    "db": {
+      "status": "pass",
+      "message": "PostgreSQL OK"
+    },
+    "storage_box": {
+      "status": "pass",
+      "message": "Storage Box OK (1 entries)"
+    },
+    "disk": {
+      "status": "pass",
+      "message": "Disk: 16.4G / 502.7G (3%) \u2014 465.8G free"
+    },
+    "system": {
+      "status": "pass",
+      "message": "Load: 0.0 0.0 0.0 | Mem: 27% used (11661M avail / 15996M total)"
+    },
+    "failed_units": {
+      "status": "pass",
+      "message": "no critical failed units (total_failed=0)"
+    },
+    "critical_timers": {
+      "status": "pass",
+      "message": "critical timers OK (5)"
+    },
+    "dual_coverage": {
+      "status": "pass",
+      "message": "dual PASS artifact dual-capability-coverage-summary.json"
+    }
+  }
+}
