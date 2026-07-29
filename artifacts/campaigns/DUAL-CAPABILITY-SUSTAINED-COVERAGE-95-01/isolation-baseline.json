@@ -1,0 +1,13 @@
+{
+  "campaign_id": "DUAL-CAPABILITY-SUSTAINED-COVERAGE-95-01-PARALLEL",
+  "observed_main_sha": "d05d4c3de152b562493715f114e0a387fcb63dc3",
+  "baseline_sha": "d05d4c3de152b562493715f114e0a387fcb63dc3",
+  "campaign_branch": "campaign/dual-capability-sustained-coverage-95-01-parallel",
+  "clone_path": "/home/tjsasakifln/extra-parallel/DUAL-CAPABILITY-SUSTAINED-COVERAGE-95-01-PARALLEL/repo",
+  "remote_url": "https://github.com/tjsasakifln/extra-cli.git",
+  "started_at": "2026-07-29T12:24:38Z",
+  "compose_project_name": "extra_cov95_parallel_01",
+  "application_name": "DUAL-CAPABILITY-SUSTAINED-COVERAGE-95-01-PARALLEL",
+  "hint_main_sha_from_brief": "d05d4c3de152b562493715f114e0a387fcb63dc3",
+  "main_matches_brief": true
+}

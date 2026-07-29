@@ -1,0 +1,83 @@
+{
+  "audited_at": "2026-07-29T12:27:55.440874+00:00",
+  "baseline_sha": "d05d4c3de152b562493715f114e0a387fcb63dc3",
+  "invalid_or_non_dual_claims": [
+    {
+      "claim": "open_tenders 1093/1093 = 100%",
+      "source": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/dual-coverage-open_tenders.json",
+      "status": "INVALID_AS_DUAL_JOINT_PROOF",
+      "also": "UNPROVEN_SUCCESS_ZERO_MASS",
+      "details": {
+        "claim_of_100pct_as_single_capability_aggregate": "UNPROVEN_AT_ENTITY_LEVEL",
+        "claim_valid_as_joint_dual_proof": false,
+        "claim_valid_for_dual_gate_PASS": false,
+        "success_zero_mass_confirmed": false,
+        "reason": "100% is declared from dual_capability_coverage aggregate with 1092 SUCCESS_ZERO and zero data presence. Committed campaign tree lacks entity-capability ledger, raw hashes, per-entity HTTP/pages/query windows required by coverage contract. Without per-entity CONFIRMED_ZERO proof, numerators cannot be accepted under fail-closed SUCCESS_ZERO rules. SHA/as_of differ from historical_contracts claim; no joint dual_gate PASS artifact for both capabilities."
+      }
+    },
+    {
+      "claim": "historical_contracts 1093/1093 = 100%",
+      "source": "artifacts/campaigns/HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01/dual-coverage.json",
+      "status": "INVALID_AS_DUAL_JOINT_PROOF",
+      "also": "SINGLE_CAPABILITY_SCOPE_INCOMPLETE",
+      "details": {
+        "claim_of_100pct_as_single_capability_aggregate": "PLAUSIBLE_BUT_NOT_JOINT_DUAL",
+        "claim_valid_as_joint_dual_proof": false,
+        "claim_valid_for_dual_gate_PASS": false,
+        "reason": "historical_contracts reports 1093/1093 with 412 SUCCESS_WITH_DATA and 37.3% data presence — stronger than open_tenders mass-zero pattern — but dual-summary explicitly records scope_complete=false, pipeline_success=false, dual_gate_status=NOT_EVALUATED and capabilities_evaluated=['historical_contracts'] only. Policy/SHA/as_of diverge from open_tenders claim. Cannot be joined post-hoc into dual PASS."
+      }
+    },
+    {
+      "claim": "manual union of prior 100% runs as dual PASS",
+      "status": "FORBIDDEN",
+      "details": {
+        "open_tenders_sha": "6db0a6987c425bcd3bdcdeb97bc0230ddfb3c41b",
+        "historical_contracts_sha": "b026d18197d576e5439b6de00e84d9d33bf4d346",
+        "open_tenders_as_of": "2026-07-23T23:43:03.980591Z",
+        "historical_contracts_as_of": "2026-07-23T20:04:39.413337Z",
+        "ot_policy": null,
+        "hc_policy": "2.1.0",
+        "current_policy": "2.1.1"
+      }
+    },
+    {
+      "claim": "joint dual reproof PASS",
+      "status": "FALSE",
+      "observed": {
+        "path": "artifacts/campaigns/HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01/dual-reproof-after-applicability/dual-capability-coverage-summary.json",
+        "as_of": "2026-07-22T14:47:04.324659Z",
+        "scope_complete": true,
+        "pipeline_success": false,
+        "dual_gate_status": "FAIL",
+        "capabilities_evaluated": [
+          "historical_contracts",
+          "open_tenders"
+        ],
+        "open_tenders_coverage_pct": 0.0,
+        "historical_contracts_coverage_pct": 0.0
+      }
+    },
+    {
+      "claim": "dual coverage truth final closure PASS",
+      "status": "FALSE",
+      "observed": {
+        "path": "docs/ops/campaigns/DUAL-CAPABILITY-COVERAGE-TRUTH-01/evidence/dual-reproof-summary-final-closure.json",
+        "as_of": "2026-07-22T13:23:31.220163Z",
+        "scope_complete": true,
+        "pipeline_success": false,
+        "dual_gate_status": "FAIL"
+      }
+    }
+  ],
+  "cross_claim_diff": {
+    "sha_equal": false,
+    "as_of_equal": false,
+    "universe_version_equal": true,
+    "schema_equal": true,
+    "policy_version_hc": "2.1.0",
+    "policy_version_current": "2.1.1",
+    "hc_scope_complete": false,
+    "hc_pipeline_success": false,
+    "hc_dual_gate_status": "NOT_EVALUATED"
+  }
+}

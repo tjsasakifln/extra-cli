@@ -1,0 +1,10 @@
+{
+  "checked_at": "2026-07-29T12:30:38.010506+00:00",
+  "weekly_cycle_active_local_ssh_wrapper": true,
+  "production_mutation_allowed": false,
+  "reason": "Concurrent weekly_cycle detected on ec-prod from other terminal; production collection/mutation BLOCKED per isolation policy.",
+  "terminal_phase": "BLOCKED_CONCURRENT_PRODUCTION",
+  "local_measurement_allowed": true,
+  "local_measurement_note": "Isolated empty/test DB measurements are NOT real coverage claims.",
+  "local_production_lock_available": true
+}

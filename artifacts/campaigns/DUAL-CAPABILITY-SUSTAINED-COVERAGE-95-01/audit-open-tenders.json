@@ -1,0 +1,57 @@
+{
+  "audited_at": "2026-07-29T12:27:55.440874+00:00",
+  "campaign_id": "DUAL-CAPABILITY-SUSTAINED-COVERAGE-95-01-PARALLEL",
+  "baseline_sha": "d05d4c3de152b562493715f114e0a387fcb63dc3",
+  "artifact_path": "artifacts/campaigns/OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/dual-coverage-open_tenders.json",
+  "declared": {
+    "capability": "open_tenders",
+    "covered_numerator": 1093,
+    "universe_count": 1093,
+    "coverage_pct": 100.0,
+    "coverage_gate_pass": true,
+    "success_zero_count": 1092,
+    "success_with_data_count": 1,
+    "data_presence_pct": 0.0,
+    "data_presence_status": "measured_no_rows",
+    "git_sha": "6db0a6987c425bcd3bdcdeb97bc0230ddfb3c41b",
+    "as_of": "2026-07-23T23:43:03.980591Z",
+    "universe_version": "d65f272812cf:0b3f894d87ba:1093",
+    "schema_version": "migrations_count=64",
+    "source_combinations": [
+      "pncp",
+      "pncp+ciga_ckan"
+    ],
+    "applicability_unknown_count": 0,
+    "method": "dual_capability_coverage"
+  },
+  "campaign_result_terminal": "BLOCKED",
+  "campaign_result_git_sha": "4ab5c432222a367319ea8cc4576d110c6960893d",
+  "provenance_checks": {
+    "entity_level_ledger_present_in_repo": false,
+    "raw_uri_per_entity_present": false,
+    "raw_sha256_per_entity_present": false,
+    "same_sha_as_campaign_baseline": false,
+    "same_sha_as_historical_contracts_claim": false,
+    "same_as_of_as_historical_contracts": false,
+    "joint_dual_summary_scope_complete": null,
+    "dual_gate_evaluated_in_artifact": false,
+    "policy_version_in_artifact": null,
+    "current_active_policy_version": "2.1.1",
+    "policy_mismatch_vs_current": true,
+    "universe_version_matches_canonical": true
+  },
+  "risk_signals": [
+    "success_zero_count=1092 with success_with_data_count=1",
+    "data_presence_pct=0 / measured_no_rows",
+    "aggregate-only artifact without entity-capability ledger",
+    "multiple distinct SHAs across result/manifest/coverage (result≠coverage git_sha)",
+    "campaign itself terminal BLOCKED (soak), not dual joint PASS"
+  ],
+  "verdict": {
+    "claim_of_100pct_as_single_capability_aggregate": "UNPROVEN_AT_ENTITY_LEVEL",
+    "claim_valid_as_joint_dual_proof": false,
+    "claim_valid_for_dual_gate_PASS": false,
+    "success_zero_mass_confirmed": false,
+    "reason": "100% is declared from dual_capability_coverage aggregate with 1092 SUCCESS_ZERO and zero data presence. Committed campaign tree lacks entity-capability ledger, raw hashes, per-entity HTTP/pages/query windows required by coverage contract. Without per-entity CONFIRMED_ZERO proof, numerators cannot be accepted under fail-closed SUCCESS_ZERO rules. SHA/as_of differ from historical_contracts claim; no joint dual_gate PASS artifact for both capabilities."
+  }
+}

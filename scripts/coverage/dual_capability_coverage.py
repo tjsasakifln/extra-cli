@@ -45,7 +45,7 @@ from scripts.lib.universe import (  # noqa: E402
     resolve_default_seed_path,
 )
 
-ADAPTER_VERSION = "dual_capability_coverage/1.2.0"
+ADAPTER_VERSION = "dual_capability_coverage/1.2.1"
 GATE_THRESHOLD = 0.95
 
 CAP_OPEN_TENDERS = "open_tenders"
@@ -2603,7 +2603,9 @@ def write_reports(
     output_dir: Path,
     *,
     capabilities: Sequence[str] | None = None,
+    run_id: str | None = None,
 ) -> dict[str, Path]:
+    """Write dual coverage artifacts (summary, per-cap, gaps, ledger, health, checksums)."""
     output_dir.mkdir(parents=True, exist_ok=True)
     paths: dict[str, Path] = {}
     summary_path = output_dir / "dual-capability-coverage-summary.json"
@@ -2611,6 +2613,27 @@ def write_reports(
     paths["summary"] = summary_path
 
     caps = list(capabilities or report.capabilities.keys())
+    gap_fields = [
+        "entity_id",
+        "entity_name",
+        "capability",
+        "applicability",
+        "applicability_justification",
+        "covered",
+        "coverage_state",
+        "required_sources",
+        "successful_sources",
+        "missing_sources",
+        "freshness_status",
+        "last_success_at",
+        "blocker",
+        "next_action",
+        "evidence_reference",
+        "has_data_presence",
+    ]
+    combined_gap_rows: list[dict[str, Any]] = []
+    ledger_lines: list[str] = []
+
     for cap in caps:
         result = report.capabilities.get(cap)
         if result is None:
@@ -2626,37 +2649,140 @@ def write_reports(
         all_rows = [e.to_dict() for e in result.entities]
         gaps_json.write_text(json.dumps(all_rows, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
         paths[f"{cap}_gaps_json"] = gaps_json
+        combined_gap_rows.extend(all_rows)
 
         gaps_csv = output_dir / f"dual-coverage-gaps-{cap}.csv"
-        fields = [
-            "entity_id",
-            "entity_name",
-            "capability",
-            "applicability",
-            "applicability_justification",
-            "covered",
-            "coverage_state",
-            "required_sources",
-            "successful_sources",
-            "missing_sources",
-            "freshness_status",
-            "last_success_at",
-            "blocker",
-            "next_action",
-            "evidence_reference",
-            "has_data_presence",
-        ]
         with gaps_csv.open("w", encoding="utf-8", newline="") as fh:
-            w = csv.DictWriter(fh, fieldnames=fields)
+            w = csv.DictWriter(fh, fieldnames=gap_fields)
             w.writeheader()
             for row in all_rows:
-                out = {k: row.get(k) for k in fields}
+                out = {k: row.get(k) for k in gap_fields}
                 for list_key in ("required_sources", "successful_sources", "missing_sources"):
                     val = out.get(list_key)
                     if isinstance(val, list):
                         out[list_key] = "|".join(val)
                 w.writerow(out)
         paths[f"{cap}_gaps_csv"] = gaps_csv
+
+        for row in all_rows:
+            ledger = {
+                "run_id": run_id or report.as_of,
+                "as_of": report.as_of,
+                "code_sha": report.universe.git_sha,
+                "policy_version": report.source_policy_version,
+                "policy_sha256": report.source_policy_sha256,
+                "universe_version": report.universe.universe_version,
+                "capability": cap,
+                "entity_id": row.get("entity_id"),
+                "entity_name": row.get("entity_name"),
+                "applicability": row.get("applicability"),
+                "applicability_reason": row.get("applicability_justification"),
+                "covered": row.get("covered"),
+                "coverage_state": row.get("coverage_state"),
+                "required_sources": row.get("required_sources"),
+                "successful_sources": row.get("successful_sources"),
+                "missing_sources": row.get("missing_sources"),
+                "freshness_status": row.get("freshness_status"),
+                "evidence_reference": row.get("evidence_reference"),
+                "has_data_presence": row.get("has_data_presence"),
+                "blocker": row.get("blocker"),
+                "next_action": row.get("next_action"),
+            }
+            ledger_lines.append(json.dumps(ledger, ensure_ascii=False, default=str))
+
+    # Combined gaps (contract names)
+    gaps_all_json = output_dir / "coverage-gaps.json"
+    gaps_all_json.write_text(
+        json.dumps(combined_gap_rows, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
+    paths["coverage_gaps_json"] = gaps_all_json
+
+    gaps_all_csv = output_dir / "coverage-gaps.csv"
+    with gaps_all_csv.open("w", encoding="utf-8", newline="") as fh:
+        w = csv.DictWriter(fh, fieldnames=gap_fields)
+        w.writeheader()
+        for row in combined_gap_rows:
+            out = {k: row.get(k) for k in gap_fields}
+            for list_key in ("required_sources", "successful_sources", "missing_sources"):
+                val = out.get(list_key)
+                if isinstance(val, list):
+                    out[list_key] = "|".join(val)
+            w.writerow(out)
+    paths["coverage_gaps_csv"] = gaps_all_csv
+
+    ledger_path = output_dir / "entity-capability-ledger.jsonl"
+    ledger_path.write_text("\n".join(ledger_lines) + ("\n" if ledger_lines else ""), encoding="utf-8")
+    paths["entity_capability_ledger"] = ledger_path
+
+    # Source health from capability aggregates + policy stamp
+    source_health = {
+        "as_of": report.as_of,
+        "policy_version": report.source_policy_version,
+        "policy_sha256": report.source_policy_sha256,
+        "policy_status": report.source_policy_status,
+        "fallback_used": report.fallback_used,
+        "schema_compatibility_mode": report.schema_compatibility_mode,
+        "capabilities": {},
+    }
+    for cap, res in report.capabilities.items():
+        source_health["capabilities"][cap] = {
+            "source_combinations": res.source_combinations,
+            "covered_numerator": res.covered_numerator,
+            "applicable_denominator": res.applicable_denominator,
+            "coverage_pct": res.coverage_pct,
+            "gate_status": res.gate_status,
+            "stale_count": res.stale_count,
+            "error_count": res.error_count,
+            "pending_count": res.pending_count,
+            "never_checked_count": res.never_checked_count,
+            "applicability_unknown_count": res.applicability_unknown_count,
+            "applicability_blocked_count": res.applicability_blocked_count,
+            "identity_unresolved_count": res.identity_unresolved_count,
+            "unmapped_evidence_count": res.unmapped_evidence_count,
+            "success_zero_count": res.success_zero_count,
+            "success_with_data_count": res.success_with_data_count,
+            "data_presence_pct": res.data_presence_pct,
+        }
+    sh_path = output_dir / "source-health.json"
+    sh_path.write_text(json.dumps(source_health, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    paths["source_health"] = sh_path
+
+    # Manifest + checksums of written artifacts (content-addressed)
+    checksums: dict[str, str] = {}
+    for key, pth in list(paths.items()):
+        if pth.is_file():
+            checksums[pth.name] = hashlib.sha256(pth.read_bytes()).hexdigest()
+
+    manifest = {
+        "adapter_version": ADAPTER_VERSION,
+        "run_id": run_id or report.as_of,
+        "as_of": report.as_of,
+        "code_sha": report.universe.git_sha,
+        "schema_version": report.universe.schema_version,
+        "universe_version": report.universe.universe_version,
+        "policy_version": report.source_policy_version,
+        "policy_sha256": report.source_policy_sha256,
+        "policy_status": report.source_policy_status,
+        "fallback_used": report.fallback_used,
+        "scope_complete": report.scope_complete,
+        "pipeline_success": report.pipeline_success,
+        "dual_gate_status": report.dual_gate_status,
+        "coverage_gate_pass": report.coverage_gate_pass,
+        "measurement_success": report.measurement_success,
+        "capabilities_evaluated": list(report.capabilities_evaluated),
+        "artifacts": {k: str(v.name) for k, v in paths.items()},
+        "generated_at": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
+    }
+    man_path = output_dir / "manifest.json"
+    man_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    paths["manifest"] = man_path
+    checksums[man_path.name] = hashlib.sha256(man_path.read_bytes()).hexdigest()
+
+    ck_path = output_dir / "checksums.json"
+    ck_path.write_text(json.dumps(checksums, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    paths["checksums"] = ck_path
+
     return paths
 
 
@@ -2669,12 +2795,19 @@ def main(argv: Sequence[str] | None = None) -> int:
     p = argparse.ArgumentParser(description="Dual capability monitoring coverage (canonical)")
     p.add_argument(
         "--capability",
+        action="append",
         choices=["open_tenders", "historical_contracts", "both"],
-        default="both",
+        default=None,
+        help="Repeatable. Use 'both' or pass open_tenders and historical_contracts once each.",
     )
     p.add_argument("--dsn", default=os.getenv("LOCAL_DATALAKE_DSN"))
-    p.add_argument("--seed", default=None)
+    p.add_argument("--seed", default=None, help="Universe seed path (xlsx)")
+    p.add_argument("--universe", dest="seed", default=None, help="Alias for --seed")
     p.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT)
+    p.add_argument("--out", dest="output_dir", type=Path, help="Alias for --output-dir")
+    p.add_argument("--source-policy", type=Path, default=None, help="Active source policy YAML path")
+    p.add_argument("--as-of", dest="as_of", default=None, help="ISO-8601 cutoff timestamp for one joint run")
+    p.add_argument("--run-id", default=None, help="Unique run identifier for exclusive outputs")
     p.add_argument("--expected-denominator", type=int, default=None)
     p.add_argument("--expected-entity-count", type=int, default=None)
     p.add_argument("--expected-seed-sha256", default=None)
@@ -2684,15 +2817,32 @@ def main(argv: Sequence[str] | None = None) -> int:
     p.add_argument("--json-stdout", action="store_true")
     args = p.parse_args(list(argv) if argv is not None else None)
 
-    caps: list[str]
-    if args.capability == "both":
-        caps = list(CAPABILITIES)
-    else:
-        caps = [args.capability]
+    raw_caps = args.capability or ["both"]
+    caps: list[str] = []
+    for c in raw_caps:
+        if c == "both":
+            for x in CAPABILITIES:
+                if x not in caps:
+                    caps.append(x)
+        elif c not in caps:
+            caps.append(c)
 
     if not args.dsn:
         print("LOCAL_DATALAKE_DSN / --dsn required for live calculation", file=sys.stderr)
         return 1
+
+    as_of_dt: datetime | None = None
+    if args.as_of:
+        raw = str(args.as_of).strip().replace("Z", "+00:00")
+        as_of_dt = datetime.fromisoformat(raw)
+        if as_of_dt.tzinfo is None:
+            as_of_dt = as_of_dt.replace(tzinfo=UTC)
+
+    policy_obj = None
+    if args.source_policy is not None:
+        from scripts.coverage.source_policy import load_source_policy
+
+        policy_obj = load_source_policy(path=args.source_policy)
 
     report = compute_dual_coverage(
         dsn=args.dsn,
@@ -2703,16 +2853,24 @@ def main(argv: Sequence[str] | None = None) -> int:
         expected_seed_sha256=args.expected_seed_sha256,
         expected_canonical_ids_sha256=args.expected_canonical_ids_sha256,
         expected_universe_version=args.expected_universe_version,
+        as_of=as_of_dt,
+        source_policy=policy_obj,
     )
-    paths = write_reports(report, args.output_dir, capabilities=caps)
+    run_id = args.run_id or f"dual-{report.as_of.replace(':', '').replace('+', '')}"
+    paths = write_reports(report, args.output_dir, capabilities=caps, run_id=run_id)
     payload = report.to_dict()
     payload["artifact_paths"] = {k: str(v) for k, v in paths.items()}
+    payload["run_id"] = run_id
     if args.json_stdout:
         print(json.dumps(payload, indent=2, ensure_ascii=False))
     else:
         print(f"measurement_success={report.measurement_success}")
         print(f"coverage_gate_pass={report.coverage_gate_pass}")
+        print(f"scope_complete={report.scope_complete}")
+        print(f"pipeline_success={report.pipeline_success}")
+        print(f"dual_gate_status={report.dual_gate_status}")
         print(f"schema_compatibility_mode={report.schema_compatibility_mode}")
+        print(f"run_id={run_id}")
         for cap, res in report.capabilities.items():
             print(
                 f"{cap}: universe={res.universe_count} den={res.applicable_denominator} "

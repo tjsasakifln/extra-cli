@@ -1,0 +1,35 @@
+{
+  "adapter_version": "dual_capability_coverage/1.2.1",
+  "run_id": "dual-isolated-empty-20260729T123100Z",
+  "as_of": "2026-07-29T12:31:00Z",
+  "code_sha": "d05d4c3de152b562493715f114e0a387fcb63dc3",
+  "schema_version": "migrations_count=70",
+  "universe_version": "d65f272812cf:0b3f894d87ba:1093",
+  "policy_version": "2.1.1",
+  "policy_sha256": "0a3cac5820b30935f9229b40682f496c75aa3eb4dbfdd28164c9163263e0aeb3",
+  "policy_status": "active",
+  "fallback_used": false,
+  "scope_complete": true,
+  "pipeline_success": false,
+  "dual_gate_status": "FAIL",
+  "coverage_gate_pass": false,
+  "measurement_success": true,
+  "capabilities_evaluated": [
+    "historical_contracts",
+    "open_tenders"
+  ],
+  "artifacts": {
+    "summary": "dual-capability-coverage-summary.json",
+    "open_tenders_json": "dual-coverage-open_tenders.json",
+    "open_tenders_gaps_json": "dual-coverage-gaps-open_tenders.json",
+    "open_tenders_gaps_csv": "dual-coverage-gaps-open_tenders.csv",
+    "historical_contracts_json": "dual-coverage-historical_contracts.json",
+    "historical_contracts_gaps_json": "dual-coverage-gaps-historical_contracts.json",
+    "historical_contracts_gaps_csv": "dual-coverage-gaps-historical_contracts.csv",
+    "coverage_gaps_json": "coverage-gaps.json",
+    "coverage_gaps_csv": "coverage-gaps.csv",
+    "entity_capability_ledger": "entity-capability-ledger.jsonl",
+    "source_health": "source-health.json"
+  },
+  "generated_at": "2026-07-29T12:31:04.034848Z"
+}

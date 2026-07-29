@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
@@ -957,3 +958,124 @@ def test_cap_measurement_false_when_identity_unresolved(monkeypatch: pytest.Monk
     for cap, block in report.capabilities.items():
         assert block.measurement_success is False, cap
         assert block.identity_unresolved_count == 4
+
+
+def test_write_reports_emits_joint_contract_artifacts(tmp_path: Path) -> None:
+    """Joint dual output must include ledger, gaps, health, manifest, checksums."""
+    from scripts.coverage.dual_capability_coverage import write_reports
+
+    e1 = _entity("e1")
+    e2 = _entity("e2")
+    u = _universe([e1, e2])
+    now = datetime.now(UTC)
+    obs_ot = {
+        "e1": {"pncp": _obs("e1", source="pncp", capability=CAP_OPEN_TENDERS)},
+        "e2": {"pncp": _obs("e2", source="pncp", capability=CAP_OPEN_TENDERS)},
+    }
+    obs_hc = {
+        "e1": {
+            "pncp": _obs(
+                "e1",
+                source="pncp",
+                capability=CAP_HISTORICAL_CONTRACTS,
+                queried_start="2022-01-01",
+                queried_end="2025-01-01",
+            ),
+            "contracts": _obs(
+                "e1",
+                source="contracts",
+                capability=CAP_HISTORICAL_CONTRACTS,
+                queried_start="2022-01-01",
+                queried_end="2025-01-01",
+            ),
+        },
+        "e2": {
+            "pncp": _obs(
+                "e2",
+                source="pncp",
+                capability=CAP_HISTORICAL_CONTRACTS,
+                queried_start="2022-01-01",
+                queried_end="2025-01-01",
+            ),
+            "contracts": _obs(
+                "e2",
+                source="contracts",
+                capability=CAP_HISTORICAL_CONTRACTS,
+                queried_start="2022-01-01",
+                queried_end="2025-01-01",
+            ),
+        },
+    }
+    app = {
+        CAP_OPEN_TENDERS: {"e1": "applicable", "e2": "applicable"},
+        CAP_HISTORICAL_CONTRACTS: {"e1": "applicable", "e2": "applicable"},
+    }
+    req = {
+        CAP_OPEN_TENDERS: {"e1": ["pncp"], "e2": ["pncp"]},
+        CAP_HISTORICAL_CONTRACTS: {"e1": ["pncp", "contracts"], "e2": ["pncp", "contracts"]},
+    }
+    report = compute_dual_coverage(
+        universe=u,
+        observations_by_cap={CAP_OPEN_TENDERS: obs_ot, CAP_HISTORICAL_CONTRACTS: obs_hc},
+        presence_by_cap={CAP_OPEN_TENDERS: {"e1"}, CAP_HISTORICAL_CONTRACTS: {"e1"}},
+        entity_applicability=app,  # type: ignore[arg-type]
+        entity_required_sources=req,  # type: ignore[arg-type]
+        include_legacy_stamp=False,
+        use_config_matrix=False,
+        capabilities=[CAP_OPEN_TENDERS, CAP_HISTORICAL_CONTRACTS],
+        as_of=now,
+    )
+    assert report.scope_complete is True
+    paths = write_reports(
+        report,
+        tmp_path,
+        capabilities=[CAP_OPEN_TENDERS, CAP_HISTORICAL_CONTRACTS],
+        run_id="test-run-1",
+    )
+    for key in (
+        "summary",
+        "coverage_gaps_json",
+        "coverage_gaps_csv",
+        "entity_capability_ledger",
+        "source_health",
+        "manifest",
+        "checksums",
+        "open_tenders_json",
+        "historical_contracts_json",
+    ):
+        assert key in paths, key
+        assert paths[key].is_file(), key
+    ledger = paths["entity_capability_ledger"].read_text(encoding="utf-8").strip().splitlines()
+    assert len(ledger) == 4  # 2 entities × 2 capabilities
+    man = json.loads(paths["manifest"].read_text(encoding="utf-8"))
+    assert man["run_id"] == "test-run-1"
+    assert man["scope_complete"] is True
+    assert set(man["capabilities_evaluated"]) == {CAP_OPEN_TENDERS, CAP_HISTORICAL_CONTRACTS}
+    ck = json.loads(paths["checksums"].read_text(encoding="utf-8"))
+    assert "dual-capability-coverage-summary.json" in ck
+    assert "entity-capability-ledger.jsonl" in ck
+    health = json.loads(paths["source_health"].read_text(encoding="utf-8"))
+    assert CAP_OPEN_TENDERS in health["capabilities"]
+    assert CAP_HISTORICAL_CONTRACTS in health["capabilities"]
+
+
+def test_main_cli_aliases_require_dsn() -> None:
+    from scripts.coverage.dual_capability_coverage import main
+
+    code = main(["--capability", "both", "--out", "/tmp/x-dual-cov-no-dsn"])
+    assert code == 1
+
+
+def test_validate_success_zero_rejects_http_429_metadata() -> None:
+    from scripts.coverage.dual_capability_coverage import validate_success_zero
+
+    obs = _obs(
+        "e1",
+        state="success_zero",
+        records=0,
+        records_persisted=0,
+        metadata={"http_status": 429, "error": "rate_limited"},
+    )
+    ok, reason = validate_success_zero(obs)
+    assert ok is False
+    assert reason != "ok"
