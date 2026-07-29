@@ -2,25 +2,20 @@
 
 | Field | Value |
 |-------|-------|
+| terminal_state | OPERATIONAL_READY_SOAK_IN_PROGRESS |
 | baseline_sha | d91fdc5967314b46858b0f154b807ccbab7ed515 |
-| branch | campaign/extra-operational-reliability-coverage-closure-01 |
-| as_of | 2026-07-29 |
+| deployed_sha | 762f799cf80e70dbc7a82722627963db249b5ac9 |
+| PR | #171 |
+| as_of | 2026-07-29T15:15Z |
 
-## Delivered in code
+## Production
 
-- Checkpoint v2: logical_job_id + attempt_run_id (`scripts/crawl/contracts_checkpoint_contract.py`)
-- Incremental rebind without false foreign-run fail
-- Canonical contracts writer lock `/run/lock/extra-contracts-writer.lock`
-- weekly default: reuse lake (no dual writer); optional incremental uses same checkpoint+lock
-- Soak tracker fail-closed (UTC, no data_publicacao freshness, requires run_id + success)
-- Systemd units updated (pncp-contracts, extra-weekly, extra-contracts-soak)
-- PR #170 docs incorporated; PR #168 docs extracted (no full merge)
-
-## Terminal state (session target)
-
-`OPERATIONAL_READY_SOAK_IN_PROGRESS` when deploy + first successful incremental + soak armed.
+- pncp-contracts incremental: **success** (2331 inserted, rebind OK)
+- failed critical units: **0**
+- soak day 2026-07-29: health_ok=true; complete=false (day 1/7)
+- timers: pncp-contracts, extra-contracts-soak, extra-health-check **active**
 
 ## Not claimed
 
 - 7-day soak complete
-- 95% dual coverage without live dual run after deploy
+- dual coverage 95% PASS without new dual measurement
