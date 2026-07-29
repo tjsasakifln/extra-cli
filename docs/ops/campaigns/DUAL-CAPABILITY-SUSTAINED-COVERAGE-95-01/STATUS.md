@@ -1,19 +1,23 @@
 # STATUS — DUAL-CAPABILITY-SUSTAINED-COVERAGE-95-01-PARALLEL
 
-**terminal_state:** BLOCKED_CONCURRENT_PRODUCTION  
-**as_of:** 2026-07-29T12:32:15Z  
-**baseline_sha:** d05d4c3de152b562493715f114e0a387fcb63dc3
+**terminal_state:** FAILED_VALIDATION  
+**as_of:** 2026-07-29T12:46:40Z  
+**prod_run_id:** dual-prod-ro-20260729T124528Z  
+**dual_gate_status:** FAIL  
+**dual_95_pass:** false  
 
-## Proven
-- Isolated clone + branch
-- Audit rejects prior 100% as joint dual proof
-- SUCCESS_ZERO mass unsupported without entity ledger
-- dual_capability_coverage 1.2.1 joint artifacts + 41 tests
-- Isolated joint run: scope_complete=true, dual_gate=FAIL, 0/1093 both
+## Production joint READ-ONLY measure
 
-## Not proven
-- Production dual ≥95% PASS
-- Soak / sustainment
-- DOD promotion
+| capability | covered/den | pct | gate |
+|------------|------------:|----:|------|
+| open_tenders | 936/1093 | 85.6359 | FAIL |
+| historical_contracts | 0/1093 | 0.0 | FAIL |
 
-See FINAL-REPORT.md
+- scope_complete=true
+- pipeline_success=false
+- code_sha=d05d4c3de152b562493715f114e0a387fcb63dc3
+- policy=2.1.1 fallback=False
+
+Prior 100% claims: **invalid as joint dual proof**.
+
+See FINAL-REPORT.md.

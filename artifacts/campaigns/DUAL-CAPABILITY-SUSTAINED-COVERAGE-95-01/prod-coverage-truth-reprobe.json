@@ -1,0 +1,75 @@
+{
+  "audited_at": "2026-07-29T12:42:27.592753+00:00",
+  "mode": "READ_ONLY_PRODUCTION_PROBE",
+  "prior_claim_open_tenders_100pct": "INVALID_VS_CURRENT_PROD_EVIDENCE",
+  "findings": [
+    "coverage_evidence has ZERO historical_contracts/contracts rows \u2192 dual joint PASS impossible without contracts evidence population",
+    "open_tenders success_zero: 5308 rows / 667 distinct entities (not 1093)",
+    "open_tenders modern capability rows are ciga_ckan-only; pncp rows are legacy capability=NULL data_type=bids with 1093 partial",
+    "municipal required combo pncp+ciga_ckan not jointly satisfied under modern capability stamps",
+    "sample of 40 latest open_tenders success_zero: pagination/timestamps/run_id present but raw_uri/raw_sha256 not column-visible \u2192 POSSIBLE_NEEDS_RAW not CONFIRMED_ZERO",
+    "prior separate 100% claims used different SHAs/as_of/policy and cannot be dual-joined"
+  ],
+  "aggregates": {
+    "rows": 5308,
+    "distinct_entities": 667,
+    "missing_pages": 0,
+    "incomplete_pages": 0,
+    "with_error_fields": 0,
+    "missing_run_id": 0,
+    "missing_timestamps": 0,
+    "nonzero_counts": 0,
+    "distinct_sources": 1,
+    "distinct_run_ids": 8
+  },
+  "classification_summary": {
+    "POSSIBLE_NEEDS_RAW": 40
+  },
+  "source_reach": {
+    "with_pncp": 0,
+    "with_ciga": 668,
+    "total_ek": 668
+  },
+  "top_source_caps": [
+    {
+      "source": "ciga_ckan",
+      "capability": "open_tenders",
+      "state": "success_zero",
+      "n": 5308,
+      "distinct_entities": 667
+    },
+    {
+      "source": "pncp",
+      "capability": null,
+      "state": "success_zero",
+      "n": 3086,
+      "distinct_entities": 1093
+    },
+    {
+      "source": "pncp",
+      "capability": null,
+      "state": "partial",
+      "n": 1093,
+      "distinct_entities": 1093
+    },
+    {
+      "source": "pncp",
+      "capability": null,
+      "state": "success",
+      "n": 193,
+      "distinct_entities": 159
+    },
+    {
+      "source": "ciga_ckan",
+      "capability": "open_tenders",
+      "state": "success_with_data",
+      "n": 36,
+      "distinct_entities": 5
+    }
+  ],
+  "recalculated_floor_open_tenders": {
+    "note": "Even optimistic counting of 667 entities with ciga success_zero still fails municipal combo without validated pncp SUCCESS on same entity; contracts 0/1093",
+    "contracts_covered_floor": 0,
+    "open_tenders_distinct_with_any_modern_ot_evidence": 668
+  }
+}

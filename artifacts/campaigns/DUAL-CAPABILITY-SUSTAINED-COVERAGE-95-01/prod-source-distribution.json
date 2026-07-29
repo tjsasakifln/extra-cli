@@ -1,0 +1,45 @@
+{
+  "sampled_at": "2026-07-29T12:42:14.489334+00:00",
+  "by_source_cap_state": [
+    {
+      "source": "ciga_ckan",
+      "capability": "open_tenders",
+      "state": "success_zero",
+      "n": 5308,
+      "distinct_entities": 667
+    },
+    {
+      "source": "pncp",
+      "capability": null,
+      "state": "success_zero",
+      "n": 3086,
+      "distinct_entities": 1093
+    },
+    {
+      "source": "pncp",
+      "capability": null,
+      "state": "partial",
+      "n": 1093,
+      "distinct_entities": 1093
+    },
+    {
+      "source": "pncp",
+      "capability": null,
+      "state": "success",
+      "n": 193,
+      "distinct_entities": 159
+    },
+    {
+      "source": "ciga_ckan",
+      "capability": "open_tenders",
+      "state": "success_with_data",
+      "n": 36,
+      "distinct_entities": 5
+    }
+  ],
+  "open_tenders_source_entity_reach": {
+    "with_pncp": 0,
+    "with_ciga": 668,
+    "total_ek": 668
+  }
+}

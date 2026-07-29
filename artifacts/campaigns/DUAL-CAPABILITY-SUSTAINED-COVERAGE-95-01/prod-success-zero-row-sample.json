@@ -1,0 +1,303 @@
+{
+  "sampled_at": "2026-07-29T12:41:58.621817+00:00",
+  "mode": "READ_ONLY",
+  "open_tenders_success_zero_aggregate": {
+    "rows": 5308,
+    "distinct_entities": 667,
+    "missing_pages": 0,
+    "incomplete_pages": 0,
+    "with_error_fields": 0,
+    "missing_run_id": 0,
+    "missing_timestamps": 0,
+    "nonzero_counts": 0,
+    "distinct_sources": 1,
+    "distinct_run_ids": 8
+  },
+  "sample_n": 40,
+  "classification_summary": {
+    "POSSIBLE_NEEDS_RAW": 40
+  },
+  "sample_classifications": [
+    {
+      "entity_key": "extra-97ace1926700ce3e8de9",
+      "source": "ciga_ckan",
+      "label": "POSSIBLE_NEEDS_RAW",
+      "reasons": [],
+      "run_id": "ciga-weekly-col-extra-weekly-20260729T115814Z-bb071e99"
+    },
+    {
+      "entity_key": "extra-786a2439a832c3cca4cf",
+      "source": "ciga_ckan",
+      "label": "POSSIBLE_NEEDS_RAW",
+      "reasons": [],
+      "run_id": "ciga-weekly-col-extra-weekly-20260729T115814Z-bb071e99"
+    },
+    {
+      "entity_key": "extra-f177cb64a2e2f0404783",
+      "source": "ciga_ckan",
+      "label": "POSSIBLE_NEEDS_RAW",
+      "reasons": [],
+      "run_id": "ciga-weekly-col-extra-weekly-20260729T115814Z-bb071e99"
+    },
+    {
+      "entity_key": "extra-2fb8d88ec3a8d8b706ab",
+      "source": "ciga_ckan",
+      "label": "POSSIBLE_NEEDS_RAW",
+      "reasons": [],
+      "run_id": "ciga-weekly-col-extra-weekly-20260729T115814Z-bb071e99"
+    },
+    {
+      "entity_key": "extra-88b54c7882e64901ffd6",
+      "source": "ciga_ckan",
+      "label": "POSSIBLE_NEEDS_RAW",
+      "reasons": [],
+      "run_id": "ciga-weekly-col-extra-weekly-20260729T115814Z-bb071e99"
+    },
+    {
+      "entity_key": "extra-274ca62659d50a7bca9f",
+      "source": "ciga_ckan",
+      "label": "POSSIBLE_NEEDS_RAW",
+      "reasons": [],
+      "run_id": "ciga-weekly-col-extra-weekly-20260729T115814Z-bb071e99"
+    },
+    {
+      "entity_key": "extra-597d281805351de9d571",
+      "source": "ciga_ckan",
+      "label": "POSSIBLE_NEEDS_RAW",
+      "reasons": [],
+      "run_id": "ciga-weekly-col-extra-weekly-20260729T115814Z-bb071e99"
+    },
+    {
+      "entity_key": "extra-c0fc9e56bc1d9229cfe0",
+      "source": "ciga_ckan",
+      "label": "POSSIBLE_NEEDS_RAW",
+      "reasons": [],
+      "run_id": "ciga-weekly-col-extra-weekly-20260729T115814Z-bb071e99"
+    },
+    {
+      "entity_key": "extra-6cfdea35dab3669fbb62",
+      "source": "ciga_ckan",
+      "label": "POSSIBLE_NEEDS_RAW",
+      "reasons": [],
+      "run_id": "ciga-weekly-col-extra-weekly-20260729T115814Z-bb071e99"
+    },
+    {
+      "entity_key": "extra-b6511dcadf0f1a628f4c",
+      "source": "ciga_ckan",
+      "label": "POSSIBLE_NEEDS_RAW",
+      "reasons": [],
+      "run_id": "ciga-weekly-col-extra-weekly-20260729T115814Z-bb071e99"
+    },
+    {
+      "entity_key": "extra-b3e8ceec440e8104bfab",
+      "source": "ciga_ckan",
+      "label": "POSSIBLE_NEEDS_RAW",
+      "reasons": [],
+      "run_id": "ciga-weekly-col-extra-weekly-20260729T115814Z-bb071e99"
+    },
+    {
+      "entity_key": "extra-666e7ccef944b7f01c96",
+      "source": "ciga_ckan",
+      "label": "POSSIBLE_NEEDS_RAW",
+      "reasons": [],
+      "run_id": "ciga-weekly-col-extra-weekly-20260729T115814Z-bb071e99"
+    },
+    {
+      "entity_key": "extra-0298b9d064899642764a",
+      "source": "ciga_ckan",
+      "label": "POSSIBLE_NEEDS_RAW",
+      "reasons": [],
+      "run_id": "ciga-weekly-col-extra-weekly-20260729T115814Z-bb071e99"
+    },
+    {
+      "entity_key": "extra-aae3105a7fa3c09f1dbb",
+      "source": "ciga_ckan",
+      "label": "POSSIBLE_NEEDS_RAW",
+      "reasons": [],
+      "run_id": "ciga-weekly-col-extra-weekly-20260729T115814Z-bb071e99"
+    },
+    {
+      "entity_key": "extra-bb52af441791164c17ec",
+      "source": "ciga_ckan",
+      "label": "POSSIBLE_NEEDS_RAW",
+      "reasons": [],
+      "run_id": "ciga-weekly-col-extra-weekly-20260729T115814Z-bb071e99"
+    },
+    {
+      "entity_key": "extra-c75f889b0ded2cb9b0c2",
+      "source": "ciga_ckan",
+      "label": "POSSIBLE_NEEDS_RAW",
+      "reasons": [],
+      "run_id": "ciga-weekly-col-extra-weekly-20260729T115814Z-bb071e99"
+    },
+    {
+      "entity_key": "extra-e787ec7fa967e4aebff9",
+      "source": "ciga_ckan",
+      "label": "POSSIBLE_NEEDS_RAW",
+      "reasons": [],
+      "run_id": "ciga-weekly-col-extra-weekly-20260729T115814Z-bb071e99"
+    },
+    {
+      "entity_key": "extra-15e733954e8d0af6116b",
+      "source": "ciga_ckan",
+      "label": "POSSIBLE_NEEDS_RAW",
+      "reasons": [],
+      "run_id": "ciga-weekly-col-extra-weekly-20260729T115814Z-bb071e99"
+    },
+    {
+      "entity_key": "extra-5fe95332ddc0d050c2dd",
+      "source": "ciga_ckan",
+      "label": "POSSIBLE_NEEDS_RAW",
+      "reasons": [],
+      "run_id": "ciga-weekly-col-extra-weekly-20260729T115814Z-bb071e99"
+    },
+    {
+      "entity_key": "extra-0d403060b42a55f12d2c",
+      "source": "ciga_ckan",
+      "label": "POSSIBLE_NEEDS_RAW",
+      "reasons": [],
+      "run_id": "ciga-weekly-col-extra-weekly-20260729T115814Z-bb071e99"
+    },
+    {
+      "entity_key": "extra-8e7dc25df6a8f1f39079",
+      "source": "ciga_ckan",
+      "label": "POSSIBLE_NEEDS_RAW",
+      "reasons": [],
+      "run_id": "ciga-weekly-col-extra-weekly-20260729T115814Z-bb071e99"
+    },
+    {
+      "entity_key": "extra-4ebdb33ab74d4bb95acb",
+      "source": "ciga_ckan",
+      "label": "POSSIBLE_NEEDS_RAW",
+      "reasons": [],
+      "run_id": "ciga-weekly-col-extra-weekly-20260729T115814Z-bb071e99"
+    },
+    {
+      "entity_key": "extra-2c7f8d99719c2a3f577b",
+      "source": "ciga_ckan",
+      "label": "POSSIBLE_NEEDS_RAW",
+      "reasons": [],
+      "run_id": "ciga-weekly-col-extra-weekly-20260729T115814Z-bb071e99"
+    },
+    {
+      "entity_key": "extra-7271e94ec43f2eebc0e9",
+      "source": "ciga_ckan",
+      "label": "POSSIBLE_NEEDS_RAW",
+      "reasons": [],
+      "run_id": "ciga-weekly-col-extra-weekly-20260729T115814Z-bb071e99"
+    },
+    {
+      "entity_key": "extra-4e98e0086d97b030a069",
+      "source": "ciga_ckan",
+      "label": "POSSIBLE_NEEDS_RAW",
+      "reasons": [],
+      "run_id": "ciga-weekly-col-extra-weekly-20260729T115814Z-bb071e99"
+    },
+    {
+      "entity_key": "extra-fc65a1288787ea46b976",
+      "source": "ciga_ckan",
+      "label": "POSSIBLE_NEEDS_RAW",
+      "reasons": [],
+      "run_id": "ciga-weekly-col-extra-weekly-20260729T115814Z-bb071e99"
+    },
+    {
+      "entity_key": "extra-086413c959642d5aefe1",
+      "source": "ciga_ckan",
+      "label": "POSSIBLE_NEEDS_RAW",
+      "reasons": [],
+      "run_id": "ciga-weekly-col-extra-weekly-20260729T115814Z-bb071e99"
+    },
+    {
+      "entity_key": "extra-6ad4236316995c13ca67",
+      "source": "ciga_ckan",
+      "label": "POSSIBLE_NEEDS_RAW",
+      "reasons": [],
+      "run_id": "ciga-weekly-col-extra-weekly-20260729T115814Z-bb071e99"
+    },
+    {
+      "entity_key": "extra-5c84b3f285c07680cd48",
+      "source": "ciga_ckan",
+      "label": "POSSIBLE_NEEDS_RAW",
+      "reasons": [],
+      "run_id": "ciga-weekly-col-extra-weekly-20260729T115814Z-bb071e99"
+    },
+    {
+      "entity_key": "extra-30d7ce3ad5081d22b11a",
+      "source": "ciga_ckan",
+      "label": "POSSIBLE_NEEDS_RAW",
+      "reasons": [],
+      "run_id": "ciga-weekly-col-extra-weekly-20260729T115814Z-bb071e99"
+    },
+    {
+      "entity_key": "extra-cb06f50d0b31c2c6d400",
+      "source": "ciga_ckan",
+      "label": "POSSIBLE_NEEDS_RAW",
+      "reasons": [],
+      "run_id": "ciga-weekly-col-extra-weekly-20260729T115814Z-bb071e99"
+    },
+    {
+      "entity_key": "extra-09c19c92c36af120417a",
+      "source": "ciga_ckan",
+      "label": "POSSIBLE_NEEDS_RAW",
+      "reasons": [],
+      "run_id": "ciga-weekly-col-extra-weekly-20260729T115814Z-bb071e99"
+    },
+    {
+      "entity_key": "extra-ffb5171ea84354f15858",
+      "source": "ciga_ckan",
+      "label": "POSSIBLE_NEEDS_RAW",
+      "reasons": [],
+      "run_id": "ciga-weekly-col-extra-weekly-20260729T115814Z-bb071e99"
+    },
+    {
+      "entity_key": "extra-a38406dd9e9a8088a303",
+      "source": "ciga_ckan",
+      "label": "POSSIBLE_NEEDS_RAW",
+      "reasons": [],
+      "run_id": "ciga-weekly-col-extra-weekly-20260729T115814Z-bb071e99"
+    },
+    {
+      "entity_key": "extra-43240e43bdfe6d356953",
+      "source": "ciga_ckan",
+      "label": "POSSIBLE_NEEDS_RAW",
+      "reasons": [],
+      "run_id": "ciga-weekly-col-extra-weekly-20260729T115814Z-bb071e99"
+    },
+    {
+      "entity_key": "extra-17eb67c32ad8cb14668e",
+      "source": "ciga_ckan",
+      "label": "POSSIBLE_NEEDS_RAW",
+      "reasons": [],
+      "run_id": "ciga-weekly-col-extra-weekly-20260729T115814Z-bb071e99"
+    },
+    {
+      "entity_key": "extra-75c8193c0b7e1fcbb37a",
+      "source": "ciga_ckan",
+      "label": "POSSIBLE_NEEDS_RAW",
+      "reasons": [],
+      "run_id": "ciga-weekly-col-extra-weekly-20260729T115814Z-bb071e99"
+    },
+    {
+      "entity_key": "extra-ec0d261c3e67e3370907",
+      "source": "ciga_ckan",
+      "label": "POSSIBLE_NEEDS_RAW",
+      "reasons": [],
+      "run_id": "ciga-weekly-col-extra-weekly-20260729T115814Z-bb071e99"
+    },
+    {
+      "entity_key": "extra-44c170376348e065fe7a",
+      "source": "ciga_ckan",
+      "label": "POSSIBLE_NEEDS_RAW",
+      "reasons": [],
+      "run_id": "ciga-weekly-col-extra-weekly-20260729T115814Z-bb071e99"
+    },
+    {
+      "entity_key": "extra-bd83ef6971140b4ad325",
+      "source": "ciga_ckan",
+      "label": "POSSIBLE_NEEDS_RAW",
+      "reasons": [],
+      "run_id": "ciga-weekly-col-extra-weekly-20260729T115814Z-bb071e99"
+    }
+  ],
+  "contracts_capability_rows": []
+}

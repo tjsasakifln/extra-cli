@@ -1,7 +1,7 @@
 # FINAL REPORT — DUAL-CAPABILITY-SUSTAINED-COVERAGE-95-01-PARALLEL
 
 **Generated:** 2026-07-29T12:32:15Z  
-**terminal_state:** `BLOCKED_CONCURRENT_PRODUCTION`  
+**terminal_state:** `FAILED_VALIDATION`  
 **Campaign branch:** `campaign/dual-capability-sustained-coverage-95-01-parallel`  
 **Campaign HEAD (pre-commit worktree):** `d05d4c3de152b562493715f114e0a387fcb63dc3`  
 **Baseline origin/main:** `d05d4c3de152b562493715f114e0a387fcb63dc3`
@@ -249,3 +249,66 @@ python3 -m scripts.coverage.dual_capability_coverage \
 11. Overlap com main? **NÃO** no momento da medição
 12. Abrir PR agora? **NÃO** — só preservar/push branch
 13. Próximo ato seguro? Medição dual READ-ONLY em produção quando weekly/lock livres; depois decidir coleta se numerador real <1039
+
+
+---
+
+## UPDATE — Production dual READ-ONLY joint run (2026-07-29T12:46:40Z)
+
+**terminal_state: `FAILED_VALIDATION`** (also concurrent weekly context during wait)
+
+| Field | Value |
+|-------|-------|
+| run_id | `dual-prod-ro-20260729T124528Z` |
+| remote_out | `/opt/extra-consultoria/runtime/dual-capability-sustained-coverage-95-01-parallel/dual-prod-ro-20260729T124528Z` |
+| remote_exit | `2` (`--require-gate` → 2 on FAIL) |
+| measurement_success | `True` |
+| scope_complete | `True` |
+| pipeline_success | `False` |
+| dual_gate_status | **`FAIL`** |
+| coverage_gate_pass | `False` |
+| dual_95_pass | `False` |
+| policy | `2.1.1` active, fallback=`False` |
+| as_of | `2026-07-29T12:45:31.586431Z` |
+| code_sha | `d05d4c3de152b562493715f114e0a387fcb63dc3` |
+| schema | `migrations_count=70` |
+| universe_version | `d65f272812cf:0b3f894d87ba:1093` |
+| adapter | `dual_capability_coverage/1.2.0` |
+| weekly_cleared_before_run | `False` |
+| mode | READ_ONLY measurement (not collection) |
+
+### PARTE G — COBERTURA (produção, execução conjunta)
+
+| capability | denominator | covered | coverage_pct | success_with_data | success_zero | never_checked | stale | partial | error | unknown | identity_unresolved | unmapped | gate_status |
+|------------|------------:|--------:|-------------:|------------------:|-------------:|--------------:|------:|--------:|------:|--------:|--------------------:|---------:|-------------|
+| open_tenders | 1093 | 936 | 85.6359 | 3 | 933 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | **FAIL** |
+| historical_contracts | 1093 | 0 | 0.0 | 0 | 0 | 1093 | 0 | 0 | 0 | 0 | 0 | 0 | **FAIL** |
+
+**Threshold:** covered ≥ 1039 and ≥95% each.  
+**Result:** open_tenders **936/1093 < 1039** (85.6359%); historical_contracts **0/1093**.  
+**dual_gate_status=FAIL** — prior separate 100% claims are **not** reproduced as joint dual PASS.
+
+### PARTE K — Estado terminal atualizado
+
+- **terminal_state = `FAILED_VALIDATION`**
+- Objetivo dual ≥95% ambas: **NÃO atingido**
+- Prova conjunta real obtida: **SIM** (mesmo SHA/policy/universe/as_of)
+- Interferência no outro goal: **NÃO** (clone isolado; medição RO; weekly não morto)
+- Alegações 100% prévias: **inválidas como prova dual conjunta** (e não batem com medição atual)
+- Próximo ato: popular evidência `historical_contracts` + fechar gap editais (combo municipal pncp+ciga) sob lock após weekly; reexecutar dual joint
+
+### 13 conclusões (atualizadas com prod dual)
+
+1. Interferiu? **NÃO**
+2. 100% prévios legítimos como dual? **NÃO**
+3. 1092 zeros confirmados? **NÃO** como CONFIRMED_ZERO universal; medição atual conta 933 zeros no numerador de editais mas ainda <95%
+4. Editais ≥1039? **NÃO** (936)
+5. Contratos ≥1039? **NÃO** (0)
+6. Duas capacidades mesma execução? **SIM**
+7. scope_complete? **true**
+8. pipeline_success? **false**
+9. Operação sustentada? **NÃO**
+10. Código integrável? **SIM** (1.2.1 na branch de campanha)
+11. Overlap main? **NÃO** no commit
+12. Abrir PR agora? **NÃO** (sem dual PASS; concurrent goal)
+13. Próximo: após weekly/lock livres, coletar evidência de contratos + revalidar SUCCESS_ZERO com raw/hash; re-rodar dual joint

@@ -1,0 +1,26 @@
+{
+  "observed_at": "2026-07-29T12:40:28.525172+00:00",
+  "weekly_python_etime_approx": "42min+",
+  "weekly_log_last_line_local": "2026-07-29 09:19:44 CIGA June download",
+  "weekly_output_files_mtime_local": "2026-07-29 09:19:50 deliverable_e/checksums written",
+  "manifest_yet": false,
+  "pg_sessions": [
+    {
+      "pid": 83166,
+      "state": "idle in transaction",
+      "wait": "ClientRead",
+      "age_sec": 1228,
+      "note": "SELECT COUNT official_acts"
+    },
+    {
+      "pid": 83370,
+      "state": "active",
+      "age_sec": 1227,
+      "note": "entity SELECT mapping query"
+    }
+  ],
+  "campaign_action": "NOT killing; waiter dual RO waits for process exit or MAX_WAIT 2700s",
+  "pre_probe_contracts_gap": "coverage_evidence has zero historical_contracts rows",
+  "pre_probe_open_tenders_distinct": 668,
+  "expected_dual_outcome_when_run": "FAIL on historical_contracts (never_checked\u22481093) unless contracts evidence appears"
+}

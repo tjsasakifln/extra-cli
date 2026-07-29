@@ -1,0 +1,26 @@
+HOST=v2202607385716487230
+DATE=2026-07-29T12:33:32Z
+SHA=d05d4c3de152b562493715f114e0a387fcb63dc3
+BRANCH=main
+=== pgrep heavy ===
+21 [migration/0]
+26 [migration/1]
+32 [migration/2]
+38 [migration/3]
+44 [migration/4]
+50 [migration/5]
+56 [migration/6]
+62 [migration/7]
+83155 sudo -u extra-consultoria -H bash -lc  set -a cd /opt/extra-consultoria . ./.env set +a export PYTHONPATH=/opt/extra-consultoria export PYTHONUNBUFFERED=1 flock --nonblock /run/lock/extra-weekly.lock .venv/bin/python -m scripts.ops.weekly_cycle --strict --contracts-incremental 
+83158 flock --nonblock /run/lock/extra-weekly.lock .venv/bin/python -m scripts.ops.weekly_cycle --strict --contracts-incremental
+83163 .venv/bin/python -m scripts.ops.weekly_cycle --strict --contracts-incremental
+83166 postgres: 17/main: postgres pncp_datalake 127.0.0.1(50880) idle in transaction
+83370 postgres: 17/main: postgres pncp_datalake 127.0.0.1(45336) SELECT
+=== flock test production mutation (nonblock check only) ===
+REMOTE_MUTATION_LOCK=FREE
+WEEKLY_LOCK=HELD_OR_MISSING
+/dev/vda4       503G   17G  466G   4% /
+DUAL_MODULE=yes
+LOCAL_DATALAKE_DSN=<class 'set'>
+DATABASE_URL=<class 'set'>
+ENV_PROBE_FAILED
