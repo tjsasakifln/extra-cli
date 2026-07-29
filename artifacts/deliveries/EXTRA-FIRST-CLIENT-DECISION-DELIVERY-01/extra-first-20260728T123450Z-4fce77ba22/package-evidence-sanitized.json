@@ -1,7 +1,10 @@
 {
   "run_id": "extra-first-20260728T123450Z-4fce77ba22",
-  "terminal_state": "BUNDLE_READY_FOR_HUMAN_MERGE",
-  "package_quality": "PARTIAL_VISIBLE_LIMITATIONS",
+  "terminal_state": "BLOCKED_EXTERNAL",
+  "historical_classification": "HISTORICAL_BLOCKED_EXTERNAL",
+  "not_client_delivery": true,
+  "not_for_dod_promotion": true,
+  "package_quality": "HISTORICAL_INSUFFICIENT_SOURCE",
   "delivery_out_external": "/home/tjsasakifln/extra-deliveries/EXTRA-FIRST-CLIENT-DECISION-B2G-20260728",
   "source_weekly_run_id": "weekly-20260727T063446Z-0d158e9c60",
   "collection_id": "col-extra-weekly-20260727T063446Z-3d36cee7",

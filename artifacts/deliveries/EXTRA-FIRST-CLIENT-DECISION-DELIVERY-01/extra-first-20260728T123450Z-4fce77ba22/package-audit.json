@@ -1,5 +1,10 @@
 {
   "run_id": "extra-first-20260728T123450Z-4fce77ba22",
+  "historical_classification": "HISTORICAL_BLOCKED_EXTERNAL",
+  "not_client_delivery": true,
+  "not_for_dod_promotion": true,
+  "terminal_state": "BLOCKED_EXTERNAL",
+  "source_weekly_exit_code": 2,
   "shortlist_count": 0,
   "go_count": 0,
   "insufficient": true,

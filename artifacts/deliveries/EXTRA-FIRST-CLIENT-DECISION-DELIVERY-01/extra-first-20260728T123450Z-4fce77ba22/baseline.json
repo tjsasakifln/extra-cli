@@ -4,16 +4,23 @@
   "baseline_sha": "dc188ee9de3cb0192db1547ea0d952015af71fe4",
   "verified_code_sha": "7689d005ecb36932d20431f81b782086eba48d83",
   "branch": "campaign/extra-first-client-decision-delivery-01",
-  "final_package_run_id": "extra-first-20260728T123450Z-4fce77ba22",
-  "integrity_fix": "human-review.package_checksums bind final content; PDF written with final terminal_state; shortlist.json hashed",
+  "historical_package_run_id": "extra-first-20260728T123450Z-4fce77ba22",
+  "historical_classification": "HISTORICAL_BLOCKED_EXTERNAL",
+  "not_client_delivery": true,
+  "not_for_dod_promotion": true,
+  "not_for_client_send": true,
+  "integrity_fix": "HISTORICAL only — source weekly exit_code=2; D1 policy now requires BLOCKED_EXTERNAL. Do not promote or send to client.",
   "pr_133_untouched": true,
   "dod_md_untouched": true,
   "vps": {
     "selected_weekly": "weekly-20260727T063446Z-0d158e9c60",
     "collection_id": "col-extra-weekly-20260727T063446Z-3d36cee7",
     "cut_date": "2026-07-27",
+    "exit_code": 2,
     "opportunities_count": 50,
-    "future_deadline_count_asof_2026_07_28": 0
+    "future_deadline_count_asof_2026_07_28": 0,
+    "note": "exit_code=2 weekly is diagnosis source only; not consultive delivery proof"
   },
-  "generated_at": "2026-07-28T12:35:16Z"
+  "generated_at": "2026-07-28T12:35:16Z",
+  "reclassified_at": "2026-07-29T12:00:00Z"
 }

@@ -29,7 +29,8 @@ BEGIN
             'pncp', rec->>'source_id', rec->>'source_url', rec->>'content_hash',
             rec->>'numero_controle_pncp', rec->>'crawl_batch_id', (rec->>'run_id')::BIGINT,
             rec->>'orgao_cnpj', rec->>'orgao_nome', rec->>'ente_federativo',
-            COALESCE(rec->>'uf', 'SC'), rec->>'municipio', rec->>'codigo_ibge',
+            -- Never impute UF=SC: blank/missing stays NULL (aligns with transformer).
+            NULLIF(BTRIM(COALESCE(rec->>'uf', '')), ''), rec->>'municipio', rec->>'codigo_ibge',
             NULLIF(BTRIM(rec->>'numero_processo'), ''),
             NULLIF(BTRIM(rec->>'numero_edital'), ''),
             rec->>'modalidade',
@@ -53,6 +54,7 @@ BEGIN
             last_seen_at = NOW(),
             orgao_cnpj = COALESCE(EXCLUDED.orgao_cnpj, opportunity_intel.orgao_cnpj),
             orgao_nome = COALESCE(EXCLUDED.orgao_nome, opportunity_intel.orgao_nome),
+            uf = COALESCE(NULLIF(BTRIM(EXCLUDED.uf), ''), opportunity_intel.uf),
             municipio = COALESCE(EXCLUDED.municipio, opportunity_intel.municipio),
             codigo_ibge = COALESCE(EXCLUDED.codigo_ibge, opportunity_intel.codigo_ibge),
             numero_processo = COALESCE(

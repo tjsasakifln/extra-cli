@@ -3,16 +3,21 @@
   "package_title": "Extra Construtora — Primeira Rodada de Decisão B2G",
   "run_id": "extra-first-20260728T123450Z-4fce77ba22",
   "generated_at": "2026-07-28T12:34:50Z",
-  "terminal_state": "BUNDLE_READY_FOR_HUMAN_MERGE",
-  "package_quality": "PARTIAL_VISIBLE_LIMITATIONS",
-  "baseline_note": "verified_code_sha is git commit of tooling; package is external",
+  "terminal_state": "BLOCKED_EXTERNAL",
+  "historical_classification": "HISTORICAL_BLOCKED_EXTERNAL",
+  "not_client_delivery": true,
+  "not_for_dod_promotion": true,
+  "not_for_client_send": true,
+  "package_quality": "HISTORICAL_INSUFFICIENT_SOURCE",
+  "baseline_note": "HISTORICAL RECORD ONLY — weekly exit_code=2; code now emits BLOCKED_EXTERNAL (exit 3). Do not use as final delivery, market absence, or DOD proof.",
   "source_weekly": {
     "cycle_id": "weekly-20260727T063446Z-0d158e9c60",
     "collection_id": "col-extra-weekly-20260727T063446Z-3d36cee7",
     "cut_date": "2026-07-27",
     "exit_code": 2,
     "weekly_dir_basename": "weekly-20260727T063446Z-0d158e9c60",
-    "product_checksums_ok": true
+    "product_checksums_ok": true,
+    "consultive": false
   },
   "profile": {
     "profile_id": "extra_construtora",
