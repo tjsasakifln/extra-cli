@@ -1,0 +1,25 @@
+{
+  "proof_path": "data/contracts_checkpoints/hc_closure_3y/contracts_full.json",
+  "valid": true,
+  "errors": [],
+  "planned_windows": 37,
+  "completed_windows": 37,
+  "total_windows_failed_counter": 10,
+  "pages_processed": 749,
+  "pages_expected_field": 37,
+  "run_ids": [
+    "contracts-90d-20260722T161248Z-723a6126c3",
+    "contracts-90d-20260723T114833Z-ed88caf21d",
+    "contracts-90d-20260723T115017Z-6b1093e618",
+    "contracts-90d-20260723T184406Z-18afedfca1"
+  ],
+  "window_span_start": "2023-07-20",
+  "window_span_end": "2026-07-23",
+  "window_span_days": 1099,
+  "window_span_years": 3.0089,
+  "meets_min_3y": true,
+  "note": "valid=True because completed_windows==planned_windows (37); total_windows_failed is historical residual counter and does not invalidate when set is complete (see load_checkpoint_window_proof).",
+  "projection_run_id": "contracts-3y-proj-20260729T153000Z",
+  "period_start": "2023-07-20",
+  "period_end": "2026-07-23"
+}

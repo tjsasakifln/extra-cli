@@ -621,31 +621,25 @@ def _contracts_incremental_run(
             / "contracts"
             / f"incremental-weekly-{collection_id}.json"
         )
-        # Reset + rebind: weekly always uses a fresh cycle run_id; the
-        # incremental checkpoint may still carry a prior run_id binding.
-        # Allow operational rebind after explicit --reset-checkpoint so a
-        # stale checkpoint cannot force EXIT_UNRELIABLE / blocked contracts.
-        prev_allow = os.environ.get("CONTRACTS_ALLOW_CROSS_RUN_RESUME")
-        os.environ["CONTRACTS_ALLOW_CROSS_RUN_RESUME"] = "1"
-        try:
-            rc = inc_main(
-                [
-                    "--dsn",
-                    dsn,
-                    "--days",
-                    str(days),
-                    "--output-json",
-                    str(out),
-                    "--checkpoint-dir",
-                    "data/contracts_checkpoints/weekly_incremental",
-                    "--reset-checkpoint",
-                ]
-            )
-        finally:
-            if prev_allow is None:
-                os.environ.pop("CONTRACTS_ALLOW_CROSS_RUN_RESUME", None)
-            else:
-                os.environ["CONTRACTS_ALLOW_CROSS_RUN_RESUME"] = prev_allow
+        # ONE_CANONICAL_PATH: same job + checkpoint + lock as pncp-contracts.timer.
+        # Do NOT reset checkpoint (would discard completed windows / thrash PNCP).
+        # Writer lock is acquired inside run_contracts_incremental.
+        rc = inc_main(
+            [
+                "--dsn",
+                dsn,
+                "--days",
+                str(days),
+                "--output-json",
+                str(out),
+                "--checkpoint-dir",
+                "data/contracts_checkpoints/incremental",
+                "--logical-job-id",
+                "pncp-contracts-incremental",
+                "--campaign-id",
+                "historical_contracts_incremental",
+            ]
+        )
         payload: dict[str, Any] = {}
         if out.is_file():
             payload = json.loads(out.read_text(encoding="utf-8"))

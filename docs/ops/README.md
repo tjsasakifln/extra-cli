@@ -72,3 +72,8 @@ Use-os como auditoria; estado atual está no README e neste índice.
 ---
 
 **Não claimar** cobertura 95% open_tenders, `LOCAL_READY`, `VPS_OPERATIONAL` ou `PROJECT_DONE` a partir deste índice sem evidência no HEAD + DOD.
+
+## Campanhas / sessões recentes
+
+- [SOAK-AND-CRAWLER-SCHEDULER-HEALTH-01-PARALLEL (2026-07-29)](campaigns/SOAK-AND-CRAWLER-SCHEDULER-HEALTH-01-PARALLEL.md) — auditoria read-only soak + timers (`SCHEDULERS_FAILED`)
+- [EXTRA-OPERATIONAL-RELIABILITY-AND-COVERAGE-CLOSURE-01](campaigns/EXTRA-OPERATIONAL-RELIABILITY-AND-COVERAGE-CLOSURE-01/PREMORTEM.md) — reparo checkpoint/locks/soak (campanha funcional)

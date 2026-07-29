@@ -1,0 +1,86 @@
+{
+  "host": "v2202607385716487230",
+  "path": "/opt/extra-consultoria/output/coverage/dual-campaign-orrc-01",
+  "as_of": "2026-07-29T15:30:47.651665Z",
+  "dual_gate_status": "PASS",
+  "pipeline_success": true,
+  "scope_complete": true,
+  "open_tenders": {
+    "covered": 1093,
+    "denom": 1093,
+    "pct": 100.0,
+    "success_zero": 931,
+    "success_with_data": 162
+  },
+  "historical_contracts": {
+    "covered": 1093,
+    "denom": 1093,
+    "pct": 100.0,
+    "success_zero": 681,
+    "success_with_data": 412
+  },
+  "files": {
+    "dual-capability-coverage-summary.json": {
+      "bytes": 24912,
+      "sha256": "52d0033bd781d1837bd2946bec746b2a5c2f402cda6a5da77b13d20df6f7cec1",
+      "lines": 852
+    },
+    "dual-coverage-open_tenders.json": {
+      "bytes": 1762,
+      "sha256": "c125f14191d6a3f58bc4c7b16ec361b20db58763ca6465800cae0b6ed9032edc",
+      "lines": 52
+    },
+    "dual-coverage-historical_contracts.json": {
+      "bytes": 1770,
+      "sha256": "1f4dd404e5a5f0a90b30f4804729dad9a141f5293188995f3db85cfbf2ad44bf",
+      "lines": 51
+    },
+    "dual-coverage-gaps-open_tenders.json": {
+      "bytes": 761678,
+      "sha256": "1baf0a2fb3920afca49c519f1758b520158509c31f244b29b7c0f311887f5bf7",
+      "lines": 25384
+    },
+    "dual-coverage-gaps-historical_contracts.json": {
+      "bytes": 798707,
+      "sha256": "c7491f5be6316365db6ee42797a402a2f65cb78e50d927b6c7c2a46b1b55d9e3",
+      "lines": 26234
+    },
+    "dual-coverage-gaps-open_tenders.csv": {
+      "bytes": 278901,
+      "sha256": "f026f8d70b22ed2fbadcf9948fc22e7a5698a021e62f7319161a0a7e126f814d",
+      "lines": 1094
+    },
+    "dual-coverage-gaps-historical_contracts.csv": {
+      "bytes": 308280,
+      "sha256": "ff635f066038342ae68b7b6095fd293bb96b5788aa3d11b0d386a2c1cbf36fc6",
+      "lines": 1094
+    },
+    "entity-capability-ledger.jsonl": {
+      "bytes": 1331577,
+      "sha256": "b0f5437fb559267c47aa829b6540ca77e1e587e2e093c24aedb6fb087bb0569c",
+      "lines": 2186
+    },
+    "source-health.json": {
+      "bytes": 525,
+      "sha256": "8c3c562412b04b10cd101831723655ba2ed8528ea6e84c8104b26a31c576086f",
+      "lines": 24
+    },
+    "checksums.json": {
+      "bytes": 1665,
+      "sha256": "190a356d7037522bba3b9f59d37b725be29a83c0ce5d34156f1523d369dcdd61",
+      "lines": 18
+    },
+    "manifest.json": {
+      "bytes": 2520,
+      "sha256": "d4a7ae321311a3b5ccc505687e1f20ca4cef09a25b49513d034d7d36b69888f0",
+      "lines": 43
+    },
+    "contracts-3y-window-proof.json": {
+      "bytes": 961,
+      "sha256": "b71b840c00c97adc56a17ffed5485d25956c603e9a236f3c2138ce5d70b37b7f",
+      "lines": 25
+    }
+  },
+  "ledger_lines": 2186,
+  "note": "Full gaps/ledger kept on VPS (too large for PR). Compact dual pack in git under artifacts/.../dual/."
+}

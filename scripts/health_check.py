@@ -20,6 +20,7 @@ import shutil
 import subprocess
 import sys
 from datetime import UTC, datetime
+from pathlib import Path
 
 from config.logging_config import get_logger, set_correlation_id
 
@@ -30,7 +31,9 @@ logger = get_logger(__name__)
 # Configuration
 # ---------------------------------------------------------------------------
 
-DB_DSN = os.getenv("LOCAL_DATALAKE_DSN", "postgresql://postgres@localhost:5432/pncp_datalake")
+# Canonical path: systemd EnvironmentFile=/opt/extra-consultoria/.env supplies DSN.
+# Never silently use a passwordless default that fails auth and confuses operators.
+DB_DSN = (os.getenv("LOCAL_DATALAKE_DSN") or os.getenv("DATABASE_URL") or "").strip()
 STORAGE_BOX_MOUNT = os.getenv("BACKUP_MOUNT_POINT", "/mnt/storage-box")
 # Off-site mount is optional until configured; set REQUIRE_STORAGE_BOX=1 to enforce.
 REQUIRE_STORAGE_BOX = os.getenv("REQUIRE_STORAGE_BOX", "0").lower() in {
@@ -49,6 +52,12 @@ DISK_CRIT_PCT = 90
 
 def check_db() -> tuple[bool, str]:
     """Check PostgreSQL connectivity via psql."""
+    if not DB_DSN:
+        return (
+            False,
+            "LOCAL_DATALAKE_DSN/DATABASE_URL unset — load EnvironmentFile or export DSN "
+            "(systemd unit must include EnvironmentFile=/opt/extra-consultoria/.env)",
+        )
     try:
         result = subprocess.run(  # noqa: S603 — shell=False default
             ["psql", DB_DSN, "-c", "SELECT 1 AS ok", "-t", "-A"],  # noqa: S607 — psql resolved from PATH in production VPS
@@ -124,6 +133,106 @@ def check_system() -> tuple[bool, str]:
         return False, str(e)
 
 
+CRITICAL_TIMERS = (
+    "pncp-contracts.timer",
+    "extra-crawl-pncp.timer",
+    "extra-crawl-ciga-ckan.timer",
+    "extra-health-check.timer",
+    "extra-contracts-soak.timer",
+)
+
+CRITICAL_UNIT_TOKENS = (
+    "pncp-contracts",
+    "extra-crawl-pncp",
+    "extra-crawl-ciga",
+    "extra-health",
+    "extra-contracts-soak",
+    "extra-weekly",
+)
+
+
+def check_failed_units() -> tuple[bool, str]:
+    """Fail when critical systemd units are in failed state."""
+    try:
+        r = subprocess.run(  # noqa: S603
+            ["systemctl", "--failed", "--plain", "--no-legend"],  # noqa: S607
+            capture_output=True,
+            text=True,
+            timeout=15,
+        )
+        lines = [ln for ln in (r.stdout or "").splitlines() if ln.strip()]
+        critical = [ln for ln in lines if any(tok in ln for tok in CRITICAL_UNIT_TOKENS)]
+        if critical:
+            return False, f"critical failed units: {len(critical)} ({critical[0][:80]})"
+        return True, f"no critical failed units (total_failed={len(lines)})"
+    except Exception as e:
+        return False, f"failed_units check error: {e}"
+
+
+def check_critical_timers() -> tuple[bool, str]:
+    """Require critical timers enabled + active."""
+    bad: list[str] = []
+    for unit in CRITICAL_TIMERS:
+        try:
+            en = subprocess.run(  # noqa: S603
+                ["systemctl", "is-enabled", unit],  # noqa: S607
+                capture_output=True,
+                text=True,
+                timeout=10,
+            )
+            ac = subprocess.run(  # noqa: S603
+                ["systemctl", "is-active", unit],  # noqa: S607
+                capture_output=True,
+                text=True,
+                timeout=10,
+            )
+            en_s = (en.stdout or "").strip()
+            ac_s = (ac.stdout or "").strip()
+            if en_s not in {"enabled", "static"} or ac_s != "active":
+                bad.append(f"{unit}:enabled={en_s}:active={ac_s}")
+        except Exception as e:
+            bad.append(f"{unit}:err={e}")
+    if bad:
+        return False, "; ".join(bad[:5])
+    return True, f"critical timers OK ({len(CRITICAL_TIMERS)})"
+
+
+def check_dual_coverage_artifact() -> tuple[bool, str]:
+    """Require dual coverage artifact PASS with both capabilities >=95%."""
+    candidates = [
+        "output/coverage/dual-campaign-orrc-01/dual-capability-coverage-summary.json",
+        "output/coverage/dual-latest/dual-capability-coverage-summary.json",
+        "output/coverage/dual-capability-coverage-summary.json",
+    ]
+    root = Path(__file__).resolve().parents[1]
+    for rel in candidates:
+        path = root / rel
+        if not path.is_file():
+            continue
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as e:
+            return False, f"dual summary unreadable: {e}"
+        if data.get("dual_gate_status") != "PASS":
+            return False, f"dual_gate_status={data.get('dual_gate_status')}"
+        if not data.get("pipeline_success") or not data.get("scope_complete"):
+            return False, "dual pipeline/scope not complete"
+        caps = data.get("capabilities") or {}
+        for name in ("open_tenders", "historical_contracts"):
+            c = caps.get(name) or {}
+            pct = c.get("coverage_pct")
+            try:
+                f = float(pct)
+            except (TypeError, ValueError):
+                return False, f"{name}: missing coverage_pct"
+            if f > 1.0:
+                f = f / 100.0
+            if f < 0.95:
+                return False, f"{name}: coverage={f:.4f} < 0.95"
+        return True, f"dual PASS artifact {path.name}"
+    return False, "dual coverage summary missing"
+
+
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
@@ -162,6 +271,26 @@ def main() -> int:
 
     sys_ok, sys_msg = check_system()
     results["system"] = {"status": "pass" if sys_ok else "fail", "message": sys_msg}
+
+    fu_ok, fu_msg = check_failed_units()
+    results["failed_units"] = {"status": "pass" if fu_ok else "fail", "message": fu_msg}
+    if not fu_ok:
+        exit_code = 2
+
+    tm_ok, tm_msg = check_critical_timers()
+    results["critical_timers"] = {"status": "pass" if tm_ok else "fail", "message": tm_msg}
+    if not tm_ok:
+        exit_code = 2
+
+    dual_ok, dual_msg = check_dual_coverage_artifact()
+    results["dual_coverage"] = {
+        "status": "pass" if dual_ok else "fail",
+        "message": dual_msg,
+    }
+    if not dual_ok:
+        # Soft-fail when dual artifact is stale/missing so DB-only hosts still boot;
+        # production VPS with dual PASS keeps hard green.
+        exit_code = max(exit_code, 1)
 
     # Build structured log for journald
     report = {

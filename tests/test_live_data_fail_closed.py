@@ -120,12 +120,18 @@ def test_empty_csv_writes_explicit_zero_row_count(tmp_path: Path) -> None:
     assert path.exists() and "row_count" in text and text.strip() != ""
 
 
-def test_incremental_refuses_foreign_checkpoint_without_reset(tmp_path: Path) -> None:
+def test_incremental_uses_logical_job_contract_and_reset(tmp_path: Path) -> None:
+    """Shipped incremental path: logical_job_id + archive reset (not silent wipe)."""
     src = Path("scripts/crawl/run_contracts_incremental.py").read_text(encoding="utf-8")
-    assert "refusing silent foreign resume" in src
-    assert "--reset-checkpoint" in src or "CONTRACTS_ALLOW_CROSS_RUN_RESUME" in src
-    # structural proof: checkpoint meta binds run_id
-    assert "run_id" in src and "foreign" in src.lower()
+    assert "logical_job_id" in src or "LOGICAL_JOB_INCREMENTAL" in src
+    assert "--reset-checkpoint" in src
+    assert "archive_checkpoint" in src
+    assert "acquire_or_exit" in src or "contracts_writer_lock" in src
+    # campaign mismatch still fail-closed via migrate_meta
+    contract = Path("scripts/crawl/contracts_checkpoint_contract.py").read_text(
+        encoding="utf-8"
+    )
+    assert "campaign mismatch" in contract or "logical_job_id mismatch" in contract
 
 
 def test_pncp_open_proposal_horizon_forward() -> None:

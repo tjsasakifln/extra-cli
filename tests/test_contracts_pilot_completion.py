@@ -484,25 +484,81 @@ def test_checkpoint_has_completed_window_when_path_ok():
 # ---------------------------------------------------------------------------
 
 
-def test_foreign_run_blocked_by_default():
-    """Same-run requirement blocks rebinding without allow_cross_run_resume."""
+def test_foreign_run_blocked_by_default(monkeypatch):
+    """Proof-mode checkpoint (no logical job) blocks rebind without allow flag."""
     from scripts.crawl.contracts_crawler import CrawlCheckpoint
     from scripts.crawl.run_contracts_90d_pilot import _apply_run_id_to_checkpoint
 
+    monkeypatch.delenv("CONTRACTS_LOGICAL_JOB_ID", raising=False)
+    monkeypatch.delenv("CONTRACTS_INCREMENTAL_MODE", raising=False)
+    monkeypatch.setenv("CONTRACTS_REQUIRE_SAME_RUN_ID", "1")
+    monkeypatch.setenv("CONTRACTS_ALLOW_CROSS_RUN_RESUME", "0")
+
     cp = CrawlCheckpoint(mode="full")
-    cp.meta = {"run_id": "run-old", "run_ids": ["run-old"]}
+    # Pure proof binding: no logical_job_id, no incremental markers
+    cp.meta = {"run_id": "run-old", "run_ids": ["run-old"], "proof_mode": True}
     cp.completed_windows = ["20260715_20260715"]
     with pytest.raises(ValueError, match="run_id mismatch"):
         _apply_run_id_to_checkpoint(cp, "run-new", allow_cross_run_resume=False)
 
 
-def test_foreign_resume_allowed_when_explicit():
+def test_same_logical_job_rebind_is_not_foreign(monkeypatch):
+    """Incremental logical job may rebind attempt_run_id without foreign_resume."""
+    from scripts.crawl.contracts_checkpoint_contract import LOGICAL_JOB_INCREMENTAL
     from scripts.crawl.contracts_crawler import CrawlCheckpoint
     from scripts.crawl.run_contracts_90d_pilot import _apply_run_id_to_checkpoint
 
+    monkeypatch.delenv("CONTRACTS_LOGICAL_JOB_ID", raising=False)
+    monkeypatch.delenv("CONTRACTS_INCREMENTAL_MODE", raising=False)
+
     cp = CrawlCheckpoint(mode="full")
-    cp.meta = {"run_id": "run-old", "run_ids": ["run-old"]}
-    prev = _apply_run_id_to_checkpoint(cp, "run-new", allow_cross_run_resume=True)
+    cp.meta = {
+        "run_id": "run-old",
+        "run_ids": ["run-old"],
+        "logical_job_id": LOGICAL_JOB_INCREMENTAL,
+        "incremental_days": 7,
+        "campaign_id": "historical_contracts_incremental",
+    }
+    cp.completed_windows = ["20260715_20260715"]
+    prev = _apply_run_id_to_checkpoint(
+        cp,
+        "run-new",
+        allow_cross_run_resume=False,
+        logical_job_id=LOGICAL_JOB_INCREMENTAL,
+        campaign_id="historical_contracts_incremental",
+        incremental_days=7,
+    )
+    assert "run-old" in prev
+    assert cp.meta.get("run_id") == "run-new"
+    assert cp.meta.get("foreign_resume") is False
+    assert cp.completed_windows == ["20260715_20260715"]
+
+
+def test_foreign_resume_allowed_when_explicit(monkeypatch):
+    """Different campaign requires allow_foreign / allow_cross_run_resume."""
+    from scripts.crawl.contracts_checkpoint_contract import LOGICAL_JOB_INCREMENTAL
+    from scripts.crawl.contracts_crawler import CrawlCheckpoint
+    from scripts.crawl.run_contracts_90d_pilot import _apply_run_id_to_checkpoint
+
+    monkeypatch.delenv("CONTRACTS_LOGICAL_JOB_ID", raising=False)
+    monkeypatch.delenv("CONTRACTS_INCREMENTAL_MODE", raising=False)
+
+    cp = CrawlCheckpoint(mode="full")
+    cp.meta = {
+        "run_id": "run-old",
+        "run_ids": ["run-old"],
+        "logical_job_id": LOGICAL_JOB_INCREMENTAL,
+        "campaign_id": "OTHER-CAMPAIGN",
+        "incremental_days": 7,
+    }
+    prev = _apply_run_id_to_checkpoint(
+        cp,
+        "run-new",
+        allow_cross_run_resume=True,
+        logical_job_id=LOGICAL_JOB_INCREMENTAL,
+        campaign_id="historical_contracts_incremental",
+        incremental_days=7,
+    )
     assert "run-old" in prev
     assert cp.meta.get("run_id") == "run-new"
     assert cp.meta.get("foreign_resume") is True

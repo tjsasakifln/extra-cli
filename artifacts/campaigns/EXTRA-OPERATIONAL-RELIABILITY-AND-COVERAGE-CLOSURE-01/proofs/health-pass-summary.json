@@ -1,0 +1,10 @@
+{
+  "captured_at": "2026-07-29T16:14:37.076454Z",
+  "systemd_Result": "success",
+  "systemd_ExecMainStatus": "0",
+  "HEALTH_CLI_RC": 0,
+  "db_pass": true,
+  "critical_timers_pass": true,
+  "dual_coverage_pass": true,
+  "note": "Canonical path: systemctl start extra-health-check.service with EnvironmentFile=.env"
+}

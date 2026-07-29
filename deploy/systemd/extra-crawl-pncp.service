@@ -10,8 +10,12 @@ User=extra-consultoria
 Group=extra-consultoria
 WorkingDirectory=/opt/extra-consultoria
 Environment=PYTHONPATH=/opt/extra-consultoria
+Environment=RESILIENCE_ENV=production
 EnvironmentFile=/opt/extra-consultoria/.env
-ExecStart=/usr/bin/flock --nonblock /run/lock/extra-crawl-pncp.lock /opt/extra-consultoria/.venv/bin/python -m scripts.ops.resilient_cycle --live --source pncp
+# production env: operational paths under /var/lib; fail-closed on blocked sources
+ExecStart=/usr/bin/flock --nonblock /run/lock/extra-crawl-pncp.lock \
+  /opt/extra-consultoria/.venv/bin/python -m scripts.ops.resilient_cycle \
+  --live --env production --source pncp
 TimeoutStartSec=45min
 Restart=no
 StandardOutput=journal

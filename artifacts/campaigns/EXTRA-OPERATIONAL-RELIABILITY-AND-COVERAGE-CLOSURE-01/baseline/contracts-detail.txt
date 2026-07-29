@@ -1,0 +1,269 @@
+=== pncp-contracts full last failure ===
+Jul 24 06:02:12 v2202607385716487230 pncp-contracts[28935]: Traceback (most recent call last):
+Jul 24 06:02:12 v2202607385716487230 pncp-contracts[28935]:   File "<frozen runpy>", line 198, in _run_module_as_main
+Jul 24 06:02:12 v2202607385716487230 pncp-contracts[28935]:   File "<frozen runpy>", line 88, in _run_code
+Jul 24 06:02:12 v2202607385716487230 pncp-contracts[28935]:   File "/opt/extra-consultoria/scripts/crawl/run_contracts_incremental.py", line 128, in <module>
+Jul 24 06:02:12 v2202607385716487230 pncp-contracts[28935]:     raise SystemExit(main())
+Jul 24 06:02:12 v2202607385716487230 pncp-contracts[28935]:                      ~~~~^^
+Jul 24 06:02:12 v2202607385716487230 pncp-contracts[28935]:   File "/opt/extra-consultoria/scripts/crawl/run_contracts_incremental.py", line 90, in main
+Jul 24 06:02:12 v2202607385716487230 pncp-contracts[28935]:     report = run_pilot(
+Jul 24 06:02:12 v2202607385716487230 pncp-contracts[28935]:         dsn=args.dsn,
+Jul 24 06:02:12 v2202607385716487230 pncp-contracts[28935]:     ...<3 lines>...
+Jul 24 06:02:12 v2202607385716487230 pncp-contracts[28935]:         dry_run=bool(args.dry_run),
+Jul 24 06:02:12 v2202607385716487230 pncp-contracts[28935]:     )
+Jul 24 06:02:12 v2202607385716487230 pncp-contracts[28935]:   File "/opt/extra-consultoria/scripts/crawl/run_contracts_90d_pilot.py", line 793, in run_pilot
+Jul 24 06:02:12 v2202607385716487230 pncp-contracts[28935]:     previous_run_ids = _apply_run_id_to_checkpoint(checkpoint, run_id)
+Jul 24 06:02:12 v2202607385716487230 pncp-contracts[28935]:   File "/opt/extra-consultoria/scripts/crawl/run_contracts_90d_pilot.py", line 364, in _apply_run_id_to_checkpoint
+Jul 24 06:02:12 v2202607385716487230 pncp-contracts[28935]:     assert_checkpoint_run_id(cp_dict, run_id)
+Jul 24 06:02:12 v2202607385716487230 pncp-contracts[28935]:     ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+Jul 24 06:02:12 v2202607385716487230 pncp-contracts[28935]:   File "/opt/extra-consultoria/scripts/crawl/run_evidence.py", line 395, in assert_checkpoint_run_id
+Jul 24 06:02:12 v2202607385716487230 pncp-contracts[28935]:     raise ValueError(
+Jul 24 06:02:12 v2202607385716487230 pncp-contracts[28935]:         f"checkpoint run_id mismatch: existing={existing!r} current={run_id!r}"
+Jul 24 06:02:12 v2202607385716487230 pncp-contracts[28935]:     )
+Jul 24 06:02:12 v2202607385716487230 pncp-contracts[28935]: ValueError: checkpoint run_id mismatch: existing='contracts-90d-20260723T201229Z-4da85aaee0' current='contracts-90d-20260724T090212Z-b809dbc181'
+Jul 24 06:02:12 v2202607385716487230 systemd[1]: pncp-contracts.service: Main process exited, code=exited, status=1/FAILURE
+Jul 24 06:02:12 v2202607385716487230 systemd[1]: pncp-contracts.service: Failed with result 'exit-code'.
+Jul 24 06:02:12 v2202607385716487230 systemd[1]: Failed to start pncp-contracts.service - PNCP Contracts Crawler — Extra Consultoria.
+Jul 24 06:02:12 v2202607385716487230 systemd[1]: pncp-contracts.service: Triggering OnFailure= dependencies.
+Jul 27 06:01:11 v2202607385716487230 systemd[1]: Starting pncp-contracts.service - PNCP Contracts Crawler — Extra Consultoria...
+Jul 27 06:01:11 v2202607385716487230 pncp-contracts[58942]: Traceback (most recent call last):
+Jul 27 06:01:11 v2202607385716487230 pncp-contracts[58942]:   File "<frozen runpy>", line 198, in _run_module_as_main
+Jul 27 06:01:11 v2202607385716487230 pncp-contracts[58942]:   File "<frozen runpy>", line 88, in _run_code
+Jul 27 06:01:11 v2202607385716487230 pncp-contracts[58942]:   File "/opt/extra-consultoria/scripts/crawl/run_contracts_incremental.py", line 128, in <module>
+Jul 27 06:01:11 v2202607385716487230 pncp-contracts[58942]:     raise SystemExit(main())
+Jul 27 06:01:11 v2202607385716487230 pncp-contracts[58942]:                      ~~~~^^
+Jul 27 06:01:11 v2202607385716487230 pncp-contracts[58942]:   File "/opt/extra-consultoria/scripts/crawl/run_contracts_incremental.py", line 90, in main
+Jul 27 06:01:11 v2202607385716487230 pncp-contracts[58942]:     report = run_pilot(
+Jul 27 06:01:11 v2202607385716487230 pncp-contracts[58942]:         dsn=args.dsn,
+Jul 27 06:01:11 v2202607385716487230 pncp-contracts[58942]:     ...<3 lines>...
+Jul 27 06:01:11 v2202607385716487230 pncp-contracts[58942]:         dry_run=bool(args.dry_run),
+Jul 27 06:01:11 v2202607385716487230 pncp-contracts[58942]:     )
+Jul 27 06:01:11 v2202607385716487230 pncp-contracts[58942]:   File "/opt/extra-consultoria/scripts/crawl/run_contracts_90d_pilot.py", line 793, in run_pilot
+Jul 27 06:01:11 v2202607385716487230 pncp-contracts[58942]:     previous_run_ids = _apply_run_id_to_checkpoint(checkpoint, run_id)
+Jul 27 06:01:11 v2202607385716487230 pncp-contracts[58942]:   File "/opt/extra-consultoria/scripts/crawl/run_contracts_90d_pilot.py", line 364, in _apply_run_id_to_checkpoint
+Jul 27 06:01:11 v2202607385716487230 pncp-contracts[58942]:     assert_checkpoint_run_id(cp_dict, run_id)
+Jul 27 06:01:11 v2202607385716487230 pncp-contracts[58942]:     ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+Jul 27 06:01:11 v2202607385716487230 pncp-contracts[58942]:   File "/opt/extra-consultoria/scripts/crawl/run_evidence.py", line 395, in assert_checkpoint_run_id
+Jul 27 06:01:11 v2202607385716487230 pncp-contracts[58942]:     raise ValueError(
+Jul 27 06:01:11 v2202607385716487230 pncp-contracts[58942]:         f"checkpoint run_id mismatch: existing={existing!r} current={run_id!r}"
+Jul 27 06:01:11 v2202607385716487230 pncp-contracts[58942]:     )
+Jul 27 06:01:11 v2202607385716487230 pncp-contracts[58942]: ValueError: checkpoint run_id mismatch: existing='contracts-90d-20260723T201229Z-4da85aaee0' current='contracts-90d-20260727T090111Z-7f8a4790c0'
+Jul 27 06:01:11 v2202607385716487230 systemd[1]: pncp-contracts.service: Main process exited, code=exited, status=1/FAILURE
+Jul 27 06:01:11 v2202607385716487230 systemd[1]: pncp-contracts.service: Failed with result 'exit-code'.
+Jul 27 06:01:11 v2202607385716487230 systemd[1]: Failed to start pncp-contracts.service - PNCP Contracts Crawler — Extra Consultoria.
+Jul 27 06:01:11 v2202607385716487230 systemd[1]: pncp-contracts.service: Triggering OnFailure= dependencies.
+Jul 29 06:02:56 v2202607385716487230 systemd[1]: Starting pncp-contracts.service - PNCP Contracts Crawler — Extra Consultoria...
+Jul 29 06:02:56 v2202607385716487230 pncp-contracts[80868]: Traceback (most recent call last):
+Jul 29 06:02:56 v2202607385716487230 pncp-contracts[80868]:   File "<frozen runpy>", line 198, in _run_module_as_main
+Jul 29 06:02:56 v2202607385716487230 pncp-contracts[80868]:   File "<frozen runpy>", line 88, in _run_code
+Jul 29 06:02:56 v2202607385716487230 pncp-contracts[80868]:   File "/opt/extra-consultoria/scripts/crawl/run_contracts_incremental.py", line 140, in <module>
+Jul 29 06:02:56 v2202607385716487230 pncp-contracts[80868]:     raise SystemExit(main())
+Jul 29 06:02:56 v2202607385716487230 pncp-contracts[80868]:                      ~~~~^^
+Jul 29 06:02:56 v2202607385716487230 pncp-contracts[80868]:   File "/opt/extra-consultoria/scripts/crawl/run_contracts_incremental.py", line 102, in main
+Jul 29 06:02:56 v2202607385716487230 pncp-contracts[80868]:     report = run_pilot(
+Jul 29 06:02:56 v2202607385716487230 pncp-contracts[80868]:         dsn=args.dsn,
+Jul 29 06:02:56 v2202607385716487230 pncp-contracts[80868]:     ...<3 lines>...
+Jul 29 06:02:56 v2202607385716487230 pncp-contracts[80868]:         dry_run=bool(args.dry_run),
+Jul 29 06:02:56 v2202607385716487230 pncp-contracts[80868]:     )
+Jul 29 06:02:56 v2202607385716487230 pncp-contracts[80868]:   File "/opt/extra-consultoria/scripts/crawl/run_contracts_90d_pilot.py", line 793, in run_pilot
+Jul 29 06:02:56 v2202607385716487230 pncp-contracts[80868]:     previous_run_ids = _apply_run_id_to_checkpoint(checkpoint, run_id)
+Jul 29 06:02:56 v2202607385716487230 pncp-contracts[80868]:   File "/opt/extra-consultoria/scripts/crawl/run_contracts_90d_pilot.py", line 364, in _apply_run_id_to_checkpoint
+Jul 29 06:02:56 v2202607385716487230 pncp-contracts[80868]:     assert_checkpoint_run_id(cp_dict, run_id)
+Jul 29 06:02:56 v2202607385716487230 pncp-contracts[80868]:     ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+Jul 29 06:02:56 v2202607385716487230 pncp-contracts[80868]:   File "/opt/extra-consultoria/scripts/crawl/run_evidence.py", line 395, in assert_checkpoint_run_id
+Jul 29 06:02:56 v2202607385716487230 pncp-contracts[80868]:     raise ValueError(
+Jul 29 06:02:56 v2202607385716487230 pncp-contracts[80868]:         f"checkpoint run_id mismatch: existing={existing!r} current={run_id!r}"
+Jul 29 06:02:56 v2202607385716487230 pncp-contracts[80868]:     )
+Jul 29 06:02:56 v2202607385716487230 pncp-contracts[80868]: ValueError: checkpoint run_id mismatch: existing='contracts-90d-20260723T201229Z-4da85aaee0' current='contracts-90d-20260729T090256Z-98168e293a'
+Jul 29 06:02:56 v2202607385716487230 systemd[1]: pncp-contracts.service: Main process exited, code=exited, status=1/FAILURE
+Jul 29 06:02:56 v2202607385716487230 systemd[1]: pncp-contracts.service: Failed with result 'exit-code'.
+Jul 29 06:02:56 v2202607385716487230 systemd[1]: Failed to start pncp-contracts.service - PNCP Contracts Crawler — Extra Consultoria.
+Jul 29 06:02:56 v2202607385716487230 systemd[1]: pncp-contracts.service: Triggering OnFailure= dependencies.
+=== contracts checkpoint ===
+total 36
+drwxr-xr-x  8 extra-consultoria extra-consultoria 4096 Jul 23 20:48 .
+drwxr-xr-x 11 extra-consultoria extra-consultoria 4096 Jul 23 20:15 ..
+drwxr-xr-x  2 extra-consultoria extra-consultoria 4096 Jul 23 12:02 a5_next30d
+-rw-r--r--  1 root              root               680 Jul 23 12:02 contracts_full.json
+drwxr-xr-x  2 root              root              4096 Jul 23 19:30 hc_closure_3y
+drwxr-xr-x  2 extra-consultoria extra-consultoria 4096 Jul 23 17:12 incremental
+drwxr-xr-x  2 extra-consultoria extra-consultoria 4096 Jul 23 12:02 path_1d
+drwxr-xr-x  2 extra-consultoria extra-consultoria 4096 Jul 23 12:02 span_7d
+drwxr-xr-x  2 extra-consultoria extra-consultoria 4096 Jul 23 20:48 weekly_incremental
+/opt/extra-consultoria/data/contracts_checkpoints/contracts_full.json
+/opt/extra-consultoria/data/contracts_checkpoints/span_7d/contracts_full.json
+/opt/extra-consultoria/data/contracts_checkpoints/span_7d/seal-windows.json
+/opt/extra-consultoria/data/contracts_checkpoints/path_1d/contracts_full.json
+/opt/extra-consultoria/data/contracts_checkpoints/path_1d/seal-windows.json
+/opt/extra-consultoria/data/contracts_checkpoints/weekly_incremental/contracts_full.json
+/opt/extra-consultoria/data/contracts_checkpoints/a5_next30d/contracts_full.json
+/opt/extra-consultoria/data/contracts_checkpoints/a5_next30d/seal-90d-windows.json
+/opt/extra-consultoria/data/contracts_checkpoints/a5_next30d/seal-7d-windows.json
+/opt/extra-consultoria/data/contracts_checkpoints/hc_closure_3y/contracts_full.json
+/opt/extra-consultoria/data/contracts_checkpoints/incremental/contracts_full.json
+FILE /opt/extra-consultoria/data/contracts_checkpoints/contracts_full.json
+{
+  "source": "pncp_contracts",
+  "mode": "full",
+  "completed_windows": [
+    "20260704_20260718",
+    "20260604_20260610",
+    "20260611_20260617",
+    "20260618_20260624",
+    "20260625_20260701",
+    "20260702_20260708",
+    "20260709_20260715",
+    "20260716_20260719",
+    "20260420_20260519",
+    "20260520_20260618",
+    "20260619_20260718"
+  ],
+  "current_window_start": "20260619",
+  "total_contracts_fetched": 813648,
+  "total_windows_completed": 11,
+  "total_windows_failed": 3,
+  "last_error": "Page 1: [http_rate_limit] 429 Rate limit exceeded after 3 retries",
+  "updated_at": "2026-07-19T16:36:52Z",
+  "meta": {
+    "campaign": "EXTRA-OPS-95",
+    "days": 14
+  }
+}
+FILE /opt/extra-consultoria/data/contracts_checkpoints/span_7d/contracts_full.json
+{
+  "source": "pncp_contracts",
+  "mode": "full",
+  "completed_windows": [
+    "20260709_20260716"
+  ],
+  "current_window_start": "20260709",
+  "total_contracts_fetched": 42074,
+  "total_windows_completed": 1,
+  "total_windows_failed": 0,
+  "last_error": null,
+  "updated_at": "2026-07-17T01:43:54Z",
+  "meta": {
+    "run_id": "contracts-seal-20260717T014354Z-f25ea04805",
+    "run_ids": [
+      "contracts-seal-20260717T014354Z-f25ea04805"
+    ],
+    "previous_run_ids": [],
+    "foreign_resume": false
+  }
+}
+FILE /opt/extra-consultoria/data/contracts_checkpoints/span_7d/seal-windows.json
+{
+  "windows": [
+    {
+      "window_key": "20260709_20260716",
+      "status": "completed",
+      "pages": 85,
+      "transformed": 42074,
+      "inserted": 29357,
+      "skipped": 12717,
+      "errors": [],
+      "origin": "prior_live_7d_smoke"
+    }
+  ],
+  "totals": {
+    "fetched": 42077,
+    "transformed": 42074,
+    "inserted": 29357,
+    "skipped": 12717,
+    "pages": 85,
+    "page_errors": 0
+  },
+  "db": {
+    "pncp_supplier_contracts_count": 63574,
+    "min_data_publicacao": "2021-08-26",
+    "max_data_publicacao": "2026-12-16",
+    "data_publicacao_note": "LEGACY/MIXED",
+    "sample_populated_n20": 20,
+    "monthly": [
+      {"mes": "2026-04-01", "n": 14497},
+      {"mes": "2026-05-01", "n": 1818},
+      {"mes": "2026-06-01", "n": 8706},
+      {"mes": "2026-07-01", "n": 31160}
+    ]
+  }
+}
+
+FILE /opt/extra-consultoria/data/contracts_checkpoints/path_1d/contracts_full.json
+{
+  "source": "pncp_contracts",
+  "mode": "full",
+  "completed_windows": [
+    "20260715_20260715"
+  ],
+  "current_window_start": "20260715",
+  "total_contracts_fetched": 6169,
+  "total_windows_completed": 1,
+  "total_windows_failed": 0,
+  "last_error": null,
+  "updated_at": "2026-07-17T01:43:53Z",
+  "meta": {
+    "run_id": "contracts-seal-20260717T014353Z-b07454e013",
+    "run_ids": [
+      "contracts-seal-20260717T014353Z-b07454e013"
+    ],
+    "previous_run_ids": [],
+    "foreign_resume": false
+  }
+}
+FILE /opt/extra-consultoria/data/contracts_checkpoints/path_1d/seal-windows.json
+{
+  "windows": [
+    {
+      "window_key": "20260715_20260715",
+      "status": "completed",
+      "pages": 13,
+      "transformed": 6169,
+      "inserted": 6119,
+      "skipped": 50,
+      "errors": [],
+      "origin": "prior_live_path_proof"
+    }
+  ],
+  "totals": {
+    "fetched": 6169,
+    "transformed": 6169,
+    "inserted": 6119,
+    "skipped": 50,
+    "pages": 13,
+    "page_errors": 0
+  },
+  "path_proof": {
+    "status": "success",
+    "days": 1,
+    "window": "20260715_20260715",
+    "totals": {
+      "fetched": 6169,
+      "transformed": 6169,
+      "inserted": 6119,
+      "skipped": 50,
+      "pages": 13,
+      "page_errors": 0,
+      "windows_ok": 1,
+      "windows_failed": 0
+    },
+    "note": "Prior live 1-day path; sealed with matching checkpoint window"
+  },
+  "db": {
+    "pncp_supplier_contracts_count": 42216,
+    "min_data_publicacao": "2021-08-26",
+    "max_data_publicacao": "2026-12-16",
+    "data_publicacao_note": "LEGACY/MIXED",
+    "sample_populated_n20": 20
+  }
+}
+
+=== soak artifacts ===
+/var/lib/extra-consultoria/backfill/soak
+total 28
+drwxr-x---  7 extra-consultoria extra-consultoria 4096 Jul 23 10:14 .
+drwxr-xr-x 33 root              root              4096 Jul 23 19:15 ..
+drwxr-xr-x  4 extra-consultoria extra-consultoria 4096 Jul 23 17:31 backfill
+drwxr-xr-x  5 extra-consultoria extra-consultoria 4096 Jul 23 19:17 backups
+drwxr-xr-x  3 extra-consultoria extra-consultoria 4096 Jul 23 17:05 checkpoints
+drwxr-xr-x  4 extra-consultoria extra-consultoria 4096 Jul 23 16:53 incoming
+drwxr-xr-x  2 extra-consultoria extra-consultoria 4096 Jul 23 10:14 resilience

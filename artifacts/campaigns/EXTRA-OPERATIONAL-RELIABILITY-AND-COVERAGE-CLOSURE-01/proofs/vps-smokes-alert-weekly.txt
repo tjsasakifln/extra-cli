@@ -1,0 +1,78 @@
+{
+  "proof_path": "data/contracts_checkpoints/hc_closure_3y/contracts_full.json",
+  "valid": true,
+  "errors": [],
+  "planned_windows": 37,
+  "completed_windows": 37,
+  "total_windows_failed_counter": 10,
+  "pages_processed": 749,
+  "pages_expected_field": 37,
+  "run_ids": [
+    "contracts-90d-20260722T161248Z-723a6126c3",
+    "contracts-90d-20260723T114833Z-ed88caf21d",
+    "contracts-90d-20260723T115017Z-6b1093e618",
+    "contracts-90d-20260723T184406Z-18afedfca1"
+  ],
+  "window_span_start": "2023-07-20",
+  "window_span_end": "2026-07-23",
+  "window_span_days": 1099,
+  "window_span_years": 3.0089,
+  "meets_min_3y": true,
+  "note": "valid=True because completed_windows==planned_windows (37); total_windows_failed is historical residual counter and does not invalidate when set is complete (see load_checkpoint_window_proof).",
+  "projection_run_id": "contracts-3y-proj-20260729T153000Z",
+  "period_start": "2023-07-20",
+  "period_end": "2026-07-23"
+}
+{"timestamp": "2026-07-29T15:57:18.716202+00:00", "level": "INFO", "module": "__main__", "correlation_id": "3fe0c6e706c1", "message": "Alert check: 3 alerts (critical=0, warn=0, info=3)", "extra_data": {"alerts": [{"severity": 0, "category": "api_key", "title": "API key faltando: OPENAI_API_KEY", "message": "A chave OPENAI_API_KEY (OpenAI LLM) nao esta configurada no arquivo .env ou ambiente. [scope=contracts: info only]", "details": "Service: OpenAI LLM", "timestamp": "2026-07-29T15:57:18.716126+00:00"}, {"severity": 0, "category": "api_key", "title": "API key faltando: DOM_SC_API_KEY", "message": "A chave DOM_SC_API_KEY (DOM-SC) nao esta configurada no arquivo .env ou ambiente. [scope=contracts: info only]", "details": "Service: DOM-SC", "timestamp": "2026-07-29T15:57:18.716156+00:00"}, {"severity": 0, "category": "api_key", "title": "API key Portal da Transparencia nao configurada", "message": "PORTAL_TRANSPARENCIA_API_key nao esta configurada. O crawler do Portal da Transparencia pode ser afetado.", "details": "", "timestamp": "2026-07-29T15:57:18.716163+00:00"}], "dry_run": true}}
+Alert Check — 2026-07-29T15:57:18.716360+00:00
+Host: v2202607385716487230
+
+  [INFO] [api_key] API key faltando: OPENAI_API_KEY
+           A chave OPENAI_API_KEY (OpenAI LLM) nao esta configurada no arquivo .env ou ambiente. [scope=contracts: info only]
+
+  [INFO] [api_key] API key faltando: DOM_SC_API_KEY
+           A chave DOM_SC_API_KEY (DOM-SC) nao esta configurada no arquivo .env ou ambiente. [scope=contracts: info only]
+
+  [INFO] [api_key] API key Portal da Transparencia nao configurada
+           PORTAL_TRANSPARENCIA_API_key nao esta configurada. O crawler do Portal da Transparencia pode ser afetado.
+
+Total: 3 alerts (critical=0, warnings=0)
+ALERT_EXIT:0
+    "executive_md": "/opt/extra-consultoria/output/weekly/weekly-20260729T155718Z-3c30a916ab/executive_summary.md",
+    "excel": "/opt/extra-consultoria/output/weekly/weekly-20260729T155718Z-3c30a916ab/extra_weekly_pack.xlsx",
+    "manifest": "/opt/extra-consultoria/output/weekly/weekly-20260729T155718Z-3c30a916ab/manifest.json",
+    "pdf_status": "RESIDUAL_NOT_GENERATED"
+  },
+  "intelligence_counts": {
+    "opportunities": 5,
+    "contracts": 5,
+    "competitors": 5,
+    "orgaos": 5,
+    "universe_200km": 1093,
+    "expected_universe": 1093
+  },
+  "runs": [
+    {
+      "source": "pncp_opportunities",
+      "terminal_status": "reused_fresh"
+    },
+    {
+      "source": "pncp_contracts",
+      "terminal_status": "reused_fresh"
+    }
+  ],
+  "human_accept": "PENDING_HUMAN"
+}
+WEEKLY_EXIT:0
+usage: extra_recurring_delivery.py [-h] {run,validate-weekly} ...
+
+Extra recurring delivery — weekly deltas + reports (CLI-first)
+
+positional arguments:
+  {run,validate-weekly}
+    run                 Compare weekly runs and write delivery pack
+    validate-weekly     Valida WeeklyInput (pack)
+
+options:
+  -h, --help            show this help message and exit
+first_client_module_ok True

@@ -5,10 +5,19 @@ Uses the hardened pilot runner for a short lookback window (default 7 days)
 so upsert, checkpoint isolation, page retries, and evidence artifacts stay
 consistent with the 90d pilot path.
 
+Checkpoint contract (v2):
+  * ``logical_job_id`` = ``pncp-contracts-incremental`` (stable)
+  * ``attempt_run_id`` changes every invocation
+  * completed windows resume across attempts without foreign-run hard-fail
+
+Lock domain:
+  all writers share ``/run/lock/extra-contracts-writer.lock`` (EXIT 75 if busy).
+
 Exit codes:
   0 — status=success and zero page/window failures
   1 — incomplete / failed / unproven
   2 — usage error
+  75 — contracts writer lock busy (not a source failure)
 """
 from __future__ import annotations
 
@@ -24,7 +33,21 @@ _PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
+from scripts.crawl.contracts_checkpoint_contract import (  # noqa: E402
+    LOGICAL_JOB_INCREMENTAL,
+    archive_checkpoint,
+    checkpoint_file,
+    diagnose,
+    load_raw,
+    migrate_meta,
+    save_raw,
+)
+from scripts.crawl.contracts_writer_lock import acquire_or_exit  # noqa: E402
+
 logger = logging.getLogger("contracts_incremental")
+
+DEFAULT_CHECKPOINT_DIR = "data/contracts_checkpoints/incremental"
+DEFAULT_CAMPAIGN = "historical_contracts_incremental"
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -50,12 +73,25 @@ def main(argv: list[str] | None = None) -> int:
     )
     ap.add_argument(
         "--checkpoint-dir",
-        default="data/contracts_checkpoints/incremental",
+        default=DEFAULT_CHECKPOINT_DIR,
+    )
+    ap.add_argument(
+        "--campaign-id",
+        default=os.getenv("CONTRACTS_CAMPAIGN_ID") or DEFAULT_CAMPAIGN,
+    )
+    ap.add_argument(
+        "--logical-job-id",
+        default=os.getenv("CONTRACTS_LOGICAL_JOB_ID") or LOGICAL_JOB_INCREMENTAL,
     )
     ap.add_argument(
         "--reset-checkpoint",
         action="store_true",
-        help="Clear incremental checkpoint before run",
+        help="Archive and clear completed windows (keeps logical_job_id)",
+    )
+    ap.add_argument(
+        "--skip-lock",
+        action="store_true",
+        help="Skip writer lock (tests only; never in production timers)",
     )
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args(argv)
@@ -67,6 +103,18 @@ def main(argv: list[str] | None = None) -> int:
         print("ERROR: --days must be in 1..90 for incremental path", file=sys.stderr)
         return 2
 
+    lock = None
+    if not args.skip_lock and os.getenv("CONTRACTS_SKIP_WRITER_LOCK", "0") != "1":
+        lock = acquire_or_exit(owner_note="run_contracts_incremental")
+
+    try:
+        return _run_incremental(args)
+    finally:
+        if lock is not None:
+            lock.release()
+
+
+def _run_incremental(args: argparse.Namespace) -> int:
     from scripts.crawl.run_contracts_90d_pilot import (
         _configure_checkpoint_dir,
         load_checkpoint,
@@ -75,69 +123,78 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     started = datetime.now(UTC)
+    # Do not permanently mutate process env (pollutes subsequent tests/jobs).
+    # Pass logical_job_id explicitly into run_pilot instead.
+
     _configure_checkpoint_dir(args.checkpoint_dir)
+    cp_path = checkpoint_file(args.checkpoint_dir, "full")
+
+    # Diagnose + migrate legacy to v2 before pilot bind
+    diag = diagnose(args.checkpoint_dir, mode="full")
+    if diag.exists and not diag.ok:
+        print(f"ERROR: checkpoint unusable: {diag.issues}", file=sys.stderr)
+        return 1
+
     if args.reset_checkpoint:
-        cp = load_checkpoint("full")
-        cp.completed_windows = []
-        cp.current_window_start = None
-        cp.total_windows_completed = 0
-        cp.total_windows_failed = 0
-        cp.total_contracts_fetched = 0
-        cp.last_error = None
-        # Clear bound run_id so the next pilot can rebind without foreign-resume
-        # hard-fail (weekly cycle always generates a new contracts run_id).
-        meta = dict(cp.meta or {})
-        old_run = meta.get("run_id")
+        if cp_path.is_file():
+            archive_checkpoint(cp_path, reason="reset-checkpoint")
+            data = load_raw(cp_path)
+        else:
+            data = {
+                "source": "pncp_contracts",
+                "mode": "full",
+                "completed_windows": [],
+                "meta": {},
+            }
+        data["completed_windows"] = []
+        data["current_window_start"] = None
+        data["total_windows_completed"] = 0
+        data["total_windows_failed"] = 0
+        data["total_contracts_fetched"] = 0
+        data["last_error"] = None
+        data = migrate_meta(
+            data,
+            logical_job_id=str(args.logical_job_id),
+            campaign_id=str(args.campaign_id),
+            incremental_days=int(args.days),
+            force_campaign=True,
+        )
+        meta = dict(data.get("meta") or {})
+        # Drop attempt binding so first pilot attempt is clean
+        old_run = meta.get("run_id") or meta.get("attempt_run_id")
         if old_run:
             prev = list(meta.get("previous_run_ids") or [])
             if old_run not in prev:
                 prev.append(old_run)
             meta["previous_run_ids"] = prev
-            meta.pop("run_id", None)
-            meta["reset_cleared_run_id"] = True
-        meta.pop("foreign_resume", None)
-        meta["incremental_days"] = int(args.days)
+        meta.pop("run_id", None)
+        meta.pop("attempt_run_id", None)
+        meta["reset_cleared_run_id"] = True
         meta["campaign_role"] = "historical_contracts_incremental"
-        cp.meta = meta
-        save_checkpoint(cp)
-        logger.info("Incremental checkpoint reset")
-    else:
-        # Fail-closed: never silently resume a foreign or wrong-parameter checkpoint.
-        # Each CLI invocation gets a new pilot run_id; resuming completed_windows
-        # from another run requires explicit CONTRACTS_ALLOW_CROSS_RUN_RESUME=1
-        # and matching incremental_days.
-        cp = load_checkpoint("full")
-        meta = dict(cp.meta or {})
-        existing_run = meta.get("run_id")
-        bound_days = meta.get("incremental_days")
-        has_progress = bool(cp.completed_windows) or bool(existing_run)
-        if has_progress:
-            allow_cross = os.getenv("CONTRACTS_ALLOW_CROSS_RUN_RESUME", "0") == "1"
-            if bound_days is not None and int(bound_days) != int(args.days):
-                print(
-                    "ERROR: checkpoint incremental_days="
-                    f"{bound_days} != --days={args.days}; "
-                    "refusing wrong-window resume. Use --reset-checkpoint.",
-                    file=sys.stderr,
-                )
-                return 1
-            if existing_run and not allow_cross:
-                print(
-                    f"ERROR: checkpoint bound to run_id={existing_run!r}; "
-                    "refusing silent foreign resume. Use --reset-checkpoint "
-                    "or set CONTRACTS_ALLOW_CROSS_RUN_RESUME=1.",
-                    file=sys.stderr,
-                )
-                return 1
-            if not allow_cross and cp.completed_windows:
-                # No run_id but leftover windows from another process/context
-                print(
-                    "ERROR: checkpoint has completed_windows without explicit "
-                    "cross-run allow; refusing silent resume. "
-                    "Use --reset-checkpoint or CONTRACTS_ALLOW_CROSS_RUN_RESUME=1.",
-                    file=sys.stderr,
-                )
-                return 1
+        data["meta"] = meta
+        save_raw(cp_path, data)
+        logger.info("Incremental checkpoint reset (archived prior file)")
+    elif cp_path.is_file():
+        # Ensure v2 identity without wiping progress
+        try:
+            data = load_raw(cp_path)
+            data = migrate_meta(
+                data,
+                logical_job_id=str(args.logical_job_id),
+                campaign_id=str(args.campaign_id),
+                incremental_days=int(args.days),
+                force_campaign=False,
+            )
+            save_raw(cp_path, data)
+        except Exception as exc:  # noqa: BLE001
+            # Wrong campaign/days → hard fail with guidance
+            print(
+                f"ERROR: checkpoint migrate refused: {exc}. "
+                "Use --reset-checkpoint after archive, or "
+                "python -m scripts.crawl.contracts_checkpoint_contract repair ...",
+                file=sys.stderr,
+            )
+            return 1
 
     report = run_pilot(
         dsn=args.dsn,
@@ -145,21 +202,32 @@ def main(argv: list[str] | None = None) -> int:
         output_json=str(args.output_json),
         checkpoint_dir=args.checkpoint_dir,
         dry_run=bool(args.dry_run),
+        logical_job_id=str(args.logical_job_id),
+        campaign_id=str(args.campaign_id),
     )
-    # Persist parameter binding for the next invocation's wrong-window guard.
+    # Persist parameter binding for the next invocation
     try:
         cp_after = load_checkpoint("full")
         meta_after = dict(cp_after.meta or {})
         meta_after["incremental_days"] = int(args.days)
         meta_after["campaign_role"] = "historical_contracts_incremental"
+        meta_after["logical_job_id"] = str(args.logical_job_id)
+        meta_after["campaign_id"] = str(args.campaign_id)
+        meta_after["checkpoint_version"] = int(meta_after.get("checkpoint_version") or 2)
+        meta_after["capability"] = "historical_contracts"
+        if report.get("run_id"):
+            meta_after["attempt_run_id"] = report["run_id"]
+            meta_after["run_id"] = report["run_id"]
         cp_after.meta = meta_after
         save_checkpoint(cp_after)
     except Exception as exc:  # noqa: BLE001
         logger.warning("Could not annotate incremental checkpoint meta: %s", exc)
-    # Annotate as incremental product surface
+
     report["command"] = "run_contracts_incremental"
     report["incremental_days"] = args.days
     report["campaign_role"] = "historical_contracts_incremental"
+    report["logical_job_id"] = str(args.logical_job_id)
+    report["campaign_id"] = str(args.campaign_id)
     report["claims_forbidden"] = [
         "3y backfill complete",
         "HISTORICAL_CONTRACTS_OPERATIONAL_COVERAGE_PASS without dual gate after projection",
@@ -178,10 +246,11 @@ def main(argv: list[str] | None = None) -> int:
         and int(totals.get("page_errors") or 0) == 0
     )
     logger.info(
-        "incremental done status=%s ok=%s inserted=%s",
+        "incremental done status=%s ok=%s inserted=%s attempt=%s",
         status,
         ok,
         totals.get("inserted"),
+        report.get("run_id"),
     )
     return 0 if ok else 1
 
