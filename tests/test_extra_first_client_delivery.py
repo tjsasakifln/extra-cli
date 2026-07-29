@@ -340,11 +340,16 @@ def test_package_run_produces_required_artifacts(tmp_path: Path) -> None:
         "04-intake-operacional-extra.md",
         "04-intake-operacional-extra.json",
         "05-limitacoes-e-confiabilidade.md",
-        "06-roteiro-reuniao.md",
+        "06-baseline-mercado-extra.md",
+        "06-baseline-mercado-extra.json",
+        "07-plano-30-dias.md",
+        "08-roteiro-reuniao.md",
+        "09-dossie-edital-NOT_AVAILABLE.md",
+        "diagnostico-weekly-source.json",
+        "diagnostico-weekly-source.md",
         "manifest.json",
         "checksums.json",
         "human-review.json",
-        "07-dossie-edital-NOT_AVAILABLE.md",
         "shortlist.json",
     ]
     for name in required:
@@ -456,6 +461,77 @@ def test_cli_validate_exit_codes(tmp_path: Path) -> None:
     empty = tmp_path / "nope"
     empty.mkdir()
     assert efd.main(["validate-weekly", "--weekly-input", str(empty)]) == 2
+
+
+def test_diagnosis_marks_all_passed_deadlines(tmp_path: Path) -> None:
+    weekly = _write_weekly(
+        tmp_path / "w-diag",
+        [
+            {
+                "id": "1",
+                "source": "pncp",
+                "source_id": "83102228000110-1-000001/2026",
+                "numero_controle_pncp": "83102228000110-1-000001/2026",
+                "orgao_cnpj": "83102228000110",
+                "orgao_nome": "MUNICIPIO DEMO",
+                "municipio": "Demo",
+                "uf": "SC",
+                "objeto": "Pavimentação asfáltica de vias urbanas",
+                "modalidade": "Pregão",
+                "valor_estimado": "100000",
+                "valor_semantica": "estimado",
+                "status_canonico": "open",
+                "ranking": "REVIEW",
+                "ranking_score": "0",
+                "ranking_confianca": "MEDIUM",
+                "data_publicacao": "2026-07-01",
+                "data_abertura": "2026-07-01",
+                "data_encerramento": "2026-07-20",
+                "link_edital": "https://pncp.gov.br/app/editais/83102228000110/2026/1",
+                "ingested_at": "2026-07-20T00:00:00Z",
+            }
+        ],
+        exit_code=2,
+    )
+    out = tmp_path / "out-diag"
+    result = efd.run_delivery(
+        weekly_input=weekly,
+        delivery_out=out,
+        profile_path=PROFILE,
+        as_of=date(2026, 7, 28),
+    )
+    assert result["exit_code"] == 0
+    diag = json.loads((out / "diagnostico-weekly-source.json").read_text(encoding="utf-8"))
+    assert diag["exit_code"] == 2
+    assert diag["candidate_funnel"]["deadline_buckets"]["PASSED"] >= 1
+    assert diag["candidate_funnel"]["review_defensible_total"] == 0
+    assert "A_records_old_or_closed" in (diag.get("causes") or []) or diag.get("cause_code")
+    baseline = (out / "06-baseline-mercado-extra.md").read_text(encoding="utf-8")
+    assert "históric" in baseline.lower() or "Referências" in baseline
+
+
+def test_pncp_open_proposal_data_final_uses_forward_horizon() -> None:
+    from datetime import timedelta
+
+    from scripts.opportunity_intel.crawler_base import CrawlRequest
+    from scripts.opportunity_intel.pncp_crawler import (
+        PNCP_OPEN_PROPOSAL_HORIZON_DAYS,
+        PncpOpportunityCrawler,
+    )
+
+    crawler = PncpOpportunityCrawler(dsn=None)
+    req = CrawlRequest(
+        source="pncp",
+        target="modalidade:6",
+        date_from=date.today() - timedelta(days=7),
+        date_to=date.today(),
+        mode="incremental",
+    )
+    data_final = crawler.resolve_data_final(req)
+    assert data_final == date.today() + timedelta(days=PNCP_OPEN_PROPOSAL_HORIZON_DAYS)
+    url = crawler.build_url(req, 1)
+    assert f"dataFinal={data_final.strftime('%Y%m%d')}" in url
+    assert f"dataFinal={date.today().strftime('%Y%m%d')}" not in url
 
 
 def test_profile_patch_yaml_nulls() -> None:

@@ -30,6 +30,13 @@ PNCP_CONSULTA_BASE = "https://pncp.gov.br/api/consulta/v1"
 PNCP_PAGE_SIZE = min(50, max(10, int(os.getenv("PNCP_PAGE_SIZE", "50"))))
 PNCP_MAX_PAGES = int(os.getenv("PNCP_MAX_PAGES", "200"))
 PNCP_REQUEST_DELAY = float(os.getenv("PNCP_REQUEST_DELAY", "0.5"))
+# /contratacoes/proposta: dataFinal is the UPPER BOUND of proposal-end dates among
+# currently open tenders (verified live 2026-07-28). Using "today" only returns
+# same-day closings (which become DEADLINE_PASSED on the next consulting cut) or
+# fails under load. Default horizon keeps a 30-day forward window of open SC tenders.
+PNCP_OPEN_PROPOSAL_HORIZON_DAYS = max(
+    1, min(365, int(os.getenv("PNCP_OPEN_PROPOSAL_HORIZON_DAYS", "30")))
+)
 
 
 class PncpOpportunityCrawler(BaseOpportunityCrawler):
@@ -62,6 +69,19 @@ class PncpOpportunityCrawler(BaseOpportunityCrawler):
             **kwargs,
         )
 
+    def resolve_data_final(self, request: CrawlRequest) -> date:
+        """Resolve dataFinal for /contratacoes/proposta (forward horizon).
+
+        PNCP treats dataFinal as the max proposal-end date among open tenders.
+        A value of today (or in the past) yields only same-day closings — useless
+        for a consulting shortlist cut on the next calendar day. Prefer an explicit
+        future date_to; otherwise expand to today + horizon days.
+        """
+        raw_to = request.date_to or date.today()
+        if raw_to <= date.today():
+            return date.today() + timedelta(days=PNCP_OPEN_PROPOSAL_HORIZON_DAYS)
+        return raw_to
+
     def build_url(self, request: CrawlRequest, page: int) -> str:
         """Build URL for PNCP API contratacoes/proposta endpoint.
 
@@ -73,8 +93,9 @@ class PncpOpportunityCrawler(BaseOpportunityCrawler):
         modalidade = int(request.target.split(":", 1)[1])
         if modalidade not in DEFAULT_MODALIDADES:
             raise ValueError(f"Unsupported PNCP modalidade: {modalidade}")
+        data_final = self.resolve_data_final(request)
         params: dict[str, str] = {
-            "dataFinal": format_pncp_date(request.date_to or date.today()),
+            "dataFinal": format_pncp_date(data_final),
             "codigoModalidadeContratacao": str(modalidade),
             "pagina": str(page),
             "tamanhoPagina": str(self.page_size),

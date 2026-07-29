@@ -355,7 +355,15 @@ class WeeklyValidation:
     opportunities_path: str | None = None
     orgaos_path: str | None = None
     source_health_path: str | None = None
+    contracts_path: str | None = None
+    competitors_path: str | None = None
+    gaps_path: str | None = None
     manifest_path: str | None = None
+    stages: list[dict[str, Any]] = field(default_factory=list)
+    claims_allowed: list[str] = field(default_factory=list)
+    claims_forbidden: list[str] = field(default_factory=list)
+    gaps: list[dict[str, Any]] = field(default_factory=list)
+    runs: list[dict[str, Any]] = field(default_factory=list)
 
 
 def validate_weekly_pack(weekly_dir: Path) -> WeeklyValidation:
@@ -396,6 +404,11 @@ def validate_weekly_pack(weekly_dir: Path) -> WeeklyValidation:
     result.freshness = list(manifest.get("freshness") or [])
     result.source_health = list(manifest.get("source_health") or [])
     result.limitations = [str(x) for x in (manifest.get("limitations") or [])]
+    result.stages = list(manifest.get("stages") or [])
+    result.claims_allowed = [str(x) for x in (manifest.get("claims_allowed") or [])]
+    result.claims_forbidden = [str(x) for x in (manifest.get("claims_forbidden") or [])]
+    result.gaps = list(manifest.get("gaps") or [])
+    result.runs = list(manifest.get("runs") or [])
 
     # Validate declared artifact checksums (basename match — pack may be relocated)
     artifacts = checksums.get("artifacts") or {}
@@ -444,6 +457,15 @@ def validate_weekly_pack(weekly_dir: Path) -> WeeklyValidation:
     sh = weekly_dir / "source_health.csv"
     if sh.is_file():
         result.source_health_path = str(sh)
+    contracts = weekly_dir / "contracts.csv"
+    if contracts.is_file():
+        result.contracts_path = str(contracts)
+    competitors = weekly_dir / "competitors.csv"
+    if competitors.is_file():
+        result.competitors_path = str(competitors)
+    gaps = weekly_dir / "gaps.csv"
+    if gaps.is_file():
+        result.gaps_path = str(gaps)
 
     result.product_checksums_ok = not missing and not mismatches
     result.ok = result.product_checksums_ok and bool(result.opportunities_path) and not result.errors
@@ -1172,7 +1194,7 @@ def write_executive_md(
     lines.extend(
         [
             "",
-            "## 8. Decisões solicitadas ao cliente",
+            "## 8. DECISÕES SOLICITADAS À EXTRA",
             "",
             "1. Quais 1–3 oportunidades investigar?",
             "2. Quais descartar explicitamente?",
@@ -1457,7 +1479,7 @@ def write_executive_pdf(
             )
         )
 
-    story.append(Paragraph("8. Decisões solicitadas ao cliente", styles["H2BR"]))
+    story.append(Paragraph("8. DECISÕES SOLICITADAS À EXTRA", styles["H2BR"]))
     story.append(
         Paragraph(
             "1) Quais 1–3 oportunidades investigar (se houver shortlist)? "
@@ -1996,6 +2018,504 @@ def write_dossie_not_available(
 
 
 # ---------------------------------------------------------------------------
+# Weekly diagnosis + historical baseline + 30-day plan
+# ---------------------------------------------------------------------------
+
+
+def diagnose_weekly_source(
+    weekly: WeeklyValidation,
+    *,
+    shortlist_result: dict[str, Any] | None = None,
+    as_of: date | None = None,
+) -> dict[str, Any]:
+    """Reproducible diagnosis of weekly exit_code and candidate blocks."""
+    as_of = as_of or date.today()
+    shortlist_result = shortlist_result or {}
+    evaluated = list(shortlist_result.get("evaluated_all") or [])
+
+    block_counts: dict[str, int] = {}
+    deadline_buckets = {"FUTURE": 0, "TODAY": 0, "PASSED": 0, "UNKNOWN": 0}
+    identity = {"HAS": 0, "MISSING": 0}
+    url = {"SPECIFIC": 0, "GENERIC_OR_MISSING": 0}
+    status = {}
+    client_fit = {}
+    for e in evaluated:
+        for b in e.get("hard_blocks") or ["NONE"]:
+            block_counts[str(b)] = block_counts.get(str(b), 0) + 1
+        dr = e.get("dias_restantes")
+        if e.get("data_limite") in (None, ""):
+            deadline_buckets["UNKNOWN"] += 1
+        elif dr is None:
+            deadline_buckets["UNKNOWN"] += 1
+        elif dr < 0:
+            deadline_buckets["PASSED"] += 1
+        elif dr == 0:
+            deadline_buckets["TODAY"] += 1
+        else:
+            deadline_buckets["FUTURE"] += 1
+        if e.get("numero_controle"):
+            identity["HAS"] += 1
+        else:
+            identity["MISSING"] += 1
+        if e.get("url_especifica"):
+            url["SPECIFIC"] += 1
+        else:
+            url["GENERIC_OR_MISSING"] += 1
+        st = str(e.get("status_canonico") or e.get("status") or "EMPTY")
+        status[st] = status.get(st, 0) + 1
+        cf = str(e.get("client_fit") or "EMPTY")
+        client_fit[cf] = client_fit.get(cf, 0) + 1
+
+    stage_summary = []
+    for s in weekly.stages:
+        if not isinstance(s, dict):
+            continue
+        stage_summary.append(
+            {
+                "name": s.get("name"),
+                "status": s.get("status"),
+                "error": s.get("error"),
+            }
+        )
+
+    run_summary = []
+    for r in weekly.runs:
+        if not isinstance(r, dict):
+            continue
+        run_summary.append(
+            {
+                "source": r.get("source"),
+                "terminal_status": r.get("terminal_status"),
+                "terminal_error": r.get("terminal_error"),
+                "records_obtained": r.get("records_obtained"),
+                "scope_complete": r.get("scope_complete"),
+            }
+        )
+
+    # Cause classification (H when multi-factor)
+    causes: list[str] = []
+    if deadline_buckets["PASSED"] and deadline_buckets["PASSED"] == len(evaluated) and evaluated:
+        causes.append("A_records_old_or_closed")
+    if any(
+        (f.get("source") == "pncp_opportunities" and f.get("level") in {"stale", "never", "unreliable"})
+        for f in (weekly.freshness or weekly.source_health or [])
+        if isinstance(f, dict)
+    ):
+        causes.append("E_source_stale_or_unreliable")
+    if any(
+        (r.get("source") == "pncp_contracts" and r.get("terminal_status") in {"blocked", "failure", "partial"})
+        for r in weekly.runs
+        if isinstance(r, dict)
+    ):
+        causes.append("E_contracts_collection_blocked")
+    if deadline_buckets["FUTURE"] == 0 and evaluated:
+        causes.append("B_no_open_future_deadlines_in_pack")
+    if any(st == "open" for st in status) and deadline_buckets["PASSED"] > 0:
+        causes.append("C_status_open_with_passed_deadline")
+    if block_counts.get("NEGATIVE_OBJECT_MATCH", 0) or block_counts.get("INCOMPATIVEL", 0):
+        causes.append("F_profile_restrictive_or_negative_object")
+    if not causes and not evaluated:
+        causes.append("G_or_insufficient_universe")
+    cause_code = "H_combination" if len(causes) > 1 else (causes[0] if causes else "UNKNOWN")
+
+    exit_reason_parts: list[str] = []
+    if weekly.exit_code == 2:
+        exit_reason_parts.append("EXIT_UNRELIABLE (2): ciclo concluído sem confiança consultiva")
+    if weekly.exit_code == 3:
+        exit_reason_parts.append("EXIT_BLOCKED (3): fonte crítica indisponível")
+    for r in run_summary:
+        if r.get("terminal_status") not in {None, "success", "success_zero", "reused_fresh"}:
+            exit_reason_parts.append(
+                f"run {r.get('source')}={r.get('terminal_status')}: {r.get('terminal_error') or 'n/a'}"
+            )
+    for f in weekly.freshness or []:
+        if isinstance(f, dict) and f.get("level") in {"stale", "never", "unreliable"}:
+            exit_reason_parts.append(
+                f"freshness {f.get('source')}={f.get('level')} age_hours={f.get('age_hours')}"
+            )
+
+    return {
+        "schema": "extra-weekly-source-diagnosis/1.0",
+        "as_of": as_of.isoformat(),
+        "cycle_id": weekly.cycle_id,
+        "collection_id": weekly.collection_id,
+        "cut_date": weekly.cut_date,
+        "exit_code": weekly.exit_code,
+        "exit_reason": "; ".join(exit_reason_parts) or "n/a",
+        "cause_code": cause_code,
+        "causes": causes,
+        "stages": stage_summary,
+        "runs": run_summary,
+        "freshness": weekly.freshness,
+        "source_health": weekly.source_health,
+        "gaps": weekly.gaps,
+        "limitations": weekly.limitations,
+        "claims_allowed": weekly.claims_allowed,
+        "claims_forbidden": weekly.claims_forbidden,
+        "candidate_funnel": {
+            "candidates_total": shortlist_result.get("candidates_total", len(evaluated)),
+            "blocked_total": shortlist_result.get("blocked_total"),
+            "review_defensible_total": shortlist_result.get("review_defensible_total"),
+            "shortlist_count": shortlist_result.get("shortlist_count"),
+            "go_count": shortlist_result.get("go_count"),
+            "hard_block_counts": block_counts,
+            "deadline_buckets": deadline_buckets,
+            "identity": identity,
+            "url": url,
+            "status_counts": status,
+            "client_fit_counts": client_fit,
+        },
+        "interpretation": {
+            "A": "registros antigos/encerrados",
+            "B": "coleta sem editais abertos futuros",
+            "C": "status open com deadline passado",
+            "D": "mistura histórico/atual",
+            "E": "fonte stale/bloqueada",
+            "F": "perfil/termos restritivos",
+            "G": "ausência real no universo",
+            "H": "combinação",
+        },
+        "notes": [
+            "Zero de shortlist com exit_code!=0 NÃO prova zero de mercado.",
+            "PNCP /contratacoes/proposta: dataFinal é limite superior de data de encerramento.",
+        ],
+    }
+
+
+def diagnosis_to_markdown(diag: dict[str, Any]) -> str:
+    funnel = diag.get("candidate_funnel") or {}
+    lines = [
+        "# Diagnóstico do weekly pack (fonte)",
+        "",
+        f"- **cycle_id:** `{diag.get('cycle_id')}`",
+        f"- **collection_id:** `{diag.get('collection_id')}`",
+        f"- **cut_date:** {diag.get('cut_date')}",
+        f"- **as_of:** {diag.get('as_of')}",
+        f"- **exit_code:** `{diag.get('exit_code')}`",
+        f"- **exit_reason:** {diag.get('exit_reason')}",
+        f"- **cause_code:** `{diag.get('cause_code')}`",
+        "",
+        "## Causas classificadas",
+        "",
+    ]
+    for c in diag.get("causes") or []:
+        lines.append(f"- {c}")
+    if not diag.get("causes"):
+        lines.append("- (nenhuma causa automática identificada)")
+    lines.extend(
+        [
+            "",
+            "## Funil de candidatas (entrega)",
+            "",
+            f"- Candidatas: **{funnel.get('candidates_total')}**",
+            f"- Bloqueadas (NO_GO): **{funnel.get('blocked_total')}**",
+            f"- Defensáveis (REVIEW futuro): **{funnel.get('review_defensible_total')}**",
+            f"- Shortlist: **{funnel.get('shortlist_count')}**",
+            f"- GO: **{funnel.get('go_count')}**",
+            "",
+            "### Contagens por hard block",
+            "",
+        ]
+    )
+    for k, v in sorted((funnel.get("hard_block_counts") or {}).items(), key=lambda x: (-x[1], x[0])):
+        lines.append(f"- `{k}`: {v}")
+    lines.extend(
+        [
+            "",
+            "### Deadlines",
+            "",
+        ]
+    )
+    for k, v in (funnel.get("deadline_buckets") or {}).items():
+        lines.append(f"- {k}: {v}")
+    lines.extend(["", "### Stages", ""])
+    for s in diag.get("stages") or []:
+        lines.append(f"- `{s.get('name')}`: {s.get('status')}" + (f" — {s.get('error')}" if s.get("error") else ""))
+    lines.extend(["", "### Runs", ""])
+    for r in diag.get("runs") or []:
+        lines.append(
+            f"- `{r.get('source')}`: {r.get('terminal_status')} "
+            f"(records={r.get('records_obtained')}, error={r.get('terminal_error')})"
+        )
+    lines.extend(
+        [
+            "",
+            "## Notas",
+            "",
+        ]
+    )
+    for n in diag.get("notes") or []:
+        lines.append(f"- {n}")
+    lines.append("")
+    return "\n".join(lines)
+
+
+def build_market_baseline(
+    weekly: WeeklyValidation,
+    *,
+    shortlist_result: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Historical market baseline from weekly contracts/orgaos — never as future opportunities."""
+    shortlist_result = shortlist_result or {}
+    contracts: list[dict[str, str]] = []
+    if weekly.contracts_path and Path(weekly.contracts_path).is_file():
+        if Path(weekly.contracts_path).stat().st_size > 0:
+            contracts = load_csv_rows(Path(weekly.contracts_path))
+    competitors: list[dict[str, str]] = []
+    if weekly.competitors_path and Path(weekly.competitors_path).is_file():
+        if Path(weekly.competitors_path).stat().st_size > 0:
+            competitors = load_csv_rows(Path(weekly.competitors_path))
+    orgaos: list[dict[str, str]] = []
+    if weekly.orgaos_path and Path(weekly.orgaos_path).is_file():
+        orgaos = load_csv_rows(Path(weekly.orgaos_path))
+
+    values: list[float] = []
+    for c in contracts:
+        v = parse_float(c.get("valor_total") or c.get("valor") or c.get("valor_contratado"))
+        if v is not None:
+            values.append(v)
+    total_value = sum(values) if values else None
+
+    # top organs from orgaos sheet (opportunity-side organs — labeled carefully)
+    top_orgaos = []
+    for o in orgaos[:15]:
+        top_orgaos.append(
+            {
+                "orgao_cnpj": o.get("orgao_cnpj") or o.get("cnpj"),
+                "orgao_nome": o.get("orgao_nome") or o.get("orgao") or o.get("nome"),
+                "uf": o.get("uf"),
+                "municipio": o.get("municipio"),
+                "n_opp": o.get("n_opp") or o.get("count"),
+                "scope_note": "órgãos com oportunidades no weekly — não confundir com contratos futuros",
+            }
+        )
+
+    supplier_counts: dict[str, int] = {}
+    supplier_values: dict[str, float] = {}
+    for c in contracts:
+        name = (c.get("fornecedor_nome") or c.get("fornecedor") or "").strip() or "N/D"
+        supplier_counts[name] = supplier_counts.get(name, 0) + 1
+        v = parse_float(c.get("valor_total") or c.get("valor"))
+        if v is not None:
+            supplier_values[name] = supplier_values.get(name, 0.0) + v
+    top_suppliers = sorted(
+        (
+            {"fornecedor": k, "n_contracts": n, "valor_total": supplier_values.get(k)}
+            for k, n in supplier_counts.items()
+        ),
+        key=lambda x: (-(x["n_contracts"] or 0), -(x["valor_total"] or 0)),
+    )[:15]
+
+    # context NO_GO engineering as historical-ish calibration (labeled)
+    context = list(shortlist_result.get("context_recent_no_go") or [])[:10]
+
+    empty_contracts = not contracts
+    return {
+        "schema": "extra-market-baseline/1.0",
+        "section_title": "Referências históricas de mercado (NÃO são oportunidades atuais)",
+        "separation": {
+            "oportunidades_atuais": "ver shortlist / 02-oportunidades-priorizadas.xlsx",
+            "referencias_historicas": "este baseline + contratos do weekly quando disponíveis",
+        },
+        "period": {
+            "weekly_cut_date": weekly.cut_date,
+            "cycle_id": weekly.cycle_id,
+            "collection_id": weekly.collection_id,
+        },
+        "contracts": {
+            "n_contracts": len(contracts),
+            "valor_total": total_value,
+            "empty_file": empty_contracts,
+            "provenance": weekly.contracts_path,
+            "note": (
+                "Arquivo de contratos do weekly vazio ou ausente — NÃO interpretar como "
+                "ausência de mercado. Lake pode conter milhões de contratos não exportados "
+                "quando a coleta incremental de contratos estiver blocked/partial."
+                if empty_contracts
+                else "Contratos exportados no weekly pack com proveniência do ciclo."
+            ),
+        },
+        "competitors": {
+            "n_rows": len(competitors),
+            "empty_file": not competitors,
+            "top_suppliers": top_suppliers,
+            "provenance": weekly.competitors_path,
+        },
+        "orgaos_from_opportunity_scope": top_orgaos,
+        "recent_engineering_context_no_go": [
+            {
+                "numero_controle": c.get("numero_controle"),
+                "orgao": c.get("orgao"),
+                "data_limite": c.get("data_limite"),
+                "valor": c.get("valor"),
+                "objeto": (c.get("objeto") or "")[:160],
+                "hard_blocks": c.get("hard_blocks"),
+                "note": "Contexto de calibração — NÃO é oportunidade atual",
+            }
+            for c in context
+        ],
+        "limitations": [
+            "Baseline histórico ≠ pipeline de oportunidades futuras.",
+            "Valor estimado de edital ≠ valor contratado ≠ valor pago.",
+            "Concentração por fornecedor só é válida quando contracts.csv não está vazio.",
+            f"Weekly exit_code={weekly.exit_code}.",
+        ],
+    }
+
+
+def market_baseline_to_markdown(baseline: dict[str, Any]) -> str:
+    ct = baseline.get("contracts") or {}
+    lines = [
+        "# Baseline de mercado — Extra Construtora",
+        "",
+        "> **Referências históricas de mercado.** Não confundir com oportunidades atuais.",
+        "",
+        f"- Weekly: `{((baseline.get('period') or {}).get('cycle_id'))}`",
+        f"- Collection: `{((baseline.get('period') or {}).get('collection_id'))}`",
+        f"- Corte: {(baseline.get('period') or {}).get('weekly_cut_date')}",
+        "",
+        "## Contratos no pacote semanal",
+        "",
+        f"- Nº de contratos exportados: **{ct.get('n_contracts')}**",
+        f"- Valor total (quando informado): **{br_currency(ct.get('valor_total')) if ct.get('valor_total') is not None else 'n/d'}**",
+        f"- Arquivo vazio: **{ct.get('empty_file')}**",
+        f"- Nota: {ct.get('note')}",
+        "",
+        "## Principais órgãos (escopo de oportunidades do weekly)",
+        "",
+        "_Lista de órgãos com editais no recorte — calibração, não pipeline futuro._",
+        "",
+    ]
+    for o in (baseline.get("orgaos_from_opportunity_scope") or [])[:12]:
+        lines.append(
+            f"- {o.get('orgao_nome') or '—'} ({o.get('municipio')}/{o.get('uf')}) "
+            f"n_opp={o.get('n_opp')} cnpj=`{o.get('orgao_cnpj')}`"
+        )
+    lines.extend(["", "## Fornecedores / concorrentes (quando houver contratos)", ""])
+    tops = ((baseline.get("competitors") or {}).get("top_suppliers")) or []
+    if not tops:
+        lines.append("- Sem lista de fornecedores neste weekly (arquivo vazio ou coleta bloqueada).")
+    for s in tops[:10]:
+        lines.append(
+            f"- {s.get('fornecedor')}: n={s.get('n_contracts')} "
+            f"valor={br_currency(s.get('valor_total')) if s.get('valor_total') is not None else 'n/d'}"
+        )
+    lines.extend(
+        [
+            "",
+            "## Contexto recente de engenharia (NO_GO — não é shortlist)",
+            "",
+        ]
+    )
+    ctx = baseline.get("recent_engineering_context_no_go") or []
+    if not ctx:
+        lines.append("- (sem contexto NO_GO aderente neste recorte)")
+    for c in ctx:
+        lines.append(
+            f"- `{c.get('numero_controle')}` | {c.get('orgao')} | limite {c.get('data_limite')} | "
+            f"{c.get('hard_blocks')} | {(c.get('objeto') or '')[:100]}"
+        )
+    lines.extend(["", "## Limitações", ""])
+    for lim in baseline.get("limitations") or []:
+        lines.append(f"- {lim}")
+    lines.append("")
+    return "\n".join(lines)
+
+
+def write_30day_plan(
+    path: Path,
+    *,
+    shortlist_result: dict[str, Any],
+    intake: dict[str, Any],
+    weekly: WeeklyValidation,
+    as_of: date,
+) -> None:
+    """Decision-oriented 30-day plan for Extra kickoff — not internal platform work."""
+    shortlist = shortlist_result.get("shortlist") or []
+    pending = [q for q in (intake.get("questions") or []) if q.get("status") == "PENDING"][:5]
+    next_weekly = (as_of + __import__("datetime").timedelta(days=7)).isoformat()
+    lines = [
+        "# Plano de ação — próximos 30 dias (Extra Construtora)",
+        "",
+        f"- Data de corte: **{as_of.isoformat()}**",
+        f"- Weekly de origem: `{weekly.cycle_id}` (exit_code={weekly.exit_code})",
+        f"- Próxima rodada de monitoramento sugerida: **{next_weekly}**",
+        "",
+        "## Objetivo",
+        "",
+        "Iniciar a consultoria B2G com decisões concretas: intake operacional, "
+        "leitura de editais defensáveis (se houver), e rotina semanal de radar.",
+        "",
+        "## Cadência",
+        "",
+        "| Quando | O quê | Responsável |",
+        "|--------|-------|-------------|",
+        f"| {as_of.isoformat()} | Revisão humana do pacote (human-review) | Tiago |",
+        "| +0–3 dias | Kickoff Leonardo: decisões + intake prioritário | Tiago + Leonardo |",
+        f"| Semanal ({next_weekly} e seguintes) | Rodar `make extra-weekly` + reemitir shortlist | Operação CONFENGE |",
+        "| Contínuo | Feedback de GO/REVIEW/NO_GO no ledger | Extra + Tiago |",
+        "",
+        "## Dados que a Extra deve entregar (intake)",
+        "",
+    ]
+    for q in pending:
+        lines.append(f"- **{q.get('id')}** {q.get('question')}")
+    if not pending:
+        lines.append("- (nenhum PENDING listado — revalidar perfil)")
+    lines.extend(
+        [
+            "",
+            "## Oportunidades que precisam de leitura",
+            "",
+        ]
+    )
+    if shortlist:
+        for e in shortlist[:10]:
+            lines.append(
+                f"- `{e.get('numero_controle')}` — {e.get('orgao')} — "
+                f"limite {e.get('data_limite')} — ação: {e.get('next_action') or 'REVIEW'}"
+            )
+    else:
+        lines.append(
+            "- Nenhuma REVIEW_DEFENSIBLE neste recorte. Prioridade: confirmar coleta com "
+            "prazos futuros (exit_code 0) e reavaliar na próxima rodada."
+        )
+    lines.extend(
+        [
+            "",
+            "## Dossiês",
+            "",
+            "- Produzir dossiê somente após URL específica + edital/anexos oficiais hasheados.",
+            "- Sem documentos oficiais: manter `09-dossie-edital-NOT_AVAILABLE.md`.",
+            "",
+            "## Decisões GO / REVIEW / NO_GO",
+            "",
+            "- GO automático **proibido** enquanto capital, garantia, capacidade simultânea, "
+            "CATs e margem estiverem PENDING.",
+            "- Classificação máxima automática: **REVIEW_DEFENSIBLE**.",
+            "- Registrar decisões humanas em `03-decision-ledger.csv`.",
+            "",
+            "## Preparação de proposta",
+            "",
+            "- Só após GO humano + documentos oficiais + capacidade financeira confirmada.",
+            "- Não usar este pacote para definir percentuais contratuais de êxito.",
+            "",
+            "## Feedback e ajuste da rotina",
+            "",
+            "- Após 2 ciclos semanais: revisar órgãos prioritários, termos do perfil e horizonte PNCP.",
+            "- Critério para manter a rotina: pelo menos uma shortlist defensável **ou** "
+            "ausência confiável (exit_code 0 + fontes saudáveis + contagens auditáveis).",
+            "",
+            "## O que NÃO entra nos 30 dias",
+            "",
+            "- Expandir DOD, nova vertical de produto, dashboard, ou rebind de hashes.",
+            "",
+        ]
+    )
+    path.write_text("\n".join(lines), encoding="utf-8")
+
+
+# ---------------------------------------------------------------------------
 # Orchestration
 # ---------------------------------------------------------------------------
 
@@ -2214,17 +2734,44 @@ def run_delivery(
         shortlist_result=shortlist_result,
         extra_limitations=extra_lim,
     )
+
+    diagnosis = diagnose_weekly_source(
+        weekly, shortlist_result=shortlist_result, as_of=as_of
+    )
+    (delivery_out / "diagnostico-weekly-source.json").write_text(
+        json.dumps(diagnosis, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+    )
+    (delivery_out / "diagnostico-weekly-source.md").write_text(
+        diagnosis_to_markdown(diagnosis), encoding="utf-8"
+    )
+
+    market_baseline = build_market_baseline(weekly, shortlist_result=shortlist_result)
+    (delivery_out / "06-baseline-mercado-extra.md").write_text(
+        market_baseline_to_markdown(market_baseline), encoding="utf-8"
+    )
+    (delivery_out / "06-baseline-mercado-extra.json").write_text(
+        json.dumps(market_baseline, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+    )
+
+    write_30day_plan(
+        delivery_out / "07-plano-30-dias.md",
+        shortlist_result=shortlist_result,
+        intake=intake,
+        weekly=weekly,
+        as_of=as_of,
+    )
     write_meeting_script(
-        delivery_out / "06-roteiro-reuniao.md",
+        delivery_out / "08-roteiro-reuniao.md",
         shortlist_result=shortlist_result,
         deep_dive=deep_dive,
         intake=intake,
     )
 
     dossie_status = "NOT_AVAILABLE"
+    dossie_name = "09-dossie-edital-NOT_AVAILABLE.md"
     if deep_dive and deep_dive.get("url_oficial"):
         write_dossie_not_available(
-            delivery_out / "07-dossie-edital-NOT_AVAILABLE.md",
+            delivery_out / dossie_name,
             deep_dive=deep_dive,
             reason=(
                 "Não há documentos oficiais (PDF/edital/anexos) baixados e hasheados para o caso "
@@ -2242,7 +2789,7 @@ def run_delivery(
         )
     else:
         write_dossie_not_available(
-            delivery_out / "07-dossie-edital-NOT_AVAILABLE.md",
+            delivery_out / dossie_name,
             deep_dive=deep_dive,
             reason=(
                 "Nenhuma oportunidade defensável com prazo futuro e documentos oficiais "
@@ -2267,6 +2814,7 @@ def run_delivery(
                 "insufficient": shortlist_result.get("insufficient"),
                 "insufficiency_reason": shortlist_result.get("insufficiency_reason"),
                 "context_recent_no_go": shortlist_result.get("context_recent_no_go"),
+                "diagnosis_cause_code": diagnosis.get("cause_code"),
             },
             indent=2,
             ensure_ascii=False,
@@ -2307,8 +2855,13 @@ def run_delivery(
         "04-intake-operacional-extra.md",
         "04-intake-operacional-extra.json",
         "05-limitacoes-e-confiabilidade.md",
-        "06-roteiro-reuniao.md",
-        "07-dossie-edital-NOT_AVAILABLE.md",
+        "06-baseline-mercado-extra.md",
+        "06-baseline-mercado-extra.json",
+        "07-plano-30-dias.md",
+        "08-roteiro-reuniao.md",
+        "09-dossie-edital-NOT_AVAILABLE.md",
+        "diagnostico-weekly-source.json",
+        "diagnostico-weekly-source.md",
         "profile-patch-candidate.yaml",
         "shortlist.json",
     ]

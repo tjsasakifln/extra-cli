@@ -589,19 +589,31 @@ def _contracts_incremental_run(
             / "contracts"
             / f"incremental-weekly-{collection_id}.json"
         )
-        rc = inc_main(
-            [
-                "--dsn",
-                dsn,
-                "--days",
-                str(days),
-                "--output-json",
-                str(out),
-                "--checkpoint-dir",
-                "data/contracts_checkpoints/weekly_incremental",
-                "--reset-checkpoint",
-            ]
-        )
+        # Reset + rebind: weekly always uses a fresh cycle run_id; the
+        # incremental checkpoint may still carry a prior run_id binding.
+        # Allow operational rebind after explicit --reset-checkpoint so a
+        # stale checkpoint cannot force EXIT_UNRELIABLE / blocked contracts.
+        prev_allow = os.environ.get("CONTRACTS_ALLOW_CROSS_RUN_RESUME")
+        os.environ["CONTRACTS_ALLOW_CROSS_RUN_RESUME"] = "1"
+        try:
+            rc = inc_main(
+                [
+                    "--dsn",
+                    dsn,
+                    "--days",
+                    str(days),
+                    "--output-json",
+                    str(out),
+                    "--checkpoint-dir",
+                    "data/contracts_checkpoints/weekly_incremental",
+                    "--reset-checkpoint",
+                ]
+            )
+        finally:
+            if prev_allow is None:
+                os.environ.pop("CONTRACTS_ALLOW_CROSS_RUN_RESUME", None)
+            else:
+                os.environ["CONTRACTS_ALLOW_CROSS_RUN_RESUME"] = prev_allow
         payload: dict[str, Any] = {}
         if out.is_file():
             payload = json.loads(out.read_text(encoding="utf-8"))
@@ -808,6 +820,10 @@ def stage_intelligence(
                  SELECT e.cnpj_8 FROM sc_public_entities e
                  WHERE e.is_active IS TRUE AND e.raio_200km IS TRUE
                )
+          )
+          AND (
+            data_encerramento IS NULL
+            OR data_encerramento::date >= CURRENT_DATE
           )
         ORDER BY
           CASE ranking WHEN 'GO' THEN 0 WHEN 'REVIEW' THEN 1 ELSE 2 END,
@@ -1734,6 +1750,29 @@ def run_weekly_cycle(
                 dsn=resolved,
                 days=contracts_incremental_days,
             )
+            # Fail-closed for incomplete incremental, but prefer lake reuse when
+            # the contracts lake is already fresh within SLA (avoid EXIT_UNRELIABLE
+            # solely due to checkpoint rebind / rate-limit on a 7d delta).
+            if r_ct.terminal_status not in {
+                "success",
+                "success_zero",
+                "reused_fresh",
+            }:
+                r_reuse = _contracts_reuse_run(
+                    conn,
+                    collection_id=collection_id,
+                    freshness_rows=freshness_rows,
+                )
+                if r_reuse.terminal_status in {
+                    "success",
+                    "success_zero",
+                    "reused_fresh",
+                }:
+                    r_reuse.notes.append(
+                        "fallback_after_incremental_"
+                        f"{r_ct.terminal_status}:{r_ct.terminal_error or 'n/a'}"
+                    )
+                    r_ct = r_reuse
         else:
             r_ct = _contracts_reuse_run(
                 conn, collection_id=collection_id, freshness_rows=freshness_rows

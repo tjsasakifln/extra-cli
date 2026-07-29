@@ -84,6 +84,18 @@ def main(argv: list[str] | None = None) -> int:
         cp.total_windows_failed = 0
         cp.total_contracts_fetched = 0
         cp.last_error = None
+        # Clear bound run_id so the next pilot can rebind without foreign-resume
+        # hard-fail (weekly cycle always generates a new contracts run_id).
+        meta = dict(cp.meta or {})
+        old_run = meta.get("run_id")
+        if old_run:
+            prev = list(meta.get("previous_run_ids") or [])
+            if old_run not in prev:
+                prev.append(old_run)
+            meta["previous_run_ids"] = prev
+            meta.pop("run_id", None)
+            meta["reset_cleared_run_id"] = True
+        cp.meta = meta
         save_checkpoint(cp)
         logger.info("Incremental checkpoint reset")
 
