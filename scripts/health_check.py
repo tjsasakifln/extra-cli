@@ -31,7 +31,9 @@ logger = get_logger(__name__)
 # Configuration
 # ---------------------------------------------------------------------------
 
-DB_DSN = os.getenv("LOCAL_DATALAKE_DSN", "postgresql://postgres@localhost:5432/pncp_datalake")
+DB_DSN = os.getenv("LOCAL_DATALAKE_DSN") or os.getenv(
+    "DATABASE_URL", "postgresql://postgres@localhost:5432/pncp_datalake"
+)
 STORAGE_BOX_MOUNT = os.getenv("BACKUP_MOUNT_POINT", "/mnt/storage-box")
 # Off-site mount is optional until configured; set REQUIRE_STORAGE_BOX=1 to enforce.
 REQUIRE_STORAGE_BOX = os.getenv("REQUIRE_STORAGE_BOX", "0").lower() in {

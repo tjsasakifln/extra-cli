@@ -180,7 +180,9 @@ def _measure_runtime() -> tuple[int, str]:
         "echo deployed_sha=$(cat /opt/extra-consultoria/.deployed_sha 2>/dev/null || "
         "git -C /opt/extra-consultoria rev-parse HEAD 2>/dev/null || true); "
         "if [ -f /root/.extra-pg-credentials ]; then . /root/.extra-pg-credentials; fi; "
-        "if [ -n \"${LOCAL_DATALAKE_DSN:-}\" ]; then "
+        "if [ -f /opt/extra-consultoria/.env ]; then set -a; . /opt/extra-consultoria/.env; set +a; fi; "
+        "if [ -n \"${LOCAL_DATALAKE_DSN:-}${DATABASE_URL:-}\" ]; then "
+        "export LOCAL_DATALAKE_DSN=\"${LOCAL_DATALAKE_DSN:-$DATABASE_URL}\"; "
         "psql \"$LOCAL_DATALAKE_DSN\" -Atc "
         "\"SELECT 'contracts_count='||count(*) FROM pncp_supplier_contracts;\" 2>/dev/null; "
         "psql \"$LOCAL_DATALAKE_DSN\" -Atc "
@@ -201,6 +203,13 @@ def _measure_runtime() -> tuple[int, str]:
         "FROM coverage_evidence WHERE capability='open_tenders' "
         "AND completed_at IS NOT NULL;\" 2>/dev/null; "
         "fi; "
+        # dual summary mtime as open_tenders freshness fallback (observation time)
+        "for f in "
+        "/opt/extra-consultoria/output/coverage/dual-campaign-orrc-01/dual-capability-coverage-summary.json "
+        "/opt/extra-consultoria/output/coverage/dual-capability-coverage-summary.json; do "
+        "if [ -f \"$f\" ]; then "
+        "echo dual_summary_age_hours=$(python3 -c \"import os,time;print(round((time.time()-os.path.getmtime('$f'))/3600,2))\" 2>/dev/null); "
+        "break; fi; done; "
         "if [ -f /opt/extra-consultoria/output/contracts/incremental-latest.json ]; then "
         "echo contracts_artifact_age_hours=$(python3 -c "
         "\"import os,time; p='/opt/extra-consultoria/output/contracts/incremental-latest.json'; "
@@ -446,10 +455,12 @@ def observe(
             except ValueError:
                 obs["notes"].append(f"age_unparseable:{age}")
 
-        ot_age = kv.get("editais_obs_age_hours")
+        ot_age = kv.get("editais_obs_age_hours") or kv.get("dual_summary_age_hours")
         if ot_age not in (None, ""):
             try:
                 obs["open_tenders_freshness_hours"] = float(ot_age)
+                if not kv.get("editais_obs_age_hours"):
+                    obs["notes"].append("open_tenders_freshness_from_dual_summary_mtime")
             except ValueError:
                 obs["notes"].append(f"editais_age_unparseable:{ot_age}")
 
