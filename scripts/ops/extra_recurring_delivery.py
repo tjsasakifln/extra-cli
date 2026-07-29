@@ -1081,6 +1081,17 @@ def build_weekly_xlsx(
         return False
 
     wb = Workbook()
+    # Deterministic workbook metadata (openpyxl defaults use wall-clock times).
+    try:
+        from datetime import datetime, timezone
+
+        fixed = datetime(2026, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+        wb.properties.created = fixed
+        wb.properties.modified = fixed
+        wb.properties.lastModifiedBy = "extra-recurring-delivery"
+        wb.properties.creator = "extra-recurring-delivery"
+    except Exception:
+        pass
     meta = wb.active
     meta.title = "Metadados"
     meta.append(["key", "value"])

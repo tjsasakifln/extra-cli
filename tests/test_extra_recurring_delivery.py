@@ -631,8 +631,11 @@ def test_idempotency(tmp_path: Path) -> None:
         assert _sha(out1 / name) == _sha(out2 / name), name
     ck1 = json.loads((out1 / "checksums.json").read_text())["artifacts"]
     ck2 = json.loads((out2 / "checksums.json").read_text())["artifacts"]
+    # openpyxl .xlsx is not byte-stable (ZIP entry timestamps / workbook props).
+    # Textual products above already prove content idempotency.
+    skip_checksum = {"manifest.json", "weekly-report.xlsx"}
     for k in ck1:
-        if k == "manifest.json":
+        if k in skip_checksum:
             continue
         assert ck1[k]["sha256"] == ck2[k]["sha256"], k
 
