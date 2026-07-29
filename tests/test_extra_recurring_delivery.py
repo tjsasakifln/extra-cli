@@ -12,6 +12,7 @@ import pytest
 
 from scripts.ops.extra_recurring_delivery import (
     ALLOWED_EVENT_TYPES,
+    EXIT_BLOCKED,
     EventDelta,
     detect_all_deltas,
     load_weekly_input,
@@ -448,6 +449,30 @@ def test_winner_concentration_changed(tmp_path: Path) -> None:
     out = tmp_path / "out"
     run_delivery(current_run=cur, delivery_out=out, previous_run=prev, as_of=AS_OF)
     assert "WINNER_CONCENTRATION_CHANGED" in _event_types(out)
+
+
+def test_current_nonzero_exit_blocks_package(tmp_path: Path) -> None:
+    """Weekly exit!=0 must not produce SUCCESS_ZERO/OK consultive pack."""
+    cur = make_weekly_pack(tmp_path / "cur", cycle_id="w-cur", exit_code=2)
+    out = tmp_path / "out"
+    with pytest.raises(SystemExit) as exc:
+        run_delivery(current_run=cur, delivery_out=out, as_of=AS_OF)
+    assert int(exc.value.code) == EXIT_BLOCKED
+    assert not (out / "manifest.json").is_file() or (
+        json.loads((out / "manifest.json").read_text(encoding="utf-8")).get("status")
+        != "SUCCESS_ZERO"
+        if (out / "manifest.json").is_file()
+        else True
+    )
+
+
+def test_previous_nonzero_exit_blocks_delta(tmp_path: Path) -> None:
+    prev = make_weekly_pack(tmp_path / "prev", cycle_id="w-prev", exit_code=3)
+    cur = make_weekly_pack(tmp_path / "cur", cycle_id="w-cur", exit_code=0)
+    out = tmp_path / "out"
+    with pytest.raises(SystemExit) as exc:
+        run_delivery(current_run=cur, delivery_out=out, previous_run=prev, as_of=AS_OF)
+    assert int(exc.value.code) == EXIT_BLOCKED
 
 
 def test_source_degraded_and_freshness_breach(tmp_path: Path) -> None:

@@ -52,6 +52,7 @@ SCHEMA = "extra-recurring-delivery/1.0"
 EXIT_OK = 0
 EXIT_TECH = 1
 EXIT_FAIL_CLOSED = 2
+EXIT_BLOCKED = 3  # source weekly not consultive (exit_code != 0)
 
 # Frozen EventDelta.event_type allow-list
 ALLOWED_EVENT_TYPES = frozenset(
@@ -1190,6 +1191,27 @@ def run_delivery(
     if not current_run or not Path(current_run).exists():
         raise SystemExit(EXIT_FAIL_CLOSED)
     current = load_weekly_input(Path(current_run), require_ok=True)
+    # D1 parity: non-zero weekly exit is never a consultive recurring pack
+    # (no SUCCESS_ZERO / OK that could be read as market absence).
+    if current.exit_code not in (0, None):
+        print(
+            json.dumps(
+                {
+                    "ok": False,
+                    "status": "BLOCKED_EXTERNAL",
+                    "role": "current",
+                    "cycle_id": current.cycle_id,
+                    "exit_code": current.exit_code,
+                    "error": (
+                        f"current weekly exit_code={current.exit_code} is not consultive; "
+                        "refuse recurring delivery package"
+                    ),
+                },
+                ensure_ascii=False,
+            ),
+            file=sys.stderr,
+        )
+        raise SystemExit(EXIT_BLOCKED)
 
     previous: WeeklyInput | None = None
     if previous_run is not None:
@@ -1197,6 +1219,25 @@ def run_delivery(
         if prev_path.exists():
             # Previous may be slightly soft on checksums but must be a pack dir
             previous = load_weekly_input(prev_path, require_ok=True)
+            if previous.exit_code not in (0, None):
+                print(
+                    json.dumps(
+                        {
+                            "ok": False,
+                            "status": "BLOCKED_EXTERNAL",
+                            "role": "previous",
+                            "cycle_id": previous.cycle_id,
+                            "exit_code": previous.exit_code,
+                            "error": (
+                                f"previous weekly exit_code={previous.exit_code} is not "
+                                "comparable/consultive; refuse delta package"
+                            ),
+                        },
+                        ensure_ascii=False,
+                    ),
+                    file=sys.stderr,
+                )
+                raise SystemExit(EXIT_BLOCKED)
         # Explicit previous path that does not exist is fail-closed (not silent FIRST_RUN).
         else:
             raise SystemExit(EXIT_FAIL_CLOSED)
