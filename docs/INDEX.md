@@ -56,6 +56,7 @@ Adicionar mentalmente o banner: *estado atual = README + DEVELOPMENT + DOD*.
 | `docs/guides/hetzner-supabase-plan.md` | Plano histórico Hetzner/Supabase |
 | `docs/ops/cloud-deployment-plan.md` | Planejamento cloud (parcialmente superado pelo Netcup live) |
 | `docs/ops/session-*`, `docs/ops/campaign-*` | Evidências de sessão |
+| [`docs/ops/campaigns/SOAK-AND-CRAWLER-SCHEDULER-HEALTH-01-PARALLEL.md`](ops/campaigns/SOAK-AND-CRAWLER-SCHEDULER-HEALTH-01-PARALLEL.md) | Auditoria soak + systemd 2026-07-29 (`SCHEDULERS_FAILED`) |
 | `docs/audits/`, `docs/baseline/`, `docs/coverage-truth/` | Audits e baselines datados |
 | `docs/qa/gates/` | Gates de story (histórico de QA) |
 | `docs/td-001/`, `docs/td-003/` | Dívida técnica / diffs |
