@@ -443,17 +443,32 @@ def observe(
             except ValueError:
                 pass
 
-        age = kv.get("contracts_ingest_age_hours") or kv.get("contracts_artifact_age_hours")
-        if age not in (None, ""):
+        # Prefer real ages; COALESCE(…, 99999) from SQL means "unknown", not 99999h fresh.
+        def _real_age(key: str) -> float | None:
+            raw = kv.get(key)
+            if raw in (None, ""):
+                return None
             try:
-                obs["contracts_freshness_hours"] = float(age)
-                obs["freshness_source"] = (
-                    "ingestion_runs"
-                    if kv.get("contracts_ingest_age_hours")
-                    else "artifact_mtime"
-                )
+                v = float(raw)
             except ValueError:
-                obs["notes"].append(f"age_unparseable:{age}")
+                return None
+            if v >= 99990:  # sentinel for missing
+                return None
+            return v
+
+        age = _real_age("contracts_ingest_age_hours")
+        if age is not None:
+            obs["contracts_freshness_hours"] = age
+            obs["freshness_source"] = "ingestion_runs"
+        else:
+            age2 = _real_age("contracts_artifact_age_hours")
+            if age2 is not None:
+                obs["contracts_freshness_hours"] = age2
+                obs["freshness_source"] = "artifact_mtime"
+            elif kv.get("contracts_ingest_age_hours") not in (None, ""):
+                obs["notes"].append(
+                    f"contracts_ingest_age_sentinel:{kv.get('contracts_ingest_age_hours')}"
+                )
 
         ot_age = kv.get("editais_obs_age_hours") or kv.get("dual_summary_age_hours")
         if ot_age not in (None, ""):
@@ -531,9 +546,10 @@ def _day_rollup(observations: list[dict[str, Any]]) -> dict[str, Any]:
     if not observations:
         return {"health_ok": False, "reason": "no_observations"}
     latest = observations[-1]
-    any_ok = any(bool(o.get("health_ok")) for o in observations)
+    # Day is healthy only if the latest observation is healthy (not a prior green).
+    latest_ok = bool(latest.get("health_ok"))
     return {
-        "health_ok": any_ok,
+        "health_ok": latest_ok,
         "observation_count": len(observations),
         "latest_observation_id": latest.get("observation_id"),
         "latest_run_id": latest.get("run_id"),
