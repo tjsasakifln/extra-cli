@@ -35,13 +35,20 @@ def _sha(path: Path) -> str:
 
 
 def _write_csv(path: Path, rows: list[dict], fieldnames: list[str] | None = None) -> None:
-    if not rows:
-        path.write_text("", encoding="utf-8")
-        return
-    fields = fieldnames or list(rows[0].keys())
+    """Write CSV with valid header. Empty rows → header-only (SUCCESS_ZERO shape).
+
+    Never write zero-byte files: post-D3 validate_weekly_pack rejects them.
+    """
+    if rows:
+        fields = fieldnames or list(rows[0].keys())
+    else:
+        fields = fieldnames or ["row_count"]
     with path.open("w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=fields, extrasaction="ignore")
         w.writeheader()
+        if not rows and fields == ["row_count"]:
+            w.writerow({"row_count": 0})
+            return
         for r in rows:
             w.writerow(r)
 
@@ -63,6 +70,7 @@ def make_weekly_pack(
     opps = opportunities if opportunities is not None else [
         {
             "id": "1",
+            "source": "pncp",
             "numero_controle_pncp": "11111111000111-1-000001/2026",
             "source_id": "11111111000111-1-000001/2026",
             "orgao_nome": "Pref. Alpha",
@@ -117,6 +125,9 @@ def make_weekly_pack(
         {"orgao_cnpj": "111", "orgao_nome": "Pref. Alpha", "n_opp": "1"},
     ]
 
+    # D3/schema: validate_weekly_pack requires critical columns (incl. source).
+    for row in opps:
+        row.setdefault("source", "pncp")
     _write_csv(root / "opportunities.csv", opps)
     _write_csv(root / "contracts.csv", contracts)
     _write_csv(root / "competitors.csv", competitors)

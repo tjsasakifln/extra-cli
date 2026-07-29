@@ -845,6 +845,26 @@ extra-first-client-delivery:
 test-extra-first-client-delivery:
 	python3 -m pytest tests/test_extra_first_client_delivery.py -q --tb=short
 
+.PHONY: extra-recurring-delivery test-extra-recurring-delivery
+# Canonical recurring pack: deltas + weekly/monthly reports + urgent alerts (separate).
+# Requires CURRENT_RUN (weekly pack). PREVIOUS_RUN optional (FIRST_RUN without it).
+extra-recurring-delivery:
+	@test -n "$(CURRENT_RUN)" || (echo "ERROR: set CURRENT_RUN=/path/to/weekly-current"; exit 2)
+	@test -n "$(DELIVERY_OUT)" || (echo "ERROR: set DELIVERY_OUT=/path/external"; exit 2)
+	@echo "==> Extra Recurring Delivery"
+	python3 -m scripts.ops.extra_recurring_delivery run \
+		--current-run "$(CURRENT_RUN)" \
+		--delivery-out "$(DELIVERY_OUT)" \
+		$(if $(PREVIOUS_RUN),--previous-run "$(PREVIOUS_RUN)",) \
+		$(if $(PREVIOUS_MONTHLY),--previous-monthly "$(PREVIOUS_MONTHLY)",) \
+		$(if $(AS_OF),--as-of "$(AS_OF)",) \
+		$(if $(EXPIRY_WINDOW_DAYS),--expiry-window-days "$(EXPIRY_WINDOW_DAYS)",)
+
+test-extra-recurring-delivery:
+	python3 -m pytest tests/test_extra_recurring_delivery.py -q --tb=short -o addopts=''
+
+
+
 # Fix: client-ready-consulting-cycle previously only printed --help.
 # Keep help as default when CLIENT_READY_DSN/OUT unset; run when both provided.
 client-ready-consulting-cycle-run:
