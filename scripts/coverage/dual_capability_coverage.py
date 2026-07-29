@@ -2657,6 +2657,68 @@ def write_reports(
                         out[list_key] = "|".join(val)
                 w.writerow(out)
         paths[f"{cap}_gaps_csv"] = gaps_csv
+
+    # Entity-capability ledger (jsonl) for dual audit trail
+    ledger_path = output_dir / "entity-capability-ledger.jsonl"
+    with ledger_path.open("w", encoding="utf-8") as fh:
+        for cap, result in report.capabilities.items():
+            for ent in result.entities:
+                fh.write(json.dumps(ent.to_dict(), ensure_ascii=False, default=str) + "\n")
+    paths["entity_capability_ledger"] = ledger_path
+
+    # Source health + manifest + checksums (required dual contract artifacts)
+    source_health = {
+        "as_of": report.as_of if hasattr(report, "as_of") else None,
+        "dual_gate_status": report.dual_gate_status,
+        "pipeline_success": report.pipeline_success,
+        "scope_complete": report.scope_complete,
+        "measurement_success": report.measurement_success,
+        "fallback_used": getattr(report, "fallback_used", False),
+        "source_policy_status": getattr(report, "source_policy_status", None),
+        "source_policy_version": getattr(report, "source_policy_version", None),
+        "source_policy_sha256": getattr(report, "source_policy_sha256", None),
+        "capabilities": {
+            name: {
+                "gate_status": res.gate_status,
+                "coverage_pct": res.coverage_pct,
+                "covered_numerator": res.covered_numerator,
+                "applicable_denominator": res.applicable_denominator,
+                "source_combinations": getattr(res, "source_combinations", None),
+                "error_count": res.error_count,
+                "stale_count": res.stale_count,
+                "pending_count": res.pending_count,
+                "never_checked_count": res.never_checked_count,
+            }
+            for name, res in report.capabilities.items()
+        },
+    }
+    sh_path = output_dir / "source-health.json"
+    sh_path.write_text(json.dumps(source_health, indent=2, ensure_ascii=False, default=str) + "\n", encoding="utf-8")
+    paths["source_health"] = sh_path
+
+    # Checksums of generated artifacts
+    checksums: dict[str, str] = {}
+    for key, path in list(paths.items()):
+        if path.is_file():
+            h = hashlib.sha256(path.read_bytes()).hexdigest()
+            checksums[path.name] = h
+    ck_path = output_dir / "checksums.json"
+    ck_path.write_text(json.dumps(checksums, indent=2) + "\n", encoding="utf-8")
+    paths["checksums"] = ck_path
+
+    manifest = {
+        "generated_at": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
+        "adapter_version": ADAPTER_VERSION,
+        "dual_gate_status": report.dual_gate_status,
+        "pipeline_success": report.pipeline_success,
+        "scope_complete": report.scope_complete,
+        "measurement_success": report.measurement_success,
+        "artifacts": {k: str(v) for k, v in paths.items()},
+        "checksums": checksums,
+    }
+    man_path = output_dir / "manifest.json"
+    man_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    paths["manifest"] = man_path
     return paths
 
 

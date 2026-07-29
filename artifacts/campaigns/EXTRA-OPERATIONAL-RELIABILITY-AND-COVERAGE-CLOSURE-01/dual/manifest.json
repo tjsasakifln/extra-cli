@@ -1,0 +1,37 @@
+{
+  "generated_at": "2026-07-29T15:59:16.737277Z",
+  "dual_gate_status": "PASS",
+  "pipeline_success": true,
+  "scope_complete": true,
+  "measurement_success": true,
+  "committed_artifacts": [
+    "README.md",
+    "dual-capability-coverage-summary.json",
+    "dual-coverage-historical_contracts.json",
+    "dual-coverage-open_tenders.json",
+    "source-health.json"
+  ],
+  "checksums": {
+    "README.md": "3790646d7f6f37871f366f4065f2e7c1bf39430ee8d1433c75a28621296d0bcd",
+    "dual-capability-coverage-summary.json": "52d0033bd781d1837bd2946bec746b2a5c2f402cda6a5da77b13d20df6f7cec1",
+    "dual-coverage-historical_contracts.json": "1f4dd404e5a5f0a90b30f4804729dad9a141f5293188995f3db85cfbf2ad44bf",
+    "dual-coverage-open_tenders.json": "c125f14191d6a3f58bc4c7b16ec361b20db58763ca6465800cae0b6ed9032edc",
+    "source-health.json": "ec2be5193cfefb0560d74ac0d87b8205ff7c58ffcbba77ebbc34a383084fa884"
+  },
+  "vps_full_gaps_path": "/opt/extra-consultoria/output/coverage/dual-campaign-orrc-01/",
+  "contracts_success_zero_proof": "artifacts/campaigns/EXTRA-OPERATIONAL-RELIABILITY-AND-COVERAGE-CLOSURE-01/proofs/contracts-3y-window-proof.json",
+  "open_tenders": {
+    "covered": 1093,
+    "denom": 1093,
+    "pct": 100.0,
+    "success_zero": 931,
+    "success_with_data": 162
+  },
+  "historical_contracts": {
+    "covered": 1093,
+    "denom": 1093,
+    "pct": 100.0,
+    "success_zero": 681,
+    "success_with_data": 412
+  }
+}

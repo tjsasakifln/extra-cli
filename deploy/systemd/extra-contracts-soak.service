@@ -10,13 +10,15 @@ Group=extra-consultoria
 WorkingDirectory=/opt/extra-consultoria
 Environment=PYTHONPATH=/opt/extra-consultoria
 Environment=PYTHONUNBUFFERED=1
+Environment=SOAK_AUTOMATIC=1
 EnvironmentFile=-/opt/extra-consultoria/.env
 # Host-local state so soak does not depend on laptop git tree
 Environment=HOME=/var/lib/extra-consultoria
 # Exit 2 = incomplete soak day (expected until 7 consecutive healthy days)
 SuccessExitStatus=2
 ExecStart=/opt/extra-consultoria/.venv/bin/python -m scripts.ops.campaign_soak_tracker \
-  --campaign EXTRA-OPERATIONAL-RELIABILITY-AND-COVERAGE-CLOSURE-01
+  --campaign EXTRA-OPERATIONAL-RELIABILITY-AND-COVERAGE-CLOSURE-01 \
+  --automatic
 TimeoutStartSec=5min
 Restart=no
 StandardOutput=journal

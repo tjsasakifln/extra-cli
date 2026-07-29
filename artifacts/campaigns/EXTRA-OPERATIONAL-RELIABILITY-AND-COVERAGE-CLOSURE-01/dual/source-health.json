@@ -1,0 +1,36 @@
+{
+  "as_of": "2026-07-29T15:30:47.651665Z",
+  "dual_gate_status": "PASS",
+  "pipeline_success": true,
+  "scope_complete": true,
+  "measurement_success": true,
+  "fallback_used": false,
+  "source_policy_status": "active",
+  "source_policy_version": "2.1.1",
+  "source_policy_sha256": "0a3cac5820b30935f9229b40682f496c75aa3eb4dbfdd28164c9163263e0aeb3",
+  "capabilities": {
+    "open_tenders": {
+      "gate_status": "PASS",
+      "coverage_pct": 100.0,
+      "covered_numerator": 1093,
+      "applicable_denominator": 1093,
+      "success_with_data_count": 162,
+      "success_zero_count": 931,
+      "source_combinations": [
+        "pncp",
+        "pncp+ciga_ckan"
+      ]
+    },
+    "historical_contracts": {
+      "gate_status": "PASS",
+      "coverage_pct": 100.0,
+      "covered_numerator": 1093,
+      "applicable_denominator": 1093,
+      "success_with_data_count": 412,
+      "success_zero_count": 681,
+      "source_combinations": [
+        "pncp+contracts"
+      ]
+    }
+  }
+}

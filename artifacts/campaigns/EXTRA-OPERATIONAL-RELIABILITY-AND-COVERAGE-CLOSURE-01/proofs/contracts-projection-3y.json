@@ -1,0 +1,221 @@
+{
+  "run_id": "contracts-3y-proj-20260729T153000Z",
+  "period_start": "2023-07-20",
+  "period_end": "2026-07-23",
+  "as_of": "2026-07-29T15:30:45.080345Z",
+  "universe_count": 1093,
+  "applicable_count": 1093,
+  "success_with_data": 412,
+  "success_zero": 681,
+  "skipped": 0,
+  "written_rows": 2186,
+  "dry_run": false,
+  "window_complete": true,
+  "completion_rule": "national_window_complete",
+  "limitations": [
+    "window_complete verified via checkpoint/manifest proof (data/contracts_checkpoints/hc_closure_3y/contracts_full.json); completed_windows=37"
+  ],
+  "entities": [
+    {
+      "entity_id": "extra-cb06f50d0b31c2c6d400",
+      "cnpj8": "62761279",
+      "state": "success_zero",
+      "records": 0,
+      "sources_written": [
+        "pncp",
+        "contracts"
+      ]
+    },
+    {
+      "entity_id": "extra-09c19c92c36af120417a",
+      "cnpj8": "80674252",
+      "state": "success_with_data",
+      "records": 45,
+      "sources_written": [
+        "pncp",
+        "contracts"
+      ]
+    },
+    {
+      "entity_id": "extra-bb52af441791164c17ec",
+      "cnpj8": "82892324",
+      "state": "success_with_data",
+      "records": 2886,
+      "sources_written": [
+        "pncp",
+        "contracts"
+      ]
+    },
+    {
+      "entity_id": "extra-ffb5171ea84354f15858",
+      "cnpj8": "02179215",
+      "state": "success_with_data",
+      "records": 16,
+      "sources_written": [
+        "pncp",
+        "contracts"
+      ]
+    },
+    {
+      "entity_id": "extra-a38406dd9e9a8088a303",
+      "cnpj8": "02305652",
+      "state": "success_zero",
+      "records": 0,
+      "sources_written": [
+        "pncp",
+        "contracts"
+      ]
+    },
+    {
+      "entity_id": "extra-c75f889b0ded2cb9b0c2",
+      "cnpj8": "02307870",
+      "state": "success_zero",
+      "records": 0,
+      "sources_written": [
+        "pncp",
+        "contracts"
+      ]
+    },
+    {
+      "entity_id": "extra-597d281805351de9d571",
+      "cnpj8": "03752747",
+      "state": "success_with_data",
+      "records": 12,
+      "sources_written": [
+        "pncp",
+        "contracts"
+      ]
+    },
+    {
+      "entity_id": "extra-43240e43bdfe6d356953",
+      "cnpj8": "15715814",
+      "state": "success_zero",
+      "records": 0,
+      "sources_written": [
+        "pncp",
+        "contracts"
+      ]
+    },
+    {
+      "entity_id": "extra-17eb67c32ad8cb14668e",
+      "cnpj8": "66233173",
+      "state": "success_zero",
+      "records": 0,
+      "sources_written": [
+        "pncp",
+        "contracts"
+      ]
+    },
+    {
+      "entity_id": "extra-e787ec7fa967e4aebff9",
+      "cnpj8": "74047341",
+      "state": "success_with_data",
+      "records": 272,
+      "sources_written": [
+        "pncp",
+        "contracts"
+      ]
+    },
+    {
+      "entity_id": "extra-75c8193c0b7e1fcbb37a",
+      "cnpj8": "82703018",
+      "state": "success_with_data",
+      "records": 54,
+      "sources_written": [
+        "pncp",
+        "contracts"
+      ]
+    },
+    {
+      "entity_id": "extra-ec0d261c3e67e3370907",
+      "cnpj8": "82892373",
+      "state": "success_with_data",
+      "records": 1424,
+      "sources_written": [
+        "pncp",
+        "contracts"
+      ]
+    },
+    {
+      "entity_id": "extra-15e733954e8d0af6116b",
+      "cnpj8": "32579624",
+      "state": "success_with_data",
+      "records": 84,
+      "sources_written": [
+        "pncp",
+        "contracts"
+      ]
+    },
+    {
+      "entity_id": "extra-c0fc9e56bc1d9229cfe0",
+      "cnpj8": "72254576",
+      "state": "success_with_data",
+      "records": 41,
+      "sources_written": [
+        "pncp",
+        "contracts"
+      ]
+    },
+    {
+      "entity_id": "extra-f177cb64a2e2f0404783",
+      "cnpj8": "80669864",
+      "state": "success_zero",
+      "records": 0,
+      "sources_written": [
+        "pncp",
+        "contracts"
+      ]
+    },
+    {
+      "entity_id": "extra-44c170376348e065fe7a",
+      "cnpj8": "82577636",
+      "state": "success_with_data",
+      "records": 880,
+      "sources_written": [
+        "pncp",
+        "contracts"
+      ]
+    },
+    {
+      "entity_id": "extra-5fe95332ddc0d050c2dd",
+      "cnpj8": "02396675",
+      "state": "success_with_data",
+      "records": 169,
+      "sources_written": [
+        "pncp",
+        "contracts"
+      ]
+    },
+    {
+      "entity_id": "extra-0d403060b42a55f12d2c",
+      "cnpj8": "05048537",
+      "state": "success_with_data",
+      "records": 14,
+      "sources_written": [
+        "pncp",
+        "contracts"
+      ]
+    },
+    {
+      "entity_id": "extra-6cfdea35dab3669fbb62",
+      "cnpj8": "07790808",
+      "state": "success_with_data",
+      "records": 6,
+      "sources_written": [
+        "pncp",
+        "contracts"
+      ]
+    },
+    {
+      "entity_id": "extra-8e7dc25df6a8f1f39079",
+      "cnpj8": "81286254",
+      "state": "success_with_data",
+      "records": 861,
+      "sources_written": [
+        "pncp",
+        "contracts"
+      ]
+    }
+  ],
+  "entities_truncated": true
+}
