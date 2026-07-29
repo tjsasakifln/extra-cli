@@ -48,8 +48,22 @@ python3 -m pytest tests/test_extra_first_client_delivery.py -q --tb=line --no-co
 
 - GO é proibido enquanto elicitation crítica do perfil estiver PENDING
 - Shortlist vazia com insuficiência explícita é resultado honesto, não “zero de mercado”
-- Weekly com exit_code 2/3 **não** sustenta declaração de mercado zerado
+- Weekly com exit_code 2/3 → terminal_state `BLOCKED_EXTERNAL` (process exit 3); **não** `BUNDLE_READY_FOR_HUMAN_MERGE`
+- Estrutura inválida / checksum / arquivo crítico ausente ou zero-byte → `FAILED_VALIDATION` (exit 2)
+- Arquivo declarado em `checksums.json` **deve existir em disco** (hash de conteúdo vazio não autoriza ausência física)
+- `opportunities.csv` zero-byte sem header CSV **nunca** é SUCCESS_ZERO
+- Ausência confiável de mercado só com `exit_code=0` + fontes saudáveis + universo auditável (`reliable_market_absence`)
+- `human-review.json` inicia `PENDING_HUMAN`; `reviewed_by` / `decision` / `client_feedback` só Tiago (template vazio em `client_feedback_template`)
 - PNCP `/contratacoes/proposta`: `dataFinal` é limite superior de encerramento (horizonte default 30 dias)
 - Dossiê sem documentos oficiais → `09-dossie-edital-NOT_AVAILABLE.md`
 - PR #133 permanece fora de escopo
 - Pacote final de referência (2026-07-29): `~/extra-deliveries/EXTRA-FIRST-CLIENT-DECISION-B2G-20260729/`
+
+## Matriz de estado terminal
+
+| Condição | terminal_state | process exit |
+|----------|----------------|--------------|
+| Pack inválido (manifest/checksums/arquivo ausente/CSV crítico zero-byte) | `FAILED_VALIDATION` | 2 |
+| Pack válido, weekly `exit_code` 2 ou 3 | `BLOCKED_EXTERNAL` | 3 |
+| Pack válido, `exit_code` 0, shortlist insuficiente | `BUNDLE_READY_FOR_HUMAN_MERGE` (quality PARTIAL) | 0 |
+| Pack válido, `exit_code` 0, shortlist completa | `BUNDLE_READY_FOR_HUMAN_MERGE` (quality COMPLETE_PENDING_HUMAN) | 0 |

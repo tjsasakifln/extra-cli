@@ -157,6 +157,51 @@ def test_validate_weekly_fails_when_declared_file_missing(tmp_path: Path) -> Non
     (weekly / "opportunities.csv").unlink()
     v = efd.validate_weekly_pack(weekly)
     assert v.ok is False
+    assert any("ausente" in e.lower() or "opportunities" in e.lower() for e in v.errors)
+
+
+def test_validate_weekly_fails_when_declared_file_missing_even_if_empty_hash(
+    tmp_path: Path,
+) -> None:
+    """D2: empty sha256 in checksums must NOT authorize physical absence."""
+    weekly = _write_weekly(tmp_path / "w2-empty-hash", [_future_eng_row()])
+    empty_hash = hashlib.sha256(b"").hexdigest()
+    cs = json.loads((weekly / "checksums.json").read_text(encoding="utf-8"))
+    # Force declared hash to empty-content while deleting the file on disk.
+    cs["artifacts"]["contracts_csv"]["sha256"] = empty_hash
+    cs["artifacts"]["contracts_csv"]["bytes"] = 0
+    (weekly / "checksums.json").write_text(json.dumps(cs), encoding="utf-8")
+    (weekly / "contracts.csv").unlink()
+    v = efd.validate_weekly_pack(weekly)
+    assert v.ok is False
+    assert any("ausente" in e.lower() for e in v.errors)
+    assert any("contracts" in e.lower() for e in v.errors)
+
+
+def test_validate_weekly_fails_on_zero_byte_critical_csv(tmp_path: Path) -> None:
+    """D3: opportunities.csv zero-byte without header is never SUCCESS_ZERO."""
+    weekly = _write_weekly(tmp_path / "w-zero", [_future_eng_row()])
+    (weekly / "opportunities.csv").write_bytes(b"")
+    # Recompute checksum so D3 is tested independently of D2/checksum mismatch.
+    cs = json.loads((weekly / "checksums.json").read_text(encoding="utf-8"))
+    cs["artifacts"]["opportunities_csv"]["sha256"] = hashlib.sha256(b"").hexdigest()
+    cs["artifacts"]["opportunities_csv"]["bytes"] = 0
+    (weekly / "checksums.json").write_text(json.dumps(cs), encoding="utf-8")
+    v = efd.validate_weekly_pack(weekly)
+    assert v.ok is False
+    assert any("zero-byte" in e.lower() or "header" in e.lower() for e in v.errors)
+
+
+def test_validate_weekly_accepts_header_only_opportunities_success_zero_shape(
+    tmp_path: Path,
+) -> None:
+    """Header-only opportunities (row_count=0) is valid shape when file exists."""
+    weekly = _write_weekly(tmp_path / "w-header-only", [])
+    v = efd.validate_weekly_pack(weekly)
+    assert v.ok is True
+    assert v.opportunities_path is not None
+    rows = efd.load_csv_rows(Path(v.opportunities_path))
+    assert rows == []
 
 
 def test_empty_opportunities_still_emits_insufficiency(tmp_path: Path) -> None:
@@ -311,6 +356,12 @@ def test_human_review_starts_pending_and_cannot_autoaccept() -> None:
     assert hr["reviewed_by"] is None
     assert hr["decision"] is None
     assert hr["client_feedback"] is None
+    # D7: empty feedback template present, never simulated as filled
+    tpl = hr.get("client_feedback_template") or {}
+    assert tpl.get("schema") == "extra-client-feedback/1.0"
+    assert tpl.get("filled") is False
+    assert tpl.get("recipient") is None
+    assert tpl.get("decisions") == []
     claims = hr["claims_for_review"]
     assert isinstance(claims, list) and len(claims) >= 10
     topics = {c["topic"] for c in claims}
@@ -338,6 +389,16 @@ def test_human_review_starts_pending_and_cannot_autoaccept() -> None:
     bad["decision"] = "ACCEPTED"
     with pytest.raises(ValueError):
         efd.assert_not_auto_accepted(bad)
+    # simulated filled client feedback template must also be rejected
+    bad2 = dict(hr)
+    bad2["client_feedback_template"] = {
+        **tpl,
+        "filled": True,
+        "recipient": "Leonardo",
+        "decisions": ["GO on item 1"],
+    }
+    with pytest.raises(ValueError):
+        efd.assert_not_auto_accepted(bad2)
 
 
 def test_indeterminado_without_positive_terms_is_not_review_defensible() -> None:
@@ -466,6 +527,7 @@ def test_package_run_produces_required_artifacts(tmp_path: Path) -> None:
     )
     assert result["exit_code"] == 0
     assert result["terminal_state"] == "BUNDLE_READY_FOR_HUMAN_MERGE"
+    assert result["package_quality"] == "COMPLETE_PENDING_HUMAN"
     required = [
         "00-LEIA-ME.md",
         "01-resumo-executivo.pdf",
@@ -646,14 +708,130 @@ def test_diagnosis_marks_all_passed_deadlines(tmp_path: Path) -> None:
         profile_path=PROFILE,
         as_of=date(2026, 7, 28),
     )
-    assert result["exit_code"] == 0
+    # D1: weekly exit 2 → BLOCKED_EXTERNAL, process exit 3 (not READY)
+    assert result["exit_code"] == 3
+    assert result["terminal_state"] == "BLOCKED_EXTERNAL"
+    assert result["terminal_state"] != "BUNDLE_READY_FOR_HUMAN_MERGE"
+    man = json.loads((out / "manifest.json").read_text(encoding="utf-8"))
+    assert man["terminal_state"] == "BLOCKED_EXTERNAL"
+    # Operator diagnosis + intake still emitted
+    assert (out / "diagnostico-weekly-source.json").is_file()
+    assert (out / "04-intake-operacional-extra.json").is_file()
+    hr = json.loads((out / "human-review.json").read_text(encoding="utf-8"))
+    assert hr["status"] == "PENDING_HUMAN"
+    assert hr["reviewed_by"] is None
     diag = json.loads((out / "diagnostico-weekly-source.json").read_text(encoding="utf-8"))
     assert diag["exit_code"] == 2
+    assert diag.get("reliable_market_absence") is False
     assert diag["candidate_funnel"]["deadline_buckets"]["PASSED"] >= 1
     assert diag["candidate_funnel"]["review_defensible_total"] == 0
     assert "A_records_old_or_closed" in (diag.get("causes") or []) or diag.get("cause_code")
     baseline = (out / "06-baseline-mercado-extra.md").read_text(encoding="utf-8")
     assert "históric" in baseline.lower() or "Referências" in baseline
+
+
+def test_weekly_exit_code_3_is_blocked_external_not_ready(tmp_path: Path) -> None:
+    weekly = _write_weekly(tmp_path / "w-exit3", [_future_eng_row()], exit_code=3)
+    out = tmp_path / "out-exit3"
+    result = efd.run_delivery(
+        weekly_input=weekly,
+        delivery_out=out,
+        profile_path=PROFILE,
+        as_of=date(2026, 7, 28),
+    )
+    assert result["exit_code"] == 3
+    assert result["terminal_state"] == "BLOCKED_EXTERNAL"
+    leia = (out / "00-LEIA-ME.md").read_text(encoding="utf-8")
+    assert "BLOCKED_EXTERNAL" in leia
+    man = json.loads((out / "manifest.json").read_text(encoding="utf-8"))
+    assert man["terminal_state"] == "BLOCKED_EXTERNAL"
+    assert man["package_quality"] == "PARTIAL_VISIBLE_LIMITATIONS"
+
+
+def test_package_reconciles_when_exit_code_0(tmp_path: Path) -> None:
+    weekly = _write_weekly(
+        tmp_path / "w-ok",
+        [
+            _future_eng_row(),
+            _future_eng_row(
+                numero_controle_pncp="83102228000110-1-000100/2026",
+                source_id="83102228000110-1-000100/2026",
+                objeto="Obra de drenagem urbana e galeria pluvial",
+                data_encerramento="2026-09-01",
+            ),
+            _future_eng_row(
+                numero_controle_pncp="83102228000110-1-000101/2026",
+                source_id="83102228000110-1-000101/2026",
+                objeto="Reforma predial de escola municipal",
+                data_encerramento="2026-08-30",
+            ),
+            _future_eng_row(
+                numero_controle_pncp="83102228000110-1-000102/2026",
+                source_id="83102228000110-1-000102/2026",
+                objeto="Construção de edifício público administrativo",
+                data_encerramento="2026-10-01",
+            ),
+            _future_eng_row(
+                numero_controle_pncp="83102228000110-1-000103/2026",
+                source_id="83102228000110-1-000103/2026",
+                objeto="Pavimentação asfáltica e infraestrutura urbana",
+                data_encerramento="2026-08-10",
+            ),
+        ],
+        exit_code=0,
+    )
+    out = tmp_path / "out-ok"
+    result = efd.run_delivery(
+        weekly_input=weekly,
+        delivery_out=out,
+        profile_path=PROFILE,
+        as_of=date(2026, 7, 28),
+    )
+    assert result["exit_code"] == 0
+    assert result["terminal_state"] == "BUNDLE_READY_FOR_HUMAN_MERGE"
+    assert result["reconcile"] == "PASS"
+    man = json.loads((out / "manifest.json").read_text(encoding="utf-8"))
+    assert man["reconcile"]["status"] == "PASS"
+    assert man["source_weekly"]["exit_code"] == 0
+
+
+def test_reliable_market_absence_false_when_exit_nonzero() -> None:
+    weekly = efd.WeeklyValidation(
+        ok=True,
+        weekly_dir="/x",
+        cycle_id="c",
+        collection_id="col",
+        exit_code=2,
+        freshness=[{"source": "pncp_opportunities", "level": "fresh"}],
+        source_health=[{"source": "pncp_opportunities", "level": "fresh"}],
+    )
+    assert (
+        efd.is_reliable_market_absence(
+            weekly, {"candidates_total": 0, "shortlist_count": 0}
+        )
+        is False
+    )
+    weekly0 = efd.WeeklyValidation(
+        ok=True,
+        weekly_dir="/x",
+        cycle_id="c",
+        collection_id="col",
+        exit_code=0,
+        freshness=[{"source": "pncp_opportunities", "level": "fresh"}],
+        source_health=[{"source": "pncp_opportunities", "level": "fresh"}],
+    )
+    assert (
+        efd.is_reliable_market_absence(
+            weekly0, {"candidates_total": 0, "shortlist_count": 0}
+        )
+        is True
+    )
+    assert (
+        efd.is_reliable_market_absence(
+            weekly0, {"candidates_total": 3, "shortlist_count": 0}
+        )
+        is False
+    )
 
 
 def test_pncp_open_proposal_data_final_uses_forward_horizon() -> None:

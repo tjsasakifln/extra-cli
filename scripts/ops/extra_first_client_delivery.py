@@ -431,10 +431,8 @@ def validate_weekly_pack(weekly_dir: Path) -> WeeklyValidation:
         expected = meta.get("sha256")
         found = next((c for c in candidates if c.is_file()), None)
         if found is None:
-            # empty contracts/competitors may be 0-byte
-            if expected == hashlib.sha256(b"").hexdigest():
-                # treat as present empty
-                continue
+            # D2: physical absence is always an error. Empty-content sha256 does
+            # NOT authorize a missing file (even contracts/competitors 0-byte).
             missing.append(name)
             continue
         actual = sha256_file(found)
@@ -450,7 +448,25 @@ def validate_weekly_pack(weekly_dir: Path) -> WeeklyValidation:
     if not opp.is_file():
         result.errors.append("opportunities.csv ausente")
     else:
-        result.opportunities_path = str(opp)
+        # D3: critical file must exist with valid CSV header. Zero-byte is never SUCCESS_ZERO.
+        crit_errs = validate_critical_csv(
+            opp,
+            name="opportunities.csv",
+            required_columns=frozenset(
+                {
+                    "id",
+                    "source",
+                    "numero_controle_pncp",
+                    "objeto",
+                    "status_canonico",
+                    "data_encerramento",
+                }
+            ),
+        )
+        if crit_errs:
+            result.errors.extend(crit_errs)
+        else:
+            result.opportunities_path = str(opp)
     orgaos = weekly_dir / "orgaos.csv"
     if orgaos.is_file():
         result.orgaos_path = str(orgaos)
@@ -470,6 +486,51 @@ def validate_weekly_pack(weekly_dir: Path) -> WeeklyValidation:
     result.product_checksums_ok = not missing and not mismatches
     result.ok = result.product_checksums_ok and bool(result.opportunities_path) and not result.errors
     return result
+
+
+def validate_critical_csv(
+    path: Path,
+    *,
+    name: str,
+    required_columns: frozenset[str] | None = None,
+) -> list[str]:
+    """Validate a critical weekly CSV.
+
+    SUCCESS_ZERO (row_count=0) is allowed only when the file exists, has a valid
+    header/schema, is parseable, and is not zero-byte. Physical absence or
+    zero-byte content without a header is always invalid.
+    """
+    errors: list[str] = []
+    if not path.is_file():
+        errors.append(f"{name} ausente")
+        return errors
+    raw = path.read_bytes()
+    if len(raw) == 0:
+        errors.append(
+            f"{name} zero-byte sem header CSV válido "
+            "(não é SUCCESS_ZERO — ausência física de schema)"
+        )
+        return errors
+    try:
+        text = raw.decode("utf-8")
+    except UnicodeDecodeError as exc:
+        errors.append(f"{name} encoding inválido: {exc}")
+        return errors
+    try:
+        reader = csv.DictReader(text.splitlines())
+        fieldnames = list(reader.fieldnames or [])
+        if not fieldnames:
+            errors.append(f"{name} sem header CSV")
+            return errors
+        if required_columns:
+            missing_cols = sorted(required_columns - set(fieldnames))
+            if missing_cols:
+                errors.append(f"{name} colunas obrigatórias ausentes: {', '.join(missing_cols)}")
+        # Consume rows to ensure parseable; row_count may be 0 (SUCCESS_ZERO shape).
+        list(reader)
+    except csv.Error as exc:
+        errors.append(f"{name} CSV inválido: {exc}")
+    return errors
 
 
 def load_csv_rows(path: Path) -> list[dict[str, str]]:
@@ -915,6 +976,18 @@ def write_readme(
         "- GO comercial exige dados operacionais da Extra ainda PENDING.",
         "",
     ]
+    if terminal_state == "BLOCKED_EXTERNAL":
+        lines.extend(
+            [
+                "## Estado BLOCKED_EXTERNAL",
+                "",
+                f"Weekly de origem com exit_code={weekly.exit_code}. Este pacote **não** é "
+                "decisão comercial completa (não marcar como READY/merge). Use diagnóstico e "
+                "intake como material operacional para o operador; Tiago não deve apresentar "
+                "como shortlist final ao Leonardo sem recoleta confiável (exit_code=0).",
+                "",
+            ]
+        )
     if shortlist_result.get("insufficient"):
         lines.extend(
             [
@@ -2036,7 +2109,10 @@ def build_human_review(
                 f"defensáveis REVIEW={shortlist_result.get('review_defensible_total')}; "
                 f"shortlist={shortlist_result.get('shortlist_count')}; "
                 f"GO automático={shortlist_result.get('go_count')} "
-                f"(GO proibido com perfil PENDING)"
+                f"(GO proibido com perfil PENDING). "
+                f"reliable_market_absence="
+                f"{bool(diagnosis.get('reliable_market_absence'))} "
+                "(true só com exit_code=0 + fontes saudáveis + universo vazio auditável)"
             ),
             "evidence": {
                 "candidates_total": shortlist_result.get("candidates_total"),
@@ -2046,8 +2122,13 @@ def build_human_review(
                 "go_count": shortlist_result.get("go_count"),
                 "deadline_buckets": funnel.get("deadline_buckets"),
                 "hard_block_counts": funnel.get("hard_block_counts"),
+                "reliable_market_absence": bool(diagnosis.get("reliable_market_absence")),
+                "weekly_exit_code": weekly.exit_code if weekly else None,
             },
-            "reviewer_action": "Confirmar se a contagem de oportunidades atuais está correta",
+            "reviewer_action": (
+                "Confirmar contagem; NÃO declarar ausência de mercado se "
+                "reliable_market_absence=false (fonte parcial/falha/exit!=0)"
+            ),
         },
         {
             "id": "C04_identificacao",
@@ -2159,6 +2240,9 @@ def build_human_review(
         },
     ]
 
+    # D7: empty template only — agent never simulates Tiago/Leonardo feedback.
+    client_feedback_template = empty_client_feedback_template()
+
     return {
         "status": "PENDING_HUMAN",
         "reviewed_by": None,
@@ -2168,13 +2252,44 @@ def build_human_review(
         "decision": None,
         "limitations_accepted": [],
         "notes": None,
+        # Filled feedback remains null until Tiago records external client input.
         "client_feedback": None,
+        "client_feedback_template": client_feedback_template,
         "claims_for_review": claims,
         "claims_count": len(claims),
         "allowed_decisions": ["ACCEPTED", "ACCEPTED_WITH_LIMITATIONS", "REJECTED"],
         "rule": (
             "Somente Tiago pode preencher decision/reviewed_by/reviewed_at/client_feedback; "
-            "agente não autoaceita. Revisar claims_for_review item a item."
+            "agente não autoaceita. Revisar claims_for_review item a item. "
+            "client_feedback_template é schema vazio — não simular preenchimento."
+        ),
+    }
+
+
+def empty_client_feedback_template() -> dict[str, Any]:
+    """Schema/template for external client feedback. All fields intentionally empty.
+
+    D7: never auto-fill. Tiago records real feedback after presenting the package.
+    """
+    return {
+        "schema": "extra-client-feedback/1.0",
+        "recipient": None,
+        "received_at": None,
+        "presented_by": None,
+        "artifact_run_id": None,
+        "decisions": [],
+        "questions": [],
+        "useful_elements": [],
+        "unused_elements": [],
+        "requested_changes": [],
+        "next_actions": [],
+        "owners": [],
+        "due_dates": [],
+        "notes": None,
+        "filled": False,
+        "rule": (
+            "Somente Tiago preenche após feedback real de Leonardo/Extra; "
+            "agente nunca simula filled=true nem popula campos."
         ),
     }
 
@@ -2190,10 +2305,39 @@ def assert_not_auto_accepted(human_review: dict[str, Any]) -> None:
         raise ValueError("reviewed_at deve ser null no pacote gerado por agente")
     if human_review.get("client_feedback") is not None:
         raise ValueError("client_feedback deve ser null no pacote gerado por agente")
+    tpl = human_review.get("client_feedback_template")
+    if isinstance(tpl, dict):
+        if tpl.get("filled") is True:
+            raise ValueError("client_feedback_template.filled não pode ser true no pacote gerado")
+        for key in (
+            "recipient",
+            "received_at",
+            "presented_by",
+            "artifact_run_id",
+            "notes",
+        ):
+            if tpl.get(key) is not None:
+                raise ValueError(
+                    f"client_feedback_template.{key} deve ser null no pacote gerado por agente"
+                )
+        for key in (
+            "decisions",
+            "questions",
+            "useful_elements",
+            "unused_elements",
+            "requested_changes",
+            "next_actions",
+            "owners",
+            "due_dates",
+        ):
+            val = tpl.get(key)
+            if val not in (None, []):
+                raise ValueError(
+                    f"client_feedback_template.{key} deve estar vazio no pacote gerado por agente"
+                )
     claims = human_review.get("claims_for_review")
     if not isinstance(claims, list) or len(claims) < 5:
         raise ValueError("human-review deve listar claims_for_review explícitas (≥5)")
-
 
 def reject_stale_acceptance(
     previous: dict[str, Any] | None, current_checksums: dict[str, str]
@@ -2349,6 +2493,45 @@ def load_prior_blocked_weekly_diagnosis(
     }
 
 
+def is_reliable_market_absence(
+    weekly: WeeklyValidation,
+    shortlist_result: dict[str, Any] | None = None,
+) -> bool:
+    """D6: empty shortlist is 'ausência confiável' only under strict conditions.
+
+    Requires: exit_code=0 (or unset), healthy sources/freshness, zero candidates in
+    the pack universe, and no silent degradation markers in runs. Never true when
+    weekly is partial/blocked (exit 2/3) or sources are stale/unreliable.
+    """
+    shortlist_result = shortlist_result or {}
+    if weekly.exit_code not in (0, None):
+        return False
+    candidates = int(shortlist_result.get("candidates_total") or 0)
+    shortlist_n = int(shortlist_result.get("shortlist_count") or 0)
+    if candidates != 0 or shortlist_n != 0:
+        return False
+    for f in weekly.freshness or []:
+        if isinstance(f, dict) and f.get("level") in {"stale", "never", "unreliable"}:
+            return False
+    for s in weekly.source_health or []:
+        if isinstance(s, dict) and s.get("level") in {
+            "stale",
+            "never",
+            "unreliable",
+            "blocked",
+            "failure",
+            "partial",
+        }:
+            return False
+    for r in weekly.runs or []:
+        if not isinstance(r, dict):
+            continue
+        term = r.get("terminal_status")
+        if term not in {None, "success", "success_zero", "reused_fresh"}:
+            return False
+    return True
+
+
 def diagnose_weekly_source(
     weekly: WeeklyValidation,
     *,
@@ -2446,8 +2629,15 @@ def diagnose_weekly_source(
         causes.append("C_status_open_with_passed_deadline")
     if block_counts.get("NEGATIVE_OBJECT_MATCH", 0) or block_counts.get("INCOMPATIVEL", 0):
         causes.append("F_profile_restrictive_or_negative_object")
+    # D6: "ausência confiável" / G only when exit_code=0 + sources healthy + no silent degradation.
+    reliable_absence = is_reliable_market_absence(weekly, shortlist_result)
     if not causes and not evaluated:
-        causes.append("G_or_insufficient_universe")
+        if reliable_absence:
+            causes.append("G_or_insufficient_universe")
+        elif weekly.exit_code not in (0, None):
+            causes.append("E_source_stale_or_unreliable")
+        else:
+            causes.append("G_or_insufficient_universe")
     cause_code = "H_combination" if len(causes) > 1 else (causes[0] if causes else "UNKNOWN")
 
     exit_reason_parts: list[str] = []
@@ -2476,6 +2666,7 @@ def diagnose_weekly_source(
         "exit_reason": "; ".join(exit_reason_parts) or "n/a",
         "cause_code": cause_code,
         "causes": causes,
+        "reliable_market_absence": reliable_absence,
         "stages": stage_summary,
         "runs": run_summary,
         "freshness": weekly.freshness,
@@ -2504,11 +2695,13 @@ def diagnose_weekly_source(
             "D": "mistura histórico/atual",
             "E": "fonte stale/bloqueada",
             "F": "perfil/termos restritivos",
-            "G": "ausência real no universo",
+            "G": "ausência real no universo (somente se exit_code=0 + fontes saudáveis)",
             "H": "combinação",
         },
         "notes": [
             "Zero de shortlist com exit_code!=0 NÃO prova zero de mercado.",
+            "Ausência confiável exige exit_code=0 + fontes saudáveis + universo auditável "
+            "+ sem degradação silenciosa (reliable_market_absence=true).",
             "PNCP /contratacoes/proposta: dataFinal é limite superior de data de encerramento.",
         ],
         "prior_weekly_blocked_delivery": (
@@ -2975,7 +3168,13 @@ def run_delivery(
         dsn_note = "DSN isolado fornecido (não usado para escrita em produção)"
 
     # Terminal state is fixed BEFORE writing client narratives (PDF/MD/LEIA-ME once).
-    if shortlist_result.get("insufficient") or weekly.exit_code not in (0, None):
+    # D1: weekly exit != 0 is NEVER a complete decision package (not READY/mergeable).
+    # Structure already validated above → FAILED_VALIDATION would have exited.
+    # exit 2/3 with valid structure → BLOCKED_EXTERNAL (operator diagnosis still emitted).
+    if weekly.exit_code not in (0, None):
+        terminal_state = "BLOCKED_EXTERNAL"
+        package_quality = "PARTIAL_VISIBLE_LIMITATIONS"
+    elif shortlist_result.get("insufficient"):
         terminal_state = "BUNDLE_READY_FOR_HUMAN_MERGE"
         package_quality = "PARTIAL_VISIBLE_LIMITATIONS"
     else:
@@ -3367,10 +3566,13 @@ def run_delivery(
         json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
     )
 
+    # Process exit: 0 when mergeable package; 3 when weekly blocked externally
+    # (structure valid, diagnosis emitted, not READY). Structure invalid → SystemExit(2).
+    process_exit = 3 if terminal_state == "BLOCKED_EXTERNAL" else 0
     result = {
         "terminal_state": terminal_state,
         "package_quality": package_quality,
-        "exit_code": 0,
+        "exit_code": process_exit,
         "run_id": run_id,
         "delivery_out": str(delivery_out),
         "source_weekly_run_id": weekly.cycle_id,
@@ -3435,7 +3637,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "run":
         as_of = date.fromisoformat(args.as_of) if args.as_of else date.today()
         try:
-            run_delivery(
+            result = run_delivery(
                 weekly_input=args.weekly_input,
                 delivery_out=args.delivery_out,
                 profile_path=args.profile,
@@ -3444,7 +3646,7 @@ def main(argv: list[str] | None = None) -> int:
             )
         except SystemExit as e:
             return int(e.code or 1)
-        return 0
+        return int(result.get("exit_code") or 0)
 
     return 1
 
