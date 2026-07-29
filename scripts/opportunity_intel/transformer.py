@@ -51,7 +51,17 @@ def normalize_pncp(raw: dict[str, Any]) -> OpportunityRecord:
     modalidade_id = raw.get("codigoModalidade", 0) or raw.get("modalidadeId", 0)
     if isinstance(modalidade_id, str) and modalidade_id.isdigit():
         modalidade_id = int(modalidade_id)
-    uf = raw.get("uf", "SC") or "SC"
+    # Never impute UF=SC: missing/blank stays unknown. Prefer nested unidadeOrgao
+    # (PNCP API common shape: ufSigla / siglaUf) over invented territorial defaults.
+    uf_raw = (
+        raw.get("uf")
+        or raw.get("UF")
+        or unidade.get("ufSigla")
+        or unidade.get("siglaUf")
+        or unidade.get("uf")
+        or ""
+    )
+    uf = str(uf_raw).strip().upper() if uf_raw else ""
     municipio = raw.get("municipio", "") or raw.get("nomeMunicipio", "") or unidade.get("municipioNome", "")
     codigo_ibge = raw.get("codigoMunicipioIbge", "") or raw.get("codigoIBGE", "") or unidade.get("codigoIbge", "")
 
@@ -80,7 +90,7 @@ def normalize_pncp(raw: dict[str, Any]) -> OpportunityRecord:
         orgao_cnpj=orgao_cnpj if orgao_cnpj else None,
         orgao_nome=orgao_nome if orgao_nome else None,
         ente_federativo=_infer_esfera(uf, orgao_cnpj),
-        uf=uf,
+        uf=uf,  # "" when unknown — never default SC for PNCP
         municipio=municipio if municipio else None,
         codigo_ibge=codigo_ibge if codigo_ibge else None,
         # Empty string is NOT NULL in Postgres and trips partial unique index
@@ -141,7 +151,7 @@ def normalize_pncp(raw: dict[str, Any]) -> OpportunityRecord:
         link_edital=record.link_edital,
         link_anexos=record.link_anexos,
         has_match_entity=bool(orgao_cnpj),
-        dentro_raio=(uf == "SC"),
+        dentro_raio=(uf == "SC") if uf else False,
         fonte_confiavel=True,
     )
     record.ranking = ranking["ranking"]
@@ -245,7 +255,9 @@ def normalize_generic(raw: dict[str, Any], source: str = "unknown") -> Opportuni
     objeto = raw.get("objeto", "") or raw.get("descricao", "") or raw.get("titulo", "") or raw.get("nome", "") or ""
     orgao_cnpj = raw.get("orgao_cnpj", "") or raw.get("cnpj", "") or raw.get("orgaoCNPJ", "")
     orgao_nome = raw.get("orgao_nome", "") or raw.get("nome_orgao", "") or raw.get("orgaoRazaoSocial", "")
-    uf = raw.get("uf", raw.get("UF", "SC")) or "SC"
+    # Generic path: never invent SC. DOM-SC keeps SC only via normalize_dom_sc.
+    uf_raw = raw.get("uf") or raw.get("UF") or ""
+    uf = str(uf_raw).strip().upper() if uf_raw else ""
     municipio = raw.get("municipio", "") or raw.get("cidade", "") or raw.get("nomeMunicipio", "")
     valor_estimado = safe_float(raw.get("valor", raw.get("valor_estimado", raw.get("valorTotal"))))
 

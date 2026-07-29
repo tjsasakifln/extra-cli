@@ -611,6 +611,85 @@ def test_extra_universe_scope_sql_targets_raio_200km() -> None:
     assert "c.uf = 'SC'" in sql or 'c.uf = "SC"' in sql or "uf = 'SC'" in sql
 
 
+def test_intelligence_source_has_no_sc_uf_fallback() -> None:
+    """D4: weekly_cycle must not contain silent c.uf='SC' contracts fallback."""
+    from scripts.ops import weekly_cycle as wc
+
+    src = open(wc.__file__, encoding="utf-8").read()
+    assert "extra_sc_uf_fallback_empty_universe" not in src
+    assert 'contracts_scope_sql = _EXTRA_UNIVERSE_ORGAO if universe_n > 0 else "c.uf = \'SC\'"' not in src
+    assert "CANONICAL_200KM_UNIVERSE_UNAVAILABLE" in src
+
+
+def test_exit_tech_on_canonical_universe_unavailable() -> None:
+    """Intelligence fail with CANONICAL_200KM → EXIT_TECH (fail-closed)."""
+    run = CollectionRun.start(
+        source="pncp_opportunities",
+        collection_id="c",
+        collector_version="t",
+    )
+    run.finish(
+        records_obtained=1,
+        records_persisted=1,
+        request_completed=True,
+        scope_complete=True,
+    )
+    stages = [
+        StageResult(name="validate_db", status="ok"),
+        StageResult(name="collect", status="ok"),
+        StageResult(
+            name="intelligence",
+            status="fail",
+            error="CANONICAL_200KM_UNIVERSE_UNAVAILABLE: universe_200km=0 != 1093",
+            detail={"scope": "CANONICAL_200KM_UNIVERSE_UNAVAILABLE", "sc_uf_fallback": False},
+        ),
+        StageResult(name="delivery", status="ok", detail=_delivery_ok_detail()),
+    ]
+    assert compute_exit_code(stages, [run], strict=True) == EXIT_TECH
+
+
+def test_exit_unreliable_success_zero_without_scope() -> None:
+    """success_zero with incomplete scope must never wash to EXIT_OK under strict."""
+    run = CollectionRun.start(
+        source="pncp_opportunities",
+        collection_id="c",
+        collector_version="t",
+    )
+    # Manually force a pathological success_zero without scope (should not happen
+    # via classify_terminal_status, but exit policy must still fail closed).
+    run.finish(
+        records_obtained=0,
+        records_persisted=0,
+        request_completed=True,
+        scope_complete=True,
+    )
+    assert run.terminal_status == "success_zero"
+    run.scope_complete = False  # corrupt / incomplete declaration
+    contracts = CollectionRun.start(
+        source="pncp_contracts",
+        collection_id="c",
+        collector_version="t",
+    )
+    contracts.finish(
+        records_obtained=1,
+        records_persisted=1,
+        request_completed=True,
+        scope_complete=True,
+        reused_within_sla=True,
+    )
+    stages = [
+        StageResult(name="validate_db", status="ok"),
+        StageResult(name="collect", status="ok"),
+        StageResult(
+            name="intelligence",
+            status="ok",
+            detail={"counts": {"opportunities": 0}},
+        ),
+        StageResult(name="delivery", status="ok", detail=_delivery_ok_detail()),
+    ]
+    assert compute_exit_code(stages, [run, contracts], strict=True) == EXIT_UNRELIABLE
+
+
 def test_identity_pick_match_rejects_cross_root() -> None:
     from scripts.entity_identity.pncp_orgao_resolve import pick_match
 
@@ -673,7 +752,18 @@ def test_weekly_cycle_offline_skip_collect(tmp_path: Path) -> None:
     assert "collection_id" in claims_text or "cycle_run_id" in claims_text
     assert report.human_accept.get("status") == "PENDING_HUMAN"
     assert "LOCAL_READY" in report.claims_forbidden
-    assert report.exit_code in {0, 2, 3}
+    # 0=ok, 1=tech (e.g. universe != 1093), 2=unreliable, 3=blocked
+    assert report.exit_code in {0, 1, 2, 3}
+    if report.exit_code == EXIT_TECH:
+        # Fail-closed path: universe seed missing/wrong must surface CANONICAL code.
+        stage_errs = " ".join(
+            str(s.get("error") or "") for s in (report.stages or []) if isinstance(s, dict)
+        )
+        assert "CANONICAL_200KM_UNIVERSE_UNAVAILABLE" in stage_errs or any(
+            s.get("name") == "validate_db" and s.get("status") == "fail"
+            for s in (report.stages or [])
+            if isinstance(s, dict)
+        )
 
 
 # ---------------------------------------------------------------------------

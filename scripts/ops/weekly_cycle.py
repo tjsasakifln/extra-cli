@@ -120,9 +120,17 @@ def _atomic_json(path: Path, payload: Any) -> None:
 
 
 def _write_csv(path: Path, rows: list[dict[str, Any]]) -> None:
+    """Write CSV product. Empty result is explicit: headers + zero data rows.
+
+    Never write a blank file that could be confused with a failed write.
+    When no rows and no known headers, emit a single ``row_count`` column with 0.
+    """
     path.parent.mkdir(parents=True, exist_ok=True)
     if not rows:
-        path.write_text("", encoding="utf-8")
+        with path.open("w", encoding="utf-8", newline="") as fh:
+            w = csv.DictWriter(fh, fieldnames=["row_count"])
+            w.writeheader()
+            w.writerow({"row_count": 0})
         return
     # stable field order: union of keys preserving first-row order
     fields: list[str] = []
@@ -228,11 +236,16 @@ def stage_validate_db(conn: Any) -> StageResult:
     n = int((uni[0] or {}).get("n") or 0) if uni else 0
     detail = {"tables": present, "universe_200km": n, "expected_universe": 1093}
     if n != 1093:
+        # Fail-closed: Extra weekly pack requires the canonical 200km seed.
+        # Never continue with silent SC-wide geographic proxy.
         return StageResult(
             name="validate_db",
-            status="warn",
+            status="fail",
             detail=detail,
-            error=f"universe_200km={n} != 1093 (scope drift)",
+            error=(
+                "CANONICAL_200KM_UNIVERSE_UNAVAILABLE: "
+                f"universe_200km={n} != 1093 (scope drift or seed missing)"
+            ),
         )
     return StageResult(name="validate_db", status="ok", detail=detail)
 
@@ -880,10 +893,11 @@ def stage_intelligence(
         o["source_record_run_id"] = o.get("run_id") or o.get("last_seen_source_run_id")
         o["scope"] = "extra_sc_or_universe_200km"
 
-    # Prefer canonical 200km universe; if seed table is empty (scope drift),
-    # fall back to UF=SC geographic proxy so contracts/competitors are not
-    # silently zeroed while the lake still holds millions of rows.
+    # Canonical 200km universe is mandatory. Never fall back to UF=SC-only:
+    # that silently expands scope beyond Extra's territorial contract.
+    CANONICAL_UNIVERSE_N = 1093
     universe_n = 0
+    universe_err: str | None = None
     try:
         urows = _q(
             conn,
@@ -894,12 +908,39 @@ def stage_intelligence(
             """,
         )
         universe_n = int((urows[0] or {}).get("n") or 0) if urows else 0
-    except Exception:  # noqa: BLE001
+    except Exception as exc:  # noqa: BLE001
         universe_n = 0
-    contracts_scope_sql = _EXTRA_UNIVERSE_ORGAO if universe_n > 0 else "c.uf = 'SC'"
-    contracts_scope_label = (
-        "extra_universe_200km" if universe_n > 0 else "extra_sc_uf_fallback_empty_universe"
-    )
+        universe_err = str(exc)
+    if universe_n != CANONICAL_UNIVERSE_N:
+        err = (
+            "CANONICAL_200KM_UNIVERSE_UNAVAILABLE: "
+            f"universe_200km={universe_n} != {CANONICAL_UNIVERSE_N}"
+            + (f" ({universe_err})" if universe_err else "")
+        )
+        return StageResult(
+            name="intelligence",
+            status="fail",
+            detail={
+                "opportunities": opps,
+                "contracts": [],
+                "competitors": [],
+                "orgaos": [],
+                "counts": {
+                    "opportunities": len(opps),
+                    "contracts": 0,
+                    "competitors": 0,
+                    "orgaos": 0,
+                    "universe_200km": universe_n,
+                    "expected_universe": CANONICAL_UNIVERSE_N,
+                },
+                "scope": "CANONICAL_200KM_UNIVERSE_UNAVAILABLE",
+                "contracts_scope_sql_applied": False,
+                "sc_uf_fallback": False,
+            },
+            error=err,
+        )
+    contracts_scope_sql = _EXTRA_UNIVERSE_ORGAO
+    contracts_scope_label = "extra_universe_200km"
 
     contracts = _q(
         conn,
@@ -998,8 +1039,12 @@ def stage_intelligence(
                 "contracts": len(contracts),
                 "competitors": len(competitors),
                 "orgaos": len(orgaos),
+                "universe_200km": universe_n,
+                "expected_universe": CANONICAL_UNIVERSE_N,
             },
             "scope": "extra_universe_200km",
+            "contracts_scope_sql_applied": True,
+            "sc_uf_fallback": False,
         },
     )
 
@@ -1615,6 +1660,13 @@ def compute_exit_code(
     quality = next((s for s in stages if s.name == "quality"), None)
     intel = next((s for s in stages if s.name == "intelligence"), None)
 
+    # Territorial scope failure is technical (seed/universe), not consultive grey-area.
+    if intel and intel.status == "fail":
+        err = str(intel.error or "")
+        if "CANONICAL_200KM_UNIVERSE_UNAVAILABLE" in err:
+            return EXIT_TECH
+        return EXIT_UNRELIABLE
+
     if delivery and delivery.status == "fail":
         # Missing Excel / incomplete pack is technical delivery failure under strict;
         # still non-zero outside strict (unreliable for consultive use).
@@ -1640,6 +1692,15 @@ def compute_exit_code(
             "reused_fresh",
         }:
             return EXIT_UNRELIABLE
+        # success_zero must never hide incomplete collection (scope/error).
+        if ct.terminal_status == "success_zero" and (
+            not ct.scope_complete or ct.terminal_error
+        ):
+            return EXIT_UNRELIABLE
+        if opp and opp.terminal_status == "success_zero" and (
+            not opp.scope_complete or opp.terminal_error
+        ):
+            return EXIT_UNRELIABLE
 
     if (
         intel
@@ -1654,6 +1715,11 @@ def compute_exit_code(
             "success_zero",
             "reused_fresh",
         }:
+            return EXIT_UNRELIABLE
+        # Explicit zero only when the collection run itself completed cleanly.
+        if opp.terminal_status == "success_zero" and (
+            not opp.request_completed or not opp.scope_complete or opp.terminal_error
+        ):
             return EXIT_UNRELIABLE
         return EXIT_OK
     return EXIT_UNRELIABLE
