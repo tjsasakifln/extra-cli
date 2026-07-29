@@ -576,11 +576,13 @@ def evaluate_opportunity(
         recommendation = "NO_GO"
         reason_parts.append("objeto incompatível com perfil Extra")
     if recommendation == "REVIEW" and not pos_hits and client_fit == "INDETERMINADO":
-        # keep as candidate only if engineering-ish via ranking REVIEW and SC
-        uf = (row.get("uf") or "").upper()
-        if uf and uf != "SC":
-            recommendation = "NO_GO"
-            reason_parts.append("fora de SC sem aderência explícita")
+        # Sem termos positivos do perfil Extra → não é REVIEW_DEFENSIBLE setorial.
+        # (Ex.: cubos de acrílico / exames / salvamento aquático não entram como
+        # "aderência" apenas por estarem em SC com prazo futuro.)
+        recommendation = "NO_GO"
+        reason_parts.append(
+            "sem termos positivos de aderência ao perfil Extra (objeto indeterminado)"
+        )
 
     # NEVER GO while critical pending
     if recommendation == "GO" or str(row.get("ranking") or "").upper() == "GO":
@@ -607,9 +609,18 @@ def evaluate_opportunity(
     if recommendation == "REVIEW":
         next_action = "Selecionar para leitura de edital/anexos e validar capacidade Extra"
         if not reason_parts:
-            reason_parts.append(
-                "prazo futuro útil e objeto com aderência ou identidade suficiente para tempo humano"
-            )
+            if client_fit == "ADERENTE":
+                reason_parts.append(
+                    "prazo futuro útil e objeto com termos positivos de aderência ao perfil Extra"
+                )
+            elif client_fit == "MISTO":
+                reason_parts.append(
+                    "prazo futuro útil e objeto misto (termos positivos e negativos) — revisão humana"
+                )
+            else:
+                reason_parts.append(
+                    "prazo futuro útil e identidade específica — revisão humana sem claim de aderência setorial"
+                )
     else:
         next_action = "Descartar desta rodada; manter apenas como contexto se útil"
         if not reason_parts:
@@ -688,7 +699,8 @@ def build_shortlist(
         for r in rows
     ]
 
-    # Defensible shortlist: REVIEW with future deadline and identity
+    # Defensible shortlist: REVIEW with future deadline, identity, and explicit
+    # profile adherence (ADERENTE/MISTO). INDETERMINADO without positive terms is NO_GO.
     review = [
         e
         for e in evaluated
@@ -697,6 +709,8 @@ def build_shortlist(
         and e["dias_restantes"] >= 0
         and e.get("numero_controle")
         and "IDENTITY_MISSING" not in (e.get("hard_blocks") or [])
+        and e.get("client_fit") in {"ADERENTE", "MISTO"}
+        and (e.get("termos_positivos") or [])
     ]
 
     # Prefer engineering adherence, nearer deadlines, higher source ranking score
@@ -1936,7 +1950,209 @@ def reconcile_package_counts(
     return {"status": status, "divergences": divergences, "checks": checks}
 
 
-def build_human_review(run_id: str, checksums: dict[str, str]) -> dict[str, Any]:
+def build_human_review(
+    run_id: str,
+    checksums: dict[str, str],
+    *,
+    weekly: WeeklyValidation | None = None,
+    shortlist_result: dict[str, Any] | None = None,
+    diagnosis: dict[str, Any] | None = None,
+    market_baseline: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Human-review package. Starts PENDING_HUMAN with explicit claims for Tiago.
+
+    R9: claims cover sources, freshness, presence/absence of opportunities, IDs,
+    deadlines, values, competitors, historical interpretation, limitations, next action.
+    Agent never fills reviewed_by / reviewed_at / decision / client feedback.
+    """
+    weekly = weekly
+    shortlist_result = shortlist_result or {}
+    diagnosis = diagnosis or {}
+    market_baseline = market_baseline or {}
+    shortlist = list(shortlist_result.get("shortlist") or [])
+    funnel = diagnosis.get("candidate_funnel") or {}
+    freshness = list((weekly.freshness if weekly else None) or [])
+    source_health = list((weekly.source_health if weekly else None) or [])
+
+    opp_claims = []
+    for e in shortlist[:10]:
+        opp_claims.append(
+            {
+                "id": e.get("numero_controle") or e.get("opportunity_id"),
+                "recommendation": e.get("recommendation"),
+                "client_fit": e.get("client_fit"),
+                "data_limite": e.get("data_limite"),
+                "dias_restantes": e.get("dias_restantes"),
+                "valor": e.get("valor"),
+                "url_oficial": e.get("url_oficial"),
+                "orgao": e.get("orgao"),
+                "termos_positivos": e.get("termos_positivos") or [],
+            }
+        )
+
+    prior = (diagnosis.get("prior_weekly_blocked_delivery") or {}) if diagnosis else {}
+    claims: list[dict[str, Any]] = [
+        {
+            "id": "C01_fontes",
+            "topic": "fontes_consultadas",
+            "claim": (
+                f"Fontes do weekly: opportunities/contracts PNCP; "
+                f"cycle_id={weekly.cycle_id if weekly else None}; "
+                f"collection_id={weekly.collection_id if weekly else None}"
+            ),
+            "evidence": {
+                "cycle_id": weekly.cycle_id if weekly else None,
+                "collection_id": weekly.collection_id if weekly else None,
+                "source_health": source_health,
+            },
+            "reviewer_action": "Confirmar que as fontes listadas foram de fato usadas",
+        },
+        {
+            "id": "C02_freshness",
+            "topic": "freshness",
+            "claim": (
+                f"Freshness declarado no weekly exit_code={weekly.exit_code if weekly else None}: "
+                + "; ".join(
+                    f"{f.get('source')}={f.get('level')} age_h={f.get('age_hours')}"
+                    for f in freshness
+                )
+                if freshness
+                else "Freshness não declarado no pack"
+            ),
+            "evidence": {"freshness": freshness, "exit_code": weekly.exit_code if weekly else None},
+            "reviewer_action": "Aceitar ou rejeitar uso consultivo dado o freshness",
+        },
+        {
+            "id": "C03_existencia_oportunidades",
+            "topic": "existencia_ou_ausencia_oportunidades",
+            "claim": (
+                f"Candidatas={shortlist_result.get('candidates_total')}; "
+                f"defensáveis REVIEW={shortlist_result.get('review_defensible_total')}; "
+                f"shortlist={shortlist_result.get('shortlist_count')}; "
+                f"GO automático={shortlist_result.get('go_count')} "
+                f"(GO proibido com perfil PENDING)"
+            ),
+            "evidence": {
+                "candidates_total": shortlist_result.get("candidates_total"),
+                "blocked_total": shortlist_result.get("blocked_total"),
+                "review_defensible_total": shortlist_result.get("review_defensible_total"),
+                "shortlist_count": shortlist_result.get("shortlist_count"),
+                "go_count": shortlist_result.get("go_count"),
+                "deadline_buckets": funnel.get("deadline_buckets"),
+                "hard_block_counts": funnel.get("hard_block_counts"),
+            },
+            "reviewer_action": "Confirmar se a contagem de oportunidades atuais está correta",
+        },
+        {
+            "id": "C04_identificacao",
+            "topic": "identificacao_oportunidades",
+            "claim": (
+                f"Shortlist com {len(opp_claims)} IDs PNCP e URLs específicas quando disponíveis"
+            ),
+            "evidence": {"shortlist": opp_claims},
+            "reviewer_action": "Conferir cada ID/URL antes de apresentar à Extra",
+        },
+        {
+            "id": "C05_prazos",
+            "topic": "prazos",
+            "claim": (
+                "Nenhum item da shortlist tem prazo vencido ou status terminal; "
+                f"buckets deadline no funil={funnel.get('deadline_buckets')}"
+            ),
+            "evidence": {
+                "shortlist_deadlines": [
+                    {
+                        "id": c.get("id"),
+                        "data_limite": c.get("data_limite"),
+                        "dias_restantes": c.get("dias_restantes"),
+                    }
+                    for c in opp_claims
+                ],
+                "deadline_buckets": funnel.get("deadline_buckets"),
+            },
+            "reviewer_action": "Validar prazos na fonte PNCP antes da reunião",
+        },
+        {
+            "id": "C06_valores",
+            "topic": "valores",
+            "claim": (
+                "Valores na shortlist são estimados PNCP (não homologados/pagos); "
+                "ausência permanece nula"
+            ),
+            "evidence": {
+                "shortlist_valores": [
+                    {"id": c.get("id"), "valor": c.get("valor")} for c in opp_claims
+                ]
+            },
+            "reviewer_action": "Não tratar valor estimado como preço de vitória ou margem",
+        },
+        {
+            "id": "C07_concorrentes",
+            "topic": "concorrentes",
+            "claim": (
+                "Concorrentes/fornecedores no baseline histórico do weekly "
+                f"(n_contracts_export={((market_baseline.get('contracts') or {}).get('n_contracts'))}; "
+                f"top_suppliers={len(((market_baseline.get('competitors') or {}).get('top_suppliers')) or [])}). "
+                "Não confundir com oportunidades futuras."
+            ),
+            "evidence": {
+                "contracts": (market_baseline.get("contracts") or {}),
+                "competitors": {
+                    "n_rows": ((market_baseline.get("competitors") or {}).get("n_rows")),
+                    "top_suppliers": (
+                        ((market_baseline.get("competitors") or {}).get("top_suppliers")) or []
+                    )[:5],
+                },
+            },
+            "reviewer_action": "Separar verbalmente histórico vs pipeline atual na reunião",
+        },
+        {
+            "id": "C08_historico",
+            "topic": "interpretacao_historica",
+            "claim": (
+                "Baseline é referência histórica de mercado; "
+                + str(market_baseline.get("section_title") or "referências históricas")
+            ),
+            "evidence": {
+                "period": market_baseline.get("period"),
+                "limitations": market_baseline.get("limitations"),
+            },
+            "reviewer_action": "Confirmar que histórico não foi apresentado como edital aberto",
+        },
+        {
+            "id": "C09_limitacoes",
+            "topic": "limitacoes",
+            "claim": (
+                f"Weekly exit_code={weekly.exit_code if weekly else None}; "
+                f"cause_code atual={diagnosis.get('cause_code')}; "
+                f"prior_blocked_exit={prior.get('exit_code')}; "
+                f"GO bloqueado por PENDING críticos={shortlist_result.get('critical_pending')}"
+            ),
+            "evidence": {
+                "exit_code": weekly.exit_code if weekly else None,
+                "limitations": weekly.limitations if weekly else [],
+                "prior_weekly_blocked_delivery": prior or None,
+                "critical_pending": shortlist_result.get("critical_pending"),
+                "claims_forbidden": weekly.claims_forbidden if weekly else [],
+            },
+            "reviewer_action": "Aceitar limitações explícitas antes de qualquer claim comercial",
+        },
+        {
+            "id": "C10_proxima_acao",
+            "topic": "recomendacao_proxima_acao",
+            "claim": (
+                "Próxima ação: Tiago revisa este pacote; Leonardo responde intake e escolhe "
+                "1–3 oportunidades REVIEW; cadência semanal via make extra-weekly + delivery."
+            ),
+            "evidence": {
+                "deep_dive": None,
+                "shortlist_count": shortlist_result.get("shortlist_count"),
+                "plan": "07-plano-30-dias.md",
+            },
+            "reviewer_action": "Confirmar ou ajustar a próxima ação antes do kickoff",
+        },
+    ]
+
     return {
         "status": "PENDING_HUMAN",
         "reviewed_by": None,
@@ -1946,8 +2162,14 @@ def build_human_review(run_id: str, checksums: dict[str, str]) -> dict[str, Any]
         "decision": None,
         "limitations_accepted": [],
         "notes": None,
+        "client_feedback": None,
+        "claims_for_review": claims,
+        "claims_count": len(claims),
         "allowed_decisions": ["ACCEPTED", "ACCEPTED_WITH_LIMITATIONS", "REJECTED"],
-        "rule": "Somente Tiago pode preencher decision/reviewed_by; agente não autoaceita",
+        "rule": (
+            "Somente Tiago pode preencher decision/reviewed_by/reviewed_at/client_feedback; "
+            "agente não autoaceita. Revisar claims_for_review item a item."
+        ),
     }
 
 
@@ -1958,6 +2180,13 @@ def assert_not_auto_accepted(human_review: dict[str, Any]) -> None:
         raise ValueError("reviewed_by deve ser null no pacote gerado por agente")
     if human_review.get("decision") is not None:
         raise ValueError("decision deve ser null no pacote gerado por agente")
+    if human_review.get("reviewed_at") is not None:
+        raise ValueError("reviewed_at deve ser null no pacote gerado por agente")
+    if human_review.get("client_feedback") is not None:
+        raise ValueError("client_feedback deve ser null no pacote gerado por agente")
+    claims = human_review.get("claims_for_review")
+    if not isinstance(claims, list) or len(claims) < 5:
+        raise ValueError("human-review deve listar claims_for_review explícitas (≥5)")
 
 
 def reject_stale_acceptance(
@@ -2022,11 +2251,104 @@ def write_dossie_not_available(
 # ---------------------------------------------------------------------------
 
 
+def load_prior_blocked_weekly_diagnosis(
+    path: Path | None = None,
+) -> dict[str, Any] | None:
+    """Load diagnosis of the original exit_code=2 weekly that blocked first delivery.
+
+    Prefer an on-disk JSON written during diagnosis; fall back to reconstructing
+    the immutable facts of weekly-20260727T063446Z-0d158e9c60 (50 DEADLINE_PASSED).
+    """
+    candidates: list[Path] = []
+    if path is not None:
+        candidates.append(path)
+    home = Path.home()
+    candidates.extend(
+        [
+            home
+            / "extra-deliveries"
+            / "EXTRA-FIRST-CLIENT-DECISION-B2G-20260728"
+            / "diagnostico-weekly-source.json",
+        ]
+    )
+    for p in candidates:
+        try:
+            if p.is_file():
+                data = json.loads(p.read_text(encoding="utf-8"))
+                if data.get("cycle_id") == "weekly-20260727T063446Z-0d158e9c60" or data.get(
+                    "exit_code"
+                ) in {2, 3}:
+                    return data
+                # file may already be a prior block diagnosis with cause H
+                if data.get("cause_code") == "H_combination" and (
+                    (data.get("candidate_funnel") or {}).get("deadline_buckets") or {}
+                ).get("PASSED") == 50:
+                    return data
+        except (OSError, json.JSONDecodeError):
+            continue
+
+    # Immutable reconstruction from verified diagnosis of the first package
+    return {
+        "schema": "extra-weekly-source-diagnosis/1.0",
+        "role": "prior_weekly_blocked_first_client_delivery",
+        "as_of": "2026-07-28",
+        "cycle_id": "weekly-20260727T063446Z-0d158e9c60",
+        "collection_id": "col-extra-weekly-20260727T063446Z-3d36cee7",
+        "cut_date": "2026-07-27",
+        "exit_code": 2,
+        "exit_reason": (
+            "EXIT_UNRELIABLE(2): pncp_contracts blocked (checkpoint run_id mismatch) + "
+            "pncp_opportunities freshness stale; product opportunities all DEADLINE_PASSED "
+            "vs as_of 2026-07-28"
+        ),
+        "cause_code": "H_combination",
+        "causes": [
+            "A_records_old_or_closed",
+            "B_no_open_future_deadlines_in_pack",
+            "C_status_open_with_passed_deadline",
+            "E_source_stale_or_unreliable",
+            "E_contracts_collection_blocked",
+        ],
+        "candidate_funnel": {
+            "candidates_total": 50,
+            "deadline_buckets": {"PASSED": 50, "FUTURE": 0, "TODAY": 0, "UNKNOWN": 0},
+            "status_counts": {"open": 50},
+            "identity": {"HAS": 50, "MISSING": 0},
+            "url": {"HAS": 17, "MISSING": 33},
+            "hard_block_expected": {"DEADLINE_PASSED": 50},
+            "review_defensible_total": 0,
+            "shortlist_count": 0,
+            "go_count": 0,
+        },
+        "root_cause_detail": {
+            "pncp_dataFinal_bug": (
+                "weekly used dataFinal=today (period_end); PNCP API treats dataFinal as "
+                "upper bound of proposal end dates, so pack only contained same-window "
+                "closings that were all past by as_of 2026-07-28"
+            ),
+            "contracts_block": (
+                "checkpoint run_id mismatch existing contracts-90d-20260723... vs current "
+                "weekly incremental run_id"
+            ),
+            "live_api_probe_2026_07_28": {
+                "dataFinal_plus30d_mod6_SC_total": 1185,
+                "note": "proves open future tenders exist when horizon is forward",
+            },
+        },
+        "notes": [
+            "Este bloco documenta o weekly ORIGINAL que gerou 50 bloqueios na primeira "
+            "composição da PR #166. Não é o weekly do pacote final.",
+            "Zero de shortlist com exit_code=2 NÃO prova zero de mercado.",
+        ],
+    }
+
+
 def diagnose_weekly_source(
     weekly: WeeklyValidation,
     *,
     shortlist_result: dict[str, Any] | None = None,
     as_of: date | None = None,
+    include_prior_blocked: bool = True,
 ) -> dict[str, Any]:
     """Reproducible diagnosis of weekly exit_code and candidate blocks."""
     as_of = as_of or date.today()
@@ -2183,13 +2505,19 @@ def diagnose_weekly_source(
             "Zero de shortlist com exit_code!=0 NÃO prova zero de mercado.",
             "PNCP /contratacoes/proposta: dataFinal é limite superior de data de encerramento.",
         ],
+        "prior_weekly_blocked_delivery": (
+            load_prior_blocked_weekly_diagnosis() if include_prior_blocked else None
+        ),
     }
 
 
 def diagnosis_to_markdown(diag: dict[str, Any]) -> str:
     funnel = diag.get("candidate_funnel") or {}
+    prior = diag.get("prior_weekly_blocked_delivery") or {}
     lines = [
         "# Diagnóstico do weekly pack (fonte)",
+        "",
+        "## Weekly do pacote atual",
         "",
         f"- **cycle_id:** `{diag.get('cycle_id')}`",
         f"- **collection_id:** `{diag.get('collection_id')}`",
@@ -2199,7 +2527,7 @@ def diagnosis_to_markdown(diag: dict[str, Any]) -> str:
         f"- **exit_reason:** {diag.get('exit_reason')}",
         f"- **cause_code:** `{diag.get('cause_code')}`",
         "",
-        "## Causas classificadas",
+        "## Causas classificadas (weekly atual)",
         "",
     ]
     for c in diag.get("causes") or []:
@@ -2241,6 +2569,46 @@ def diagnosis_to_markdown(diag: dict[str, Any]) -> str:
             f"- `{r.get('source')}`: {r.get('terminal_status')} "
             f"(records={r.get('records_obtained')}, error={r.get('terminal_error')})"
         )
+    if prior:
+        pf = prior.get("candidate_funnel") or {}
+        lines.extend(
+            [
+                "",
+                "## Weekly ORIGINAL que bloqueou a 1ª entrega (PR #166 parcial)",
+                "",
+                f"- **cycle_id:** `{prior.get('cycle_id')}`",
+                f"- **collection_id:** `{prior.get('collection_id')}`",
+                f"- **cut_date:** {prior.get('cut_date')}",
+                f"- **as_of diagnóstico:** {prior.get('as_of')}",
+                f"- **exit_code:** `{prior.get('exit_code')}` (**não consultivo**)",
+                f"- **cause_code:** `{prior.get('cause_code')}`",
+                f"- **exit_reason:** {prior.get('exit_reason')}",
+                "",
+                "### Contagens do funil original (50 bloqueios)",
+                "",
+                f"- Candidatas: **{pf.get('candidates_total')}**",
+                f"- Deadlines: `{pf.get('deadline_buckets')}`",
+                f"- Status: `{pf.get('status_counts')}`",
+                f"- Identidade: `{pf.get('identity')}`",
+                f"- URL: `{pf.get('url')}`",
+                f"- Hard blocks esperados: `{pf.get('hard_block_expected')}`",
+                f"- Defensáveis / shortlist / GO: "
+                f"{pf.get('review_defensible_total')} / {pf.get('shortlist_count')} / {pf.get('go_count')}",
+                "",
+                "### Causas do original",
+                "",
+            ]
+        )
+        for c in prior.get("causes") or []:
+            lines.append(f"- {c}")
+        root = prior.get("root_cause_detail") or {}
+        if root:
+            lines.extend(["", "### Causa raiz técnica", ""])
+            for k, v in root.items():
+                lines.append(f"- **{k}:** {v}")
+        for n in prior.get("notes") or []:
+            lines.append(f"- {n}")
+
     lines.extend(
         [
             "",
@@ -2883,7 +3251,14 @@ def run_delivery(
             raise SystemExit(2)
         content_checksums[name] = sha256_file(p)
 
-    human_review = build_human_review(run_id, content_checksums)
+    human_review = build_human_review(
+        run_id,
+        content_checksums,
+        weekly=weekly,
+        shortlist_result=shortlist_result,
+        diagnosis=diagnosis,
+        market_baseline=market_baseline,
+    )
     assert_not_auto_accepted(human_review)
     (delivery_out / "human-review.json").write_text(
         json.dumps(human_review, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"

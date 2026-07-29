@@ -261,17 +261,153 @@ def test_intake_has_no_invented_answers() -> None:
 
 
 def test_human_review_starts_pending_and_cannot_autoaccept() -> None:
-    hr = efd.build_human_review("run-1", {"a": "b"})
+    weekly = efd.WeeklyValidation(
+        ok=True,
+        weekly_dir="/x",
+        cycle_id="c1",
+        collection_id="col1",
+        exit_code=0,
+        cut_date="2026-07-28",
+        freshness=[{"source": "pncp_opportunities", "level": "fresh", "age_hours": 1}],
+        source_health=[{"source": "pncp_opportunities", "level": "fresh"}],
+        limitations=["lim-test"],
+    )
+    shortlist_result = {
+        "candidates_total": 2,
+        "blocked_total": 0,
+        "review_defensible_total": 1,
+        "shortlist_count": 1,
+        "go_count": 0,
+        "critical_pending": ["capital_giro"],
+        "shortlist": [
+            {
+                "numero_controle": "83102228000110-1-000099/2026",
+                "recommendation": "REVIEW",
+                "client_fit": "ADERENTE",
+                "data_limite": "2026-08-20",
+                "dias_restantes": 23,
+                "valor": 100.0,
+                "url_oficial": "https://pncp.gov.br/app/editais/83102228000110/2026/99",
+                "orgao": "MUNICIPIO TESTE",
+                "termos_positivos": ["pavimentação"],
+            }
+        ],
+    }
+    diagnosis = {
+        "cause_code": "UNKNOWN",
+        "candidate_funnel": {"deadline_buckets": {"FUTURE": 1}},
+        "prior_weekly_blocked_delivery": efd.load_prior_blocked_weekly_diagnosis(),
+    }
+    hr = efd.build_human_review(
+        "run-1",
+        {"a": "b"},
+        weekly=weekly,
+        shortlist_result=shortlist_result,
+        diagnosis=diagnosis,
+        market_baseline={"contracts": {"n_contracts": 0}, "competitors": {"top_suppliers": []}},
+    )
     efd.assert_not_auto_accepted(hr)
     assert hr["status"] == "PENDING_HUMAN"
     assert hr["reviewed_by"] is None
     assert hr["decision"] is None
+    assert hr["client_feedback"] is None
+    claims = hr["claims_for_review"]
+    assert isinstance(claims, list) and len(claims) >= 10
+    topics = {c["topic"] for c in claims}
+    for required in (
+        "fontes_consultadas",
+        "freshness",
+        "existencia_ou_ausencia_oportunidades",
+        "identificacao_oportunidades",
+        "prazos",
+        "valores",
+        "concorrentes",
+        "interpretacao_historica",
+        "limitacoes",
+        "recomendacao_proxima_acao",
+    ):
+        assert required in topics
+    # prior weekly exit 2 documented inside limitations claim evidence
+    lim = next(c for c in claims if c["topic"] == "limitacoes")
+    assert (lim.get("evidence") or {}).get("prior_weekly_blocked_delivery", {}).get(
+        "exit_code"
+    ) == 2
     bad = dict(hr)
     bad["status"] = "ACCEPTED"
     bad["reviewed_by"] = "Tiago"
     bad["decision"] = "ACCEPTED"
     with pytest.raises(ValueError):
         efd.assert_not_auto_accepted(bad)
+
+
+def test_indeterminado_without_positive_terms_is_not_review_defensible() -> None:
+    profile = efd.load_profile(PROFILE)
+    row = _future_eng_row(
+        objeto="Aquisição de cubos de acrílico.",
+        numero_controle_pncp="83169623000110-1-000358/2026",
+        source_id="83169623000110-1-000358/2026",
+    )
+    ev = efd.evaluate_opportunity(
+        row,
+        profile=profile,
+        as_of=date(2026, 7, 28),
+        cycle_id="c",
+        collection_id="col",
+        cut_date="2026-07-28",
+        go_blocked=True,
+        critical_pending=["capital_giro"],
+    )
+    assert ev["client_fit"] == "INDETERMINADO"
+    assert ev["termos_positivos"] == []
+    assert ev["recommendation"] == "NO_GO"
+    assert "sem termos positivos" in (ev.get("recommendation_reason") or "").lower()
+    assert "aderência" not in (ev.get("recommendation_reason") or "").lower() or "sem" in (
+        ev.get("recommendation_reason") or ""
+    ).lower()
+
+    result = efd.build_shortlist(
+        [row, _future_eng_row()],
+        profile=profile,
+        as_of=date(2026, 7, 28),
+        cycle_id="c",
+        collection_id="col",
+        cut_date="2026-07-28",
+    )
+    ids = {e["numero_controle"] for e in result["shortlist"]}
+    assert "83169623000110-1-000358/2026" not in ids
+    assert result["review_defensible_total"] >= 1
+
+
+def test_diagnosis_includes_prior_blocked_weekly() -> None:
+    weekly = efd.WeeklyValidation(
+        ok=True,
+        weekly_dir="/x",
+        cycle_id="weekly-new",
+        collection_id="col-new",
+        exit_code=0,
+        cut_date="2026-07-29",
+        freshness=[{"source": "pncp_opportunities", "level": "fresh"}],
+    )
+    diag = efd.diagnose_weekly_source(
+        weekly,
+        shortlist_result={
+            "evaluated_all": [],
+            "candidates_total": 0,
+            "blocked_total": 0,
+            "review_defensible_total": 0,
+            "shortlist_count": 0,
+            "go_count": 0,
+        },
+        as_of=date(2026, 7, 29),
+    )
+    prior = diag.get("prior_weekly_blocked_delivery") or {}
+    assert prior.get("cycle_id") == "weekly-20260727T063446Z-0d158e9c60"
+    assert prior.get("exit_code") == 2
+    assert (prior.get("candidate_funnel") or {}).get("deadline_buckets", {}).get("PASSED") == 50
+    md = efd.diagnosis_to_markdown(diag)
+    assert "weekly-20260727T063446Z-0d158e9c60" in md
+    assert "50" in md
+    assert "DEADLINE" in md.upper() or "PASSED" in md
 
 
 def test_stale_acceptance_rejected_on_checksum_change() -> None:
