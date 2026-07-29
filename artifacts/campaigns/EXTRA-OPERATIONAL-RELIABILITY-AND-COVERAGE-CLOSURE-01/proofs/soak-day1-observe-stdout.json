@@ -1,0 +1,54 @@
+{
+  "campaign": "EXTRA-OPERATIONAL-RELIABILITY-AND-COVERAGE-CLOSURE-01",
+  "required_consecutive_days": 7,
+  "calendar": "UTC",
+  "soak_epoch_started_at": "2026-07-29T15:59:54.898990Z",
+  "first_eligible_completion_date_utc": "2026-08-04",
+  "observations_last_7d": [
+    {
+      "day_utc": "2026-07-29",
+      "health_ok": true,
+      "rollup": {
+        "health_ok": true,
+        "observation_count": 12,
+        "latest_observation_id": "obs-2026-07-29-633fe8d6eb",
+        "latest_run_id": "contracts-90d-20260729T145807Z-d20199cb7c",
+        "latest_contracts_freshness_hours": 1.32,
+        "latest_open_tenders_freshness_hours": 1.06,
+        "latest_contracts_coverage": 1.0,
+        "latest_open_tenders_coverage": 1.0,
+        "all_fail_reasons": [
+          "contracts_stale_h=99999.0",
+          "missing_open_tenders_freshness",
+          "missing_run_id"
+        ]
+      },
+      "observation_count": 12
+    }
+  ],
+  "expected_days": [
+    "2026-07-23",
+    "2026-07-24",
+    "2026-07-25",
+    "2026-07-26",
+    "2026-07-27",
+    "2026-07-28",
+    "2026-07-29"
+  ],
+  "present_days": [
+    "2026-07-29"
+  ],
+  "complete": false,
+  "complete_reason": "missing_days_or_health_or_freshness_or_coverage",
+  "as_of": "2026-07-29T16:33:24.177376Z",
+  "rules": {
+    "no_retroactive_fill": true,
+    "no_document_date_freshness": true,
+    "no_manual_as_automation": true,
+    "health_requires_contracts_and_editais_coverage_ge_95": true,
+    "health_requires_contracts_success_and_run_id": true,
+    "coverage_min": 0.95,
+    "contracts_sla_hours": 168,
+    "open_tenders_sla_hours": 24
+  }
+}
