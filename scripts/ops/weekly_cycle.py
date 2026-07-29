@@ -474,7 +474,20 @@ def _collect_pncp_opportunities(
         universe = load_canonical_universe(seed_path=seed, conn=conn)
         external_run_id = f"weekly-{collection_id}"
         period_start = date.today() - timedelta(days=lookback_days)
-        period_end = date.today()
+        # Forward horizon for PNCP /proposta dataFinal (upper bound of end dates).
+        # PncpOpportunityCrawler also expands past/today values; keep period_end
+        # forward so run metadata matches the API window actually queried.
+        horizon_days = max(
+            1, min(365, int(os.getenv("PNCP_OPEN_PROPOSAL_HORIZON_DAYS", "30")))
+        )
+        period_end = date.today() + timedelta(days=horizon_days)
+        timeout = max(30, int(os.getenv("OI_READ_TIMEOUT", "90")))
+        request_delay = float(
+            os.getenv("PNCP_REQUEST_DELAY")
+            or os.getenv("OI_REQUEST_DELAY")
+            or "1.0"
+        )
+        max_retries = max(1, int(os.getenv("OI_MAX_RETRIES", "5")))
         outcome = run_pncp_open_monitoring(
             dsn=dsn,
             external_run_id=external_run_id,
@@ -483,6 +496,9 @@ def _collect_pncp_opportunities(
             period_end=period_end,
             mode="full",
             persist=True,
+            timeout=timeout,
+            max_retries=max_retries,
+            request_delay=request_delay,
         )
         fetched = int(outcome.records_fetched or 0)
         persisted = int(outcome.records_inserted or 0) + int(outcome.records_updated or 0)
