@@ -60,6 +60,9 @@ EXIT_TECH = 1
 EXIT_UNRELIABLE = 2
 EXIT_BLOCKED = 3
 
+# Canonical Extra 200km universe size (fail-closed if not met).
+CANONICAL_UNIVERSE_N = 1093
+
 
 def _utc_now() -> datetime:
     return datetime.now(UTC)
@@ -234,8 +237,8 @@ def stage_validate_db(conn: Any) -> StageResult:
         """,
     )
     n = int((uni[0] or {}).get("n") or 0) if uni else 0
-    detail = {"tables": present, "universe_200km": n, "expected_universe": 1093}
-    if n != 1093:
+    detail = {"tables": present, "universe_200km": n, "expected_universe": CANONICAL_UNIVERSE_N}
+    if n != CANONICAL_UNIVERSE_N:
         # Fail-closed: Extra weekly pack requires the canonical 200km seed.
         # Never continue with silent SC-wide geographic proxy.
         return StageResult(
@@ -244,7 +247,7 @@ def stage_validate_db(conn: Any) -> StageResult:
             detail=detail,
             error=(
                 "CANONICAL_200KM_UNIVERSE_UNAVAILABLE: "
-                f"universe_200km={n} != 1093 (scope drift or seed missing)"
+                f"universe_200km={n} != {CANONICAL_UNIVERSE_N} (scope drift or seed missing)"
             ),
         )
     return StageResult(name="validate_db", status="ok", detail=detail)
@@ -895,7 +898,6 @@ def stage_intelligence(
 
     # Canonical 200km universe is mandatory. Never fall back to UF=SC-only:
     # that silently expands scope beyond Extra's territorial contract.
-    CANONICAL_UNIVERSE_N = 1093
     universe_n = 0
     universe_err: str | None = None
     try:
