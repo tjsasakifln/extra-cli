@@ -843,6 +843,13 @@ def stage_intelligence(
           )
         ORDER BY
           CASE ranking WHEN 'GO' THEN 0 WHEN 'REVIEW' THEN 1 ELSE 2 END,
+          -- Prefer actionable consulting window (1–21 days), then same-day, then later.
+          CASE
+            WHEN data_encerramento::date BETWEEN CURRENT_DATE + 1 AND CURRENT_DATE + 21 THEN 0
+            WHEN data_encerramento::date = CURRENT_DATE THEN 1
+            WHEN data_encerramento IS NULL THEN 3
+            ELSE 2
+          END,
           data_encerramento NULLS LAST,
           ranking_score DESC NULLS LAST
         LIMIT %s
