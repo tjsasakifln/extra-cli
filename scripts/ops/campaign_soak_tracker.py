@@ -35,6 +35,28 @@ CONTRACTS_SLA_HOURS = 168
 OPEN_TENDERS_SLA_HOURS = 24
 COVERAGE_MIN = 0.95
 DEFAULT_CAMPAIGN = "EXTRA-OPERATIONAL-RELIABILITY-AND-COVERAGE-CLOSURE-01"
+
+# Keys read by _compute_health_ok — proof objects must include all of these.
+# Structural tests import this set so they cannot drift from the pure function.
+REQUIRED_HEALTH_KEYS: frozenset[str] = frozenset(
+    {
+        "failed_critical_units",
+        "contracts_timer",
+        "contracts_timer_enabled",
+        "last_contracts_result",
+        "last_contracts_exec",
+        "run_id",
+        "contracts_freshness_hours",
+        "contracts_coverage",
+        "editais_pncp_timer",
+        "editais_pncp_timer_enabled",
+        "editais_ciga_timer",
+        "editais_ciga_timer_enabled",
+        "open_tenders_freshness_hours",
+        "open_tenders_coverage",
+        "automatic_execution",
+    }
+)
 DUAL_SUMMARY_CANDIDATES = (
     "output/coverage/dual-campaign-orrc-01/dual-capability-coverage-summary.json",
     "output/coverage/dual-latest/dual-capability-coverage-summary.json",
@@ -258,8 +280,16 @@ def _pct_to_fraction(value: Any) -> float | None:
 
 
 def _compute_health_ok(obs: dict[str, Any]) -> tuple[bool, list[str]]:
-    """Fail-closed health. Every failure reason is listed."""
+    """Fail-closed health. Every failure reason is listed.
+
+    Callers that set ``health_ok=true`` must first satisfy
+    ``REQUIRED_HEALTH_KEYS.issubset(obs)`` so proofs cannot omit fields.
+    """
     reasons: list[str] = []
+    missing = sorted(REQUIRED_HEALTH_KEYS - set(obs.keys()))
+    if missing:
+        reasons.append(f"missing_required_keys:{','.join(missing)}")
+        return False, reasons
     if obs.get("failed_critical_units") not in (0, "0"):
         reasons.append("failed_critical_units")
 
