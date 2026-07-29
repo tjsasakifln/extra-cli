@@ -2,16 +2,15 @@
 
 from __future__ import annotations
 
-import os
 from datetime import date, timedelta
 from pathlib import Path
 from unittest.mock import MagicMock
 
 from scripts.collect.run_contract import CollectionRun, classify_terminal_status
 from scripts.ops.weekly_cycle import (
+    _EXTRA_UNIVERSE_ORGAO,
     EXIT_TECH,
     StageResult,
-    _EXTRA_UNIVERSE_ORGAO,
     _write_csv,
     compute_exit_code,
     stage_intelligence,

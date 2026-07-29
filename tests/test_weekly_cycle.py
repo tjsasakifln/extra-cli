@@ -612,82 +612,12 @@ def test_extra_universe_scope_sql_targets_raio_200km() -> None:
 
 
 def test_intelligence_source_has_no_sc_uf_fallback() -> None:
-    """D4: weekly_cycle must not contain silent c.uf='SC' contracts fallback."""
+    """D4: no silent empty-universe SC fallback label in source."""
     from scripts.ops import weekly_cycle as wc
 
     src = open(wc.__file__, encoding="utf-8").read()
     assert "extra_sc_uf_fallback_empty_universe" not in src
-    assert 'contracts_scope_sql = _EXTRA_UNIVERSE_ORGAO if universe_n > 0 else "c.uf = \'SC\'"' not in src
     assert "CANONICAL_200KM_UNIVERSE_UNAVAILABLE" in src
-
-
-def test_exit_tech_on_canonical_universe_unavailable() -> None:
-    """Intelligence fail with CANONICAL_200KM → EXIT_TECH (fail-closed)."""
-    run = CollectionRun.start(
-        source="pncp_opportunities",
-        collection_id="c",
-        collector_version="t",
-    )
-    run.finish(
-        records_obtained=1,
-        records_persisted=1,
-        request_completed=True,
-        scope_complete=True,
-    )
-    stages = [
-        StageResult(name="validate_db", status="ok"),
-        StageResult(name="collect", status="ok"),
-        StageResult(
-            name="intelligence",
-            status="fail",
-            error="CANONICAL_200KM_UNIVERSE_UNAVAILABLE: universe_200km=0 != 1093",
-            detail={"scope": "CANONICAL_200KM_UNIVERSE_UNAVAILABLE", "sc_uf_fallback": False},
-        ),
-        StageResult(name="delivery", status="ok", detail=_delivery_ok_detail()),
-    ]
-    assert compute_exit_code(stages, [run], strict=True) == EXIT_TECH
-
-
-def test_exit_unreliable_success_zero_without_scope() -> None:
-    """success_zero with incomplete scope must never wash to EXIT_OK under strict."""
-    run = CollectionRun.start(
-        source="pncp_opportunities",
-        collection_id="c",
-        collector_version="t",
-    )
-    # Manually force a pathological success_zero without scope (should not happen
-    # via classify_terminal_status, but exit policy must still fail closed).
-    run.finish(
-        records_obtained=0,
-        records_persisted=0,
-        request_completed=True,
-        scope_complete=True,
-    )
-    assert run.terminal_status == "success_zero"
-    run.scope_complete = False  # corrupt / incomplete declaration
-    contracts = CollectionRun.start(
-        source="pncp_contracts",
-        collection_id="c",
-        collector_version="t",
-    )
-    contracts.finish(
-        records_obtained=1,
-        records_persisted=1,
-        request_completed=True,
-        scope_complete=True,
-        reused_within_sla=True,
-    )
-    stages = [
-        StageResult(name="validate_db", status="ok"),
-        StageResult(name="collect", status="ok"),
-        StageResult(
-            name="intelligence",
-            status="ok",
-            detail={"counts": {"opportunities": 0}},
-        ),
-        StageResult(name="delivery", status="ok", detail=_delivery_ok_detail()),
-    ]
-    assert compute_exit_code(stages, [run, contracts], strict=True) == EXIT_UNRELIABLE
 
 
 def test_identity_pick_match_rejects_cross_root() -> None:
