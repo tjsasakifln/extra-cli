@@ -268,15 +268,15 @@ def action_for(event_type: str) -> str:
 
 
 def write_csv(path: Path, rows: list[dict[str, Any]], fieldnames: list[str] | None = None) -> None:
+    """Write CSV product. Never emit zero-byte files (header-only or row_count=0)."""
     path.parent.mkdir(parents=True, exist_ok=True)
     if not rows:
-        headers = fieldnames or []
+        headers = fieldnames or ["row_count"]
         with path.open("w", newline="", encoding="utf-8") as f:
-            if headers:
-                w = csv.DictWriter(f, fieldnames=headers, extrasaction="ignore")
-                w.writeheader()
-            else:
-                f.write("")
+            w = csv.DictWriter(f, fieldnames=headers, extrasaction="ignore")
+            w.writeheader()
+            if headers == ["row_count"]:
+                w.writerow({"row_count": 0})
         return
     headers = fieldnames or list(rows[0].keys())
     with path.open("w", newline="", encoding="utf-8") as f:
