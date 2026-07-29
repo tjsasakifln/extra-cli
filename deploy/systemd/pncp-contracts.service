@@ -12,11 +12,11 @@ Type=oneshot
 WorkingDirectory=/opt/extra-consultoria
 Environment=PYTHONPATH=/opt/extra-consultoria
 EnvironmentFile=/opt/extra-consultoria/.env
-# ONE_PRODUCTION_LOCK_DOMAIN — shared with weekly contracts path and repair tools.
-# Exit 75 = lock busy (not a source failure).
+# ONE_PRODUCTION_LOCK_DOMAIN — lock acquired inside run_contracts_incremental
+# (/run/lock/extra-contracts-writer.lock). Do NOT wrap with outer flock on the
+# same path (would always exit 75). Exit 75 = lock busy (not a source failure).
 SuccessExitStatus=75
-ExecStart=/usr/bin/flock --nonblock /run/lock/extra-contracts-writer.lock \
-  /opt/extra-consultoria/.venv/bin/python -m scripts.crawl.run_contracts_incremental --days 7
+ExecStart=/opt/extra-consultoria/.venv/bin/python -m scripts.crawl.run_contracts_incremental --days 7
 User=extra-consultoria
 Group=extra-consultoria
 TimeoutStartSec=90min
