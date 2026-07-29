@@ -12,7 +12,10 @@ Type=oneshot
 WorkingDirectory=/opt/extra-consultoria
 Environment=PYTHONPATH=/opt/extra-consultoria
 EnvironmentFile=/opt/extra-consultoria/.env
-ExecStart=/usr/bin/flock --nonblock /run/lock/pncp-contracts.lock \
+# ONE_PRODUCTION_LOCK_DOMAIN — shared with weekly contracts path and repair tools.
+# Exit 75 = lock busy (not a source failure).
+SuccessExitStatus=75
+ExecStart=/usr/bin/flock --nonblock /run/lock/extra-contracts-writer.lock \
   /opt/extra-consultoria/.venv/bin/python -m scripts.crawl.run_contracts_incremental --days 7
 User=extra-consultoria
 Group=extra-consultoria

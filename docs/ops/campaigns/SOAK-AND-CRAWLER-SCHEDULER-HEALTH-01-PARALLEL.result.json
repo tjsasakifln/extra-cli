@@ -1,0 +1,23 @@
+{
+  "campaign_id": "SOAK-AND-CRAWLER-SCHEDULER-HEALTH-01-PARALLEL",
+  "as_of": "2026-07-29T12:55:00Z",
+  "terminal_state": "SCHEDULERS_FAILED",
+  "gates": {
+    "CONTRACTS_SOAK_PASS": false,
+    "OPEN_TENDERS_SOAK_PASS": false,
+    "SCHEDULER_HEALTH_PASS": false,
+    "GLOBAL_SOAK_HEALTH_PASS": false
+  },
+  "clone_sha": "d05d4c3de152b562493715f114e0a387fcb63dc3",
+  "deploy_sha": "d05d4c3de152b562493715f114e0a387fcb63dc3",
+  "read_only": true,
+  "contracts_soak_progress": "1/7",
+  "first_honest_completion_earliest_utc": "2026-08-06",
+  "north_star": "REJECTED",
+  "critical_blockers": [
+    "pncp-contracts checkpoint run_id mismatch since 2026-07-24",
+    "open-tenders crawl timers disabled",
+    "extra-weekly last exit 2 with HTTP 429"
+  ],
+  "doc": "docs/ops/campaigns/SOAK-AND-CRAWLER-SCHEDULER-HEALTH-01-PARALLEL.md"
+}

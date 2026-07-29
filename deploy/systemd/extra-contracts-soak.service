@@ -1,0 +1,27 @@
+[Unit]
+Description=Extra contracts soak observation (fail-closed)
+After=network-online.target
+OnFailure=extra-onfailure@%n.service
+
+[Service]
+Type=oneshot
+User=extra-consultoria
+Group=extra-consultoria
+WorkingDirectory=/opt/extra-consultoria
+Environment=PYTHONPATH=/opt/extra-consultoria
+Environment=PYTHONUNBUFFERED=1
+EnvironmentFile=-/opt/extra-consultoria/.env
+# Host-local state so soak does not depend on laptop git tree
+Environment=HOME=/var/lib/extra-consultoria
+# Exit 2 = incomplete soak day (expected until 7 consecutive healthy days)
+SuccessExitStatus=2
+ExecStart=/opt/extra-consultoria/.venv/bin/python -m scripts.ops.campaign_soak_tracker \
+  --campaign EXTRA-OPERATIONAL-RELIABILITY-AND-COVERAGE-CLOSURE-01
+TimeoutStartSec=5min
+Restart=no
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=extra-contracts-soak
+
+[Install]
+WantedBy=multi-user.target

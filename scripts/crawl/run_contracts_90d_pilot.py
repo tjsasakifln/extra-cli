@@ -331,20 +331,67 @@ def _apply_run_id_to_checkpoint(
     run_id: str,
     *,
     allow_cross_run_resume: bool | None = None,
+    logical_job_id: str | None = None,
+    campaign_id: str | None = None,
+    incremental_days: int | None = None,
 ) -> list[str]:
-    """Bind run_id into checkpoint.meta.
+    """Bind attempt ``run_id`` into checkpoint.meta.
 
-    Cross-run resume of completed_windows is allowed by default for operational
-    continuity, but is flagged (``meta.foreign_resume=True``). Proof claims must
-    still satisfy ``assert_proof_run_coherence`` (path_proof cannot rest only on
-    skipped_resume).
+    When ``logical_job_id`` is set (or env ``CONTRACTS_LOGICAL_JOB_ID``), uses the
+    v2 checkpoint contract: same logical job may rebind attempt_run_id without
+    failing. Different campaign/job still fail-closed unless explicitly allowed.
 
-    When ``CONTRACTS_REQUIRE_SAME_RUN_ID=1`` (or allow_cross_run_resume=False),
-    a different existing run_id raises ValueError and blocks resume.
+    Without logical_job_id, keeps legacy proof-strict binding:
+    ``CONTRACTS_REQUIRE_SAME_RUN_ID=1`` (default) blocks foreign run_id unless
+    ``CONTRACTS_ALLOW_CROSS_RUN_RESUME=1``.
     """
     cp_dict = checkpoint.to_dict()
     existing_meta = cp_dict.get("meta") or {}
-    existing_run = existing_meta.get("run_id")
+    existing_run = existing_meta.get("run_id") or existing_meta.get("attempt_run_id")
+
+    job = logical_job_id or os.getenv("CONTRACTS_LOGICAL_JOB_ID") or existing_meta.get(
+        "logical_job_id"
+    )
+    # Incremental role implies stable logical job even on legacy checkpoints.
+    if not job and (
+        existing_meta.get("campaign_role") == "historical_contracts_incremental"
+        or existing_meta.get("incremental_days") is not None
+        or os.getenv("CONTRACTS_INCREMENTAL_MODE") == "1"
+    ):
+        from scripts.crawl.contracts_checkpoint_contract import (
+            LOGICAL_JOB_INCREMENTAL,
+        )
+
+        job = LOGICAL_JOB_INCREMENTAL
+
+    if job:
+        from scripts.crawl.contracts_checkpoint_contract import (
+            CheckpointContractError,
+            apply_attempt_to_checkpoint_dict,
+        )
+
+        if allow_cross_run_resume is None:
+            allow_cross_run_resume = os.getenv("CONTRACTS_ALLOW_CROSS_RUN_RESUME", "0") == "1"
+        days = incremental_days
+        if days is None and existing_meta.get("incremental_days") is not None:
+            try:
+                days = int(existing_meta["incremental_days"])
+            except (TypeError, ValueError):
+                days = None
+        camp = campaign_id or existing_meta.get("campaign_id")
+        try:
+            bound = apply_attempt_to_checkpoint_dict(
+                cp_dict,
+                run_id,
+                logical_job_id=str(job),
+                campaign_id=str(camp) if camp else None,
+                incremental_days=days,
+                allow_foreign=bool(allow_cross_run_resume),
+            )
+        except CheckpointContractError as exc:
+            raise ValueError(str(exc)) from exc
+        checkpoint.meta = dict(bound.get("meta") or {})
+        return list((checkpoint.meta or {}).get("previous_run_ids") or [])
 
     if allow_cross_run_resume is None:
         # Default STRICT for same-run proof binding: require explicit opt-in to
@@ -353,8 +400,6 @@ def _apply_run_id_to_checkpoint(
         allow_env = os.getenv("CONTRACTS_ALLOW_CROSS_RUN_RESUME", "0") == "1"
         require_same = os.getenv("CONTRACTS_REQUIRE_SAME_RUN_ID", "1") == "1"
         allow_cross_run_resume = allow_env and not require_same
-        # If REQUIRE_SAME is 1 (default), only allow cross when ALLOW is also 1
-        # and we interpret ALLOW as overriding REQUIRE for operational resume.
         if require_same and allow_env:
             allow_cross_run_resume = True
         elif require_same:
@@ -779,6 +824,8 @@ def run_pilot(
     dry_run: bool = False,
     checkpoint_dir: str | None = None,
     run_id: str | None = None,
+    logical_job_id: str | None = None,
+    campaign_id: str | None = None,
 ) -> dict[str, Any]:
     started = datetime.now(UTC)
     mode = "full"
@@ -790,7 +837,13 @@ def run_pilot(
     ckpt_dir = _configure_checkpoint_dir(checkpoint_dir)
     checkpoint_path = str(Path(ckpt_dir) / f"contracts_{mode}.json")
     checkpoint = load_checkpoint(mode)
-    previous_run_ids = _apply_run_id_to_checkpoint(checkpoint, run_id)
+    previous_run_ids = _apply_run_id_to_checkpoint(
+        checkpoint,
+        run_id,
+        logical_job_id=logical_job_id,
+        campaign_id=campaign_id,
+        incremental_days=int(days) if logical_job_id or os.getenv("CONTRACTS_INCREMENTAL_MODE") == "1" else None,
+    )
     save_checkpoint(checkpoint)
 
     # Reset counters for this pilot run report but KEEP completed_windows for resume

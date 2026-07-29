@@ -1,0 +1,12 @@
+[Unit]
+Description=Daily Extra contracts soak observation (UTC calendar day)
+Requires=extra-contracts-soak.service
+
+[Timer]
+# Observe once per UTC day shortly after midnight UTC
+OnCalendar=*-*-* 00:15:00 UTC
+Persistent=true
+RandomizedDelaySec=120
+
+[Install]
+WantedBy=timers.target

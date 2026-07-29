@@ -1,0 +1,45 @@
+=== VPS FREEZE 2026-07-29T14:40:44Z ===
+HOST=v2202607385716487230
+DATE=2026-07-29T14:40:46Z
+UPTIME= 11:40:46 up 6 days, 2:41, 1 user, load average: 0.00, 0.00, 0.00
+REBOOT= system boot 2026-07-23 08:59
+MEM= total used free shared buff/cache available Mem: 15Gi 4.1Gi 2.0Gi 3.5Gi 13Gi 11Gi
+DISK=Filesystem Size Used Avail Use% Mounted on /dev/vda4 503G 17G 466G 4% / /dev/vda4 503G 17G 466G 4% / /dev/vda4 503G 17G 466G 4% /
+---DEPLOYED---
+d91fdc5967314b46858b0f154b807ccbab7ed515
+---SCHEMA---
+PostgreSQL 17.10 (Debian 17.10-0+deb13u1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+---TIMERS---
+NEXT                             LEFT LAST                              PASSED UNIT                       ACTIVATES
+Wed 2026-07-29 11:45:06 -03  4min 19s Wed 2026-07-29 11:30:12 -03    10min ago extra-check-alerts.timer   extra-check-alerts.service
+Wed 2026-07-29 12:00:58 -03     20min Wed 2026-07-29 11:30:26 -03    10min ago extra-health-check.timer   extra-health-check.service
+Thu 2026-07-30 00:04:11 -03       12h Wed 2026-07-29 00:00:36 -03      11h ago extra-contracts-soak.timer extra-contracts-soak.service
+Thu 2026-07-30 06:04:58 -03       18h Wed 2026-07-29 06:02:46 -03 5h 38min ago extra-db-backup.timer      extra-db-backup.service
+Fri 2026-07-31 06:02:51 -03 1 day 18h Wed 2026-07-29 06:02:56 -03 5h 37min ago pncp-contracts.timer       pncp-contracts.service
+Mon 2026-08-03 03:32:02 -03    4 days Mon 2026-07-27 03:34:46 -03   2 days ago extra-weekly.timer         extra-weekly.service
+
+6 timers listed.
+---FAILED_UNITS---
+  UNIT                         LOAD   ACTIVE SUB    DESCRIPTION
+● extra-contracts-soak.service loaded failed failed Extra contracts soak observation
+● extra-weekly.service         loaded failed failed Extra Consultoria — canonical weekly operational cycle (open tenders + pack)
+● pncp-contracts.service       loaded failed failed PNCP Contracts Crawler — Extra Consultoria
+
+Legend: LOAD   → Reflects whether the unit definition was properly loaded.
+        ACTIVE → The high-level unit activation state, i.e. generalization of SUB.
+        SUB    → The low-level unit activation state, values depend on unit type.
+
+3 loaded units listed.
+---ACTIVE_CRAWL---
+  UNIT LOAD ACTIVE SUB DESCRIPTION
+
+0 loaded units listed.
+---LOCKS---
+-rw-r--r-- 1 root              root              0 Jul 29 09:33 /run/lock/extra-cli-production-mutation.lock
+-rw-r--r-- 1 extra-consultoria extra-consultoria 0 Jul 23 10:06 /run/lock/extra-crawl-pncp.lock
+-rw-r--r-- 1 extra-consultoria extra-consultoria 0 Jul 23 20:48 /run/lock/extra-weekly.lock
+-rw-r--r-- 1 root              root              0 Jul 29 09:33 /var/lock/extra-cli-production-mutation.lock
+-rw-r--r-- 1 extra-consultoria extra-consultoria 0 Jul 23 10:06 /var/lock/extra-crawl-pncp.lock
+-rw-r--r-- 1 extra-consultoria extra-consultoria 0 Jul 23 20:48 /var/lock/extra-weekly.lock
+contracts_lock_free
+---PROCS---
