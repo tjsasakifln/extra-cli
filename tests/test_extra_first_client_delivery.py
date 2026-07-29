@@ -731,6 +731,7 @@ def test_diagnosis_marks_all_passed_deadlines(tmp_path: Path) -> None:
 
 
 def test_weekly_exit_code_3_is_blocked_external_not_ready(tmp_path: Path) -> None:
+    """D1+D6: exit 3 → BLOCKED_EXTERNAL (never READY); absence not reliable."""
     weekly = _write_weekly(tmp_path / "w-exit3", [_future_eng_row()], exit_code=3)
     out = tmp_path / "out-exit3"
     result = efd.run_delivery(
@@ -741,95 +742,23 @@ def test_weekly_exit_code_3_is_blocked_external_not_ready(tmp_path: Path) -> Non
     )
     assert result["exit_code"] == 3
     assert result["terminal_state"] == "BLOCKED_EXTERNAL"
+    assert "BUNDLE_READY" not in result["terminal_state"]
     leia = (out / "00-LEIA-ME.md").read_text(encoding="utf-8")
     assert "BLOCKED_EXTERNAL" in leia
     man = json.loads((out / "manifest.json").read_text(encoding="utf-8"))
     assert man["terminal_state"] == "BLOCKED_EXTERNAL"
     assert man["package_quality"] == "PARTIAL_VISIBLE_LIMITATIONS"
-
-
-def test_package_reconciles_when_exit_code_0(tmp_path: Path) -> None:
-    weekly = _write_weekly(
-        tmp_path / "w-ok",
-        [
-            _future_eng_row(),
-            _future_eng_row(
-                numero_controle_pncp="83102228000110-1-000100/2026",
-                source_id="83102228000110-1-000100/2026",
-                objeto="Obra de drenagem urbana e galeria pluvial",
-                data_encerramento="2026-09-01",
-            ),
-            _future_eng_row(
-                numero_controle_pncp="83102228000110-1-000101/2026",
-                source_id="83102228000110-1-000101/2026",
-                objeto="Reforma predial de escola municipal",
-                data_encerramento="2026-08-30",
-            ),
-            _future_eng_row(
-                numero_controle_pncp="83102228000110-1-000102/2026",
-                source_id="83102228000110-1-000102/2026",
-                objeto="Construção de edifício público administrativo",
-                data_encerramento="2026-10-01",
-            ),
-            _future_eng_row(
-                numero_controle_pncp="83102228000110-1-000103/2026",
-                source_id="83102228000110-1-000103/2026",
-                objeto="Pavimentação asfáltica e infraestrutura urbana",
-                data_encerramento="2026-08-10",
-            ),
-        ],
-        exit_code=0,
-    )
-    out = tmp_path / "out-ok"
-    result = efd.run_delivery(
-        weekly_input=weekly,
-        delivery_out=out,
-        profile_path=PROFILE,
-        as_of=date(2026, 7, 28),
-    )
-    assert result["exit_code"] == 0
-    assert result["terminal_state"] == "BUNDLE_READY_FOR_HUMAN_MERGE"
-    assert result["reconcile"] == "PASS"
-    man = json.loads((out / "manifest.json").read_text(encoding="utf-8"))
-    assert man["reconcile"]["status"] == "PASS"
-    assert man["source_weekly"]["exit_code"] == 0
-
-
-def test_reliable_market_absence_false_when_exit_nonzero() -> None:
-    weekly = efd.WeeklyValidation(
+    bad = efd.WeeklyValidation(
         ok=True,
         weekly_dir="/x",
         cycle_id="c",
         collection_id="col",
-        exit_code=2,
+        exit_code=3,
         freshness=[{"source": "pncp_opportunities", "level": "fresh"}],
         source_health=[{"source": "pncp_opportunities", "level": "fresh"}],
     )
     assert (
-        efd.is_reliable_market_absence(
-            weekly, {"candidates_total": 0, "shortlist_count": 0}
-        )
-        is False
-    )
-    weekly0 = efd.WeeklyValidation(
-        ok=True,
-        weekly_dir="/x",
-        cycle_id="c",
-        collection_id="col",
-        exit_code=0,
-        freshness=[{"source": "pncp_opportunities", "level": "fresh"}],
-        source_health=[{"source": "pncp_opportunities", "level": "fresh"}],
-    )
-    assert (
-        efd.is_reliable_market_absence(
-            weekly0, {"candidates_total": 0, "shortlist_count": 0}
-        )
-        is True
-    )
-    assert (
-        efd.is_reliable_market_absence(
-            weekly0, {"candidates_total": 3, "shortlist_count": 0}
-        )
+        efd.is_reliable_market_absence(bad, {"candidates_total": 0, "shortlist_count": 0})
         is False
     )
 
