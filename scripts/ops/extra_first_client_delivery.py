@@ -2108,7 +2108,11 @@ def diagnose_weekly_source(
         if isinstance(r, dict)
     ):
         causes.append("E_contracts_collection_blocked")
-    if deadline_buckets["FUTURE"] == 0 and evaluated:
+    if (
+        deadline_buckets["FUTURE"] == 0
+        and deadline_buckets["TODAY"] == 0
+        and evaluated
+    ):
         causes.append("B_no_open_future_deadlines_in_pack")
     if any(st == "open" for st in status) and deadline_buckets["PASSED"] > 0:
         causes.append("C_status_open_with_passed_deadline")
