@@ -92,10 +92,8 @@ def normalize_pncp(raw: dict[str, Any]) -> OpportunityRecord:
             else None
         ),
         numero_edital=(
-            (
-                str(raw.get("numeroEdital") or raw.get("numeroCompra") or "").strip()
-                or None
-            )
+            str(raw.get("numeroEdital") or raw.get("numeroCompra") or "").strip()
+            or None
         ),
         modalidade=modalidade if modalidade else None,
         modalidade_id=modalidade_id if modalidade_id else None,
