@@ -1,0 +1,103 @@
+{
+  "schema": "extra-first-client-decision-delivery/1.0",
+  "package_title": "Extra Construtora — Primeira Rodada de Decisão B2G",
+  "run_id": "extra-first-20260729T130300Z-5e2ff211cf",
+  "generated_at": "2026-07-29T13:03:01Z",
+  "terminal_state": "BUNDLE_READY_FOR_HUMAN_MERGE",
+  "package_quality": "COMPLETE_PENDING_HUMAN",
+  "baseline_note": "verified_code_sha is git commit of tooling; package is external",
+  "source_weekly": {
+    "cycle_id": "weekly-20260729T124604Z-3eff464362",
+    "collection_id": "col-extra-weekly-20260729T124604Z-3ea94fd3",
+    "cut_date": "2026-07-29",
+    "exit_code": 0,
+    "weekly_dir_basename": "weekly-20260729T124604Z-3eff464362",
+    "product_checksums_ok": true
+  },
+  "profile": {
+    "profile_id": "extra_construtora",
+    "version": 3,
+    "version_date": "2026-07-25",
+    "sha256": "aeaa8551547e167addfff707b642782b71d9526b8b8a8b8aa91b3a8cceaae92f",
+    "critical_pending": [
+      "capital_giro",
+      "capacidade_garantia",
+      "capacidade_simultanea",
+      "cats_atestados",
+      "margem_minima"
+    ],
+    "go_blocked": true
+  },
+  "counts": {
+    "candidates_total": 50,
+    "blocked_total": 44,
+    "review_defensible_total": 6,
+    "shortlist_count": 6,
+    "review_count": 6,
+    "no_go_count": 0,
+    "go_count": 0,
+    "insufficient": false
+  },
+  "deep_dive": {
+    "opportunity_id": "82575812000120-1-000299/2026",
+    "numero_controle": "82575812000120-1-000299/2026",
+    "motivo_selecao": "Selecionada por combinação de aderência ao perfil, URL/identidade específica, prazo útil e utilidade para calibrar o serviço — não apenas maior score.",
+    "recommendation": "REVIEW",
+    "url_oficial": "https://pncp.gov.br/app/editais/82575812000120/2026/299",
+    "documents_available": false,
+    "dossie_status": "NOT_AVAILABLE"
+  },
+  "dossie_status": "NOT_AVAILABLE",
+  "reconcile": {
+    "status": "PASS",
+    "divergences": [],
+    "checks": {
+      "shortlist_count": 6,
+      "go_count": 0,
+      "review_count": 6,
+      "candidates_total": 50,
+      "cut_date": "2026-07-29",
+      "profile_version": 3,
+      "collection_id": "col-extra-weekly-20260729T124604Z-3ea94fd3",
+      "cycle_run_id": "weekly-20260729T124604Z-3eff464362"
+    }
+  },
+  "pdf_pages_estimate": 6,
+  "human_review_status": "PENDING_HUMAN",
+  "artifacts": [
+    "00-LEIA-ME.md",
+    "01-resumo-executivo.pdf",
+    "01-resumo-executivo.md",
+    "02-oportunidades-priorizadas.xlsx",
+    "03-decision-ledger.csv",
+    "03-decision-ledger.json",
+    "04-intake-operacional-extra.md",
+    "04-intake-operacional-extra.json",
+    "05-limitacoes-e-confiabilidade.md",
+    "06-baseline-mercado-extra.md",
+    "06-baseline-mercado-extra.json",
+    "07-plano-30-dias.md",
+    "08-roteiro-reuniao.md",
+    "09-dossie-edital-NOT_AVAILABLE.md",
+    "diagnostico-weekly-source.json",
+    "diagnostico-weekly-source.md",
+    "profile-patch-candidate.yaml",
+    "shortlist.json",
+    "human-review.json",
+    "manifest.json",
+    "checksums.json"
+  ],
+  "claims_allowed": [
+    "Shortlist e contagens derivadas do weekly pack validado",
+    "Intake derivado de campos PENDING do perfil",
+    "GO bloqueado por política de elicitation"
+  ],
+  "claims_forbidden": [
+    "Probabilidade de vitória",
+    "Capacidade financeira/técnica inventada da Extra",
+    "Zero de mercado a partir de fonte falha ou arquivo vazio",
+    "Aceite humano automático",
+    "GO com PENDING críticos"
+  ],
+  "as_of": "2026-07-29"
+}

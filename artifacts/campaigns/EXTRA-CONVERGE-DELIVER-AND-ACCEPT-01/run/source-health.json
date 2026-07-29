@@ -1,0 +1,21 @@
+{
+  "sources": [
+    {
+      "source": "pncp_opportunities",
+      "level": "fresh",
+      "age_hours": 10.45,
+      "sla_hours": 24.0,
+      "last_status": "completed"
+    },
+    {
+      "source": "pncp_contracts",
+      "level": "fresh",
+      "age_hours": 0.56,
+      "sla_hours": 168.0,
+      "last_status": ""
+    }
+  ],
+  "degraded": [],
+  "freshness_breaches": [],
+  "first_run": false
+}

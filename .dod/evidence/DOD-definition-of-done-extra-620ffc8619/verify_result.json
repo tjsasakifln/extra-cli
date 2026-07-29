@@ -1,0 +1,21 @@
+{
+  "ok": true,
+  "commands": [
+    {
+      "cmd": "weekly_cycle --strict --contracts-incremental",
+      "exit": 0,
+      "run_id": "weekly-20260729T124604Z-3eff464362"
+    },
+    {
+      "cmd": "extra_first_client_delivery run",
+      "exit": 0,
+      "run_id": "extra-first-20260729T130300Z-5e2ff211cf"
+    },
+    {
+      "cmd": "extra_recurring_delivery run",
+      "exit": 0,
+      "events": 52
+    }
+  ],
+  "note": "Live VPS execution post-deploy; not unit-test-only"
+}

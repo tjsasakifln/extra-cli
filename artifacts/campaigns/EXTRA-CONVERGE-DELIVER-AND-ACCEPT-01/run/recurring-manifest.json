@@ -1,0 +1,64 @@
+{
+  "schema": "extra-recurring-delivery/1.0",
+  "generated_at": "2026-07-29T13:03:01Z",
+  "as_of": "2026-07-29",
+  "current_run": {
+    "path": "/opt/extra-consultoria/output/weekly/weekly-20260729T124604Z-3eff464362",
+    "cycle_id": "weekly-20260729T124604Z-3eff464362",
+    "collection_id": "col-extra-weekly-20260729T124604Z-3ea94fd3",
+    "exit_code": 0
+  },
+  "previous_run": {
+    "path": "/opt/extra-consultoria/output/weekly/weekly-20260729T022952Z-b0b58f9d3f",
+    "cycle_id": "weekly-20260729T022952Z-b0b58f9d3f",
+    "collection_id": "col-extra-weekly-20260729T022952Z-b58a9306",
+    "exit_code": 0
+  },
+  "status": "OK",
+  "first_run": false,
+  "total_events": 52,
+  "urgent_alerts": 47,
+  "counts_by_type": {
+    "CONTRACT_ENTERED_EXPIRY_WINDOW": 47,
+    "DEADLINE_CHANGED": 0,
+    "FRESHNESS_BREACH": 0,
+    "NEW_TENDER": 0,
+    "NEW_WINNER": 5,
+    "RECTIFIED": 0,
+    "REOPENED": 0,
+    "REVOKED": 0,
+    "SOURCE_DEGRADED": 0,
+    "STATUS_CHANGED": 0,
+    "SUSPENDED": 0,
+    "WINNER_CONCENTRATION_CHANGED": 0
+  },
+  "expiry_window_days": 180,
+  "xlsx_ok": true,
+  "products": [
+    "weekly-report.md",
+    "weekly-report.xlsx",
+    "weekly-delta.json",
+    "weekly-delta.csv",
+    "tender-events.csv",
+    "expiring-contracts.csv",
+    "orgaos-winners-delta.csv",
+    "urgent-alerts.json",
+    "urgent-alerts.csv",
+    "monthly-report.md",
+    "monthly-comparison.json",
+    "meeting-support.md",
+    "source-health.json",
+    "manifest.json",
+    "checksums.json"
+  ],
+  "claims_allowed": [
+    "Weekly-over-weekly EventDelta on frozen allow-list",
+    "Consolidated weekly + monthly reports independent of urgent alerts",
+    "FIRST_RUN / SUCCESS_ZERO honest statuses"
+  ],
+  "claims_forbidden": [
+    "Operational coverage 95%",
+    "VPS_OPERATIONAL / PROJECT_DONE",
+    "Real-time multi-channel notifications"
+  ]
+}

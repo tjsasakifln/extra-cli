@@ -1,0 +1,84 @@
+{
+  "schema": "extra-recurring-delivery/1.0/monthly-comparison",
+  "as_of": "2026-07-29",
+  "current_run_id": "weekly-20260729T124604Z-3eff464362",
+  "previous_run_id": "weekly-20260729T022952Z-b0b58f9d3f",
+  "previous_monthly_loaded": false,
+  "metrics_current": {
+    "opportunities_total": 50,
+    "contracts_total": 50,
+    "competitors_total": 50,
+    "orgaos_total": 50,
+    "expiring_in_window": 47
+  },
+  "variation": {
+    "has_previous": true,
+    "fields": {
+      "competitors_total": {
+        "previous": 50,
+        "current": 50,
+        "delta": 0,
+        "delta_pct": 0.0
+      },
+      "contracts_total": {
+        "previous": 50,
+        "current": 50,
+        "delta": 0,
+        "delta_pct": 0.0
+      },
+      "expiring_in_window": {
+        "previous": 0,
+        "current": 47,
+        "delta": 47,
+        "delta_pct": null
+      },
+      "opportunities_total": {
+        "previous": 50,
+        "current": 50,
+        "delta": 0,
+        "delta_pct": 0.0
+      },
+      "orgaos_total": {
+        "previous": 50,
+        "current": 50,
+        "delta": 0,
+        "delta_pct": 0.0
+      }
+    },
+    "note": "Variação vs período anterior a partir do state persistido"
+  },
+  "fields": {
+    "competitors_total": {
+      "previous": 50,
+      "current": 50,
+      "delta": 0,
+      "delta_pct": 0.0
+    },
+    "contracts_total": {
+      "previous": 50,
+      "current": 50,
+      "delta": 0,
+      "delta_pct": 0.0
+    },
+    "expiring_in_window": {
+      "previous": 0,
+      "current": 47,
+      "delta": 47,
+      "delta_pct": null
+    },
+    "opportunities_total": {
+      "previous": 50,
+      "current": 50,
+      "delta": 0,
+      "delta_pct": 0.0
+    },
+    "orgaos_total": {
+      "previous": 50,
+      "current": 50,
+      "delta": 0,
+      "delta_pct": 0.0
+    }
+  },
+  "has_previous": true,
+  "note": "Variação vs período anterior a partir do state persistido"
+}

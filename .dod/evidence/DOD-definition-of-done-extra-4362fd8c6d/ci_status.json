@@ -1,0 +1,5 @@
+{
+  "conclusion": "success",
+  "head_sha": "d05d4c3de152b562493715f114e0a387fcb63dc3",
+  "note": "CI green on #166 and restacked #167 before merge; evidence PR docs-only"
+}
