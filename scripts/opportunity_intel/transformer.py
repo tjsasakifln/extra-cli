@@ -83,8 +83,20 @@ def normalize_pncp(raw: dict[str, Any]) -> OpportunityRecord:
         uf=uf,
         municipio=municipio if municipio else None,
         codigo_ibge=codigo_ibge if codigo_ibge else None,
-        numero_processo=raw.get("numeroProcesso", ""),
-        numero_edital=raw.get("numeroEdital", "") or raw.get("numeroCompra", ""),
+        # Empty string is NOT NULL in Postgres and trips partial unique index
+        # uq_oi_orgao_processo_edital (orgao, processo, edital) for multiple PNCP
+        # controls that omit process number. Prefer NULL when absent.
+        numero_processo=(
+            (str(raw.get("numeroProcesso")).strip() or None)
+            if raw.get("numeroProcesso") not in (None, "")
+            else None
+        ),
+        numero_edital=(
+            (
+                str(raw.get("numeroEdital") or raw.get("numeroCompra") or "").strip()
+                or None
+            )
+        ),
         modalidade=modalidade if modalidade else None,
         modalidade_id=modalidade_id if modalidade_id else None,
         objeto=objeto,

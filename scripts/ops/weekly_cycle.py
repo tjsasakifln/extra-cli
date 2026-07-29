@@ -857,6 +857,27 @@ def stage_intelligence(
         o["source_record_run_id"] = o.get("run_id") or o.get("last_seen_source_run_id")
         o["scope"] = "extra_sc_or_universe_200km"
 
+    # Prefer canonical 200km universe; if seed table is empty (scope drift),
+    # fall back to UF=SC geographic proxy so contracts/competitors are not
+    # silently zeroed while the lake still holds millions of rows.
+    universe_n = 0
+    try:
+        urows = _q(
+            conn,
+            """
+            SELECT COUNT(*)::int AS n
+            FROM sc_public_entities e
+            WHERE e.is_active IS TRUE AND e.raio_200km IS TRUE
+            """,
+        )
+        universe_n = int((urows[0] or {}).get("n") or 0) if urows else 0
+    except Exception:  # noqa: BLE001
+        universe_n = 0
+    contracts_scope_sql = _EXTRA_UNIVERSE_ORGAO if universe_n > 0 else "c.uf = 'SC'"
+    contracts_scope_label = (
+        "extra_universe_200km" if universe_n > 0 else "extra_sc_uf_fallback_empty_universe"
+    )
+
     contracts = _q(
         conn,
         # Constant fragment only — not user input (S608 false positive)
@@ -867,7 +888,7 @@ def stage_intelligence(
                c.orgao_cnpj_8
         FROM pncp_supplier_contracts c
         WHERE COALESCE(c.is_active, TRUE)
-          AND {_EXTRA_UNIVERSE_ORGAO}
+          AND {contracts_scope_sql}
           AND (
             c.data_publicacao >= CURRENT_DATE - INTERVAL '90 days'
             OR c.data_fim >= CURRENT_DATE - INTERVAL '30 days'
@@ -887,7 +908,7 @@ def stage_intelligence(
         # source_id is a record identifier, not an execution run — do not mislabel it
         c["source_record_run_id"] = None
         c["source_record_id"] = c.get("source_id") or c.get("contrato_id")
-        c["scope"] = "extra_universe_200km"
+        c["scope"] = contracts_scope_label
         c["normalized_table"] = "pncp_supplier_contracts"
 
     competitors = _q(
@@ -899,7 +920,7 @@ def stage_intelligence(
                COUNT(DISTINCT c.orgao_cnpj)::int AS n_orgaos
         FROM pncp_supplier_contracts c
         WHERE COALESCE(c.is_active, TRUE)
-          AND {_EXTRA_UNIVERSE_ORGAO}
+          AND {contracts_scope_sql}
           AND c.fornecedor_cnpj IS NOT NULL
           AND COALESCE(c.data_publicacao, c.data_inicio, c.ingested_at)
               >= CURRENT_DATE - INTERVAL '365 days'
@@ -914,7 +935,7 @@ def stage_intelligence(
         c["valor_nao_e_pago"] = True
         c["cycle_collection_id"] = collection_id
         c["cycle_run_id"] = ct_cycle.run_id if ct_cycle else None
-        c["scope"] = "extra_universe_200km"
+        c["scope"] = contracts_scope_label
         c["normalized_table"] = "pncp_supplier_contracts_agg"
 
     orgaos = _q(
