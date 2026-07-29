@@ -1575,6 +1575,9 @@ def write_executive_pdf(
         bottomMargin=1.5 * cm,
         title=package_title,
         author="Extra Consultoria",
+        # Subject stays as plain PDF Info (not Flate-compressed) so integrity
+        # checks can assert terminal_state without requiring PyPDF2/pypdf in CI.
+        subject=f"{terminal_state} | {run_id}",
     )
     # track pages
     page_count = {"n": 0}
