@@ -5,8 +5,7 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass, field
 from typing import Any
 
-from scripts.public_agency.conflict import STATE_BLOCKED, STATE_CLEARED, blocks_outreach
-from scripts.public_agency.conflict import ConflictAssessment
+from scripts.public_agency.conflict import STATE_BLOCKED, STATE_CLEARED, ConflictAssessment, blocks_outreach
 from scripts.public_agency.signals import SignalHit, material_need_signals
 
 PUBLISHABLE = "PUBLISHABLE"

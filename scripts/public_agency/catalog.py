@@ -26,7 +26,7 @@ def catalog_hash(path: Path | None = None) -> str:
 
 
 def services_list(path: Path | None = None) -> list[dict[str, Any]]:
-    return list((load_catalog(path).get("services") or []))
+    return list(load_catalog(path).get("services") or [])
 
 
 def get_service(service_id: str, path: Path | None = None) -> dict[str, Any] | None:

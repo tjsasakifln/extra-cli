@@ -114,7 +114,7 @@ def classify_object(
             evidences=evidences,
             justification=(
                 "Termos do objeto são tecnicamente enquadráveis como obra ou serviço de engenharia "
-                f"(art. 75, I potencialmente aplicável se demais requisitos legais forem atendidos)."
+                "(art. 75, I potencialmente aplicável se demais requisitos legais forem atendidos)."
             ),
             favorable_elements=favorable,
             contrary_elements=contrary,

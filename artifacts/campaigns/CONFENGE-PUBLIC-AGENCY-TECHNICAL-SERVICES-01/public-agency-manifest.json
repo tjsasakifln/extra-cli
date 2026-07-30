@@ -1,8 +1,8 @@
 {
   "campaign_id": "CONFENGE-PUBLIC-AGENCY-TECHNICAL-SERVICES-01",
   "status": "PASS",
-  "run_id": "38316584-a281-4058-a16b-2146ae8d0294",
-  "code_sha": "89c345f8a880b677e35d5cae995c0f205232a647",
+  "run_id": "37d608d1-ce0d-44f2-bfbd-47d01d888ac8",
+  "code_sha": "045a9bd8009314c6cca50dbe8ba326635da823d3",
   "as_of": "2026-07-15",
   "config_hashes": {
     "profile": "1ca90e8c9ced4aeed6530704c4498c1b42095eb26b5a7993321ff912c3eb6d4b",

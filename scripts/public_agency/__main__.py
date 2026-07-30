@@ -7,7 +7,6 @@ import json
 import os
 import sys
 from datetime import date
-from pathlib import Path
 
 from scripts.public_agency import CAMPAIGN_ID
 from scripts.public_agency.pipeline import git_sha, run_public_agency_pipeline

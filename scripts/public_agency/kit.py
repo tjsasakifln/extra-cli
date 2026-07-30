@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any
 
 from scripts.public_agency.catalog import load_catalog, services_list
 from scripts.public_agency.fiscal_support import FISCAL_SUPPORT_PREFERRED

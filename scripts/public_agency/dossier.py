@@ -49,11 +49,11 @@ def render_dossier_markdown(lead: dict[str, Any]) -> str:
     lines = [
         f"# Dossier — {agency.get('nome_oficial') or agency.get('agency_id')}",
         "",
-        f"**entity_type:** PUBLIC_AGENCY_PROSPECT  ",
+        "**entity_type:** PUBLIC_AGENCY_PROSPECT  ",
         f"**agency_id:** `{agency.get('agency_id')}`  ",
         f"**publishability:** {pub.get('category')}  ",
         f"**relationship_state:** {pub.get('relationship_state')}  ",
-        f"**campaign:** CONFENGE-PUBLIC-AGENCY-TECHNICAL-SERVICES-01",
+        "**campaign:** CONFENGE-PUBLIC-AGENCY-TECHNICAL-SERVICES-01",
         "",
         "## 1. Identificação oficial",
     ]

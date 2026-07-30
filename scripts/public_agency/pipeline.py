@@ -4,8 +4,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-import os
-import re
 import subprocess
 import uuid
 from collections import defaultdict
@@ -23,7 +21,8 @@ from scripts.public_agency import (
     OBJECT_HUMAN,
 )
 from scripts.public_agency.catalog import catalog_hash, get_service, services_list
-from scripts.public_agency.conflict import assess_conflict, config_hash as conflict_hash
+from scripts.public_agency.conflict import assess_conflict
+from scripts.public_agency.conflict import config_hash as conflict_hash
 from scripts.public_agency.contacts import default_institutional_research_contact, validate_contacts
 from scripts.public_agency.dossier import write_dossier
 from scripts.public_agency.entities import build_prospect_from_contract_rows, normalize_cnpj14
@@ -32,6 +31,8 @@ from scripts.public_agency.fragmentation import assess_fragmentation
 from scripts.public_agency.kit import generate_commercial_kit
 from scripts.public_agency.legal_thresholds import (
     catalog_hash as thresholds_hash,
+)
+from scripts.public_agency.legal_thresholds import (
     evaluate_potential_eligibility,
     get_threshold,
 )
@@ -59,8 +60,8 @@ def utc_now() -> str:
 def git_sha(root: Path | None = None) -> str:
     r = root or _ROOT
     try:
-        out = subprocess.check_output(  # noqa: S603,S607
-            ["git", "rev-parse", "HEAD"],
+        out = subprocess.check_output(  # noqa: S603
+            ["git", "rev-parse", "HEAD"],  # noqa: S607
             cwd=str(r),
             stderr=subprocess.DEVNULL,
             text=True,
@@ -161,7 +162,7 @@ def fetch_agency_contracts(
     finally:
         try:
             conn.close()
-        except Exception:  # noqa: BLE001
+        except Exception:  # noqa: BLE001,S110
             pass
 
 
@@ -277,7 +278,7 @@ def run_public_agency_pipeline(
         rows, source_meta = fetch_agency_contracts(dsn, ufs=ufs, max_contracts=max_contracts)
 
     if not source_meta.get("ok"):
-        result = {
+        fail_result: dict[str, Any] = {
             "run_id": run_id,
             "campaign_id": CAMPAIGN_ID,
             "status": "FAIL",
@@ -290,11 +291,11 @@ def run_public_agency_pipeline(
             "config_hashes": config_hashes,
             "module_version": MODULE_VERSION,
         }
-        export_public_agency_run(out, result)
-        return result
+        export_public_agency_run(out, fail_result)
+        return fail_result
 
     if not rows:
-        result = {
+        empty_result: dict[str, Any] = {
             "run_id": run_id,
             "campaign_id": CAMPAIGN_ID,
             "status": "PASS",
@@ -311,8 +312,8 @@ def run_public_agency_pipeline(
             "config_hashes": config_hashes,
             "module_version": MODULE_VERSION,
         }
-        export_public_agency_run(out, result)
-        return result
+        export_public_agency_run(out, empty_result)
+        return empty_result
 
     pop_map = load_population_map()
     groups = group_by_agency(rows)
@@ -439,11 +440,6 @@ def run_public_agency_pipeline(
             annual_sum_state="DIRECT_CONTRACTING_SUM_UNKNOWN",
         )
 
-        eng_count = sum(
-            1
-            for s in signals
-            if s.signal_id == "recurring_engineering_procurements" and s.status == "FIRED"
-        )
         # count engineering contracts more directly
         eng_contract_count = 0
         for c in contracts:
@@ -608,12 +604,15 @@ def run_public_agency_pipeline(
         reasons_counter[pub.category] += 1
 
     # Rank publishable first by priority; if fewer than max_leads, do not pad with weak leads
-    publishable_leads.sort(key=lambda L: float((L.get("score") or {}).get("priority_score") or 0), reverse=True)
+    publishable_leads.sort(
+        key=lambda lead: float((lead.get("score") or {}).get("priority_score") or 0),
+        reverse=True,
+    )
     # Prefer priority population when scores close
-    def _rank_key(L: dict[str, Any]) -> tuple[float, int]:
-        pop = (L.get("agency") or {}).get("populacao")
+    def _rank_key(lead: dict[str, Any]) -> tuple[float, int]:
+        pop = (lead.get("agency") or {}).get("populacao")
         prefer = 1 if pop is not None and pop <= priority_population_max else 0
-        return (float((L.get("score") or {}).get("priority_score") or 0), prefer)
+        return (float((lead.get("score") or {}).get("priority_score") or 0), prefer)
 
     publishable_leads.sort(key=_rank_key, reverse=True)
     top = publishable_leads[:max_leads]
@@ -625,21 +624,26 @@ def run_public_agency_pipeline(
     proposals_dir = out / "proposals"
     for lead in top:
         write_dossier(dossiers_dir, lead)
-        svc = lead.get("selected_service") or {}
+        raw_svc = lead.get("selected_service")
+        svc: dict[str, Any] = raw_svc if isinstance(raw_svc, dict) else {}
         try:
+            raw_agency = lead.get("agency")
+            agency_obj: dict[str, Any] = raw_agency if isinstance(raw_agency, dict) else {}
+            raw_cls = lead.get("object_classification")
+            raw_elig = lead.get("eligibility")
             prop = generate_proposal(
-                agency_name=(lead.get("agency") or {}).get("nome_oficial") or "",
-                problem=lead.get("probable_problem") or "",
+                agency_name=str(agency_obj.get("nome_oficial") or ""),
+                problem=str(lead.get("probable_problem") or ""),
                 object_text="Serviços técnicos de engenharia / apoio à contratação",
                 service=svc,
                 deliverables=list(svc.get("entregaveis") or [])[:8],
                 effort_hours=80.0,
-                object_classification=lead.get("object_classification"),
-                eligibility=lead.get("eligibility"),
+                object_classification=raw_cls if isinstance(raw_cls, dict) else None,
+                eligibility=raw_elig if isinstance(raw_elig, dict) else None,
             )
-            aid = (lead.get("agency") or {}).get("agency_id") or "x"
-            write_proposal(proposals_dir, prop, str(aid))
-        except Exception:  # noqa: BLE001
+            aid = str(agency_obj.get("agency_id") or "x")
+            write_proposal(proposals_dir, prop, aid)
+        except Exception:  # noqa: BLE001,S110
             pass
 
     kit_paths = {}

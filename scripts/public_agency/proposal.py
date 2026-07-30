@@ -49,10 +49,10 @@ def generate_proposal(
 
     body_md = f"""# Proposta técnica e comercial — CONFENGE
 
-**Órgão:** {agency_name}  
-**Objeto:** {object_text}  
-**Oferta:** {service.get('nome') or service.get('service_id')}  
-**Validade:** {validity_days} dias  
+**Órgão:** {agency_name}
+**Objeto:** {object_text}
+**Oferta:** {service.get('nome') or service.get('service_id')}
+**Validade:** {validity_days} dias
 
 ## 1. Problema
 
@@ -88,7 +88,7 @@ def generate_proposal(
 | Margem | {margin} |
 | **Preço proposto (R$)** | **{pricing['proposed_price']}** |
 
-Método: `{pricing['pricing_method']}`  
+Método: `{pricing['pricing_method']}`
 Âncora no teto legal: `{pricing['ceiling_used_as_price_anchor']}`
 
 ## 7. Classificação jurídica preliminar

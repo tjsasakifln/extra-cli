@@ -9,9 +9,11 @@ from pathlib import Path
 from typing import Any
 
 try:
-    from openpyxl import Workbook
+    from openpyxl import Workbook as _Workbook
+
+    Workbook: Any = _Workbook
 except ImportError:  # pragma: no cover
-    Workbook = None  # type: ignore[misc, assignment]
+    Workbook = None
 
 
 def _write_json(path: Path, data: Any) -> None:
