@@ -1,0 +1,21 @@
+{
+  "campaign_id": "CONFENGE-COMMERCIAL-READY-01",
+  "compared_at": "2026-07-30T01:16:50Z",
+  "production_touched": false,
+  "soak_touched": false,
+  "timers_modified": false,
+  "services_restarted": false,
+  "operational_tables_written": false,
+  "soak_artifacts_modified": false,
+  "campaign_did_not_request_write": true,
+  "no_write_observed": true,
+  "no_write_proven": true,
+  "reasons": [],
+  "baseline_captured_at": "2026-07-30T01:09:20Z",
+  "final_captured_at": "2026-07-30T01:15:58Z",
+  "baseline_deploy_sha": "50fc9390c6ab886c9e5562f655d4b18b807db324",
+  "final_deploy_sha": "50fc9390c6ab886c9e5562f655d4b18b807db324",
+  "ok": true,
+  "status": "PASS",
+  "interference": false
+}

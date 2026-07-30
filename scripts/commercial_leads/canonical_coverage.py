@@ -66,11 +66,21 @@ def build_canonical_coverage(
         "generated_at": base.get("generated_at"),
         "terminal_status": terminal_status,
         "declared_blockers": list(declared_blockers or []),
-        # Flat aliases for top-level result fields (same numbers only)
-        "official_registry_coverage": (base.get("registry_coverage_all_candidates") or {}).get(
+        # Operational supplier_registry row presence (any source including fallbacks)
+        "supplier_registry_coverage": (base.get("registry_coverage_all_candidates") or {}).get(
             "coverage"
         ),
+        # RFB-authority / official open-data share ONLY — never aliased to fallbacks
+        "official_registry_coverage": base.get("official_registry_coverage"),
+        "official_resolved_n": base.get("official_resolved_n"),
+        "fallback_resolved_n": base.get("fallback_resolved_n"),
+        "source_distribution": base.get("source_distribution") or {},
         "cnae_coverage": base.get("cnae_primary_coverage"),
+        "registry_authority_note": (
+            "official_registry_coverage counts only RFB-authority sources "
+            "(receita_federal / rfb_public_cadastral*). BrasilAPI/MinhaReceita/cnpjws "
+            "fallbacks count toward supplier_registry_coverage only."
+        ),
     }
     return canon
 
@@ -181,17 +191,58 @@ def reconcile_coverage_artifacts(
     for name, body in artifacts.items():
         metrics = body.get("metrics") if isinstance(body.get("metrics"), dict) else {}
         nested = metrics.get("registry_coverage") if isinstance(metrics.get("registry_coverage"), dict) else None
-        top_cov = body.get("official_registry_coverage")
-        if nested is not None and top_cov is not None:
+        canon = body.get("canonical_coverage") if isinstance(body.get("canonical_coverage"), dict) else {}
+        # Operational coverage (any source) may alias nested all-candidates coverage
+        top_op = body.get("supplier_registry_coverage")
+        if top_op is None and isinstance(canon, dict):
+            top_op = canon.get("supplier_registry_coverage")
+        if nested is not None and top_op is not None:
             nested_g = _slice_cov(nested, "registry_coverage_all_candidates")
-            if nested_g is not None and abs(float(nested_g) - float(top_cov)) > abs_tol:
+            if nested_g is not None and abs(float(nested_g) - float(top_op)) > abs_tol:
                 divergences.append(
                     {
-                        "field": "official_registry_coverage_vs_nested",
-                        "left": f"{name}.official_registry_coverage",
+                        "field": "supplier_registry_coverage_vs_nested",
+                        "left": f"{name}.supplier_registry_coverage",
                         "right": f"{name}.metrics.registry_coverage",
-                        "left_value": top_cov,
+                        "left_value": top_op,
                         "right_value": nested_g,
+                    }
+                )
+        # official_registry_coverage must match canon official field when both present
+        top_off = body.get("official_registry_coverage")
+        canon_off = canon.get("official_registry_coverage") if canon else None
+        nested_off = nested.get("official_registry_coverage") if isinstance(nested, dict) else None
+        for label, other in (
+            (f"{name}.canonical_coverage.official_registry_coverage", canon_off),
+            (f"{name}.metrics.registry_coverage.official_registry_coverage", nested_off),
+        ):
+            if top_off is not None and other is not None and abs(float(top_off) - float(other)) > abs_tol:
+                divergences.append(
+                    {
+                        "field": "official_registry_coverage_internal",
+                        "left": f"{name}.official_registry_coverage",
+                        "right": label,
+                        "left_value": top_off,
+                        "right_value": other,
+                    }
+                )
+        # Dishonest claim: official == 1.0 while source_distribution is mostly fallback
+        src_dist = (canon or nested or {}).get("source_distribution") or {}
+        if isinstance(src_dist, dict) and src_dist and top_off is not None and float(top_off) >= 0.999:
+            fallback_n = sum(
+                int(n)
+                for s, n in src_dist.items()
+                if "fallback" in str(s).lower() or str(s).lower() in {"brasilapi", "minhareceita"}
+            )
+            total_n = sum(int(n) for n in src_dist.values()) or 1
+            if fallback_n / total_n >= 0.5:
+                divergences.append(
+                    {
+                        "field": "official_coverage_fallback_inflation",
+                        "left": name,
+                        "right": "source_distribution",
+                        "left_value": top_off,
+                        "right_value": {"fallback_n": fallback_n, "total_n": total_n},
                     }
                 )
         # Stale blocker: block_reason null but terminal claims registry unavailable

@@ -1,0 +1,81 @@
+{
+  "schema_version": "acceptance-matrix-v1",
+  "generated_at": "2026-07-30T01:45:01Z",
+  "rows": [
+    {
+      "id": "full_history",
+      "status": "PASS",
+      "evidence": "db_contracts=4467364"
+    },
+    {
+      "id": "cli_cycle",
+      "status": "PASS",
+      "evidence": "run_id=cl-20260730T010931Z-1b0e4da2"
+    },
+    {
+      "id": "top20",
+      "status": "PASS",
+      "evidence": "top20-durable.json n=20"
+    },
+    {
+      "id": "top10_evidence_machine",
+      "status": "PASS_MACHINE",
+      "evidence": "top20-durable ranks 1-10"
+    },
+    {
+      "id": "dossiers20",
+      "status": "PASS",
+      "evidence": "dossiers_n=20"
+    },
+    {
+      "id": "kits5",
+      "status": "PASS",
+      "evidence": "kits_n=5"
+    },
+    {
+      "id": "idempotency",
+      "status": "PASS",
+      "evidence": "idempotency-proof.json"
+    },
+    {
+      "id": "soak_ni",
+      "status": "PASS",
+      "evidence": "soak-non-interference.json"
+    },
+    {
+      "id": "official_registry_100",
+      "status": "FAIL_NOT_MET",
+      "evidence": "official_cov=0.0298"
+    },
+    {
+      "id": "supplier_registry_ops",
+      "status": "PASS",
+      "evidence": "supplier_cov=1.0 fallback-labeled"
+    },
+    {
+      "id": "human_labels",
+      "status": "PENDING",
+      "evidence": "user-acceptance.template.json"
+    },
+    {
+      "id": "tiago_accept",
+      "status": "PENDING",
+      "evidence": "CONFENGE_COMMERCIAL_READY"
+    },
+    {
+      "id": "vps_integrated_cycle",
+      "status": "NOT_DONE",
+      "evidence": "live-run-summary.vps_deploy"
+    },
+    {
+      "id": "dod_20_accepted",
+      "status": "NOT_MET",
+      "evidence": "dod-delta accepted_count=0"
+    },
+    {
+      "id": "no_auto_send",
+      "status": "PASS",
+      "evidence": "manual kits only"
+    }
+  ]
+}

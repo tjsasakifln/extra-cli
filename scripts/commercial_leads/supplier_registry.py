@@ -17,6 +17,33 @@ from scripts.commercial_leads.dbutil import fetch_all
 RULE_VERSION = "supplier-registry-v1"
 NOT_COMPUTABLE = "NOT_COMPUTABLE"
 
+# Sources that may be counted as RFB-authority / official cadastral for
+# ``official_registry_coverage``. Redistributors (BrasilAPI, MinhaReceita, etc.)
+# are operational fallback only and MUST NOT inflate official coverage to 1.0.
+OFFICIAL_REGISTRY_SOURCE_MARKERS: tuple[str, ...] = (
+    "receita_federal",
+    "rfb_",
+    "rfb-",
+    "dados_abertos_cnpj",
+    "cnpj_rfb",
+    "public_cadastral_via_opencnpj",  # OpenCNPJ serving RFB public dataset
+    "rfb_public_cadastral",
+)
+
+
+def is_official_registry_source(source: str | None) -> bool:
+    """True only for RFB-authority / official open-data lineage labels."""
+    if not source:
+        return False
+    s = str(source).strip().lower()
+    if not s:
+        return False
+    if "fallback" in s:
+        return False
+    if s in {"brasilapi", "minhareceita", "cnpjws", "opencnpj"}:
+        return False
+    return any(marker in s for marker in OFFICIAL_REGISTRY_SOURCE_MARKERS)
+
 
 @dataclass
 class SupplierRegistryRecord:
@@ -40,6 +67,10 @@ class SupplierRegistryRecord:
     @property
     def has_cnae_principal(self) -> bool:
         return bool(self.cnae_principal and str(self.cnae_principal).strip())
+
+    @property
+    def is_official_source(self) -> bool:
+        return is_official_registry_source(self.source)
 
     @property
     def is_inactive(self) -> bool:
@@ -261,10 +292,21 @@ def coverage_report(
     all_cov = _cov(all_candidates)
     missing = [c for c in all_candidates if c not in registry]
     resolved_or_definitive = 0
+    official_resolved = 0
     status_counts: dict[str, int] = {}
+    source_distribution: dict[str, int] = {}
     for c in all_candidates:
         if c in registry:
             resolved_or_definitive += 1
+            rec = registry[c]
+            src = (rec.source or "unknown").strip() or "unknown"
+            source_distribution[src] = source_distribution.get(src, 0) + 1
+            if rec.is_official_source:
+                official_resolved += 1
+                status_counts["RESOLVED_OFFICIAL"] = status_counts.get("RESOLVED_OFFICIAL", 0) + 1
+            else:
+                status_counts["RESOLVED_FALLBACK"] = status_counts.get("RESOLVED_FALLBACK", 0) + 1
+            # Legacy aggregate for operational gates (any row present)
             status_counts["RESOLVED"] = status_counts.get("RESOLVED", 0) + 1
             continue
         st = resolution_status.get(c) or "LOOKUP_TRANSIENT_FAILURE"
@@ -273,6 +315,9 @@ def coverage_report(
             resolved_or_definitive += 1
     n_all = len(all_candidates) or 1
     resolved_rate = round(resolved_or_definitive / n_all, 4) if all_candidates else None
+    official_rate = (
+        round(official_resolved / len(all_candidates), 4) if all_candidates else None
+    )
 
     report = {
         "rule_version": RULE_VERSION,
@@ -287,6 +332,14 @@ def coverage_report(
         "registry_universe_resolved": all_cov.get("coverage") == 1.0,
         "registry_resolved_or_definitively_not_found": resolved_rate,
         "registry_resolution_status_counts": status_counts,
+        "source_distribution": source_distribution,
+        # RFB-authority share only — never equal to operational row presence when
+        # redistributor fallbacks fill the universe.
+        "official_registry_coverage": official_rate,
+        "official_resolved_n": official_resolved,
+        "fallback_resolved_n": max(0, resolved_or_definitive - official_resolved)
+        if all_candidates
+        else 0,
         "missing_candidates_sample": missing[:50],
         "missing_candidates_n": len(missing),
         "block_reason": None,

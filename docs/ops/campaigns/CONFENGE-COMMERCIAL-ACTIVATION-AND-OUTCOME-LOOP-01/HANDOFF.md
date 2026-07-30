@@ -58,3 +58,18 @@ Requires the activation DB still populated (~4.47M `pncp_supplier_contracts` on 
 | Commercial accept | Tiago only |
 | Machine cycle | `make confenge-commercial-cycle` |
 | Freeze/gates CONFENGE READY-01 | unchanged freeze tip `f68882ed` (code); evidence lag free |
+
+
+## Honest registry (post-skeptic)
+
+- **Official RFB-authority coverage:** 0.0298 (683/22882 via `rfb_public_cadastral_via_opencnpj`)
+- **Operational supplier registry:** 1.0 with `minhareceita_fallback` / `brasilapi_fallback` labels
+- Code fix: `official_registry_coverage` is no longer aliased to any-source presence
+
+## Durable package paths
+
+- `docs/ops/campaigns/.../TIAGO-REVIEW.md`
+- `artifacts/.../top20-durable.json`
+- `artifacts/.../review-package/top20-dossiers/`
+- `artifacts/.../review-package/top5-outreach-kits/`
+- `artifacts/.../review-package-manifest.json` (SHA-256 per file)
