@@ -112,3 +112,9 @@ Ofertas: REVISAO_PRE_PUBLICACAO, PLANEJAMENTO_TECNICO_DA_CONTRATACAO, ORCAMENTO_
 - tip HEAD at evidence commit time: see next commit
 - run git_sha: `d8493ceb055dc8326c4da71ec75079e98da7a6a2`
 - match to pre-evidence-commit HEAD: True
+
+## PR
+
+- https://github.com/tjsasakifln/extra-cli/pull/185
+- Branch tip: `05b4e63a`
+- Implementation/run bind SHA: `d8493ceb`
