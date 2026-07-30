@@ -1,68 +1,66 @@
 {
-  "as_of": "2026-07-30T22:39:47.366372+00:00",
-  "processes_scored": 834,
+  "as_of": "2026-07-30T23:00:03.736458+00:00",
+  "processes_scored": 849,
   "denominator_policy": "full_no_shrink",
   "metrics": {
     "notice_and_annexes_completeness": {
-      "ratio": 0.9964028776978417,
-      "percent": 99.6403,
-      "threshold": 0.98,
-      "meets_threshold": true,
-      "methodology": "process_level_binary_presence",
-      "residual_count": 3
+      "percent": 99.6466,
+      "meets": true,
+      "residual": 3
     },
     "session_judgment_homologation_completeness": {
-      "ratio": 0.3501199040767386,
-      "percent": 35.012,
-      "threshold": 0.95,
-      "meets_threshold": false,
-      "methodology": "process_level_binary_presence",
-      "residual_count": 542
+      "percent": 71.4959,
+      "meets": false,
+      "residual": 242
     },
     "winning_proposal_completeness": {
-      "ratio": 0.03836930455635491,
-      "percent": 3.8369,
-      "threshold": 0.85,
-      "meets_threshold": false,
-      "methodology": "process_level_binary_presence",
-      "residual_count": 802
+      "percent": 9.3051,
+      "meets": false,
+      "residual": 770
     },
     "bidder_qualification_documents_completeness": {
-      "ratio": 0.045563549160671464,
-      "percent": 4.5564,
-      "threshold": 0.7,
-      "meets_threshold": false,
-      "methodology": "process_level_binary_presence",
-      "residual_count": 796
+      "percent": 4.4759,
+      "meets": false,
+      "residual": 811
     }
-  },
-  "residual_nominal_counts": {
-    "notice_and_annexes_completeness": 3,
-    "session_judgment_homologation_completeness": 542,
-    "winning_proposal_completeness": 802,
-    "bidder_qualification_documents_completeness": 796
   },
   "residual_by_blocker": {
     "notice": {
-      "notice_pack_not_published_or_unclassified": 3
+      "residual": 3
     },
     "session": {
-      "session_judgment_not_published_publicly": 542
+      "session_judgment_not_published_publicly": 242
     },
     "win": {
-      "winning_proposal_not_published_publicly": 802
+      "winning_proposal_not_published_publicly": 770
     },
     "qual": {
-      "bidder_qualification_not_published_publicly": 796
+      "bidder_qualification_not_published_publicly": 811
     }
   },
   "multi_source_lift": {
-    "session_before_approx": 10.07,
-    "session_after": 35.012,
-    "sources": [
-      "pncp+itens_outcome Homologado",
-      "pncp+historico",
-      "pncp+atas"
-    ]
-  }
+    "session": {
+      "from": 10.07,
+      "to": 71.5,
+      "sources": [
+        "pncp itens Homologado+resultados",
+        "historico",
+        "atas",
+        "sc_compras situacao"
+      ]
+    },
+    "win": {
+      "from": 3.84,
+      "to": 9.31,
+      "sources": [
+        "pncp item_resultados valorHomologado+fornecedor"
+      ]
+    },
+    "qual": {
+      "from": 4.56,
+      "to": 4.48,
+      "note": "no public qualification packs in PNCP/SC Compras/PCP sample"
+    }
+  },
+  "honest_status": "session/win/qual still below thresholds; residual stays in denominator"
 }

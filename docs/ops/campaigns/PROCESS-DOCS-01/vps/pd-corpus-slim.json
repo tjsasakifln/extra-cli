@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-07-30T22:39:05.037580+00:00",
-  "process_count": 889,
+  "generated_at": "2026-07-30T22:58:52.749156+00:00",
+  "process_count": 904,
   "engineering_process_count": 111,
-  "complete_envelope_count": 623,
+  "complete_envelope_count": 770,
   "portal_families": [
     "ciga_ckan",
     "compras_gov",
@@ -13,7 +13,7 @@
     "tce_sc"
   ],
   "portal_family_count": 7,
-  "annotated_requirements_count": 7261,
+  "annotated_requirements_count": 8014,
   "min_targets": {
     "processes": 30,
     "engineering": 10,

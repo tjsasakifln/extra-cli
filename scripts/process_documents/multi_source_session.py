@@ -146,7 +146,7 @@ def collect_pncp_session_packs(
                     run_id=run_id,
                 )
             )
-    # Itens → outcome signals
+    # Itens → outcome signals + deep /itens/{n}/resultados (winner + valor homologado)
     url_itens = f"{PNCP_API}/orgaos/{cnpj14}/compras/{ano}/{sequencial}/itens"
     code, payload, _err = adapter._get(url_itens)
     if code == 200 and payload:
@@ -154,6 +154,7 @@ def collect_pncp_session_packs(
         if isinstance(items, list) and items:
             outcomes = []
             cats: set[str] = set()
+            deep_results: list[dict[str, Any]] = []
             for it in items:
                 if not isinstance(it, dict):
                     continue
@@ -161,8 +162,43 @@ def collect_pncp_session_packs(
                 if cat:
                     cats.add(cat)
                     outcomes.append(it)
-            if outcomes:
-                # Prefer strongest session category present
+                # Deep resultados when item claims outcome or is homologated
+                num = it.get("numeroItem")
+                sit = str(it.get("situacaoCompraItemNome") or "").lower()
+                if num is None:
+                    continue
+                if not (
+                    it.get("temResultado") is True
+                    or "homolog" in sit
+                    or "adjudic" in sit
+                    or cat is not None
+                ):
+                    continue
+                url_res = f"{PNCP_API}/orgaos/{cnpj14}/compras/{ano}/{sequencial}/itens/{num}/resultados"
+                rcode, rpay, _ = adapter._get(url_res)
+                if rcode != 200 or not rpay:
+                    continue
+                rdata = rpay if isinstance(rpay, list) else (rpay.get("data") if isinstance(rpay, dict) else [])
+                if not rdata:
+                    continue
+                deep_results.append({"numeroItem": num, "resultados": rdata})
+                cats.add(DocumentCategory.RESULTADO.value)
+                cats.add(DocumentCategory.HOMOLOGACAO.value)
+                # Public winner package: valor homologado + fornecedor is the public
+                # residual of the winning commercial outcome (not the private PDF).
+                blob = json.dumps(rdata, ensure_ascii=False).lower()
+                if any(
+                    k in blob
+                    for k in (
+                        "valortotalhomologado",
+                        "valorunitariohomologado",
+                        "niforncedor",
+                        "nomerazaosocialfornecedor",
+                        "fornecedor",
+                    )
+                ):
+                    cats.add(DocumentCategory.PROPOSTA_COMERCIAL.value)
+            if outcomes or deep_results:
                 category = (
                     DocumentCategory.HOMOLOGACAO.value
                     if DocumentCategory.HOMOLOGACAO.value in cats
@@ -174,7 +210,11 @@ def collect_pncp_session_packs(
                 )
                 docs.append(
                     _store_json_doc(
-                        payload={"items_with_outcome": outcomes, "categories": sorted(cats)},
+                        payload={
+                            "items_with_outcome": outcomes,
+                            "item_resultados": deep_results,
+                            "categories": sorted(cats),
+                        },
                         title=f"PNCP_Itens_Resultado_{cnpj14}_{ano}_{sequencial}.json",
                         category=category,
                         process_id=process_id,
@@ -186,6 +226,21 @@ def collect_pncp_session_packs(
                         run_id=run_id,
                     )
                 )
+                if deep_results and DocumentCategory.PROPOSTA_COMERCIAL.value in cats:
+                    docs.append(
+                        _store_json_doc(
+                            payload={"item_resultados": deep_results},
+                            title=f"PNCP_Proposta_Vencedora_Publica_{cnpj14}_{ano}_{sequencial}.json",
+                            category=DocumentCategory.PROPOSTA_COMERCIAL.value,
+                            process_id=process_id,
+                            entity_id=entity_id,
+                            source_id="pncp+item_resultados",
+                            portal_family="pncp",
+                            download_url=url_itens + "/resultados",
+                            raw_root=raw_root,
+                            run_id=run_id,
+                        )
+                    )
             # Always store raw itens as planning/session context when multi-item
             docs.append(
                 _store_json_doc(
@@ -555,11 +610,52 @@ def _maybe_add_dom_act(
         return
 
 
+def run_sc_compras_campaign(*, max_entities: int = 40, max_processes: int = 20) -> dict[str, Any]:
+    """Live SC Compras collect for entities with sc_compras platform."""
+    from scripts.process_documents.adapters.sc_compras import ScComprasDocumentAdapter
+    from scripts.process_documents.discovery import load_discovery
+
+    raw, meta = ensure_roots()
+    adapter = ScComprasDocumentAdapter(raw_root=raw, meta_root=meta)
+    disc = load_discovery()
+    targets = [
+        d
+        for d in disc
+        if d.platforms and any(str(p).lower() == "sc_compras" for p in d.platforms)
+    ][:max_entities]
+    nz = z = fail = docs_n = 0
+    for ent in targets:
+        try:
+            # activity_status may not exist on discovery model — ignore filter failures
+            res = adapter.collect(ent, max_processes=max_processes, download=True)
+            st = res.status.value if hasattr(res.status, "value") else str(res.status)
+            n = len(res.documents or [])
+            docs_n += n
+            if n:
+                nz += 1
+            elif "ZERO" in st:
+                z += 1
+            else:
+                fail += 1
+        except Exception:
+            fail += 1
+    summary = {
+        "entities": len(targets),
+        "success_nonzero": nz,
+        "success_zero": z,
+        "fail": fail,
+        "documents": docs_n,
+    }
+    write_json(meta / "sc-compras-campaign-summary.json", summary)
+    return summary
+
+
 def run_multi_source_session_campaign(
     *,
     max_processes: int = 150,
     include_ciga_dom: bool = True,
     include_origin_html: bool = True,
+    include_sc_compras: bool = True,
 ) -> dict[str, Any]:
     """Live multi-source pass for processes missing session/win/qual packs."""
     raw, meta = ensure_roots()
@@ -607,6 +703,13 @@ def run_multi_source_session_campaign(
         missing_qual = not (info["cats"] & QUAL)
         if not (missing_session or missing_win or missing_qual):
             continue
+        # Priority: win gaps first (scarce), then session, then older years
+        prio = (
+            0 if missing_win else 1,
+            0 if missing_session else 1,
+            int(m.group(4)),
+            int(m.group(3)),
+        )
         targets.append(
             {
                 "process_id": pid,
@@ -618,10 +721,10 @@ def run_multi_source_session_campaign(
                 "need_session": missing_session,
                 "need_win": missing_win,
                 "need_qual": missing_qual,
+                "_prio": prio,
             }
         )
-    # Prefer older years (more likely homologated)
-    targets.sort(key=lambda t: (t["ano"], t["seq"]))
+    targets.sort(key=lambda t: t["_prio"])
     targets = targets[:max_processes]
 
     all_docs: list[dict[str, Any]] = []
@@ -671,6 +774,12 @@ def run_multi_source_session_campaign(
             stats["ciga_dom"] = ciga_stats
         except Exception as exc:
             stats["ciga_dom_error"] = str(exc)
+
+    if include_sc_compras:
+        try:
+            stats["sc_compras"] = run_sc_compras_campaign(max_entities=25, max_processes=15)
+        except Exception as exc:
+            stats["sc_compras_error"] = str(exc)
 
     finished = _now()
     result = {

@@ -158,6 +158,12 @@ def test_classify_item_outcome_homologado() -> None:
     )
 
 
+def test_sc_compras_adapter_import() -> None:
+    from scripts.process_documents.adapters.sc_compras import ScComprasDocumentAdapter
+
+    assert ScComprasDocumentAdapter.source_id == "sc_compras"
+
+
 def test_classify_document_title() -> None:
     assert classify_document_title("Edital de Pregão Eletrônico") == DocumentCategory.EDITAL.value
     assert classify_document_title("Planilha Orçamentária") == DocumentCategory.PLANILHA_ORCAMENTARIA.value

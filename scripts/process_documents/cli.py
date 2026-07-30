@@ -238,6 +238,7 @@ def cmd_multi_source_session(args: argparse.Namespace) -> int:
         max_processes=int(args.max_processes),
         include_ciga_dom=not args.no_ciga_dom,
         include_origin_html=not args.no_html,
+        include_sc_compras=not args.no_sc_compras,
     )
     _print(summary)
     return 0 if summary.get("documents", 0) >= 0 else 1
@@ -376,6 +377,7 @@ def build_parser() -> argparse.ArgumentParser:
     ms.add_argument("--max-processes", type=int, default=150)
     ms.add_argument("--no-ciga-dom", action="store_true")
     ms.add_argument("--no-html", action="store_true")
+    ms.add_argument("--no-sc-compras", action="store_true")
     ms.set_defaults(func=cmd_multi_source_session)
 
     return p

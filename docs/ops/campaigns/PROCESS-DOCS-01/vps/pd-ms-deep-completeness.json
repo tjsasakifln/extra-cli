@@ -283,19 +283,8 @@
     ]
   },
   "denominator_policy": "full_no_shrink",
+  "gate_exit": 6,
   "generated_at": "2026-07-30T22:59:30.699692+00:00",
   "note": "Binary presence per process after title reclassification + ZIP expansion. Denominator is ALL processes with \u22651 document (no shrinking). Residuals listed nominally with blockers; publication limits remain for session/proposal/qualification packs on many public portals.",
-  "sc_compras_notice_backfill": 375,
-  "multi_source": {
-    "session_percent": 71.4959,
-    "win_percent": 9.3051,
-    "qual_percent": 4.4759,
-    "sources": [
-      "pncp+itens_outcome",
-      "pncp+item_resultados",
-      "pncp+historico",
-      "pncp+atas",
-      "sc_compras"
-    ]
-  }
+  "sc_compras_notice_backfill": 375
 }

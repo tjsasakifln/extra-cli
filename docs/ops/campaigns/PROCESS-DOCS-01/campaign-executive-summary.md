@@ -1,42 +1,32 @@
-# PROCESS-DOCS-01 — Executive Summary (multi-source session)
+# PROCESS-DOCS-01 — Executive Summary (deep multi-source)
 
-Generated: 2026-07-30T22:39:47.366372+00:00
+Generated: 2026-07-30T23:00:03.742240+00:00
 
-## Capability
-`procurement_process_documents`
-
-## Metrics (independent, full denominators)
+## Metrics (full denominators, no shrink)
 
 | Metric | Result | Target | Meets |
 |--------|--------|--------|-------|
-| discovery | 100% (1093/1093) | 100% | yes |
-| operational actives | **96.56%** (393/407) | ≥95% | **yes** |
-| process recall | **100%** (807/807) | ≥98% | **yes** |
-| financial coverage | **100%** | ≥99% | **yes** |
-| completeness edital/anexos | **99.64%** | ≥98% | **yes** |
-| completeness julgamento | **35.01%** | ≥95% | no — residual blocked |
-| completeness proposta | **3.84%** | ≥85% | no — residual blocked |
-| completeness habilitação | **4.56%** | ≥70% | no — residual blocked |
+| discovery | 100% | 100% | yes |
+| operational | 96.56% | ≥95% | yes |
+| recall | 100% | ≥98% | yes |
+| financial | 100% | ≥99% | yes |
+| notice/anexos | **99.65%** | ≥98% | **yes** |
+| session/judgment | **71.50%** | ≥95% | no (residual 242) |
+| winning proposal | **9.31%** | ≥85% | no (residual 770) |
+| qualification | **4.48%** | ≥70% | no (residual 811) |
 
-`coverage --full` exit **6**.
+Gate exit **6**.
 
-## Multi-source session wave
-- PNCP `/itens` outcomes (`situacaoCompraItemNome=Homologado`) → session docs
-- PNCP `/historico`, `/atas` when published
-- Origin HTML + CIGA DOM attempted (limited public yield)
-- Session lift: ~10% → **35%** (292/834 processes)
-- Win/qual remain publication-limited (~4%)
+## Multi-source lifts this wave
+- PNCP `/itens/{n}/resultados` → public winner package (session + proposal metadata)
+- PNCP historico/atas + itens Homologado
+- SC Compras situacao + edital metadata (25 entities, 375 session docs + notice backfill)
+- PCP public detail endpoints: 404/500 (no public document API in sample)
 
-## Corpus / bid_readiness
-- processes **889** / eng **111** / envelopes **623** / families **7** / annotations **7261**
-- min targets: **met**
-- FP/FN: automated candidates only (`awaiting_human_ground_truth`)
-- **READY_TO_SUBMIT forbidden**; issue **#137 open**
+## Corpus
+- mins met (issue #137 still open — human FP/FN GT required)
+- READY_TO_SUBMIT forbidden
 
-## Residual honesty
-Session residual 542, win 802, qual 796 stay in denominator with blockers
-`session_judgment_not_published_publicly` / `winning_proposal_not_published_publicly` /
-`bidder_qualification_not_published_publicly`.
-
-## PR
-https://github.com/tjsasakifln/extra-cli/pull/184
+## Honesty
+Session/win/qual **not** marked complete. Residuals remain in denominator.
+PR: https://github.com/tjsasakifln/extra-cli/pull/184

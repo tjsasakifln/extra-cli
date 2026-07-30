@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-30T22:39:05.114876+00:00",
+  "generated_at": "2026-07-30T22:59:31.399897+00:00",
   "false_positives": [
     {
       "process_id": "ciga:domsc-publicacoes-de-12-2025",
@@ -65,6 +65,19 @@
       "human_review_required": true
     },
     {
+      "process_id": "11402887000160-1-000064/2026",
+      "kind": "would_be_false_ready_if_auto_submit",
+      "severity": "critical_if_auto",
+      "document_count": 19,
+      "categories": [
+        "anexo",
+        "contrato",
+        "outro",
+        "resultado"
+      ],
+      "human_review_required": true
+    },
+    {
       "process_id": "04892707000100-2-000383/2023",
       "kind": "would_be_false_ready_if_auto_submit",
       "severity": "critical_if_auto",
@@ -81,13 +94,26 @@
       "human_review_required": true
     },
     {
-      "process_id": "11402887000160-1-000064/2026",
+      "process_id": "80911936000103-1-000099/2026",
       "kind": "would_be_false_ready_if_auto_submit",
       "severity": "critical_if_auto",
-      "document_count": 16,
+      "document_count": 17,
       "categories": [
-        "contrato",
-        "outro"
+        "anexo",
+        "outro",
+        "resultado"
+      ],
+      "human_review_required": true
+    },
+    {
+      "process_id": "80911936000103-1-000100/2026",
+      "kind": "would_be_false_ready_if_auto_submit",
+      "severity": "critical_if_auto",
+      "document_count": 17,
+      "categories": [
+        "anexo",
+        "outro",
+        "resultado"
       ],
       "human_review_required": true
     },
@@ -104,59 +130,6 @@
         "outro",
         "parecer_juridico",
         "resultado"
-      ],
-      "human_review_required": true
-    },
-    {
-      "process_id": "04892707000100-2-000009/2024",
-      "kind": "would_be_false_ready_if_auto_submit",
-      "severity": "critical_if_auto",
-      "document_count": 14,
-      "categories": [
-        "anexo",
-        "homologacao",
-        "outro"
-      ],
-      "human_review_required": true
-    },
-    {
-      "process_id": "04892707000100-2-000594/2024",
-      "kind": "would_be_false_ready_if_auto_submit",
-      "severity": "critical_if_auto",
-      "document_count": 14,
-      "categories": [
-        "anexo",
-        "aviso",
-        "homologacao",
-        "outro",
-        "parecer_juridico",
-        "proposta_comercial"
-      ],
-      "human_review_required": true
-    },
-    {
-      "process_id": "09069217000122-2-000049/2024",
-      "kind": "would_be_false_ready_if_auto_submit",
-      "severity": "critical_if_auto",
-      "document_count": 14,
-      "categories": [
-        "anexo",
-        "aviso",
-        "estudo_tecnico_preliminar",
-        "homologacao",
-        "outro",
-        "parecer_juridico",
-        "resultado"
-      ],
-      "human_review_required": true
-    },
-    {
-      "process_id": "80911936000103-1-000099/2026",
-      "kind": "would_be_false_ready_if_auto_submit",
-      "severity": "critical_if_auto",
-      "document_count": 14,
-      "categories": [
-        "outro"
       ],
       "human_review_required": true
     }
@@ -194,43 +167,31 @@
       "human_review_required": true
     },
     {
-      "process_id": "04892707000100-2-000383/2023",
-      "kind": "multi_doc_without_edital_or_tr",
-      "severity": "high",
-      "human_review_required": true
-    },
-    {
       "process_id": "11402887000160-1-000064/2026",
       "kind": "multi_doc_without_edital_or_tr",
       "severity": "high",
       "human_review_required": true
     },
     {
-      "process_id": "09069217000122-2-000057/2024",
-      "kind": "multi_doc_without_edital_or_tr",
-      "severity": "high",
-      "human_review_required": true
-    },
-    {
-      "process_id": "04892707000100-2-000009/2024",
-      "kind": "multi_doc_without_edital_or_tr",
-      "severity": "high",
-      "human_review_required": true
-    },
-    {
-      "process_id": "04892707000100-2-000594/2024",
-      "kind": "multi_doc_without_edital_or_tr",
-      "severity": "high",
-      "human_review_required": true
-    },
-    {
-      "process_id": "09069217000122-2-000049/2024",
+      "process_id": "04892707000100-2-000383/2023",
       "kind": "multi_doc_without_edital_or_tr",
       "severity": "high",
       "human_review_required": true
     },
     {
       "process_id": "80911936000103-1-000099/2026",
+      "kind": "multi_doc_without_edital_or_tr",
+      "severity": "high",
+      "human_review_required": true
+    },
+    {
+      "process_id": "80911936000103-1-000100/2026",
+      "kind": "multi_doc_without_edital_or_tr",
+      "severity": "high",
+      "human_review_required": true
+    },
+    {
+      "process_id": "09069217000122-2-000057/2024",
       "kind": "multi_doc_without_edital_or_tr",
       "severity": "high",
       "human_review_required": true
@@ -332,87 +293,40 @@
       "review_status": "pending_human"
     },
     {
-      "process_id": "82561093000198-1-000125/2026",
-      "document_count": 45,
+      "process_id": "sc-compras:41624:0206/2026",
+      "document_count": 50,
       "categories": [
         "edital",
-        "estudo_tecnico_preliminar",
-        "outro",
-        "parecer_juridico",
-        "termo_referencia"
+        "homologacao"
       ],
-      "portal_family": "pncp",
+      "portal_family": "sc_compras",
       "review_status": "pending_human"
     },
     {
-      "process_id": "82951344000140-2-000002/2025",
-      "document_count": 43,
+      "process_id": "sc-compras:58075:0002/2026",
+      "document_count": 50,
       "categories": [
-        "anexo",
-        "cronograma",
         "edital",
-        "estudo_tecnico_preliminar",
-        "outro",
-        "planilha_orcamentaria",
-        "projeto",
-        "resultado"
+        "homologacao"
       ],
-      "portal_family": "multi_source",
+      "portal_family": "sc_compras",
       "review_status": "pending_human"
     },
     {
-      "process_id": "82951344000140-1-000096/2026",
-      "document_count": 41,
+      "process_id": "sc-compras:58179:0004/2026",
+      "document_count": 50,
       "categories": [
-        "cronograma",
         "edital",
-        "estudo_tecnico_preliminar",
-        "minuta",
-        "ordem_servico",
-        "outro",
-        "planilha_orcamentaria",
-        "projeto"
+        "homologacao"
       ],
-      "portal_family": "pncp",
-      "review_status": "pending_human"
-    },
-    {
-      "process_id": "04892707000100-2-000093/2024",
-      "document_count": 38,
-      "categories": [
-        "anexo",
-        "homologacao",
-        "outro",
-        "planilha_orcamentaria",
-        "termo_referencia"
-      ],
-      "portal_family": "multi_source",
-      "review_status": "pending_human"
-    },
-    {
-      "process_id": "00394502000144-2-000315/2024",
-      "document_count": 35,
-      "categories": [
-        "anexo",
-        "atestado",
-        "aviso",
-        "estudo_tecnico_preliminar",
-        "habilitacao_juridica",
-        "homologacao",
-        "outro",
-        "parecer_juridico",
-        "planilha_orcamentaria",
-        "resultado",
-        "termo_referencia"
-      ],
-      "portal_family": "multi_source",
+      "portal_family": "sc_compras",
       "review_status": "pending_human"
     }
   ],
   "automated_candidate_counts": {
-    "false_positive_candidates": 64,
+    "false_positive_candidates": 54,
     "false_negative_candidates": 0,
-    "critical_risk_candidates": 64
+    "critical_risk_candidates": 54
   },
   "policy": {
     "READY_TO_SUBMIT_without_human_review": "forbidden",
@@ -425,7 +339,7 @@
   "human_ground_truth_complete": false,
   "ready_to_submit_allowed": false,
   "issue_137_close_allowed": false,
-  "process_count": 889,
-  "annotation_count": 7261,
+  "process_count": 904,
+  "annotation_count": 8389,
   "note": "Automated structural candidates only. No human labels applied. Issue #137 remains OPEN until human GT review of FP/FN queue."
 }
