@@ -634,9 +634,9 @@ covered_financial_value_ratio = valor coberto / valor total do universo relevant
 ```
 
 - [x] `entity_source_discovery_coverage = 100%` (1.093/1.093; zero `unknown`). Evidência: `python3 -m scripts.process_documents discover --all` exit 0 · `output/process_documents/document-source-registry.json` entity_count=1093 unknown_access_count=0 meets_100_percent=true · canonical_ids_sha256 `306976f2ae4bbaa46d816c2529e498fe114ef433e23181599b0892124bed7490` · PROCESS-DOCS-01 2026-07-30.
-- [ ] `active_entity_document_operational_coverage >= 95%` (denominador = entes ativos; blockers permanecem no denominador). **PARTIAL live:** 335/407 = 82,31% (`document-coverage.json`); CIGA+HTML live SUCCESS_NONZERO; residual no denominador. Gate exit 3.
-- [ ] `relevant_process_recall >= 98%` (benchmark independente versionado). **NOT READY:** denominator=0.
-- [ ] `covered_financial_value_ratio >= 99%`. **NOT READY:** sem valores no benchmark independente.
+- [ ] `active_entity_document_operational_coverage >= 95%` (denominador = entes ativos; blockers permanecem no denominador). **PARTIAL live VPS:** 324/407 = 79,61% (`docs/ops/campaigns/PROCESS-DOCS-01/vps/document-coverage.json`); PNCP arquivos live SUCCESS_NONZERO×130; CIGA×240; HTML multi-family partial; residual no denominador. Gate exit 3.
+- [ ] `relevant_process_recall >= 98%` (benchmark independente versionado). **PARTIAL VPS:** 87/120 = 72,5% (`vps/process-recall.json`); benchmark v1 DB-independent.
+- [ ] `covered_financial_value_ratio >= 99%`. **PARTIAL VPS:** 91,75% do valor do benchmark (`vps/financial-coverage.json`); hierarquia contracted>homologated>awarded>estimated.
 - [ ] `notice_and_annexes_completeness >= 98%`.
 - [ ] `session_judgment_homologation_completeness >= 95%`.
 - [ ] `winning_proposal_completeness >= 85%`.
@@ -796,7 +796,7 @@ CLI canônica: `python3 -m scripts.process_documents`.
 
 - [x] Entes classificados por família de portal (sem 1.093 crawlers individuais). Evidência: `classify_portal_family` + inventory.
 - [x] Contrato comum de adapter tipado e fail-closed (`DocumentRunResult`). Evidência: models + tests.
-- [ ] Adapter PNCP implementado e provado live. **Code+tests OK; live PNCP blocked** (timeout neste ambiente).
+- [x] Adapter PNCP implementado e provado live. Evidência VPS: `arquivos` API SUCCESS_NONZERO ×130 processos · `vps-live-campaign-summary-r2.json`.
 - [x] Adapters das famílias de maior impacto implementados e provados live. Evidência: CIGA live SUCCESS_NONZERO em escala · HTML parcial · run-index.
 - [ ] Adapters de plataformas de disputa e portais de processo administrativo conforme aplicabilidade. **PARTIAL**.
 - [x] Adapter genérico seguro para páginas públicas indexáveis (sem contornar CAPTCHA/auth). Evidência: `generic_html.py` live.
@@ -818,7 +818,7 @@ CLI canônica: `python3 -m scripts.process_documents`.
 ### 7A.4 Cobertura, corpus e bid_readiness
 
 - [x] Relatórios: discovery, activity, operational coverage, process recall, financial coverage, completeness, gaps, portal-family inventory, adapter coverage, manifests, corpus, FP/FN. Evidência: `output/process_documents/` + campaign stamp.
-- [ ] Corpus público real: ≥30 processos, ≥10 engenharia, ≥10 envelopes relativamente completos, ≥5 famílias, ≥500 requisitos anotados. **PARTIAL:** 81 processos, 67 envelopes, 1422 annotation slots, 2 famílias; engenharia=0; issue #137 permanece aberta.
+- [x] Corpus público real: ≥30 processos, ≥10 engenharia, ≥10 envelopes relativamente completos, ≥5 famílias, ≥500 requisitos anotados. Evidência VPS: 188 processos, 17 engenharia, 113 envelopes, 6 famílias, 1569 annotations · `vps/corpus-manifest.json`. Issue #137 permanece aberta (sem ground truth humano/FP-FN).
 - [ ] Análise FP/FN e ausência de erro crítico de falsa prontidão. **PARTIAL:** report scaffold `awaiting_human_ground_truth`; READY_TO_SUBMIT proibido.
 - [ ] Issue #137 só fechada após provas; PR #133 só desbloqueada após suíte verde no HEAD exato.
 
@@ -826,7 +826,7 @@ CLI canônica: `python3 -m scripts.process_documents`.
 
 - [x] CLI e workspace permitem consultar documentos por processo/edital/contrato. Evidência: `scripts.process_documents` + `workspace process-documents`.
 - [x] Integração a scheduler local (systemd unit/timer no repo). Evidência: `deploy/systemd/extra-process-documents-incremental.*`.
-- [ ] Integração a timers/serviços na VPS com prova live. **NOT READY:** host `ec-prod` alcançável mas `scripts/process_documents` ainda não implantado (`NO_PD`).
+- [x] Integração a timers/serviços na VPS com prova live. Evidência: deploy `/opt/extra-consultoria/scripts/process_documents` · timer `extra-process-documents-incremental.timer` enabled/active · runs em `/var/lib/extra-consultoria/output/process_documents` · 2026-07-30.
 - [ ] Observabilidade, backup e recuperação incluem artefatos documentais.
 - [ ] Aceite manual de Tiago registrado para a capability documental.
 - [x] Testes unitários/contract (20 passed). Evidência: `tests/process_documents/` · PROCESS-DOCS-01.

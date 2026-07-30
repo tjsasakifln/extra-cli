@@ -1,51 +1,53 @@
-# Campaign PROCESS-DOCS-01 — Executive Summary
+# Campaign PROCESS-DOCS-01 — Executive Summary (updated VPS)
 
-Generated: 2026-07-30T19:32:17.477706+00:00
+Generated: 2026-07-30T20:12:39.111736+00:00
 
 ## Capability
-`procurement_process_documents` — discovery, collection, preservation, classification and audit of public administrative process documents for the 1.093-entity Extra/CONFENGE universe.
+`procurement_process_documents`
 
-## Metrics (independent — no average)
+## VPS operation
+- Host: `ec-prod` (`/opt/extra-consultoria`)
+- Module deployed under `scripts/process_documents/`
+- Timer: `extra-process-documents-incremental.timer` **enabled / active** (next ~04:30)
+- Raw/meta: `/var/lib/extra-consultoria/{raw,output}/process_documents`
+- Live PNCP `arquivos` API: **SUCCESS_NONZERO** for 50+80 process downloads
+- Live CIGA: 240 SUCCESS_NONZERO; HTML multi-family partial
 
-| Metric | Value | Threshold | Meets |
-|--------|-------|-----------|-------|
-| entity_source_discovery_coverage | 100.0% (1093/1093) | 100% | True |
-| active_entity_document_operational_coverage | 82.3096% (335/407) | ≥95% | False |
-| relevant_process_recall | 0.0% (0/0) | ≥98% | False |
-| covered_financial_value_ratio | 0.0% | ≥99% | False |
-| notice_and_annexes_completeness | 0.0% | ≥98% | False |
-| session_judgment_homologation_completeness | 0.0% | ≥95% | False |
-| winning_proposal_completeness | 0.0% | ≥85% | False |
-| bidder_qualification_documents_completeness | 2.7778% | ≥70% | False |
+## Independent metrics (no average)
 
-Gate exit code for full bundle: **3** (non-zero = not ready to claim completion).
+| Metric | VPS result | Target | Meets |
+|--------|------------|--------|-------|
+| discovery | 100% (1093/1093) | 100% | yes |
+| operational actives | 79.6069% (324/407) | ≥95% | no |
+| process recall | 72.5% (87/120) | ≥98% | no |
+| financial coverage | 91.7469% | ≥99% | no |
+| completeness | low (see document-completeness.json) | 98/95/85/70 | no |
 
-## Activity
-- Active: 407
-- Inactive: 1
-- Pending independent evidence: 685
+## Corpus (bid_readiness support)
 
-## Live proof
-- CIGA CKAN adapter: SUCCESS_NONZERO at scale for municipal DOM-SC packages (shared public ZIPs, CAS).
-- Generic HTML: partial success against sc_compras / compras.gov / institutional seeds.
-- PNCP adapter: implemented + unit/contract tested; **live blocked** in this environment (timeout / remote disconnect).
+| Target | Result |
+|--------|--------|
+| ≥30 processes | **188** |
+| ≥10 engineering | **17** |
+| ≥10 envelopes | **113** |
+| ≥5 families | **6** (ciga_ckan, compras_gov, pncp, portal_institucional, sc_compras, tce_sc) |
+| ≥500 annotations | **1569** |
 
-## Corpus / bid_readiness
-- Processes in corpus: 81
-- Engineering: 0
-- Complete envelopes: 67
-- Portal families: 2
-- Annotated requirement slots: 1422
-- issue_137_unblock_allowed: **False**
-- READY_TO_SUBMIT language: **forbidden** without human review
+`issue_137_unblock_allowed`: **false** until human ground truth + FP/FN + suite on HEAD + no false readiness language.
 
-## Gaps (honest)
-- Operational coverage below 95%: remaining active entities blocked on PNCP unavailability, auth, or missing entity-specific portals.
-- Process recall / financial coverage not claimable: independent benchmark empty until sealed inventory.
-- Completeness below targets: public packs are mostly DOM publications, not full bid envelopes.
+## Blockers remaining
+- Active entities without operational SUCCESS (HTML connection failures / auth / no entity portal)
+- Independent recall/financial below thresholds
+- Completeness limited by public publication practices
+- Full suite/lint not re-run end-to-end in this campaign slice (targeted process_documents tests: 20 passed)
 
-## What is NOT claimed
-- LOCAL_READY / VPS_OPERATIONAL / PROJECT_DONE
-- 95% operational document coverage
-- 98% process recall / 99% financial
-- Closing issue #137 / unblocking PR #133
+## Commands (VPS)
+```bash
+cd /opt/extra-consultoria
+export PROCESS_DOCUMENTS_META_ROOT=/var/lib/extra-consultoria/output/process_documents
+export PROCESS_DOCUMENTS_RAW_ROOT=/var/lib/extra-consultoria/raw/process_documents
+.venv/bin/python -m scripts.process_documents discover --all
+.venv/bin/python -m scripts.process_documents coverage --full
+.venv/bin/python -m scripts.process_documents.vps_live_campaign
+systemctl status extra-process-documents-incremental.timer
+```

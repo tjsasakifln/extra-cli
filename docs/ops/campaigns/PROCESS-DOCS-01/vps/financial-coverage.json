@@ -1,0 +1,31 @@
+{
+  "metric": "covered_financial_value_ratio",
+  "threshold": 0.99,
+  "value_hierarchy": [
+    "contracted_value",
+    "homologated_value",
+    "awarded_value",
+    "estimated_value"
+  ],
+  "total_value": 136432085.73,
+  "covered_value": 125172193.05000001,
+  "uncovered_value": 11259892.679999977,
+  "ratio": 0.9174688811671223,
+  "percent": 91.7469,
+  "meets_threshold": false,
+  "processes_without_value": [
+    "15126437000305-1-002899/2026",
+    "15126437000305-1-002891/2026",
+    "81531162000158-1-000195/2026",
+    "80673411000187-1-000293/2026",
+    "15126437000305-1-002917/2026",
+    "83755850000127-1-000024/2026",
+    "07226794000155-1-000111/2026",
+    "80673411000187-1-000291/2026"
+  ],
+  "field_usage": {
+    "estimated_value": 112
+  },
+  "semantic_note": "Never sum estimated+homologated+contracted as equivalent",
+  "generated_at": "2026-07-30T20:11:38.516484+00:00"
+}

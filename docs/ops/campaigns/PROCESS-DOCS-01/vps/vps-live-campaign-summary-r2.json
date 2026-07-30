@@ -1,0 +1,48 @@
+{
+  "operational": {
+    "percent": 79.6069,
+    "num": 324,
+    "den": 407
+  },
+  "recall": {
+    "percent": 72.5,
+    "num": 87,
+    "den": 120
+  },
+  "financial": {
+    "percent": 91.7469,
+    "total": 136432085.73,
+    "covered": 125172193.05000001
+  },
+  "completeness": {
+    "notice_and_annexes_completeness": 9.2539,
+    "session_judgment_homologation_completeness": 0.1504,
+    "winning_proposal_completeness": 0.7519,
+    "bidder_qualification_documents_completeness": 0.1671
+  },
+  "pncp_stats": {
+    "SUCCESS_NONZERO": 80
+  },
+  "html_stats": {
+    "SUCCESS_NONZERO": 56,
+    "connection_failed": 81,
+    "auth_required": 2,
+    "SUCCESS_ZERO": 1
+  },
+  "corpus": {
+    "processes": 188,
+    "engineering": 17,
+    "envelopes": 113,
+    "families": 6,
+    "family_list": [
+      "ciga_ckan",
+      "compras_gov",
+      "pncp",
+      "portal_institucional",
+      "sc_compras",
+      "tce_sc"
+    ],
+    "annotations": 1569
+  },
+  "gate_exit": 3
+}
