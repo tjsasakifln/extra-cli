@@ -121,3 +121,61 @@ def test_no_negative_metrics() -> None:
     """No coverage metric is negative."""
     assert CANONICAL_UNIVERSE > 0, "CANONICAL_UNIVERSE must be positive"
     assert normalize_cnpj8("") == "", "normalize_cnpj8 of empty must be empty (not negative)"
+
+
+# ---------------------------------------------------------------------------
+# _load_db_entities — RealDictCursor compatibility (weekly uses RealDictCursor)
+# ---------------------------------------------------------------------------
+
+
+class _FakeCursor:
+    def __init__(self, rows: list) -> None:
+        self._rows = rows
+
+    def execute(self, *_a, **_k) -> None:
+        return None
+
+    def fetchall(self) -> list:
+        return self._rows
+
+    def __enter__(self) -> _FakeCursor:
+        return self
+
+    def __exit__(self, *_a) -> None:
+        return None
+
+
+class _FakeConn:
+    def __init__(self, rows: list) -> None:
+        self._rows = rows
+
+    def cursor(self) -> _FakeCursor:
+        return _FakeCursor(self._rows)
+
+
+def test_load_db_entities_tuple_rows() -> None:
+    from scripts.lib.universe import _load_db_entities
+
+    conn = _FakeConn([(42, "12345678", "Prefeitura X", "Chapecó")])
+    out = _load_db_entities(conn)
+    assert out["12345678"]["id"] == 42
+    assert out["12345678"]["municipio"] == "Chapecó"
+
+
+def test_load_db_entities_dict_rows_realdict() -> None:
+    """Weekly connects with RealDictCursor — must not int('id') on column names."""
+    from scripts.lib.universe import _load_db_entities
+
+    conn = _FakeConn(
+        [
+            {
+                "id": 99,
+                "cnpj_8": "87654321",
+                "razao_social": "Municipio Y",
+                "municipio": "Florianópolis",
+            }
+        ]
+    )
+    out = _load_db_entities(conn)
+    assert out["87654321"]["id"] == 99
+    assert out["87654321"]["razao_social"] == "Municipio Y"
