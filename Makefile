@@ -863,6 +863,25 @@ extra-recurring-delivery:
 test-extra-recurring-delivery:
 	python3 -m pytest tests/test_extra_recurring_delivery.py -q --tb=short -o addopts=''
 
+# --- EXTRA-PROFILE-TO-ACTIONABLE-DECISION-01 ---
+.PHONY: extra-profile-validate extra-decision-loop test-extra-decision-loop
+extra-profile-validate:
+	python3 -m scripts.ops.extra_profile validate
+	python3 -m scripts.ops.extra_profile stamp
+
+# Requires WEEKLY_INPUT (path to weekly pack) and DECISION_OUT
+extra-decision-loop:
+	@test -n "$(WEEKLY_INPUT)" || (echo "ERROR: set WEEKLY_INPUT=/path/to/weekly-run"; exit 2)
+	@test -n "$(DECISION_OUT)" || (echo "ERROR: set DECISION_OUT=/path/to/decision-run"; exit 2)
+	python3 -m scripts.ops.extra_decision_loop run \
+		--weekly-dir "$(WEEKLY_INPUT)" \
+		--out "$(DECISION_OUT)" \
+		$(if $(PROFILE),--profile "$(PROFILE)",) \
+		$(if $(MAX_SHORTLIST),--max-shortlist $(MAX_SHORTLIST),)
+
+test-extra-decision-loop:
+	python3 -m pytest tests/test_extra_decision_loop.py -q --tb=short -o addopts=''
+
 
 
 # Fix: client-ready-consulting-cycle previously only printed --help.

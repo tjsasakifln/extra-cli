@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-27T15:09:20Z",
+  "generated_at": "2026-07-30T14:46:39Z",
   "structural_ci_run_id": "30217720692",
   "real_data_ci_run_id": "30217720692",
   "workflow_artifact_ids": {
@@ -128,6 +128,7 @@
   },
   "offer_diagnostic_block": null,
   "remaining_machine_blockers": [
+    "BLOCKED_CODE_EXECUTION_SHA_MISMATCH",
     "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE"
   ],
   "remaining_human_blockers": [
@@ -155,19 +156,33 @@
   "ci_run_url": "https://github.com/tjsasakifln/extra-cli/actions/runs/30217720692",
   "aggregator": "build_final_campaign_status",
   "campaign_id": "CONFENGE-COMMERCIAL-READY-01",
-  "pr_head_sha": "8506aebabb0dab327654d420222402ae15f9a3aa",
-  "current_pr_head_sha": "8506aebabb0dab327654d420222402ae15f9a3aa",
+  "pr_head_sha": "26d32410395ddef1d8babdb853617132372bb230",
+  "current_pr_head_sha": "26d32410395ddef1d8babdb853617132372bb230",
   "workflow_merge_sha": null,
-  "checked_out_sha": "8506aebabb0dab327654d420222402ae15f9a3aa",
-  "final_integrity_code_freeze_sha": "8506aebabb0dab327654d420222402ae15f9a3aa",
-  "final_code_freeze_sha": "8506aebabb0dab327654d420222402ae15f9a3aa",
-  "executed_code_sha": "8506aebabb0dab327654d420222402ae15f9a3aa",
-  "workflow_head_sha": "8506aebabb0dab327654d420222402ae15f9a3aa",
-  "evidence_commit_sha": "8506aebabb0dab327654d420222402ae15f9a3aa",
-  "match_run_to_head": true,
-  "code_changed_after_execution": false,
+  "checked_out_sha": "26d32410395ddef1d8babdb853617132372bb230",
+  "final_integrity_code_freeze_sha": "d469b87bf16df033e80e69ee706d96e400c87340",
+  "final_code_freeze_sha": "d469b87bf16df033e80e69ee706d96e400c87340",
+  "executed_code_sha": "d469b87bf16df033e80e69ee706d96e400c87340",
+  "workflow_head_sha": "26d32410395ddef1d8babdb853617132372bb230",
+  "evidence_commit_sha": "26d32410395ddef1d8babdb853617132372bb230",
+  "match_run_to_head": false,
+  "code_changed_after_execution": true,
   "artifact_only_commits_after_execution": false,
-  "non_artifact_files_changed_after_execution": [],
+  "non_artifact_files_changed_after_execution": [
+    "Makefile",
+    "artifacts/campaigns/EXTRA-PROFILE-TO-ACTIONABLE-DECISION-01/runs/loop-20260730T123831Z/actionable-all.json",
+    "artifacts/campaigns/EXTRA-PROFILE-TO-ACTIONABLE-DECISION-01/runs/loop-20260730T123831Z/actionable-summary.json",
+    "artifacts/campaigns/EXTRA-PROFILE-TO-ACTIONABLE-DECISION-01/runs/loop-20260730T123831Z/decision-loop-state.json",
+    "artifacts/campaigns/EXTRA-PROFILE-TO-ACTIONABLE-DECISION-01/runs/loop-20260730T123831Z/executive-summary.md",
+    "artifacts/campaigns/EXTRA-PROFILE-TO-ACTIONABLE-DECISION-01/runs/loop-20260730T123831Z/result.json",
+    "artifacts/campaigns/EXTRA-PROFILE-TO-ACTIONABLE-DECISION-01/runs/loop-20260730T123831Z/shortlist.json",
+    "docs/handoffs/extra-cli-strategic-execution-20260730.md",
+    "scripts/ops/extra_actionable.py",
+    "scripts/ops/extra_decision_loop.py",
+    "scripts/ops/extra_decision_review.py",
+    "scripts/ops/extra_profile.py",
+    "tests/test_extra_decision_loop.py"
+  ],
   "structural_ci_status": "PASS",
   "real_historical_ci_status": "NOT_EXECUTED",
   "real_registry_ci_status": "NOT_EXECUTED",
@@ -183,10 +198,12 @@
   "official_registry_coverage": 0.05319148936170213,
   "review_packages_generated": true,
   "review_packages_published_as_workflow_artifact": true,
-  "all_other_machine_blockers": [],
+  "all_other_machine_blockers": [
+    "BLOCKED_CODE_EXECUTION_SHA_MISMATCH"
+  ],
   "technical_status": "BLOCKED",
-  "terminal_reason": "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE",
-  "terminal_declaration": "BLOCKED_ONLY_OFFICIAL_REGISTRY_AND_HUMAN_REVIEW",
-  "code_merge_ready": true,
+  "terminal_reason": "BLOCKED_CODE_EXECUTION_SHA_MISMATCH",
+  "terminal_declaration": "BLOCKED_CODE_EXECUTION_SHA_MISMATCH",
+  "code_merge_ready": false,
   "commercial_release_ready": false
 }

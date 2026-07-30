@@ -1,0 +1,32 @@
+{
+  "ok": true,
+  "schema": "extra-decision-loop/1.0",
+  "campaign": "EXTRA-PROFILE-TO-ACTIONABLE-DECISION-01",
+  "terminal_state": "READY_FOR_HUMAN_ACCEPTANCE",
+  "result": "NO_ACTIONABLE_TENDER",
+  "shortlist_count": 0,
+  "candidates_evaluated": 5,
+  "by_state": {
+    "NO_VERIFIABLE_FUTURE_DEADLINE": 5
+  },
+  "profile_stamp": {
+    "schema": "extra-operational-profile/1.1",
+    "profile_path": "config/client_profiles/extra.yaml",
+    "profile_id": "extra_construtora",
+    "display_name": "Extra Empreiteira e Construtora",
+    "version": 3,
+    "version_date": "2026-07-25",
+    "profile_hash": "aeaa8551547e167addfff707b642782b71d9526b8b8a8b8aa91b3a8cceaae92f",
+    "stamp": "extra_construtora@v3:aeaa8551547e",
+    "stamped_at": "2026-07-30T12:38:39Z"
+  },
+  "out_dir": "artifacts/campaigns/EXTRA-PROFILE-TO-ACTIONABLE-DECISION-01/runs/loop-20260730T123831Z",
+  "weekly_dir": "output/weekly/weekly-20260730T123831Z-8bdf4632d9",
+  "soak_touched": false,
+  "human_acceptance": "NOT_PROVIDED",
+  "next_commands": [
+    "python3 -m scripts.ops.extra_decision_review list --run-dir artifacts/campaigns/EXTRA-PROFILE-TO-ACTIONABLE-DECISION-01/runs/loop-20260730T123831Z",
+    "python3 -m scripts.ops.extra_decision_review accept-empty --run-dir artifacts/campaigns/EXTRA-PROFILE-TO-ACTIONABLE-DECISION-01/runs/loop-20260730T123831Z --actor tiago --reason \"...\"",
+    "python3 -m scripts.ops.extra_decision_review finalize --run-dir artifacts/campaigns/EXTRA-PROFILE-TO-ACTIONABLE-DECISION-01/runs/loop-20260730T123831Z --actor tiago --package-decision ACCEPTED"
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "schema": "extra-actionable-opportunity/1.0",
+  "as_of": "2026-07-30T12:38:39.726266Z",
+  "profile_stamp": {
+    "schema": "extra-operational-profile/1.1",
+    "profile_path": "config/client_profiles/extra.yaml",
+    "profile_id": "extra_construtora",
+    "display_name": "Extra Empreiteira e Construtora",
+    "version": 3,
+    "version_date": "2026-07-25",
+    "profile_hash": "aeaa8551547e167addfff707b642782b71d9526b8b8a8b8aa91b3a8cceaae92f",
+    "stamp": "extra_construtora@v3:aeaa8551547e",
+    "stamped_at": "2026-07-30T12:38:39Z"
+  },
+  "candidates_evaluated": 5,
+  "by_state": {
+    "NO_VERIFIABLE_FUTURE_DEADLINE": 5
+  },
+  "expired": 0,
+  "no_verifiable_future_deadline": 5,
+  "profile_blocked": 0,
+  "insufficient_source": 0,
+  "review_required": 0,
+  "actionable_count": 0,
+  "shortlist": [],
+  "shortlist_count": 0,
+  "result": "NO_ACTIONABLE_TENDER",
+  "critical_profile_pending": [
+    "capital_giro",
+    "capacidade_garantia",
+    "capacidade_simultanea",
+    "cats_atestados",
+    "margem_minima"
+  ],
+  "coverage_actions": [
+    "Melhorar normalização de prazos e timezone na fonte PNCP.",
+    "Completar intake do perfil Extra: capital_giro, capacidade_garantia, capacidade_simultanea, cats_atestados, margem_minima"
+  ],
+  "weekly_dir": "output/weekly/weekly-20260730T123831Z-8bdf4632d9",
+  "campaign": "EXTRA-PROFILE-TO-ACTIONABLE-DECISION-01",
+  "run_generated_at": "2026-07-30T12:38:39Z"
+}

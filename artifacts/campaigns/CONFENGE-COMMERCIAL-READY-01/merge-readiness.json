@@ -1,10 +1,24 @@
 {
-  "actual_pr_head_sha": "8506aebabb0dab327654d420222402ae15f9a3aa",
+  "actual_pr_head_sha": "26d32410395ddef1d8babdb853617132372bb230",
   "workflow_merge_sha": null,
-  "freeze_sha": "8506aebabb0dab327654d420222402ae15f9a3aa",
-  "executed_code_sha": "8506aebabb0dab327654d420222402ae15f9a3aa",
+  "freeze_sha": "d469b87bf16df033e80e69ee706d96e400c87340",
+  "executed_code_sha": "d469b87bf16df033e80e69ee706d96e400c87340",
   "artifact_only_diff": false,
-  "non_artifact_changes": [],
+  "non_artifact_changes": [
+    "Makefile",
+    "artifacts/campaigns/EXTRA-PROFILE-TO-ACTIONABLE-DECISION-01/runs/loop-20260730T123831Z/actionable-all.json",
+    "artifacts/campaigns/EXTRA-PROFILE-TO-ACTIONABLE-DECISION-01/runs/loop-20260730T123831Z/actionable-summary.json",
+    "artifacts/campaigns/EXTRA-PROFILE-TO-ACTIONABLE-DECISION-01/runs/loop-20260730T123831Z/decision-loop-state.json",
+    "artifacts/campaigns/EXTRA-PROFILE-TO-ACTIONABLE-DECISION-01/runs/loop-20260730T123831Z/executive-summary.md",
+    "artifacts/campaigns/EXTRA-PROFILE-TO-ACTIONABLE-DECISION-01/runs/loop-20260730T123831Z/result.json",
+    "artifacts/campaigns/EXTRA-PROFILE-TO-ACTIONABLE-DECISION-01/runs/loop-20260730T123831Z/shortlist.json",
+    "docs/handoffs/extra-cli-strategic-execution-20260730.md",
+    "scripts/ops/extra_actionable.py",
+    "scripts/ops/extra_decision_loop.py",
+    "scripts/ops/extra_decision_review.py",
+    "scripts/ops/extra_profile.py",
+    "tests/test_extra_decision_loop.py"
+  ],
   "latest_workflow_run_id": "30217720692",
   "latest_workflow_status": "PASS",
   "each_structural_job_status": {
@@ -21,9 +35,10 @@
   "human_artifact_id": 8636290007,
   "machine_artifact_id": 8636294876,
   "cross_artifact_consistency": "PASS",
-  "code_merge_ready": true,
+  "code_merge_ready": false,
   "commercial_release_ready": false,
   "remaining_machine_blockers": [
+    "BLOCKED_CODE_EXECUTION_SHA_MISMATCH",
     "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE"
   ],
   "remaining_human_blockers": [
@@ -31,15 +46,17 @@
     "BLOCKED_INSUFFICIENT_HUMAN_LABELS",
     "BLOCKED_PENDING_HUMAN_ACCEPTANCE"
   ],
-  "all_other_machine_blockers": [],
+  "all_other_machine_blockers": [
+    "BLOCKED_CODE_EXECUTION_SHA_MISMATCH"
+  ],
   "real_data_ci_status": "NOT_EXECUTED",
-  "terminal_declaration": "CODE_MERGE_READY_COMMERCIAL_RELEASE_BLOCKED",
-  "terminal_reason": "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE",
+  "terminal_declaration": "BLOCKED_CODE_EXECUTION_SHA_MISMATCH",
+  "terminal_reason": "BLOCKED_CODE_EXECUTION_SHA_MISMATCH",
   "answers": {
-    "1_actual_pr_head_sha": "8506aebabb0dab327654d420222402ae15f9a3aa",
+    "1_actual_pr_head_sha": "26d32410395ddef1d8babdb853617132372bb230",
     "2_workflow_merge_sha": null,
     "3_commercial_execution_matches_freeze": true,
-    "4_code_changed_after_freeze": false,
+    "4_code_changed_after_freeze": true,
     "5_real_data_jobs_executed": [],
     "6_real_data_jobs_not_executed": [
       "real_historical_ci_status",
@@ -49,9 +66,9 @@
     ],
     "7_package_publication_pass": true,
     "8_all_status_files_agree": true,
-    "9_code_merge_ready": true,
+    "9_code_merge_ready": false,
     "10_commercial_release_ready": false
   },
-  "updated_at": "2026-07-27T15:09:20Z",
+  "updated_at": "2026-07-30T14:46:39Z",
   "aggregator": "build_final_campaign_status"
 }

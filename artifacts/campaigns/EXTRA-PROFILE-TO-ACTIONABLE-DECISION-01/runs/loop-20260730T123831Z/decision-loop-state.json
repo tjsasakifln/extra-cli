@@ -1,0 +1,26 @@
+{
+  "schema": "extra-decision-review/1.0",
+  "terminal_state": "READY_FOR_HUMAN_ACCEPTANCE",
+  "finalized_at": null,
+  "finalized_by": null,
+  "package_decision": null,
+  "notes": "Package generated; awaiting human decisions via extra_decision_review",
+  "decisions": [],
+  "n_decisions": 0,
+  "shortlist_count": 0,
+  "result": "NO_ACTIONABLE_TENDER",
+  "bundle_hash": "f93ab87a842a5af3cf1b17c647064e5861d7cd8b925c2bea6d7b52db32e32719",
+  "profile_stamp": {
+    "schema": "extra-operational-profile/1.1",
+    "profile_path": "config/client_profiles/extra.yaml",
+    "profile_id": "extra_construtora",
+    "display_name": "Extra Empreiteira e Construtora",
+    "version": 3,
+    "version_date": "2026-07-25",
+    "profile_hash": "aeaa8551547e167addfff707b642782b71d9526b8b8a8b8aa91b3a8cceaae92f",
+    "stamp": "extra_construtora@v3:aeaa8551547e",
+    "stamped_at": "2026-07-30T12:38:39Z"
+  },
+  "ready_reason": "Human must record decisions and finalize",
+  "generated_at": "2026-07-30T12:38:39Z"
+}

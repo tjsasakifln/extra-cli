@@ -1,20 +1,20 @@
 {
   "ok": true,
   "status": "PASS",
-  "current_pr_head_sha": "c7775803ca8856555fd9a4a6a77ee773c7aadc05",
-  "pr_head_sha": "c7775803ca8856555fd9a4a6a77ee773c7aadc05",
-  "checked_out_sha": "c7775803ca8856555fd9a4a6a77ee773c7aadc05",
+  "current_pr_head_sha": "26d32410395ddef1d8babdb853617132372bb230",
+  "pr_head_sha": "26d32410395ddef1d8babdb853617132372bb230",
+  "checked_out_sha": "26d32410395ddef1d8babdb853617132372bb230",
   "workflow_merge_sha": null,
-  "final_code_freeze_sha": "c7775803ca8856555fd9a4a6a77ee773c7aadc05",
-  "final_integrity_code_freeze_sha": "c7775803ca8856555fd9a4a6a77ee773c7aadc05",
-  "executed_code_sha": "c7775803ca8856555fd9a4a6a77ee773c7aadc05",
-  "evidence_commit_sha": "c7775803ca8856555fd9a4a6a77ee773c7aadc05",
-  "workflow_head_sha": "c7775803ca8856555fd9a4a6a77ee773c7aadc05",
-  "artifact_git_sha": "c7775803ca8856555fd9a4a6a77ee773c7aadc05",
-  "code_tree_hash_at_execution": "3245e9b7083b71499daffdd9747ec87e87ae044c9e6f83e2808e6c40dd88eb74",
-  "code_tree_hash_at_current_head": "3245e9b7083b71499daffdd9747ec87e87ae044c9e6f83e2808e6c40dd88eb74",
+  "final_code_freeze_sha": "d469b87bf16df033e80e69ee706d96e400c87340",
+  "final_integrity_code_freeze_sha": "d469b87bf16df033e80e69ee706d96e400c87340",
+  "executed_code_sha": "d469b87bf16df033e80e69ee706d96e400c87340",
+  "evidence_commit_sha": "26d32410395ddef1d8babdb853617132372bb230",
+  "workflow_head_sha": "26d32410395ddef1d8babdb853617132372bb230",
+  "artifact_git_sha": "d469b87bf16df033e80e69ee706d96e400c87340",
+  "code_tree_hash_at_execution": "3e35437db47c38f3ca059eb92eed18ce496d3da0eaa8cd36751a79631fce34d7",
+  "code_tree_hash_at_current_head": "e6f49cab6697850fbfa7d5e34eb3e025da9885bc8e48cce4ddc98c90160d42e1",
   "code_changed_after_execution": false,
-  "artifact_only_commits_after_execution": false,
+  "artifact_only_commits_after_execution": true,
   "non_artifact_files_changed_after_execution": [],
   "execution": {
     "execution_environment": "local",
@@ -26,10 +26,10 @@
     "job_ids": null,
     "command": "make campaign-gate-confenge-commercial-ready",
     "started_at": null,
-    "finished_at": "2026-07-30T01:54:02Z",
+    "finished_at": "2026-07-30T14:46:47Z",
     "exit_code": 0
   },
-  "match_run_to_head": true,
+  "match_run_to_head": false,
   "sha_semantics": {
     "current_pr_head_sha": "PR tip (CONFENGE_PR_HEAD_SHA / live tip)",
     "executed_code_sha": "commit cujo c\u00f3digo foi executado",
@@ -40,5 +40,5 @@
     "artifact_git_sha": "commit de c\u00f3digo da evid\u00eancia (executed)",
     "match_run_to_head_rule": "true only when executed_code_sha == pr_head_sha"
   },
-  "verified_at": "2026-07-30T01:54:02Z"
+  "verified_at": "2026-07-30T14:46:47Z"
 }
