@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "proof-result.schema.json",
+  "title": "LowHangingItemProof",
+  "type": "object",
+  "required": ["item_id", "status", "definition", "evidence_sha256"],
+  "properties": {
+    "item_id": { "type": "string" },
+    "status": {
+      "type": "string",
+      "enum": [
+        "PROVEN",
+        "NOT_PROVEN",
+        "BLOCKED_PARALLEL",
+        "BLOCKED_HUMAN",
+        "OUT_OF_SCOPE",
+        "REGRESSION",
+        "INVALID_CANDIDATE"
+      ]
+    },
+    "family": { "type": "string" },
+    "definition": { "type": "string" },
+    "surfaces": { "type": "array", "items": { "type": "string" } },
+    "commands": { "type": "array", "items": { "type": "string" } },
+    "exit_codes": { "type": "array", "items": { "type": "integer" } },
+    "code_hash": { "type": "string" },
+    "findings": { "type": "array" },
+    "false_positives_treated": { "type": "array" },
+    "conclusion": { "type": "string" },
+    "limitations": { "type": "array", "items": { "type": "string" } },
+    "evidence_sha256": { "type": "string" },
+    "related_capability": { "type": ["string", "null"] }
+  }
+}

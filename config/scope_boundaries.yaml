@@ -1,0 +1,396 @@
+# Canonical product scope boundaries — Extra Consultoria
+# Used by scripts/ops/audit_scope_boundaries.py and claim guards.
+# Distinguish DOCUMENTATION of a prohibition from IMPLEMENTATION of a forbidden capability.
+
+schema_version: "1.0"
+campaign_id: DOD-LOW-HANGING-BOUNDARIES-AND-EVIDENCE-01
+
+included_capabilities:
+  - open_tender_monitoring
+  - historical_contract_monitoring
+  - administrative_contract_monitoring  # prazos, publicações, aditivos administrativos, vigência
+  - competitor_and_supplier_mapping
+  - value_references
+  - decision_support_go_review_nogo
+  - proposal_organization_support  # generation of drafts; NOT signature / protocol
+  - commercial_signal_prospection  # observable public-contract signals only
+  - local_cli_and_file_operation
+  - factual_synthesis_from_sources
+
+excluded_capabilities:
+  - diario_de_obra
+  - medicao_de_obra
+  - avanco_fisico
+  - acompanhamento_financeiro_execucao_obra
+  - gestao_fotos_obra
+  - fiscalizacao_de_campo
+  - gestao_aditivos_execucao_fisica
+  - gestao_riscos_obra
+  - gestao_equipes_obra
+  - cronograma_fisico_financeiro
+  - portal_contratada
+  - interface_publica
+  - multi_tenant
+  - cobranca_assinatura_stripe
+  - autenticacao_complexa_desnecessaria
+  - dashboard_web_estetico
+  - k8s_kafka_redis_es_sem_necessidade
+  - assinatura_automatica_documentos
+  - protocolo_automatico_sem_humano
+  - assuncao_responsabilidade_tecnica_juridica_contabil_comercial
+  - substituicao_advogado
+  - representacao_presencial
+  - fornecimento_garantias_seguros_credito
+  - promessa_habilitacao_adjudicacao_vitoria_contratacao
+  - execucao_objeto_contratado
+
+# Semantic distinctions (mandatory)
+distinctions:
+  aditivo:
+    allowed: administrative_contract_addendum_monitoring
+    forbidden: physical_execution_addendum_management
+    note: >-
+      Monitorar aditivo contratual administrativo (publicação, valor, vigência)
+      é permitido. Gerir aditivo físico de execução de obra está fora do escopo.
+  assinatura:
+    allowed: document_generation_and_review_support
+    forbidden: automatic_or_on_behalf_signing
+  protocolo:
+    allowed: protocol_preparation_checklist
+    forbidden: automatic_filing_without_human_action
+  interface:
+    allowed: local_html_reports_and_cli
+    forbidden: public_multi_user_web_product
+  obra:
+    allowed: engineering_tender_object_analysis
+    forbidden: field_construction_management
+
+# Surfaces scanned for implementation signals
+surfaces:
+  python_packages:
+    - scripts/
+    - tools/
+  migrations:
+    - migrations/
+    - db/
+  deploy:
+    - deploy/
+  dependencies:
+    - requirements.txt
+    - pyproject.toml
+  client_facing:
+    - docs/
+    - templates/
+    - output/
+  config:
+    - config/
+
+# Paths that may mention excluded terms without being implementations
+documentation_allowlist_globs:
+  - "DOD.md"
+  - "docs/**"
+  - "specs/**"
+  - "**/README.md"
+  - "**/BASELINE.md"
+  - "**/CANDIDATES.md"
+  - "**/FINAL-REPORT.md"
+  - "**/scope-boundaries.md"
+  - "config/scope_boundaries.yaml"
+  - "artifacts/campaigns/**"
+  - "tests/**"
+  - ".dod/**"
+  - "AGENTS.md"
+  - "Claude.md"
+  - "CLAUDE.md"
+  - "**/*campaign*"
+  - "**/ADVERSARIAL*"
+
+# Implementation signals per excluded capability
+# severity: hard = production code/schema/deps; soft = ambiguous wording
+capabilities:
+  diario_de_obra:
+    dod_item_text_contains: "diário de obra"
+    definition: "Módulo de diário de obra / daily field construction log"
+    forbidden_implementation_patterns:
+      - pattern: "(?i)(diario[_-]?de[_-]?obra|daily[_-]?construction[_-]?log|field[_-]?diary)"
+        in: [path, content]
+      - pattern: "(?i)class\\s+DiarioDeObra|def\\s+.*diario_de_obra"
+        in: [content]
+    allowed_context_patterns:
+      - "(?i)(não contém|fora de escopo|excluíd|out of scope|forbidden|prohibited)"
+
+  medicao_de_obra:
+    dod_item_text_contains: "medição de obra"
+    definition: "Módulo de medição física de obra em campo"
+    forbidden_implementation_patterns:
+      - pattern: "(?i)(medicao[_-]?de[_-]?obra|work[_-]?measurement[_-]?module|field[_-]?measurement[_-]?of[_-]?work)"
+        in: [path, content]
+      - pattern: "(?i)(medir\\s+avan[cç]o\\s+f[ií]sico|physical[_-]?progress[_-]?measurement)"
+        in: [content]
+
+  avanco_fisico:
+    dod_item_text_contains: "avanço físico"
+    definition: "Acompanhamento de avanço físico de obra"
+    forbidden_implementation_patterns:
+      - pattern: "(?i)(avanco[_-]?fisico|physical[_-]?progress[_-]?tracking|percent[_-]?complete[_-]?obra)"
+        in: [path, content]
+
+  acompanhamento_financeiro_execucao_obra:
+    dod_item_text_contains: "acompanhamento financeiro da execução"
+    definition: "Controle financeiro da execução física da obra (não admin de contrato)"
+    forbidden_implementation_patterns:
+      - pattern: "(?i)(financeiro[_-]?execucao[_-]?obra|construction[_-]?financial[_-]?execution|obra[_-]?cashflow[_-]?execution)"
+        in: [path, content]
+
+  gestao_fotos_obra:
+    dod_item_text_contains: "gestão de fotos de obra"
+    definition: "Gestão de fotos de canteiro/obra"
+    forbidden_implementation_patterns:
+      - pattern: "(?i)(fotos?[_-]?de[_-]?obra|construction[_-]?photo[_-]?gallery|site[_-]?photo[_-]?manager)"
+        in: [path, content]
+
+  fiscalizacao_de_campo:
+    dod_item_text_contains: "fiscalização de campo"
+    definition: "Fiscalização física de campo"
+    forbidden_implementation_patterns:
+      - pattern: "(?i)(fiscalizacao[_-]?de[_-]?campo|field[_-]?inspection[_-]?module|site[_-]?supervision[_-]?workflow)"
+        in: [path, content]
+
+  gestao_aditivos_execucao_fisica:
+    dod_item_text_contains: "gestão de aditivos de execução"
+    definition: "Gestão de aditivos de execução física (≠ aditivo administrativo)"
+    forbidden_implementation_patterns:
+      - pattern: "(?i)(aditivo[_-]?de[_-]?execucao|physical[_-]?addendum[_-]?management|gestao[_-]?aditivos[_-]?obra)"
+        in: [path, content]
+    # "aditivo" alone is NOT a violation (admin monitoring allowed)
+    not_sufficient_alone:
+      - "(?i)\\baditivos?\\b"
+
+  gestao_riscos_obra:
+    dod_item_text_contains: "gestão de riscos de obra"
+    definition: "Gestão de riscos de obra/canteiro"
+    forbidden_implementation_patterns:
+      - pattern: "(?i)(risco[s]?[_-]?de[_-]?obra|construction[_-]?risk[_-]?register|obra[_-]?risk[_-]?management)"
+        in: [path, content]
+
+  gestao_equipes_obra:
+    dod_item_text_contains: "gestão de equipes de obra"
+    definition: "Gestão de equipes de canteiro"
+    forbidden_implementation_patterns:
+      - pattern: "(?i)(equipe[s]?[_-]?de[_-]?obra|crew[_-]?management[_-]?obra|construction[_-]?crew[_-]?roster)"
+        in: [path, content]
+
+  cronograma_fisico_financeiro:
+    dod_item_text_contains: "cronograma físico-financeiro"
+    definition: "Cronograma físico-financeiro de obra (gestão de execução)"
+    forbidden_implementation_patterns:
+      # Document-type labels in edital parsers (e.g. cronogramafisicofinanceiro as PDF section)
+      # are NOT product modules — require management/module wording.
+      - pattern: "(?i)(gestao[_-]?cronograma[_-]?fisico|physical[_-]?financial[_-]?schedule[_-]?module|gantt[_-]?obra[_-]?manager|cronograma[_-]?fisico[_-]?financeiro[_-]?(module|gestao|manager))"
+        in: [path, content]
+
+  portal_contratada:
+    dod_item_text_contains: "portal para a contratada"
+    definition: "Portal web para a empresa contratada"
+    forbidden_implementation_patterns:
+      - pattern: "(?i)(portal[_-]?contratada|contractor[_-]?portal|vendor[_-]?self[_-]?service)"
+        in: [path, content]
+
+  interface_publica:
+    dod_item_text_contains: "interface pública"
+    definition: "Interface web pública multi-usuário"
+    forbidden_implementation_patterns:
+      - pattern: "(?i)(public[_-]?web[_-]?app|fastapi\\.app\\(.*public|@app\\.(get|post).*public[_-]?portal)"
+        in: [content]
+      - pattern: "(?i)(interface[_-]?publica|public[_-]?dashboard[_-]?saas)"
+        in: [path, content]
+    notes: "Local HTML reports and CLI help are allowed"
+
+  multi_tenant:
+    dod_item_text_contains: "multi-tenant"
+    definition: "Multi-tenancy / tenant isolation product"
+    forbidden_implementation_patterns:
+      - pattern: "(?i)(multi[_-]?tenant|tenant_id\\s+UUID|CREATE TABLE tenants\\b)"
+        in: [content]
+      - pattern: "(?i)tenant[_-]?(schema|isolation|router)"
+        in: [path, content]
+
+  cobranca_assinatura_stripe:
+    dod_item_text_contains: "cobrança, assinatura ou Stripe"
+    definition: "Billing, subscription SaaS, or Stripe integration"
+    forbidden_implementation_patterns:
+      - pattern: "(?i)(import stripe|stripe\\.(Customer|Subscription|checkout)|STRIPE_SECRET)"
+        in: [content]
+      - pattern: "(?i)(billing[_-]?subscription|saas[_-]?checkout)"
+        in: [path, content]
+    dependency_names:
+      - stripe
+      - dj-stripe
+
+  autenticacao_complexa_desnecessaria:
+    dod_item_text_contains: "autenticação complexa desnecessária"
+    definition: "OAuth/SAML multi-role auth product surface without need"
+    forbidden_implementation_patterns:
+      - pattern: "(?i)(oauth2[_-]?provider|saml[_-]?sso|keycloak[_-]?realm|auth0[_-]?tenant)"
+        in: [content]
+    notes: "Simple local env secrets / SSH for ops are allowed"
+
+  dashboard_web_estetico:
+    dod_item_text_contains: "dashboard web apenas por conveniência estética"
+    definition: "Aesthetic-only public web dashboard product"
+    forbidden_implementation_patterns:
+      - pattern: "(?i)(aesthetic[_-]?dashboard|marketing[_-]?dashboard[_-]?only)"
+        in: [content]
+    notes: "Operational local reports are allowed"
+
+  k8s_kafka_redis_es_sem_necessidade:
+    dod_item_text_contains: "Kubernetes, Kafka, Redis ou Elasticsearch"
+    definition: "K8s/Kafka/Redis/ES without proven operational need"
+    # ADR-007/008 state no proven need. Optional redis_pool helpers still count as presence
+    # of Redis tooling without a dedicated "need proven" ADR — leave NOT_PROVEN for honesty.
+    forbidden_implementation_patterns:
+      - pattern: "(?i)(kind:\\s*Deployment|apiVersion:\\s*apps/v1)"
+        in: [content]
+        path_glob: "**/k8s/**"
+      - pattern: "(?i)(from kafka|KafkaProducer|elasticsearch\\.Elasticsearch\\(|opensearchpy)"
+        in: [content]
+      - pattern: "(?i)(import redis\\b|redis\\.asyncio|RedisPool|get_redis_pool)"
+        in: [content]
+    dependency_names:
+      - redis
+      - kafka-python
+      - confluent-kafka
+      - elasticsearch
+      - opensearch-py
+    path_globs_forbidden:
+      - "**/kubernetes/**"
+      - "**/k8s/**"
+      - "**/helm/**"
+    notes: >-
+      Mention in DOD/docs is not a violation. redis_pool optional helpers without
+      need-proven ADR → NOT_PROVEN (not low-hanging accept).
+
+  assinatura_automatica_documentos:
+    dod_item_text_contains: "não assina documentos"
+    definition: "Automatic document signing on behalf of Extra"
+    forbidden_implementation_patterns:
+      - pattern: "(?i)(auto[_-]?sign[_-]?document|assinar[_-]?automaticamente|digital[_-]?signature[_-]?on[_-]?behalf)"
+        in: [content]
+      - pattern: "(?i)(sign_pdf_as_company|company[_-]?signature[_-]?stamp)"
+        in: [content]
+
+  protocolo_automatico_sem_humano:
+    dod_item_text_contains: "não protocola propostas"
+    definition: "Automatic protocol/filing without human action"
+    forbidden_implementation_patterns:
+      - pattern: "(?i)(auto[_-]?protocol|protocolar[_-]?automaticamente|submit[_-]?without[_-]?human)"
+        in: [content]
+      - pattern: "(?i)(unattended[_-]?filing|robot[_-]?protocol_pncp)"
+        in: [content]
+
+  assuncao_responsabilidade_tecnica_juridica_contabil_comercial:
+    dod_item_text_contains: "não assume responsabilidade"
+    definition: "Software assuming technical/legal/accounting/commercial liability"
+    forbidden_implementation_patterns:
+      - pattern: "(?i)(assume[_-]?liability|responsabilidade[_-]?t[eé]cnica[_-]?assumida|software[_-]?as[_-]?engineer[_-]?of[_-]?record)"
+        in: [content]
+    primarily_claim_guard: true
+
+  substituicao_advogado:
+    dod_item_text_contains: "não substitui advogado"
+    definition: "Replacing lawyer for filings/legal opinions"
+    forbidden_implementation_patterns:
+      - pattern: "(?i)(parecer[_-]?jur[ií]dico[_-]?conclusivo|substitui[_-]?advogado|legal[_-]?opinion[_-]?binding)"
+        in: [content]
+    primarily_claim_guard: true
+
+  representacao_presencial:
+    dod_item_text_contains: "não representa a empresa presencialmente"
+    definition: "In-person representation at bid sessions"
+    forbidden_implementation_patterns:
+      - pattern: "(?i)(representacao[_-]?presencial|attend[_-]?bid[_-]?session[_-]?as[_-]?company)"
+        in: [content]
+
+  fornecimento_garantias_seguros_credito:
+    dod_item_text_contains: "não fornece garantias financeiras"
+    definition: "Providing financial guarantees, insurance, or credit"
+    forbidden_implementation_patterns:
+      - pattern: "(?i)(emitir[_-]?seguro[_-]?garantia|provide[_-]?bid[_-]?bond|credit[_-]?facility[_-]?for[_-]?client)"
+        in: [content]
+
+  promessa_habilitacao_adjudicacao_vitoria_contratacao:
+    dod_item_text_contains: "não promete habilitação"
+    definition: "Guaranteed win/habilitation/adjudication claims"
+    forbidden_implementation_patterns:
+      - pattern: "(?i)(vit[oó]ria[_-]?garantida|aprova[cç][aã]o[_-]?garantida|habilita[cç][aã]o[_-]?garantida)"
+        in: [content]
+    primarily_claim_guard: true
+
+  execucao_objeto_contratado:
+    dod_item_text_contains: "não executa o objeto contratado"
+    definition: "Executing the contracted construction object"
+    forbidden_implementation_patterns:
+      - pattern: "(?i)(executar[_-]?objeto[_-]?contratado|construction[_-]?execution[_-]?module)"
+        in: [content]
+
+# Client-facing claim patterns (used by claim guard)
+client_claim_patterns:
+  - id: guaranteed_win
+    regex: "(?i)(vit[oó]ria\\s+garantida|ganho\\s+garantido|aprovação\\s+garantida|habilitação\\s+garantida)"
+    severity: high
+  - id: replaces_lawyer
+    regex: "(?i)(substitui(mos|r)?\\s+o?\\s*advogado|parecer\\s+jur[ií]dico\\s+conclusivo)"
+    severity: high
+  - id: auto_sign
+    regex: "(?i)(assinatura\\s+autom[aá]tica|assina(mos)?\\s+automaticamente)"
+    severity: high
+  - id: auto_protocol
+    regex: "(?i)(protocolo\\s+autom[aá]tico|protocola(mos)?\\s+sem\\s+a[cç][aã]o\\s+humana)"
+    severity: high
+  - id: assumed_liability
+    regex: "(?i)(assumimos\\s+responsabilidade\\s+(t[eé]cnica|jur[ií]dica|cont[aá]bil|comercial))"
+    severity: high
+  - id: field_supervision_claim
+    regex: "(?i)(fiscaliza[cç][aã]o\\s+de\\s+campo\\s+(inclu[ií]da|dispon[ií]vel)|acompanhamento\\s+f[ií]sico\\s+de\\s+obra\\s+inclu[ií]do)"
+    severity: high
+
+client_claim_surfaces:
+  - "docs/**/*.md"
+  - "templates/**"
+  - "scripts/ops/deliverable_*.py"
+  - "scripts/reports/**"
+  - "config/client_profiles/**"
+  - "output/**/*.md"
+  - "extra-consultoria-plano-executivo.html"
+
+client_claim_exceptions:
+  - path_glob: "DOD.md"
+    reason: "Norma lista proibições; não é claim de produto"
+  - path_glob: "docs/architecture/scope-boundaries.md"
+    reason: "Documenta fronteiras"
+  - path_glob: "docs/ops/campaigns/**"
+    reason: "Evidência de campanha"
+  - path_glob: "tests/**"
+    reason: "Fixtures adversariais"
+  - path_glob: "config/scope_boundaries.yaml"
+    reason: "Config de auditoria"
+  - path_regex: "(?i)(não|nao|never|forbidden|proibid|fora de escopo)"
+    reason: "Negation / disclaimer near claim"
+
+protected_paths_this_campaign:
+  - config/commercial_profiles/
+  - scripts/commercial_leads/
+  - scripts/ops/confenge_commercial_cycle.py
+  - deploy/systemd/
+  - scripts/crawl/
+  - data/contracts_checkpoints/
+  - scripts/ops/extra_first_client_delivery.py
+  - scripts/ops/extra_recurring_delivery.py
+  - extra-consultoria-plano-executivo.html
+  - Makefile
+  - README.md
+  - CHANGELOG.md
+  - docs/DEVELOPMENT.md
+  - docs/INDEX.md
+  - docs/ops/NEXT-DEV-STEP.md
+  - DOD.md

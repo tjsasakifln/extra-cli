@@ -1,0 +1,833 @@
+{
+  "ok": false,
+  "schema_version": "1.0",
+  "campaign_id": "DOD-LOW-HANGING-BOUNDARIES-AND-EVIDENCE-01",
+  "generated_at": "2026-07-30T00:41:01.154944+00:00",
+  "root": "/mnt/d/extra-cli-dod-low-hanging",
+  "files_scanned": 660,
+  "capabilities_audited": 25,
+  "violations": 1,
+  "distinctions": {
+    "aditivo": {
+      "allowed": "administrative_contract_addendum_monitoring",
+      "forbidden": "physical_execution_addendum_management",
+      "note": "Monitorar aditivo contratual administrativo (publicação, valor, vigência) é permitido. Gerir aditivo físico de execução de obra está fora do escopo."
+    },
+    "assinatura": {
+      "allowed": "document_generation_and_review_support",
+      "forbidden": "automatic_or_on_behalf_signing"
+    },
+    "protocolo": {
+      "allowed": "protocol_preparation_checklist",
+      "forbidden": "automatic_filing_without_human_action"
+    },
+    "interface": {
+      "allowed": "local_html_reports_and_cli",
+      "forbidden": "public_multi_user_web_product"
+    },
+    "obra": {
+      "allowed": "engineering_tender_object_analysis",
+      "forbidden": "field_construction_management"
+    }
+  },
+  "proofs": {
+    "diario_de_obra": {
+      "capability_id": "diario_de_obra",
+      "definition": "Módulo de diário de obra / daily field construction log",
+      "dod_item_text_contains": "diário de obra",
+      "surfaces_checked": [
+        "scripts/",
+        "tools/",
+        "migrations/",
+        "deploy/",
+        "config/",
+        "requirements.txt",
+        "pyproject.toml",
+        "templates/"
+      ],
+      "false_positives_treated": [
+        {
+          "path": "scripts/ops/dod_low_hanging_audit.py:77",
+          "reason": "classified as documentation"
+        }
+      ],
+      "implementation_violations": 0,
+      "conclusion": "PROVEN",
+      "limitations": [
+        "Static audit; does not execute runtime services.",
+        "Does not prove future code will stay in bounds without CI gate."
+      ],
+      "code_hash": "93d13b64fd4c3fdb",
+      "commands": [
+        "python3 -m scripts.ops.audit_scope_boundaries --capability diario_de_obra"
+      ],
+      "exit_code": 0,
+      "findings": []
+    },
+    "medicao_de_obra": {
+      "capability_id": "medicao_de_obra",
+      "definition": "Módulo de medição física de obra em campo",
+      "dod_item_text_contains": "medição de obra",
+      "surfaces_checked": [
+        "scripts/",
+        "tools/",
+        "migrations/",
+        "deploy/",
+        "config/",
+        "requirements.txt",
+        "pyproject.toml",
+        "templates/"
+      ],
+      "false_positives_treated": [
+        {
+          "path": "scripts/ops/dod_low_hanging_audit.py:78",
+          "reason": "classified as documentation"
+        }
+      ],
+      "implementation_violations": 0,
+      "conclusion": "PROVEN",
+      "limitations": [
+        "Static audit; does not execute runtime services.",
+        "Does not prove future code will stay in bounds without CI gate."
+      ],
+      "code_hash": "ea1b1aba07d40b92",
+      "commands": [
+        "python3 -m scripts.ops.audit_scope_boundaries --capability medicao_de_obra"
+      ],
+      "exit_code": 0,
+      "findings": []
+    },
+    "avanco_fisico": {
+      "capability_id": "avanco_fisico",
+      "definition": "Acompanhamento de avanço físico de obra",
+      "dod_item_text_contains": "avanço físico",
+      "surfaces_checked": [
+        "scripts/",
+        "tools/",
+        "migrations/",
+        "deploy/",
+        "config/",
+        "requirements.txt",
+        "pyproject.toml",
+        "templates/"
+      ],
+      "false_positives_treated": [
+        {
+          "path": "scripts/ops/dod_low_hanging_audit.py:79",
+          "reason": "classified as documentation"
+        }
+      ],
+      "implementation_violations": 0,
+      "conclusion": "PROVEN",
+      "limitations": [
+        "Static audit; does not execute runtime services.",
+        "Does not prove future code will stay in bounds without CI gate."
+      ],
+      "code_hash": "e381d9417a1ab1ed",
+      "commands": [
+        "python3 -m scripts.ops.audit_scope_boundaries --capability avanco_fisico"
+      ],
+      "exit_code": 0,
+      "findings": []
+    },
+    "acompanhamento_financeiro_execucao_obra": {
+      "capability_id": "acompanhamento_financeiro_execucao_obra",
+      "definition": "Controle financeiro da execução física da obra (não admin de contrato)",
+      "dod_item_text_contains": "acompanhamento financeiro da execução",
+      "surfaces_checked": [
+        "scripts/",
+        "tools/",
+        "migrations/",
+        "deploy/",
+        "config/",
+        "requirements.txt",
+        "pyproject.toml",
+        "templates/"
+      ],
+      "false_positives_treated": [
+        {
+          "path": "scripts/ops/dod_low_hanging_audit.py:80",
+          "reason": "classified as documentation"
+        }
+      ],
+      "implementation_violations": 0,
+      "conclusion": "PROVEN",
+      "limitations": [
+        "Static audit; does not execute runtime services.",
+        "Does not prove future code will stay in bounds without CI gate."
+      ],
+      "code_hash": "d39191440a58a4fe",
+      "commands": [
+        "python3 -m scripts.ops.audit_scope_boundaries --capability acompanhamento_financeiro_execucao_obra"
+      ],
+      "exit_code": 0,
+      "findings": []
+    },
+    "gestao_fotos_obra": {
+      "capability_id": "gestao_fotos_obra",
+      "definition": "Gestão de fotos de canteiro/obra",
+      "dod_item_text_contains": "gestão de fotos de obra",
+      "surfaces_checked": [
+        "scripts/",
+        "tools/",
+        "migrations/",
+        "deploy/",
+        "config/",
+        "requirements.txt",
+        "pyproject.toml",
+        "templates/"
+      ],
+      "false_positives_treated": [],
+      "implementation_violations": 0,
+      "conclusion": "PROVEN",
+      "limitations": [
+        "Static audit; does not execute runtime services.",
+        "Does not prove future code will stay in bounds without CI gate."
+      ],
+      "code_hash": "f24f1e0fc6ad344e",
+      "commands": [
+        "python3 -m scripts.ops.audit_scope_boundaries --capability gestao_fotos_obra"
+      ],
+      "exit_code": 0,
+      "findings": []
+    },
+    "fiscalizacao_de_campo": {
+      "capability_id": "fiscalizacao_de_campo",
+      "definition": "Fiscalização física de campo",
+      "dod_item_text_contains": "fiscalização de campo",
+      "surfaces_checked": [
+        "scripts/",
+        "tools/",
+        "migrations/",
+        "deploy/",
+        "config/",
+        "requirements.txt",
+        "pyproject.toml",
+        "templates/"
+      ],
+      "false_positives_treated": [
+        {
+          "path": "scripts/ops/dod_low_hanging_audit.py:82",
+          "reason": "classified as documentation"
+        },
+        {
+          "path": "scripts/ops/dod_low_hanging_audit.py:506",
+          "reason": "classified as documentation"
+        }
+      ],
+      "implementation_violations": 0,
+      "conclusion": "PROVEN",
+      "limitations": [
+        "Static audit; does not execute runtime services.",
+        "Does not prove future code will stay in bounds without CI gate."
+      ],
+      "code_hash": "a5982509329a0631",
+      "commands": [
+        "python3 -m scripts.ops.audit_scope_boundaries --capability fiscalizacao_de_campo"
+      ],
+      "exit_code": 0,
+      "findings": []
+    },
+    "gestao_aditivos_execucao_fisica": {
+      "capability_id": "gestao_aditivos_execucao_fisica",
+      "definition": "Gestão de aditivos de execução física (≠ aditivo administrativo)",
+      "dod_item_text_contains": "gestão de aditivos de execução",
+      "surfaces_checked": [
+        "scripts/",
+        "tools/",
+        "migrations/",
+        "deploy/",
+        "config/",
+        "requirements.txt",
+        "pyproject.toml",
+        "templates/"
+      ],
+      "false_positives_treated": [],
+      "implementation_violations": 0,
+      "conclusion": "PROVEN",
+      "limitations": [
+        "Static audit; does not execute runtime services.",
+        "Does not prove future code will stay in bounds without CI gate."
+      ],
+      "code_hash": "21be53c49a7d203f",
+      "commands": [
+        "python3 -m scripts.ops.audit_scope_boundaries --capability gestao_aditivos_execucao_fisica"
+      ],
+      "exit_code": 0,
+      "findings": []
+    },
+    "gestao_riscos_obra": {
+      "capability_id": "gestao_riscos_obra",
+      "definition": "Gestão de riscos de obra/canteiro",
+      "dod_item_text_contains": "gestão de riscos de obra",
+      "surfaces_checked": [
+        "scripts/",
+        "tools/",
+        "migrations/",
+        "deploy/",
+        "config/",
+        "requirements.txt",
+        "pyproject.toml",
+        "templates/"
+      ],
+      "false_positives_treated": [],
+      "implementation_violations": 0,
+      "conclusion": "PROVEN",
+      "limitations": [
+        "Static audit; does not execute runtime services.",
+        "Does not prove future code will stay in bounds without CI gate."
+      ],
+      "code_hash": "4b392c5b55e28ad0",
+      "commands": [
+        "python3 -m scripts.ops.audit_scope_boundaries --capability gestao_riscos_obra"
+      ],
+      "exit_code": 0,
+      "findings": []
+    },
+    "gestao_equipes_obra": {
+      "capability_id": "gestao_equipes_obra",
+      "definition": "Gestão de equipes de canteiro",
+      "dod_item_text_contains": "gestão de equipes de obra",
+      "surfaces_checked": [
+        "scripts/",
+        "tools/",
+        "migrations/",
+        "deploy/",
+        "config/",
+        "requirements.txt",
+        "pyproject.toml",
+        "templates/"
+      ],
+      "false_positives_treated": [],
+      "implementation_violations": 0,
+      "conclusion": "PROVEN",
+      "limitations": [
+        "Static audit; does not execute runtime services.",
+        "Does not prove future code will stay in bounds without CI gate."
+      ],
+      "code_hash": "3452c32f33f18075",
+      "commands": [
+        "python3 -m scripts.ops.audit_scope_boundaries --capability gestao_equipes_obra"
+      ],
+      "exit_code": 0,
+      "findings": []
+    },
+    "cronograma_fisico_financeiro": {
+      "capability_id": "cronograma_fisico_financeiro",
+      "definition": "Cronograma físico-financeiro de obra (gestão de execução)",
+      "dod_item_text_contains": "cronograma físico-financeiro",
+      "surfaces_checked": [
+        "scripts/",
+        "tools/",
+        "migrations/",
+        "deploy/",
+        "config/",
+        "requirements.txt",
+        "pyproject.toml",
+        "templates/"
+      ],
+      "false_positives_treated": [],
+      "implementation_violations": 0,
+      "conclusion": "PROVEN",
+      "limitations": [
+        "Static audit; does not execute runtime services.",
+        "Does not prove future code will stay in bounds without CI gate."
+      ],
+      "code_hash": "e7a4c6d2b77ba866",
+      "commands": [
+        "python3 -m scripts.ops.audit_scope_boundaries --capability cronograma_fisico_financeiro"
+      ],
+      "exit_code": 0,
+      "findings": []
+    },
+    "portal_contratada": {
+      "capability_id": "portal_contratada",
+      "definition": "Portal web para a empresa contratada",
+      "dod_item_text_contains": "portal para a contratada",
+      "surfaces_checked": [
+        "scripts/",
+        "tools/",
+        "migrations/",
+        "deploy/",
+        "config/",
+        "requirements.txt",
+        "pyproject.toml",
+        "templates/"
+      ],
+      "false_positives_treated": [
+        {
+          "path": "scripts/ops/dod_low_hanging_audit.py:87",
+          "reason": "classified as documentation"
+        }
+      ],
+      "implementation_violations": 0,
+      "conclusion": "PROVEN",
+      "limitations": [
+        "Static audit; does not execute runtime services.",
+        "Does not prove future code will stay in bounds without CI gate."
+      ],
+      "code_hash": "5434622562030e3d",
+      "commands": [
+        "python3 -m scripts.ops.audit_scope_boundaries --capability portal_contratada"
+      ],
+      "exit_code": 0,
+      "findings": []
+    },
+    "interface_publica": {
+      "capability_id": "interface_publica",
+      "definition": "Interface web pública multi-usuário",
+      "dod_item_text_contains": "interface pública",
+      "surfaces_checked": [
+        "scripts/",
+        "tools/",
+        "migrations/",
+        "deploy/",
+        "config/",
+        "requirements.txt",
+        "pyproject.toml",
+        "templates/"
+      ],
+      "false_positives_treated": [
+        {
+          "path": "scripts/ops/dod_low_hanging_audit.py:88",
+          "reason": "classified as documentation"
+        }
+      ],
+      "implementation_violations": 0,
+      "conclusion": "PROVEN",
+      "limitations": [
+        "Static audit; does not execute runtime services.",
+        "Does not prove future code will stay in bounds without CI gate."
+      ],
+      "code_hash": "1f6f1c7c6ba1d000",
+      "commands": [
+        "python3 -m scripts.ops.audit_scope_boundaries --capability interface_publica"
+      ],
+      "exit_code": 0,
+      "findings": []
+    },
+    "multi_tenant": {
+      "capability_id": "multi_tenant",
+      "definition": "Multi-tenancy / tenant isolation product",
+      "dod_item_text_contains": "multi-tenant",
+      "surfaces_checked": [
+        "scripts/",
+        "tools/",
+        "migrations/",
+        "deploy/",
+        "config/",
+        "requirements.txt",
+        "pyproject.toml",
+        "templates/"
+      ],
+      "false_positives_treated": [
+        {
+          "path": "scripts/ops/dod_low_hanging_audit.py:89",
+          "reason": "classified as documentation"
+        },
+        {
+          "path": "scripts/ops/dod_low_hanging_audit.py:89",
+          "reason": "classified as documentation"
+        },
+        {
+          "path": "scripts/ops/dod_low_hanging_audit.py:785",
+          "reason": "classified as documentation"
+        }
+      ],
+      "implementation_violations": 0,
+      "conclusion": "PROVEN",
+      "limitations": [
+        "Static audit; does not execute runtime services.",
+        "Does not prove future code will stay in bounds without CI gate."
+      ],
+      "code_hash": "b489b6ffc5ba477a",
+      "commands": [
+        "python3 -m scripts.ops.audit_scope_boundaries --capability multi_tenant"
+      ],
+      "exit_code": 0,
+      "findings": [
+        {
+          "capability_id": "multi_tenant",
+          "path": "scripts/ops/requirement_states.py",
+          "line": 529,
+          "snippet": "     justification=\"Illustrative NA for multi-tenant billing (explicit out of scope §2.3).\",",
+          "classification": "disclaimer",
+          "pattern": "(?i)(multi[_-]?tenant|tenant_id\\s+UUID|CREATE TABLE tenants\\b)",
+          "severity": "soft"
+        }
+      ]
+    },
+    "cobranca_assinatura_stripe": {
+      "capability_id": "cobranca_assinatura_stripe",
+      "definition": "Billing, subscription SaaS, or Stripe integration",
+      "dod_item_text_contains": "cobrança, assinatura ou Stripe",
+      "surfaces_checked": [
+        "scripts/",
+        "tools/",
+        "migrations/",
+        "deploy/",
+        "config/",
+        "requirements.txt",
+        "pyproject.toml",
+        "templates/"
+      ],
+      "false_positives_treated": [],
+      "implementation_violations": 0,
+      "conclusion": "PROVEN",
+      "limitations": [
+        "Static audit; does not execute runtime services.",
+        "Does not prove future code will stay in bounds without CI gate."
+      ],
+      "code_hash": "d9b4689c8b13840b",
+      "commands": [
+        "python3 -m scripts.ops.audit_scope_boundaries --capability cobranca_assinatura_stripe"
+      ],
+      "exit_code": 0,
+      "findings": []
+    },
+    "autenticacao_complexa_desnecessaria": {
+      "capability_id": "autenticacao_complexa_desnecessaria",
+      "definition": "OAuth/SAML multi-role auth product surface without need",
+      "dod_item_text_contains": "autenticação complexa desnecessária",
+      "surfaces_checked": [
+        "scripts/",
+        "tools/",
+        "migrations/",
+        "deploy/",
+        "config/",
+        "requirements.txt",
+        "pyproject.toml",
+        "templates/"
+      ],
+      "false_positives_treated": [],
+      "implementation_violations": 0,
+      "conclusion": "PROVEN",
+      "limitations": [
+        "Static audit; does not execute runtime services.",
+        "Does not prove future code will stay in bounds without CI gate."
+      ],
+      "code_hash": "149dc029439e669a",
+      "commands": [
+        "python3 -m scripts.ops.audit_scope_boundaries --capability autenticacao_complexa_desnecessaria"
+      ],
+      "exit_code": 0,
+      "findings": []
+    },
+    "dashboard_web_estetico": {
+      "capability_id": "dashboard_web_estetico",
+      "definition": "Aesthetic-only public web dashboard product",
+      "dod_item_text_contains": "dashboard web apenas por conveniência estética",
+      "surfaces_checked": [
+        "scripts/",
+        "tools/",
+        "migrations/",
+        "deploy/",
+        "config/",
+        "requirements.txt",
+        "pyproject.toml",
+        "templates/"
+      ],
+      "false_positives_treated": [],
+      "implementation_violations": 0,
+      "conclusion": "PROVEN",
+      "limitations": [
+        "Static audit; does not execute runtime services.",
+        "Does not prove future code will stay in bounds without CI gate."
+      ],
+      "code_hash": "4a77e18998daf22a",
+      "commands": [
+        "python3 -m scripts.ops.audit_scope_boundaries --capability dashboard_web_estetico"
+      ],
+      "exit_code": 0,
+      "findings": []
+    },
+    "k8s_kafka_redis_es_sem_necessidade": {
+      "capability_id": "k8s_kafka_redis_es_sem_necessidade",
+      "definition": "K8s/Kafka/Redis/ES without proven operational need",
+      "dod_item_text_contains": "Kubernetes, Kafka, Redis ou Elasticsearch",
+      "surfaces_checked": [
+        "scripts/",
+        "tools/",
+        "migrations/",
+        "deploy/",
+        "config/",
+        "requirements.txt",
+        "pyproject.toml",
+        "templates/"
+      ],
+      "false_positives_treated": [],
+      "implementation_violations": 12,
+      "conclusion": "REGRESSION",
+      "limitations": [
+        "Static audit; does not execute runtime services.",
+        "Does not prove future code will stay in bounds without CI gate."
+      ],
+      "code_hash": "4bcb7377de747fff",
+      "commands": [
+        "python3 -m scripts.ops.audit_scope_boundaries --capability k8s_kafka_redis_es_sem_necessidade"
+      ],
+      "exit_code": 1,
+      "findings": [
+        {
+          "capability_id": "k8s_kafka_redis_es_sem_necessidade",
+          "path": "scripts/redis_pool.py",
+          "line": 4,
+          "snippet": " with graceful fallback.  Provides: - ``RedisPool``: Async connection pool with lifecycle",
+          "classification": "implementation",
+          "pattern": "(?i)(import redis\\b|redis\\.asyncio|RedisPool|get_redis_pool)",
+          "severity": "hard"
+        },
+        {
+          "capability_id": "k8s_kafka_redis_es_sem_necessidade",
+          "path": "scripts/redis_pool.py",
+          "line": 5,
+          "snippet": "ion pool with lifecycle management. - ``get_redis_pool()``: Singleton accessor. - Graceful fal",
+          "classification": "implementation",
+          "pattern": "(?i)(import redis\\b|redis\\.asyncio|RedisPool|get_redis_pool)",
+          "severity": "hard"
+        },
+        {
+          "capability_id": "k8s_kafka_redis_es_sem_necessidade",
+          "path": "scripts/redis_pool.py",
+          "line": 38,
+          "snippet": "ne _fallback_active = False   async def get_redis_pool() -> Any:     \"\"\"Get the shared Redis c",
+          "classification": "implementation",
+          "pattern": "(?i)(import redis\\b|redis\\.asyncio|RedisPool|get_redis_pool)",
+          "severity": "hard"
+        }
+      ]
+    },
+    "assinatura_automatica_documentos": {
+      "capability_id": "assinatura_automatica_documentos",
+      "definition": "Automatic document signing on behalf of Extra",
+      "dod_item_text_contains": "não assina documentos",
+      "surfaces_checked": [
+        "scripts/",
+        "tools/",
+        "migrations/",
+        "deploy/",
+        "config/",
+        "requirements.txt",
+        "pyproject.toml",
+        "templates/"
+      ],
+      "false_positives_treated": [],
+      "implementation_violations": 0,
+      "conclusion": "PROVEN",
+      "limitations": [
+        "Static audit; does not execute runtime services.",
+        "Does not prove future code will stay in bounds without CI gate."
+      ],
+      "code_hash": "2fcb80576d52e479",
+      "commands": [
+        "python3 -m scripts.ops.audit_scope_boundaries --capability assinatura_automatica_documentos"
+      ],
+      "exit_code": 0,
+      "findings": []
+    },
+    "protocolo_automatico_sem_humano": {
+      "capability_id": "protocolo_automatico_sem_humano",
+      "definition": "Automatic protocol/filing without human action",
+      "dod_item_text_contains": "não protocola propostas",
+      "surfaces_checked": [
+        "scripts/",
+        "tools/",
+        "migrations/",
+        "deploy/",
+        "config/",
+        "requirements.txt",
+        "pyproject.toml",
+        "templates/"
+      ],
+      "false_positives_treated": [],
+      "implementation_violations": 0,
+      "conclusion": "PROVEN",
+      "limitations": [
+        "Static audit; does not execute runtime services.",
+        "Does not prove future code will stay in bounds without CI gate."
+      ],
+      "code_hash": "70e69c97b0b00c94",
+      "commands": [
+        "python3 -m scripts.ops.audit_scope_boundaries --capability protocolo_automatico_sem_humano"
+      ],
+      "exit_code": 0,
+      "findings": []
+    },
+    "assuncao_responsabilidade_tecnica_juridica_contabil_comercial": {
+      "capability_id": "assuncao_responsabilidade_tecnica_juridica_contabil_comercial",
+      "definition": "Software assuming technical/legal/accounting/commercial liability",
+      "dod_item_text_contains": "não assume responsabilidade",
+      "surfaces_checked": [
+        "scripts/",
+        "tools/",
+        "migrations/",
+        "deploy/",
+        "config/",
+        "requirements.txt",
+        "pyproject.toml",
+        "templates/"
+      ],
+      "false_positives_treated": [],
+      "implementation_violations": 0,
+      "conclusion": "PROVEN",
+      "limitations": [
+        "Static audit; does not execute runtime services.",
+        "Does not prove future code will stay in bounds without CI gate.",
+        "Primary enforcement for this item is also client-claim guard language scan."
+      ],
+      "code_hash": "0a65011d23d944b6",
+      "commands": [
+        "python3 -m scripts.ops.audit_scope_boundaries --capability assuncao_responsabilidade_tecnica_juridica_contabil_comercial"
+      ],
+      "exit_code": 0,
+      "findings": []
+    },
+    "substituicao_advogado": {
+      "capability_id": "substituicao_advogado",
+      "definition": "Replacing lawyer for filings/legal opinions",
+      "dod_item_text_contains": "não substitui advogado",
+      "surfaces_checked": [
+        "scripts/",
+        "tools/",
+        "migrations/",
+        "deploy/",
+        "config/",
+        "requirements.txt",
+        "pyproject.toml",
+        "templates/"
+      ],
+      "false_positives_treated": [],
+      "implementation_violations": 0,
+      "conclusion": "PROVEN",
+      "limitations": [
+        "Static audit; does not execute runtime services.",
+        "Does not prove future code will stay in bounds without CI gate.",
+        "Primary enforcement for this item is also client-claim guard language scan."
+      ],
+      "code_hash": "39c240c55ab446eb",
+      "commands": [
+        "python3 -m scripts.ops.audit_scope_boundaries --capability substituicao_advogado"
+      ],
+      "exit_code": 0,
+      "findings": []
+    },
+    "representacao_presencial": {
+      "capability_id": "representacao_presencial",
+      "definition": "In-person representation at bid sessions",
+      "dod_item_text_contains": "não representa a empresa presencialmente",
+      "surfaces_checked": [
+        "scripts/",
+        "tools/",
+        "migrations/",
+        "deploy/",
+        "config/",
+        "requirements.txt",
+        "pyproject.toml",
+        "templates/"
+      ],
+      "false_positives_treated": [
+        {
+          "path": "scripts/ops/dod_low_hanging_audit.py:98",
+          "reason": "classified as documentation"
+        }
+      ],
+      "implementation_violations": 0,
+      "conclusion": "PROVEN",
+      "limitations": [
+        "Static audit; does not execute runtime services.",
+        "Does not prove future code will stay in bounds without CI gate."
+      ],
+      "code_hash": "4d204e5390c69385",
+      "commands": [
+        "python3 -m scripts.ops.audit_scope_boundaries --capability representacao_presencial"
+      ],
+      "exit_code": 0,
+      "findings": []
+    },
+    "fornecimento_garantias_seguros_credito": {
+      "capability_id": "fornecimento_garantias_seguros_credito",
+      "definition": "Providing financial guarantees, insurance, or credit",
+      "dod_item_text_contains": "não fornece garantias financeiras",
+      "surfaces_checked": [
+        "scripts/",
+        "tools/",
+        "migrations/",
+        "deploy/",
+        "config/",
+        "requirements.txt",
+        "pyproject.toml",
+        "templates/"
+      ],
+      "false_positives_treated": [],
+      "implementation_violations": 0,
+      "conclusion": "PROVEN",
+      "limitations": [
+        "Static audit; does not execute runtime services.",
+        "Does not prove future code will stay in bounds without CI gate."
+      ],
+      "code_hash": "c0ac43b0d50afc07",
+      "commands": [
+        "python3 -m scripts.ops.audit_scope_boundaries --capability fornecimento_garantias_seguros_credito"
+      ],
+      "exit_code": 0,
+      "findings": []
+    },
+    "promessa_habilitacao_adjudicacao_vitoria_contratacao": {
+      "capability_id": "promessa_habilitacao_adjudicacao_vitoria_contratacao",
+      "definition": "Guaranteed win/habilitation/adjudication claims",
+      "dod_item_text_contains": "não promete habilitação",
+      "surfaces_checked": [
+        "scripts/",
+        "tools/",
+        "migrations/",
+        "deploy/",
+        "config/",
+        "requirements.txt",
+        "pyproject.toml",
+        "templates/"
+      ],
+      "false_positives_treated": [],
+      "implementation_violations": 0,
+      "conclusion": "PROVEN",
+      "limitations": [
+        "Static audit; does not execute runtime services.",
+        "Does not prove future code will stay in bounds without CI gate.",
+        "Primary enforcement for this item is also client-claim guard language scan."
+      ],
+      "code_hash": "d0d62a5567f9c0e2",
+      "commands": [
+        "python3 -m scripts.ops.audit_scope_boundaries --capability promessa_habilitacao_adjudicacao_vitoria_contratacao"
+      ],
+      "exit_code": 0,
+      "findings": []
+    },
+    "execucao_objeto_contratado": {
+      "capability_id": "execucao_objeto_contratado",
+      "definition": "Executing the contracted construction object",
+      "dod_item_text_contains": "não executa o objeto contratado",
+      "surfaces_checked": [
+        "scripts/",
+        "tools/",
+        "migrations/",
+        "deploy/",
+        "config/",
+        "requirements.txt",
+        "pyproject.toml",
+        "templates/"
+      ],
+      "false_positives_treated": [],
+      "implementation_violations": 0,
+      "conclusion": "PROVEN",
+      "limitations": [
+        "Static audit; does not execute runtime services.",
+        "Does not prove future code will stay in bounds without CI gate."
+      ],
+      "code_hash": "fbb8bbe38053a4a8",
+      "commands": [
+        "python3 -m scripts.ops.audit_scope_boundaries --capability execucao_objeto_contratado"
+      ],
+      "exit_code": 0,
+      "findings": []
+    }
+  }
+}
