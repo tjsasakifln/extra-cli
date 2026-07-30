@@ -1,7 +1,7 @@
 {
   "schema_version": "confenge-frozen-inputs/1.0",
   "campaign": "CONFENGE-COMMERCIAL-READY-01",
-  "freeze_sha": "c7775803ca8856555fd9a4a6a77ee773c7aadc05",
+  "freeze_sha": "a7554a216a68df2291a8eb782ba6e748d7381e1b",
   "policy": "frozen_confenge_inputs_v1",
   "inputs": [
     {
@@ -105,8 +105,8 @@
     {
       "path": "scripts/commercial_leads/exports.py",
       "kind": "file",
-      "blob_sha": "73c3c4ed95368ebb3cff33978a7f94ff48e04f5d",
-      "sha256": "400857bae2328a3463630440ebfd376f18b59d9289c2af55ff34bbe693743020"
+      "blob_sha": "e9ecca9db2c5b379af1d3ae3f902db59de142c03",
+      "sha256": "62458657383a7c76bf0170f75aa0a5dfcb9757059ab3cf4eb64ff32f8c39237d"
     },
     {
       "path": "scripts/commercial_leads/geography.py",
@@ -135,8 +135,8 @@
     {
       "path": "scripts/commercial_leads/pipeline.py",
       "kind": "file",
-      "blob_sha": "2977b47def1911f92e4bebbb34fe0efdbec41172",
-      "sha256": "320a99c3471f0d293c679d0018918571a319ea4ef2cce5b2bfb0f9443e79fa14"
+      "blob_sha": "d8e03a1b7ab39f1674a9a3fe0a7863761f299292",
+      "sha256": "5f73b1880a65735201bfe324bfdf069f2013eaab73a51dc5588f81f9bbfb3734"
     },
     {
       "path": "scripts/commercial_leads/profile.py",
@@ -153,8 +153,8 @@
     {
       "path": "scripts/commercial_leads/scoring.py",
       "kind": "file",
-      "blob_sha": "d42cbe3ab49f2922efb50279453980c4ab7f686b",
-      "sha256": "879ecd438facaa357a4c3b060a66b8ed0f4ae24b06ade7f531d092ffb1ab0e85"
+      "blob_sha": "e5fd9ed3764b1a67a199627fe0391b2772c6ac30",
+      "sha256": "3b74a0391c5e1ba6454730765322d223ab97ec9eb62b2903bad8f0d647056f21"
     },
     {
       "path": "scripts/commercial_leads/sector_fit.py",
@@ -179,6 +179,12 @@
       "kind": "file",
       "blob_sha": "b4aba12716da6fed4b38a5b922169d0a80b317e7",
       "sha256": "17c90a055837cf8bf51943bab75d856d7a1878f422bfc3916325d2f6cb39a891"
+    },
+    {
+      "path": "scripts/commercial_leads/top10_gate.py",
+      "kind": "file",
+      "blob_sha": "746b3f38ac81a57f5d7fdf7129341fa34a73c8b1",
+      "sha256": "40067ed6d2e019be3740bee59786c0ccc357b0a113b4866b4affa5ccdd642be6"
     },
     {
       "path": "scripts/linkage/keys.py",
