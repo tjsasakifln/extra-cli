@@ -1,115 +1,100 @@
 {
   "campaign_id": "CONFENGE-COMMERCIAL-ACTIVATION-AND-OUTCOME-LOOP-01",
-  "status": "PASS_ACTIVATION",
-  "substatus": "BLOCKED_INSUFFICIENT_HUMAN_LABELS",
+  "status": "BLOCKED",
+  "substatus": "BLOCKED_PENDING_HUMAN_ACCEPTANCE",
+  "handoff_state": "READY_FOR_TIAGO_REVIEW",
+  "scope_delivery": "BLOCKED_SCOPE_UNDERDELIVERED",
   "commercial_release_ready": false,
-  "human_blocker": "READY_FOR_TIAGO_REVIEW",
-  "generated_at": "2026-07-30T01:17:00Z",
+  "generated_at": "2026-07-30T01:45:01Z",
   "pr_a": {
     "number": 172,
-    "url": "https://github.com/tjsasakifln/extra-cli/pull/172",
-    "merged": true,
-    "merge_commit": "7243b87ff8158a8026ccba6c4690a42b09884b07"
+    "merge_commit": "7243b87ff8158a8026ccba6c4690a42b09884b07",
+    "merged": true
+  },
+  "pr_b": {
+    "number": 174,
+    "merge_commit": "70d904ef6cd5d68a54dbf16abc41a5954539062c",
+    "merged": true
   },
   "integrated_sha": "7243b87ff8158a8026ccba6c4690a42b09884b07",
   "post_merge_run": {
+    "schema_version": "live-run-summary-v1",
+    "generated_at": "2026-07-30T01:45:01Z",
+    "execution_environment": "local_isolated_restored_snapshot",
+    "dsn_host": "127.0.0.1",
+    "dsn_port": 5433,
+    "database": "confenge_commercial_activation",
+    "integrated_capability_sha": "7243b87ff8158a8026ccba6c4690a42b09884b07",
+    "run_git_sha": "7243b87ff8158a8026ccba6c4690a42b09884b07",
     "run_id": "cl-20260730T010931Z-1b0e4da2",
-    "git_sha": "7243b87ff8158a8026ccba6c4690a42b09884b07",
     "status": "BLOCKED",
     "reason": "BLOCKED_INSUFFICIENT_HUMAN_LABELS",
+    "handoff_state": "READY_FOR_TIAGO_REVIEW",
     "db_contracts": 4467364,
     "candidates": 22882,
     "full_history_contracts": 764785,
     "leads": 20,
-    "registry_coverage_all": 1.0,
-    "registry_coverage_top20": 1.0,
+    "supplier_registry_coverage": 1.0,
+    "official_registry_coverage": 0.0298,
+    "official_resolved_n": 683,
+    "fallback_resolved_n": 22644,
+    "source_distribution": {
+      "rfb_public_cadastral_via_opencnpj": 683,
+      "minhareceita_fallback": 18182,
+      "brasilapi_fallback": 4462
+    },
+    "registry_authority_note": "Official coverage is RFB-authority share only. Operational universe filled via MinhaReceita/BrasilAPI redistributor fallbacks — not claimed as pure RFB zip.",
+    "vps_deploy": {
+      "performed": false,
+      "vps_deploy_sha_observed": "50fc9390c6ab886c9e5562f655d4b18b807db324",
+      "note": "OBJECTIVE §16 VPS update to integrated SHA not executed; live cycle was local restored snapshot only."
+    },
     "top20_identical_to_pre_merge": true,
-    "signals_in_catalog": 15,
-    "profile_id": "confenge",
-    "profile_version": "2.0.0",
-    "auto_send": false,
-    "precision_at_10": null,
-    "precision_at_20": null
+    "signals_in_catalog": 15
   },
   "soak_non_interference": {
     "ok": true,
     "status": "PASS",
-    "production_touched": false,
-    "soak_touched": false,
-    "timers_modified": false,
-    "services_restarted": false,
-    "operational_tables_written": false,
-    "baseline_deploy_sha": "50fc9390c6ab886c9e5562f655d4b18b807db324",
-    "final_deploy_sha": "50fc9390c6ab886c9e5562f655d4b18b807db324",
-    "artifact": "artifacts/campaigns/CONFENGE-COMMERCIAL-ACTIVATION-AND-OUTCOME-LOOP-01/post-merge/soak-non-interference.json"
+    "artifact": "soak-non-interference.json"
+  },
+  "registry_honesty": {
+    "official_registry_coverage": 0.0298,
+    "supplier_registry_coverage": 1.0,
+    "source_distribution": {
+      "rfb_public_cadastral_via_opencnpj": 683,
+      "minhareceita_fallback": 18182,
+      "brasilapi_fallback": 4462
+    },
+    "authority_note": "Official coverage is RFB-authority share only. Operational universe filled via MinhaReceita/BrasilAPI redistributor fallbacks — not claimed as pure RFB zip."
   },
   "non_claims": [
     "VPS_OPERATIONAL",
     "LOCAL_READY",
     "PROJECT_DONE",
+    "pure_rfb_zip_registry_universe",
+    "official_registry_coverage_1.0",
     "precision_at_k_without_human_labels",
-    "pure_rfb_zip_registry_authority",
-    "auto_send_whatsapp_email",
-    "vps_code_upgraded_to_integrated_sha",
-    "seven_day_soak_calendar_complete"
+    "auto_send",
+    "vps_deploy_of_integrated_sha",
+    "dod_section_2_7_20_accepted",
+    "PASS_commercial_release"
   ],
   "dod_policy": {
     "bulk_accept": false,
-    "note": "Human-gated CONFENGE_COMMERCIAL_READY items remain unchecked until Tiago accepts. Machine path evidence listed under dod_evidence_ready for future controller accepts — not auto-[x].",
-    "dod_evidence_ready": [
-      {
-        "theme": "versioned_profile_and_signal_catalog",
-        "evidence": [
-          "config/commercial_profiles/confenge.yaml",
-          "post-merge/evidence-slim/signal-catalog-meta.json (15 signals)"
-        ],
-        "human_required": false
-      },
-      {
-        "theme": "cli_pipeline_full_history_queue",
-        "evidence": [
-          "make confenge-commercial-cycle on SHA 7243b87f",
-          "post-merge/evidence-slim/run-result-summary.json",
-          "snapshot-manifest 4467364 rows"
-        ],
-        "human_required": false
-      },
-      {
-        "theme": "top20_dossiers_kits_no_auto_send",
-        "evidence": [
-          "local run-post-merge/top20-dossiers",
-          "local run-post-merge/top5-outreach-kits",
-          "post-merge/evidence-slim/TIAGO-REVIEW.md"
-        ],
-        "human_required": false
-      },
-      {
-        "theme": "single_truth_registry_coverage",
-        "evidence": [
-          "scripts/commercial_leads/canonical_coverage.py",
-          "post-merge/evidence-slim/canonical-coverage.json"
-        ],
-        "human_required": false
-      },
-      {
-        "theme": "tiago_formal_accept_CONFENGE_COMMERCIAL_READY",
-        "evidence": [
-          "user-acceptance.template.json still PENDING"
-        ],
-        "human_required": true,
-        "block_reason": "BLOCKED_INSUFFICIENT_HUMAN_LABELS"
-      }
-    ]
+    "accepted_count": 0,
+    "target_min": 20,
+    "status": "BLOCKED_SCOPE_UNDERDELIVERED"
   },
   "artifacts": {
-    "final_report": "docs/ops/campaigns/CONFENGE-COMMERCIAL-ACTIVATION-AND-OUTCOME-LOOP-01/FINAL-REPORT.md",
-    "handoff": "docs/ops/campaigns/CONFENGE-COMMERCIAL-ACTIVATION-AND-OUTCOME-LOOP-01/HANDOFF.md",
-    "status": "docs/ops/campaigns/CONFENGE-COMMERCIAL-ACTIVATION-AND-OUTCOME-LOOP-01/STATUS.md",
-    "post_merge_dir": "artifacts/campaigns/CONFENGE-COMMERCIAL-ACTIVATION-AND-OUTCOME-LOOP-01/post-merge/"
-  },
-  "pr_budget": {
-    "max_new_campaign_prs": 2,
-    "pr_a_used": 172,
-    "pr_b": "this closeout PR"
+    "tiago_review": "docs/ops/campaigns/CONFENGE-COMMERCIAL-ACTIVATION-AND-OUTCOME-LOOP-01/TIAGO-REVIEW.md",
+    "live_run_summary": "live-run-summary.json",
+    "idempotency_proof": "idempotency-proof.json",
+    "soak_non_interference": "soak-non-interference.json",
+    "review_package_manifest": "review-package-manifest.json",
+    "acceptance_matrix": "acceptance-matrix.json",
+    "dod_delta": "dod-delta.json",
+    "weighted_delta": "weighted-delta.json",
+    "top20_durable": "top20-durable.json",
+    "review_package": "review-package/"
   }
 }

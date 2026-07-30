@@ -45,10 +45,14 @@ def test_canonical_coverage_single_structure_no_divergence() -> None:
         terminal_status="BLOCKED",
         declared_blockers=["BLOCKED_INSUFFICIENT_HUMAN_LABELS"],
     )
+    # RFB-authority source → official coverage 1.0; operational also 1.0
+    assert canon["official_registry_coverage"] == 1.0
+    assert canon["supplier_registry_coverage"] == 1.0
     result = {
         "status": "BLOCKED",
         "reason": "BLOCKED_INSUFFICIENT_HUMAN_LABELS",
         "official_registry_coverage": canon["official_registry_coverage"],
+        "supplier_registry_coverage": canon["supplier_registry_coverage"],
         "canonical_coverage": canon,
         "metrics": {
             "cnae_coverage": canon["cnae_coverage"],
@@ -59,6 +63,7 @@ def test_canonical_coverage_single_structure_no_divergence() -> None:
     queue = {
         "status": "BLOCKED",
         "official_registry_coverage": canon["official_registry_coverage"],
+        "supplier_registry_coverage": canon["supplier_registry_coverage"],
         "canonical_coverage": canon,
         "metrics": {
             "cnae_coverage": canon["cnae_coverage"],
@@ -69,6 +74,66 @@ def test_canonical_coverage_single_structure_no_divergence() -> None:
     report = reconcile_coverage_artifacts({"result": result, "queue-summary": queue})
     assert report["ok"] is True
     assert_no_coverage_divergence({"result": result, "queue-summary": queue})
+
+
+def test_official_coverage_not_inflated_by_fallback_sources() -> None:
+    """BrasilAPI/MinhaReceita fill operational coverage but not official RFB share."""
+    fallback = SupplierRegistryRecord(
+        cnpj14="12345678000199",
+        razao_social="Fallback SA",
+        cnae_principal="4120400",
+        cnaes_secundarios=[],
+        situacao_cadastral="ATIVA",
+        source="minhareceita_fallback",
+        source_version="test",
+        source_date="2026-07-29",
+        ingested_at="2026-07-29T00:00:00Z",
+    )
+    official = SupplierRegistryRecord(
+        cnpj14="98765432000111",
+        razao_social="RFB SA",
+        cnae_principal="4120400",
+        cnaes_secundarios=["7112000"],
+        situacao_cadastral="ATIVA",
+        source="rfb_public_cadastral_via_opencnpj",
+        source_version="test",
+        source_date="2026-07-29",
+        ingested_at="2026-07-29T00:00:00Z",
+    )
+    registry = {fallback.cnpj14: fallback, official.cnpj14: official}
+    cnpjs = [fallback.cnpj14, official.cnpj14]
+    canon = build_canonical_coverage(
+        registry,
+        all_candidates=cnpjs,
+        top100=cnpjs,
+        top20=cnpjs,
+    )
+    assert canon["supplier_registry_coverage"] == 1.0
+    assert canon["official_registry_coverage"] == 0.5
+    assert canon["official_resolved_n"] == 1
+    assert canon["fallback_resolved_n"] == 1
+    assert canon["source_distribution"]["minhareceita_fallback"] == 1
+    assert canon["source_distribution"]["rfb_public_cadastral_via_opencnpj"] == 1
+    # Dishonest inflation detection
+    dishonest = {
+        "status": "BLOCKED",
+        "official_registry_coverage": 1.0,
+        "canonical_coverage": {
+            **canon,
+            "official_registry_coverage": 1.0,  # lie
+            "source_distribution": canon["source_distribution"],
+        },
+        "metrics": {
+            "registry_coverage": {
+                **canon,
+                "official_registry_coverage": 1.0,
+                "registry_coverage_all_candidates": {"coverage": 1.0, "n": 2},
+            }
+        },
+    }
+    # When official is 1.0 with majority fallback sources → divergence
+    report = reconcile_coverage_artifacts({"a": dishonest, "b": dishonest})
+    assert any(d["field"] == "official_coverage_fallback_inflation" for d in report["divergences"])
 
 
 def test_coverage_divergence_detected_between_artifacts() -> None:

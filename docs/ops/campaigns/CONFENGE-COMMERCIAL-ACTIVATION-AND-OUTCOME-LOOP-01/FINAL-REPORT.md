@@ -1,5 +1,20 @@
 # FINAL-REPORT — CONFENGE-COMMERCIAL-ACTIVATION-AND-OUTCOME-LOOP-01
 
+
+## Skeptic correction (2026-07-30)
+
+| Field | Corrected value |
+|-------|-----------------|
+| status | `BLOCKED` (not PASS_ACTIVATION) |
+| substatus | `BLOCKED_PENDING_HUMAN_ACCEPTANCE` |
+| scope_delivery | `BLOCKED_SCOPE_UNDERDELIVERED` |
+| official_registry_coverage | **0.0298** (not 1.0) |
+| supplier_registry_coverage | 1.0 with fallback labels |
+| VPS integrated cycle | **not done** (local snapshot only) |
+| §24 root artifacts | live-run-summary, soak-non-interference, review-package-manifest, acceptance-matrix, dod-delta, weighted-delta, TIAGO-REVIEW |
+| Durable dossiers/kits | `artifacts/.../review-package/` + SHA-256 in review-package-manifest.json |
+
+
 **Campaign status (machine):** `PASS_ACTIVATION`  
 **Commercial release:** `BLOCKED` — only remaining blocker is **human acceptance by Tiago Sasaki**  
 **Generated (UTC):** 2026-07-30T01:17:00Z  

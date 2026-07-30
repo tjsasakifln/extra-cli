@@ -1,7 +1,38 @@
 # Próximo passo de desenvolvimento (sem reconstruir contexto)
 
-**Atualizado:** 2026-07-25  
+**Atualizado:** 2026-07-30  
 **Branch de record para docs:** `main`
+
+## CONFENGE commercial activation (pós #172/#174)
+
+**Estado:** `BLOCKED` / `BLOCKED_PENDING_HUMAN_ACCEPTANCE` / handoff `READY_FOR_TIAGO_REVIEW`  
+**Scope DOD §2.7:** `BLOCKED_SCOPE_UNDERDELIVERED` (0 accepts formais; evidência máquina pronta)  
+**Capability SHA:** `7243b87f` · closeout `70d904ef` · skeptic-fix em andamento
+
+### Ação de Tiago (único blocker comercial humano)
+
+1. Abrir `docs/ops/campaigns/CONFENGE-COMMERCIAL-ACTIVATION-AND-OUTCOME-LOOP-01/TIAGO-REVIEW.md`
+2. Revisar `artifacts/.../top20-durable.json` + `review-package/top20-dossiers/` + `top5-outreach-kits/`
+3. Preencher `user-acceptance.template.json` só se aceitar a fila
+4. **Não** interpretar coverage operacional 1.0 como cadastro RFB 100% (official ≈ 0.03)
+
+### Follow-ups técnicos (não humanos)
+
+- Ingestão RFB bulk autenticada para levantar `official_registry_coverage`
+- Deploy VPS do SHA integrado **sem** reset de soak + ciclo live (§16)
+- Aceites DOD §2.7 via `dod_controller` (pacotes de evidência por item) — meta 20 / 80 pts
+- Código: `official_registry_coverage` separado de fallbacks (skeptic-fix)
+
+### Comando ciclo local
+
+```bash
+export CONFENGE_COMMERCIAL_STATE_DSN='postgresql://test:test@127.0.0.1:5433/confenge_commercial_activation'
+export CONFENGE_COMMERCIAL_SNAPSHOT=artifacts/campaigns/CONFENGE-COMMERCIAL-ACTIVATION-AND-OUTCOME-LOOP-01/snapshot/snapshot-manifest.json
+export CONFENGE_COMMERCIAL_OUT=artifacts/campaigns/CONFENGE-COMMERCIAL-ACTIVATION-AND-OUTCOME-LOOP-01/run-post-merge
+make confenge-commercial-cycle
+```
+
+---
 
 ## Comando único (priorização DOD / ROI)
 

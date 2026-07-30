@@ -1,7 +1,7 @@
 {
   "schema_version": "confenge-frozen-inputs/1.0",
   "campaign": "CONFENGE-COMMERCIAL-READY-01",
-  "freeze_sha": "f68882edc079cb40929aecad431c9565c6f17b13",
+  "freeze_sha": "c7775803ca8856555fd9a4a6a77ee773c7aadc05",
   "policy": "frozen_confenge_inputs_v1",
   "inputs": [
     {
@@ -69,8 +69,8 @@
     {
       "path": "scripts/commercial_leads/canonical_coverage.py",
       "kind": "file",
-      "blob_sha": "06727d39692067152b38d82dcb02461489738b8c",
-      "sha256": "0a57e05bfb5ec04d94f3073a10305aa5bbaa64afb49ba348bdbd3df906a9b3b8"
+      "blob_sha": "d0a6266d9c4d6e833fd017acfc8b0a077d394863",
+      "sha256": "f08e4335dcea066452807535a8755e6362e28c6eabbdbbc8e8086e85c4258255"
     },
     {
       "path": "scripts/commercial_leads/cli.py",
@@ -177,8 +177,8 @@
     {
       "path": "scripts/commercial_leads/supplier_registry.py",
       "kind": "file",
-      "blob_sha": "206097894950e057eb2957d0d770d42894a8eb4d",
-      "sha256": "0df65ab669451809c71c94b02cdefb831b9f8c92e7779fe4768c3d9f2e7cbb7e"
+      "blob_sha": "b4aba12716da6fed4b38a5b922169d0a80b317e7",
+      "sha256": "17c90a055837cf8bf51943bab75d856d7a1878f422bfc3916325d2f6cb39a891"
     },
     {
       "path": "scripts/linkage/keys.py",

@@ -1,13 +1,13 @@
 {
   "ok": true,
   "status": "PASS",
-  "current_pr_head_sha": "04d87d39a14e19aae9ca5cc8d6b15f3695740df7",
-  "pr_head_sha": "04d87d39a14e19aae9ca5cc8d6b15f3695740df7",
+  "current_pr_head_sha": "69deba52d32c63b401fc1f06a81851f078f6231c",
+  "pr_head_sha": "69deba52d32c63b401fc1f06a81851f078f6231c",
   "workflow_merge_sha": null,
-  "checked_out_sha": "04d87d39a14e19aae9ca5cc8d6b15f3695740df7",
-  "final_integrity_code_freeze_sha": "f68882edc079cb40929aecad431c9565c6f17b13",
-  "final_code_freeze_sha": "f68882edc079cb40929aecad431c9565c6f17b13",
-  "executed_code_sha": "f68882edc079cb40929aecad431c9565c6f17b13",
+  "checked_out_sha": "69deba52d32c63b401fc1f06a81851f078f6231c",
+  "final_integrity_code_freeze_sha": "c7775803ca8856555fd9a4a6a77ee773c7aadc05",
+  "final_code_freeze_sha": "c7775803ca8856555fd9a4a6a77ee773c7aadc05",
+  "executed_code_sha": "c7775803ca8856555fd9a4a6a77ee773c7aadc05",
   "match_run_to_head": false,
   "code_changed_after_execution": false,
   "artifact_only_commits_after_execution": true,
@@ -15,6 +15,7 @@
     "CHANGELOG.md",
     "artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/EXECUTED_CODE_SHA.txt",
     "artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/FINAL_CODE_FREEZE_SHA.txt",
+    "artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/FINAL_INTEGRITY_CODE_FREEZE_SHA.txt",
     "artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/code-freeze-gate.json",
     "artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/evidence-provenance-gate.json",
     "artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/executed-tree-integrity-gate.json",
@@ -32,6 +33,6 @@
   "free_changed": [
     "CHANGELOG.md"
   ],
-  "verified_at": "2026-07-30T00:54:04Z",
+  "verified_at": "2026-07-30T01:55:07Z",
   "policy": "post-freeze protected CONFENGE inputs vs pr_head must be unchanged; unrelated monorepo paths are free; match_run_to_head true only when executed_code_sha == pr_head_sha; workflow_merge_sha / checked_out merge ref is never used as pr_head"
 }

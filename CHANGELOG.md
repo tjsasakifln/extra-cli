@@ -11,6 +11,12 @@ O histórico de git (`git log`) permanece a fonte de verdade de commits; este ar
 
 ## [Unreleased]
 
+- chore(campaign): re-freeze CONFENGE after official registry coverage honesty fix
+
+
+- fix(commercial): separate official RFB registry coverage from redistributor fallbacks; skeptic closeout artifacts (§23/§24)
+
+
 - docs(campaign): CONFENGE commercial activation closeout (PR B) — post-merge cycle on main `7243b87f`, soak non-interference PASS, human-only commercial blocker
 
 
