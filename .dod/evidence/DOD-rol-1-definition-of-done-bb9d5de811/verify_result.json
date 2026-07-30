@@ -3,46 +3,11 @@
   "commands": [],
   "tests": [
     {
-      "test": "tests/test_dod_low_hanging_audit.py::test_coverage_truth_no_average_helper",
-      "cmd": "python3 -m pytest tests/test_dod_low_hanging_audit.py::test_coverage_truth_no_average_helper -q --tb=line",
-      "exit_code": 0,
-      "duration_s": 58.48,
-      "stdout_tail": "scripts/workspace/common.py                                      194    194   0.0%   6-297\nscripts/workspace/queue.py                                       261    261   0.0%   6-715\n--------------------------------------------------------------------------------------------\nTOTAL                                                          92431  91946   0.5%\nCoverage HTML written to dir docs/td-001/coverage-reports/\n\n\n============================== 1 passed in 53.19s ==============================\n",
-      "stderr_tail": "",
-      "counts": {
-        "passed": 1,
-        "failed": 0,
-        "skipped": 0,
-        "deselected": 0,
-        "xfailed": 0,
-        "error": 0
-      },
-      "env": {
-        "CI": null,
-        "GITHUB_ACTIONS": null,
-        "LOCAL_DATALAKE_DSN": {
-          "set": false,
-          "len": 0
-        },
-        "PYTEST_ADDOPTS": null,
-        "PATH": {
-          "set": true,
-          "len": 1919
-        },
-        "USER": "tjsasakifln",
-        "HOME": {
-          "set": true,
-          "len": 17
-        }
-      },
-      "skipped": false
-    },
-    {
       "test": "tests/test_dod_low_hanging_audit.py::test_coverage_truth_data_presence_not_coverage",
       "cmd": "python3 -m pytest tests/test_dod_low_hanging_audit.py::test_coverage_truth_data_presence_not_coverage -q --tb=line",
       "exit_code": 0,
-      "duration_s": 57.462,
-      "stdout_tail": "scripts/workspace/common.py                                      194    194   0.0%   6-297\nscripts/workspace/queue.py                                       261    261   0.0%   6-715\n--------------------------------------------------------------------------------------------\nTOTAL                                                          92431  91946   0.5%\nCoverage HTML written to dir docs/td-001/coverage-reports/\n\n\n============================== 1 passed in 53.17s ==============================\n",
+      "duration_s": 61.187,
+      "stdout_tail": "scripts/workspace/common.py                                      194    194   0.0%   6-297\nscripts/workspace/queue.py                                       261    261   0.0%   6-715\n--------------------------------------------------------------------------------------------\nTOTAL                                                          92743  92258   0.5%\nCoverage HTML written to dir docs/td-001/coverage-reports/\n\n\n============================== 1 passed in 56.19s ==============================\n",
       "stderr_tail": "",
       "counts": {
         "passed": 1,
@@ -76,7 +41,7 @@
   "ok": true,
   "notes": [],
   "rejected_trivial": [],
-  "head_sha": "97da2c49bcd9ce713738dd326b589a120498abb8",
+  "head_sha": "d39ed05d2e50261bab9ce0804d3df694d29c8fc2",
   "env": {
     "CI": null,
     "GITHUB_ACTIONS": null,
@@ -95,15 +60,15 @@
       "len": 17
     }
   },
-  "started_at": "2026-07-30T01:52:03Z",
-  "duration_s": 115.944,
-  "substantive_runs": 2,
+  "started_at": "2026-07-30T03:20:28Z",
+  "duration_s": 61.187,
+  "substantive_runs": 1,
   "totals": {
-    "passed": 2,
+    "passed": 1,
     "failed": 0,
     "skipped": 0,
     "deselected": 0,
     "error": 0
   },
-  "finished_at": "2026-07-30T01:54:09Z"
+  "finished_at": "2026-07-30T03:21:36Z"
 }

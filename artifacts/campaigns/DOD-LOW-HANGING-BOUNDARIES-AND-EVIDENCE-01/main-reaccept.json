@@ -1,0 +1,162 @@
+{
+  "at": "2026-07-30T02:49:13Z",
+  "head": "d39ed05d2e50261bab9ce0804d3df694d29c8fc2",
+  "branch": "main",
+  "results": [
+    {
+      "id": "DOD-definition-of-done-extra-a362715e4d",
+      "status": "accepted_main"
+    },
+    {
+      "id": "DOD-definition-of-done-extra-c94d735e7c",
+      "status": "accepted_main"
+    },
+    {
+      "id": "DOD-definition-of-done-extra-aa0cc46c52",
+      "status": "accepted_main"
+    },
+    {
+      "id": "DOD-definition-of-done-extra-f96c0779f9",
+      "status": "accepted_main"
+    },
+    {
+      "id": "DOD-definition-of-done-extra-793fb2e8b5",
+      "status": "accepted_main"
+    },
+    {
+      "id": "DOD-definition-of-done-extra-a6aa7190ac",
+      "status": "accepted_main"
+    },
+    {
+      "id": "DOD-definition-of-done-extra-794600a043",
+      "status": "accepted_main"
+    },
+    {
+      "id": "DOD-definition-of-done-extra-fa4a690d5c",
+      "status": "accepted_main"
+    },
+    {
+      "id": "DOD-definition-of-done-extra-5865b9f10c",
+      "status": "accepted_main"
+    },
+    {
+      "id": "DOD-definition-of-done-extra-7e08df417e",
+      "status": "accepted_main"
+    },
+    {
+      "id": "DOD-definition-of-done-extra-d1bf197b8b",
+      "status": "accepted_main"
+    },
+    {
+      "id": "DOD-definition-of-done-extra-1d08d2599c",
+      "status": "accepted_main"
+    },
+    {
+      "id": "DOD-definition-of-done-extra-eafbfd4a1f",
+      "status": "accepted_main"
+    },
+    {
+      "id": "DOD-definition-of-done-extra-361d74f7ba",
+      "status": "accepted_main"
+    },
+    {
+      "id": "DOD-definition-of-done-extra-10726ba9b9",
+      "status": "accepted_main"
+    },
+    {
+      "id": "DOD-definition-of-done-extra-9075dfdd96",
+      "status": "accepted_main"
+    },
+    {
+      "id": "DOD-definition-of-done-extra-20ded85333",
+      "status": "accepted_main"
+    },
+    {
+      "id": "DOD-definition-of-done-extra-642f0c1b05",
+      "status": "accepted_main"
+    },
+    {
+      "id": "DOD-definition-of-done-extra-ab71db3f6e",
+      "status": "accepted_main"
+    },
+    {
+      "id": "DOD-definition-of-done-extra-ddd9c4fb86",
+      "status": "accepted_main"
+    },
+    {
+      "id": "DOD-definition-of-done-extra-0fe4fb2225",
+      "status": "accepted_main"
+    },
+    {
+      "id": "DOD-definition-of-done-extra-e3fab7341c",
+      "status": "accepted_main"
+    },
+    {
+      "id": "DOD-definition-of-done-extra-1b8854e33b",
+      "status": "accepted_main"
+    },
+    {
+      "id": "DOD-definition-of-done-extra-5d877d2ba4",
+      "status": "accepted_main"
+    },
+    {
+      "id": "DOD-definition-of-done-extra-17f49981f1",
+      "status": "accepted_main"
+    },
+    {
+      "id": "DOD-definition-of-done-extra-c5144849e4",
+      "status": "accepted_main"
+    },
+    {
+      "id": "DOD-definition-of-done-extra-f2dfcdb3e4",
+      "status": "accepted_main"
+    },
+    {
+      "id": "DOD-definition-of-done-extra-4bd8d3ef1a",
+      "status": "accepted_main"
+    },
+    {
+      "id": "DOD-definition-of-done-extra-0903b01d4b",
+      "status": "accepted_main"
+    },
+    {
+      "id": "DOD-definition-of-done-extra-7b21a39253",
+      "status": "accepted_main"
+    },
+    {
+      "id": "DOD-definition-of-done-extra-90a192a188",
+      "status": "accepted_main"
+    },
+    {
+      "id": "DOD-definition-of-done-extra-825967b2c1",
+      "status": "accepted_main"
+    },
+    {
+      "id": "DOD-definition-of-done-extra-fc3bf86724",
+      "status": "accepted_main"
+    },
+    {
+      "id": "DOD-definition-of-done-extra-bcceab4099",
+      "status": "accepted_main"
+    },
+    {
+      "id": "DOD-definition-of-done-extra-3c79408c03",
+      "status": "accepted_main"
+    },
+    {
+      "id": "DOD-definition-of-done-extra-38c4c0fe6f",
+      "status": "accepted_main"
+    },
+    {
+      "id": "DOD-rol-1-definition-of-done-bb9d5de811",
+      "status": "accepted_main"
+    }
+  ],
+  "gate_stats_from_log_tail": {
+    "ok": 37,
+    "bypassed": 0,
+    "other": 0
+  },
+  "accepted_main": 37,
+  "failed": []
+}

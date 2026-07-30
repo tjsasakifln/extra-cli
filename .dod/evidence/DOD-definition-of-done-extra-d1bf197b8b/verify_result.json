@@ -4,7 +4,7 @@
     {
       "cmd": "python3 -m scripts.ops.audit_scope_boundaries --capability medicao_de_obra",
       "exit_code": 0,
-      "duration_s": 6.876,
+      "duration_s": 7.241,
       "stdout_tail": "reason\": \"classified as documentation\"\n        }\n      ],\n      \"implementation_violations\": 0,\n      \"conclusion\": \"PROVEN\",\n      \"limitations\": [\n        \"Static audit; does not execute runtime services.\",\n        \"Does not prove future code will stay in bounds without CI gate.\"\n      ],\n      \"code_hash\": \"ea1b1aba07d40b92\",\n      \"commands\": [\n        \"python3 -m scripts.ops.audit_scope_boundaries --capability medicao_de_obra\"\n      ],\n      \"exit_code\": 0,\n      \"findings\": []\n    }\n  }\n}\n",
       "stderr_tail": "",
       "env": {
@@ -32,7 +32,7 @@
   "ok": true,
   "notes": [],
   "rejected_trivial": [],
-  "head_sha": "97da2c49bcd9ce713738dd326b589a120498abb8",
+  "head_sha": "d39ed05d2e50261bab9ce0804d3df694d29c8fc2",
   "env": {
     "CI": null,
     "GITHUB_ACTIONS": null,
@@ -51,8 +51,8 @@
       "len": 17
     }
   },
-  "started_at": "2026-07-30T01:32:18Z",
-  "duration_s": 6.876,
+  "started_at": "2026-07-30T03:04:16Z",
+  "duration_s": 7.241,
   "substantive_runs": 1,
   "totals": {
     "passed": 1,
@@ -61,5 +61,5 @@
     "deselected": 0,
     "error": 0
   },
-  "finished_at": "2026-07-30T01:32:25Z"
+  "finished_at": "2026-07-30T03:04:24Z"
 }
