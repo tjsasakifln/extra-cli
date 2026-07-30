@@ -61,6 +61,6 @@
   "pr_draft": false,
   "branch": "campaign/confenge-commercial-ready-01",
   "updated_at": "2026-07-27T15:09:20Z",
-  "code_evolution_note": "Re-bound after CONFENGE-COMMERCIAL-ACTIVATION-AND-OUTCOME-LOOP-01 commercial evolution. READY-01 remains BLOCKED; activation campaign owns integral-history execution.",
+  "code_evolution_note": "Re-bound after activation; READY-01 historical BLOCKED.",
   "activation_campaign": "CONFENGE-COMMERCIAL-ACTIVATION-AND-OUTCOME-LOOP-01"
 }
