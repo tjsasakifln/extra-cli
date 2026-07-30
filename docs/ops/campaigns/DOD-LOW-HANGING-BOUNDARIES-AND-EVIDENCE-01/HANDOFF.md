@@ -1,43 +1,43 @@
 # HANDOFF — DOD-LOW-HANGING-BOUNDARIES-AND-EVIDENCE-01
 
-## State
+## Final state (post integrity)
 
-- **PR A branch:** `campaign/dod-low-hanging-boundaries-evidence-01`
-- **Baseline SHA:** `e39a75f35224cdf1acd34c2a8eb2f5ea08fa220e`
-- **QA:** `PASS_WITH_REDUCED_SET` — **42** promotion-eligible items
-- **DOD.md:** not modified in PR A
+| Field | Value |
+|-------|--------|
+| Terminal | `PASS_LOW_HANGING_ACCEPTED` (37 net accepts after demote) |
+| PR A | #173 → `97da2c49` |
+| PR B | #176 → `93b1447c` |
+| PR head B | `b2895ecb` |
+| Integrity branch | `campaign/dod-low-hanging-integrity-remediation-01` |
 
-## Promote list (PR B)
+## What is done
 
-See `artifacts/.../qa-verdict.json` → `surviving_proven_item_ids` (42 IDs).
+- Scope boundary config + auditors + claim guard  
+- Campaign harness (no accept in harness)  
+- QA reduced set; 37 items remain ACCEPTED with evidence packs  
+- Required CI green on PR #176  
+- Weak POLICY-only accepts demoted  
+- `ci_status.json` rewritten with real required-job map  
+
+## Residual / follow-ups
+
+1. Wire `code_without_execution` / `unit≠e2e` into controller gates if those DOD lines should stay closed.  
+2. Fix CONFENGE commercial freeze binding (unrelated; fails on non-commercial PRs).  
+3. Three ROL-1 orphan fingerprints still VERIFIED without checkbox.  
+4. Optional: re-accept demoted items only after real controller enforcement exists.
+
+## Do not
+
+- Re-accept demoted items with POLICY-only proof  
+- Touch commercial / crawl / VPS  
+- Claim commercial CI fixed  
 
 ## Commands
 
 ```bash
-# PR A validation
-python3 -m scripts.ops.dod_low_hanging_audit \
-  --campaign-id DOD-LOW-HANGING-BOUNDARIES-AND-EVIDENCE-01 \
-  --out artifacts/campaigns/DOD-LOW-HANGING-BOUNDARIES-AND-EVIDENCE-01
+python3 -m scripts.ops.dod_low_hanging_audit --out artifacts/campaigns/DOD-LOW-HANGING-BOUNDARIES-AND-EVIDENCE-01
 python3 -m pytest tests/test_scope_boundaries.py tests/test_client_claim_boundaries.py \
-  tests/test_dod_governance_invariants.py tests/test_dod_low_hanging_audit.py -q --no-cov
-
-# After PR A on main — PR B
-git fetch origin && git checkout main && git pull --ff-only
-git checkout -b campaign/dod-low-hanging-promotion-01
-python3 tools/dod_controller.py scan
-python3 -m scripts.ops.dod_low_hanging_audit --out artifacts/campaigns/DOD-LOW-HANGING-BOUNDARIES-AND-EVIDENCE-01/reproof
-# then per item: start → verify → accept --update-dod
+  tests/test_dod_governance_invariants.py tests/test_dod_low_hanging_audit.py \
+  tests/test_dod_controller_evidence_gates.py -q --no-cov
+python3 tools/dod_controller.py status
 ```
-
-## Do not
-
-- Touch commercial campaign worktree/files  
-- Accept redis/k8s item without ADR proving need  
-- Accept demoted IDs from QA without new proofs  
-- Mutate VPS / crawl live / soak  
-
-## Residual debt
-
-- Optional governance evidence-type per-kind gates  
-- Document Redis CON-6 need or remove unused pool  
-- Classifier false-rejects “comercial” inside liability disclaimer text  
