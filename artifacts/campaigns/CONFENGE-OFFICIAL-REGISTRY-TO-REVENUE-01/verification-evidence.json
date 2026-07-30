@@ -1,0 +1,31 @@
+{
+  "generated_at": "2026-07-30T20:41:00.761163+00:00",
+  "company_registry_and_commercial_related": {
+    "command": "pytest tests/company_registry/ tests/test_top10_official_registry_gate.py tests/test_confenge_activation_coverage_dossiers.py tests/commercial_leads/ tests/test_commercial_status.py -q",
+    "result": "216 passed",
+    "log_tail": "scripts/workspace/common.py                                      194    194   0.0%   6-297\nscripts/workspace/queue.py                                       261    261   0.0%   6-715\n--------------------------------------------------------------------------------------------\nTOTAL                                                          95532  91001   4.7%\nCoverage HTML written to dir docs/td-001/coverage-reports/\n\n\n======================== 216 passed in 75.02s (0:01:15) ========================"
+  },
+  "commercial_rerun": {
+    "run_id": "cl-20260730T201737Z-a35bd698",
+    "full_history_rerun": "EXECUTED",
+    "top20_official_n": 20,
+    "postcheck_ok": true
+  },
+  "fail_closed": {
+    "module": "scripts/company_registry/commercial_bridge.py",
+    "checks": [
+      "ACTIVE",
+      "non_empty_load",
+      "provenance",
+      "official_match",
+      "usable",
+      "top20_official"
+    ]
+  },
+  "bulk_rfb_complete": false,
+  "non_claims": [
+    "bulk_complete",
+    "official_match_99_5_on_22882",
+    "READY_FOR_MANUAL_OUTREACH"
+  ]
+}
