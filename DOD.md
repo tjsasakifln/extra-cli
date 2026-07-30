@@ -639,8 +639,8 @@ covered_financial_value_ratio = valor coberto / valor total do universo relevant
 - [x] `covered_financial_value_ratio >= 99%`. Evidência VPS: **100%** do valor do benchmark v3 Extra/SC (`vps/financial-coverage.json`); hierarquia contracted>homologated>awarded>estimated.
 - [x] `notice_and_annexes_completeness >= 98%`. Evidência VPS 2026-07-30: **99,94%** (3232/3234 denom full) · residual 2 (noise CIGA) · `vps/document-completeness.json`.
 - [x] `session_judgment_homologation_completeness >= 95%`. Evidência VPS 2026-07-30: **99,94%** (3232/3234) via PNCP itens/resultados/historico/atas + SC Compras bulk homolog (2400 processos) · residual 2 noise · `vps/document-completeness.json` + residual campaign.
-- [ ] `winning_proposal_completeness >= 85%`. **PARTIAL multi-source:** **8,91%** (288/3234) via PNCP item_resultados + reclass planilha licitantes + ZIP expand; residual **2946** `winning_proposal_not_published_publicly` · `vps/pd-winqual-final.json`.
-- [ ] `bidder_qualification_documents_completeness >= 70%`. **BLOCKED residual:** **1,27%** (41/3234); residual **3193** `bidder_qualification_not_published_publicly` — habilitação de licitantes raramente pública.
+- [ ] `winning_proposal_completeness >= 85%`. **OPEN (PO residual accepted):** **8,91%** (288/3234); residual **2946** com denominador full. PO Tiago aceitou residual por limite de publicação pública · `vps/po-decision-residual-and-137.json`. Não conta como met.
+- [ ] `bidder_qualification_documents_completeness >= 70%`. **OPEN (PO residual accepted):** **1,27%** (41/3234); residual **3193** com denominador full. PO Tiago aceitou residual por limite de publicação pública · `vps/po-decision-residual-and-137.json`. Não conta como met.
 - [x] Nenhuma média entre as métricas acima é usada para mascarar gap. Evidência: `scripts/process_documents/coverage.py` THRESHOLDS + testes.
 - [x] Timeout, 403, 429, 5xx, paginação parcial, fixture e mock **não** contam como cobertura operacional. Evidência: `OPERATIONAL_SUCCESS` + tests.
 - [x] `SUCCESS_ZERO` exige justificativa auditável. Evidência: `validate_fail_closed` + tests.
@@ -818,8 +818,8 @@ CLI canônica: `python3 -m scripts.process_documents`.
 ### 7A.4 Cobertura, corpus e bid_readiness
 
 - [x] Relatórios: discovery, activity, operational coverage, process recall, financial coverage, completeness, gaps, portal-family inventory, adapter coverage, manifests, corpus, FP/FN. Evidência: `output/process_documents/` + campaign stamp.
-- [x] Corpus público real: ≥30 processos, ≥10 engenharia, ≥10 envelopes relativamente completos, ≥5 famílias, ≥500 requisitos anotados. Evidência VPS: **889** processos, **111** engenharia, **623** envelopes, **7** famílias, **7261** annotations · `vps/corpus-manifest.json`. Issue #137 aberta (FP/FN candidatos automáticos; human GT pendente; READY_TO_SUBMIT proibido).
-- [ ] Análise FP/FN e ausência de erro crítico de falsa prontidão. **PARTIAL:** 600 slots evidence-reviewed + **PO APPROVE_EVIDENCE_REVIEW** (Tiago); `product_owner_signoff=true` para presence GT; **#137 ainda OPEN** (sem auto-close); READY_TO_SUBMIT proibido; win/qual gates abertos · `vps/product-owner-signoff.json` + `bid-readiness-fp-fn-report.json`.
+- [x] Corpus público real: ≥30 processos, ≥10 engenharia, ≥10 envelopes relativamente completos, ≥5 famílias, ≥500 requisitos anotados. Evidência VPS: **889** processos, **111** engenharia, **623** envelopes, **7** famílias, **7261** annotations · `vps/corpus-manifest.json`. Issue #137 close autorizado pelo PO (corpus+GT+FP/FN; win/qual residual aceito) · READY_TO_SUBMIT proibido.
+- [x] Análise FP/FN e ausência de erro crítico de falsa prontidão. Evidência: 600 slots evidence-reviewed + PO APPROVE_EVIDENCE_REVIEW + FP/FN sem falsa prontidão; READY_TO_SUBMIT proibido; residual win/qual aceito pelo PO · `vps/product-owner-signoff.json` + `vps/po-decision-residual-and-137.json` + `bid-readiness-fp-fn-report.json` · HEAD `pending_close_137`.
 - [ ] Issue #137 só fechada após provas; PR #133 só desbloqueada após suíte verde no HEAD exato.
 
 ### 7A.5 Operação local e VPS
@@ -2014,7 +2014,7 @@ O gate `PROJECT_DONE` só pode ser marcado quando:
 - [ ] O sistema é utilizado na rotina real.
 - [ ] As métricas são tecnicamente defensáveis.
 - [ ] As métricas documentais da §4.4 estão comprovadas (sem média; sem claim sem evidência live).
-- [ ] Corpus público real e validação `bid_readiness` sem falsa prontidão (issue #137 / PR #133).
+- [x] Corpus público real e validação `bid_readiness` sem falsa prontidão (issue #137 / PR #133). Evidência: corpus+GT PO-approved+FP/FN+PO residual · `vps/po-decision-residual-and-137.json`.
 - [ ] As limitações são explícitas.
 - [ ] O custo é aceitável.
 - [ ] A manutenção é viável para um único usuário.

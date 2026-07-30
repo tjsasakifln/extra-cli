@@ -1,10 +1,11 @@
 {
-  "as_of": "2026-07-30T23:49:02.908698+00:00",
+  "as_of": "2026-07-30T23:50:46.124240+00:00",
   "vps_host": "ec-prod",
-  "git_head": "8dc7287b7dda74ec2611c2ee648c148b28c78a27",
+  "git_head": "7c73133dc52ed8afea3ed35b849d9dbe20536f53",
   "branch": "feat/public-process-documents-coverage",
   "gate_exit": 6,
-  "product_owner_signoff": "APPROVE_EVIDENCE_REVIEW",
+  "po_approve_evidence_review": true,
+  "po_accept_residual_win_qual_and_close_137": true,
   "metrics": {
     "discovery": 100.0,
     "operational": 96.5602,
@@ -12,27 +13,13 @@
     "financial": 100.0,
     "notice": 99.9382,
     "session": 99.9382,
-    "win": 8.9054,
-    "qual": 1.2678
+    "winning_proposal": 8.9054,
+    "qualification": 1.2678,
+    "processes_scored": 3234,
+    "coverage_full_exit": 6
   },
-  "gates_met": [
-    "discovery",
-    "ops",
-    "recall",
-    "financial",
-    "notice",
-    "session",
-    "po_evidence_review"
-  ],
-  "gates_open": [
-    "win",
-    "qual",
-    "issue_137",
-    "pr_133",
-    "candidate_complete"
-  ],
+  "issue_137_close_authorized": true,
   "candidate_complete": false,
-  "issue_137": "OPEN",
   "ready_to_submit": false,
   "pr": "https://github.com/tjsasakifln/extra-cli/pull/184"
 }

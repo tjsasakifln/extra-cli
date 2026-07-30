@@ -1,15 +1,13 @@
-# PROCESS-DOCS-01 — PO evidence-review approved; #137 still OPEN
+# PROCESS-DOCS-01 — PO residual accepted; #137 close authorized
 
-Generated: 2026-07-30T23:49:02.908698+00:00  
-HEAD: `8dc7287b7dda74ec2611c2ee648c148b28c78a27`
+Generated: 2026-07-30T23:50:46.124240+00:00  
+HEAD at decision: `7c73133dc52ed8afea3ed35b849d9dbe20536f53`
 
-## Product Owner decision
-**APPROVE_EVIDENCE_REVIEW** — Tiago accepted the 600-slot document-presence GT evidence review.
+## Product Owner decisions
+1. **APPROVE_EVIDENCE_REVIEW** — 600 GT slots (document presence)
+2. **ACCEPT residual win/qual OPEN + CLOSE #137** — publication limits accepted; denominators full
 
-Does **not** authorize: auto-close #137, unblock #133, READY_TO_SUBMIT, candidate_complete, win/qual met.
-
-## Metrics (full denominators)
-
+## Metrics
 | Metric | Result | Gate |
 |--------|--------|------|
 | discovery | 100% | MET |
@@ -18,29 +16,22 @@ Does **not** authorize: auto-close #137, unblock #133, READY_TO_SUBMIT, candidat
 | financial | 100% | MET |
 | notice | 99.94% | MET |
 | session | 99.94% | MET |
-| winning proposal | **8.91%** | **OPEN** |
-| qualification | **1.27%** | **OPEN** |
+| winning proposal | **8.91%** | **OPEN (PO residual accepted)** |
+| qualification | **1.27%** | **OPEN (PO residual accepted)** |
 
-`coverage --full` exit **6**.
+`coverage --full` exit **6** (expected with win/qual open).
 
-## Reassessment #137 / #133
-| Item | Status |
-|------|--------|
-| Presence GT PO-approved | yes |
-| Issue #137 | **OPEN** (no auto-close; residual win/qual + explicit close still needed) |
-| PR #133 | **BLOCKED** |
-| candidate_complete | **false** |
-| READY_TO_SUBMIT | **forbidden** |
-
-## Residual blockers (in denominator)
-- win: 2946 (mostly SC homolog without public proposal pack + session-without-proposal-PDF)
-- qual: 3193 (session public but bidder qualification not published)
+## #137 / #133
+- **#137:** close authorized by PO (this decision)
+- **#133:** still blocked until suite green on exact HEAD after #137
+- **candidate_complete:** false (win/qual capability gates still open)
+- **READY_TO_SUBMIT:** forbidden
 
 ## Evidence
+- `vps/po-decision-residual-and-137.json`
 - `vps/product-owner-signoff.json`
 - `vps/evidence-review-pass-summary.json`
 - `vps/residual-win-qual-blocker-review.json`
-- `PRODUCT-OWNER-SIGNOFF-PACKAGE.md`
 
 ## PR
 https://github.com/tjsasakifln/extra-cli/pull/184
