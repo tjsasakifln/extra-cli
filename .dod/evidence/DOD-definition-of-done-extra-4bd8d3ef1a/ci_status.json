@@ -1,0 +1,8 @@
+{
+  "conclusion": "success",
+  "head_sha": "97da2c49bcd9ce713738dd326b589a120498abb8",
+  "mandatory_jobs_skipped": [],
+  "source": "PR #173 merged CI green on main; promotion branch HEAD at reproof",
+  "pr_a": 173,
+  "main_merge_sha": "97da2c49bcd9ce713738dd326b589a120498abb8"
+}

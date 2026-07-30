@@ -1,0 +1,65 @@
+{
+  "item_id": "DOD-definition-of-done-extra-5d877d2ba4",
+  "commands": [
+    {
+      "cmd": "python3 -m scripts.ops.audit_scope_boundaries --capability autenticacao_complexa_desnecessaria",
+      "exit_code": 0,
+      "duration_s": 5.13,
+      "stdout_tail": "\n      \"false_positives_treated\": [],\n      \"implementation_violations\": 0,\n      \"conclusion\": \"PROVEN\",\n      \"limitations\": [\n        \"Static audit; does not execute runtime services.\",\n        \"Does not prove future code will stay in bounds without CI gate.\"\n      ],\n      \"code_hash\": \"149dc029439e669a\",\n      \"commands\": [\n        \"python3 -m scripts.ops.audit_scope_boundaries --capability autenticacao_complexa_desnecessaria\"\n      ],\n      \"exit_code\": 0,\n      \"findings\": []\n    }\n  }\n}\n",
+      "stderr_tail": "",
+      "env": {
+        "CI": null,
+        "GITHUB_ACTIONS": null,
+        "LOCAL_DATALAKE_DSN": {
+          "set": false,
+          "len": 0
+        },
+        "PYTEST_ADDOPTS": null,
+        "PATH": {
+          "set": true,
+          "len": 1919
+        },
+        "USER": "tjsasakifln",
+        "HOME": {
+          "set": true,
+          "len": 17
+        }
+      },
+      "skipped": false
+    }
+  ],
+  "tests": [],
+  "ok": true,
+  "notes": [],
+  "rejected_trivial": [],
+  "head_sha": "97da2c49bcd9ce713738dd326b589a120498abb8",
+  "env": {
+    "CI": null,
+    "GITHUB_ACTIONS": null,
+    "LOCAL_DATALAKE_DSN": {
+      "set": false,
+      "len": 0
+    },
+    "PYTEST_ADDOPTS": null,
+    "PATH": {
+      "set": true,
+      "len": 1919
+    },
+    "USER": "tjsasakifln",
+    "HOME": {
+      "set": true,
+      "len": 17
+    }
+  },
+  "started_at": "2026-07-30T01:42:13Z",
+  "duration_s": 5.13,
+  "substantive_runs": 1,
+  "totals": {
+    "passed": 1,
+    "failed": 0,
+    "skipped": 0,
+    "deselected": 0,
+    "error": 0
+  },
+  "finished_at": "2026-07-30T01:42:22Z"
+}

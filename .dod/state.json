@@ -1,34 +1,34 @@
 {
   "schema_version": "1.0",
   "campaign_id": "DOD-CONVERGENCE-EXTRA-CONTINUE-03",
-  "updated_at": "2026-07-29T13:06:08Z",
-  "active_item_id": null,
-  "active_run_id": "run-20260728T022047Z",
+  "updated_at": "2026-07-30T02:09:57Z",
+  "active_item_id": "DOD-rol-1-definition-of-done-90c4a972f6",
+  "active_run_id": "run-20260730T020741Z",
   "active_branch": "campaign/continue-03-report-concorrentes",
-  "main_sha": "d05d4c3de152b562493715f114e0a387fcb63dc3",
-  "phase": "audit",
+  "main_sha": "97da2c49bcd9ce713738dd326b589a120498abb8",
+  "phase": "verify",
   "next_eligible_id": "DOD-35-gates-consolidados-8e6b4fa8ad",
   "last_report_path": "/mnt/d/extra-consultoria-dod-conv/.dod/evidence/report-2026-07-21T020044Z.json",
   "metrics": {
     "total": 1462,
-    "accepted": 441,
-    "accepted_state": 441,
-    "claimed_checked": 451,
-    "audited_accepted": 129,
-    "evidence_located": 240,
-    "evidence_reproduced": 142,
+    "accepted": 480,
+    "accepted_state": 480,
+    "claimed_checked": 490,
+    "audited_accepted": 168,
+    "evidence_located": 279,
+    "evidence_reproduced": 181,
     "proof_debt": 375,
     "verified": 0,
     "in_progress": 0,
     "implemented": 0,
-    "open": 1020,
+    "open": 981,
     "blocked": 1,
     "deferred": 0,
-    "acceptance_pct": 8.82,
-    "claimed_pct": 30.85,
+    "acceptance_pct": 11.49,
+    "claimed_pct": 33.52,
     "by_state": {
-      "ACCEPTED": 441,
-      "OPEN": 1020,
+      "ACCEPTED": 480,
+      "OPEN": 981,
       "BLOCKED_HUMAN": 1
     },
     "by_category": {
@@ -43,9 +43,9 @@
       "HUMAN_ACCEPTANCE": 40,
       "CREDENTIAL_REQUIRED": 16
     },
-    "dod_checked_count": 451
+    "dod_checked_count": 490
   },
-  "resume_step": "next",
+  "resume_step": "accept",
   "notes": "CONTINUE-03: implementing concorrentes (44e0c95c6e). editais+contratos ACCEPTED.",
   "billing_blocker": {
     "status": "RESOLVED",
@@ -56,5 +56,5 @@
       "29831727568"
     ]
   },
-  "next_step": "next"
+  "next_step": "accept"
 }

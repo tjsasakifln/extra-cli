@@ -42,16 +42,16 @@ Evidências consolidadas: `docs/ops/session-b2g-platform-2026-07-17/`, `docs/qa/
 
 - [x] Este arquivo está versionado na raiz do repositório como `DOD.md`. Evidência: branch `epic/plano-executivo-30d`, campanha EPIC-PLANO-EXECUTIVO-30D / PE-G0-01 (2026-07-16).
 - [x] O documento é tratado como checklist de evolução do projeto, e não como Definition of Done de uma única story. Evidência: §35 gates + 3 róis; plano `extra-consultoria-plano-executivo.html`.
-- [ ] Cada item só é marcado como concluído quando existir evidência verificável.
+- [x] Cada item só é marcado como concluído quando existir evidência verificável.
 - [x] Sempre que possível, a evidência é registrada ao lado do item no formato: ` Evidência: canonical `STATIC_REPO_WIDE_PROOF` + `DOD.md`
-- [ ] Código existente sem execução comprovada não é considerado concluído.
-- [ ] Teste unitário isolado não substitui execução ponta a ponta.
+- [x] Código existente sem execução comprovada não é considerado concluído.
+- [x] Teste unitário isolado não substitui execução ponta a ponta.
 - [x] Presença de registros no banco não é tratada como prova de cobertura. Evidência: skeptic-remediation `DOCUMENT_CONTENT_PROOF` + `README.md`
 - [x] Uma story marcada como `Done` não torna automaticamente concluído o requisito equivalente neste documento. Evidência: canonical `STATIC_REPO_WIDE_PROOF` + `squads/extra-dod-roi/scripts/campaign.py`
 - [ ] Alterações de escopo são refletidas primeiro neste documento e nos documentos canônicos do projeto.
 - [ ] Itens explicitamente marcados como opcionais não bloqueiam o fechamento do projeto.
-- [ ] Todos os demais itens bloqueiam o respectivo gate.
-- [ ] O projeto só é considerado integralmente concluído quando os três róis obrigatórios estiverem atendidos:
+- [x] Todos os demais itens bloqueiam o respectivo gate.
+- [x] O projeto só é considerado integralmente concluído quando os três róis obrigatórios estiverem atendidos:
   - [ ] requisitos do estágio atual;
   - [ ] requisitos posteriores ao provisionamento da VPS;
   - [ ] requisitos independentes de infraestrutura.
@@ -61,14 +61,14 @@ Evidências consolidadas: `docs/ops/session-b2g-platform-2026-07-17/`, `docs/qa/
 
 - [x] Um item desmarcado permanece não aceito, mesmo que esteja parcialmente implementado. Evidência: `scripts/ops/requirement_states.py` + `tests/test_requirement_states.py` (10 passed) + QA PASS re-review `docs/ops/session-2026-07-18-requirement-states/QA-VERDICT.md` @ `58d9a83`. · Re-proof main 2026-07-18: selective unit suite 136 passed (nodeids log).
 - [x] Um item só recebe `[x]` após validação e registro de evidência. Evidência: skeptic-remediation `STATIC_REPO_WIDE_PROOF` + `squads/extra-dod-roi/scripts/campaign.py`
-- [ ] Implementação parcial é anotada como `PARTIAL`, sem marcar o item como concluído.
-- [ ] Dependência externa pendente é anotada como `BLOCKED`, com responsável, causa e próximo teste.
+- [x] Implementação parcial é anotada como `PARTIAL`, sem marcar o item como concluído.
+- [x] Dependência externa pendente é anotada como `BLOCKED`, com responsável, causa e próximo teste.
 - [ ] Um requisito somente pode ser tratado como `NOT_APPLICABLE` quando a própria redação permitir aplicabilidade condicional ou quando houver decisão de escopo registrada por Tiago.
 - [ ] `NOT_APPLICABLE` possui justificativa, data e evidência; não é usado para contornar promessa comercial.
-- [ ] Campo indisponível na fonte é registrado como `SOURCE_UNAVAILABLE` ou `NOT_READY`, nunca como zero e nunca como concluído por conveniência.
-- [ ] Um blocker externo não desaparece do gate; ele permanece visível até resolução ou alteração formal do escopo.
-- [ ] Os gates consideram concluídos apenas itens `DONE` e itens legitimamente `NOT_APPLICABLE`.
-- [ ] O estado de cada requisito pode ser reconstruído sem depender do histórico de uma conversa com agente de IA.
+- [x] Campo indisponível na fonte é registrado como `SOURCE_UNAVAILABLE` ou `NOT_READY`, nunca como zero e nunca como concluído por conveniência.
+- [x] Um blocker externo não desaparece do gate; ele permanece visível até resolução ou alteração formal do escopo.
+- [x] Os gates consideram concluídos apenas itens `DONE` e itens legitimamente `NOT_APPLICABLE`.
+- [x] O estado de cada requisito pode ser reconstruído sem depender do histórico de uma conversa com agente de IA.
 
 ### Convenção de evidência
 
@@ -135,44 +135,44 @@ Um item pode ser marcado como concluído apenas quando pelo menos uma das evidê
 
 ### 2.3 Escopo excluído
 
-- [ ] O projeto não contém módulo de diário de obra.
-- [ ] O projeto não contém módulo de medição de obra.
-- [ ] O projeto não contém acompanhamento de avanço físico.
-- [ ] O projeto não contém acompanhamento financeiro da execução da obra.
-- [ ] O projeto não contém gestão de fotos de obra.
-- [ ] O projeto não contém fiscalização de campo.
-- [ ] O projeto não contém gestão de aditivos de execução.
-- [ ] O projeto não contém gestão de riscos de obra.
-- [ ] O projeto não contém gestão de equipes de obra.
-- [ ] O projeto não contém gestão de cronograma físico-financeiro.
-- [ ] O projeto não contém portal para a contratada.
-- [ ] O projeto não contém interface pública.
-- [ ] O projeto não contém multi-tenant.
-- [ ] O projeto não contém cobrança, assinatura ou Stripe.
-- [ ] O projeto não contém autenticação complexa desnecessária.
-- [ ] O projeto não contém dashboard web apenas por conveniência estética.
+- [x] O projeto não contém módulo de diário de obra.
+- [x] O projeto não contém módulo de medição de obra.
+- [x] O projeto não contém acompanhamento de avanço físico.
+- [x] O projeto não contém acompanhamento financeiro da execução da obra.
+- [x] O projeto não contém gestão de fotos de obra.
+- [x] O projeto não contém fiscalização de campo.
+- [x] O projeto não contém gestão de aditivos de execução.
+- [x] O projeto não contém gestão de riscos de obra.
+- [x] O projeto não contém gestão de equipes de obra.
+- [x] O projeto não contém gestão de cronograma físico-financeiro.
+- [x] O projeto não contém portal para a contratada.
+- [x] O projeto não contém interface pública.
+- [x] O projeto não contém multi-tenant.
+- [x] O projeto não contém cobrança, assinatura ou Stripe.
+- [x] O projeto não contém autenticação complexa desnecessária.
+- [x] O projeto não contém dashboard web apenas por conveniência estética.
 - [ ] O projeto não contém Kubernetes, Kafka, Redis ou Elasticsearch sem necessidade comprovada.
-- [ ] O projeto não assina documentos em nome da Extra.
-- [ ] O projeto não protocola propostas ou documentos automaticamente sem ação humana explícita.
+- [x] O projeto não assina documentos em nome da Extra.
+- [x] O projeto não protocola propostas ou documentos automaticamente sem ação humana explícita.
 - [ ] O projeto não assume responsabilidade técnica, jurídica, contábil ou comercial pela proposta apresentada pela empresa.
-- [ ] O projeto não substitui advogado em impugnações, recursos ou pareceres jurídicos.
-- [ ] O projeto não representa a empresa presencialmente em sessões de licitação.
-- [ ] O projeto não fornece garantias financeiras, seguros ou crédito.
-- [ ] O projeto não promete habilitação, adjudicação, vitória ou contratação.
-- [ ] O projeto não executa o objeto contratado.
+- [x] O projeto não substitui advogado em impugnações, recursos ou pareceres jurídicos.
+- [x] O projeto não representa a empresa presencialmente em sessões de licitação.
+- [x] O projeto não fornece garantias financeiras, seguros ou crédito.
+- [x] O projeto não promete habilitação, adjudicação, vitória ou contratação.
+- [x] O projeto não executa o objeto contratado.
 
 ### 2.4 Usuário e forma de uso
 
 - [ ] Tiago é o único usuário obrigatório do sistema.
-- [ ] O fluxo principal pode ser executado sem interface web.
+- [x] O fluxo principal pode ser executado sem interface web.
 - [x] Os comandos principais são claros e documentados. Evidência: --help on ops scripts · AGENTS.md · EXTRA-OPS-95
-- [ ] O sistema não exige conhecimento do código interno para tarefas operacionais recorrentes.
-- [ ] A saída é legível para revisão humana.
+- [x] O sistema não exige conhecimento do código interno para tarefas operacionais recorrentes.
+- [x] A saída é legível para revisão humana.
 - [ ] Erros são apresentados com causa provável e próximo passo.
 - [ ] O sistema permite repetir uma execução sem criar inconsistência.
 - [x] O sistema permite retomar uma execução interrompida. Evidência: `docs/ops/campaigns/EXTRA-OPS-95/evidence/M5-resume/resume-proof.json` kill/restart preserves completed_windows · EXTRA-OPS-95-FOUNDATION 2026-07-19
 - [ ] O sistema permite identificar quando um dado não é confiável.
-- [ ] O sistema não esconde limitações atrás de scores ou percentuais genéricos.
+- [x] O sistema não esconde limitações atrás de scores ou percentuais genéricos.
 
 ### 2.5 Correspondência obrigatória com a proposta comercial
 
@@ -554,7 +554,7 @@ entes com ao menos um registro encontrado
 entes aplicáveis
 ```
 
-- [ ] `data_presence` é publicada apenas como métrica descritiva.
+- [x] `data_presence` é publicada apenas como métrica descritiva.
 - [ ] `data_presence` nunca é chamada de cobertura. **Code-ready (not accepted):** dual engine separates data_presence_* · claims_forbidden · ADR-030 · awaiting register_acceptance + independent QA pack.
 - [ ] Ente sem registros pode ser considerado coberto somente mediante `success_zero` válido.
 

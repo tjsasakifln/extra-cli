@@ -1,0 +1,65 @@
+{
+  "item_id": "DOD-definition-of-done-extra-e3fab7341c",
+  "commands": [
+    {
+      "cmd": "python3 -m scripts.ops.audit_scope_boundaries --capability multi_tenant",
+      "exit_code": 0,
+      "duration_s": 6.823,
+      "stdout_tail": "_tenant\"\n      ],\n      \"exit_code\": 0,\n      \"findings\": [\n        {\n          \"capability_id\": \"multi_tenant\",\n          \"path\": \"scripts/ops/requirement_states.py\",\n          \"line\": 529,\n          \"snippet\": \"     justification=\\\"Illustrative NA for multi-tenant billing (explicit out of scope §2.3).\\\",\",\n          \"classification\": \"disclaimer\",\n          \"pattern\": \"(?i)(multi[_-]?tenant|tenant_id\\\\s+UUID|CREATE TABLE tenants\\\\b)\",\n          \"severity\": \"soft\"\n        }\n      ]\n    }\n  }\n}\n",
+      "stderr_tail": "",
+      "env": {
+        "CI": null,
+        "GITHUB_ACTIONS": null,
+        "LOCAL_DATALAKE_DSN": {
+          "set": false,
+          "len": 0
+        },
+        "PYTEST_ADDOPTS": null,
+        "PATH": {
+          "set": true,
+          "len": 1919
+        },
+        "USER": "tjsasakifln",
+        "HOME": {
+          "set": true,
+          "len": 17
+        }
+      },
+      "skipped": false
+    }
+  ],
+  "tests": [],
+  "ok": true,
+  "notes": [],
+  "rejected_trivial": [],
+  "head_sha": "97da2c49bcd9ce713738dd326b589a120498abb8",
+  "env": {
+    "CI": null,
+    "GITHUB_ACTIONS": null,
+    "LOCAL_DATALAKE_DSN": {
+      "set": false,
+      "len": 0
+    },
+    "PYTEST_ADDOPTS": null,
+    "PATH": {
+      "set": true,
+      "len": 1919
+    },
+    "USER": "tjsasakifln",
+    "HOME": {
+      "set": true,
+      "len": 17
+    }
+  },
+  "started_at": "2026-07-30T01:40:42Z",
+  "duration_s": 6.823,
+  "substantive_runs": 1,
+  "totals": {
+    "passed": 1,
+    "failed": 0,
+    "skipped": 0,
+    "deselected": 0,
+    "error": 0
+  },
+  "finished_at": "2026-07-30T01:40:49Z"
+}
