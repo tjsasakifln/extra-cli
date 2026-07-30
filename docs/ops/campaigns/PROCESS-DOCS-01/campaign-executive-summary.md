@@ -1,58 +1,46 @@
-# PROCESS-DOCS-01 — Evidence review pass (GT + win/qual residual)
+# PROCESS-DOCS-01 — PO evidence-review approved; #137 still OPEN
 
-Generated: 2026-07-30T23:41:25.664833+00:00
+Generated: 2026-07-30T23:49:02.908698+00:00  
+HEAD: `8dc7287b7dda74ec2611c2ee648c148b28c78a27`
 
-## Independent metrics (full denom, no shrink)
+## Product Owner decision
+**APPROVE_EVIDENCE_REVIEW** — Tiago accepted the 600-slot document-presence GT evidence review.
 
-| Metric | Result | Target | Gate |
-|--------|--------|--------|------|
-| discovery | 100% | 100% | **MET** |
-| operational | 96.56% | ≥95% | **MET** |
-| recall | 100% | ≥98% | **MET** |
-| financial | 100% | ≥99% | **MET** |
-| notice | 99.94% | ≥98% | **MET** |
-| session | 99.94% | ≥95% | **MET** |
-| winning proposal | **8.91%** | ≥85% | **OPEN** |
-| qualification | **1.27%** | ≥70% | **OPEN** |
+Does **not** authorize: auto-close #137, unblock #133, READY_TO_SUBMIT, candidate_complete, win/qual met.
+
+## Metrics (full denominators)
+
+| Metric | Result | Gate |
+|--------|--------|------|
+| discovery | 100% | MET |
+| operational | 96.56% | MET |
+| recall | 100% | MET |
+| financial | 100% | MET |
+| notice | 99.94% | MET |
+| session | 99.94% | MET |
+| winning proposal | **8.91%** | **OPEN** |
+| qualification | **1.27%** | **OPEN** |
 
 `coverage --full` exit **6**.
 
-## GT evidence review (600 slots)
-- All **600** slots evidence-reviewed
-- Labels: **present × 600** (CAS/run-index verified)
-- Flagged: **0**
-- Reviewer: `process_documents.confirm_gt_review`
-- Method: cas_presence_process_linkage_title_category
-- **`product_owner_signoff=false`**
-- **`human_ground_truth_complete=false`**
-- **`issue_137_close_allowed=false`**
-- **READY_TO_SUBMIT forbidden**
+## Reassessment #137 / #133
+| Item | Status |
+|------|--------|
+| Presence GT PO-approved | yes |
+| Issue #137 | **OPEN** (no auto-close; residual win/qual + explicit close still needed) |
+| PR #133 | **BLOCKED** |
+| candidate_complete | **false** |
+| READY_TO_SUBMIT | **forbidden** |
 
-This pass is evidence review of document presence, **not** Tiago product-owner sign-off for bid_readiness.
+## Residual blockers (in denominator)
+- win: 2946 (mostly SC homolog without public proposal pack + session-without-proposal-PDF)
+- qual: 3193 (session public but bidder qualification not published)
 
-## Win/qual residual blocker review (nominal, in denom)
-| Blocker | Count |
-|---------|------:|
-| sc_compras_homolog_without_public_proposal_pack | 2400 |
-| session_public_but_winning_proposal_pdf_not_published | 526 |
-| non_process_publication_dump (win) | 19 |
-| session_public_but_bidder_qualification_not_published | 3179 |
-| non_process_publication_dump (qual) | 14 |
-
-**Decision:** leave win/qual gates open. No denom shrink.
-
-## Explicit non-claims
-- `candidate_complete = false`
-- Issue **#137 OPEN**
-- PR **#133 blocked**
-- No READY_TO_SUBMIT language
-
-## Evidence files
+## Evidence
+- `vps/product-owner-signoff.json`
 - `vps/evidence-review-pass-summary.json`
 - `vps/residual-win-qual-blocker-review.json`
-- `vps/bid-readiness-human-gt-manifest.json`
-- `vps/bid-readiness-fp-fn-report.json`
-- `vps/honest-residual-final.json`
+- `PRODUCT-OWNER-SIGNOFF-PACKAGE.md`
 
 ## PR
 https://github.com/tjsasakifln/extra-cli/pull/184
