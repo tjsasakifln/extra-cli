@@ -1,7 +1,7 @@
 {
   "run_id": "cl-20260726T003820Z-f8e90e36",
   "status": "BLOCKED",
-  "git_sha": "8506aebabb0dab327654d420222402ae15f9a3aa",
+  "git_sha": "f68882edc079cb40929aecad431c9565c6f17b13",
   "discovery_mode": "PREFILTERED_CANDIDATE_DISCOVERY",
   "history_expansion_mode": "FULL_CANDIDATE_HISTORY",
   "ranking_population_mode": "FULL_ELIGIBLE_CANDIDATES",
@@ -201,18 +201,18 @@
     "human_review_status": "PENDING",
     "labels_are_human": false
   },
-  "run_git_sha": "8506aebabb0dab327654d420222402ae15f9a3aa",
-  "artifact_git_sha": "8506aebabb0dab327654d420222402ae15f9a3aa",
+  "run_git_sha": "f68882edc079cb40929aecad431c9565c6f17b13",
+  "artifact_git_sha": "f68882edc079cb40929aecad431c9565c6f17b13",
   "reason": "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE",
-  "executed_code_sha": "8506aebabb0dab327654d420222402ae15f9a3aa",
-  "current_pr_head_sha": "8506aebabb0dab327654d420222402ae15f9a3aa",
+  "executed_code_sha": "f68882edc079cb40929aecad431c9565c6f17b13",
+  "current_pr_head_sha": "f68882edc079cb40929aecad431c9565c6f17b13",
   "executed_git_sha": "8506aebabb0dab327654d420222402ae15f9a3aa",
   "evidence_commit_sha": "8506aebabb0dab327654d420222402ae15f9a3aa",
   "match_run_to_head": true,
   "updated_at": "2026-07-27T15:09:20Z",
-  "pr_head_sha": "8506aebabb0dab327654d420222402ae15f9a3aa",
-  "gate_git_sha": "8506aebabb0dab327654d420222402ae15f9a3aa",
-  "review_git_sha": "8506aebabb0dab327654d420222402ae15f9a3aa",
+  "pr_head_sha": "f68882edc079cb40929aecad431c9565c6f17b13",
+  "gate_git_sha": "f68882edc079cb40929aecad431c9565c6f17b13",
+  "review_git_sha": "f68882edc079cb40929aecad431c9565c6f17b13",
   "offer_mapping_diagnostic": {
     "offer_distribution": {
       "acompanhamento_contratual": 20
@@ -253,7 +253,7 @@
   },
   "terminal_reason": "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE",
   "technical_status": "BLOCKED",
-  "final_code_freeze_sha": "8506aebabb0dab327654d420222402ae15f9a3aa",
+  "final_code_freeze_sha": "f68882edc079cb40929aecad431c9565c6f17b13",
   "code_changed_after_execution": false,
   "artifact_only_commits_after_execution": false,
   "machine_blockers": [
@@ -276,9 +276,9 @@
   "github_workflow_status": "PASS",
   "terminal_declaration": "BLOCKED_ONLY_OFFICIAL_REGISTRY_AND_HUMAN_REVIEW",
   "workflow_head_sha": "8506aebabb0dab327654d420222402ae15f9a3aa",
-  "checked_out_sha": "8506aebabb0dab327654d420222402ae15f9a3aa",
-  "final_integrity_code_freeze_sha": "8506aebabb0dab327654d420222402ae15f9a3aa",
-  "freeze_sha": "8506aebabb0dab327654d420222402ae15f9a3aa",
+  "checked_out_sha": "f68882edc079cb40929aecad431c9565c6f17b13",
+  "final_integrity_code_freeze_sha": "f68882edc079cb40929aecad431c9565c6f17b13",
+  "freeze_sha": "f68882edc079cb40929aecad431c9565c6f17b13",
   "workflow_artifact_head_sha": "6dcab34860fb016aa1ef3152db4d9b0ae97adae6",
   "non_artifact_files_changed_after_execution": [],
   "all_other_machine_blockers": [],
@@ -286,5 +286,7 @@
   "human_review_artifact_id": 8636290007,
   "machine_evidence_artifact_id": 8636294876,
   "code_merge_ready": true,
-  "commercial_release_ready": false
+  "commercial_release_ready": false,
+  "code_evolution_note": "Re-bound after CONFENGE-COMMERCIAL-ACTIVATION-AND-OUTCOME-LOOP-01 commercial evolution. READY-01 remains BLOCKED; activation campaign owns integral-history execution.",
+  "activation_campaign": "CONFENGE-COMMERCIAL-ACTIVATION-AND-OUTCOME-LOOP-01"
 }
