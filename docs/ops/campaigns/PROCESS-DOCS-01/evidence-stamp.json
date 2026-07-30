@@ -1,0 +1,11 @@
+{
+  "discovery_percent": 100.0,
+  "discovery_sha256": "306976f2ae4bbaa46d816c2529e498fe114ef433e23181599b0892124bed7490",
+  "operational_percent": 82.3096,
+  "operational_num": 335,
+  "operational_den": 407,
+  "active_count": 407,
+  "gate_exit": 3,
+  "corpus_processes": 81,
+  "generated_at": "2026-07-30T19:32:17.488102+00:00"
+}
