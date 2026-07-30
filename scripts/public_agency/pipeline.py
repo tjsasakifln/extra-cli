@@ -520,8 +520,23 @@ def run_public_agency_pipeline(
         if prospect.populacao is not None and prospect.populacao <= priority_population_max:
             score.priority_score = round(min(1.0, score.priority_score + 0.05), 4)
 
-        evidence = []
-        for c in contracts[:15]:
+        # Prefer engineering-relevant contracts in the evidence sample so dossiers
+        # do not hide the material eng object behind newer office supplies.
+        eng_first = [c for c in contracts if is_engineering_object(str(c.get("objeto_contrato") or ""), eng_kws)]
+        eng_ids = {id(c) for c in eng_first}
+        non_eng = [c for c in contracts if id(c) not in eng_ids]
+        eng_first_sorted = sorted(
+            eng_first,
+            key=lambda c: str(c.get("data_publicacao") or ""),
+            reverse=True,
+        )
+        non_eng_sorted = sorted(
+            non_eng,
+            key=lambda c: str(c.get("data_publicacao") or ""),
+            reverse=True,
+        )
+        evidence: list[dict[str, Any]] = []
+        for c in (eng_first_sorted + non_eng_sorted)[:15]:
             evidence.append(
                 {
                     "source": c.get("source") or "pncp_supplier_contracts",
@@ -543,6 +558,9 @@ def run_public_agency_pipeline(
                     "parser": "public_agency.pipeline",
                     "version": MODULE_VERSION,
                     "quality": "official_table_row",
+                    "is_engineering_object": is_engineering_object(
+                        str(c.get("objeto_contrato") or ""), eng_kws
+                    ),
                     "limitations": [
                         "Buyer-side row from supplier contracts table; not full process file."
                     ],
@@ -551,11 +569,52 @@ def run_public_agency_pipeline(
                 }
             )
 
+        total_value = sum(float(c.get("valor_total") or 0) for c in contracts)
+        last_pub = None
+        for c in contracts:
+            d = str(c.get("data_publicacao") or "")[:10]
+            if d and (last_pub is None or d > last_pub):
+                last_pub = d
+
+        material = material_need_signals(signals)
+        # Gate: material engineering need requires ≥1 real eng object
+        has_eng_object = eng_contract_count >= 1
+        if not has_eng_object:
+            from scripts.public_agency.signals import SignalHit
+
+            _eng_need_ids = {
+                "recurring_engineering_procurements",
+                "recent_publication_of_engineering_demand",
+                "works_or_services_with_long_execution",
+                "high_engineering_spend_relative_to_population",
+                "contract_execution_distress",
+            }
+            rebuilt: list = []
+            for s in signals:
+                if s.signal_id in _eng_need_ids and s.status == "FIRED":
+                    rebuilt.append(
+                        SignalHit(
+                            signal_id=s.signal_id,
+                            status="NOT_FIRED",
+                            confidence=s.confidence,
+                            weight=s.weight,
+                            evidence=s.evidence,
+                            limitations=list(s.limitations)
+                            + ["suppressed: no confirmed engineering object"],
+                            definition=s.definition,
+                            version=s.version,
+                        )
+                    )
+                else:
+                    rebuilt.append(s)
+            signals = rebuilt
+            material = material_need_signals(signals)
+
         pub = evaluate_publishability(
             has_official_identity=bool(prospect.cnpj or prospect.nome_oficial),
             signals=signals,
             has_official_evidence=bool(contracts),
-            service_fit_score=score.service_fit_score,
+            service_fit_score=score.service_fit_score if has_eng_object else min(score.service_fit_score, 0.2),
             explanation=score.explanation,
             conflict=conflict,
             compliance_blocks=compliance_blocks,
@@ -566,20 +625,12 @@ def run_public_agency_pipeline(
         if pub.category in {"CONFLICT_BLOCKED", "COMPLIANCE_BLOCKED"}:
             blocked += 1
 
-        total_value = sum(float(c.get("valor_total") or 0) for c in contracts)
-        last_pub = None
-        for c in contracts:
-            d = str(c.get("data_publicacao") or "")[:10]
-            if d and (last_pub is None or d > last_pub):
-                last_pub = d
-
-        material = material_need_signals(signals)
         probable = (
             "Sinais de possível necessidade técnica (histórico de contratações de engenharia / "
             "execução longa) — prospecção proativa institucional; não afirma que o órgão está "
             "contratando no momento."
-            if material
-            else "Sinais fracos; necessita pesquisa adicional."
+            if material and has_eng_object
+            else "Sinais fracos ou sem objeto de engenharia confirmado; necessita pesquisa adicional."
         )
 
         lead = {
