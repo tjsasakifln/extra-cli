@@ -1,0 +1,82 @@
+{
+  "ok": true,
+  "captured_at": "2026-07-30T01:15:58Z",
+  "hostname": "v2202607385716487230",
+  "deploy_sha": "50fc9390c6ab886c9e5562f655d4b18b807db324",
+  "units": {
+    "extra-contracts-soak.timer": {
+      "enabled": "enabled",
+      "active": "active"
+    },
+    "pncp-contracts.timer": {
+      "enabled": "enabled",
+      "active": "active"
+    },
+    "extra-weekly.timer": {
+      "enabled": "enabled",
+      "active": "active"
+    },
+    "extra-db-backup.timer": {
+      "enabled": "enabled",
+      "active": "active"
+    }
+  },
+  "unit_file_hashes": {
+    "/etc/systemd/system/extra-contracts-soak.service": "7c6cea8ca6c06c87336a376a56c1ea5387f520bf7b71f63553161da6a2310c0a",
+    "/etc/systemd/system/extra-contracts-soak.timer": "87aca06fc3a75fc5fed71b88e102035c0bd4d6fcb75b3cd6b5cffe57e9bfbf22",
+    "/etc/systemd/system/pncp-contracts.service": "a5b06ac7e68ffc474c0d6fb7d1bbf3c4ef190ad0dd2bda2e3cf7ca56cbb4c11e",
+    "/etc/systemd/system/pncp-contracts.timer": "3b54985980aa3e312769001688835f35c3d7079fe290977dfd1b3e1382de0dfb",
+    "/etc/systemd/system/extra-weekly.service": "e52d732e087a449e505f8e62972bd7094a952b123e1de8d6cd928ac70b65a713",
+    "/etc/systemd/system/extra-weekly.timer": "f53d7eb49ea3e8283f85016b89bf420a4d416bb46e8d32261580c12bac14ee0a"
+  },
+  "soak_artifact_hashes": {
+    "HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01/soak.json": "8667f59e937deb67425c6ffbfe243608b9b0a2a9e948dab23e42033e5087c098",
+    "OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/soak.json": "0cfa793bea402231058d0b4307e46c1b266305cb5b5c94d5008d792c259ed9e7"
+  },
+  "raw_tail": "ing|active=inactive\nmissing\nUNIT|pncp-contracts.timer|enabled=enabled|active=active\nUNIT|pncp-contracts.service|enabled=disabled\nmissing|active=inactive\nmissing\nUNIT|extra-weekly.timer|enabled=enabled|active=active\nUNIT|extra-weekly.service|enabled=disabled\nmissing|active=inactive\nmissing\nUNIT|extra-db-backup.timer|enabled=enabled|active=active\nUNITFILE_HASH|/etc/systemd/system/extra-contracts-soak.service|7c6cea8ca6c06c87336a376a56c1ea5387f520bf7b71f63553161da6a2310c0a\nUNITFILE_HASH|/etc/systemd/system/extra-contracts-soak.timer|87aca06fc3a75fc5fed71b88e102035c0bd4d6fcb75b3cd6b5cffe57e9bfbf22\nUNITFILE_HASH|/etc/systemd/system/pncp-contracts.service|a5b06ac7e68ffc474c0d6fb7d1bbf3c4ef190ad0dd2bda2e3cf7ca56cbb4c11e\nUNITFILE_HASH|/etc/systemd/system/pncp-contracts.timer|3b54985980aa3e312769001688835f35c3d7079fe290977dfd1b3e1382de0dfb\nUNITFILE_HASH|/etc/systemd/system/extra-weekly.service|e52d732e087a449e505f8e62972bd7094a952b123e1de8d6cd928ac70b65a713\nUNITFILE_HASH|/etc/systemd/system/extra-weekly.timer|f53d7eb49ea3e8283f85016b89bf420a4d416bb46e8d32261580c12bac14ee0a\nSOAK_ARTIFACT_HASH|HISTORICAL-CONTRACTS-OPERATIONAL-CLOSURE-01/soak.json|8667f59e937deb67425c6ffbfe243608b9b0a2a9e948dab23e42033e5087c098\nSOAK_ARTIFACT_HASH|OPEN-TENDERS-OPERATIONAL-DECISION-CYCLE-01/soak.json|0cfa793bea402231058d0b4307e46c1b266305cb5b5c94d5008d792c259ed9e7\nThu 2026-07-30 21:16:17 -03|Wed 2026-07-29 21:15:26 -03|active|enabled|\nFri 2026-07-31 06:04:34 -03|Wed 2026-07-29 06:02:56 -03|active|enabled|\n",
+  "campaign_id": "CONFENGE-COMMERCIAL-READY-01",
+  "mode": "remote_readonly",
+  "service_restart_evidence": {
+    "NRestarts": 0,
+    "by_unit": {
+      "extra-contracts-soak.service": 0,
+      "pncp-contracts.service": 0,
+      "extra-weekly.service": 0
+    },
+    "method": "systemctl_show_NRestarts",
+    "observed_at": "2026-07-30T01:15:58Z"
+  },
+  "operational_table_write_evidence": {
+    "no_write_proven": true,
+    "writes_observed": false,
+    "method": "campaign_local_state_dsn_only",
+    "campaign_state_dsn_host": "127.0.0.1",
+    "campaign_state_dsn_port": 5433,
+    "campaign_state_database": "confenge_commercial_activation",
+    "production_dsn_used": false,
+    "vps_deploy_performed": false,
+    "unit_file_hashes_unchanged": true,
+    "isolation_from_run": {
+      "source_state_mode": "RESTORED_SNAPSHOT_SINGLE_DB",
+      "execution_environment": "local",
+      "isolation": {
+        "ok": true,
+        "production_touched": false,
+        "soak_touched": false,
+        "dsn_masked": "postgresql://test:***@127.0.0.1:5433/confenge_commercial_activation",
+        "host": "127.0.0.1",
+        "port": 5433,
+        "database": "confenge_commercial_activation",
+        "reasons": [],
+        "forbidden_hits": [],
+        "campaign_id": "CONFENGE-COMMERCIAL-READY-01",
+        "source_state_mode": "RESTORED_SNAPSHOT_SINGLE_DB",
+        "source_dsn_masked": "postgresql://test:***@127.0.0.1:5433/confenge_commercial_activation",
+        "state_dsn_masked": "postgresql://test:***@127.0.0.1:5433/confenge_commercial_activation",
+        "source_read_only_enforced": null,
+        "source_state_separated": false
+      }
+    },
+    "note": "Campaign cycle executed only against local isolated DB on 5433; no VPS deploy of integrated SHA; unit file hashes identical baseline→final."
+  }
+}

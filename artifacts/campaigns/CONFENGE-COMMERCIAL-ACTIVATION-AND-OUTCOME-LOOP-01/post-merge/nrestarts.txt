@@ -1,0 +1,4 @@
+NRESTARTS|extra-contracts-soak.service|0
+NRESTARTS|pncp-contracts.service|0
+NRESTARTS|extra-weekly.service|0
+HOST_UPTIME_SEC=566238
