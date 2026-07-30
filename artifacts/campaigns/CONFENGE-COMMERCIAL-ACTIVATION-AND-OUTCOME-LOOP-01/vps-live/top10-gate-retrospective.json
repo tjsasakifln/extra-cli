@@ -1,0 +1,19 @@
+{
+  "schema_version": "top10-gate-retrospective-v1",
+  "generated_at": "2026-07-30T03:14:13Z",
+  "basis": "top20-durable.json + evaluate_top10_gate after \u00a78.1 official cadastro requirement",
+  "gate": {
+    "ok": false,
+    "issues": [
+      "top10_official_registry_unresolved",
+      "top10_cnae_missing",
+      "top10_situacao_missing",
+      "top10_registry_source_not_official"
+    ],
+    "out_of_scope_in_top10": 0,
+    "official_registry_failures": 10,
+    "all_confirmed_engineering": true,
+    "n": 10
+  },
+  "note": "Prior VPS live-run claimed top10_gate.ok=true on sector alone. With official RFB cadastro requirement, same package FAILS (cadastro NOT_AVAILABLE in dossiers)."
+}

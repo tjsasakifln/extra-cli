@@ -1,51 +1,61 @@
 {
   "schema_version": "acceptance-matrix-v1",
-  "generated_at": "2026-07-30T01:45:01Z",
+  "generated_at": "2026-07-30T04:30:00Z",
   "rows": [
     {
       "id": "full_history",
       "status": "PASS",
-      "evidence": "db_contracts=4467364"
+      "evidence": "db_contracts=4467364 vps-live + post-merge"
     },
     {
       "id": "cli_cycle",
       "status": "PASS",
-      "evidence": "run_id=cl-20260730T010931Z-1b0e4da2"
+      "evidence": "make confenge-commercial-cycle run_id=cl-20260730T023737Z-c6f5d5d2"
     },
     {
       "id": "top20",
       "status": "PASS",
-      "evidence": "top20-durable.json n=20"
+      "evidence": "top20-durable.json n=20; vps dual-run identical"
     },
     {
-      "id": "top10_evidence_machine",
+      "id": "top10_sector_machine",
       "status": "PASS_MACHINE",
-      "evidence": "top20-durable ranks 1-10"
+      "evidence": "all CONFIRMED_ENGINEERING on VPS Top10"
+    },
+    {
+      "id": "top10_official_cadastro_8_1",
+      "status": "FAIL_NOT_MET",
+      "evidence": "vps-live/top10-gate-retrospective.json official_registry_failures=10; dossiers CNAE/situacao/registry NOT_AVAILABLE"
     },
     {
       "id": "dossiers20",
       "status": "PASS",
-      "evidence": "dossiers_n=20"
+      "evidence": "vps-live/package/top20-dossiers n=20"
     },
     {
       "id": "kits5",
       "status": "PASS",
-      "evidence": "kits_n=5"
+      "evidence": "vps-live/package/top5-outreach-kits n=5"
+    },
+    {
+      "id": "holdout_8_2",
+      "status": "PASS",
+      "evidence": "holdout-review.json near_cut>=10 excluded_negative>=10"
     },
     {
       "id": "idempotency",
       "status": "PASS",
-      "evidence": "idempotency-proof.json"
+      "evidence": "vps-live/idempotency-proof.json top20_identical=true"
     },
     {
       "id": "soak_ni",
       "status": "PASS",
-      "evidence": "soak-non-interference.json"
+      "evidence": "vps-live/soak-non-interference.json status=PASS"
     },
     {
       "id": "official_registry_100",
       "status": "FAIL_NOT_MET",
-      "evidence": "official_cov=0.0298"
+      "evidence": "official_cov≈0.0292 (RFB-authority only)"
     },
     {
       "id": "supplier_registry_ops",
@@ -60,22 +70,32 @@
     {
       "id": "tiago_accept",
       "status": "PENDING",
-      "evidence": "CONFENGE_COMMERCIAL_READY"
+      "evidence": "CONFENGE_COMMERCIAL_READY human only"
     },
     {
       "id": "vps_integrated_cycle",
-      "status": "NOT_DONE",
-      "evidence": "live-run-summary.vps_deploy"
+      "status": "PASS",
+      "evidence": "deploy 7ef1fc1d dual runs cl-20260730T023737Z / cl-20260730T024151Z; PR #178 → 75cf6df0"
     },
     {
       "id": "dod_20_accepted",
       "status": "NOT_MET",
-      "evidence": "dod-delta accepted_count=0"
+      "evidence": "dod-delta accepted_count=0 BLOCKED_SCOPE_UNDERDELIVERED"
+    },
+    {
+      "id": "pr_budget_max_2",
+      "status": "FAIL_EXCEEDED",
+      "evidence": "campaign PRs #172 #174 #175 #178 (+ remediation); documented in FINAL-REPORT"
     },
     {
       "id": "no_auto_send",
       "status": "PASS",
       "evidence": "manual kits only"
+    },
+    {
+      "id": "coverage_single_truth",
+      "status": "PASS",
+      "evidence": "canonical_coverage official vs supplier split; no 1.0 official inflation"
     }
   ]
 }

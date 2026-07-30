@@ -1,36 +1,37 @@
-# Revisão humana — Tiago Sasaki
+# TIAGO-REVIEW — CONFENGE commercial activation
 
-- Status do run: `BLOCKED` / `BLOCKED_INSUFFICIENT_HUMAN_LABELS`
-- Handoff: `READY_FOR_TIAGO_REVIEW`
-- Run ID: `cl-20260730T010931Z-1b0e4da2`
-- Leads na fila: 20
-- commercial_release_ready: `False`
-- precision@10 / @20: `null` (somente após seus labels)
+**Authority:** only Tiago Sasaki may set ACCEPTED.  
+**Updated:** 2026-07-30T04:30:00Z
 
-## O que revisar
+## Package location
 
-1. Top 20 em `leads.json` / `commercial-review.csv`
-2. Dossiers em `top20-dossiers/`
-3. Kits manuais em `top5-outreach-kits/` (não enviar automaticamente)
-4. Holdout / exclusões em artefatos de gate quando presentes
-5. Preencher `user-acceptance.template.json` apenas se aceitar
+Primary (VPS live): `artifacts/campaigns/CONFENGE-COMMERCIAL-ACTIVATION-AND-OUTCOME-LOOP-01/vps-live/package/`
 
-## Regras
+Also: `artifacts/.../review-package/`
 
-- Somente você pode marcar ACCEPTED.
-- Não use avaliações de agentes como label humano.
-- Contatos ausentes são NOT_AVAILABLE — não inventar.
+## Contents
 
+1. Top 20 dossiers (`top20-dossiers/`)
+2. Top 5 outreach kits (`top5-outreach-kits/`) — **manual send only**
+3. Holdout calibration (`holdout-review.json` / `.csv` / `.md`) — ≥10 near-cut + ≥10 excluded/negative
+4. `user-acceptance.template.json` — leave PENDING until you decide
+5. Queue / coverage summaries
 
----
+## Critical limitation (read first)
 
-## Campaign closeout (skeptic-fixed)
+- **Official RFB cadastro on Top10 does not pass §8.1** on the VPS package (retrospective gate: 10/10 failures; many dossiers show CNAE/situação/registry as NOT_AVAILABLE).
+- Sector label `CONFIRMED_ENGINEERING` alone is **not** commercial publication quality.
+- `official_registry_coverage` ≈ **0.029** — not 1.0.
+- Treat this package as **calibration / review**, not commercial release.
 
-- Integrated capability SHA: `7243b87ff8158a8026ccba6c4690a42b09884b07`
-- Closeout main tip at packaging: `70d904ef6cd5d68a54dbf16abc41a5954539062c`
-- Status vocabulary: `status=BLOCKED`, handoff `READY_FOR_TIAGO_REVIEW`
-- Official RFB-authority registry coverage: **0.0298** (683/22882)
-- Operational supplier_registry coverage (incl. redistributor fallbacks): **1.0**
-- Dossiers packaged: under `review-package/top20-dossiers/`
-- Kits packaged: under `review-package/top5-outreach-kits/`
-- No auto-send. Fill `user-acceptance.template.json` only if you accept.
+## Your checklist
+
+- [ ] Spot-check Top10 for real engineering/construction fit
+- [ ] Spot-check 2–3 dossiers for contract evidence
+- [ ] Optional: label holdout rows (near-cut / negatives)
+- [ ] Kits: copy/paste only if you choose to contact — no automation
+- [ ] Acceptance template: ACCEPTED only if you accept despite residual technical limits, or wait for RFB bulk + re-cycle
+
+## Non-claims
+
+Do not treat agent output as human labels. precision@k stays null until you label.

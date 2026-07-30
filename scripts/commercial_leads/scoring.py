@@ -503,11 +503,15 @@ def rank_leads(
     *,
     suppressed_cnpjs: set[str] | None = None,
     state_by_cnpj: dict[str, str] | None = None,
+    limit: int | None = None,
 ) -> list[LeadScore]:
     """Rank leads for the commercial queue.
 
     DO_NOT_CONTACT and other suppressed CNPJs never enter the published queue.
     Human commercial_state overrides are consulted via state_by_cnpj / suppressed_cnpjs.
+
+    ``limit`` defaults to ``profile.queue_limit``. Pass a larger value to obtain
+    near-cut rows (ranks beyond the published queue) without a second sort.
     """
     min_score = float((profile.data.get("queue") or {}).get("min_score", 1.0))
     min_signals = int((profile.data.get("queue") or {}).get("min_signals_fired", 1))
@@ -538,5 +542,7 @@ def rank_leads(
         )
 
     eligible.sort(key=sort_key)
-    limit = profile.queue_limit
-    return eligible[:limit]
+    lim = profile.queue_limit if limit is None else int(limit)
+    if lim < 0:
+        return eligible
+    return eligible[:lim]

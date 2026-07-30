@@ -52,7 +52,7 @@ from scripts.commercial_leads.scoring import (
     rank_leads,
     score_supplier,
 )
-from scripts.commercial_leads.sector_fit import PUBLISHABLE, sector_fit_histogram
+from scripts.commercial_leads.sector_fit import sector_fit_histogram
 from scripts.commercial_leads.signals import compute_signals_for_supplier, rows_from_dicts
 from scripts.commercial_leads.snapshot import (
     bind_snapshot_to_database,
@@ -62,8 +62,10 @@ from scripts.commercial_leads.snapshot import (
 from scripts.commercial_leads.supplier_registry import (
     coverage_report,
     ensure_registry_table,
+    is_official_registry_source,
     load_registry_map,
 )
+from scripts.commercial_leads.top10_gate import evaluate_top10_gate
 
 _PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
@@ -1102,13 +1104,30 @@ def run_pipeline(
             if reg is None:
                 limitations.append("supplier_registry_missing")
                 limitations.append("cnae_NOT_COMPUTABLE")
-            elif reg.is_inactive:
-                limitations.append(f"situacao_cadastral:{reg.situacao_cadastral}")
+                reg_resolution = "PENDING"
+                reg_source = None
+                reg_dict: dict[str, Any] = {}
+            else:
+                reg_dict = reg.as_dict()
+                reg_source = reg.source
+                if reg.is_official_source:
+                    reg_resolution = "RESOLVED_OFFICIAL"
+                else:
+                    reg_resolution = "RESOLVED_FALLBACK"
+                    limitations.append(f"registry_source_fallback:{reg.source}")
+                if reg.is_inactive:
+                    limitations.append(f"situacao_cadastral:{reg.situacao_cadastral}")
+                if not reg.has_cnae_principal:
+                    limitations.append("cnae_NOT_COMPUTABLE")
             if sector.history_source != "full_history":
                 limitations.append("history_incomplete")
             meta_row = {
                 "cnpj14": cnpj14,
                 "razao_social": razao,
+                "nome_fantasia": reg_dict.get("nome_fantasia"),
+                "municipio": reg_dict.get("municipio"),
+                "uf": reg_dict.get("uf"),
+                "situacao_cadastral": reg_dict.get("situacao_cadastral"),
                 "total_value": total_value,
                 "contract_count": len(contracts),
                 "total_contract_count_full_history": sector.total_contract_count_full_history,
@@ -1122,6 +1141,11 @@ def run_pipeline(
                 "geography_fit": validity.geography_fit,
                 "publishable": validity.publishable,
                 "cnae_principal": cnae_principal,
+                "registry_source": reg_source,
+                "registry_source_date": reg_dict.get("source_date"),
+                "registry_resolution_status": reg_resolution,
+                "registry_is_official": is_official_registry_source(reg_source),
+                "registry": reg_dict,
                 "discovery_status": "CANDIDATE",
                 **hist_metrics,
             }
@@ -1138,6 +1162,17 @@ def run_pipeline(
                 "exclusion_checks": validity.exclusion_checks,
                 "commercial_validity": validity.as_dict(),
                 "history_metrics": hist_metrics,
+                # Cadastro surface for dossiers / Top10 gate (§8.1)
+                "cnae_principal": cnae_principal,
+                "nome_fantasia": reg_dict.get("nome_fantasia"),
+                "municipio": reg_dict.get("municipio"),
+                "uf": reg_dict.get("uf"),
+                "situacao_cadastral": reg_dict.get("situacao_cadastral"),
+                "registry": reg_dict,
+                "registry_source": reg_source,
+                "registry_source_date": reg_dict.get("source_date"),
+                "registry_resolution_status": reg_resolution,
+                "registry_is_official": is_official_registry_source(reg_source),
                 "data_quality": {
                     "relevant_contract_ratio": sector.relevant_contract_ratio_full_history,
                     "relevant_contract_ratio_full_history": sector.relevant_contract_ratio_full_history,
@@ -1155,6 +1190,8 @@ def run_pipeline(
                     "active_portfolio_view": HISTORY_VIEW_ACTIVE_PORTFOLIO,
                     "cnae_principal": cnae_principal,
                     "cnae_status": "OK" if cnae_principal else "NOT_COMPUTABLE",
+                    "registry_resolution_status": reg_resolution,
+                    "registry_is_official": is_official_registry_source(reg_source),
                     **hist_metrics,
                 },
                 "limitations": limitations + list(lead_d.get("limitations") or []),
@@ -1189,12 +1226,17 @@ def run_pipeline(
         pure_scored = [s[0] for s in scored]
         extras_by_cnpj = {s[0].cnpj14: s[1] for s in scored}
         suppressed_from_score = [s for s in pure_scored if s.cnpj14 in dnc_set]
-        ranked = rank_leads(
+        # Rank beyond queue_limit so near-cut (§8.2) is available for holdout package
+        near_cut_n = 10
+        ranked_extended = rank_leads(
             pure_scored,
             profile,
             suppressed_cnpjs=dnc_set,
             state_by_cnpj=state_map,
+            limit=profile.queue_limit + near_cut_n,
         )
+        ranked = ranked_extended[: profile.queue_limit]
+        near_cut_ranked = ranked_extended[profile.queue_limit :]
         lead_dicts: list[dict[str, Any]] = []
         for i, lead in enumerate(ranked, start=1):
             d = lead.as_dict()
@@ -1202,6 +1244,49 @@ def run_pipeline(
             d["commercial_state"] = state_map.get(lead.cnpj14, "NEW")
             d.update(extras_by_cnpj.get(lead.cnpj14, {}))
             lead_dicts.append(d)
+        near_cut_dicts: list[dict[str, Any]] = []
+        for i, lead in enumerate(near_cut_ranked, start=profile.queue_limit + 1):
+            d = lead.as_dict()
+            d["rank_position"] = i
+            d["commercial_state"] = state_map.get(lead.cnpj14, "NEW")
+            d["holdout_role"] = "near_cut"
+            d.update(extras_by_cnpj.get(lead.cnpj14, {}))
+            near_cut_dicts.append(d)
+        # Negative / excluded controls for human calibration (§8.2)
+        excluded_negative: list[dict[str, Any]] = []
+        seen_neg: set[str] = set()
+        for row in review_queue:
+            cnpj = str(row.get("cnpj14") or "")
+            if not cnpj or cnpj in seen_neg:
+                continue
+            sfit = str(row.get("supplier_sector_fit") or "")
+            if sfit in {"OUT_OF_SCOPE", "UNKNOWN", "CONFLICTING", "POSSIBLE_ENGINEERING_FIT"}:
+                excluded_negative.append(
+                    {
+                        **row,
+                        "holdout_role": "excluded_negative",
+                        "exclusion_reason": f"sector:{sfit}",
+                    }
+                )
+                seen_neg.add(cnpj)
+            if len(excluded_negative) >= 10:
+                break
+        if len(excluded_negative) < 10:
+            for e in exclusions:
+                ed = e.as_dict() if hasattr(e, "as_dict") else dict(e)  # type: ignore[arg-type]
+                key = str(ed.get("raw_tax_id") or ed.get("cnpj14") or ed.get("raw_name") or "")
+                if not key or key in seen_neg:
+                    continue
+                excluded_negative.append(
+                    {
+                        **ed,
+                        "holdout_role": "excluded_negative",
+                        "exclusion_reason": ed.get("reason_code") or "identity_exclusion",
+                    }
+                )
+                seen_neg.add(key)
+                if len(excluded_negative) >= 10:
+                    break
 
         # Human-label-aware baseline comparison (labels optional)
         baseline_cmp = compare_to_baselines(ranked, candidates_meta, limit=profile.queue_limit)
@@ -1319,42 +1404,11 @@ def run_pipeline(
             "human_review_status": "PENDING",
         }
 
-        # Commercial top-10 gate
-        top10: list[dict[str, Any]] = lead_dicts[:10]
-        top10_ok = True
-        top10_issues: list[str] = []
-        out_of_scope_top10 = 0
-        for item in top10:
-            if not item.get("cnpj14") or len(str(item["cnpj14"])) != 14:
-                top10_ok = False
-                top10_issues.append("invalid_cnpj_in_top10")
-            if str(item.get("commercial_state") or "").upper() == "DO_NOT_CONTACT":
-                top10_ok = False
-                top10_issues.append("do_not_contact_in_top10")
-            if not (item.get("signals_fired") or []):
-                top10_ok = False
-                top10_issues.append("top10_without_fired_signal")
-            if not (item.get("evidence") or []):
-                top10_ok = False
-                top10_issues.append("top10_without_evidence")
-            sfit = str(item.get("supplier_sector_fit") or "")
-            if sfit not in PUBLISHABLE:
-                top10_ok = False
-                top10_issues.append(f"top10_sector_not_strong:{sfit}")
-                if sfit == "OUT_OF_SCOPE":
-                    out_of_scope_top10 += 1
-            if item.get("contract_relevance") != "PASS":
-                top10_ok = False
-                top10_issues.append("top10_contract_relevance_fail")
-            if item.get("commercial_signal_fit") != "PASS":
-                top10_ok = False
-                top10_issues.append("top10_commercial_signal_fail")
-            if item.get("geography_fit") != "PASS":
-                top10_ok = False
-                top10_issues.append("top10_geography_fail")
-        if out_of_scope_top10:
-            top10_ok = False
-            top10_issues.append("out_of_scope_in_top10")
+        # Commercial top-10 gate (§8.1): official RFB cadastro required, not sector alone
+        top10_gate = evaluate_top10_gate(lead_dicts)
+        top10_ok = bool(top10_gate.get("ok"))
+        top10_issues: list[str] = list(top10_gate.get("issues") or [])
+        out_of_scope_top10 = int(top10_gate.get("out_of_scope_in_top10") or 0)
         if any(str(L.get("commercial_state") or "").upper() == "DO_NOT_CONTACT" for L in lead_dicts):
             top10_ok = False
             top10_issues.append("do_not_contact_in_published_queue")
@@ -1401,8 +1455,15 @@ def run_pipeline(
             status = "BLOCKED"
             reason = "BLOCKED_FULL_POPULATION_NOT_AVAILABLE"
         elif not top10_ok:
-            status = "FAIL"
-            reason = "FAIL_COMMERCIAL_QUALITY_GATE"
+            # Prefer specific terminal when official cadastro is the failure mode
+            off_fail = int(top10_gate.get("official_registry_failures") or 0)
+            if off_fail > 0:
+                status = "FAIL"
+                reason = "FAIL_TOP10_VALIDITY"
+                top10_issues.append("FAIL_TOP10_VALIDITY")
+            else:
+                status = "FAIL"
+                reason = "FAIL_COMMERCIAL_QUALITY_GATE"
         elif not reg_cov.get("top20_coverage_100pct"):
             status = "BLOCKED"
             reason = "BLOCKED_MISSING_SUPPLIER_SECTOR_DATA"
@@ -1539,9 +1600,20 @@ def run_pipeline(
             "metrics": metrics,
             "sector_fit_distribution": sector_dist,
             "top10_validation": {
+                **top10_gate,
                 "ok": top10_ok,
                 "issues": sorted(set(top10_issues)),
                 "out_of_scope_in_top10": out_of_scope_top10,
+            },
+            "near_cut_sample": near_cut_dicts[:15],
+            "excluded_negative_sample": excluded_negative[:25],
+            "holdout_review": {
+                "near_cut_n": len(near_cut_dicts),
+                "excluded_negative_n": len(excluded_negative),
+                "min_near_cut_required": 10,
+                "min_excluded_negative_required": 10,
+                "near_cut_ok": len(near_cut_dicts) >= 10,
+                "excluded_negative_ok": len(excluded_negative) >= 10,
             },
             "non_claims": profile.data.get("non_claims")
             or [
