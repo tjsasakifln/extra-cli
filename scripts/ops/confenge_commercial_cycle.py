@@ -129,6 +129,7 @@ def main(argv: list[str] | None = None) -> int:
                 for ln in Path(interest_file).read_text(encoding="utf-8").splitlines()
                 if ln.strip()
             ]
+        # ACTIVE + non-empty load + provenance; coverage when interest file present
         official_precheck = fail_closed_commercial_precheck(
             candidates=interest_cnpjs,
             top20=None,
@@ -151,13 +152,11 @@ def main(argv: list[str] | None = None) -> int:
             out_path = Path(args.out)
             out_path.mkdir(parents=True, exist_ok=True)
             (out_path / "cycle-manifest.json").write_text(
-                json.dumps(blocked, indent=2, ensure_ascii=False, default=str) + "
-",
+                json.dumps(blocked, indent=2, ensure_ascii=False, default=str) + "\n",
                 encoding="utf-8",
             )
             (out_path / "run-result.json").write_text(
-                json.dumps(blocked, indent=2, ensure_ascii=False, default=str) + "
-",
+                json.dumps(blocked, indent=2, ensure_ascii=False, default=str) + "\n",
                 encoding="utf-8",
             )
             print(f"[{CAMPAIGN_ID}] status=BLOCKED reason={reason}", file=sys.stderr)
@@ -204,11 +203,13 @@ def main(argv: list[str] | None = None) -> int:
         out_path = Path(args.out)
         out_path.mkdir(parents=True, exist_ok=True)
         (out_path / "cycle-manifest.json").write_text(
-            json.dumps(blocked, indent=2, ensure_ascii=False, default=str) + "
-",
+            json.dumps(blocked, indent=2, ensure_ascii=False, default=str) + "\n",
             encoding="utf-8",
         )
-        print(f"[{CAMPAIGN_ID}] status=BLOCKED official_registry_error={exc}", file=sys.stderr)
+        print(
+            f"[{CAMPAIGN_ID}] status=BLOCKED official_registry_error={exc}",
+            file=sys.stderr,
+        )
         return 2
 
     as_of = date.fromisoformat(args.as_of) if args.as_of else None
@@ -285,39 +286,29 @@ def main(argv: list[str] | None = None) -> int:
     )
     out_manifest = Path(args.out) / "cycle-manifest.json"
     out_manifest.parent.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "campaign_id": CAMPAIGN_ID,
+        "status": status,
+        "run_id": result.get("run_id"),
+        "git_sha": result.get("git_sha"),
+        "profile_hash": result.get("profile_hash"),
+        "catalog_hash": result.get("catalog_hash"),
+        "snapshot_hash": result.get("snapshot_hash"),
+        "metrics": result.get("metrics"),
+        "active_official_registry_release": result.get(
+            "active_official_registry_release"
+        ),
+        "official_registry_precheck": official_precheck,
+        "official_registry_postcheck": result.get("official_registry_postcheck"),
+        "official_registry_coverage_post": result.get("official_registry_coverage_post"),
+        "reason": result.get("reason"),
+    }
     out_manifest.write_text(
-        json.dumps(
-            {
-                "campaign_id": CAMPAIGN_ID,
-                "status": status,
-                "run_id": result.get("run_id"),
-                "git_sha": result.get("git_sha"),
-                "profile_hash": result.get("profile_hash"),
-                "catalog_hash": result.get("catalog_hash"),
-                "snapshot_hash": result.get("snapshot_hash"),
-                "metrics": result.get("metrics"),
-                "active_official_registry_release": result.get(
-                    "active_official_registry_release"
-                ),
-                "official_registry_precheck": official_precheck,
-                "official_registry_postcheck": result.get("official_registry_postcheck"),
-                "official_registry_coverage_post": result.get(
-                    "official_registry_coverage_post"
-                ),
-                "reason": result.get("reason"),
-            },
-            indent=2,
-            ensure_ascii=False,
-            default=str,
-        )
-        + "
-",
+        json.dumps(payload, indent=2, ensure_ascii=False, default=str) + "\n",
         encoding="utf-8",
     )
-    run_result_path = Path(args.out) / "run-result.json"
-    run_result_path.write_text(
-        json.dumps(result, indent=2, ensure_ascii=False, default=str) + "
-",
+    (Path(args.out) / "run-result.json").write_text(
+        json.dumps(result, indent=2, ensure_ascii=False, default=str) + "\n",
         encoding="utf-8",
     )
     if status == "PASS":
