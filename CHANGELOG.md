@@ -11,6 +11,9 @@ O histórico de git (`git log`) permanece a fonte de verdade de commits; este ar
 
 ## [Unreleased]
 
+- docs(campaign): VPS live commercial cycle evidence on 7ef1fc1d (SOURCE_STATE_SEPARATED, soak NI PASS)
+
+
 - chore(campaign): re-freeze CONFENGE after official registry coverage honesty fix
 
 

@@ -1,0 +1,5 @@
+NRESTARTS|extra-contracts-soak.service|0
+NRESTARTS|pncp-contracts.service|0
+NRESTARTS|extra-weekly.service|0
+DEPLOY=7ef1fc1d26ee013373c69105fc5860c1b46c6a90
+TIMERS=active active

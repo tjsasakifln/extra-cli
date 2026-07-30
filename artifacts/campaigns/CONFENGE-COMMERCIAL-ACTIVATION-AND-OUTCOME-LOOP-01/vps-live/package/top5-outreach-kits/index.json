@@ -1,0 +1,32 @@
+[
+  {
+    "cnpj14": "43371025000104",
+    "rank": 1,
+    "json": "/var/tmp/confenge-activation-run-vps-1/top5-outreach-kits/43371025000104.json",
+    "md": "/var/tmp/confenge-activation-run-vps-1/top5-outreach-kits/43371025000104.md"
+  },
+  {
+    "cnpj14": "42531033000108",
+    "rank": 2,
+    "json": "/var/tmp/confenge-activation-run-vps-1/top5-outreach-kits/42531033000108.json",
+    "md": "/var/tmp/confenge-activation-run-vps-1/top5-outreach-kits/42531033000108.md"
+  },
+  {
+    "cnpj14": "50410432000149",
+    "rank": 3,
+    "json": "/var/tmp/confenge-activation-run-vps-1/top5-outreach-kits/50410432000149.json",
+    "md": "/var/tmp/confenge-activation-run-vps-1/top5-outreach-kits/50410432000149.md"
+  },
+  {
+    "cnpj14": "36216839000109",
+    "rank": 4,
+    "json": "/var/tmp/confenge-activation-run-vps-1/top5-outreach-kits/36216839000109.json",
+    "md": "/var/tmp/confenge-activation-run-vps-1/top5-outreach-kits/36216839000109.md"
+  },
+  {
+    "cnpj14": "09065576000101",
+    "rank": 5,
+    "json": "/var/tmp/confenge-activation-run-vps-1/top5-outreach-kits/09065576000101.json",
+    "md": "/var/tmp/confenge-activation-run-vps-1/top5-outreach-kits/09065576000101.md"
+  }
+]

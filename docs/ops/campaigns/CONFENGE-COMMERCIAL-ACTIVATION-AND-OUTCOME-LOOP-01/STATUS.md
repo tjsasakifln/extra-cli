@@ -1,26 +1,38 @@
 # STATUS — CONFENGE-COMMERCIAL-ACTIVATION-AND-OUTCOME-LOOP-01
 
-**Updated:** 2026-07-30T01:45:23Z  
-**Main capability:** `7243b87f` (#172)  
-**Closeout:** `70d904ef` (#174) + skeptic-fix branch  
+**Updated:** 2026-07-30T02:47:25Z  
+**VPS deploy:** `7ef1fc1d` on ec-prod (no soak timer restart)
 
-## Terminal (§23 vocabulary)
+## Terminal (§23)
 
 | Field | Value |
 |-------|--------|
 | status | `BLOCKED` |
 | substatus | `BLOCKED_PENDING_HUMAN_ACCEPTANCE` |
 | handoff_state | `READY_FOR_TIAGO_REVIEW` |
-| scope_delivery | `BLOCKED_SCOPE_UNDERDELIVERED` (0 of 20 §2.7 DOD ACCEPTED) |
-| commercial_release_ready | `false` |
-| official_registry_coverage | **0.0298** (683 RFB-authority / 22882) |
-| supplier_registry_coverage | **1.0** (includes redistributor fallbacks — labeled) |
-| soak_non_interference | PASS (local cycle; VPS code not upgraded) |
+| scope_delivery | `BLOCKED_SCOPE_UNDERDELIVERED` (0 formal §2.7 ACCEPTED) |
+| commercial_release_ready | false |
 
-## Non-claims
+## VPS live proof (OBJECTIVE §16)
 
-- No `PASS` commercial release
-- No official RFB 100% cadastral universe
-- No VPS deploy of integrated SHA / live VPS cycle
-- No bulk §2.7 DOD accepts
-- No auto-send / precision@k without Tiago labels
+| Field | Value |
+|-------|--------|
+| deploy_sha | `7ef1fc1d` |
+| source | `pncp_datalake` read-only (unix socket, write probe denied) |
+| state | `confenge_commercial_activation` isolated |
+| contracts | **4 467 364** |
+| candidates | **22 882** |
+| leads | **20** |
+| Top10 | all `CONFIRMED_ENGINEERING` |
+| dossiers / kits | 20 / 5 |
+| official_registry_coverage | **0.0292** |
+| supplier_registry_coverage | **1.0** (fallback-labeled) |
+| run1 / run2 Top20 | **identical** |
+| soak non-interference | **PASS** |
+| terminal reason | `BLOCKED_INSUFFICIENT_HUMAN_LABELS` |
+
+Evidence: `artifacts/campaigns/CONFENGE-COMMERCIAL-ACTIVATION-AND-OUTCOME-LOOP-01/vps-live/`
+
+## Action for Tiago
+
+See `vps-live/package/TIAGO-REVIEW.md` and dossiers/kits under `vps-live/package/`.

@@ -1,7 +1,7 @@
 {
   "run_id": "cl-20260726T003820Z-f8e90e36",
   "status": "BLOCKED",
-  "git_sha": "c7775803ca8856555fd9a4a6a77ee773c7aadc05",
+  "git_sha": "7ef1fc1d26ee013373c69105fc5860c1b46c6a90",
   "discovery_mode": "PREFILTERED_CANDIDATE_DISCOVERY",
   "history_expansion_mode": "FULL_CANDIDATE_HISTORY",
   "ranking_population_mode": "FULL_ELIGIBLE_CANDIDATES",
@@ -201,8 +201,8 @@
     "human_review_status": "PENDING",
     "labels_are_human": false
   },
-  "run_git_sha": "c7775803ca8856555fd9a4a6a77ee773c7aadc05",
-  "artifact_git_sha": "c7775803ca8856555fd9a4a6a77ee773c7aadc05",
+  "run_git_sha": "7ef1fc1d26ee013373c69105fc5860c1b46c6a90",
+  "artifact_git_sha": "7ef1fc1d26ee013373c69105fc5860c1b46c6a90",
   "reason": "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE",
   "executed_code_sha": "f68882edc079cb40929aecad431c9565c6f17b13",
   "current_pr_head_sha": "f68882edc079cb40929aecad431c9565c6f17b13",
@@ -211,8 +211,8 @@
   "match_run_to_head": true,
   "updated_at": "2026-07-27T15:09:20Z",
   "pr_head_sha": "f68882edc079cb40929aecad431c9565c6f17b13",
-  "gate_git_sha": "c7775803ca8856555fd9a4a6a77ee773c7aadc05",
-  "review_git_sha": "c7775803ca8856555fd9a4a6a77ee773c7aadc05",
+  "gate_git_sha": "7ef1fc1d26ee013373c69105fc5860c1b46c6a90",
+  "review_git_sha": "7ef1fc1d26ee013373c69105fc5860c1b46c6a90",
   "offer_mapping_diagnostic": {
     "offer_distribution": {
       "acompanhamento_contratual": 20
@@ -290,10 +290,10 @@
   "code_evolution_note": "Re-bound after activation; READY-01 historical BLOCKED.",
   "activation_campaign": "CONFENGE-COMMERCIAL-ACTIVATION-AND-OUTCOME-LOOP-01",
   "sha_binding": {
-    "bound_to": "c7775803ca8856555fd9a4a6a77ee773c7aadc05",
-    "note": "Re-frozen after official_registry_coverage honesty fix (skeptic PR)",
-    "match_run_to_head": true,
+    "bound_to": "7ef1fc1d26ee013373c69105fc5860c1b46c6a90",
+    "note": "Bound to main integrated honesty tip after squash; evidence-only PR after",
+    "match_run_to_head": false,
     "freeze_code_sha": "f68882edc079cb40929aecad431c9565c6f17b13"
   },
-  "binding_rebind_at": "2026-07-30T01:53:49Z"
+  "binding_rebind_at": "2026-07-30T02:55:37Z"
 }

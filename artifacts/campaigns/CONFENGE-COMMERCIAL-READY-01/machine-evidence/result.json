@@ -16,11 +16,11 @@
   "evidence_commit_sha": "8506aebabb0dab327654d420222402ae15f9a3aa",
   "workflow_head_sha": "8506aebabb0dab327654d420222402ae15f9a3aa",
   "workflow_artifact_head_sha": "6dcab34860fb016aa1ef3152db4d9b0ae97adae6",
-  "artifact_git_sha": "c7775803ca8856555fd9a4a6a77ee773c7aadc05",
-  "run_git_sha": "c7775803ca8856555fd9a4a6a77ee773c7aadc05",
-  "gate_git_sha": "c7775803ca8856555fd9a4a6a77ee773c7aadc05",
-  "review_git_sha": "c7775803ca8856555fd9a4a6a77ee773c7aadc05",
-  "git_sha": "c7775803ca8856555fd9a4a6a77ee773c7aadc05",
+  "artifact_git_sha": "7ef1fc1d26ee013373c69105fc5860c1b46c6a90",
+  "run_git_sha": "7ef1fc1d26ee013373c69105fc5860c1b46c6a90",
+  "gate_git_sha": "7ef1fc1d26ee013373c69105fc5860c1b46c6a90",
+  "review_git_sha": "7ef1fc1d26ee013373c69105fc5860c1b46c6a90",
+  "git_sha": "7ef1fc1d26ee013373c69105fc5860c1b46c6a90",
   "match_run_to_head": true,
   "code_changed_after_execution": false,
   "artifact_only_commits_after_execution": false,
@@ -64,10 +64,10 @@
   "code_evolution_note": "Re-bound after activation; READY-01 historical BLOCKED.",
   "activation_campaign": "CONFENGE-COMMERCIAL-ACTIVATION-AND-OUTCOME-LOOP-01",
   "sha_binding": {
-    "bound_to": "c7775803ca8856555fd9a4a6a77ee773c7aadc05",
-    "note": "Re-frozen after official_registry_coverage honesty fix (skeptic PR)",
-    "match_run_to_head": true,
+    "bound_to": "7ef1fc1d26ee013373c69105fc5860c1b46c6a90",
+    "note": "Bound to main integrated honesty tip after squash; evidence-only PR after",
+    "match_run_to_head": false,
     "freeze_code_sha": "f68882edc079cb40929aecad431c9565c6f17b13"
   },
-  "binding_rebind_at": "2026-07-30T01:53:49Z"
+  "binding_rebind_at": "2026-07-30T02:55:37Z"
 }

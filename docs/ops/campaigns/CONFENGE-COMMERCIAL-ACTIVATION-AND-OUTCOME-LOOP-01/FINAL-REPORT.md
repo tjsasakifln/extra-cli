@@ -105,3 +105,17 @@ export CONFENGE_COMMERCIAL_OUT=artifacts/campaigns/CONFENGE-COMMERCIAL-ACTIVATIO
 |----|------|-----------|
 | #172 | PR A capability | merged `7243b87f` — https://github.com/tjsasakifln/extra-cli/pull/172 |
 | This PR | PR B closeout | evidence + reports only |
+
+
+## VPS live cycle (2026-07-30)
+
+Deployed `7ef1fc1d` to ec-prod **without** restarting soak timers.
+
+- SOURCE_STATE_SEPARATED: source=`pncp_datalake` (RO probe pass), state=`confenge_commercial_activation`
+- Full history binding BOUND (4 467 364 rows, hash `afef512e…`)
+- Dual runs: `cl-20260730T023737Z-c6f5d5d2` / `cl-20260730T024151Z-da169885` — Top20 identical
+- Top10: 10/10 `CONFIRMED_ENGINEERING`
+- Coverage honest: official **0.0292**, operational supplier **1.0**
+- Soak non-interference: **PASS** (`vps-live/soak-non-interference.json`)
+- Terminal remains human-only: `BLOCKED_INSUFFICIENT_HUMAN_LABELS`
+

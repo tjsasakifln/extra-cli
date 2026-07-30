@@ -1,0 +1,197 @@
+{
+  "campaign_id": "CONFENGE-COMMERCIAL-READY-01",
+  "status": "BLOCKED",
+  "run_id": "cl-20260730T023737Z-c6f5d5d2",
+  "git_sha": "7ef1fc1d26ee013373c69105fc5860c1b46c6a90",
+  "profile_hash": "f029dcd688f6e533e52ebab94f53e496fa04c6a9ebe36bfea8f291142b9c048a",
+  "catalog_hash": "a02e6c66adef2795c71906e4a3fd0d1a2c2c55c9449d2205940a637011e1004d",
+  "snapshot_hash": "afef512ec0587283c5e8931347c97dbab102b670c9728241d0ae0395499325c1",
+  "metrics": {
+    "eligible_companies": 22882,
+    "candidate_count": 22882,
+    "raw_contracts_loaded": 180100,
+    "relevance_pass_contracts": 70856,
+    "full_history_contract_count": 764785,
+    "mean_contracts_per_candidate": 33.423,
+    "median_contracts_per_candidate": 5.0,
+    "single_contract_candidate_rate": 0.2222,
+    "db_contract_count": 4467364,
+    "exclusions": 667,
+    "scored_companies": 10364,
+    "validity_excluded": 12518,
+    "review_queue_size": 12518,
+    "ranked_leads": 20,
+    "do_not_contact_suppressed": 0,
+    "human_state_overrides": 20,
+    "queue_limit": 20,
+    "insufficient_queue": false,
+    "elapsed_seconds": 251.925,
+    "module_version": "2.0.0-gold",
+    "population_mode": "FULL_POPULATION",
+    "discovery_mode": "PREFILTERED_CANDIDATE_DISCOVERY",
+    "history_expansion_mode": "FULL_CANDIDATE_HISTORY",
+    "ranking_population_mode": "FULL_ELIGIBLE_CANDIDATES",
+    "limit_applied": null,
+    "sector_fit_distribution": {
+      "POSSIBLE_ENGINEERING_FIT": 5038,
+      "CONFIRMED_ENGINEERING": 11128,
+      "OUT_OF_SCOPE": 5553,
+      "CONFLICTING": 1133,
+      "STRONG_ENGINEERING_FIT": 30
+    },
+    "publishable_rate": 0.4529,
+    "out_of_scope_rate": 0.2427,
+    "unknown_rate": 0.0,
+    "conflicting_rate": 0.0495,
+    "review_queue_rate": 0.5471,
+    "cnae_coverage": 1.0,
+    "registry_coverage": {
+      "rule_version": "supplier-registry-v1",
+      "generated_at": "2026-07-30T02:41:49Z",
+      "registry_coverage_all_candidates": {
+        "n": 22882,
+        "with_registry": 22882,
+        "coverage": 1.0,
+        "cnae_primary_coverage": 1.0,
+        "cnae_secondary_coverage": 0.9383,
+        "status": "OK"
+      },
+      "registry_coverage_top100": {
+        "n": 100,
+        "with_registry": 100,
+        "coverage": 1.0,
+        "cnae_primary_coverage": 1.0,
+        "cnae_secondary_coverage": 0.94,
+        "status": "OK"
+      },
+      "registry_coverage_top20": {
+        "n": 20,
+        "with_registry": 20,
+        "coverage": 1.0,
+        "cnae_primary_coverage": 1.0,
+        "cnae_secondary_coverage": 0.95,
+        "status": "OK"
+      },
+      "cnae_primary_coverage": 1.0,
+      "cnae_secondary_coverage": 0.9383,
+      "registry_freshness": {
+        "min_source_date": "2026-07-29",
+        "max_source_date": "2026-07-29"
+      },
+      "top20_coverage_100pct": true,
+      "registry_universe_resolved": true,
+      "registry_resolved_or_definitively_not_found": 1.0,
+      "registry_resolution_status_counts": {
+        "RESOLVED_FALLBACK": 22214,
+        "RESOLVED": 22882,
+        "RESOLVED_OFFICIAL": 668
+      },
+      "source_distribution": {
+        "brasilapi_fallback": 4378,
+        "minhareceita_fallback": 17836,
+        "rfb_public_cadastral_via_opencnpj": 668
+      },
+      "official_registry_coverage": 0.0292,
+      "official_resolved_n": 668,
+      "fallback_resolved_n": 22214,
+      "missing_candidates_sample": [],
+      "missing_candidates_n": 0,
+      "block_reason": null,
+      "selection_bias_risk": false,
+      "schema_version": "canonical-coverage-v1",
+      "registry_coverage_eligible_candidates": {
+        "n": 10364,
+        "with_registry": 10364,
+        "coverage": 1.0,
+        "cnae_primary_coverage": 1.0,
+        "cnae_secondary_coverage": 0.9498,
+        "status": "OK"
+      },
+      "terminal_status": "BLOCKED",
+      "declared_blockers": [
+        "BLOCKED_INSUFFICIENT_HUMAN_LABELS"
+      ],
+      "supplier_registry_coverage": 1.0,
+      "cnae_coverage": 1.0,
+      "registry_authority_note": "official_registry_coverage counts only RFB-authority sources (receita_federal / rfb_public_cadastral*). BrasilAPI/MinhaReceita/cnpjws fallbacks count toward supplier_registry_coverage only."
+    },
+    "canonical_coverage": {
+      "schema_version": "canonical-coverage-v1",
+      "registry_coverage_all_candidates": {
+        "n": 22882,
+        "with_registry": 22882,
+        "coverage": 1.0,
+        "cnae_primary_coverage": 1.0,
+        "cnae_secondary_coverage": 0.9383,
+        "status": "OK"
+      },
+      "registry_coverage_eligible_candidates": {
+        "n": 10364,
+        "with_registry": 10364,
+        "coverage": 1.0,
+        "cnae_primary_coverage": 1.0,
+        "cnae_secondary_coverage": 0.9498,
+        "status": "OK"
+      },
+      "registry_coverage_top100": {
+        "n": 100,
+        "with_registry": 100,
+        "coverage": 1.0,
+        "cnae_primary_coverage": 1.0,
+        "cnae_secondary_coverage": 0.94,
+        "status": "OK"
+      },
+      "registry_coverage_top20": {
+        "n": 20,
+        "with_registry": 20,
+        "coverage": 1.0,
+        "cnae_primary_coverage": 1.0,
+        "cnae_secondary_coverage": 0.95,
+        "status": "OK"
+      },
+      "cnae_primary_coverage": 1.0,
+      "cnae_secondary_coverage": 0.9383,
+      "registry_freshness": {
+        "min_source_date": "2026-07-29",
+        "max_source_date": "2026-07-29"
+      },
+      "top20_coverage_100pct": true,
+      "registry_universe_resolved": true,
+      "registry_resolved_or_definitively_not_found": 1.0,
+      "registry_resolution_status_counts": {
+        "RESOLVED_FALLBACK": 22214,
+        "RESOLVED": 22882,
+        "RESOLVED_OFFICIAL": 668
+      },
+      "missing_candidates_n": 0,
+      "missing_candidates_sample": [],
+      "block_reason": null,
+      "selection_bias_risk": false,
+      "rule_version": "supplier-registry-v1",
+      "generated_at": "2026-07-30T02:41:49Z",
+      "terminal_status": "BLOCKED",
+      "declared_blockers": [
+        "BLOCKED_INSUFFICIENT_HUMAN_LABELS"
+      ],
+      "supplier_registry_coverage": 1.0,
+      "official_registry_coverage": 0.0292,
+      "official_resolved_n": 668,
+      "fallback_resolved_n": 22214,
+      "source_distribution": {
+        "brasilapi_fallback": 4378,
+        "minhareceita_fallback": 17836,
+        "rfb_public_cadastral_via_opencnpj": 668
+      },
+      "cnae_coverage": 1.0,
+      "registry_authority_note": "official_registry_coverage counts only RFB-authority sources (receita_federal / rfb_public_cadastral*). BrasilAPI/MinhaReceita/cnpjws fallbacks count toward supplier_registry_coverage only."
+    },
+    "anomaly_flags": [
+      "high_publishable_rate:0.4529"
+    ],
+    "precision_at_10": null,
+    "precision_at_20": null,
+    "false_positives": null,
+    "false_negatives": null,
+    "human_review_status": "PENDING"
+  }
+}

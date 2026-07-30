@@ -1,0 +1,26 @@
+{
+  "schema_version": "authenticated-snapshot-manifest-v2",
+  "snapshot_id": "vps-pncp-full-history-live-2026-07-30",
+  "source_database_identity": "vps:pncp_datalake@127.0.0.1:5432",
+  "source": "vps_pncp_supplier_contracts_live",
+  "extraction_method": "live_source_read_only_no_copy",
+  "generated_at": "2026-07-30T02:06:03Z",
+  "source_sha": "7ef1fc1d26ee013373c69105fc5860c1b46c6a90",
+  "row_count": 4467364,
+  "contracts_count_declared": 4467364,
+  "min_date": "2023-07-20",
+  "max_date": "2026-07-29",
+  "observation_window_days": 1105,
+  "canonical_table_hash": "afef512ec0587283c5e8931347c97dbab102b670c9728241d0ae0395499325c1",
+  "canonical_hash_algorithm": "sha256-rowmd5-ordered-agg-v1",
+  "canonical_hash_rows": 4467364,
+  "profile_hash": "f029dcd688f6e533e52ebab94f53e496fa04c6a9ebe36bfea8f291142b9c048a",
+  "signal_catalog_hash": "a02e6c66adef2795c71906e4a3fd0d1a2c2c55c9449d2205940a637011e1004d",
+  "filters": {
+    "is_active": null,
+    "note": "Full live VPS table; commercial discovery prefilter only"
+  },
+  "claims_full_snapshot_scan": true,
+  "claims_integral_history": true,
+  "binding_note": "Hash computed by live snapshot_content_binding on VPS source (full ordered-agg)."
+}

@@ -1,0 +1,17 @@
+{
+  "by_signal_fired_count": {
+    "quantity_growth": 9,
+    "value_growth": 19,
+    "new_agency": 20,
+    "new_region": 17,
+    "new_object_category": 18,
+    "concurrent_portfolio": 20,
+    "near_expiry": 19,
+    "diversity_increase": 16,
+    "win_recurrence": 20,
+    "contract_concentration": 14,
+    "ticket_above_history": 17,
+    "agency_concentration": 11
+  },
+  "lead_count": 20
+}
