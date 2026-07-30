@@ -348,7 +348,25 @@ def _parse_seed_row(seed_row: int, row: tuple[Any, ...], radius_km: float) -> di
     }
 
 
+def _row_get(row: Any, key: str, index: int) -> Any:
+    """Read a column from tuple rows or mapping rows (e.g. RealDictCursor)."""
+    if isinstance(row, dict):
+        return row[key]
+    # psycopg2 RealDictRow is a mapping; plain sequences unpack by position.
+    try:
+        return row[key]  # type: ignore[index]
+    except (KeyError, TypeError, IndexError):
+        return row[index]
+
+
 def _load_db_entities(conn: Any) -> dict[str, dict[str, Any]]:
+    """Load active SC entities keyed by CNPJ8.
+
+    Supports both tuple cursors and dict-like cursors (``RealDictCursor``).
+    Weekly uses RealDictCursor; unpacking dict rows as tuples previously
+    bound column *names* (e.g. ``\"id\"``) and crashed with
+    ``int('id')`` during open-tenders collection.
+    """
     with conn.cursor() as cursor:
         cursor.execute(
             """
@@ -357,14 +375,18 @@ def _load_db_entities(conn: Any) -> dict[str, dict[str, Any]]:
             WHERE is_active IS TRUE
             """
         )
-        return {
-            normalize_cnpj8(str(cnpj8)): {
+        out: dict[str, dict[str, Any]] = {}
+        for row in cursor.fetchall():
+            entity_id = _row_get(row, "id", 0)
+            cnpj8 = _row_get(row, "cnpj_8", 1)
+            razao_social = _row_get(row, "razao_social", 2)
+            municipio = _row_get(row, "municipio", 3)
+            out[normalize_cnpj8(str(cnpj8))] = {
                 "id": int(entity_id),
                 "razao_social": razao_social,
                 "municipio": municipio,
             }
-            for entity_id, cnpj8, razao_social, municipio in cursor.fetchall()
-        }
+        return out
 
 
 def _validate_universe(universe: CanonicalUniverse) -> None:
