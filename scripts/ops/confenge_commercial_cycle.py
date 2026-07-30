@@ -105,6 +105,102 @@ def main(argv: list[str] | None = None) -> int:
 
     from datetime import date
 
+    # Official RFB local mirror — fail closed when unavailable or incomplete.
+    # Consumes active_official_registry_release only (no per-CNPJ network fetch).
+    # Set CONFENGE_REQUIRE_OFFICIAL_REGISTRY=0 only for legacy fixture tests.
+    require_official = os.environ.get("CONFENGE_REQUIRE_OFFICIAL_REGISTRY", "1") not in {
+        "0",
+        "false",
+        "False",
+        "no",
+    }
+    official_precheck: dict = {"ok": False, "reason": "not_evaluated"}
+    try:
+        from scripts.company_registry.commercial_bridge import (
+            fail_closed_commercial_precheck,
+        )
+        from scripts.company_registry.lookup import read_active_pointer
+
+        official_precheck = fail_closed_commercial_precheck()
+        if require_official and not official_precheck.get("ok"):
+            blocked = {
+                "campaign_id": CAMPAIGN_ID,
+                "status": "BLOCKED",
+                "reason": "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE",
+                "official_registry_precheck": official_precheck,
+                "active_official_registry_release": None,
+                "git_sha": git_sha(),
+            }
+            out_path = Path(args.out)
+            out_path.mkdir(parents=True, exist_ok=True)
+            (out_path / "cycle-manifest.json").write_text(
+                json.dumps(blocked, indent=2, ensure_ascii=False, default=str) + "\n",
+                encoding="utf-8",
+            )
+            (out_path / "run-result.json").write_text(
+                json.dumps(blocked, indent=2, ensure_ascii=False, default=str) + "\n",
+                encoding="utf-8",
+            )
+            print(
+                f"[{CAMPAIGN_ID}] status=BLOCKED reason=BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE",
+                file=sys.stderr,
+            )
+            return 2
+        if not require_official and not official_precheck.get("ok"):
+            official_precheck = {
+                "ok": False,
+                "gate": "SKIPPED_LEGACY",
+                "reason": "CONFENGE_REQUIRE_OFFICIAL_REGISTRY=0",
+            }
+        # Optional: publish active mirror into supplier_registry before pipeline
+        if os.environ.get("CONFENGE_PUBLISH_OFFICIAL_REGISTRY", "1") not in {
+            "0",
+            "false",
+            "False",
+        }:
+            interest_file = os.environ.get("CONFENGE_OFFICIAL_INTEREST_CNPJ_FILE")
+            if interest_file and Path(interest_file).is_file():
+                from scripts.commercial_leads.dbutil import connect
+                from scripts.company_registry.commercial_bridge import (
+                    publish_matches_to_supplier_registry,
+                )
+
+                cnpjs = [
+                    ln.strip()
+                    for ln in Path(interest_file).read_text(encoding="utf-8").splitlines()
+                    if ln.strip()
+                ]
+                conn = connect(dsn)
+                try:
+                    pub = publish_matches_to_supplier_registry(conn, cnpjs)
+                finally:
+                    conn.close()
+                official_precheck["publish"] = {
+                    "upserted": pub.get("upserted"),
+                    "stats": pub.get("stats"),
+                }
+        official_precheck["active_pointer"] = read_active_pointer()
+    except Exception as exc:  # noqa: BLE001
+        # Fail closed on unexpected registry errors
+        blocked = {
+            "campaign_id": CAMPAIGN_ID,
+            "status": "BLOCKED",
+            "reason": "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE",
+            "error": f"{type(exc).__name__}:{exc}",
+            "git_sha": git_sha(),
+        }
+        out_path = Path(args.out)
+        out_path.mkdir(parents=True, exist_ok=True)
+        (out_path / "cycle-manifest.json").write_text(
+            json.dumps(blocked, indent=2, ensure_ascii=False, default=str) + "\n",
+            encoding="utf-8",
+        )
+        print(
+            f"[{CAMPAIGN_ID}] status=BLOCKED official_registry_error={exc}",
+            file=sys.stderr,
+        )
+        return 2
+
     as_of = date.fromisoformat(args.as_of) if args.as_of else None
     result = run_pipeline(
         dsn=dsn,
@@ -124,10 +220,15 @@ def main(argv: list[str] | None = None) -> int:
     )
     result.setdefault("source_dsn_env_set", bool(args.source_dsn))
     result.setdefault("git_sha", git_sha())
+    result["official_registry_precheck"] = official_precheck
+    result["active_official_registry_release"] = official_precheck.get(
+        "active_official_registry_release"
+    )
     status = result.get("status")
     print(
         f"[{CAMPAIGN_ID}] status={status} leads={len(result.get('leads') or [])} "
-        f"run_id={result.get('run_id')} sha={result.get('git_sha')}"
+        f"run_id={result.get('run_id')} sha={result.get('git_sha')} "
+        f"official_release={result.get('active_official_registry_release')}"
     )
     out_manifest = Path(args.out) / "cycle-manifest.json"
     out_manifest.write_text(
@@ -141,6 +242,10 @@ def main(argv: list[str] | None = None) -> int:
                 "catalog_hash": result.get("catalog_hash"),
                 "snapshot_hash": result.get("snapshot_hash"),
                 "metrics": result.get("metrics"),
+                "active_official_registry_release": result.get(
+                    "active_official_registry_release"
+                ),
+                "official_registry_precheck": official_precheck,
             },
             indent=2,
             ensure_ascii=False,

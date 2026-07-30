@@ -180,3 +180,7 @@ artifacts/campaigns/CONFENGE-COMMERCIAL-ACTIVATION-AND-OUTCOME-LOOP-01/run/
 artifacts/campaigns/CONFENGE-COMMERCIAL-ACTIVATION-AND-OUTCOME-LOOP-01/run-post-merge/
 artifacts/campaigns/CONFENGE-COMMERCIAL-ACTIVATION-AND-OUTCOME-LOOP-01/post-merge/pre-rerun/
 artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01/
+
+# Official RFB mirror (large, rebuildable)
+data/company_registry/
+artifacts/campaigns/CONFENGE-OFFICIAL-REGISTRY-TO-REVENUE-01/selective-official.jsonl

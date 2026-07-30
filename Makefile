@@ -542,6 +542,29 @@ verify-confenge-evidence-provenance:
 
 verify-confenge-supplier-registry: verify-supplier-registry-coverage
 
+
+# --- Official RFB company registry (CONFENGE-OFFICIAL-REGISTRY-TO-REVENUE-01) ---
+.PHONY: company-registry-discover company-registry-refresh company-registry-health company-registry-lookup company-registry-coverage company-registry-precheck
+
+company-registry-discover:
+	python3 -m scripts.company_registry discover-release
+
+company-registry-refresh:
+	python3 -m scripts.company_registry refresh $(COMPANY_REGISTRY_FLAGS)
+
+company-registry-health:
+	python3 -m scripts.company_registry health
+
+company-registry-lookup:
+	python3 -m scripts.company_registry lookup --cnpj $(CNPJ)
+
+company-registry-coverage:
+	python3 -m scripts.company_registry coverage --cnpj-file $(CNPJ_FILE) $(if $(TOP20_FILE),--top20-file $(TOP20_FILE),)
+
+company-registry-precheck:
+	python3 -m scripts.company_registry commercial-precheck
+
+
 confenge-commercial-cycle:
 	@echo '==> confenge-commercial-cycle (CONFENGE commercial intelligence gold)'
 	@echo '    Entry: python -m scripts.ops.confenge_commercial_cycle'

@@ -1,0 +1,58 @@
+{
+  "release_id": "selective-selective-official",
+  "source_authority": "RECEITA_FEDERAL",
+  "source_urls": [
+    "file:artifacts/campaigns/CONFENGE-OFFICIAL-REGISTRY-TO-REVENUE-01/selective-official.jsonl"
+  ],
+  "discovered_at": "2026-07-30T19:15:48Z",
+  "published_reference_date": null,
+  "download_started_at": null,
+  "download_finished_at": null,
+  "files_expected": [],
+  "files_downloaded": [],
+  "file_names": [],
+  "content_lengths": {},
+  "sha256": {},
+  "compression_type": {},
+  "schema_version": "company-registry-v1",
+  "row_counts": {
+    "establishments": 211,
+    "companies": 211
+  },
+  "reject_counts": {},
+  "duplicate_counts": {},
+  "load_started_at": "2026-07-30T19:15:48Z",
+  "load_finished_at": "2026-07-30T19:15:48Z",
+  "status": "ACTIVE",
+  "errors": [],
+  "warnings": [
+    "Selective JSONL mode — bulk RFB completeness is NOT claimed.",
+    "source_label indicates RFB public data via redistributor; not a private CRM API as authority, but not direct bulk RFB zip either."
+  ],
+  "database_snapshot_id": "selective-selective-official:196608",
+  "code_commit": "8ff80eef188974d2c17cb8716e74700fef3e9b12",
+  "mode": "selective",
+  "ingestion_mode": "selective_jsonl",
+  "status_updated_at": "2026-07-30T19:15:49Z",
+  "activated_at": "2026-07-30T19:15:49Z",
+  "validate_load": {
+    "ok": true,
+    "release_id": "selective-selective-official",
+    "database_path": "/mnt/d/extra consultoria/data/company_registry/staging/selective-selective-official/registry.sqlite",
+    "row_counts": {
+      "establishments": 211,
+      "companies": 211
+    },
+    "smoke": {
+      "cnpj14": "00220982000127",
+      "has_row": true
+    },
+    "errors": [],
+    "status": "VALIDATING_LOAD",
+    "validated_at": "2026-07-30T19:15:49Z"
+  },
+  "jsonl_sha256": "bedc13041a0f5bf278cffbc9ae2e0b89fc9ea41c07d2f3fb957255849ce74c2a",
+  "jsonl_path": "artifacts/campaigns/CONFENGE-OFFICIAL-REGISTRY-TO-REVENUE-01/selective-official.jsonl",
+  "jsonl_rows": 211,
+  "bulk_completeness_claimed": false
+}

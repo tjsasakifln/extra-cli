@@ -1,0 +1,53 @@
+{
+  "release_id": "rfb-cnpj-unknown",
+  "source_authority": "RECEITA_FEDERAL",
+  "source_urls": [
+    "https://arquivos.receitafederal.gov.br/dados/cnpj/dados_abertos_cnpj/",
+    "https://dadosabertos.rfb.gov.br/CNPJ/",
+    "http://200.152.38.155/CNPJ/"
+  ],
+  "discovered_at": "2026-07-30T19:17:14Z",
+  "published_reference_date": null,
+  "download_started_at": null,
+  "download_finished_at": null,
+  "files_expected": [],
+  "files_downloaded": [],
+  "file_names": [],
+  "content_lengths": {},
+  "sha256": {},
+  "compression_type": {},
+  "schema_version": "company-registry-v1",
+  "row_counts": {},
+  "reject_counts": {},
+  "duplicate_counts": {},
+  "load_started_at": null,
+  "load_finished_at": null,
+  "status": "FAILED",
+  "errors": [
+    "https://arquivos.receitafederal.gov.br/dados/cnpj/dados_abertos_cnpj/: HTTPError: HTTP Error 404: Not Found",
+    "https://dadosabertos.rfb.gov.br/CNPJ/: URLError: <urlopen error timed out>",
+    "http://200.152.38.155/CNPJ/: URLError: <urlopen error timed out>"
+  ],
+  "warnings": [
+    "RFB open-data listing unreachable or empty from this environment. Stage local ZIPs under data/company_registry/raw/<release_id>/ or use selective mode."
+  ],
+  "database_snapshot_id": null,
+  "code_commit": "8ff80eef188974d2c17cb8716e74700fef3e9b12",
+  "mode": null,
+  "ingestion_mode": null,
+  "discovery": {
+    "index_urls_tried": [
+      "https://arquivos.receitafederal.gov.br/dados/cnpj/dados_abertos_cnpj/",
+      "https://dadosabertos.rfb.gov.br/CNPJ/",
+      "http://200.152.38.155/CNPJ/"
+    ],
+    "months_seen": [],
+    "chosen_index": null,
+    "files": [],
+    "errors": [
+      "https://arquivos.receitafederal.gov.br/dados/cnpj/dados_abertos_cnpj/: HTTPError: HTTP Error 404: Not Found",
+      "https://dadosabertos.rfb.gov.br/CNPJ/: URLError: <urlopen error timed out>",
+      "http://200.152.38.155/CNPJ/: URLError: <urlopen error timed out>"
+    ]
+  }
+}

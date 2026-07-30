@@ -1,0 +1,429 @@
+{
+  "n": 5,
+  "auto_send": false,
+  "human_approval_required": true,
+  "kits": [
+    {
+      "rank": 1,
+      "cnpj": "43371025000104",
+      "razao_social_oficial": "AXIONTEK LTDA",
+      "nome_fantasia": "AXIONTEK",
+      "situacao_cadastral": "ATIVA",
+      "cnae_principal": "7112000",
+      "cnaes_secundarios": [
+        "4221904",
+        "4223500",
+        "4299599",
+        "4322301",
+        "4322302",
+        "4329103",
+        "4399104",
+        "4612500",
+        "4641903",
+        "4674500",
+        "4692300",
+        "4789099",
+        "4930202",
+        "4930203",
+        "4930204",
+        "5099899",
+        "5120000",
+        "5250803",
+        "5250804",
+        "5250805",
+        "6110802",
+        "6190699",
+        "6201501",
+        "6204000",
+        "6209100",
+        "6319400",
+        "6621502",
+        "7020400",
+        "7119703",
+        "7119799",
+        "7490103",
+        "8299799",
+        "9511800"
+      ],
+      "porte": null,
+      "localizacao": "MOGI DAS CRUZES/SP",
+      "official_release_id": "selective-selective-official",
+      "resumo_executivo": "Empresa AXIONTEK LTDA (43371025000104) com cadastro oficial RFB ATIVA, CNAE 7112000.",
+      "hipotese_dor_observavel": "Exposição a contratos públicos de engenharia/obras com possíveis gaps de compliance, BDI e documentação processual (hipótese — validar com fatos contratuais).",
+      "fatos_verificaveis": {
+        "cadastro_oficial": {
+          "razao_social": "AXIONTEK LTDA",
+          "situacao": "ATIVA",
+          "cnae": "7112000",
+          "release": "selective-selective-official",
+          "authority": "RECEITA_FEDERAL"
+        },
+        "contratos": "Ver pipeline comercial / dossiers existentes — fatos contratuais permanecem autoridade dos contratos."
+      },
+      "oportunidade_confenge": "Pacote de inteligência B2G + conformidade de propostas / documentação / leitura de edital.",
+      "riscos_abordagem": [
+        "Não tratar situação ATIVA como propensão de compra",
+        "Não derivar interesse só do CNAE",
+        "Contato apenas em canais empresariais públicos"
+      ],
+      "mensagem_whatsapp_curta": "Olá, sou Tiago da CONFENGE. Trabalhamos com empresas de engenharia que atuam em contratos públicos. Vi a AXIONTEK no radar de obras/engenharia. Posso enviar um resumo objetivo de 5 linhas?",
+      "mensagem_formal": "Prezados,\n\nSou Tiago Sasaki, da CONFENGE. Atuamos com inteligência e conformidade em contratações públicas de engenharia.\nIdentificamos a AXIONTEK LTDA (CNPJ 43371025000104) a partir de histórico público de contratos e cadastro oficial da Receita Federal (release selective-selective-official).\nGostaríamos de agendar 15 minutos para validar se faz sentido um diagnóstico sem compromisso.\n\nAtenciosamente,\nTiago",
+      "roteiro_ligacao": [
+        "Apresentação (10s)",
+        "Por que ligamos: histórico público + setor engenharia",
+        "Pergunta de permissão",
+        "Oferta de resumo de 5 linhas",
+        "Agendar follow-up"
+      ],
+      "perguntas_qualificacao": [
+        "Quem decide participação em licitações?",
+        "Há gargalo em montagem de proposta / BDI / documentos?",
+        "Pipeline de editais nos próximos 90 dias?"
+      ],
+      "proximo_passo_sugerido": "Revisão humana de Tiago → APPROVED_FOR_CONTACT se fizer sentido → contato manual",
+      "fontes": {
+        "cadastro": {
+          "release_id": "selective-selective-official",
+          "database_path": "/mnt/d/extra consultoria/data/company_registry/releases/selective-selective-official/registry.sqlite",
+          "source_label": "rfb_public_cadastral_via_opencnpj",
+          "authority": "RECEITA_FEDERAL"
+        },
+        "contratos": "commercial_leads pipeline / PNCP contracts history"
+      },
+      "campos_revisao_tiago": [
+        "Confirmar se o estabelecimento (não só a raiz) é o alvo certo",
+        "Validar telefone/e-mail empresarial públicos",
+        "Não enviar se DO_NOT_CONTACT"
+      ],
+      "auto_send": false,
+      "status_comercial": "NOT_REVIEWED"
+    },
+    {
+      "rank": 2,
+      "cnpj": "42531033000108",
+      "razao_social_oficial": "METALURGICA SILLOTT LTDA",
+      "nome_fantasia": "",
+      "situacao_cadastral": "ATIVA",
+      "cnae_principal": "4292801",
+      "cnaes_secundarios": [
+        "3230200",
+        "3299003",
+        "3314710",
+        "3321000",
+        "4649499",
+        "4763601",
+        "4763602",
+        "7319002",
+        "7719599"
+      ],
+      "porte": null,
+      "localizacao": "JARAGUA DO SUL/SC",
+      "official_release_id": "selective-selective-official",
+      "resumo_executivo": "Empresa METALURGICA SILLOTT LTDA (42531033000108) com cadastro oficial RFB ATIVA, CNAE 4292801.",
+      "hipotese_dor_observavel": "Exposição a contratos públicos de engenharia/obras com possíveis gaps de compliance, BDI e documentação processual (hipótese — validar com fatos contratuais).",
+      "fatos_verificaveis": {
+        "cadastro_oficial": {
+          "razao_social": "METALURGICA SILLOTT LTDA",
+          "situacao": "ATIVA",
+          "cnae": "4292801",
+          "release": "selective-selective-official",
+          "authority": "RECEITA_FEDERAL"
+        },
+        "contratos": "Ver pipeline comercial / dossiers existentes — fatos contratuais permanecem autoridade dos contratos."
+      },
+      "oportunidade_confenge": "Pacote de inteligência B2G + conformidade de propostas / documentação / leitura de edital.",
+      "riscos_abordagem": [
+        "Não tratar situação ATIVA como propensão de compra",
+        "Não derivar interesse só do CNAE",
+        "Contato apenas em canais empresariais públicos"
+      ],
+      "mensagem_whatsapp_curta": "Olá, sou Tiago da CONFENGE. Trabalhamos com empresas de engenharia que atuam em contratos públicos. Vi a METALURGICA SILLOTT LTDA no radar de obras/engenharia. Posso enviar um resumo objetivo de 5 linhas?",
+      "mensagem_formal": "Prezados,\n\nSou Tiago Sasaki, da CONFENGE. Atuamos com inteligência e conformidade em contratações públicas de engenharia.\nIdentificamos a METALURGICA SILLOTT LTDA (CNPJ 42531033000108) a partir de histórico público de contratos e cadastro oficial da Receita Federal (release selective-selective-official).\nGostaríamos de agendar 15 minutos para validar se faz sentido um diagnóstico sem compromisso.\n\nAtenciosamente,\nTiago",
+      "roteiro_ligacao": [
+        "Apresentação (10s)",
+        "Por que ligamos: histórico público + setor engenharia",
+        "Pergunta de permissão",
+        "Oferta de resumo de 5 linhas",
+        "Agendar follow-up"
+      ],
+      "perguntas_qualificacao": [
+        "Quem decide participação em licitações?",
+        "Há gargalo em montagem de proposta / BDI / documentos?",
+        "Pipeline de editais nos próximos 90 dias?"
+      ],
+      "proximo_passo_sugerido": "Revisão humana de Tiago → APPROVED_FOR_CONTACT se fizer sentido → contato manual",
+      "fontes": {
+        "cadastro": {
+          "release_id": "selective-selective-official",
+          "database_path": "/mnt/d/extra consultoria/data/company_registry/releases/selective-selective-official/registry.sqlite",
+          "source_label": "rfb_public_cadastral_via_opencnpj",
+          "authority": "RECEITA_FEDERAL"
+        },
+        "contratos": "commercial_leads pipeline / PNCP contracts history"
+      },
+      "campos_revisao_tiago": [
+        "Confirmar se o estabelecimento (não só a raiz) é o alvo certo",
+        "Validar telefone/e-mail empresarial públicos",
+        "Não enviar se DO_NOT_CONTACT"
+      ],
+      "auto_send": false,
+      "status_comercial": "NOT_REVIEWED"
+    },
+    {
+      "rank": 3,
+      "cnpj": "50410432000149",
+      "razao_social_oficial": "M V NILLO DE PAULA ENGENHARIA",
+      "nome_fantasia": "NILLO DE PAULA ENGENHARIA",
+      "situacao_cadastral": "ATIVA",
+      "cnae_principal": "7112000",
+      "cnaes_secundarios": [
+        "6821801",
+        "7119703",
+        "7119799"
+      ],
+      "porte": null,
+      "localizacao": "ANDIRA/PR",
+      "official_release_id": "selective-selective-official",
+      "resumo_executivo": "Empresa M V NILLO DE PAULA ENGENHARIA (50410432000149) com cadastro oficial RFB ATIVA, CNAE 7112000.",
+      "hipotese_dor_observavel": "Exposição a contratos públicos de engenharia/obras com possíveis gaps de compliance, BDI e documentação processual (hipótese — validar com fatos contratuais).",
+      "fatos_verificaveis": {
+        "cadastro_oficial": {
+          "razao_social": "M V NILLO DE PAULA ENGENHARIA",
+          "situacao": "ATIVA",
+          "cnae": "7112000",
+          "release": "selective-selective-official",
+          "authority": "RECEITA_FEDERAL"
+        },
+        "contratos": "Ver pipeline comercial / dossiers existentes — fatos contratuais permanecem autoridade dos contratos."
+      },
+      "oportunidade_confenge": "Pacote de inteligência B2G + conformidade de propostas / documentação / leitura de edital.",
+      "riscos_abordagem": [
+        "Não tratar situação ATIVA como propensão de compra",
+        "Não derivar interesse só do CNAE",
+        "Contato apenas em canais empresariais públicos"
+      ],
+      "mensagem_whatsapp_curta": "Olá, sou Tiago da CONFENGE. Trabalhamos com empresas de engenharia que atuam em contratos públicos. Vi a NILLO DE PAULA ENGENHARIA no radar de obras/engenharia. Posso enviar um resumo objetivo de 5 linhas?",
+      "mensagem_formal": "Prezados,\n\nSou Tiago Sasaki, da CONFENGE. Atuamos com inteligência e conformidade em contratações públicas de engenharia.\nIdentificamos a M V NILLO DE PAULA ENGENHARIA (CNPJ 50410432000149) a partir de histórico público de contratos e cadastro oficial da Receita Federal (release selective-selective-official).\nGostaríamos de agendar 15 minutos para validar se faz sentido um diagnóstico sem compromisso.\n\nAtenciosamente,\nTiago",
+      "roteiro_ligacao": [
+        "Apresentação (10s)",
+        "Por que ligamos: histórico público + setor engenharia",
+        "Pergunta de permissão",
+        "Oferta de resumo de 5 linhas",
+        "Agendar follow-up"
+      ],
+      "perguntas_qualificacao": [
+        "Quem decide participação em licitações?",
+        "Há gargalo em montagem de proposta / BDI / documentos?",
+        "Pipeline de editais nos próximos 90 dias?"
+      ],
+      "proximo_passo_sugerido": "Revisão humana de Tiago → APPROVED_FOR_CONTACT se fizer sentido → contato manual",
+      "fontes": {
+        "cadastro": {
+          "release_id": "selective-selective-official",
+          "database_path": "/mnt/d/extra consultoria/data/company_registry/releases/selective-selective-official/registry.sqlite",
+          "source_label": "rfb_public_cadastral_via_opencnpj",
+          "authority": "RECEITA_FEDERAL"
+        },
+        "contratos": "commercial_leads pipeline / PNCP contracts history"
+      },
+      "campos_revisao_tiago": [
+        "Confirmar se o estabelecimento (não só a raiz) é o alvo certo",
+        "Validar telefone/e-mail empresarial públicos",
+        "Não enviar se DO_NOT_CONTACT"
+      ],
+      "auto_send": false,
+      "status_comercial": "NOT_REVIEWED"
+    },
+    {
+      "rank": 4,
+      "cnpj": "36216839000109",
+      "razao_social_oficial": "DIEGO DIAS GUSMAO LTDA",
+      "nome_fantasia": "DG PROJETOS DE ENGENHARIA",
+      "situacao_cadastral": "ATIVA",
+      "cnae_principal": "7112000",
+      "cnaes_secundarios": [
+        "3313901",
+        "3314702",
+        "3314707",
+        "3321000",
+        "4120400",
+        "4211101",
+        "4213800",
+        "4221902",
+        "4222701",
+        "4311801",
+        "4313400",
+        "4319300",
+        "4322301",
+        "4322303",
+        "4329103",
+        "4329199",
+        "4330401",
+        "4330402",
+        "4330403",
+        "4330404",
+        "4330405",
+        "4330499",
+        "4391600",
+        "4399101",
+        "4399102",
+        "4399103",
+        "4399104",
+        "4399105",
+        "4399199",
+        "4669999",
+        "4673700",
+        "4742300",
+        "4744001",
+        "4744003",
+        "4744005",
+        "4744099",
+        "4759801",
+        "6810201",
+        "6822600",
+        "7119701",
+        "7119703",
+        "7119799",
+        "7490104",
+        "7739099",
+        "8121400",
+        "8129000",
+        "8130300",
+        "8219999",
+        "8599604"
+      ],
+      "porte": null,
+      "localizacao": "LORENA/SP",
+      "official_release_id": "selective-selective-official",
+      "resumo_executivo": "Empresa DIEGO DIAS GUSMAO LTDA (36216839000109) com cadastro oficial RFB ATIVA, CNAE 7112000.",
+      "hipotese_dor_observavel": "Exposição a contratos públicos de engenharia/obras com possíveis gaps de compliance, BDI e documentação processual (hipótese — validar com fatos contratuais).",
+      "fatos_verificaveis": {
+        "cadastro_oficial": {
+          "razao_social": "DIEGO DIAS GUSMAO LTDA",
+          "situacao": "ATIVA",
+          "cnae": "7112000",
+          "release": "selective-selective-official",
+          "authority": "RECEITA_FEDERAL"
+        },
+        "contratos": "Ver pipeline comercial / dossiers existentes — fatos contratuais permanecem autoridade dos contratos."
+      },
+      "oportunidade_confenge": "Pacote de inteligência B2G + conformidade de propostas / documentação / leitura de edital.",
+      "riscos_abordagem": [
+        "Não tratar situação ATIVA como propensão de compra",
+        "Não derivar interesse só do CNAE",
+        "Contato apenas em canais empresariais públicos"
+      ],
+      "mensagem_whatsapp_curta": "Olá, sou Tiago da CONFENGE. Trabalhamos com empresas de engenharia que atuam em contratos públicos. Vi a DG PROJETOS DE ENGENHARIA no radar de obras/engenharia. Posso enviar um resumo objetivo de 5 linhas?",
+      "mensagem_formal": "Prezados,\n\nSou Tiago Sasaki, da CONFENGE. Atuamos com inteligência e conformidade em contratações públicas de engenharia.\nIdentificamos a DIEGO DIAS GUSMAO LTDA (CNPJ 36216839000109) a partir de histórico público de contratos e cadastro oficial da Receita Federal (release selective-selective-official).\nGostaríamos de agendar 15 minutos para validar se faz sentido um diagnóstico sem compromisso.\n\nAtenciosamente,\nTiago",
+      "roteiro_ligacao": [
+        "Apresentação (10s)",
+        "Por que ligamos: histórico público + setor engenharia",
+        "Pergunta de permissão",
+        "Oferta de resumo de 5 linhas",
+        "Agendar follow-up"
+      ],
+      "perguntas_qualificacao": [
+        "Quem decide participação em licitações?",
+        "Há gargalo em montagem de proposta / BDI / documentos?",
+        "Pipeline de editais nos próximos 90 dias?"
+      ],
+      "proximo_passo_sugerido": "Revisão humana de Tiago → APPROVED_FOR_CONTACT se fizer sentido → contato manual",
+      "fontes": {
+        "cadastro": {
+          "release_id": "selective-selective-official",
+          "database_path": "/mnt/d/extra consultoria/data/company_registry/releases/selective-selective-official/registry.sqlite",
+          "source_label": "rfb_public_cadastral_via_opencnpj",
+          "authority": "RECEITA_FEDERAL"
+        },
+        "contratos": "commercial_leads pipeline / PNCP contracts history"
+      },
+      "campos_revisao_tiago": [
+        "Confirmar se o estabelecimento (não só a raiz) é o alvo certo",
+        "Validar telefone/e-mail empresarial públicos",
+        "Não enviar se DO_NOT_CONTACT"
+      ],
+      "auto_send": false,
+      "status_comercial": "NOT_REVIEWED"
+    },
+    {
+      "rank": 5,
+      "cnpj": "09065576000101",
+      "razao_social_oficial": "BRASIL RONDON CONSTRUCOES LTDA",
+      "nome_fantasia": "BRC CONSTRUCOES",
+      "situacao_cadastral": "ATIVA",
+      "cnae_principal": "4120400",
+      "cnaes_secundarios": [
+        "7112000",
+        "4222701",
+        "4211101",
+        "4313400",
+        "4321500",
+        "4744099",
+        "7732201",
+        "4322301",
+        "7119701",
+        "8121400",
+        "8122200",
+        "4742300",
+        "4744003",
+        "8130300",
+        "3811400",
+        "3701100",
+        "8299701",
+        "8129000"
+      ],
+      "porte": null,
+      "localizacao": "BURITIZAL/SP",
+      "official_release_id": "selective-selective-official",
+      "resumo_executivo": "Empresa BRASIL RONDON CONSTRUCOES LTDA (09065576000101) com cadastro oficial RFB ATIVA, CNAE 4120400.",
+      "hipotese_dor_observavel": "Exposição a contratos públicos de engenharia/obras com possíveis gaps de compliance, BDI e documentação processual (hipótese — validar com fatos contratuais).",
+      "fatos_verificaveis": {
+        "cadastro_oficial": {
+          "razao_social": "BRASIL RONDON CONSTRUCOES LTDA",
+          "situacao": "ATIVA",
+          "cnae": "4120400",
+          "release": "selective-selective-official",
+          "authority": "RECEITA_FEDERAL"
+        },
+        "contratos": "Ver pipeline comercial / dossiers existentes — fatos contratuais permanecem autoridade dos contratos."
+      },
+      "oportunidade_confenge": "Pacote de inteligência B2G + conformidade de propostas / documentação / leitura de edital.",
+      "riscos_abordagem": [
+        "Não tratar situação ATIVA como propensão de compra",
+        "Não derivar interesse só do CNAE",
+        "Contato apenas em canais empresariais públicos"
+      ],
+      "mensagem_whatsapp_curta": "Olá, sou Tiago da CONFENGE. Trabalhamos com empresas de engenharia que atuam em contratos públicos. Vi a BRC CONSTRUCOES no radar de obras/engenharia. Posso enviar um resumo objetivo de 5 linhas?",
+      "mensagem_formal": "Prezados,\n\nSou Tiago Sasaki, da CONFENGE. Atuamos com inteligência e conformidade em contratações públicas de engenharia.\nIdentificamos a BRASIL RONDON CONSTRUCOES LTDA (CNPJ 09065576000101) a partir de histórico público de contratos e cadastro oficial da Receita Federal (release selective-selective-official).\nGostaríamos de agendar 15 minutos para validar se faz sentido um diagnóstico sem compromisso.\n\nAtenciosamente,\nTiago",
+      "roteiro_ligacao": [
+        "Apresentação (10s)",
+        "Por que ligamos: histórico público + setor engenharia",
+        "Pergunta de permissão",
+        "Oferta de resumo de 5 linhas",
+        "Agendar follow-up"
+      ],
+      "perguntas_qualificacao": [
+        "Quem decide participação em licitações?",
+        "Há gargalo em montagem de proposta / BDI / documentos?",
+        "Pipeline de editais nos próximos 90 dias?"
+      ],
+      "proximo_passo_sugerido": "Revisão humana de Tiago → APPROVED_FOR_CONTACT se fizer sentido → contato manual",
+      "fontes": {
+        "cadastro": {
+          "release_id": "selective-selective-official",
+          "database_path": "/mnt/d/extra consultoria/data/company_registry/releases/selective-selective-official/registry.sqlite",
+          "source_label": "rfb_public_cadastral_via_opencnpj",
+          "authority": "RECEITA_FEDERAL"
+        },
+        "contratos": "commercial_leads pipeline / PNCP contracts history"
+      },
+      "campos_revisao_tiago": [
+        "Confirmar se o estabelecimento (não só a raiz) é o alvo certo",
+        "Validar telefone/e-mail empresarial públicos",
+        "Não enviar se DO_NOT_CONTACT"
+      ],
+      "auto_send": false,
+      "status_comercial": "NOT_REVIEWED"
+    }
+  ]
+}

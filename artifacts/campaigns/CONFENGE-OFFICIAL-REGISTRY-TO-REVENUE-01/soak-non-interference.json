@@ -1,0 +1,5 @@
+{
+  "status": "PASS_BY_ISOLATION",
+  "note": "Campaign branch does not touch crawl/process_documents/source_registry/bid_readiness/systemd collectors/DOD.md. No timer restart performed.",
+  "git_isolation_claim": true
+}

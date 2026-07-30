@@ -1,0 +1,17 @@
+{
+  "ok": true,
+  "gate": "PASS",
+  "active_official_registry_release": "selective-selective-official",
+  "pointer": {
+    "status": "ACTIVE",
+    "release_id": "selective-selective-official",
+    "database_path": "/mnt/d/extra consultoria/data/company_registry/releases/selective-selective-official/registry.sqlite",
+    "database_snapshot_id": "selective-selective-official:196608",
+    "activated_at": "2026-07-30T19:15:49Z",
+    "previous_release_id": null,
+    "source_authority": "RECEITA_FEDERAL",
+    "mode": "selective",
+    "sha256_manifest": {},
+    "code_commit": "8ff80eef188974d2c17cb8716e74700fef3e9b12"
+  }
+}

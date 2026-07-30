@@ -1,0 +1,17 @@
+{
+  "schema_version": "outcome-feedback-v1",
+  "generated_at": "2026-07-30T19:17:14Z",
+  "events_total": 0,
+  "by_state": {},
+  "rejection_loss_reasons": [],
+  "human_only_states": [
+    "APPROVED_FOR_CONTACT",
+    "CONTACTED",
+    "MEETING_SCHEDULED",
+    "REPLIED",
+    "WON"
+  ],
+  "note": "Rates are descriptive counters only. Do not declare commercial precision without volume + human labels.",
+  "min_volume_for_performance_claims": 30,
+  "performance_claims_allowed": false
+}

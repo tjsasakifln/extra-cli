@@ -1,0 +1,27 @@
+{
+  "ok": true,
+  "release_id": "selective-selective-official",
+  "row_counts": {
+    "establishments": 211,
+    "companies": 211
+  },
+  "validate_load": {
+    "ok": true,
+    "release_id": "selective-selective-official",
+    "database_path": "/mnt/d/extra consultoria/data/company_registry/staging/selective-selective-official/registry.sqlite",
+    "row_counts": {
+      "establishments": 211,
+      "companies": 211
+    },
+    "smoke": {
+      "cnpj14": "00220982000127",
+      "has_row": true
+    },
+    "errors": [],
+    "status": "VALIDATING_LOAD",
+    "validated_at": "2026-07-30T19:15:49Z"
+  },
+  "rejects": 0,
+  "plausibility": "selective_interest_211_rows",
+  "generated_at": "2026-07-30T19:18:01.134055+00:00"
+}
