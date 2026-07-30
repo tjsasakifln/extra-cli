@@ -6,9 +6,10 @@ import random
 import time
 import urllib.error
 import urllib.request
+from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 from scripts.company_registry.integrity import sha256_file, validate_downloaded_file
 

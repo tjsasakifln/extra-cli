@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import os
 import time
-from pathlib import Path
 from typing import Any
 
 from scripts.company_registry.paths import ensure_layout, locks_dir
@@ -42,7 +41,7 @@ class RegistryLock:
         except OSError:
             pass
 
-    def __enter__(self) -> "RegistryLock":
+    def __enter__(self) -> RegistryLock:
         if not self.acquire():
             raise RuntimeError(f"registry_lock_busy:{self.path}")
         return self

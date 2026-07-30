@@ -3,12 +3,12 @@
 from __future__ import annotations
 
 import json
-import os
 import shutil
 from pathlib import Path
 
 import pytest
 
+from scripts.commercial_leads.supplier_registry import is_official_registry_source
 from scripts.company_registry.activate import activate_release, rollback_release, validate_load
 from scripts.company_registry.coverage import compute_coverage
 from scripts.company_registry.downloader import download_file
@@ -29,10 +29,15 @@ from scripts.company_registry.outcome_ledger import (
     record_transition,
 )
 from scripts.company_registry.paths import active_pointer_path, db_path_for_release, ensure_layout
-from scripts.commercial_leads.supplier_registry import is_official_registry_source
 
 ROOT = Path(__file__).resolve().parents[2]
-FIX = ROOT / "fixtures" / "company_registry"
+
+
+@pytest.fixture()
+def fix_dir(tmp_path):
+    from tests.company_registry.fixture_builder import build_fixture_dir
+
+    return build_fixture_dir(tmp_path / "rfb_fixtures")
 
 
 @pytest.fixture()
@@ -64,33 +69,33 @@ def test_situacao_normalize():
     assert normalize_situacao("ATIVA") == "ATIVA"
 
 
-def test_html_and_truncated_detection(tmp_path):
-    html = FIX / "fake.html"
+def test_html_and_truncated_detection(fix_dir):
+    html = fix_dir / "fake.html"
     assert looks_like_html(html)
     bad = validate_downloaded_file(html, expect_zip=True)
     assert not bad["ok"]
     assert "html_instead_of_binary" in bad["errors"] or "not_zip_magic" in bad["errors"]
 
-    trunc = FIX / "truncated.zip"
+    trunc = fix_dir / "truncated.zip"
     v = validate_downloaded_file(trunc, expect_zip=True)
     assert not v["ok"]
 
 
-def test_download_skips_valid_existing(tmp_path, monkeypatch):
+def test_download_skips_valid_existing(tmp_path, fix_dir):
     # copy valid zip and ensure skip path works without network
     dest = tmp_path / "Estabelecimentos0.zip"
-    shutil.copy2(FIX / "Estabelecimentos0.zip", dest)
+    shutil.copy2(fix_dir / "Estabelecimentos0.zip", dest)
     res = download_file("http://example.invalid/Estabelecimentos0.zip", dest)
     assert res["ok"] is True
     assert res.get("skipped") is True
 
 
-def test_load_activate_lookup_rollback(reg_root):
+def test_load_activate_lookup_rollback(reg_root, fix_dir):
     release_id = "rfb-cnpj-fixture-2025-06"
     raw = reg_root / "raw" / release_id
     raw.mkdir(parents=True)
-    shutil.copy2(FIX / "Estabelecimentos0.zip", raw / "Estabelecimentos0.zip")
-    shutil.copy2(FIX / "Empresas0.zip", raw / "Empresas0.zip")
+    shutil.copy2(fix_dir / "Estabelecimentos0.zip", raw / "Estabelecimentos0.zip")
+    shutil.copy2(fix_dir / "Empresas0.zip", raw / "Empresas0.zip")
 
     m = new_manifest(release_id, mode="fixture", published_reference_date="2025-06")
     set_status(m, ReleaseStatus.DOWNLOADED.value)
@@ -110,7 +115,7 @@ def test_load_activate_lookup_rollback(reg_root):
     assert act["status"] == "ACTIVE"
     assert active_pointer_path().is_file()
 
-    meta = json.loads((FIX / "meta.json").read_text(encoding="utf-8"))
+    meta = json.loads((fix_dir / "meta.json").read_text(encoding="utf-8"))
     cnpj_ok = meta["cnpjs"][0]
     rec = lookup_cnpj(cnpj_ok)
     assert rec.official_match_status == OfficialMatchStatus.MATCHED.value
@@ -124,8 +129,8 @@ def test_load_activate_lookup_rollback(reg_root):
     release2 = "rfb-cnpj-fixture-2025-07"
     raw2 = reg_root / "raw" / release2
     raw2.mkdir(parents=True)
-    shutil.copy2(FIX / "Estabelecimentos0.zip", raw2 / "Estabelecimentos0.zip")
-    shutil.copy2(FIX / "Empresas0.zip", raw2 / "Empresas0.zip")
+    shutil.copy2(fix_dir / "Estabelecimentos0.zip", raw2 / "Estabelecimentos0.zip")
+    shutil.copy2(fix_dir / "Empresas0.zip", raw2 / "Empresas0.zip")
     m2 = new_manifest(release2, mode="fixture")
     set_status(m2, ReleaseStatus.DOWNLOADED.value)
     save_manifest(m2)
@@ -141,7 +146,7 @@ def test_load_activate_lookup_rollback(reg_root):
     assert lookup_cnpj(cnpj_ok).official_release_id == release_id
 
 
-def test_lookup_status_matrix(reg_root):
+def test_lookup_status_matrix(reg_root, fix_dir):
     # no active → UNAVAILABLE
     rec = lookup_cnpj("11222333000181")
     assert rec.official_match_status == OfficialMatchStatus.OFFICIAL_REGISTRY_UNAVAILABLE.value
@@ -155,8 +160,8 @@ def test_lookup_status_matrix(reg_root):
     release_id = "rfb-cnpj-fixture-nf"
     raw = reg_root / "raw" / release_id
     raw.mkdir(parents=True)
-    shutil.copy2(FIX / "Estabelecimentos0.zip", raw / "Estabelecimentos0.zip")
-    shutil.copy2(FIX / "Empresas0.zip", raw / "Empresas0.zip")
+    shutil.copy2(fix_dir / "Estabelecimentos0.zip", raw / "Estabelecimentos0.zip")
+    shutil.copy2(fix_dir / "Empresas0.zip", raw / "Empresas0.zip")
     m = new_manifest(release_id)
     set_status(m, ReleaseStatus.DOWNLOADED.value)
     save_manifest(m)
@@ -175,12 +180,12 @@ def test_lookup_status_matrix(reg_root):
     assert nf.official_match_status == OfficialMatchStatus.NOT_FOUND_IN_OFFICIAL_RELEASE.value
 
 
-def test_coverage_denominators_not_gamed(reg_root):
+def test_coverage_denominators_not_gamed(reg_root, fix_dir):
     release_id = "rfb-cnpj-fixture-cov"
     raw = reg_root / "raw" / release_id
     raw.mkdir(parents=True)
-    shutil.copy2(FIX / "Estabelecimentos0.zip", raw / "Estabelecimentos0.zip")
-    shutil.copy2(FIX / "Empresas0.zip", raw / "Empresas0.zip")
+    shutil.copy2(fix_dir / "Estabelecimentos0.zip", raw / "Estabelecimentos0.zip")
+    shutil.copy2(fix_dir / "Empresas0.zip", raw / "Empresas0.zip")
     m = new_manifest(release_id)
     set_status(m, ReleaseStatus.DOWNLOADED.value)
     save_manifest(m)
@@ -189,7 +194,7 @@ def test_coverage_denominators_not_gamed(reg_root):
     load_zip_into_db(raw / "Empresas0.zip", db, kind_hint="empresas")
     activate_release(release_id)
 
-    meta = json.loads((FIX / "meta.json").read_text(encoding="utf-8"))
+    meta = json.loads((fix_dir / "meta.json").read_text(encoding="utf-8"))
     # 3 fixture + 1 invalid + 1 missing-style
     candidates = meta["cnpjs"] + ["11222333000180", "not-a-cnpj"]
     # top20 only the two ATIVAS
@@ -249,15 +254,15 @@ def test_outcome_ledger_human_only(reg_root, tmp_path):
     assert set(HUMAN_ONLY_STATES)
 
 
-def test_fail_closed_commercial_precheck(reg_root):
+def test_fail_closed_commercial_precheck(reg_root, fix_dir):
     from scripts.company_registry.commercial_bridge import fail_closed_commercial_precheck
 
     assert not fail_closed_commercial_precheck()["ok"]
     release_id = "rfb-cnpj-fixture-pc"
     raw = reg_root / "raw" / release_id
     raw.mkdir(parents=True)
-    shutil.copy2(FIX / "Estabelecimentos0.zip", raw / "Estabelecimentos0.zip")
-    shutil.copy2(FIX / "Empresas0.zip", raw / "Empresas0.zip")
+    shutil.copy2(fix_dir / "Estabelecimentos0.zip", raw / "Estabelecimentos0.zip")
+    shutil.copy2(fix_dir / "Empresas0.zip", raw / "Empresas0.zip")
     m = new_manifest(release_id)
     set_status(m, ReleaseStatus.DOWNLOADED.value)
     save_manifest(m)
@@ -268,7 +273,7 @@ def test_fail_closed_commercial_precheck(reg_root):
     assert fail_closed_commercial_precheck()["ok"]
 
 
-def test_cli_lookup_and_health(reg_root):
+def test_cli_lookup_and_health(reg_root, fix_dir):
     from scripts.company_registry.cli import main
 
     # health without active → non-zero
@@ -276,8 +281,8 @@ def test_cli_lookup_and_health(reg_root):
     release_id = "rfb-cnpj-fixture-cli"
     raw = reg_root / "raw" / release_id
     raw.mkdir(parents=True)
-    shutil.copy2(FIX / "Estabelecimentos0.zip", raw / "Estabelecimentos0.zip")
-    shutil.copy2(FIX / "Empresas0.zip", raw / "Empresas0.zip")
+    shutil.copy2(fix_dir / "Estabelecimentos0.zip", raw / "Estabelecimentos0.zip")
+    shutil.copy2(fix_dir / "Empresas0.zip", raw / "Empresas0.zip")
     m = new_manifest(release_id)
     set_status(m, ReleaseStatus.DOWNLOADED.value)
     save_manifest(m)
@@ -285,7 +290,7 @@ def test_cli_lookup_and_health(reg_root):
     load_zip_into_db(raw / "Estabelecimentos0.zip", db, kind_hint="estabelecimentos")
     load_zip_into_db(raw / "Empresas0.zip", db, kind_hint="empresas")
     activate_release(release_id)
-    meta = json.loads((FIX / "meta.json").read_text(encoding="utf-8"))
+    meta = json.loads((fix_dir / "meta.json").read_text(encoding="utf-8"))
     assert main(["lookup", "--cnpj", meta["cnpjs"][0]]) == 0
     assert main(["health", "--cnpj", meta["cnpjs"][0]]) == 0
 

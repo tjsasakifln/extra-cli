@@ -156,8 +156,9 @@ def load_zip_into_db(
                 """
             )
             conn.commit()
-        except Exception:
-            pass
+        except Exception as mun_exc:  # noqa: BLE001
+            # Domain join is best-effort; load still succeeds without municipio names.
+            set_meta(conn, "municipio_join_warning", str(mun_exc))
         set_meta(conn, f"loaded:{zip_path.name}", {"kind": kind, "ok": True})
         conn.commit()
         return {

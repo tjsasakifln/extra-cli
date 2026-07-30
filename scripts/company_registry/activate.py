@@ -4,25 +4,22 @@ from __future__ import annotations
 
 import json
 import shutil
-from datetime import UTC, datetime
-from pathlib import Path
 from typing import Any
 
 from scripts.company_registry.lookup import lookup_cnpj
 from scripts.company_registry.manifest import load_manifest, save_manifest, set_status, utc_now
-from scripts.company_registry.models import OfficialMatchStatus, ReleaseStatus
+from scripts.company_registry.models import ReleaseStatus
 from scripts.company_registry.paths import (
     active_pointer_path,
     db_path_for_release,
     ensure_layout,
     releases_dir,
 )
-from scripts.company_registry.store import connect_db, count_table, get_meta, set_meta
+from scripts.company_registry.store import connect_db, count_table, set_meta
 
 
 def validate_load(release_id: str, *, min_establishments: int = 1) -> dict[str, Any]:
     """Smoke + plausibility checks before ACTIVE."""
-    manifest = load_manifest(release_id) or {}
     staging = db_path_for_release(release_id, staging=True)
     final = db_path_for_release(release_id, staging=False)
     db = staging if staging.is_file() else final

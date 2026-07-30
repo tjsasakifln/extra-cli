@@ -2,17 +2,18 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from datetime import UTC, date, datetime
-from typing import Any, Iterable
+from typing import Any
 
-from scripts.company_registry.lookup import batch_lookup, lookup_cnpj, read_active_pointer
-from scripts.company_registry.models import OfficialMatchStatus, SITUACAO_BLOCK_PROMOTION
-from scripts.company_registry.normalization import is_valid_cnpj14, normalize_cnpj14
 from scripts.commercial_leads.supplier_registry import (
     ensure_registry_table,
     is_official_registry_source,
     upsert_registry_rows,
 )
+from scripts.company_registry.lookup import lookup_cnpj, read_active_pointer
+from scripts.company_registry.models import SITUACAO_BLOCK_PROMOTION, OfficialMatchStatus
+from scripts.company_registry.normalization import is_valid_cnpj14, normalize_cnpj14
 
 DEFAULT_OFFICIAL_SOURCE = "rfb_public_cadastral"
 

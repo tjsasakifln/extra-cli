@@ -19,8 +19,13 @@ def utc_now() -> str:
 
 def git_commit() -> str | None:
     try:
-        out = subprocess.check_output(
-            ["git", "rev-parse", "HEAD"],
+        import shutil
+
+        git = shutil.which("git")
+        if not git:
+            return os.environ.get("GITHUB_SHA")
+        out = subprocess.check_output(  # noqa: S603
+            [git, "rev-parse", "HEAD"],
             stderr=subprocess.DEVNULL,
             text=True,
         )

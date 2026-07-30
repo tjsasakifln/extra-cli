@@ -16,7 +16,13 @@ from scripts.company_registry.models import ReleaseStatus
 from scripts.company_registry.paths import db_path_for_release, ensure_layout
 
 ROOT = Path(__file__).resolve().parents[2]
-FIX = ROOT / "fixtures" / "company_registry"
+
+
+@pytest.fixture()
+def fix_dir(tmp_path):
+    from tests.company_registry.fixture_builder import build_fixture_dir
+
+    return build_fixture_dir(tmp_path / "rfb_fixtures")
 
 
 @pytest.fixture()
@@ -27,11 +33,11 @@ def reg_root(tmp_path, monkeypatch):
     return root
 
 
-def _activate_fixture(reg_root: Path, release_id: str = "rfb-gate-fix") -> str:
+def _activate_fixture(reg_root: Path, fix_dir: Path, release_id: str = "rfb-gate-fix") -> str:
     raw = reg_root / "raw" / release_id
     raw.mkdir(parents=True)
-    shutil.copy2(FIX / "Estabelecimentos0.zip", raw / "Estabelecimentos0.zip")
-    shutil.copy2(FIX / "Empresas0.zip", raw / "Empresas0.zip")
+    shutil.copy2(fix_dir / "Estabelecimentos0.zip", raw / "Estabelecimentos0.zip")
+    shutil.copy2(fix_dir / "Empresas0.zip", raw / "Empresas0.zip")
     m = new_manifest(release_id)
     set_status(m, ReleaseStatus.DOWNLOADED.value)
     save_manifest(m)
@@ -48,16 +54,16 @@ def test_precheck_fails_without_active(reg_root):
     assert r["reason"] == "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE"
 
 
-def test_precheck_active_only_passes_without_candidate_lists(reg_root):
-    _activate_fixture(reg_root)
+def test_precheck_active_only_passes_without_candidate_lists(reg_root, fix_dir):
+    _activate_fixture(reg_root, fix_dir)
     r = fail_closed_commercial_precheck()
     assert r["ok"]
     assert r["checks"]["load_non_empty"]
 
 
-def test_precheck_fails_low_coverage_and_top20(reg_root):
-    _activate_fixture(reg_root)
-    meta = json.loads((FIX / "meta.json").read_text(encoding="utf-8"))
+def test_precheck_fails_low_coverage_and_top20(reg_root, fix_dir):
+    _activate_fixture(reg_root, fix_dir)
+    meta = json.loads((fix_dir / "meta.json").read_text(encoding="utf-8"))
     candidates = meta["cnpjs"] + ["19131243000197"]
     r = fail_closed_commercial_precheck(
         candidates=candidates,
@@ -71,9 +77,9 @@ def test_precheck_fails_low_coverage_and_top20(reg_root):
     assert any("OFFICIAL_MATCH" in e or "TOP20" in e for e in r["errors"])
 
 
-def test_precheck_passes_full_gates_on_fixture_universe(reg_root):
-    _activate_fixture(reg_root)
-    meta = json.loads((FIX / "meta.json").read_text(encoding="utf-8"))
+def test_precheck_passes_full_gates_on_fixture_universe(reg_root, fix_dir):
+    _activate_fixture(reg_root, fix_dir)
+    meta = json.loads((fix_dir / "meta.json").read_text(encoding="utf-8"))
     usable = meta["cnpjs"][:2]
     r = fail_closed_commercial_precheck(
         candidates=usable,

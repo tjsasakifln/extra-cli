@@ -2,11 +2,10 @@
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
 from typing import Any
 
-from scripts.company_registry.activate import activate_release, validate_load
+from scripts.company_registry.activate import activate_release
 from scripts.company_registry.diff import diff_releases
 from scripts.company_registry.downloader import download_file
 from scripts.company_registry.loader import load_jsonl_selective, load_zip_into_db

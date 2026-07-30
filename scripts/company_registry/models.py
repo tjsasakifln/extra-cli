@@ -3,11 +3,11 @@
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 
-class ReleaseStatus(str, Enum):
+class ReleaseStatus(StrEnum):
     DISCOVERED = "DISCOVERED"
     DOWNLOADING = "DOWNLOADING"
     DOWNLOADED = "DOWNLOADED"
@@ -20,7 +20,7 @@ class ReleaseStatus(str, Enum):
     ROLLED_BACK = "ROLLED_BACK"
 
 
-class OfficialMatchStatus(str, Enum):
+class OfficialMatchStatus(StrEnum):
     MATCHED = "MATCHED"
     NOT_FOUND_IN_OFFICIAL_RELEASE = "NOT_FOUND_IN_OFFICIAL_RELEASE"
     INVALID_CNPJ = "INVALID_CNPJ"
