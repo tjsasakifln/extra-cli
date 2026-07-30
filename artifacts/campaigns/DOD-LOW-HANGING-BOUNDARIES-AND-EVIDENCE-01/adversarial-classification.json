@@ -1,0 +1,35 @@
+{
+  "ok": true,
+  "cases": [
+    {
+      "case": "closed_item",
+      "expected": "REJECTED_NOT_LOW_HANGING",
+      "got": "REJECTED_NOT_LOW_HANGING",
+      "ok": true
+    },
+    {
+      "case": "human",
+      "expected": "REJECTED_HUMAN",
+      "got": "REJECTED_HUMAN",
+      "ok": true
+    },
+    {
+      "case": "coverage95",
+      "expected": "REJECTED_NOT_LOW_HANGING",
+      "got": "REJECTED_NOT_LOW_HANGING",
+      "ok": true
+    },
+    {
+      "case": "commercial",
+      "expected": "REJECTED_PARALLEL_CONFLICT",
+      "got": "REJECTED_PARALLEL_CONFLICT",
+      "ok": true
+    },
+    {
+      "case": "scope_ok",
+      "expected": "SELECTED",
+      "got": "SELECTED",
+      "ok": true
+    }
+  ]
+}

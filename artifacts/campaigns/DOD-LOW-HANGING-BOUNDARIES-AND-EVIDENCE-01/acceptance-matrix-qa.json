@@ -1,0 +1,450 @@
+{
+  "campaign_id": "DOD-LOW-HANGING-BOUNDARIES-AND-EVIDENCE-01",
+  "generated_at": "2026-07-30T00:42:21.761966+00:00",
+  "qa_verdict": "PASS_WITH_REDUCED_SET",
+  "qa_approved_count": 42,
+  "qa_demoted_count": 17,
+  "qa_approved": [
+    {
+      "item_id": "DOD-definition-of-done-extra-a362715e4d",
+      "status": "PROVEN",
+      "family": "A_GOVERNANCE",
+      "related_capability": null,
+      "evidence_sha256": "7b23089e5b4875b539492e77bc9c88d2bd772d0ded25ca1486bfd77346b39e2b",
+      "conclusion": "PROVEN",
+      "qa_status": "APPROVED"
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-75164c86da",
+      "status": "PROVEN",
+      "family": "A_GOVERNANCE",
+      "related_capability": null,
+      "evidence_sha256": "6a9e83d4ae67caa3448a3b3d5d20383571cd6688a9319cd29170f54d60e72ceb",
+      "conclusion": "PROVEN",
+      "qa_status": "APPROVED"
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-59ea375492",
+      "status": "PROVEN",
+      "family": "A_GOVERNANCE",
+      "related_capability": null,
+      "evidence_sha256": "486957080900c5c1eecaa8b707652f91bfabc6ed5c70ddecf7285bf47d2b0fd6",
+      "conclusion": "PROVEN",
+      "qa_status": "APPROVED"
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-c94d735e7c",
+      "status": "PROVEN",
+      "family": "A_GOVERNANCE",
+      "related_capability": null,
+      "evidence_sha256": "7da03b855a1de808e5057579c42ebd4380cf15c2781ccd61a9c1b3c501168db0",
+      "conclusion": "PROVEN",
+      "qa_status": "APPROVED"
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-aa0cc46c52",
+      "status": "PROVEN",
+      "family": "A_GOVERNANCE",
+      "related_capability": null,
+      "evidence_sha256": "c121666939442182e70e2c7c5ec30e2627a5e73f094cde930e3a36ed7cf46846",
+      "conclusion": "PROVEN",
+      "qa_status": "APPROVED"
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-f96c0779f9",
+      "status": "PROVEN",
+      "family": "A_GOVERNANCE",
+      "related_capability": null,
+      "evidence_sha256": "ec6150e18b8a46efa9e70f4a8b9e1c29930e11549538ece791a51b1fb13bf6c8",
+      "conclusion": "PROVEN",
+      "qa_status": "APPROVED"
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-793fb2e8b5",
+      "status": "PROVEN",
+      "family": "A_GOVERNANCE",
+      "related_capability": null,
+      "evidence_sha256": "81d0360668a93af3905a5943399cd8be5062c5465b0eeeb22bb2bdf0decebc73",
+      "conclusion": "PROVEN",
+      "qa_status": "APPROVED"
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-a6aa7190ac",
+      "status": "PROVEN",
+      "family": "A_GOVERNANCE",
+      "related_capability": null,
+      "evidence_sha256": "f6e953f298dfa539b2e6b105e067b0e4d50558a0fdb69849f4ec73d16272dbce",
+      "conclusion": "PROVEN",
+      "qa_status": "APPROVED"
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-794600a043",
+      "status": "PROVEN",
+      "family": "A_GOVERNANCE",
+      "related_capability": null,
+      "evidence_sha256": "c7c571fae437c8bfb5d273ae5086f431622089b5deeeb5c1fa4f883b55b07275",
+      "conclusion": "PROVEN",
+      "qa_status": "APPROVED"
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-fa4a690d5c",
+      "status": "PROVEN",
+      "family": "A_GOVERNANCE",
+      "related_capability": null,
+      "evidence_sha256": "cae52f74fd9b7140c1764dfd701490e096f99a5ae35390c3a31ec8d9a7fdbc7a",
+      "conclusion": "PROVEN",
+      "qa_status": "APPROVED"
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-5865b9f10c",
+      "status": "PROVEN",
+      "family": "A_GOVERNANCE",
+      "related_capability": null,
+      "evidence_sha256": "45abcb363208ce4e82682f641a2f93f0f6af2396d4360242df802e09fa3326b0",
+      "conclusion": "PROVEN",
+      "qa_status": "APPROVED"
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-7e08df417e",
+      "status": "PROVEN",
+      "family": "B_SCOPE_EXCLUDED",
+      "related_capability": "diario_de_obra",
+      "evidence_sha256": "026d5314babbc265cafa264e814b48d0ee8f8daf00351b58d7e1a171aac4f9eb",
+      "conclusion": "PROVEN",
+      "qa_status": "APPROVED"
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-d1bf197b8b",
+      "status": "PROVEN",
+      "family": "B_SCOPE_EXCLUDED",
+      "related_capability": "medicao_de_obra",
+      "evidence_sha256": "580f36940d1093205a50b7a76effebb034c3dfb398e37c6d1b29cbeff4dbdca3",
+      "conclusion": "PROVEN",
+      "qa_status": "APPROVED"
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-1d08d2599c",
+      "status": "PROVEN",
+      "family": "B_SCOPE_EXCLUDED",
+      "related_capability": "avanco_fisico",
+      "evidence_sha256": "3f02a02653b6a4b1367326c2f013d64c4f2bdbbd8bd315007455846f0c7bf829",
+      "conclusion": "PROVEN",
+      "qa_status": "APPROVED"
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-eafbfd4a1f",
+      "status": "PROVEN",
+      "family": "B_SCOPE_EXCLUDED",
+      "related_capability": "acompanhamento_financeiro_execucao_obra",
+      "evidence_sha256": "bd56fce828ffae5d7d2d512700019fa673dfea0269d800a31f069f5217f964e7",
+      "conclusion": "PROVEN",
+      "qa_status": "APPROVED"
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-361d74f7ba",
+      "status": "PROVEN",
+      "family": "B_SCOPE_EXCLUDED",
+      "related_capability": "gestao_fotos_obra",
+      "evidence_sha256": "12d0a73dd11306bb95d910ca67592f865594ff39c662cdf65b17b0e341c53def",
+      "conclusion": "PROVEN",
+      "qa_status": "APPROVED"
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-10726ba9b9",
+      "status": "PROVEN",
+      "family": "B_SCOPE_EXCLUDED",
+      "related_capability": "fiscalizacao_de_campo",
+      "evidence_sha256": "6a2fce44221be7b3df3f34f64e9481b681bff2be02d56a3610b42db6641f8a89",
+      "conclusion": "PROVEN",
+      "qa_status": "APPROVED"
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-9075dfdd96",
+      "status": "PROVEN",
+      "family": "B_SCOPE_EXCLUDED",
+      "related_capability": "gestao_aditivos_execucao_fisica",
+      "evidence_sha256": "26b37b5e8890e7512f1f3414aeec7906e710acc8486792f5b2db1e77206e1b27",
+      "conclusion": "PROVEN",
+      "qa_status": "APPROVED"
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-20ded85333",
+      "status": "PROVEN",
+      "family": "B_SCOPE_EXCLUDED",
+      "related_capability": "gestao_riscos_obra",
+      "evidence_sha256": "c11455e8002bea324266eb68aec0edd8d43c7eb870d2b687ca2d694af65f5b77",
+      "conclusion": "PROVEN",
+      "qa_status": "APPROVED"
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-642f0c1b05",
+      "status": "PROVEN",
+      "family": "B_SCOPE_EXCLUDED",
+      "related_capability": "gestao_equipes_obra",
+      "evidence_sha256": "a3f1c110e00ab3adbeb67f3aca43e77747f7e9867d2ab59c1fb24600d6f1f036",
+      "conclusion": "PROVEN",
+      "qa_status": "APPROVED"
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-ab71db3f6e",
+      "status": "PROVEN",
+      "family": "B_SCOPE_EXCLUDED",
+      "related_capability": "cronograma_fisico_financeiro",
+      "evidence_sha256": "f39537f05ee62a46cbcc4b7d38635c9f5dc72f7f3b2d90ca92609ef0861ab9a4",
+      "conclusion": "PROVEN",
+      "qa_status": "APPROVED"
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-ddd9c4fb86",
+      "status": "PROVEN",
+      "family": "B_SCOPE_EXCLUDED",
+      "related_capability": "portal_contratada",
+      "evidence_sha256": "513df50e73953bfe48cef687ebf3286fa178e8d4b9bd8cb21739fd3838ff046f",
+      "conclusion": "PROVEN",
+      "qa_status": "APPROVED"
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-0fe4fb2225",
+      "status": "PROVEN",
+      "family": "B_SCOPE_EXCLUDED",
+      "related_capability": "interface_publica",
+      "evidence_sha256": "d31aefc18e90c5845b1649d2d65deb6102f46a9f0917ac4ba68497b2726804d2",
+      "conclusion": "PROVEN",
+      "qa_status": "APPROVED"
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-e3fab7341c",
+      "status": "PROVEN",
+      "family": "B_SCOPE_EXCLUDED",
+      "related_capability": "multi_tenant",
+      "evidence_sha256": "d3a8de854af2f68e44401bd342fd5f6b63c31c8363bbd9b1c1f1aba4002bed0e",
+      "conclusion": "PROVEN",
+      "qa_status": "APPROVED"
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-1b8854e33b",
+      "status": "PROVEN",
+      "family": "B_SCOPE_EXCLUDED",
+      "related_capability": "cobranca_assinatura_stripe",
+      "evidence_sha256": "7bde85912a02624b4f6fa3700ba4508afb1101a74dc79f89d99b32e8677d4bdb",
+      "conclusion": "PROVEN",
+      "qa_status": "APPROVED"
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-5d877d2ba4",
+      "status": "PROVEN",
+      "family": "B_SCOPE_EXCLUDED",
+      "related_capability": "autenticacao_complexa_desnecessaria",
+      "evidence_sha256": "70baf2750dc56a47446af8c72b8ac78f840dcaefa2bd758fa3fc73cb15f687c3",
+      "conclusion": "PROVEN",
+      "qa_status": "APPROVED"
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-17f49981f1",
+      "status": "PROVEN",
+      "family": "B_SCOPE_EXCLUDED",
+      "related_capability": "dashboard_web_estetico",
+      "evidence_sha256": "f77db5feccb6ce5a36c677eeb9118d87d6e16593fbb575789c88f87818ada6a3",
+      "conclusion": "PROVEN",
+      "qa_status": "APPROVED"
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-c5144849e4",
+      "status": "PROVEN",
+      "family": "B_SCOPE_EXCLUDED",
+      "related_capability": "assinatura_automatica_documentos",
+      "evidence_sha256": "0b7b73b5656bfa58f61ce11797a361b654b1f7989e8618b07475f8e82e97cd0e",
+      "conclusion": "PROVEN",
+      "qa_status": "APPROVED"
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-f2dfcdb3e4",
+      "status": "PROVEN",
+      "family": "B_SCOPE_EXCLUDED",
+      "related_capability": "protocolo_automatico_sem_humano",
+      "evidence_sha256": "3f18149c8236f92672e37d24e4343ef0a4824e27fdfc2630ab210115e783352c",
+      "conclusion": "PROVEN",
+      "qa_status": "APPROVED"
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-4bd8d3ef1a",
+      "status": "PROVEN",
+      "family": "B_SCOPE_EXCLUDED",
+      "related_capability": "substituicao_advogado",
+      "evidence_sha256": "c21fc454131707aad1f400c1d2185490b581eeb8d5a6671da84ee267b8927d67",
+      "conclusion": "PROVEN",
+      "qa_status": "APPROVED"
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-0903b01d4b",
+      "status": "PROVEN",
+      "family": "B_SCOPE_EXCLUDED",
+      "related_capability": "representacao_presencial",
+      "evidence_sha256": "594b6af288c94bfb01eaed054a3624adb89ae055518f4f6fc30289dca0627c3b",
+      "conclusion": "PROVEN",
+      "qa_status": "APPROVED"
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-7b21a39253",
+      "status": "PROVEN",
+      "family": "B_SCOPE_EXCLUDED",
+      "related_capability": "fornecimento_garantias_seguros_credito",
+      "evidence_sha256": "ff642da11a1792f8d670264615a5badf964914ae4407b6b4c830120936a27b33",
+      "conclusion": "PROVEN",
+      "qa_status": "APPROVED"
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-90a192a188",
+      "status": "PROVEN",
+      "family": "B_SCOPE_EXCLUDED",
+      "related_capability": "promessa_habilitacao_adjudicacao_vitoria_contratacao",
+      "evidence_sha256": "27734373f54c3555307a88af41bbe110be1bc01f1ec4640dc002131256c46ee9",
+      "conclusion": "PROVEN",
+      "qa_status": "APPROVED"
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-825967b2c1",
+      "status": "PROVEN",
+      "family": "B_SCOPE_EXCLUDED",
+      "related_capability": "execucao_objeto_contratado",
+      "evidence_sha256": "936b1ca4e0d58f544504e9452cfed1cffedabc3c81087327e389ec84ba8385db",
+      "conclusion": "PROVEN",
+      "qa_status": "APPROVED"
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-fc3bf86724",
+      "status": "PROVEN",
+      "family": "C_CLI_UX",
+      "related_capability": null,
+      "evidence_sha256": "df02799396d325d43f008227aa8c153667533f2bf4107756b7b43da072a1ac9e",
+      "conclusion": "PROVEN",
+      "qa_status": "APPROVED"
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-bcceab4099",
+      "status": "PROVEN",
+      "family": "C_CLI_UX",
+      "related_capability": null,
+      "evidence_sha256": "61ca36bb1720a76fb329d20a2b6d0bb96e51a1429411fd832de6ade4f4e92806",
+      "conclusion": "PROVEN",
+      "qa_status": "APPROVED"
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-3c79408c03",
+      "status": "PROVEN",
+      "family": "C_CLI_UX",
+      "related_capability": null,
+      "evidence_sha256": "49d8f9ca7f606a5359131cbea1fdf1f66afe13ce0c462342c2fc4a67339026f0",
+      "conclusion": "PROVEN",
+      "qa_status": "APPROVED"
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-38c4c0fe6f",
+      "status": "PROVEN",
+      "family": "C_CLI_UX",
+      "related_capability": null,
+      "evidence_sha256": "9a22c6e4beca558e39c331d684b8641320047dba17d601a69e7bd281e9a5d8fe",
+      "conclusion": "PROVEN",
+      "qa_status": "APPROVED"
+    },
+    {
+      "item_id": "DOD-rol-1-definition-of-done-bb9d5de811",
+      "status": "PROVEN",
+      "family": "D_COVERAGE_TRUTH",
+      "related_capability": null,
+      "evidence_sha256": "1f81fefbd10864cb4015d23320b4029a14976621f0ba9baf18e54b5938dacf2a",
+      "conclusion": "PROVEN",
+      "qa_status": "APPROVED"
+    },
+    {
+      "item_id": "DOD-rol-1-definition-of-done-3fb8978ae7",
+      "status": "PROVEN",
+      "family": "D_COVERAGE_TRUTH",
+      "related_capability": null,
+      "evidence_sha256": "149ed0f7b59922ec18cd4ce7e5ec40d49286b6c2eaf13ff4be4de19289c490d3",
+      "conclusion": "PROVEN",
+      "qa_status": "APPROVED"
+    },
+    {
+      "item_id": "DOD-rol-1-definition-of-done-b9c4d94a8e",
+      "status": "PROVEN",
+      "family": "D_COVERAGE_TRUTH",
+      "related_capability": null,
+      "evidence_sha256": "3446c8b71f8afb64a31d16706da599bd4c8c984088caae7cb57b68fc311eb6a9",
+      "conclusion": "PROVEN",
+      "qa_status": "APPROVED"
+    },
+    {
+      "item_id": "DOD-rol-1-definition-of-done-90c4a972f6",
+      "status": "PROVEN",
+      "family": "D_COVERAGE_TRUTH",
+      "related_capability": null,
+      "evidence_sha256": "1b21f322b15e3c60063c0e75c73d2d306c0ecd5d6bb7cc05251e64767343f21e",
+      "conclusion": "PROVEN",
+      "qa_status": "APPROVED"
+    }
+  ],
+  "qa_demoted_ids": [
+    "DOD-definition-of-done-extra-07fdce3052",
+    "DOD-definition-of-done-extra-107a7ac4da",
+    "DOD-definition-of-done-extra-3104de3131",
+    "DOD-definition-of-done-extra-349bb54c8f",
+    "DOD-definition-of-done-extra-374c5965bd",
+    "DOD-definition-of-done-extra-383035c911",
+    "DOD-definition-of-done-extra-56586465e9",
+    "DOD-definition-of-done-extra-5fd54bbd01",
+    "DOD-definition-of-done-extra-b5522727b0",
+    "DOD-definition-of-done-extra-cb23ed5034",
+    "DOD-definition-of-done-extra-d3db8c3907",
+    "DOD-definition-of-done-extra-ea60d7c534",
+    "DOD-definition-of-done-extra-ef20844eb2",
+    "DOD-definition-of-done-extra-f0f41447dd",
+    "DOD-rol-1-definition-of-done-0c828cadb4",
+    "DOD-rol-1-definition-of-done-5412da3ad7",
+    "DOD-rol-1-definition-of-done-5eca319947"
+  ],
+  "promotion_eligible": [
+    "DOD-definition-of-done-extra-a362715e4d",
+    "DOD-definition-of-done-extra-75164c86da",
+    "DOD-definition-of-done-extra-59ea375492",
+    "DOD-definition-of-done-extra-c94d735e7c",
+    "DOD-definition-of-done-extra-aa0cc46c52",
+    "DOD-definition-of-done-extra-f96c0779f9",
+    "DOD-definition-of-done-extra-793fb2e8b5",
+    "DOD-definition-of-done-extra-a6aa7190ac",
+    "DOD-definition-of-done-extra-794600a043",
+    "DOD-definition-of-done-extra-fa4a690d5c",
+    "DOD-definition-of-done-extra-5865b9f10c",
+    "DOD-definition-of-done-extra-7e08df417e",
+    "DOD-definition-of-done-extra-d1bf197b8b",
+    "DOD-definition-of-done-extra-1d08d2599c",
+    "DOD-definition-of-done-extra-eafbfd4a1f",
+    "DOD-definition-of-done-extra-361d74f7ba",
+    "DOD-definition-of-done-extra-10726ba9b9",
+    "DOD-definition-of-done-extra-9075dfdd96",
+    "DOD-definition-of-done-extra-20ded85333",
+    "DOD-definition-of-done-extra-642f0c1b05",
+    "DOD-definition-of-done-extra-ab71db3f6e",
+    "DOD-definition-of-done-extra-ddd9c4fb86",
+    "DOD-definition-of-done-extra-0fe4fb2225",
+    "DOD-definition-of-done-extra-e3fab7341c",
+    "DOD-definition-of-done-extra-1b8854e33b",
+    "DOD-definition-of-done-extra-5d877d2ba4",
+    "DOD-definition-of-done-extra-17f49981f1",
+    "DOD-definition-of-done-extra-c5144849e4",
+    "DOD-definition-of-done-extra-f2dfcdb3e4",
+    "DOD-definition-of-done-extra-4bd8d3ef1a",
+    "DOD-definition-of-done-extra-0903b01d4b",
+    "DOD-definition-of-done-extra-7b21a39253",
+    "DOD-definition-of-done-extra-90a192a188",
+    "DOD-definition-of-done-extra-825967b2c1",
+    "DOD-definition-of-done-extra-fc3bf86724",
+    "DOD-definition-of-done-extra-bcceab4099",
+    "DOD-definition-of-done-extra-3c79408c03",
+    "DOD-definition-of-done-extra-38c4c0fe6f",
+    "DOD-rol-1-definition-of-done-bb9d5de811",
+    "DOD-rol-1-definition-of-done-3fb8978ae7",
+    "DOD-rol-1-definition-of-done-b9c4d94a8e",
+    "DOD-rol-1-definition-of-done-90c4a972f6"
+  ]
+}
