@@ -1,43 +1,35 @@
 # HANDOFF — DOD-LOW-HANGING-BOUNDARIES-AND-EVIDENCE-01
 
-## Final state (post integrity)
+## Terminal
 
-| Field | Value |
-|-------|--------|
-| Terminal | `PASS_LOW_HANGING_ACCEPTED` (37 net accepts after demote) |
-| PR A | #173 → `97da2c49` |
-| PR B | #176 → `93b1447c` |
-| PR head B | `b2895ecb` |
-| Integrity branch | `campaign/dod-low-hanging-integrity-remediation-01` |
+- **Functional:** `PASS_LOW_HANGING_ACCEPTED` — **37** items on main with `main_gate=ok`
+- **Process:** §15 max-2-PR **violated** by #177 (+ re-accept publish). Do not claim perfect process compliance.
 
-## What is done
+## SHAs
 
-- Scope boundary config + auditors + claim guard  
-- Campaign harness (no accept in harness)  
-- QA reduced set; 37 items remain ACCEPTED with evidence packs  
-- Required CI green on PR #176  
-- Weak POLICY-only accepts demoted  
-- `ci_status.json` rewritten with real required-job map  
+| | |
+|--|--|
+| Baseline | `e39a75f3` |
+| PR A #173 | `97da2c49` |
+| PR B #176 | `93b1447c` |
+| Integrity #177 | `d39ed05d` |
+| Main re-accept HEAD | `d39ed05d` (same tip; re-bound accepts) |
 
-## Residual / follow-ups
-
-1. Wire `code_without_execution` / `unit≠e2e` into controller gates if those DOD lines should stay closed.  
-2. Fix CONFENGE commercial freeze binding (unrelated; fails on non-commercial PRs).  
-3. Three ROL-1 orphan fingerprints still VERIFIED without checkbox.  
-4. Optional: re-accept demoted items only after real controller enforcement exists.
-
-## Do not
-
-- Re-accept demoted items with POLICY-only proof  
-- Touch commercial / crawl / VPS  
-- Claim commercial CI fixed  
-
-## Commands
+## Evidence of main_gate
 
 ```bash
-python3 -m scripts.ops.dod_low_hanging_audit --out artifacts/campaigns/DOD-LOW-HANGING-BOUNDARIES-AND-EVIDENCE-01
-python3 -m pytest tests/test_scope_boundaries.py tests/test_client_claim_boundaries.py \
-  tests/test_dod_governance_invariants.py tests/test_dod_low_hanging_audit.py \
-  tests/test_dod_controller_evidence_gates.py -q --no-cov
-python3 tools/dod_controller.py status
+# latest accept for retained ids show main_gate ok
+python3 -c "import json; from pathlib import Path
+ids=set(json.loads(Path('artifacts/campaigns/DOD-LOW-HANGING-BOUNDARIES-AND-EVIDENCE-01/result.json').read_text())['accepted_ids'])
+for line in reversed(Path('.dod/log.jsonl').read_text().splitlines()):
+  e=json.loads(line)
+  if e.get('item_id') in ids and e.get('gates',{}).get('main_gate'):
+    print(e['item_id'], e['gates']['main_gate'], e.get('commit','')[:12]); break
+"
 ```
+
+## Residual
+
+- CONFENGE commercial non-required CI still fails on unrelated freeze binding
+- §15 PR budget exceeded — future campaigns must not open integrity PR #3
+- Demoted POLICY-only items remain open until controller enforces them

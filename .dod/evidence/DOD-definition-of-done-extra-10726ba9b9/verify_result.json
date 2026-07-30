@@ -4,7 +4,7 @@
     {
       "cmd": "python3 -m scripts.ops.audit_scope_boundaries --capability fiscalizacao_de_campo",
       "exit_code": 0,
-      "duration_s": 4.846,
+      "duration_s": 5.308,
       "stdout_tail": "\": \"classified as documentation\"\n        }\n      ],\n      \"implementation_violations\": 0,\n      \"conclusion\": \"PROVEN\",\n      \"limitations\": [\n        \"Static audit; does not execute runtime services.\",\n        \"Does not prove future code will stay in bounds without CI gate.\"\n      ],\n      \"code_hash\": \"a5982509329a0631\",\n      \"commands\": [\n        \"python3 -m scripts.ops.audit_scope_boundaries --capability fiscalizacao_de_campo\"\n      ],\n      \"exit_code\": 0,\n      \"findings\": []\n    }\n  }\n}\n",
       "stderr_tail": "",
       "env": {
@@ -32,7 +32,7 @@
   "ok": true,
   "notes": [],
   "rejected_trivial": [],
-  "head_sha": "97da2c49bcd9ce713738dd326b589a120498abb8",
+  "head_sha": "d39ed05d2e50261bab9ce0804d3df694d29c8fc2",
   "env": {
     "CI": null,
     "GITHUB_ACTIONS": null,
@@ -51,8 +51,8 @@
       "len": 17
     }
   },
-  "started_at": "2026-07-30T01:35:20Z",
-  "duration_s": 4.846,
+  "started_at": "2026-07-30T03:06:45Z",
+  "duration_s": 5.308,
   "substantive_runs": 1,
   "totals": {
     "passed": 1,
@@ -61,5 +61,5 @@
     "deselected": 0,
     "error": 0
   },
-  "finished_at": "2026-07-30T01:35:24Z"
+  "finished_at": "2026-07-30T03:06:51Z"
 }

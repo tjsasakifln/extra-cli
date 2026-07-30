@@ -1,7 +1,9 @@
 # FINAL-REPORT — DOD-LOW-HANGING-BOUNDARIES-AND-EVIDENCE-01
 
-**Terminal status:** `PASS` / **`PASS_LOW_HANGING_ACCEPTED`** (after integrity remediation)  
-**Updated:** 2026-07-30 (post-skeptic integrity pass)
+**Terminal status:** `PASS` / **`PASS_LOW_HANGING_ACCEPTED`** (functional)  
+**Strict §15 PR budget:** **VIOLATED** (#177 integrity + main re-accept publish) — disclosed, not hidden.  
+**Main re-accept:** 37/37 `main_gate=ok`, `acceptance_commit=d39ed05d…`, `ci_green=ok` at accept time on branch `main`.  
+**Updated:** 2026-07-30T03:22Z
 
 ## Baseline
 
