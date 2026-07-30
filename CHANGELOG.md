@@ -1,5 +1,11 @@
 # Changelog — Extra Consultoria
 
+## Unreleased
+
+### CONFENGE commercial activation
+
+- Campaign CONFENGE-COMMERCIAL-ACTIVATION-AND-OUTCOME-LOOP-01: full-history commercial cycle, canonical coverage, dossiers/kits (see PR #172).
+
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/).  
 O histórico de git (`git log`) permanece a fonte de verdade de commits; este arquivo resume marcos operacionais.
 

@@ -22,7 +22,8 @@ from scripts.commercial_leads.pipeline import git_sha, run_pipeline
 
 _ROOT = Path(__file__).resolve().parents[2]
 _DEFAULT_PROFILE = _ROOT / "config/commercial_profiles/confenge.yaml"
-_DEFAULT_OUT = _ROOT / "artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/run"
+_DEFAULT_OUT = _ROOT / "artifacts/campaigns/CONFENGE-COMMERCIAL-ACTIVATION-AND-OUTCOME-LOOP-01/run"
+# Prefer activation campaign out dir; fall back handled if parent missing at write time.
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -55,7 +56,11 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument(
         "--population-mode",
         choices=["FULL_POPULATION", "BOUNDED_SAMPLE"],
-        default=os.environ.get("CONFENGE_POPULATION_MODE", "BOUNDED_SAMPLE"),
+        default=os.environ.get(
+            "CONFENGE_POPULATION_MODE",
+            # Activation campaign default: full eligible population (not 60k sample theater)
+            "FULL_POPULATION",
+        ),
     )
     p.add_argument(
         "--source-state-mode",
@@ -65,7 +70,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument(
         "--run-mode",
         choices=["RC", "TEST", "DRY_RUN", "EXPERIMENTAL_SAMPLE"],
-        default=os.environ.get("CONFENGE_RUN_MODE", "EXPERIMENTAL_SAMPLE"),
+        default=os.environ.get("CONFENGE_RUN_MODE", "RC"),
     )
     p.add_argument("--skip-migrations", action="store_true")
     p.add_argument("--skip-persist", action="store_true")

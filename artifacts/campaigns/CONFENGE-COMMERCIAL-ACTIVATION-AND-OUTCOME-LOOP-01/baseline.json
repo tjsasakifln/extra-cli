@@ -1,0 +1,376 @@
+{
+  "campaign_id": "CONFENGE-COMMERCIAL-ACTIVATION-AND-OUTCOME-LOOP-01",
+  "capability": "confenge_commercial_activation",
+  "class": "REPAIR_AND_ACTIVATE_VERTICAL",
+  "captured_at_utc": "2026-07-29T21:43:48Z",
+  "operator_human_acceptance_only": "Tiago Sasaki",
+  "pilot_client": "Extra Construtora",
+  "mode": [
+    "AUTONOMOUS",
+    "FAIL_CLOSED",
+    "REAL_DATA_FIRST",
+    "CLI_FIRST"
+  ],
+  "baseline_rule": "read_only_no_code_dod_prod_mutation",
+  "companion_doc": "docs/ops/campaigns/CONFENGE-COMMERCIAL-ACTIVATION-AND-OUTCOME-LOOP-01/BASELINE.md",
+  "non_claims": [
+    "VPS_OPERATIONAL",
+    "LOCAL_READY",
+    "PROJECT_DONE",
+    "SOAK_7_DAYS_COMPLETE",
+    "FULL_MARKET_SCAN_PRIOR_CAMPAIGN"
+  ],
+  "git": {
+    "remote": "https://github.com/tjsasakifln/extra-cli.git",
+    "main_sha": "d91fdc5967314b46858b0f154b807ccbab7ed515",
+    "main_tip_message": "docs(dod): accept proven Extra recurring delivery requirements (#169)",
+    "local_branch": "work/recurring-reports-pr2",
+    "local_head": "5c2a960c0293408003657dbb9ca2ab1fc2a5ca6b",
+    "local_vs_origin_main": {
+      "ahead": 4,
+      "behind": 2,
+      "dirty": true,
+      "note": "unrelated local work; campaign must start from clean main after PR reconcile"
+    }
+  },
+  "open_prs": [
+    {
+      "number": 171,
+      "title": "fix(ops): contracts checkpoint rebind + shared lock + fail-closed soak",
+      "url": "https://github.com/tjsasakifln/extra-cli/pull/171",
+      "state": "OPEN",
+      "is_draft": false,
+      "head_sha": "50fc9390c6ab886c9e5562f655d4b18b807db324",
+      "head_ref": "campaign/extra-operational-reliability-coverage-closure-01",
+      "base_ref": "main",
+      "mergeable": "MERGEABLE",
+      "merge_state_status": "CLEAN",
+      "production_touched": true,
+      "ci_all_success_on_head": true,
+      "pr_reviewability_success": true,
+      "generated_artifacts_policy_success": true,
+      "incorporates_pr_170_audit_docs": true,
+      "merge_eligible_if_head_unchanged": true,
+      "ci_run_url": "https://github.com/tjsasakifln/extra-cli/actions/runs/30471451409"
+    },
+    {
+      "number": 170,
+      "title": "docs(ops): SOAK + crawler/scheduler health audit (2026-07-29)",
+      "url": "https://github.com/tjsasakifln/extra-cli/pull/170",
+      "state": "OPEN",
+      "is_draft": false,
+      "head_sha": "046d8d2942a4b14af11c94b45251208a067d315f",
+      "head_ref": "docs/soak-crawler-scheduler-health-01",
+      "base_ref": "main",
+      "mergeable": "MERGEABLE",
+      "merge_state_status": "BEHIND",
+      "action_after_171": "close_as_superseded_no_duplicate_merge"
+    },
+    {
+      "number": 133,
+      "title": "[DRAFT][BLOCKED] feat(proposal): bid submission readiness (needs public corpus)",
+      "url": "https://github.com/tjsasakifln/extra-cli/pull/133",
+      "state": "OPEN",
+      "is_draft": true,
+      "head_sha": "78573f6b25dd20f3e9c1f487e58bcb6512171f2b",
+      "mergeable": "CONFLICTING",
+      "merge_state_status": "DIRTY",
+      "campaign_policy": "do_not_touch_independent_blocker"
+    }
+  ],
+  "relevant_worktrees": [
+    {
+      "path": "/mnt/d/extra-cli-wt-op-reliability-01",
+      "branch": "campaign/extra-operational-reliability-coverage-closure-01",
+      "sha": "50fc9390c6ab886c9e5562f655d4b18b807db324",
+      "role": "pr_171"
+    },
+    {
+      "path": "/mnt/d/extra consultoria/.worktrees/docs-soak-scheduler-health",
+      "branch": "docs/soak-crawler-scheduler-health-01",
+      "sha": "046d8d2942a4b14af11c94b45251208a067d315f",
+      "role": "pr_170"
+    },
+    {
+      "path": "/mnt/d/extra consultoria/.worktrees/confenge-commercial-ready-01",
+      "branch": "campaign/confenge-commercial-ready-01",
+      "sha": "6744a4c2",
+      "role": "prior_commercial_campaign"
+    },
+    {
+      "path": "/mnt/d/extra-cli-wt-confenge-commercial-queue-01",
+      "branch": "campaign/confenge-commercial-queue-operational-01",
+      "sha": "83442549",
+      "role": "commercial_queue_branch"
+    },
+    {
+      "path": "/mnt/d/extra-cli-wt-bid-submission-readiness-01",
+      "branch": "campaign/bid-submission-readiness-compliance-pack-01-work",
+      "sha": "78573f6b25dd20f3e9c1f487e58bcb6512171f2b",
+      "role": "pr_133"
+    }
+  ],
+  "suggested_campaign_branch": "campaign/confenge-commercial-activation-outcome-loop-01",
+  "vps": {
+    "alias": "ec-prod",
+    "hostname": "v2202607385716487230",
+    "app_root": "/opt/extra-consultoria",
+    "deployed_sha": "50fc9390c6ab886c9e5562f655d4b18b807db324",
+    "deployed_sha_matches_pr_171_head": true,
+    "database": "pncp_datalake",
+    "timers_observed": [
+      "extra-contracts-soak.timer",
+      "extra-crawl-pncp.timer",
+      "pncp-contracts.timer",
+      "extra-weekly.timer",
+      "extra-health-check.timer",
+      "extra-check-alerts.timer",
+      "extra-db-backup.timer",
+      "extra-crawl-ciga-ckan.timer"
+    ],
+    "soak": {
+      "service": "extra-contracts-soak.service",
+      "service_active": false,
+      "timer_active": true,
+      "last_exit_status": 2,
+      "complete": false,
+      "complete_reason": "missing_days_or_health_or_freshness",
+      "present_days_sample": ["2026-07-29"],
+      "expected_days_sample": [
+        "2026-07-23",
+        "2026-07-24",
+        "2026-07-25",
+        "2026-07-26",
+        "2026-07-27",
+        "2026-07-28",
+        "2026-07-29"
+      ],
+      "issues": ["missing_run_id"],
+      "seven_day_claim": false,
+      "do_not_reset_counter": true,
+      "do_not_fabricate_days": true
+    },
+    "contracts_3y_window_proof": {
+      "path": "artifacts/campaigns/EXTRA-OPERATIONAL-RELIABILITY-AND-COVERAGE-CLOSURE-01/proofs/contracts-3y-window-proof.json",
+      "window_span_start": "2023-07-20",
+      "window_span_end": "2026-07-23",
+      "window_span_days": 1099,
+      "window_span_years": 3.0089,
+      "meets_min_3y": true,
+      "completed_windows": 37,
+      "planned_windows": 37
+    }
+  },
+  "database": {
+    "name": "pncp_datalake",
+    "migration_head_observed": "066",
+    "migrations_relevant": [
+      "062_commercial_leads_ledger.sql",
+      "063_supplier_registry.sql",
+      "064_snapshot_write_guard.sql"
+    ],
+    "tables_sample": [
+      "pncp_supplier_contracts",
+      "supplier_registry",
+      "commercial_leads",
+      "commercial_feedback_ledger",
+      "commercial_exclusions",
+      "commercial_lead_runs",
+      "commercial_lead_state_overrides",
+      "canonical_suppliers"
+    ],
+    "row_counts": {
+      "pncp_supplier_contracts": 4467364,
+      "supplier_registry": 0,
+      "commercial_leads": 0,
+      "commercial_feedback_ledger": 0
+    },
+    "contracts": {
+      "total_rows": 4467364,
+      "distinct_fornecedor_cnpj": 521045,
+      "distinct_fornecedor_cnpj_8": 509951,
+      "data_assinatura_sane_min": "2021-04-01",
+      "data_assinatura_sane_max": "2026-08-28",
+      "data_publicacao_sane_min": "2023-07-20",
+      "data_publicacao_sane_max": "2026-07-29",
+      "data_assinatura_raw_max_outlier": "8406-05-16",
+      "bad_assinatura_date_rows": 82,
+      "note": "Use sane filters for envelopes; do not treat raw max as real market end date"
+    }
+  },
+  "commercial_pipeline_prior": {
+    "campaign_id": "CONFENGE-COMMERCIAL-READY-01",
+    "artifact_root": "artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01",
+    "status": "BLOCKED",
+    "result_json": {
+      "status": "BLOCKED",
+      "terminal_reason": "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE",
+      "machine_blockers": ["BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE"],
+      "human_blockers": [
+        "BLOCKED_REAL_HOLDOUT_NOT_REVIEWED",
+        "BLOCKED_INSUFFICIENT_HUMAN_LABELS",
+        "BLOCKED_PENDING_HUMAN_ACCEPTANCE"
+      ],
+      "official_registry_coverage": 0.05319148936170213,
+      "commercial_release_ready": false,
+      "human_metrics": {
+        "precision_at_10": null,
+        "precision_at_20": null,
+        "human_review_status": "PENDING",
+        "labels_are_human": false
+      },
+      "executed_code_sha": "8506aebabb0dab327654d420222402ae15f9a3aa"
+    },
+    "queue_summary_json": {
+      "status": "BLOCKED",
+      "candidate_count": 7091,
+      "full_history_contract_count": 19328,
+      "db_contract_count": 60000,
+      "discovery_mode": "PREFILTERED_CANDIDATE_DISCOVERY",
+      "registry_coverage_all_candidates": 0.0165,
+      "registry_coverage_top100": 0.09,
+      "registry_coverage_top20": 1.0,
+      "cnae_coverage": 0.0165
+    },
+    "run_cycle_manifest": {
+      "status": "BLOCKED",
+      "candidate_count": 169,
+      "full_history_contract_count": 291,
+      "db_contract_count": 11974,
+      "registry_coverage_all_candidates": 1.0,
+      "registry_coverage_top100": 1.0,
+      "registry_coverage_top20": 1.0,
+      "nested_block_reason": null,
+      "human_review_status": "PENDING"
+    },
+    "snapshot_manifest": {
+      "row_count": 11974,
+      "min_date": "2024-08-07",
+      "max_date": "2026-07-26",
+      "source": "confenge-restorable-csv-package"
+    },
+    "entry_points": {
+      "canonical_make": "make confenge-commercial-cycle",
+      "cycle_module": "scripts/ops/confenge_commercial_cycle.py",
+      "package": "scripts/commercial_leads/",
+      "profile": "config/commercial_profiles/confenge.yaml",
+      "signal_catalog": "config/commercial_profiles/signal_catalog.yaml",
+      "runbook": "docs/ops/confenge-commercial-ready.md",
+      "prior_spec": "specs/006-confenge-commercial-ready/"
+    }
+  },
+  "inconsistencies": [
+    {
+      "id": "COVERAGE_MULTI_TRUTH",
+      "detail": "result.json ~5.3% official registry vs queue-summary 1.65%/100% top20 vs run cycle-manifest 100% on 169 candidates"
+    },
+    {
+      "id": "STATUS_VS_NESTED_BLOCK_REASON",
+      "detail": "nested registry.block_reason null with full coverage while terminal BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE"
+    },
+    {
+      "id": "SNAPSHOT_NOT_INTEGRAL",
+      "detail": "60k and 11974 package counts vs VPS 4467364 real contracts"
+    },
+    {
+      "id": "EMPTY_VPS_COMMERCIAL_TABLES",
+      "detail": "supplier_registry and commercial_leads are 0 on VPS while packages claim registry resolution"
+    },
+    {
+      "id": "HUMAN_PRECISION_NULL",
+      "detail": "precision_at_10/20 remain null until Tiago labels — correct, not forgeable"
+    },
+    {
+      "id": "SOAK_INCOMPLETE",
+      "detail": "soak complete=false with missing days/run_id; PR171 code already on VPS"
+    }
+  ],
+  "blockers": [
+    {
+      "id": "PR_171_NOT_ON_MAIN",
+      "type": "process",
+      "severity": "high"
+    },
+    {
+      "id": "PR_170_OPEN_SUPERSEDE",
+      "type": "process",
+      "severity": "medium"
+    },
+    {
+      "id": "PR_133_INDEPENDENT",
+      "type": "independent",
+      "severity": "out_of_scope"
+    },
+    {
+      "id": "OFFICIAL_REGISTRY_EMPTY_VPS",
+      "type": "machine",
+      "severity": "critical"
+    },
+    {
+      "id": "COVERAGE_METRIC_DIVERGENCE",
+      "type": "machine",
+      "severity": "critical"
+    },
+    {
+      "id": "SNAPSHOT_NOT_FULL_HISTORY",
+      "type": "machine",
+      "severity": "critical"
+    },
+    {
+      "id": "HUMAN_ACCEPTANCE_TIAGO",
+      "type": "human",
+      "severity": "blocking_for_release"
+    },
+    {
+      "id": "SOAK_CALENDAR_INCOMPLETE",
+      "type": "calendar",
+      "severity": "honest_in_progress"
+    },
+    {
+      "id": "DIRTY_LOCAL_WORKTREE",
+      "type": "operator",
+      "severity": "medium"
+    }
+  ],
+  "dod": {
+    "file": "DOD.md",
+    "focus_section": "2.7 Inteligência comercial CONFENGE — prioridade imediata",
+    "checkboxes_checked": 442,
+    "checkboxes_unchecked": 1016,
+    "approx_lines": 2851,
+    "progress_by_dod_percent_forbidden": true,
+    "seals_not_asserted": [
+      "VPS_OPERATIONAL",
+      "LOCAL_READY",
+      "PROJECT_DONE"
+    ]
+  },
+  "input_hashes_sha256": {
+    "config/commercial_profiles/confenge.yaml": "f029dcd688f6e533e52ebab94f53e496fa04c6a9ebe36bfea8f291142b9c048a",
+    "config/commercial_profiles/signal_catalog.yaml": "a02e6c66adef2795c71906e4a3fd0d1a2c2c55c9449d2205940a637011e1004d",
+    "scripts/ops/confenge_commercial_cycle.py": "9983f37e2564e2019bfb6d71269369be11f0d4f09e3aec0b785466105b37f57c",
+    "artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/result.json": "902c5a7e22cb17f639eefaaf5b2238bfa2dbcccfd513d6d82f28f6c294b47e38",
+    "artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/queue-summary.json": "0d39e79e1e0245406f64b3f507e21a0d513e381a9cf499199ff1cf5697db01fa",
+    "artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/snapshot-manifest.json": "8fd30c54434498df811e26885d095163a9c0027e1de374cd94a0c183b76455bf",
+    "artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/run/cycle-manifest.json": "cefc32210778530d91694115eeead11b7ad6ef9e741da3d228f6a73fbb8b4211",
+    "db/migrations/062_commercial_leads_ledger.sql": "6399c9861a8d56a586b3b47ec9efa59b32b58c8d69c7872267d9fb5b226b69a1",
+    "db/migrations/063_supplier_registry.sql": "920546c2c8d66db57e213f682cc43f5513145833b83669fd1588cbb0fad266b5"
+  },
+  "pinned_shas": {
+    "main_sha_pre_merge": "d91fdc5967314b46858b0f154b807ccbab7ed515",
+    "pr_171_head": "50fc9390c6ab886c9e5562f655d4b18b807db324",
+    "pr_170_head": "046d8d2942a4b14af11c94b45251208a067d315f",
+    "pr_133_head": "78573f6b25dd20f3e9c1f487e58bcb6512171f2b",
+    "prior_commercial_freeze": "8506aebabb0dab327654d420222402ae15f9a3aa",
+    "vps_deployed": "50fc9390c6ab886c9e5562f655d4b18b807db324"
+  },
+  "next_actions": [
+    "reverify_pr_171_and_merge_with_head_pin",
+    "close_pr_170_superseded",
+    "leave_pr_133_untouched",
+    "checkout_main_pull_ff_only",
+    "create_campaign_branch",
+    "spec_kit_007_confenge_commercial_activation_outcome_loop",
+    "implement_integral_history_registry_coverage_top20_outcomes"
+  ]
+}

@@ -269,12 +269,15 @@ def compute_canonical_table_hash(
     table: str = "pncp_supplier_contracts",
     batch_size: int = 5000,
 ) -> dict[str, Any]:
-    """Deterministic content fingerprint over ALL active rows.
+    """Deterministic content fingerprint over ALL rows.
 
-    Algorithm (v1):
+    Algorithm (v1 / ``sha256-rowmd5-ordered-agg-v1``):
       ORDER BY contrato_id NULLS LAST, fornecedor_cnpj, data_publicacao, valor_total
       For each row: md5 of pipe-joined canonical fields
       Aggregate: sha256 of concatenation of per-row md5 digests in order
+
+    Uses a server-side cursor streaming ``md5(...)`` when possible (scales to
+    multi-million rows without OFFSET scans). Falls back to batched SELECT.
     """
     from scripts.commercial_leads.dbutil import fetch_all
 
@@ -288,55 +291,110 @@ def compute_canonical_table_hash(
     n = int(count_rows[0]["n"]) if count_rows else 0
 
     h = hashlib.sha256()
-    offset = 0
     hashed = 0
-    while True:
-        rows = fetch_all(
-            conn,
-            """
-            SELECT
-              coalesce(contrato_id::text, '') AS contrato_id,
-              coalesce(fornecedor_cnpj::text, '') AS fornecedor_cnpj,
-              coalesce(orgao_cnpj::text, '') AS orgao_cnpj,
-              coalesce(objeto_contrato::text, '') AS objeto_contrato,
-              coalesce(valor_total::text, '') AS valor_total,
-              coalesce(data_publicacao::text, '') AS data_publicacao,
-              coalesce(data_inicio::text, '') AS data_inicio,
-              coalesce(data_fim::text, '') AS data_fim,
-              coalesce(uf::text, '') AS uf,
-              coalesce(is_active::text, '') AS is_active
-            FROM public.pncp_supplier_contracts
-            ORDER BY contrato_id NULLS LAST, fornecedor_cnpj NULLS LAST,
-                     data_publicacao NULLS LAST, valor_total NULLS LAST
-            LIMIT %s OFFSET %s
-            """,
-            (batch_size, offset),
-        )
-        if not rows:
-            break
-        for r in rows:
-            line = "|".join(
-                [
-                    r["contrato_id"],
-                    r["fornecedor_cnpj"],
-                    r["orgao_cnpj"],
-                    r["objeto_contrato"],
-                    r["valor_total"],
-                    r["data_publicacao"],
-                    r["data_inicio"],
-                    r["data_fim"],
-                    r["uf"],
-                    r["is_active"],
-                ]
+
+    # Fast path: stream DB-side md5 digests (works with autocommit source connections).
+    # Named cursors require a transaction; source connections often use autocommit=True.
+    try:
+        prev_auto = bool(getattr(conn, "autocommit", False))
+        if prev_auto:
+            conn.autocommit = False
+        try:
+            cur = conn.cursor(name=f"canon_hash_{id(conn)}")
+            cur.itersize = max(int(batch_size), 10_000)
+            cur.execute(
+                """
+                SELECT md5(
+                  coalesce(contrato_id::text, '') || '|' ||
+                  coalesce(fornecedor_cnpj::text, '') || '|' ||
+                  coalesce(orgao_cnpj::text, '') || '|' ||
+                  coalesce(objeto_contrato::text, '') || '|' ||
+                  coalesce(valor_total::text, '') || '|' ||
+                  coalesce(data_publicacao::text, '') || '|' ||
+                  coalesce(data_inicio::text, '') || '|' ||
+                  coalesce(data_fim::text, '') || '|' ||
+                  coalesce(uf::text, '') || '|' ||
+                  coalesce(is_active::text, '')
+                ) AS row_md5
+                FROM public.pncp_supplier_contracts
+                ORDER BY contrato_id NULLS LAST, fornecedor_cnpj NULLS LAST,
+                         data_publicacao NULLS LAST, valor_total NULLS LAST
+                """
             )
-            row_md5 = hashlib.md5(  # noqa: S324
-                line.encode("utf-8"), usedforsecurity=False
-            ).hexdigest()
-            h.update(row_md5.encode("ascii"))
-            hashed += 1
-        offset += batch_size
-        if len(rows) < batch_size:
-            break
+            for row in cur:
+                if isinstance(row, dict):
+                    digest = row.get("row_md5")
+                else:
+                    digest = row[0]
+                h.update(str(digest).encode("ascii"))
+                hashed += 1
+            cur.close()
+            conn.commit()
+        finally:
+            if prev_auto:
+                try:
+                    conn.autocommit = True
+                except Exception as restore_exc:  # noqa: BLE001
+                    # Readonly source sessions may reject autocommit flip; hash already complete.
+                    import logging
+
+                    logging.getLogger(__name__).debug(
+                        "autocommit_restore_skipped: %s", restore_exc
+                    )
+        if hashed == 0 and n > 0:
+            raise RuntimeError("named_cursor_returned_zero_rows")
+    except Exception:
+        hashed = 0
+        h = hashlib.sha256()
+        # Fallback: OFFSET batches (slower on multi-million tables)
+        offset = 0
+        while True:
+            rows = fetch_all(
+                conn,
+                """
+                SELECT
+                  coalesce(contrato_id::text, '') AS contrato_id,
+                  coalesce(fornecedor_cnpj::text, '') AS fornecedor_cnpj,
+                  coalesce(orgao_cnpj::text, '') AS orgao_cnpj,
+                  coalesce(objeto_contrato::text, '') AS objeto_contrato,
+                  coalesce(valor_total::text, '') AS valor_total,
+                  coalesce(data_publicacao::text, '') AS data_publicacao,
+                  coalesce(data_inicio::text, '') AS data_inicio,
+                  coalesce(data_fim::text, '') AS data_fim,
+                  coalesce(uf::text, '') AS uf,
+                  coalesce(is_active::text, '') AS is_active
+                FROM public.pncp_supplier_contracts
+                ORDER BY contrato_id NULLS LAST, fornecedor_cnpj NULLS LAST,
+                         data_publicacao NULLS LAST, valor_total NULLS LAST
+                LIMIT %s OFFSET %s
+                """,
+                (batch_size, offset),
+            )
+            if not rows:
+                break
+            for r in rows:
+                line = "|".join(
+                    [
+                        r["contrato_id"],
+                        r["fornecedor_cnpj"],
+                        r["orgao_cnpj"],
+                        r["objeto_contrato"],
+                        r["valor_total"],
+                        r["data_publicacao"],
+                        r["data_inicio"],
+                        r["data_fim"],
+                        r["uf"],
+                        r["is_active"],
+                    ]
+                )
+                row_md5 = hashlib.md5(  # noqa: S324
+                    line.encode("utf-8"), usedforsecurity=False
+                ).hexdigest()
+                h.update(row_md5.encode("ascii"))
+                hashed += 1
+            offset += batch_size
+            if len(rows) < batch_size:
+                break
 
     return {
         "canonical_table_hash": h.hexdigest(),

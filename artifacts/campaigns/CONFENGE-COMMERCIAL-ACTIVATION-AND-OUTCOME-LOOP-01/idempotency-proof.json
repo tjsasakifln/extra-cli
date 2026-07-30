@@ -1,0 +1,13 @@
+{
+  "run2_vs_run3_same_order": true,
+  "overlap": 20,
+  "status": "BLOCKED",
+  "reason": "BLOCKED_INSUFFICIENT_HUMAN_LABELS",
+  "handoff": "READY_FOR_TIAGO_REVIEW",
+  "commercial_release_ready": false,
+  "precision_at_10": null,
+  "labels_are_human": false,
+  "db_contract_count": 4467364,
+  "candidate_count": 22882,
+  "registry_coverage_all": 1.0
+}

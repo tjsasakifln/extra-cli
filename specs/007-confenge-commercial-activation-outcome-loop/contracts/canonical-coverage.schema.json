@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "canonical-coverage.schema.json",
+  "title": "CanonicalCoverage",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "registry_coverage_all_candidates",
+    "registry_coverage_top100",
+    "registry_coverage_top20",
+    "official_registry_coverage"
+  ],
+  "properties": {
+    "schema_version": { "const": "canonical-coverage-v1" },
+    "registry_coverage_all_candidates": { "type": "object" },
+    "registry_coverage_eligible_candidates": { "type": "object" },
+    "registry_coverage_top100": { "type": "object" },
+    "registry_coverage_top20": { "type": "object" },
+    "cnae_primary_coverage": { "type": ["number", "null"] },
+    "official_registry_coverage": { "type": ["number", "null"] },
+    "block_reason": { "type": ["string", "null"] },
+    "terminal_status": { "type": ["string", "null"] },
+    "declared_blockers": { "type": "array", "items": { "type": "string" } }
+  }
+}

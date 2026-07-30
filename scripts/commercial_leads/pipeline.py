@@ -1233,12 +1233,38 @@ def run_pipeline(
         top100_cnpjs = [m["cnpj14"] for m in sorted(
             candidates_meta, key=lambda x: float(x.get("total_value") or 0), reverse=True
         )[:100]]
+        from scripts.commercial_leads.canonical_coverage import build_canonical_coverage
+
         reg_cov = coverage_report(
             registry_map,
             all_candidates=list(groups.keys()),
             top100=top100_cnpjs,
             top20=top20_cnpjs,
         )
+        # Eligible = scored/publishable universe (same CNPJs that passed sector gate)
+        eligible_cnpjs = [s[0].cnpj14 for s in scored]
+        canonical_cov = build_canonical_coverage(
+            registry_map,
+            all_candidates=list(groups.keys()),
+            top100=top100_cnpjs,
+            top20=top20_cnpjs,
+            eligible_candidates=eligible_cnpjs,
+            terminal_status=None,
+            declared_blockers=[],
+        )
+        # Prefer canonical structure as the only nested coverage object
+        reg_cov = {**reg_cov, **{k: canonical_cov[k] for k in (
+            "registry_coverage_all_candidates",
+            "registry_coverage_top100",
+            "registry_coverage_top20",
+            "cnae_primary_coverage",
+            "cnae_secondary_coverage",
+            "top20_coverage_100pct",
+            "registry_universe_resolved",
+            "registry_resolved_or_definitively_not_found",
+            "block_reason",
+            "selection_bias_risk",
+        ) if k in canonical_cov}}
 
         n_sector = max(sum(sector_dist.values()), 1)
         publishable_rate = round(len(pure_scored) / n_sector, 4)
@@ -1281,8 +1307,9 @@ def run_pipeline(
             "unknown_rate": round(sector_dist.get("UNKNOWN", 0) / n_sector, 4),
             "conflicting_rate": round(sector_dist.get("CONFLICTING", 0) / n_sector, 4),
             "review_queue_rate": round(len(review_queue) / n_sector, 4),
-            "cnae_coverage": reg_cov.get("cnae_primary_coverage"),
+            "cnae_coverage": canonical_cov.get("cnae_primary_coverage"),
             "registry_coverage": reg_cov,
+            "canonical_coverage": canonical_cov,
             "anomaly_flags": anomaly_flags,
             # Human metrics: null until real dual human labels exist
             "precision_at_10": None,
@@ -1384,6 +1411,30 @@ def run_pipeline(
             status = "BLOCKED"
             reason = "BLOCKED_INSUFFICIENT_HUMAN_LABELS"
 
+        # Freeze canonical coverage with terminal status (single truth for all exports)
+        declared_blockers: list[str] = []
+        if str(status).startswith("BLOCKED") or status == "FAIL":
+            declared_blockers.append(str(reason))
+        canonical_cov = build_canonical_coverage(
+            registry_map,
+            all_candidates=list(groups.keys()),
+            top100=top100_cnpjs,
+            top20=top20_cnpjs,
+            eligible_candidates=eligible_cnpjs,
+            terminal_status=status,
+            declared_blockers=declared_blockers,
+        )
+        # Keep nested block_reason from coverage engine unless terminal is human-only
+        if reason in (
+            "BLOCKED_INSUFFICIENT_HUMAN_LABELS",
+            "BLOCKED_PENDING_HUMAN_ACCEPTANCE",
+        ) and not canonical_cov.get("block_reason"):
+            pass  # human blockers are not registry coverage failures
+        reg_cov = {**reg_cov, **canonical_cov}
+        metrics["registry_coverage"] = reg_cov
+        metrics["canonical_coverage"] = canonical_cov
+        metrics["cnae_coverage"] = canonical_cov.get("cnae_primary_coverage")
+
         # Sample mode cannot claim final ranking
         claims = [
             "explainable_signals",
@@ -1443,6 +1494,8 @@ def run_pipeline(
             "run_mode": run_mode_effective,
             "load_meta": load_meta,
             "registry_coverage": reg_cov,
+            "canonical_coverage": canonical_cov,
+            "official_registry_coverage": canonical_cov.get("official_registry_coverage"),
             "offer_mapping_diagnostic": offer_diag,
             "human_metrics": {
                 "precision_at_10": None,
@@ -1450,7 +1503,19 @@ def run_pipeline(
                 "false_positives": None,
                 "false_negatives": None,
                 "human_review_status": "PENDING",
+                "labels_are_human": False,
             },
+            "human_review_status": "PENDING",
+            "commercial_release_ready": False,
+            "handoff": (
+                "READY_FOR_TIAGO_REVIEW"
+                if reason
+                in (
+                    "BLOCKED_INSUFFICIENT_HUMAN_LABELS",
+                    "BLOCKED_PENDING_HUMAN_ACCEPTANCE",
+                )
+                else status
+            ),
             "migrations": {
                 "idempotent": mig.get("idempotent"),
                 "skipped": mig.get("skipped", False),

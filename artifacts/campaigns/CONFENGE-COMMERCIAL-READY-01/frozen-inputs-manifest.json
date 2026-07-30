@@ -1,7 +1,7 @@
 {
   "schema_version": "confenge-frozen-inputs/1.0",
   "campaign": "CONFENGE-COMMERCIAL-READY-01",
-  "freeze_sha": "8506aebabb0dab327654d420222402ae15f9a3aa",
+  "freeze_sha": "f68882edc079cb40929aecad431c9565c6f17b13",
   "policy": "frozen_confenge_inputs_v1",
   "inputs": [
     {
@@ -67,6 +67,12 @@
       "sha256": "f26031bc18d0acbdd2684a65836e3da935b23154ef47a547e71a0eb1305e951c"
     },
     {
+      "path": "scripts/commercial_leads/canonical_coverage.py",
+      "kind": "file",
+      "blob_sha": "06727d39692067152b38d82dcb02461489738b8c",
+      "sha256": "0a57e05bfb5ec04d94f3073a10305aa5bbaa64afb49ba348bdbd3df906a9b3b8"
+    },
+    {
       "path": "scripts/commercial_leads/cli.py",
       "kind": "file",
       "blob_sha": "4b67020bf40a3ed4bdc0d65234b8050e9ec55cc0",
@@ -91,10 +97,16 @@
       "sha256": "cab49860ec61904145231d42b1f27db243041d8d94631a77970b6465a4333673"
     },
     {
+      "path": "scripts/commercial_leads/dossiers.py",
+      "kind": "file",
+      "blob_sha": "69519b10193f96a979d7ea8252972f23e17bad8d",
+      "sha256": "471aee0a02556532f163f7d87ec2ac254693bc9be22a56359e829a0353d81883"
+    },
+    {
       "path": "scripts/commercial_leads/exports.py",
       "kind": "file",
-      "blob_sha": "12a2a5b7df2d4d5ebaf4ec6217788ef033c9e65b",
-      "sha256": "ef39d3e95cb8ab96e1f1f9292e2bd089b43036662bc7533e3d828da6afc478b1"
+      "blob_sha": "73c3c4ed95368ebb3cff33978a7f94ff48e04f5d",
+      "sha256": "400857bae2328a3463630440ebfd376f18b59d9289c2af55ff34bbe693743020"
     },
     {
       "path": "scripts/commercial_leads/geography.py",
@@ -115,10 +127,16 @@
       "sha256": "0621d72523ddec05e70e4df0a345be2824528a247dde05097961bdd39ee1be9f"
     },
     {
+      "path": "scripts/commercial_leads/outreach_kits.py",
+      "kind": "file",
+      "blob_sha": "1061460866a5a7e6cc0de430f21d41812ab97c7d",
+      "sha256": "ce977be9af73a1d79b00a4f426b165fcd25914d5bc83add6fdd69a06db619a5c"
+    },
+    {
       "path": "scripts/commercial_leads/pipeline.py",
       "kind": "file",
-      "blob_sha": "f701868056fa59c8e0185e59610c822d45fb3dfe",
-      "sha256": "9f0de55c23f6d23cc8b89fa343df2b899c56c9c1fe2db86d2d81a50d4f351887"
+      "blob_sha": "2977b47def1911f92e4bebbb34fe0efdbec41172",
+      "sha256": "320a99c3471f0d293c679d0018918571a319ea4ef2cce5b2bfb0f9443e79fa14"
     },
     {
       "path": "scripts/commercial_leads/profile.py",
@@ -153,8 +171,8 @@
     {
       "path": "scripts/commercial_leads/snapshot.py",
       "kind": "file",
-      "blob_sha": "9e01cb84445966fc05e37476019ddd85957f7847",
-      "sha256": "19cdbacd3f9930a1f4ada2f27ec2dc78ce3ce41f4bf9e552699efabeff7dcf62"
+      "blob_sha": "2c8d0b26fc777d81a8b2e7c1e42c4485bfbf47cd",
+      "sha256": "6fb0e4a467fd72fa30e405a2df49af68eb8af73867fec05284ac32bca2f7ac13"
     },
     {
       "path": "scripts/commercial_leads/supplier_registry.py",
@@ -177,8 +195,8 @@
     {
       "path": "scripts/ops/confenge_commercial_cycle.py",
       "kind": "file",
-      "blob_sha": "7b5c2c76ec52bf2d03e9dec5f54ca2b7fbbce167",
-      "sha256": "9983f37e2564e2019bfb6d71269369be11f0d4f09e3aec0b785466105b37f57c"
+      "blob_sha": "7b5dc84ef189dc6124c03516cbf9db13355407e8",
+      "sha256": "3caf106ae31f378cb83d3ca21f02b7b85a69a46f6d12fefb480b07e8f8704883"
     },
     {
       "path": "scripts/ops/confenge_commercial_gates.py",
