@@ -56,6 +56,14 @@ _RULES: list[tuple[re.Pattern[str], DocumentCategory]] = [
     (re.compile(r"\bprojetos?\b|\bpaviment|\bobra\b"), DocumentCategory.PROJETO),
     (re.compile(r"\bmemorial\b"), DocumentCategory.MEMORIAL),
     (re.compile(r"\bespecificac"), DocumentCategory.ESPECIFICACAO),
+    # Licitante planilhas before generic orcamentaria
+    (
+        re.compile(
+            r"\bplanilha do licitante|\bplanilha das licitantes|\bplanilha apresentada|"
+            r"\bplanilhas?\b.*\blicitant|\blicitantes?\b.*\bplanilha|\bplanilha_licitante\b"
+        ),
+        DocumentCategory.PROPOSTA_COMERCIAL,
+    ),
     (re.compile(r"\bplanilha\b|\bor amento|\borcament|\bor_amento|\borçamento|\bpesquisa de preco"), DocumentCategory.PLANILHA_ORCAMENTARIA),
     (re.compile(r"\bcomposi[cç]"), DocumentCategory.COMPOSICAO),
     (re.compile(r"\bcronograma\b"), DocumentCategory.CRONOGRAMA),
@@ -74,7 +82,7 @@ _RULES: list[tuple[re.Pattern[str], DocumentCategory]] = [
     (re.compile(r"\bart\b|anota[cç][aã]o de responsabilidade"), DocumentCategory.ART),
     (re.compile(r"\brrt\b"), DocumentCategory.RRT),
     (re.compile(r"\batestado\b"), DocumentCategory.ATESTADO),
-    (re.compile(r"\bproposta\b|\bplanilha do licitante|\bplanilha apresentada"), DocumentCategory.PROPOSTA_COMERCIAL),
+    (re.compile(r"\bproposta\b"), DocumentCategory.PROPOSTA_COMERCIAL),
     (re.compile(r"\bdeclarac"), DocumentCategory.HABILITACAO_JURIDICA),
     (re.compile(r"\bdiligenc"), DocumentCategory.DILIGENCIA),
     (re.compile(r"\bparecer tecnico\b|\banalise_?\d|\ban[aá]lise\b"), DocumentCategory.PARECER_TECNICO),
@@ -111,8 +119,45 @@ def classify_document_title(title: str) -> str:
     return DocumentCategory.OUTRO.value
 
 
+# Generic categories that may be upgraded when the title is more specific.
+_GENERIC_STORED = frozenset(
+    {
+        DocumentCategory.OUTRO.value,
+        DocumentCategory.UNKNOWN.value,
+        DocumentCategory.ANEXO.value,
+        "",
+    }
+)
+
+# Specific families that should win over a stored generic "anexo".
+_SPECIFIC_OVER_ANEXO = frozenset(
+    {
+        DocumentCategory.PROPOSTA_COMERCIAL.value,
+        DocumentCategory.PLANILHA_LICITANTE.value,
+        DocumentCategory.HABILITACAO_JURIDICA.value,
+        DocumentCategory.DOCUMENTO_FISCAL.value,
+        DocumentCategory.DOCUMENTO_TRABALHISTA.value,
+        DocumentCategory.ECONOMICO_FINANCEIRO.value,
+        DocumentCategory.QUALIFICACAO_TECNICA.value,
+        DocumentCategory.CAT.value,
+        DocumentCategory.ART.value,
+        DocumentCategory.RRT.value,
+        DocumentCategory.ATESTADO.value,
+        DocumentCategory.EDITAL.value,
+        DocumentCategory.TERMO_REFERENCIA.value,
+        DocumentCategory.ESTUDO_TECNICO.value,
+        DocumentCategory.PLANILHA_ORCAMENTARIA.value,
+        DocumentCategory.HOMOLOGACAO.value,
+        DocumentCategory.ADJUDICACAO.value,
+        DocumentCategory.RESULTADO.value,
+        DocumentCategory.ATA_SESSAO.value,
+        DocumentCategory.CONTRATO.value,
+    }
+)
+
+
 def classify_document_record(doc: dict) -> str:
-    """Prefer existing strong category; reclassify from title fields when weak."""
+    """Prefer existing strong category; upgrade generic anexo/outro from title."""
     stored = (doc.get("document_category") or "").strip()
     title = (
         doc.get("original_title")
@@ -121,16 +166,16 @@ def classify_document_record(doc: dict) -> str:
         or doc.get("file_name")
         or ""
     )
-    if stored and stored not in {
-        DocumentCategory.OUTRO.value,
-        DocumentCategory.UNKNOWN.value,
-        "",
-    }:
-        # Still upgrade if title is richer and stored is generic contract-only? keep stored.
+    title_cat = classify_document_title(str(title))
+    if stored and stored not in _GENERIC_STORED:
         return stored
-    cat = classify_document_title(str(title))
-    if cat not in {DocumentCategory.OUTRO.value, DocumentCategory.UNKNOWN.value}:
-        return cat
+    # Upgrade generic stored categories when title yields a specific family.
+    if title_cat in _SPECIFIC_OVER_ANEXO:
+        return title_cat
+    if title_cat not in {DocumentCategory.OUTRO.value, DocumentCategory.UNKNOWN.value}:
+        return title_cat
+    if stored == DocumentCategory.ANEXO.value:
+        return stored
     # PNCP/CIGA public process pack files without descriptive titles are still
     # process documents (notice envelope). Prefer anexo over discarding as outro.
     source = str(doc.get("source_id") or "").lower()
@@ -148,6 +193,7 @@ def classify_document_record(doc: dict) -> str:
         or "pncp" in source
         or source.startswith("ciga")
         or "zip_member" in source
+        or source.startswith("sc_compras")
     ):
         return DocumentCategory.ANEXO.value
-    return cat
+    return title_cat if title_cat else DocumentCategory.OUTRO.value

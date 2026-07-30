@@ -202,6 +202,17 @@ def test_classify_document_title() -> None:
         )
         == DocumentCategory.ANEXO.value
     )
+    # Generic stored "anexo" upgraded when title is proposal/licitante planilha
+    assert (
+        classify_document_record(
+            {
+                "document_category": "anexo",
+                "original_title": "Anexo IV - Lote 1 - Planilha das Licitantes - Lote 01 reforma.xls",
+                "source_id": "pncp",
+            }
+        )
+        == DocumentCategory.PROPOSTA_COMERCIAL.value
+    )
 
 
 def test_sanitize_cpf_email() -> None:

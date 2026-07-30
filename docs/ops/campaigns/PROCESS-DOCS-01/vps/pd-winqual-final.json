@@ -285,6 +285,45 @@
       2
     ]
   ],
+  "gt": {
+    "slots": 600,
+    "label_counts": {
+      "present": 600
+    },
+    "fp_fn": {
+      "false_positive_candidates": 138,
+      "false_negative_candidates": 0,
+      "critical_risk_candidates": 0,
+      "structural_labels": {
+        "present": 600
+      }
+    },
+    "manifest": {
+      "generated_at": "2026-07-30T23:35:11.941449+00:00",
+      "queue_path": "/var/lib/extra-consultoria/output/process_documents/bid-readiness-human-gt-queue-labeled.jsonl",
+      "slots": 600,
+      "structural_label_counts": {
+        "present": 600
+      },
+      "human_confirmed_count": 0,
+      "human_ground_truth_complete": false,
+      "meets_min_slots": true,
+      "issue_137_close_allowed": false,
+      "ready_to_submit_allowed": false,
+      "status": "structural_labeled_awaiting_human_confirm",
+      "fp_fn_path": "/var/lib/extra-consultoria/output/process_documents/bid-readiness-fp-fn-report.json",
+      "note": "Automated structural labeling only. Human confirmation still required."
+    }
+  },
+  "corpus": {
+    "process_count": 3289,
+    "engineering_process_count": 121,
+    "complete_envelope_count": 3283,
+    "portal_family_count": 7,
+    "annotated_requirements_count": 23121,
+    "corpus_min_targets_met": true,
+    "issue_137_unblock_allowed": false
+  },
   "generated_at": "2026-07-30T23:35:10.535034+00:00",
   "note": "Win/qual residual publication blockers remain. Structural GT labels filled; human confirm still required. #137 open."
 }

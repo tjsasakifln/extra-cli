@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-07-30T23:22:21.086422+00:00",
+  "as_of": "2026-07-30T23:35:51.185760+00:00",
   "processes_scored": 3234,
   "denominator_policy": "full_no_shrink",
   "metrics": {
@@ -14,45 +14,70 @@
       "residual": 2
     },
     "winning_proposal_completeness": {
-      "percent": 2.5046,
+      "percent": 8.9054,
       "meets": false,
-      "residual": 3153
+      "residual": 2946
     },
     "bidder_qualification_documents_completeness": {
-      "percent": 1.175,
+      "percent": 1.2678,
       "meets": false,
-      "residual": 3196
+      "residual": 3193
     }
   },
   "residual_by_blocker": {
     "notice": {
-      "noise_or_unclassified": 2
+      "noise": 2
     },
     "session": {
-      "noise_ciga_publication_dump": 2
+      "noise": 2
     },
     "win": {
-      "winning_proposal_not_published_publicly": 3153
+      "winning_proposal_not_published_publicly": 2946
     },
     "qual": {
-      "bidder_qualification_not_published_publicly": 3196
+      "bidder_qualification_not_published_publicly": 3193
     }
   },
-  "multi_source_lift": {
-    "session": {
-      "to": 99.9382,
-      "sources": [
-        "sc_compras bulk homolog",
-        "pncp itens/resultados/historico/atas"
+  "multi_source_win_qual": {
+    "win_percent": 8.9054,
+    "qual_percent": 1.2678,
+    "win_sources": [
+      [
+        "pncp+item_resultados",
+        254
+      ],
+      [
+        "pncp",
+        44
+      ],
+      [
+        "pncp+zip_member",
+        17
+      ],
+      [
+        "pncp+zip_member+zip_member",
+        10
       ]
-    },
-    "win": {
-      "to": 2.5046,
-      "note": "diluted by 2400 SC homolog packs without public proposal PDFs; only PNCP item_resultados contribute"
-    },
-    "qual": {
-      "to": 1.175,
-      "note": "public qualification packs essentially unavailable"
-    }
-  }
+    ],
+    "qual_sources": [
+      [
+        "generic_public_html",
+        47
+      ],
+      [
+        "pncp",
+        37
+      ],
+      [
+        "pncp+zip_member",
+        16
+      ],
+      [
+        "pncp+zip_member+zip_member",
+        2
+      ]
+    ],
+    "campaign": "win_qual_campaign + zip_expand + reclass planilha licitantes"
+  },
+  "honest_status": "win/qual remain far below thresholds due to public publication limits; residuals stay in denom"
 }

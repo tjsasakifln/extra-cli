@@ -1,27 +1,16 @@
 {
-  "generated_at": "2026-07-30T23:21:48.286970+00:00",
-  "path": "/var/lib/extra-consultoria/output/process_documents/bid-readiness-human-gt-queue.jsonl",
+  "generated_at": "2026-07-30T23:35:11.941449+00:00",
+  "queue_path": "/var/lib/extra-consultoria/output/process_documents/bid-readiness-human-gt-queue-labeled.jsonl",
   "slots": 600,
-  "unique_processes": 197,
-  "unique_documents": 600,
-  "min_required": 500,
+  "structural_label_counts": {
+    "present": 600
+  },
+  "human_confirmed_count": 0,
+  "human_ground_truth_complete": false,
   "meets_min_slots": true,
-  "family_distribution": {
-    "homologacao": 223,
-    "anexo": 197,
-    "resultado": 169,
-    "ata_sessao": 10,
-    "adjudicacao": 1
-  },
-  "source_distribution": {
-    "pncp+itens_outcome": 197,
-    "pncp+itens": 197,
-    "pncp+historico": 196,
-    "pncp+atas": 10
-  },
-  "human_labels_completed": 0,
-  "status": "awaiting_human_annotation",
   "issue_137_close_allowed": false,
   "ready_to_submit_allowed": false,
-  "note": "Diverse real PNCP/SC process-document slots; labels NULL until human. #137 stays open."
+  "status": "structural_labeled_awaiting_human_confirm",
+  "fp_fn_path": "/var/lib/extra-consultoria/output/process_documents/bid-readiness-fp-fn-report.json",
+  "note": "Automated structural labeling only. Human confirmation still required."
 }

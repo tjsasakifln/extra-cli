@@ -1,17 +1,19 @@
 {
-  "as_of": "2026-07-30T23:22:21.096107+00:00",
+  "as_of": "2026-07-30T23:35:51.195763+00:00",
   "vps_host": "ec-prod",
   "gate_exit": 6,
   "metrics": {
     "notice": 99.9382,
     "session": 99.9382,
-    "win": 2.5046,
-    "qual": 1.175,
+    "win": 8.9054,
+    "qual": 1.2678,
     "ops": 96.5602,
     "recall": 100.0,
     "financial": 100.0
   },
-  "human_gt_slots": 600,
+  "gt_slots_structural": 600,
+  "human_confirmed": 0,
   "issue_137": "OPEN",
+  "ready_to_submit": false,
   "pr": "https://github.com/tjsasakifln/extra-cli/pull/184"
 }
