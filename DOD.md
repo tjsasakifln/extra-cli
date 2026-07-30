@@ -634,7 +634,7 @@ covered_financial_value_ratio = valor coberto / valor total do universo relevant
 ```
 
 - [x] `entity_source_discovery_coverage = 100%` (1.093/1.093; zero `unknown`). Evidência: `python3 -m scripts.process_documents discover --all` exit 0 · `output/process_documents/document-source-registry.json` entity_count=1093 unknown_access_count=0 meets_100_percent=true · canonical_ids_sha256 `306976f2ae4bbaa46d816c2529e498fe114ef433e23181599b0892124bed7490` · PROCESS-DOCS-01 2026-07-30.
-- [x] `active_entity_document_operational_coverage >= 95%` (denominador = entes ativos; blockers permanecem no denominador). Evidência VPS 2026-07-30: **393/407 = 96,56%** (`vps/vps-residual-final-summary.json` + `document-coverage.json`); 14 residual ativos documentados como blocked no denominador; HEAD `pending`.
+- [x] `active_entity_document_operational_coverage >= 95%` (denominador = entes ativos; blockers permanecem no denominador). Evidência VPS 2026-07-30: **393/407 = 96,56%** (`vps/vps-residual-final-summary.json` + `document-coverage.json`); 14 residual ativos documentados como blocked no denominador; HEAD `d15fc1b253b6`.
 - [x] `relevant_process_recall >= 98%` (benchmark independente versionado). Evidência VPS: **807/807 = 100%** benchmark `process_recall_benchmark_v3_extra_sc_tight_2026-07-30` (`vps/process-recall.json`).
 - [x] `covered_financial_value_ratio >= 99%`. Evidência VPS: **100%** do valor do benchmark v3 Extra/SC (`vps/financial-coverage.json`); hierarquia contracted>homologated>awarded>estimated.
 - [x] `notice_and_annexes_completeness >= 98%`. Evidência VPS 2026-07-30: **99,94%** (3232/3234 denom full) · residual 2 (noise CIGA) · `vps/document-completeness.json`.
@@ -819,7 +819,7 @@ CLI canônica: `python3 -m scripts.process_documents`.
 
 - [x] Relatórios: discovery, activity, operational coverage, process recall, financial coverage, completeness, gaps, portal-family inventory, adapter coverage, manifests, corpus, FP/FN. Evidência: `output/process_documents/` + campaign stamp.
 - [x] Corpus público real: ≥30 processos, ≥10 engenharia, ≥10 envelopes relativamente completos, ≥5 famílias, ≥500 requisitos anotados. Evidência VPS: **889** processos, **111** engenharia, **623** envelopes, **7** famílias, **7261** annotations · `vps/corpus-manifest.json`. Issue #137 close autorizado pelo PO (corpus+GT+FP/FN; win/qual residual aceito) · READY_TO_SUBMIT proibido.
-- [x] Análise FP/FN e ausência de erro crítico de falsa prontidão. Evidência: 600 slots evidence-reviewed + PO APPROVE_EVIDENCE_REVIEW + FP/FN sem falsa prontidão; READY_TO_SUBMIT proibido; residual win/qual aceito pelo PO · `vps/product-owner-signoff.json` + `vps/po-decision-residual-and-137.json` + `bid-readiness-fp-fn-report.json` · HEAD `pending_close_137`.
+- [x] Análise FP/FN e ausência de erro crítico de falsa prontidão. Evidência: 600 slots evidence-reviewed + PO APPROVE_EVIDENCE_REVIEW + FP/FN sem falsa prontidão; READY_TO_SUBMIT proibido; residual win/qual aceito pelo PO · `vps/product-owner-signoff.json` + `vps/po-decision-residual-and-137.json` + `bid-readiness-fp-fn-report.json` · HEAD `d15fc1b253b6`.
 - [ ] Issue #137 só fechada após provas; PR #133 só desbloqueada após suíte verde no HEAD exato.
 
 ### 7A.5 Operação local e VPS
