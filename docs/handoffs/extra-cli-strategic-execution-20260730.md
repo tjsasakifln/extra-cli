@@ -22,7 +22,8 @@
 
 ### Phase 2 — EXTRA-PROFILE-TO-ACTIONABLE-DECISION-01
 
-Branch: `campaign/extra-profile-to-actionable-decision-01`
+Branch: `campaign/extra-profile-to-actionable-decision-01`  
+**PR:** [#181](https://github.com/tjsasakifln/extra-cli/pull/181)
 
 | Module | Role |
 |--------|------|
