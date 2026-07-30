@@ -26,7 +26,12 @@ from scripts.process_documents.storage import detect_mime, ensure_roots, store_b
 
 USER_AGENT = "extra-cli-process-documents/1.0 (+https://github.com/tjsasakifln/extra-cli)"
 DOC_EXT = re.compile(r"\.(pdf|zip|docx?|xlsx?|odt|ods)(?:$|\?)", re.I)
-DOC_HINT = re.compile(r"edital|anexo|contrato|licitac|pregao|homolog|ata|planilha|projeto", re.I)
+DOC_HINT = re.compile(
+    r"edital|anexo|contrato|licitac|pregao|homolog|ata|planilha|projeto|"
+    r"habilit|proposta|adjudic|resultado|julgamento|recurso|parecer|diligenc|"
+    r"qualifica|atestado|certidao|tr\b|etp\b",
+    re.I,
+)
 
 
 class _LinkParser(HTMLParser):

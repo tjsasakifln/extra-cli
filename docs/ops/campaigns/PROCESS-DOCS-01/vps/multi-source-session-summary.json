@@ -1,0 +1,16 @@
+{
+  "run_id": "pd-multi-session-20260730T223455Z-7c01a801",
+  "targets": 250,
+  "pncp_session_docs": 760,
+  "html_docs": 0,
+  "processes_touched": 250,
+  "errors": [],
+  "progress": 225,
+  "ciga_dom": {
+    "run_id": "pd-ciga-dom-session-20260730T223836Z-4350a1e0",
+    "documents": 0,
+    "zips": 6,
+    "errors": []
+  },
+  "docs": 760
+}

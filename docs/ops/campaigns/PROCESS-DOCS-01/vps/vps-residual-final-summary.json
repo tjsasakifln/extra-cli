@@ -1,15 +1,11 @@
 {
-  "as_of": "2026-07-30T22:25:09.905861+00:00",
+  "as_of": "2026-07-30T22:39:47.366372+00:00",
   "operational": {
     "percent": 96.5602,
-    "num": 393,
-    "den": 407,
     "meets": true
   },
   "recall": {
     "percent": 100.0,
-    "num": 807,
-    "den": 807,
     "meets": true
   },
   "financial": {
@@ -17,52 +13,72 @@
     "meets": true
   },
   "completeness": {
-    "notice_and_annexes_completeness": 98.801,
-    "session_judgment_homologation_completeness": 10.0719,
+    "notice_and_annexes_completeness": 99.6403,
+    "session_judgment_homologation_completeness": 35.012,
     "winning_proposal_completeness": 3.8369,
-    "bidder_qualification_documents_completeness": 4.5564,
-    "methodology": "process_level_binary_presence",
-    "denominator_policy": "full_no_shrink",
-    "processes_scored": 834,
-    "notice_meets": true,
-    "session_meets": false,
-    "win_meets": false,
-    "qual_meets": false
+    "bidder_qualification_documents_completeness": 4.5564
   },
-  "residual_by_blocker": {
-    "notice": {
-      "non_process_publication_dump": 1,
-      "notice_pack_not_published_or_unclassified": 9
-    },
-    "session": {
-      "non_process_publication_dump": 9,
-      "session_judgment_not_published_publicly": 741
-    },
-    "win": {
-      "non_process_publication_dump": 25,
-      "winning_proposal_not_published_publicly": 777
-    },
-    "qual": {
-      "non_process_publication_dump": 14,
-      "bidder_qualification_not_published_publicly": 782
-    }
+  "completeness_meets": {
+    "notice_and_annexes_completeness": true,
+    "session_judgment_homologation_completeness": false,
+    "winning_proposal_completeness": false,
+    "bidder_qualification_documents_completeness": false
+  },
+  "residual_nominal_counts": {
+    "notice_and_annexes_completeness": 3,
+    "session_judgment_homologation_completeness": 542,
+    "winning_proposal_completeness": 802,
+    "bidder_qualification_documents_completeness": 796
   },
   "corpus": {
-    "processes": 889,
-    "engineering": 111,
-    "envelopes": 411,
-    "families": 6,
-    "annotations": 5657
+    "generated_at": "2026-07-30T22:39:05.037580+00:00",
+    "process_count": 889,
+    "engineering_process_count": 111,
+    "complete_envelope_count": 623,
+    "portal_families": [
+      "ciga_ckan",
+      "compras_gov",
+      "multi_source",
+      "pncp",
+      "portal_institucional",
+      "sc_compras",
+      "tce_sc"
+    ],
+    "portal_family_count": 7,
+    "annotated_requirements_count": 7261,
+    "min_targets": {
+      "processes": 30,
+      "engineering": 10,
+      "complete_envelopes": 10,
+      "portal_families": 5,
+      "annotated_requirements": 500
+    },
+    "meets_min_processes": true,
+    "meets_min_engineering": true,
+    "meets_min_complete_envelopes": true,
+    "meets_min_families": true,
+    "meets_min_annotations": true,
+    "ready_to_submit_language_allowed": false,
+    "issue_137_unblock_allowed": false,
+    "corpus_min_targets_met": true,
+    "note": "Corpus is public-source only. READY_TO_SUBMIT is forbidden without human review. Issue #137 / PR #133 remain blocked until targets + FP/FN + suite green on HEAD."
   },
-  "still_blocked_actives": 14,
   "gate_exit": 6,
-  "gate_meaning": "session/win/qual completeness publication-blocked residuals (notice/ops/recall/financial met)",
-  "issue_137": "OPEN - human GT required",
-  "multi_source": [
-    "pncp_arquivos",
-    "ciga_ckan",
-    "generic_html",
-    "zip_member_expand",
-    "pncp_collect_process_key"
-  ]
+  "issue_137": "OPEN",
+  "multi_source_session": {
+    "run_id": "pd-multi-session-20260730T223455Z-7c01a801",
+    "targets": 250,
+    "pncp_session_docs": 760,
+    "html_docs": 0,
+    "processes_touched": 250,
+    "errors": [],
+    "progress": 225,
+    "ciga_dom": {
+      "run_id": "pd-ciga-dom-session-20260730T223836Z-4350a1e0",
+      "documents": 0,
+      "zips": 6,
+      "errors": []
+    },
+    "docs": 760
+  }
 }

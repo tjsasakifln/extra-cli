@@ -321,16 +321,21 @@
     ]
   },
   "denominator_policy": "full_no_shrink",
+  "gate_exit": 6,
+  "corpus": {
+    "process_count": 889,
+    "engineering_process_count": 111,
+    "complete_envelope_count": 623,
+    "portal_family_count": 7,
+    "annotated_requirements_count": 7261,
+    "corpus_min_targets_met": true,
+    "issue_137_unblock_allowed": false
+  },
+  "fpfn": {
+    "false_positive_candidates": 64,
+    "false_negative_candidates": 0,
+    "critical_risk_candidates": 64
+  },
   "generated_at": "2026-07-30T22:39:04.417576+00:00",
-  "note": "Binary presence per process after title reclassification + ZIP expansion. Denominator is ALL processes with \u22651 document (no shrinking). Residuals listed nominally with blockers; publication limits remain for session/proposal/qualification packs on many public portals.",
-  "multi_source": {
-    "session_sources": [
-      "pncp+itens_outcome",
-      "pncp+historico",
-      "pncp+atas",
-      "origin_html",
-      "ciga_dom"
-    ],
-    "session_percent": 35.012
-  }
+  "note": "Binary presence per process after title reclassification + ZIP expansion. Denominator is ALL processes with \u22651 document (no shrinking). Residuals listed nominally with blockers; publication limits remain for session/proposal/qualification packs on many public portals."
 }

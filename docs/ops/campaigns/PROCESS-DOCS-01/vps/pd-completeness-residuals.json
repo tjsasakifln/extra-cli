@@ -1,57 +1,68 @@
 {
-  "as_of": "2026-07-30T22:24:46.595858+00:00",
+  "as_of": "2026-07-30T22:39:47.366372+00:00",
   "processes_scored": 834,
   "denominator_policy": "full_no_shrink",
   "metrics": {
     "notice_and_annexes_completeness": {
-      "ratio": 0.0,
-      "percent": 0.0,
+      "ratio": 0.9964028776978417,
+      "percent": 99.6403,
       "threshold": 0.98,
-      "meets_threshold": false,
+      "meets_threshold": true,
       "methodology": "process_level_binary_presence",
-      "residual_count": 0
+      "residual_count": 3
     },
     "session_judgment_homologation_completeness": {
-      "ratio": 0.0,
-      "percent": 0.0,
+      "ratio": 0.3501199040767386,
+      "percent": 35.012,
       "threshold": 0.95,
       "meets_threshold": false,
       "methodology": "process_level_binary_presence",
-      "residual_count": 0
+      "residual_count": 542
     },
     "winning_proposal_completeness": {
-      "ratio": 0.0,
-      "percent": 0.0,
+      "ratio": 0.03836930455635491,
+      "percent": 3.8369,
       "threshold": 0.85,
       "meets_threshold": false,
       "methodology": "process_level_binary_presence",
-      "residual_count": 0
+      "residual_count": 802
     },
     "bidder_qualification_documents_completeness": {
-      "ratio": 0.0,
-      "percent": 0.0,
+      "ratio": 0.045563549160671464,
+      "percent": 4.5564,
       "threshold": 0.7,
       "meets_threshold": false,
       "methodology": "process_level_binary_presence",
-      "residual_count": 0
+      "residual_count": 796
     }
+  },
+  "residual_nominal_counts": {
+    "notice_and_annexes_completeness": 3,
+    "session_judgment_homologation_completeness": 542,
+    "winning_proposal_completeness": 802,
+    "bidder_qualification_documents_completeness": 796
   },
   "residual_by_blocker": {
     "notice": {
-      "non_process_publication_dump": 1,
-      "notice_pack_not_published_or_unclassified": 9
+      "notice_pack_not_published_or_unclassified": 3
     },
     "session": {
-      "non_process_publication_dump": 9,
-      "session_judgment_not_published_publicly": 741
+      "session_judgment_not_published_publicly": 542
     },
     "win": {
-      "non_process_publication_dump": 25,
-      "winning_proposal_not_published_publicly": 777
+      "winning_proposal_not_published_publicly": 802
     },
     "qual": {
-      "non_process_publication_dump": 14,
-      "bidder_qualification_not_published_publicly": 782
+      "bidder_qualification_not_published_publicly": 796
     }
+  },
+  "multi_source_lift": {
+    "session_before_approx": 10.07,
+    "session_after": 35.012,
+    "sources": [
+      "pncp+itens_outcome Homologado",
+      "pncp+historico",
+      "pncp+atas"
+    ]
   }
 }

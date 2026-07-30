@@ -139,6 +139,25 @@ def test_zip_path_traversal_blocked(tmp_path: Path) -> None:
         safe_extract_zip(zpath, tmp_path / "out")
 
 
+def test_classify_item_outcome_homologado() -> None:
+    from scripts.process_documents.multi_source_session import _classify_item_outcome
+
+    assert (
+        _classify_item_outcome(
+            {"situacaoCompraItemNome": "Homologado", "temResultado": False, "valorTotal": 1}
+        )
+        == DocumentCategory.HOMOLOGACAO.value
+    )
+    assert (
+        _classify_item_outcome({"situacaoCompraItemNome": "Em andamento", "temResultado": False})
+        is None
+    )
+    assert (
+        _classify_item_outcome({"situacaoCompraItemNome": "Em andamento", "temResultado": True})
+        == DocumentCategory.RESULTADO.value
+    )
+
+
 def test_classify_document_title() -> None:
     assert classify_document_title("Edital de Pregão Eletrônico") == DocumentCategory.EDITAL.value
     assert classify_document_title("Planilha Orçamentária") == DocumentCategory.PLANILHA_ORCAMENTARIA.value

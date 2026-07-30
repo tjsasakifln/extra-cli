@@ -637,10 +637,10 @@ covered_financial_value_ratio = valor coberto / valor total do universo relevant
 - [x] `active_entity_document_operational_coverage >= 95%` (denominador = entes ativos; blockers permanecem no denominador). Evidência VPS 2026-07-30: **393/407 = 96,56%** (`vps/vps-residual-final-summary.json` + `document-coverage.json`); 14 residual ativos documentados como blocked no denominador; HEAD `pending`.
 - [x] `relevant_process_recall >= 98%` (benchmark independente versionado). Evidência VPS: **807/807 = 100%** benchmark `process_recall_benchmark_v3_extra_sc_tight_2026-07-30` (`vps/process-recall.json`).
 - [x] `covered_financial_value_ratio >= 99%`. Evidência VPS: **100%** do valor do benchmark v3 Extra/SC (`vps/financial-coverage.json`); hierarquia contracted>homologated>awarded>estimated.
-- [x] `notice_and_annexes_completeness >= 98%`. Evidência VPS 2026-07-30: **98,80%** (824/834 processos; denominador completo sem shrink) · ZIP expand multi-source + reclassificação + PNCP arquivos · residual 10 nominais (`vps/document-completeness.json`, `vps/pd-completeness-residuals.json`).
-- [ ] `session_judgment_homologation_completeness >= 95%`. **BLOCKED residual:** 10,07% (84/834); 741 processos com blocker `session_judgment_not_published_publicly` — ata/julgamento/homologação não publicados publicamente na maioria dos portais · residual nominal em `vps/pd-completeness-residuals.json`.
-- [ ] `winning_proposal_completeness >= 85%`. **BLOCKED residual:** 3,84% (32/834); 777 com `winning_proposal_not_published_publicly`.
-- [ ] `bidder_qualification_documents_completeness >= 70%`. **BLOCKED residual:** 4,56% (38/834); 782 com `bidder_qualification_not_published_publicly`.
+- [x] `notice_and_annexes_completeness >= 98%`. Evidência VPS 2026-07-30: **99,64%** (831/834; denom full) · multi-source + PNCP itens/arquivos/ZIP · residual 3 · `vps/document-completeness.json`.
+- [ ] `session_judgment_homologation_completeness >= 95%`. **PARTIAL multi-source VPS:** **35,01%** (292/834) via PNCP itens outcome (`Homologado`)+historico+atas; residual 542 com blocker `session_judgment_not_published_publicly` · `vps/pd-completeness-residuals.json` + `multi-source-session-summary.json`.
+- [ ] `winning_proposal_completeness >= 85%`. **BLOCKED residual:** 3,84% (32/834); 802 com `winning_proposal_not_published_publicly` — propostas vencedoras quase nunca públicas nas fontes oficiais amostradas.
+- [ ] `bidder_qualification_documents_completeness >= 70%`. **BLOCKED residual:** 4,56% (38/834); 796 com `bidder_qualification_not_published_publicly`.
 - [x] Nenhuma média entre as métricas acima é usada para mascarar gap. Evidência: `scripts/process_documents/coverage.py` THRESHOLDS + testes.
 - [x] Timeout, 403, 429, 5xx, paginação parcial, fixture e mock **não** contam como cobertura operacional. Evidência: `OPERATIONAL_SUCCESS` + tests.
 - [x] `SUCCESS_ZERO` exige justificativa auditável. Evidência: `validate_fail_closed` + tests.
@@ -818,7 +818,7 @@ CLI canônica: `python3 -m scripts.process_documents`.
 ### 7A.4 Cobertura, corpus e bid_readiness
 
 - [x] Relatórios: discovery, activity, operational coverage, process recall, financial coverage, completeness, gaps, portal-family inventory, adapter coverage, manifests, corpus, FP/FN. Evidência: `output/process_documents/` + campaign stamp.
-- [x] Corpus público real: ≥30 processos, ≥10 engenharia, ≥10 envelopes relativamente completos, ≥5 famílias, ≥500 requisitos anotados. Evidência VPS: 889 processos, 80 engenharia, 412 envelopes, 6 famílias, 5657 annotations · `vps/corpus-manifest.json`. Issue #137 permanece aberta (FP/FN scaffold; human GT pending).
+- [x] Corpus público real: ≥30 processos, ≥10 engenharia, ≥10 envelopes relativamente completos, ≥5 famílias, ≥500 requisitos anotados. Evidência VPS: **889** processos, **111** engenharia, **623** envelopes, **7** famílias, **7261** annotations · `vps/corpus-manifest.json`. Issue #137 aberta (FP/FN candidatos automáticos; human GT pendente; READY_TO_SUBMIT proibido).
 - [ ] Análise FP/FN e ausência de erro crítico de falsa prontidão. **PARTIAL:** `vps/bid-readiness-fp-fn-report.json` scaffold automatizado; READY_TO_SUBMIT proibido; human GT pendente para #137.
 - [ ] Issue #137 só fechada após provas; PR #133 só desbloqueada após suíte verde no HEAD exato.
 
