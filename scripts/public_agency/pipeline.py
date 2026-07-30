@@ -23,7 +23,7 @@ from scripts.public_agency import (
 from scripts.public_agency.catalog import catalog_hash, get_service, services_list
 from scripts.public_agency.conflict import assess_conflict
 from scripts.public_agency.conflict import config_hash as conflict_hash
-from scripts.public_agency.contacts import default_institutional_research_contact, validate_contacts
+from scripts.public_agency.contacts import default_institutional_research_contact
 from scripts.public_agency.dossier import write_dossier
 from scripts.public_agency.entities import build_prospect_from_contract_rows, normalize_cnpj14
 from scripts.public_agency.exports import export_public_agency_run
@@ -445,7 +445,6 @@ def run_public_agency_pipeline(
 
         # No invented institutional contacts. Research action is a *next step*,
         # not a channel already available (does not fire institutional_contact_available).
-        contact_validation = validate_contacts([])
         research = default_institutional_research_contact(prospect.uf, prospect.municipio)
         research_only = {
             "accepted": [],
