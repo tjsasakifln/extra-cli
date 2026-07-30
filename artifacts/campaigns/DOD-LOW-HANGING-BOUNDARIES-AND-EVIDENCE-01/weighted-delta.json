@@ -1,4 +1,4 @@
 {
-  "weighted_delta_if_promoted": 42,
-  "denominator_unchanged": true
+  "weighted_delta": 37,
+  "note": "equal weight; no threshold mutation"
 }
