@@ -1,6 +1,6 @@
 {
   "ok": true,
-  "generated_at": "2026-07-30T19:15:49Z",
+  "generated_at": "2026-07-30T20:34:21Z",
   "layout": {
     "root": "/mnt/d/extra consultoria/data/company_registry",
     "raw": "/mnt/d/extra consultoria/data/company_registry/raw",
@@ -12,32 +12,32 @@
   },
   "active_pointer": {
     "status": "ACTIVE",
-    "release_id": "selective-selective-official",
-    "database_path": "/mnt/d/extra consultoria/data/company_registry/releases/selective-selective-official/registry.sqlite",
-    "database_snapshot_id": "selective-selective-official:196608",
-    "activated_at": "2026-07-30T19:15:49Z",
-    "previous_release_id": null,
+    "release_id": "selective-selective-merged",
+    "database_path": "/mnt/d/extra consultoria/data/company_registry/releases/selective-selective-merged/registry.sqlite",
+    "database_snapshot_id": "selective-selective-merged:1310720",
+    "activated_at": "2026-07-30T19:55:13Z",
+    "previous_release_id": "selective-selective-official",
     "source_authority": "RECEITA_FEDERAL",
     "mode": "selective",
     "sha256_manifest": {},
-    "code_commit": "8ff80eef188974d2c17cb8716e74700fef3e9b12"
+    "code_commit": "e0d84311a93fc63e36cb4712a2d3165b3dfe847d"
   },
   "manifest_status": "ACTIVE",
   "row_counts": {
-    "establishments": 211,
-    "companies": 211
+    "establishments": 2497,
+    "companies": 2461
   },
   "disk": {
     "root": "/mnt/d/extra consultoria/data/company_registry",
     "total_gb": 1000.19,
-    "used_gb": 496.13,
-    "free_gb": 504.06
+    "used_gb": 496.3,
+    "free_gb": 503.88
   },
   "smoke_lookup": {
     "cnpj": "43371025000104",
     "official_match_status": "MATCHED",
     "official_authority": "RECEITA_FEDERAL",
-    "official_release_id": "selective-selective-official",
+    "official_release_id": "selective-selective-merged",
     "legal_name": "AXIONTEK LTDA",
     "trade_name": "AXIONTEK",
     "registration_status": "ATIVA",
@@ -79,7 +79,7 @@
       "8299799",
       "9511800"
     ],
-    "legal_nature": "Sociedade Empresária Limitada",
+    "legal_nature": "Sociedade Empres\u00e1ria Limitada",
     "company_size": null,
     "capital": "1000000,00",
     "headquarters_or_branch": "Matriz",
@@ -91,10 +91,10 @@
     "simples": null,
     "mei": null,
     "cnpj_root": "43371025",
-    "fetched_from_local_registry_at": "2026-07-30T19:15:49Z",
+    "fetched_from_local_registry_at": "2026-07-30T20:34:21Z",
     "source_provenance": {
-      "release_id": "selective-selective-official",
-      "database_path": "/mnt/d/extra consultoria/data/company_registry/releases/selective-selective-official/registry.sqlite",
+      "release_id": "selective-selective-merged",
+      "database_path": "/mnt/d/extra consultoria/data/company_registry/releases/selective-selective-merged/registry.sqlite",
       "source_label": "rfb_public_cadastral_via_opencnpj",
       "authority": "RECEITA_FEDERAL"
     }

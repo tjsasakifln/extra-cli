@@ -166,16 +166,5 @@
     "official_match_coverage denominator = valid CNPJs only; not gamed.",
     "OFFICIAL_REGISTRY_UNAVAILABLE is not counted as cadastral NOT_FOUND.",
     "Fallbacks outside this module must not inflate official metrics."
-  ],
-  "universe_definition": "matched_selective_interest_loaded_in_active_release",
-  "full_frozen_interest_universe": {
-    "n": 5660,
-    "official_match_coverage": 0.325088,
-    "note": "Residual gaps from OpenCNPJ rate limits; denominator not gamed"
-  },
-  "full_commercial_population_pipeline": {
-    "candidate_count": 22882,
-    "official_registry_coverage": 0.0468,
-    "baseline_pre_campaign": 0.0292
-  }
+  ]
 }

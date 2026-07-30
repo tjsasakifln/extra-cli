@@ -1,14 +1,15 @@
 {
-  "release_id": "selective-selective-official",
   "n": 20,
   "top20_official_registry_coverage": 1.0,
   "ranking_view": "establishment_level",
+  "source_ranking": "commercial-rerun cl-20260730T201737Z-a35bd698",
+  "run_id": "cl-20260730T201737Z-a35bd698",
   "leads": [
     {
       "cnpj": "43371025000104",
       "official_match_status": "MATCHED",
       "official_authority": "RECEITA_FEDERAL",
-      "official_release_id": "selective-selective-official",
+      "official_release_id": "selective-selective-merged",
       "legal_name": "AXIONTEK LTDA",
       "trade_name": "AXIONTEK",
       "registration_status": "ATIVA",
@@ -62,22 +63,32 @@
       "simples": null,
       "mei": null,
       "cnpj_root": "43371025",
-      "fetched_from_local_registry_at": "2026-07-30T19:18:01Z",
+      "fetched_from_local_registry_at": "2026-07-30T20:34:21Z",
       "source_provenance": {
-        "release_id": "selective-selective-official",
-        "database_path": "/mnt/d/extra consultoria/data/company_registry/releases/selective-selective-official/registry.sqlite",
+        "release_id": "selective-selective-merged",
+        "database_path": "/mnt/d/extra consultoria/data/company_registry/releases/selective-selective-merged/registry.sqlite",
         "source_label": "rfb_public_cadastral_via_opencnpj",
         "authority": "RECEITA_FEDERAL"
       },
       "rank": 1,
-      "blocked_situacao": false,
-      "ranking_view": "establishment_level"
+      "ranking_view": "establishment_level",
+      "commercial": {
+        "score_total": 28.45,
+        "priority": "CRITICAL",
+        "contract_count": 23,
+        "total_value": 9480612.63,
+        "signal_ids": null,
+        "supplier_sector_fit": "CONFIRMED_ENGINEERING",
+        "evidence_contract_ids_sample": [],
+        "registry_source": "rfb_public_cadastral_via_opencnpj",
+        "registry_is_official": true
+      }
     },
     {
       "cnpj": "42531033000108",
       "official_match_status": "MATCHED",
       "official_authority": "RECEITA_FEDERAL",
-      "official_release_id": "selective-selective-official",
+      "official_release_id": "selective-selective-merged",
       "legal_name": "METALURGICA SILLOTT LTDA",
       "trade_name": "",
       "registration_status": "ATIVA",
@@ -107,22 +118,32 @@
       "simples": null,
       "mei": null,
       "cnpj_root": "42531033",
-      "fetched_from_local_registry_at": "2026-07-30T19:18:01Z",
+      "fetched_from_local_registry_at": "2026-07-30T20:34:21Z",
       "source_provenance": {
-        "release_id": "selective-selective-official",
-        "database_path": "/mnt/d/extra consultoria/data/company_registry/releases/selective-selective-official/registry.sqlite",
+        "release_id": "selective-selective-merged",
+        "database_path": "/mnt/d/extra consultoria/data/company_registry/releases/selective-selective-merged/registry.sqlite",
         "source_label": "rfb_public_cadastral_via_opencnpj",
         "authority": "RECEITA_FEDERAL"
       },
       "rank": 2,
-      "blocked_situacao": false,
-      "ranking_view": "establishment_level"
+      "ranking_view": "establishment_level",
+      "commercial": {
+        "score_total": 27.6534,
+        "priority": "CRITICAL",
+        "contract_count": 26,
+        "total_value": 3360069.27,
+        "signal_ids": null,
+        "supplier_sector_fit": "CONFIRMED_ENGINEERING",
+        "evidence_contract_ids_sample": [],
+        "registry_source": "rfb_public_cadastral_via_opencnpj",
+        "registry_is_official": true
+      }
     },
     {
       "cnpj": "50410432000149",
       "official_match_status": "MATCHED",
       "official_authority": "RECEITA_FEDERAL",
-      "official_release_id": "selective-selective-official",
+      "official_release_id": "selective-selective-merged",
       "legal_name": "M V NILLO DE PAULA ENGENHARIA",
       "trade_name": "NILLO DE PAULA ENGENHARIA",
       "registration_status": "ATIVA",
@@ -146,22 +167,32 @@
       "simples": null,
       "mei": null,
       "cnpj_root": "50410432",
-      "fetched_from_local_registry_at": "2026-07-30T19:18:01Z",
+      "fetched_from_local_registry_at": "2026-07-30T20:34:21Z",
       "source_provenance": {
-        "release_id": "selective-selective-official",
-        "database_path": "/mnt/d/extra consultoria/data/company_registry/releases/selective-selective-official/registry.sqlite",
+        "release_id": "selective-selective-merged",
+        "database_path": "/mnt/d/extra consultoria/data/company_registry/releases/selective-selective-merged/registry.sqlite",
         "source_label": "rfb_public_cadastral_via_opencnpj",
         "authority": "RECEITA_FEDERAL"
       },
       "rank": 3,
-      "blocked_situacao": false,
-      "ranking_view": "establishment_level"
+      "ranking_view": "establishment_level",
+      "commercial": {
+        "score_total": 26.9581,
+        "priority": "CRITICAL",
+        "contract_count": 12,
+        "total_value": 5003117.61,
+        "signal_ids": null,
+        "supplier_sector_fit": "CONFIRMED_ENGINEERING",
+        "evidence_contract_ids_sample": [],
+        "registry_source": "rfb_public_cadastral_via_opencnpj",
+        "registry_is_official": true
+      }
     },
     {
       "cnpj": "36216839000109",
       "official_match_status": "MATCHED",
       "official_authority": "RECEITA_FEDERAL",
-      "official_release_id": "selective-selective-official",
+      "official_release_id": "selective-selective-merged",
       "legal_name": "DIEGO DIAS GUSMAO LTDA",
       "trade_name": "DG PROJETOS DE ENGENHARIA",
       "registration_status": "ATIVA",
@@ -231,22 +262,32 @@
       "simples": null,
       "mei": null,
       "cnpj_root": "36216839",
-      "fetched_from_local_registry_at": "2026-07-30T19:18:01Z",
+      "fetched_from_local_registry_at": "2026-07-30T20:34:21Z",
       "source_provenance": {
-        "release_id": "selective-selective-official",
-        "database_path": "/mnt/d/extra consultoria/data/company_registry/releases/selective-selective-official/registry.sqlite",
+        "release_id": "selective-selective-merged",
+        "database_path": "/mnt/d/extra consultoria/data/company_registry/releases/selective-selective-merged/registry.sqlite",
         "source_label": "rfb_public_cadastral_via_opencnpj",
         "authority": "RECEITA_FEDERAL"
       },
       "rank": 4,
-      "blocked_situacao": false,
-      "ranking_view": "establishment_level"
+      "ranking_view": "establishment_level",
+      "commercial": {
+        "score_total": 26.6633,
+        "priority": "CRITICAL",
+        "contract_count": 24,
+        "total_value": 17724277.69,
+        "signal_ids": null,
+        "supplier_sector_fit": "CONFIRMED_ENGINEERING",
+        "evidence_contract_ids_sample": [],
+        "registry_source": "rfb_public_cadastral_via_opencnpj",
+        "registry_is_official": true
+      }
     },
     {
       "cnpj": "09065576000101",
       "official_match_status": "MATCHED",
       "official_authority": "RECEITA_FEDERAL",
-      "official_release_id": "selective-selective-official",
+      "official_release_id": "selective-selective-merged",
       "legal_name": "BRASIL RONDON CONSTRUCOES LTDA",
       "trade_name": "BRC CONSTRUCOES",
       "registration_status": "ATIVA",
@@ -285,22 +326,85 @@
       "simples": null,
       "mei": null,
       "cnpj_root": "09065576",
-      "fetched_from_local_registry_at": "2026-07-30T19:18:01Z",
+      "fetched_from_local_registry_at": "2026-07-30T20:34:21Z",
       "source_provenance": {
-        "release_id": "selective-selective-official",
-        "database_path": "/mnt/d/extra consultoria/data/company_registry/releases/selective-selective-official/registry.sqlite",
+        "release_id": "selective-selective-merged",
+        "database_path": "/mnt/d/extra consultoria/data/company_registry/releases/selective-selective-merged/registry.sqlite",
         "source_label": "rfb_public_cadastral_via_opencnpj",
         "authority": "RECEITA_FEDERAL"
       },
       "rank": 5,
-      "blocked_situacao": false,
-      "ranking_view": "establishment_level"
+      "ranking_view": "establishment_level",
+      "commercial": {
+        "score_total": 26.364,
+        "priority": "CRITICAL",
+        "contract_count": 25,
+        "total_value": 70237840.99,
+        "signal_ids": null,
+        "supplier_sector_fit": "CONFIRMED_ENGINEERING",
+        "evidence_contract_ids_sample": [],
+        "registry_source": "rfb_public_cadastral_via_opencnpj",
+        "registry_is_official": true
+      }
+    },
+    {
+      "cnpj": "51550475000192",
+      "official_match_status": "MATCHED",
+      "official_authority": "RECEITA_FEDERAL",
+      "official_release_id": "selective-selective-merged",
+      "legal_name": "ALTIMA LTDA",
+      "trade_name": "ALTIMA AVALIACOES E PERICIAS",
+      "registration_status": "ATIVA",
+      "registration_status_date": "2023-07-25",
+      "registration_status_reason": null,
+      "primary_cnae": "7112000",
+      "secondary_cnaes": [
+        "4120400",
+        "4322302",
+        "4322303",
+        "6821801",
+        "7111100",
+        "7119799",
+        "8599699"
+      ],
+      "legal_nature": "Sociedade Empresária Limitada",
+      "company_size": null,
+      "capital": "500000,00",
+      "headquarters_or_branch": "Matriz",
+      "city": "MACEIO",
+      "state": "AL",
+      "address": "MENINO MARCELO",
+      "phone": null,
+      "email": "ALTIMA.ENGENHARIA1@GMAIL.COM",
+      "simples": null,
+      "mei": null,
+      "cnpj_root": "51550475",
+      "fetched_from_local_registry_at": "2026-07-30T20:34:21Z",
+      "source_provenance": {
+        "release_id": "selective-selective-merged",
+        "database_path": "/mnt/d/extra consultoria/data/company_registry/releases/selective-selective-merged/registry.sqlite",
+        "source_label": "rfb_public_cadastral_via_opencnpj",
+        "authority": "RECEITA_FEDERAL"
+      },
+      "rank": 6,
+      "ranking_view": "establishment_level",
+      "commercial": {
+        "score_total": 26.2751,
+        "priority": "CRITICAL",
+        "contract_count": 12,
+        "total_value": 4879953.48,
+        "signal_ids": null,
+        "supplier_sector_fit": "CONFIRMED_ENGINEERING",
+        "evidence_contract_ids_sample": [],
+        "registry_source": "rfb_public_cadastral_via_opencnpj",
+        "registry_is_official": true
+      }
     },
     {
       "cnpj": "53464172000182",
       "official_match_status": "MATCHED",
       "official_authority": "RECEITA_FEDERAL",
-      "official_release_id": "selective-selective-official",
+      "official_release_id": "selective-selective-merged",
       "legal_name": "M V OLIVEIRA SANTOS SERVICOS DE ENGENHARIA LTDA",
       "trade_name": "MV ENGENHARIA",
       "registration_status": "ATIVA",
@@ -327,22 +431,32 @@
       "simples": null,
       "mei": null,
       "cnpj_root": "53464172",
-      "fetched_from_local_registry_at": "2026-07-30T19:18:01Z",
+      "fetched_from_local_registry_at": "2026-07-30T20:34:21Z",
       "source_provenance": {
-        "release_id": "selective-selective-official",
-        "database_path": "/mnt/d/extra consultoria/data/company_registry/releases/selective-selective-official/registry.sqlite",
+        "release_id": "selective-selective-merged",
+        "database_path": "/mnt/d/extra consultoria/data/company_registry/releases/selective-selective-merged/registry.sqlite",
         "source_label": "rfb_public_cadastral_via_opencnpj",
         "authority": "RECEITA_FEDERAL"
       },
-      "rank": 6,
-      "blocked_situacao": false,
-      "ranking_view": "establishment_level"
+      "rank": 7,
+      "ranking_view": "establishment_level",
+      "commercial": {
+        "score_total": 26.1238,
+        "priority": "CRITICAL",
+        "contract_count": 10,
+        "total_value": 4884433.84,
+        "signal_ids": null,
+        "supplier_sector_fit": "CONFIRMED_ENGINEERING",
+        "evidence_contract_ids_sample": [],
+        "registry_source": "rfb_public_cadastral_via_opencnpj",
+        "registry_is_official": true
+      }
     },
     {
       "cnpj": "40671657000103",
       "official_match_status": "MATCHED",
       "official_authority": "RECEITA_FEDERAL",
-      "official_release_id": "selective-selective-official",
+      "official_release_id": "selective-selective-merged",
       "legal_name": "REURBIS CONSULTORIA MINAS GERAIS LTDA",
       "trade_name": "REURBIS CONSULTORIA MINAS GERAIS",
       "registration_status": "ATIVA",
@@ -362,22 +476,32 @@
       "simples": null,
       "mei": null,
       "cnpj_root": "40671657",
-      "fetched_from_local_registry_at": "2026-07-30T19:18:01Z",
+      "fetched_from_local_registry_at": "2026-07-30T20:34:21Z",
       "source_provenance": {
-        "release_id": "selective-selective-official",
-        "database_path": "/mnt/d/extra consultoria/data/company_registry/releases/selective-selective-official/registry.sqlite",
+        "release_id": "selective-selective-merged",
+        "database_path": "/mnt/d/extra consultoria/data/company_registry/releases/selective-selective-merged/registry.sqlite",
         "source_label": "rfb_public_cadastral_via_opencnpj",
         "authority": "RECEITA_FEDERAL"
       },
-      "rank": 7,
-      "blocked_situacao": false,
-      "ranking_view": "establishment_level"
+      "rank": 8,
+      "ranking_view": "establishment_level",
+      "commercial": {
+        "score_total": 24.6141,
+        "priority": "CRITICAL",
+        "contract_count": 45,
+        "total_value": 5349616.39,
+        "signal_ids": null,
+        "supplier_sector_fit": "CONFIRMED_ENGINEERING",
+        "evidence_contract_ids_sample": [],
+        "registry_source": "rfb_public_cadastral_via_opencnpj",
+        "registry_is_official": true
+      }
     },
     {
       "cnpj": "23691899000131",
       "official_match_status": "MATCHED",
       "official_authority": "RECEITA_FEDERAL",
-      "official_release_id": "selective-selective-official",
+      "official_release_id": "selective-selective-merged",
       "legal_name": "LIPPEL ENGENHARIA E EQUIPAMENTOS LTDA",
       "trade_name": "LIPPEL ENGENHARIA E EQUIPAMENTOS",
       "registration_status": "ATIVA",
@@ -415,22 +539,32 @@
       "simples": null,
       "mei": null,
       "cnpj_root": "23691899",
-      "fetched_from_local_registry_at": "2026-07-30T19:18:01Z",
+      "fetched_from_local_registry_at": "2026-07-30T20:34:21Z",
       "source_provenance": {
-        "release_id": "selective-selective-official",
-        "database_path": "/mnt/d/extra consultoria/data/company_registry/releases/selective-selective-official/registry.sqlite",
+        "release_id": "selective-selective-merged",
+        "database_path": "/mnt/d/extra consultoria/data/company_registry/releases/selective-selective-merged/registry.sqlite",
         "source_label": "rfb_public_cadastral_via_opencnpj",
         "authority": "RECEITA_FEDERAL"
       },
-      "rank": 8,
-      "blocked_situacao": false,
-      "ranking_view": "establishment_level"
+      "rank": 9,
+      "ranking_view": "establishment_level",
+      "commercial": {
+        "score_total": 24.5216,
+        "priority": "CRITICAL",
+        "contract_count": 46,
+        "total_value": 12775352.88,
+        "signal_ids": null,
+        "supplier_sector_fit": "CONFIRMED_ENGINEERING",
+        "evidence_contract_ids_sample": [],
+        "registry_source": "rfb_public_cadastral_via_opencnpj",
+        "registry_is_official": true
+      }
     },
     {
       "cnpj": "50558572000169",
       "official_match_status": "MATCHED",
       "official_authority": "RECEITA_FEDERAL",
-      "official_release_id": "selective-selective-official",
+      "official_release_id": "selective-selective-merged",
       "legal_name": "K E DE SOUZA LTDA.",
       "trade_name": "JLA ENGENHARIA DE AVALIACOES E PERICIAS",
       "registration_status": "ATIVA",
@@ -454,22 +588,32 @@
       "simples": null,
       "mei": null,
       "cnpj_root": "50558572",
-      "fetched_from_local_registry_at": "2026-07-30T19:18:01Z",
+      "fetched_from_local_registry_at": "2026-07-30T20:34:21Z",
       "source_provenance": {
-        "release_id": "selective-selective-official",
-        "database_path": "/mnt/d/extra consultoria/data/company_registry/releases/selective-selective-official/registry.sqlite",
+        "release_id": "selective-selective-merged",
+        "database_path": "/mnt/d/extra consultoria/data/company_registry/releases/selective-selective-merged/registry.sqlite",
         "source_label": "rfb_public_cadastral_via_opencnpj",
         "authority": "RECEITA_FEDERAL"
       },
-      "rank": 9,
-      "blocked_situacao": false,
-      "ranking_view": "establishment_level"
+      "rank": 10,
+      "ranking_view": "establishment_level",
+      "commercial": {
+        "score_total": 24.4728,
+        "priority": "CRITICAL",
+        "contract_count": 32,
+        "total_value": 6000157.49,
+        "signal_ids": null,
+        "supplier_sector_fit": "CONFIRMED_ENGINEERING",
+        "evidence_contract_ids_sample": [],
+        "registry_source": "rfb_public_cadastral_via_opencnpj",
+        "registry_is_official": true
+      }
     },
     {
       "cnpj": "35654766000174",
       "official_match_status": "MATCHED",
       "official_authority": "RECEITA_FEDERAL",
-      "official_release_id": "selective-selective-official",
+      "official_release_id": "selective-selective-merged",
       "legal_name": "GVC ENGENHARIA, PROJETO E AVALIACOES LTDA",
       "trade_name": "",
       "registration_status": "ATIVA",
@@ -495,22 +639,32 @@
       "simples": null,
       "mei": null,
       "cnpj_root": "35654766",
-      "fetched_from_local_registry_at": "2026-07-30T19:18:01Z",
+      "fetched_from_local_registry_at": "2026-07-30T20:34:22Z",
       "source_provenance": {
-        "release_id": "selective-selective-official",
-        "database_path": "/mnt/d/extra consultoria/data/company_registry/releases/selective-selective-official/registry.sqlite",
+        "release_id": "selective-selective-merged",
+        "database_path": "/mnt/d/extra consultoria/data/company_registry/releases/selective-selective-merged/registry.sqlite",
         "source_label": "rfb_public_cadastral_via_opencnpj",
         "authority": "RECEITA_FEDERAL"
       },
-      "rank": 10,
-      "blocked_situacao": false,
-      "ranking_view": "establishment_level"
+      "rank": 11,
+      "ranking_view": "establishment_level",
+      "commercial": {
+        "score_total": 24.3959,
+        "priority": "CRITICAL",
+        "contract_count": 66,
+        "total_value": 4778235.71,
+        "signal_ids": null,
+        "supplier_sector_fit": "CONFIRMED_ENGINEERING",
+        "evidence_contract_ids_sample": [],
+        "registry_source": "rfb_public_cadastral_via_opencnpj",
+        "registry_is_official": true
+      }
     },
     {
       "cnpj": "10915057000174",
       "official_match_status": "MATCHED",
       "official_authority": "RECEITA_FEDERAL",
-      "official_release_id": "selective-selective-official",
+      "official_release_id": "selective-selective-merged",
       "legal_name": "PANORAMA EMPREENDIMENTOS E SERVICOS LTDA",
       "trade_name": "CONSTRUTORA PANORAMA",
       "registration_status": "ATIVA",
@@ -567,22 +721,32 @@
       "simples": null,
       "mei": null,
       "cnpj_root": "10915057",
-      "fetched_from_local_registry_at": "2026-07-30T19:18:01Z",
+      "fetched_from_local_registry_at": "2026-07-30T20:34:22Z",
       "source_provenance": {
-        "release_id": "selective-selective-official",
-        "database_path": "/mnt/d/extra consultoria/data/company_registry/releases/selective-selective-official/registry.sqlite",
+        "release_id": "selective-selective-merged",
+        "database_path": "/mnt/d/extra consultoria/data/company_registry/releases/selective-selective-merged/registry.sqlite",
         "source_label": "rfb_public_cadastral_via_opencnpj",
         "authority": "RECEITA_FEDERAL"
       },
-      "rank": 11,
-      "blocked_situacao": false,
-      "ranking_view": "establishment_level"
+      "rank": 12,
+      "ranking_view": "establishment_level",
+      "commercial": {
+        "score_total": 23.8423,
+        "priority": "CRITICAL",
+        "contract_count": 33,
+        "total_value": 1383255378.94,
+        "signal_ids": null,
+        "supplier_sector_fit": "CONFIRMED_ENGINEERING",
+        "evidence_contract_ids_sample": [],
+        "registry_source": "rfb_public_cadastral_via_opencnpj",
+        "registry_is_official": true
+      }
     },
     {
       "cnpj": "40881295000177",
       "official_match_status": "MATCHED",
       "official_authority": "RECEITA_FEDERAL",
-      "official_release_id": "selective-selective-official",
+      "official_release_id": "selective-selective-merged",
       "legal_name": "JRODZINSKI CONSULTORIA E SERVICOS LTDA",
       "trade_name": "JRODZINSKI CONSULTORIA E SERVICOS",
       "registration_status": "ATIVA",
@@ -611,22 +775,32 @@
       "simples": null,
       "mei": null,
       "cnpj_root": "40881295",
-      "fetched_from_local_registry_at": "2026-07-30T19:18:01Z",
+      "fetched_from_local_registry_at": "2026-07-30T20:34:22Z",
       "source_provenance": {
-        "release_id": "selective-selective-official",
-        "database_path": "/mnt/d/extra consultoria/data/company_registry/releases/selective-selective-official/registry.sqlite",
+        "release_id": "selective-selective-merged",
+        "database_path": "/mnt/d/extra consultoria/data/company_registry/releases/selective-selective-merged/registry.sqlite",
         "source_label": "rfb_public_cadastral_via_opencnpj",
         "authority": "RECEITA_FEDERAL"
       },
-      "rank": 12,
-      "blocked_situacao": false,
-      "ranking_view": "establishment_level"
+      "rank": 13,
+      "ranking_view": "establishment_level",
+      "commercial": {
+        "score_total": 23.773,
+        "priority": "CRITICAL",
+        "contract_count": 19,
+        "total_value": 8187131.2,
+        "signal_ids": null,
+        "supplier_sector_fit": "CONFIRMED_ENGINEERING",
+        "evidence_contract_ids_sample": [],
+        "registry_source": "rfb_public_cadastral_via_opencnpj",
+        "registry_is_official": true
+      }
     },
     {
       "cnpj": "29084108000191",
       "official_match_status": "MATCHED",
       "official_authority": "RECEITA_FEDERAL",
-      "official_release_id": "selective-selective-official",
+      "official_release_id": "selective-selective-merged",
       "legal_name": "AUTENTIKA CONSTRUCOES LTDA",
       "trade_name": "AUTENTIKA CONSTRUCOES",
       "registration_status": "ATIVA",
@@ -667,22 +841,32 @@
       "simples": null,
       "mei": null,
       "cnpj_root": "29084108",
-      "fetched_from_local_registry_at": "2026-07-30T19:18:01Z",
+      "fetched_from_local_registry_at": "2026-07-30T20:34:22Z",
       "source_provenance": {
-        "release_id": "selective-selective-official",
-        "database_path": "/mnt/d/extra consultoria/data/company_registry/releases/selective-selective-official/registry.sqlite",
+        "release_id": "selective-selective-merged",
+        "database_path": "/mnt/d/extra consultoria/data/company_registry/releases/selective-selective-merged/registry.sqlite",
         "source_label": "rfb_public_cadastral_via_opencnpj",
         "authority": "RECEITA_FEDERAL"
       },
-      "rank": 13,
-      "blocked_situacao": false,
-      "ranking_view": "establishment_level"
+      "rank": 14,
+      "ranking_view": "establishment_level",
+      "commercial": {
+        "score_total": 23.71,
+        "priority": "CRITICAL",
+        "contract_count": 19,
+        "total_value": 8914921.12,
+        "signal_ids": null,
+        "supplier_sector_fit": "CONFIRMED_ENGINEERING",
+        "evidence_contract_ids_sample": [],
+        "registry_source": "rfb_public_cadastral_via_opencnpj",
+        "registry_is_official": true
+      }
     },
     {
       "cnpj": "14283859000160",
       "official_match_status": "MATCHED",
       "official_authority": "RECEITA_FEDERAL",
-      "official_release_id": "selective-selective-official",
+      "official_release_id": "selective-selective-merged",
       "legal_name": "VITALIS ENERGIA LTDA",
       "trade_name": "VITALIS ENERGIA",
       "registration_status": "ATIVA",
@@ -722,65 +906,32 @@
       "simples": null,
       "mei": null,
       "cnpj_root": "14283859",
-      "fetched_from_local_registry_at": "2026-07-30T19:18:01Z",
+      "fetched_from_local_registry_at": "2026-07-30T20:34:22Z",
       "source_provenance": {
-        "release_id": "selective-selective-official",
-        "database_path": "/mnt/d/extra consultoria/data/company_registry/releases/selective-selective-official/registry.sqlite",
-        "source_label": "rfb_public_cadastral_via_opencnpj",
-        "authority": "RECEITA_FEDERAL"
-      },
-      "rank": 14,
-      "blocked_situacao": false,
-      "ranking_view": "establishment_level"
-    },
-    {
-      "cnpj": "51550475000192",
-      "official_match_status": "MATCHED",
-      "official_authority": "RECEITA_FEDERAL",
-      "official_release_id": "selective-selective-official",
-      "legal_name": "ALTIMA LTDA",
-      "trade_name": "ALTIMA AVALIACOES E PERICIAS",
-      "registration_status": "ATIVA",
-      "registration_status_date": "2023-07-25",
-      "registration_status_reason": null,
-      "primary_cnae": "7112000",
-      "secondary_cnaes": [
-        "4120400",
-        "4322302",
-        "4322303",
-        "6821801",
-        "7111100",
-        "7119799",
-        "8599699"
-      ],
-      "legal_nature": "Sociedade Empresária Limitada",
-      "company_size": null,
-      "capital": "500000,00",
-      "headquarters_or_branch": "Matriz",
-      "city": "MACEIO",
-      "state": "AL",
-      "address": "MENINO MARCELO",
-      "phone": null,
-      "email": "ALTIMA.ENGENHARIA1@GMAIL.COM",
-      "simples": null,
-      "mei": null,
-      "cnpj_root": "51550475",
-      "fetched_from_local_registry_at": "2026-07-30T19:18:01Z",
-      "source_provenance": {
-        "release_id": "selective-selective-official",
-        "database_path": "/mnt/d/extra consultoria/data/company_registry/releases/selective-selective-official/registry.sqlite",
+        "release_id": "selective-selective-merged",
+        "database_path": "/mnt/d/extra consultoria/data/company_registry/releases/selective-selective-merged/registry.sqlite",
         "source_label": "rfb_public_cadastral_via_opencnpj",
         "authority": "RECEITA_FEDERAL"
       },
       "rank": 15,
-      "blocked_situacao": false,
-      "ranking_view": "establishment_level"
+      "ranking_view": "establishment_level",
+      "commercial": {
+        "score_total": 23.65,
+        "priority": "CRITICAL",
+        "contract_count": 13,
+        "total_value": 8764662.22,
+        "signal_ids": null,
+        "supplier_sector_fit": "CONFIRMED_ENGINEERING",
+        "evidence_contract_ids_sample": [],
+        "registry_source": "rfb_public_cadastral_via_opencnpj",
+        "registry_is_official": true
+      }
     },
     {
       "cnpj": "35335154000119",
       "official_match_status": "MATCHED",
       "official_authority": "RECEITA_FEDERAL",
-      "official_release_id": "selective-selective-official",
+      "official_release_id": "selective-selective-merged",
       "legal_name": "DBN - DEBONI SISTEMAS CONSTRUTIVOS LTDA",
       "trade_name": "",
       "registration_status": "ATIVA",
@@ -819,22 +970,32 @@
       "simples": null,
       "mei": null,
       "cnpj_root": "35335154",
-      "fetched_from_local_registry_at": "2026-07-30T19:18:01Z",
+      "fetched_from_local_registry_at": "2026-07-30T20:34:22Z",
       "source_provenance": {
-        "release_id": "selective-selective-official",
-        "database_path": "/mnt/d/extra consultoria/data/company_registry/releases/selective-selective-official/registry.sqlite",
+        "release_id": "selective-selective-merged",
+        "database_path": "/mnt/d/extra consultoria/data/company_registry/releases/selective-selective-merged/registry.sqlite",
         "source_label": "rfb_public_cadastral_via_opencnpj",
         "authority": "RECEITA_FEDERAL"
       },
       "rank": 16,
-      "blocked_situacao": false,
-      "ranking_view": "establishment_level"
+      "ranking_view": "establishment_level",
+      "commercial": {
+        "score_total": 23.39,
+        "priority": "CRITICAL",
+        "contract_count": 13,
+        "total_value": 240741775.69,
+        "signal_ids": null,
+        "supplier_sector_fit": "CONFIRMED_ENGINEERING",
+        "evidence_contract_ids_sample": [],
+        "registry_source": "rfb_public_cadastral_via_opencnpj",
+        "registry_is_official": true
+      }
     },
     {
       "cnpj": "28482916000144",
       "official_match_status": "MATCHED",
       "official_authority": "RECEITA_FEDERAL",
-      "official_release_id": "selective-selective-official",
+      "official_release_id": "selective-selective-merged",
       "legal_name": "PLANEJE TECNOLOGIA E SERVICOS LTDA",
       "trade_name": "",
       "registration_status": "ATIVA",
@@ -890,22 +1051,32 @@
       "simples": null,
       "mei": null,
       "cnpj_root": "28482916",
-      "fetched_from_local_registry_at": "2026-07-30T19:18:01Z",
+      "fetched_from_local_registry_at": "2026-07-30T20:34:22Z",
       "source_provenance": {
-        "release_id": "selective-selective-official",
-        "database_path": "/mnt/d/extra consultoria/data/company_registry/releases/selective-selective-official/registry.sqlite",
+        "release_id": "selective-selective-merged",
+        "database_path": "/mnt/d/extra consultoria/data/company_registry/releases/selective-selective-merged/registry.sqlite",
         "source_label": "rfb_public_cadastral_via_opencnpj",
         "authority": "RECEITA_FEDERAL"
       },
       "rank": 17,
-      "blocked_situacao": false,
-      "ranking_view": "establishment_level"
+      "ranking_view": "establishment_level",
+      "commercial": {
+        "score_total": 23.3223,
+        "priority": "CRITICAL",
+        "contract_count": 73,
+        "total_value": 42762820.59,
+        "signal_ids": null,
+        "supplier_sector_fit": "CONFIRMED_ENGINEERING",
+        "evidence_contract_ids_sample": [],
+        "registry_source": "rfb_public_cadastral_via_opencnpj",
+        "registry_is_official": true
+      }
     },
     {
       "cnpj": "42438822000107",
       "official_match_status": "MATCHED",
       "official_authority": "RECEITA_FEDERAL",
-      "official_release_id": "selective-selective-official",
+      "official_release_id": "selective-selective-merged",
       "legal_name": "AGV PROJETOS E CONSTRUCOES LTDA",
       "trade_name": "AGV PROJETOS E CONSTRUCOES",
       "registration_status": "ATIVA",
@@ -957,22 +1128,32 @@
       "simples": null,
       "mei": null,
       "cnpj_root": "42438822",
-      "fetched_from_local_registry_at": "2026-07-30T19:18:02Z",
+      "fetched_from_local_registry_at": "2026-07-30T20:34:22Z",
       "source_provenance": {
-        "release_id": "selective-selective-official",
-        "database_path": "/mnt/d/extra consultoria/data/company_registry/releases/selective-selective-official/registry.sqlite",
+        "release_id": "selective-selective-merged",
+        "database_path": "/mnt/d/extra consultoria/data/company_registry/releases/selective-selective-merged/registry.sqlite",
         "source_label": "rfb_public_cadastral_via_opencnpj",
         "authority": "RECEITA_FEDERAL"
       },
       "rank": 18,
-      "blocked_situacao": false,
-      "ranking_view": "establishment_level"
+      "ranking_view": "establishment_level",
+      "commercial": {
+        "score_total": 23.0045,
+        "priority": "CRITICAL",
+        "contract_count": 14,
+        "total_value": 6566398.32,
+        "signal_ids": null,
+        "supplier_sector_fit": "CONFIRMED_ENGINEERING",
+        "evidence_contract_ids_sample": [],
+        "registry_source": "rfb_public_cadastral_via_opencnpj",
+        "registry_is_official": true
+      }
     },
     {
       "cnpj": "03698620000568",
       "official_match_status": "MATCHED",
       "official_authority": "RECEITA_FEDERAL",
-      "official_release_id": "selective-selective-official",
+      "official_release_id": "selective-selective-merged",
       "legal_name": "GREEN4T SOLUCOES TI LTDA",
       "trade_name": "",
       "registration_status": "ATIVA",
@@ -1012,22 +1193,32 @@
       "simples": null,
       "mei": null,
       "cnpj_root": "03698620",
-      "fetched_from_local_registry_at": "2026-07-30T19:18:02Z",
+      "fetched_from_local_registry_at": "2026-07-30T20:34:22Z",
       "source_provenance": {
-        "release_id": "selective-selective-official",
-        "database_path": "/mnt/d/extra consultoria/data/company_registry/releases/selective-selective-official/registry.sqlite",
+        "release_id": "selective-selective-merged",
+        "database_path": "/mnt/d/extra consultoria/data/company_registry/releases/selective-selective-merged/registry.sqlite",
         "source_label": "rfb_public_cadastral_via_opencnpj",
         "authority": "RECEITA_FEDERAL"
       },
       "rank": 19,
-      "blocked_situacao": false,
-      "ranking_view": "establishment_level"
+      "ranking_view": "establishment_level",
+      "commercial": {
+        "score_total": 23.0,
+        "priority": "CRITICAL",
+        "contract_count": 51,
+        "total_value": 108268584.86,
+        "signal_ids": null,
+        "supplier_sector_fit": "CONFIRMED_ENGINEERING",
+        "evidence_contract_ids_sample": [],
+        "registry_source": "rfb_public_cadastral_via_opencnpj",
+        "registry_is_official": true
+      }
     },
     {
       "cnpj": "44101311000112",
       "official_match_status": "MATCHED",
       "official_authority": "RECEITA_FEDERAL",
-      "official_release_id": "selective-selective-official",
+      "official_release_id": "selective-selective-merged",
       "legal_name": "FERREIRA & ARCE ENGENHARIA LTDA",
       "trade_name": "",
       "registration_status": "ATIVA",
@@ -1050,16 +1241,26 @@
       "simples": null,
       "mei": null,
       "cnpj_root": "44101311",
-      "fetched_from_local_registry_at": "2026-07-30T19:18:02Z",
+      "fetched_from_local_registry_at": "2026-07-30T20:34:22Z",
       "source_provenance": {
-        "release_id": "selective-selective-official",
-        "database_path": "/mnt/d/extra consultoria/data/company_registry/releases/selective-selective-official/registry.sqlite",
+        "release_id": "selective-selective-merged",
+        "database_path": "/mnt/d/extra consultoria/data/company_registry/releases/selective-selective-merged/registry.sqlite",
         "source_label": "rfb_public_cadastral_via_opencnpj",
         "authority": "RECEITA_FEDERAL"
       },
       "rank": 20,
-      "blocked_situacao": false,
-      "ranking_view": "establishment_level"
+      "ranking_view": "establishment_level",
+      "commercial": {
+        "score_total": 22.9745,
+        "priority": "CRITICAL",
+        "contract_count": 20,
+        "total_value": 5035799.4,
+        "signal_ids": null,
+        "supplier_sector_fit": "CONFIRMED_ENGINEERING",
+        "evidence_contract_ids_sample": [],
+        "registry_source": "rfb_public_cadastral_via_opencnpj",
+        "registry_is_official": true
+      }
     }
   ]
 }

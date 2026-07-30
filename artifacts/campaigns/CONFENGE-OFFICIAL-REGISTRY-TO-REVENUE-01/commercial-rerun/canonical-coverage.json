@@ -1,0 +1,70 @@
+{
+  "schema_version": "canonical-coverage-v1",
+  "registry_coverage_all_candidates": {
+    "n": 22882,
+    "with_registry": 22882,
+    "coverage": 1.0,
+    "cnae_primary_coverage": 1.0,
+    "cnae_secondary_coverage": 0.9383,
+    "status": "OK"
+  },
+  "registry_coverage_eligible_candidates": {
+    "n": 10360,
+    "with_registry": 10360,
+    "coverage": 1.0,
+    "cnae_primary_coverage": 1.0,
+    "cnae_secondary_coverage": 0.9499,
+    "status": "OK"
+  },
+  "registry_coverage_top100": {
+    "n": 100,
+    "with_registry": 100,
+    "coverage": 1.0,
+    "cnae_primary_coverage": 1.0,
+    "cnae_secondary_coverage": 0.94,
+    "status": "OK"
+  },
+  "registry_coverage_top20": {
+    "n": 20,
+    "with_registry": 20,
+    "coverage": 1.0,
+    "cnae_primary_coverage": 1.0,
+    "cnae_secondary_coverage": 0.95,
+    "status": "OK"
+  },
+  "cnae_primary_coverage": 1.0,
+  "cnae_secondary_coverage": 0.9383,
+  "registry_freshness": {
+    "min_source_date": "2026-07-29",
+    "max_source_date": "2026-07-30"
+  },
+  "top20_coverage_100pct": true,
+  "registry_universe_resolved": true,
+  "registry_resolved_or_definitively_not_found": 1.0,
+  "registry_resolution_status_counts": {
+    "RESOLVED_FALLBACK": 21812,
+    "RESOLVED": 22882,
+    "RESOLVED_OFFICIAL": 1070
+  },
+  "missing_candidates_n": 0,
+  "missing_candidates_sample": [],
+  "block_reason": null,
+  "selection_bias_risk": false,
+  "rule_version": "supplier-registry-v1",
+  "generated_at": "2026-07-30T20:23:24Z",
+  "terminal_status": "BLOCKED",
+  "declared_blockers": [
+    "BLOCKED_INSUFFICIENT_HUMAN_LABELS"
+  ],
+  "supplier_registry_coverage": 1.0,
+  "official_registry_coverage": 0.0468,
+  "official_resolved_n": 1070,
+  "fallback_resolved_n": 21812,
+  "source_distribution": {
+    "brasilapi_fallback": 4262,
+    "minhareceita_fallback": 17550,
+    "rfb_public_cadastral_via_opencnpj": 1070
+  },
+  "cnae_coverage": 1.0,
+  "registry_authority_note": "official_registry_coverage counts only RFB-authority sources (receita_federal / rfb_public_cadastral*). BrasilAPI/MinhaReceita/cnpjws fallbacks count toward supplier_registry_coverage only."
+}

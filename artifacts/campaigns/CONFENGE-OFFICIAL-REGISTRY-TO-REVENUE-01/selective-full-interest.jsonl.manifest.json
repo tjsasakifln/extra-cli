@@ -1,0 +1,21 @@
+{
+  "ok": true,
+  "path": "artifacts/campaigns/CONFENGE-OFFICIAL-REGISTRY-TO-REVENUE-01/selective-full-interest.jsonl",
+  "requested": 5464,
+  "rows_written": 1641,
+  "stats": {
+    "ok": 1641,
+    "not_found": 0,
+    "transient": 3823,
+    "corrupt": 0,
+    "invalid_input": 0
+  },
+  "source_label": "rfb_public_cadastral_via_opencnpj",
+  "source_authority": "RECEITA_FEDERAL",
+  "source_distributor": "opencnpj.org",
+  "mode": "selective_interest",
+  "bulk_completeness_claimed": false,
+  "generated_at": "2026-07-30T19:50:35Z",
+  "reference_date": "2026-07-30",
+  "note": "Selective redistributor path for commercial interest CNPJs when direct RFB bulk listing is unreachable. Not a claim of full RFB bulk mirror."
+}

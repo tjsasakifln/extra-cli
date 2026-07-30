@@ -129,3 +129,26 @@ make confenge-commercial-cycle
 ## Non-claims
 
 `PROJECT_DONE`, `VPS_OPERATIONAL`, `LOCAL_READY`, receita gerada, bulk RFB completo, `READY_FOR_MANUAL_OUTREACH`, `COMMERCIAL_OUTCOME_OBSERVED`.
+
+
+## Commercial full-history re-run (skeptic remediation)
+
+| Item | Value |
+|------|--------|
+| run_id | `cl-20260730T201737Z-a35bd698` |
+| contracts history | full population path over restored snapshot (~4.4M / 764k relevance-pass history) |
+| candidates | 22.882 |
+| leads | 20 |
+| Top20 official (`registry_is_official`) | **20/20** |
+| interest official_match (2497 loaded) | **1.0** |
+| interest usable | **0.9976** |
+| full frozen interest (5660) match | **0.325** (rate-limit residual) |
+| pipeline official_registry_coverage on 22.8k | **~0.047** (honest; not bulk-complete) |
+| postcheck | PASS |
+| terminal commercial | `BLOCKED_INSUFFICIENT_HUMAN_LABELS` (human not forged) |
+| artifacts | `artifacts/campaigns/CONFENGE-OFFICIAL-REGISTRY-TO-REVENUE-01/commercial-rerun/` |
+
+### Fail-closed upgrades
+
+`fail_closed_commercial_precheck` now enforces ACTIVE load non-empty, provenance, optional coverage≥99.5%/usable≥98%, Top20 MATCHED+CNAE+situação+release. Cycle runs post-pipeline Top20 official gate.
+
