@@ -16,6 +16,11 @@
 3. Preencher `user-acceptance.template.json` só se aceitar a fila
 4. **Não** interpretar coverage operacional 1.0 como cadastro RFB 100% (official ≈ 0.03)
 
+### VPS live cycle completed
+
+- Deploy `7ef1fc1d` + dual commercial cycle on VPS full history: **done** (see `vps-live/`).
+- Soak NI: **PASS**. Human review still pending.
+
 ### Follow-ups técnicos (não humanos)
 
 - Ingestão RFB bulk autenticada para levantar `official_registry_coverage`

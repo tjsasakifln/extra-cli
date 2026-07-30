@@ -1,0 +1,14 @@
+{
+  "schema_version": "user-acceptance-v1",
+  "campaign_id": "CONFENGE-COMMERCIAL-READY-01",
+  "run_id": "cl-20260730T023737Z-c6f5d5d2",
+  "status": "PENDING",
+  "author": null,
+  "accepted_at": null,
+  "required_author": "Tiago Sasaki",
+  "notes": null,
+  "artifact_checksums": {},
+  "labels_are_human": false,
+  "precision_at_10": null,
+  "precision_at_20": null
+}
