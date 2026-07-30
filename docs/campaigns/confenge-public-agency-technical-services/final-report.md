@@ -92,3 +92,14 @@ Itens com testes → `TESTED_WITH_FIXTURES`; real run → evidência em artefato
 ## 22. Ação humana exata seguinte
 
 **Tiago deve revisar a fila de órgãos, os conflitos de interesses, as classificações jurídicas preliminares, os dossiers e os materiais de abordagem antes de autorizar qualquer contato.**
+
+## Stamp de execução real (pós-implementação)
+
+- run git_sha: `4d0ba676123cf149a47ed7d5e9562595178fc9c0`
+- status: PASS
+- ready_state: READY_FOR_TIAGO_REVIEW_PUBLIC_AGENCY_VERTICAL
+- evaluated: 276
+- publishable: 20
+- top_n: 20
+- run_id: `a2e253af-280c-40f4-8c98-80885d6b340b`
+- artifacts: `output/confenge-commercial/public-agencies/` e `artifacts/campaigns/CONFENGE-PUBLIC-AGENCY-TECHNICAL-SERVICES-01/`

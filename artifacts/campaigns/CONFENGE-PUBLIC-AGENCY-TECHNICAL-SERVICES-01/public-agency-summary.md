@@ -3,7 +3,7 @@
 - **campaign_id:** CONFENGE-PUBLIC-AGENCY-TECHNICAL-SERVICES-01
 - **status:** PASS
 - **reason:** PASS
-- **git_sha:** `b69f0d7d378bb2f6466a1a3114b4790a5b311215`
+- **git_sha:** `4d0ba676123cf149a47ed7d5e9562595178fc9c0`
 - **as_of:** 2026-07-15
 - **agencies evaluated:** 276
 - **publishable:** 20
