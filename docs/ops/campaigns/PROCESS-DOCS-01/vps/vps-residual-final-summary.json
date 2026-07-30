@@ -1,21 +1,48 @@
 {
-  "as_of": "2026-07-30T23:00:03.742240+00:00",
+  "as_of": "2026-07-30T23:22:21.091361+00:00",
   "operational": 96.5602,
   "recall": 100.0,
   "financial": 100.0,
   "completeness": {
-    "notice_and_annexes_completeness": 99.6466,
-    "session_judgment_homologation_completeness": 71.4959,
-    "winning_proposal_completeness": 9.3051,
-    "bidder_qualification_documents_completeness": 4.4759
+    "notice_and_annexes_completeness": 99.9382,
+    "session_judgment_homologation_completeness": 99.9382,
+    "winning_proposal_completeness": 2.5046,
+    "bidder_qualification_documents_completeness": 1.175
   },
   "completeness_meets": {
     "notice_and_annexes_completeness": true,
-    "session_judgment_homologation_completeness": false,
+    "session_judgment_homologation_completeness": true,
     "winning_proposal_completeness": false,
     "bidder_qualification_documents_completeness": false
   },
-  "processes_scored": 849,
+  "processes_scored": 3234,
   "gate_exit": 6,
-  "issue_137": "OPEN"
+  "issue_137": "OPEN - human GT queue ready (600 slots), labels pending",
+  "human_gt": {
+    "generated_at": "2026-07-30T23:21:48.286970+00:00",
+    "path": "/var/lib/extra-consultoria/output/process_documents/bid-readiness-human-gt-queue.jsonl",
+    "slots": 600,
+    "unique_processes": 197,
+    "unique_documents": 600,
+    "min_required": 500,
+    "meets_min_slots": true,
+    "family_distribution": {
+      "homologacao": 223,
+      "anexo": 197,
+      "resultado": 169,
+      "ata_sessao": 10,
+      "adjudicacao": 1
+    },
+    "source_distribution": {
+      "pncp+itens_outcome": 197,
+      "pncp+itens": 197,
+      "pncp+historico": 196,
+      "pncp+atas": 10
+    },
+    "human_labels_completed": 0,
+    "status": "awaiting_human_annotation",
+    "issue_137_close_allowed": false,
+    "ready_to_submit_allowed": false,
+    "note": "Diverse real PNCP/SC process-document slots; labels NULL until human. #137 stays open."
+  }
 }

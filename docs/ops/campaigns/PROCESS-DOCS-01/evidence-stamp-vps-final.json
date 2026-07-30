@@ -1,28 +1,17 @@
 {
-  "as_of": "2026-07-30T23:00:03.742240+00:00",
+  "as_of": "2026-07-30T23:22:21.096107+00:00",
   "vps_host": "ec-prod",
-  "metrics": {
-    "as_of": "2026-07-30T23:00:03.742240+00:00",
-    "operational": 96.5602,
-    "recall": 100.0,
-    "financial": 100.0,
-    "completeness": {
-      "notice_and_annexes_completeness": 99.6466,
-      "session_judgment_homologation_completeness": 71.4959,
-      "winning_proposal_completeness": 9.3051,
-      "bidder_qualification_documents_completeness": 4.4759
-    },
-    "completeness_meets": {
-      "notice_and_annexes_completeness": true,
-      "session_judgment_homologation_completeness": false,
-      "winning_proposal_completeness": false,
-      "bidder_qualification_documents_completeness": false
-    },
-    "processes_scored": 849,
-    "gate_exit": 6,
-    "issue_137": "OPEN"
-  },
-  "pr": "https://github.com/tjsasakifln/extra-cli/pull/184",
   "gate_exit": 6,
-  "issue_137": "OPEN - human FP/FN required"
+  "metrics": {
+    "notice": 99.9382,
+    "session": 99.9382,
+    "win": 2.5046,
+    "qual": 1.175,
+    "ops": 96.5602,
+    "recall": 100.0,
+    "financial": 100.0
+  },
+  "human_gt_slots": 600,
+  "issue_137": "OPEN",
+  "pr": "https://github.com/tjsasakifln/extra-cli/pull/184"
 }

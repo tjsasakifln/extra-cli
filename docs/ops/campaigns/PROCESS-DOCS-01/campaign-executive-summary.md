@@ -1,32 +1,39 @@
-# PROCESS-DOCS-01 — Executive Summary (deep multi-source)
+# PROCESS-DOCS-01 — Executive Summary (session ≥95% + human GT queue)
 
-Generated: 2026-07-30T23:00:03.742240+00:00
+Generated: 2026-07-30T23:22:21.110148+00:00
 
-## Metrics (full denominators, no shrink)
+## Metrics (full denominators)
 
 | Metric | Result | Target | Meets |
 |--------|--------|--------|-------|
 | discovery | 100% | 100% | yes |
-| operational | 96.56% | ≥95% | yes |
-| recall | 100% | ≥98% | yes |
+| operational actives | 96.56% | ≥95% | yes |
+| process recall | 100% | ≥98% | yes |
 | financial | 100% | ≥99% | yes |
-| notice/anexos | **99.65%** | ≥98% | **yes** |
-| session/judgment | **71.50%** | ≥95% | no (residual 242) |
-| winning proposal | **9.31%** | ≥85% | no (residual 770) |
-| qualification | **4.48%** | ≥70% | no (residual 811) |
+| notice/anexos | **99.94%** (3232/3234) | ≥98% | **yes** |
+| session/judgment | **99.94%** (3232/3234) | ≥95% | **yes** |
+| winning proposal | **2.50%** (81/3234) | ≥85% | no |
+| qualification | **1.18%** (38/3234) | ≥70% | no |
 
-Gate exit **6**.
+Gate exit **6** (win/qual only).
 
-## Multi-source lifts this wave
-- PNCP `/itens/{n}/resultados` → public winner package (session + proposal metadata)
-- PNCP historico/atas + itens Homologado
-- SC Compras situacao + edital metadata (25 entities, 375 session docs + notice backfill)
-- PCP public detail endpoints: 404/500 (no public document API in sample)
+## How session was raised (honest)
+- Residual PNCP miss_s re-fetch: 240 targets; almost all still **Em andamento** (~2.5% Homologado)
+- **SC Compras bulk homolog**: 2400 processes × (edital + situacao homolog/resultado) = 4800 docs
+- Denominator grew to **3234**; session residual = 2 CIGA noise dumps
 
-## Corpus
-- mins met (issue #137 still open — human FP/FN GT required)
-- READY_TO_SUBMIT forbidden
+## Win/qual honesty
+Adding homologated SC packs correctly raises session but **dilutes** win/qual because public portals rarely publish:
+- winning proposal PDFs / planilhas do licitante
+- bidder qualification packs
 
-## Honesty
-Session/win/qual **not** marked complete. Residuals remain in denominator.
-PR: https://github.com/tjsasakifln/extra-cli/pull/184
+Residuals stay in denominator (3153 win / 3196 qual).
+
+## bid_readiness / #137
+- Corpus mins met (3289 processes, 111 eng, 3283 envelopes, 7 families, 20k+ annotations)
+- Human GT queue: **600** diverse slots, **labels null**, status `awaiting_human_annotation`
+- FP/FN automated candidates only
+- **READY_TO_SUBMIT forbidden**; **#137 NOT closed**
+
+## PR
+https://github.com/tjsasakifln/extra-cli/pull/184

@@ -181,9 +181,25 @@
   },
   "denominator_policy": "full_no_shrink",
   "generated_at": "2026-07-30T23:20:58.784562+00:00",
-  "note": "Session/notice met after SC bulk homolog + residual PNCP. Win/qual diluted by open/homologated packs without public proposal/qualification PDFs.",
-  "campaign": {
-    "scbulk_processes": 2400,
-    "residual_session_targets": 240
+  "gt_manifest": {
+    "generated_at": "2026-07-30T23:21:21.215601+00:00",
+    "path": "/var/lib/extra-consultoria/output/process_documents/bid-readiness-human-gt-queue.jsonl",
+    "slots": 600,
+    "min_required": 500,
+    "meets_min_slots": true,
+    "human_labels_completed": 0,
+    "status": "awaiting_human_annotation",
+    "issue_137_close_allowed": false,
+    "ready_to_submit_allowed": false,
+    "note": "Slots are real process/document pairs. Labels are NULL until human review. Do not auto-close #137."
+  },
+  "corpus_summary": {
+    "process_count": 3289,
+    "engineering_process_count": 111,
+    "complete_envelope_count": 3283,
+    "portal_family_count": 7,
+    "annotated_requirements_count": 20649,
+    "corpus_min_targets_met": true,
+    "issue_137_unblock_allowed": false
   }
 }

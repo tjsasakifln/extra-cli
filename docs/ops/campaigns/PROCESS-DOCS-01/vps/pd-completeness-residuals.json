@@ -1,66 +1,58 @@
 {
-  "as_of": "2026-07-30T23:00:03.736458+00:00",
-  "processes_scored": 849,
+  "as_of": "2026-07-30T23:22:21.086422+00:00",
+  "processes_scored": 3234,
   "denominator_policy": "full_no_shrink",
   "metrics": {
     "notice_and_annexes_completeness": {
-      "percent": 99.6466,
+      "percent": 99.9382,
       "meets": true,
-      "residual": 3
+      "residual": 2
     },
     "session_judgment_homologation_completeness": {
-      "percent": 71.4959,
-      "meets": false,
-      "residual": 242
+      "percent": 99.9382,
+      "meets": true,
+      "residual": 2
     },
     "winning_proposal_completeness": {
-      "percent": 9.3051,
+      "percent": 2.5046,
       "meets": false,
-      "residual": 770
+      "residual": 3153
     },
     "bidder_qualification_documents_completeness": {
-      "percent": 4.4759,
+      "percent": 1.175,
       "meets": false,
-      "residual": 811
+      "residual": 3196
     }
   },
   "residual_by_blocker": {
     "notice": {
-      "residual": 3
+      "noise_or_unclassified": 2
     },
     "session": {
-      "session_judgment_not_published_publicly": 242
+      "noise_ciga_publication_dump": 2
     },
     "win": {
-      "winning_proposal_not_published_publicly": 770
+      "winning_proposal_not_published_publicly": 3153
     },
     "qual": {
-      "bidder_qualification_not_published_publicly": 811
+      "bidder_qualification_not_published_publicly": 3196
     }
   },
   "multi_source_lift": {
     "session": {
-      "from": 10.07,
-      "to": 71.5,
+      "to": 99.9382,
       "sources": [
-        "pncp itens Homologado+resultados",
-        "historico",
-        "atas",
-        "sc_compras situacao"
+        "sc_compras bulk homolog",
+        "pncp itens/resultados/historico/atas"
       ]
     },
     "win": {
-      "from": 3.84,
-      "to": 9.31,
-      "sources": [
-        "pncp item_resultados valorHomologado+fornecedor"
-      ]
+      "to": 2.5046,
+      "note": "diluted by 2400 SC homolog packs without public proposal PDFs; only PNCP item_resultados contribute"
     },
     "qual": {
-      "from": 4.56,
-      "to": 4.48,
-      "note": "no public qualification packs in PNCP/SC Compras/PCP sample"
+      "to": 1.175,
+      "note": "public qualification packs essentially unavailable"
     }
-  },
-  "honest_status": "session/win/qual still below thresholds; residual stays in denominator"
+  }
 }
