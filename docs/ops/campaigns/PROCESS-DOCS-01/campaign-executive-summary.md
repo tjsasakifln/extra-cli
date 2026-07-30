@@ -1,57 +1,58 @@
-# PROCESS-DOCS-01 — Honest residual packaging (final for this wave)
+# PROCESS-DOCS-01 — Evidence review pass (GT + win/qual residual)
 
-Generated: 2026-07-30T23:37:09.241499+00:00
+Generated: 2026-07-30T23:41:25.664833+00:00
 
-## Capability
-`procurement_process_documents`
-
-## Independent metrics (no average, no denom shrink)
+## Independent metrics (full denom, no shrink)
 
 | Metric | Result | Target | Gate |
 |--------|--------|--------|------|
-| discovery | 100% (1093/1093) | 100% | **MET** |
-| operational actives | 96.56% (393/407) | ≥95% | **MET** |
-| process recall | 100% (807/807) | ≥98% | **MET** |
+| discovery | 100% | 100% | **MET** |
+| operational | 96.56% | ≥95% | **MET** |
+| recall | 100% | ≥98% | **MET** |
 | financial | 100% | ≥99% | **MET** |
-| notice/anexos | 99.94% | ≥98% | **MET** |
-| session/judgment | 99.94% | ≥95% | **MET** |
+| notice | 99.94% | ≥98% | **MET** |
+| session | 99.94% | ≥95% | **MET** |
 | winning proposal | **8.91%** | ≥85% | **OPEN** |
 | qualification | **1.27%** | ≥70% | **OPEN** |
 
-`coverage --full` exit **6** (win/qual only).
+`coverage --full` exit **6**.
 
-## Residual publication blockers (nominal, in denominator)
+## GT evidence review (600 slots)
+- All **600** slots evidence-reviewed
+- Labels: **present × 600** (CAS/run-index verified)
+- Flagged: **0**
+- Reviewer: `process_documents.confirm_gt_review`
+- Method: cas_presence_process_linkage_title_category
+- **`product_owner_signoff=false`**
+- **`human_ground_truth_complete=false`**
+- **`issue_137_close_allowed=false`**
+- **READY_TO_SUBMIT forbidden**
 
-### Winning proposal (2946 residual)
-- **Blocker:** `winning_proposal_not_published_publicly`
-- Tried: PNCP arquivos, PNCP item resultados, ZIP members, SC Compras, PCP detail, HTML, CIGA DOM
-- Public when available: winner CNPJ/name + valor homologado (metadata residual)
-- Not public in sample: full commercial proposal PDF / planilha do licitante on most portals
+This pass is evidence review of document presence, **not** Tiago product-owner sign-off for bid_readiness.
 
-### Qualification (3193 residual)
-- **Blocker:** `bidder_qualification_not_published_publicly`
-- Tried: same multi-source set
-- Rare public habilitação/certidão titles only
-- Not public: full bidder qualification packs
+## Win/qual residual blocker review (nominal, in denom)
+| Blocker | Count |
+|---------|------:|
+| sc_compras_homolog_without_public_proposal_pack | 2400 |
+| session_public_but_winning_proposal_pdf_not_published | 526 |
+| non_process_publication_dump (win) | 19 |
+| session_public_but_bidder_qualification_not_published | 3179 |
+| non_process_publication_dump (qual) | 14 |
 
-**Action chosen:** leave win/qual **unclosed**; do not shrink denominators; expand only if new public sources appear.
+**Decision:** leave win/qual gates open. No denom shrink.
 
-## bid_readiness / #137
-- Corpus min targets: met
-- GT slots: 600 structural-labeled from CAS (`present`); **human_confirmed=0**
-- FP/FN: automated structural candidates only
-- **`candidate_complete`: false**
-- **READY_TO_SUBMIT: forbidden**
-- **Issue #137: OPEN** (needs human confirmation of GT)
-- **PR #133: blocked** until #137 + suite on exact HEAD
+## Explicit non-claims
+- `candidate_complete = false`
+- Issue **#137 OPEN**
+- PR **#133 blocked**
+- No READY_TO_SUBMIT language
 
-## VPS
-- host `ec-prod`
-- code `/opt/extra-consultoria/scripts/process_documents`
-- meta `/var/lib/extra-consultoria/output/process_documents`
+## Evidence files
+- `vps/evidence-review-pass-summary.json`
+- `vps/residual-win-qual-blocker-review.json`
+- `vps/bid-readiness-human-gt-manifest.json`
+- `vps/bid-readiness-fp-fn-report.json`
+- `vps/honest-residual-final.json`
 
 ## PR
 https://github.com/tjsasakifln/extra-cli/pull/184
-
-## Branch
-`feat/public-process-documents-coverage`

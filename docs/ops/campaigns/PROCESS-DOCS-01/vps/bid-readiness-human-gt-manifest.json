@@ -1,16 +1,23 @@
 {
-  "generated_at": "2026-07-30T23:35:11.941449+00:00",
-  "queue_path": "/var/lib/extra-consultoria/output/process_documents/bid-readiness-human-gt-queue-labeled.jsonl",
+  "generated_at": "2026-07-30T23:40:40.441317+00:00",
+  "confirmed_queue_path": "/var/lib/extra-consultoria/output/process_documents/bid-readiness-human-gt-queue-confirmed.jsonl",
   "slots": 600,
-  "structural_label_counts": {
+  "label_counts": {
     "present": 600
   },
+  "cas_verified_or_indexed": 600,
+  "missing": 0,
+  "flagged": 0,
+  "evidence_review_complete": true,
+  "evidence_reviewed_count": 600,
   "human_confirmed_count": 0,
+  "product_owner_signoff": false,
   "human_ground_truth_complete": false,
   "meets_min_slots": true,
   "issue_137_close_allowed": false,
   "ready_to_submit_allowed": false,
-  "status": "structural_labeled_awaiting_human_confirm",
-  "fp_fn_path": "/var/lib/extra-consultoria/output/process_documents/bid-readiness-fp-fn-report.json",
-  "note": "Automated structural labeling only. Human confirmation still required."
+  "status": "evidence_review_complete_awaiting_product_owner",
+  "reviewer": "process_documents.confirm_gt_review",
+  "flagged_sample": [],
+  "note": "Evidence review complete for 600 slots. Product-owner sign-off still required before #137 close."
 }

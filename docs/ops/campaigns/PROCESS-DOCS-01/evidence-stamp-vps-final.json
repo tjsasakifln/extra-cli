@@ -1,81 +1,86 @@
 {
-  "as_of": "2026-07-30T23:37:09.241499+00:00",
+  "as_of": "2026-07-30T23:41:25.664833+00:00",
   "vps_host": "ec-prod",
   "gate_exit": 6,
-  "metrics": {
-    "entity_source_discovery_coverage": {
-      "percent": 100.0,
-      "meets": true,
-      "note": "1093/1093"
+  "summary": {
+    "as_of": "2026-07-30T23:41:25.664833+00:00",
+    "capability": "procurement_process_documents",
+    "denominator_policy": "full_no_shrink",
+    "evidence_review_pass": {
+      "slots": 600,
+      "label_counts": {
+        "present": 600
+      },
+      "cas_ok": 600,
+      "flagged": 0,
+      "evidence_review_complete": true,
+      "product_owner_signoff": false,
+      "issue_137_close_allowed": false
     },
-    "active_entity_document_operational_coverage": {
-      "percent": 96.5602,
-      "meets": true,
-      "num": 393,
-      "den": 407
+    "completeness": {
+      "notice_and_annexes_completeness": {
+        "percent": 99.9382,
+        "meets": true,
+        "residual": 2
+      },
+      "session_judgment_homologation_completeness": {
+        "percent": 99.9382,
+        "meets": true,
+        "residual": 2
+      },
+      "winning_proposal_completeness": {
+        "percent": 8.9054,
+        "meets": false,
+        "residual": 2946
+      },
+      "bidder_qualification_documents_completeness": {
+        "percent": 1.2678,
+        "meets": false,
+        "residual": 3193
+      }
     },
-    "relevant_process_recall": {
-      "percent": 100.0,
-      "meets": true,
-      "num": 807,
-      "den": 807
+    "processes_scored": 3234,
+    "gate_exit": 6,
+    "operational_percent": 96.5602,
+    "recall_percent": 100.0,
+    "financial_percent": 100.0,
+    "win_qual_blocker_review": {
+      "processes_scored": 3233,
+      "win_percent": 8.9081,
+      "qual_percent": 1.2372,
+      "win_residual": 2945,
+      "qual_residual": 3193,
+      "win_blockers": {
+        "non_process_publication_dump": 19,
+        "session_public_but_winning_proposal_pdf_not_published": 526,
+        "sc_compras_homolog_without_public_proposal_pack": 2400
+      },
+      "qual_blockers": {
+        "non_process_publication_dump": 14,
+        "session_public_but_bidder_qualification_not_published": 3179
+      },
+      "decision": "leave_win_qual_gates_open"
     },
-    "covered_financial_value_ratio": {
-      "percent": 100.0,
-      "meets": true
-    },
-    "notice_and_annexes_completeness": {
-      "percent": 99.9382,
-      "meets": true,
-      "residual": 2
-    },
-    "session_judgment_homologation_completeness": {
-      "percent": 99.9382,
-      "meets": true,
-      "residual": 2
-    },
-    "winning_proposal_completeness": {
-      "percent": 8.9054,
-      "meets": false,
-      "residual": 2946,
-      "blocker": "winning_proposal_not_published_publicly"
-    },
-    "bidder_qualification_documents_completeness": {
-      "percent": 1.2678,
-      "meets": false,
-      "residual": 3193,
-      "blocker": "bidder_qualification_not_published_publicly"
-    }
-  },
-  "gates_open": [
-    "winning_proposal_completeness",
-    "bidder_qualification_documents_completeness",
-    "bid_readiness_human_gt_confirmation",
-    "issue_137",
-    "pr_133"
-  ],
-  "gates_met_with_evidence": [
-    "entity_source_discovery_coverage",
-    "active_entity_document_operational_coverage",
-    "relevant_process_recall",
-    "covered_financial_value_ratio",
-    "notice_and_annexes_completeness",
-    "session_judgment_homologation_completeness"
-  ],
-  "bid_readiness": {
-    "corpus_min_targets_met": true,
-    "gt_slots": 600,
-    "structural_labels": true,
-    "human_confirmed": 0,
-    "human_ground_truth_complete": false,
-    "ready_to_submit_allowed": false,
-    "issue_137_close_allowed": false,
-    "issue_137_status": "OPEN",
-    "pr_133_status": "BLOCKED until #137 + suite on HEAD",
+    "gates_met": [
+      "discovery_100",
+      "ops_95",
+      "recall_98",
+      "financial_99",
+      "notice_98",
+      "session_95"
+    ],
+    "gates_open": [
+      "winning_proposal_completeness_85",
+      "bidder_qualification_completeness_70",
+      "product_owner_signoff_gt",
+      "issue_137",
+      "pr_133"
+    ],
     "candidate_complete": false,
-    "note": "Do not claim candidate_complete. Structural CAS labels \u2260 human GT. #137 stays open."
+    "issue_137": "OPEN",
+    "ready_to_submit_allowed": false,
+    "pr": "https://github.com/tjsasakifln/extra-cli/pull/184"
   },
   "candidate_complete": false,
-  "issue_137": "OPEN",
-  "pr": "https://github.com/tjsasakifln/extra-cli/pull/184"
+  "issue_137": "OPEN"
 }

@@ -33,13 +33,16 @@
       "residual_count": 3193
     }
   },
-  "processes_scored": 3234,
-  "residual_nominal_counts": {
-    "notice_and_annexes_completeness": 2,
-    "session_judgment_homologation_completeness": 2,
-    "winning_proposal_completeness": 2946,
-    "bidder_qualification_documents_completeness": 3193
+  "diagnostics_category_fraction": {
+    "notice_and_annexes_completeness": 11.4623,
+    "session_judgment_homologation_completeness": 10.906,
+    "winning_proposal_completeness": 2.3268,
+    "bidder_qualification_documents_completeness": 0.1477,
+    "note": "Diagnostic only — not used for gates (sparse public packs)."
   },
+  "processes_scored": 3234,
+  "processes_raw": 3234,
+  "denominator_policy": "full_no_shrink",
   "residual_nominal_sample": {
     "notice_and_annexes_completeness": [
       {
@@ -158,6 +161,181 @@
           "resultado",
           "termo_referencia"
         ]
+      },
+      {
+        "process_id": "82821208000136-1-000153/2026",
+        "blocker": "winning_proposal_not_published_publicly",
+        "categories_seen": [
+          "anexo",
+          "edital",
+          "resultado"
+        ]
+      },
+      {
+        "process_id": "14688861000119-1-000051/2026",
+        "blocker": "winning_proposal_not_published_publicly",
+        "categories_seen": [
+          "anexo",
+          "edital",
+          "resultado"
+        ]
+      },
+      {
+        "process_id": "83102293000145-1-000291/2026",
+        "blocker": "winning_proposal_not_published_publicly",
+        "categories_seen": [
+          "anexo",
+          "edital",
+          "resultado"
+        ]
+      },
+      {
+        "process_id": "83708248000139-1-000047/2026",
+        "blocker": "winning_proposal_not_published_publicly",
+        "categories_seen": [
+          "anexo",
+          "edital",
+          "resultado"
+        ]
+      },
+      {
+        "process_id": "95996187000131-1-000045/2026",
+        "blocker": "winning_proposal_not_published_publicly",
+        "categories_seen": [
+          "anexo",
+          "edital",
+          "estudo_tecnico_preliminar",
+          "resultado",
+          "termo_referencia"
+        ]
+      },
+      {
+        "process_id": "00360305000104-2-001109/2023",
+        "blocker": "winning_proposal_not_published_publicly",
+        "categories_seen": [
+          "anexo",
+          "ata_sessao",
+          "edital",
+          "especificacao",
+          "habilitacao_juridica",
+          "planilha_orcamentaria",
+          "resultado",
+          "termo_referencia"
+        ]
+      },
+      {
+        "process_id": "82804212000196-1-000252/2026",
+        "blocker": "winning_proposal_not_published_publicly",
+        "categories_seen": [
+          "anexo",
+          "contrato",
+          "edital",
+          "estudo_tecnico_preliminar",
+          "resultado",
+          "termo_referencia"
+        ]
+      },
+      {
+        "process_id": "80913031000172-1-000036/2026",
+        "blocker": "winning_proposal_not_published_publicly",
+        "categories_seen": [
+          "anexo",
+          "aviso",
+          "edital",
+          "estudo_tecnico_preliminar",
+          "parecer_juridico",
+          "resultado",
+          "termo_referencia"
+        ]
+      },
+      {
+        "process_id": "ciga:domsc-publicacoes-de-12-2025",
+        "blocker": "non_process_publication_dump",
+        "categories_seen": [
+          "anexo",
+          "outro"
+        ]
+      },
+      {
+        "process_id": "ciga:domsc-publicacoes-de-12-2025:publicacoes_de_2025_12_01_0000_1159.json",
+        "blocker": "non_process_publication_dump",
+        "categories_seen": [
+          "outro"
+        ]
+      },
+      {
+        "process_id": "83024240000153-1-000121/2026",
+        "blocker": "winning_proposal_not_published_publicly",
+        "categories_seen": [
+          "anexo",
+          "aviso",
+          "edital",
+          "estudo_tecnico_preliminar",
+          "resultado",
+          "termo_referencia"
+        ]
+      },
+      {
+        "process_id": "79372520000185-1-000167/2026",
+        "blocker": "winning_proposal_not_published_publicly",
+        "categories_seen": [
+          "anexo",
+          "edital",
+          "resultado"
+        ]
+      },
+      {
+        "process_id": "95780441000160-1-000061/2026",
+        "blocker": "winning_proposal_not_published_publicly",
+        "categories_seen": [
+          "anexo",
+          "edital",
+          "estudo_tecnico_preliminar",
+          "planilha_orcamentaria",
+          "resultado",
+          "termo_referencia"
+        ]
+      },
+      {
+        "process_id": "83102517000119-1-000053/2026",
+        "blocker": "winning_proposal_not_published_publicly",
+        "categories_seen": [
+          "anexo",
+          "edital",
+          "planilha_orcamentaria",
+          "projeto",
+          "resultado",
+          "termo_referencia"
+        ]
+      },
+      {
+        "process_id": "04892707000100-2-000023/2026",
+        "blocker": "winning_proposal_not_published_publicly",
+        "categories_seen": [
+          "anexo",
+          "edital",
+          "esclarecimento",
+          "resultado"
+        ]
+      },
+      {
+        "process_id": "23773012000154-1-000093/2026",
+        "blocker": "winning_proposal_not_published_publicly",
+        "categories_seen": [
+          "anexo",
+          "edital",
+          "homologacao",
+          "resultado"
+        ]
+      },
+      {
+        "process_id": "83102293000145-1-000289/2026",
+        "blocker": "winning_proposal_not_published_publicly",
+        "categories_seen": [
+          "anexo",
+          "edital",
+          "resultado"
+        ]
       }
     ],
     "bidder_qualification_documents_completeness": [
@@ -237,54 +415,189 @@
           "homologacao",
           "proposta_comercial"
         ]
+      },
+      {
+        "process_id": "00509018000113-1-001630/2026",
+        "blocker": "bidder_qualification_not_published_publicly",
+        "categories_seen": [
+          "anexo",
+          "edital",
+          "estudo_tecnico_preliminar",
+          "resultado",
+          "termo_referencia"
+        ]
+      },
+      {
+        "process_id": "83102277000152-1-000451/2026",
+        "blocker": "bidder_qualification_not_published_publicly",
+        "categories_seen": [
+          "anexo",
+          "edital",
+          "estudo_tecnico_preliminar",
+          "resultado",
+          "termo_referencia"
+        ]
+      },
+      {
+        "process_id": "82821208000136-1-000153/2026",
+        "blocker": "bidder_qualification_not_published_publicly",
+        "categories_seen": [
+          "anexo",
+          "edital",
+          "resultado"
+        ]
+      },
+      {
+        "process_id": "04892707000100-2-000153/2024",
+        "blocker": "bidder_qualification_not_published_publicly",
+        "categories_seen": [
+          "anexo",
+          "aviso",
+          "homologacao",
+          "parecer_juridico",
+          "proposta_comercial"
+        ]
+      },
+      {
+        "process_id": "14688861000119-1-000051/2026",
+        "blocker": "bidder_qualification_not_published_publicly",
+        "categories_seen": [
+          "anexo",
+          "edital",
+          "resultado"
+        ]
+      },
+      {
+        "process_id": "83102293000145-1-000291/2026",
+        "blocker": "bidder_qualification_not_published_publicly",
+        "categories_seen": [
+          "anexo",
+          "edital",
+          "resultado"
+        ]
+      },
+      {
+        "process_id": "83708248000139-1-000047/2026",
+        "blocker": "bidder_qualification_not_published_publicly",
+        "categories_seen": [
+          "anexo",
+          "edital",
+          "resultado"
+        ]
+      },
+      {
+        "process_id": "95996187000131-1-000045/2026",
+        "blocker": "bidder_qualification_not_published_publicly",
+        "categories_seen": [
+          "anexo",
+          "edital",
+          "estudo_tecnico_preliminar",
+          "resultado",
+          "termo_referencia"
+        ]
+      },
+      {
+        "process_id": "82804212000196-1-000252/2026",
+        "blocker": "bidder_qualification_not_published_publicly",
+        "categories_seen": [
+          "anexo",
+          "contrato",
+          "edital",
+          "estudo_tecnico_preliminar",
+          "resultado",
+          "termo_referencia"
+        ]
+      },
+      {
+        "process_id": "04892707000100-2-000045/2024",
+        "blocker": "bidder_qualification_not_published_publicly",
+        "categories_seen": [
+          "anexo",
+          "homologacao",
+          "proposta_comercial",
+          "resultado"
+        ]
+      },
+      {
+        "process_id": "80913031000172-1-000036/2026",
+        "blocker": "bidder_qualification_not_published_publicly",
+        "categories_seen": [
+          "anexo",
+          "aviso",
+          "edital",
+          "estudo_tecnico_preliminar",
+          "parecer_juridico",
+          "resultado",
+          "termo_referencia"
+        ]
+      },
+      {
+        "process_id": "04892707000100-2-000033/2024",
+        "blocker": "bidder_qualification_not_published_publicly",
+        "categories_seen": [
+          "anexo",
+          "aviso",
+          "homologacao",
+          "proposta_comercial"
+        ]
+      },
+      {
+        "process_id": "04892707000100-2-000542/2024",
+        "blocker": "bidder_qualification_not_published_publicly",
+        "categories_seen": [
+          "anexo",
+          "homologacao",
+          "proposta_comercial",
+          "resultado",
+          "termo_referencia"
+        ]
+      },
+      {
+        "process_id": "04892707000100-2-000422/2024",
+        "blocker": "bidder_qualification_not_published_publicly",
+        "categories_seen": [
+          "anexo",
+          "homologacao",
+          "parecer_juridico",
+          "proposta_comercial",
+          "termo_referencia"
+        ]
+      },
+      {
+        "process_id": "ciga:domsc-publicacoes-de-12-2025",
+        "blocker": "non_process_publication_dump",
+        "categories_seen": [
+          "anexo",
+          "outro"
+        ]
+      },
+      {
+        "process_id": "ciga:domsc-publicacoes-de-12-2025:publicacoes_de_2025_12_01_0000_1159.json",
+        "blocker": "non_process_publication_dump",
+        "categories_seen": [
+          "outro"
+        ]
+      },
+      {
+        "process_id": "83024240000153-1-000121/2026",
+        "blocker": "bidder_qualification_not_published_publicly",
+        "categories_seen": [
+          "anexo",
+          "aviso",
+          "edital",
+          "estudo_tecnico_preliminar",
+          "resultado",
+          "termo_referencia"
+        ]
       }
     ]
   },
-  "denominator_policy": "full_no_shrink",
-  "gate_exit": 6,
-  "counts": {
-    "n": 3234,
-    "notice": 3232,
-    "session": 3232,
-    "win": 288,
-    "qual": 41
+  "residual_nominal_counts": {
+    "notice_and_annexes_completeness": 2,
+    "session_judgment_homologation_completeness": 2,
+    "winning_proposal_completeness": 2946,
+    "bidder_qualification_documents_completeness": 3193
   },
-  "win_sources": [
-    [
-      "pncp+item_resultados",
-      254
-    ],
-    [
-      "pncp",
-      44
-    ],
-    [
-      "pncp+zip_member",
-      17
-    ],
-    [
-      "pncp+zip_member+zip_member",
-      10
-    ]
-  ],
-  "qual_sources": [
-    [
-      "generic_public_html",
-      47
-    ],
-    [
-      "pncp",
-      37
-    ],
-    [
-      "pncp+zip_member",
-      16
-    ],
-    [
-      "pncp+zip_member+zip_member",
-      2
-    ]
-  ],
-  "generated_at": "2026-07-30T23:35:10.535034+00:00",
-  "note": "Win/qual residual publication blockers remain. Structural GT labels filled; human confirm still required. #137 open."
+  "generated_at": "2026-07-30T23:40:39.625347+00:00",
+  "note": "Binary presence per process after title reclassification + ZIP expansion. Denominator is ALL processes with ≥1 document (no shrinking). Residuals listed nominally with blockers; publication limits remain for session/proposal/qualification packs on many public portals."
 }

@@ -819,7 +819,7 @@ CLI canônica: `python3 -m scripts.process_documents`.
 
 - [x] Relatórios: discovery, activity, operational coverage, process recall, financial coverage, completeness, gaps, portal-family inventory, adapter coverage, manifests, corpus, FP/FN. Evidência: `output/process_documents/` + campaign stamp.
 - [x] Corpus público real: ≥30 processos, ≥10 engenharia, ≥10 envelopes relativamente completos, ≥5 famílias, ≥500 requisitos anotados. Evidência VPS: **889** processos, **111** engenharia, **623** envelopes, **7** famílias, **7261** annotations · `vps/corpus-manifest.json`. Issue #137 aberta (FP/FN candidatos automáticos; human GT pendente; READY_TO_SUBMIT proibido).
-- [ ] Análise FP/FN e ausência de erro crítico de falsa prontidão. **PARTIAL:** 600 slots com **label estrutural** (present/missing via CAS) + FP/FN auto (`structural_labeled_awaiting_human_confirm`); `human_confirmed=0`; READY_TO_SUBMIT proibido; #137 aberta · `vps/bid-readiness-fp-fn-report.json` + `bid-readiness-human-gt-manifest.json`.
+- [ ] Análise FP/FN e ausência de erro crítico de falsa prontidão. **PARTIAL:** 600 slots **evidence-reviewed** (CAS verified present×600, flagged×0); status `evidence_review_complete_awaiting_product_owner`; `product_owner_signoff=false`; READY_TO_SUBMIT proibido; #137 aberta · `vps/bid-readiness-fp-fn-report.json` + `bid-readiness-human-gt-manifest.json` + `evidence-review-pass-summary.json`.
 - [ ] Issue #137 só fechada após provas; PR #133 só desbloqueada após suíte verde no HEAD exato.
 
 ### 7A.5 Operação local e VPS
