@@ -16,10 +16,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-try:
-    import yaml
-except ImportError:  # pragma: no cover
-    yaml = None  # type: ignore[assignment]
+import yaml
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_CONFIG = PROJECT_ROOT / "config" / "scope_boundaries.yaml"
@@ -36,8 +33,6 @@ class ClaimFinding:
 
 
 def load_config(path: Path | None = None) -> dict[str, Any]:
-    if yaml is None:
-        raise RuntimeError("PyYAML required")
     cfg_path = path or DEFAULT_CONFIG
     data = yaml.safe_load(cfg_path.read_text(encoding="utf-8"))
     if not isinstance(data, dict):
@@ -51,7 +46,7 @@ def _match_glob(path: str, glob: str) -> bool:
     return fnmatch.fnmatch(p, g) or fnmatch.fnmatch(p, g.lstrip("./"))
 
 
-def _exception_for(path: str, line_text: str, exceptions: list[dict[str, Any]]) -> str | None:
+def _exception_for(path: str, line_text: str, exceptions: list[Any]) -> str | None:
     for ex in exceptions:
         if not isinstance(ex, dict):
             continue

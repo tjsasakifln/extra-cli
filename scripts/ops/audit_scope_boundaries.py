@@ -18,10 +18,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-try:
-    import yaml
-except ImportError:  # pragma: no cover
-    yaml = None  # type: ignore[assignment]
+import yaml
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_CONFIG = PROJECT_ROOT / "config" / "scope_boundaries.yaml"
@@ -85,8 +82,6 @@ class CapabilityProof:
 
 def load_config(path: Path | None = None) -> dict[str, Any]:
     cfg_path = path or DEFAULT_CONFIG
-    if yaml is None:
-        raise RuntimeError("PyYAML required for scope boundary audit")
     data = yaml.safe_load(cfg_path.read_text(encoding="utf-8"))
     if not isinstance(data, dict):
         raise ValueError(f"Invalid scope config: {cfg_path}")

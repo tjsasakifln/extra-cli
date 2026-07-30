@@ -18,10 +18,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-try:
-    import yaml
-except ImportError:  # pragma: no cover
-    yaml = None  # type: ignore[assignment]
+import yaml
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 CAMPAIGN_ID = "DOD-LOW-HANGING-BOUNDARIES-AND-EVIDENCE-01"
@@ -143,8 +140,6 @@ def _sha(text: str) -> str:
 
 
 def load_manifest(root: Path) -> list[dict[str, Any]]:
-    if yaml is None:
-        raise RuntimeError("PyYAML required")
     path = root / ".dod" / "manifest.yaml"
     data = yaml.safe_load(path.read_text(encoding="utf-8"))
     return list(data.get("items") or [])
