@@ -471,6 +471,10 @@ confenge-commercial-cycle-official:
 CONFENGE_COMMERCIAL_PROFILE ?= config/commercial_profiles/confenge.yaml
 CONFENGE_COMMERCIAL_OUT ?= artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01/run
 CONFENGE_COMMERCIAL_ART ?= artifacts/campaigns/CONFENGE-COMMERCIAL-READY-01
+# TARGET: suppliers (default) | public-agencies | all
+CONFENGE_COMMERCIAL_TARGET ?= suppliers
+CONFENGE_PUBLIC_AGENCY_OUT ?= output/confenge-commercial/public-agencies
+CONFENGE_PUBLIC_AGENCY_PROFILE ?= config/commercial/public_agency_profile.yaml
 
 test-commercial-leads:
 	python3 -m pytest tests/commercial_leads/ -q --tb=short -o addopts=''
@@ -572,11 +576,20 @@ verify-confenge-supplier-registry: verify-supplier-registry-coverage
 confenge-commercial-cycle:
 	@echo '==> confenge-commercial-cycle (CONFENGE commercial intelligence gold)'
 	@echo '    Entry: python -m scripts.ops.confenge_commercial_cycle'
-	@echo '    Requires: CONFENGE_COMMERCIAL_STATE_DSN + CONFENGE_COMMERCIAL_SNAPSHOT'
+	@echo '    TARGET=$(CONFENGE_COMMERCIAL_TARGET) (suppliers|public-agencies|all)'
+	@echo '    suppliers requires: CONFENGE_COMMERCIAL_STATE_DSN + CONFENGE_COMMERCIAL_SNAPSHOT'
+	@echo '    public-agencies requires: CONFENGE_COMMERCIAL_STATE_DSN or LOCAL_DATALAKE_DSN'
 	python3 -m scripts.ops.confenge_commercial_cycle \
+		--target $(CONFENGE_COMMERCIAL_TARGET) \
 		--profile $(CONFENGE_COMMERCIAL_PROFILE) \
 		--out $(CONFENGE_COMMERCIAL_OUT) \
+		--public-agency-out $(CONFENGE_PUBLIC_AGENCY_OUT) \
+		--public-agency-profile $(CONFENGE_PUBLIC_AGENCY_PROFILE) \
 		$(CONFENGE_CYCLE_FLAGS)
+
+.PHONY: test-public-agency
+test-public-agency:
+	python3 -m pytest tests/public_agency/ -q --tb=short -o addopts=''
 
 campaign-gate-confenge-commercial-ready:
 	python3 -m scripts.ops.confenge_commercial_gates campaign-gate

@@ -1,0 +1,73 @@
+{
+  "campaign_id": "CONFENGE-PUBLIC-AGENCY-TECHNICAL-SERVICES-01",
+  "status": "PASS",
+  "run_id": "6a928e80-c7bb-411f-a438-f03f29742ecf",
+  "code_sha": "8ff80eef188974d2c17cb8716e74700fef3e9b12",
+  "as_of": "2026-07-15",
+  "config_hashes": {
+    "profile": "1ca90e8c9ced4aeed6530704c4498c1b42095eb26b5a7993321ff912c3eb6d4b",
+    "thresholds": "2816c6701a5f5f09fc9f8b7976ce9180948bf8413398557e7a75ce9fe9946b71",
+    "catalog": "6cffc7df0a6a6e8de56b1a18f8956da0b9916f934f1e52edd2c468943d06f50e",
+    "conflict": "b33f89800877aba6767409b353569e552823d61a467edd5f1c1867fe0c646f83"
+  },
+  "metrics": {
+    "source": {
+      "source": "pncp_supplier_contracts",
+      "ok": true,
+      "row_count": 4194,
+      "ufs": [
+        "SC"
+      ],
+      "columns": [
+        "contrato_id",
+        "orgao_cnpj",
+        "orgao_nome",
+        "fornecedor_cnpj",
+        "fornecedor_nome",
+        "objeto_contrato",
+        "valor_total",
+        "data_inicio",
+        "data_fim",
+        "data_publicacao",
+        "uf",
+        "source",
+        "source_id",
+        "municipio"
+      ]
+    },
+    "agency_universe": 477,
+    "evaluated_agencies": 276,
+    "publishable_agencies": 20,
+    "blocked_agencies": 0,
+    "top_n": 20,
+    "reasons": {
+      "RESEARCH_REQUIRED": 256,
+      "PUBLISHABLE": 20,
+      "above_focus_population": 31,
+      "missing_geographic_identity": 4
+    },
+    "ufs": [
+      "SC"
+    ],
+    "priority_population_max": 50000,
+    "focus_population_max": 100000,
+    "kit_artifacts": 17
+  },
+  "artifacts": {
+    "public-agency-leads.json": "/mnt/d/extra consultoria/.worktrees/pag-public-agency/output/confenge-commercial/public-agencies/public-agency-leads.json",
+    "public-agency-leads.csv": "/mnt/d/extra consultoria/.worktrees/pag-public-agency/output/confenge-commercial/public-agencies/public-agency-leads.csv",
+    "public-agency-review-template.xlsx": "/mnt/d/extra consultoria/.worktrees/pag-public-agency/output/confenge-commercial/public-agencies/public-agency-review-template.xlsx",
+    "public-agency-report.html": "/mnt/d/extra consultoria/.worktrees/pag-public-agency/output/confenge-commercial/public-agencies/public-agency-report.html",
+    "public-agency-summary.md": "/mnt/d/extra consultoria/.worktrees/pag-public-agency/output/confenge-commercial/public-agencies/public-agency-summary.md",
+    "public-agency-run-result.json": "/mnt/d/extra consultoria/.worktrees/pag-public-agency/output/confenge-commercial/public-agencies/public-agency-run-result.json",
+    "public-agency-lead-explanations.jsonl": "/mnt/d/extra consultoria/.worktrees/pag-public-agency/output/confenge-commercial/public-agencies/public-agency-lead-explanations.jsonl",
+    "public-agency-evidence-ledger.jsonl": "/mnt/d/extra consultoria/.worktrees/pag-public-agency/output/confenge-commercial/public-agencies/public-agency-evidence-ledger.jsonl",
+    "public-agency-outreach-queue.csv": "/mnt/d/extra consultoria/.worktrees/pag-public-agency/output/confenge-commercial/public-agencies/public-agency-outreach-queue.csv",
+    "public-agency-service-fit.csv": "/mnt/d/extra consultoria/.worktrees/pag-public-agency/output/confenge-commercial/public-agencies/public-agency-service-fit.csv",
+    "public-agency-compliance-flags.csv": "/mnt/d/extra consultoria/.worktrees/pag-public-agency/output/confenge-commercial/public-agencies/public-agency-compliance-flags.csv",
+    "public-agency-conflict-review.csv": "/mnt/d/extra consultoria/.worktrees/pag-public-agency/output/confenge-commercial/public-agencies/public-agency-conflict-review.csv",
+    "public-agency-checksums.sha256": "/mnt/d/extra consultoria/.worktrees/pag-public-agency/output/confenge-commercial/public-agencies/public-agency-checksums.sha256"
+  },
+  "target": "public-agencies",
+  "outreach_sent": false
+}

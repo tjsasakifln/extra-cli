@@ -1,0 +1,40 @@
+# Conflict-of-interest gate for CONFENGE public-agency commercial cycle.
+# Absence of data NEVER equals absence of conflict.
+schema_version: "1.0.0"
+version: "1.0.0"
+version_date: "2026-07-30"
+operator_id: tiago_sasaki
+operator_name: Tiago Sasaki
+
+states:
+  - CONFLICT_CHECK_PENDING
+  - CONFLICT_REVIEW_REQUIRED
+  - CONFLICT_BLOCKED
+  - CONFLICT_CLEARED_BY_HUMAN_REVIEW
+
+default_state: CONFLICT_CHECK_PENDING
+
+# Agencies/entities known to require elevated review or block (operator-maintained).
+# Empty list at MVP: system still requires human clearance before outreach.
+blocked_agency_ids: []
+blocked_cnpj14: []
+blocked_name_markers: []
+
+review_required_name_markers: []
+
+rules:
+  - id: public_role_overlap
+    description: >
+      Bloquear ou elevar revisão quando o operador atua como fiscal, gestor,
+      supervisor, membro de comissão ou agente público no órgão/processo.
+  - id: nonpublic_information
+    description: >
+      Nenhum dado não público do trabalho estatal do operador pode ser usado.
+  - id: privileged_access
+    description: Oportunidades obtidas por acesso privilegiado são bloqueadas.
+  - id: personal_relationship
+    description: Relações pessoais relevantes não declaradas exigem revisão.
+
+clearance_policy: >
+  Only CONFLICT_CLEARED_BY_HUMAN_REVIEW (documented) allows APPROVED_FOR_OUTREACH.
+  System must not declare "no conflict" solely because no match was found.

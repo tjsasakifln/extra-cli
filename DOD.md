@@ -2849,3 +2849,137 @@ CI (PR #12):
 | PR | #12 |
 
 ---
+
+---
+
+## 46. PAG — PUBLIC AGENCY GTM (CONFENGE-PUBLIC-AGENCY-TECHNICAL-SERVICES-01)
+
+> **Campanha:** serviços técnicos da CONFENGE a órgãos/entidades públicas (prefeituras, autarquias, fundações, consórcios).  
+> **Entrypoint canônico:** `make confenge-commercial-cycle` com `CONFENGE_COMMERCIAL_TARGET=public-agencies` (ou `all`).  
+> **Não vende “dispensa de licitação”.** Elegibilidade: apenas `POTENTIALLY_ELIGIBLE_FOR_DIRECT_CONTRACTING`.  
+> **Outreach:** nunca automático — aprovação humana de Tiago obrigatória.  
+> **Estados de item:** `OPEN` | `IMPLEMENTED_NOT_PROVEN` | `TESTED_WITH_FIXTURES` | `REAL_DATA_EVIDENCE_PENDING` | `HUMAN_REVIEW_PENDING` | `ACCEPTED` | `BLOCKED`.  
+> **ACCEPTED** só com evidência + main + CI conforme regras do repositório — nenhum item PAG está ACCEPTED nesta inserção inicial pós-implementação.
+
+### PAG-1 — Configuração legal temporal
+- **Descrição:** Tetos art. 75 I/II versionados e temporais em YAML.
+- **Critério:** `config/legal/direct_contracting_thresholds.yaml` com campos mínimos; comparação estritamente inferior; atualização anual sem mudar código.
+- **Evidência:** arquivo de config + `scripts/public_agency/legal_thresholds.py` + testes de fronteira.
+- **Estado:** `TESTED_WITH_FIXTURES`
+- **Teste:** `tests/public_agency/test_legal_and_compliance.py::test_threshold_*`
+
+### PAG-2 — Classificação de objeto
+- **Descrição:** `ENGINEERING_SERVICE` / `OTHER_SERVICE` / `REQUIRES_HUMAN_LEGAL_CLASSIFICATION`.
+- **Critério:** classificação com confiança, evidências, justificativa; sem alegação de teto se ambígua.
+- **Evidência:** `scripts/public_agency/object_classification.py`
+- **Estado:** `TESTED_WITH_FIXTURES`
+
+### PAG-3 — Controles contra fracionamento
+- **Descrição:** Indicadores de fracionamento + `DIRECT_CONTRACTING_SUM_UNKNOWN`.
+- **Critério:** não declarar aderência ao limite sem somatório; preço não ancorado no teto.
+- **Evidência:** `scripts/public_agency/fragmentation.py`
+- **Estado:** `TESTED_WITH_FIXTURES`
+
+### PAG-4 — Catálogo de serviços
+- **Descrição:** Catálogo versionado de 6 ofertas mínimas.
+- **Critério:** `config/commercial/public_agency_service_catalog.yaml` com campos mínimos.
+- **Evidência:** config + `scripts/public_agency/catalog.py` + kit comercial.
+- **Estado:** `IMPLEMENTED_NOT_PROVEN` (conteúdo editorial sujeito a revisão humana)
+
+### PAG-5 — Modelo canônico de órgão público
+- **Descrição:** `PUBLIC_AGENCY_PROSPECT` separado de suppliers.
+- **Critério:** entity_type e filas `public_agency_leads` vs `supplier_leads`.
+- **Evidência:** `scripts/public_agency/entities.py`
+- **Estado:** `TESTED_WITH_FIXTURES`
+
+### PAG-6 — Integração PNCP (buyer-side)
+- **Descrição:** Uso de `pncp_supplier_contracts` pelo lado do órgão contratante.
+- **Critério:** agregação por `orgao_cnpj`/`orgao_nome` com provenance.
+- **Evidência:** `scripts/public_agency/pipeline.py::fetch_agency_contracts` + run real SC.
+- **Estado:** `REAL_DATA_EVIDENCE_PENDING` → atualizar após run real nesta campanha
+
+### PAG-7 — Integração IBGE
+- **Descrição:** População e faixas a partir de `config/municipio_population.yaml`.
+- **Critério:** faixas até 10k / 25k / 50k / 100k / acima; população não prova capacidade isoladamente.
+- **Evidência:** `scripts/public_agency/population.py`
+- **Estado:** `TESTED_WITH_FIXTURES`
+
+### PAG-8 — Sinais de necessidade
+- **Descrição:** Sinais versionados need/risk explicáveis.
+- **Critério:** `scripts/public_agency/signals.py` com signal_id, evidência, limitações.
+- **Estado:** `TESTED_WITH_FIXTURES`
+
+### PAG-9 — Scoring explicável
+- **Descrição:** Dimensões need/fit/timing/evidence/access − penalties.
+- **Critério:** decomposição por lead; sem modelo opaco como único mecanismo.
+- **Estado:** `TESTED_WITH_FIXTURES`
+
+### PAG-10 — Reactive vs proactive
+- **Descrição:** `REACTIVE_OPPORTUNITY` e `PROACTIVE_INSTITUTIONAL_PROSPECT` com linguagem honesta.
+- **Estado:** `TESTED_WITH_FIXTURES`
+
+### PAG-11 — Dossiers
+- **Descrição:** Dossier individual com 23 seções mínimas e separação fatos/inferências.
+- **Evidência:** `output/confenge-commercial/public-agencies/dossiers/`
+- **Estado:** `TESTED_WITH_FIXTURES`
+
+### PAG-12 — Kit comercial
+- **Descrição:** Materiais versionados sem credenciais inventadas.
+- **Evidência:** `.../commercial-kit/` + kit habilitação com status auditável.
+- **Estado:** `IMPLEMENTED_NOT_PROVEN`
+
+### PAG-13 — Proposta e precificação
+- **Descrição:** Gerador por escopo/esforço com disclaimer legal.
+- **Estado:** `TESTED_WITH_FIXTURES`
+
+### PAG-14 — Apoio à fiscalização (art. 117)
+- **Descrição:** Linguagem de apoio; bloqueio de poderes exclusivos do agente público.
+- **Estado:** `TESTED_WITH_FIXTURES`
+
+### PAG-15 — Contatos institucionais
+- **Descrição:** Apenas canais institucionais públicos; rejeição de e-mail/telefone pessoal.
+- **Estado:** `TESTED_WITH_FIXTURES`
+
+### PAG-16 — Revisão humana
+- **Descrição:** Estados de relacionamento; fila outreach com `outreach_sent=false`.
+- **Estado:** `HUMAN_REVIEW_PENDING`
+
+### PAG-17 — Conflito de interesses
+- **Descrição:** Estados PENDING/REVIEW/BLOCKED/CLEARED; ausência de dados ≠ ausência de conflito.
+- **Estado:** `TESTED_WITH_FIXTURES` / clearance final `HUMAN_REVIEW_PENDING`
+
+### PAG-18 — Evidência e provenance
+- **Descrição:** Ledger com fonte, id, hash, limitações; `DOCUMENT_NOT_AVAILABLE_IN_SOURCE` quando couber.
+- **Estado:** `TESTED_WITH_FIXTURES`
+
+### PAG-19 — Execução real
+- **Descrição:** Rodada SC com dados reais; Top 20 defensável ou insuficiência honesta.
+- **Evidência:** `output/confenge-commercial/public-agencies/public-agency-run-result.json`
+- **Estado:** `REAL_DATA_EVIDENCE_PENDING` (preencher com SHA/artefatos do run)
+
+### PAG-20 — Integração ao ciclo canônico
+- **Descrição:** `TARGET` em `confenge_commercial_cycle` sem quebrar suppliers.
+- **Estado:** `TESTED_WITH_FIXTURES`
+
+### PAG-21 — Relatórios
+- **Descrição:** CSV/JSON/XLSX/HTML/MD/JSONL/manifest/checksums `public-agency-*`.
+- **Estado:** `TESTED_WITH_FIXTURES`
+
+### PAG-22 — Observabilidade
+- **Descrição:** run_id, metrics, failure taxonomy (SOURCE_FAILURE vs EMPTY_VALID_RESULT etc.).
+- **Estado:** `TESTED_WITH_FIXTURES`
+
+### PAG-23 — Documentação operacional
+- **Descrição:** docs/commercial/* e runbook.
+- **Estado:** `IMPLEMENTED_NOT_PROVEN`
+
+### PAG-24 — Testes jurídicos de fronteira
+- **Descrição:** Suite §21 (tetos, fracionamento, art.117, COI, contatos…).
+- **Evidência:** `tests/public_agency/` + `make test-public-agency`
+- **Estado:** `TESTED_WITH_FIXTURES`
+
+### PAG-25 — Aceite humano
+- **Descrição:** Tiago revisa fila, COI, classificações, dossiers e autoriza outreach.
+- **Estado:** `HUMAN_REVIEW_PENDING`
+- **Ação:** *Tiago deve revisar a fila de órgãos, os conflitos de interesses, as classificações jurídicas preliminares, os dossiers e os materiais de abordagem antes de autorizar qualquer contato.*
+

@@ -1,0 +1,364 @@
+# CONFENGE public-agency service catalog — versioned offers for organs/entities.
+schema_version: "1.0.0"
+catalog_id: public_agency_service_catalog
+profile_id: confenge_public_agency
+version: "1.0.0"
+version_date: "2026-07-30"
+brand: CONFENGE
+notes: >
+  Documents produced under these offers are technical drafts for analysis,
+  validation and approval by the Administration. No legal opinion is issued.
+  Direct contracting by value is only a potential procedural hypothesis.
+
+services:
+  - service_id: PLANEJAMENTO_TECNICO_DA_CONTRATACAO
+    nome: Planejamento técnico da contratação
+    problema_resolvido: >
+      Baixa capacidade preparatória para estruturar obras e serviços de engenharia
+      (DFD, ETP, TR, quantidades, riscos, orçamento e cronograma).
+    publico_alvo:
+      - prefeituras de pequeno e médio porte
+      - autarquias e fundações públicas
+      - consórcios públicos
+    escopo: >
+      Apoio técnico à estruturação da fase preparatória de obras e serviços de engenharia.
+    entregaveis:
+      - diagnostico_da_necessidade
+      - subsidios_ao_DFD
+      - estudo_tecnico_preliminar
+      - levantamento_de_alternativas
+      - estimativas_de_quantidades
+      - memorias_de_calculo
+      - analise_de_mercado
+      - matriz_de_riscos
+      - termo_de_referencia
+      - projeto_basico_quando_cabivel
+      - especificacoes_tecnicas
+      - criterios_tecnicos_medicao_recebimento
+      - cronograma
+      - orcamento
+      - subsidios_tecnicos_edital_minuta
+    exclusoes:
+      - parecer_juridico
+      - decisao_administrativa_exclusiva
+      - homologacao_adjudicacao
+      - assinatura_como_autoridade_publica
+    informacoes_entrada:
+      - descricao_da_necessidade
+      - historico_contratual_disponivel
+      - documentos_existentes
+      - prazo_desejado
+      - local_da_obra_ou_servico
+    duracao_estimada: "4 a 12 semanas (por escopo)"
+    esforco_estimado: "80 a 400 horas"
+    profissionais_necessarios:
+      - engenheiro_responsavel_tecnico
+      - analista_orcamentista
+      - especialista_em_contratacoes_publicas
+    responsabilidade_tecnica: true
+    art_potencialmente_aplicavel: true
+    classificacao_juridica_sugerida: ENGINEERING_SERVICE
+    teto_legal_potencialmente_aplicavel: BR_FEDERAL_14133_ART75_I_2026
+    faixa_preco_por_escopo:
+      currency: BRL
+      bands:
+        - label: basico
+          min: 18000
+          max: 45000
+        - label: intermediario
+          min: 45000
+          max: 95000
+        - label: completo
+          min: 95000
+          max: 128000
+      notes: Preço decorre de escopo/esforço — teto legal não é âncora de preço.
+    riscos:
+      - dependencia_de_dados_do_orgao
+      - mudanca_de_escopo_durante_a_fase_preparatória
+      - classificacao_juridica_ambigua
+    evidencias_capacidade_exigidas:
+      - qualificacao_tecnica_compativel
+      - experiencia_em_planejamento_de_obras
+    documentos_comerciais_associados:
+      - one_page_planejamento
+      - modelo_proposta_planejamento
+      - matriz_entregaveis
+
+  - service_id: ORCAMENTO_E_PLANEJAMENTO_DE_OBRAS
+    nome: Orçamento e planejamento de obras
+    problema_resolvido: Quantitativos, orçamentos e cronogramas inconsistentes ou ausentes.
+    publico_alvo:
+      - secretarias de obras e engenharia
+      - setores de planejamento
+    escopo: Elaboração ou revisão de peças orçamentárias e físico-financeiras.
+    entregaveis:
+      - levantamento_quantitativo
+      - orcamento_referencial
+      - composicoes
+      - bdi
+      - encargos
+      - curva_abc
+      - cronograma_fisico_financeiro
+      - plano_de_desembolso
+      - compatibilizacao_de_pecas
+      - memoria_justificativa
+      - auditoria_de_inconsistencias
+    exclusoes:
+      - parecer_juridico
+      - garantia_de_preco_de_mercado_sem_fontes
+    informacoes_entrada:
+      - projetos_e_especificacoes
+      - memorial_descritivo
+      - local_e_condicoes
+    duracao_estimada: "3 a 10 semanas"
+    esforco_estimado: "60 a 320 horas"
+    profissionais_necessarios:
+      - engenheiro_orcamentista
+      - tecnico_em_edificacoes
+    responsabilidade_tecnica: true
+    art_potencialmente_aplicavel: true
+    classificacao_juridica_sugerida: ENGINEERING_SERVICE
+    teto_legal_potencialmente_aplicavel: BR_FEDERAL_14133_ART75_I_2026
+    faixa_preco_por_escopo:
+      currency: BRL
+      bands:
+        - label: basico
+          min: 15000
+          max: 40000
+        - label: intermediario
+          min: 40000
+          max: 90000
+        - label: completo
+          min: 90000
+          max: 125000
+    riscos:
+      - projeto_incompleto
+      - bases_de_preco_desatualizadas
+    evidencias_capacidade_exigidas:
+      - atestados_orcamentarios_quando_exigidos
+    documentos_comerciais_associados:
+      - one_page_orcamento
+      - planilha_formacao_preco
+
+  - service_id: REVISAO_PRE_PUBLICACAO
+    nome: Revisão técnica pré-publicação
+    problema_resolvido: Risco de publicação com inconsistências, restrições indevidas ou baixa competição.
+    publico_alvo:
+      - setores de licitações e engenharia
+    escopo: Auditoria técnica independente antes da publicação (não é parecer jurídico).
+    entregaveis:
+      - matriz_de_coerencia
+      - inconsistencias_quantitativas
+      - restricoes_indevidas
+      - riscos_baixa_competicao
+      - criterios_qualificacao_desproporcionais
+      - omissoes_tecnicas
+      - riscos_de_aditivos
+      - checklist_de_saneamento
+      - relatorio_executivo
+    exclusoes:
+      - parecer_juridico
+      - aprovacao_juridica
+      - homologacao
+    informacoes_entrada:
+      - etp_tr_projeto_orcamento_cronograma_edital_minuta
+    duracao_estimada: "1 a 4 semanas"
+    esforco_estimado: "40 a 160 horas"
+    profissionais_necessarios:
+      - engenheiro_revisor
+      - especialista_em_contratacoes
+    responsabilidade_tecnica: true
+    art_potencialmente_aplicavel: true
+    classificacao_juridica_sugerida: ENGINEERING_SERVICE
+    teto_legal_potencialmente_aplicavel: BR_FEDERAL_14133_ART75_I_2026
+    faixa_preco_por_escopo:
+      currency: BRL
+      bands:
+        - label: basico
+          min: 12000
+          max: 35000
+        - label: intermediario
+          min: 35000
+          max: 70000
+        - label: completo
+          min: 70000
+          max: 110000
+    riscos:
+      - prazo_apertado_antes_da_publicacao
+    evidencias_capacidade_exigidas:
+      - experiencia_em_revisao_tecnica
+    documentos_comerciais_associados:
+      - one_page_revisao
+
+  - service_id: APOIO_TECNICO_A_FISCALIZACAO
+    nome: Apoio técnico especializado à fiscalização e à gestão contratual
+    problema_resolvido: Fiscal/gestor sem suporte técnico suficiente para acompanhar obra ou serviço.
+    publico_alvo:
+      - fiscais e gestores de contratos de obras e serviços de engenharia
+    escopo: >
+      Assistir e subsidiar fiscais e gestores (art. 117). NÃO substitui o fiscal
+      nem o gestor público.
+    entregaveis:
+      - plano_de_fiscalizacao
+      - checklists
+      - inspecoes
+      - relatorios_fotograficos
+      - conferencia_diario_de_obra
+      - conferencia_de_medicoes
+      - analise_de_cronograma
+      - registro_de_desvios
+      - matriz_de_pendencias
+      - analise_tecnica_de_pleitos
+      - subsidios_para_notificacoes
+      - analise_tecnica_de_aditivos
+      - relatorio_mensal
+      - painel_fisico_financeiro
+      - apoio_tecnico_ao_recebimento
+    exclusoes:
+      - determinacao_administrativa_exclusiva
+      - aplicacao_de_sancoes
+      - autorizacao_de_pagamentos
+      - ordens_administrativas_em_nome_do_orgao
+      - recebimento_definitivo_como_autoridade
+      - decisao_sobre_aditivos
+      - homologacao
+      - adjudicacao
+      - aprovacao_juridica
+      - assinatura_como_autoridade_publica
+    informacoes_entrada:
+      - contrato_e_aditivos
+      - projetos_e_orcamento
+      - cronograma
+      - medições_e_diario
+    duracao_estimada: "mensal / por fase da obra"
+    esforco_estimado: "conforme cronograma da obra"
+    profissionais_necessarios:
+      - engenheiro_de_acompanhamento
+      - tecnico_de_campo
+    responsabilidade_tecnica: true
+    art_potencialmente_aplicavel: true
+    classificacao_juridica_sugerida: ENGINEERING_SERVICE
+    teto_legal_potencialmente_aplicavel: BR_FEDERAL_14133_ART75_I_2026
+    faixa_preco_por_escopo:
+      currency: BRL
+      bands:
+        - label: pontual
+          min: 10000
+          max: 35000
+        - label: mensal
+          min: 8000
+          max: 25000
+        - label: campanha
+          min: 40000
+          max: 120000
+    riscos:
+      - risco_de_linguagem_de_substituicao_do_fiscal
+      - dependencia_de_acesso_ao_canteiro_e_documentos
+    evidencias_capacidade_exigidas:
+      - qualificacao_em_acompanhamento_de_obras
+    documentos_comerciais_associados:
+      - declaracao_limites_art_117
+      - one_page_fiscalizacao
+    preferred_expression: "apoio técnico especializado à fiscalização e à gestão contratual"
+    supervision_term_policy: >
+      "Supervisão de obras" only when it matches the contracted technical object,
+      with clear responsibility boundaries and no substitution of exclusive public duties.
+
+  - service_id: DIAGNOSTICO_DE_CONTRATO_OU_OBRA_CRITICA
+    nome: Diagnóstico de contrato ou obra crítica
+    problema_resolvido: Atrasos, aditivos recorrentes, paralisação, medições duvidosas ou risco de insucesso.
+    publico_alvo:
+      - gestores e secretarias com contratos em risco
+    escopo: Auditoria documental e físico-financeira com cenários de decisão técnica.
+    entregaveis:
+      - auditoria_documental
+      - diagnostico_fisico_financeiro
+      - analise_causas_de_atraso
+      - mapa_de_riscos
+      - avaliacao_de_medicoes
+      - avaliacao_de_saldo
+      - analise_de_cronograma
+      - plano_de_recuperacao
+      - cenarios_de_decisao
+      - relatorio_executivo
+    exclusoes:
+      - decisao_administrativa_final
+      - parecer_juridico
+      - aplicacao_de_sancoes
+    informacoes_entrada:
+      - contrato_aditivos_medicoes_cronograma_diario
+    duracao_estimada: "2 a 6 semanas"
+    esforco_estimado: "60 a 200 horas"
+    profissionais_necessarios:
+      - engenheiro_auditor
+      - orcamentista
+    responsabilidade_tecnica: true
+    art_potencialmente_aplicavel: true
+    classificacao_juridica_sugerida: ENGINEERING_SERVICE
+    teto_legal_potencialmente_aplicavel: BR_FEDERAL_14133_ART75_I_2026
+    faixa_preco_por_escopo:
+      currency: BRL
+      bands:
+        - label: basico
+          min: 18000
+          max: 50000
+        - label: intermediario
+          min: 50000
+          max: 95000
+        - label: completo
+          min: 95000
+          max: 128000
+    riscos:
+      - dados_incompletos
+      - conflito_com_executor_da_obra
+    evidencias_capacidade_exigidas:
+      - experiencia_em_diagnostico_contratual
+    documentos_comerciais_associados:
+      - one_page_diagnostico
+
+  - service_id: CAPACITACAO_APLICADA
+    nome: Capacitação aplicada para equipes municipais
+    problema_resolvido: Equipes sem domínio operacional da fase preparatória, fiscalização e documentação.
+    publico_alvo:
+      - equipes de obras, licitações e fiscalização
+    escopo: >
+      Oferta secundária. Não substitui entrega técnica operacional quando o órgão
+      precisa de suporte efetivo de planejamento/fiscalização.
+    entregaveis:
+      - oficina_fase_preparatoria
+      - oficina_etp_tr
+      - oficina_orcamento
+      - oficina_fiscalizacao_medicao
+      - oficina_aditivos_riscos
+      - oficina_recebimento_documentacao
+      - material_didatico
+    exclusoes:
+      - substituicao_de_entrega_operacional_principal
+      - parecer_juridico
+    informacoes_entrada:
+      - perfil_da_turma
+      - temas_prioritarios
+    duracao_estimada: "1 a 3 dias por módulo"
+    esforco_estimado: "16 a 40 horas por módulo"
+    profissionais_necessarios:
+      - instrutor_tecnico
+    responsabilidade_tecnica: false
+    art_potencialmente_aplicavel: false
+    classificacao_juridica_sugerida: OTHER_SERVICE
+    teto_legal_potencialmente_aplicavel: BR_FEDERAL_14133_ART75_II_2026
+    faixa_preco_por_escopo:
+      currency: BRL
+      bands:
+        - label: modulo
+          min: 8000
+          max: 25000
+        - label: trilha
+          min: 25000
+          max: 60000
+    riscos:
+      - ser_vendida_no_lugar_de_suporte_operacional_necessario
+    evidencias_capacidade_exigidas:
+      - experiencia_didatica_tecnica
+    documentos_comerciais_associados:
+      - one_page_capacitacao
+    secondary_offer: true
