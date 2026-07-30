@@ -70,8 +70,22 @@ def classify_object(
             human_validation_required=True,
         )
 
-    eng_hits = [k for k in eng_kws if k and k in blob]
-    other_hits = [k for k in other_kws if k and k in blob]
+    from scripts.public_agency.signals import is_engineering_object
+
+    # Weak tokens like "obra" must not fire on "mão de obra" / pageant labor.
+    eng_hits: list[str] = []
+    for k in eng_kws:
+        if not k or _fold(k) not in blob:
+            continue
+        fk = _fold(k)
+        if len(fk) < 6 or fk in {"OBRA", "OBRAS", "REFORMA", "PROJETO"}:
+            if is_engineering_object(object_text, eng_kws):
+                eng_hits.append(k)
+        else:
+            eng_hits.append(k)
+    if not eng_hits and is_engineering_object(object_text, eng_kws):
+        eng_hits = ["engineering_matcher"]
+    other_hits = [k for k in other_kws if k and _fold(k) in blob]
 
     favorable: list[str] = []
     contrary: list[str] = []

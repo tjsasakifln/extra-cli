@@ -361,15 +361,20 @@ def run_public_agency_pipeline(
         classification = classify_object(joined)
         cls_dict = classification.as_dict()
 
-        # Fragmentation / annual sum
+        # Fragmentation: only true engineering/same-nature rows (not all buyer contracts)
+        from scripts.public_agency.signals import is_engineering_object
+
         same_nature = []
         for c in contracts:
+            obj = str(c.get("objeto_contrato") or "")
+            if not is_engineering_object(obj, eng_kws):
+                continue
             amt = c.get("valor_total")
             try:
                 same_nature.append(
                     {
                         "amount": float(amt) if amt is not None else 0.0,
-                        "object": str(c.get("objeto_contrato") or ""),
+                        "object": obj,
                         "id": c.get("contrato_id"),
                     }
                 )
@@ -470,12 +475,10 @@ def run_public_agency_pipeline(
             annual_sum_state="DIRECT_CONTRACTING_SUM_UNKNOWN",
         )
 
-        # count engineering contracts more directly
-        eng_contract_count = 0
-        for c in contracts:
-            blob = str(c.get("objeto_contrato") or "").upper()
-            if any(t in blob for t in ("OBRA", "ENGENHAR", "PAVIMENT", "REFORMA", "SANEAMENTO", "INFRAESTRUTURA")):
-                eng_contract_count += 1
+        # Engineering contract count — shared matcher (no bare 'OBRA' / mão de obra)
+        eng_contract_count = sum(
+            1 for c in contracts if is_engineering_object(str(c.get("objeto_contrato") or ""), eng_kws)
+        )
 
         distress = any(s.signal_id == "contract_execution_distress" and s.status == "FIRED" for s in signals)
         recent_hist = any(

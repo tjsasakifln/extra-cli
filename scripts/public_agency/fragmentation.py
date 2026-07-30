@@ -29,24 +29,57 @@ class FragmentationAssessment:
 
 
 def _same_nature(a: str, b: str) -> bool:
-    """Coarse same-nature heuristic by shared engineering tokens."""
+    """Same-nature only when both objects are engineering-like and share a strong token.
+
+    Bare 'OBRA' inside 'mão de obra' must not pair tire contracts with works.
+    """
+    from scripts.public_agency.signals import is_engineering_object
+
+    if not is_engineering_object(a) or not is_engineering_object(b):
+        return False
     tokens = {
-        "OBRA",
         "PAVIMENT",
-        "REFORMA",
         "SANEAMENTO",
         "DRENAGEM",
         "EDIFIC",
-        "PROJETO",
+        "TERRAPLEN",
         "ORCAMENT",
         "FISCALIZ",
         "ENGENHAR",
+        "INFRAESTRUTURA",
+        "PONTE",
+        "VIADUTO",
+        "GALERIA",
+        "REDE DE",
     }
-    au = (a or "").upper()
-    bu = (b or "").upper()
+    # Fold accents lightly
+    import re
+    import unicodedata
+
+    def fold(s: str) -> str:
+        x = unicodedata.normalize("NFKD", s or "")
+        x = "".join(c for c in x if not unicodedata.combining(c))
+        return re.sub(r"\s+", " ", x.upper()).strip()
+
+    au, bu = fold(a), fold(b)
+    # Exclude pure labor
+    if "MAO DE OBRA" in au or "MAO DE OBRA" in bu:
+        if not any(t in au for t in ("PAVIMENT", "ENGENHAR", "SANEAMENTO", "OBRA DE", "OBRAS DE")):
+            return False
+        if not any(t in bu for t in ("PAVIMENT", "ENGENHAR", "SANEAMENTO", "OBRA DE", "OBRAS DE")):
+            return False
     sa = {t for t in tokens if t in au}
     sb = {t for t in tokens if t in bu}
-    return bool(sa & sb)
+    if sa & sb:
+        return True
+    # Both are eng works of construction class
+    if is_engineering_object(a) and is_engineering_object(b):
+        # Require at least one shared coarse class token beyond generic
+        coarse = {"CONSTRUCAO", "REFORMA DE", "OBRA DE", "OBRAS DE", "PROJETO BASICO"}
+        ca = {t for t in coarse if t in au}
+        cb = {t for t in coarse if t in bu}
+        return bool(ca & cb)
+    return False
 
 
 def assess_fragmentation(
@@ -116,9 +149,19 @@ def assess_fragmentation(
             except (TypeError, ValueError):
                 pass
 
-    # Repeated same-nature hiring
+    # Repeated same-nature hiring: need ≥3 contracts that pairwise share nature
     if len(contracts) >= 3:
-        indicators.append("recurring_same_nature_contracting")
+        objs = [str(c.get("object") or "") for c in contracts]
+        same_pairs = 0
+        for i in range(len(objs)):
+            for j in range(i + 1, len(objs)):
+                if _same_nature(objs[i], objs[j]):
+                    same_pairs += 1
+        if same_pairs >= 2:
+            indicators.append("recurring_same_nature_contracting")
+        elif same_pairs == 0 and len(contracts) >= 3:
+            # Caller passed mixed objects as "same_nature_contracts" — do not invent recurrence
+            pass
 
     pricing_near = False
     if proposed_amount is not None and ceiling is not None and ceiling > 0:

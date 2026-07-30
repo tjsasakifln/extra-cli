@@ -82,14 +82,188 @@ def _num(value: Any) -> float | None:
         return None
 
 
-def _is_engineering_object(obj: str | None, eng_keywords: list[str]) -> bool:
+# False-positive labor phrases that contain "OBRA" but are not engineering works.
+_NON_ENGINEERING_OBRA_PHRASES: tuple[str, ...] = (
+    "MAO DE OBRA",
+    "MAO-DE-OBRA",
+    "MAOS DE OBRA",
+    "MAOS-DE-OBRA",
+    "HORA HOMEM",
+    "HORAS HOMEM",
+)
+
+# Strong engineering phrases (substring OK after folding).
+_STRONG_ENGINEERING_PHRASES: tuple[str, ...] = (
+    "OBRA DE ",
+    "OBRAS DE ",
+    "OBRA PUBLICA",
+    "OBRAS PUBLICAS",
+    "SERVICO DE ENGENHAR",
+    "SERVICOS DE ENGENHAR",
+    "SERVICOS TECNICOS DE ENGENHAR",
+    "PROJETO BASICO",
+    "PROJETO EXECUTIVO",
+    "PAVIMENTACAO",
+    "PAVIMENTAC",
+    "TERRAPLENAGEM",
+    "SANEAMENTO",
+    "DRENAGEM",
+    "FISCALIZACAO DE OBRA",
+    "FISCALIZACAO DE OBRAS",
+    "ACOMPANHAMENTO DE OBRA",
+    "ORCAMENTO DE OBRA",
+    "ORCAMENTO DE OBRAS",
+    "MEMORIAL DESCRITIVO",
+    "PLANILHA ORCAMENT",
+    "ENGENHARIA CIVIL",
+    "ENGENHARIA ELETRICA",
+    "ENGENHARIA MECANICA",
+    "INFRAESTRUTURA URBANA",
+    "INFRAESTRUTURA VIARIA",
+    "CONSTRUCAO CIVIL",
+    "CONSTRUCAO DE ",
+    "REFORMA DE EDIFIC",
+    "REFORMA DE PREDIO",
+    "REFORMA DE ESCOLA",
+    "REFORMA DE UBS",
+    "REFORMA DE UNIDADE",
+    "EDIFICACAO",
+    "EDIFICIO",
+    "PONTE ",
+    "VIADUTO",
+    "BARRAGEM",
+    "GALERIA DE AGUAS",
+    "REDE DE ESGOTO",
+    "REDE DE AGUA",
+    "ESTACAO DE TRATAMENTO",
+)
+
+# Word-boundary tokens that alone are insufficient without context.
+_WEAK_ENG_TOKENS_REQUIRING_CONTEXT: tuple[str, ...] = (
+    "OBRA",
+    "OBRAS",
+    "REFORMA",
+    "REFORMAS",
+    "PROJETO",
+    "PROJETOS",
+    "CONSTRUCAO",
+    "MANUTENCAO",
+)
+
+
+def _has_word(blob: str, token: str) -> bool:
+    """Whole-word match for short tokens (avoids 'obra' inside other words wrongly)."""
+    return re.search(rf"(?<![A-Z0-9]){re.escape(token)}(?![A-Z0-9])", blob) is not None
+
+
+def is_engineering_object(obj: str | None, eng_keywords: list[str] | None = None) -> bool:
+    """True only for objects that are works/engineering services — not 'mão de obra'.
+
+    Rules (fail-closed toward NOT engineering):
+    1. Empty → False
+    2. If text is only labor/mão-de-obra (and no strong eng phrase) → False
+    3. Strong engineering phrases → True
+    4. Profile eng_keywords as whole-phrase/substring when length >= 5
+    5. Bare token OBRA alone is NOT enough; 'OBRA DE X' / eng context required
+    6. MATERIAIS DE CONSTRUCAO / fornecimento alone → False unless paired with obra/projeto
+    """
     blob = _fold(obj)
     if not blob:
         return False
-    for kw in eng_keywords:
-        if _fold(kw) and _fold(kw) in blob:
+
+    # Strip pure labor phrasing for residual checks
+    labor_only = any(p in blob for p in _NON_ENGINEERING_OBRA_PHRASES)
+    strong_hit = any(p in blob for p in _STRONG_ENGINEERING_PHRASES)
+
+    if strong_hit:
+        return True
+
+    # Explicit non-engineering commerce of materials without design/execution of works
+    materials_only = any(
+        p in blob
+        for p in (
+            "MATERIAIS DE CONSTRUCAO",
+            "MATERIAL DE CONSTRUCAO",
+            "FORNECIMENTO DE MATERIAIS",
+            "AQUISICAO DE MATERIAIS",
+            "COMPRA DE MATERIAIS",
+            "MATERIAIS ELETRICOS",
+            "MATERIAIS HIDRAULICOS",
+        )
+    )
+    if materials_only and not strong_hit:
+        # Allow only if clear execution of works is also stated
+        if not re.search(r"\b(EXECUCAO DE OBRA|EXECUCAO DE OBRAS|CONSTRUCAO DE |REFORMA DE )\b", blob):
+            return False
+
+    # Hair/makeup/pageant etc. with incidental words
+    if any(
+        p in blob
+        for p in (
+            "CABELO",
+            "MAQUIAGEM",
+            "BELEZA",
+            "ESTETICA",
+            "CONCURSO DE BELEZA",
+            "MISS ",
+            "ALUGUEL DE",
+            "LOCACAO DE VEICULO",
+            "COMBUSTIVEL",
+            "GENERO ALIMENTICIO",
+            "MEDICAMENTO",
+            "UNIFORME",
+            "MATERIAL DE EXPEDIENTE",
+            "PNEU",
+            "PNEUS",
+        )
+    ) and not strong_hit:
+        return False
+
+    if labor_only and not strong_hit:
+        # "Contratação de mão de obra temporária" without obra pública → not engineering
+        if not re.search(r"\b(OBRA DE|OBRAS DE|OBRA PUBLICA|ENGENHAR)\b", blob):
+            return False
+
+    # Profile keywords (prefer longer phrases)
+    for kw in eng_keywords or []:
+        fk = _fold(kw)
+        if not fk:
+            continue
+        if len(fk) >= 6 and fk in blob:
+            # Skip if the only match is inside "MAO DE OBRA"
+            if fk == "OBRA" or fk in _WEAK_ENG_TOKENS_REQUIRING_CONTEXT:
+                continue
+            if fk in ("OBRA",) or (fk == "OBRA" or "OBRA" == fk):
+                continue
+            # mão de obra contains obra as word — already handled
+            if labor_only and fk in ("OBRA", "OBRAS", "REFORMA"):
+                continue
             return True
-    return any(t in blob for t in ("OBRA", "ENGENHAR", "PAVIMENT", "REFORMA", "SANEAMENTO"))
+        if len(fk) >= 8 and fk in blob:
+            return True
+
+    # Word-boundary engineering terms with required context
+    if _has_word(blob, "ENGENHARIA") or "ENGENHAR" in blob:
+        return True
+    if any(
+        _has_word(blob, t)
+        for t in ("PAVIMENTACAO", "TERRAPLENAGEM", "SANEAMENTO", "DRENAGEM", "TERRAPLENAGEM")
+    ):
+        return True
+    # "OBRA DE …" already in strong phrases; bare OBRA alone is False
+    if re.search(r"\bOBRAS?\s+DE\s+\w", blob):
+        return True
+    if re.search(r"\bREFORMA\s+DE\s+\w", blob):
+        return True
+    if re.search(r"\bCONSTRUCAO\s+DE\s+\w", blob):
+        return True
+
+    return False
+
+
+def _is_engineering_object(obj: str | None, eng_keywords: list[str]) -> bool:
+    """Backward-compatible alias."""
+    return is_engineering_object(obj, eng_keywords)
 
 
 @dataclass
