@@ -1,13 +1,13 @@
 {
-  "run_id": "37d608d1-ce0d-44f2-bfbd-47d01d888ac8",
+  "run_id": "9dcbc98f-ae86-44e8-be5b-a375e9d67e90",
   "campaign_id": "CONFENGE-PUBLIC-AGENCY-TECHNICAL-SERVICES-01",
   "status": "PASS",
   "reason": "PASS",
-  "git_sha": "045a9bd8009314c6cca50dbe8ba326635da823d3",
-  "artifact_git_sha": "045a9bd8009314c6cca50dbe8ba326635da823d3",
+  "git_sha": "d8493ceb055dc8326c4da71ec75079e98da7a6a2",
+  "artifact_git_sha": "d8493ceb055dc8326c4da71ec75079e98da7a6a2",
   "as_of": "2026-07-15",
-  "started_at": "2026-07-30T23:17:26Z",
-  "finished_at": "2026-07-30T23:17:26Z",
+  "started_at": "2026-07-30T23:18:48Z",
+  "finished_at": "2026-07-30T23:18:48Z",
   "target": "public-agencies",
   "module_version": "1.0.0",
   "config_hashes": {
@@ -89,7 +89,7 @@
         ],
         "identidade_canonica": "cnpj:82804212000196",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:17:12Z"
+        "last_verified_at": "2026-07-30T23:18:38Z"
       },
       "mode": "REACTIVE_OPPORTUNITY",
       "score": {
@@ -647,7 +647,7 @@
         ],
         "identidade_canonica": "cnpj:85361863000147",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:17:12Z"
+        "last_verified_at": "2026-07-30T23:18:38Z"
       },
       "mode": "REACTIVE_OPPORTUNITY",
       "score": {
@@ -1112,7 +1112,7 @@
         ],
         "identidade_canonica": "cnpj:82939380000199",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:17:23Z"
+        "last_verified_at": "2026-07-30T23:18:46Z"
       },
       "mode": "REACTIVE_OPPORTUNITY",
       "score": {
@@ -1673,7 +1673,7 @@
         ],
         "identidade_canonica": "cnpj:95780458000117",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:17:12Z"
+        "last_verified_at": "2026-07-30T23:18:39Z"
       },
       "mode": "REACTIVE_OPPORTUNITY",
       "score": {
@@ -2332,7 +2332,7 @@
         ],
         "identidade_canonica": "cnpj:83102517000119",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:17:12Z"
+        "last_verified_at": "2026-07-30T23:18:38Z"
       },
       "mode": "REACTIVE_OPPORTUNITY",
       "score": {
@@ -2903,7 +2903,7 @@
         ],
         "identidade_canonica": "cnpj:83102681000126",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:17:13Z"
+        "last_verified_at": "2026-07-30T23:18:39Z"
       },
       "mode": "REACTIVE_OPPORTUNITY",
       "score": {
@@ -3562,7 +3562,7 @@
         ],
         "identidade_canonica": "cnpj:82836057000190",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:17:19Z"
+        "last_verified_at": "2026-07-30T23:18:42Z"
       },
       "mode": "REACTIVE_OPPORTUNITY",
       "score": {
@@ -4213,7 +4213,7 @@
         ],
         "identidade_canonica": "cnpj:82777236000101",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:17:12Z"
+        "last_verified_at": "2026-07-30T23:18:39Z"
       },
       "mode": "REACTIVE_OPPORTUNITY",
       "score": {
@@ -4647,7 +4647,7 @@
         ],
         "identidade_canonica": "cnpj:82939414000145",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:17:13Z"
+        "last_verified_at": "2026-07-30T23:18:39Z"
       },
       "mode": "REACTIVE_OPPORTUNITY",
       "score": {
@@ -5206,7 +5206,7 @@
         ],
         "identidade_canonica": "cnpj:01593132000137",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:17:24Z"
+        "last_verified_at": "2026-07-30T23:18:47Z"
       },
       "mode": "REACTIVE_OPPORTUNITY",
       "score": {
@@ -5636,7 +5636,7 @@
         ],
         "identidade_canonica": "cnpj:83102418000137",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:17:13Z"
+        "last_verified_at": "2026-07-30T23:18:39Z"
       },
       "mode": "REACTIVE_OPPORTUNITY",
       "score": {
@@ -6286,7 +6286,7 @@
         ],
         "identidade_canonica": "cnpj:80912009000108",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:17:13Z"
+        "last_verified_at": "2026-07-30T23:18:40Z"
       },
       "mode": "REACTIVE_OPPORTUNITY",
       "score": {
@@ -6789,7 +6789,7 @@
         ],
         "identidade_canonica": "cnpj:82939232000174",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:17:19Z"
+        "last_verified_at": "2026-07-30T23:18:42Z"
       },
       "mode": "REACTIVE_OPPORTUNITY",
       "score": {
@@ -7423,7 +7423,7 @@
         ],
         "identidade_canonica": "cnpj:82821208000136",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:17:20Z"
+        "last_verified_at": "2026-07-30T23:18:43Z"
       },
       "mode": "REACTIVE_OPPORTUNITY",
       "score": {
@@ -8073,7 +8073,7 @@
         ],
         "identidade_canonica": "cnpj:83102244000102",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:17:12Z"
+        "last_verified_at": "2026-07-30T23:18:39Z"
       },
       "mode": "REACTIVE_OPPORTUNITY",
       "score": {
@@ -8583,7 +8583,7 @@
         ],
         "identidade_canonica": "cnpj:82821174000180",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:17:19Z"
+        "last_verified_at": "2026-07-30T23:18:42Z"
       },
       "mode": "REACTIVE_OPPORTUNITY",
       "score": {
@@ -9240,7 +9240,7 @@
         ],
         "identidade_canonica": "cnpj:83021857000115",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:17:19Z"
+        "last_verified_at": "2026-07-30T23:18:42Z"
       },
       "mode": "REACTIVE_OPPORTUNITY",
       "score": {
@@ -9833,7 +9833,7 @@
         ],
         "identidade_canonica": "cnpj:83788281000116",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:17:12Z"
+        "last_verified_at": "2026-07-30T23:18:39Z"
       },
       "mode": "REACTIVE_OPPORTUNITY",
       "score": {
@@ -10263,7 +10263,7 @@
         ],
         "identidade_canonica": "cnpj:82892365000132",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:17:12Z"
+        "last_verified_at": "2026-07-30T23:18:38Z"
       },
       "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
       "score": {
@@ -10882,7 +10882,7 @@
         ],
         "identidade_canonica": "cnpj:83009860000113",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:17:21Z"
+        "last_verified_at": "2026-07-30T23:18:44Z"
       },
       "mode": "REACTIVE_OPPORTUNITY",
       "score": {

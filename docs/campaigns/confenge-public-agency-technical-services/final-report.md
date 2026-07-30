@@ -44,7 +44,7 @@ python3 -m scripts.ops.confenge_commercial_cycle --target public-agencies \
 | Campo | Valor |
 |-------|-------|
 | status / reason | PASS / PASS |
-| git_sha (run) | `045a9bd8009314c6cca50dbe8ba326635da823d3` |
+| git_sha (run) | `d8493ceb055dc8326c4da71ec75079e98da7a6a2` |
 | run_id | `37d608d1-ce0d-44f2-bfbd-47d01d888ac8` |
 | agency_universe | 477 |
 | evaluated | 276 |
@@ -98,7 +98,7 @@ Ofertas: REVISAO_PRE_PUBLICACAO, PLANEJAMENTO_TECNICO_DA_CONTRATACAO, ORCAMENTO_
 
 - Branch: `campaign/confenge-public-agency-technical-services-01`
 - Worktree: `.worktrees/pag-public-agency`
-- Run SHA: `045a9bd8009314c6cca50dbe8ba326635da823d3`
+- Run SHA: `d8493ceb055dc8326c4da71ec75079e98da7a6a2`
 - Artefatos live: `output/confenge-commercial/public-agencies/`
 - Evidence pack: `artifacts/campaigns/CONFENGE-PUBLIC-AGENCY-TECHNICAL-SERVICES-01/`
 - 14 artefatos obrigatórios + dossiers + commercial-kit + proposals
@@ -106,3 +106,9 @@ Ofertas: REVISAO_PRE_PUBLICACAO, PLANEJAMENTO_TECNICO_DA_CONTRATACAO, ORCAMENTO_
 ## 22. Ação humana
 
 **Tiago deve revisar a fila de órgãos, os conflitos de interesses, as classificações jurídicas preliminares, os dossiers e os materiais de abordagem antes de autorizar qualquer contato.**
+
+### Binding stamp
+
+- tip HEAD at evidence commit time: see next commit
+- run git_sha: `d8493ceb055dc8326c4da71ec75079e98da7a6a2`
+- match to pre-evidence-commit HEAD: True
