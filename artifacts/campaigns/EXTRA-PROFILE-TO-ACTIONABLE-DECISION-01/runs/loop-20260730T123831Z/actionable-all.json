@@ -1,0 +1,352 @@
+[
+  {
+    "opportunity_id": "batch-0",
+    "state": "NO_VERIFIABLE_FUTURE_DEADLINE",
+    "actionable": false,
+    "reasons_include": [
+      "status_compatible:open"
+    ],
+    "reasons_block": [
+      "deadline_missing",
+      "url_not_specific",
+      "profile_requires_future_deadline",
+      "profile_no_positive_terms"
+    ],
+    "evidence": {
+      "opportunity_id": "batch-0",
+      "orgao": null,
+      "objeto": "Objeto batch 0",
+      "modalidade": "",
+      "valor": null,
+      "valor_semantica": "",
+      "publicacao": null,
+      "prazo_raw": null,
+      "prazo_utc": null,
+      "timezone": null,
+      "status": "open",
+      "source": "test_batch",
+      "url": null,
+      "url_specific": false,
+      "collected_at": "2026-07-29 08:40:16.614432-03:00",
+      "source_updated_at": "2026-07-29 08:40:16.614432-03:00",
+      "parser_version": "extra-actionable-opportunity/1.0",
+      "profile_stamp": {
+        "schema": "extra-operational-profile/1.1",
+        "profile_path": "config/client_profiles/extra.yaml",
+        "profile_id": "extra_construtora",
+        "display_name": "Extra Empreiteira e Construtora",
+        "version": 3,
+        "version_date": "2026-07-25",
+        "profile_hash": "aeaa8551547e167addfff707b642782b71d9526b8b8a8b8aa91b3a8cceaae92f",
+        "stamp": "extra_construtora@v3:aeaa8551547e",
+        "stamped_at": "2026-07-30T12:38:39Z"
+      },
+      "positive_terms": [],
+      "negative_terms": [],
+      "critical_capacity_pending": [
+        "capital_giro",
+        "capacidade_garantia",
+        "capacidade_simultanea",
+        "cats_atestados",
+        "margem_minima"
+      ]
+    },
+    "score_components": {
+      "positive_term_hits": 0,
+      "negative_term_hits": 0,
+      "valor": null
+    },
+    "profile_stamp": {
+      "schema": "extra-operational-profile/1.1",
+      "profile_path": "config/client_profiles/extra.yaml",
+      "profile_id": "extra_construtora",
+      "display_name": "Extra Empreiteira e Construtora",
+      "version": 3,
+      "version_date": "2026-07-25",
+      "profile_hash": "aeaa8551547e167addfff707b642782b71d9526b8b8a8b8aa91b3a8cceaae92f",
+      "stamp": "extra_construtora@v3:aeaa8551547e",
+      "stamped_at": "2026-07-30T12:38:39Z"
+    },
+    "parser_version": "extra-actionable-opportunity/1.0"
+  },
+  {
+    "opportunity_id": "batch-1",
+    "state": "NO_VERIFIABLE_FUTURE_DEADLINE",
+    "actionable": false,
+    "reasons_include": [
+      "status_compatible:open"
+    ],
+    "reasons_block": [
+      "deadline_missing",
+      "url_not_specific",
+      "profile_requires_future_deadline",
+      "profile_no_positive_terms"
+    ],
+    "evidence": {
+      "opportunity_id": "batch-1",
+      "orgao": null,
+      "objeto": "Objeto batch 1",
+      "modalidade": "",
+      "valor": null,
+      "valor_semantica": "",
+      "publicacao": null,
+      "prazo_raw": null,
+      "prazo_utc": null,
+      "timezone": null,
+      "status": "open",
+      "source": "test_batch",
+      "url": null,
+      "url_specific": false,
+      "collected_at": "2026-07-29 08:40:16.614432-03:00",
+      "source_updated_at": "2026-07-29 08:40:16.614432-03:00",
+      "parser_version": "extra-actionable-opportunity/1.0",
+      "profile_stamp": {
+        "schema": "extra-operational-profile/1.1",
+        "profile_path": "config/client_profiles/extra.yaml",
+        "profile_id": "extra_construtora",
+        "display_name": "Extra Empreiteira e Construtora",
+        "version": 3,
+        "version_date": "2026-07-25",
+        "profile_hash": "aeaa8551547e167addfff707b642782b71d9526b8b8a8b8aa91b3a8cceaae92f",
+        "stamp": "extra_construtora@v3:aeaa8551547e",
+        "stamped_at": "2026-07-30T12:38:39Z"
+      },
+      "positive_terms": [],
+      "negative_terms": [],
+      "critical_capacity_pending": [
+        "capital_giro",
+        "capacidade_garantia",
+        "capacidade_simultanea",
+        "cats_atestados",
+        "margem_minima"
+      ]
+    },
+    "score_components": {
+      "positive_term_hits": 0,
+      "negative_term_hits": 0,
+      "valor": null
+    },
+    "profile_stamp": {
+      "schema": "extra-operational-profile/1.1",
+      "profile_path": "config/client_profiles/extra.yaml",
+      "profile_id": "extra_construtora",
+      "display_name": "Extra Empreiteira e Construtora",
+      "version": 3,
+      "version_date": "2026-07-25",
+      "profile_hash": "aeaa8551547e167addfff707b642782b71d9526b8b8a8b8aa91b3a8cceaae92f",
+      "stamp": "extra_construtora@v3:aeaa8551547e",
+      "stamped_at": "2026-07-30T12:38:39Z"
+    },
+    "parser_version": "extra-actionable-opportunity/1.0"
+  },
+  {
+    "opportunity_id": "batch-2",
+    "state": "NO_VERIFIABLE_FUTURE_DEADLINE",
+    "actionable": false,
+    "reasons_include": [
+      "status_compatible:open"
+    ],
+    "reasons_block": [
+      "deadline_missing",
+      "url_not_specific",
+      "profile_requires_future_deadline",
+      "profile_no_positive_terms"
+    ],
+    "evidence": {
+      "opportunity_id": "batch-2",
+      "orgao": null,
+      "objeto": "Objeto batch 2",
+      "modalidade": "",
+      "valor": null,
+      "valor_semantica": "",
+      "publicacao": null,
+      "prazo_raw": null,
+      "prazo_utc": null,
+      "timezone": null,
+      "status": "open",
+      "source": "test_batch",
+      "url": null,
+      "url_specific": false,
+      "collected_at": "2026-07-29 08:40:16.614432-03:00",
+      "source_updated_at": "2026-07-29 08:40:16.614432-03:00",
+      "parser_version": "extra-actionable-opportunity/1.0",
+      "profile_stamp": {
+        "schema": "extra-operational-profile/1.1",
+        "profile_path": "config/client_profiles/extra.yaml",
+        "profile_id": "extra_construtora",
+        "display_name": "Extra Empreiteira e Construtora",
+        "version": 3,
+        "version_date": "2026-07-25",
+        "profile_hash": "aeaa8551547e167addfff707b642782b71d9526b8b8a8b8aa91b3a8cceaae92f",
+        "stamp": "extra_construtora@v3:aeaa8551547e",
+        "stamped_at": "2026-07-30T12:38:39Z"
+      },
+      "positive_terms": [],
+      "negative_terms": [],
+      "critical_capacity_pending": [
+        "capital_giro",
+        "capacidade_garantia",
+        "capacidade_simultanea",
+        "cats_atestados",
+        "margem_minima"
+      ]
+    },
+    "score_components": {
+      "positive_term_hits": 0,
+      "negative_term_hits": 0,
+      "valor": null
+    },
+    "profile_stamp": {
+      "schema": "extra-operational-profile/1.1",
+      "profile_path": "config/client_profiles/extra.yaml",
+      "profile_id": "extra_construtora",
+      "display_name": "Extra Empreiteira e Construtora",
+      "version": 3,
+      "version_date": "2026-07-25",
+      "profile_hash": "aeaa8551547e167addfff707b642782b71d9526b8b8a8b8aa91b3a8cceaae92f",
+      "stamp": "extra_construtora@v3:aeaa8551547e",
+      "stamped_at": "2026-07-30T12:38:39Z"
+    },
+    "parser_version": "extra-actionable-opportunity/1.0"
+  },
+  {
+    "opportunity_id": "batch-3",
+    "state": "NO_VERIFIABLE_FUTURE_DEADLINE",
+    "actionable": false,
+    "reasons_include": [
+      "status_compatible:open"
+    ],
+    "reasons_block": [
+      "deadline_missing",
+      "url_not_specific",
+      "profile_requires_future_deadline",
+      "profile_no_positive_terms"
+    ],
+    "evidence": {
+      "opportunity_id": "batch-3",
+      "orgao": null,
+      "objeto": "Objeto batch 3",
+      "modalidade": "",
+      "valor": null,
+      "valor_semantica": "",
+      "publicacao": null,
+      "prazo_raw": null,
+      "prazo_utc": null,
+      "timezone": null,
+      "status": "open",
+      "source": "test_batch",
+      "url": null,
+      "url_specific": false,
+      "collected_at": "2026-07-29 08:40:16.614432-03:00",
+      "source_updated_at": "2026-07-29 08:40:16.614432-03:00",
+      "parser_version": "extra-actionable-opportunity/1.0",
+      "profile_stamp": {
+        "schema": "extra-operational-profile/1.1",
+        "profile_path": "config/client_profiles/extra.yaml",
+        "profile_id": "extra_construtora",
+        "display_name": "Extra Empreiteira e Construtora",
+        "version": 3,
+        "version_date": "2026-07-25",
+        "profile_hash": "aeaa8551547e167addfff707b642782b71d9526b8b8a8b8aa91b3a8cceaae92f",
+        "stamp": "extra_construtora@v3:aeaa8551547e",
+        "stamped_at": "2026-07-30T12:38:39Z"
+      },
+      "positive_terms": [],
+      "negative_terms": [],
+      "critical_capacity_pending": [
+        "capital_giro",
+        "capacidade_garantia",
+        "capacidade_simultanea",
+        "cats_atestados",
+        "margem_minima"
+      ]
+    },
+    "score_components": {
+      "positive_term_hits": 0,
+      "negative_term_hits": 0,
+      "valor": null
+    },
+    "profile_stamp": {
+      "schema": "extra-operational-profile/1.1",
+      "profile_path": "config/client_profiles/extra.yaml",
+      "profile_id": "extra_construtora",
+      "display_name": "Extra Empreiteira e Construtora",
+      "version": 3,
+      "version_date": "2026-07-25",
+      "profile_hash": "aeaa8551547e167addfff707b642782b71d9526b8b8a8b8aa91b3a8cceaae92f",
+      "stamp": "extra_construtora@v3:aeaa8551547e",
+      "stamped_at": "2026-07-30T12:38:39Z"
+    },
+    "parser_version": "extra-actionable-opportunity/1.0"
+  },
+  {
+    "opportunity_id": "batch-4",
+    "state": "NO_VERIFIABLE_FUTURE_DEADLINE",
+    "actionable": false,
+    "reasons_include": [
+      "status_compatible:open"
+    ],
+    "reasons_block": [
+      "deadline_missing",
+      "url_not_specific",
+      "profile_requires_future_deadline",
+      "profile_no_positive_terms"
+    ],
+    "evidence": {
+      "opportunity_id": "batch-4",
+      "orgao": null,
+      "objeto": "Objeto batch 4",
+      "modalidade": "",
+      "valor": null,
+      "valor_semantica": "",
+      "publicacao": null,
+      "prazo_raw": null,
+      "prazo_utc": null,
+      "timezone": null,
+      "status": "open",
+      "source": "test_batch",
+      "url": null,
+      "url_specific": false,
+      "collected_at": "2026-07-29 08:40:16.614432-03:00",
+      "source_updated_at": "2026-07-29 08:40:16.614432-03:00",
+      "parser_version": "extra-actionable-opportunity/1.0",
+      "profile_stamp": {
+        "schema": "extra-operational-profile/1.1",
+        "profile_path": "config/client_profiles/extra.yaml",
+        "profile_id": "extra_construtora",
+        "display_name": "Extra Empreiteira e Construtora",
+        "version": 3,
+        "version_date": "2026-07-25",
+        "profile_hash": "aeaa8551547e167addfff707b642782b71d9526b8b8a8b8aa91b3a8cceaae92f",
+        "stamp": "extra_construtora@v3:aeaa8551547e",
+        "stamped_at": "2026-07-30T12:38:39Z"
+      },
+      "positive_terms": [],
+      "negative_terms": [],
+      "critical_capacity_pending": [
+        "capital_giro",
+        "capacidade_garantia",
+        "capacidade_simultanea",
+        "cats_atestados",
+        "margem_minima"
+      ]
+    },
+    "score_components": {
+      "positive_term_hits": 0,
+      "negative_term_hits": 0,
+      "valor": null
+    },
+    "profile_stamp": {
+      "schema": "extra-operational-profile/1.1",
+      "profile_path": "config/client_profiles/extra.yaml",
+      "profile_id": "extra_construtora",
+      "display_name": "Extra Empreiteira e Construtora",
+      "version": 3,
+      "version_date": "2026-07-25",
+      "profile_hash": "aeaa8551547e167addfff707b642782b71d9526b8b8a8b8aa91b3a8cceaae92f",
+      "stamp": "extra_construtora@v3:aeaa8551547e",
+      "stamped_at": "2026-07-30T12:38:39Z"
+    },
+    "parser_version": "extra-actionable-opportunity/1.0"
+  }
+]
