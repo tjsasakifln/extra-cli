@@ -1,0 +1,34 @@
+{
+  "campaign": "CONFENGE-COMMERCIAL-READY-01",
+  "kind": "squash_ancestry_rebind",
+  "verified_at": "2026-07-30T14:45:32Z",
+  "old_bound_sha": "bf94eb877861d405b70ee164a44d1c3fcadd0e38",
+  "new_bound_sha": "d469b87bf16df033e80e69ee706d96e400c87340",
+  "head_sha": "26d32410395ddef1d8babdb853617132372bb230",
+  "reason": "bound_sha_not_ancestor_of_head after squash merges: pre-merge freeze bf94eb877861 is not in linear ancestry of PR tip; rebind to main squash tip of PR #179 (d469b87bf16d) which is a git ancestor.",
+  "proof": {
+    "protected_inputs_digest_diff_count": 0,
+    "protected_inputs_count": 53,
+    "code_tree_hash_old": "58f7e351ba386a8fa9bbed87c49f2332b38239adbec9a610f2c2f8d1e98025cd",
+    "code_tree_hash_new": "3e35437db47c38f3ca059eb92eed18ce496d3da0eaa8cd36751a79631fce34d7",
+    "code_tree_hash_head": "e6f49cab6697850fbfa7d5e34eb3e025da9885bc8e48cce4ddc98c90160d42e1",
+    "full_tree_equivalent": false,
+    "protected_inputs_equivalent": true,
+    "evaluate_post_freeze_new_to_head_ok": true,
+    "protected_changed_new_to_head": [],
+    "old_is_ancestor_of_head": false,
+    "new_is_ancestor_of_head": true,
+    "policy": "frozen_confenge_inputs_v1",
+    "note": "Full monorepo tree hash differs (expected after squash + unrelated main history); freeze policy is protected CONFENGE inputs only — digests match."
+  },
+  "original_execution_traceability": {
+    "workflow_run_id": "30217720692",
+    "human_review_artifact_id": 8636290007,
+    "machine_evidence_artifact_id": 8636294876,
+    "pre_squash_freeze_sha": "bf94eb877861d405b70ee164a44d1c3fcadd0e38",
+    "preserved": true
+  },
+  "soak_untouched": true,
+  "commercial_pipeline_reexecuted": false,
+  "verify_confenge_artifact_binding_modified": false
+}

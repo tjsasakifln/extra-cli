@@ -1,7 +1,7 @@
 {
   "run_id": "cl-20260726T003820Z-f8e90e36",
   "status": "BLOCKED",
-  "git_sha": "bf94eb877861d405b70ee164a44d1c3fcadd0e38",
+  "git_sha": "d469b87bf16df033e80e69ee706d96e400c87340",
   "discovery_mode": "PREFILTERED_CANDIDATE_DISCOVERY",
   "history_expansion_mode": "FULL_CANDIDATE_HISTORY",
   "ranking_population_mode": "FULL_ELIGIBLE_CANDIDATES",
@@ -201,18 +201,18 @@
     "human_review_status": "PENDING",
     "labels_are_human": false
   },
-  "run_git_sha": "bf94eb877861d405b70ee164a44d1c3fcadd0e38",
-  "artifact_git_sha": "bf94eb877861d405b70ee164a44d1c3fcadd0e38",
-  "reason": "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE",
-  "executed_code_sha": "bf94eb877861d405b70ee164a44d1c3fcadd0e38",
-  "current_pr_head_sha": "bf94eb877861d405b70ee164a44d1c3fcadd0e38",
-  "executed_git_sha": "8506aebabb0dab327654d420222402ae15f9a3aa",
-  "evidence_commit_sha": "bf94eb877861d405b70ee164a44d1c3fcadd0e38",
-  "match_run_to_head": true,
-  "updated_at": "2026-07-27T15:09:20Z",
-  "pr_head_sha": "f68882edc079cb40929aecad431c9565c6f17b13",
-  "gate_git_sha": "bf94eb877861d405b70ee164a44d1c3fcadd0e38",
-  "review_git_sha": "bf94eb877861d405b70ee164a44d1c3fcadd0e38",
+  "run_git_sha": "d469b87bf16df033e80e69ee706d96e400c87340",
+  "artifact_git_sha": "d469b87bf16df033e80e69ee706d96e400c87340",
+  "reason": "BLOCKED_CODE_EXECUTION_SHA_MISMATCH",
+  "executed_code_sha": "d469b87bf16df033e80e69ee706d96e400c87340",
+  "current_pr_head_sha": "26d32410395ddef1d8babdb853617132372bb230",
+  "executed_git_sha": "d469b87bf16df033e80e69ee706d96e400c87340",
+  "evidence_commit_sha": "26d32410395ddef1d8babdb853617132372bb230",
+  "match_run_to_head": false,
+  "updated_at": "2026-07-30T14:46:39Z",
+  "pr_head_sha": "26d32410395ddef1d8babdb853617132372bb230",
+  "gate_git_sha": "d469b87bf16df033e80e69ee706d96e400c87340",
+  "review_git_sha": "d469b87bf16df033e80e69ee706d96e400c87340",
   "offer_mapping_diagnostic": {
     "offer_distribution": {
       "acompanhamento_contratual": 20
@@ -251,12 +251,13 @@
     "n_leads": 20,
     "selection_rule_version": "offer-selection-v3-discriminative"
   },
-  "terminal_reason": "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE",
+  "terminal_reason": "BLOCKED_CODE_EXECUTION_SHA_MISMATCH",
   "technical_status": "BLOCKED",
-  "final_code_freeze_sha": "f68882edc079cb40929aecad431c9565c6f17b13",
+  "final_code_freeze_sha": "d469b87bf16df033e80e69ee706d96e400c87340",
   "code_changed_after_execution": false,
-  "artifact_only_commits_after_execution": false,
+  "artifact_only_commits_after_execution": true,
   "machine_blockers": [
+    "BLOCKED_CODE_EXECUTION_SHA_MISMATCH",
     "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE"
   ],
   "human_blockers": [
@@ -274,31 +275,57 @@
   "human_package_publication_status": "PASS",
   "machine_evidence_publication_status": "PASS",
   "github_workflow_status": "PASS",
-  "terminal_declaration": "BLOCKED_ONLY_OFFICIAL_REGISTRY_AND_HUMAN_REVIEW",
-  "workflow_head_sha": "8506aebabb0dab327654d420222402ae15f9a3aa",
-  "checked_out_sha": "f68882edc079cb40929aecad431c9565c6f17b13",
-  "final_integrity_code_freeze_sha": "f68882edc079cb40929aecad431c9565c6f17b13",
-  "freeze_sha": "f68882edc079cb40929aecad431c9565c6f17b13",
+  "terminal_declaration": "BLOCKED_CODE_EXECUTION_SHA_MISMATCH",
+  "workflow_head_sha": "26d32410395ddef1d8babdb853617132372bb230",
+  "checked_out_sha": "26d32410395ddef1d8babdb853617132372bb230",
+  "final_integrity_code_freeze_sha": "d469b87bf16df033e80e69ee706d96e400c87340",
+  "freeze_sha": "d469b87bf16df033e80e69ee706d96e400c87340",
   "workflow_artifact_head_sha": "6dcab34860fb016aa1ef3152db4d9b0ae97adae6",
-  "non_artifact_files_changed_after_execution": [],
-  "all_other_machine_blockers": [],
+  "non_artifact_files_changed_after_execution": [
+    "Makefile",
+    "artifacts/campaigns/EXTRA-PROFILE-TO-ACTIONABLE-DECISION-01/runs/loop-20260730T123831Z/actionable-all.json",
+    "artifacts/campaigns/EXTRA-PROFILE-TO-ACTIONABLE-DECISION-01/runs/loop-20260730T123831Z/actionable-summary.json",
+    "artifacts/campaigns/EXTRA-PROFILE-TO-ACTIONABLE-DECISION-01/runs/loop-20260730T123831Z/decision-loop-state.json",
+    "artifacts/campaigns/EXTRA-PROFILE-TO-ACTIONABLE-DECISION-01/runs/loop-20260730T123831Z/executive-summary.md",
+    "artifacts/campaigns/EXTRA-PROFILE-TO-ACTIONABLE-DECISION-01/runs/loop-20260730T123831Z/result.json",
+    "artifacts/campaigns/EXTRA-PROFILE-TO-ACTIONABLE-DECISION-01/runs/loop-20260730T123831Z/shortlist.json",
+    "docs/handoffs/extra-cli-strategic-execution-20260730.md",
+    "scripts/ops/extra_actionable.py",
+    "scripts/ops/extra_decision_loop.py",
+    "scripts/ops/extra_decision_review.py",
+    "scripts/ops/extra_profile.py",
+    "tests/test_extra_decision_loop.py"
+  ],
+  "all_other_machine_blockers": [
+    "BLOCKED_CODE_EXECUTION_SHA_MISMATCH"
+  ],
   "workflow_run_id": "30217720692",
   "human_review_artifact_id": 8636290007,
   "machine_evidence_artifact_id": 8636294876,
-  "code_merge_ready": true,
+  "code_merge_ready": false,
   "commercial_release_ready": false,
   "code_evolution_note": "Re-bound after activation; READY-01 historical BLOCKED.",
   "activation_campaign": "CONFENGE-COMMERCIAL-ACTIVATION-AND-OUTCOME-LOOP-01",
   "sha_binding": {
-    "bound_to": "7ef1fc1d26ee013373c69105fc5860c1b46c6a90",
-    "note": "Rebound after intentional commercial_leads Top10 official-registry gate fix (skeptic remediation PR #179)",
+    "bound_to": "d469b87bf16df033e80e69ee706d96e400c87340",
     "match_run_to_head": false,
-    "freeze_code_sha": "bf94eb877861d405b70ee164a44d1c3fcadd0e38"
+    "freeze_code_sha": "d469b87bf16df033e80e69ee706d96e400c87340",
+    "pre_squash_bound_sha": "bf94eb877861d405b70ee164a44d1c3fcadd0e38",
+    "note": "Canonical rebind after squash ancestry break: protected CONFENGE inputs equivalent between bf94eb877861 and d469b87bf16d (0 digest diffs); bf94eb877861 not ancestor of HEAD; d469b87bf16d is.",
+    "proof_artifact": "squash-ancestry-rebind-proof.json"
   },
-  "binding_rebind_at": "2026-07-30T02:55:37Z",
+  "binding_rebind_at": "2026-07-30T14:45:32Z",
   "skeptic_rebind": {
     "previous_bound": "7ef1fc1d26ee013373c69105fc5860c1b46c6a90",
     "new_bound": "bf94eb877861d405b70ee164a44d1c3fcadd0e38",
     "reason": "protected commercial_leads change: top10 official RFB gate + holdout"
+  },
+  "squash_ancestry_rebind": {
+    "previous_bound": "bf94eb877861d405b70ee164a44d1c3fcadd0e38",
+    "new_bound": "d469b87bf16df033e80e69ee706d96e400c87340",
+    "reason": "bound_sha_not_ancestor_of_head after squash of confenge skeptic tip into main (#179)",
+    "protected_inputs_equivalent": true,
+    "full_tree_equivalent": false,
+    "commercial_reexecution": false
   }
 }

@@ -1,6 +1,6 @@
 # FINAL EVIDENCE CLOSURE — CONFENGE-COMMERCIAL-READY-01
 
-Generated: 2026-07-27T15:09:20Z
+Generated: 2026-07-30T14:46:39Z
 Aggregator: `build_final_campaign_status()`
 
 ## Terminal
@@ -9,20 +9,20 @@ Aggregator: `build_final_campaign_status()`
 |-------|-------|
 | status | `BLOCKED` |
 | technical_status | `BLOCKED` |
-| terminal_reason | `BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE` |
-| terminal_declaration | `BLOCKED_ONLY_OFFICIAL_REGISTRY_AND_HUMAN_REVIEW` |
+| terminal_reason | `BLOCKED_CODE_EXECUTION_SHA_MISMATCH` |
+| terminal_declaration | `BLOCKED_CODE_EXECUTION_SHA_MISMATCH` |
 
 ## SHAs
 
 | Field | Value |
 |-------|-------|
-| pr_head_sha / current_pr_head_sha | `8506aebabb0dab327654d420222402ae15f9a3aa` |
+| pr_head_sha / current_pr_head_sha | `26d32410395ddef1d8babdb853617132372bb230` |
 | workflow_merge_sha | `None` |
-| checked_out_sha | `8506aebabb0dab327654d420222402ae15f9a3aa` |
-| executed_code_sha | `8506aebabb0dab327654d420222402ae15f9a3aa` |
-| final_integrity_code_freeze_sha | `8506aebabb0dab327654d420222402ae15f9a3aa` |
-| match_run_to_head | `True` |
-| code_changed_after_execution | `False` |
+| checked_out_sha | `26d32410395ddef1d8babdb853617132372bb230` |
+| executed_code_sha | `d469b87bf16df033e80e69ee706d96e400c87340` |
+| final_integrity_code_freeze_sha | `d469b87bf16df033e80e69ee706d96e400c87340` |
+| match_run_to_head | `False` |
+| code_changed_after_execution | `True` |
 | artifact_only_commits_after_execution | `False` |
 
 ## CI (layered)
@@ -41,6 +41,7 @@ Aggregator: `build_final_campaign_status()`
 
 ## Machine blockers
 
+- `BLOCKED_CODE_EXECUTION_SHA_MISMATCH`
 - `BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE`
 
 ## Human blockers
@@ -52,6 +53,6 @@ Aggregator: `build_final_campaign_status()`
 ## Commercial
 
 - commercial_status: `BLOCKED_PENDING_HUMAN_ACCEPTANCE`
-- code_merge_ready: `True`
+- code_merge_ready: `False`
 - commercial_release_ready: `False`
 - Official registry coverage: `0.05319148936170213`
