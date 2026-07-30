@@ -381,7 +381,7 @@ Não é probabilidade de compra. Revisão de Tiago não preenchida automaticamen
                 f"- Run ID: `{run.get('run_id')}`",
                 f"- Leads na fila: {len(leads)}",
                 f"- commercial_release_ready: `{run.get('commercial_release_ready')}`",
-                f"- precision@10 / @20: `null` (somente após seus labels)",
+                "- precision@10 / @20: `null` (somente após seus labels)",
                 "",
                 "## O que revisar",
                 "",

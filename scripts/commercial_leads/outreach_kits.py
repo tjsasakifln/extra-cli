@@ -143,7 +143,7 @@ def kit_to_markdown(kit: dict[str, Any]) -> str:
         "",
         f"- CNPJ: `{kit.get('cnpj14')}` | Rank: {kit.get('rank_position')}",
         f"- Oferta sugerida: **{(kit.get('suggested_offer') or {}).get('label')}**",
-        f"- Envio: **manual only** (sem automação)",
+        "- Envio: **manual only** (sem automação)",
         "",
         "## Resumo",
     ]

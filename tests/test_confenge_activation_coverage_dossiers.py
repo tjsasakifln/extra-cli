@@ -5,8 +5,6 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import pytest
-
 from scripts.commercial_leads.canonical_coverage import (
     assert_no_coverage_divergence,
     build_canonical_coverage,

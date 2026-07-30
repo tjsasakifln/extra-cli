@@ -27,7 +27,6 @@ def build_dossier(lead: dict[str, Any], *, run_id: str | None = None) -> dict[st
     evidence = lead.get("evidence") or []
     contracts = lead.get("contracts_sample") or lead.get("evidence") or []
     reg = lead.get("registry") or {}
-    sector = lead.get("supplier_sector_evidence") or lead.get("supplier_sector_fit")
     limitations = list(lead.get("limitations") or [])
     dossier = {
         "schema_version": "commercial-dossier-v1",

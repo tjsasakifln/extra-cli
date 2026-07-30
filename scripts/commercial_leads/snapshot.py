@@ -334,8 +334,13 @@ def compute_canonical_table_hash(
             if prev_auto:
                 try:
                     conn.autocommit = True
-                except Exception:
-                    pass
+                except Exception as restore_exc:  # noqa: BLE001
+                    # Readonly source sessions may reject autocommit flip; hash already complete.
+                    import logging
+
+                    logging.getLogger(__name__).debug(
+                        "autocommit_restore_skipped: %s", restore_exc
+                    )
         if hashed == 0 and n > 0:
             raise RuntimeError("named_cursor_returned_zero_rows")
     except Exception:
