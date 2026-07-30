@@ -1,75 +1,63 @@
 # HANDOFF — CONFENGE-COMMERCIAL-ACTIVATION-AND-OUTCOME-LOOP-01
 
 **To:** Tiago Sasaki (sole commercial acceptance authority)  
-**From:** Campaign closeout (PR B)  
+**From:** Skeptic-reconciled campaign closeout  
 **Date (UTC):** 2026-07-30  
 
 ## One-line status
 
-Machine commercial loop on **full history is live on main** (`7243b87f`); **only your human review/accept blocks** `commercial_release_ready`.
+Full-history VPS commercial cycle **ran and is idempotent**, soak NI **PASS**, packages exist — but **commercial release is not ready**: official RFB cadastro on Top10 **fails §8.1**, human labels pending, DOD §2.7 underdelivered (0 ACCEPTED).
 
 ## What you get
 
 | Artifact | Path |
 |----------|------|
-| Review pack | `artifacts/.../run-post-merge/TIAGO-REVIEW.md` (local; re-run if missing) |
-| Top20 slim (committed) | `artifacts/.../post-merge/evidence-slim/top20-slim.json` |
-| Acceptance template | `.../post-merge/evidence-slim/user-acceptance.template.json` |
-| Soak proof | `.../post-merge/soak-non-interference.json` (**PASS**) |
+| VPS review pack | `artifacts/.../vps-live/package/` |
+| TIAGO-REVIEW | `.../vps-live/package/TIAGO-REVIEW.md` + `docs/ops/campaigns/.../TIAGO-REVIEW.md` |
+| Top20 dossiers | `.../vps-live/package/top20-dossiers/` |
+| Top5 kits | `.../vps-live/package/top5-outreach-kits/` |
+| Holdout calibration | `.../vps-live/package/holdout-review.{json,csv,md}` |
+| Acceptance template | `.../vps-live/package/user-acceptance.template.json` |
+| Live summary / idempotency / soak | `.../vps-live/*.json` |
+| Top10 retrospective | `.../vps-live/top10-gate-retrospective.json` |
 | Final report | `docs/ops/campaigns/.../FINAL-REPORT.md` |
 
-Heavy dossiers/kits/HTML live under local `run-post-merge/` (gitignored bulk). Re-generate with the cycle command below if the worktree is clean of that folder.
+## Your actions
 
-## Reproduce (local isolated DB)
+1. Review Top20 + dossiers for sector fit (engineering/construction).  
+2. Use kits as **manual** copy only — **no auto-send**.  
+3. Fill holdout labels only if you want precision calibration (optional).  
+4. **Do not** mark ACCEPTED while Top10 official cadastro fails — or accept only as “calibration queue” with that limitation noted.  
+5. Formal commercial ACCEPTED remains yours alone after a cycle that passes official Top10 gate.
+
+## Blockers (ordered)
+
+1. Official RFB bulk ingest to raise `official_registry_coverage` and satisfy Top10 gate.  
+2. Your human review/labels.  
+3. Formal DOD §2.7 accepts (controller, per-item) — none auto-promoted.
+
+## Reproduce
 
 ```bash
-export CONFENGE_COMMERCIAL_STATE_DSN='postgresql://test:test@127.0.0.1:5433/confenge_commercial_activation'
-export CONFENGE_COMMERCIAL_SNAPSHOT=artifacts/campaigns/CONFENGE-COMMERCIAL-ACTIVATION-AND-OUTCOME-LOOP-01/snapshot/snapshot-manifest.json
-export CONFENGE_COMMERCIAL_OUT=artifacts/campaigns/CONFENGE-COMMERCIAL-ACTIVATION-AND-OUTCOME-LOOP-01/run-post-merge
 make confenge-commercial-cycle
 ```
 
-Requires the activation DB still populated (~4.47M `pncp_supplier_contracts` on port 5433).
+Post-remediation: Top10 without official RFB cadastro → `FAIL_TOP10_VALIDITY`.
 
-## Your actions (only remaining commercial blockers)
+## Non-claims
 
-1. Review Top20 for profile fit (engineering/construction/design — not pure materials without service).  
-2. Spot-check dossiers for contract evidence links.  
-3. Use outreach kits as **manual** copy/paste only — **do not** auto-send.  
-4. If usable: set acceptance template to `ACCEPTED` with your name/date.  
-5. If not: document `REJECTED` reasons; machine will stay `BLOCKED` honestly.  
-
-## Do not claim
-
+- `PASS` / `PASS_ACTIVATION` / commercial release  
 - `VPS_OPERATIONAL` / `LOCAL_READY` / `PROJECT_DONE`  
-- Precision@k without your labels  
-- RFB zip-only registry authority for this run  
-- That soak calendar “7 days” completed (not claimed; non-interference only)
+- official coverage 1.0  
+- precision@k without your labels  
+- PR budget compliance (campaign used >2 PRs; see FINAL-REPORT)
 
-## Optional ops follow-up (not required for human review)
+## PR budget honesty
 
-- Deploy main `7243b87f` to Netcup **without** resetting soak timers.  
-- Keep PR #133 draft untouched until public corpus exists.
-
-## Contacts / authority
-
-| Role | Owner |
-|------|--------|
-| Commercial accept | Tiago only |
-| Machine cycle | `make confenge-commercial-cycle` |
-| Freeze/gates CONFENGE READY-01 | unchanged freeze tip `f68882ed` (code); evidence lag free |
-
-
-## Honest registry (post-skeptic)
-
-- **Official RFB-authority coverage:** 0.0298 (683/22882 via `rfb_public_cadastral_via_opencnpj`)
-- **Operational supplier registry:** 1.0 with `minhareceita_fallback` / `brasilapi_fallback` labels
-- Code fix: `official_registry_coverage` is no longer aliased to any-source presence
-
-## Durable package paths
-
-- `docs/ops/campaigns/.../TIAGO-REVIEW.md`
-- `artifacts/.../top20-durable.json`
-- `artifacts/.../review-package/top20-dossiers/`
-- `artifacts/.../review-package/top5-outreach-kits/`
-- `artifacts/.../review-package-manifest.json` (SHA-256 per file)
+| PR | Role |
+|----|------|
+| #172 | A — capability |
+| #174 | B — closeout evidence |
+| #175 | Honesty fix (over budget) |
+| #178 | VPS live evidence (over budget) |
+| next | Skeptic remediation (Top10 gate + holdout + docs) — unavoidable defect fix |

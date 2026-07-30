@@ -25,9 +25,18 @@
     "rfb_public_cadastral_via_opencnpj": 668
   },
   "top10_gate": {
-    "ok": true,
+    "ok": false,
     "all_confirmed_engineering": true,
-    "n": 10
+    "n": 10,
+    "official_registry_failures": 10,
+    "retrospective": true,
+    "issues": [
+      "top10_official_registry_unresolved",
+      "top10_cnae_missing",
+      "top10_situacao_missing",
+      "top10_registry_source_not_official"
+    ],
+    "note": "Retrospective after §8.1 official cadastro requirement; original run used sector-only gate"
   },
   "top20": [
     {
@@ -119,7 +128,7 @@
     {
       "rank": 5,
       "cnpj14": "09065576000101",
-      "razao_social": "BRASIL RONDON COSTRU\u00c7\u00c3O LTDA EPP",
+      "razao_social": "BRASIL RONDON COSTRUÇÃO LTDA EPP",
       "score_total": 26.364,
       "supplier_sector_fit": "CONFIRMED_ENGINEERING",
       "activity_class": "ENGINEERING_SERVICE_PROVIDER",
@@ -141,7 +150,7 @@
     {
       "rank": 6,
       "cnpj14": "53464172000182",
-      "razao_social": "M V OLIVEIRA SANTOS SERVI\u00c7OS DE ENGENHARIA LTDA",
+      "razao_social": "M V OLIVEIRA SANTOS SERVIÇOS DE ENGENHARIA LTDA",
       "score_total": 26.1238,
       "supplier_sector_fit": "CONFIRMED_ENGINEERING",
       "activity_class": "ENGINEERING_SERVICE_PROVIDER",
@@ -269,7 +278,7 @@
     {
       "rank": 12,
       "cnpj14": "40881295000177",
-      "razao_social": "RODZINSKI FISCALIZA\u00c7\u00c3O E ACOMPANHAMENTO DE OBRAS DE ENGENHARIA LTDA.",
+      "razao_social": "RODZINSKI FISCALIZAÇÃO E ACOMPANHAMENTO DE OBRAS DE ENGENHARIA LTDA.",
       "score_total": 23.773,
       "supplier_sector_fit": "CONFIRMED_ENGINEERING",
       "activity_class": "ENGINEERING_SERVICE_PROVIDER",
@@ -290,7 +299,7 @@
     {
       "rank": 13,
       "cnpj14": "29084108000191",
-      "razao_social": "AUTENTIKA CONSTRU\u00c7\u00d5ES LTDA",
+      "razao_social": "AUTENTIKA CONSTRUÇÕES LTDA",
       "score_total": 23.71,
       "supplier_sector_fit": "CONFIRMED_ENGINEERING",
       "activity_class": "ENGINEERING_SERVICE_PROVIDER",
@@ -415,7 +424,7 @@
     {
       "rank": 19,
       "cnpj14": "03698620000568",
-      "razao_social": "GREEN4T SOLU\u00c7\u00d5ES TI LTDA",
+      "razao_social": "GREEN4T SOLUÇÕES TI LTDA",
       "score_total": 23.0,
       "supplier_sector_fit": "CONFIRMED_ENGINEERING",
       "activity_class": "ENGINEERING_SERVICE_PROVIDER",
@@ -540,5 +549,8 @@
     "precision_at_k",
     "auto_send",
     "official_registry_1.0"
-  ]
+  ],
+  "holdout_8_2": true,
+  "skeptic_reconciled_at": "2026-07-30T04:30:00Z",
+  "technical_residual": "FAIL_TOP10_VALIDITY_OFFICIAL_CADASTRO"
 }

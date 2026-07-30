@@ -1,48 +1,150 @@
 {
   "schema_version": "review-package-manifest-v1",
-  "campaign_id": "CONFENGE-COMMERCIAL-ACTIVATION-AND-OUTCOME-LOOP-01",
-  "environment": "vps_live",
-  "deploy_sha": "7ef1fc1d26ee013373c69105fc5860c1b46c6a90",
-  "run_id": "cl-20260730T023737Z-c6f5d5d2",
-  "dossiers_n": 20,
-  "kits_n": 5,
-  "top10_gate": {
-    "ok": true,
-    "all_confirmed_engineering": true,
-    "n": 10
-  },
+  "generated_at": "2026-07-30T03:19:59Z",
+  "package_root": "artifacts/campaigns/CONFENGE-COMMERCIAL-ACTIVATION-AND-OUTCOME-LOOP-01/vps-live/package",
+  "file_count": 35,
   "files": {
-    "package/TIAGO-REVIEW.md": "03931a69c65bcedf4210d74ae0993ddd961760b97cde716c34e6421af0008b98",
-    "package/canonical-coverage.json": "6bcd7bc6420f1cc0f1d1ab2eb73a4f42673992d73c2418529d8e80281a2c3d55",
-    "package/cycle-manifest.json": "b78c4fa24ce4599ecbed0dcd793fff3ba727121fbdf98189f4c938d3b62edfdd",
-    "package/queue-summary.json": "283b9b894a039efbadb25c5115f986a49cd2f6d8bfd02b89060d37424dca0201",
-    "package/signal-distribution.json": "1c52537329cf88fd528ad7dd578aa7b7671546ffe567bb51728d040d60c0deb7",
-    "package/top20-dossiers/03698620000568.md": "ae3fac8a66c714d0d20dc971ea6d4dad703f68a42473d65f2e75b43ff6e68f18",
-    "package/top20-dossiers/09065576000101.md": "3ca6117402f14ce1dd66e9e96767a3378e119ebec71977ae0375ca980d28d1f8",
-    "package/top20-dossiers/10915057000174.md": "14ccd62d9995de60bb1c7db87a2d97af73f1afacfdedcfa5366a2ad26d461d38",
-    "package/top20-dossiers/14283859000160.md": "8dec207dc373405cb7e6fda4c42dbd8c8eb27c5a4ad9aff29a78b840ab55f26c",
-    "package/top20-dossiers/23691899000131.md": "55b976b9d6a04ae4803e5066e9ed09f97d1ec6ab5d665c5b534e794fe43f5ef8",
-    "package/top20-dossiers/28482916000144.md": "31ab7ec6554aefb8c7a93624e041bc410e5bfd7089ddb3d6e374266dcbb43f9b",
-    "package/top20-dossiers/29084108000191.md": "242a304f84c7a18aaec66666bcd80b600bedc32306414dc59fcce5fbc8c08184",
-    "package/top20-dossiers/35335154000119.md": "8d3bd905f9ab70b0649ce8cc74a9abb2a3e3d3015a759e017edf937f9ba0623e",
-    "package/top20-dossiers/35654766000174.md": "b4c29228ef5e138f6a5110c72ee3b0713af33334c59f9365938a3d021ac3c97e",
-    "package/top20-dossiers/36216839000109.md": "1855a67418ffb1ad1e45502962fc07f90bf5cb53cb535a5e711973ccedda88e4",
-    "package/top20-dossiers/40671657000103.md": "ea83c2f1bee3c7b20bc535626e76c82816af2d1030ccac96f33c4da8cc64f9cf",
-    "package/top20-dossiers/40881295000177.md": "40a165cbd11ec38885d54ea715bafdbf44c5aafa1eff07a0a319829d1af36db8",
-    "package/top20-dossiers/42438822000107.md": "db6147c5ca256358731ff3808c64b7606f929d7c6308f68bb2263a7d3ff8477d",
-    "package/top20-dossiers/42531033000108.md": "b231a717d3850a1eb19f8b9c1c3d32c592757e2ff6168d476f31442f2b20a1d9",
-    "package/top20-dossiers/43371025000104.md": "58261d377d0381ddbd15f63fdf99d82ae43b1c152f03e7ac8bc5837488848dd8",
-    "package/top20-dossiers/44101311000112.md": "35e260b704271c11840e7254667aecf20c410122baa5c93fedad8d68d297a828",
-    "package/top20-dossiers/50410432000149.md": "a406818de5460085a62da8d56ae1856b601df9caaf38e16d73308f28fd40ab82",
-    "package/top20-dossiers/50558572000169.md": "c0f8c5597ed11927e4f9b6c49ce34b0bfdbddfba47a1e802d0f0251d53398a58",
-    "package/top20-dossiers/51550475000192.md": "19a0cd7ea3bbf5ffb29a34e641650839a4b0b8ca49a0dda388440009a0748c30",
-    "package/top20-dossiers/53464172000182.md": "6fd8e9fab0ff12b2385ec5b9cc176d25893019dc08a7d2e681500f8f1f4ac17e",
-    "package/top5-outreach-kits/09065576000101.md": "e7d396293b6153b5f0e4a36935fcb863335d50d27613785debedaae4ffc198b8",
-    "package/top5-outreach-kits/36216839000109.md": "5cd097f79c7ba7f95eb942be926fc695800be5e9c3c05bc700c38201dbf26ea1",
-    "package/top5-outreach-kits/42531033000108.md": "c141dca362c77f5afc1cd72ab3795f6106dd7b3f03f31615988a2a8fcdc602dc",
-    "package/top5-outreach-kits/43371025000104.md": "f9bf284669a00b11f886cf859e198d8a44d2f5deecccdd15bb5ea35d58878050",
-    "package/top5-outreach-kits/50410432000149.md": "fe0d65aa3c350b54b8a16a93b5d37c5d069449ba927678a774bf20a4f5206ba4",
-    "package/top5-outreach-kits/index.json": "c9b17cccbd7e29bb25871cab8218ae8ba01e0b41d3a2b8319847ca3aa6ccdfb4",
-    "package/user-acceptance.template.json": "d3f23ba9d06b5bd1b1cce3c90169edf0ec97cc4a47bd7c6c50a0581f1c519c3a"
-  }
+    "TIAGO-REVIEW.md": {
+      "sha256": "03931a69c65bcedf4210d74ae0993ddd961760b97cde716c34e6421af0008b98",
+      "bytes": 753
+    },
+    "canonical-coverage.json": {
+      "sha256": "6bcd7bc6420f1cc0f1d1ab2eb73a4f42673992d73c2418529d8e80281a2c3d55",
+      "bytes": 2094
+    },
+    "cycle-manifest.json": {
+      "sha256": "b78c4fa24ce4599ecbed0dcd793fff3ba727121fbdf98189f4c938d3b62edfdd",
+      "bytes": 6781
+    },
+    "holdout-review.csv": {
+      "sha256": "cd5c452b6ee8000a05b0956d46df795989b5d411c1d44d3f24ff610cebc8546b",
+      "bytes": 4756
+    },
+    "holdout-review.json": {
+      "sha256": "a4a0beeab5bdcd0c96fcd4f87b7ea16ba70cf2e289a55ea28933e90199f81e49",
+      "bytes": 14714
+    },
+    "holdout-review.md": {
+      "sha256": "bce8c061040ceb6723562d98e7c243572d3568f290a2df1014a7a041ffd3f672",
+      "bytes": 2701
+    },
+    "queue-summary.json": {
+      "sha256": "283b9b894a039efbadb25c5115f986a49cd2f6d8bfd02b89060d37424dca0201",
+      "bytes": 7639
+    },
+    "signal-distribution.json": {
+      "sha256": "1c52537329cf88fd528ad7dd578aa7b7671546ffe567bb51728d040d60c0deb7",
+      "bytes": 390
+    },
+    "top20-dossiers/03698620000568.md": {
+      "sha256": "ae3fac8a66c714d0d20dc971ea6d4dad703f68a42473d65f2e75b43ff6e68f18",
+      "bytes": 2310
+    },
+    "top20-dossiers/09065576000101.md": {
+      "sha256": "3ca6117402f14ce1dd66e9e96767a3378e119ebec71977ae0375ca980d28d1f8",
+      "bytes": 2863
+    },
+    "top20-dossiers/10915057000174.md": {
+      "sha256": "14ccd62d9995de60bb1c7db87a2d97af73f1afacfdedcfa5366a2ad26d461d38",
+      "bytes": 2873
+    },
+    "top20-dossiers/14283859000160.md": {
+      "sha256": "8dec207dc373405cb7e6fda4c42dbd8c8eb27c5a4ad9aff29a78b840ab55f26c",
+      "bytes": 2404
+    },
+    "top20-dossiers/23691899000131.md": {
+      "sha256": "55b976b9d6a04ae4803e5066e9ed09f97d1ec6ab5d665c5b534e794fe43f5ef8",
+      "bytes": 2569
+    },
+    "top20-dossiers/28482916000144.md": {
+      "sha256": "31ab7ec6554aefb8c7a93624e041bc410e5bfd7089ddb3d6e374266dcbb43f9b",
+      "bytes": 2566
+    },
+    "top20-dossiers/29084108000191.md": {
+      "sha256": "242a304f84c7a18aaec66666bcd80b600bedc32306414dc59fcce5fbc8c08184",
+      "bytes": 2587
+    },
+    "top20-dossiers/35335154000119.md": {
+      "sha256": "8d3bd905f9ab70b0649ce8cc74a9abb2a3e3d3015a759e017edf937f9ba0623e",
+      "bytes": 2949
+    },
+    "top20-dossiers/35654766000174.md": {
+      "sha256": "b4c29228ef5e138f6a5110c72ee3b0713af33334c59f9365938a3d021ac3c97e",
+      "bytes": 2696
+    },
+    "top20-dossiers/36216839000109.md": {
+      "sha256": "1855a67418ffb1ad1e45502962fc07f90bf5cb53cb535a5e711973ccedda88e4",
+      "bytes": 2823
+    },
+    "top20-dossiers/40671657000103.md": {
+      "sha256": "ea83c2f1bee3c7b20bc535626e76c82816af2d1030ccac96f33c4da8cc64f9cf",
+      "bytes": 2601
+    },
+    "top20-dossiers/40881295000177.md": {
+      "sha256": "40a165cbd11ec38885d54ea715bafdbf44c5aafa1eff07a0a319829d1af36db8",
+      "bytes": 2693
+    },
+    "top20-dossiers/42438822000107.md": {
+      "sha256": "db6147c5ca256358731ff3808c64b7606f929d7c6308f68bb2263a7d3ff8477d",
+      "bytes": 2653
+    },
+    "top20-dossiers/42531033000108.md": {
+      "sha256": "b231a717d3850a1eb19f8b9c1c3d32c592757e2ff6168d476f31442f2b20a1d9",
+      "bytes": 2726
+    },
+    "top20-dossiers/43371025000104.md": {
+      "sha256": "58261d377d0381ddbd15f63fdf99d82ae43b1c152f03e7ac8bc5837488848dd8",
+      "bytes": 2620
+    },
+    "top20-dossiers/44101311000112.md": {
+      "sha256": "35e260b704271c11840e7254667aecf20c410122baa5c93fedad8d68d297a828",
+      "bytes": 2595
+    },
+    "top20-dossiers/50410432000149.md": {
+      "sha256": "a406818de5460085a62da8d56ae1856b601df9caaf38e16d73308f28fd40ab82",
+      "bytes": 2938
+    },
+    "top20-dossiers/50558572000169.md": {
+      "sha256": "c0f8c5597ed11927e4f9b6c49ce34b0bfdbddfba47a1e802d0f0251d53398a58",
+      "bytes": 2812
+    },
+    "top20-dossiers/51550475000192.md": {
+      "sha256": "19a0cd7ea3bbf5ffb29a34e641650839a4b0b8ca49a0dda388440009a0748c30",
+      "bytes": 2902
+    },
+    "top20-dossiers/53464172000182.md": {
+      "sha256": "6fd8e9fab0ff12b2385ec5b9cc176d25893019dc08a7d2e681500f8f1f4ac17e",
+      "bytes": 2957
+    },
+    "top5-outreach-kits/09065576000101.md": {
+      "sha256": "e7d396293b6153b5f0e4a36935fcb863335d50d27613785debedaae4ffc198b8",
+      "bytes": 3367
+    },
+    "top5-outreach-kits/36216839000109.md": {
+      "sha256": "5cd097f79c7ba7f95eb942be926fc695800be5e9c3c05bc700c38201dbf26ea1",
+      "bytes": 3296
+    },
+    "top5-outreach-kits/42531033000108.md": {
+      "sha256": "c141dca362c77f5afc1cd72ab3795f6106dd7b3f03f31615988a2a8fcdc602dc",
+      "bytes": 3282
+    },
+    "top5-outreach-kits/43371025000104.md": {
+      "sha256": "f9bf284669a00b11f886cf859e198d8a44d2f5deecccdd15bb5ea35d58878050",
+      "bytes": 3214
+    },
+    "top5-outreach-kits/50410432000149.md": {
+      "sha256": "fe0d65aa3c350b54b8a16a93b5d37c5d069449ba927678a774bf20a4f5206ba4",
+      "bytes": 3337
+    },
+    "top5-outreach-kits/index.json": {
+      "sha256": "c9b17cccbd7e29bb25871cab8218ae8ba01e0b41d3a2b8319847ca3aa6ccdfb4",
+      "bytes": 1188
+    },
+    "user-acceptance.template.json": {
+      "sha256": "d3f23ba9d06b5bd1b1cce3c90169edf0ec97cc4a47bd7c6c50a0581f1c519c3a",
+      "bytes": 367
+    }
+  },
+  "holdout_present": true,
+  "labels_are_human": false
 }

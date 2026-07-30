@@ -369,6 +369,13 @@ Não é probabilidade de compra. Revisão de Tiago não preenchida automaticamen
     except Exception as exc:  # noqa: BLE001
         paths["dossier_kit_export_error"] = str(exc)
 
+    # Holdout package (§8.2): near-cut + excluded/negative controls
+    holdout_paths = export_holdout_review(out_dir, run)
+    paths.update(holdout_paths)
+
+    top10_val = run.get("top10_validation") or (run.get("metrics") or {}).get("top10_validation") or {}
+    holdout_meta = run.get("holdout_review") or {}
+
     # TIAGO-REVIEW lightweight handoff
     review_md = out_dir / "TIAGO-REVIEW.md"
     review_md.write_text(
@@ -381,6 +388,8 @@ Não é probabilidade de compra. Revisão de Tiago não preenchida automaticamen
                 f"- Run ID: `{run.get('run_id')}`",
                 f"- Leads na fila: {len(leads)}",
                 f"- commercial_release_ready: `{run.get('commercial_release_ready')}`",
+                f"- Top10 gate ok: `{top10_val.get('ok')}` "
+                f"(official_registry_failures={top10_val.get('official_registry_failures')})",
                 "- precision@10 / @20: `null` (somente após seus labels)",
                 "",
                 "## O que revisar",
@@ -388,7 +397,9 @@ Não é probabilidade de compra. Revisão de Tiago não preenchida automaticamen
                 "1. Top 20 em `leads.json` / `commercial-review.csv`",
                 "2. Dossiers em `top20-dossiers/`",
                 "3. Kits manuais em `top5-outreach-kits/` (não enviar automaticamente)",
-                "4. Holdout / exclusões em artefatos de gate quando presentes",
+                "4. Holdout de calibração em `holdout-review.json` "
+                f"(near_cut_n={holdout_meta.get('near_cut_n')}, "
+                f"excluded_negative_n={holdout_meta.get('excluded_negative_n')})",
                 "5. Preencher `user-acceptance.template.json` apenas se aceitar",
                 "",
                 "## Regras",
@@ -396,6 +407,7 @@ Não é probabilidade de compra. Revisão de Tiago não preenchida automaticamen
                 "- Somente você pode marcar ACCEPTED.",
                 "- Não use avaliações de agentes como label humano.",
                 "- Contatos ausentes são NOT_AVAILABLE — não inventar.",
+                "- Top10 exige cadastro **oficial RFB** resolvido (não só setor).",
                 "",
             ]
         ),
@@ -421,6 +433,201 @@ Não é probabilidade de compra. Revisão de Tiago não preenchida automaticamen
     _write_json(p, accept_tpl)
     paths["user-acceptance.template.json"] = str(p)
 
+    return paths
+
+
+_HOLDOUT_SLIM_KEYS: tuple[str, ...] = (
+    "holdout_role",
+    "rank_position",
+    "cnpj14",
+    "raw_tax_id",
+    "razao_social",
+    "raw_name",
+    "supplier_sector_fit",
+    "activity_class",
+    "score_total",
+    "cnae_principal",
+    "exclusion_reason",
+    "reason_code",
+    "near_cut_note",
+    "publishable",
+    "contract_count",
+    "total_value",
+    "last_publication",
+    "registry_resolution_status",
+    "registry_source",
+    "municipio",
+    "uf",
+    "situacao_cadastral",
+)
+
+
+def _slim_holdout_row(row: dict[str, Any]) -> dict[str, Any]:
+    """Keep holdout JSON small (campaign artifact size policy)."""
+    out: dict[str, Any] = {}
+    for k in _HOLDOUT_SLIM_KEYS:
+        if row.get(k) is not None:
+            out[k] = row.get(k)
+    if "holdout_role" not in out and row.get("holdout_role"):
+        out["holdout_role"] = row.get("holdout_role")
+    return out
+
+
+def export_holdout_review(out_dir: Path, run: dict[str, Any]) -> dict[str, str]:
+    """Write holdout-review artifacts for human calibration (§8.2).
+
+    Requires ≥10 near-cut and ≥10 excluded/negative when available from the run.
+    Does not invent rows — only persists samples the pipeline already produced.
+    Rows are slimmed to essential columns for git size policy.
+    """
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    paths: dict[str, str] = {}
+
+    near_cut = list(run.get("near_cut_sample") or [])
+    excluded = list(run.get("excluded_negative_sample") or [])
+    # Fallback: review_queue_sample may carry sector-excluded firms
+    if len(excluded) < 10:
+        for row in run.get("review_queue_sample") or []:
+            if not isinstance(row, dict):
+                continue
+            sfit = str(row.get("supplier_sector_fit") or "")
+            if sfit in {
+                "OUT_OF_SCOPE",
+                "UNKNOWN",
+                "CONFLICTING",
+                "POSSIBLE_ENGINEERING_FIT",
+            }:
+                excluded.append({**row, "holdout_role": "excluded_negative"})
+            if len(excluded) >= 15:
+                break
+    if len(excluded) < 10:
+        for row in run.get("exclusions_sample") or []:
+            if not isinstance(row, dict):
+                continue
+            excluded.append(
+                {
+                    **row,
+                    "holdout_role": "excluded_negative",
+                    "exclusion_reason": row.get("reason_code") or "identity_exclusion",
+                }
+            )
+            if len(excluded) >= 15:
+                break
+
+    near_slim = [_slim_holdout_row(r) for r in near_cut[:20] if isinstance(r, dict)]
+    excl_slim = [_slim_holdout_row(r) for r in excluded[:25] if isinstance(r, dict)]
+
+    payload = {
+        "schema_version": "holdout-review-v1",
+        "run_id": run.get("run_id"),
+        "campaign_id": run.get("campaign_id"),
+        "purpose": (
+            "Human calibration controls: near-cut firms just below Top20 and "
+            "excluded/negative cases. Labels must be filled by Tiago only."
+        ),
+        "slim": True,
+        "near_cut": near_slim,
+        "excluded_negative": excl_slim,
+        "counts": {
+            "near_cut": len(near_slim),
+            "excluded_negative": len(excl_slim),
+            "min_near_cut_required": 10,
+            "min_excluded_negative_required": 10,
+        },
+        "ok": len(near_slim) >= 10 and len(excl_slim) >= 10,
+        "labels_are_human": False,
+        "human_review_status": "PENDING",
+    }
+    p = out_dir / "holdout-review.json"
+    _write_json(p, payload)
+    paths["holdout-review.json"] = str(p)
+
+    # Slim CSV for spreadsheet review
+    p_csv = out_dir / "holdout-review.csv"
+    fields = [
+        "holdout_role",
+        "rank_position",
+        "cnpj14",
+        "raw_tax_id",
+        "razao_social",
+        "raw_name",
+        "supplier_sector_fit",
+        "score_total",
+        "cnae_principal",
+        "exclusion_reason",
+        "reason_code",
+        "human_label",
+        "notes",
+    ]
+    with p_csv.open("w", encoding="utf-8", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=fields, extrasaction="ignore")
+        w.writeheader()
+        for row in near_slim:
+            w.writerow(
+                {
+                    "holdout_role": row.get("holdout_role") or "near_cut",
+                    "rank_position": row.get("rank_position"),
+                    "cnpj14": row.get("cnpj14"),
+                    "razao_social": row.get("razao_social"),
+                    "supplier_sector_fit": row.get("supplier_sector_fit"),
+                    "score_total": row.get("score_total"),
+                    "cnae_principal": row.get("cnae_principal"),
+                    "human_label": "",
+                    "notes": "",
+                }
+            )
+        for row in excl_slim:
+            w.writerow(
+                {
+                    "holdout_role": row.get("holdout_role") or "excluded_negative",
+                    "rank_position": row.get("rank_position"),
+                    "cnpj14": row.get("cnpj14"),
+                    "raw_tax_id": row.get("raw_tax_id"),
+                    "razao_social": row.get("razao_social"),
+                    "raw_name": row.get("raw_name"),
+                    "supplier_sector_fit": row.get("supplier_sector_fit"),
+                    "score_total": row.get("score_total"),
+                    "cnae_principal": row.get("cnae_principal"),
+                    "exclusion_reason": row.get("exclusion_reason"),
+                    "reason_code": row.get("reason_code"),
+                    "human_label": "",
+                    "notes": "",
+                }
+            )
+    paths["holdout-review.csv"] = str(p_csv)
+
+    # Markdown index
+    md = out_dir / "holdout-review.md"
+    lines = [
+        "# Holdout review — calibração humana (§8.2)",
+        "",
+        f"- Run: `{run.get('run_id')}`",
+        f"- Near-cut: **{len(near_slim)}** (mínimo 10)",
+        f"- Excluded/negative: **{len(excl_slim)}** (mínimo 10)",
+        f"- Package ok: `{payload['ok']}`",
+        "",
+        "Labels humanos ficam vazios até Tiago preencher. Não auto-preencher.",
+        "",
+        "## Near-cut (logo abaixo do Top20)",
+        "",
+    ]
+    for row in near_slim[:15]:
+        lines.append(
+            f"- rank {row.get('rank_position')}: `{row.get('cnpj14')}` "
+            f"{row.get('razao_social') or ''} | setor={row.get('supplier_sector_fit')} "
+            f"| score={row.get('score_total')}"
+        )
+    lines += ["", "## Excluded / negative", ""]
+    for row in excl_slim[:15]:
+        ident = row.get("cnpj14") or row.get("raw_tax_id") or row.get("raw_name")
+        lines.append(
+            f"- `{ident}` | setor={row.get('supplier_sector_fit')} | "
+            f"reason={row.get('exclusion_reason') or row.get('reason_code')}"
+        )
+    lines.append("")
+    md.write_text("\n".join(lines), encoding="utf-8")
+    paths["holdout-review.md"] = str(md)
     return paths
 
 

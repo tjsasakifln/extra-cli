@@ -1,6 +1,6 @@
 {
-  "section": "2.7 Inteligência comercial CONFENGE",
-  "generated_at": "2026-07-30T01:45:01Z",
+  "section": "2.7 Intelig\u00eancia comercial CONFENGE",
+  "generated_at": "2026-07-30T03:15:47Z",
   "baseline_accepted": 0,
   "accepted_this_campaign": 0,
   "accepted_item_ids": [],
@@ -8,5 +8,5 @@
   "target_min_weighted": 80,
   "weighted_points": 0,
   "status": "BLOCKED_SCOPE_UNDERDELIVERED",
-  "note": "No §2.7 items promoted via dod_controller accept; formal ACCEPTED requires per-item packs on main."
+  "note": "No \u00a72.7 items promoted via dod_controller accept; formal ACCEPTED requires per-item packs on main."
 }
