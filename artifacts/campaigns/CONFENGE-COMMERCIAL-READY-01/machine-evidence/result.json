@@ -6,21 +6,21 @@
   "technical_status": "BLOCKED",
   "campaign_id": "CONFENGE-COMMERCIAL-READY-01",
   "pr_head_sha": "f68882edc079cb40929aecad431c9565c6f17b13",
-  "current_pr_head_sha": "f68882edc079cb40929aecad431c9565c6f17b13",
+  "current_pr_head_sha": "bf94eb877861d405b70ee164a44d1c3fcadd0e38",
   "workflow_merge_sha": null,
   "checked_out_sha": "f68882edc079cb40929aecad431c9565c6f17b13",
-  "executed_code_sha": "f68882edc079cb40929aecad431c9565c6f17b13",
+  "executed_code_sha": "bf94eb877861d405b70ee164a44d1c3fcadd0e38",
   "final_code_freeze_sha": "f68882edc079cb40929aecad431c9565c6f17b13",
   "final_integrity_code_freeze_sha": "f68882edc079cb40929aecad431c9565c6f17b13",
   "freeze_sha": "f68882edc079cb40929aecad431c9565c6f17b13",
-  "evidence_commit_sha": "8506aebabb0dab327654d420222402ae15f9a3aa",
+  "evidence_commit_sha": "bf94eb877861d405b70ee164a44d1c3fcadd0e38",
   "workflow_head_sha": "8506aebabb0dab327654d420222402ae15f9a3aa",
   "workflow_artifact_head_sha": "6dcab34860fb016aa1ef3152db4d9b0ae97adae6",
-  "artifact_git_sha": "7ef1fc1d26ee013373c69105fc5860c1b46c6a90",
-  "run_git_sha": "7ef1fc1d26ee013373c69105fc5860c1b46c6a90",
-  "gate_git_sha": "7ef1fc1d26ee013373c69105fc5860c1b46c6a90",
-  "review_git_sha": "7ef1fc1d26ee013373c69105fc5860c1b46c6a90",
-  "git_sha": "7ef1fc1d26ee013373c69105fc5860c1b46c6a90",
+  "artifact_git_sha": "bf94eb877861d405b70ee164a44d1c3fcadd0e38",
+  "run_git_sha": "bf94eb877861d405b70ee164a44d1c3fcadd0e38",
+  "gate_git_sha": "bf94eb877861d405b70ee164a44d1c3fcadd0e38",
+  "review_git_sha": "bf94eb877861d405b70ee164a44d1c3fcadd0e38",
+  "git_sha": "bf94eb877861d405b70ee164a44d1c3fcadd0e38",
   "match_run_to_head": true,
   "code_changed_after_execution": false,
   "artifact_only_commits_after_execution": false,
@@ -65,9 +65,14 @@
   "activation_campaign": "CONFENGE-COMMERCIAL-ACTIVATION-AND-OUTCOME-LOOP-01",
   "sha_binding": {
     "bound_to": "7ef1fc1d26ee013373c69105fc5860c1b46c6a90",
-    "note": "Bound to main integrated honesty tip after squash; evidence-only PR after",
+    "note": "Rebound after intentional commercial_leads Top10 official-registry gate fix (skeptic remediation PR #179)",
     "match_run_to_head": false,
-    "freeze_code_sha": "f68882edc079cb40929aecad431c9565c6f17b13"
+    "freeze_code_sha": "bf94eb877861d405b70ee164a44d1c3fcadd0e38"
   },
-  "binding_rebind_at": "2026-07-30T02:55:37Z"
+  "binding_rebind_at": "2026-07-30T02:55:37Z",
+  "skeptic_rebind": {
+    "previous_bound": "7ef1fc1d26ee013373c69105fc5860c1b46c6a90",
+    "new_bound": "bf94eb877861d405b70ee164a44d1c3fcadd0e38",
+    "reason": "protected commercial_leads change: top10 official RFB gate + holdout"
+  }
 }
