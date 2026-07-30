@@ -1,6 +1,7 @@
 {
-  "accepted_new": 39,
-  "raw_open_before_approx": 1011,
-  "checked_after": 487,
-  "open_after": 966
+  "accepted_pr_b": 39,
+  "demoted_integrity": 2,
+  "net_new_accepted": 37,
+  "weighted_delta_proxy": 37,
+  "denominator_unchanged": true
 }
