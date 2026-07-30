@@ -143,6 +143,23 @@ def test_classify_document_title() -> None:
     assert classify_document_title("Edital de Pregão Eletrônico") == DocumentCategory.EDITAL.value
     assert classify_document_title("Planilha Orçamentária") == DocumentCategory.PLANILHA_ORCAMENTARIA.value
     assert classify_document_title("Homologação") == DocumentCategory.HOMOLOGACAO.value
+    # Underscore / encoding / PNCP filename patterns
+    assert classify_document_title("TERMO_DE_REFER_NCIA.pdf") == DocumentCategory.TERMO_REFERENCIA.value
+    assert classify_document_title("ESTUDO_T_CNICO_PRELIMINAR.pdf") == DocumentCategory.ESTUDO_TECNICO.value
+    assert classify_document_title("DFD ASSINADO") == DocumentCategory.ESTUDO_TECNICO.value
+    assert classify_document_title("ETP393026_000013_2025.pdf") == DocumentCategory.ESTUDO_TECNICO.value
+    assert classify_document_title("TR_393026_000028_2025__2_.pdf") == DocumentCategory.TERMO_REFERENCIA.value
+    assert classify_document_title("Pregao_Eletronico_n_238_2024.pdf") == DocumentCategory.EDITAL.value
+    assert classify_document_title("PE 055-2026 - Aquisicao de material saibro.pdf") == DocumentCategory.EDITAL.value
+    assert classify_document_title("194334_editais_1784315803.zip") == DocumentCategory.EDITAL.value
+    assert classify_document_title("Razao de escolha do contratado ASSINADO") == DocumentCategory.PARECER_JURIDICO.value
+    assert classify_document_title("Termo_de_Homologacao.pdf") == DocumentCategory.HOMOLOGACAO.value
+    assert classify_document_title("EDITAL202622.pdf") == DocumentCategory.EDITAL.value
+    assert (
+        classify_document_title("Documentos da Contratacao Direta - PUBLICADO.zip")
+        == DocumentCategory.EDITAL.value
+    )
+    assert classify_document_title("") == DocumentCategory.UNKNOWN.value
 
 
 def test_sanitize_cpf_email() -> None:

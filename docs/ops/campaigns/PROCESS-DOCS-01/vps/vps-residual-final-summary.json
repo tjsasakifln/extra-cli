@@ -1,0 +1,45 @@
+{
+  "residual_stats": {
+    "SUCCESS_ZERO": 9,
+    "no_proc_or_fail": 14,
+    "SUCCESS_NONZERO": 30
+  },
+  "entities_got": 39,
+  "operational": {
+    "percent": 96.5602,
+    "num": 393,
+    "den": 407,
+    "meets": true
+  },
+  "recall": {
+    "percent": 100.0,
+    "num": 807,
+    "den": 807,
+    "meets": true
+  },
+  "financial": {
+    "percent": 100.0,
+    "total": 14486954348.159998,
+    "covered": 14486954348.159998,
+    "meets": true
+  },
+  "completeness": {
+    "notice_and_annexes_completeness": 89.8283,
+    "session_judgment_homologation_completeness": 7.6618,
+    "winning_proposal_completeness": 3.8309,
+    "bidder_qualification_documents_completeness": 3.8309,
+    "methodology": "process_level_binary_presence",
+    "processes_scored": 757,
+    "processes_excluded_noise": 77
+  },
+  "corpus": {
+    "processes": 889,
+    "engineering": 80,
+    "envelopes": 412,
+    "families": 6,
+    "annotations": 5657
+  },
+  "still_blocked": 14,
+  "gate_exit": 6,
+  "note_completeness": "raised notice 7.9%\u219289.8% via reclassify+binary; session/win/qual publication-limited"
+}

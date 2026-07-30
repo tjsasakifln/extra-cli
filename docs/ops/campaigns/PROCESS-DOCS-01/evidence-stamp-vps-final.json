@@ -1,0 +1,42 @@
+{
+  "as_of": "2026-07-30T22:12:53.069476+00:00",
+  "vps_host": "ec-prod",
+  "operational": {
+    "percent": 96.5602,
+    "num": 393,
+    "den": 407,
+    "meets": true
+  },
+  "recall": {
+    "percent": 100.0,
+    "num": 807,
+    "den": 807,
+    "meets": true
+  },
+  "financial": {
+    "percent": 100.0,
+    "meets": true
+  },
+  "completeness": {
+    "notice_and_annexes_completeness": 89.8283,
+    "session_judgment_homologation_completeness": 7.6618,
+    "winning_proposal_completeness": 3.8309,
+    "bidder_qualification_documents_completeness": 3.8309,
+    "methodology": "process_level_binary_presence",
+    "processes_scored": 757,
+    "processes_excluded_noise": 77
+  },
+  "corpus": {
+    "processes": 889,
+    "engineering": 80,
+    "envelopes": 412,
+    "families": 6,
+    "annotations": 5657
+  },
+  "still_blocked_actives": 14,
+  "gate_exit": 6,
+  "gate_meaning": "completeness below thresholds (ops/recall/financial met)",
+  "issue_137": "OPEN - human GT required; READY_TO_SUBMIT forbidden",
+  "pr": "https://github.com/tjsasakifln/extra-cli/pull/184",
+  "classifier": "expanded PNCP title/filename rules + process-level binary completeness"
+}

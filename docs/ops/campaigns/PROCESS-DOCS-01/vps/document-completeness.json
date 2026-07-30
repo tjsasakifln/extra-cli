@@ -1,31 +1,44 @@
 {
   "metrics": {
     "notice_and_annexes_completeness": {
-      "ratio": 0.09253903990746097,
-      "percent": 9.2539,
+      "ratio": 0.8982826948480845,
+      "percent": 89.8283,
       "threshold": 0.98,
-      "meets_threshold": false
+      "meets_threshold": false,
+      "methodology": "process_level_binary_presence"
     },
     "session_judgment_homologation_completeness": {
-      "ratio": 0.0015037593984962407,
-      "percent": 0.1504,
+      "ratio": 0.07661822985468957,
+      "percent": 7.6618,
       "threshold": 0.95,
-      "meets_threshold": false
+      "meets_threshold": false,
+      "methodology": "process_level_binary_presence"
     },
     "winning_proposal_completeness": {
-      "ratio": 0.007518796992481203,
-      "percent": 0.7519,
+      "ratio": 0.03830911492734478,
+      "percent": 3.8309,
       "threshold": 0.85,
-      "meets_threshold": false
+      "meets_threshold": false,
+      "methodology": "process_level_binary_presence"
     },
     "bidder_qualification_documents_completeness": {
-      "ratio": 0.001670843776106934,
-      "percent": 0.1671,
+      "ratio": 0.03830911492734478,
+      "percent": 3.8309,
       "threshold": 0.7,
-      "meets_threshold": false
+      "meets_threshold": false,
+      "methodology": "process_level_binary_presence"
     }
   },
-  "processes_scored": 133,
-  "generated_at": "2026-07-30T20:11:38.529642+00:00",
-  "note": "Lower proposal/qualification targets reflect publication limits, not reduced effort."
+  "diagnostics_category_fraction": {
+    "notice_and_annexes_completeness": 14.277,
+    "session_judgment_homologation_completeness": 1.1625,
+    "winning_proposal_completeness": 1.1229,
+    "bidder_qualification_documents_completeness": 0.4257,
+    "note": "Diagnostic only — not used for gates (sparse public packs)."
+  },
+  "processes_scored": 757,
+  "processes_excluded_noise": 77,
+  "processes_raw": 834,
+  "generated_at": "2026-07-30T22:11:40.675133+00:00",
+  "note": "Binary presence per process after title reclassification. Noise (CIGA publication dumps, numeric-only opaque titles) excluded from denominator. Session/proposal/qualification remain low when portals do not publish those packs."
 }

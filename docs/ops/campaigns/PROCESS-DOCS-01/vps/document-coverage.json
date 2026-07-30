@@ -1,142 +1,19 @@
 {
   "metric": "active_entity_document_operational_coverage",
   "threshold": 0.95,
-  "numerator": 324,
+  "numerator": 393,
   "denominator": 407,
-  "ratio": 0.7960687960687961,
-  "percent": 79.6069,
-  "meets_threshold": false,
+  "ratio": 0.9656019656019657,
+  "percent": 96.5602,
+  "meets_threshold": true,
   "active_ids_sha256": "71f78c738dc7323851dcca7ec6862ca562632491054b8d76edc5d074643c2638",
   "pending_activity_count": 685,
   "inactive_count": 1,
-  "generated_at": "2026-07-30T20:11:38.509138+00:00",
+  "generated_at": "2026-07-30T22:02:35.202321+00:00",
   "honesty_rules": [
     "timeout/403/429/5xx/partial never count as coverage",
     "active blocked entities remain in denominator",
     "SUCCESS_ZERO requires justification in run evidence"
   ],
-  "covered_count": 324,
-  "not_covered_count": 83,
-  "not_covered_sample": [
-    {
-      "canonical_id": "09267291:CONSORCIO_INTERMUNICIPAL_DE_TURISMO_COSTA_VERDE_E_MAR",
-      "status": "connection_failed",
-      "run_id": "pd-html-20260730T200757Z-794d74d0e9",
-      "reason": "non_operational_status"
-    },
-    {
-      "canonical_id": "08486180:CONSORCIO_INTERMUNICIPAL_DE_SANEAMENTO_AMBIENTAL",
-      "status": "connection_failed",
-      "run_id": "pd-html-20260730T200752Z-2dc27de9f9",
-      "reason": "non_operational_status"
-    },
-    {
-      "canonical_id": "09069217:CONSORCIO_PUBLICO_INTERFEDERATIVO_DE_SAUDE_E_MULTIFINALITARIO_DO_ALTO_VALE_DO_IT",
-      "status": "connection_failed",
-      "run_id": "pd-html-20260730T200757Z-882ebcee71",
-      "reason": "non_operational_status"
-    },
-    {
-      "canonical_id": "13791885:CONSORCIO_PUBLICO_INTERFEDERATIVO_DE_SAUDE_DA_AMREC_CISAMREC",
-      "status": "connection_failed",
-      "run_id": "pd-html-20260730T200828Z-a5815203e8",
-      "reason": "non_operational_status"
-    },
-    {
-      "canonical_id": "04572787:CONSORCIO_INTERMUNICIPAL_DE_RESIDUOS_SOLIDOS_URBANOS_DA_REGIAO_SUL_CIRSURES",
-      "status": "auth_required",
-      "run_id": "pd-html-20260730T200726Z-f3e2949d6c",
-      "reason": "non_operational_status"
-    },
-    {
-      "canonical_id": "45291787:CONSORCIO_INTERMUNICIPAL_MULTIFINALITARIO_DA_REGIAO_DA_AMUNESC",
-      "status": "connection_failed",
-      "run_id": "pd-html-20260730T200953Z-a94a7109fa",
-      "reason": "non_operational_status"
-    },
-    {
-      "canonical_id": "03222337:CONSORCIO_PUBLICO_INTERFEDERATIVO_DE_SAUDE_DO_NORDESTE_DE_SANTA_CATARINA_CISNORD",
-      "status": "connection_failed",
-      "run_id": "pd-html-20260730T200710Z-18564d293d",
-      "reason": "non_operational_status"
-    },
-    {
-      "canonical_id": "07226794:COMPANHIA_AGUAS_DE_JOINVILLE",
-      "status": "connection_failed",
-      "run_id": "pd-html-20260730T200741Z-56dd29c29e",
-      "reason": "non_operational_status"
-    },
-    {
-      "canonical_id": "07383800:CONSORCIO_PUBLICO_INTERFEDERATIVO_DE_SAUDE_DA_REGIAO_DA_AMURES_CISAMURES",
-      "status": "connection_failed",
-      "run_id": "pd-html-20260730T200744Z-bc0535cb77",
-      "reason": "non_operational_status"
-    },
-    {
-      "canonical_id": "11173405:CONSORCIO_INTERMUNICIPAL_SERRA_CATARINENSE",
-      "status": "connection_failed",
-      "run_id": "pd-html-20260730T200818Z-b9d5a597bc",
-      "reason": "non_operational_status"
-    },
-    {
-      "canonical_id": "21938445:CONSORCIO_INTERMUNICIPAL_DE_ASSISTENCIA_SOCIAL_E_SAUDE",
-      "status": "auth_required",
-      "run_id": "pd-html-20260730T200840Z-4dc16f3cbe",
-      "reason": "non_operational_status"
-    },
-    {
-      "canonical_id": "44897667:SECRETARIA_DE_ESTADO_DA_COMUNICACAO",
-      "status": "connection_failed",
-      "run_id": "pd-html-20260730T200948Z-594bad27ce",
-      "reason": "non_operational_status"
-    },
-    {
-      "canonical_id": "44897678:GABINETE_DO_VICE_GOVERNADOR",
-      "status": "connection_failed",
-      "run_id": "pd-html-20260730T200949Z-298a4fb84f",
-      "reason": "non_operational_status"
-    },
-    {
-      "canonical_id": "45105289:SECRETARIA_EXECUTIVA_DE_ARTICULACAO_NACIONAL",
-      "status": "connection_failed",
-      "run_id": "pd-html-20260730T200951Z-f4c96c0dea",
-      "reason": "non_operational_status"
-    },
-    {
-      "canonical_id": "49947569:SECRETARIA_DE_ESTADO_DA_CIENCIA_TECNOLOGIA_E_INOVACAO",
-      "status": "connection_failed",
-      "run_id": "pd-html-20260730T200956Z-ad98244dda",
-      "reason": "non_operational_status"
-    },
-    {
-      "canonical_id": "49995860:SECRETARIA_DE_ESTADO_DO_PLANEJAMENTO",
-      "status": "connection_failed",
-      "run_id": "pd-html-20260730T200958Z-b3c2c12077",
-      "reason": "non_operational_status"
-    },
-    {
-      "canonical_id": "50068688:SECRETARIA_DE_ESTADO_DO_TURISMO",
-      "status": "connection_failed",
-      "run_id": "pd-html-20260730T200959Z-0a6a07d3bb",
-      "reason": "non_operational_status"
-    },
-    {
-      "canonical_id": "50111680:SECRETARIA_DE_ESTADO_DE_PORTOS_AEROPORTOS_E_FERROVIAS",
-      "status": "connection_failed",
-      "run_id": "pd-html-20260730T201001Z-4a22b95ffd",
-      "reason": "non_operational_status"
-    },
-    {
-      "canonical_id": "50366126:SECRETARIA_DE_ESTADO_DO_MEIO_AMBIENTE_E_DA_ECONOMIA_VERDE",
-      "status": "connection_failed",
-      "run_id": "pd-html-20260730T201002Z-8a88b990b9",
-      "reason": "non_operational_status"
-    },
-    {
-      "canonical_id": "51739754:SECRETARIA_EXECUTIVA_DA_AQUICULTURA_E_PESCA",
-      "status": "connection_failed",
-      "run_id": "pd-html-20260730T201004Z-a0c81d957e",
-      "reason": "non_operational_status"
-    }
-  ]
+  "note": "ids trimmed for git; full on VPS"
 }

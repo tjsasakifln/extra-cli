@@ -1,0 +1,132 @@
+{
+  "active_gap_count": 14,
+  "generated_at": "2026-07-30T22:02:35.353369+00:00",
+  "active_gaps_sample": [
+    {
+      "canonical_id": "49995860:SECRETARIA_DE_ESTADO_DO_PLANEJAMENTO",
+      "portal_family": "pncp",
+      "blocker": "pending_live_verification",
+      "activity_status": "active",
+      "access_status": "collected",
+      "collection_strategy": "pncp_compra_arquivos",
+      "fallback_strategy": "portal_institucional_html_index|registry:pipeline_evidence_promote"
+    },
+    {
+      "canonical_id": "50111680:SECRETARIA_DE_ESTADO_DE_PORTOS_AEROPORTOS_E_FERROVIAS",
+      "portal_family": "pncp",
+      "blocker": null,
+      "activity_status": "active",
+      "access_status": "verified",
+      "collection_strategy": "pncp_compra_arquivos",
+      "fallback_strategy": "portal_institucional_html_index|registry:pipeline_evidence_promote"
+    },
+    {
+      "canonical_id": "50366126:SECRETARIA_DE_ESTADO_DO_MEIO_AMBIENTE_E_DA_ECONOMIA_VERDE",
+      "portal_family": "pncp",
+      "blocker": null,
+      "activity_status": "active",
+      "access_status": "verified",
+      "collection_strategy": "pncp_compra_arquivos",
+      "fallback_strategy": "portal_institucional_html_index|registry:pipeline_evidence_promote"
+    },
+    {
+      "canonical_id": "51739754:SECRETARIA_EXECUTIVA_DA_AQUICULTURA_E_PESCA",
+      "portal_family": "pncp",
+      "blocker": null,
+      "activity_status": "active",
+      "access_status": "verified",
+      "collection_strategy": "pncp_compra_arquivos",
+      "fallback_strategy": "portal_institucional_html_index|registry:pipeline_evidence_promote"
+    },
+    {
+      "canonical_id": "80460835:SECRETARIA_DE_ESTADO_DO_PLANEJAMENTO",
+      "portal_family": "pncp",
+      "blocker": null,
+      "activity_status": "active",
+      "access_status": "verified",
+      "collection_strategy": "pncp_compra_arquivos",
+      "fallback_strategy": "portal_institucional_html_index|registry:pipeline_evidence_promote"
+    },
+    {
+      "canonical_id": "82951245:SECRETARIA_DE_ESTADO_DA_SAUDE",
+      "portal_family": "pncp",
+      "blocker": null,
+      "activity_status": "active",
+      "access_status": "verified",
+      "collection_strategy": "pncp_compra_arquivos",
+      "fallback_strategy": "portal_institucional_html_index|registry:pipeline_evidence_promote"
+    },
+    {
+      "canonical_id": "82951294:SECRETARIA_DE_ESTADO_DA_SEGURANCA_PUBLICA",
+      "portal_family": "pncp",
+      "blocker": null,
+      "activity_status": "active",
+      "access_status": "verified",
+      "collection_strategy": "pncp_compra_arquivos",
+      "fallback_strategy": "portal_institucional_html_index|registry:pipeline_evidence_promote"
+    },
+    {
+      "canonical_id": "83565648:JUNTA_COMERCIAL_DO_ESTADO_DE_SANTA_CATARINA",
+      "portal_family": "pncp",
+      "blocker": null,
+      "activity_status": "active",
+      "access_status": "verified",
+      "collection_strategy": "pncp_compra_arquivos",
+      "fallback_strategy": "portal_institucional_html_index|registry:pipeline_evidence_promote"
+    },
+    {
+      "canonical_id": "01682869:FUNDACAO_DE_AMPARO_A_PESQUISA_E_INOVACAO_DO_ESTADO_DE_SANTA_CATARINA",
+      "portal_family": "pncp",
+      "blocker": null,
+      "activity_status": "active",
+      "access_status": "verified",
+      "collection_strategy": "pncp_compra_arquivos",
+      "fallback_strategy": "portal_institucional_html_index|registry:pipeline_evidence_promote"
+    },
+    {
+      "canonical_id": "07255568:SECRETARIA_DE_ESTADO_DE_INDUSTRIA_COMERCIO_E_SERVICOS",
+      "portal_family": "pncp",
+      "blocker": null,
+      "activity_status": "active",
+      "access_status": "verified",
+      "collection_strategy": "pncp_compra_arquivos",
+      "fallback_strategy": "portal_institucional_html_index|registry:pipeline_evidence_promote"
+    },
+    {
+      "canonical_id": "13586538:SECRETARIA_DE_ESTADO_DE_JUSTICA_E_REINTEGRACAO_SOCIAL_SEJURI",
+      "portal_family": "pncp",
+      "blocker": null,
+      "activity_status": "active",
+      "access_status": "verified",
+      "collection_strategy": "pncp_compra_arquivos",
+      "fallback_strategy": "portal_institucional_html_index|registry:pipeline_evidence_promote"
+    },
+    {
+      "canonical_id": "21974384:SUPERINTENDENCIA_DE_DESENVOLVIMENTO_DAS_REGIOES_METROPOLITANAS_DE_SANTA_CATARINA",
+      "portal_family": "pncp",
+      "blocker": null,
+      "activity_status": "active",
+      "access_status": "verified",
+      "collection_strategy": "pncp_compra_arquivos",
+      "fallback_strategy": "portal_institucional_html_index|registry:pipeline_evidence_promote"
+    },
+    {
+      "canonical_id": "23114901:AGENCIA_DE_REGULACAO_DE_SERVICOS_PUBLICOS_DE_SANTA_CATARINA",
+      "portal_family": "pncp",
+      "blocker": null,
+      "activity_status": "active",
+      "access_status": "verified",
+      "collection_strategy": "pncp_compra_arquivos",
+      "fallback_strategy": "portal_institucional_html_index|registry:pipeline_evidence_promote"
+    },
+    {
+      "canonical_id": "36127642:POLICIA_CIENTIFICA_DO_ESTADO_DE_SANTA_CATARINA",
+      "portal_family": "pncp",
+      "blocker": null,
+      "activity_status": "active",
+      "access_status": "verified",
+      "collection_strategy": "pncp_compra_arquivos",
+      "fallback_strategy": "portal_institucional_html_index|registry:pipeline_evidence_promote"
+    }
+  ]
+}

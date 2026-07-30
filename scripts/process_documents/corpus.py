@@ -170,8 +170,8 @@ def build_corpus_from_runs(
             "Issue #137 / PR #133 remain blocked until targets + FP/FN + suite green on HEAD."
         ),
     }
-    # Honest: do not claim issue unlock
-    manifest["issue_137_unblock_allowed"] = all(
+    # Corpus size gates alone never unlock #137 — human FP/FN ground truth required.
+    manifest["corpus_min_targets_met"] = all(
         [
             manifest["meets_min_processes"],
             manifest["meets_min_engineering"],
@@ -180,6 +180,8 @@ def build_corpus_from_runs(
             manifest["meets_min_annotations"],
         ]
     )
+    manifest["issue_137_unblock_allowed"] = False
+    manifest["ready_to_submit_language_allowed"] = False
 
     write_json(meta / "corpus-manifest.json", manifest)
     write_json(out_dir / "corpus-manifest.json", manifest)
@@ -187,20 +189,88 @@ def build_corpus_from_runs(
         for row in annotated:
             fh.write(json.dumps(row, ensure_ascii=False) + "\n")
 
+    # Automated structural FP/FN candidates (NOT human ground truth).
+    # Human review required before any bid_readiness claim or #137 close.
+    auto_fp_candidates: list[dict[str, Any]] = []
+    auto_fn_candidates: list[dict[str, Any]] = []
+    critical_risks: list[dict[str, Any]] = []
+    human_review_queue: list[dict[str, Any]] = []
+
+    for proc in process_list[:200]:
+        cats = set(proc.get("categories") or [])
+        docs = proc.get("documents") or []
+        # FN candidate: engineering process without notice family docs
+        if proc.get("is_engineering") and not cats.intersection(
+            {"edital", "termo_referencia", "aviso", "estudo_tecnico_preliminar", "anexo"}
+        ):
+            auto_fn_candidates.append(
+                {
+                    "process_id": proc["process_id"],
+                    "kind": "missing_notice_pack_on_engineering",
+                    "severity": "high",
+                    "human_review_required": True,
+                }
+            )
+        # FP risk: sparse pack must never be treated as READY_TO_SUBMIT
+        if len(docs) >= 1 and not cats.intersection({"edital", "termo_referencia"}):
+            auto_fp_candidates.append(
+                {
+                    "process_id": proc["process_id"],
+                    "kind": "would_be_false_ready_if_auto_submit",
+                    "severity": "critical_if_auto",
+                    "document_count": len(docs),
+                    "categories": sorted(cats),
+                    "human_review_required": True,
+                }
+            )
+        # Critical: missing mandatory notice on multi-doc process
+        if len(docs) >= 3 and "edital" not in cats and "termo_referencia" not in cats:
+            critical_risks.append(
+                {
+                    "process_id": proc["process_id"],
+                    "kind": "multi_doc_without_edital_or_tr",
+                    "severity": "high",
+                    "human_review_required": True,
+                }
+            )
+        human_review_queue.append(
+            {
+                "process_id": proc["process_id"],
+                "document_count": len(docs),
+                "categories": sorted(cats)[:12],
+                "portal_family": proc.get("portal_family"),
+                "review_status": "pending_human",
+            }
+        )
+
     fp_fn = {
         "generated_at": datetime.now(UTC).isoformat(),
-        "false_positives": [],
-        "false_negatives": [],
-        "critical_errors": [],
+        "false_positives": auto_fp_candidates[:50],
+        "false_negatives": auto_fn_candidates[:50],
+        "critical_errors": critical_risks[:50],
+        "human_review_queue": human_review_queue[:40],
+        "automated_candidate_counts": {
+            "false_positive_candidates": len(auto_fp_candidates),
+            "false_negative_candidates": len(auto_fn_candidates),
+            "critical_risk_candidates": len(critical_risks),
+        },
         "policy": {
             "READY_TO_SUBMIT_without_human_review": "forbidden",
             "expired_cert_as_valid": "critical",
             "wrong_cnpj_accepted": "critical",
             "missing_mandatory_ignored": "critical",
+            "automated_labels_are_not_ground_truth": True,
         },
         "status": "awaiting_human_ground_truth",
+        "human_ground_truth_complete": False,
+        "ready_to_submit_allowed": False,
+        "issue_137_close_allowed": False,
         "process_count": len(process_list),
         "annotation_count": len(annotated),
+        "note": (
+            "Automated structural candidates only. No human labels applied. "
+            "Issue #137 remains OPEN until human GT review of FP/FN queue."
+        ),
     }
     write_json(meta / "bid-readiness-fp-fn-report.json", fp_fn)
     write_json(out_dir / "bid-readiness-fp-fn-report.json", fp_fn)

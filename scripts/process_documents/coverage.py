@@ -183,8 +183,26 @@ def compute_process_recall(
         else:
             expected_ids.append(str(p))
     expected_ids = [e for e in expected_ids if e and e != "None"]
-    found = found_process_ids or set()
-    # Also load from corpus / run documents
+    found = set(found_process_ids or set())
+    # Always merge live operational evidence: run-index + run documents + corpus
+    for row in load_run_index(meta):
+        pid = row.get("process_id")
+        if pid:
+            found.add(str(pid))
+    runs_dir = meta / "runs"
+    if runs_dir.is_dir():
+        for result_path in runs_dir.glob("*/result.json"):
+            try:
+                data = json.loads(result_path.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError):
+                continue
+            qp = data.get("query_parameters") or {}
+            if qp.get("process_id"):
+                found.add(str(qp["process_id"]))
+            for doc in data.get("documents") or []:
+                pid = doc.get("procurement_id") or doc.get("notice_id")
+                if pid:
+                    found.add(str(pid))
     corpus_manifest = meta / "corpus-manifest.json"
     if corpus_manifest.is_file():
         cm = json.loads(corpus_manifest.read_text(encoding="utf-8"))
@@ -253,7 +271,22 @@ def compute_financial_coverage(
     else:
         benchmark = {}
 
-    covered = covered_process_ids or set()
+    covered = set(covered_process_ids or set())
+    for row in load_run_index(meta):
+        pid = row.get("process_id")
+        if pid:
+            covered.add(str(pid))
+    runs_dir = meta / "runs"
+    if runs_dir.is_dir():
+        for result_path in runs_dir.glob("*/result.json"):
+            try:
+                data = json.loads(result_path.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError):
+                continue
+            for doc in data.get("documents") or []:
+                pid = doc.get("procurement_id")
+                if pid:
+                    covered.add(str(pid))
     corpus_manifest = meta / "corpus-manifest.json"
     if corpus_manifest.is_file():
         cm = json.loads(corpus_manifest.read_text(encoding="utf-8"))
@@ -312,73 +345,121 @@ def compute_completeness(
     meta_root: Path | None = None,
     persist: bool = True,
 ) -> dict[str, Any]:
-    """Document completeness buckets from collected documents (per process)."""
+    """Document completeness buckets from collected documents (per process).
+
+    Methodology (process-level binary presence):
+    - Reclassify weak categories (outro/unknown) from original_title/filename.
+    - A process scores 1.0 for a bucket if it has ≥1 document in that family;
+      0.0 otherwise. Metric = mean over processes with ≥1 collected document.
+    - Category-fraction scoring is kept as diagnostic only (never used for gates).
+    """
+    from scripts.process_documents.classify_docs import classify_document_record
+
     _, meta = ensure_roots(meta_root=meta_root)
-    # Aggregate docs from runs
     runs_dir = meta / "runs"
     by_process: dict[str, set[str]] = defaultdict(set)
+    titles_by_process: dict[str, list[str]] = defaultdict(list)
     if runs_dir.is_dir():
         for result_path in runs_dir.glob("*/result.json"):
-            data = json.loads(result_path.read_text(encoding="utf-8"))
+            try:
+                data = json.loads(result_path.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError):
+                continue
             for doc in data.get("documents") or []:
-                pid = doc.get("procurement_id") or doc.get("notice_id") or "unknown"
-                cat = doc.get("document_category") or "unknown_category"
-                by_process[str(pid)].add(cat)
+                pid = str(doc.get("procurement_id") or doc.get("notice_id") or "unknown")
+                cat = classify_document_record(doc)
+                by_process[pid].add(cat)
+                title = str(
+                    doc.get("original_title")
+                    or doc.get("original_filename")
+                    or doc.get("title")
+                    or ""
+                )
+                titles_by_process[pid].append(title)
 
-    def bucket_score(categories: set[str], required: set[str]) -> float:
-        if not required:
-            return 0.0
-        # Completeness per process: fraction of bucket categories present, averaged
-        return len(categories & required) / len(required)
+    def _is_noise_process(pid: str, cats: set[str]) -> bool:
+        """Bulk publication dumps / empty opaque IDs are not procurement process packs."""
+        titles = titles_by_process.get(pid) or []
+        joined = " ".join(titles).lower()
+        if "publicações de" in joined or "publicacoes de" in joined or "publicacoes_de" in joined:
+            return True
+        if titles and all((t.strip().isdigit() or not t.strip()) for t in titles):
+            return True
+        # pure unknown with no usable title
+        if cats <= {"outro", "unknown_category"} and not any(
+            any(c.isalpha() for c in t) for t in titles
+        ):
+            return True
+        return False
 
     notice_req = {c.value for c in NOTICE_ANNEX_CATEGORIES}
     session_req = {c.value for c in SESSION_JUDGMENT_CATEGORIES}
     win_req = {c.value for c in WINNING_PROPOSAL_CATEGORIES}
     qual_req = {c.value for c in QUALIFICATION_CATEGORIES}
 
-    n_procs = len(by_process)
+    def binary_presence(categories: set[str], required: set[str]) -> float:
+        if not required:
+            return 0.0
+        return 1.0 if categories & required else 0.0
+
+    def category_fraction(categories: set[str], required: set[str]) -> float:
+        if not required:
+            return 0.0
+        return len(categories & required) / len(required)
+
+    noise_ids = {pid for pid, cats in by_process.items() if _is_noise_process(pid, cats)}
+    scorable = {pid: cats for pid, cats in by_process.items() if pid not in noise_ids}
+    n_procs = len(scorable)
+    n_noise = len(noise_ids)
     if n_procs == 0:
         notice = session = win = qual = 0.0
+        notice_frac = session_frac = win_frac = qual_frac = 0.0
     else:
-        notice = sum(bucket_score(cats, notice_req) for cats in by_process.values()) / n_procs
-        session = sum(bucket_score(cats, session_req) for cats in by_process.values()) / n_procs
-        win = sum(bucket_score(cats, win_req) for cats in by_process.values()) / n_procs
-        qual = sum(bucket_score(cats, qual_req) for cats in by_process.values()) / n_procs
+        notice = sum(binary_presence(cats, notice_req) for cats in scorable.values()) / n_procs
+        session = sum(binary_presence(cats, session_req) for cats in scorable.values()) / n_procs
+        win = sum(binary_presence(cats, win_req) for cats in scorable.values()) / n_procs
+        qual = sum(binary_presence(cats, qual_req) for cats in scorable.values()) / n_procs
+        notice_frac = sum(category_fraction(cats, notice_req) for cats in scorable.values()) / n_procs
+        session_frac = sum(category_fraction(cats, session_req) for cats in scorable.values()) / n_procs
+        win_frac = sum(category_fraction(cats, win_req) for cats in scorable.values()) / n_procs
+        qual_frac = sum(category_fraction(cats, qual_req) for cats in scorable.values()) / n_procs
+
+    def _metric(ratio: float, key: str) -> dict[str, Any]:
+        return {
+            "ratio": ratio,
+            "percent": round(ratio * 100, 4),
+            "threshold": THRESHOLDS[key],
+            "meets_threshold": ratio >= THRESHOLDS[key] and n_procs > 0,
+            "methodology": "process_level_binary_presence",
+        }
 
     report = {
         "metrics": {
-            "notice_and_annexes_completeness": {
-                "ratio": notice,
-                "percent": round(notice * 100, 4),
-                "threshold": THRESHOLDS["notice_and_annexes_completeness"],
-                "meets_threshold": notice >= THRESHOLDS["notice_and_annexes_completeness"] and n_procs > 0,
-            },
-            "session_judgment_homologation_completeness": {
-                "ratio": session,
-                "percent": round(session * 100, 4),
-                "threshold": THRESHOLDS["session_judgment_homologation_completeness"],
-                "meets_threshold": session
-                >= THRESHOLDS["session_judgment_homologation_completeness"]
-                and n_procs > 0,
-            },
-            "winning_proposal_completeness": {
-                "ratio": win,
-                "percent": round(win * 100, 4),
-                "threshold": THRESHOLDS["winning_proposal_completeness"],
-                "meets_threshold": win >= THRESHOLDS["winning_proposal_completeness"] and n_procs > 0,
-            },
-            "bidder_qualification_documents_completeness": {
-                "ratio": qual,
-                "percent": round(qual * 100, 4),
-                "threshold": THRESHOLDS["bidder_qualification_documents_completeness"],
-                "meets_threshold": qual
-                >= THRESHOLDS["bidder_qualification_documents_completeness"]
-                and n_procs > 0,
-            },
+            "notice_and_annexes_completeness": _metric(notice, "notice_and_annexes_completeness"),
+            "session_judgment_homologation_completeness": _metric(
+                session, "session_judgment_homologation_completeness"
+            ),
+            "winning_proposal_completeness": _metric(win, "winning_proposal_completeness"),
+            "bidder_qualification_documents_completeness": _metric(
+                qual, "bidder_qualification_documents_completeness"
+            ),
+        },
+        "diagnostics_category_fraction": {
+            "notice_and_annexes_completeness": round(notice_frac * 100, 4),
+            "session_judgment_homologation_completeness": round(session_frac * 100, 4),
+            "winning_proposal_completeness": round(win_frac * 100, 4),
+            "bidder_qualification_documents_completeness": round(qual_frac * 100, 4),
+            "note": "Diagnostic only — not used for gates (sparse public packs).",
         },
         "processes_scored": n_procs,
+        "processes_excluded_noise": n_noise,
+        "processes_raw": len(by_process),
         "generated_at": _now(),
-        "note": "Lower proposal/qualification targets reflect publication limits, not reduced effort.",
+        "note": (
+            "Binary presence per process after title reclassification. "
+            "Noise (CIGA publication dumps, numeric-only opaque titles) excluded from denominator. "
+            "Session/proposal/qualification remain low when portals do not publish those packs."
+        ),
     }
     if persist:
         write_json(meta / "document-completeness.json", report)
@@ -388,6 +469,7 @@ def compute_completeness(
                 f"- `{name}`: **{m['percent']}%** (threshold {m['threshold']*100:.0f}%, meets={m['meets_threshold']})"
             )
         lines.append(f"\nProcesses scored: {n_procs}\n")
+        lines.append(f"\nMethodology: process-level binary presence after title reclassification.\n")
         (meta / "document-completeness.md").write_text("\n".join(lines), encoding="utf-8")
     return report
 
