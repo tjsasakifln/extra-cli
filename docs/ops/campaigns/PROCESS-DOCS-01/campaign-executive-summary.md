@@ -1,39 +1,57 @@
-# PROCESS-DOCS-01 — Executive Summary (win/qual + structural GT)
+# PROCESS-DOCS-01 — Honest residual packaging (final for this wave)
 
-Generated: 2026-07-30T23:35:51.209733+00:00
+Generated: 2026-07-30T23:37:09.241499+00:00
 
-## Metrics (full denominators, no shrink)
+## Capability
+`procurement_process_documents`
 
-| Metric | Result | Target | Meets |
-|--------|--------|--------|-------|
-| discovery | 100% | 100% | yes |
-| operational | 96.56% | ≥95% | yes |
-| recall | 100% | ≥98% | yes |
-| financial | 100% | ≥99% | yes |
-| notice | **99.94%** | ≥98% | **yes** |
-| session | **99.94%** | ≥95% | **yes** |
-| winning proposal | **8.91%** (288/3234) | ≥85% | no |
-| qualification | **1.27%** (41/3234) | ≥70% | no |
+## Independent metrics (no average, no denom shrink)
 
-Gate exit **6**.
+| Metric | Result | Target | Gate |
+|--------|--------|--------|------|
+| discovery | 100% (1093/1093) | 100% | **MET** |
+| operational actives | 96.56% (393/407) | ≥95% | **MET** |
+| process recall | 100% (807/807) | ≥98% | **MET** |
+| financial | 100% | ≥99% | **MET** |
+| notice/anexos | 99.94% | ≥98% | **MET** |
+| session/judgment | 99.94% | ≥95% | **MET** |
+| winning proposal | **8.91%** | ≥85% | **OPEN** |
+| qualification | **1.27%** | ≥70% | **OPEN** |
 
-## Win/qual multi-source this wave
-- PNCP `/itens/n/resultados` for residual win gaps (350 processes)
-- ZIP expand 200 packs → 1267 members
-- Classifier: generic `anexo` upgraded when title = planilha das licitantes / proposta
-- Qual: minimal public yield (HTML/PNCP/zip)
+`coverage --full` exit **6** (win/qual only).
 
-## Residual honesty (stay in denominator)
-- win: 2946 × `winning_proposal_not_published_publicly`
-- qual: 3193 × `bidder_qualification_not_published_publicly`
+## Residual publication blockers (nominal, in denominator)
 
-## bid_readiness GT / FP-FN
-- **600** slots structural-labeled from CAS presence (`present`×600)
-- `label_source=automated_structural_from_cas`
-- `human_confirmed=0`, `human_ground_truth_complete=false`
-- FP candidates: 138 (sparse pack auto-submit risks)
-- **READY_TO_SUBMIT forbidden**
-- **Issue #137 NOT closed**
+### Winning proposal (2946 residual)
+- **Blocker:** `winning_proposal_not_published_publicly`
+- Tried: PNCP arquivos, PNCP item resultados, ZIP members, SC Compras, PCP detail, HTML, CIGA DOM
+- Public when available: winner CNPJ/name + valor homologado (metadata residual)
+- Not public in sample: full commercial proposal PDF / planilha do licitante on most portals
+
+### Qualification (3193 residual)
+- **Blocker:** `bidder_qualification_not_published_publicly`
+- Tried: same multi-source set
+- Rare public habilitação/certidão titles only
+- Not public: full bidder qualification packs
+
+**Action chosen:** leave win/qual **unclosed**; do not shrink denominators; expand only if new public sources appear.
+
+## bid_readiness / #137
+- Corpus min targets: met
+- GT slots: 600 structural-labeled from CAS (`present`); **human_confirmed=0**
+- FP/FN: automated structural candidates only
+- **`candidate_complete`: false**
+- **READY_TO_SUBMIT: forbidden**
+- **Issue #137: OPEN** (needs human confirmation of GT)
+- **PR #133: blocked** until #137 + suite on exact HEAD
+
+## VPS
+- host `ec-prod`
+- code `/opt/extra-consultoria/scripts/process_documents`
+- meta `/var/lib/extra-consultoria/output/process_documents`
 
 ## PR
 https://github.com/tjsasakifln/extra-cli/pull/184
+
+## Branch
+`feat/public-process-documents-coverage`

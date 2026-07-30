@@ -1,8 +1,62 @@
 {
-  "as_of": "2026-07-30T23:35:51.185760+00:00",
+  "as_of": "2026-07-30T23:37:09.241499+00:00",
   "processes_scored": 3234,
   "denominator_policy": "full_no_shrink",
-  "metrics": {
+  "publication_blockers": {
+    "winning_proposal": {
+      "blocker_code": "winning_proposal_not_published_publicly",
+      "residual_count": 2946,
+      "public_sources_tried": [
+        "pncp_arquivos",
+        "pncp_itens_resultados",
+        "pncp_zip_members",
+        "sc_compras_api",
+        "pcp_api_detail",
+        "generic_html",
+        "ciga_dom"
+      ],
+      "what_is_public": "PNCP item resultados (fornecedor vencedor + valor homologado) when published \u2014 metadata residual, not full proposal PDF",
+      "what_is_not_public": "proposta comercial PDF, planilha do licitante completa, cronograma da proposta na maioria dos portais amostrados",
+      "action": "leave metric unclosed; expand only when new public sources appear"
+    },
+    "qualification": {
+      "blocker_code": "bidder_qualification_not_published_publicly",
+      "residual_count": 3193,
+      "public_sources_tried": [
+        "pncp_arquivos",
+        "pncp_zip_members",
+        "sc_compras_api",
+        "pcp_api_detail",
+        "generic_html",
+        "ciga_dom"
+      ],
+      "what_is_public": "rare habilita\u00e7\u00e3o/certid\u00e3o titles in a few HTML/zip packs",
+      "what_is_not_public": "pacotes de habilita\u00e7\u00e3o jur\u00eddica/fiscal/trabalhista/t\u00e9cnica dos licitantes na maioria das fontes oficiais amostradas",
+      "action": "leave metric unclosed; document residual nominally"
+    }
+  },
+  "metrics_status": {
+    "entity_source_discovery_coverage": {
+      "percent": 100.0,
+      "meets": true,
+      "note": "1093/1093"
+    },
+    "active_entity_document_operational_coverage": {
+      "percent": 96.5602,
+      "meets": true,
+      "num": 393,
+      "den": 407
+    },
+    "relevant_process_recall": {
+      "percent": 100.0,
+      "meets": true,
+      "num": 807,
+      "den": 807
+    },
+    "covered_financial_value_ratio": {
+      "percent": 100.0,
+      "meets": true
+    },
     "notice_and_annexes_completeness": {
       "percent": 99.9382,
       "meets": true,
@@ -16,68 +70,23 @@
     "winning_proposal_completeness": {
       "percent": 8.9054,
       "meets": false,
-      "residual": 2946
+      "residual": 2946,
+      "blocker": "winning_proposal_not_published_publicly"
     },
     "bidder_qualification_documents_completeness": {
       "percent": 1.2678,
       "meets": false,
-      "residual": 3193
+      "residual": 3193,
+      "blocker": "bidder_qualification_not_published_publicly"
     }
   },
-  "residual_by_blocker": {
-    "notice": {
-      "noise": 2
-    },
-    "session": {
-      "noise": 2
-    },
-    "win": {
-      "winning_proposal_not_published_publicly": 2946
-    },
-    "qual": {
-      "bidder_qualification_not_published_publicly": 3193
-    }
-  },
-  "multi_source_win_qual": {
-    "win_percent": 8.9054,
-    "qual_percent": 1.2678,
-    "win_sources": [
-      [
-        "pncp+item_resultados",
-        254
-      ],
-      [
-        "pncp",
-        44
-      ],
-      [
-        "pncp+zip_member",
-        17
-      ],
-      [
-        "pncp+zip_member+zip_member",
-        10
-      ]
-    ],
-    "qual_sources": [
-      [
-        "generic_public_html",
-        47
-      ],
-      [
-        "pncp",
-        37
-      ],
-      [
-        "pncp+zip_member",
-        16
-      ],
-      [
-        "pncp+zip_member+zip_member",
-        2
-      ]
-    ],
-    "campaign": "win_qual_campaign + zip_expand + reclass planilha licitantes"
-  },
-  "honest_status": "win/qual remain far below thresholds due to public publication limits; residuals stay in denom"
+  "gates_open": [
+    "winning_proposal_completeness",
+    "bidder_qualification_documents_completeness",
+    "bid_readiness_human_gt_confirmation",
+    "issue_137",
+    "pr_133"
+  ],
+  "candidate_complete": false,
+  "issue_137_close_allowed": false
 }

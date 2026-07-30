@@ -1,7 +1,8 @@
 {
   "as_of": "2026-07-30T23:37:09.241499+00:00",
-  "vps_host": "ec-prod",
-  "gate_exit": 6,
+  "capability": "procurement_process_documents",
+  "denominator_policy": "full_no_shrink",
+  "processes_scored": 3234,
   "metrics": {
     "entity_source_discovery_coverage": {
       "percent": 100.0,
@@ -62,6 +63,41 @@
     "notice_and_annexes_completeness",
     "session_judgment_homologation_completeness"
   ],
+  "coverage_full_exit": 6,
+  "coverage_full_meaning": "win/qual completeness only; discovery/ops/recall/financial/notice/session met",
+  "publication_blockers": {
+    "winning_proposal": {
+      "blocker_code": "winning_proposal_not_published_publicly",
+      "residual_count": 2946,
+      "public_sources_tried": [
+        "pncp_arquivos",
+        "pncp_itens_resultados",
+        "pncp_zip_members",
+        "sc_compras_api",
+        "pcp_api_detail",
+        "generic_html",
+        "ciga_dom"
+      ],
+      "what_is_public": "PNCP item resultados (fornecedor vencedor + valor homologado) when published \u2014 metadata residual, not full proposal PDF",
+      "what_is_not_public": "proposta comercial PDF, planilha do licitante completa, cronograma da proposta na maioria dos portais amostrados",
+      "action": "leave metric unclosed; expand only when new public sources appear"
+    },
+    "qualification": {
+      "blocker_code": "bidder_qualification_not_published_publicly",
+      "residual_count": 3193,
+      "public_sources_tried": [
+        "pncp_arquivos",
+        "pncp_zip_members",
+        "sc_compras_api",
+        "pcp_api_detail",
+        "generic_html",
+        "ciga_dom"
+      ],
+      "what_is_public": "rare habilita\u00e7\u00e3o/certid\u00e3o titles in a few HTML/zip packs",
+      "what_is_not_public": "pacotes de habilita\u00e7\u00e3o jur\u00eddica/fiscal/trabalhista/t\u00e9cnica dos licitantes na maioria das fontes oficiais amostradas",
+      "action": "leave metric unclosed; document residual nominally"
+    }
+  },
   "bid_readiness": {
     "corpus_min_targets_met": true,
     "gt_slots": 600,
@@ -75,7 +111,11 @@
     "candidate_complete": false,
     "note": "Do not claim candidate_complete. Structural CAS labels \u2260 human GT. #137 stays open."
   },
-  "candidate_complete": false,
-  "issue_137": "OPEN",
-  "pr": "https://github.com/tjsasakifln/extra-cli/pull/184"
+  "vps": {
+    "host": "ec-prod",
+    "path_code": "/opt/extra-consultoria/scripts/process_documents",
+    "path_meta": "/var/lib/extra-consultoria/output/process_documents"
+  },
+  "pr": "https://github.com/tjsasakifln/extra-cli/pull/184",
+  "branch": "feat/public-process-documents-coverage"
 }
