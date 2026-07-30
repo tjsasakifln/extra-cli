@@ -1,0 +1,42 @@
+{
+  "campaign_id": "DOD-LOW-HANGING-BOUNDARIES-AND-EVIDENCE-01",
+  "recorded_at": "2026-07-30T00:08:54.167624+00:00",
+  "baseline_main_sha": "e39a75f35224cdf1acd34c2a8eb2f5ea08fa220e",
+  "branch": "campaign/dod-low-hanging-boundaries-evidence-01",
+  "worktree_path": "/mnt/d/extra-cli-dod-low-hanging",
+  "dod_md_sha256": "bc2f4b6f6d33eea05a080e5de2224e6a2d1a730e097945276b6bae5e8f304c25",
+  "controller_schema_version": "1.0",
+  "dod_items_total": 1462,
+  "dod_state_counts": {
+    "ACCEPTED": 441,
+    "OPEN": 1020,
+    "BLOCKED_HUMAN": 1
+  },
+  "dod_checked_claimed": 451,
+  "open_unchecked": 1011,
+  "open_prs": [
+    {
+      "number": 133,
+      "title": "[DRAFT][BLOCKED] feat(proposal): bid submission readiness (needs public corpus)",
+      "head": "campaign/bid-submission-readiness-compliance-pack-01",
+      "draft": true
+    }
+  ],
+  "commercial_campaign_identified": true,
+  "commercial_worktree": "/mnt/d/extra-cli-wt-confenge-activation-01",
+  "worktrees_snapshot": [
+    "/mnt/d/extra consultoria                                                        5c2a960c [work/recurring-reports-pr2]",
+    "/home/tjsasakifln/extra-wt-first-delivery/client-delivery                       0ae5c5f9 [work/client-first-delivery]",
+    "/home/tjsasakifln/extra-wt-first-delivery/dod-evidence                          68d6b1cd [work/dod-evidence]",
+    "/home/tjsasakifln/extra-wt-first-delivery/evidence-pr                           4f989424 [docs/extra-converge-evidence-01]",
+    "/home/tjsasakifln/extra-wt-first-delivery/pr2-recurring                         5c2a960c [work/recurring-reports-pr2]",
+    "..."
+  ],
+  "min_suite_note": "not run at baseline; campaign tests will run on PR A",
+  "protected_paths_policy": "OBJECTIVE §2.1",
+  "notes": [
+    "main clean at e39a75f3 matching campaign brief SHA",
+    "PR #133 draft blocked still present",
+    "DOD.md not modified in discovery phase"
+  ]
+}

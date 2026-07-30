@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "candidate-matrix.schema.json",
+  "title": "LowHangingCandidateMatrix",
+  "type": "object",
+  "required": ["campaign_id", "candidates", "decision_counts"],
+  "properties": {
+    "campaign_id": { "type": "string" },
+    "generated_at": { "type": "string" },
+    "total_items": { "type": "integer" },
+    "decision_counts": { "type": "object" },
+    "candidates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["item_id", "text", "decision", "family"],
+        "properties": {
+          "item_id": { "type": "string" },
+          "text": { "type": "string" },
+          "section": { "type": "string" },
+          "initial_state": { "type": "string" },
+          "family": { "type": "string" },
+          "decision": {
+            "type": "string",
+            "enum": [
+              "SELECTED",
+              "REJECTED_NOT_LOW_HANGING",
+              "REJECTED_PARALLEL_CONFLICT",
+              "REJECTED_HUMAN",
+              "REJECTED_LIVE_DEPENDENCY",
+              "REJECTED_INSUFFICIENT_EVIDENCE"
+            ]
+          },
+          "blocker": { "type": ["string", "null"] },
+          "proof_command": { "type": "string" },
+          "text_sha256": { "type": "string" }
+        }
+      }
+    }
+  }
+}

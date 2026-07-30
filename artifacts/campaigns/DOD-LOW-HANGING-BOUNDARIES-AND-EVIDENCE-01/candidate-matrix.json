@@ -1,0 +1,684 @@
+{
+  "campaign_id": "DOD-LOW-HANGING-BOUNDARIES-AND-EVIDENCE-01",
+  "generated_at": "2026-07-30T00:39:27.875123+00:00",
+  "total_items": 1462,
+  "decision_counts": {
+    "REJECTED_NOT_LOW_HANGING": 1308,
+    "SELECTED": 59,
+    "REJECTED_HUMAN": 39,
+    "REJECTED_PARALLEL_CONFLICT": 20,
+    "REJECTED_INSUFFICIENT_EVIDENCE": 33,
+    "REJECTED_LIVE_DEPENDENCY": 3
+  },
+  "selected": [
+    {
+      "item_id": "DOD-definition-of-done-extra-a362715e4d",
+      "family": "A_GOVERNANCE",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 45,
+      "text": "Cada item só é marcado como concluído quando existir evidência verificável."
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-75164c86da",
+      "family": "A_GOVERNANCE",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 47,
+      "text": "Código existente sem execução comprovada não é considerado concluído."
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-59ea375492",
+      "family": "A_GOVERNANCE",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 48,
+      "text": "Teste unitário isolado não substitui execução ponta a ponta."
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-d3db8c3907",
+      "family": "A_GOVERNANCE",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 51,
+      "text": "Alterações de escopo são refletidas primeiro neste documento e nos documentos canônicos do projeto."
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-cb23ed5034",
+      "family": "A_GOVERNANCE",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 52,
+      "text": "Itens explicitamente marcados como opcionais não bloqueiam o fechamento do projeto."
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-c94d735e7c",
+      "family": "A_GOVERNANCE",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 53,
+      "text": "Todos os demais itens bloqueiam o respectivo gate."
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-aa0cc46c52",
+      "family": "A_GOVERNANCE",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 54,
+      "text": "O projeto só é considerado integralmente concluído quando os três róis obrigatórios estiverem atendidos:"
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-f0f41447dd",
+      "family": "A_GOVERNANCE",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 55,
+      "text": "requisitos do estágio atual;"
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-b5522727b0",
+      "family": "A_GOVERNANCE",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 56,
+      "text": "requisitos posteriores ao provisionamento da VPS;"
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-107a7ac4da",
+      "family": "A_GOVERNANCE",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 57,
+      "text": "requisitos independentes de infraestrutura."
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-f96c0779f9",
+      "family": "A_GOVERNANCE",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 64,
+      "text": "Implementação parcial é anotada como `PARTIAL`, sem marcar o item como concluído."
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-793fb2e8b5",
+      "family": "A_GOVERNANCE",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 65,
+      "text": "Dependência externa pendente é anotada como `BLOCKED`, com responsável, causa e próximo teste."
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-a6aa7190ac",
+      "family": "A_GOVERNANCE",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 68,
+      "text": "Campo indisponível na fonte é registrado como `SOURCE_UNAVAILABLE` ou `NOT_READY`, nunca como zero e nunca como concluíd"
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-794600a043",
+      "family": "A_GOVERNANCE",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 69,
+      "text": "Um blocker externo não desaparece do gate; ele permanece visível até resolução ou alteração formal do escopo."
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-fa4a690d5c",
+      "family": "A_GOVERNANCE",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 70,
+      "text": "Os gates consideram concluídos apenas itens `DONE` e itens legitimamente `NOT_APPLICABLE`."
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-5865b9f10c",
+      "family": "A_GOVERNANCE",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 71,
+      "text": "O estado de cada requisito pode ser reconstruído sem depender do histórico de uma conversa com agente de IA."
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-5fd54bbd01",
+      "family": "A_GOVERNANCE",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 77,
+      "text": "teste automatizado reproduzível;"
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-56586465e9",
+      "family": "A_GOVERNANCE",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 78,
+      "text": "comando documentado com exit code `0`;"
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-374c5965bd",
+      "family": "A_GOVERNANCE",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 81,
+      "text": "execução registrada em ledger, manifest ou tabela de runs;"
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-3104de3131",
+      "family": "A_GOVERNANCE",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 82,
+      "text": "log datado e correlacionável;"
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-349bb54c8f",
+      "family": "A_GOVERNANCE",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 84,
+      "text": "commit ou pull request identificável;"
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-7e08df417e",
+      "family": "B_SCOPE_EXCLUDED",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 138,
+      "text": "O projeto não contém módulo de diário de obra."
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-d1bf197b8b",
+      "family": "B_SCOPE_EXCLUDED",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 139,
+      "text": "O projeto não contém módulo de medição de obra."
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-1d08d2599c",
+      "family": "B_SCOPE_EXCLUDED",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 140,
+      "text": "O projeto não contém acompanhamento de avanço físico."
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-eafbfd4a1f",
+      "family": "B_SCOPE_EXCLUDED",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 141,
+      "text": "O projeto não contém acompanhamento financeiro da execução da obra."
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-361d74f7ba",
+      "family": "B_SCOPE_EXCLUDED",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 142,
+      "text": "O projeto não contém gestão de fotos de obra."
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-10726ba9b9",
+      "family": "B_SCOPE_EXCLUDED",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 143,
+      "text": "O projeto não contém fiscalização de campo."
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-9075dfdd96",
+      "family": "B_SCOPE_EXCLUDED",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 144,
+      "text": "O projeto não contém gestão de aditivos de execução."
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-20ded85333",
+      "family": "B_SCOPE_EXCLUDED",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 145,
+      "text": "O projeto não contém gestão de riscos de obra."
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-642f0c1b05",
+      "family": "B_SCOPE_EXCLUDED",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 146,
+      "text": "O projeto não contém gestão de equipes de obra."
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-ab71db3f6e",
+      "family": "B_SCOPE_EXCLUDED",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 147,
+      "text": "O projeto não contém gestão de cronograma físico-financeiro."
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-ddd9c4fb86",
+      "family": "B_SCOPE_EXCLUDED",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 148,
+      "text": "O projeto não contém portal para a contratada."
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-0fe4fb2225",
+      "family": "B_SCOPE_EXCLUDED",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 149,
+      "text": "O projeto não contém interface pública."
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-e3fab7341c",
+      "family": "B_SCOPE_EXCLUDED",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 150,
+      "text": "O projeto não contém multi-tenant."
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-1b8854e33b",
+      "family": "B_SCOPE_EXCLUDED",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 151,
+      "text": "O projeto não contém cobrança, assinatura ou Stripe."
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-5d877d2ba4",
+      "family": "B_SCOPE_EXCLUDED",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 152,
+      "text": "O projeto não contém autenticação complexa desnecessária."
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-17f49981f1",
+      "family": "B_SCOPE_EXCLUDED",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 153,
+      "text": "O projeto não contém dashboard web apenas por conveniência estética."
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-07fdce3052",
+      "family": "B_SCOPE_EXCLUDED",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 154,
+      "text": "O projeto não contém Kubernetes, Kafka, Redis ou Elasticsearch sem necessidade comprovada."
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-c5144849e4",
+      "family": "B_SCOPE_EXCLUDED",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 155,
+      "text": "O projeto não assina documentos em nome da Extra."
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-f2dfcdb3e4",
+      "family": "B_SCOPE_EXCLUDED",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 156,
+      "text": "O projeto não protocola propostas ou documentos automaticamente sem ação humana explícita."
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-4bd8d3ef1a",
+      "family": "B_SCOPE_EXCLUDED",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 158,
+      "text": "O projeto não substitui advogado em impugnações, recursos ou pareceres jurídicos."
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-0903b01d4b",
+      "family": "B_SCOPE_EXCLUDED",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 159,
+      "text": "O projeto não representa a empresa presencialmente em sessões de licitação."
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-7b21a39253",
+      "family": "B_SCOPE_EXCLUDED",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 160,
+      "text": "O projeto não fornece garantias financeiras, seguros ou crédito."
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-90a192a188",
+      "family": "B_SCOPE_EXCLUDED",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 161,
+      "text": "O projeto não promete habilitação, adjudicação, vitória ou contratação."
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-825967b2c1",
+      "family": "B_SCOPE_EXCLUDED",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 162,
+      "text": "O projeto não executa o objeto contratado."
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-fc3bf86724",
+      "family": "C_CLI_UX",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 167,
+      "text": "O fluxo principal pode ser executado sem interface web."
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-bcceab4099",
+      "family": "C_CLI_UX",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 169,
+      "text": "O sistema não exige conhecimento do código interno para tarefas operacionais recorrentes."
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-3c79408c03",
+      "family": "C_CLI_UX",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 170,
+      "text": "A saída é legível para revisão humana."
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-383035c911",
+      "family": "C_CLI_UX",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 171,
+      "text": "Erros são apresentados com causa provável e próximo passo."
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-ea60d7c534",
+      "family": "C_CLI_UX",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 172,
+      "text": "O sistema permite repetir uma execução sem criar inconsistência."
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-ef20844eb2",
+      "family": "C_CLI_UX",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 174,
+      "text": "O sistema permite identificar quando um dado não é confiável."
+    },
+    {
+      "item_id": "DOD-definition-of-done-extra-38c4c0fe6f",
+      "family": "C_CLI_UX",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 175,
+      "text": "O sistema não esconde limitações atrás de scores ou percentuais genéricos."
+    },
+    {
+      "item_id": "DOD-rol-1-definition-of-done-5412da3ad7",
+      "family": "D_COVERAGE_TRUTH",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 546,
+      "text": "A média entre as duas coberturas não é usada para mascarar uma delas. **Code-ready (not accepted):** dual engine has no "
+    },
+    {
+      "item_id": "DOD-rol-1-definition-of-done-5eca319947",
+      "family": "D_COVERAGE_TRUTH",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 548,
+      "text": "Uma fonte saudável para contratos não prova cobertura de editais. **Code-ready (not accepted):** unit test_contracts_do_"
+    },
+    {
+      "item_id": "DOD-rol-1-definition-of-done-bb9d5de811",
+      "family": "D_COVERAGE_TRUTH",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 557,
+      "text": "`data_presence` é publicada apenas como métrica descritiva."
+    },
+    {
+      "item_id": "DOD-rol-1-definition-of-done-0c828cadb4",
+      "family": "D_COVERAGE_TRUTH",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 558,
+      "text": "`data_presence` nunca é chamada de cobertura. **Code-ready (not accepted):** dual engine separates data_presence_* · cla"
+    },
+    {
+      "item_id": "DOD-rol-1-definition-of-done-3fb8978ae7",
+      "family": "D_COVERAGE_TRUTH",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 461,
+      "text": "A média entre as duas coberturas não é usada para mascarar uma delas."
+    },
+    {
+      "item_id": "DOD-rol-1-definition-of-done-b9c4d94a8e",
+      "family": "D_COVERAGE_TRUTH",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 463,
+      "text": "Uma fonte saudável para contratos não prova cobertura de editais."
+    },
+    {
+      "item_id": "DOD-rol-1-definition-of-done-90c4a972f6",
+      "family": "D_COVERAGE_TRUTH",
+      "decision": "SELECTED",
+      "blocker": null,
+      "line": 473,
+      "text": "`data_presence` nunca é chamada de cobertura."
+    }
+  ],
+  "rejected_samples": {
+    "REJECTED_NOT_LOW_HANGING": [
+      {
+        "item_id": "DOD-definition-of-done-extra-934b7e1a8d",
+        "family": "OTHER",
+        "decision": "REJECTED_NOT_LOW_HANGING",
+        "blocker": "already_accepted_or_checked",
+        "line": 21,
+        "text": "O denominador estratégico permaneceu fixo em **1.093 entidades**. Evidência: `output/coverage/contract-report.json`; tes"
+      },
+      {
+        "item_id": "DOD-definition-of-done-extra-3291212c84",
+        "family": "OTHER",
+        "decision": "REJECTED_NOT_LOW_HANGING",
+        "blocker": "already_accepted_or_checked",
+        "line": 22,
+        "text": "`commercial_opportunity_any` foi reclassificada como sinal comercial `entities_with_recent_commercial_signal`: **116/1.0"
+      },
+      {
+        "item_id": "DOD-definition-of-done-extra-ea8d68c1d0",
+        "family": "OTHER",
+        "decision": "REJECTED_NOT_LOW_HANGING",
+        "blocker": "already_accepted_or_checked",
+        "line": 23,
+        "text": "Existe registro canônico explícito para **1.093/1.093 entidades**, sincronizado no PostgreSQL por `python3 -m scripts.so"
+      },
+      {
+        "item_id": "DOD-definition-of-done-extra-30700f5da5",
+        "family": "OTHER",
+        "decision": "REJECTED_NOT_LOW_HANGING",
+        "blocker": "already_accepted_or_checked",
+        "line": 24,
+        "text": "A cobertura operacional usa sete estágios, SLA e proveniência (`run_id`, raw URI, SHA-256, IDs normalizados e reconcilia"
+      },
+      {
+        "item_id": "DOD-definition-of-done-extra-b66ffceb51",
+        "family": "OTHER",
+        "decision": "REJECTED_NOT_LOW_HANGING",
+        "blocker": "already_accepted_or_checked",
+        "line": 25,
+        "text": "Existe relatório nominal para os **1.093 gaps**, cada um com blocker e próxima ação. Distribuição: `pending_collection=7"
+      }
+    ],
+    "REJECTED_HUMAN": [
+      {
+        "item_id": "DOD-definition-of-done-extra-2974cd669a",
+        "family": "A_GOVERNANCE",
+        "decision": "REJECTED_HUMAN",
+        "blocker": "human_eval_required",
+        "line": 66,
+        "text": "Um requisito somente pode ser tratado como `NOT_APPLICABLE` quando a própria redação permitir aplicabilidade condicional"
+      },
+      {
+        "item_id": "DOD-definition-of-done-extra-e21af5fe47",
+        "family": "A_GOVERNANCE",
+        "decision": "REJECTED_HUMAN",
+        "blocker": "human_eval_required",
+        "line": 83,
+        "text": "validação manual registrada por Tiago;"
+      },
+      {
+        "item_id": "DOD-definition-of-done-extra-b207150950",
+        "family": "OTHER",
+        "decision": "REJECTED_HUMAN",
+        "blocker": "human_eval_required",
+        "line": 100,
+        "text": "O sistema ajuda Tiago a decidir quais oportunidades merecem análise humana."
+      },
+      {
+        "item_id": "DOD-definition-of-done-extra-8268a89973",
+        "family": "C_CLI_UX",
+        "decision": "REJECTED_HUMAN",
+        "blocker": "human_eval_required",
+        "line": 166,
+        "text": "Tiago é o único usuário obrigatório do sistema."
+      },
+      {
+        "item_id": "DOD-definition-of-done-extra-2e6f8b0d22",
+        "family": "OTHER",
+        "decision": "REJECTED_HUMAN",
+        "blocker": "human_eval_required",
+        "line": 339,
+        "text": "A conclusão final permanece sujeita ao aceite de Tiago e da empresa."
+      }
+    ],
+    "REJECTED_PARALLEL_CONFLICT": [
+      {
+        "item_id": "DOD-definition-of-done-extra-75d4c221ed",
+        "family": "A_GOVERNANCE",
+        "decision": "REJECTED_PARALLEL_CONFLICT",
+        "blocker": "commercial_or_confenge:comercial",
+        "line": 67,
+        "text": "`NOT_APPLICABLE` possui justificativa, data e evidência; não é usado para contornar promessa comercial."
+      },
+      {
+        "item_id": "DOD-definition-of-done-extra-ad80befdaa",
+        "family": "OTHER",
+        "decision": "REJECTED_PARALLEL_CONFLICT",
+        "blocker": "commercial_or_confenge:confenge",
+        "line": 95,
+        "text": "O sistema ajuda a CONFENGE a identificar, no dataset de contratos, empresas com sinais observáveis de necessidade e ader"
+      },
+      {
+        "item_id": "DOD-definition-of-done-extra-716fd4472f",
+        "family": "OTHER",
+        "decision": "REJECTED_PARALLEL_CONFLICT",
+        "blocker": "commercial_surface",
+        "line": 96,
+        "text": "O sistema transforma sinais comerciais em uma fila pequena, explicável e acionável de prospecção, sem alegar desejo ou p"
+      },
+      {
+        "item_id": "DOD-definition-of-done-extra-8736745636",
+        "family": "OTHER",
+        "decision": "REJECTED_PARALLEL_CONFLICT",
+        "blocker": "commercial_or_confenge:confenge",
+        "line": 134,
+        "text": "Prospecção orientada por dados para a CONFENGE a partir de sinais observáveis em contratos públicos."
+      },
+      {
+        "item_id": "DOD-definition-of-done-extra-d27b80d991",
+        "family": "B_SCOPE_EXCLUDED",
+        "decision": "REJECTED_PARALLEL_CONFLICT",
+        "blocker": "commercial_or_confenge:comercial",
+        "line": 157,
+        "text": "O projeto não assume responsabilidade técnica, jurídica, contábil ou comercial pela proposta apresentada pela empresa."
+      }
+    ],
+    "REJECTED_INSUFFICIENT_EVIDENCE": [
+      {
+        "item_id": "DOD-definition-of-done-extra-013f5531a8",
+        "family": "A_GOVERNANCE",
+        "decision": "REJECTED_INSUFFICIENT_EVIDENCE",
+        "blocker": "sql_evidence_type_catalog_only",
+        "line": 80,
+        "text": "consulta SQL com resultado esperado;"
+      },
+      {
+        "item_id": "DOD-definition-of-done-extra-da009871ae",
+        "family": "A_GOVERNANCE",
+        "decision": "REJECTED_INSUFFICIENT_EVIDENCE",
+        "blocker": "requires_real_execution_evidence",
+        "line": 85,
+        "text": "teste de restauração ou recuperação efetivamente executado;"
+      },
+      {
+        "item_id": "DOD-definition-of-done-extra-21fbe7122d",
+        "family": "A_GOVERNANCE",
+        "decision": "REJECTED_INSUFFICIENT_EVIDENCE",
+        "blocker": "requires_real_execution_evidence",
+        "line": 86,
+        "text": "comparação com fonte oficial realizada na mesma data ou período."
+      },
+      {
+        "item_id": "DOD-rol-1-definition-of-done-7340e14412",
+        "family": "E_BACKUP",
+        "decision": "REJECTED_INSUFFICIENT_EVIDENCE",
+        "blocker": "backup_requires_preexisting_complete_evidence_optional_family",
+        "line": 1141,
+        "text": "O restore recompõe o universo-alvo."
+      },
+      {
+        "item_id": "DOD-rol-1-definition-of-done-ab49bd5c44",
+        "family": "E_BACKUP",
+        "decision": "REJECTED_INSUFFICIENT_EVIDENCE",
+        "blocker": "backup_requires_preexisting_complete_evidence_optional_family",
+        "line": 1142,
+        "text": "O restore preserva provenance."
+      }
+    ],
+    "REJECTED_LIVE_DEPENDENCY": [
+      {
+        "item_id": "DOD-rol-1-definition-of-done-05358c643a",
+        "family": "OTHER",
+        "decision": "REJECTED_LIVE_DEPENDENCY",
+        "blocker": "needs_live_source",
+        "line": 607,
+        "text": "`stale` e `unknown` não contam para o numerador de cobertura. **Code-ready (not accepted):** observation_counts_as_cover"
+      },
+      {
+        "item_id": "DOD-rol-1-definition-of-done-743cbec198",
+        "family": "OTHER",
+        "decision": "REJECTED_LIVE_DEPENDENCY",
+        "blocker": "needs_live_source",
+        "line": 761,
+        "text": "Pelo menos uma fonte complementar ao PNCP está provada ponta a ponta quando necessária para atingir 95%."
+      },
+      {
+        "item_id": "DOD-rol-1-definition-of-done-837df35edc",
+        "family": "OTHER",
+        "decision": "REJECTED_LIVE_DEPENDENCY",
+        "blocker": "needs_live_source",
+        "line": 1067,
+        "text": "Encadeamento edital-contrato. `PARTIAL` — unit match rules only; not live edital→contrato chain."
+      }
+    ]
+  },
+  "note": "Full open-item classification at run time via harness; matrix slimmed for reviewability"
+}

@@ -1,0 +1,24 @@
+{
+  "ok": true,
+  "protected_prefixes": [
+    "config/commercial_profiles/",
+    "scripts/commercial_leads/",
+    "scripts/ops/confenge_commercial_cycle.py",
+    "deploy/systemd/",
+    "scripts/crawl/",
+    "data/contracts_checkpoints/",
+    "scripts/ops/extra_first_client_delivery.py",
+    "scripts/ops/extra_recurring_delivery.py",
+    "extra-consultoria-plano-executivo.html",
+    "Makefile",
+    "README.md",
+    "CHANGELOG.md",
+    "docs/DEVELOPMENT.md",
+    "docs/INDEX.md",
+    "docs/ops/NEXT-DEV-STEP.md",
+    "DOD.md"
+  ],
+  "changed_files_sample": [],
+  "violations": [],
+  "note": "PR A must keep violations empty; DOD.md only in PR B"
+}
