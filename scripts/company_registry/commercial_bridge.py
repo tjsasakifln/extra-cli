@@ -118,8 +118,25 @@ def publish_matches_to_supplier_registry(
     }
 
 
-def fail_closed_commercial_precheck() -> dict[str, Any]:
-    """Gate used by commercial cycle: ACTIVE release required."""
+def fail_closed_commercial_precheck(
+    *,
+    candidates: Iterable[str] | None = None,
+    top20: Iterable[str] | None = None,
+    min_official_match: float = 0.995,
+    min_usable: float = 0.98,
+    require_top20_full: bool = True,
+    require_provenance: bool = True,
+) -> dict[str, Any]:
+    """Fail-closed commercial gate for official local registry.
+
+    Always: ACTIVE release, non-empty load, provenance fields.
+    When candidates/top20 provided: coverage and Top20 official gates.
+    """
+    from pathlib import Path
+
+    from scripts.company_registry.coverage import compute_coverage
+    from scripts.company_registry.store import connect_db, count_table
+
     active = require_active_release()
     if not active["ok"]:
         return {
@@ -128,11 +145,82 @@ def fail_closed_commercial_precheck() -> dict[str, Any]:
             "reason": "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE",
             "detail": active,
         }
+    ptr = active["pointer"] or {}
+    errors: list[str] = []
+
+    db_path = ptr.get("database_path")
+    if not db_path or not Path(str(db_path)).is_file():
+        errors.append("ACTIVE_DB_MISSING")
+    else:
+        conn = connect_db(db_path)
+        try:
+            if count_table(conn, "establishments") < 1:
+                errors.append("INCOMPLETE_LOAD_EMPTY_ESTABLISHMENTS")
+        finally:
+            conn.close()
+
+    if require_provenance:
+        for key in ("release_id", "database_snapshot_id", "source_authority"):
+            if not ptr.get(key):
+                errors.append(f"MISSING_PROVENANCE:{key}")
+
+    coverage_report: dict[str, Any] | None = None
+    cand_list = list(candidates) if candidates is not None else None
+    top_list = list(top20) if top20 is not None else None
+
+    if cand_list is not None or top_list is not None:
+        coverage_report = compute_coverage(
+            cand_list or [],
+            ranking_eligible=cand_list,
+            top20=top_list or [],
+            release_id=str(active["release_id"]),
+        )
+        metrics = coverage_report.get("metrics") or {}
+        off = metrics.get("official_match_coverage")
+        usable = metrics.get("commercial_registry_usable_coverage")
+        t20 = metrics.get("top20_official_registry_coverage")
+        if cand_list is not None:
+            if off is None or float(off) < min_official_match:
+                errors.append(f"OFFICIAL_MATCH_BELOW_GATE:{off}<{min_official_match}")
+            if usable is None or float(usable) < min_usable:
+                errors.append(f"USABLE_COVERAGE_BELOW_GATE:{usable}<{min_usable}")
+        if require_top20_full and top_list:
+            if t20 is None or float(t20) < 1.0:
+                errors.append(f"TOP20_OFFICIAL_INCOMPLETE:{t20}")
+            for raw in top_list:
+                rec = lookup_cnpj(raw, release_id=str(active["release_id"]))
+                if rec.official_match_status != OfficialMatchStatus.MATCHED.value:
+                    errors.append(f"TOP20_NOT_MATCHED:{raw}:{rec.official_match_status}")
+                elif not rec.registration_status or not rec.primary_cnae:
+                    errors.append(f"TOP20_MISSING_CADASTRO_FIELDS:{raw}")
+                elif not rec.official_release_id:
+                    errors.append(f"TOP20_MISSING_RELEASE:{raw}")
+                elif not (rec.source_provenance or {}).get("source_label"):
+                    errors.append(f"TOP20_MISSING_PROVENANCE:{raw}")
+
+    if errors:
+        return {
+            "ok": False,
+            "gate": "FAIL_CLOSED",
+            "reason": errors[0],
+            "errors": errors,
+            "active_official_registry_release": active["release_id"],
+            "pointer": ptr,
+            "coverage": coverage_report,
+        }
     return {
         "ok": True,
         "gate": "PASS",
         "active_official_registry_release": active["release_id"],
-        "pointer": active["pointer"],
+        "pointer": ptr,
+        "coverage": coverage_report,
+        "checks": {
+            "active_release": True,
+            "load_non_empty": True,
+            "provenance": require_provenance,
+            "coverage_gates_applied": cand_list is not None,
+            "top20_gates_applied": bool(top_list),
+        },
     }
 
 

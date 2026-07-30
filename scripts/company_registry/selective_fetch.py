@@ -110,9 +110,11 @@ def fetch_interest_jsonl(
     out_path: Path | str,
     *,
     max_workers: int = 4,
-    max_retries: int = 3,
-    sleep_between: float = 0.05,
+    max_retries: int = 5,
+    sleep_between: float = 0.0,
     limit: int | None = None,
+    append: bool = False,
+    failed_out: Path | str | None = None,
 ) -> dict[str, Any]:
     """Fetch selective universe and write JSONL for load_jsonl_selective."""
     cleaned: list[str] = []
@@ -131,20 +133,23 @@ def fetch_interest_jsonl(
     out.parent.mkdir(parents=True, exist_ok=True)
     stats = {"ok": 0, "not_found": 0, "transient": 0, "corrupt": 0, "invalid_input": 0}
     rows_written = 0
+    failed: list[str] = []
 
     def work(cnpj: str) -> tuple[str, dict[str, Any] | None]:
-        last = "TRANSIENT", None
+        last: tuple[str, dict[str, Any] | None] = ("TRANSIENT", None)
         for attempt in range(max_retries):
-            status, row = _fetch_one(cnpj)
+            status, row = _fetch_one(cnpj, timeout=30.0)
             if status != "TRANSIENT":
                 return status, row
             last = status, row
-            time.sleep(0.4 * (attempt + 1))
+            time.sleep(min(8.0, 0.5 * (2 ** attempt)))
         return last
 
-    with out.open("w", encoding="utf-8") as fh, ThreadPoolExecutor(max_workers=max_workers) as pool:
+    mode = "a" if append and out.is_file() else "w"
+    with out.open(mode, encoding="utf-8") as fh, ThreadPoolExecutor(max_workers=max_workers) as pool:
         futs = {pool.submit(work, c): c for c in cleaned}
         for fut in as_completed(futs):
+            cnpj = futs[fut]
             status, row = fut.result()
             if status == "OK" and row:
                 fh.write(json.dumps(row, ensure_ascii=False) + "\n")
@@ -154,17 +159,24 @@ def fetch_interest_jsonl(
                 stats["not_found"] += 1
             elif status == "CORRUPT":
                 stats["corrupt"] += 1
+                failed.append(cnpj)
             else:
                 stats["transient"] += 1
+                failed.append(cnpj)
             if sleep_between:
                 time.sleep(sleep_between)
 
+    if failed_out is not None:
+        Path(failed_out).write_text("\n".join(failed) + ("\n" if failed else ""), encoding="utf-8")
+
     manifest = {
-        "ok": rows_written > 0,
+        "ok": rows_written > 0 or stats["not_found"] > 0,
         "path": str(out),
         "requested": len(cleaned),
         "rows_written": rows_written,
         "stats": stats,
+        "failed_n": len(failed),
+        "failed_out": str(failed_out) if failed_out else None,
         "source_label": SOURCE_LABEL,
         "source_authority": "RECEITA_FEDERAL",
         "source_distributor": "opencnpj.org",

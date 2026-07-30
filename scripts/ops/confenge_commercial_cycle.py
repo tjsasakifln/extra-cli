@@ -115,36 +115,52 @@ def main(argv: list[str] | None = None) -> int:
         "no",
     }
     official_precheck: dict = {"ok": False, "reason": "not_evaluated"}
+    interest_cnpjs: list[str] | None = None
     try:
         from scripts.company_registry.commercial_bridge import (
             fail_closed_commercial_precheck,
         )
         from scripts.company_registry.lookup import read_active_pointer
 
-        official_precheck = fail_closed_commercial_precheck()
+        interest_file = os.environ.get("CONFENGE_OFFICIAL_INTEREST_CNPJ_FILE")
+        if interest_file and Path(interest_file).is_file():
+            interest_cnpjs = [
+                ln.strip()
+                for ln in Path(interest_file).read_text(encoding="utf-8").splitlines()
+                if ln.strip()
+            ]
+        official_precheck = fail_closed_commercial_precheck(
+            candidates=interest_cnpjs,
+            top20=None,
+            require_top20_full=False,
+        )
         if require_official and not official_precheck.get("ok"):
+            reason = str(
+                official_precheck.get("reason") or "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE"
+            )
             blocked = {
                 "campaign_id": CAMPAIGN_ID,
                 "status": "BLOCKED",
-                "reason": "BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE",
+                "reason": reason,
                 "official_registry_precheck": official_precheck,
-                "active_official_registry_release": None,
+                "active_official_registry_release": official_precheck.get(
+                    "active_official_registry_release"
+                ),
                 "git_sha": git_sha(),
             }
             out_path = Path(args.out)
             out_path.mkdir(parents=True, exist_ok=True)
             (out_path / "cycle-manifest.json").write_text(
-                json.dumps(blocked, indent=2, ensure_ascii=False, default=str) + "\n",
+                json.dumps(blocked, indent=2, ensure_ascii=False, default=str) + "
+",
                 encoding="utf-8",
             )
             (out_path / "run-result.json").write_text(
-                json.dumps(blocked, indent=2, ensure_ascii=False, default=str) + "\n",
+                json.dumps(blocked, indent=2, ensure_ascii=False, default=str) + "
+",
                 encoding="utf-8",
             )
-            print(
-                f"[{CAMPAIGN_ID}] status=BLOCKED reason=BLOCKED_OFFICIAL_REGISTRY_NOT_AVAILABLE",
-                file=sys.stderr,
-            )
+            print(f"[{CAMPAIGN_ID}] status=BLOCKED reason={reason}", file=sys.stderr)
             return 2
         if not require_official and not official_precheck.get("ok"):
             official_precheck = {
@@ -152,36 +168,32 @@ def main(argv: list[str] | None = None) -> int:
                 "gate": "SKIPPED_LEGACY",
                 "reason": "CONFENGE_REQUIRE_OFFICIAL_REGISTRY=0",
             }
-        # Optional: publish active mirror into supplier_registry before pipeline
-        if os.environ.get("CONFENGE_PUBLISH_OFFICIAL_REGISTRY", "1") not in {
-            "0",
-            "false",
-            "False",
-        }:
-            interest_file = os.environ.get("CONFENGE_OFFICIAL_INTEREST_CNPJ_FILE")
-            if interest_file and Path(interest_file).is_file():
-                from scripts.commercial_leads.dbutil import connect
-                from scripts.company_registry.commercial_bridge import (
-                    publish_matches_to_supplier_registry,
-                )
+        if (
+            require_official
+            and interest_cnpjs
+            and os.environ.get("CONFENGE_PUBLISH_OFFICIAL_REGISTRY", "1")
+            not in {"0", "false", "False"}
+        ):
+            from scripts.commercial_leads.dbutil import connect
+            from scripts.company_registry.commercial_bridge import (
+                publish_matches_to_supplier_registry,
+            )
 
-                cnpjs = [
-                    ln.strip()
-                    for ln in Path(interest_file).read_text(encoding="utf-8").splitlines()
-                    if ln.strip()
-                ]
-                conn = connect(dsn)
-                try:
-                    pub = publish_matches_to_supplier_registry(conn, cnpjs)
-                finally:
-                    conn.close()
-                official_precheck["publish"] = {
-                    "upserted": pub.get("upserted"),
-                    "stats": pub.get("stats"),
-                }
+            conn = connect(dsn)
+            try:
+                pub = publish_matches_to_supplier_registry(
+                    conn,
+                    interest_cnpjs,
+                    source="rfb_public_cadastral_via_opencnpj",
+                )
+            finally:
+                conn.close()
+            official_precheck["publish"] = {
+                "upserted": pub.get("upserted"),
+                "stats": pub.get("stats"),
+            }
         official_precheck["active_pointer"] = read_active_pointer()
     except Exception as exc:  # noqa: BLE001
-        # Fail closed on unexpected registry errors
         blocked = {
             "campaign_id": CAMPAIGN_ID,
             "status": "BLOCKED",
@@ -192,13 +204,11 @@ def main(argv: list[str] | None = None) -> int:
         out_path = Path(args.out)
         out_path.mkdir(parents=True, exist_ok=True)
         (out_path / "cycle-manifest.json").write_text(
-            json.dumps(blocked, indent=2, ensure_ascii=False, default=str) + "\n",
+            json.dumps(blocked, indent=2, ensure_ascii=False, default=str) + "
+",
             encoding="utf-8",
         )
-        print(
-            f"[{CAMPAIGN_ID}] status=BLOCKED official_registry_error={exc}",
-            file=sys.stderr,
-        )
+        print(f"[{CAMPAIGN_ID}] status=BLOCKED official_registry_error={exc}", file=sys.stderr)
         return 2
 
     as_of = date.fromisoformat(args.as_of) if args.as_of else None
@@ -224,6 +234,49 @@ def main(argv: list[str] | None = None) -> int:
     result["active_official_registry_release"] = official_precheck.get(
         "active_official_registry_release"
     )
+
+    if require_official:
+        try:
+            from scripts.company_registry.commercial_bridge import (
+                fail_closed_commercial_precheck as _post_gate,
+            )
+            from scripts.company_registry.coverage import compute_coverage
+
+            leads = list(result.get("leads") or [])
+            top20_cnpjs = [
+                str(x.get("cnpj14") or x.get("cnpj") or "")
+                for x in leads[:20]
+                if x.get("cnpj14") or x.get("cnpj")
+            ]
+            cand_for_cov = interest_cnpjs
+            if not cand_for_cov:
+                lm = result.get("load_meta") or {}
+                cand_for_cov = list(lm.get("candidate_supplier_cnpjs") or [])
+            post_official = _post_gate(
+                candidates=cand_for_cov or None,
+                top20=top20_cnpjs or None,
+                require_top20_full=bool(top20_cnpjs),
+            )
+            cov = compute_coverage(
+                cand_for_cov or top20_cnpjs,
+                ranking_eligible=cand_for_cov or top20_cnpjs,
+                top20=top20_cnpjs,
+            )
+            result["official_registry_coverage_post"] = cov
+            result["official_registry_postcheck"] = post_official
+            if not post_official.get("ok"):
+                result["status"] = "BLOCKED"
+                result["reason"] = str(
+                    post_official.get("reason") or "BLOCKED_OFFICIAL_REGISTRY_POST_GATE"
+                )
+        except Exception as post_exc:  # noqa: BLE001
+            result["status"] = "BLOCKED"
+            result["reason"] = "BLOCKED_OFFICIAL_REGISTRY_POST_GATE"
+            result["official_registry_postcheck"] = {
+                "ok": False,
+                "error": f"{type(post_exc).__name__}:{post_exc}",
+            }
+
     status = result.get("status")
     print(
         f"[{CAMPAIGN_ID}] status={status} leads={len(result.get('leads') or [])} "
@@ -231,6 +284,7 @@ def main(argv: list[str] | None = None) -> int:
         f"official_release={result.get('active_official_registry_release')}"
     )
     out_manifest = Path(args.out) / "cycle-manifest.json"
+    out_manifest.parent.mkdir(parents=True, exist_ok=True)
     out_manifest.write_text(
         json.dumps(
             {
@@ -246,12 +300,24 @@ def main(argv: list[str] | None = None) -> int:
                     "active_official_registry_release"
                 ),
                 "official_registry_precheck": official_precheck,
+                "official_registry_postcheck": result.get("official_registry_postcheck"),
+                "official_registry_coverage_post": result.get(
+                    "official_registry_coverage_post"
+                ),
+                "reason": result.get("reason"),
             },
             indent=2,
             ensure_ascii=False,
             default=str,
         )
-        + "\n",
+        + "
+",
+        encoding="utf-8",
+    )
+    run_result_path = Path(args.out) / "run-result.json"
+    run_result_path.write_text(
+        json.dumps(result, indent=2, ensure_ascii=False, default=str) + "
+",
         encoding="utf-8",
     )
     if status == "PASS":
