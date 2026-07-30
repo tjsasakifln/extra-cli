@@ -1,13 +1,13 @@
 {
-  "run_id": "2b015c66-8eb2-4f98-9204-270e2f7be183",
+  "run_id": "d5633b13-8ef2-4b62-a5e3-78d4ca451c4b",
   "campaign_id": "CONFENGE-PUBLIC-AGENCY-TECHNICAL-SERVICES-01",
   "status": "PASS",
   "reason": "PASS",
-  "git_sha": "5f33ee00fbb59715d20d978cac301b38b637213d",
-  "artifact_git_sha": "5f33ee00fbb59715d20d978cac301b38b637213d",
+  "git_sha": "6a5ce52a48d79cb9ccd697b94a8b6b930cdccde4",
+  "artifact_git_sha": "6a5ce52a48d79cb9ccd697b94a8b6b930cdccde4",
   "as_of": "2026-07-15",
-  "started_at": "2026-07-30T23:32:21Z",
-  "finished_at": "2026-07-30T23:32:21Z",
+  "started_at": "2026-07-30T23:35:44Z",
+  "finished_at": "2026-07-30T23:35:44Z",
   "target": "public-agencies",
   "module_version": "1.0.0",
   "config_hashes": {
@@ -89,7 +89,7 @@
         ],
         "identidade_canonica": "cnpj:82804212000196",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:32:08Z"
+        "last_verified_at": "2026-07-30T23:35:34Z"
       },
       "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
       "mode_note": "REACTIVE only when open published opportunity is observed; historical buyer-side contracts alone yield PROACTIVE_INSTITUTIONAL_PROSPECT.",
@@ -664,7 +664,7 @@
         ],
         "identidade_canonica": "cnpj:85361863000147",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:32:08Z"
+        "last_verified_at": "2026-07-30T23:35:34Z"
       },
       "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
       "mode_note": "REACTIVE only when open published opportunity is observed; historical buyer-side contracts alone yield PROACTIVE_INSTITUTIONAL_PROSPECT.",
@@ -1143,7 +1143,7 @@
         ],
         "identidade_canonica": "cnpj:82939380000199",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:32:19Z"
+        "last_verified_at": "2026-07-30T23:35:41Z"
       },
       "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
       "mode_note": "REACTIVE only when open published opportunity is observed; historical buyer-side contracts alone yield PROACTIVE_INSTITUTIONAL_PROSPECT.",
@@ -1718,7 +1718,7 @@
         ],
         "identidade_canonica": "cnpj:95780458000117",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:32:09Z"
+        "last_verified_at": "2026-07-30T23:35:35Z"
       },
       "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
       "mode_note": "REACTIVE only when open published opportunity is observed; historical buyer-side contracts alone yield PROACTIVE_INSTITUTIONAL_PROSPECT.",
@@ -2394,7 +2394,7 @@
         ],
         "identidade_canonica": "cnpj:83102517000119",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:32:08Z"
+        "last_verified_at": "2026-07-30T23:35:34Z"
       },
       "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
       "mode_note": "REACTIVE only when open published opportunity is observed; historical buyer-side contracts alone yield PROACTIVE_INSTITUTIONAL_PROSPECT.",
@@ -2980,7 +2980,7 @@
         ],
         "identidade_canonica": "cnpj:83102681000126",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:32:09Z"
+        "last_verified_at": "2026-07-30T23:35:35Z"
       },
       "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
       "mode_note": "REACTIVE only when open published opportunity is observed; historical buyer-side contracts alone yield PROACTIVE_INSTITUTIONAL_PROSPECT.",
@@ -3654,7 +3654,7 @@
         ],
         "identidade_canonica": "cnpj:82836057000190",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:32:15Z"
+        "last_verified_at": "2026-07-30T23:35:38Z"
       },
       "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
       "mode_note": "REACTIVE only when open published opportunity is observed; historical buyer-side contracts alone yield PROACTIVE_INSTITUTIONAL_PROSPECT.",
@@ -4320,7 +4320,7 @@
         ],
         "identidade_canonica": "cnpj:82777236000101",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:32:09Z"
+        "last_verified_at": "2026-07-30T23:35:34Z"
       },
       "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
       "mode_note": "REACTIVE only when open published opportunity is observed; historical buyer-side contracts alone yield PROACTIVE_INSTITUTIONAL_PROSPECT.",
@@ -4767,7 +4767,7 @@
         ],
         "identidade_canonica": "cnpj:82939414000145",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:32:09Z"
+        "last_verified_at": "2026-07-30T23:35:35Z"
       },
       "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
       "mode_note": "REACTIVE only when open published opportunity is observed; historical buyer-side contracts alone yield PROACTIVE_INSTITUTIONAL_PROSPECT.",
@@ -5340,7 +5340,7 @@
         ],
         "identidade_canonica": "cnpj:01593132000137",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:32:20Z"
+        "last_verified_at": "2026-07-30T23:35:43Z"
       },
       "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
       "mode_note": "REACTIVE only when open published opportunity is observed; historical buyer-side contracts alone yield PROACTIVE_INSTITUTIONAL_PROSPECT.",
@@ -5783,7 +5783,7 @@
         ],
         "identidade_canonica": "cnpj:83102418000137",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:32:09Z"
+        "last_verified_at": "2026-07-30T23:35:35Z"
       },
       "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
       "mode_note": "REACTIVE only when open published opportunity is observed; historical buyer-side contracts alone yield PROACTIVE_INSTITUTIONAL_PROSPECT.",
@@ -6448,7 +6448,7 @@
         ],
         "identidade_canonica": "cnpj:80912009000108",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:32:10Z"
+        "last_verified_at": "2026-07-30T23:35:35Z"
       },
       "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
       "mode_note": "REACTIVE only when open published opportunity is observed; historical buyer-side contracts alone yield PROACTIVE_INSTITUTIONAL_PROSPECT.",
@@ -6965,7 +6965,7 @@
         ],
         "identidade_canonica": "cnpj:82939232000174",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:32:15Z"
+        "last_verified_at": "2026-07-30T23:35:38Z"
       },
       "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
       "mode_note": "REACTIVE only when open published opportunity is observed; historical buyer-side contracts alone yield PROACTIVE_INSTITUTIONAL_PROSPECT.",
@@ -7614,7 +7614,7 @@
         ],
         "identidade_canonica": "cnpj:82821208000136",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:32:17Z"
+        "last_verified_at": "2026-07-30T23:35:39Z"
       },
       "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
       "mode_note": "REACTIVE only when open published opportunity is observed; historical buyer-side contracts alone yield PROACTIVE_INSTITUTIONAL_PROSPECT.",
@@ -8279,7 +8279,7 @@
         ],
         "identidade_canonica": "cnpj:83102244000102",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:32:09Z"
+        "last_verified_at": "2026-07-30T23:35:35Z"
       },
       "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
       "mode_note": "REACTIVE only when open published opportunity is observed; historical buyer-side contracts alone yield PROACTIVE_INSTITUTIONAL_PROSPECT.",
@@ -8806,7 +8806,7 @@
         ],
         "identidade_canonica": "cnpj:82821174000180",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:32:15Z"
+        "last_verified_at": "2026-07-30T23:35:38Z"
       },
       "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
       "mode_note": "REACTIVE only when open published opportunity is observed; historical buyer-side contracts alone yield PROACTIVE_INSTITUTIONAL_PROSPECT.",
@@ -9478,7 +9478,7 @@
         ],
         "identidade_canonica": "cnpj:83021857000115",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:32:16Z"
+        "last_verified_at": "2026-07-30T23:35:38Z"
       },
       "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
       "mode_note": "REACTIVE only when open published opportunity is observed; historical buyer-side contracts alone yield PROACTIVE_INSTITUTIONAL_PROSPECT.",
@@ -10086,7 +10086,7 @@
         ],
         "identidade_canonica": "cnpj:83788281000116",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:32:09Z"
+        "last_verified_at": "2026-07-30T23:35:35Z"
       },
       "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
       "mode_note": "REACTIVE only when open published opportunity is observed; historical buyer-side contracts alone yield PROACTIVE_INSTITUTIONAL_PROSPECT.",
@@ -10529,7 +10529,7 @@
         ],
         "identidade_canonica": "cnpj:82892365000132",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:32:08Z"
+        "last_verified_at": "2026-07-30T23:35:34Z"
       },
       "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
       "mode_note": "REACTIVE only when open published opportunity is observed; historical buyer-side contracts alone yield PROACTIVE_INSTITUTIONAL_PROSPECT.",
@@ -11163,7 +11163,7 @@
         ],
         "identidade_canonica": "cnpj:83009860000113",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:32:17Z"
+        "last_verified_at": "2026-07-30T23:35:39Z"
       },
       "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
       "mode_note": "REACTIVE only when open published opportunity is observed; historical buyer-side contracts alone yield PROACTIVE_INSTITUTIONAL_PROSPECT.",

@@ -3,41 +3,52 @@
 **Status de campanha:** `READY_FOR_TIAGO_REVIEW_PUBLIC_AGENCY_VERTICAL`  
 **Não declarar:** `PROJECT_DONE`, `COMMERCIAL_VERTICAL_ACCEPTED`, `DOD_ACCEPTED`, `LEGAL_COMPLIANCE_GUARANTEED`, `PRODUCTION_ACCEPTED`
 
-**Atualizado (UTC):** 2026-07-30T23:33:04Z
+**Atualizado (UTC):** 2026-07-30T23:36:01Z
 
 ---
 
-## 1. Resumo executivo
+## Binding stamp (tip HEAD)
 
-Vertical B2G de órgãos públicos no ciclo canônico (`CONFENGE_COMMERCIAL_TARGET=public-agencies`).  
-Rodada real SC com **populações oficiais IBGE Censo 2022**, **modo proativo** (histórico contratual ≠ oportunidade aberta), **sem contatos institucionais inventados**, fracionamento com indicadores de amostra sem claim de ledger anual completo.
+| Campo | Valor |
+|-------|-------|
+| tip HEAD | `6a5ce52a48d79cb9ccd697b94a8b6b930cdccde4` |
+| run git_sha (launch 1 & 2) | `6a5ce52a48d79cb9ccd697b94a8b6b930cdccde4` |
+| SHA match tip | **True** |
+| dual Top 20 agreement | **True** |
+| as_of | 2026-07-15 |
+| PR | https://github.com/tjsasakifln/extra-cli/pull/185 |
 
-## 2. Correções pós-skeptic (honestidade)
+## Dual launch evidence paths
 
-| Issue | Fix |
-|-------|-----|
-| Populações sintéticas | YAML reescrito via API IBGE agregado 4714 var 93 |
-| `has_institutional_contact=True` | Sempre false sem e-mail/telefone real; research_actions apenas |
-| Fracionamento desligado | `same_nature` alimenta indicadores; `complete_annual_ledger=False` |
-| REACTIVE em histórico | Só REACTIVE com `active_direct_contracting_notice`; senão PROACTIVE |
-| Testes teatro | `evidence.record_document_lookup` + honesty tests |
+- Launch 1: `{SCRATCH}/pag-launch-1/` (stdout, run-result, manifest, checksums)
+- Launch 2: `{SCRATCH}/pag-launch-2/`
+- Agreement: `{SCRATCH}/pag-real-run/dual-launch-agreement.json`
+- Supplier regression: `{SCRATCH}/supplier-regression.log`
 
-## 3. Execução real SC (dual launch)
+## Metrics
 
-| Campo | Launch 1 / 2 |
-|-------|----------------|
-| git_sha | `5f33ee00fbb59715d20d978cac301b38b637213d` (match HEAD da implementação honesty) |
+| Metric | Value |
+|--------|-------|
 | status | PASS |
+| agency_universe | 477 |
 | evaluated | 275 |
 | publishable | 20 |
 | top_n | 20 |
 | outreach_sent | False |
-| dual agreement | same Top 20 names, same SHA |
+| ready_state | READY_FOR_TIAGO_REVIEW_PUBLIC_AGENCY_VERTICAL |
 
-### Top 20
+## Honesty gates (verified on Top 20)
 
-| # | Órgão | Pop (IBGE 2022) | Mode | Score | Oferta |
-|---|-------|-----------------|------|-------|--------|
+- mode = PROACTIVE_INSTITUTIONAL_PROSPECT for all published leads (historical contracts ≠ open opportunity)
+- has_institutional = false; institutional_contact_available = NOT_FIRED
+- research_actions present (not invented email/phone)
+- annual_sum_state = DIRECT_CONTRACTING_SUM_UNKNOWN; annual_sum_known = false
+- populations from IBGE Censo 2022 API (agregado 4714 var 93)
+
+## Top 20
+
+| # | Órgão | Pop IBGE 2022 | Mode | Score | Oferta |
+|---|-------|---------------|------|-------|--------|
 | 1 | MUNICÍPIO DE ÁGUAS DE CHAPECÓ | 6036 | PROACTIVE_INSTITUTIONAL_PROSPECT | 0.5975 | PLANEJAMENTO_TECNICO_DA_CONTRATACAO |
 | 2 | PREFEITURA MUNICIPAL DE PALMITOS - SC | 15626 | PROACTIVE_INSTITUTIONAL_PROSPECT | 0.4725 | REVISAO_PRE_PUBLICACAO |
 | 3 | MUNICÍPIO DE JOAÇABA | 30146 | PROACTIVE_INSTITUTIONAL_PROSPECT | 0.4725 | REVISAO_PRE_PUBLICACAO |
@@ -59,18 +70,16 @@ Rodada real SC com **populações oficiais IBGE Censo 2022**, **modo proativo** 
 | 19 | MUNICÍPIO DE PAULO LOPES | 9063 | PROACTIVE_INSTITUTIONAL_PROSPECT | 0.3325 | ORCAMENTO_E_PLANEJAMENTO_DE_OBRAS |
 | 20 | MUNICÍPIO DE XANXERÊ | 51607 | PROACTIVE_INSTITUTIONAL_PROSPECT | 0.3225 | REVISAO_PRE_PUBLICACAO |
 
-## 4. Testes
+## Tests
 
-- `tests/public_agency/`: 35+ passed (legal, pipeline, honesty, separation)
-- `tests/commercial_leads` subset + supplier TARGET fail-closed: supplier regression log
-- Dual launches: `/tmp/grok-goal-.../implementer/pag-launch-{1,2}/`
+- `pytest tests/public_agency/` — 35 passed
+- supplier unit subset + TARGET suppliers fail-closed without snapshot — captured in supplier-regression.log
 
-## 5. Artefatos
+## Artifacts
 
-- `output/confenge-commercial/public-agencies/`
-- `artifacts/campaigns/CONFENGE-PUBLIC-AGENCY-TECHNICAL-SERVICES-01/`
-- PR: https://github.com/tjsasakifln/extra-cli/pull/185
+- Live: `output/confenge-commercial/public-agencies/`
+- Pack: `artifacts/campaigns/CONFENGE-PUBLIC-AGENCY-TECHNICAL-SERVICES-01/`
 
-## 6. Ação humana
+## Human action
 
 **Tiago deve revisar a fila de órgãos, os conflitos de interesses, as classificações jurídicas preliminares, os dossiers e os materiais de abordagem antes de autorizar qualquer contato.**
