@@ -33,9 +33,13 @@ def test_consortium_flag_and_no_special_limit_assumption():
     thr = get_threshold(OBJECT_ENGINEERING, as_of=AS_OF)
     assert thr is not None
     # Without special enquadramento evidence, same federal threshold applies
+    # (no consortium multiplier field exists in evaluate_potential_eligibility)
     r = evaluate_potential_eligibility(100000.0, OBJECT_ENGINEERING, as_of=AS_OF)
     assert r["threshold_amount"] == thr.amount
-    assert r.get("annual_sum_state") == SUM_UNKNOWN or r["annual_sum_state"] is None or True
+    assert r["threshold_id"] == thr.threshold_id
+    # annual sum unknown by default → no annual adherence claim
+    assert r.get("annual_limit_adherence_claimed") is False
+    assert r.get("annual_sum_state") == SUM_UNKNOWN
 
 
 def test_entity_without_special_framework_uses_standard_threshold():
@@ -47,6 +51,7 @@ def test_entity_without_special_framework_uses_standard_threshold():
     )
     assert r["threshold_id"] and "ART75_I" in r["threshold_id"]
     assert r.get("annual_limit_adherence_claimed") is False
+    assert r["threshold_amount"] == get_threshold(OBJECT_ENGINEERING, as_of=AS_OF).amount
 
 
 def test_same_nature_objects_and_recurring_fragmentation():

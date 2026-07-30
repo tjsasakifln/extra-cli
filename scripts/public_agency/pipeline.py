@@ -379,31 +379,51 @@ def run_public_agency_pipeline(
         if classification.suggested_class != OBJECT_HUMAN:
             thr = get_threshold(classification.suggested_class, as_of=as_of)
         ceiling = thr.amount if thr else None
-        # Annual sum known only if we have amounts; still often incomplete → sum unknown honesty
-        annual_known = False  # fail-closed: we do not claim complete UG annual ledger from sample
+        # Observed same-nature history can drive fragmentation *indicators*, but the
+        # full annual UG ledger is not available → DIRECT_CONTRACTING_SUM_UNKNOWN
+        # for eligibility adherence claims (never claim annual limit adherence).
+        annual_ledger_complete = False
         frag = assess_fragmentation(
             proposed_amount=None,
             ceiling=ceiling,
-            same_nature_contracts=same_nature if annual_known else [],
+            same_nature_contracts=same_nature,
+            complete_annual_ledger=False,
         )
-        # Observed sum of contracts in window is informational only
         observed_sum = sum(float(x.get("amount") or 0) for x in same_nature)
         frag_dict = frag.as_dict()
         frag_dict["observed_contract_sum_in_sample"] = observed_sum
         frag_dict["annual_sum_state"] = "DIRECT_CONTRACTING_SUM_UNKNOWN"
         frag_dict["annual_sum_known"] = False
+        frag_dict["annual_ledger_complete"] = annual_ledger_complete
+        frag_dict["notes"] = (
+            frag_dict.get("notes")
+            or ""
+        ) + " Somatório observado no sample de contratos não equivale a ledger anual completo da UG."
 
         sample_amount = None
         if same_nature:
             sample_amount = max(float(x.get("amount") or 0) for x in same_nature) or None
+
+        # Hard publishability blocks only for HIGH fragmentation / package-split.
+        # Mild indicators penalize score via signals, not COMPLIANCE_BLOCKED.
+        compliance_blocks: list[str] = []
+        if frag.severity == "HIGH" or "packages_sum_above_ceiling_each_below" in frag.indicators:
+            compliance_blocks.append("possible_expense_fragmentation")
+            compliance_blocks.append("fragmentation_severity_high")
+        compliance_flags: list[str] = list(frag.indicators)
+        if classification.suggested_class == OBJECT_HUMAN:
+            compliance_flags.append("legal_classification_ambiguous")
+        if frag.fragmentation_suspected and "possible_expense_fragmentation" not in compliance_blocks:
+            compliance_flags.append("possible_expense_fragmentation_soft")
 
         eligibility = evaluate_potential_eligibility(
             sample_amount,
             classification.suggested_class,
             as_of=as_of,
             annual_sum_same_nature=None,
-            annual_sum_known=False,
-            fragmentation_flag=frag.fragmentation_suspected and frag.severity == "HIGH",
+            annual_sum_known=False,  # never claim full UG annual adherence without ledger
+            fragmentation_flag=frag.severity == "HIGH"
+            or "packages_sum_above_ceiling_each_below" in frag.indicators,
         )
         if not may_allege_dispensa_ceiling(classification):
             eligibility = dict(eligibility)
@@ -423,17 +443,28 @@ def run_public_agency_pipeline(
             official_name=prospect.nome_oficial,
         )
 
+        # No invented institutional contacts. Research action is a *next step*,
+        # not a channel already available (does not fire institutional_contact_available).
         contact_validation = validate_contacts([])
-        # research justification contact
         research = default_institutional_research_contact(prospect.uf, prospect.municipio)
-        contact_validation.accepted.append(research)
+        research_only = {
+            "accepted": [],
+            "rejected": [],
+            "has_institutional": False,
+            "research_actions": [research.as_dict()],
+            "note": (
+                "Nenhum e-mail/telefone institucional capturado nesta rodada; "
+                "há apenas justificativa de pesquisa adicional em portal oficial."
+            ),
+        }
+        has_real_institutional_contact = False
 
         signals = compute_agency_signals(
             contracts=contracts,
             population=prospect.populacao,
             as_of=as_of,
             eng_keywords=eng_kws,
-            has_institutional_contact=True,  # research action counts as justified channel step
+            has_institutional_contact=has_real_institutional_contact,
             object_class_ambiguous=classification.suggested_class == OBJECT_HUMAN,
             fragmentation_indicators=frag.indicators,
             conflict_state=conflict.state,
@@ -448,23 +479,24 @@ def run_public_agency_pipeline(
                 eng_contract_count += 1
 
         distress = any(s.signal_id == "contract_execution_distress" and s.status == "FIRED" for s in signals)
-        recent = any(
+        recent_hist = any(
             s.signal_id == "recent_publication_of_engineering_demand" and s.status == "FIRED" for s in signals
+        )
+        # Reactive mode requires an open published opportunity (edital/aviso/contratação
+        # direta em curso). Historical buyer-side contracts alone are PROACTIVE only.
+        open_opportunity = any(
+            s.signal_id == "active_direct_contracting_notice" and s.status == "FIRED" for s in signals
         )
         fit, sid = service_fit_for_agency(
             eng_contract_count=eng_contract_count,
             distress=distress,
-            recent_eng=recent,
+            recent_eng=recent_hist,
             object_class=classification.suggested_class,
             catalog_services=catalog_services,
         )
         service = get_service(sid or "") or {}
 
-        # Mode
-        if recent or eng_contract_count >= 1:
-            mode = MODE_REACTIVE if recent else MODE_PROACTIVE
-        else:
-            mode = MODE_PROACTIVE
+        mode = MODE_REACTIVE if open_opportunity else MODE_PROACTIVE
         if mode_filter and mode != mode_filter:
             reasons_counter["mode_filter"] += 1
             continue
@@ -474,11 +506,11 @@ def run_public_agency_pipeline(
             signals=signals,
             service_fit=fit,
             selected_service_id=sid,
-            has_institutional_contact=True,
+            has_institutional_contact=has_real_institutional_contact,
             evidence_count=len(contracts),
             mode=mode,
             conflict_state=conflict.state,
-            compliance_blocks=[],
+            compliance_blocks=compliance_blocks,
             weights=weights,
         )
 
@@ -524,9 +556,9 @@ def run_public_agency_pipeline(
             service_fit_score=score.service_fit_score,
             explanation=score.explanation,
             conflict=conflict,
-            compliance_blocks=[],
-            has_institutional_contact=False,
-            contact_research_justified=True,
+            compliance_blocks=compliance_blocks,
+            has_institutional_contact=has_real_institutional_contact,
+            contact_research_justified=True,  # research step justified; not a real channel
         )
 
         if pub.category in {"CONFLICT_BLOCKED", "COMPLIANCE_BLOCKED"}:
@@ -541,8 +573,9 @@ def run_public_agency_pipeline(
 
         material = material_need_signals(signals)
         probable = (
-            "Contratos de engenharia recorrentes e/ou sinais de execução longa — "
-            "possível necessidade de planejamento, orçamento, revisão ou apoio à fiscalização."
+            "Sinais de possível necessidade técnica (histórico de contratações de engenharia / "
+            "execução longa) — prospecção proativa institucional; não afirma que o órgão está "
+            "contratando no momento."
             if material
             else "Sinais fracos; necessita pesquisa adicional."
         )
@@ -551,13 +584,17 @@ def run_public_agency_pipeline(
             "entity_type": "PUBLIC_AGENCY_PROSPECT",
             "agency": prospect.as_dict(),
             "mode": mode,
+            "mode_note": (
+                "REACTIVE only when open published opportunity is observed; "
+                "historical buyer-side contracts alone yield PROACTIVE_INSTITUTIONAL_PROSPECT."
+            ),
             "score": score.as_dict(),
             "signals": [s.as_dict() for s in signals],
             "object_classification": cls_dict,
             "eligibility": eligibility,
             "fragmentation": frag_dict,
             "conflict": conflict.as_dict(),
-            "contacts": contact_validation.as_dict(),
+            "contacts": research_only,
             "publishability": pub.as_dict(),
             "selected_service": {
                 "service_id": service.get("service_id"),
@@ -574,16 +611,19 @@ def run_public_agency_pipeline(
             "last_publication": last_pub,
             "limitations": [
                 "Somatório anual completo da UG não disponível (DIRECT_CONTRACTING_SUM_UNKNOWN).",
-                "População IBGE usada como contexto, não como prova de baixa capacidade.",
+                "População IBGE Censo 2022 (API oficial) é contexto, não prova de baixa capacidade.",
+                "Sem contato institucional capturado — apenas research action.",
+                "Modo proativo: não há edital/aviso aberto observado nesta fonte.",
                 "Sem outreach automático.",
             ],
             "probable_problem": probable,
             "recommended_approach": (
-                "Apresentar capacidade técnica e redução de risco; não vender dispensa de licitação."
+                "Apresentar capacidade técnica e redução de risco; não vender dispensa de licitação. "
+                "Pesquisar canal institucional oficial antes de qualquer contato."
             ),
             "next_human_step": (
-                "Revisar conflito de interesses, classificação do objeto, dossier e autorizar "
-                "ou rejeitar outreach manualmente."
+                "Revisar conflito de interesses, classificação do objeto, dossier; "
+                "localizar contato institucional público; autorizar ou rejeitar outreach."
             ),
             "outreach_message": (
                 f"Prezados(as) de {prospect.nome_oficial},\n\n"
@@ -594,7 +634,8 @@ def run_public_agency_pipeline(
                 "necessidade técnica. Gostaríamos de apresentar nosso catálogo, se houver interesse institucional.\n\n"
                 "Atenciosamente,\nCONFENGE"
             ),
-            "compliance_blocks": [],
+            "compliance_blocks": compliance_blocks,
+            "compliance_flags": compliance_flags,
             "require_conflict_check": require_conflict_check,
         }
         all_scored.append(lead)

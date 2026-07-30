@@ -136,9 +136,37 @@ def test_fragmentation_and_near_ceiling_pricing():
             {"amount": 70000, "object": "obra pavimentação trecho A"},
             {"amount": 70000, "object": "obra pavimentação trecho B"},
         ],
+        complete_annual_ledger=False,
     )
     assert frag.pricing_near_ceiling is True
     assert "packages_sum_above_ceiling_each_below" in frag.indicators or frag.fragmentation_suspected
+
+    # Complete ledger may claim annual exceedance; incomplete sample may not
+    complete = assess_fragmentation(
+        proposed_amount=None,
+        ceiling=thr.amount,
+        same_nature_contracts=[
+            {"amount": 80000, "object": "obra eng A"},
+            {"amount": 80000, "object": "obra eng B"},
+        ],
+        complete_annual_ledger=True,
+    )
+    assert complete.annual_sum_known is True
+    assert "same_nature_annual_sum_above_threshold" in complete.indicators
+
+    incomplete = assess_fragmentation(
+        proposed_amount=None,
+        ceiling=thr.amount,
+        same_nature_contracts=[
+            {"amount": 80000, "object": "obra eng A"},
+            {"amount": 80000, "object": "obra eng B"},
+        ],
+        complete_annual_ledger=False,
+    )
+    assert incomplete.annual_sum_known is False
+    assert incomplete.annual_sum_state == SUM_UNKNOWN
+    assert "same_nature_annual_sum_above_threshold" not in incomplete.indicators
+    assert "sample_same_nature_sum_above_ceiling_incomplete_ledger" in incomplete.indicators
 
     price = price_from_scope(effort_hours=100, hourly_rate=200, margin=0.1, ceiling=thr.amount)
     assert price["ceiling_used_as_price_anchor"] is False
@@ -146,16 +174,38 @@ def test_fragmentation_and_near_ceiling_pricing():
 
 
 def test_document_not_available_not_inferred_absence():
-    # semantic constant used by pipeline evidence limitations
-    marker = "DOCUMENT_NOT_AVAILABLE_IN_SOURCE"
-    # pipeline must not invent AGENCY_DID_NOT_CREATE_DOCUMENT
-    forbidden = "AGENCY_DID_NOT_CREATE_DOCUMENT"
-    from scripts.public_agency import pipeline as pl
+    from scripts.public_agency.evidence import (
+        AGENCY_DID_NOT_CREATE_DOCUMENT,
+        DOCUMENT_NOT_AVAILABLE_IN_SOURCE,
+        may_infer_agency_did_not_create,
+        record_document_lookup,
+    )
 
-    src = Path(pl.__file__).read_text(encoding="utf-8")
-    assert forbidden not in src or "must not" in src.lower()
-    # presence of honest limitation language in package
-    assert "DOCUMENT_NOT_AVAILABLE" in marker
+    miss = record_document_lookup(
+        source="pncp",
+        identifier="edital-xyz",
+        url_or_ref="pncp://edital-xyz",
+        found=False,
+        capture_date="2026-07-15",
+    )
+    assert miss.availability == DOCUMENT_NOT_AVAILABLE_IN_SOURCE
+    assert DOCUMENT_NOT_AVAILABLE_IN_SOURCE in miss.limitations
+    assert may_infer_agency_did_not_create(miss) is False
+    assert AGENCY_DID_NOT_CREATE_DOCUMENT not in (miss.notes or "")
+    # notes explain the distinction without asserting process-level non-creation as fact
+    assert "does not prove" in " ".join(miss.limitations).lower() or "must not" in (miss.notes or "").lower()
+
+    hit = record_document_lookup(
+        source="pncp",
+        identifier="c1",
+        url_or_ref="pncp://c1",
+        found=True,
+        publication_date="2026-01-01",
+        capture_date="2026-07-15",
+        content_hash="abc",
+    )
+    assert hit.availability == "AVAILABLE"
+    assert DOCUMENT_NOT_AVAILABLE_IN_SOURCE not in hit.limitations
 
 
 def test_fiscal_exclusive_powers_blocked():

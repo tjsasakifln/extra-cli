@@ -56,25 +56,31 @@ def assess_fragmentation(
     same_nature_contracts: list[dict[str, Any]] | None = None,
     proposed_packages: list[dict[str, Any]] | None = None,
     near_ceiling_ratio: float = 0.97,
+    complete_annual_ledger: bool = False,
 ) -> FragmentationAssessment:
     """Evaluate fragmentation indicators for a unit gestor / same-nature objects.
 
     same_nature_contracts items: {amount, object, year, id}
     proposed_packages items: {amount, object, label}
+
+    complete_annual_ledger:
+      True only when the contract list is a complete same-nature annual ledger
+      for the UG. Sample/history snippets must pass False so observed sum is
+      informational (SUM_UNKNOWN) and does not hard-claim annual exceedance.
     """
     indicators: list[str] = []
     contracts = list(same_nature_contracts or [])
     packages = list(proposed_packages or [])
 
-    annual_sum = None
-    annual_known = False
+    observed_sum = None
     if contracts:
         try:
-            annual_sum = float(sum(float(c.get("amount") or 0) for c in contracts))
-            annual_known = True
+            observed_sum = float(sum(float(c.get("amount") or 0) for c in contracts))
         except (TypeError, ValueError):
-            annual_sum = None
-            annual_known = False
+            observed_sum = None
+
+    annual_sum = observed_sum if complete_annual_ledger else None
+    annual_known = bool(complete_annual_ledger and annual_sum is not None)
 
     annual_state = SUM_UNKNOWN
     if annual_known and annual_sum is not None and ceiling is not None:
@@ -83,6 +89,10 @@ def assess_fragmentation(
             indicators.append("same_nature_annual_sum_above_threshold")
         else:
             annual_state = "SAME_NATURE_ANNUAL_SUM_BELOW_THRESHOLD"
+    elif observed_sum is not None and ceiling is not None and not complete_annual_ledger:
+        # Informational only — sample may exceed ceiling without proving annual breach
+        if observed_sum >= ceiling:
+            indicators.append("sample_same_nature_sum_above_ceiling_incomplete_ledger")
 
     if len(packages) >= 2:
         # Multiple packages that look like one need
@@ -147,7 +157,7 @@ def assess_fragmentation(
         fragmentation_suspected=suspected,
         severity=severity,
         indicators=indicators,
-        annual_sum_same_nature=annual_sum,
+        annual_sum_same_nature=annual_sum if annual_known else observed_sum,
         annual_sum_known=annual_known,
         annual_sum_state=annual_state,
         packages=packages,

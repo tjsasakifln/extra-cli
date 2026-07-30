@@ -1,203 +1,308 @@
-# Supplemental SC municipal populations (IBGE Censo 2022) for mid/large municipalities
-# not present in config/municipio_population.yaml (which focuses on <5k).
-# Used only as contextual prioritization — never as sole proof of technical capacity.
-# source: IBGE Censo Demográfico 2022 (figures rounded as published / commonly cited)
-# source_retrieved_at: 2026-07-30
+# SC municipal populations — IBGE Censo Demográfico 2022 (official API)
+# Source: servicodados.ibge.gov.br agregados/4714 variável 93 (População residente)
+# Period: 2022
+# Retrieved: 2026-07-30
+# localidades filter: N6[N3[42]] (municípios de Santa Catarina)
+# DO NOT hand-edit numbers; re-fetch from IBGE API to update.
 schema_version: "1.0.0"
-source_title: "IBGE Censo Demográfico 2022 — complementação SC"
+source_title: "IBGE Censo Demográfico 2022 — População residente (agregado 4714, var. 93)"
+source_authority: "IBGE"
+source_url: "https://servicodados.ibge.gov.br/api/v3/agregados/4714/periodos/2022/variaveis/93?localidades=N6[N3[42]]"
+source_retrieved_at: "2026-07-30"
+jurisdiction: SC
 populations:
-  "4200101": 17385   # Abelardo Luz
-  "4200200": 11042   # Agrolândia
-  "4200309": 5430    # Agronômica
-  "4200408": 7114    # Água Doce
-  "4200507": 6613    # Águas de Chapecó
-  "4200606": 6943    # Águas Mornas
-  "4200705": 11018   # Alfredo Wagner
-  "4200804": 6035    # Anchieta
-  "4200903": 5254    # Angelina
-  "4201000": 7423    # Anita Garibaldi
-  "4201208": 8631    # Antônio Carlos
-  "4201257": 11048   # Apiúna
-  "4201307": 45215   # Araquari
-  "4201406": 70314   # Araranguá
-  "4201505": 8607    # Armazém
-  "4201703": 7965    # Ascurra
-  "4201901": 6743    # Aurora
-  "4201950": 13548   # Balneário Arroio do Silva
+  "4200051": 2598  # Abdon Batista
+  "4200101": 17392  # Abelardo Luz
+  "4200200": 10990  # Agrolândia
+  "4200309": 6055  # Agronômica
+  "4200408": 6508  # Água Doce
+  "4200507": 6036  # Águas de Chapecó
+  "4200556": 2839  # Águas Frias
+  "4200606": 6743  # Águas Mornas
+  "4200705": 10481  # Alfredo Wagner
+  "4200754": 1856  # Alto Bela Vista
+  "4200804": 5943  # Anchieta
+  "4200903": 5358  # Angelina
+  "4201000": 8285  # Anita Garibaldi
+  "4201109": 3593  # Anitápolis
+  "4201208": 11224  # Antônio Carlos
+  "4201257": 9811  # Apiúna
+  "4201273": 4378  # Arabutã
+  "4201307": 45283  # Araquari
+  "4201406": 71922  # Araranguá
+  "4201505": 8834  # Armazém
+  "4201604": 3556  # Arroio Trinta
+  "4201653": 2510  # Arvoredo
+  "4201703": 8319  # Ascurra
+  "4201802": 3227  # Atalanta
+  "4201901": 6780  # Aurora
+  "4201950": 15820  # Balneário Arroio do Silva
   "4202008": 139155  # Balneário Camboriú
-  "4202057": 15823   # Balneário Barra do Sul
-  "4202073": 22407   # Balneário Gaivota
-  "4202107": 42243   # Barra Velha
-  "4202131": 6234    # Bela Vista do Toldo
-  "4202206": 11432   # Benedito Novo
-  "4202305": 67801   # Biguaçu
+  "4202057": 14912  # Balneário Barra do Sul
+  "4202073": 15669  # Balneário Gaivota
+  "4202081": 3144  # Bandeirante
+  "4202099": 1668  # Barra Bonita
+  "4202107": 45369  # Barra Velha
+  "4202131": 5872  # Bela Vista do Toldo
+  "4202156": 2658  # Belmonte
+  "4202206": 10520  # Benedito Novo
+  "4202305": 76773  # Biguaçu
   "4202404": 361261  # Blumenau
-  "4202453": 23939   # Bombinhas
-  "4202602": 9651    # Bom Retiro
-  "4202701": 5264    # Botuverá
-  "4202800": 33905   # Braço do Norte
-  "4202909": 137609  # Brusque
-  "4203006": 78952   # Caçador
-  "4203105": 6354    # Caibi
-  "4203204": 83026   # Camboriú
-  "4203303": 11985   # Campo Alegre
-  "4203402": 7489    # Campo Belo do Sul
-  "4203501": 9368    # Campo Erê
-  "4203600": 36882   # Campos Novos
-  "4203709": 10625   # Canelinha
-  "4203808": 55248   # Canoinhas
-  "4203907": 22073   # Capinzal
-  "4203956": 24932   # Capivari de Baixo
-  "4204004": 10623   # Catanduvas
-  "4204202": 254777  # Chapecó
-  "4204251": 17034   # Cocal do Sul
-  "4204301": 74639   # Concórdia
-  "4204400": 10234   # Coronel Freitas
-  "4204509": 14782   # Correia Pinto
-  "4204558": 15932   # Corupá
-  "4204608": 214871  # Criciúma
-  "4204707": 10987   # Cunha Porã
-  "4204806": 40004   # Curitibanos
-  "4204905": 8634    # Descanso
-  "4205001": 15342   # Dionísio Cerqueira
-  "4205308": 10654   # Faxinal dos Guedes
+  "4202438": 3515  # Bocaina do Sul
+  "4202453": 25058  # Bombinhas
+  "4202503": 4026  # Bom Jardim da Serra
+  "4202537": 2777  # Bom Jesus
+  "4202578": 2187  # Bom Jesus do Oeste
+  "4202602": 8418  # Bom Retiro
+  "4202701": 5363  # Botuverá
+  "4202800": 33773  # Braço do Norte
+  "4202859": 4026  # Braço do Trombudo
+  "4202875": 2489  # Brunópolis
+  "4202909": 141385  # Brusque
+  "4203006": 73720  # Caçador
+  "4203105": 6304  # Caibi
+  "4203154": 3443  # Calmon
+  "4203204": 103074  # Camboriú
+  "4203253": 2625  # Capão Alto
+  "4203303": 12501  # Campo Alegre
+  "4203402": 7257  # Campo Belo do Sul
+  "4203501": 9623  # Campo Erê
+  "4203600": 36932  # Campos Novos
+  "4203709": 12821  # Canelinha
+  "4203808": 55016  # Canoinhas
+  "4203907": 23314  # Capinzal
+  "4203956": 23975  # Capivari de Baixo
+  "4204004": 10566  # Catanduvas
+  "4204103": 4614  # Caxambu do Sul
+  "4204152": 2805  # Celso Ramos
+  "4204178": 3317  # Cerro Negro
+  "4204194": 2950  # Chapadão do Lageado
+  "4204202": 254785  # Chapecó
+  "4204251": 17240  # Cocal do Sul
+  "4204301": 81646  # Concórdia
+  "4204350": 4781  # Cordilheira Alta
+  "4204400": 10388  # Coronel Freitas
+  "4204459": 2065  # Coronel Martins
+  "4204509": 15267  # Corupá
+  "4204558": 15727  # Correia Pinto
+  "4204608": 214493  # Criciúma
+  "4204707": 10953  # Cunha Porã
+  "4204756": 1968  # Cunhataí
+  "4204806": 40045  # Curitibanos
+  "4204905": 8530  # Descanso
+  "4205001": 15008  # Dionísio Cerqueira
+  "4205100": 4221  # Dona Emma
+  "4205159": 3637  # Doutor Pedrinho
+  "4205175": 3402  # Entre Rios
+  "4205191": 2269  # Ermo
+  "4205209": 4885  # Erval Velho
+  "4205308": 11192  # Faxinal dos Guedes
+  "4205357": 1783  # Flor do Sertão
   "4205407": 537211  # Florianópolis
-  "4205456": 27340   # Forquilhinha
-  "4205506": 37221   # Fraiburgo
-  "4205704": 22978   # Garopaba
-  "4205803": 18594   # Garuva
-  "4205902": 72770   # Gaspar
-  "4206009": 14823   # Governador Celso Ramos
-  "4206108": 6624    # Grão Pará
-  "4206207": 11432   # Gravatal
-  "4206306": 23456   # Guabiruba
-  "4206405": 10587   # Guaraciaba
-  "4206504": 45356   # Guaramirim
-  "4206603": 5432    # Guarujá do Sul
-  "4206702": 22456   # Herval d'Oeste
-  "4206801": 5432    # Ibicaré
-  "4206900": 19621   # Ibirama
-  "4207007": 58934   # Içara
-  "4207106": 17543   # Ilhota
-  "4207205": 10654   # Imaruí
-  "4207304": 44398   # Imbituba
-  "4207403": 6234    # Imbuia
-  "4207502": 70783   # Indaial
-  "4207601": 5432    # Ipira
-  "4207650": 9876    # Iporã do Oeste
-  "4207700": 7234    # Ipumirim
-  "4207809": 10234   # Irani
-  "4207908": 11234   # Irineópolis
-  "4208005": 6423    # Itá
-  "4208104": 22746   # Itaiópolis
+  "4205431": 2682  # Formosa do Sul
+  "4205456": 31431  # Forquilhinha
+  "4205506": 33481  # Fraiburgo
+  "4205555": 2411  # Frei Rogério
+  "4205605": 3210  # Galvão
+  "4205704": 29959  # Garopaba
+  "4205803": 18545  # Garuva
+  "4205902": 72570  # Gaspar
+  "4206009": 16915  # Governador Celso Ramos
+  "4206108": 6277  # Grão-Pará
+  "4206207": 12435  # Gravatal
+  "4206306": 24543  # Guabiruba
+  "4206405": 10796  # Guaraciaba
+  "4206504": 46711  # Guaramirim
+  "4206603": 4829  # Guarujá do Sul
+  "4206652": 8425  # Guatambú
+  "4206702": 21724  # Herval d'Oeste
+  "4206751": 2008  # Ibiam
+  "4206801": 3269  # Ibicaré
+  "4206900": 19862  # Ibirama
+  "4207007": 59035  # Içara
+  "4207106": 17046  # Ilhota
+  "4207205": 11881  # Imaruí
+  "4207304": 52579  # Imbituba
+  "4207403": 5982  # Imbuia
+  "4207502": 71549  # Indaial
+  "4207577": 2877  # Iomerê
+  "4207601": 4578  # Ipira
+  "4207650": 9335  # Iporã do Oeste
+  "4207684": 7730  # Ipuaçu
+  "4207700": 7816  # Ipumirim
+  "4207759": 3986  # Iraceminha
+  "4207809": 10195  # Irani
+  "4207858": 2069  # Irati
+  "4207908": 10285  # Irineópolis
+  "4208005": 7067  # Itá
+  "4208104": 22051  # Itaiópolis
   "4208203": 264054  # Itajaí
-  "4208302": 76138   # Itapema
-  "4208401": 16234   # Itapiranga
-  "4208450": 32145   # Itapoá
-  "4208500": 25432   # Ituporanga
-  "4208609": 5432    # Jaborá
-  "4208708": 14321   # Jacinto Machado
-  "4208807": 22345   # Jaguaruna
+  "4208302": 75940  # Itapema
+  "4208401": 16638  # Itapiranga
+  "4208450": 30750  # Itapoá
+  "4208500": 26525  # Ituporanga
+  "4208609": 4310  # Jaborá
+  "4208708": 10624  # Jacinto Machado
+  "4208807": 20375  # Jaguaruna
   "4208906": 182660  # Jaraguá do Sul
-  "4209003": 30113   # Joaçaba
+  "4208955": 1776  # Jardinópolis
+  "4209003": 30146  # Joaçaba
   "4209102": 616317  # Joinville
-  "4209151": 5432    # José Boiteux
-  "4209201": 5432    # Lacerdópolis
+  "4209151": 5985  # José Boiteux
+  "4209177": 2555  # Jupiá
+  "4209201": 2248  # Lacerdópolis
   "4209300": 164981  # Lages
-  "4209409": 53000   # Laguna
-  "4209508": 6234    # Laurentino
-  "4209607": 14321   # Lauro Muller
-  "4209706": 11234   # Lebon Régis
-  "4209904": 13543   # Lontras
-  "4210001": 12345   # Luiz Alves
-  "4210100": 56693   # Mafra
-  "4210308": 5432    # Major Vieira
-  "4210407": 7234    # Maracajá
-  "4210506": 23456   # Maravilha
-  "4210605": 16543   # Massaranduba
-  "4210803": 7234    # Meleiro
-  "4211009": 10234   # Mondaí
-  "4211108": 8234    # Monte Castelo
-  "4211207": 17890   # Morro da Fumaça
-  "4211306": 83555   # Navegantes
-  "4211405": 5432    # Nova Erechim
-  "4211504": 14567   # Nova Trento
-  "4211603": 15321   # Nova Veneza
-  "4211702": 22345   # Orleans
-  "4211751": 19234   # Otacílio Costa
-  "4211801": 7234    # Ouro
+  "4209409": 42785  # Laguna
+  "4209458": 1702  # Lajeado Grande
+  "4209508": 7932  # Laurentino
+  "4209607": 14381  # Lauro Müller
+  "4209706": 11472  # Lebon Régis
+  "4209805": 3330  # Leoberto Leal
+  "4209854": 4549  # Lindóia do Sul
+  "4209904": 12873  # Lontras
+  "4210001": 11684  # Luiz Alves
+  "4210035": 5794  # Luzerna
+  "4210050": 1778  # Macieira
+  "4210100": 55286  # Mafra
+  "4210209": 3214  # Major Gercino
+  "4210308": 7425  # Major Vieira
+  "4210407": 7815  # Maracajá
+  "4210506": 28251  # Maravilha
+  "4210555": 2184  # Marema
+  "4210605": 17162  # Massaranduba
+  "4210704": 2761  # Matos Costa
+  "4210803": 7006  # Meleiro
+  "4210852": 2511  # Mirim Doce
+  "4210902": 4080  # Modelo
+  "4211009": 10066  # Mondaí
+  "4211058": 9117  # Monte Carlo
+  "4211108": 7736  # Monte Castelo
+  "4211207": 18537  # Morro da Fumaça
+  "4211256": 3010  # Morro Grande
+  "4211306": 86401  # Navegantes
+  "4211405": 5155  # Nova Erechim
+  "4211454": 4536  # Nova Itaberaba
+  "4211504": 13727  # Nova Trento
+  "4211603": 13664  # Nova Veneza
+  "4211652": 2643  # Novo Horizonte
+  "4211702": 23661  # Orleans
+  "4211751": 17312  # Otacílio Costa
+  "4211801": 7032  # Ouro
+  "4211850": 2181  # Ouro Verde
+  "4211876": 1927  # Paial
+  "4211892": 2215  # Painel
   "4211900": 222598  # Palhoça
-  "4212007": 7432    # Palma Sola
-  "4212106": 16321   # Palmitos
-  "4212205": 18345   # Papanduva
-  "4212254": 8234    # Passo de Torres
-  "4212304": 7234    # Paulo Lopes
-  "4212502": 32530   # Penha
-  "4212700": 6234    # Petrolândia
-  "4212809": 23456   # Balneário Piçarras
-  "4212908": 16321   # Pinhalzinho
-  "4213104": 5432    # Piratuba
-  "4213203": 34221   # Pomerode
-  "4213302": 5234    # Ponte Alta
-  "4213401": 11234   # Ponte Serrada
-  "4213500": 27800   # Porto Belo
-  "4213609": 33456   # Porto União
-  "4213708": 19234   # Pouso Redondo
-  "4213807": 7234    # Praia Grande
-  "4214003": 16321   # Presidente Getúlio
-  "4214201": 10234   # Quilombo
-  "4214300": 5432    # Rancho Queimado
-  "4214508": 6234    # Rio do Campo
-  "4214607": 7234    # Rio do Oeste
-  "4214706": 11234   # Rio dos Cedros
-  "4214805": 72379   # Rio do Sul
-  "4214904": 5432    # Rio Fortuna
-  "4215000": 45000   # Rio Negrinho
-  "4215109": 11234   # Rodeio
-  "4215307": 7432    # Salete
-  "4215406": 5432    # Salto Veloso
-  "4215455": 12345   # Sangão
-  "4215505": 16321   # Santa Cecília
-  "4215604": 5432    # Santa Rosa de Lima
-  "4215653": 8234    # Santa Rosa do Sul
-  "4215703": 23456   # Santo Amaro da Imperatriz
-  "4215802": 85295   # São Bento do Sul
-  "4215901": 5432    # São Bonifácio
-  "4216008": 10234   # São Carlos
-  "4216107": 9432    # São Domingos
-  "4216206": 52743   # São Francisco do Sul
-  "4216305": 30000   # São João Batista
-  "4216354": 5432    # São João do Itaperiú
-  "4216404": 7234    # São João do Sul
-  "4216503": 26321   # São Joaquim
-  "4216602": 270276  # São José
-  "4216701": 14321   # São José do Cedro
-  "4216800": 8234    # São José do Cerrito
-  "4216909": 23456   # São Lourenço do Oeste
-  "4217006": 12345   # São Ludgero
-  "4217105": 5432    # São Martinho
-  "4217204": 44320   # São Miguel do Oeste
-  "4217253": 5432    # São Pedro de Alcântara
-  "4217303": 9432    # Saudades
-  "4217402": 21234   # Schroeder
-  "4217501": 17234   # Seara
-  "4217600": 14321   # Siderópolis
-  "4217709": 28321   # Sombrio
-  "4217808": 18321   # Taió
-  "4217907": 12345   # Tangará
-  "4218004": 39200   # Tijucas
-  "4218202": 44000   # Timbó
-  "4218301": 19234   # Três Barras
-  "4218400": 8234    # Treze de Maio
-  "4218509": 7432    # Treze Tílias
-  "4218608": 7234    # Trombudo Central
+  "4212007": 7605  # Palma Sola
+  "4212056": 2561  # Palmeira
+  "4212106": 15626  # Palmitos
+  "4212205": 19150  # Papanduva
+  "4212239": 4267  # Paraíso
+  "4212254": 12897  # Passo de Torres
+  "4212270": 4034  # Passos Maia
+  "4212304": 9063  # Paulo Lopes
+  "4212403": 4245  # Pedras Grandes
+  "4212502": 33663  # Penha
+  "4212601": 2992  # Peritiba
+  "4212650": 10190  # Pescaria Brava
+  "4212700": 6716  # Petrolândia
+  "4212809": 27127  # Balneário Piçarras
+  "4212908": 21972  # Pinhalzinho
+  "4213005": 3473  # Pinheiro Preto
+  "4213104": 5769  # Piratuba
+  "4213153": 2946  # Planalto Alegre
+  "4213203": 34289  # Pomerode
+  "4213302": 4437  # Ponte Alta
+  "4213351": 3210  # Ponte Alta do Norte
+  "4213401": 10649  # Ponte Serrada
+  "4213500": 27688  # Porto Belo
+  "4213609": 32970  # Porto União
+  "4213708": 17123  # Pouso Redondo
+  "4213807": 8270  # Praia Grande
+  "4213906": 1689  # Presidente Castello Branco
+  "4214003": 20010  # Presidente Getúlio
+  "4214102": 2301  # Presidente Nereu
+  "4214151": 2964  # Princesa
+  "4214201": 11022  # Quilombo
+  "4214300": 3279  # Rancho Queimado
+  "4214409": 6253  # Rio das Antas
+  "4214508": 6452  # Rio do Campo
+  "4214607": 7747  # Rio do Oeste
+  "4214706": 10865  # Rio dos Cedros
+  "4214805": 72587  # Rio do Sul
+  "4214904": 4847  # Rio Fortuna
+  "4215000": 39261  # Rio Negrinho
+  "4215059": 2397  # Rio Rufino
+  "4215075": 4768  # Riqueza
+  "4215109": 12757  # Rodeio
+  "4215208": 4823  # Romelândia
+  "4215307": 7489  # Salete
+  "4215356": 3632  # Saltinho
+  "4215406": 4390  # Salto Veloso
+  "4215455": 12882  # Sangão
+  "4215505": 15546  # Santa Cecília
+  "4215554": 2425  # Santa Helena
+  "4215604": 2088  # Santa Rosa de Lima
+  "4215653": 9792  # Santa Rosa do Sul
+  "4215679": 8066  # Santa Terezinha
+  "4215687": 2576  # Santa Terezinha do Progresso
+  "4215695": 1651  # Santiago do Sul
+  "4215703": 27272  # Santo Amaro da Imperatriz
+  "4215752": 2684  # São Bernardino
+  "4215802": 83277  # São Bento do Sul
+  "4215901": 2946  # São Bonifácio
+  "4216008": 10282  # São Carlos
+  "4216057": 6084  # São Cristóvão do Sul
+  "4216107": 9226  # São Domingos
+  "4216206": 52674  # São Francisco do Sul
+  "4216255": 6295  # São João do Oeste
+  "4216305": 32687  # São João Batista
+  "4216354": 4463  # São João do Itaperiú
+  "4216404": 8668  # São João do Sul
+  "4216503": 25939  # São Joaquim
+  "4216602": 270299  # São José
+  "4216701": 14167  # São José do Cedro
+  "4216800": 8708  # São José do Cerrito
+  "4216909": 24791  # São Lourenço do Oeste
+  "4217006": 13509  # São Ludgero
+  "4217105": 3405  # São Martinho
+  "4217154": 1781  # São Miguel da Boa Vista
+  "4217204": 44330  # São Miguel do Oeste
+  "4217253": 5776  # São Pedro de Alcântara
+  "4217303": 10265  # Saudades
+  "4217402": 20061  # Schroeder
+  "4217501": 18620  # Seara
+  "4217550": 3303  # Serra Alta
+  "4217600": 13714  # Siderópolis
+  "4217709": 29991  # Sombrio
+  "4217758": 2832  # Sul Brasil
+  "4217808": 18310  # Taió
+  "4217907": 8143  # Tangará
+  "4217956": 2329  # Tigrinhos
+  "4218004": 51592  # Tijucas
+  "4218103": 5386  # Timbé do Sul
+  "4218202": 46099  # Timbó
+  "4218251": 7342  # Timbó Grande
+  "4218301": 19746  # Três Barras
+  "4218350": 3782  # Treviso
+  "4218400": 7362  # Treze de Maio
+  "4218509": 8787  # Treze Tílias
+  "4218608": 7274  # Trombudo Central
   "4218707": 110088  # Tubarão
-  "4218806": 13321   # Turvo
-  "4218905": 11234   # Urubici
-  "4219002": 21234   # Urussanga
-  "4219101": 5432    # Vargeão
-  "4219200": 6234    # Vidal Ramos
-  "4219309": 54321   # Videira
-  "4219507": 51612   # Xanxerê
-  "4219606": 5432    # Xavantina
-  "4219705": 30000   # Xaxim
+  "4218756": 4916  # Tunápolis
+  "4218806": 13043  # Turvo
+  "4218855": 2774  # União do Oeste
+  "4218905": 10834  # Urubici
+  "4218954": 2656  # Urupema
+  "4219002": 20919  # Urussanga
+  "4219101": 3634  # Vargeão
+  "4219150": 2627  # Vargem
+  "4219176": 4576  # Vargem Bonita
+  "4219200": 6189  # Vidal Ramos
+  "4219309": 55466  # Videira
+  "4219358": 5370  # Vitor Meireles
+  "4219408": 4255  # Witmarsum
+  "4219507": 51607  # Xanxerê
+  "4219606": 3653  # Xavantina
+  "4219705": 31918  # Xaxim
+  "4219853": 3930  # Zortéa
+  "4220000": 15981  # Balneário Rincão

@@ -316,24 +316,31 @@ _SUPPLEMENT = _ROOT / "config/commercial/sc_municipality_population_censo2022_su
 
 
 def load_population_map(path: Path | None = None) -> dict[str, int]:
-    p = path or _DEFAULT_POP
-    data = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
+    """Load municipal populations.
+
+    Prefer official IBGE Censo 2022 supplement (API-retrieved) when present;
+    fall back to config/municipio_population.yaml for any missing codes.
+    Never invent numbers.
+    """
     out: dict[str, int] = {}
-    for k, v in data.items():
-        if str(k).startswith("#"):
-            continue
-        try:
-            out[str(k)] = int(v)
-        except (TypeError, ValueError):
-            continue
-    # Merge SC mid/large municipalities (base file focuses on <5k)
     if _SUPPLEMENT.exists():
         sup = yaml.safe_load(_SUPPLEMENT.read_text(encoding="utf-8")) or {}
         for k, v in (sup.get("populations") or {}).items():
             try:
-                code = str(k)
-                if code not in out:
-                    out[code] = int(v)
+                out[str(k)] = int(v)
+            except (TypeError, ValueError):
+                continue
+    p = path or _DEFAULT_POP
+    if p.exists():
+        data = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
+        for k, v in data.items():
+            if str(k).startswith("#"):
+                continue
+            code = str(k)
+            if code in out:
+                continue  # prefer official supplement
+            try:
+                out[code] = int(v)
             except (TypeError, ValueError):
                 continue
     return out
