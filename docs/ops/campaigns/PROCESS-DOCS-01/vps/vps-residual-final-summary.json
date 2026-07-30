@@ -1,10 +1,5 @@
 {
-  "residual_stats": {
-    "SUCCESS_ZERO": 9,
-    "no_proc_or_fail": 14,
-    "SUCCESS_NONZERO": 30
-  },
-  "entities_got": 39,
+  "as_of": "2026-07-30T22:25:09.905861+00:00",
   "operational": {
     "percent": 96.5602,
     "num": 393,
@@ -19,27 +14,55 @@
   },
   "financial": {
     "percent": 100.0,
-    "total": 14486954348.159998,
-    "covered": 14486954348.159998,
     "meets": true
   },
   "completeness": {
-    "notice_and_annexes_completeness": 89.8283,
-    "session_judgment_homologation_completeness": 7.6618,
-    "winning_proposal_completeness": 3.8309,
-    "bidder_qualification_documents_completeness": 3.8309,
+    "notice_and_annexes_completeness": 98.801,
+    "session_judgment_homologation_completeness": 10.0719,
+    "winning_proposal_completeness": 3.8369,
+    "bidder_qualification_documents_completeness": 4.5564,
     "methodology": "process_level_binary_presence",
-    "processes_scored": 757,
-    "processes_excluded_noise": 77
+    "denominator_policy": "full_no_shrink",
+    "processes_scored": 834,
+    "notice_meets": true,
+    "session_meets": false,
+    "win_meets": false,
+    "qual_meets": false
+  },
+  "residual_by_blocker": {
+    "notice": {
+      "non_process_publication_dump": 1,
+      "notice_pack_not_published_or_unclassified": 9
+    },
+    "session": {
+      "non_process_publication_dump": 9,
+      "session_judgment_not_published_publicly": 741
+    },
+    "win": {
+      "non_process_publication_dump": 25,
+      "winning_proposal_not_published_publicly": 777
+    },
+    "qual": {
+      "non_process_publication_dump": 14,
+      "bidder_qualification_not_published_publicly": 782
+    }
   },
   "corpus": {
     "processes": 889,
-    "engineering": 80,
-    "envelopes": 412,
+    "engineering": 111,
+    "envelopes": 411,
     "families": 6,
     "annotations": 5657
   },
-  "still_blocked": 14,
+  "still_blocked_actives": 14,
   "gate_exit": 6,
-  "note_completeness": "raised notice 7.9%\u219289.8% via reclassify+binary; session/win/qual publication-limited"
+  "gate_meaning": "session/win/qual completeness publication-blocked residuals (notice/ops/recall/financial met)",
+  "issue_137": "OPEN - human GT required",
+  "multi_source": [
+    "pncp_arquivos",
+    "ciga_ckan",
+    "generic_html",
+    "zip_member_expand",
+    "pncp_collect_process_key"
+  ]
 }

@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from scripts.process_documents.classify_docs import classify_document_title
+from scripts.process_documents.classify_docs import classify_document_record, classify_document_title
 from scripts.process_documents.coverage import (
     THRESHOLDS,
     compute_completeness,
@@ -159,7 +159,24 @@ def test_classify_document_title() -> None:
         classify_document_title("Documentos da Contratacao Direta - PUBLICADO.zip")
         == DocumentCategory.EDITAL.value
     )
+    assert classify_document_title("PROJETOS.pdf") == DocumentCategory.PROJETO.value
+    assert classify_document_title("AtaTotal_344579.pdf") == DocumentCategory.ATA_SESSAO.value
+    assert classify_document_title("Parecer_assinado.pdf") == DocumentCategory.PARECER_JURIDICO.value
+    assert classify_document_title("Perguntas e Respostas I.pdf") == DocumentCategory.ESCLARECIMENTO.value
+    assert classify_document_title("Declaracao_de_Exclusividade.pdf") == DocumentCategory.HABILITACAO_JURIDICA.value
     assert classify_document_title("") == DocumentCategory.UNKNOWN.value
+    # Untitled PNCP process blobs still count as notice-family annexes
+    assert (
+        classify_document_record(
+            {
+                "original_title": "39301203900142025001",
+                "source_id": "pncp",
+                "detected_mime": "application/pdf",
+                "extension": "pdf",
+            }
+        )
+        == DocumentCategory.ANEXO.value
+    )
 
 
 def test_sanitize_cpf_email() -> None:

@@ -377,20 +377,25 @@ def compute_completeness(
                 )
                 titles_by_process[pid].append(title)
 
-    def _is_noise_process(pid: str, cats: set[str]) -> bool:
-        """Bulk publication dumps / empty opaque IDs are not procurement process packs."""
+    def _residual_blocker(pid: str, cats: set[str], bucket: str, required: set[str]) -> str | None:
+        """Nominal residual reason when a process fails a completeness bucket."""
+        if cats & required:
+            return None
         titles = titles_by_process.get(pid) or []
         joined = " ".join(titles).lower()
         if "publicações de" in joined or "publicacoes de" in joined or "publicacoes_de" in joined:
-            return True
+            return "non_process_publication_dump"
         if titles and all((t.strip().isdigit() or not t.strip()) for t in titles):
-            return True
-        # pure unknown with no usable title
-        if cats <= {"outro", "unknown_category"} and not any(
-            any(c.isalpha() for c in t) for t in titles
-        ):
-            return True
-        return False
+            return "opaque_numeric_title_only"
+        if bucket == "notice_and_annexes_completeness":
+            return "notice_pack_not_published_or_unclassified"
+        if bucket == "session_judgment_homologation_completeness":
+            return "session_judgment_not_published_publicly"
+        if bucket == "winning_proposal_completeness":
+            return "winning_proposal_not_published_publicly"
+        if bucket == "bidder_qualification_documents_completeness":
+            return "bidder_qualification_not_published_publicly"
+        return "missing_bucket_documents"
 
     notice_req = {c.value for c in NOTICE_ANNEX_CATEGORIES}
     session_req = {c.value for c in SESSION_JUDGMENT_CATEGORIES}
@@ -407,10 +412,15 @@ def compute_completeness(
             return 0.0
         return len(categories & required) / len(required)
 
-    noise_ids = {pid for pid, cats in by_process.items() if _is_noise_process(pid, cats)}
-    scorable = {pid: cats for pid, cats in by_process.items() if pid not in noise_ids}
+    # Full denominator: every process with ≥1 collected document (no shrinking).
+    scorable = dict(by_process)
     n_procs = len(scorable)
-    n_noise = len(noise_ids)
+    residual_nominal: dict[str, list[dict[str, Any]]] = {
+        "notice_and_annexes_completeness": [],
+        "session_judgment_homologation_completeness": [],
+        "winning_proposal_completeness": [],
+        "bidder_qualification_documents_completeness": [],
+    }
     if n_procs == 0:
         notice = session = win = qual = 0.0
         notice_frac = session_frac = win_frac = qual_frac = 0.0
@@ -423,6 +433,22 @@ def compute_completeness(
         session_frac = sum(category_fraction(cats, session_req) for cats in scorable.values()) / n_procs
         win_frac = sum(category_fraction(cats, win_req) for cats in scorable.values()) / n_procs
         qual_frac = sum(category_fraction(cats, qual_req) for cats in scorable.values()) / n_procs
+        for pid, cats in scorable.items():
+            for key, req in (
+                ("notice_and_annexes_completeness", notice_req),
+                ("session_judgment_homologation_completeness", session_req),
+                ("winning_proposal_completeness", win_req),
+                ("bidder_qualification_documents_completeness", qual_req),
+            ):
+                blocker = _residual_blocker(pid, cats, key, req)
+                if blocker:
+                    residual_nominal[key].append(
+                        {
+                            "process_id": pid,
+                            "blocker": blocker,
+                            "categories_seen": sorted(cats)[:12],
+                        }
+                    )
 
     def _metric(ratio: float, key: str) -> dict[str, Any]:
         return {
@@ -431,6 +457,7 @@ def compute_completeness(
             "threshold": THRESHOLDS[key],
             "meets_threshold": ratio >= THRESHOLDS[key] and n_procs > 0,
             "methodology": "process_level_binary_presence",
+            "residual_count": len(residual_nominal.get(key) or []),
         }
 
     report = {
@@ -452,13 +479,18 @@ def compute_completeness(
             "note": "Diagnostic only — not used for gates (sparse public packs).",
         },
         "processes_scored": n_procs,
-        "processes_excluded_noise": n_noise,
         "processes_raw": len(by_process),
+        "denominator_policy": "full_no_shrink",
+        "residual_nominal_sample": {
+            k: v[:25] for k, v in residual_nominal.items()
+        },
+        "residual_nominal_counts": {k: len(v) for k, v in residual_nominal.items()},
         "generated_at": _now(),
         "note": (
-            "Binary presence per process after title reclassification. "
-            "Noise (CIGA publication dumps, numeric-only opaque titles) excluded from denominator. "
-            "Session/proposal/qualification remain low when portals do not publish those packs."
+            "Binary presence per process after title reclassification + ZIP expansion. "
+            "Denominator is ALL processes with ≥1 document (no shrinking). "
+            "Residuals listed nominally with blockers; publication limits remain for "
+            "session/proposal/qualification packs on many public portals."
         ),
     }
     if persist:

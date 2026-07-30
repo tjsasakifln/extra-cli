@@ -253,6 +253,177 @@ class PncpDocumentAdapter:
             return None, [p for p in data if isinstance(p, dict)], None
         return DocumentRunStatus.PARSE_FAILED, [], "unexpected arquivos payload"
 
+    def collect_process_key(
+        self,
+        *,
+        cnpj14: str,
+        ano: int,
+        sequencial: int,
+        canonical_entity_id: str,
+        process_id: str | None = None,
+        download: bool = True,
+    ) -> DocumentRunResult:
+        """Targeted live collect of all public arquivos for one PNCP process key."""
+        started = datetime.now(UTC)
+        run_id = f"pd-pncp-key-{started.strftime('%Y%m%dT%H%M%SZ')}-{uuid.uuid4().hex[:8]}"
+        pid = process_id or f"{cnpj14}-1-{int(sequencial):06d}/{ano}"
+        query = {
+            "cnpj14": cnpj14,
+            "ano": ano,
+            "sequencial": sequencial,
+            "process_id": pid,
+            "download": download,
+        }
+        docs: list[DocumentRecord] = []
+        errors: list[str] = []
+        blockers: list[str] = []
+        discovered = downloaded = unchanged = failed = 0
+        a_err, arquivos, a_msg = self.list_arquivos(cnpj14, ano, sequencial)
+        if a_err is not None:
+            finished = datetime.now(UTC)
+            result = DocumentRunResult(
+                run_id=run_id,
+                canonical_entity_id=canonical_entity_id,
+                source_id=self.source_id,
+                portal_family=self.portal_family,
+                capabilities_requested=[
+                    "notice_documents",
+                    "planning_documents",
+                    "session_and_judgment_documents",
+                    "bidder_submission_documents",
+                ],
+                capabilities_proven=[],
+                status=a_err,
+                started_at=started.isoformat(),
+                finished_at=finished.isoformat(),
+                query_parameters=query,
+                pages_attempted=1,
+                pages_completed=0,
+                errors=errors + ([a_msg] if a_msg else []),
+                blockers=blockers + [a_err.value],
+                latency_ms=(finished - started).total_seconds() * 1000,
+            )
+            self._persist_run(result)
+            return result
+
+        for arq in arquivos:
+            discovered += 1
+            title = arq.get("titulo") or arq.get("uri") or arq.get("url") or "documento"
+            url = arq.get("url") or arq.get("uri") or arq.get("link")
+            if isinstance(url, str) and url.startswith("/"):
+                url = urljoin("https://pncp.gov.br", url)
+            if not url:
+                seq_doc = arq.get("sequencialDocumento") or arq.get("sequencial")
+                if seq_doc is not None:
+                    url = f"{PNCP_API}/orgaos/{cnpj14}/compras/{ano}/{sequencial}/arquivos/{seq_doc}"
+                else:
+                    failed += 1
+                    continue
+            category = classify_document_title(str(title))
+            if not download:
+                docs.append(
+                    DocumentRecord(
+                        internal_id=hashlib.sha256(str(url).encode()).hexdigest()[:20],
+                        sha256="",
+                        size_bytes=0,
+                        download_url=str(url),
+                        source_id=self.source_id,
+                        canonical_entity_id=canonical_entity_id,
+                        portal_family=self.portal_family,
+                        document_category=category,
+                        original_title=str(title),
+                        procurement_id=pid,
+                        notice_id=str(sequencial),
+                        run_id=run_id,
+                    )
+                )
+                continue
+            d_err, blob, declared_mime, d_msg = self._download_bytes(str(url))
+            if d_err is not None or blob is None:
+                failed += 1
+                errors.append(d_msg or (d_err.value if d_err else "download failed"))
+                continue
+            detected = detect_mime(blob, declared_mime)
+            ext = "pdf" if detected == "application/pdf" else ("zip" if detected == "application/zip" else None)
+            try:
+                stored = store_blob(blob, raw_root=self.raw_root, extension=ext, declared_filename=str(title))
+            except ValueError as exc:
+                failed += 1
+                errors.append(str(exc))
+                continue
+            if stored.unchanged:
+                unchanged += 1
+            else:
+                downloaded += 1
+            docs.append(
+                DocumentRecord(
+                    internal_id=stored.sha256[:20],
+                    sha256=stored.sha256,
+                    size_bytes=stored.size_bytes,
+                    download_url=str(url),
+                    source_id=self.source_id,
+                    canonical_entity_id=canonical_entity_id,
+                    portal_family=self.portal_family,
+                    document_category=category,
+                    original_title=str(title),
+                    original_filename=str(title),
+                    procurement_id=pid,
+                    notice_id=str(sequencial),
+                    declared_mime=declared_mime,
+                    detected_mime=detected,
+                    extension=ext,
+                    run_id=run_id,
+                    raw_uri=stored.raw_uri,
+                    unchanged=stored.unchanged,
+                )
+            )
+
+        finished = datetime.now(UTC)
+        if downloaded + unchanged > 0:
+            status = DocumentRunStatus.SUCCESS_NONZERO
+            just = None
+        elif not arquivos and not errors:
+            status = DocumentRunStatus.SUCCESS_ZERO
+            just = f"PNCP arquivos empty for {cnpj14}/{ano}/{sequencial}"
+        elif errors and not docs:
+            status = DocumentRunStatus.DOWNLOAD_INCOMPLETE
+            just = None
+        else:
+            status = DocumentRunStatus.SUCCESS_ZERO
+            just = f"no downloadable arquivos for {cnpj14}/{ano}/{sequencial}"
+        result = DocumentRunResult(
+            run_id=run_id,
+            canonical_entity_id=canonical_entity_id,
+            source_id=self.source_id,
+            portal_family=self.portal_family,
+            capabilities_requested=[
+                "notice_documents",
+                "planning_documents",
+                "session_and_judgment_documents",
+                "bidder_submission_documents",
+            ],
+            capabilities_proven=["notice_documents"] if status == DocumentRunStatus.SUCCESS_NONZERO else [],
+            status=status,
+            started_at=started.isoformat(),
+            finished_at=finished.isoformat(),
+            query_parameters=query,
+            pages_attempted=1,
+            pages_completed=1,
+            records_seen=len(arquivos),
+            processes_seen=1,
+            documents_discovered=discovered,
+            documents_downloaded=downloaded,
+            documents_unchanged=unchanged,
+            documents_failed=failed,
+            errors=errors,
+            blockers=blockers,
+            latency_ms=(finished - started).total_seconds() * 1000,
+            documents=docs,
+            success_zero_justification=just,
+        )
+        self._persist_run(result)
+        return result
+
     def collect(
         self,
         entity: EntityDocumentDiscovery,

@@ -1,4 +1,7 @@
 {
+  "as_of": "2026-07-30T22:24:46.595858+00:00",
+  "processes_scored": 834,
+  "denominator_policy": "full_no_shrink",
   "metrics": {
     "notice_and_annexes_completeness": {
       "ratio": 0.0,
@@ -33,20 +36,22 @@
       "residual_count": 0
     }
   },
-  "processes_scored": 0,
-  "denominator_policy": "full_no_shrink",
-  "residual_nominal_counts": {
-    "notice_and_annexes_completeness": 0,
-    "session_judgment_homologation_completeness": 0,
-    "winning_proposal_completeness": 0,
-    "bidder_qualification_documents_completeness": 0
-  },
-  "residual_nominal_sample": {
-    "notice_and_annexes_completeness": [],
-    "session_judgment_homologation_completeness": [],
-    "winning_proposal_completeness": [],
-    "bidder_qualification_documents_completeness": []
-  },
-  "generated_at": "2026-07-30T22:24:46.595858+00:00",
-  "note": "Binary presence per process after title reclassification + ZIP expansion. Denominator is ALL processes with \u22651 document (no shrinking). Residuals listed nominally with blockers; publication limits remain for session/proposal/qualification packs on many public portals."
+  "residual_by_blocker": {
+    "notice": {
+      "non_process_publication_dump": 1,
+      "notice_pack_not_published_or_unclassified": 9
+    },
+    "session": {
+      "non_process_publication_dump": 9,
+      "session_judgment_not_published_publicly": 741
+    },
+    "win": {
+      "non_process_publication_dump": 25,
+      "winning_proposal_not_published_publicly": 777
+    },
+    "qual": {
+      "non_process_publication_dump": 14,
+      "bidder_qualification_not_published_publicly": 782
+    }
+  }
 }

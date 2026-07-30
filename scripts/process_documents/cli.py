@@ -220,6 +220,17 @@ def cmd_harvest(args: argparse.Namespace) -> int:
     return 0 if summary.get("status") in ("SUCCESS_NONZERO", "SUCCESS_ZERO") else 1
 
 
+def cmd_expand_zips(args: argparse.Namespace) -> int:
+    from scripts.process_documents.expand_zips import expand_zip_documents
+
+    summary = expand_zip_documents(
+        max_zips=int(args.max_zips),
+        max_members_per_zip=int(args.max_members),
+    )
+    _print(summary)
+    return 0 if summary.get("expanded_documents", 0) >= 0 else 1
+
+
 def cmd_show(args: argparse.Namespace) -> int:
     """Lookup documents by process/edital/contract id from run artifacts."""
     from scripts.process_documents.storage import DEFAULT_META_ROOT, ensure_roots
@@ -340,6 +351,11 @@ def build_parser() -> argparse.ArgumentParser:
     hv.add_argument("--max-pages", type=int, default=3)
     hv.add_argument("--no-download", action="store_true")
     hv.set_defaults(func=cmd_harvest)
+
+    ez = sub.add_parser("expand-zips", help="Expand CAS ZIP packs into member documents")
+    ez.add_argument("--max-zips", type=int, default=200)
+    ez.add_argument("--max-members", type=int, default=40)
+    ez.set_defaults(func=cmd_expand_zips)
 
     return p
 

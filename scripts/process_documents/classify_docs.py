@@ -53,37 +53,38 @@ _RULES: list[tuple[re.Pattern[str], DocumentCategory]] = [
     ),
     (re.compile(r"\bmapa de risco|\bmapa de riscos\b"), DocumentCategory.ESTUDO_TECNICO),
     (re.compile(r"\bfase interna\b|\bdod\b"), DocumentCategory.ESTUDO_TECNICO),
-    (re.compile(r"\bprojeto\b|\bpaviment|\bobra\b"), DocumentCategory.PROJETO),
+    (re.compile(r"\bprojetos?\b|\bpaviment|\bobra\b"), DocumentCategory.PROJETO),
     (re.compile(r"\bmemorial\b"), DocumentCategory.MEMORIAL),
     (re.compile(r"\bespecificac"), DocumentCategory.ESPECIFICACAO),
-    (re.compile(r"\bplanilha\b|\bor amento|\borcament|\bor_amento|\borçamento"), DocumentCategory.PLANILHA_ORCAMENTARIA),
+    (re.compile(r"\bplanilha\b|\bor amento|\borcament|\bor_amento|\borçamento|\bpesquisa de preco"), DocumentCategory.PLANILHA_ORCAMENTARIA),
     (re.compile(r"\bcomposi[cç]"), DocumentCategory.COMPOSICAO),
     (re.compile(r"\bcronograma\b"), DocumentCategory.CRONOGRAMA),
-    (re.compile(r"\bminuta\b"), DocumentCategory.MINUTA),
-    (re.compile(r"\besclarec"), DocumentCategory.ESCLARECIMENTO),
+    (re.compile(r"\bminuta\b|\bminutado"), DocumentCategory.MINUTA),
+    (re.compile(r"\besclarec|\bperguntas e respostas|\berrata\b"), DocumentCategory.ESCLARECIMENTO),
     (re.compile(r"\bimpugnac"), DocumentCategory.IMPUGNACAO),
     # Session / judgment
-    (re.compile(r"\bata\b.*\bsess|\bata de|\bata_de|\batas\b|\bata de registro"), DocumentCategory.ATA_SESSAO),
+    (re.compile(r"\bata\b|\bata total|\batatotal|\batas\b|\bsessao\b|\bsessão\b"), DocumentCategory.ATA_SESSAO),
     (re.compile(r"\bdisputa\b|\blances\b|\bregistro de precos"), DocumentCategory.REGISTRO_DISPUTA),
     (re.compile(r"\bhabilitac"), DocumentCategory.HABILITACAO_JURIDICA),
-    (re.compile(r"\bcertidao\b.*\bfederal|\bcnd\b|\bcndf\b"), DocumentCategory.DOCUMENTO_FISCAL),
+    (re.compile(r"\bcertidao\b|\bcnd\b|\bcndf\b|\bregularidade fiscal"), DocumentCategory.DOCUMENTO_FISCAL),
     (re.compile(r"\bfgts\b|\bcndt\b|\btrabalh"), DocumentCategory.DOCUMENTO_TRABALHISTA),
-    (re.compile(r"\bbalan[cç]o\b|\bfalenc|\bindice\b"), DocumentCategory.ECONOMICO_FINANCEIRO),
-    (re.compile(r"\bqualificac[aã]o tecnica\b|\bqualificacao tecnica\b"), DocumentCategory.QUALIFICACAO_TECNICA),
+    (re.compile(r"\bbalan[cç]o\b|\bfalenc|\bindice\b|\beconomico"), DocumentCategory.ECONOMICO_FINANCEIRO),
+    (re.compile(r"\bqualificac|\batestado de capacidade"), DocumentCategory.QUALIFICACAO_TECNICA),
     (re.compile(r"\bcat\b|certidao de acervo"), DocumentCategory.CAT),
     (re.compile(r"\bart\b|anota[cç][aã]o de responsabilidade"), DocumentCategory.ART),
     (re.compile(r"\brrt\b"), DocumentCategory.RRT),
     (re.compile(r"\batestado\b"), DocumentCategory.ATESTADO),
-    (re.compile(r"\bproposta\b"), DocumentCategory.PROPOSTA_COMERCIAL),
+    (re.compile(r"\bproposta\b|\bplanilha do licitante|\bplanilha apresentada"), DocumentCategory.PROPOSTA_COMERCIAL),
+    (re.compile(r"\bdeclarac"), DocumentCategory.HABILITACAO_JURIDICA),
     (re.compile(r"\bdiligenc"), DocumentCategory.DILIGENCIA),
-    (re.compile(r"\bparecer tecnico\b"), DocumentCategory.PARECER_TECNICO),
-    (re.compile(r"\bparecer jurid"), DocumentCategory.PARECER_JURIDICO),
+    (re.compile(r"\bparecer tecnico\b|\banalise_?\d|\ban[aá]lise\b"), DocumentCategory.PARECER_TECNICO),
+    (re.compile(r"\bparecer jurid|\bparecer\b"), DocumentCategory.PARECER_JURIDICO),
     (re.compile(r"\bjustificativ|\brazao de escolha|\breconhecimento e ratificacao"), DocumentCategory.PARECER_JURIDICO),
     (re.compile(r"\binexigib|\bcredenciamento\b"), DocumentCategory.PARECER_JURIDICO),
     (re.compile(r"\badjudic"), DocumentCategory.ADJUDICACAO),
     (re.compile(r"\bhomolog"), DocumentCategory.HOMOLOGACAO),
     (re.compile(r"\bresultado\b|\bresultados\b"), DocumentCategory.RESULTADO),
-    (re.compile(r"\bcontrato\b|\btexto de contrato\b"), DocumentCategory.CONTRATO),
+    (re.compile(r"\bcontrato\b|\btexto de contrato\b|\bcontratos\b"), DocumentCategory.CONTRATO),
     (re.compile(r"\bgarantia\b"), DocumentCategory.GARANTIA),
     (re.compile(r"\bordem de servi[cç]o\b"), DocumentCategory.ORDEM_SERVICO),
     (re.compile(r"\bapostil"), DocumentCategory.APOSTILAMENTO),
@@ -93,7 +94,9 @@ _RULES: list[tuple[re.Pattern[str], DocumentCategory]] = [
     (re.compile(r"\bsan[cç][aã]o\b|\binidon"), DocumentCategory.SANCAO),
     (re.compile(r"\brecurso\b"), DocumentCategory.RECURSO),
     (re.compile(r"\bcontrarraz"), DocumentCategory.CONTRARRAZAO),
-    (re.compile(r"\banexo\b"), DocumentCategory.ANEXO),
+    (re.compile(r"\banexo\b|\brelac..o de itens|\bens?velope\b"), DocumentCategory.ANEXO),
+    (re.compile(r"\bdisp\b|\bdispensa\b"), DocumentCategory.AVISO),
+    (re.compile(r"\bconc\b|\bconcorr"), DocumentCategory.EDITAL),
 ]
 
 
@@ -125,4 +128,26 @@ def classify_document_record(doc: dict) -> str:
     }:
         # Still upgrade if title is richer and stored is generic contract-only? keep stored.
         return stored
-    return classify_document_title(str(title))
+    cat = classify_document_title(str(title))
+    if cat not in {DocumentCategory.OUTRO.value, DocumentCategory.UNKNOWN.value}:
+        return cat
+    # PNCP/CIGA public process pack files without descriptive titles are still
+    # process documents (notice envelope). Prefer anexo over discarding as outro.
+    source = str(doc.get("source_id") or "").lower()
+    mime = str(doc.get("detected_mime") or doc.get("declared_mime") or "").lower()
+    ext = str(doc.get("extension") or "").lower()
+    url = str(doc.get("download_url") or "")
+    is_process_blob = (
+        "pdf" in mime
+        or "zip" in mime
+        or ext in {"pdf", "zip", "docx", "doc", "xlsx", "xls", "odt"}
+        or "/arquivos/" in url
+    )
+    if is_process_blob and (
+        source.startswith("pncp")
+        or "pncp" in source
+        or source.startswith("ciga")
+        or "zip_member" in source
+    ):
+        return DocumentCategory.ANEXO.value
+    return cat

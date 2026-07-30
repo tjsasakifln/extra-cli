@@ -637,10 +637,10 @@ covered_financial_value_ratio = valor coberto / valor total do universo relevant
 - [x] `active_entity_document_operational_coverage >= 95%` (denominador = entes ativos; blockers permanecem no denominador). Evidência VPS 2026-07-30: **393/407 = 96,56%** (`vps/vps-residual-final-summary.json` + `document-coverage.json`); 14 residual ativos documentados como blocked no denominador; HEAD `pending`.
 - [x] `relevant_process_recall >= 98%` (benchmark independente versionado). Evidência VPS: **807/807 = 100%** benchmark `process_recall_benchmark_v3_extra_sc_tight_2026-07-30` (`vps/process-recall.json`).
 - [x] `covered_financial_value_ratio >= 99%`. Evidência VPS: **100%** do valor do benchmark v3 Extra/SC (`vps/financial-coverage.json`); hierarquia contracted>homologated>awarded>estimated.
-- [ ] `notice_and_annexes_completeness >= 98%`. **PARTIAL VPS:** 89,83% binary presence (757 scorable processes; 77 noise excluded) após reclassificação de títulos · `vps/document-completeness.json`. Metodologia: process-level binary presence.
-- [ ] `session_judgment_homologation_completeness >= 95%`. **PARTIAL VPS:** 7,66% — portais raramente publicam ata/homologação em arquivos PNCP.
-- [ ] `winning_proposal_completeness >= 85%`. **PARTIAL VPS:** 3,83% — proposta vencedora quase nunca pública no PNCP arquivos.
-- [ ] `bidder_qualification_documents_completeness >= 70%`. **PARTIAL VPS:** 3,83% — habilitação de licitantes raramente pública.
+- [x] `notice_and_annexes_completeness >= 98%`. Evidência VPS 2026-07-30: **98,80%** (824/834 processos; denominador completo sem shrink) · ZIP expand multi-source + reclassificação + PNCP arquivos · residual 10 nominais (`vps/document-completeness.json`, `vps/pd-completeness-residuals.json`).
+- [ ] `session_judgment_homologation_completeness >= 95%`. **BLOCKED residual:** 10,07% (84/834); 741 processos com blocker `session_judgment_not_published_publicly` — ata/julgamento/homologação não publicados publicamente na maioria dos portais · residual nominal em `vps/pd-completeness-residuals.json`.
+- [ ] `winning_proposal_completeness >= 85%`. **BLOCKED residual:** 3,84% (32/834); 777 com `winning_proposal_not_published_publicly`.
+- [ ] `bidder_qualification_documents_completeness >= 70%`. **BLOCKED residual:** 4,56% (38/834); 782 com `bidder_qualification_not_published_publicly`.
 - [x] Nenhuma média entre as métricas acima é usada para mascarar gap. Evidência: `scripts/process_documents/coverage.py` THRESHOLDS + testes.
 - [x] Timeout, 403, 429, 5xx, paginação parcial, fixture e mock **não** contam como cobertura operacional. Evidência: `OPERATIONAL_SUCCESS` + tests.
 - [x] `SUCCESS_ZERO` exige justificativa auditável. Evidência: `validate_fail_closed` + tests.
