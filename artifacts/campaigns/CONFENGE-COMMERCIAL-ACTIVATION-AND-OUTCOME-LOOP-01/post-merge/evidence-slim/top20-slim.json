@@ -1,0 +1,362 @@
+[
+  {
+    "rank": 1,
+    "cnpj14": "43371025000104",
+    "razao_social": "AXIONTEK LTDA",
+    "score": null,
+    "signal_ids": [
+      "quantity_growth",
+      "value_growth",
+      "new_agency",
+      "new_region",
+      "new_object_category",
+      "concurrent_portfolio",
+      "near_expiry",
+      "diversity_increase",
+      "win_recurrence"
+    ]
+  },
+  {
+    "rank": 2,
+    "cnpj14": "42531033000108",
+    "razao_social": "METALURGICA SILLOTT LTDA",
+    "score": null,
+    "signal_ids": [
+      "quantity_growth",
+      "value_growth",
+      "new_agency",
+      "new_region",
+      "new_object_category",
+      "concurrent_portfolio",
+      "contract_concentration",
+      "near_expiry",
+      "diversity_increase",
+      "win_recurrence"
+    ]
+  },
+  {
+    "rank": 3,
+    "cnpj14": "50410432000149",
+    "razao_social": "M V NILLO DE PAULA ENGENHARIA",
+    "score": null,
+    "signal_ids": [
+      "ticket_above_history",
+      "quantity_growth",
+      "value_growth",
+      "new_agency",
+      "new_region",
+      "new_object_category",
+      "concurrent_portfolio",
+      "agency_concentration",
+      "contract_concentration",
+      "near_expiry",
+      "diversity_increase",
+      "win_recurrence"
+    ]
+  },
+  {
+    "rank": 4,
+    "cnpj14": "36216839000109",
+    "razao_social": "DIEGO DIAS GUSMAO LTDA",
+    "score": null,
+    "signal_ids": [
+      "ticket_above_history",
+      "value_growth",
+      "new_agency",
+      "new_region",
+      "new_object_category",
+      "concurrent_portfolio",
+      "agency_concentration",
+      "contract_concentration",
+      "near_expiry",
+      "diversity_increase",
+      "win_recurrence"
+    ]
+  },
+  {
+    "rank": 5,
+    "cnpj14": "09065576000101",
+    "razao_social": "BRASIL RONDON COSTRUÇÃO LTDA EPP",
+    "score": null,
+    "signal_ids": [
+      "ticket_above_history",
+      "quantity_growth",
+      "value_growth",
+      "new_agency",
+      "new_object_category",
+      "concurrent_portfolio",
+      "agency_concentration",
+      "contract_concentration",
+      "near_expiry",
+      "diversity_increase",
+      "win_recurrence"
+    ]
+  },
+  {
+    "rank": 6,
+    "cnpj14": "53464172000182",
+    "razao_social": "M V OLIVEIRA SANTOS SERVIÇOS DE ENGENHARIA LTDA",
+    "score": null,
+    "signal_ids": [
+      "ticket_above_history",
+      "quantity_growth",
+      "value_growth",
+      "new_agency",
+      "new_region",
+      "new_object_category",
+      "concurrent_portfolio",
+      "agency_concentration",
+      "contract_concentration",
+      "near_expiry",
+      "diversity_increase",
+      "win_recurrence"
+    ]
+  },
+  {
+    "rank": 7,
+    "cnpj14": "40671657000103",
+    "razao_social": "REURBIS CONSULTORIA MINAS GERAIS LTDA",
+    "score": null,
+    "signal_ids": [
+      "ticket_above_history",
+      "value_growth",
+      "new_agency",
+      "new_region",
+      "concurrent_portfolio",
+      "agency_concentration",
+      "contract_concentration",
+      "near_expiry",
+      "win_recurrence"
+    ]
+  },
+  {
+    "rank": 8,
+    "cnpj14": "23691899000131",
+    "razao_social": "LIPPEL ENGENHARIA E EQUIPAMENTOS LTDA",
+    "score": null,
+    "signal_ids": [
+      "ticket_above_history",
+      "value_growth",
+      "new_agency",
+      "new_region",
+      "new_object_category",
+      "concurrent_portfolio",
+      "near_expiry",
+      "diversity_increase",
+      "win_recurrence"
+    ]
+  },
+  {
+    "rank": 9,
+    "cnpj14": "50558572000169",
+    "razao_social": "K E DE SOUZA",
+    "score": null,
+    "signal_ids": [
+      "ticket_above_history",
+      "value_growth",
+      "new_agency",
+      "new_region",
+      "new_object_category",
+      "concurrent_portfolio",
+      "agency_concentration",
+      "contract_concentration",
+      "near_expiry",
+      "diversity_increase",
+      "win_recurrence"
+    ]
+  },
+  {
+    "rank": 10,
+    "cnpj14": "35654766000174",
+    "razao_social": "GVC ENGENHARIA, PROJETO E AVALIACOES LTDA",
+    "score": null,
+    "signal_ids": [
+      "ticket_above_history",
+      "value_growth",
+      "new_agency",
+      "new_region",
+      "new_object_category",
+      "concurrent_portfolio",
+      "agency_concentration",
+      "contract_concentration",
+      "near_expiry",
+      "win_recurrence"
+    ]
+  },
+  {
+    "rank": 11,
+    "cnpj14": "10915057000174",
+    "razao_social": "PANORAMA EMPREENDIMENTOS E SERVICOS LTDA",
+    "score": null,
+    "signal_ids": [
+      "ticket_above_history",
+      "quantity_growth",
+      "value_growth",
+      "new_agency",
+      "new_object_category",
+      "concurrent_portfolio",
+      "agency_concentration",
+      "contract_concentration",
+      "near_expiry",
+      "diversity_increase",
+      "win_recurrence"
+    ]
+  },
+  {
+    "rank": 12,
+    "cnpj14": "40881295000177",
+    "razao_social": "RODZINSKI FISCALIZAÇÃO E ACOMPANHAMENTO DE OBRAS DE ENGENHARIA LTDA.",
+    "score": null,
+    "signal_ids": [
+      "ticket_above_history",
+      "value_growth",
+      "new_agency",
+      "new_region",
+      "new_object_category",
+      "concurrent_portfolio",
+      "contract_concentration",
+      "near_expiry",
+      "diversity_increase",
+      "win_recurrence"
+    ]
+  },
+  {
+    "rank": 13,
+    "cnpj14": "29084108000191",
+    "razao_social": "AUTENTIKA CONSTRUÇÕES LTDA",
+    "score": null,
+    "signal_ids": [
+      "ticket_above_history",
+      "quantity_growth",
+      "value_growth",
+      "new_agency",
+      "new_object_category",
+      "concurrent_portfolio",
+      "near_expiry",
+      "diversity_increase",
+      "win_recurrence"
+    ]
+  },
+  {
+    "rank": 14,
+    "cnpj14": "14283859000160",
+    "razao_social": "VITALIS ENERGIA LTDA",
+    "score": null,
+    "signal_ids": [
+      "ticket_above_history",
+      "value_growth",
+      "new_agency",
+      "new_region",
+      "new_object_category",
+      "concurrent_portfolio",
+      "near_expiry",
+      "win_recurrence"
+    ]
+  },
+  {
+    "rank": 15,
+    "cnpj14": "51550475000192",
+    "razao_social": "ALTIMA CONSTRUTORA LTDA",
+    "score": null,
+    "signal_ids": [
+      "quantity_growth",
+      "value_growth",
+      "new_agency",
+      "new_region",
+      "new_object_category",
+      "concurrent_portfolio",
+      "agency_concentration",
+      "contract_concentration",
+      "near_expiry",
+      "diversity_increase",
+      "win_recurrence"
+    ]
+  },
+  {
+    "rank": 16,
+    "cnpj14": "35335154000119",
+    "razao_social": "DBN - DEBONI SISTEMAS CONSTRUTIVOS LTDA",
+    "score": null,
+    "signal_ids": [
+      "ticket_above_history",
+      "quantity_growth",
+      "value_growth",
+      "new_agency",
+      "new_region",
+      "new_object_category",
+      "concurrent_portfolio",
+      "agency_concentration",
+      "contract_concentration",
+      "near_expiry",
+      "diversity_increase",
+      "win_recurrence"
+    ]
+  },
+  {
+    "rank": 17,
+    "cnpj14": "28482916000144",
+    "razao_social": "PLANEJE TECNOLOGIA E SERVICOS LTDA",
+    "score": null,
+    "signal_ids": [
+      "ticket_above_history",
+      "value_growth",
+      "new_agency",
+      "new_region",
+      "new_object_category",
+      "concurrent_portfolio",
+      "near_expiry",
+      "diversity_increase",
+      "win_recurrence"
+    ]
+  },
+  {
+    "rank": 18,
+    "cnpj14": "42438822000107",
+    "razao_social": "AGV PROJETOS E CONSTRUCOES LTDA",
+    "score": null,
+    "signal_ids": [
+      "ticket_above_history",
+      "value_growth",
+      "new_agency",
+      "new_region",
+      "new_object_category",
+      "concurrent_portfolio",
+      "contract_concentration",
+      "near_expiry",
+      "diversity_increase",
+      "win_recurrence"
+    ]
+  },
+  {
+    "rank": 19,
+    "cnpj14": "03698620000568",
+    "razao_social": "GREEN4T SOLUÇÕES TI LTDA",
+    "score": null,
+    "signal_ids": [
+      "ticket_above_history",
+      "new_agency",
+      "new_region",
+      "new_object_category",
+      "concurrent_portfolio",
+      "diversity_increase",
+      "win_recurrence"
+    ]
+  },
+  {
+    "rank": 20,
+    "cnpj14": "44101311000112",
+    "razao_social": "FERREIRA & ARCE ENGENHARIA LTDA",
+    "score": null,
+    "signal_ids": [
+      "ticket_above_history",
+      "value_growth",
+      "new_agency",
+      "new_region",
+      "concurrent_portfolio",
+      "agency_concentration",
+      "contract_concentration",
+      "near_expiry",
+      "win_recurrence"
+    ]
+  }
+]

@@ -11,6 +11,9 @@ O histórico de git (`git log`) permanece a fonte de verdade de commits; este ar
 
 ## [Unreleased]
 
+- docs(campaign): CONFENGE commercial activation closeout (PR B) — post-merge cycle on main `7243b87f`, soak non-interference PASS, human-only commercial blocker
+
+
 ### Documentação (2026-07-25)
 
 - README, DEVELOPMENT, ops hub, architecture, GLOSSARY, INDEX e NEXT-DEV-STEP alinhados ao host Netcup, dual HC + open_tenders, soaks e non-claims DOD.

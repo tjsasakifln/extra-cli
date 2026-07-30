@@ -1,0 +1,195 @@
+{
+  "status": "BLOCKED",
+  "reason": "BLOCKED_INSUFFICIENT_HUMAN_LABELS",
+  "terminal_reason": "BLOCKED_INSUFFICIENT_HUMAN_LABELS",
+  "run_id": "cl-20260730T010931Z-1b0e4da2",
+  "campaign_id": "CONFENGE-COMMERCIAL-READY-01",
+  "metrics": {
+    "candidate_count": 22882,
+    "full_history_contract_count": 764785,
+    "db_contract_count": 4467364,
+    "discovery_mode": "PREFILTERED_CANDIDATE_DISCOVERY",
+    "cnae_coverage": 1.0,
+    "human_review_status": "PENDING",
+    "registry_coverage": {
+      "rule_version": "supplier-registry-v1",
+      "generated_at": "2026-07-30T01:15:42Z",
+      "registry_coverage_all_candidates": {
+        "n": 22882,
+        "with_registry": 22882,
+        "coverage": 1.0,
+        "cnae_primary_coverage": 1.0,
+        "cnae_secondary_coverage": 0.9383,
+        "status": "OK"
+      },
+      "registry_coverage_top100": {
+        "n": 100,
+        "with_registry": 100,
+        "coverage": 1.0,
+        "cnae_primary_coverage": 1.0,
+        "cnae_secondary_coverage": 0.94,
+        "status": "OK"
+      },
+      "registry_coverage_top20": {
+        "n": 20,
+        "with_registry": 20,
+        "coverage": 1.0,
+        "cnae_primary_coverage": 1.0,
+        "cnae_secondary_coverage": 0.95,
+        "status": "OK"
+      },
+      "cnae_primary_coverage": 1.0,
+      "cnae_secondary_coverage": 0.9383,
+      "registry_freshness": {
+        "min_source_date": "2026-07-29",
+        "max_source_date": "2026-07-29"
+      },
+      "top20_coverage_100pct": true,
+      "registry_universe_resolved": true,
+      "registry_resolved_or_definitively_not_found": 1.0,
+      "registry_resolution_status_counts": {
+        "RESOLVED": 22882
+      },
+      "missing_candidates_sample": [],
+      "missing_candidates_n": 0,
+      "block_reason": null,
+      "selection_bias_risk": false,
+      "schema_version": "canonical-coverage-v1",
+      "registry_coverage_eligible_candidates": {
+        "n": 10364,
+        "with_registry": 10364,
+        "coverage": 1.0,
+        "cnae_primary_coverage": 1.0,
+        "cnae_secondary_coverage": 0.9498,
+        "status": "OK"
+      },
+      "terminal_status": "BLOCKED",
+      "declared_blockers": [
+        "BLOCKED_INSUFFICIENT_HUMAN_LABELS"
+      ],
+      "official_registry_coverage": 1.0,
+      "cnae_coverage": 1.0
+    },
+    "canonical_coverage": {
+      "schema_version": "canonical-coverage-v1",
+      "registry_coverage_all_candidates": {
+        "n": 22882,
+        "with_registry": 22882,
+        "coverage": 1.0,
+        "cnae_primary_coverage": 1.0,
+        "cnae_secondary_coverage": 0.9383,
+        "status": "OK"
+      },
+      "registry_coverage_eligible_candidates": {
+        "n": 10364,
+        "with_registry": 10364,
+        "coverage": 1.0,
+        "cnae_primary_coverage": 1.0,
+        "cnae_secondary_coverage": 0.9498,
+        "status": "OK"
+      },
+      "registry_coverage_top100": {
+        "n": 100,
+        "with_registry": 100,
+        "coverage": 1.0,
+        "cnae_primary_coverage": 1.0,
+        "cnae_secondary_coverage": 0.94,
+        "status": "OK"
+      },
+      "registry_coverage_top20": {
+        "n": 20,
+        "with_registry": 20,
+        "coverage": 1.0,
+        "cnae_primary_coverage": 1.0,
+        "cnae_secondary_coverage": 0.95,
+        "status": "OK"
+      },
+      "cnae_primary_coverage": 1.0,
+      "cnae_secondary_coverage": 0.9383,
+      "registry_freshness": {
+        "min_source_date": "2026-07-29",
+        "max_source_date": "2026-07-29"
+      },
+      "top20_coverage_100pct": true,
+      "registry_universe_resolved": true,
+      "registry_resolved_or_definitively_not_found": 1.0,
+      "registry_resolution_status_counts": {
+        "RESOLVED": 22882
+      },
+      "missing_candidates_n": 0,
+      "missing_candidates_sample": [],
+      "block_reason": null,
+      "selection_bias_risk": false,
+      "rule_version": "supplier-registry-v1",
+      "generated_at": "2026-07-30T01:15:42Z",
+      "terminal_status": "BLOCKED",
+      "declared_blockers": [
+        "BLOCKED_INSUFFICIENT_HUMAN_LABELS"
+      ],
+      "official_registry_coverage": 1.0,
+      "cnae_coverage": 1.0
+    }
+  },
+  "official_registry_coverage": 1.0,
+  "canonical_coverage": {
+    "schema_version": "canonical-coverage-v1",
+    "registry_coverage_all_candidates": {
+      "n": 22882,
+      "with_registry": 22882,
+      "coverage": 1.0,
+      "cnae_primary_coverage": 1.0,
+      "cnae_secondary_coverage": 0.9383,
+      "status": "OK"
+    },
+    "registry_coverage_eligible_candidates": {
+      "n": 10364,
+      "with_registry": 10364,
+      "coverage": 1.0,
+      "cnae_primary_coverage": 1.0,
+      "cnae_secondary_coverage": 0.9498,
+      "status": "OK"
+    },
+    "registry_coverage_top100": {
+      "n": 100,
+      "with_registry": 100,
+      "coverage": 1.0,
+      "cnae_primary_coverage": 1.0,
+      "cnae_secondary_coverage": 0.94,
+      "status": "OK"
+    },
+    "registry_coverage_top20": {
+      "n": 20,
+      "with_registry": 20,
+      "coverage": 1.0,
+      "cnae_primary_coverage": 1.0,
+      "cnae_secondary_coverage": 0.95,
+      "status": "OK"
+    },
+    "cnae_primary_coverage": 1.0,
+    "cnae_secondary_coverage": 0.9383,
+    "registry_freshness": {
+      "min_source_date": "2026-07-29",
+      "max_source_date": "2026-07-29"
+    },
+    "top20_coverage_100pct": true,
+    "registry_universe_resolved": true,
+    "registry_resolved_or_definitively_not_found": 1.0,
+    "registry_resolution_status_counts": {
+      "RESOLVED": 22882
+    },
+    "missing_candidates_n": 0,
+    "missing_candidates_sample": [],
+    "block_reason": null,
+    "selection_bias_risk": false,
+    "rule_version": "supplier-registry-v1",
+    "generated_at": "2026-07-30T01:15:42Z",
+    "terminal_status": "BLOCKED",
+    "declared_blockers": [
+      "BLOCKED_INSUFFICIENT_HUMAN_LABELS"
+    ],
+    "official_registry_coverage": 1.0,
+    "cnae_coverage": 1.0
+  },
+  "handoff": "READY_FOR_TIAGO_REVIEW",
+  "commercial_release_ready": false
+}

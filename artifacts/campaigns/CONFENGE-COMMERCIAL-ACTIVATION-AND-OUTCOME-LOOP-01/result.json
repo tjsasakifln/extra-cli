@@ -1,0 +1,115 @@
+{
+  "campaign_id": "CONFENGE-COMMERCIAL-ACTIVATION-AND-OUTCOME-LOOP-01",
+  "status": "PASS_ACTIVATION",
+  "substatus": "BLOCKED_INSUFFICIENT_HUMAN_LABELS",
+  "commercial_release_ready": false,
+  "human_blocker": "READY_FOR_TIAGO_REVIEW",
+  "generated_at": "2026-07-30T01:17:00Z",
+  "pr_a": {
+    "number": 172,
+    "url": "https://github.com/tjsasakifln/extra-cli/pull/172",
+    "merged": true,
+    "merge_commit": "7243b87ff8158a8026ccba6c4690a42b09884b07"
+  },
+  "integrated_sha": "7243b87ff8158a8026ccba6c4690a42b09884b07",
+  "post_merge_run": {
+    "run_id": "cl-20260730T010931Z-1b0e4da2",
+    "git_sha": "7243b87ff8158a8026ccba6c4690a42b09884b07",
+    "status": "BLOCKED",
+    "reason": "BLOCKED_INSUFFICIENT_HUMAN_LABELS",
+    "db_contracts": 4467364,
+    "candidates": 22882,
+    "full_history_contracts": 764785,
+    "leads": 20,
+    "registry_coverage_all": 1.0,
+    "registry_coverage_top20": 1.0,
+    "top20_identical_to_pre_merge": true,
+    "signals_in_catalog": 15,
+    "profile_id": "confenge",
+    "profile_version": "2.0.0",
+    "auto_send": false,
+    "precision_at_10": null,
+    "precision_at_20": null
+  },
+  "soak_non_interference": {
+    "ok": true,
+    "status": "PASS",
+    "production_touched": false,
+    "soak_touched": false,
+    "timers_modified": false,
+    "services_restarted": false,
+    "operational_tables_written": false,
+    "baseline_deploy_sha": "50fc9390c6ab886c9e5562f655d4b18b807db324",
+    "final_deploy_sha": "50fc9390c6ab886c9e5562f655d4b18b807db324",
+    "artifact": "artifacts/campaigns/CONFENGE-COMMERCIAL-ACTIVATION-AND-OUTCOME-LOOP-01/post-merge/soak-non-interference.json"
+  },
+  "non_claims": [
+    "VPS_OPERATIONAL",
+    "LOCAL_READY",
+    "PROJECT_DONE",
+    "precision_at_k_without_human_labels",
+    "pure_rfb_zip_registry_authority",
+    "auto_send_whatsapp_email",
+    "vps_code_upgraded_to_integrated_sha",
+    "seven_day_soak_calendar_complete"
+  ],
+  "dod_policy": {
+    "bulk_accept": false,
+    "note": "Human-gated CONFENGE_COMMERCIAL_READY items remain unchecked until Tiago accepts. Machine path evidence listed under dod_evidence_ready for future controller accepts — not auto-[x].",
+    "dod_evidence_ready": [
+      {
+        "theme": "versioned_profile_and_signal_catalog",
+        "evidence": [
+          "config/commercial_profiles/confenge.yaml",
+          "post-merge/evidence-slim/signal-catalog-meta.json (15 signals)"
+        ],
+        "human_required": false
+      },
+      {
+        "theme": "cli_pipeline_full_history_queue",
+        "evidence": [
+          "make confenge-commercial-cycle on SHA 7243b87f",
+          "post-merge/evidence-slim/run-result-summary.json",
+          "snapshot-manifest 4467364 rows"
+        ],
+        "human_required": false
+      },
+      {
+        "theme": "top20_dossiers_kits_no_auto_send",
+        "evidence": [
+          "local run-post-merge/top20-dossiers",
+          "local run-post-merge/top5-outreach-kits",
+          "post-merge/evidence-slim/TIAGO-REVIEW.md"
+        ],
+        "human_required": false
+      },
+      {
+        "theme": "single_truth_registry_coverage",
+        "evidence": [
+          "scripts/commercial_leads/canonical_coverage.py",
+          "post-merge/evidence-slim/canonical-coverage.json"
+        ],
+        "human_required": false
+      },
+      {
+        "theme": "tiago_formal_accept_CONFENGE_COMMERCIAL_READY",
+        "evidence": [
+          "user-acceptance.template.json still PENDING"
+        ],
+        "human_required": true,
+        "block_reason": "BLOCKED_INSUFFICIENT_HUMAN_LABELS"
+      }
+    ]
+  },
+  "artifacts": {
+    "final_report": "docs/ops/campaigns/CONFENGE-COMMERCIAL-ACTIVATION-AND-OUTCOME-LOOP-01/FINAL-REPORT.md",
+    "handoff": "docs/ops/campaigns/CONFENGE-COMMERCIAL-ACTIVATION-AND-OUTCOME-LOOP-01/HANDOFF.md",
+    "status": "docs/ops/campaigns/CONFENGE-COMMERCIAL-ACTIVATION-AND-OUTCOME-LOOP-01/STATUS.md",
+    "post_merge_dir": "artifacts/campaigns/CONFENGE-COMMERCIAL-ACTIVATION-AND-OUTCOME-LOOP-01/post-merge/"
+  },
+  "pr_budget": {
+    "max_new_campaign_prs": 2,
+    "pr_a_used": 172,
+    "pr_b": "this closeout PR"
+  }
+}
