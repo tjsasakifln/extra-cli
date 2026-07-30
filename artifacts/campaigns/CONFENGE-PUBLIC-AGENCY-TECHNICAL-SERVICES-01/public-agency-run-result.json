@@ -1,13 +1,13 @@
 {
-  "run_id": "9dcbc98f-ae86-44e8-be5b-a375e9d67e90",
+  "run_id": "2b015c66-8eb2-4f98-9204-270e2f7be183",
   "campaign_id": "CONFENGE-PUBLIC-AGENCY-TECHNICAL-SERVICES-01",
   "status": "PASS",
   "reason": "PASS",
-  "git_sha": "d8493ceb055dc8326c4da71ec75079e98da7a6a2",
-  "artifact_git_sha": "d8493ceb055dc8326c4da71ec75079e98da7a6a2",
+  "git_sha": "5f33ee00fbb59715d20d978cac301b38b637213d",
+  "artifact_git_sha": "5f33ee00fbb59715d20d978cac301b38b637213d",
   "as_of": "2026-07-15",
-  "started_at": "2026-07-30T23:18:48Z",
-  "finished_at": "2026-07-30T23:18:48Z",
+  "started_at": "2026-07-30T23:32:21Z",
+  "finished_at": "2026-07-30T23:32:21Z",
   "target": "public-agencies",
   "module_version": "1.0.0",
   "config_hashes": {
@@ -42,14 +42,14 @@
       ]
     },
     "agency_universe": 477,
-    "evaluated_agencies": 276,
+    "evaluated_agencies": 275,
     "publishable_agencies": 20,
     "blocked_agencies": 0,
     "top_n": 20,
     "reasons": {
-      "RESEARCH_REQUIRED": 256,
+      "RESEARCH_REQUIRED": 255,
       "PUBLISHABLE": 20,
-      "above_focus_population": 31,
+      "above_focus_population": 32,
       "missing_geographic_identity": 4
     },
     "ufs": [
@@ -74,7 +74,7 @@
         "municipio": "Águas de Chapecó",
         "uf": "SC",
         "codigo_ibge": "4200507",
-        "populacao": 6613,
+        "populacao": 6036,
         "faixa_populacional": "up_to_10k",
         "consorcio_publico": false,
         "autarquia": false,
@@ -89,29 +89,30 @@
         ],
         "identidade_canonica": "cnpj:82804212000196",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:18:38Z"
+        "last_verified_at": "2026-07-30T23:32:08Z"
       },
-      "mode": "REACTIVE_OPPORTUNITY",
+      "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
+      "mode_note": "REACTIVE only when open published opportunity is observed; historical buyer-side contracts alone yield PROACTIVE_INSTITUTIONAL_PROSPECT.",
       "score": {
         "agency_id": "1e7ce218446f38d5",
-        "priority_score": 0.7175,
+        "priority_score": 0.5975,
         "need_score": 1.0,
         "service_fit_score": 0.75,
         "timing_score": 0.55,
         "evidence_quality_score": 0.7,
-        "institutional_accessibility_score": 0.7,
-        "commercial_readiness_score": 0.66,
-        "compliance_risk_score": 0.0,
+        "institutional_accessibility_score": 0.25,
+        "commercial_readiness_score": 0.57,
+        "compliance_risk_score": 0.3,
         "conflict_risk_score": 0.3,
         "decomposition": {
           "need": 0.3,
           "service_fit": 0.1875,
           "timing": 0.11,
           "evidence_quality": 0.105,
-          "institutional_accessibility": 0.07
+          "institutional_accessibility": 0.025
         },
         "penalties": {
-          "compliance_penalty": 0.0,
+          "compliance_penalty": 0.075,
           "conflict_penalty": 0.105
         },
         "supporting_signals": [
@@ -120,7 +121,7 @@
           "works_or_services_with_long_execution",
           "recent_publication_of_engineering_demand"
         ],
-        "explanation": "priority=0.667 need=1.00 fit=0.75 timing=0.55 evidence=0.70 access=0.70; material_signals=4; Oportunidade reativa com publicação/contrato observável.",
+        "explanation": "priority=0.548 need=1.00 fit=0.75 timing=0.55 evidence=0.70 access=0.25; material_signals=4; Prospect proativo: sinais de possível necessidade técnica (sem oportunidade formal isolada).",
         "selected_service_id": "PLANEJAMENTO_TECNICO_DA_CONTRATACAO"
       },
       "signals": [
@@ -131,7 +132,7 @@
           "weight": 0.05,
           "evidence": [
             {
-              "population": 6613,
+              "population": 6036,
               "threshold": 50000
             }
           ],
@@ -163,8 +164,8 @@
           "evidence": [
             {
               "eng_value": 429199.99,
-              "population": 6613,
-              "per_capita": 64.9
+              "population": 6036,
+              "per_capita": 71.11
             }
           ],
           "limitations": [
@@ -219,12 +220,12 @@
         },
         {
           "signal_id": "institutional_contact_available",
-          "status": "FIRED",
+          "status": "NOT_FIRED",
           "confidence": 0.8,
           "weight": 0.05,
           "evidence": [
             {
-              "institutional_contact": true
+              "institutional_contact": false
             }
           ],
           "limitations": [],
@@ -247,12 +248,15 @@
         },
         {
           "signal_id": "possible_expense_fragmentation",
-          "status": "NOT_FIRED",
-          "confidence": 0.6,
-          "weight": 0.0,
+          "status": "FIRED",
+          "confidence": 0.7,
+          "weight": -0.15,
           "evidence": [
             {
-              "indicators": []
+              "indicators": [
+                "sample_same_nature_sum_above_ceiling_incomplete_ledger",
+                "recurring_same_nature_contracting"
+              ]
             }
           ],
           "limitations": [],
@@ -363,17 +367,21 @@
         "commercial_ceiling_allegation_allowed": true
       },
       "fragmentation": {
-        "fragmentation_suspected": false,
-        "severity": "NONE",
-        "indicators": [],
-        "annual_sum_same_nature": null,
+        "fragmentation_suspected": true,
+        "severity": "MEDIUM",
+        "indicators": [
+          "sample_same_nature_sum_above_ceiling_incomplete_ledger",
+          "recurring_same_nature_contracting"
+        ],
+        "annual_sum_same_nature": 787057.99,
         "annual_sum_known": false,
         "annual_sum_state": "DIRECT_CONTRACTING_SUM_UNKNOWN",
         "packages": [],
         "blocks_eligibility_claim": false,
         "pricing_near_ceiling": false,
-        "notes": "Teto legal é filtro de elegibilidade potencial, não âncora de preço. Preço deve decorrer de escopo, esforço, responsabilidade técnica e riscos. Somatório anual: DIRECT_CONTRACTING_SUM_UNKNOWN.",
-        "observed_contract_sum_in_sample": 787057.99
+        "notes": "Teto legal é filtro de elegibilidade potencial, não âncora de preço. Preço deve decorrer de escopo, esforço, responsabilidade técnica e riscos. Somatório anual: DIRECT_CONTRACTING_SUM_UNKNOWN. Somatório observado no sample de contratos não equivale a ledger anual completo da UG.",
+        "observed_contract_sum_in_sample": 787057.99,
+        "annual_ledger_complete": false
       },
       "conflict": {
         "state": "CONFLICT_CHECK_PENDING",
@@ -391,7 +399,10 @@
         "notes": "Sem match automático de bloqueio. Isso NÃO prova ausência de conflito. Outreach exige CONFLICT_CLEARED_BY_HUMAN_REVIEW."
       },
       "contacts": {
-        "accepted": [
+        "accepted": [],
+        "rejected": [],
+        "has_institutional": false,
+        "research_actions": [
           {
             "channel": "sector",
             "value": "Pesquisar e-mail institucional do setor de licitações/obras de Águas de Chapecó/SC em portal oficial",
@@ -401,8 +412,7 @@
             "notes": "Justificativa de pesquisa adicional — sem contato pessoal."
           }
         ],
-        "rejected": [],
-        "has_institutional": true
+        "note": "Nenhum e-mail/telefone institucional capturado nesta rodada; há apenas justificativa de pesquisa adicional em portal oficial."
       },
       "publishability": {
         "category": "PUBLISHABLE",
@@ -607,14 +617,21 @@
       "last_publication": "2026-07-09",
       "limitations": [
         "Somatório anual completo da UG não disponível (DIRECT_CONTRACTING_SUM_UNKNOWN).",
-        "População IBGE usada como contexto, não como prova de baixa capacidade.",
+        "População IBGE Censo 2022 (API oficial) é contexto, não prova de baixa capacidade.",
+        "Sem contato institucional capturado — apenas research action.",
+        "Modo proativo: não há edital/aviso aberto observado nesta fonte.",
         "Sem outreach automático."
       ],
-      "probable_problem": "Contratos de engenharia recorrentes e/ou sinais de execução longa — possível necessidade de planejamento, orçamento, revisão ou apoio à fiscalização.",
-      "recommended_approach": "Apresentar capacidade técnica e redução de risco; não vender dispensa de licitação.",
-      "next_human_step": "Revisar conflito de interesses, classificação do objeto, dossier e autorizar ou rejeitar outreach manualmente.",
+      "probable_problem": "Sinais de possível necessidade técnica (histórico de contratações de engenharia / execução longa) — prospecção proativa institucional; não afirma que o órgão está contratando no momento.",
+      "recommended_approach": "Apresentar capacidade técnica e redução de risco; não vender dispensa de licitação. Pesquisar canal institucional oficial antes de qualquer contato.",
+      "next_human_step": "Revisar conflito de interesses, classificação do objeto, dossier; localizar contato institucional público; autorizar ou rejeitar outreach.",
       "outreach_message": "Prezados(as) de MUNICÍPIO DE ÁGUAS DE CHAPECÓ,\n\nA CONFENGE presta apoio técnico especializado a órgãos públicos em planejamento de contratações de obras e serviços de engenharia, orçamentação e apoio técnico à fiscalização e à gestão contratual (sem substituir o fiscal público).\n\nCom base em dados públicos de contratações, identificamos sinais de possível necessidade técnica. Gostaríamos de apresentar nosso catálogo, se houver interesse institucional.\n\nAtenciosamente,\nCONFENGE",
       "compliance_blocks": [],
+      "compliance_flags": [
+        "sample_same_nature_sum_above_ceiling_incomplete_ledger",
+        "recurring_same_nature_contracting",
+        "possible_expense_fragmentation_soft"
+      ],
       "require_conflict_check": true,
       "rank_position": 1
     },
@@ -632,7 +649,7 @@
         "municipio": "Palmitos",
         "uf": "SC",
         "codigo_ibge": "4212106",
-        "populacao": 16321,
+        "populacao": 15626,
         "faixa_populacional": "10k_to_25k",
         "consorcio_publico": false,
         "autarquia": false,
@@ -647,36 +664,37 @@
         ],
         "identidade_canonica": "cnpj:85361863000147",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:18:38Z"
+        "last_verified_at": "2026-07-30T23:32:08Z"
       },
-      "mode": "REACTIVE_OPPORTUNITY",
+      "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
+      "mode_note": "REACTIVE only when open published opportunity is observed; historical buyer-side contracts alone yield PROACTIVE_INSTITUTIONAL_PROSPECT.",
       "score": {
         "agency_id": "b224bed3ce3981cb",
-        "priority_score": 0.5925,
+        "priority_score": 0.4725,
         "need_score": 0.75,
         "service_fit_score": 0.55,
         "timing_score": 0.55,
         "evidence_quality_score": 0.7,
-        "institutional_accessibility_score": 0.7,
-        "commercial_readiness_score": 0.555,
-        "compliance_risk_score": 0.0,
+        "institutional_accessibility_score": 0.25,
+        "commercial_readiness_score": 0.465,
+        "compliance_risk_score": 0.3,
         "conflict_risk_score": 0.3,
         "decomposition": {
           "need": 0.225,
           "service_fit": 0.1375,
           "timing": 0.11,
           "evidence_quality": 0.105,
-          "institutional_accessibility": 0.07
+          "institutional_accessibility": 0.025
         },
         "penalties": {
-          "compliance_penalty": 0.0,
+          "compliance_penalty": 0.075,
           "conflict_penalty": 0.105
         },
         "supporting_signals": [
           "works_or_services_with_long_execution",
           "recent_publication_of_engineering_demand"
         ],
-        "explanation": "priority=0.542 need=0.75 fit=0.55 timing=0.55 evidence=0.70 access=0.70; material_signals=2; Oportunidade reativa com publicação/contrato observável.",
+        "explanation": "priority=0.422 need=0.75 fit=0.55 timing=0.55 evidence=0.70 access=0.25; material_signals=2; Prospect proativo: sinais de possível necessidade técnica (sem oportunidade formal isolada).",
         "selected_service_id": "REVISAO_PRE_PUBLICACAO"
       },
       "signals": [
@@ -687,7 +705,7 @@
           "weight": 0.05,
           "evidence": [
             {
-              "population": 16321,
+              "population": 15626,
               "threshold": 50000
             }
           ],
@@ -719,8 +737,8 @@
           "evidence": [
             {
               "eng_value": 8700.0,
-              "population": 16321,
-              "per_capita": 0.53
+              "population": 15626,
+              "per_capita": 0.56
             }
           ],
           "limitations": [
@@ -775,12 +793,12 @@
         },
         {
           "signal_id": "institutional_contact_available",
-          "status": "FIRED",
+          "status": "NOT_FIRED",
           "confidence": 0.8,
           "weight": 0.05,
           "evidence": [
             {
-              "institutional_contact": true
+              "institutional_contact": false
             }
           ],
           "limitations": [],
@@ -803,12 +821,14 @@
         },
         {
           "signal_id": "possible_expense_fragmentation",
-          "status": "NOT_FIRED",
-          "confidence": 0.6,
-          "weight": 0.0,
+          "status": "FIRED",
+          "confidence": 0.7,
+          "weight": -0.15,
           "evidence": [
             {
-              "indicators": []
+              "indicators": [
+                "recurring_same_nature_contracting"
+              ]
             }
           ],
           "limitations": [],
@@ -916,17 +936,20 @@
         "commercial_ceiling_allegation_allowed": false
       },
       "fragmentation": {
-        "fragmentation_suspected": false,
-        "severity": "NONE",
-        "indicators": [],
-        "annual_sum_same_nature": null,
+        "fragmentation_suspected": true,
+        "severity": "MEDIUM",
+        "indicators": [
+          "recurring_same_nature_contracting"
+        ],
+        "annual_sum_same_nature": 10088.44,
         "annual_sum_known": false,
         "annual_sum_state": "DIRECT_CONTRACTING_SUM_UNKNOWN",
         "packages": [],
         "blocks_eligibility_claim": false,
         "pricing_near_ceiling": false,
-        "notes": "Teto legal é filtro de elegibilidade potencial, não âncora de preço. Preço deve decorrer de escopo, esforço, responsabilidade técnica e riscos. Somatório anual: DIRECT_CONTRACTING_SUM_UNKNOWN.",
-        "observed_contract_sum_in_sample": 10088.44
+        "notes": "Teto legal é filtro de elegibilidade potencial, não âncora de preço. Preço deve decorrer de escopo, esforço, responsabilidade técnica e riscos. Somatório anual: DIRECT_CONTRACTING_SUM_UNKNOWN. Somatório observado no sample de contratos não equivale a ledger anual completo da UG.",
+        "observed_contract_sum_in_sample": 10088.44,
+        "annual_ledger_complete": false
       },
       "conflict": {
         "state": "CONFLICT_CHECK_PENDING",
@@ -944,7 +967,10 @@
         "notes": "Sem match automático de bloqueio. Isso NÃO prova ausência de conflito. Outreach exige CONFLICT_CLEARED_BY_HUMAN_REVIEW."
       },
       "contacts": {
-        "accepted": [
+        "accepted": [],
+        "rejected": [],
+        "has_institutional": false,
+        "research_actions": [
           {
             "channel": "sector",
             "value": "Pesquisar e-mail institucional do setor de licitações/obras de Palmitos/SC em portal oficial",
@@ -954,8 +980,7 @@
             "notes": "Justificativa de pesquisa adicional — sem contato pessoal."
           }
         ],
-        "rejected": [],
-        "has_institutional": true
+        "note": "Nenhum e-mail/telefone institucional capturado nesta rodada; há apenas justificativa de pesquisa adicional em portal oficial."
       },
       "publishability": {
         "category": "PUBLISHABLE",
@@ -1072,14 +1097,20 @@
       "last_publication": "2026-07-09",
       "limitations": [
         "Somatório anual completo da UG não disponível (DIRECT_CONTRACTING_SUM_UNKNOWN).",
-        "População IBGE usada como contexto, não como prova de baixa capacidade.",
+        "População IBGE Censo 2022 (API oficial) é contexto, não prova de baixa capacidade.",
+        "Sem contato institucional capturado — apenas research action.",
+        "Modo proativo: não há edital/aviso aberto observado nesta fonte.",
         "Sem outreach automático."
       ],
-      "probable_problem": "Contratos de engenharia recorrentes e/ou sinais de execução longa — possível necessidade de planejamento, orçamento, revisão ou apoio à fiscalização.",
-      "recommended_approach": "Apresentar capacidade técnica e redução de risco; não vender dispensa de licitação.",
-      "next_human_step": "Revisar conflito de interesses, classificação do objeto, dossier e autorizar ou rejeitar outreach manualmente.",
+      "probable_problem": "Sinais de possível necessidade técnica (histórico de contratações de engenharia / execução longa) — prospecção proativa institucional; não afirma que o órgão está contratando no momento.",
+      "recommended_approach": "Apresentar capacidade técnica e redução de risco; não vender dispensa de licitação. Pesquisar canal institucional oficial antes de qualquer contato.",
+      "next_human_step": "Revisar conflito de interesses, classificação do objeto, dossier; localizar contato institucional público; autorizar ou rejeitar outreach.",
       "outreach_message": "Prezados(as) de PREFEITURA MUNICIPAL DE PALMITOS - SC,\n\nA CONFENGE presta apoio técnico especializado a órgãos públicos em planejamento de contratações de obras e serviços de engenharia, orçamentação e apoio técnico à fiscalização e à gestão contratual (sem substituir o fiscal público).\n\nCom base em dados públicos de contratações, identificamos sinais de possível necessidade técnica. Gostaríamos de apresentar nosso catálogo, se houver interesse institucional.\n\nAtenciosamente,\nCONFENGE",
       "compliance_blocks": [],
+      "compliance_flags": [
+        "recurring_same_nature_contracting",
+        "possible_expense_fragmentation_soft"
+      ],
       "require_conflict_check": true,
       "rank_position": 2
     },
@@ -1097,7 +1128,7 @@
         "municipio": "Joaçaba",
         "uf": "SC",
         "codigo_ibge": "4209003",
-        "populacao": 30113,
+        "populacao": 30146,
         "faixa_populacional": "25k_to_50k",
         "consorcio_publico": false,
         "autarquia": false,
@@ -1112,36 +1143,37 @@
         ],
         "identidade_canonica": "cnpj:82939380000199",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:18:46Z"
+        "last_verified_at": "2026-07-30T23:32:19Z"
       },
-      "mode": "REACTIVE_OPPORTUNITY",
+      "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
+      "mode_note": "REACTIVE only when open published opportunity is observed; historical buyer-side contracts alone yield PROACTIVE_INSTITUTIONAL_PROSPECT.",
       "score": {
         "agency_id": "64973b2341e2610b",
-        "priority_score": 0.5925,
+        "priority_score": 0.4725,
         "need_score": 0.75,
         "service_fit_score": 0.55,
         "timing_score": 0.55,
         "evidence_quality_score": 0.7,
-        "institutional_accessibility_score": 0.7,
-        "commercial_readiness_score": 0.555,
-        "compliance_risk_score": 0.0,
+        "institutional_accessibility_score": 0.25,
+        "commercial_readiness_score": 0.465,
+        "compliance_risk_score": 0.3,
         "conflict_risk_score": 0.3,
         "decomposition": {
           "need": 0.225,
           "service_fit": 0.1375,
           "timing": 0.11,
           "evidence_quality": 0.105,
-          "institutional_accessibility": 0.07
+          "institutional_accessibility": 0.025
         },
         "penalties": {
-          "compliance_penalty": 0.0,
+          "compliance_penalty": 0.075,
           "conflict_penalty": 0.105
         },
         "supporting_signals": [
           "works_or_services_with_long_execution",
           "recent_publication_of_engineering_demand"
         ],
-        "explanation": "priority=0.542 need=0.75 fit=0.55 timing=0.55 evidence=0.70 access=0.70; material_signals=2; Oportunidade reativa com publicação/contrato observável.",
+        "explanation": "priority=0.422 need=0.75 fit=0.55 timing=0.55 evidence=0.70 access=0.25; material_signals=2; Prospect proativo: sinais de possível necessidade técnica (sem oportunidade formal isolada).",
         "selected_service_id": "REVISAO_PRE_PUBLICACAO"
       },
       "signals": [
@@ -1152,7 +1184,7 @@
           "weight": 0.05,
           "evidence": [
             {
-              "population": 30113,
+              "population": 30146,
               "threshold": 50000
             }
           ],
@@ -1184,8 +1216,8 @@
           "evidence": [
             {
               "eng_value": 90246.0,
-              "population": 30113,
-              "per_capita": 3.0
+              "population": 30146,
+              "per_capita": 2.99
             }
           ],
           "limitations": [
@@ -1240,12 +1272,12 @@
         },
         {
           "signal_id": "institutional_contact_available",
-          "status": "FIRED",
+          "status": "NOT_FIRED",
           "confidence": 0.8,
           "weight": 0.05,
           "evidence": [
             {
-              "institutional_contact": true
+              "institutional_contact": false
             }
           ],
           "limitations": [],
@@ -1268,12 +1300,14 @@
         },
         {
           "signal_id": "possible_expense_fragmentation",
-          "status": "NOT_FIRED",
-          "confidence": 0.6,
-          "weight": 0.0,
+          "status": "FIRED",
+          "confidence": 0.7,
+          "weight": -0.15,
           "evidence": [
             {
-              "indicators": []
+              "indicators": [
+                "recurring_same_nature_contracting"
+              ]
             }
           ],
           "limitations": [],
@@ -1381,17 +1415,20 @@
         "commercial_ceiling_allegation_allowed": false
       },
       "fragmentation": {
-        "fragmentation_suspected": false,
-        "severity": "NONE",
-        "indicators": [],
-        "annual_sum_same_nature": null,
+        "fragmentation_suspected": true,
+        "severity": "MEDIUM",
+        "indicators": [
+          "recurring_same_nature_contracting"
+        ],
+        "annual_sum_same_nature": 100319.23,
         "annual_sum_known": false,
         "annual_sum_state": "DIRECT_CONTRACTING_SUM_UNKNOWN",
         "packages": [],
         "blocks_eligibility_claim": false,
         "pricing_near_ceiling": false,
-        "notes": "Teto legal é filtro de elegibilidade potencial, não âncora de preço. Preço deve decorrer de escopo, esforço, responsabilidade técnica e riscos. Somatório anual: DIRECT_CONTRACTING_SUM_UNKNOWN.",
-        "observed_contract_sum_in_sample": 100319.23
+        "notes": "Teto legal é filtro de elegibilidade potencial, não âncora de preço. Preço deve decorrer de escopo, esforço, responsabilidade técnica e riscos. Somatório anual: DIRECT_CONTRACTING_SUM_UNKNOWN. Somatório observado no sample de contratos não equivale a ledger anual completo da UG.",
+        "observed_contract_sum_in_sample": 100319.23,
+        "annual_ledger_complete": false
       },
       "conflict": {
         "state": "CONFLICT_CHECK_PENDING",
@@ -1409,7 +1446,10 @@
         "notes": "Sem match automático de bloqueio. Isso NÃO prova ausência de conflito. Outreach exige CONFLICT_CLEARED_BY_HUMAN_REVIEW."
       },
       "contacts": {
-        "accepted": [
+        "accepted": [],
+        "rejected": [],
+        "has_institutional": false,
+        "research_actions": [
           {
             "channel": "sector",
             "value": "Pesquisar e-mail institucional do setor de licitações/obras de Joaçaba/SC em portal oficial",
@@ -1419,8 +1459,7 @@
             "notes": "Justificativa de pesquisa adicional — sem contato pessoal."
           }
         ],
-        "rejected": [],
-        "has_institutional": true
+        "note": "Nenhum e-mail/telefone institucional capturado nesta rodada; há apenas justificativa de pesquisa adicional em portal oficial."
       },
       "publishability": {
         "category": "PUBLISHABLE",
@@ -1633,14 +1672,20 @@
       "last_publication": "2026-07-07",
       "limitations": [
         "Somatório anual completo da UG não disponível (DIRECT_CONTRACTING_SUM_UNKNOWN).",
-        "População IBGE usada como contexto, não como prova de baixa capacidade.",
+        "População IBGE Censo 2022 (API oficial) é contexto, não prova de baixa capacidade.",
+        "Sem contato institucional capturado — apenas research action.",
+        "Modo proativo: não há edital/aviso aberto observado nesta fonte.",
         "Sem outreach automático."
       ],
-      "probable_problem": "Contratos de engenharia recorrentes e/ou sinais de execução longa — possível necessidade de planejamento, orçamento, revisão ou apoio à fiscalização.",
-      "recommended_approach": "Apresentar capacidade técnica e redução de risco; não vender dispensa de licitação.",
-      "next_human_step": "Revisar conflito de interesses, classificação do objeto, dossier e autorizar ou rejeitar outreach manualmente.",
+      "probable_problem": "Sinais de possível necessidade técnica (histórico de contratações de engenharia / execução longa) — prospecção proativa institucional; não afirma que o órgão está contratando no momento.",
+      "recommended_approach": "Apresentar capacidade técnica e redução de risco; não vender dispensa de licitação. Pesquisar canal institucional oficial antes de qualquer contato.",
+      "next_human_step": "Revisar conflito de interesses, classificação do objeto, dossier; localizar contato institucional público; autorizar ou rejeitar outreach.",
       "outreach_message": "Prezados(as) de MUNICÍPIO DE JOAÇABA,\n\nA CONFENGE presta apoio técnico especializado a órgãos públicos em planejamento de contratações de obras e serviços de engenharia, orçamentação e apoio técnico à fiscalização e à gestão contratual (sem substituir o fiscal público).\n\nCom base em dados públicos de contratações, identificamos sinais de possível necessidade técnica. Gostaríamos de apresentar nosso catálogo, se houver interesse institucional.\n\nAtenciosamente,\nCONFENGE",
       "compliance_blocks": [],
+      "compliance_flags": [
+        "recurring_same_nature_contracting",
+        "possible_expense_fragmentation_soft"
+      ],
       "require_conflict_check": true,
       "rank_position": 3
     },
@@ -1658,7 +1703,7 @@
         "municipio": "Sangão",
         "uf": "SC",
         "codigo_ibge": "4215455",
-        "populacao": 12345,
+        "populacao": 12882,
         "faixa_populacional": "10k_to_25k",
         "consorcio_publico": false,
         "autarquia": false,
@@ -1673,35 +1718,36 @@
         ],
         "identidade_canonica": "cnpj:95780458000117",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:18:39Z"
+        "last_verified_at": "2026-07-30T23:32:09Z"
       },
-      "mode": "REACTIVE_OPPORTUNITY",
+      "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
+      "mode_note": "REACTIVE only when open published opportunity is observed; historical buyer-side contracts alone yield PROACTIVE_INSTITUTIONAL_PROSPECT.",
       "score": {
         "agency_id": "28d3df4df0799169",
-        "priority_score": 0.5775,
+        "priority_score": 0.4575,
         "need_score": 0.6,
         "service_fit_score": 0.55,
         "timing_score": 0.55,
         "evidence_quality_score": 0.9,
-        "institutional_accessibility_score": 0.7,
-        "commercial_readiness_score": 0.6,
-        "compliance_risk_score": 0.0,
+        "institutional_accessibility_score": 0.25,
+        "commercial_readiness_score": 0.51,
+        "compliance_risk_score": 0.3,
         "conflict_risk_score": 0.3,
         "decomposition": {
           "need": 0.18,
           "service_fit": 0.1375,
           "timing": 0.11,
           "evidence_quality": 0.135,
-          "institutional_accessibility": 0.07
+          "institutional_accessibility": 0.025
         },
         "penalties": {
-          "compliance_penalty": 0.0,
+          "compliance_penalty": 0.075,
           "conflict_penalty": 0.105
         },
         "supporting_signals": [
           "recent_publication_of_engineering_demand"
         ],
-        "explanation": "priority=0.527 need=0.60 fit=0.55 timing=0.55 evidence=0.90 access=0.70; material_signals=1; Oportunidade reativa com publicação/contrato observável.",
+        "explanation": "priority=0.408 need=0.60 fit=0.55 timing=0.55 evidence=0.90 access=0.25; material_signals=1; Prospect proativo: sinais de possível necessidade técnica (sem oportunidade formal isolada).",
         "selected_service_id": "REVISAO_PRE_PUBLICACAO"
       },
       "signals": [
@@ -1712,7 +1758,7 @@
           "weight": 0.05,
           "evidence": [
             {
-              "population": 12345,
+              "population": 12882,
               "threshold": 50000
             }
           ],
@@ -1744,8 +1790,8 @@
           "evidence": [
             {
               "eng_value": 205000.0,
-              "population": 12345,
-              "per_capita": 16.61
+              "population": 12882,
+              "per_capita": 15.91
             }
           ],
           "limitations": [
@@ -1800,12 +1846,12 @@
         },
         {
           "signal_id": "institutional_contact_available",
-          "status": "FIRED",
+          "status": "NOT_FIRED",
           "confidence": 0.8,
           "weight": 0.05,
           "evidence": [
             {
-              "institutional_contact": true
+              "institutional_contact": false
             }
           ],
           "limitations": [],
@@ -1828,12 +1874,15 @@
         },
         {
           "signal_id": "possible_expense_fragmentation",
-          "status": "NOT_FIRED",
-          "confidence": 0.6,
-          "weight": 0.0,
+          "status": "FIRED",
+          "confidence": 0.7,
+          "weight": -0.15,
           "evidence": [
             {
-              "indicators": []
+              "indicators": [
+                "sample_same_nature_sum_above_ceiling_incomplete_ledger",
+                "recurring_same_nature_contracting"
+              ]
             }
           ],
           "limitations": [],
@@ -1944,17 +1993,21 @@
         "commercial_ceiling_allegation_allowed": true
       },
       "fragmentation": {
-        "fragmentation_suspected": false,
-        "severity": "NONE",
-        "indicators": [],
-        "annual_sum_same_nature": null,
+        "fragmentation_suspected": true,
+        "severity": "MEDIUM",
+        "indicators": [
+          "sample_same_nature_sum_above_ceiling_incomplete_ledger",
+          "recurring_same_nature_contracting"
+        ],
+        "annual_sum_same_nature": 421295.84,
         "annual_sum_known": false,
         "annual_sum_state": "DIRECT_CONTRACTING_SUM_UNKNOWN",
         "packages": [],
         "blocks_eligibility_claim": false,
         "pricing_near_ceiling": false,
-        "notes": "Teto legal é filtro de elegibilidade potencial, não âncora de preço. Preço deve decorrer de escopo, esforço, responsabilidade técnica e riscos. Somatório anual: DIRECT_CONTRACTING_SUM_UNKNOWN.",
-        "observed_contract_sum_in_sample": 421295.84
+        "notes": "Teto legal é filtro de elegibilidade potencial, não âncora de preço. Preço deve decorrer de escopo, esforço, responsabilidade técnica e riscos. Somatório anual: DIRECT_CONTRACTING_SUM_UNKNOWN. Somatório observado no sample de contratos não equivale a ledger anual completo da UG.",
+        "observed_contract_sum_in_sample": 421295.84,
+        "annual_ledger_complete": false
       },
       "conflict": {
         "state": "CONFLICT_CHECK_PENDING",
@@ -1972,7 +2025,10 @@
         "notes": "Sem match automático de bloqueio. Isso NÃO prova ausência de conflito. Outreach exige CONFLICT_CLEARED_BY_HUMAN_REVIEW."
       },
       "contacts": {
-        "accepted": [
+        "accepted": [],
+        "rejected": [],
+        "has_institutional": false,
+        "research_actions": [
           {
             "channel": "sector",
             "value": "Pesquisar e-mail institucional do setor de licitações/obras de Sangão/SC em portal oficial",
@@ -1982,8 +2038,7 @@
             "notes": "Justificativa de pesquisa adicional — sem contato pessoal."
           }
         ],
-        "rejected": [],
-        "has_institutional": true
+        "note": "Nenhum e-mail/telefone institucional capturado nesta rodada; há apenas justificativa de pesquisa adicional em portal oficial."
       },
       "publishability": {
         "category": "PUBLISHABLE",
@@ -2292,14 +2347,21 @@
       "last_publication": "2026-07-08",
       "limitations": [
         "Somatório anual completo da UG não disponível (DIRECT_CONTRACTING_SUM_UNKNOWN).",
-        "População IBGE usada como contexto, não como prova de baixa capacidade.",
+        "População IBGE Censo 2022 (API oficial) é contexto, não prova de baixa capacidade.",
+        "Sem contato institucional capturado — apenas research action.",
+        "Modo proativo: não há edital/aviso aberto observado nesta fonte.",
         "Sem outreach automático."
       ],
-      "probable_problem": "Contratos de engenharia recorrentes e/ou sinais de execução longa — possível necessidade de planejamento, orçamento, revisão ou apoio à fiscalização.",
-      "recommended_approach": "Apresentar capacidade técnica e redução de risco; não vender dispensa de licitação.",
-      "next_human_step": "Revisar conflito de interesses, classificação do objeto, dossier e autorizar ou rejeitar outreach manualmente.",
+      "probable_problem": "Sinais de possível necessidade técnica (histórico de contratações de engenharia / execução longa) — prospecção proativa institucional; não afirma que o órgão está contratando no momento.",
+      "recommended_approach": "Apresentar capacidade técnica e redução de risco; não vender dispensa de licitação. Pesquisar canal institucional oficial antes de qualquer contato.",
+      "next_human_step": "Revisar conflito de interesses, classificação do objeto, dossier; localizar contato institucional público; autorizar ou rejeitar outreach.",
       "outreach_message": "Prezados(as) de PREFEITURA MUNICIPAL DE SANGÃO,\n\nA CONFENGE presta apoio técnico especializado a órgãos públicos em planejamento de contratações de obras e serviços de engenharia, orçamentação e apoio técnico à fiscalização e à gestão contratual (sem substituir o fiscal público).\n\nCom base em dados públicos de contratações, identificamos sinais de possível necessidade técnica. Gostaríamos de apresentar nosso catálogo, se houver interesse institucional.\n\nAtenciosamente,\nCONFENGE",
       "compliance_blocks": [],
+      "compliance_flags": [
+        "sample_same_nature_sum_above_ceiling_incomplete_ledger",
+        "recurring_same_nature_contracting",
+        "possible_expense_fragmentation_soft"
+      ],
       "require_conflict_check": true,
       "rank_position": 4
     },
@@ -2317,7 +2379,7 @@
         "municipio": "Itaiópolis",
         "uf": "SC",
         "codigo_ibge": "4208104",
-        "populacao": 22746,
+        "populacao": 22051,
         "faixa_populacional": "10k_to_25k",
         "consorcio_publico": false,
         "autarquia": false,
@@ -2332,29 +2394,30 @@
         ],
         "identidade_canonica": "cnpj:83102517000119",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:18:38Z"
+        "last_verified_at": "2026-07-30T23:32:08Z"
       },
-      "mode": "REACTIVE_OPPORTUNITY",
+      "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
+      "mode_note": "REACTIVE only when open published opportunity is observed; historical buyer-side contracts alone yield PROACTIVE_INSTITUTIONAL_PROSPECT.",
       "score": {
         "agency_id": "dcbd14ae311e49a9",
-        "priority_score": 0.5675,
+        "priority_score": 0.4475,
         "need_score": 0.9,
         "service_fit_score": 0.45,
         "timing_score": 0.55,
         "evidence_quality_score": 0.9,
-        "institutional_accessibility_score": 0.7,
-        "commercial_readiness_score": 0.59,
-        "compliance_risk_score": 0.3,
+        "institutional_accessibility_score": 0.25,
+        "commercial_readiness_score": 0.5,
+        "compliance_risk_score": 0.6,
         "conflict_risk_score": 0.3,
         "decomposition": {
           "need": 0.27,
           "service_fit": 0.1125,
           "timing": 0.11,
           "evidence_quality": 0.135,
-          "institutional_accessibility": 0.07
+          "institutional_accessibility": 0.025
         },
         "penalties": {
-          "compliance_penalty": 0.075,
+          "compliance_penalty": 0.15,
           "conflict_penalty": 0.105
         },
         "supporting_signals": [
@@ -2362,7 +2425,7 @@
           "works_or_services_with_long_execution",
           "recent_publication_of_engineering_demand"
         ],
-        "explanation": "priority=0.517 need=0.90 fit=0.45 timing=0.55 evidence=0.90 access=0.70; material_signals=3; Oportunidade reativa com publicação/contrato observável.",
+        "explanation": "priority=0.397 need=0.90 fit=0.45 timing=0.55 evidence=0.90 access=0.25; material_signals=3; Prospect proativo: sinais de possível necessidade técnica (sem oportunidade formal isolada).",
         "selected_service_id": "REVISAO_PRE_PUBLICACAO"
       },
       "signals": [
@@ -2373,7 +2436,7 @@
           "weight": 0.05,
           "evidence": [
             {
-              "population": 22746,
+              "population": 22051,
               "threshold": 50000
             }
           ],
@@ -2405,8 +2468,8 @@
           "evidence": [
             {
               "eng_value": 2590000.0,
-              "population": 22746,
-              "per_capita": 113.87
+              "population": 22051,
+              "per_capita": 117.45
             }
           ],
           "limitations": [
@@ -2461,12 +2524,12 @@
         },
         {
           "signal_id": "institutional_contact_available",
-          "status": "FIRED",
+          "status": "NOT_FIRED",
           "confidence": 0.8,
           "weight": 0.05,
           "evidence": [
             {
-              "institutional_contact": true
+              "institutional_contact": false
             }
           ],
           "limitations": [],
@@ -2489,12 +2552,14 @@
         },
         {
           "signal_id": "possible_expense_fragmentation",
-          "status": "NOT_FIRED",
-          "confidence": 0.6,
-          "weight": 0.0,
+          "status": "FIRED",
+          "confidence": 0.7,
+          "weight": -0.15,
           "evidence": [
             {
-              "indicators": []
+              "indicators": [
+                "recurring_same_nature_contracting"
+              ]
             }
           ],
           "limitations": [],
@@ -2595,17 +2660,20 @@
         "commercial_ceiling_allegation_allowed": false
       },
       "fragmentation": {
-        "fragmentation_suspected": false,
-        "severity": "NONE",
-        "indicators": [],
-        "annual_sum_same_nature": null,
+        "fragmentation_suspected": true,
+        "severity": "MEDIUM",
+        "indicators": [
+          "recurring_same_nature_contracting"
+        ],
+        "annual_sum_same_nature": 2970026.76,
         "annual_sum_known": false,
         "annual_sum_state": "DIRECT_CONTRACTING_SUM_UNKNOWN",
         "packages": [],
         "blocks_eligibility_claim": false,
         "pricing_near_ceiling": false,
-        "notes": "Teto legal é filtro de elegibilidade potencial, não âncora de preço. Preço deve decorrer de escopo, esforço, responsabilidade técnica e riscos. Somatório anual: DIRECT_CONTRACTING_SUM_UNKNOWN.",
-        "observed_contract_sum_in_sample": 2970026.76
+        "notes": "Teto legal é filtro de elegibilidade potencial, não âncora de preço. Preço deve decorrer de escopo, esforço, responsabilidade técnica e riscos. Somatório anual: DIRECT_CONTRACTING_SUM_UNKNOWN. Somatório observado no sample de contratos não equivale a ledger anual completo da UG.",
+        "observed_contract_sum_in_sample": 2970026.76,
+        "annual_ledger_complete": false
       },
       "conflict": {
         "state": "CONFLICT_CHECK_PENDING",
@@ -2623,7 +2691,10 @@
         "notes": "Sem match automático de bloqueio. Isso NÃO prova ausência de conflito. Outreach exige CONFLICT_CLEARED_BY_HUMAN_REVIEW."
       },
       "contacts": {
-        "accepted": [
+        "accepted": [],
+        "rejected": [],
+        "has_institutional": false,
+        "research_actions": [
           {
             "channel": "sector",
             "value": "Pesquisar e-mail institucional do setor de licitações/obras de Itaiópolis/SC em portal oficial",
@@ -2633,8 +2704,7 @@
             "notes": "Justificativa de pesquisa adicional — sem contato pessoal."
           }
         ],
-        "rejected": [],
-        "has_institutional": true
+        "note": "Nenhum e-mail/telefone institucional capturado nesta rodada; há apenas justificativa de pesquisa adicional em portal oficial."
       },
       "publishability": {
         "category": "PUBLISHABLE",
@@ -2863,14 +2933,21 @@
       "last_publication": "2026-07-09",
       "limitations": [
         "Somatório anual completo da UG não disponível (DIRECT_CONTRACTING_SUM_UNKNOWN).",
-        "População IBGE usada como contexto, não como prova de baixa capacidade.",
+        "População IBGE Censo 2022 (API oficial) é contexto, não prova de baixa capacidade.",
+        "Sem contato institucional capturado — apenas research action.",
+        "Modo proativo: não há edital/aviso aberto observado nesta fonte.",
         "Sem outreach automático."
       ],
-      "probable_problem": "Contratos de engenharia recorrentes e/ou sinais de execução longa — possível necessidade de planejamento, orçamento, revisão ou apoio à fiscalização.",
-      "recommended_approach": "Apresentar capacidade técnica e redução de risco; não vender dispensa de licitação.",
-      "next_human_step": "Revisar conflito de interesses, classificação do objeto, dossier e autorizar ou rejeitar outreach manualmente.",
+      "probable_problem": "Sinais de possível necessidade técnica (histórico de contratações de engenharia / execução longa) — prospecção proativa institucional; não afirma que o órgão está contratando no momento.",
+      "recommended_approach": "Apresentar capacidade técnica e redução de risco; não vender dispensa de licitação. Pesquisar canal institucional oficial antes de qualquer contato.",
+      "next_human_step": "Revisar conflito de interesses, classificação do objeto, dossier; localizar contato institucional público; autorizar ou rejeitar outreach.",
       "outreach_message": "Prezados(as) de MUNICÍPIO DE ITAIÓPOLIS,\n\nA CONFENGE presta apoio técnico especializado a órgãos públicos em planejamento de contratações de obras e serviços de engenharia, orçamentação e apoio técnico à fiscalização e à gestão contratual (sem substituir o fiscal público).\n\nCom base em dados públicos de contratações, identificamos sinais de possível necessidade técnica. Gostaríamos de apresentar nosso catálogo, se houver interesse institucional.\n\nAtenciosamente,\nCONFENGE",
       "compliance_blocks": [],
+      "compliance_flags": [
+        "recurring_same_nature_contracting",
+        "legal_classification_ambiguous",
+        "possible_expense_fragmentation_soft"
+      ],
       "require_conflict_check": true,
       "rank_position": 5
     },
@@ -2888,7 +2965,7 @@
         "municipio": "Pouso Redondo",
         "uf": "SC",
         "codigo_ibge": "4213708",
-        "populacao": 19234,
+        "populacao": 17123,
         "faixa_populacional": "10k_to_25k",
         "consorcio_publico": false,
         "autarquia": false,
@@ -2903,29 +2980,30 @@
         ],
         "identidade_canonica": "cnpj:83102681000126",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:18:39Z"
+        "last_verified_at": "2026-07-30T23:32:09Z"
       },
-      "mode": "REACTIVE_OPPORTUNITY",
+      "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
+      "mode_note": "REACTIVE only when open published opportunity is observed; historical buyer-side contracts alone yield PROACTIVE_INSTITUTIONAL_PROSPECT.",
       "score": {
         "agency_id": "334057cc3f6389f5",
-        "priority_score": 0.5675,
+        "priority_score": 0.4475,
         "need_score": 0.9,
         "service_fit_score": 0.45,
         "timing_score": 0.55,
         "evidence_quality_score": 0.9,
-        "institutional_accessibility_score": 0.7,
-        "commercial_readiness_score": 0.59,
-        "compliance_risk_score": 0.3,
+        "institutional_accessibility_score": 0.25,
+        "commercial_readiness_score": 0.5,
+        "compliance_risk_score": 0.6,
         "conflict_risk_score": 0.3,
         "decomposition": {
           "need": 0.27,
           "service_fit": 0.1125,
           "timing": 0.11,
           "evidence_quality": 0.135,
-          "institutional_accessibility": 0.07
+          "institutional_accessibility": 0.025
         },
         "penalties": {
-          "compliance_penalty": 0.075,
+          "compliance_penalty": 0.15,
           "conflict_penalty": 0.105
         },
         "supporting_signals": [
@@ -2933,7 +3011,7 @@
           "works_or_services_with_long_execution",
           "recent_publication_of_engineering_demand"
         ],
-        "explanation": "priority=0.517 need=0.90 fit=0.45 timing=0.55 evidence=0.90 access=0.70; material_signals=3; Oportunidade reativa com publicação/contrato observável.",
+        "explanation": "priority=0.397 need=0.90 fit=0.45 timing=0.55 evidence=0.90 access=0.25; material_signals=3; Prospect proativo: sinais de possível necessidade técnica (sem oportunidade formal isolada).",
         "selected_service_id": "PLANEJAMENTO_TECNICO_DA_CONTRATACAO"
       },
       "signals": [
@@ -2944,7 +3022,7 @@
           "weight": 0.05,
           "evidence": [
             {
-              "population": 19234,
+              "population": 17123,
               "threshold": 50000
             }
           ],
@@ -2976,8 +3054,8 @@
           "evidence": [
             {
               "eng_value": 2846000.0,
-              "population": 19234,
-              "per_capita": 147.97
+              "population": 17123,
+              "per_capita": 166.21
             }
           ],
           "limitations": [
@@ -3032,12 +3110,12 @@
         },
         {
           "signal_id": "institutional_contact_available",
-          "status": "FIRED",
+          "status": "NOT_FIRED",
           "confidence": 0.8,
           "weight": 0.05,
           "evidence": [
             {
-              "institutional_contact": true
+              "institutional_contact": false
             }
           ],
           "limitations": [],
@@ -3060,12 +3138,14 @@
         },
         {
           "signal_id": "possible_expense_fragmentation",
-          "status": "NOT_FIRED",
-          "confidence": 0.6,
-          "weight": 0.0,
+          "status": "FIRED",
+          "confidence": 0.7,
+          "weight": -0.15,
           "evidence": [
             {
-              "indicators": []
+              "indicators": [
+                "recurring_same_nature_contracting"
+              ]
             }
           ],
           "limitations": [],
@@ -3166,17 +3246,20 @@
         "commercial_ceiling_allegation_allowed": false
       },
       "fragmentation": {
-        "fragmentation_suspected": false,
-        "severity": "NONE",
-        "indicators": [],
-        "annual_sum_same_nature": null,
+        "fragmentation_suspected": true,
+        "severity": "MEDIUM",
+        "indicators": [
+          "recurring_same_nature_contracting"
+        ],
+        "annual_sum_same_nature": 3027032.81,
         "annual_sum_known": false,
         "annual_sum_state": "DIRECT_CONTRACTING_SUM_UNKNOWN",
         "packages": [],
         "blocks_eligibility_claim": false,
         "pricing_near_ceiling": false,
-        "notes": "Teto legal é filtro de elegibilidade potencial, não âncora de preço. Preço deve decorrer de escopo, esforço, responsabilidade técnica e riscos. Somatório anual: DIRECT_CONTRACTING_SUM_UNKNOWN.",
-        "observed_contract_sum_in_sample": 3027032.81
+        "notes": "Teto legal é filtro de elegibilidade potencial, não âncora de preço. Preço deve decorrer de escopo, esforço, responsabilidade técnica e riscos. Somatório anual: DIRECT_CONTRACTING_SUM_UNKNOWN. Somatório observado no sample de contratos não equivale a ledger anual completo da UG.",
+        "observed_contract_sum_in_sample": 3027032.81,
+        "annual_ledger_complete": false
       },
       "conflict": {
         "state": "CONFLICT_CHECK_PENDING",
@@ -3194,7 +3277,10 @@
         "notes": "Sem match automático de bloqueio. Isso NÃO prova ausência de conflito. Outreach exige CONFLICT_CLEARED_BY_HUMAN_REVIEW."
       },
       "contacts": {
-        "accepted": [
+        "accepted": [],
+        "rejected": [],
+        "has_institutional": false,
+        "research_actions": [
           {
             "channel": "sector",
             "value": "Pesquisar e-mail institucional do setor de licitações/obras de Pouso Redondo/SC em portal oficial",
@@ -3204,8 +3290,7 @@
             "notes": "Justificativa de pesquisa adicional — sem contato pessoal."
           }
         ],
-        "rejected": [],
-        "has_institutional": true
+        "note": "Nenhum e-mail/telefone institucional capturado nesta rodada; há apenas justificativa de pesquisa adicional em portal oficial."
       },
       "publishability": {
         "category": "PUBLISHABLE",
@@ -3522,14 +3607,21 @@
       "last_publication": "2026-07-08",
       "limitations": [
         "Somatório anual completo da UG não disponível (DIRECT_CONTRACTING_SUM_UNKNOWN).",
-        "População IBGE usada como contexto, não como prova de baixa capacidade.",
+        "População IBGE Censo 2022 (API oficial) é contexto, não prova de baixa capacidade.",
+        "Sem contato institucional capturado — apenas research action.",
+        "Modo proativo: não há edital/aviso aberto observado nesta fonte.",
         "Sem outreach automático."
       ],
-      "probable_problem": "Contratos de engenharia recorrentes e/ou sinais de execução longa — possível necessidade de planejamento, orçamento, revisão ou apoio à fiscalização.",
-      "recommended_approach": "Apresentar capacidade técnica e redução de risco; não vender dispensa de licitação.",
-      "next_human_step": "Revisar conflito de interesses, classificação do objeto, dossier e autorizar ou rejeitar outreach manualmente.",
+      "probable_problem": "Sinais de possível necessidade técnica (histórico de contratações de engenharia / execução longa) — prospecção proativa institucional; não afirma que o órgão está contratando no momento.",
+      "recommended_approach": "Apresentar capacidade técnica e redução de risco; não vender dispensa de licitação. Pesquisar canal institucional oficial antes de qualquer contato.",
+      "next_human_step": "Revisar conflito de interesses, classificação do objeto, dossier; localizar contato institucional público; autorizar ou rejeitar outreach.",
       "outreach_message": "Prezados(as) de MUNICÍPIO DE POUSO REDONDO,\n\nA CONFENGE presta apoio técnico especializado a órgãos públicos em planejamento de contratações de obras e serviços de engenharia, orçamentação e apoio técnico à fiscalização e à gestão contratual (sem substituir o fiscal público).\n\nCom base em dados públicos de contratações, identificamos sinais de possível necessidade técnica. Gostaríamos de apresentar nosso catálogo, se houver interesse institucional.\n\nAtenciosamente,\nCONFENGE",
       "compliance_blocks": [],
+      "compliance_flags": [
+        "recurring_same_nature_contracting",
+        "legal_classification_ambiguous",
+        "possible_expense_fragmentation_soft"
+      ],
       "require_conflict_check": true,
       "rank_position": 6
     },
@@ -3547,8 +3639,8 @@
         "municipio": "Garopaba",
         "uf": "SC",
         "codigo_ibge": "4205704",
-        "populacao": 22978,
-        "faixa_populacional": "10k_to_25k",
+        "populacao": 29959,
+        "faixa_populacional": "25k_to_50k",
         "consorcio_publico": false,
         "autarquia": false,
         "fundacao": false,
@@ -3562,29 +3654,30 @@
         ],
         "identidade_canonica": "cnpj:82836057000190",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:18:42Z"
+        "last_verified_at": "2026-07-30T23:32:15Z"
       },
-      "mode": "REACTIVE_OPPORTUNITY",
+      "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
+      "mode_note": "REACTIVE only when open published opportunity is observed; historical buyer-side contracts alone yield PROACTIVE_INSTITUTIONAL_PROSPECT.",
       "score": {
         "agency_id": "f58a24de9be9d862",
-        "priority_score": 0.5675,
+        "priority_score": 0.4475,
         "need_score": 0.9,
         "service_fit_score": 0.45,
         "timing_score": 0.55,
         "evidence_quality_score": 0.9,
-        "institutional_accessibility_score": 0.7,
-        "commercial_readiness_score": 0.59,
-        "compliance_risk_score": 0.3,
+        "institutional_accessibility_score": 0.25,
+        "commercial_readiness_score": 0.5,
+        "compliance_risk_score": 0.6,
         "conflict_risk_score": 0.3,
         "decomposition": {
           "need": 0.27,
           "service_fit": 0.1125,
           "timing": 0.11,
           "evidence_quality": 0.135,
-          "institutional_accessibility": 0.07
+          "institutional_accessibility": 0.025
         },
         "penalties": {
-          "compliance_penalty": 0.075,
+          "compliance_penalty": 0.15,
           "conflict_penalty": 0.105
         },
         "supporting_signals": [
@@ -3592,7 +3685,7 @@
           "works_or_services_with_long_execution",
           "recent_publication_of_engineering_demand"
         ],
-        "explanation": "priority=0.517 need=0.90 fit=0.45 timing=0.55 evidence=0.90 access=0.70; material_signals=3; Oportunidade reativa com publicação/contrato observável.",
+        "explanation": "priority=0.397 need=0.90 fit=0.45 timing=0.55 evidence=0.90 access=0.25; material_signals=3; Prospect proativo: sinais de possível necessidade técnica (sem oportunidade formal isolada).",
         "selected_service_id": "REVISAO_PRE_PUBLICACAO"
       },
       "signals": [
@@ -3603,7 +3696,7 @@
           "weight": 0.05,
           "evidence": [
             {
-              "population": 22978,
+              "population": 29959,
               "threshold": 50000
             }
           ],
@@ -3635,8 +3728,8 @@
           "evidence": [
             {
               "eng_value": 8782202.6,
-              "population": 22978,
-              "per_capita": 382.2
+              "population": 29959,
+              "per_capita": 293.14
             }
           ],
           "limitations": [
@@ -3691,12 +3784,12 @@
         },
         {
           "signal_id": "institutional_contact_available",
-          "status": "FIRED",
+          "status": "NOT_FIRED",
           "confidence": 0.8,
           "weight": 0.05,
           "evidence": [
             {
-              "institutional_contact": true
+              "institutional_contact": false
             }
           ],
           "limitations": [],
@@ -3719,12 +3812,14 @@
         },
         {
           "signal_id": "possible_expense_fragmentation",
-          "status": "NOT_FIRED",
-          "confidence": 0.6,
-          "weight": 0.0,
+          "status": "FIRED",
+          "confidence": 0.7,
+          "weight": -0.15,
           "evidence": [
             {
-              "indicators": []
+              "indicators": [
+                "recurring_same_nature_contracting"
+              ]
             }
           ],
           "limitations": [],
@@ -3825,17 +3920,20 @@
         "commercial_ceiling_allegation_allowed": false
       },
       "fragmentation": {
-        "fragmentation_suspected": false,
-        "severity": "NONE",
-        "indicators": [],
-        "annual_sum_same_nature": null,
+        "fragmentation_suspected": true,
+        "severity": "MEDIUM",
+        "indicators": [
+          "recurring_same_nature_contracting"
+        ],
+        "annual_sum_same_nature": 13537198.299999999,
         "annual_sum_known": false,
         "annual_sum_state": "DIRECT_CONTRACTING_SUM_UNKNOWN",
         "packages": [],
         "blocks_eligibility_claim": false,
         "pricing_near_ceiling": false,
-        "notes": "Teto legal é filtro de elegibilidade potencial, não âncora de preço. Preço deve decorrer de escopo, esforço, responsabilidade técnica e riscos. Somatório anual: DIRECT_CONTRACTING_SUM_UNKNOWN.",
-        "observed_contract_sum_in_sample": 13537198.299999999
+        "notes": "Teto legal é filtro de elegibilidade potencial, não âncora de preço. Preço deve decorrer de escopo, esforço, responsabilidade técnica e riscos. Somatório anual: DIRECT_CONTRACTING_SUM_UNKNOWN. Somatório observado no sample de contratos não equivale a ledger anual completo da UG.",
+        "observed_contract_sum_in_sample": 13537198.299999999,
+        "annual_ledger_complete": false
       },
       "conflict": {
         "state": "CONFLICT_CHECK_PENDING",
@@ -3853,7 +3951,10 @@
         "notes": "Sem match automático de bloqueio. Isso NÃO prova ausência de conflito. Outreach exige CONFLICT_CLEARED_BY_HUMAN_REVIEW."
       },
       "contacts": {
-        "accepted": [
+        "accepted": [],
+        "rejected": [],
+        "has_institutional": false,
+        "research_actions": [
           {
             "channel": "sector",
             "value": "Pesquisar e-mail institucional do setor de licitações/obras de Garopaba/SC em portal oficial",
@@ -3863,8 +3964,7 @@
             "notes": "Justificativa de pesquisa adicional — sem contato pessoal."
           }
         ],
-        "rejected": [],
-        "has_institutional": true
+        "note": "Nenhum e-mail/telefone institucional capturado nesta rodada; há apenas justificativa de pesquisa adicional em portal oficial."
       },
       "publishability": {
         "category": "PUBLISHABLE",
@@ -4173,14 +4273,21 @@
       "last_publication": "2026-07-08",
       "limitations": [
         "Somatório anual completo da UG não disponível (DIRECT_CONTRACTING_SUM_UNKNOWN).",
-        "População IBGE usada como contexto, não como prova de baixa capacidade.",
+        "População IBGE Censo 2022 (API oficial) é contexto, não prova de baixa capacidade.",
+        "Sem contato institucional capturado — apenas research action.",
+        "Modo proativo: não há edital/aviso aberto observado nesta fonte.",
         "Sem outreach automático."
       ],
-      "probable_problem": "Contratos de engenharia recorrentes e/ou sinais de execução longa — possível necessidade de planejamento, orçamento, revisão ou apoio à fiscalização.",
-      "recommended_approach": "Apresentar capacidade técnica e redução de risco; não vender dispensa de licitação.",
-      "next_human_step": "Revisar conflito de interesses, classificação do objeto, dossier e autorizar ou rejeitar outreach manualmente.",
+      "probable_problem": "Sinais de possível necessidade técnica (histórico de contratações de engenharia / execução longa) — prospecção proativa institucional; não afirma que o órgão está contratando no momento.",
+      "recommended_approach": "Apresentar capacidade técnica e redução de risco; não vender dispensa de licitação. Pesquisar canal institucional oficial antes de qualquer contato.",
+      "next_human_step": "Revisar conflito de interesses, classificação do objeto, dossier; localizar contato institucional público; autorizar ou rejeitar outreach.",
       "outreach_message": "Prezados(as) de MUNICÍPIO DE GAROPABA,\n\nA CONFENGE presta apoio técnico especializado a órgãos públicos em planejamento de contratações de obras e serviços de engenharia, orçamentação e apoio técnico à fiscalização e à gestão contratual (sem substituir o fiscal público).\n\nCom base em dados públicos de contratações, identificamos sinais de possível necessidade técnica. Gostaríamos de apresentar nosso catálogo, se houver interesse institucional.\n\nAtenciosamente,\nCONFENGE",
       "compliance_blocks": [],
+      "compliance_flags": [
+        "recurring_same_nature_contracting",
+        "legal_classification_ambiguous",
+        "possible_expense_fragmentation_soft"
+      ],
       "require_conflict_check": true,
       "rank_position": 7
     },
@@ -4198,7 +4305,7 @@
         "municipio": "Ponte Serrada",
         "uf": "SC",
         "codigo_ibge": "4213401",
-        "populacao": 11234,
+        "populacao": 10649,
         "faixa_populacional": "10k_to_25k",
         "consorcio_publico": false,
         "autarquia": false,
@@ -4213,36 +4320,37 @@
         ],
         "identidade_canonica": "cnpj:82777236000101",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:18:39Z"
+        "last_verified_at": "2026-07-30T23:32:09Z"
       },
-      "mode": "REACTIVE_OPPORTUNITY",
+      "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
+      "mode_note": "REACTIVE only when open published opportunity is observed; historical buyer-side contracts alone yield PROACTIVE_INSTITUTIONAL_PROSPECT.",
       "score": {
         "agency_id": "b79b0aab8efe31d9",
-        "priority_score": 0.5475,
+        "priority_score": 0.4275,
         "need_score": 0.75,
         "service_fit_score": 0.55,
         "timing_score": 0.55,
         "evidence_quality_score": 0.4,
-        "institutional_accessibility_score": 0.7,
-        "commercial_readiness_score": 0.465,
-        "compliance_risk_score": 0.0,
+        "institutional_accessibility_score": 0.25,
+        "commercial_readiness_score": 0.375,
+        "compliance_risk_score": 0.3,
         "conflict_risk_score": 0.3,
         "decomposition": {
           "need": 0.225,
           "service_fit": 0.1375,
           "timing": 0.11,
           "evidence_quality": 0.06,
-          "institutional_accessibility": 0.07
+          "institutional_accessibility": 0.025
         },
         "penalties": {
-          "compliance_penalty": 0.0,
+          "compliance_penalty": 0.075,
           "conflict_penalty": 0.105
         },
         "supporting_signals": [
           "works_or_services_with_long_execution",
           "recent_publication_of_engineering_demand"
         ],
-        "explanation": "priority=0.497 need=0.75 fit=0.55 timing=0.55 evidence=0.40 access=0.70; material_signals=2; Oportunidade reativa com publicação/contrato observável.",
+        "explanation": "priority=0.378 need=0.75 fit=0.55 timing=0.55 evidence=0.40 access=0.25; material_signals=2; Prospect proativo: sinais de possível necessidade técnica (sem oportunidade formal isolada).",
         "selected_service_id": "REVISAO_PRE_PUBLICACAO"
       },
       "signals": [
@@ -4253,7 +4361,7 @@
           "weight": 0.05,
           "evidence": [
             {
-              "population": 11234,
+              "population": 10649,
               "threshold": 50000
             }
           ],
@@ -4285,8 +4393,8 @@
           "evidence": [
             {
               "eng_value": 316234.0,
-              "population": 11234,
-              "per_capita": 28.15
+              "population": 10649,
+              "per_capita": 29.7
             }
           ],
           "limitations": [
@@ -4341,12 +4449,12 @@
         },
         {
           "signal_id": "institutional_contact_available",
-          "status": "FIRED",
+          "status": "NOT_FIRED",
           "confidence": 0.8,
           "weight": 0.05,
           "evidence": [
             {
-              "institutional_contact": true
+              "institutional_contact": false
             }
           ],
           "limitations": [],
@@ -4369,12 +4477,14 @@
         },
         {
           "signal_id": "possible_expense_fragmentation",
-          "status": "NOT_FIRED",
-          "confidence": 0.6,
-          "weight": 0.0,
+          "status": "FIRED",
+          "confidence": 0.7,
+          "weight": -0.15,
           "evidence": [
             {
-              "indicators": []
+              "indicators": [
+                "sample_same_nature_sum_above_ceiling_incomplete_ledger"
+              ]
             }
           ],
           "limitations": [],
@@ -4484,16 +4594,19 @@
       },
       "fragmentation": {
         "fragmentation_suspected": false,
-        "severity": "NONE",
-        "indicators": [],
-        "annual_sum_same_nature": null,
+        "severity": "LOW",
+        "indicators": [
+          "sample_same_nature_sum_above_ceiling_incomplete_ledger"
+        ],
+        "annual_sum_same_nature": 316234.0,
         "annual_sum_known": false,
         "annual_sum_state": "DIRECT_CONTRACTING_SUM_UNKNOWN",
         "packages": [],
         "blocks_eligibility_claim": false,
         "pricing_near_ceiling": false,
-        "notes": "Teto legal é filtro de elegibilidade potencial, não âncora de preço. Preço deve decorrer de escopo, esforço, responsabilidade técnica e riscos. Somatório anual: DIRECT_CONTRACTING_SUM_UNKNOWN.",
-        "observed_contract_sum_in_sample": 316234.0
+        "notes": "Teto legal é filtro de elegibilidade potencial, não âncora de preço. Preço deve decorrer de escopo, esforço, responsabilidade técnica e riscos. Somatório anual: DIRECT_CONTRACTING_SUM_UNKNOWN. Somatório observado no sample de contratos não equivale a ledger anual completo da UG.",
+        "observed_contract_sum_in_sample": 316234.0,
+        "annual_ledger_complete": false
       },
       "conflict": {
         "state": "CONFLICT_CHECK_PENDING",
@@ -4511,7 +4624,10 @@
         "notes": "Sem match automático de bloqueio. Isso NÃO prova ausência de conflito. Outreach exige CONFLICT_CLEARED_BY_HUMAN_REVIEW."
       },
       "contacts": {
-        "accepted": [
+        "accepted": [],
+        "rejected": [],
+        "has_institutional": false,
+        "research_actions": [
           {
             "channel": "sector",
             "value": "Pesquisar e-mail institucional do setor de licitações/obras de Ponte Serrada/SC em portal oficial",
@@ -4521,8 +4637,7 @@
             "notes": "Justificativa de pesquisa adicional — sem contato pessoal."
           }
         ],
-        "rejected": [],
-        "has_institutional": true
+        "note": "Nenhum e-mail/telefone institucional capturado nesta rodada; há apenas justificativa de pesquisa adicional em portal oficial."
       },
       "publishability": {
         "category": "PUBLISHABLE",
@@ -4607,14 +4722,19 @@
       "last_publication": "2026-07-08",
       "limitations": [
         "Somatório anual completo da UG não disponível (DIRECT_CONTRACTING_SUM_UNKNOWN).",
-        "População IBGE usada como contexto, não como prova de baixa capacidade.",
+        "População IBGE Censo 2022 (API oficial) é contexto, não prova de baixa capacidade.",
+        "Sem contato institucional capturado — apenas research action.",
+        "Modo proativo: não há edital/aviso aberto observado nesta fonte.",
         "Sem outreach automático."
       ],
-      "probable_problem": "Contratos de engenharia recorrentes e/ou sinais de execução longa — possível necessidade de planejamento, orçamento, revisão ou apoio à fiscalização.",
-      "recommended_approach": "Apresentar capacidade técnica e redução de risco; não vender dispensa de licitação.",
-      "next_human_step": "Revisar conflito de interesses, classificação do objeto, dossier e autorizar ou rejeitar outreach manualmente.",
+      "probable_problem": "Sinais de possível necessidade técnica (histórico de contratações de engenharia / execução longa) — prospecção proativa institucional; não afirma que o órgão está contratando no momento.",
+      "recommended_approach": "Apresentar capacidade técnica e redução de risco; não vender dispensa de licitação. Pesquisar canal institucional oficial antes de qualquer contato.",
+      "next_human_step": "Revisar conflito de interesses, classificação do objeto, dossier; localizar contato institucional público; autorizar ou rejeitar outreach.",
       "outreach_message": "Prezados(as) de PREFEITURA MUNICIPAL DE PONTE SERRADA - SC,\n\nA CONFENGE presta apoio técnico especializado a órgãos públicos em planejamento de contratações de obras e serviços de engenharia, orçamentação e apoio técnico à fiscalização e à gestão contratual (sem substituir o fiscal público).\n\nCom base em dados públicos de contratações, identificamos sinais de possível necessidade técnica. Gostaríamos de apresentar nosso catálogo, se houver interesse institucional.\n\nAtenciosamente,\nCONFENGE",
       "compliance_blocks": [],
+      "compliance_flags": [
+        "sample_same_nature_sum_above_ceiling_incomplete_ledger"
+      ],
       "require_conflict_check": true,
       "rank_position": 8
     },
@@ -4632,7 +4752,7 @@
         "municipio": "Catanduvas",
         "uf": "SC",
         "codigo_ibge": "4204004",
-        "populacao": 10623,
+        "populacao": 10566,
         "faixa_populacional": "10k_to_25k",
         "consorcio_publico": false,
         "autarquia": false,
@@ -4647,35 +4767,36 @@
         ],
         "identidade_canonica": "cnpj:82939414000145",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:18:39Z"
+        "last_verified_at": "2026-07-30T23:32:09Z"
       },
-      "mode": "REACTIVE_OPPORTUNITY",
+      "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
+      "mode_note": "REACTIVE only when open published opportunity is observed; historical buyer-side contracts alone yield PROACTIVE_INSTITUTIONAL_PROSPECT.",
       "score": {
         "agency_id": "fd02bc480a5cbc17",
-        "priority_score": 0.5475,
+        "priority_score": 0.4275,
         "need_score": 0.6,
         "service_fit_score": 0.55,
         "timing_score": 0.55,
         "evidence_quality_score": 0.7,
-        "institutional_accessibility_score": 0.7,
-        "commercial_readiness_score": 0.54,
-        "compliance_risk_score": 0.0,
+        "institutional_accessibility_score": 0.25,
+        "commercial_readiness_score": 0.45,
+        "compliance_risk_score": 0.3,
         "conflict_risk_score": 0.3,
         "decomposition": {
           "need": 0.18,
           "service_fit": 0.1375,
           "timing": 0.11,
           "evidence_quality": 0.105,
-          "institutional_accessibility": 0.07
+          "institutional_accessibility": 0.025
         },
         "penalties": {
-          "compliance_penalty": 0.0,
+          "compliance_penalty": 0.075,
           "conflict_penalty": 0.105
         },
         "supporting_signals": [
           "recent_publication_of_engineering_demand"
         ],
-        "explanation": "priority=0.497 need=0.60 fit=0.55 timing=0.55 evidence=0.70 access=0.70; material_signals=1; Oportunidade reativa com publicação/contrato observável.",
+        "explanation": "priority=0.378 need=0.60 fit=0.55 timing=0.55 evidence=0.70 access=0.25; material_signals=1; Prospect proativo: sinais de possível necessidade técnica (sem oportunidade formal isolada).",
         "selected_service_id": "REVISAO_PRE_PUBLICACAO"
       },
       "signals": [
@@ -4686,7 +4807,7 @@
           "weight": 0.05,
           "evidence": [
             {
-              "population": 10623,
+              "population": 10566,
               "threshold": 50000
             }
           ],
@@ -4718,8 +4839,8 @@
           "evidence": [
             {
               "eng_value": 10200.0,
-              "population": 10623,
-              "per_capita": 0.96
+              "population": 10566,
+              "per_capita": 0.97
             }
           ],
           "limitations": [
@@ -4774,12 +4895,12 @@
         },
         {
           "signal_id": "institutional_contact_available",
-          "status": "FIRED",
+          "status": "NOT_FIRED",
           "confidence": 0.8,
           "weight": 0.05,
           "evidence": [
             {
-              "institutional_contact": true
+              "institutional_contact": false
             }
           ],
           "limitations": [],
@@ -4802,12 +4923,14 @@
         },
         {
           "signal_id": "possible_expense_fragmentation",
-          "status": "NOT_FIRED",
-          "confidence": 0.6,
-          "weight": 0.0,
+          "status": "FIRED",
+          "confidence": 0.7,
+          "weight": -0.15,
           "evidence": [
             {
-              "indicators": []
+              "indicators": [
+                "recurring_same_nature_contracting"
+              ]
             }
           ],
           "limitations": [],
@@ -4914,17 +5037,20 @@
         "commercial_ceiling_allegation_allowed": true
       },
       "fragmentation": {
-        "fragmentation_suspected": false,
-        "severity": "NONE",
-        "indicators": [],
-        "annual_sum_same_nature": null,
+        "fragmentation_suspected": true,
+        "severity": "MEDIUM",
+        "indicators": [
+          "recurring_same_nature_contracting"
+        ],
+        "annual_sum_same_nature": 12282.44,
         "annual_sum_known": false,
         "annual_sum_state": "DIRECT_CONTRACTING_SUM_UNKNOWN",
         "packages": [],
         "blocks_eligibility_claim": false,
         "pricing_near_ceiling": false,
-        "notes": "Teto legal é filtro de elegibilidade potencial, não âncora de preço. Preço deve decorrer de escopo, esforço, responsabilidade técnica e riscos. Somatório anual: DIRECT_CONTRACTING_SUM_UNKNOWN.",
-        "observed_contract_sum_in_sample": 12282.44
+        "notes": "Teto legal é filtro de elegibilidade potencial, não âncora de preço. Preço deve decorrer de escopo, esforço, responsabilidade técnica e riscos. Somatório anual: DIRECT_CONTRACTING_SUM_UNKNOWN. Somatório observado no sample de contratos não equivale a ledger anual completo da UG.",
+        "observed_contract_sum_in_sample": 12282.44,
+        "annual_ledger_complete": false
       },
       "conflict": {
         "state": "CONFLICT_CHECK_PENDING",
@@ -4942,7 +5068,10 @@
         "notes": "Sem match automático de bloqueio. Isso NÃO prova ausência de conflito. Outreach exige CONFLICT_CLEARED_BY_HUMAN_REVIEW."
       },
       "contacts": {
-        "accepted": [
+        "accepted": [],
+        "rejected": [],
+        "has_institutional": false,
+        "research_actions": [
           {
             "channel": "sector",
             "value": "Pesquisar e-mail institucional do setor de licitações/obras de Catanduvas/SC em portal oficial",
@@ -4952,8 +5081,7 @@
             "notes": "Justificativa de pesquisa adicional — sem contato pessoal."
           }
         ],
-        "rejected": [],
-        "has_institutional": true
+        "note": "Nenhum e-mail/telefone institucional capturado nesta rodada; há apenas justificativa de pesquisa adicional em portal oficial."
       },
       "publishability": {
         "category": "PUBLISHABLE",
@@ -5166,14 +5294,20 @@
       "last_publication": "2026-07-08",
       "limitations": [
         "Somatório anual completo da UG não disponível (DIRECT_CONTRACTING_SUM_UNKNOWN).",
-        "População IBGE usada como contexto, não como prova de baixa capacidade.",
+        "População IBGE Censo 2022 (API oficial) é contexto, não prova de baixa capacidade.",
+        "Sem contato institucional capturado — apenas research action.",
+        "Modo proativo: não há edital/aviso aberto observado nesta fonte.",
         "Sem outreach automático."
       ],
-      "probable_problem": "Contratos de engenharia recorrentes e/ou sinais de execução longa — possível necessidade de planejamento, orçamento, revisão ou apoio à fiscalização.",
-      "recommended_approach": "Apresentar capacidade técnica e redução de risco; não vender dispensa de licitação.",
-      "next_human_step": "Revisar conflito de interesses, classificação do objeto, dossier e autorizar ou rejeitar outreach manualmente.",
+      "probable_problem": "Sinais de possível necessidade técnica (histórico de contratações de engenharia / execução longa) — prospecção proativa institucional; não afirma que o órgão está contratando no momento.",
+      "recommended_approach": "Apresentar capacidade técnica e redução de risco; não vender dispensa de licitação. Pesquisar canal institucional oficial antes de qualquer contato.",
+      "next_human_step": "Revisar conflito de interesses, classificação do objeto, dossier; localizar contato institucional público; autorizar ou rejeitar outreach.",
       "outreach_message": "Prezados(as) de Prefeitura Municipal de Catanduvas,\n\nA CONFENGE presta apoio técnico especializado a órgãos públicos em planejamento de contratações de obras e serviços de engenharia, orçamentação e apoio técnico à fiscalização e à gestão contratual (sem substituir o fiscal público).\n\nCom base em dados públicos de contratações, identificamos sinais de possível necessidade técnica. Gostaríamos de apresentar nosso catálogo, se houver interesse institucional.\n\nAtenciosamente,\nCONFENGE",
       "compliance_blocks": [],
+      "compliance_flags": [
+        "recurring_same_nature_contracting",
+        "possible_expense_fragmentation_soft"
+      ],
       "require_conflict_check": true,
       "rank_position": 9
     },
@@ -5206,36 +5340,37 @@
         ],
         "identidade_canonica": "cnpj:01593132000137",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:18:47Z"
+        "last_verified_at": "2026-07-30T23:32:20Z"
       },
-      "mode": "REACTIVE_OPPORTUNITY",
+      "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
+      "mode_note": "REACTIVE only when open published opportunity is observed; historical buyer-side contracts alone yield PROACTIVE_INSTITUTIONAL_PROSPECT.",
       "score": {
         "agency_id": "044a9df8310badbd",
-        "priority_score": 0.5475,
+        "priority_score": 0.4275,
         "need_score": 0.75,
         "service_fit_score": 0.55,
         "timing_score": 0.55,
         "evidence_quality_score": 0.4,
-        "institutional_accessibility_score": 0.7,
-        "commercial_readiness_score": 0.465,
-        "compliance_risk_score": 0.0,
+        "institutional_accessibility_score": 0.25,
+        "commercial_readiness_score": 0.375,
+        "compliance_risk_score": 0.3,
         "conflict_risk_score": 0.3,
         "decomposition": {
           "need": 0.225,
           "service_fit": 0.1375,
           "timing": 0.11,
           "evidence_quality": 0.06,
-          "institutional_accessibility": 0.07
+          "institutional_accessibility": 0.025
         },
         "penalties": {
-          "compliance_penalty": 0.0,
+          "compliance_penalty": 0.075,
           "conflict_penalty": 0.105
         },
         "supporting_signals": [
           "high_engineering_spend_relative_to_population",
           "recent_publication_of_engineering_demand"
         ],
-        "explanation": "priority=0.497 need=0.75 fit=0.55 timing=0.55 evidence=0.40 access=0.70; material_signals=2; Oportunidade reativa com publicação/contrato observável.",
+        "explanation": "priority=0.378 need=0.75 fit=0.55 timing=0.55 evidence=0.40 access=0.25; material_signals=2; Prospect proativo: sinais de possível necessidade técnica (sem oportunidade formal isolada).",
         "selected_service_id": "REVISAO_PRE_PUBLICACAO"
       },
       "signals": [
@@ -5334,12 +5469,12 @@
         },
         {
           "signal_id": "institutional_contact_available",
-          "status": "FIRED",
+          "status": "NOT_FIRED",
           "confidence": 0.8,
           "weight": 0.05,
           "evidence": [
             {
-              "institutional_contact": true
+              "institutional_contact": false
             }
           ],
           "limitations": [],
@@ -5362,12 +5497,14 @@
         },
         {
           "signal_id": "possible_expense_fragmentation",
-          "status": "NOT_FIRED",
-          "confidence": 0.6,
-          "weight": 0.0,
+          "status": "FIRED",
+          "confidence": 0.7,
+          "weight": -0.15,
           "evidence": [
             {
-              "indicators": []
+              "indicators": [
+                "sample_same_nature_sum_above_ceiling_incomplete_ledger"
+              ]
             }
           ],
           "limitations": [],
@@ -5473,16 +5610,19 @@
       },
       "fragmentation": {
         "fragmentation_suspected": false,
-        "severity": "NONE",
-        "indicators": [],
-        "annual_sum_same_nature": null,
+        "severity": "LOW",
+        "indicators": [
+          "sample_same_nature_sum_above_ceiling_incomplete_ledger"
+        ],
+        "annual_sum_same_nature": 261399.86,
         "annual_sum_known": false,
         "annual_sum_state": "DIRECT_CONTRACTING_SUM_UNKNOWN",
         "packages": [],
         "blocks_eligibility_claim": false,
         "pricing_near_ceiling": false,
-        "notes": "Teto legal é filtro de elegibilidade potencial, não âncora de preço. Preço deve decorrer de escopo, esforço, responsabilidade técnica e riscos. Somatório anual: DIRECT_CONTRACTING_SUM_UNKNOWN.",
-        "observed_contract_sum_in_sample": 261399.86
+        "notes": "Teto legal é filtro de elegibilidade potencial, não âncora de preço. Preço deve decorrer de escopo, esforço, responsabilidade técnica e riscos. Somatório anual: DIRECT_CONTRACTING_SUM_UNKNOWN. Somatório observado no sample de contratos não equivale a ledger anual completo da UG.",
+        "observed_contract_sum_in_sample": 261399.86,
+        "annual_ledger_complete": false
       },
       "conflict": {
         "state": "CONFLICT_CHECK_PENDING",
@@ -5500,7 +5640,10 @@
         "notes": "Sem match automático de bloqueio. Isso NÃO prova ausência de conflito. Outreach exige CONFLICT_CLEARED_BY_HUMAN_REVIEW."
       },
       "contacts": {
-        "accepted": [
+        "accepted": [],
+        "rejected": [],
+        "has_institutional": false,
+        "research_actions": [
           {
             "channel": "sector",
             "value": "Pesquisar e-mail institucional do setor de licitações/obras de Jupiá/SC em portal oficial",
@@ -5510,8 +5653,7 @@
             "notes": "Justificativa de pesquisa adicional — sem contato pessoal."
           }
         ],
-        "rejected": [],
-        "has_institutional": true
+        "note": "Nenhum e-mail/telefone institucional capturado nesta rodada; há apenas justificativa de pesquisa adicional em portal oficial."
       },
       "publishability": {
         "category": "PUBLISHABLE",
@@ -5596,14 +5738,19 @@
       "last_publication": "2026-07-07",
       "limitations": [
         "Somatório anual completo da UG não disponível (DIRECT_CONTRACTING_SUM_UNKNOWN).",
-        "População IBGE usada como contexto, não como prova de baixa capacidade.",
+        "População IBGE Censo 2022 (API oficial) é contexto, não prova de baixa capacidade.",
+        "Sem contato institucional capturado — apenas research action.",
+        "Modo proativo: não há edital/aviso aberto observado nesta fonte.",
         "Sem outreach automático."
       ],
-      "probable_problem": "Contratos de engenharia recorrentes e/ou sinais de execução longa — possível necessidade de planejamento, orçamento, revisão ou apoio à fiscalização.",
-      "recommended_approach": "Apresentar capacidade técnica e redução de risco; não vender dispensa de licitação.",
-      "next_human_step": "Revisar conflito de interesses, classificação do objeto, dossier e autorizar ou rejeitar outreach manualmente.",
+      "probable_problem": "Sinais de possível necessidade técnica (histórico de contratações de engenharia / execução longa) — prospecção proativa institucional; não afirma que o órgão está contratando no momento.",
+      "recommended_approach": "Apresentar capacidade técnica e redução de risco; não vender dispensa de licitação. Pesquisar canal institucional oficial antes de qualquer contato.",
+      "next_human_step": "Revisar conflito de interesses, classificação do objeto, dossier; localizar contato institucional público; autorizar ou rejeitar outreach.",
       "outreach_message": "Prezados(as) de MUNICÍPIO DE JUPIÁ,\n\nA CONFENGE presta apoio técnico especializado a órgãos públicos em planejamento de contratações de obras e serviços de engenharia, orçamentação e apoio técnico à fiscalização e à gestão contratual (sem substituir o fiscal público).\n\nCom base em dados públicos de contratações, identificamos sinais de possível necessidade técnica. Gostaríamos de apresentar nosso catálogo, se houver interesse institucional.\n\nAtenciosamente,\nCONFENGE",
       "compliance_blocks": [],
+      "compliance_flags": [
+        "sample_same_nature_sum_above_ceiling_incomplete_ledger"
+      ],
       "require_conflict_check": true,
       "rank_position": 10
     },
@@ -5621,7 +5768,7 @@
         "municipio": "Ibirama",
         "uf": "SC",
         "codigo_ibge": "4206900",
-        "populacao": 19621,
+        "populacao": 19862,
         "faixa_populacional": "10k_to_25k",
         "consorcio_publico": false,
         "autarquia": false,
@@ -5636,36 +5783,37 @@
         ],
         "identidade_canonica": "cnpj:83102418000137",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:18:39Z"
+        "last_verified_at": "2026-07-30T23:32:09Z"
       },
-      "mode": "REACTIVE_OPPORTUNITY",
+      "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
+      "mode_note": "REACTIVE only when open published opportunity is observed; historical buyer-side contracts alone yield PROACTIVE_INSTITUTIONAL_PROSPECT.",
       "score": {
         "agency_id": "fcde2b810d3177b2",
-        "priority_score": 0.5225,
+        "priority_score": 0.4025,
         "need_score": 0.75,
         "service_fit_score": 0.45,
         "timing_score": 0.55,
         "evidence_quality_score": 0.9,
-        "institutional_accessibility_score": 0.7,
-        "commercial_readiness_score": 0.575,
-        "compliance_risk_score": 0.3,
+        "institutional_accessibility_score": 0.25,
+        "commercial_readiness_score": 0.485,
+        "compliance_risk_score": 0.6,
         "conflict_risk_score": 0.3,
         "decomposition": {
           "need": 0.225,
           "service_fit": 0.1125,
           "timing": 0.11,
           "evidence_quality": 0.135,
-          "institutional_accessibility": 0.07
+          "institutional_accessibility": 0.025
         },
         "penalties": {
-          "compliance_penalty": 0.075,
+          "compliance_penalty": 0.15,
           "conflict_penalty": 0.105
         },
         "supporting_signals": [
           "works_or_services_with_long_execution",
           "recent_publication_of_engineering_demand"
         ],
-        "explanation": "priority=0.473 need=0.75 fit=0.45 timing=0.55 evidence=0.90 access=0.70; material_signals=2; Oportunidade reativa com publicação/contrato observável.",
+        "explanation": "priority=0.353 need=0.75 fit=0.45 timing=0.55 evidence=0.90 access=0.25; material_signals=2; Prospect proativo: sinais de possível necessidade técnica (sem oportunidade formal isolada).",
         "selected_service_id": "REVISAO_PRE_PUBLICACAO"
       },
       "signals": [
@@ -5676,7 +5824,7 @@
           "weight": 0.05,
           "evidence": [
             {
-              "population": 19621,
+              "population": 19862,
               "threshold": 50000
             }
           ],
@@ -5708,8 +5856,8 @@
           "evidence": [
             {
               "eng_value": 20085.0,
-              "population": 19621,
-              "per_capita": 1.02
+              "population": 19862,
+              "per_capita": 1.01
             }
           ],
           "limitations": [
@@ -5764,12 +5912,12 @@
         },
         {
           "signal_id": "institutional_contact_available",
-          "status": "FIRED",
+          "status": "NOT_FIRED",
           "confidence": 0.8,
           "weight": 0.05,
           "evidence": [
             {
-              "institutional_contact": true
+              "institutional_contact": false
             }
           ],
           "limitations": [],
@@ -5792,12 +5940,14 @@
         },
         {
           "signal_id": "possible_expense_fragmentation",
-          "status": "NOT_FIRED",
-          "confidence": 0.6,
-          "weight": 0.0,
+          "status": "FIRED",
+          "confidence": 0.7,
+          "weight": -0.15,
           "evidence": [
             {
-              "indicators": []
+              "indicators": [
+                "recurring_same_nature_contracting"
+              ]
             }
           ],
           "limitations": [],
@@ -5898,17 +6048,20 @@
         "commercial_ceiling_allegation_allowed": false
       },
       "fragmentation": {
-        "fragmentation_suspected": false,
-        "severity": "NONE",
-        "indicators": [],
-        "annual_sum_same_nature": null,
+        "fragmentation_suspected": true,
+        "severity": "MEDIUM",
+        "indicators": [
+          "recurring_same_nature_contracting"
+        ],
+        "annual_sum_same_nature": 89684.49,
         "annual_sum_known": false,
         "annual_sum_state": "DIRECT_CONTRACTING_SUM_UNKNOWN",
         "packages": [],
         "blocks_eligibility_claim": false,
         "pricing_near_ceiling": false,
-        "notes": "Teto legal é filtro de elegibilidade potencial, não âncora de preço. Preço deve decorrer de escopo, esforço, responsabilidade técnica e riscos. Somatório anual: DIRECT_CONTRACTING_SUM_UNKNOWN.",
-        "observed_contract_sum_in_sample": 89684.49
+        "notes": "Teto legal é filtro de elegibilidade potencial, não âncora de preço. Preço deve decorrer de escopo, esforço, responsabilidade técnica e riscos. Somatório anual: DIRECT_CONTRACTING_SUM_UNKNOWN. Somatório observado no sample de contratos não equivale a ledger anual completo da UG.",
+        "observed_contract_sum_in_sample": 89684.49,
+        "annual_ledger_complete": false
       },
       "conflict": {
         "state": "CONFLICT_CHECK_PENDING",
@@ -5926,7 +6079,10 @@
         "notes": "Sem match automático de bloqueio. Isso NÃO prova ausência de conflito. Outreach exige CONFLICT_CLEARED_BY_HUMAN_REVIEW."
       },
       "contacts": {
-        "accepted": [
+        "accepted": [],
+        "rejected": [],
+        "has_institutional": false,
+        "research_actions": [
           {
             "channel": "sector",
             "value": "Pesquisar e-mail institucional do setor de licitações/obras de Ibirama/SC em portal oficial",
@@ -5936,8 +6092,7 @@
             "notes": "Justificativa de pesquisa adicional — sem contato pessoal."
           }
         ],
-        "rejected": [],
-        "has_institutional": true
+        "note": "Nenhum e-mail/telefone institucional capturado nesta rodada; há apenas justificativa de pesquisa adicional em portal oficial."
       },
       "publishability": {
         "category": "PUBLISHABLE",
@@ -6246,14 +6401,21 @@
       "last_publication": "2026-07-08",
       "limitations": [
         "Somatório anual completo da UG não disponível (DIRECT_CONTRACTING_SUM_UNKNOWN).",
-        "População IBGE usada como contexto, não como prova de baixa capacidade.",
+        "População IBGE Censo 2022 (API oficial) é contexto, não prova de baixa capacidade.",
+        "Sem contato institucional capturado — apenas research action.",
+        "Modo proativo: não há edital/aviso aberto observado nesta fonte.",
         "Sem outreach automático."
       ],
-      "probable_problem": "Contratos de engenharia recorrentes e/ou sinais de execução longa — possível necessidade de planejamento, orçamento, revisão ou apoio à fiscalização.",
-      "recommended_approach": "Apresentar capacidade técnica e redução de risco; não vender dispensa de licitação.",
-      "next_human_step": "Revisar conflito de interesses, classificação do objeto, dossier e autorizar ou rejeitar outreach manualmente.",
+      "probable_problem": "Sinais de possível necessidade técnica (histórico de contratações de engenharia / execução longa) — prospecção proativa institucional; não afirma que o órgão está contratando no momento.",
+      "recommended_approach": "Apresentar capacidade técnica e redução de risco; não vender dispensa de licitação. Pesquisar canal institucional oficial antes de qualquer contato.",
+      "next_human_step": "Revisar conflito de interesses, classificação do objeto, dossier; localizar contato institucional público; autorizar ou rejeitar outreach.",
       "outreach_message": "Prezados(as) de MUNICÍPIO DE IBIRAMA,\n\nA CONFENGE presta apoio técnico especializado a órgãos públicos em planejamento de contratações de obras e serviços de engenharia, orçamentação e apoio técnico à fiscalização e à gestão contratual (sem substituir o fiscal público).\n\nCom base em dados públicos de contratações, identificamos sinais de possível necessidade técnica. Gostaríamos de apresentar nosso catálogo, se houver interesse institucional.\n\nAtenciosamente,\nCONFENGE",
       "compliance_blocks": [],
+      "compliance_flags": [
+        "recurring_same_nature_contracting",
+        "legal_classification_ambiguous",
+        "possible_expense_fragmentation_soft"
+      ],
       "require_conflict_check": true,
       "rank_position": 11
     },
@@ -6286,35 +6448,36 @@
         ],
         "identidade_canonica": "cnpj:80912009000108",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:18:40Z"
+        "last_verified_at": "2026-07-30T23:32:10Z"
       },
-      "mode": "REACTIVE_OPPORTUNITY",
+      "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
+      "mode_note": "REACTIVE only when open published opportunity is observed; historical buyer-side contracts alone yield PROACTIVE_INSTITUTIONAL_PROSPECT.",
       "score": {
         "agency_id": "a51d7ce0a4432ee3",
-        "priority_score": 0.5225,
+        "priority_score": 0.4025,
         "need_score": 0.6,
         "service_fit_score": 0.45,
         "timing_score": 0.55,
         "evidence_quality_score": 0.7,
-        "institutional_accessibility_score": 0.7,
-        "commercial_readiness_score": 0.5,
-        "compliance_risk_score": 0.0,
+        "institutional_accessibility_score": 0.25,
+        "commercial_readiness_score": 0.41,
+        "compliance_risk_score": 0.3,
         "conflict_risk_score": 0.3,
         "decomposition": {
           "need": 0.18,
           "service_fit": 0.1125,
           "timing": 0.11,
           "evidence_quality": 0.105,
-          "institutional_accessibility": 0.07
+          "institutional_accessibility": 0.025
         },
         "penalties": {
-          "compliance_penalty": 0.0,
+          "compliance_penalty": 0.075,
           "conflict_penalty": 0.105
         },
         "supporting_signals": [
           "recent_publication_of_engineering_demand"
         ],
-        "explanation": "priority=0.472 need=0.60 fit=0.45 timing=0.55 evidence=0.70 access=0.70; material_signals=1; Oportunidade reativa com publicação/contrato observável.",
+        "explanation": "priority=0.352 need=0.60 fit=0.45 timing=0.55 evidence=0.70 access=0.25; material_signals=1; Prospect proativo: sinais de possível necessidade técnica (sem oportunidade formal isolada).",
         "selected_service_id": "PLANEJAMENTO_TECNICO_DA_CONTRATACAO"
       },
       "signals": [
@@ -6413,12 +6576,12 @@
         },
         {
           "signal_id": "institutional_contact_available",
-          "status": "FIRED",
+          "status": "NOT_FIRED",
           "confidence": 0.8,
           "weight": 0.05,
           "evidence": [
             {
-              "institutional_contact": true
+              "institutional_contact": false
             }
           ],
           "limitations": [],
@@ -6441,12 +6604,14 @@
         },
         {
           "signal_id": "possible_expense_fragmentation",
-          "status": "NOT_FIRED",
-          "confidence": 0.6,
-          "weight": 0.0,
+          "status": "FIRED",
+          "confidence": 0.7,
+          "weight": -0.15,
           "evidence": [
             {
-              "indicators": []
+              "indicators": [
+                "recurring_same_nature_contracting"
+              ]
             }
           ],
           "limitations": [],
@@ -6553,17 +6718,20 @@
         "commercial_ceiling_allegation_allowed": true
       },
       "fragmentation": {
-        "fragmentation_suspected": false,
-        "severity": "NONE",
-        "indicators": [],
-        "annual_sum_same_nature": null,
+        "fragmentation_suspected": true,
+        "severity": "MEDIUM",
+        "indicators": [
+          "recurring_same_nature_contracting"
+        ],
+        "annual_sum_same_nature": 6737.95,
         "annual_sum_known": false,
         "annual_sum_state": "DIRECT_CONTRACTING_SUM_UNKNOWN",
         "packages": [],
         "blocks_eligibility_claim": false,
         "pricing_near_ceiling": false,
-        "notes": "Teto legal é filtro de elegibilidade potencial, não âncora de preço. Preço deve decorrer de escopo, esforço, responsabilidade técnica e riscos. Somatório anual: DIRECT_CONTRACTING_SUM_UNKNOWN.",
-        "observed_contract_sum_in_sample": 6737.95
+        "notes": "Teto legal é filtro de elegibilidade potencial, não âncora de preço. Preço deve decorrer de escopo, esforço, responsabilidade técnica e riscos. Somatório anual: DIRECT_CONTRACTING_SUM_UNKNOWN. Somatório observado no sample de contratos não equivale a ledger anual completo da UG.",
+        "observed_contract_sum_in_sample": 6737.95,
+        "annual_ledger_complete": false
       },
       "conflict": {
         "state": "CONFLICT_CHECK_PENDING",
@@ -6581,7 +6749,10 @@
         "notes": "Sem match automático de bloqueio. Isso NÃO prova ausência de conflito. Outreach exige CONFLICT_CLEARED_BY_HUMAN_REVIEW."
       },
       "contacts": {
-        "accepted": [
+        "accepted": [],
+        "rejected": [],
+        "has_institutional": false,
+        "research_actions": [
           {
             "channel": "sector",
             "value": "Pesquisar e-mail institucional do setor de licitações/obras de Paraíso/SC em portal oficial",
@@ -6591,8 +6762,7 @@
             "notes": "Justificativa de pesquisa adicional — sem contato pessoal."
           }
         ],
-        "rejected": [],
-        "has_institutional": true
+        "note": "Nenhum e-mail/telefone institucional capturado nesta rodada; há apenas justificativa de pesquisa adicional em portal oficial."
       },
       "publishability": {
         "category": "PUBLISHABLE",
@@ -6749,14 +6919,20 @@
       "last_publication": "2026-07-08",
       "limitations": [
         "Somatório anual completo da UG não disponível (DIRECT_CONTRACTING_SUM_UNKNOWN).",
-        "População IBGE usada como contexto, não como prova de baixa capacidade.",
+        "População IBGE Censo 2022 (API oficial) é contexto, não prova de baixa capacidade.",
+        "Sem contato institucional capturado — apenas research action.",
+        "Modo proativo: não há edital/aviso aberto observado nesta fonte.",
         "Sem outreach automático."
       ],
-      "probable_problem": "Contratos de engenharia recorrentes e/ou sinais de execução longa — possível necessidade de planejamento, orçamento, revisão ou apoio à fiscalização.",
-      "recommended_approach": "Apresentar capacidade técnica e redução de risco; não vender dispensa de licitação.",
-      "next_human_step": "Revisar conflito de interesses, classificação do objeto, dossier e autorizar ou rejeitar outreach manualmente.",
+      "probable_problem": "Sinais de possível necessidade técnica (histórico de contratações de engenharia / execução longa) — prospecção proativa institucional; não afirma que o órgão está contratando no momento.",
+      "recommended_approach": "Apresentar capacidade técnica e redução de risco; não vender dispensa de licitação. Pesquisar canal institucional oficial antes de qualquer contato.",
+      "next_human_step": "Revisar conflito de interesses, classificação do objeto, dossier; localizar contato institucional público; autorizar ou rejeitar outreach.",
       "outreach_message": "Prezados(as) de MUNICÍPIO DE PARAÍSO,\n\nA CONFENGE presta apoio técnico especializado a órgãos públicos em planejamento de contratações de obras e serviços de engenharia, orçamentação e apoio técnico à fiscalização e à gestão contratual (sem substituir o fiscal público).\n\nCom base em dados públicos de contratações, identificamos sinais de possível necessidade técnica. Gostaríamos de apresentar nosso catálogo, se houver interesse institucional.\n\nAtenciosamente,\nCONFENGE",
       "compliance_blocks": [],
+      "compliance_flags": [
+        "recurring_same_nature_contracting",
+        "possible_expense_fragmentation_soft"
+      ],
       "require_conflict_check": true,
       "rank_position": 12
     },
@@ -6774,7 +6950,7 @@
         "municipio": "Campos Novos",
         "uf": "SC",
         "codigo_ibge": "4203600",
-        "populacao": 36882,
+        "populacao": 36932,
         "faixa_populacional": "25k_to_50k",
         "consorcio_publico": false,
         "autarquia": false,
@@ -6789,36 +6965,37 @@
         ],
         "identidade_canonica": "cnpj:82939232000174",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:18:42Z"
+        "last_verified_at": "2026-07-30T23:32:15Z"
       },
-      "mode": "REACTIVE_OPPORTUNITY",
+      "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
+      "mode_note": "REACTIVE only when open published opportunity is observed; historical buyer-side contracts alone yield PROACTIVE_INSTITUTIONAL_PROSPECT.",
       "score": {
         "agency_id": "5afa1dc1b862f322",
-        "priority_score": 0.5225,
+        "priority_score": 0.4025,
         "need_score": 0.75,
         "service_fit_score": 0.45,
         "timing_score": 0.55,
         "evidence_quality_score": 0.9,
-        "institutional_accessibility_score": 0.7,
-        "commercial_readiness_score": 0.575,
-        "compliance_risk_score": 0.3,
+        "institutional_accessibility_score": 0.25,
+        "commercial_readiness_score": 0.485,
+        "compliance_risk_score": 0.6,
         "conflict_risk_score": 0.3,
         "decomposition": {
           "need": 0.225,
           "service_fit": 0.1125,
           "timing": 0.11,
           "evidence_quality": 0.135,
-          "institutional_accessibility": 0.07
+          "institutional_accessibility": 0.025
         },
         "penalties": {
-          "compliance_penalty": 0.075,
+          "compliance_penalty": 0.15,
           "conflict_penalty": 0.105
         },
         "supporting_signals": [
           "works_or_services_with_long_execution",
           "recent_publication_of_engineering_demand"
         ],
-        "explanation": "priority=0.473 need=0.75 fit=0.45 timing=0.55 evidence=0.90 access=0.70; material_signals=2; Oportunidade reativa com publicação/contrato observável.",
+        "explanation": "priority=0.353 need=0.75 fit=0.45 timing=0.55 evidence=0.90 access=0.25; material_signals=2; Prospect proativo: sinais de possível necessidade técnica (sem oportunidade formal isolada).",
         "selected_service_id": "REVISAO_PRE_PUBLICACAO"
       },
       "signals": [
@@ -6829,7 +7006,7 @@
           "weight": 0.05,
           "evidence": [
             {
-              "population": 36882,
+              "population": 36932,
               "threshold": 50000
             }
           ],
@@ -6861,8 +7038,8 @@
           "evidence": [
             {
               "eng_value": 520900.0,
-              "population": 36882,
-              "per_capita": 14.12
+              "population": 36932,
+              "per_capita": 14.1
             }
           ],
           "limitations": [
@@ -6917,12 +7094,12 @@
         },
         {
           "signal_id": "institutional_contact_available",
-          "status": "FIRED",
+          "status": "NOT_FIRED",
           "confidence": 0.8,
           "weight": 0.05,
           "evidence": [
             {
-              "institutional_contact": true
+              "institutional_contact": false
             }
           ],
           "limitations": [],
@@ -6945,12 +7122,14 @@
         },
         {
           "signal_id": "possible_expense_fragmentation",
-          "status": "NOT_FIRED",
-          "confidence": 0.6,
-          "weight": 0.0,
+          "status": "FIRED",
+          "confidence": 0.7,
+          "weight": -0.15,
           "evidence": [
             {
-              "indicators": []
+              "indicators": [
+                "recurring_same_nature_contracting"
+              ]
             }
           ],
           "limitations": [],
@@ -7051,17 +7230,20 @@
         "commercial_ceiling_allegation_allowed": false
       },
       "fragmentation": {
-        "fragmentation_suspected": false,
-        "severity": "NONE",
-        "indicators": [],
-        "annual_sum_same_nature": null,
+        "fragmentation_suspected": true,
+        "severity": "MEDIUM",
+        "indicators": [
+          "recurring_same_nature_contracting"
+        ],
+        "annual_sum_same_nature": 545485.7,
         "annual_sum_known": false,
         "annual_sum_state": "DIRECT_CONTRACTING_SUM_UNKNOWN",
         "packages": [],
         "blocks_eligibility_claim": false,
         "pricing_near_ceiling": false,
-        "notes": "Teto legal é filtro de elegibilidade potencial, não âncora de preço. Preço deve decorrer de escopo, esforço, responsabilidade técnica e riscos. Somatório anual: DIRECT_CONTRACTING_SUM_UNKNOWN.",
-        "observed_contract_sum_in_sample": 545485.7
+        "notes": "Teto legal é filtro de elegibilidade potencial, não âncora de preço. Preço deve decorrer de escopo, esforço, responsabilidade técnica e riscos. Somatório anual: DIRECT_CONTRACTING_SUM_UNKNOWN. Somatório observado no sample de contratos não equivale a ledger anual completo da UG.",
+        "observed_contract_sum_in_sample": 545485.7,
+        "annual_ledger_complete": false
       },
       "conflict": {
         "state": "CONFLICT_CHECK_PENDING",
@@ -7079,7 +7261,10 @@
         "notes": "Sem match automático de bloqueio. Isso NÃO prova ausência de conflito. Outreach exige CONFLICT_CLEARED_BY_HUMAN_REVIEW."
       },
       "contacts": {
-        "accepted": [
+        "accepted": [],
+        "rejected": [],
+        "has_institutional": false,
+        "research_actions": [
           {
             "channel": "sector",
             "value": "Pesquisar e-mail institucional do setor de licitações/obras de Campos Novos/SC em portal oficial",
@@ -7089,8 +7274,7 @@
             "notes": "Justificativa de pesquisa adicional — sem contato pessoal."
           }
         ],
-        "rejected": [],
-        "has_institutional": true
+        "note": "Nenhum e-mail/telefone institucional capturado nesta rodada; há apenas justificativa de pesquisa adicional em portal oficial."
       },
       "publishability": {
         "category": "PUBLISHABLE",
@@ -7383,14 +7567,21 @@
       "last_publication": "2026-07-08",
       "limitations": [
         "Somatório anual completo da UG não disponível (DIRECT_CONTRACTING_SUM_UNKNOWN).",
-        "População IBGE usada como contexto, não como prova de baixa capacidade.",
+        "População IBGE Censo 2022 (API oficial) é contexto, não prova de baixa capacidade.",
+        "Sem contato institucional capturado — apenas research action.",
+        "Modo proativo: não há edital/aviso aberto observado nesta fonte.",
         "Sem outreach automático."
       ],
-      "probable_problem": "Contratos de engenharia recorrentes e/ou sinais de execução longa — possível necessidade de planejamento, orçamento, revisão ou apoio à fiscalização.",
-      "recommended_approach": "Apresentar capacidade técnica e redução de risco; não vender dispensa de licitação.",
-      "next_human_step": "Revisar conflito de interesses, classificação do objeto, dossier e autorizar ou rejeitar outreach manualmente.",
+      "probable_problem": "Sinais de possível necessidade técnica (histórico de contratações de engenharia / execução longa) — prospecção proativa institucional; não afirma que o órgão está contratando no momento.",
+      "recommended_approach": "Apresentar capacidade técnica e redução de risco; não vender dispensa de licitação. Pesquisar canal institucional oficial antes de qualquer contato.",
+      "next_human_step": "Revisar conflito de interesses, classificação do objeto, dossier; localizar contato institucional público; autorizar ou rejeitar outreach.",
       "outreach_message": "Prezados(as) de MUNICÍPIO DE CAMPOS NOVOS,\n\nA CONFENGE presta apoio técnico especializado a órgãos públicos em planejamento de contratações de obras e serviços de engenharia, orçamentação e apoio técnico à fiscalização e à gestão contratual (sem substituir o fiscal público).\n\nCom base em dados públicos de contratações, identificamos sinais de possível necessidade técnica. Gostaríamos de apresentar nosso catálogo, se houver interesse institucional.\n\nAtenciosamente,\nCONFENGE",
       "compliance_blocks": [],
+      "compliance_flags": [
+        "recurring_same_nature_contracting",
+        "legal_classification_ambiguous",
+        "possible_expense_fragmentation_soft"
+      ],
       "require_conflict_check": true,
       "rank_position": 13
     },
@@ -7408,7 +7599,7 @@
         "municipio": "Itapiranga",
         "uf": "SC",
         "codigo_ibge": "4208401",
-        "populacao": 16234,
+        "populacao": 16638,
         "faixa_populacional": "10k_to_25k",
         "consorcio_publico": false,
         "autarquia": false,
@@ -7423,36 +7614,37 @@
         ],
         "identidade_canonica": "cnpj:82821208000136",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:18:43Z"
+        "last_verified_at": "2026-07-30T23:32:17Z"
       },
-      "mode": "REACTIVE_OPPORTUNITY",
+      "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
+      "mode_note": "REACTIVE only when open published opportunity is observed; historical buyer-side contracts alone yield PROACTIVE_INSTITUTIONAL_PROSPECT.",
       "score": {
         "agency_id": "59815c640b55a708",
-        "priority_score": 0.5225,
+        "priority_score": 0.4025,
         "need_score": 0.75,
         "service_fit_score": 0.45,
         "timing_score": 0.55,
         "evidence_quality_score": 0.9,
-        "institutional_accessibility_score": 0.7,
-        "commercial_readiness_score": 0.575,
-        "compliance_risk_score": 0.3,
+        "institutional_accessibility_score": 0.25,
+        "commercial_readiness_score": 0.485,
+        "compliance_risk_score": 0.6,
         "conflict_risk_score": 0.3,
         "decomposition": {
           "need": 0.225,
           "service_fit": 0.1125,
           "timing": 0.11,
           "evidence_quality": 0.135,
-          "institutional_accessibility": 0.07
+          "institutional_accessibility": 0.025
         },
         "penalties": {
-          "compliance_penalty": 0.075,
+          "compliance_penalty": 0.15,
           "conflict_penalty": 0.105
         },
         "supporting_signals": [
           "works_or_services_with_long_execution",
           "recent_publication_of_engineering_demand"
         ],
-        "explanation": "priority=0.473 need=0.75 fit=0.45 timing=0.55 evidence=0.90 access=0.70; material_signals=2; Oportunidade reativa com publicação/contrato observável.",
+        "explanation": "priority=0.353 need=0.75 fit=0.45 timing=0.55 evidence=0.90 access=0.25; material_signals=2; Prospect proativo: sinais de possível necessidade técnica (sem oportunidade formal isolada).",
         "selected_service_id": "REVISAO_PRE_PUBLICACAO"
       },
       "signals": [
@@ -7463,7 +7655,7 @@
           "weight": 0.05,
           "evidence": [
             {
-              "population": 16234,
+              "population": 16638,
               "threshold": 50000
             }
           ],
@@ -7495,8 +7687,8 @@
           "evidence": [
             {
               "eng_value": 84879.18,
-              "population": 16234,
-              "per_capita": 5.23
+              "population": 16638,
+              "per_capita": 5.1
             }
           ],
           "limitations": [
@@ -7551,12 +7743,12 @@
         },
         {
           "signal_id": "institutional_contact_available",
-          "status": "FIRED",
+          "status": "NOT_FIRED",
           "confidence": 0.8,
           "weight": 0.05,
           "evidence": [
             {
-              "institutional_contact": true
+              "institutional_contact": false
             }
           ],
           "limitations": [],
@@ -7579,12 +7771,14 @@
         },
         {
           "signal_id": "possible_expense_fragmentation",
-          "status": "NOT_FIRED",
-          "confidence": 0.6,
-          "weight": 0.0,
+          "status": "FIRED",
+          "confidence": 0.7,
+          "weight": -0.15,
           "evidence": [
             {
-              "indicators": []
+              "indicators": [
+                "recurring_same_nature_contracting"
+              ]
             }
           ],
           "limitations": [],
@@ -7685,17 +7879,20 @@
         "commercial_ceiling_allegation_allowed": false
       },
       "fragmentation": {
-        "fragmentation_suspected": false,
-        "severity": "NONE",
-        "indicators": [],
-        "annual_sum_same_nature": null,
+        "fragmentation_suspected": true,
+        "severity": "MEDIUM",
+        "indicators": [
+          "recurring_same_nature_contracting"
+        ],
+        "annual_sum_same_nature": 268583.74,
         "annual_sum_known": false,
         "annual_sum_state": "DIRECT_CONTRACTING_SUM_UNKNOWN",
         "packages": [],
         "blocks_eligibility_claim": false,
         "pricing_near_ceiling": false,
-        "notes": "Teto legal é filtro de elegibilidade potencial, não âncora de preço. Preço deve decorrer de escopo, esforço, responsabilidade técnica e riscos. Somatório anual: DIRECT_CONTRACTING_SUM_UNKNOWN.",
-        "observed_contract_sum_in_sample": 268583.74
+        "notes": "Teto legal é filtro de elegibilidade potencial, não âncora de preço. Preço deve decorrer de escopo, esforço, responsabilidade técnica e riscos. Somatório anual: DIRECT_CONTRACTING_SUM_UNKNOWN. Somatório observado no sample de contratos não equivale a ledger anual completo da UG.",
+        "observed_contract_sum_in_sample": 268583.74,
+        "annual_ledger_complete": false
       },
       "conflict": {
         "state": "CONFLICT_CHECK_PENDING",
@@ -7713,7 +7910,10 @@
         "notes": "Sem match automático de bloqueio. Isso NÃO prova ausência de conflito. Outreach exige CONFLICT_CLEARED_BY_HUMAN_REVIEW."
       },
       "contacts": {
-        "accepted": [
+        "accepted": [],
+        "rejected": [],
+        "has_institutional": false,
+        "research_actions": [
           {
             "channel": "sector",
             "value": "Pesquisar e-mail institucional do setor de licitações/obras de Itapiranga/SC em portal oficial",
@@ -7723,8 +7923,7 @@
             "notes": "Justificativa de pesquisa adicional — sem contato pessoal."
           }
         ],
-        "rejected": [],
-        "has_institutional": true
+        "note": "Nenhum e-mail/telefone institucional capturado nesta rodada; há apenas justificativa de pesquisa adicional em portal oficial."
       },
       "publishability": {
         "category": "PUBLISHABLE",
@@ -8033,14 +8232,21 @@
       "last_publication": "2026-07-08",
       "limitations": [
         "Somatório anual completo da UG não disponível (DIRECT_CONTRACTING_SUM_UNKNOWN).",
-        "População IBGE usada como contexto, não como prova de baixa capacidade.",
+        "População IBGE Censo 2022 (API oficial) é contexto, não prova de baixa capacidade.",
+        "Sem contato institucional capturado — apenas research action.",
+        "Modo proativo: não há edital/aviso aberto observado nesta fonte.",
         "Sem outreach automático."
       ],
-      "probable_problem": "Contratos de engenharia recorrentes e/ou sinais de execução longa — possível necessidade de planejamento, orçamento, revisão ou apoio à fiscalização.",
-      "recommended_approach": "Apresentar capacidade técnica e redução de risco; não vender dispensa de licitação.",
-      "next_human_step": "Revisar conflito de interesses, classificação do objeto, dossier e autorizar ou rejeitar outreach manualmente.",
+      "probable_problem": "Sinais de possível necessidade técnica (histórico de contratações de engenharia / execução longa) — prospecção proativa institucional; não afirma que o órgão está contratando no momento.",
+      "recommended_approach": "Apresentar capacidade técnica e redução de risco; não vender dispensa de licitação. Pesquisar canal institucional oficial antes de qualquer contato.",
+      "next_human_step": "Revisar conflito de interesses, classificação do objeto, dossier; localizar contato institucional público; autorizar ou rejeitar outreach.",
       "outreach_message": "Prezados(as) de MUNICÍPIO DE ITAPIRANGA,\n\nA CONFENGE presta apoio técnico especializado a órgãos públicos em planejamento de contratações de obras e serviços de engenharia, orçamentação e apoio técnico à fiscalização e à gestão contratual (sem substituir o fiscal público).\n\nCom base em dados públicos de contratações, identificamos sinais de possível necessidade técnica. Gostaríamos de apresentar nosso catálogo, se houver interesse institucional.\n\nAtenciosamente,\nCONFENGE",
       "compliance_blocks": [],
+      "compliance_flags": [
+        "recurring_same_nature_contracting",
+        "legal_classification_ambiguous",
+        "possible_expense_fragmentation_soft"
+      ],
       "require_conflict_check": true,
       "rank_position": 14
     },
@@ -8058,7 +8264,7 @@
         "municipio": "Gaspar",
         "uf": "SC",
         "codigo_ibge": "4205902",
-        "populacao": 72770,
+        "populacao": 72570,
         "faixa_populacional": "50k_to_100k",
         "consorcio_publico": false,
         "autarquia": false,
@@ -8073,36 +8279,37 @@
         ],
         "identidade_canonica": "cnpj:83102244000102",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:18:39Z"
+        "last_verified_at": "2026-07-30T23:32:09Z"
       },
-      "mode": "REACTIVE_OPPORTUNITY",
+      "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
+      "mode_note": "REACTIVE only when open published opportunity is observed; historical buyer-side contracts alone yield PROACTIVE_INSTITUTIONAL_PROSPECT.",
       "score": {
         "agency_id": "f21da1a358cc0e47",
-        "priority_score": 0.5125,
+        "priority_score": 0.3925,
         "need_score": 0.65,
         "service_fit_score": 0.55,
         "timing_score": 0.55,
         "evidence_quality_score": 0.7,
-        "institutional_accessibility_score": 0.7,
-        "commercial_readiness_score": 0.545,
-        "compliance_risk_score": 0.0,
+        "institutional_accessibility_score": 0.25,
+        "commercial_readiness_score": 0.455,
+        "compliance_risk_score": 0.3,
         "conflict_risk_score": 0.3,
         "decomposition": {
           "need": 0.195,
           "service_fit": 0.1375,
           "timing": 0.11,
           "evidence_quality": 0.105,
-          "institutional_accessibility": 0.07
+          "institutional_accessibility": 0.025
         },
         "penalties": {
-          "compliance_penalty": 0.0,
+          "compliance_penalty": 0.075,
           "conflict_penalty": 0.105
         },
         "supporting_signals": [
           "works_or_services_with_long_execution",
           "recent_publication_of_engineering_demand"
         ],
-        "explanation": "priority=0.512 need=0.65 fit=0.55 timing=0.55 evidence=0.70 access=0.70; material_signals=2; Oportunidade reativa com publicação/contrato observável.",
+        "explanation": "priority=0.393 need=0.65 fit=0.55 timing=0.55 evidence=0.70 access=0.25; material_signals=2; Prospect proativo: sinais de possível necessidade técnica (sem oportunidade formal isolada).",
         "selected_service_id": "REVISAO_PRE_PUBLICACAO"
       },
       "signals": [
@@ -8113,7 +8320,7 @@
           "weight": 0.05,
           "evidence": [
             {
-              "population": 72770,
+              "population": 72570,
               "threshold": 50000
             }
           ],
@@ -8145,8 +8352,8 @@
           "evidence": [
             {
               "eng_value": 224135.0,
-              "population": 72770,
-              "per_capita": 3.08
+              "population": 72570,
+              "per_capita": 3.09
             }
           ],
           "limitations": [
@@ -8201,12 +8408,12 @@
         },
         {
           "signal_id": "institutional_contact_available",
-          "status": "FIRED",
+          "status": "NOT_FIRED",
           "confidence": 0.8,
           "weight": 0.05,
           "evidence": [
             {
-              "institutional_contact": true
+              "institutional_contact": false
             }
           ],
           "limitations": [],
@@ -8229,12 +8436,15 @@
         },
         {
           "signal_id": "possible_expense_fragmentation",
-          "status": "NOT_FIRED",
-          "confidence": 0.6,
-          "weight": 0.0,
+          "status": "FIRED",
+          "confidence": 0.7,
+          "weight": -0.15,
           "evidence": [
             {
-              "indicators": []
+              "indicators": [
+                "sample_same_nature_sum_above_ceiling_incomplete_ledger",
+                "recurring_same_nature_contracting"
+              ]
             }
           ],
           "limitations": [],
@@ -8339,17 +8549,21 @@
         "commercial_ceiling_allegation_allowed": false
       },
       "fragmentation": {
-        "fragmentation_suspected": false,
-        "severity": "NONE",
-        "indicators": [],
-        "annual_sum_same_nature": null,
+        "fragmentation_suspected": true,
+        "severity": "MEDIUM",
+        "indicators": [
+          "sample_same_nature_sum_above_ceiling_incomplete_ledger",
+          "recurring_same_nature_contracting"
+        ],
+        "annual_sum_same_nature": 239655.52,
         "annual_sum_known": false,
         "annual_sum_state": "DIRECT_CONTRACTING_SUM_UNKNOWN",
         "packages": [],
         "blocks_eligibility_claim": false,
         "pricing_near_ceiling": false,
-        "notes": "Teto legal é filtro de elegibilidade potencial, não âncora de preço. Preço deve decorrer de escopo, esforço, responsabilidade técnica e riscos. Somatório anual: DIRECT_CONTRACTING_SUM_UNKNOWN.",
-        "observed_contract_sum_in_sample": 239655.52
+        "notes": "Teto legal é filtro de elegibilidade potencial, não âncora de preço. Preço deve decorrer de escopo, esforço, responsabilidade técnica e riscos. Somatório anual: DIRECT_CONTRACTING_SUM_UNKNOWN. Somatório observado no sample de contratos não equivale a ledger anual completo da UG.",
+        "observed_contract_sum_in_sample": 239655.52,
+        "annual_ledger_complete": false
       },
       "conflict": {
         "state": "CONFLICT_CHECK_PENDING",
@@ -8367,7 +8581,10 @@
         "notes": "Sem match automático de bloqueio. Isso NÃO prova ausência de conflito. Outreach exige CONFLICT_CLEARED_BY_HUMAN_REVIEW."
       },
       "contacts": {
-        "accepted": [
+        "accepted": [],
+        "rejected": [],
+        "has_institutional": false,
+        "research_actions": [
           {
             "channel": "sector",
             "value": "Pesquisar e-mail institucional do setor de licitações/obras de Gaspar/SC em portal oficial",
@@ -8377,8 +8594,7 @@
             "notes": "Justificativa de pesquisa adicional — sem contato pessoal."
           }
         ],
-        "rejected": [],
-        "has_institutional": true
+        "note": "Nenhum e-mail/telefone institucional capturado nesta rodada; há apenas justificativa de pesquisa adicional em portal oficial."
       },
       "publishability": {
         "category": "PUBLISHABLE",
@@ -8543,14 +8759,21 @@
       "last_publication": "2026-07-08",
       "limitations": [
         "Somatório anual completo da UG não disponível (DIRECT_CONTRACTING_SUM_UNKNOWN).",
-        "População IBGE usada como contexto, não como prova de baixa capacidade.",
+        "População IBGE Censo 2022 (API oficial) é contexto, não prova de baixa capacidade.",
+        "Sem contato institucional capturado — apenas research action.",
+        "Modo proativo: não há edital/aviso aberto observado nesta fonte.",
         "Sem outreach automático."
       ],
-      "probable_problem": "Contratos de engenharia recorrentes e/ou sinais de execução longa — possível necessidade de planejamento, orçamento, revisão ou apoio à fiscalização.",
-      "recommended_approach": "Apresentar capacidade técnica e redução de risco; não vender dispensa de licitação.",
-      "next_human_step": "Revisar conflito de interesses, classificação do objeto, dossier e autorizar ou rejeitar outreach manualmente.",
+      "probable_problem": "Sinais de possível necessidade técnica (histórico de contratações de engenharia / execução longa) — prospecção proativa institucional; não afirma que o órgão está contratando no momento.",
+      "recommended_approach": "Apresentar capacidade técnica e redução de risco; não vender dispensa de licitação. Pesquisar canal institucional oficial antes de qualquer contato.",
+      "next_human_step": "Revisar conflito de interesses, classificação do objeto, dossier; localizar contato institucional público; autorizar ou rejeitar outreach.",
       "outreach_message": "Prezados(as) de Prefeitura de Gaspar - SC,\n\nA CONFENGE presta apoio técnico especializado a órgãos públicos em planejamento de contratações de obras e serviços de engenharia, orçamentação e apoio técnico à fiscalização e à gestão contratual (sem substituir o fiscal público).\n\nCom base em dados públicos de contratações, identificamos sinais de possível necessidade técnica. Gostaríamos de apresentar nosso catálogo, se houver interesse institucional.\n\nAtenciosamente,\nCONFENGE",
       "compliance_blocks": [],
+      "compliance_flags": [
+        "sample_same_nature_sum_above_ceiling_incomplete_ledger",
+        "recurring_same_nature_contracting",
+        "possible_expense_fragmentation_soft"
+      ],
       "require_conflict_check": true,
       "rank_position": 15
     },
@@ -8568,7 +8791,7 @@
         "municipio": "São Miguel do Oeste",
         "uf": "SC",
         "codigo_ibge": "4217204",
-        "populacao": 44320,
+        "populacao": 44330,
         "faixa_populacional": "25k_to_50k",
         "consorcio_publico": false,
         "autarquia": false,
@@ -8583,35 +8806,36 @@
         ],
         "identidade_canonica": "cnpj:82821174000180",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:18:42Z"
+        "last_verified_at": "2026-07-30T23:32:15Z"
       },
-      "mode": "REACTIVE_OPPORTUNITY",
+      "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
+      "mode_note": "REACTIVE only when open published opportunity is observed; historical buyer-side contracts alone yield PROACTIVE_INSTITUTIONAL_PROSPECT.",
       "score": {
         "agency_id": "15f364c7322f4011",
-        "priority_score": 0.4775,
+        "priority_score": 0.3575,
         "need_score": 0.6,
         "service_fit_score": 0.45,
         "timing_score": 0.55,
         "evidence_quality_score": 0.9,
-        "institutional_accessibility_score": 0.7,
-        "commercial_readiness_score": 0.56,
-        "compliance_risk_score": 0.3,
+        "institutional_accessibility_score": 0.25,
+        "commercial_readiness_score": 0.47,
+        "compliance_risk_score": 0.6,
         "conflict_risk_score": 0.3,
         "decomposition": {
           "need": 0.18,
           "service_fit": 0.1125,
           "timing": 0.11,
           "evidence_quality": 0.135,
-          "institutional_accessibility": 0.07
+          "institutional_accessibility": 0.025
         },
         "penalties": {
-          "compliance_penalty": 0.075,
+          "compliance_penalty": 0.15,
           "conflict_penalty": 0.105
         },
         "supporting_signals": [
           "recent_publication_of_engineering_demand"
         ],
-        "explanation": "priority=0.427 need=0.60 fit=0.45 timing=0.55 evidence=0.90 access=0.70; material_signals=1; Oportunidade reativa com publicação/contrato observável.",
+        "explanation": "priority=0.307 need=0.60 fit=0.45 timing=0.55 evidence=0.90 access=0.25; material_signals=1; Prospect proativo: sinais de possível necessidade técnica (sem oportunidade formal isolada).",
         "selected_service_id": "PLANEJAMENTO_TECNICO_DA_CONTRATACAO"
       },
       "signals": [
@@ -8622,7 +8846,7 @@
           "weight": 0.05,
           "evidence": [
             {
-              "population": 44320,
+              "population": 44330,
               "threshold": 50000
             }
           ],
@@ -8654,7 +8878,7 @@
           "evidence": [
             {
               "eng_value": 211.0,
-              "population": 44320,
+              "population": 44330,
               "per_capita": 0.0
             }
           ],
@@ -8710,12 +8934,12 @@
         },
         {
           "signal_id": "institutional_contact_available",
-          "status": "FIRED",
+          "status": "NOT_FIRED",
           "confidence": 0.8,
           "weight": 0.05,
           "evidence": [
             {
-              "institutional_contact": true
+              "institutional_contact": false
             }
           ],
           "limitations": [],
@@ -8738,12 +8962,14 @@
         },
         {
           "signal_id": "possible_expense_fragmentation",
-          "status": "NOT_FIRED",
-          "confidence": 0.6,
-          "weight": 0.0,
+          "status": "FIRED",
+          "confidence": 0.7,
+          "weight": -0.15,
           "evidence": [
             {
-              "indicators": []
+              "indicators": [
+                "recurring_same_nature_contracting"
+              ]
             }
           ],
           "limitations": [],
@@ -8844,17 +9070,20 @@
         "commercial_ceiling_allegation_allowed": false
       },
       "fragmentation": {
-        "fragmentation_suspected": false,
-        "severity": "NONE",
-        "indicators": [],
-        "annual_sum_same_nature": null,
+        "fragmentation_suspected": true,
+        "severity": "MEDIUM",
+        "indicators": [
+          "recurring_same_nature_contracting"
+        ],
+        "annual_sum_same_nature": 127169.31,
         "annual_sum_known": false,
         "annual_sum_state": "DIRECT_CONTRACTING_SUM_UNKNOWN",
         "packages": [],
         "blocks_eligibility_claim": false,
         "pricing_near_ceiling": false,
-        "notes": "Teto legal é filtro de elegibilidade potencial, não âncora de preço. Preço deve decorrer de escopo, esforço, responsabilidade técnica e riscos. Somatório anual: DIRECT_CONTRACTING_SUM_UNKNOWN.",
-        "observed_contract_sum_in_sample": 127169.31
+        "notes": "Teto legal é filtro de elegibilidade potencial, não âncora de preço. Preço deve decorrer de escopo, esforço, responsabilidade técnica e riscos. Somatório anual: DIRECT_CONTRACTING_SUM_UNKNOWN. Somatório observado no sample de contratos não equivale a ledger anual completo da UG.",
+        "observed_contract_sum_in_sample": 127169.31,
+        "annual_ledger_complete": false
       },
       "conflict": {
         "state": "CONFLICT_CHECK_PENDING",
@@ -8872,7 +9101,10 @@
         "notes": "Sem match automático de bloqueio. Isso NÃO prova ausência de conflito. Outreach exige CONFLICT_CLEARED_BY_HUMAN_REVIEW."
       },
       "contacts": {
-        "accepted": [
+        "accepted": [],
+        "rejected": [],
+        "has_institutional": false,
+        "research_actions": [
           {
             "channel": "sector",
             "value": "Pesquisar e-mail institucional do setor de licitações/obras de São Miguel do Oeste/SC em portal oficial",
@@ -8882,8 +9114,7 @@
             "notes": "Justificativa de pesquisa adicional — sem contato pessoal."
           }
         ],
-        "rejected": [],
-        "has_institutional": true
+        "note": "Nenhum e-mail/telefone institucional capturado nesta rodada; há apenas justificativa de pesquisa adicional em portal oficial."
       },
       "publishability": {
         "category": "PUBLISHABLE",
@@ -9200,14 +9431,21 @@
       "last_publication": "2026-07-08",
       "limitations": [
         "Somatório anual completo da UG não disponível (DIRECT_CONTRACTING_SUM_UNKNOWN).",
-        "População IBGE usada como contexto, não como prova de baixa capacidade.",
+        "População IBGE Censo 2022 (API oficial) é contexto, não prova de baixa capacidade.",
+        "Sem contato institucional capturado — apenas research action.",
+        "Modo proativo: não há edital/aviso aberto observado nesta fonte.",
         "Sem outreach automático."
       ],
-      "probable_problem": "Contratos de engenharia recorrentes e/ou sinais de execução longa — possível necessidade de planejamento, orçamento, revisão ou apoio à fiscalização.",
-      "recommended_approach": "Apresentar capacidade técnica e redução de risco; não vender dispensa de licitação.",
-      "next_human_step": "Revisar conflito de interesses, classificação do objeto, dossier e autorizar ou rejeitar outreach manualmente.",
+      "probable_problem": "Sinais de possível necessidade técnica (histórico de contratações de engenharia / execução longa) — prospecção proativa institucional; não afirma que o órgão está contratando no momento.",
+      "recommended_approach": "Apresentar capacidade técnica e redução de risco; não vender dispensa de licitação. Pesquisar canal institucional oficial antes de qualquer contato.",
+      "next_human_step": "Revisar conflito de interesses, classificação do objeto, dossier; localizar contato institucional público; autorizar ou rejeitar outreach.",
       "outreach_message": "Prezados(as) de MUNICIPIO DE SAO MIGUEL D'OESTE,\n\nA CONFENGE presta apoio técnico especializado a órgãos públicos em planejamento de contratações de obras e serviços de engenharia, orçamentação e apoio técnico à fiscalização e à gestão contratual (sem substituir o fiscal público).\n\nCom base em dados públicos de contratações, identificamos sinais de possível necessidade técnica. Gostaríamos de apresentar nosso catálogo, se houver interesse institucional.\n\nAtenciosamente,\nCONFENGE",
       "compliance_blocks": [],
+      "compliance_flags": [
+        "recurring_same_nature_contracting",
+        "legal_classification_ambiguous",
+        "possible_expense_fragmentation_soft"
+      ],
       "require_conflict_check": true,
       "rank_position": 16
     },
@@ -9225,7 +9463,7 @@
         "municipio": "Pinhalzinho",
         "uf": "SC",
         "codigo_ibge": "4212908",
-        "populacao": 16321,
+        "populacao": 21972,
         "faixa_populacional": "10k_to_25k",
         "consorcio_publico": false,
         "autarquia": false,
@@ -9240,35 +9478,36 @@
         ],
         "identidade_canonica": "cnpj:83021857000115",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:18:42Z"
+        "last_verified_at": "2026-07-30T23:32:16Z"
       },
-      "mode": "REACTIVE_OPPORTUNITY",
+      "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
+      "mode_note": "REACTIVE only when open published opportunity is observed; historical buyer-side contracts alone yield PROACTIVE_INSTITUTIONAL_PROSPECT.",
       "score": {
         "agency_id": "6f91efa5e278b373",
-        "priority_score": 0.4775,
+        "priority_score": 0.3575,
         "need_score": 0.6,
         "service_fit_score": 0.45,
         "timing_score": 0.55,
         "evidence_quality_score": 0.9,
-        "institutional_accessibility_score": 0.7,
-        "commercial_readiness_score": 0.56,
-        "compliance_risk_score": 0.3,
+        "institutional_accessibility_score": 0.25,
+        "commercial_readiness_score": 0.47,
+        "compliance_risk_score": 0.6,
         "conflict_risk_score": 0.3,
         "decomposition": {
           "need": 0.18,
           "service_fit": 0.1125,
           "timing": 0.11,
           "evidence_quality": 0.135,
-          "institutional_accessibility": 0.07
+          "institutional_accessibility": 0.025
         },
         "penalties": {
-          "compliance_penalty": 0.075,
+          "compliance_penalty": 0.15,
           "conflict_penalty": 0.105
         },
         "supporting_signals": [
           "recent_publication_of_engineering_demand"
         ],
-        "explanation": "priority=0.427 need=0.60 fit=0.45 timing=0.55 evidence=0.90 access=0.70; material_signals=1; Oportunidade reativa com publicação/contrato observável.",
+        "explanation": "priority=0.307 need=0.60 fit=0.45 timing=0.55 evidence=0.90 access=0.25; material_signals=1; Prospect proativo: sinais de possível necessidade técnica (sem oportunidade formal isolada).",
         "selected_service_id": "PLANEJAMENTO_TECNICO_DA_CONTRATACAO"
       },
       "signals": [
@@ -9279,7 +9518,7 @@
           "weight": 0.05,
           "evidence": [
             {
-              "population": 16321,
+              "population": 21972,
               "threshold": 50000
             }
           ],
@@ -9311,8 +9550,8 @@
           "evidence": [
             {
               "eng_value": 432.0,
-              "population": 16321,
-              "per_capita": 0.03
+              "population": 21972,
+              "per_capita": 0.02
             }
           ],
           "limitations": [
@@ -9367,12 +9606,12 @@
         },
         {
           "signal_id": "institutional_contact_available",
-          "status": "FIRED",
+          "status": "NOT_FIRED",
           "confidence": 0.8,
           "weight": 0.05,
           "evidence": [
             {
-              "institutional_contact": true
+              "institutional_contact": false
             }
           ],
           "limitations": [],
@@ -9395,12 +9634,14 @@
         },
         {
           "signal_id": "possible_expense_fragmentation",
-          "status": "NOT_FIRED",
-          "confidence": 0.6,
-          "weight": 0.0,
+          "status": "FIRED",
+          "confidence": 0.7,
+          "weight": -0.15,
           "evidence": [
             {
-              "indicators": []
+              "indicators": [
+                "recurring_same_nature_contracting"
+              ]
             }
           ],
           "limitations": [],
@@ -9501,17 +9742,20 @@
         "commercial_ceiling_allegation_allowed": false
       },
       "fragmentation": {
-        "fragmentation_suspected": false,
-        "severity": "NONE",
-        "indicators": [],
-        "annual_sum_same_nature": null,
+        "fragmentation_suspected": true,
+        "severity": "MEDIUM",
+        "indicators": [
+          "recurring_same_nature_contracting"
+        ],
+        "annual_sum_same_nature": 14600.56,
         "annual_sum_known": false,
         "annual_sum_state": "DIRECT_CONTRACTING_SUM_UNKNOWN",
         "packages": [],
         "blocks_eligibility_claim": false,
         "pricing_near_ceiling": false,
-        "notes": "Teto legal é filtro de elegibilidade potencial, não âncora de preço. Preço deve decorrer de escopo, esforço, responsabilidade técnica e riscos. Somatório anual: DIRECT_CONTRACTING_SUM_UNKNOWN.",
-        "observed_contract_sum_in_sample": 14600.56
+        "notes": "Teto legal é filtro de elegibilidade potencial, não âncora de preço. Preço deve decorrer de escopo, esforço, responsabilidade técnica e riscos. Somatório anual: DIRECT_CONTRACTING_SUM_UNKNOWN. Somatório observado no sample de contratos não equivale a ledger anual completo da UG.",
+        "observed_contract_sum_in_sample": 14600.56,
+        "annual_ledger_complete": false
       },
       "conflict": {
         "state": "CONFLICT_CHECK_PENDING",
@@ -9529,7 +9773,10 @@
         "notes": "Sem match automático de bloqueio. Isso NÃO prova ausência de conflito. Outreach exige CONFLICT_CLEARED_BY_HUMAN_REVIEW."
       },
       "contacts": {
-        "accepted": [
+        "accepted": [],
+        "rejected": [],
+        "has_institutional": false,
+        "research_actions": [
           {
             "channel": "sector",
             "value": "Pesquisar e-mail institucional do setor de licitações/obras de Pinhalzinho/SC em portal oficial",
@@ -9539,8 +9786,7 @@
             "notes": "Justificativa de pesquisa adicional — sem contato pessoal."
           }
         ],
-        "rejected": [],
-        "has_institutional": true
+        "note": "Nenhum e-mail/telefone institucional capturado nesta rodada; há apenas justificativa de pesquisa adicional em portal oficial."
       },
       "publishability": {
         "category": "PUBLISHABLE",
@@ -9793,14 +10039,21 @@
       "last_publication": "2026-07-08",
       "limitations": [
         "Somatório anual completo da UG não disponível (DIRECT_CONTRACTING_SUM_UNKNOWN).",
-        "População IBGE usada como contexto, não como prova de baixa capacidade.",
+        "População IBGE Censo 2022 (API oficial) é contexto, não prova de baixa capacidade.",
+        "Sem contato institucional capturado — apenas research action.",
+        "Modo proativo: não há edital/aviso aberto observado nesta fonte.",
         "Sem outreach automático."
       ],
-      "probable_problem": "Contratos de engenharia recorrentes e/ou sinais de execução longa — possível necessidade de planejamento, orçamento, revisão ou apoio à fiscalização.",
-      "recommended_approach": "Apresentar capacidade técnica e redução de risco; não vender dispensa de licitação.",
-      "next_human_step": "Revisar conflito de interesses, classificação do objeto, dossier e autorizar ou rejeitar outreach manualmente.",
+      "probable_problem": "Sinais de possível necessidade técnica (histórico de contratações de engenharia / execução longa) — prospecção proativa institucional; não afirma que o órgão está contratando no momento.",
+      "recommended_approach": "Apresentar capacidade técnica e redução de risco; não vender dispensa de licitação. Pesquisar canal institucional oficial antes de qualquer contato.",
+      "next_human_step": "Revisar conflito de interesses, classificação do objeto, dossier; localizar contato institucional público; autorizar ou rejeitar outreach.",
       "outreach_message": "Prezados(as) de MUNICÍPIO DE PINHALZINHO,\n\nA CONFENGE presta apoio técnico especializado a órgãos públicos em planejamento de contratações de obras e serviços de engenharia, orçamentação e apoio técnico à fiscalização e à gestão contratual (sem substituir o fiscal público).\n\nCom base em dados públicos de contratações, identificamos sinais de possível necessidade técnica. Gostaríamos de apresentar nosso catálogo, se houver interesse institucional.\n\nAtenciosamente,\nCONFENGE",
       "compliance_blocks": [],
+      "compliance_flags": [
+        "recurring_same_nature_contracting",
+        "legal_classification_ambiguous",
+        "possible_expense_fragmentation_soft"
+      ],
       "require_conflict_check": true,
       "rank_position": 17
     },
@@ -9818,7 +10071,7 @@
         "municipio": "São Bento do Sul",
         "uf": "SC",
         "codigo_ibge": "4215802",
-        "populacao": 85295,
+        "populacao": 83277,
         "faixa_populacional": "50k_to_100k",
         "consorcio_publico": false,
         "autarquia": false,
@@ -9833,36 +10086,37 @@
         ],
         "identidade_canonica": "cnpj:83788281000116",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:18:39Z"
+        "last_verified_at": "2026-07-30T23:32:09Z"
       },
-      "mode": "REACTIVE_OPPORTUNITY",
+      "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
+      "mode_note": "REACTIVE only when open published opportunity is observed; historical buyer-side contracts alone yield PROACTIVE_INSTITUTIONAL_PROSPECT.",
       "score": {
         "agency_id": "63c009dec8aaa5dd",
-        "priority_score": 0.4675,
+        "priority_score": 0.3475,
         "need_score": 0.65,
         "service_fit_score": 0.55,
         "timing_score": 0.55,
         "evidence_quality_score": 0.4,
-        "institutional_accessibility_score": 0.7,
-        "commercial_readiness_score": 0.455,
-        "compliance_risk_score": 0.0,
+        "institutional_accessibility_score": 0.25,
+        "commercial_readiness_score": 0.365,
+        "compliance_risk_score": 0.3,
         "conflict_risk_score": 0.3,
         "decomposition": {
           "need": 0.195,
           "service_fit": 0.1375,
           "timing": 0.11,
           "evidence_quality": 0.06,
-          "institutional_accessibility": 0.07
+          "institutional_accessibility": 0.025
         },
         "penalties": {
-          "compliance_penalty": 0.0,
+          "compliance_penalty": 0.075,
           "conflict_penalty": 0.105
         },
         "supporting_signals": [
           "works_or_services_with_long_execution",
           "recent_publication_of_engineering_demand"
         ],
-        "explanation": "priority=0.467 need=0.65 fit=0.55 timing=0.55 evidence=0.40 access=0.70; material_signals=2; Oportunidade reativa com publicação/contrato observável.",
+        "explanation": "priority=0.347 need=0.65 fit=0.55 timing=0.55 evidence=0.40 access=0.25; material_signals=2; Prospect proativo: sinais de possível necessidade técnica (sem oportunidade formal isolada).",
         "selected_service_id": "REVISAO_PRE_PUBLICACAO"
       },
       "signals": [
@@ -9873,7 +10127,7 @@
           "weight": 0.05,
           "evidence": [
             {
-              "population": 85295,
+              "population": 83277,
               "threshold": 50000
             }
           ],
@@ -9905,8 +10159,8 @@
           "evidence": [
             {
               "eng_value": 443500.0,
-              "population": 85295,
-              "per_capita": 5.2
+              "population": 83277,
+              "per_capita": 5.33
             }
           ],
           "limitations": [
@@ -9961,12 +10215,12 @@
         },
         {
           "signal_id": "institutional_contact_available",
-          "status": "FIRED",
+          "status": "NOT_FIRED",
           "confidence": 0.8,
           "weight": 0.05,
           "evidence": [
             {
-              "institutional_contact": true
+              "institutional_contact": false
             }
           ],
           "limitations": [],
@@ -9989,12 +10243,14 @@
         },
         {
           "signal_id": "possible_expense_fragmentation",
-          "status": "NOT_FIRED",
-          "confidence": 0.6,
-          "weight": 0.0,
+          "status": "FIRED",
+          "confidence": 0.7,
+          "weight": -0.15,
           "evidence": [
             {
-              "indicators": []
+              "indicators": [
+                "sample_same_nature_sum_above_ceiling_incomplete_ledger"
+              ]
             }
           ],
           "limitations": [],
@@ -10100,16 +10356,19 @@
       },
       "fragmentation": {
         "fragmentation_suspected": false,
-        "severity": "NONE",
-        "indicators": [],
-        "annual_sum_same_nature": null,
+        "severity": "LOW",
+        "indicators": [
+          "sample_same_nature_sum_above_ceiling_incomplete_ledger"
+        ],
+        "annual_sum_same_nature": 443500.0,
         "annual_sum_known": false,
         "annual_sum_state": "DIRECT_CONTRACTING_SUM_UNKNOWN",
         "packages": [],
         "blocks_eligibility_claim": false,
         "pricing_near_ceiling": false,
-        "notes": "Teto legal é filtro de elegibilidade potencial, não âncora de preço. Preço deve decorrer de escopo, esforço, responsabilidade técnica e riscos. Somatório anual: DIRECT_CONTRACTING_SUM_UNKNOWN.",
-        "observed_contract_sum_in_sample": 443500.0
+        "notes": "Teto legal é filtro de elegibilidade potencial, não âncora de preço. Preço deve decorrer de escopo, esforço, responsabilidade técnica e riscos. Somatório anual: DIRECT_CONTRACTING_SUM_UNKNOWN. Somatório observado no sample de contratos não equivale a ledger anual completo da UG.",
+        "observed_contract_sum_in_sample": 443500.0,
+        "annual_ledger_complete": false
       },
       "conflict": {
         "state": "CONFLICT_CHECK_PENDING",
@@ -10127,7 +10386,10 @@
         "notes": "Sem match automático de bloqueio. Isso NÃO prova ausência de conflito. Outreach exige CONFLICT_CLEARED_BY_HUMAN_REVIEW."
       },
       "contacts": {
-        "accepted": [
+        "accepted": [],
+        "rejected": [],
+        "has_institutional": false,
+        "research_actions": [
           {
             "channel": "sector",
             "value": "Pesquisar e-mail institucional do setor de licitações/obras de São Bento do Sul/SC em portal oficial",
@@ -10137,8 +10399,7 @@
             "notes": "Justificativa de pesquisa adicional — sem contato pessoal."
           }
         ],
-        "rejected": [],
-        "has_institutional": true
+        "note": "Nenhum e-mail/telefone institucional capturado nesta rodada; há apenas justificativa de pesquisa adicional em portal oficial."
       },
       "publishability": {
         "category": "PUBLISHABLE",
@@ -10223,14 +10484,19 @@
       "last_publication": "2026-07-08",
       "limitations": [
         "Somatório anual completo da UG não disponível (DIRECT_CONTRACTING_SUM_UNKNOWN).",
-        "População IBGE usada como contexto, não como prova de baixa capacidade.",
+        "População IBGE Censo 2022 (API oficial) é contexto, não prova de baixa capacidade.",
+        "Sem contato institucional capturado — apenas research action.",
+        "Modo proativo: não há edital/aviso aberto observado nesta fonte.",
         "Sem outreach automático."
       ],
-      "probable_problem": "Contratos de engenharia recorrentes e/ou sinais de execução longa — possível necessidade de planejamento, orçamento, revisão ou apoio à fiscalização.",
-      "recommended_approach": "Apresentar capacidade técnica e redução de risco; não vender dispensa de licitação.",
-      "next_human_step": "Revisar conflito de interesses, classificação do objeto, dossier e autorizar ou rejeitar outreach manualmente.",
+      "probable_problem": "Sinais de possível necessidade técnica (histórico de contratações de engenharia / execução longa) — prospecção proativa institucional; não afirma que o órgão está contratando no momento.",
+      "recommended_approach": "Apresentar capacidade técnica e redução de risco; não vender dispensa de licitação. Pesquisar canal institucional oficial antes de qualquer contato.",
+      "next_human_step": "Revisar conflito de interesses, classificação do objeto, dossier; localizar contato institucional público; autorizar ou rejeitar outreach.",
       "outreach_message": "Prezados(as) de Fundação Cultural de São Bento do Sul,\n\nA CONFENGE presta apoio técnico especializado a órgãos públicos em planejamento de contratações de obras e serviços de engenharia, orçamentação e apoio técnico à fiscalização e à gestão contratual (sem substituir o fiscal público).\n\nCom base em dados públicos de contratações, identificamos sinais de possível necessidade técnica. Gostaríamos de apresentar nosso catálogo, se houver interesse institucional.\n\nAtenciosamente,\nCONFENGE",
       "compliance_blocks": [],
+      "compliance_flags": [
+        "sample_same_nature_sum_above_ceiling_incomplete_ledger"
+      ],
       "require_conflict_check": true,
       "rank_position": 18
     },
@@ -10248,7 +10514,7 @@
         "municipio": "Paulo Lopes",
         "uf": "SC",
         "codigo_ibge": "4212304",
-        "populacao": 7234,
+        "populacao": 9063,
         "faixa_populacional": "up_to_10k",
         "consorcio_publico": false,
         "autarquia": false,
@@ -10263,36 +10529,37 @@
         ],
         "identidade_canonica": "cnpj:82892365000132",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:18:38Z"
+        "last_verified_at": "2026-07-30T23:32:08Z"
       },
       "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
+      "mode_note": "REACTIVE only when open published opportunity is observed; historical buyer-side contracts alone yield PROACTIVE_INSTITUTIONAL_PROSPECT.",
       "score": {
         "agency_id": "9c4e4aaa1cfc4f65",
-        "priority_score": 0.4525,
+        "priority_score": 0.3325,
         "need_score": 0.75,
         "service_fit_score": 0.45,
         "timing_score": 0.2,
         "evidence_quality_score": 0.9,
-        "institutional_accessibility_score": 0.7,
-        "commercial_readiness_score": 0.575,
-        "compliance_risk_score": 0.3,
+        "institutional_accessibility_score": 0.25,
+        "commercial_readiness_score": 0.485,
+        "compliance_risk_score": 0.6,
         "conflict_risk_score": 0.3,
         "decomposition": {
           "need": 0.225,
           "service_fit": 0.1125,
           "timing": 0.04,
           "evidence_quality": 0.135,
-          "institutional_accessibility": 0.07
+          "institutional_accessibility": 0.025
         },
         "penalties": {
-          "compliance_penalty": 0.075,
+          "compliance_penalty": 0.15,
           "conflict_penalty": 0.105
         },
         "supporting_signals": [
           "high_engineering_spend_relative_to_population",
           "works_or_services_with_long_execution"
         ],
-        "explanation": "priority=0.402 need=0.75 fit=0.45 timing=0.20 evidence=0.90 access=0.70; material_signals=2; Prospect proativo: sinais de possível necessidade técnica (sem oportunidade formal isolada).",
+        "explanation": "priority=0.282 need=0.75 fit=0.45 timing=0.20 evidence=0.90 access=0.25; material_signals=2; Prospect proativo: sinais de possível necessidade técnica (sem oportunidade formal isolada).",
         "selected_service_id": "ORCAMENTO_E_PLANEJAMENTO_DE_OBRAS"
       },
       "signals": [
@@ -10303,7 +10570,7 @@
           "weight": 0.05,
           "evidence": [
             {
-              "population": 7234,
+              "population": 9063,
               "threshold": 50000
             }
           ],
@@ -10335,8 +10602,8 @@
           "evidence": [
             {
               "eng_value": 1086043.29,
-              "population": 7234,
-              "per_capita": 150.13
+              "population": 9063,
+              "per_capita": 119.83
             }
           ],
           "limitations": [
@@ -10391,12 +10658,12 @@
         },
         {
           "signal_id": "institutional_contact_available",
-          "status": "FIRED",
+          "status": "NOT_FIRED",
           "confidence": 0.8,
           "weight": 0.05,
           "evidence": [
             {
-              "institutional_contact": true
+              "institutional_contact": false
             }
           ],
           "limitations": [],
@@ -10419,12 +10686,14 @@
         },
         {
           "signal_id": "possible_expense_fragmentation",
-          "status": "NOT_FIRED",
-          "confidence": 0.6,
-          "weight": 0.0,
+          "status": "FIRED",
+          "confidence": 0.7,
+          "weight": -0.15,
           "evidence": [
             {
-              "indicators": []
+              "indicators": [
+                "recurring_same_nature_contracting"
+              ]
             }
           ],
           "limitations": [],
@@ -10525,17 +10794,20 @@
         "commercial_ceiling_allegation_allowed": false
       },
       "fragmentation": {
-        "fragmentation_suspected": false,
-        "severity": "NONE",
-        "indicators": [],
-        "annual_sum_same_nature": null,
+        "fragmentation_suspected": true,
+        "severity": "MEDIUM",
+        "indicators": [
+          "recurring_same_nature_contracting"
+        ],
+        "annual_sum_same_nature": 1181603.43,
         "annual_sum_known": false,
         "annual_sum_state": "DIRECT_CONTRACTING_SUM_UNKNOWN",
         "packages": [],
         "blocks_eligibility_claim": false,
         "pricing_near_ceiling": false,
-        "notes": "Teto legal é filtro de elegibilidade potencial, não âncora de preço. Preço deve decorrer de escopo, esforço, responsabilidade técnica e riscos. Somatório anual: DIRECT_CONTRACTING_SUM_UNKNOWN.",
-        "observed_contract_sum_in_sample": 1181603.43
+        "notes": "Teto legal é filtro de elegibilidade potencial, não âncora de preço. Preço deve decorrer de escopo, esforço, responsabilidade técnica e riscos. Somatório anual: DIRECT_CONTRACTING_SUM_UNKNOWN. Somatório observado no sample de contratos não equivale a ledger anual completo da UG.",
+        "observed_contract_sum_in_sample": 1181603.43,
+        "annual_ledger_complete": false
       },
       "conflict": {
         "state": "CONFLICT_CHECK_PENDING",
@@ -10553,7 +10825,10 @@
         "notes": "Sem match automático de bloqueio. Isso NÃO prova ausência de conflito. Outreach exige CONFLICT_CLEARED_BY_HUMAN_REVIEW."
       },
       "contacts": {
-        "accepted": [
+        "accepted": [],
+        "rejected": [],
+        "has_institutional": false,
+        "research_actions": [
           {
             "channel": "sector",
             "value": "Pesquisar e-mail institucional do setor de licitações/obras de Paulo Lopes/SC em portal oficial",
@@ -10563,8 +10838,7 @@
             "notes": "Justificativa de pesquisa adicional — sem contato pessoal."
           }
         ],
-        "rejected": [],
-        "has_institutional": true
+        "note": "Nenhum e-mail/telefone institucional capturado nesta rodada; há apenas justificativa de pesquisa adicional em portal oficial."
       },
       "publishability": {
         "category": "PUBLISHABLE",
@@ -10842,14 +11116,21 @@
       "last_publication": "2026-07-09",
       "limitations": [
         "Somatório anual completo da UG não disponível (DIRECT_CONTRACTING_SUM_UNKNOWN).",
-        "População IBGE usada como contexto, não como prova de baixa capacidade.",
+        "População IBGE Censo 2022 (API oficial) é contexto, não prova de baixa capacidade.",
+        "Sem contato institucional capturado — apenas research action.",
+        "Modo proativo: não há edital/aviso aberto observado nesta fonte.",
         "Sem outreach automático."
       ],
-      "probable_problem": "Contratos de engenharia recorrentes e/ou sinais de execução longa — possível necessidade de planejamento, orçamento, revisão ou apoio à fiscalização.",
-      "recommended_approach": "Apresentar capacidade técnica e redução de risco; não vender dispensa de licitação.",
-      "next_human_step": "Revisar conflito de interesses, classificação do objeto, dossier e autorizar ou rejeitar outreach manualmente.",
+      "probable_problem": "Sinais de possível necessidade técnica (histórico de contratações de engenharia / execução longa) — prospecção proativa institucional; não afirma que o órgão está contratando no momento.",
+      "recommended_approach": "Apresentar capacidade técnica e redução de risco; não vender dispensa de licitação. Pesquisar canal institucional oficial antes de qualquer contato.",
+      "next_human_step": "Revisar conflito de interesses, classificação do objeto, dossier; localizar contato institucional público; autorizar ou rejeitar outreach.",
       "outreach_message": "Prezados(as) de MUNICÍPIO DE PAULO LOPES,\n\nA CONFENGE presta apoio técnico especializado a órgãos públicos em planejamento de contratações de obras e serviços de engenharia, orçamentação e apoio técnico à fiscalização e à gestão contratual (sem substituir o fiscal público).\n\nCom base em dados públicos de contratações, identificamos sinais de possível necessidade técnica. Gostaríamos de apresentar nosso catálogo, se houver interesse institucional.\n\nAtenciosamente,\nCONFENGE",
       "compliance_blocks": [],
+      "compliance_flags": [
+        "recurring_same_nature_contracting",
+        "legal_classification_ambiguous",
+        "possible_expense_fragmentation_soft"
+      ],
       "require_conflict_check": true,
       "rank_position": 19
     },
@@ -10867,7 +11148,7 @@
         "municipio": "Xanxerê",
         "uf": "SC",
         "codigo_ibge": "4219507",
-        "populacao": 51612,
+        "populacao": 51607,
         "faixa_populacional": "50k_to_100k",
         "consorcio_publico": false,
         "autarquia": false,
@@ -10882,36 +11163,37 @@
         ],
         "identidade_canonica": "cnpj:83009860000113",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-30T23:18:44Z"
+        "last_verified_at": "2026-07-30T23:32:17Z"
       },
-      "mode": "REACTIVE_OPPORTUNITY",
+      "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
+      "mode_note": "REACTIVE only when open published opportunity is observed; historical buyer-side contracts alone yield PROACTIVE_INSTITUTIONAL_PROSPECT.",
       "score": {
         "agency_id": "444fb273d015e685",
-        "priority_score": 0.4425,
+        "priority_score": 0.3225,
         "need_score": 0.65,
         "service_fit_score": 0.45,
         "timing_score": 0.55,
         "evidence_quality_score": 0.9,
-        "institutional_accessibility_score": 0.7,
-        "commercial_readiness_score": 0.565,
-        "compliance_risk_score": 0.3,
+        "institutional_accessibility_score": 0.25,
+        "commercial_readiness_score": 0.475,
+        "compliance_risk_score": 0.6,
         "conflict_risk_score": 0.3,
         "decomposition": {
           "need": 0.195,
           "service_fit": 0.1125,
           "timing": 0.11,
           "evidence_quality": 0.135,
-          "institutional_accessibility": 0.07
+          "institutional_accessibility": 0.025
         },
         "penalties": {
-          "compliance_penalty": 0.075,
+          "compliance_penalty": 0.15,
           "conflict_penalty": 0.105
         },
         "supporting_signals": [
           "works_or_services_with_long_execution",
           "recent_publication_of_engineering_demand"
         ],
-        "explanation": "priority=0.443 need=0.65 fit=0.45 timing=0.55 evidence=0.90 access=0.70; material_signals=2; Oportunidade reativa com publicação/contrato observável.",
+        "explanation": "priority=0.323 need=0.65 fit=0.45 timing=0.55 evidence=0.90 access=0.25; material_signals=2; Prospect proativo: sinais de possível necessidade técnica (sem oportunidade formal isolada).",
         "selected_service_id": "REVISAO_PRE_PUBLICACAO"
       },
       "signals": [
@@ -10922,7 +11204,7 @@
           "weight": 0.05,
           "evidence": [
             {
-              "population": 51612,
+              "population": 51607,
               "threshold": 50000
             }
           ],
@@ -10954,7 +11236,7 @@
           "evidence": [
             {
               "eng_value": 24060.0,
-              "population": 51612,
+              "population": 51607,
               "per_capita": 0.47
             }
           ],
@@ -11010,12 +11292,12 @@
         },
         {
           "signal_id": "institutional_contact_available",
-          "status": "FIRED",
+          "status": "NOT_FIRED",
           "confidence": 0.8,
           "weight": 0.05,
           "evidence": [
             {
-              "institutional_contact": true
+              "institutional_contact": false
             }
           ],
           "limitations": [],
@@ -11038,12 +11320,14 @@
         },
         {
           "signal_id": "possible_expense_fragmentation",
-          "status": "NOT_FIRED",
-          "confidence": 0.6,
-          "weight": 0.0,
+          "status": "FIRED",
+          "confidence": 0.7,
+          "weight": -0.15,
           "evidence": [
             {
-              "indicators": []
+              "indicators": [
+                "recurring_same_nature_contracting"
+              ]
             }
           ],
           "limitations": [],
@@ -11144,17 +11428,20 @@
         "commercial_ceiling_allegation_allowed": false
       },
       "fragmentation": {
-        "fragmentation_suspected": false,
-        "severity": "NONE",
-        "indicators": [],
-        "annual_sum_same_nature": null,
+        "fragmentation_suspected": true,
+        "severity": "MEDIUM",
+        "indicators": [
+          "recurring_same_nature_contracting"
+        ],
+        "annual_sum_same_nature": 1571577.38,
         "annual_sum_known": false,
         "annual_sum_state": "DIRECT_CONTRACTING_SUM_UNKNOWN",
         "packages": [],
         "blocks_eligibility_claim": false,
         "pricing_near_ceiling": false,
-        "notes": "Teto legal é filtro de elegibilidade potencial, não âncora de preço. Preço deve decorrer de escopo, esforço, responsabilidade técnica e riscos. Somatório anual: DIRECT_CONTRACTING_SUM_UNKNOWN.",
-        "observed_contract_sum_in_sample": 1571577.38
+        "notes": "Teto legal é filtro de elegibilidade potencial, não âncora de preço. Preço deve decorrer de escopo, esforço, responsabilidade técnica e riscos. Somatório anual: DIRECT_CONTRACTING_SUM_UNKNOWN. Somatório observado no sample de contratos não equivale a ledger anual completo da UG.",
+        "observed_contract_sum_in_sample": 1571577.38,
+        "annual_ledger_complete": false
       },
       "conflict": {
         "state": "CONFLICT_CHECK_PENDING",
@@ -11172,7 +11459,10 @@
         "notes": "Sem match automático de bloqueio. Isso NÃO prova ausência de conflito. Outreach exige CONFLICT_CLEARED_BY_HUMAN_REVIEW."
       },
       "contacts": {
-        "accepted": [
+        "accepted": [],
+        "rejected": [],
+        "has_institutional": false,
+        "research_actions": [
           {
             "channel": "sector",
             "value": "Pesquisar e-mail institucional do setor de licitações/obras de Xanxerê/SC em portal oficial",
@@ -11182,8 +11472,7 @@
             "notes": "Justificativa de pesquisa adicional — sem contato pessoal."
           }
         ],
-        "rejected": [],
-        "has_institutional": true
+        "note": "Nenhum e-mail/telefone institucional capturado nesta rodada; há apenas justificativa de pesquisa adicional em portal oficial."
       },
       "publishability": {
         "category": "PUBLISHABLE",
@@ -11444,14 +11733,21 @@
       "last_publication": "2026-07-08",
       "limitations": [
         "Somatório anual completo da UG não disponível (DIRECT_CONTRACTING_SUM_UNKNOWN).",
-        "População IBGE usada como contexto, não como prova de baixa capacidade.",
+        "População IBGE Censo 2022 (API oficial) é contexto, não prova de baixa capacidade.",
+        "Sem contato institucional capturado — apenas research action.",
+        "Modo proativo: não há edital/aviso aberto observado nesta fonte.",
         "Sem outreach automático."
       ],
-      "probable_problem": "Contratos de engenharia recorrentes e/ou sinais de execução longa — possível necessidade de planejamento, orçamento, revisão ou apoio à fiscalização.",
-      "recommended_approach": "Apresentar capacidade técnica e redução de risco; não vender dispensa de licitação.",
-      "next_human_step": "Revisar conflito de interesses, classificação do objeto, dossier e autorizar ou rejeitar outreach manualmente.",
+      "probable_problem": "Sinais de possível necessidade técnica (histórico de contratações de engenharia / execução longa) — prospecção proativa institucional; não afirma que o órgão está contratando no momento.",
+      "recommended_approach": "Apresentar capacidade técnica e redução de risco; não vender dispensa de licitação. Pesquisar canal institucional oficial antes de qualquer contato.",
+      "next_human_step": "Revisar conflito de interesses, classificação do objeto, dossier; localizar contato institucional público; autorizar ou rejeitar outreach.",
       "outreach_message": "Prezados(as) de MUNICÍPIO DE XANXERÊ,\n\nA CONFENGE presta apoio técnico especializado a órgãos públicos em planejamento de contratações de obras e serviços de engenharia, orçamentação e apoio técnico à fiscalização e à gestão contratual (sem substituir o fiscal público).\n\nCom base em dados públicos de contratações, identificamos sinais de possível necessidade técnica. Gostaríamos de apresentar nosso catálogo, se houver interesse institucional.\n\nAtenciosamente,\nCONFENGE",
       "compliance_blocks": [],
+      "compliance_flags": [
+        "recurring_same_nature_contracting",
+        "legal_classification_ambiguous",
+        "possible_expense_fragmentation_soft"
+      ],
       "require_conflict_check": true,
       "rank_position": 20
     }
