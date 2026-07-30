@@ -16,11 +16,11 @@
   "evidence_commit_sha": "8506aebabb0dab327654d420222402ae15f9a3aa",
   "workflow_head_sha": "8506aebabb0dab327654d420222402ae15f9a3aa",
   "workflow_artifact_head_sha": "6dcab34860fb016aa1ef3152db4d9b0ae97adae6",
-  "artifact_git_sha": "f68882edc079cb40929aecad431c9565c6f17b13",
-  "run_git_sha": "f68882edc079cb40929aecad431c9565c6f17b13",
-  "gate_git_sha": "f68882edc079cb40929aecad431c9565c6f17b13",
-  "review_git_sha": "f68882edc079cb40929aecad431c9565c6f17b13",
-  "git_sha": "f68882edc079cb40929aecad431c9565c6f17b13",
+  "artifact_git_sha": "7243b87ff8158a8026ccba6c4690a42b09884b07",
+  "run_git_sha": "7243b87ff8158a8026ccba6c4690a42b09884b07",
+  "gate_git_sha": "7243b87ff8158a8026ccba6c4690a42b09884b07",
+  "review_git_sha": "7243b87ff8158a8026ccba6c4690a42b09884b07",
+  "git_sha": "7243b87ff8158a8026ccba6c4690a42b09884b07",
   "match_run_to_head": true,
   "code_changed_after_execution": false,
   "artifact_only_commits_after_execution": false,
@@ -62,5 +62,12 @@
   "branch": "campaign/confenge-commercial-ready-01",
   "updated_at": "2026-07-27T15:09:20Z",
   "code_evolution_note": "Re-bound after activation; READY-01 historical BLOCKED.",
-  "activation_campaign": "CONFENGE-COMMERCIAL-ACTIVATION-AND-OUTCOME-LOOP-01"
+  "activation_campaign": "CONFENGE-COMMERCIAL-ACTIVATION-AND-OUTCOME-LOOP-01",
+  "sha_binding": {
+    "bound_to": "7243b87ff8158a8026ccba6c4690a42b09884b07",
+    "note": "Rebound to PR A squash merge SHA after #172 so bound_sha is git-ancestor of main tips (pre-squash freeze commit f68882ed is not in main linear history after squash).",
+    "match_run_to_head": false,
+    "freeze_code_sha": "f68882edc079cb40929aecad431c9565c6f17b13"
+  },
+  "binding_rebind_at": "2026-07-30T01:26:25Z"
 }
