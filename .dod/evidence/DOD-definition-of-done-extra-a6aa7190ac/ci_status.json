@@ -1,10 +1,6 @@
 {
   "conclusion": "success",
-  "head_sha": "b2895ecb7e86ddf72317d40fa48b608103928fbe",
-  "merge_sha": "93b1447cc1f2b43c353d5f8f4b6ed714c671a6cf",
-  "pr": 176,
-  "pr_a": 173,
-  "pr_a_sha": "97da2c49bcd9ce713738dd326b589a120498abb8",
+  "head_sha": "d39ed05d2e50261bab9ce0804d3df694d29c8fc2",
   "mandatory_jobs_skipped": [],
   "required_jobs": {
     "Lint (ruff)": "success",
@@ -16,15 +12,11 @@
     "Security (bandit)": "success",
     "Dependency Audit (pip-audit)": "success",
     "Generated Artifacts Policy": "success",
-    "PR Reviewability Policy": "success",
     "Pytest Skip Policy": "success"
   },
-  "non_required_failures": {
-    "CONFENGE Commercial Code Quality": "failure",
-    "note": "Not in branch protection required contexts; commercial freeze binding unrelated to this campaign"
-  },
-  "source": "GitHub Actions PR #176 checks after rebase; required contexts all success before merge",
-  "workflow_run": "https://github.com/tjsasakifln/extra-cli/actions/runs/30508183866",
-  "as_of": "2026-07-30T02:34:54Z",
-  "integrity_remediation": true
+  "source": "Re-accept on main d39ed05d2e50 after integrity remediation #177",
+  "as_of": "2026-07-30T02:49:13Z",
+  "main_reaccept": true,
+  "workflow_probe": "https://github.com/tjsasakifln/extra-cli/commits/d39ed05d2e50261bab9ce0804d3df694d29c8fc2",
+  "non_required_note": "CONFENGE Commercial Code Quality not in branch protection required contexts"
 }

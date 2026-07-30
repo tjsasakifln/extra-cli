@@ -2,30 +2,35 @@
   "campaign_id": "DOD-LOW-HANGING-BOUNDARIES-AND-EVIDENCE-01",
   "status": "PASS",
   "substatus": "PASS_LOW_HANGING_ACCEPTED",
-  "generated_at": "2026-07-30T02:35:59.293444+00:00",
+  "strict_section15_pr_budget_compliance": false,
+  "generated_at": "2026-07-30T03:23:19.823673+00:00",
   "baseline_main_sha": "e39a75f35224cdf1acd34c2a8eb2f5ea08fa220e",
-  "pr_a": 173,
-  "pr_a_merge_sha": "97da2c49bcd9ce713738dd326b589a120498abb8",
-  "pr_b": 176,
-  "pr_b_head_sha": "b2895ecb7e86ddf72317d40fa48b608103928fbe",
-  "pr_b_merge_sha": "93b1447cc1f2b43c353d5f8f4b6ed714c671a6cf",
-  "required_ci_on_pr_b": "all_success",
-  "non_required_ci_failures": [
-    "CONFENGE Commercial Code Quality"
-  ],
-  "accepted_in_pr_b": 39,
-  "demoted_integrity": [
-    {
-      "id": "DOD-definition-of-done-extra-75164c86da",
-      "flipped": true,
-      "reason": "POLICY-only: code_without_execution_is_not_done not enforced in dod_controller accept path"
+  "prs": {
+    "A_harness": {
+      "number": 173,
+      "merge": "97da2c49bcd9ce713738dd326b589a120498abb8"
     },
-    {
-      "id": "DOD-definition-of-done-extra-59ea375492",
-      "flipped": true,
-      "reason": "POLICY-only: unit_test_is_not_e2e; controller still accepts pure unit pytest as verify"
+    "B_promotion": {
+      "number": 176,
+      "head": "b2895ecb7e86ddf72317d40fa48b608103928fbe",
+      "merge": "93b1447cc1f2b43c353d5f8f4b6ed714c671a6cf"
+    },
+    "integrity_beyond_budget": {
+      "number": 177,
+      "merge": "d39ed05d2e50261bab9ce0804d3df694d29c8fc2",
+      "note": "violates absolute max 2 PRs; demotions + docs"
+    },
+    "main_reaccept": {
+      "note": "pending PR to publish main_gate=ok re-bind logs/ci_status"
     }
-  ],
+  },
+  "main_reaccept": {
+    "branch_at_accept": "main",
+    "head_sha": "d39ed05d2e50261bab9ce0804d3df694d29c8fc2",
+    "accepted_main_gate_ok": 37,
+    "bypassed": 0,
+    "failed": []
+  },
   "net_accepted_retained": 37,
   "accepted_ids": [
     "DOD-definition-of-done-extra-a362715e4d",
@@ -66,19 +71,32 @@
     "DOD-definition-of-done-extra-38c4c0fe6f",
     "DOD-rol-1-definition-of-done-bb9d5de811"
   ],
+  "demoted_integrity": [
+    {
+      "id": "DOD-definition-of-done-extra-75164c86da",
+      "flipped": true,
+      "reason": "POLICY-only: code_without_execution_is_not_done not enforced in dod_controller accept path"
+    },
+    {
+      "id": "DOD-definition-of-done-extra-59ea375492",
+      "flipped": true,
+      "reason": "POLICY-only: unit_test_is_not_e2e; controller still accepts pure unit pytest as verify"
+    }
+  ],
   "qa_verdict": "PASS_WITH_REDUCED_SET",
-  "integrity_remediation": true,
+  "required_ci": "success on main HEAD d39ed05d (Test All success observed before re-accept)",
+  "non_required_ci_failures": [
+    "CONFENGE Commercial Code Quality (not branch-protection required)"
+  ],
   "process_notes": [
-    "Promotion accepts used --allow-non-main on branch; required CI green before merge to main",
-    "ci_status.json rewritten from PR#173 prose to PR#176 required job map",
-    "Two POLICY-only governance items demoted"
+    "Original #176 accepts used --allow-non-main; remediated by re-accept on real main with main_gate=ok for all 37.",
+    "ci_status.json bound to d39ed05d at re-accept time (main_reaccept:true).",
+    "Objective §15 max 2 PRs violated by #177 integrity remediation (and this follow-up). Functional ≥20 accepts preserved."
   ],
   "non_claims": [
     "No 95% coverage/recall",
     "No VPS_OPERATIONAL/LOCAL_READY/PROJECT_DONE",
     "No commercial queue readiness",
     "Commercial CI failure not fixed by this campaign"
-  ],
-  "mutated_dod_in_harness": false,
-  "called_accept_in_harness": false
+  ]
 }
