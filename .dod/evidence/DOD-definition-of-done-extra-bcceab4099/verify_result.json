@@ -1,0 +1,65 @@
+{
+  "item_id": "DOD-definition-of-done-extra-bcceab4099",
+  "commands": [
+    {
+      "cmd": "python3 -m scripts.ops.dod_low_hanging_audit --cli-matrix-only",
+      "exit_code": 0,
+      "duration_s": 1.159,
+      "stdout_tail": "{\n  \"ok\": true,\n  \"cli_matrix\": \"/mnt/d/extra-cli-dod-low-hanging-promo/artifacts/campaigns/DOD-LOW-HANGING-BOUNDARIES-AND-EVIDENCE-01/cli-usability-matrix.json\"\n}\n",
+      "stderr_tail": "",
+      "env": {
+        "CI": null,
+        "GITHUB_ACTIONS": null,
+        "LOCAL_DATALAKE_DSN": {
+          "set": false,
+          "len": 0
+        },
+        "PYTEST_ADDOPTS": null,
+        "PATH": {
+          "set": true,
+          "len": 1919
+        },
+        "USER": "tjsasakifln",
+        "HOME": {
+          "set": true,
+          "len": 17
+        }
+      },
+      "skipped": false
+    }
+  ],
+  "tests": [],
+  "ok": true,
+  "notes": [],
+  "rejected_trivial": [],
+  "head_sha": "97da2c49bcd9ce713738dd326b589a120498abb8",
+  "env": {
+    "CI": null,
+    "GITHUB_ACTIONS": null,
+    "LOCAL_DATALAKE_DSN": {
+      "set": false,
+      "len": 0
+    },
+    "PYTEST_ADDOPTS": null,
+    "PATH": {
+      "set": true,
+      "len": 1919
+    },
+    "USER": "tjsasakifln",
+    "HOME": {
+      "set": true,
+      "len": 17
+    }
+  },
+  "started_at": "2026-07-30T01:49:55Z",
+  "duration_s": 1.159,
+  "substantive_runs": 1,
+  "totals": {
+    "passed": 1,
+    "failed": 0,
+    "skipped": 0,
+    "deselected": 0,
+    "error": 0
+  },
+  "finished_at": "2026-07-30T01:49:56Z"
+}

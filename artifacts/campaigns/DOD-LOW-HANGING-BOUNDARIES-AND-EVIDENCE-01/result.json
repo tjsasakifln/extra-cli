@@ -1,7 +1,7 @@
 {
   "campaign_id": "DOD-LOW-HANGING-BOUNDARIES-AND-EVIDENCE-01",
   "status": "PASS",
-  "substatus": "QA_PASS_WITH_REDUCED_SET_AWAITING_PR_A",
+  "substatus": "PASS_LOW_HANGING_ACCEPTED",
   "generated_at": "2026-07-30T00:41:19.838095+00:00",
   "root": "/mnt/d/extra-cli-dod-low-hanging",
   "selected": 59,
@@ -86,7 +86,7 @@
     "No claim of 95% coverage or recall",
     "No VPS_OPERATIONAL / LOCAL_READY / PROJECT_DONE",
     "No commercial queue readiness",
-    "Static proof ≠ live operational soak"
+    "Static proof \u2260 live operational soak"
   ],
   "mutated_dod": false,
   "called_accept": false,
@@ -136,5 +136,11 @@
     "DOD-rol-1-definition-of-done-3fb8978ae7",
     "DOD-rol-1-definition-of-done-b9c4d94a8e",
     "DOD-rol-1-definition-of-done-90c4a972f6"
-  ]
+  ],
+  "accepted_count": 39,
+  "verified_not_flipped": 3,
+  "promotion_note": "39 items ACCEPTED via controller with DOD checkbox; 3 ROL-1 orphans VERIFIED but checkbox not located (fingerprint/orphan)",
+  "completed_at": "2026-07-30T02:10:29.119781+00:00",
+  "pr_a": 173,
+  "pr_a_merge_sha": "97da2c49bcd9ce713738dd326b589a120498abb8"
 }
