@@ -38,10 +38,15 @@ export function JobDetailPage() {
   }, [id, qc]);
 
   const job = q.data?.job;
-  const firstArtifact = job?.artifacts?.[0] || null;
+  const preferredArtifact =
+    (job?.artifacts || []).find((a) => /\.pdf$/i.test(a)) ||
+    (job?.artifacts || []).find((a) => /\.xlsx$/i.test(a)) ||
+    (job?.artifacts || []).find((a) => !/stdout\.log|stderr\.log|run-manifest\.json$/i.test(a)) ||
+    job?.artifacts?.[0] ||
+    null;
   useEffect(() => {
-    if (firstArtifact && !previewPath) setPreviewPath(firstArtifact);
-  }, [firstArtifact, previewPath]);
+    if (preferredArtifact && !previewPath) setPreviewPath(preferredArtifact);
+  }, [preferredArtifact, previewPath]);
 
   const preview = useQuery({
     queryKey: ["artifact", previewPath],
@@ -100,6 +105,26 @@ export function JobDetailPage() {
             message={job.human_message}
             nextAction={job.next_action}
           />
+          <ol className="stage-timeline" aria-label="Etapas do fluxo">
+            {(
+              running
+                ? ["Preparando", "Coletando", "Processando", "Validando", "Gerando relatório"]
+                : ["Preparando", "Coletando", "Processando", "Validando", "Gerando relatório", "Concluído"]
+            ).map((label, idx, arr) => (
+              <li key={label}>
+                <StatusBadge
+                  attention={
+                    running && idx === arr.length - 1
+                      ? "running"
+                      : done || idx < arr.length - 1
+                        ? "healthy"
+                        : "running"
+                  }
+                />{" "}
+                {label}
+              </li>
+            ))}
+          </ol>
           <ul>
             <li>
               Início: {job.started_at ? new Date(job.started_at).toLocaleString("pt-BR") : "—"}
@@ -111,6 +136,13 @@ export function JobDetailPage() {
             </li>
           </ul>
           {cancelError ? <p role="alert">{cancelError}</p> : null}
+          {done && (job.artifacts || []).some((a) => a.includes("run-manifest") || a.endsWith(".pdf")) ? (
+            <p>
+              <Link className="btn btn-primary" to="/review">
+                Ir para revisões pendentes
+              </Link>
+            </p>
+          ) : null}
         </section>
         <section className="panel">
           <h2>Resultados desta atividade</h2>

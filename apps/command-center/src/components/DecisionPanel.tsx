@@ -11,6 +11,8 @@ export function DecisionPanel({
   evidence,
   limitations,
   risks,
+  question,
+  artifactHashes,
   onDecided,
 }: {
   itemId: string;
@@ -18,12 +20,17 @@ export function DecisionPanel({
   evidence: string;
   limitations: string;
   risks: string;
+  question?: string;
+  artifactHashes?: Record<string, string>;
   onDecided?: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const [result, setResult] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [phrase, setPhrase] = useState(FALLBACK_PHRASE);
+  const [rationale, setRationale] = useState("");
+  const [returnBy, setReturnBy] = useState("");
+  const [pendingDecision, setPendingDecision] = useState<"ACCEPT" | "REJECT" | "DEFER" | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -43,33 +50,54 @@ export function DecisionPanel({
   }, [itemId]);
 
   const request = (d: "ACCEPT" | "REJECT" | "DEFER") => {
-    if (d === "ACCEPT") {
-      setOpen(true);
-    } else {
-      void submit(d, "");
+    setError(null);
+    if (d === "REJECT" || d === "DEFER") {
+      if (rationale.trim().length < 8) {
+        setError("Informe uma justificativa real (mínimo 8 caracteres). O título sozinho não basta.");
+        return;
+      }
+      if (rationale.trim() === title.trim()) {
+        setError("A justificativa não pode ser apenas o título do item.");
+        return;
+      }
     }
+    if (d === "DEFER" && !returnBy.trim()) {
+      setError("Ao adiar, informe data ou condição de retorno.");
+      return;
+    }
+    if (d === "ACCEPT") {
+      setPendingDecision("ACCEPT");
+      setOpen(true);
+      return;
+    }
+    void submit(d, "");
   };
 
   const submit = async (d: "ACCEPT" | "REJECT" | "DEFER", confirmation: string) => {
     setError(null);
     try {
-      // Never send sensitive/confirmation_phrase — backend owns them.
+      const hashes = artifactHashes || {};
       const res = await client.saveDecision({
         item_id: itemId,
         decision: d,
         confirmation,
-        rationale: title,
+        rationale: rationale.trim() || (d === "ACCEPT" ? `Aceite consciente: ${title}` : rationale),
+        return_by: d === "DEFER" ? returnBy.trim() : undefined,
+        artifact_hashes: hashes,
         payload: {
           evidence,
           limitations,
           risks,
+          question,
+          artifact_hashes: hashes,
+          return_by: d === "DEFER" ? returnBy.trim() : undefined,
+          no_auto_outreach: true,
         },
       });
       if (res.blocked) {
         setResult(String(res.message));
       } else {
-        const label =
-          d === "ACCEPT" ? "Aceito" : d === "REJECT" ? "Recusado" : "Adiado";
+        const label = d === "ACCEPT" ? "Aceito" : d === "REJECT" ? "Recusado" : "Adiado";
         setResult(`Decisão registrada: ${label}.`);
         onDecided?.();
       }
@@ -77,6 +105,7 @@ export function DecisionPanel({
       setError(e instanceof Error ? e.message : String(e));
     } finally {
       setOpen(false);
+      setPendingDecision(null);
     }
   };
 
@@ -84,6 +113,14 @@ export function DecisionPanel({
     <div className="panel" style={{ boxShadow: "none", marginTop: 12 }}>
       <h3>Sua decisão</h3>
       <div className="stack" style={{ marginBottom: 12 }}>
+        {question ? (
+          <div>
+            <div className="muted" style={{ fontWeight: 600, fontSize: "0.82rem" }}>
+              Pergunta decisória
+            </div>
+            <p style={{ margin: "4px 0 0" }}>{question}</p>
+          </div>
+        ) : null}
         <div>
           <div className="muted" style={{ fontWeight: 600, fontSize: "0.82rem" }}>
             O que está em jogo
@@ -108,33 +145,62 @@ export function DecisionPanel({
           </div>
           <p style={{ margin: "4px 0 0", whiteSpace: "pre-wrap" }}>{risks}</p>
         </div>
+        {artifactHashes && Object.keys(artifactHashes).length > 0 ? (
+          <div>
+            <div className="muted" style={{ fontWeight: 600, fontSize: "0.82rem" }}>
+              Versão / hashes vinculados
+            </div>
+            <pre className="mono" style={{ fontSize: "0.75rem", whiteSpace: "pre-wrap" }}>
+              {JSON.stringify(artifactHashes, null, 2)}
+            </pre>
+          </div>
+        ) : null}
+        <label className="field">
+          <span>Justificativa (obrigatória em recusar/adiar)</span>
+          <textarea
+            rows={3}
+            value={rationale}
+            onChange={(e) => setRationale(e.target.value)}
+            placeholder="Descreva o motivo real da decisão"
+          />
+        </label>
+        <label className="field">
+          <span>Data ou condição de retorno (se adiar)</span>
+          <input
+            type="text"
+            value={returnBy}
+            onChange={(e) => setReturnBy(e.target.value)}
+            placeholder="ex.: 2026-08-15 ou após nova coleta PNCP"
+          />
+        </label>
       </div>
       <p className="muted" style={{ fontSize: "0.88rem" }}>
         O sistema <strong>nunca</strong> decide sozinho e <strong>não envia</strong> e-mail ou mensagem. Aceitar
-        só registra a sua intenção localmente.
+        só registra a sua intenção localmente, vinculada à versão exata das evidências.
       </p>
+      {error ? <p className="error-text">{error}</p> : null}
+      {result ? <p role="status">{result}</p> : null}
       <div className="row">
         <button type="button" className="btn" onClick={() => request("REJECT")}>
           Recusar
         </button>
         <button type="button" className="btn" onClick={() => request("DEFER")}>
-          Decidir depois
+          Adiar
         </button>
-        <button type="button" className="btn" onClick={() => request("ACCEPT")}>
-          Aceitar com confirmação
+        <button type="button" className="btn btn-primary" onClick={() => request("ACCEPT")}>
+          Aceitar
         </button>
       </div>
-      {result ? <p role="status">{result}</p> : null}
-      {error ? <p role="alert">{error}</p> : null}
       <ConfirmationDialog
         open={open}
         title="Confirmar aceite"
-        description="Leia as limitações e riscos. Para aceitar, digite a frase abaixo exatamente como aparece."
+        description="O aceite será vinculado aos hashes das evidências apresentadas. Alterações posteriores invalidam esta decisão."
         phrase={phrase}
-        confirmLabel="Registrar aceite"
-        dangerous
-        onCancel={() => setOpen(false)}
-        onConfirm={(typed) => void submit("ACCEPT", typed)}
+        onCancel={() => {
+          setOpen(false);
+          setPendingDecision(null);
+        }}
+        onConfirm={(typed) => void submit(pendingDecision || "ACCEPT", typed)}
       />
     </div>
   );

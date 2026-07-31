@@ -10,12 +10,15 @@ import { JobsPage } from "./pages/JobsPage";
 import { OnboardingPage } from "./pages/OnboardingPage";
 import { ReviewPage } from "./pages/ReviewPage";
 import { SearchPage } from "./pages/SearchPage";
+import { WorkStartPage } from "./pages/WorkStartPage";
 
 export default function App() {
   return (
     <Routes>
       <Route element={<AppShell />}>
         <Route index element={<HomePage />} />
+        <Route path="work/start" element={<WorkStartPage />} />
+        <Route path="work/start/:workflowId" element={<WorkStartPage />} />
         <Route path="extra" element={<AreaPage area="extra" />} />
         <Route path="confenge/suppliers" element={<AreaPage area="suppliers" />} />
         <Route path="confenge/agencies" element={<AreaPage area="agencies" />} />

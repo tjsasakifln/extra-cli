@@ -57,6 +57,21 @@ export function ReviewPage() {
                   evidence={String(item.evidence)}
                   limitations={String(item.limitations)}
                   risks={String(item.risks)}
+                  question={
+                    item.payload && typeof item.payload === "object"
+                      ? String((item.payload as Record<string, unknown>).question || "")
+                      : undefined
+                  }
+                  artifactHashes={
+                    item.payload && typeof item.payload === "object"
+                      ? ((item.payload as Record<string, unknown>).artifact_hashes as
+                          | Record<string, string>
+                          | undefined) ||
+                        ((item.payload as Record<string, unknown>).content_hash
+                          ? { source: String((item.payload as Record<string, unknown>).content_hash) }
+                          : undefined)
+                      : undefined
+                  }
                   onDecided={() => {
                     void qc.invalidateQueries({ queryKey: ["reviews"] });
                     void qc.invalidateQueries({ queryKey: ["decisions"] });

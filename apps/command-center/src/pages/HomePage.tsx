@@ -72,8 +72,36 @@ export function HomePage() {
         )}
       </section>
 
+      <section style={{ marginTop: 20 }} className="panel">
+        <h2 style={{ marginTop: 0 }}>Continuar de onde parei</h2>
+        {(data.jobs.recent || []).length === 0 ? (
+          <EmptyState title="Nenhuma atividade recente">
+            Inicie um fluxo em «Iniciar novo trabalho».
+          </EmptyState>
+        ) : (
+          <div className="stack">
+            {(data.jobs.recent || []).slice(0, 3).map((j) => (
+              <div className="row" key={String(j.job_id)} style={{ justifyContent: "space-between" }}>
+                <div>
+                  <strong>{String(j.action)}</strong>
+                  <div className="muted">{String(j.human_message || j.status)}</div>
+                </div>
+                <Link className="btn" to={`/jobs/${String(j.job_id)}`}>
+                  Abrir
+                </Link>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
       <section style={{ marginTop: 20 }}>
-        <h2 style={{ marginBottom: 12 }}>Ações principais</h2>
+        <div className="row" style={{ justifyContent: "space-between", marginBottom: 12 }}>
+          <h2 style={{ margin: 0 }}>Iniciar novo trabalho</h2>
+          <Link className="btn btn-primary" to="/work/start">
+            Ver todos os fluxos
+          </Link>
+        </div>
         <div className="grid-actions">
           {data.quick_actions.map((a) => (
             <Link key={a.id} className="action-card" to={a.href}>

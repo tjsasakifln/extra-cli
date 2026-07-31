@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://extra-cli.local/schemas/run-manifest-1.0.0.json",
+  "title": "Command Center Run Manifest",
+  "type": "object",
+  "required": ["schema_version", "run_id", "status", "artifacts"],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "run_id": { "type": "string", "minLength": 8 },
+    "job_id": { "type": ["string", "null"] },
+    "capability_id": { "type": ["string", "null"] },
+    "workflow_id": { "type": ["string", "null"] },
+    "status": { "type": "string" },
+    "parameters": { "type": "object" },
+    "code_sha": { "type": ["string", "null"] },
+    "data_as_of": { "type": ["string", "null"] },
+    "coverage": { "type": "object" },
+    "warnings": { "type": "array", "items": { "type": "string" } },
+    "limitations": { "type": "array", "items": { "type": "string" } },
+    "blockers": { "type": "array", "items": { "type": "string" } },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "logical_name", "role", "media_type", "title"],
+        "properties": {
+          "path": { "type": "string" },
+          "logical_name": { "type": "string" },
+          "role": { "type": "string" },
+          "media_type": { "type": "string" },
+          "title": { "type": "string" },
+          "primary": { "type": "boolean" },
+          "previewable": { "type": "boolean" },
+          "sha256": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "reviews_required": { "type": "array" },
+    "checksums": { "type": "object" },
+    "discovery_source": { "enum": ["manifest", "stdout_fallback"] }
+  }
+}

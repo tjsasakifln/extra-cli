@@ -4,6 +4,8 @@ Never reimplements commercial business logic. Only discovers capabilities,
 runs allowlisted entrypoints, streams job state, and serves a local UI.
 """
 
-__version__ = "0.1.0"
-CAMPAIGN_ID = "EXTRA-LOCAL-COMMAND-CENTER-01"
-TERMINAL_READY = "COMMAND_CENTER_READY_FOR_TIAGO_REVIEW"
+__version__ = "0.2.0"
+CAMPAIGN_ID = "EXTRA-COMMAND-CENTER-CONSULTING-WORKBENCH-01"
+# Prior campaign status is NOT acceptance for the workbench campaign.
+TERMINAL_READY = "IN_PROGRESS_COMMAND_CENTER_CONSULTING_WORKBENCH"
+

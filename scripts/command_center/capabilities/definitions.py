@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from typing import Any
 
 from scripts.command_center.capabilities.base import (
@@ -570,8 +571,122 @@ def all_capabilities() -> list[Capability]:
             risk=RiskLevel.READ,
             parse_result=default_parse,
         ),
+        # ── Guided consulting workflows (outcome-first) ────────
+        # Executed in-process by JobRunner (not via arbitrary shell).
+        # argv_builder returns a marker list for audit only.
+        *_workflow_capabilities(),
     ]
     return caps
+
+
+def _workflow_marker(workflow_id: str) -> Callable[[dict[str, Any]], list[str]]:
+    def _builder(params: dict[str, Any]) -> list[str]:
+        import sys
+
+        # Marker argv for audit trail; JobRunner intercepts workflow.* ids.
+        return [sys.executable, "-m", "scripts.command_center.workflows.cli_entry", workflow_id]
+
+    return _builder
+
+
+def _workflow_capabilities() -> list[Capability]:
+    """Outcome-first workflows — path-free defaults; fixture-backed when live data absent."""
+    conf = "Confirmo a geração local de entregáveis (sem envio automático de mensagens)."
+    return [
+        Capability(
+            id="workflow.extra.opportunities",
+            name="Encontrar oportunidades para a Extra",
+            description="Fluxo guiado: shortlist, PDF executivo, workbook e fila de revisão.",
+            category="workflow",
+            argv_builder=_workflow_marker("workflow.extra.opportunities"),
+            params=[
+                ParamSpec("period_days", "Período (dias)", type="int", default=7),
+                ParamSpec("max_shortlist", "Tamanho da shortlist", type="int", default=15),
+                ParamSpec("use_fixture", "Usar dados de demonstração", type="bool", default=True),
+                ParamSpec(
+                    "output_profile",
+                    "Perfil de saída",
+                    type="select",
+                    default="CLIENT_READY",
+                    choices=["INTERNAL_ANALYSIS", "CLIENT_READY", "AUDIT_EVIDENCE"],
+                    advanced=True,
+                ),
+            ],
+            risk=RiskLevel.WRITE_LOCAL,
+            requires_confirmation=True,
+            confirmation_phrase=conf,
+            parse_result=default_parse,
+            output_roots=["data/command_center", "output"],
+            timeout_sec=600,
+        ),
+        Capability(
+            id="workflow.confenge.suppliers",
+            name="Encontrar empresas com potencial comercial",
+            description="Fluxo guiado CONFENGE fornecedores com cobertura de cadastro e entregáveis.",
+            category="workflow",
+            argv_builder=_workflow_marker("workflow.confenge.suppliers"),
+            params=[
+                ParamSpec("uf", "UF", default="SC"),
+                ParamSpec("max_companies", "Quantidade (Top N)", type="int", default=10),
+                ParamSpec(
+                    "population_mode",
+                    "Abrangência",
+                    type="select",
+                    default="BOUNDED_SAMPLE",
+                    choices=["BOUNDED_SAMPLE", "FULL_POPULATION"],
+                ),
+                ParamSpec("use_fixture", "Usar dados de demonstração", type="bool", default=True),
+            ],
+            risk=RiskLevel.WRITE_LOCAL,
+            requires_confirmation=True,
+            confirmation_phrase=conf,
+            parse_result=default_parse,
+            output_roots=["data/command_center", "output"],
+            timeout_sec=600,
+        ),
+        Capability(
+            id="workflow.confenge.public_agencies",
+            name="Encontrar órgãos que podem precisar de serviços técnicos",
+            description="Fluxo guiado de órgãos públicos com classificações preliminares revisáveis.",
+            category="workflow",
+            argv_builder=_workflow_marker("workflow.confenge.public_agencies"),
+            params=[
+                ParamSpec("uf", "UF", default="SC"),
+                ParamSpec("max_leads", "Quantidade máxima", type="int", default=10),
+                ParamSpec(
+                    "mode",
+                    "Modalidade",
+                    type="select",
+                    default="REACTIVE_OPPORTUNITY",
+                    choices=["REACTIVE_OPPORTUNITY", "PROACTIVE_INSTITUTIONAL_PROSPECT"],
+                ),
+                ParamSpec("use_fixture", "Usar dados de demonstração", type="bool", default=True),
+            ],
+            risk=RiskLevel.WRITE_LOCAL,
+            requires_confirmation=True,
+            confirmation_phrase=conf,
+            parse_result=default_parse,
+            output_roots=["data/command_center", "output"],
+            timeout_sec=600,
+        ),
+        Capability(
+            id="workflow.process_documents",
+            name="Analisar documentos de processos e editais",
+            description="Fluxo guiado: cobertura documental, PDFs no navegador, índice XLSX.",
+            category="workflow",
+            argv_builder=_workflow_marker("workflow.process_documents"),
+            params=[
+                ParamSpec("query", "Processo, edital, entidade ou objeto", default="demo-processo-001", required=True),
+                ParamSpec("use_fixture", "Usar acervo de demonstração", type="bool", default=True),
+            ],
+            risk=RiskLevel.WRITE_LOCAL,
+            requires_confirmation=True,
+            confirmation_phrase=conf,
+            parse_result=default_parse,
+            output_roots=["data/command_center", "output"],
+            timeout_sec=600,
+        ),
+    ]
 
 
 def _weekly_argv(p: dict[str, Any]) -> list[str]:

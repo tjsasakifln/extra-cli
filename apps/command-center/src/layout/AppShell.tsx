@@ -8,17 +8,18 @@ import { StatusBadge } from "../components/StatusBadge";
 
 const NAV_MAIN = [
   { to: "/", label: "Início", end: true },
-  { to: "/extra", label: "Oportunidades Extra" },
+  { to: "/work/start", label: "Iniciar trabalho" },
+  { to: "/review", label: "Revisões" },
+  { to: "/results", label: "Entregáveis" },
+  { to: "/extra", label: "Extra" },
   { to: "/confenge/suppliers", label: "Fornecedores" },
   { to: "/confenge/agencies", label: "Órgãos públicos" },
   { to: "/documents", label: "Documentos" },
-  { to: "/review", label: "Revisões" },
-  { to: "/results", label: "Resultados" },
 ];
 
 const NAV_SECONDARY = [
   { to: "/jobs", label: "Atividades em andamento" },
-  { to: "/actions", label: "Todas as ações" },
+  { to: "/actions", label: "Avançado (capabilities)" },
   { to: "/onboarding", label: "Configuração inicial" },
 ];
 

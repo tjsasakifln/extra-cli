@@ -427,17 +427,18 @@ def test_review_queue_from_enqueue(client: TestClient) -> None:
     pending = client.get("/api/reviews?status=pending")
     ids = [r["id"] for r in pending.json()["reviews"]]
     assert rid in ids
-    # Decide and leave queue
+    # Decide and leave queue (REJECT requires real rationale — not the title alone)
     dec = client.post(
         "/api/decisions",
         headers=headers,
         json={
             "item_id": rid,
             "decision": "REJECT",
+            "rationale": "Fora do perfil técnico e prazo inviável para a equipe.",
             "payload": {"sensitive": False},
         },
     )
-    assert dec.status_code == 200
+    assert dec.status_code == 200, dec.text
     pending2 = client.get("/api/reviews?status=pending")
     ids2 = [r["id"] for r in pending2.json()["reviews"]]
     assert rid not in ids2

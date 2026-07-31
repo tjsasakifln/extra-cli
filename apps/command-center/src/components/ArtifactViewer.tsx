@@ -1,4 +1,6 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { client } from "../api/client";
 import { DataTable } from "./DataTable";
 import { EmptyState } from "./EmptyState";
 
@@ -9,6 +11,9 @@ type ArtifactPayload = {
   size_bytes?: number;
   message?: string;
   downloadable?: boolean;
+  previewable?: boolean;
+  preview_url?: string;
+  embed_url?: string;
   text?: string;
   data?: unknown;
   rows?: Array<Record<string, unknown>>;
@@ -49,6 +54,22 @@ export function ArtifactViewer({ artifact }: { artifact: ArtifactPayload }) {
           </a>
         ) : null}
       </div>
+
+      {kind === "pdf" && downloadHref ? (
+        <div className="pdf-frame-wrap">
+          <iframe
+            title={artifact.name || "PDF"}
+            src={downloadHref}
+            className="pdf-frame"
+            style={{ width: "100%", minHeight: 480, border: "1px solid var(--border)", borderRadius: 8 }}
+          />
+          <p className="muted" style={{ fontSize: "0.82rem" }}>
+            Se o navegador não renderizar o PDF, use Baixar arquivo ou abra em nova aba.
+          </p>
+        </div>
+      ) : null}
+
+      {kind === "xlsx" && artifact.path ? <XlsxPreview path={artifact.path} /> : null}
 
       {artifact.summary && Object.keys(artifact.summary).length > 0 ? (
         <div className="summary-grid">
@@ -118,9 +139,83 @@ export function ArtifactViewer({ artifact }: { artifact: ArtifactPayload }) {
         </p>
       ) : null}
 
-      {!["json", "csv", "jsonl", "markdown", "text", "binary"].includes(kind) ? (
+      {!["json", "csv", "jsonl", "markdown", "text", "binary", "pdf", "xlsx"].includes(kind) ? (
         <p>{String(artifact.message || "Visualização não disponível para este tipo.")}</p>
       ) : null}
+    </div>
+  );
+}
+
+function XlsxPreview({ path }: { path: string }) {
+  const [sheet, setSheet] = useState<string | undefined>(undefined);
+  const [offset, setOffset] = useState(0);
+  const [data, setData] = useState<{
+    sheets: string[];
+    sheet: string;
+    headers: string[];
+    rows: Array<Record<string, unknown>>;
+    total_rows: number;
+  } | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const limit = 50;
+
+  useEffect(() => {
+    let cancelled = false;
+    void client
+      .previewXlsx(path, sheet, offset, limit)
+      .then((res) => {
+        if (!cancelled) {
+          setData(res);
+          setError(null);
+        }
+      })
+      .catch((e: Error) => {
+        if (!cancelled) setError(e.message);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [path, sheet, offset]);
+
+  if (error) return <p className="error-text">Não foi possível pré-visualizar a planilha: {error}</p>;
+  if (!data) return <p className="muted">Carregando abas da planilha…</p>;
+
+  return (
+    <div className="stack">
+      <div className="row" style={{ gap: 8, flexWrap: "wrap" }}>
+        <span className="muted">Abas:</span>
+        {data.sheets.map((s) => (
+          <button
+            key={s}
+            type="button"
+            className={s === data.sheet ? "btn btn-primary" : "btn"}
+            onClick={() => {
+              setSheet(s);
+              setOffset(0);
+            }}
+          >
+            {s}
+          </button>
+        ))}
+      </div>
+      <div className="muted" style={{ fontSize: "0.82rem" }}>
+        {data.total_rows.toLocaleString("pt-BR")} linhas · mostrando {offset + 1}–
+        {Math.min(offset + limit, data.total_rows)}
+      </div>
+      <DataTable columns={data.headers} rows={data.rows} />
+      <div className="row" style={{ gap: 8 }}>
+        <button type="button" className="btn" disabled={offset <= 0} onClick={() => setOffset(Math.max(0, offset - limit))}>
+          Página anterior
+        </button>
+        <button
+          type="button"
+          className="btn"
+          disabled={offset + limit >= data.total_rows}
+          onClick={() => setOffset(offset + limit)}
+        >
+          Próxima página
+        </button>
+      </div>
     </div>
   );
 }

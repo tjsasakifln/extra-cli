@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import queue
 import subprocess
 import threading
@@ -202,6 +203,11 @@ class JobRunner:
 
         if self._is_cancelled(job_id):
             self._finish_cancelled(job_id)
+            return
+
+        # Guided workflows: in-process runner (path-free, manifest-primary deliverables)
+        if cap.id.startswith("workflow."):
+            self._execute_workflow(job_id, cap)
             return
 
         rec = (
@@ -405,6 +411,172 @@ class JobRunner:
                 job_id=job_id,
                 capability_id=rec.capability_id,
                 payload={"technical_code": public.get("technical_code"), "artifacts": rec.artifacts},
+            )
+        self._emit(job_id, None)
+
+    def _execute_workflow(self, job_id: str, cap: Capability) -> None:
+        """Run outcome-first workflow with structured progress + run-manifest."""
+        from scripts.command_center.workflows.runner import run_workflow
+
+        rec = self.store.get_job(job_id)
+        if rec is None:
+            return
+        job_dir = Path(rec.stdout_path or str(self.settings.jobs_dir / job_id / "stdout.log")).parent
+        deliverables_dir = job_dir / "deliverables"
+        deliverables_dir.mkdir(parents=True, exist_ok=True)
+        stdout_path = Path(rec.stdout_path or job_dir / "stdout.log")
+        stderr_path = Path(rec.stderr_path or job_dir / "stderr.log")
+
+        rec = (
+            self.store.patch_job(
+                job_id,
+                status=JobState.RUNNING.value,
+                started_at=_utcnow(),
+                human_message="Executando fluxo guiado — acompanhe as etapas.",
+                attention="running",
+            )
+            or rec
+        )
+        self._emit(job_id, {"type": "status", "job": rec.to_public()})
+        self._emit(
+            job_id,
+            {
+                "type": "progress",
+                "stage_id": "preparing",
+                "stage_label": "Preparando",
+                "state": "running",
+                "message": "Iniciando fluxo consultivo",
+            },
+        )
+
+        progress_events: list[dict[str, Any]] = []
+
+        def on_progress(ev: dict[str, Any]) -> None:
+            progress_events.append(ev)
+            msg = f"[{ev.get('stage_label')}] {ev.get('message') or ev.get('state')}"
+            self._log(job_id, "stdout", "info", msg)
+            self._emit(job_id, {"type": "progress", **ev})
+            self._emit(job_id, {"type": "log", "stream": "stdout", "message": msg})
+
+        try:
+            result = run_workflow(
+                cap.id,
+                dict(rec.params or {}),
+                out_dir=deliverables_dir,
+                code_sha=rec.code_sha or git_sha(),
+                job_id=job_id,
+                on_progress=on_progress,
+            )
+        except Exception as exc:  # noqa: BLE001
+            finished = _utcnow()
+            self.store.patch_job(
+                job_id,
+                status=JobState.FAILED.value,
+                technical_code="WORKFLOW_ERROR",
+                human_message=f"Falha no fluxo: {redact_text(str(exc))}",
+                attention="blocked_technical",
+                finished_at=finished,
+                exit_code=1,
+            )
+            self._log(job_id, "system", "error", redact_text(str(exc)))
+            rec = self.store.get_job(job_id)
+            if rec:
+                self._emit(job_id, {"type": "status", "job": rec.to_public()})
+            self._emit(job_id, None)
+            return
+
+        # Write compact stdout for audit
+        try:
+            stdout_path.write_text(
+                json.dumps(
+                    {
+                        "workflow": cap.id,
+                        "status": result.get("status"),
+                        "message": result.get("message"),
+                        "run_id": result.get("run_id"),
+                        "manifest_path": result.get("manifest_path"),
+                        "artifacts": result.get("artifacts") or [],
+                    },
+                    indent=2,
+                    ensure_ascii=False,
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            stderr_path.write_text("", encoding="utf-8")
+        except OSError:
+            pass
+
+        artifacts = list(result.get("artifacts") or [])
+        manifests = [result["manifest_path"]] if result.get("manifest_path") else []
+        finished = _utcnow()
+        started = datetime.fromisoformat(rec.started_at) if rec.started_at else datetime.now(UTC)
+        duration = int((datetime.fromisoformat(finished) - started).total_seconds() * 1000)
+        status = result.get("status") or JobState.SUCCEEDED.value
+        if status == "SUCCEEDED" and result.get("empty"):
+            human = result.get("message") or "Resultado vazio defensável — nenhum item na shortlist."
+            attention = "empty"
+        elif status == "SUCCEEDED":
+            human = result.get("message") or "Fluxo concluído. Abra os entregáveis no navegador."
+            attention = "ok"
+        else:
+            human = result.get("message") or "Fluxo terminou com atenção."
+            attention = "attention"
+
+        rec = (
+            self.store.patch_job(
+                job_id,
+                status=status if status in {s.value for s in JobState} else JobState.SUCCEEDED.value,
+                technical_code="WORKFLOW_OK" if status == "SUCCEEDED" else status,
+                human_message=human,
+                attention=attention,
+                exit_code=0 if status == "SUCCEEDED" else 1,
+                finished_at=finished,
+                duration_ms=duration,
+                artifacts=artifacts,
+                output_paths=artifacts,
+                manifests=manifests,
+                run_id=result.get("run_id"),
+            )
+            or rec
+        )
+
+        # Enqueue concrete review tasks bound to content hashes
+        for item in result.get("reviews") or []:
+            self.store.enqueue_review(
+                title=str(item.get("title") or "Revisão"),
+                source=cap.id,
+                evidence=str(item.get("evidence") or ""),
+                limitations=str(item.get("limitations") or ""),
+                risks=str(item.get("risks") or ""),
+                job_id=job_id,
+                capability_id=cap.id,
+                payload={
+                    "item_key": item.get("item_key"),
+                    "question": item.get("question"),
+                    "content_hash": item.get("content_hash"),
+                    "artifact_hashes": {"source": item.get("content_hash")},
+                    "correctable_fields": item.get("correctable_fields") or [],
+                    "progress_events": progress_events[-20:],
+                },
+            )
+
+        self.store.audit(
+            "system",
+            "job.finished",
+            {"job_id": job_id, "status": rec.status if rec else status, "workflow": cap.id},
+        )
+        self._log(job_id, "system", "info", f"Finalizado: {status}")
+        if rec:
+            self._emit(job_id, {"type": "status", "job": rec.to_public()})
+            self._emit(
+                job_id,
+                {
+                    "type": "manifest",
+                    "path": result.get("manifest_path"),
+                    "run_id": result.get("run_id"),
+                    "artifacts": artifacts,
+                },
             )
         self._emit(job_id, None)
 

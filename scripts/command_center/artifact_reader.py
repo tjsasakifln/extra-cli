@@ -28,12 +28,30 @@ def read_artifact(path: str, settings: Settings, *, max_bytes: int | None = None
         "suffix": suffix,
         "truncated": size > limit,
     }
-    if suffix in {".png", ".jpg", ".jpeg", ".gif", ".webp", ".pdf", ".xlsx", ".xls"}:
+    if suffix in {".png", ".jpg", ".jpeg", ".gif", ".webp"}:
         return {
             **meta,
             "kind": "binary",
-            "message": "Arquivo binário. Use download local; conteúdo não é embutido na API.",
+            "message": "Arquivo de imagem. Use download local.",
             "downloadable": True,
+        }
+    if suffix == ".pdf":
+        return {
+            **meta,
+            "kind": "pdf",
+            "message": "PDF disponível para visualização embutida no navegador.",
+            "downloadable": True,
+            "previewable": True,
+            "embed_url": f"/api/artifacts/download?path={resolved}",
+        }
+    if suffix in {".xlsx", ".xls"}:
+        return {
+            **meta,
+            "kind": "xlsx",
+            "message": "Planilha disponível para pré-visualização no navegador.",
+            "downloadable": True,
+            "previewable": True,
+            "preview_url": f"/api/artifacts/preview-xlsx?path={resolved}",
         }
     raw = resolved.read_bytes()[:limit]
     try:

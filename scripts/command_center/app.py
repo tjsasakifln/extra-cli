@@ -44,7 +44,15 @@ class DecisionBody(BaseModel):
     rationale: str | None = None
     confirmation: str | None = None
     actor: str = "local-user"
+    return_by: str | None = None
+    artifact_hashes: dict[str, str] = Field(default_factory=dict)
+    artifact_version: str | None = None
     payload: dict[str, Any] = Field(default_factory=dict)
+
+
+class BundleBody(BaseModel):
+    path: str
+    include_logs: bool = False
 
 
 def _backend_decision_sensitivity(
@@ -335,9 +343,32 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @app.post("/api/decisions")
     def post_decision(body: DecisionBody, _: None = Depends(csrf_dep)) -> dict[str, Any]:
+        from scripts.command_center.review_rules import validate_decision_request
+
         decision = body.decision.upper().strip()
         if decision not in {"ACCEPT", "REJECT", "DEFER"}:
             raise HTTPException(400, "Decisão deve ser ACCEPT, REJECT ou DEFER.")
+        review = store.get_review(body.item_id)
+        title = (review or {}).get("title")
+        presented_hashes = {}
+        if review and isinstance(review.get("payload"), dict):
+            presented_hashes = dict(review["payload"].get("artifact_hashes") or {})
+            if review["payload"].get("content_hash") and "source" not in presented_hashes:
+                presented_hashes["source"] = str(review["payload"]["content_hash"])
+        bound_hashes = dict(body.artifact_hashes or {})
+        if not bound_hashes and body.payload:
+            bound_hashes = dict(body.payload.get("artifact_hashes") or {})
+        # For ACCEPT, if client omitted hashes but review has them, require explicit echo
+        rule_errors = validate_decision_request(
+            decision=decision,
+            rationale=body.rationale,
+            return_by=body.return_by or (body.payload or {}).get("return_by"),
+            artifact_hashes=bound_hashes if decision == "ACCEPT" else bound_hashes,
+            presented_hashes=presented_hashes if decision == "ACCEPT" else None,
+            title=str(title) if title else None,
+        )
+        if rule_errors:
+            raise HTTPException(400, "; ".join(rule_errors))
         # Sensitivity + phrase: server-only (ignore client payload claims)
         sensitive, expected_phrase = _backend_decision_sensitivity(store, registry, body.item_id)
         if sensitive and decision == "ACCEPT":
@@ -368,6 +399,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         safe_payload["sensitive"] = sensitive
         safe_payload["confirmation_phrase"] = expected_phrase if decision == "ACCEPT" else None
         safe_payload["sensitivity_source"] = "backend"
+        safe_payload["artifact_hashes"] = bound_hashes
+        safe_payload["artifact_version"] = body.artifact_version
+        safe_payload["return_by"] = body.return_by or safe_payload.get("return_by")
+        safe_payload["no_auto_outreach"] = True
         decision_id = store.save_decision(
             item_id=body.item_id,
             decision=decision,
@@ -385,6 +420,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 "item_id": body.item_id,
                 "decision": decision,
                 "sensitive": sensitive,
+                "artifact_hashes": bound_hashes,
             },
         )
         return {
@@ -392,6 +428,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             "decision_id": decision_id,
             "sensitive": sensitive,
             "confirmation_phrase": expected_phrase if decision == "ACCEPT" else None,
+            "artifact_hashes": bound_hashes,
+            "obsolete": False,
         }
 
     @app.get("/api/reviews/{item_id}/confirmation")
@@ -417,6 +455,192 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             raise HTTPException(400, "Preferência proibida.")
         store.set_pref(body.key, body.value)
         return {"ok": True}
+
+    @app.get("/api/workflows")
+    def workflows() -> dict[str, Any]:
+        from scripts.command_center.workflows.catalog import list_workflows
+
+        items = []
+        for wf in list_workflows():
+            items.append(
+                {
+                    "id": wf.id,
+                    "title": wf.title,
+                    "subtitle": wf.subtitle,
+                    "client_id": wf.client_id,
+                    "client_label": wf.client_label,
+                    "outcome": wf.outcome,
+                    "description": wf.description,
+                    "steps": wf.steps,
+                    "expected_deliverables": wf.expected_deliverables,
+                    "params": [
+                        {
+                            "name": p.name,
+                            "label": p.label,
+                            "type": p.type,
+                            "required": p.required,
+                            "default": p.default,
+                            "choices": p.choices,
+                            "description": p.description,
+                            "advanced": p.advanced,
+                        }
+                        for p in wf.params
+                    ],
+                    "limitations": wf.limitations,
+                    "no_outreach": wf.no_outreach,
+                    "href": f"/work/start/{wf.id}",
+                    "capability_id": wf.id if wf.id.startswith("workflow.") else None,
+                }
+            )
+        return {"workflows": items}
+
+    @app.get("/api/workflows/{workflow_id}")
+    def workflow_detail(workflow_id: str) -> dict[str, Any]:
+        from scripts.command_center.workflows.catalog import get_workflow
+
+        wf = get_workflow(workflow_id)
+        if wf is None:
+            raise HTTPException(404, "Fluxo não encontrado")
+        return {
+            "id": wf.id,
+            "title": wf.title,
+            "subtitle": wf.subtitle,
+            "client_label": wf.client_label,
+            "outcome": wf.outcome,
+            "description": wf.description,
+            "steps": wf.steps,
+            "expected_deliverables": wf.expected_deliverables,
+            "params": [
+                {
+                    "name": p.name,
+                    "label": p.label,
+                    "type": p.type,
+                    "required": p.required,
+                    "default": p.default,
+                    "choices": p.choices,
+                    "description": p.description,
+                    "advanced": p.advanced,
+                }
+                for p in wf.params
+            ],
+            "limitations": wf.limitations,
+            "preflight": {
+                "objective": wf.outcome,
+                "client": wf.client_label,
+                "steps": wf.steps,
+                "expected_deliverables": wf.expected_deliverables,
+                "limitations": wf.limitations,
+                "no_auto_outreach": True,
+                "effects": "Somente geração local de arquivos sob data/command_center e output permitidos.",
+            },
+        }
+
+    @app.post("/api/export-bundle")
+    def export_bundle(body: BundleBody, _: None = Depends(csrf_dep)) -> dict[str, Any]:
+
+        from scripts.command_center.export_bundle import build_export_bundle
+
+        root = resolve_under_roots(body.path, settings.allowed_artifact_roots)
+        try:
+            if root.is_file() and root.name == "run-manifest.json":
+                run_dir = root.parent
+            elif root.is_dir():
+                run_dir = root
+            else:
+                raise HTTPException(400, "Informe o diretório do run ou o run-manifest.json")
+            result = build_export_bundle(run_dir, include_logs=body.include_logs)
+        except FileNotFoundError as exc:
+            raise HTTPException(404, str(exc)) from exc
+        except ValueError as exc:
+            raise HTTPException(400, str(exc)) from exc
+        return result
+
+    @app.get("/api/artifacts/preview-xlsx")
+    def preview_xlsx(
+        path: str = Query(...),
+        sheet: str | None = None,
+        offset: int = 0,
+        limit: int = 100,
+    ) -> dict[str, Any]:
+        """In-browser XLSX preview: sheets, headers, paginated rows."""
+
+        from openpyxl import load_workbook
+
+        resolved = resolve_under_roots(path, settings.allowed_artifact_roots)
+        if resolved.suffix.lower() not in {".xlsx", ".xls"}:
+            raise HTTPException(400, "Somente arquivos .xlsx/.xls")
+        if not resolved.is_file():
+            raise HTTPException(404, "Arquivo não encontrado")
+        # size guard
+        if resolved.stat().st_size > settings.max_artifact_read_bytes * 4:
+            raise HTTPException(413, "Planilha grande demais para pré-visualização; use o download.")
+        wb = load_workbook(resolved, read_only=True, data_only=True)
+        sheet_names = list(wb.sheetnames)
+        target = sheet if sheet in sheet_names else sheet_names[0]
+        ws = wb[target]
+        rows_iter = ws.iter_rows(values_only=True)
+        try:
+            headers = [str(c) if c is not None else "" for c in next(rows_iter)]
+        except StopIteration:
+            wb.close()
+            return {
+                "path": str(resolved),
+                "sheets": sheet_names,
+                "sheet": target,
+                "headers": [],
+                "rows": [],
+                "offset": 0,
+                "limit": limit,
+                "total_rows": 0,
+            }
+        all_data = []
+        for row in rows_iter:
+            all_data.append([("" if c is None else c) for c in row])
+        wb.close()
+        total = len(all_data)
+        offset = max(0, offset)
+        limit = max(1, min(limit, 500))
+        page = all_data[offset : offset + limit]
+        return {
+            "kind": "xlsx",
+            "path": str(resolved),
+            "name": resolved.name,
+            "sheets": sheet_names,
+            "sheet": target,
+            "headers": headers,
+            "rows": [dict(zip(headers, r, strict=False)) for r in page],
+            "offset": offset,
+            "limit": limit,
+            "total_rows": total,
+            "previewable": True,
+            "downloadable": True,
+        }
+
+    @app.get("/api/jobs/{job_id}/manifest")
+    def job_manifest(job_id: str) -> dict[str, Any]:
+        from pathlib import Path
+
+        from scripts.command_center.run_manifest import load_manifest, validate_manifest
+
+        rec = store.get_job(job_id)
+        if rec is None:
+            raise HTTPException(404, "Job não encontrado")
+        candidates: list[Path] = []
+        for m in rec.manifests or []:
+            candidates.append(Path(m))
+        job_dir = settings.jobs_dir / job_id
+        candidates.append(job_dir / "deliverables" / "run-manifest.json")
+        candidates.append(job_dir / "run-manifest.json")
+        for c in candidates:
+            if c.is_file():
+                data = load_manifest(c)
+                return {
+                    "path": str(c),
+                    "valid": not validate_manifest(data),
+                    "errors": validate_manifest(data),
+                    "manifest": data,
+                }
+        raise HTTPException(404, "run-manifest não encontrado para este job")
 
     @app.get("/api/onboarding")
     def onboarding() -> dict[str, Any]:

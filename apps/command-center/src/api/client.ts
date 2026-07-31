@@ -125,4 +125,30 @@ export const client = {
     api<Record<string, unknown>>("/api/reviews", { method: "POST", body: JSON.stringify(body) }),
   saveDecision: (body: Record<string, unknown>) =>
     api<Record<string, unknown>>("/api/decisions", { method: "POST", body: JSON.stringify(body) }),
+  workflows: () => api<{ workflows: Array<Record<string, unknown>> }>("/api/workflows"),
+  workflow: (id: string) => api<Record<string, unknown>>(`/api/workflows/${encodeURIComponent(id)}`),
+  jobManifest: (id: string) =>
+    api<{ path: string; valid: boolean; errors: string[]; manifest: Record<string, unknown> }>(
+      `/api/jobs/${encodeURIComponent(id)}/manifest`,
+    ),
+  previewXlsx: (path: string, sheet?: string, offset = 0, limit = 100) => {
+    const qs = new URLSearchParams({ path, offset: String(offset), limit: String(limit) });
+    if (sheet) qs.set("sheet", sheet);
+    return api<{
+      sheets: string[];
+      sheet: string;
+      headers: string[];
+      rows: Array<Record<string, unknown>>;
+      total_rows: number;
+      offset: number;
+      limit: number;
+      path: string;
+      name?: string;
+    }>(`/api/artifacts/preview-xlsx?${qs.toString()}`);
+  },
+  exportBundle: (path: string) =>
+    api<Record<string, unknown>>("/api/export-bundle", {
+      method: "POST",
+      body: JSON.stringify({ path, include_logs: false }),
+    }),
 };
