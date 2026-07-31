@@ -11,12 +11,14 @@ export function DecisionPanel({
   evidence,
   limitations,
   risks,
+  onDecided,
 }: {
   itemId: string;
   title: string;
   evidence: string;
   limitations: string;
   risks: string;
+  onDecided?: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const [result, setResult] = useState<string | null>(null);
@@ -50,6 +52,7 @@ export function DecisionPanel({
         setResult(String(res.message));
       } else {
         setResult(`Decisão ${d} registrada (${res.decision_id}).`);
+        onDecided?.();
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));

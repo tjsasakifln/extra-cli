@@ -84,6 +84,9 @@ class Capability:
 
     def public_dict(self) -> dict[str, Any]:
         avail, reason = self.detect_availability()
+        phrase = self.confirmation_phrase
+        if self.requires_confirmation and not phrase:
+            phrase = "CONFIRMO"
         return {
             "id": self.id,
             "name": self.name,
@@ -93,7 +96,7 @@ class Capability:
             "unavailable_reason": reason,
             "risk": self.risk.value,
             "requires_confirmation": self.requires_confirmation,
-            "confirmation_phrase": self.confirmation_phrase,
+            "confirmation_phrase": phrase,
             "allow_cancel": self.allow_cancel,
             "params": [
                 {

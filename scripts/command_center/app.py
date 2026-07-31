@@ -47,6 +47,18 @@ class PrefBody(BaseModel):
     value: str
 
 
+class ReviewEnqueueBody(BaseModel):
+    title: str
+    source: str = "manual"
+    evidence: str = "Sem evidência anexada."
+    limitations: str = "Limitações não informadas."
+    risks: str = "Riscos não informados."
+    job_id: str | None = None
+    capability_id: str | None = None
+    actor: str = "local-user"
+    payload: dict[str, Any] = Field(default_factory=dict)
+
+
 def create_app(settings: Settings | None = None) -> FastAPI:
     settings = settings or load_settings()
     settings.data_dir.mkdir(parents=True, exist_ok=True)
@@ -245,6 +257,52 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     def decisions(limit: int = 50) -> dict[str, Any]:
         return {"decisions": store.list_decisions(limit=limit)}
 
+    @app.get("/api/reviews")
+    def reviews(status: str | None = "pending", limit: int = 50) -> dict[str, Any]:
+        """Human review queue from real pending items (jobs blocked, explicit enqueues)."""
+        items = store.list_reviews(status=status, limit=limit)
+        # Also surface BLOCKED_HUMAN jobs not yet enqueued as synthetic pending items
+        if status in (None, "pending"):
+            known = {i.get("job_id") for i in items if i.get("job_id")}
+            for j in store.list_jobs(limit=100):
+                if j.status == "BLOCKED_HUMAN" and j.job_id not in known:
+                    rid = store.enqueue_review(
+                        title=f"Revisão necessária: {j.action}",
+                        source=j.capability_id,
+                        evidence=(
+                            f"Job {j.job_id}; status {j.status}; "
+                            f"código {j.technical_code}; artifacts: {j.artifacts[:5]}"
+                        ),
+                        limitations=j.human_message
+                        or "Automação concluída, mas a decisão humana ainda é necessária.",
+                        risks="Aceitar sem evidência pode propagar classificação incorreta.",
+                        job_id=j.job_id,
+                        capability_id=j.capability_id,
+                        payload={"from_job": True, "technical_code": j.technical_code},
+                    )
+                    known.add(j.job_id)
+            items = store.list_reviews(status=status, limit=limit)
+        return {"reviews": items, "count": len(items)}
+
+    @app.post("/api/reviews")
+    def enqueue_review_api(body: ReviewEnqueueBody, _: None = Depends(csrf_dep)) -> dict[str, Any]:
+        """Explicitly enqueue a review item (local queue only — does not decide)."""
+        title = body.title.strip()
+        if not title:
+            raise HTTPException(400, "title obrigatório")
+        rid = store.enqueue_review(
+            title=title,
+            source=body.source,
+            evidence=body.evidence,
+            limitations=body.limitations,
+            risks=body.risks,
+            job_id=body.job_id,
+            capability_id=body.capability_id,
+            payload=body.payload,
+        )
+        store.audit(body.actor, "review.enqueue", {"id": rid})
+        return {"ok": True, "id": rid}
+
     @app.post("/api/decisions")
     def post_decision(body: DecisionBody, _: None = Depends(csrf_dep)) -> dict[str, Any]:
         decision = body.decision.upper().strip()
@@ -284,6 +342,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             confirmation=body.confirmation,
             payload=body.payload,
         )
+        store.mark_review_decided(body.item_id, decision)
         store.audit(body.actor, "decision.save", {"decision_id": decision_id, "item_id": body.item_id, "decision": decision})
         return {"ok": True, "decision_id": decision_id}
 

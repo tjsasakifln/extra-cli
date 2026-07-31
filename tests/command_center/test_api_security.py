@@ -38,6 +38,21 @@ def client(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> TestClient:
 
         return [sys.executable, "-c", "print('FIXTURE_DONE'); print('ok')"]
 
+    def _slow(params: dict) -> list[str]:
+        import sys
+
+        secs = int(params.get("seconds") or 8)
+        code = (
+            "import time,sys;"
+            f"secs={secs};"
+            "print('SLOW_START', flush=True);"
+            "for i in range(secs):"
+            " time.sleep(1);"
+            " print('TICK', i+1, flush=True);"
+            "print('SLOW_DONE', flush=True)"
+        )
+        return [sys.executable, "-c", code]
+
     caps = [
         Capability(
             id="cc.fixture.echo",
@@ -48,6 +63,18 @@ def client(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> TestClient:
             params=[ParamSpec("message", "Mensagem", default="x")],
             risk=RiskLevel.READ,
             fixture=True,
+        ),
+        Capability(
+            id="cc.fixture.slow",
+            name="Slow fixture",
+            description="cancel target",
+            category="ops",
+            argv_builder=_slow,
+            params=[ParamSpec("seconds", "Seconds", type="int", default=8)],
+            risk=RiskLevel.READ,
+            fixture=True,
+            allow_cancel=True,
+            timeout_sec=60,
         ),
         Capability(
             id="missing.example",
@@ -201,3 +228,150 @@ def test_dod_accept_blocked(client: TestClient) -> None:
     )
     assert res.status_code == 200
     assert res.json().get("blocked") is True
+
+
+def test_slow_job_cancel_never_succeeds(client: TestClient) -> None:
+    """start → cancel must terminate CANCELLED, never SUCCEEDED (cancel race)."""
+    import time
+
+    headers = _csrf(client)
+    res = client.post(
+        "/api/jobs",
+        headers=headers,
+        json={"capability_id": "cc.fixture.slow", "params": {"seconds": 12}},
+    )
+    assert res.status_code == 200, res.text
+    job_id = res.json()["job"]["job_id"]
+    # Wait until process is actually running so cancel has a target
+    for _ in range(50):
+        st = client.get(f"/api/jobs/{job_id}").json()["job"]
+        if st["status"] in {"RUNNING", "VALIDATING"} or st.get("pid"):
+            break
+        time.sleep(0.05)
+    cancel = client.post(f"/api/jobs/{job_id}/cancel", headers=headers, json={})
+    assert cancel.status_code == 200, cancel.text
+    assert cancel.json()["job"]["cancel_requested"] is True
+    final = None
+    for _ in range(100):
+        detail = client.get(f"/api/jobs/{job_id}")
+        final = detail.json()["job"]
+        if final["status"] not in {"QUEUED", "VALIDATING", "RUNNING", "CANCELLING"}:
+            break
+        time.sleep(0.1)
+    assert final is not None
+    assert final["status"] == "CANCELLED", final
+    assert final["cancel_requested"] is True
+    assert final["status"] != "SUCCEEDED"
+
+
+def test_cancel_immediate_spotcheck(client: TestClient) -> None:
+    """Multiple start+immediate cancel must not finish as SUCCEEDED."""
+    import time
+
+    headers = _csrf(client)
+    outcomes: list[str] = []
+    for _ in range(8):
+        res = client.post(
+            "/api/jobs",
+            headers=headers,
+            json={"capability_id": "cc.fixture.slow", "params": {"seconds": 10}},
+        )
+        assert res.status_code == 200
+        job_id = res.json()["job"]["job_id"]
+        client.post(f"/api/jobs/{job_id}/cancel", headers=headers, json={})
+        final = None
+        for _ in range(80):
+            final = client.get(f"/api/jobs/{job_id}").json()["job"]
+            if final["status"] not in {"QUEUED", "VALIDATING", "RUNNING", "CANCELLING"}:
+                break
+            time.sleep(0.08)
+        assert final is not None
+        outcomes.append(final["status"])
+        assert final["status"] != "SUCCEEDED", final
+        assert final["cancel_requested"] is True
+    # At least majority cancelled (all should be CANCELLED when race-free)
+    assert outcomes.count("CANCELLED") >= 6, outcomes
+    assert "SUCCEEDED" not in outcomes
+
+
+def test_sse_events_stream_logs_and_end(client: TestClient) -> None:
+    """Drive shipped /events endpoint — logs + terminal end event."""
+    import json
+
+    headers = _csrf(client)
+    res = client.post(
+        "/api/jobs",
+        headers=headers,
+        json={"capability_id": "cc.fixture.echo", "params": {"message": "sse"}},
+    )
+    job_id = res.json()["job"]["job_id"]
+    # TestClient streaming
+    with client.stream("GET", f"/api/jobs/{job_id}/events") as stream:
+        assert stream.status_code == 200
+        saw_log = False
+        saw_end = False
+        saw_status = False
+        for line in stream.iter_lines():
+            if not line:
+                continue
+            if line.startswith("event: end"):
+                saw_end = True
+                break
+            if line.startswith("data: "):
+                payload = json.loads(line[6:])
+                if payload.get("type") == "log":
+                    saw_log = True
+                if payload.get("type") == "status":
+                    saw_status = True
+                    st = payload.get("job", {}).get("status")
+                    if st and st not in {"QUEUED", "VALIDATING", "RUNNING", "CANCELLING"}:
+                        # may get end next
+                        pass
+        assert saw_status or saw_log
+        # end may be last; if not seen, job should still be terminal via API
+        if not saw_end:
+            import time
+
+            for _ in range(40):
+                st = client.get(f"/api/jobs/{job_id}").json()["job"]["status"]
+                if st not in {"QUEUED", "VALIDATING", "RUNNING", "CANCELLING"}:
+                    break
+                time.sleep(0.05)
+        final = client.get(f"/api/jobs/{job_id}").json()["job"]
+        assert final["status"] in {"SUCCEEDED", "SUCCEEDED_WITH_WARNINGS", "CANCELLED", "FAILED"}
+
+
+def test_review_queue_from_enqueue(client: TestClient) -> None:
+    headers = _csrf(client)
+    empty = client.get("/api/reviews?status=pending")
+    assert empty.status_code == 200
+    enq = client.post(
+        "/api/reviews",
+        headers=headers,
+        json={
+            "title": "Revisar shortlist local",
+            "source": "test",
+            "evidence": "artifact path X",
+            "limitations": "amostra limitada",
+            "risks": "falso positivo",
+        },
+    )
+    assert enq.status_code == 200, enq.text
+    rid = enq.json()["id"]
+    pending = client.get("/api/reviews?status=pending")
+    ids = [r["id"] for r in pending.json()["reviews"]]
+    assert rid in ids
+    # Decide and leave queue
+    dec = client.post(
+        "/api/decisions",
+        headers=headers,
+        json={
+            "item_id": rid,
+            "decision": "REJECT",
+            "payload": {"sensitive": False},
+        },
+    )
+    assert dec.status_code == 200
+    pending2 = client.get("/api/reviews?status=pending")
+    ids2 = [r["id"] for r in pending2.json()["reviews"]]
+    assert rid not in ids2

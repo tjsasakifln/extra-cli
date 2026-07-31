@@ -109,6 +109,12 @@ export const client = {
   artifact: (path: string) => api<Record<string, unknown>>(`/api/artifacts?path=${encodeURIComponent(path)}`),
   recentArtifacts: () => api<{ recent: Array<Record<string, unknown>> }>("/api/artifacts?recent=true"),
   decisions: () => api<{ decisions: Array<Record<string, unknown>> }>("/api/decisions"),
+  reviews: (status = "pending") =>
+    api<{ reviews: Array<Record<string, unknown>>; count: number }>(
+      `/api/reviews?status=${encodeURIComponent(status)}`,
+    ),
+  enqueueReview: (body: Record<string, unknown>) =>
+    api<Record<string, unknown>>("/api/reviews", { method: "POST", body: JSON.stringify(body) }),
   saveDecision: (body: Record<string, unknown>) =>
     api<Record<string, unknown>>("/api/decisions", { method: "POST", body: JSON.stringify(body) }),
 };

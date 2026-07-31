@@ -31,6 +31,27 @@ def _fixture_echo(params: dict[str, Any]) -> list[str]:
     return [sys.executable, "-c", code]
 
 
+def _fixture_slow(params: dict[str, Any]) -> list[str]:
+    import sys
+
+    try:
+        seconds = int(params.get("seconds") if params.get("seconds") is not None else 8)
+    except (TypeError, ValueError):
+        seconds = 8
+    seconds = max(1, min(seconds, 60))
+    code = (
+        "import sys,time;"
+        f"secs={seconds};"
+        "print('SLOW_START', secs, flush=True);"
+        "for i in range(secs):"
+        " time.sleep(1);"
+        " print(f'SLOW_TICK {i+1}/{secs}', flush=True);"
+        "print('SLOW_DONE', flush=True);"
+        "sys.exit(0)"
+    )
+    return [sys.executable, "-c", code]
+
+
 def all_capabilities() -> list[Capability]:
     caps: list[Capability] = [
         Capability(
@@ -50,6 +71,28 @@ def all_capabilities() -> list[Capability]:
             risk=RiskLevel.READ,
             fixture=True,
             parse_result=default_parse,
+            output_roots=["data/command_center"],
+        ),
+        Capability(
+            id="cc.fixture.slow",
+            name="Fixture lenta (cancelável)",
+            description="Job longo local para testar cancelamento — dorme alguns segundos.",
+            category="ops",
+            argv_builder=_fixture_slow,
+            params=[
+                ParamSpec(
+                    name="seconds",
+                    label="Duração (s)",
+                    type="int",
+                    default=8,
+                    description="Tempo de espera antes de concluir (padrão 8s).",
+                )
+            ],
+            risk=RiskLevel.READ,
+            fixture=True,
+            allow_cancel=True,
+            parse_result=default_parse,
+            timeout_sec=120,
             output_roots=["data/command_center"],
         ),
         # ── Extra ──────────────────────────────────────────────
@@ -116,6 +159,7 @@ def all_capabilities() -> list[Capability]:
             required_modules=["scripts.ops.extra_actionable"],
             risk=RiskLevel.WRITE_LOCAL,
             requires_confirmation=True,
+            confirmation_phrase="CONFIRMO",
             output_roots=["output"],
             parse_result=default_parse,
             expected_pr="main/extra_actionable",
@@ -185,6 +229,7 @@ def all_capabilities() -> list[Capability]:
             required_modules=["scripts.ops.extra_recurring_delivery"],
             risk=RiskLevel.WRITE_LOCAL,
             requires_confirmation=True,
+            confirmation_phrase="CONFIRMO",
             parse_result=default_parse,
         ),
         # ── CONFENGE suppliers ─────────────────────────────────
@@ -280,6 +325,7 @@ def all_capabilities() -> list[Capability]:
             required_modules=["scripts.ops.deliverable_a_org_ranking"],
             risk=RiskLevel.WRITE_LOCAL,
             requires_confirmation=True,
+            confirmation_phrase="CONFIRMO",
             parse_result=default_parse,
             expected_pr="confenge public agencies",
         ),
@@ -306,6 +352,7 @@ def all_capabilities() -> list[Capability]:
             required_modules=["scripts.ops.confenge_combined_cycle"],
             risk=RiskLevel.WRITE_LOCAL,
             requires_confirmation=True,
+            confirmation_phrase="CONFIRMO",
             expected_pr="futuro ciclo combinado",
             parse_result=default_parse,
         ),
@@ -319,6 +366,7 @@ def all_capabilities() -> list[Capability]:
             required_modules=["scripts.process_documents"],
             risk=RiskLevel.WRITE_LOCAL,
             requires_confirmation=True,
+            confirmation_phrase="CONFIRMO",
             parse_result=default_parse,
             output_roots=["output/process_documents"],
         ),
@@ -336,6 +384,7 @@ def all_capabilities() -> list[Capability]:
             required_modules=["scripts.process_documents"],
             risk=RiskLevel.WRITE_LOCAL,
             requires_confirmation=True,
+            confirmation_phrase="CONFIRMO",
             parse_result=default_parse,
             output_roots=["output/process_documents"],
             timeout_sec=7200,
@@ -360,6 +409,7 @@ def all_capabilities() -> list[Capability]:
             required_modules=["scripts.process_documents"],
             risk=RiskLevel.WRITE_LOCAL,
             requires_confirmation=True,
+            confirmation_phrase="CONFIRMO",
             parse_result=default_parse,
         ),
         Capability(
@@ -388,6 +438,7 @@ def all_capabilities() -> list[Capability]:
             required_modules=["scripts.process_documents"],
             risk=RiskLevel.WRITE_LOCAL,
             requires_confirmation=True,
+            confirmation_phrase="CONFIRMO",
             parse_result=default_parse,
         ),
         # ── Ops ────────────────────────────────────────────────

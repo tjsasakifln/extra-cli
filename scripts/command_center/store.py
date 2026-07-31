@@ -115,6 +115,19 @@ class Store:
                     label TEXT NOT NULL,
                     created_at TEXT NOT NULL
                 );
+                CREATE TABLE IF NOT EXISTS review_items (
+                    id TEXT PRIMARY KEY,
+                    ts TEXT NOT NULL,
+                    title TEXT NOT NULL,
+                    source TEXT NOT NULL,
+                    evidence TEXT NOT NULL,
+                    limitations TEXT NOT NULL,
+                    risks TEXT NOT NULL,
+                    status TEXT NOT NULL,
+                    job_id TEXT,
+                    capability_id TEXT,
+                    payload TEXT
+                );
                 """
             )
 
@@ -126,12 +139,49 @@ class Store:
             )
         return rec
 
-    def update_job(self, rec: JobRecord) -> None:
+    def update_job(self, rec: JobRecord) -> JobRecord:
+        """Persist job; never lose cancel_requested once set (merge, not blind overwrite)."""
         with self._lock, self._conn() as conn:
+            row = conn.execute("SELECT payload FROM jobs WHERE job_id = ?", (rec.job_id,)).fetchone()
+            if row:
+                existing = JobRecord(**json.loads(row["payload"]))
+                if existing.cancel_requested:
+                    rec.cancel_requested = True
             conn.execute(
                 "UPDATE jobs SET payload = ? WHERE job_id = ?",
                 (json.dumps(asdict(rec), ensure_ascii=False), rec.job_id),
             )
+        return rec
+
+    def patch_job(self, job_id: str, **fields: Any) -> JobRecord | None:
+        """Atomic field merge under lock — preferred for cancel and status transitions."""
+        with self._lock, self._conn() as conn:
+            row = conn.execute("SELECT payload FROM jobs WHERE job_id = ?", (job_id,)).fetchone()
+            if not row:
+                return None
+            data = json.loads(row["payload"])
+            # cancel_requested is sticky: True once set
+            if data.get("cancel_requested") and "cancel_requested" in fields:
+                fields = {**fields, "cancel_requested": True}
+            elif data.get("cancel_requested"):
+                fields = {**fields, "cancel_requested": True}
+            data.update(fields)
+            rec = JobRecord(**data)
+            conn.execute(
+                "UPDATE jobs SET payload = ? WHERE job_id = ?",
+                (json.dumps(asdict(rec), ensure_ascii=False), job_id),
+            )
+            return rec
+
+    def request_cancel(self, job_id: str) -> JobRecord | None:
+        """Set cancel flag and CANCELLING status without clobbering other fields."""
+        return self.patch_job(
+            job_id,
+            cancel_requested=True,
+            status=JobState.CANCELLING.value,
+            human_message="Cancelamento solicitado — aguardando o processo encerrar.",
+            attention="running",
+        )
 
     def get_job(self, job_id: str) -> JobRecord | None:
         with self._lock, self._conn() as conn:
@@ -272,3 +322,80 @@ class Store:
             JobState.CANCELLING.value,
         }])
         return counts
+
+    def enqueue_review(
+        self,
+        *,
+        title: str,
+        source: str,
+        evidence: str,
+        limitations: str,
+        risks: str,
+        job_id: str | None = None,
+        capability_id: str | None = None,
+        payload: dict[str, Any] | None = None,
+        item_id: str | None = None,
+    ) -> str:
+        rid = item_id or str(uuid.uuid4())
+        with self._lock, self._conn() as conn:
+            existing = conn.execute(
+                "SELECT id FROM review_items WHERE id = ? OR (job_id IS NOT NULL AND job_id = ?)",
+                (rid, job_id or ""),
+            ).fetchone()
+            if existing:
+                return str(existing["id"])
+            conn.execute(
+                """
+                INSERT INTO review_items(id, ts, title, source, evidence, limitations, risks, status, job_id, capability_id, payload)
+                VALUES (?,?,?,?,?,?,?,?,?,?,?)
+                """,
+                (
+                    rid,
+                    _utcnow(),
+                    title,
+                    source,
+                    evidence,
+                    limitations,
+                    risks,
+                    "pending",
+                    job_id,
+                    capability_id,
+                    json.dumps(payload or {}, ensure_ascii=False),
+                ),
+            )
+        return rid
+
+    def list_reviews(self, status: str | None = "pending", limit: int = 50) -> list[dict[str, Any]]:
+        with self._lock, self._conn() as conn:
+            if status:
+                rows = conn.execute(
+                    """
+                    SELECT id, ts, title, source, evidence, limitations, risks, status, job_id, capability_id, payload
+                    FROM review_items WHERE status = ? ORDER BY ts DESC LIMIT ?
+                    """,
+                    (status, max(1, min(limit, 200))),
+                ).fetchall()
+            else:
+                rows = conn.execute(
+                    """
+                    SELECT id, ts, title, source, evidence, limitations, risks, status, job_id, capability_id, payload
+                    FROM review_items ORDER BY ts DESC LIMIT ?
+                    """,
+                    (max(1, min(limit, 200)),),
+                ).fetchall()
+        out: list[dict[str, Any]] = []
+        for r in rows:
+            d = dict(r)
+            try:
+                d["payload"] = json.loads(d.get("payload") or "{}")
+            except json.JSONDecodeError:
+                d["payload"] = {}
+            out.append(d)
+        return out
+
+    def mark_review_decided(self, item_id: str, decision: str) -> None:
+        with self._lock, self._conn() as conn:
+            conn.execute(
+                "UPDATE review_items SET status = ? WHERE id = ?",
+                (f"decided:{decision}", item_id),
+            )

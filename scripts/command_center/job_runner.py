@@ -57,7 +57,7 @@ class JobRunner:
         self._validate_params(cap, params)
 
         if cap.requires_confirmation:
-            phrase = cap.confirmation_phrase or "CONFIRMO"
+            phrase = (cap.confirmation_phrase or "CONFIRMO").strip()
             if not req.confirmation or req.confirmation.strip() != phrase:
                 raise ValueError(
                     f"Confirmação obrigatória. Digite exatamente: {phrase}"
@@ -143,31 +143,87 @@ class JobRunner:
         finally:
             self._sem.release()
 
+    def _is_cancelled(self, job_id: str) -> bool:
+        rec = self.store.get_job(job_id)
+        return bool(rec and rec.cancel_requested)
+
+    def _finish_cancelled(self, job_id: str, *, exit_code: int | None = None) -> None:
+        finished = _utcnow()
+        rec = self.store.get_job(job_id)
+        started = rec.started_at if rec else None
+        duration = None
+        if started:
+            try:
+                duration = int(
+                    (datetime.fromisoformat(finished) - datetime.fromisoformat(started)).total_seconds()
+                    * 1000
+                )
+            except ValueError:
+                duration = None
+        status = normalize_exit(exit_code, cancelled=True)
+        public = public_status_dict(status)
+        rec = self.store.patch_job(
+            job_id,
+            cancel_requested=True,
+            status=public["state"],
+            technical_code=public.get("technical_code"),
+            human_message=public.get("human_message"),
+            attention=public.get("attention"),
+            next_action=public.get("next_action"),
+            exit_code=exit_code,
+            finished_at=finished,
+            duration_ms=duration,
+        ) or rec
+        self.store.audit("system", "job.finished", {"job_id": job_id, "status": JobState.CANCELLED.value})
+        self._log(job_id, "system", "info", "Finalizado: CANCELLED")
+        if rec:
+            self._emit(job_id, {"type": "status", "job": rec.to_public()})
+        self._emit(job_id, None)
+
     def _execute_job(self, job_id: str, cap: Capability) -> None:
         rec = self.store.get_job(job_id)
         if rec is None:
             return
-        rec.status = JobState.VALIDATING.value
-        rec.human_message = "Validando parâmetros e pré-requisitos."
-        self.store.update_job(rec)
+        if rec.cancel_requested:
+            self._finish_cancelled(job_id)
+            return
+
+        rec = self.store.patch_job(
+            job_id,
+            status=JobState.VALIDATING.value,
+            human_message="Validando parâmetros e pré-requisitos.",
+            attention="running",
+        ) or rec
         self._emit(job_id, {"type": "status", "job": rec.to_public()})
         self._log(job_id, "system", "info", f"Iniciando {cap.id}")
 
-        rec.status = JobState.RUNNING.value
-        rec.started_at = _utcnow()
-        rec.human_message = "Em execução — acompanhe o progresso nos logs."
-        self.store.update_job(rec)
+        if self._is_cancelled(job_id):
+            self._finish_cancelled(job_id)
+            return
+
+        rec = self.store.patch_job(
+            job_id,
+            status=JobState.RUNNING.value,
+            started_at=_utcnow(),
+            human_message="Em execução — acompanhe o progresso nos logs.",
+            attention="running",
+        ) or rec
         self._emit(job_id, {"type": "status", "job": rec.to_public()})
+
+        if self._is_cancelled(job_id):
+            self._finish_cancelled(job_id)
+            return
 
         timeout = cap.timeout_sec or self.settings.default_job_timeout_sec
         job_dir = Path(rec.stdout_path or str(self.settings.jobs_dir / job_id / "stdout.log")).parent
         job_dir.mkdir(parents=True, exist_ok=True)
         stdout_path = Path(rec.stdout_path or job_dir / "stdout.log")
         stderr_path = Path(rec.stderr_path or job_dir / "stderr.log")
+        argv = list(rec.canonical_command)
 
         try:
             proc = subprocess.Popen(
-                rec.canonical_command,
+                argv,
                 cwd=str(Path(__file__).resolve().parents[2]),
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
@@ -176,20 +232,34 @@ class JobRunner:
                 bufsize=1,
             )
         except OSError as exc:
-            rec.status = JobState.FAILED.value
-            rec.exit_code = 127
-            rec.human_message = f"Falha ao iniciar processo: {exc}"
-            rec.finished_at = _utcnow()
-            self.store.update_job(rec)
+            self.store.patch_job(
+                job_id,
+                status=JobState.FAILED.value,
+                exit_code=127,
+                human_message=f"Falha ao iniciar processo: {exc}",
+                attention="blocked_technical",
+                finished_at=_utcnow(),
+            )
             self._log(job_id, "system", "error", redact_text(str(exc)))
-            self._emit(job_id, {"type": "status", "job": rec.to_public()})
+            rec = self.store.get_job(job_id)
+            if rec:
+                self._emit(job_id, {"type": "status", "job": rec.to_public()})
             self._emit(job_id, None)
+            return
+
+        # Cancel may have arrived while we were spawning
+        if self._is_cancelled(job_id):
+            proc.kill()
+            try:
+                proc.wait(timeout=3)
+            except subprocess.TimeoutExpired:
+                pass
+            self._finish_cancelled(job_id, exit_code=proc.returncode)
             return
 
         with self._lock:
             self._processes[job_id] = proc
-        rec.pid = proc.pid
-        self.store.update_job(rec)
+        self.store.patch_job(job_id, pid=proc.pid)
 
         stdout_buf: list[str] = []
         stderr_buf: list[str] = []
@@ -226,17 +296,33 @@ class JobRunner:
         t_err.start()
 
         timed_out = False
-        try:
-            proc.wait(timeout=timeout)
-        except subprocess.TimeoutExpired:
-            timed_out = True
-            rec.status = JobState.CANCELLING.value
-            self.store.update_job(rec)
-            proc.kill()
-            try:
-                proc.wait(timeout=5)
-            except subprocess.TimeoutExpired:
-                pass
+        # Poll so cancel is observed promptly without waiting full process end
+        deadline = time.time() + timeout
+        while True:
+            if self._is_cancelled(job_id):
+                if proc.poll() is None:
+                    proc.terminate()
+                    try:
+                        proc.wait(timeout=1)
+                    except subprocess.TimeoutExpired:
+                        proc.kill()
+                        try:
+                            proc.wait(timeout=2)
+                        except subprocess.TimeoutExpired:
+                            pass
+                break
+            if proc.poll() is not None:
+                break
+            if time.time() >= deadline:
+                timed_out = True
+                self.store.patch_job(job_id, status=JobState.CANCELLING.value)
+                proc.kill()
+                try:
+                    proc.wait(timeout=5)
+                except subprocess.TimeoutExpired:
+                    pass
+                break
+            time.sleep(0.05)
 
         t_out.join(timeout=5)
         t_err.join(timeout=5)
@@ -244,17 +330,22 @@ class JobRunner:
         with self._lock:
             self._processes.pop(job_id, None)
 
-        rec = self.store.get_job(job_id) or rec
-        cancelled = rec.cancel_requested
+        rec = self.store.get_job(job_id)
+        if rec is None:
+            self._emit(job_id, None)
+            return
+        cancelled = bool(rec.cancel_requested)
         exit_code = proc.returncode if proc.returncode is not None else -1
+        if cancelled:
+            self._finish_cancelled(job_id, exit_code=exit_code)
+            return
+
         stdout = "\n".join(stdout_buf[-500:])
         stderr = "\n".join(stderr_buf[-500:])
         parser = cap.parse_result or default_parse
         parsed = parser(exit_code, stdout, stderr, rec.params)
-        if timed_out or cancelled:
-            status = normalize_exit(
-                exit_code, cancelled=cancelled, timed_out=timed_out, stdout=stdout, stderr=stderr
-            )
+        if timed_out:
+            status = normalize_exit(exit_code, timed_out=True, stdout=stdout, stderr=stderr)
             public = public_status_dict(status)
         else:
             public = {
@@ -272,27 +363,49 @@ class JobRunner:
             else datetime.now(timezone.utc)
         )
         duration = int((datetime.fromisoformat(finished) - started).total_seconds() * 1000)
-        rec.status = public["state"]
-        rec.technical_code = public.get("technical_code")
-        rec.human_message = public.get("human_message")
-        rec.attention = public.get("attention")
-        rec.next_action = public.get("next_action")
-        rec.exit_code = exit_code
-        rec.finished_at = finished
-        rec.duration_ms = duration
-        rec.artifacts = list(parsed.get("artifacts") or [])
-        rec.output_paths = list(parsed.get("artifacts") or [])
-        rec.blocker = parsed.get("blocker")
-        rec.manifests = list(parsed.get("manifests") or [])
-        rec.run_id = parsed.get("run_id")
-        self.store.update_job(rec)
+        # Final merge preserves cancel_requested if set mid-write
+        rec = self.store.patch_job(
+            job_id,
+            status=public["state"],
+            technical_code=public.get("technical_code"),
+            human_message=public.get("human_message"),
+            attention=public.get("attention"),
+            next_action=public.get("next_action"),
+            exit_code=exit_code,
+            finished_at=finished,
+            duration_ms=duration,
+            artifacts=list(parsed.get("artifacts") or []),
+            output_paths=list(parsed.get("artifacts") or []),
+            blocker=parsed.get("blocker"),
+            manifests=list(parsed.get("manifests") or []),
+            run_id=parsed.get("run_id"),
+        ) or rec
+        # If cancel won the race on final patch
+        rec_check = self.store.get_job(job_id)
+        if rec_check and rec_check.cancel_requested and rec_check.status != JobState.CANCELLED.value:
+            self._finish_cancelled(job_id, exit_code=exit_code)
+            return
+
         self.store.audit(
             "system",
             "job.finished",
-            {"job_id": job_id, "status": rec.status, "exit_code": exit_code},
+            {"job_id": job_id, "status": rec.status if rec else public["state"], "exit_code": exit_code},
         )
-        self._log(job_id, "system", "info", f"Finalizado: {rec.status}")
-        self._emit(job_id, {"type": "status", "job": rec.to_public()})
+        self._log(job_id, "system", "info", f"Finalizado: {public['state']}")
+        if rec:
+            self._emit(job_id, {"type": "status", "job": rec.to_public()})
+        # Enqueue human review when blocked on human decision
+        if public["state"] == JobState.BLOCKED_HUMAN.value and rec:
+            self.store.enqueue_review(
+                title=f"Revisão necessária: {rec.action}",
+                source=rec.capability_id,
+                evidence=f"Job {job_id}; código {public.get('technical_code')}; artifacts: {rec.artifacts[:5]}",
+                limitations=public.get("human_message") or "Resultado depende de decisão humana.",
+                risks="Usar o resultado sem revisão pode propagar classificação incorreta.",
+                job_id=job_id,
+                capability_id=rec.capability_id,
+                payload={"technical_code": public.get("technical_code"), "artifacts": rec.artifacts},
+            )
         self._emit(job_id, None)
 
     def cancel(self, job_id: str, actor: str = "local-user") -> JobRecord:
@@ -306,20 +419,36 @@ class JobRunner:
             JobState.QUEUED.value,
             JobState.VALIDATING.value,
             JobState.RUNNING.value,
+            JobState.CANCELLING.value,
         }:
+            # Already terminal — if cancel was requested earlier, ok; else reject
+            if rec.cancel_requested and rec.status == JobState.CANCELLED.value:
+                return rec
             raise ValueError("Job não está em estado cancelável.")
-        rec.cancel_requested = True
-        rec.status = JobState.CANCELLING.value
-        rec.human_message = "Cancelamento solicitado — aguardando o processo encerrar."
-        self.store.update_job(rec)
+        # Atomic sticky cancel flag — never lost by concurrent update_job
+        rec = self.store.request_cancel(job_id) or rec
         self.store.audit(actor, "job.cancel", {"job_id": job_id})
         with self._lock:
             proc = self._processes.get(job_id)
         if proc and proc.poll() is None:
             proc.terminate()
-            time.sleep(0.3)
+            time.sleep(0.2)
             if proc.poll() is None:
                 proc.kill()
+        # If process never started / already gone, finalize now
+        with self._lock:
+            still = self._processes.get(job_id)
+        if still is None and rec.status in {
+            JobState.QUEUED.value,
+            JobState.VALIDATING.value,
+            JobState.CANCELLING.value,
+        }:
+            # Worker may still be between states; leave CANCELLING for worker to finalize
+            # unless process already finished without worker noticing cancel
+            latest = self.store.get_job(job_id)
+            if latest and latest.cancel_requested and latest.pid is None and latest.status != JobState.RUNNING.value:
+                # Not yet in Popen — worker will see cancel_requested before/after spawn
+                pass
         self._emit(job_id, {"type": "status", "job": rec.to_public()})
         return rec
 

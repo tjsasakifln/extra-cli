@@ -114,7 +114,7 @@ export function CapabilityDetailPage() {
         open={confirmOpen}
         title={`Confirmar: ${cap.name}`}
         description="Revise o efeito antes de executar. O Command Center não decide por você."
-        phrase={cap.confirmation_phrase}
+        phrase={cap.confirmation_phrase || "CONFIRMO"}
         onCancel={() => setConfirmOpen(false)}
         onConfirm={(typed) => void run(typed)}
       />
