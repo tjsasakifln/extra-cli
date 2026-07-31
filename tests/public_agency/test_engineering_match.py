@@ -182,6 +182,135 @@ def test_pipeline_pageant_palmitos_not_publishable(tmp_path: Path) -> None:
     assert not any("PALMITOS" in n.upper() for n in names)
 
 
+def test_occupancy_always_wins_over_obra_de_and_execucao() -> None:
+    """Concessão/cessão never become STRONG_WORKS via soft or true works phrases."""
+    cases = [
+        "CONCESSÃO DE USO DE BEM PÚBLICO — OBRA DE INFRAESTRUTURA EXISTENTE NO PARQUE",
+        "CONCESSÃO DE USO COM EXECUÇÃO DE OBRAS DE PAVIMENTAÇÃO",
+        "CESSÃO DE IMÓVEL PÚBLICO COM EDIFICAÇÃO E OBRA DE AMPLIAÇÃO EXISTENTE",
+    ]
+    for obj in cases:
+        v = classify_engineering_object(obj)
+        assert v.is_engineering is False, obj
+        assert v.tier == TIER_HARD_NEGATIVE, obj
+        assert any("occupancy" in r for r in v.reasons), (obj, v.reasons)
+
+
+def test_obra_de_arte_never_strong_works() -> None:
+    for obj in (
+        "AQUISIÇÃO DE OBRA DE ARTE CONTEMPORÂNEA PARA ACERVO DO MUSEU MUNICIPAL",
+        "COMPRA DE OBRAS DE ARTE PARA EXPOSIÇÃO PERMANENTE",
+        "OBRA DE ARTE PÚBLICA PARA PRAÇA CENTRAL",
+    ):
+        v = classify_engineering_object(obj)
+        assert v.is_engineering is False, obj
+        assert v.tier == TIER_HARD_NEGATIVE, (obj, v)
+        assert is_engineering_object(obj) is False
+
+
+def test_pipeline_occupancy_obra_de_not_publishable(tmp_path: Path) -> None:
+    """Skeptic FP: occupancy + 'OBRA DE …' must not yield a public-agency lead."""
+    rows = [
+        {
+            "contrato_id": "occ1",
+            "orgao_cnpj": "83102999000111",
+            "orgao_nome": "MUNICÍPIO DE SKEPTIC-OCCUPANCY",
+            "objeto_contrato": (
+                "CONCESSÃO DE USO DE BEM PÚBLICO — OBRA DE INFRAESTRUTURA "
+                "EXISTENTE NO PARQUE MUNICIPAL"
+            ),
+            "valor_total": 60000,
+            "data_publicacao": "2026-01-10",
+            "data_inicio": "2025-01-01",
+            "data_fim": "2026-12-31",
+            "uf": "SC",
+            "source": "pncp",
+            "is_active": True,
+        },
+        {
+            "contrato_id": "occ2",
+            "orgao_cnpj": "83102999000111",
+            "orgao_nome": "MUNICÍPIO DE SKEPTIC-OCCUPANCY",
+            "objeto_contrato": "CESSÃO DE IMÓVEL PÚBLICO COM EDIFICAÇÃO EXISTENTE",
+            "valor_total": 25000,
+            "data_publicacao": "2025-06-01",
+            "uf": "SC",
+            "source": "pncp",
+            "is_active": True,
+        },
+        {
+            "contrato_id": "occ3",
+            "orgao_cnpj": "83102999000111",
+            "orgao_nome": "MUNICÍPIO DE SKEPTIC-OCCUPANCY",
+            "objeto_contrato": "AQUISIÇÃO DE MATERIAIS DE EXPEDIENTE",
+            "valor_total": 3000,
+            "data_publicacao": "2025-03-01",
+            "uf": "SC",
+            "source": "pncp",
+            "is_active": True,
+        },
+    ]
+    r = run_public_agency_pipeline(
+        dsn=None,
+        out_dir=tmp_path / "occ",
+        as_of=date(2026, 7, 15),
+        fixture_rows=rows,
+        skip_kit=True,
+    )
+    names = [L["agency"]["nome_oficial"] for L in r.get("leads") or []]
+    assert not any("SKEPTIC-OCCUPANCY" in n.upper() for n in names), names
+
+
+def test_pipeline_obra_de_arte_not_publishable(tmp_path: Path) -> None:
+    """Skeptic FP: cultural 'obra de arte' must not yield a public-agency lead."""
+    rows = [
+        {
+            "contrato_id": "art1",
+            "orgao_cnpj": "83102888000122",
+            "orgao_nome": "FUNDAÇÃO CULTURAL SKEPTIC-ARTE",
+            "objeto_contrato": (
+                "AQUISIÇÃO DE OBRA DE ARTE CONTEMPORÂNEA PARA ACERVO DO MUSEU MUNICIPAL"
+            ),
+            "valor_total": 45000,
+            "data_publicacao": "2026-01-10",
+            "uf": "SC",
+            "source": "pncp",
+            "is_active": True,
+        },
+        {
+            "contrato_id": "art2",
+            "orgao_cnpj": "83102888000122",
+            "orgao_nome": "FUNDAÇÃO CULTURAL SKEPTIC-ARTE",
+            "objeto_contrato": "COMPRA DE OBRAS DE ARTE PARA EXPOSIÇÃO PERMANENTE",
+            "valor_total": 30000,
+            "data_publicacao": "2025-06-01",
+            "uf": "SC",
+            "source": "pncp",
+            "is_active": True,
+        },
+        {
+            "contrato_id": "art3",
+            "orgao_cnpj": "83102888000122",
+            "orgao_nome": "FUNDAÇÃO CULTURAL SKEPTIC-ARTE",
+            "objeto_contrato": "FORNECIMENTO DE MATERIAIS DE EXPEDIENTE PARA SECRETARIA",
+            "valor_total": 5000,
+            "data_publicacao": "2025-03-01",
+            "uf": "SC",
+            "source": "pncp",
+            "is_active": True,
+        },
+    ]
+    r = run_public_agency_pipeline(
+        dsn=None,
+        out_dir=tmp_path / "arte",
+        as_of=date(2026, 7, 15),
+        fixture_rows=rows,
+        skip_kit=True,
+    )
+    names = [L["agency"]["nome_oficial"] for L in r.get("leads") or []]
+    assert not any("SKEPTIC-ARTE" in n.upper() for n in names), names
+
+
 def test_pipeline_real_pavement_still_publishable(tmp_path: Path) -> None:
     rows = [
         {

@@ -16,3 +16,7 @@
 {"id":"tp_reforma_escola","obj":"Reforma de escola municipal — engenharia e construção civil","expect_engineering":true,"expect_tier":"STRONG_WORKS"}
 {"id":"tp_fiscalizacao_obra","obj":"Serviços técnicos de engenharia para fiscalização de obra","expect_engineering":true,"expect_tier":"STRONG_WORKS"}
 {"id":"tp_garopaba_pavimentacao","obj":"CONTRATAÇÃO DE EMPRESA PARA EXECUÇÃO DE OBRAS DE PAVIMENTAÇÃO DA ROD. GRP 030 E LEONILDO PEIRÃO NO MUNICÍPIO DE GAROPABA/SC.","expect_engineering":true,"expect_tier":"STRONG_WORKS"}
+{"id":"fp_concessao_obra_de_infra_existente","obj":"CONCESSÃO DE USO DE BEM PÚBLICO — OBRA DE INFRAESTRUTURA EXISTENTE NO PARQUE MUNICIPAL","expect_engineering":false,"expect_tier":"HARD_NEGATIVE"}
+{"id":"fp_aquisicao_obra_de_arte","obj":"AQUISIÇÃO DE OBRA DE ARTE CONTEMPORÂNEA PARA ACERVO DO MUSEU MUNICIPAL","expect_engineering":false,"expect_tier":"HARD_NEGATIVE"}
+{"id":"fp_compra_obras_de_arte","obj":"COMPRA DE OBRAS DE ARTE PARA EXPOSIÇÃO PERMANENTE","expect_engineering":false,"expect_tier":"HARD_NEGATIVE"}
+{"id":"fp_cessao_imovel_com_edificacao","obj":"CESSÃO DE IMÓVEL PÚBLICO COM EDIFICAÇÃO EXISTENTE PARA ASSOCIAÇÃO COMUNITÁRIA","expect_engineering":false,"expect_tier":"HARD_NEGATIVE"}

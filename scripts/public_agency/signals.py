@@ -109,7 +109,19 @@ class EngineeringObjectVerdict:
         }
 
 
-# HARD_NEGATIVE always wins (checked first after empty).
+# Absolute occupancy hard-negatives — ALWAYS win; never overridden by OBRA DE / works phrases.
+_OCCUPANCY_HARD_NEGATIVE_PHRASES: tuple[tuple[str, str], ...] = (
+    ("occupancy_concessao", "CONCESSAO DE USO"),
+    ("occupancy_cessao_imovel", "CESSAO DE IMOVEL"),
+    ("occupancy_permissao", "PERMISSAO DE USO"),
+    ("occupancy_comodato", "COMODATO"),
+    ("occupancy_cessao_oneros", "CESSAO ONEROSA"),
+    ("occupancy_alienacao", "ALIENACAO DE BEM PUBLICO"),
+    ("occupancy_permissoes", "PERMISSAO DE USO DE BEM"),
+)
+
+# Other hard-negatives (labor/pageant/supply) — absolute unless true works-execution
+# rescue applies (EXECUCAO DE OBRAS / CONSTRUCAO DE / PAVIMENTACAO — never bare OBRA DE).
 _HARD_NEGATIVE_PHRASES: tuple[tuple[str, str], ...] = (
     ("labor_mao_de_obra", "MAO DE OBRA"),
     ("labor_mao_de_obra", "MAO-DE-OBRA"),
@@ -135,54 +147,74 @@ _HARD_NEGATIVE_PHRASES: tuple[tuple[str, str], ...] = (
     ("disposable", "MATERIAIS DESCARTAVEIS"),
     ("furniture", "MOVEIS PARA ESCRITORIO"),
     ("notebooks", "NOTEBOOKS"),
-    ("occupancy_concessao", "CONCESSAO DE USO"),
-    ("occupancy_concessao", "CONCESSAO DE USO DE"),
-    ("occupancy_cessao", "CESSAO DE IMOVEL"),
-    ("occupancy_cessao", "CESSAO DE USO"),
-    ("occupancy_permissao", "PERMISSAO DE USO"),
-    ("occupancy_comodato", "COMODATO"),
     ("sports_event", "EVENTOS ESPORTIVOS"),
     ("school_transport", "TRANSPORTE ESCOLAR"),
+    # Cultural / non-engineering "obra de …"
+    ("cultural_obra_de_arte", "OBRA DE ARTE"),
+    ("cultural_obras_de_arte", "OBRAS DE ARTE"),
+    ("cultural_obra_de_teatro", "OBRA DE TEATRO"),
+    ("cultural_obra_literaria", "OBRA LITERARIA"),
+    ("cultural_obra_musical", "OBRA MUSICAL"),
+    ("cultural_acervo", "ACERVO DO MUSEU"),
+    ("cultural_acervo", "ACERVO MUSEOLOGICO"),
 )
 
-# Supply-only patterns: acquisition without works-execution verbs → HARD_NEGATIVE
+# Supply-only patterns: acquisition without true works-execution → HARD_NEGATIVE
 _SUPPLY_ONLY_RE = re.compile(
-    r"\b(AQUISICAO|COMPRA|FORNECIMENTO|AQUISICAO DE|COMPRA DE|FORNECIMENTO DE)\b.{0,80}\b("
+    r"\b(AQUISICAO|COMPRA|FORNECIMENTO)\b.{0,100}\b("
     r"MATERIAIS?|MATERIAL|ROMPEDOR|EQUIPAMENTO|EQUIPAMENTOS|FERRAMENTA|FERRAMENTAS|"
     r"MAQUINA|MAQUINAS|VEICULO|VEICULOS|MOVEIS|MOBILIARIO|PNEU|PNEUS|"
-    r"COMBUSTIVEL|MEDICAMENTO|UNIFORME|NOTEBOOK|TABLET"
+    r"COMBUSTIVEL|MEDICAMENTO|UNIFORME|NOTEBOOK|TABLET|OBRA DE ARTE|OBRAS DE ARTE"
     r")\b"
 )
 
-# Works-execution verbs that can rescue an otherwise supply-looking object
-_WORKS_EXECUTION_RE = re.compile(
+# True works-execution rescue for supply-looking text — NEVER bare "OBRA DE ".
+_TRUE_WORKS_EXECUTION_RE = re.compile(
     r"\b("
-    r"EXECUCAO DE OBRA|EXECUCAO DE OBRAS|EXECUCAO DAS OBRAS|"
-    r"OBRA DE |OBRAS DE |OBRA PUBLICA|OBRAS PUBLICAS|"
-    r"CONSTRUCAO DE |REFORMA DE |"
-    r"PAVIMENTACAO|TERRAPLENAGEM|"
-    r"PROJETO BASICO|PROJETO EXECUTIVO|"
-    r"SERVICOS? DE ENGENHAR|FISCALIZACAO DE OBRA"
+    r"EXECUCAO\s+(DE\s+)?(DAS\s+)?OBRAS?\b|"
+    r"CONSTRUCAO\s+DE\s+\w|"
+    r"CONSTRUCAO\s+CIVIL\b|"
+    r"PAVIMENTAC|"
+    r"TERRAPLENAGEM\b|"
+    r"PROJETO\s+BASICO\b|"
+    r"PROJETO\s+EXECUTIVO\b|"
+    r"SERVICOS?\s+(TECNICOS\s+DE\s+)?ENGENHAR|"
+    r"FISCALIZACAO\s+DE\s+OBRAS?\b|"
+    r"REFORMA\s+DE\s+(ESCOLA|PREDIO|EDIFIC|UBS|UNIDADE|CRECHE|HOSPITAL|PONTE|PRACA|CALCADA|ABRIGO)"
+    r")"
+)
+
+# Non-engineering complements after "OBRA(S) DE …" that must not count as STRONG_WORKS.
+_OBRA_DE_NEGATIVE_COMPLEMENTS = re.compile(
+    r"\bOBRAS?\s+DE\s+("
+    r"ARTE|ARTES|TEATRO|TEATRAIS?|MUSICA|MUSICAL|LITERARIA|LITERARIO|"
+    r"FICCAO|CINEMA|AUDIOVISUAL|DANCA|COREOGRAFIA|"
+    r"CARIDADE|MISERICORDIA|"  # figurative
+    r"INFRAESTRUTURA\s+EXISTENTE"  # describing existing asset in occupancy/cession
     r")\b"
 )
 
 # STRONG_WORKS only — multi-word works / engineering services (never bare nouns).
+# "obra_de" requires a complement that is NOT cultural/figurative (filtered above).
 _STRONG_WORKS_PATTERNS: tuple[tuple[str, str], ...] = (
-    ("obra_de", r"\bOBRAS?\s+DE\s+\w"),
+    # OBRAS? DE <word> but not ARTE/TEATRO/etc. (negative complement filtered separately)
+    ("obra_de", r"\bOBRAS?\s+DE\s+(?!ARTE|ARTES|TEATRO|MUSICA|LITERARIA|LITERARIO|FICCAO|CINEMA|AUDIOVISUAL|DANCA|INFRAESTRUTURA\s+EXISTENTE)[A-Z0-9]"),
     ("obra_publica", r"\bOBRAS?\s+PUBLICAS?\b"),
     ("execucao_obra", r"\bEXECUCAO\s+(DE\s+)?(DAS\s+)?OBRAS?\b"),
     ("construcao_de", r"\bCONSTRUCAO\s+DE\s+\w"),
     ("construcao_civil", r"\bCONSTRUCAO\s+CIVIL\b"),
-    ("reforma_de_building", r"\bREFORMA\s+DE\s+(ESCOLA|PREDIO|EDIFIC|UBS|UNIDADE|CRECHE|HOSPITAL|PONTE|PRACA|CALCADA)"),
+    ("reforma_de_building", r"\bREFORMA\s+DE\s+(ESCOLA|PREDIO|EDIFIC|UBS|UNIDADE|CRECHE|HOSPITAL|PONTE|PRACA|CALCADA|ABRIGO)"),
     ("pavimentacao", r"\bPAVIMENTAC"),
     ("terraplenagem", r"\bTERRAPLENAGEM\b"),
     ("drenagem_works", r"\bDRENAGEM\s+(URBANA|PLUVIAL|DE\s+)"),
-    ("saneamento_works", r"\b(OBRAS?\s+DE\s+)?SANEAMENTO\b"),
+    ("saneamento_works", r"\bOBRAS?\s+DE\s+SANEAMENTO\b"),
+    ("saneamento_sistema", r"\b(SISTEMA|REDE|SERVICOS?)\s+DE\s+SANEAMENTO\b"),
     ("rede_esgoto", r"\bREDE\s+DE\s+ESGOTO\b"),
     ("rede_agua", r"\bREDE\s+DE\s+AGUA\b"),
     ("estacao_tratamento", r"\bESTACAO\s+DE\s+TRATAMENTO\b"),
     ("projeto_basico", r"\bPROJETO\s+BASICO\b"),
     ("projeto_executivo", r"\bPROJETO\s+EXECUTIVO\b"),
+    ("projeto_estrutural", r"\bPROJETO\s+ESTRUTURAL\b"),
     ("servicos_engenharia", r"\bSERVICOS?\s+(TECNICOS\s+DE\s+)?ENGENHAR"),
     ("engenharia_discipline", r"\bENGENHARIA\s+(CIVIL|ELETRICA|MECANICA|AMBIENTAL)\b"),
     ("fiscalizacao_obra", r"\bFISCALIZACAO\s+DE\s+OBRAS?\b"),
@@ -191,7 +223,7 @@ _STRONG_WORKS_PATTERNS: tuple[tuple[str, str], ...] = (
     ("memorial_descritivo", r"\bMEMORIAL\s+DESCRITIVO\b"),
     ("planilha_orcament", r"\bPLANILHA\s+ORCAMENT"),
     ("infraestrutura_urbana", r"\bINFRAESTRUTURA\s+(URBANA|VIARIA)\b"),
-    ("ponte_works", r"\b(CONSTRUCAO|REFORMA|OBRA)\s+.{0,20}\bPONTE\b"),
+    ("ponte_works", r"\b(CONSTRUCAO|REFORMA|EXECUCAO).{0,30}\bPONTE\b"),
     ("viaduto", r"\bVIADUTO\b"),
     ("barragem", r"\bBARRAGEM\b"),
     ("galeria_aguas", r"\bGALERIA\s+DE\s+AGUAS\b"),
@@ -216,60 +248,80 @@ def classify_engineering_object(
 ) -> EngineeringObjectVerdict:
     """Multi-tier engineering object classification (fail-closed).
 
-    Profile eng_keywords never alone force True — only annotate KEYWORD_ONLY
-    when STRONG_WORKS already matched, or stand alone as non-engineering.
+    Order (mandatory):
+      EMPTY → OCCUPANCY hard-neg (always wins) → other HARD_NEGATIVE
+      → STRONG_WORKS → WEAK_NOUN_ONLY → KEYWORD_ONLY → NONE
+
+    Occupancy (concessão/cessão/permissão de uso) is NEVER rescued by
+    'OBRA DE …' or other soft works phrases. Profile keywords never force True.
     """
     blob = _fold(obj)
     if not blob:
         return EngineeringObjectVerdict(False, TIER_NONE, ("empty",))
 
-    # 1) HARD_NEGATIVE
+    # 0) OCCUPANCY absolute hard-negative — never overridden by OBRA DE / works phrases.
+    occ_reasons: list[str] = []
+    for rid, phrase in _OCCUPANCY_HARD_NEGATIVE_PHRASES:
+        # Avoid false "CESSAO DE USO" match inside "CONCESSAO DE USO" only once
+        if phrase == "CESSAO DE USO" and "CONCESSAO DE USO" in blob:
+            continue
+        if phrase in blob:
+            occ_reasons.append(rid)
+    if occ_reasons:
+        return EngineeringObjectVerdict(
+            False, TIER_HARD_NEGATIVE, tuple(dict.fromkeys(occ_reasons))
+        )
+
+    # 1) Cultural / labor / pageant / other absolute hard-negatives
     neg_reasons: list[str] = []
     for rid, phrase in _HARD_NEGATIVE_PHRASES:
         if phrase in blob:
             neg_reasons.append(rid)
 
+    # True works-execution rescue (never bare OBRA DE)
+    has_true_works = bool(_TRUE_WORKS_EXECUTION_RE.search(blob))
+
     supply_match = _SUPPLY_ONLY_RE.search(blob)
-    has_works_exec = bool(_WORKS_EXECUTION_RE.search(blob))
-    if supply_match and not has_works_exec:
+    if supply_match and not has_true_works:
         neg_reasons.append("supply_only_acquisition")
 
-    # Secretariat / organ names containing INFRAESTRUTURA alone (not works context)
-    if re.search(r"\bSECRETARIA\b.{0,40}\bINFRAESTRUTURA\b", blob) and not has_works_exec:
-        if not any(
-            p in blob
-            for p in (
-                "OBRA DE ",
-                "OBRAS DE ",
-                "PAVIMENT",
-                "EXECUCAO DE OBRA",
-                "PROJETO BASICO",
-            )
-        ):
-            # Only count as negative if no strong works pattern will match later —
-            # still record; hard negative if no strong works
-            pass
+    # AQUISIÇÃO/COMPRA de "obra de arte" already in cultural phrases + supply
+    if re.search(r"\b(AQUISICAO|COMPRA|FORNECIMENTO)\b.{0,60}\bOBRAS?\s+DE\s+ARTE\b", blob):
+        neg_reasons.append("cultural_aquisicao_obra_de_arte")
 
-    if neg_reasons and not has_works_exec:
-        # concession / labor / supply without works execution → hard negative
-        return EngineeringObjectVerdict(False, TIER_HARD_NEGATIVE, tuple(dict.fromkeys(neg_reasons)))
+    # Absolute categories: cultural, pageant, labor without true works execution
+    absolute_prefixes = ("cultural_", "pageant_", "labor_", "sports_", "school_")
+    if any(r.startswith(absolute_prefixes) for r in neg_reasons) and not has_true_works:
+        return EngineeringObjectVerdict(
+            False, TIER_HARD_NEGATIVE, tuple(dict.fromkeys(neg_reasons))
+        )
+    if "supply_only_acquisition" in neg_reasons or "cultural_aquisicao_obra_de_arte" in neg_reasons:
+        return EngineeringObjectVerdict(
+            False, TIER_HARD_NEGATIVE, tuple(dict.fromkeys(neg_reasons))
+        )
+    # Other hard-negatives (fuel, tires, office) without true works
+    if neg_reasons and not has_true_works:
+        return EngineeringObjectVerdict(
+            False, TIER_HARD_NEGATIVE, tuple(dict.fromkeys(neg_reasons))
+        )
 
-    # If hard negatives co-exist WITH works execution verbs (rare), still allow
-    # strong works evaluation below — but pure concession stays negative:
-    if any(r.startswith("occupancy_") for r in neg_reasons) and not has_works_exec:
-        return EngineeringObjectVerdict(False, TIER_HARD_NEGATIVE, tuple(dict.fromkeys(neg_reasons)))
-    if any(r.startswith("pageant_") or r.startswith("labor_") for r in neg_reasons) and not has_works_exec:
-        return EngineeringObjectVerdict(False, TIER_HARD_NEGATIVE, tuple(dict.fromkeys(neg_reasons)))
-    if "supply_only_acquisition" in neg_reasons:
-        return EngineeringObjectVerdict(False, TIER_HARD_NEGATIVE, tuple(dict.fromkeys(neg_reasons)))
+    # 2) STRONG_WORKS — filter out cultural "obra de arte" complements first
+    if _OBRA_DE_NEGATIVE_COMPLEMENTS.search(blob) and not has_true_works:
+        return EngineeringObjectVerdict(
+            False,
+            TIER_HARD_NEGATIVE,
+            ("cultural_or_figurative_obra_de",),
+        )
 
-    # 2) STRONG_WORKS
     strong_reasons: list[str] = []
     for rid, pattern in _STRONG_WORKS_PATTERNS:
         if re.search(pattern, blob):
+            # obra_de must not be the sole match when only figurative/cultural
+            if rid == "obra_de" and _OBRA_DE_NEGATIVE_COMPLEMENTS.search(blob):
+                continue
             strong_reasons.append(rid)
 
-    # SANEAMENTO / DRENAGEM only as works (not bare word in unrelated context)
+    # SANEAMENTO / DRENAGEM only with works context (not bare secretariat labels)
     if re.search(r"\bSANEAMENTO\b", blob) and re.search(
         r"\b(OBRA|OBRAS|EXECUCAO|REDE|SISTEMA|SERVICOS?\s+DE)\b", blob
     ):
@@ -280,7 +332,6 @@ def classify_engineering_object(
         strong_reasons.append("drenagem_works_context")
 
     if strong_reasons:
-        # Profile keywords may annotate but never gate
         kw_hits = []
         for kw in eng_keywords or []:
             fk = _fold(kw)
