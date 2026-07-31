@@ -1,6 +1,6 @@
 {
   "campaign_id": "EXTRA-PRS-186-187-TRUST-HARDENING-01",
-  "captured_at": "2026-07-31T21:45:00Z",
+  "captured_at": "2026-07-31T22:10:00Z",
   "main_sha": "1718d6389c4e772bf3c5a45ac059871c32d83afc",
   "pr_186": {
     "branch": "feat/extra-local-command-center",
@@ -9,30 +9,35 @@
     "status": "PASS_MERGE_READY",
     "a16": {
       "pytest": "104 passed",
-      "npm_ci": "ok",
-      "npm_build": "ok",
       "npm_unit": "10 passed",
-      "e2e": "52 passed",
-      "routes": "16 passed",
-      "visual": "8 passed",
-      "logs": "docs/ops/campaigns/EXTRA-PRS-186-187-TRUST-HARDENING-01/logs/a16-*.txt"
+      "e2e": "52 passed"
     },
-    "brand_sha256": "e6af0125c73edd476cff82ab4ea1de3e459fbdbde63b886f6c55f8a93531505b",
     "non_claims": [
       "LIVE_READY",
-      "VPS_OPERATIONAL",
       "PARTIAL_COMMAND_CENTER_REAL_ADAPTERS_NO_LIVE_PROOF"
     ]
   },
   "pr_187": {
     "branch": "feat/pseo-export-isolated",
     "original_head": "f2b54588304cad76c70fa1ea6cb40ac2b52ca1bd",
-    "final_head": "7eb1905546985d43feeddc71517470073846388c",
+    "final_head": "pending_push",
     "status": "PARTIAL_BLOCKED",
     "b12": {
-      "pytest": "48 passed",
+      "pytest": "53 passed",
       "ruff": "clean",
-      "fixture_export_validate": "ok"
+      "fixture_export_validate": "ok",
+      "synthetic_250k": {
+        "n_rows": 250000,
+        "elapsed_sec": 0.3785,
+        "rss_delta_mb": 6.12,
+        "fetchall_calls": 0,
+        "evidence": "logs/pseo-250k-benchmark.json"
+      },
+      "consumer_contract": {
+        "schema_contract": "PROVEN",
+        "render_pipeline": "CONSUMER_INTEGRATION_NOT_PROVEN",
+        "report": "PR-187-CONSUMER-CONTRACT.md"
+      }
     },
     "fixture_export": {
       "indexable": false,
@@ -42,8 +47,8 @@
     "non_claims": [
       "web-cfg published",
       "CONSUMER_INTEGRATION_NOT_PROVEN",
-      "250k memory benchmark not measured live",
-      "human approval not auto-granted"
+      "live_postgres_250k_not_run",
+      "human_approval_not_auto_granted"
     ]
   },
   "merged": false,

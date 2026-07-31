@@ -1,19 +1,33 @@
 # PR #187 Performance Report
 
-## Extraction path
-- Server-side named cursors (`pseo_contracts`, `pseo_bids`)
-- `fetchmany` chunks (default 5000)
-- Isolation: REPEATABLE READ, read-only
-- `statement_timeout=600000`, `connect_timeout=15`, `application_name=extra-pseo-export`
-- Structural proof: `cur.fetchall()` removed from large-table path in `pipeline.py`
+## Chunked extraction (structural + synthetic scale)
 
-## Fixture export (local)
-- 40 contracts + 200 bids fixture
-- Wall time: ~4–5s including classification + write + validation (pytest suite 44 tests in 4.5s)
+### Implementation
+- `scripts/pseo/chunked_extract.py` — `fetch_chunked` / `iter_fetch_chunked` / `reduce_rows_chunked`
+- `pipeline.load_from_db` uses named server-side cursors + `fetchmany` only (no `fetchall` on large tables)
+- Isolation: REPEATABLE READ, read-only, `statement_timeout`, `application_name=extra-pseo-export`
 
-## 250k synthetic
-- Not executed against live Postgres in this session (no productive DSN mutation; fixture path used).
-- Structural readiness: chunked cursor API + counts metadata (`fetch_mode`, `chunk_size`).
+### Synthetic benchmark (≥250k rows) — **executed**
+
+Command path: `benchmark_synthetic_extraction(250_000, chunk_size=5000)`  
+Test: `tests/pseo/test_chunked_scale.py::test_synthetic_250k_chunked_benchmark_deterministic`  
+Evidence: `logs/pseo-250k-benchmark.json`
+
+| Metric | Value |
+|--------|-------|
+| rows | **250_000** |
+| batches | **50** (chunk 5000) |
+| fetchmany calls | **51** (includes terminal empty) |
+| fetchall calls | **0** |
+| elapsed | **0.3785 s** |
+| RSS start | 59.64 MiB |
+| RSS peak | 65.76 MiB |
+| RSS delta | **6.12 MiB** |
+| deterministic | second run same `sum_valor` / `by_uf` |
+
+### Fixture export
+- 40 contracts + 200 bids — full pipeline + validate ~seconds (suite 53 tests in ~7s)
 
 ## Non-claims
-- Not claiming proven million-row production scale without measured run on representative volume.
+- Not claiming measured production Postgres 250k+ with real DSN in this campaign.
+- Structural path is proven; synthetic scale proves fetchmany-only + bounded aggregate memory.

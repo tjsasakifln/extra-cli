@@ -270,17 +270,14 @@ def pncp_consulta_url(contrato_id: str | None, source: str | None = None) -> str
 
 def _fetch_chunked(cur, sql: str, *, chunk_size: int = 5_000) -> list[dict[str, Any]]:
     """Server-side cursor style chunked read — never fetchall on large tables."""
-    cur.execute(sql)
-    rows: list[dict[str, Any]] = []
-    while True:
-        batch = cur.fetchmany(chunk_size)
-        if not batch:
-            break
-        rows.extend(dict(r) for r in batch)
-    return rows
+    from scripts.pseo.chunked_extract import fetch_chunked
+
+    return fetch_chunked(cur, sql, chunk_size=chunk_size)
 
 
 def load_from_db(dsn: str, *, chunk_size: int = 5_000):
+    from scripts.pseo.chunked_extract import fetch_chunked
+
     try:
         import psycopg2
         import psycopg2.extras
@@ -297,7 +294,7 @@ def load_from_db(dsn: str, *, chunk_size: int = 5_000):
         cur = conn.cursor(name="pseo_contracts", cursor_factory=psycopg2.extras.RealDictCursor)
         cur.itersize = chunk_size
         counts: dict[str, int] = {}
-        contracts = _fetch_chunked(
+        contracts = fetch_chunked(
             cur,
             """
             SELECT contrato_id, orgao_cnpj, orgao_nome, fornecedor_cnpj, fornecedor_nome,
@@ -312,7 +309,7 @@ def load_from_db(dsn: str, *, chunk_size: int = 5_000):
         cur.close()
         cur = conn.cursor(name="pseo_bids", cursor_factory=psycopg2.extras.RealDictCursor)
         cur.itersize = chunk_size
-        bids = _fetch_chunked(
+        bids = fetch_chunked(
             cur,
             """
             SELECT pncp_id, objeto_compra, valor_total_estimado, modalidade_nome, uf, municipio,
