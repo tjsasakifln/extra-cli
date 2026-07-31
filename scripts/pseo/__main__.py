@@ -1,8 +1,8 @@
-"""python -m scripts.pseo.export_web_cfg  (also: python -m scripts.pseo)"""
+"""python -m scripts.pseo  →  canonical export_web_cfg / pipeline."""
 
 from __future__ import annotations
 
-from scripts.pseo.export_web_cfg import main
+from scripts.pseo.pipeline import main
 
 if __name__ == "__main__":
     raise SystemExit(main())

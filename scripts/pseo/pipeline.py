@@ -39,7 +39,8 @@ from scripts.pseo.provenance import (
 from scripts.pseo.sanitize import assert_public, deep_strip_forbidden
 from scripts.pseo.schemas import PUBLIC_SCHEMA
 
-EXPORT_ENTRYPOINT = "python -m scripts.pseo.cli_export"
+# Canonical entry (plan / docs); cli_export is a durable alias with the same main().
+EXPORT_ENTRYPOINT = "python -m scripts.pseo.export_web_cfg"
 DEFAULT_TOP20 = (
     "artifacts/campaigns/CONFENGE-COMMERCIAL-ACTIVATION-AND-OUTCOME-LOOP-01/"
     "post-merge/evidence-slim/top20-slim.json"
@@ -593,8 +594,10 @@ def main(argv: list[str] | None = None) -> int:
         from scripts.pseo.validation import validate_export_dir
 
         vr = validate_export_dir(args.out, repo_root=root, require_commit_entrypoint=False)
+        if not (root / "scripts/pseo/export_web_cfg.py").exists():
+            vr.setdefault("errors", []).append("export_web_cfg.py missing")
         if not (root / "scripts/pseo/cli_export.py").exists():
-            vr.setdefault("errors", []).append("cli_export.py missing")
+            vr.setdefault("errors", []).append("cli_export.py alias missing")
             vr["ok"] = False
         result["validation"] = vr
         if not vr["ok"]:
