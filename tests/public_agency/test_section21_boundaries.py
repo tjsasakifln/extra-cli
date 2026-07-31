@@ -226,16 +226,20 @@ def test_manifest_checksums_and_sha_binding(tmp_path: Path):
 
 
 def test_cycle_cli_target_public_agencies_help():
-    from scripts.ops import confenge_commercial_cycle as cycle
+    """Multi-target CLI is the router (freeze cycle remains suppliers-only)."""
+    from scripts.ops import confenge_commercial_cycle as frozen_cycle
+    from scripts.ops import confenge_commercial_target_router as router
 
-    # argparse accepts target choices
-    import argparse
-
-    # smoke: main module exposes target choices without requiring snapshot for public path
-    assert hasattr(cycle, "main")
-    # supplier default preserved: missing snapshot fails for suppliers
-    code = cycle.main(["--target", "suppliers", "--dsn", "postgresql://x", "--out", "/tmp/nope"])
+    assert hasattr(router, "main")
+    assert hasattr(frozen_cycle, "main")
+    # supplier via router: missing snapshot fails closed
+    code = router.main(
+        ["--target", "suppliers", "--dsn", "postgresql://x", "--out", "/tmp/nope"]
+    )
     assert code == 1  # missing snapshot
+    # frozen suppliers entry also fails closed without snapshot (no --target flag)
+    code_frozen = frozen_cycle.main(["--dsn", "postgresql://x", "--out", "/tmp/nope"])
+    assert code_frozen == 1
 
 
 def test_whatsapp_requires_official_publication():

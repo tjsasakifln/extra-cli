@@ -25,15 +25,27 @@ def test_supplier_profile_still_drops_public_organs():
 
 
 def test_cycle_entry_has_target_flag():
-    src = (Path(__file__).resolve().parents[2] / "scripts/ops/confenge_commercial_cycle.py").read_text(
-        encoding="utf-8"
-    )
-    assert "--target" in src
-    assert "public-agencies" in src
-    assert "suppliers" in src
+    """TARGET multi-modal lives on the router (outside commercial-ready freeze).
+
+    Frozen ``confenge_commercial_cycle`` remains suppliers-only; Makefile
+    redefines ``confenge-commercial-cycle`` to call the router.
+    """
+    root = Path(__file__).resolve().parents[2]
+    router = (root / "scripts/ops/confenge_commercial_target_router.py").read_text(encoding="utf-8")
+    frozen = (root / "scripts/ops/confenge_commercial_cycle.py").read_text(encoding="utf-8")
+    mk = (root / "Makefile").read_text(encoding="utf-8")
+    assert "--target" in router
+    assert "public-agencies" in router
+    assert "suppliers" in router
+    # Freeze surface must stay suppliers-only (no multi-target CLI).
+    assert "--target" not in frozen
+    assert "public-agencies" not in frozen
+    assert "confenge_commercial_target_router" in mk
+    assert "CONFENGE_COMMERCIAL_TARGET" in mk
 
 
 def test_makefile_target_var():
     mk = (Path(__file__).resolve().parents[2] / "Makefile").read_text(encoding="utf-8")
     assert "CONFENGE_COMMERCIAL_TARGET" in mk
     assert "test-public-agency" in mk
+    assert "confenge_commercial_target_router" in mk
