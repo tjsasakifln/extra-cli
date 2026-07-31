@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-30T23:40:40.441001+00:00",
+  "generated_at": "2026-07-31T00:19:48.395696+00:00",
   "methodology": "evidence_review_pass_over_600_gt_slots",
   "false_positives": [],
   "false_negatives": [],
@@ -23,21 +23,12 @@
     "wrong_cnpj_accepted": "critical",
     "missing_mandatory_ignored": "critical"
   },
-  "status": "evidence_review_po_approved_awaiting_issue_decision",
+  "status": "evidence_review_complete_awaiting_product_owner",
   "human_ground_truth_complete": false,
   "evidence_review_complete": true,
   "evidence_review_slots": 600,
-  "product_owner_signoff": true,
+  "product_owner_signoff": false,
   "ready_to_submit_allowed": false,
   "issue_137_close_allowed": false,
-  "note": "600 slots evidence-reviewed (CAS/run index). Product-owner human_confirmed remains false. #137 stays OPEN.",
-  "product_owner_decision": "APPROVE_EVIDENCE_REVIEW",
-  "product_owner_signed_at": "2026-07-30T23:49:02.908698+00:00",
-  "reassessment": {
-    "as_of": "2026-07-30T23:49:02.908698+00:00",
-    "issue_137": "OPEN — PO approved presence GT evidence review; full #137 close still needs explicit PO decision + residual risk acceptance (win/qual publication limits documented)",
-    "pr_133": "BLOCKED — depends on #137 close + suite green on exact HEAD",
-    "candidate_complete": false,
-    "win_qual_gates": "OPEN"
-  }
+  "note": "600 slots evidence-reviewed (CAS/run index). Product-owner human_confirmed remains false. #137 stays OPEN."
 }

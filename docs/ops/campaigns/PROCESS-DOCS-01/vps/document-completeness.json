@@ -598,6 +598,6 @@
     "winning_proposal_completeness": 2946,
     "bidder_qualification_documents_completeness": 3193
   },
-  "generated_at": "2026-07-30T23:40:39.625347+00:00",
+  "generated_at": "2026-07-31T00:19:47.534692+00:00",
   "note": "Binary presence per process after title reclassification + ZIP expansion. Denominator is ALL processes with ≥1 document (no shrinking). Residuals listed nominally with blockers; publication limits remain for session/proposal/qualification packs on many public portals."
 }

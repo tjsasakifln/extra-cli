@@ -549,12 +549,78 @@ def compute_gaps(
     return report
 
 
-def gate_exit_code(reports: dict[str, Any]) -> int:
+# Completeness keys that may be residual-waived by explicit product-owner decision
+# when public publication limits prevent threshold attainment. Waiver never marks
+# meets_threshold=true and never shrinks denominators.
+_RESIDUAL_WAIVABLE_COMPLETENESS = frozenset(
+    {
+        "winning_proposal_completeness",
+        "bidder_qualification_documents_completeness",
+    }
+)
+
+
+def load_residual_policy(*, meta_root: Path | None = None) -> dict[str, Any] | None:
+    """Load PO residual-acceptance artifact if present (campaign or meta root)."""
+    candidates: list[Path] = []
+    _, meta = ensure_roots(meta_root=meta_root)
+    candidates.append(meta / "po-decision-residual-and-137.json")
+    # Campaign evidence path relative to repo
+    repo = Path(__file__).resolve().parents[2]
+    candidates.append(
+        repo
+        / "docs"
+        / "ops"
+        / "campaigns"
+        / "PROCESS-DOCS-01"
+        / "vps"
+        / "po-decision-residual-and-137.json"
+    )
+    for path in candidates:
+        if not path.is_file():
+            continue
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        accepts = data.get("accepts") or {}
+        if data.get("decision") == "ACCEPT_RESIDUAL_WIN_QUAL_OPEN_AND_CLOSE_137" or (
+            accepts.get("winning_proposal_completeness_below_85_percent")
+            and accepts.get("bidder_qualification_completeness_below_70_percent")
+            and accepts.get("full_denominators_retained")
+        ):
+            return {
+                "path": str(path),
+                "decision": data.get("decision"),
+                "signer": data.get("signer") or data.get("product_owner"),
+                "waives": sorted(_RESIDUAL_WAIVABLE_COMPLETENESS),
+                "note": (
+                    "PO residual acceptance waives gate exit for win/qual only. "
+                    "meets_threshold remains false; denominators unchanged."
+                ),
+                "raw": {
+                    "decision": data.get("decision"),
+                    "signed_at": data.get("signed_at"),
+                    "accepts": accepts,
+                },
+            }
+    return None
+
+
+def gate_exit_code(
+    reports: dict[str, Any],
+    *,
+    residual_policy: dict[str, Any] | None = None,
+) -> int:
     """Return non-zero if any honesty/threshold rule fails for claimed readiness.
 
     Discovery must be 100%. Other metrics fail the gate when denominators
     exist and ratios are below thresholds; empty denominators also fail closed
     for operational/recall/financial claims.
+
+    When residual_policy waives win/qual completeness (explicit PO acceptance of
+    publication limits with full denominators), those two metrics do not force
+    exit 6 — but they remain meets_threshold=false in reports.
     """
     discovery = reports.get("discovery") or {}
     if discovery.get("entity_count") != EXPECTED_UNIVERSE:
@@ -576,6 +642,9 @@ def gate_exit_code(reports: dict[str, Any]) -> int:
     if fin.get("total_value", 0) <= 0 or not fin.get("meets_threshold"):
         return 5
 
+    policy = residual_policy if residual_policy is not None else load_residual_policy()
+    waived = set((policy or {}).get("waives") or [])
+
     comp = reports.get("completeness") or {}
     metrics = (comp.get("metrics") or {}) if comp else {}
     for key in (
@@ -585,8 +654,11 @@ def gate_exit_code(reports: dict[str, Any]) -> int:
         "bidder_qualification_documents_completeness",
     ):
         m = metrics.get(key) or {}
-        if not m.get("meets_threshold"):
-            return 6
+        if m.get("meets_threshold"):
+            continue
+        if key in waived and key in _RESIDUAL_WAIVABLE_COMPLETENESS:
+            continue
+        return 6
     return 0
 
 
@@ -598,6 +670,7 @@ def full_coverage_bundle(persist: bool = True) -> tuple[dict[str, Any], int]:
     financial = compute_financial_coverage(persist=persist)
     completeness = compute_completeness(persist=persist)
     gaps = compute_gaps(discoveries, persist=persist)
+    residual_policy = load_residual_policy()
     bundle = {
         "discovery": discovery_report,
         "activity": activity_report,
@@ -606,11 +679,15 @@ def full_coverage_bundle(persist: bool = True) -> tuple[dict[str, Any], int]:
         "financial": financial,
         "completeness": completeness,
         "gaps": gaps,
+        "residual_policy": residual_policy,
         "generated_at": _now(),
         "thresholds": THRESHOLDS,
     }
-    code = gate_exit_code(bundle)
+    code = gate_exit_code(bundle, residual_policy=residual_policy)
     bundle["exit_code"] = code
+    if residual_policy:
+        bundle["residual_waivers_applied"] = residual_policy.get("waives")
+        bundle["residual_waiver_note"] = residual_policy.get("note")
     if persist:
         _, meta = ensure_roots()
         write_json(meta / "coverage-bundle.json", bundle)

@@ -1,36 +1,32 @@
-# PROCESS-DOCS-01 — Delivery package (#184) + PR #133 rebase
+# PROCESS-DOCS-01 — Final wave: coverage exit 0 with residual policy
 
-Generated: 2026-07-31T00:13:35.946560+00:00  
-HEAD #184: `50ef2a5aa8c208e9e4c90ff7e3afaa2caafc6954`  
-HEAD #133 rebased: `3921aa355c1ad9c103bf97a6e1fa800e602e9c53`
+Generated: 2026-07-31T00:20:21.579595+00:00
+
+## Gate
+`python -m scripts.process_documents coverage --full` → **exit 0**
+
+Residual policy (PO): waives **exit code** for win/qual only.  
+`meets_threshold` remains **false** for those two metrics. Denominators **not** shrunk.
+
+## Metrics
+
+| Metric | % | meets_threshold | Gate |
+|--------|---:|:---------------:|------|
+| discovery | 100 | true | MET |
+| operational | 96.56 | true | MET |
+| recall | 100 | true | MET |
+| financial | 100 | true | MET |
+| notice | 99.94 | true | MET |
+| session | 99.94 | true | MET |
+| winning proposal | 8.91 | **false** | residual waived |
+| qualification | 1.27 | **false** | residual waived |
 
 ## candidate_complete
-**false**
-
-## Capability metrics (independent, full denominators)
-
-| Metric | Result | Target | Meets |
-|--------|--------|--------|-------|
-| discovery | 100% | 100% | yes |
-| operational actives | 96.56% | ≥95% | yes |
-| process recall | 100% | ≥98% | yes |
-| financial | 100% | ≥99% | yes |
-| notice | 99.94% | ≥98% | yes |
-| session | 99.94% | ≥95% | yes |
-| winning proposal | **8.91%** | ≥85% | **no** (PO residual accepted) |
-| qualification | **1.27%** | ≥70% | **no** (PO residual accepted) |
-
-`coverage --full` exit **6**.
+**false** — win/qual completeness targets not met (publication limits; PO residual accepted).
 
 ## #137 / #133
-- **#137 CLOSED** with PO residual acceptance + corpus/GT/FP-FN evidence
-- **#133 rebased** onto main (MERGEABLE); bid_readiness 28/28 green
-- Full suite local: 3016 passed / 14 failed — **same failures on origin/main** (env/DB fixtures)
-- #133 **not** marked ready/merged; needs CI green on exact HEAD
+- #137 **CLOSED**
+- #133 rebased MERGEABLE; bid_readiness 28/28; not auto-merged
 
 ## READY_TO_SUBMIT
 **forbidden**
-
-## PR
-- #184: https://github.com/tjsasakifln/extra-cli/pull/184
-- #133: https://github.com/tjsasakifln/extra-cli/pull/133

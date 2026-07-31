@@ -1,74 +1,27 @@
 {
-  "as_of": "2026-07-31T00:13:35.946560+00:00",
-  "capability": "procurement_process_documents",
+  "as_of": "2026-07-31T00:20:21.575326+00:00",
   "candidate_complete": false,
+  "coverage_full_exit": 0,
+  "residual_waivers": [
+    "winning_proposal_completeness",
+    "bidder_qualification_documents_completeness"
+  ],
+  "residual_policy": "PO ACCEPT residual win/qual OPEN with full denominators",
+  "metrics_meets_threshold": {
+    "notice": true,
+    "session": true,
+    "win": false,
+    "qual": false,
+    "discovery": true,
+    "ops": true,
+    "recall": true,
+    "financial": true
+  },
+  "issue_137": "CLOSED",
+  "pr_133": "rebased MERGEABLE; bid_readiness 28/28; full suite env baseline issues on main too",
+  "ready_to_submit": false,
   "branch": "feat/public-process-documents-coverage",
   "pr_184": "https://github.com/tjsasakifln/extra-cli/pull/184",
-  "head": "50ef2a5aa8c208e9e4c90ff7e3afaa2caafc6954",
-  "issue_137": "CLOSED",
-  "pr_133": {
-    "url": "https://github.com/tjsasakifln/extra-cli/pull/133",
-    "head": "3921aa355c1ad9c103bf97a6e1fa800e602e9c53",
-    "rebased_onto": "origin/main",
-    "mergeable": true,
-    "bid_readiness_tests": "28 passed",
-    "full_suite": "3016 passed, 148 skipped, 14 failed (same failures on origin/main local DSN)",
-    "status": "rebased; corpus blocker lifted; CI/review still required; not candidate_complete for full docs capability"
-  },
-  "metrics": {
-    "entity_source_discovery_coverage": {
-      "result": "100%",
-      "target": "100%",
-      "meets": true
-    },
-    "active_entity_document_operational_coverage": {
-      "result": "96.56%",
-      "target": ">=95%",
-      "meets": true
-    },
-    "relevant_process_recall": {
-      "result": "100%",
-      "target": ">=98%",
-      "meets": true
-    },
-    "covered_financial_value_ratio": {
-      "result": "100%",
-      "target": ">=99%",
-      "meets": true
-    },
-    "notice_and_annexes_completeness": {
-      "result": "99.94%",
-      "target": ">=98%",
-      "meets": true
-    },
-    "session_judgment_homologation_completeness": {
-      "result": "99.94%",
-      "target": ">=95%",
-      "meets": true
-    },
-    "winning_proposal_completeness": {
-      "result": "8.91%",
-      "target": ">=85%",
-      "meets": false,
-      "po_residual_accepted": true
-    },
-    "bidder_qualification_documents_completeness": {
-      "result": "1.27%",
-      "target": ">=70%",
-      "meets": false,
-      "po_residual_accepted": true
-    }
-  },
-  "coverage_full_exit": 6,
-  "ready_to_submit": false,
-  "po_decisions": [
-    "APPROVE_EVIDENCE_REVIEW",
-    "ACCEPT_RESIDUAL_WIN_QUAL_OPEN_AND_CLOSE_137"
-  ],
-  "limitations": [
-    "winning_proposal and qualification completeness remain OPEN with full denominators",
-    "public portals rarely publish full proposal PDFs and bidder qualification packs",
-    "PR #133 needs CI green on exact HEAD after rebase; merge not claimed",
-    "candidate_complete is false"
-  ]
+  "head_pending_commit": true,
+  "note": "coverage --full exits 0 with PO residual waiver; win/qual meets_threshold remain false"
 }

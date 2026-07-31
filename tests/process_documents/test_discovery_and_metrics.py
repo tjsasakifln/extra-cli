@@ -331,6 +331,81 @@ def test_gate_exit_nonzero_when_operational_below(tmp_path: Path) -> None:
     assert code != 0
 
 
+def test_gate_exit_zero_with_po_residual_waiver_for_win_qual_only() -> None:
+    """PO residual acceptance waives exit code for win/qual only — not meets_threshold."""
+    discoveries, discovery_report = discover_all(persist=True, output_dir=None)
+    # Use real discovery report if available; else synthetic full discovery
+    if not discovery_report.get("meets_100_percent"):
+        discovery_report = {
+            "entity_count": 1093,
+            "unknown_access_count": 0,
+            "meets_100_percent": True,
+        }
+    reports = {
+        "discovery": discovery_report,
+        "operational": {"denominator": 407, "meets_threshold": True, "ratio": 0.965},
+        "recall": {"denominator": 807, "meets_threshold": True, "ratio": 1.0},
+        "financial": {"total_value": 1.0, "meets_threshold": True, "ratio": 1.0},
+        "completeness": {
+            "metrics": {
+                "notice_and_annexes_completeness": {"meets_threshold": True},
+                "session_judgment_homologation_completeness": {"meets_threshold": True},
+                "winning_proposal_completeness": {
+                    "meets_threshold": False,
+                    "percent": 8.9,
+                },
+                "bidder_qualification_documents_completeness": {
+                    "meets_threshold": False,
+                    "percent": 1.3,
+                },
+            }
+        },
+    }
+    # Explicit empty policy fails win/qual (do not load on-disk PO artifact)
+    assert gate_exit_code(reports, residual_policy={"waives": []}) == 6
+    # With PO residual waiver → exit 0; metrics still not "met"
+    policy = {
+        "waives": [
+            "winning_proposal_completeness",
+            "bidder_qualification_documents_completeness",
+        ],
+        "decision": "ACCEPT_RESIDUAL_WIN_QUAL_OPEN_AND_CLOSE_137",
+    }
+    assert gate_exit_code(reports, residual_policy=policy) == 0
+    assert (
+        reports["completeness"]["metrics"]["winning_proposal_completeness"]["meets_threshold"]
+        is False
+    )
+
+
+def test_gate_still_fails_notice_even_with_win_qual_waiver() -> None:
+    reports = {
+        "discovery": {
+            "entity_count": 1093,
+            "unknown_access_count": 0,
+            "meets_100_percent": True,
+        },
+        "operational": {"denominator": 10, "meets_threshold": True},
+        "recall": {"denominator": 10, "meets_threshold": True},
+        "financial": {"total_value": 1.0, "meets_threshold": True},
+        "completeness": {
+            "metrics": {
+                "notice_and_annexes_completeness": {"meets_threshold": False},
+                "session_judgment_homologation_completeness": {"meets_threshold": True},
+                "winning_proposal_completeness": {"meets_threshold": False},
+                "bidder_qualification_documents_completeness": {"meets_threshold": False},
+            }
+        },
+    }
+    policy = {
+        "waives": [
+            "winning_proposal_completeness",
+            "bidder_qualification_documents_completeness",
+        ]
+    }
+    assert gate_exit_code(reports, residual_policy=policy) == 6
+
+
 def test_http_error_status_not_in_operational_success() -> None:
     from scripts.process_documents.statuses import OPERATIONAL_SUCCESS
 
