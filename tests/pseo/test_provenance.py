@@ -7,7 +7,6 @@ from pathlib import Path
 
 from scripts.pseo.pipeline import build_export, write_export
 from scripts.pseo.provenance import compute_dataset_hash, verify_snapshot_hashes
-from scripts.pseo.validation import validate_export_dir
 
 FIXTURE = Path(__file__).parent / "fixtures" / "sample_contracts.json"
 

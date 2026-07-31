@@ -1,17 +1,17 @@
 """Self-contained pSEO public export pipeline (durable untracked module)."""
 from __future__ import annotations
 
-import re
-
 import argparse
 import json
 import os
+import re
 import sys
 import uuid
 from collections import defaultdict
+from collections.abc import Iterable
 from datetime import UTC, date, datetime
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 from scripts.pseo.aggregate import (
     attach_problem_evidence,
@@ -268,42 +268,74 @@ def pncp_consulta_url(contrato_id: str | None, source: str | None = None) -> str
     return None
 
 
-def load_from_db(dsn: str):
+def _fetch_chunked(cur, sql: str, *, chunk_size: int = 5_000) -> list[dict[str, Any]]:
+    """Server-side cursor style chunked read — never fetchall on large tables."""
+    cur.execute(sql)
+    rows: list[dict[str, Any]] = []
+    while True:
+        batch = cur.fetchmany(chunk_size)
+        if not batch:
+            break
+        rows.extend(dict(r) for r in batch)
+    return rows
+
+
+def load_from_db(dsn: str, *, chunk_size: int = 5_000):
     try:
         import psycopg2
         import psycopg2.extras
     except ImportError as e:
         raise SystemExit(f"psycopg2 required for DB export: {e}") from e
-    conn = psycopg2.connect(dsn, connect_timeout=15)
-    conn.set_session(readonly=True, autocommit=True)
-    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-    counts: dict[str, int] = {}
-    cur.execute(
-        """
-        SELECT contrato_id, orgao_cnpj, orgao_nome, fornecedor_cnpj, fornecedor_nome,
-               objeto_contrato, valor_total, data_inicio, data_fim, data_publicacao,
-               uf, municipio, source
-        FROM pncp_supplier_contracts
-        WHERE valor_total IS NOT NULL AND valor_total > 0
-        """
+    conn = psycopg2.connect(
+        dsn,
+        connect_timeout=15,
+        application_name="extra-pseo-export",
+        options="-c default_transaction_read_only=on -c statement_timeout=600000",
     )
-    contracts = [dict(r) for r in cur.fetchall()]
-    counts["pncp_supplier_contracts"] = len(contracts)
-    cur.execute(
-        """
-        SELECT pncp_id, objeto_compra, valor_total_estimado, modalidade_nome, uf, municipio,
-               orgao_razao_social AS orgao_nome, orgao_cnpj,
-               data_publicacao, data_abertura, data_encerramento, link_pncp, source, is_active
-        FROM pncp_raw_bids
-        WHERE is_active IS DISTINCT FROM false
-        """
-    )
-    bids = [dict(r) for r in cur.fetchall()]
-    counts["pncp_raw_bids"] = len(bids)
-    cur.execute("SELECT COUNT(*) AS n FROM sc_public_entities")
-    counts["sc_public_entities"] = int(cur.fetchone()["n"])
-    conn.close()
-    return contracts, bids, counts
+    try:
+        conn.set_session(readonly=True, isolation_level="REPEATABLE READ", autocommit=False)
+        cur = conn.cursor(name="pseo_contracts", cursor_factory=psycopg2.extras.RealDictCursor)
+        cur.itersize = chunk_size
+        counts: dict[str, int] = {}
+        contracts = _fetch_chunked(
+            cur,
+            """
+            SELECT contrato_id, orgao_cnpj, orgao_nome, fornecedor_cnpj, fornecedor_nome,
+                   objeto_contrato, valor_total, data_inicio, data_fim, data_publicacao,
+                   uf, municipio, source
+            FROM pncp_supplier_contracts
+            WHERE valor_total IS NOT NULL AND valor_total > 0
+            """,
+            chunk_size=chunk_size,
+        )
+        counts["pncp_supplier_contracts"] = len(contracts)
+        cur.close()
+        cur = conn.cursor(name="pseo_bids", cursor_factory=psycopg2.extras.RealDictCursor)
+        cur.itersize = chunk_size
+        bids = _fetch_chunked(
+            cur,
+            """
+            SELECT pncp_id, objeto_compra, valor_total_estimado, modalidade_nome, uf, municipio,
+                   orgao_razao_social AS orgao_nome, orgao_cnpj,
+                   data_publicacao, data_abertura, data_encerramento, link_pncp, source, is_active
+            FROM pncp_raw_bids
+            WHERE is_active IS DISTINCT FROM false
+            """,
+            chunk_size=chunk_size,
+        )
+        counts["pncp_raw_bids"] = len(bids)
+        cur.close()
+        cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        cur.execute("SELECT COUNT(*) AS n FROM sc_public_entities")
+        counts["sc_public_entities"] = int(cur.fetchone()["n"])
+        cur.close()
+        conn.commit()
+        counts["snapshot_isolation"] = "REPEATABLE READ"
+        counts["fetch_mode"] = "server_side_cursor_fetchmany"
+        counts["chunk_size"] = chunk_size
+        return contracts, bids, counts
+    finally:
+        conn.close()
 
 
 def load_from_fixture(path: Path):
@@ -506,12 +538,49 @@ def build_export(
     return {"manifest": manifest, "files": files_body, "dataset_hash": dataset_hash}
 
 
-def write_export(out_dir: Path, bundle: dict[str, Any]) -> dict[str, str]:
-    out_dir.mkdir(parents=True, exist_ok=True)
-    files = bundle["files"]
-    checksums: dict[str, str] = {}
-    written: dict[str, str] = {}
-    mapping = {
+def write_export(
+    out_dir: Path,
+    bundle: dict[str, Any],
+    *,
+    approval_path: Path | None = None,
+) -> dict[str, str]:
+    from scripts.pseo.approval import load_approval, verify_approval_for_publish
+    from scripts.pseo.atomic_io import write_snapshot_atomic
+    from scripts.pseo.jsonschema_export import build_json_schema
+    from scripts.pseo.models import validate_public_payload
+    from scripts.pseo.privacy import apply_market_privacy
+
+    files = dict(bundle["files"])
+    # Privacy on markets (small-cell) then typed validation (extra=forbid)
+    files["markets"] = [apply_market_privacy(m) for m in files.get("markets") or []]
+    for kind in (
+        "archetypes",
+        "markets",
+        "agencies",
+        "prices",
+        "competition",
+        "opportunities",
+        "problem_service",
+    ):
+        files[kind] = validate_public_payload(kind, files[kind])
+    files["icp_methodology"] = validate_public_payload("icp_methodology", files["icp_methodology"])
+
+    # Recompute dataset_hash on the *final* public body (post privacy/validation)
+    final_body = {
+        "archetypes": files["archetypes"],
+        "markets": files["markets"],
+        "agencies": files["agencies"],
+        "prices": files["prices"],
+        "competition": files["competition"],
+        "opportunities": files["opportunities"],
+        "problem_service": files["problem_service"],
+        "icp_methodology": files["icp_methodology"],
+    }
+    dataset_hash = compute_dataset_hash(final_body)
+    bundle["dataset_hash"] = dataset_hash
+    bundle["files"] = files
+
+    mapping_data = {
         "archetypes.json": files["archetypes"],
         "markets.json": files["markets"],
         "agencies.json": files["agencies"],
@@ -521,25 +590,67 @@ def write_export(out_dir: Path, bundle: dict[str, Any]) -> dict[str, str]:
         "problem_service.json": files["problem_service"],
         "icp_methodology.json": files["icp_methodology"],
     }
-    for name, data in mapping.items():
+    text_files: dict[str, str] = {}
+    checksums: dict[str, str] = {}
+    for name, data in mapping_data.items():
         text = json.dumps(data, ensure_ascii=False, indent=2, sort_keys=True, default=str) + "\n"
-        path = out_dir / name
-        path.write_text(text, encoding="utf-8")
+        text_files[name] = text
         checksums[name] = sha256_text(text)
-        written[name] = str(path)
-    schema = dict(PUBLIC_SCHEMA)
-    schema["schema_version"] = "1.1.0"
-    schema["export_entrypoint"] = EXPORT_ENTRYPOINT
+
+    # Real JSON Schema (draft 2020-12)
+    schema = build_json_schema()
     schema_text = json.dumps(schema, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
-    (out_dir / "schema.json").write_text(schema_text, encoding="utf-8")
+    text_files["schema.json"] = schema_text
     checksums["schema.json"] = sha256_text(schema_text)
-    written["schema.json"] = str(out_dir / "schema.json")
+
+    # Descriptor (not a schema) for humans/tools
+    descriptor = dict(PUBLIC_SCHEMA)
+    descriptor["schema_version"] = "1.1.0"
+    descriptor["export_entrypoint"] = EXPORT_ENTRYPOINT
+    descriptor["note"] = "Machine-readable JSON Schema is schema.json; this file is a human descriptor."
+    desc_text = json.dumps(descriptor, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
+    text_files["export-descriptor.json"] = desc_text
+    checksums["export-descriptor.json"] = sha256_text(desc_text)
+
     manifest = dict(bundle["manifest"])
     manifest["checksums"] = checksums
+    manifest["dataset_hash"] = dataset_hash
+    # Human approval gate
+    try:
+        approval = load_approval(approval_path)
+    except ValueError as exc:
+        approval = None
+        manifest["approval_error"] = str(exc)
+    approval_status = verify_approval_for_publish(
+        approval,
+        dataset_hash=dataset_hash,
+        schema_version=str(manifest.get("schema_version") or "1.1.0"),
+        exporter_version=str(manifest.get("export_version") or EXPORT_VERSION),
+        source_commit_sha=str(manifest.get("source_commit_sha") or ""),
+    )
+    manifest["approval"] = approval_status
+    manifest["indexable"] = bool(approval_status.get("indexable"))
+    manifest["publish_status"] = approval_status.get("status")
+    if not approval_status.get("publish_ready"):
+        manifest["snapshot_status"] = "CANDIDATE"
+    else:
+        manifest["snapshot_status"] = "PUBLISH_READY"
     m_text = json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True, default=str) + "\n"
-    (out_dir / "manifest.json").write_text(m_text, encoding="utf-8")
-    written["manifest.json"] = str(out_dir / "manifest.json")
-    return written
+    text_files["manifest.json"] = m_text
+
+    def _validate(tmp: Path) -> dict[str, Any]:
+        from scripts.pseo.validation import validate_export_dir
+
+        return validate_export_dir(tmp, repo_root=Path(__file__).resolve().parents[2], require_commit_entrypoint=False)
+
+    write_snapshot_atomic(
+        out_dir,
+        text_files,
+        validate=_validate,
+        dataset_hash=dataset_hash,
+        pointer_name="CURRENT.json",
+    )
+    return {name: str(out_dir / name) for name in text_files}
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -551,6 +662,12 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--run-id", default=None)
     parser.add_argument("--as-of", default=None)
     parser.add_argument("--validate", action="store_true")
+    parser.add_argument(
+        "--approval",
+        type=Path,
+        default=None,
+        help="Path to human approval artifact JSON (required for PUBLISH_READY/indexable)",
+    )
     args = parser.parse_args(argv)
 
     root = Path(__file__).resolve().parents[2]
@@ -577,7 +694,7 @@ def main(argv: list[str] | None = None) -> int:
         as_of=args.as_of,
         repo_root=root,
     )
-    paths = write_export(args.out, bundle)
+    paths = write_export(args.out, bundle, approval_path=args.approval)
     result: dict[str, Any] = {
         "ok": True,
         "out": str(args.out),
@@ -590,12 +707,21 @@ def main(argv: list[str] | None = None) -> int:
         "source_commit_sha": bundle["manifest"].get("source_commit_sha"),
         "data_as_of": bundle["manifest"].get("data_as_of"),
     }
+    # Re-read manifest for approval status after write
+    try:
+        man = json.loads((args.out / "manifest.json").read_text(encoding="utf-8"))
+        result["publish_status"] = man.get("publish_status")
+        result["indexable"] = man.get("indexable")
+        result["snapshot_status"] = man.get("snapshot_status")
+    except OSError:
+        pass
     if args.validate:
         from scripts.pseo.validation import validate_export_dir
 
-        vr = validate_export_dir(args.out, repo_root=root, require_commit_entrypoint=False)
+        vr = validate_export_dir(args.out, repo_root=root, require_commit_entrypoint=True)
         if not (root / "scripts/pseo/export_web_cfg.py").exists():
             vr.setdefault("errors", []).append("export_web_cfg.py missing")
+            vr["ok"] = False
         if not (root / "scripts/pseo/cli_export.py").exists():
             vr.setdefault("errors", []).append("cli_export.py alias missing")
             vr["ok"] = False

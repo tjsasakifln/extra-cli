@@ -5,13 +5,9 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import pytest
-
-from scripts.pseo.pipeline import classify_bids, classify_rows
 from scripts.pseo.aggregate import assemble_public_payload
-from scripts.pseo.pipeline import build_export, write_export
+from scripts.pseo.pipeline import build_export, classify_bids, classify_rows, write_export
 from scripts.pseo.sanitize import contains_forbidden
-
 
 FIXTURE = Path(__file__).parent / "fixtures" / "sample_contracts.json"
 

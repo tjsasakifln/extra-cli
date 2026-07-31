@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from datetime import date, datetime
+from datetime import UTC, date, datetime
 from typing import Any
 
 from scripts.pseo.normalization import iso_date, parse_date
@@ -185,13 +185,12 @@ def radar_freshness(
     ``data_as_of`` — otherwise age is always 0 and hard-fail never fires.
     """
     from datetime import datetime as _dt
-    from datetime import timezone as _tz
 
     if now is None:
         now_d = date.today()
         now_source = "wall_clock_date"
     elif isinstance(now, _dt):
-        now_d = now.date() if now.tzinfo is None else now.astimezone(_tz.utc).date()
+        now_d = now.date() if now.tzinfo is None else now.astimezone(UTC).date()
         now_source = "wall_clock_datetime"
     else:
         now_d = now
