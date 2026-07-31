@@ -31,6 +31,17 @@ DEFAULT_REVIEW_CONFIRMATION_PHRASE = (
 _CLIENT_FORBIDDEN_DECISION_KEYS = frozenset({"sensitive", "confirmation_phrase"})
 
 
+def _neutralize_cell(value: Any) -> str:
+    """Coerce spreadsheet cells to plain display strings; neutralize formula/script risks."""
+    if value is None:
+        return ""
+    text = str(value)
+    if text.startswith("=") or text.startswith("+") or text.startswith("-") or text.startswith("@"):
+        text = "'" + text
+    # Strip control chars that break HTML/layout; keep content readable.
+    return "".join(ch if ch.isprintable() or ch in "\t\n" else " " for ch in text)[:500]
+
+
 class ExecuteBody(BaseModel):
     capability_id: str = Field(..., min_length=1, max_length=200)
     params: dict[str, Any] = Field(default_factory=dict)
@@ -152,13 +163,35 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["Referrer-Policy"] = "no-referrer"
         response.headers["Cache-Control"] = "no-store"
+        response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+        response.headers["Cross-Origin-Opener-Policy"] = "same-origin"
+        # Local SPA: allow self scripts/styles; no remote CDNs required for the built app.
+        response.headers["Content-Security-Policy"] = (
+            "default-src 'self'; "
+            "script-src 'self'; "
+            "style-src 'self' 'unsafe-inline'; "
+            "img-src 'self' data: blob:; "
+            "font-src 'self' data:; "
+            "connect-src 'self'; "
+            "frame-ancestors 'none'; "
+            "base-uri 'self'; "
+            "form-action 'self'"
+        )
         return response
 
     @app.get("/api/health")
     def health() -> dict[str, Any]:
         spa_ok = bool(settings.spa_dist and settings.spa_dist.exists())
+        db_ok = True
+        try:
+            store.list_jobs(limit=1)
+        except Exception:
+            db_ok = False
+        status = "ok" if db_ok else "degraded"
         return {
-            "status": "ok",
+            "ok": db_ok,
+            "status": status,
+            "degraded": not db_ok,
             "service": "extra-command-center",
             "version": __version__,
             "campaign": CAMPAIGN_ID,
@@ -167,6 +200,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             "uptime_sec": round(time.time() - STARTED_AT, 2),
             "host": settings.host,
             "port": settings.port,
+            "services": {"sqlite": db_ok, "spa_dist": spa_ok},
             "bind": f"{settings.host}:{settings.port}",
             "public_bind": settings.host not in {"127.0.0.1", "localhost", "::1"},
             "sqlite": {"path": str(settings.db_path), "ok": settings.db_path.parent.exists()},
@@ -343,30 +377,35 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         return {"decisions": items, "marked_obsolete": marked}
 
     @app.get("/api/reviews")
-    def reviews(status: str | None = "pending", limit: int = 50) -> dict[str, Any]:
-        """Human review queue from real pending items (jobs blocked, explicit enqueues)."""
-        items = store.list_reviews(status=status, limit=limit)
-        # Also surface BLOCKED_HUMAN jobs not yet enqueued as synthetic pending items
-        if status in (None, "pending"):
-            known = {i.get("job_id") for i in items if i.get("job_id")}
-            for j in store.list_jobs(limit=100):
-                if j.status == "BLOCKED_HUMAN" and j.job_id not in known:
-                    store.enqueue_review(
-                        title=f"Revisão necessária: {j.action}",
-                        source=j.capability_id,
-                        evidence=(
-                            f"Job {j.job_id}; status {j.status}; "
-                            f"código {j.technical_code}; artifacts: {j.artifacts[:5]}"
-                        ),
-                        limitations=j.human_message or "Automação concluída, mas a decisão humana ainda é necessária.",
-                        risks="Aceitar sem evidência pode propagar classificação incorreta.",
-                        job_id=j.job_id,
-                        capability_id=j.capability_id,
-                        payload={"from_job": True, "technical_code": j.technical_code},
-                    )
-                    known.add(j.job_id)
-            items = store.list_reviews(status=status, limit=limit)
-        return {"reviews": items, "count": len(items)}
+    def reviews(
+        status: str | None = "pending",
+        limit: int = 50,
+        offset: int = 0,
+    ) -> dict[str, Any]:
+        """Human review queue — side-effect free. Does not create or mutate reviews."""
+        lim = max(1, min(int(limit), 200))
+        off = max(0, int(offset))
+        items = store.list_reviews(status=status, limit=lim, offset=off)
+        total = store.count_reviews(status=status)
+        return {
+            "reviews": items,
+            "page_count": len(items),
+            "total_count": total,
+            "limit": lim,
+            "offset": off,
+            # Backward-compatible alias for older UI builds
+            "count": total,
+        }
+
+    @app.post("/api/reviews/reconcile")
+    def reconcile_reviews_api(
+        _: None = Depends(csrf_dep),
+        actor: str = "local-user",
+    ) -> dict[str, Any]:
+        """Idempotent reconciliation of BLOCKED_HUMAN jobs into the review queue."""
+        result = store.reconcile_blocked_human_reviews(actor=actor)
+        store.audit(actor, "review.reconcile.batch", result)
+        return {"ok": True, **result}
 
     @app.post("/api/reviews")
     def enqueue_review_api(body: ReviewEnqueueBody, _: None = Depends(csrf_dep)) -> dict[str, Any]:
@@ -688,59 +727,97 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         offset: int = 0,
         limit: int = 100,
     ) -> dict[str, Any]:
-        """In-browser XLSX preview: sheets, headers, paginated rows."""
+        """In-browser XLSX preview: sheets, headers, windowed rows (read-only)."""
 
         from openpyxl import load_workbook
 
         resolved = resolve_under_roots(path, settings.allowed_artifact_roots)
-        if resolved.suffix.lower() not in {".xlsx", ".xls"}:
-            raise HTTPException(400, "Somente arquivos .xlsx/.xls")
+        suffix = resolved.suffix.lower()
+        if suffix == ".xls":
+            raise HTTPException(
+                400,
+                "Arquivos .xls (Excel 97–2003) não são suportados na pré-visualização. "
+                "Converta para .xlsx e tente novamente.",
+            )
+        if suffix != ".xlsx":
+            raise HTTPException(400, "Somente arquivos .xlsx são aceitos na pré-visualização.")
         if not resolved.is_file():
             raise HTTPException(404, "Arquivo não encontrado")
-        # size guard
-        if resolved.stat().st_size > settings.max_artifact_read_bytes * 4:
+        max_bytes = settings.max_artifact_read_bytes * 4
+        if resolved.stat().st_size > max_bytes:
             raise HTTPException(413, "Planilha grande demais para pré-visualização; use o download.")
-        wb = load_workbook(resolved, read_only=True, data_only=True)
-        sheet_names = list(wb.sheetnames)
-        target = sheet if sheet in sheet_names else sheet_names[0]
-        ws = wb[target]
-        rows_iter = ws.iter_rows(values_only=True)
+
+        offset = max(0, int(offset))
+        limit = max(1, min(int(limit), 200))
+        max_cols = 64
+        # Scan at most this many data rows for total_rows estimate (windowed preview).
+        max_scan = min(50_000, offset + limit + 1)
+
+        wb = None
         try:
-            headers = [str(c) if c is not None else "" for c in next(rows_iter)]
-        except StopIteration:
-            wb.close()
+            wb = load_workbook(resolved, read_only=True, data_only=True)
+            sheet_names = list(wb.sheetnames)
+            target = sheet if sheet in sheet_names else sheet_names[0]
+            ws = wb[target]
+            rows_iter = ws.iter_rows(values_only=True)
+            try:
+                raw_headers = next(rows_iter)
+            except StopIteration:
+                return {
+                    "kind": "xlsx",
+                    "path": str(resolved),
+                    "name": resolved.name,
+                    "sheets": sheet_names,
+                    "sheet": target,
+                    "headers": [],
+                    "rows": [],
+                    "offset": 0,
+                    "limit": limit,
+                    "total_rows": 0,
+                    "previewable": True,
+                    "downloadable": True,
+                }
+
+            headers = [
+                _neutralize_cell(c) for c in list(raw_headers)[:max_cols]
+            ]
+            # Pad empty header names for stable keys
+            headers = [h if h else f"col_{i+1}" for i, h in enumerate(headers)]
+
+            page: list[list[str]] = []
+            total_seen = 0
+            for idx, row in enumerate(rows_iter):
+                total_seen += 1
+                if idx < offset:
+                    if total_seen >= max_scan:
+                        break
+                    continue
+                if len(page) < limit:
+                    cells = list(row)[:max_cols]
+                    page.append([_neutralize_cell(c) for c in cells])
+                if total_seen >= max_scan and len(page) >= limit:
+                    break
+
+            total_rows = total_seen
+            truncated = total_seen >= max_scan
             return {
+                "kind": "xlsx",
                 "path": str(resolved),
+                "name": resolved.name,
                 "sheets": sheet_names,
                 "sheet": target,
-                "headers": [],
-                "rows": [],
-                "offset": 0,
+                "headers": headers,
+                "rows": [dict(zip(headers, r + [""] * max(0, len(headers) - len(r)), strict=False)) for r in page],
+                "offset": offset,
                 "limit": limit,
-                "total_rows": 0,
+                "total_rows": total_rows,
+                "total_rows_truncated": truncated,
+                "previewable": True,
+                "downloadable": True,
             }
-        all_data = []
-        for row in rows_iter:
-            all_data.append([("" if c is None else c) for c in row])
-        wb.close()
-        total = len(all_data)
-        offset = max(0, offset)
-        limit = max(1, min(limit, 500))
-        page = all_data[offset : offset + limit]
-        return {
-            "kind": "xlsx",
-            "path": str(resolved),
-            "name": resolved.name,
-            "sheets": sheet_names,
-            "sheet": target,
-            "headers": headers,
-            "rows": [dict(zip(headers, r, strict=False)) for r in page],
-            "offset": offset,
-            "limit": limit,
-            "total_rows": total,
-            "previewable": True,
-            "downloadable": True,
-        }
+        finally:
+            if wb is not None:
+                wb.close()
 
     @app.get("/api/jobs/{job_id}/manifest")
     def job_manifest(job_id: str) -> dict[str, Any]:

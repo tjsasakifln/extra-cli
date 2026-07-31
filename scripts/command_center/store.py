@@ -179,6 +179,11 @@ class Store:
                     capability_id TEXT,
                     payload TEXT
                 );
+                CREATE INDEX IF NOT EXISTS idx_review_items_status_ts
+                    ON review_items(status, ts DESC);
+                CREATE UNIQUE INDEX IF NOT EXISTS idx_review_items_job_id_unique
+                    ON review_items(job_id)
+                    WHERE job_id IS NOT NULL AND job_id != '';
                 CREATE TABLE IF NOT EXISTS workspaces (
                     id TEXT PRIMARY KEY,
                     name TEXT NOT NULL,
@@ -541,25 +546,79 @@ class Store:
             return None
         return self._row_to_review(row)
 
-    def list_reviews(self, status: str | None = "pending", limit: int = 50) -> list[dict[str, Any]]:
+    def list_reviews(
+        self,
+        status: str | None = "pending",
+        limit: int = 50,
+        offset: int = 0,
+    ) -> list[dict[str, Any]]:
+        lim = max(1, min(int(limit), 200))
+        off = max(0, int(offset))
         with self._lock, self._conn() as conn:
             if status:
                 rows = conn.execute(
                     """
                     SELECT id, ts, title, source, evidence, limitations, risks, status, job_id, capability_id, payload
-                    FROM review_items WHERE status = ? ORDER BY ts DESC LIMIT ?
+                    FROM review_items WHERE status = ? ORDER BY ts DESC LIMIT ? OFFSET ?
                     """,
-                    (status, max(1, min(limit, 200))),
+                    (status, lim, off),
                 ).fetchall()
             else:
                 rows = conn.execute(
                     """
                     SELECT id, ts, title, source, evidence, limitations, risks, status, job_id, capability_id, payload
-                    FROM review_items ORDER BY ts DESC LIMIT ?
+                    FROM review_items ORDER BY ts DESC LIMIT ? OFFSET ?
                     """,
-                    (max(1, min(limit, 200)),),
+                    (lim, off),
                 ).fetchall()
         return [self._row_to_review(r) for r in rows]
+
+    def count_reviews(self, status: str | None = "pending") -> int:
+        """Cheap COUNT for badge/home totals — never loads full rows."""
+        with self._lock, self._conn() as conn:
+            if status:
+                row = conn.execute(
+                    "SELECT COUNT(*) AS c FROM review_items WHERE status = ?",
+                    (status,),
+                ).fetchone()
+            else:
+                row = conn.execute("SELECT COUNT(*) AS c FROM review_items").fetchone()
+        return int(row["c"] if row else 0)
+
+    def reconcile_blocked_human_reviews(self, *, actor: str = "system") -> dict[str, Any]:
+        """Idempotent enqueue for BLOCKED_HUMAN jobs. Safe under concurrent calls."""
+        created = 0
+        jobs = self.list_jobs(limit=200)
+        for j in jobs:
+            if j.status != "BLOCKED_HUMAN":
+                continue
+            before = self.count_reviews(status="pending")
+            rid = self.enqueue_review(
+                title=f"Revisão necessária: {j.action}",
+                source=j.capability_id,
+                evidence=(
+                    f"Job {j.job_id}; status {j.status}; "
+                    f"código {j.technical_code}; artifacts: {(j.artifacts or [])[:5]}"
+                ),
+                limitations=j.human_message
+                or "Automação concluída, mas a decisão humana ainda é necessária.",
+                risks="Aceitar sem evidência pode propagar classificação incorreta.",
+                job_id=j.job_id,
+                capability_id=j.capability_id,
+                payload={"from_job": True, "technical_code": j.technical_code},
+            )
+            after = self.count_reviews(status="pending")
+            if after > before:
+                created += 1
+                self.audit(
+                    actor,
+                    "review.reconcile",
+                    {"id": rid, "job_id": j.job_id, "created": True},
+                )
+        return {
+            "created": created,
+            "total_pending": self.count_reviews(status="pending"),
+        }
 
     def mark_review_decided(self, item_id: str, decision: str) -> None:
         with self._lock, self._conn() as conn:
