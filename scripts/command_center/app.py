@@ -229,8 +229,18 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         return {"job": rec.to_public()}
 
     @app.get("/api/jobs")
-    def list_jobs(limit: int = 50, status: str | None = None) -> dict[str, Any]:
-        jobs = store.list_jobs(limit=limit, status=status)
+    def list_jobs(
+        limit: int = 50,
+        status: str | None = None,
+        workspace_id: str | None = None,
+        client_id: str | None = None,
+    ) -> dict[str, Any]:
+        jobs = store.list_jobs(
+            limit=limit,
+            status=status,
+            workspace_id=workspace_id,
+            client_id=client_id,
+        )
         return {"jobs": [j.to_public() for j in jobs]}
 
     @app.get("/api/jobs/{job_id}")
@@ -494,13 +504,23 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @app.get("/api/workspaces")
     def list_workspaces() -> dict[str, Any]:
-        """Local consulting workspace + projects (CC SQLite only)."""
+        """Local consulting workspace + projects (CC SQLite only).
+
+        Also exposes fixed consulting filters (Extra / CONFENGE suppliers /
+        CONFENGE agencies / process docs) for run isolation in the UI.
+        """
+        from scripts.command_center.store import CONSULTING_WORKSPACES
+
         ws = store.ensure_default_workspace()
         projects = store.list_projects(ws["id"])
+        stored = store.list_workspaces()
+        # Prefer fixed consulting filters for operational UI; keep stored CRM-lite rows
+        consulting = list(CONSULTING_WORKSPACES)
         return {
             "workspace": ws,
-            "workspaces": store.list_workspaces(),
+            "workspaces": consulting + [w for w in stored if w.get("id") not in {c["id"] for c in consulting}],
             "projects": projects,
+            "consulting_filters": consulting,
         }
 
     @app.post("/api/workspaces")

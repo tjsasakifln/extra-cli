@@ -22,7 +22,11 @@
 
 - command/arg injection
 - path traversal / outside allowlist
+- **symlink escape** (link under allowlist pointing outside → 403/404)
 - secret leakage in manifest
 - formula injection
-- fixture fallback absence
+- fixture fallback absence (no suppliers.json / workbooks on REAL block)
+- process_documents does **not** attach cwd `output/process_documents` leaks
 - correction does not rewrite source
+- regen overlay preserves `data_mode=REAL` (not forced FIXTURE)
+- workspace job filter

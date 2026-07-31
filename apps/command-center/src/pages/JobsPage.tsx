@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { client } from "../api/client";
@@ -7,7 +8,13 @@ import { SkeletonState } from "../components/SkeletonState";
 import { StatusBadge } from "../components/StatusBadge";
 
 export function JobsPage() {
-  const q = useQuery({ queryKey: ["jobs"], queryFn: client.jobs, refetchInterval: 4000 });
+  const [workspaceId, setWorkspaceId] = useState<string>("");
+  const wsQ = useQuery({ queryKey: ["workspaces"], queryFn: client.workspaces });
+  const q = useQuery({
+    queryKey: ["jobs", workspaceId],
+    queryFn: () => client.jobs(workspaceId || undefined),
+    refetchInterval: 4000,
+  });
 
   return (
     <div>
@@ -17,6 +24,24 @@ export function JobsPage() {
           Tudo que você disparou pelo painel: situação, explicação em português e atalho para os resultados.
         </p>
       </header>
+      <div className="panel" style={{ marginBottom: 12 }}>
+        <label className="field">
+          <span>Workspace / cliente</span>
+          <select
+            data-testid="workspace-filter"
+            value={workspaceId}
+            onChange={(e) => setWorkspaceId(e.target.value)}
+            aria-label="Filtrar por workspace"
+          >
+            <option value="">Todos</option>
+            {(wsQ.data?.workspaces || []).map((w) => (
+              <option key={w.id} value={w.id}>
+                {w.label}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
       {q.isLoading ? <SkeletonState /> : null}
       {!q.isLoading && (q.data?.jobs.length || 0) === 0 ? (
         <EmptyState title="Nenhuma atividade ainda">
@@ -28,6 +53,7 @@ export function JobsPage() {
             <thead>
               <tr>
                 <th>O que rodou</th>
+                <th>Workspace</th>
                 <th>Situação</th>
                 <th>Explicação</th>
                 <th>Quando</th>
@@ -39,6 +65,7 @@ export function JobsPage() {
                   <td>
                     <Link to={`/jobs/${j.job_id}`}>{j.action}</Link>
                   </td>
+                  <td className="muted">{(j as { workspace_id?: string }).workspace_id || "—"}</td>
                   <td>
                     <StatusBadge state={j.status} attention={j.attention} />
                   </td>

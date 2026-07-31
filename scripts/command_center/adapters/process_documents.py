@@ -83,6 +83,7 @@ class ProcessDocumentsAdapter:
             payload = json.loads(proc.stdout) if proc.stdout.strip().startswith(("{", "[")) else None
         except json.JSONDecodeError:
             payload = None
+        list_envelope = False
         if payload is not None:
             index_path.write_text(
                 json.dumps(payload, indent=2, ensure_ascii=False) + "\n",
@@ -90,15 +91,21 @@ class ProcessDocumentsAdapter:
             )
             if isinstance(payload, list):
                 rows = [r for r in payload if isinstance(r, dict)]
+                list_envelope = True
             elif isinstance(payload, dict):
                 for key in ("documents", "items", "rows", "results"):
-                    if isinstance(payload.get(key), list):
+                    if key in payload and isinstance(payload.get(key), list):
                         rows = [r for r in payload[key] if isinstance(r, dict)]
+                        list_envelope = True
                         break
-                if not rows:
+                # Empty list envelope (e.g. {"documents": []}) must stay empty —
+                # never invent a phantom row from the parent object.
+                if not list_envelope and any(
+                    k in payload for k in ("id", "nome", "path", "titulo", "title")
+                ):
                     rows = [payload]
         else:
-            # Save human-readable show output
+            # Save human-readable show output under this run only
             summary = out_dir / "documents-show.txt"
             summary.write_text(proc.stdout or proc.stderr or "(sem saída)", encoding="utf-8")
             index_path.write_text(
@@ -115,11 +122,9 @@ class ProcessDocumentsAdapter:
                 + "\n",
                 encoding="utf-8",
             )
-        arts = discover_artifacts(out_dir)
-        # Known process_documents output root
-        default_out = Path("output/process_documents")
-        if default_out.is_dir():
-            arts.extend(discover_artifacts(default_out)[:50])
+        # Artifacts strictly under this run out_dir — never attach repo-global
+        # output/process_documents (cross-run leak / allowlist abuse).
+        arts = discover_artifacts(Path(out_dir).resolve())
         status = "SUCCEEDED" if proc.exit_code == 0 else (
             "BLOCKED_DATA" if proc.exit_code == 2 else "FAILED"
         )

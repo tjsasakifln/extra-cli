@@ -140,8 +140,19 @@ def regenerate_workflow_version(
             "Execute o fluxo guiado antes de regenerar com correções."
         )
 
-    # Always fixture-backed for guided workflows (honest) unless source_override carries corrected rows
-    params = {**params, "use_fixture": True}
+    # Preserve parent data_mode for provenance. Overlay re-render uses source_override
+    # (never sample_data when prior_source is present). REAL parents stay REAL.
+    parent_mode = str(params.get("data_mode") or "").upper()
+    if parent_mode not in {"REAL", "FIXTURE"}:
+        uf = params.get("use_fixture")
+        if isinstance(uf, str):
+            uf = uf.lower() in {"1", "true", "yes", "sim"}
+        parent_mode = "FIXTURE" if uf is not False else "REAL"
+    params = {
+        **params,
+        "data_mode": parent_mode,
+        "use_fixture": parent_mode != "REAL",
+    }
     result = run_workflow(
         workflow_id,
         params,

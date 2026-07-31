@@ -118,18 +118,26 @@ function WorkPreflight({ workflow, onStarted }: { workflow: Workflow; onStarted:
     },
   });
   const [params, setParams] = useState<Record<string, unknown>>(defaults);
+  const [modeTouched, setModeTouched] = useState(false);
   // hydrate last params (preset / rerun) when available
   useEffect(() => {
     const raw = lastPref.data?.value;
     if (!raw) return;
     try {
       const parsed = JSON.parse(raw) as Record<string, unknown>;
-      // Presets restore non-mode params; keep explicit FIXTURE default unless user chose REAL
-      setParams({ ...defaults, ...parsed, data_mode: parsed.data_mode ?? defaults.data_mode ?? "FIXTURE" });
+      // Presets restore params; do not silently overwrite an explicit user mode choice
+      setParams((prev) => ({
+        ...defaults,
+        ...parsed,
+        data_mode: modeTouched
+          ? prev.data_mode
+          : (parsed.data_mode ?? defaults.data_mode ?? "FIXTURE"),
+      }));
+      if (parsed.data_mode) setModeTouched(true);
     } catch {
       /* ignore */
     }
-  }, [lastPref.data, defaults]);
+  }, [lastPref.data, defaults, modeTouched]);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -137,10 +145,18 @@ function WorkPreflight({ workflow, onStarted }: { workflow: Workflow; onStarted:
   const dataMode = String(params.data_mode ?? (params.use_fixture === false ? "REAL" : "FIXTURE")).toUpperCase();
   const isDemo = dataMode !== "REAL";
   const preflightQ = useQuery({
-    queryKey: ["workflow-preflight", workflow.id, dataMode],
-    queryFn: () => client.workflowPreflight(workflow.id, dataMode),
+    queryKey: ["workflow-preflight", workflow.id, "REAL"],
+    queryFn: () => client.workflowPreflight(workflow.id, "REAL"),
     enabled: Boolean(workflow.id),
   });
+  // Prefer REAL when environment preflight is READY and user has not chosen a mode yet
+  useEffect(() => {
+    if (modeTouched) return;
+    const pf = preflightQ.data as { safe_to_run?: boolean; status?: string } | undefined;
+    if (pf?.safe_to_run && pf.status === "READY") {
+      setParams((prev) => ({ ...prev, data_mode: "REAL", use_fixture: false }));
+    }
+  }, [preflightQ.data, modeTouched]);
 
   const capQ = useQuery({
     queryKey: ["capability", workflow.id],
@@ -292,7 +308,15 @@ function WorkPreflight({ workflow, onStarted }: { workflow: Workflow; onStarted:
         <h2>Parâmetros</h2>
         <div className="stack">
           {basicParams.map((p) => (
-            <ParamField key={p.name} param={p} value={params[p.name]} onChange={(v) => setParams((prev) => ({ ...prev, [p.name]: v }))} />
+            <ParamField
+              key={p.name}
+              param={p}
+              value={params[p.name]}
+              onChange={(v) => {
+                if (p.name === "data_mode" || p.name === "use_fixture") setModeTouched(true);
+                setParams((prev) => ({ ...prev, [p.name]: v }));
+              }}
+            />
           ))}
         </div>
         {advancedParams.length > 0 ? (

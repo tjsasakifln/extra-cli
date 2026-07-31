@@ -47,11 +47,61 @@ class JobRecord:
     blocker: str | None = None
     code_sha: str | None = None
     cancel_requested: bool = False
+    # Consulting workspace filter (not a full CRM)
+    workspace_id: str | None = None
+    client_id: str | None = None
+    project_id: str | None = None
 
     def to_public(self) -> dict[str, Any]:
         d = asdict(self)
         # params already sanitized at write time
         return d
+
+
+# Known consulting workspaces for filter UI
+CONSULTING_WORKSPACES: list[dict[str, str]] = [
+    {
+        "id": "extra-construtora",
+        "label": "Extra Construtora",
+        "client_id": "extra-construtora",
+    },
+    {
+        "id": "confenge-suppliers",
+        "label": "CONFENGE — Prospecção de Fornecedores",
+        "client_id": "confenge-suppliers",
+    },
+    {
+        "id": "confenge-agencies",
+        "label": "CONFENGE — Órgãos Públicos",
+        "client_id": "confenge-agencies",
+    },
+    {
+        "id": "process-documents",
+        "label": "Documentos de processos",
+        "client_id": "process-documents",
+    },
+]
+
+
+def workspace_for_capability(capability_id: str, params: dict[str, Any] | None = None) -> tuple[str | None, str | None]:
+    """Map capability/workflow id → (workspace_id, client_id)."""
+    params = params or {}
+    if params.get("workspace_id"):
+        wid = str(params["workspace_id"])
+        for w in CONSULTING_WORKSPACES:
+            if w["id"] == wid:
+                return w["id"], w["client_id"]
+        return wid, str(params.get("client_id") or wid)
+    cid = str(capability_id or "")
+    if cid.startswith("workflow.extra") or cid.startswith("extra."):
+        return "extra-construtora", "extra-construtora"
+    if "public_agencies" in cid or "public-agencies" in cid or cid.startswith("confenge.public"):
+        return "confenge-agencies", "confenge-agencies"
+    if "suppliers" in cid or cid.startswith("confenge."):
+        return "confenge-suppliers", "confenge-suppliers"
+    if "process_documents" in cid:
+        return "process-documents", "process-documents"
+    return None, None
 
 
 class Store:
@@ -208,16 +258,37 @@ class Store:
         data = json.loads(row["payload"])
         return JobRecord(**data)
 
-    def list_jobs(self, limit: int = 50, status: str | None = None) -> list[JobRecord]:
+    def list_jobs(
+        self,
+        limit: int = 50,
+        status: str | None = None,
+        workspace_id: str | None = None,
+        client_id: str | None = None,
+    ) -> list[JobRecord]:
         with self._lock, self._conn() as conn:
             rows = conn.execute(
                 "SELECT payload FROM jobs ORDER BY rowid DESC LIMIT ?",
-                (max(1, min(limit, 500)),),
+                (max(1, min(limit * 5 if workspace_id or client_id else limit, 2000)),),
             ).fetchall()
-        jobs = [JobRecord(**json.loads(r["payload"])) for r in rows]
+        jobs: list[JobRecord] = []
+        for r in rows:
+            data = json.loads(r["payload"])
+            # Backfill workspace from capability for legacy rows
+            if not data.get("workspace_id"):
+                wid, cid = workspace_for_capability(str(data.get("capability_id") or ""), data.get("params") or {})
+                data["workspace_id"] = wid
+                data["client_id"] = data.get("client_id") or cid
+            try:
+                jobs.append(JobRecord(**{k: v for k, v in data.items() if k in JobRecord.__dataclass_fields__}))
+            except TypeError:
+                continue
         if status:
             jobs = [j for j in jobs if j.status == status]
-        return jobs
+        if workspace_id:
+            jobs = [j for j in jobs if j.workspace_id == workspace_id]
+        if client_id:
+            jobs = [j for j in jobs if j.client_id == client_id]
+        return jobs[: max(1, min(limit, 500))]
 
     def active_jobs(self) -> list[JobRecord]:
         active = {

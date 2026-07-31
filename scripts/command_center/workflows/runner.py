@@ -90,9 +90,10 @@ def run_workflow(
 
     emit("preparing", "Preparando", "running", "Criando pasta segura de resultados")
     data_mode = resolve_data_mode(params)
-    # Correction/regenerate overlays stay on FIXTURE/demo renderer path with source_override
-    if override is not None:
-        data_mode = DataMode.FIXTURE
+    # Overlay/regenerate: render from corrected source without re-running the live pipeline.
+    # Preserve parent provenance (REAL stays REAL; FIXTURE stays FIXTURE) — never force FIXTURE
+    # just because an overlay is present (that would erase real harness/live provenance).
+    overlay_mode = override is not None
 
     mf = RunManifest(
         job_id=job_id,
@@ -110,9 +111,7 @@ def run_workflow(
     params = {**params, "data_mode": data_mode.value, "use_fixture": data_mode is DataMode.FIXTURE}
     mf.parameters = dict(params)
 
-    if data_mode is DataMode.REAL:
-        if override is not None:
-            raise ValueError("source_override é incompatível com data_mode=REAL")
+    if data_mode is DataMode.REAL and not overlay_mode:
         return _run_real_mode(
             wf,
             workflow_id,
@@ -124,15 +123,25 @@ def run_workflow(
             code_sha=code_sha,
         )
 
-    # FIXTURE / demo path (explicit)
-    if override is not None:
-        mf.warnings.append("Execução a partir de fonte corrigida/regenerada (não sample_data fresco).")
+    # FIXTURE demo path OR overlay re-render (REAL/FIXTURE provenance preserved above)
+    if overlay_mode:
+        mf.warnings.append(
+            "Regeneração a partir de fonte corrigida (overlay) — não reexecuta pipeline canônico."
+        )
         mf.limitations.append(
-            "Fonte: JSON de execução anterior com correções humanas aplicadas — modo demonstração/overlay, não live prod."
+            "Fonte: JSON de execução anterior com correções humanas aplicadas; "
+            f"proveniência data_mode={data_mode.value} herdada do pai (não sample_data fresco)."
         )
         mf.source_snapshots.append(
-            {"type": "corrected_source", "path": str(override), "note": "human correction or parent run"}
+            {
+                "type": "correction_overlay",
+                "path": str(override),
+                "parent_data_mode": data_mode.value,
+                "note": "human correction or parent run — not sample_data",
+            }
         )
+        if data_mode is DataMode.REAL:
+            mf.warnings.append("MODO REAL (overlay) — artefato real + correção humana; sem fixture.")
     else:
         mf.warnings.append("MODO DEMONSTRAÇÃO — dados de fixture representativa (não comercial).")
         mf.limitations.append(
@@ -171,7 +180,8 @@ def run_workflow(
     emit("validating", "Validando", "running")
     mf.finished_at = _utcnow()
     mf.status = result.get("status") or "SUCCEEDED"
-    mf.data_mode = DataMode.FIXTURE.value
+    # Keep provenance: REAL overlay stays REAL; demo stays FIXTURE
+    mf.data_mode = data_mode.value
     manifest_path = mf.write(out_dir)
     # re-add manifest entry cleanly
     mf.artifacts = [a for a in mf.artifacts if a.get("logical_name") != "run-manifest.json"]
@@ -185,7 +195,7 @@ def run_workflow(
     result["out_dir"] = str(out_dir)
     result["manifest"] = mf.to_dict()
     result["artifacts"] = [a["path"] for a in mf.artifacts]
-    result["data_mode"] = DataMode.FIXTURE.value
+    result["data_mode"] = data_mode.value
     return result
 
 

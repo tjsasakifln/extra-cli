@@ -70,6 +70,9 @@ class JobRunner:
         job_id = str(uuid.uuid4())
         job_dir = self.settings.jobs_dir / job_id
         job_dir.mkdir(parents=True, exist_ok=True)
+        from scripts.command_center.store import workspace_for_capability
+
+        wid, cid = workspace_for_capability(cap.id, params)
         rec = JobRecord(
             job_id=job_id,
             capability_id=cap.id,
@@ -82,6 +85,9 @@ class JobRunner:
             stdout_path=str(job_dir / "stdout.log"),
             stderr_path=str(job_dir / "stderr.log"),
             code_sha=git_sha(),
+            workspace_id=wid,
+            client_id=cid,
+            project_id=str(params.get("project_id")) if params.get("project_id") else None,
         )
         self.store.create_job(rec)
         # Preset: last params per capability/workflow for rerun without retyping

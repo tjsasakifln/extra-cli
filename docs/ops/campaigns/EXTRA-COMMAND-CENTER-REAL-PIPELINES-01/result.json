@@ -15,8 +15,23 @@
     "extra": "BLOCKED_CONFIG",
     "confenge_suppliers": "BLOCKED_CONFIG",
     "confenge_public_agencies": "BLOCKED_CONFIG",
-    "process_documents": "NOT_RUN_LIVE"
+    "process_documents": {
+      "status": "FAILED",
+      "exit_code": 1,
+      "run_id": "aa471c7b-f03a-4618-a417-edfb79c5b54c",
+      "data_mode": "REAL",
+      "preflight": "READY"
+    }
   },
   "ci": "success_on_ci_green_code_head",
-  "reviewability": "success_on_ci_green_code_head"
+  "reviewability": "success_on_ci_green_code_head",
+  "skeptic_remediation": [
+    "process_documents no cwd artifact leak",
+    "empty documents list not phantom row",
+    "symlink adversarial test",
+    "strengthened no-fixture-fallback asserts",
+    "workspace filter on jobs",
+    "regen overlay preserves REAL data_mode",
+    "UI prefers REAL when preflight READY"
+  ]
 }

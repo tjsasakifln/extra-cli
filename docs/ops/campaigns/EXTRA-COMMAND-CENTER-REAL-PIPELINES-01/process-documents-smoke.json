@@ -1,0 +1,55 @@
+{
+  "workflow_id": "workflow.process_documents",
+  "preflight": {
+    "status": "READY",
+    "checks": [
+      {
+        "name": "module:scripts.process_documents",
+        "ok": true,
+        "detail": "importável",
+        "required": true
+      },
+      {
+        "name": "dir:out",
+        "ok": true,
+        "detail": "/tmp/grok-goal-c51fa2507d27/implementer/live-smoke/process_documents",
+        "required": true
+      },
+      {
+        "name": "param:query",
+        "ok": true,
+        "detail": "query informada",
+        "required": true
+      }
+    ],
+    "limitations": [
+      "Comando canônico: python -m scripts.process_documents show <query>.",
+      "Leitura/indexação de acervo; sem envio de mensagens.",
+      "Coleta live (collect/harvest) exige confirmação e DSN — use Avançado se necessário."
+    ],
+    "safe_to_run": true,
+    "capability_id": "process_documents.show",
+    "message": "Preflight READY — pipelines canônicos podem executar."
+  },
+  "run": {
+    "run_id": "aa471c7b-f03a-4618-a417-edfb79c5b54c",
+    "status": "FAILED",
+    "exit_code": 1,
+    "data_mode": "REAL",
+    "message": "Process documents REAL exit=1; 3 artefatos.",
+    "manifest_path": "/tmp/grok-goal-c51fa2507d27/implementer/live-smoke/process_documents/run/run-manifest.json",
+    "artifacts": [
+      "/tmp/grok-goal-c51fa2507d27/implementer/live-smoke/process_documents/run/adapter-stderr.log",
+      "/tmp/grok-goal-c51fa2507d27/implementer/live-smoke/process_documents/run/documents-index.json",
+      "/tmp/grok-goal-c51fa2507d27/implementer/live-smoke/process_documents/run/adapter-stdout.log",
+      "/tmp/grok-goal-c51fa2507d27/implementer/live-smoke/process_documents/run/run-manifest.json"
+    ],
+    "canonical_command": [
+      "/usr/bin/python3",
+      "-m",
+      "scripts.process_documents",
+      "show",
+      "demo-processo-001"
+    ]
+  }
+}

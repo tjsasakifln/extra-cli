@@ -93,7 +93,14 @@ export const client = {
     api<Record<string, unknown>>(
       `/api/workflows/${encodeURIComponent(id)}/preflight?data_mode=${encodeURIComponent(dataMode)}`,
     ),
-  jobs: () => api<{ jobs: Job[] }>("/api/jobs"),
+  workspaces: () =>
+    api<{ workspaces: Array<{ id: string; label: string; client_id: string }> }>("/api/workspaces"),
+  jobs: (workspaceId?: string) =>
+    api<{ jobs: Job[] }>(
+      workspaceId
+        ? `/api/jobs?workspace_id=${encodeURIComponent(workspaceId)}`
+        : "/api/jobs",
+    ),
   job: (id: string) => api<{ job: Job }>(`/api/jobs/${encodeURIComponent(id)}`),
   jobLogs: (id: string, afterId = 0) =>
     api<{ logs: Array<{ id: number; ts: string; stream: string; level: string; message: string }> }>(

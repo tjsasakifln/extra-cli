@@ -30,3 +30,21 @@ export LOCAL_DATALAKE_DSN='postgresql://…'
 python3 -m scripts.command_center  # or bin/command-center
 # UI: each flow → data_mode=REAL → confirm → capture run_id + manifest
 ```
+
+
+## process_documents REAL smoke (attempted)
+
+Preflight: **READY** (safe_to_run=True)
+
+| Field | Value |
+|-------|-------|
+| run_id | `aa471c7b-f03a-4618-a417-edfb79c5b54c` |
+| status | **FAILED** |
+| exit_code | 1 |
+| data_mode | REAL |
+| command | `/usr/bin/python3 -m scripts.process_documents show demo-processo-001` |
+| message | Process documents REAL exit=1; 3 artefatos. |
+
+Honest outcome: pipeline executed REAL without fixture fallback; exit=1 → **FAILED** (no acervo for query demo-processo-001). Evidence saved under implementer scratch live-smoke/.
+
+No auto-outreach occurred.

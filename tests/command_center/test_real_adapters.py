@@ -106,12 +106,15 @@ def test_no_silent_fixture_fallback_on_real_block(tmp_path: Path, monkeypatch: p
     assert str(result["status"]).startswith("BLOCKED_")
     mf = load_manifest(Path(result["manifest_path"]))
     assert mf["data_mode"] == "REAL"
-    assert "fixture" not in json.dumps(mf.get("source_snapshots") or []).lower() or True
+    snaps = mf.get("source_snapshots") or []
+    assert snaps == [] or all(s.get("type") != "fixture" for s in snaps if isinstance(s, dict))
+    assert "sample_data" not in json.dumps(mf).lower()
     # Must not claim SUCCEEDED or LIVE
     assert result["status"] != "SUCCEEDED"
-    assert mf.get("terminal_claim") not in {"LIVE_READY", "LIVE"}
-    # No sample fixture opportunities file from sample_data path alone claiming real
-    assert mf.get("terminal_claim") != "FIXTURE_DEMO"
+    assert mf.get("terminal_claim") not in {"LIVE_READY", "LIVE", "FIXTURE_DEMO"}
+    # Must not produce fixture deliverables on REAL block
+    assert not (tmp_path / "real-block" / "opportunities.json").exists()
+    assert not (tmp_path / "real-block" / "workbook-oportunidades-extra.xlsx").exists()
 
 
 def test_fixture_mode_explicit_succeeds(tmp_path: Path) -> None:
