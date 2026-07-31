@@ -82,183 +82,241 @@ def _num(value: Any) -> float | None:
         return None
 
 
-# False-positive labor phrases that contain "OBRA" but are not engineering works.
-_NON_ENGINEERING_OBRA_PHRASES: tuple[str, ...] = (
-    "MAO DE OBRA",
-    "MAO-DE-OBRA",
-    "MAOS DE OBRA",
-    "MAOS-DE-OBRA",
-    "HORA HOMEM",
-    "HORAS HOMEM",
+# ---------------------------------------------------------------------------
+# Multi-tier engineering object verdict (fail-closed).
+# Order: EMPTY → HARD_NEGATIVE → STRONG_WORKS → WEAK_NOUN_ONLY → KEYWORD_ONLY → NONE
+# Profile keywords NEVER alone force is_engineering=True.
+# ---------------------------------------------------------------------------
+
+TIER_NONE = "NONE"
+TIER_HARD_NEGATIVE = "HARD_NEGATIVE"
+TIER_STRONG_WORKS = "STRONG_WORKS"
+TIER_WEAK_NOUN_ONLY = "WEAK_NOUN_ONLY"
+TIER_KEYWORD_ONLY = "KEYWORD_ONLY"
+
+
+@dataclass(frozen=True)
+class EngineeringObjectVerdict:
+    is_engineering: bool
+    tier: str
+    reasons: tuple[str, ...]
+
+    def as_dict(self) -> dict[str, Any]:
+        return {
+            "is_engineering": self.is_engineering,
+            "tier": self.tier,
+            "reasons": list(self.reasons),
+        }
+
+
+# HARD_NEGATIVE always wins (checked first after empty).
+_HARD_NEGATIVE_PHRASES: tuple[tuple[str, str], ...] = (
+    ("labor_mao_de_obra", "MAO DE OBRA"),
+    ("labor_mao_de_obra", "MAO-DE-OBRA"),
+    ("labor_mao_de_obra", "MAOS DE OBRA"),
+    ("labor_hora_homem", "HORA HOMEM"),
+    ("pageant_cabelo", "CABELO"),
+    ("pageant_maquiagem", "MAQUIAGEM"),
+    ("pageant_beleza", "BELEZA"),
+    ("pageant_estetica", "ESTETICA"),
+    ("pageant_concurso", "CONCURSO DE BELEZA"),
+    ("rental_aluguel", "ALUGUEL DE"),
+    ("rental_locacao_veiculo", "LOCACAO DE VEICULO"),
+    ("fuel", "COMBUSTIVEL"),
+    ("food", "GENERO ALIMENTICIO"),
+    ("medicine", "MEDICAMENTO"),
+    ("uniform", "UNIFORME"),
+    ("office_supplies", "MATERIAL DE EXPEDIENTE"),
+    ("office_supplies", "MATERIAIS DE EXPEDIENTE"),
+    ("tires", "PNEU"),
+    ("tires", "PNEUS"),
+    ("kitchen", "UTENSILIOS DE COZINHA"),
+    ("hygiene_paper", "PAPEIS PARA HIGIENE"),
+    ("disposable", "MATERIAIS DESCARTAVEIS"),
+    ("furniture", "MOVEIS PARA ESCRITORIO"),
+    ("notebooks", "NOTEBOOKS"),
+    ("occupancy_concessao", "CONCESSAO DE USO"),
+    ("occupancy_concessao", "CONCESSAO DE USO DE"),
+    ("occupancy_cessao", "CESSAO DE IMOVEL"),
+    ("occupancy_cessao", "CESSAO DE USO"),
+    ("occupancy_permissao", "PERMISSAO DE USO"),
+    ("occupancy_comodato", "COMODATO"),
+    ("sports_event", "EVENTOS ESPORTIVOS"),
+    ("school_transport", "TRANSPORTE ESCOLAR"),
 )
 
-# Strong engineering phrases (substring OK after folding).
-_STRONG_ENGINEERING_PHRASES: tuple[str, ...] = (
-    "OBRA DE ",
-    "OBRAS DE ",
-    "OBRA PUBLICA",
-    "OBRAS PUBLICAS",
-    "SERVICO DE ENGENHAR",
-    "SERVICOS DE ENGENHAR",
-    "SERVICOS TECNICOS DE ENGENHAR",
-    "PROJETO BASICO",
-    "PROJETO EXECUTIVO",
-    "PAVIMENTACAO",
-    "PAVIMENTAC",
-    "TERRAPLENAGEM",
-    "SANEAMENTO",
-    "DRENAGEM",
-    "FISCALIZACAO DE OBRA",
-    "FISCALIZACAO DE OBRAS",
-    "ACOMPANHAMENTO DE OBRA",
-    "ORCAMENTO DE OBRA",
-    "ORCAMENTO DE OBRAS",
-    "MEMORIAL DESCRITIVO",
-    "PLANILHA ORCAMENT",
-    "ENGENHARIA CIVIL",
-    "ENGENHARIA ELETRICA",
-    "ENGENHARIA MECANICA",
-    "INFRAESTRUTURA URBANA",
-    "INFRAESTRUTURA VIARIA",
-    "CONSTRUCAO CIVIL",
-    "CONSTRUCAO DE ",
-    "REFORMA DE EDIFIC",
-    "REFORMA DE PREDIO",
-    "REFORMA DE ESCOLA",
-    "REFORMA DE UBS",
-    "REFORMA DE UNIDADE",
-    "EDIFICACAO",
-    "EDIFICIO",
-    "PONTE ",
-    "VIADUTO",
-    "BARRAGEM",
-    "GALERIA DE AGUAS",
-    "REDE DE ESGOTO",
-    "REDE DE AGUA",
-    "ESTACAO DE TRATAMENTO",
+# Supply-only patterns: acquisition without works-execution verbs → HARD_NEGATIVE
+_SUPPLY_ONLY_RE = re.compile(
+    r"\b(AQUISICAO|COMPRA|FORNECIMENTO|AQUISICAO DE|COMPRA DE|FORNECIMENTO DE)\b.{0,80}\b("
+    r"MATERIAIS?|MATERIAL|ROMPEDOR|EQUIPAMENTO|EQUIPAMENTOS|FERRAMENTA|FERRAMENTAS|"
+    r"MAQUINA|MAQUINAS|VEICULO|VEICULOS|MOVEIS|MOBILIARIO|PNEU|PNEUS|"
+    r"COMBUSTIVEL|MEDICAMENTO|UNIFORME|NOTEBOOK|TABLET"
+    r")\b"
 )
 
-# Word-boundary tokens that alone are insufficient without context.
-_WEAK_ENG_TOKENS_REQUIRING_CONTEXT: tuple[str, ...] = (
-    "OBRA",
-    "OBRAS",
-    "REFORMA",
-    "REFORMAS",
-    "PROJETO",
-    "PROJETOS",
-    "CONSTRUCAO",
-    "MANUTENCAO",
+# Works-execution verbs that can rescue an otherwise supply-looking object
+_WORKS_EXECUTION_RE = re.compile(
+    r"\b("
+    r"EXECUCAO DE OBRA|EXECUCAO DE OBRAS|EXECUCAO DAS OBRAS|"
+    r"OBRA DE |OBRAS DE |OBRA PUBLICA|OBRAS PUBLICAS|"
+    r"CONSTRUCAO DE |REFORMA DE |"
+    r"PAVIMENTACAO|TERRAPLENAGEM|"
+    r"PROJETO BASICO|PROJETO EXECUTIVO|"
+    r"SERVICOS? DE ENGENHAR|FISCALIZACAO DE OBRA"
+    r")\b"
+)
+
+# STRONG_WORKS only — multi-word works / engineering services (never bare nouns).
+_STRONG_WORKS_PATTERNS: tuple[tuple[str, str], ...] = (
+    ("obra_de", r"\bOBRAS?\s+DE\s+\w"),
+    ("obra_publica", r"\bOBRAS?\s+PUBLICAS?\b"),
+    ("execucao_obra", r"\bEXECUCAO\s+(DE\s+)?(DAS\s+)?OBRAS?\b"),
+    ("construcao_de", r"\bCONSTRUCAO\s+DE\s+\w"),
+    ("construcao_civil", r"\bCONSTRUCAO\s+CIVIL\b"),
+    ("reforma_de_building", r"\bREFORMA\s+DE\s+(ESCOLA|PREDIO|EDIFIC|UBS|UNIDADE|CRECHE|HOSPITAL|PONTE|PRACA|CALCADA)"),
+    ("pavimentacao", r"\bPAVIMENTAC"),
+    ("terraplenagem", r"\bTERRAPLENAGEM\b"),
+    ("drenagem_works", r"\bDRENAGEM\s+(URBANA|PLUVIAL|DE\s+)"),
+    ("saneamento_works", r"\b(OBRAS?\s+DE\s+)?SANEAMENTO\b"),
+    ("rede_esgoto", r"\bREDE\s+DE\s+ESGOTO\b"),
+    ("rede_agua", r"\bREDE\s+DE\s+AGUA\b"),
+    ("estacao_tratamento", r"\bESTACAO\s+DE\s+TRATAMENTO\b"),
+    ("projeto_basico", r"\bPROJETO\s+BASICO\b"),
+    ("projeto_executivo", r"\bPROJETO\s+EXECUTIVO\b"),
+    ("servicos_engenharia", r"\bSERVICOS?\s+(TECNICOS\s+DE\s+)?ENGENHAR"),
+    ("engenharia_discipline", r"\bENGENHARIA\s+(CIVIL|ELETRICA|MECANICA|AMBIENTAL)\b"),
+    ("fiscalizacao_obra", r"\bFISCALIZACAO\s+DE\s+OBRAS?\b"),
+    ("acompanhamento_obra", r"\bACOMPANHAMENTO\s+DE\s+OBRAS?\b"),
+    ("orcamento_obra", r"\bORCAMENTO\s+DE\s+OBRAS?\b"),
+    ("memorial_descritivo", r"\bMEMORIAL\s+DESCRITIVO\b"),
+    ("planilha_orcament", r"\bPLANILHA\s+ORCAMENT"),
+    ("infraestrutura_urbana", r"\bINFRAESTRUTURA\s+(URBANA|VIARIA)\b"),
+    ("ponte_works", r"\b(CONSTRUCAO|REFORMA|OBRA)\s+.{0,20}\bPONTE\b"),
+    ("viaduto", r"\bVIADUTO\b"),
+    ("barragem", r"\bBARRAGEM\b"),
+    ("galeria_aguas", r"\bGALERIA\s+DE\s+AGUAS\b"),
+)
+
+# WEAK nouns alone never True (even if profile keyword matches).
+_WEAK_NOUN_RE = re.compile(
+    r"\b("
+    r"EDIFICACAO|EDIFICACOES|EDIFICIO|EDIFICIOS|"
+    r"CONSTRUCAO|CONSTRUCOES|"
+    r"REFORMA|REFORMAS|"
+    r"OBRA|OBRAS|"
+    r"PROJETO|PROJETOS|"
+    r"INFRAESTRUTURA|MANUTENCAO"
+    r")\b"
 )
 
 
-def _has_word(blob: str, token: str) -> bool:
-    """Whole-word match for short tokens (avoids 'obra' inside other words wrongly)."""
-    return re.search(rf"(?<![A-Z0-9]){re.escape(token)}(?![A-Z0-9])", blob) is not None
+def classify_engineering_object(
+    obj: str | None,
+    eng_keywords: list[str] | None = None,
+) -> EngineeringObjectVerdict:
+    """Multi-tier engineering object classification (fail-closed).
 
-
-def is_engineering_object(obj: str | None, eng_keywords: list[str] | None = None) -> bool:
-    """True only for objects that are works/engineering services — not 'mão de obra'.
-
-    Rules (fail-closed toward NOT engineering):
-    1. Empty → False
-    2. If text is only labor/mão-de-obra (and no strong eng phrase) → False
-    3. Strong engineering phrases → True
-    4. Profile eng_keywords as whole-phrase/substring when length >= 5
-    5. Bare token OBRA alone is NOT enough; 'OBRA DE X' / eng context required
-    6. MATERIAIS DE CONSTRUCAO / fornecimento alone → False unless paired with obra/projeto
+    Profile eng_keywords never alone force True — only annotate KEYWORD_ONLY
+    when STRONG_WORKS already matched, or stand alone as non-engineering.
     """
     blob = _fold(obj)
     if not blob:
-        return False
+        return EngineeringObjectVerdict(False, TIER_NONE, ("empty",))
 
-    # Strip pure labor phrasing for residual checks
-    labor_only = any(p in blob for p in _NON_ENGINEERING_OBRA_PHRASES)
-    strong_hit = any(p in blob for p in _STRONG_ENGINEERING_PHRASES)
+    # 1) HARD_NEGATIVE
+    neg_reasons: list[str] = []
+    for rid, phrase in _HARD_NEGATIVE_PHRASES:
+        if phrase in blob:
+            neg_reasons.append(rid)
 
-    if strong_hit:
-        return True
+    supply_match = _SUPPLY_ONLY_RE.search(blob)
+    has_works_exec = bool(_WORKS_EXECUTION_RE.search(blob))
+    if supply_match and not has_works_exec:
+        neg_reasons.append("supply_only_acquisition")
 
-    # Explicit non-engineering commerce of materials without design/execution of works
-    materials_only = any(
-        p in blob
-        for p in (
-            "MATERIAIS DE CONSTRUCAO",
-            "MATERIAL DE CONSTRUCAO",
-            "FORNECIMENTO DE MATERIAIS",
-            "AQUISICAO DE MATERIAIS",
-            "COMPRA DE MATERIAIS",
-            "MATERIAIS ELETRICOS",
-            "MATERIAIS HIDRAULICOS",
+    # Secretariat / organ names containing INFRAESTRUTURA alone (not works context)
+    if re.search(r"\bSECRETARIA\b.{0,40}\bINFRAESTRUTURA\b", blob) and not has_works_exec:
+        if not any(
+            p in blob
+            for p in (
+                "OBRA DE ",
+                "OBRAS DE ",
+                "PAVIMENT",
+                "EXECUCAO DE OBRA",
+                "PROJETO BASICO",
+            )
+        ):
+            # Only count as negative if no strong works pattern will match later —
+            # still record; hard negative if no strong works
+            pass
+
+    if neg_reasons and not has_works_exec:
+        # concession / labor / supply without works execution → hard negative
+        return EngineeringObjectVerdict(False, TIER_HARD_NEGATIVE, tuple(dict.fromkeys(neg_reasons)))
+
+    # If hard negatives co-exist WITH works execution verbs (rare), still allow
+    # strong works evaluation below — but pure concession stays negative:
+    if any(r.startswith("occupancy_") for r in neg_reasons) and not has_works_exec:
+        return EngineeringObjectVerdict(False, TIER_HARD_NEGATIVE, tuple(dict.fromkeys(neg_reasons)))
+    if any(r.startswith("pageant_") or r.startswith("labor_") for r in neg_reasons) and not has_works_exec:
+        return EngineeringObjectVerdict(False, TIER_HARD_NEGATIVE, tuple(dict.fromkeys(neg_reasons)))
+    if "supply_only_acquisition" in neg_reasons:
+        return EngineeringObjectVerdict(False, TIER_HARD_NEGATIVE, tuple(dict.fromkeys(neg_reasons)))
+
+    # 2) STRONG_WORKS
+    strong_reasons: list[str] = []
+    for rid, pattern in _STRONG_WORKS_PATTERNS:
+        if re.search(pattern, blob):
+            strong_reasons.append(rid)
+
+    # SANEAMENTO / DRENAGEM only as works (not bare word in unrelated context)
+    if re.search(r"\bSANEAMENTO\b", blob) and re.search(
+        r"\b(OBRA|OBRAS|EXECUCAO|REDE|SISTEMA|SERVICOS?\s+DE)\b", blob
+    ):
+        strong_reasons.append("saneamento_works_context")
+    if re.search(r"\bDRENAGEM\b", blob) and re.search(
+        r"\b(OBRA|OBRAS|EXECUCAO|PLUVIAL|URBANA|SISTEMA)\b", blob
+    ):
+        strong_reasons.append("drenagem_works_context")
+
+    if strong_reasons:
+        # Profile keywords may annotate but never gate
+        kw_hits = []
+        for kw in eng_keywords or []:
+            fk = _fold(kw)
+            if fk and len(fk) >= 4 and fk in blob:
+                kw_hits.append(f"keyword:{fk[:40]}")
+        reasons = tuple(dict.fromkeys(strong_reasons + kw_hits[:5]))
+        return EngineeringObjectVerdict(True, TIER_STRONG_WORKS, reasons)
+
+    # 3) WEAK_NOUN_ONLY — False
+    if _WEAK_NOUN_RE.search(blob):
+        return EngineeringObjectVerdict(
+            False,
+            TIER_WEAK_NOUN_ONLY,
+            ("weak_noun_without_works_execution",),
         )
-    )
-    if materials_only and not strong_hit:
-        # Allow only if clear execution of works is also stated
-        if not re.search(r"\b(EXECUCAO DE OBRA|EXECUCAO DE OBRAS|CONSTRUCAO DE |REFORMA DE )\b", blob):
-            return False
 
-    # Hair/makeup/pageant etc. with incidental words
-    if any(
-        p in blob
-        for p in (
-            "CABELO",
-            "MAQUIAGEM",
-            "BELEZA",
-            "ESTETICA",
-            "CONCURSO DE BELEZA",
-            "MISS ",
-            "ALUGUEL DE",
-            "LOCACAO DE VEICULO",
-            "COMBUSTIVEL",
-            "GENERO ALIMENTICIO",
-            "MEDICAMENTO",
-            "UNIFORME",
-            "MATERIAL DE EXPEDIENTE",
-            "PNEU",
-            "PNEUS",
-        )
-    ) and not strong_hit:
-        return False
-
-    if labor_only and not strong_hit:
-        # "Contratação de mão de obra temporária" without obra pública → not engineering
-        if not re.search(r"\b(OBRA DE|OBRAS DE|OBRA PUBLICA|ENGENHAR)\b", blob):
-            return False
-
-    # Profile keywords (prefer longer phrases)
+    # 4) Profile keywords alone — False (KEYWORD_ONLY)
+    kw_only: list[str] = []
     for kw in eng_keywords or []:
         fk = _fold(kw)
-        if not fk:
-            continue
-        if len(fk) >= 6 and fk in blob:
-            # Skip if the only match is inside "MAO DE OBRA"
-            if fk == "OBRA" or fk in _WEAK_ENG_TOKENS_REQUIRING_CONTEXT:
-                continue
-            if fk in ("OBRA",) or (fk == "OBRA" or "OBRA" == fk):
-                continue
-            # mão de obra contains obra as word — already handled
-            if labor_only and fk in ("OBRA", "OBRAS", "REFORMA"):
-                continue
-            return True
-        if len(fk) >= 8 and fk in blob:
-            return True
+        if fk and len(fk) >= 4 and fk in blob:
+            kw_only.append(f"keyword:{fk[:40]}")
+    if kw_only:
+        return EngineeringObjectVerdict(False, TIER_KEYWORD_ONLY, tuple(kw_only[:8]))
 
-    # Word-boundary engineering terms with required context
-    if _has_word(blob, "ENGENHARIA") or "ENGENHAR" in blob:
-        return True
-    if any(
-        _has_word(blob, t)
-        for t in ("PAVIMENTACAO", "TERRAPLENAGEM", "SANEAMENTO", "DRENAGEM", "TERRAPLENAGEM")
-    ):
-        return True
-    # "OBRA DE …" already in strong phrases; bare OBRA alone is False
-    if re.search(r"\bOBRAS?\s+DE\s+\w", blob):
-        return True
-    if re.search(r"\bREFORMA\s+DE\s+\w", blob):
-        return True
-    if re.search(r"\bCONSTRUCAO\s+DE\s+\w", blob):
-        return True
+    return EngineeringObjectVerdict(False, TIER_NONE, ("no_match",))
 
-    return False
+
+def is_engineering_object(obj: str | None, eng_keywords: list[str] | None = None) -> bool:
+    """True only for STRONG_WORKS tier. eng_keywords never force True alone."""
+    return classify_engineering_object(obj, eng_keywords).is_engineering
+
+
+def is_strong_works_object(obj: str | None, eng_keywords: list[str] | None = None) -> bool:
+    """Alias used by pipeline publishability seals."""
+    return classify_engineering_object(obj, eng_keywords).tier == TIER_STRONG_WORKS
 
 
 def _is_engineering_object(obj: str | None, eng_keywords: list[str]) -> bool:
@@ -295,14 +353,19 @@ def compute_agency_signals(
     window_days: int = 730,
 ) -> list[SignalHit]:
     """Compute versioned signals from buyer-side contracts + context."""
-    eng_kws = eng_keywords or ["obra", "engenharia", "pavimentacao", "reforma", "saneamento"]
+    # Profile keywords never force eng classification (see classify_engineering_object).
+    eng_kws = eng_keywords or []
     hits: list[SignalHit] = []
     start = as_of - timedelta(days=window_days)
 
+    # Only STRONG_WORKS tier counts as engineering for need signals.
     eng_contracts = []
     for c in contracts:
-        if _is_engineering_object(str(c.get("objeto_contrato") or ""), eng_kws):
-            eng_contracts.append(c)
+        verdict = classify_engineering_object(str(c.get("objeto_contrato") or ""), eng_kws)
+        if verdict.tier == TIER_STRONG_WORKS:
+            row = dict(c)
+            row["_eng_verdict"] = verdict.as_dict()
+            eng_contracts.append(row)
 
     # small_municipality
     if population is None:

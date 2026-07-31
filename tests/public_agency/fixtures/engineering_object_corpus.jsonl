@@ -1,0 +1,18 @@
+{"id":"fp_mao_de_obra_limpeza","obj":"Contratação de mão de obra temporária para limpeza","expect_engineering":false,"expect_tier":"HARD_NEGATIVE"}
+{"id":"fp_palmitos_pageant","obj":"CONTRATAÇÃO DE SERVIÇOS DE CABELO E MAQUIAGEM COM MÃO DE OBRA PARA CONCURSO DE BELEZA MUNICIPAL","expect_engineering":false,"expect_tier":"HARD_NEGATIVE"}
+{"id":"fp_materiais_construcao","obj":"AQUISIÇÃO DE MATERIAIS DE CONSTRUÇÃO DIVERSOS","expect_engineering":false,"expect_tier":"HARD_NEGATIVE"}
+{"id":"fp_materiais_eletricos_edificacoes","obj":"FORNECIMENTO DE MATERIAIS ELÉTRICOS PARA EDIFICAÇÕES","expect_engineering":false,"expect_tier":"HARD_NEGATIVE"}
+{"id":"fp_pneus","obj":"COMPRA DE PNEUS E CÂMARAS DE AR PARA FROTA MUNICIPAL","expect_engineering":false,"expect_tier":"HARD_NEGATIVE"}
+{"id":"fp_xanxere_concessao_edificacao","obj":"CONCESSÃO DE USO DE BEM PÚBLICO — ÁREA COM EDIFICAÇÃO DE 749,76 M², CANCHA DE BOCHA E ESTACIONAMENTO","expect_engineering":false,"expect_tier":"HARD_NEGATIVE"}
+{"id":"fp_rompedor_secretaria_infra","obj":"AQUISIÇÃO DE ROMPEDOR HIDRÁULICO PARA A SECRETARIA MUNICIPAL DE INFRAESTRUTURA","expect_engineering":false,"expect_tier":"HARD_NEGATIVE"}
+{"id":"fp_utensilios","obj":"UTENSÍLIOS DE COZINHA - LEI 14.133/2021","expect_engineering":false,"expect_tier":"HARD_NEGATIVE"}
+{"id":"fp_expediente","obj":"MATERIAIS DE EXPEDIENTE, ESCOLAR E DE ARTESANATO - LEI 14.133/2021","expect_engineering":false,"expect_tier":"HARD_NEGATIVE"}
+{"id":"fp_transporte_escolar","obj":"CONTRATAÇÃO POR INEXIGIBILIDADE REFERENTE À SERVIÇO DE TRANSPORTE ESCOLAR DE ESTUDANTES","expect_engineering":false,"expect_tier":"HARD_NEGATIVE"}
+{"id":"fp_weak_edificacao_only","obj":"ÁREA COM EDIFICAÇÃO DE 100 M² DESTINADA A EVENTOS","expect_engineering":false,"expect_tier":"WEAK_NOUN_ONLY"}
+{"id":"fp_weak_infraestrutura_secretaria","obj":"APOIO ADMINISTRATIVO À SECRETARIA MUNICIPAL DE INFRAESTRUTURA","expect_engineering":false,"expect_tier":"WEAK_NOUN_ONLY"}
+{"id":"tp_obra_pavimentacao","obj":"Obra de pavimentação asfáltica e drenagem urbana","expect_engineering":true,"expect_tier":"STRONG_WORKS"}
+{"id":"tp_execucao_saneamento","obj":"Execução de obras de saneamento e rede de esgoto","expect_engineering":true,"expect_tier":"STRONG_WORKS"}
+{"id":"tp_projeto_basico","obj":"Elaboração de projeto básico de engenharia civil","expect_engineering":true,"expect_tier":"STRONG_WORKS"}
+{"id":"tp_reforma_escola","obj":"Reforma de escola municipal — engenharia e construção civil","expect_engineering":true,"expect_tier":"STRONG_WORKS"}
+{"id":"tp_fiscalizacao_obra","obj":"Serviços técnicos de engenharia para fiscalização de obra","expect_engineering":true,"expect_tier":"STRONG_WORKS"}
+{"id":"tp_garopaba_pavimentacao","obj":"CONTRATAÇÃO DE EMPRESA PARA EXECUÇÃO DE OBRAS DE PAVIMENTAÇÃO DA ROD. GRP 030 E LEONILDO PEIRÃO NO MUNICÍPIO DE GAROPABA/SC.","expect_engineering":true,"expect_tier":"STRONG_WORKS"}

@@ -361,13 +361,17 @@ def run_public_agency_pipeline(
         classification = classify_object(joined)
         cls_dict = classification.as_dict()
 
-        # Fragmentation: only true engineering/same-nature rows (not all buyer contracts)
-        from scripts.public_agency.signals import is_engineering_object
+        # Fragmentation: only STRONG_WORKS engineering rows (not weak nouns / keywords)
+        from scripts.public_agency.signals import (
+            TIER_STRONG_WORKS,
+            classify_engineering_object,
+            is_engineering_object,
+        )
 
         same_nature = []
         for c in contracts:
             obj = str(c.get("objeto_contrato") or "")
-            if not is_engineering_object(obj, eng_kws):
+            if classify_engineering_object(obj, eng_kws).tier != TIER_STRONG_WORKS:
                 continue
             amt = c.get("valor_total")
             try:
@@ -475,9 +479,12 @@ def run_public_agency_pipeline(
             annual_sum_state="DIRECT_CONTRACTING_SUM_UNKNOWN",
         )
 
-        # Engineering contract count — shared matcher (no bare 'OBRA' / mão de obra)
+        # Engineering contract count — STRONG_WORKS only
         eng_contract_count = sum(
-            1 for c in contracts if is_engineering_object(str(c.get("objeto_contrato") or ""), eng_kws)
+            1
+            for c in contracts
+            if classify_engineering_object(str(c.get("objeto_contrato") or ""), eng_kws).tier
+            == TIER_STRONG_WORKS
         )
 
         distress = any(s.signal_id == "contract_execution_distress" and s.status == "FIRED" for s in signals)
@@ -522,7 +529,12 @@ def run_public_agency_pipeline(
 
         # Prefer engineering-relevant contracts in the evidence sample so dossiers
         # do not hide the material eng object behind newer office supplies.
-        eng_first = [c for c in contracts if is_engineering_object(str(c.get("objeto_contrato") or ""), eng_kws)]
+        eng_first = [
+            c
+            for c in contracts
+            if classify_engineering_object(str(c.get("objeto_contrato") or ""), eng_kws).tier
+            == TIER_STRONG_WORKS
+        ]
         eng_ids = {id(c) for c in eng_first}
         non_eng = [c for c in contracts if id(c) not in eng_ids]
         eng_first_sorted = sorted(
@@ -537,6 +549,7 @@ def run_public_agency_pipeline(
         )
         evidence: list[dict[str, Any]] = []
         for c in (eng_first_sorted + non_eng_sorted)[:15]:
+            verdict = classify_engineering_object(str(c.get("objeto_contrato") or ""), eng_kws)
             evidence.append(
                 {
                     "source": c.get("source") or "pncp_supplier_contracts",
@@ -558,9 +571,9 @@ def run_public_agency_pipeline(
                     "parser": "public_agency.pipeline",
                     "version": MODULE_VERSION,
                     "quality": "official_table_row",
-                    "is_engineering_object": is_engineering_object(
-                        str(c.get("objeto_contrato") or ""), eng_kws
-                    ),
+                    "is_engineering_object": verdict.is_engineering,
+                    "eng_tier": verdict.tier,
+                    "eng_reasons": list(verdict.reasons),
                     "limitations": [
                         "Buyer-side row from supplier contracts table; not full process file."
                     ],
