@@ -17,7 +17,7 @@ import os
 import subprocess
 import sys
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -39,18 +39,23 @@ TABLES = [
 
 
 def _now() -> str:
-    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    return datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 def _git_sha() -> str:
     try:
-        out = subprocess.check_output(
-            ["git", "rev-parse", "HEAD"],
+        import shutil
+
+        git = shutil.which("git")
+        if not git:
+            return "unknown"
+        out = subprocess.check_output(  # noqa: S603
+            [git, "rev-parse", "HEAD"],
             stderr=subprocess.DEVNULL,
             cwd=Path(__file__).resolve().parents[2],
         )
         return out.decode().strip()
-    except Exception:
+    except (OSError, subprocess.SubprocessError):
         return "unknown"
 
 
