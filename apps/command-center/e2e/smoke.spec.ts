@@ -68,7 +68,7 @@ test.describe("Command Center critical flows", () => {
     const logos = page.locator('img[alt="CONFENGE"], .brand-logo, .brand-logo-pair img');
     await expect(logos.first()).toBeVisible();
     const src = await logos.first().getAttribute("src");
-    expect(src || "").toMatch(/logo-confenge/);
+    expect(src || "").toMatch(/logo-confenge(\.svg|\.png)?/);
   });
 
   test("secrets absent in DOM from health-backed UI", async ({ page }) => {

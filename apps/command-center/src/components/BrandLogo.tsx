@@ -9,8 +9,9 @@ export function BrandLogo({
   className?: string;
   height?: number;
 }) {
-  const colorSrc = "/brand/logo-confenge.png";
-  const whiteSrc = "/brand/logo-confenge-white.png";
+  // SVG wordmarks (reviewability-safe). Visual identity aligned with webcfg brand tokens.
+  const colorSrc = "/brand/logo-confenge.svg";
+  const whiteSrc = "/brand/logo-confenge-white.svg";
   if (variant === "color") {
     return (
       <img
