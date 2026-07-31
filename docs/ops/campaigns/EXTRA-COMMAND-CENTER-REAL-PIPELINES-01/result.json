@@ -5,8 +5,8 @@
   "pr_pseo": 187,
   "backup_branch": "backup/pr-186-before-scope-cleanup",
   "backup_sha": "483ab4b5214c79f02bb8700d1e4c6b91e578a1d8",
-  "head_sha": "493ecf2e741ec86a70678a862908435c7fa127d9",
-  "ci_green_head": "646238567d2fae75bc998267ec858bbbe37c8c3a",
+  "head_sha_at_write": "a6e49dedc06c428a74f4e588d45f9004b272327c",
+  "ci_green_code_head": "646238567d2fae75bc998267ec858bbbe37c8c3a",
   "pytest_command_center": "93 passed",
   "playwright_e2e": "28 passed",
   "pseo_in_diff": false,
@@ -17,7 +17,6 @@
     "confenge_public_agencies": "BLOCKED_CONFIG",
     "process_documents": "NOT_RUN_LIVE"
   },
-  "ci": "success",
-  "reviewability": "success",
-  "notes": "PASS terminal blocked solely by missing live DSN/smoke; adapters+scope+CI green on ci_green_head"
+  "ci": "success_on_ci_green_code_head",
+  "reviewability": "success_on_ci_green_code_head"
 }
