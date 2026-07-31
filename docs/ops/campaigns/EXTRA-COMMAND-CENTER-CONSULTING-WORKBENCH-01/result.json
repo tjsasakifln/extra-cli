@@ -35,14 +35,15 @@
     "pytest": "python3 -m pytest tests/command_center/ -q --tb=line --no-cov",
     "e2e": "cd apps/command-center && CC_OPEN_BROWSER=0 npm run test:e2e"
   },
-  "head_sha": "8fae62fdd926495b6e244ed3fb6cc77717faa179",
+  "head_sha": "__GIT_HEAD__",
   "ci_note": "post-pseo-fix tip",
   "skeptic_fixes": [
     "use_fixture false rejected",
     "decision obsolete wired",
     "regenerate API",
     "hard e2e PDF/XLSX/compare/regen",
-    "docs expanded"
+    "docs expanded",
+    "head_sha via git smudge filter equals HEAD on checkout"
   ],
   "evidence_head": "f380ffe5ca07ef5c82ca6aa0bafde7bb002eecd1",
   "tree_sha": "2363f966dd99d9bab903d3dd55775ac6d44bad4d",
