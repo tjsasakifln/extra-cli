@@ -418,6 +418,59 @@ def classify_object_probable(objeto: str | None) -> list[str]:
     return []
 
 
+# More material-specific archetypes win over generic "obra de engenharia" / edificações
+# when multi-label would otherwise contaminate market aggregates.
+_PRIMARY_MATERIAL_CUES: list[tuple[str, str]] = [
+    (
+        r"paviment|asfalt|cbuq|paralelep[ií]pedo|intertravad|recape|terraplen|"
+        r"sinaliza[cç][aã]o\s+vi[aá]ria|cal[cç]ada\s+(p[uú]blica|em)|passeio\s+p[uú]blico",
+        "pavimentacao-infraestrutura-viaria",
+    ),
+    (
+        r"rede\s+(coletora|de\s+esgoto|de\s+[aá]gua)|eta\b|ete\b|adutora|"
+        r"esta[cç][aã]o\s+(elevat|de\s+tratamento)|saneamento\s+b[aá]sico",
+        "saneamento-hidraulica",
+    ),
+    (
+        r"climatiza|ar[- ]?condicionado\s+central|spda|instala[cç][oõ]es\s+el[eé]tricas\s+prediais",
+        "climatizacao-instalacoes",
+    ),
+    (
+        r"manuten[cç][aã]o\s+predial|med[ií][cç][aã]o\s+mensal.*edif[ií]cio",
+        "manutencao-predial-engenharia",
+    ),
+]
+
+
+def primary_archetype(arches: list[str] | None, objeto: str | None = None) -> str | None:
+    """Single market-bucket archetype — prevents multi-label contamination.
+
+    Multi-label classification is retained on the contract for recall, but
+    public market/competition pages must not list pavimentação as a top object
+    of edificações-publicas (and vice-versa).
+    """
+    arches = list(arches or [])
+    if not arches:
+        return None
+    if len(arches) == 1:
+        return arches[0]
+    text = objeto or ""
+    for pat, arch in _PRIMARY_MATERIAL_CUES:
+        if arch in arches and re.search(pat, text, re.I):
+            return arch
+    # Prefer non-generic when still multi without strong cue match
+    for arch in (
+        "pavimentacao-infraestrutura-viaria",
+        "saneamento-hidraulica",
+        "climatizacao-instalacoes",
+        "manutencao-predial-engenharia",
+        "edificacoes-publicas",
+    ):
+        if arch in arches:
+            return arch
+    return sorted(arches)[0]
+
+
 # ---------------------------------------------------------------------------
 # Evaluation helpers
 # ---------------------------------------------------------------------------

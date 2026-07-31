@@ -228,6 +228,7 @@ PROBLEM_SERVICE_KEYS: frozenset[str] = frozenset(
         "confenge_service_slug",
         "technical_guide_paths",
         "sources",
+        "official_references",
         "limitations",
     }
 )

@@ -105,3 +105,24 @@ def test_installation_of_ac_is_aec():
 def test_construcao_de_without_object():
     r = classify_objeto("Construção de soluções inovadoras para a gestão")
     assert r.label in {"ambiguous", "non_aec", "insufficient_context"}
+
+
+def test_primary_archetype_prevents_pavement_in_edificacoes_bucket():
+    """Multi-label obra+pavimentação must bucket primarily as pavimentação."""
+    from scripts.pseo.classifiers import classify_objeto, primary_archetype
+
+    obj = (
+        "Contratação de empresa especializada para a execução, em regime de empreitada, "
+        "de obras para pavimentação de estradas vicinais no Município de Bom Jesus do Galho"
+    )
+    r = classify_objeto(obj)
+    assert "pavimentacao-infraestrutura-viaria" in r.archetypes
+    assert "edificacoes-publicas" in r.archetypes  # multi-label recall retained
+    assert primary_archetype(r.archetypes, obj) == "pavimentacao-infraestrutura-viaria"
+
+    school = (
+        "Contratação de empresa especializada para execução de obra de engenharia "
+        "destinada à ampliação do prédio da Escola Municipal Pedacinho do Céu"
+    )
+    r2 = classify_objeto(school)
+    assert primary_archetype(r2.archetypes, school) == "edificacoes-publicas"

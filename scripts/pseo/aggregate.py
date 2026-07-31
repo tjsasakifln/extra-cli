@@ -13,6 +13,7 @@ from scripts.pseo.archetypes import (
     build_public_archetypes,
     classify_object,
 )
+from scripts.pseo.classifiers import primary_archetype
 
 MIN_VALOR_BENCHMARK = 5_000.0  # exclude trivial/noise values from price stats
 
@@ -99,14 +100,19 @@ def build_markets(
     min_contracts: int = 10,
     min_buyers: int = 3,
 ) -> list[dict[str, Any]]:
-    """Regional market pages: archetype × UF with critical mass."""
-    # Count by arch×uf
+    """Regional market pages: archetype × UF with critical mass.
+
+    Uses primary_archetype so multi-label contracts (e.g. obra+pavimentação)
+    enter only one market bucket — avoids semantic contamination in top_objects.
+    """
+    # Count by primary arch×uf (exclusive membership for market purity)
     buckets: dict[tuple[str, str], list[ClassifiedContract]] = defaultdict(list)
     for c in classified:
         if not c.uf:
             continue
-        for a in c.archetypes:
-            buckets[(a, c.uf)].append(c)
+        primary = primary_archetype(c.archetypes, c.objeto)
+        if primary:
+            buckets[(primary, c.uf)].append(c)
 
     markets: list[dict[str, Any]] = []
     for (arch, uf), items in sorted(buckets.items(), key=lambda kv: -len(kv[1])):
@@ -170,7 +176,8 @@ def build_markets(
         open_n = sum(
             1
             for b in open_bids
-            if arch in (b.get("archetypes") or []) and b.get("uf") == uf
+            if primary_archetype(b.get("archetypes") or [], b.get("objeto")) == arch
+            and b.get("uf") == uf
         )
         label = ARCHETYPE_DEFS[arch]["label"]
         slug = f"{arch}-{uf.lower()}"
@@ -199,8 +206,9 @@ def build_markets(
                 "open_opportunity_count": open_n,
                 "sources": sorted({c.source for c in items if c.source}),
                 "limitations": [
-                    f"Base: {len(items)} contratos classificados no arquétipo "
-                    f"em {uf}; não representa o universo total de contratações.",
+                    f"Base: {len(items)} contratos com arquétipo primário "
+                    f"{arch} em {uf}; multi-rótulo entra só no primário.",
+                    "Não representa o universo total de contratações.",
                     "Valores nominais sem deflacionamento.",
                     "Objetos heterogêneos; mediana não é preço unitário.",
                 ],
@@ -400,8 +408,9 @@ def build_competition(
     for c in classified:
         if not c.uf:
             continue
-        for a in c.archetypes:
-            buckets[(a, c.uf)].append(c)
+        primary = primary_archetype(c.archetypes, c.objeto)
+        if primary:
+            buckets[(primary, c.uf)].append(c)
 
     out: list[dict[str, Any]] = []
     for (arch, uf), items in sorted(buckets.items(), key=lambda kv: -len(kv[1])):
@@ -569,6 +578,16 @@ def build_problem_service_bridges() -> list[dict[str, Any]]:
                 "/conteudos/analise-edital-obra-publica-construtora/",
             ],
             "sources": ["pncp_supplier_contracts", "site-confenge-guides"],
+            "official_references": [
+                {
+                    "name": "Lei nº 14.133/2021 — licitações e contratos (Planalto)",
+                    "url": "https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2021/lei/l14133.htm",
+                },
+                {
+                    "name": "PNCP — Portal Nacional de Contratações Públicas",
+                    "url": "https://www.gov.br/pncp/pt-br",
+                },
+            ],
             "limitations": [
                 "Página de enquadramento problema→serviço; não substitui análise do edital concreto."
             ],
@@ -595,6 +614,16 @@ def build_problem_service_bridges() -> list[dict[str, Any]]:
                 "/conteudos/bdi-obra-publica/",
             ],
             "sources": ["site-confenge-guides", "pncp_supplier_contracts"],
+            "official_references": [
+                {
+                    "name": "SINAPI — Caixa Econômica Federal",
+                    "url": "https://www.caixa.gov.br/poder-publico/modernizacao-gestao/sinapi/Paginas/default.aspx",
+                },
+                {
+                    "name": "SICRO — DNIT (sistemas de custos rodoviários)",
+                    "url": "https://www.gov.br/dnit/pt-br/assuntos/planejamento-e-pesquisa/custos-e-pagamentos/custos-e-pagamentos-dnit/sistemas-de-custos/sicro",
+                },
+            ],
             "limitations": [
                 "Não publica coeficientes proprietários; orienta critério de escolha da referência."
             ],
@@ -620,6 +649,16 @@ def build_problem_service_bridges() -> list[dict[str, Any]]:
                 "/conteudos/parcela-incontroversa-medicao-contrato-publico/",
             ],
             "sources": ["site-confenge-guides"],
+            "official_references": [
+                {
+                    "name": "Lei nº 14.133/2021 — execução e pagamento (Planalto)",
+                    "url": "https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2021/lei/l14133.htm",
+                },
+                {
+                    "name": "TCU — licitações e contratos (orientação)",
+                    "url": "https://portal.tcu.gov.br/licitacoes-e-contratos/",
+                },
+            ],
             "limitations": [
                 "Padrão qualitativo cruzado com densidade de contratos recorrentes no datalake."
             ],
@@ -646,6 +685,16 @@ def build_problem_service_bridges() -> list[dict[str, Any]]:
                 "/conteudos/limite-aditivo-25-50-obra-publica/",
             ],
             "sources": ["site-confenge-guides"],
+            "official_references": [
+                {
+                    "name": "Lei nº 14.133/2021 — alterações contratuais (Planalto)",
+                    "url": "https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2021/lei/l14133.htm",
+                },
+                {
+                    "name": "TCU — licitações e contratos",
+                    "url": "https://portal.tcu.gov.br/licitacoes-e-contratos/",
+                },
+            ],
             "limitations": [
                 "Não estima taxa de aditivo por órgão sem denominador documental completo."
             ],
@@ -672,6 +721,16 @@ def build_problem_service_bridges() -> list[dict[str, Any]]:
                 "/conteudos/documentos-reequilibrio-obra-publica/",
             ],
             "sources": ["pncp_supplier_contracts", "site-confenge-guides"],
+            "official_references": [
+                {
+                    "name": "Lei nº 14.133/2021 — reequilíbrio e álea (Planalto)",
+                    "url": "https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2021/lei/l14133.htm",
+                },
+                {
+                    "name": "PNCP — consultas públicas de contratações",
+                    "url": "https://www.gov.br/pncp/pt-br",
+                },
+            ],
             "limitations": [
                 "Dispersão de valor contratual não prova, por si, desequilíbrio em um contrato específico."
             ],
