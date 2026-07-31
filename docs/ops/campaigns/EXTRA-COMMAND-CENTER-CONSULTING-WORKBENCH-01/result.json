@@ -5,14 +5,17 @@
   "branch": "feat/extra-local-command-center",
   "base_main_sha": "1718d6389c4e772bf3c5a45ac059871c32d83afc",
   "url": "http://127.0.0.1:8765",
-  "entrypoints": ["./bin/command-center", "make command-center"],
+  "entrypoints": [
+    "./bin/command-center",
+    "make command-center"
+  ],
   "tests": {
     "command_center_pytest": "67 passed",
     "playwright_e2e": "30 passed (smoke + workbench + axe)"
   },
   "spec": "specs/008-command-center-consulting-workbench/",
   "core_proven": [
-    "workflow A–D PDF+XLSX+manifest",
+    "workflow A\u2013D PDF+XLSX+manifest",
     "in-browser PDF and XLSX viewers",
     "run comparison /compare",
     "review REJECT/DEFER/ACCEPT hash rules",
@@ -31,5 +34,6 @@
   "reproduce": {
     "pytest": "python3 -m pytest tests/command_center/ -q --tb=line --no-cov",
     "e2e": "cd apps/command-center && CC_OPEN_BROWSER=0 npm run test:e2e"
-  }
+  },
+  "head_sha": "b15654d0dbab9114b8be08c6cb8baa0d73452780"
 }
