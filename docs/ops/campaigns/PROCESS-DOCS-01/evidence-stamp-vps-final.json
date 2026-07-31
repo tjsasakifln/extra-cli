@@ -1,6 +1,6 @@
 {
-  "as_of": "2026-07-30T23:52:41.611524+00:00",
-  "git_head": "aa59d9b07330e26af9a87eba3c491923aca62abc",
+  "as_of": "2026-07-31T00:20:51.080753+00:00",
+  "git_head": "5af616772a02927f255eff563271842cb0d073ea",
   "branch": "feat/public-process-documents-coverage",
   "issue_137": "CLOSED",
   "issue_137_closed_at": "2026-07-30T23:51:37Z",
@@ -29,5 +29,6 @@
   "po_decisions": [
     "APPROVE_EVIDENCE_REVIEW",
     "ACCEPT_RESIDUAL_WIN_QUAL_OPEN_AND_CLOSE_137"
-  ]
+  ],
+  "coverage_full_exit": 0
 }
