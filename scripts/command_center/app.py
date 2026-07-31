@@ -415,12 +415,62 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     return app
 
 
+def _loopback_sockets(port: int) -> list[Any]:
+    """Listen on IPv4 and IPv6 loopback only (never 0.0.0.0 / ::).
+
+    Browsers often resolve ``localhost`` to ``::1``. Binding only ``127.0.0.1``
+    makes ``http://localhost:8765`` fail to load while ``http://127.0.0.1:8765`` works.
+    """
+    import socket
+
+    sockets: list[Any] = []
+    targets: list[tuple[int, str]] = [
+        (socket.AF_INET, "127.0.0.1"),
+        (socket.AF_INET6, "::1"),
+    ]
+    for family, host in targets:
+        try:
+            sock = socket.socket(family, socket.SOCK_STREAM)
+            sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            if family == socket.AF_INET6 and hasattr(socket, "IPPROTO_IPV6"):
+                # Keep v6-only on this socket; v4 has its own listener.
+                sock.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_V6ONLY, 1)
+            sock.bind((host, port))
+            sock.listen(2048)
+            sockets.append(sock)
+        except OSError as exc:
+            # IPv6 may be disabled; IPv4-only is still usable.
+            import sys
+
+            print(f"WARN: could not bind loopback {host}:{port}: {exc}", file=sys.stderr)
+    return sockets
+
+
 def main() -> None:
     import uvicorn
 
     settings = load_settings()
     app = create_app(settings)
-    uvicorn.run(app, host=settings.host, port=settings.port, log_level="info")
+    host = settings.host
+    port = settings.port
+
+    # Dual loopback when staying on the default local-only host (never public binds).
+    use_dual = host in {"127.0.0.1", "localhost", "::1"}
+    if use_dual:
+        socks = _loopback_sockets(port)
+        if not socks:
+            raise SystemExit(f"Failed to bind any loopback interface on port {port}")
+        print(f"==> EXTRA Command Center listening on loopback port {port}")
+        print(f"    http://127.0.0.1:{port}")
+        print(f"    http://localhost:{port}")
+        config = uvicorn.Config(app, log_level="info", access_log=True)
+        server = uvicorn.Server(config)
+        server.run(sockets=socks)
+        return
+
+    # Explicit host (still refused if public unless CC_ALLOW_PUBLIC_BIND=1 via load_settings)
+    print(f"==> EXTRA Command Center http://{host}:{port}")
+    uvicorn.run(app, host=host, port=port, log_level="info")
 
 
 if __name__ == "__main__":

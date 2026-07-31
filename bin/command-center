@@ -54,7 +54,9 @@ fi
 
 mkdir -p "$ROOT/data/command_center/logs" "$ROOT/data/command_center/jobs"
 
-URL="http://${CC_HOST}:${CC_PORT}"
+# Prefer 127.0.0.1 in the browser open: some environments map localhost → ::1 only.
+URL="http://127.0.0.1:${CC_PORT}"
+URL_LOCALHOST="http://localhost:${CC_PORT}"
 if [[ "$CC_OPEN_BROWSER" == "1" ]]; then
   # Best-effort browser open after short delay
   (
@@ -67,5 +69,7 @@ if [[ "$CC_OPEN_BROWSER" == "1" ]]; then
   ) &
 fi
 
-echo "==> Serving $URL (Ctrl+C to stop)"
+echo "==> Serving (Ctrl+C to stop)"
+echo "    $URL"
+echo "    $URL_LOCALHOST  (também aceito; bind loopback IPv4+IPv6)"
 exec python3 -m scripts.command_center
