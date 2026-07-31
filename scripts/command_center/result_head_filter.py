@@ -20,7 +20,7 @@ def main() -> None:
     # smudge
     try:
         head = subprocess.check_output(
-            ["git", "rev-parse", "HEAD"],
+            ["git", "rev-parse", "HEAD"],  # noqa: S607 — git resolved from PATH (dev/CI env)
             text=True,
             stderr=subprocess.DEVNULL,
         ).strip()
