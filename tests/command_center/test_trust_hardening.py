@@ -120,6 +120,30 @@ def test_reconcile_reviews_idempotent(tmp_path: Path) -> None:
     assert r2.json()["created"] == 0
 
 
+def test_concurrent_enqueue_same_job_no_duplicate(tmp_path: Path) -> None:
+    """A6: concurrent enqueue_review for same job_id must not duplicate (IntegrityError recovery)."""
+    import concurrent.futures
+
+    settings = _settings(tmp_path)
+    store = Store(settings.db_path)
+
+    def _once(i: int) -> str:
+        return store.enqueue_review(
+            title=f"Revisão {i}",
+            source="cap.x",
+            evidence="e",
+            limitations="l",
+            risks="r",
+            job_id="job-concurrent-1",
+            capability_id="cap.x",
+        )
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=8) as pool:
+        ids = list(pool.map(_once, range(16)))
+    assert len(set(ids)) == 1
+    assert store.count_reviews(status="pending") == 1
+
+
 def test_preview_xlsx_rejects_xls(tmp_path: Path) -> None:
     out = tmp_path / "output"
     settings = _settings(tmp_path, out=out)

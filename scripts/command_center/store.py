@@ -496,33 +496,44 @@ class Store:
         payload: dict[str, Any] | None = None,
         item_id: str | None = None,
     ) -> str:
+        """Idempotent enqueue. Safe under concurrent callers (unique job_id + IntegrityError recovery)."""
         rid = item_id or str(uuid.uuid4())
         with self._lock, self._conn() as conn:
             existing = conn.execute(
-                "SELECT id FROM review_items WHERE id = ? OR (job_id IS NOT NULL AND job_id = ?)",
+                "SELECT id FROM review_items WHERE id = ? OR (job_id IS NOT NULL AND job_id = ? AND job_id != '')",
                 (rid, job_id or ""),
             ).fetchone()
             if existing:
                 return str(existing["id"])
-            conn.execute(
-                """
-                INSERT INTO review_items(id, ts, title, source, evidence, limitations, risks, status, job_id, capability_id, payload)
-                VALUES (?,?,?,?,?,?,?,?,?,?,?)
-                """,
-                (
-                    rid,
-                    _utcnow(),
-                    title,
-                    source,
-                    evidence,
-                    limitations,
-                    risks,
-                    "pending",
-                    job_id,
-                    capability_id,
-                    json.dumps(payload or {}, ensure_ascii=False),
-                ),
-            )
+            try:
+                conn.execute(
+                    """
+                    INSERT INTO review_items(id, ts, title, source, evidence, limitations, risks, status, job_id, capability_id, payload)
+                    VALUES (?,?,?,?,?,?,?,?,?,?,?)
+                    """,
+                    (
+                        rid,
+                        _utcnow(),
+                        title,
+                        source,
+                        evidence,
+                        limitations,
+                        risks,
+                        "pending",
+                        job_id,
+                        capability_id,
+                        json.dumps(payload or {}, ensure_ascii=False),
+                    ),
+                )
+            except sqlite3.IntegrityError:
+                # Concurrent insert won the race — return existing row (unique job_id / pk)
+                row = conn.execute(
+                    "SELECT id FROM review_items WHERE id = ? OR (job_id IS NOT NULL AND job_id = ? AND job_id != '')",
+                    (rid, job_id or ""),
+                ).fetchone()
+                if row:
+                    return str(row["id"])
+                raise
         return rid
 
     def _row_to_review(self, r: sqlite3.Row | dict[str, Any]) -> dict[str, Any]:

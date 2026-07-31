@@ -1,26 +1,22 @@
 # PR #186 Visual QA
 
 ## Method
-Playwright `e2e/visual-matrix.spec.ts` with:
-- fixed clock init (`2026-07-31T15:22:00.000Z`)
-- `prefers-reduced-motion: reduce`
-- themes via `localStorage cc-theme`
-- screenshots under `apps/command-center/test-results/` (local, not committed as bulk binaries)
+Playwright `e2e/visual-matrix.spec.ts` + dedicated page `/__visual_matrix`.
 
-## Captures produced by suite
-- `visual-home-light.png`
-- `visual-home-dark.png`
-- `visual-home-1440.png` … `visual-home-390.png`
-- `visual-command-palette.png`
+Determinism: fixed clock, reduced motion, fixture data, stable labels.
 
-## Checks
-| Check | Result |
-|-------|--------|
-| Home light axe (critical/serious) | PASS |
-| Home dark axe (critical/serious) | PASS |
-| No horizontal overflow 1440→390 | PASS (assert scrollWidth ≤ clientWidth+2) |
-| Command palette open/close | PASS |
-| Status tokens semantic CSS present | PASS (code + tokens.css) |
+## Captures (test-results/, local CI artifacts)
+- Home light / dark
+- Home viewports 1440, 1280, 1024, 768, 390
+- Command palette
+- Component matrix light/dark (all StatusBadge, buttons, inputs, empty/loading/error/success, table, card, dialog)
+- Review queue
+- FIXTURE workflow
+- REAL blocked preflight
+- Error state
 
-## Residual
-Full component-matrix of every StatusBadge isolated page is partially covered via home/review surfaces + unit status tests; dedicated Storybook matrix not required for merge of operational shell.
+## Axe
+Runs on home (both themes), palette open, component matrix (both themes + open dialog), review queue, fixture workflow.
+
+## Latest run
+**14 passed** (expanded matrix) after palette a11y fixes (listbox label, option-on-button, input name).

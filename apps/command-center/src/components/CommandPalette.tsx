@@ -175,10 +175,15 @@ export function CommandPalette({
         <h2 id={titleId} className="sr-only">
           Ações rápidas
         </h2>
+        <label className="sr-only" htmlFor="cc-command-palette-input">
+          Buscar ou executar ação
+        </label>
         <input
+          id="cc-command-palette-input"
           ref={inputRef}
           placeholder="Buscar ou executar… (Ctrl+K)"
           value={q}
+          aria-label="Buscar ou executar ação"
           aria-controls={listId}
           aria-autocomplete="list"
           onChange={(e) => setQ(e.target.value)}
@@ -202,25 +207,27 @@ export function CommandPalette({
             {error}
           </div>
         ) : null}
-        <ul id={listId} role="listbox">
+        <ul id={listId} role="listbox" aria-label="Resultados da busca">
           {items.length === 0 ? (
-            <li className="muted" style={{ padding: "12px" }}>
+            <li className="muted" style={{ padding: "12px" }} role="presentation">
               Nenhum resultado
             </li>
           ) : (
             items.map((item, idx) => (
-              <li key={`${item.href}-${item.label}`} role="option" aria-selected={idx === safeActive}>
+              <li key={`${item.href}-${item.label}`} role="presentation">
                 <button
                   type="button"
+                  role="option"
+                  aria-selected={idx === safeActive}
                   data-active={idx === safeActive}
                   onMouseEnter={() => setActive(idx)}
                   onClick={() => run(item.href)}
                 >
-                  <div>{item.label}</div>
+                  <span className="palette-item-label">{item.label}</span>
                   {item.detail ? (
-                    <div className="muted" style={{ fontSize: "0.8rem" }}>
+                    <span className="muted palette-item-detail" style={{ display: "block", fontSize: "0.8rem" }}>
                       {item.detail}
-                    </div>
+                    </span>
                   ) : null}
                 </button>
               </li>

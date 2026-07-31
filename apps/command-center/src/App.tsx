@@ -13,6 +13,7 @@ import { NotFoundPage } from "./pages/NotFoundPage";
 import { OnboardingPage } from "./pages/OnboardingPage";
 import { ReviewPage } from "./pages/ReviewPage";
 import { SearchPage } from "./pages/SearchPage";
+import { VisualMatrixPage } from "./pages/VisualMatrixPage";
 import { WorkStartPage } from "./pages/WorkStartPage";
 
 /** Declared routes for route-census e2e (keep in sync with Routes below). */
@@ -34,6 +35,7 @@ export const APP_ROUTES: string[] = [
   "/artifacts",
   "/search",
   "/onboarding",
+  "/__visual_matrix",
 ];
 
 export default function App() {
@@ -45,6 +47,7 @@ export default function App() {
           <Route path="work/start" element={<WorkStartPage />} />
           <Route path="work/start/:workflowId" element={<WorkStartPage />} />
           <Route path="compare" element={<ComparePage />} />
+          <Route path="__visual_matrix" element={<VisualMatrixPage />} />
           <Route path="extra" element={<AreaPage area="extra" />} />
           <Route path="confenge/suppliers" element={<AreaPage area="suppliers" />} />
           <Route path="confenge/agencies" element={<AreaPage area="agencies" />} />
