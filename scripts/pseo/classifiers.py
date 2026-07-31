@@ -45,9 +45,15 @@ PURCHASE_ONLY = re.compile(
     re.I,
 )
 INSTALLATION_SIGNAL = re.compile(
-    r"\b(instala[cç][aã]o|instalar|montagem|execu[cç][aã]o\s+de\s+obra|"
+    r"\b("
+    r"instala[cç][aã]o|instalar|montagem|"
+    r"execu[cç][aã]o\s+de\s+(obra|reforma|servi[cç]o|paviment|constru[cç])|"
+    r"execu[cç][aã]o\s+da\s+obra|"
     r"empreitada|obra\s+de|infraestrutura\s+de\s+dutos|rede\s+de\s+ductos|"
-    r"projeto\s+e\s+execu[cç]|servi[cç]os?\s+de\s+instala[cç])\b",
+    r"projeto\s+e\s+execu[cç]|servi[cç]os?\s+de\s+instala[cç]|"
+    r"m[aã]o\s+de\s+obra|materiais?\s+e\s+m[aã]o\s+de\s+obra|"
+    r"prest[aã][cç][aã]o\s+de\s+servi[cç]os?\s+de\s+(paviment|engenharia|obra|reforma|manuten[cç])"
+    r")\b",
     re.I,
 )
 
@@ -80,7 +86,8 @@ STRONG_WORKS: list[tuple[str, str]] = [
     (r"\bservi[cç]os\s+t[eé]cnicos\s+de\s+engenharia\b|\bprest[aã][cç][aã]o\s+de\s+servi[cç]os\s+de\s+engenharia\b", "serv_engenharia"),
     (r"\bapoio\s+t[eé]cnico\s+em\s+engenharia\b|\bfiscaliza[cç][aã]o\s+de\s+obras?\b", "serv_engenharia"),
     (r"\bprojeto\s+executivo\s+(de\s+)?(engenharia|arquitetura|obra)", "projeto_executivo"),
-    (r"\breforma\s+(e\s+)?(amplia[cç]|adapta[cç]|recupera[cç])", "reforma_obra"),
+    (r"\breforma\s+(e\s+)?(amplia[cç]|adapta[cç]|recupera[cç]|reparos?)", "reforma_obra"),
+    (r"\bexecu[cç][aã]o\s+de\s+reforma\b|\breforma\s+e\s+reparos?\b", "reforma_obra"),
     (r"\bconstru[cç][aã]o\s+(e\s+)?(reforma|amplia[cç]|de\s+(escola|creche|ubs|pr[eé]dio|gin[aá]sio|unidade))", "construcao_edificacao"),
     (r"\bamplia[cç][aã]o\s+(de\s+)?(escola|creche|ubs|pr[eé]dio|unidade|hospital)", "ampliacao_edificacao"),
     (r"\breforma\s+(de\s+)?(escola|creche|ubs|pr[eé]dio|unidade|hospital|gin[aá]sio)", "reforma_edificacao"),

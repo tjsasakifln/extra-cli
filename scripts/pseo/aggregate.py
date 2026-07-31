@@ -96,7 +96,7 @@ def period_bounds(classified: list[ClassifiedContract]) -> tuple[str | None, str
 def build_markets(
     classified: list[ClassifiedContract],
     open_bids: list[dict[str, Any]],
-    min_contracts: int = 15,
+    min_contracts: int = 10,
     min_buyers: int = 3,
 ) -> list[dict[str, Any]]:
     """Regional market pages: archetype × UF with critical mass."""
