@@ -221,6 +221,14 @@ class ProblemService(PublicModel):
     technical_guide_paths: list[str] = Field(default_factory=list, max_length=30)
     sources: list[str] = Field(default_factory=list, max_length=20)
     limitations: list[str] = Field(default_factory=list, max_length=30)
+    claim_evidence: list[Any] = Field(default_factory=list, max_length=50)
+    evidence_signals: list[str] = Field(default_factory=list, max_length=40)
+    evidence_kind: str | None = None
+    amendment_count: int | None = Field(default=None, ge=0)
+    reference_mentions: int | None = Field(default=None, ge=0)
+    document_divergence_count: int | None = Field(default=None, ge=0)
+    document_signals: list[Any] = Field(default_factory=list, max_length=40)
+    budget_signals: list[Any] = Field(default_factory=list, max_length=40)
 
 
 class ICPMethodology(PublicModel):
