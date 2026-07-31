@@ -9,7 +9,10 @@
     "preview": "vite preview --host 127.0.0.1",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:visual": "playwright test e2e/visual-matrix.spec.ts",
+    "test:a11y": "playwright test e2e/a11y.spec.ts e2e/visual-matrix.spec.ts",
+    "test:routes": "playwright test e2e/route-census.spec.ts"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.66.0",
