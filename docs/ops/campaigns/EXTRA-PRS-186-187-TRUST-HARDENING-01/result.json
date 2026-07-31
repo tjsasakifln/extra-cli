@@ -20,7 +20,7 @@
   "pr_187": {
     "branch": "feat/pseo-export-isolated",
     "original_head": "f2b54588304cad76c70fa1ea6cb40ac2b52ca1bd",
-    "final_head": "pending_push",
+    "final_head": "f8ca5c532bc30b31785abd5610a995dfb600f040",
     "status": "PARTIAL_BLOCKED",
     "b12": {
       "pytest": "53 passed",
