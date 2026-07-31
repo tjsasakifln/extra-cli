@@ -124,12 +124,24 @@ def verify_commit_has_entrypoint(
             cwd=cwd,
         )
         # list file at commit
-        subprocess.check_output(  # noqa: S603
-            [git, "cat-file", "-e", f"{commit_sha}:scripts/pseo/export_web_cfg.py"],
-            stderr=subprocess.DEVNULL,
-            cwd=cwd,
-        )
-        return True
+        # Accept durable entry (cli_export) or legacy export_web_cfg
+        ok = False
+        for path in (
+            "scripts/pseo/cli_export.py",
+            "scripts/pseo/pipeline.py",
+            "scripts/pseo/export_web_cfg.py",
+        ):
+            try:
+                subprocess.check_output(  # noqa: S603
+                    [git, "cat-file", "-e", f"{commit_sha}:{path}"],
+                    stderr=subprocess.DEVNULL,
+                    cwd=cwd,
+                )
+                ok = True
+                break
+            except (OSError, subprocess.SubprocessError):
+                continue
+        return ok
     except (OSError, subprocess.SubprocessError):
         return False
 
