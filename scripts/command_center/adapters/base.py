@@ -14,11 +14,12 @@ import os
 import subprocess
 import sys
 import time
+from collections.abc import Callable
 from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime
 from enum import StrEnum
 from pathlib import Path
-from typing import Any, Callable, Protocol
+from typing import Any, Protocol
 
 from scripts.command_center.config import REPO_ROOT, git_sha
 from scripts.command_center.redaction import redact_mapping, redact_text
