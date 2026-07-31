@@ -4,14 +4,13 @@ from __future__ import annotations
 
 import json
 from datetime import UTC, datetime, timedelta
-from pathlib import Path
 from typing import Any
 
 from scripts.process_documents.adapters.base import get_adapter
 from scripts.process_documents.discovery import load_discovery
 from scripts.process_documents.models import EntityDocumentDiscovery
 from scripts.process_documents.statuses import ActivityStatus, DocumentRunStatus
-from scripts.process_documents.storage import DEFAULT_META_ROOT, ensure_roots, write_json
+from scripts.process_documents.storage import ensure_roots, write_json
 
 
 def collect_entity(

@@ -7,7 +7,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from scripts.process_documents.storage import DEFAULT_META_ROOT, ensure_roots, write_json
+from scripts.process_documents.storage import ensure_roots, write_json
 
 MIN_PROCESSES = 30
 MIN_ENGINEERING = 10
@@ -79,16 +79,6 @@ def build_corpus_from_runs(
         # relatively complete envelope: edital/anexo + something session/result + any proposal/qual
         has_notice = bool(cats & {"edital", "aviso", "anexo", "termo_referencia", "outro"})
         has_result = bool(cats & {"homologacao", "resultado", "adjudicacao", "ata_sessao", "contrato"})
-        has_bidder = bool(
-            cats
-            & {
-                "proposta_comercial",
-                "habilitacao_juridica",
-                "qualificacao_tecnica",
-                "atestado",
-                "planilha_licitante",
-            }
-        )
         envelope_complete = has_notice and (has_result or len(proc["documents"]) >= 3)
         if envelope_complete:
             complete_envelopes += 1

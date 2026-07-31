@@ -9,7 +9,6 @@ Fail-closed; CAPTCHA/auth never bypassed. Documents preserved in CAS.
 
 from __future__ import annotations
 
-import hashlib
 import json
 import time
 import uuid

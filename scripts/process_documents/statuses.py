@@ -8,10 +8,10 @@ Never treat timeout / 403 / 429 / 5xx / partial pagination as SUCCESS_ZERO.
 
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 
 
-class DocumentRunStatus(str, Enum):
+class DocumentRunStatus(StrEnum):
     """Outcome of a single document collection run for an entity/source."""
 
     SUCCESS_NONZERO = "SUCCESS_NONZERO"
@@ -75,7 +75,7 @@ NON_COVERAGE: frozenset[DocumentRunStatus] = frozenset(
 )
 
 
-class DiscoveryStatus(str, Enum):
+class DiscoveryStatus(StrEnum):
     """Per-entity document-source discovery classification (never leave unknown)."""
 
     MAPPED = "mapped"
@@ -90,7 +90,7 @@ class DiscoveryStatus(str, Enum):
     # unknown is forbidden for final discovery reports
 
 
-class ActivityStatus(str, Enum):
+class ActivityStatus(StrEnum):
     """Entity activity over the lookback window (independent of document crawler)."""
 
     ACTIVE = "active"
@@ -98,7 +98,7 @@ class ActivityStatus(str, Enum):
     UNKNOWN_PENDING_EVIDENCE = "unknown_pending_evidence"
 
 
-class DocumentCategory(str, Enum):
+class DocumentCategory(StrEnum):
     """Canonical document categories for completeness metrics."""
 
     EDITAL = "edital"

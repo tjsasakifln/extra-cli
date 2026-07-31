@@ -16,7 +16,6 @@ import re
 import uuid
 from collections import defaultdict
 from datetime import UTC, datetime
-from pathlib import Path
 from typing import Any
 
 from scripts.process_documents.adapters.pncp import PncpDocumentAdapter
@@ -39,8 +38,8 @@ def run_win_qual_campaign(
     expand_zips: bool = True,
 ) -> dict[str, Any]:
     raw, meta = ensure_roots()
-    WIN = {c.value for c in WINNING_PROPOSAL_CATEGORIES}
-    QUAL = {c.value for c in QUALIFICATION_CATEGORIES}
+    win_cats = {c.value for c in WINNING_PROPOSAL_CATEGORIES}
+    qual_cats = {c.value for c in QUALIFICATION_CATEGORIES}
 
     by: dict[str, dict[str, Any]] = defaultdict(lambda: {"cats": set(), "entity": None})
     for p in (meta / "runs").glob("*/result.json"):
@@ -61,8 +60,8 @@ def run_win_qual_campaign(
         m = _PNCP.match(pid)
         if not m:
             continue
-        need_w = not (info["cats"] & WIN)
-        need_q = not (info["cats"] & QUAL)
+        need_w = not (info["cats"] & win_cats)
+        need_q = not (info["cats"] & qual_cats)
         if not (need_w or need_q):
             continue
         # Prefer older years (more likely finished)

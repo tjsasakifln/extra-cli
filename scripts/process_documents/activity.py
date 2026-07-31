@@ -20,7 +20,7 @@ from typing import Any
 from scripts.process_documents.discovery import load_discovery
 from scripts.process_documents.models import EntityDocumentDiscovery
 from scripts.process_documents.statuses import ActivityStatus
-from scripts.process_documents.storage import DEFAULT_META_ROOT, ensure_roots, write_json
+from scripts.process_documents.storage import ensure_roots, write_json
 
 ACTIVITY_LOOKBACK_MONTHS = 36
 ACTIVITY_CRITERIA_VERSION = "activity_v1_independent_36m"

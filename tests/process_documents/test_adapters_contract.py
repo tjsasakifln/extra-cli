@@ -2,9 +2,7 @@
 
 from __future__ import annotations
 
-from unittest.mock import MagicMock, patch
-
-import pytest
+from unittest.mock import patch
 
 from scripts.process_documents.adapters.base import classify_http_status, get_adapter
 from scripts.process_documents.adapters.pncp import PncpDocumentAdapter

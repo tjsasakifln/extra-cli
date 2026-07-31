@@ -8,7 +8,6 @@ from typing import Any
 
 from scripts.process_documents.statuses import (
     ActivityStatus,
-    DiscoveryStatus,
     DocumentCategory,
     DocumentRunStatus,
 )

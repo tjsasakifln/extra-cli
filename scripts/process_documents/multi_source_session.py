@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 import re
 import time
 import uuid
@@ -25,7 +26,7 @@ from urllib.parse import urljoin, urlparse
 
 import requests
 
-from scripts.process_documents.adapters.generic_html import GenericHtmlDocumentAdapter, _LinkParser
+from scripts.process_documents.adapters.generic_html import _LinkParser
 from scripts.process_documents.adapters.pncp import PNCP_API, PncpDocumentAdapter
 from scripts.process_documents.classify_docs import classify_document_title
 from scripts.process_documents.models import DocumentRecord
@@ -311,7 +312,8 @@ def collect_origin_html_docs(
         parser = _LinkParser()
         try:
             parser.feed(resp.text)
-        except Exception:
+        except Exception as exc:
+            logging.getLogger(__name__).debug("html parse failed for %s: %s", seed, exc)
             continue
         origin = f"{urlparse(seed).scheme}://{urlparse(seed).netloc}"
         candidates: list[tuple[str, str, str]] = []
@@ -457,7 +459,7 @@ def harvest_ciga_dom_session_acts(
                 zips_done += 1
                 # Extract JSON members only (autopublicacoes)
                 import tempfile
-                import zipfile
+
                 from scripts.process_documents.storage import safe_extract_zip
 
                 tmp = Path(tempfile.mkdtemp(prefix="pd-dom-"))
@@ -665,9 +667,9 @@ def run_multi_source_session_campaign(
     session = requests.Session()
     session.headers["User-Agent"] = USER_AGENT
 
-    SESSION = {c.value for c in SESSION_JUDGMENT_CATEGORIES}
-    WIN = {c.value for c in WINNING_PROPOSAL_CATEGORIES}
-    QUAL = {c.value for c in QUALIFICATION_CATEGORIES}
+    session_cats = {c.value for c in SESSION_JUDGMENT_CATEGORIES}
+    win_cats = {c.value for c in WINNING_PROPOSAL_CATEGORIES}
+    qual_cats = {c.value for c in QUALIFICATION_CATEGORIES}
 
     # Index current process coverage
     by: dict[str, dict[str, Any]] = {}
@@ -698,9 +700,9 @@ def run_multi_source_session_campaign(
         m = _PNCP_PID.match(pid)
         if not m:
             continue
-        missing_session = not (info["cats"] & SESSION)
-        missing_win = not (info["cats"] & WIN)
-        missing_qual = not (info["cats"] & QUAL)
+        missing_session = not (info["cats"] & session_cats)
+        missing_win = not (info["cats"] & win_cats)
+        missing_qual = not (info["cats"] & qual_cats)
         if not (missing_session or missing_win or missing_qual):
             continue
         # Priority: win gaps first (scarce), then session, then older years

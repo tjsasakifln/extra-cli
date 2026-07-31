@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 from pathlib import Path
 from typing import Any
 
@@ -246,7 +245,7 @@ def cmd_multi_source_session(args: argparse.Namespace) -> int:
 
 def cmd_show(args: argparse.Namespace) -> int:
     """Lookup documents by process/edital/contract id from run artifacts."""
-    from scripts.process_documents.storage import DEFAULT_META_ROOT, ensure_roots
+    from scripts.process_documents.storage import ensure_roots
 
     _, meta = ensure_roots()
     q = (args.query or "").strip()

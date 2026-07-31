@@ -8,7 +8,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from scripts.process_documents.activity import active_entity_ids, classify_all_activity
+from scripts.process_documents.activity import classify_all_activity
 from scripts.process_documents.discovery import EXPECTED_UNIVERSE, discover_all, load_discovery, ordered_id_hash
 from scripts.process_documents.models import EntityDocumentDiscovery
 from scripts.process_documents.statuses import (
@@ -20,7 +20,7 @@ from scripts.process_documents.statuses import (
     ActivityStatus,
     DocumentRunStatus,
 )
-from scripts.process_documents.storage import DEFAULT_META_ROOT, ensure_roots, load_jsonl, write_json
+from scripts.process_documents.storage import ensure_roots, load_jsonl, write_json
 
 THRESHOLDS = {
     "entity_source_discovery_coverage": 1.0,
@@ -501,7 +501,7 @@ def compute_completeness(
                 f"- `{name}`: **{m['percent']}%** (threshold {m['threshold']*100:.0f}%, meets={m['meets_threshold']})"
             )
         lines.append(f"\nProcesses scored: {n_procs}\n")
-        lines.append(f"\nMethodology: process-level binary presence after title reclassification.\n")
+        lines.append("\nMethodology: process-level binary presence after title reclassification.\n")
         (meta / "document-completeness.md").write_text("\n".join(lines), encoding="utf-8")
     return report
 

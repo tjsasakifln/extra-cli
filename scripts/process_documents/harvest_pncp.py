@@ -11,7 +11,6 @@ import json
 import time
 import uuid
 from datetime import UTC, date, datetime, timedelta
-from pathlib import Path
 from typing import Any
 from urllib.parse import urljoin
 

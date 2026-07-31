@@ -10,21 +10,16 @@ import pytest
 from scripts.process_documents.classify_docs import classify_document_record, classify_document_title
 from scripts.process_documents.coverage import (
     THRESHOLDS,
-    compute_completeness,
-    compute_financial_coverage,
     compute_operational_coverage,
-    compute_process_recall,
     gate_exit_code,
 )
 from scripts.process_documents.discovery import (
     EXPECTED_UNIVERSE,
-    build_discovery_report,
     classify_entity,
     discover_all,
     ordered_id_hash,
 )
 from scripts.process_documents.models import (
-    DocumentRecord,
     DocumentRunResult,
     EntityDocumentDiscovery,
     resolve_financial_value,

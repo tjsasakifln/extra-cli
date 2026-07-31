@@ -308,10 +308,10 @@ def review_win_qual_blockers(
 ) -> dict[str, Any]:
     """Nominal residual review for win/qual without shrinking denominators."""
     _, meta = ensure_roots(meta_root=meta_root)
-    WIN = {c.value for c in WINNING_PROPOSAL_CATEGORIES}
-    QUAL = {c.value for c in QUALIFICATION_CATEGORIES}
-    SESSION = {c.value for c in SESSION_JUDGMENT_CATEGORIES}
-    NOTICE = {c.value for c in NOTICE_ANNEX_CATEGORIES}
+    win_cats = {c.value for c in WINNING_PROPOSAL_CATEGORIES}
+    qual_cats = {c.value for c in QUALIFICATION_CATEGORIES}
+    session_cats = {c.value for c in SESSION_JUDGMENT_CATEGORIES}
+    notice_cats = {c.value for c in NOTICE_ANNEX_CATEGORIES}
 
     by: dict[str, dict[str, Any]] = defaultdict(lambda: {"cats": set(), "titles": [], "sources": set()})
     for p in (meta / "runs").glob("*/result.json"):
@@ -328,12 +328,12 @@ def review_win_qual_blockers(
             by[pid]["sources"].add(str(doc.get("source_id") or data.get("source_id") or ""))
 
     n = len(by)
-    miss_w = [(pid, info) for pid, info in by.items() if not (info["cats"] & WIN)]
-    miss_q = [(pid, info) for pid, info in by.items() if not (info["cats"] & QUAL)]
+    miss_w = [(pid, info) for pid, info in by.items() if not (info["cats"] & win_cats)]
+    miss_q = [(pid, info) for pid, info in by.items() if not (info["cats"] & qual_cats)]
     has_w = n - len(miss_w)
     has_q = n - len(miss_q)
-    has_s = sum(1 for info in by.values() if info["cats"] & SESSION)
-    has_n = sum(1 for info in by.values() if info["cats"] & NOTICE)
+    has_s = sum(1 for info in by.values() if info["cats"] & session_cats)
+    has_n = sum(1 for info in by.values() if info["cats"] & notice_cats)
 
     def _blocker_reason(pid: str, info: dict[str, Any], kind: str) -> str:
         joined = " ".join(info["titles"]).lower()
@@ -343,11 +343,11 @@ def review_win_qual_blockers(
         if kind == "win":
             if any("sc_compras" in s for s in srcs) and not any("pncp" in s for s in srcs):
                 return "sc_compras_homolog_without_public_proposal_pack"
-            if info["cats"] & SESSION and not (info["cats"] & WIN):
+            if info["cats"] & session_cats and not (info["cats"] & win_cats):
                 return "session_public_but_winning_proposal_pdf_not_published"
             return "winning_proposal_not_published_publicly"
         # qual
-        if info["cats"] & SESSION and not (info["cats"] & QUAL):
+        if info["cats"] & session_cats and not (info["cats"] & qual_cats):
             return "session_public_but_bidder_qualification_not_published"
         return "bidder_qualification_not_published_publicly"
 
@@ -431,8 +431,8 @@ def review_win_qual_blockers(
 
 
 def run_full_review_pass() -> dict[str, Any]:
-    from scripts.process_documents.coverage import compute_completeness, full_coverage_bundle
     from scripts.process_documents.corpus import build_corpus_from_runs
+    from scripts.process_documents.coverage import compute_completeness, full_coverage_bundle
 
     # Metrics first (corpus may overwrite fp-fn scaffold), then GT confirmation last.
     wq = review_win_qual_blockers(sample_size=50)

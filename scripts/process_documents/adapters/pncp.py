@@ -21,7 +21,6 @@ from scripts.process_documents.classify_docs import classify_document_title
 from scripts.process_documents.models import DocumentRecord, DocumentRunResult, EntityDocumentDiscovery
 from scripts.process_documents.statuses import DocumentRunStatus
 from scripts.process_documents.storage import (
-    DEFAULT_META_ROOT,
     detect_mime,
     ensure_roots,
     store_blob,

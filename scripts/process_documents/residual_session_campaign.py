@@ -7,27 +7,28 @@ import time
 import uuid
 from collections import defaultdict
 from datetime import UTC, datetime
-from pathlib import Path
 
 from scripts.process_documents.adapters.pncp import PncpDocumentAdapter
 from scripts.process_documents.classify_docs import classify_document_record
+from scripts.process_documents.models import DocumentRecord
 from scripts.process_documents.multi_source_session import collect_pncp_session_packs
 from scripts.process_documents.statuses import SESSION_JUDGMENT_CATEGORIES, DocumentCategory, DocumentRunStatus
 from scripts.process_documents.storage import ensure_roots, store_blob, write_json
-from scripts.process_documents.models import DocumentRecord
 
 _PNCP = re.compile(r"^(\d{14})-(\d+)-(\d+)/(\d{4})$")
 
 
 def residual_pncp_session(max_processes: int = 300) -> dict:
     raw, meta = ensure_roots()
-    S = {c.value for c in SESSION_JUDGMENT_CATEGORIES}
+    session_cats = {c.value for c in SESSION_JUDGMENT_CATEGORIES}
     by: dict[str, set[str]] = defaultdict(set)
     entity_of: dict[str, str] = {}
     for p in (meta / "runs").glob("*/result.json"):
         try:
             d = json.loads(p.read_text(encoding="utf-8"))
-        except Exception:
+        except (OSError, json.JSONDecodeError) as exc:
+            # skip corrupt run artifacts; keep residual scan fail-open on single files
+            _ = exc
             continue
         for doc in d.get("documents") or []:
             pid = str(doc.get("procurement_id") or "")
@@ -39,7 +40,7 @@ def residual_pncp_session(max_processes: int = 300) -> dict:
 
     targets = []
     for pid, cats in by.items():
-        if cats & S:
+        if cats & session_cats:
             continue
         m = _PNCP.match(pid)
         if not m:
@@ -209,8 +210,8 @@ def bulk_sc_compras_homolog(max_per_year: int = 200, years: list[int] | None = N
                     time.sleep(0.2)
                     fr = session.get(str(link), timeout=(8, 45), allow_redirects=True)
                     if fr.status_code == 200 and fr.content and len(fr.content) > 64:
-                        from scripts.process_documents.storage import detect_mime
                         from scripts.process_documents.classify_docs import classify_document_title
+                        from scripts.process_documents.storage import detect_mime
 
                         mime = detect_mime(fr.content, fr.headers.get("Content-Type"))
                         ext = "zip" if "zip" in mime else ("pdf" if "pdf" in mime else "bin")

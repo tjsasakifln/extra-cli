@@ -13,7 +13,7 @@ import os
 import re
 import time
 import uuid
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 from urllib.parse import urljoin
@@ -113,7 +113,7 @@ def load_independent_processes(dsn: str, *, limit: int = 400) -> list[dict[str, 
             (limit,),
         )
         rows.extend([dict(r) for r in (cur.fetchall() or [])])
-    except Exception as exc:
+    except Exception:
         conn.rollback()
 
     # 3) pncp_raw_bids
@@ -140,7 +140,7 @@ def load_independent_processes(dsn: str, *, limit: int = 400) -> list[dict[str, 
             (limit,),
         )
         rows.extend([dict(r) for r in (cur.fetchall() or [])])
-    except Exception as exc:
+    except Exception:
         conn.rollback()
 
     # 4) contracts sample SC engineering-ish for financial coverage
@@ -168,7 +168,7 @@ def load_independent_processes(dsn: str, *, limit: int = 400) -> list[dict[str, 
             (limit,),
         )
         rows.extend([dict(r) for r in (cur.fetchall() or [])])
-    except Exception as exc:
+    except Exception:
         conn.rollback()
 
     cur.close()
@@ -600,7 +600,7 @@ def main() -> int:
     rec = compute_process_recall(meta_root=meta_root, found_process_ids=found_ids, persist=True)
     fin = compute_financial_coverage(meta_root=meta_root, covered_process_ids=found_ids, persist=True)
     comp = compute_completeness(meta_root=meta_root, persist=True)
-    gaps = compute_gaps(discoveries, meta_root=meta_root, persist=True)
+    compute_gaps(discoveries, meta_root=meta_root, persist=True)
     corpus = build_corpus_from_runs(meta_root=meta_root)
     bundle, code = full_coverage_bundle(persist=True)
 

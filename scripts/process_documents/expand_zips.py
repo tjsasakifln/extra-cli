@@ -85,7 +85,7 @@ def expand_zip_documents(
 
     import re
 
-    _PNCP_PID = re.compile(r"^\d{14}-\d+-\d+/\d{4}$")
+    pncp_pid_re = re.compile(r"^\d{14}-\d+-\d+/\d{4}$")
 
     def _zip_priority(doc: dict[str, Any], data: dict[str, Any]) -> int:
         """Higher first: real PNCP process packs over CIGA publication dumps."""
@@ -93,7 +93,7 @@ def expand_zip_documents(
         title = str(doc.get("original_title") or doc.get("original_filename") or "").lower()
         source = str(doc.get("source_id") or data.get("source_id") or "").lower()
         score = 0
-        if _PNCP_PID.match(pid):
+        if pncp_pid_re.match(pid):
             score += 100
         if any(k in title for k in ("edital", "anexo", "fase", "tr", "etp", "dfd", "habilit", "proposta")):
             score += 50
