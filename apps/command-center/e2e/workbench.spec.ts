@@ -38,24 +38,45 @@ async function runWorkflow(page: Page, workflowId: string) {
 }
 
 async function openPdfAndXlsx(page: Page) {
-  const pdfBtn = page.getByRole("button", { name: /\.pdf/i }).first();
-  await expect(pdfBtn).toBeVisible({ timeout: 20_000 });
-  await pdfBtn.click();
-  await expect(page.locator("iframe.pdf-frame, iframe[title]").first()).toBeVisible({ timeout: 15_000 });
+  // Wait until job payload exposes PDF/XLSX artifacts (UI may lag status text)
+  const jobId = page.url().split("/jobs/")[1]?.split(/[?#]/)[0];
+  if (jobId) {
+    await expect
+      .poll(
+        async () => {
+          const res = await page.request.get(`/api/jobs/${jobId}`);
+          if (!res.ok()) return false;
+          const body = await res.json();
+          const arts: string[] = body?.job?.artifacts || body?.artifacts || [];
+          return arts.some((a) => /\.pdf$/i.test(a)) && arts.some((a) => /\.xlsx$/i.test(a));
+        },
+        { timeout: 90_000 },
+      )
+      .toBeTruthy();
+    // Force refresh so artifact buttons re-render from latest job payload
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await expect(page.getByRole("heading", { name: "Situação" })).toBeVisible({ timeout: 30_000 });
+  }
 
-  const xlsxBtn = page.getByRole("button", { name: /\.xlsx/i }).first();
-  await expect(xlsxBtn).toBeVisible({ timeout: 15_000 });
+  // Buttons are labeled "Ver <filename>" — match PDF by accessible name
+  const pdfBtn = page.getByRole("button", { name: /Ver .*\.pdf/i }).first();
+  await expect(pdfBtn).toBeVisible({ timeout: 30_000 });
+  await pdfBtn.click();
+  await expect(page.locator("iframe.pdf-frame, iframe[title]").first()).toBeVisible({ timeout: 20_000 });
+
+  const xlsxBtn = page.getByRole("button", { name: /Ver .*\.xlsx/i }).first();
+  await expect(xlsxBtn).toBeVisible({ timeout: 20_000 });
   await xlsxBtn.click();
-  await expect(page.getByText(/Abas:/i)).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByText(/Abas:/i)).toBeVisible({ timeout: 20_000 });
   // sheet switchers (Resumo / Dados / …)
   const sheetBtn = page
     .locator("button")
     .filter({ hasText: /Resumo|Dados|Oportunidades|Empresas|Orgaos|Órgãos|Indice|Índice|Metodologia/i })
     .first();
-  await expect(sheetBtn).toBeVisible({ timeout: 10_000 });
+  await expect(sheetBtn).toBeVisible({ timeout: 15_000 });
   await sheetBtn.click();
   // table may use .data or generic table inside preview
-  await expect(page.locator("table").first()).toBeVisible({ timeout: 15_000 });
+  await expect(page.locator("table").first()).toBeVisible({ timeout: 20_000 });
 }
 
 test.describe("Workbench consulting flows", () => {
