@@ -187,6 +187,9 @@ def build_opportunities_v2(
             link = b.get("link_pncp") or b.get("link_oficial")
             if link and not str(link).startswith("http"):
                 link = None
+            # Prefer real portal deep-link when present; else PNCP contract deep-link from ID
+            if not link:
+                link = pncp_consulta_url(b.get("pncp_id") or b.get("contrato_id"), b.get("source"))
             pub_items.append(
                 {
                     "pncp_id": b.get("pncp_id"),
