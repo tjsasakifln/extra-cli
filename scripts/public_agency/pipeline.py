@@ -365,7 +365,6 @@ def run_public_agency_pipeline(
         from scripts.public_agency.signals import (
             TIER_STRONG_WORKS,
             classify_engineering_object,
-            is_engineering_object,
         )
 
         same_nature = []
