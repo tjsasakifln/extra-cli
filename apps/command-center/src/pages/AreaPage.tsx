@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { client, type Capability } from "../api/client";
 import { BrandLogo } from "../components/BrandLogo";
+// Brand mark only on CONFENGE areas (showBrand) — shell already shows logo once.
 import { CapabilityCard } from "../components/CapabilityCard";
 import { CoverageBar } from "../components/CoverageBar";
 import { EmptyState } from "../components/EmptyState";
@@ -90,7 +91,7 @@ export function AreaPage({ area }: { area: keyof typeof AREA_META }) {
       <header className="page-header">
         {meta.showBrand ? (
           <div style={{ marginBottom: 12 }}>
-            <BrandLogo variant="auto" height={34} />
+            <BrandLogo height={44} />
           </div>
         ) : null}
         <h1>{meta.title}</h1>
