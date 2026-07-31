@@ -518,24 +518,56 @@ class JobRunner:
         started = datetime.fromisoformat(rec.started_at) if rec.started_at else datetime.now(UTC)
         duration = int((datetime.fromisoformat(finished) - started).total_seconds() * 1000)
         status = result.get("status") or JobState.SUCCEEDED.value
-        if status == "SUCCEEDED" and result.get("empty"):
+        data_mode = result.get("data_mode") or (rec.params or {}).get("data_mode")
+        blocked_statuses = {
+            "BLOCKED_CONFIG",
+            "BLOCKED_EXTERNAL",
+            "BLOCKED_DATA",
+            "BLOCKED_PERMISSION",
+            "FAILED",
+            "PARTIAL",
+        }
+        if status in blocked_statuses:
+            human = result.get("message") or f"Fluxo {status}."
+            attention = "blocked_external" if "EXTERNAL" in status else "blocked_technical"
+            exit_code = int(result.get("exit_code") if result.get("exit_code") is not None else 1)
+            tech = status
+            if status == "BLOCKED_EXTERNAL":
+                job_status = JobState.BLOCKED_EXTERNAL.value
+            elif status == "PARTIAL":
+                job_status = JobState.PARTIAL.value
+            else:
+                # BLOCKED_CONFIG / BLOCKED_DATA / BLOCKED_PERMISSION / FAILED
+                job_status = JobState.FAILED.value
+        elif status == "SUCCEEDED" and result.get("empty"):
             human = result.get("message") or "Resultado vazio defensável — nenhum item na shortlist."
             attention = "empty"
+            exit_code = 0
+            tech = "WORKFLOW_OK"
+            job_status = JobState.SUCCEEDED.value
         elif status == "SUCCEEDED":
             human = result.get("message") or "Fluxo concluído. Abra os entregáveis no navegador."
+            if data_mode == "FIXTURE":
+                human = f"[DEMONSTRAÇÃO] {human}"
             attention = "ok"
+            exit_code = 0
+            tech = "WORKFLOW_OK"
+            job_status = JobState.SUCCEEDED.value
         else:
             human = result.get("message") or "Fluxo terminou com atenção."
             attention = "attention"
+            exit_code = int(result.get("exit_code") if result.get("exit_code") is not None else 1)
+            tech = status
+            job_status = status if status in {s.value for s in JobState} else JobState.FAILED.value
 
         rec = (
             self.store.patch_job(
                 job_id,
-                status=status if status in {s.value for s in JobState} else JobState.SUCCEEDED.value,
-                technical_code="WORKFLOW_OK" if status == "SUCCEEDED" else status,
+                status=job_status,
+                technical_code=tech,
                 human_message=human,
                 attention=attention,
-                exit_code=0 if status == "SUCCEEDED" else 1,
+                exit_code=exit_code,
                 finished_at=finished,
                 duration_ms=duration,
                 artifacts=artifacts,

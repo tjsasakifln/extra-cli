@@ -1,7 +1,8 @@
-"""Execute guided workflows: fixture-backed deliverables + run-manifest.
+"""Execute guided workflows: REAL adapters or explicit FIXTURE demo + run-manifest.
 
-CLI remains the engine for live cycles; fixtures power offline proof without forging
-live evidence claims. Output paths are always assigned by the Command Center.
+REAL mode invokes allowlisted canonical pipelines via typed adapters (no shell).
+FIXTURE mode requires explicit selection and never claims LIVE/REAL evidence.
+There is no silent try-real-then-fixture fallback.
 """
 
 from __future__ import annotations
@@ -14,6 +15,13 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from scripts.command_center.adapters import (
+    AdapterBlockedError,
+    DataMode,
+    get_adapter,
+    resolve_data_mode,
+    run_real_adapter,
+)
 from scripts.command_center.deliverables.excel_render import write_workbook
 from scripts.command_center.deliverables.pdf_render import write_executive_pdf
 from scripts.command_center.fixtures import sample_data
@@ -22,6 +30,7 @@ from scripts.command_center.run_manifest import (
     ProgressEvent,
     RunManifest,
     declare_file,
+    role_for_path,
     sha256_file,
 )
 from scripts.command_center.workflows.catalog import WorkflowDef, get_workflow
@@ -57,6 +66,7 @@ def run_workflow(
     job_id: str | None = None,
     on_progress: ProgressCb | None = None,
     source_override: Path | None = None,
+    exec_fn: Callable | None = None,
 ) -> dict[str, Any]:
     wf = get_workflow(workflow_id)
     if wf is None:
@@ -79,6 +89,11 @@ def run_workflow(
             on_progress(ev.to_dict())
 
     emit("preparing", "Preparando", "running", "Criando pasta segura de resultados")
+    data_mode = resolve_data_mode(params)
+    # Correction/regenerate overlays stay on FIXTURE/demo renderer path with source_override
+    if override is not None:
+        data_mode = DataMode.FIXTURE
+
     mf = RunManifest(
         job_id=job_id,
         capability_id=workflow_id,
@@ -90,35 +105,42 @@ def run_workflow(
         output_profile=str(params.get("output_profile") or "CLIENT_READY"),
         limitations=list(wf.limitations),
         started_at=_utcnow(),
+        data_mode=data_mode.value,
     )
-    # Guided workflows use representative fixtures only. Live commercial/Extra
-    # cycles remain in Avançado (allowlisted CLI capabilities) — do not pretend.
-    use_fixture = params.get("use_fixture", True)
-    if isinstance(use_fixture, str):
-        use_fixture = use_fixture.lower() in {"1", "true", "yes", "sim"}
-    if use_fixture is False and override is None:
-        raise ValueError(
-            "Este fluxo guiado opera com dados de demonstração (fixture). "
-            "Para execução live/canônica use a área Avançada (capabilities CLI: "
-            "extra.weekly.run, confenge.suppliers.cycle.run, confenge.public_agencies.cycle.run, "
-            "process_documents.*). Não há orquestração live disfarçada de fixture."
-        )
-    params = {**params, "use_fixture": True}
+    params = {**params, "data_mode": data_mode.value, "use_fixture": data_mode is DataMode.FIXTURE}
     mf.parameters = dict(params)
+
+    if data_mode is DataMode.REAL:
+        if override is not None:
+            raise ValueError("source_override é incompatível com data_mode=REAL")
+        return _run_real_mode(
+            wf,
+            workflow_id,
+            params,
+            out_dir=out_dir,
+            mf=mf,
+            emit=emit,
+            exec_fn=exec_fn,
+            code_sha=code_sha,
+        )
+
+    # FIXTURE / demo path (explicit)
     if override is not None:
         mf.warnings.append("Execução a partir de fonte corrigida/regenerada (não sample_data fresco).")
         mf.limitations.append(
-            "Fonte: JSON de execução anterior com correções humanas aplicadas — ainda fixture/local, não live prod."
+            "Fonte: JSON de execução anterior com correções humanas aplicadas — modo demonstração/overlay, não live prod."
         )
         mf.source_snapshots.append(
             {"type": "corrected_source", "path": str(override), "note": "human correction or parent run"}
         )
     else:
-        mf.warnings.append("Execução com dados de demonstração (fixture representativa).")
+        mf.warnings.append("MODO DEMONSTRAÇÃO — dados de fixture representativa (não comercial).")
         mf.limitations.append(
             "Fonte: fixture representativa do Command Center — não reivindica evidência live de produção."
         )
+        mf.limitations.append("Não gera status LIVE_READY; não alimenta fila real de outreach.")
         mf.source_snapshots.append({"type": "fixture", "id": workflow_id, "note": "offline representative"})
+        mf.terminal_claim = "FIXTURE_DEMO"
     emit("preparing", "Preparando", "succeeded")
 
     if workflow_id == "workflow.extra.opportunities":
@@ -141,6 +163,7 @@ def run_workflow(
         result["manifest_path"] = str(path)
         result["run_id"] = mf.run_id
         result["out_dir"] = str(out_dir)
+        result["data_mode"] = DataMode.FIXTURE.value
         return result
     else:
         raise ValueError(f"Runner não implementado: {workflow_id}")
@@ -148,6 +171,7 @@ def run_workflow(
     emit("validating", "Validando", "running")
     mf.finished_at = _utcnow()
     mf.status = result.get("status") or "SUCCEEDED"
+    mf.data_mode = DataMode.FIXTURE.value
     manifest_path = mf.write(out_dir)
     # re-add manifest entry cleanly
     mf.artifacts = [a for a in mf.artifacts if a.get("logical_name") != "run-manifest.json"]
@@ -161,7 +185,244 @@ def run_workflow(
     result["out_dir"] = str(out_dir)
     result["manifest"] = mf.to_dict()
     result["artifacts"] = [a["path"] for a in mf.artifacts]
+    result["data_mode"] = DataMode.FIXTURE.value
     return result
+
+
+def _run_real_mode(
+    wf: WorkflowDef,
+    workflow_id: str,
+    params: dict[str, Any],
+    *,
+    out_dir: Path,
+    mf: RunManifest,
+    emit: ProgressCb,
+    exec_fn: Callable | None,
+    code_sha: str | None,
+) -> dict[str, Any]:
+    """Execute typed REAL adapter. Fail closed — never fall back to fixture."""
+    adapter = get_adapter(workflow_id)
+    if adapter is None:
+        raise ValueError(
+            f"Sem adapter REAL para {workflow_id}. "
+            "Use data_mode=FIXTURE / use_fixture=true para demonstração explícita."
+        )
+    emit("preparing", "Preparando", "running", "Preflight do pipeline real")
+    try:
+        ar = run_real_adapter(adapter, params, out_dir=out_dir, exec_fn=exec_fn)
+    except AdapterBlockedError as exc:
+        pf = exc.preflight
+        mf.status = pf.status
+        mf.data_mode = DataMode.REAL.value
+        mf.preflight = pf.to_dict()
+        mf.blockers = [pf.message or pf.status]
+        mf.limitations.extend(pf.limitations)
+        mf.finished_at = _utcnow()
+        mf.warnings.append("MODO REAL bloqueado — sem fallback para fixture.")
+        path = mf.write(out_dir)
+        mf.artifacts = [a for a in mf.artifacts if a.get("logical_name") != "run-manifest.json"]
+        mf.add_artifact(declare_file(path, role=ArtifactRole.MANIFEST.value, title="Run manifest"))
+        path = mf.write(out_dir)
+        emit("preparing", "Preparando", "failed", pf.message or pf.status)
+        return {
+            "status": pf.status,
+            "message": pf.message or f"Preflight bloqueou: {pf.status}",
+            "manifest_path": str(path),
+            "run_id": mf.run_id,
+            "out_dir": str(out_dir),
+            "manifest": mf.to_dict(),
+            "artifacts": [a["path"] for a in mf.artifacts],
+            "data_mode": DataMode.REAL.value,
+            "preflight": pf.to_dict(),
+            "exit_code": 2,
+            "empty": True,
+        }
+
+    emit("preparing", "Preparando", "succeeded", "Preflight READY")
+    emit("collecting", "Coletando", "running", "Pipeline canônico em execução")
+    mf.data_mode = DataMode.REAL.value
+    mf.preflight = ar.preflight
+    mf.canonical_command = list(ar.argv)
+    mf.exit_code = ar.exit_code
+    mf.limitations.extend(ar.limitations)
+    mf.warnings.extend(ar.warnings)
+    mf.warnings.append("MODO REAL — pipelines canônicos; sem fixture.")
+    mf.source_snapshots.extend(ar.source_snapshots)
+    mf.coverage = dict(ar.coverage or {})
+    mf.code_sha = code_sha or ar.code_sha
+    emit("collecting", "Coletando", "succeeded" if ar.exit_code == 0 else "failed")
+
+    # Register discovered artifacts
+    for art_path in ar.artifacts:
+        p = Path(art_path)
+        if not p.is_file():
+            continue
+        if p.name == "run-manifest.json":
+            continue
+        role = role_for_path(p, primary_hint=p.suffix.lower() in {".pdf", ".xlsx"})
+        mf.add_artifact(
+            declare_file(
+                p,
+                role=role,
+                title=p.name,
+                primary=p.suffix.lower() in {".pdf", ".xlsx"} or p.name.endswith(".json"),
+                review_required=p.suffix.lower() in {".json", ".pdf", ".xlsx"},
+            )
+        )
+
+    # Generate executive deliverables from rows when possible (still REAL data)
+    if ar.rows and ar.exit_code == 0:
+        emit("generating_report", "Gerando relatório", "running", "Entregáveis a partir de dados reais")
+        try:
+            _render_real_deliverables(wf, workflow_id, params, out_dir, mf, ar.rows, emit)
+            emit("generating_report", "Gerando relatório", "succeeded")
+        except Exception as exc:  # noqa: BLE001
+            mf.warnings.append(f"Render de PDF/XLSX parcial: {exc}")
+            emit("generating_report", "Gerando relatório", "failed", str(exc))
+
+    # Reviews from rows
+    for r in ar.rows[:50]:
+        key = str(r.get("id") or r.get("cnpj") or r.get("orgao") or r.get("nome") or len(mf.reviews_required))
+        title = str(r.get("objeto") or r.get("razao_social") or r.get("orgao") or r.get("nome") or key)[:80]
+        mf.reviews_required.append(
+            {
+                "item_key": key,
+                "title": title,
+                "question": "Aceitar este item para acompanhamento ativo?",
+                "evidence": str(r.get("evidencia") or r.get("sinais") or "pipeline real"),
+                "limitations": "Resultado de pipeline real; revisão humana obrigatória.",
+                "risks": str(r.get("risco") or "avaliar antes de qualquer abordagem"),
+                "content_hash": None,
+            }
+        )
+
+    status = ar.status if ar.status in {
+        "SUCCEEDED", "FAILED", "PARTIAL",
+        "BLOCKED_CONFIG", "BLOCKED_EXTERNAL", "BLOCKED_DATA", "BLOCKED_PERMISSION",
+    } else ("SUCCEEDED" if ar.exit_code == 0 else "FAILED")
+    # Never promote blocked pipeline to SUCCEEDED
+    if ar.exit_code != 0 and status == "SUCCEEDED":
+        status = "FAILED"
+    mf.status = status
+    mf.finished_at = _utcnow()
+    if status != "SUCCEEDED":
+        mf.terminal_claim = None
+    else:
+        mf.terminal_claim = "REAL_PIPELINE_COMPLETED_PENDING_HUMAN_REVIEW"
+
+    emit("validating", "Validando", "running")
+    manifest_path = mf.write(out_dir)
+    mf.artifacts = [a for a in mf.artifacts if a.get("logical_name") != "run-manifest.json"]
+    mf.add_artifact(declare_file(manifest_path, role=ArtifactRole.MANIFEST.value, title="Run manifest"))
+    manifest_path = mf.write(out_dir)
+    emit("validating", "Validando", "succeeded")
+    emit(
+        "completed",
+        "Concluído",
+        "succeeded" if status == "SUCCEEDED" else "failed",
+        ar.message,
+    )
+
+    return {
+        "status": status,
+        "message": ar.message,
+        "manifest_path": str(manifest_path),
+        "run_id": mf.run_id,
+        "out_dir": str(out_dir),
+        "manifest": mf.to_dict(),
+        "artifacts": [a["path"] for a in mf.artifacts],
+        "data_mode": DataMode.REAL.value,
+        "exit_code": ar.exit_code,
+        "preflight": ar.preflight,
+        "canonical_command": list(ar.argv),
+        "reviews": mf.reviews_required,
+        "empty": len(ar.rows) == 0 and ar.exit_code == 0,
+    }
+
+
+def _render_real_deliverables(
+    wf: WorkflowDef,
+    workflow_id: str,
+    params: dict[str, Any],
+    out_dir: Path,
+    mf: RunManifest,
+    rows: list[dict[str, Any]],
+    emit: ProgressCb,
+) -> None:
+    """Best-effort PDF/XLSX from REAL rows (same visual path as fixture, different provenance)."""
+    del emit  # reserved for progress
+    brand = "EXTRA" if "extra" in workflow_id else "CONFENGE"
+    title = f"{wf.title} — execução REAL"
+    headers = list(rows[0].keys())[:10] if rows else ["id"]
+    data_rows = [[str(r.get(h, ""))[:200] for h in headers] for r in rows[:100]]
+    pdf_path = out_dir / "relatorio-executivo-real.pdf"
+    write_executive_pdf(
+        pdf_path,
+        title=title,
+        client_label=wf.client_label,
+        data_as_of=mf.data_as_of,
+        executive_summary=(
+            f"Execução REAL ({len(rows)} registros). Revisão humana obrigatória. "
+            "Sem auto-outreach. data_mode=REAL."
+        ),
+        conclusions=[
+            "Resultados provenientes de pipeline canônico do extra-cli.",
+            "Aceite exige decisão humana vinculada a hash.",
+        ],
+        indicators=[
+            ("Registros", str(len(rows))),
+            ("Modo", "REAL"),
+            ("Run", mf.run_id),
+        ],
+        table_headers=headers,
+        table_rows=data_rows,
+        methodology=["Adapter tipado → argv allowlisted → pipeline canônico."],
+        sources=["Pipeline REAL extra-cli"],
+        limitations=list(mf.limitations),
+        version_id=mf.run_id,
+        provenance={
+            "run_id": mf.run_id,
+            "workflow_id": wf.id,
+            "code_sha": mf.code_sha or "unknown",
+            "data_mode": "REAL",
+            "no_auto_outreach": "true",
+        },
+        brand=brand,
+    )
+    xlsx_path = out_dir / "workbook-real.xlsx"
+    write_workbook(
+        xlsx_path,
+        title=title,
+        summary_rows=[
+            ("Cliente", wf.client_label),
+            ("Modo", "REAL"),
+            ("Itens", len(rows)),
+            ("Run", mf.run_id),
+        ],
+        data_headers=headers,
+        data_rows=data_rows,
+        methodology=["Dados reais do pipeline; sem fixture."],
+        sources=["extra-cli REAL"],
+        limitations=list(mf.limitations),
+        provenance={"run_id": mf.run_id, "data_mode": "REAL"},
+        sheet_data_name="Dados",
+    )
+    mf.add_artifact(
+        declare_file(
+            pdf_path,
+            role=ArtifactRole.EXECUTIVE_REPORT.value,
+            title="Relatório executivo (REAL)",
+            primary=True,
+        )
+    )
+    mf.add_artifact(
+        declare_file(
+            xlsx_path,
+            role=ArtifactRole.WORKBOOK.value,
+            title="Workbook (REAL)",
+            primary=True,
+        )
+    )
 
 
 def _prov(mf: RunManifest, wf: WorkflowDef) -> dict[str, Any]:

@@ -76,14 +76,23 @@ WORKFLOWS: dict[str, WorkflowDef] = {
                 default=15,
             ),
             WorkflowParam(
+                "data_mode",
+                "Modo de execução",
+                type="select",
+                default="FIXTURE",
+                choices=["REAL", "FIXTURE"],
+                description=(
+                    "REAL = pipelines canônicos (exige preflight READY). "
+                    "FIXTURE = demonstração explícita (não é evidência comercial)."
+                ),
+            ),
+            WorkflowParam(
                 "use_fixture",
-                "Dados de demonstração (obrigatório neste fluxo guiado)",
+                "Atalho: dados de demonstração",
                 type="bool",
                 default=True,
-                description=(
-                    "Fluxos guiados usam fixture representativa. "
-                    "Live canônico: área Avançada (extra.weekly / decision loop)."
-                ),
+                advanced=True,
+                description="Compatibilidade: true→FIXTURE, false→REAL. Prefira data_mode.",
             ),
             WorkflowParam(
                 "output_profile",
@@ -96,7 +105,8 @@ WORKFLOWS: dict[str, WorkflowDef] = {
         ],
         limitations=[
             "A shortlist é preliminar até revisão humana.",
-            "Sem DSN/weekly real, a execução usa fixture representativa (não evidencia live).",
+            "Modo REAL exige LOCAL_DATALAKE_DSN e preflight READY; bloqueios não caem em fixture.",
+            "Modo FIXTURE é demonstração e não prova LIVE comercial.",
         ],
     ),
     "workflow.confenge.suppliers": WorkflowDef(
@@ -134,11 +144,20 @@ WORKFLOWS: dict[str, WorkflowDef] = {
                 description="BOUNDED_SAMPLE = amostra; FULL_POPULATION exige evidência de varredura integral.",
             ),
             WorkflowParam(
+                "data_mode",
+                "Modo de execução",
+                type="select",
+                default="FIXTURE",
+                choices=["REAL", "FIXTURE"],
+                description="REAL = confenge_commercial_target_router --target suppliers.",
+            ),
+            WorkflowParam(
                 "use_fixture",
-                "Dados de demonstração (fluxo guiado)",
+                "Atalho: dados de demonstração",
                 type="bool",
                 default=True,
-                description="Live canônico: Avançado → confenge.suppliers.cycle.run via router.",
+                advanced=True,
+                description="Compatibilidade: true→FIXTURE, false→REAL.",
             ),
             WorkflowParam(
                 "output_profile",
@@ -152,7 +171,7 @@ WORKFLOWS: dict[str, WorkflowDef] = {
         limitations=[
             "Cobertura do Top N ≠ cobertura da população integral.",
             "Nenhum envio automático de e-mail ou WhatsApp.",
-            "Fixture não substitui evidência live do cadastro RFB.",
+            "REAL bloqueado sem cadastro/DSN não cai em fixture.",
         ],
     ),
     "workflow.confenge.public_agencies": WorkflowDef(
@@ -189,11 +208,20 @@ WORKFLOWS: dict[str, WorkflowDef] = {
                 choices=["REACTIVE_OPPORTUNITY", "PROACTIVE_INSTITUTIONAL_PROSPECT"],
             ),
             WorkflowParam(
+                "data_mode",
+                "Modo de execução",
+                type="select",
+                default="FIXTURE",
+                choices=["REAL", "FIXTURE"],
+                description="REAL = confenge_commercial_target_router --target public-agencies.",
+            ),
+            WorkflowParam(
                 "use_fixture",
-                "Dados de demonstração (fluxo guiado)",
+                "Atalho: dados de demonstração",
                 type="bool",
                 default=True,
-                description="Live canônico: Avançado → confenge.public_agencies.cycle.run.",
+                advanced=True,
+                description="Compatibilidade: true→FIXTURE, false→REAL.",
             ),
             WorkflowParam(
                 "output_profile",
@@ -208,6 +236,7 @@ WORKFLOWS: dict[str, WorkflowDef] = {
             "Conclusões jurídicas são PRELIMINARES e revisáveis.",
             "Nunca afirma contratação direta garantida.",
             "Risco de fracionamento e conflitos devem ser validados por humano.",
+            "REAL sem preflight READY não usa fixture silenciosamente.",
         ],
     ),
     "workflow.process_documents": WorkflowDef(
@@ -240,16 +269,26 @@ WORKFLOWS: dict[str, WorkflowDef] = {
                 required=True,
             ),
             WorkflowParam(
+                "data_mode",
+                "Modo de execução",
+                type="select",
+                default="FIXTURE",
+                choices=["REAL", "FIXTURE"],
+                description="REAL = python -m scripts.process_documents show <query>.",
+            ),
+            WorkflowParam(
                 "use_fixture",
-                "Acervo de demonstração (fluxo guiado)",
+                "Atalho: acervo de demonstração",
                 type="bool",
                 default=True,
-                description="Live canônico: Avançado → process_documents.*",
+                advanced=True,
+                description="Compatibilidade: true→FIXTURE, false→REAL.",
             ),
         ],
         limitations=[
             "Métricas de edital/anexos, sessão/julgamento, proposta e habilitação são separadas.",
             "Ausência de documento é reportada; não inventamos cobertura.",
+            "REAL fail-closed quando o acervo/comando não puder executar.",
         ],
     ),
     "workflow.review.pending": WorkflowDef(

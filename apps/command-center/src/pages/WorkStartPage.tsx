@@ -124,7 +124,8 @@ function WorkPreflight({ workflow, onStarted }: { workflow: Workflow; onStarted:
     if (!raw) return;
     try {
       const parsed = JSON.parse(raw) as Record<string, unknown>;
-      setParams({ ...defaults, ...parsed, use_fixture: true });
+      // Presets restore non-mode params; keep explicit FIXTURE default unless user chose REAL
+      setParams({ ...defaults, ...parsed, data_mode: parsed.data_mode ?? defaults.data_mode ?? "FIXTURE" });
     } catch {
       /* ignore */
     }
@@ -133,6 +134,13 @@ function WorkPreflight({ workflow, onStarted }: { workflow: Workflow; onStarted:
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const dataMode = String(params.data_mode ?? (params.use_fixture === false ? "REAL" : "FIXTURE")).toUpperCase();
+  const isDemo = dataMode !== "REAL";
+  const preflightQ = useQuery({
+    queryKey: ["workflow-preflight", workflow.id, dataMode],
+    queryFn: () => client.workflowPreflight(workflow.id, dataMode),
+    enabled: Boolean(workflow.id),
+  });
 
   const capQ = useQuery({
     queryKey: ["capability", workflow.id],
@@ -196,6 +204,49 @@ function WorkPreflight({ workflow, onStarted }: { workflow: Workflow; onStarted:
         <h1>{workflow.title}</h1>
         <p>{workflow.description}</p>
       </header>
+
+      <section
+        className="panel"
+        aria-labelledby="mode-title"
+        style={{
+          marginBottom: 16,
+          borderLeft: isDemo ? "4px solid #c9a227" : "4px solid #2f6fed",
+          background: isDemo ? "rgba(201,162,39,0.08)" : "rgba(47,111,237,0.08)",
+        }}
+      >
+        <h2 id="mode-title">{isDemo ? "MODO DEMONSTRAÇÃO" : "MODO REAL"}</h2>
+        <p>
+          {isDemo
+            ? "Dados de fixture para treino e testes. Não é evidência comercial, não prova LIVE e não alimenta outreach real."
+            : "Executa pipelines canônicos do extra-cli. Exige preflight READY. Bloqueios não caem em fixture."}
+        </p>
+        {preflightQ.data ? (
+          <div className="summary-grid" style={{ marginTop: 8 }}>
+            <div className="summary-chip">
+              <span className="muted">Preflight</span>
+              <strong data-testid="preflight-status">{String((preflightQ.data as { status?: string }).status || "—")}</strong>
+            </div>
+            <div className="summary-chip">
+              <span className="muted">Pode executar?</span>
+              <strong>{(preflightQ.data as { safe_to_run?: boolean }).safe_to_run ? "Sim" : "Não"}</strong>
+            </div>
+          </div>
+        ) : null}
+        {preflightQ.data && !(preflightQ.data as { safe_to_run?: boolean }).safe_to_run ? (
+          <p role="alert" data-testid="preflight-block-reason">
+            {(preflightQ.data as { message?: string }).message || "Execução bloqueada pelo preflight."}
+          </p>
+        ) : null}
+        {isDemo ? (
+          <p className="muted" data-testid="demo-mode-banner">
+            Selecione data_mode=REAL nos parâmetros para pipelines reais (quando o ambiente estiver pronto).
+          </p>
+        ) : (
+          <p className="muted" data-testid="real-mode-banner">
+            data_mode=REAL — sem marca de fixture nos resultados bem-sucedidos.
+          </p>
+        )}
+      </section>
 
       <section className="panel" aria-labelledby="preflight-title">
         <h2 id="preflight-title">Antes de executar</h2>

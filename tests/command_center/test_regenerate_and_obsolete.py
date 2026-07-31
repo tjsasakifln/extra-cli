@@ -53,14 +53,18 @@ def _wait_job(client: TestClient, job_id: str) -> dict:
     return final
 
 
-def test_use_fixture_false_is_rejected() -> None:
-    with pytest.raises(ValueError, match="demonstração|Avançada|fixture"):
-        run_workflow(
-            "workflow.extra.opportunities",
-            {"use_fixture": False, "max_shortlist": 3},
-            out_dir=Path("/tmp/should-not-exist-cc-wf"),
-            code_sha="x",
-        )
+def test_use_fixture_false_is_real_fail_closed(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """use_fixture=False selects REAL; without DSN it blocks — never falls back to fixture."""
+    monkeypatch.delenv("LOCAL_DATALAKE_DSN", raising=False)
+    result = run_workflow(
+        "workflow.extra.opportunities",
+        {"use_fixture": False, "max_shortlist": 3},
+        out_dir=tmp_path / "real-no-dsn",
+        code_sha="x",
+    )
+    assert result["data_mode"] == "REAL"
+    assert str(result["status"]).startswith("BLOCKED_")
+    assert result["status"] != "SUCCEEDED"
 
 
 def test_apply_corrections_changes_source_and_pdf_content(tmp_path: Path) -> None:

@@ -89,6 +89,10 @@ export const client = {
       category ? `/api/capabilities?category=${encodeURIComponent(category)}` : "/api/capabilities",
     ),
   capability: (id: string) => api<Capability>(`/api/capabilities/${encodeURIComponent(id)}`),
+  workflowPreflight: (id: string, dataMode = "REAL") =>
+    api<Record<string, unknown>>(
+      `/api/workflows/${encodeURIComponent(id)}/preflight?data_mode=${encodeURIComponent(dataMode)}`,
+    ),
   jobs: () => api<{ jobs: Job[] }>("/api/jobs"),
   job: (id: string) => api<{ job: Job }>(`/api/jobs/${encodeURIComponent(id)}`),
   jobLogs: (id: string, afterId = 0) =>

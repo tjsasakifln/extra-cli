@@ -164,6 +164,10 @@ class RunManifest:
     output_profile: str | None = None
     discovery_source: str = "manifest"  # manifest | stdout_fallback
     progress_events: list[dict[str, Any]] = field(default_factory=list)
+    data_mode: str | None = None  # REAL | FIXTURE
+    canonical_command: list[str] = field(default_factory=list)
+    exit_code: int | None = None
+    preflight: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)

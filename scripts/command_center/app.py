@@ -598,7 +598,48 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 "no_auto_outreach": True,
                 "effects": "Somente geração local de arquivos sob data/command_center e output permitidos.",
             },
+            "execution_modes": {
+                "REAL": "Pipelines canônicos do extra-cli (preflight tipado; fail-closed).",
+                "FIXTURE": "Demonstração explícita — não é evidência comercial/LIVE.",
+            },
         }
+
+    @app.get("/api/workflows/{workflow_id}/preflight")
+    def workflow_preflight(
+        workflow_id: str,
+        data_mode: str = Query("REAL"),
+    ) -> dict[str, Any]:
+        """Typed operational preflight for REAL mode (or informational for FIXTURE)."""
+        from scripts.command_center.adapters import preflight_workflow, resolve_data_mode
+        from scripts.command_center.workflows.catalog import get_workflow
+
+        wf = get_workflow(workflow_id)
+        if wf is None:
+            raise HTTPException(404, "Fluxo não encontrado")
+        mode = resolve_data_mode({"data_mode": data_mode})
+        if mode.value == "FIXTURE":
+            return {
+                "status": "READY",
+                "safe_to_run": True,
+                "data_mode": "FIXTURE",
+                "checks": [
+                    {
+                        "name": "demo_mode",
+                        "ok": True,
+                        "detail": "Modo demonstração explícito — fixture permitida",
+                        "required": True,
+                    }
+                ],
+                "limitations": list(wf.limitations)
+                + ["FIXTURE não prova LIVE; não alimenta outreach real."],
+                "message": "Preflight FIXTURE READY (demonstração).",
+                "capability_id": workflow_id,
+            }
+        out = settings.jobs_dir / "_preflight" / workflow_id
+        result = preflight_workflow(workflow_id, {"data_mode": "REAL"}, out_dir=out)
+        payload = result.to_dict()
+        payload["data_mode"] = "REAL"
+        return payload
 
     @app.post("/api/export-bundle")
     def export_bundle(body: BundleBody, _: None = Depends(csrf_dep)) -> dict[str, Any]:

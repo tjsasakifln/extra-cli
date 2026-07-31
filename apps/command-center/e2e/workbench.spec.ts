@@ -18,10 +18,23 @@ async function runWorkflow(page: Page, workflowId: string) {
   await page.getByRole("dialog").getByRole("button", { name: /^Confirmar$/i }).click();
   await expect(page).toHaveURL(/\/jobs\//, { timeout: 30_000 });
   await expect(page.getByRole("heading", { name: "Situação" })).toBeVisible({ timeout: 60_000 });
-  // wait for terminal-ish copy
+  // Wait for terminal job status — avoid matching workflow titles that contain "órgãos"/"empresas"
   await expect(
-    page.getByText(/Concluído|prontos|Shortlist|empresas|órgãos|Cobertura|PDF e XLSX|Regeneração/i).first(),
+    page.getByText(/Concluído|prontos para revisão|Shortlist com|PDF e XLSX|Regeneração|DEMONSTRAÇÃO|bloquead/i).first(),
   ).toBeVisible({ timeout: 90_000 });
+  // Prefer API readiness of manifest when job id is known
+  const jobId = page.url().split("/jobs/")[1]?.split(/[?#]/)[0];
+  if (jobId) {
+    await expect
+      .poll(
+        async () => {
+          const res = await page.request.get(`/api/jobs/${jobId}/manifest`);
+          return res.ok();
+        },
+        { timeout: 60_000 },
+      )
+      .toBeTruthy();
+  }
 }
 
 async function openPdfAndXlsx(page: Page) {
@@ -56,6 +69,46 @@ test.describe("Workbench consulting flows", () => {
     await page.goto("/work/start");
     await expect(page.getByText(/Encontrar oportunidades para a Extra/i)).toBeVisible();
     await expect(page.getByText(/Encontrar empresas com potencial comercial/i)).toBeVisible();
+  });
+
+  test("demo mode is explicit; real preflight blocks honestly without DSN", async ({ page }) => {
+    await page.goto("/work/start/workflow.extra.opportunities");
+    await expect(page.getByRole("heading", { name: /MODO DEMONSTRAÇÃO|MODO REAL/i })).toBeVisible({
+      timeout: 15_000,
+    });
+    // Default is FIXTURE demonstration
+    await expect(page.getByTestId("demo-mode-banner")).toBeVisible();
+    const pfFixture = await page.request.get(
+      "/api/workflows/workflow.extra.opportunities/preflight?data_mode=FIXTURE",
+    );
+    expect(pfFixture.ok()).toBeTruthy();
+    const fixBody = await pfFixture.json();
+    expect(fixBody.status).toBe("READY");
+    expect(fixBody.data_mode).toBe("FIXTURE");
+
+    const pfReal = await page.request.get(
+      "/api/workflows/workflow.extra.opportunities/preflight?data_mode=REAL",
+    );
+    expect(pfReal.ok()).toBeTruthy();
+    const realBody = await pfReal.json();
+    // Without DSN in e2e env: BLOCKED_*; never silent READY with fixture claim
+    if (realBody.safe_to_run) {
+      expect(realBody.status).toBe("READY");
+    } else {
+      expect(String(realBody.status)).toMatch(/^BLOCKED_/);
+      expect(realBody.message || realBody.limitations?.length).toBeTruthy();
+    }
+    // No credentials in DOM
+    const html = await page.content();
+    expect(html).not.toMatch(/postgresql:\/\/[^:]+:[^@]+@/i);
+    expect(html.toLowerCase()).not.toContain("password=");
+  });
+
+  test("mobile 390x844 guided start remains usable", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/work/start/workflow.extra.opportunities");
+    await expect(page.getByRole("button", { name: /Gerar entregáveis/i })).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByRole("heading", { name: /MODO/i })).toBeVisible();
   });
 
   test("task1: Extra PDF iframe and XLSX sheets", async ({ page }) => {
