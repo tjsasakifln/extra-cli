@@ -10,7 +10,7 @@ from typing import Any
 
 from scripts.pseo import SCHEMA_VERSION
 
-EXPORT_ENTRYPOINT = "python -m scripts.pseo.cli_export"
+EXPORT_ENTRYPOINT = "python -m scripts.pseo.export_web_cfg"
 EXPORT_VERSION = "1.1.0"
 
 # Canonical body keys that compose dataset_hash (order matters for determinism)
