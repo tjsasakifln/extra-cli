@@ -791,6 +791,35 @@ verify-confenge-evidence-provenance:
 	python3 -m scripts.ops.confenge_code_freeze verify-provenance
 
 
+# --- CONFENGE public-agency vertical (PAG; outside commercial-ready freeze surface) ---
+# TARGET multi-modal entry redefines confenge-commercial-cycle after freeze sections.
+# Freeze digests still hash only commercial-ready + final-evidence marker blocks.
+.PHONY: confenge-commercial-cycle-pag test-public-agency
+CONFENGE_COMMERCIAL_TARGET ?= suppliers
+CONFENGE_PUBLIC_AGENCY_OUT ?= output/confenge-commercial/public-agencies
+CONFENGE_PUBLIC_AGENCY_PROFILE ?= config/commercial/public_agency_profile.yaml
+
+# Last definition wins: multi-target router without mutating freeze section hashes.
+confenge-commercial-cycle:
+	@echo '==> confenge-commercial-cycle (TARGET=$(CONFENGE_COMMERCIAL_TARGET))'
+	@echo '    suppliers: frozen entry scripts.ops.confenge_commercial_cycle'
+	@echo '    public-agencies|all: scripts.ops.confenge_commercial_target_router'
+	@echo '    suppliers requires: CONFENGE_COMMERCIAL_STATE_DSN + CONFENGE_COMMERCIAL_SNAPSHOT'
+	@echo '    public-agencies requires: CONFENGE_COMMERCIAL_STATE_DSN or LOCAL_DATALAKE_DSN'
+	python3 -m scripts.ops.confenge_commercial_target_router \
+		--target $(CONFENGE_COMMERCIAL_TARGET) \
+		--profile $(CONFENGE_COMMERCIAL_PROFILE) \
+		--out $(CONFENGE_COMMERCIAL_OUT) \
+		--public-agency-out $(CONFENGE_PUBLIC_AGENCY_OUT) \
+		--public-agency-profile $(CONFENGE_PUBLIC_AGENCY_PROFILE) \
+		$(CONFENGE_CYCLE_FLAGS)
+
+confenge-commercial-cycle-pag:
+	$(MAKE) confenge-commercial-cycle CONFENGE_COMMERCIAL_TARGET=public-agencies
+
+test-public-agency:
+	python3 -m pytest tests/public_agency/ -q --tb=short -o addopts=''
+
 # --- Edital relevance foundation (DOD §8.4; not CONFENGE) ---
 # Edital relevance recall foundation (DOD §8.4) — blocked on human dual labeling
 # Foundation green ≠ DOD accept. Final gate must fail until human gold exists.

@@ -1,0 +1,123 @@
+profile_id: confenge_public_agency
+version: "1.0.0"
+version_date: "2026-07-30"
+display_name: CONFENGE — serviços técnicos a órgãos públicos
+entity_type: PUBLIC_AGENCY_PROSPECT
+campaign_id: CONFENGE-PUBLIC-AGENCY-TECHNICAL-SERVICES-01
+
+region:
+  primary_ufs: [SC]
+  secondary_ufs: []
+  expansion_ufs: []  # configurable Brazil expansion
+  priority_population_max: 50000
+  focus_population_max: 100000
+  population_bands:
+    - id: up_to_10k
+      max: 10000
+    - id: 10k_to_25k
+      min: 10001
+      max: 25000
+    - id: 25k_to_50k
+      min: 25001
+      max: 50000
+    - id: 50k_to_100k
+      min: 50001
+      max: 100000
+    - id: above_100k
+      min: 100001
+
+scoring_weights:
+  need_score: 0.30
+  service_fit_score: 0.25
+  timing_score: 0.20
+  evidence_quality_score: 0.15
+  institutional_accessibility_score: 0.10
+
+capacity:
+  max_publishable_leads: 20
+  max_dossiers: 20
+  notes: Fila pequena para revisão humana; sem automação de contato.
+
+modes:
+  - REACTIVE_OPPORTUNITY
+  - PROACTIVE_INSTITUTIONAL_PROSPECT
+
+engineering_object_keywords:
+  - obra
+  - construção
+  - construcao
+  - pavimentação
+  - pavimentacao
+  - reforma
+  - engenharia
+  - infraestrutura
+  - saneamento
+  - drenagem
+  - terraplenagem
+  - edificacao
+  - edificação
+  - projeto basico
+  - projeto básico
+  - fiscalização de obra
+  - fiscalizacao de obra
+  - orçamento de obra
+  - orcamento de obra
+  - memorial descritivo
+  - planilha orçamentária
+  - planilha orcamentaria
+
+other_service_keywords:
+  - capacitação
+  - capacitacao
+  - treinamento
+  - curso
+  - consultoria administrativa
+  - assessoria jurídica
+  - assessoria juridica
+  - software
+  - licença de uso
+  - licenca de uso
+
+queue_separation:
+  supplier_queue: supplier_leads
+  public_agency_queue: public_agency_leads
+
+forbidden_language:
+  - dispensa garantida
+  - contratação direta autorizada
+  - contratacao direta autorizada
+  - órgão pode contratar
+  - orgao pode contratar
+  - sem licitação
+  - sem licitacao
+  - contratação assegurada
+  - contratacao assegurada
+  - o órgão está contratando
+  - o orgao esta contratando
+
+relationship_states:
+  - IDENTIFIED
+  - RESEARCHED
+  - HUMAN_REVIEW_REQUIRED
+  - APPROVED_FOR_OUTREACH
+  - CONTACTED
+  - RESPONSE_RECEIVED
+  - MEETING_SCHEDULED
+  - QUALIFIED
+  - PROPOSAL_REQUESTED
+  - PROPOSAL_SENT
+  - DIRECT_CONTRACTING_NOTICE_PUBLISHED
+  - COMPETITIVE_PROCESS_REQUIRED
+  - WON
+  - LOST
+  - DISQUALIFIED
+  - CONFLICT_BLOCKED
+  - DO_NOT_CONTACT
+
+publishability_categories:
+  - PUBLISHABLE
+  - REVIEW_REQUIRED
+  - RESEARCH_REQUIRED
+  - COMPLIANCE_BLOCKED
+  - CONFLICT_BLOCKED
+  - NOT_A_FIT

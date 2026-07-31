@@ -1,0 +1,209 @@
+{
+  "campaign_id": "CONFENGE-PUBLIC-AGENCY-TECHNICAL-SERVICES-01",
+  "code_sha": "b2a87b252924b42ef1118ba567ef08987ddc42a2",
+  "as_of": "2026-07-15",
+  "updated_utc": "2026-07-31T00:42:56Z",
+  "dual_launch": {
+    "run1": {
+      "run_id": "dffa3a32-d123-4147-ab7e-3ab77f943c05",
+      "leads": 9,
+      "status": "PASS",
+      "sha": "b2a87b252924b42ef1118ba567ef08987ddc42a2"
+    },
+    "run2": {
+      "run_id": "393402e6-c714-4362-a379-08025d160142",
+      "leads": 9,
+      "status": "PASS",
+      "sha": "b2a87b252924b42ef1118ba567ef08987ddc42a2"
+    },
+    "names_equal": true,
+    "no_weak_false_eng": true,
+    "top_n_honest": 9,
+    "padded_to_20": false
+  },
+  "top_n": [
+    {
+      "rank": 1,
+      "nome": "MUNICÍPIO DE ITAIÓPOLIS",
+      "population": 22051,
+      "strong_works_count": 1,
+      "first_eng_tier": "STRONG_WORKS",
+      "first_eng_reasons": [
+        "obra_de",
+        "execucao_obra",
+        "pavimentacao",
+        "drenagem_works",
+        "drenagem_works_context",
+        "keyword:OBRA",
+        "keyword:PAVIMENTACAO",
+        "keyword:DRENAGEM"
+      ],
+      "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
+      "offer": null,
+      "legal_status": null
+    },
+    {
+      "rank": 2,
+      "nome": "MUNICÍPIO DE POUSO REDONDO",
+      "population": 17123,
+      "strong_works_count": 1,
+      "first_eng_tier": "STRONG_WORKS",
+      "first_eng_reasons": [
+        "construcao_de",
+        "keyword:CONSTRUCAO"
+      ],
+      "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
+      "offer": null,
+      "legal_status": null
+    },
+    {
+      "rank": 3,
+      "nome": "MUNICÍPIO DE GAROPABA",
+      "population": 29959,
+      "strong_works_count": 1,
+      "first_eng_tier": "STRONG_WORKS",
+      "first_eng_reasons": [
+        "obra_de",
+        "execucao_obra",
+        "pavimentacao",
+        "keyword:OBRA",
+        "keyword:PAVIMENTACAO"
+      ],
+      "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
+      "offer": null,
+      "legal_status": null
+    },
+    {
+      "rank": 4,
+      "nome": "Prefeitura Municipal de Catanduvas",
+      "population": 10566,
+      "strong_works_count": 1,
+      "first_eng_tier": "STRONG_WORKS",
+      "first_eng_reasons": [
+        "projeto_estrutural",
+        "memorial_descritivo",
+        "keyword:OBRA",
+        "keyword:MEMORIAL DESCRITIVO"
+      ],
+      "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
+      "offer": null,
+      "legal_status": null
+    },
+    {
+      "rank": 5,
+      "nome": "MUNICÍPIO DE CAMPOS NOVOS",
+      "population": 36932,
+      "strong_works_count": 1,
+      "first_eng_tier": "STRONG_WORKS",
+      "first_eng_reasons": [
+        "obra_de",
+        "execucao_obra",
+        "construcao_de",
+        "projeto_basico",
+        "keyword:OBRA",
+        "keyword:CONSTRUCAO",
+        "keyword:PROJETO BASICO"
+      ],
+      "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
+      "offer": null,
+      "legal_status": null
+    },
+    {
+      "rank": 6,
+      "nome": "MUNICÍPIO DE ÁGUAS DE CHAPECÓ",
+      "population": 6036,
+      "strong_works_count": 1,
+      "first_eng_tier": "STRONG_WORKS",
+      "first_eng_reasons": [
+        "obra_de",
+        "execucao_obra",
+        "construcao_civil",
+        "memorial_descritivo",
+        "keyword:OBRA",
+        "keyword:CONSTRUCAO",
+        "keyword:MEMORIAL DESCRITIVO"
+      ],
+      "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
+      "offer": null,
+      "legal_status": null
+    },
+    {
+      "rank": 7,
+      "nome": "MUNICÍPIO DE SANGÃO",
+      "population": 12882,
+      "strong_works_count": 1,
+      "first_eng_tier": "STRONG_WORKS",
+      "first_eng_reasons": [
+        "pavimentacao",
+        "drenagem_works",
+        "memorial_descritivo",
+        "drenagem_works_context",
+        "keyword:PAVIMENTACAO",
+        "keyword:ENGENHARIA",
+        "keyword:DRENAGEM",
+        "keyword:MEMORIAL DESCRITIVO"
+      ],
+      "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
+      "offer": null,
+      "legal_status": null
+    },
+    {
+      "rank": 8,
+      "nome": "PREFEITURA MUNICIPAL DE PONTE SERRADA - SC",
+      "population": 10649,
+      "strong_works_count": 1,
+      "first_eng_tier": "STRONG_WORKS",
+      "first_eng_reasons": [
+        "memorial_descritivo",
+        "planilha_orcament",
+        "keyword:REFORMA",
+        "keyword:MEMORIAL DESCRITIVO",
+        "keyword:PLANILHA ORCAMENTARIA"
+      ],
+      "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
+      "offer": null,
+      "legal_status": null
+    },
+    {
+      "rank": 9,
+      "nome": "MUNICÍPIO DE PAULO LOPES",
+      "population": 9063,
+      "strong_works_count": 1,
+      "first_eng_tier": "STRONG_WORKS",
+      "first_eng_reasons": [
+        "obra_de",
+        "execucao_obra",
+        "pavimentacao",
+        "projeto_basico",
+        "memorial_descritivo",
+        "planilha_orcament",
+        "drenagem_works_context",
+        "keyword:OBRA",
+        "keyword:PAVIMENTACAO",
+        "keyword:DRENAGEM",
+        "keyword:PROJETO BASICO"
+      ],
+      "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
+      "offer": null,
+      "legal_status": null
+    }
+  ],
+  "supplier_regression": {
+    "missing_snapshot_exit": 1,
+    "with_snapshot_exit": 1,
+    "missing_snapshot_snippet": [
+      "FAIL: missing snapshot manifest. Set CONFENGE_COMMERCIAL_SNAPSHOT or pass --snapshot-manifest with authenticated real snapshot.",
+      "supplier_exit=1"
+    ],
+    "with_snapshot_snippet": [
+      "[CONFENGE-COMMERCIAL-READY-01] status=FAIL leads=0 run_id=cl-20260731T004230Z-686a32fc sha=b2a87b252924b42ef1118ba567ef08987ddc42a2",
+      "supplier_snap_exit=1"
+    ],
+    "note": "supplier modality remains fail-closed; dump path from commercial-ready snapshot may be unavailable on this host"
+  },
+  "freeze_isolation": {
+    "confenge_commercial_cycle_restored_to_freeze": true,
+    "router": "scripts/ops/confenge_commercial_target_router.py",
+    "makefile_pag_section_outside_freeze_markers": true
+  }
+}

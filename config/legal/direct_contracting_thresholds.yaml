@@ -1,0 +1,113 @@
+# Direct contracting value thresholds — versioned, temporal, jurisdiction-scoped.
+# Annual updates: append a new threshold row with effective_from; do not hardcode amounts in Python.
+# Comparison: amount must be STRICTLY INFERIOR to threshold (equal → not eligible).
+# Legal eligibility language for commercial intelligence: POTENTIALLY_ELIGIBLE_FOR_DIRECT_CONTRACTING only.
+# Never claim DISPENSA_GARANTIDA, CONTRATAÇÃO_DIRETA_AUTORIZADA, ÓRGÃO_PODE_CONTRATAR, SEM_LICITAÇÃO.
+
+schema_version: "1.0.0"
+catalog_id: direct_contracting_thresholds
+updated_at: "2026-07-30"
+notes: >
+  Federal thresholds under Lei 14.133/2021 art. 75, I and II, as adjusted by
+  Decreto nº 12.807/2025 (effective 2026-01-01). Decision on legal hypothesis
+  belongs exclusively to the contracting Administration.
+
+thresholds:
+  - threshold_id: BR_FEDERAL_14133_ART75_I_2026
+    jurisdiction: BR_FEDERAL
+    legal_framework: Lei nº 14.133/2021
+    legal_reference: "Lei nº 14.133/2021, art. 75, I e §§ 1º a 4º; Decreto nº 12.807/2025"
+    article: "75, I"
+    object_class: ENGINEERING_SERVICE
+    amount: 130984.20
+    currency: BRL
+    effective_from: "2026-01-01"
+    effective_until: null
+    strict_comparison: true
+    source_title: "Decreto nº 12.807, de 30 de dezembro de 2025 — atualização de valores (art. 75)"
+    source_authority: "Presidência da República / Casa Civil"
+    source_retrieved_at: "2026-07-30"
+    source_hash: "sha256:decreto-12807-2025-art75-i-130984.20"
+    notes: >
+      Obras e serviços de engenharia ou de manutenção de veículos automotores.
+      Valor inferior a R$ 130.984,20. Igual ao teto NÃO é elegível.
+
+  - threshold_id: BR_FEDERAL_14133_ART75_II_2026
+    jurisdiction: BR_FEDERAL
+    legal_framework: Lei nº 14.133/2021
+    legal_reference: "Lei nº 14.133/2021, art. 75, II e §§ 1º a 4º; Decreto nº 12.807/2025"
+    article: "75, II"
+    object_class: OTHER_SERVICE
+    amount: 65492.11
+    currency: BRL
+    effective_from: "2026-01-01"
+    effective_until: null
+    strict_comparison: true
+    source_title: "Decreto nº 12.807, de 30 de dezembro de 2025 — atualização de valores (art. 75)"
+    source_authority: "Presidência da República / Casa Civil"
+    source_retrieved_at: "2026-07-30"
+    source_hash: "sha256:decreto-12807-2025-art75-ii-65492.11"
+    notes: >
+      Outros serviços e compras. Valor inferior a R$ 65.492,11. Igual ao teto NÃO é elegível.
+
+  # Historical row (pre-2026) for temporal tests — closed window
+  - threshold_id: BR_FEDERAL_14133_ART75_I_2025
+    jurisdiction: BR_FEDERAL
+    legal_framework: Lei nº 14.133/2021
+    legal_reference: "Lei nº 14.133/2021, art. 75, I (valores 2025)"
+    article: "75, I"
+    object_class: ENGINEERING_SERVICE
+    amount: 125455.13
+    currency: BRL
+    effective_from: "2025-01-01"
+    effective_until: "2025-12-31"
+    strict_comparison: true
+    source_title: "Atualização anual de valores art. 75 — vigência 2025"
+    source_authority: "União Federal"
+    source_retrieved_at: "2026-07-30"
+    source_hash: "sha256:art75-i-2025-125455.13"
+    notes: "Row retained for temporal validity tests only."
+
+  - threshold_id: BR_FEDERAL_14133_ART75_II_2025
+    jurisdiction: BR_FEDERAL
+    legal_framework: Lei nº 14.133/2021
+    legal_reference: "Lei nº 14.133/2021, art. 75, II (valores 2025)"
+    article: "75, II"
+    object_class: OTHER_SERVICE
+    amount: 62727.57
+    currency: BRL
+    effective_from: "2025-01-01"
+    effective_until: "2025-12-31"
+    strict_comparison: true
+    source_title: "Atualização anual de valores art. 75 — vigência 2025"
+    source_authority: "União Federal"
+    source_retrieved_at: "2026-07-30"
+    source_hash: "sha256:art75-ii-2025-62727.57"
+    notes: "Row retained for temporal validity tests only."
+
+related_articles:
+  - article: "18"
+    topic: fase_preparatoria
+    notes: "Fase preparatória da licitação / contratação."
+  - article: "23"
+    topic: estimativa_precos
+    notes: "Estimativa do valor da contratação."
+  - article: "72"
+    topic: instrucao_contratacao_direta
+    notes: "Instrução do processo de contratação direta."
+  - article: "74, III"
+    topic: inexigibilidade_servicos_tecnicos
+    notes: "Serviços técnicos especializados de natureza predominantemente intelectual."
+  - article: "117"
+    topic: apoio_terceiros_fiscalizacao
+    notes: "Administração pode contratar terceiros para assistir e subsidiar fiscal/gestor."
+
+forbidden_eligibility_states:
+  - DISPENSA_GARANTIDA
+  - CONTRATACAO_DIRETA_AUTORIZADA
+  - ORGAO_PODE_CONTRATAR
+  - SEM_LICITACAO
+  - CONTRATACAO_ASSEGURADA
+
+allowed_eligibility_state: POTENTIALLY_ELIGIBLE_FOR_DIRECT_CONTRACTING
+sum_unknown_state: DIRECT_CONTRACTING_SUM_UNKNOWN
