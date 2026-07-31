@@ -9,7 +9,7 @@
 | Ref | Original | Final (origin tip before this pin commit) |
 |-----|----------|-------------------------------------------|
 | PR #186 | `0913b2f5c7fef41ae830c40478342822d5737767` | `82cb1097af445534183342db36b7cf5130135d41` |
-| PR #187 | `f2b54588304cad76c70fa1ea6cb40ac2b52ca1bd` | `90124d1274e526eb35f791c81b980eeaa52a7e35` (+ code commit this session) |
+| PR #187 | `f2b54588304cad76c70fa1ea6cb40ac2b52ca1bd` | `d37b2fa99476fa894863405751aa153f9b36fe22` |
 | main | `1718d6389c4e772bf3c5a45ac059871c32d83afc` | unchanged |
 
 ## 2. Mandatory evidence — PR #186 A16 (re-run at tip)

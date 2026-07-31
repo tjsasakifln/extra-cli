@@ -25,7 +25,7 @@
     "branch": "feat/pseo-export-isolated",
     "original_head": "f2b54588304cad76c70fa1ea6cb40ac2b52ca1bd",
     "prior_origin_tip": "90124d1274e526eb35f791c81b980eeaa52a7e35",
-    "final_head": "POST_COMMIT_THIS_SESSION",
+    "final_head": "d37b2fa99476fa894863405751aa153f9b36fe22",
     "status": "PARTIAL_BLOCKED",
     "evidence": {
       "pytest": "64 passed",
@@ -45,9 +45,10 @@
       "CONSUMER_INTEGRATION_NOT_PROVEN",
       "live_postgres_250k_not_run",
       "production_human_approval_artifact"
-    ]
+    ],
+    "code_head": "d37b2fa99476fa894863405751aa153f9b36fe22"
   },
   "merged": false,
   "deployed": false,
-  "note": "final_head for #187 is filled after the B7/B9 code+docs commit is pushed; #186 tip is origin/feat/extra-local-command-center"
+  "note": "final_head for #187 is this B7/B9 code+docs commit; #186 tip is origin/feat/extra-local-command-center @ 82cb1097"
 }
