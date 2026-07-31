@@ -63,7 +63,7 @@ STRONG_WORKS: list[tuple[str, str]] = [
     (r"\bconstru[cç][aã]o\s+(e\s+)?(reforma|amplia[cç]|de\s+(escola|creche|ubs|pr[eé]dio|gin[aá]sio|unidade))", "construcao_edificacao"),
     (r"\bamplia[cç][aã]o\s+(de\s+)?(escola|creche|ubs|pr[eé]dio|unidade|hospital)", "ampliacao_edificacao"),
     (r"\breforma\s+(de\s+)?(escola|creche|ubs|pr[eé]dio|unidade|hospital|gin[aá]sio)", "reforma_edificacao"),
-    (r"\bpasseios?\s+(p[uú]blicos?)?\b|\bcal[cç]adas?\b", "calcada"),
+    (r"\bpasseios?\s+p[uú]blicos?\b|\bcal[cç]adas?\b|\bpasseio\s+em\s+concreto\b", "calcada"),
     (r"\bsinaliza[cç][aã]o\s+vi[aá]ria\b", "sinalizacao_viaria"),
 ]
 

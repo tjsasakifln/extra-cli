@@ -66,6 +66,15 @@ def test_rodovi_onibus_not_pavement():
     assert "pavimentacao-infraestrutura-viaria" not in r.archetypes
 
 
+def test_veiculo_passeio_not_calcada():
+    r = classify_objeto(
+        "Credenciamento de empresas para manutenção de veículos de passeio, "
+        "vans, ônibus, caminhões e máquinas rodoviárias da frota municipal"
+    )
+    assert r.label != "aec_confirmed"
+    assert "pavimentacao-infraestrutura-viaria" not in r.archetypes
+
+
 def test_construcao_de_without_object():
     r = classify_objeto("Construção de soluções inovadoras para a gestão")
     assert r.label in {"ambiguous", "non_aec", "insufficient_context"}
