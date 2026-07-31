@@ -1,16 +1,20 @@
 {
   "campaign_id": "EXTRA-PRS-186-187-TRUST-HARDENING-01",
-  "captured_at": "2026-07-31T22:08:55Z",
+  "captured_at": "2026-07-31T22:17:50Z",
   "main_sha": "1718d6389c4e772bf3c5a45ac059871c32d83afc",
   "pr_186": {
     "branch": "feat/extra-local-command-center",
     "original_head": "0913b2f5c7fef41ae830c40478342822d5737767",
-    "final_head": "648e35e5a377c3616eed89b130061a1adecb706d",
+    "final_head": "82cb1097af445534183342db36b7cf5130135d41",
     "status": "PASS_MERGE_READY",
-    "a16": {
-      "pytest": "104+ passed (incl concurrent enqueue)",
-      "visual_matrix_expanded": "14 passed",
-      "e2e_prior": "52 passed"
+    "evidence": {
+      "logo_sha256": "e6af0125c73edd476cff82ab4ea1de3e459fbdbde63b886f6c55f8a93531505b",
+      "pytest": "105 passed",
+      "npm_build": "ok",
+      "npm_unit": "10 passed",
+      "e2e": "58 passed",
+      "routes": "16 passed",
+      "logs": "docs/ops/campaigns/EXTRA-PRS-186-187-TRUST-HARDENING-01/logs/a16-full-rerun-*"
     },
     "non_claims": [
       "LIVE_READY",
@@ -20,39 +24,26 @@
   "pr_187": {
     "branch": "feat/pseo-export-isolated",
     "original_head": "f2b54588304cad76c70fa1ea6cb40ac2b52ca1bd",
-    "final_head": "246bf0fa96afcf8646938c9d9065b1661e200d52",
+    "final_head": "3d391f4cf8d884e65614e1e1e862c7e2aef6a02e",
     "status": "PARTIAL_BLOCKED",
-    "b12": {
-      "pytest": "58 passed",
-      "fail_closed": true,
-      "require_commit_entrypoint_on_promote": true,
-      "streaming_db_path": true,
-      "segment_precision_gate": ">=0.95",
-      "synthetic_250k": {
-        "n_rows": 250000,
-        "fetchall_calls": 0
-      },
-      "consumer_schema_contract": "PROVEN",
-      "consumer_render": "CONSUMER_INTEGRATION_NOT_PROVEN"
+    "evidence": {
+      "pytest": "60 passed",
+      "fixture_export_validate": "ok CANDIDATE indexable=false",
+      "ruff": "clean",
+      "synthetic_250k": "250000 rows fetchall=0",
+      "consumer_schema": "PROVEN",
+      "consumer_render": "CONSUMER_INTEGRATION_NOT_PROVEN",
+      "approval_gate_tested": true,
+      "atomic_mid_fail_tested": true,
+      "logs": "docs/ops/campaigns/EXTRA-PRS-186-187-TRUST-HARDENING-01/logs/b12-evidence-*"
     },
     "non_claims": [
       "web-cfg published",
       "CONSUMER_INTEGRATION_NOT_PROVEN",
       "live_postgres_250k_not_run",
-      "human_approval_not_auto_granted"
-    ],
-    "note": "final_head is origin tip at pin write time; subsequent docs-only pin commit may advance tip by 1. code_head is last functional skeptic remediation for pSEO.",
-    "code_head": "4a88ca02121ac89c8eb57faabe781bebdf36b01a"
+      "production_human_approval_artifact"
+    ]
   },
   "merged": false,
-  "deployed": false,
-  "skeptic_remediation": [
-    "deep_strip_forbidden removed from export path",
-    "require_commit_entrypoint=True on atomic promote",
-    "classifier by_segment precision asserted",
-    "load_from_db incremental classify no raw materialize",
-    "visual matrix /__visual_matrix + expanded e2e",
-    "concurrent enqueue IntegrityError recovery",
-    "result.json HEADs pinned to tips"
-  ]
+  "deployed": false
 }
