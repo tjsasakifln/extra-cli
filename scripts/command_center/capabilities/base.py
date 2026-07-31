@@ -5,10 +5,11 @@ from __future__ import annotations
 import importlib
 import shutil
 import sys
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import StrEnum
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 from scripts.command_center.config import REPO_ROOT
 
@@ -71,7 +72,11 @@ class Capability:
             except Exception:
                 # Also accept file path presence for scripts packages
                 pathish = REPO_ROOT / Path(*mod.split("."))
-                if pathish.with_suffix(".py").exists() or (pathish / "__init__.py").exists() or (pathish / "__main__.py").exists():
+                if (
+                    pathish.with_suffix(".py").exists()
+                    or (pathish / "__init__.py").exists()
+                    or (pathish / "__main__.py").exists()
+                ):
                     continue
                 return (
                     Availability.MISSING_MODULE,

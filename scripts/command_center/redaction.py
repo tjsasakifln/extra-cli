@@ -52,8 +52,7 @@ def redact_mapping(data: dict[str, Any]) -> dict[str, Any]:
             cleaned[key] = redact_text(value)
         elif isinstance(value, list):
             cleaned[key] = [
-                redact_mapping(v) if isinstance(v, dict) else redact_text(v) if isinstance(v, str) else v
-                for v in value
+                redact_mapping(v) if isinstance(v, dict) else redact_text(v) if isinstance(v, str) else v for v in value
             ]
         else:
             cleaned[key] = value

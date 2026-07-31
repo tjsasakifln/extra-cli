@@ -50,12 +50,9 @@ HUMAN_STATUS: dict[str, str] = {
     JobState.TIMED_OUT: "Tempo esgotado — a execução foi interrompida por timeout.",
     JobState.UNAVAILABLE: "Ainda não disponível nesta versão do repositório.",
     "BLOCKED_INSUFFICIENT_HUMAN_LABELS": (
-        "A automação foi concluída, mas o ranking ainda precisa da sua avaliação "
-        "antes de qualquer uso comercial."
+        "A automação foi concluída, mas o ranking ainda precisa da sua avaliação antes de qualquer uso comercial."
     ),
-    "BLOCKED_HUMAN_DUAL_LABELING": (
-        "Há evidência parcial, mas o aceite exige rotulagem humana independente."
-    ),
+    "BLOCKED_HUMAN_DUAL_LABELING": ("Há evidência parcial, mas o aceite exige rotulagem humana independente."),
     "BLOCKED_EXTERNAL": "Dependência externa indisponível ou não validada.",
     "REAL_DATA_EVIDENCE_PENDING": "Falta evidência com dados reais para fechar este item.",
     "READY_FOR_HUMAN_ACCEPTANCE": "Pronto para revisão humana — nada foi aceito automaticamente.",

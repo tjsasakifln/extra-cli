@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import os
 from pathlib import Path
 
 import pytest
@@ -19,7 +18,6 @@ from scripts.command_center.status_normalize import normalize_exit
 @pytest.fixture()
 def client(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> TestClient:
     data = tmp_path / "cc-data"
-    root = Path(__file__).resolve().parents[2]
     out = tmp_path / "output"
     out.mkdir()
     (out / "sample.json").write_text('{"ok": true, "password": "super-secret"}\n', encoding="utf-8")
@@ -117,9 +115,10 @@ def test_capabilities_missing_degrade(client: TestClient) -> None:
     items = {c["id"]: c for c in res.json()["capabilities"]}
     assert items["cc.fixture.echo"]["availability"] == "available"
     assert items["missing.example"]["availability"] == "missing_module"
-    assert "não disponível" in (items["missing.example"]["unavailable_reason"] or "").lower() or "disponível" in (
-        items["missing.example"]["unavailable_reason"] or ""
-    ).lower()
+    assert (
+        "não disponível" in (items["missing.example"]["unavailable_reason"] or "").lower()
+        or "disponível" in (items["missing.example"]["unavailable_reason"] or "").lower()
+    )
 
 
 def test_reject_arbitrary_command_params(client: TestClient) -> None:

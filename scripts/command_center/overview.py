@@ -55,7 +55,9 @@ def build_overview(settings: Settings, store: Store, registry: CapabilityRegistr
 
     # Profile presence (no secret content)
     profile_path = Path("config/client_profiles/extra.yaml")
-    profile_state = "presente" if (settings and (Path(__file__).resolve().parents[2] / profile_path).exists()) else "ausente"
+    profile_state = (
+        "presente" if (settings and (Path(__file__).resolve().parents[2] / profile_path).exists()) else "ausente"
+    )
     if profile_state == "ausente":
         attention.append(
             {
@@ -96,7 +98,11 @@ def build_overview(settings: Settings, store: Store, registry: CapabilityRegistr
         "quick_actions": [
             {"id": "extra.profile.validate", "label": "Validar perfil Extra", "href": "/extra"},
             {"id": "extra.weekly.run", "label": "Ciclo semanal", "href": "/extra"},
-            {"id": "confenge.suppliers.cycle.run", "label": "Ciclo comercial fornecedores", "href": "/confenge/suppliers"},
+            {
+                "id": "confenge.suppliers.cycle.run",
+                "label": "Ciclo comercial fornecedores",
+                "href": "/confenge/suppliers",
+            },
             {"id": "confenge.public_agencies.cycle.run", "label": "Órgãos públicos", "href": "/confenge/agencies"},
             {"id": "process_documents.coverage", "label": "Cobertura documental", "href": "/documents"},
             {"id": "dod.status", "label": "Status DOD", "href": "/dod"},

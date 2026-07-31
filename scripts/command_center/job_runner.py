@@ -8,9 +8,9 @@ import threading
 import time
 import uuid
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 from scripts.command_center.capabilities.base import Availability, Capability, default_parse
 from scripts.command_center.capabilities.registry import CapabilityRegistry
@@ -22,7 +22,7 @@ from scripts.command_center.store import JobRecord, Store
 
 
 def _utcnow() -> str:
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(UTC).isoformat()
 
 
 @dataclass
@@ -59,9 +59,7 @@ class JobRunner:
         if cap.requires_confirmation:
             phrase = (cap.confirmation_phrase or "CONFIRMO").strip()
             if not req.confirmation or req.confirmation.strip() != phrase:
-                raise ValueError(
-                    f"Confirmação obrigatória. Digite exatamente: {phrase}"
-                )
+                raise ValueError(f"Confirmação obrigatória. Digite exatamente: {phrase}")
 
         try:
             argv = assert_argv_list(cap.argv_builder(params))
@@ -155,25 +153,27 @@ class JobRunner:
         if started:
             try:
                 duration = int(
-                    (datetime.fromisoformat(finished) - datetime.fromisoformat(started)).total_seconds()
-                    * 1000
+                    (datetime.fromisoformat(finished) - datetime.fromisoformat(started)).total_seconds() * 1000
                 )
             except ValueError:
                 duration = None
         status = normalize_exit(exit_code, cancelled=True)
         public = public_status_dict(status)
-        rec = self.store.patch_job(
-            job_id,
-            cancel_requested=True,
-            status=public["state"],
-            technical_code=public.get("technical_code"),
-            human_message=public.get("human_message"),
-            attention=public.get("attention"),
-            next_action=public.get("next_action"),
-            exit_code=exit_code,
-            finished_at=finished,
-            duration_ms=duration,
-        ) or rec
+        rec = (
+            self.store.patch_job(
+                job_id,
+                cancel_requested=True,
+                status=public["state"],
+                technical_code=public.get("technical_code"),
+                human_message=public.get("human_message"),
+                attention=public.get("attention"),
+                next_action=public.get("next_action"),
+                exit_code=exit_code,
+                finished_at=finished,
+                duration_ms=duration,
+            )
+            or rec
+        )
         self.store.audit("system", "job.finished", {"job_id": job_id, "status": JobState.CANCELLED.value})
         self._log(job_id, "system", "info", "Finalizado: CANCELLED")
         if rec:
@@ -188,12 +188,15 @@ class JobRunner:
             self._finish_cancelled(job_id)
             return
 
-        rec = self.store.patch_job(
-            job_id,
-            status=JobState.VALIDATING.value,
-            human_message="Validando parâmetros e pré-requisitos.",
-            attention="running",
-        ) or rec
+        rec = (
+            self.store.patch_job(
+                job_id,
+                status=JobState.VALIDATING.value,
+                human_message="Validando parâmetros e pré-requisitos.",
+                attention="running",
+            )
+            or rec
+        )
         self._emit(job_id, {"type": "status", "job": rec.to_public()})
         self._log(job_id, "system", "info", f"Iniciando {cap.id}")
 
@@ -201,13 +204,16 @@ class JobRunner:
             self._finish_cancelled(job_id)
             return
 
-        rec = self.store.patch_job(
-            job_id,
-            status=JobState.RUNNING.value,
-            started_at=_utcnow(),
-            human_message="Em execução — acompanhe o progresso nos logs.",
-            attention="running",
-        ) or rec
+        rec = (
+            self.store.patch_job(
+                job_id,
+                status=JobState.RUNNING.value,
+                started_at=_utcnow(),
+                human_message="Em execução — acompanhe o progresso nos logs.",
+                attention="running",
+            )
+            or rec
+        )
         self._emit(job_id, {"type": "status", "job": rec.to_public()})
 
         if self._is_cancelled(job_id):
@@ -222,7 +228,8 @@ class JobRunner:
         argv = list(rec.canonical_command)
 
         try:
-            proc = subprocess.Popen(
+            # argv comes only from allowlisted capability builders (never shell=True).
+            proc = subprocess.Popen(  # noqa: S603
                 argv,
                 cwd=str(Path(__file__).resolve().parents[2]),
                 stdout=subprocess.PIPE,
@@ -281,17 +288,11 @@ class JobRunner:
                             self._log(job_id, name, "info", safe)
                             self._emit(job_id, {"type": "log", "stream": name, "message": safe})
             finally:
-                try:
+                if stream is not None:
                     stream.close()
-                except Exception:
-                    pass
 
-        t_out = threading.Thread(
-            target=pump, args=(proc.stdout, "stdout", stdout_buf, stdout_path), daemon=True
-        )
-        t_err = threading.Thread(
-            target=pump, args=(proc.stderr, "stderr", stderr_buf, stderr_path), daemon=True
-        )
+        t_out = threading.Thread(target=pump, args=(proc.stdout, "stdout", stdout_buf, stdout_path), daemon=True)
+        t_err = threading.Thread(target=pump, args=(proc.stderr, "stderr", stderr_buf, stderr_path), daemon=True)
         t_out.start()
         t_err.start()
 
@@ -357,29 +358,28 @@ class JobRunner:
             }
 
         finished = _utcnow()
-        started = (
-            datetime.fromisoformat(rec.started_at)
-            if rec.started_at
-            else datetime.now(timezone.utc)
-        )
+        started = datetime.fromisoformat(rec.started_at) if rec.started_at else datetime.now(UTC)
         duration = int((datetime.fromisoformat(finished) - started).total_seconds() * 1000)
         # Final merge preserves cancel_requested if set mid-write
-        rec = self.store.patch_job(
-            job_id,
-            status=public["state"],
-            technical_code=public.get("technical_code"),
-            human_message=public.get("human_message"),
-            attention=public.get("attention"),
-            next_action=public.get("next_action"),
-            exit_code=exit_code,
-            finished_at=finished,
-            duration_ms=duration,
-            artifacts=list(parsed.get("artifacts") or []),
-            output_paths=list(parsed.get("artifacts") or []),
-            blocker=parsed.get("blocker"),
-            manifests=list(parsed.get("manifests") or []),
-            run_id=parsed.get("run_id"),
-        ) or rec
+        rec = (
+            self.store.patch_job(
+                job_id,
+                status=public["state"],
+                technical_code=public.get("technical_code"),
+                human_message=public.get("human_message"),
+                attention=public.get("attention"),
+                next_action=public.get("next_action"),
+                exit_code=exit_code,
+                finished_at=finished,
+                duration_ms=duration,
+                artifacts=list(parsed.get("artifacts") or []),
+                output_paths=list(parsed.get("artifacts") or []),
+                blocker=parsed.get("blocker"),
+                manifests=list(parsed.get("manifests") or []),
+                run_id=parsed.get("run_id"),
+            )
+            or rec
+        )
         # If cancel won the race on final patch
         rec_check = self.store.get_job(job_id)
         if rec_check and rec_check.cancel_requested and rec_check.status != JobState.CANCELLED.value:
@@ -481,10 +481,7 @@ class JobRunner:
         with self._lock:
             subs = list(self._subscribers.get(job_id, []))
         for q in subs:
-            try:
-                q.put(event)
-            except Exception:
-                pass
+            q.put(event)
 
     def _log(self, job_id: str, stream: str, level: str, message: str) -> None:
         self.store.append_log(job_id, stream, level, redact_text(message))

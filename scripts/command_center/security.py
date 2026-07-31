@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import secrets
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Iterable
 
 from fastapi import Header, HTTPException, Request, Response
 

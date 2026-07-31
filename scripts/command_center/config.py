@@ -52,7 +52,8 @@ class Settings:
 def load_settings() -> Settings:
     data_dir = Path(os.environ.get("CC_DATA_DIR", str(_default_data_dir()))).resolve()
     host = os.environ.get("CC_HOST", "127.0.0.1")
-    if host in {"0.0.0.0", "::", "[::]"} and os.environ.get("CC_ALLOW_PUBLIC_BIND") != "1":
+    # Explicit denylist of public binds — never the listen address by default.
+    if host in {"0.0.0.0", "::", "[::]"} and os.environ.get("CC_ALLOW_PUBLIC_BIND") != "1":  # noqa: S104
         host = "127.0.0.1"
     port = int(os.environ.get("CC_PORT", "8765"))
     spa = os.environ.get("CC_SPA_DIST")
@@ -84,8 +85,8 @@ def load_settings() -> Settings:
 
 def git_sha(short: bool = True) -> str:
     try:
-        out = subprocess.run(
-            ["git", "rev-parse", "--short" if short else "HEAD", "HEAD"],
+        out = subprocess.run(  # noqa: S603
+            ["git", "rev-parse", "--short" if short else "HEAD", "HEAD"],  # noqa: S607
             cwd=REPO_ROOT,
             capture_output=True,
             text=True,

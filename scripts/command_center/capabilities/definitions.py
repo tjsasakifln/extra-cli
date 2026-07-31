@@ -201,8 +201,7 @@ def all_capabilities() -> list[Capability]:
             risk=RiskLevel.HUMAN_DECISION,
             requires_confirmation=True,
             confirmation_phrase=(
-                "Confirmo que revisei os dados e autorizo apenas a geração local "
-                "do pacote de decisão (sem outreach)."
+                "Confirmo que revisei os dados e autorizo apenas a geração local do pacote de decisão (sem outreach)."
             ),
             output_roots=["output"],
             parse_result=default_parse,

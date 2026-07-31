@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import json
 import time
-from pathlib import Path
 from typing import Any
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request, Response
@@ -266,15 +265,14 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             known = {i.get("job_id") for i in items if i.get("job_id")}
             for j in store.list_jobs(limit=100):
                 if j.status == "BLOCKED_HUMAN" and j.job_id not in known:
-                    rid = store.enqueue_review(
+                    store.enqueue_review(
                         title=f"Revisão necessária: {j.action}",
                         source=j.capability_id,
                         evidence=(
                             f"Job {j.job_id}; status {j.status}; "
                             f"código {j.technical_code}; artifacts: {j.artifacts[:5]}"
                         ),
-                        limitations=j.human_message
-                        or "Automação concluída, mas a decisão humana ainda é necessária.",
+                        limitations=j.human_message or "Automação concluída, mas a decisão humana ainda é necessária.",
                         risks="Aceitar sem evidência pode propagar classificação incorreta.",
                         job_id=j.job_id,
                         capability_id=j.capability_id,
@@ -343,7 +341,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             payload=body.payload,
         )
         store.mark_review_decided(body.item_id, decision)
-        store.audit(body.actor, "decision.save", {"decision_id": decision_id, "item_id": body.item_id, "decision": decision})
+        store.audit(
+            body.actor, "decision.save", {"decision_id": decision_id, "item_id": body.item_id, "decision": decision}
+        )
         return {"ok": True, "decision_id": decision_id}
 
     @app.get("/api/preferences/{key}")

@@ -6,17 +6,18 @@ import json
 import sqlite3
 import threading
 import uuid
+from collections.abc import Iterator
 from contextlib import contextmanager
 from dataclasses import asdict, dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Iterator
+from typing import Any
 
 from scripts.command_center.status_normalize import JobState
 
 
 def _utcnow() -> str:
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(UTC).isoformat()
 
 
 @dataclass
@@ -315,12 +316,19 @@ class Store:
         for j in jobs:
             counts[j.status] = counts.get(j.status, 0) + 1
         counts["total"] = len(jobs)
-        counts["active"] = len([j for j in jobs if j.status in {
-            JobState.QUEUED.value,
-            JobState.VALIDATING.value,
-            JobState.RUNNING.value,
-            JobState.CANCELLING.value,
-        }])
+        counts["active"] = len(
+            [
+                j
+                for j in jobs
+                if j.status
+                in {
+                    JobState.QUEUED.value,
+                    JobState.VALIDATING.value,
+                    JobState.RUNNING.value,
+                    JobState.CANCELLING.value,
+                }
+            ]
+        )
         return counts
 
     def enqueue_review(
