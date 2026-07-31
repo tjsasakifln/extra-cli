@@ -1,0 +1,20 @@
+
+> extra-command-center@0.1.0 test:visual
+> playwright test e2e/visual-matrix.spec.ts
+
+[WebServer] INFO:     Started server process [379303]
+[WebServer] INFO:     Waiting for application startup.
+[WebServer] INFO:     Application startup complete.
+
+Running 8 tests using 1 worker
+
+  ✓  1 e2e/visual-matrix.spec.ts:23:5 › visual + a11y matrix › home light theme axe + screenshot (2.4s)
+  ✓  2 e2e/visual-matrix.spec.ts:23:5 › visual + a11y matrix › home dark theme axe + screenshot (2.5s)
+  ✓  3 e2e/visual-matrix.spec.ts:46:5 › visual + a11y matrix › home responsive 1440 (308ms)
+  ✓  4 e2e/visual-matrix.spec.ts:46:5 › visual + a11y matrix › home responsive 1280 (259ms)
+  ✓  5 e2e/visual-matrix.spec.ts:46:5 › visual + a11y matrix › home responsive 1024 (272ms)
+  ✓  6 e2e/visual-matrix.spec.ts:46:5 › visual + a11y matrix › home responsive 768 (224ms)
+  ✓  7 e2e/visual-matrix.spec.ts:46:5 › visual + a11y matrix › home responsive 390 (267ms)
+  ✓  8 e2e/visual-matrix.spec.ts:60:3 › visual + a11y matrix › command palette opens and traps focus (753ms)
+
+  8 passed (11.9s)

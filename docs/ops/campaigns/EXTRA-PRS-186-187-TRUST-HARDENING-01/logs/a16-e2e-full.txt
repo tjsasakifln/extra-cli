@@ -1,0 +1,65 @@
+
+> extra-command-center@0.1.0 test:e2e
+> playwright test
+
+[WebServer] INFO:     Started server process [376821]
+[WebServer] INFO:     Waiting for application startup.
+[WebServer] INFO:     Application startup complete.
+
+Running 52 tests using 1 worker
+
+  ✓   1 e2e/a11y.spec.ts:8:5 › Accessibility axe (main routes) › axe no critical/serious on / (1.6s)
+  ✓   2 e2e/a11y.spec.ts:8:5 › Accessibility axe (main routes) › axe no critical/serious on /work/start (1.7s)
+  ✓   3 e2e/a11y.spec.ts:8:5 › Accessibility axe (main routes) › axe no critical/serious on /review (1.3s)
+  ✓   4 e2e/a11y.spec.ts:8:5 › Accessibility axe (main routes) › axe no critical/serious on /results (12.7s)
+  ✓   5 e2e/a11y.spec.ts:8:5 › Accessibility axe (main routes) › axe no critical/serious on /compare (1.3s)
+  ✓   6 e2e/a11y.spec.ts:8:5 › Accessibility axe (main routes) › axe no critical/serious on /onboarding (1.3s)
+  ✓   7 e2e/a11y.spec.ts:8:5 › Accessibility axe (main routes) › axe no critical/serious on /extra (1.5s)
+  ✓   8 e2e/route-census.spec.ts:24:5 › route census › route / renders main content (561ms)
+  ✓   9 e2e/route-census.spec.ts:24:5 › route census › route /work/start renders main content (203ms)
+  ✓  10 e2e/route-census.spec.ts:24:5 › route census › route /compare renders main content (192ms)
+  ✓  11 e2e/route-census.spec.ts:24:5 › route census › route /extra renders main content (201ms)
+  ✓  12 e2e/route-census.spec.ts:24:5 › route census › route /confenge/suppliers renders main content (196ms)
+  ✓  13 e2e/route-census.spec.ts:24:5 › route census › route /confenge/agencies renders main content (198ms)
+  ✓  14 e2e/route-census.spec.ts:24:5 › route census › route /documents renders main content (211ms)
+  ✓  15 e2e/route-census.spec.ts:24:5 › route census › route /ops renders main content (212ms)
+  ✓  16 e2e/route-census.spec.ts:24:5 › route census › route /dod renders main content (195ms)
+  ✓  17 e2e/route-census.spec.ts:24:5 › route census › route /actions renders main content (227ms)
+  ✓  18 e2e/route-census.spec.ts:24:5 › route census › route /jobs renders main content (187ms)
+  ✓  19 e2e/route-census.spec.ts:24:5 › route census › route /review renders main content (224ms)
+  ✓  20 e2e/route-census.spec.ts:24:5 › route census › route /results renders main content (245ms)
+  ✓  21 e2e/route-census.spec.ts:24:5 › route census › route /search renders main content (189ms)
+  ✓  22 e2e/route-census.spec.ts:24:5 › route census › route /onboarding renders main content (210ms)
+  ✓  23 e2e/route-census.spec.ts:50:3 › route census › invalid route shows NotFound, not silent home redirect (221ms)
+  ✓  24 e2e/smoke.spec.ts:4:3 › Command Center critical flows › opens app, shows actions, runs fixture job (1.0s)
+  ✓  25 e2e/smoke.spec.ts:16:3 › Command Center critical flows › theme toggle and command palette (612ms)
+  ✓  26 e2e/smoke.spec.ts:27:3 › Command Center critical flows › keyboard main nav reaches Extra and Documents (326ms)
+  ✓  27 e2e/smoke.spec.ts:37:3 › Command Center critical flows › global search and open artifact sample (378ms)
+  ✓  28 e2e/smoke.spec.ts:64:3 › Command Center critical flows › confenge logo is present in shell (184ms)
+  ✓  29 e2e/smoke.spec.ts:70:3 › Command Center critical flows › secrets absent in DOM from health-backed UI (594ms)
+  ✓  30 e2e/smoke.spec.ts:82:3 › Command Center critical flows › rejects arbitrary command params via API surface (19ms)
+  ✓  31 e2e/smoke.spec.ts:101:3 › Command Center critical flows › human review queue is not a hardcoded demo only (417ms)
+  ✓  32 e2e/visual-matrix.spec.ts:23:5 › visual + a11y matrix › home light theme axe + screenshot (2.2s)
+  ✓  33 e2e/visual-matrix.spec.ts:23:5 › visual + a11y matrix › home dark theme axe + screenshot (2.3s)
+  ✓  34 e2e/visual-matrix.spec.ts:46:5 › visual + a11y matrix › home responsive 1440 (298ms)
+  ✓  35 e2e/visual-matrix.spec.ts:46:5 › visual + a11y matrix › home responsive 1280 (319ms)
+  ✓  36 e2e/visual-matrix.spec.ts:46:5 › visual + a11y matrix › home responsive 1024 (286ms)
+  ✓  37 e2e/visual-matrix.spec.ts:46:5 › visual + a11y matrix › home responsive 768 (262ms)
+  ✓  38 e2e/visual-matrix.spec.ts:46:5 › visual + a11y matrix › home responsive 390 (260ms)
+  ✓  39 e2e/visual-matrix.spec.ts:60:3 › visual + a11y matrix › command palette opens and traps focus (740ms)
+  ✓  40 e2e/workbench.spec.ts:83:3 › Workbench consulting flows › home is outcome-first (482ms)
+  ✓  41 e2e/workbench.spec.ts:89:3 › Workbench consulting flows › catalog lists guided flows (215ms)
+  ✓  42 e2e/workbench.spec.ts:95:3 › Workbench consulting flows › demo mode is explicit; real preflight blocks honestly without DSN (304ms)
+  ✓  43 e2e/workbench.spec.ts:128:3 › Workbench consulting flows › mobile 390x844 guided start remains usable (212ms)
+  ✓  44 e2e/workbench.spec.ts:135:3 › Workbench consulting flows › task1: Extra PDF iframe and XLSX sheets (3.1s)
+  ✓  45 e2e/workbench.spec.ts:140:3 › Workbench consulting flows › task2: SC suppliers PDF and XLSX (2.6s)
+  ✓  46 e2e/workbench.spec.ts:145:3 › Workbench consulting flows › task3: agency review correction regenerate (4.1s)
+  ✓  47 e2e/workbench.spec.ts:274:3 › Workbench consulting flows › task4: process documents PDF coverage (3.6s)
+  ✓  48 e2e/workbench.spec.ts:282:3 › Workbench consulting flows › task5: compare shows real deltas between two runs (4.0s)
+  ✓  49 e2e/workbench.spec.ts:307:3 › Workbench consulting flows › review reject without rationale blocked (2.7s)
+  ✓  50 e2e/workbench.spec.ts:316:3 › Workbench consulting flows › mobile 390x844 start work (210ms)
+  ✓  51 e2e/workbench.spec.ts:323:3 › Workbench consulting flows › keyboard to Iniciar trabalho (252ms)
+  ✓  52 e2e/workbench.spec.ts:329:3 › Workbench consulting flows › reload recovers job (2.6s)
+
+  52 passed (3.3m)
+EXIT:0
