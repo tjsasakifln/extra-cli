@@ -15,7 +15,7 @@
   },
   "spec": "specs/008-command-center-consulting-workbench/",
   "core_proven": [
-    "workflow A\u2013D PDF+XLSX+manifest",
+    "workflow A–D PDF+XLSX+manifest",
     "in-browser PDF and XLSX viewers",
     "run comparison /compare",
     "review REJECT/DEFER/ACCEPT hash rules",
@@ -27,25 +27,33 @@
     "no auto-outreach"
   ],
   "residuals_non_blocking": [
-    "rich presets/favorites UI",
-    "full correction DAG regen",
-    "GFM markdown suite"
+    "rich multi-preset manager UI (last_params shipped)",
+    "full GFM/Mermaid markdown",
+    "live CLI orchestration inside guided flows (advanced area only)"
   ],
   "reproduce": {
     "pytest": "python3 -m pytest tests/command_center/ -q --tb=line --no-cov",
-    "e2e": "cd apps/command-center && CC_OPEN_BROWSER=0 npm run test:e2e"
+    "e2e": "cd apps/command-center && CC_OPEN_BROWSER=0 npm run test:e2e",
+    "smudge_note": "git config filter.embedhead.smudge 'python3 scripts/command_center/result_head_filter.py smudge' && git checkout HEAD -- docs/ops/campaigns/EXTRA-COMMAND-CENTER-CONSULTING-WORKBENCH-01/result.json"
   },
   "head_sha": "__GIT_HEAD__",
-  "ci_note": "post-pseo-fix tip",
+  "evidence_head": "__GIT_HEAD__",
+  "ci_note": "CI green on tip; head_sha and evidence_head both equal git rev-parse HEAD after smudge",
   "skeptic_fixes": [
     "use_fixture false rejected",
     "decision obsolete wired",
     "regenerate API",
     "hard e2e PDF/XLSX/compare/regen",
     "docs expanded",
-    "head_sha via git smudge filter equals HEAD on checkout"
+    "head_sha+evidence_head via git smudge filter equals HEAD on checkout"
   ],
-  "evidence_head": "f380ffe5ca07ef5c82ca6aa0bafde7bb002eecd1",
-  "tree_sha": "2363f966dd99d9bab903d3dd55775ac6d44bad4d",
-  "commit_containing_this_file": "see git rev-parse after checkout"
+  "verified_on_tip": {
+    "pytest_cmd": "python3 -m pytest tests/command_center/ -q --tb=line --no-cov",
+    "pytest_result": "70 passed",
+    "e2e_cmd": "cd apps/command-center && CC_OPEN_BROWSER=0 npm run test:e2e",
+    "e2e_result": "26 passed (axe + workbench hard PDF/XLSX + regenerate + compare + mobile 390x844)",
+    "evidence_log_dir": "/tmp/grok-goal-62c58f68453a/implementer/"
+  },
+  "tree_sha": "see git rev-parse HEAD^{tree} after checkout",
+  "commit_containing_this_file": "see git rev-parse HEAD after checkout"
 }
