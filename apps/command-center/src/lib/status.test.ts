@@ -1,0 +1,22 @@
+import { describe, expect, it } from "vitest";
+import { attentionFromState, translateStatus } from "./status";
+
+describe("translateStatus", () => {
+  it("maps BLOCKED_INSUFFICIENT_HUMAN_LABELS to human text", () => {
+    const msg = translateStatus("BLOCKED_INSUFFICIENT_HUMAN_LABELS");
+    expect(msg).toMatch(/avaliação/i);
+    expect(msg).not.toMatch(/^exit_code/);
+  });
+
+  it("prefers explicit fallback message", () => {
+    expect(translateStatus("FAILED", "Falha local de teste")).toBe("Falha local de teste");
+  });
+});
+
+describe("attentionFromState", () => {
+  it("distinguishes human block from technical failure", () => {
+    expect(attentionFromState("BLOCKED_HUMAN")).toBe("awaiting_human");
+    expect(attentionFromState("FAILED")).toBe("blocked_technical");
+    expect(attentionFromState("SUCCEEDED")).toBe("proven");
+  });
+});

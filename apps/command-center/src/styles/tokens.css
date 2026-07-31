@@ -1,0 +1,94 @@
+:root {
+  color-scheme: light;
+
+  --font-sans: "IBM Plex Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-mono: "IBM Plex Mono", "SF Mono", ui-monospace, Menlo, monospace;
+
+  --bg: #f4f2ec;
+  --bg-elevated: #fffcf7;
+  --bg-muted: #ebe6db;
+  --bg-hover: #e3ddd0;
+  --border: #d5cebf;
+  --border-strong: #b7ae9a;
+  --text: #1c1914;
+  --text-secondary: #5b554a;
+  --text-muted: #7a7366;
+  --accent: #0f4c5c;
+  --accent-hover: #0b3a46;
+  --accent-soft: #d7e8ec;
+  --focus: #1d6f8a;
+  --danger: #8b2e2e;
+  --danger-soft: #f3d9d9;
+  --warning: #8a5a10;
+  --warning-soft: #f6e7c8;
+  --success: #1f5b38;
+  --success-soft: #d7ecdf;
+  --info: #1e4d8c;
+  --info-soft: #d9e6f7;
+  --human: #5c3d8a;
+  --human-soft: #ebe1f7;
+  --external: #7a4a12;
+  --external-soft: #f5e4cc;
+  --partial: #6b5a16;
+  --partial-soft: #f3ecc8;
+  --running: #0f4c5c;
+  --running-soft: #d7e8ec;
+  --shadow: 0 1px 2px rgba(28, 25, 20, 0.06), 0 8px 24px rgba(28, 25, 20, 0.06);
+  --radius-sm: 6px;
+  --radius: 10px;
+  --radius-lg: 14px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --nav-width: 260px;
+  --header-height: 56px;
+  --content-max: 1280px;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #121410;
+  --bg-elevated: #1a1c17;
+  --bg-muted: #23261f;
+  --bg-hover: #2c3028;
+  --border: #353a30;
+  --border-strong: #4a5143;
+  --text: #f2efe6;
+  --text-secondary: #c4bdb0;
+  --text-muted: #958f82;
+  --accent: #7ec8d8;
+  --accent-hover: #a6dceb;
+  --accent-soft: #1a333a;
+  --focus: #7ec8d8;
+  --danger: #f0a0a0;
+  --danger-soft: #3a2222;
+  --warning: #e6c07b;
+  --warning-soft: #3a3018;
+  --success: #8fd5a8;
+  --success-soft: #1d3326;
+  --info: #9bb8e8;
+  --info-soft: #1d2a40;
+  --human: #c4a6ef;
+  --human-soft: #2c2340;
+  --external: #e0b47a;
+  --external-soft: #3a2c18;
+  --partial: #d6c87a;
+  --partial-soft: #353018;
+  --running: #7ec8d8;
+  --running-soft: #1a333a;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 12px 32px rgba(0, 0, 0, 0.28);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
