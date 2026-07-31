@@ -29,11 +29,48 @@ _DEFAULT_SUPPLIER_OUT = (
 _DEFAULT_SUPPLIER_PROFILE = _ROOT / "config/commercial_profiles/confenge.yaml"
 
 
+def _registry_required() -> bool:
+    """Official registry fail-closed is on by default (same policy as registry wrapper)."""
+    return os.environ.get("CONFENGE_REQUIRE_OFFICIAL_REGISTRY", "1") not in {
+        "0",
+        "false",
+        "False",
+        "no",
+    }
+
+
 def _run_suppliers(argv_tail: list[str]) -> tuple[int, dict]:
+    """Run supplier modality via official-registry wrapper when required.
+
+    Architecture:
+    - frozen ``confenge_commercial_cycle`` stays suppliers-only (no --target)
+    - ``confenge_registry_commercial_cycle`` is the external precheck/publish wrapper
+    - this router must not silently bypass the registry when fail-closed is on
+    """
+    if _registry_required():
+        from scripts.ops import confenge_registry_commercial_cycle as registry_cycle
+
+        code = int(registry_cycle.main(argv_tail))
+        status = "PASS" if code == 0 else ("BLOCKED" if code == 2 else "FAIL")
+        return code, {
+            "status": status,
+            "exit_code": code,
+            "modality": "suppliers",
+            "entry": "confenge_registry_commercial_cycle",
+            "official_registry_required": True,
+        }
+
     from scripts.ops import confenge_commercial_cycle as supplier_cycle
 
     code = int(supplier_cycle.main(argv_tail))
-    return code, {"status": "PASS" if code == 0 else "FAIL", "exit_code": code}
+    status = "PASS" if code == 0 else ("BLOCKED" if code == 2 else "FAIL")
+    return code, {
+        "status": status,
+        "exit_code": code,
+        "modality": "suppliers",
+        "entry": "confenge_commercial_cycle",
+        "official_registry_required": False,
+    }
 
 
 def _run_public_agencies(args: argparse.Namespace) -> tuple[int, dict]:
@@ -198,14 +235,40 @@ def main(argv: list[str] | None = None) -> int:
             "ready_state": res.get("ready_state"),
         }
 
+    # Per-modality status is preserved; never average or promote one green modality.
+    combined["modality_exit_codes"] = {
+        k: (v.get("exit_code") if isinstance(v, dict) else None)
+        for k, v in combined["results"].items()
+    }
+    combined["any_fail"] = any(c == 1 for c in exits)
+    combined["any_blocked"] = any(c == 2 for c in exits)
+    combined["all_pass"] = bool(exits) and all(c == 0 for c in exits)
+
     if args.target == "all":
-        manifest_path = Path(args.out) / "combined-cycle-manifest.json"
-        manifest_path.parent.mkdir(parents=True, exist_ok=True)
-        combined["git_sha"] = git_sha()
-        manifest_path.write_text(
-            json.dumps(combined, indent=2, ensure_ascii=False, default=str) + "\n",
-            encoding="utf-8",
+        # Distinct combined summary path; individual modality artifacts stay separate.
+        base_out = Path(args.out)
+        pag_out = Path(
+            args.public_agency_out
+            or os.environ.get("CONFENGE_PUBLIC_AGENCY_OUT", str(_DEFAULT_PAG_OUT))
         )
+        combined["artifact_roots"] = {
+            "suppliers": str(base_out),
+            "public_agencies": str(pag_out),
+        }
+        combined["git_sha"] = git_sha()
+        combined["summary_note"] = (
+            "Combined summary only; modality statuses are independent. "
+            "One PASS does not approve the other."
+        )
+        for name, root in (
+            ("combined-cycle-manifest.json", base_out),
+            ("combined-cycle-manifest.json", pag_out),
+        ):
+            root.mkdir(parents=True, exist_ok=True)
+            (root / name).write_text(
+                json.dumps(combined, indent=2, ensure_ascii=False, default=str) + "\n",
+                encoding="utf-8",
+            )
 
     if not exits:
         return 1

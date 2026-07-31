@@ -225,20 +225,28 @@ def test_manifest_checksums_and_sha_binding(tmp_path: Path):
     assert m["outreach_sent"] is False
 
 
-def test_cycle_cli_target_public_agencies_help():
+def test_cycle_cli_target_public_agencies_help(monkeypatch, tmp_path):
     """Multi-target CLI is the router (freeze cycle remains suppliers-only)."""
     from scripts.ops import confenge_commercial_cycle as frozen_cycle
     from scripts.ops import confenge_commercial_target_router as router
 
     assert hasattr(router, "main")
     assert hasattr(frozen_cycle, "main")
-    # supplier via router: missing snapshot fails closed
+    # With official registry required (default), missing ACTIVE release fails closed (2).
+    monkeypatch.setenv("CONFENGE_REQUIRE_OFFICIAL_REGISTRY", "1")
+    monkeypatch.delenv("COMPANY_REGISTRY_ROOT", raising=False)
     code = router.main(
-        ["--target", "suppliers", "--dsn", "postgresql://x", "--out", "/tmp/nope"]
+        ["--target", "suppliers", "--dsn", "postgresql://x", "--out", str(tmp_path / "reg")]
     )
-    assert code == 1  # missing snapshot
+    assert code == 2  # BLOCKED_OFFICIAL_REGISTRY (or equivalent)
+    # Opt-out of registry: suppliers path still fails closed without snapshot (1).
+    monkeypatch.setenv("CONFENGE_REQUIRE_OFFICIAL_REGISTRY", "0")
+    code_no_reg = router.main(
+        ["--target", "suppliers", "--dsn", "postgresql://x", "--out", str(tmp_path / "nope")]
+    )
+    assert code_no_reg == 1  # missing snapshot
     # frozen suppliers entry also fails closed without snapshot (no --target flag)
-    code_frozen = frozen_cycle.main(["--dsn", "postgresql://x", "--out", "/tmp/nope"])
+    code_frozen = frozen_cycle.main(["--dsn", "postgresql://x", "--out", str(tmp_path / "frozen")])
     assert code_frozen == 1
 
 
