@@ -1,6 +1,6 @@
 {
-  "as_of": "2026-07-31T00:59:36.395459+00:00",
-  "git_head": "f3a0d309b0a2e97d50d7f02ddcaae603880d487e",
+  "as_of": "2026-07-31T01:00:07.005976+00:00",
+  "git_head": "f22d607243c4f0152087a8bddef26e53718d0676",
   "branch": "feat/public-process-documents-coverage",
   "issue_137": "CLOSED",
   "issue_137_closed_at": "2026-07-30T23:51:37Z",
@@ -32,5 +32,6 @@
     "ACCEPT_RESIDUAL_WIN_QUAL_OPEN_AND_CLOSE_137"
   ],
   "residual_policy": "PO residual waives gate exit for win/qual only; meets_threshold stays false; denominators not shrunk",
-  "ci_note": "ruff fixed on process_documents; full suite + critical readiness green on prior HEAD"
+  "ci_note": "ruff fixed on process_documents; full suite + critical readiness green on prior HEAD",
+  "code_head_ruff_clean": "f3a0d309b0a2e97d50d7f02ddcaae603880d487e"
 }
