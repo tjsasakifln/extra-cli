@@ -21,17 +21,26 @@ NEGATIVE_STRONG: list[tuple[str, str]] = [
     (r"\baluguel\s+de\s+(im[oó]vel|sala|pr[eé]dio)", "aluguel_imovel"),
     (r"\bloca[cç][aã]o\s+de\s+(m[aá]quinas?|equipamentos?|ve[ií]culos?|caminho?es?|retroescavadeira)", "locacao_equipamento"),
     (r"\baluguel\s+de\s+(m[aá]quinas?|equipamentos?|ve[ií]culos?|retroescavadeira|caminho?es?)", "locacao_equipamento"),
-    (r"\bcleaning\b|\blimpeza\s+(e\s+)?conserva|\bhigieni[zs]a[cç]", "limpeza"),
+    # Facility cleaning/janitorial — must beat "conservação predial" co-occurrence
+    (r"\bcleaning\b|\bhigieni[zs]a[cç]", "limpeza"),
+    (r"\blimpeza\b", "limpeza"),
+    (r"\basseio\b|\bcopeiragem\b|\bpreparo\s+de\s+caf[eé]\b", "limpeza"),
+    (r"\bservi[cç]os?\s+(continuados?\s+)?de\s+limpeza\b", "limpeza"),
+    (r"\blimpeza\s*[,/e]\s*(asseio|conserva|higieni)", "limpeza"),
+    # Occupational H&S engineering is not AEC works
+    (r"\bengenharia\s+de\s+seguran[cç]a(\s+do\s+trabalho)?\b", "eng_seguranca_trabalho"),
+    (r"\bseguran[cç]a\s+do\s+trabalho\b|\bsesmt\b|\bsa[uú]de\s+ocupacional\b", "eng_seguranca_trabalho"),
     (r"\bcopas?\s+e\s+cozinha\b|\brefei[cç][aã]o\s+coletiv", "alimentacao"),
     (r"\bcredenciamento\s+de\s+(escolas?|institui[cç]|fornecedor|empresas?)", "credenciamento_escolas"),
     (r"\b[oô]nibus\b|\bmicro[oô]nibus\b|\bvan\s+escolar\b|\btransporte\s+escolar\b", "onibus_transporte"),
     (r"\bve[ií]culo\s+rodovi[aá]rio\b|\bfrota\s+rodovi", "veiculo_rodoviario"),
-    (r"\baquisi[cç][aã]o\s+de\s+(material|materiais|equipamento|medicamento|g[eê]nero|ferramentas?)", "aquisicao_material"),
+    (r"\baquisi[cç][aã]o\s+de\s+(material|materiais|equipamentos?|medicamento|g[eê]nero|ferramentas?)", "aquisicao_material"),
     (r"\bfornecimento\s+de\s+(material|materiais|medicamento|g[eê]nero\s+aliment|ferramentas?)", "fornecimento_material"),
-    (r"\bcompra\s+de\s+(material|materiais|medicamento|equipamento|ferramentas?|ar[- ]condicionado)", "compra_material"),
+    (r"\bcompra\s+de\s+(material|materiais|medicamento|equipamentos?|ferramentas?|ar[- ]condicionado)", "compra_material"),
     (r"\bcompra\s+de\s+ar\b|\baquisi[cç][aã]o\s+de\s+ar[- ]condicionado\b", "compra_equipamento"),
-    (r"\baquisi[cç][aã]o\s+de\s+equipamento|\bcompra\s+de\s+equipamento", "compra_equipamento"),
-    (r"\bfornecimento\s+de\s+equipamento|\bfornecimento\s+de\s+aparelho", "compra_equipamento"),
+    (r"\baquisi[cç][aã]o\s+de\s+equipamentos?|\bcompra\s+de\s+equipamentos?", "compra_equipamento"),
+    (r"\bfornecimento\s+de\s+equipamentos?|\bfornecimento\s+de\s+aparelho", "compra_equipamento"),
+    (r"\bregistro\s+de\s+pre[cç]os\s+para\s+(aquisi[cç][aã]o|compra|fornecimento)", "compra_equipamento"),
     (r"\blicen[cç]a\s+de\s+software\b|\bassinatura\s+(anual\s+)?(de\s+)?(software|ferramenta|sistema|saas)\b", "software"),
     (r"\bsoftware\s+(de\s+)?(gest[aã]o|or[cç]amento|cloud)\b|\bferramenta\s+de\s+software\b|\bsaas\b", "software"),
     (r"\bcurso\s+de\s+capacita|\btreinamento\s+presencial\b|\bworkshop\b", "treinamento"),
@@ -208,11 +217,24 @@ def classify_objeto(objeto: str | None, *, extra: dict[str, Any] | None = None) 
     contextual = _hits(text, CONTEXTUAL_NEEDS_WORKS)
     has_works_co = bool(WORKS_CO_SIGNAL.search(text))
     is_purchase = bool(PURCHASE_ONLY.search(text))
-    # Ignore "sem mão de obra" when detecting installation signals
-    text_for_install = re.sub(r"\bsem\s+m[aã]o\s+de\s+obra\b", " ", text, flags=re.I)
+    # Ignore negations when detecting installation signals
+    text_for_install = re.sub(
+        r"\bsem\s+m[aã]o\s+de\s+obra\b|\bsem\s+instala[cç][aã]o\b|\bsem\s+montagem\b|"
+        r"\bexclu[ií]da?\s+a\s+instala[cç][aã]o\b|\bn[aã]o\s+inclui\s+instala[cç][aã]o\b",
+        " ",
+        text,
+        flags=re.I,
+    )
     has_install = bool(INSTALLATION_SIGNAL.search(text_for_install))
-    # Explicit exclusion of execution labor
-    excludes_labor = bool(re.search(r"\bsem\s+m[aã]o\s+de\s+obra\b|\bsem\s+opera[cç][aã]o\b|\bsomente\s+equipamento\b", text, re.I))
+    # Explicit exclusion of execution labor / installation
+    excludes_labor = bool(
+        re.search(
+            r"\bsem\s+m[aã]o\s+de\s+obra\b|\bsem\s+opera[cç][aã]o\b|\bsomente\s+equipamento\b|"
+            r"\bsem\s+instala[cç][aã]o\b|\bn[aã]o\s+inclui\s+instala[cç][aã]o\b",
+            text,
+            re.I,
+        )
+    )
 
     # Software / SaaS / assinatura always non_aec even if "engenharia" appears
     if "software" in neg or re.search(r"\bassinatura\s+anual\b|\blicen[cç]a\s+de\s+uso\b", text, re.I):
@@ -223,6 +245,45 @@ def classify_objeto(objeto: str | None, *, extra: dict[str, Any] | None = None) 
             negative_hits=neg + ["software"],
             positive_hits=strong,
             object_nature="fornecimento",
+        )
+
+    # Facility cleaning / janitorial / copeiragem — wins over conservação/manutenção predial
+    # (e.g. "limpeza, asseio, conservação predial e copeiragem")
+    structural_works = bool(
+        re.search(
+            r"obra\s+de\s+engenharia|empreitada|alvenaria|concreto\s+armado|"
+            r"paviment|execu[cç][aã]o\s+da\s+obra|projeto\s+executivo|"
+            r"reforma\s+(e\s+)?amplia|recuperação\s+estrutural",
+            text,
+            re.I,
+        )
+    )
+    if "limpeza" in neg or re.search(
+        r"\b(limpeza|asseio|copeiragem|higieni[zs]a[cç]|preparo\s+de\s+caf[eé])\b", text, re.I
+    ):
+        if not structural_works:
+            return ClassificationResult(
+                label="non_aec",
+                confidence=0.96,
+                reasons=["facility_cleaning_or_janitorial_not_aec_works"],
+                negative_hits=list(set(neg + ["limpeza"])),
+                positive_hits=strong,
+                object_nature="servico",
+            )
+
+    # Engenharia de segurança do trabalho / SESMT — occupational H&S, not AEC works
+    if "eng_seguranca_trabalho" in neg or re.search(
+        r"\bengenharia\s+de\s+seguran[cç]a|\bseguran[cç]a\s+do\s+trabalho\b|\bsesmt\b",
+        text,
+        re.I,
+    ):
+        return ClassificationResult(
+            label="non_aec",
+            confidence=0.96,
+            reasons=["occupational_health_safety_engineering_not_aec"],
+            negative_hits=list(set(neg + ["eng_seguranca_trabalho"])),
+            positive_hits=strong,
+            object_nature="servico",
         )
 
     # Locação de máquinas/equipamentos — never aec_confirmed if labor excluded or no works package
@@ -244,7 +305,7 @@ def classify_objeto(objeto: str | None, *, extra: dict[str, Any] | None = None) 
         "locacao_imovel", "aluguel_imovel", "limpeza", "alimentacao",
         "credenciamento_escolas", "onibus_transporte", "veiculo_rodoviario",
         "software", "treinamento", "seguro_saude", "publicidade", "vigilancia",
-        "merenda_uniforme", "medicamento_alimento",
+        "merenda_uniforme", "medicamento_alimento", "eng_seguranca_trabalho",
     }
     if any(n in hard_non for n in neg) and not has_install:
         return ClassificationResult(
@@ -256,18 +317,31 @@ def classify_objeto(objeto: str | None, *, extra: dict[str, Any] | None = None) 
             object_nature=nature,
         )
 
+    # serv_engenharia alone is too broad — require works co-signal (obra/fiscalização/empreitada)
+    # strip from strong if no real works package
+    if "serv_engenharia" in strong and not re.search(
+        r"fiscaliza[cç][aã]o\s+de\s+obras?|obra\s+de\s+engenharia|empreitada|"
+        r"projeto\s+executivo|execu[cç][aã]o\s+(da\s+)?obra|apoio\s+t[eé]cnico.*"
+        r"(obra|fiscaliza)|manuten[cç][aã]o\s+predial\s+(corretiva|preventiva)",
+        text,
+        re.I,
+    ):
+        strong = [s for s in strong if s != "serv_engenharia"]
+
     # Equipment / material purchase without installation/execution → non_aec
     # (even if product keywords like ar-condicionado or manutenção predial appear)
     supply_tags = {
         "aquisicao_material", "fornecimento_material", "compra_material", "compra_equipamento",
     }
-    if any(n in supply_tags for n in neg) or (is_purchase and not has_install):
-        if not has_install:
+    if any(n in supply_tags for n in neg) or (is_purchase and not has_install) or excludes_labor:
+        if not has_install or excludes_labor:
             return ClassificationResult(
                 label="non_aec",
                 confidence=0.93,
                 reasons=["equipment_or_material_purchase_without_installation"],
-                negative_hits=neg + (["purchase_only"] if is_purchase else []),
+                negative_hits=neg + (["purchase_only"] if is_purchase else []) + (
+                    ["excludes_labor_or_install"] if excludes_labor else []
+                ),
                 positive_hits=strong,
                 object_nature="fornecimento",
             )

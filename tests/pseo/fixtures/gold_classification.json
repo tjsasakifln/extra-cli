@@ -713,13 +713,13 @@
   },
   {
     "objeto": "Compra de equipamento de ar-condicionado tipo janela 18000 BTUs sem instalação",
-    "expected_label": "insufficient_context",
+    "expected_label": "non_aec",
     "segment": "equipamento",
     "region": "SP",
     "value_band": "ate_100k",
     "reviewer": "tiago",
     "review_date": "2026-07-31",
-    "justificativa": "compra AC",
+    "justificativa": "compra AC | non_aec: compra equipamento sem instalação",
     "origem_publica": "gold-stratified"
   },
   {
@@ -743,5 +743,59 @@
     "review_date": "2026-07-31",
     "justificativa": "rede coletora esgoto",
     "origem_publica": "gold-stratified"
+  },
+  {
+    "objeto": "contratação de serviços de limpeza, asseio, conservação predial e copeiragem no paço municipal, Fussifarma e demais órgãos",
+    "expected_label": "non_aec",
+    "segment": "limpeza",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "Facility services package; limpeza/asseio/copeiragem win over conservação predial keyword",
+    "origem_publica": "pncp_supplier_contracts live aggregate market-manutencao-predial-engenharia-sp"
+  },
+  {
+    "objeto": "SERVIÇOS CONTÍNUOS DE LIMPEZA, ASSEIO E CONSERVAÇÃO PREDIAL DA SEDE DO 51º BPMI",
+    "expected_label": "non_aec",
+    "segment": "limpeza",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "Janitorial continuous services, not engineering maintenance works",
+    "origem_publica": "pncp_supplier_contracts live aggregate"
+  },
+  {
+    "objeto": "Contratação de serviços continuados de limpeza, atendimento, conservação predial e preparo de café da sede administrativa",
+    "expected_label": "non_aec",
+    "segment": "limpeza",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "Limpeza + preparo de café is facility ops, not AEC",
+    "origem_publica": "pncp_supplier_contracts live aggregate"
+  },
+  {
+    "objeto": "Contratação de empresa especializada para prestação de serviços de engenharia de segurança do trabalho e SESMT",
+    "expected_label": "non_aec",
+    "segment": "edge",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "Occupational H&S engineering is not AEC civil works",
+    "origem_publica": "pncp_supplier_contracts live aggregate market-manutencao-predial-engenharia-sp"
+  },
+  {
+    "objeto": "Prestação de serviços de engenharia de segurança do trabalho para órgãos da administração municipal",
+    "expected_label": "non_aec",
+    "segment": "edge",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "SESMT / segurança do trabalho must not map to serv_engenharia AEC",
+    "origem_publica": "synthetic from production FP pattern"
+  },
+  {
+    "objeto": "CONTRATAÇÃO DE SERVIÇO COMUM DE ENGENHARIA, CONSISTENTE EM MANUTENÇÃO PREDIAL CORRETIVA, PARA O IMÓVEL PÚBLICO",
+    "expected_label": "aec_confirmed",
+    "segment": "manutencao",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "True predial corrective maintenance without facility cleaning package",
+    "origem_publica": "pncp_supplier_contracts live aggregate"
   }
 ]

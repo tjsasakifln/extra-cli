@@ -126,3 +126,55 @@ def test_primary_archetype_prevents_pavement_in_edificacoes_bucket():
     )
     r2 = classify_objeto(school)
     assert primary_archetype(r2.archetypes, school) == "edificacoes-publicas"
+
+
+def test_limpeza_asseio_copeiragem_not_manut_predial():
+    """Production FP: facility cleaning package must not confirm manutenção predial."""
+    from scripts.pseo.classifiers import classify_objeto
+
+    samples = [
+        "contratação de serviços de limpeza, asseio, conservação predial e copeiragem no paço municipal",
+        "SERVIÇOS CONTÍNUOS DE LIMPEZA, ASSEIO E CONSERVAÇÃO PREDIAL DA SEDE DO 51º BPMI",
+        "Contratação de serviços continuados de limpeza, atendimento, conservação predial e preparo de café",
+        "conservação predial com mão de obra de limpeza e copeiragem",
+    ]
+    for s in samples:
+        r = classify_objeto(s)
+        assert r.label == "non_aec", (s, r.label, r.reasons)
+        assert "manutencao-predial-engenharia" not in r.archetypes
+
+
+def test_true_manutencao_predial_still_aec():
+    from scripts.pseo.classifiers import classify_objeto
+
+    s = (
+        "CONTRATAÇÃO DE SERVIÇO COMUM DE ENGENHARIA, CONSISTENTE EM "
+        "MANUTENÇÃO PREDIAL CORRETIVA, PARA O IMÓVEL PÚBLICO"
+    )
+    r = classify_objeto(s)
+    assert r.label == "aec_confirmed"
+    assert "manutencao-predial-engenharia" in r.archetypes
+
+
+def test_engenharia_seguranca_trabalho_not_aec():
+    """Occupational H&S engineering must not confirm via serv_engenharia."""
+    from scripts.pseo.classifiers import classify_objeto
+
+    samples = [
+        "Contratação de empresa especializada para prestação de serviços de engenharia de segurança do trabalho",
+        "serviços de engenharia de segurança do trabalho (SESMT)",
+        "Prestação de serviços de engenharia de segurança do trabalho para órgãos da administração municipal",
+    ]
+    for s in samples:
+        r = classify_objeto(s)
+        assert r.label == "non_aec", (s, r.label, r.reasons)
+        assert "manutencao-predial-engenharia" not in r.archetypes
+
+
+def test_serv_engenharia_with_obras_fiscalizacao_still_aec():
+    from scripts.pseo.classifiers import classify_objeto
+
+    s = "serviços de engenharia para apoio técnico em fiscalização de obras públicas"
+    r = classify_objeto(s)
+    assert r.label == "aec_confirmed"
+    assert "manutencao-predial-engenharia" in r.archetypes
