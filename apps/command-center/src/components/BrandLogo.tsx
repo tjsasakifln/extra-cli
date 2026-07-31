@@ -38,7 +38,7 @@ export function BrandLogo({
   }
   // auto: show color in light, white in dark (CSS swaps visibility)
   return (
-    <span className={`brand-logo-pair ${className}`.trim()} aria-label="CONFENGE">
+    <span className={`brand-logo-pair ${className}`.trim()} role="img" aria-label="CONFENGE">
       <img
         src={colorSrc}
         alt=""

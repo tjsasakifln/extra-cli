@@ -11,6 +11,7 @@ import { OnboardingPage } from "./pages/OnboardingPage";
 import { ReviewPage } from "./pages/ReviewPage";
 import { SearchPage } from "./pages/SearchPage";
 import { WorkStartPage } from "./pages/WorkStartPage";
+import { ComparePage } from "./pages/ComparePage";
 
 export default function App() {
   return (
@@ -19,6 +20,7 @@ export default function App() {
         <Route index element={<HomePage />} />
         <Route path="work/start" element={<WorkStartPage />} />
         <Route path="work/start/:workflowId" element={<WorkStartPage />} />
+        <Route path="compare" element={<ComparePage />} />
         <Route path="extra" element={<AreaPage area="extra" />} />
         <Route path="confenge/suppliers" element={<AreaPage area="suppliers" />} />
         <Route path="confenge/agencies" element={<AreaPage area="agencies" />} />

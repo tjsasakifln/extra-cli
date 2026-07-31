@@ -151,4 +151,21 @@ export const client = {
       method: "POST",
       body: JSON.stringify({ path, include_logs: false }),
     }),
+  compareRuns: (current: string, previous?: string, workflow_id?: string) => {
+    const qs = new URLSearchParams({ current });
+    if (previous) qs.set("previous", previous);
+    if (workflow_id) qs.set("workflow_id", workflow_id);
+    return api<{
+      ok: boolean;
+      has_previous: boolean;
+      message?: string;
+      diff?: Record<string, unknown>;
+      previous_path?: string;
+      current_path?: string;
+    }>(`/api/runs/compare?${qs.toString()}`);
+  },
+  recentByWorkflow: (workflow_id: string, limit = 10) =>
+    api<{ workflow_id: string; runs: Array<Record<string, unknown>> }>(
+      `/api/runs/recent-by-workflow?workflow_id=${encodeURIComponent(workflow_id)}&limit=${limit}`,
+    ),
 };

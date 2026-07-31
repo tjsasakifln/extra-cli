@@ -11,6 +11,7 @@ const NAV_MAIN = [
   { to: "/work/start", label: "Iniciar trabalho" },
   { to: "/review", label: "Revisões" },
   { to: "/results", label: "Entregáveis" },
+  { to: "/compare", label: "O que mudou" },
   { to: "/extra", label: "Extra" },
   { to: "/confenge/suppliers", label: "Fornecedores" },
   { to: "/confenge/agencies", label: "Órgãos públicos" },

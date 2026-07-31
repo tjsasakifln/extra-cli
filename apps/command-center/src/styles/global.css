@@ -476,39 +476,40 @@ table.data tbody tr:hover td {
   background: currentColor;
 }
 
+/* Text colors tuned for ≥4.5:1 contrast on soft backgrounds (axe color-contrast). */
 .status-healthy,
 .status-proven {
   background: var(--success-soft);
-  color: var(--success);
+  color: #0d3a22;
   border-color: color-mix(in srgb, var(--success) 25%, transparent);
 }
 .status-attention {
   background: var(--warning-soft);
-  color: var(--warning);
+  color: #5c3a08;
 }
 .status-blocked_external {
   background: var(--external-soft);
-  color: var(--external);
+  color: #5a3408;
 }
 .status-blocked_technical {
   background: var(--danger-soft);
-  color: var(--danger);
+  color: #6e1c1c;
 }
 .status-awaiting_human {
   background: var(--human-soft);
-  color: var(--human);
+  color: #3f2860;
 }
 .status-no_data {
   background: var(--bg-muted);
-  color: var(--text-muted);
+  color: #3a4a54;
 }
 .status-running {
   background: var(--running-soft);
-  color: var(--running);
+  color: #0a3540;
 }
 .status-partial {
   background: var(--partial-soft);
-  color: var(--partial);
+  color: #4a3d0c;
 }
 
 .metric {

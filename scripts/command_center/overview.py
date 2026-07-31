@@ -70,6 +70,50 @@ def build_overview(settings: Settings, store: Store, registry: CapabilityRegistr
         )
 
     attention.sort(key=lambda x: x["priority"])
+
+    # What-changed candidates: latest succeeded workflow jobs with manifests
+    what_changed: list[dict[str, Any]] = []
+    seen_wf: set[str] = set()
+    for j in jobs:
+        if not str(j.capability_id or "").startswith("workflow."):
+            continue
+        if j.status not in {"SUCCEEDED", "SUCCEEDED_WITH_WARNINGS", "PARTIAL"}:
+            continue
+        if j.capability_id in seen_wf:
+            continue
+        if not (j.manifests or j.artifacts):
+            continue
+        seen_wf.add(j.capability_id)
+        man = (j.manifests or [None])[0]
+        what_changed.append(
+            {
+                "workflow_id": j.capability_id,
+                "label": j.action,
+                "job_id": j.job_id,
+                "finished_at": j.finished_at,
+                "manifest_path": man,
+                "href": f"/compare?workflow={j.capability_id}&current={man or ''}",
+            }
+        )
+        if len(what_changed) >= 5:
+            break
+
+    pending_reviews = store.list_reviews(status="pending", limit=50)
+    deliverables_recent = []
+    for j in jobs[:15]:
+        for p in j.artifacts or []:
+            if str(p).lower().endswith((".pdf", ".xlsx")):
+                deliverables_recent.append(
+                    {
+                        "path": p,
+                        "job_id": j.job_id,
+                        "action": j.action,
+                        "href": f"/results?path={p}",
+                    }
+                )
+        if len(deliverables_recent) >= 8:
+            break
+
     return {
         "headline": "O que precisa da minha atenção agora?",
         "attention": attention[:15],
@@ -94,6 +138,9 @@ def build_overview(settings: Settings, store: Store, registry: CapabilityRegistr
             "recent": [j.to_public() for j in jobs[:10]],
             "counts": store.job_counts(),
         },
+        "reviews_pending_count": len(pending_reviews),
+        "what_changed": what_changed,
+        "deliverables_recent": deliverables_recent,
         "human_decisions_recent": decisions,
         "quick_actions": [
             {

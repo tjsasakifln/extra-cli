@@ -23,6 +23,9 @@ export function HomePage() {
     quick_actions: Array<{ id: string; label: string; href: string; blurb?: string }>;
     areas: Array<{ id: string; label: string; href: string; blurb?: string }>;
     health: { sha: string; env: Record<string, string>; profile: string };
+    reviews_pending_count?: number;
+    what_changed?: Array<{ workflow_id: string; label: string; href: string; finished_at?: string }>;
+    deliverables_recent?: Array<{ path: string; action: string; href: string }>;
   };
 
   return (
@@ -69,6 +72,67 @@ export function HomePage() {
               </div>
             ))}
           </div>
+        )}
+      </section>
+
+      <section style={{ marginTop: 20 }} className="panel" aria-labelledby="reviews-home">
+        <h2 id="reviews-home" style={{ marginTop: 0 }}>
+          Revisões pendentes
+        </h2>
+        <p>
+          {(data.reviews_pending_count ?? 0) > 0 ? (
+            <>
+              <strong>{data.reviews_pending_count}</strong> item(ns) aguardando sua decisão.{" "}
+              <Link to="/review">Abrir fila</Link>
+            </>
+          ) : (
+            <>Nada pendente. <Link to="/review">Ver histórico</Link></>
+          )}
+        </p>
+      </section>
+
+      <section style={{ marginTop: 20 }} className="panel" aria-labelledby="changed-home">
+        <h2 id="changed-home" style={{ marginTop: 0 }}>
+          Mudanças desde o último ciclo
+        </h2>
+        {(data.what_changed || []).length === 0 ? (
+          <EmptyState title="Execute um fluxo guiado duas vezes para ver o delta">
+            <Link to="/compare">Abrir comparação</Link>
+          </EmptyState>
+        ) : (
+          <div className="stack">
+            {(data.what_changed || []).map((w) => (
+              <div className="row" key={w.workflow_id} style={{ justifyContent: "space-between" }}>
+                <div>
+                  <strong>{w.label}</strong>
+                  <div className="muted">{w.finished_at || w.workflow_id}</div>
+                </div>
+                <Link className="btn" to={w.href || `/compare?workflow=${encodeURIComponent(w.workflow_id)}`}>
+                  Comparar
+                </Link>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section style={{ marginTop: 20 }} className="panel" aria-labelledby="deliverables-home">
+        <h2 id="deliverables-home" style={{ marginTop: 0 }}>
+          Entregáveis recentes
+        </h2>
+        {(data.deliverables_recent || []).length === 0 ? (
+          <EmptyState title="Nenhum PDF/XLSX recente">
+            <Link to="/work/start">Gerar entregáveis</Link>
+          </EmptyState>
+        ) : (
+          <ul>
+            {(data.deliverables_recent || []).slice(0, 6).map((d) => (
+              <li key={d.path}>
+                <Link to={d.href}>{d.path.split(/[/\\]/).pop()}</Link>
+                <span className="muted"> · {d.action}</span>
+              </li>
+            ))}
+          </ul>
         )}
       </section>
 

@@ -642,6 +642,102 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 }
         raise HTTPException(404, "run-manifest não encontrado para este job")
 
+    @app.get("/api/runs/compare")
+    def compare_runs(
+        current: str = Query(..., description="Path to current run-manifest.json"),
+        previous: str | None = Query(None, description="Optional previous run-manifest.json"),
+        workflow_id: str | None = Query(None),
+    ) -> dict[str, Any]:
+        """What changed since the last cycle — deterministic row/artifact diff."""
+        from pathlib import Path
+
+        from scripts.command_center.run_compare import compare_manifests, find_previous_manifest
+
+        curr = resolve_under_roots(current, settings.allowed_artifact_roots)
+        if not curr.is_file():
+            raise HTTPException(404, "Manifest atual não encontrado")
+        prev_path: Path | None = None
+        if previous:
+            prev_path = resolve_under_roots(previous, settings.allowed_artifact_roots)
+            if not prev_path.is_file():
+                raise HTTPException(404, "Manifest anterior não encontrado")
+        else:
+            prev_path = find_previous_manifest(
+                workflow_id=workflow_id,
+                current_manifest=curr,
+                jobs_dir=settings.jobs_dir,
+            )
+            # also search data_dir jobs
+            if prev_path is None:
+                prev_path = find_previous_manifest(
+                    workflow_id=workflow_id,
+                    current_manifest=curr,
+                    jobs_dir=settings.data_dir / "jobs",
+                )
+        if prev_path is None:
+            return {
+                "ok": True,
+                "has_previous": False,
+                "message": "Não há execução anterior comparável para este fluxo.",
+                "current": str(curr),
+            }
+        try:
+            diff = compare_manifests(prev_path, curr)
+        except ValueError as exc:
+            raise HTTPException(400, str(exc)) from exc
+        return {
+            "ok": True,
+            "has_previous": True,
+            "previous_path": str(prev_path),
+            "current_path": str(curr),
+            "diff": diff,
+        }
+
+    @app.get("/api/runs/recent-by-workflow")
+    def recent_by_workflow(workflow_id: str = Query(...), limit: int = 10) -> dict[str, Any]:
+        """List recent finished jobs for a workflow (for compare UI)."""
+        from pathlib import Path
+
+        from scripts.command_center.run_manifest import load_manifest
+
+        limit = max(1, min(limit, 50))
+        items: list[dict[str, Any]] = []
+        for job in store.list_jobs(limit=200):
+            if job.capability_id != workflow_id:
+                continue
+            if job.status not in {"SUCCEEDED", "SUCCEEDED_WITH_WARNINGS", "PARTIAL"}:
+                continue
+            man_path = None
+            for m in job.manifests or []:
+                if Path(m).is_file():
+                    man_path = m
+                    break
+            if not man_path:
+                cand = settings.jobs_dir / job.job_id / "deliverables" / "run-manifest.json"
+                if cand.is_file():
+                    man_path = str(cand)
+            if not man_path:
+                continue
+            run_id = job.run_id
+            try:
+                mf = load_manifest(Path(man_path))
+                run_id = mf.get("run_id") or run_id
+            except (OSError, ValueError, KeyError, TypeError):
+                run_id = job.run_id
+            items.append(
+                {
+                    "job_id": job.job_id,
+                    "run_id": run_id,
+                    "status": job.status,
+                    "finished_at": job.finished_at,
+                    "manifest_path": man_path,
+                    "action": job.action,
+                }
+            )
+            if len(items) >= limit:
+                break
+        return {"workflow_id": workflow_id, "runs": items}
+
     @app.get("/api/onboarding")
     def onboarding() -> dict[str, Any]:
         import shutil

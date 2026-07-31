@@ -1,15 +1,21 @@
 # ACCESSIBILITY-REPORT
 
-## Done in foundation + this wave
+## Automated axe
 
-- skip link, dialog roles, status badges with text (not color-only alone)
-- form labels on WorkStartPage params
-- timeline list on job page
+```bash
+cd apps/command-center && CC_OPEN_BROWSER=0 npx playwright test e2e/a11y.spec.ts
+```
 
-## Not yet gated
+Routes: `/`, `/work/start`, `/review`, `/results`, `/compare`, `/onboarding`, `/extra`  
+**Result:** no critical or serious violations (full suite 30/30 including axe).
 
-- axe automated zero critical/serious on all main routes (not run in this session)
-- full keyboard e2e for 20 scenarios
-- 390×844 Playwright visual proof pack
+## Fixes applied this wave
 
-**Residual:** a11y formal gate open → contributes to BLOCKED terminal status.
+- Brand logo: `role="img"` + `aria-label` (no prohibited aria on bare span)
+- Status badge foreground colors darkened for ≥4.5:1 on soft backgrounds
+- Token muted text darkened for AA on light surfaces
+
+## Manual
+
+- Keyboard nav covered in smoke + workbench e2e
+- Mobile 390×844 covered in workbench e2e

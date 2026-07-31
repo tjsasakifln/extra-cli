@@ -6,6 +6,7 @@ import { ConfirmationDialog } from "../components/ConfirmationDialog";
 import { EmptyState } from "../components/EmptyState";
 import { ErrorState } from "../components/ErrorState";
 import { SkeletonState } from "../components/SkeletonState";
+// useQuery already imported above
 
 type WfParam = {
   name: string;
@@ -113,7 +114,12 @@ function WorkPreflight({ workflow, onStarted }: { workflow: Workflow; onStarted:
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
+  const capQ = useQuery({
+    queryKey: ["capability", workflow.id],
+    queryFn: () => client.capability(workflow.id),
+  });
   const phrase =
+    (capQ.data?.confirmation_phrase as string | undefined) ||
     "Confirmo a geração local de entregáveis (sem envio automático de mensagens).";
 
   const basicParams = (workflow.params || []).filter((p) => !p.advanced);
@@ -123,7 +129,33 @@ function WorkPreflight({ workflow, onStarted }: { workflow: Workflow; onStarted:
     setBusy(true);
     setError(null);
     try {
-      const res = await client.startJob(workflow.id, params, confirmation);
+      // Only send declared params (server rejects unknown keys)
+      const allowed = new Set((workflow.params || []).map((p) => p.name));
+      // Prefer capability param list when loaded (authoritative allowlist)
+      const capParams = capQ.data?.params?.map((p) => p.name) || [];
+      const allow = capParams.length ? new Set(capParams) : allowed;
+      const payload: Record<string, unknown> = {};
+      for (const [k, v] of Object.entries(params)) {
+        if (!allow.has(k)) continue;
+        if (v === undefined || v === null || v === "") continue;
+        payload[k] = v;
+      }
+      for (const p of workflow.params || []) {
+        if (!allow.has(p.name)) continue;
+        if (p.type === "bool" && payload[p.name] !== undefined) {
+          payload[p.name] = Boolean(payload[p.name]);
+        }
+        if (p.type === "int" && payload[p.name] !== undefined && payload[p.name] !== "") {
+          payload[p.name] = Number(payload[p.name]);
+        }
+      }
+      // ensure bool defaults that are true are sent (unchecked would omit)
+      for (const p of workflow.params || []) {
+        if (p.type === "bool" && allow.has(p.name) && payload[p.name] === undefined && p.default === true) {
+          payload[p.name] = true;
+        }
+      }
+      const res = await client.startJob(workflow.id, payload, confirmation);
       const jobId = res.job?.job_id;
       if (!jobId) throw new Error("Job não retornou identificador");
       onStarted(jobId);

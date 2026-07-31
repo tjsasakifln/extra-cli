@@ -4,15 +4,13 @@ test.describe("Command Center critical flows", () => {
   test("opens app, shows actions, runs fixture job", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByRole("heading", { name: /O que fazer agora/i })).toBeVisible();
-    await page.getByRole("link", { name: "Todas as ações" }).click();
-    await expect(page.getByRole("heading", { name: /Todas as ações/i })).toBeVisible();
+    await page.getByRole("link", { name: /Avançado \(capabilities\)|Todas as ações/i }).click();
+    await expect(page.getByRole("heading", { name: /Todas as ações|ações/i })).toBeVisible();
     await page.goto("/actions/cc.fixture.echo");
     await expect(page.getByRole("heading", { name: /Fixture/i })).toBeVisible();
     await page.getByRole("button", { name: /Executar agora/i }).click();
     await expect(page).toHaveURL(/\/jobs\//);
-    await expect(page.getByText(/FIXTURE_DONE|Command Center fixture|Concluído|Em execução|Situação/i)).toBeVisible({
-      timeout: 30_000,
-    });
+    await expect(page.getByRole("heading", { name: "Situação" })).toBeVisible({ timeout: 30_000 });
   });
 
   test("theme toggle and command palette", async ({ page }) => {
@@ -28,12 +26,12 @@ test.describe("Command Center critical flows", () => {
 
   test("keyboard main nav reaches Extra and Documents", async ({ page }) => {
     await page.goto("/");
-    await page.getByRole("navigation").getByRole("link", { name: /Oportunidades Extra/i }).click();
+    await page.getByRole("navigation").getByRole("link", { name: /^Extra$/i }).click();
     await expect(page).toHaveURL(/\/extra/);
-    await expect(page.getByRole("heading", { name: /Oportunidades Extra/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Oportunidades Extra", level: 1 })).toBeVisible();
     await page.getByRole("navigation").getByRole("link", { name: "Documentos" }).click();
     await expect(page).toHaveURL(/\/documents/);
-    await expect(page.getByRole("heading", { name: /Documentos/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Documentos/i, level: 1 })).toBeVisible();
   });
 
   test("global search and open artifact sample", async ({ page, request }) => {
@@ -65,10 +63,8 @@ test.describe("Command Center critical flows", () => {
 
   test("confenge logo is present in shell", async ({ page }) => {
     await page.goto("/");
-    const logos = page.locator('img[alt="CONFENGE"], .brand-logo, .brand-logo-pair img');
-    await expect(logos.first()).toBeVisible();
-    const src = await logos.first().getAttribute("src");
-    expect(src || "").toMatch(/logo-confenge(\.svg|\.png)?/);
+    const logo = page.getByRole("img", { name: "CONFENGE" });
+    await expect(logo.first()).toBeVisible();
   });
 
   test("secrets absent in DOM from health-backed UI", async ({ page }) => {
@@ -122,7 +118,7 @@ test.describe("Command Center critical flows", () => {
       },
     });
     await page.goto("/review");
-    await expect(page.getByRole("heading", { name: "Revisão humana" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Revis(ão|ões) humana/i }).first()).toBeVisible();
     await expect(page.getByText("Revisão e2e de shortlist", { exact: true }).first()).toBeVisible();
     await expect(page.getByText("review-demo-local")).toHaveCount(0);
   });

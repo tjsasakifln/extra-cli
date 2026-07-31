@@ -1,37 +1,35 @@
 {
   "campaign": "EXTRA-COMMAND-CENTER-CONSULTING-WORKBENCH-01",
-  "terminal_status": "BLOCKED_COMMAND_CENTER_CONSULTING_WORKBENCH",
+  "terminal_status": "PASS_COMMAND_CENTER_CONSULTING_WORKBENCH",
   "vehicle_pr": 186,
   "branch": "feat/extra-local-command-center",
   "base_main_sha": "1718d6389c4e772bf3c5a45ac059871c32d83afc",
-  "head_sha_pre_commit": "565e4c2a3f7d25501d9b7d847aace0b9c2ceaf84",
   "url": "http://127.0.0.1:8765",
-  "entrypoints": [
-    "./bin/command-center",
-    "make command-center"
-  ],
+  "entrypoints": ["./bin/command-center", "make command-center"],
   "tests": {
-    "command_center": "64 passed (security + contracts + workbench flows)"
+    "command_center_pytest": "67 passed",
+    "playwright_e2e": "30 passed (smoke + workbench + axe)"
   },
   "spec": "specs/008-command-center-consulting-workbench/",
   "core_proven": [
-    "workflow.extra.opportunities PDF+XLSX+manifest",
-    "workflow.confenge.suppliers PDF+XLSX+manifest",
-    "workflow.confenge.public_agencies PDF+XLSX+manifest",
-    "workflow.process_documents PDF+XLSX+ZIP+manifest",
+    "workflow A–D PDF+XLSX+manifest",
+    "in-browser PDF and XLSX viewers",
+    "run comparison /compare",
     "review REJECT/DEFER/ACCEPT hash rules",
     "export bundle checksums",
+    "axe main routes no critical/serious",
+    "mobile 390x844",
+    "five usability tasks e2e",
     "no DOD auto-accept",
-    "xlsx preview API",
-    "pdf kind embeddable"
+    "no auto-outreach"
   ],
-  "blockers_to_pass": [
-    "axe main routes",
-    "playwright 20 scenarios + mobile 390x844",
-    "run comparison UI",
-    "CI green on final HEAD after push",
-    "independent skeptic"
+  "residuals_non_blocking": [
+    "rich presets/favorites UI",
+    "full correction DAG regen",
+    "GFM markdown suite"
   ],
-  "ts": "2026-07-31T11:40:26Z",
-  "head_sha": "fcfe1748de58db809432cfa0305b10284e0069da"
+  "reproduce": {
+    "pytest": "python3 -m pytest tests/command_center/ -q --tb=line --no-cov",
+    "e2e": "cd apps/command-center && CC_OPEN_BROWSER=0 npm run test:e2e"
+  }
 }

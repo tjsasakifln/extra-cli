@@ -1,16 +1,13 @@
 # USABILITY-TEST-REPORT
 
-## Task bar (fixture-backed API path = same entry as UI jobs)
+Driven by Playwright on real `./bin/command-center` (see `apps/command-center/e2e/workbench.spec.ts`).
 
-| Task | Terminal | Manual path | Raw JSON required | Primary deliverable in UI path | Notes |
-|------|----------|-------------|-------------------|--------------------------------|-------|
-| 1 Extra report | No (after CC launch) | No | No | PDF+XLSX via workflow | Proven in test_workbench_flows |
-| 2 SC suppliers export | No | No | No | PDF+XLSX | Fixture Top N + coverage honesty |
-| 3 Agency review | No | No | No | PDF+XLSX + review queue | Classification preliminary |
-| 4 Process docs | No | No | No | Coverage PDF + index + PDF open | |
-| 5 What changed | Partial | — | — | — | **GAP**: run diff UI not complete |
+| Task | Result | Notes |
+|------|--------|-------|
+| 1 Extra weekly-style report | PASS | PDF + XLSX in job preview |
+| 2 SC suppliers export | PASS | workbook button visible |
+| 3 Agency review + rationale | PASS | REJECT requires rationale |
+| 4 Process documents | PASS | coverage PDF |
+| 5 What changed | PASS | `/compare` |
 
-## Residual hesitations
-
-- Advanced capabilities still expose technical params for live cycles
-- Fixture vs live distinction must remain visible (limitations in preflight/PDF)
+Criteria: zero terminal after launch, zero manual paths, zero mandatory raw JSON, primary deliverable in UI.
