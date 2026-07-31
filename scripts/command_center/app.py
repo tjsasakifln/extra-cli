@@ -55,6 +55,14 @@ class BundleBody(BaseModel):
     include_logs: bool = False
 
 
+class RegenerateBody(BaseModel):
+    job_id: str
+    item_id: str | None = None
+    corrections: list[dict[str, Any]] = Field(default_factory=list)
+    actor: str = "local-user"
+    note: str | None = None
+
+
 def _backend_decision_sensitivity(
     store: Store,
     registry: Any,
@@ -293,8 +301,36 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         return {"audit": store.list_audit(limit=limit)}
 
     @app.get("/api/decisions")
-    def decisions(limit: int = 50) -> dict[str, Any]:
-        return {"decisions": store.list_decisions(limit=limit)}
+    def decisions(
+        limit: int = 50,
+        current_hashes: str | None = Query(
+            None,
+            description="JSON object of current artifact hashes to re-evaluate ACCEPT obsolescence",
+        ),
+        item_id: str | None = None,
+    ) -> dict[str, Any]:
+        from scripts.command_center.review_rules import invalidate_decisions_for_hashes
+
+        items = store.list_decisions(limit=limit)
+        if item_id:
+            items = [d for d in items if d.get("item_id") == item_id]
+        marked: list[str] = []
+        if current_hashes:
+            try:
+                hashes = json.loads(current_hashes)
+            except json.JSONDecodeError as exc:
+                raise HTTPException(400, "current_hashes deve ser JSON object") from exc
+            if not isinstance(hashes, dict):
+                raise HTTPException(400, "current_hashes deve ser objeto")
+            # persist obsolescence for matching ACCEPT rows
+            if item_id:
+                marked = store.mark_accepts_obsolete_for_item(item_id, current_hashes={str(k): str(v) for k, v in hashes.items()})
+                items = store.list_decisions(limit=limit)
+                items = [d for d in items if d.get("item_id") == item_id]
+            else:
+                # ephemeral view without item scope
+                items = invalidate_decisions_for_hashes(items, {str(k): str(v) for k, v in hashes.items()})
+        return {"decisions": items, "marked_obsolete": marked}
 
     @app.get("/api/reviews")
     def reviews(status: str | None = "pending", limit: int = 50) -> dict[str, Any]:
@@ -737,6 +773,145 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             if len(items) >= limit:
                 break
         return {"workflow_id": workflow_id, "runs": items}
+
+    @app.post("/api/reviews/regenerate")
+    def regenerate_after_correction(body: RegenerateBody, _: None = Depends(csrf_dep)) -> dict[str, Any]:
+        """Apply human corrections, regenerate deliverables, obsolete prior ACCEPTs."""
+        from pathlib import Path
+
+        from scripts.command_center.regenerate import regenerate_workflow_version
+        from scripts.command_center.run_manifest import load_manifest
+
+        rec = store.get_job(body.job_id)
+        if rec is None:
+            raise HTTPException(404, "Job original não encontrado")
+        workflow_id = rec.capability_id
+        if not str(workflow_id).startswith("workflow."):
+            raise HTTPException(400, "Regeneração guiada só para workflow.*")
+
+        parent_manifest = None
+        for m in rec.manifests or []:
+            if Path(m).is_file():
+                parent_manifest = Path(m)
+                break
+        if parent_manifest is None:
+            cand = settings.jobs_dir / body.job_id / "deliverables" / "run-manifest.json"
+            if cand.is_file():
+                parent_manifest = cand
+        parent_run_id = rec.run_id
+        prior_source = None
+        if parent_manifest:
+            try:
+                pm = load_manifest(parent_manifest)
+                parent_run_id = pm.get("run_id") or parent_run_id
+            except (OSError, ValueError, TypeError, KeyError):
+                pass
+            for name in ("opportunities.json", "suppliers.json", "public_agencies.json", "documents-index.json"):
+                p = parent_manifest.parent / name
+                if p.is_file():
+                    prior_source = p
+                    break
+
+        new_job_id = str(__import__("uuid").uuid4())
+        out_dir = settings.jobs_dir / new_job_id / "deliverables"
+        try:
+            result = regenerate_workflow_version(
+                workflow_id=workflow_id,
+                params=dict(rec.params or {}),
+                out_dir=out_dir,
+                code_sha=rec.code_sha or git_sha(),
+                job_id=new_job_id,
+                parent_run_id=parent_run_id,
+                corrections=list(body.corrections or []),
+                prior_source=prior_source,
+            )
+        except ValueError as exc:
+            raise HTTPException(400, str(exc)) from exc
+
+        # Persist as a new job record (history preserved; old job untouched)
+        from datetime import UTC, datetime
+
+        from scripts.command_center.status_normalize import JobState
+        from scripts.command_center.store import JobRecord
+
+        finished = datetime.now(UTC).isoformat()
+        new_rec = JobRecord(
+            job_id=new_job_id,
+            capability_id=workflow_id,
+            action=f"Regeneração: {rec.action}",
+            params=dict(rec.params or {}),
+            status=JobState.SUCCEEDED.value,
+            human_message=result.get("message") or "Entregável regenerado após correção humana.",
+            attention="ok",
+            finished_at=finished,
+            started_at=finished,
+            exit_code=0,
+            canonical_command=list(rec.canonical_command or []),
+            artifacts=list(result.get("artifacts") or []),
+            manifests=[result["manifest_path"]] if result.get("manifest_path") else [],
+            run_id=result.get("run_id"),
+            code_sha=rec.code_sha,
+            output_paths=list(result.get("artifacts") or []),
+            stdout_path=str(settings.jobs_dir / new_job_id / "stdout.log"),
+            stderr_path=str(settings.jobs_dir / new_job_id / "stderr.log"),
+        )
+        (settings.jobs_dir / new_job_id).mkdir(parents=True, exist_ok=True)
+        Path(new_rec.stdout_path or "").write_text(
+            json.dumps({"regenerated_from": body.job_id, "run_id": result.get("run_id")}, indent=2) + "\n",
+            encoding="utf-8",
+        )
+        store.create_job(new_rec)
+        store.audit(
+            body.actor,
+            "job.regenerated",
+            {
+                "parent_job_id": body.job_id,
+                "new_job_id": new_job_id,
+                "parent_run_id": parent_run_id,
+                "run_id": result.get("run_id"),
+                "corrections": body.corrections,
+            },
+        )
+
+        # Invalidate prior ACCEPT decisions tied to item when hashes changed
+        marked: list[str] = []
+        new_hashes = result.get("content_hashes") or {}
+        if body.item_id and new_hashes:
+            marked = store.mark_accepts_obsolete_for_item(
+                body.item_id,
+                current_hashes={str(k): str(v) for k, v in new_hashes.items()},
+                reason="regenerated_after_correction",
+            )
+            # enqueue new review bound to new hashes
+            store.enqueue_review(
+                title=f"Re-revisar após correção: {rec.action}",
+                source=workflow_id,
+                evidence=f"Nova versão run_id={result.get('run_id')}; parent={parent_run_id}",
+                limitations="Versão regenerada após correção humana; decisão anterior fica no histórico.",
+                risks="Aceitar sem re-ler o entregável pode validar conteúdo não revisado.",
+                job_id=new_job_id,
+                capability_id=workflow_id,
+                payload={
+                    "parent_job_id": body.job_id,
+                    "parent_run_id": parent_run_id,
+                    "artifact_hashes": new_hashes,
+                    "content_hash": new_hashes.get("source") or new_hashes.get("manifest"),
+                    "corrections": body.corrections,
+                },
+            )
+
+        return {
+            "ok": True,
+            "parent_job_id": body.job_id,
+            "job_id": new_job_id,
+            "run_id": result.get("run_id"),
+            "parent_run_id": parent_run_id,
+            "manifest_path": result.get("manifest_path"),
+            "artifacts": result.get("artifacts") or [],
+            "content_hashes": new_hashes,
+            "marked_obsolete_decisions": marked,
+            "version_meta_path": result.get("version_meta_path"),
+        }
 
     @app.get("/api/onboarding")
     def onboarding() -> dict[str, Any]:

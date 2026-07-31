@@ -77,10 +77,13 @@ WORKFLOWS: dict[str, WorkflowDef] = {
             ),
             WorkflowParam(
                 "use_fixture",
-                "Usar dados de demonstração",
+                "Dados de demonstração (obrigatório neste fluxo guiado)",
                 type="bool",
                 default=True,
-                description="Quando não houver weekly pack local, usa fixture representativa.",
+                description=(
+                    "Fluxos guiados usam fixture representativa. "
+                    "Live canônico: área Avançada (extra.weekly / decision loop)."
+                ),
             ),
             WorkflowParam(
                 "output_profile",
@@ -130,7 +133,13 @@ WORKFLOWS: dict[str, WorkflowDef] = {
                 choices=["BOUNDED_SAMPLE", "FULL_POPULATION"],
                 description="BOUNDED_SAMPLE = amostra; FULL_POPULATION exige evidência de varredura integral.",
             ),
-            WorkflowParam("use_fixture", "Usar dados de demonstração", type="bool", default=True),
+            WorkflowParam(
+                "use_fixture",
+                "Dados de demonstração (fluxo guiado)",
+                type="bool",
+                default=True,
+                description="Live canônico: Avançado → confenge.suppliers.cycle.run via router.",
+            ),
             WorkflowParam(
                 "output_profile",
                 "Perfil de saída",
@@ -179,7 +188,13 @@ WORKFLOWS: dict[str, WorkflowDef] = {
                 default="REACTIVE_OPPORTUNITY",
                 choices=["REACTIVE_OPPORTUNITY", "PROACTIVE_INSTITUTIONAL_PROSPECT"],
             ),
-            WorkflowParam("use_fixture", "Usar dados de demonstração", type="bool", default=True),
+            WorkflowParam(
+                "use_fixture",
+                "Dados de demonstração (fluxo guiado)",
+                type="bool",
+                default=True,
+                description="Live canônico: Avançado → confenge.public_agencies.cycle.run.",
+            ),
             WorkflowParam(
                 "output_profile",
                 "Perfil de saída",
@@ -224,7 +239,13 @@ WORKFLOWS: dict[str, WorkflowDef] = {
                 default="demo-processo-001",
                 required=True,
             ),
-            WorkflowParam("use_fixture", "Usar acervo de demonstração", type="bool", default=True),
+            WorkflowParam(
+                "use_fixture",
+                "Acervo de demonstração (fluxo guiado)",
+                type="bool",
+                default=True,
+                description="Live canônico: Avançado → process_documents.*",
+            ),
         ],
         limitations=[
             "Métricas de edital/anexos, sessão/julgamento, proposta e habilitação são separadas.",

@@ -10,8 +10,8 @@
     "make command-center"
   ],
   "tests": {
-    "command_center_pytest": "67 passed",
-    "playwright_e2e": "30 passed (smoke + workbench + axe)"
+    "command_center_pytest": "70 passed",
+    "playwright_e2e": "26 passed hard asserts + axe"
   },
   "spec": "specs/008-command-center-consulting-workbench/",
   "core_proven": [
@@ -35,6 +35,16 @@
     "pytest": "python3 -m pytest tests/command_center/ -q --tb=line --no-cov",
     "e2e": "cd apps/command-center && CC_OPEN_BROWSER=0 npm run test:e2e"
   },
-  "head_sha": "12d4be7f84a18b6601226cc4b3cfca28edcda592",
-  "ci_note": "post-pseo-fix tip"
+  "head_sha": "8fae62fdd926495b6e244ed3fb6cc77717faa179",
+  "ci_note": "post-pseo-fix tip",
+  "skeptic_fixes": [
+    "use_fixture false rejected",
+    "decision obsolete wired",
+    "regenerate API",
+    "hard e2e PDF/XLSX/compare/regen",
+    "docs expanded"
+  ],
+  "evidence_head": "f380ffe5ca07ef5c82ca6aa0bafde7bb002eecd1",
+  "tree_sha": "2363f966dd99d9bab903d3dd55775ac6d44bad4d",
+  "commit_containing_this_file": "see git rev-parse after checkout"
 }

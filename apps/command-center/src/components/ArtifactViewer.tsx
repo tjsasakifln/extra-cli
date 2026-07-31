@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { client } from "../api/client";
 import { DataTable } from "./DataTable";
 import { EmptyState } from "./EmptyState";
+import { MarkdownView } from "./MarkdownView";
 
 type ArtifactPayload = {
   kind?: string;
@@ -114,9 +115,8 @@ export function ArtifactViewer({ artifact }: { artifact: ArtifactPayload }) {
         )
       ) : null}
 
-      {kind === "markdown" || kind === "text" ? (
-        <pre className="doc-prose">{String(artifact.text || "")}</pre>
-      ) : null}
+      {kind === "markdown" ? <MarkdownView text={String(artifact.text || "")} /> : null}
+      {kind === "text" ? <pre className="doc-prose">{String(artifact.text || "")}</pre> : null}
 
       {kind === "json" && !artifact.table ? (
         <details className="tech-details">

@@ -294,9 +294,69 @@ class Store:
             try:
                 d["payload"] = json.loads(d["payload"] or "{}")
             except json.JSONDecodeError:
-                pass
+                d["payload"] = {}
+            # surface obsolete flag stored on payload
+            payload = d.get("payload") if isinstance(d.get("payload"), dict) else {}
+            d["obsolete"] = bool(payload.get("obsolete"))
+            d["obsolete_reason"] = payload.get("obsolete_reason")
+            d["artifact_hashes"] = payload.get("artifact_hashes") or {}
             out.append(d)
         return out
+
+    def patch_decision_payload(self, decision_id: str, **fields: Any) -> dict[str, Any] | None:
+        """Merge fields into a decision's JSON payload (e.g. obsolete flag)."""
+        with self._lock, self._conn() as conn:
+            row = conn.execute(
+                "SELECT id, ts, item_id, decision, rationale, actor, confirmation, payload FROM human_decisions WHERE id = ?",
+                (decision_id,),
+            ).fetchone()
+            if not row:
+                return None
+            d = dict(row)
+            try:
+                payload = json.loads(d.get("payload") or "{}")
+            except json.JSONDecodeError:
+                payload = {}
+            if not isinstance(payload, dict):
+                payload = {}
+            payload.update(fields)
+            conn.execute(
+                "UPDATE human_decisions SET payload = ? WHERE id = ?",
+                (json.dumps(payload, ensure_ascii=False), decision_id),
+            )
+            d["payload"] = payload
+            d["obsolete"] = bool(payload.get("obsolete"))
+            return d
+
+    def mark_accepts_obsolete_for_item(
+        self,
+        item_id: str,
+        *,
+        current_hashes: dict[str, str],
+        reason: str = "artifact_hash_changed",
+    ) -> list[str]:
+        """Mark ACCEPT decisions obsolete when presented hashes no longer match current."""
+        from scripts.command_center.review_rules import decision_is_obsolete
+
+        marked: list[str] = []
+        for d in self.list_decisions(limit=200):
+            if d.get("item_id") != item_id:
+                continue
+            if str(d.get("decision", "")).upper() != "ACCEPT":
+                continue
+            if d.get("obsolete"):
+                continue
+            stored = d.get("artifact_hashes") or {}
+            if decision_is_obsolete(stored_hashes=stored, current_hashes=current_hashes):
+                self.patch_decision_payload(
+                    d["id"],
+                    obsolete=True,
+                    obsolete_reason=reason,
+                    obsolete_at=_utcnow(),
+                    current_hashes_at_invalidation=current_hashes,
+                )
+                marked.append(str(d["id"]))
+        return marked
 
     def get_pref(self, key: str, default: str | None = None) -> str | None:
         with self._lock, self._conn() as conn:

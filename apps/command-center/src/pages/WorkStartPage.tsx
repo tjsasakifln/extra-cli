@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { client } from "../api/client";
@@ -6,7 +6,6 @@ import { ConfirmationDialog } from "../components/ConfirmationDialog";
 import { EmptyState } from "../components/EmptyState";
 import { ErrorState } from "../components/ErrorState";
 import { SkeletonState } from "../components/SkeletonState";
-// useQuery already imported above
 
 type WfParam = {
   name: string;
@@ -108,7 +107,28 @@ function WorkPreflight({ workflow, onStarted }: { workflow: Workflow; onStarted:
     }
     return d;
   }, [workflow.params]);
+  const lastPref = useQuery({
+    queryKey: ["pref", `last_params:${workflow.id}`],
+    queryFn: async () => {
+      const res = await fetch(`/api/preferences/${encodeURIComponent(`last_params:${workflow.id}`)}`, {
+        credentials: "include",
+      });
+      if (!res.ok) return null;
+      return res.json() as Promise<{ value?: string }>;
+    },
+  });
   const [params, setParams] = useState<Record<string, unknown>>(defaults);
+  // hydrate last params (preset / rerun) when available
+  useEffect(() => {
+    const raw = lastPref.data?.value;
+    if (!raw) return;
+    try {
+      const parsed = JSON.parse(raw) as Record<string, unknown>;
+      setParams({ ...defaults, ...parsed, use_fixture: true });
+    } catch {
+      /* ignore */
+    }
+  }, [lastPref.data, defaults]);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);

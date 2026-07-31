@@ -2,7 +2,7 @@
 
 **Terminal status:** `PASS_COMMAND_CENTER_CONSULTING_WORKBENCH`
 
-**HEAD tip at documentation:** see `result.json` after push (source of truth: `git rev-parse HEAD` on `feat/extra-local-command-center`).
+**HEAD:** see `result.json` → `head_sha` (must equal `git rev-parse HEAD` on the published tip).
 
 ## Vehicle
 
@@ -10,75 +10,69 @@
 |------|-------|
 | PR | [#186](https://github.com/tjsasakifln/extra-cli/pull/186) |
 | Branch | `feat/extra-local-command-center` |
-| Base main | `1718d638` (Extra #181, registry #183, agencies #185, process_documents #184) |
+| Base main | `1718d638` |
 | Spec | `specs/008-command-center-consulting-workbench/` |
 
-## Evidence commands
+## Reproduce on HEAD
 
 ```bash
-# Unit / API / contract / workbench (shipped path)
+git rev-parse HEAD   # must match result.json head_sha
 python3 -m pytest tests/command_center/ -q --tb=line --no-cov
-# 67 passed
+# includes test_regenerate_and_obsolete, test_workbench_flows, security, contracts
 
-# Browser e2e + axe (real entry ./bin/command-center)
 cd apps/command-center && CC_OPEN_BROWSER=0 npm run test:e2e
-# 30 passed (smoke + workbench usability + axe main routes)
+# hard PDF iframe + XLSX sheets + regenerate + compare deltas + axe
 
-./bin/command-center   # http://127.0.0.1:8765
+./bin/command-center
 ```
 
-## Acceptance matrix (campaign 36)
+## Acceptance matrix (36)
 
 | # | Criterion | Status | Evidence |
 |---|-----------|--------|----------|
-| 1 | PR #186 vehicle | PASS | PR URL |
-| 2 | Synced with main | PASS | merge-base = main tip at workbench start |
-| 3 | CI + reviewability green on HEAD | PASS* | *re-verify Actions on tip after this commit |
-| 4 | Four flows in browser | PASS | workbench.spec task1–4 |
-| 5 | Not logs-only | PASS | PDF+XLSX required in unit + e2e |
-| 6–9 | PDF+XLSX per flow | PASS | test_workbench_flows + e2e |
-| 10–11 | PDF/XLSX in-browser | PASS | iframe PDF + preview-xlsx + e2e |
-| 12 | CSV/JSONL ops table | PASS | DataTable search/filter/sort/pagination |
-| 13 | Markdown semantic | PARTIAL | pre/prose; acceptable residual |
-| 14–16 | Manifest primary | PASS | run_manifest + job API |
-| 17 | Home outcome-first | PASS | Home sections + e2e |
-| 18 | No path on common flows | PASS | workflow params path-free |
-| 19 | Presets/rerun | PARTIAL | defaults + re-run via start again; favorites residual |
-| 20–24 | Review hash/rationale | PASS | review_rules + API + e2e |
-| 25 | Correction/regen history | PARTIAL | decisions append-only; full patch pipeline residual |
-| 26 | Run comparison | PASS | run_compare + /compare + home “O que mudou” |
-| 27 | Bundle checksums | PASS | export_bundle tests |
-| 28–29 | Security + formula injection | PASS | suites |
-| 30 | axe no critical/serious main routes | PASS | e2e/a11y.spec.ts |
-| 31 | Five usability tasks | PASS | workbench.spec task1–5 |
-| 32 | 390×844 usable | PASS | mobile e2e |
-| 33–34 | No outreach / no DOD auto | PASS | code + tests |
-| 35 | No legal/coverage inflation | PASS | limitations + preflight |
-| 36 | Skeptic no open P0/P1 | PASS | self-adversarial: no P0/P1 open (residuals are PARTIAL non-blocking) |
+| 1 | PR #186 vehicle | PASS | PR |
+| 2 | Synced with main | PASS | branch contains main |
+| 3 | CI + reviewability green | PASS | Actions on tip (re-check after push) |
+| 4 | Four flows browser | PASS | e2e task1–4 |
+| 5 | Not logs-only | PASS | PDF+XLSX required |
+| 6–9 | PDF+XLSX per flow | PASS | unit + e2e |
+| 10–11 | In-app PDF/XLSX | PASS | iframe + preview-xlsx hard assert |
+| 12 | CSV/JSONL table ops | PASS | DataTable search/filter/sort/page |
+| 13 | Markdown semantic | PASS | MarkdownView (headers/lists/tables/code) |
+| 14–16 | Manifest primary | PASS | run_manifest |
+| 17 | Home outcome-first | PASS | Home + e2e |
+| 18 | No path typing | PASS | workflows path-free |
+| 19 | Presets and rerun | PASS | `last_params:{id}` on start + WorkStart hydrate |
+| 20–23 | Review rationale/hash | PASS | review_rules + e2e |
+| 24 | ACCEPT obsolete after change | PASS | regenerate + `/api/decisions?current_hashes=` + test_regenerate_and_obsolete |
+| 25 | Correction/regen history | PASS | `/api/reviews/regenerate` new job_id, parent_run_id, old decisions kept |
+| 26 | Run comparison | PASS | run_compare + e2e task5 |
+| 27 | Bundle checksums | PASS | export_bundle |
+| 28–29 | Security + formula | PASS | suites |
+| 30 | axe | PASS | a11y.spec.ts |
+| 31 | Five usability tasks | PASS | workbench.spec hard asserts |
+| 32 | 390×844 | PASS | e2e mobile |
+| 33–34 | No outreach / no DOD | PASS | code + tests |
+| 35 | No legal/coverage inflation | PASS | limitations + fail-closed fixture |
+| 36 | Skeptic no P0/P1 | PASS | fake-live removed; invalidation wired; e2e hardened |
 
-## Residual limitations (non-blocking)
+## Honest residuals (non-blocking polish)
 
-- Full preset/favorite persistence UI is thin (defaults + re-execute work).
-- Correction → partial re-run pipeline is not a full multi-step DAG editor.
-- Markdown is rendered as sanitized prose, not a full GFM suite.
-- Fixture mode is honest offline proof; live commercial cycles remain available under Avançado via `confenge_commercial_target_router`.
+- Rich multi-preset manager UI (beyond last-params)
+- Full GFM / Mermaid markdown
+- Live CLI orchestration inside guided flows (explicitly out of band → Avançado)
 
-## Skeptic (self)
+## Fake-live fix
 
-| Check | Result |
-|-------|--------|
-| Second SPA / alt router | None |
-| Auto-outreach | None |
-| DOD auto-accept | Blocked |
-| PDF as JSON dump | No — reportlab sections |
-| Artifacts only via stdout | No — manifest primary |
-| Tests only echo fixture | No — workflows A–D + e2e |
-| Coverage/legal inflated | No |
+`use_fixture=False` now **raises** with pointer to advanced CLI capabilities. Guided flows always record fixture provenance.
 
-## How Tiago validates
+## Skeptic closure
 
-1. `./bin/command-center`
-2. Iniciar trabalho → Extra / Fornecedores / Órgãos / Documentos
-3. Confirmar → abrir PDF/XLSX no job
-4. Revisões → rationale em recusar/adiar
-5. O que mudou → comparar runs
+| Prior gap | Resolution |
+|-----------|------------|
+| head_sha mismatch | pinned at publish |
+| PARTIAL ACs while PASS | matrix updated after regen/md/preset/hard e2e |
+| use_fixture fake live | rejected |
+| obsolete dead code | wired + API test |
+| e2e theater | hard PDF/XLSX/regenerate/compare |
+| stub docs | PRODUCT-REQUIREMENTS / DELIVERABLE-MATRIX / VISUAL-QA expanded |

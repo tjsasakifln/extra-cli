@@ -84,6 +84,11 @@ class JobRunner:
             code_sha=git_sha(),
         )
         self.store.create_job(rec)
+        # Preset: last params per capability/workflow for rerun without retyping
+        try:
+            self.store.set_pref(f"last_params:{cap.id}", json.dumps(params, ensure_ascii=False))
+        except (OSError, TypeError, ValueError):
+            pass
         self.store.audit(req.actor, "job.start", {"job_id": job_id, "capability_id": cap.id, "argv": argv})
         thread = threading.Thread(target=self._run_job, args=(rec.job_id, cap), daemon=True)
         thread.start()

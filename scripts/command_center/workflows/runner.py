@@ -73,12 +73,25 @@ def run_workflow(
         limitations=list(wf.limitations),
         started_at=_utcnow(),
     )
-    mf.warnings.append("Execução com dados de demonstração." if params.get("use_fixture", True) else "Execução solicitada em modo live/local.")
-    if params.get("use_fixture", True):
-        mf.limitations.append(
-            "Fonte: fixture representativa do Command Center — não reivindica evidência live de produção."
+    # Guided workflows use representative fixtures only. Live commercial/Extra
+    # cycles remain in Avançado (allowlisted CLI capabilities) — do not pretend.
+    use_fixture = params.get("use_fixture", True)
+    if isinstance(use_fixture, str):
+        use_fixture = use_fixture.lower() in {"1", "true", "yes", "sim"}
+    if use_fixture is False:
+        raise ValueError(
+            "Este fluxo guiado opera com dados de demonstração (fixture). "
+            "Para execução live/canônica use a área Avançada (capabilities CLI: "
+            "extra.weekly.run, confenge.suppliers.cycle.run, confenge.public_agencies.cycle.run, "
+            "process_documents.*). Não há orquestração live disfarçada de fixture."
         )
-        mf.source_snapshots.append({"type": "fixture", "id": workflow_id, "note": "offline representative"})
+    params = {**params, "use_fixture": True}
+    mf.parameters = dict(params)
+    mf.warnings.append("Execução com dados de demonstração (fixture representativa).")
+    mf.limitations.append(
+        "Fonte: fixture representativa do Command Center — não reivindica evidência live de produção."
+    )
+    mf.source_snapshots.append({"type": "fixture", "id": workflow_id, "note": "offline representative"})
     emit("preparing", "Preparando", "succeeded")
 
     if workflow_id == "workflow.extra.opportunities":
