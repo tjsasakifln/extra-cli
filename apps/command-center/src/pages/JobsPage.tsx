@@ -12,24 +12,25 @@ export function JobsPage() {
   return (
     <div>
       <header className="page-header">
-        <h1>Jobs</h1>
-        <p>Execuções allowlisted com estados normalizados, logs e artefatos.</p>
+        <h1>Atividades em andamento</h1>
+        <p>
+          Tudo que você disparou pelo painel: situação, explicação em português e atalho para os resultados.
+        </p>
       </header>
       {q.isLoading ? <SkeletonState /> : null}
       {!q.isLoading && (q.data?.jobs.length || 0) === 0 ? (
-        <EmptyState title="Nenhum job registrado">
-          <Link to="/capabilities/cc.fixture.echo">Rodar fixture segura</Link>
+        <EmptyState title="Nenhuma atividade ainda">
+          <Link to="/actions">Escolher uma ação para executar</Link>
         </EmptyState>
       ) : (
         <div className="table-wrap panel" style={{ padding: 0 }}>
           <table className="data">
             <thead>
               <tr>
-                <th>Ação</th>
-                <th>Capability</th>
-                <th>Status</th>
+                <th>O que rodou</th>
+                <th>Situação</th>
                 <th>Explicação</th>
-                <th>Criado</th>
+                <th>Quando</th>
               </tr>
             </thead>
             <tbody>
@@ -38,14 +39,17 @@ export function JobsPage() {
                   <td>
                     <Link to={`/jobs/${j.job_id}`}>{j.action}</Link>
                   </td>
-                  <td className="mono">{j.capability_id}</td>
                   <td>
                     <StatusBadge state={j.status} attention={j.attention} />
                   </td>
                   <td>
-                    <HumanStatusExplanation code={j.technical_code || j.status} message={j.human_message} nextAction={j.next_action} />
+                    <HumanStatusExplanation
+                      code={j.technical_code || j.status}
+                      message={j.human_message}
+                      nextAction={j.next_action}
+                    />
                   </td>
-                  <td className="mono">{j.created_at}</td>
+                  <td>{j.created_at ? new Date(j.created_at).toLocaleString("pt-BR") : "—"}</td>
                 </tr>
               ))}
             </tbody>

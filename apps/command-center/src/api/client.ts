@@ -113,6 +113,14 @@ export const client = {
     api<{ reviews: Array<Record<string, unknown>>; count: number }>(
       `/api/reviews?status=${encodeURIComponent(status)}`,
     ),
+  reviewConfirmation: (itemId: string) =>
+    api<{
+      item_id: string;
+      sensitive: boolean;
+      confirmation_phrase: string;
+      found: boolean;
+      title?: string;
+    }>(`/api/reviews/${encodeURIComponent(itemId)}/confirmation`),
   enqueueReview: (body: Record<string, unknown>) =>
     api<Record<string, unknown>>("/api/reviews", { method: "POST", body: JSON.stringify(body) }),
   saveDecision: (body: Record<string, unknown>) =>

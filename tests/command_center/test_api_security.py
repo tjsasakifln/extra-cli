@@ -186,17 +186,22 @@ def test_csrf_required(client: TestClient) -> None:
 
 def test_decision_accept_requires_phrase(client: TestClient) -> None:
     headers = _csrf(client)
-    res = client.post(
+    # Client cannot weaken sensitivity via payload
+    bypass = client.post(
         "/api/decisions",
         headers=headers,
         json={
             "item_id": "x1",
             "decision": "ACCEPT",
-            "payload": {"sensitive": True, "confirmation_phrase": "SIM EU CONFIRMO"},
+            "payload": {"sensitive": False, "confirmation_phrase": "whatever"},
         },
     )
-    assert res.status_code == 400
-    ok = client.post(
+    assert bypass.status_code == 400
+    phrase = (
+        "Confirmo que revisei os dados e autorizo apenas a inclusão deste item na fila manual."
+    )
+    # Client-supplied wrong phrase is ignored — must match backend phrase
+    wrong = client.post(
         "/api/decisions",
         headers=headers,
         json={
@@ -206,27 +211,89 @@ def test_decision_accept_requires_phrase(client: TestClient) -> None:
             "payload": {"sensitive": True, "confirmation_phrase": "SIM EU CONFIRMO"},
         },
     )
+    assert wrong.status_code == 400
+    ok = client.post(
+        "/api/decisions",
+        headers=headers,
+        json={
+            "item_id": "x1",
+            "decision": "ACCEPT",
+            "confirmation": phrase,
+            "payload": {"sensitive": False, "confirmation_phrase": "IGNORADO"},
+        },
+    )
     assert ok.status_code == 200
     assert ok.json()["ok"] is True
+    assert ok.json()["sensitive"] is True
 
 
 def test_dod_accept_blocked(client: TestClient) -> None:
     headers = _csrf(client)
+    phrase = (
+        "Confirmo que revisei os dados e autorizo apenas a inclusão deste item na fila manual."
+    )
     res = client.post(
         "/api/decisions",
         headers=headers,
         json={
             "item_id": "DOD-1",
             "decision": "ACCEPT",
-            "confirmation": "Confirmo que revisei os dados e autorizo apenas a inclusão deste item na fila manual.",
-            "payload": {
-                "sensitive": True,
-                "confirmation_phrase": "Confirmo que revisei os dados e autorizo apenas a inclusão deste item na fila manual.",
-            },
+            "confirmation": phrase,
+            "payload": {},
         },
     )
     assert res.status_code == 200
     assert res.json().get("blocked") is True
+
+
+def test_spa_fallback_rejects_path_traversal(tmp_path: Path) -> None:
+    """SPA static fallback must not serve files outside dist."""
+    import sys
+
+    from scripts.command_center.app import create_app
+    from scripts.command_center.capabilities.base import Capability, RiskLevel
+    from scripts.command_center.capabilities.registry import reset_registry
+    from scripts.command_center.config import Settings
+
+    spa = tmp_path / "dist"
+    spa.mkdir()
+    (spa / "index.html").write_text("<html>ok</html>", encoding="utf-8")
+    (spa / "safe.txt").write_text("safe", encoding="utf-8")
+    secret = tmp_path / "secret.txt"
+    secret.write_text("TOPSECRET", encoding="utf-8")
+    settings = Settings(
+        host="127.0.0.1",
+        port=8765,
+        data_dir=tmp_path / "data",
+        open_browser=False,
+        spa_dist=spa,
+        allowed_artifact_roots=(tmp_path.resolve(),),
+    )
+    reset_registry(
+        [
+            Capability(
+                id="cc.fixture.echo",
+                name="Fixture",
+                description="safe",
+                category="ops",
+                argv_builder=lambda p: [sys.executable, "-c", "print(1)"],
+                fixture=True,
+                risk=RiskLevel.READ,
+            )
+        ]
+    )
+
+    app = create_app(settings)
+    c = TestClient(app)
+    ok = c.get("/safe.txt")
+    assert ok.status_code == 200
+    assert b"safe" in ok.content
+    # Traversal attempts must not leak secret — either index fallback or not secret body
+    for path in ("../secret.txt", "..%2Fsecret.txt", "....//secret.txt"):
+        res = c.get(f"/{path}")
+        body = res.content
+        assert b"TOPSECRET" not in body
+
 
 
 def test_slow_job_cancel_never_succeeds(client: TestClient) -> None:

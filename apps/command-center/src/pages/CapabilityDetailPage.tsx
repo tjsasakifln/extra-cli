@@ -19,7 +19,9 @@ export function CapabilityDetailPage() {
   const [busy, setBusy] = useState(false);
 
   if (q.isLoading) return <SkeletonState />;
-  if (q.isError || !q.data) return <ErrorState title="Capability não encontrada" error={(q.error as Error)?.message} />;
+  if (q.isError || !q.data) {
+    return <ErrorState title="Ação não encontrada" error={(q.error as Error)?.message} />;
+  }
 
   const cap = q.data;
   const available = cap.availability === "available";
@@ -47,7 +49,7 @@ export function CapabilityDetailPage() {
     <div>
       <header className="page-header">
         <p className="muted" style={{ marginBottom: 8 }}>
-          <Link to="/capabilities">Capabilities</Link> / {cap.id}
+          <Link to="/actions">Todas as ações</Link> / {cap.name}
         </p>
         <h1>{cap.name}</h1>
         <p>{cap.description}</p>
@@ -59,12 +61,15 @@ export function CapabilityDetailPage() {
             <StatusBadge
               state={available ? "SUCCEEDED" : "UNAVAILABLE"}
               attention={available ? "healthy" : "no_data"}
-              label={available ? "Disponível" : "Ainda não disponível nesta versão"}
+              label={available ? "Pronta para usar" : "Indisponível neste computador"}
             />
-            <span className="muted">{cap.risk}</span>
+            <span className={`risk-chip ${cap.risk}`}>{riskLabel(cap.risk)}</span>
           </div>
           {!available ? (
-            <p>{cap.unavailable_reason || "Capability ausente neste branch."}</p>
+            <p>
+              {cap.unavailable_reason ||
+                "Esta ação ainda não está disponível na instalação atual. As demais continuam funcionando."}
+            </p>
           ) : (
             <>
               <ParameterForm
@@ -75,20 +80,21 @@ export function CapabilityDetailPage() {
                 onToggleAdvanced={() => setAdvanced((a) => !a)}
               />
               <p className="muted">
-                Esta ação {cap.risk === "read" ? "é somente leitura." : "pode gerar artefatos locais."} Não envia
-                mensagens nem altera sistemas externos por padrão.
+                {cap.risk === "read"
+                  ? "Somente consulta — não altera dados comerciais."
+                  : "Pode gerar arquivos e listas neste computador. Não envia mensagem a clientes sozinha."}
               </p>
               <div className="row">
                 <button
                   type="button"
-                  className="btn btn-primary"
+                  className="btn btn-primary btn-lg"
                   disabled={busy}
                   onClick={() => {
                     if (cap.requires_confirmation) setConfirmOpen(true);
                     else void run();
                   }}
                 >
-                  Executar
+                  {busy ? "Iniciando…" : "Executar agora"}
                 </button>
               </div>
               {error ? <p role="alert">{error}</p> : null}
@@ -96,28 +102,56 @@ export function CapabilityDetailPage() {
           )}
         </section>
         <section className="panel">
-          <h2>Detalhes técnicos</h2>
+          <h2>O que esperar</h2>
           <ul>
-            <li>
-              ID: <span className="mono">{cap.id}</span>
-            </li>
-            <li>Categoria: {cap.category}</li>
-            <li>Confirmação: {cap.requires_confirmation ? "sim" : "não"}</li>
-            <li>Cancelável: {cap.allow_cancel ? "sim" : "não"}</li>
-            <li>Env: {(cap.required_env || []).join(", ") || "—"}</li>
-            <li>Outputs: {(cap.output_roots || []).join(", ") || "—"}</li>
+            <li>Você acompanha o progresso na tela de atividade.</li>
+            <li>Quando terminar, os resultados abrem em tabela ou arquivo para download.</li>
+            <li>Se precisar de decisão humana, o item entra em <Link to="/review">Revisões</Link>.</li>
+            {(cap.required_env || []).length > 0 ? (
+              <li>Requer configuração: {(cap.required_env || []).map(friendlyEnv).join(", ")}</li>
+            ) : (
+              <li>Não exige credenciais extras além do ambiente local.</li>
+            )}
           </ul>
+          <details className="tech-details">
+            <summary>Detalhes técnicos (opcional)</summary>
+            <ul>
+              <li>
+                ID: <span className="mono">{cap.id}</span>
+              </li>
+              <li>Categoria: {cap.category}</li>
+              <li>Confirmação: {cap.requires_confirmation ? "sim" : "não"}</li>
+              <li>Pode cancelar: {cap.allow_cancel ? "sim" : "não"}</li>
+              <li>Saídas: {(cap.output_roots || []).join(", ") || "—"}</li>
+            </ul>
+          </details>
         </section>
       </div>
 
       <ConfirmationDialog
         open={confirmOpen}
         title={`Confirmar: ${cap.name}`}
-        description="Revise o efeito antes de executar. O Command Center não decide por você."
+        description="Revise o efeito antes de executar. O painel não envia outreach e não decide por você."
         phrase={cap.confirmation_phrase || "CONFIRMO"}
         onCancel={() => setConfirmOpen(false)}
         onConfirm={(typed) => void run(typed)}
       />
     </div>
   );
+}
+
+function riskLabel(risk: string): string {
+  const map: Record<string, string> = {
+    read: "Somente leitura",
+    write_local: "Gera arquivos locais",
+    human_decision: "Exige decisão humana",
+    destructive: "Potencialmente destrutivo",
+  };
+  return map[risk] || risk;
+}
+
+function friendlyEnv(key: string): string {
+  if (key.includes("DATALAKE") || key.includes("DATABASE")) return "banco de dados local";
+  if (key.includes("OPENAI")) return "chave de IA";
+  return key;
 }

@@ -2,20 +2,24 @@ import { useEffect, useState } from "react";
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { client } from "../api/client";
+import { BrandLogo } from "../components/BrandLogo";
 import { CommandPalette } from "../components/CommandPalette";
 import { StatusBadge } from "../components/StatusBadge";
 
-const NAV = [
-  { to: "/", label: "Visão Geral", end: true },
-  { to: "/extra", label: "Operações da Extra" },
-  { to: "/confenge/suppliers", label: "CONFENGE Fornecedores" },
-  { to: "/confenge/agencies", label: "CONFENGE Órgãos" },
+const NAV_MAIN = [
+  { to: "/", label: "Início", end: true },
+  { to: "/extra", label: "Oportunidades Extra" },
+  { to: "/confenge/suppliers", label: "Fornecedores" },
+  { to: "/confenge/agencies", label: "Órgãos públicos" },
   { to: "/documents", label: "Documentos" },
-  { to: "/ops", label: "Operação / Infra" },
-  { to: "/dod", label: "DOD e Evidências" },
-  { to: "/jobs", label: "Jobs" },
-  { to: "/review", label: "Revisão humana" },
-  { to: "/capabilities", label: "Capabilities" },
+  { to: "/review", label: "Revisões" },
+  { to: "/results", label: "Resultados" },
+];
+
+const NAV_SECONDARY = [
+  { to: "/jobs", label: "Atividades em andamento" },
+  { to: "/actions", label: "Todas as ações" },
+  { to: "/onboarding", label: "Configuração inicial" },
 ];
 
 function getTheme(): "light" | "dark" | "system" {
@@ -35,6 +39,12 @@ export function AppShell() {
   const [search, setSearch] = useState("");
   const navigate = useNavigate();
   const health = useQuery({ queryKey: ["health"], queryFn: client.health, refetchInterval: 15000 });
+  const reviews = useQuery({
+    queryKey: ["reviews", "pending", "nav"],
+    queryFn: () => client.reviews("pending"),
+    refetchInterval: 12000,
+  });
+  const pendingCount = reviews.data?.count ?? reviews.data?.reviews?.length ?? 0;
 
   useEffect(() => {
     applyTheme(theme);
@@ -64,30 +74,43 @@ export function AppShell() {
       </a>
       <aside className={`sidebar ${navOpen ? "open" : ""}`} aria-label="Navegação principal">
         <div className="brand">
-          <strong>EXTRA Command Center</strong>
-          <span>Camada visual local · extra-cli</span>
+          <BrandLogo variant="auto" height={32} />
+          <div>
+            <strong>Centro de Comando</strong>
+            <span>Operação comercial e de oportunidades — feito para o consultor, não para o terminal</span>
+          </div>
         </div>
         <nav>
+          <div className="nav-section-label">Trabalho do dia</div>
           <ul className="nav-list">
-            {NAV.map((item) => (
+            {NAV_MAIN.map((item) => (
               <li key={item.to}>
-                <NavLink
-                  to={item.to}
-                  end={item.end}
-                  onClick={() => setNavOpen(false)}
-                >
+                <NavLink to={item.to} end={item.end} onClick={() => setNavOpen(false)}>
+                  {item.label}
+                  {item.to === "/review" && pendingCount > 0 ? (
+                    <span className="status-badge status-awaiting_human" style={{ marginLeft: "auto" }}>
+                      {pendingCount}
+                    </span>
+                  ) : null}
+                </NavLink>
+              </li>
+            ))}
+          </ul>
+          <div className="nav-section-label">Mais</div>
+          <ul className="nav-list">
+            {NAV_SECONDARY.map((item) => (
+              <li key={item.to}>
+                <NavLink to={item.to} onClick={() => setNavOpen(false)}>
                   {item.label}
                 </NavLink>
               </li>
             ))}
           </ul>
         </nav>
-        <div style={{ marginTop: 24 }} className="muted" >
-          <div style={{ fontSize: "0.78rem" }}>
-            SHA {String(health.data?.sha || "…")}
-          </div>
-          <div style={{ fontSize: "0.78rem", marginTop: 4 }}>
-            Tema: {theme}
+        <div className="sidebar-foot">
+          <div>Sistema local · só neste computador</div>
+          <div style={{ marginTop: 4 }}>
+            {health.isError ? "Conexão com o painel indisponível" : "Painel online"}
           </div>
         </div>
       </aside>
@@ -114,23 +137,23 @@ export function AppShell() {
             <input
               id="global-search"
               type="search"
-              placeholder="Buscar órgão, CNPJ, job, capability…"
+              placeholder="Buscar empresa, órgão, CNPJ, resultado…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
           </form>
           <StatusBadge
             attention={health.isError ? "blocked_technical" : "healthy"}
-            label={health.isError ? "API offline" : "API local"}
+            label={health.isError ? "Offline" : "Local OK"}
           />
           <button type="button" className="btn" onClick={() => setPaletteOpen(true)}>
-            Comandos <span className="kbd">Ctrl K</span>
+            Ações rápidas <span className="kbd">Ctrl K</span>
           </button>
           <button type="button" className="btn" onClick={cycleTheme} aria-label="Alternar tema">
             Tema
           </button>
           <Link className="btn" to="/onboarding">
-            Setup
+            Ajuda
           </Link>
         </header>
         <main id="conteudo-principal" className="content">
@@ -138,18 +161,6 @@ export function AppShell() {
         </main>
       </div>
       <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} onToggleTheme={cycleTheme} />
-      <style>{`
-        .sr-only {
-          position: absolute;
-          width: 1px;
-          height: 1px;
-          padding: 0;
-          margin: -1px;
-          overflow: hidden;
-          clip: rect(0,0,0,0);
-          border: 0;
-        }
-      `}</style>
     </div>
   );
 }

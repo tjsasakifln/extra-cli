@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { client } from "../api/client";
+import { BrandLogo } from "../components/BrandLogo";
 import { EmptyState } from "../components/EmptyState";
 import { ErrorState } from "../components/ErrorState";
 import { MetricWithDenominator } from "../components/MetricWithDenominator";
@@ -12,37 +13,42 @@ export function HomePage() {
   const q = useQuery({ queryKey: ["overview"], queryFn: client.overview, refetchInterval: 10000 });
 
   if (q.isLoading) return <SkeletonState lines={8} />;
-  if (q.isError) return <ErrorState title="Não foi possível carregar a visão geral" error={(q.error as Error).message} />;
+  if (q.isError) return <ErrorState title="Não foi possível carregar o painel" error={(q.error as Error).message} />;
 
   const data = q.data as {
     headline: string;
     attention: Array<{ kind: string; title: string; detail?: string; href: string }>;
     capabilities: { total: number; available: number; unavailable: number };
     jobs: { recent: Array<Record<string, unknown>>; counts: Record<string, number> };
-    quick_actions: Array<{ id: string; label: string; href: string }>;
-    areas: Array<{ id: string; label: string; href: string }>;
+    quick_actions: Array<{ id: string; label: string; href: string; blurb?: string }>;
+    areas: Array<{ id: string; label: string; href: string; blurb?: string }>;
     health: { sha: string; env: Record<string, string>; profile: string };
   };
 
   return (
     <div>
       <header className="page-header">
-        <h1>Visão Geral</h1>
+        <div className="row" style={{ gap: 16, marginBottom: 8 }}>
+          <BrandLogo variant="auto" height={36} />
+        </div>
+        <h1>O que fazer agora?</h1>
         <p>
-          Centro de comando local sobre o extra-cli. A primeira dobra responde: o que precisa da sua
-          atenção agora — sem inventar métricas e sem esconder bloqueios.
+          Este é o seu centro de operação da consultoria: gerar listas, abrir resultados em tabela, revisar o que
+          precisa de decisão humana e acompanhar o que está rodando — tudo com um clique, sem terminal.
         </p>
       </header>
 
-      <section className="panel" aria-labelledby="attention-title">
-        <h2 id="attention-title">{data.headline}</h2>
+      <section className="hero-panel" aria-labelledby="attention-title">
+        <h2 id="attention-title" style={{ marginTop: 0 }}>
+          {data.headline}
+        </h2>
         {data.attention.length === 0 ? (
           <EmptyState title="Nada urgente no momento">
-            As áreas estão quietas. Use as ações rápidas se quiser iniciar um fluxo.
+            Use as ações abaixo para gerar uma lista ou abrir resultados recentes.
           </EmptyState>
         ) : (
           <div>
-            {data.attention.map((item, idx) => (
+            {data.attention.slice(0, 6).map((item, idx) => (
               <div className="attention-item" key={`${item.title}-${idx}`}>
                 <StatusBadge
                   attention={
@@ -57,7 +63,7 @@ export function HomePage() {
                   <strong>{item.title}</strong>
                   {item.detail ? <div className="muted">{item.detail}</div> : null}
                 </div>
-                <Link className="btn" to={item.href}>
+                <Link className="btn btn-primary" to={item.href}>
                   Abrir
                 </Link>
               </div>
@@ -66,52 +72,74 @@ export function HomePage() {
         )}
       </section>
 
-      <div className="grid-2" style={{ marginTop: 16 }}>
+      <section style={{ marginTop: 20 }}>
+        <h2 style={{ marginBottom: 12 }}>Ações principais</h2>
+        <div className="grid-actions">
+          {data.quick_actions.map((a) => (
+            <Link key={a.id} className="action-card" to={a.href}>
+              <strong>{a.label}</strong>
+              <span className="muted">{a.blurb || "Abrir fluxo"}</span>
+              <span className="btn" style={{ alignSelf: "flex-start", pointerEvents: "none" }}>
+                Continuar
+              </span>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <div className="grid-2" style={{ marginTop: 20 }}>
         <section className="panel">
-          <h2>Ações rápidas</h2>
+          <h2>Áreas de trabalho</h2>
           <div className="stack">
-            {data.quick_actions.map((a) => (
-              <div className="row" key={a.id} style={{ justifyContent: "space-between" }}>
+            {data.areas.map((area) => (
+              <Link
+                key={area.id}
+                to={area.href}
+                className="row"
+                style={{
+                  textDecoration: "none",
+                  color: "inherit",
+                  justifyContent: "space-between",
+                  padding: "10px 0",
+                  borderBottom: "1px solid var(--border)",
+                }}
+              >
                 <div>
-                  <div>{a.label}</div>
-                  <div className="mono muted" style={{ fontSize: "0.78rem" }}>
-                    {a.id}
-                  </div>
+                  <strong>{area.label}</strong>
+                  {area.blurb ? <div className="muted">{area.blurb}</div> : null}
                 </div>
-                <Link className="btn btn-primary" to={a.href}>
-                  Ir
-                </Link>
-              </div>
+                <span className="btn">Abrir</span>
+              </Link>
             ))}
           </div>
         </section>
         <section className="panel">
-          <h2>Estado do sistema</h2>
+          <h2>Situação do ambiente</h2>
           <div className="stack">
             <MetricWithDenominator
-              label="Capabilities disponíveis"
+              label="Ações disponíveis neste computador"
               value={data.capabilities.available}
               denominator={data.capabilities.total}
-              unitLabel="descobertas dinamicamente nesta versão"
+              unitLabel="prontas de total descobertas"
             />
             <MetricWithDenominator
-              label="Jobs ativos"
+              label="Atividades em andamento"
               value={data.jobs.counts.active || 0}
               denominator={data.jobs.counts.total || 0}
-              unitLabel="ativos de total recente"
+              unitLabel="ativas de recentes"
             />
             <div>
               <div className="muted" style={{ fontSize: "0.82rem", fontWeight: 600 }}>
-                Ambiente sensível (sem valores)
+                Conexões (sem exibir senhas)
               </div>
               <ul>
                 {Object.entries(data.health.env || {}).map(([k, v]) => (
                   <li key={k}>
-                    <span className="mono">{k}</span>: {v}
+                    {friendlyEnv(k)}: <strong>{friendlyPresence(v)}</strong>
                   </li>
                 ))}
                 <li>
-                  Perfil Extra: {data.health.profile}
+                  Perfil da Extra: <strong>{data.health.profile}</strong>
                 </li>
               </ul>
             </div>
@@ -120,32 +148,21 @@ export function HomePage() {
       </div>
 
       <section className="panel" style={{ marginTop: 16 }}>
-        <h2>Áreas</h2>
-        <div className="grid-3">
-          {data.areas.map((area) => (
-            <Link key={area.id} className="panel" style={{ marginTop: 0, textDecoration: "none", color: "inherit" }} to={area.href}>
-              <strong>{area.label}</strong>
-              <div className="muted" style={{ marginTop: 6 }}>
-                Abrir área operacional
-              </div>
-            </Link>
-          ))}
+        <div className="row" style={{ justifyContent: "space-between" }}>
+          <h2 style={{ margin: 0 }}>Atividade recente</h2>
+          <Link to="/jobs">Ver todas</Link>
         </div>
-      </section>
-
-      <section className="panel" style={{ marginTop: 16 }}>
-        <h2>Atividade recente</h2>
         {data.jobs.recent.length === 0 ? (
-          <EmptyState title="Nenhum job ainda">
-            Execute a fixture segura em Capabilities para validar o runner.
+          <EmptyState title="Nenhuma atividade ainda">
+            Escolha uma ação principal acima — por exemplo, validar o perfil ou gerar a lista de fornecedores.
           </EmptyState>
         ) : (
-          <div className="table-wrap">
+          <div className="table-wrap" style={{ marginTop: 12 }}>
             <table className="data">
               <thead>
                 <tr>
-                  <th>Ação</th>
-                  <th>Status</th>
+                  <th>O que rodou</th>
+                  <th>Situação</th>
                   <th>Explicação</th>
                   <th></th>
                 </tr>
@@ -165,7 +182,7 @@ export function HomePage() {
                       />
                     </td>
                     <td>
-                      <Link to={`/jobs/${j.job_id}`}>Detalhe</Link>
+                      <Link to={`/jobs/${j.job_id}`}>Abrir</Link>
                     </td>
                   </tr>
                 ))}
@@ -176,4 +193,20 @@ export function HomePage() {
       </section>
     </div>
   );
+}
+
+function friendlyEnv(key: string): string {
+  if (key.includes("DATALAKE") || key.includes("DATABASE")) return "Banco de dados local";
+  if (key.includes("OPENAI")) return "Assistente de IA (chave)";
+  return key;
+}
+
+function friendlyPresence(v: string): string {
+  const map: Record<string, string> = {
+    configurada: "configurada",
+    ausente: "ainda não configurada",
+    inválida: "inválida — revisar",
+    "não testada": "presente (não testada agora)",
+  };
+  return map[v] || v;
 }

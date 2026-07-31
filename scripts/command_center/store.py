@@ -373,6 +373,27 @@ class Store:
             )
         return rid
 
+    def _row_to_review(self, r: sqlite3.Row | dict[str, Any]) -> dict[str, Any]:
+        d = dict(r)
+        try:
+            d["payload"] = json.loads(d.get("payload") or "{}")
+        except json.JSONDecodeError:
+            d["payload"] = {}
+        return d
+
+    def get_review(self, item_id: str) -> dict[str, Any] | None:
+        with self._lock, self._conn() as conn:
+            row = conn.execute(
+                """
+                SELECT id, ts, title, source, evidence, limitations, risks, status, job_id, capability_id, payload
+                FROM review_items WHERE id = ?
+                """,
+                (item_id,),
+            ).fetchone()
+        if not row:
+            return None
+        return self._row_to_review(row)
+
     def list_reviews(self, status: str | None = "pending", limit: int = 50) -> list[dict[str, Any]]:
         with self._lock, self._conn() as conn:
             if status:
@@ -391,15 +412,7 @@ class Store:
                     """,
                     (max(1, min(limit, 200)),),
                 ).fetchall()
-        out: list[dict[str, Any]] = []
-        for r in rows:
-            d = dict(r)
-            try:
-                d["payload"] = json.loads(d.get("payload") or "{}")
-            except json.JSONDecodeError:
-                d["payload"] = {}
-            out.append(d)
-        return out
+        return [self._row_to_review(r) for r in rows]
 
     def mark_review_decided(self, item_id: str, decision: str) -> None:
         with self._lock, self._conn() as conn:

@@ -232,10 +232,12 @@ def all_capabilities() -> list[Capability]:
             parse_result=default_parse,
         ),
         # ── CONFENGE suppliers ─────────────────────────────────
+        # Router canônico: confenge_commercial_target_router
+        # (suppliers | public-agencies | all) com precheck do cadastro oficial.
         Capability(
             id="confenge.suppliers.registry.health",
-            name="Saúde do cadastro oficial",
-            description="Verifica saúde/disponibilidade do registry de fornecedores.",
+            name="Verificar cadastro oficial de empresas",
+            description="Confere se o cadastro oficial de CNPJs está disponível e saudável.",
             category="confenge_suppliers",
             argv_builder=lambda p: _registry_argv("health", p),
             required_modules=["scripts.company_registry"],
@@ -245,11 +247,11 @@ def all_capabilities() -> list[Capability]:
         ),
         Capability(
             id="confenge.suppliers.registry.lookup",
-            name="Consultar CNPJ no cadastro",
-            description="Lookup pontual de CNPJ no registry oficial (somente leitura).",
+            name="Consultar empresa por CNPJ",
+            description="Busca uma empresa no cadastro oficial (somente consulta).",
             category="confenge_suppliers",
             argv_builder=lambda p: _registry_argv("lookup", p),
-            params=[ParamSpec("cnpj", "CNPJ", required=True, example="00.000.000/0001-91")],
+            params=[ParamSpec("cnpj", "CNPJ da empresa", required=True, example="00.000.000/0001-91")],
             required_modules=["scripts.company_registry"],
             risk=RiskLevel.READ,
             parse_result=default_parse,
@@ -257,7 +259,7 @@ def all_capabilities() -> list[Capability]:
         Capability(
             id="confenge.suppliers.registry.coverage",
             name="Cobertura do cadastro oficial",
-            description="Cobertura com denominador explícito (nunca 100% sem universo).",
+            description="Mostra quantas empresas do universo comercial estão no cadastro (sempre com total).",
             category="confenge_suppliers",
             argv_builder=lambda p: _registry_argv("coverage", p),
             required_modules=["scripts.company_registry"],
@@ -266,94 +268,145 @@ def all_capabilities() -> list[Capability]:
         ),
         Capability(
             id="confenge.suppliers.cycle.run",
-            name="Ciclo comercial CONFENGE (fornecedores)",
-            description="Ciclo comercial canônico. Não envia outreach automático.",
-            category="confenge_suppliers",
-            argv_builder=lambda p: python_m(
-                "scripts.ops.confenge_commercial_cycle",
-                "--run-mode",
-                str(p.get("run_mode") or "DRY_RUN"),
-                *(["--out", str(p["out"])] if p.get("out") else []),
-                *(["--max-contracts", str(p["max_contracts"])] if p.get("max_contracts") else []),
-                *(["--population-mode", str(p["population_mode"])] if p.get("population_mode") else []),
+            name="Gerar lista comercial de fornecedores",
+            description=(
+                "Roda o ciclo comercial canônico de fornecedores via router oficial "
+                "(com checagem do cadastro). Não envia e-mail nem mensagem automática."
             ),
+            category="confenge_suppliers",
+            argv_builder=lambda p: _commercial_router_argv("suppliers", p),
             params=[
                 ParamSpec(
                     "run_mode",
-                    "Modo",
+                    "Modo de execução",
                     type="select",
                     default="DRY_RUN",
                     choices=["DRY_RUN", "RC", "TEST", "EXPERIMENTAL_SAMPLE"],
+                    description="DRY_RUN = simulação segura; RC = corrida real local.",
                 ),
-                ParamSpec("out", "Diretório de saída", type="path", advanced=True),
-                ParamSpec("max_contracts", "Máx. contratos", type="int", advanced=True),
+                ParamSpec("out", "Pasta de resultados", type="path", advanced=True),
+                ParamSpec("max_contracts", "Limite de contratos", type="int", advanced=True),
                 ParamSpec(
                     "population_mode",
-                    "População",
+                    "Abrangência",
                     type="select",
                     choices=["BOUNDED_SAMPLE", "FULL_POPULATION"],
                     default="BOUNDED_SAMPLE",
                     advanced=True,
                 ),
             ],
-            required_modules=["scripts.ops.confenge_commercial_cycle"],
+            required_modules=["scripts.ops.confenge_commercial_target_router"],
             risk=RiskLevel.WRITE_LOCAL,
             requires_confirmation=True,
-            confirmation_phrase="Confirmo execução local do ciclo comercial (sem outreach).",
+            confirmation_phrase="Confirmo a geração local da lista comercial de fornecedores (sem envio automático).",
             parse_result=default_parse,
             timeout_sec=7200,
+            output_roots=["output/confenge-commercial", "artifacts", "output"],
         ),
         # ── CONFENGE public agencies ───────────────────────────
         Capability(
             id="confenge.public_agencies.cycle.run",
-            name="Ciclo órgãos públicos CONFENGE",
-            description="Análise de órgãos públicos. Linguagem cautelosa sobre contratação direta.",
+            name="Gerar lista de órgãos públicos",
+            description=(
+                "Roda o ciclo canônico de órgãos públicos (router oficial). "
+                "Resultados exigem validação jurídica — a tela nunca afirma contratação garantida."
+            ),
             category="confenge_agencies",
-            argv_builder=lambda p: _agency_cycle_argv(p),
+            argv_builder=lambda p: _commercial_router_argv("public-agencies", p),
             params=[
-                ParamSpec("state", "UF", default="SC", example="SC"),
-                ParamSpec("max_items", "Quantidade máxima", type="int", default=20),
+                ParamSpec("uf", "UF (opcional)", default=None, example="SC", description="Filtrar por estado."),
                 ParamSpec(
-                    "mode",
-                    "Modo",
+                    "max_public_agency_leads",
+                    "Quantidade máxima de órgãos",
+                    type="int",
+                    default=20,
+                ),
+                ParamSpec(
+                    "public_agency_mode",
+                    "Tipo de prospecção",
                     type="select",
-                    default="analysis_only",
-                    choices=["analysis_only", "dry_run"],
+                    default=None,
+                    choices=["REACTIVE_OPPORTUNITY", "PROACTIVE_INSTITUTIONAL_PROSPECT"],
+                    advanced=True,
+                ),
+                ParamSpec("public_agency_out", "Pasta de resultados", type="path", advanced=True),
+                ParamSpec(
+                    "run_mode",
+                    "Modo de execução",
+                    type="select",
+                    default="DRY_RUN",
+                    choices=["DRY_RUN", "RC", "TEST", "EXPERIMENTAL_SAMPLE"],
+                    advanced=True,
                 ),
             ],
-            required_modules=["scripts.ops.deliverable_a_org_ranking"],
+            required_modules=["scripts.ops.confenge_commercial_target_router"],
+            required_env=["LOCAL_DATALAKE_DSN"],
             risk=RiskLevel.WRITE_LOCAL,
             requires_confirmation=True,
-            confirmation_phrase="CONFIRMO",
+            confirmation_phrase="Confirmo a geração local da lista de órgãos públicos (sem envio automático).",
             parse_result=default_parse,
-            expected_pr="confenge public agencies",
+            timeout_sec=7200,
+            output_roots=["output/confenge-commercial", "artifacts", "output"],
         ),
         Capability(
             id="confenge.public_agencies.review.open",
-            name="Revisão humana — órgãos públicos",
-            description="Lista pacotes de revisão humana de órgãos (somente leitura).",
+            name="Abrir pacotes de revisão de órgãos",
+            description="Lista pacotes que ainda precisam de sua decisão humana sobre órgãos públicos.",
             category="confenge_agencies",
             argv_builder=lambda p: python_m(
                 "scripts.ops.confenge_human_review_packages",
                 *(["--path", str(p["path"])] if p.get("path") else []),
             ),
-            params=[ParamSpec("path", "Caminho do pacote", type="path", advanced=True)],
+            params=[ParamSpec("path", "Pasta do pacote", type="path", advanced=True)],
             required_modules=["scripts.ops.confenge_human_review_packages"],
             risk=RiskLevel.READ,
             parse_result=default_parse,
         ),
         Capability(
             id="confenge.all.cycle.run",
-            name="Ciclo combinado CONFENGE",
-            description="Placeholder para ciclo unificado fornecedores+órgãos quando existir entrypoint.",
+            name="Gerar fornecedores e órgãos juntos",
+            description=(
+                "Ciclo combinado canônico (target=all): fornecedores + órgãos em uma execução. "
+                "Cada modalidade é avaliada à parte; um sucesso não aprova a outra."
+            ),
             category="confenge_suppliers",
-            argv_builder=lambda p: python_m("scripts.ops.confenge_commercial_cycle", "--run-mode", "DRY_RUN"),
-            required_modules=["scripts.ops.confenge_combined_cycle"],
+            argv_builder=lambda p: _commercial_router_argv("all", p),
+            params=[
+                ParamSpec(
+                    "run_mode",
+                    "Modo de execução",
+                    type="select",
+                    default="DRY_RUN",
+                    choices=["DRY_RUN", "RC", "TEST", "EXPERIMENTAL_SAMPLE"],
+                ),
+                ParamSpec("out", "Pasta de resultados (fornecedores)", type="path", advanced=True),
+                ParamSpec("public_agency_out", "Pasta de resultados (órgãos)", type="path", advanced=True),
+                ParamSpec("max_contracts", "Limite de contratos", type="int", advanced=True),
+                ParamSpec(
+                    "max_public_agency_leads",
+                    "Quantidade máxima de órgãos",
+                    type="int",
+                    default=20,
+                    advanced=True,
+                ),
+                ParamSpec(
+                    "population_mode",
+                    "Abrangência (fornecedores)",
+                    type="select",
+                    choices=["BOUNDED_SAMPLE", "FULL_POPULATION"],
+                    default="BOUNDED_SAMPLE",
+                    advanced=True,
+                ),
+            ],
+            required_modules=["scripts.ops.confenge_commercial_target_router"],
             risk=RiskLevel.WRITE_LOCAL,
             requires_confirmation=True,
-            confirmation_phrase="CONFIRMO",
-            expected_pr="futuro ciclo combinado",
+            confirmation_phrase=(
+                "Confirmo a geração local combinada (fornecedores + órgãos), sem envio automático."
+            ),
             parse_result=default_parse,
+            timeout_sec=7200,
+            output_roots=["output/confenge-commercial", "artifacts", "output"],
         ),
         # ── Process documents ──────────────────────────────────
         Capability(
@@ -559,12 +612,44 @@ def _registry_argv(action: str, p: dict[str, Any]) -> list[str]:
     return base + ["health"]
 
 
-def _agency_cycle_argv(p: dict[str, Any]) -> list[str]:
-    argv = python_m("scripts.ops.deliverable_a_org_ranking")
-    if p.get("state"):
-        argv.extend(["--state", str(p["state"])])
-    if p.get("max_items") is not None:
-        argv.extend(["--limit", str(int(p["max_items"]))])
+def _commercial_router_argv(target: str, p: dict[str, Any]) -> list[str]:
+    """Canonical commercial entry: target_router (suppliers | public-agencies | all).
+
+    Suppliers path goes through official registry precheck when
+    CONFENGE_REQUIRE_OFFICIAL_REGISTRY is on (router default).
+    """
+    if target not in {"suppliers", "public-agencies", "all"}:
+        raise ValueError(f"target comercial inválido: {target}")
+    argv = python_m("scripts.ops.confenge_commercial_target_router", "--target", target)
+    run_mode = p.get("run_mode") or "DRY_RUN"
+    argv.extend(["--run-mode", str(run_mode)])
+    if p.get("out"):
+        argv.extend(["--out", str(p["out"])])
+    if p.get("max_contracts") is not None:
+        argv.extend(["--max-contracts", str(int(p["max_contracts"]))])
+    if p.get("population_mode"):
+        argv.extend(["--population-mode", str(p["population_mode"])])
+    # public-agency specific
+    uf = p.get("uf") or p.get("state")
+    if uf:
+        argv.extend(["--uf", str(uf)])
+    if p.get("max_public_agency_leads") is not None:
+        argv.extend(["--max-public-agency-leads", str(int(p["max_public_agency_leads"]))])
+    elif p.get("max_items") is not None:
+        # back-compat with older param name from UI fixtures
+        argv.extend(["--max-public-agency-leads", str(int(p["max_items"]))])
+    if p.get("public_agency_mode"):
+        argv.extend(["--public-agency-mode", str(p["public_agency_mode"])])
+    if p.get("public_agency_out"):
+        argv.extend(["--public-agency-out", str(p["public_agency_out"])])
+    if p.get("public_agency_profile"):
+        argv.extend(["--public-agency-profile", str(p["public_agency_profile"])])
+    if p.get("as_of"):
+        argv.extend(["--as-of", str(p["as_of"])])
+    if p.get("skip_migrations"):
+        argv.append("--skip-migrations")
+    if p.get("skip_persist"):
+        argv.append("--skip-persist")
     return argv
 
 

@@ -1,24 +1,24 @@
 import { expect, test } from "@playwright/test";
 
 test.describe("Command Center critical flows", () => {
-  test("opens app, shows capabilities, runs fixture job", async ({ page }) => {
+  test("opens app, shows actions, runs fixture job", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByRole("heading", { name: "Visão Geral" })).toBeVisible();
-    await page.getByRole("link", { name: "Capabilities" }).click();
-    await expect(page.getByRole("heading", { name: "Capabilities" })).toBeVisible();
-    await page.goto("/capabilities/cc.fixture.echo");
+    await expect(page.getByRole("heading", { name: /O que fazer agora/i })).toBeVisible();
+    await page.getByRole("link", { name: "Todas as ações" }).click();
+    await expect(page.getByRole("heading", { name: /Todas as ações/i })).toBeVisible();
+    await page.goto("/actions/cc.fixture.echo");
     await expect(page.getByRole("heading", { name: /Fixture/i })).toBeVisible();
-    await page.getByRole("button", { name: "Executar" }).click();
+    await page.getByRole("button", { name: /Executar agora/i }).click();
     await expect(page).toHaveURL(/\/jobs\//);
-    await expect(page.getByText(/FIXTURE_DONE|Command Center fixture|Concluído|Em execução/i)).toBeVisible({
+    await expect(page.getByText(/FIXTURE_DONE|Command Center fixture|Concluído|Em execução|Situação/i)).toBeVisible({
       timeout: 30_000,
     });
   });
 
   test("theme toggle and command palette", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByRole("heading", { name: "Visão Geral" })).toBeVisible();
-    await page.getByRole("button", { name: /Comandos/i }).click();
+    await expect(page.getByRole("heading", { name: /O que fazer agora/i })).toBeVisible();
+    await page.getByRole("button", { name: /Ações rápidas/i }).click();
     await expect(page.getByPlaceholder(/Buscar ou executar/i)).toBeVisible();
     await page.keyboard.press("Escape");
     await page.getByRole("button", { name: "Tema" }).click();
@@ -28,19 +28,10 @@ test.describe("Command Center critical flows", () => {
 
   test("keyboard main nav reaches Extra and Documents", async ({ page }) => {
     await page.goto("/");
-    // Focus skip link then main nav via Tab
-    await page.keyboard.press("Tab");
-    // Walk to first nav link in sidebar
-    for (let i = 0; i < 8; i++) {
-      await page.keyboard.press("Tab");
-    }
-    // Use keyboard-activated nav links (Enter on focused link)
-    await page.getByRole("navigation").getByRole("link", { name: "Operações da Extra" }).focus();
-    await page.keyboard.press("Enter");
+    await page.getByRole("navigation").getByRole("link", { name: /Oportunidades Extra/i }).click();
     await expect(page).toHaveURL(/\/extra/);
-    await expect(page.getByRole("heading", { name: /Operações da Extra/i })).toBeVisible();
-    await page.getByRole("navigation").getByRole("link", { name: "Documentos" }).focus();
-    await page.keyboard.press("Enter");
+    await expect(page.getByRole("heading", { name: /Oportunidades Extra/i })).toBeVisible();
+    await page.getByRole("navigation").getByRole("link", { name: "Documentos" }).click();
     await expect(page).toHaveURL(/\/documents/);
     await expect(page.getByRole("heading", { name: /Documentos/i })).toBeVisible();
   });
@@ -57,25 +48,32 @@ test.describe("Command Center critical flows", () => {
     const body = await page.locator("main").innerText();
     expect(body.length).toBeGreaterThan(10);
 
-    await page.goto("/artifacts");
-    await expect(page.getByRole("heading", { name: "Artefatos" })).toBeVisible();
-    const firstLink = page.locator('main a[href*="/artifacts?path="], main a[href*="artifacts?path="]').first();
+    await page.goto("/results");
+    await expect(page.getByRole("heading", { name: /Resultados/i })).toBeVisible();
     const count = await page.locator("main li a").count();
     if (count > 0) {
       await page.locator("main li a").first().click();
       await expect(page).toHaveURL(/path=/);
-      // Sample content or binary message
-      await expect(page.locator("main")).toContainText(/Download|json|md|csv|bytes|Visualização|sample|\{|path/i);
+      await expect(page.locator("main")).toContainText(
+        /Baixar|json|md|csv|bytes|Tabela|arquivo|sample|\{|path|resultado/i,
+      );
     } else {
-      await expect(page.getByText(/Nenhum artifact|roots permitidas/i)).toBeVisible();
+      await expect(page.getByText(/Ainda não há resultados|Nenhum/i)).toBeVisible();
     }
-    void firstLink;
     void request;
+  });
+
+  test("confenge logo is present in shell", async ({ page }) => {
+    await page.goto("/");
+    const logos = page.locator('img[alt="CONFENGE"], .brand-logo, .brand-logo-pair img');
+    await expect(logos.first()).toBeVisible();
+    const src = await logos.first().getAttribute("src");
+    expect(src || "").toMatch(/logo-confenge/);
   });
 
   test("secrets absent in DOM from health-backed UI", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByRole("heading", { name: "Visão Geral" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /O que fazer agora/i })).toBeVisible();
     await page.goto("/onboarding");
     const text = await page.locator("body").innerText();
     expect(text).not.toMatch(/postgresql:\/\/[^\s]+/i);

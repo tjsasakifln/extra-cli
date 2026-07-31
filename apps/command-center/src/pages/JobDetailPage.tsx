@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { client } from "../api/client";
+import { ArtifactLinkList, ArtifactViewer } from "../components/ArtifactViewer";
 import { ErrorState } from "../components/ErrorState";
 import { HumanStatusExplanation } from "../components/HumanStatusExplanation";
 import { LogStream } from "../components/LogStream";
@@ -14,6 +15,7 @@ export function JobDetailPage() {
   const q = useQuery({ queryKey: ["job", id], queryFn: () => client.job(id), refetchInterval: 3000 });
   const [lines, setLines] = useState<Array<{ stream?: string; message: string }>>([]);
   const [cancelError, setCancelError] = useState<string | null>(null);
+  const [previewPath, setPreviewPath] = useState<string | null>(null);
 
   useEffect(() => {
     if (!id) return;
@@ -35,16 +37,30 @@ export function JobDetailPage() {
     return () => es.close();
   }, [id, qc]);
 
+  const job = q.data?.job;
+  const firstArtifact = job?.artifacts?.[0] || null;
+  useEffect(() => {
+    if (firstArtifact && !previewPath) setPreviewPath(firstArtifact);
+  }, [firstArtifact, previewPath]);
+
+  const preview = useQuery({
+    queryKey: ["artifact", previewPath],
+    queryFn: () => client.artifact(previewPath || ""),
+    enabled: Boolean(previewPath),
+  });
+
   if (q.isLoading) return <SkeletonState />;
-  if (q.isError || !q.data) return <ErrorState title="Job não encontrado" error={(q.error as Error)?.message} />;
-  const job = q.data.job;
+  if (q.isError || !job) {
+    return <ErrorState title="Atividade não encontrada" error={(q.error as Error)?.message} />;
+  }
   const running = ["QUEUED", "VALIDATING", "RUNNING", "CANCELLING"].includes(job.status);
+  const done = !running;
 
   return (
     <div>
       <header className="page-header">
         <p className="muted">
-          <Link to="/jobs">Jobs</Link> / <span className="mono">{job.job_id}</span>
+          <Link to="/jobs">Atividades</Link> / {job.action}
         </p>
         <h1>{job.action}</h1>
         <div className="row">
@@ -63,50 +79,86 @@ export function JobDetailPage() {
               Cancelar
             </button>
           ) : null}
+          {done ? (
+            <Link className="btn" to="/results">
+              Ir para resultados
+            </Link>
+          ) : null}
+          {job.status === "BLOCKED_HUMAN" ? (
+            <Link className="btn btn-primary" to="/review">
+              Ir para revisões
+            </Link>
+          ) : null}
         </div>
       </header>
 
       <div className="grid-2">
         <section className="panel">
-          <h2>Status</h2>
+          <h2>Situação</h2>
           <HumanStatusExplanation
             code={job.technical_code || job.status}
             message={job.human_message}
             nextAction={job.next_action}
           />
           <ul>
-            <li>Capability: <span className="mono">{job.capability_id}</span></li>
-            <li>Exit code: {job.exit_code ?? "—"}</li>
-            <li>SHA: <span className="mono">{job.code_sha || "—"}</span></li>
-            <li>Início: {job.started_at || "—"}</li>
-            <li>Fim: {job.finished_at || "—"}</li>
-            <li>Duração: {job.duration_ms != null ? `${job.duration_ms} ms` : "—"}</li>
+            <li>
+              Início: {job.started_at ? new Date(job.started_at).toLocaleString("pt-BR") : "—"}
+            </li>
+            <li>Fim: {job.finished_at ? new Date(job.finished_at).toLocaleString("pt-BR") : "—"}</li>
+            <li>
+              Duração:{" "}
+              {job.duration_ms != null ? `${Math.round(job.duration_ms / 1000)} s` : "—"}
+            </li>
           </ul>
           {cancelError ? <p role="alert">{cancelError}</p> : null}
         </section>
         <section className="panel">
-          <h2>Comando canônico equivalente</h2>
-          <pre className="log-stream" style={{ maxHeight: 180 }}>
-            {(job.canonical_command || []).join(" ")}
-          </pre>
-          <h3>Artefatos</h3>
-          {(job.artifacts || []).length === 0 ? (
-            <p className="muted">Nenhum caminho de artifact detectado ainda.</p>
-          ) : (
-            <ul>
-              {job.artifacts.map((a) => (
-                <li key={a}>
-                  <Link to={`/artifacts?path=${encodeURIComponent(a)}`}>{a}</Link>
-                </li>
+          <h2>Resultados desta atividade</h2>
+          <ArtifactLinkList paths={job.artifacts || []} />
+          {(job.artifacts || []).length > 0 ? (
+            <div className="row" style={{ marginTop: 8 }}>
+              {(job.artifacts || []).slice(0, 6).map((a) => (
+                <button
+                  key={a}
+                  type="button"
+                  className={`btn ${previewPath === a ? "btn-primary" : ""}`}
+                  onClick={() => setPreviewPath(a)}
+                >
+                  Ver {a.split(/[/\\]/).pop()}
+                </button>
               ))}
-            </ul>
+            </div>
+          ) : (
+            <p className="muted">
+              {running
+                ? "Os arquivos aparecem aqui quando a atividade os gerar."
+                : "Nenhum arquivo detectado automaticamente — confira Resultados se souber o nome."}
+            </p>
           )}
         </section>
       </div>
 
-      <div style={{ marginTop: 16 }}>
+      {previewPath ? (
+        <section className="panel" style={{ marginTop: 16 }}>
+          <h2>Pré-visualização</h2>
+          {preview.isLoading ? <SkeletonState /> : null}
+          {preview.isError ? (
+            <p className="muted">Não foi possível pré-visualizar. Use “Baixar” em Resultados.</p>
+          ) : null}
+          {preview.data ? <ArtifactViewer artifact={preview.data as Record<string, unknown>} /> : null}
+        </section>
+      ) : null}
+
+      <details className="tech-details" style={{ marginTop: 16 }} open={running}>
+        <summary>{running ? "Acompanhamento ao vivo" : "Registro detalhado (avançado)"}</summary>
         <LogStream lines={lines} />
-      </div>
+        <details className="tech-details" style={{ marginTop: 12 }}>
+          <summary>Comando equivalente (para suporte técnico)</summary>
+          <pre className="log-stream" style={{ maxHeight: 120 }}>
+            {(job.canonical_command || []).join(" ")}
+          </pre>
+        </details>
+      </details>
     </div>
   );
 }

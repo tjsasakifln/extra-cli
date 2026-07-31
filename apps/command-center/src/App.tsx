@@ -22,11 +22,15 @@ export default function App() {
         <Route path="documents" element={<AreaPage area="documents" />} />
         <Route path="ops" element={<AreaPage area="ops" />} />
         <Route path="dod" element={<AreaPage area="dod" />} />
+        {/* Engineer-facing aliases */}
+        <Route path="actions" element={<CapabilitiesPage />} />
+        <Route path="actions/:id" element={<CapabilityDetailPage />} />
         <Route path="capabilities" element={<CapabilitiesPage />} />
         <Route path="capabilities/:id" element={<CapabilityDetailPage />} />
         <Route path="jobs" element={<JobsPage />} />
         <Route path="jobs/:id" element={<JobDetailPage />} />
         <Route path="review" element={<ReviewPage />} />
+        <Route path="results" element={<ArtifactsPage />} />
         <Route path="artifacts" element={<ArtifactsPage />} />
         <Route path="search" element={<SearchPage />} />
         <Route path="onboarding" element={<OnboardingPage />} />

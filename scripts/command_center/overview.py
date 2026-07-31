@@ -96,26 +96,76 @@ def build_overview(settings: Settings, store: Store, registry: CapabilityRegistr
         },
         "human_decisions_recent": decisions,
         "quick_actions": [
-            {"id": "extra.profile.validate", "label": "Validar perfil Extra", "href": "/extra"},
-            {"id": "extra.weekly.run", "label": "Ciclo semanal", "href": "/extra"},
+            {
+                "id": "extra.weekly.run",
+                "label": "Rodar ciclo semanal da Extra",
+                "href": "/actions/extra.weekly.run",
+                "blurb": "Atualiza oportunidades e relatórios da semana.",
+            },
             {
                 "id": "confenge.suppliers.cycle.run",
-                "label": "Ciclo comercial fornecedores",
-                "href": "/confenge/suppliers",
+                "label": "Gerar lista de fornecedores",
+                "href": "/actions/confenge.suppliers.cycle.run",
+                "blurb": "Ranking comercial de empresas (sem envio automático).",
             },
-            {"id": "confenge.public_agencies.cycle.run", "label": "Órgãos públicos", "href": "/confenge/agencies"},
-            {"id": "process_documents.coverage", "label": "Cobertura documental", "href": "/documents"},
-            {"id": "dod.status", "label": "Status DOD", "href": "/dod"},
-            {"id": "cc.fixture.echo", "label": "Teste seguro (fixture)", "href": "/jobs"},
+            {
+                "id": "confenge.public_agencies.cycle.run",
+                "label": "Gerar lista de órgãos públicos",
+                "href": "/actions/confenge.public_agencies.cycle.run",
+                "blurb": "Órgãos com potencial de interesse — exige sua análise.",
+            },
+            {
+                "id": "process_documents.coverage",
+                "label": "Ver cobertura de documentos",
+                "href": "/actions/process_documents.coverage",
+                "blurb": "O que já temos e o que falta nos processos.",
+            },
+            {
+                "id": "review",
+                "label": "Itens aguardando sua decisão",
+                "href": "/review",
+                "blurb": "Aceitar, recusar ou adiar com o contexto completo.",
+            },
+            {
+                "id": "results",
+                "label": "Abrir resultados e planilhas",
+                "href": "/results",
+                "blurb": "Tabelas e relatórios gerados recentemente.",
+            },
         ],
         "areas": [
-            {"id": "extra", "label": "Operações da Extra", "href": "/extra"},
-            {"id": "suppliers", "label": "CONFENGE — Fornecedores", "href": "/confenge/suppliers"},
-            {"id": "agencies", "label": "CONFENGE — Órgãos Públicos", "href": "/confenge/agencies"},
-            {"id": "documents", "label": "Documentos de Processos", "href": "/documents"},
-            {"id": "ops", "label": "Operação e Infraestrutura", "href": "/ops"},
-            {"id": "dod", "label": "DOD e Evidências", "href": "/dod"},
+            {
+                "id": "extra",
+                "label": "Oportunidades Extra",
+                "href": "/extra",
+                "blurb": "Ciclo semanal, shortlist e decisões da consultoria.",
+            },
+            {
+                "id": "suppliers",
+                "label": "Fornecedores CONFENGE",
+                "href": "/confenge/suppliers",
+                "blurb": "Cadastro oficial, ranking e lista comercial.",
+            },
+            {
+                "id": "agencies",
+                "label": "Órgãos públicos",
+                "href": "/confenge/agencies",
+                "blurb": "Prospecção institucional com linguagem cautelosa.",
+            },
+            {
+                "id": "documents",
+                "label": "Documentos de processos",
+                "href": "/documents",
+                "blurb": "Editais, anexos e cobertura documental.",
+            },
+            {"id": "review", "label": "Revisões humanas", "href": "/review", "blurb": "Fila do que só você pode decidir."},
+            {"id": "results", "label": "Resultados", "href": "/results", "blurb": "Tudo que foi gerado, em tabela."},
         ],
+        "persona": {
+            "audience": "engenheiro_civil_consultor",
+            "tone": "operacional_negocio",
+            "hide_dev_chrome_by_default": True,
+        },
     }
 
 
@@ -133,7 +183,7 @@ def build_search(query: str, store: Store, registry: CapabilityRegistry, setting
                     "id": c["id"],
                     "label": c["name"],
                     "detail": c["description"],
-                    "href": f"/capabilities/{c['id']}",
+                    "href": f"/actions/{c['id']}",
                 }
             )
     for j in store.list_jobs(limit=100):
@@ -163,7 +213,7 @@ def build_search(query: str, store: Store, registry: CapabilityRegistry, setting
                             "id": str(p),
                             "label": p.name,
                             "detail": str(p),
-                            "href": f"/artifacts?path={p}",
+                            "href": f"/results?path={p}",
                         }
                     )
                     if len(results) >= 40:

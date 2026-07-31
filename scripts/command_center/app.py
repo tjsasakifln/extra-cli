@@ -19,10 +19,16 @@ from scripts.command_center.config import Settings, git_sha, load_settings
 from scripts.command_center.job_runner import JobRunner, StartJobRequest
 from scripts.command_center.overview import build_overview, build_search
 from scripts.command_center.redaction import env_presence, redact_text
-from scripts.command_center.security import issue_csrf_token, require_csrf, resolve_under_roots
+from scripts.command_center.security import issue_csrf_token, require_csrf, resolve_under_roots, safe_join
 from scripts.command_center.store import Store
 
 STARTED_AT = time.time()
+
+# Server-owned human-confirmation defaults — never trust client payload for these.
+DEFAULT_REVIEW_CONFIRMATION_PHRASE = (
+    "Confirmo que revisei os dados e autorizo apenas a inclusão deste item na fila manual."
+)
+_CLIENT_FORBIDDEN_DECISION_KEYS = frozenset({"sensitive", "confirmation_phrase"})
 
 
 class ExecuteBody(BaseModel):
@@ -39,6 +45,32 @@ class DecisionBody(BaseModel):
     confirmation: str | None = None
     actor: str = "local-user"
     payload: dict[str, Any] = Field(default_factory=dict)
+
+
+def _backend_decision_sensitivity(
+    store: Store,
+    registry: Any,
+    item_id: str,
+) -> tuple[bool, str]:
+    """Sensitivity and phrase are determined only by backend (review item / capability).
+
+    Client payload fields ``sensitive`` and ``confirmation_phrase`` are ignored.
+    ACCEPT is always treated as sensitive for human review items.
+    """
+    review = store.get_review(item_id)
+    cap = None
+    if review and review.get("capability_id"):
+        cap = registry.get(str(review["capability_id"]))
+    if cap is None and item_id.upper().startswith("DOD"):
+        return True, DEFAULT_REVIEW_CONFIRMATION_PHRASE
+    if cap is not None:
+        phrase = (cap.confirmation_phrase or DEFAULT_REVIEW_CONFIRMATION_PHRASE).strip()
+        if not phrase:
+            phrase = DEFAULT_REVIEW_CONFIRMATION_PHRASE
+        # Human review ACCEPT is always sensitive; phrase may come from capability.
+        return True, phrase
+    # Default: pending review / unknown item → sensitive with default phrase
+    return True, DEFAULT_REVIEW_CONFIRMATION_PHRASE
 
 
 class PrefBody(BaseModel):
@@ -306,16 +338,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         decision = body.decision.upper().strip()
         if decision not in {"ACCEPT", "REJECT", "DEFER"}:
             raise HTTPException(400, "Decisão deve ser ACCEPT, REJECT ou DEFER.")
-        # Sensitive decisions require confirmation phrase
-        sensitive = body.payload.get("sensitive", True)
+        # Sensitivity + phrase: server-only (ignore client payload claims)
+        sensitive, expected_phrase = _backend_decision_sensitivity(store, registry, body.item_id)
         if sensitive and decision == "ACCEPT":
-            expected = body.payload.get("confirmation_phrase") or (
-                "Confirmo que revisei os dados e autorizo apenas a inclusão deste item na fila manual."
-            )
-            if not body.confirmation or body.confirmation.strip() != expected:
+            if not body.confirmation or body.confirmation.strip() != expected_phrase:
                 raise HTTPException(
                     400,
-                    f"Confirmação textual obrigatória para ACCEPT sensível. Digite: {expected}",
+                    f"Confirmação textual obrigatória para ACCEPT. Digite exatamente: {expected_phrase}",
                 )
         # Never call dod accept automatically
         if body.item_id.upper().startswith("DOD") and decision == "ACCEPT":
@@ -332,19 +361,51 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                     "A intenção foi auditada; use o controller canônico com gates."
                 ),
             }
+        # Strip client-controlled sensitivity fields before persistence
+        safe_payload = {
+            k: v for k, v in (body.payload or {}).items() if k not in _CLIENT_FORBIDDEN_DECISION_KEYS
+        }
+        safe_payload["sensitive"] = sensitive
+        safe_payload["confirmation_phrase"] = expected_phrase if decision == "ACCEPT" else None
+        safe_payload["sensitivity_source"] = "backend"
         decision_id = store.save_decision(
             item_id=body.item_id,
             decision=decision,
             actor=body.actor,
             rationale=body.rationale,
             confirmation=body.confirmation,
-            payload=body.payload,
+            payload=safe_payload,
         )
         store.mark_review_decided(body.item_id, decision)
         store.audit(
-            body.actor, "decision.save", {"decision_id": decision_id, "item_id": body.item_id, "decision": decision}
+            body.actor,
+            "decision.save",
+            {
+                "decision_id": decision_id,
+                "item_id": body.item_id,
+                "decision": decision,
+                "sensitive": sensitive,
+            },
         )
-        return {"ok": True, "decision_id": decision_id}
+        return {
+            "ok": True,
+            "decision_id": decision_id,
+            "sensitive": sensitive,
+            "confirmation_phrase": expected_phrase if decision == "ACCEPT" else None,
+        }
+
+    @app.get("/api/reviews/{item_id}/confirmation")
+    def review_confirmation_requirements(item_id: str) -> dict[str, Any]:
+        """Expose server-owned confirmation requirements for the review UI."""
+        sensitive, phrase = _backend_decision_sensitivity(store, registry, item_id)
+        review = store.get_review(item_id)
+        return {
+            "item_id": item_id,
+            "sensitive": sensitive,
+            "confirmation_phrase": phrase,
+            "found": review is not None,
+            "title": (review or {}).get("title"),
+        }
 
     @app.get("/api/preferences/{key}")
     def get_pref(key: str) -> dict[str, Any]:
@@ -395,7 +456,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         def spa_fallback(full_path: str) -> FileResponse:
             if full_path.startswith("api/"):
                 raise HTTPException(404)
-            candidate = settings.spa_dist / full_path
+            # Same containment as artifacts: resolve and prove path stays under dist.
+            try:
+                candidate = safe_join(settings.spa_dist, full_path)
+            except HTTPException:
+                return FileResponse(settings.spa_dist / "index.html")
             if candidate.is_file():
                 return FileResponse(candidate)
             return FileResponse(settings.spa_dist / "index.html")

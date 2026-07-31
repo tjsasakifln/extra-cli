@@ -44,7 +44,14 @@ def read_artifact(path: str, settings: Settings, *, max_bytes: int | None = None
     if suffix == ".json":
         try:
             data = json.loads(text)
-            return {**meta, "kind": "json", "data": data}
+            table = _json_as_table(data, max_rows=settings.artifact_sample_lines)
+            out: dict[str, Any] = {**meta, "kind": "json", "data": data}
+            if table:
+                out["table"] = table
+            # Prefer summary keys engineers care about
+            if isinstance(data, dict):
+                out["summary"] = _json_summary(data)
+            return out
         except json.JSONDecodeError:
             return {**meta, "kind": "text", "text": text, "parse_error": "JSON inválido"}
     if suffix == ".jsonl":
@@ -72,6 +79,104 @@ def read_artifact(path: str, settings: Settings, *, max_bytes: int | None = None
         # Do not execute HTML; return as markdown text for sanitized client render
         return {**meta, "kind": "markdown", "text": text}
     return {**meta, "kind": "text", "text": text}
+
+
+def _json_as_table(data: Any, *, max_rows: int = 200) -> dict[str, Any] | None:
+    """If JSON is a list of objects (or dict with common list keys), expose as table."""
+    rows: list[Any] | None = None
+    source_key: str | None = None
+    if isinstance(data, list):
+        rows = data
+    elif isinstance(data, dict):
+        for key in (
+            "leads",
+            "rows",
+            "items",
+            "results",
+            "records",
+            "data",
+            "top20",
+            "ranking",
+            "opportunities",
+            "entities",
+            "recent",
+        ):
+            val = data.get(key)
+            if isinstance(val, list) and val and isinstance(val[0], dict):
+                rows = val
+                source_key = key
+                break
+    if not rows or not isinstance(rows[0], dict):
+        return None
+    sample = rows[:max_rows]
+    # Stable column order from first row keys, then union of next rows
+    cols: list[str] = list(sample[0].keys())
+    seen = set(cols)
+    for r in sample[1:]:
+        for k in r.keys():
+            if k not in seen:
+                cols.append(k)
+                seen.add(k)
+    # Prefer business-facing columns first when present
+    preferred = [
+        "cnpj",
+        "cnpj14",
+        "razao_social",
+        "name",
+        "orgao",
+        "orgao_nome",
+        "uf",
+        "municipio",
+        "valor",
+        "score",
+        "status",
+        "title",
+        "path",
+    ]
+    ordered = [c for c in preferred if c in seen] + [c for c in cols if c not in preferred]
+    return {
+        "columns": ordered[:40],
+        "rows": [{k: _cell(r.get(k)) for k in ordered[:40]} for r in sample],
+        "total_rows": len(rows),
+        "sampled": len(sample),
+        "source_key": source_key,
+    }
+
+
+def _cell(v: Any) -> Any:
+    if isinstance(v, (dict, list)):
+        return json.dumps(v, ensure_ascii=False)[:200]
+    return v
+
+
+def _json_summary(data: dict[str, Any]) -> dict[str, Any]:
+    keys = (
+        "status",
+        "reason",
+        "run_id",
+        "target",
+        "leads",
+        "count",
+        "total",
+        "coverage",
+        "message",
+        "git_sha",
+        "modality",
+        "all_pass",
+        "any_blocked",
+        "any_fail",
+    )
+    out: dict[str, Any] = {}
+    for k in keys:
+        if k in data:
+            val = data[k]
+            if isinstance(val, list):
+                out[k] = f"{len(val)} itens"
+            elif isinstance(val, dict):
+                out[k] = f"objeto ({len(val)} chaves)"
+            else:
+                out[k] = val
+    return out
 
 
 def list_recent_artifacts(settings: Settings, limit: int = 30) -> list[dict[str, Any]]:

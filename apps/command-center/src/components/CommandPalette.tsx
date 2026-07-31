@@ -3,16 +3,15 @@ import { useNavigate } from "react-router-dom";
 import { client } from "../api/client";
 
 const NAV = [
-  { label: "Visão Geral", href: "/" },
-  { label: "Operações da Extra", href: "/extra" },
-  { label: "CONFENGE Fornecedores", href: "/confenge/suppliers" },
-  { label: "CONFENGE Órgãos Públicos", href: "/confenge/agencies" },
-  { label: "Documentos de Processos", href: "/documents" },
-  { label: "Operação e Infraestrutura", href: "/ops" },
-  { label: "DOD e Evidências", href: "/dod" },
-  { label: "Jobs", href: "/jobs" },
-  { label: "Revisão humana", href: "/review" },
-  { label: "Capabilities", href: "/capabilities" },
+  { label: "Início", href: "/" },
+  { label: "Oportunidades Extra", href: "/extra" },
+  { label: "Fornecedores", href: "/confenge/suppliers" },
+  { label: "Órgãos públicos", href: "/confenge/agencies" },
+  { label: "Documentos", href: "/documents" },
+  { label: "Revisões", href: "/review" },
+  { label: "Resultados", href: "/results" },
+  { label: "Atividades", href: "/jobs" },
+  { label: "Todas as ações", href: "/actions" },
 ];
 
 export function CommandPalette({
@@ -42,7 +41,13 @@ export function CommandPalette({
     }
     const t = setTimeout(() => {
       void client.search(q).then((res) => {
-        setRemote(res.results.map((r) => ({ label: r.label, href: r.href, detail: r.detail })));
+        setRemote(
+          res.results.map((r) => ({
+            label: r.label,
+            href: r.href.replace("/capabilities/", "/actions/").replace("/artifacts", "/results"),
+            detail: r.detail,
+          })),
+        );
       });
     }, 180);
     return () => clearTimeout(t);
@@ -51,8 +56,18 @@ export function CommandPalette({
   const items = useMemo(() => {
     const local = [
       ...NAV.map((n) => ({ label: `Ir para ${n.label}`, href: n.href, detail: "Navegação" })),
-      { label: "Alternar tema", href: "__theme__", detail: "Preferência" },
-      { label: "Rodar fixture seguro", href: "/capabilities/cc.fixture.echo", detail: "Ação" },
+      { label: "Alternar tema claro/escuro", href: "__theme__", detail: "Preferência" },
+      {
+        label: "Gerar lista de fornecedores",
+        href: "/actions/confenge.suppliers.cycle.run",
+        detail: "Ação CONFENGE",
+      },
+      {
+        label: "Gerar lista de órgãos públicos",
+        href: "/actions/confenge.public_agencies.cycle.run",
+        detail: "Ação CONFENGE",
+      },
+      { label: "Rodar ciclo semanal Extra", href: "/actions/extra.weekly.run", detail: "Ação Extra" },
     ].filter((i) => !q || i.label.toLowerCase().includes(q.toLowerCase()));
     return [...local, ...remote].slice(0, 20);
   }, [q, remote]);
@@ -75,12 +90,7 @@ export function CommandPalette({
 
   return (
     <div className="palette-backdrop" role="presentation" onClick={onClose}>
-      <div
-        className="palette"
-        role="dialog"
-        aria-label="Command palette"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className="palette" role="dialog" aria-label="Ações rápidas" onClick={(e) => e.stopPropagation()}>
         <input
           autoFocus
           placeholder="Buscar ou executar… (Ctrl+K)"
@@ -109,7 +119,11 @@ export function CommandPalette({
                 onClick={() => run(item.href)}
               >
                 <div>{item.label}</div>
-                {item.detail ? <div className="muted" style={{ fontSize: "0.8rem" }}>{item.detail}</div> : null}
+                {item.detail ? (
+                  <div className="muted" style={{ fontSize: "0.8rem" }}>
+                    {item.detail}
+                  </div>
+                ) : null}
               </button>
             </li>
           ))}

@@ -1,7 +1,8 @@
 import { useMemo } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { client } from "../api/client";
+import { ArtifactViewer } from "../components/ArtifactViewer";
 import { EmptyState } from "../components/EmptyState";
 import { ErrorState } from "../components/ErrorState";
 import { SkeletonState } from "../components/SkeletonState";
@@ -22,76 +23,50 @@ export function ArtifactsPage() {
 
   const body = useMemo(() => {
     if (!one.data) return null;
-    const kind = String(one.data.kind || "");
-    if (kind === "json") return <pre className="log-stream">{JSON.stringify(one.data.data, null, 2)}</pre>;
-    if (kind === "csv" || kind === "jsonl") {
-      const rows = (one.data.rows as Array<Record<string, unknown>>) || [];
-      if (!rows.length) return <EmptyState title="Sem linhas na amostra" />;
-      const cols = Object.keys(rows[0]);
-      return (
-        <div className="table-wrap">
-          <table className="data">
-            <thead>
-              <tr>
-                {cols.map((c) => (
-                  <th key={c}>{c}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((r, i) => (
-                <tr key={i}>
-                  {cols.map((c) => (
-                    <td key={c}>{String(r[c] ?? "")}</td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      );
-    }
-    if (kind === "markdown" || kind === "text") {
-      return <pre className="log-stream">{String(one.data.text || "")}</pre>;
-    }
-    return <p>{String(one.data.message || "Visualização não embutida.")}</p>;
+    return <ArtifactViewer artifact={one.data as Record<string, unknown>} />;
   }, [one.data]);
 
   return (
     <div>
       <header className="page-header">
-        <h1>Artefatos</h1>
+        <h1>Resultados e relatórios</h1>
         <p>
-          Leitura segura dentro de roots permitidos. HTML arbitrário não é executado; secrets são
-          redigidos.
+          Aqui você abre o que foi gerado: listas em tabela, resumos e arquivos para baixar no Excel. Nada de
+          digitar comando — clique no resultado.
         </p>
       </header>
       {path ? (
         <section className="panel">
-          <h2 className="mono" style={{ fontSize: "0.95rem" }}>
-            {path}
-          </h2>
+          <p className="muted" style={{ marginTop: 0 }}>
+            <Link to="/results">← Voltar à lista</Link>
+          </p>
           {one.isLoading ? <SkeletonState /> : null}
-          {one.isError ? <ErrorState title="Falha ao ler artifact" error={(one.error as Error).message} /> : null}
-          {body}
-          {path ? (
-            <p>
-              <a href={`/api/artifacts/download?path=${encodeURIComponent(path)}`}>Download</a>
-            </p>
+          {one.isError ? (
+            <ErrorState title="Não foi possível abrir este resultado" error={(one.error as Error).message} />
           ) : null}
+          {body}
         </section>
       ) : (
         <section className="panel">
-          <h2>Recentes</h2>
+          <h2>Mais recentes</h2>
           {recent.isLoading ? <SkeletonState /> : null}
           {(recent.data?.recent || []).length === 0 ? (
-            <EmptyState title="Nenhum artifact recente nas roots permitidas" />
+            <EmptyState title="Ainda não há resultados salvos">
+              Depois de rodar uma ação (lista de fornecedores, ciclo semanal, documentos), os arquivos
+              aparecem aqui automaticamente.
+            </EmptyState>
           ) : (
-            <ul>
+            <ul className="result-list">
               {(recent.data?.recent || []).map((a) => (
                 <li key={String(a.path)}>
-                  <a href={`/artifacts?path=${encodeURIComponent(String(a.path))}`}>{String(a.path)}</a>
-                  <span className="muted"> · {String(a.size_bytes)} bytes</span>
+                  <Link to={`/results?path=${encodeURIComponent(String(a.path))}`}>
+                    <strong>{String(a.name || a.path)}</strong>
+                  </Link>
+                  <span className="muted">
+                    {" "}
+                    · {String(a.suffix || "").replace(".", "").toUpperCase() || "arquivo"} ·{" "}
+                    {Number(a.size_bytes || 0).toLocaleString("pt-BR")} bytes
+                  </span>
                 </li>
               ))}
             </ul>
