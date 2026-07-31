@@ -11,7 +11,7 @@
 | PR | #186 |
 | Branch | `feat/extra-local-command-center` |
 | Base main | `1718d6389c4e772bf3c5a45ac059871c32d83afc` |
-| HEAD at report | 906a33172fd99d04ddde756df4e00351241fabc0 |
+| HEAD at report | `fcfe1748de58db809432cfa0305b10284e0069da` |
 | Spec | `specs/008-command-center-consulting-workbench/` |
 
 ## Acceptance matrix (subset of 36)
