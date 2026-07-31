@@ -20,7 +20,7 @@
   "pr_187": {
     "branch": "feat/pseo-export-isolated",
     "original_head": "f2b54588304cad76c70fa1ea6cb40ac2b52ca1bd",
-    "final_head": "4a88ca02121ac89c8eb57faabe781bebdf36b01a",
+    "final_head": "5bc836eb1ee70294cc02474816e3555879221fa4",
     "status": "PARTIAL_BLOCKED",
     "b12": {
       "pytest": "58 passed",
@@ -40,7 +40,8 @@
       "CONSUMER_INTEGRATION_NOT_PROVEN",
       "live_postgres_250k_not_run",
       "human_approval_not_auto_granted"
-    ]
+    ],
+    "note": "final_head is tip including this pin commit"
   },
   "merged": false,
   "deployed": false,
