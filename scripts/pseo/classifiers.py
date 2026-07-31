@@ -9,8 +9,10 @@ Broad inclusive regex alone is never enough for aec_confirmed.
 
 from __future__ import annotations
 
+import json
 import re
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any
 
 # ---------------------------------------------------------------------------
@@ -620,6 +622,24 @@ def evaluate_classifier(
             "fn": st["fn"],
         }
 
+    # Segment gate: any segment with n>=3 and at least one predicted positive must
+    # have precision >= 0.95 (same policy as test_gold_precision_gate).
+    segment_failures: list[str] = []
+    min_seg_n = 3
+    for seg, st in seg_metrics.items():
+        if int(st.get("n") or 0) < min_seg_n:
+            continue
+        if int(st.get("tp", 0) + st.get("fp", 0)) == 0:
+            continue
+        if float(st.get("precision") or 0) < 0.95:
+            segment_failures.append(
+                f"{seg}: precision={st.get('precision')} n={st.get('n')}"
+            )
+    precision_global_ok = precision >= 0.97
+    fp_ok = fp == 0
+    segment_precision_ok = len(segment_failures) == 0
+    publish_ok = precision_global_ok and fp_ok and segment_precision_ok and len(gold) >= 30
+
     return {
         "n": len(gold),
         "precision_aec_confirmed": round(precision, 4),
@@ -635,8 +655,71 @@ def evaluate_classifier(
         "by_segment": seg_metrics,
         "details": details,
         "gates": {
-            "precision_global_ok": precision >= 0.97,
+            "precision_global_ok": precision_global_ok,
+            "fp_ok": fp_ok,
+            "segment_precision_ok": segment_precision_ok,
+            "segment_failures": segment_failures,
+            "n_ok": len(gold) >= 30,
+            "publish_ok": publish_ok,
             "precision_threshold": 0.97,
             "segment_precision_threshold": 0.95,
+            "min_gold_n": 30,
         },
     }
+
+
+def run_gold_classifier_gate(
+    *,
+    gold_path: Path | None = None,
+    repo_root: Path | None = None,
+) -> dict[str, Any]:
+    """Load stratified gold set and evaluate classifier publish gates.
+
+    Called on the export/promote path before snapshot_status may become
+    PUBLISH_READY. Fail-closed: missing gold file or gate failure → not ok.
+    """
+    root = repo_root or Path(__file__).resolve().parents[2]
+    path = Path(gold_path) if gold_path else root / "tests" / "pseo" / "fixtures" / "gold_classification.json"
+    if not path.is_file():
+        return {
+            "ok": False,
+            "reason": f"gold classification fixture missing: {path}",
+            "metrics": None,
+        }
+    try:
+        gold = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        return {
+            "ok": False,
+            "reason": f"gold classification unreadable: {exc}",
+            "metrics": None,
+        }
+    if not isinstance(gold, list) or not gold:
+        return {
+            "ok": False,
+            "reason": "gold classification empty or not a list",
+            "metrics": None,
+        }
+    metrics = evaluate_classifier(gold)
+    # Drop per-row details from manifest-bound summary (keep gates + aggregates)
+    summary = {k: v for k, v in metrics.items() if k != "details"}
+    gates = metrics.get("gates") or {}
+    ok = bool(gates.get("publish_ok"))
+    reason = None
+    if not ok:
+        parts: list[str] = []
+        if not gates.get("n_ok"):
+            parts.append(f"gold n={metrics.get('n')} < 30")
+        if not gates.get("precision_global_ok"):
+            parts.append(
+                f"precision_aec_confirmed={metrics.get('precision_aec_confirmed')} < 0.97"
+            )
+        if not gates.get("fp_ok"):
+            parts.append(f"fp={metrics.get('fp')} (must be 0)")
+        if not gates.get("segment_precision_ok"):
+            parts.append(
+                "segment precision < 0.95: "
+                + ", ".join(gates.get("segment_failures") or [])
+            )
+        reason = "; ".join(parts) or "classifier publish gates failed"
+    return {"ok": ok, "reason": reason, "metrics": summary, "gold_path": str(path)}

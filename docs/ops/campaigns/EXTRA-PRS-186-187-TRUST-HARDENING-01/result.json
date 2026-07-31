@@ -1,6 +1,6 @@
 {
   "campaign_id": "EXTRA-PRS-186-187-TRUST-HARDENING-01",
-  "captured_at": "2026-07-31T22:18:11Z",
+  "captured_at": "2026-07-31T22:45:00Z",
   "main_sha": "1718d6389c4e772bf3c5a45ac059871c32d83afc",
   "pr_186": {
     "branch": "feat/extra-local-command-center",
@@ -24,17 +24,20 @@
   "pr_187": {
     "branch": "feat/pseo-export-isolated",
     "original_head": "f2b54588304cad76c70fa1ea6cb40ac2b52ca1bd",
-    "final_head": "6605fb1375a73047d77b69543b92dcbabef29334",
+    "prior_origin_tip": "90124d1274e526eb35f791c81b980eeaa52a7e35",
+    "final_head": "POST_COMMIT_THIS_SESSION",
     "status": "PARTIAL_BLOCKED",
     "evidence": {
-      "pytest": "60 passed",
-      "fixture_export_validate": "ok CANDIDATE indexable=false",
+      "pytest": "64 passed",
+      "fixture_export_validate": "ok CANDIDATE indexable=false classifier_gate.ok=true",
       "ruff": "clean",
       "synthetic_250k": "250000 rows fetchall=0",
       "consumer_schema": "PROVEN",
       "consumer_render": "CONSUMER_INTEGRATION_NOT_PROVEN",
       "approval_gate_tested": true,
       "atomic_mid_fail_tested": true,
+      "b7_provenance_no_short_circuit": true,
+      "b9_classifier_on_export_path": true,
       "logs": "docs/ops/campaigns/EXTRA-PRS-186-187-TRUST-HARDENING-01/logs/b12-evidence-*"
     },
     "non_claims": [
@@ -42,10 +45,9 @@
       "CONSUMER_INTEGRATION_NOT_PROVEN",
       "live_postgres_250k_not_run",
       "production_human_approval_artifact"
-    ],
-    "code_head": "3d391f4cf8d884e65614e1e1e862c7e2aef6a02e"
+    ]
   },
   "merged": false,
   "deployed": false,
-  "note": "final_head fields are origin tips at pin commit; tip advances by docs-only pin commit after this write"
+  "note": "final_head for #187 is filled after the B7/B9 code+docs commit is pushed; #186 tip is origin/feat/extra-local-command-center"
 }

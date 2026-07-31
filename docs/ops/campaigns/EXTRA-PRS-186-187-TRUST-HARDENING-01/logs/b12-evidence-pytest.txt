@@ -5,17 +5,17 @@ rootdir: /mnt/d/extra consultoria
 configfile: pytest.ini
 plugins: benchmark-5.2.3, html-4.2.0, hypothesis-6.152.7, repeat-0.9.4, Faker-37.4.2, timeout-2.4.0, asyncio-1.1.0, mock-3.15.1, metadata-3.1.1, cov-4.1.0, anyio-4.2.0
 asyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
-collected 60 items
+collected 64 items
 
 tests/pseo/test_chunked_scale.py ..                                      [  3%]
-tests/pseo/test_classifier.py ..............                             [ 26%]
-tests/pseo/test_comparison.py .....                                      [ 35%]
-tests/pseo/test_consumer_contract.py ...                                 [ 40%]
-tests/pseo/test_entrypoint_canonical.py ....                             [ 46%]
-tests/pseo/test_export_no_leak.py ....                                   [ 53%]
-tests/pseo/test_fail_closed_and_streaming.py .....                       [ 61%]
-tests/pseo/test_opportunities.py .......                                 [ 73%]
-tests/pseo/test_provenance.py ....                                       [ 80%]
-tests/pseo/test_trust_hardening.py ............                          [100%]
+tests/pseo/test_classifier.py ..............                             [ 25%]
+tests/pseo/test_comparison.py .....                                      [ 32%]
+tests/pseo/test_consumer_contract.py ...                                 [ 37%]
+tests/pseo/test_entrypoint_canonical.py ....                             [ 43%]
+tests/pseo/test_export_no_leak.py ....                                   [ 50%]
+tests/pseo/test_fail_closed_and_streaming.py .......                     [ 60%]
+tests/pseo/test_opportunities.py .......                                 [ 71%]
+tests/pseo/test_provenance.py ....                                       [ 78%]
+tests/pseo/test_trust_hardening.py ..............                        [100%]
 
-============================== 60 passed in 6.83s ==============================
+============================== 64 passed in 9.68s ==============================

@@ -654,6 +654,20 @@ def write_export(
     manifest = dict(bundle["manifest"])
     manifest["checksums"] = checksums
     manifest["dataset_hash"] = dataset_hash
+
+    # B9: classifier gold gates MUST run on export path before PUBLISH_READY.
+    # Approval alone is insufficient — precision/fp/segment gates fail-closed.
+    from scripts.pseo.classifiers import run_gold_classifier_gate
+
+    repo_root = Path(__file__).resolve().parents[2]
+    classifier_gate = run_gold_classifier_gate(repo_root=repo_root)
+    manifest["classifier_gate"] = {
+        "ok": classifier_gate.get("ok"),
+        "reason": classifier_gate.get("reason"),
+        "gold_path": classifier_gate.get("gold_path"),
+        "metrics": classifier_gate.get("metrics"),
+    }
+
     # Human approval gate
     try:
         approval = load_approval(approval_path)
@@ -668,12 +682,26 @@ def write_export(
         source_commit_sha=str(manifest.get("source_commit_sha") or ""),
     )
     manifest["approval"] = approval_status
-    manifest["indexable"] = bool(approval_status.get("indexable"))
-    manifest["publish_status"] = approval_status.get("status")
-    if not approval_status.get("publish_ready"):
-        manifest["snapshot_status"] = "CANDIDATE"
-    else:
+    # Both human approval AND classifier gold gates required for publish
+    publish_ready = bool(approval_status.get("publish_ready")) and bool(
+        classifier_gate.get("ok")
+    )
+    if not classifier_gate.get("ok") and approval_status.get("publish_ready"):
+        # Downgrade publish_status honestly when approval would have passed
+        approval_status = dict(approval_status)
+        approval_status["publish_ready"] = False
+        approval_status["indexable"] = False
+        approval_status["status"] = "CLASSIFIER_GATE_FAILED"
+        approval_status["classifier_reason"] = classifier_gate.get("reason")
+        manifest["approval"] = approval_status
+    manifest["indexable"] = bool(publish_ready and approval_status.get("indexable"))
+    manifest["publish_status"] = (
+        "PUBLISH_READY" if publish_ready else approval_status.get("status")
+    )
+    if publish_ready:
         manifest["snapshot_status"] = "PUBLISH_READY"
+    else:
+        manifest["snapshot_status"] = "CANDIDATE"
     m_text = json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True, default=str) + "\n"
     text_files["manifest.json"] = m_text
 

@@ -82,23 +82,19 @@ def validate_export_dir(
     # checksums + dataset_hash
     errors.extend(verify_snapshot_hashes(out_dir, manifest))
 
-    sha = manifest.get("source_commit_sha") or ""
+    sha = str(manifest.get("source_commit_sha") or "")
     if require_commit_entrypoint:
-        cli = Path(__file__).resolve().parent / "cli_export.py"
-        if cli.is_file():
-            # durable untracked entry — working tree is source of truth
-            pass
-        else:
-            if not entrypoint_exists_in_tree(repo_root):
-                errors.append("export entrypoint missing in working tree")
-            if sha and sha != "unknown":
-                if not verify_commit_has_entrypoint(sha, repo_root=repo_root):
-                    errors.append(
-                        f"source_commit_sha {sha} does not contain export entrypoint "
-                        "(or commit not available locally)"
-                    )
-            else:
-                errors.append("source_commit_sha missing or unknown")
+        # B7: always enforce — presence of cli_export.py must NOT short-circuit
+        # commit/entrypoint provenance checks (was a no-op that accepted any SHA).
+        if not entrypoint_exists_in_tree(repo_root):
+            errors.append("export entrypoint missing in working tree")
+        if not sha or sha == "unknown":
+            errors.append("source_commit_sha missing or unknown")
+        elif not verify_commit_has_entrypoint(sha, repo_root=repo_root):
+            errors.append(
+                f"source_commit_sha {sha} does not contain export entrypoint "
+                "(or commit not available locally)"
+            )
 
     # freshness must include real data ages, not only generated_at
     fr = manifest.get("freshness") or {}

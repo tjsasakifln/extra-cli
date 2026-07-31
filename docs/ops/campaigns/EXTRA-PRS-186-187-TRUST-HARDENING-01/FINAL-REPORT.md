@@ -1,20 +1,20 @@
 # FINAL REPORT — EXTRA-PRS-186-187-TRUST-HARDENING-01
 
-**Captured:** 2026-07-31T22:17:33Z  
+**Captured:** 2026-07-31T22:45:00Z  
 **Operator:** implementer  
 **No merge. No deploy. No VPS/crawler changes.**
 
-## 1. HEADs
+## 1. HEADs (origin tips at pin time)
 
-| Ref | Original | Final (origin) |
-|-----|----------|----------------|
-| PR #186 | `0913b2f5c7fef41ae830c40478342822d5737767` | `648e35e5a377c3616eed89b130061a1adecb706d` |
-| PR #187 | `f2b54588304cad76c70fa1ea6cb40ac2b52ca1bd` | `6605fb1375a73047d77b69543b92dcbabef29334` |
+| Ref | Original | Final (origin tip before this pin commit) |
+|-----|----------|-------------------------------------------|
+| PR #186 | `0913b2f5c7fef41ae830c40478342822d5737767` | `82cb1097af445534183342db36b7cf5130135d41` |
+| PR #187 | `f2b54588304cad76c70fa1ea6cb40ac2b52ca1bd` | `90124d1274e526eb35f791c81b980eeaa52a7e35` (+ code commit this session) |
 | main | `1718d6389c4e772bf3c5a45ac059871c32d83afc` | unchanged |
 
 ## 2. Mandatory evidence — PR #186 A16 (re-run at tip)
 
-Executed in isolated worktree on HEAD `648e35e5…` / tip after evidence docs:
+Executed in isolated worktree; tip after evidence docs:
 
 | Command | Exit | Exact result | Log |
 |---------|------|--------------|-----|
@@ -27,28 +27,34 @@ Executed in isolated worktree on HEAD `648e35e5…` / tip after evidence docs:
 
 Branch docs: `PR-186-TEST-REPORT.md`, `PR-186-VISUAL-QA.md`, `PR-186-ACCESSIBILITY.md`.
 
-## 3. Mandatory evidence — PR #187 B12 (this session)
+## 3. Mandatory evidence — PR #187 B12 (this session, post B7/B9)
 
 | Command | Exit | Exact result | Log |
 |---------|------|--------------|-----|
-| `pytest tests/pseo/ -q --tb=line --no-cov` | 0 | **60 passed** | `logs/b12-evidence-pytest.txt` |
-| `python -m scripts.pseo.export_web_cfg --fixture tests/pseo/fixtures/sample_contracts.json --out artifacts/pseo/validation-fixture --validate` | 0 | ok; `CANDIDATE`; `indexable=false` | `logs/b12-evidence-export.txt` |
-| `ruff check scripts/pseo/ tests/pseo/` | 0 | clean | `logs/b12-evidence-ruff.txt` |
-| synthetic 250k | 0 | 250000 rows, fetchall=0, ~0.38s, RSSΔ~6MB | `logs/pseo-250k-benchmark.json` |
+| `pytest tests/pseo/ -q --tb=line --no-cov` | 0 | **64 passed** | `logs/b12-evidence-pytest.txt` |
+| `python -m scripts.pseo.export_web_cfg --fixture … --validate` | 0 | ok; `CANDIDATE`; `indexable=false`; `classifier_gate.ok=true` | `logs/b12-evidence-export.txt` |
+| `ruff check scripts/pseo/ tests/pseo/` | 0 | clean (after Path import fix) | `logs/b12-evidence-ruff.txt` |
+| synthetic 250k | 0 | 250000 rows, fetchall=0 | `logs/pseo-250k-benchmark.json` |
 
-### Extra skeptic-required tests (present and green)
-- Approval artifact binds `dataset_hash` → PUBLISH_READY path (`test_write_export_with_valid_approval_marks_publish_ready`)
-- Atomic mid-failure preserves prior (`test_atomic_mid_write_failure_preserves_prior_versioned`)
-- Fail-closed (no silent strip) (`test_fail_closed_and_streaming`)
-- Segment precision >= 0.95 (`test_gold_precision_gate`)
+### Skeptic-required fixes landed this session
+- **B7:** removed `cli_export.py` short-circuit in `validation.py`; always enforce commit+entrypoint
+- **B7 tests:** `test_bogus_source_commit_sha_rejected_even_when_cli_export_exists`, `test_unknown_source_commit_sha_rejected`
+- **B9:** `run_gold_classifier_gate` / `evaluate_classifier` on export path before `PUBLISH_READY`
+- **B9 tests:** gate blocks publish even with valid approval; gold helper asserts `publish_ok`
+
+### Other green gates
+- Approval artifact binds `dataset_hash` → PUBLISH_READY only if classifier also ok
+- Atomic mid-failure preserves prior
+- Fail-closed (no silent strip)
+- Segment precision >= 0.95
 - Consumer schema contract PROVEN; render `CONSUMER_INTEGRATION_NOT_PROVEN`
 
 ## 4. Per-PR status (honest)
 
 | PR | Status | Why |
 |----|--------|-----|
-| **#186** | **PASS_MERGE_READY** | Full A16 captured green at tip; logo canonical; GET reviews pure; concurrent enqueue safe; visual matrix expanded; FIXTURE e2e including PDF. Residual non-claim only: no LIVE REAL DSN proof. |
-| **#187** | **PARTIAL_BLOCKED** | Export fail-closed + atomic + human gate code + 250k synthetic + schema consumer contract proven. Still blocked for full merge-ready publish claims: no web-cfg `pseo:build` render run, no live RO Postgres 250k, no human approval artifact checked into production release (tests only). |
+| **#186** | **PASS_MERGE_READY** | Full A16 captured green at tip `82cb1097…`; logo canonical; GET reviews pure; concurrent enqueue safe; visual matrix expanded; FIXTURE e2e including PDF. Residual non-claim only: no LIVE REAL DSN proof. |
+| **#187** | **PARTIAL_BLOCKED** | Export fail-closed + atomic + human gate + **classifier gold on promote path** + 250k synthetic + schema consumer contract proven. Still blocked for full merge-ready publish claims: no web-cfg `pseo:build` render run, no live RO Postgres 250k, no human approval artifact checked into production release (tests only). |
 
 ## 5. Non-claims
 - LIVE_READY / VPS_OPERATIONAL

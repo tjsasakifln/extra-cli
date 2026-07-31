@@ -161,7 +161,7 @@ def test_approval_template_roundtrip(tmp_path: Path) -> None:
 
 
 def test_write_export_with_valid_approval_marks_publish_ready(tmp_path: Path) -> None:
-    """End-to-end: approval artifact bound to real dataset_hash flips PUBLISH_READY."""
+    """End-to-end: approval + classifier gold gates flip PUBLISH_READY."""
     contracts, bids, counts = load_from_fixture(Path("tests/pseo/fixtures/sample_contracts.json"))
     bundle = build_export(contracts, bids, counts, top20_path=None, as_of="2026-07-31")
     # Dry write without approval to get final dataset_hash after privacy/validation
@@ -169,6 +169,9 @@ def test_write_export_with_valid_approval_marks_publish_ready(tmp_path: Path) ->
     write_export(out1, bundle, approval_path=None)
     man1 = json.loads((out1 / "manifest.json").read_text(encoding="utf-8"))
     assert man1.get("snapshot_status") == "CANDIDATE"
+    # B9: classifier gate always recorded on export path
+    assert man1.get("classifier_gate") is not None
+    assert "ok" in man1["classifier_gate"]
     ds = man1["dataset_hash"]
     commit = str(man1.get("source_commit_sha") or "unknown")
     schema_v = str(man1.get("schema_version") or "1.1.0")
@@ -191,7 +194,12 @@ def test_write_export_with_valid_approval_marks_publish_ready(tmp_path: Path) ->
     man2 = json.loads((out2 / "manifest.json").read_text(encoding="utf-8"))
     # If hashes match, publish_ready; if fixture/hash drift, at least approval is evaluated
     assert man2.get("approval") is not None
-    if man2.get("dataset_hash") == ds and commit not in {"", "unknown"}:
+    assert man2.get("classifier_gate") is not None
+    if (
+        man2.get("dataset_hash") == ds
+        and commit not in {"", "unknown"}
+        and man2["classifier_gate"].get("ok") is True
+    ):
         assert man2.get("snapshot_status") == "PUBLISH_READY"
         assert man2.get("indexable") is True
         assert man2["approval"].get("publish_ready") is True
@@ -211,6 +219,85 @@ def test_write_export_with_valid_approval_marks_publish_ready(tmp_path: Path) ->
         man3 = json.loads((out3 / "manifest.json").read_text(encoding="utf-8"))
         assert man3.get("indexable") is False
         assert man3.get("snapshot_status") != "PUBLISH_READY"
+
+
+def test_write_export_classifier_gate_blocks_publish_even_with_approval(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """B9: evaluate_classifier (via run_gold_classifier_gate) must run before PUBLISH_READY.
+
+    Even with a valid human approval, a failed classifier gold gate keeps CANDIDATE.
+    """
+    from scripts.pseo import classifiers as clf
+    from scripts.pseo import pipeline as pl
+
+    contracts, bids, counts = load_from_fixture(Path("tests/pseo/fixtures/sample_contracts.json"))
+    bundle = build_export(contracts, bids, counts, top20_path=None, as_of="2026-07-31")
+    out1 = tmp_path / "cand"
+    write_export(out1, bundle, approval_path=None)
+    man1 = json.loads((out1 / "manifest.json").read_text(encoding="utf-8"))
+    ds = man1["dataset_hash"]
+    commit = str(man1.get("source_commit_sha") or "unknown")
+    schema_v = str(man1.get("schema_version") or "1.1.0")
+    exp_v = str(man1.get("export_version") or EXPORT_VERSION)
+
+    # Force classifier gate failure on the next write_export
+    def fail_gate(**kwargs):
+        return {
+            "ok": False,
+            "reason": "injected classifier failure for test",
+            "metrics": {"gates": {"publish_ok": False}},
+            "gold_path": "tests/pseo/fixtures/gold_classification.json",
+        }
+
+    monkeypatch.setattr(clf, "run_gold_classifier_gate", fail_gate)
+    # Also patch the import site used inside write_export (local import)
+    monkeypatch.setattr(pl, "run_gold_classifier_gate", fail_gate, raising=False)
+
+    appr = tmp_path / "approval.json"
+    write_approval_template(
+        appr,
+        dataset_hash=ds,
+        source_commit_sha=commit,
+        actor="human-reviewer@confenge",
+        decision="APPROVED",
+        schema_version=schema_v,
+        exporter_version=exp_v,
+    )
+    bundle2 = build_export(contracts, bids, counts, top20_path=None, as_of="2026-07-31")
+    out2 = tmp_path / "blocked"
+    # Patch at classifiers module — write_export does `from scripts.pseo.classifiers import ...`
+    import scripts.pseo.classifiers as clf_mod
+
+    monkeypatch.setattr(clf_mod, "run_gold_classifier_gate", fail_gate)
+
+    write_export(out2, bundle2, approval_path=appr)
+    man2 = json.loads((out2 / "manifest.json").read_text(encoding="utf-8"))
+    assert man2.get("classifier_gate", {}).get("ok") is False
+    assert man2.get("snapshot_status") == "CANDIDATE"
+    assert man2.get("indexable") is False
+    assert man2.get("publish_status") in {
+        "CLASSIFIER_GATE_FAILED",
+        "REVIEW_REQUIRED",
+        "INVALID_APPROVAL",
+        "CANDIDATE",
+    } or man2.get("approval", {}).get("status") == "CLASSIFIER_GATE_FAILED"
+
+
+def test_run_gold_classifier_gate_calls_evaluate_classifier() -> None:
+    """B9: export-path helper must call evaluate_classifier (not unit-test only)."""
+    from scripts.pseo.classifiers import run_gold_classifier_gate
+
+    result = run_gold_classifier_gate(repo_root=Path(".").resolve())
+    assert result["ok"] is True, result.get("reason")
+    assert result["metrics"] is not None
+    gates = result["metrics"]["gates"]
+    assert gates["publish_ok"] is True
+    assert gates["precision_global_ok"] is True
+    assert gates["fp_ok"] is True
+    assert gates["segment_precision_ok"] is True
+    assert result["metrics"]["precision_aec_confirmed"] >= 0.97
+    assert result["metrics"]["fp"] == 0
 
 
 def test_atomic_mid_write_failure_preserves_prior_versioned(tmp_path: Path) -> None:
