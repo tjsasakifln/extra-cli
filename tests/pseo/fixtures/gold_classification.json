@@ -1,0 +1,362 @@
+[
+  {
+    "objeto": "Contratação de empresa especializada para execução de obra de pavimentação asfáltica em vias urbanas do município",
+    "expected_label": "aec_confirmed",
+    "segment": "pavimentacao",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "pavimentação asfáltica explícita",
+    "origem_publica": "fixture"
+  },
+  {
+    "objeto": "Empreitada global para construção de escola municipal em alvenaria e concreto armado, inclusive instalações",
+    "expected_label": "aec_confirmed",
+    "segment": "edificacoes",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "construção escola com alvenaria/concreto",
+    "origem_publica": "fixture"
+  },
+  {
+    "objeto": "Execução de rede de esgoto sanitário e drenagem pluvial no bairro Centro",
+    "expected_label": "aec_confirmed",
+    "segment": "saneamento",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "rede esgoto + drenagem",
+    "origem_publica": "fixture"
+  },
+  {
+    "objeto": "Contratação de serviços de climatização e instalação de ar-condicionado central em prédio público",
+    "expected_label": "aec_confirmed",
+    "segment": "climatizacao",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "climatização predial",
+    "origem_publica": "fixture"
+  },
+  {
+    "objeto": "Contratação de empresa para manutenção predial contínua de edifícios públicos com medição mensal",
+    "expected_label": "aec_confirmed",
+    "segment": "manutencao",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "manutenção predial",
+    "origem_publica": "fixture"
+  },
+  {
+    "objeto": "Obra de engenharia para recapeamento asfáltico e sinalização viária de avenidas",
+    "expected_label": "aec_confirmed",
+    "segment": "pavimentacao",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "recape + sinalização",
+    "origem_publica": "fixture"
+  },
+  {
+    "objeto": "Reforma de UBS com execução de obra de engenharia, estrutura e coberturas",
+    "expected_label": "aec_confirmed",
+    "segment": "edificacoes",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "reforma UBS com obra",
+    "origem_publica": "fixture"
+  },
+  {
+    "objeto": "Implantação de adutora e estação de tratamento de água (ETA) no distrito industrial",
+    "expected_label": "aec_confirmed",
+    "segment": "saneamento",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "adutora ETA",
+    "origem_publica": "fixture"
+  },
+  {
+    "objeto": "Serviços de engenharia para apoio técnico em fiscalização de obras públicas",
+    "expected_label": "aec_confirmed",
+    "segment": "manutencao",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "serviços de engenharia",
+    "origem_publica": "fixture"
+  },
+  {
+    "objeto": "Execução de pavimentação em paralelepípedos com terraplenagem e drenagem superficial",
+    "expected_label": "aec_confirmed",
+    "segment": "pavimentacao",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "pavimentação + terraplenagem",
+    "origem_publica": "fixture"
+  },
+  {
+    "objeto": "Construção e ampliação de creche municipal com empreitada por preço global",
+    "expected_label": "aec_confirmed",
+    "segment": "edificacoes",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "construção creche empreitada",
+    "origem_publica": "fixture"
+  },
+  {
+    "objeto": "Instalações elétricas e hidráulicas prediais em equipamento público de saúde",
+    "expected_label": "aec_confirmed",
+    "segment": "climatizacao",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "instalações prediais",
+    "origem_publica": "fixture"
+  },
+  {
+    "objeto": "Credenciamento de escolas privadas para oferta de vagas no ensino fundamental",
+    "expected_label": "non_aec",
+    "segment": "educacao",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "credenciamento escolar",
+    "origem_publica": "fixture"
+  },
+  {
+    "objeto": "Aquisição de ônibus rodoviário para transporte intermunicipal de passageiros",
+    "expected_label": "non_aec",
+    "segment": "transporte",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "ônibus rodoviário",
+    "origem_publica": "fixture"
+  },
+  {
+    "objeto": "Locação de imóvel para funcionamento da secretaria municipal de educação",
+    "expected_label": "non_aec",
+    "segment": "locacao",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "locação imóvel",
+    "origem_publica": "fixture"
+  },
+  {
+    "objeto": "Serviços de limpeza e higienização predial de órgãos públicos",
+    "expected_label": "non_aec",
+    "segment": "limpeza",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "limpeza",
+    "origem_publica": "fixture"
+  },
+  {
+    "objeto": "Aquisição de materiais de construção (cimento, areia e brita) para estoque",
+    "expected_label": "non_aec",
+    "segment": "fornecimento",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "material sem obra",
+    "origem_publica": "fixture"
+  },
+  {
+    "objeto": "Fornecimento de merenda escolar para rede municipal de ensino",
+    "expected_label": "non_aec",
+    "segment": "alimentacao",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "merenda",
+    "origem_publica": "fixture"
+  },
+  {
+    "objeto": "Contratação de vigilância armada patrimonial para prédios públicos",
+    "expected_label": "non_aec",
+    "segment": "vigilancia",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "vigilância",
+    "origem_publica": "fixture"
+  },
+  {
+    "objeto": "Aquisição de micro-ônibus escolar para transporte de alunos da zona rural",
+    "expected_label": "non_aec",
+    "segment": "transporte",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "micro-ônibus escolar",
+    "origem_publica": "fixture"
+  },
+  {
+    "objeto": "Aluguel de salas comerciais para atendimento ao público",
+    "expected_label": "non_aec",
+    "segment": "locacao",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "aluguel salas",
+    "origem_publica": "fixture"
+  },
+  {
+    "objeto": "Compra de equipamentos de informática para laboratório de escola municipal",
+    "expected_label": "non_aec",
+    "segment": "equipamento",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "equipamento informatica",
+    "origem_publica": "fixture"
+  },
+  {
+    "objeto": "Contratação de empresa de publicidade e propaganda institucional",
+    "expected_label": "non_aec",
+    "segment": "publicidade",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "publicidade",
+    "origem_publica": "fixture"
+  },
+  {
+    "objeto": "Transporte rodoviário de servidores para eventos oficiais",
+    "expected_label": "non_aec",
+    "segment": "transporte",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "transporte rodoviário",
+    "origem_publica": "fixture"
+  },
+  {
+    "objeto": "escola",
+    "expected_label": "insufficient_context",
+    "segment": "edge",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "texto curto",
+    "origem_publica": "fixture"
+  },
+  {
+    "objeto": "Construção de soluções inovadoras para gestão pública",
+    "expected_label": "ambiguous",
+    "segment": "edge",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "construção de sem objeto material",
+    "origem_publica": "fixture"
+  },
+  {
+    "objeto": "Serviços diversos para atendimento da demanda da secretaria",
+    "expected_label": "insufficient_context",
+    "segment": "edge",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "genérico",
+    "origem_publica": "fixture"
+  },
+  {
+    "objeto": "Reforma de processos administrativos internos da autarquia",
+    "expected_label": "ambiguous",
+    "segment": "edge",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "reforma sem obra",
+    "origem_publica": "fixture"
+  },
+  {
+    "objeto": "Pavimentação com asfalto CBUQ e drenagem pluvial de ruas do loteamento",
+    "expected_label": "aec_confirmed",
+    "segment": "pavimentacao",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "CBUQ",
+    "origem_publica": "fixture"
+  },
+  {
+    "objeto": "Ampliação de escola estadual com estrutura de concreto e cobertura metálica",
+    "expected_label": "aec_confirmed",
+    "segment": "edificacoes",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "ampliação escola obra",
+    "origem_publica": "fixture"
+  },
+  {
+    "objeto": "Construção de ETE e redes coletoras de esgoto sanitário",
+    "expected_label": "aec_confirmed",
+    "segment": "saneamento",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "ETE redes",
+    "origem_publica": "fixture"
+  },
+  {
+    "objeto": "Sistema de SPDA e instalações elétricas prediais em ginásio municipal",
+    "expected_label": "aec_confirmed",
+    "segment": "climatizacao",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "SPDA instalações",
+    "origem_publica": "fixture"
+  },
+  {
+    "objeto": "Conservação predial e manutenção de edifícios da prefeitura",
+    "expected_label": "aec_confirmed",
+    "segment": "manutencao",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "conservação predial",
+    "origem_publica": "fixture"
+  },
+  {
+    "objeto": "Execução de calçadas e passeios públicos em concreto",
+    "expected_label": "aec_confirmed",
+    "segment": "pavimentacao",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "calçadas",
+    "origem_publica": "fixture"
+  },
+  {
+    "objeto": "Obra de construção de ponte em concreto armado sobre o rio municipal",
+    "expected_label": "aec_confirmed",
+    "segment": "pavimentacao",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "ponte concreto",
+    "origem_publica": "fixture"
+  },
+  {
+    "objeto": "Fornecimento de genéricos e medicamentos para farmácia básica",
+    "expected_label": "non_aec",
+    "segment": "saude",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "medicamentos",
+    "origem_publica": "fixture"
+  },
+  {
+    "objeto": "Curso de capacitação e treinamento presencial para servidores",
+    "expected_label": "non_aec",
+    "segment": "treinamento",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "treinamento",
+    "origem_publica": "fixture"
+  },
+  {
+    "objeto": "Licença de software de gestão escolar em nuvem",
+    "expected_label": "non_aec",
+    "segment": "software",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "software",
+    "origem_publica": "fixture"
+  },
+  {
+    "objeto": "Uniforme escolar e material didático para alunos da rede",
+    "expected_label": "non_aec",
+    "segment": "educacao",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "uniforme",
+    "origem_publica": "fixture"
+  },
+  {
+    "objeto": "Aquisição de van escolar para transporte de estudantes",
+    "expected_label": "non_aec",
+    "segment": "transporte",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "van escolar",
+    "origem_publica": "fixture"
+  }
+]
