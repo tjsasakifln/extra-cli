@@ -358,5 +358,77 @@
     "review_date": "2026-07-31",
     "justificativa": "van escolar",
     "origem_publica": "fixture"
+  },
+  {
+    "objeto": "Compra de ar condicionado tipo split 12000 BTUs para salas administrativas",
+    "expected_label": "non_aec",
+    "segment": "equipamento",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "compra equipamento sem instalação",
+    "origem_publica": "auditoria-skeptic"
+  },
+  {
+    "objeto": "Compra de equipamento de ar-condicionado tipo janela",
+    "expected_label": "non_aec",
+    "segment": "equipamento",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "compra equipamento",
+    "origem_publica": "auditoria-skeptic"
+  },
+  {
+    "objeto": "Aquisição de ferramentas e materiais de manutenção predial para almoxarifado",
+    "expected_label": "non_aec",
+    "segment": "fornecimento",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "material sem obra",
+    "origem_publica": "auditoria-skeptic"
+  },
+  {
+    "objeto": "Assinatura anual de ferramenta de software para orçamentos e serviços de engenharia",
+    "expected_label": "non_aec",
+    "segment": "software",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "SaaS",
+    "origem_publica": "auditoria-skeptic"
+  },
+  {
+    "objeto": "Contratação de empresa para instalação de ar-condicionado central com infraestrutura de dutos em prédio público",
+    "expected_label": "aec_confirmed",
+    "segment": "climatizacao",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "instalação engenharia",
+    "origem_publica": "auditoria-skeptic"
+  },
+  {
+    "objeto": "Pavimentação Asfáltica em CBUQ de vias urbanas com 122132 m2",
+    "expected_label": "aec_confirmed",
+    "segment": "pavimentacao",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "CBUQ obra",
+    "origem_publica": "auditoria-skeptic"
+  },
+  {
+    "objeto": "Execução de pavimentação em paralelepípedos de pedra irregular em vias municipais",
+    "expected_label": "aec_confirmed",
+    "segment": "pavimentacao",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "paralelepípedo obra",
+    "origem_publica": "auditoria-skeptic"
+  },
+  {
+    "objeto": "Licença de software de gestão de orçamentos de obras públicas em nuvem",
+    "expected_label": "non_aec",
+    "segment": "software",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "software",
+    "origem_publica": "auditoria-skeptic"
   }
 ]

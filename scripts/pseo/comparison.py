@@ -54,19 +54,31 @@ def _scope(objeto: str) -> str:
 
 
 def _typology(objeto: str, archetypes: list[str]) -> str:
+    """Fine-grained typology — never mix CBUQ asphalt with paralelepípedo."""
     t = objeto.lower()
-    if re.search(r"paviment|asfalt|recape|paralelep[ií]pedo", t):
-        return "pavimentacao"
+    # Pavement materials must be distinct comparison groups
+    if re.search(r"\bcbuq\b|concreto\s+betuminoso|asfalt[oa]\s+(em\s+)?quente|capp?eamento\s+asf[aá]lt", t):
+        return "cbuq_asfalto"
+    if re.search(r"paralelep[ií]pedo|poliedric|pedra\s+irregular", t):
+        return "paralelepipedo"
+    if re.search(r"intertravad|bloco\s+de\s+concreto\s+paviment|paver\b", t):
+        return "intertravado"
+    if re.search(r"recape|recapeamento", t):
+        return "recape_asfaltico"
+    if re.search(r"paviment.*asfalt|asfalt.*paviment|pavimenta[cç][aã]o\s+asf", t):
+        return "cbuq_asfalto"
+    if re.search(r"paviment", t):
+        return "pavimentacao_generica"
     if re.search(r"drenagem", t):
         return "drenagem"
-    if re.search(r"escola|creche", t):
+    if re.search(r"escola|creche", t) and re.search(r"constru[cç]|reforma|obra|amplia", t):
         return "educacao_edificacao"
-    if re.search(r"ubs|posto de sa[uú]de|hospital", t):
+    if re.search(r"ubs|posto de sa[uú]de|hospital", t) and re.search(r"constru[cç]|reforma|obra|amplia", t):
         return "saude_edificacao"
     if re.search(r"esgoto|adutora|eta\b|ete\b|rede de [aá]gua", t):
         return "saneamento_rede"
-    if re.search(r"climatiza|ar[- ]condicionado", t):
-        return "climatizacao"
+    if re.search(r"instala[cç].*ar[- ]condicionado|climatiza[cç].*predial|ar[- ]condicionado\s+central", t):
+        return "climatizacao_instalacao"
     if re.search(r"manuten[cç][aã]o predial", t):
         return "manutencao_predial"
     if archetypes:
@@ -190,12 +202,31 @@ def build_comparable_prices(
         # Reject if conflicting natures/scopes mix heavily
         natures = Counter(k.nature for _, k in pairs)
         scopes = Counter(k.scope for _, k in pairs)
+        typs = Counter(k.typology for _, k in pairs)
         flags: list[str] = []
         if len([n for n, c in natures.items() if c >= 2]) > 2:
             flags.append("mixed_natures")
         if "locacao" in natures or "fornecimento" in natures:
             flags.append("contaminated_nature")
-        if "contaminated_nature" in flags or "mixed_natures" in flags:
+        # Semantic material classes must not mix in one public benchmark
+        pavement_materials = {
+            "cbuq_asfalto", "paralelepipedo", "intertravado", "recape_asfaltico",
+            "pavimentacao_generica",
+        }
+        present_pav = [t for t in typs if t in pavement_materials]
+        if len(present_pav) > 1:
+            flags.append("mixed_pavement_materials")
+        if len([t for t, c in typs.items() if c >= 2]) > 1 and len(typs) > 1:
+            # Dominant typology must be ≥80% of observations
+            top_typ, top_n = typs.most_common(1)[0]
+            if top_n / len(pairs) < 0.8:
+                flags.append("mixed_typologies")
+        if (
+            "contaminated_nature" in flags
+            or "mixed_natures" in flags
+            or "mixed_pavement_materials" in flags
+            or "mixed_typologies" in flags
+        ):
             continue
 
         confs = [k.comparison_confidence for _, k in pairs]

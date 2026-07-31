@@ -21,19 +21,35 @@ NEGATIVE_STRONG: list[tuple[str, str]] = [
     (r"\baluguel\s+de\s+(im[oó]vel|sala|pr[eé]dio)", "aluguel_imovel"),
     (r"\bcleaning\b|\blimpeza\s+(e\s+)?conserva|\bhigieni[zs]a[cç]", "limpeza"),
     (r"\bcopas?\s+e\s+cozinha\b|\brefei[cç][aã]o\s+coletiv", "alimentacao"),
-    (r"\bcredenciamento\s+de\s+(escolas?|institui[cç]|fornecedor)", "credenciamento_escolas"),
+    (r"\bcredenciamento\s+de\s+(escolas?|institui[cç]|fornecedor|empresas?)", "credenciamento_escolas"),
     (r"\b[oô]nibus\b|\bmicro[oô]nibus\b|\bvan\s+escolar\b|\btransporte\s+escolar\b", "onibus_transporte"),
     (r"\bve[ií]culo\s+rodovi[aá]rio\b|\bfrota\s+rodovi", "veiculo_rodoviario"),
-    (r"\baquisi[cç][aã]o\s+de\s+(material|materiais|equipamento|medicamento|g[eê]nero)", "aquisicao_material"),
-    (r"\bfornecimento\s+de\s+(material|materiais|medicamento|g[eê]nero\s+aliment)", "fornecimento_material"),
-    (r"\bcompra\s+de\s+(material|medicamento|equipamento\s+de\s+inform)", "compra_material"),
-    (r"\blicen[cç]a\s+de\s+software\b|\bassinatura\s+de\s+software\b", "software"),
+    (r"\baquisi[cç][aã]o\s+de\s+(material|materiais|equipamento|medicamento|g[eê]nero|ferramentas?)", "aquisicao_material"),
+    (r"\bfornecimento\s+de\s+(material|materiais|medicamento|g[eê]nero\s+aliment|ferramentas?)", "fornecimento_material"),
+    (r"\bcompra\s+de\s+(material|materiais|medicamento|equipamento|ferramentas?|ar[- ]condicionado)", "compra_material"),
+    (r"\bcompra\s+de\s+ar\b|\baquisi[cç][aã]o\s+de\s+ar[- ]condicionado\b", "compra_equipamento"),
+    (r"\baquisi[cç][aã]o\s+de\s+equipamento|\bcompra\s+de\s+equipamento", "compra_equipamento"),
+    (r"\bfornecimento\s+de\s+equipamento|\bfornecimento\s+de\s+aparelho", "compra_equipamento"),
+    (r"\blicen[cç]a\s+de\s+software\b|\bassinatura\s+(anual\s+)?(de\s+)?(software|ferramenta|sistema|saas)\b", "software"),
+    (r"\bsoftware\s+(de\s+)?(gest[aã]o|or[cç]amento|cloud)\b|\bferramenta\s+de\s+software\b|\bsaas\b", "software"),
     (r"\bcurso\s+de\s+capacita|\btreinamento\s+presencial\b|\bworkshop\b", "treinamento"),
     (r"\bseguro\s+(de\s+)?vida\b|\bplano\s+de\s+sa[uú]de\b", "seguro_saude"),
     (r"\bpublicidade\b|\bpropaganda\b|\bmidia\s+outdoor\b", "publicidade"),
     (r"\bvigil[aâ]ncia\s+(armada|desarmada|patrimonial)\b", "vigilancia"),
     (r"\bmerenda\s+escolar\b|\buniforme\s+escolar\b", "merenda_uniforme"),
 ]
+
+# Pure supply/purchase verbs without engineering execution
+PURCHASE_ONLY = re.compile(
+    r"\b(compra|aquisi[cç][aã]o|fornecimento|aquisi[cç][aã]o\s+de\s+bem)\b",
+    re.I,
+)
+INSTALLATION_SIGNAL = re.compile(
+    r"\b(instala[cç][aã]o|instalar|montagem|execu[cç][aã]o\s+de\s+obra|"
+    r"empreitada|obra\s+de|infraestrutura\s+de\s+dutos|rede\s+de\s+ductos|"
+    r"projeto\s+e\s+execu[cç]|servi[cç]os?\s+de\s+instala[cç])\b",
+    re.I,
+)
 
 # Strong positive engineering/works terms (require object substance)
 STRONG_WORKS: list[tuple[str, str]] = [
@@ -50,14 +66,19 @@ STRONG_WORKS: list[tuple[str, str]] = [
     (r"\balvenaria\b", "alvenaria"),
     (r"\bestrutura\s+de\s+concreto\b|\bconcreto\s+armado\b", "concreto"),
     (r"\bviaduto\b|\bpontes?\b\s+(sobre|em)\b", "ponte_viaduto"),
-    (r"\bclimatiza[cç][aã]o\b|\bar[- ]condicionado\s+(central|tipo)", "climatizacao"),
+    # Installation/system context — not bare "ar-condicionado" product purchase
+    (r"\bclimatiza[cç][aã]o\s+(predial|central|de\s+ambientes?|do\s+pr[eé]dio)", "climatizacao"),
+    (r"\binstala[cç][aã]o\s+de\s+ar[- ]condicionado\b|\bar[- ]condicionado\s+central\b", "climatizacao"),
+    (r"\bsistema\s+de\s+(climatiza[cç]|ar[- ]condicionado)\b", "climatizacao"),
     (r"\binstala[cç][oõ]es\s+el[eé]tric", "instal_eletrica"),
     (r"\binstala[cç][oõ]es\s+hidr[aá]ulic", "instal_hidraulica"),
     (r"\bspda\b|\bpara[-\s]?raios\b", "spda"),
     (r"\bmanuten[cç][aã]o\s+predial\b", "manut_predial"),
     (r"\bconserva[cç][aã]o\s+predial\b", "manut_predial"),
     (r"\bmanuten[cç][aã]o\s+de\s+edif", "manut_predial"),
-    (r"\bservi[cç]os\s+de\s+engenharia\b", "serv_engenharia"),
+    # Engineering *services* — exclude software/assinatura contexts via negatives
+    (r"\bservi[cç]os\s+t[eé]cnicos\s+de\s+engenharia\b|\bprest[aã][cç][aã]o\s+de\s+servi[cç]os\s+de\s+engenharia\b", "serv_engenharia"),
+    (r"\bapoio\s+t[eé]cnico\s+em\s+engenharia\b|\bfiscaliza[cç][aã]o\s+de\s+obras?\b", "serv_engenharia"),
     (r"\bprojeto\s+executivo\s+(de\s+)?(engenharia|arquitetura|obra)", "projeto_executivo"),
     (r"\breforma\s+(e\s+)?(amplia[cç]|adapta[cç]|recupera[cç])", "reforma_obra"),
     (r"\bconstru[cç][aã]o\s+(e\s+)?(reforma|amplia[cç]|de\s+(escola|creche|ubs|pr[eé]dio|gin[aá]sio|unidade))", "construcao_edificacao"),
@@ -175,15 +196,28 @@ def classify_objeto(objeto: str | None, *, extra: dict[str, Any] | None = None) 
     strong = _hits(text, STRONG_WORKS)
     contextual = _hits(text, CONTEXTUAL_NEEDS_WORKS)
     has_works_co = bool(WORKS_CO_SIGNAL.search(text))
+    is_purchase = bool(PURCHASE_ONLY.search(text))
+    has_install = bool(INSTALLATION_SIGNAL.search(text))
 
-    # Hard negatives without works co-signal → non_aec
+    # Software / SaaS / assinatura always non_aec even if "engenharia" appears
+    if "software" in neg or re.search(r"\bassinatura\s+anual\b|\blicen[cç]a\s+de\s+uso\b", text, re.I):
+        return ClassificationResult(
+            label="non_aec",
+            confidence=0.97,
+            reasons=["software_or_subscription"],
+            negative_hits=neg + ["software"],
+            positive_hits=strong,
+            object_nature="fornecimento",
+        )
+
+    # Hard negatives (locação, limpeza, transporte, etc.) dominate without real install
     hard_non = {
         "locacao_imovel", "aluguel_imovel", "limpeza", "alimentacao",
         "credenciamento_escolas", "onibus_transporte", "veiculo_rodoviario",
         "software", "treinamento", "seguro_saude", "publicidade", "vigilancia",
-        "merenda_uniforme",
+        "merenda_uniforme", "medicamento_alimento",
     }
-    if any(n in hard_non for n in neg) and not strong:
+    if any(n in hard_non for n in neg) and not has_install:
         return ClassificationResult(
             label="non_aec",
             confidence=0.95,
@@ -193,17 +227,32 @@ def classify_objeto(objeto: str | None, *, extra: dict[str, Any] | None = None) 
             object_nature=nature,
         )
 
-    # Material acquisition alone is non_aec unless works execution co-signal
-    if any(n in {"aquisicao_material", "fornecimento_material", "compra_material"} for n in neg):
-        if not strong and not (has_works_co and re.search(r"execu[cç]|obra|empreitada", text, re.I)):
+    # Equipment / material purchase without installation/execution → non_aec
+    # (even if product keywords like ar-condicionado or manutenção predial appear)
+    supply_tags = {
+        "aquisicao_material", "fornecimento_material", "compra_material", "compra_equipamento",
+    }
+    if any(n in supply_tags for n in neg) or (is_purchase and not has_install):
+        if not has_install:
             return ClassificationResult(
                 label="non_aec",
-                confidence=0.9,
-                reasons=["material_supply_without_works"],
-                negative_hits=neg,
+                confidence=0.93,
+                reasons=["equipment_or_material_purchase_without_installation"],
+                negative_hits=neg + (["purchase_only"] if is_purchase else []),
                 positive_hits=strong,
                 object_nature="fornecimento",
             )
+
+    # Nature fornecimento without install never reaches aec_confirmed later
+    if nature == "fornecimento" and not has_install:
+        return ClassificationResult(
+            label="non_aec",
+            confidence=0.9,
+            reasons=["fornecimento_without_installation"],
+            negative_hits=neg,
+            positive_hits=strong,
+            object_nature="fornecimento",
+        )
 
     # escola / rodovi / construção de alone → not confirmed
     if "edificio_contexto" in contextual and not strong and not has_works_co:
@@ -261,6 +310,16 @@ def classify_objeto(objeto: str | None, *, extra: dict[str, Any] | None = None) 
             arches.append("pavimentacao-infraestrutura-viaria")
 
     if strong and arches:
+        # Never confirm pure supply/purchase even if a strong product keyword hit
+        if is_purchase and not has_install:
+            return ClassificationResult(
+                label="non_aec",
+                confidence=0.9,
+                reasons=["strong_keyword_but_purchase_without_install"],
+                positive_hits=strong,
+                negative_hits=neg,
+                object_nature="fornecimento",
+            )
         # confirmed only with strong engineering evidence
         conf = min(0.99, 0.75 + 0.05 * len(strong))
         return ClassificationResult(
@@ -270,7 +329,7 @@ def classify_objeto(objeto: str | None, *, extra: dict[str, Any] | None = None) 
             reasons=[f"strong:{s}" for s in strong],
             positive_hits=strong + contextual,
             negative_hits=neg,
-            object_nature=nature if nature != "outros" else "obra",
+            object_nature=nature if nature not in {"outros", "fornecimento"} else "obra",
         )
 
     if arches and has_works_co:

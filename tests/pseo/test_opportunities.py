@@ -58,5 +58,18 @@ def test_filter_counts_do_not_mix_history():
 def test_radar_freshness_fail():
     r = radar_freshness("2026-07-20", now=date(2026, 7, 31))
     assert r["status"] == "fail"
+    assert r["age_hours"] and r["age_hours"] > 72
     r2 = radar_freshness("2026-07-31", now=date(2026, 7, 31))
     assert r2["status"] == "ok"
+    assert r2["age_hours"] == 0
+
+
+def test_radar_freshness_not_forced_zero_when_as_of_stale():
+    """now must be wall-clock — forcing now=as_of would always yield age=0."""
+    r = radar_freshness("2026-07-01", now=date(2026, 7, 31))
+    assert r["age_hours"] == 30 * 24
+    assert r["status"] == "fail"
+    # If caller mistakenly passes now=as_of, age is 0 — document expected real usage
+    r_wrong = radar_freshness("2026-07-01", now=date(2026, 7, 1))
+    assert r_wrong["age_hours"] == 0
+    assert r_wrong["status"] == "ok"  # anti-pattern; pipeline must not do this

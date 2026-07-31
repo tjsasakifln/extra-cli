@@ -1,6 +1,8 @@
 """Self-contained pSEO public export pipeline (durable untracked module)."""
 from __future__ import annotations
 
+import re
+
 import argparse
 import json
 import os
@@ -171,7 +173,8 @@ def build_opportunities_v2(
 
     market_slugs = {m["slug"] for m in markets}
     out: list[dict[str, Any]] = []
-    fresh = radar_freshness(as_of_s, now=as_of_d)
+    # Wall-clock now — never pass as_of as now (would force age_hours=0)
+    fresh = radar_freshness(as_of_s, now=date.today())
     for (arch, uf), items in sorted(buckets.items(), key=lambda kv: -len(kv[1])):
         if len(items) < min_open:
             continue
@@ -236,6 +239,22 @@ def build_opportunities_v2(
             }
         )
     return out
+
+
+
+def pncp_consulta_url(contrato_id: str | None, source: str | None = None) -> str | None:
+    """Build a specific public consulta URL when possible; never invent opaque IDs."""
+    if not contrato_id:
+        return None
+    cid = str(contrato_id).strip()
+    # PNCP award/contract style: cnpj-seq/year or numeric
+    if re.match(r"^\d{14}-\d+-\d+/\d{4}$", cid) or re.match(r"^\d{14}", cid):
+        # Public PNCP search by contract id fragment
+        from urllib.parse import quote
+        return f"https://pncp.gov.br/app/contratos?q={quote(cid)}"
+    if cid.startswith("http"):
+        return cid
+    return None
 
 
 def load_from_db(dsn: str):
@@ -317,6 +336,13 @@ def build_export(
         arch = pr.get("object_pattern")
         if arch and uf and len(str(uf)) == 2:
             pr.setdefault("mesh_slug", f"{arch}-{str(uf).lower()}")
+        # Attach specific official links to examples when possible (never invent)
+        for ex in pr.get("public_examples") or []:
+            if not ex.get("link_oficial"):
+                link = pncp_consulta_url(ex.get("contrato_id"), ex.get("source"))
+                if link:
+                    ex["link_oficial"] = link
+                    ex.setdefault("portal_origem", "pncp")
     competition = build_competition(classified)
     opportunities = build_opportunities_v2(
         open_bids, markets, as_of=as_of_s, closed_bids=closed_bids

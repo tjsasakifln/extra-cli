@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from datetime import date
+from datetime import date, datetime
 from typing import Any
 
 from scripts.pseo.normalization import iso_date, parse_date
@@ -176,11 +176,27 @@ RADAR_FAIL_HOURS = 72
 def radar_freshness(
     data_as_of: str | date | None,
     *,
-    now: date | None = None,
+    now: date | datetime | None = None,
     source_unavailable: bool = False,
 ) -> dict[str, Any]:
-    """Evaluate radar freshness against 24h warning / 72h fail policy."""
-    now = now or date.today()
+    """Evaluate radar freshness against 24h warning / 72h fail policy.
+
+    ``now`` must be wall-clock (or real collection time), NOT forced equal to
+    ``data_as_of`` — otherwise age is always 0 and hard-fail never fires.
+    """
+    from datetime import datetime as _dt
+    from datetime import timezone as _tz
+
+    if now is None:
+        now_d = date.today()
+        now_source = "wall_clock_date"
+    elif isinstance(now, _dt):
+        now_d = now.date() if now.tzinfo is None else now.astimezone(_tz.utc).date()
+        now_source = "wall_clock_datetime"
+    else:
+        now_d = now
+        now_source = "provided_date"
+
     d = parse_date(data_as_of) if not isinstance(data_as_of, date) else data_as_of
     if d is None:
         return {
@@ -189,10 +205,12 @@ def radar_freshness(
             "warning_hours": RADAR_WARNING_HOURS,
             "fail_hours": RADAR_FAIL_HOURS,
             "reason": "missing_data_as_of",
+            "now_source": now_source,
         }
-    age_hours = (now - d).total_seconds() / 3600.0 if hasattr(now - d, "total_seconds") else float((now - d).days * 24)
-    # date-only: approximate mid-day → use days * 24
-    age_hours = float((now - d).days * 24)
+    # date-only age in hours (full days * 24); never pass now=data_as_of at call site
+    age_hours = float((now_d - d).days * 24)
+    if age_hours < 0:
+        age_hours = 0.0
     if age_hours > RADAR_FAIL_HOURS and not source_unavailable:
         status = "fail"
     elif age_hours > RADAR_WARNING_HOURS:
@@ -211,4 +229,7 @@ def radar_freshness(
         "fail_hours": RADAR_FAIL_HOURS,
         "reason": reason,
         "source_unavailable": source_unavailable,
+        "now_source": now_source,
+        "data_as_of": d.isoformat() if hasattr(d, "isoformat") else str(d),
+        "evaluated_at": now_d.isoformat(),
     }

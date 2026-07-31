@@ -75,6 +75,26 @@ def test_veiculo_passeio_not_calcada():
     assert "pavimentacao-infraestrutura-viaria" not in r.archetypes
 
 
+def test_equipment_purchase_not_aec():
+    for obj in (
+        "Compra de ar condicionado tipo split 12000 BTUs",
+        "Compra de equipamento de ar-condicionado tipo janela",
+        "Aquisição de ferramentas e materiais de manutenção predial",
+        "Assinatura anual de ferramenta de software para orçamentos e serviços de engenharia",
+    ):
+        r = classify_objeto(obj)
+        assert r.label != "aec_confirmed", (obj, r.label, r.reasons)
+
+
+def test_installation_of_ac_is_aec():
+    r = classify_objeto(
+        "Contratação de empresa para instalação de ar-condicionado central "
+        "com infraestrutura de dutos em prédio público"
+    )
+    assert r.label == "aec_confirmed"
+    assert "climatizacao-instalacoes" in r.archetypes
+
+
 def test_construcao_de_without_object():
     r = classify_objeto("Construção de soluções inovadoras para a gestão")
     assert r.label in {"ambiguous", "non_aec", "insufficient_context"}
