@@ -1,12 +1,13 @@
 # PROCESS-DOCS-01 — Final wave: coverage exit 0 with residual policy
 
-Generated: 2026-07-31T00:20:21.579595+00:00
+Generated: 2026-07-31T00:59:36.395459+00:00
+HEAD: 
 
 ## Gate
-`python -m scripts.process_documents coverage --full` → **exit 0**
+ → **exit 0**
 
 Residual policy (PO): waives **exit code** for win/qual only.  
-`meets_threshold` remains **false** for those two metrics. Denominators **not** shrunk.
+ remains **false** for those two metrics. Denominators **not** shrunk.
 
 ## Metrics
 
@@ -30,3 +31,7 @@ Residual policy (PO): waives **exit code** for win/qual only.
 
 ## READY_TO_SUBMIT
 **forbidden**
+
+## Packaging
+- PR #184: lint cleaned (ruff on scripts/process_documents)
+- DOD §4.4 win/qual remain  (honest residual)
