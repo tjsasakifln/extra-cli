@@ -1,0 +1,28 @@
+{
+  "ok": true,
+  "release_id": "selective-selective-merged",
+  "row_counts": {
+    "establishments": 2497,
+    "companies": 2461
+  },
+  "validate_load": {
+    "ok": true,
+    "release_id": "selective-selective-merged",
+    "database_path": "/mnt/d/extra consultoria/data/company_registry/staging/selective-selective-merged/registry.sqlite",
+    "row_counts": {
+      "establishments": 2497,
+      "companies": 2461
+    },
+    "smoke": {
+      "cnpj14": "00000000000191",
+      "has_row": true
+    },
+    "errors": [],
+    "status": "VALIDATING_LOAD",
+    "validated_at": "2026-07-30T19:55:13Z"
+  },
+  "mode": "selective",
+  "bulk_completeness_claimed": false,
+  "interest_matched_n": 2497,
+  "commercial_rerun_id": "cl-20260730T201737Z-a35bd698"
+}

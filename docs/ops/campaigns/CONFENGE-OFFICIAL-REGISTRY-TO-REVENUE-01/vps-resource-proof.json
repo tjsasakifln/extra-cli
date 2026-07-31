@@ -1,0 +1,11 @@
+{
+  "status": "LOCAL_ONLY",
+  "note": "VPS SSH path not executed in this session. Local disk free ~504GB. Selective load used.",
+  "disk_local": {
+    "root": "/mnt/d/extra consultoria/data/company_registry",
+    "total_gb": 1000.19,
+    "used_gb": 496.13,
+    "free_gb": 504.06
+  },
+  "recommendation": "On VPS: run company-registry refresh under nice/ionice with COMPANY_REGISTRY_ROOT on large volume; do not reset soak timers."
+}

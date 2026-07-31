@@ -1,0 +1,83 @@
+{
+  "discovery_rfb_bulk": {
+    "release_id": "rfb-cnpj-unknown",
+    "source_authority": "RECEITA_FEDERAL",
+    "source_urls": [
+      "https://arquivos.receitafederal.gov.br/dados/cnpj/dados_abertos_cnpj/",
+      "https://dadosabertos.rfb.gov.br/CNPJ/",
+      "http://200.152.38.155/CNPJ/"
+    ],
+    "discovered_at": "2026-07-30T19:17:14Z",
+    "published_reference_date": null,
+    "download_started_at": null,
+    "download_finished_at": null,
+    "files_expected": [],
+    "files_downloaded": [],
+    "file_names": [],
+    "content_lengths": {},
+    "sha256": {},
+    "compression_type": {},
+    "schema_version": "company-registry-v1",
+    "row_counts": {},
+    "reject_counts": {},
+    "duplicate_counts": {},
+    "load_started_at": null,
+    "load_finished_at": null,
+    "status": "FAILED",
+    "errors": [
+      "https://arquivos.receitafederal.gov.br/dados/cnpj/dados_abertos_cnpj/: HTTPError: HTTP Error 404: Not Found",
+      "https://dadosabertos.rfb.gov.br/CNPJ/: URLError: <urlopen error timed out>",
+      "http://200.152.38.155/CNPJ/: URLError: <urlopen error timed out>"
+    ],
+    "warnings": [
+      "RFB open-data listing unreachable or empty from this environment. Stage local ZIPs under data/company_registry/raw/<release_id>/ or use selective mode."
+    ],
+    "database_snapshot_id": null,
+    "code_commit": "8ff80eef188974d2c17cb8716e74700fef3e9b12",
+    "mode": null,
+    "ingestion_mode": null,
+    "discovery": {
+      "index_urls_tried": [
+        "https://arquivos.receitafederal.gov.br/dados/cnpj/dados_abertos_cnpj/",
+        "https://dadosabertos.rfb.gov.br/CNPJ/",
+        "http://200.152.38.155/CNPJ/"
+      ],
+      "months_seen": [],
+      "chosen_index": null,
+      "files": [],
+      "errors": [
+        "https://arquivos.receitafederal.gov.br/dados/cnpj/dados_abertos_cnpj/: HTTPError: HTTP Error 404: Not Found",
+        "https://dadosabertos.rfb.gov.br/CNPJ/: URLError: <urlopen error timed out>",
+        "http://200.152.38.155/CNPJ/: URLError: <urlopen error timed out>"
+      ]
+    }
+  },
+  "selective_live": {
+    "source": "api.opencnpj.org (RFB public redistributor)",
+    "source_label": "rfb_public_cadastral_via_opencnpj",
+    "rows_in_active_release": 2497,
+    "active_release_id": "selective-selective-merged",
+    "bulk_completeness_claimed": false
+  },
+  "commercial_rerun": {
+    "status": "BLOCKED",
+    "reason": "BLOCKED_INSUFFICIENT_HUMAN_LABELS",
+    "run_id": "cl-20260730T201737Z-a35bd698",
+    "active_official_registry_release": "selective-selective-merged",
+    "git_sha": "abf9ba639f8ac22cb061c0b8d7b15ab84004a19d",
+    "db_contracts": 4467364,
+    "candidate_count": 22882,
+    "leads_n": 20,
+    "top20_registry_is_official_n": 20,
+    "pipeline_official_registry_coverage_full_population": 0.0468,
+    "interest_official_match_coverage": 1.0,
+    "interest_usable_coverage": 0.997597,
+    "top20_official_registry_coverage": 1.0,
+    "official_registry_postcheck_ok": true,
+    "full_history_rerun": "EXECUTED",
+    "snapshot": "artifacts/campaigns/CONFENGE-COMMERCIAL-ACTIVATION-AND-OUTCOME-LOOP-01/snapshot/snapshot-manifest.json",
+    "artifact_dir": "artifacts/campaigns/CONFENGE-OFFICIAL-REGISTRY-TO-REVENUE-01/commercial-rerun",
+    "human_block": true,
+    "generated_at": "2026-07-30T20:34:21.458520+00:00"
+  }
+}

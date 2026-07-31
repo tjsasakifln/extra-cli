@@ -1,0 +1,3300 @@
+{
+  "n": 5,
+  "auto_send": false,
+  "human_approval_required": true,
+  "source": "artifacts/campaigns/CONFENGE-OFFICIAL-REGISTRY-TO-REVENUE-01/commercial-rerun/top5-outreach-kits",
+  "run_id": "cl-20260730T201737Z-a35bd698",
+  "official_release_id": "selective-selective-merged",
+  "kits": [
+    {
+      "rank": 1,
+      "cnpj": "09065576000101",
+      "kit_source": "artifacts/campaigns/CONFENGE-OFFICIAL-REGISTRY-TO-REVENUE-01/commercial-rerun/top5-outreach-kits/09065576000101.json",
+      "official": {
+        "cnpj": "09065576000101",
+        "official_match_status": "MATCHED",
+        "legal_name": "BRASIL RONDON CONSTRUCOES LTDA",
+        "registration_status": "ATIVA",
+        "primary_cnae": "4120400",
+        "official_release_id": "selective-selective-merged",
+        "city": "BURITIZAL",
+        "state": "SP"
+      },
+      "contratos_observados": {
+        "contract_count": 23,
+        "total_value": 9480612.63,
+        "last_publication": "2026-07-27",
+        "evidence_contract_ids_sample": [
+          "76995422000106-2-000173/2026",
+          "75101873000190-2-000530/2026",
+          "95583571000102-2-000046/2026",
+          "76958966000106-2-000212/2026",
+          "76995422000106-2-000165/2026",
+          "76205814000124-2-000229/2026",
+          "87613022000105-2-000057/2026"
+        ]
+      },
+      "sinais_comerciais": [
+        {
+          "signal_id": "quantity_growth",
+          "status": "FIRED",
+          "strength": 3.0,
+          "weight": 1.3,
+          "contribution": 1.9500000000000002,
+          "hypothesis": "Crescimento acelerado de quantidade de contratos sugere operação B2G em expansão.",
+          "evidence": [
+            {
+              "recent_count": 21,
+              "prior_count": 2,
+              "ratio": 10.5,
+              "contracts": [
+                {
+                  "contrato_id": "76995422000106-2-000173/2026",
+                  "orgao_cnpj": "76995422000106",
+                  "orgao_nome": "Secretaria de Adm. e Financas",
+                  "objeto": "construção de Gavetário Municipal, a ser edificado no Cemitério Municipal de São João/PR, localizado no Bairro Morumbi",
+                  "valor_total": 154600.0,
+                  "valor_semantics": "valor_total_contracted",
+                  "data_publicacao": "2026-07-27",
+                  "data_fim": "2027-07-23",
+                  "uf": "PR",
+                  "source": "pncp_contracts",
+                  "source_id": "76995422000106-2-000173/2026",
+                  "official_url_or_id": "76995422000106-2-000173/2026"
+                },
+                {
+                  "contrato_id": "75101873000190-2-000530/2026",
+                  "orgao_cnpj": "75101873000190",
+                  "orgao_nome": "UTFPR - CAMPUS PONTA GROSSA",
+                  "objeto": "SERVIÇOS COMUNS DE ENGENHARIA, PARA EXECUÇÃO DE ADEQUAÇÕES DE AMBIENTES DIVERSOS NA UTFPR PG",
+                  "valor_total": 241296.84,
+                  "valor_semantics": "valor_total_contracted",
+                  "data_publicacao": "2026-07-20",
+                  "data_fim": "2027-01-22",
+                  "uf": "PR",
+                  "source": "pncp_contracts",
+                  "source_id": "75101873000190-2-000530/2026",
+                  "official_url_or_id": "75101873000190-2-000530/2026"
+                },
+                {
+                  "contrato_id": "95583571000102-2-000046/2026",
+                  "orgao_cnpj": "95583571000102",
+                  "orgao_nome": "SECRETARIA DE INDUSTRIA, COMERCIO, TURISMO E DESENVOLVIMENTO ECONÔMICO",
+                  "objeto": "Contratação de empresa do ramo para construção de cozinha no Pavilhão das Entidades no Centro de Eventos Dorival Moreira, no Município de Maripá, Estado do Paraná",
+                  "valor_total": 412900.0,
+                  "valor_semantics": "valor_total_contracted",
+                  "data_publicacao": "2026-07-17",
+                  "data_fim": "2028-07-10",
+                  "uf": "PR",
+                  "source": "pncp_contracts",
+                  "source_id": "95583571000102-2-000046/2026",
+                  "official_url_or_id": "95583571000102-2-000046/2026"
+                }
+              ]
+            }
+          ],
+          "limitations": [
+            "correlation_dampening_applied_vs_value_growth"
+          ],
+          "offer": "inteligencia_mercado",
+          "reason": null
+        },
+        {
+          "signal_id": "value_growth",
+          "status": "FIRED",
+          "strength": 3.0,
+          "weight": 1.4,
+          "contribution": 4.199999999999999,
+          "hypothesis": "Crescimento de valor contratado sugere maior exposição e necessidade de gestão.",
+          "evidence": [
+            {
+              "recent_value_sum": 9438712.63,
+              "prior_value_sum": 41900.0,
+              "ratio": 225.26760453460622,
+              "valor_semantics": "sum_valor_total_contracted",
+              "contracts": [
+                {
+                  "contrato_id": "76995422000106-2-000173/2026",
+                  "orgao_cnpj": "76995422000106",
+                  "orgao_nome": "Secretaria de Adm. e Financas",
+                  "objeto": "construção de Gavetário Municipal, a ser edificado no Cemitério Municipal de São João/PR, localizado no Bairro Morumbi",
+                  "valor_total": 154600.0,
+                  "valor_semantics": "valor_total_contracted",
+                  "data_publicacao": "2026-07-27",
+                  "data_fim": "2027-07-23",
+                  "uf": "PR",
+                  "source": "pncp_contracts",
+                  "source_id": "76995422000106-2-000173/2026",
+                  "official_url_or_id": "76995422000106-2-000173/2026"
+                },
+                {
+                  "contrato_id": "75101873000190-2-000530/2026",
+                  "orgao_cnpj": "75101873000190",
+                  "orgao_nome": "UTFPR - CAMPUS PONTA GROSSA",
+                  "objeto": "SERVIÇOS COMUNS DE ENGENHARIA, PARA EXECUÇÃO DE ADEQUAÇÕES DE AMBIENTES DIVERSOS NA UTFPR PG",
+                  "valor_total": 241296.84,
+                  "valor_semantics": "valor_total_contracted",
+                  "data_publicacao": "2026-07-20",
+                  "data_fim": "2027-01-22",
+                  "uf": "PR",
+                  "source": "pncp_contracts",
+                  "source_id": "75101873000190-2-000530/2026",
+                  "official_url_or_id": "75101873000190-2-000530/2026"
+                },
+                {
+                  "contrato_id": "95583571000102-2-000046/2026",
+                  "orgao_cnpj": "95583571000102",
+                  "orgao_nome": "SECRETARIA DE INDUSTRIA, COMERCIO, TURISMO E DESENVOLVIMENTO ECONÔMICO",
+                  "objeto": "Contratação de empresa do ramo para construção de cozinha no Pavilhão das Entidades no Centro de Eventos Dorival Moreira, no Município de Maripá, Estado do Paraná",
+                  "valor_total": 412900.0,
+                  "valor_semantics": "valor_total_contracted",
+                  "data_publicacao": "2026-07-17",
+                  "data_fim": "2028-07-10",
+                  "uf": "PR",
+                  "source": "pncp_contracts",
+                  "source_id": "95583571000102-2-000046/2026",
+                  "official_url_or_id": "95583571000102-2-000046/2026"
+                }
+              ]
+            }
+          ],
+          "limitations": [],
+          "offer": "inteligencia_mercado",
+          "reason": null
+        },
+        {
+          "signal_id": "new_agency",
+          "status": "FIRED",
+          "strength": 2.0,
+          "weight": 1.1,
+          "contribution": 2.2,
+          "hypothesis": "Entrada em novo órgão amplia complexidade relacional e de compliance.",
+          "evidence": [
+            {
+              "contrato_id": "76995422000106-2-000173/2026",
+              "orgao_cnpj": "76995422000106",
+              "orgao_nome": "Secretaria de Adm. e Financas",
+              "objeto": "construção de Gavetário Municipal, a ser edificado no Cemitério Municipal de São João/PR, localizado no Bairro Morumbi",
+              "valor_total": 154600.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-27",
+              "data_fim": "2027-07-23",
+              "uf": "PR",
+              "source": "pncp_contracts",
+              "source_id": "76995422000106-2-000173/2026",
+              "official_url_or_id": "76995422000106-2-000173/2026"
+            },
+            {
+              "contrato_id": "75101873000190-2-000530/2026",
+              "orgao_cnpj": "75101873000190",
+              "orgao_nome": "UTFPR - CAMPUS PONTA GROSSA",
+              "objeto": "SERVIÇOS COMUNS DE ENGENHARIA, PARA EXECUÇÃO DE ADEQUAÇÕES DE AMBIENTES DIVERSOS NA UTFPR PG",
+              "valor_total": 241296.84,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-20",
+              "data_fim": "2027-01-22",
+              "uf": "PR",
+              "source": "pncp_contracts",
+              "source_id": "75101873000190-2-000530/2026",
+              "official_url_or_id": "75101873000190-2-000530/2026"
+            },
+            {
+              "contrato_id": "95583571000102-2-000046/2026",
+              "orgao_cnpj": "95583571000102",
+              "orgao_nome": "SECRETARIA DE INDUSTRIA, COMERCIO, TURISMO E DESENVOLVIMENTO ECONÔMICO",
+              "objeto": "Contratação de empresa do ramo para construção de cozinha no Pavilhão das Entidades no Centro de Eventos Dorival Moreira, no Município de Maripá, Estado do Paraná",
+              "valor_total": 412900.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-17",
+              "data_fim": "2028-07-10",
+              "uf": "PR",
+              "source": "pncp_contracts",
+              "source_id": "95583571000102-2-000046/2026",
+              "official_url_or_id": "95583571000102-2-000046/2026"
+            }
+          ],
+          "limitations": [],
+          "offer": "diagnostico_b2g",
+          "reason": null
+        },
+        {
+          "signal_id": "new_region",
+          "status": "FIRED",
+          "strength": 7.0,
+          "weight": 1.0,
+          "contribution": 7.0,
+          "hypothesis": "Entrada em nova UF indica expansão geográfica observável.",
+          "evidence": [
+            {
+              "contrato_id": "76995422000106-2-000173/2026",
+              "orgao_cnpj": "76995422000106",
+              "orgao_nome": "Secretaria de Adm. e Financas",
+              "objeto": "construção de Gavetário Municipal, a ser edificado no Cemitério Municipal de São João/PR, localizado no Bairro Morumbi",
+              "valor_total": 154600.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-27",
+              "data_fim": "2027-07-23",
+              "uf": "PR",
+              "source": "pncp_contracts",
+              "source_id": "76995422000106-2-000173/2026",
+              "official_url_or_id": "76995422000106-2-000173/2026"
+            },
+            {
+              "contrato_id": "75101873000190-2-000530/2026",
+              "orgao_cnpj": "75101873000190",
+              "orgao_nome": "UTFPR - CAMPUS PONTA GROSSA",
+              "objeto": "SERVIÇOS COMUNS DE ENGENHARIA, PARA EXECUÇÃO DE ADEQUAÇÕES DE AMBIENTES DIVERSOS NA UTFPR PG",
+              "valor_total": 241296.84,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-20",
+              "data_fim": "2027-01-22",
+              "uf": "PR",
+              "source": "pncp_contracts",
+              "source_id": "75101873000190-2-000530/2026",
+              "official_url_or_id": "75101873000190-2-000530/2026"
+            },
+            {
+              "contrato_id": "95583571000102-2-000046/2026",
+              "orgao_cnpj": "95583571000102",
+              "orgao_nome": "SECRETARIA DE INDUSTRIA, COMERCIO, TURISMO E DESENVOLVIMENTO ECONÔMICO",
+              "objeto": "Contratação de empresa do ramo para construção de cozinha no Pavilhão das Entidades no Centro de Eventos Dorival Moreira, no Município de Maripá, Estado do Paraná",
+              "valor_total": 412900.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-17",
+              "data_fim": "2028-07-10",
+              "uf": "PR",
+              "source": "pncp_contracts",
+              "source_id": "95583571000102-2-000046/2026",
+              "official_url_or_id": "95583571000102-2-000046/2026"
+            }
+          ],
+          "limitations": [],
+          "offer": "diagnostico_b2g",
+          "reason": null
+        },
+        {
+          "signal_id": "new_object_category",
+          "status": "FIRED",
+          "strength": 5.0,
+          "weight": 1.0,
+          "contribution": 5.0,
+          "hypothesis": "Nova categoria de objeto indica diversificação operacional.",
+          "evidence": [
+            {
+              "contrato_id": "76995422000106-2-000173/2026",
+              "orgao_cnpj": "76995422000106",
+              "orgao_nome": "Secretaria de Adm. e Financas",
+              "objeto": "construção de Gavetário Municipal, a ser edificado no Cemitério Municipal de São João/PR, localizado no Bairro Morumbi",
+              "valor_total": 154600.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-27",
+              "data_fim": "2027-07-23",
+              "uf": "PR",
+              "source": "pncp_contracts",
+              "source_id": "76995422000106-2-000173/2026",
+              "official_url_or_id": "76995422000106-2-000173/2026"
+            },
+            {
+              "contrato_id": "75101873000190-2-000530/2026",
+              "orgao_cnpj": "75101873000190",
+              "orgao_nome": "UTFPR - CAMPUS PONTA GROSSA",
+              "objeto": "SERVIÇOS COMUNS DE ENGENHARIA, PARA EXECUÇÃO DE ADEQUAÇÕES DE AMBIENTES DIVERSOS NA UTFPR PG",
+              "valor_total": 241296.84,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-20",
+              "data_fim": "2027-01-22",
+              "uf": "PR",
+              "source": "pncp_contracts",
+              "source_id": "75101873000190-2-000530/2026",
+              "official_url_or_id": "75101873000190-2-000530/2026"
+            },
+            {
+              "contrato_id": "95583571000102-2-000046/2026",
+              "orgao_cnpj": "95583571000102",
+              "orgao_nome": "SECRETARIA DE INDUSTRIA, COMERCIO, TURISMO E DESENVOLVIMENTO ECONÔMICO",
+              "objeto": "Contratação de empresa do ramo para construção de cozinha no Pavilhão das Entidades no Centro de Eventos Dorival Moreira, no Município de Maripá, Estado do Paraná",
+              "valor_total": 412900.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-17",
+              "data_fim": "2028-07-10",
+              "uf": "PR",
+              "source": "pncp_contracts",
+              "source_id": "95583571000102-2-000046/2026",
+              "official_url_or_id": "95583571000102-2-000046/2026"
+            }
+          ],
+          "limitations": [],
+          "offer": "analise_edital",
+          "reason": null
+        },
+        {
+          "signal_id": "concurrent_portfolio",
+          "status": "FIRED",
+          "strength": 3.0,
+          "weight": 1.2,
+          "contribution": 3.5999999999999996,
+          "hypothesis": "Carteira simultânea relevante indica carga administrativa.",
+          "evidence": [
+            {
+              "contrato_id": "76995422000106-2-000173/2026",
+              "orgao_cnpj": "76995422000106",
+              "orgao_nome": "Secretaria de Adm. e Financas",
+              "objeto": "construção de Gavetário Municipal, a ser edificado no Cemitério Municipal de São João/PR, localizado no Bairro Morumbi",
+              "valor_total": 154600.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-27",
+              "data_fim": "2027-07-23",
+              "uf": "PR",
+              "source": "pncp_contracts",
+              "source_id": "76995422000106-2-000173/2026",
+              "official_url_or_id": "76995422000106-2-000173/2026"
+            },
+            {
+              "contrato_id": "75101873000190-2-000530/2026",
+              "orgao_cnpj": "75101873000190",
+              "orgao_nome": "UTFPR - CAMPUS PONTA GROSSA",
+              "objeto": "SERVIÇOS COMUNS DE ENGENHARIA, PARA EXECUÇÃO DE ADEQUAÇÕES DE AMBIENTES DIVERSOS NA UTFPR PG",
+              "valor_total": 241296.84,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-20",
+              "data_fim": "2027-01-22",
+              "uf": "PR",
+              "source": "pncp_contracts",
+              "source_id": "75101873000190-2-000530/2026",
+              "official_url_or_id": "75101873000190-2-000530/2026"
+            },
+            {
+              "contrato_id": "95583571000102-2-000046/2026",
+              "orgao_cnpj": "95583571000102",
+              "orgao_nome": "SECRETARIA DE INDUSTRIA, COMERCIO, TURISMO E DESENVOLVIMENTO ECONÔMICO",
+              "objeto": "Contratação de empresa do ramo para construção de cozinha no Pavilhão das Entidades no Centro de Eventos Dorival Moreira, no Município de Maripá, Estado do Paraná",
+              "valor_total": 412900.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-17",
+              "data_fim": "2028-07-10",
+              "uf": "PR",
+              "source": "pncp_contracts",
+              "source_id": "95583571000102-2-000046/2026",
+              "official_url_or_id": "95583571000102-2-000046/2026"
+            },
+            {
+              "contrato_id": "76958966000106-2-000212/2026",
+              "orgao_cnpj": "76958966000106",
+              "orgao_nome": "Fundo Municipal de Assistência Social",
+              "objeto": "Contratação de empresa para OBRA DE CONSTRUÇÃO DO PROJETO PADRÃO DA CRECHE DO PROGRAMA INFÂNCIA FELIZ PARANÁ.",
+              "valor_total": 1957000.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-14",
+              "data_fim": "2028-02-21",
+              "uf": "PR",
+              "source": "pncp_contracts",
+              "source_id": "76958966000106-2-000212/2026",
+              "official_url_or_id": "76958966000106-2-000212/2026"
+            },
+            {
+              "contrato_id": "76995422000106-2-000165/2026",
+              "orgao_cnpj": "76995422000106",
+              "orgao_nome": "Secretaria de Adm. e Financas",
+              "objeto": "contratação de empresa especializada para execução de obra de reforço estrutural em muro existente no Centro de Convivência e Fortalecimento de Vínculos – Gralha Azul, localizado na Rua General Osório, nº 419, no Município de São João – PR",
+              "valor_total": 51000.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-10",
+              "data_fim": "2027-01-09",
+              "uf": "PR",
+              "source": "pncp_contracts",
+              "source_id": "76995422000106-2-000165/2026",
+              "official_url_or_id": "76995422000106-2-000165/2026"
+            }
+          ],
+          "limitations": [],
+          "offer": "acompanhamento_admin",
+          "reason": null
+        },
+        {
+          "signal_id": "near_expiry",
+          "status": "FIRED",
+          "strength": 1.0,
+          "weight": 1.3,
+          "contribution": 1.3,
+          "hypothesis": "Contratos próximos do término abrem janela de renovação/relicitação.",
+          "evidence": [
+            {
+              "contrato_id": "76205814000124-2-000229/2026",
+              "orgao_cnpj": "76205814000124",
+              "orgao_nome": "PE -  Secretaria Municipal de Cultura",
+              "objeto": "Contratação de obra de reforma parcial da cobertura e serviços de manutenção do Teatro Municipal Hédio Strey - Etapa I",
+              "valor_total": 414000.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-06-11",
+              "data_fim": "2026-10-16",
+              "uf": "PR",
+              "source": "pncp_contracts",
+              "source_id": "76205814000124-2-000229/2026",
+              "official_url_or_id": "76205814000124-2-000229/2026"
+            },
+            {
+              "contrato_id": "87613022000105-2-000057/2026",
+              "orgao_cnpj": "87613022000105",
+              "orgao_nome": "MUNICIPIO DE SAO LUIZ GONZAGA/RS",
+              "objeto": "Contratação de empresa em regime de execução indireta de empreitada por preço global, com fornecimento de material, mão de obra, equipamentos, insumos, transportes, encargos sociais, BDI e demais encargos, objetivando obras complementares no prédio da EMEI",
+              "valor_total": 244000.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-05-19",
+              "data_fim": "2026-08-19",
+              "uf": "RS",
+              "source": "pncp_contracts",
+              "source_id": "87613022000105-2-000057/2026",
+              "official_url_or_id": "87613022000105-2-000057/2026"
+            }
+          ],
+          "limitations": [],
+          "offer": "acompanhamento_admin",
+          "reason": null
+        },
+        {
+          "signal_id": "diversity_increase",
+          "status": "FIRED",
+          "strength": 2.0,
+          "weight": 1.0,
+          "contribution": 1.0,
+          "hypothesis": "Aumento de diversidade de órgãos indica expansão da operação B2G.",
+          "evidence": [
+            {
+              "recent_organs": 17,
+              "prior_organs": 2,
+              "delta": 15
+            }
+          ],
+          "limitations": [
+            "correlation_dampening_applied_vs_value_growth"
+          ],
+          "offer": "inteligencia_mercado",
+          "reason": null
+        },
+        {
+          "signal_id": "win_recurrence",
+          "status": "FIRED",
+          "strength": 2.0,
+          "weight": 1.1,
+          "contribution": 2.2,
+          "hypothesis": "Recorrência de contratos/vitórias indica volume onde consultoria pode gerar eficiência.",
+          "evidence": [
+            {
+              "contrato_id": "76995422000106-2-000173/2026",
+              "orgao_cnpj": "76995422000106",
+              "orgao_nome": "Secretaria de Adm. e Financas",
+              "objeto": "construção de Gavetário Municipal, a ser edificado no Cemitério Municipal de São João/PR, localizado no Bairro Morumbi",
+              "valor_total": 154600.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-27",
+              "data_fim": "2027-07-23",
+              "uf": "PR",
+              "source": "pncp_contracts",
+              "source_id": "76995422000106-2-000173/2026",
+              "official_url_or_id": "76995422000106-2-000173/2026"
+            },
+            {
+              "contrato_id": "75101873000190-2-000530/2026",
+              "orgao_cnpj": "75101873000190",
+              "orgao_nome": "UTFPR - CAMPUS PONTA GROSSA",
+              "objeto": "SERVIÇOS COMUNS DE ENGENHARIA, PARA EXECUÇÃO DE ADEQUAÇÕES DE AMBIENTES DIVERSOS NA UTFPR PG",
+              "valor_total": 241296.84,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-20",
+              "data_fim": "2027-01-22",
+              "uf": "PR",
+              "source": "pncp_contracts",
+              "source_id": "75101873000190-2-000530/2026",
+              "official_url_or_id": "75101873000190-2-000530/2026"
+            },
+            {
+              "contrato_id": "95583571000102-2-000046/2026",
+              "orgao_cnpj": "95583571000102",
+              "orgao_nome": "SECRETARIA DE INDUSTRIA, COMERCIO, TURISMO E DESENVOLVIMENTO ECONÔMICO",
+              "objeto": "Contratação de empresa do ramo para construção de cozinha no Pavilhão das Entidades no Centro de Eventos Dorival Moreira, no Município de Maripá, Estado do Paraná",
+              "valor_total": 412900.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-17",
+              "data_fim": "2028-07-10",
+              "uf": "PR",
+              "source": "pncp_contracts",
+              "source_id": "95583571000102-2-000046/2026",
+              "official_url_or_id": "95583571000102-2-000046/2026"
+            },
+            {
+              "contrato_id": "76958966000106-2-000212/2026",
+              "orgao_cnpj": "76958966000106",
+              "orgao_nome": "Fundo Municipal de Assistência Social",
+              "objeto": "Contratação de empresa para OBRA DE CONSTRUÇÃO DO PROJETO PADRÃO DA CRECHE DO PROGRAMA INFÂNCIA FELIZ PARANÁ.",
+              "valor_total": 1957000.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-14",
+              "data_fim": "2028-02-21",
+              "uf": "PR",
+              "source": "pncp_contracts",
+              "source_id": "76958966000106-2-000212/2026",
+              "official_url_or_id": "76958966000106-2-000212/2026"
+            },
+            {
+              "contrato_id": "76995422000106-2-000165/2026",
+              "orgao_cnpj": "76995422000106",
+              "orgao_nome": "Secretaria de Adm. e Financas",
+              "objeto": "contratação de empresa especializada para execução de obra de reforço estrutural em muro existente no Centro de Convivência e Fortalecimento de Vínculos – Gralha Azul, localizado na Rua General Osório, nº 419, no Município de São João – PR",
+              "valor_total": 51000.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-10",
+              "data_fim": "2027-01-09",
+              "uf": "PR",
+              "source": "pncp_contracts",
+              "source_id": "76995422000106-2-000165/2026",
+              "official_url_or_id": "76995422000106-2-000165/2026"
+            }
+          ],
+          "limitations": [],
+          "offer": "apoio_proposta",
+          "reason": null
+        }
+      ],
+      "auto_send": false,
+      "status_comercial": "NOT_REVIEWED",
+      "score_total": 28.45,
+      "suggested_offer": "diagnostico_b2g",
+      "pipeline_kit_keys": [
+        "schema_version",
+        "cnpj14",
+        "razao_social",
+        "rank_position",
+        "run_id",
+        "summary_5_to_10_lines",
+        "trigger_event_or_pattern",
+        "suggested_offer",
+        "value_arguments",
+        "discovery_question",
+        "interpretation_risks",
+        "public_business_contact",
+        "whatsapp_short",
+        "email_initial",
+        "call_script",
+        "follow_up_suggestion",
+        "cta",
+        "manual_send_only",
+        "automation_forbidden",
+        "language_scan_forbidden_hit"
+      ],
+      "pipeline_kit_summary": {
+        "keys": [
+          "schema_version",
+          "cnpj14",
+          "razao_social",
+          "rank_position",
+          "run_id",
+          "summary_5_to_10_lines",
+          "trigger_event_or_pattern",
+          "suggested_offer",
+          "value_arguments",
+          "discovery_question",
+          "interpretation_risks",
+          "public_business_contact",
+          "whatsapp_short",
+          "email_initial",
+          "call_script",
+          "follow_up_suggestion",
+          "cta",
+          "manual_send_only",
+          "automation_forbidden",
+          "language_scan_forbidden_hit"
+        ],
+        "cnpj": "09065576000101",
+        "has_whatsapp": false
+      }
+    },
+    {
+      "rank": 2,
+      "cnpj": "36216839000109",
+      "kit_source": "artifacts/campaigns/CONFENGE-OFFICIAL-REGISTRY-TO-REVENUE-01/commercial-rerun/top5-outreach-kits/36216839000109.json",
+      "official": {
+        "cnpj": "36216839000109",
+        "official_match_status": "MATCHED",
+        "legal_name": "DIEGO DIAS GUSMAO LTDA",
+        "registration_status": "ATIVA",
+        "primary_cnae": "7112000",
+        "official_release_id": "selective-selective-merged",
+        "city": "LORENA",
+        "state": "SP"
+      },
+      "contratos_observados": {
+        "contract_count": 26,
+        "total_value": 3360069.27,
+        "last_publication": "2026-07-27",
+        "evidence_contract_ids_sample": [
+          "88117718000103-2-000319/2026",
+          "32512501000143-2-000090/2026",
+          "15361282000120-2-000004/2026",
+          "88568902000170-2-000052/2026",
+          "87613022000105-2-000082/2026",
+          "80637457000140-2-000313/2026",
+          "88067780000138-2-000069/2026",
+          "46379400000150-2-000369/2024",
+          "90832619000155-2-000141/2026",
+          "88814199000132-2-000060/2026"
+        ]
+      },
+      "sinais_comerciais": [
+        {
+          "signal_id": "quantity_growth",
+          "status": "FIRED",
+          "strength": 3.0,
+          "weight": 1.3,
+          "contribution": 1.9500000000000002,
+          "hypothesis": "Crescimento acelerado de quantidade de contratos sugere operação B2G em expansão.",
+          "evidence": [
+            {
+              "recent_count": 16,
+              "prior_count": 1,
+              "ratio": 16.0,
+              "contracts": [
+                {
+                  "contrato_id": "88117718000103-2-000319/2026",
+                  "orgao_cnpj": "88117718000103",
+                  "orgao_nome": "PREFEITURA MUNICIPAL",
+                  "objeto": "Aquisicao de Equipamentos para Academia ao Ar Livre.",
+                  "valor_total": 43549.88,
+                  "valor_semantics": "valor_total_contracted",
+                  "data_publicacao": "2026-07-27",
+                  "data_fim": "2026-12-31",
+                  "uf": "RS",
+                  "source": "pncp_contracts",
+                  "source_id": "88117718000103-2-000319/2026",
+                  "official_url_or_id": "88117718000103-2-000319/2026"
+                },
+                {
+                  "contrato_id": "32512501000143-2-000090/2026",
+                  "orgao_cnpj": "32512501000143",
+                  "orgao_nome": "PREFEITURA MUNICIPAL DE VOLTA REDONDA-RJ",
+                  "objeto": "Paraciclo metálico tipo “U” invertido 90º",
+                  "valor_total": 15520.0,
+                  "valor_semantics": "valor_total_contracted",
+                  "data_publicacao": "2026-07-20",
+                  "data_fim": "2027-07-07",
+                  "uf": "RJ",
+                  "source": "pncp_contracts",
+                  "source_id": "32512501000143-2-000090/2026",
+                  "official_url_or_id": "32512501000143-2-000090/2026"
+                },
+                {
+                  "contrato_id": "15361282000120-2-000004/2026",
+                  "orgao_cnpj": "15361282000120",
+                  "orgao_nome": "FMAS- FUNDO MUNICIPAL DE ASSISTÊNCIA SOCIAL",
+                  "objeto": "Aquisição de equipamentos de ginástica ao ar livre para a estruturação de Academia da Terceira Idade (ATI), em atendimento às demandas da Secretaria Municipal de Assistência Social de Cassilândia – MS,conforme condições, descrições, quantidades, exigências estabelecidas no ETP e Edital e seus anexos",
+                  "valor_total": 13000.0,
+                  "valor_semantics": "valor_total_contracted",
+                  "data_publicacao": "2026-07-15",
+                  "data_fim": "2027-07-05",
+                  "uf": "MS",
+                  "source": "pncp_contracts",
+                  "source_id": "15361282000120-2-000004/2026",
+                  "official_url_or_id": "15361282000120-2-000004/2026"
+                }
+              ]
+            }
+          ],
+          "limitations": [
+            "correlation_dampening_applied_vs_value_growth"
+          ],
+          "offer": "inteligencia_mercado",
+          "reason": null
+        },
+        {
+          "signal_id": "value_growth",
+          "status": "FIRED",
+          "strength": 3.0,
+          "weight": 1.4,
+          "contribution": 4.199999999999999,
+          "hypothesis": "Crescimento de valor contratado sugere maior exposição e necessidade de gestão.",
+          "evidence": [
+            {
+              "recent_value_sum": 928174.23,
+              "prior_value_sum": 102668.0,
+              "ratio": 9.04054067479643,
+              "valor_semantics": "sum_valor_total_contracted",
+              "contracts": [
+                {
+                  "contrato_id": "88117718000103-2-000319/2026",
+                  "orgao_cnpj": "88117718000103",
+                  "orgao_nome": "PREFEITURA MUNICIPAL",
+                  "objeto": "Aquisicao de Equipamentos para Academia ao Ar Livre.",
+                  "valor_total": 43549.88,
+                  "valor_semantics": "valor_total_contracted",
+                  "data_publicacao": "2026-07-27",
+                  "data_fim": "2026-12-31",
+                  "uf": "RS",
+                  "source": "pncp_contracts",
+                  "source_id": "88117718000103-2-000319/2026",
+                  "official_url_or_id": "88117718000103-2-000319/2026"
+                },
+                {
+                  "contrato_id": "32512501000143-2-000090/2026",
+                  "orgao_cnpj": "32512501000143",
+                  "orgao_nome": "PREFEITURA MUNICIPAL DE VOLTA REDONDA-RJ",
+                  "objeto": "Paraciclo metálico tipo “U” invertido 90º",
+                  "valor_total": 15520.0,
+                  "valor_semantics": "valor_total_contracted",
+                  "data_publicacao": "2026-07-20",
+                  "data_fim": "2027-07-07",
+                  "uf": "RJ",
+                  "source": "pncp_contracts",
+                  "source_id": "32512501000143-2-000090/2026",
+                  "official_url_or_id": "32512501000143-2-000090/2026"
+                },
+                {
+                  "contrato_id": "15361282000120-2-000004/2026",
+                  "orgao_cnpj": "15361282000120",
+                  "orgao_nome": "FMAS- FUNDO MUNICIPAL DE ASSISTÊNCIA SOCIAL",
+                  "objeto": "Aquisição de equipamentos de ginástica ao ar livre para a estruturação de Academia da Terceira Idade (ATI), em atendimento às demandas da Secretaria Municipal de Assistência Social de Cassilândia – MS,conforme condições, descrições, quantidades, exigências estabelecidas no ETP e Edital e seus anexos",
+                  "valor_total": 13000.0,
+                  "valor_semantics": "valor_total_contracted",
+                  "data_publicacao": "2026-07-15",
+                  "data_fim": "2027-07-05",
+                  "uf": "MS",
+                  "source": "pncp_contracts",
+                  "source_id": "15361282000120-2-000004/2026",
+                  "official_url_or_id": "15361282000120-2-000004/2026"
+                }
+              ]
+            }
+          ],
+          "limitations": [],
+          "offer": "inteligencia_mercado",
+          "reason": null
+        },
+        {
+          "signal_id": "new_agency",
+          "status": "FIRED",
+          "strength": 2.0,
+          "weight": 1.1,
+          "contribution": 2.2,
+          "hypothesis": "Entrada em novo órgão amplia complexidade relacional e de compliance.",
+          "evidence": [
+            {
+              "contrato_id": "88117718000103-2-000319/2026",
+              "orgao_cnpj": "88117718000103",
+              "orgao_nome": "PREFEITURA MUNICIPAL",
+              "objeto": "Aquisicao de Equipamentos para Academia ao Ar Livre.",
+              "valor_total": 43549.88,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-27",
+              "data_fim": "2026-12-31",
+              "uf": "RS",
+              "source": "pncp_contracts",
+              "source_id": "88117718000103-2-000319/2026",
+              "official_url_or_id": "88117718000103-2-000319/2026"
+            },
+            {
+              "contrato_id": "32512501000143-2-000090/2026",
+              "orgao_cnpj": "32512501000143",
+              "orgao_nome": "PREFEITURA MUNICIPAL DE VOLTA REDONDA-RJ",
+              "objeto": "Paraciclo metálico tipo “U” invertido 90º",
+              "valor_total": 15520.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-20",
+              "data_fim": "2027-07-07",
+              "uf": "RJ",
+              "source": "pncp_contracts",
+              "source_id": "32512501000143-2-000090/2026",
+              "official_url_or_id": "32512501000143-2-000090/2026"
+            },
+            {
+              "contrato_id": "15361282000120-2-000004/2026",
+              "orgao_cnpj": "15361282000120",
+              "orgao_nome": "FMAS- FUNDO MUNICIPAL DE ASSISTÊNCIA SOCIAL",
+              "objeto": "Aquisição de equipamentos de ginástica ao ar livre para a estruturação de Academia da Terceira Idade (ATI), em atendimento às demandas da Secretaria Municipal de Assistência Social de Cassilândia – MS,conforme condições, descrições, quantidades, exigências estabelecidas no ETP e Edital e seus anexos",
+              "valor_total": 13000.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-15",
+              "data_fim": "2027-07-05",
+              "uf": "MS",
+              "source": "pncp_contracts",
+              "source_id": "15361282000120-2-000004/2026",
+              "official_url_or_id": "15361282000120-2-000004/2026"
+            }
+          ],
+          "limitations": [],
+          "offer": "diagnostico_b2g",
+          "reason": null
+        },
+        {
+          "signal_id": "new_region",
+          "status": "FIRED",
+          "strength": 8.0,
+          "weight": 1.0,
+          "contribution": 8.0,
+          "hypothesis": "Entrada em nova UF indica expansão geográfica observável.",
+          "evidence": [
+            {
+              "contrato_id": "88117718000103-2-000319/2026",
+              "orgao_cnpj": "88117718000103",
+              "orgao_nome": "PREFEITURA MUNICIPAL",
+              "objeto": "Aquisicao de Equipamentos para Academia ao Ar Livre.",
+              "valor_total": 43549.88,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-27",
+              "data_fim": "2026-12-31",
+              "uf": "RS",
+              "source": "pncp_contracts",
+              "source_id": "88117718000103-2-000319/2026",
+              "official_url_or_id": "88117718000103-2-000319/2026"
+            },
+            {
+              "contrato_id": "32512501000143-2-000090/2026",
+              "orgao_cnpj": "32512501000143",
+              "orgao_nome": "PREFEITURA MUNICIPAL DE VOLTA REDONDA-RJ",
+              "objeto": "Paraciclo metálico tipo “U” invertido 90º",
+              "valor_total": 15520.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-20",
+              "data_fim": "2027-07-07",
+              "uf": "RJ",
+              "source": "pncp_contracts",
+              "source_id": "32512501000143-2-000090/2026",
+              "official_url_or_id": "32512501000143-2-000090/2026"
+            },
+            {
+              "contrato_id": "15361282000120-2-000004/2026",
+              "orgao_cnpj": "15361282000120",
+              "orgao_nome": "FMAS- FUNDO MUNICIPAL DE ASSISTÊNCIA SOCIAL",
+              "objeto": "Aquisição de equipamentos de ginástica ao ar livre para a estruturação de Academia da Terceira Idade (ATI), em atendimento às demandas da Secretaria Municipal de Assistência Social de Cassilândia – MS,conforme condições, descrições, quantidades, exigências estabelecidas no ETP e Edital e seus anexos",
+              "valor_total": 13000.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-15",
+              "data_fim": "2027-07-05",
+              "uf": "MS",
+              "source": "pncp_contracts",
+              "source_id": "15361282000120-2-000004/2026",
+              "official_url_or_id": "15361282000120-2-000004/2026"
+            }
+          ],
+          "limitations": [],
+          "offer": "diagnostico_b2g",
+          "reason": null
+        },
+        {
+          "signal_id": "new_object_category",
+          "status": "FIRED",
+          "strength": 2.0,
+          "weight": 1.0,
+          "contribution": 2.0,
+          "hypothesis": "Nova categoria de objeto indica diversificação operacional.",
+          "evidence": [
+            {
+              "contrato_id": "88568902000170-2-000052/2026",
+              "orgao_cnpj": "88568902000170",
+              "orgao_nome": "PREF MUNIC. DE SÃO JOSÉ DO NORTE",
+              "objeto": "Contratacao de empresa especializada para fornecimento e instalacao de equipamentos destinados a implantacao de infraestrutura de lazer e pratica esportiva junto a Quadra Poliesportiva Joao Landel  nos moldes do termo de referencia e estudo tecnico e preliminar  conforme solicitacao da Secretaria Mu",
+              "valor_total": 25900.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-14",
+              "data_fim": "2027-07-01",
+              "uf": "RS",
+              "source": "pncp_contracts",
+              "source_id": "88568902000170-2-000052/2026",
+              "official_url_or_id": "88568902000170-2-000052/2026"
+            },
+            {
+              "contrato_id": "87613022000105-2-000082/2026",
+              "orgao_cnpj": "87613022000105",
+              "orgao_nome": "MUNICIPIO DE SAO LUIZ GONZAGA/RS",
+              "objeto": "Aquisição de equipamentos permanentes para academias ao ar livre incluindo o fornecimento e transporte dos bens, conforme especificações do Termo de Referência.",
+              "valor_total": 62970.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-06",
+              "data_fim": "2026-12-31",
+              "uf": "RS",
+              "source": "pncp_contracts",
+              "source_id": "87613022000105-2-000082/2026",
+              "official_url_or_id": "87613022000105-2-000082/2026"
+            },
+            {
+              "contrato_id": "80637457000140-2-000313/2026",
+              "orgao_cnpj": "80637457000140",
+              "orgao_nome": "Obras e Serviços Urbanos",
+              "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA AQUISIÇÃO, FORNECIMENTO E INSTALAÇÃO, QUANDO APLICÁVEL, DE EQUIPAMENTOS RECREATIVOS E DE ATIVIDADE FÍSICA AO AR LIVRE, COMPREENDENDO: ESCALADA ESPACIAL, CASINHA INFANTIL, MESA DE PINGUE-PONGUE, KIT MINI GOL INFANTIL, ACADEMIA AO AR LIVRE 4 EM 1, ELÍPTICO DUP",
+              "valor_total": 18650.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-06-15",
+              "data_fim": "2027-08-15",
+              "uf": "SC",
+              "source": "pncp_contracts",
+              "source_id": "80637457000140-2-000313/2026",
+              "official_url_or_id": "80637457000140-2-000313/2026"
+            }
+          ],
+          "limitations": [],
+          "offer": "analise_edital",
+          "reason": null
+        },
+        {
+          "signal_id": "concurrent_portfolio",
+          "status": "FIRED",
+          "strength": 3.0,
+          "weight": 1.2,
+          "contribution": 3.5999999999999996,
+          "hypothesis": "Carteira simultânea relevante indica carga administrativa.",
+          "evidence": [
+            {
+              "contrato_id": "88117718000103-2-000319/2026",
+              "orgao_cnpj": "88117718000103",
+              "orgao_nome": "PREFEITURA MUNICIPAL",
+              "objeto": "Aquisicao de Equipamentos para Academia ao Ar Livre.",
+              "valor_total": 43549.88,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-27",
+              "data_fim": "2026-12-31",
+              "uf": "RS",
+              "source": "pncp_contracts",
+              "source_id": "88117718000103-2-000319/2026",
+              "official_url_or_id": "88117718000103-2-000319/2026"
+            },
+            {
+              "contrato_id": "32512501000143-2-000090/2026",
+              "orgao_cnpj": "32512501000143",
+              "orgao_nome": "PREFEITURA MUNICIPAL DE VOLTA REDONDA-RJ",
+              "objeto": "Paraciclo metálico tipo “U” invertido 90º",
+              "valor_total": 15520.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-20",
+              "data_fim": "2027-07-07",
+              "uf": "RJ",
+              "source": "pncp_contracts",
+              "source_id": "32512501000143-2-000090/2026",
+              "official_url_or_id": "32512501000143-2-000090/2026"
+            },
+            {
+              "contrato_id": "15361282000120-2-000004/2026",
+              "orgao_cnpj": "15361282000120",
+              "orgao_nome": "FMAS- FUNDO MUNICIPAL DE ASSISTÊNCIA SOCIAL",
+              "objeto": "Aquisição de equipamentos de ginástica ao ar livre para a estruturação de Academia da Terceira Idade (ATI), em atendimento às demandas da Secretaria Municipal de Assistência Social de Cassilândia – MS,conforme condições, descrições, quantidades, exigências estabelecidas no ETP e Edital e seus anexos",
+              "valor_total": 13000.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-15",
+              "data_fim": "2027-07-05",
+              "uf": "MS",
+              "source": "pncp_contracts",
+              "source_id": "15361282000120-2-000004/2026",
+              "official_url_or_id": "15361282000120-2-000004/2026"
+            },
+            {
+              "contrato_id": "88568902000170-2-000052/2026",
+              "orgao_cnpj": "88568902000170",
+              "orgao_nome": "PREF MUNIC. DE SÃO JOSÉ DO NORTE",
+              "objeto": "Contratacao de empresa especializada para fornecimento e instalacao de equipamentos destinados a implantacao de infraestrutura de lazer e pratica esportiva junto a Quadra Poliesportiva Joao Landel  nos moldes do termo de referencia e estudo tecnico e preliminar  conforme solicitacao da Secretaria Mu",
+              "valor_total": 25900.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-14",
+              "data_fim": "2027-07-01",
+              "uf": "RS",
+              "source": "pncp_contracts",
+              "source_id": "88568902000170-2-000052/2026",
+              "official_url_or_id": "88568902000170-2-000052/2026"
+            },
+            {
+              "contrato_id": "88067780000138-2-000069/2026",
+              "orgao_cnpj": "88067780000138",
+              "orgao_nome": "PREFEITURA MUNICIPAL DE TAQUARI",
+              "objeto": "Aquisição de aparelhos de academia ao ar livre, destinados à Secretaria Municipal de Esporte, Lazer, Cultura e Turismo do município de Taquari, RS.\nRecurso: Plano de Ação nº 09032025-084101/2025, Programa nº 09032025, Emenda Parlamentar nº 202541680008.",
+              "valor_total": 78400.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-07",
+              "data_fim": "2026-10-05",
+              "uf": "RS",
+              "source": "pncp_contracts",
+              "source_id": "88067780000138-2-000069/2026",
+              "official_url_or_id": "88067780000138-2-000069/2026"
+            }
+          ],
+          "limitations": [],
+          "offer": "acompanhamento_admin",
+          "reason": null
+        },
+        {
+          "signal_id": "contract_concentration",
+          "status": "FIRED",
+          "strength": 0.6148980375038519,
+          "weight": 0.9,
+          "contribution": 0.5534082337534667,
+          "hypothesis": "Concentração em um único contrato eleva risco operacional.",
+          "evidence": [
+            {
+              "contrato_id": "46379400000150-2-000369/2024",
+              "orgao_cnpj": "46379400000150",
+              "orgao_nome": "PREFEITURA MUNICIPAL DE CAMPINAS/PS",
+              "objeto": "Registro de Preços de equipamentos de academia ao ar livre e “playground”.",
+              "valor_total": 2066100.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2024-03-19",
+              "data_fim": "2025-03-07",
+              "uf": "SP",
+              "source": "pncp_contracts",
+              "source_id": "46379400000150-2-000369/2024",
+              "official_url_or_id": "46379400000150-2-000369/2024",
+              "contract_share": 0.6148980375038519
+            }
+          ],
+          "limitations": [],
+          "offer": "acompanhamento_admin",
+          "reason": null
+        },
+        {
+          "signal_id": "near_expiry",
+          "status": "FIRED",
+          "strength": 1.5,
+          "weight": 1.3,
+          "contribution": 1.9500000000000002,
+          "hypothesis": "Contratos próximos do término abrem janela de renovação/relicitação.",
+          "evidence": [
+            {
+              "contrato_id": "88067780000138-2-000069/2026",
+              "orgao_cnpj": "88067780000138",
+              "orgao_nome": "PREFEITURA MUNICIPAL DE TAQUARI",
+              "objeto": "Aquisição de aparelhos de academia ao ar livre, destinados à Secretaria Municipal de Esporte, Lazer, Cultura e Turismo do município de Taquari, RS.\nRecurso: Plano de Ação nº 09032025-084101/2025, Programa nº 09032025, Emenda Parlamentar nº 202541680008.",
+              "valor_total": 78400.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-07",
+              "data_fim": "2026-10-05",
+              "uf": "RS",
+              "source": "pncp_contracts",
+              "source_id": "88067780000138-2-000069/2026",
+              "official_url_or_id": "88067780000138-2-000069/2026"
+            },
+            {
+              "contrato_id": "90832619000155-2-000141/2026",
+              "orgao_cnpj": "90832619000155",
+              "orgao_nome": "PREFEITURA MUNICIPAL DE CAMPO BOM",
+              "objeto": "Aquisição de equipamentos para reposição e revitalização das atuais academias ao ar livre no Município.",
+              "valor_total": 85785.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-06-09",
+              "data_fim": "2026-08-11",
+              "uf": "RS",
+              "source": "pncp_contracts",
+              "source_id": "90832619000155-2-000141/2026",
+              "official_url_or_id": "90832619000155-2-000141/2026"
+            },
+            {
+              "contrato_id": "88814199000132-2-000060/2026",
+              "orgao_cnpj": "88814199000132",
+              "orgao_nome": "DEPARTAMENTO DE COMPRAS E LICITAÇÕES",
+              "objeto": "Aquisição e instalação de academias ao ar livre e playgrounds, no município de Santo Antônio da Patrulha/RS, em atendimento ao Convênio Ministério do Esporte nº 152/2025 – Transferegov.br nº 961530/2024",
+              "valor_total": 32740.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-06-09",
+              "data_fim": "2026-09-22",
+              "uf": "RS",
+              "source": "pncp_contracts",
+              "source_id": "88814199000132-2-000060/2026",
+              "official_url_or_id": "88814199000132-2-000060/2026"
+            }
+          ],
+          "limitations": [],
+          "offer": "acompanhamento_admin",
+          "reason": null
+        },
+        {
+          "signal_id": "diversity_increase",
+          "status": "FIRED",
+          "strength": 2.0,
+          "weight": 1.0,
+          "contribution": 1.0,
+          "hypothesis": "Aumento de diversidade de órgãos indica expansão da operação B2G.",
+          "evidence": [
+            {
+              "recent_organs": 16,
+              "prior_organs": 1,
+              "delta": 15
+            }
+          ],
+          "limitations": [
+            "correlation_dampening_applied_vs_value_growth"
+          ],
+          "offer": "inteligencia_mercado",
+          "reason": null
+        },
+        {
+          "signal_id": "win_recurrence",
+          "status": "FIRED",
+          "strength": 2.0,
+          "weight": 1.1,
+          "contribution": 2.2,
+          "hypothesis": "Recorrência de contratos/vitórias indica volume onde consultoria pode gerar eficiência.",
+          "evidence": [
+            {
+              "contrato_id": "88117718000103-2-000319/2026",
+              "orgao_cnpj": "88117718000103",
+              "orgao_nome": "PREFEITURA MUNICIPAL",
+              "objeto": "Aquisicao de Equipamentos para Academia ao Ar Livre.",
+              "valor_total": 43549.88,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-27",
+              "data_fim": "2026-12-31",
+              "uf": "RS",
+              "source": "pncp_contracts",
+              "source_id": "88117718000103-2-000319/2026",
+              "official_url_or_id": "88117718000103-2-000319/2026"
+            },
+            {
+              "contrato_id": "32512501000143-2-000090/2026",
+              "orgao_cnpj": "32512501000143",
+              "orgao_nome": "PREFEITURA MUNICIPAL DE VOLTA REDONDA-RJ",
+              "objeto": "Paraciclo metálico tipo “U” invertido 90º",
+              "valor_total": 15520.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-20",
+              "data_fim": "2027-07-07",
+              "uf": "RJ",
+              "source": "pncp_contracts",
+              "source_id": "32512501000143-2-000090/2026",
+              "official_url_or_id": "32512501000143-2-000090/2026"
+            },
+            {
+              "contrato_id": "15361282000120-2-000004/2026",
+              "orgao_cnpj": "15361282000120",
+              "orgao_nome": "FMAS- FUNDO MUNICIPAL DE ASSISTÊNCIA SOCIAL",
+              "objeto": "Aquisição de equipamentos de ginástica ao ar livre para a estruturação de Academia da Terceira Idade (ATI), em atendimento às demandas da Secretaria Municipal de Assistência Social de Cassilândia – MS,conforme condições, descrições, quantidades, exigências estabelecidas no ETP e Edital e seus anexos",
+              "valor_total": 13000.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-15",
+              "data_fim": "2027-07-05",
+              "uf": "MS",
+              "source": "pncp_contracts",
+              "source_id": "15361282000120-2-000004/2026",
+              "official_url_or_id": "15361282000120-2-000004/2026"
+            },
+            {
+              "contrato_id": "88568902000170-2-000052/2026",
+              "orgao_cnpj": "88568902000170",
+              "orgao_nome": "PREF MUNIC. DE SÃO JOSÉ DO NORTE",
+              "objeto": "Contratacao de empresa especializada para fornecimento e instalacao de equipamentos destinados a implantacao de infraestrutura de lazer e pratica esportiva junto a Quadra Poliesportiva Joao Landel  nos moldes do termo de referencia e estudo tecnico e preliminar  conforme solicitacao da Secretaria Mu",
+              "valor_total": 25900.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-14",
+              "data_fim": "2027-07-01",
+              "uf": "RS",
+              "source": "pncp_contracts",
+              "source_id": "88568902000170-2-000052/2026",
+              "official_url_or_id": "88568902000170-2-000052/2026"
+            },
+            {
+              "contrato_id": "88067780000138-2-000069/2026",
+              "orgao_cnpj": "88067780000138",
+              "orgao_nome": "PREFEITURA MUNICIPAL DE TAQUARI",
+              "objeto": "Aquisição de aparelhos de academia ao ar livre, destinados à Secretaria Municipal de Esporte, Lazer, Cultura e Turismo do município de Taquari, RS.\nRecurso: Plano de Ação nº 09032025-084101/2025, Programa nº 09032025, Emenda Parlamentar nº 202541680008.",
+              "valor_total": 78400.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-07",
+              "data_fim": "2026-10-05",
+              "uf": "RS",
+              "source": "pncp_contracts",
+              "source_id": "88067780000138-2-000069/2026",
+              "official_url_or_id": "88067780000138-2-000069/2026"
+            }
+          ],
+          "limitations": [],
+          "offer": "apoio_proposta",
+          "reason": null
+        }
+      ],
+      "auto_send": false,
+      "status_comercial": "NOT_REVIEWED",
+      "score_total": 27.6534,
+      "suggested_offer": "diagnostico_b2g",
+      "pipeline_kit_keys": [
+        "schema_version",
+        "cnpj14",
+        "razao_social",
+        "rank_position",
+        "run_id",
+        "summary_5_to_10_lines",
+        "trigger_event_or_pattern",
+        "suggested_offer",
+        "value_arguments",
+        "discovery_question",
+        "interpretation_risks",
+        "public_business_contact",
+        "whatsapp_short",
+        "email_initial",
+        "call_script",
+        "follow_up_suggestion",
+        "cta",
+        "manual_send_only",
+        "automation_forbidden",
+        "language_scan_forbidden_hit"
+      ],
+      "pipeline_kit_summary": {
+        "keys": [
+          "schema_version",
+          "cnpj14",
+          "razao_social",
+          "rank_position",
+          "run_id",
+          "summary_5_to_10_lines",
+          "trigger_event_or_pattern",
+          "suggested_offer",
+          "value_arguments",
+          "discovery_question",
+          "interpretation_risks",
+          "public_business_contact",
+          "whatsapp_short",
+          "email_initial",
+          "call_script",
+          "follow_up_suggestion",
+          "cta",
+          "manual_send_only",
+          "automation_forbidden",
+          "language_scan_forbidden_hit"
+        ],
+        "cnpj": "36216839000109",
+        "has_whatsapp": false
+      }
+    },
+    {
+      "rank": 3,
+      "cnpj": "42531033000108",
+      "kit_source": "artifacts/campaigns/CONFENGE-OFFICIAL-REGISTRY-TO-REVENUE-01/commercial-rerun/top5-outreach-kits/42531033000108.json",
+      "official": {
+        "cnpj": "42531033000108",
+        "official_match_status": "MATCHED",
+        "legal_name": "METALURGICA SILLOTT LTDA",
+        "registration_status": "ATIVA",
+        "primary_cnae": "4292801",
+        "official_release_id": "selective-selective-merged",
+        "city": "JARAGUA DO SUL",
+        "state": "SC"
+      },
+      "contratos_observados": {
+        "contract_count": 12,
+        "total_value": 5003117.61,
+        "last_publication": "2026-07-03",
+        "evidence_contract_ids_sample": [
+          "46179941000135-2-000078/2026",
+          "83102418000137-2-001161/2026",
+          "24772188000154-2-000162/2026",
+          "83028415000109-2-000996/2026",
+          "18557561000151-2-000035/2026",
+          "18291377000102-2-000026/2026",
+          "77877116000138-2-000038/2026",
+          "00360305000104-2-003011/2024",
+          "76235761000194-2-000080/2025"
+        ]
+      },
+      "sinais_comerciais": [
+        {
+          "signal_id": "ticket_above_history",
+          "status": "FIRED",
+          "strength": 3.0,
+          "weight": 1.5,
+          "contribution": 4.5,
+          "hypothesis": "Ticket materialmente acima da mediana histórica da própria empresa indica salto de complexidade.",
+          "evidence": [
+            {
+              "contrato_id": "46179941000135-2-000078/2026",
+              "orgao_cnpj": "46179941000135",
+              "orgao_nome": "PREFEITURA MUNICIPAL DE ASSIS",
+              "objeto": "Credenciamento de empresas especializadas em laudos técnicos de avaliação de imóveis urbanos e rurais.",
+              "valor_total": 4303040.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-04-08",
+              "data_fim": "2027-03-04",
+              "uf": "SP",
+              "source": "pncp_contracts",
+              "source_id": "46179941000135-2-000078/2026",
+              "official_url_or_id": "46179941000135-2-000078/2026",
+              "own_median": 13861.4,
+              "ratio": 310.4332895667104
+            }
+          ],
+          "limitations": [],
+          "offer": "diagnostico_b2g",
+          "reason": null
+        },
+        {
+          "signal_id": "quantity_growth",
+          "status": "FIRED",
+          "strength": 1.5,
+          "weight": 1.3,
+          "contribution": 0.9750000000000001,
+          "hypothesis": "Crescimento acelerado de quantidade de contratos sugere operação B2G em expansão.",
+          "evidence": [
+            {
+              "recent_count": 9,
+              "prior_count": 3,
+              "ratio": 3.0,
+              "contracts": [
+                {
+                  "contrato_id": "83102418000137-2-001161/2026",
+                  "orgao_cnpj": "83102418000137",
+                  "orgao_nome": "Departamento de Administracao",
+                  "objeto": "Credenciamento de empresas para realizar de avaliação imobiliárias para locação e/ou aquisição de imóveis visando atender a demanda das secretarias do município de Ibirama.",
+                  "valor_total": 2050.0,
+                  "valor_semantics": "valor_total_contracted",
+                  "data_publicacao": "2026-07-03",
+                  "data_fim": "2027-07-01",
+                  "uf": "SC",
+                  "source": "pncp_contracts",
+                  "source_id": "83102418000137-2-001161/2026",
+                  "official_url_or_id": "83102418000137-2-001161/2026"
+                },
+                {
+                  "contrato_id": "24772188000154-2-000162/2026",
+                  "orgao_cnpj": "24772188000154",
+                  "orgao_nome": "PREFEITURA MUNICIPAL DE MATUPÁ - MT",
+                  "objeto": "CREDENCIAMENTO PARA CONTRATAÇÃO DE EMPRESA COM CAPACIDADE TÉCNICA PARA ELABORAÇÃO DE AVALIAÇÃO MERCADOLÓGICA URBANA E RURAL EM ATENDIMENTO AS NECESSIDADES DO MUNICÍPIO DE MATUPÁ/MT",
+                  "valor_total": 0.0,
+                  "valor_semantics": "valor_total_contracted",
+                  "data_publicacao": "2026-06-16",
+                  "data_fim": "2026-10-14",
+                  "uf": "MT",
+                  "source": "pncp_contracts",
+                  "source_id": "24772188000154-2-000162/2026",
+                  "official_url_or_id": "24772188000154-2-000162/2026"
+                },
+                {
+                  "contrato_id": "83028415000109-2-000996/2026",
+                  "orgao_cnpj": "83028415000109",
+                  "orgao_nome": "MUNICÍPIO DE MONDAÍ",
+                  "objeto": "Credenciamento de pessoas jurídicas para a realização de futuras e eventuais avaliações de imóveis urbanos ou rurais, com ou sem benfeitorias, independentemente das características e dimensões das áreas, destinadas à mensuração de valores para fins de alienação, locação, desapropriação e entre outro",
+                  "valor_total": 12062.4,
+                  "valor_semantics": "valor_total_contracted",
+                  "data_publicacao": "2026-05-22",
+                  "data_fim": "2026-12-31",
+                  "uf": "SC",
+                  "source": "pncp_contracts",
+                  "source_id": "83028415000109-2-000996/2026",
+                  "official_url_or_id": "83028415000109-2-000996/2026"
+                }
+              ]
+            }
+          ],
+          "limitations": [
+            "correlation_dampening_applied_vs_value_growth"
+          ],
+          "offer": "inteligencia_mercado",
+          "reason": null
+        },
+        {
+          "signal_id": "value_growth",
+          "status": "FIRED",
+          "strength": 3.0,
+          "weight": 1.4,
+          "contribution": 4.199999999999999,
+          "hypothesis": "Crescimento de valor contratado sugere maior exposição e necessidade de gestão.",
+          "evidence": [
+            {
+              "recent_value_sum": 4800256.21,
+              "prior_value_sum": 202861.4,
+              "ratio": 23.662738253802843,
+              "valor_semantics": "sum_valor_total_contracted",
+              "contracts": [
+                {
+                  "contrato_id": "83102418000137-2-001161/2026",
+                  "orgao_cnpj": "83102418000137",
+                  "orgao_nome": "Departamento de Administracao",
+                  "objeto": "Credenciamento de empresas para realizar de avaliação imobiliárias para locação e/ou aquisição de imóveis visando atender a demanda das secretarias do município de Ibirama.",
+                  "valor_total": 2050.0,
+                  "valor_semantics": "valor_total_contracted",
+                  "data_publicacao": "2026-07-03",
+                  "data_fim": "2027-07-01",
+                  "uf": "SC",
+                  "source": "pncp_contracts",
+                  "source_id": "83102418000137-2-001161/2026",
+                  "official_url_or_id": "83102418000137-2-001161/2026"
+                },
+                {
+                  "contrato_id": "24772188000154-2-000162/2026",
+                  "orgao_cnpj": "24772188000154",
+                  "orgao_nome": "PREFEITURA MUNICIPAL DE MATUPÁ - MT",
+                  "objeto": "CREDENCIAMENTO PARA CONTRATAÇÃO DE EMPRESA COM CAPACIDADE TÉCNICA PARA ELABORAÇÃO DE AVALIAÇÃO MERCADOLÓGICA URBANA E RURAL EM ATENDIMENTO AS NECESSIDADES DO MUNICÍPIO DE MATUPÁ/MT",
+                  "valor_total": 0.0,
+                  "valor_semantics": "valor_total_contracted",
+                  "data_publicacao": "2026-06-16",
+                  "data_fim": "2026-10-14",
+                  "uf": "MT",
+                  "source": "pncp_contracts",
+                  "source_id": "24772188000154-2-000162/2026",
+                  "official_url_or_id": "24772188000154-2-000162/2026"
+                },
+                {
+                  "contrato_id": "83028415000109-2-000996/2026",
+                  "orgao_cnpj": "83028415000109",
+                  "orgao_nome": "MUNICÍPIO DE MONDAÍ",
+                  "objeto": "Credenciamento de pessoas jurídicas para a realização de futuras e eventuais avaliações de imóveis urbanos ou rurais, com ou sem benfeitorias, independentemente das características e dimensões das áreas, destinadas à mensuração de valores para fins de alienação, locação, desapropriação e entre outro",
+                  "valor_total": 12062.4,
+                  "valor_semantics": "valor_total_contracted",
+                  "data_publicacao": "2026-05-22",
+                  "data_fim": "2026-12-31",
+                  "uf": "SC",
+                  "source": "pncp_contracts",
+                  "source_id": "83028415000109-2-000996/2026",
+                  "official_url_or_id": "83028415000109-2-000996/2026"
+                }
+              ]
+            }
+          ],
+          "limitations": [],
+          "offer": "inteligencia_mercado",
+          "reason": null
+        },
+        {
+          "signal_id": "new_agency",
+          "status": "FIRED",
+          "strength": 2.0,
+          "weight": 1.1,
+          "contribution": 2.2,
+          "hypothesis": "Entrada em novo órgão amplia complexidade relacional e de compliance.",
+          "evidence": [
+            {
+              "contrato_id": "83102418000137-2-001161/2026",
+              "orgao_cnpj": "83102418000137",
+              "orgao_nome": "Departamento de Administracao",
+              "objeto": "Credenciamento de empresas para realizar de avaliação imobiliárias para locação e/ou aquisição de imóveis visando atender a demanda das secretarias do município de Ibirama.",
+              "valor_total": 2050.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-03",
+              "data_fim": "2027-07-01",
+              "uf": "SC",
+              "source": "pncp_contracts",
+              "source_id": "83102418000137-2-001161/2026",
+              "official_url_or_id": "83102418000137-2-001161/2026"
+            },
+            {
+              "contrato_id": "24772188000154-2-000162/2026",
+              "orgao_cnpj": "24772188000154",
+              "orgao_nome": "PREFEITURA MUNICIPAL DE MATUPÁ - MT",
+              "objeto": "CREDENCIAMENTO PARA CONTRATAÇÃO DE EMPRESA COM CAPACIDADE TÉCNICA PARA ELABORAÇÃO DE AVALIAÇÃO MERCADOLÓGICA URBANA E RURAL EM ATENDIMENTO AS NECESSIDADES DO MUNICÍPIO DE MATUPÁ/MT",
+              "valor_total": 0.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-06-16",
+              "data_fim": "2026-10-14",
+              "uf": "MT",
+              "source": "pncp_contracts",
+              "source_id": "24772188000154-2-000162/2026",
+              "official_url_or_id": "24772188000154-2-000162/2026"
+            },
+            {
+              "contrato_id": "83028415000109-2-000996/2026",
+              "orgao_cnpj": "83028415000109",
+              "orgao_nome": "MUNICÍPIO DE MONDAÍ",
+              "objeto": "Credenciamento de pessoas jurídicas para a realização de futuras e eventuais avaliações de imóveis urbanos ou rurais, com ou sem benfeitorias, independentemente das características e dimensões das áreas, destinadas à mensuração de valores para fins de alienação, locação, desapropriação e entre outro",
+              "valor_total": 12062.4,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-05-22",
+              "data_fim": "2026-12-31",
+              "uf": "SC",
+              "source": "pncp_contracts",
+              "source_id": "83028415000109-2-000996/2026",
+              "official_url_or_id": "83028415000109-2-000996/2026"
+            }
+          ],
+          "limitations": [],
+          "offer": "diagnostico_b2g",
+          "reason": null
+        },
+        {
+          "signal_id": "new_region",
+          "status": "FIRED",
+          "strength": 3.0,
+          "weight": 1.0,
+          "contribution": 3.0,
+          "hypothesis": "Entrada em nova UF indica expansão geográfica observável.",
+          "evidence": [
+            {
+              "contrato_id": "24772188000154-2-000162/2026",
+              "orgao_cnpj": "24772188000154",
+              "orgao_nome": "PREFEITURA MUNICIPAL DE MATUPÁ - MT",
+              "objeto": "CREDENCIAMENTO PARA CONTRATAÇÃO DE EMPRESA COM CAPACIDADE TÉCNICA PARA ELABORAÇÃO DE AVALIAÇÃO MERCADOLÓGICA URBANA E RURAL EM ATENDIMENTO AS NECESSIDADES DO MUNICÍPIO DE MATUPÁ/MT",
+              "valor_total": 0.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-06-16",
+              "data_fim": "2026-10-14",
+              "uf": "MT",
+              "source": "pncp_contracts",
+              "source_id": "24772188000154-2-000162/2026",
+              "official_url_or_id": "24772188000154-2-000162/2026"
+            },
+            {
+              "contrato_id": "18557561000151-2-000035/2026",
+              "orgao_cnpj": "18557561000151",
+              "orgao_nome": "PREFEITURA MUNICIPAL DE NAZARENO",
+              "objeto": "Credenciamento de pessoas físicas e/ou jurídicas para prestação de serviços de avaliação imobiliária e elaboração de laudos técnicos de imóveis urbanos e rurais no Município.",
+              "valor_total": 343500.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-04-09",
+              "data_fim": "2027-04-09",
+              "uf": "MG",
+              "source": "pncp_contracts",
+              "source_id": "18557561000151-2-000035/2026",
+              "official_url_or_id": "18557561000151-2-000035/2026"
+            },
+            {
+              "contrato_id": "18291377000102-2-000026/2026",
+              "orgao_cnpj": "18291377000102",
+              "orgao_nome": "ADMINISTRAÇÃO E RH",
+              "objeto": "Credenciamento para contratação de empresas especializadas na prestação de serviços de avaliações imobiliárias para atender às necessidades da Administração Municipal, na forma da legislação em vigor.",
+              "valor_total": 70588.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-04-09",
+              "data_fim": "2027-04-01",
+              "uf": "MG",
+              "source": "pncp_contracts",
+              "source_id": "18291377000102-2-000026/2026",
+              "official_url_or_id": "18291377000102-2-000026/2026"
+            }
+          ],
+          "limitations": [],
+          "offer": "diagnostico_b2g",
+          "reason": null
+        },
+        {
+          "signal_id": "new_object_category",
+          "status": "FIRED",
+          "strength": 2.0,
+          "weight": 1.0,
+          "contribution": 2.0,
+          "hypothesis": "Nova categoria de objeto indica diversificação operacional.",
+          "evidence": [
+            {
+              "contrato_id": "18557561000151-2-000035/2026",
+              "orgao_cnpj": "18557561000151",
+              "orgao_nome": "PREFEITURA MUNICIPAL DE NAZARENO",
+              "objeto": "Credenciamento de pessoas físicas e/ou jurídicas para prestação de serviços de avaliação imobiliária e elaboração de laudos técnicos de imóveis urbanos e rurais no Município.",
+              "valor_total": 343500.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-04-09",
+              "data_fim": "2027-04-09",
+              "uf": "MG",
+              "source": "pncp_contracts",
+              "source_id": "18557561000151-2-000035/2026",
+              "official_url_or_id": "18557561000151-2-000035/2026"
+            },
+            {
+              "contrato_id": "46179941000135-2-000078/2026",
+              "orgao_cnpj": "46179941000135",
+              "orgao_nome": "PREFEITURA MUNICIPAL DE ASSIS",
+              "objeto": "Credenciamento de empresas especializadas em laudos técnicos de avaliação de imóveis urbanos e rurais.",
+              "valor_total": 4303040.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-04-08",
+              "data_fim": "2027-03-04",
+              "uf": "SP",
+              "source": "pncp_contracts",
+              "source_id": "46179941000135-2-000078/2026",
+              "official_url_or_id": "46179941000135-2-000078/2026"
+            },
+            {
+              "contrato_id": "77877116000138-2-000038/2026",
+              "orgao_cnpj": "77877116000138",
+              "orgao_nome": "Divisão de Conservação de Próprios Munic",
+              "objeto": "Cuida-se de processo administrativo de chamamento público, através de credenciamento com posterior contratação por inexigibilidade, em que a Administração Pública convoca interessados (CNPJ ou CPF) em prestar serviços de avaliação de imobiliária para imóveis urbanos ou rurais, considerando o valor d",
+              "valor_total": 16000.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-03-26",
+              "data_fim": "2026-12-30",
+              "uf": "PR",
+              "source": "pncp_contracts",
+              "source_id": "77877116000138-2-000038/2026",
+              "official_url_or_id": "77877116000138-2-000038/2026"
+            }
+          ],
+          "limitations": [],
+          "offer": "analise_edital",
+          "reason": null
+        },
+        {
+          "signal_id": "concurrent_portfolio",
+          "status": "FIRED",
+          "strength": 3.0,
+          "weight": 1.2,
+          "contribution": 3.5999999999999996,
+          "hypothesis": "Carteira simultânea relevante indica carga administrativa.",
+          "evidence": [
+            {
+              "contrato_id": "83102418000137-2-001161/2026",
+              "orgao_cnpj": "83102418000137",
+              "orgao_nome": "Departamento de Administracao",
+              "objeto": "Credenciamento de empresas para realizar de avaliação imobiliárias para locação e/ou aquisição de imóveis visando atender a demanda das secretarias do município de Ibirama.",
+              "valor_total": 2050.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-03",
+              "data_fim": "2027-07-01",
+              "uf": "SC",
+              "source": "pncp_contracts",
+              "source_id": "83102418000137-2-001161/2026",
+              "official_url_or_id": "83102418000137-2-001161/2026"
+            },
+            {
+              "contrato_id": "24772188000154-2-000162/2026",
+              "orgao_cnpj": "24772188000154",
+              "orgao_nome": "PREFEITURA MUNICIPAL DE MATUPÁ - MT",
+              "objeto": "CREDENCIAMENTO PARA CONTRATAÇÃO DE EMPRESA COM CAPACIDADE TÉCNICA PARA ELABORAÇÃO DE AVALIAÇÃO MERCADOLÓGICA URBANA E RURAL EM ATENDIMENTO AS NECESSIDADES DO MUNICÍPIO DE MATUPÁ/MT",
+              "valor_total": 0.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-06-16",
+              "data_fim": "2026-10-14",
+              "uf": "MT",
+              "source": "pncp_contracts",
+              "source_id": "24772188000154-2-000162/2026",
+              "official_url_or_id": "24772188000154-2-000162/2026"
+            },
+            {
+              "contrato_id": "83028415000109-2-000996/2026",
+              "orgao_cnpj": "83028415000109",
+              "orgao_nome": "MUNICÍPIO DE MONDAÍ",
+              "objeto": "Credenciamento de pessoas jurídicas para a realização de futuras e eventuais avaliações de imóveis urbanos ou rurais, com ou sem benfeitorias, independentemente das características e dimensões das áreas, destinadas à mensuração de valores para fins de alienação, locação, desapropriação e entre outro",
+              "valor_total": 12062.4,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-05-22",
+              "data_fim": "2026-12-31",
+              "uf": "SC",
+              "source": "pncp_contracts",
+              "source_id": "83028415000109-2-000996/2026",
+              "official_url_or_id": "83028415000109-2-000996/2026"
+            },
+            {
+              "contrato_id": "18557561000151-2-000035/2026",
+              "orgao_cnpj": "18557561000151",
+              "orgao_nome": "PREFEITURA MUNICIPAL DE NAZARENO",
+              "objeto": "Credenciamento de pessoas físicas e/ou jurídicas para prestação de serviços de avaliação imobiliária e elaboração de laudos técnicos de imóveis urbanos e rurais no Município.",
+              "valor_total": 343500.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-04-09",
+              "data_fim": "2027-04-09",
+              "uf": "MG",
+              "source": "pncp_contracts",
+              "source_id": "18557561000151-2-000035/2026",
+              "official_url_or_id": "18557561000151-2-000035/2026"
+            },
+            {
+              "contrato_id": "18291377000102-2-000026/2026",
+              "orgao_cnpj": "18291377000102",
+              "orgao_nome": "ADMINISTRAÇÃO E RH",
+              "objeto": "Credenciamento para contratação de empresas especializadas na prestação de serviços de avaliações imobiliárias para atender às necessidades da Administração Municipal, na forma da legislação em vigor.",
+              "valor_total": 70588.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-04-09",
+              "data_fim": "2027-04-01",
+              "uf": "MG",
+              "source": "pncp_contracts",
+              "source_id": "18291377000102-2-000026/2026",
+              "official_url_or_id": "18291377000102-2-000026/2026"
+            }
+          ],
+          "limitations": [],
+          "offer": "acompanhamento_admin",
+          "reason": null
+        },
+        {
+          "signal_id": "agency_concentration",
+          "status": "FIRED",
+          "strength": 0.8600717263570383,
+          "weight": 1.1,
+          "contribution": 0.9460788989927422,
+          "hypothesis": "Concentração em um órgão eleva risco de dependência e complexidade de relacionamento.",
+          "evidence": [
+            {
+              "contrato_id": "46179941000135-2-000078/2026",
+              "orgao_cnpj": "46179941000135",
+              "orgao_nome": "PREFEITURA MUNICIPAL DE ASSIS",
+              "objeto": "Credenciamento de empresas especializadas em laudos técnicos de avaliação de imóveis urbanos e rurais.",
+              "valor_total": 4303040.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-04-08",
+              "data_fim": "2027-03-04",
+              "uf": "SP",
+              "source": "pncp_contracts",
+              "source_id": "46179941000135-2-000078/2026",
+              "official_url_or_id": "46179941000135-2-000078/2026",
+              "agency_share": 0.8600717263570383
+            }
+          ],
+          "limitations": [],
+          "offer": "acompanhamento_admin",
+          "reason": null
+        },
+        {
+          "signal_id": "contract_concentration",
+          "status": "FIRED",
+          "strength": 0.8600717263570383,
+          "weight": 0.9,
+          "contribution": 0.38703227686066727,
+          "hypothesis": "Concentração em um único contrato eleva risco operacional.",
+          "evidence": [
+            {
+              "contrato_id": "46179941000135-2-000078/2026",
+              "orgao_cnpj": "46179941000135",
+              "orgao_nome": "PREFEITURA MUNICIPAL DE ASSIS",
+              "objeto": "Credenciamento de empresas especializadas em laudos técnicos de avaliação de imóveis urbanos e rurais.",
+              "valor_total": 4303040.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-04-08",
+              "data_fim": "2027-03-04",
+              "uf": "SP",
+              "source": "pncp_contracts",
+              "source_id": "46179941000135-2-000078/2026",
+              "official_url_or_id": "46179941000135-2-000078/2026",
+              "contract_share": 0.8600717263570383
+            }
+          ],
+          "limitations": [
+            "correlation_dampening_applied_vs_agency_concentration"
+          ],
+          "offer": "acompanhamento_admin",
+          "reason": null
+        },
+        {
+          "signal_id": "near_expiry",
+          "status": "FIRED",
+          "strength": 1.5,
+          "weight": 1.3,
+          "contribution": 1.9500000000000002,
+          "hypothesis": "Contratos próximos do término abrem janela de renovação/relicitação.",
+          "evidence": [
+            {
+              "contrato_id": "24772188000154-2-000162/2026",
+              "orgao_cnpj": "24772188000154",
+              "orgao_nome": "PREFEITURA MUNICIPAL DE MATUPÁ - MT",
+              "objeto": "CREDENCIAMENTO PARA CONTRATAÇÃO DE EMPRESA COM CAPACIDADE TÉCNICA PARA ELABORAÇÃO DE AVALIAÇÃO MERCADOLÓGICA URBANA E RURAL EM ATENDIMENTO AS NECESSIDADES DO MUNICÍPIO DE MATUPÁ/MT",
+              "valor_total": 0.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-06-16",
+              "data_fim": "2026-10-14",
+              "uf": "MT",
+              "source": "pncp_contracts",
+              "source_id": "24772188000154-2-000162/2026",
+              "official_url_or_id": "24772188000154-2-000162/2026"
+            },
+            {
+              "contrato_id": "00360305000104-2-003011/2024",
+              "orgao_cnpj": "00360305000104",
+              "orgao_nome": "CEFOR",
+              "objeto": "Credenciamento de empresas especializadas para a prestação de serviços técnicos de Engenharia, Arquitetura e Geologia",
+              "valor_total": 0.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-01-21",
+              "data_fim": "2026-09-30",
+              "uf": "DF",
+              "source": "pncp_contracts",
+              "source_id": "00360305000104-2-003011/2024",
+              "official_url_or_id": "00360305000104-2-003011/2024"
+            },
+            {
+              "contrato_id": "76235761000194-2-000080/2025",
+              "orgao_cnpj": "76235761000194",
+              "orgao_nome": "Unidade administrativa",
+              "objeto": "CREDENCIAMENTO DE PESSOA JURÍDICA, DEVIDAMENTE INSCRITA NO ENTE DE CLASSE COMPETENTE PARA ATENDER ÀS NECESSIDADES DE AVALIAÇÕES IMOBILIÁRIAS NO ÂMBITO DO MUNICÍPIO DE ANDIRÁ, ATENDENDO ÀS DIVERSAS SECRETARIAS MUNICIPAIS",
+              "valor_total": 189000.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2025-10-23",
+              "data_fim": "2026-10-02",
+              "uf": "PR",
+              "source": "pncp_contracts",
+              "source_id": "76235761000194-2-000080/2025",
+              "official_url_or_id": "76235761000194-2-000080/2025"
+            }
+          ],
+          "limitations": [],
+          "offer": "acompanhamento_admin",
+          "reason": null
+        },
+        {
+          "signal_id": "diversity_increase",
+          "status": "FIRED",
+          "strength": 2.0,
+          "weight": 1.0,
+          "contribution": 1.0,
+          "hypothesis": "Aumento de diversidade de órgãos indica expansão da operação B2G.",
+          "evidence": [
+            {
+              "recent_organs": 9,
+              "prior_organs": 3,
+              "delta": 6
+            }
+          ],
+          "limitations": [
+            "correlation_dampening_applied_vs_value_growth"
+          ],
+          "offer": "inteligencia_mercado",
+          "reason": null
+        },
+        {
+          "signal_id": "win_recurrence",
+          "status": "FIRED",
+          "strength": 2.0,
+          "weight": 1.1,
+          "contribution": 2.2,
+          "hypothesis": "Recorrência de contratos/vitórias indica volume onde consultoria pode gerar eficiência.",
+          "evidence": [
+            {
+              "contrato_id": "83102418000137-2-001161/2026",
+              "orgao_cnpj": "83102418000137",
+              "orgao_nome": "Departamento de Administracao",
+              "objeto": "Credenciamento de empresas para realizar de avaliação imobiliárias para locação e/ou aquisição de imóveis visando atender a demanda das secretarias do município de Ibirama.",
+              "valor_total": 2050.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-03",
+              "data_fim": "2027-07-01",
+              "uf": "SC",
+              "source": "pncp_contracts",
+              "source_id": "83102418000137-2-001161/2026",
+              "official_url_or_id": "83102418000137-2-001161/2026"
+            },
+            {
+              "contrato_id": "24772188000154-2-000162/2026",
+              "orgao_cnpj": "24772188000154",
+              "orgao_nome": "PREFEITURA MUNICIPAL DE MATUPÁ - MT",
+              "objeto": "CREDENCIAMENTO PARA CONTRATAÇÃO DE EMPRESA COM CAPACIDADE TÉCNICA PARA ELABORAÇÃO DE AVALIAÇÃO MERCADOLÓGICA URBANA E RURAL EM ATENDIMENTO AS NECESSIDADES DO MUNICÍPIO DE MATUPÁ/MT",
+              "valor_total": 0.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-06-16",
+              "data_fim": "2026-10-14",
+              "uf": "MT",
+              "source": "pncp_contracts",
+              "source_id": "24772188000154-2-000162/2026",
+              "official_url_or_id": "24772188000154-2-000162/2026"
+            },
+            {
+              "contrato_id": "83028415000109-2-000996/2026",
+              "orgao_cnpj": "83028415000109",
+              "orgao_nome": "MUNICÍPIO DE MONDAÍ",
+              "objeto": "Credenciamento de pessoas jurídicas para a realização de futuras e eventuais avaliações de imóveis urbanos ou rurais, com ou sem benfeitorias, independentemente das características e dimensões das áreas, destinadas à mensuração de valores para fins de alienação, locação, desapropriação e entre outro",
+              "valor_total": 12062.4,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-05-22",
+              "data_fim": "2026-12-31",
+              "uf": "SC",
+              "source": "pncp_contracts",
+              "source_id": "83028415000109-2-000996/2026",
+              "official_url_or_id": "83028415000109-2-000996/2026"
+            },
+            {
+              "contrato_id": "18557561000151-2-000035/2026",
+              "orgao_cnpj": "18557561000151",
+              "orgao_nome": "PREFEITURA MUNICIPAL DE NAZARENO",
+              "objeto": "Credenciamento de pessoas físicas e/ou jurídicas para prestação de serviços de avaliação imobiliária e elaboração de laudos técnicos de imóveis urbanos e rurais no Município.",
+              "valor_total": 343500.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-04-09",
+              "data_fim": "2027-04-09",
+              "uf": "MG",
+              "source": "pncp_contracts",
+              "source_id": "18557561000151-2-000035/2026",
+              "official_url_or_id": "18557561000151-2-000035/2026"
+            },
+            {
+              "contrato_id": "18291377000102-2-000026/2026",
+              "orgao_cnpj": "18291377000102",
+              "orgao_nome": "ADMINISTRAÇÃO E RH",
+              "objeto": "Credenciamento para contratação de empresas especializadas na prestação de serviços de avaliações imobiliárias para atender às necessidades da Administração Municipal, na forma da legislação em vigor.",
+              "valor_total": 70588.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-04-09",
+              "data_fim": "2027-04-01",
+              "uf": "MG",
+              "source": "pncp_contracts",
+              "source_id": "18291377000102-2-000026/2026",
+              "official_url_or_id": "18291377000102-2-000026/2026"
+            }
+          ],
+          "limitations": [],
+          "offer": "apoio_proposta",
+          "reason": null
+        }
+      ],
+      "auto_send": false,
+      "status_comercial": "NOT_REVIEWED",
+      "score_total": 26.9581,
+      "suggested_offer": "diagnostico_b2g",
+      "pipeline_kit_keys": [
+        "schema_version",
+        "cnpj14",
+        "razao_social",
+        "rank_position",
+        "run_id",
+        "summary_5_to_10_lines",
+        "trigger_event_or_pattern",
+        "suggested_offer",
+        "value_arguments",
+        "discovery_question",
+        "interpretation_risks",
+        "public_business_contact",
+        "whatsapp_short",
+        "email_initial",
+        "call_script",
+        "follow_up_suggestion",
+        "cta",
+        "manual_send_only",
+        "automation_forbidden",
+        "language_scan_forbidden_hit"
+      ],
+      "pipeline_kit_summary": {
+        "keys": [
+          "schema_version",
+          "cnpj14",
+          "razao_social",
+          "rank_position",
+          "run_id",
+          "summary_5_to_10_lines",
+          "trigger_event_or_pattern",
+          "suggested_offer",
+          "value_arguments",
+          "discovery_question",
+          "interpretation_risks",
+          "public_business_contact",
+          "whatsapp_short",
+          "email_initial",
+          "call_script",
+          "follow_up_suggestion",
+          "cta",
+          "manual_send_only",
+          "automation_forbidden",
+          "language_scan_forbidden_hit"
+        ],
+        "cnpj": "42531033000108",
+        "has_whatsapp": false
+      }
+    },
+    {
+      "rank": 4,
+      "cnpj": "43371025000104",
+      "kit_source": "artifacts/campaigns/CONFENGE-OFFICIAL-REGISTRY-TO-REVENUE-01/commercial-rerun/top5-outreach-kits/43371025000104.json",
+      "official": {
+        "cnpj": "43371025000104",
+        "official_match_status": "MATCHED",
+        "legal_name": "AXIONTEK LTDA",
+        "registration_status": "ATIVA",
+        "primary_cnae": "7112000",
+        "official_release_id": "selective-selective-merged",
+        "city": "MOGI DAS CRUZES",
+        "state": "SP"
+      },
+      "contratos_observados": {
+        "contract_count": 24,
+        "total_value": 17724277.69,
+        "last_publication": "2026-07-20",
+        "evidence_contract_ids_sample": [
+          "19493732000199-2-000181/2026",
+          "66489741000196-2-000001/2026",
+          "51864114000110-2-000008/2026",
+          "00509968000148-2-001711/2026",
+          "77774578000120-2-000008/2026",
+          "00509026000160-2-000020/2026",
+          "37115375000700-2-000018/2026",
+          "71480560000139-2-000199/2025",
+          "00394445000101-2-000214/2025"
+        ]
+      },
+      "sinais_comerciais": [
+        {
+          "signal_id": "ticket_above_history",
+          "status": "FIRED",
+          "strength": 3.0,
+          "weight": 1.5,
+          "contribution": 4.5,
+          "hypothesis": "Ticket materialmente acima da mediana histórica da própria empresa indica salto de complexidade.",
+          "evidence": [
+            {
+              "contrato_id": "19493732000199-2-000181/2026",
+              "orgao_cnpj": "19493732000199",
+              "orgao_nome": "Unidade Única",
+              "objeto": "CREDENCIAMENTO DE EMPRESAS ESPECIALIZADAS EM ELABORAÇÃO DE PROJETOS EXECUTIVOS DE INFRAESTRUTURA, SUPERVISÃO DE OBRAS E COMPLIANCE EM ENGENHARIA, PARA DAS DEMANDAS DOS MUNICÍPIOS QUE COMPÕEM O CONSÓRCIO INTERFEDERATIVO DE MINAS GERAIS - CIMINAS.",
+              "valor_total": 17304061.69,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-04-15",
+              "data_fim": "2026-07-15",
+              "uf": "MG",
+              "source": "pncp_contracts",
+              "source_id": "19493732000199-2-000181/2026",
+              "official_url_or_id": "19493732000199-2-000181/2026",
+              "own_median": 7918.0,
+              "ratio": 2185.408144733519
+            }
+          ],
+          "limitations": [],
+          "offer": "diagnostico_b2g",
+          "reason": null
+        },
+        {
+          "signal_id": "value_growth",
+          "status": "FIRED",
+          "strength": 3.0,
+          "weight": 1.4,
+          "contribution": 4.199999999999999,
+          "hypothesis": "Crescimento de valor contratado sugere maior exposição e necessidade de gestão.",
+          "evidence": [
+            {
+              "recent_value_sum": 17585503.69,
+              "prior_value_sum": 126774.0,
+              "ratio": 138.71538083518703,
+              "valor_semantics": "sum_valor_total_contracted",
+              "contracts": [
+                {
+                  "contrato_id": "66489741000196-2-000001/2026",
+                  "orgao_cnpj": "66489741000196",
+                  "orgao_nome": "MMG-INSTITUTO MUN PREV SERV PÚB MONTES CLAROS",
+                  "objeto": "Contratacao de empresa de para elaboracao de laudo de avaliacao e projeto de execucao de reforma do elevador do Shopping Popular Mario Ribeiro da Silveira   SPMRS",
+                  "valor_total": 14908.0,
+                  "valor_semantics": "valor_total_contracted",
+                  "data_publicacao": "2026-07-20",
+                  "data_fim": "2027-03-10",
+                  "uf": "MG",
+                  "source": "pncp_contracts",
+                  "source_id": "66489741000196-2-000001/2026",
+                  "official_url_or_id": "66489741000196-2-000001/2026"
+                },
+                {
+                  "contrato_id": "51864114000110-2-000008/2026",
+                  "orgao_cnpj": "51864114000110",
+                  "orgao_nome": "CAMARA MUNICIPAL DE JUNDIAI",
+                  "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA ELABORAÇÃO DE PROJETO BÁSICO DE  ARQUITETURA DESTINADO À REFORMA DE AMBIENTES DA CÂMARA MUNICIPAL DE JUNDIAÍ  (CONFORME TERMO DE REFERÊNCIA)",
+                  "valor_total": 22500.0,
+                  "valor_semantics": "valor_total_contracted",
+                  "data_publicacao": "2026-07-13",
+                  "data_fim": "2027-07-07",
+                  "uf": "SP",
+                  "source": "pncp_contracts",
+                  "source_id": "51864114000110-2-000008/2026",
+                  "official_url_or_id": "51864114000110-2-000008/2026"
+                },
+                {
+                  "contrato_id": "00509968000148-2-001711/2026",
+                  "orgao_cnpj": "00509968000148",
+                  "orgao_nome": "TRIBUNAL REGIONAL DO TRABALHO DA 5A.REGIAO",
+                  "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA PRESTAÇÃO DE SERVIÇOS DE ENGENHARIA PARA ELABORAÇÃO, SOB DEMANDA, DE PLANO DE EMERGÊNCIA CONTRA INCÊNDIO E PÂNICO - PECIP E RELATÓRIOS DE NÃO-CONFORMIDADES DOS SISTEMAS E PROJETOS DE COMBATE A INCÊNDIO E PÂNICO PARA AS UNIDADES DE CAMAÇARI E SIMÕES FILHO (IT",
+                  "valor_total": 43340.0,
+                  "valor_semantics": "valor_total_contracted",
+                  "data_publicacao": "2026-06-26",
+                  "data_fim": "2027-06-25",
+                  "uf": "BA",
+                  "source": "pncp_contracts",
+                  "source_id": "00509968000148-2-001711/2026",
+                  "official_url_or_id": "00509968000148-2-001711/2026"
+                }
+              ]
+            }
+          ],
+          "limitations": [],
+          "offer": "inteligencia_mercado",
+          "reason": null
+        },
+        {
+          "signal_id": "new_agency",
+          "status": "FIRED",
+          "strength": 2.0,
+          "weight": 1.1,
+          "contribution": 2.2,
+          "hypothesis": "Entrada em novo órgão amplia complexidade relacional e de compliance.",
+          "evidence": [
+            {
+              "contrato_id": "66489741000196-2-000001/2026",
+              "orgao_cnpj": "66489741000196",
+              "orgao_nome": "MMG-INSTITUTO MUN PREV SERV PÚB MONTES CLAROS",
+              "objeto": "Contratacao de empresa de para elaboracao de laudo de avaliacao e projeto de execucao de reforma do elevador do Shopping Popular Mario Ribeiro da Silveira   SPMRS",
+              "valor_total": 14908.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-20",
+              "data_fim": "2027-03-10",
+              "uf": "MG",
+              "source": "pncp_contracts",
+              "source_id": "66489741000196-2-000001/2026",
+              "official_url_or_id": "66489741000196-2-000001/2026"
+            },
+            {
+              "contrato_id": "51864114000110-2-000008/2026",
+              "orgao_cnpj": "51864114000110",
+              "orgao_nome": "CAMARA MUNICIPAL DE JUNDIAI",
+              "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA ELABORAÇÃO DE PROJETO BÁSICO DE  ARQUITETURA DESTINADO À REFORMA DE AMBIENTES DA CÂMARA MUNICIPAL DE JUNDIAÍ  (CONFORME TERMO DE REFERÊNCIA)",
+              "valor_total": 22500.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-13",
+              "data_fim": "2027-07-07",
+              "uf": "SP",
+              "source": "pncp_contracts",
+              "source_id": "51864114000110-2-000008/2026",
+              "official_url_or_id": "51864114000110-2-000008/2026"
+            },
+            {
+              "contrato_id": "00509968000148-2-001711/2026",
+              "orgao_cnpj": "00509968000148",
+              "orgao_nome": "TRIBUNAL REGIONAL DO TRABALHO DA 5A.REGIAO",
+              "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA PRESTAÇÃO DE SERVIÇOS DE ENGENHARIA PARA ELABORAÇÃO, SOB DEMANDA, DE PLANO DE EMERGÊNCIA CONTRA INCÊNDIO E PÂNICO - PECIP E RELATÓRIOS DE NÃO-CONFORMIDADES DOS SISTEMAS E PROJETOS DE COMBATE A INCÊNDIO E PÂNICO PARA AS UNIDADES DE CAMAÇARI E SIMÕES FILHO (IT",
+              "valor_total": 43340.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-06-26",
+              "data_fim": "2027-06-25",
+              "uf": "BA",
+              "source": "pncp_contracts",
+              "source_id": "00509968000148-2-001711/2026",
+              "official_url_or_id": "00509968000148-2-001711/2026"
+            }
+          ],
+          "limitations": [],
+          "offer": "diagnostico_b2g",
+          "reason": null
+        },
+        {
+          "signal_id": "new_region",
+          "status": "FIRED",
+          "strength": 4.0,
+          "weight": 1.0,
+          "contribution": 4.0,
+          "hypothesis": "Entrada em nova UF indica expansão geográfica observável.",
+          "evidence": [
+            {
+              "contrato_id": "66489741000196-2-000001/2026",
+              "orgao_cnpj": "66489741000196",
+              "orgao_nome": "MMG-INSTITUTO MUN PREV SERV PÚB MONTES CLAROS",
+              "objeto": "Contratacao de empresa de para elaboracao de laudo de avaliacao e projeto de execucao de reforma do elevador do Shopping Popular Mario Ribeiro da Silveira   SPMRS",
+              "valor_total": 14908.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-20",
+              "data_fim": "2027-03-10",
+              "uf": "MG",
+              "source": "pncp_contracts",
+              "source_id": "66489741000196-2-000001/2026",
+              "official_url_or_id": "66489741000196-2-000001/2026"
+            },
+            {
+              "contrato_id": "00509968000148-2-001711/2026",
+              "orgao_cnpj": "00509968000148",
+              "orgao_nome": "TRIBUNAL REGIONAL DO TRABALHO DA 5A.REGIAO",
+              "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA PRESTAÇÃO DE SERVIÇOS DE ENGENHARIA PARA ELABORAÇÃO, SOB DEMANDA, DE PLANO DE EMERGÊNCIA CONTRA INCÊNDIO E PÂNICO - PECIP E RELATÓRIOS DE NÃO-CONFORMIDADES DOS SISTEMAS E PROJETOS DE COMBATE A INCÊNDIO E PÂNICO PARA AS UNIDADES DE CAMAÇARI E SIMÕES FILHO (IT",
+              "valor_total": 43340.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-06-26",
+              "data_fim": "2027-06-25",
+              "uf": "BA",
+              "source": "pncp_contracts",
+              "source_id": "00509968000148-2-001711/2026",
+              "official_url_or_id": "00509968000148-2-001711/2026"
+            },
+            {
+              "contrato_id": "77774578000120-2-000008/2026",
+              "orgao_cnpj": "77774578000120",
+              "orgao_nome": "Unidade administrativa",
+              "objeto": "Contratação de empresa especializada em serviços comum de engenharia para elaboração de projetos básico e executivo, memoriais descritivos, especificações técnicas, planejamento e planilhas orçamentárias, com base no Sistema Nacional de Pesquisa de Custos e Indíces da Construção Civil (SINAPI), para",
+              "valor_total": 17400.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-05-19",
+              "data_fim": "2026-11-14",
+              "uf": "PR",
+              "source": "pncp_contracts",
+              "source_id": "77774578000120-2-000008/2026",
+              "official_url_or_id": "77774578000120-2-000008/2026"
+            }
+          ],
+          "limitations": [],
+          "offer": "diagnostico_b2g",
+          "reason": null
+        },
+        {
+          "signal_id": "new_object_category",
+          "status": "FIRED",
+          "strength": 2.0,
+          "weight": 1.0,
+          "contribution": 2.0,
+          "hypothesis": "Nova categoria de objeto indica diversificação operacional.",
+          "evidence": [
+            {
+              "contrato_id": "77774578000120-2-000008/2026",
+              "orgao_cnpj": "77774578000120",
+              "orgao_nome": "Unidade administrativa",
+              "objeto": "Contratação de empresa especializada em serviços comum de engenharia para elaboração de projetos básico e executivo, memoriais descritivos, especificações técnicas, planejamento e planilhas orçamentárias, com base no Sistema Nacional de Pesquisa de Custos e Indíces da Construção Civil (SINAPI), para",
+              "valor_total": 17400.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-05-19",
+              "data_fim": "2026-11-14",
+              "uf": "PR",
+              "source": "pncp_contracts",
+              "source_id": "77774578000120-2-000008/2026",
+              "official_url_or_id": "77774578000120-2-000008/2026"
+            },
+            {
+              "contrato_id": "19493732000199-2-000181/2026",
+              "orgao_cnpj": "19493732000199",
+              "orgao_nome": "Unidade Única",
+              "objeto": "CREDENCIAMENTO DE EMPRESAS ESPECIALIZADAS EM ELABORAÇÃO DE PROJETOS EXECUTIVOS DE INFRAESTRUTURA, SUPERVISÃO DE OBRAS E COMPLIANCE EM ENGENHARIA, PARA DAS DEMANDAS DOS MUNICÍPIOS QUE COMPÕEM O CONSÓRCIO INTERFEDERATIVO DE MINAS GERAIS - CIMINAS.",
+              "valor_total": 17304061.69,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-04-15",
+              "data_fim": "2026-07-15",
+              "uf": "MG",
+              "source": "pncp_contracts",
+              "source_id": "19493732000199-2-000181/2026",
+              "official_url_or_id": "19493732000199-2-000181/2026"
+            }
+          ],
+          "limitations": [],
+          "offer": "analise_edital",
+          "reason": null
+        },
+        {
+          "signal_id": "concurrent_portfolio",
+          "status": "FIRED",
+          "strength": 3.0,
+          "weight": 1.2,
+          "contribution": 3.5999999999999996,
+          "hypothesis": "Carteira simultânea relevante indica carga administrativa.",
+          "evidence": [
+            {
+              "contrato_id": "66489741000196-2-000001/2026",
+              "orgao_cnpj": "66489741000196",
+              "orgao_nome": "MMG-INSTITUTO MUN PREV SERV PÚB MONTES CLAROS",
+              "objeto": "Contratacao de empresa de para elaboracao de laudo de avaliacao e projeto de execucao de reforma do elevador do Shopping Popular Mario Ribeiro da Silveira   SPMRS",
+              "valor_total": 14908.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-20",
+              "data_fim": "2027-03-10",
+              "uf": "MG",
+              "source": "pncp_contracts",
+              "source_id": "66489741000196-2-000001/2026",
+              "official_url_or_id": "66489741000196-2-000001/2026"
+            },
+            {
+              "contrato_id": "51864114000110-2-000008/2026",
+              "orgao_cnpj": "51864114000110",
+              "orgao_nome": "CAMARA MUNICIPAL DE JUNDIAI",
+              "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA ELABORAÇÃO DE PROJETO BÁSICO DE  ARQUITETURA DESTINADO À REFORMA DE AMBIENTES DA CÂMARA MUNICIPAL DE JUNDIAÍ  (CONFORME TERMO DE REFERÊNCIA)",
+              "valor_total": 22500.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-13",
+              "data_fim": "2027-07-07",
+              "uf": "SP",
+              "source": "pncp_contracts",
+              "source_id": "51864114000110-2-000008/2026",
+              "official_url_or_id": "51864114000110-2-000008/2026"
+            },
+            {
+              "contrato_id": "00509968000148-2-001711/2026",
+              "orgao_cnpj": "00509968000148",
+              "orgao_nome": "TRIBUNAL REGIONAL DO TRABALHO DA 5A.REGIAO",
+              "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA PRESTAÇÃO DE SERVIÇOS DE ENGENHARIA PARA ELABORAÇÃO, SOB DEMANDA, DE PLANO DE EMERGÊNCIA CONTRA INCÊNDIO E PÂNICO - PECIP E RELATÓRIOS DE NÃO-CONFORMIDADES DOS SISTEMAS E PROJETOS DE COMBATE A INCÊNDIO E PÂNICO PARA AS UNIDADES DE CAMAÇARI E SIMÕES FILHO (IT",
+              "valor_total": 43340.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-06-26",
+              "data_fim": "2027-06-25",
+              "uf": "BA",
+              "source": "pncp_contracts",
+              "source_id": "00509968000148-2-001711/2026",
+              "official_url_or_id": "00509968000148-2-001711/2026"
+            },
+            {
+              "contrato_id": "00509026000160-2-000020/2026",
+              "orgao_cnpj": "00509026000160",
+              "orgao_nome": "EDF-MUTUA ASSISTENCIA DOS PROF. ENG.ARQ.AGR.",
+              "objeto": "Contratação de empresa especializada para elaboração de projetos arquitetônicos e complementares para reforma da Regional - SE, Rua Campos, 121, Bairro São José, Aracaju/SE, CEP 40.915-220. A prestação dos serviços deverá atender integralmente às condições técnicas, quantidades, prazos e demais exig",
+              "valor_total": 32200.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-06-22",
+              "data_fim": "2026-12-21",
+              "uf": "DF",
+              "source": "pncp_contracts",
+              "source_id": "00509026000160-2-000020/2026",
+              "official_url_or_id": "00509026000160-2-000020/2026"
+            },
+            {
+              "contrato_id": "37115375000700-2-000018/2026",
+              "orgao_cnpj": "37115375000700",
+              "orgao_nome": "INSTITUTO DE PESQUISAS JARDIM BOTÂNICO DO RJ",
+              "objeto": "PRESTAÇÃO DE SERVIÇOS ESPECIALIZADOS DE ELABORAÇÃO DE PROJETOS DE CLIMATIZAÇÃO E DE EXAUSTÃO, PARA AS EDIFICAÇÕES DA REDE LABORATORIAL DA DIPEQ (DIRETORIA DE PESQUISAS) E DA ENBT - ESCOLA NACIONAL DE BOTÂNICA TROPICAL.",
+              "valor_total": 31100.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-05-27",
+              "data_fim": "2027-05-27",
+              "uf": "RJ",
+              "source": "pncp_contracts",
+              "source_id": "37115375000700-2-000018/2026",
+              "official_url_or_id": "37115375000700-2-000018/2026"
+            }
+          ],
+          "limitations": [],
+          "offer": "acompanhamento_admin",
+          "reason": null
+        },
+        {
+          "signal_id": "agency_concentration",
+          "status": "FIRED",
+          "strength": 0.9762915021221381,
+          "weight": 1.1,
+          "contribution": 1.073920652334352,
+          "hypothesis": "Concentração em um órgão eleva risco de dependência e complexidade de relacionamento.",
+          "evidence": [
+            {
+              "contrato_id": "19493732000199-2-000181/2026",
+              "orgao_cnpj": "19493732000199",
+              "orgao_nome": "Unidade Única",
+              "objeto": "CREDENCIAMENTO DE EMPRESAS ESPECIALIZADAS EM ELABORAÇÃO DE PROJETOS EXECUTIVOS DE INFRAESTRUTURA, SUPERVISÃO DE OBRAS E COMPLIANCE EM ENGENHARIA, PARA DAS DEMANDAS DOS MUNICÍPIOS QUE COMPÕEM O CONSÓRCIO INTERFEDERATIVO DE MINAS GERAIS - CIMINAS.",
+              "valor_total": 17304061.69,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-04-15",
+              "data_fim": "2026-07-15",
+              "uf": "MG",
+              "source": "pncp_contracts",
+              "source_id": "19493732000199-2-000181/2026",
+              "official_url_or_id": "19493732000199-2-000181/2026",
+              "agency_share": 0.9762915021221381
+            }
+          ],
+          "limitations": [],
+          "offer": "acompanhamento_admin",
+          "reason": null
+        },
+        {
+          "signal_id": "contract_concentration",
+          "status": "FIRED",
+          "strength": 0.9762915021221381,
+          "weight": 0.9,
+          "contribution": 0.4393311759549622,
+          "hypothesis": "Concentração em um único contrato eleva risco operacional.",
+          "evidence": [
+            {
+              "contrato_id": "19493732000199-2-000181/2026",
+              "orgao_cnpj": "19493732000199",
+              "orgao_nome": "Unidade Única",
+              "objeto": "CREDENCIAMENTO DE EMPRESAS ESPECIALIZADAS EM ELABORAÇÃO DE PROJETOS EXECUTIVOS DE INFRAESTRUTURA, SUPERVISÃO DE OBRAS E COMPLIANCE EM ENGENHARIA, PARA DAS DEMANDAS DOS MUNICÍPIOS QUE COMPÕEM O CONSÓRCIO INTERFEDERATIVO DE MINAS GERAIS - CIMINAS.",
+              "valor_total": 17304061.69,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-04-15",
+              "data_fim": "2026-07-15",
+              "uf": "MG",
+              "source": "pncp_contracts",
+              "source_id": "19493732000199-2-000181/2026",
+              "official_url_or_id": "19493732000199-2-000181/2026",
+              "contract_share": 0.9762915021221381
+            }
+          ],
+          "limitations": [
+            "correlation_dampening_applied_vs_agency_concentration"
+          ],
+          "offer": "acompanhamento_admin",
+          "reason": null
+        },
+        {
+          "signal_id": "near_expiry",
+          "status": "FIRED",
+          "strength": 1.5,
+          "weight": 1.3,
+          "contribution": 1.9500000000000002,
+          "hypothesis": "Contratos próximos do término abrem janela de renovação/relicitação.",
+          "evidence": [
+            {
+              "contrato_id": "77774578000120-2-000008/2026",
+              "orgao_cnpj": "77774578000120",
+              "orgao_nome": "Unidade administrativa",
+              "objeto": "Contratação de empresa especializada em serviços comum de engenharia para elaboração de projetos básico e executivo, memoriais descritivos, especificações técnicas, planejamento e planilhas orçamentárias, com base no Sistema Nacional de Pesquisa de Custos e Indíces da Construção Civil (SINAPI), para",
+              "valor_total": 17400.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-05-19",
+              "data_fim": "2026-11-14",
+              "uf": "PR",
+              "source": "pncp_contracts",
+              "source_id": "77774578000120-2-000008/2026",
+              "official_url_or_id": "77774578000120-2-000008/2026"
+            },
+            {
+              "contrato_id": "71480560000139-2-000199/2025",
+              "orgao_cnpj": "71480560000139",
+              "orgao_nome": "Serv. Autônomo Água e Esgoto Sorocaba",
+              "objeto": "CONTRATACAO DE SERVICOS DE ENGENHARIA",
+              "valor_total": 39874.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-04-28",
+              "data_fim": "2026-08-01",
+              "uf": "SP",
+              "source": "pncp_contracts",
+              "source_id": "71480560000139-2-000199/2025",
+              "official_url_or_id": "71480560000139-2-000199/2025"
+            },
+            {
+              "contrato_id": "00394445000101-2-000214/2025",
+              "orgao_cnpj": "00394445000101",
+              "orgao_nome": "INSTITUTO BENJAMIN CONSTANT",
+              "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA NA PRESTAÇÃO DE SERVIÇOS DE CONSULTORIA TÉCNICA ESPECIALIZADA EM SEGURANÇA CONTRA INCÊNDIO E PÂNICO, COM VISTAS À ELABORAÇÃO DE PROJETO TÉCNICO DE PREVENÇÃO E COMBATE A INCÊNDIO, A SER SUBMETIDO À ANÁLISE E APROVAÇÃO DO CORPO DE BOMBEIROS MILITAR DO ESTADO DO RIO",
+              "valor_total": 7220.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2025-08-19",
+              "data_fim": "2026-08-18",
+              "uf": "RJ",
+              "source": "pncp_contracts",
+              "source_id": "00394445000101-2-000214/2025",
+              "official_url_or_id": "00394445000101-2-000214/2025"
+            }
+          ],
+          "limitations": [],
+          "offer": "acompanhamento_admin",
+          "reason": null
+        },
+        {
+          "signal_id": "diversity_increase",
+          "status": "FIRED",
+          "strength": 1.0,
+          "weight": 1.0,
+          "contribution": 0.5,
+          "hypothesis": "Aumento de diversidade de órgãos indica expansão da operação B2G.",
+          "evidence": [
+            {
+              "recent_organs": 11,
+              "prior_organs": 9,
+              "delta": 2
+            }
+          ],
+          "limitations": [
+            "correlation_dampening_applied_vs_value_growth"
+          ],
+          "offer": "inteligencia_mercado",
+          "reason": null
+        },
+        {
+          "signal_id": "win_recurrence",
+          "status": "FIRED",
+          "strength": 2.0,
+          "weight": 1.1,
+          "contribution": 2.2,
+          "hypothesis": "Recorrência de contratos/vitórias indica volume onde consultoria pode gerar eficiência.",
+          "evidence": [
+            {
+              "contrato_id": "66489741000196-2-000001/2026",
+              "orgao_cnpj": "66489741000196",
+              "orgao_nome": "MMG-INSTITUTO MUN PREV SERV PÚB MONTES CLAROS",
+              "objeto": "Contratacao de empresa de para elaboracao de laudo de avaliacao e projeto de execucao de reforma do elevador do Shopping Popular Mario Ribeiro da Silveira   SPMRS",
+              "valor_total": 14908.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-20",
+              "data_fim": "2027-03-10",
+              "uf": "MG",
+              "source": "pncp_contracts",
+              "source_id": "66489741000196-2-000001/2026",
+              "official_url_or_id": "66489741000196-2-000001/2026"
+            },
+            {
+              "contrato_id": "51864114000110-2-000008/2026",
+              "orgao_cnpj": "51864114000110",
+              "orgao_nome": "CAMARA MUNICIPAL DE JUNDIAI",
+              "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA ELABORAÇÃO DE PROJETO BÁSICO DE  ARQUITETURA DESTINADO À REFORMA DE AMBIENTES DA CÂMARA MUNICIPAL DE JUNDIAÍ  (CONFORME TERMO DE REFERÊNCIA)",
+              "valor_total": 22500.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-13",
+              "data_fim": "2027-07-07",
+              "uf": "SP",
+              "source": "pncp_contracts",
+              "source_id": "51864114000110-2-000008/2026",
+              "official_url_or_id": "51864114000110-2-000008/2026"
+            },
+            {
+              "contrato_id": "00509968000148-2-001711/2026",
+              "orgao_cnpj": "00509968000148",
+              "orgao_nome": "TRIBUNAL REGIONAL DO TRABALHO DA 5A.REGIAO",
+              "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA PRESTAÇÃO DE SERVIÇOS DE ENGENHARIA PARA ELABORAÇÃO, SOB DEMANDA, DE PLANO DE EMERGÊNCIA CONTRA INCÊNDIO E PÂNICO - PECIP E RELATÓRIOS DE NÃO-CONFORMIDADES DOS SISTEMAS E PROJETOS DE COMBATE A INCÊNDIO E PÂNICO PARA AS UNIDADES DE CAMAÇARI E SIMÕES FILHO (IT",
+              "valor_total": 43340.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-06-26",
+              "data_fim": "2027-06-25",
+              "uf": "BA",
+              "source": "pncp_contracts",
+              "source_id": "00509968000148-2-001711/2026",
+              "official_url_or_id": "00509968000148-2-001711/2026"
+            },
+            {
+              "contrato_id": "00509026000160-2-000020/2026",
+              "orgao_cnpj": "00509026000160",
+              "orgao_nome": "EDF-MUTUA ASSISTENCIA DOS PROF. ENG.ARQ.AGR.",
+              "objeto": "Contratação de empresa especializada para elaboração de projetos arquitetônicos e complementares para reforma da Regional - SE, Rua Campos, 121, Bairro São José, Aracaju/SE, CEP 40.915-220. A prestação dos serviços deverá atender integralmente às condições técnicas, quantidades, prazos e demais exig",
+              "valor_total": 32200.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-06-22",
+              "data_fim": "2026-12-21",
+              "uf": "DF",
+              "source": "pncp_contracts",
+              "source_id": "00509026000160-2-000020/2026",
+              "official_url_or_id": "00509026000160-2-000020/2026"
+            },
+            {
+              "contrato_id": "37115375000700-2-000018/2026",
+              "orgao_cnpj": "37115375000700",
+              "orgao_nome": "INSTITUTO DE PESQUISAS JARDIM BOTÂNICO DO RJ",
+              "objeto": "PRESTAÇÃO DE SERVIÇOS ESPECIALIZADOS DE ELABORAÇÃO DE PROJETOS DE CLIMATIZAÇÃO E DE EXAUSTÃO, PARA AS EDIFICAÇÕES DA REDE LABORATORIAL DA DIPEQ (DIRETORIA DE PESQUISAS) E DA ENBT - ESCOLA NACIONAL DE BOTÂNICA TROPICAL.",
+              "valor_total": 31100.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-05-27",
+              "data_fim": "2027-05-27",
+              "uf": "RJ",
+              "source": "pncp_contracts",
+              "source_id": "37115375000700-2-000018/2026",
+              "official_url_or_id": "37115375000700-2-000018/2026"
+            }
+          ],
+          "limitations": [],
+          "offer": "apoio_proposta",
+          "reason": null
+        }
+      ],
+      "auto_send": false,
+      "status_comercial": "NOT_REVIEWED",
+      "score_total": 26.6633,
+      "suggested_offer": "diagnostico_b2g",
+      "pipeline_kit_keys": [
+        "schema_version",
+        "cnpj14",
+        "razao_social",
+        "rank_position",
+        "run_id",
+        "summary_5_to_10_lines",
+        "trigger_event_or_pattern",
+        "suggested_offer",
+        "value_arguments",
+        "discovery_question",
+        "interpretation_risks",
+        "public_business_contact",
+        "whatsapp_short",
+        "email_initial",
+        "call_script",
+        "follow_up_suggestion",
+        "cta",
+        "manual_send_only",
+        "automation_forbidden",
+        "language_scan_forbidden_hit"
+      ],
+      "pipeline_kit_summary": {
+        "keys": [
+          "schema_version",
+          "cnpj14",
+          "razao_social",
+          "rank_position",
+          "run_id",
+          "summary_5_to_10_lines",
+          "trigger_event_or_pattern",
+          "suggested_offer",
+          "value_arguments",
+          "discovery_question",
+          "interpretation_risks",
+          "public_business_contact",
+          "whatsapp_short",
+          "email_initial",
+          "call_script",
+          "follow_up_suggestion",
+          "cta",
+          "manual_send_only",
+          "automation_forbidden",
+          "language_scan_forbidden_hit"
+        ],
+        "cnpj": "43371025000104",
+        "has_whatsapp": false
+      }
+    },
+    {
+      "rank": 5,
+      "cnpj": "50410432000149",
+      "kit_source": "artifacts/campaigns/CONFENGE-OFFICIAL-REGISTRY-TO-REVENUE-01/commercial-rerun/top5-outreach-kits/50410432000149.json",
+      "official": {
+        "cnpj": "50410432000149",
+        "official_match_status": "MATCHED",
+        "legal_name": "M V NILLO DE PAULA ENGENHARIA",
+        "registration_status": "ATIVA",
+        "primary_cnae": "7112000",
+        "official_release_id": "selective-selective-merged",
+        "city": "ANDIRA",
+        "state": "PR"
+      },
+      "contratos_observados": {
+        "contract_count": 25,
+        "total_value": 70237840.99,
+        "last_publication": "2026-07-28",
+        "evidence_contract_ids_sample": [
+          "59851543000165-2-000005/2026",
+          "45353315000150-2-000071/2026",
+          "45353315000150-2-000070/2026",
+          "46596318000188-2-000015/2026",
+          "46596151000155-2-000142/2026",
+          "46596151000155-2-000140/2026",
+          "48344014000159-2-000053/2026",
+          "59851543000165-2-000003/2026",
+          "59851543000165-2-000090/2025",
+          "45298569000113-2-000041/2026"
+        ]
+      },
+      "sinais_comerciais": [
+        {
+          "signal_id": "ticket_above_history",
+          "status": "FIRED",
+          "strength": 3.0,
+          "weight": 1.5,
+          "contribution": 4.5,
+          "hypothesis": "Ticket materialmente acima da mediana histórica da própria empresa indica salto de complexidade.",
+          "evidence": [
+            {
+              "contrato_id": "59851543000165-2-000005/2026",
+              "orgao_cnpj": "59851543000165",
+              "orgao_nome": "PREFEITURA DE SÃO JOAQUIM DA BARRA",
+              "objeto": "CONTRATAÇÃO DE EMPRESA DEVIDAMENTE HABILITADA E\r\nREGISTRADA NO CREA/CAU PARA A EXECUÇÃO DE SERVIÇOS DE REFORMA E AMPLIAÇÃO DAS\r\nUNIDADES BÁSICAS DE SAÚDE 'VEREADOR APARECIDO F. BORGES\" E \"OSVALDO DAL PINO\" NO\r\nMUNICÍPIO DE SAO JOAQUIM DA BARRA/SP, COM FORNECIMENTO DE MATERIAIS, DIREÇÃO\r\nTÉCNICA, EQU",
+              "valor_total": 42500000.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-02-09",
+              "data_fim": "2027-01-29",
+              "uf": "SP",
+              "source": "pncp_contracts",
+              "source_id": "59851543000165-2-000005/2026",
+              "official_url_or_id": "59851543000165-2-000005/2026",
+              "own_median": 429987.05,
+              "ratio": 98.8401860009505
+            }
+          ],
+          "limitations": [],
+          "offer": "diagnostico_b2g",
+          "reason": null
+        },
+        {
+          "signal_id": "quantity_growth",
+          "status": "FIRED",
+          "strength": 2.8333333333333335,
+          "weight": 1.3,
+          "contribution": 1.8416666666666668,
+          "hypothesis": "Crescimento acelerado de quantidade de contratos sugere operação B2G em expansão.",
+          "evidence": [
+            {
+              "recent_count": 17,
+              "prior_count": 3,
+              "ratio": 5.666666666666667,
+              "contracts": [
+                {
+                  "contrato_id": "45353315000150-2-000071/2026",
+                  "orgao_cnpj": "45353315000150",
+                  "orgao_nome": "PREFEITURA MUNICIPAL DE JERIQUARA",
+                  "objeto": "Pedido gerado a partir do resultado Solicitação: 02136/26Solicitação gerada a partir do resultado da Licitação: 000302/26 - Ano Mod.: 2026 - Modalidade: CONCORRÊNCIA ELETRÔNICA - Nº Mod.: 3 - Mod. Formatada: 3 - CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE OBRAS DE INFRAESTRUTURA URBANA DES",
+                  "valor_total": 150000.0,
+                  "valor_semantics": "valor_total_contracted",
+                  "data_publicacao": "2026-07-28",
+                  "data_fim": "2026-07-28",
+                  "uf": "SP",
+                  "source": "pncp_contracts",
+                  "source_id": "45353315000150-2-000071/2026",
+                  "official_url_or_id": "45353315000150-2-000071/2026"
+                },
+                {
+                  "contrato_id": "45353315000150-2-000070/2026",
+                  "orgao_cnpj": "45353315000150",
+                  "orgao_nome": "PREFEITURA MUNICIPAL DE JERIQUARA",
+                  "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE OBRAS DE INFRAESTRUTURA URBANA DESTINADAS À IMPLANTAÇÃO DE SISTEMA DE DRENAGEM DE ÁGUAS PLUVIAIS EM VIAS PÚBLICAS DO MUNICÍPIO DE JERIQUARA/SP, COM FORNECIMENTO DE MATERIAIS, MÃO DE OBRA, EQUIPAMENTOS E DEMAIS INSUMOS NECESSÁRIOS À EXECUÇÃO DOS S",
+                  "valor_total": 150000.0,
+                  "valor_semantics": "valor_total_contracted",
+                  "data_publicacao": "2026-07-27",
+                  "data_fim": "2027-03-21",
+                  "uf": "SP",
+                  "source": "pncp_contracts",
+                  "source_id": "45353315000150-2-000070/2026",
+                  "official_url_or_id": "45353315000150-2-000070/2026"
+                },
+                {
+                  "contrato_id": "46596318000188-2-000015/2026",
+                  "orgao_cnpj": "46596318000188",
+                  "orgao_nome": "MUNICIPIO DE GUARACI - SP",
+                  "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA CONSTRUÇÃO DO EMISSÁRIO LAGO.",
+                  "valor_total": 1131164.0,
+                  "valor_semantics": "valor_total_contracted",
+                  "data_publicacao": "2026-07-23",
+                  "data_fim": "2027-01-22",
+                  "uf": "SP",
+                  "source": "pncp_contracts",
+                  "source_id": "46596318000188-2-000015/2026",
+                  "official_url_or_id": "46596318000188-2-000015/2026"
+                }
+              ]
+            }
+          ],
+          "limitations": [
+            "correlation_dampening_applied_vs_value_growth"
+          ],
+          "offer": "inteligencia_mercado",
+          "reason": null
+        },
+        {
+          "signal_id": "value_growth",
+          "status": "FIRED",
+          "strength": 3.0,
+          "weight": 1.4,
+          "contribution": 4.199999999999999,
+          "hypothesis": "Crescimento de valor contratado sugere maior exposição e necessidade de gestão.",
+          "evidence": [
+            {
+              "recent_value_sum": 68009602.71,
+              "prior_value_sum": 1250057.17,
+              "ratio": 54.405193892052154,
+              "valor_semantics": "sum_valor_total_contracted",
+              "contracts": [
+                {
+                  "contrato_id": "45353315000150-2-000071/2026",
+                  "orgao_cnpj": "45353315000150",
+                  "orgao_nome": "PREFEITURA MUNICIPAL DE JERIQUARA",
+                  "objeto": "Pedido gerado a partir do resultado Solicitação: 02136/26Solicitação gerada a partir do resultado da Licitação: 000302/26 - Ano Mod.: 2026 - Modalidade: CONCORRÊNCIA ELETRÔNICA - Nº Mod.: 3 - Mod. Formatada: 3 - CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE OBRAS DE INFRAESTRUTURA URBANA DES",
+                  "valor_total": 150000.0,
+                  "valor_semantics": "valor_total_contracted",
+                  "data_publicacao": "2026-07-28",
+                  "data_fim": "2026-07-28",
+                  "uf": "SP",
+                  "source": "pncp_contracts",
+                  "source_id": "45353315000150-2-000071/2026",
+                  "official_url_or_id": "45353315000150-2-000071/2026"
+                },
+                {
+                  "contrato_id": "45353315000150-2-000070/2026",
+                  "orgao_cnpj": "45353315000150",
+                  "orgao_nome": "PREFEITURA MUNICIPAL DE JERIQUARA",
+                  "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE OBRAS DE INFRAESTRUTURA URBANA DESTINADAS À IMPLANTAÇÃO DE SISTEMA DE DRENAGEM DE ÁGUAS PLUVIAIS EM VIAS PÚBLICAS DO MUNICÍPIO DE JERIQUARA/SP, COM FORNECIMENTO DE MATERIAIS, MÃO DE OBRA, EQUIPAMENTOS E DEMAIS INSUMOS NECESSÁRIOS À EXECUÇÃO DOS S",
+                  "valor_total": 150000.0,
+                  "valor_semantics": "valor_total_contracted",
+                  "data_publicacao": "2026-07-27",
+                  "data_fim": "2027-03-21",
+                  "uf": "SP",
+                  "source": "pncp_contracts",
+                  "source_id": "45353315000150-2-000070/2026",
+                  "official_url_or_id": "45353315000150-2-000070/2026"
+                },
+                {
+                  "contrato_id": "46596318000188-2-000015/2026",
+                  "orgao_cnpj": "46596318000188",
+                  "orgao_nome": "MUNICIPIO DE GUARACI - SP",
+                  "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA CONSTRUÇÃO DO EMISSÁRIO LAGO.",
+                  "valor_total": 1131164.0,
+                  "valor_semantics": "valor_total_contracted",
+                  "data_publicacao": "2026-07-23",
+                  "data_fim": "2027-01-22",
+                  "uf": "SP",
+                  "source": "pncp_contracts",
+                  "source_id": "46596318000188-2-000015/2026",
+                  "official_url_or_id": "46596318000188-2-000015/2026"
+                }
+              ]
+            }
+          ],
+          "limitations": [],
+          "offer": "inteligencia_mercado",
+          "reason": null
+        },
+        {
+          "signal_id": "new_agency",
+          "status": "FIRED",
+          "strength": 2.0,
+          "weight": 1.1,
+          "contribution": 2.2,
+          "hypothesis": "Entrada em novo órgão amplia complexidade relacional e de compliance.",
+          "evidence": [
+            {
+              "contrato_id": "45353315000150-2-000071/2026",
+              "orgao_cnpj": "45353315000150",
+              "orgao_nome": "PREFEITURA MUNICIPAL DE JERIQUARA",
+              "objeto": "Pedido gerado a partir do resultado Solicitação: 02136/26Solicitação gerada a partir do resultado da Licitação: 000302/26 - Ano Mod.: 2026 - Modalidade: CONCORRÊNCIA ELETRÔNICA - Nº Mod.: 3 - Mod. Formatada: 3 - CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE OBRAS DE INFRAESTRUTURA URBANA DES",
+              "valor_total": 150000.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-28",
+              "data_fim": "2026-07-28",
+              "uf": "SP",
+              "source": "pncp_contracts",
+              "source_id": "45353315000150-2-000071/2026",
+              "official_url_or_id": "45353315000150-2-000071/2026"
+            },
+            {
+              "contrato_id": "45353315000150-2-000070/2026",
+              "orgao_cnpj": "45353315000150",
+              "orgao_nome": "PREFEITURA MUNICIPAL DE JERIQUARA",
+              "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE OBRAS DE INFRAESTRUTURA URBANA DESTINADAS À IMPLANTAÇÃO DE SISTEMA DE DRENAGEM DE ÁGUAS PLUVIAIS EM VIAS PÚBLICAS DO MUNICÍPIO DE JERIQUARA/SP, COM FORNECIMENTO DE MATERIAIS, MÃO DE OBRA, EQUIPAMENTOS E DEMAIS INSUMOS NECESSÁRIOS À EXECUÇÃO DOS S",
+              "valor_total": 150000.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-27",
+              "data_fim": "2027-03-21",
+              "uf": "SP",
+              "source": "pncp_contracts",
+              "source_id": "45353315000150-2-000070/2026",
+              "official_url_or_id": "45353315000150-2-000070/2026"
+            },
+            {
+              "contrato_id": "46596318000188-2-000015/2026",
+              "orgao_cnpj": "46596318000188",
+              "orgao_nome": "MUNICIPIO DE GUARACI - SP",
+              "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA CONSTRUÇÃO DO EMISSÁRIO LAGO.",
+              "valor_total": 1131164.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-23",
+              "data_fim": "2027-01-22",
+              "uf": "SP",
+              "source": "pncp_contracts",
+              "source_id": "46596318000188-2-000015/2026",
+              "official_url_or_id": "46596318000188-2-000015/2026"
+            }
+          ],
+          "limitations": [],
+          "offer": "diagnostico_b2g",
+          "reason": null
+        },
+        {
+          "signal_id": "new_object_category",
+          "status": "FIRED",
+          "strength": 3.0,
+          "weight": 1.0,
+          "contribution": 3.0,
+          "hypothesis": "Nova categoria de objeto indica diversificação operacional.",
+          "evidence": [
+            {
+              "contrato_id": "46596318000188-2-000015/2026",
+              "orgao_cnpj": "46596318000188",
+              "orgao_nome": "MUNICIPIO DE GUARACI - SP",
+              "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA CONSTRUÇÃO DO EMISSÁRIO LAGO.",
+              "valor_total": 1131164.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-23",
+              "data_fim": "2027-01-22",
+              "uf": "SP",
+              "source": "pncp_contracts",
+              "source_id": "46596318000188-2-000015/2026",
+              "official_url_or_id": "46596318000188-2-000015/2026"
+            },
+            {
+              "contrato_id": "46596151000155-2-000142/2026",
+              "orgao_cnpj": "46596151000155",
+              "orgao_nome": "PREFEITURA MUNICIPAL DA ESTÂNCIA TURÍSTICA DE OLÍMPIA",
+              "objeto": "CONTRATAÇÃO DE EMPRESA PRESTADORA DE SERVIÇOS DE CONSTRUÇÃO CIVIL PARA EXECUÇÃO DE UM MURO DE FECHAMENTO DA ÁREA EXTERNA DO RECINTO DO FOLCLORE, PRAÇA DE ATIVIDADES FOLCLÓRICAS E TURÍSTICAS “PROF. JOSÉ SANT`ANNA” NO MUNICÍPIO DA ESTÂNCIA TURÍSTICA DE OLÍMPIA/SP.",
+              "valor_total": 288499.98,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-22",
+              "data_fim": "2027-02-16",
+              "uf": "SP",
+              "source": "pncp_contracts",
+              "source_id": "46596151000155-2-000142/2026",
+              "official_url_or_id": "46596151000155-2-000142/2026"
+            },
+            {
+              "contrato_id": "46596151000155-2-000140/2026",
+              "orgao_cnpj": "46596151000155",
+              "orgao_nome": "PREFEITURA MUNICIPAL DA ESTÂNCIA TURÍSTICA DE OLÍMPIA",
+              "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA REALIZAÇÃO DE REFORMA NOS BANHEIROS DAS BARRACAS DO RECINTO DO FOLCLORE DO MUNICÍPIO DA ESTÂNCIA TURÍSTICA DE OLÍMPIA/SP.",
+              "valor_total": 173598.21,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-14",
+              "data_fim": "2027-07-12",
+              "uf": "SP",
+              "source": "pncp_contracts",
+              "source_id": "46596151000155-2-000140/2026",
+              "official_url_or_id": "46596151000155-2-000140/2026"
+            }
+          ],
+          "limitations": [],
+          "offer": "analise_edital",
+          "reason": null
+        },
+        {
+          "signal_id": "concurrent_portfolio",
+          "status": "FIRED",
+          "strength": 3.0,
+          "weight": 1.2,
+          "contribution": 3.5999999999999996,
+          "hypothesis": "Carteira simultânea relevante indica carga administrativa.",
+          "evidence": [
+            {
+              "contrato_id": "45353315000150-2-000070/2026",
+              "orgao_cnpj": "45353315000150",
+              "orgao_nome": "PREFEITURA MUNICIPAL DE JERIQUARA",
+              "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE OBRAS DE INFRAESTRUTURA URBANA DESTINADAS À IMPLANTAÇÃO DE SISTEMA DE DRENAGEM DE ÁGUAS PLUVIAIS EM VIAS PÚBLICAS DO MUNICÍPIO DE JERIQUARA/SP, COM FORNECIMENTO DE MATERIAIS, MÃO DE OBRA, EQUIPAMENTOS E DEMAIS INSUMOS NECESSÁRIOS À EXECUÇÃO DOS S",
+              "valor_total": 150000.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-27",
+              "data_fim": "2027-03-21",
+              "uf": "SP",
+              "source": "pncp_contracts",
+              "source_id": "45353315000150-2-000070/2026",
+              "official_url_or_id": "45353315000150-2-000070/2026"
+            },
+            {
+              "contrato_id": "46596318000188-2-000015/2026",
+              "orgao_cnpj": "46596318000188",
+              "orgao_nome": "MUNICIPIO DE GUARACI - SP",
+              "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA CONSTRUÇÃO DO EMISSÁRIO LAGO.",
+              "valor_total": 1131164.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-23",
+              "data_fim": "2027-01-22",
+              "uf": "SP",
+              "source": "pncp_contracts",
+              "source_id": "46596318000188-2-000015/2026",
+              "official_url_or_id": "46596318000188-2-000015/2026"
+            },
+            {
+              "contrato_id": "46596151000155-2-000142/2026",
+              "orgao_cnpj": "46596151000155",
+              "orgao_nome": "PREFEITURA MUNICIPAL DA ESTÂNCIA TURÍSTICA DE OLÍMPIA",
+              "objeto": "CONTRATAÇÃO DE EMPRESA PRESTADORA DE SERVIÇOS DE CONSTRUÇÃO CIVIL PARA EXECUÇÃO DE UM MURO DE FECHAMENTO DA ÁREA EXTERNA DO RECINTO DO FOLCLORE, PRAÇA DE ATIVIDADES FOLCLÓRICAS E TURÍSTICAS “PROF. JOSÉ SANT`ANNA” NO MUNICÍPIO DA ESTÂNCIA TURÍSTICA DE OLÍMPIA/SP.",
+              "valor_total": 288499.98,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-22",
+              "data_fim": "2027-02-16",
+              "uf": "SP",
+              "source": "pncp_contracts",
+              "source_id": "46596151000155-2-000142/2026",
+              "official_url_or_id": "46596151000155-2-000142/2026"
+            },
+            {
+              "contrato_id": "46596151000155-2-000140/2026",
+              "orgao_cnpj": "46596151000155",
+              "orgao_nome": "PREFEITURA MUNICIPAL DA ESTÂNCIA TURÍSTICA DE OLÍMPIA",
+              "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA REALIZAÇÃO DE REFORMA NOS BANHEIROS DAS BARRACAS DO RECINTO DO FOLCLORE DO MUNICÍPIO DA ESTÂNCIA TURÍSTICA DE OLÍMPIA/SP.",
+              "valor_total": 173598.21,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-14",
+              "data_fim": "2027-07-12",
+              "uf": "SP",
+              "source": "pncp_contracts",
+              "source_id": "46596151000155-2-000140/2026",
+              "official_url_or_id": "46596151000155-2-000140/2026"
+            },
+            {
+              "contrato_id": "48344014000159-2-000053/2026",
+              "orgao_cnpj": "48344014000159",
+              "orgao_nome": "MUNICIPIO DE GUAIRA",
+              "objeto": "CONTRATAÇÃO DE EMPRESA PARA REFORMA PREDIAL NO ANTIGO PRÉDIO DA PROCURADORIA",
+              "valor_total": 44244.27,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-13",
+              "data_fim": "2027-06-19",
+              "uf": "SP",
+              "source": "pncp_contracts",
+              "source_id": "48344014000159-2-000053/2026",
+              "official_url_or_id": "48344014000159-2-000053/2026"
+            }
+          ],
+          "limitations": [],
+          "offer": "acompanhamento_admin",
+          "reason": null
+        },
+        {
+          "signal_id": "agency_concentration",
+          "status": "FIRED",
+          "strength": 0.8636563346051107,
+          "weight": 1.1,
+          "contribution": 0.9500219680656219,
+          "hypothesis": "Concentração em um órgão eleva risco de dependência e complexidade de relacionamento.",
+          "evidence": [
+            {
+              "contrato_id": "59851543000165-2-000005/2026",
+              "orgao_cnpj": "59851543000165",
+              "orgao_nome": "PREFEITURA DE SÃO JOAQUIM DA BARRA",
+              "objeto": "CONTRATAÇÃO DE EMPRESA DEVIDAMENTE HABILITADA E\r\nREGISTRADA NO CREA/CAU PARA A EXECUÇÃO DE SERVIÇOS DE REFORMA E AMPLIAÇÃO DAS\r\nUNIDADES BÁSICAS DE SAÚDE 'VEREADOR APARECIDO F. BORGES\" E \"OSVALDO DAL PINO\" NO\r\nMUNICÍPIO DE SAO JOAQUIM DA BARRA/SP, COM FORNECIMENTO DE MATERIAIS, DIREÇÃO\r\nTÉCNICA, EQU",
+              "valor_total": 42500000.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-02-09",
+              "data_fim": "2027-01-29",
+              "uf": "SP",
+              "source": "pncp_contracts",
+              "source_id": "59851543000165-2-000005/2026",
+              "official_url_or_id": "59851543000165-2-000005/2026",
+              "agency_share": 0.8636563346051107
+            },
+            {
+              "contrato_id": "59851543000165-2-000003/2026",
+              "orgao_cnpj": "59851543000165",
+              "orgao_nome": "PREFEITURA DE SÃO JOAQUIM DA BARRA",
+              "objeto": "ONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA A\r\nEXECUÇÃO DE SERVIÇOS DE REFORMA EM CRECHE MUNICIPAL \"CEI JOSE FLORA\", CONFORME\r\nDETALHADO NO TERMO DE REFERENCIA/MEMORIAL DESCRITIVO, PROJETO BÁSICO, PLANILHA\r\nORÇAMENTARIA E CRONOGRAMA FÍSICO-FINANCEIRO.",
+              "valor_total": 17656286.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-02-09",
+              "data_fim": "2027-01-27",
+              "uf": "SP",
+              "source": "pncp_contracts",
+              "source_id": "59851543000165-2-000003/2026",
+              "official_url_or_id": "59851543000165-2-000003/2026",
+              "agency_share": 0.8636563346051107
+            },
+            {
+              "contrato_id": "59851543000165-2-000090/2025",
+              "orgao_cnpj": "59851543000165",
+              "orgao_nome": "PREFEITURA DE SÃO JOAQUIM DA BARRA",
+              "objeto": "CONTRATAÇÃO DE EMPRESA DEVIDAMENTE HABILITADA E\r\nREGISTRADA NO CREA/CAU PARA A EXECUÇÃO DE TERMINAL URBANO DE CIRCULAR E INSTALAÇÃO DE BANCOS\r\nE VASOS COM PAISAGISMO NO CALÇADÃO DO MUNICÍPIO DE SAO JOAQUIM DA BARRA/SP, COM\r\nFORNECIMENTO DE MATERIAIS, DIREÇÃO TÉCNICA, EQUIPAMENTOS E MAO DE OBRA, BEM ",
+              "valor_total": 91070.3,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2025-11-24",
+              "data_fim": "2026-10-14",
+              "uf": "SP",
+              "source": "pncp_contracts",
+              "source_id": "59851543000165-2-000090/2025",
+              "official_url_or_id": "59851543000165-2-000090/2025",
+              "agency_share": 0.8636563346051107
+            }
+          ],
+          "limitations": [],
+          "offer": "acompanhamento_admin",
+          "reason": null
+        },
+        {
+          "signal_id": "contract_concentration",
+          "status": "FIRED",
+          "strength": 0.6050869360584542,
+          "weight": 0.9,
+          "contribution": 0.2722891212263044,
+          "hypothesis": "Concentração em um único contrato eleva risco operacional.",
+          "evidence": [
+            {
+              "contrato_id": "59851543000165-2-000005/2026",
+              "orgao_cnpj": "59851543000165",
+              "orgao_nome": "PREFEITURA DE SÃO JOAQUIM DA BARRA",
+              "objeto": "CONTRATAÇÃO DE EMPRESA DEVIDAMENTE HABILITADA E\r\nREGISTRADA NO CREA/CAU PARA A EXECUÇÃO DE SERVIÇOS DE REFORMA E AMPLIAÇÃO DAS\r\nUNIDADES BÁSICAS DE SAÚDE 'VEREADOR APARECIDO F. BORGES\" E \"OSVALDO DAL PINO\" NO\r\nMUNICÍPIO DE SAO JOAQUIM DA BARRA/SP, COM FORNECIMENTO DE MATERIAIS, DIREÇÃO\r\nTÉCNICA, EQU",
+              "valor_total": 42500000.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-02-09",
+              "data_fim": "2027-01-29",
+              "uf": "SP",
+              "source": "pncp_contracts",
+              "source_id": "59851543000165-2-000005/2026",
+              "official_url_or_id": "59851543000165-2-000005/2026",
+              "contract_share": 0.6050869360584542
+            }
+          ],
+          "limitations": [
+            "correlation_dampening_applied_vs_agency_concentration"
+          ],
+          "offer": "acompanhamento_admin",
+          "reason": null
+        },
+        {
+          "signal_id": "near_expiry",
+          "status": "FIRED",
+          "strength": 2.0,
+          "weight": 1.3,
+          "contribution": 2.6,
+          "hypothesis": "Contratos próximos do término abrem janela de renovação/relicitação.",
+          "evidence": [
+            {
+              "contrato_id": "45298569000113-2-000041/2026",
+              "orgao_cnpj": "45298569000113",
+              "orgao_nome": "MUNICÍPIO DE ALTINÓPOLIS/SP",
+              "objeto": "[LICITANET] - Contratação de empresa de engenharia para a execução das obras remanescentes de revitalização urbana, implantação de sistema de iluminação pública e construção de passarela ao longo do trecho do Córrego Mato Grosso – 3ª Etapa",
+              "valor_total": 23837.27,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-06-30",
+              "data_fim": "2026-08-06",
+              "uf": "SP",
+              "source": "pncp_contracts",
+              "source_id": "45298569000113-2-000041/2026",
+              "official_url_or_id": "45298569000113-2-000041/2026"
+            },
+            {
+              "contrato_id": "46596151000155-2-000105/2026",
+              "orgao_cnpj": "46596151000155",
+              "orgao_nome": "PREFEITURA MUNICIPAL DA ESTÂNCIA TURÍSTICA DE OLÍMPIA",
+              "objeto": "CONTRATAÇÃO DE EMPRESA PRESTADORA DE SERVIÇOS DE CONSTRUÇÃO CIVIL PARA EXECUÇÃO DE OBRA DE REFORMA E REVITALIZAÇÃO DA PRAÇA HERÓIS OLIMPIENSES DE 32, SITUADA NA CONFLUÊNCIA DA RUA DURVAL BRITO E AVENIDA MANOEL ZANIN, BAIRRO SANTA EFIGÊNIA, NO MUNICÍPIO DA ESTÂNCIA TURÍSTICA DE OLÍMPIA/SP",
+              "valor_total": 349243.57,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-06-08",
+              "data_fim": "2026-11-01",
+              "uf": "SP",
+              "source": "pncp_contracts",
+              "source_id": "46596151000155-2-000105/2026",
+              "official_url_or_id": "46596151000155-2-000105/2026"
+            },
+            {
+              "contrato_id": "45370707000128-2-000020/2026",
+              "orgao_cnpj": "45370707000128",
+              "orgao_nome": "PREFEITURA MUNICIPAL DE PITANGUEIRAS",
+              "objeto": "Contratação de Empresa Especializada em PRESTAÇÃO DE SERVIÇO EM REGIME DE EMPREITADA, COM O FORNECIMENTO DE MÃO DE OBRA, EQUIPAMENTOS, MAQUINÁRIOS E MATERIAIS PARA A EXECUÇÃO DAS OBRAS DE REFORMA E ADEQUAÇÃO DA UNIDADE ESCOLAR “E. M. CELINA MENDES CORRÊA RICCI”, em atendimento a Secretaria Municipal",
+              "valor_total": 272473.51,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-06-03",
+              "data_fim": "2026-08-03",
+              "uf": "SP",
+              "source": "pncp_contracts",
+              "source_id": "45370707000128-2-000020/2026",
+              "official_url_or_id": "45370707000128-2-000020/2026"
+            },
+            {
+              "contrato_id": "46634127000163-2-000058/2026",
+              "orgao_cnpj": "46634127000163",
+              "orgao_nome": "ITATINGA",
+              "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DA INFRAESTRUTURA DE DRENAGEM PLUVIAL DO DISTRITO INDUSTRIAL III, NO MUNICÍPIO DE ITATINGA/SP.",
+              "valor_total": 794490.66,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-05-15",
+              "data_fim": "2026-09-11",
+              "uf": "SP",
+              "source": "pncp_contracts",
+              "source_id": "46634127000163-2-000058/2026",
+              "official_url_or_id": "46634127000163-2-000058/2026"
+            },
+            {
+              "contrato_id": "46596151000155-2-000033/2026",
+              "orgao_cnpj": "46596151000155",
+              "orgao_nome": "PREFEITURA MUNICIPAL DA ESTÂNCIA TURÍSTICA DE OLÍMPIA",
+              "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA DE CONSTRUÇÃO CIVIL PARA EXECUÇÃO DA OBRA DE REVITALIZAÇÃO DA AVENIDA ANDRADE SILVA, NO TRECHO ENTRE A RUA SÍRIA E A AVENIDA DOS OLIMPIENSES, ATRAVÉS DE RECURSOS PROVENIENTES DE EMENDA PARLAMENTAR Nº 202340350003, PLANO DE AÇÃO Nº 09032023-037798 DO MINISTÉRIO DA",
+              "valor_total": 668979.93,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-02-09",
+              "data_fim": "2026-10-08",
+              "uf": "SP",
+              "source": "pncp_contracts",
+              "source_id": "46596151000155-2-000033/2026",
+              "official_url_or_id": "46596151000155-2-000033/2026"
+            }
+          ],
+          "limitations": [],
+          "offer": "acompanhamento_admin",
+          "reason": null
+        },
+        {
+          "signal_id": "diversity_increase",
+          "status": "FIRED",
+          "strength": 2.0,
+          "weight": 1.0,
+          "contribution": 1.0,
+          "hypothesis": "Aumento de diversidade de órgãos indica expansão da operação B2G.",
+          "evidence": [
+            {
+              "recent_organs": 10,
+              "prior_organs": 3,
+              "delta": 7
+            }
+          ],
+          "limitations": [
+            "correlation_dampening_applied_vs_value_growth"
+          ],
+          "offer": "inteligencia_mercado",
+          "reason": null
+        },
+        {
+          "signal_id": "win_recurrence",
+          "status": "FIRED",
+          "strength": 2.0,
+          "weight": 1.1,
+          "contribution": 2.2,
+          "hypothesis": "Recorrência de contratos/vitórias indica volume onde consultoria pode gerar eficiência.",
+          "evidence": [
+            {
+              "contrato_id": "45353315000150-2-000071/2026",
+              "orgao_cnpj": "45353315000150",
+              "orgao_nome": "PREFEITURA MUNICIPAL DE JERIQUARA",
+              "objeto": "Pedido gerado a partir do resultado Solicitação: 02136/26Solicitação gerada a partir do resultado da Licitação: 000302/26 - Ano Mod.: 2026 - Modalidade: CONCORRÊNCIA ELETRÔNICA - Nº Mod.: 3 - Mod. Formatada: 3 - CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE OBRAS DE INFRAESTRUTURA URBANA DES",
+              "valor_total": 150000.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-28",
+              "data_fim": "2026-07-28",
+              "uf": "SP",
+              "source": "pncp_contracts",
+              "source_id": "45353315000150-2-000071/2026",
+              "official_url_or_id": "45353315000150-2-000071/2026"
+            },
+            {
+              "contrato_id": "45353315000150-2-000070/2026",
+              "orgao_cnpj": "45353315000150",
+              "orgao_nome": "PREFEITURA MUNICIPAL DE JERIQUARA",
+              "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE OBRAS DE INFRAESTRUTURA URBANA DESTINADAS À IMPLANTAÇÃO DE SISTEMA DE DRENAGEM DE ÁGUAS PLUVIAIS EM VIAS PÚBLICAS DO MUNICÍPIO DE JERIQUARA/SP, COM FORNECIMENTO DE MATERIAIS, MÃO DE OBRA, EQUIPAMENTOS E DEMAIS INSUMOS NECESSÁRIOS À EXECUÇÃO DOS S",
+              "valor_total": 150000.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-27",
+              "data_fim": "2027-03-21",
+              "uf": "SP",
+              "source": "pncp_contracts",
+              "source_id": "45353315000150-2-000070/2026",
+              "official_url_or_id": "45353315000150-2-000070/2026"
+            },
+            {
+              "contrato_id": "46596318000188-2-000015/2026",
+              "orgao_cnpj": "46596318000188",
+              "orgao_nome": "MUNICIPIO DE GUARACI - SP",
+              "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA CONSTRUÇÃO DO EMISSÁRIO LAGO.",
+              "valor_total": 1131164.0,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-23",
+              "data_fim": "2027-01-22",
+              "uf": "SP",
+              "source": "pncp_contracts",
+              "source_id": "46596318000188-2-000015/2026",
+              "official_url_or_id": "46596318000188-2-000015/2026"
+            },
+            {
+              "contrato_id": "46596151000155-2-000142/2026",
+              "orgao_cnpj": "46596151000155",
+              "orgao_nome": "PREFEITURA MUNICIPAL DA ESTÂNCIA TURÍSTICA DE OLÍMPIA",
+              "objeto": "CONTRATAÇÃO DE EMPRESA PRESTADORA DE SERVIÇOS DE CONSTRUÇÃO CIVIL PARA EXECUÇÃO DE UM MURO DE FECHAMENTO DA ÁREA EXTERNA DO RECINTO DO FOLCLORE, PRAÇA DE ATIVIDADES FOLCLÓRICAS E TURÍSTICAS “PROF. JOSÉ SANT`ANNA” NO MUNICÍPIO DA ESTÂNCIA TURÍSTICA DE OLÍMPIA/SP.",
+              "valor_total": 288499.98,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-22",
+              "data_fim": "2027-02-16",
+              "uf": "SP",
+              "source": "pncp_contracts",
+              "source_id": "46596151000155-2-000142/2026",
+              "official_url_or_id": "46596151000155-2-000142/2026"
+            },
+            {
+              "contrato_id": "46596151000155-2-000140/2026",
+              "orgao_cnpj": "46596151000155",
+              "orgao_nome": "PREFEITURA MUNICIPAL DA ESTÂNCIA TURÍSTICA DE OLÍMPIA",
+              "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA REALIZAÇÃO DE REFORMA NOS BANHEIROS DAS BARRACAS DO RECINTO DO FOLCLORE DO MUNICÍPIO DA ESTÂNCIA TURÍSTICA DE OLÍMPIA/SP.",
+              "valor_total": 173598.21,
+              "valor_semantics": "valor_total_contracted",
+              "data_publicacao": "2026-07-14",
+              "data_fim": "2027-07-12",
+              "uf": "SP",
+              "source": "pncp_contracts",
+              "source_id": "46596151000155-2-000140/2026",
+              "official_url_or_id": "46596151000155-2-000140/2026"
+            }
+          ],
+          "limitations": [],
+          "offer": "apoio_proposta",
+          "reason": null
+        }
+      ],
+      "auto_send": false,
+      "status_comercial": "NOT_REVIEWED",
+      "score_total": 26.364,
+      "suggested_offer": "diagnostico_b2g",
+      "pipeline_kit_keys": [
+        "schema_version",
+        "cnpj14",
+        "razao_social",
+        "rank_position",
+        "run_id",
+        "summary_5_to_10_lines",
+        "trigger_event_or_pattern",
+        "suggested_offer",
+        "value_arguments",
+        "discovery_question",
+        "interpretation_risks",
+        "public_business_contact",
+        "whatsapp_short",
+        "email_initial",
+        "call_script",
+        "follow_up_suggestion",
+        "cta",
+        "manual_send_only",
+        "automation_forbidden",
+        "language_scan_forbidden_hit"
+      ],
+      "pipeline_kit_summary": {
+        "keys": [
+          "schema_version",
+          "cnpj14",
+          "razao_social",
+          "rank_position",
+          "run_id",
+          "summary_5_to_10_lines",
+          "trigger_event_or_pattern",
+          "suggested_offer",
+          "value_arguments",
+          "discovery_question",
+          "interpretation_risks",
+          "public_business_contact",
+          "whatsapp_short",
+          "email_initial",
+          "call_script",
+          "follow_up_suggestion",
+          "cta",
+          "manual_send_only",
+          "automation_forbidden",
+          "language_scan_forbidden_hit"
+        ],
+        "cnpj": "50410432000149",
+        "has_whatsapp": false
+      }
+    }
+  ]
+}

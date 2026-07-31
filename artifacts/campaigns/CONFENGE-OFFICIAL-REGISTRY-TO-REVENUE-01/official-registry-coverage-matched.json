@@ -1,0 +1,170 @@
+{
+  "schema_version": "official-registry-coverage-v1",
+  "generated_at": "2026-07-30T19:59:52Z",
+  "active_official_registry_release": "selective-selective-merged",
+  "active_pointer": {
+    "status": "ACTIVE",
+    "release_id": "selective-selective-merged",
+    "database_path": "/mnt/d/extra consultoria/data/company_registry/releases/selective-selective-merged/registry.sqlite",
+    "database_snapshot_id": "selective-selective-merged:1310720",
+    "activated_at": "2026-07-30T19:55:13Z",
+    "previous_release_id": "selective-selective-official",
+    "source_authority": "RECEITA_FEDERAL",
+    "mode": "selective",
+    "sha256_manifest": {},
+    "code_commit": "e0d84311a93fc63e36cb4712a2d3165b3dfe847d"
+  },
+  "candidates_total": 2497,
+  "metrics": {
+    "valid_cnpj_share": 1.0,
+    "official_match_coverage": 1.0,
+    "commercial_registry_usable_coverage": 0.997597,
+    "top20_official_registry_coverage": 1.0,
+    "official_registry_coverage": 1.0
+  },
+  "counts": {
+    "all_candidates": {
+      "n": 2497,
+      "missing_cnpj": 0,
+      "invalid_cnpj": 0,
+      "valid_cnpj": 2497,
+      "matched": 2497,
+      "not_found": 0,
+      "unavailable": 0,
+      "ambiguous": 0,
+      "usable": 2491,
+      "valid_cnpj_share": 1.0,
+      "official_match_coverage": 1.0,
+      "commercial_registry_usable_coverage": 0.997597,
+      "gaps_sample": [
+        {
+          "cnpj": "00250388000189",
+          "status": "MATCHED_NOT_USABLE",
+          "registration_status": "Baixada",
+          "primary_cnae": "4651601"
+        },
+        {
+          "cnpj": "00410954000172",
+          "status": "MATCHED_NOT_USABLE",
+          "registration_status": "Baixada",
+          "primary_cnae": "7112000"
+        },
+        {
+          "cnpj": "01451987000123",
+          "status": "MATCHED_NOT_USABLE",
+          "registration_status": "Inapta",
+          "primary_cnae": "7119701"
+        },
+        {
+          "cnpj": "01725804000110",
+          "status": "MATCHED_NOT_USABLE",
+          "registration_status": "Baixada",
+          "primary_cnae": "4530703"
+        },
+        {
+          "cnpj": "03315120000176",
+          "status": "MATCHED_NOT_USABLE",
+          "registration_status": "Inapta",
+          "primary_cnae": "4120400"
+        },
+        {
+          "cnpj": "40567016000103",
+          "status": "MATCHED_NOT_USABLE",
+          "registration_status": "INAPTA",
+          "primary_cnae": "8640202"
+        }
+      ],
+      "gaps_n": 6,
+      "not_found_list": []
+    },
+    "ranking_eligible": {
+      "n": 2497,
+      "missing_cnpj": 0,
+      "invalid_cnpj": 0,
+      "valid_cnpj": 2497,
+      "matched": 2497,
+      "not_found": 0,
+      "unavailable": 0,
+      "ambiguous": 0,
+      "usable": 2491,
+      "valid_cnpj_share": 1.0,
+      "official_match_coverage": 1.0,
+      "commercial_registry_usable_coverage": 0.997597,
+      "gaps_sample": [
+        {
+          "cnpj": "00250388000189",
+          "status": "MATCHED_NOT_USABLE",
+          "registration_status": "Baixada",
+          "primary_cnae": "4651601"
+        },
+        {
+          "cnpj": "00410954000172",
+          "status": "MATCHED_NOT_USABLE",
+          "registration_status": "Baixada",
+          "primary_cnae": "7112000"
+        },
+        {
+          "cnpj": "01451987000123",
+          "status": "MATCHED_NOT_USABLE",
+          "registration_status": "Inapta",
+          "primary_cnae": "7119701"
+        },
+        {
+          "cnpj": "01725804000110",
+          "status": "MATCHED_NOT_USABLE",
+          "registration_status": "Baixada",
+          "primary_cnae": "4530703"
+        },
+        {
+          "cnpj": "03315120000176",
+          "status": "MATCHED_NOT_USABLE",
+          "registration_status": "Inapta",
+          "primary_cnae": "4120400"
+        },
+        {
+          "cnpj": "40567016000103",
+          "status": "MATCHED_NOT_USABLE",
+          "registration_status": "INAPTA",
+          "primary_cnae": "8640202"
+        }
+      ],
+      "gaps_n": 6,
+      "not_found_list": []
+    },
+    "top20": {
+      "n": 20,
+      "missing_cnpj": 0,
+      "invalid_cnpj": 0,
+      "valid_cnpj": 20,
+      "matched": 20,
+      "not_found": 0,
+      "unavailable": 0,
+      "ambiguous": 0,
+      "usable": 20,
+      "valid_cnpj_share": 1.0,
+      "official_match_coverage": 1.0,
+      "commercial_registry_usable_coverage": 1.0,
+      "gaps_sample": [],
+      "gaps_n": 0,
+      "not_found_list": []
+    }
+  },
+  "targets": {
+    "official_match_coverage_min": 0.995,
+    "commercial_registry_usable_coverage_min": 0.98,
+    "top20_official_registry_coverage_min": 1.0
+  },
+  "gates": {
+    "official_match_coverage_ok": true,
+    "commercial_usable_ok": true,
+    "top20_official_ok": true,
+    "registry_available": true
+  },
+  "registry_ready": true,
+  "ranking_ready": true,
+  "notes": [
+    "official_match_coverage denominator = valid CNPJs only; not gamed.",
+    "OFFICIAL_REGISTRY_UNAVAILABLE is not counted as cadastral NOT_FOUND.",
+    "Fallbacks outside this module must not inflate official metrics."
+  ]
+}

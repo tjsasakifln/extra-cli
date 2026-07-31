@@ -395,6 +395,33 @@ test-edital-case:
 test-budget-audit:
 	python -m pytest tests/budget_audit/ -q --tb=short
 
+# --- Official RFB company registry (CONFENGE-OFFICIAL-REGISTRY-TO-REVENUE-01) ---
+.PHONY: company-registry-discover company-registry-refresh company-registry-health company-registry-lookup company-registry-coverage company-registry-precheck
+
+company-registry-discover:
+	python3 -m scripts.company_registry discover-release
+
+company-registry-refresh:
+	python3 -m scripts.company_registry refresh $(COMPANY_REGISTRY_FLAGS)
+
+company-registry-health:
+	python3 -m scripts.company_registry health
+
+company-registry-lookup:
+	python3 -m scripts.company_registry lookup --cnpj $(CNPJ)
+
+company-registry-coverage:
+	python3 -m scripts.company_registry coverage --cnpj-file $(CNPJ_FILE) $(if $(TOP20_FILE),--top20-file $(TOP20_FILE),)
+
+company-registry-precheck:
+	python3 -m scripts.company_registry commercial-precheck
+
+
+# Outside CONFENGE freeze markers — safe monorepo surface
+confenge-commercial-cycle-official:
+	@echo '==> confenge-commercial-cycle with official registry precheck/publish'
+	python3 -m scripts.ops.confenge_registry_commercial_cycle
+
 # --- CONFENGE commercial ready (migration 062/063 + commercial_leads gold) ---
 .PHONY: confenge-commercial-cycle \
 	campaign-gate-confenge-commercial-ready \

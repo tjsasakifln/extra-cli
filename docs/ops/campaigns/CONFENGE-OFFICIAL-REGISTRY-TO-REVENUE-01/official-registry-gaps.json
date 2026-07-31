@@ -1,0 +1,43 @@
+{
+  "matched_interest_non_usable": [
+    {
+      "cnpj": "00250388000189",
+      "status": "MATCHED_NOT_USABLE",
+      "registration_status": "Baixada",
+      "primary_cnae": "4651601"
+    },
+    {
+      "cnpj": "00410954000172",
+      "status": "MATCHED_NOT_USABLE",
+      "registration_status": "Baixada",
+      "primary_cnae": "7112000"
+    },
+    {
+      "cnpj": "01451987000123",
+      "status": "MATCHED_NOT_USABLE",
+      "registration_status": "Inapta",
+      "primary_cnae": "7119701"
+    },
+    {
+      "cnpj": "01725804000110",
+      "status": "MATCHED_NOT_USABLE",
+      "registration_status": "Baixada",
+      "primary_cnae": "4530703"
+    },
+    {
+      "cnpj": "03315120000176",
+      "status": "MATCHED_NOT_USABLE",
+      "registration_status": "Inapta",
+      "primary_cnae": "4120400"
+    },
+    {
+      "cnpj": "40567016000103",
+      "status": "MATCHED_NOT_USABLE",
+      "registration_status": "INAPTA",
+      "primary_cnae": "8640202"
+    }
+  ],
+  "full_frozen_interest_match_rate": 0.325088,
+  "full_population_pipeline_official": 0.0468,
+  "top20_complete": true
+}

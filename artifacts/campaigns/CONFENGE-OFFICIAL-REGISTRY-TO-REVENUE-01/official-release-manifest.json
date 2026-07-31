@@ -1,0 +1,54 @@
+{
+  "release_id": "selective-selective-merged",
+  "source_authority": "RECEITA_FEDERAL",
+  "source_urls": [
+    "file:artifacts/campaigns/CONFENGE-OFFICIAL-REGISTRY-TO-REVENUE-01/selective-merged.jsonl"
+  ],
+  "discovered_at": "2026-07-30T19:55:12Z",
+  "published_reference_date": null,
+  "download_started_at": null,
+  "download_finished_at": null,
+  "files_expected": [],
+  "files_downloaded": [],
+  "file_names": [],
+  "content_lengths": {},
+  "sha256": {},
+  "compression_type": {},
+  "schema_version": "company-registry-v1",
+  "row_counts": {
+    "establishments": 2497,
+    "companies": 2461
+  },
+  "reject_counts": {},
+  "duplicate_counts": {},
+  "load_started_at": "2026-07-30T19:55:13Z",
+  "load_finished_at": "2026-07-30T19:55:13Z",
+  "status": "ACTIVE",
+  "errors": [],
+  "warnings": [
+    "Selective JSONL mode \u2014 bulk RFB completeness is NOT claimed.",
+    "source_label indicates RFB public data via redistributor; not a private CRM API as authority, but not direct bulk RFB zip either."
+  ],
+  "database_snapshot_id": "selective-selective-merged:1310720",
+  "code_commit": "e0d84311a93fc63e36cb4712a2d3165b3dfe847d",
+  "mode": "selective",
+  "ingestion_mode": "selective_jsonl",
+  "status_updated_at": "2026-07-30T19:55:13Z",
+  "activated_at": "2026-07-30T19:55:13Z",
+  "validate_load": {
+    "ok": true,
+    "release_id": "selective-selective-merged",
+    "database_path": "/mnt/d/extra consultoria/data/company_registry/staging/selective-selective-merged/registry.sqlite",
+    "row_counts": {
+      "establishments": 2497,
+      "companies": 2461
+    },
+    "smoke": {
+      "cnpj14": "00000000000191",
+      "has_row": true
+    },
+    "errors": [],
+    "status": "VALIDATING_LOAD",
+    "validated_at": "2026-07-30T19:55:13Z"
+  }
+}
