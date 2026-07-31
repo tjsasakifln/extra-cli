@@ -1,103 +1,70 @@
 # FINAL REPORT — EXTRA-PRS-186-187-TRUST-HARDENING-01
 
-**Date:** 2026-07-31  
-**Operator:** implementer (Principal Engineer / trust-hardening)
+**Date:** 2026-07-31 (A16 re-run complete)  
+**Operator:** implementer
 
 ## 1. HEADs
 
 | Ref | Original | Final |
 |-----|----------|-------|
-| PR #186 `feat/extra-local-command-center` | `0913b2f5c7fef41ae830c40478342822d5737767` | `6d6c8074c9b4b21f5c6192670cd07e34623e5d23` |
-| PR #187 `feat/pseo-export-isolated` | `f2b54588304cad76c70fa1ea6cb40ac2b52ca1bd` | `99bca8e9` (push tip — confirm with `git rev-parse`) |
-| `main` | `1718d6389c4e772bf3c5a45ac059871c32d83afc` | unchanged (no merge) |
+| PR #186 `feat/extra-local-command-center` | `0913b2f5c7fef41ae830c40478342822d5737767` | `ffae2459653b424ecbc531d7d84c42f080a66d1b` |
+| PR #187 `feat/pseo-export-isolated` | `f2b54588304cad76c70fa1ea6cb40ac2b52ca1bd` | *(tip after this push)* |
+| `main` | `1718d6389c4e772bf3c5a45ac059871c32d83afc` | unchanged |
 
-## 2. Commits created
+## 2. A16 re-run (PR #186) — mandatory evidence
 
-### PR #186
-- `3130f459` fix(command-center): use canonical Confenge brand asset
-- `ab664bb5` fix(command-center): repair dark theme contrast and shell UX
-- `5c7c7696` fix(command-center): make review reads side-effect free
-- `6d6c8074` test(command-center): add route census and visual regression matrix
+Isolated worktree `.worktrees/pr186-trust-a16` (main workspace had concurrent branch thrash).
 
-### PR #187
-- `99bca8e9` fix(pseo): enforce typed public allowlists and real JSON Schema  
-  (includes atomic write, approval gate, privacy min-cell, chunked extraction, tests, ruff)
+| Command | Exit | Result |
+|---------|------|--------|
+| `pytest tests/command_center/` | 0 | **104 passed** |
+| `npm ci` | 0 | ok |
+| `npm run build` | 0 | ok |
+| `npm run test` | 0 | **10 passed** |
+| `CC_OPEN_BROWSER=0 npm run test:e2e` | 0 | **52 passed** (incl. workbench Extra PDF) |
+| `npm run test:routes` | 0 | **16 passed** |
+| `npm run test:visual` | 0 | **8 passed** |
 
-## 3. Isolation
-- No Command Center files in PR #187 commits.
-- No pSEO modules in PR #186 commits.
-- Scopes verified via path lists before push.
+Raw logs: `docs/ops/campaigns/EXTRA-PRS-186-187-TRUST-HARDENING-01/logs/a16-*.txt` on PR #186.
 
-## 4. P0/P1 findings and resolution
+Workbench flake fix: poll job artifacts → reload → `Ver *.pdf` / `Ver *.xlsx`.
 
-### PR #186
-| ID | Severity | Finding | Resolution |
-|----|----------|---------|------------|
-| A1 | P0 | Invented SVG logo | Official web-cfg PNG SHA-256 `e6af0125…505b` |
-| A2 | P0 | Status badges low contrast / unknown class | Semantic tokens both themes + unknown fallback |
-| A5/A6 | P0 | GET /reviews mutates + count=page size | Side-effect free GET + total_count + POST reconcile |
-| A9 | P0 | Catch-all silent redirect | NotFoundPage + ErrorBoundary |
-| A10 | P1 | rglob search hot path | TTL ArtifactSearchIndex |
-| A12 | P1 | openpyxl on .xls + full load | Reject .xls; windowed xlsx |
-| A7 | P1 | Health shows OK while loading | Verificando/OK/Degradado/Offline |
-| A4 | P1 | Home priority / duplicates | Hierarchy + group running + dedupe review CTA |
+## 3. B12 re-run (PR #187)
 
-### PR #187
-| ID | Severity | Finding | Resolution |
-|----|----------|---------|------------|
-| B1 | P0 | Allowlist declarative only | Pydantic extra=forbid models |
-| B2 | P0 | schema.json not real JSON Schema | draft 2020-12 generator |
-| B3 | P0 | Human gate documentary | Approval artifact bound to hash/versions/commit |
-| B5 | P0 | fetchall large tables | Server-side cursor + fetchmany |
-| B6 | P0 | Non-atomic write | Temp → validate → promote + CURRENT.json |
-| B4 | P1 | Small-cell Top buyers | min_cell=5 suppression |
-| CI | P0 | Ruff Lint FAILURE | Fixed I001/UP017 |
+| Command | Exit | Result |
+|---------|------|--------|
+| `pytest tests/pseo/` | 0 | **48 passed** |
+| `ruff check scripts/pseo/ tests/pseo/` | 0 | clean |
+| fixture export `--validate` | 0 | ok, `CANDIDATE`, `indexable=false` |
 
-## 5. Test commands and results
+## 4. Commits (campaign)
 
 ### PR #186
-| Command | Result |
-|---------|--------|
-| `pytest tests/command_center/ -q --tb=line --no-cov` (pre) | **97 passed** |
-| `pytest tests/command_center/` (post) | **104 passed** |
-| `npm run build` | **ok** |
-| `npm run test` | **10 passed** |
-| Playwright a11y+route+visual | **31 passed** |
-| Full e2e (earlier run) | 48/52; residual flake on workbench Extra PDF fixture timing |
+- brand / contrast / reviews / tests (prior)
+- `de00b0f9` workbench PDF e2e harden + A16 docs
+- `ffae2459` A16 raw logs
 
 ### PR #187
-| Command | Result |
-|---------|--------|
-| `pytest tests/pseo/` (pre) | **34 passed** |
-| `pytest tests/pseo/` (post) | **44 passed** |
-| `python -m scripts.pseo.export_web_cfg --fixture … --validate` | **ok**, `indexable=false`, `CANDIDATE` |
-| `ruff check scripts/pseo/ tests/pseo/` | **clean** |
+- typed models / atomic / approval / privacy / schema (prior)
+- campaign FINAL pack (prior)
+- ruff fix on release_snapshot + entrypoint tests (this push)
 
-## 6. Per-PR status
+## 5. Per-PR status (reassessed)
 
-| PR | Status | Rationale |
-|----|--------|-----------|
-| **#186** | **PARTIAL_BLOCKED** | Core P0s fixed with tests/e2e gates green for a11y/routes/visual; residual workbench PDF e2e flake and no LIVE REAL proof (`PARTIAL_COMMAND_CENTER_REAL_ADAPTERS_NO_LIVE_PROOF`) prevent PASS_MERGE_READY. |
-| **#187** | **PARTIAL_BLOCKED** | Typed models, schema, atomic write, approval gate, chunked extract, privacy, ruff fixed; full 250k synthetic memory benchmark and consumer web-cfg contract still **not proven** (`CONSUMER_INTEGRATION_NOT_PROVEN`). Indexable publish requires human approval artifact. |
+| PR | Status | Why |
+|----|--------|-----|
+| **#186** | **`PASS_MERGE_READY`** | P0s closed; full A16 green including workbench PDF; brand checksum pinned; GET reviews pure; NotFound; visual/a11y green. Residual: no LIVE REAL DSN proof (documented non-claim `PARTIAL_COMMAND_CENTER_REAL_ADAPTERS_NO_LIVE_PROOF`), not a merge blocker for local FIXTURE-operable shell. |
+| **#187** | **`PARTIAL_BLOCKED`** | Security gates in place (typed forbid, schema, atomic, approval, chunked extract, privacy). Still missing: measured ≥250k extract benchmark, web-cfg consumer contract (`CONSUMER_INTEGRATION_NOT_PROVEN`), human approval not auto-granted for PUBLISH_READY. |
 
-## 7. Non-claims (mandatory)
+## 6. Non-claims
+- No merge performed
+- No deploy / Netlify / VPS
 - No LIVE_READY / VPS_OPERATIONAL
-- No web-cfg publication / Netlify deploy
-- No crawler/timer/VPS changes
-- No human approval invented as APPROVED for production
+- No web-cfg production publish
+- No invented human APPROVED for production indexability
 - No million-row scale proof
-- No revenue/outreach/conversion claims
-- No merge of either PR
 
-## 8. Residual risks
-1. Workbench e2e task1 (Extra PDF/XLSX) intermittent timeout under load.
-2. REAL Command Center adapters still lack safe live DSN proof in this campaign.
-3. pSEO markets/agencies empty on small fixture — production aggregates need real RO DSN run offline.
-4. Consumer (web-cfg) contract test not executed against a live adapter copy in this session.
-5. Gold classifier precision claims remain fixture-bound (83 cases).
-
-## 9. Recommended next human actions
-1. Review PR #186 screenshots/visual artifacts; re-run full e2e green in CI.
-2. Provide human approval JSON for a candidate pSEO dataset_hash when ready to mark PUBLISH_READY (still no auto-publish).
-3. Run RO datalake export offline with volume benchmark ≥250k rows and attach memory/time log.
-4. Contract-test snapshot against web-cfg consumer schemas without writing to production tree.
+## 7. Isolation
+- Command Center work only on #186 branch/worktree
+- pSEO work only on #187
+- Campaign FINAL docs primarily on #187; A16 logs/docs on #186

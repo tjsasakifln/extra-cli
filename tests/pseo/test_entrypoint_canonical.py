@@ -7,7 +7,6 @@ Aliases (if present) must resolve to the same pipeline main.
 from __future__ import annotations
 
 import importlib
-import runpy
 from pathlib import Path
 
 

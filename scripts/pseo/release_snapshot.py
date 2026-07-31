@@ -93,7 +93,7 @@ def main(argv: list[str] | None = None) -> int:
             "--validate",
         ]
         print("export:", " ".join(cmd))
-        r = subprocess.run(cmd, check=False)
+        r = subprocess.run(cmd, check=False)  # noqa: S603
         if r.returncode != 0:
             print("export failed", file=sys.stderr)
             return r.returncode
@@ -136,7 +136,11 @@ def main(argv: list[str] | None = None) -> int:
             if not args.apply:
                 print("--build requires --apply", file=sys.stderr)
                 return 2
-            br = subprocess.run(["npm", "run", "build:site"], cwd=str(web_cfg), check=False)
+            npm = shutil.which("npm")
+            if not npm:
+                print("npm not found", file=sys.stderr)
+                return 2
+            br = subprocess.run([npm, "run", "build:site"], cwd=str(web_cfg), check=False)  # noqa: S603
             return br.returncode
 
     return 0
