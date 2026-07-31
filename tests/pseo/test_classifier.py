@@ -86,6 +86,13 @@ def test_equipment_purchase_not_aec():
         assert r.label != "aec_confirmed", (obj, r.label, r.reasons)
 
 
+def test_locacao_maquinas_not_pavement():
+    r = classify_objeto(
+        "Locação de máquinas e equipamentos para obras de pavimentação (sem mão de obra)"
+    )
+    assert r.label != "aec_confirmed"
+
+
 def test_installation_of_ac_is_aec():
     r = classify_objeto(
         "Contratação de empresa para instalação de ar-condicionado central "

@@ -430,5 +430,32 @@
     "review_date": "2026-07-31",
     "justificativa": "software",
     "origem_publica": "auditoria-skeptic"
+  },
+  {
+    "objeto": "Locação de máquinas e equipamentos para obras de pavimentação (sem mão de obra)",
+    "expected_label": "non_aec",
+    "segment": "locacao",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "locação equipamento sem execução",
+    "origem_publica": "auditoria-publish"
+  },
+  {
+    "objeto": "Aluguel de retroescavadeira para uso em vias públicas",
+    "expected_label": "non_aec",
+    "segment": "locacao",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "aluguel máquina",
+    "origem_publica": "auditoria-publish"
+  },
+  {
+    "objeto": "Registro de preços para aquisição de equipamentos de climatização tipo split sem instalação",
+    "expected_label": "non_aec",
+    "segment": "equipamento",
+    "reviewer": "tiago",
+    "review_date": "2026-07-31",
+    "justificativa": "aquisição equipamento",
+    "origem_publica": "auditoria-publish"
   }
 ]

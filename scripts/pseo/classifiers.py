@@ -19,6 +19,8 @@ from typing import Any
 NEGATIVE_STRONG: list[tuple[str, str]] = [
     (r"\bloca[cç][aã]o\s+de\s+(im[oó]vel|sala|pr[eé]dio|espa[cç]o|galp[aã]o)", "locacao_imovel"),
     (r"\baluguel\s+de\s+(im[oó]vel|sala|pr[eé]dio)", "aluguel_imovel"),
+    (r"\bloca[cç][aã]o\s+de\s+(m[aá]quinas?|equipamentos?|ve[ií]culos?|caminho?es?|retroescavadeira)", "locacao_equipamento"),
+    (r"\baluguel\s+de\s+(m[aá]quinas?|equipamentos?|ve[ií]culos?|retroescavadeira|caminho?es?)", "locacao_equipamento"),
     (r"\bcleaning\b|\blimpeza\s+(e\s+)?conserva|\bhigieni[zs]a[cç]", "limpeza"),
     (r"\bcopas?\s+e\s+cozinha\b|\brefei[cç][aã]o\s+coletiv", "alimentacao"),
     (r"\bcredenciamento\s+de\s+(escolas?|institui[cç]|fornecedor|empresas?)", "credenciamento_escolas"),
@@ -204,7 +206,11 @@ def classify_objeto(objeto: str | None, *, extra: dict[str, Any] | None = None) 
     contextual = _hits(text, CONTEXTUAL_NEEDS_WORKS)
     has_works_co = bool(WORKS_CO_SIGNAL.search(text))
     is_purchase = bool(PURCHASE_ONLY.search(text))
-    has_install = bool(INSTALLATION_SIGNAL.search(text))
+    # Ignore "sem mão de obra" when detecting installation signals
+    text_for_install = re.sub(r"\bsem\s+m[aã]o\s+de\s+obra\b", " ", text, flags=re.I)
+    has_install = bool(INSTALLATION_SIGNAL.search(text_for_install))
+    # Explicit exclusion of execution labor
+    excludes_labor = bool(re.search(r"\bsem\s+m[aã]o\s+de\s+obra\b|\bsem\s+opera[cç][aã]o\b|\bsomente\s+equipamento\b", text, re.I))
 
     # Software / SaaS / assinatura always non_aec even if "engenharia" appears
     if "software" in neg or re.search(r"\bassinatura\s+anual\b|\blicen[cç]a\s+de\s+uso\b", text, re.I):
@@ -217,7 +223,21 @@ def classify_objeto(objeto: str | None, *, extra: dict[str, Any] | None = None) 
             object_nature="fornecimento",
         )
 
-    # Hard negatives (locação, limpeza, transporte, etc.) dominate without real install
+    # Locação de máquinas/equipamentos — never aec_confirmed if labor excluded or no works package
+    if "locacao_equipamento" in neg or re.search(r"\bloca[cç][aã]o\s+de\s+(m[aá]quinas?|equipamentos?)\b", text, re.I):
+        if excludes_labor or not has_install or not re.search(
+            r"empreitada|execu[cç][aã]o\s+(da\s+)?obra|com\s+m[aã]o\s+de\s+obra", text_for_install, re.I
+        ):
+            return ClassificationResult(
+                label="non_aec",
+                confidence=0.95,
+                reasons=["equipment_rental_without_works_package"],
+                negative_hits=neg + ["locacao_equipamento"],
+                positive_hits=strong,
+                object_nature="locacao",
+            )
+
+    # Hard negatives (locação imóvel, limpeza, transporte, etc.) dominate without real install
     hard_non = {
         "locacao_imovel", "aluguel_imovel", "limpeza", "alimentacao",
         "credenciamento_escolas", "onibus_transporte", "veiculo_rodoviario",
