@@ -1,0 +1,13 @@
+{
+  "missing_snapshot_exit": 1,
+  "with_snapshot_exit": 1,
+  "missing_snapshot_snippet": [
+    "FAIL: missing snapshot manifest. Set CONFENGE_COMMERCIAL_SNAPSHOT or pass --snapshot-manifest with authenticated real snapshot.",
+    "supplier_exit=1"
+  ],
+  "with_snapshot_snippet": [
+    "[CONFENGE-COMMERCIAL-READY-01] status=FAIL leads=0 run_id=cl-20260731T004230Z-686a32fc sha=b2a87b252924b42ef1118ba567ef08987ddc42a2",
+    "supplier_snap_exit=1"
+  ],
+  "note": "supplier modality remains fail-closed; dump path from commercial-ready snapshot may be unavailable on this host"
+}

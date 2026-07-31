@@ -2,35 +2,29 @@
 
 **Status:** `READY_FOR_TIAGO_REVIEW_PUBLIC_AGENCY_VERTICAL`  
 **PR:** https://github.com/tjsasakifln/extra-cli/pull/185  
-**Run SHA (dual launch = tip):** `aba9db86317aa63d0376348f0cc2f69670e981cf`  
-**Updated (UTC):** 2026-07-31T00:32:49Z
+**Run SHA (dual launch = tip):** `b2a87b252924b42ef1118ba567ef08987ddc42a2`  
+**Updated (UTC):** 2026-07-31T00:42:56Z
 
-## Structural eng-match fix (occupancy absolute + obra de arte)
+## Freeze isolation (CI)
 
-Multi-tier `classify_engineering_object`:
+Supplier commercial-ready freeze surface restored:
+- `scripts/ops/confenge_commercial_cycle.py` byte-identical to freeze `d469b87`
+- Makefile CONFENGE commercial-ready + final-evidence section hashes unchanged
+- Multi-target `TARGET=suppliers|public-agencies|all` via `scripts/ops/confenge_commercial_target_router.py` + post-freeze Makefile redefine
 
-1. **OCCUPANCY hard-neg absolute** (concessão/cessão/permissão de uso) — never overridden by soft `OBRA DE` or true works-execution rescue.
-2. Cultural / labor / pageant / supply hard-negatives.
-3. **STRONG_WORKS** only (negative complements: ARTE/TEATRO/INFRAESTRUTURA EXISTENTE blocked).
-4. WEAK_NOUN_ONLY / KEYWORD_ONLY never publish alone.
+## Eng-match (occupancy absolute + obra de arte)
 
-Profile keywords never force True. Publishable leads require ≥1 evidence with `eng_tier=STRONG_WORKS`.
+Multi-tier `classify_engineering_object` with occupancy always winning; cultural OBRA DE ARTE hard-neg.
 
-Golden corpus + pipeline not-publishable fixtures cover occupancy+OBRA DE and obra-de-arte skeptic FPs.
-
-## Dual launch
+## Dual launch SC
 
 | Metric | Value |
 |--------|-------|
 | evaluated | 276 |
-| publishable | 9 |
-| top_n (honest, not padded) | **9** |
+| publishable / top_n | **9** (honest, no pad) |
 | no_weak_false_eng | true |
-| dual names equal | true |
-| Xanxerê concessão | excluded |
-| Palmitos pageant | excluded |
-| Fundação Cultural SBS (weak obra/reforma) | dropped after occupancy/arte gate |
-| padded_to_20 | false |
+| dual equal | true |
+| code_sha | `b2a87b252924b42ef1118ba567ef08987ddc42a2` |
 
 ## Top 9
 
@@ -48,18 +42,18 @@ Golden corpus + pipeline not-publishable fixtures cover occupancy+OBRA DE and ob
 
 ## Supplier regression
 
-Fail-closed without authenticated snapshot manifest (expected; preserves supplier modality).
+- Missing snapshot → exit 1 fail-closed (expected)
+- Snapshot present (dump path may be host-local) → exit 1 fail-closed (preserves supplier gates)
 
 ## Human action (handoff)
 
 **Tiago deve revisar a fila de órgãos, os conflitos de interesses, as classificações jurídicas preliminares, os dossiers e os materiais de abordagem antes de autorizar qualquer contato.**
 
-Artifacts for review:
-- `output/confenge-commercial/public-agencies/` (dossiers/, commercial-kit/, leads, conflict-review, compliance-flags)
+Artifacts:
+- `output/confenge-commercial/public-agencies/`
 - `artifacts/campaigns/CONFENGE-PUBLIC-AGENCY-TECHNICAL-SERVICES-01/`
 - PR #185 — do not merge until human review
 
-## Legal disclaimer (fail-closed)
+## Legal disclaimer
 
-Only status used: `POTENTIALLY_ELIGIBLE_FOR_DIRECT_CONTRACTING` when thresholds and object class allow.  
-Never claims: dispensa garantida / órgão pode contratar / sem licitação.
+Only `POTENTIALLY_ELIGIBLE_FOR_DIRECT_CONTRACTING`. Never claims dispensa garantida / órgão pode contratar / sem licitação.
