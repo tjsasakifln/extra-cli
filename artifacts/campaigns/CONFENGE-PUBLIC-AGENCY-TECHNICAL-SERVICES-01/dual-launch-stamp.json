@@ -1,0 +1,193 @@
+{
+  "campaign_id": "CONFENGE-PUBLIC-AGENCY-TECHNICAL-SERVICES-01",
+  "code_sha": "aba9db86317aa63d0376348f0cc2f69670e981cf",
+  "as_of": "2026-07-15",
+  "updated_utc": "2026-07-31T00:32:20Z",
+  "dual_launch": {
+    "run1": {
+      "run_id": "4f1a2a4a-529a-4bb3-a087-119a10d582fa",
+      "leads": 9,
+      "status": "PASS"
+    },
+    "run2": {
+      "run_id": "cf6954f2-143f-4c15-9449-885090e2e77a",
+      "leads": 9,
+      "status": "PASS"
+    },
+    "names_equal": true,
+    "no_weak_false_eng": true,
+    "top_n_honest": 9,
+    "padded_to_20": false
+  },
+  "top_n": [
+    {
+      "rank": 1,
+      "nome": "MUNICÍPIO DE ITAIÓPOLIS",
+      "population": 22051,
+      "strong_works_count": 1,
+      "first_eng_tier": "STRONG_WORKS",
+      "first_eng_reasons": [
+        "obra_de",
+        "execucao_obra",
+        "pavimentacao",
+        "drenagem_works",
+        "drenagem_works_context",
+        "keyword:OBRA",
+        "keyword:PAVIMENTACAO",
+        "keyword:DRENAGEM"
+      ],
+      "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
+      "offer": null,
+      "legal_status": null
+    },
+    {
+      "rank": 2,
+      "nome": "MUNICÍPIO DE POUSO REDONDO",
+      "population": 17123,
+      "strong_works_count": 1,
+      "first_eng_tier": "STRONG_WORKS",
+      "first_eng_reasons": [
+        "construcao_de",
+        "keyword:CONSTRUCAO"
+      ],
+      "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
+      "offer": null,
+      "legal_status": null
+    },
+    {
+      "rank": 3,
+      "nome": "MUNICÍPIO DE GAROPABA",
+      "population": 29959,
+      "strong_works_count": 1,
+      "first_eng_tier": "STRONG_WORKS",
+      "first_eng_reasons": [
+        "obra_de",
+        "execucao_obra",
+        "pavimentacao",
+        "keyword:OBRA",
+        "keyword:PAVIMENTACAO"
+      ],
+      "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
+      "offer": null,
+      "legal_status": null
+    },
+    {
+      "rank": 4,
+      "nome": "Prefeitura Municipal de Catanduvas",
+      "population": 10566,
+      "strong_works_count": 1,
+      "first_eng_tier": "STRONG_WORKS",
+      "first_eng_reasons": [
+        "projeto_estrutural",
+        "memorial_descritivo",
+        "keyword:OBRA",
+        "keyword:MEMORIAL DESCRITIVO"
+      ],
+      "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
+      "offer": null,
+      "legal_status": null
+    },
+    {
+      "rank": 5,
+      "nome": "MUNICÍPIO DE CAMPOS NOVOS",
+      "population": 36932,
+      "strong_works_count": 1,
+      "first_eng_tier": "STRONG_WORKS",
+      "first_eng_reasons": [
+        "obra_de",
+        "execucao_obra",
+        "construcao_de",
+        "projeto_basico",
+        "keyword:OBRA",
+        "keyword:CONSTRUCAO",
+        "keyword:PROJETO BASICO"
+      ],
+      "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
+      "offer": null,
+      "legal_status": null
+    },
+    {
+      "rank": 6,
+      "nome": "MUNICÍPIO DE ÁGUAS DE CHAPECÓ",
+      "population": 6036,
+      "strong_works_count": 1,
+      "first_eng_tier": "STRONG_WORKS",
+      "first_eng_reasons": [
+        "obra_de",
+        "execucao_obra",
+        "construcao_civil",
+        "memorial_descritivo",
+        "keyword:OBRA",
+        "keyword:CONSTRUCAO",
+        "keyword:MEMORIAL DESCRITIVO"
+      ],
+      "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
+      "offer": null,
+      "legal_status": null
+    },
+    {
+      "rank": 7,
+      "nome": "MUNICÍPIO DE SANGÃO",
+      "population": 12882,
+      "strong_works_count": 1,
+      "first_eng_tier": "STRONG_WORKS",
+      "first_eng_reasons": [
+        "pavimentacao",
+        "drenagem_works",
+        "memorial_descritivo",
+        "drenagem_works_context",
+        "keyword:PAVIMENTACAO",
+        "keyword:ENGENHARIA",
+        "keyword:DRENAGEM",
+        "keyword:MEMORIAL DESCRITIVO"
+      ],
+      "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
+      "offer": null,
+      "legal_status": null
+    },
+    {
+      "rank": 8,
+      "nome": "PREFEITURA MUNICIPAL DE PONTE SERRADA - SC",
+      "population": 10649,
+      "strong_works_count": 1,
+      "first_eng_tier": "STRONG_WORKS",
+      "first_eng_reasons": [
+        "memorial_descritivo",
+        "planilha_orcament",
+        "keyword:REFORMA",
+        "keyword:MEMORIAL DESCRITIVO",
+        "keyword:PLANILHA ORCAMENTARIA"
+      ],
+      "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
+      "offer": null,
+      "legal_status": null
+    },
+    {
+      "rank": 9,
+      "nome": "MUNICÍPIO DE PAULO LOPES",
+      "population": 9063,
+      "strong_works_count": 1,
+      "first_eng_tier": "STRONG_WORKS",
+      "first_eng_reasons": [
+        "obra_de",
+        "execucao_obra",
+        "pavimentacao",
+        "projeto_basico",
+        "memorial_descritivo",
+        "planilha_orcament",
+        "drenagem_works_context",
+        "keyword:OBRA",
+        "keyword:PAVIMENTACAO",
+        "keyword:DRENAGEM",
+        "keyword:PROJETO BASICO"
+      ],
+      "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
+      "offer": null,
+      "legal_status": null
+    }
+  ],
+  "supplier_regression": {
+    "mode": "fail_closed_missing_snapshot",
+    "note": "supplier cycle refuses without authenticated snapshot (expected)"
+  }
+}

@@ -1,13 +1,13 @@
 {
-  "run_id": "0dfee4a0-fd1e-43b5-87ac-b221c5f58894",
+  "run_id": "4f1a2a4a-529a-4bb3-a087-119a10d582fa",
   "campaign_id": "CONFENGE-PUBLIC-AGENCY-TECHNICAL-SERVICES-01",
   "status": "PASS",
   "reason": "PASS",
-  "git_sha": "c4eb60c82d741d4dc3e74e33c23821ff8970c0b2",
-  "artifact_git_sha": "c4eb60c82d741d4dc3e74e33c23821ff8970c0b2",
+  "git_sha": "aba9db86317aa63d0376348f0cc2f69670e981cf",
+  "artifact_git_sha": "aba9db86317aa63d0376348f0cc2f69670e981cf",
   "as_of": "2026-07-15",
-  "started_at": "2026-07-31T00:10:09Z",
-  "finished_at": "2026-07-31T00:10:09Z",
+  "started_at": "2026-07-31T00:31:28Z",
+  "finished_at": "2026-07-31T00:31:28Z",
   "target": "public-agencies",
   "module_version": "1.0.0",
   "config_hashes": {
@@ -38,19 +38,20 @@
         "uf",
         "source",
         "source_id",
+        "is_active",
         "municipio"
       ]
     },
     "agency_universe": 477,
-    "evaluated_agencies": 275,
-    "publishable_agencies": 10,
+    "evaluated_agencies": 276,
+    "publishable_agencies": 9,
     "blocked_agencies": 0,
-    "top_n": 10,
+    "top_n": 9,
     "reasons": {
-      "RESEARCH_REQUIRED": 265,
-      "PUBLISHABLE": 10,
-      "above_focus_population": 32,
-      "missing_geographic_identity": 4
+      "PUBLISHABLE": 9,
+      "RESEARCH_REQUIRED": 267,
+      "missing_geographic_identity": 3,
+      "above_focus_population": 32
     },
     "ufs": [
       "SC"
@@ -89,7 +90,7 @@
         ],
         "identidade_canonica": "cnpj:83102517000119",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-31T00:09:59Z"
+        "last_verified_at": "2026-07-31T00:31:15Z"
       },
       "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
       "mode_note": "REACTIVE only when open published opportunity is observed; historical buyer-side contracts alone yield PROACTIVE_INSTITUTIONAL_PROSPECT.",
@@ -509,11 +510,11 @@
         },
         {
           "source": "pncp_contracts",
-          "identifier": "83102517000119-2-001384/2026",
-          "url_or_ref": "pncp_supplier_contracts:83102517000119-2-001384/2026",
+          "identifier": "83102517000119-2-001386/2026",
+          "url_or_ref": "pncp_supplier_contracts:83102517000119-2-001386/2026",
           "publication_date": "2026-07-08",
           "capture_date": "2026-07-15",
-          "hash": "68458de0424d13dd",
+          "hash": "c0f5e92a282282fe",
           "parser": "public_agency.pipeline",
           "version": "1.0.0",
           "quality": "official_table_row",
@@ -526,7 +527,7 @@
             "Buyer-side row from supplier contracts table; not full process file."
           ],
           "objeto": "ELETRODOMÉSTICOS E CORRELATOS - LEI 14.133/2021",
-          "valor_total": "2719.00"
+          "valor_total": "530.00"
         },
         {
           "source": "pncp_contracts",
@@ -551,11 +552,11 @@
         },
         {
           "source": "pncp_contracts",
-          "identifier": "83102517000119-2-001386/2026",
-          "url_or_ref": "pncp_supplier_contracts:83102517000119-2-001386/2026",
+          "identifier": "83102517000119-2-001384/2026",
+          "url_or_ref": "pncp_supplier_contracts:83102517000119-2-001384/2026",
           "publication_date": "2026-07-08",
           "capture_date": "2026-07-15",
-          "hash": "c0f5e92a282282fe",
+          "hash": "68458de0424d13dd",
           "parser": "public_agency.pipeline",
           "version": "1.0.0",
           "quality": "official_table_row",
@@ -568,49 +569,7 @@
             "Buyer-side row from supplier contracts table; not full process file."
           ],
           "objeto": "ELETRODOMÉSTICOS E CORRELATOS - LEI 14.133/2021",
-          "valor_total": "530.00"
-        },
-        {
-          "source": "pncp_contracts",
-          "identifier": "83102517000119-2-001380/2026",
-          "url_or_ref": "pncp_supplier_contracts:83102517000119-2-001380/2026",
-          "publication_date": "2026-07-07",
-          "capture_date": "2026-07-15",
-          "hash": "6c79d66ed0134bcb",
-          "parser": "public_agency.pipeline",
-          "version": "1.0.0",
-          "quality": "official_table_row",
-          "is_engineering_object": false,
-          "eng_tier": "NONE",
-          "eng_reasons": [
-            "no_match"
-          ],
-          "limitations": [
-            "Buyer-side row from supplier contracts table; not full process file."
-          ],
-          "objeto": "MATERIAIS PARA HIGIENIZAÇÃO E LIMPEZA - LEI 14.133/2021",
-          "valor_total": "144.00"
-        },
-        {
-          "source": "pncp_contracts",
-          "identifier": "83102517000119-2-001382/2026",
-          "url_or_ref": "pncp_supplier_contracts:83102517000119-2-001382/2026",
-          "publication_date": "2026-07-07",
-          "capture_date": "2026-07-15",
-          "hash": "69cf5e6e34d84ca9",
-          "parser": "public_agency.pipeline",
-          "version": "1.0.0",
-          "quality": "official_table_row",
-          "is_engineering_object": false,
-          "eng_tier": "NONE",
-          "eng_reasons": [
-            "no_match"
-          ],
-          "limitations": [
-            "Buyer-side row from supplier contracts table; not full process file."
-          ],
-          "objeto": "EQUIPAMENTOS DE PROTEÇÃO INDIVIDUAL E COLETIVA - LEI 14.133/2021",
-          "valor_total": "240.00"
+          "valor_total": "2719.00"
         },
         {
           "source": "pncp_contracts",
@@ -653,6 +612,48 @@
           ],
           "objeto": "EQUIPAMENTOS MÉDICO HOSPITALARES, ODONTOLÓGICOS E DE FISIOTERAPIA - LEI 14.133/2021 (RENOVADO)",
           "valor_total": "4160.00"
+        },
+        {
+          "source": "pncp_contracts",
+          "identifier": "83102517000119-2-001380/2026",
+          "url_or_ref": "pncp_supplier_contracts:83102517000119-2-001380/2026",
+          "publication_date": "2026-07-07",
+          "capture_date": "2026-07-15",
+          "hash": "6c79d66ed0134bcb",
+          "parser": "public_agency.pipeline",
+          "version": "1.0.0",
+          "quality": "official_table_row",
+          "is_engineering_object": false,
+          "eng_tier": "NONE",
+          "eng_reasons": [
+            "no_match"
+          ],
+          "limitations": [
+            "Buyer-side row from supplier contracts table; not full process file."
+          ],
+          "objeto": "MATERIAIS PARA HIGIENIZAÇÃO E LIMPEZA - LEI 14.133/2021",
+          "valor_total": "144.00"
+        },
+        {
+          "source": "pncp_contracts",
+          "identifier": "83102517000119-2-001382/2026",
+          "url_or_ref": "pncp_supplier_contracts:83102517000119-2-001382/2026",
+          "publication_date": "2026-07-07",
+          "capture_date": "2026-07-15",
+          "hash": "69cf5e6e34d84ca9",
+          "parser": "public_agency.pipeline",
+          "version": "1.0.0",
+          "quality": "official_table_row",
+          "is_engineering_object": false,
+          "eng_tier": "NONE",
+          "eng_reasons": [
+            "no_match"
+          ],
+          "limitations": [
+            "Buyer-side row from supplier contracts table; not full process file."
+          ],
+          "objeto": "EQUIPAMENTOS DE PROTEÇÃO INDIVIDUAL E COLETIVA - LEI 14.133/2021",
+          "valor_total": "240.00"
         },
         {
           "source": "pncp_contracts",
@@ -726,7 +727,7 @@
         ],
         "identidade_canonica": "cnpj:83102681000126",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-31T00:10:01Z"
+        "last_verified_at": "2026-07-31T00:31:15Z"
       },
       "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
       "mode_note": "REACTIVE only when open published opportunity is observed; historical buyer-side contracts alone yield PROACTIVE_INSTITUTIONAL_PROSPECT.",
@@ -1140,6 +1141,27 @@
         },
         {
           "source": "pncp_contracts",
+          "identifier": "83102681000126-2-000710/2026",
+          "url_or_ref": "pncp_supplier_contracts:83102681000126-2-000710/2026",
+          "publication_date": "2026-07-07",
+          "capture_date": "2026-07-15",
+          "hash": "d250440e414ccf88",
+          "parser": "public_agency.pipeline",
+          "version": "1.0.0",
+          "quality": "official_table_row",
+          "is_engineering_object": false,
+          "eng_tier": "NONE",
+          "eng_reasons": [
+            "no_match"
+          ],
+          "limitations": [
+            "Buyer-side row from supplier contracts table; not full process file."
+          ],
+          "objeto": "CELULARES E SMARTPHONES - LEI 14.133/2021",
+          "valor_total": "2592.56"
+        },
+        {
+          "source": "pncp_contracts",
           "identifier": "83102681000126-2-000713/2026",
           "url_or_ref": "pncp_supplier_contracts:83102681000126-2-000713/2026",
           "publication_date": "2026-07-07",
@@ -1350,27 +1372,6 @@
         },
         {
           "source": "pncp_contracts",
-          "identifier": "83102681000126-2-000710/2026",
-          "url_or_ref": "pncp_supplier_contracts:83102681000126-2-000710/2026",
-          "publication_date": "2026-07-07",
-          "capture_date": "2026-07-15",
-          "hash": "d250440e414ccf88",
-          "parser": "public_agency.pipeline",
-          "version": "1.0.0",
-          "quality": "official_table_row",
-          "is_engineering_object": false,
-          "eng_tier": "NONE",
-          "eng_reasons": [
-            "no_match"
-          ],
-          "limitations": [
-            "Buyer-side row from supplier contracts table; not full process file."
-          ],
-          "objeto": "CELULARES E SMARTPHONES - LEI 14.133/2021",
-          "valor_total": "2592.56"
-        },
-        {
-          "source": "pncp_contracts",
           "identifier": "83102681000126-2-000725/2026",
           "url_or_ref": "pncp_supplier_contracts:83102681000126-2-000725/2026",
           "publication_date": "2026-07-06",
@@ -1462,7 +1463,7 @@
         ],
         "identidade_canonica": "cnpj:82836057000190",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-31T00:10:03Z"
+        "last_verified_at": "2026-07-31T00:31:22Z"
       },
       "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
       "mode_note": "REACTIVE only when open published opportunity is observed; historical buyer-side contracts alone yield PROACTIVE_INSTITUTIONAL_PROSPECT.",
@@ -1858,24 +1859,24 @@
         },
         {
           "source": "pncp_contracts",
-          "identifier": "82836057000190-2-000905/2026",
-          "url_or_ref": "pncp_supplier_contracts:82836057000190-2-000905/2026",
+          "identifier": "82836057000190-2-000910/2026",
+          "url_or_ref": "pncp_supplier_contracts:82836057000190-2-000910/2026",
           "publication_date": "2026-07-08",
           "capture_date": "2026-07-15",
-          "hash": "cb25334f37eb5c3c",
+          "hash": "90e99de508964762",
           "parser": "public_agency.pipeline",
           "version": "1.0.0",
           "quality": "official_table_row",
           "is_engineering_object": false,
           "eng_tier": "HARD_NEGATIVE",
           "eng_reasons": [
-            "hygiene_paper"
+            "kitchen"
           ],
           "limitations": [
             "Buyer-side row from supplier contracts table; not full process file."
           ],
-          "objeto": "PAPÉIS PARA HIGIENE PESSOAL E USO DOMÉSTICO - LEI 14.133/2021",
-          "valor_total": "488.40"
+          "objeto": "UTENSÍLIOS DE COZINHA - LEI 14.133/2021",
+          "valor_total": "58.00"
         },
         {
           "source": "pncp_contracts",
@@ -1900,24 +1901,24 @@
         },
         {
           "source": "pncp_contracts",
-          "identifier": "82836057000190-2-000910/2026",
-          "url_or_ref": "pncp_supplier_contracts:82836057000190-2-000910/2026",
+          "identifier": "82836057000190-2-000905/2026",
+          "url_or_ref": "pncp_supplier_contracts:82836057000190-2-000905/2026",
           "publication_date": "2026-07-08",
           "capture_date": "2026-07-15",
-          "hash": "90e99de508964762",
+          "hash": "cb25334f37eb5c3c",
           "parser": "public_agency.pipeline",
           "version": "1.0.0",
           "quality": "official_table_row",
           "is_engineering_object": false,
           "eng_tier": "HARD_NEGATIVE",
           "eng_reasons": [
-            "kitchen"
+            "hygiene_paper"
           ],
           "limitations": [
             "Buyer-side row from supplier contracts table; not full process file."
           ],
-          "objeto": "UTENSÍLIOS DE COZINHA - LEI 14.133/2021",
-          "valor_total": "58.00"
+          "objeto": "PAPÉIS PARA HIGIENE PESSOAL E USO DOMÉSTICO - LEI 14.133/2021",
+          "valor_total": "488.40"
         },
         {
           "source": "pncp_contracts",
@@ -2047,48 +2048,6 @@
         },
         {
           "source": "pncp_contracts",
-          "identifier": "82836057000190-2-000911/2026",
-          "url_or_ref": "pncp_supplier_contracts:82836057000190-2-000911/2026",
-          "publication_date": "2026-07-07",
-          "capture_date": "2026-07-15",
-          "hash": "b84092040a626dc6",
-          "parser": "public_agency.pipeline",
-          "version": "1.0.0",
-          "quality": "official_table_row",
-          "is_engineering_object": false,
-          "eng_tier": "HARD_NEGATIVE",
-          "eng_reasons": [
-            "office_supplies"
-          ],
-          "limitations": [
-            "Buyer-side row from supplier contracts table; not full process file."
-          ],
-          "objeto": "MATERIAIS DE EXPEDIENTE, ESCOLAR E DE ARTESANATO - LEI 14.133/2021",
-          "valor_total": "90.00"
-        },
-        {
-          "source": "pncp_contracts",
-          "identifier": "82836057000190-2-000912/2026",
-          "url_or_ref": "pncp_supplier_contracts:82836057000190-2-000912/2026",
-          "publication_date": "2026-07-07",
-          "capture_date": "2026-07-15",
-          "hash": "8f84d92620f21e6a",
-          "parser": "public_agency.pipeline",
-          "version": "1.0.0",
-          "quality": "official_table_row",
-          "is_engineering_object": false,
-          "eng_tier": "HARD_NEGATIVE",
-          "eng_reasons": [
-            "office_supplies"
-          ],
-          "limitations": [
-            "Buyer-side row from supplier contracts table; not full process file."
-          ],
-          "objeto": "MATERIAIS DE EXPEDIENTE, ESCOLAR E DE ARTESANATO - LEI 14.133/2021",
-          "valor_total": "34.55"
-        },
-        {
-          "source": "pncp_contracts",
           "identifier": "82836057000190-2-000906/2026",
           "url_or_ref": "pncp_supplier_contracts:82836057000190-2-000906/2026",
           "publication_date": "2026-07-07",
@@ -2149,6 +2108,48 @@
           ],
           "objeto": "MATERIAIS DE EXPEDIENTE, ESCOLAR E DE ARTESANATO - LEI 14.133/2021",
           "valor_total": "218.80"
+        },
+        {
+          "source": "pncp_contracts",
+          "identifier": "82836057000190-2-000911/2026",
+          "url_or_ref": "pncp_supplier_contracts:82836057000190-2-000911/2026",
+          "publication_date": "2026-07-07",
+          "capture_date": "2026-07-15",
+          "hash": "b84092040a626dc6",
+          "parser": "public_agency.pipeline",
+          "version": "1.0.0",
+          "quality": "official_table_row",
+          "is_engineering_object": false,
+          "eng_tier": "HARD_NEGATIVE",
+          "eng_reasons": [
+            "office_supplies"
+          ],
+          "limitations": [
+            "Buyer-side row from supplier contracts table; not full process file."
+          ],
+          "objeto": "MATERIAIS DE EXPEDIENTE, ESCOLAR E DE ARTESANATO - LEI 14.133/2021",
+          "valor_total": "90.00"
+        },
+        {
+          "source": "pncp_contracts",
+          "identifier": "82836057000190-2-000912/2026",
+          "url_or_ref": "pncp_supplier_contracts:82836057000190-2-000912/2026",
+          "publication_date": "2026-07-07",
+          "capture_date": "2026-07-15",
+          "hash": "8f84d92620f21e6a",
+          "parser": "public_agency.pipeline",
+          "version": "1.0.0",
+          "quality": "official_table_row",
+          "is_engineering_object": false,
+          "eng_tier": "HARD_NEGATIVE",
+          "eng_reasons": [
+            "office_supplies"
+          ],
+          "limitations": [
+            "Buyer-side row from supplier contracts table; not full process file."
+          ],
+          "objeto": "MATERIAIS DE EXPEDIENTE, ESCOLAR E DE ARTESANATO - LEI 14.133/2021",
+          "valor_total": "34.55"
         }
       ],
       "contract_count": 26,
@@ -2201,7 +2202,7 @@
         ],
         "identidade_canonica": "cnpj:82939414000145",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-31T00:10:00Z"
+        "last_verified_at": "2026-07-31T00:31:21Z"
       },
       "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
       "mode_note": "REACTIVE only when open published opportunity is observed; historical buyer-side contracts alone yield PROACTIVE_INSTITUTIONAL_PROSPECT.",
@@ -2588,6 +2589,7 @@
           "is_engineering_object": true,
           "eng_tier": "STRONG_WORKS",
           "eng_reasons": [
+            "projeto_estrutural",
             "memorial_descritivo",
             "keyword:OBRA",
             "keyword:MEMORIAL DESCRITIVO"
@@ -2600,53 +2602,11 @@
         },
         {
           "source": "pncp_contracts",
-          "identifier": "82939414000145-2-001144/2026",
-          "url_or_ref": "pncp_supplier_contracts:82939414000145-2-001144/2026",
+          "identifier": "82939414000145-2-001147/2026",
+          "url_or_ref": "pncp_supplier_contracts:82939414000145-2-001147/2026",
           "publication_date": "2026-07-06",
           "capture_date": "2026-07-15",
-          "hash": "1285baa8c381fcff",
-          "parser": "public_agency.pipeline",
-          "version": "1.0.0",
-          "quality": "official_table_row",
-          "is_engineering_object": false,
-          "eng_tier": "NONE",
-          "eng_reasons": [
-            "no_match"
-          ],
-          "limitations": [
-            "Buyer-side row from supplier contracts table; not full process file."
-          ],
-          "objeto": "ELETRODOMÉSTICOS E CORRELATOS - LEI 14.133/2021",
-          "valor_total": "487.98"
-        },
-        {
-          "source": "pncp_contracts",
-          "identifier": "82939414000145-2-001139/2026",
-          "url_or_ref": "pncp_supplier_contracts:82939414000145-2-001139/2026",
-          "publication_date": "2026-07-06",
-          "capture_date": "2026-07-15",
-          "hash": "d7da214543d55fb6",
-          "parser": "public_agency.pipeline",
-          "version": "1.0.0",
-          "quality": "official_table_row",
-          "is_engineering_object": false,
-          "eng_tier": "NONE",
-          "eng_reasons": [
-            "no_match"
-          ],
-          "limitations": [
-            "Buyer-side row from supplier contracts table; not full process file."
-          ],
-          "objeto": "ÁLCOOL EM GEL E LÍQUIDO  - LEI 14.133/2021",
-          "valor_total": "327.84"
-        },
-        {
-          "source": "pncp_contracts",
-          "identifier": "82939414000145-2-001140/2026",
-          "url_or_ref": "pncp_supplier_contracts:82939414000145-2-001140/2026",
-          "publication_date": "2026-07-06",
-          "capture_date": "2026-07-15",
-          "hash": "71b779db914a1ef8",
+          "hash": "fe9c4efb7d227182",
           "parser": "public_agency.pipeline",
           "version": "1.0.0",
           "quality": "official_table_row",
@@ -2659,49 +2619,7 @@
             "Buyer-side row from supplier contracts table; not full process file."
           ],
           "objeto": "PAPÉIS PARA HIGIENE PESSOAL E USO DOMÉSTICO - LEI 14.133/2021",
-          "valor_total": "344.50"
-        },
-        {
-          "source": "pncp_contracts",
-          "identifier": "82939414000145-2-001141/2026",
-          "url_or_ref": "pncp_supplier_contracts:82939414000145-2-001141/2026",
-          "publication_date": "2026-07-06",
-          "capture_date": "2026-07-15",
-          "hash": "805117390f6526eb",
-          "parser": "public_agency.pipeline",
-          "version": "1.0.0",
-          "quality": "official_table_row",
-          "is_engineering_object": false,
-          "eng_tier": "HARD_NEGATIVE",
-          "eng_reasons": [
-            "office_supplies"
-          ],
-          "limitations": [
-            "Buyer-side row from supplier contracts table; not full process file."
-          ],
-          "objeto": "MATERIAIS DE EXPEDIENTE, ESCOLAR E DE ARTESANATO - LEI 14.133/2021",
-          "valor_total": "117.70"
-        },
-        {
-          "source": "pncp_contracts",
-          "identifier": "82939414000145-2-001142/2026",
-          "url_or_ref": "pncp_supplier_contracts:82939414000145-2-001142/2026",
-          "publication_date": "2026-07-06",
-          "capture_date": "2026-07-15",
-          "hash": "1756049f1c43f1bb",
-          "parser": "public_agency.pipeline",
-          "version": "1.0.0",
-          "quality": "official_table_row",
-          "is_engineering_object": false,
-          "eng_tier": "HARD_NEGATIVE",
-          "eng_reasons": [
-            "office_supplies"
-          ],
-          "limitations": [
-            "Buyer-side row from supplier contracts table; not full process file."
-          ],
-          "objeto": "MATERIAIS DE EXPEDIENTE, ESCOLAR E DE ARTESANATO - LEI 14.133/2021",
-          "valor_total": "44.90"
+          "valor_total": "359.12"
         },
         {
           "source": "pncp_contracts",
@@ -2726,6 +2644,27 @@
         },
         {
           "source": "pncp_contracts",
+          "identifier": "82939414000145-2-001144/2026",
+          "url_or_ref": "pncp_supplier_contracts:82939414000145-2-001144/2026",
+          "publication_date": "2026-07-06",
+          "capture_date": "2026-07-15",
+          "hash": "1285baa8c381fcff",
+          "parser": "public_agency.pipeline",
+          "version": "1.0.0",
+          "quality": "official_table_row",
+          "is_engineering_object": false,
+          "eng_tier": "NONE",
+          "eng_reasons": [
+            "no_match"
+          ],
+          "limitations": [
+            "Buyer-side row from supplier contracts table; not full process file."
+          ],
+          "objeto": "ELETRODOMÉSTICOS E CORRELATOS - LEI 14.133/2021",
+          "valor_total": "487.98"
+        },
+        {
+          "source": "pncp_contracts",
           "identifier": "82939414000145-2-001143/2026",
           "url_or_ref": "pncp_supplier_contracts:82939414000145-2-001143/2026",
           "publication_date": "2026-07-06",
@@ -2747,11 +2686,53 @@
         },
         {
           "source": "pncp_contracts",
-          "identifier": "82939414000145-2-001147/2026",
-          "url_or_ref": "pncp_supplier_contracts:82939414000145-2-001147/2026",
+          "identifier": "82939414000145-2-001142/2026",
+          "url_or_ref": "pncp_supplier_contracts:82939414000145-2-001142/2026",
           "publication_date": "2026-07-06",
           "capture_date": "2026-07-15",
-          "hash": "fe9c4efb7d227182",
+          "hash": "1756049f1c43f1bb",
+          "parser": "public_agency.pipeline",
+          "version": "1.0.0",
+          "quality": "official_table_row",
+          "is_engineering_object": false,
+          "eng_tier": "HARD_NEGATIVE",
+          "eng_reasons": [
+            "office_supplies"
+          ],
+          "limitations": [
+            "Buyer-side row from supplier contracts table; not full process file."
+          ],
+          "objeto": "MATERIAIS DE EXPEDIENTE, ESCOLAR E DE ARTESANATO - LEI 14.133/2021",
+          "valor_total": "44.90"
+        },
+        {
+          "source": "pncp_contracts",
+          "identifier": "82939414000145-2-001141/2026",
+          "url_or_ref": "pncp_supplier_contracts:82939414000145-2-001141/2026",
+          "publication_date": "2026-07-06",
+          "capture_date": "2026-07-15",
+          "hash": "805117390f6526eb",
+          "parser": "public_agency.pipeline",
+          "version": "1.0.0",
+          "quality": "official_table_row",
+          "is_engineering_object": false,
+          "eng_tier": "HARD_NEGATIVE",
+          "eng_reasons": [
+            "office_supplies"
+          ],
+          "limitations": [
+            "Buyer-side row from supplier contracts table; not full process file."
+          ],
+          "objeto": "MATERIAIS DE EXPEDIENTE, ESCOLAR E DE ARTESANATO - LEI 14.133/2021",
+          "valor_total": "117.70"
+        },
+        {
+          "source": "pncp_contracts",
+          "identifier": "82939414000145-2-001140/2026",
+          "url_or_ref": "pncp_supplier_contracts:82939414000145-2-001140/2026",
+          "publication_date": "2026-07-06",
+          "capture_date": "2026-07-15",
+          "hash": "71b779db914a1ef8",
           "parser": "public_agency.pipeline",
           "version": "1.0.0",
           "quality": "official_table_row",
@@ -2764,7 +2745,28 @@
             "Buyer-side row from supplier contracts table; not full process file."
           ],
           "objeto": "PAPÉIS PARA HIGIENE PESSOAL E USO DOMÉSTICO - LEI 14.133/2021",
-          "valor_total": "359.12"
+          "valor_total": "344.50"
+        },
+        {
+          "source": "pncp_contracts",
+          "identifier": "82939414000145-2-001139/2026",
+          "url_or_ref": "pncp_supplier_contracts:82939414000145-2-001139/2026",
+          "publication_date": "2026-07-06",
+          "capture_date": "2026-07-15",
+          "hash": "d7da214543d55fb6",
+          "parser": "public_agency.pipeline",
+          "version": "1.0.0",
+          "quality": "official_table_row",
+          "is_engineering_object": false,
+          "eng_tier": "NONE",
+          "eng_reasons": [
+            "no_match"
+          ],
+          "limitations": [
+            "Buyer-side row from supplier contracts table; not full process file."
+          ],
+          "objeto": "ÁLCOOL EM GEL E LÍQUIDO  - LEI 14.133/2021",
+          "valor_total": "327.84"
         }
       ],
       "contract_count": 9,
@@ -2815,7 +2817,7 @@
         ],
         "identidade_canonica": "cnpj:82939232000174",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-31T00:10:03Z"
+        "last_verified_at": "2026-07-31T00:31:21Z"
       },
       "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
       "mode_note": "REACTIVE only when open published opportunity is observed; historical buyer-side contracts alone yield PROACTIVE_INSTITUTIONAL_PROSPECT.",
@@ -3212,11 +3214,11 @@
         },
         {
           "source": "pncp_contracts",
-          "identifier": "82939232000174-2-000714/2026",
-          "url_or_ref": "pncp_supplier_contracts:82939232000174-2-000714/2026",
+          "identifier": "82939232000174-2-000724/2026",
+          "url_or_ref": "pncp_supplier_contracts:82939232000174-2-000724/2026",
           "publication_date": "2026-07-08",
           "capture_date": "2026-07-15",
-          "hash": "4a0df01e3d1df15e",
+          "hash": "87fffabfa061f9d3",
           "parser": "public_agency.pipeline",
           "version": "1.0.0",
           "quality": "official_table_row",
@@ -3228,155 +3230,8 @@
           "limitations": [
             "Buyer-side row from supplier contracts table; not full process file."
           ],
-          "objeto": "EQUIPAMENTOS DE INFORMÁTICA, ELETRÔNICOS E CORRELATOS - LEI 14.133/2021 (RENOVADO)",
-          "valor_total": "1750.00"
-        },
-        {
-          "source": "pncp_contracts",
-          "identifier": "82939232000174-2-000715/2026",
-          "url_or_ref": "pncp_supplier_contracts:82939232000174-2-000715/2026",
-          "publication_date": "2026-07-08",
-          "capture_date": "2026-07-15",
-          "hash": "d5f98aadb82995eb",
-          "parser": "public_agency.pipeline",
-          "version": "1.0.0",
-          "quality": "official_table_row",
-          "is_engineering_object": false,
-          "eng_tier": "NONE",
-          "eng_reasons": [
-            "no_match"
-          ],
-          "limitations": [
-            "Buyer-side row from supplier contracts table; not full process file."
-          ],
-          "objeto": "MATERIAIS ESPORTIVOS - LEI 14.133/2021",
-          "valor_total": "379.60"
-        },
-        {
-          "source": "pncp_contracts",
-          "identifier": "82939232000174-2-000716/2026",
-          "url_or_ref": "pncp_supplier_contracts:82939232000174-2-000716/2026",
-          "publication_date": "2026-07-08",
-          "capture_date": "2026-07-15",
-          "hash": "c6d852d8724c4c00",
-          "parser": "public_agency.pipeline",
-          "version": "1.0.0",
-          "quality": "official_table_row",
-          "is_engineering_object": false,
-          "eng_tier": "NONE",
-          "eng_reasons": [
-            "no_match"
-          ],
-          "limitations": [
-            "Buyer-side row from supplier contracts table; not full process file."
-          ],
-          "objeto": "MATERIAIS ESPORTIVOS - LEI 14.133/2021",
-          "valor_total": "901.00"
-        },
-        {
-          "source": "pncp_contracts",
-          "identifier": "82939232000174-2-000717/2026",
-          "url_or_ref": "pncp_supplier_contracts:82939232000174-2-000717/2026",
-          "publication_date": "2026-07-08",
-          "capture_date": "2026-07-15",
-          "hash": "061e4382182b1c69",
-          "parser": "public_agency.pipeline",
-          "version": "1.0.0",
-          "quality": "official_table_row",
-          "is_engineering_object": false,
-          "eng_tier": "NONE",
-          "eng_reasons": [
-            "no_match"
-          ],
-          "limitations": [
-            "Buyer-side row from supplier contracts table; not full process file."
-          ],
-          "objeto": "MATERIAIS ESPORTIVOS - LEI 14.133/2021",
-          "valor_total": "2490.00"
-        },
-        {
-          "source": "pncp_contracts",
-          "identifier": "82939232000174-2-000718/2026",
-          "url_or_ref": "pncp_supplier_contracts:82939232000174-2-000718/2026",
-          "publication_date": "2026-07-08",
-          "capture_date": "2026-07-15",
-          "hash": "4c1f9b5867e5e556",
-          "parser": "public_agency.pipeline",
-          "version": "1.0.0",
-          "quality": "official_table_row",
-          "is_engineering_object": false,
-          "eng_tier": "NONE",
-          "eng_reasons": [
-            "no_match"
-          ],
-          "limitations": [
-            "Buyer-side row from supplier contracts table; not full process file."
-          ],
-          "objeto": "MATERIAIS ESPORTIVOS - LEI 14.133/2021",
-          "valor_total": "880.00"
-        },
-        {
-          "source": "pncp_contracts",
-          "identifier": "82939232000174-2-000720/2026",
-          "url_or_ref": "pncp_supplier_contracts:82939232000174-2-000720/2026",
-          "publication_date": "2026-07-08",
-          "capture_date": "2026-07-15",
-          "hash": "bb787e1b93a73924",
-          "parser": "public_agency.pipeline",
-          "version": "1.0.0",
-          "quality": "official_table_row",
-          "is_engineering_object": false,
-          "eng_tier": "HARD_NEGATIVE",
-          "eng_reasons": [
-            "furniture"
-          ],
-          "limitations": [
-            "Buyer-side row from supplier contracts table; not full process file."
-          ],
-          "objeto": "MÓVEIS PARA ESCRITÓRIO - LEI 14.133/2021",
-          "valor_total": "614.00"
-        },
-        {
-          "source": "pncp_contracts",
-          "identifier": "82939232000174-2-000721/2026",
-          "url_or_ref": "pncp_supplier_contracts:82939232000174-2-000721/2026",
-          "publication_date": "2026-07-08",
-          "capture_date": "2026-07-15",
-          "hash": "2305d19465cc0b65",
-          "parser": "public_agency.pipeline",
-          "version": "1.0.0",
-          "quality": "official_table_row",
-          "is_engineering_object": false,
-          "eng_tier": "HARD_NEGATIVE",
-          "eng_reasons": [
-            "tires"
-          ],
-          "limitations": [
-            "Buyer-side row from supplier contracts table; not full process file."
-          ],
-          "objeto": "PNEUS E CORRELATOS - LEI 14.133/2021",
-          "valor_total": "9885.42"
-        },
-        {
-          "source": "pncp_contracts",
-          "identifier": "82939232000174-2-000722/2026",
-          "url_or_ref": "pncp_supplier_contracts:82939232000174-2-000722/2026",
-          "publication_date": "2026-07-08",
-          "capture_date": "2026-07-15",
-          "hash": "e15f0301b9f02983",
-          "parser": "public_agency.pipeline",
-          "version": "1.0.0",
-          "quality": "official_table_row",
-          "is_engineering_object": false,
-          "eng_tier": "NONE",
-          "eng_reasons": [
-            "no_match"
-          ],
-          "limitations": [
-            "Buyer-side row from supplier contracts table; not full process file."
-          ],
-          "objeto": "MATERIAIS PARA HIGIENIZAÇÃO E LIMPEZA - LEI 14.133/2021",
-          "valor_total": "3510.00"
+          "objeto": "ALIMENTOS NÃO PERECÍVEIS E CORRELATOS - LEI 14.133/2021",
+          "valor_total": "154.72"
         },
         {
           "source": "pncp_contracts",
@@ -3401,11 +3256,11 @@
         },
         {
           "source": "pncp_contracts",
-          "identifier": "82939232000174-2-000724/2026",
-          "url_or_ref": "pncp_supplier_contracts:82939232000174-2-000724/2026",
+          "identifier": "82939232000174-2-000722/2026",
+          "url_or_ref": "pncp_supplier_contracts:82939232000174-2-000722/2026",
           "publication_date": "2026-07-08",
           "capture_date": "2026-07-15",
-          "hash": "87fffabfa061f9d3",
+          "hash": "e15f0301b9f02983",
           "parser": "public_agency.pipeline",
           "version": "1.0.0",
           "quality": "official_table_row",
@@ -3417,8 +3272,155 @@
           "limitations": [
             "Buyer-side row from supplier contracts table; not full process file."
           ],
-          "objeto": "ALIMENTOS NÃO PERECÍVEIS E CORRELATOS - LEI 14.133/2021",
-          "valor_total": "154.72"
+          "objeto": "MATERIAIS PARA HIGIENIZAÇÃO E LIMPEZA - LEI 14.133/2021",
+          "valor_total": "3510.00"
+        },
+        {
+          "source": "pncp_contracts",
+          "identifier": "82939232000174-2-000721/2026",
+          "url_or_ref": "pncp_supplier_contracts:82939232000174-2-000721/2026",
+          "publication_date": "2026-07-08",
+          "capture_date": "2026-07-15",
+          "hash": "2305d19465cc0b65",
+          "parser": "public_agency.pipeline",
+          "version": "1.0.0",
+          "quality": "official_table_row",
+          "is_engineering_object": false,
+          "eng_tier": "HARD_NEGATIVE",
+          "eng_reasons": [
+            "tires"
+          ],
+          "limitations": [
+            "Buyer-side row from supplier contracts table; not full process file."
+          ],
+          "objeto": "PNEUS E CORRELATOS - LEI 14.133/2021",
+          "valor_total": "9885.42"
+        },
+        {
+          "source": "pncp_contracts",
+          "identifier": "82939232000174-2-000720/2026",
+          "url_or_ref": "pncp_supplier_contracts:82939232000174-2-000720/2026",
+          "publication_date": "2026-07-08",
+          "capture_date": "2026-07-15",
+          "hash": "bb787e1b93a73924",
+          "parser": "public_agency.pipeline",
+          "version": "1.0.0",
+          "quality": "official_table_row",
+          "is_engineering_object": false,
+          "eng_tier": "HARD_NEGATIVE",
+          "eng_reasons": [
+            "furniture"
+          ],
+          "limitations": [
+            "Buyer-side row from supplier contracts table; not full process file."
+          ],
+          "objeto": "MÓVEIS PARA ESCRITÓRIO - LEI 14.133/2021",
+          "valor_total": "614.00"
+        },
+        {
+          "source": "pncp_contracts",
+          "identifier": "82939232000174-2-000718/2026",
+          "url_or_ref": "pncp_supplier_contracts:82939232000174-2-000718/2026",
+          "publication_date": "2026-07-08",
+          "capture_date": "2026-07-15",
+          "hash": "4c1f9b5867e5e556",
+          "parser": "public_agency.pipeline",
+          "version": "1.0.0",
+          "quality": "official_table_row",
+          "is_engineering_object": false,
+          "eng_tier": "NONE",
+          "eng_reasons": [
+            "no_match"
+          ],
+          "limitations": [
+            "Buyer-side row from supplier contracts table; not full process file."
+          ],
+          "objeto": "MATERIAIS ESPORTIVOS - LEI 14.133/2021",
+          "valor_total": "880.00"
+        },
+        {
+          "source": "pncp_contracts",
+          "identifier": "82939232000174-2-000717/2026",
+          "url_or_ref": "pncp_supplier_contracts:82939232000174-2-000717/2026",
+          "publication_date": "2026-07-08",
+          "capture_date": "2026-07-15",
+          "hash": "061e4382182b1c69",
+          "parser": "public_agency.pipeline",
+          "version": "1.0.0",
+          "quality": "official_table_row",
+          "is_engineering_object": false,
+          "eng_tier": "NONE",
+          "eng_reasons": [
+            "no_match"
+          ],
+          "limitations": [
+            "Buyer-side row from supplier contracts table; not full process file."
+          ],
+          "objeto": "MATERIAIS ESPORTIVOS - LEI 14.133/2021",
+          "valor_total": "2490.00"
+        },
+        {
+          "source": "pncp_contracts",
+          "identifier": "82939232000174-2-000716/2026",
+          "url_or_ref": "pncp_supplier_contracts:82939232000174-2-000716/2026",
+          "publication_date": "2026-07-08",
+          "capture_date": "2026-07-15",
+          "hash": "c6d852d8724c4c00",
+          "parser": "public_agency.pipeline",
+          "version": "1.0.0",
+          "quality": "official_table_row",
+          "is_engineering_object": false,
+          "eng_tier": "NONE",
+          "eng_reasons": [
+            "no_match"
+          ],
+          "limitations": [
+            "Buyer-side row from supplier contracts table; not full process file."
+          ],
+          "objeto": "MATERIAIS ESPORTIVOS - LEI 14.133/2021",
+          "valor_total": "901.00"
+        },
+        {
+          "source": "pncp_contracts",
+          "identifier": "82939232000174-2-000715/2026",
+          "url_or_ref": "pncp_supplier_contracts:82939232000174-2-000715/2026",
+          "publication_date": "2026-07-08",
+          "capture_date": "2026-07-15",
+          "hash": "d5f98aadb82995eb",
+          "parser": "public_agency.pipeline",
+          "version": "1.0.0",
+          "quality": "official_table_row",
+          "is_engineering_object": false,
+          "eng_tier": "NONE",
+          "eng_reasons": [
+            "no_match"
+          ],
+          "limitations": [
+            "Buyer-side row from supplier contracts table; not full process file."
+          ],
+          "objeto": "MATERIAIS ESPORTIVOS - LEI 14.133/2021",
+          "valor_total": "379.60"
+        },
+        {
+          "source": "pncp_contracts",
+          "identifier": "82939232000174-2-000714/2026",
+          "url_or_ref": "pncp_supplier_contracts:82939232000174-2-000714/2026",
+          "publication_date": "2026-07-08",
+          "capture_date": "2026-07-15",
+          "hash": "4a0df01e3d1df15e",
+          "parser": "public_agency.pipeline",
+          "version": "1.0.0",
+          "quality": "official_table_row",
+          "is_engineering_object": false,
+          "eng_tier": "NONE",
+          "eng_reasons": [
+            "no_match"
+          ],
+          "limitations": [
+            "Buyer-side row from supplier contracts table; not full process file."
+          ],
+          "objeto": "EQUIPAMENTOS DE INFORMÁTICA, ELETRÔNICOS E CORRELATOS - LEI 14.133/2021 (RENOVADO)",
+          "valor_total": "1750.00"
         },
         {
           "source": "pncp_contracts",
@@ -3534,7 +3536,7 @@
         ],
         "identidade_canonica": "cnpj:82804212000196",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-31T00:10:00Z"
+        "last_verified_at": "2026-07-31T00:31:14Z"
       },
       "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
       "mode_note": "REACTIVE only when open published opportunity is observed; historical buyer-side contracts alone yield PROACTIVE_INSTITUTIONAL_PROSPECT.",
@@ -3966,27 +3968,6 @@
         },
         {
           "source": "pncp_contracts",
-          "identifier": "82804212000196-2-000638/2026",
-          "url_or_ref": "pncp_supplier_contracts:82804212000196-2-000638/2026",
-          "publication_date": "2026-07-08",
-          "capture_date": "2026-07-15",
-          "hash": "f2e419fa1436e93a",
-          "parser": "public_agency.pipeline",
-          "version": "1.0.0",
-          "quality": "official_table_row",
-          "is_engineering_object": false,
-          "eng_tier": "HARD_NEGATIVE",
-          "eng_reasons": [
-            "supply_only_acquisition"
-          ],
-          "limitations": [
-            "Buyer-side row from supplier contracts table; not full process file."
-          ],
-          "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA AQUISIÇÃO DE ROMPEDOR, VISANDO SUPRIR AS DEMANDAS DA SECRETARIA MUNICIPAL DE INFRAESTRUTURA DO MUNICÍPIO DE ÁGUAS DE CHAPECÓ.",
-          "valor_total": "113899.99"
-        },
-        {
-          "source": "pncp_contracts",
           "identifier": "82804212000196-2-000639/2026",
           "url_or_ref": "pncp_supplier_contracts:82804212000196-2-000639/2026",
           "publication_date": "2026-07-08",
@@ -4006,6 +3987,27 @@
           ],
           "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE ARQUIBANCADAS EM ESTRUTURA METÁLICA NO GINÁSIO DO BAIRRO NOVO HORIZONTE, INCLUINDO O FORNECIMENTO DE MATERIAIS, MÃO DE OBRA, EQUIPAMENTOS, MONTAGEM E TODOS OS SERVIÇOS NECESSÁRIOS À COMPLETA EXECUÇÃO DO OBJETO, NOS TERMOS DA TABELA ABAIXO, CONFORME CONDIÇÕES E EXIGÊNCIAS ESTABELECIDAS NESTE INSTRUMENTO.",
           "valor_total": "45400.00"
+        },
+        {
+          "source": "pncp_contracts",
+          "identifier": "82804212000196-2-000638/2026",
+          "url_or_ref": "pncp_supplier_contracts:82804212000196-2-000638/2026",
+          "publication_date": "2026-07-08",
+          "capture_date": "2026-07-15",
+          "hash": "f2e419fa1436e93a",
+          "parser": "public_agency.pipeline",
+          "version": "1.0.0",
+          "quality": "official_table_row",
+          "is_engineering_object": false,
+          "eng_tier": "HARD_NEGATIVE",
+          "eng_reasons": [
+            "supply_only_acquisition"
+          ],
+          "limitations": [
+            "Buyer-side row from supplier contracts table; not full process file."
+          ],
+          "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA AQUISIÇÃO DE ROMPEDOR, VISANDO SUPRIR AS DEMANDAS DA SECRETARIA MUNICIPAL DE INFRAESTRUTURA DO MUNICÍPIO DE ÁGUAS DE CHAPECÓ.",
+          "valor_total": "113899.99"
         },
         {
           "source": "pncp_contracts",
@@ -4117,12 +4119,12 @@
       "entity_type": "PUBLIC_AGENCY_PROSPECT",
       "agency": {
         "entity_type": "PUBLIC_AGENCY_PROSPECT",
-        "agency_id": "28d3df4df0799169",
+        "agency_id": "023e9eec3d261610",
         "cnpj": "95780458000117",
-        "nome_oficial": "PREFEITURA MUNICIPAL DE SANGÃO",
-        "nome_unidade": "PREFEITURA MUNICIPAL DE SANGÃO",
+        "nome_oficial": "MUNICÍPIO DE SANGÃO",
+        "nome_unidade": "MUNICÍPIO DE SANGÃO",
         "esfera": "municipal",
-        "poder": "executivo",
+        "poder": null,
         "natureza_juridica": null,
         "municipio": "Sangão",
         "uf": "SC",
@@ -4142,12 +4144,12 @@
         ],
         "identidade_canonica": "cnpj:95780458000117",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-31T00:10:00Z"
+        "last_verified_at": "2026-07-31T00:31:23Z"
       },
       "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
       "mode_note": "REACTIVE only when open published opportunity is observed; historical buyer-side contracts alone yield PROACTIVE_INSTITUTIONAL_PROSPECT.",
       "score": {
-        "agency_id": "28d3df4df0799169",
+        "agency_id": "023e9eec3d261610",
         "priority_score": 0.4575,
         "need_score": 0.6,
         "service_fit_score": 0.55,
@@ -4433,7 +4435,7 @@
       },
       "conflict": {
         "state": "CONFLICT_CHECK_PENDING",
-        "agency_id": "28d3df4df0799169",
+        "agency_id": "023e9eec3d261610",
         "cnpj14": "95780458000117",
         "matched_rules": [],
         "reasons": [
@@ -4571,6 +4573,27 @@
           ],
           "objeto": "VEÍCULOS NOVOS, ZERO KM - LEI 14.133/2021",
           "valor_total": "202000.00"
+        },
+        {
+          "source": "pncp_contracts",
+          "identifier": "95780458000117-2-000841/2026",
+          "url_or_ref": "pncp_supplier_contracts:95780458000117-2-000841/2026",
+          "publication_date": "2026-07-07",
+          "capture_date": "2026-07-15",
+          "hash": "4c1b127b855d5071",
+          "parser": "public_agency.pipeline",
+          "version": "1.0.0",
+          "quality": "official_table_row",
+          "is_engineering_object": false,
+          "eng_tier": "HARD_NEGATIVE",
+          "eng_reasons": [
+            "office_supplies"
+          ],
+          "limitations": [
+            "Buyer-side row from supplier contracts table; not full process file."
+          ],
+          "objeto": "MATERIAIS DE EXPEDIENTE, ESCOLAR E DE ARTESANATO - LEI 14.133/2021",
+          "valor_total": "331.20"
         },
         {
           "source": "pncp_contracts",
@@ -4784,27 +4807,6 @@
         },
         {
           "source": "pncp_contracts",
-          "identifier": "95780458000117-2-000856/2026",
-          "url_or_ref": "pncp_supplier_contracts:95780458000117-2-000856/2026",
-          "publication_date": "2026-07-07",
-          "capture_date": "2026-07-15",
-          "hash": "a03ae0f0f3b8ec23",
-          "parser": "public_agency.pipeline",
-          "version": "1.0.0",
-          "quality": "official_table_row",
-          "is_engineering_object": false,
-          "eng_tier": "NONE",
-          "eng_reasons": [
-            "no_match"
-          ],
-          "limitations": [
-            "Buyer-side row from supplier contracts table; not full process file."
-          ],
-          "objeto": "EQUIPAMENTOS DE INFORMÁTICA, ELETRÔNICOS E CORRELATOS - LEI 14.133/2021 (RENOVADO)",
-          "valor_total": "401.63"
-        },
-        {
-          "source": "pncp_contracts",
           "identifier": "95780458000117-2-000854/2026",
           "url_or_ref": "pncp_supplier_contracts:95780458000117-2-000854/2026",
           "publication_date": "2026-07-07",
@@ -4859,7 +4861,7 @@
       "probable_problem": "Sinais de possível necessidade técnica (histórico de contratações de engenharia / execução longa) — prospecção proativa institucional; não afirma que o órgão está contratando no momento.",
       "recommended_approach": "Apresentar capacidade técnica e redução de risco; não vender dispensa de licitação. Pesquisar canal institucional oficial antes de qualquer contato.",
       "next_human_step": "Revisar conflito de interesses, classificação do objeto, dossier; localizar contato institucional público; autorizar ou rejeitar outreach.",
-      "outreach_message": "Prezados(as) de PREFEITURA MUNICIPAL DE SANGÃO,\n\nA CONFENGE presta apoio técnico especializado a órgãos públicos em planejamento de contratações de obras e serviços de engenharia, orçamentação e apoio técnico à fiscalização e à gestão contratual (sem substituir o fiscal público).\n\nCom base em dados públicos de contratações, identificamos sinais de possível necessidade técnica. Gostaríamos de apresentar nosso catálogo, se houver interesse institucional.\n\nAtenciosamente,\nCONFENGE",
+      "outreach_message": "Prezados(as) de MUNICÍPIO DE SANGÃO,\n\nA CONFENGE presta apoio técnico especializado a órgãos públicos em planejamento de contratações de obras e serviços de engenharia, orçamentação e apoio técnico à fiscalização e à gestão contratual (sem substituir o fiscal público).\n\nCom base em dados públicos de contratações, identificamos sinais de possível necessidade técnica. Gostaríamos de apresentar nosso catálogo, se houver interesse institucional.\n\nAtenciosamente,\nCONFENGE",
       "compliance_blocks": [],
       "compliance_flags": [
         "sample_same_nature_sum_above_ceiling_incomplete_ledger"
@@ -4896,7 +4898,7 @@
         ],
         "identidade_canonica": "cnpj:82777236000101",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-31T00:10:00Z"
+        "last_verified_at": "2026-07-31T00:31:25Z"
       },
       "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
       "mode_note": "REACTIVE only when open published opportunity is observed; historical buyer-side contracts alone yield PROACTIVE_INSTITUTIONAL_PROSPECT.",
@@ -5352,7 +5354,7 @@
         ],
         "identidade_canonica": "cnpj:82892365000132",
         "confidence": 0.95,
-        "last_verified_at": "2026-07-31T00:09:59Z"
+        "last_verified_at": "2026-07-31T00:31:14Z"
       },
       "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
       "mode_note": "REACTIVE only when open published opportunity is observed; historical buyer-side contracts alone yield PROACTIVE_INSTITUTIONAL_PROSPECT.",
@@ -5859,48 +5861,6 @@
         },
         {
           "source": "pncp_contracts",
-          "identifier": "82892365000132-2-000415/2026",
-          "url_or_ref": "pncp_supplier_contracts:82892365000132-2-000415/2026",
-          "publication_date": "2026-07-06",
-          "capture_date": "2026-07-15",
-          "hash": "2c442083cdcfc9cd",
-          "parser": "public_agency.pipeline",
-          "version": "1.0.0",
-          "quality": "official_table_row",
-          "is_engineering_object": false,
-          "eng_tier": "HARD_NEGATIVE",
-          "eng_reasons": [
-            "hygiene_paper"
-          ],
-          "limitations": [
-            "Buyer-side row from supplier contracts table; not full process file."
-          ],
-          "objeto": "PAPÉIS PARA HIGIENE PESSOAL E USO DOMÉSTICO - LEI 14.133/2021",
-          "valor_total": "1070.00"
-        },
-        {
-          "source": "pncp_contracts",
-          "identifier": "82892365000132-2-000410/2026",
-          "url_or_ref": "pncp_supplier_contracts:82892365000132-2-000410/2026",
-          "publication_date": "2026-07-06",
-          "capture_date": "2026-07-15",
-          "hash": "c0c22db6097f23c4",
-          "parser": "public_agency.pipeline",
-          "version": "1.0.0",
-          "quality": "official_table_row",
-          "is_engineering_object": false,
-          "eng_tier": "HARD_NEGATIVE",
-          "eng_reasons": [
-            "notebooks"
-          ],
-          "limitations": [
-            "Buyer-side row from supplier contracts table; not full process file."
-          ],
-          "objeto": "NOTEBOOKS, TABLETS E GABINETES DE RECARGA - LEI 14.133/2021",
-          "valor_total": "13660.00"
-        },
-        {
-          "source": "pncp_contracts",
           "identifier": "82892365000132-2-000417/2026",
           "url_or_ref": "pncp_supplier_contracts:82892365000132-2-000417/2026",
           "publication_date": "2026-07-06",
@@ -5922,24 +5882,24 @@
         },
         {
           "source": "pncp_contracts",
-          "identifier": "82892365000132-2-000411/2026",
-          "url_or_ref": "pncp_supplier_contracts:82892365000132-2-000411/2026",
+          "identifier": "82892365000132-2-000415/2026",
+          "url_or_ref": "pncp_supplier_contracts:82892365000132-2-000415/2026",
           "publication_date": "2026-07-06",
           "capture_date": "2026-07-15",
-          "hash": "7e5603b0d81f8a83",
+          "hash": "2c442083cdcfc9cd",
           "parser": "public_agency.pipeline",
           "version": "1.0.0",
           "quality": "official_table_row",
           "is_engineering_object": false,
           "eng_tier": "HARD_NEGATIVE",
           "eng_reasons": [
-            "notebooks"
+            "hygiene_paper"
           ],
           "limitations": [
             "Buyer-side row from supplier contracts table; not full process file."
           ],
-          "objeto": "NOTEBOOKS, TABLETS E GABINETES DE RECARGA - LEI 14.133/2021",
-          "valor_total": "4300.00"
+          "objeto": "PAPÉIS PARA HIGIENE PESSOAL E USO DOMÉSTICO - LEI 14.133/2021",
+          "valor_total": "1070.00"
         },
         {
           "source": "pncp_contracts",
@@ -5964,24 +5924,45 @@
         },
         {
           "source": "pncp_contracts",
-          "identifier": "82892365000132-2-000408/2026",
-          "url_or_ref": "pncp_supplier_contracts:82892365000132-2-000408/2026",
+          "identifier": "82892365000132-2-000411/2026",
+          "url_or_ref": "pncp_supplier_contracts:82892365000132-2-000411/2026",
           "publication_date": "2026-07-06",
           "capture_date": "2026-07-15",
-          "hash": "31987597f861b1bd",
+          "hash": "7e5603b0d81f8a83",
           "parser": "public_agency.pipeline",
           "version": "1.0.0",
           "quality": "official_table_row",
           "is_engineering_object": false,
-          "eng_tier": "NONE",
+          "eng_tier": "HARD_NEGATIVE",
           "eng_reasons": [
-            "no_match"
+            "notebooks"
           ],
           "limitations": [
             "Buyer-side row from supplier contracts table; not full process file."
           ],
-          "objeto": "EQUIPAMENTOS DE INFORMÁTICA, ELETRÔNICOS E ACESSÓRIOS - LEI 14.133/2021",
-          "valor_total": "391.64"
+          "objeto": "NOTEBOOKS, TABLETS E GABINETES DE RECARGA - LEI 14.133/2021",
+          "valor_total": "4300.00"
+        },
+        {
+          "source": "pncp_contracts",
+          "identifier": "82892365000132-2-000410/2026",
+          "url_or_ref": "pncp_supplier_contracts:82892365000132-2-000410/2026",
+          "publication_date": "2026-07-06",
+          "capture_date": "2026-07-15",
+          "hash": "c0c22db6097f23c4",
+          "parser": "public_agency.pipeline",
+          "version": "1.0.0",
+          "quality": "official_table_row",
+          "is_engineering_object": false,
+          "eng_tier": "HARD_NEGATIVE",
+          "eng_reasons": [
+            "notebooks"
+          ],
+          "limitations": [
+            "Buyer-side row from supplier contracts table; not full process file."
+          ],
+          "objeto": "NOTEBOOKS, TABLETS E GABINETES DE RECARGA - LEI 14.133/2021",
+          "valor_total": "13660.00"
         },
         {
           "source": "pncp_contracts",
@@ -6003,6 +5984,27 @@
           ],
           "objeto": "CADERNOS, PAPÉIS E CORRELATOS - LEI 14.133/2021",
           "valor_total": "5324.00"
+        },
+        {
+          "source": "pncp_contracts",
+          "identifier": "82892365000132-2-000408/2026",
+          "url_or_ref": "pncp_supplier_contracts:82892365000132-2-000408/2026",
+          "publication_date": "2026-07-06",
+          "capture_date": "2026-07-15",
+          "hash": "31987597f861b1bd",
+          "parser": "public_agency.pipeline",
+          "version": "1.0.0",
+          "quality": "official_table_row",
+          "is_engineering_object": false,
+          "eng_tier": "NONE",
+          "eng_reasons": [
+            "no_match"
+          ],
+          "limitations": [
+            "Buyer-side row from supplier contracts table; not full process file."
+          ],
+          "objeto": "EQUIPAMENTOS DE INFORMÁTICA, ELETRÔNICOS E ACESSÓRIOS - LEI 14.133/2021",
+          "valor_total": "391.64"
         }
       ],
       "contract_count": 13,
@@ -6025,456 +6027,6 @@
       ],
       "require_conflict_check": true,
       "rank_position": 9
-    },
-    {
-      "entity_type": "PUBLIC_AGENCY_PROSPECT",
-      "agency": {
-        "entity_type": "PUBLIC_AGENCY_PROSPECT",
-        "agency_id": "63c009dec8aaa5dd",
-        "cnpj": "83788281000116",
-        "nome_oficial": "Fundação Cultural de São Bento do Sul",
-        "nome_unidade": "Fundação Cultural de São Bento do Sul",
-        "esfera": "indeterminada",
-        "poder": null,
-        "natureza_juridica": null,
-        "municipio": "São Bento do Sul",
-        "uf": "SC",
-        "codigo_ibge": "4215802",
-        "populacao": 83277,
-        "faixa_populacional": "50k_to_100k",
-        "consorcio_publico": false,
-        "autarquia": false,
-        "fundacao": true,
-        "unidade_gestora": "83788281000116",
-        "fontes": [
-          {
-            "source": "pncp_supplier_contracts",
-            "role": "buyer_side_aggregate",
-            "contract_count": 1
-          }
-        ],
-        "identidade_canonica": "cnpj:83788281000116",
-        "confidence": 0.95,
-        "last_verified_at": "2026-07-31T00:10:00Z"
-      },
-      "mode": "PROACTIVE_INSTITUTIONAL_PROSPECT",
-      "mode_note": "REACTIVE only when open published opportunity is observed; historical buyer-side contracts alone yield PROACTIVE_INSTITUTIONAL_PROSPECT.",
-      "score": {
-        "agency_id": "63c009dec8aaa5dd",
-        "priority_score": 0.3475,
-        "need_score": 0.65,
-        "service_fit_score": 0.55,
-        "timing_score": 0.55,
-        "evidence_quality_score": 0.4,
-        "institutional_accessibility_score": 0.25,
-        "commercial_readiness_score": 0.365,
-        "compliance_risk_score": 0.3,
-        "conflict_risk_score": 0.3,
-        "decomposition": {
-          "need": 0.195,
-          "service_fit": 0.1375,
-          "timing": 0.11,
-          "evidence_quality": 0.06,
-          "institutional_accessibility": 0.025
-        },
-        "penalties": {
-          "compliance_penalty": 0.075,
-          "conflict_penalty": 0.105
-        },
-        "supporting_signals": [
-          "works_or_services_with_long_execution",
-          "recent_publication_of_engineering_demand"
-        ],
-        "explanation": "priority=0.347 need=0.65 fit=0.55 timing=0.55 evidence=0.40 access=0.25; material_signals=2; Prospect proativo: sinais de possível necessidade técnica (sem oportunidade formal isolada).",
-        "selected_service_id": "REVISAO_PRE_PUBLICACAO"
-      },
-      "signals": [
-        {
-          "signal_id": "small_municipality",
-          "status": "NOT_FIRED",
-          "confidence": 0.9,
-          "weight": 0.05,
-          "evidence": [
-            {
-              "population": 83277,
-              "threshold": 50000
-            }
-          ],
-          "limitations": [],
-          "definition": "Município com população até 50 mil (contextual).",
-          "version": "public-agency-signals-v1"
-        },
-        {
-          "signal_id": "recurring_engineering_procurements",
-          "status": "NOT_FIRED",
-          "confidence": 0.75,
-          "weight": 0.15,
-          "evidence": [
-            {
-              "engineering_contracts": 1,
-              "in_window": 1,
-              "window_days": 730
-            }
-          ],
-          "limitations": [],
-          "definition": "Múltiplos contratos de engenharia no período de observação.",
-          "version": "public-agency-signals-v1"
-        },
-        {
-          "signal_id": "high_engineering_spend_relative_to_population",
-          "status": "NOT_FIRED",
-          "confidence": 0.6,
-          "weight": 0.1,
-          "evidence": [
-            {
-              "eng_value": 443500.0,
-              "population": 83277,
-              "per_capita": 5.33
-            }
-          ],
-          "limitations": [
-            "heurística local; não é indicador de capacidade técnica isolado"
-          ],
-          "definition": "Gasto de engenharia elevado relativo à população (heurística).",
-          "version": "public-agency-signals-v1"
-        },
-        {
-          "signal_id": "works_or_services_with_long_execution",
-          "status": "FIRED",
-          "confidence": 0.7,
-          "weight": 0.08,
-          "evidence": [
-            {
-              "long_execution_count": 1
-            }
-          ],
-          "limitations": [],
-          "definition": "Contratos de engenharia com execução >= 180 dias.",
-          "version": "public-agency-signals-v1"
-        },
-        {
-          "signal_id": "recent_publication_of_engineering_demand",
-          "status": "FIRED",
-          "confidence": 0.7,
-          "weight": 0.12,
-          "evidence": [
-            {
-              "recent_eng_publications_180d": 1
-            }
-          ],
-          "limitations": [],
-          "definition": "Publicação recente de demanda/contrato de engenharia.",
-          "version": "public-agency-signals-v1"
-        },
-        {
-          "signal_id": "contract_execution_distress",
-          "status": "NOT_FIRED",
-          "confidence": 0.55,
-          "weight": 0.12,
-          "evidence": [
-            {
-              "distress_proxy_count": 0
-            }
-          ],
-          "limitations": [
-            "proxy; não prova atraso oficial sem aditivos/atas"
-          ],
-          "definition": "Proxy de sofrimento executivo (contrato longo ativo/vencido).",
-          "version": "public-agency-signals-v1"
-        },
-        {
-          "signal_id": "institutional_contact_available",
-          "status": "NOT_FIRED",
-          "confidence": 0.8,
-          "weight": 0.05,
-          "evidence": [
-            {
-              "institutional_contact": false
-            }
-          ],
-          "limitations": [],
-          "definition": "Contato institucional público disponível.",
-          "version": "public-agency-signals-v1"
-        },
-        {
-          "signal_id": "same_nature_annual_sum_unknown",
-          "status": "FIRED",
-          "confidence": 0.9,
-          "weight": -0.05,
-          "evidence": [
-            {
-              "annual_sum_state": "DIRECT_CONTRACTING_SUM_UNKNOWN"
-            }
-          ],
-          "limitations": [],
-          "definition": "Somatório anual da mesma natureza desconhecido.",
-          "version": "public-agency-signals-v1"
-        },
-        {
-          "signal_id": "possible_expense_fragmentation",
-          "status": "FIRED",
-          "confidence": 0.7,
-          "weight": -0.15,
-          "evidence": [
-            {
-              "indicators": [
-                "sample_same_nature_sum_above_ceiling_incomplete_ledger"
-              ]
-            }
-          ],
-          "limitations": [],
-          "definition": "Indícios de fracionamento de despesa.",
-          "version": "public-agency-signals-v1"
-        },
-        {
-          "signal_id": "legal_classification_ambiguous",
-          "status": "NOT_FIRED",
-          "confidence": 0.9,
-          "weight": 0.0,
-          "evidence": [],
-          "limitations": [],
-          "definition": "Classificação jurídica do objeto ambígua.",
-          "version": "public-agency-signals-v1"
-        },
-        {
-          "signal_id": "conflict_of_interest_risk",
-          "status": "FIRED",
-          "confidence": 0.8,
-          "weight": -0.05,
-          "evidence": [
-            {
-              "conflict_state": "CONFLICT_CHECK_PENDING"
-            }
-          ],
-          "limitations": [],
-          "definition": "Risco de conflito de interesses (pendente/bloqueado).",
-          "version": "public-agency-signals-v1"
-        },
-        {
-          "signal_id": "missing_official_identity",
-          "status": "NOT_FIRED",
-          "confidence": 0.9,
-          "weight": 0.0,
-          "evidence": [],
-          "limitations": [],
-          "definition": "Identidade oficial do órgão ausente.",
-          "version": "public-agency-signals-v1"
-        },
-        {
-          "signal_id": "insufficient_public_evidence",
-          "status": "NOT_FIRED",
-          "confidence": 0.85,
-          "weight": 0.0,
-          "evidence": [
-            {
-              "contract_count": 1
-            }
-          ],
-          "limitations": [],
-          "definition": "Sem evidência pública mínima de contratos.",
-          "version": "public-agency-signals-v1"
-        },
-        {
-          "signal_id": "stale_data",
-          "status": "NOT_FIRED",
-          "confidence": 0.75,
-          "weight": 0.0,
-          "evidence": [
-            {
-              "latest_date": "2026-07-08",
-              "age_days": 7
-            }
-          ],
-          "limitations": [],
-          "definition": "Dados obsoletos (>365 dias sem publicação).",
-          "version": "public-agency-signals-v1"
-        }
-      ],
-      "object_classification": {
-        "suggested_class": "ENGINEERING_SERVICE",
-        "confidence": 0.71,
-        "evidences": [
-          "OBRA",
-          "REFORMA"
-        ],
-        "justification": "Termos do objeto são tecnicamente enquadráveis como obra ou serviço de engenharia (art. 75, I potencialmente aplicável se demais requisitos legais forem atendidos).",
-        "favorable_elements": [
-          "termo_engenharia:OBRA",
-          "termo_engenharia:REFORMA"
-        ],
-        "contrary_elements": [],
-        "pending_questions": [],
-        "art_potentially_required": true,
-        "human_validation_required": false
-      },
-      "eligibility": {
-        "eligibility_state": "NOT_POTENTIALLY_ELIGIBLE_AMOUNT",
-        "potentially_eligible": false,
-        "reason_codes": [
-          "AMOUNT_NOT_STRICTLY_BELOW_CEILING"
-        ],
-        "threshold_id": "BR_FEDERAL_14133_ART75_I_2026",
-        "threshold_amount": 130984.2,
-        "amount": 443500.0,
-        "object_class": "ENGINEERING_SERVICE",
-        "as_of": "2026-07-15",
-        "annual_sum_state": null,
-        "strict_comparison": true,
-        "disclaimer": "A definição do fundamento e do procedimento de contratação compete exclusivamente ao órgão ou entidade contratante.",
-        "commercial_ceiling_allegation_allowed": true
-      },
-      "fragmentation": {
-        "fragmentation_suspected": false,
-        "severity": "LOW",
-        "indicators": [
-          "sample_same_nature_sum_above_ceiling_incomplete_ledger"
-        ],
-        "annual_sum_same_nature": 443500.0,
-        "annual_sum_known": false,
-        "annual_sum_state": "DIRECT_CONTRACTING_SUM_UNKNOWN",
-        "packages": [],
-        "blocks_eligibility_claim": false,
-        "pricing_near_ceiling": false,
-        "notes": "Teto legal é filtro de elegibilidade potencial, não âncora de preço. Preço deve decorrer de escopo, esforço, responsabilidade técnica e riscos. Somatório anual: DIRECT_CONTRACTING_SUM_UNKNOWN. Somatório observado no sample de contratos não equivale a ledger anual completo da UG.",
-        "observed_contract_sum_in_sample": 443500.0,
-        "annual_ledger_complete": false
-      },
-      "conflict": {
-        "state": "CONFLICT_CHECK_PENDING",
-        "agency_id": "63c009dec8aaa5dd",
-        "cnpj14": "83788281000116",
-        "matched_rules": [],
-        "reasons": [
-          "no_automated_match_insufficient_to_clear"
-        ],
-        "human_review_required": true,
-        "cleared_by": null,
-        "cleared_at": null,
-        "clearance_note": null,
-        "cannot_assert_no_conflict": true,
-        "notes": "Sem match automático de bloqueio. Isso NÃO prova ausência de conflito. Outreach exige CONFLICT_CLEARED_BY_HUMAN_REVIEW."
-      },
-      "contacts": {
-        "accepted": [],
-        "rejected": [],
-        "has_institutional": false,
-        "research_actions": [
-          {
-            "channel": "sector",
-            "value": "Pesquisar e-mail institucional do setor de licitações/obras de São Bento do Sul/SC em portal oficial",
-            "institutional": true,
-            "source": "research_action",
-            "rejected_reason": null,
-            "notes": "Justificativa de pesquisa adicional — sem contato pessoal."
-          }
-        ],
-        "note": "Nenhum e-mail/telefone institucional capturado nesta rodada; há apenas justificativa de pesquisa adicional em portal oficial."
-      },
-      "publishability": {
-        "category": "PUBLISHABLE",
-        "reasons": [
-          "conflict_human_review_required_before_outreach"
-        ],
-        "publishable": true,
-        "relationship_state": "HUMAN_REVIEW_REQUIRED",
-        "checks": {
-          "official_identity": true,
-          "material_need_signal": true,
-          "official_evidence": true,
-          "service_fit": true,
-          "legible_explanation": true,
-          "no_conflict_block": true,
-          "no_critical_compliance_block": true,
-          "institutional_contact_or_research": true
-        }
-      },
-      "selected_service": {
-        "service_id": "REVISAO_PRE_PUBLICACAO",
-        "nome": "Revisão técnica pré-publicação",
-        "escopo": "Auditoria técnica independente antes da publicação (não é parecer jurídico).",
-        "entregaveis": [
-          "matriz_de_coerencia",
-          "inconsistencias_quantitativas",
-          "restricoes_indevidas",
-          "riscos_baixa_competicao",
-          "criterios_qualificacao_desproporcionais",
-          "omissoes_tecnicas",
-          "riscos_de_aditivos",
-          "checklist_de_saneamento",
-          "relatorio_executivo"
-        ],
-        "exclusoes": [
-          "parecer_juridico",
-          "aprovacao_juridica",
-          "homologacao"
-        ],
-        "faixa_preco_por_escopo": {
-          "currency": "BRL",
-          "bands": [
-            {
-              "label": "basico",
-              "min": 12000,
-              "max": 35000
-            },
-            {
-              "label": "intermediario",
-              "min": 35000,
-              "max": 70000
-            },
-            {
-              "label": "completo",
-              "min": 70000,
-              "max": 110000
-            }
-          ]
-        },
-        "duracao_estimada": "1 a 4 semanas"
-      },
-      "evidence": [
-        {
-          "source": "pncp_contracts",
-          "identifier": "83788281000116-2-000058/2026",
-          "url_or_ref": "pncp_supplier_contracts:83788281000116-2-000058/2026",
-          "publication_date": "2026-07-08",
-          "capture_date": "2026-07-15",
-          "hash": "f48e68d73bb29457",
-          "parser": "public_agency.pipeline",
-          "version": "1.0.0",
-          "quality": "official_table_row",
-          "is_engineering_object": true,
-          "eng_tier": "STRONG_WORKS",
-          "eng_reasons": [
-            "obra_de",
-            "keyword:OBRA",
-            "keyword:REFORMA"
-          ],
-          "limitations": [
-            "Buyer-side row from supplier contracts table; not full process file."
-          ],
-          "objeto": "CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA FORNECIMENTO DE MATERIAIS, MÃO DE OBRA E DEMAIS OBRIGAÇÕES NECESSÁRIAS PARA EXECUÇÃO DA OBRA DE REFORMA DO TELHADO DO CENTRO CULTURAL DR. GENÉSIO TURECK, LOCALIZADO NA RUA FELIPE SCHMIDT, 154 - CENTRO, SÃO BENTO DO SUL - SC, CONFORME CONDIÇÕES, QUANTIDADES E EXIGÊNCIAS ESTABELECIDAS NO TERMO DE REFERÊNCIA.",
-          "valor_total": "443500.00"
-        }
-      ],
-      "contract_count": 1,
-      "total_value": 443500.0,
-      "last_publication": "2026-07-08",
-      "limitations": [
-        "Somatório anual completo da UG não disponível (DIRECT_CONTRACTING_SUM_UNKNOWN).",
-        "População IBGE Censo 2022 (API oficial) é contexto, não prova de baixa capacidade.",
-        "Sem contato institucional capturado — apenas research action.",
-        "Modo proativo: não há edital/aviso aberto observado nesta fonte.",
-        "Sem outreach automático."
-      ],
-      "probable_problem": "Sinais de possível necessidade técnica (histórico de contratações de engenharia / execução longa) — prospecção proativa institucional; não afirma que o órgão está contratando no momento.",
-      "recommended_approach": "Apresentar capacidade técnica e redução de risco; não vender dispensa de licitação. Pesquisar canal institucional oficial antes de qualquer contato.",
-      "next_human_step": "Revisar conflito de interesses, classificação do objeto, dossier; localizar contato institucional público; autorizar ou rejeitar outreach.",
-      "outreach_message": "Prezados(as) de Fundação Cultural de São Bento do Sul,\n\nA CONFENGE presta apoio técnico especializado a órgãos públicos em planejamento de contratações de obras e serviços de engenharia, orçamentação e apoio técnico à fiscalização e à gestão contratual (sem substituir o fiscal público).\n\nCom base em dados públicos de contratações, identificamos sinais de possível necessidade técnica. Gostaríamos de apresentar nosso catálogo, se houver interesse institucional.\n\nAtenciosamente,\nCONFENGE",
-      "compliance_blocks": [],
-      "compliance_flags": [
-        "sample_same_nature_sum_above_ceiling_incomplete_ledger"
-      ],
-      "require_conflict_check": true,
-      "rank_position": 10
     }
   ],
   "outreach_sent": false,

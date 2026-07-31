@@ -3,12 +3,12 @@
 - **campaign_id:** CONFENGE-PUBLIC-AGENCY-TECHNICAL-SERVICES-01
 - **status:** PASS
 - **reason:** PASS
-- **git_sha:** `c4eb60c82d741d4dc3e74e33c23821ff8970c0b2`
+- **git_sha:** `aba9db86317aa63d0376348f0cc2f69670e981cf`
 - **as_of:** 2026-07-15
-- **agencies evaluated:** 275
-- **publishable:** 10
+- **agencies evaluated:** 276
+- **publishable:** 9
 - **blocked:** 0
-- **top_n:** 10
+- **top_n:** 9
 
 ## Human action
 

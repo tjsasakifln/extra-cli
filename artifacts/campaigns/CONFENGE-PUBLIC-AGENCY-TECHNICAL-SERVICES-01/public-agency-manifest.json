@@ -1,8 +1,8 @@
 {
   "campaign_id": "CONFENGE-PUBLIC-AGENCY-TECHNICAL-SERVICES-01",
   "status": "PASS",
-  "run_id": "0dfee4a0-fd1e-43b5-87ac-b221c5f58894",
-  "code_sha": "c4eb60c82d741d4dc3e74e33c23821ff8970c0b2",
+  "run_id": "4f1a2a4a-529a-4bb3-a087-119a10d582fa",
+  "code_sha": "aba9db86317aa63d0376348f0cc2f69670e981cf",
   "as_of": "2026-07-15",
   "config_hashes": {
     "profile": "1ca90e8c9ced4aeed6530704c4498c1b42095eb26b5a7993321ff912c3eb6d4b",
@@ -32,19 +32,20 @@
         "uf",
         "source",
         "source_id",
+        "is_active",
         "municipio"
       ]
     },
     "agency_universe": 477,
-    "evaluated_agencies": 275,
-    "publishable_agencies": 10,
+    "evaluated_agencies": 276,
+    "publishable_agencies": 9,
     "blocked_agencies": 0,
-    "top_n": 10,
+    "top_n": 9,
     "reasons": {
-      "RESEARCH_REQUIRED": 265,
-      "PUBLISHABLE": 10,
-      "above_focus_population": 32,
-      "missing_geographic_identity": 4
+      "PUBLISHABLE": 9,
+      "RESEARCH_REQUIRED": 267,
+      "missing_geographic_identity": 3,
+      "above_focus_population": 32
     },
     "ufs": [
       "SC"
@@ -54,19 +55,19 @@
     "kit_artifacts": 17
   },
   "artifacts": {
-    "public-agency-leads.json": "/tmp/grok-goal-68f57877de56/implementer/pag-launch-1/out/public-agency-leads.json",
-    "public-agency-leads.csv": "/tmp/grok-goal-68f57877de56/implementer/pag-launch-1/out/public-agency-leads.csv",
-    "public-agency-review-template.xlsx": "/tmp/grok-goal-68f57877de56/implementer/pag-launch-1/out/public-agency-review-template.xlsx",
-    "public-agency-report.html": "/tmp/grok-goal-68f57877de56/implementer/pag-launch-1/out/public-agency-report.html",
-    "public-agency-summary.md": "/tmp/grok-goal-68f57877de56/implementer/pag-launch-1/out/public-agency-summary.md",
-    "public-agency-run-result.json": "/tmp/grok-goal-68f57877de56/implementer/pag-launch-1/out/public-agency-run-result.json",
-    "public-agency-lead-explanations.jsonl": "/tmp/grok-goal-68f57877de56/implementer/pag-launch-1/out/public-agency-lead-explanations.jsonl",
-    "public-agency-evidence-ledger.jsonl": "/tmp/grok-goal-68f57877de56/implementer/pag-launch-1/out/public-agency-evidence-ledger.jsonl",
-    "public-agency-outreach-queue.csv": "/tmp/grok-goal-68f57877de56/implementer/pag-launch-1/out/public-agency-outreach-queue.csv",
-    "public-agency-service-fit.csv": "/tmp/grok-goal-68f57877de56/implementer/pag-launch-1/out/public-agency-service-fit.csv",
-    "public-agency-compliance-flags.csv": "/tmp/grok-goal-68f57877de56/implementer/pag-launch-1/out/public-agency-compliance-flags.csv",
-    "public-agency-conflict-review.csv": "/tmp/grok-goal-68f57877de56/implementer/pag-launch-1/out/public-agency-conflict-review.csv",
-    "public-agency-checksums.sha256": "/tmp/grok-goal-68f57877de56/implementer/pag-launch-1/out/public-agency-checksums.sha256"
+    "public-agency-leads.json": "/tmp/pag-dual-aba9/run1/out/public-agency-leads.json",
+    "public-agency-leads.csv": "/tmp/pag-dual-aba9/run1/out/public-agency-leads.csv",
+    "public-agency-review-template.xlsx": "/tmp/pag-dual-aba9/run1/out/public-agency-review-template.xlsx",
+    "public-agency-report.html": "/tmp/pag-dual-aba9/run1/out/public-agency-report.html",
+    "public-agency-summary.md": "/tmp/pag-dual-aba9/run1/out/public-agency-summary.md",
+    "public-agency-run-result.json": "/tmp/pag-dual-aba9/run1/out/public-agency-run-result.json",
+    "public-agency-lead-explanations.jsonl": "/tmp/pag-dual-aba9/run1/out/public-agency-lead-explanations.jsonl",
+    "public-agency-evidence-ledger.jsonl": "/tmp/pag-dual-aba9/run1/out/public-agency-evidence-ledger.jsonl",
+    "public-agency-outreach-queue.csv": "/tmp/pag-dual-aba9/run1/out/public-agency-outreach-queue.csv",
+    "public-agency-service-fit.csv": "/tmp/pag-dual-aba9/run1/out/public-agency-service-fit.csv",
+    "public-agency-compliance-flags.csv": "/tmp/pag-dual-aba9/run1/out/public-agency-compliance-flags.csv",
+    "public-agency-conflict-review.csv": "/tmp/pag-dual-aba9/run1/out/public-agency-conflict-review.csv",
+    "public-agency-checksums.sha256": "/tmp/pag-dual-aba9/run1/out/public-agency-checksums.sha256"
   },
   "target": "public-agencies",
   "outreach_sent": false
