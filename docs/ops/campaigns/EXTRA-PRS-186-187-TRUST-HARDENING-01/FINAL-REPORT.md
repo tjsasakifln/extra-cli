@@ -7,8 +7,8 @@
 
 | Ref | Original | Final |
 |-----|----------|-------|
-| PR #186 `feat/extra-local-command-center` | `0913b2f5c7fef41ae830c40478342822d5737767` | `ffae2459653b424ecbc531d7d84c42f080a66d1b` |
-| PR #187 `feat/pseo-export-isolated` | `f2b54588304cad76c70fa1ea6cb40ac2b52ca1bd` | *(tip after this push)* |
+| PR #186 `feat/extra-local-command-center` | `0913b2f5c7fef41ae830c40478342822d5737767` | `648e35e5a377c3616eed89b130061a1adecb706d` |
+| PR #187 `feat/pseo-export-isolated` | `f2b54588304cad76c70fa1ea6cb40ac2b52ca1bd` | `4a88ca02121ac89c8eb57faabe781bebdf36b01a` |
 | `main` | `1718d6389c4e772bf3c5a45ac059871c32d83afc` | unchanged |
 
 ## 2. A16 (PR #186) — evidence
@@ -54,3 +54,12 @@ Logs on #186: `docs/ops/campaigns/.../logs/a16-*.txt`
 
 ## 6. Isolation
 Maintained: CC only on #186, pSEO only on #187.
+
+
+## 8. Skeptic remediation (final round)
+- Fail-closed: removed `deep_strip_forbidden` from export path; forbidden fields raise.
+- Promote path: `require_commit_entrypoint=True`.
+- Classifier: per-segment precision >= 0.95 asserted.
+- DB path: stream + incremental classify; raw tables not materialized.
+- CC: concurrent `enqueue_review` IntegrityError recovery + expanded `/__visual_matrix` (14 e2e).
+- `result.json` HEADs pinned to remote tips after push.

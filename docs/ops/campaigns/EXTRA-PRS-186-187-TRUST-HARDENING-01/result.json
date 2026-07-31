@@ -1,16 +1,16 @@
 {
   "campaign_id": "EXTRA-PRS-186-187-TRUST-HARDENING-01",
-  "captured_at": "2026-07-31T22:10:00Z",
+  "captured_at": "2026-07-31T22:08:55Z",
   "main_sha": "1718d6389c4e772bf3c5a45ac059871c32d83afc",
   "pr_186": {
     "branch": "feat/extra-local-command-center",
     "original_head": "0913b2f5c7fef41ae830c40478342822d5737767",
-    "final_head": "ffae2459653b424ecbc531d7d84c42f080a66d1b",
+    "final_head": "648e35e5a377c3616eed89b130061a1adecb706d",
     "status": "PASS_MERGE_READY",
     "a16": {
-      "pytest": "104 passed",
-      "npm_unit": "10 passed",
-      "e2e": "52 passed"
+      "pytest": "104+ passed (incl concurrent enqueue)",
+      "visual_matrix_expanded": "14 passed",
+      "e2e_prior": "52 passed"
     },
     "non_claims": [
       "LIVE_READY",
@@ -20,29 +20,20 @@
   "pr_187": {
     "branch": "feat/pseo-export-isolated",
     "original_head": "f2b54588304cad76c70fa1ea6cb40ac2b52ca1bd",
-    "final_head": "f8ca5c532bc30b31785abd5610a995dfb600f040",
+    "final_head": "4a88ca02121ac89c8eb57faabe781bebdf36b01a",
     "status": "PARTIAL_BLOCKED",
     "b12": {
-      "pytest": "53 passed",
-      "ruff": "clean",
-      "fixture_export_validate": "ok",
+      "pytest": "58 passed",
+      "fail_closed": true,
+      "require_commit_entrypoint_on_promote": true,
+      "streaming_db_path": true,
+      "segment_precision_gate": ">=0.95",
       "synthetic_250k": {
         "n_rows": 250000,
-        "elapsed_sec": 0.3785,
-        "rss_delta_mb": 6.12,
-        "fetchall_calls": 0,
-        "evidence": "logs/pseo-250k-benchmark.json"
+        "fetchall_calls": 0
       },
-      "consumer_contract": {
-        "schema_contract": "PROVEN",
-        "render_pipeline": "CONSUMER_INTEGRATION_NOT_PROVEN",
-        "report": "PR-187-CONSUMER-CONTRACT.md"
-      }
-    },
-    "fixture_export": {
-      "indexable": false,
-      "snapshot_status": "CANDIDATE",
-      "publish_status": "REVIEW_REQUIRED"
+      "consumer_schema_contract": "PROVEN",
+      "consumer_render": "CONSUMER_INTEGRATION_NOT_PROVEN"
     },
     "non_claims": [
       "web-cfg published",
@@ -52,5 +43,14 @@
     ]
   },
   "merged": false,
-  "deployed": false
+  "deployed": false,
+  "skeptic_remediation": [
+    "deep_strip_forbidden removed from export path",
+    "require_commit_entrypoint=True on atomic promote",
+    "classifier by_segment precision asserted",
+    "load_from_db incremental classify no raw materialize",
+    "visual matrix /__visual_matrix + expanded e2e",
+    "concurrent enqueue IntegrityError recovery",
+    "result.json HEADs pinned to tips"
+  ]
 }
