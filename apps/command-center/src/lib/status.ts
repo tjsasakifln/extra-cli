@@ -7,7 +7,21 @@ export type AttentionKind =
   | "no_data"
   | "running"
   | "partial"
-  | "proven";
+  | "proven"
+  | "unknown";
+
+const KNOWN_ATTENTION = new Set<AttentionKind>([
+  "healthy",
+  "attention",
+  "blocked_external",
+  "blocked_technical",
+  "awaiting_human",
+  "no_data",
+  "running",
+  "partial",
+  "proven",
+  "unknown",
+]);
 
 const HUMAN: Record<string, string> = {
   QUEUED: "Na fila — a execução ainda não começou.",
@@ -52,6 +66,8 @@ export function attentionFromState(state?: string | null): AttentionKind {
     case "BLOCKED_EXTERNAL":
       return "blocked_external";
     case "BLOCKED_HUMAN":
+    case "BLOCKED_INSUFFICIENT_HUMAN_LABELS":
+    case "READY_FOR_HUMAN_ACCEPTANCE":
       return "awaiting_human";
     case "FAILED":
     case "TIMED_OUT":
@@ -62,10 +78,38 @@ export function attentionFromState(state?: string | null): AttentionKind {
     case "CANCELLING":
       return "running";
     case "UNAVAILABLE":
+    case "SUCCESS_ZERO":
       return "no_data";
+    case null:
+    case undefined:
+    case "":
+      return "unknown";
     default:
-      return "attention";
+      return "unknown";
   }
+}
+
+/** Safe parse of API/attention kind strings — never blind-casts arbitrary values. */
+export function normalizeAttentionKind(value?: string | null): AttentionKind {
+  if (!value) return "unknown";
+  const key = value.trim().toLowerCase().replace(/-/g, "_") as AttentionKind;
+  if (KNOWN_ATTENTION.has(key)) return key;
+  // Map overview attention kinds
+  if (value.includes("awaiting") || value.includes("human") || value.includes("blocked_human")) {
+    return "awaiting_human";
+  }
+  if (value.includes("blocked_external") || value.includes("external")) return "blocked_external";
+  if (value.includes("blocked_technical") || value.includes("failed") || value.includes("timeout")) {
+    return "blocked_technical";
+  }
+  if (value.includes("running") || value.includes("job_running")) return "running";
+  if (value.includes("partial")) return "partial";
+  if (value.includes("no_data") || value.includes("missing")) return "no_data";
+  if (value.includes("healthy") || value.includes("proven")) return "healthy";
+  if (value.includes("attention") || value.includes("job_attention") || value.includes("profile")) {
+    return "attention";
+  }
+  return "unknown";
 }
 
 export function attentionLabel(kind: AttentionKind): string {
@@ -74,11 +118,18 @@ export function attentionLabel(kind: AttentionKind): string {
     attention: "Atenção",
     blocked_external: "Bloqueio externo",
     blocked_technical: "Bloqueio técnico",
-    awaiting_human: "Aguardando revisão humana",
+    awaiting_human: "Aguardando decisão humana",
     no_data: "Sem dados",
     running: "Em andamento",
     partial: "Parcial",
     proven: "Comprovado",
+    unknown: "Status desconhecido",
   };
-  return labels[kind];
+  return labels[kind] ?? labels.unknown;
+}
+
+/** CSS class segment for status tokens (matches --status-* tokens). */
+export function attentionTokenClass(kind: AttentionKind): string {
+  const safe = KNOWN_ATTENTION.has(kind) ? kind : "unknown";
+  return `status-${safe}`;
 }

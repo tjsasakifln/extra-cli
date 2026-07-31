@@ -48,41 +48,122 @@ export type Job = {
   code_sha?: string | null;
 };
 
-let csrfToken: string | null = null;
+export type ReviewsResponse = {
+  reviews: Array<Record<string, unknown>>;
+  page_count: number;
+  total_count: number;
+  limit: number;
+  offset: number;
+  /** @deprecated use total_count */
+  count?: number;
+};
 
-async function ensureCsrf(): Promise<string> {
+export class ApiError extends Error {
+  status: number;
+  code?: string;
+  constructor(message: string, status: number, code?: string) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+    this.code = code;
+  }
+}
+
+let csrfToken: string | null = null;
+const DEFAULT_TIMEOUT_MS = 30_000;
+
+async function ensureCsrf(signal?: AbortSignal): Promise<string> {
   if (csrfToken) return csrfToken;
-  const res = await fetch("/api/csrf", { credentials: "include" });
-  if (!res.ok) throw new Error("Falha ao obter token CSRF");
-  const data = await res.json();
-  csrfToken = data.csrf_token as string;
+  const res = await fetchWithTimeout("/api/csrf", { credentials: "include", signal }, 10_000);
+  if (!res.ok) throw new ApiError("Falha ao obter token CSRF", res.status);
+  const data: unknown = await res.json();
+  if (!data || typeof data !== "object" || typeof (data as { csrf_token?: unknown }).csrf_token !== "string") {
+    throw new ApiError("Resposta CSRF inválida", res.status);
+  }
+  csrfToken = (data as { csrf_token: string }).csrf_token;
   return csrfToken;
 }
 
-async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const headers = new Headers(init.headers || {});
-  if (init.method && init.method !== "GET") {
-    const token = await ensureCsrf();
-    headers.set("X-CC-CSRF", token);
-    headers.set("Content-Type", "application/json");
+function fetchWithTimeout(
+  path: string,
+  init: RequestInit,
+  timeoutMs = DEFAULT_TIMEOUT_MS,
+): Promise<Response> {
+  const controller = new AbortController();
+  const external = init.signal;
+  const onAbort = () => controller.abort();
+  if (external) {
+    if (external.aborted) controller.abort();
+    else external.addEventListener("abort", onAbort, { once: true });
   }
-  const res = await fetch(path, { ...init, headers, credentials: "include" });
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  return fetch(path, { ...init, signal: controller.signal }).finally(() => {
+    clearTimeout(timer);
+    if (external) external.removeEventListener("abort", onAbort);
+  });
+}
+
+function humanizeError(status: number, detail: string): string {
+  if (status === 403) return "Ação recusada (CSRF ou permissão). Atualize a página e tente de novo.";
+  if (status === 404) return "Recurso não encontrado.";
+  if (status === 409) return "Conflito de estado — atualize e tente novamente.";
+  if (status === 413) return "Arquivo ou resposta grande demais.";
+  if (status === 422) return detail || "Dados inválidos.";
+  if (status >= 500) return "Erro interno do painel local. Veja os logs se o problema persistir.";
+  return detail || `Erro HTTP ${status}`;
+}
+
+async function api<T>(path: string, init: RequestInit = {}, opts?: { timeoutMs?: number; retriedCsrf?: boolean }): Promise<T> {
+  const headers = new Headers(init.headers || {});
+  const method = (init.method || "GET").toUpperCase();
+  if (method !== "GET" && method !== "HEAD") {
+    const token = await ensureCsrf(init.signal || undefined);
+    headers.set("X-CC-CSRF", token);
+    if (!headers.has("Content-Type") && init.body) {
+      headers.set("Content-Type", "application/json");
+    }
+  }
+  let res: Response;
+  try {
+    res = await fetchWithTimeout(
+      path,
+      { ...init, headers, credentials: "include" },
+      opts?.timeoutMs ?? DEFAULT_TIMEOUT_MS,
+    );
+  } catch (err) {
+    if (err instanceof DOMException && err.name === "AbortError") {
+      throw new ApiError("Tempo esgotado ao falar com o painel local.", 0, "TIMEOUT");
+    }
+    throw new ApiError("Não foi possível conectar ao painel local.", 0, "NETWORK");
+  }
+
+  // One safe CSRF refresh for mutating methods only when server rejects token.
+  if (res.status === 403 && method !== "GET" && method !== "HEAD" && !opts?.retriedCsrf) {
+    csrfToken = null;
+    return api<T>(path, init, { ...opts, retriedCsrf: true });
+  }
+
   if (!res.ok) {
     let detail = res.statusText;
     try {
-      const body = await res.json();
-      detail = body.detail || body.message || detail;
+      const body: unknown = await res.json();
+      if (body && typeof body === "object") {
+        const b = body as { detail?: unknown; message?: unknown };
+        if (typeof b.detail === "string") detail = b.detail;
+        else if (typeof b.message === "string") detail = b.message;
+        else if (b.detail != null) detail = JSON.stringify(b.detail);
+      }
     } catch {
       /* ignore */
     }
-    throw new Error(typeof detail === "string" ? detail : JSON.stringify(detail));
+    throw new ApiError(humanizeError(res.status, detail), res.status);
   }
-  return res.json() as Promise<T>;
+  return (await res.json()) as T;
 }
 
 export const client = {
-  health: () => api<Record<string, unknown>>("/api/health"),
-  overview: () => api<Record<string, unknown>>("/api/overview"),
+  health: (signal?: AbortSignal) => api<Record<string, unknown>>("/api/health", { signal }),
+  overview: (signal?: AbortSignal) => api<Record<string, unknown>>("/api/overview", { signal }),
   onboarding: () => api<Record<string, unknown>>("/api/onboarding"),
   capabilities: (category?: string) =>
     api<{ capabilities: Capability[] }>(
@@ -97,9 +178,7 @@ export const client = {
     api<{ workspaces: Array<{ id: string; label: string; client_id: string }> }>("/api/workspaces"),
   jobs: (workspaceId?: string) =>
     api<{ jobs: Job[] }>(
-      workspaceId
-        ? `/api/jobs?workspace_id=${encodeURIComponent(workspaceId)}`
-        : "/api/jobs",
+      workspaceId ? `/api/jobs?workspace_id=${encodeURIComponent(workspaceId)}` : "/api/jobs",
     ),
   job: (id: string) => api<{ job: Job }>(`/api/jobs/${encodeURIComponent(id)}`),
   jobLogs: (id: string, afterId = 0) =>
@@ -113,17 +192,23 @@ export const client = {
     }),
   cancelJob: (id: string) =>
     api<{ job: Job }>(`/api/jobs/${encodeURIComponent(id)}/cancel`, { method: "POST", body: "{}" }),
-  search: (q: string) =>
-    api<{ query: string; results: Array<{ type: string; id: string; label: string; detail: string; href: string }> }>(
-      `/api/search?q=${encodeURIComponent(q)}`,
-    ),
+  search: (q: string, signal?: AbortSignal) =>
+    api<{
+      query: string;
+      results: Array<{ type: string; id: string; label: string; detail: string; href: string }>;
+    }>(`/api/search?q=${encodeURIComponent(q)}`, { signal }),
   artifact: (path: string) => api<Record<string, unknown>>(`/api/artifacts?path=${encodeURIComponent(path)}`),
   recentArtifacts: () => api<{ recent: Array<Record<string, unknown>> }>("/api/artifacts?recent=true"),
   decisions: () => api<{ decisions: Array<Record<string, unknown>> }>("/api/decisions"),
-  reviews: (status = "pending") =>
-    api<{ reviews: Array<Record<string, unknown>>; count: number }>(
-      `/api/reviews?status=${encodeURIComponent(status)}`,
+  reviews: (status = "pending", limit = 50, offset = 0) =>
+    api<ReviewsResponse>(
+      `/api/reviews?status=${encodeURIComponent(status)}&limit=${limit}&offset=${offset}`,
     ),
+  reconcileReviews: () =>
+    api<{ ok: boolean; created: number; total_pending: number }>("/api/reviews/reconcile", {
+      method: "POST",
+      body: "{}",
+    }),
   reviewConfirmation: (itemId: string) =>
     api<{
       item_id: string;

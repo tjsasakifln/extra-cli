@@ -40,6 +40,36 @@
   --partial-soft: #f3ecc8;
   --running: #0f4c5c;
   --running-soft: #d7e8ec;
+
+  /* Semantic status tokens — full bg/fg/border for light theme (WCAG AA). */
+  --status-healthy-bg: #d7ecdf;
+  --status-healthy-fg: #0d3a22;
+  --status-healthy-border: #1f5b38;
+  --status-running-bg: #d7e8ec;
+  --status-running-fg: #0a3540;
+  --status-running-border: #0f4c5c;
+  --status-attention-bg: #f6e7c8;
+  --status-attention-fg: #5c3a08;
+  --status-attention-border: #8a5a10;
+  --status-blocked-human-bg: #ebe1f7;
+  --status-blocked-human-fg: #3f2860;
+  --status-blocked-human-border: #5c3d8a;
+  --status-blocked-technical-bg: #f8e0e0;
+  --status-blocked-technical-fg: #6e1c1c;
+  --status-blocked-technical-border: #9b2c2c;
+  --status-blocked-external-bg: #f5e4cc;
+  --status-blocked-external-fg: #5a3408;
+  --status-blocked-external-border: #7a4a12;
+  --status-partial-bg: #f3ecc8;
+  --status-partial-fg: #4a3d0c;
+  --status-partial-border: #6b5a16;
+  --status-no-data-bg: #e4eaf0;
+  --status-no-data-fg: #3a4a54;
+  --status-no-data-border: #4a5a66;
+  --status-unknown-bg: #e8e4ef;
+  --status-unknown-fg: #3a2f4a;
+  --status-unknown-border: #5c4a70;
+
   --shadow: 0 1px 2px rgba(12, 28, 38, 0.06), 0 12px 32px rgba(12, 28, 38, 0.08);
   --shadow-lg: 0 8px 40px rgba(12, 28, 38, 0.12);
   --radius-sm: 8px;
@@ -93,6 +123,36 @@
   --partial-soft: #353018;
   --running: #7ec8d8;
   --running-soft: #1a333a;
+
+  /* Semantic status tokens — dark theme (fg ≥4.5:1 on bg). */
+  --status-healthy-bg: #1d3326;
+  --status-healthy-fg: #b6ebc8;
+  --status-healthy-border: #8fd5a8;
+  --status-running-bg: #1a333a;
+  --status-running-fg: #b5e4ef;
+  --status-running-border: #7ec8d8;
+  --status-attention-bg: #3a3018;
+  --status-attention-fg: #f0d9a0;
+  --status-attention-border: #e6c07b;
+  --status-blocked-human-bg: #2c2340;
+  --status-blocked-human-fg: #e0ccff;
+  --status-blocked-human-border: #c4a6ef;
+  --status-blocked-technical-bg: #3a2222;
+  --status-blocked-technical-fg: #f5c0c0;
+  --status-blocked-technical-border: #f0a0a0;
+  --status-blocked-external-bg: #3a2c18;
+  --status-blocked-external-fg: #f0d0a0;
+  --status-blocked-external-border: #e0b47a;
+  --status-partial-bg: #353018;
+  --status-partial-fg: #efe0a0;
+  --status-partial-border: #d6c87a;
+  --status-no-data-bg: #1c262e;
+  --status-no-data-fg: #c5d0d8;
+  --status-no-data-border: #a8b6c0;
+  --status-unknown-bg: #2a2434;
+  --status-unknown-fg: #d8cce8;
+  --status-unknown-border: #a898c0;
+
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 16px 40px rgba(0, 0, 0, 0.35);
   --shadow-lg: 0 12px 48px rgba(0, 0, 0, 0.45);
 }

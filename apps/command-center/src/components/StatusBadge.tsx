@@ -1,23 +1,38 @@
-import { attentionFromState, attentionLabel, type AttentionKind } from "../lib/status";
+import {
+  attentionFromState,
+  attentionLabel,
+  attentionTokenClass,
+  normalizeAttentionKind,
+  type AttentionKind,
+} from "../lib/status";
 
 export function StatusBadge({
   state,
   attention,
   label,
+  showTechnicalCode = false,
 }: {
   state?: string | null;
   attention?: AttentionKind | string | null;
   label?: string;
+  /** When true, append technical state code (prefer expandable detail elsewhere). */
+  showTechnicalCode?: boolean;
 }) {
-  const kind = (attention as AttentionKind) || attentionFromState(state);
+  const kind: AttentionKind = attention
+    ? normalizeAttentionKind(String(attention))
+    : attentionFromState(state);
   const text = label || attentionLabel(kind);
+  const cls = attentionTokenClass(kind);
+
   return (
-    <span className={`status-badge status-${kind}`} title={state || text}>
+    <span className={`status-badge ${cls}`} title={state ? `${text} (${state})` : text}>
       <span className="sr-only">Status: </span>
-      {text}
-      {state ? <span className="mono" style={{ opacity: 0.75, fontWeight: 500 }}>
-        · {state}
-      </span> : null}
+      <span className="status-badge__label">{text}</span>
+      {showTechnicalCode && state ? (
+        <span className="status-badge__code mono" aria-hidden="true">
+          · {state}
+        </span>
+      ) : null}
     </span>
   );
 }
