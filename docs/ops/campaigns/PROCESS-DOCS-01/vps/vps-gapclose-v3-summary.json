@@ -1,0 +1,35 @@
+{
+  "operational": {
+    "percent": 86.9779,
+    "num": 354,
+    "den": 407,
+    "meets": false
+  },
+  "recall": {
+    "percent": 100.0,
+    "num": 807,
+    "den": 807,
+    "meets": true
+  },
+  "financial": {
+    "percent": 100.0,
+    "total": 14486954348.159998,
+    "covered": 14486954348.159998,
+    "meets": true
+  },
+  "completeness": {
+    "notice_and_annexes_completeness": 7.8837,
+    "session_judgment_homologation_completeness": 0.3234,
+    "winning_proposal_completeness": 0.6219,
+    "bidder_qualification_documents_completeness": 0.3317
+  },
+  "corpus": {
+    "processes": 859,
+    "engineering": 80,
+    "envelopes": 399,
+    "families": 6,
+    "annotations": 5499
+  },
+  "found_processes": 1085,
+  "gate_exit": 3
+}

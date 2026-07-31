@@ -1,0 +1,37 @@
+{
+  "as_of": "2026-07-31T01:00:07.005976+00:00",
+  "git_head": "f22d607243c4f0152087a8bddef26e53718d0676",
+  "branch": "feat/public-process-documents-coverage",
+  "issue_137": "CLOSED",
+  "issue_137_closed_at": "2026-07-30T23:51:37Z",
+  "issue_137_close_comment": "PO ACCEPT residual win/qual + CLOSE #137 with corpus+GT+FP/FN evidence",
+  "pr_133": {
+    "state": "OPEN",
+    "mergeable": "MERGEABLE",
+    "head_ref_oid": "3921aa355c1ad9c103bf97a6e1fa800e602e9c53",
+    "title": "feat(proposal): bid submission readiness (public corpus via #137; rebased)",
+    "url": "https://github.com/tjsasakifln/extra-cli/pull/133",
+    "reassessment": "Corpus blocker from #137 lifted; rebased MERGEABLE; suite baseline documented; not auto-merged"
+  },
+  "pr_184": "https://github.com/tjsasakifln/extra-cli/pull/184",
+  "coverage_full_exit": 0,
+  "candidate_complete": false,
+  "ready_to_submit": false,
+  "metrics": {
+    "discovery": 100.0,
+    "operational": 96.5602,
+    "recall": 100.0,
+    "financial": 100.0,
+    "notice": 99.9382,
+    "session": 99.9382,
+    "win": 8.9054,
+    "qual": 1.2678
+  },
+  "po_decisions": [
+    "APPROVE_EVIDENCE_REVIEW",
+    "ACCEPT_RESIDUAL_WIN_QUAL_OPEN_AND_CLOSE_137"
+  ],
+  "residual_policy": "PO residual waives gate exit for win/qual only; meets_threshold stays false; denominators not shrunk",
+  "ci_note": "ruff fixed on process_documents; full suite + critical readiness green on prior HEAD",
+  "code_head_ruff_clean": "f3a0d309b0a2e97d50d7f02ddcaae603880d487e"
+}

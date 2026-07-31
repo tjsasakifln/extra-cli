@@ -1,0 +1,88 @@
+{
+  "exit_code": 0,
+  "generated_at": "2026-07-31T00:19:47.546070+00:00",
+  "thresholds": {
+    "entity_source_discovery_coverage": 1.0,
+    "active_entity_document_operational_coverage": 0.95,
+    "relevant_process_recall": 0.98,
+    "covered_financial_value_ratio": 0.99,
+    "notice_and_annexes_completeness": 0.98,
+    "session_judgment_homologation_completeness": 0.95,
+    "winning_proposal_completeness": 0.85,
+    "bidder_qualification_documents_completeness": 0.7
+  },
+  "residual_policy": {
+    "path": "/var/lib/extra-consultoria/output/process_documents/po-decision-residual-and-137.json",
+    "decision": "ACCEPT_RESIDUAL_WIN_QUAL_OPEN_AND_CLOSE_137",
+    "signer": "Tiago",
+    "waives": [
+      "bidder_qualification_documents_completeness",
+      "winning_proposal_completeness"
+    ],
+    "note": "PO residual acceptance waives gate exit for win/qual only. meets_threshold remains false; denominators unchanged."
+  },
+  "residual_waivers_applied": [
+    "bidder_qualification_documents_completeness",
+    "winning_proposal_completeness"
+  ],
+  "residual_waiver_note": "PO residual acceptance waives gate exit for win/qual only. meets_threshold remains false; denominators unchanged.",
+  "discovery": {
+    "entity_count": 1093,
+    "unknown_access_count": 0,
+    "meets_100_percent": true,
+    "entity_source_discovery_coverage_percent": 100.0
+  },
+  "operational": {
+    "numerator": 393,
+    "denominator": 407,
+    "percent": 96.5602,
+    "meets_threshold": true
+  },
+  "recall": {
+    "numerator": 807,
+    "denominator": 807,
+    "percent": 100.0,
+    "meets_threshold": true,
+    "benchmark_id": null
+  },
+  "financial": {
+    "percent": 100.0,
+    "meets_threshold": true,
+    "total_value": 14486954348.159998,
+    "covered_value": 14486954348.159998
+  },
+  "completeness": {
+    "notice_and_annexes_completeness": {
+      "ratio": 0.9993815708101422,
+      "percent": 99.9382,
+      "threshold": 0.98,
+      "meets_threshold": true,
+      "methodology": "process_level_binary_presence",
+      "residual_count": 2
+    },
+    "session_judgment_homologation_completeness": {
+      "ratio": 0.9993815708101422,
+      "percent": 99.9382,
+      "threshold": 0.95,
+      "meets_threshold": true,
+      "methodology": "process_level_binary_presence",
+      "residual_count": 2
+    },
+    "winning_proposal_completeness": {
+      "ratio": 0.08905380333951762,
+      "percent": 8.9054,
+      "threshold": 0.85,
+      "meets_threshold": false,
+      "methodology": "process_level_binary_presence",
+      "residual_count": 2946
+    },
+    "bidder_qualification_documents_completeness": {
+      "ratio": 0.012677798392084107,
+      "percent": 1.2678,
+      "threshold": 0.7,
+      "meets_threshold": false,
+      "methodology": "process_level_binary_presence",
+      "residual_count": 3193
+    }
+  }
+}

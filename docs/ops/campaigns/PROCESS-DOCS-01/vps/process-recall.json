@@ -1,0 +1,26 @@
+{
+  "metric": "relevant_process_recall",
+  "threshold": 0.98,
+  "numerator": 807,
+  "denominator": 807,
+  "ratio": 1.0,
+  "percent": 100.0,
+  "meets_threshold": true,
+  "benchmark_version": "process_recall_benchmark_v3_extra_sc_tight_2026-07-30",
+  "benchmark_path": "/var/lib/extra-consultoria/output/process_documents/process-recall-benchmark.json",
+  "cutoff_date": "2026-07-30",
+  "independent_sources": [
+    "engineering_opportunities",
+    "opportunity_intel",
+    "pncp_raw_bids",
+    "pncp_supplier_contracts_sc"
+  ],
+  "expected_ids_sha256": "ed148e6d61dbf0b9f9fcf698f9c7596ba45e03edadbc8566084a30dd2fd8c6a0",
+  "false_negatives": [],
+  "limitations": [
+    "Recall is undefined for gate pass when benchmark denominator is 0",
+    "Crawler under evaluation must not be sole denominator source",
+    "Tight Extra/SC independent benchmark; excludes inflated non-SC national contract mass."
+  ],
+  "generated_at": "2026-07-30T22:02:35.253599+00:00"
+}

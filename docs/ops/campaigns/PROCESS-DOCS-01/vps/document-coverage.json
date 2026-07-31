@@ -1,0 +1,19 @@
+{
+  "metric": "active_entity_document_operational_coverage",
+  "threshold": 0.95,
+  "numerator": 393,
+  "denominator": 407,
+  "ratio": 0.9656019656019657,
+  "percent": 96.5602,
+  "meets_threshold": true,
+  "active_ids_sha256": "71f78c738dc7323851dcca7ec6862ca562632491054b8d76edc5d074643c2638",
+  "pending_activity_count": 685,
+  "inactive_count": 1,
+  "generated_at": "2026-07-30T22:02:35.202321+00:00",
+  "honesty_rules": [
+    "timeout/403/429/5xx/partial never count as coverage",
+    "active blocked entities remain in denominator",
+    "SUCCESS_ZERO requires justification in run evidence"
+  ],
+  "note": "ids trimmed for git; full on VPS"
+}

@@ -1,0 +1,18 @@
+[Unit]
+Description=Extra Consultoria — process documents incremental collection
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=extra
+WorkingDirectory=/opt/extra-cli
+EnvironmentFile=-/etc/extra-cli/extra-collector.env
+Environment=PROCESS_DOCUMENTS_RAW_ROOT=/var/lib/extra-cli/raw/process_documents
+Environment=PROCESS_DOCUMENTS_META_ROOT=/var/lib/extra-cli/output/process_documents
+ExecStart=/usr/bin/python3 -m scripts.process_documents incremental --limit 100
+Nice=10
+TimeoutStartSec=6h
+
+[Install]
+WantedBy=multi-user.target

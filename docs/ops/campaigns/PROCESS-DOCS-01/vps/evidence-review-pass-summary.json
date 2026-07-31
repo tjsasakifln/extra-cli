@@ -1,0 +1,69 @@
+{
+  "generated_at": "2026-07-30T23:40:40.458002+00:00",
+  "gt_review": {
+    "slots": 600,
+    "label_counts": {
+      "present": 600
+    },
+    "cas_ok": 600,
+    "flagged": 0,
+    "evidence_review_complete": true,
+    "product_owner_signoff": false,
+    "issue_137_close_allowed": false
+  },
+  "win_qual_blocker_review": {
+    "processes_scored": 3233,
+    "win_percent": 8.9081,
+    "qual_percent": 1.2372,
+    "win_residual": 2945,
+    "qual_residual": 3193,
+    "win_blockers": {
+      "non_process_publication_dump": 19,
+      "session_public_but_winning_proposal_pdf_not_published": 526,
+      "sc_compras_homolog_without_public_proposal_pack": 2400
+    },
+    "qual_blockers": {
+      "non_process_publication_dump": 14,
+      "session_public_but_bidder_qualification_not_published": 3179
+    },
+    "decision": "leave_win_qual_gates_open"
+  },
+  "completeness": {
+    "notice_and_annexes_completeness": {
+      "percent": 99.9382,
+      "meets": true,
+      "residual": 2
+    },
+    "session_judgment_homologation_completeness": {
+      "percent": 99.9382,
+      "meets": true,
+      "residual": 2
+    },
+    "winning_proposal_completeness": {
+      "percent": 8.9054,
+      "meets": false,
+      "residual": 2946
+    },
+    "bidder_qualification_documents_completeness": {
+      "percent": 1.2678,
+      "meets": false,
+      "residual": 3193
+    }
+  },
+  "processes_scored": 3234,
+  "gate_exit": 6,
+  "operational_percent": 96.5602,
+  "recall_percent": 100.0,
+  "financial_percent": 100.0,
+  "corpus": {
+    "process_count": 3289,
+    "engineering_process_count": 121,
+    "complete_envelope_count": 3283,
+    "portal_family_count": 7,
+    "annotated_requirements_count": 23121,
+    "issue_137_unblock_allowed": false
+  },
+  "candidate_complete": false,
+  "issue_137": "OPEN",
+  "ready_to_submit_allowed": false
+}

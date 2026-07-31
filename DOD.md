@@ -12,6 +12,17 @@
 >
 > **Meta mínima:** cobertura operacional auditável de **95% para editais** e **95% para contratos**, calculadas separadamente sobre os entes marcados na planilha como pertencentes ao raio de 200 km.
 >
+> **Metas documentais independentes (capability `procurement_process_documents`):** **não** se faz média entre métricas.
+>
+> - discovery e decisão de aplicabilidade documental: **100%** dos **1.093** entes (`entity_source_discovery_coverage`);
+> - cobertura documental operacional: **≥95%** dos entes **ativos** (`active_entity_document_operational_coverage`);
+> - recall de processos relevantes: **≥98%** (`relevant_process_recall`);
+> - cobertura financeira dos processos relevantes: **≥99%** (`covered_financial_value_ratio`);
+> - completude de edital e anexos: **≥98%**;
+> - completude de sessão/julgamento/homologação: **≥95%**;
+> - completude de proposta vencedora: **≥85%**;
+> - completude de habilitação: **≥70%**.
+>
 > **Agnosticidade de desenvolvimento:** os requisitos, evidências, comandos e gates deste documento não dependem de Claude Code, Codex, Cursor, AIOX, MCP proprietário, IDE específica ou qualquer outro agente. Ferramentas podem acelerar o trabalho; nenhuma delas define o que significa pronto.
 
 ## Atualização comprovada — ciclo B2G operacional de 17/07/2026
@@ -610,6 +621,35 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 
 ---
 
+
+### 4.4 Métricas documentais de processos administrativos (independentes)
+
+Capability canônica: `procurement_process_documents` (decomposição opcional: `notice_documents`, `planning_documents`, `bidder_submission_documents`, `session_and_judgment_documents`, `appeal_documents`, `contract_execution_documents`, `administrative_process_documents`).
+
+```text
+entity_source_discovery_coverage = entes com discovery documental não-unknown / 1093
+active_entity_document_operational_coverage = entes ativos com SUCCESS_NONZERO|SUCCESS_ZERO live / entes ativos
+relevant_process_recall = processos relevantes encontrados / processos relevantes do benchmark independente
+covered_financial_value_ratio = valor coberto / valor total do universo relevante (hierarquia versionada de um campo)
+```
+
+- [x] `entity_source_discovery_coverage = 100%` (1.093/1.093; zero `unknown`). Evidência: `python3 -m scripts.process_documents discover --all` exit 0 · `output/process_documents/document-source-registry.json` entity_count=1093 unknown_access_count=0 meets_100_percent=true · canonical_ids_sha256 `306976f2ae4bbaa46d816c2529e498fe114ef433e23181599b0892124bed7490` · PROCESS-DOCS-01 2026-07-30.
+- [x] `active_entity_document_operational_coverage >= 95%` (denominador = entes ativos; blockers permanecem no denominador). Evidência VPS 2026-07-30: **393/407 = 96,56%** (`vps/vps-residual-final-summary.json` + `document-coverage.json`); 14 residual ativos documentados como blocked no denominador; HEAD `d15fc1b253b6`.
+- [x] `relevant_process_recall >= 98%` (benchmark independente versionado). Evidência VPS: **807/807 = 100%** benchmark `process_recall_benchmark_v3_extra_sc_tight_2026-07-30` (`vps/process-recall.json`).
+- [x] `covered_financial_value_ratio >= 99%`. Evidência VPS: **100%** do valor do benchmark v3 Extra/SC (`vps/financial-coverage.json`); hierarquia contracted>homologated>awarded>estimated.
+- [x] `notice_and_annexes_completeness >= 98%`. Evidência VPS 2026-07-30: **99,94%** (3232/3234 denom full) · residual 2 (noise CIGA) · `vps/document-completeness.json`.
+- [x] `session_judgment_homologation_completeness >= 95%`. Evidência VPS 2026-07-30: **99,94%** (3232/3234) via PNCP itens/resultados/historico/atas + SC Compras bulk homolog (2400 processos) · residual 2 noise · `vps/document-completeness.json` + residual campaign.
+- [ ] `winning_proposal_completeness >= 85%`. **OPEN (PO residual accepted):** **8,91%** (288/3234); residual **2946** com denominador full. PO Tiago aceitou residual por limite de publicação pública · `vps/po-decision-residual-and-137.json`. Não conta como met.
+- [ ] `bidder_qualification_documents_completeness >= 70%`. **OPEN (PO residual accepted):** **1,27%** (41/3234); residual **3193** com denominador full. PO Tiago aceitou residual por limite de publicação pública · `vps/po-decision-residual-and-137.json`. Não conta como met.
+- [x] Nenhuma média entre as métricas acima é usada para mascarar gap. Evidência: `scripts/process_documents/coverage.py` THRESHOLDS + testes.
+- [x] Timeout, 403, 429, 5xx, paginação parcial, fixture e mock **não** contam como cobertura operacional. Evidência: `OPERATIONAL_SUCCESS` + tests.
+- [x] `SUCCESS_ZERO` exige justificativa auditável. Evidência: `validate_fail_closed` + tests.
+
+CLI canônica: `python3 -m scripts.process_documents`.
+
+
+---
+
 ## 5. Ambiente local reproduzível
 
 ### 5.1 Pré-requisitos
@@ -723,6 +763,7 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 
 - [ ] Cada ente possui decisão de aplicabilidade para editais.
 - [ ] Cada ente possui decisão de aplicabilidade para contratos.
+- [ ] Cada ente possui decisão de aplicabilidade para `procurement_process_documents`.
 - [ ] A aplicabilidade pode variar por capability.
 - [ ] A aplicabilidade possui justificativa.
 - [ ] A aplicabilidade possui data de validação.
@@ -735,6 +776,60 @@ Uma consulta que retorna zero registros só conta como cobertura quando:
 - [ ] Bloqueadores por capability são registrados.
 - [ ] Pares `unknown` aparecem em relatório de gaps.
 - [ ] O gate final exige zero pares `unknown` necessários.
+- [ ] A matriz documental registra, por ente×fonte: papel (primária/complementar/gap-fill), família tecnológica, URL/endpoint, métodos de discovery/busca/enumeração/download, JS/sessão/paginação/rate-limit/retry/backoff, capabilities, geo, status operacional, última execução live, freshness, blockers, fallback, evidência de `SUCCESS_ZERO` e condição de acesso público.
+
+---
+
+## 7A. Documentos públicos dos processos administrativos
+
+> Capability: `procurement_process_documents`. Serve análise de editais, propostas, acompanhamento administrativo de contratos, corpus público real, validação de `bid_readiness` (issue #137 / PR #133) e inteligência histórica. **Não** declara conclusão sem prova live.
+
+### 7A.1 Discovery dos 1.093 entes
+
+- [x] Cada um dos 1.093 entes possui identidade canônica e discovery documental. Evidência: `entity-document-discovery.jsonl` n=1093 · PROCESS-DOCS-01.
+- [x] Nenhum ente permanece em `unknown` para discovery/aplicabilidade documental. Evidência: unknown_access_count=0.
+- [x] Site institucional, portal de transparência, portal de licitações/compras, plataforma de disputa (quando aplicável), sistema de processo administrativo (quando aplicável) e fonte PNCP estão registrados. Evidência: `EntityDocumentDiscovery`.
+- [x] Família tecnológica, capabilities, situação de acesso, última verificação, blocker, estratégia de coleta e fallback estão registrados. Evidência: `document-source-registry.json`.
+- [x] Relatório cadastral com denominador 1.093, lista de IDs, hash do conjunto e ausência de `unknown`. Evidência: sha256 `306976f2…`.
+
+### 7A.2 Classificação e adapters
+
+- [x] Entes classificados por família de portal (sem 1.093 crawlers individuais). Evidência: `classify_portal_family` + inventory.
+- [x] Contrato comum de adapter tipado e fail-closed (`DocumentRunResult`). Evidência: models + tests.
+- [x] Adapter PNCP implementado e provado live. Evidência VPS: `arquivos` API SUCCESS_NONZERO ×130 processos · `vps-live-campaign-summary-r2.json`.
+- [x] Adapters das famílias de maior impacto implementados e provados live. Evidência: CIGA live SUCCESS_NONZERO em escala · HTML parcial · run-index.
+- [ ] Adapters de plataformas de disputa e portais de processo administrativo conforme aplicabilidade. **PARTIAL**.
+- [x] Adapter genérico seguro para páginas públicas indexáveis (sem contornar CAPTCHA/auth). Evidência: `generic_html.py` live.
+- [ ] Browser headless apenas quando JavaScript for indispensável.
+
+### 7A.3 Coleta, preservação e provenance
+
+- [x] Busca por processo, edital, contratação e contrato (CLI `show` / adapters). Evidência: CLI + runs.
+- [x] Enumeração completa de documentos do processo (best-effort por fonte). Evidência: CIGA resources + HTML links.
+- [x] Download idempotente com content-addressed storage fora do Git (ADR-020). Evidência: `storage.store_blob` + tests.
+- [x] SHA-256, MIME declarado/detectado, extensão, tamanho, URL, fonte, datas. Evidência: `DocumentRecord`.
+- [x] Vínculo processual, versão, detecção de alterações, deduplicação e provenance. Evidência: procurement_id + CAS unchanged.
+- [x] Travessia de anexos e processamento seguro de ZIPs. Evidência: `safe_extract_zip` + tests.
+- [ ] Tratamento de links expirados, checkpoints e retomada. **PARTIAL** (backfill checkpoint file).
+- [x] Manifests, sanitização/PII, quarentena e política de retenção. Evidência: sanitize + corpus reports.
+- [x] Backfill (≥36 meses default) e incremental retomáveis (código). Evidência: `collect.backfill` / `incremental` + systemd timer.
+- [x] Classificação documental por categoria canônica. Evidência: `classify_docs.py` + tests.
+
+### 7A.4 Cobertura, corpus e bid_readiness
+
+- [x] Relatórios: discovery, activity, operational coverage, process recall, financial coverage, completeness, gaps, portal-family inventory, adapter coverage, manifests, corpus, FP/FN. Evidência: `output/process_documents/` + campaign stamp.
+- [x] Corpus público real: ≥30 processos, ≥10 engenharia, ≥10 envelopes relativamente completos, ≥5 famílias, ≥500 requisitos anotados. Evidência VPS: **889** processos, **111** engenharia, **623** envelopes, **7** famílias, **7261** annotations · `vps/corpus-manifest.json`. Issue #137 close autorizado pelo PO (corpus+GT+FP/FN; win/qual residual aceito) · READY_TO_SUBMIT proibido.
+- [x] Análise FP/FN e ausência de erro crítico de falsa prontidão. Evidência: 600 slots evidence-reviewed + PO APPROVE_EVIDENCE_REVIEW + FP/FN sem falsa prontidão; READY_TO_SUBMIT proibido; residual win/qual aceito pelo PO · `vps/product-owner-signoff.json` + `vps/po-decision-residual-and-137.json` + `bid-readiness-fp-fn-report.json` · HEAD `d15fc1b253b6`.
+- [ ] Issue #137 só fechada após provas; PR #133 só desbloqueada após suíte verde no HEAD exato.
+
+### 7A.5 Operação local e VPS
+
+- [x] CLI e workspace permitem consultar documentos por processo/edital/contrato. Evidência: `scripts.process_documents` + `workspace process-documents`.
+- [x] Integração a scheduler local (systemd unit/timer no repo). Evidência: `deploy/systemd/extra-process-documents-incremental.*`.
+- [x] Integração a timers/serviços na VPS com prova live. Evidência: deploy `/opt/extra-consultoria/scripts/process_documents` · timer `extra-process-documents-incremental.timer` enabled/active · runs em `/var/lib/extra-consultoria/output/process_documents` · 2026-07-30.
+- [ ] Observabilidade, backup e recuperação incluem artefatos documentais.
+- [ ] Aceite manual de Tiago registrado para a capability documental.
+- [x] Testes unitários/contract (20 passed). Evidência: `tests/process_documents/` · PROCESS-DOCS-01.
 
 ---
 
@@ -1855,6 +1950,11 @@ O gate `LOCAL_READY` só pode ser marcado quando:
 - [ ] A cobertura de contratos é >= 95%.
 - [ ] O recall de editais relevantes é >= 95%.
 - [ ] A integridade do snapshot ativo é 100%.
+- [ ] Discovery documental dos 1.093 entes = 100% (zero `unknown`).
+- [ ] Cobertura documental operacional dos entes ativos >= 95%.
+- [ ] Recall de processos relevantes >= 98%.
+- [ ] Cobertura financeira de processos relevantes >= 99%.
+- [ ] Completudes documentais (edital/anexos, julgamento/homologação, proposta, habilitação) nas metas da §4.4.
 - [ ] O golden path local passa.
 - [ ] PDF e Excel são gerados.
 - [ ] Backup e restore local foram testados.
@@ -1885,6 +1985,9 @@ O gate `VPS_OPERATIONAL` só pode ser marcado quando:
 - [ ] O sistema operou sete dias sem falha crítica não detectada.
 - [ ] A cobertura de editais permaneceu >= 95%.
 - [ ] A cobertura de contratos permaneceu >= 95%.
+- [ ] A capability documental permanece dentro das metas da §4.4 (ou gaps nominais honestos sem claim de conclusão).
+- [ ] Coleta documental incremental roda sem sessão interativa (timer/serviço).
+- [ ] Freshness, observabilidade, backup e recuperação cobrem artefatos documentais.
 - [ ] A evidência foi registrada.
 
 **Status:** [ ] NÃO ATINGIDO  
@@ -1910,6 +2013,8 @@ O gate `PROJECT_DONE` só pode ser marcado quando:
 - [ ] A suíte de avaliação de IA, o teste de substituição de modelo/provedor e a revisão de valor estão dentro das cadências definidas nas seções 32.6 e 32.7.
 - [ ] O sistema é utilizado na rotina real.
 - [ ] As métricas são tecnicamente defensáveis.
+- [ ] As métricas documentais da §4.4 estão comprovadas (sem média; sem claim sem evidência live).
+- [x] Corpus público real e validação `bid_readiness` sem falsa prontidão (issue #137 / PR #133). Evidência: corpus+GT PO-approved+FP/FN+PO residual · `vps/po-decision-residual-and-137.json`.
 - [ ] As limitações são explícitas.
 - [ ] O custo é aceitável.
 - [ ] A manutenção é viável para um único usuário.

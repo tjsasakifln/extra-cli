@@ -1384,6 +1384,23 @@ def cmd_commercial_review(args: argparse.Namespace) -> int:
     return 0 if data.get("ok") else 1
 
 
+
+def cmd_process_documents(args: argparse.Namespace) -> int:
+    """Facade for procurement_process_documents capability."""
+    from scripts.process_documents.cli import main as pd_main
+
+    sub = getattr(args, "docs_command", None)
+    if sub == "show":
+        q = getattr(args, "query", None) or ""
+        return pd_main(["show", q])
+    if sub == "coverage":
+        return pd_main(["coverage", "--full"])
+    if sub == "gaps":
+        return pd_main(["gaps"])
+    print(json.dumps({"error": f"unknown docs_command: {sub}"}))
+    return 1
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="workspace",
@@ -1557,6 +1574,18 @@ Examples:
     p_cr.add_argument("--force-override", action="store_true")
     p_cr.add_argument("--dsn", default=None)
 
+    p_docs = sub.add_parser(
+        "process-documents",
+        help="Documentos públicos de processos (capability procurement_process_documents)",
+    )
+    p_docs.add_argument(
+        "docs_command",
+        choices=["show", "coverage", "gaps"],
+        help="Subcomando documental",
+    )
+    p_docs.add_argument("query", nargs="?", default=None, help="processo/edital/entity para show")
+    p_docs.add_argument("--json", action="store_true")
+
     return parser
 
 
@@ -1591,6 +1620,7 @@ def main(argv: list[str] | None = None) -> None:
         "commercial-leads": cmd_commercial_leads,
         "commercial-lead": cmd_commercial_lead,
         "commercial-review": cmd_commercial_review,
+        "process-documents": cmd_process_documents,
     }
     handler = commands.get(args.command)
     if handler is None:

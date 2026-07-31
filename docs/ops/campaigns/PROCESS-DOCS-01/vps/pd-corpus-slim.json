@@ -1,0 +1,33 @@
+{
+  "generated_at": "2026-07-30T22:58:52.749156+00:00",
+  "process_count": 904,
+  "engineering_process_count": 111,
+  "complete_envelope_count": 770,
+  "portal_families": [
+    "ciga_ckan",
+    "compras_gov",
+    "multi_source",
+    "pncp",
+    "portal_institucional",
+    "sc_compras",
+    "tce_sc"
+  ],
+  "portal_family_count": 7,
+  "annotated_requirements_count": 8014,
+  "min_targets": {
+    "processes": 30,
+    "engineering": 10,
+    "complete_envelopes": 10,
+    "portal_families": 5,
+    "annotated_requirements": 500
+  },
+  "meets_min_processes": true,
+  "meets_min_engineering": true,
+  "meets_min_complete_envelopes": true,
+  "meets_min_families": true,
+  "meets_min_annotations": true,
+  "ready_to_submit_language_allowed": false,
+  "issue_137_unblock_allowed": false,
+  "corpus_min_targets_met": true,
+  "note": "Corpus is public-source only. READY_TO_SUBMIT is forbidden without human review. Issue #137 / PR #133 remain blocked until targets + FP/FN + suite green on HEAD."
+}

@@ -1,0 +1,32 @@
+{
+  "as_of": "2026-07-30T23:49:02.908698+00:00",
+  "document": "PROCESS-DOCS-01 Product Owner Sign-off \u2014 evidence review of 600 GT slots",
+  "product_owner": "Tiago (tjsasakifln)",
+  "decision": "APPROVE_EVIDENCE_REVIEW",
+  "signed_at": "2026-07-30T23:49:02.908698+00:00",
+  "signer": "Tiago",
+  "channel": "agent_ask_user_question",
+  "scope_approved": [
+    "evidence_review_of_600_gt_slots",
+    "cas_presence_process_linkage_title_category_methodology",
+    "structural_present_labels_for_document_presence_ground_truth"
+  ],
+  "explicitly_not_authorized": [
+    "auto_close_issue_137",
+    "auto_unblock_pr_133",
+    "READY_TO_SUBMIT",
+    "candidate_complete",
+    "winning_proposal_completeness_met",
+    "bidder_qualification_completeness_met"
+  ],
+  "notes": "PO accepts evidence-review methodology and 600-slot document-presence GT. Win/qual gates remain OPEN due to public publication limits. #137 requires separate explicit close decision after residual risk review.",
+  "git_head_at_signoff": "8dc7287b7dda74ec2611c2ee648c148b28c78a27",
+  "branch": "feat/public-process-documents-coverage",
+  "pr": "https://github.com/tjsasakifln/extra-cli/pull/184",
+  "artifacts": [
+    "docs/ops/campaigns/PROCESS-DOCS-01/vps/evidence-review-pass-summary.json",
+    "docs/ops/campaigns/PROCESS-DOCS-01/vps/bid-readiness-human-gt-manifest.json",
+    "docs/ops/campaigns/PROCESS-DOCS-01/vps/bid-readiness-fp-fn-report.json",
+    "docs/ops/campaigns/PROCESS-DOCS-01/PRODUCT-OWNER-SIGNOFF-PACKAGE.md"
+  ]
+}

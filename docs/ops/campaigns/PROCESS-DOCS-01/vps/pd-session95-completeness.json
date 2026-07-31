@@ -1,0 +1,205 @@
+{
+  "metrics": {
+    "notice_and_annexes_completeness": {
+      "ratio": 0.9993815708101422,
+      "percent": 99.9382,
+      "threshold": 0.98,
+      "meets_threshold": true,
+      "methodology": "process_level_binary_presence",
+      "residual_count": 2
+    },
+    "session_judgment_homologation_completeness": {
+      "ratio": 0.9993815708101422,
+      "percent": 99.9382,
+      "threshold": 0.95,
+      "meets_threshold": true,
+      "methodology": "process_level_binary_presence",
+      "residual_count": 2
+    },
+    "winning_proposal_completeness": {
+      "ratio": 0.02504638218923933,
+      "percent": 2.5046,
+      "threshold": 0.85,
+      "meets_threshold": false,
+      "methodology": "process_level_binary_presence",
+      "residual_count": 3153
+    },
+    "bidder_qualification_documents_completeness": {
+      "ratio": 0.011750154607297465,
+      "percent": 1.175,
+      "threshold": 0.7,
+      "meets_threshold": false,
+      "methodology": "process_level_binary_presence",
+      "residual_count": 3196
+    }
+  },
+  "processes_scored": 3234,
+  "residual_nominal_counts": {
+    "notice_and_annexes_completeness": 2,
+    "session_judgment_homologation_completeness": 2,
+    "winning_proposal_completeness": 3153,
+    "bidder_qualification_documents_completeness": 3196
+  },
+  "residual_nominal_sample": {
+    "notice_and_annexes_completeness": [
+      {
+        "process_id": "ciga:domsc-publicacoes-de-12-2025:publicacoes_de_2025_12_01_0000_1159.json",
+        "blocker": "non_process_publication_dump",
+        "categories_seen": [
+          "outro"
+        ]
+      },
+      {
+        "process_id": "00394502000144-2-000690/2026",
+        "blocker": "notice_pack_not_published_or_unclassified",
+        "categories_seen": [
+          "parecer_juridico"
+        ]
+      }
+    ],
+    "session_judgment_homologation_completeness": [
+      {
+        "process_id": "ciga:domsc-publicacoes-de-12-2025",
+        "blocker": "non_process_publication_dump",
+        "categories_seen": [
+          "anexo",
+          "outro"
+        ]
+      },
+      {
+        "process_id": "ciga:domsc-publicacoes-de-12-2025:publicacoes_de_2025_12_01_0000_1159.json",
+        "blocker": "non_process_publication_dump",
+        "categories_seen": [
+          "outro"
+        ]
+      }
+    ],
+    "winning_proposal_completeness": [
+      {
+        "process_id": "09069217000122-2-000072/2025",
+        "blocker": "winning_proposal_not_published_publicly",
+        "categories_seen": [
+          "adjudicacao",
+          "anexo",
+          "aviso",
+          "estudo_tecnico_preliminar",
+          "habilitacao_juridica",
+          "homologacao",
+          "parecer_juridico",
+          "resultado"
+        ]
+      },
+      {
+        "process_id": "01896727000161-1-000007/2026",
+        "blocker": "winning_proposal_not_published_publicly",
+        "categories_seen": [
+          "anexo",
+          "aviso",
+          "edital",
+          "resultado",
+          "termo_referencia"
+        ]
+      },
+      {
+        "process_id": "83102301000153-1-000081/2026",
+        "blocker": "winning_proposal_not_published_publicly",
+        "categories_seen": [
+          "anexo",
+          "edital",
+          "resultado"
+        ]
+      },
+      {
+        "process_id": "04892707000100-2-000206/2025",
+        "blocker": "winning_proposal_not_published_publicly",
+        "categories_seen": [
+          "anexo",
+          "edital",
+          "homologacao",
+          "resultado"
+        ]
+      },
+      {
+        "process_id": "04892707000100-2-000578/2024",
+        "blocker": "winning_proposal_not_published_publicly",
+        "categories_seen": [
+          "anexo",
+          "homologacao"
+        ]
+      }
+    ],
+    "bidder_qualification_documents_completeness": [
+      {
+        "process_id": "01896727000161-1-000007/2026",
+        "blocker": "bidder_qualification_not_published_publicly",
+        "categories_seen": [
+          "anexo",
+          "aviso",
+          "edital",
+          "resultado",
+          "termo_referencia"
+        ]
+      },
+      {
+        "process_id": "83102301000153-1-000081/2026",
+        "blocker": "bidder_qualification_not_published_publicly",
+        "categories_seen": [
+          "anexo",
+          "edital",
+          "resultado"
+        ]
+      },
+      {
+        "process_id": "04892707000100-2-000206/2025",
+        "blocker": "bidder_qualification_not_published_publicly",
+        "categories_seen": [
+          "anexo",
+          "edital",
+          "homologacao",
+          "resultado"
+        ]
+      },
+      {
+        "process_id": "04892707000100-2-000578/2024",
+        "blocker": "bidder_qualification_not_published_publicly",
+        "categories_seen": [
+          "anexo",
+          "homologacao"
+        ]
+      },
+      {
+        "process_id": "79372520000185-1-000168/2026",
+        "blocker": "bidder_qualification_not_published_publicly",
+        "categories_seen": [
+          "anexo",
+          "edital",
+          "resultado",
+          "termo_referencia"
+        ]
+      }
+    ]
+  },
+  "denominator_policy": "full_no_shrink",
+  "generated_at": "2026-07-30T23:20:58.784562+00:00",
+  "gt_manifest": {
+    "generated_at": "2026-07-30T23:21:21.215601+00:00",
+    "path": "/var/lib/extra-consultoria/output/process_documents/bid-readiness-human-gt-queue.jsonl",
+    "slots": 600,
+    "min_required": 500,
+    "meets_min_slots": true,
+    "human_labels_completed": 0,
+    "status": "awaiting_human_annotation",
+    "issue_137_close_allowed": false,
+    "ready_to_submit_allowed": false,
+    "note": "Slots are real process/document pairs. Labels are NULL until human review. Do not auto-close #137."
+  },
+  "corpus_summary": {
+    "process_count": 3289,
+    "engineering_process_count": 111,
+    "complete_envelope_count": 3283,
+    "portal_family_count": 7,
+    "annotated_requirements_count": 20649,
+    "corpus_min_targets_met": true,
+    "issue_137_unblock_allowed": false
+  }
+}

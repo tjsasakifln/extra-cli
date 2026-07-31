@@ -1,0 +1,78 @@
+{
+  "document": "PROCESS-DOCS-01 Product Owner Sign-off Package \u2014 bid_readiness GT",
+  "generated_at": "2026-07-30T23:42:43.179952+00:00",
+  "requestor": "implementer agent",
+  "product_owner": "Tiago (tjsasakifln)",
+  "decision_required": "APPROVE_EVIDENCE_REVIEW | REQUEST_CHANGES | DEFER",
+  "what_is_being_signed": {
+    "scope": "Evidence review of 600 GT slots for public process document corpus used by bid_readiness",
+    "not_in_scope": [
+      "Closing issue #137 automatically",
+      "Unblocking PR #133 automatically",
+      "Declaring winning_proposal_completeness >= 85%",
+      "Declaring bidder_qualification_completeness >= 70%",
+      "READY_TO_SUBMIT language",
+      "candidate_complete claim"
+    ]
+  },
+  "evidence_review_results": {
+    "slots": 600,
+    "labels": {
+      "present": 600
+    },
+    "cas_verified": 600,
+    "flagged": 0,
+    "method": "cas_presence_process_linkage_title_category",
+    "reviewer_tool": "scripts/process_documents/confirm_gt_review.py",
+    "status": "evidence_review_complete_awaiting_product_owner"
+  },
+  "fp_fn_summary": {
+    "false_positive_candidates": 0,
+    "false_negative_candidates": 0,
+    "critical_risk_candidates": 0,
+    "confirmed_label_counts": {
+      "present": 600
+    },
+    "cas_verified": 600,
+    "cas_or_index_missing": 0,
+    "process_id_mismatches": 0
+  },
+  "fp_fn_status": "evidence_review_complete_awaiting_product_owner",
+  "metrics_snapshot": {
+    "discovery": "100%",
+    "operational_actives": "96.56%",
+    "process_recall": "100%",
+    "financial": "100%",
+    "notice_completeness": "99.94%",
+    "session_completeness": "99.94%",
+    "winning_proposal_completeness": "8.91% OPEN",
+    "qualification_completeness": "1.27% OPEN",
+    "coverage_full_exit": 6
+  },
+  "residual_blockers_honest": {
+    "winning_proposal_not_published_publicly": 2946,
+    "bidder_qualification_not_published_publicly": 3193,
+    "decision": "gates remain open; denominators full"
+  },
+  "sign_off_means": [
+    "PO accepts evidence-review methodology for document-presence GT slots",
+    "PO accepts that win/qual completeness remain OPEN due to public publication limits",
+    "PO does NOT authorize READY_TO_SUBMIT",
+    "PO does NOT auto-close #137 without separate explicit decision after reviewing residual risks"
+  ],
+  "artifact_paths": [
+    "docs/ops/campaigns/PROCESS-DOCS-01/vps/evidence-review-pass-summary.json",
+    "docs/ops/campaigns/PROCESS-DOCS-01/vps/bid-readiness-human-gt-manifest.json",
+    "docs/ops/campaigns/PROCESS-DOCS-01/vps/bid-readiness-fp-fn-report.json",
+    "docs/ops/campaigns/PROCESS-DOCS-01/vps/residual-win-qual-blocker-review.json",
+    "docs/ops/campaigns/PROCESS-DOCS-01/vps/honest-residual-final.json",
+    "docs/ops/campaigns/PROCESS-DOCS-01/campaign-executive-summary.md"
+  ],
+  "product_owner_signoff": {
+    "status": "PENDING",
+    "decision": null,
+    "signed_at": null,
+    "signer": null,
+    "notes": null
+  }
+}

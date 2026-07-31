@@ -1,0 +1,39 @@
+{
+  "as_of": "2026-07-31T01:00:07.005976+00:00",
+  "git_head": "f22d607243c4f0152087a8bddef26e53718d0676",
+  "candidate_complete": false,
+  "coverage_full_exit": 0,
+  "residual_waivers": [
+    "winning_proposal_completeness",
+    "bidder_qualification_documents_completeness"
+  ],
+  "residual_policy": "PO ACCEPT residual win/qual OPEN with full denominators",
+  "metrics_meets_threshold": {
+    "notice": true,
+    "session": true,
+    "win": false,
+    "qual": false,
+    "discovery": true,
+    "ops": true,
+    "recall": true,
+    "financial": true
+  },
+  "metrics_percent": {
+    "discovery": 100.0,
+    "operational": 96.5602,
+    "recall": 100.0,
+    "financial": 100.0,
+    "notice": 99.9382,
+    "session": 99.9382,
+    "win": 8.9054,
+    "qual": 1.2678
+  },
+  "issue_137": "CLOSED",
+  "pr_133": "rebased MERGEABLE head 3921aa35; bid_readiness 28/28; not auto-merged",
+  "ready_to_submit": false,
+  "branch": "feat/public-process-documents-coverage",
+  "pr_184": "https://github.com/tjsasakifln/extra-cli/pull/184",
+  "head_pending_commit": false,
+  "note": "coverage --full exits 0 with PO residual waiver; win/qual meets_threshold remain false; ruff clean on scripts/",
+  "code_head_ruff_clean": "f3a0d309b0a2e97d50d7f02ddcaae603880d487e"
+}

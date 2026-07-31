@@ -1,0 +1,595 @@
+{
+  "generated_at": "2026-07-30T23:40:38.272999+00:00",
+  "denominator_policy": "full_no_shrink",
+  "processes_scored": 3233,
+  "coverage": {
+    "notice": {
+      "num": 3231,
+      "den": 3233,
+      "percent": 99.9381
+    },
+    "session": {
+      "num": 3231,
+      "den": 3233,
+      "percent": 99.9381
+    },
+    "winning_proposal": {
+      "num": 288,
+      "den": 3233,
+      "percent": 8.9081,
+      "residual": 2945,
+      "threshold": 0.85,
+      "meets": false
+    },
+    "qualification": {
+      "num": 40,
+      "den": 3233,
+      "percent": 1.2372,
+      "residual": 3193,
+      "threshold": 0.7,
+      "meets": false
+    }
+  },
+  "win_blocker_counts": {
+    "non_process_publication_dump": 19,
+    "session_public_but_winning_proposal_pdf_not_published": 526,
+    "sc_compras_homolog_without_public_proposal_pack": 2400
+  },
+  "qual_blocker_counts": {
+    "non_process_publication_dump": 14,
+    "session_public_but_bidder_qualification_not_published": 3179
+  },
+  "win_sample": [
+    {
+      "process_id": "09069217000122-2-000072/2025",
+      "blocker": "non_process_publication_dump",
+      "categories_seen": [
+        "adjudicacao",
+        "anexo",
+        "aviso",
+        "estudo_tecnico_preliminar",
+        "habilitacao_juridica",
+        "homologacao",
+        "parecer_juridico",
+        "resultado"
+      ],
+      "sources": [
+        "pncp",
+        "pncp+historico",
+        "pncp+itens",
+        "pncp+itens_outcome"
+      ],
+      "titles_sample": [
+        "DFD ASSINADO",
+        "Razao de escolha do contratado ASSINADO",
+        "justificativa da inexigibilidadeASSINADO"
+      ],
+      "in_denominator": true
+    },
+    {
+      "process_id": "01896727000161-1-000007/2026",
+      "blocker": "non_process_publication_dump",
+      "categories_seen": [
+        "anexo",
+        "aviso",
+        "edital",
+        "resultado",
+        "termo_referencia"
+      ],
+      "sources": [
+        "pncp",
+        "pncp+historico",
+        "pncp+itens",
+        "pncp+itens_outcome"
+      ],
+      "titles_sample": [
+        "1DFD 0082026",
+        "2ETP 0082026",
+        "3 TR n 0082026"
+      ],
+      "in_denominator": true
+    },
+    {
+      "process_id": "83102301000153-1-000081/2026",
+      "blocker": "session_public_but_winning_proposal_pdf_not_published",
+      "categories_seen": [
+        "anexo",
+        "edital",
+        "resultado"
+      ],
+      "sources": [
+        "pncp",
+        "pncp+historico",
+        "pncp+itens",
+        "pncp+itens_outcome"
+      ],
+      "titles_sample": [
+        "Edital_CP_12_2026_PMI_Eletronico_ILUMINACAO_PUBLICA_RUA_OLAESIO_JOAO_BECKER_assinado.pdf",
+        "PNCP_Itens_Resultado_83102301000153_2026_81.json",
+        "PNCP_Itens_83102301000153_2026_81.json"
+      ],
+      "in_denominator": true
+    },
+    {
+      "process_id": "79372520000185-1-000168/2026",
+      "blocker": "session_public_but_winning_proposal_pdf_not_published",
+      "categories_seen": [
+        "anexo",
+        "edital",
+        "resultado",
+        "termo_referencia"
+      ],
+      "sources": [
+        "pncp",
+        "pncp+historico",
+        "pncp+itens",
+        "pncp+itens_outcome"
+      ],
+      "titles_sample": [
+        "Edital PE 23-2026.pdf",
+        "TR - ROCADEIRA.pdf",
+        "PNCP_Itens_Resultado_79372520000185_2026_168.json"
+      ],
+      "in_denominator": true
+    },
+    {
+      "process_id": "82916826000160-1-000224/2026",
+      "blocker": "session_public_but_winning_proposal_pdf_not_published",
+      "categories_seen": [
+        "anexo",
+        "projeto",
+        "resultado"
+      ],
+      "sources": [
+        "pncp",
+        "pncp+historico",
+        "pncp+itens",
+        "pncp+itens_outcome"
+      ],
+      "titles_sample": [
+        "156_PMNV_2026_CE__Pavimentao_asfltica_Rua_Paulo_Marini_trecho_2",
+        "PNCP_Itens_Resultado_82916826000160_2026_224.json",
+        "PNCP_Itens_82916826000160_2026_224.json"
+      ],
+      "in_denominator": true
+    },
+    {
+      "process_id": "83102749000177-1-000134/2026",
+      "blocker": "session_public_but_winning_proposal_pdf_not_published",
+      "categories_seen": [
+        "anexo",
+        "edital",
+        "resultado"
+      ],
+      "sources": [
+        "pncp",
+        "pncp+historico",
+        "pncp+itens",
+        "pncp+itens_outcome"
+      ],
+      "titles_sample": [
+        "Edital.pdf",
+        "PNCP_Itens_Resultado_83102749000177_2026_134.json",
+        "PNCP_Itens_83102749000177_2026_134.json"
+      ],
+      "in_denominator": true
+    },
+    {
+      "process_id": "00509018000113-1-001630/2026",
+      "blocker": "session_public_but_winning_proposal_pdf_not_published",
+      "categories_seen": [
+        "anexo",
+        "edital",
+        "estudo_tecnico_preliminar",
+        "resultado",
+        "termo_referencia"
+      ],
+      "sources": [
+        "pncp",
+        "pncp+historico",
+        "pncp+itens",
+        "pncp+itens_outcome",
+        "pncp+zip_member"
+      ],
+      "titles_sample": [
+        "50_Edital_anexos.zip",
+        "PNCP_Itens_Resultado_00509018000113_2026_1630.json",
+        "PNCP_Itens_00509018000113_2026_1630.json"
+      ],
+      "in_denominator": true
+    },
+    {
+      "process_id": "83102277000152-1-000451/2026",
+      "blocker": "session_public_but_winning_proposal_pdf_not_published",
+      "categories_seen": [
+        "anexo",
+        "edital",
+        "estudo_tecnico_preliminar",
+        "resultado",
+        "termo_referencia"
+      ],
+      "sources": [
+        "pncp",
+        "pncp+historico",
+        "pncp+itens",
+        "pncp+itens_outcome"
+      ],
+      "titles_sample": [
+        "EDITAL",
+        "ETP",
+        "TR"
+      ],
+      "in_denominator": true
+    },
+    {
+      "process_id": "82821208000136-1-000153/2026",
+      "blocker": "session_public_but_winning_proposal_pdf_not_published",
+      "categories_seen": [
+        "anexo",
+        "edital",
+        "resultado"
+      ],
+      "sources": [
+        "pncp",
+        "pncp+historico",
+        "pncp+itens",
+        "pncp+itens_outcome"
+      ],
+      "titles_sample": [
+        "Relatorio - Edital - WCO621102-777-CMAJNPOIRIEEMS-8.pdf",
+        "PNCP_Itens_Resultado_82821208000136_2026_153.json",
+        "PNCP_Itens_82821208000136_2026_153.json"
+      ],
+      "in_denominator": true
+    },
+    {
+      "process_id": "14688861000119-1-000051/2026",
+      "blocker": "session_public_but_winning_proposal_pdf_not_published",
+      "categories_seen": [
+        "anexo",
+        "edital",
+        "resultado"
+      ],
+      "sources": [
+        "pncp",
+        "pncp+historico",
+        "pncp+itens",
+        "pncp+itens_outcome"
+      ],
+      "titles_sample": [
+        "EDITAL202622.pdf",
+        "PNCP_Itens_Resultado_14688861000119_2026_51.json",
+        "PNCP_Itens_14688861000119_2026_51.json"
+      ],
+      "in_denominator": true
+    },
+    {
+      "process_id": "83102293000145-1-000291/2026",
+      "blocker": "session_public_but_winning_proposal_pdf_not_published",
+      "categories_seen": [
+        "anexo",
+        "edital",
+        "resultado"
+      ],
+      "sources": [
+        "pncp",
+        "pncp+historico",
+        "pncp+itens",
+        "pncp+itens_outcome"
+      ],
+      "titles_sample": [
+        "Relatorio - Edital - WCO621207-32197-ELNOTAENRLTZ-2.pdf",
+        "PNCP_Itens_Resultado_83102293000145_2026_291.json",
+        "PNCP_Itens_83102293000145_2026_291.json"
+      ],
+      "in_denominator": true
+    },
+    {
+      "process_id": "83708248000139-1-000047/2026",
+      "blocker": "session_public_but_winning_proposal_pdf_not_published",
+      "categories_seen": [
+        "anexo",
+        "edital",
+        "resultado"
+      ],
+      "sources": [
+        "pncp",
+        "pncp+historico",
+        "pncp+itens",
+        "pncp+itens_outcome"
+      ],
+      "titles_sample": [
+        "Edital pregao eletronico n. 10.2026 - VF - Assinado.pdf",
+        "PNCP_Itens_Resultado_83708248000139_2026_47.json",
+        "PNCP_Itens_83708248000139_2026_47.json"
+      ],
+      "in_denominator": true
+    }
+  ],
+  "qual_sample": [
+    {
+      "process_id": "01896727000161-1-000007/2026",
+      "blocker": "non_process_publication_dump",
+      "categories_seen": [
+        "anexo",
+        "aviso",
+        "edital",
+        "resultado",
+        "termo_referencia"
+      ],
+      "sources": [
+        "pncp",
+        "pncp+historico",
+        "pncp+itens",
+        "pncp+itens_outcome"
+      ],
+      "titles_sample": [
+        "1DFD 0082026",
+        "2ETP 0082026",
+        "3 TR n 0082026"
+      ],
+      "in_denominator": true
+    },
+    {
+      "process_id": "83102301000153-1-000081/2026",
+      "blocker": "session_public_but_bidder_qualification_not_published",
+      "categories_seen": [
+        "anexo",
+        "edital",
+        "resultado"
+      ],
+      "sources": [
+        "pncp",
+        "pncp+historico",
+        "pncp+itens",
+        "pncp+itens_outcome"
+      ],
+      "titles_sample": [
+        "Edital_CP_12_2026_PMI_Eletronico_ILUMINACAO_PUBLICA_RUA_OLAESIO_JOAO_BECKER_assinado.pdf",
+        "PNCP_Itens_Resultado_83102301000153_2026_81.json",
+        "PNCP_Itens_83102301000153_2026_81.json"
+      ],
+      "in_denominator": true
+    },
+    {
+      "process_id": "04892707000100-2-000206/2025",
+      "blocker": "session_public_but_bidder_qualification_not_published",
+      "categories_seen": [
+        "anexo",
+        "edital",
+        "homologacao",
+        "proposta_comercial",
+        "resultado"
+      ],
+      "sources": [
+        "pncp",
+        "pncp+historico",
+        "pncp+item_resultados",
+        "pncp+itens",
+        "pncp+itens_outcome",
+        "pncp+zip_member"
+      ],
+      "titles_sample": [
+        "39301203900142025001",
+        "PNCP_Itens_Resultado_04892707000100_2025_206.json",
+        "PNCP_Proposta_Vencedora_Publica_04892707000100_2025_206.json"
+      ],
+      "in_denominator": true
+    },
+    {
+      "process_id": "04892707000100-2-000578/2024",
+      "blocker": "session_public_but_bidder_qualification_not_published",
+      "categories_seen": [
+        "anexo",
+        "homologacao",
+        "proposta_comercial"
+      ],
+      "sources": [
+        "pncp",
+        "pncp+historico",
+        "pncp+item_resultados",
+        "pncp+itens",
+        "pncp+itens_outcome"
+      ],
+      "titles_sample": [
+        "SEI_50615.000606_2024_71_compressed.pdf",
+        "PNCP_Itens_Resultado_04892707000100_2024_578.json",
+        "PNCP_Proposta_Vencedora_Publica_04892707000100_2024_578.json"
+      ],
+      "in_denominator": true
+    },
+    {
+      "process_id": "79372520000185-1-000168/2026",
+      "blocker": "session_public_but_bidder_qualification_not_published",
+      "categories_seen": [
+        "anexo",
+        "edital",
+        "resultado",
+        "termo_referencia"
+      ],
+      "sources": [
+        "pncp",
+        "pncp+historico",
+        "pncp+itens",
+        "pncp+itens_outcome"
+      ],
+      "titles_sample": [
+        "Edital PE 23-2026.pdf",
+        "TR - ROCADEIRA.pdf",
+        "PNCP_Itens_Resultado_79372520000185_2026_168.json"
+      ],
+      "in_denominator": true
+    },
+    {
+      "process_id": "82916826000160-1-000224/2026",
+      "blocker": "session_public_but_bidder_qualification_not_published",
+      "categories_seen": [
+        "anexo",
+        "projeto",
+        "resultado"
+      ],
+      "sources": [
+        "pncp",
+        "pncp+historico",
+        "pncp+itens",
+        "pncp+itens_outcome"
+      ],
+      "titles_sample": [
+        "156_PMNV_2026_CE__Pavimentao_asfltica_Rua_Paulo_Marini_trecho_2",
+        "PNCP_Itens_Resultado_82916826000160_2026_224.json",
+        "PNCP_Itens_82916826000160_2026_224.json"
+      ],
+      "in_denominator": true
+    },
+    {
+      "process_id": "83102749000177-1-000134/2026",
+      "blocker": "session_public_but_bidder_qualification_not_published",
+      "categories_seen": [
+        "anexo",
+        "edital",
+        "resultado"
+      ],
+      "sources": [
+        "pncp",
+        "pncp+historico",
+        "pncp+itens",
+        "pncp+itens_outcome"
+      ],
+      "titles_sample": [
+        "Edital.pdf",
+        "PNCP_Itens_Resultado_83102749000177_2026_134.json",
+        "PNCP_Itens_83102749000177_2026_134.json"
+      ],
+      "in_denominator": true
+    },
+    {
+      "process_id": "83899526000182-2-000026/2024",
+      "blocker": "session_public_but_bidder_qualification_not_published",
+      "categories_seen": [
+        "anexo",
+        "homologacao",
+        "proposta_comercial"
+      ],
+      "sources": [
+        "pncp",
+        "pncp+historico",
+        "pncp+item_resultados",
+        "pncp+itens",
+        "pncp+itens_outcome"
+      ],
+      "titles_sample": [
+        "Dados_Anpof___nota_de_empenho___dados_bancarios__1_.pdf",
+        "PNCP_Itens_Resultado_83899526000182_2024_26.json",
+        "PNCP_Proposta_Vencedora_Publica_83899526000182_2024_26.json"
+      ],
+      "in_denominator": true
+    },
+    {
+      "process_id": "00509018000113-1-001630/2026",
+      "blocker": "session_public_but_bidder_qualification_not_published",
+      "categories_seen": [
+        "anexo",
+        "edital",
+        "estudo_tecnico_preliminar",
+        "resultado",
+        "termo_referencia"
+      ],
+      "sources": [
+        "pncp",
+        "pncp+historico",
+        "pncp+itens",
+        "pncp+itens_outcome",
+        "pncp+zip_member"
+      ],
+      "titles_sample": [
+        "50_Edital_anexos.zip",
+        "PNCP_Itens_Resultado_00509018000113_2026_1630.json",
+        "PNCP_Itens_00509018000113_2026_1630.json"
+      ],
+      "in_denominator": true
+    },
+    {
+      "process_id": "83102277000152-1-000451/2026",
+      "blocker": "session_public_but_bidder_qualification_not_published",
+      "categories_seen": [
+        "anexo",
+        "edital",
+        "estudo_tecnico_preliminar",
+        "resultado",
+        "termo_referencia"
+      ],
+      "sources": [
+        "pncp",
+        "pncp+historico",
+        "pncp+itens",
+        "pncp+itens_outcome"
+      ],
+      "titles_sample": [
+        "EDITAL",
+        "ETP",
+        "TR"
+      ],
+      "in_denominator": true
+    },
+    {
+      "process_id": "82821208000136-1-000153/2026",
+      "blocker": "session_public_but_bidder_qualification_not_published",
+      "categories_seen": [
+        "anexo",
+        "edital",
+        "resultado"
+      ],
+      "sources": [
+        "pncp",
+        "pncp+historico",
+        "pncp+itens",
+        "pncp+itens_outcome"
+      ],
+      "titles_sample": [
+        "Relatorio - Edital - WCO621102-777-CMAJNPOIRIEEMS-8.pdf",
+        "PNCP_Itens_Resultado_82821208000136_2026_153.json",
+        "PNCP_Itens_82821208000136_2026_153.json"
+      ],
+      "in_denominator": true
+    },
+    {
+      "process_id": "04892707000100-2-000153/2024",
+      "blocker": "session_public_but_bidder_qualification_not_published",
+      "categories_seen": [
+        "anexo",
+        "aviso",
+        "homologacao",
+        "parecer_juridico",
+        "proposta_comercial"
+      ],
+      "sources": [
+        "pncp",
+        "pncp+historico",
+        "pncp+item_resultados",
+        "pncp+itens",
+        "pncp+itens_outcome"
+      ],
+      "titles_sample": [
+        "SEI_DNIT - 17268540 - Reconhecimento e Ratificacao de Dispensa.pdf",
+        "PNCP_Itens_Resultado_04892707000100_2024_153.json",
+        "PNCP_Proposta_Vencedora_Publica_04892707000100_2024_153.json"
+      ],
+      "in_denominator": true
+    }
+  ],
+  "public_sources_tried": [
+    "pncp_arquivos",
+    "pncp_itens_resultados",
+    "pncp_historico",
+    "pncp_atas",
+    "pncp_zip_members",
+    "sc_compras_api",
+    "pcp_api_detail",
+    "generic_html",
+    "ciga_dom"
+  ],
+  "decision": "leave_win_qual_gates_open",
+  "candidate_complete": false,
+  "issue_137_close_allowed": false,
+  "note": "Residuals remain in denominator. No shrink. Win/qual blocked by public publication limits after multi-source attempts."
+}

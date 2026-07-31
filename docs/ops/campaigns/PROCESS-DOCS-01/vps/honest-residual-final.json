@@ -1,0 +1,184 @@
+{
+  "as_of": "2026-07-30T23:50:46.124240+00:00",
+  "capability": "procurement_process_documents",
+  "denominator_policy": "full_no_shrink",
+  "evidence_review_pass": {
+    "slots": 600,
+    "label_counts": {
+      "present": 600
+    },
+    "cas_ok": 600,
+    "flagged": 0,
+    "evidence_review_complete": true,
+    "product_owner_signoff": false,
+    "issue_137_close_allowed": false
+  },
+  "completeness": {
+    "notice_and_annexes_completeness": {
+      "percent": 99.9382,
+      "meets": true,
+      "residual": 2
+    },
+    "session_judgment_homologation_completeness": {
+      "percent": 99.9382,
+      "meets": true,
+      "residual": 2
+    },
+    "winning_proposal_completeness": {
+      "percent": 8.9054,
+      "meets": false,
+      "residual": 2946
+    },
+    "bidder_qualification_documents_completeness": {
+      "percent": 1.2678,
+      "meets": false,
+      "residual": 3193
+    }
+  },
+  "processes_scored": 3234,
+  "gate_exit": 6,
+  "operational_percent": 96.5602,
+  "recall_percent": 100.0,
+  "financial_percent": 100.0,
+  "win_qual_blocker_review": {
+    "processes_scored": 3233,
+    "win_percent": 8.9081,
+    "qual_percent": 1.2372,
+    "win_residual": 2945,
+    "qual_residual": 3193,
+    "win_blockers": {
+      "non_process_publication_dump": 19,
+      "session_public_but_winning_proposal_pdf_not_published": 526,
+      "sc_compras_homolog_without_public_proposal_pack": 2400
+    },
+    "qual_blockers": {
+      "non_process_publication_dump": 14,
+      "session_public_but_bidder_qualification_not_published": 3179
+    },
+    "decision": "leave_win_qual_gates_open"
+  },
+  "gates_met": [
+    "discovery_100",
+    "ops_95",
+    "recall_98",
+    "financial_99",
+    "notice_98",
+    "session_95"
+  ],
+  "gates_open": [
+    "winning_proposal_completeness_85",
+    "bidder_qualification_completeness_70",
+    "product_owner_signoff_gt",
+    "issue_137",
+    "pr_133"
+  ],
+  "candidate_complete": false,
+  "issue_137": "CLOSING_AUTHORIZED_BY_PO",
+  "ready_to_submit_allowed": false,
+  "pr": "https://github.com/tjsasakifln/extra-cli/pull/184",
+  "product_owner_signoff": {
+    "as_of": "2026-07-30T23:49:02.908698+00:00",
+    "document": "PROCESS-DOCS-01 Product Owner Sign-off \u2014 evidence review of 600 GT slots",
+    "product_owner": "Tiago (tjsasakifln)",
+    "decision": "APPROVE_EVIDENCE_REVIEW",
+    "signed_at": "2026-07-30T23:49:02.908698+00:00",
+    "signer": "Tiago",
+    "channel": "agent_ask_user_question",
+    "scope_approved": [
+      "evidence_review_of_600_gt_slots",
+      "cas_presence_process_linkage_title_category_methodology",
+      "structural_present_labels_for_document_presence_ground_truth"
+    ],
+    "explicitly_not_authorized": [
+      "auto_close_issue_137",
+      "auto_unblock_pr_133",
+      "READY_TO_SUBMIT",
+      "candidate_complete",
+      "winning_proposal_completeness_met",
+      "bidder_qualification_completeness_met"
+    ],
+    "notes": "PO accepts evidence-review methodology and 600-slot document-presence GT. Win/qual gates remain OPEN due to public publication limits. #137 requires separate explicit close decision after residual risk review.",
+    "git_head_at_signoff": "8dc7287b7dda74ec2611c2ee648c148b28c78a27",
+    "branch": "feat/public-process-documents-coverage",
+    "pr": "https://github.com/tjsasakifln/extra-cli/pull/184",
+    "artifacts": [
+      "docs/ops/campaigns/PROCESS-DOCS-01/vps/evidence-review-pass-summary.json",
+      "docs/ops/campaigns/PROCESS-DOCS-01/vps/bid-readiness-human-gt-manifest.json",
+      "docs/ops/campaigns/PROCESS-DOCS-01/vps/bid-readiness-fp-fn-report.json",
+      "docs/ops/campaigns/PROCESS-DOCS-01/PRODUCT-OWNER-SIGNOFF-PACKAGE.md"
+    ]
+  },
+  "issue_137_reassessment": {
+    "presence_gt_po_approved": true,
+    "auto_close": false,
+    "reason_still_open": [
+      "PO sign-off package explicitly excluded auto-close of #137",
+      "winning_proposal_completeness 8.91% < 85%",
+      "bidder_qualification_completeness 1.27% < 70%",
+      "READY_TO_SUBMIT still forbidden",
+      "separate explicit close decision required after residual risk acceptance"
+    ]
+  },
+  "pr_133_reassessment": "BLOCKED until #137 closed + suite on exact HEAD",
+  "po_decision_residual_and_137": {
+    "as_of": "2026-07-30T23:50:46.124240+00:00",
+    "document": "PROCESS-DOCS-01 Product Owner decision \u2014 residual win/qual + issue #137",
+    "product_owner": "Tiago (tjsasakifln)",
+    "decision": "ACCEPT_RESIDUAL_WIN_QUAL_OPEN_AND_CLOSE_137",
+    "signed_at": "2026-07-30T23:50:46.124240+00:00",
+    "signer": "Tiago",
+    "channel": "agent_ask_user_question",
+    "git_head_at_decision": "7c73133dc52ed8afea3ed35b849d9dbe20536f53",
+    "branch": "feat/public-process-documents-coverage",
+    "accepts": {
+      "winning_proposal_completeness_below_85_percent": true,
+      "bidder_qualification_completeness_below_70_percent": true,
+      "full_denominators_retained": true,
+      "residual_blockers_nominal": true,
+      "close_issue_137": true
+    },
+    "metrics_at_decision": {
+      "discovery": 100.0,
+      "operational": 96.5602,
+      "recall": 100.0,
+      "financial": 100.0,
+      "notice": 99.9382,
+      "session": 99.9382,
+      "winning_proposal": 8.9054,
+      "qualification": 1.2678,
+      "processes_scored": 3234,
+      "coverage_full_exit": 6
+    },
+    "residual_blockers": {
+      "winning_proposal_not_published_publicly_and_related": 2946,
+      "bidder_qualification_not_published_publicly_and_related": 3193,
+      "blocker_breakdown": {
+        "sc_compras_homolog_without_public_proposal_pack": 2400,
+        "session_public_but_winning_proposal_pdf_not_published": 526,
+        "session_public_but_bidder_qualification_not_published": 3179
+      }
+    },
+    "evidence_for_137_close": {
+      "corpus_min_targets_met": true,
+      "gt_slots_600_evidence_reviewed": true,
+      "po_approve_evidence_review": true,
+      "po_accept_residual_win_qual": true,
+      "fp_fn_report": true,
+      "ready_to_submit_forbidden": true,
+      "no_false_readiness_language": true,
+      "tests_process_documents_green": true
+    },
+    "still_open_after_137": [
+      "winning_proposal_completeness_gate",
+      "bidder_qualification_completeness_gate",
+      "pr_133_until_suite_on_exact_head",
+      "full_capability_candidate_complete"
+    ],
+    "notes": "PO accepts that public sources do not publish full winning proposal PDFs and bidder qualification packs for most processes. Denominators remain full. Issue #137 (bid_readiness public corpus validation) may close. PR #133 remains blocked until suite green on exact HEAD. Full procurement_process_documents capability remains partial for win/qual.",
+    "pr": "https://github.com/tjsasakifln/extra-cli/pull/184"
+  },
+  "issue_137_close_authorized": true,
+  "winning_proposal_gate": "OPEN_PO_ACCEPTED_RESIDUAL",
+  "qualification_gate": "OPEN_PO_ACCEPTED_RESIDUAL",
+  "pr_133": "BLOCKED_UNTIL_SUITE_ON_HEAD"
+}

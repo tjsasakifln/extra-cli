@@ -1,0 +1,15 @@
+{
+  "run_id": "pd-win-qual-20260730T232543Z-19c7fd9f",
+  "targets": 350,
+  "touched": 350,
+  "documents": 1265,
+  "zip_expand": {
+    "run_id": "pd-zip-expand-20260730T233452Z-f2e3f448",
+    "zips_seen": 200,
+    "zips_ok": 200,
+    "zips_fail": 0,
+    "expanded_documents": 1267,
+    "unique_processes": 131,
+    "errors_sample": []
+  }
+}

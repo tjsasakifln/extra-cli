@@ -1,0 +1,51 @@
+{
+  "as_of": "2026-07-30T23:35:51.190686+00:00",
+  "operational": 96.5602,
+  "recall": 100.0,
+  "financial": 100.0,
+  "completeness": {
+    "notice_and_annexes_completeness": 99.9382,
+    "session_judgment_homologation_completeness": 99.9382,
+    "winning_proposal_completeness": 8.9054,
+    "bidder_qualification_documents_completeness": 1.2678
+  },
+  "completeness_meets": {
+    "notice_and_annexes_completeness": true,
+    "session_judgment_homologation_completeness": true,
+    "winning_proposal_completeness": false,
+    "bidder_qualification_documents_completeness": false
+  },
+  "processes_scored": 3234,
+  "gate_exit": 6,
+  "gt": {
+    "slots": 600,
+    "label_counts": {
+      "present": 600
+    },
+    "fp_fn": {
+      "false_positive_candidates": 138,
+      "false_negative_candidates": 0,
+      "critical_risk_candidates": 0,
+      "structural_labels": {
+        "present": 600
+      }
+    },
+    "manifest": {
+      "generated_at": "2026-07-30T23:35:11.941449+00:00",
+      "queue_path": "/var/lib/extra-consultoria/output/process_documents/bid-readiness-human-gt-queue-labeled.jsonl",
+      "slots": 600,
+      "structural_label_counts": {
+        "present": 600
+      },
+      "human_confirmed_count": 0,
+      "human_ground_truth_complete": false,
+      "meets_min_slots": true,
+      "issue_137_close_allowed": false,
+      "ready_to_submit_allowed": false,
+      "status": "structural_labeled_awaiting_human_confirm",
+      "fp_fn_path": "/var/lib/extra-consultoria/output/process_documents/bid-readiness-fp-fn-report.json",
+      "note": "Automated structural labeling only. Human confirmation still required."
+    }
+  },
+  "issue_137": "OPEN - structural GT labeled, human confirm pending"
+}

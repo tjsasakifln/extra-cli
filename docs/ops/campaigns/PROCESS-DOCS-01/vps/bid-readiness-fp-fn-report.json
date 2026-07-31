@@ -1,0 +1,34 @@
+{
+  "generated_at": "2026-07-31T00:19:48.395696+00:00",
+  "methodology": "evidence_review_pass_over_600_gt_slots",
+  "false_positives": [],
+  "false_negatives": [],
+  "critical_errors": [],
+  "automated_candidate_counts": {
+    "false_positive_candidates": 0,
+    "false_negative_candidates": 0,
+    "critical_risk_candidates": 0,
+    "confirmed_label_counts": {
+      "present": 600
+    },
+    "cas_verified": 600,
+    "cas_or_index_missing": 0,
+    "process_id_mismatches": 0
+  },
+  "policy": {
+    "READY_TO_SUBMIT_without_human_review": "forbidden",
+    "evidence_review_is_not_product_owner_signoff": true,
+    "issue_137_requires_product_owner": true,
+    "expired_cert_as_valid": "critical",
+    "wrong_cnpj_accepted": "critical",
+    "missing_mandatory_ignored": "critical"
+  },
+  "status": "evidence_review_complete_awaiting_product_owner",
+  "human_ground_truth_complete": false,
+  "evidence_review_complete": true,
+  "evidence_review_slots": 600,
+  "product_owner_signoff": false,
+  "ready_to_submit_allowed": false,
+  "issue_137_close_allowed": false,
+  "note": "600 slots evidence-reviewed (CAS/run index). Product-owner human_confirmed remains false. #137 stays OPEN."
+}

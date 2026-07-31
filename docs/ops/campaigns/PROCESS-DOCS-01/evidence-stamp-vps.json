@@ -1,0 +1,54 @@
+{
+  "as_of": "2026-07-30T20:12:39.111736+00:00",
+  "commit_local": "pending",
+  "vps_host": "ec-prod /opt/extra-consultoria",
+  "timer": "extra-process-documents-incremental.timer enabled active",
+  "discovery_percent": 100.0,
+  "operational_vps": {
+    "percent": 79.6069,
+    "num": 324,
+    "den": 407
+  },
+  "recall_vps": {
+    "percent": 72.5,
+    "num": 87,
+    "den": 120
+  },
+  "financial_vps": {
+    "percent": 91.7469,
+    "total": 136432085.73,
+    "covered": 125172193.05000001
+  },
+  "completeness_vps": {
+    "notice_and_annexes_completeness": 9.2539,
+    "session_judgment_homologation_completeness": 0.1504,
+    "winning_proposal_completeness": 0.7519,
+    "bidder_qualification_documents_completeness": 0.1671
+  },
+  "corpus_vps": {
+    "processes": 188,
+    "engineering": 17,
+    "envelopes": 113,
+    "families": 6,
+    "family_list": [
+      "ciga_ckan",
+      "compras_gov",
+      "pncp",
+      "portal_institucional",
+      "sc_compras",
+      "tce_sc"
+    ],
+    "annotations": 1569
+  },
+  "pncp_live": {
+    "SUCCESS_NONZERO": 80
+  },
+  "gate_exit": 3,
+  "honest_blockers": [
+    "operational < 95% (active residual federal/HTML connection failures remain in denominator)",
+    "recall < 98% (72.5% of independent benchmark)",
+    "financial < 99% (91.7%)",
+    "completeness below targets (public packs incomplete)",
+    "issue #137 / PR #133 not unblocked"
+  ]
+}

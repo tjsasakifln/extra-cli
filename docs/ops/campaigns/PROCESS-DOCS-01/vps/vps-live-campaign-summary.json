@@ -1,0 +1,40 @@
+{
+  "discovery_percent": 100.0,
+  "active_count": 407,
+  "operational": {
+    "percent": 65.1106,
+    "num": 265,
+    "den": 407
+  },
+  "recall": {
+    "percent": 41.6667,
+    "num": 50,
+    "den": 120
+  },
+  "financial": {
+    "percent": 58.2397,
+    "total": 136432085.73,
+    "covered": 79457678.86999999
+  },
+  "completeness": {
+    "notice_and_annexes_completeness": 8.8757,
+    "session_judgment_homologation_completeness": 0.0,
+    "winning_proposal_completeness": 0.4808,
+    "bidder_qualification_documents_completeness": 0.0
+  },
+  "pncp_stats": {
+    "SUCCESS_NONZERO": 50
+  },
+  "ciga_stats": {
+    "SUCCESS_NONZERO": 240
+  },
+  "corpus": {
+    "processes": 52,
+    "engineering": 6,
+    "envelopes": 20,
+    "families": 2,
+    "annotations": 767
+  },
+  "gate_exit": 3,
+  "generated_at": "2026-07-30T19:52:58.952351+00:00"
+}
