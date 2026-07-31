@@ -20,7 +20,7 @@
   "pr_187": {
     "branch": "feat/pseo-export-isolated",
     "original_head": "f2b54588304cad76c70fa1ea6cb40ac2b52ca1bd",
-    "final_head": "5bc836eb1ee70294cc02474816e3555879221fa4",
+    "final_head": "246bf0fa96afcf8646938c9d9065b1661e200d52",
     "status": "PARTIAL_BLOCKED",
     "b12": {
       "pytest": "58 passed",
@@ -41,7 +41,8 @@
       "live_postgres_250k_not_run",
       "human_approval_not_auto_granted"
     ],
-    "note": "final_head is tip including this pin commit"
+    "note": "final_head is origin tip at pin write time; subsequent docs-only pin commit may advance tip by 1. code_head is last functional skeptic remediation for pSEO.",
+    "code_head": "4a88ca02121ac89c8eb57faabe781bebdf36b01a"
   },
   "merged": false,
   "deployed": false,
