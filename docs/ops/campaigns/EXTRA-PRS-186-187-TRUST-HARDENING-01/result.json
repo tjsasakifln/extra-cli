@@ -1,0 +1,53 @@
+{
+  "campaign_id": "EXTRA-PRS-186-187-TRUST-HARDENING-01",
+  "captured_at": "2026-07-31T21:30:00Z",
+  "main_sha": "1718d6389c4e772bf3c5a45ac059871c32d83afc",
+  "pr_186": {
+    "branch": "feat/extra-local-command-center",
+    "original_head": "0913b2f5c7fef41ae830c40478342822d5737767",
+    "final_head": "6d6c8074c9b4b21f5c6192670cd07e34623e5d23",
+    "status": "PARTIAL_BLOCKED",
+    "commits": [
+      "3130f459",
+      "ab664bb5",
+      "5c7c7696",
+      "6d6c8074"
+    ],
+    "tests": {
+      "pytest_command_center": "104 passed",
+      "npm_unit": "10 passed",
+      "npm_build": "ok",
+      "playwright_a11y_route_visual": "31 passed"
+    },
+    "brand_sha256": "e6af0125c73edd476cff82ab4ea1de3e459fbdbde63b886f6c55f8a93531505b",
+    "non_claims": [
+      "LIVE_READY",
+      "VPS_OPERATIONAL",
+      "REAL live proof"
+    ]
+  },
+  "pr_187": {
+    "branch": "feat/pseo-export-isolated",
+    "original_head": "f2b54588304cad76c70fa1ea6cb40ac2b52ca1bd",
+    "final_head": "99bca8e983b40c3ce1336a58e99558dc4334ade5",
+    "status": "PARTIAL_BLOCKED",
+    "tests": {
+      "pytest_pseo": "44 passed",
+      "fixture_export_validate": "ok",
+      "ruff": "clean"
+    },
+    "fixture_export": {
+      "indexable": false,
+      "snapshot_status": "CANDIDATE",
+      "publish_status": "REVIEW_REQUIRED"
+    },
+    "non_claims": [
+      "web-cfg published",
+      "CONSUMER_INTEGRATION_NOT_PROVEN",
+      "250k memory benchmark not measured live",
+      "human approval not auto-granted"
+    ]
+  },
+  "merged": false,
+  "deployed": false
+}
