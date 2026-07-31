@@ -184,3 +184,11 @@ artifacts/campaigns/EDITAL-RELEVANCE-RECALL-95-01/
 # Official RFB mirror (large, rebuildable)
 data/company_registry/
 artifacts/campaigns/CONFENGE-OFFICIAL-REGISTRY-TO-REVENUE-01/selective-official.jsonl
+
+# Command Center local runtime
+data/command_center/
+apps/command-center/node_modules/
+apps/command-center/dist/
+apps/command-center/test-results/
+apps/command-center/tsconfig.tsbuildinfo
+apps/command-center/playwright-report/

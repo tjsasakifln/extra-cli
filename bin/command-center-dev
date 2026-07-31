@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# Dev mode: API on 8765 + Vite on 5173 (proxy /api). Prefer ./bin/command-center for single URL.
+set -euo pipefail
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT"
+export CC_HOST="${CC_HOST:-127.0.0.1}"
+export CC_PORT="${CC_PORT:-8765}"
+export CC_OPEN_BROWSER="${CC_OPEN_BROWSER:-0}"
+export PYTHONPATH="${PYTHONPATH:-$ROOT}"
+
+python3 -m scripts.command_center &
+API_PID=$!
+trap 'kill $API_PID 2>/dev/null || true' EXIT
+
+cd "$ROOT/apps/command-center"
+if [[ ! -d node_modules ]]; then
+  npm install --no-fund --no-audit
+fi
+echo "API: http://127.0.0.1:${CC_PORT}  UI dev: http://127.0.0.1:5173"
+npm run dev -- --host 127.0.0.1 --port 5173
