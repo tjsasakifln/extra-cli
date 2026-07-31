@@ -21,3 +21,12 @@ python3 -m scripts.ops.check_pr_reviewability --base origin/main
 ## HEAD
 
 Filled in FINAL-REPORT / result.json after push and CI green.
+
+
+## CI evidence
+
+- head: 
+- Lint (ruff): pass
+- PR Reviewability Policy: pass
+- Generated Artifacts Policy: pass
+- Test All (full suite): pass

@@ -44,7 +44,7 @@ Razão: `LOCAL_DATALAKE_DSN` ausente no ambiente da missão; preflight REAL = BL
     **Sim** — zero paths pSEO no diff vs main.
 
 12. **O HEAD exato possui CI e Reviewability verdes?**  
-    A preencher após push (campo em result.json).
+    **Sim** em `646238567d2fae75bc998267ec858bbbe37c8c3a` (Lint, Reviewability, Test All, Generated Artifacts Policy, etc.).
 
 ## Acceptance checklist (honesto)
 
@@ -65,6 +65,6 @@ Razão: `LOCAL_DATALAKE_DSN` ausente no ambiente da missão; preflight REAL = BL
 - [x] Playwright verde (28)
 - [x] testes adversariais verdes
 - [ ] smoke real comprovado para os quatro fluxos (BLOCKED_CONFIG)
-- [ ] CI verde no HEAD exato (pós-push)
-- [ ] Reviewability verde no HEAD exato (pós-push)
+- [x] CI verde no HEAD de evidência (646238567d2fae75bc998267ec858bbbe37c8c3a)
+- [x] Reviewability verde no HEAD de evidência (646238567d2fae75bc998267ec858bbbe37c8c3a)
 - [x] documentação e hashes coerentes (este pack)
