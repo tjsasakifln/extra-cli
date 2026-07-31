@@ -9,7 +9,7 @@
 | Ref | Original | Final (origin) |
 |-----|----------|----------------|
 | PR #186 | `0913b2f5c7fef41ae830c40478342822d5737767` | `648e35e5a377c3616eed89b130061a1adecb706d` |
-| PR #187 | `f2b54588304cad76c70fa1ea6cb40ac2b52ca1bd` | *(updated after this commit — see result.json after pin)* |
+| PR #187 | `f2b54588304cad76c70fa1ea6cb40ac2b52ca1bd` | `6605fb1375a73047d77b69543b92dcbabef29334` |
 | main | `1718d6389c4e772bf3c5a45ac059871c32d83afc` | unchanged |
 
 ## 2. Mandatory evidence — PR #186 A16 (re-run at tip)

@@ -1,6 +1,6 @@
 {
   "campaign_id": "EXTRA-PRS-186-187-TRUST-HARDENING-01",
-  "captured_at": "2026-07-31T22:17:50Z",
+  "captured_at": "2026-07-31T22:18:11Z",
   "main_sha": "1718d6389c4e772bf3c5a45ac059871c32d83afc",
   "pr_186": {
     "branch": "feat/extra-local-command-center",
@@ -24,7 +24,7 @@
   "pr_187": {
     "branch": "feat/pseo-export-isolated",
     "original_head": "f2b54588304cad76c70fa1ea6cb40ac2b52ca1bd",
-    "final_head": "3d391f4cf8d884e65614e1e1e862c7e2aef6a02e",
+    "final_head": "6605fb1375a73047d77b69543b92dcbabef29334",
     "status": "PARTIAL_BLOCKED",
     "evidence": {
       "pytest": "60 passed",
@@ -42,8 +42,10 @@
       "CONSUMER_INTEGRATION_NOT_PROVEN",
       "live_postgres_250k_not_run",
       "production_human_approval_artifact"
-    ]
+    ],
+    "code_head": "3d391f4cf8d884e65614e1e1e862c7e2aef6a02e"
   },
   "merged": false,
-  "deployed": false
+  "deployed": false,
+  "note": "final_head fields are origin tips at pin commit; tip advances by docs-only pin commit after this write"
 }
