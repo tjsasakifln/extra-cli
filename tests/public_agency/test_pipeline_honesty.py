@@ -5,8 +5,6 @@ from __future__ import annotations
 from datetime import date
 from pathlib import Path
 
-import yaml
-
 from scripts.public_agency import MODE_PROACTIVE, MODE_REACTIVE
 from scripts.public_agency.pipeline import run_public_agency_pipeline
 from scripts.public_agency.population import load_population_map

@@ -6,15 +6,14 @@ import json
 from datetime import date
 from pathlib import Path
 
-from scripts.public_agency import ENTITY_TYPE, MODE_PROACTIVE
+from scripts.public_agency import ENTITY_TYPE
+from scripts.public_agency.conflict import assess_conflict
 from scripts.public_agency.pipeline import run_public_agency_pipeline
 from scripts.public_agency.publishability import (
     CONFLICT_BLOCKED,
     NOT_A_FIT,
-    PUBLISHABLE,
     evaluate_publishability,
 )
-from scripts.public_agency.conflict import assess_conflict
 from scripts.public_agency.signals import SignalHit, compute_agency_signals
 
 

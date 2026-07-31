@@ -3,9 +3,6 @@
 from __future__ import annotations
 
 from datetime import date
-from pathlib import Path
-
-import pytest
 
 from scripts.public_agency import ELIGIBILITY_POTENTIAL, OBJECT_ENGINEERING, OBJECT_HUMAN, OBJECT_OTHER, SUM_UNKNOWN
 from scripts.public_agency.conflict import (
