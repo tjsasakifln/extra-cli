@@ -15,9 +15,22 @@ def test_gold_precision_gate():
     gold = json.loads(GOLD.read_text(encoding="utf-8"))
     assert len(gold) >= 30
     metrics = evaluate_classifier(gold)
-    # Prioritize precision for indexable class
+    # B9: global precision for indexable class
     assert metrics["precision_aec_confirmed"] >= 0.97
     assert metrics["fp"] == 0
+    assert metrics["gates"]["precision_global_ok"] is True
+    # B9: per-segment precision >= 0.95 when segment has enough predicted positives
+    min_seg_n = 3
+    failed_segments: list[str] = []
+    for seg, st in (metrics.get("by_segment") or {}).items():
+        if int(st.get("n") or 0) < min_seg_n:
+            continue
+        # Only gate segments where classifier predicted at least one aec_confirmed
+        if int(st.get("tp", 0) + st.get("fp", 0)) == 0:
+            continue
+        if float(st.get("precision") or 0) < 0.95:
+            failed_segments.append(f"{seg}: precision={st.get('precision')} n={st.get('n')}")
+    assert not failed_segments, f"segment precision < 0.95: {failed_segments}"
     # Persist metrics path for report (side-effect free if not writable)
     out = Path(__file__).resolve().parents[2] / "artifacts" / "pseo"
     try:

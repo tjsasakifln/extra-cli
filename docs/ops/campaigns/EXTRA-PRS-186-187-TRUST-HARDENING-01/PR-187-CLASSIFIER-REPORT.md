@@ -1,19 +1,17 @@
 # PR #187 Classifier Report
 
-## Gate design
-- Only `aec_confirmed` feeds indexable market/price/competition aggregates (pre-existing, preserved).
-- Gold set fixture: 83 stratified cases in `tests/pseo/fixtures/gold_classification.json`.
+## Gates (enforced in tests)
 
-## Fixture classification counts (sample export)
-| Label / status | n |
-|----------------|---|
-| non_aec | 20 |
-| insufficient_context | 16 |
-| ambiguous | 4 |
-| bid_status_aberta | 8 |
-| bid_status_encerrada | 51 |
-| bid_status_historico | 1 |
+| Gate | Threshold | Test |
+|------|-----------|------|
+| Global precision `aec_confirmed` | **>= 0.97** | `test_gold_precision_gate` |
+| Global false positives | **fp == 0** | `test_gold_precision_gate` |
+| Per-segment precision | **>= 0.95** (segments with n>=3 and predicted positives) | `test_gold_precision_gate` |
 
-## Residual honesty
-- Precision thresholds (0.97 global / 0.95 per segment) are enforced by the gold tests in `test_classifier.py`; this campaign did not re-label production gold.
-- No claim of zero false positives in live national data.
+`evaluate_classifier` returns `by_segment` metrics and `gates.segment_precision_threshold=0.95`.
+
+## Gold set
+- `tests/pseo/fixtures/gold_classification.json` (stratified; n>=30 required)
+
+## Non-claims
+- Not claiming zero false positives on live national PNCP objects outside gold.

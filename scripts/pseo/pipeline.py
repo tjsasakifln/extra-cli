@@ -36,7 +36,7 @@ from scripts.pseo.provenance import (
     compute_dataset_hash,
     sha256_text,
 )
-from scripts.pseo.sanitize import assert_public, deep_strip_forbidden
+from scripts.pseo.sanitize import assert_public
 from scripts.pseo.schemas import PUBLIC_SCHEMA
 
 # Canonical entry (plan / docs); cli_export is a durable alias with the same main().
@@ -275,8 +275,13 @@ def _fetch_chunked(cur, sql: str, *, chunk_size: int = 5_000) -> list[dict[str, 
     return fetch_chunked(cur, sql, chunk_size=chunk_size)
 
 
-def load_from_db(dsn: str, *, chunk_size: int = 5_000):
-    from scripts.pseo.chunked_extract import fetch_chunked
+def load_from_db(dsn: str, *, chunk_size: int = 5_000) -> dict[str, Any]:
+    """Stream large tables: classify incrementally; never materialize full raw tables.
+
+    Returns a streaming load result used by build_export via pre_* kwargs.
+    Raw contract/bid rows are discarded after each batch is classified.
+    """
+    from scripts.pseo.chunked_extract import iter_fetch_chunked
 
     try:
         import psycopg2
@@ -291,10 +296,14 @@ def load_from_db(dsn: str, *, chunk_size: int = 5_000):
     )
     try:
         conn.set_session(readonly=True, isolation_level="REPEATABLE READ", autocommit=False)
+        counts: dict[str, Any] = {}
+        classification_counts: dict[str, int] = {}
+        classified: list[Any] = []
+        n_contracts = 0
+
         cur = conn.cursor(name="pseo_contracts", cursor_factory=psycopg2.extras.RealDictCursor)
         cur.itersize = chunk_size
-        counts: dict[str, int] = {}
-        contracts = fetch_chunked(
+        for batch in iter_fetch_chunked(
             cur,
             """
             SELECT contrato_id, orgao_cnpj, orgao_nome, fornecedor_cnpj, fornecedor_nome,
@@ -304,12 +313,22 @@ def load_from_db(dsn: str, *, chunk_size: int = 5_000):
             WHERE valor_total IS NOT NULL AND valor_total > 0
             """,
             chunk_size=chunk_size,
-        )
-        counts["pncp_supplier_contracts"] = len(contracts)
+        ):
+            n_contracts += len(batch)
+            for r in batch:
+                obj = r.get("objeto_contrato") or r.get("objeto") or ""
+                label = classify_objeto(obj).label
+                classification_counts[label] = classification_counts.get(label, 0) + 1
+            classified.extend(classify_rows(batch))
+            # batch raw rows go out of scope — not retained
+        counts["pncp_supplier_contracts"] = n_contracts
         cur.close()
+
+        aec_bids: list[dict[str, Any]] = []
+        n_bids = 0
         cur = conn.cursor(name="pseo_bids", cursor_factory=psycopg2.extras.RealDictCursor)
         cur.itersize = chunk_size
-        bids = fetch_chunked(
+        for batch in iter_fetch_chunked(
             cur,
             """
             SELECT pncp_id, objeto_compra, valor_total_estimado, modalidade_nome, uf, municipio,
@@ -319,18 +338,32 @@ def load_from_db(dsn: str, *, chunk_size: int = 5_000):
             WHERE is_active IS DISTINCT FROM false
             """,
             chunk_size=chunk_size,
-        )
-        counts["pncp_raw_bids"] = len(bids)
+        ):
+            n_bids += len(batch)
+            aec_bids.extend(classify_bids(batch))
+        counts["pncp_raw_bids"] = n_bids
         cur.close()
+
         cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         cur.execute("SELECT COUNT(*) AS n FROM sc_public_entities")
         counts["sc_public_entities"] = int(cur.fetchone()["n"])
         cur.close()
         conn.commit()
         counts["snapshot_isolation"] = "REPEATABLE READ"
-        counts["fetch_mode"] = "server_side_cursor_fetchmany"
+        counts["fetch_mode"] = "server_side_cursor_fetchmany_incremental_classify"
         counts["chunk_size"] = chunk_size
-        return contracts, bids, counts
+        counts["raw_materialized"] = False
+        counts["classified_kept"] = len(classified)
+        counts["aec_bids_kept"] = len(aec_bids)
+        return {
+            "streaming": True,
+            "contracts": [],  # intentionally empty — raw discarded
+            "bids": [],
+            "counts": counts,
+            "pre_classified": classified,
+            "pre_aec_bids": aec_bids,
+            "pre_classification_counts": classification_counts,
+        }
     finally:
         conn.close()
 
@@ -351,19 +384,28 @@ def load_from_fixture(path: Path):
 def build_export(
     contracts: list[dict[str, Any]],
     bids: list[dict[str, Any]],
-    counts: dict[str, int],
+    counts: dict[str, Any],
     *,
     top20_path: str | None,
     source_run_id: str | None = None,
     as_of: str | None = None,
     repo_root: Path | None = None,
+    pre_classified: list[Any] | None = None,
+    pre_aec_bids: list[dict[str, Any]] | None = None,
+    pre_classification_counts: dict[str, int] | None = None,
 ) -> dict[str, Any]:
     as_of_s = as_of or date.today().isoformat()
     as_of_d = date.fromisoformat(as_of_s)
 
-    classification_counts = classify_all_rows_stats(contracts)
-    classified = classify_rows(contracts)
-    aec_bids = classify_bids(bids)
+    # Streaming DB path supplies pre-classified data so raw tables need not be retained.
+    if pre_classified is not None:
+        classified = list(pre_classified)
+        classification_counts = dict(pre_classification_counts or {})
+        aec_bids = list(pre_aec_bids or [])
+    else:
+        classification_counts = classify_all_rows_stats(contracts)
+        classified = classify_rows(contracts)
+        aec_bids = classify_bids(bids)
     open_bids, closed_bids, opp_status_counts = filter_open_bids(aec_bids, as_of=as_of_d)
 
     markets = build_markets(classified, open_bids)
@@ -399,7 +441,7 @@ def build_export(
         "opportunities": opportunities,
         "problem_service": problems,
     }
-    payload = deep_strip_forbidden(payload)
+    # Fail closed: never silently strip forbidden/unexpected fields (B1/B10).
     assert_public(payload, "export_payload")
 
     icp = load_icp_signature_from_top20_artifact(top20_path)
@@ -638,7 +680,12 @@ def write_export(
     def _validate(tmp: Path) -> dict[str, Any]:
         from scripts.pseo.validation import validate_export_dir
 
-        return validate_export_dir(tmp, repo_root=Path(__file__).resolve().parents[2], require_commit_entrypoint=False)
+        # B7: never disable commit/entrypoint provenance on promote path
+        return validate_export_dir(
+            tmp,
+            repo_root=Path(__file__).resolve().parents[2],
+            require_commit_entrypoint=True,
+        )
 
     write_snapshot_atomic(
         out_dir,
@@ -673,6 +720,9 @@ def main(argv: list[str] | None = None) -> int:
         candidate = root / DEFAULT_TOP20
         top20 = str(candidate) if candidate.exists() else None
 
+    pre_classified = None
+    pre_aec_bids = None
+    pre_classification_counts = None
     if args.fixture:
         contracts, bids, counts = load_from_fixture(args.fixture)
     else:
@@ -680,7 +730,13 @@ def main(argv: list[str] | None = None) -> int:
         if not dsn:
             print("ERROR: no DSN and no --fixture", file=sys.stderr)
             return 2
-        contracts, bids, counts = load_from_db(dsn)
+        loaded = load_from_db(dsn)
+        contracts = loaded["contracts"]
+        bids = loaded["bids"]
+        counts = loaded["counts"]
+        pre_classified = loaded.get("pre_classified")
+        pre_aec_bids = loaded.get("pre_aec_bids")
+        pre_classification_counts = loaded.get("pre_classification_counts")
 
     bundle = build_export(
         contracts,
@@ -690,6 +746,9 @@ def main(argv: list[str] | None = None) -> int:
         source_run_id=args.run_id,
         as_of=args.as_of,
         repo_root=root,
+        pre_classified=pre_classified,
+        pre_aec_bids=pre_aec_bids,
+        pre_classification_counts=pre_classification_counts,
     )
     paths = write_export(args.out, bundle, approval_path=args.approval)
     result: dict[str, Any] = {
