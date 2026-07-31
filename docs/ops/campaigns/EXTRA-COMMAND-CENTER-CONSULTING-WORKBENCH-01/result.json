@@ -35,5 +35,6 @@
     "pytest": "python3 -m pytest tests/command_center/ -q --tb=line --no-cov",
     "e2e": "cd apps/command-center && CC_OPEN_BROWSER=0 npm run test:e2e"
   },
-  "head_sha": "b15654d0dbab9114b8be08c6cb8baa0d73452780"
+  "head_sha": "12d4be7f84a18b6601226cc4b3cfca28edcda592",
+  "ci_note": "post-pseo-fix tip"
 }
