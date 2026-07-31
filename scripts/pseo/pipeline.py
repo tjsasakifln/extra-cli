@@ -243,17 +243,24 @@ def build_opportunities_v2(
 
 
 def pncp_consulta_url(contrato_id: str | None, source: str | None = None) -> str | None:
-    """Build a specific public consulta URL when possible; never invent opaque IDs."""
+    """Build a specific public PNCP contract deep-link when ID shape is known.
+
+    Preferred format (PNCP app):
+      https://pncp.gov.br/app/contratos/{cnpj14}/{ano}/{sequencial}
+
+    Returns None when the ID is empty/opaque — never invent URLs.
+    """
     if not contrato_id:
         return None
     cid = str(contrato_id).strip()
-    # PNCP award/contract style: cnpj-seq/year or numeric
-    if re.match(r"^\d{14}-\d+-\d+/\d{4}$", cid) or re.match(r"^\d{14}", cid):
-        # Public PNCP search by contract id fragment
-        from urllib.parse import quote
-        return f"https://pncp.gov.br/app/contratos?q={quote(cid)}"
-    if cid.startswith("http"):
+    if cid.startswith("http://") or cid.startswith("https://"):
         return cid
+    # e.g. 88830609000139-2-002361/2026
+    m = re.match(r"^(\d{14})-(\d+)-(\d+)/(\d{4})$", cid)
+    if m:
+        cnpj, _tipo, seq, ano = m.group(1), m.group(2), m.group(3), m.group(4)
+        seq_int = str(int(seq)) if seq.isdigit() else (seq.lstrip("0") or "0")
+        return f"https://pncp.gov.br/app/contratos/{cnpj}/{ano}/{seq_int}"
     return None
 
 

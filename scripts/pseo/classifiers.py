@@ -67,6 +67,8 @@ STRONG_WORKS: list[tuple[str, str]] = [
     (r"\bterraplena(gem)?\b", "terraplenagem"),
     (r"\bdrenagem\s+(pluvial|superficial|urbana)", "drenagem"),
     (r"\brede\s+de\s+(esgoto|[aá]gua\s+pot[aá]vel|[aá]gua)", "rede_agua_esgoto"),
+    (r"\brede\s+coletora\s+de\s+esgoto\b|\brede\s+coletora\b", "rede_agua_esgoto"),
+    (r"\besta[cç][aã]o\s+elevat[oó]ria\b|\belevat[oó]ria\s+de\s+esgoto\b", "rede_agua_esgoto"),
     (r"\bsaneamento\s+(b[aá]sico|ambiental)", "saneamento"),
     (r"\b\beta\b|\b\bete\b|\badutora\b", "eta_ete"),
     (r"\bexecu[cç][aã]o\s+(da\s+)?obra\b|\bobra\s+de\s+engenharia\b", "obra_engenharia"),
