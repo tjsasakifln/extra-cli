@@ -129,6 +129,22 @@ class Store:
                     capability_id TEXT,
                     payload TEXT
                 );
+                CREATE TABLE IF NOT EXISTS workspaces (
+                    id TEXT PRIMARY KEY,
+                    name TEXT NOT NULL,
+                    created_at TEXT NOT NULL,
+                    meta TEXT NOT NULL DEFAULT '{}'
+                );
+                CREATE TABLE IF NOT EXISTS projects (
+                    id TEXT PRIMARY KEY,
+                    workspace_id TEXT NOT NULL,
+                    name TEXT NOT NULL,
+                    client_front TEXT NOT NULL,
+                    created_at TEXT NOT NULL,
+                    meta TEXT NOT NULL DEFAULT '{}',
+                    FOREIGN KEY(workspace_id) REFERENCES workspaces(id)
+                );
+                CREATE INDEX IF NOT EXISTS idx_projects_ws ON projects(workspace_id);
                 """
             )
 
@@ -480,3 +496,95 @@ class Store:
                 "UPDATE review_items SET status = ? WHERE id = ?",
                 (f"decided:{decision}", item_id),
             )
+
+    # --- Local product model: Workspace / Project (Command Center SQLite only) ---
+
+    def ensure_default_workspace(self) -> dict[str, Any]:
+        """Idempotent default consulting workspace + client fronts as projects."""
+        existing = self.list_workspaces()
+        if existing:
+            return existing[0]
+        ws = self.create_workspace("Consultoria Tiago")
+        for name, front in (
+            ("Extra Construtora", "extra"),
+            ("CONFENGE fornecedores", "confenge_suppliers"),
+            ("CONFENGE órgãos públicos", "confenge_public_agencies"),
+            ("Análises documentais", "process_documents"),
+        ):
+            self.create_project(workspace_id=ws["id"], name=name, client_front=front)
+        return ws
+
+    def create_workspace(self, name: str, meta: dict[str, Any] | None = None) -> dict[str, Any]:
+        wid = str(uuid.uuid4())
+        ts = _utcnow()
+        payload = json.dumps(meta or {}, ensure_ascii=False)
+        with self._lock, self._conn() as conn:
+            conn.execute(
+                "INSERT INTO workspaces(id, name, created_at, meta) VALUES (?,?,?,?)",
+                (wid, name, ts, payload),
+            )
+        return {"id": wid, "name": name, "created_at": ts, "meta": meta or {}}
+
+    def list_workspaces(self) -> list[dict[str, Any]]:
+        with self._lock, self._conn() as conn:
+            rows = conn.execute(
+                "SELECT id, name, created_at, meta FROM workspaces ORDER BY created_at ASC"
+            ).fetchall()
+        out: list[dict[str, Any]] = []
+        for r in rows:
+            d = dict(r)
+            try:
+                d["meta"] = json.loads(d.get("meta") or "{}")
+            except json.JSONDecodeError:
+                d["meta"] = {}
+            out.append(d)
+        return out
+
+    def create_project(
+        self,
+        *,
+        workspace_id: str,
+        name: str,
+        client_front: str,
+        meta: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        pid = str(uuid.uuid4())
+        ts = _utcnow()
+        payload = json.dumps(meta or {}, ensure_ascii=False)
+        with self._lock, self._conn() as conn:
+            conn.execute(
+                "INSERT INTO projects(id, workspace_id, name, client_front, created_at, meta) VALUES (?,?,?,?,?,?)",
+                (pid, workspace_id, name, client_front, ts, payload),
+            )
+        return {
+            "id": pid,
+            "workspace_id": workspace_id,
+            "name": name,
+            "client_front": client_front,
+            "created_at": ts,
+            "meta": meta or {},
+        }
+
+    def list_projects(self, workspace_id: str | None = None) -> list[dict[str, Any]]:
+        with self._lock, self._conn() as conn:
+            if workspace_id:
+                rows = conn.execute(
+                    "SELECT id, workspace_id, name, client_front, created_at, meta FROM projects "
+                    "WHERE workspace_id = ? ORDER BY created_at ASC",
+                    (workspace_id,),
+                ).fetchall()
+            else:
+                rows = conn.execute(
+                    "SELECT id, workspace_id, name, client_front, created_at, meta FROM projects "
+                    "ORDER BY created_at ASC"
+                ).fetchall()
+        out: list[dict[str, Any]] = []
+        for r in rows:
+            d = dict(r)
+            try:
+                d["meta"] = json.loads(d.get("meta") or "{}")
+            except json.JSONDecodeError:
+                d["meta"] = {}
+            out.append(d)
+        return out
+

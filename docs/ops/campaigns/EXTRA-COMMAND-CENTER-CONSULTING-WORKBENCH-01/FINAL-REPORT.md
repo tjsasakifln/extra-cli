@@ -40,8 +40,8 @@ cd apps/command-center && CC_OPEN_BROWSER=0 npm run test:e2e
 
 | Suite | Command | Result |
 |-------|---------|--------|
-| Unit/integration | `python3 -m pytest tests/command_center/ -q --tb=line --no-cov` | **70 passed** |
-| Playwright | `cd apps/command-center && CC_OPEN_BROWSER=0 npm run test:e2e` | **26 passed** |
+| Unit/integration | `python3 -m pytest tests/command_center/ -q --tb=line --no-cov` | **71 passed** |
+| Playwright | `cd apps/command-center && CC_OPEN_BROWSER=0 npm run test:e2e` | **26 passed** (task3: correction in source+XLSX) |
 | CI | GitHub Actions on PR #186 tip | Lint/Test All/Reviewability green |
 
 ## Acceptance matrix (36) — each PASS cites artifact on tip
@@ -71,8 +71,8 @@ cd apps/command-center && CC_OPEN_BROWSER=0 npm run test:e2e
 | 21 | REJECT requires rationale | PASS | e2e + `review_rules` |
 | 22 | DEFER requires rationale+return | PASS | `review_rules` + API |
 | 23 | ACCEPT hash-bound | PASS | content hashes on decision |
-| 24 | ACCEPT obsolete after change | PASS | `mark_accepts_obsolete_for_item` + `/api/decisions?current_hashes=` + `tests/command_center/test_regenerate_and_obsolete.py` |
-| 25 | Correction/regen history | PASS | `POST /api/reviews/regenerate` → new `job_id`, `parent_job_id`, prior decisions kept; e2e task3 |
+| 24 | ACCEPT obsolete after change | PASS | Natural `content_hashes.source` change after correction (no `mutated-` hacks); `test_regenerate_obsoletes_accept_naturally` |
+| 25 | Correction/regen history | PASS | `source_override` feeds corrected rows into PDF/XLSX; marker in `public_agencies.json` + XLSX sheet Orgaos; e2e task3 |
 | 26 | Run comparison | PASS | `scripts/command_center/run_compare.py` + e2e task5 |
 | 27 | Bundle checksums | PASS | `export_bundle` + campaign checksums policy |
 | 28 | Security green | PASS | `tests/command_center/test_api_security.py` (15) + CI bandit |
@@ -91,7 +91,9 @@ cd apps/command-center && CC_OPEN_BROWSER=0 npm run test:e2e
 - Full GFM / Mermaid markdown
 - Live CLI orchestration inside guided flows (explicitly Advanced / path-based capabilities)
 
-These do **not** block the 36 ACs: guided flows complete goal → PDF/XLSX → review without terminal.
+**Not residual:** correction→regenerate content path is shipped (`source_override`); Workspace/Project local tables exist (`/api/workspaces`).
+
+These polish items do **not** block the 36 ACs: guided flows complete goal → PDF/XLSX → review without terminal.
 
 ## Fake-live fix
 
@@ -105,6 +107,10 @@ These do **not** block the 36 ACs: guided flows complete goal → PDF/XLSX → r
 | PARTIAL ACs while PASS | matrix above all PASS with commands | this file |
 | use_fixture fake live | ValueError on false | runner + tests |
 | obsolete dead code | wired regenerate + list decisions | `test_regenerate_and_obsolete` |
+| regenerate ignored corrections | `source_override` sole renderer input | `test_apply_corrections_changes_source_and_pdf_content` |
+| AC#24 mutated- theater | natural hash change only | `test_regenerate_obsoletes_accept_naturally` |
+| e2e task3 empty corrections | e2e edits classification, asserts marker | workbench.spec task3 |
+| Workspace/Project missing | SQLite tables + `/api/workspaces` | store + API smoke |
 | e2e theater | hard PDF/XLSX/regenerate/compare | workbench.spec 26/26 |
 | stub docs | PRODUCT-REQUIREMENTS / DELIVERABLE-MATRIX / VISUAL-QA expanded | campaign pack |
 
@@ -114,6 +120,6 @@ These do **not** block the 36 ACs: guided flows complete goal → PDF/XLSX → r
 
 1. PR tip SHA == body `**HEAD SHA:**`
 2. After smudge, `result.json` `head_sha` == `evidence_head` == `git rev-parse HEAD`
-3. `python3 -m pytest tests/command_center/ -q --tb=line --no-cov` → 70 passed
-4. `cd apps/command-center && CC_OPEN_BROWSER=0 npm run test:e2e` → 26 passed
+3. `python3 -m pytest tests/command_center/ -q --tb=line --no-cov` → 71 passed
+4. `cd apps/command-center && CC_OPEN_BROWSER=0 npm run test:e2e` → 26 passed (incl. AC#25 content)
 5. CI + PR Reviewability green on that tip

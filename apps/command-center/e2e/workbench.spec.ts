@@ -68,39 +68,108 @@ test.describe("Workbench consulting flows", () => {
     await openPdfAndXlsx(page);
   });
 
-  test("task3: agency review correction regenerate", async ({ page, request }) => {
+  test("task3: agency review correction regenerate", async ({ page }) => {
     await runWorkflow(page, "workflow.confenge.public_agencies");
     const jobUrl = page.url();
     const jobId = jobUrl.split("/jobs/")[1]?.split(/[?#]/)[0];
     expect(jobId).toBeTruthy();
+
+    // Resolve exact orgao from this job's run-manifest (source of truth for artifacts)
+    const manRes = await page.request.get(`/api/jobs/${jobId}/manifest`);
+    expect(manRes.ok()).toBeTruthy();
+    const man = await manRes.json();
+    const manArts: Array<{ path?: string; logical_name?: string }> =
+      man?.manifest?.artifacts || man?.artifacts || [];
+    let src0 =
+      manArts.map((a) => a.path || "").find((p) => /public_agencies\.json$/i.test(p)) ||
+      manArts.map((a) => a.path || "").find((p) => /agencies/i.test(p));
+    if (!src0 && man?.path) {
+      src0 = String(man.path).replace(/run-manifest\.json$/i, "public_agencies.json");
+    }
+    if (!src0 && man?.manifest_path) {
+      src0 = String(man.manifest_path).replace(/run-manifest\.json$/i, "public_agencies.json");
+    }
+    expect(src0).toBeTruthy();
+    const src0Dl = await page.request.get(`/api/artifacts/download?path=${encodeURIComponent(String(src0))}`);
+    expect(src0Dl.ok()).toBeTruthy();
+    const src0Text = await src0Dl.text();
+    const agencies = JSON.parse(src0Text) as Array<{ orgao?: string }>;
+    expect(Array.isArray(agencies) && agencies.length > 0).toBeTruthy();
+    const orgaoExact = String(agencies[0].orgao || "");
+    expect(orgaoExact.length).toBeGreaterThan(2);
+
+    const reviewsRes = await page.request.get("/api/reviews?status=pending");
+    expect(reviewsRes.ok()).toBeTruthy();
+    const reviews = (await reviewsRes.json()).reviews || [];
+    const item =
+      reviews.find(
+        (r: { job_id?: string; payload?: { item_key?: string }; title?: string }) =>
+          r.job_id === jobId || r.payload?.item_key === orgaoExact || r.title === orgaoExact,
+      ) || reviews[0];
+    expect(item).toBeTruthy();
+    const priorContentHash: string =
+      item?.payload?.content_hash || item?.payload?.artifact_hashes?.source || "";
 
     await page.goto("/review");
     await expect(page.getByRole("heading", { name: /Revisões humanas/i })).toBeVisible();
     const rationale = page.locator("textarea").first();
     await expect(rationale).toBeVisible({ timeout: 15_000 });
     await rationale.fill("Classificação preliminar revisada com ressalva de fracionamento.");
-    // ACCEPT path needs phrase — use REJECT with rationale to prove decision
+    // REJECT with rationale proves decision path; content correction is via regenerate
     await page.getByRole("button", { name: /Recusar/i }).first().click();
     await expect(page.getByText(/Decisão registrada|Recusado/i).first()).toBeVisible({ timeout: 10_000 });
 
-    // regenerate via API (shipped path) with empty corrections = new version
-    const csrf = await request.get("/api/csrf");
-    const token = (await csrf.json()).csrf_token as string;
-    const cookie = csrf.headers()["set-cookie"] || "";
-    const regen = await request.post("/api/reviews/regenerate", {
+    const marker = "CORRIGIDA_E2E_PRELIMINAR";
+    const csrf = await page.request.get("/api/csrf");
+    const csrfJson = await csrf.json();
+    const token = (csrfJson.csrf_token || csrfJson.token) as string;
+    const regen = await page.request.post("/api/reviews/regenerate", {
       headers: {
         "X-CC-CSRF": token,
-        Cookie: Array.isArray(cookie) ? cookie.join(";") : String(cookie),
         "Content-Type": "application/json",
       },
-      data: { job_id: jobId, corrections: [], note: "e2e version bump" },
+      data: {
+        job_id: jobId,
+        item_id: item.id,
+        corrections: [
+          {
+            item_key: orgaoExact,
+            orgao: orgaoExact,
+            fields: {
+              classificacao_juridica_preliminar: marker,
+              limitacoes: "Corrigido no e2e; ainda preliminar.",
+            },
+            note: "e2e classification edit",
+          },
+        ],
+        note: "e2e regenerate with classification correction",
+      },
     });
-    expect(regen.ok()).toBeTruthy();
+    if (!regen.ok()) {
+      throw new Error(
+        `regenerate failed ${regen.status()}: ${await regen.text()} orgao=${orgaoExact} src0=${src0}`,
+      );
+    }
     const body = await regen.json();
     expect(body.job_id).toBeTruthy();
     expect(body.manifest_path).toBeTruthy();
     expect(body.parent_job_id).toBe(jobId);
-    expect(body.content_hashes).toBeTruthy();
+    expect(body.content_hashes?.source).toBeTruthy();
+    // Natural hash change from applied correction (AC#24/#25)
+    if (priorContentHash) {
+      expect(body.content_hashes.source).not.toBe(priorContentHash);
+    }
+    expect(String(body.content_hashes.source)).not.toMatch(/^mutated-/);
+
+    // Prove corrected classification is in new dossier source (AC#25)
+    const arts: string[] = body.artifacts || [];
+    const srcPath = arts.find((a) => /public_agencies\.json$/i.test(a));
+    expect(srcPath).toBeTruthy();
+    const dl = await page.request.get(`/api/artifacts/download?path=${encodeURIComponent(String(srcPath))}`);
+    expect(dl.ok()).toBeTruthy();
+    const srcText = await dl.text();
+    expect(srcText).toContain(marker);
+
     // new version has artifacts; prove PDF via UI and XLSX via shipped preview API
     await page.goto(`/jobs/${body.job_id}`);
     await expect(page.getByRole("heading", { name: "Situação" })).toBeVisible();
@@ -108,14 +177,24 @@ test.describe("Workbench consulting flows", () => {
     await expect(pdfBtn2).toBeVisible({ timeout: 15_000 });
     await pdfBtn2.click();
     await expect(page.locator("iframe.pdf-frame, iframe[title]").first()).toBeVisible({ timeout: 15_000 });
-    const arts: string[] = body.artifacts || [];
     const xlsxPath = arts.find((a) => /\.xlsx$/i.test(a));
     expect(xlsxPath).toBeTruthy();
-    const xprev = await request.get(`/api/artifacts/preview-xlsx?path=${encodeURIComponent(String(xlsxPath))}`);
+    const xprev = await page.request.get(
+      `/api/artifacts/preview-xlsx?path=${encodeURIComponent(String(xlsxPath))}`,
+    );
     expect(xprev.ok()).toBeTruthy();
     const xp = await xprev.json();
     expect(Array.isArray(xp.sheets) && xp.sheets.length >= 2).toBeTruthy();
     expect(Array.isArray(xp.headers) && xp.headers.length > 0).toBeTruthy();
+    // Data sheet holds classification — Resumo does not
+    const dataSheet =
+      (xp.sheets as string[]).find((s) => /org|dados|empresas|oportun/i.test(s)) || xp.sheets[1];
+    const xprevData = await page.request.get(
+      `/api/artifacts/preview-xlsx?path=${encodeURIComponent(String(xlsxPath))}&sheet=${encodeURIComponent(dataSheet)}`,
+    );
+    expect(xprevData.ok()).toBeTruthy();
+    const xd = await xprevData.json();
+    expect(JSON.stringify(xd)).toContain(marker);
   });
 
   test("task4: process documents PDF coverage", async ({ page }) => {

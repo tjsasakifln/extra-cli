@@ -34,6 +34,20 @@ def _utcnow() -> str:
 ProgressCb = Callable[[dict[str, Any]], None]
 
 
+def load_source_rows(path: Path, *, list_keys: tuple[str, ...] = ()) -> list[dict[str, Any]]:
+    """Load rows from a prior/corrected source JSON (list or dict envelope)."""
+    raw = json.loads(Path(path).read_text(encoding="utf-8"))
+    if isinstance(raw, list):
+        return [r for r in raw if isinstance(r, dict)]
+    if isinstance(raw, dict):
+        keys = list_keys or ("companies", "opportunities", "items", "rows", "leads", "documents")
+        for key in keys:
+            if isinstance(raw.get(key), list):
+                return [r for r in raw[key] if isinstance(r, dict)]
+        raise ValueError(f"Fonte {path.name} sem lista de registros reconhecível")
+    raise ValueError(f"Fonte {path.name} inválida")
+
+
 def run_workflow(
     workflow_id: str,
     params: dict[str, Any],
@@ -42,12 +56,16 @@ def run_workflow(
     code_sha: str | None = None,
     job_id: str | None = None,
     on_progress: ProgressCb | None = None,
+    source_override: Path | None = None,
 ) -> dict[str, Any]:
     wf = get_workflow(workflow_id)
     if wf is None:
         raise ValueError(f"Workflow desconhecido: {workflow_id}")
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
+    override = Path(source_override) if source_override else None
+    if override is not None and not override.is_file():
+        raise ValueError(f"source_override inexistente: {override}")
 
     def emit(stage_id: str, label: str, state: str, message: str | None = None, **extra: Any) -> None:
         ev = ProgressEvent(
@@ -78,7 +96,7 @@ def run_workflow(
     use_fixture = params.get("use_fixture", True)
     if isinstance(use_fixture, str):
         use_fixture = use_fixture.lower() in {"1", "true", "yes", "sim"}
-    if use_fixture is False:
+    if use_fixture is False and override is None:
         raise ValueError(
             "Este fluxo guiado opera com dados de demonstração (fixture). "
             "Para execução live/canônica use a área Avançada (capabilities CLI: "
@@ -87,21 +105,30 @@ def run_workflow(
         )
     params = {**params, "use_fixture": True}
     mf.parameters = dict(params)
-    mf.warnings.append("Execução com dados de demonstração (fixture representativa).")
-    mf.limitations.append(
-        "Fonte: fixture representativa do Command Center — não reivindica evidência live de produção."
-    )
-    mf.source_snapshots.append({"type": "fixture", "id": workflow_id, "note": "offline representative"})
+    if override is not None:
+        mf.warnings.append("Execução a partir de fonte corrigida/regenerada (não sample_data fresco).")
+        mf.limitations.append(
+            "Fonte: JSON de execução anterior com correções humanas aplicadas — ainda fixture/local, não live prod."
+        )
+        mf.source_snapshots.append(
+            {"type": "corrected_source", "path": str(override), "note": "human correction or parent run"}
+        )
+    else:
+        mf.warnings.append("Execução com dados de demonstração (fixture representativa).")
+        mf.limitations.append(
+            "Fonte: fixture representativa do Command Center — não reivindica evidência live de produção."
+        )
+        mf.source_snapshots.append({"type": "fixture", "id": workflow_id, "note": "offline representative"})
     emit("preparing", "Preparando", "succeeded")
 
     if workflow_id == "workflow.extra.opportunities":
-        result = _run_extra(wf, params, out_dir, mf, emit)
+        result = _run_extra(wf, params, out_dir, mf, emit, source_override=override)
     elif workflow_id == "workflow.confenge.suppliers":
-        result = _run_suppliers(wf, params, out_dir, mf, emit)
+        result = _run_suppliers(wf, params, out_dir, mf, emit, source_override=override)
     elif workflow_id == "workflow.confenge.public_agencies":
-        result = _run_agencies(wf, params, out_dir, mf, emit)
+        result = _run_agencies(wf, params, out_dir, mf, emit, source_override=override)
     elif workflow_id == "workflow.process_documents":
-        result = _run_documents(wf, params, out_dir, mf, emit)
+        result = _run_documents(wf, params, out_dir, mf, emit, source_override=override)
     elif workflow_id == "workflow.review.pending":
         result = {
             "status": "SUCCEEDED",
@@ -153,10 +180,15 @@ def _run_extra(
     out_dir: Path,
     mf: RunManifest,
     emit: ProgressCb,
+    source_override: Path | None = None,
 ) -> dict[str, Any]:
     emit("collecting", "Coletando", "running", "Carregando oportunidades (fixture ou pacote local)")
     max_sl = int(params.get("max_shortlist") or 15)
-    rows = sample_data.extra_opportunities(max_shortlist=max_sl)
+    if source_override is not None:
+        rows = load_source_rows(source_override, list_keys=("opportunities", "items", "rows"))
+        rows = rows[: max(1, min(max_sl, len(rows)))] if rows else rows
+    else:
+        rows = sample_data.extra_opportunities(max_shortlist=max_sl)
     source_path = out_dir / "opportunities.json"
     source_path.write_text(json.dumps(rows, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     mf.add_artifact(
@@ -317,16 +349,21 @@ def _run_suppliers(
     out_dir: Path,
     mf: RunManifest,
     emit: ProgressCb,
+    source_override: Path | None = None,
 ) -> dict[str, Any]:
     emit("collecting", "Coletando", "running", "Recorte de empresas e cadastro oficial (fixture)")
     uf = str(params.get("uf") or "SC")
     n = int(params.get("max_companies") or 10)
-    rows = sample_data.confenge_suppliers(uf=uf, max_companies=n)
+    if source_override is not None:
+        rows = load_source_rows(source_override, list_keys=("companies", "items", "rows"))
+        rows = rows[: max(1, min(n, len(rows)))] if rows else rows
+    else:
+        rows = sample_data.confenge_suppliers(uf=uf, max_companies=n)
     population_mode = str(params.get("population_mode") or "BOUNDED_SAMPLE")
     mf.coverage = {
         "top_n": len(rows),
         "population_mode": population_mode,
-        "official_registry_top_n_resolved": sum(1 for r in rows if r["cadastro_oficial"] == "RESOLVED"),
+        "official_registry_top_n_resolved": sum(1 for r in rows if r.get("cadastro_oficial") == "RESOLVED"),
         "official_registry_top_n_total": len(rows),
         "population_integral_coverage": None,
         "population_integral_note": (
@@ -439,12 +476,17 @@ def _run_agencies(
     out_dir: Path,
     mf: RunManifest,
     emit: ProgressCb,
+    source_override: Path | None = None,
 ) -> dict[str, Any]:
     emit("collecting", "Coletando", "running")
     uf = str(params.get("uf") or "SC")
     n = int(params.get("max_leads") or 10)
     mode = str(params.get("mode") or "REACTIVE_OPPORTUNITY")
-    rows = sample_data.confenge_agencies(uf=uf, max_leads=n)
+    if source_override is not None:
+        rows = load_source_rows(source_override, list_keys=("items", "rows", "leads", "agencies"))
+        rows = rows[: max(1, min(n, len(rows)))] if rows else rows
+    else:
+        rows = sample_data.confenge_agencies(uf=uf, max_leads=n)
     if mode:
         # keep all but annotate preferred mode
         for r in rows:
@@ -554,9 +596,11 @@ def _run_documents(
     out_dir: Path,
     mf: RunManifest,
     emit: ProgressCb,
+    source_override: Path | None = None,
 ) -> dict[str, Any]:
     emit("collecting", "Coletando", "running", "Montando acervo documental")
     query = str(params.get("query") or "demo-processo-001")
+    _ = source_override  # documents index regen uses fixture pack; override reserved for future
     pack = sample_data.process_documents(query=query)
     source_path = out_dir / "documents-index.json"
     source_path.write_text(json.dumps(pack, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")

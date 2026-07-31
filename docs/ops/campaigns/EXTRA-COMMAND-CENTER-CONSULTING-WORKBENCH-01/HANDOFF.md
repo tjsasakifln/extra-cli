@@ -13,8 +13,8 @@
 git config filter.embedhead.smudge "python3 scripts/command_center/result_head_filter.py smudge"
 git config filter.embedhead.clean "python3 scripts/command_center/result_head_filter.py clean"
 git checkout HEAD -- docs/ops/campaigns/EXTRA-COMMAND-CENTER-CONSULTING-WORKBENCH-01/result.json
-python3 -m pytest tests/command_center/ -q --tb=line --no-cov   # 70
-cd apps/command-center && CC_OPEN_BROWSER=0 npm run test:e2e      # 26
+python3 -m pytest tests/command_center/ -q --tb=line --no-cov   # 71
+cd apps/command-center && CC_OPEN_BROWSER=0 npm run test:e2e      # 26 (task3: CORRIGIDA in source+XLSX)
 ```
 
 ## Key paths

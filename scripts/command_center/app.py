@@ -492,6 +492,35 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         store.set_pref(body.key, body.value)
         return {"ok": True}
 
+    @app.get("/api/workspaces")
+    def list_workspaces() -> dict[str, Any]:
+        """Local consulting workspace + projects (CC SQLite only)."""
+        ws = store.ensure_default_workspace()
+        projects = store.list_projects(ws["id"])
+        return {
+            "workspace": ws,
+            "workspaces": store.list_workspaces(),
+            "projects": projects,
+        }
+
+    @app.post("/api/workspaces")
+    def create_workspace(body: dict[str, Any], _: None = Depends(csrf_dep)) -> dict[str, Any]:
+        name = str(body.get("name") or "").strip()
+        if len(name) < 2:
+            raise HTTPException(400, "Nome do workspace obrigatório.")
+        ws = store.create_workspace(name, meta=body.get("meta") if isinstance(body.get("meta"), dict) else None)
+        return {"ok": True, "workspace": ws}
+
+    @app.post("/api/projects")
+    def create_project(body: dict[str, Any], _: None = Depends(csrf_dep)) -> dict[str, Any]:
+        wid = str(body.get("workspace_id") or "").strip()
+        name = str(body.get("name") or "").strip()
+        front = str(body.get("client_front") or "").strip()
+        if not wid or len(name) < 2 or not front:
+            raise HTTPException(400, "workspace_id, name e client_front são obrigatórios.")
+        proj = store.create_project(workspace_id=wid, name=name, client_front=front)
+        return {"ok": True, "project": proj}
+
     @app.get("/api/workflows")
     def workflows() -> dict[str, Any]:
         from scripts.command_center.workflows.catalog import list_workflows

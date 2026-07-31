@@ -10,8 +10,8 @@
     "make command-center"
   ],
   "tests": {
-    "command_center_pytest": "70 passed",
-    "playwright_e2e": "26 passed hard asserts + axe"
+    "command_center_pytest": "71 passed",
+    "playwright_e2e": "26 passed hard asserts + axe + AC25 content correction"
   },
   "spec": "specs/008-command-center-consulting-workbench/",
   "core_proven": [
@@ -38,21 +38,22 @@
   },
   "head_sha": "__GIT_HEAD__",
   "evidence_head": "__GIT_HEAD__",
-  "ci_note": "CI green on tip; head_sha and evidence_head both equal git rev-parse HEAD after smudge",
+  "ci_note": "AC24/25 content-correct regenerate + workspace tables",
   "skeptic_fixes": [
     "use_fixture false rejected",
-    "decision obsolete wired",
-    "regenerate API",
-    "hard e2e PDF/XLSX/compare/regen",
-    "docs expanded",
+    "decision obsolete wired with natural source hash change",
+    "regenerate applies corrections as sole renderer input (not discarded sidecar)",
+    "hard e2e PDF/XLSX/compare/regen with CORRIGIDA in source+XLSX",
+    "minimal local Workspace/Project SQLite model",
     "head_sha+evidence_head via git smudge filter equals HEAD on checkout"
   ],
   "verified_on_tip": {
     "pytest_cmd": "python3 -m pytest tests/command_center/ -q --tb=line --no-cov",
-    "pytest_result": "70 passed",
+    "pytest_result": "71 passed",
     "e2e_cmd": "cd apps/command-center && CC_OPEN_BROWSER=0 npm run test:e2e",
-    "e2e_result": "26 passed (axe + workbench hard PDF/XLSX + regenerate + compare + mobile 390x844)",
-    "evidence_log_dir": "/tmp/grok-goal-62c58f68453a/implementer/"
+    "e2e_result": "26 passed including task3 classification correction → new source hash + marker in XLSX",
+    "ac24": "ACCEPT obsolete after natural content_hashes.source change (no mutated- hacks)",
+    "ac25": "regenerate_workflow_version feeds corrected rows into PDF/XLSX renderer"
   },
   "tree_sha": "see git rev-parse HEAD^{tree} after checkout",
   "commit_containing_this_file": "see git rev-parse HEAD after checkout"
