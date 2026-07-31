@@ -1,0 +1,18 @@
+
+> extra-command-center@0.1.0 test
+> vitest run
+
+
+ RUN  v3.2.7 /mnt/d/extra consultoria/.worktrees/pr186-trust-a16/apps/command-center
+
+ ✓ src/components/BrandLogo.test.tsx (2 tests) 54ms
+ ✓ src/components/ConfirmationDialog.test.tsx (1 test) 134ms
+ ✓ src/components/MetricWithDenominator.test.tsx (1 test) 32ms
+ ✓ src/lib/status.test.ts (6 tests) 3ms
+
+ Test Files  4 passed (4)
+      Tests  10 passed (10)
+   Start at  19:12:03
+   Duration  20.39s (transform 365ms, setup 6.46s, collect 3.51s, tests 222ms, environment 26.26s, prepare 3.08s)
+
+UNIT_EXIT:0
