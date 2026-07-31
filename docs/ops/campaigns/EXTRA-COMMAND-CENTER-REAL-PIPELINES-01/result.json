@@ -5,7 +5,7 @@
   "pr_pseo": 187,
   "backup_branch": "backup/pr-186-before-scope-cleanup",
   "backup_sha": "483ab4b5214c79f02bb8700d1e4c6b91e578a1d8",
-  "head_sha": "569deb567551815cf2a77003b4bd07c65db7f31a",
+  "head_sha": "0094aab53ced1669130c3ddd5d474dbee6f0eb6e",
   "code_head_re_gated": "a71957500dd798a368e14e3f9a48ac76bbdcf0fc",
   "pytest_command_center": "97 passed",
   "playwright_e2e": "28 passed",
@@ -30,8 +30,8 @@
     "local_reviewability": "PASS",
     "local_generated_artifacts": "PASS"
   },
-  "ci": "pending",
-  "reviewability": "pending",
+  "ci": "success_key_gates",
+  "reviewability": "success",
   "skeptic_remediation": [
     "process_documents no cwd artifact leak",
     "empty documents list not phantom row",
