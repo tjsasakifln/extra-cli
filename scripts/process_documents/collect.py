@@ -21,6 +21,7 @@ from scripts.process_documents.discovery import load_discovery
 from scripts.process_documents.entity_queue import (
     SLA_HOURS,
     apply_attempt_result,
+    apply_multi_source_attempt,
     build_sla_alerts,
     drain_decision,
     ensure_entries,
@@ -28,6 +29,7 @@ from scripts.process_documents.entity_queue import (
     overdue_entities,
     queue_summary,
     save_entity_queue,
+    select_batch_by_source_lag,
     select_batch_by_success_lag,
 )
 from scripts.process_documents.models import EntityDocumentDiscovery
@@ -249,14 +251,33 @@ def record_entity_visits(
             errs = result.get("errors") or []
             if errs:
                 err = str(errs[0])
-        apply_attempt_result(
-            entry,
-            status=st,
-            sources=srcs,
-            error=err,
-            attempted_at=stamp,
-            result=result,
-        )
+            src_results = result.get("source_results")
+            if isinstance(src_results, dict) and src_results:
+                # Per source_id state — success of one source never clears another
+                apply_multi_source_attempt(
+                    entry,
+                    source_results=src_results,
+                    attempted_at=stamp,
+                    aggregate_status=st,
+                )
+            else:
+                apply_attempt_result(
+                    entry,
+                    status=st,
+                    sources=srcs,
+                    error=err,
+                    attempted_at=stamp,
+                    result=result,
+                )
+        else:
+            apply_attempt_result(
+                entry,
+                status=st,
+                sources=srcs,
+                error=err,
+                attempted_at=stamp,
+                result=result,
+            )
         queue[cid] = entry
     path = save_entity_queue(queue, meta_root=meta_root, updated_at=stamp.isoformat())
     # Keep legacy visits file in sync for older readers
@@ -336,6 +357,8 @@ def aggregate_multi_source_result(
             "documents_unchanged": rd.get("documents_unchanged", 0),
             "documents_failed": rd.get("documents_failed", 0),
             "processes_seen": rd.get("processes_seen", 0),
+            "max_processes_budget": rd.get("max_processes_budget"),
+            "scope_complete": rd.get("scope_complete"),
             "errors": list(rd.get("errors") or []),
             "blockers": list(rd.get("blockers") or []),
             "run_id": rd.get("run_id"),
@@ -348,22 +371,46 @@ def aggregate_multi_source_result(
         docs_failed += int(rd.get("documents_failed") or 0)
         processes_seen += int(rd.get("processes_seen") or 0)
 
-    # Aggregate status: any SUCCESS_NONZERO → NONZERO; else any SUCCESS_ZERO → ZERO;
-    # else prefer partial-like failures over unknown.
-    if DocumentRunStatus.SUCCESS_NONZERO.value in statuses:
+    # Aggregate status (fail-closed, multi-source honest):
+    # - SUCCESS_NONZERO only if ALL consulted sources are SUCCESS_NONZERO
+    # - SUCCESS_ZERO only if ALL consulted are success and every SUCCESS_ZERO has
+    #   scope_complete is not False
+    # - mixed success+failure → PARTIAL (never mask failed source)
+    # - NOT_QUERIED_BUDGET is not a consulted success
+    skip = {
+        DocumentRunStatus.NOT_QUERIED_BUDGET.value,
+        DocumentRunStatus.NOT_QUERIED.value,
+        "NOT_QUERIED_BUDGET",
+        "NOT_QUERIED",
+    }
+    consulted = [s for s in statuses if s and s not in skip]
+    not_queried = [s for s in statuses if s in skip]
+    if not consulted and not_queried:
+        agg_status = DocumentRunStatus.NOT_QUERIED_BUDGET.value
+    elif consulted and all(s == DocumentRunStatus.SUCCESS_NONZERO.value for s in consulted):
         agg_status = DocumentRunStatus.SUCCESS_NONZERO.value
-    elif DocumentRunStatus.SUCCESS_ZERO.value in statuses and any(
-        s in _SUCCESS_STATUSES for s in statuses if s
-    ):
-        # At least one hard success (zero); if others failed, still partial signal
-        if all(s in _SUCCESS_STATUSES for s in statuses if s):
+    elif consulted and all(s in _SUCCESS_STATUSES for s in consulted):
+        # All success-class; check SUCCESS_ZERO scope completeness
+        zero_incomplete = False
+        for src, result in zip(sources, source_results, strict=False):
+            rd = _run_to_dict(result)
+            st = _status_value(rd)
+            if st == DocumentRunStatus.SUCCESS_ZERO.value and rd.get("scope_complete") is False:
+                zero_incomplete = True
+        if zero_incomplete:
+            agg_status = DocumentRunStatus.PARTIAL.value
+        elif all(s == DocumentRunStatus.SUCCESS_ZERO.value for s in consulted):
             agg_status = DocumentRunStatus.SUCCESS_ZERO.value
         else:
-            agg_status = DocumentRunStatus.PARTIAL.value
-    elif any(s and s not in _SUCCESS_STATUSES for s in statuses):
-        # Prefer first non-success concrete status
+            # mix of NONZERO and ZERO among all-success
+            agg_status = DocumentRunStatus.SUCCESS_NONZERO.value
+    elif consulted and any(s in _SUCCESS_STATUSES for s in consulted) and any(
+        s not in _SUCCESS_STATUSES for s in consulted
+    ):
+        agg_status = DocumentRunStatus.PARTIAL.value
+    elif any(s and s not in _SUCCESS_STATUSES and s not in skip for s in statuses):
         agg_status = next(
-            (s for s in statuses if s and s not in _SUCCESS_STATUSES),
+            (s for s in statuses if s and s not in _SUCCESS_STATUSES and s not in skip),
             DocumentRunStatus.UNKNOWN.value,
         )
     else:
@@ -375,7 +422,10 @@ def aggregate_multi_source_result(
         "source_id": "multi_source",
         "status": agg_status,
         "sources_attempted": list(sources),
-        "sources_consulted": list(sources),
+        "sources_consulted": [s for s, st in zip(sources, statuses, strict=False) if st not in skip],
+        "sources_not_queried_budget": [
+            s for s, st in zip(sources, statuses, strict=False) if st in skip
+        ],
         "source_results": by_source,
         "documents": documents,
         "documents_downloaded": docs_dl,
@@ -421,20 +471,45 @@ def collect_entity(
         )
 
     sources = resolve_applicable_sources(entity, prefer_pncp=prefer_pncp)
-    # Conservative per-source process budget when multiple sources share the entity budget.
-    per_source = max(1, int(max_processes)) if len(sources) <= 1 else max(1, int(max_processes))
+    from scripts.process_documents.source_budget import allocate_source_budgets
+
+    allocation = allocate_source_budgets(sources, max_processes=max_processes)
+    budgets = allocation["budgets"]
     source_results: list[dict[str, Any]] = []
     for family in sources:
+        budget = int(budgets.get(family, 0))
+        if budget <= 0:
+            source_results.append(
+                {
+                    "canonical_entity_id": entity.canonical_id,
+                    "source_id": family,
+                    "portal_family": family,
+                    "status": DocumentRunStatus.NOT_QUERIED_BUDGET.value,
+                    "errors": [],
+                    "documents": [],
+                    "documents_downloaded": 0,
+                    "documents_unchanged": 0,
+                    "documents_failed": 0,
+                    "processes_seen": 0,
+                    "max_processes_budget": 0,
+                    "not_queried_reason": "entity_max_processes_exhausted",
+                }
+            )
+            continue
         try:
             adapter = get_adapter(family)
             run = adapter.collect(
                 entity,
                 since=since,
                 until=until,
-                max_processes=per_source,
+                max_processes=budget,
                 download=download,
             )
-            source_results.append(_run_to_dict(run))
+            rd = _run_to_dict(run)
+            rd.setdefault("source_id", family)
+            rd.setdefault("portal_family", family)
+            rd["max_processes_budget"] = budget
+            source_results.append(rd)
         except Exception as exc:  # noqa: BLE001 — isolate per source
             source_results.append(
                 {
@@ -448,9 +523,17 @@ def collect_entity(
                     "documents_unchanged": 0,
                     "documents_failed": 0,
                     "processes_seen": 0,
+                    "max_processes_budget": budget,
                 }
             )
-    return aggregate_multi_source_result(entity.canonical_id, sources, source_results)
+    merged = aggregate_multi_source_result(entity.canonical_id, sources, source_results)
+    merged["budget_allocation"] = allocation
+    # Fail-closed invariant
+    if int(allocation["sum_budgets"]) > int(allocation["max_processes"]):
+        raise RuntimeError(
+            f"budget overflow: sum={allocation['sum_budgets']} > max={allocation['max_processes']}"
+        )
+    return merged
 
 
 def _eligible_targets(
@@ -517,8 +600,13 @@ def collect_many(
     if overdue_only:
         pool = overdue_entities(targets, queue)
     if rotation:
-        selected = select_batch_by_success_lag(pool, queue, limit=limit)
-        selection_policy = "success_lag_rotation"
+        # Prefer entity×source lag when source state exists; else entity success lag
+        if any((queue.get(d.canonical_id) and queue[d.canonical_id].sources_state) for d in pool):
+            selected = select_batch_by_source_lag(pool, queue, limit=limit)
+            selection_policy = "entity_source_lag_rotation"
+        else:
+            selected = select_batch_by_success_lag(pool, queue, limit=limit)
+            selection_policy = "success_lag_rotation"
     else:
         selected = select_batch_static_legacy(pool, limit=limit)
         selection_policy = "static_legacy"
@@ -817,7 +905,19 @@ def incremental(
         "batches": batches,
         "drain": True,
         "drain_stop_reason": stop_reason,
-        "capacity_insufficient": stop_reason.startswith("capacity_insufficient"),
+        "capacity_insufficient": (
+            stop_reason.startswith("capacity_insufficient")
+            or stop_reason == "PARTIAL_CAPACITY_EXHAUSTED"
+            or "CAPACITY_EXHAUSTED" in stop_reason
+        ),
+        "operational_status": (
+            "PARTIAL_CAPACITY_EXHAUSTED"
+            if (
+                stop_reason.startswith("capacity_insufficient")
+                or stop_reason == "PARTIAL_CAPACITY_EXHAUSTED"
+            )
+            else stop_reason
+        ),
         "queue_summary": last_summary.get("queue_summary"),
         "process_cards": process_cards,
         "wall_seconds": round(time.monotonic() - t0, 3),

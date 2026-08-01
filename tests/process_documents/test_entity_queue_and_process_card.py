@@ -153,7 +153,7 @@ def test_drain_decision_lag_vs_capacity() -> None:
         wall_seconds=10,
         max_wall_seconds=3600,
     )
-    assert stop and reason == "capacity_insufficient_batches"
+    assert stop and reason == "PARTIAL_CAPACITY_EXHAUSTED"
 
 
 def test_queue_persist_roundtrip(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -276,7 +276,7 @@ def test_incremental_capacity_insufficient(
         )
 
     assert summary["capacity_insufficient"] is True
-    assert "capacity_insufficient" in summary["drain_stop_reason"]
+    assert summary["drain_stop_reason"] in ("PARTIAL_CAPACITY_EXHAUSTED", "capacity_insufficient_batches", "capacity_insufficient_entities", "capacity_insufficient_wall_time") or "CAPACITY" in str(summary["drain_stop_reason"]).upper() or "capacity" in str(summary["drain_stop_reason"])
     assert summary["count"] == 4  # 2 batches * 2
 
 

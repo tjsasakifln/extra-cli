@@ -75,6 +75,61 @@ def _iso(dt: datetime | None) -> str | None:
 
 
 @dataclass
+class SourceQueueEntry:
+    """Operational state for one (canonical_entity_id × source_id)."""
+
+    canonical_id: str
+    source_id: str
+    next_run_at: str | None = None
+    last_attempt_at: str | None = None
+    last_success_at: str | None = None
+    consecutive_failures: int = 0
+    attempt_count: int = 0
+    last_status: str | None = None
+    last_error: str | None = None
+    scope_complete: bool | None = None
+
+    def lag_hours(self, now: datetime | None = None) -> float | None:
+        success = _parse_iso(self.last_success_at)
+        if success is None:
+            return None
+        clock = now or _now()
+        return max(0.0, (clock - success).total_seconds() / 3600.0)
+
+    def is_overdue(self, *, sla_hours: float = SLA_HOURS, now: datetime | None = None) -> bool:
+        clock = now or _now()
+        next_run = _parse_iso(self.next_run_at)
+        if next_run is not None and next_run <= clock:
+            return True
+        lag = self.lag_hours(clock)
+        if lag is None:
+            return True
+        return lag >= sla_hours
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, data: Mapping[str, Any]) -> SourceQueueEntry:
+        return cls(
+            canonical_id=str(data.get("canonical_id") or ""),
+            source_id=str(data.get("source_id") or ""),
+            next_run_at=data.get("next_run_at"),
+            last_attempt_at=data.get("last_attempt_at"),
+            last_success_at=data.get("last_success_at"),
+            consecutive_failures=int(data.get("consecutive_failures") or 0),
+            attempt_count=int(data.get("attempt_count") or 0),
+            last_status=data.get("last_status"),
+            last_error=data.get("last_error"),
+            scope_complete=data.get("scope_complete"),
+        )
+
+
+def source_key(canonical_id: str, source_id: str) -> str:
+    return f"{canonical_id}\x1f{source_id}"
+
+
+@dataclass
 class EntityQueueEntry:
     canonical_id: str
     next_run_at: str | None = None
@@ -85,6 +140,8 @@ class EntityQueueEntry:
     last_status: str | None = None
     sources: list[str] = field(default_factory=list)
     last_error: str | None = None
+    # entity × source operational state (never masked by sibling success)
+    sources_state: dict[str, SourceQueueEntry] = field(default_factory=dict)
 
     def lag_hours(self, now: datetime | None = None) -> float | None:
         """Hours since last valid success; None if never succeeded (infinite lag)."""
@@ -104,11 +161,16 @@ class EntityQueueEntry:
             return True  # never succeeded → overdue
         return lag >= sla_hours
 
-    def to_dict(self) -> dict[str, Any]:
-        return asdict(self)
-
     @classmethod
     def from_dict(cls, data: Mapping[str, Any]) -> EntityQueueEntry:
+        raw_ss = data.get("sources_state") or {}
+        sources_state: dict[str, SourceQueueEntry] = {}
+        if isinstance(raw_ss, dict):
+            for sid, payload in raw_ss.items():
+                if isinstance(payload, dict):
+                    sources_state[str(sid)] = SourceQueueEntry.from_dict(
+                        {**payload, "canonical_id": data.get("canonical_id") or data.get("id") or "", "source_id": sid}
+                    )
         return cls(
             canonical_id=str(data.get("canonical_id") or data.get("id") or ""),
             next_run_at=data.get("next_run_at"),
@@ -119,7 +181,17 @@ class EntityQueueEntry:
             last_status=data.get("last_status"),
             sources=list(data.get("sources") or []),
             last_error=data.get("last_error"),
+            sources_state=sources_state,
         )
+
+    def to_dict(self) -> dict[str, Any]:
+        d = asdict(self)
+        # asdict nests SourceQueueEntry already; ensure source keys stable
+        ss = {}
+        for sid, se in (self.sources_state or {}).items():
+            ss[str(sid)] = se.to_dict() if hasattr(se, "to_dict") else dict(se)
+        d["sources_state"] = ss
+        return d
 
 
 def queue_path(meta_root: Path | None = None) -> Path:
@@ -373,14 +445,194 @@ def drain_decision(
     max_entities: int | None,
     wall_seconds: float,
     max_wall_seconds: float | None,
+    max_requests: int | None = None,
+    requests_done: int = 0,
 ) -> tuple[bool, str]:
-    """Return (stop, reason). Pure capacity / lag decision for drain loop."""
+    """Return (stop, reason). Pure capacity / lag decision for drain loop.
+
+    Capacity exhaustion reasons map to operational status PARTIAL_CAPACITY_EXHAUSTED.
+    """
     if overdue_remaining <= 0:
         return True, "lag_cleared"
     if max_batches is not None and batches_done >= max_batches:
-        return True, "capacity_insufficient_batches"
+        return True, "PARTIAL_CAPACITY_EXHAUSTED"
     if max_entities is not None and entities_done >= max_entities:
-        return True, "capacity_insufficient_entities"
+        return True, "PARTIAL_CAPACITY_EXHAUSTED"
     if max_wall_seconds is not None and wall_seconds >= max_wall_seconds:
-        return True, "capacity_insufficient_wall_time"
+        return True, "PARTIAL_CAPACITY_EXHAUSTED"
+    if max_requests is not None and requests_done >= max_requests:
+        return True, "PARTIAL_CAPACITY_EXHAUSTED"
     return False, "continue"
+
+def get_source_entry(
+    queue: Mapping[str, EntityQueueEntry],
+    canonical_id: str,
+    source_id: str,
+) -> SourceQueueEntry:
+    ent = queue.get(canonical_id) or EntityQueueEntry(canonical_id=canonical_id)
+    se = (ent.sources_state or {}).get(source_id)
+    if se is None:
+        return SourceQueueEntry(canonical_id=canonical_id, source_id=source_id)
+    return se
+
+
+def apply_source_attempt_result(
+    entry: SourceQueueEntry,
+    *,
+    status: str | None,
+    error: str | None = None,
+    attempted_at: datetime | None = None,
+    sla_hours: float = SLA_HOURS,
+    scope_complete: bool | None = None,
+) -> SourceQueueEntry:
+    """Update one entity×source entry. Sibling sources are never modified here."""
+    clock = attempted_at or _now()
+    entry.last_attempt_at = _iso(clock)
+    entry.attempt_count = int(entry.attempt_count or 0) + 1
+    entry.last_status = status
+    if error:
+        entry.last_error = error
+    if scope_complete is not None:
+        entry.scope_complete = bool(scope_complete)
+    # Budget skip is not a success and not a hard failure for consecutive_failures
+    if status in (
+        DocumentRunStatus.NOT_QUERIED_BUDGET.value,
+        DocumentRunStatus.NOT_QUERIED.value,
+    ):
+        return entry
+    valid = status in VALID_SUCCESS and (
+        status != DocumentRunStatus.SUCCESS_ZERO.value or entry.scope_complete is not False
+    )
+    # SUCCESS_ZERO without scope_complete must not clear lag
+    if status == DocumentRunStatus.SUCCESS_ZERO.value and entry.scope_complete is False:
+        valid = False
+    if valid:
+        entry.last_success_at = _iso(clock)
+        entry.consecutive_failures = 0
+        entry.next_run_at = _iso(clock + timedelta(hours=sla_hours))
+        entry.last_error = None
+    else:
+        entry.consecutive_failures = int(entry.consecutive_failures or 0) + 1
+        backoff_h = min(sla_hours, max(1.0, 4.0 * entry.consecutive_failures))
+        entry.next_run_at = _iso(clock + timedelta(hours=backoff_h))
+    return entry
+
+
+def apply_multi_source_attempt(
+    entity_entry: EntityQueueEntry,
+    *,
+    source_results: Mapping[str, Mapping[str, Any]],
+    attempted_at: datetime | None = None,
+    sla_hours: float = SLA_HOURS,
+    aggregate_status: str | None = None,
+) -> EntityQueueEntry:
+    """Apply per-source results; entity aggregate does not wipe failed sources.
+
+    - Each source gets its own last_success_at / consecutive_failures.
+    - Entity last_success_at advances only when ALL consulted (non-NOT_QUERIED*)
+      sources are valid successes.
+    - Failed sources remain overdue; successful ones get next_run_at = now+SLA.
+    """
+    clock = attempted_at or _now()
+    entity_entry.last_attempt_at = _iso(clock)
+    entity_entry.attempt_count = int(entity_entry.attempt_count or 0) + 1
+    entity_entry.last_status = aggregate_status
+    entity_entry.sources = sorted(source_results.keys())
+
+    if entity_entry.sources_state is None:
+        entity_entry.sources_state = {}
+
+    consulted_ok = True
+    any_consulted = False
+    for sid, rd in source_results.items():
+        st = rd.get("status")
+        se = entity_entry.sources_state.get(sid) or SourceQueueEntry(
+            canonical_id=entity_entry.canonical_id, source_id=sid
+        )
+        se = apply_source_attempt_result(
+            se,
+            status=st if isinstance(st, str) else (st.value if st is not None else None),
+            error=(rd.get("errors") or [None])[0] if rd.get("errors") else rd.get("error"),
+            attempted_at=clock,
+            sla_hours=sla_hours,
+            scope_complete=rd.get("scope_complete"),
+        )
+        entity_entry.sources_state[sid] = se
+        if st in (
+            DocumentRunStatus.NOT_QUERIED_BUDGET.value,
+            DocumentRunStatus.NOT_QUERIED.value,
+            "NOT_QUERIED_BUDGET",
+            "NOT_QUERIED",
+        ):
+            continue
+        any_consulted = True
+        valid = _is_valid_collection(
+            st if isinstance(st, str) else None,
+            rd,
+        )
+        if st == DocumentRunStatus.SUCCESS_ZERO.value and rd.get("scope_complete") is False:
+            valid = False
+        if not valid:
+            consulted_ok = False
+
+    if any_consulted and consulted_ok:
+        entity_entry.last_success_at = _iso(clock)
+        entity_entry.consecutive_failures = 0
+        entity_entry.next_run_at = _iso(clock + timedelta(hours=sla_hours))
+        entity_entry.last_error = None
+    elif any_consulted:
+        entity_entry.consecutive_failures = int(entity_entry.consecutive_failures or 0) + 1
+        backoff_h = min(sla_hours, max(1.0, 4.0 * entity_entry.consecutive_failures))
+        entity_entry.next_run_at = _iso(clock + timedelta(hours=backoff_h))
+        # Do NOT set last_success_at — partial/mixed keeps lag
+    return entity_entry
+
+
+def max_source_lag_hours(
+    entry: EntityQueueEntry,
+    *,
+    now: datetime | None = None,
+    applicable_sources: Sequence[str] | None = None,
+) -> float | None:
+    """Greatest lag among applicable sources; None if any never succeeded."""
+    clock = now or _now()
+    srcs = list(applicable_sources) if applicable_sources is not None else list((entry.sources_state or {}).keys())
+    if not srcs:
+        return entry.lag_hours(clock)
+    lags: list[float | None] = []
+    for sid in srcs:
+        se = (entry.sources_state or {}).get(sid) or SourceQueueEntry(
+            canonical_id=entry.canonical_id, source_id=sid
+        )
+        lags.append(se.lag_hours(clock))
+    if any(x is None for x in lags):
+        return None
+    return max(float(x) for x in lags)  # type: ignore[arg-type]
+
+
+def select_batch_by_source_lag(
+    targets: Sequence[EntityDocumentDiscovery],
+    queue: Mapping[str, EntityQueueEntry],
+    *,
+    sources_for_entity: Mapping[str, Sequence[str]] | None = None,
+    limit: int | None = None,
+    now: datetime | None = None,
+) -> list[EntityDocumentDiscovery]:
+    """Prefer entities with the greatest per-source lag (entity×source aware)."""
+    clock = now or _now()
+
+    def sort_key(d: EntityDocumentDiscovery) -> tuple[int, float, str]:
+        e = queue.get(d.canonical_id) or EntityQueueEntry(canonical_id=d.canonical_id)
+        applicable = None
+        if sources_for_entity is not None:
+            applicable = list(sources_for_entity.get(d.canonical_id) or [])
+        lag = max_source_lag_hours(e, now=clock, applicable_sources=applicable)
+        if lag is None:
+            return (0, 1e18, d.canonical_id)  # never — highest priority
+        return (1, -float(lag), d.canonical_id)
+
+    ordered = sorted(targets, key=sort_key)
+    if limit is not None:
+        return ordered[:limit]
+    return ordered
+
