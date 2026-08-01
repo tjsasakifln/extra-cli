@@ -475,7 +475,7 @@ def build_export(
                 build_competition_streaming,
                 build_markets_streaming,
                 build_prices_streaming,
-                freshness_dates_streaming,
+                freshness_bounds_streaming,
                 stream_filter_bids,
             )
 
@@ -512,8 +512,16 @@ def build_export(
                 build_problem_service_bridges(), markets, prices_raw
             )
             archetypes = build_archetypes_streaming(store)
-            contract_dates, bid_dates = freshness_dates_streaming(store)
-            memory_mode = "sqlite_streaming_reducers"
+            _fb = freshness_bounds_streaming(store)
+            # Scalar bounds only — never O(N) date lists on streaming path
+            contract_dates = [
+                d for d in (_fb.get("contract_min"), _fb.get("contract_max")) if d
+            ]
+            # de-dupe while preserving order
+            contract_dates = list(dict.fromkeys(contract_dates))
+            bid_dates = [d for d in (_fb.get("bid_min"), _fb.get("bid_max")) if d]
+            bid_dates = list(dict.fromkeys(bid_dates))
+            memory_mode = "sqlite_streaming_reducers_bounded"
         elif pre_classified is not None:
             classified = list(pre_classified)
             classification_counts = dict(pre_classification_counts or {})
@@ -683,6 +691,9 @@ def build_export(
             "memory_mode": memory_mode,
             "load_all_classified": False,
             "load_all_bids": False,
+            "percentile_method_id": "sqlite_order_offset_v1",
+            "python_value_vectors": False,
+            "python_date_lists": False,
         }
 
         manifest = build_manifest(
