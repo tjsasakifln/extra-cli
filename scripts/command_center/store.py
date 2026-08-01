@@ -262,7 +262,7 @@ class Store:
                     return existing
                 if rec.cancel_requested and rec.status in TERMINAL_STATES and rec.status != JobState.CANCELLED.value:
                     rec.status = JobState.CANCELLED.value
-            conn.execute(
+            conn.execute(  # noqa: S608
                 "UPDATE jobs SET payload = ? WHERE job_id = ?",
                 (json.dumps(asdict(rec), ensure_ascii=False), rec.job_id),
             )
@@ -340,9 +340,10 @@ class Store:
         non_term = sorted(NON_TERMINAL_STATES)
         placeholders = ",".join("?" for _ in non_term)
         payload = json.dumps(asdict(rec), ensure_ascii=False)
-        cur = conn.execute(
-            f"UPDATE jobs SET payload = ? WHERE job_id = ? "
-            f"AND json_extract(payload, '$.status') IN ({placeholders})",
+        # placeholders count is derived only from NON_TERMINAL_STATES constants
+        cur = conn.execute(  # noqa: S608
+            f"UPDATE jobs SET payload = ? WHERE job_id = ? "  # noqa: S608
+            f"AND json_extract(payload, '$.status') IN ({placeholders})",  # noqa: S608
             (payload, job_id, *non_term),
         )
         if cur.rowcount != 1:
@@ -468,8 +469,8 @@ class Store:
             if expected_states is not None:
                 placeholders = ",".join("?" for _ in expected_states)
                 sql = (
-                    f"UPDATE jobs SET payload = ? WHERE job_id = ? "
-                    f"AND json_extract(payload, '$.status') IN ({placeholders})"
+                    f"UPDATE jobs SET payload = ? WHERE job_id = ? "  # noqa: S608
+                    f"AND json_extract(payload, '$.status') IN ({placeholders})"  # noqa: S608
                 )
                 cur = conn.execute(sql, (new_payload, job_id, *sorted(expected_states)))
             else:
@@ -477,8 +478,8 @@ class Store:
                 non_term = sorted(NON_TERMINAL_STATES)
                 placeholders = ",".join("?" for _ in non_term)
                 sql = (
-                    f"UPDATE jobs SET payload = ? WHERE job_id = ? "
-                    f"AND json_extract(payload, '$.status') IN ({placeholders})"
+                    f"UPDATE jobs SET payload = ? WHERE job_id = ? "  # noqa: S608
+                    f"AND json_extract(payload, '$.status') IN ({placeholders})"  # noqa: S608
                 )
                 cur = conn.execute(sql, (new_payload, job_id, *non_term))
 
@@ -532,9 +533,9 @@ class Store:
             payload = json.dumps(asdict(rec), ensure_ascii=False)
             non_term = sorted(NON_TERMINAL_STATES)
             placeholders = ",".join("?" for _ in non_term)
-            cur = conn.execute(
-                f"UPDATE jobs SET payload = ? WHERE job_id = ? "
-                f"AND json_extract(payload, '$.status') IN ({placeholders})",
+            cur = conn.execute(  # noqa: S608
+                f"UPDATE jobs SET payload = ? WHERE job_id = ? "  # noqa: S608
+                f"AND json_extract(payload, '$.status') IN ({placeholders})",  # noqa: S608
                 (payload, job_id, *non_term),
             )
             if cur.rowcount != 1:

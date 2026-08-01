@@ -1,5 +1,5 @@
 {
-  "capability": "open_tenders",
+  "capability": "historical_contracts",
   "universe_version": "d65f272812cf:0b3f894d87ba:1093",
   "universe_count": 1093,
   "applicable_denominator": 1093,
@@ -8,7 +8,7 @@
   "threshold": 0.95,
   "gate_status": "FAIL",
   "as_of": "2026-08-01T00:28:11.175777Z",
-  "freshness_sla": 24,
+  "freshness_sla": 168,
   "fresh_count": 0,
   "stale_count": 0,
   "unknown_count": 0,
@@ -30,8 +30,7 @@
   "data_presence_status": "measured_no_rows",
   "data_presence_complete": true,
   "source_combinations": [
-    "pncp",
-    "pncp+ciga_ckan"
+    "pncp+contracts"
   ],
   "limitations": [
     "Presence is descriptive and is never coverage.",
