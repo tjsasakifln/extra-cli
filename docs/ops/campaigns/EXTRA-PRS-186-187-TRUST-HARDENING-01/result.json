@@ -1,0 +1,54 @@
+{
+  "campaign_id": "EXTRA-PRS-186-187-TRUST-HARDENING-01",
+  "captured_at": "2026-07-31T22:45:00Z",
+  "main_sha": "1718d6389c4e772bf3c5a45ac059871c32d83afc",
+  "pr_186": {
+    "branch": "feat/extra-local-command-center",
+    "original_head": "0913b2f5c7fef41ae830c40478342822d5737767",
+    "final_head": "82cb1097af445534183342db36b7cf5130135d41",
+    "status": "PASS_MERGE_READY",
+    "evidence": {
+      "logo_sha256": "e6af0125c73edd476cff82ab4ea1de3e459fbdbde63b886f6c55f8a93531505b",
+      "pytest": "105 passed",
+      "npm_build": "ok",
+      "npm_unit": "10 passed",
+      "e2e": "58 passed",
+      "routes": "16 passed",
+      "logs": "docs/ops/campaigns/EXTRA-PRS-186-187-TRUST-HARDENING-01/logs/a16-full-rerun-*"
+    },
+    "non_claims": [
+      "LIVE_READY",
+      "PARTIAL_COMMAND_CENTER_REAL_ADAPTERS_NO_LIVE_PROOF"
+    ]
+  },
+  "pr_187": {
+    "branch": "feat/pseo-export-isolated",
+    "original_head": "f2b54588304cad76c70fa1ea6cb40ac2b52ca1bd",
+    "prior_origin_tip": "90124d1274e526eb35f791c81b980eeaa52a7e35",
+    "final_head": "d37b2fa99476fa894863405751aa153f9b36fe22",
+    "status": "PARTIAL_BLOCKED",
+    "evidence": {
+      "pytest": "64 passed",
+      "fixture_export_validate": "ok CANDIDATE indexable=false classifier_gate.ok=true",
+      "ruff": "clean",
+      "synthetic_250k": "250000 rows fetchall=0",
+      "consumer_schema": "PROVEN",
+      "consumer_render": "CONSUMER_INTEGRATION_NOT_PROVEN",
+      "approval_gate_tested": true,
+      "atomic_mid_fail_tested": true,
+      "b7_provenance_no_short_circuit": true,
+      "b9_classifier_on_export_path": true,
+      "logs": "docs/ops/campaigns/EXTRA-PRS-186-187-TRUST-HARDENING-01/logs/b12-evidence-*"
+    },
+    "non_claims": [
+      "web-cfg published",
+      "CONSUMER_INTEGRATION_NOT_PROVEN",
+      "live_postgres_250k_not_run",
+      "production_human_approval_artifact"
+    ],
+    "code_head": "d37b2fa99476fa894863405751aa153f9b36fe22"
+  },
+  "merged": false,
+  "deployed": false,
+  "note": "final_head for #187 is this B7/B9 code+docs commit; #186 tip is origin/feat/extra-local-command-center @ 82cb1097"
+}

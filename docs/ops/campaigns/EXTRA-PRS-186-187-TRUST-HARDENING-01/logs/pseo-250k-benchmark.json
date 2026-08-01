@@ -1,0 +1,20 @@
+{
+  "ok": true,
+  "n_rows": 250000,
+  "n_batches": 50,
+  "expected_rows": 250000,
+  "chunk_size": 5000,
+  "elapsed_sec": 0.3785,
+  "rss_start_mb": 59.64,
+  "rss_peak_mb": 65.76,
+  "rss_delta_mb": 6.12,
+  "fetchmany_calls": 51,
+  "fetchall_calls": 0,
+  "by_uf": {
+    "SC": 125000,
+    "PR": 125000
+  },
+  "sum_valor": 312375000.0,
+  "fetch_mode": "synthetic_fetchmany_only",
+  "no_fetchall": true
+}

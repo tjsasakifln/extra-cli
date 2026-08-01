@@ -1,0 +1,62 @@
+{
+  "ok": true,
+  "out": "artifacts/pseo/validation-fixture",
+  "dataset_hash": "105901e617fb591dfde0959cf5e6654b1092b7c279f1c0962d03177b0273a9c1",
+  "export_entrypoint": "python -m scripts.pseo.export_web_cfg",
+  "export_version": "1.1.0",
+  "files": [
+    "archetypes.json",
+    "markets.json",
+    "agencies.json",
+    "prices.json",
+    "competition.json",
+    "opportunities.json",
+    "problem_service.json",
+    "icp_methodology.json",
+    "schema.json",
+    "export-descriptor.json",
+    "manifest.json"
+  ],
+  "counts": {
+    "pncp_supplier_contracts": 40,
+    "pncp_raw_bids": 200,
+    "sc_public_entities": 2085,
+    "fixture": 1,
+    "classified_aec_contracts": 0,
+    "classified_aec_bids": 60,
+    "open_bids": 8,
+    "closed_bids": 52,
+    "markets": 0,
+    "agencies": 0,
+    "prices": 0,
+    "competition": 0,
+    "opportunities": 2,
+    "archetypes": 0,
+    "problem_service": 5,
+    "raw_contracts": 40,
+    "after_classification_aec_confirmed": 0,
+    "after_open_filter": 8
+  },
+  "classification_counts": {
+    "non_aec": 20,
+    "insufficient_context": 16,
+    "ambiguous": 4,
+    "bid_status_encerrada": 51,
+    "bid_status_historico": 1,
+    "bid_status_aberta": 8,
+    "bid_status_open_total": 8,
+    "bid_status_closed_total": 52
+  },
+  "source_commit_sha": "765bab6914fef589bf7274022592abf7d4fe9795",
+  "data_as_of": "2026-07-31",
+  "publish_status": "REVIEW_REQUIRED",
+  "indexable": false,
+  "snapshot_status": "CANDIDATE",
+  "validation": {
+    "ok": true,
+    "errors": [],
+    "warnings": [],
+    "dataset_hash": "105901e617fb591dfde0959cf5e6654b1092b7c279f1c0962d03177b0273a9c1",
+    "source_commit_sha": "765bab6914fef589bf7274022592abf7d4fe9795"
+  }
+}
