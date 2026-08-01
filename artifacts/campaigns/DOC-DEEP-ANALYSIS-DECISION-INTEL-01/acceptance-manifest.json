@@ -1,6 +1,6 @@
 {
   "campaign_id": "DOC-DEEP-ANALYSIS-DECISION-INTEL-01",
-  "generated_at": "2026-08-01T15:04:21.836346+00:00",
+  "generated_at": "2026-08-01T15:05:58.396375+00:00",
   "base_sha": "162c2ba18cd216dbb4f4d298ea965db1b98a9d23",
   "branch": "campaign/doc-deep-analysis-dod-01",
   "purpose": "Prove §2.6 technical triage + budget/BDI deep analysis produce decision intel with locators; verify PASS on fixture packs.",
@@ -118,10 +118,6 @@
       "sha256": "4cced6661aa698c925f91c3492cc9649d884d9be8fe6db93e4e8a82ee8a9b1ef",
       "bytes": 753
     },
-    "evidence/edital_report_triage-report.html": {
-      "sha256": "a8f8644bf7306fe1eed38965c392f3193e15e17cd2e4e85d8f12f015303e9ea1",
-      "bytes": 25617
-    },
     "evidence/edital_timeline.json": {
       "sha256": "e0dc11623649df1a85fbfd1eca21e8fc2008609bde68040cfd76335261aaa1ab",
       "bytes": 4402
@@ -137,5 +133,6 @@
     "not_parecer_juridico": true,
     "bdi_arithmetic_not_legal": true,
     "xlsx_in_edital_case_extraction_limited": true
-  }
+  },
+  "note_html_removed": "triage HTML banned by generated-artifacts-policy; MD+JSON retained"
 }

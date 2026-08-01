@@ -66,8 +66,7 @@ def test_classify_contrato_filename_not_edital() -> None:
     r = classify_document(
         filename="04_Contrato_ou_aditivo_ao_contrato.pdf",
         text_sample=(
-            "MINUTA DO CONTRATO\nCláusula primeira\n"
-            "O edital de pregão e o termo de referência integram este contrato."
+            "MINUTA DO CONTRATO\nCláusula primeira\nO edital de pregão e o termo de referência integram este contrato."
         ),
         extension=".pdf",
     )
@@ -89,15 +88,9 @@ def test_detect_missing_finds_absent_planilha() -> None:
     )
     out = detect_missing_documents({"documents": [edital, tr]})
     # TR present
-    assert any(
-        r["status"] == "PRESENT" and r["expected_type"] == "TERMO_DE_REFERENCIA"
-        for r in out["references"]
-    )
+    assert any(r["status"] == "PRESENT" and r["expected_type"] == "TERMO_DE_REFERENCIA" for r in out["references"])
     # Planilha missing
-    assert any(
-        r["status"] == "MISSING" and r["expected_type"] == "PLANILHA_ORCAMENTARIA"
-        for r in out["references"]
-    )
+    assert any(r["status"] == "MISSING" and r["expected_type"] == "PLANILHA_ORCAMENTARIA" for r in out["references"])
     assert out["missing_count"] >= 1
 
 

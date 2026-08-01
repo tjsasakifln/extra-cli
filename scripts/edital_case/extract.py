@@ -420,11 +420,7 @@ def extract_document(
         write_json(doc_dir / "references.json", {"references": []})
 
     # compact extraction summary without full text duplication in document.json later
-    summary = {
-        k: v
-        for k, v in result.items()
-        if k not in {"blocks", "tables"}
-    }
+    summary = {k: v for k, v in result.items() if k not in {"blocks", "tables"}}
     summary["block_count"] = len(blocks)
     summary["original_name"] = original_name
     summary["sha256"] = sha256
@@ -449,9 +445,7 @@ def full_text(blocks: list[dict[str, Any]]) -> str:
     return "\n".join(b.get("text") or "" for b in blocks)
 
 
-def find_excerpt(
-    blocks: list[dict[str, Any]], pattern: str, *, flags: int = re.I
-) -> dict[str, Any] | None:
+def find_excerpt(blocks: list[dict[str, Any]], pattern: str, *, flags: int = re.I) -> dict[str, Any] | None:
     rx = re.compile(pattern, flags)
     for b in blocks:
         text = b.get("text") or ""
