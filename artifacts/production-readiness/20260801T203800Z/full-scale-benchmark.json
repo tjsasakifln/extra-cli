@@ -1,5 +1,13 @@
 {
-  "code_sha": "4961cb3e10bd406a74f3c3f671fb9274af960098",
+  "code_sha": "ba913c1f529115179eb6115c1ecea3c0c720560c",
+  "dual_run_compare": {
+    "accepted_checksum": "e3197cbf46cb49b3b022cd70cab7b32433230d315ab12ba733e5f88b7bad1ff1",
+    "match": true,
+    "run_a_accepted": 4402632,
+    "run_b_accepted": 4402632,
+    "run_b_elapsed_seconds": 172.117,
+    "run_b_max_rss_bytes": 57495552
+  },
   "expected_total": 4479442,
   "host": "ec-prod",
   "proven_on": "pncp_supplier_contracts VPS lake",

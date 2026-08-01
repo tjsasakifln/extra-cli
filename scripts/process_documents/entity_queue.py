@@ -544,7 +544,7 @@ def compute_backoff_hours(
     exp = min(max_hours, base_hours * (2 ** max(0, consecutive_failures - 1)))
     if not jitter:
         return exp
-    r = rng or random.Random()
+    r = rng or random.Random()  # noqa: S311 — scheduling jitter, not crypto
     return r.uniform(0.0, exp)  # noqa: S311 — scheduling jitter, not crypto
 
 

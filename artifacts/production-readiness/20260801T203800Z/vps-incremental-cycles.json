@@ -1,8 +1,8 @@
 {
-  "code_sha": "4961cb3e10bd406a74f3c3f671fb9274af960098",
+  "code_sha": "ba913c1f529115179eb6115c1ecea3c0c720560c",
   "command": "python -m scripts.process_documents incremental --limit 15 --max-batches 1 --no-drain",
   "cycles_requested": 3,
-  "note": "cycle 1 observed running live on VPS; queue has 407 active / 1768 pairs",
-  "status": "IN_PROGRESS_OR_PARTIAL",
-  "timestamp": "2026-08-01T20:37:37.801620+00:00"
+  "note": "first controlled batch completed on VPS (pid exited); queue universe 407 active / 1768 pairs; further cycles can use timer extra-process-documents-incremental",
+  "status": "CYCLE_1_COMPLETED_PROCESS_EXITED",
+  "timestamp": "2026-08-01T20:43:27.711040+00:00"
 }
