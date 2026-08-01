@@ -1,5 +1,19 @@
 # Definition of Done — Extra Consultoria
 
+## Claim tiers (honest evidence — EXTRA-OPEN-PRS-CONSOLIDATION-01)
+
+| Tier | Meaning |
+|------|---------|
+| `IMPLEMENTED` | Code path exists and is unit-tested |
+| `FIXTURE_PROVEN` | Synthetic/fixture E2E only |
+| `REAL_CASE_PROVEN` | Authorized real case (sanitized), not committed originals |
+| `LOCAL_OPERATIONAL` | Runs against local lake/env with reproducible log |
+| `VPS_OPERATIONAL` | Soak/timer on VPS with evidence — **never** from fixture alone |
+
+CI green or field-presence tests do **not** promote a claim across tiers.
+A single `[x]` must not hide these differences.
+
+
 > Checklist viva para acompanhar a evolução do desenvolvimento do projeto.
 >
 > **Natureza do projeto:** ferramenta pessoal, single-user, operada por Tiago Sasaki na CONFENGE. A Extra Construtora é o cliente piloto; o mesmo núcleo de dados também apoia a prospecção e a entrega de consultoria B2G para outros clientes da CONFENGE, sem transformar o projeto em SaaS.
@@ -138,7 +152,7 @@ Um item pode ser marcado como concluído apenas quando pelo menos uma das evidê
 - [x] Triagem inicial de edital. Evidência: `scripts/edital_case` + campanha `DOC-DEEP-ANALYSIS-DECISION-INTEL-01` (checklist 36, verify PASS, recommendation REVIEW + disclaimer) · `artifacts/campaigns/DOC-DEEP-ANALYSIS-DECISION-INTEL-01/`.
 - [x] Análise técnica aprofundada de edital quando solicitada. Evidência: multi-doc case pack (edital/TR/aviso/planilha) · findings/inconsistências/anexos ausentes com locator · `edital_verification.json` verify PASS · mesma campanha.
 - [x] Análise de planilha orçamentária, composições e BDI quando os documentos estiverem disponíveis. Evidência: `scripts/budget_audit` golden E2E · items=12 compositions=1 BDI=8 · arithmetic + findings · verify PASS · `budget_verification.json`.
-- [x] Comparação de orçamento com referências oficiais e dados de mercado defensáveis. Evidência: `budget_audit.references` + manifest SINAPI-style (mês/localidade/regime) · `tests/budget_audit/test_pipeline_e2e.py::test_reference_manifest_required_fields` · sem inventar tabela oficial.
+- [ ] Comparação de orçamento com referências oficiais e dados de mercado defensáveis. **Claim tier:** `IMPLEMENTED` + `FIXTURE_PROVEN` (infraestrutura de comparação + manifest fields system/month/locality/regime). **NÃO** `REAL_CASE_PROVEN` / comparação oficial: o teste só exige presença de campos no manifesto, não dataset oficial (SINAPI/SICRO) com checksum, competência, origem pública e resultado reproduzível. Evidência parcial: `budget_audit.references` + `test_reference_manifest_required_fields`. Opção B (EXTRA-OPEN-PRS-CONSOLIDATION-01): checkbox reaberto até dataset oficial identificável.
 - [x] Apoio à decisão `GO`, `REVIEW` ou `NO_GO`. Evidência: opportunity_intel 401 opps GO=0 REVIEW≈397 NO_GO=4 · ranking demote · EXTRA-OPS-95
 - [ ] Apoio à organização e revisão de proposta, sem assumir assinatura ou responsabilidade da empresa.
 - [ ] Acompanhamento administrativo de contratos: prazos, publicações, aditivos, vigência, renovação e sinais de relicitação.
@@ -336,8 +350,8 @@ Um item pode ser marcado como concluído apenas quando pelo menos uma das evidê
 - [x] Custos diretos, indiretos, encargos e BDI permanecem distinguíveis. Evidência: bdi_components=8 · bdi_sum_percent_points=30.5 · ADR-030.
 - [x] A análise verifica coerência aritmética de subtotais, totais, percentuais e arredondamentos. Evidência: arithmetic_checks=22 (PASS=17, MATERIAL_DIFFERENCE=2) · verify PASS.
 - [x] A análise identifica itens sem composição, composição sem item e referência inconsistente. Evidência: findings MISSING_COEFFICIENT / BROKEN_REFERENCE / DUPLICATE_CODE no golden · `budget-executive-summary.md`.
-- [x] A análise compara preços com SINAPI, SICRO ou outras tabelas oficiais aplicáveis, respeitando mês, localidade, desoneração e unidade. Evidência: `references.compare_to_references` + manifest fields system/month/regime/locality · e2e test_reference_manifest_required_fields.
-- [x] Referências privadas ou históricas são identificadas separadamente das tabelas oficiais. Evidência: reference manifest typing + report non-claims · ADR-032.
+- [ ] A análise compara preços com SINAPI, SICRO ou outras tabelas oficiais aplicáveis, respeitando mês, localidade, desoneração e unidade. **Claim tier:** `IMPLEMENTED` (caminho de código + fixture) · `FIXTURE_PROVEN`. **NÃO** comparação real contra dataset oficial versionado. Evidência parcial: `references.compare_to_references` + manifest field presence. Opção B: reaberto — ausência de tabela oficial com checksum/origem/data/regra/resultado.
+- [x] Referências privadas ou históricas são identificadas separadamente das tabelas oficiais (no *modelo de dados* / typing do manifesto). **Claim tier:** `IMPLEMENTED` + `FIXTURE_PROVEN`. Não prova ingestão de tabela oficial. Evidência: reference manifest typing + report non-claims · ADR-032.
 - [x] Diferença de preço é acompanhada de base comparável e não é tratada isoladamente como erro. Evidência: comparison_status COMPARABLE* · materiality policy · findings severity without legal claim.
 - [x] A análise registra riscos de exequibilidade e margem sem inventar custos internos não fornecidos pela Extra. Evidência: `risks.py` / risk register · executive summary non-claims (no invented margin).
 - [x] O relatório diferencia achado objetivo, alerta técnico, hipótese e decisão que depende de especialista. Evidência: findings severity + checklist NEEDS_HUMAN + recommendation REVIEW · disclaimers nos reports.

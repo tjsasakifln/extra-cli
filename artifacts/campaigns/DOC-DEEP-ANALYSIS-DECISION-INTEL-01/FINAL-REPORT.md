@@ -44,3 +44,16 @@ Not: 95% coverage, live ente, parecer jurídico, BDI legal/abusivo.
 ## Artifacts
 
 See `acceptance-manifest.json` and `evidence/` (MD + JSON only; no campaign HTML).
+
+## DoD claim reconciliation (EXTRA-OPEN-PRS-CONSOLIDATION-01)
+
+**Date:** 2026-08-01T17:24:53.367400+00:00
+
+Items previously marked `[x]` for official SINAPI/SICRO / "referências oficiais" comparison were **reopened** (Option B):
+
+- Infrastructure + fixture for reference comparison: **IMPLEMENTED** + **FIXTURE_PROVEN**
+- Real official dataset comparison (checksum, origin, competência, regime, resultado): **NOT proven**
+- No `REAL_CASE_PROVEN` / `VPS_OPERATIONAL` claim from this campaign alone
+
+See `DOD.md` claim tiers and campaign `dod-claim-reconciliation.md`.
+
