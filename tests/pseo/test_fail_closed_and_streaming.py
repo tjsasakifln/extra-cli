@@ -159,3 +159,22 @@ def test_load_from_db_source_is_incremental():
     assert "server_side_cursor_fetchmany_sqlite_staging" in src
     assert "insert_classified_batch" in src
     assert "secure_delete" in src
+
+def test_staging_load_all_forbidden():
+    """B3: full materialization helpers must fail closed on export path."""
+    from scripts.pseo.staging import StagingStore
+
+    st = StagingStore()
+    try:
+        try:
+            st.load_all_classified()
+            raise AssertionError("load_all_classified must raise")
+        except RuntimeError as e:
+            assert "forbidden" in str(e).lower() or "memory" in str(e).lower()
+        try:
+            st.load_all_bids()
+            raise AssertionError("load_all_bids must raise")
+        except RuntimeError as e:
+            assert "forbidden" in str(e).lower() or "memory" in str(e).lower()
+    finally:
+        st.secure_delete()
