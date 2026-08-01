@@ -502,6 +502,51 @@ def stage_freshness(conn: Any) -> StageResult:
     )
 
 
+def classify_offline_opportunity_collect(
+    *,
+    freshness_level: str | None,
+    records_fetched: int = 0,
+    last_run_id: Any = None,
+) -> tuple[str, dict[str, Any]]:
+    """Honest offline / no-network opportunity collect terminal mapping.
+
+    ``reused_fresh`` only when stage_freshness already proved ``level==fresh``
+    (complete prior collect within SLA). Offline without that proof is
+    ``partial`` — never wash to consultive OK / EXIT_OK.
+    """
+    level = str(freshness_level or "").strip().lower() or "never"
+    notes_base = [
+        "offline/no-network path — no live official API call",
+        f"freshness_level={level}",
+    ]
+    if level == "fresh":
+        return "reused_fresh", {
+            "records_obtained": int(records_fetched or 0),
+            "records_persisted": int(records_fetched or 0),
+            "request_completed": True,
+            "scope_complete": True,
+            "reused_within_sla": True,
+            "raw_uri": f"db://opportunity_runs/{last_run_id}" if last_run_id else None,
+            "notes": notes_base
+            + [
+                "reused previous COMPLETE PNCP opportunity collection within SLA",
+            ],
+        }
+    return "partial", {
+        "records_obtained": int(records_fetched or 0),
+        "records_persisted": int(records_fetched or 0),
+        "request_completed": True,
+        "scope_complete": False,
+        "reused_within_sla": False,
+        "raw_uri": f"db://opportunity_runs/{last_run_id}" if last_run_id else None,
+        "notes": notes_base
+        + [
+            "partial: offline without complete in-SLA proof is never reused_fresh",
+            "cannot claim consultive complete collect from skip/offline alone",
+        ],
+    }
+
+
 def _collect_pncp_opportunities(
     conn: Any,
     *,
@@ -1764,15 +1809,37 @@ def _default_limitations(runs: list[CollectionRun], freshness: list[dict[str, An
         "(re-coleta completa de 499k+ linhas está fora do orçamento do ciclo).",
         "Universo canônico = entidades raio 200 km (meta 1093).",
     ]
+    freshness_by = {
+        str(f.get("source") or ""): str(f.get("level") or "") for f in (freshness or [])
+    }
     for r in runs:
         if r.terminal_status == "partial":
             lim.append(f"Coleta parcial em {r.source}: {r.terminal_error or r.notes}")
         if r.terminal_status == "reused_fresh":
-            lim.append(f"Fonte {r.source} reutilizada dentro do SLA (sem nova chamada oficial).")
+            # Only claim in-SLA reuse when freshness agrees (never invent SLA reuse).
+            fr_level = freshness_by.get(r.source) or (
+                freshness_by.get("pncp_opportunities")
+                if r.source == "pncp_opportunities"
+                else ""
+            )
+            notes_blob = " ".join(str(n) for n in (r.notes or [])).lower()
+            if fr_level in {"never", "stale", "unreliable", "incomplete", "unknown"}:
+                lim.append(
+                    f"Fonte {r.source}: terminal reused_fresh inconsistente com "
+                    f"freshness={fr_level or 'missing'} — não claim reutilização in-SLA."
+                )
+            elif "offline" in notes_blob and fr_level != "fresh":
+                lim.append(
+                    f"Fonte {r.source}: offline sem freshness=fresh — não claim SLA reuse."
+                )
+            else:
+                lim.append(
+                    f"Fonte {r.source} reutilizada dentro do SLA (sem nova chamada oficial)."
+                )
         if r.terminal_status in {"failure", "blocked"}:
             lim.append(f"Fonte {r.source} em estado {r.terminal_status}.")
     for f in freshness:
-        if f.get("level") in {"stale", "never", "unreliable"}:
+        if f.get("level") in {"stale", "never", "unreliable", "incomplete"}:
             lim.append(f"Freshness {f.get('source')}={f.get('level')}.")
     return lim
 
@@ -2029,20 +2096,31 @@ def run_weekly_cycle(
 
         # collect
         if offline:
+            # Offline still consults stage_freshness — never invent reused_fresh
+            # when level is never/stale/incomplete (skip-as-success wash).
             r_opp = CollectionRun.start(
                 source="pncp_opportunities",
                 collection_id=collection_id,
                 collector_version=COLLECTOR_VERSION,
                 mode="offline_test",
+                parameters={"offline": True, "skip_collect": skip_collect},
             )
-            r_opp.finish(
-                records_obtained=0,
-                records_persisted=0,
-                request_completed=True,
-                scope_complete=True,
-                reused_within_sla=True,
-                notes=["offline test mode — no network"],
+            pncp_fresh = next(
+                (r for r in freshness_rows if r.get("source") == "pncp_opportunities"),
+                {},
             )
+            status, finish_kwargs = classify_offline_opportunity_collect(
+                freshness_level=str(pncp_fresh.get("level") or "never"),
+                records_fetched=int(pncp_fresh.get("records_fetched") or 0),
+                last_run_id=pncp_fresh.get("last_run_id"),
+            )
+            notes = list(finish_kwargs.pop("notes", []) or [])
+            if skip_collect:
+                notes.append("skip_collect combined with offline")
+            r_opp.finish(**finish_kwargs, notes=notes)
+            if r_opp.terminal_status != status:
+                r_opp.terminal_status = status  # type: ignore[assignment]
+                r_opp.notes.append(f"terminal_status forced to {status} by offline honesty")
         else:
             r_opp = _collect_pncp_opportunities(
                 conn,

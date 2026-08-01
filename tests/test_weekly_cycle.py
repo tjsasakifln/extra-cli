@@ -18,6 +18,8 @@ from scripts.ops.weekly_cycle import (
     EXIT_UNRELIABLE,
     StageResult,
     _build_claims_catalog,
+    _default_limitations,
+    classify_offline_opportunity_collect,
     classify_opportunity_freshness,
     compute_exit_code,
     run_weekly_cycle,
@@ -385,6 +387,108 @@ def test_partial_collect_never_exit_ok_even_with_products() -> None:
     assert compute_exit_code(stages, [run], strict=False) == EXIT_UNRELIABLE
 
 
+# ---------------------------------------------------------------------------
+# Offline / skip honesty — never invent reused_fresh without in-SLA proof
+# ---------------------------------------------------------------------------
+
+
+def test_offline_without_fresh_proof_is_partial_not_reused_fresh() -> None:
+    """Offline/skip without stage_freshness=fresh must not claim reused_fresh."""
+    for level in ("never", "stale", "incomplete", "unreliable", "unknown", ""):
+        status, kwargs = classify_offline_opportunity_collect(
+            freshness_level=level or None,
+            records_fetched=0,
+        )
+        assert status == "partial", level
+        assert kwargs["reused_within_sla"] is False
+        assert kwargs["scope_complete"] is False
+        assert status != "reused_fresh"
+
+
+def test_offline_with_fresh_proof_may_reuse() -> None:
+    status, kwargs = classify_offline_opportunity_collect(
+        freshness_level="fresh",
+        records_fetched=12,
+        last_run_id=99,
+    )
+    assert status == "reused_fresh"
+    assert kwargs["reused_within_sla"] is True
+    assert kwargs["scope_complete"] is True
+    assert kwargs["records_persisted"] == 12
+
+
+def test_offline_partial_path_never_exit_ok() -> None:
+    """Wire offline honesty → CollectionRun → compute_exit_code (shipped path)."""
+    status, kwargs = classify_offline_opportunity_collect(
+        freshness_level="never",
+        records_fetched=0,
+    )
+    run = CollectionRun.start(
+        source="pncp_opportunities",
+        collection_id="c",
+        collector_version="t",
+        mode="offline_test",
+    )
+    notes = list(kwargs.pop("notes", []) or [])
+    run.finish(**kwargs, notes=notes)
+    if run.terminal_status != status:
+        run.terminal_status = status  # type: ignore[assignment]
+    assert run.terminal_status == "partial"
+    assert run.is_consultive_ok() is False
+
+    contracts = CollectionRun.start(
+        source="pncp_contracts",
+        collection_id="c",
+        collector_version="t",
+    )
+    contracts.finish(
+        records_obtained=100,
+        records_persisted=100,
+        request_completed=True,
+        scope_complete=True,
+        reused_within_sla=True,
+    )
+    stages = [
+        StageResult(name="validate_db", status="ok"),
+        StageResult(name="collect", status="warn"),
+        StageResult(name="quality", status="ok"),
+        StageResult(
+            name="intelligence",
+            status="ok",
+            detail={"counts": {"opportunities": 5}},
+        ),
+        StageResult(name="delivery", status="ok", detail=_delivery_ok_detail()),
+    ]
+    assert compute_exit_code(stages, [run, contracts], strict=True) == EXIT_UNRELIABLE
+    assert compute_exit_code(stages, [run, contracts], strict=False) == EXIT_UNRELIABLE
+
+
+def test_limitations_never_claim_sla_reuse_when_freshness_never() -> None:
+    """Limitations must not say 'reutilizada dentro do SLA' if freshness=never."""
+    run = CollectionRun.start(
+        source="pncp_opportunities",
+        collection_id="c",
+        collector_version="t",
+    )
+    # Simulate the OLD bug: terminal reused_fresh while freshness is never
+    run.finish(
+        records_obtained=0,
+        records_persisted=0,
+        request_completed=True,
+        scope_complete=True,
+        reused_within_sla=True,
+        notes=["offline test mode — no network"],
+    )
+    assert run.terminal_status == "reused_fresh"
+    lim = _default_limitations(
+        [run],
+        [{"source": "pncp_opportunities", "level": "never", "sla_hours": 24}],
+    )
+    joined = " ".join(lim)
+    assert "reutilizada dentro do SLA" not in joined
+    assert "never" in joined.lower() or "inconsistente" in joined.lower()
+
+
 def test_strict_missing_excel_is_nonzero() -> None:
     run = CollectionRun.start(
         source="pncp_opportunities",
@@ -684,7 +788,28 @@ def test_weekly_cycle_offline_skip_collect(tmp_path: Path) -> None:
     assert "collection_id" in claims_text or "cycle_run_id" in claims_text
     assert report.human_accept.get("status") == "PENDING_HUMAN"
     assert "LOCAL_READY" in report.claims_forbidden
-    # 0=ok, 1=tech (e.g. universe != 1093), 2=unreliable, 3=blocked
+    # Offline without in-SLA proof must not invent reused_fresh on PNCP.
+    opp_runs = [r for r in (report.runs or []) if r.get("source") == "pncp_opportunities"]
+    assert opp_runs, "pncp_opportunities run required"
+    opp = opp_runs[0]
+    pncp_fresh = next(
+        (f for f in (report.freshness or []) if f.get("source") == "pncp_opportunities"),
+        {},
+    )
+    if str(pncp_fresh.get("level") or "") != "fresh":
+        assert opp.get("terminal_status") != "reused_fresh"
+        assert opp.get("terminal_status") == "partial"
+        assert report.exit_code != EXIT_OK
+        lim_text = " ".join(report.limitations or [])
+        assert "reutilizada dentro do SLA" not in lim_text or "pncp_opportunities" not in lim_text.split(
+            "reutilizada dentro do SLA"
+        )[0][-80:]
+        # Stronger: no SLA-reuse claim for opportunities when not fresh
+        assert not any(
+            "pncp_opportunities reutilizada dentro do SLA" in str(x)
+            for x in (report.limitations or [])
+        )
+    # 0=ok only if freshness proof allowed reuse; else 1/2/3
     assert report.exit_code in {0, 1, 2, 3}
     if report.exit_code == EXIT_TECH:
         # Fail-closed path: universe seed missing/wrong must surface CANONICAL code.
