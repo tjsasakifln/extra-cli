@@ -308,7 +308,6 @@ class BidReadinessAdapter:
     def interpret(self, params, *, out_dir, proc, preflight) -> AdapterResult:
         result = _generic_interpret(proc=proc, preflight=preflight, out_dir=out_dir, params=params)
         # Hard non-claim: scan artifacts for forbidden status labels as UI success
-        forbidden = ("READY_TO_SUBMIT", "HABILITADA", "PROPOSTA_APROVADA")
         for art in result.artifacts:
             try:
                 text = Path(art).read_text(encoding="utf-8", errors="ignore")

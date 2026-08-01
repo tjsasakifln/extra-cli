@@ -12,14 +12,14 @@ from scripts.command_center.adapters.base import (
 )
 from scripts.command_center.adapters.confenge_public_agencies import ConfengePublicAgenciesAdapter
 from scripts.command_center.adapters.confenge_suppliers import ConfengeSuppliersAdapter
-from scripts.command_center.adapters.extra_opportunities import ExtraOpportunitiesAdapter
-from scripts.command_center.adapters.process_documents import ProcessDocumentsAdapter
 from scripts.command_center.adapters.consulting_chain import (
     BidReadinessAdapter,
     BudgetAuditAdapter,
     EditalCaseAdapter,
     TechnicalAcervoAdapter,
 )
+from scripts.command_center.adapters.extra_opportunities import ExtraOpportunitiesAdapter
+from scripts.command_center.adapters.process_documents import ProcessDocumentsAdapter
 
 _ADAPTERS = {
     ExtraOpportunitiesAdapter.workflow_id: ExtraOpportunitiesAdapter(),
