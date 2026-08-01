@@ -439,7 +439,13 @@ elicitation:
   cats_atestados:
     status: PENDING
     value: []
-    note: "Lista de CATs/atestados vigentes (objeto, valor, órgão, validade)"
+    note: >-
+      Lista de CATs/atestados vigentes (objeto, valor, órgão, validade) para
+      habilitação operacional — permanece PENDING até elicitação humana.
+      Inventário documental consultável (evidência, não habilitação jurídica):
+      data/extra_technical_acervo.json via python -m scripts.technical_acervo.
+      CAT profissional ≠ prova irrestrita de capacidade operacional da PJ;
+      CAO ≠ substituta de CAT/atestado.
   equipe:
     status: PENDING
     value: null

@@ -16,6 +16,7 @@ Precedência: `DOD.md` → ADR vigente → código testado → evidência reprod
 | [`docs/DEVELOPMENT.md`](DEVELOPMENT.md) | Setup e comandos canônicos |
 | [`docs/GLOSSARY.md`](GLOSSARY.md) | Termos e contagens |
 | [`docs/ops/README.md`](ops/README.md) | Índice operacional |
+| [`docs/ops/extra-technical-acervo.md`](ops/extra-technical-acervo.md) | Acervo CAT/CAO Extra (store canônico + CLI) |
 | [`docs/ops/NEXT-DEV-STEP.md`](ops/NEXT-DEV-STEP.md) | Próximo passo sem reconstruir contexto |
 | [`docs/operations/workspace-guide.md`](operations/workspace-guide.md) | Rotina diária CLI |
 | [`docs/architecture/architecture.md`](architecture/architecture.md) | Visão C4 / stack |

@@ -294,6 +294,22 @@ def cmd_dashboard(args: argparse.Namespace) -> None:
     print("--- CAPACIDADES ---")
     print(f"Atestados:    {len(data['atestados'])}")
     print(f"Capacidades:  {len(data['capacidades'])}")
+    # Technical acervo (CAT/CAO) is the canonical knowledge base sibling module.
+    acervo_path = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+        "data",
+        "extra_technical_acervo.json",
+    )
+    if os.path.exists(acervo_path):
+        try:
+            with open(acervo_path, encoding="utf-8") as af:
+                acervo = json.load(af)
+            n_docs = len(acervo.get("technical_documents") or [])
+            n_exp = len(acervo.get("technical_experiences") or [])
+            print(f"Acervo CAT/CAO: {n_docs} docs / {n_exp} experiências")
+            print("  → python -m scripts.technical_acervo inventory")
+        except (OSError, json.JSONDecodeError):
+            print("Acervo CAT/CAO: (arquivo presente, leitura falhou)")
     print()
     if not opps and not props and not contratos:
         print("⚠️  Ledger vazio. Registre a primeira oportunidade:")
