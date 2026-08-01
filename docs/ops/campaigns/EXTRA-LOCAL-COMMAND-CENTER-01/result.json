@@ -1,0 +1,24 @@
+{
+  "campaign": "EXTRA-LOCAL-COMMAND-CENTER-01",
+  "terminal_status": "COMMAND_CENTER_READY_FOR_TIAGO_REVIEW",
+  "sha": "9ac6f377",
+  "url": "http://127.0.0.1:8765",
+  "entrypoints": [
+    "./bin/command-center",
+    "make command-center"
+  ],
+  "tests": {
+    "api": "tests/command_center 14 passed (cancel race 8x, SSE, review queue)",
+    "frontend_unit": "vitest 5 passed",
+    "playwright": "7 passed (nav, search, artifacts, secrets, review queue, fixture)"
+  },
+  "bind": "127.0.0.1",
+  "ts": "2026-07-31T02:16:51.563588+00:00",
+  "skeptic_fixes": [
+    "cancel sticky merge + patch_job",
+    "cancel/SSE tests",
+    "real review queue API+UI",
+    "confirmation_phrase default CONFIRMO",
+    "playwright gating extended"
+  ]
+}

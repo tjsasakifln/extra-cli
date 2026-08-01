@@ -949,3 +949,11 @@ client-ready-consulting-cycle-run:
 		--dsn "$(CLIENT_READY_DSN)" \
 		--out "$(CLIENT_READY_OUT)" \
 		$(if $(CLIENT_READY_E_EVIDENCE),--e-evidence "$(CLIENT_READY_E_EVIDENCE)",)
+
+# --- EXTRA Command Center (local UI; isolated from frozen campaign blocks) ---
+.PHONY: command-center command-center-dev
+command-center:
+	@./bin/command-center
+
+command-center-dev:
+	@./bin/command-center-dev

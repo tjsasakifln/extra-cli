@@ -119,7 +119,7 @@ def _numstat(base: str) -> list[tuple[int, int, str]]:
     return rows
 
 
-def _load_exception() -> dict[str, object] | None:
+def _load_exception_file() -> dict[str, object] | None:
     fp = REPO_ROOT / EXCEPTION_PATH
     if not fp.is_file():
         return None
@@ -127,14 +127,89 @@ def _load_exception() -> dict[str, object] | None:
         data = json.loads(fp.read_text(encoding="utf-8"))
     except json.JSONDecodeError:
         return None
+    if not isinstance(data, dict):
+        return None
+    return data
+
+
+def _load_exception() -> dict[str, object] | None:
+    data = _load_exception_file()
+    if not data:
+        return None
     # Active exception requires human fields
     active = data.get("active")
-    if not active:
+    if not active or not isinstance(active, dict):
         return None
     required = ("reason", "owner", "deadline", "approved_by")
     if any(not active.get(k) for k in required):
         return None
     return active
+
+
+def _load_path_sha_exceptions() -> list[dict[str, object]]:
+    """Path-exact binary exceptions with required SHA-256 (no wildcards)."""
+    data = _load_exception_file()
+    if not data:
+        return []
+    raw = data.get("path_sha_exceptions") or data.get("binary_path_exceptions") or []
+    if not isinstance(raw, list):
+        return []
+    out: list[dict[str, object]] = []
+    for item in raw:
+        if not isinstance(item, dict):
+            continue
+        path = str(item.get("path") or "").replace("\\", "/").strip()
+        sha = str(item.get("sha256") or item.get("sha_256") or "").strip().lower()
+        # Reject wildcards / glob patterns
+        if not path or any(ch in path for ch in "*?[]"):
+            continue
+        if len(sha) != 64 or any(c not in "0123456789abcdef" for c in sha):
+            continue
+        required = ("reason", "owner", "deadline", "approved_by", "canonical_source")
+        if any(not item.get(k) for k in required):
+            continue
+        waiver = str(item.get("waiver") or "binary_or_generated_in_diff").strip()
+        if waiver != "binary_or_generated_in_diff":
+            # Exact waiver only — no broad multi-reason wildcards
+            continue
+        out.append(
+            {
+                "path": path,
+                "sha256": sha,
+                "reason": item["reason"],
+                "owner": item["owner"],
+                "deadline": item["deadline"],
+                "approved_by": item["approved_by"],
+                "canonical_source": item["canonical_source"],
+                "waiver": waiver,
+            }
+        )
+    return out
+
+
+def _file_sha256(path: Path) -> str | None:
+    import hashlib
+
+    if not path.is_file():
+        return None
+    h = hashlib.sha256()
+    with path.open("rb") as fh:
+        for chunk in iter(lambda: fh.read(65536), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def path_is_waived_binary(path: str, *, repo_root: Path | None = None) -> bool:
+    """True if path has a path-exact SHA-256 matching exception."""
+    root = repo_root or REPO_ROOT
+    posix = path.replace("\\", "/")
+    for exc in _load_path_sha_exceptions():
+        if exc["path"] != posix:
+            continue
+        actual = _file_sha256(root / posix)
+        if actual is not None and actual == exc["sha256"]:
+            return True
+    return False
 
 
 def classify_path(path: str) -> set[str]:
@@ -300,20 +375,30 @@ def evaluate(
         )
 
     if binary_in_diff:
-        # product binaries always fail unless exception waives binary_product
+        # product binaries always fail unless:
+        # 1) active exception waives binary_or_generated_in_diff, OR
+        # 2) path-exact SHA-256 exception matches the file on disk
         product_bins = [
             p
             for p in binary_in_diff
             if not p.startswith("tests/")
             and Path(p).suffix.lower() in BINARY_SUFFIXES
         ]
+        if exception and "binary_or_generated_in_diff" in (exception.get("waives") or []):
+            product_bins = []
+        else:
+            product_bins = [p for p in product_bins if not path_is_waived_binary(p)]
         if product_bins:
             maybe(
                 "binary_or_generated_in_diff",
                 {
                     "paths": product_bins[:20],
                     "count": len(product_bins),
-                    "hint": "Use fixture builders or GH Actions artifacts.",
+                    "hint": (
+                        "Use fixture builders or GH Actions artifacts, or add a "
+                        "path-exact path_sha_exceptions entry with sha256 + "
+                        "canonical_source in docs/pr-reviewability-exceptions.json."
+                    ),
                 },
             )
 

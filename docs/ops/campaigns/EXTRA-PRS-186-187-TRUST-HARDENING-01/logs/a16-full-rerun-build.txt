@@ -1,0 +1,14 @@
+
+> extra-command-center@0.1.0 build
+> tsc --noEmit && vite build
+
+vite v6.4.3 building for production...
+transforming...
+✓ 114 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.71 kB │ gzip:  0.42 kB
+dist/assets/index-FreBVKK3.css   18.98 kB │ gzip:  4.94 kB
+dist/assets/index-iyWvYbrd.js   298.11 kB │ gzip: 92.54 kB │ map: 1,120.55 kB
+✓ built in 2.92s
+BUILD_EXIT:0

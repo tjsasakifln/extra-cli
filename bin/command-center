@@ -1,0 +1,75 @@
+#!/usr/bin/env bash
+# EXTRA Command Center — single-command local launcher
+# Binds to 127.0.0.1:8765 by default. Does not expose 0.0.0.0.
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT"
+
+export CC_HOST="${CC_HOST:-127.0.0.1}"
+export CC_PORT="${CC_PORT:-8765}"
+export CC_OPEN_BROWSER="${CC_OPEN_BROWSER:-1}"
+export PYTHONPATH="${PYTHONPATH:-$ROOT}"
+
+if [[ "$CC_HOST" == "0.0.0.0" || "$CC_HOST" == "::" ]]; then
+  if [[ "${CC_ALLOW_PUBLIC_BIND:-0}" != "1" ]]; then
+    echo "Refusing public bind ($CC_HOST). Set CC_ALLOW_PUBLIC_BIND=1 to override." >&2
+    export CC_HOST="127.0.0.1"
+  fi
+fi
+
+echo "==> EXTRA Command Center"
+echo "    host=$CC_HOST port=$CC_PORT"
+
+# Deps
+if ! command -v python3 >/dev/null 2>&1; then
+  echo "ERROR: python3 required" >&2
+  exit 1
+fi
+python3 - <<'PY'
+import importlib, sys
+missing = []
+for m in ("fastapi", "uvicorn", "pydantic"):
+    try:
+        importlib.import_module(m)
+    except Exception:
+        missing.append(m)
+if missing:
+    print("ERROR: missing Python packages:", ", ".join(missing), file=sys.stderr)
+    print("Install: pip install fastapi uvicorn pydantic", file=sys.stderr)
+    sys.exit(1)
+print("Python deps OK")
+PY
+
+SPA_DIR="$ROOT/apps/command-center"
+DIST="$SPA_DIR/dist"
+if [[ ! -f "$DIST/index.html" ]]; then
+  if command -v npm >/dev/null 2>&1; then
+    echo "==> Building frontend (first run)"
+    (cd "$SPA_DIR" && npm install --no-fund --no-audit && npm run build)
+  else
+    echo "WARN: apps/command-center/dist missing and npm not found; API-only mode." >&2
+  fi
+fi
+
+mkdir -p "$ROOT/data/command_center/logs" "$ROOT/data/command_center/jobs"
+
+# Prefer 127.0.0.1 in the browser open: some environments map localhost → ::1 only.
+URL="http://127.0.0.1:${CC_PORT}"
+URL_LOCALHOST="http://localhost:${CC_PORT}"
+if [[ "$CC_OPEN_BROWSER" == "1" ]]; then
+  # Best-effort browser open after short delay
+  (
+    sleep 1.2
+    if command -v xdg-open >/dev/null 2>&1; then
+      xdg-open "$URL" >/dev/null 2>&1 || true
+    elif command -v open >/dev/null 2>&1; then
+      open "$URL" >/dev/null 2>&1 || true
+    fi
+  ) &
+fi
+
+echo "==> Serving (Ctrl+C to stop)"
+echo "    $URL"
+echo "    $URL_LOCALHOST  (também aceito; bind loopback IPv4+IPv6)"
+exec python3 -m scripts.command_center

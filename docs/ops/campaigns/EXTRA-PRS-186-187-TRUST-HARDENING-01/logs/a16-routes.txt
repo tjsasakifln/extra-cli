@@ -1,0 +1,28 @@
+
+> extra-command-center@0.1.0 test:routes
+> playwright test e2e/route-census.spec.ts
+
+[WebServer] INFO:     Started server process [378802]
+[WebServer] INFO:     Waiting for application startup.
+[WebServer] INFO:     Application startup complete.
+
+Running 16 tests using 1 worker
+
+  ✓   1 e2e/route-census.spec.ts:24:5 › route census › route / renders main content (623ms)
+  ✓   2 e2e/route-census.spec.ts:24:5 › route census › route /work/start renders main content (204ms)
+  ✓   3 e2e/route-census.spec.ts:24:5 › route census › route /compare renders main content (223ms)
+  ✓   4 e2e/route-census.spec.ts:24:5 › route census › route /extra renders main content (242ms)
+  ✓   5 e2e/route-census.spec.ts:24:5 › route census › route /confenge/suppliers renders main content (218ms)
+  ✓   6 e2e/route-census.spec.ts:24:5 › route census › route /confenge/agencies renders main content (187ms)
+  ✓   7 e2e/route-census.spec.ts:24:5 › route census › route /documents renders main content (206ms)
+  ✓   8 e2e/route-census.spec.ts:24:5 › route census › route /ops renders main content (186ms)
+  ✓   9 e2e/route-census.spec.ts:24:5 › route census › route /dod renders main content (189ms)
+  ✓  10 e2e/route-census.spec.ts:24:5 › route census › route /actions renders main content (215ms)
+  ✓  11 e2e/route-census.spec.ts:24:5 › route census › route /jobs renders main content (198ms)
+  ✓  12 e2e/route-census.spec.ts:24:5 › route census › route /review renders main content (192ms)
+  ✓  13 e2e/route-census.spec.ts:24:5 › route census › route /results renders main content (181ms)
+  ✓  14 e2e/route-census.spec.ts:24:5 › route census › route /search renders main content (185ms)
+  ✓  15 e2e/route-census.spec.ts:24:5 › route census › route /onboarding renders main content (214ms)
+  ✓  16 e2e/route-census.spec.ts:50:3 › route census › invalid route shows NotFound, not silent home redirect (179ms)
+
+  16 passed (8.4s)

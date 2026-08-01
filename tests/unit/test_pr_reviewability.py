@@ -292,3 +292,156 @@ def test_draft_allows_body_sha_mismatch(monkeypatch: pytest.MonkeyPatch) -> None
         required_checks_present=True,
     )
     assert not any(v["reason"] == "body_ci_sha_mismatch" for v in viol)
+
+
+def _write_path_sha_exception(
+    root: Path,
+    *,
+    path: str,
+    sha256: str,
+    waiver: str = "binary_or_generated_in_diff",
+) -> None:
+    docs = root / "docs"
+    docs.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "schema_version": "1.1",
+        "active": None,
+        "path_sha_exceptions": [
+            {
+                "path": path,
+                "sha256": sha256,
+                "canonical_source": "test fixture canonical source",
+                "reason": "test logo exception",
+                "owner": "tjsasakifln",
+                "deadline": "2026-12-31",
+                "approved_by": "tjsasakifln",
+                "waiver": waiver,
+            }
+        ],
+    }
+    (docs / "pr-reviewability-exceptions.json").write_text(
+        json.dumps(payload), encoding="utf-8"
+    )
+
+
+def test_path_sha_logo_accepted(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Exact path + matching SHA-256 waives binary_or_generated_in_diff."""
+    import hashlib
+
+    import scripts.ops.check_pr_reviewability as mod
+
+    logo = tmp_path / "apps/command-center/public/brand/logo-confenge.png"
+    logo.parent.mkdir(parents=True)
+    content = b"\x89PNG\r\n\x1a\n" + b"canonical-logo-bytes"
+    logo.write_bytes(content)
+    digest = hashlib.sha256(content).hexdigest()
+    _write_path_sha_exception(
+        tmp_path,
+        path="apps/command-center/public/brand/logo-confenge.png",
+        sha256=digest,
+    )
+    monkeypatch.setattr(mod, "REPO_ROOT", tmp_path)
+    viol = evaluate(
+        base="origin/main",
+        draft=False,
+        paths=["apps/command-center/public/brand/logo-confenge.png", "scripts/ok.py"],
+    )
+    assert not any(v["reason"] == "binary_or_generated_in_diff" for v in viol)
+
+
+def test_path_sha_logo_wrong_checksum_rejected(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Altered logo bytes must not match pinned SHA-256."""
+    import scripts.ops.check_pr_reviewability as mod
+
+    logo = tmp_path / "apps/command-center/public/brand/logo-confenge.png"
+    logo.parent.mkdir(parents=True)
+    logo.write_bytes(b"\x89PNG\r\n\x1a\n" + b"tampered")
+    _write_path_sha_exception(
+        tmp_path,
+        path="apps/command-center/public/brand/logo-confenge.png",
+        sha256="e" * 64,  # wrong digest
+    )
+    monkeypatch.setattr(mod, "REPO_ROOT", tmp_path)
+    viol = evaluate(
+        base="origin/main",
+        draft=False,
+        paths=["apps/command-center/public/brand/logo-confenge.png"],
+    )
+    assert any(v["reason"] == "binary_or_generated_in_diff" for v in viol)
+
+
+def test_other_png_still_rejected(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Path-exact exception does not waive a different PNG."""
+    import hashlib
+
+    import scripts.ops.check_pr_reviewability as mod
+
+    logo = tmp_path / "apps/command-center/public/brand/logo-confenge.png"
+    other = tmp_path / "apps/command-center/public/brand/other.png"
+    logo.parent.mkdir(parents=True)
+    content = b"\x89PNG\r\n\x1a\n" + b"logo"
+    logo.write_bytes(content)
+    other.write_bytes(b"\x89PNG\r\n\x1a\n" + b"other")
+    digest = hashlib.sha256(content).hexdigest()
+    _write_path_sha_exception(
+        tmp_path,
+        path="apps/command-center/public/brand/logo-confenge.png",
+        sha256=digest,
+    )
+    monkeypatch.setattr(mod, "REPO_ROOT", tmp_path)
+    viol = evaluate(
+        base="origin/main",
+        draft=False,
+        paths=[
+            "apps/command-center/public/brand/logo-confenge.png",
+            "apps/command-center/public/brand/other.png",
+        ],
+    )
+    assert any(v["reason"] == "binary_or_generated_in_diff" for v in viol)
+    hit = next(v for v in viol if v["reason"] == "binary_or_generated_in_diff")
+    assert "other.png" in str(hit.get("paths"))
+
+
+def test_wildcard_path_sha_exception_rejected(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Glob/wildcard paths must never waive binaries."""
+    import hashlib
+
+    import scripts.ops.check_pr_reviewability as mod
+
+    logo = tmp_path / "apps/command-center/public/brand/logo-confenge.png"
+    logo.parent.mkdir(parents=True)
+    content = b"\x89PNG\r\n\x1a\n" + b"x"
+    logo.write_bytes(content)
+    digest = hashlib.sha256(content).hexdigest()
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "pr-reviewability-exceptions.json").write_text(
+        json.dumps(
+            {
+                "path_sha_exceptions": [
+                    {
+                        "path": "apps/command-center/public/brand/*.png",
+                        "sha256": digest,
+                        "canonical_source": "bad",
+                        "reason": "wildcard attempt",
+                        "owner": "tjsasakifln",
+                        "deadline": "2026-12-31",
+                        "approved_by": "tjsasakifln",
+                        "waiver": "binary_or_generated_in_diff",
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(mod, "REPO_ROOT", tmp_path)
+    viol = evaluate(
+        base="origin/main",
+        draft=False,
+        paths=["apps/command-center/public/brand/logo-confenge.png"],
+    )
+    assert any(v["reason"] == "binary_or_generated_in_diff" for v in viol)

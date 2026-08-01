@@ -1,0 +1,21 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-8.4.1, pluggy-1.6.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /mnt/d/extra consultoria/.worktrees/pr186-trust-a16
+configfile: pytest.ini
+plugins: benchmark-5.2.3, html-4.2.0, hypothesis-6.152.7, repeat-0.9.4, Faker-37.4.2, timeout-2.4.0, asyncio-1.1.0, mock-3.15.1, metadata-3.1.1, cov-4.1.0, anyio-4.2.0
+asyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 104 items
+
+tests/command_center/test_adversarial_security.py ............           [ 11%]
+tests/command_center/test_api_security.py ...............                [ 25%]
+tests/command_center/test_capability_contracts.py ...................... [ 47%]
+..................                                                       [ 64%]
+tests/command_center/test_real_adapters.py ..............                [ 77%]
+tests/command_center/test_regenerate_and_obsolete.py ....                [ 81%]
+tests/command_center/test_run_compare.py ...                             [ 84%]
+tests/command_center/test_trust_hardening.py .......                     [ 91%]
+tests/command_center/test_workbench_flows.py .........                   [100%]
+
+============================= 104 passed in 14.60s =============================
+EXIT:0
