@@ -113,6 +113,10 @@ def cmd_incremental(args: argparse.Namespace) -> int:
         limit=args.limit,
         multi_source=not args.single_source,
         rotation=not args.no_rotation,
+        drain=not args.no_drain,
+        max_batches=args.max_batches,
+        max_entities=args.max_entities,
+        max_wall_seconds=args.max_wall_seconds,
     )
     _print(
         {
@@ -121,9 +125,111 @@ def cmd_incremental(args: argparse.Namespace) -> int:
             "selection_policy": summary.get("selection_policy"),
             "multi_source": summary.get("multi_source"),
             "eligible_count": summary.get("eligible_count"),
+            "overdue_count": summary.get("overdue_count"),
+            "lag_cleared": summary.get("lag_cleared"),
+            "drain_stop_reason": summary.get("drain_stop_reason"),
+            "capacity_insufficient": summary.get("capacity_insufficient"),
+            "batches": summary.get("batches"),
+            "sla_alert_count": summary.get("sla_alert_count"),
             "selected_canonical_ids": (summary.get("selected_canonical_ids") or [])[:20],
         }
     )
+    return 0
+
+
+def cmd_queue_status(args: argparse.Namespace) -> int:
+    from scripts.process_documents.discovery import load_discovery
+    from scripts.process_documents.entity_queue import (
+        build_sla_alerts,
+        load_entity_queue,
+        queue_summary,
+    )
+    from scripts.process_documents.statuses import ActivityStatus
+
+    discoveries = load_discovery()
+    targets = [d for d in discoveries if d.activity_status == ActivityStatus.ACTIVE.value]
+    if not targets:
+        targets = list(discoveries)
+    queue = load_entity_queue()
+    summary = queue_summary(targets, queue)
+    alerts = build_sla_alerts(targets, queue)
+    sample = []
+    for d in targets[: args.limit]:
+        e = queue.get(d.canonical_id)
+        sample.append(
+            {
+                "canonical_id": d.canonical_id,
+                "next_run_at": e.next_run_at if e else None,
+                "last_attempt_at": e.last_attempt_at if e else None,
+                "last_success_at": e.last_success_at if e else None,
+                "consecutive_failures": e.consecutive_failures if e else 0,
+                "attempt_count": e.attempt_count if e else 0,
+                "last_status": e.last_status if e else None,
+            }
+        )
+    _print(
+        {
+            "queue": summary,
+            "sla_alert_count": len(alerts),
+            "sla_alerts_sample": alerts[:20],
+            "entity_sample": sample,
+        }
+    )
+    return 0 if summary.get("lag_cleared") else 1
+
+
+def cmd_ops_health(args: argparse.Namespace) -> int:
+    from scripts.process_documents.discovery import load_discovery
+    from scripts.process_documents.ops_health import collect_ops_health, emit_alerts_to_pipeline
+    from scripts.process_documents.statuses import ActivityStatus
+
+    discoveries = load_discovery()
+    targets = [d for d in discoveries if d.activity_status == ActivityStatus.ACTIVE.value]
+    report = collect_ops_health(discoveries=targets or discoveries, persist=not args.no_persist)
+    if args.dispatch_alerts:
+        report["dispatch"] = emit_alerts_to_pipeline(report.get("alerts") or [], dry_run=not args.live_alerts)
+    slim = {k: v for k, v in report.items() if k not in {"sla_alerts_sample"}}
+    slim["alerts_sample"] = (report.get("alerts") or [])[:15]
+    _print(slim)
+    return 0 if report.get("healthy") else 1
+
+
+def cmd_daily_report(args: argparse.Namespace) -> int:
+    from scripts.process_documents.daily_ops_report import build_daily_ops_report, list_daily_report_streak
+    from scripts.process_documents.discovery import load_discovery
+    from scripts.process_documents.statuses import ActivityStatus
+
+    discoveries = load_discovery()
+    targets = [d for d in discoveries if d.activity_status == ActivityStatus.ACTIVE.value]
+    report = build_daily_ops_report(discoveries=targets or discoveries, day=args.day, persist=True)
+    streak = list_daily_report_streak()
+    _print({"report": report, "streak": streak})
+    return 0
+
+
+def cmd_backup_proof(args: argparse.Namespace) -> int:
+    from scripts.process_documents.backup_restore_proof import run_backup_restore_proof
+
+    report = run_backup_restore_proof(remote=args.remote)
+    _print(report)
+    return 0 if report.get("local_restore_proven") else 1
+
+
+def cmd_process_cards(args: argparse.Namespace) -> int:
+    import json
+    from pathlib import Path
+
+    from scripts.process_documents.process_card import build_cards_from_collect_summary
+    from scripts.process_documents.storage import ensure_roots
+
+    _, meta = ensure_roots()
+    src = Path(args.from_manifest) if args.from_manifest else meta / "collect-batch-latest.json"
+    if not src.is_file():
+        _print({"error": f"missing manifest: {src}"})
+        return 1
+    summary = json.loads(src.read_text(encoding="utf-8"))
+    report = build_cards_from_collect_summary(summary, persist=True)
+    _print(report)
     return 0
 
 
@@ -377,10 +483,10 @@ def build_parser() -> argparse.ArgumentParser:
 
     inc = sub.add_parser(
         "incremental",
-        help="Incremental document refresh (daily: staleness rotation + multi-source)",
+        help="Incremental document refresh (daily: success-lag queue + multi-source + drain)",
     )
     inc.add_argument("--all", action="store_true")
-    inc.add_argument("--limit", type=int, default=50)
+    inc.add_argument("--limit", type=int, default=50, help="Entities per drain batch")
     inc.add_argument("--no-download", action="store_true")
     inc.add_argument(
         "--single-source",
@@ -390,9 +496,39 @@ def build_parser() -> argparse.ArgumentParser:
     inc.add_argument(
         "--no-rotation",
         action="store_true",
-        help="Opt out of staleness rotation (legacy static sort)",
+        help="Opt out of success-lag rotation (legacy static sort)",
     )
+    inc.add_argument(
+        "--no-drain",
+        action="store_true",
+        help="Run a single batch only (do not continue until lag cleared / capacity exhausted)",
+    )
+    inc.add_argument("--max-batches", type=int, default=None)
+    inc.add_argument("--max-entities", type=int, default=None)
+    inc.add_argument("--max-wall-seconds", type=float, default=None)
     inc.set_defaults(func=cmd_incremental)
+
+    qs = sub.add_parser("queue-status", help="Entity queue + SLA lag status")
+    qs.add_argument("--limit", type=int, default=20)
+    qs.set_defaults(func=cmd_queue_status)
+
+    oh = sub.add_parser("ops-health", help="Audit dirs/env/disk/DB/SLA (timer ≠ healthy)")
+    oh.add_argument("--no-persist", action="store_true")
+    oh.add_argument("--dispatch-alerts", action="store_true")
+    oh.add_argument("--live-alerts", action="store_true", help="Actually send (not dry-run)")
+    oh.set_defaults(func=cmd_ops_health)
+
+    dr = sub.add_parser("daily-report", help="Daily coverage/update report (7-day streak evidence)")
+    dr.add_argument("--day", default=None)
+    dr.set_defaults(func=cmd_daily_report)
+
+    bp = sub.add_parser("backup-proof", help="Pack meta snapshot + local restore verify (+ optional remote)")
+    bp.add_argument("--remote", default=None, help="rsync/scp target or set PROCESS_DOCUMENTS_BACKUP_REMOTE")
+    bp.set_defaults(func=cmd_backup_proof)
+
+    pc = sub.add_parser("process-cards", help="Build multi-source process cards from latest collect manifest")
+    pc.add_argument("--from-manifest", default=None)
+    pc.set_defaults(func=cmd_process_cards)
 
     cov = sub.add_parser("coverage", help="Operational coverage report")
     cov.add_argument("--full", action="store_true", help="Full multi-metric bundle + gate exit")

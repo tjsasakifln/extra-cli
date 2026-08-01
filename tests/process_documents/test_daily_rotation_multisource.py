@@ -264,6 +264,7 @@ def test_collect_many_two_runs_rotate_selected_ids(tmp_path: Path, monkeypatch: 
             rotation=True,
             persist_visits=True,
             meta_root=tmp_path / "meta",
+            build_process_cards=False,
         )
         run2 = collect_many(
             only_active=True,
@@ -273,11 +274,12 @@ def test_collect_many_two_runs_rotate_selected_ids(tmp_path: Path, monkeypatch: 
             rotation=True,
             persist_visits=True,
             meta_root=tmp_path / "meta",
+            build_process_cards=False,
         )
 
     ids1 = run1["selected_canonical_ids"]
     ids2 = run2["selected_canonical_ids"]
-    assert run1["selection_policy"] == "staleness_rotation"
+    assert run1["selection_policy"] == "success_lag_rotation"
     assert ids1 != ids2
     assert len(ids1) == 2 and len(ids2) == 2
     # No silent permanent exclusion of the first batch on run 2
@@ -327,9 +329,9 @@ def test_incremental_uses_rotation_and_multi_source_defaults(
         patch("scripts.process_documents.collect.load_discovery", return_value=universe),
         patch("scripts.process_documents.collect.get_adapter", side_effect=fake_get_adapter),
     ):
-        summary = incremental(download=False, limit=1)
+        summary = incremental(download=False, limit=1, drain=False, build_daily_report=False)
 
-    assert summary["selection_policy"] == "staleness_rotation"
+    assert summary["selection_policy"] == "success_lag_rotation"
     assert summary["multi_source"] is True
     assert len(summary["selected_canonical_ids"]) == 1
     selected = summary["selected_canonical_ids"][0]
@@ -345,7 +347,7 @@ def test_incremental_uses_rotation_and_multi_source_defaults(
         patch("scripts.process_documents.collect.load_discovery", return_value=universe),
         patch("scripts.process_documents.collect.get_adapter", side_effect=fake_get_adapter),
     ):
-        summary2 = incremental(download=False, limit=1)
+        summary2 = incremental(download=False, limit=1, drain=False, build_daily_report=False)
     assert summary2["selected_canonical_ids"] != summary["selected_canonical_ids"]
 
 
