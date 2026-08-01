@@ -28,6 +28,7 @@ Existência do host **não** autoriza claims `VPS_OPERATIONAL` / `LOCAL_READY` /
 | [`dod-convergence.md`](dod-convergence.md) | Harness de convergência DOD |
 | [`onboarding.md`](onboarding.md) | Onboarding operacional |
 | [`METRIC-DEFINITION-POLICY.md`](METRIC-DEFINITION-POLICY.md) | Política de definição de métricas |
+| [`extra-technical-acervo.md`](extra-technical-acervo.md) | Acervo CAT/CAO Extra (store + CLI) |
 
 ## Host / Netcup / recovery
 
