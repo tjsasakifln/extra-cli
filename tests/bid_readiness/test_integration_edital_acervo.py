@@ -189,3 +189,32 @@ def test_e2e_mixed_compatible_incompatible_expired_units(tmp_path: Path):
     data = json.loads(proof.read_text(encoding="utf-8"))
     assert data["package_status"] not in FORBIDDEN_PACKAGE_STATES
     assert data["human_decision"]["auto_submit"] is False
+
+
+def test_evaluate_technical_match_uses_acervo():
+    """Primary path: match.evaluate_technical_match must call technical_acervo."""
+    from scripts.bid_readiness.match import evaluate_technical_match
+
+    req = {
+        "id": "T1",
+        "mandatory": True,
+        "technical_criteria": {
+            "service": "pavimentacao",
+            "min_quantity": 100,
+            "unit": "m2",
+            "summable": False,
+        },
+    }
+    result = evaluate_technical_match(req, documents=[])
+    assert "technical_acervo" in str(result.get("source"))
+    assert result.get("integration_finding") is not None
+    assert result.get("match_class")
+
+
+def test_pipeline_source_imports_integration():
+    import inspect
+    from scripts.bid_readiness import pipeline, match
+
+    assert "integrate_requirements" in inspect.getsource(pipeline)
+    assert "match_technical_via_acervo" in inspect.getsource(match)
+    assert "scripts.technical_acervo" in inspect.getsource(match)

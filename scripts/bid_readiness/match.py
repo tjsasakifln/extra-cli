@@ -185,12 +185,72 @@ def match_requirement_to_documents(
 
 
 def evaluate_technical_match(requirement: dict[str, Any], documents: list[dict[str, Any]]) -> dict[str, Any]:
+    """Package-local CAT/atestado evidence + canonical EXTRA acervo enrichment.
+
+    - Case vault documents (this bid package) → quantity/unit evidence for the dossier
+    - ``scripts.technical_acervo`` → whether EXTRA's known portfolio supports the
+      requirement (never a second acervo JSON; single ``data/extra_technical_acervo.json``)
+
+    Duplication of portfolio matching is forbidden: acervo is always via integration.
+    """
     tech = requirement.get("technical_criteria") or {}
     min_qty = tech.get("min_quantity")
     unit = (tech.get("unit") or "").lower().replace("m²", "m2")
     service = (tech.get("service") or tech.get("object") or "").lower()
     allow_sum = bool(tech.get("summable") or tech.get("somatório") or tech.get("somatorio"))
     holder = (tech.get("holder") or "company").lower()  # company|professional
+
+    # Always query canonical EXTRA acervo when there is a technical criterion
+    acervo_finding = None
+    if min_qty is not None or service:
+        from scripts.bid_readiness.integration import match_technical_via_acervo
+
+        acervo_finding = match_technical_via_acervo(
+            {
+                "requirement_id": requirement.get("id") or requirement.get("requirement_id"),
+                "service": tech.get("service") or tech.get("object") or requirement.get("text"),
+                "quantity": min_qty,
+                "unit": tech.get("unit") or "m2",
+                "allow_sum": allow_sum,
+                "mandatory": requirement.get("mandatory", True),
+                "document_id": requirement.get("source_document_id"),
+                "page": requirement.get("page"),
+                "cell": requirement.get("cell"),
+                "sheet": requirement.get("sheet"),
+            }
+        )
+
+    case_result = _evaluate_technical_match_case_docs(
+        requirement, documents, tech=tech, min_qty=min_qty, unit=unit, service=service, allow_sum=allow_sum, holder=holder
+    )
+    if acervo_finding is not None:
+        case_result["source"] = "case_docs+scripts.technical_acervo.match"
+        case_result["integration_finding"] = acervo_finding
+        case_result["technical_acervo_evidence"] = acervo_finding.get("technical_acervo_evidence") or []
+        case_result["acervo_match_status"] = acervo_finding.get("match_status")
+        case_result["acervo_technical_match"] = acervo_finding.get("technical_match")
+        lim = list(case_result.get("limitations") or [])
+        lim.extend(acervo_finding.get("limitations") or [])
+        case_result["limitations"] = lim
+        if acervo_finding.get("human_action_required"):
+            case_result["human_action_required"] = True
+    else:
+        case_result["source"] = "case_docs_only"
+    return case_result
+
+
+def _evaluate_technical_match_case_docs(
+    requirement: dict[str, Any],
+    documents: list[dict[str, Any]],
+    *,
+    tech: dict[str, Any],
+    min_qty: Any,
+    unit: str,
+    service: str,
+    allow_sum: bool,
+    holder: str,
+) -> dict[str, Any]:
+    """Package-local technical evidence from bid vault documents (not EXTRA acervo store)."""
 
     evidence_items: list[dict[str, Any]] = []
     seen_keys: set[str] = set()  # prevent double count CAT/atestado overlap

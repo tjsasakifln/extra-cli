@@ -574,6 +574,89 @@ def all_capabilities() -> list[Capability]:
         # ── Guided consulting workflows (outcome-first) ────────
         # Executed in-process by JobRunner (not via arbitrary shell).
         # argv_builder returns a marker list for audit only.
+        # ── Consulting chain (edital / budget / acervo / bid readiness) ──
+        Capability(
+            id="consulting.edital_case.run",
+            name="Análise profunda de edital (case pack)",
+            description="Pipeline edital_case: ingest→analyze→report→verify com locators. Não é parecer jurídico.",
+            category="consulting",
+            argv_builder=lambda p: _edital_case_argv(p),
+            params=[
+                ParamSpec("action", "Ação", type="select", default="run",
+                          choices=["run", "analyze", "report", "verify", "gate"]),
+                ParamSpec("case_dir", "Diretório do case", type="path", advanced=True),
+                ParamSpec("source_dir", "Fontes (PDFs/anexos)", type="path", advanced=True),
+            ],
+            required_modules=["scripts.edital_case"],
+            risk=RiskLevel.WRITE_LOCAL,
+            requires_confirmation=True,
+            confirmation_phrase="Confirmo triagem técnica local de edital (sem submissão).",
+            output_roots=["output", "data/command_center"],
+            parse_result=default_parse,
+            timeout_sec=3600,
+        ),
+        Capability(
+            id="consulting.budget_audit.run",
+            name="Auditoria orçamentária (planilha/BDI)",
+            description="budget_audit: composições, BDI, locators. Comparação oficial exige dataset REAL_CASE_PROVEN.",
+            category="consulting",
+            argv_builder=lambda p: _budget_audit_argv(p),
+            params=[
+                ParamSpec("action", "Ação", type="select", default="run",
+                          choices=["run", "audit", "references", "report", "verify"]),
+                ParamSpec("case_dir", "Diretório do case", type="path", advanced=True),
+                ParamSpec("source", "Planilha/fonte", type="path", advanced=True),
+            ],
+            required_modules=["scripts.budget_audit"],
+            risk=RiskLevel.WRITE_LOCAL,
+            requires_confirmation=True,
+            confirmation_phrase="Confirmo auditoria orçamentária local.",
+            output_roots=["output", "data/command_center"],
+            parse_result=default_parse,
+            timeout_sec=3600,
+        ),
+        Capability(
+            id="consulting.technical_acervo.match",
+            name="Consultar acervo técnico EXTRA",
+            description="Match de requisito vs data/extra_technical_acervo.json (fonte canônica). Sem somatório default.",
+            category="consulting",
+            argv_builder=lambda p: _acervo_argv(p),
+            params=[
+                ParamSpec("action", "Ação", type="select", default="match",
+                          choices=["match", "search", "inventory", "list", "show"]),
+                ParamSpec("service", "Serviço / objeto", required=False, example="pavimentacao"),
+                ParamSpec("quantity", "Quantidade", type="float", advanced=True),
+                ParamSpec("unit", "Unidade", default="m2", advanced=True),
+                ParamSpec("allow_sum", "Permitir somatório", type="bool", default=False, advanced=True),
+                ParamSpec("query", "Busca livre", advanced=True),
+                ParamSpec("id", "ID documento", advanced=True),
+            ],
+            required_modules=["scripts.technical_acervo"],
+            risk=RiskLevel.READ,
+            parse_result=default_parse,
+            output_roots=["data/command_center"],
+        ),
+        Capability(
+            id="consulting.bid_readiness.run",
+            name="Bid readiness (revisão humana)",
+            description="Monta dossier de readiness. Nunca READY_TO_SUBMIT. Match técnico via technical_acervo.",
+            category="consulting",
+            argv_builder=lambda p: _bid_readiness_argv(p),
+            params=[
+                ParamSpec("action", "Ação", type="select", default="run",
+                          choices=["run", "verify", "report", "validate", "match"]),
+                ParamSpec("case_dir", "Diretório do case", type="path", advanced=True),
+                ParamSpec("requirements", "requirements.json", type="path", advanced=True),
+                ParamSpec("documents_dir", "Pasta de documentos", type="path", advanced=True),
+            ],
+            required_modules=["scripts.bid_readiness", "scripts.technical_acervo"],
+            risk=RiskLevel.HUMAN_DECISION,
+            requires_confirmation=True,
+            confirmation_phrase="Confirmo geração de package para REVISÃO HUMANA (sem submissão).",
+            output_roots=["output", "data/command_center"],
+            parse_result=default_parse,
+            timeout_sec=3600,
+        ),
         *_workflow_capabilities(),
     ]
     return caps
@@ -859,3 +942,35 @@ if root.exists():
 print(json.dumps({'recent': items}, ensure_ascii=False, indent=2))
 """
     return [sys.executable, "-c", code]
+
+
+def _edital_case_argv(p: dict[str, Any]) -> list[str]:
+    from pathlib import Path
+
+    from scripts.command_center.adapters.consulting_chain import EditalCaseAdapter
+    out = Path(str(p.get("case_dir") or "data/command_center/edital_case"))
+    return EditalCaseAdapter().build_argv(p, out_dir=out)
+
+
+def _budget_audit_argv(p: dict[str, Any]) -> list[str]:
+    from pathlib import Path
+
+    from scripts.command_center.adapters.consulting_chain import BudgetAuditAdapter
+    out = Path(str(p.get("case_dir") or "data/command_center/budget_audit"))
+    return BudgetAuditAdapter().build_argv(p, out_dir=out)
+
+
+def _acervo_argv(p: dict[str, Any]) -> list[str]:
+    from pathlib import Path
+
+    from scripts.command_center.adapters.consulting_chain import TechnicalAcervoAdapter
+    return TechnicalAcervoAdapter().build_argv(p, out_dir=Path("data/command_center"))
+
+
+def _bid_readiness_argv(p: dict[str, Any]) -> list[str]:
+    from pathlib import Path
+
+    from scripts.command_center.adapters.consulting_chain import BidReadinessAdapter
+    out = Path(str(p.get("case_dir") or "data/command_center/bid_readiness"))
+    return BidReadinessAdapter().build_argv(p, out_dir=out)
+
