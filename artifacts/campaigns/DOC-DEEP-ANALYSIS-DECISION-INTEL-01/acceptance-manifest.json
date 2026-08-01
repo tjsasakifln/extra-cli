@@ -1,6 +1,6 @@
 {
   "campaign_id": "DOC-DEEP-ANALYSIS-DECISION-INTEL-01",
-  "generated_at": "2026-08-01T15:30:20.160011+00:00",
+  "generated_at": "2026-08-01T15:31:26.275982+00:00",
   "branch": "campaign/doc-deep-analysis-dod-01",
   "purpose": "Multi-doc deep reading including planilha sheet/cell locators; verify PASS; fix bare-SHA xlsx extraction.",
   "pipelines": {
@@ -139,10 +139,6 @@
     "evidence/edital_report_reconciliation.json": {
       "sha256": "65a5a90dd40f273bc42ea320e10cbf41fe4efbf15a88df4652e885d2aafc4ebb",
       "bytes": 753
-    },
-    "evidence/edital_report_report-model.json": {
-      "sha256": "b24ddf19ebede11217996afe3d24c8f1a3b9ad4356540e9cf34c8360c94a555a",
-      "bytes": 161434
     },
     "evidence/edital_timeline.json": {
       "sha256": "f89ce2d6aadf8a4a0d02a2c375dcfac48ccc40710d10323eb1185641d7fb9b66",
