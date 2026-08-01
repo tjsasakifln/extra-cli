@@ -339,9 +339,103 @@ def test_atomic_mid_write_failure_preserves_prior_versioned(tmp_path: Path) -> N
 def test_chunked_loader_exists_and_no_fetchall_in_source() -> None:
     src = Path("scripts/pseo/pipeline.py").read_text(encoding="utf-8")
     assert "fetchmany" in src
-    assert "server_side_cursor" in src or "name=\"pseo_" in src or "name='pseo_" in src
+    assert "server_side_cursor" in src or 'name="pseo_' in src or "name='pseo_" in src
     # fetchall should not remain on the large-table path
     assert "cur.fetchall()" not in src
+    # B3: SQLite staging — no linear full classified list accumulation via .extend on extract
+    assert "insert_classified_batch" in src
+    assert "sqlite_staging" in src or "StagingStore" in src
+
+
+def test_json_schema_walk_no_free_objects_or_any() -> None:
+    """B2: generated schema must close all objects; no empty/free schemas."""
+    schema = build_json_schema()
+
+    def walk(node: object, path: str = "$") -> None:
+        if isinstance(node, dict):
+            assert node != {}, f"empty schema at {path}"
+            if node.get("type") == "object" or "properties" in node:
+                assert "additionalProperties" in node or "$ref" in node, path
+                if "additionalProperties" in node:
+                    assert node["additionalProperties"] is False, (
+                        f"additionalProperties not false at {path}: "
+                        f"{node.get('additionalProperties')!r}"
+                    )
+            # Reject free-form any-like remnants
+            for bad in ("Any", "typing.Any"):
+                assert bad not in json.dumps(node.get("title") or ""), path
+            for k, v in node.items():
+                walk(v, f"{path}.{k}")
+        elif isinstance(node, list):
+            for i, item in enumerate(node):
+                walk(item, f"{path}[{i}]")
+
+    walk(schema)
+    # Nested public models present
+    for name in (
+        "ValueBand",
+        "PrivacyMetadata",
+        "Modality",
+        "StatusBreakdown",
+        "Freshness",
+        "OfficialReference",
+        "ClaimEvidence",
+        "DocumentSignal",
+        "BudgetSignal",
+        "ClassifierMetadata",
+        "InternalSignatureAggregates",
+        "MethodologyMetadata",
+    ):
+        assert name in schema["$defs"], name
+
+
+def test_models_public_fields_have_no_any() -> None:
+    """B2: zero Any in public model field annotations."""
+    import typing
+    from typing import get_args, get_origin
+
+    from scripts.pseo import models as m
+
+    public = [
+        m.Archetype,
+        m.Market,
+        m.Agency,
+        m.Price,
+        m.Competition,
+        m.Opportunity,
+        m.ProblemService,
+        m.ICPMethodology,
+        m.ValueBand,
+        m.PrivacyMetadata,
+        m.Modality,
+        m.StatusBreakdown,
+        m.Freshness,
+        m.OfficialReference,
+        m.ClaimEvidence,
+        m.DocumentSignal,
+        m.BudgetSignal,
+        m.ClassifierMetadata,
+        m.InternalSignatureAggregates,
+        m.MethodologyMetadata,
+    ]
+
+    def contains_any(tp: object) -> bool:
+        if tp is typing.Any:
+            return True
+        origin = get_origin(tp)
+        if origin is not None:
+            return any(contains_any(a) for a in get_args(tp))
+        if isinstance(tp, str) and tp in {"Any", "typing.Any"}:
+            return True
+        return False
+
+    bad: list[str] = []
+    for model in public:
+        for name, field in model.model_fields.items():
+            ann = field.annotation
+            if contains_any(ann):
+                bad.append(f"{model.__name__}.{name}: {ann!r}")
+    assert not bad, f"Any remaining in public fields: {bad}"
 
 
 def test_dataset_hash_stable_for_body() -> None:

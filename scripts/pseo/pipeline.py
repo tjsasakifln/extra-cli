@@ -276,18 +276,24 @@ def _fetch_chunked(cur, sql: str, *, chunk_size: int = 5_000) -> list[dict[str, 
 
 
 def load_from_db(dsn: str, *, chunk_size: int = 5_000) -> dict[str, Any]:
-    """Stream large tables: classify incrementally; never materialize full raw tables.
+    """Stream large tables into SQLite staging; never materialize full raw tables.
 
-    Returns a streaming load result used by build_export via pre_* kwargs.
-    Raw contract/bid rows are discarded after each batch is classified.
+    Classified contracts and AEC bids are batch-inserted into a temp SQLite file
+    (minimal indexes). Raw rows are discarded after each batch. Returns a staging
+    path for ``build_export`` — does **not** return giant ``pre_classified`` lists.
+
+    Isolation: REPEATABLE READ, read-only. Failure closes DB without promoting.
     """
     from scripts.pseo.chunked_extract import iter_fetch_chunked
+    from scripts.pseo.staging import StagingStore
 
     try:
         import psycopg2
         import psycopg2.extras
     except ImportError as e:
         raise SystemExit(f"psycopg2 required for DB export: {e}") from e
+
+    staging = StagingStore()
     conn = psycopg2.connect(
         dsn,
         connect_timeout=15,
@@ -298,8 +304,8 @@ def load_from_db(dsn: str, *, chunk_size: int = 5_000) -> dict[str, Any]:
         conn.set_session(readonly=True, isolation_level="REPEATABLE READ", autocommit=False)
         counts: dict[str, Any] = {}
         classification_counts: dict[str, int] = {}
-        classified: list[Any] = []
         n_contracts = 0
+        n_batches_contracts = 0
 
         cur = conn.cursor(name="pseo_contracts", cursor_factory=psycopg2.extras.RealDictCursor)
         cur.itersize = chunk_size
@@ -314,18 +320,20 @@ def load_from_db(dsn: str, *, chunk_size: int = 5_000) -> dict[str, Any]:
             """,
             chunk_size=chunk_size,
         ):
+            n_batches_contracts += 1
             n_contracts += len(batch)
             for r in batch:
                 obj = r.get("objeto_contrato") or r.get("objeto") or ""
                 label = classify_objeto(obj).label
                 classification_counts[label] = classification_counts.get(label, 0) + 1
-            classified.extend(classify_rows(batch))
+            # Classify batch → SQLite; do not retain Python list of all classified
+            staging.insert_classified_batch(classify_rows(batch))
             # batch raw rows go out of scope — not retained
         counts["pncp_supplier_contracts"] = n_contracts
         cur.close()
 
-        aec_bids: list[dict[str, Any]] = []
         n_bids = 0
+        n_batches_bids = 0
         cur = conn.cursor(name="pseo_bids", cursor_factory=psycopg2.extras.RealDictCursor)
         cur.itersize = chunk_size
         for batch in iter_fetch_chunked(
@@ -339,8 +347,9 @@ def load_from_db(dsn: str, *, chunk_size: int = 5_000) -> dict[str, Any]:
             """,
             chunk_size=chunk_size,
         ):
+            n_batches_bids += 1
             n_bids += len(batch)
-            aec_bids.extend(classify_bids(batch))
+            staging.insert_bids_batch(classify_bids(batch))
         counts["pncp_raw_bids"] = n_bids
         cur.close()
 
@@ -349,21 +358,37 @@ def load_from_db(dsn: str, *, chunk_size: int = 5_000) -> dict[str, Any]:
         counts["sc_public_entities"] = int(cur.fetchone()["n"])
         cur.close()
         conn.commit()
+
+        staging.set_meta("classification_counts", classification_counts)
+        staging.commit()
+
         counts["snapshot_isolation"] = "REPEATABLE READ"
-        counts["fetch_mode"] = "server_side_cursor_fetchmany_incremental_classify"
+        counts["fetch_mode"] = "server_side_cursor_fetchmany_sqlite_staging"
         counts["chunk_size"] = chunk_size
         counts["raw_materialized"] = False
-        counts["classified_kept"] = len(classified)
-        counts["aec_bids_kept"] = len(aec_bids)
+        counts["linear_full_list"] = False
+        counts["staging"] = "sqlite"
+        counts["staging_path"] = str(staging.path)
+        counts["n_batches_contracts"] = n_batches_contracts
+        counts["n_batches_bids"] = n_batches_bids
+        counts["classified_kept"] = staging.classified_count
+        counts["aec_bids_kept"] = staging.bids_count
         return {
             "streaming": True,
             "contracts": [],  # intentionally empty — raw discarded
             "bids": [],
             "counts": counts,
-            "pre_classified": classified,
-            "pre_aec_bids": aec_bids,
+            # No giant lists — build_export reads from staging
+            "pre_classified": None,
+            "pre_aec_bids": None,
             "pre_classification_counts": classification_counts,
+            "staging": staging,
+            "staging_path": str(staging.path),
         }
+    except Exception:
+        # Failure does not promote snapshot; wipe staging
+        staging.secure_delete()
+        raise
     finally:
         conn.close()
 
@@ -381,6 +406,38 @@ def load_from_fixture(path: Path):
     return contracts, bids, counts
 
 
+def stage_from_rows(
+    contracts: list[dict[str, Any]],
+    bids: list[dict[str, Any]],
+    *,
+    chunk_size: int = 5_000,
+) -> dict[str, Any]:
+    """Classify fixture/synthetic rows into SQLite staging (same path as DB load)."""
+    from scripts.pseo.staging import StagingStore
+
+    staging = StagingStore()
+    classification_counts: dict[str, int] = {}
+    for i in range(0, len(contracts), chunk_size):
+        batch = contracts[i : i + chunk_size]
+        for r in batch:
+            obj = r.get("objeto_contrato") or r.get("objeto") or ""
+            label = classify_objeto(obj).label
+            classification_counts[label] = classification_counts.get(label, 0) + 1
+        staging.insert_classified_batch(classify_rows(batch))
+    for i in range(0, len(bids), chunk_size):
+        batch = bids[i : i + chunk_size]
+        staging.insert_bids_batch(classify_bids(batch))
+    staging.set_meta("classification_counts", classification_counts)
+    staging.commit()
+    return {
+        "staging": staging,
+        "staging_path": str(staging.path),
+        "pre_classification_counts": classification_counts,
+        "classified_kept": staging.classified_count,
+        "aec_bids_kept": staging.bids_count,
+    }
+
+
 def build_export(
     contracts: list[dict[str, Any]],
     bids: list[dict[str, Any]],
@@ -393,188 +450,222 @@ def build_export(
     pre_classified: list[Any] | None = None,
     pre_aec_bids: list[dict[str, Any]] | None = None,
     pre_classification_counts: dict[str, int] | None = None,
+    staging: Any | None = None,
+    staging_path: str | Path | None = None,
+    max_public_samples: int = 25,
 ) -> dict[str, Any]:
+    from scripts.pseo.staging import StagingStore
+
     as_of_s = as_of or date.today().isoformat()
     as_of_d = date.fromisoformat(as_of_s)
 
-    # Streaming DB path supplies pre-classified data so raw tables need not be retained.
-    if pre_classified is not None:
-        classified = list(pre_classified)
-        classification_counts = dict(pre_classification_counts or {})
-        aec_bids = list(pre_aec_bids or [])
-    else:
-        classification_counts = classify_all_rows_stats(contracts)
-        classified = classify_rows(contracts)
-        aec_bids = classify_bids(bids)
-    open_bids, closed_bids, opp_status_counts = filter_open_bids(aec_bids, as_of=as_of_d)
+    own_staging = False
+    store: StagingStore | None = staging if isinstance(staging, StagingStore) else None
+    if store is None and staging_path is not None:
+        store = StagingStore.open_existing(Path(staging_path))
+        own_staging = True
 
-    markets = build_markets(classified, open_bids)
-    agencies = build_agencies(classified, open_bids)
-    prices_raw = build_comparable_prices(classified, min_obs=12)
-    for pr in prices_raw:
-        uf = pr.get("region")
-        if uf and len(str(uf)) == 2:
-            pr["region_label"] = _uf_label(str(uf))
-        arch = pr.get("object_pattern")
-        if arch and uf and len(str(uf)) == 2:
-            pr.setdefault("mesh_slug", f"{arch}-{str(uf).lower()}")
-        # Attach specific official links to examples when possible (never invent)
-        for ex in pr.get("public_examples") or []:
-            if not ex.get("link_oficial"):
-                link = pncp_consulta_url(ex.get("contrato_id"), ex.get("source"))
-                if link:
-                    ex["link_oficial"] = link
-                    ex.setdefault("portal_origem", "pncp")
-    competition = build_competition(classified)
-    opportunities = build_opportunities_v2(
-        open_bids, markets, as_of=as_of_s, closed_bids=closed_bids
-    )
-    problems = attach_problem_evidence(build_problem_service_bridges(), markets, prices_raw)
-    archetypes = build_public_archetypes(classified)
+    try:
+        # Prefer staging (memory-bounded extract path); then pre_* lists; then classify in-memory.
+        if store is not None:
+            classified = store.load_all_classified()
+            aec_bids = store.load_all_bids()
+            classification_counts = dict(
+                pre_classification_counts
+                or store.get_meta("classification_counts")
+                or {}
+            )
+        elif pre_classified is not None:
+            classified = list(pre_classified)
+            classification_counts = dict(pre_classification_counts or {})
+            aec_bids = list(pre_aec_bids or [])
+        else:
+            classification_counts = classify_all_rows_stats(contracts)
+            classified = classify_rows(contracts)
+            aec_bids = classify_bids(bids)
+        open_bids, closed_bids, opp_status_counts = filter_open_bids(aec_bids, as_of=as_of_d)
 
-    payload = {
-        "archetypes": archetypes,
-        "markets": markets,
-        "agencies": agencies,
-        "prices": prices_raw,
-        "competition": competition,
-        "opportunities": opportunities,
-        "problem_service": problems,
-    }
-    # Fail closed: never silently strip forbidden/unexpected fields (B1/B10).
-    assert_public(payload, "export_payload")
+        markets = build_markets(classified, open_bids)
+        agencies = build_agencies(classified, open_bids)
+        prices_raw = build_comparable_prices(classified, min_obs=12)
+        for pr in prices_raw:
+            uf = pr.get("region")
+            if uf and len(str(uf)) == 2:
+                pr["region_label"] = _uf_label(str(uf))
+            arch = pr.get("object_pattern")
+            if arch and uf and len(str(uf)) == 2:
+                pr.setdefault("mesh_slug", f"{arch}-{str(uf).lower()}")
+            # Attach specific official links to examples when possible (never invent)
+            for ex in (pr.get("public_examples") or [])[:max_public_samples]:
+                if not ex.get("link_oficial"):
+                    link = pncp_consulta_url(ex.get("contrato_id"), ex.get("source"))
+                    if link:
+                        ex["link_oficial"] = link
+                        ex.setdefault("portal_origem", "pncp")
+        competition = build_competition(classified)
+        opportunities = build_opportunities_v2(
+            open_bids, markets, as_of=as_of_s, closed_bids=closed_bids
+        )
+        # Explicit sample cap already inside build_opportunities_v2 (items[:25])
+        problems = attach_problem_evidence(build_problem_service_bridges(), markets, prices_raw)
+        archetypes = build_public_archetypes(classified)
 
-    icp = load_icp_signature_from_top20_artifact(top20_path)
-    icp = {
-        "available": icp.get("available"),
-        "n_accounts_internal": icp.get("n_accounts_internal"),
-        "activity_class_histogram": icp.get("activity_class_histogram"),
-        "sector_fit_histogram": icp.get("sector_fit_histogram"),
-        "public_signal_frequency": icp.get("public_signal_frequency"),
-        "note": icp.get("note"),
-    }
+        payload = {
+            "archetypes": archetypes,
+            "markets": markets,
+            "agencies": agencies,
+            "prices": prices_raw,
+            "competition": competition,
+            "opportunities": opportunities,
+            "problem_service": problems,
+        }
+        # Fail closed: never silently strip forbidden/unexpected fields (B1/B10).
+        assert_public(payload, "export_payload")
 
-    files_body = {
-        "archetypes": payload["archetypes"],
-        "markets": payload["markets"],
-        "agencies": payload["agencies"],
-        "prices": payload["prices"],
-        "competition": payload["competition"],
-        "opportunities": payload["opportunities"],
-        "problem_service": payload["problem_service"],
-        "icp_methodology": {
-            "schema_version": "1.1.0",
-            "methodology": (
-                "Top 20 comercial so calibra classes de atividade. "
-                "Classificador multi-camada: so aec_confirmed alimenta indicadores indexaveis."
-            ),
-            "internal_signature_aggregates": icp,
-            "classifier": {
-                "labels": [
-                    "aec_confirmed",
-                    "aec_probable",
-                    "non_aec",
-                    "ambiguous",
-                    "insufficient_context",
-                ],
-                "indexable_class": "aec_confirmed",
-            },
-        },
-    }
-    assert_public(files_body, "files_body")
-    dataset_hash = compute_dataset_hash(files_body)
-    generated_at = _now()
-    run_id = source_run_id or f"pseo-{generated_at.replace(':','').replace('-','')}-{uuid.uuid4().hex[:8]}"
+        icp = load_icp_signature_from_top20_artifact(top20_path)
+        icp = {
+            "available": icp.get("available"),
+            "n_accounts_internal": icp.get("n_accounts_internal"),
+            "activity_class_histogram": icp.get("activity_class_histogram"),
+            "sector_fit_histogram": icp.get("sector_fit_histogram"),
+            "public_signal_frequency": icp.get("public_signal_frequency"),
+            "note": icp.get("note"),
+        }
 
-    dates = [c.data_publicacao for c in classified if c.data_publicacao]
-    bid_dates = []
-    for b in aec_bids:
-        for k in ("data_publicacao", "data_encerramento", "data_abertura"):
-            if b.get(k):
-                bid_dates.append(str(b[k])[:10])
-    all_dates = [str(d)[:10] for d in dates + bid_dates if d]
-    max_data = max(all_dates) if all_dates else None
-    min_data = min(all_dates) if all_dates else None
-    contract_dates = [str(d)[:10] for d in dates if d]
-
-    counts_full = {
-        **counts,
-        "classified_aec_contracts": len(classified),
-        "classified_aec_bids": len(aec_bids),
-        "open_bids": len(open_bids),
-        "closed_bids": len(closed_bids),
-        "markets": len(payload["markets"]),
-        "agencies": len(payload["agencies"]),
-        "prices": len(payload["prices"]),
-        "competition": len(payload["competition"]),
-        "opportunities": len(payload["opportunities"]),
-        "archetypes": len(payload["archetypes"]),
-        "problem_service": len(payload["problem_service"]),
-        "raw_contracts": counts.get("pncp_supplier_contracts", 0),
-        "after_classification_aec_confirmed": len(classified),
-        "after_open_filter": len(open_bids),
-    }
-
-    manifest = build_manifest(
-        files_body=files_body,
-        counts=counts_full,
-        classification_counts={
-            **classification_counts,
-            **{f"bid_status_{k}": v for k, v in opp_status_counts.items()},
-        },
-        freshness={
-            "data_period_start": min_data,
-            "data_period_end": max_data,
-            "data_as_of": as_of_s,
-            "max_age_days_policy": 180,
-            "generated_at": generated_at,
-            "by_dataset": {
-                "contracts": {
-                    "min_date": min(contract_dates) if contract_dates else None,
-                    "max_date": max(contract_dates) if contract_dates else None,
-                    "n": len(classified),
-                    "policy_warning_days": 30,
-                    "policy_fail_days": 90,
-                },
-                "bids_radar": {
-                    "n_open": len(open_bids),
-                    "n_classified": len(aec_bids),
-                    "policy_warning_hours": 24,
-                    "policy_fail_hours": 72,
-                    "as_of": as_of_s,
+        files_body = {
+            "archetypes": payload["archetypes"],
+            "markets": payload["markets"],
+            "agencies": payload["agencies"],
+            "prices": payload["prices"],
+            "competition": payload["competition"],
+            "opportunities": payload["opportunities"],
+            "problem_service": payload["problem_service"],
+            "icp_methodology": {
+                "schema_version": "1.1.0",
+                "methodology": (
+                    "Top 20 comercial so calibra classes de atividade. "
+                    "Classificador multi-camada: so aec_confirmed alimenta indicadores indexaveis."
+                ),
+                "internal_signature_aggregates": icp,
+                "classifier": {
+                    "labels": [
+                        "aec_confirmed",
+                        "aec_probable",
+                        "non_aec",
+                        "ambiguous",
+                        "insufficient_context",
+                    ],
+                    "indexable_class": "aec_confirmed",
                 },
             },
-            "note": "Record ages from data_publicacao/data_encerramento, not only generated_at.",
-        },
-        sources=[{"table": t, "role": "read_only_aggregate"} for t in TABLES],
-        denominators={
-            "contracts_total_loaded": counts.get("pncp_supplier_contracts", 0),
-            "bids_total_loaded": counts.get("pncp_raw_bids", 0),
-            "aec_confirmed_contracts": len(classified),
-            "aec_confirmed_bids": len(aec_bids),
-            "open_bids_after_status_filter": len(open_bids),
-            "classified_share_note": "Only multi-layer aec_confirmed objects enter public aggregates.",
-        },
-        limitations=[
-            "Export is aggregated and sanitized; no commercial pipeline fields.",
-            "Datalake coverage is incomplete relative to the national universe.",
-            "Do not interpret medians as unit prices.",
-            "Only aec_confirmed records feed market/price/competition aggregates.",
-            "Open opportunities require data_encerramento >= data_as_of and compatible status.",
-            "Freshness uses record dates, not only generated_at.",
-        ],
-        generated_at=generated_at,
-        data_as_of=as_of_s,
-        source_run_id=run_id,
-        repo_root=repo_root,
-        query_versions=QUERY_VERSIONS,
-        horizon={"period_start": min_data, "period_end": max_data},
-    )
-    manifest["export_entrypoint"] = EXPORT_ENTRYPOINT
-    manifest["exporter_entrypoint"] = EXPORT_ENTRYPOINT
-    manifest["schema_version"] = "1.1.0"
-    manifest["dataset_hash"] = dataset_hash
-    return {"manifest": manifest, "files": files_body, "dataset_hash": dataset_hash}
+        }
+        assert_public(files_body, "files_body")
+        dataset_hash = compute_dataset_hash(files_body)
+        generated_at = _now()
+        run_id = source_run_id or (
+            f"pseo-{generated_at.replace(':', '').replace('-', '')}-{uuid.uuid4().hex[:8]}"
+        )
+
+        dates = [c.data_publicacao for c in classified if c.data_publicacao]
+        bid_dates = []
+        for b in aec_bids:
+            for k in ("data_publicacao", "data_encerramento", "data_abertura"):
+                if b.get(k):
+                    bid_dates.append(str(b[k])[:10])
+        all_dates = [str(d)[:10] for d in dates + bid_dates if d]
+        max_data = max(all_dates) if all_dates else None
+        min_data = min(all_dates) if all_dates else None
+        contract_dates = [str(d)[:10] for d in dates if d]
+
+        counts_full = {
+            **counts,
+            "classified_aec_contracts": len(classified),
+            "classified_aec_bids": len(aec_bids),
+            "open_bids": len(open_bids),
+            "closed_bids": len(closed_bids),
+            "markets": len(payload["markets"]),
+            "agencies": len(payload["agencies"]),
+            "prices": len(payload["prices"]),
+            "competition": len(payload["competition"]),
+            "opportunities": len(payload["opportunities"]),
+            "archetypes": len(payload["archetypes"]),
+            "problem_service": len(payload["problem_service"]),
+            "raw_contracts": counts.get("pncp_supplier_contracts", 0),
+            "after_classification_aec_confirmed": len(classified),
+            "after_open_filter": len(open_bids),
+            "staging": bool(store is not None),
+            "max_public_samples": max_public_samples,
+        }
+
+        manifest = build_manifest(
+            files_body=files_body,
+            counts=counts_full,
+            classification_counts={
+                **classification_counts,
+                **{f"bid_status_{k}": v for k, v in opp_status_counts.items()},
+            },
+            freshness={
+                "data_period_start": min_data,
+                "data_period_end": max_data,
+                "data_as_of": as_of_s,
+                "max_age_days_policy": 180,
+                "generated_at": generated_at,
+                "by_dataset": {
+                    "contracts": {
+                        "min_date": min(contract_dates) if contract_dates else None,
+                        "max_date": max(contract_dates) if contract_dates else None,
+                        "n": len(classified),
+                        "policy_warning_days": 30,
+                        "policy_fail_days": 90,
+                    },
+                    "bids_radar": {
+                        "n_open": len(open_bids),
+                        "n_classified": len(aec_bids),
+                        "policy_warning_hours": 24,
+                        "policy_fail_hours": 72,
+                        "as_of": as_of_s,
+                    },
+                },
+                "note": "Record ages from data_publicacao/data_encerramento, not only generated_at.",
+            },
+            sources=[{"table": t, "role": "read_only_aggregate"} for t in TABLES],
+            denominators={
+                "contracts_total_loaded": counts.get("pncp_supplier_contracts", 0),
+                "bids_total_loaded": counts.get("pncp_raw_bids", 0),
+                "aec_confirmed_contracts": len(classified),
+                "aec_confirmed_bids": len(aec_bids),
+                "open_bids_after_status_filter": len(open_bids),
+                "classified_share_note": (
+                    "Only multi-layer aec_confirmed objects enter public aggregates."
+                ),
+            },
+            limitations=[
+                "Export is aggregated and sanitized; no commercial pipeline fields.",
+                "Datalake coverage is incomplete relative to the national universe.",
+                "Do not interpret medians as unit prices.",
+                "Only aec_confirmed records feed market/price/competition aggregates.",
+                "Open opportunities require data_encerramento >= data_as_of and compatible status.",
+                "Freshness uses record dates, not only generated_at.",
+            ],
+            generated_at=generated_at,
+            data_as_of=as_of_s,
+            source_run_id=run_id,
+            repo_root=repo_root,
+            query_versions=QUERY_VERSIONS,
+            horizon={"period_start": min_data, "period_end": max_data},
+        )
+        manifest["export_entrypoint"] = EXPORT_ENTRYPOINT
+        manifest["exporter_entrypoint"] = EXPORT_ENTRYPOINT
+        manifest["schema_version"] = "1.1.0"
+        manifest["dataset_hash"] = dataset_hash
+        return {"manifest": manifest, "files": files_body, "dataset_hash": dataset_hash}
+    finally:
+        # Secure-delete staging when we own the handle (opened here or load_from_db caller
+        # may also delete — double-delete is safe).
+        if store is not None and (own_staging or staging is store):
+            # Caller (main) deletes after write; only auto-delete if we opened by path.
+            if own_staging:
+                store.secure_delete()
 
 
 def write_export(
@@ -751,6 +842,7 @@ def main(argv: list[str] | None = None) -> int:
     pre_classified = None
     pre_aec_bids = None
     pre_classification_counts = None
+    staging = None
     if args.fixture:
         contracts, bids, counts = load_from_fixture(args.fixture)
     else:
@@ -765,20 +857,29 @@ def main(argv: list[str] | None = None) -> int:
         pre_classified = loaded.get("pre_classified")
         pre_aec_bids = loaded.get("pre_aec_bids")
         pre_classification_counts = loaded.get("pre_classification_counts")
+        staging = loaded.get("staging")
 
-    bundle = build_export(
-        contracts,
-        bids,
-        counts,
-        top20_path=top20,
-        source_run_id=args.run_id,
-        as_of=args.as_of,
-        repo_root=root,
-        pre_classified=pre_classified,
-        pre_aec_bids=pre_aec_bids,
-        pre_classification_counts=pre_classification_counts,
-    )
-    paths = write_export(args.out, bundle, approval_path=args.approval)
+    try:
+        bundle = build_export(
+            contracts,
+            bids,
+            counts,
+            top20_path=top20,
+            source_run_id=args.run_id,
+            as_of=args.as_of,
+            repo_root=root,
+            pre_classified=pre_classified,
+            pre_aec_bids=pre_aec_bids,
+            pre_classification_counts=pre_classification_counts,
+            staging=staging,
+        )
+        paths = write_export(args.out, bundle, approval_path=args.approval)
+    finally:
+        if staging is not None:
+            try:
+                staging.secure_delete()
+            except OSError as exc:
+                print(f"warning: staging cleanup failed: {exc}", file=sys.stderr)
     result: dict[str, Any] = {
         "ok": True,
         "out": str(args.out),

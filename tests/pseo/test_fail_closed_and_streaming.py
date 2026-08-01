@@ -154,7 +154,8 @@ def test_load_from_db_source_is_incremental():
     src = Path("scripts/pseo/pipeline.py").read_text(encoding="utf-8")
     assert "iter_fetch_chunked" in src
     assert "raw_materialized" in src
-    assert "pre_classified" in src
-    # Must not call fetch_chunked that materializes full tables in load_from_db
-    # (fetch_chunked may still exist as helper elsewhere)
-    assert "server_side_cursor_fetchmany_incremental_classify" in src
+    assert "StagingStore" in src or "staging" in src
+    # SQLite staging path — no giant pre_classified list retained during extract
+    assert "server_side_cursor_fetchmany_sqlite_staging" in src
+    assert "insert_classified_batch" in src
+    assert "secure_delete" in src
