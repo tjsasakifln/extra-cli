@@ -361,7 +361,7 @@ def cmd_harvest(args: argparse.Namespace) -> int:
         download=not args.no_download,
     )
     _print({k: v for k, v in summary.items() if k != "documents"})
-    return 0 if summary.get("status") in ("SUCCESS_NONZERO", "SUCCESS_ZERO") else 1
+    return 0 if summary.get("status") in ("SUCCESS_NONZERO", "SUCCESS_ZERO") and summary.get("status") != "PARTIAL_CAPACITY_EXHAUSTED" else 1
 
 
 def cmd_expand_zips(args: argparse.Namespace) -> int:
