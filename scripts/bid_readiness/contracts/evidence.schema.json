@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "bid_readiness/evidence.schema.json",
+  "title": "BidReadinessEvidence",
+  "type": "object",
+  "required": ["requirement_id", "status", "document_ids"],
+  "properties": {
+    "requirement_id": { "type": "string" },
+    "status": {
+      "type": "string",
+      "enum": [
+        "SATISFIED",
+        "PARTIALLY_SATISFIED",
+        "MISSING",
+        "EXPIRED",
+        "EXPIRING",
+        "INCONSISTENT",
+        "AMBIGUOUS",
+        "NOT_APPLICABLE",
+        "NEEDS_HUMAN",
+        "EXTRACTION_FAILED"
+      ]
+    },
+    "document_ids": { "type": "array", "items": { "type": "string" } },
+    "evidence": { "type": "string" },
+    "technical": { "type": "object" },
+    "limitations": { "type": "array", "items": { "type": "string" } },
+    "human_action": { "type": ["string", "null"] }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,732 @@
+{
+  "requirements": [
+    {
+      "requirement_id": "REQ-JUR-001",
+      "category": "JURIDICA",
+      "title": "Contrato social consolidado",
+      "description": "Apresentar contrato social",
+      "mandatory": true,
+      "required_document_type": "CONTRATO_SOCIAL",
+      "validity_rule": {
+        "no_expiry": true
+      },
+      "condition": null,
+      "source_document": "edital-ficticio.pdf",
+      "source_locator": {
+        "page": 10,
+        "section": "7"
+      },
+      "source_excerpt": "Contrato social consolidado",
+      "deadline": "2026-08-01",
+      "required_issuer": null,
+      "required_holder": "EXTRA CONSTRUTORA FICTICIA LTDA",
+      "required_signatory": "JOAO DA SILVA FICTICIO",
+      "technical_criteria": {},
+      "financial_criteria": {},
+      "submission_format": {
+        "accepted_extensions": [
+          ".pdf",
+          ".txt"
+        ]
+      },
+      "original_file_required": false,
+      "signature_required": false,
+      "authentication_required": false,
+      "human_interpretation_required": false
+    },
+    {
+      "requirement_id": "REQ-JUR-002",
+      "category": "JURIDICA",
+      "title": "Cartão CNPJ",
+      "description": "Comprovante CNPJ",
+      "mandatory": true,
+      "required_document_type": "CARTAO_CNPJ",
+      "validity_rule": {
+        "no_expiry": true
+      },
+      "condition": null,
+      "source_document": "edital-ficticio.pdf",
+      "source_locator": {
+        "page": 10,
+        "section": "7"
+      },
+      "source_excerpt": "Cartão CNPJ",
+      "deadline": "2026-08-01",
+      "required_issuer": null,
+      "required_holder": "EXTRA CONSTRUTORA FICTICIA LTDA",
+      "required_signatory": "JOAO DA SILVA FICTICIO",
+      "technical_criteria": {},
+      "financial_criteria": {},
+      "submission_format": {
+        "accepted_extensions": [
+          ".pdf",
+          ".txt"
+        ]
+      },
+      "original_file_required": false,
+      "signature_required": false,
+      "authentication_required": false,
+      "human_interpretation_required": false
+    },
+    {
+      "requirement_id": "REQ-JUR-003",
+      "category": "JURIDICA",
+      "title": "Procuração com poderes para licitar",
+      "description": "Procuração",
+      "mandatory": true,
+      "required_document_type": "PROCURACAO",
+      "signature_required": true,
+      "validity_rule": {
+        "requires_expiry": true
+      },
+      "condition": null,
+      "source_document": "edital-ficticio.pdf",
+      "source_locator": {
+        "page": 10,
+        "section": "7"
+      },
+      "source_excerpt": "Procuração com poderes para licitar",
+      "deadline": "2026-08-01",
+      "required_issuer": null,
+      "required_holder": "EXTRA CONSTRUTORA FICTICIA LTDA",
+      "required_signatory": "JOAO DA SILVA FICTICIO",
+      "technical_criteria": {},
+      "financial_criteria": {},
+      "submission_format": {
+        "accepted_extensions": [
+          ".pdf",
+          ".txt"
+        ]
+      },
+      "original_file_required": false,
+      "authentication_required": false,
+      "human_interpretation_required": false
+    },
+    {
+      "requirement_id": "REQ-JUR-004",
+      "category": "JURIDICA",
+      "title": "Documento do signatário",
+      "description": "RG/CPF fictício",
+      "mandatory": true,
+      "required_document_type": "DOCUMENTO_SIGNATARIO",
+      "condition": null,
+      "source_document": "edital-ficticio.pdf",
+      "source_locator": {
+        "page": 10,
+        "section": "7"
+      },
+      "source_excerpt": "Documento do signatário",
+      "deadline": "2026-08-01",
+      "required_issuer": null,
+      "required_holder": "EXTRA CONSTRUTORA FICTICIA LTDA",
+      "required_signatory": "JOAO DA SILVA FICTICIO",
+      "validity_rule": {},
+      "technical_criteria": {},
+      "financial_criteria": {},
+      "submission_format": {
+        "accepted_extensions": [
+          ".pdf",
+          ".txt"
+        ]
+      },
+      "original_file_required": false,
+      "signature_required": false,
+      "authentication_required": false,
+      "human_interpretation_required": false
+    },
+    {
+      "requirement_id": "REQ-FIS-001",
+      "category": "FISCAL",
+      "title": "CND Federal",
+      "description": "Certidão federal",
+      "mandatory": true,
+      "required_document_type": "CERTIDAO_FEDERAL",
+      "condition": null,
+      "source_document": "edital-ficticio.pdf",
+      "source_locator": {
+        "page": 10,
+        "section": "7"
+      },
+      "source_excerpt": "CND Federal",
+      "deadline": "2026-08-01",
+      "required_issuer": null,
+      "required_holder": "EXTRA CONSTRUTORA FICTICIA LTDA",
+      "required_signatory": "JOAO DA SILVA FICTICIO",
+      "validity_rule": {},
+      "technical_criteria": {},
+      "financial_criteria": {},
+      "submission_format": {
+        "accepted_extensions": [
+          ".pdf",
+          ".txt"
+        ]
+      },
+      "original_file_required": false,
+      "signature_required": false,
+      "authentication_required": false,
+      "human_interpretation_required": false
+    },
+    {
+      "requirement_id": "REQ-FIS-002",
+      "category": "FISCAL",
+      "title": "CND Estadual",
+      "description": "Certidão estadual",
+      "mandatory": true,
+      "required_document_type": "CERTIDAO_ESTADUAL",
+      "condition": null,
+      "source_document": "edital-ficticio.pdf",
+      "source_locator": {
+        "page": 10,
+        "section": "7"
+      },
+      "source_excerpt": "CND Estadual",
+      "deadline": "2026-08-01",
+      "required_issuer": null,
+      "required_holder": "EXTRA CONSTRUTORA FICTICIA LTDA",
+      "required_signatory": "JOAO DA SILVA FICTICIO",
+      "validity_rule": {},
+      "technical_criteria": {},
+      "financial_criteria": {},
+      "submission_format": {
+        "accepted_extensions": [
+          ".pdf",
+          ".txt"
+        ]
+      },
+      "original_file_required": false,
+      "signature_required": false,
+      "authentication_required": false,
+      "human_interpretation_required": false
+    },
+    {
+      "requirement_id": "REQ-FIS-003",
+      "category": "FISCAL",
+      "title": "CND Municipal",
+      "description": "Certidão municipal",
+      "mandatory": true,
+      "required_document_type": "CERTIDAO_MUNICIPAL",
+      "condition": null,
+      "source_document": "edital-ficticio.pdf",
+      "source_locator": {
+        "page": 10,
+        "section": "7"
+      },
+      "source_excerpt": "CND Municipal",
+      "deadline": "2026-08-01",
+      "required_issuer": null,
+      "required_holder": "EXTRA CONSTRUTORA FICTICIA LTDA",
+      "required_signatory": "JOAO DA SILVA FICTICIO",
+      "validity_rule": {},
+      "technical_criteria": {},
+      "financial_criteria": {},
+      "submission_format": {
+        "accepted_extensions": [
+          ".pdf",
+          ".txt"
+        ]
+      },
+      "original_file_required": false,
+      "signature_required": false,
+      "authentication_required": false,
+      "human_interpretation_required": false
+    },
+    {
+      "requirement_id": "REQ-FIS-004",
+      "category": "FISCAL",
+      "title": "FGTS",
+      "description": "CRF FGTS",
+      "mandatory": true,
+      "required_document_type": "FGTS",
+      "condition": null,
+      "source_document": "edital-ficticio.pdf",
+      "source_locator": {
+        "page": 10,
+        "section": "7"
+      },
+      "source_excerpt": "FGTS",
+      "deadline": "2026-08-01",
+      "required_issuer": null,
+      "required_holder": "EXTRA CONSTRUTORA FICTICIA LTDA",
+      "required_signatory": "JOAO DA SILVA FICTICIO",
+      "validity_rule": {},
+      "technical_criteria": {},
+      "financial_criteria": {},
+      "submission_format": {
+        "accepted_extensions": [
+          ".pdf",
+          ".txt"
+        ]
+      },
+      "original_file_required": false,
+      "signature_required": false,
+      "authentication_required": false,
+      "human_interpretation_required": false
+    },
+    {
+      "requirement_id": "REQ-FIS-005",
+      "category": "FISCAL",
+      "title": "CNDT",
+      "description": "Débitos trabalhistas",
+      "mandatory": true,
+      "required_document_type": "CNDT",
+      "condition": null,
+      "source_document": "edital-ficticio.pdf",
+      "source_locator": {
+        "page": 10,
+        "section": "7"
+      },
+      "source_excerpt": "CNDT",
+      "deadline": "2026-08-01",
+      "required_issuer": null,
+      "required_holder": "EXTRA CONSTRUTORA FICTICIA LTDA",
+      "required_signatory": "JOAO DA SILVA FICTICIO",
+      "validity_rule": {},
+      "technical_criteria": {},
+      "financial_criteria": {},
+      "submission_format": {
+        "accepted_extensions": [
+          ".pdf",
+          ".txt"
+        ]
+      },
+      "original_file_required": false,
+      "signature_required": false,
+      "authentication_required": false,
+      "human_interpretation_required": false
+    },
+    {
+      "requirement_id": "REQ-ECO-001",
+      "category": "ECONOMICA",
+      "title": "Balanço patrimonial",
+      "description": "BP último exercício",
+      "mandatory": true,
+      "required_document_type": "BALANCO_PATRIMONIAL",
+      "validity_rule": {
+        "no_expiry": true
+      },
+      "condition": null,
+      "source_document": "edital-ficticio.pdf",
+      "source_locator": {
+        "page": 10,
+        "section": "7"
+      },
+      "source_excerpt": "Balanço patrimonial",
+      "deadline": "2026-08-01",
+      "required_issuer": null,
+      "required_holder": "EXTRA CONSTRUTORA FICTICIA LTDA",
+      "required_signatory": "JOAO DA SILVA FICTICIO",
+      "technical_criteria": {},
+      "financial_criteria": {},
+      "submission_format": {
+        "accepted_extensions": [
+          ".pdf",
+          ".txt"
+        ]
+      },
+      "original_file_required": false,
+      "signature_required": false,
+      "authentication_required": false,
+      "human_interpretation_required": false
+    },
+    {
+      "requirement_id": "REQ-ECO-002",
+      "category": "ECONOMICA",
+      "title": "Certidão de falência",
+      "description": "Negativa de falência",
+      "mandatory": true,
+      "required_document_type": "CERTIDAO_FALENCIA",
+      "condition": null,
+      "source_document": "edital-ficticio.pdf",
+      "source_locator": {
+        "page": 10,
+        "section": "7"
+      },
+      "source_excerpt": "Certidão de falência",
+      "deadline": "2026-08-01",
+      "required_issuer": null,
+      "required_holder": "EXTRA CONSTRUTORA FICTICIA LTDA",
+      "required_signatory": "JOAO DA SILVA FICTICIO",
+      "validity_rule": {},
+      "technical_criteria": {},
+      "financial_criteria": {},
+      "submission_format": {
+        "accepted_extensions": [
+          ".pdf",
+          ".txt"
+        ]
+      },
+      "original_file_required": false,
+      "signature_required": false,
+      "authentication_required": false,
+      "human_interpretation_required": false
+    },
+    {
+      "requirement_id": "REQ-TEC-001",
+      "category": "TECNICA",
+      "title": "Atestado pavimentação 5000 m2",
+      "description": "Capacidade técnica",
+      "mandatory": true,
+      "required_document_type": "ATESTADO_CAPACIDADE_TECNICA",
+      "technical_criteria": {
+        "service": "pavimentacao asfaltica",
+        "min_quantity": 5000,
+        "unit": "m2",
+        "summable": true,
+        "holder": "company"
+      },
+      "condition": null,
+      "source_document": "edital-ficticio.pdf",
+      "source_locator": {
+        "page": 10,
+        "section": "7"
+      },
+      "source_excerpt": "Atestado pavimentação 5000 m2",
+      "deadline": "2026-08-01",
+      "required_issuer": null,
+      "required_holder": "EXTRA CONSTRUTORA FICTICIA LTDA",
+      "required_signatory": "JOAO DA SILVA FICTICIO",
+      "validity_rule": {},
+      "financial_criteria": {},
+      "submission_format": {
+        "accepted_extensions": [
+          ".pdf",
+          ".txt"
+        ]
+      },
+      "original_file_required": false,
+      "signature_required": false,
+      "authentication_required": false,
+      "human_interpretation_required": false
+    },
+    {
+      "requirement_id": "REQ-TEC-002",
+      "category": "TECNICA",
+      "title": "CAT vinculada",
+      "description": "CAT do atestado",
+      "mandatory": true,
+      "required_document_type": "CAT",
+      "technical_criteria": {
+        "service": "pavimentacao",
+        "min_quantity": 5000,
+        "unit": "m2",
+        "summable": false,
+        "holder": "professional"
+      },
+      "condition": null,
+      "source_document": "edital-ficticio.pdf",
+      "source_locator": {
+        "page": 10,
+        "section": "7"
+      },
+      "source_excerpt": "CAT vinculada",
+      "deadline": "2026-08-01",
+      "required_issuer": null,
+      "required_holder": "EXTRA CONSTRUTORA FICTICIA LTDA",
+      "required_signatory": "JOAO DA SILVA FICTICIO",
+      "validity_rule": {},
+      "financial_criteria": {},
+      "submission_format": {
+        "accepted_extensions": [
+          ".pdf",
+          ".txt"
+        ]
+      },
+      "original_file_required": false,
+      "signature_required": false,
+      "authentication_required": false,
+      "human_interpretation_required": false
+    },
+    {
+      "requirement_id": "REQ-TEC-003",
+      "category": "TECNICA",
+      "title": "Registro CREA empresa",
+      "description": "Certidão CREA PJ",
+      "mandatory": true,
+      "required_document_type": "REGISTRO_CONSELHO_EMPRESA",
+      "condition": null,
+      "source_document": "edital-ficticio.pdf",
+      "source_locator": {
+        "page": 10,
+        "section": "7"
+      },
+      "source_excerpt": "Registro CREA empresa",
+      "deadline": "2026-08-01",
+      "required_issuer": null,
+      "required_holder": "EXTRA CONSTRUTORA FICTICIA LTDA",
+      "required_signatory": "JOAO DA SILVA FICTICIO",
+      "validity_rule": {},
+      "technical_criteria": {},
+      "financial_criteria": {},
+      "submission_format": {
+        "accepted_extensions": [
+          ".pdf",
+          ".txt"
+        ]
+      },
+      "original_file_required": false,
+      "signature_required": false,
+      "authentication_required": false,
+      "human_interpretation_required": false
+    },
+    {
+      "requirement_id": "REQ-DEC-001",
+      "category": "DECLARACAO",
+      "title": "Declaração de idoneidade",
+      "description": "Modelo edital",
+      "mandatory": true,
+      "required_document_type": "DECLARACAO",
+      "signature_required": true,
+      "condition": null,
+      "source_document": "edital-ficticio.pdf",
+      "source_locator": {
+        "page": 10,
+        "section": "7"
+      },
+      "source_excerpt": "Declaração de idoneidade",
+      "deadline": "2026-08-01",
+      "required_issuer": null,
+      "required_holder": "EXTRA CONSTRUTORA FICTICIA LTDA",
+      "required_signatory": "JOAO DA SILVA FICTICIO",
+      "validity_rule": {},
+      "technical_criteria": {},
+      "financial_criteria": {},
+      "submission_format": {
+        "accepted_extensions": [
+          ".pdf",
+          ".txt"
+        ]
+      },
+      "original_file_required": false,
+      "authentication_required": false,
+      "human_interpretation_required": false
+    },
+    {
+      "requirement_id": "REQ-PROP-001",
+      "category": "PROPOSTA",
+      "title": "Proposta comercial assinada",
+      "description": "Proposta",
+      "mandatory": true,
+      "required_document_type": "PROPOSTA_COMERCIAL",
+      "signature_required": true,
+      "condition": null,
+      "source_document": "edital-ficticio.pdf",
+      "source_locator": {
+        "page": 10,
+        "section": "7"
+      },
+      "source_excerpt": "Proposta comercial assinada",
+      "deadline": "2026-08-01",
+      "required_issuer": null,
+      "required_holder": "EXTRA CONSTRUTORA FICTICIA LTDA",
+      "required_signatory": "JOAO DA SILVA FICTICIO",
+      "validity_rule": {},
+      "technical_criteria": {},
+      "financial_criteria": {},
+      "submission_format": {
+        "accepted_extensions": [
+          ".pdf",
+          ".txt"
+        ]
+      },
+      "original_file_required": false,
+      "authentication_required": false,
+      "human_interpretation_required": false
+    },
+    {
+      "requirement_id": "REQ-PROP-002",
+      "category": "PROPOSTA",
+      "title": "Planilha de preços",
+      "description": "Planilha",
+      "mandatory": true,
+      "required_document_type": "PLANILHA_PRECOS",
+      "condition": null,
+      "source_document": "edital-ficticio.pdf",
+      "source_locator": {
+        "page": 10,
+        "section": "7"
+      },
+      "source_excerpt": "Planilha de preços",
+      "deadline": "2026-08-01",
+      "required_issuer": null,
+      "required_holder": "EXTRA CONSTRUTORA FICTICIA LTDA",
+      "required_signatory": "JOAO DA SILVA FICTICIO",
+      "validity_rule": {},
+      "technical_criteria": {},
+      "financial_criteria": {},
+      "submission_format": {
+        "accepted_extensions": [
+          ".pdf",
+          ".txt"
+        ]
+      },
+      "original_file_required": false,
+      "signature_required": false,
+      "authentication_required": false,
+      "human_interpretation_required": false
+    },
+    {
+      "requirement_id": "REQ-GAR-001",
+      "category": "PROPOSTA",
+      "title": "Garantia de proposta 1%",
+      "description": "Garantia",
+      "mandatory": true,
+      "required_document_type": "GARANTIA_PROPOSTA",
+      "condition": null,
+      "source_document": "edital-ficticio.pdf",
+      "source_locator": {
+        "page": 10,
+        "section": "7"
+      },
+      "source_excerpt": "Garantia de proposta 1%",
+      "deadline": "2026-08-01",
+      "required_issuer": null,
+      "required_holder": "EXTRA CONSTRUTORA FICTICIA LTDA",
+      "required_signatory": "JOAO DA SILVA FICTICIO",
+      "validity_rule": {},
+      "technical_criteria": {},
+      "financial_criteria": {},
+      "submission_format": {
+        "accepted_extensions": [
+          ".pdf",
+          ".txt"
+        ]
+      },
+      "original_file_required": false,
+      "signature_required": false,
+      "authentication_required": false,
+      "human_interpretation_required": false
+    },
+    {
+      "requirement_id": "REQ-TEC-004",
+      "category": "TECNICA",
+      "title": "ART de projeto",
+      "description": "ART",
+      "mandatory": false,
+      "required_document_type": "ART",
+      "condition": null,
+      "source_document": "edital-ficticio.pdf",
+      "source_locator": {
+        "page": 10,
+        "section": "7"
+      },
+      "source_excerpt": "ART de projeto",
+      "deadline": "2026-08-01",
+      "required_issuer": null,
+      "required_holder": "EXTRA CONSTRUTORA FICTICIA LTDA",
+      "required_signatory": "JOAO DA SILVA FICTICIO",
+      "validity_rule": {},
+      "technical_criteria": {},
+      "financial_criteria": {},
+      "submission_format": {
+        "accepted_extensions": [
+          ".pdf",
+          ".txt"
+        ]
+      },
+      "original_file_required": false,
+      "signature_required": false,
+      "authentication_required": false,
+      "human_interpretation_required": false
+    },
+    {
+      "requirement_id": "REQ-JUR-005",
+      "category": "JURIDICA",
+      "title": "Inscrição estadual",
+      "description": "IE",
+      "mandatory": false,
+      "required_document_type": "INSCRICAO_ESTADUAL",
+      "condition": null,
+      "source_document": "edital-ficticio.pdf",
+      "source_locator": {
+        "page": 10,
+        "section": "7"
+      },
+      "source_excerpt": "Inscrição estadual",
+      "deadline": "2026-08-01",
+      "required_issuer": null,
+      "required_holder": "EXTRA CONSTRUTORA FICTICIA LTDA",
+      "required_signatory": "JOAO DA SILVA FICTICIO",
+      "validity_rule": {},
+      "technical_criteria": {},
+      "financial_criteria": {},
+      "submission_format": {
+        "accepted_extensions": [
+          ".pdf",
+          ".txt"
+        ]
+      },
+      "original_file_required": false,
+      "signature_required": false,
+      "authentication_required": false,
+      "human_interpretation_required": false
+    },
+    {
+      "requirement_id": "REQ-FIS-006",
+      "category": "FISCAL",
+      "title": "Certidão municipal adicional",
+      "description": "extra",
+      "mandatory": true,
+      "required_document_type": "CERTIDAO_MUNICIPAL",
+      "condition": null,
+      "source_document": "edital-ficticio.pdf",
+      "source_locator": {
+        "page": 10,
+        "section": "7"
+      },
+      "source_excerpt": "Certidão municipal adicional",
+      "deadline": "2026-08-01",
+      "required_issuer": null,
+      "required_holder": "EXTRA CONSTRUTORA FICTICIA LTDA",
+      "required_signatory": "JOAO DA SILVA FICTICIO",
+      "validity_rule": {},
+      "technical_criteria": {},
+      "financial_criteria": {},
+      "submission_format": {
+        "accepted_extensions": [
+          ".pdf",
+          ".txt"
+        ]
+      },
+      "original_file_required": false,
+      "signature_required": false,
+      "authentication_required": false,
+      "human_interpretation_required": false
+    },
+    {
+      "requirement_id": "REQ-HUM-001",
+      "category": "TECNICA",
+      "title": "Equivalência de serviço especial",
+      "description": "requer engenheiro",
+      "mandatory": true,
+      "required_document_type": "ATESTADO_CAPACIDADE_TECNICA",
+      "human_interpretation_required": true,
+      "technical_criteria": {
+        "service": "drenagem profunda especial",
+        "min_quantity": 100,
+        "unit": "m"
+      },
+      "condition": null,
+      "source_document": "edital-ficticio.pdf",
+      "source_locator": {
+        "page": 10,
+        "section": "7"
+      },
+      "source_excerpt": "Equivalência de serviço especial",
+      "deadline": "2026-08-01",
+      "required_issuer": null,
+      "required_holder": "EXTRA CONSTRUTORA FICTICIA LTDA",
+      "required_signatory": "JOAO DA SILVA FICTICIO",
+      "validity_rule": {},
+      "financial_criteria": {},
+      "submission_format": {
+        "accepted_extensions": [
+          ".pdf",
+          ".txt"
+        ]
+      },
+      "original_file_required": false,
+      "signature_required": false,
+      "authentication_required": false
+    }
+  ]
+}

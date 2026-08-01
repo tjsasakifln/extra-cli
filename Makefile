@@ -989,3 +989,7 @@ command-center:
 
 command-center-dev:
 	@./bin/command-center-dev
+
+.PHONY: test-bid-readiness
+test-bid-readiness:
+	python -m pytest tests/bid_readiness/ -q --tb=short
