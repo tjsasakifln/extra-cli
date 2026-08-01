@@ -267,8 +267,8 @@ def integrate_requirements(
 
 def requirements_from_edital_case_pack(case_dir: Any) -> list[dict[str, Any]]:
     """Best-effort extract requirements from an edital_case output directory."""
-    from pathlib import Path
     import json
+    from pathlib import Path
 
     root = Path(case_dir)
     candidates = [

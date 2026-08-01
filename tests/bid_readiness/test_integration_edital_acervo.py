@@ -5,8 +5,6 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import pytest
-
 from scripts.bid_readiness.integration import (
     ALLOWED_PACKAGE_STATES,
     FORBIDDEN_PACKAGE_STATES,
@@ -105,8 +103,9 @@ def test_missing_evidence_and_locators():
 
 
 def test_consumes_technical_acervo_module_not_duplicate_store():
-    import scripts.bid_readiness.integration as integ
     import inspect
+
+    import scripts.bid_readiness.integration as integ
 
     src = inspect.getsource(integ)
     assert "scripts.technical_acervo.match" in src
