@@ -1,0 +1,10 @@
+{
+  "code_sha": "4961cb3e10bd406a74f3c3f671fb9274af960098",
+  "compare": null,
+  "expected_total": 4479442,
+  "generated_at": "2026-08-01T20:30:09.709105+00:00",
+  "publication_allowed": true,
+  "run_dir": "artifacts/production-readiness/full-scale/20260801T202435Z-vps/20260801T202435Z",
+  "source": "pncp_supplier_contracts@postgresql",
+  "timestamp": "2026-08-01T20:37:37.283964+00:00"
+}

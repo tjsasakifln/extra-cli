@@ -1,0 +1,15 @@
+{
+  "active_entities": 407,
+  "code_sha": "4961cb3e10bd406a74f3c3f671fb9274af960098",
+  "discovery_count": 1093,
+  "fair_rotation_sample": {
+    "batch_size": 7,
+    "cycles": 23,
+    "full_rotation": true,
+    "pairs": 161
+  },
+  "overdue_pairs_initial": 1768,
+  "pair_count": 1768,
+  "selection_policy": "success_lag + source_lag",
+  "timestamp": "2026-08-01T20:37:37.295028+00:00"
+}

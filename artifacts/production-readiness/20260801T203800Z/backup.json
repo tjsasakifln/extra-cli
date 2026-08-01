@@ -1,0 +1,6 @@
+{
+  "code_sha": "4961cb3e10bd406a74f3c3f671fb9274af960098",
+  "path_pattern": "/var/lib/extra-consultoria/backups/pre-deploy-*",
+  "pre_deploy_pg_dump": true,
+  "timestamp": "2026-08-01T20:37:38.001078+00:00"
+}

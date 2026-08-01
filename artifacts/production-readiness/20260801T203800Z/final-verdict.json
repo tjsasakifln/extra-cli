@@ -1,0 +1,32 @@
+{
+  "code_sha": "4961cb3e10bd406a74f3c3f671fb9274af960098",
+  "gates": {
+    "A_code": "PASS",
+    "B_quality_targeted": "PASS",
+    "C_playwright_browser": "PARTIAL_SPEC_ONLY",
+    "D_scale": "PASS_VPS_4_479_442",
+    "E_operation": "PARTIAL_DEPLOY_AND_SCALE_CYCLES_IN_PROGRESS",
+    "F_observability": "PARTIAL_HEALTH_ALERTS_NO_WEBHOOK",
+    "G_recovery": "PASS_RESTORE_DRILL",
+    "H_real_case": "PASS_BUDGET_ACERVO_BID_DELIVERABLES"
+  },
+  "proven": [
+    "entity×source fair queue + tests",
+    "VPS full-scale 4.479M contracts bounded memory",
+    "budget audit + SINAPI matcher classes",
+    "bid readiness blocked without READY_TO_SUBMIT",
+    "acervo match with human_review_required",
+    "deploy + backup + restore drill"
+  ],
+  "residuals": [
+    "Playwright browser E2E not executed in session",
+    "Alert delivery channel not configured (test attempted)",
+    "extra-crawl-pncp.service failed unit pre-existing",
+    "Official SINAPI live acquisition still STRUCTURE_ONLY demo for matcher",
+    "Process-documents multi-cycle still finishing on VPS",
+    "Full dual-run compare in progress (dual2)",
+    "Full canonical pytest suite not re-run end-to-end in this session"
+  ],
+  "terminal_candidate": "NOT_YET_FULL_PASS",
+  "timestamp": "2026-08-01T20:37:38.543303+00:00"
+}

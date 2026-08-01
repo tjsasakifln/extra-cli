@@ -1,0 +1,8 @@
+{
+  "active_entities": 407,
+  "code_sha": "4961cb3e10bd406a74f3c3f671fb9274af960098",
+  "entity_source_pairs": 1768,
+  "note": "ensure_entity_source_pairs + SourceQueueEntry per pair",
+  "sources_independent_state": true,
+  "timestamp": "2026-08-01T20:37:37.395264+00:00"
+}

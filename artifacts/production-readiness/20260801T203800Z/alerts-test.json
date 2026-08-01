@@ -1,0 +1,9 @@
+{
+  "channels_configured": false,
+  "check_alerts_ran": true,
+  "code_sha": "4961cb3e10bd406a74f3c3f671fb9274af960098",
+  "info_alerts_observed": 3,
+  "residual": "NOTIFY_WEBHOOK_URL/SMTP not configured — test path executed, delivery blocked by missing channel",
+  "test_flag": true,
+  "timestamp": "2026-08-01T20:37:37.901543+00:00"
+}

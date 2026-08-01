@@ -1,0 +1,130 @@
+{
+  "bid_readiness_case": "artifacts/production-readiness/20260801T195846Z/bid-case/PR-READINESS-01",
+  "budget": {
+    "audit_findings": 31,
+    "ingest": {
+      "case_id": "pr-budget-01",
+      "results": [
+        {
+          "cell_count": 191,
+          "document_id": "golden-11ff148c",
+          "formula_count": 2,
+          "status": "INGESTED"
+        }
+      ]
+    },
+    "map_counts": {
+      "bdi_components": 8,
+      "budget_items": 12,
+      "composition_inputs": 4,
+      "compositions": 1,
+      "sheets_classified": 8
+    },
+    "reconciliation": {
+      "arithmetic_check_count": 22,
+      "checks": {
+        "primary_totals": {
+          "arithmetic_check_count": 22,
+          "arithmetic_status_counts": {
+            "MATERIAL_DIFFERENCE": 2,
+            "NOT_EVALUATED": 3,
+            "PASS": 17
+          },
+          "bdi_component_count": 8,
+          "bdi_sum_percent_points": 30.5,
+          "finding_count": 31,
+          "item_count": 12,
+          "items_with_direct_total": 0,
+          "items_with_sale_total": 11,
+          "severity_counts": {
+            "HIGH": 4,
+            "MEDIUM": 27
+          },
+          "total_direct_cost_sum": null,
+          "total_sale_price_sum": 5256.25
+        }
+      },
+      "checksums": {
+        "budget-audit-report.html": "ad9d72dc4749348acb588206f4c54a9c6e52952d3abc1d62a8b764de6572ce01",
+        "budget-audit-report.pdf": "3280dd962c88a117f164805492ad088a5ca8ae7c87f3371009de66a8377790e0",
+        "budget-audit-workbook.xlsx": "2af574af96214cab2b1f01921f9c1caac39958d03c80267e66b59c938a417ab0",
+        "executive-summary.md": "c4035943c5bf904699d16530786398da435417cd3b99c6e93c9734ca77947b1c"
+      },
+      "finding_count": 31,
+      "issues": [],
+      "item_count": 12,
+      "model_hash": "e91e74b8620a9452ca1aac29d456f89b39d9bafe7fa5d84e3a6959ba143a7144",
+      "status": "PASS",
+      "total_direct_cost_sum": null,
+      "total_sale_price_sum": 5256.25
+    },
+    "report_paths": {
+      "html": "artifacts/production-readiness/20260801T195846Z/budget-root/cases/pr-budget-01/reports/budget-audit-report.html",
+      "markdown": "artifacts/production-readiness/20260801T195846Z/budget-root/cases/pr-budget-01/reports/executive-summary.md",
+      "pdf": "artifacts/production-readiness/20260801T195846Z/budget-root/cases/pr-budget-01/reports/budget-audit-report.pdf",
+      "xlsx": "artifacts/production-readiness/20260801T195846Z/budget-root/cases/pr-budget-01/reports/budget-audit-workbook.xlsx"
+    },
+    "verify_status": "PASS"
+  },
+  "chain": "docs→budget_audit→sinapi_match→acervo→bid_readiness→deliverables→human_review",
+  "code_sha": "9fa6d007887a9d2f80c26fbb698f0c475a216cdd",
+  "deliverables": {
+    "agreement": true,
+    "blocked": true,
+    "released": false
+  },
+  "process_card": {
+    "changes": [
+      {
+        "change": "changed",
+        "key": "8f324469ba1964e531773fee",
+        "new_sha256": "aa11v2",
+        "old_sha256": "aa11",
+        "recorded_at": "2026-08-01T20:00:54.867407+00:00",
+        "source_id": "pncp",
+        "title": "Edital"
+      },
+      {
+        "change": "removed",
+        "key": "402278cd98d248e1a12cf4cb",
+        "new_sha256": null,
+        "old_sha256": "bb22",
+        "recorded_at": "2026-08-01T20:00:54.867407+00:00",
+        "source_id": "ciga_ckan",
+        "title": "Anexo"
+      }
+    ],
+    "sources": [
+      "ciga_ckan",
+      "pncp"
+    ],
+    "zero_dupe": true
+  },
+  "quarantine": {
+    "declared_mime": "application/pdf",
+    "detected_mime": null,
+    "extraction_quality": "unknown",
+    "native_text_usable": null,
+    "ocr_recommended": false,
+    "quarantined": true,
+    "reasons": [
+      "declared_pdf_but_not_pdf",
+      "html_disguised_as_pdf"
+    ],
+    "sha256": "c77e5168dffda66b8dc13f1425b4d3630a6656a3e5acf707f4393277ba3c8b5e",
+    "size_bytes": 15,
+    "text_origin": "unknown"
+  },
+  "sinapi": {
+    "claim_level": "STRUCTURE_ONLY_NOT_OFFICIAL_ACQUISITION",
+    "counts": {
+      "approximate": 0,
+      "competence_incompatible": 0,
+      "exact": 2,
+      "missing": 1,
+      "unit_incompatible": 1
+    },
+    "is_demo_structure": true
+  },
+  "timestamp": "2026-08-01T20:00:54.872496+00:00"
+}

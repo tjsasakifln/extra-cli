@@ -1,0 +1,8 @@
+{
+  "adapter_unit_tests": "12 passed (consulting + trust hardening)",
+  "browser_run": "NOT_RUN_IN_THIS_SESSION",
+  "code_sha": "4961cb3e10bd406a74f3c3f671fb9274af960098",
+  "residual": "Playwright browser execution pending CI/host with browsers",
+  "spec_added": "apps/command-center/e2e/consulting-production.spec.ts",
+  "timestamp": "2026-08-01T20:37:38.297544+00:00"
+}

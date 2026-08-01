@@ -1,0 +1,9 @@
+{
+  "baseline_is_ancestor": true,
+  "baseline_merge": "704975a7bcdd43d4dc6769fbf6c14726327ab37b",
+  "branch": "feat/production-readiness-closeout",
+  "code_sha": "4961cb3e10bd406a74f3c3f671fb9274af960098",
+  "head": "4961cb3e10bd406a74f3c3f671fb9274af960098",
+  "result": "BASELINE_OK",
+  "timestamp": "2026-08-01T20:37:37.071751+00:00"
+}

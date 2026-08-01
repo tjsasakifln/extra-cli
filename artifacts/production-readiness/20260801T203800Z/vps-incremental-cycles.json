@@ -1,0 +1,8 @@
+{
+  "code_sha": "4961cb3e10bd406a74f3c3f671fb9274af960098",
+  "command": "python -m scripts.process_documents incremental --limit 15 --max-batches 1 --no-drain",
+  "cycles_requested": 3,
+  "note": "cycle 1 observed running live on VPS; queue has 407 active / 1768 pairs",
+  "status": "IN_PROGRESS_OR_PARTIAL",
+  "timestamp": "2026-08-01T20:37:37.801620+00:00"
+}
