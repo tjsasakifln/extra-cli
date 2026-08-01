@@ -18,12 +18,19 @@ After hardening, both PRs are **materially safer** but remain **PARTIAL_BLOCKED*
 - **#186**: Acceptable for continued review after CI re-run; fix residual workbench e2e flake if red in CI.
 - **#187**: Acceptable for continued review; require human approval path demos and consumer contract before any “publish ready” language.
 
+### Vocabulary (critical)
+- **`PUBLISH_READY`** = export snapshot gate (approval + classifier). **Not** a merge decision.
+- **`MERGE_READY` / `PASS_MERGE_READY`** = PR merge recommendation only.
+- **`CANDIDATE`** remains the **fail-closed default** for snapshots without dual gates.
+- Never treat fixture `PUBLISH_READY` tests as proof the PR is merge-ready.
+
 ## What would flip to PASS_MERGE_READY
 ### #186
 - Full `npm run test:e2e` green in CI (including workbench PDF)
 - Optional: documented REAL preflight READY proof in RO env (or keep PARTIAL live claim)
 
 ### #187
-- Measured chunked export on ≥250k synthetic rows (time + peak memory log)
+- Measured chunked export on ≥250k synthetic rows (time + peak memory log) — structural path done; live RO DSN still open
 - web-cfg consumer contract test green (or explicit CONSUMER_INTEGRATION_NOT_PROVEN accepted by product)
-- Sample approval artifact round-trip to PUBLISH_READY on a fixture hash (still no deploy)
+- Sample approval artifact round-trip to **export** PUBLISH_READY on a fixture hash (still no deploy; still ≠ MERGE_READY)
+- Read-only consumer verifier (no apply/build into web-cfg) — required before any consumer write language

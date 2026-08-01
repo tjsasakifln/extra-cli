@@ -54,7 +54,18 @@ Branch docs: `PR-186-TEST-REPORT.md`, `PR-186-VISUAL-QA.md`, `PR-186-ACCESSIBILI
 | PR | Status | Why |
 |----|--------|-----|
 | **#186** | **PASS_MERGE_READY** | Full A16 captured green at tip `82cb1097…`; logo canonical; GET reviews pure; concurrent enqueue safe; visual matrix expanded; FIXTURE e2e including PDF. Residual non-claim only: no LIVE REAL DSN proof. |
-| **#187** | **PARTIAL_BLOCKED** | Export fail-closed + atomic + human gate + **classifier gold on promote path** + 250k synthetic + schema consumer contract proven. Still blocked for full merge-ready publish claims: no web-cfg `pseo:build` render run, no live RO Postgres 250k, no human approval artifact checked into production release (tests only). |
+| **#187** | **PARTIAL_BLOCKED** (not MERGE_READY) | Export fail-closed + atomic + human gate + **classifier gold on promote path** + SQLite staging + nested public models + read-only web-cfg verifier + 250k synthetic extract + e2e CI bench. Still blocked for merge-ready: no web-cfg `pseo:build` render run, no live RO Postgres 250k, no production human approval artifact. |
+
+### Status vocabulary (do not conflate)
+
+| Term | Scope | Default |
+|------|-------|---------|
+| **CANDIDATE** | Export `snapshot_status` without dual gates | **Fail-closed default** |
+| **PUBLISH_READY** | Export snapshot after human approval **and** classifier gold gate | Not a PR merge claim |
+| **MERGE_READY / PASS_MERGE_READY** | PR-level merge recommendation only | Independent of `PUBLISH_READY` |
+| **indexable** | Manifest flag for editorial indexing | Requires PUBLISH_READY path |
+
+`PUBLISH_READY` ≠ `MERGE_READY`. A fixture export remaining `CANDIDATE` / `indexable=false` is expected and correct without approval.
 
 ## 5. Non-claims
 - LIVE_READY / VPS_OPERATIONAL
@@ -63,6 +74,7 @@ Branch docs: `PR-186-TEST-REPORT.md`, `PR-186-VISUAL-QA.md`, `PR-186-ACCESSIBILI
 - million-row production DSN scale
 - absolute zero FP outside gold set
 - merge of either PR
+- `PUBLISH_READY` as evidence of PR merge readiness
 
 ## 6. Isolation
 Maintained throughout: CC files only on #186; pSEO only on #187.
