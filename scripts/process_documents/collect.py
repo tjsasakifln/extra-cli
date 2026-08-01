@@ -8,9 +8,10 @@ Daily incremental path uses:
 from __future__ import annotations
 
 import json
+from collections.abc import Mapping, Sequence
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import Any, Mapping, Sequence
+from typing import Any
 
 from scripts.process_documents.adapters.base import get_adapter
 from scripts.process_documents.discovery import load_discovery
