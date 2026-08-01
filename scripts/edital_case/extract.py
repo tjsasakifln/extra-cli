@@ -460,6 +460,14 @@ def find_excerpt(
             continue
         start = max(0, m.start() - 80)
         end = min(len(text), m.end() + 120)
+        # Snap start to a token boundary so citation excerpts are verifiable
+        # substrings (avoid mid-word windows like "RÔNICO" from "ELETRÔNICO").
+        if start > 0 and text[start].isalnum() and text[start - 1].isalnum():
+            boundary = max(text.rfind(" ", 0, m.start()), text.rfind("\n", 0, m.start()))
+            if boundary >= max(0, m.start() - 80):
+                start = boundary + 1
+            else:
+                start = m.start()
         return {
             "document_id": b.get("document_id"),
             "page": b.get("page"),

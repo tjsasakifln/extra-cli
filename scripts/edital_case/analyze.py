@@ -324,13 +324,31 @@ def _evidence_from_hit(
     ev["rule_id"] = rule_id
     ev["analysis"] = analysis
     ev["confidence"] = confidence
-    if not hit or not doc:
+    if not hit and not doc:
         ev["review_status"] = "MISSING"
         return ev
+    if not hit:
+        # analysis without a textual locator (e.g. profile-only)
+        if doc:
+            ev["document_id"] = doc.get("document_id")
+            ev["document_sha256"] = doc.get("sha256")
+        ev["review_status"] = "MISSING"
+        return ev
+    # Prefer the document that produced the hit — callers may pass docs[0] by mistake.
+    hit_doc_id = hit.get("document_id") or (doc.get("document_id") if doc else None)
+    hit_sha = hit.get("document_sha256") or (doc.get("sha256") if doc else None)
+    if (
+        doc
+        and hit.get("document_id")
+        and doc.get("document_id")
+        and hit.get("document_id") != doc.get("document_id")
+    ):
+        # Do not attach the wrong document's SHA to a foreign excerpt.
+        hit_sha = hit.get("document_sha256")
     ev.update(
         {
-            "document_id": doc.get("document_id"),
-            "document_sha256": doc.get("sha256"),
+            "document_id": hit_doc_id,
+            "document_sha256": hit_sha,
             "page": hit.get("page"),
             "section": hit.get("section"),
             "paragraph": hit.get("paragraph"),
@@ -478,9 +496,18 @@ def _analyze_profile_fit(
     positive = [t.lower() for t in (profile.get("positive_terms") or [])]
     hits = [t for t in positive if t and t in text]
     objeto_hit = None
+    hit_doc: dict[str, Any] | None = None
     for doc in docs:
-        objeto_hit = find_excerpt(doc.get("blocks") or [], r"objeto[:\s].{10,200}")
-        if objeto_hit:
+        candidate = find_excerpt(doc.get("blocks") or [], r"objeto[:\s].{10,200}")
+        if candidate:
+            objeto_hit = candidate
+            hit_doc = doc
+            # Ensure hit carries the document that owns the excerpt (citation integrity).
+            objeto_hit = {
+                **candidate,
+                "document_id": candidate.get("document_id") or doc.get("document_id"),
+                "document_sha256": doc.get("sha256"),
+            }
             break
 
     if comp["blocks_go"]:
@@ -499,7 +526,8 @@ def _analyze_profile_fit(
         analysis = "poucos sinais de aderência ao perfil no texto extraído"
         conf = 0.45
 
-    doc0 = docs[0] if docs else None
+    # Never bind an excerpt from document B to document A (docs[0]) — breaks verify.
+    evidence_doc = hit_doc or (docs[0] if docs else None)
     return {
         "id": item_id,
         "label": label,
@@ -508,7 +536,7 @@ def _analyze_profile_fit(
         "status": status,
         "evidence": _evidence_from_hit(
             objeto_hit,
-            doc0,
+            evidence_doc,
             rule_id="profile.fit",
             analysis=analysis,
             confidence=conf,

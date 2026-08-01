@@ -1,0 +1,62 @@
+{
+  "verified_at": "2026-08-01T14:59:08Z",
+  "status": "PASS",
+  "issues": [],
+  "blockers": [],
+  "checks": {
+    "manifest_present": true,
+    "object_hashes": [
+      {
+        "document_id": "golden-a342ec61",
+        "ok": true
+      }
+    ],
+    "arithmetic_check_count": {
+      "stored": 22,
+      "recomputed": 22
+    },
+    "cited_cells_missing": [],
+    "cited_cells_missing_count": 0,
+    "database_used": false,
+    "macros_executed": false,
+    "production_touched": false
+  },
+  "report_reconciliation": {
+    "status": "PASS",
+    "finding_count": 31,
+    "item_count": 12,
+    "total_sale_price_sum": 5256.25,
+    "total_direct_cost_sum": null,
+    "arithmetic_check_count": 22,
+    "issues": [],
+    "checks": {
+      "primary_totals": {
+        "item_count": 12,
+        "finding_count": 31,
+        "severity_counts": {
+          "MEDIUM": 27,
+          "HIGH": 4
+        },
+        "total_sale_price_sum": 5256.25,
+        "total_direct_cost_sum": null,
+        "items_with_sale_total": 11,
+        "items_with_direct_total": 0,
+        "arithmetic_check_count": 22,
+        "arithmetic_status_counts": {
+          "PASS": 17,
+          "MATERIAL_DIFFERENCE": 2,
+          "NOT_EVALUATED": 3
+        },
+        "bdi_component_count": 8,
+        "bdi_sum_percent_points": 30.5
+      }
+    },
+    "checksums": {
+      "executive-summary.md": "c310612eeb2e66a04c596abe83aac7f8a0b76a736325ccd14cad4eeacd1cc21e",
+      "budget-audit-report.html": "f963f6871eb7c7a8abfb76b4432ece34e6a8810902bb6eb69c7a5a7d003e8520",
+      "budget-audit-report.pdf": "5b4d5d854569f0d4acba5a96c7ad12b206cca36dbe9f6413c63e7acd543c8836",
+      "budget-audit-workbook.xlsx": "ab1d9e79a48c87e7615921cc434c1e5481d40385af561e8b610da3b9faf1efe6"
+    },
+    "model_hash": "e91e74b8620a9452ca1aac29d456f89b39d9bafe7fa5d84e3a6959ba143a7144"
+  }
+}

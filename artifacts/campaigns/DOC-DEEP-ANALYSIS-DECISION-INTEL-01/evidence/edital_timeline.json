@@ -1,0 +1,122 @@
+{
+  "generated_at": "2026-08-01T15:01:07.178377+00:00",
+  "events": [
+    {
+      "kind": "sessao",
+      "raw_value": "26/08/2026",
+      "normalized": "2026-08-26",
+      "timezone": "America/Sao_Paulo",
+      "document_id": "doc-001",
+      "document_sha256": "3f12a7c92aaf6ef50ec9e7f994420b58a4d687d253cdcba116aedeec4010530d",
+      "page": 1,
+      "locator": "page:1",
+      "excerpt": "AVISO DE LICITAÇÃO\nAbertura da sessão: 26/08/2026 às 09:00\nEdital nº 99/2026",
+      "confidence": 0.7,
+      "classification": "sessao"
+    },
+    {
+      "kind": "sessao",
+      "raw_value": "25/08/2026",
+      "normalized": "2026-08-25",
+      "timezone": "America/Sao_Paulo",
+      "document_id": "doc-003",
+      "document_sha256": "b2fa4506aefed806156cbc796792c638974cac468073b7d35808cb6b16712e77",
+      "page": 3,
+      "locator": "page:3",
+      "excerpt": "Página 3\nData de abertura da sessão: 25/08/2026 às 09:00\nPrazo para impugnação: 20/08/2026\nPrazo de execução: 180 dias\nGarantia de proposta: 1% do valor estimado\nGaran",
+      "confidence": 0.7,
+      "classification": "sessao"
+    },
+    {
+      "kind": "impugnacao",
+      "raw_value": "20/08/2026",
+      "normalized": "2026-08-20",
+      "timezone": "America/Sao_Paulo",
+      "document_id": "doc-003",
+      "document_sha256": "b2fa4506aefed806156cbc796792c638974cac468073b7d35808cb6b16712e77",
+      "page": 2,
+      "locator": "page:2",
+      "excerpt": "técnica: atestado de capacidade técnica e CAT\n7. Visita técnica facultativa em 20/08/2026",
+      "confidence": 0.7,
+      "classification": "impugnacao"
+    },
+    {
+      "kind": "visita_tecnica",
+      "raw_value": "20/08/2026",
+      "normalized": "2026-08-20",
+      "timezone": "America/Sao_Paulo",
+      "document_id": "doc-003",
+      "document_sha256": "b2fa4506aefed806156cbc796792c638974cac468073b7d35808cb6b16712e77",
+      "page": 2,
+      "locator": "page:2",
+      "excerpt": "técnica: atestado de capacidade técnica e CAT\n7. Visita técnica facultativa em 20/08/2026",
+      "confidence": 0.7,
+      "classification": "visita_tecnica"
+    },
+    {
+      "kind": "execucao",
+      "raw_value": "180",
+      "normalized": null,
+      "timezone": "America/Sao_Paulo",
+      "document_id": "doc-003",
+      "document_sha256": "b2fa4506aefed806156cbc796792c638974cac468073b7d35808cb6b16712e77",
+      "page": 3,
+      "locator": "page:3",
+      "excerpt": "180 dias\nGarantia de proposta: 1% do valor estimado\nGarantia contratual: 5% sobre o valor do contrato\nValor estimado: R$ 1.",
+      "confidence": 0.7,
+      "classification": "execucao"
+    },
+    {
+      "kind": "execucao",
+      "raw_value": "180",
+      "normalized": null,
+      "timezone": "America/Sao_Paulo",
+      "document_id": "doc-005",
+      "document_sha256": "0c1476812a382bf80407517b4148822bcbb1a6a04dac6d69a0ae5861284576ed",
+      "page": null,
+      "locator": "paragraph:2",
+      "excerpt": "Prazo de execução: 180 dias corridos.",
+      "confidence": 0.7,
+      "classification": "execucao"
+    }
+  ],
+  "conflicts": [
+    {
+      "kind": "sessao",
+      "values": [
+        "2026-08-25",
+        "2026-08-26"
+      ],
+      "events": [
+        {
+          "kind": "sessao",
+          "raw_value": "26/08/2026",
+          "normalized": "2026-08-26",
+          "timezone": "America/Sao_Paulo",
+          "document_id": "doc-001",
+          "document_sha256": "3f12a7c92aaf6ef50ec9e7f994420b58a4d687d253cdcba116aedeec4010530d",
+          "page": 1,
+          "locator": "page:1",
+          "excerpt": "AVISO DE LICITAÇÃO\nAbertura da sessão: 26/08/2026 às 09:00\nEdital nº 99/2026",
+          "confidence": 0.7,
+          "classification": "sessao"
+        },
+        {
+          "kind": "sessao",
+          "raw_value": "25/08/2026",
+          "normalized": "2026-08-25",
+          "timezone": "America/Sao_Paulo",
+          "document_id": "doc-003",
+          "document_sha256": "b2fa4506aefed806156cbc796792c638974cac468073b7d35808cb6b16712e77",
+          "page": 3,
+          "locator": "page:3",
+          "excerpt": "Página 3\nData de abertura da sessão: 25/08/2026 às 09:00\nPrazo para impugnação: 20/08/2026\nPrazo de execução: 180 dias\nGarantia de proposta: 1% do valor estimado\nGaran",
+          "confidence": 0.7,
+          "classification": "sessao"
+        }
+      ],
+      "class": "CONFIRMED_CONFLICT"
+    }
+  ],
+  "event_count": 6
+}

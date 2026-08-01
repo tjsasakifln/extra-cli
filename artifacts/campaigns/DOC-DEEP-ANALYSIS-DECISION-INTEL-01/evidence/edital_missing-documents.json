@@ -1,0 +1,177 @@
+{
+  "generated_at": "2026-08-01T15:01:07.175226+00:00",
+  "references": [
+    {
+      "referenced_name": "Anexo II",
+      "expected_type": "ANEXO",
+      "referenced_from": {
+        "document_id": "doc-002",
+        "page": null,
+        "section": null,
+        "locator": "line:1",
+        "excerpt": "Conforme Anexo II - Planilha Orçamentária e Minuta do Contrato, os licitantes devem observar o Termo de Referência."
+      },
+      "matched_document_id": null,
+      "status": "MISSING",
+      "confidence": 0.6
+    },
+    {
+      "referenced_name": "Termo de Referência",
+      "expected_type": "TERMO_DE_REFERENCIA",
+      "referenced_from": {
+        "document_id": "doc-002",
+        "page": null,
+        "section": null,
+        "locator": "line:1",
+        "excerpt": "ntária e Minuta do Contrato, os licitantes devem observar o Termo de Referência."
+      },
+      "matched_document_id": "doc-002",
+      "status": "PRESENT",
+      "confidence": 0.85
+    },
+    {
+      "referenced_name": "Planilha Orçamentária",
+      "expected_type": "PLANILHA_ORCAMENTARIA",
+      "referenced_from": {
+        "document_id": "doc-002",
+        "page": null,
+        "section": null,
+        "locator": "line:1",
+        "excerpt": "Conforme Anexo II - Planilha Orçamentária e Minuta do Contrato, os licitantes devem observar o Termo de Referência."
+      },
+      "matched_document_id": "doc-004",
+      "status": "PRESENT",
+      "confidence": 0.85
+    },
+    {
+      "referenced_name": "Minuta do Contrato",
+      "expected_type": "MINUTA_CONTRATUAL",
+      "referenced_from": {
+        "document_id": "doc-002",
+        "page": null,
+        "section": null,
+        "locator": "line:1",
+        "excerpt": "Conforme Anexo II - Planilha Orçamentária e Minuta do Contrato, os licitantes devem observar o Termo de Referência."
+      },
+      "matched_document_id": null,
+      "status": "MISSING",
+      "confidence": 0.6
+    },
+    {
+      "referenced_name": "Anexo I",
+      "expected_type": "ANEXO",
+      "referenced_from": {
+        "document_id": "doc-003",
+        "page": 4,
+        "section": null,
+        "locator": "page:4",
+        "excerpt": "Página 4\nAnexos deste edital:\nAnexo I - Termo de Referência\nAnexo II - Planilha Orçamentária\nAnexo III - Minuta do Contrato\nAnexo IV - Mo"
+      },
+      "matched_document_id": null,
+      "status": "MISSING",
+      "confidence": 0.6
+    },
+    {
+      "referenced_name": "Anexo III",
+      "expected_type": "ANEXO",
+      "referenced_from": {
+        "document_id": "doc-003",
+        "page": 4,
+        "section": null,
+        "locator": "page:4",
+        "excerpt": "xo I - Termo de Referência\nAnexo II - Planilha Orçamentária\nAnexo III - Minuta do Contrato\nAnexo IV - Modelo de Proposta\nCronograma Físico-Financeiro\nMemorial Descritivo"
+      },
+      "matched_document_id": null,
+      "status": "MISSING",
+      "confidence": 0.6
+    },
+    {
+      "referenced_name": "Anexo IV",
+      "expected_type": "ANEXO",
+      "referenced_from": {
+        "document_id": "doc-003",
+        "page": 4,
+        "section": null,
+        "locator": "page:4",
+        "excerpt": "o II - Planilha Orçamentária\nAnexo III - Minuta do Contrato\nAnexo IV - Modelo de Proposta\nCronograma Físico-Financeiro\nMemorial Descritivo\nSanções e multas conforme Lei"
+      },
+      "matched_document_id": null,
+      "status": "MISSING",
+      "confidence": 0.6
+    },
+    {
+      "referenced_name": "Cronograma Físico-Financeiro",
+      "expected_type": "CRONOGRAMA",
+      "referenced_from": {
+        "document_id": "doc-003",
+        "page": 4,
+        "section": null,
+        "locator": "page:4",
+        "excerpt": "nexo III - Minuta do Contrato\nAnexo IV - Modelo de Proposta\nCronograma Físico-Financeiro\nMemorial Descritivo\nSanções e multas conforme Lei 14.133/2021"
+      },
+      "matched_document_id": null,
+      "status": "MISSING",
+      "confidence": 0.6
+    },
+    {
+      "referenced_name": "Cronograma",
+      "expected_type": "CRONOGRAMA",
+      "referenced_from": {
+        "document_id": "doc-003",
+        "page": 4,
+        "section": null,
+        "locator": "page:4",
+        "excerpt": "nexo III - Minuta do Contrato\nAnexo IV - Modelo de Proposta\nCronograma Físico-Financeiro\nMemorial Descritivo\nSanções e multas conforme Lei 14.133/2021"
+      },
+      "matched_document_id": null,
+      "status": "MISSING",
+      "confidence": 0.6
+    },
+    {
+      "referenced_name": "Modelo de Proposta",
+      "expected_type": "MODELO_DECLARACAO",
+      "referenced_from": {
+        "document_id": "doc-003",
+        "page": 4,
+        "section": null,
+        "locator": "page:4",
+        "excerpt": "ilha Orçamentária\nAnexo III - Minuta do Contrato\nAnexo IV - Modelo de Proposta\nCronograma Físico-Financeiro\nMemorial Descritivo\nSanções e multas conforme Lei 14.133/2021"
+      },
+      "matched_document_id": null,
+      "status": "MISSING",
+      "confidence": 0.6
+    },
+    {
+      "referenced_name": "Memorial Descritivo",
+      "expected_type": "MEMORIAL_DESCRITIVO",
+      "referenced_from": {
+        "document_id": "doc-003",
+        "page": 4,
+        "section": null,
+        "locator": "page:4",
+        "excerpt": "Anexo IV - Modelo de Proposta\nCronograma Físico-Financeiro\nMemorial Descritivo\nSanções e multas conforme Lei 14.133/2021"
+      },
+      "matched_document_id": null,
+      "status": "MISSING",
+      "confidence": 0.6
+    },
+    {
+      "referenced_name": "projeto básico",
+      "expected_type": "PROJETO",
+      "referenced_from": {
+        "document_id": "doc-005",
+        "page": null,
+        "section": null,
+        "locator": "paragraph:1",
+        "excerpt": "Objeto: reforma predial conforme projeto básico."
+      },
+      "matched_document_id": null,
+      "status": "MISSING",
+      "confidence": 0.6
+    }
+  ],
+  "missing_count": 10,
+  "ambiguous_count": 0,
+  "present_count": 2,
+  "inventory_fingerprint": "edfd753fcd2f7a81"
+}

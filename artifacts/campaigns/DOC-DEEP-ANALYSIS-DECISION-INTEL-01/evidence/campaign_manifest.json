@@ -1,0 +1,69 @@
+{
+  "campaign_id": "DOC-DEEP-ANALYSIS-DECISION-INTEL-01",
+  "generated_at": "2026-08-01T14:59:08.156722+00:00",
+  "base_sha": "162c2ba18cd216dbb4f4d298ea965db1b98a9d23",
+  "suite": {
+    "edital_case_budget_audit_pytest": "51 passed",
+    "log": "/tmp/grok-goal-58f70c56721c/implementer/pytest/edital-budget-suite.txt"
+  },
+  "edital": {
+    "verify_status": null,
+    "verify_ok": false,
+    "recommendation": "REVIEW",
+    "checklist_count": 36,
+    "findings": 48,
+    "inconsistencies": 1,
+    "case_dir": "/tmp/grok-goal-58f70c56721c/implementer/edital_cases/fixture-multi-doc-01"
+  },
+  "budget": {
+    "verify_status": "PASS",
+    "map_counts": {
+      "budget_items": 12,
+      "compositions": 1,
+      "composition_inputs": 4,
+      "bdi_components": 8,
+      "sheets_classified": 8
+    },
+    "findings": 31,
+    "reconciliation": {
+      "status": "PASS",
+      "finding_count": 31,
+      "item_count": 12,
+      "total_sale_price_sum": 5256.25,
+      "total_direct_cost_sum": null,
+      "arithmetic_check_count": 22,
+      "issues": [],
+      "checks": {
+        "primary_totals": {
+          "item_count": 12,
+          "finding_count": 31,
+          "severity_counts": {
+            "MEDIUM": 27,
+            "HIGH": 4
+          },
+          "total_sale_price_sum": 5256.25,
+          "total_direct_cost_sum": null,
+          "items_with_sale_total": 11,
+          "items_with_direct_total": 0,
+          "arithmetic_check_count": 22,
+          "arithmetic_status_counts": {
+            "PASS": 17,
+            "MATERIAL_DIFFERENCE": 2,
+            "NOT_EVALUATED": 3
+          },
+          "bdi_component_count": 8,
+          "bdi_sum_percent_points": 30.5
+        }
+      },
+      "checksums": {
+        "executive-summary.md": "c310612eeb2e66a04c596abe83aac7f8a0b76a736325ccd14cad4eeacd1cc21e",
+        "budget-audit-report.html": "f963f6871eb7c7a8abfb76b4432ece34e6a8810902bb6eb69c7a5a7d003e8520",
+        "budget-audit-report.pdf": "5b4d5d854569f0d4acba5a96c7ad12b206cca36dbe9f6413c63e7acd543c8836",
+        "budget-audit-workbook.xlsx": "ab1d9e79a48c87e7615921cc434c1e5481d40385af561e8b610da3b9faf1efe6"
+      },
+      "model_hash": "e91e74b8620a9452ca1aac29d456f89b39d9bafe7fa5d84e3a6959ba143a7144"
+    },
+    "case_dir": "/tmp/grok-goal-58f70c56721c/implementer/budget_root/cases/golden-e2e-proof"
+  },
+  "dod_scope_note": "Fixture/test-proven capability for §2.6 triage + deep analysis + budget/BDI. ACCEPTED only after main+CI."
+}

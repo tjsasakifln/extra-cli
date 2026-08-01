@@ -1,0 +1,141 @@
+{
+  "campaign_id": "DOC-DEEP-ANALYSIS-DECISION-INTEL-01",
+  "generated_at": "2026-08-01T15:04:21.836346+00:00",
+  "base_sha": "162c2ba18cd216dbb4f4d298ea965db1b98a9d23",
+  "branch": "campaign/doc-deep-analysis-dod-01",
+  "purpose": "Prove §2.6 technical triage + budget/BDI deep analysis produce decision intel with locators; verify PASS on fixture packs.",
+  "pipelines": {
+    "edital_case": {
+      "entry": "python3 -m scripts.edital_case",
+      "verify": "PASS",
+      "citation_fabricated": 0,
+      "citation_checked": 62,
+      "checklist_items": 36,
+      "recommendation": "REVIEW",
+      "disclaimer": true,
+      "findings": 48,
+      "inconsistencies": 1,
+      "documents": 5
+    },
+    "budget_audit": {
+      "entry": "python3 -m scripts.budget_audit",
+      "verify": "PASS",
+      "reconciliation": "PASS",
+      "budget_items": 12,
+      "bdi_components": 8,
+      "compositions": 1,
+      "findings": 31,
+      "arithmetic_checks": 22
+    },
+    "pytest": {
+      "edital_case": "31 passed",
+      "budget_audit_combined_prior": "51 passed (pre-fix full suite)",
+      "regression": "test_profile_fit_binds_excerpt_to_source_document"
+    }
+  },
+  "code_fix": {
+    "bug": "aderencia_perfil bound excerpt to docs[0] instead of hit source document",
+    "files": [
+      "scripts/edital_case/analyze.py",
+      "scripts/edital_case/extract.py",
+      "tests/edital_case/test_analysis.py"
+    ]
+  },
+  "files": {
+    "evidence/budget-executive-summary.md": {
+      "sha256": "c310612eeb2e66a04c596abe83aac7f8a0b76a736325ccd14cad4eeacd1cc21e",
+      "bytes": 4252
+    },
+    "evidence/budget_case-manifest.json": {
+      "sha256": "7ed3cd1bd209bf3bf02fb9e3e1e9d68b92b7a2cfa6ca5dfcf415ec771ee067c0",
+      "bytes": 1476
+    },
+    "evidence/budget_e2e_summary.json": {
+      "sha256": "e736b15b1fc9054124db765437a1fc312cc915260b3cdf959c0bd67c06536f58",
+      "bytes": 5330
+    },
+    "evidence/budget_report_executive-summary.md": {
+      "sha256": "c310612eeb2e66a04c596abe83aac7f8a0b76a736325ccd14cad4eeacd1cc21e",
+      "bytes": 4252
+    },
+    "evidence/budget_verification.json": {
+      "sha256": "677310a4874b7e4d1747c01e202f95c709a8f8f2b46bdfa8b18082034408eb27",
+      "bytes": 1833
+    },
+    "evidence/campaign_manifest.json": {
+      "sha256": "ede3001c0c0fbcc3cfe35526ab40adbbff42c6641c5f6dff7c43de31f03882a3",
+      "bytes": 2456
+    },
+    "evidence/edital-executive-summary.md": {
+      "sha256": "1d91562761e3afb4b656a12be664e57403b68edaed78d9f8712e82ea8d034899",
+      "bytes": 22273
+    },
+    "evidence/edital_case-manifest.json": {
+      "sha256": "edc0b50c95f81285212fa7aee62b64c5d1015a5683421303e4695b1e74dc306d",
+      "bytes": 542
+    },
+    "evidence/edital_checklist.json": {
+      "sha256": "a0707eb2a2045a204b90747e97a2bf5d8bec3ccec3538344b1ae9ed761c444c2",
+      "bytes": 26590
+    },
+    "evidence/edital_e2e_summary.json": {
+      "sha256": "75288546ec8ab749ca388adb23d566fe8ccf57caa2af4e126ced919ac6dccc72",
+      "bytes": 2020
+    },
+    "evidence/edital_evidence-matrix.json": {
+      "sha256": "9ceaf32b803e7467bdbbc0036eb14e9d3475a17ea493427e9c473f5682a5471a",
+      "bytes": 17137
+    },
+    "evidence/edital_findings.json": {
+      "sha256": "43c5a5fd9c738d7adfad31ff2b1597163568189f9a9268a65dfc8ab887d12b70",
+      "bytes": 33844
+    },
+    "evidence/edital_inconsistencies.json": {
+      "sha256": "738b36beccc2ec0a21a43582e9339980f8ff416daf1ffbc2e53f6f6e2a850571",
+      "bytes": 2651
+    },
+    "evidence/edital_inventory.json": {
+      "sha256": "cad31b817aae121ccbad40775744d7a80ab977d1a47773963079b83516e33d2a",
+      "bytes": 11282
+    },
+    "evidence/edital_missing-documents.json": {
+      "sha256": "33222199f4ee2574c3545b03d72d3a0b21af6d8400e42e1094a094892f2ee4ae",
+      "bytes": 5997
+    },
+    "evidence/edital_recommendation.json": {
+      "sha256": "c4a3794a630408d2a1a4c7ae738e7cbcfa7c4781898a6fae7bca26fa50fb9aeb",
+      "bytes": 2021
+    },
+    "evidence/edital_report_checksums.json": {
+      "sha256": "6fd49f9ed8d262a0686bb1672a56961a4c8e942798a9b7e4649c4dfcadfc6a21",
+      "bytes": 465
+    },
+    "evidence/edital_report_executive-summary.md": {
+      "sha256": "1d91562761e3afb4b656a12be664e57403b68edaed78d9f8712e82ea8d034899",
+      "bytes": 22273
+    },
+    "evidence/edital_report_reconciliation.json": {
+      "sha256": "4cced6661aa698c925f91c3492cc9649d884d9be8fe6db93e4e8a82ee8a9b1ef",
+      "bytes": 753
+    },
+    "evidence/edital_report_triage-report.html": {
+      "sha256": "a8f8644bf7306fe1eed38965c392f3193e15e17cd2e4e85d8f12f015303e9ea1",
+      "bytes": 25617
+    },
+    "evidence/edital_timeline.json": {
+      "sha256": "e0dc11623649df1a85fbfd1eca21e8fc2008609bde68040cfd76335261aaa1ab",
+      "bytes": 4402
+    },
+    "evidence/edital_verification.json": {
+      "sha256": "d8a9a8df2abe3d767b63da95dffb84264f5b0ba93d4430d65685aa010e629c94",
+      "bytes": 8862
+    }
+  },
+  "dod_items_claimed": "See FINAL-REPORT.md — fixture-proven §2.6 triage + deep analysis + planilha/BDI only; not 95% coverage nor legal opinion.",
+  "honesty": {
+    "fixture_not_live_ente": true,
+    "not_parecer_juridico": true,
+    "bdi_arithmetic_not_legal": true,
+    "xlsx_in_edital_case_extraction_limited": true
+  }
+}

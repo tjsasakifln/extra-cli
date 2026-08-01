@@ -1,0 +1,955 @@
+{
+  "generated_at": "2026-08-01T15:01:07.180253+00:00",
+  "findings": [
+    {
+      "finding_id": "F0001",
+      "severity": "info",
+      "category": "administrativo",
+      "title": "Checklist OK: Objeto e escopo da contratação",
+      "status": "SATISFIED",
+      "evidence": {
+        "document_id": "doc-003",
+        "document_sha256": "b2fa4506aefed806156cbc796792c638974cac468073b7d35808cb6b16712e77",
+        "page": 1,
+        "section": null,
+        "paragraph": null,
+        "cell": null,
+        "locator": "page:1",
+        "excerpt": "Objeto: Contratação de empresa para reforma predial de prédio público\nCritério de julgamento: menor preço\nModalidade: Pregão Eletrônico\nModo de disputa: aberto",
+        "analysis": "trecho localizado no pacote documental",
+        "rule_id": "checklist.objeto_escopo",
+        "confidence": 0.8,
+        "review_status": "AUTO"
+      }
+    },
+    {
+      "finding_id": "F0002",
+      "severity": "medium",
+      "category": "administrativo",
+      "title": "Checklist NEEDS_HUMAN: Aderência ao perfil operacional Extra",
+      "status": "NEEDS_HUMAN",
+      "evidence": {
+        "document_id": "doc-003",
+        "document_sha256": "b2fa4506aefed806156cbc796792c638974cac468073b7d35808cb6b16712e77",
+        "page": 1,
+        "section": null,
+        "paragraph": null,
+        "cell": null,
+        "locator": "page:1",
+        "excerpt": "Objeto: Contratação de empresa para reforma predial de prédio público\nCritério de julgamento: menor preço\nModalidade: Pregão Eletrônico\nModo de disputa: aberto",
+        "analysis": "perfil com pendências (priority_municipalities); termos positivos no texto: ['reforma predial']. Não autoriza GO automático.",
+        "rule_id": "profile.fit",
+        "confidence": 0.5,
+        "review_status": "AUTO"
+      }
+    },
+    {
+      "finding_id": "F0003",
+      "severity": "info",
+      "category": "prazo",
+      "title": "Checklist OK: Datas e horários críticos",
+      "status": "SATISFIED",
+      "evidence": {
+        "document_id": "doc-001",
+        "document_sha256": "3f12a7c92aaf6ef50ec9e7f994420b58a4d687d253cdcba116aedeec4010530d",
+        "page": 1,
+        "section": null,
+        "paragraph": null,
+        "cell": null,
+        "locator": "page:1",
+        "excerpt": "AVISO DE LICITAÇÃO\nAbertura da sessão: 26/08/2026 às 09:00\nEdital nº 99/2026",
+        "analysis": "trecho localizado no pacote documental",
+        "rule_id": "checklist.datas_horarios",
+        "confidence": 0.8,
+        "review_status": "AUTO"
+      }
+    },
+    {
+      "finding_id": "F0004",
+      "severity": "info",
+      "category": "prazo",
+      "title": "Checklist OK: Prazos de esclarecimentos e impugnações",
+      "status": "SATISFIED",
+      "evidence": {
+        "document_id": "doc-003",
+        "document_sha256": "b2fa4506aefed806156cbc796792c638974cac468073b7d35808cb6b16712e77",
+        "page": 3,
+        "section": null,
+        "paragraph": null,
+        "cell": null,
+        "locator": "page:3",
+        "excerpt": "Página 3\nData de abertura da sessão: 25/08/2026 às 09:00\nPrazo para impugnação: 20/08/2026\nPrazo de execução: 180 dias\nGarantia de proposta: 1% do valor estimado\nGarantia contratual: 5% sobre o valo",
+        "analysis": "trecho localizado no pacote documental",
+        "rule_id": "checklist.esclarecimentos_impugnacoes",
+        "confidence": 0.8,
+        "review_status": "AUTO"
+      }
+    },
+    {
+      "finding_id": "F0005",
+      "severity": "info",
+      "category": "administrativo",
+      "title": "Checklist OK: Modalidade licitatória",
+      "status": "SATISFIED",
+      "evidence": {
+        "document_id": "doc-003",
+        "document_sha256": "b2fa4506aefed806156cbc796792c638974cac468073b7d35808cb6b16712e77",
+        "page": 1,
+        "section": null,
+        "paragraph": null,
+        "cell": null,
+        "locator": "page:1",
+        "excerpt": "Página 1\nEDITAL DE PREGÃO ELETRÔNICO Nº 99/2026\nProcesso: 1234/2026\nÓrgão: Prefeitura Municipal de Exemplo/SC\nObjeto: Contratação de empresa para reforma pr",
+        "analysis": "trecho localizado no pacote documental",
+        "rule_id": "checklist.modalidade",
+        "confidence": 0.8,
+        "review_status": "AUTO"
+      }
+    },
+    {
+      "finding_id": "F0006",
+      "severity": "info",
+      "category": "administrativo",
+      "title": "Checklist OK: Critério de julgamento",
+      "status": "SATISFIED",
+      "evidence": {
+        "document_id": "doc-003",
+        "document_sha256": "b2fa4506aefed806156cbc796792c638974cac468073b7d35808cb6b16712e77",
+        "page": 1,
+        "section": null,
+        "paragraph": null,
+        "cell": null,
+        "locator": "page:1",
+        "excerpt": "menor preço\nModalidade: Pregão Eletrônico\nModo de disputa: aberto",
+        "analysis": "trecho localizado no pacote documental",
+        "rule_id": "checklist.criterio_julgamento",
+        "confidence": 0.8,
+        "review_status": "AUTO"
+      }
+    },
+    {
+      "finding_id": "F0007",
+      "severity": "info",
+      "category": "administrativo",
+      "title": "Checklist OK: Modo de disputa",
+      "status": "SATISFIED",
+      "evidence": {
+        "document_id": "doc-003",
+        "document_sha256": "b2fa4506aefed806156cbc796792c638974cac468073b7d35808cb6b16712e77",
+        "page": 1,
+        "section": null,
+        "paragraph": null,
+        "cell": null,
+        "locator": "page:1",
+        "excerpt": "Modo de disputa: aberto",
+        "analysis": "trecho localizado no pacote documental",
+        "rule_id": "checklist.modo_disputa",
+        "confidence": 0.8,
+        "review_status": "AUTO"
+      }
+    },
+    {
+      "finding_id": "F0008",
+      "severity": "medium",
+      "category": "juridico",
+      "title": "Checklist NOT_FOUND: Condições de participação",
+      "status": "NOT_FOUND",
+      "evidence": {
+        "document_id": null,
+        "document_sha256": null,
+        "page": null,
+        "section": null,
+        "paragraph": null,
+        "cell": null,
+        "locator": null,
+        "excerpt": null,
+        "analysis": "padrão não localizado no texto extraído",
+        "rule_id": "checklist.condicoes_participacao",
+        "confidence": 0.4,
+        "review_status": "MISSING"
+      }
+    },
+    {
+      "finding_id": "F0009",
+      "severity": "info",
+      "category": "juridico",
+      "title": "Checklist OK: Consórcio — permissão e condições",
+      "status": "SATISFIED",
+      "evidence": {
+        "document_id": "doc-003",
+        "document_sha256": "b2fa4506aefed806156cbc796792c638974cac468073b7d35808cb6b16712e77",
+        "page": 3,
+        "section": null,
+        "paragraph": null,
+        "cell": null,
+        "locator": "page:3",
+        "excerpt": "Consórcio: não será permitido\nSubcontratação: limitada a 30%",
+        "analysis": "trecho localizado no pacote documental",
+        "rule_id": "checklist.consorcio",
+        "confidence": 0.8,
+        "review_status": "AUTO"
+      }
+    },
+    {
+      "finding_id": "F0010",
+      "severity": "info",
+      "category": "juridico",
+      "title": "Checklist OK: Subcontratação — limites e vedações",
+      "status": "SATISFIED",
+      "evidence": {
+        "document_id": "doc-003",
+        "document_sha256": "b2fa4506aefed806156cbc796792c638974cac468073b7d35808cb6b16712e77",
+        "page": 3,
+        "section": null,
+        "paragraph": null,
+        "cell": null,
+        "locator": "page:3",
+        "excerpt": "valor do contrato\nValor estimado: R$ 1.250.000,00\nConsórcio: não será permitido\nSubcontratação: limitada a 30%",
+        "analysis": "trecho localizado no pacote documental",
+        "rule_id": "checklist.subcontratacao",
+        "confidence": 0.8,
+        "review_status": "AUTO"
+      }
+    },
+    {
+      "finding_id": "F0011",
+      "severity": "info",
+      "category": "juridico",
+      "title": "Checklist OK: Habilitação jurídica",
+      "status": "SATISFIED",
+      "evidence": {
+        "document_id": "doc-003",
+        "document_sha256": "b2fa4506aefed806156cbc796792c638974cac468073b7d35808cb6b16712e77",
+        "page": 2,
+        "section": null,
+        "paragraph": null,
+        "cell": null,
+        "locator": "page:2",
+        "excerpt": "Página 2\n1. Habilitação jurídica: ato constitutivo e contrato social\n2. Regularidade fiscal federal, estadual e municipal; FGTS\n3. Regularidade trabalhi",
+        "analysis": "trecho localizado no pacote documental",
+        "rule_id": "checklist.habilitacao_juridica",
+        "confidence": 0.8,
+        "review_status": "AUTO"
+      }
+    },
+    {
+      "finding_id": "F0012",
+      "severity": "info",
+      "category": "fiscal",
+      "title": "Checklist OK: Regularidade fiscal",
+      "status": "SATISFIED",
+      "evidence": {
+        "document_id": "doc-003",
+        "document_sha256": "b2fa4506aefed806156cbc796792c638974cac468073b7d35808cb6b16712e77",
+        "page": 2,
+        "section": null,
+        "paragraph": null,
+        "cell": null,
+        "locator": "page:2",
+        "excerpt": "Página 2\n1. Habilitação jurídica: ato constitutivo e contrato social\n2. Regularidade fiscal federal, estadual e municipal; FGTS\n3. Regularidade trabalhista: CNDT\n4. Qualificação econômico-financeira: balanço pat",
+        "analysis": "trecho localizado no pacote documental",
+        "rule_id": "checklist.regularidade_fiscal",
+        "confidence": 0.8,
+        "review_status": "AUTO"
+      }
+    },
+    {
+      "finding_id": "F0013",
+      "severity": "info",
+      "category": "trabalhista",
+      "title": "Checklist OK: Regularidade trabalhista (CNDT)",
+      "status": "SATISFIED",
+      "evidence": {
+        "document_id": "doc-003",
+        "document_sha256": "b2fa4506aefed806156cbc796792c638974cac468073b7d35808cb6b16712e77",
+        "page": 2,
+        "section": null,
+        "paragraph": null,
+        "cell": null,
+        "locator": "page:2",
+        "excerpt": "e contrato social\n2. Regularidade fiscal federal, estadual e municipal; FGTS\n3. Regularidade trabalhista: CNDT\n4. Qualificação econômico-financeira: balanço patrimonial\n5. Índices: Liquidez Geral >= 1,0; Liquidez Corrente >=",
+        "analysis": "trecho localizado no pacote documental",
+        "rule_id": "checklist.regularidade_trabalhista",
+        "confidence": 0.8,
+        "review_status": "AUTO"
+      }
+    },
+    {
+      "finding_id": "F0014",
+      "severity": "info",
+      "category": "economico-financeiro",
+      "title": "Checklist OK: Qualificação econômico-financeira",
+      "status": "SATISFIED",
+      "evidence": {
+        "document_id": "doc-003",
+        "document_sha256": "b2fa4506aefed806156cbc796792c638974cac468073b7d35808cb6b16712e77",
+        "page": 2,
+        "section": null,
+        "paragraph": null,
+        "cell": null,
+        "locator": "page:2",
+        "excerpt": "fiscal federal, estadual e municipal; FGTS\n3. Regularidade trabalhista: CNDT\n4. Qualificação econômico-financeira: balanço patrimonial\n5. Índices: Liquidez Geral >= 1,0; Liquidez Corrente >= 1,0\n6. Qualificação técnica: at",
+        "analysis": "trecho localizado no pacote documental",
+        "rule_id": "checklist.qualificacao_economica",
+        "confidence": 0.8,
+        "review_status": "AUTO"
+      }
+    },
+    {
+      "finding_id": "F0015",
+      "severity": "medium",
+      "category": "economico-financeiro",
+      "title": "Checklist NOT_FOUND: Capital social / patrimônio líquido mínimo",
+      "status": "NOT_FOUND",
+      "evidence": {
+        "document_id": null,
+        "document_sha256": null,
+        "page": null,
+        "section": null,
+        "paragraph": null,
+        "cell": null,
+        "locator": null,
+        "excerpt": null,
+        "analysis": "padrão não localizado no texto extraído",
+        "rule_id": "checklist.capital_patrimonio",
+        "confidence": 0.4,
+        "review_status": "MISSING"
+      }
+    },
+    {
+      "finding_id": "F0016",
+      "severity": "info",
+      "category": "economico-financeiro",
+      "title": "Checklist OK: Índices econômicos (LG, SG, LC etc.)",
+      "status": "SATISFIED",
+      "evidence": {
+        "document_id": "doc-003",
+        "document_sha256": "b2fa4506aefed806156cbc796792c638974cac468073b7d35808cb6b16712e77",
+        "page": 2,
+        "section": null,
+        "paragraph": null,
+        "cell": null,
+        "locator": "page:2",
+        "excerpt": "Liquidez Geral >= 1,0; Liquidez Corrente >= 1,0\n6. Qualificação técnica: atestado de capacidade técnica e CAT\n7. Visita técnica facult",
+        "analysis": "trecho localizado no pacote documental",
+        "rule_id": "checklist.indices_economicos",
+        "confidence": 0.8,
+        "review_status": "AUTO"
+      }
+    },
+    {
+      "finding_id": "F0017",
+      "severity": "high",
+      "category": "garantia",
+      "title": "Checklist RISK: Garantia de proposta",
+      "status": "RISK",
+      "evidence": {
+        "document_id": "doc-003",
+        "document_sha256": "b2fa4506aefed806156cbc796792c638974cac468073b7d35808cb6b16712e77",
+        "page": 3,
+        "section": null,
+        "paragraph": null,
+        "cell": null,
+        "locator": "page:3",
+        "excerpt": "/08/2026 às 09:00\nPrazo para impugnação: 20/08/2026\nPrazo de execução: 180 dias\nGarantia de proposta: 1% do valor estimado\nGarantia contratual: 5% sobre o valor do contrato\nValor estimado: R$ 1.250.000,00\nConsórcio: não",
+        "analysis": "exigência localizada; validar impacto operacional",
+        "rule_id": "checklist.garantia_proposta",
+        "confidence": 0.75,
+        "review_status": "AUTO"
+      }
+    },
+    {
+      "finding_id": "F0018",
+      "severity": "high",
+      "category": "garantia",
+      "title": "Checklist RISK: Garantia contratual",
+      "status": "RISK",
+      "evidence": {
+        "document_id": "doc-003",
+        "document_sha256": "b2fa4506aefed806156cbc796792c638974cac468073b7d35808cb6b16712e77",
+        "page": 3,
+        "section": null,
+        "paragraph": null,
+        "cell": null,
+        "locator": "page:3",
+        "excerpt": "/08/2026\nPrazo de execução: 180 dias\nGarantia de proposta: 1% do valor estimado\nGarantia contratual: 5% sobre o valor do contrato\nValor estimado: R$ 1.250.000,00\nConsórcio: não será permitido\nSubcontratação: limitada a",
+        "analysis": "exigência localizada; validar impacto operacional",
+        "rule_id": "checklist.garantia_contrato",
+        "confidence": 0.75,
+        "review_status": "AUTO"
+      }
+    },
+    {
+      "finding_id": "F0019",
+      "severity": "info",
+      "category": "tecnico-operacional",
+      "title": "Checklist OK: Qualificação técnica operacional",
+      "status": "SATISFIED",
+      "evidence": {
+        "document_id": "doc-003",
+        "document_sha256": "b2fa4506aefed806156cbc796792c638974cac468073b7d35808cb6b16712e77",
+        "page": 2,
+        "section": null,
+        "paragraph": null,
+        "cell": null,
+        "locator": "page:2",
+        "excerpt": "Qualificação técnica: atestado de capacidade técnica e CAT\n7. Visita técnica facultativa em 20/08/2026",
+        "analysis": "trecho localizado no pacote documental",
+        "rule_id": "checklist.qualificacao_tecnica_operacional",
+        "confidence": 0.8,
+        "review_status": "AUTO"
+      }
+    },
+    {
+      "finding_id": "F0020",
+      "severity": "medium",
+      "category": "tecnico-profissional",
+      "title": "Checklist NOT_FOUND: Qualificação técnica profissional",
+      "status": "NOT_FOUND",
+      "evidence": {
+        "document_id": null,
+        "document_sha256": null,
+        "page": null,
+        "section": null,
+        "paragraph": null,
+        "cell": null,
+        "locator": null,
+        "excerpt": null,
+        "analysis": "padrão não localizado no texto extraído",
+        "rule_id": "checklist.qualificacao_tecnica_profissional",
+        "confidence": 0.4,
+        "review_status": "MISSING"
+      }
+    },
+    {
+      "finding_id": "F0021",
+      "severity": "info",
+      "category": "tecnico-profissional",
+      "title": "Checklist OK: Atestados, CAT, ART ou RRT",
+      "status": "SATISFIED",
+      "evidence": {
+        "document_id": "doc-003",
+        "document_sha256": "b2fa4506aefed806156cbc796792c638974cac468073b7d35808cb6b16712e77",
+        "page": 2,
+        "section": null,
+        "paragraph": null,
+        "cell": null,
+        "locator": "page:2",
+        "excerpt": "CAT\n7. Visita técnica facultativa em 20/08/2026",
+        "analysis": "trecho localizado no pacote documental",
+        "rule_id": "checklist.atestados_cat_art",
+        "confidence": 0.8,
+        "review_status": "AUTO"
+      }
+    },
+    {
+      "finding_id": "F0022",
+      "severity": "medium",
+      "category": "tecnico-operacional",
+      "title": "Checklist NOT_FOUND: Parcelas de maior relevância",
+      "status": "NOT_FOUND",
+      "evidence": {
+        "document_id": null,
+        "document_sha256": null,
+        "page": null,
+        "section": null,
+        "paragraph": null,
+        "cell": null,
+        "locator": null,
+        "excerpt": null,
+        "analysis": "padrão não localizado no texto extraído",
+        "rule_id": "checklist.parcelas_relevancia",
+        "confidence": 0.4,
+        "review_status": "MISSING"
+      }
+    },
+    {
+      "finding_id": "F0023",
+      "severity": "info",
+      "category": "tecnico-operacional",
+      "title": "Checklist OK: Quantitativos mínimos de atestação",
+      "status": "SATISFIED",
+      "evidence": {
+        "document_id": "doc-003",
+        "document_sha256": "b2fa4506aefed806156cbc796792c638974cac468073b7d35808cb6b16712e77",
+        "page": 3,
+        "section": null,
+        "paragraph": null,
+        "cell": null,
+        "locator": "page:3",
+        "excerpt": "1% do valor estimado\nGarantia contratual: 5% sobre o valor do contrato\nValor estimado: R$ 1.250.000,00\nConsórcio: não será permitid",
+        "analysis": "trecho localizado no pacote documental",
+        "rule_id": "checklist.quantitativos_minimos",
+        "confidence": 0.8,
+        "review_status": "AUTO"
+      }
+    },
+    {
+      "finding_id": "F0024",
+      "severity": "high",
+      "category": "logistica",
+      "title": "Checklist RISK: Visita técnica",
+      "status": "RISK",
+      "evidence": {
+        "document_id": "doc-003",
+        "document_sha256": "b2fa4506aefed806156cbc796792c638974cac468073b7d35808cb6b16712e77",
+        "page": 2,
+        "section": null,
+        "paragraph": null,
+        "cell": null,
+        "locator": "page:2",
+        "excerpt": "Visita técnica facultativa em 20/08/2026",
+        "analysis": "exigência localizada; validar impacto operacional",
+        "rule_id": "checklist.visita_tecnica",
+        "confidence": 0.75,
+        "review_status": "AUTO"
+      }
+    },
+    {
+      "finding_id": "F0025",
+      "severity": "medium",
+      "category": "administrativo",
+      "title": "Checklist NOT_FOUND: Declarações obrigatórias",
+      "status": "NOT_FOUND",
+      "evidence": {
+        "document_id": null,
+        "document_sha256": null,
+        "page": null,
+        "section": null,
+        "paragraph": null,
+        "cell": null,
+        "locator": null,
+        "excerpt": null,
+        "analysis": "padrão não localizado no texto extraído",
+        "rule_id": "checklist.declaracoes_obrigatorias",
+        "confidence": 0.4,
+        "review_status": "MISSING"
+      }
+    },
+    {
+      "finding_id": "F0026",
+      "severity": "medium",
+      "category": "proposta",
+      "title": "Checklist NOT_FOUND: Formato e validade da proposta",
+      "status": "NOT_FOUND",
+      "evidence": {
+        "document_id": null,
+        "document_sha256": null,
+        "page": null,
+        "section": null,
+        "paragraph": null,
+        "cell": null,
+        "locator": null,
+        "excerpt": null,
+        "analysis": "padrão não localizado no texto extraído",
+        "rule_id": "checklist.formato_proposta",
+        "confidence": 0.4,
+        "review_status": "MISSING"
+      }
+    },
+    {
+      "finding_id": "F0027",
+      "severity": "info",
+      "category": "orcamento",
+      "title": "Checklist OK: Orçamento estimado e eventual sigilo",
+      "status": "SATISFIED",
+      "evidence": {
+        "document_id": "doc-003",
+        "document_sha256": "b2fa4506aefed806156cbc796792c638974cac468073b7d35808cb6b16712e77",
+        "page": 3,
+        "section": null,
+        "paragraph": null,
+        "cell": null,
+        "locator": "page:3",
+        "excerpt": "impugnação: 20/08/2026\nPrazo de execução: 180 dias\nGarantia de proposta: 1% do valor estimado\nGarantia contratual: 5% sobre o valor do contrato\nValor estimado: R$ 1.250.000,00\nConsórcio: não será permitido\nSubcont",
+        "analysis": "trecho localizado no pacote documental",
+        "rule_id": "checklist.orcamento_estimado",
+        "confidence": 0.8,
+        "review_status": "AUTO"
+      }
+    },
+    {
+      "finding_id": "F0028",
+      "severity": "medium",
+      "category": "contrato",
+      "title": "Checklist NOT_FOUND: Regime de execução",
+      "status": "NOT_FOUND",
+      "evidence": {
+        "document_id": null,
+        "document_sha256": null,
+        "page": null,
+        "section": null,
+        "paragraph": null,
+        "cell": null,
+        "locator": null,
+        "excerpt": null,
+        "analysis": "padrão não localizado no texto extraído",
+        "rule_id": "checklist.regime_execucao",
+        "confidence": 0.4,
+        "review_status": "MISSING"
+      }
+    },
+    {
+      "finding_id": "F0029",
+      "severity": "medium",
+      "category": "contrato",
+      "title": "Checklist NOT_FOUND: Reajuste / repactuação",
+      "status": "NOT_FOUND",
+      "evidence": {
+        "document_id": null,
+        "document_sha256": null,
+        "page": null,
+        "section": null,
+        "paragraph": null,
+        "cell": null,
+        "locator": null,
+        "excerpt": null,
+        "analysis": "padrão não localizado no texto extraído",
+        "rule_id": "checklist.reajuste",
+        "confidence": 0.4,
+        "review_status": "MISSING"
+      }
+    },
+    {
+      "finding_id": "F0030",
+      "severity": "medium",
+      "category": "contrato",
+      "title": "Checklist NEEDS_HUMAN: Sanções e multas",
+      "status": "NEEDS_HUMAN",
+      "evidence": {
+        "document_id": "doc-003",
+        "document_sha256": "b2fa4506aefed806156cbc796792c638974cac468073b7d35808cb6b16712e77",
+        "page": 4,
+        "section": null,
+        "paragraph": null,
+        "cell": null,
+        "locator": "page:4",
+        "excerpt": "Anexo IV - Modelo de Proposta\nCronograma Físico-Financeiro\nMemorial Descritivo\nSanções e multas conforme Lei 14.133/2021",
+        "analysis": "trecho localizado; interpretação jurídica/comercial humana necessária",
+        "rule_id": "checklist.sancoes",
+        "confidence": 0.7,
+        "review_status": "AUTO"
+      }
+    },
+    {
+      "finding_id": "F0031",
+      "severity": "medium",
+      "category": "contrato",
+      "title": "Checklist NOT_FOUND: Riscos contratuais relevantes",
+      "status": "NOT_FOUND",
+      "evidence": {
+        "document_id": null,
+        "document_sha256": null,
+        "page": null,
+        "section": null,
+        "paragraph": null,
+        "cell": null,
+        "locator": null,
+        "excerpt": null,
+        "analysis": "padrão não localizado no texto extraído",
+        "rule_id": "checklist.riscos_contratuais",
+        "confidence": 0.4,
+        "review_status": "MISSING"
+      }
+    },
+    {
+      "finding_id": "F0032",
+      "severity": "critical",
+      "category": "administrativo",
+      "title": "Checklist BLOCKER: Inconsistências e ambiguidades entre documentos",
+      "status": "BLOCKER",
+      "evidence": {
+        "document_id": null,
+        "document_sha256": null,
+        "page": null,
+        "section": null,
+        "paragraph": null,
+        "cell": null,
+        "locator": null,
+        "excerpt": "['sessao']",
+        "analysis": "0 conflitos confirmados de campo; 1 variações de formato; 1 de datas",
+        "rule_id": "consistency.cross",
+        "confidence": 0.85,
+        "review_status": "AUTO"
+      }
+    },
+    {
+      "finding_id": "F0033",
+      "severity": "critical",
+      "category": "administrativo",
+      "title": "Checklist BLOCKER: Anexos referidos e ausentes do pacote",
+      "status": "BLOCKER",
+      "evidence": {
+        "document_id": null,
+        "document_sha256": null,
+        "page": null,
+        "section": null,
+        "paragraph": null,
+        "cell": null,
+        "locator": null,
+        "excerpt": "Anexo II; Minuta do Contrato; Anexo I; Anexo III; Anexo IV; Cronograma Físico-Financeiro; Cronograma; Modelo de Proposta; Memorial Descritivo; projeto básico",
+        "analysis": "10 anexos referidos ausentes; 0 ambíguos",
+        "rule_id": "annex.cross",
+        "confidence": 0.8,
+        "review_status": "AUTO"
+      }
+    },
+    {
+      "finding_id": "F0034",
+      "severity": "info",
+      "category": "prazo",
+      "title": "Checklist OK: Prazo de execução e cronograma",
+      "status": "SATISFIED",
+      "evidence": {
+        "document_id": "doc-003",
+        "document_sha256": "b2fa4506aefed806156cbc796792c638974cac468073b7d35808cb6b16712e77",
+        "page": 3,
+        "section": null,
+        "paragraph": null,
+        "cell": null,
+        "locator": "page:3",
+        "excerpt": "Prazo de execução: 180 dias\nGarantia de proposta: 1% do valor estimado\nGarantia contratual: 5% sobre o valor do contrato\nValor estimado:",
+        "analysis": "trecho localizado no pacote documental",
+        "rule_id": "checklist.prazo_execucao",
+        "confidence": 0.8,
+        "review_status": "AUTO"
+      }
+    },
+    {
+      "finding_id": "F0035",
+      "severity": "medium",
+      "category": "logistica",
+      "title": "Checklist NOT_FOUND: Local da obra/serviço e logística",
+      "status": "NOT_FOUND",
+      "evidence": {
+        "document_id": null,
+        "document_sha256": null,
+        "page": null,
+        "section": null,
+        "paragraph": null,
+        "cell": null,
+        "locator": null,
+        "excerpt": null,
+        "analysis": "padrão não localizado no texto extraído",
+        "rule_id": "checklist.local_obra",
+        "confidence": 0.4,
+        "review_status": "MISSING"
+      }
+    },
+    {
+      "finding_id": "F0036",
+      "severity": "medium",
+      "category": "juridico",
+      "title": "Checklist NOT_FOUND: Tratamento ME/EPP e cotas",
+      "status": "NOT_FOUND",
+      "evidence": {
+        "document_id": null,
+        "document_sha256": null,
+        "page": null,
+        "section": null,
+        "paragraph": null,
+        "cell": null,
+        "locator": null,
+        "excerpt": null,
+        "analysis": "padrão não localizado no texto extraído",
+        "rule_id": "checklist.me_epp",
+        "confidence": 0.4,
+        "review_status": "MISSING"
+      }
+    },
+    {
+      "finding_id": "F0037",
+      "severity": "critical",
+      "category": "prazo",
+      "title": "Conflito de datas em sessao: ['2026-08-25', '2026-08-26']",
+      "status": "BLOCKER",
+      "evidence": {
+        "rule_id": "timeline.conflict",
+        "excerpt": "['2026-08-25', '2026-08-26']",
+        "analysis": "datas divergentes entre documentos",
+        "confidence": 0.9
+      }
+    },
+    {
+      "finding_id": "F0038",
+      "severity": "high",
+      "category": "anexo",
+      "title": "Anexo ausente: Anexo II",
+      "status": "BLOCKER",
+      "evidence": {
+        "document_id": "doc-002",
+        "page": null,
+        "locator": "line:1",
+        "excerpt": "Conforme Anexo II - Planilha Orçamentária e Minuta do Contrato, os licitantes devem observar o Termo de Referência.",
+        "rule_id": "missing.annex",
+        "confidence": 0.6,
+        "analysis": "referenciado mas não presente no inventário"
+      }
+    },
+    {
+      "finding_id": "F0039",
+      "severity": "high",
+      "category": "anexo",
+      "title": "Anexo ausente: Minuta do Contrato",
+      "status": "BLOCKER",
+      "evidence": {
+        "document_id": "doc-002",
+        "page": null,
+        "locator": "line:1",
+        "excerpt": "Conforme Anexo II - Planilha Orçamentária e Minuta do Contrato, os licitantes devem observar o Termo de Referência.",
+        "rule_id": "missing.annex",
+        "confidence": 0.6,
+        "analysis": "referenciado mas não presente no inventário"
+      }
+    },
+    {
+      "finding_id": "F0040",
+      "severity": "high",
+      "category": "anexo",
+      "title": "Anexo ausente: Anexo I",
+      "status": "BLOCKER",
+      "evidence": {
+        "document_id": "doc-003",
+        "page": 4,
+        "locator": "page:4",
+        "excerpt": "Página 4\nAnexos deste edital:\nAnexo I - Termo de Referência\nAnexo II - Planilha Orçamentária\nAnexo III - Minuta do Contrato\nAnexo IV - Mo",
+        "rule_id": "missing.annex",
+        "confidence": 0.6,
+        "analysis": "referenciado mas não presente no inventário"
+      }
+    },
+    {
+      "finding_id": "F0041",
+      "severity": "high",
+      "category": "anexo",
+      "title": "Anexo ausente: Anexo III",
+      "status": "BLOCKER",
+      "evidence": {
+        "document_id": "doc-003",
+        "page": 4,
+        "locator": "page:4",
+        "excerpt": "xo I - Termo de Referência\nAnexo II - Planilha Orçamentária\nAnexo III - Minuta do Contrato\nAnexo IV - Modelo de Proposta\nCronograma Físico-Financeiro\nMemorial Descritivo",
+        "rule_id": "missing.annex",
+        "confidence": 0.6,
+        "analysis": "referenciado mas não presente no inventário"
+      }
+    },
+    {
+      "finding_id": "F0042",
+      "severity": "high",
+      "category": "anexo",
+      "title": "Anexo ausente: Anexo IV",
+      "status": "BLOCKER",
+      "evidence": {
+        "document_id": "doc-003",
+        "page": 4,
+        "locator": "page:4",
+        "excerpt": "o II - Planilha Orçamentária\nAnexo III - Minuta do Contrato\nAnexo IV - Modelo de Proposta\nCronograma Físico-Financeiro\nMemorial Descritivo\nSanções e multas conforme Lei",
+        "rule_id": "missing.annex",
+        "confidence": 0.6,
+        "analysis": "referenciado mas não presente no inventário"
+      }
+    },
+    {
+      "finding_id": "F0043",
+      "severity": "high",
+      "category": "anexo",
+      "title": "Anexo ausente: Cronograma Físico-Financeiro",
+      "status": "BLOCKER",
+      "evidence": {
+        "document_id": "doc-003",
+        "page": 4,
+        "locator": "page:4",
+        "excerpt": "nexo III - Minuta do Contrato\nAnexo IV - Modelo de Proposta\nCronograma Físico-Financeiro\nMemorial Descritivo\nSanções e multas conforme Lei 14.133/2021",
+        "rule_id": "missing.annex",
+        "confidence": 0.6,
+        "analysis": "referenciado mas não presente no inventário"
+      }
+    },
+    {
+      "finding_id": "F0044",
+      "severity": "high",
+      "category": "anexo",
+      "title": "Anexo ausente: Cronograma",
+      "status": "BLOCKER",
+      "evidence": {
+        "document_id": "doc-003",
+        "page": 4,
+        "locator": "page:4",
+        "excerpt": "nexo III - Minuta do Contrato\nAnexo IV - Modelo de Proposta\nCronograma Físico-Financeiro\nMemorial Descritivo\nSanções e multas conforme Lei 14.133/2021",
+        "rule_id": "missing.annex",
+        "confidence": 0.6,
+        "analysis": "referenciado mas não presente no inventário"
+      }
+    },
+    {
+      "finding_id": "F0045",
+      "severity": "high",
+      "category": "anexo",
+      "title": "Anexo ausente: Modelo de Proposta",
+      "status": "BLOCKER",
+      "evidence": {
+        "document_id": "doc-003",
+        "page": 4,
+        "locator": "page:4",
+        "excerpt": "ilha Orçamentária\nAnexo III - Minuta do Contrato\nAnexo IV - Modelo de Proposta\nCronograma Físico-Financeiro\nMemorial Descritivo\nSanções e multas conforme Lei 14.133/2021",
+        "rule_id": "missing.annex",
+        "confidence": 0.6,
+        "analysis": "referenciado mas não presente no inventário"
+      }
+    },
+    {
+      "finding_id": "F0046",
+      "severity": "high",
+      "category": "anexo",
+      "title": "Anexo ausente: Memorial Descritivo",
+      "status": "BLOCKER",
+      "evidence": {
+        "document_id": "doc-003",
+        "page": 4,
+        "locator": "page:4",
+        "excerpt": "Anexo IV - Modelo de Proposta\nCronograma Físico-Financeiro\nMemorial Descritivo\nSanções e multas conforme Lei 14.133/2021",
+        "rule_id": "missing.annex",
+        "confidence": 0.6,
+        "analysis": "referenciado mas não presente no inventário"
+      }
+    },
+    {
+      "finding_id": "F0047",
+      "severity": "high",
+      "category": "anexo",
+      "title": "Anexo ausente: projeto básico",
+      "status": "BLOCKER",
+      "evidence": {
+        "document_id": "doc-005",
+        "page": null,
+        "locator": "paragraph:1",
+        "excerpt": "Objeto: reforma predial conforme projeto básico.",
+        "rule_id": "missing.annex",
+        "confidence": 0.6,
+        "analysis": "referenciado mas não presente no inventário"
+      }
+    },
+    {
+      "finding_id": "F0048",
+      "severity": "low",
+      "category": "consistency",
+      "title": "Inconsistência (FORMAT_VARIATION): data_sessao",
+      "status": "RISK",
+      "evidence": {
+        "rule_id": "consistency.field",
+        "analysis": "divergência em data_sessao entre documentos (FORMAT_VARIATION)",
+        "excerpt": "{'doc-001': 'Abertura', 'doc-003': 'abertura'}",
+        "confidence": 0.85
+      }
+    }
+  ],
+  "count": 48,
+  "by_severity": {
+    "critical": 3,
+    "high": 13,
+    "medium": 13,
+    "low": 1,
+    "info": 18
+  }
+}

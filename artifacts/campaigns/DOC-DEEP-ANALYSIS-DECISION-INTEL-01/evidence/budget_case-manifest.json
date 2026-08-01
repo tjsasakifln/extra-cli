@@ -1,0 +1,47 @@
+{
+  "case_id": "golden-e2e-proof",
+  "created_at": "2026-08-01T14:59:08Z",
+  "source": "/tmp/grok-goal-58f70c56721c/implementer/golden.xlsx",
+  "documents": [
+    {
+      "document_id": "golden-a342ec61",
+      "original_name": "golden.xlsx",
+      "source": "/tmp/grok-goal-58f70c56721c/implementer/golden.xlsx",
+      "acquired_at": "2026-08-01T14:59:08Z",
+      "content_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "size_bytes": 9777,
+      "sha256": "fcfe0b25eee0b717379c4cb7319eb9b5b809a1b6f7ebe5ff8b74199ac4d2486f",
+      "object_path": "objects/fcfe0b25eee0b717379c4cb7319eb9b5b809a1b6f7ebe5ff8b74199ac4d2486f.xlsx",
+      "extension": ".xlsx",
+      "parser": "openpyxl",
+      "parser_version": "3.1.5",
+      "formula_mode": "stored_formula + cached_value dual-pass",
+      "calculation_mode": "NOT_RECALCULATED",
+      "warnings": [
+        "defined names incomplete: 'DefinedNameDict' object has no attribute 'definedName'"
+      ],
+      "status": "INGESTED",
+      "cell_count": 191,
+      "formula_count": 2,
+      "sheet_count": 8
+    }
+  ],
+  "phase": "verified",
+  "global_status": "PASS",
+  "updated_at": "2026-08-01T14:59:08Z",
+  "counts": {
+    "budget_items": 12,
+    "compositions": 1,
+    "composition_inputs": 4,
+    "bdi_components": 8,
+    "sheets_classified": 8
+  },
+  "audit_summary": {
+    "arithmetic_checks": 22,
+    "findings": 31,
+    "severity_counts": {
+      "MEDIUM": 27,
+      "HIGH": 4
+    }
+  }
+}

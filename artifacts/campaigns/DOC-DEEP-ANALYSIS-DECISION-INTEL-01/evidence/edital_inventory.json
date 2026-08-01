@@ -1,0 +1,381 @@
+{
+  "generated_at": "2026-08-01T15:01:07.136217+00:00",
+  "document_count": 5,
+  "documents": [
+    {
+      "document_id": "doc-001",
+      "original_name": "aviso_data_conflitante.pdf",
+      "sha256": "3f12a7c92aaf6ef50ec9e7f994420b58a4d687d253cdcba116aedeec4010530d",
+      "extension": ".pdf",
+      "classification": {
+        "result": "AVISO",
+        "confidence": 0.864,
+        "signals": [
+          {
+            "kind": "filename",
+            "pattern": "aviso",
+            "type": "AVISO"
+          },
+          {
+            "kind": "content",
+            "pattern": "aviso\\s+de\\s+licita",
+            "type": "AVISO"
+          }
+        ],
+        "rule_version": "edital-classify-v1",
+        "needs_human_review": false,
+        "evidence": "filename:aviso; content:aviso\\s+de\\s+licita",
+        "scores_top": [
+          [
+            "AVISO",
+            0.9520000000000001
+          ],
+          [
+            "EDITAL",
+            0.0
+          ],
+          [
+            "TERMO_DE_REFERENCIA",
+            0.0
+          ],
+          [
+            "ESTUDO_TECNICO_PRELIMINAR",
+            0.0
+          ],
+          [
+            "PROJETO",
+            0.0
+          ]
+        ]
+      },
+      "quality_status": "OK",
+      "extraction_status": "OK",
+      "page_count": 1,
+      "total_chars": 77,
+      "supported": true,
+      "origin": "/tmp/grok-goal-58f70c56721c/implementer/edital_source_pack/aviso_data_conflitante.pdf",
+      "method": "LOCAL_FILE"
+    },
+    {
+      "document_id": "doc-002",
+      "original_name": "mentions_missing.txt",
+      "sha256": "0a2068a119425dca7c56ff0f25a643d01820acda5f79eb56e56fcee76eb3ba7a",
+      "extension": ".txt",
+      "classification": {
+        "result": "TERMO_DE_REFERENCIA",
+        "confidence": 0.497,
+        "signals": [
+          {
+            "kind": "content",
+            "pattern": "termo\\s+de\\s+refer[eê]ncia",
+            "type": "TERMO_DE_REFERENCIA"
+          },
+          {
+            "kind": "content",
+            "pattern": "planilha\\s+or[cç]ament",
+            "type": "PLANILHA_ORCAMENTARIA"
+          },
+          {
+            "kind": "content",
+            "pattern": "minuta\\s+(de\\s+|do\\s+)?contrato",
+            "type": "MINUTA_CONTRATUAL"
+          },
+          {
+            "kind": "content",
+            "pattern": "anexo\\s+[ivxlc0-9]+",
+            "type": "ANEXO_ADMINISTRATIVO"
+          },
+          {
+            "kind": "title_override",
+            "pattern": "termo\\s+de\\s+refer[eê]ncia",
+            "type": "TERMO_DE_REFERENCIA"
+          },
+          {
+            "kind": "title_override",
+            "pattern": "minuta\\s+(do\\s+|de\\s+)?contrato",
+            "type": "MINUTA_CONTRATUAL"
+          },
+          {
+            "kind": "title_override",
+            "pattern": "planilha\\s+or[cç]ament",
+            "type": "PLANILHA_ORCAMENTARIA"
+          }
+        ],
+        "rule_version": "edital-classify-v1",
+        "needs_human_review": true,
+        "evidence": "content:termo\\s+de\\s+refer[eê]ncia; content:planilha\\s+or[cç]ament; content:minuta\\s+(de\\s+|do\\s+)?contrato; content:anexo\\s+[ivxlc0-9]+; title_override:termo\\s+de\\s+refer[eê]ncia; title_override:minuta\\s+(do\\s+|de\\s+)?contrato; title_override:planilha\\s+or[cç]ament",
+        "scores_top": [
+          [
+            "TERMO_DE_REFERENCIA",
+            2.472
+          ],
+          [
+            "MINUTA_CONTRATUAL",
+            2.3505000000000003
+          ],
+          [
+            "PLANILHA_ORCAMENTARIA",
+            2.31
+          ],
+          [
+            "ANEXO_ADMINISTRATIVO",
+            0.44550000000000006
+          ],
+          [
+            "EDITAL",
+            0.0
+          ]
+        ]
+      },
+      "quality_status": "OK",
+      "extraction_status": "OK",
+      "page_count": null,
+      "total_chars": 116,
+      "supported": true,
+      "origin": "/tmp/grok-goal-58f70c56721c/implementer/edital_source_pack/mentions_missing.txt",
+      "method": "LOCAL_FILE"
+    },
+    {
+      "document_id": "doc-003",
+      "original_name": "sample_edital.pdf",
+      "sha256": "b2fa4506aefed806156cbc796792c638974cac468073b7d35808cb6b16712e77",
+      "extension": ".pdf",
+      "classification": {
+        "result": "EDITAL",
+        "confidence": 0.583,
+        "signals": [
+          {
+            "kind": "content",
+            "pattern": "termo\\s+de\\s+refer[eê]ncia",
+            "type": "TERMO_DE_REFERENCIA"
+          },
+          {
+            "kind": "content",
+            "pattern": "planilha\\s+or[cç]ament",
+            "type": "PLANILHA_ORCAMENTARIA"
+          },
+          {
+            "kind": "content",
+            "pattern": "cronograma\\s+f[ií]sico",
+            "type": "CRONOGRAMA"
+          },
+          {
+            "kind": "content",
+            "pattern": "minuta\\s+(de\\s+|do\\s+)?contrato",
+            "type": "MINUTA_CONTRATUAL"
+          },
+          {
+            "kind": "content",
+            "pattern": "memorial\\s+descritivo",
+            "type": "MEMORIAL_DESCRITIVO"
+          },
+          {
+            "kind": "filename",
+            "pattern": "edital",
+            "type": "EDITAL"
+          },
+          {
+            "kind": "content",
+            "pattern": "edital\\s+de\\s+pre[gğ][aã]o",
+            "type": "EDITAL"
+          },
+          {
+            "kind": "content",
+            "pattern": "pre[gğ][aã]o\\s+eletr[oô]nico\\s+n",
+            "type": "EDITAL"
+          },
+          {
+            "kind": "content",
+            "pattern": "anexo\\s+[ivxlc0-9]+",
+            "type": "ANEXO_ADMINISTRATIVO"
+          },
+          {
+            "kind": "title_override",
+            "pattern": "termo\\s+de\\s+refer[eê]ncia",
+            "type": "TERMO_DE_REFERENCIA"
+          },
+          {
+            "kind": "title_override",
+            "pattern": "edital\\s+de\\s+(pre[gğ][aã]o|licita|concorr)",
+            "type": "EDITAL"
+          },
+          {
+            "kind": "title_override",
+            "pattern": "minuta\\s+(do\\s+|de\\s+)?contrato",
+            "type": "MINUTA_CONTRATUAL"
+          },
+          {
+            "kind": "title_override",
+            "pattern": "planilha\\s+or[cç]ament",
+            "type": "PLANILHA_ORCAMENTARIA"
+          }
+        ],
+        "rule_version": "edital-classify-v1",
+        "needs_human_review": true,
+        "evidence": "content:termo\\s+de\\s+refer[eê]ncia; content:planilha\\s+or[cç]ament; content:cronograma\\s+f[ií]sico; content:minuta\\s+(de\\s+|do\\s+)?contrato; content:memorial\\s+descritivo; filename:edital; content:edital\\s+de\\s+pre[gğ][aã]o; content:pre[gğ][aã]o\\s+eletr[oô]nico\\s+n",
+        "scores_top": [
+          [
+            "EDITAL",
+            3.67
+          ],
+          [
+            "TERMO_DE_REFERENCIA",
+            2.472
+          ],
+          [
+            "MINUTA_CONTRATUAL",
+            2.3505000000000003
+          ],
+          [
+            "PLANILHA_ORCAMENTARIA",
+            2.31
+          ],
+          [
+            "CRONOGRAMA",
+            0.7695
+          ]
+        ]
+      },
+      "quality_status": "OK",
+      "extraction_status": "OK",
+      "page_count": 4,
+      "total_chars": 1206,
+      "supported": true,
+      "origin": "/tmp/grok-goal-58f70c56721c/implementer/edital_source_pack/sample_edital.pdf",
+      "method": "LOCAL_FILE"
+    },
+    {
+      "document_id": "doc-004",
+      "original_name": "sample_planilha.xlsx",
+      "sha256": "fb6dd663f7be3a5964b1dfe9c25522c8f34e49ca1aa1665d07b5287f63849ea6",
+      "extension": ".xlsx",
+      "classification": {
+        "result": "PLANILHA_ORCAMENTARIA",
+        "confidence": 0.786,
+        "signals": [
+          {
+            "kind": "filename",
+            "pattern": "planilha",
+            "type": "PLANILHA_ORCAMENTARIA"
+          },
+          {
+            "kind": "filename_priority",
+            "type": "PLANILHA_ORCAMENTARIA",
+            "note": "specialized filename preferred over body mentions"
+          }
+        ],
+        "rule_version": "edital-classify-v1",
+        "needs_human_review": false,
+        "evidence": "filename:planilha; filename_priority:None",
+        "scores_top": [
+          [
+            "PLANILHA_ORCAMENTARIA",
+            0.55
+          ],
+          [
+            "EDITAL",
+            0.0
+          ],
+          [
+            "TERMO_DE_REFERENCIA",
+            0.0
+          ],
+          [
+            "ESTUDO_TECNICO_PRELIMINAR",
+            0.0
+          ],
+          [
+            "PROJETO",
+            0.0
+          ]
+        ]
+      },
+      "quality_status": "EXTRACTION_FAILED",
+      "extraction_status": "EXTRACTION_FAILED",
+      "page_count": null,
+      "total_chars": 0,
+      "supported": true,
+      "origin": "/tmp/grok-goal-58f70c56721c/implementer/edital_source_pack/sample_planilha.xlsx",
+      "method": "LOCAL_FILE"
+    },
+    {
+      "document_id": "doc-005",
+      "original_name": "sample_tr.docx",
+      "sha256": "0c1476812a382bf80407517b4148822bcbb1a6a04dac6d69a0ae5861284576ed",
+      "extension": ".docx",
+      "classification": {
+        "result": "TERMO_DE_REFERENCIA",
+        "confidence": 0.85,
+        "signals": [
+          {
+            "kind": "filename",
+            "pattern": "(^|[^a-z])tr([^a-z]|$)",
+            "type": "TERMO_DE_REFERENCIA"
+          },
+          {
+            "kind": "filename",
+            "pattern": "_tr[\\._-]",
+            "type": "TERMO_DE_REFERENCIA"
+          },
+          {
+            "kind": "content",
+            "pattern": "termo\\s+de\\s+refer[eê]ncia",
+            "type": "TERMO_DE_REFERENCIA"
+          },
+          {
+            "kind": "content",
+            "pattern": "^\\s*termo\\s+de\\s+refer",
+            "type": "TERMO_DE_REFERENCIA"
+          },
+          {
+            "kind": "content",
+            "pattern": "projeto\\s+b[aá]sico",
+            "type": "PROJETO"
+          },
+          {
+            "kind": "title_override",
+            "pattern": "termo\\s+de\\s+refer[eê]ncia",
+            "type": "TERMO_DE_REFERENCIA"
+          },
+          {
+            "kind": "filename_priority",
+            "type": "TERMO_DE_REFERENCIA",
+            "note": "specialized filename preferred over body mentions"
+          }
+        ],
+        "rule_version": "edital-classify-v1",
+        "needs_human_review": false,
+        "evidence": "filename:(^|[^a-z])tr([^a-z]|$); filename:_tr[\\._-]; content:termo\\s+de\\s+refer[eê]ncia; content:^\\s*termo\\s+de\\s+refer; content:projeto\\s+b[aá]sico; title_override:termo\\s+de\\s+refer[eê]ncia; filename_priority:None",
+        "scores_top": [
+          [
+            "TERMO_DE_REFERENCIA",
+            4.763999999999999
+          ],
+          [
+            "PROJETO",
+            0.6885000000000001
+          ],
+          [
+            "EDITAL",
+            0.0
+          ],
+          [
+            "ESTUDO_TECNICO_PRELIMINAR",
+            0.0
+          ],
+          [
+            "MEMORIAL_DESCRITIVO",
+            0.0
+          ]
+        ]
+      },
+      "quality_status": "OK",
+      "extraction_status": "OK",
+      "page_count": null,
+      "total_chars": 104,
+      "supported": true,
+      "origin": "/tmp/grok-goal-58f70c56721c/implementer/edital_source_pack/sample_tr.docx",
+      "method": "LOCAL_FILE"
+    }
+  ]
+}
