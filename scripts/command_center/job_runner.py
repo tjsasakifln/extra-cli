@@ -19,7 +19,13 @@ from scripts.command_center.config import Settings, git_sha
 from scripts.command_center.redaction import redact_mapping, redact_text
 from scripts.command_center.security import assert_argv_list
 from scripts.command_center.status_normalize import JobState, normalize_exit, public_status_dict
-from scripts.command_center.store import JobRecord, Store
+from scripts.command_center.store import (
+    NON_TERMINAL_STATES,
+    TERMINAL_STATES,
+    JobRecord,
+    Store,
+    TransitionResult,
+)
 
 
 def _utcnow() -> str:
@@ -129,27 +135,31 @@ class JobRunner:
             return
         acquired = self._sem.acquire(timeout=min(30, self.settings.default_job_timeout_sec))
         if not acquired:
-            rec.status = JobState.FAILED.value
-            rec.human_message = "Não foi possível adquirir slot de execução."
-            rec.finished_at = _utcnow()
-            self.store.update_job(rec)
-            self._emit(job_id, {"type": "status", "job": rec.to_public()})
-            self._emit(job_id, None)
+            self._finish_terminal(
+                job_id,
+                target_state=JobState.FAILED.value,
+                fields={
+                    "human_message": "Não foi possível adquirir slot de execução.",
+                    "attention": "blocked_technical",
+                    "technical_code": "NO_SLOT",
+                },
+            )
             return
 
         try:
             self._execute_job(job_id, cap)
         except Exception as exc:  # noqa: BLE001 — last-resort job failure surface
-            rec = self.store.get_job(job_id) or rec
-            rec.status = JobState.FAILED.value
-            rec.technical_code = "RUNNER_EXCEPTION"
-            rec.human_message = f"Falha interna do runner: {redact_text(str(exc))}"
-            rec.attention = "blocked_technical"
-            rec.finished_at = _utcnow()
-            self.store.update_job(rec)
             self._log(job_id, "system", "error", redact_text(str(exc)))
-            self._emit(job_id, {"type": "status", "job": rec.to_public()})
-            self._emit(job_id, None)
+            # cancel_wins: exception concurrent with cancel → CANCELLED, not FAILED
+            self._finish_terminal(
+                job_id,
+                target_state=JobState.FAILED.value,
+                fields={
+                    "technical_code": "RUNNER_EXCEPTION",
+                    "human_message": f"Falha interna do runner: {redact_text(str(exc))}",
+                    "attention": "blocked_technical",
+                },
+            )
         finally:
             self._sem.release()
 
@@ -157,40 +167,73 @@ class JobRunner:
         rec = self.store.get_job(job_id)
         return bool(rec and rec.cancel_requested)
 
-    def _finish_cancelled(self, job_id: str, *, exit_code: int | None = None) -> None:
-        finished = _utcnow()
+    def _duration_ms(self, job_id: str, finished: str) -> int | None:
         rec = self.store.get_job(job_id)
-        started = rec.started_at if rec else None
-        duration = None
-        if started:
-            try:
-                duration = int(
-                    (datetime.fromisoformat(finished) - datetime.fromisoformat(started)).total_seconds() * 1000
-                )
-            except ValueError:
-                duration = None
+        if not rec or not rec.started_at:
+            return None
+        try:
+            return int(
+                (datetime.fromisoformat(finished) - datetime.fromisoformat(rec.started_at)).total_seconds() * 1000
+            )
+        except ValueError:
+            return None
+
+    def _finish_terminal(
+        self,
+        job_id: str,
+        *,
+        target_state: str,
+        fields: dict[str, Any] | None = None,
+        exit_code: int | None = None,
+    ) -> TransitionResult:
+        """Single path for any terminal write: CAS + cancel_wins + one-shot side effects."""
+        finished = _utcnow()
+        payload: dict[str, Any] = dict(fields or {})
+        if exit_code is not None:
+            payload["exit_code"] = exit_code
+        payload.setdefault("finished_at", finished)
+        duration = self._duration_ms(job_id, finished)
+        if duration is not None:
+            payload.setdefault("duration_ms", duration)
+
+        result = self.store.transition_job(
+            job_id,
+            expected_states=NON_TERMINAL_STATES,
+            target_state=target_state,
+            fields=payload,
+            cancel_wins=True,
+        )
+        if result.applied and result.terminal_confirmed and result.record is not None:
+            final_status = result.record.status
+            self.store.audit(
+                "system",
+                "job.finished",
+                {"job_id": job_id, "status": final_status, "exit_code": result.record.exit_code},
+            )
+            self._log(job_id, "system", "info", f"Finalizado: {final_status}")
+            self._emit(job_id, {"type": "status", "job": result.record.to_public()})
+            self._emit(job_id, None)
+        elif result.record is not None and result.record.status in TERMINAL_STATES:
+            # Already terminal — ensure stream closed for late subscribers without re-audit
+            self._emit(job_id, {"type": "status", "job": result.record.to_public()})
+            self._emit(job_id, None)
+        return result
+
+    def _finish_cancelled(self, job_id: str, *, exit_code: int | None = None) -> TransitionResult:
         status = normalize_exit(exit_code, cancelled=True)
         public = public_status_dict(status)
-        rec = (
-            self.store.patch_job(
-                job_id,
-                cancel_requested=True,
-                status=public["state"],
-                technical_code=public.get("technical_code"),
-                human_message=public.get("human_message"),
-                attention=public.get("attention"),
-                next_action=public.get("next_action"),
-                exit_code=exit_code,
-                finished_at=finished,
-                duration_ms=duration,
-            )
-            or rec
+        return self._finish_terminal(
+            job_id,
+            target_state=JobState.CANCELLED.value,
+            fields={
+                "cancel_requested": True,
+                "technical_code": public.get("technical_code"),
+                "human_message": public.get("human_message"),
+                "attention": public.get("attention"),
+                "next_action": public.get("next_action"),
+            },
+            exit_code=exit_code,
         )
-        self.store.audit("system", "job.finished", {"job_id": job_id, "status": JobState.CANCELLED.value})
-        self._log(job_id, "system", "info", "Finalizado: CANCELLED")
-        if rec:
-            self._emit(job_id, {"type": "status", "job": rec.to_public()})
-        self._emit(job_id, None)
 
     def _execute_job(self, job_id: str, cap: Capability) -> None:
         rec = self.store.get_job(job_id)
@@ -256,19 +299,17 @@ class JobRunner:
                 bufsize=1,
             )
         except OSError as exc:
-            self.store.patch_job(
-                job_id,
-                status=JobState.FAILED.value,
-                exit_code=127,
-                human_message=f"Falha ao iniciar processo: {exc}",
-                attention="blocked_technical",
-                finished_at=_utcnow(),
-            )
             self._log(job_id, "system", "error", redact_text(str(exc)))
-            rec = self.store.get_job(job_id)
-            if rec:
-                self._emit(job_id, {"type": "status", "job": rec.to_public()})
-            self._emit(job_id, None)
+            self._finish_terminal(
+                job_id,
+                target_state=JobState.FAILED.value,
+                fields={
+                    "human_message": f"Falha ao iniciar processo: {exc}",
+                    "attention": "blocked_technical",
+                    "technical_code": "SPAWN_ERROR",
+                },
+                exit_code=127,
+            )
             return
 
         # Cancel may have arrived while we were spawning
@@ -352,9 +393,9 @@ class JobRunner:
         if rec is None:
             self._emit(job_id, None)
             return
-        cancelled = bool(rec.cancel_requested)
         exit_code = proc.returncode if proc.returncode is not None else -1
-        if cancelled:
+        # cancel_requested OR terminate/kill path: always CANCELLED (not FAILED)
+        if rec.cancel_requested:
             self._finish_cancelled(job_id, exit_code=exit_code)
             return
 
@@ -374,56 +415,45 @@ class JobRunner:
                 "next_action": parsed.get("next_action"),
             }
 
-        finished = _utcnow()
-        started = datetime.fromisoformat(rec.started_at) if rec.started_at else datetime.now(UTC)
-        duration = int((datetime.fromisoformat(finished) - started).total_seconds() * 1000)
-        # Final merge preserves cancel_requested if set mid-write
-        rec = (
-            self.store.patch_job(
-                job_id,
-                status=public["state"],
-                technical_code=public.get("technical_code"),
-                human_message=public.get("human_message"),
-                attention=public.get("attention"),
-                next_action=public.get("next_action"),
-                exit_code=exit_code,
-                finished_at=finished,
-                duration_ms=duration,
-                artifacts=list(parsed.get("artifacts") or []),
-                output_paths=list(parsed.get("artifacts") or []),
-                blocker=parsed.get("blocker"),
-                manifests=list(parsed.get("manifests") or []),
-                run_id=parsed.get("run_id"),
-            )
-            or rec
+        # Atomic CAS finish — cancel_wins if cancel arrived after our local read
+        result = self._finish_terminal(
+            job_id,
+            target_state=str(public["state"]),
+            fields={
+                "technical_code": public.get("technical_code"),
+                "human_message": public.get("human_message"),
+                "attention": public.get("attention"),
+                "next_action": public.get("next_action"),
+                "artifacts": list(parsed.get("artifacts") or []),
+                "output_paths": list(parsed.get("artifacts") or []),
+                "blocker": parsed.get("blocker"),
+                "manifests": list(parsed.get("manifests") or []),
+                "run_id": parsed.get("run_id"),
+            },
+            exit_code=exit_code,
         )
-        # If cancel won the race on final patch
-        rec_check = self.store.get_job(job_id)
-        if rec_check and rec_check.cancel_requested and rec_check.status != JobState.CANCELLED.value:
-            self._finish_cancelled(job_id, exit_code=exit_code)
-            return
-
-        self.store.audit(
-            "system",
-            "job.finished",
-            {"job_id": job_id, "status": rec.status if rec else public["state"], "exit_code": exit_code},
-        )
-        self._log(job_id, "system", "info", f"Finalizado: {public['state']}")
-        if rec:
-            self._emit(job_id, {"type": "status", "job": rec.to_public()})
-        # Enqueue human review when blocked on human decision
-        if public["state"] == JobState.BLOCKED_HUMAN.value and rec:
+        # Enqueue human review only when WE confirmed BLOCKED_HUMAN (not cancel overwrite)
+        if (
+            result.applied
+            and result.record
+            and result.record.status == JobState.BLOCKED_HUMAN.value
+        ):
             self.store.enqueue_review(
-                title=f"Revisão necessária: {rec.action}",
-                source=rec.capability_id,
-                evidence=f"Job {job_id}; código {public.get('technical_code')}; artifacts: {rec.artifacts[:5]}",
-                limitations=public.get("human_message") or "Resultado depende de decisão humana.",
+                title=f"Revisão necessária: {result.record.action}",
+                source=result.record.capability_id,
+                evidence=(
+                    f"Job {job_id}; código {result.record.technical_code}; "
+                    f"artifacts: {result.record.artifacts[:5]}"
+                ),
+                limitations=result.record.human_message or "Resultado depende de decisão humana.",
                 risks="Usar o resultado sem revisão pode propagar classificação incorreta.",
                 job_id=job_id,
-                capability_id=rec.capability_id,
-                payload={"technical_code": public.get("technical_code"), "artifacts": rec.artifacts},
+                capability_id=result.record.capability_id,
+                payload={
+                    "technical_code": result.record.technical_code,
+                    "artifacts": result.record.artifacts,
+                },
             )
-        self._emit(job_id, None)
 
     def _execute_workflow(self, job_id: str, cap: Capability) -> None:
         """Run outcome-first workflow with structured progress + run-manifest."""
@@ -469,6 +499,11 @@ class JobRunner:
             self._emit(job_id, {"type": "progress", **ev})
             self._emit(job_id, {"type": "log", "stream": "stdout", "message": msg})
 
+        # Cancel mid-workflow before heavy work completes
+        if self._is_cancelled(job_id):
+            self._finish_cancelled(job_id)
+            return
+
         try:
             result = run_workflow(
                 cap.id,
@@ -479,21 +514,22 @@ class JobRunner:
                 on_progress=on_progress,
             )
         except Exception as exc:  # noqa: BLE001
-            finished = _utcnow()
-            self.store.patch_job(
+            self._log(job_id, "system", "error", redact_text(str(exc)))
+            self._finish_terminal(
                 job_id,
-                status=JobState.FAILED.value,
-                technical_code="WORKFLOW_ERROR",
-                human_message=f"Falha no fluxo: {redact_text(str(exc))}",
-                attention="blocked_technical",
-                finished_at=finished,
+                target_state=JobState.FAILED.value,
+                fields={
+                    "technical_code": "WORKFLOW_ERROR",
+                    "human_message": f"Falha no fluxo: {redact_text(str(exc))}",
+                    "attention": "blocked_technical",
+                },
                 exit_code=1,
             )
-            self._log(job_id, "system", "error", redact_text(str(exc)))
-            rec = self.store.get_job(job_id)
-            if rec:
-                self._emit(job_id, {"type": "status", "job": rec.to_public()})
-            self._emit(job_id, None)
+            return
+
+        # Cancel may have arrived while workflow was running
+        if self._is_cancelled(job_id):
+            self._finish_cancelled(job_id)
             return
 
         # Write compact stdout for audit
@@ -520,9 +556,6 @@ class JobRunner:
 
         artifacts = list(result.get("artifacts") or [])
         manifests = [result["manifest_path"]] if result.get("manifest_path") else []
-        finished = _utcnow()
-        started = datetime.fromisoformat(rec.started_at) if rec.started_at else datetime.now(UTC)
-        duration = int((datetime.fromisoformat(finished) - started).total_seconds() * 1000)
         status = result.get("status") or JobState.SUCCEEDED.value
         data_mode = result.get("data_mode") or (rec.params or {}).get("data_mode")
         blocked_statuses = {
@@ -543,7 +576,6 @@ class JobRunner:
             elif status == "PARTIAL":
                 job_status = JobState.PARTIAL.value
             else:
-                # BLOCKED_CONFIG / BLOCKED_DATA / BLOCKED_PERMISSION / FAILED
                 job_status = JobState.FAILED.value
         elif status == "SUCCEEDED" and result.get("empty"):
             human = result.get("message") or "Resultado vazio defensável — nenhum item na shortlist."
@@ -566,62 +598,51 @@ class JobRunner:
             tech = status
             job_status = status if status in {s.value for s in JobState} else JobState.FAILED.value
 
-        rec = (
-            self.store.patch_job(
-                job_id,
-                status=job_status,
-                technical_code=tech,
-                human_message=human,
-                attention=attention,
-                exit_code=exit_code,
-                finished_at=finished,
-                duration_ms=duration,
-                artifacts=artifacts,
-                output_paths=artifacts,
-                manifests=manifests,
-                run_id=result.get("run_id"),
-            )
-            or rec
+        tr = self._finish_terminal(
+            job_id,
+            target_state=job_status,
+            fields={
+                "technical_code": tech,
+                "human_message": human,
+                "attention": attention,
+                "artifacts": artifacts,
+                "output_paths": artifacts,
+                "manifests": manifests,
+                "run_id": result.get("run_id"),
+            },
+            exit_code=exit_code,
         )
 
-        # Enqueue concrete review tasks bound to content hashes
-        for item in result.get("reviews") or []:
-            self.store.enqueue_review(
-                title=str(item.get("title") or "Revisão"),
-                source=cap.id,
-                evidence=str(item.get("evidence") or ""),
-                limitations=str(item.get("limitations") or ""),
-                risks=str(item.get("risks") or ""),
-                job_id=job_id,
-                capability_id=cap.id,
-                payload={
-                    "item_key": item.get("item_key"),
-                    "question": item.get("question"),
-                    "content_hash": item.get("content_hash"),
-                    "artifact_hashes": {"source": item.get("content_hash")},
-                    "correctable_fields": item.get("correctable_fields") or [],
-                    "progress_events": progress_events[-20:],
-                },
-            )
-
-        self.store.audit(
-            "system",
-            "job.finished",
-            {"job_id": job_id, "status": rec.status if rec else status, "workflow": cap.id},
-        )
-        self._log(job_id, "system", "info", f"Finalizado: {status}")
-        if rec:
-            self._emit(job_id, {"type": "status", "job": rec.to_public()})
-            self._emit(
-                job_id,
-                {
-                    "type": "manifest",
-                    "path": result.get("manifest_path"),
-                    "run_id": result.get("run_id"),
-                    "artifacts": artifacts,
-                },
-            )
-        self._emit(job_id, None)
+        # Enqueue review items only when our terminal write applied (not cancel overwrite)
+        if tr.applied and tr.record and tr.record.status != JobState.CANCELLED.value:
+            for item in result.get("reviews") or []:
+                self.store.enqueue_review(
+                    title=str(item.get("title") or "Revisão"),
+                    source=cap.id,
+                    evidence=str(item.get("evidence") or ""),
+                    limitations=str(item.get("limitations") or ""),
+                    risks=str(item.get("risks") or ""),
+                    job_id=job_id,
+                    capability_id=cap.id,
+                    payload={
+                        "item_key": item.get("item_key"),
+                        "question": item.get("question"),
+                        "content_hash": item.get("content_hash"),
+                        "artifact_hashes": {"source": item.get("content_hash")},
+                        "correctable_fields": item.get("correctable_fields") or [],
+                        "progress_events": progress_events[-20:],
+                    },
+                )
+            if tr.record:
+                self._emit(
+                    job_id,
+                    {
+                        "type": "manifest",
+                        "path": result.get("manifest_path"),
+                        "run_id": result.get("run_id"),
+                        "artifacts": artifacts,
+                    },
+                )
 
     def cancel(self, job_id: str, actor: str = "local-user") -> JobRecord:
         rec = self.store.get_job(job_id)
@@ -630,40 +651,53 @@ class JobRunner:
         cap = self.registry.get(rec.capability_id)
         if cap and not cap.allow_cancel:
             raise ValueError("Esta capability não permite cancelamento.")
-        if rec.status not in {
-            JobState.QUEUED.value,
-            JobState.VALIDATING.value,
-            JobState.RUNNING.value,
-            JobState.CANCELLING.value,
-        }:
-            # Already terminal — if cancel was requested earlier, ok; else reject
-            if rec.cancel_requested and rec.status == JobState.CANCELLED.value:
+        if rec.status == JobState.CANCELLED.value and rec.cancel_requested:
+            return rec  # idempotent
+        if rec.status in TERMINAL_STATES:
+            raise ValueError("Job não está em estado cancelável.")
+
+        tr = self.store.request_cancel(job_id)
+        if tr.record is None:
+            raise KeyError(job_id)
+        rec = tr.record
+        if tr.outcome == "already_terminal":
+            if rec.status == JobState.CANCELLED.value:
                 return rec
             raise ValueError("Job não está em estado cancelável.")
-        # Atomic sticky cancel flag — never lost by concurrent update_job
-        rec = self.store.request_cancel(job_id) or rec
+
         self.store.audit(actor, "job.cancel", {"job_id": job_id})
         with self._lock:
             proc = self._processes.get(job_id)
         if proc and proc.poll() is None:
+            # Terminate/kill is cancel-driven — worker will map to CANCELLED, not FAILED
             proc.terminate()
-            time.sleep(0.2)
-            if proc.poll() is None:
+            try:
+                proc.wait(timeout=0.3)
+            except subprocess.TimeoutExpired:
                 proc.kill()
-        # If process never started / already gone, finalize now
+                try:
+                    proc.wait(timeout=2)
+                except subprocess.TimeoutExpired:
+                    pass
+
+        # If worker has not claimed a live process and job never started, finalize CANCELLED now
         with self._lock:
             still = self._processes.get(job_id)
-        if still is None and rec.status in {
-            JobState.QUEUED.value,
-            JobState.VALIDATING.value,
-            JobState.CANCELLING.value,
-        }:
-            # Worker may still be between states; leave CANCELLING for worker to finalize
-            # unless process already finished without worker noticing cancel
-            latest = self.store.get_job(job_id)
-            if latest and latest.cancel_requested and latest.pid is None and latest.status != JobState.RUNNING.value:
-                # Not yet in Popen — worker will see cancel_requested before/after spawn
-                pass
+        latest = self.store.get_job(job_id)
+        if (
+            still is None
+            and latest
+            and latest.cancel_requested
+            and latest.status == JobState.CANCELLING.value
+            and latest.pid is None
+            and latest.started_at is None
+        ):
+            # QUEUED / pre-RUNNING: no worker progress yet — confirm terminal here
+            # (worker may also try; only first CAS applies)
+            self._finish_cancelled(job_id)
+            latest = self.store.get_job(job_id) or rec
+            return latest
+
         self._emit(job_id, {"type": "status", "job": rec.to_public()})
         return rec
 

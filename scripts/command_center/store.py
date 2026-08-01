@@ -20,6 +20,30 @@ def _utcnow() -> str:
     return datetime.now(UTC).isoformat()
 
 
+# Explicit job lifecycle sets (shared by Store CAS + JobRunner).
+NON_TERMINAL_STATES: frozenset[str] = frozenset(
+    {
+        JobState.QUEUED.value,
+        JobState.VALIDATING.value,
+        JobState.RUNNING.value,
+        JobState.CANCELLING.value,
+    }
+)
+TERMINAL_STATES: frozenset[str] = frozenset(
+    {
+        JobState.CANCELLED.value,
+        JobState.SUCCEEDED.value,
+        JobState.SUCCEEDED_WITH_WARNINGS.value,
+        JobState.PARTIAL.value,
+        JobState.FAILED.value,
+        JobState.TIMED_OUT.value,
+        JobState.BLOCKED_EXTERNAL.value,
+        JobState.BLOCKED_HUMAN.value,
+        JobState.UNAVAILABLE.value,
+    }
+)
+
+
 @dataclass
 class JobRecord:
     job_id: str
@@ -56,6 +80,16 @@ class JobRecord:
         d = asdict(self)
         # params already sanitized at write time
         return d
+
+
+@dataclass(frozen=True)
+class TransitionResult:
+    """Outcome of an atomic job transition."""
+
+    record: JobRecord | None
+    outcome: str  # applied | already_terminal | cancel_wins | state_mismatch | missing
+    applied: bool
+    terminal_confirmed: bool
 
 
 # Known consulting workspaces for filter UI
@@ -212,13 +246,22 @@ class Store:
         return rec
 
     def update_job(self, rec: JobRecord) -> JobRecord:
-        """Persist job; never lose cancel_requested once set (merge, not blind overwrite)."""
+        """Persist job; never lose cancel_requested; never overwrite terminal via blind write.
+
+        Terminal status changes must go through ``transition_job``. This method
+        preserves an existing terminal status and sticky cancel flag.
+        """
         with self._lock, self._conn() as conn:
             row = conn.execute("SELECT payload FROM jobs WHERE job_id = ?", (rec.job_id,)).fetchone()
             if row:
                 existing = JobRecord(**json.loads(row["payload"]))
                 if existing.cancel_requested:
                     rec.cancel_requested = True
+                if existing.status in TERMINAL_STATES:
+                    # Terminal immutability — keep existing terminal snapshot
+                    return existing
+                if rec.cancel_requested and rec.status in TERMINAL_STATES and rec.status != JobState.CANCELLED.value:
+                    rec.status = JobState.CANCELLED.value
             conn.execute(
                 "UPDATE jobs SET payload = ? WHERE job_id = ?",
                 (json.dumps(asdict(rec), ensure_ascii=False), rec.job_id),
@@ -226,34 +269,286 @@ class Store:
         return rec
 
     def patch_job(self, job_id: str, **fields: Any) -> JobRecord | None:
-        """Atomic field merge under lock — preferred for cancel and status transitions."""
+        """Atomic field merge under lock.
+
+        Non-terminal field patches only. Terminal status writes must use
+        ``transition_job`` so cancel-wins and terminal immutability hold.
+        If ``status`` is terminal, this method routes through ``transition_job``.
+        """
+        status = fields.get("status")
+        if status is not None and str(status) in TERMINAL_STATES:
+            result = self.transition_job(
+                job_id,
+                expected_states=NON_TERMINAL_STATES,
+                target_state=str(status),
+                fields={k: v for k, v in fields.items() if k != "status"},
+                cancel_wins=True,
+            )
+            return result.record
+        with self._lock, self._conn() as conn:
+            return self._patch_job_unlocked(conn, job_id, **fields)
+
+    def _patch_job_unlocked(
+        self,
+        conn: sqlite3.Connection,
+        job_id: str,
+        **fields: Any,
+    ) -> JobRecord | None:
+        """Merge fields under an already-held lock + open connection.
+
+        Never demotes or overwrites a terminal status. Sticky cancel is preserved.
+        If cancel is pending and the patch tries to move to a non-CANCELLING
+        non-terminal state, force CANCELLING.
+        """
+        row = conn.execute("SELECT payload FROM jobs WHERE job_id = ?", (job_id,)).fetchone()
+        if not row:
+            return None
+        data = json.loads(row["payload"])
+        current_status = str(data.get("status") or "")
+        if current_status in TERMINAL_STATES:
+            # Terminal immutability — return existing snapshot unchanged
+            return JobRecord(**data)
+
+        # cancel_requested is sticky: True once set; never false→false reverse
+        if data.get("cancel_requested") or fields.get("cancel_requested"):
+            fields = {**fields, "cancel_requested": True}
+        elif "cancel_requested" in fields and not fields.get("cancel_requested"):
+            fields = {**fields, "cancel_requested": bool(data.get("cancel_requested"))}
+
+        cancel_requested = bool(data.get("cancel_requested")) or bool(fields.get("cancel_requested"))
+        new_status = fields.get("status", current_status)
+        if cancel_requested and new_status not in (
+            JobState.CANCELLING.value,
+            JobState.CANCELLED.value,
+        ):
+            if str(new_status) in TERMINAL_STATES:
+                # Should have been routed via transition_job; force cancel
+                fields = {**fields, "status": JobState.CANCELLED.value}
+            else:
+                fields = {
+                    **fields,
+                    "status": JobState.CANCELLING.value,
+                    "human_message": fields.get("human_message")
+                    or "Cancelamento solicitado — aguardando o processo encerrar.",
+                }
+
+        data.update(fields)
+        if cancel_requested:
+            data["cancel_requested"] = True
+        rec = JobRecord(**{k: v for k, v in data.items() if k in JobRecord.__dataclass_fields__})
+        # SQL CAS: only update while still non-terminal
+        non_term = sorted(NON_TERMINAL_STATES)
+        placeholders = ",".join("?" for _ in non_term)
+        payload = json.dumps(asdict(rec), ensure_ascii=False)
+        cur = conn.execute(
+            f"UPDATE jobs SET payload = ? WHERE job_id = ? "
+            f"AND json_extract(payload, '$.status') IN ({placeholders})",
+            (payload, job_id, *non_term),
+        )
+        if cur.rowcount != 1:
+            row2 = conn.execute("SELECT payload FROM jobs WHERE job_id = ?", (job_id,)).fetchone()
+            if not row2:
+                return None
+            return JobRecord(**json.loads(row2["payload"]))
+        return rec
+
+    def transition_job(
+        self,
+        job_id: str,
+        *,
+        expected_states: set[str] | frozenset[str] | None = None,
+        target_state: str | None = None,
+        fields: dict[str, Any] | None = None,
+        cancel_wins: bool = True,
+    ) -> TransitionResult:
+        """Compare-and-set job transition with cancel precedence and terminal immutability.
+
+        Rules:
+        - ``cancel_requested`` is monotonic (false → true only).
+        - If ``cancel_requested`` is true before a terminal write and ``cancel_wins``,
+          the final state is forced to CANCELLED.
+        - Terminal states are never replaced by another terminal state.
+        - Only a successful applied transition may emit terminal side-effects
+          (caller must check ``applied`` / ``terminal_confirmed``).
+        """
+        fields = dict(fields or {})
         with self._lock, self._conn() as conn:
             row = conn.execute("SELECT payload FROM jobs WHERE job_id = ?", (job_id,)).fetchone()
             if not row:
-                return None
-            data = json.loads(row["payload"])
-            # cancel_requested is sticky: True once set
-            if data.get("cancel_requested") and "cancel_requested" in fields:
-                fields = {**fields, "cancel_requested": True}
-            elif data.get("cancel_requested"):
-                fields = {**fields, "cancel_requested": True}
-            data.update(fields)
-            rec = JobRecord(**data)
-            conn.execute(
-                "UPDATE jobs SET payload = ? WHERE job_id = ?",
-                (json.dumps(asdict(rec), ensure_ascii=False), job_id),
-            )
-            return rec
+                return TransitionResult(None, "missing", applied=False, terminal_confirmed=False)
 
-    def request_cancel(self, job_id: str) -> JobRecord | None:
-        """Set cancel flag and CANCELLING status without clobbering other fields."""
-        return self.patch_job(
-            job_id,
-            cancel_requested=True,
-            status=JobState.CANCELLING.value,
-            human_message="Cancelamento solicitado — aguardando o processo encerrar.",
-            attention="running",
-        )
+            data = json.loads(row["payload"])
+            current_status = str(data.get("status") or "")
+            cancel_requested = bool(data.get("cancel_requested")) or bool(fields.get("cancel_requested"))
+
+            # Monotonic cancel flag
+            if cancel_requested:
+                fields["cancel_requested"] = True
+
+            # Terminal immutability: never replace a confirmed terminal state
+            if current_status in TERMINAL_STATES:
+                rec = JobRecord(**data)
+                return TransitionResult(
+                    rec,
+                    "already_terminal",
+                    applied=False,
+                    terminal_confirmed=True,
+                )
+
+            if expected_states is not None and current_status not in expected_states:
+                rec = JobRecord(**data)
+                return TransitionResult(
+                    rec,
+                    "state_mismatch",
+                    applied=False,
+                    terminal_confirmed=False,
+                )
+
+            resolved_target = target_state if target_state is not None else current_status
+            outcome = "applied"
+
+            # Cancel wins over any non-CANCELLED terminal outcome
+            if (
+                cancel_wins
+                and cancel_requested
+                and resolved_target in TERMINAL_STATES
+                and resolved_target != JobState.CANCELLED.value
+            ):
+                resolved_target = JobState.CANCELLED.value
+                fields.setdefault("technical_code", "CANCELLED")
+                fields.setdefault(
+                    "human_message",
+                    "Cancelado por você antes de concluir.",
+                )
+                fields.setdefault("attention", "attention")
+                outcome = "cancel_wins"
+            elif cancel_wins and cancel_requested and resolved_target == JobState.CANCELLING.value:
+                # stay in CANCELLING until worker confirms terminal CANCELLED
+                pass
+            elif (
+                cancel_wins
+                and cancel_requested
+                and resolved_target not in TERMINAL_STATES
+                and resolved_target != JobState.CANCELLING.value
+            ):
+                # Non-terminal transition while cancel pending → CANCELLING
+                resolved_target = JobState.CANCELLING.value
+                fields.setdefault(
+                    "human_message",
+                    "Cancelamento solicitado — aguardando o processo encerrar.",
+                )
+                fields.setdefault("attention", "running")
+                outcome = "cancel_wins"
+
+            if target_state is not None or "status" in fields:
+                fields["status"] = resolved_target
+
+            # First terminal write stamps finished_at if caller omitted it
+            becoming_terminal = resolved_target in TERMINAL_STATES
+            if becoming_terminal and not fields.get("finished_at") and not data.get("finished_at"):
+                fields["finished_at"] = _utcnow()
+
+            data.update(fields)
+            # Enforce sticky cancel again after merge
+            if cancel_requested:
+                data["cancel_requested"] = True
+            if becoming_terminal and cancel_requested and cancel_wins:
+                data["status"] = JobState.CANCELLED.value
+                outcome = "cancel_wins" if resolved_target != JobState.CANCELLED.value or outcome == "cancel_wins" else outcome
+                if data["status"] == JobState.CANCELLED.value:
+                    data.setdefault("technical_code", data.get("technical_code") or "CANCELLED")
+                    data.setdefault(
+                        "human_message",
+                        data.get("human_message") or "Cancelado por você antes de concluir.",
+                    )
+
+            # Conditional UPDATE: only if still non-terminal (CAS via JSON status)
+            new_payload = json.dumps(asdict(JobRecord(**{k: v for k, v in data.items() if k in JobRecord.__dataclass_fields__})), ensure_ascii=False)
+            # Build expected-status guard for SQL-level CAS
+            if expected_states is not None:
+                placeholders = ",".join("?" for _ in expected_states)
+                sql = (
+                    f"UPDATE jobs SET payload = ? WHERE job_id = ? "
+                    f"AND json_extract(payload, '$.status') IN ({placeholders})"
+                )
+                cur = conn.execute(sql, (new_payload, job_id, *sorted(expected_states)))
+            else:
+                # Still refuse if concurrent terminal won
+                non_term = sorted(NON_TERMINAL_STATES)
+                placeholders = ",".join("?" for _ in non_term)
+                sql = (
+                    f"UPDATE jobs SET payload = ? WHERE job_id = ? "
+                    f"AND json_extract(payload, '$.status') IN ({placeholders})"
+                )
+                cur = conn.execute(sql, (new_payload, job_id, *non_term))
+
+            if cur.rowcount != 1:
+                # Re-read winner
+                row2 = conn.execute("SELECT payload FROM jobs WHERE job_id = ?", (job_id,)).fetchone()
+                if not row2:
+                    return TransitionResult(None, "missing", applied=False, terminal_confirmed=False)
+                winner = JobRecord(**json.loads(row2["payload"]))
+                return TransitionResult(
+                    winner,
+                    "already_terminal" if winner.status in TERMINAL_STATES else "state_mismatch",
+                    applied=False,
+                    terminal_confirmed=winner.status in TERMINAL_STATES,
+                )
+
+            rec = JobRecord(**json.loads(new_payload))
+            return TransitionResult(
+                rec,
+                outcome,
+                applied=True,
+                terminal_confirmed=rec.status in TERMINAL_STATES,
+            )
+
+    def request_cancel(self, job_id: str) -> TransitionResult:
+        """Idempotent sticky cancel request with CAS.
+
+        - Already CANCELLED → already_terminal (idempotent success for cancel API)
+        - Other terminal → already_terminal (not cancelable)
+        - Non-terminal → cancel_requested=True, status=CANCELLING
+        """
+        with self._lock, self._conn() as conn:
+            row = conn.execute("SELECT payload FROM jobs WHERE job_id = ?", (job_id,)).fetchone()
+            if not row:
+                return TransitionResult(None, "missing", applied=False, terminal_confirmed=False)
+            data = json.loads(row["payload"])
+            current = str(data.get("status") or "")
+            if current in TERMINAL_STATES:
+                rec = JobRecord(**data)
+                return TransitionResult(
+                    rec,
+                    "already_terminal",
+                    applied=False,
+                    terminal_confirmed=True,
+                )
+            data["cancel_requested"] = True
+            data["status"] = JobState.CANCELLING.value
+            data["human_message"] = "Cancelamento solicitado — aguardando o processo encerrar."
+            data["attention"] = "running"
+            rec = JobRecord(**{k: v for k, v in data.items() if k in JobRecord.__dataclass_fields__})
+            payload = json.dumps(asdict(rec), ensure_ascii=False)
+            non_term = sorted(NON_TERMINAL_STATES)
+            placeholders = ",".join("?" for _ in non_term)
+            cur = conn.execute(
+                f"UPDATE jobs SET payload = ? WHERE job_id = ? "
+                f"AND json_extract(payload, '$.status') IN ({placeholders})",
+                (payload, job_id, *non_term),
+            )
+            if cur.rowcount != 1:
+                row2 = conn.execute("SELECT payload FROM jobs WHERE job_id = ?", (job_id,)).fetchone()
+                if not row2:
+                    return TransitionResult(None, "missing", applied=False, terminal_confirmed=False)
+                winner = JobRecord(**json.loads(row2["payload"]))
+                return TransitionResult(
+                    winner,
+                    "already_terminal" if winner.status in TERMINAL_STATES else "state_mismatch",
+                    applied=False,
+                    terminal_confirmed=winner.status in TERMINAL_STATES,
+                )
+            return TransitionResult(rec, "applied", applied=True, terminal_confirmed=False)
 
     def get_job(self, job_id: str) -> JobRecord | None:
         with self._lock, self._conn() as conn:

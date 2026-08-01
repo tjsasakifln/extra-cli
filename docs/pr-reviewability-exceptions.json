@@ -1,17 +1,31 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "active": {
-    "reason": "PR #144 CONFENGE-COMMERCIAL-READY-01 is a single campaign closure (integrity gates, dual-head SHA/CI truth, campaign artifacts, migrations, commercial scripts/tests). Scope cannot be split without losing fail-closed freeze/evidence linkage. Code merge ready; commercial release remains blocked (registry+human).",
+    "reason": "PR #186 Command Center is a single product surface (backend + apps/command-center + adapters + tests). File/line counts exceed ready limits due to the full workbench surface already on the branch; scope cannot be split without breaking the local consulting UX. Binary product files are NOT waived here — only size/multi-cap. The official logo uses path_sha_exceptions.",
     "owner": "tjsasakifln",
-    "deadline": "2026-08-15",
-    "approved_by": "tjsasakifln (goal PR-144-FINAL-TRUTH-AND-MERGE-READINESS / operator)",
+    "deadline": "2026-09-30",
+    "approved_by": "tjsasakifln",
     "waives": [
       "too_many_files",
-      "too_many_textual_lines",
-      "multi_capability_mix"
+      "too_many_textual_lines"
     ],
-    "pr": 144,
-    "branch": "campaign/confenge-commercial-ready-01"
+    "pr": 186,
+    "branch": "feat/extra-local-command-center"
   },
-  "notes": "Set active to an object with reason, owner, deadline, approved_by, waives[] only after explicit human approval. Incomplete active objects fail the reviewability gate."
+  "path_sha_exceptions": [
+    {
+      "path": "apps/command-center/public/brand/logo-confenge.png",
+      "sha256": "e6af0125c73edd476cff82ab4ea1de3e459fbdbde63b886f6c55f8a93531505b",
+      "canonical_source": "web-cfg brand asset (CONFENGE official logo) — byte-identical copy for Command Center local UI",
+      "reason": "PR #186 requires the official CONFENGE PNG brand mark in apps/command-center/public/brand; SVGs were rejected as non-canonical. Exception is path-exact + SHA-256 pinned; no other binaries waived.",
+      "owner": "tjsasakifln",
+      "deadline": "2026-12-31",
+      "approved_by": "tjsasakifln",
+      "waiver": "binary_or_generated_in_diff",
+      "pr": 186,
+      "branch": "feat/extra-local-command-center",
+      "review_after": "2026-09-30"
+    }
+  ],
+  "notes": "path_sha_exceptions require exact path (no wildcards), sha256 of the file on disk, canonical_source, reason, owner, deadline, approved_by, and waiver exactly equal to binary_or_generated_in_diff. active.waives must never include binary_or_generated_in_diff for broad binary disposal."
 }
