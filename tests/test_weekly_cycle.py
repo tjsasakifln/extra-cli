@@ -748,3 +748,190 @@ def test_fresh_within_24h_sla() -> None:
         )
         == "stale"
     )
+
+
+# ---------------------------------------------------------------------------
+# Multi-source decision pack integration (PDF mandatory)
+# ---------------------------------------------------------------------------
+
+
+def test_stage_materialize_spine_ok(monkeypatch) -> None:
+    from scripts.ops import weekly_cycle as wc
+
+    def _fake_mat(conn, *, dsn=None):
+        return {
+            "status": "ok",
+            "universe": {"status": "ok", "after": 1093},
+            "entity_source_registry": {"status": "ok", "after": 1093},
+        }
+
+    monkeypatch.setattr(
+        "scripts.ops.materialize_canonical_spine.materialize_canonical_spine",
+        _fake_mat,
+        raising=False,
+    )
+    # Import path used inside stage
+    import scripts.ops.materialize_canonical_spine as mat
+
+    monkeypatch.setattr(mat, "materialize_canonical_spine", _fake_mat)
+    result = wc.stage_materialize_spine(conn=object(), dsn="postgresql://x")
+    assert result.name == "materialize_spine"
+    assert result.status == "ok"
+
+
+def test_stage_materialize_spine_warn_on_error(monkeypatch) -> None:
+    from scripts.ops import weekly_cycle as wc
+    import scripts.ops.materialize_canonical_spine as mat
+
+    def _boom(conn, *, dsn=None):
+        raise RuntimeError("no dsn")
+
+    monkeypatch.setattr(mat, "materialize_canonical_spine", _boom)
+    result = wc.stage_materialize_spine(conn=object(), dsn="postgresql://x")
+    assert result.status == "warn"
+    assert "no dsn" in (result.error or "")
+
+
+def test_stage_delivery_generates_pdf_via_decision_pack(tmp_path, monkeypatch) -> None:
+    """stage_delivery must call decision pack builder and set pdf_ok."""
+    from scripts.ops import weekly_cycle as wc
+    from scripts.ops.weekly_cycle import WeeklyCycleReport
+
+    report = WeeklyCycleReport(
+        cycle_id="weekly-test-1",
+        collection_id="col-test-1",
+        started_at="2026-08-01T00:00:00Z",
+        limitations=["test"],
+    )
+    intel = {
+        "opportunities": [
+            {
+                "id": 1,
+                "objeto": "pavimentacao asfaltica",
+                "ranking": "REVIEW",
+                "ranking_effective": "REVIEW",
+                "orgao_cnpj": "82922233000100",
+                "orgao_nome": "PREFEITURA",
+                "uf": "SC",
+                "link_edital": "https://pncp.gov.br/app/editais/x",
+                "numero_controle_pncp": "x",
+                "source": "pncp",
+            }
+        ],
+        "contracts": [],
+        "competitors": [],
+        "orgaos": [],
+        "counts": {"opportunities": 1},
+    }
+
+    pdf = tmp_path / "extra_decision_report_2026-08-01_weekly-test-1.pdf"
+    xlsx = tmp_path / "extra_decision_pack_2026-08-01_weekly-test-1.xlsx"
+    pdf.write_bytes(b"%PDF-1.4 mock")
+    xlsx.write_bytes(b"PK mock-xlsx")
+
+    def _fake_build(**kwargs):
+        out = Path(kwargs["out_dir"])
+        (out / "coverage_by_entity_source.csv").write_text("entity_id,source,result\n", encoding="utf-8")
+        (out / "decision_dataset.json").write_text("{\"ok\": true}\n", encoding="utf-8")
+        (out / "qa_report.json").write_text("{\"reliability\": \"PARTIAL\"}\n", encoding="utf-8")
+        return {
+            "status": "ok",
+            "excel_ok": True,
+            "pdf_ok": True,
+            "pdf_status": "GENERATED",
+            "excel": str(xlsx),
+            "pdf": str(pdf),
+            "product_checksums": {
+                "extra_decision_pack": {"path": xlsx.name, "sha256": "a" * 64, "bytes": 10},
+                "extra_decision_report": {"path": pdf.name, "sha256": "b" * 64, "bytes": 10},
+            },
+            "terminal_state": "PASS",
+            "qa_reliability": "PARTIAL",
+            "shortlist_n": 1,
+            "as_of": "2026-08-01",
+            "artifact_names": {"excel": xlsx.name, "pdf": pdf.name},
+        }
+
+    monkeypatch.setattr(
+        "scripts.ops.weekly_decision_artifacts.build_weekly_decision_artifacts",
+        _fake_build,
+    )
+    # Avoid heavy operational sub-products
+    monkeypatch.delenv("LOCAL_DATALAKE_DSN", raising=False)
+    monkeypatch.delenv("DATABASE_URL", raising=False)
+
+    stage = wc.stage_delivery(
+        tmp_path,
+        report,
+        intel,
+        runs=[],
+        freshness=[{"source": "pncp_opportunities", "level": "fresh", "sla_hours": 24}],
+        gaps=[],
+        conn=object(),
+    )
+    assert stage.name == "delivery"
+    assert stage.status == "ok", stage.error
+    detail = stage.detail or {}
+    assert detail.get("pdf_ok") is True
+    assert detail.get("excel_ok") is True
+    assert detail.get("pdf_status") == "GENERATED"
+    assert "RESIDUAL" not in str(detail.get("pdf_status"))
+
+
+def test_stage_delivery_fails_without_pdf(tmp_path, monkeypatch) -> None:
+    from scripts.ops import weekly_cycle as wc
+    from scripts.ops.weekly_cycle import WeeklyCycleReport
+
+    report = WeeklyCycleReport(
+        cycle_id="weekly-test-2",
+        collection_id="col-test-2",
+        started_at="2026-08-01T00:00:00Z",
+    )
+    intel = {
+        "opportunities": [],
+        "contracts": [],
+        "competitors": [],
+        "orgaos": [],
+        "counts": {"opportunities": 0},
+    }
+
+    def _fake_build(**kwargs):
+        return {
+            "status": "fail",
+            "excel_ok": True,
+            "pdf_ok": False,
+            "pdf_status": "FAILED:boom",
+            "excel": str(tmp_path / "x.xlsx"),
+            "pdf": None,
+            "product_checksums": {},
+            "terminal_state": "FAIL",
+        }
+
+    (tmp_path / "x.xlsx").write_bytes(b"PK")
+    monkeypatch.setattr(
+        "scripts.ops.weekly_decision_artifacts.build_weekly_decision_artifacts",
+        _fake_build,
+    )
+    monkeypatch.delenv("LOCAL_DATALAKE_DSN", raising=False)
+    monkeypatch.delenv("DATABASE_URL", raising=False)
+
+    stage = wc.stage_delivery(
+        tmp_path,
+        report,
+        intel,
+        runs=[],
+        freshness=[],
+        gaps=[],
+        conn=object(),
+    )
+    assert stage.status == "fail"
+    assert stage.detail.get("pdf_ok") is False
+
+
+def test_default_limitations_mentions_pdf_product() -> None:
+    from scripts.ops.weekly_cycle import _default_limitations
+
+    lim = _default_limitations([], [])
+    joined = " ".join(lim).lower()
+    assert "residual" not in joined or "pdf" in joined
+    assert "pdf" in joined

@@ -205,9 +205,9 @@ def write_excel(
             img.height = 48
             ws.add_image(img, "A1")
             ws.row_dimensions[1].height = 40
-        except Exception:  # noqa: BLE001, S110
+        except Exception as logo_exc:  # noqa: BLE001
             # Logo is optional branding; workbook generation continues without it.
-            pass
+            ws["A2"] = f"(logo opcional não aplicado: {type(logo_exc).__name__})"
     ws["A3"] = "CONFENGE — Inteligência decisória B2G"
     ws["A3"].font = font_title
     ws["A4"] = "Pacote multi-fonte — Extra Construtora (processos canônicos)"
