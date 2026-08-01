@@ -105,7 +105,7 @@ def test_static_search_no_heuristic_as_probability_in_enrich_export():
 
 
 def test_shipped_surfaces_do_not_label_heuristic_as_optimal_bid():
-    """Scan key report/pipeline files for banned commercial labels on heuristics."""
+    """Scan key report/pipeline/CLI ship paths for banned commercial labels."""
     targets = [
         ROOT / "scripts" / "intel_enrich.py",
         ROOT / "scripts" / "intel_report.py",
@@ -113,27 +113,81 @@ def test_shipped_surfaces_do_not_label_heuristic_as_optimal_bid():
         ROOT / "scripts" / "intel_analyze.py",
         ROOT / "scripts" / "intel_pipeline.py",
         ROOT / "scripts" / "lib" / "bid_simulator.py",
+        ROOT / "scripts" / "generate-report-b2g.py",
+        ROOT / "scripts" / "ops" / "weekly_cycle.py",
+        ROOT / "scripts" / "workspace" / "cli.py",
     ]
+    # Expand to all scripts/**/*.py that are ship surfaces (exclude tests/docs)
+    for path in (ROOT / "scripts").rglob("*.py"):
+        if "predictive" in path.parts and path.name not in {
+            "bid_simulator.py",  # already listed
+        }:
+            # predictive package may document forbidden phrases as ban text
+            continue
+        if path not in targets and path.name in {
+            "generate-report-b2g.py",
+            "intel_report.py",
+            "intel_excel.py",
+            "intel_analyze.py",
+            "intel_pipeline.py",
+            "intel_enrich.py",
+            "weekly_cycle.py",
+            "cli.py",
+            "bid_simulator.py",
+        }:
+            targets.append(path)
+
     offenders: list[str] = []
+    ban_as_positive = [
+        re.compile(r"Estima a probabilidade de vencer", re.I),
+        re.compile(r"probabilidade heuristica", re.I),
+        re.compile(r"probabilidades de vitoria sao estimativas", re.I),
+        re.compile(r'["\']p_vitoria_pct["\']\s*:'),
+    ]
     for path in targets:
         if not path.exists():
             continue
         text = path.read_text(encoding="utf-8", errors="replace")
-        # Skip pure ban documentation lines
         for i, line in enumerate(text.splitlines(), 1):
             low = line.lower()
-            if "nÃO" in line or "não" in low or "NOT" in line or "ban" in low:
+            # Disclaimer / ban documentation is OK
+            if any(
+                m in low
+                for m in (
+                    "não",
+                    "nao",
+                    "nÃO",
+                    "not ",
+                    "unvalidated",
+                    "ban",
+                    "forbidden",
+                    "proibido",
+                    "omitida",
+                    "never",
+                )
+            ):
+                # still catch positive export of p_vitoria_pct key
+                if re.search(r'["\']p_vitoria_pct["\']\s*:', line) and "not" not in low:
+                    if "forbidden" not in low and "ban" not in low:
+                        offenders.append(f"{path}:{i}:{line.strip()[:100]}")
                 continue
-            if "unvalidated" in low or "heuristic" in low and "not" in low:
-                continue
-            # Forbidden: calling output lance ótimo without validation disclaimer
             if re.search(r"lance [oó]timo", line, re.I):
-                if "não" not in low and "nao" not in low and "not" not in low and "invalid" not in low and "NÃO" not in line:
-                    # module docstring historically said Lance Ótimo — must be reclassified
-                    if path.name == "bid_simulator.py" and i < 15:
-                        offenders.append(f"{path}:{i}:{line.strip()}")
-                    elif path.name != "bid_simulator.py":
-                        offenders.append(f"{path}:{i}:{line.strip()}")
-            if re.search(r'["\']p_vitoria_pct["\']\s*:', line):
-                offenders.append(f"{path}:{i}:{line.strip()}")
-    assert not offenders, "Heuristic published as probability/optimal:\n" + "\n".join(offenders[:20])
+                # Forbidden-list / ban documentation (claim must not use phrase)
+                if "sem " in low or "forbidden" in low or "proibido" in low or "claims_forbidden" in low:
+                    continue
+                if path.name == "bid_simulator.py" and i < 15:
+                    offenders.append(f"{path}:{i}:{line.strip()}")
+                elif path.name != "bid_simulator.py":
+                    offenders.append(f"{path}:{i}:{line.strip()[:100]}")
+            for pat in ban_as_positive:
+                if pat.search(line):
+                    offenders.append(f"{path}:{i}:{line.strip()[:100]}")
+    assert not offenders, "Heuristic published as probability/optimal:\n" + "\n".join(
+        offenders[:30]
+    )
+
+
+def test_generate_report_b2g_uses_heuristic_score_language():
+    text = (ROOT / "scripts" / "generate-report-b2g.py").read_text(encoding="utf-8")
+    assert "Estima a probabilidade de vencer" not in text
+    assert "score heurístico" in text.lower() or "score heuristico" in text.lower() or "UNVALIDATED_HEURISTIC" in text

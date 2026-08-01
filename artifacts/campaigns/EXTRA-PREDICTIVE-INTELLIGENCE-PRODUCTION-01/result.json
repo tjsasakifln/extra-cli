@@ -106,18 +106,17 @@
         "data_blocked": false
       },
       "best_metrics_subset": {
-        "n": 24000,
-        "n_positives": 1199,
-        "brier": 0.0044537210417191575,
-        "brier_skill_score": 0.9052990881338843,
-        "log_loss": 0.022487835889194462,
-        "ece": 0.003109586855411693,
-        "roc_auc": 0.9972348783116378,
-        "lift_top10": 9.908256880733944,
-        "mae": null,
-        "coverage": null
+        "n": 15908,
+        "n_positives": 795,
+        "brier": 0.006126355443748779,
+        "brier_skill_score": 0.8709540780734535,
+        "log_loss": 0.029349457641722917,
+        "ece": 0.004939717240898228,
+        "roc_auc": 0.9969464832434236,
+        "lift_top10": 9.935857753321553
       },
-      "dataset_n": 300000
+      "dataset_n": 198840,
+      "p2a_fix": "no force-include of cold-start winners; pre-result candidates only"
     },
     "winning_discount_p3": {
       "claim": "DATA_BLOCKED",
@@ -209,9 +208,11 @@
     "PREDICTIVE_INTELLIGENCE_FULLY_PROVEN"
   ],
   "shadow_status": {
-    "competitive_p2a": "SHADOW_OPERATIONAL",
+    "competitive_p2a": "HISTORICAL_BACKTEST_PROVEN",
     "timers_shipped": true,
-    "prospective_soak_complete": false
+    "timers_enabled": false,
+    "prospective_soak_complete": false,
+    "note": "SHADOW_OPERATIONAL not asserted without live scheduled emission"
   },
   "blockers_human": [
     "Extra profile PENDING: margem_minima, capital_giro, capacidade_garantia, capacidade_simultanea, equipe, contratos_correntes, risco_aceitavel"

@@ -366,80 +366,99 @@ def build_competitive_winner_dataset(
             ).days < min_history_days:
                 rejected += 1
             else:
+                # Pre-result candidates ONLY — never inject the true winner if absent.
+                # Cold-start winners (no prior history in candidate universe) drop the outcome.
                 candidates = set(suppliers_at_ente.get(ente, set())) | set(
                     suppliers_in_cat.get(cat, set())
                 )
-                candidates.add(winner)
+                if not candidates:
+                    rejected += 1
+                elif winner not in candidates:
+                    # Winner unknown before result → cannot form fair labels for this outcome
+                    rejected += 1
+                else:
 
-                def score_sid(sid: str) -> tuple[int, int]:
-                    return (
-                        ente_supplier.get((ente, sid), 0)
-                        + cat_supplier.get((cat, sid), 0),
-                        supplier_total.get(sid, 0),
-                    )
+                    def score_sid(sid: str) -> tuple[int, int]:
+                        return (
+                            ente_supplier.get((ente, sid), 0)
+                            + cat_supplier.get((cat, sid), 0),
+                            supplier_total.get(sid, 0),
+                        )
 
-                ranked = sorted(candidates, key=score_sid, reverse=True)[:20]
-                if winner not in ranked:
-                    ranked = ranked[:19] + [winner]
+                    ranked = sorted(candidates, key=score_sid, reverse=True)[:20]
+                    # Winner already in candidates; keep top-20 by pre-result score only
+                    # (winner may fall outside top-20 — then still include for label coverage
+                    # ONLY if they were in the pre-result candidate set, which they are).
+                    if winner not in ranked:
+                        ranked = ranked[:19] + [winner]
 
-                e_tot = max(ente_total.get(ente, 0), 1)
-                c_tot = max(cat_total.get(cat, 0), 1)
+                    e_tot = max(ente_total.get(ente, 0), 1)
+                    c_tot = max(cat_total.get(cat, 0), 1)
 
-                for sid in ranked:
-                    lab = winner_label(
-                        supplier_id=sid, winner_id=winner, in_candidate_set=True
-                    )
-                    if lab.label_value is None:
-                        rejected += 1
-                        continue
-                    last = supplier_last.get(sid, as_of)
-                    days_since = (as_of - last).days if last else 9999
-                    fv = build_competitor_features(
-                        as_of=as_of,
-                        supplier_wins_at_ente=ente_supplier.get((ente, sid), 0),
-                        supplier_wins_in_category=cat_supplier.get((cat, sid), 0),
-                        supplier_wins_total=supplier_total.get(sid, 0),
-                        ente_contracts_total=e_tot,
-                        category_contracts_total=c_tot,
-                        days_since_supplier_win=float(days_since),
-                        value_band_wins=0,
-                        last_event_at=last if last <= as_of else as_of,
-                    )
-                    if validate_feature_cutoff(fv, as_of):
-                        rejected += 1
-                        continue
-                    eid = _example_id(
-                        target, outcome["contrato_id"], sid, as_of.isoformat()
-                    )
-                    examples.append(
-                        {
-                            "example_id": eid,
-                            "target_name": target,
-                            "entity_id": ente,
-                            "procurement_id": outcome["contrato_id"],
-                            "supplier_id": sid,
-                            "as_of_at": as_of.isoformat(),
-                            "prediction_horizon": "outcome",
-                            "label_window_start": as_of.isoformat(),
-                            "label_window_end": outcome["event_at"].isoformat(),
-                            "label_value": lab.label_value,
-                            "label_source": lab.label_source,
-                            "label_quality": lab.label_quality,
-                            "features_json": fv.to_json(),
-                            "feature_events": {
-                                k: v.isoformat() for k, v in fv.events.items()
-                            },
-                            "feature_schema_version": FEATURE_SCHEMA_VERSION,
-                            "source_run_ids": [],
-                            "source_max_event_at": (
-                                fv.source_max_event_at.isoformat()
-                                if fv.source_max_event_at
-                                else None
-                            ),
-                            "dataset_version": dataset_version,
-                            "cohort": cat,
-                        }
-                    )
+                    for sid in ranked:
+                        lab = winner_label(
+                            supplier_id=sid,
+                            winner_id=winner,
+                            in_candidate_set=sid in candidates,
+                        )
+                        if lab.label_value is None:
+                            rejected += 1
+                            continue
+                        # Never-seen at this as_of must use 9999, never default to as_of (0 days)
+                        if sid in supplier_last:
+                            last = supplier_last[sid]
+                            days_since = float((as_of - last).days)
+                            last_evt = last if last <= as_of else as_of
+                        else:
+                            last = None
+                            days_since = 9999.0
+                            last_evt = as_of
+                        fv = build_competitor_features(
+                            as_of=as_of,
+                            supplier_wins_at_ente=ente_supplier.get((ente, sid), 0),
+                            supplier_wins_in_category=cat_supplier.get((cat, sid), 0),
+                            supplier_wins_total=supplier_total.get(sid, 0),
+                            ente_contracts_total=e_tot,
+                            category_contracts_total=c_tot,
+                            days_since_supplier_win=days_since,
+                            value_band_wins=0,
+                            last_event_at=last_evt,
+                        )
+                        if validate_feature_cutoff(fv, as_of):
+                            rejected += 1
+                            continue
+                        eid = _example_id(
+                            target, outcome["contrato_id"], sid, as_of.isoformat()
+                        )
+                        examples.append(
+                            {
+                                "example_id": eid,
+                                "target_name": target,
+                                "entity_id": ente,
+                                "procurement_id": outcome["contrato_id"],
+                                "supplier_id": sid,
+                                "as_of_at": as_of.isoformat(),
+                                "prediction_horizon": "outcome",
+                                "label_window_start": as_of.isoformat(),
+                                "label_window_end": outcome["event_at"].isoformat(),
+                                "label_value": lab.label_value,
+                                "label_source": lab.label_source,
+                                "label_quality": lab.label_quality,
+                                "features_json": fv.to_json(),
+                                "feature_events": {
+                                    k: v.isoformat() for k, v in fv.events.items()
+                                },
+                                "feature_schema_version": FEATURE_SCHEMA_VERSION,
+                                "source_run_ids": [],
+                                "source_max_event_at": (
+                                    fv.source_max_event_at.isoformat()
+                                    if fv.source_max_event_at
+                                    else None
+                                ),
+                                "dataset_version": dataset_version,
+                                "cohort": cat,
+                            }
+                        )
 
         # Update running history with this outcome (becomes available after event)
         sid = winner

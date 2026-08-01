@@ -23,7 +23,7 @@
 | demand_30d | 143,591 | hist_gbm_clf | ~0.052 | BACKTEST_FAILED |
 | demand_60d | 137,118 | hist_gbm_clf | ~0.080 | BACKTEST_FAILED |
 | demand_90d | 130,449 | logistic_l2 | ~0.096 | BACKTEST_FAILED |
-| competitive_winner_p2a | 300,000 | calibrated challenger | ~0.905 | HISTORICAL → SHADOW_OPERATIONAL |
+| competitive_winner_p2a | 198840 | hist_gbm_clf | ~0.871 | HISTORICAL_BACKTEST_PROVEN |
 | winning_discount_p3 | 0 | — | — | DATA_BLOCKED |
 | participation P2B | — | — | — | DATA_BLOCKED |
 | Extra win P4 / optimal bid P5 | — | — | — | DATA_BLOCKED |
@@ -40,3 +40,10 @@ Thresholds were **not** lowered.
 ## 5. Prospective evidence
 
 None. Historical walk-forward is backtest, not soak. See `prospective-evidence-status.json`.
+
+
+## Skeptic fix (P2A)
+
+- Candidate set is pre-result only; cold-start winners drop the outcome.
+- Never-seen supplier `days_since_supplier_win=9999`.
+- Claim stays `HISTORICAL_BACKTEST_PROVEN` (not SHADOW) until live scheduled emission.

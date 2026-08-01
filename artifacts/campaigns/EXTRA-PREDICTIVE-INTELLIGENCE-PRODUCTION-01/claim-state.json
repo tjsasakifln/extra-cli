@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-01T20:49:03+00:00",
+  "updated_at": "2026-08-01T21:19:45+00:00",
   "commercial_recommendation": "PARTIAL_CLAIM_ALLOWED",
   "claims": {
     "PREDICTIVE_DEMAND_FORECAST_AVAILABLE": {
@@ -122,8 +122,8 @@
     },
     "PREDICTIVE_COMPETITIVE_INTELLIGENCE_AVAILABLE": {
       "claim_id": "PREDICTIVE_COMPETITIVE_INTELLIGENCE_AVAILABLE",
-      "state": "SHADOW_OPERATIONAL",
-      "updated_at": "2026-08-01T20:49:03+00:00",
+      "state": "HISTORICAL_BACKTEST_PROVEN",
+      "updated_at": "2026-08-01T21:19:45+00:00",
       "evidence": {
         "gate": {
           "passed": true,
@@ -132,107 +132,109 @@
         },
         "best_model": "hist_gbm_clf",
         "metrics": {
-          "n": 24000,
-          "n_positives": 1199,
-          "prevalence": 0.049958333333333334,
-          "brier": 0.0044537210417191575,
-          "brier_baseline": 0.04702933640190967,
-          "brier_skill_score": 0.9052990881338843,
-          "log_loss": 0.022487835889194462,
-          "log_loss_baseline": 0.1950714566648494,
-          "ece": 0.003109586855411693,
-          "roc_auc": 0.9972348783116378,
-          "pr_auc": 0.9830803832195761,
-          "lift_top5": 18.83236030025021,
-          "lift_top10": 9.908256880733944,
-          "lift_top20": 4.970809007506255,
-          "precision": 0.9735915492957746,
-          "recall": 0.9224353628023353,
-          "f1": 0.947323340471092,
-          "tp": 1106.0,
-          "fp": 30.0,
-          "fn": 93.0,
+          "n": 15908,
+          "n_positives": 795,
+          "prevalence": 0.04997485541865728,
+          "brier": 0.006126355443748779,
+          "brier_baseline": 0.04747422740902984,
+          "brier_skill_score": 0.8709540780734535,
+          "log_loss": 0.029349457641722917,
+          "log_loss_baseline": 0.198408596153047,
+          "ece": 0.004939717240898228,
+          "roc_auc": 0.9969464832434236,
+          "pr_auc": 0.9750669794416803,
+          "lift_top5": 18.376075345279858,
+          "lift_top10": 9.935857753321553,
+          "lift_top20": 4.97421739422617,
+          "precision": 0.9547872340425532,
+          "recall": 0.9031446540880503,
+          "f1": 0.9282482223658695,
+          "tp": 718.0,
+          "fp": 34.0,
+          "fn": 77.0,
           "reliability": [
             {
               "bin_lo": 0.0,
               "bin_hi": 0.1,
-              "n": 22781.0,
-              "mean_pred": 0.00493027459718467,
-              "mean_obs": 0.00272156621746192
+              "n": 15076.0,
+              "mean_pred": 0.0062026129889620005,
+              "mean_obs": 0.0032501989917750065
             },
             {
               "bin_lo": 0.1,
               "bin_hi": 0.2,
-              "n": 51.0,
-              "mean_pred": 0.1466942742662487,
-              "mean_obs": 0.27450980392156865
+              "n": 23.0,
+              "mean_pred": 0.1412150668636141,
+              "mean_obs": 0.391304347826087
             },
             {
               "bin_lo": 0.2,
               "bin_hi": 0.30000000000000004,
-              "n": 18.0,
-              "mean_pred": 0.23995710922884358,
-              "mean_obs": 0.3888888888888889
+              "n": 23.0,
+              "mean_pred": 0.2416835475095562,
+              "mean_obs": 0.4782608695652174
             },
             {
               "bin_lo": 0.30000000000000004,
               "bin_hi": 0.4,
-              "n": 4.0,
-              "mean_pred": 0.3695932708444666,
-              "mean_obs": 1.0
+              "n": 18.0,
+              "mean_pred": 0.36784473279740615,
+              "mean_obs": 0.05555555555555555
             },
             {
               "bin_lo": 0.4,
               "bin_hi": 0.5,
-              "n": 10.0,
-              "mean_pred": 0.42610797050047927,
-              "mean_obs": 0.6
+              "n": 16.0,
+              "mean_pred": 0.4257999823174748,
+              "mean_obs": 0.4375
             },
             {
               "bin_lo": 0.5,
               "bin_hi": 0.6000000000000001,
-              "n": 13.0,
-              "mean_pred": 0.5589541631013428,
-              "mean_obs": 0.7692307692307693
+              "n": 9.0,
+              "mean_pred": 0.5643461835719028,
+              "mean_obs": 0.6666666666666666
             },
             {
               "bin_lo": 0.6000000000000001,
               "bin_hi": 0.7000000000000001,
-              "n": 8.0,
-              "mean_pred": 0.6480064972854066,
-              "mean_obs": 0.875
+              "n": 9.0,
+              "mean_pred": 0.6584325869042083,
+              "mean_obs": 0.5555555555555556
             },
             {
               "bin_lo": 0.7000000000000001,
               "bin_hi": 0.8,
-              "n": 13.0,
-              "mean_pred": 0.7371269971116446,
-              "mean_obs": 0.6153846153846154
+              "n": 7.0,
+              "mean_pred": 0.7426202189877983,
+              "mean_obs": 0.8571428571428571
             },
             {
               "bin_lo": 0.8,
               "bin_hi": 0.9,
-              "n": 25.0,
-              "mean_pred": 0.857034112967672,
-              "mean_obs": 0.88
+              "n": 15.0,
+              "mean_pred": 0.8581297098445188,
+              "mean_obs": 0.8
             },
             {
               "bin_lo": 0.9,
               "bin_hi": 1.0,
-              "n": 1077.0,
-              "mean_pred": 0.9794361693279124,
-              "mean_obs": 0.9832869080779945
+              "n": 712.0,
+              "mean_pred": 0.9867251535943583,
+              "mean_obs": 0.9676966292134831
             }
           ],
           "baseline_name": "frequency_baseline",
           "calibrated": true
         },
         "shadow_ready": true,
-        "prospective_soak_complete": false
+        "prospective_soak_complete": false,
+        "demoted_from": "SHADOW_OPERATIONAL",
+        "reason": "no live shadow emission",
+        "p2a_no_winner_injection": true
       },
       "blockers": [
-        "Prospective soak not elapsed",
-        "Historical backtest \u2260 prospective"
+        "Shadow emission not live — remain HISTORICAL_BACKTEST_PROVEN until timer emits"
       ],
       "limitations": [],
       "model_id": null,
@@ -265,10 +267,10 @@
     "PREDICTIVE_MARKET_INTELLIGENCE_AVAILABLE": {
       "claim_id": "PREDICTIVE_MARKET_INTELLIGENCE_AVAILABLE",
       "state": "DATA_BLOCKED",
-      "updated_at": "2026-08-01T20:49:03+00:00",
+      "updated_at": "2026-08-01T21:19:45+00:00",
       "evidence": {
         "demand": "BACKTEST_FAILED",
-        "competitive": "SHADOW_OPERATIONAL",
+        "competitive": "HISTORICAL_BACKTEST_PROVEN",
         "discount": "DATA_BLOCKED"
       },
       "blockers": [
@@ -314,15 +316,15 @@
     "PREDICTIVE_INTELLIGENCE_FULLY_PROVEN": {
       "claim_id": "PREDICTIVE_INTELLIGENCE_FULLY_PROVEN",
       "state": "PROSPECTIVE_EVIDENCE_INSUFFICIENT",
-      "updated_at": "2026-08-01T20:49:03+00:00",
+      "updated_at": "2026-08-01T21:19:45+00:00",
       "evidence": {
         "PREDICTIVE_DEMAND_FORECAST_AVAILABLE": "BACKTEST_FAILED",
-        "PREDICTIVE_COMPETITIVE_INTELLIGENCE_AVAILABLE": "SHADOW_OPERATIONAL",
+        "PREDICTIVE_COMPETITIVE_INTELLIGENCE_AVAILABLE": "HISTORICAL_BACKTEST_PROVEN",
         "PREDICTIVE_WINNING_DISCOUNT_AVAILABLE": "DATA_BLOCKED"
       },
       "blockers": [
         "PREDICTIVE_DEMAND_FORECAST_AVAILABLE=BACKTEST_FAILED",
-        "PREDICTIVE_COMPETITIVE_INTELLIGENCE_AVAILABLE=SHADOW_OPERATIONAL",
+        "PREDICTIVE_COMPETITIVE_INTELLIGENCE_AVAILABLE=HISTORICAL_BACKTEST_PROVEN",
         "PREDICTIVE_WINNING_DISCOUNT_AVAILABLE=DATA_BLOCKED"
       ],
       "limitations": [

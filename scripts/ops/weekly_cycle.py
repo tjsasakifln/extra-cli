@@ -191,6 +191,8 @@ class WeeklyCycleReport:
     limitations: list[str] = field(default_factory=list)
     human_accept: dict[str, Any] = field(default_factory=dict)
     duration_seconds: float = 0.0
+    # Claim-gated predictive intelligence (never invents PRODUCTION availability)
+    predictive: dict[str, Any] = field(default_factory=dict)
 
 
 # ---------------------------------------------------------------------------
@@ -2046,6 +2048,9 @@ def run_weekly_cycle(
             "score = probabilidade",
             "valor contratado = valor pago",
             "PDF fixture como produto operacional",
+            "inteligência preditiva comprovada / PRODUCTION sem claim PRODUCTION_AVAILABLE",
+            "probabilidade de vitória da Extra sem EXTRA_WIN_PROBABILITY_AVAILABLE=PRODUCTION_AVAILABLE",
+            "lance ótimo sem OPTIMAL_BID_RECOMMENDATION_AVAILABLE=PRODUCTION_AVAILABLE",
         ],
     )
 
@@ -2264,6 +2269,47 @@ def run_weekly_cycle(
         report.runs = [r.to_dict() for r in runs]
         report.stages = [asdict(s) for s in stages]
         report.exit_code = compute_exit_code(stages, runs, strict=strict)
+
+        # Claim-gated predictive section (honest; no invented PRODUCTION claims)
+        try:
+            from scripts.predictive.weekly_section import build_weekly_predictive_section
+
+            pred_section = build_weekly_predictive_section()
+            report.predictive = pred_section
+            pred_path = out / "predictive_status.json"
+            _atomic_json(pred_path, pred_section)
+            report.products["predictive_status"] = str(pred_path)
+            stages.append(
+                StageResult(
+                    name="predictive_status",
+                    status="ok",
+                    detail={
+                        "commercial_recommendation": pred_section.get(
+                            "commercial_recommendation"
+                        ),
+                        "path": str(pred_path),
+                    },
+                )
+            )
+            report.stages = [asdict(s) for s in stages]
+        except Exception as pred_exc:  # noqa: BLE001
+            stages.append(
+                StageResult(
+                    name="predictive_status",
+                    status="warn",
+                    error=str(pred_exc),
+                )
+            )
+            report.stages = [asdict(s) for s in stages]
+            report.predictive = {
+                "section": "predictive_intelligence",
+                "status": "unavailable",
+                "error": str(pred_exc),
+                "disclaimer": (
+                    "Camada preditiva indisponível neste ciclo; "
+                    "não interpretar ausência como probabilidade zero."
+                ),
+            }
 
         # Write manifest ONCE — no self-hash. Integrity of products is in checksums.json.
         report.finished_at = _iso()

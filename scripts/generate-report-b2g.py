@@ -2670,7 +2670,7 @@ def _build_executive_summary(data: dict, styles: dict, sec: dict | None = None) 
     legend_text = (
         "<b>COMPATIBILIDADE (0–100):</b> Avalia se a oportunidade é adequada para sua empresa "
         "considerando modalidade, prazo, valor e localização. Score alto = oportunidade alinhada ao perfil.  "
-        "<b>COMPETITIVIDADE ESTIMADA (%):</b> Estima a probabilidade de vencer com base na "
+        "<b>COMPETITIVIDADE ESTIMADA (score 0–100):</b> Score heurístico ordinal (NÃO probabilidade calibrada) com base na "
         "densidade de concorrentes e concentração de mercado. Percentual baixo é normal "
         "em licitações abertas com muitos participantes."
     )
@@ -5511,7 +5511,7 @@ def _build_executive_summary_v6(data: dict, styles: dict, sec: dict | None = Non
         Paragraph(
             "<b>COMPATIBILIDADE (0–100):</b> Avalia se a oportunidade é adequada para sua empresa "
             "considerando modalidade, prazo, valor e localização. Score alto = oportunidade alinhada. "
-            "<b>COMPETITIVIDADE ESTIMADA (%):</b> Estima a probabilidade de vencer com base na "
+            "<b>COMPETITIVIDADE ESTIMADA (score 0–100):</b> Score heurístico ordinal (NÃO probabilidade calibrada) com base na "
             "densidade de concorrentes e concentração de mercado. Percentual baixo é normal "
             "em licitações abertas com muitos participantes.",
             legend_style,
@@ -6581,7 +6581,7 @@ def _build_annex_sources_condensed(data: dict, styles: dict, sec: dict) -> list:
             "<b>Metodologia:</b> Compatibilidade = media ponderada de 5 dimensoes "
             "(Habilitacao 30%, Financeiro 25%, Geografico 20%, Prazo 15%, Competitivo 10%) — "
             "reflete a adequacao da oportunidade ao perfil da empresa; pesos sao estimativas setoriais. "
-            "Competitividade Estimada = probabilidade heuristica baseada em historico de contratacao "
+            "Competitividade Estimada = score heurístico (method=UNVALIDATED_HEURISTIC) baseado em histórico de contratação "
             "do orgao (densidade de concorrentes e concentracao de mercado). "
             "Resultado potencial = valor x competitividade x margem setorial - custo.",
             styles["body_small"],
@@ -6598,7 +6598,7 @@ def _build_annex_sources_condensed(data: dict, styles: dict, sec: dict) -> list:
             "Estadual, Municipal, FGTS, CNDT), certidao de falencia e registro CREA/CAU NAO sao "
             "verificados automaticamente; (2) percentual de capital minimo/patrimonio liquido e "
             "estimativa setorial — o percentual real e definido em cada edital e deve ser conferido "
-            "antes de submeter proposta; (3) probabilidades de vitoria sao estimativas heuristicas "
+            "antes de submeter proposta; (3) scores de competitividade são estimativas heurísticas (NÃO probabilidade calibrada) "
             "baseadas em dados historicos de contratacao do orgao, NAO sao projecoes estatisticas "
             "calibradas; (4) capacidade financeira estimada e uma aproximacao — a capacidade real "
             "depende de patrimonio liquido, receita, linhas de credito e contratos em andamento; "

@@ -1,0 +1,16 @@
+{
+  "status": "ok",
+  "predictions_loaded": 3,
+  "resolved": 0,
+  "pending_or_immature": 3,
+  "persist": {
+    "ledger_path": "/mnt/d/extra consultoria/.worktrees/predictive-intel/artifacts/predictive/outcomes_ledger.jsonl",
+    "written": 0,
+    "skipped_existing": 0,
+    "pg_written": 0,
+    "total_resolved_this_run": 0
+  },
+  "fetch_error": null,
+  "note": "Predictions are never rewritten. Outcomes append-only. Demand labels resolve only after horizon window fully elapses.",
+  "outcomes_sample": []
+}

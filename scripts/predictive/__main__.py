@@ -62,6 +62,14 @@ def _save(name: str, payload: Any) -> Path:
     return path
 
 
+def _append_prediction_ledger(prediction: dict[str, Any]) -> Path:
+    """Append-only ledger for outcome reconciliation (never rewrites past rows)."""
+    path = _out_dir() / "predictions_ledger.jsonl"
+    with path.open("a", encoding="utf-8") as fh:
+        fh.write(json.dumps(prediction, ensure_ascii=False, default=str) + "\n")
+    return path
+
+
 def cmd_claims(_: argparse.Namespace) -> int:
     reg = load_registry()
     payload = reg.to_public_dict()
@@ -288,21 +296,15 @@ def cmd_backtest(args: argparse.Namespace) -> int:
             )
         except ValueError as exc:
             payload["claim_update_error"] = str(exc)
-        # If historical proven, advance to shadow-ready (not prospective soak)
+        # Do NOT auto-promote HISTORICAL_BACKTEST_PROVEN → SHADOW_OPERATIONAL.
+        # SHADOW_OPERATIONAL requires actual scheduled emission + persistence of
+        # pre-outcome predictions (systemd timer running), not local readiness alone.
         if state == "HISTORICAL_BACKTEST_PROVEN":
-            try:
-                reg.set_state(
-                    cid,
-                    "SHADOW_OPERATIONAL",
-                    evidence={"shadow": "ready_local", "prospective_soak": False},
-                    blockers=[
-                        "Prospective soak not completed (calendar/outcomes)",
-                        "PROSPECTIVE_CALIBRATED requires ≥30d mature outcomes",
-                    ],
-                    force=True,
-                )
-            except ValueError:
-                pass
+            payload["shadow_note"] = (
+                "Historical gates passed. Claim remains HISTORICAL_BACKTEST_PROVEN "
+                "until shadow path emits/persists predictions on a live schedule "
+                "(enable extra-predictive-shadow.timer and verify prediction ledger)."
+            )
         reg.save()
         payload["claim_state"] = reg.get(cid).state
 
@@ -376,6 +378,7 @@ def cmd_predict(args: argparse.Namespace) -> int:
         d = rec.to_dict()
         d["model_meta_present"] = model_meta_path.exists()
         d["entity_id"] = args.entity
+        _append_prediction_ledger(d)
         print(json.dumps(d, indent=2, ensure_ascii=False, default=str))
         _save(f"prediction_last_{args.target}.json", d)
         return 0
@@ -392,35 +395,124 @@ def cmd_predict(args: argparse.Namespace) -> int:
         horizon=args.horizon,
         mode="shadow",
     )
-    print(json.dumps(rec.to_dict(), indent=2, ensure_ascii=False, default=str))
+    d = rec.to_dict()
+    _append_prediction_ledger(d)
+    print(json.dumps(d, indent=2, ensure_ascii=False, default=str))
+    _save(f"prediction_last_{args.target}.json", d)
     return 0
 
 
-def cmd_resolve_outcomes(_: argparse.Namespace) -> int:
+def cmd_resolve_outcomes(args: argparse.Namespace) -> int:
+    """Join immutable predictions to post-window observed events; append outcomes ledger."""
+    from scripts.predictive.outcomes import (
+        default_ledger_path,
+        load_predictions_jsonl,
+        persist_outcomes,
+        resolve_predictions,
+    )
+
+    pred_path = _out_dir() / "predictions_ledger.jsonl"
+    # Also accept last single prediction files
+    predictions = load_predictions_jsonl(pred_path)
+    for p in _out_dir().glob("prediction_last_*.json"):
+        try:
+            predictions.append(json.loads(p.read_text(encoding="utf-8")))
+        except Exception:
+            pass
+
+    contracts: list[dict] = []
+    fetch_error = None
+    try:
+        contracts = fetch_aec_contracts(
+            args.dsn, limit=args.limit or 50000, uf=args.uf, min_year=args.min_year
+        )
+    except Exception as exc:
+        fetch_error = str(exc)
+
+    resolved = resolve_predictions(predictions, contracts=contracts)
+    persist = persist_outcomes(resolved, dsn=args.dsn or get_dsn())
+    pending = max(0, len(predictions) - len(resolved) - int(persist.get("skipped_existing") or 0))
     payload = {
-        "status": "ready",
-        "message": (
-            "Outcome resolver scaffold: joins predictive_predictions to observed "
-            "contracts/events after label window. No silent rewrite of predictions."
+        "status": "ok" if fetch_error is None else "degraded",
+        "predictions_loaded": len(predictions),
+        "resolved": len(resolved),
+        "pending_or_immature": pending,
+        "persist": persist,
+        "fetch_error": fetch_error,
+        "note": (
+            "Predictions are never rewritten. Outcomes append-only. "
+            "Demand labels resolve only after horizon window fully elapses."
         ),
-        "resolved": 0,
-        "pending": 0,
+        "outcomes_sample": [r.to_dict() for r in resolved[:5]],
     }
     _save("outcomes_resolve_last.json", payload)
-    print(json.dumps(payload, indent=2))
-    return 0
+    print(json.dumps(payload, indent=2, ensure_ascii=False, default=str))
+    return 0 if fetch_error is None else 1
 
 
-def cmd_monitor(_: argparse.Namespace) -> int:
+def cmd_monitor(args: argparse.Namespace) -> int:
+    """Drift/calibration monitor over outcome ledger; may suspend claims."""
+    from scripts.predictive.drift import (
+        apply_drift_to_claims,
+        default_drift_path,
+        evaluate_outcomes_drift,
+    )
+    from scripts.predictive.outcomes import default_ledger_path, load_predictions_jsonl
+
     reg = load_registry()
+    outcomes_path = default_ledger_path()
+    outcomes: list[dict] = []
+    if outcomes_path.exists():
+        for line in outcomes_path.read_text(encoding="utf-8").splitlines():
+            if line.strip():
+                try:
+                    outcomes.append(json.loads(line))
+                except json.JSONDecodeError:
+                    continue
+
+    pred_path = _out_dir() / "predictions_ledger.jsonl"
+    predictions = load_predictions_jsonl(pred_path)
+    for p in _out_dir().glob("prediction_last_*.json"):
+        try:
+            predictions.append(json.loads(p.read_text(encoding="utf-8")))
+        except Exception:
+            pass
+
+    # Evaluate per known target present in predictions
+    targets = sorted(
+        {
+            str(p.get("target_name"))
+            for p in predictions
+            if p.get("target_name")
+        }
+        | {"demand_30d", "competitive_winner_p2a"}
+    )
+    drift_reports = []
+    suspend_actions = []
+    for t in targets:
+        report = evaluate_outcomes_drift(
+            outcomes, predictions, target_name=t, min_outcomes=30
+        )
+        drift_reports.append(report.to_dict())
+        action = apply_drift_to_claims(report, registry=reg)
+        suspend_actions.append(action)
+
     payload = {
         "status": "ok",
         "claims": reg.to_public_dict(),
-        "drift": {
-            "decision": "insufficient_prospective_window",
-            "reasons": ["Shadow prospective soak not yet elapsed"],
-        },
+        "n_outcomes": len(outcomes),
+        "n_predictions": len(predictions),
+        "drift_reports": drift_reports,
+        "suspend_actions": suspend_actions,
+        "outcomes_ledger": str(outcomes_path),
+        "note": (
+            "insufficient_data is expected until prospective predictions mature; "
+            "suspend_drift / suspend_data_quality actively update claim registry"
+        ),
     }
+    path = default_drift_path()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, indent=2, ensure_ascii=False, default=str) + "\n")
     _save("monitor_last.json", payload)
     print(json.dumps(payload, indent=2, ensure_ascii=False, default=str))
     return 0
