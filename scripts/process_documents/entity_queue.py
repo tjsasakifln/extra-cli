@@ -17,24 +17,38 @@ cleared or capacity (batch/time budget) is exhausted.
 from __future__ import annotations
 
 import json
+import random
 from collections.abc import Mapping, Sequence
 from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
+from scripts.process_documents.error_classes import (
+    ErrorClass,
+    classify_error,
+    is_retryable,
+    should_dead_letter,
+    should_open_circuit,
+)
 from scripts.process_documents.models import EntityDocumentDiscovery
 from scripts.process_documents.statuses import DocumentRunStatus
 from scripts.process_documents.storage import ensure_roots, write_json
 
 SLA_HOURS = 24
 QUEUE_CHECKPOINT_REL = Path("checkpoints") / "entity_queue.json"
+DLQ_REL = Path("checkpoints") / "entity_source_dlq.jsonl"
+CB_FAILURE_THRESHOLD = 5
+CB_COOLDOWN_HOURS = 2.0
+BACKOFF_BASE_HOURS = 1.0
+BACKOFF_MAX_HOURS = 24.0
 VALID_SUCCESS = frozenset(
     {
         DocumentRunStatus.SUCCESS_NONZERO.value,
         DocumentRunStatus.SUCCESS_ZERO.value,
     }
 )
+
 
 # Partial with at least one successful source still counts as valid for SLA/queue.
 def _is_valid_collection(status: str | None, result: Mapping[str, Any] | None = None) -> bool:
@@ -43,9 +57,7 @@ def _is_valid_collection(status: str | None, result: Mapping[str, Any] | None = 
     if status == DocumentRunStatus.PARTIAL.value and result:
         srcs = result.get("source_results") or {}
         if isinstance(srcs, dict):
-            return any(
-                isinstance(v, dict) and v.get("status") in VALID_SUCCESS for v in srcs.values()
-            )
+            return any(isinstance(v, dict) and v.get("status") in VALID_SUCCESS for v in srcs.values())
     return False
 
 
@@ -76,7 +88,11 @@ def _iso(dt: datetime | None) -> str | None:
 
 @dataclass
 class SourceQueueEntry:
-    """Operational state for one (canonical_entity_id × source_id)."""
+    """Operational state for one (canonical_entity_id × source_id).
+
+    Independent of sibling sources on the same entity. Persisted fields cover
+    scheduling, observability, circuit breaker and resume checkpoints.
+    """
 
     canonical_id: str
     source_id: str
@@ -87,6 +103,17 @@ class SourceQueueEntry:
     attempt_count: int = 0
     last_status: str | None = None
     last_error: str | None = None
+    error_class: str = ErrorClass.NONE.value
+    duration_ms: int | None = None
+    documents_found: int = 0
+    documents_new: int = 0
+    documents_changed: int = 0
+    cursor: str | None = None  # opaque checkpoint for resume
+    circuit_breaker_state: str = "closed"  # closed | open | half_open
+    circuit_open_until: str | None = None
+    dead_letter: bool = False
+    dead_letter_reason: str | None = None
+    criticality: int = 5  # 1=highest, 10=lowest
     scope_complete: bool | None = None
 
     def lag_hours(self, now: datetime | None = None) -> float | None:
@@ -96,8 +123,25 @@ class SourceQueueEntry:
         clock = now or _now()
         return max(0.0, (clock - success).total_seconds() / 3600.0)
 
+    def is_circuit_open(self, now: datetime | None = None) -> bool:
+        if self.circuit_breaker_state != "open":
+            return False
+        until = _parse_iso(self.circuit_open_until)
+        clock = now or _now()
+        if until is None:
+            return True
+        if until <= clock:
+            # cooldown elapsed — half-open allows one probe
+            self.circuit_breaker_state = "half_open"
+            return False
+        return True
+
     def is_overdue(self, *, sla_hours: float = SLA_HOURS, now: datetime | None = None) -> bool:
         clock = now or _now()
+        if self.dead_letter:
+            return False
+        if self.is_circuit_open(clock):
+            return False
         next_run = _parse_iso(self.next_run_at)
         if next_run is not None and next_run <= clock:
             return True
@@ -121,6 +165,17 @@ class SourceQueueEntry:
             attempt_count=int(data.get("attempt_count") or 0),
             last_status=data.get("last_status"),
             last_error=data.get("last_error"),
+            error_class=str(data.get("error_class") or ErrorClass.NONE.value),
+            duration_ms=int(data["duration_ms"]) if data.get("duration_ms") is not None else None,
+            documents_found=int(data.get("documents_found") or 0),
+            documents_new=int(data.get("documents_new") or 0),
+            documents_changed=int(data.get("documents_changed") or 0),
+            cursor=data.get("cursor"),
+            circuit_breaker_state=str(data.get("circuit_breaker_state") or "closed"),
+            circuit_open_until=data.get("circuit_open_until"),
+            dead_letter=bool(data.get("dead_letter") or False),
+            dead_letter_reason=data.get("dead_letter_reason"),
+            criticality=int(data.get("criticality") or 5),
             scope_complete=data.get("scope_complete"),
         )
 
@@ -335,6 +390,7 @@ def select_batch_by_success_lag(
     Tertiary: next_run_at overdue first.
     Tie-break: canonical_id.
     """
+
     def sort_key(d: EntityDocumentDiscovery) -> tuple[int, datetime, datetime, str]:
         e = queue.get(d.canonical_id) or EntityQueueEntry(canonical_id=d.canonical_id)
         success = _parse_iso(e.last_success_at)
@@ -398,8 +454,7 @@ def build_sla_alerts(
                     "next_run_at": e.next_run_at,
                     "message": (
                         f"Active entity {d.canonical_id} has no valid collection "
-                        f"within {sla_hours}h SLA"
-                        + (" (never succeeded)" if never else f" (lag={hours:.1f}h)")
+                        f"within {sla_hours}h SLA" + (" (never succeeded)" if never else f" (lag={hours:.1f}h)")
                     ),
                     "next_action": "enqueue for multi-source collect and inspect source errors",
                 }
@@ -464,6 +519,7 @@ def drain_decision(
         return True, "PARTIAL_CAPACITY_EXHAUSTED"
     return False, "continue"
 
+
 def get_source_entry(
     queue: Mapping[str, EntityQueueEntry],
     canonical_id: str,
@@ -476,6 +532,22 @@ def get_source_entry(
     return se
 
 
+def compute_backoff_hours(
+    consecutive_failures: int,
+    *,
+    base_hours: float = BACKOFF_BASE_HOURS,
+    max_hours: float = BACKOFF_MAX_HOURS,
+    jitter: bool = True,
+    rng: random.Random | None = None,
+) -> float:
+    """Exponential backoff with optional full-jitter (AWS-style)."""
+    exp = min(max_hours, base_hours * (2 ** max(0, consecutive_failures - 1)))
+    if not jitter:
+        return exp
+    r = rng or random.Random()
+    return r.uniform(0.0, exp)  # noqa: S311 — scheduling jitter, not crypto
+
+
 def apply_source_attempt_result(
     entry: SourceQueueEntry,
     *,
@@ -484,6 +556,16 @@ def apply_source_attempt_result(
     attempted_at: datetime | None = None,
     sla_hours: float = SLA_HOURS,
     scope_complete: bool | None = None,
+    duration_ms: int | None = None,
+    documents_found: int | None = None,
+    documents_new: int | None = None,
+    documents_changed: int | None = None,
+    cursor: str | None = None,
+    http_status: int | None = None,
+    error_class: str | ErrorClass | None = None,
+    cb_threshold: int = CB_FAILURE_THRESHOLD,
+    cb_cooldown_hours: float = CB_COOLDOWN_HOURS,
+    rng: random.Random | None = None,
 ) -> SourceQueueEntry:
     """Update one entity×source entry. Sibling sources are never modified here."""
     clock = attempted_at or _now()
@@ -492,6 +574,16 @@ def apply_source_attempt_result(
     entry.last_status = status
     if error:
         entry.last_error = error
+    if duration_ms is not None:
+        entry.duration_ms = int(duration_ms)
+    if documents_found is not None:
+        entry.documents_found = int(documents_found)
+    if documents_new is not None:
+        entry.documents_new = int(documents_new)
+    if documents_changed is not None:
+        entry.documents_changed = int(documents_changed)
+    if cursor is not None:
+        entry.cursor = cursor
     if scope_complete is not None:
         entry.scope_complete = bool(scope_complete)
     # Budget skip is not a success and not a hard failure for consecutive_failures
@@ -499,6 +591,7 @@ def apply_source_attempt_result(
         DocumentRunStatus.NOT_QUERIED_BUDGET.value,
         DocumentRunStatus.NOT_QUERIED.value,
     ):
+        entry.error_class = ErrorClass.CAPACITY.value
         return entry
     valid = status in VALID_SUCCESS and (
         status != DocumentRunStatus.SUCCESS_ZERO.value or entry.scope_complete is not False
@@ -511,10 +604,29 @@ def apply_source_attempt_result(
         entry.consecutive_failures = 0
         entry.next_run_at = _iso(clock + timedelta(hours=sla_hours))
         entry.last_error = None
+        entry.error_class = ErrorClass.NONE.value
+        entry.circuit_breaker_state = "closed"
+        entry.circuit_open_until = None
+        entry.dead_letter = False
+        entry.dead_letter_reason = None
     else:
         entry.consecutive_failures = int(entry.consecutive_failures or 0) + 1
-        backoff_h = min(sla_hours, max(1.0, 4.0 * entry.consecutive_failures))
-        entry.next_run_at = _iso(clock + timedelta(hours=backoff_h))
+        cls = (
+            ErrorClass(str(error_class))
+            if error_class is not None
+            else classify_error(status=status, error=error, http_status=http_status)
+        )
+        entry.error_class = cls.value
+        backoff_h = compute_backoff_hours(entry.consecutive_failures, rng=rng)
+        if cls == ErrorClass.RATE_LIMIT:
+            backoff_h = max(backoff_h, 0.5)
+        entry.next_run_at = _iso(clock + timedelta(hours=min(sla_hours, max(backoff_h, 0.05))))
+        if should_open_circuit(cls) and entry.consecutive_failures >= cb_threshold:
+            entry.circuit_breaker_state = "open"
+            entry.circuit_open_until = _iso(clock + timedelta(hours=cb_cooldown_hours))
+        if should_dead_letter(cls, entry.consecutive_failures):
+            entry.dead_letter = True
+            entry.dead_letter_reason = f"{cls.value}:{status or error or 'unknown'}"
     return entry
 
 
@@ -549,15 +661,30 @@ def apply_multi_source_attempt(
         se = entity_entry.sources_state.get(sid) or SourceQueueEntry(
             canonical_id=entity_entry.canonical_id, source_id=sid
         )
+        err_raw = rd.get("errors")
+        if isinstance(err_raw, list) and err_raw:
+            err_msg = err_raw[0]
+        else:
+            err_msg = rd.get("error")
         se = apply_source_attempt_result(
             se,
             status=st if isinstance(st, str) else (st.value if st is not None else None),
-            error=(rd.get("errors") or [None])[0] if rd.get("errors") else rd.get("error"),
+            error=str(err_msg) if err_msg else None,
             attempted_at=clock,
             sla_hours=sla_hours,
             scope_complete=rd.get("scope_complete"),
+            duration_ms=rd.get("duration_ms"),
+            documents_found=rd.get("documents_found") or rd.get("documents_downloaded"),
+            documents_new=rd.get("documents_new"),
+            documents_changed=rd.get("documents_changed"),
+            cursor=rd.get("cursor") or rd.get("checkpoint"),
+            http_status=rd.get("http_status"),
+            error_class=rd.get("error_class"),
         )
         entity_entry.sources_state[sid] = se
+        if se.dead_letter:
+            # DLQ append is optional here (no meta_root); callers may persist
+            pass
         if st in (
             DocumentRunStatus.NOT_QUERIED_BUDGET.value,
             DocumentRunStatus.NOT_QUERIED.value,
@@ -601,9 +728,7 @@ def max_source_lag_hours(
         return entry.lag_hours(clock)
     lags: list[float | None] = []
     for sid in srcs:
-        se = (entry.sources_state or {}).get(sid) or SourceQueueEntry(
-            canonical_id=entry.canonical_id, source_id=sid
-        )
+        se = (entry.sources_state or {}).get(sid) or SourceQueueEntry(canonical_id=entry.canonical_id, source_id=sid)
         lags.append(se.lag_hours(clock))
     if any(x is None for x in lags):
         return None
@@ -636,3 +761,317 @@ def select_batch_by_source_lag(
         return ordered[:limit]
     return ordered
 
+
+def ensure_entity_source_pairs(
+    queue: dict[str, EntityQueueEntry],
+    entity_sources: Mapping[str, Sequence[str]],
+    *,
+    criticality: Mapping[str, int] | None = None,
+) -> dict[str, EntityQueueEntry]:
+    """Ensure every active entity×source has independent persisted state."""
+    for cid, sources in entity_sources.items():
+        ent = queue.get(cid) or EntityQueueEntry(canonical_id=cid)
+        if ent.sources_state is None:
+            ent.sources_state = {}
+        for sid in sources:
+            if sid not in ent.sources_state:
+                ent.sources_state[sid] = SourceQueueEntry(
+                    canonical_id=cid,
+                    source_id=sid,
+                    criticality=int((criticality or {}).get(cid, 5)),
+                )
+            if sid not in ent.sources:
+                ent.sources = sorted(set(ent.sources) | {sid})
+        queue[cid] = ent
+    return queue
+
+
+def list_source_pairs(
+    queue: Mapping[str, EntityQueueEntry],
+    entity_sources: Mapping[str, Sequence[str]],
+) -> list[tuple[str, str]]:
+    pairs: list[tuple[str, str]] = []
+    for cid, sources in sorted(entity_sources.items()):
+        for sid in sources:
+            pairs.append((cid, sid))
+    return pairs
+
+
+def select_source_pairs_by_lag(
+    queue: Mapping[str, EntityQueueEntry],
+    entity_sources: Mapping[str, Sequence[str]],
+    *,
+    limit: int | None = None,
+    now: datetime | None = None,
+    sla_hours: float = SLA_HOURS,
+    skip_dead_letter: bool = True,
+    skip_open_circuit: bool = True,
+) -> list[SourceQueueEntry]:
+    """Select entity×source pairs by lag then criticality (never static prefix).
+
+    Ensures that a batch limit never permanently starves later pairs: order is
+    by (never_success, -lag, criticality, id), so each cycle rotates.
+    """
+    clock = now or _now()
+    candidates: list[SourceQueueEntry] = []
+    for cid, sources in entity_sources.items():
+        ent = queue.get(cid) or EntityQueueEntry(canonical_id=cid)
+        for sid in sources:
+            se = (ent.sources_state or {}).get(sid) or SourceQueueEntry(canonical_id=cid, source_id=sid)
+            if skip_dead_letter and se.dead_letter:
+                continue
+            if skip_open_circuit and se.is_circuit_open(clock):
+                continue
+            candidates.append(se)
+
+    def sort_key(se: SourceQueueEntry) -> tuple[int, float, int, str, str]:
+        lag = se.lag_hours(clock)
+        never = 0 if lag is None else 1
+        lag_val = 1e18 if lag is None else float(lag)
+        # overdue next_run gets slight boost via negative lag if needed
+        next_run = _parse_iso(se.next_run_at)
+        overdue_boost = 0.0
+        if next_run is not None and next_run <= clock:
+            overdue_boost = 0.1
+        return (never, -(lag_val + overdue_boost), int(se.criticality or 5), se.canonical_id, se.source_id)
+
+    ordered = sorted(candidates, key=sort_key)
+    if limit is not None:
+        return ordered[: int(limit)]
+    return ordered
+
+
+def reprocess_selection(
+    queue: dict[str, EntityQueueEntry],
+    *,
+    entity_ids: Sequence[str] | None = None,
+    source_ids: Sequence[str] | None = None,
+    clear_dead_letter: bool = True,
+    clear_circuit: bool = True,
+    now: datetime | None = None,
+) -> int:
+    """Selective reprocess: reset next_run and optional DLQ/CB for matching pairs."""
+    clock = now or _now()
+    n = 0
+    for cid, ent in queue.items():
+        if entity_ids is not None and cid not in entity_ids:
+            continue
+        for sid, se in list((ent.sources_state or {}).items()):
+            if source_ids is not None and sid not in source_ids:
+                continue
+            se.next_run_at = _iso(clock)
+            if clear_dead_letter:
+                se.dead_letter = False
+                se.dead_letter_reason = None
+            if clear_circuit:
+                se.circuit_breaker_state = "closed"
+                se.circuit_open_until = None
+            ent.sources_state[sid] = se
+            n += 1
+        queue[cid] = ent
+    return n
+
+
+def append_dlq_record(
+    entry: SourceQueueEntry,
+    *,
+    meta_root: Path | None = None,
+    extra: Mapping[str, Any] | None = None,
+) -> Path | None:
+    """Append dead-letter record for persistent failures."""
+    if not entry.dead_letter:
+        return None
+    _, meta = ensure_roots(meta_root=meta_root)
+    path = meta / DLQ_REL
+    path.parent.mkdir(parents=True, exist_ok=True)
+    row = {
+        "recorded_at": _now().isoformat(),
+        "canonical_id": entry.canonical_id,
+        "source_id": entry.source_id,
+        "error_class": entry.error_class,
+        "last_error": entry.last_error,
+        "last_status": entry.last_status,
+        "attempt_count": entry.attempt_count,
+        "consecutive_failures": entry.consecutive_failures,
+        "dead_letter_reason": entry.dead_letter_reason,
+        "cursor": entry.cursor,
+    }
+    if extra:
+        row.update(dict(extra))
+    with path.open("a", encoding="utf-8") as fh:
+        fh.write(json.dumps(row, ensure_ascii=False) + "\n")
+    return path
+
+
+def source_pair_metrics(
+    queue: Mapping[str, EntityQueueEntry],
+    entity_sources: Mapping[str, Sequence[str]],
+    *,
+    now: datetime | None = None,
+    sla_hours: float = SLA_HOURS,
+) -> dict[str, Any]:
+    """Observability snapshot for entity×source queue health."""
+    clock = now or _now()
+    total = 0
+    overdue = 0
+    never = 0
+    dlq = 0
+    open_cb = 0
+    by_class: dict[str, int] = {}
+    lags: list[float] = []
+    for cid, sources in entity_sources.items():
+        ent = queue.get(cid) or EntityQueueEntry(canonical_id=cid)
+        for sid in sources:
+            total += 1
+            se = (ent.sources_state or {}).get(sid) or SourceQueueEntry(canonical_id=cid, source_id=sid)
+            if se.dead_letter:
+                dlq += 1
+            if se.is_circuit_open(clock):
+                open_cb += 1
+            if se.is_overdue(sla_hours=sla_hours, now=clock):
+                overdue += 1
+            lag = se.lag_hours(clock)
+            if lag is None:
+                never += 1
+            else:
+                lags.append(float(lag))
+            cls = se.error_class or ErrorClass.NONE.value
+            by_class[cls] = by_class.get(cls, 0) + 1
+    lags_sorted = sorted(lags)
+
+    def _pct(p: float) -> float | None:
+        if not lags_sorted:
+            return None
+        idx = min(len(lags_sorted) - 1, max(0, int(round((p / 100.0) * (len(lags_sorted) - 1)))))
+        return round(lags_sorted[idx], 3)
+
+    return {
+        "entity_count": len(entity_sources),
+        "pair_count": total,
+        "overdue_pairs": overdue,
+        "never_succeeded_pairs": never,
+        "dead_letter_count": dlq,
+        "circuit_open_count": open_cb,
+        "error_class_counts": by_class,
+        "lag_hours_p50": _pct(50),
+        "lag_hours_p95": _pct(95),
+        "lag_hours_max": round(max(lags_sorted), 3) if lags_sorted else None,
+        "sla_hours": sla_hours,
+        "generated_at": clock.isoformat(),
+    }
+
+
+def backpressure_allows(
+    *,
+    cpu_percent: float | None = None,
+    memory_percent: float | None = None,
+    disk_percent: float | None = None,
+    cpu_limit: float = 90.0,
+    memory_limit: float = 90.0,
+    disk_limit: float = 92.0,
+    active_workers: int = 0,
+    max_concurrency: int = 4,
+) -> tuple[bool, str]:
+    """Return (allowed, reason) for admitting another concurrent source job."""
+    if active_workers >= max_concurrency:
+        return False, "concurrency_cap"
+    if cpu_percent is not None and cpu_percent >= cpu_limit:
+        return False, "cpu_backpressure"
+    if memory_percent is not None and memory_percent >= memory_limit:
+        return False, "memory_backpressure"
+    if disk_percent is not None and disk_percent >= disk_limit:
+        return False, "disk_backpressure"
+    return True, "ok"
+
+
+def simulate_fair_rotation(
+    entity_sources: Mapping[str, Sequence[str]],
+    *,
+    batch_size: int,
+    cycles: int | None = None,
+    sla_hours: float = SLA_HOURS,
+    rng_seed: int = 42,
+) -> dict[str, Any]:
+    """Pure simulation: prove full rotation when universe > batch limit.
+
+    Each cycle selects ``batch_size`` pairs by lag, marks them successful, and
+    continues until every pair has been selected at least once (or cycles cap).
+    """
+    rng = random.Random(rng_seed)
+    queue: dict[str, EntityQueueEntry] = {}
+    ensure_entity_source_pairs(queue, entity_sources)
+    pairs = list_source_pairs(queue, entity_sources)
+    total = len(pairs)
+    if total == 0:
+        return {"pair_count": 0, "cycles": 0, "coverage": 1.0, "seen": []}
+    seen: set[tuple[str, str]] = set()
+    cycle = 0
+    max_cycles = cycles if cycles is not None else (total // max(1, batch_size) + total + 5)
+    clock = datetime(2026, 8, 1, tzinfo=UTC)
+    selection_log: list[list[str]] = []
+    while len(seen) < total and cycle < max_cycles:
+        cycle += 1
+        # advance clock so successful pairs age and lag ordering rotates
+        clock = clock + timedelta(minutes=5)
+        batch = select_source_pairs_by_lag(queue, entity_sources, limit=batch_size, now=clock, sla_hours=sla_hours)
+        keys = [f"{se.canonical_id}|{se.source_id}" for se in batch]
+        selection_log.append(keys)
+        for se in batch:
+            seen.add((se.canonical_id, se.source_id))
+            ent = queue[se.canonical_id]
+            apply_source_attempt_result(
+                se,
+                status=DocumentRunStatus.SUCCESS_ZERO.value,
+                attempted_at=clock,
+                sla_hours=sla_hours,
+                scope_complete=True,
+                documents_found=0,
+                rng=rng,
+            )
+            ent.sources_state[se.source_id] = se
+            queue[se.canonical_id] = ent
+    return {
+        "pair_count": total,
+        "batch_size": batch_size,
+        "cycles": cycle,
+        "unique_seen": len(seen),
+        "coverage": round(len(seen) / total, 6) if total else 1.0,
+        "full_rotation": len(seen) == total,
+        "selection_log_head": selection_log[:5],
+        "selection_log_tail": selection_log[-3:],
+    }
+
+
+# re-export helpers used by tests / ops
+__all__ = [
+    "SLA_HOURS",
+    "SourceQueueEntry",
+    "EntityQueueEntry",
+    "ErrorClass",
+    "apply_attempt_result",
+    "apply_multi_source_attempt",
+    "apply_source_attempt_result",
+    "append_dlq_record",
+    "backpressure_allows",
+    "build_sla_alerts",
+    "compute_backoff_hours",
+    "drain_decision",
+    "ensure_entries",
+    "ensure_entity_source_pairs",
+    "get_source_entry",
+    "is_retryable",
+    "list_source_pairs",
+    "load_entity_queue",
+    "max_source_lag_hours",
+    "queue_path",
+    "queue_summary",
+    "reprocess_selection",
+    "save_entity_queue",
+    "select_batch_by_source_lag",
+    "select_batch_by_success_lag",
+    "select_source_pairs_by_lag",
+    "simulate_fair_rotation",
+    "source_key",
+    "source_pair_metrics",
+    "overdue_entities",
+]
