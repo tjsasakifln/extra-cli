@@ -37,6 +37,9 @@ class DocumentRunStatus(StrEnum):
     AUTH_REQUIRED = "auth_required"
     CAPTCHA = "captcha"
     UNEXPECTED_EMPTY = "unexpected_empty"
+    NOT_QUERIED_BUDGET = "NOT_QUERIED_BUDGET"
+    NOT_QUERIED = "NOT_QUERIED"
+    PARTIAL_CAPACITY_EXHAUSTED = "PARTIAL_CAPACITY_EXHAUSTED"
 
 
 # Statuses that count toward operational document coverage of active entities.
@@ -71,6 +74,9 @@ NON_COVERAGE: frozenset[DocumentRunStatus] = frozenset(
         DocumentRunStatus.AUTH_REQUIRED,
         DocumentRunStatus.CAPTCHA,
         DocumentRunStatus.UNEXPECTED_EMPTY,
+        DocumentRunStatus.NOT_QUERIED_BUDGET,
+        DocumentRunStatus.NOT_QUERIED,
+        DocumentRunStatus.PARTIAL_CAPACITY_EXHAUSTED,
     }
 )
 

@@ -26,4 +26,4 @@ CAPABILITY_DECOMPOSITION: tuple[str, ...] = (
     "contract_execution_documents",
     "administrative_process_documents",
 )
-ADAPTER_VERSION = "process_documents/1.0.0"
+ADAPTER_VERSION = "process_documents/1.1.0"

@@ -10,6 +10,8 @@ WorkingDirectory=/opt/extra-cli
 EnvironmentFile=-/etc/extra-cli/extra-collector.env
 Environment=PROCESS_DOCUMENTS_RAW_ROOT=/var/lib/extra-cli/raw/process_documents
 Environment=PROCESS_DOCUMENTS_META_ROOT=/var/lib/extra-cli/output/process_documents
+# Drain success-lag queue in batches of 100 until lag cleared or capacity exhausted.
+# Multi-source + queue state are defaults in collect.incremental.
 ExecStart=/usr/bin/python3 -m scripts.process_documents incremental --limit 100
 Nice=10
 TimeoutStartSec=6h

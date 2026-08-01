@@ -43,8 +43,17 @@ class StoredBlob:
 
 
 def ensure_roots(raw_root: Path | None = None, meta_root: Path | None = None) -> tuple[Path, Path]:
-    raw = Path(raw_root or DEFAULT_RAW_ROOT)
-    meta = Path(meta_root or DEFAULT_META_ROOT)
+    # Re-read env on each call so tests/ops can override PROCESS_DOCUMENTS_* at runtime.
+    raw = Path(
+        raw_root
+        or os.environ.get("PROCESS_DOCUMENTS_RAW_ROOT")
+        or DEFAULT_RAW_ROOT
+    )
+    meta = Path(
+        meta_root
+        or os.environ.get("PROCESS_DOCUMENTS_META_ROOT")
+        or DEFAULT_META_ROOT
+    )
     raw.mkdir(parents=True, exist_ok=True)
     meta.mkdir(parents=True, exist_ok=True)
     return raw, meta
