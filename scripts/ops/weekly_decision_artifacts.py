@@ -96,18 +96,89 @@ def _cnpj8(value: str | None) -> str:
     return digits[:8] if len(digits) >= 8 else digits
 
 
+def load_entity_source_evidence(conn: Any) -> dict[tuple[str, str], str]:
+    """Load entity-scoped collection evidence → (cnpj8|entity_key, source) → state.
+
+    Reads ``coverage_evidence`` when present. States of interest:
+    - success_with_data / success → supports FOUND
+    - success_zero → supports ZERO_CONFIRMED (only with complete entity-scoped collect)
+
+    Empty map when table missing — callers must keep NOT_QUERIED (never invent zero).
+    """
+    out: dict[tuple[str, str], str] = {}
+    if conn is None:
+        return out
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT 1 FROM information_schema.tables
+                WHERE table_schema = 'public' AND table_name = 'coverage_evidence'
+                """
+            )
+            if not cur.fetchone():
+                return out
+            cur.execute(
+                """
+                SELECT entity_id, canonical_entity_key, source, state, checked_at
+                FROM coverage_evidence
+                WHERE COALESCE(capability, '') IN ('open_tenders', '')
+                   OR COALESCE(data_type, '') IN ('bids', 'open_tenders', 'acts')
+                ORDER BY checked_at DESC NULLS LAST
+                """
+            )
+            for row in cur.fetchall():
+                r = dict(row) if not isinstance(row, dict) else row
+                # RealDictCursor or tuple
+                if not isinstance(r, dict):
+                    r = {
+                        "entity_id": row[0],
+                        "canonical_entity_key": row[1],
+                        "source": row[2],
+                        "state": row[3],
+                    }
+                src = str(r.get("source") or "").lower().strip()
+                if src in {"ciga", "ciga_dom", "dom_sc"}:
+                    src = "ciga_ckan"
+                if src in {"pncp_opportunities", "test_batch"}:
+                    src = "pncp"
+                state = str(r.get("state") or "").lower().strip()
+                eid = str(r.get("entity_id") or "").strip()
+                ckey = str(r.get("canonical_entity_key") or "").strip()
+                keys = []
+                for raw in (eid, ckey):
+                    if not raw:
+                        continue
+                    keys.append(raw)
+                    c8 = _cnpj8(raw)
+                    if c8:
+                        keys.append(c8)
+                for k in keys:
+                    if k and (k, src) not in out:
+                        # first (most recent checked_at) wins
+                        out[(k, src)] = state
+    except Exception:  # noqa: BLE001
+        return out
+    return out
+
+
 def build_coverage_by_entity_source(
     *,
     entities: list[Any],
     observations: list[Any],
     freshness: list[dict[str, Any]] | None = None,
     policy: dict[str, Any] | None = None,
+    entity_source_evidence: dict[tuple[str, str], str] | None = None,
 ) -> list[dict[str, Any]]:
     """Publish 1.093 × applicable sources with honest result states.
 
     Denominator of operational coverage is applicable combinations only, but
     every universe entity is always published. Absence of findings is never
     confused with absence of collection (NOT_QUERIED vs ZERO_CONFIRMED).
+
+    ``ZERO_CONFIRMED`` is emitted only when entity-scoped evidence proves a
+    complete query with zero hits (e.g. coverage_evidence.success_zero).
+    Freshness alone never invents ZERO_CONFIRMED.
     """
     policy = policy or _load_source_policy()
     roles = (policy.get("source_roles") or {}).get("open_tenders") or {}
@@ -116,6 +187,7 @@ def build_coverage_by_entity_source(
         roles = {"pncp": "required", "ciga_ckan": "required", "sc_compras": "complementary"}
 
     freshness_by = {str(f.get("source") or "").lower(): f for f in (freshness or [])}
+    evidence = entity_source_evidence or {}
     # Map observation presence: fonte → set(cnpj8)
     found: dict[str, set[str]] = {}
     for o in observations:
@@ -183,8 +255,27 @@ def build_coverage_by_entity_source(
                 level = str((fr or {}).get("level") or "")
 
                 has_data = c8 in found.get(source, set())
-                if has_data:
+                # Entity-scoped evidence (coverage_evidence) — only path to ZERO_CONFIRMED
+                ev_state = ""
+                for key in (c8, ent_id, _cnpj8(ent_id)):
+                    if not key:
+                        continue
+                    ev_state = evidence.get((key, source), "") or ev_state
+                    if source == "pncp":
+                        ev_state = (
+                            evidence.get((key, "pncp"), "")
+                            or evidence.get((key, "pncp_opportunities"), "")
+                            or ev_state
+                        )
+                    if ev_state:
+                        break
+                ev_l = str(ev_state or "").lower()
+
+                if has_data or ev_l in {"success_with_data", "success", "found"}:
                     result = "FOUND"
+                elif ev_l in {"success_zero", "zero_confirmed"}:
+                    # Proven complete entity-scoped query with zero hits
+                    result = "ZERO_CONFIRMED"
                 elif level in {"never", "", "unknown"}:
                     # No collection evidence and no rows → not queried
                     result = "NOT_QUERIED"
@@ -194,11 +285,15 @@ def build_coverage_by_entity_source(
                     result = "STALE"
                 elif level == "fresh":
                     # Queried recently with no matching rows for this entity
-                    # Honest: we do not have entity-scoped success_zero ledger yet
+                    # Without entity-scoped success_zero ledger → NOT_QUERIED
+                    # (never invent ZERO_CONFIRMED from freshness alone)
                     result = "NOT_QUERIED"
                 else:
                     result = "NOT_QUERIED"
 
+            note = "FOUND=observation present; NOT_QUERIED≠ZERO_CONFIRMED; registry≠coverage"
+            if result == "ZERO_CONFIRMED":
+                note = "ZERO_CONFIRMED requires entity-scoped success_zero evidence"
             rows.append(
                 {
                     "entity_id": ent_id,
@@ -212,7 +307,7 @@ def build_coverage_by_entity_source(
                     "applicable": "yes" if applicable else "no",
                     "result": result,
                     "result_vocabulary": "|".join(RESULT_STATES),
-                    "note": ("FOUND=observation present; NOT_QUERIED≠ZERO_CONFIRMED; registry≠coverage"),
+                    "note": note,
                 }
             )
     return rows
@@ -406,11 +501,15 @@ def build_weekly_decision_artifacts(
             p.docs_inventory_status = "not_inventoried_weekly"
             p.official_page_validated = False
 
+    entity_evidence = load_entity_source_evidence(conn)
+    load_meta = dict(load_meta or {})
+    load_meta["entity_source_evidence_n"] = len(entity_evidence)
     coverage_rows = build_coverage_by_entity_source(
         entities=entities,
         observations=observations,
         freshness=freshness,
         policy=_load_source_policy(),
+        entity_source_evidence=entity_evidence,
     )
     cov_path = out_dir / "coverage_by_entity_source.csv"
     _write_coverage_csv(cov_path, coverage_rows)
@@ -658,4 +757,5 @@ __all__ = [
     "build_qa_report",
     "build_weekly_decision_artifacts",
     "is_engineering_opportunity",
+    "load_entity_source_evidence",
 ]

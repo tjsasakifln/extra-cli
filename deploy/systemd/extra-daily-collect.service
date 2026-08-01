@@ -1,0 +1,33 @@
+[Unit]
+Description=Extra Consultoria — daily multi-source collection feeder (pack lake honesty)
+Documentation=file:///opt/extra-consultoria/docs/DEVELOPMENT.md
+After=network-online.target postgresql.service
+Wants=network-online.target
+OnFailure=extra-onfailure@%n.service
+# Avoid overlapping weekly pack generation on the same DB.
+Conflicts=extra-weekly.service
+
+[Service]
+Type=oneshot
+User=extra-consultoria
+Group=extra-consultoria
+WorkingDirectory=/opt/extra-consultoria
+Environment=PYTHONPATH=/opt/extra-consultoria
+Environment=PYTHONUNBUFFERED=1
+EnvironmentFile=/opt/extra-consultoria/.env
+# Live collect of required pack feeds (PNCP open + CIGA + SC Compras assess/live).
+# Terminal statuses via scripts.collect.run_contract; skip ≠ success.
+# Output: pipeline_runs + optional JSON under output/daily/
+ExecStart=/usr/bin/flock --nonblock /run/lock/extra-daily-collect.lock \
+  /bin/bash -c 'mkdir -p /opt/extra-consultoria/output/daily && \
+  /opt/extra-consultoria/.venv/bin/python -m scripts.ops.daily_multi_source_collect \
+    --live --strict \
+    --output-json /opt/extra-consultoria/output/daily/latest-feeder.json'
+TimeoutStartSec=3h
+Restart=no
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=extra-daily-collect
+
+[Install]
+WantedBy=multi-user.target

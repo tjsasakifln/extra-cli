@@ -50,9 +50,14 @@ DEFAULT_DSN = os.getenv(
 # DOD editais freshness is ≤24h — DOD prevails over historical 48h default.
 PNCP_OPP_SLA_HOURS = int(os.getenv("WEEKLY_PNCP_SLA_HOURS", "24"))
 CONTRACTS_SLA_HOURS = int(os.getenv("WEEKLY_CONTRACTS_SLA_HOURS", "168"))
+# Multi-source pack feed: CIGA dual + SC Compras (daily feeder honesty).
+CIGA_SLA_HOURS = int(os.getenv("WEEKLY_CIGA_SLA_HOURS", "24"))
+SC_COMPRAS_SLA_HOURS = int(os.getenv("WEEKLY_SC_COMPRAS_SLA_HOURS", "48"))
 DEFAULT_LOOKBACK_DAYS = int(os.getenv("WEEKLY_LOOKBACK_DAYS", "7"))
 # Canonical open-tenders collect path (aggregated modalities + reconcile).
 OPEN_TENDERS_COLLECT_PATH = "scripts.opportunity_intel.pncp_audit.run_pncp_open_monitoring"
+# Daily multi-source feeder surface (lake honesty for pack sources).
+DAILY_FEEDER_PATH = "scripts.ops.daily_multi_source_collect"
 
 # Exit codes
 EXIT_OK = 0
@@ -413,15 +418,87 @@ def stage_freshness(conn: Any) -> StageResult:
             }
         )
 
+    # Multi-source pack feeds (CIGA + SC Compras) — honesty for decision pack.
+    # Uses the daily feeder assessors so vocabulary stays aligned.
+    try:
+        from scripts.ops.daily_multi_source_collect import (
+            assess_ciga,
+            assess_sc_compras,
+        )
+
+        for assess_fn, src_name in (
+            (assess_ciga, "ciga_ckan"),
+            (assess_sc_compras, "sc_compras"),
+        ):
+            try:
+                a = assess_fn(conn)
+                rows.append(
+                    {
+                        "source": src_name,
+                        "level": a.level,
+                        "sla_hours": a.sla_hours,
+                        "age_hours": a.age_hours,
+                        "row_count": a.row_count,
+                        "last_status": a.last_status,
+                        "scope_complete": a.scope_complete,
+                        "evidence": a.evidence,
+                        "indicator": "freshness_source",
+                        "note": "; ".join(a.notes) if a.notes else "daily feeder assessor",
+                    }
+                )
+            except Exception as src_exc:  # noqa: BLE001
+                rows.append(
+                    {
+                        "source": src_name,
+                        "level": "unknown",
+                        "sla_hours": CIGA_SLA_HOURS
+                        if src_name == "ciga_ckan"
+                        else SC_COMPRAS_SLA_HOURS,
+                        "indicator": "freshness_source",
+                        "note": f"assessor_error:{src_exc}",
+                    }
+                )
+    except Exception as import_exc:  # noqa: BLE001
+        rows.append(
+            {
+                "source": "ciga_ckan",
+                "level": "unknown",
+                "sla_hours": CIGA_SLA_HOURS,
+                "indicator": "freshness_source",
+                "note": f"daily_feeder_import:{import_exc}",
+            }
+        )
+        rows.append(
+            {
+                "source": "sc_compras",
+                "level": "unknown",
+                "sla_hours": SC_COMPRAS_SLA_HOURS,
+                "indicator": "freshness_source",
+                "note": f"daily_feeder_import:{import_exc}",
+            }
+        )
+
     critical_bad = any(
         r["source"] == "pncp_opportunities"
         and r["level"] in {"never", "unreliable", "incomplete", "unknown"}
         for r in rows
     )
+    # Municipal dual: missing/never CIGA is a pack multi-source honesty warning
+    # (does not alone force EXIT_TECH — PNCP remains critical collect).
+    multi_source_warn = any(
+        r["source"] == "ciga_ckan"
+        and r["level"] in {"never", "unreliable", "incomplete", "unknown", "stale"}
+        for r in rows
+    )
+    status = "warn" if (critical_bad or multi_source_warn) else "ok"
     return StageResult(
         name="freshness",
-        status="warn" if critical_bad else "ok",
-        detail={"sources": rows},
+        status=status,
+        detail={
+            "sources": rows,
+            "daily_feeder": DAILY_FEEDER_PATH,
+            "multi_source_warn": multi_source_warn,
+        },
     )
 
 

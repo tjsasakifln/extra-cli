@@ -109,6 +109,13 @@ extra-weekly:
 	@echo '    Open tenders: run_pncp_open_monitoring (aggregated) + SourceSnapshotReconciler'
 	python3 -m scripts.ops.weekly_cycle --strict $(WEEKLY_FLAGS)
 
+.PHONY: extra-daily-collect
+extra-daily-collect:
+	@echo '==> [$(ENV)] Feeder diário multi-fonte (contrato terminal explícito)'
+	@echo '    Entry: python -m scripts.ops.daily_multi_source_collect'
+	@echo '    Offline honesty: --offline --declare-only (default when not --live)'
+	python3 -m scripts.ops.daily_multi_source_collect --offline --declare-only $(DAILY_COLLECT_FLAGS)
+
 .PHONY: deliverable-e-live
 deliverable-e-live:
 	@echo '==> Deliverable E from live DB (operational fail-closed audit)'
