@@ -66,8 +66,7 @@ def test_classify_contrato_filename_not_edital() -> None:
     r = classify_document(
         filename="04_Contrato_ou_aditivo_ao_contrato.pdf",
         text_sample=(
-            "MINUTA DO CONTRATO\nCláusula primeira\n"
-            "O edital de pregão e o termo de referência integram este contrato."
+            "MINUTA DO CONTRATO\nCláusula primeira\nO edital de pregão e o termo de referência integram este contrato."
         ),
         extension=".pdf",
     )
@@ -89,15 +88,9 @@ def test_detect_missing_finds_absent_planilha() -> None:
     )
     out = detect_missing_documents({"documents": [edital, tr]})
     # TR present
-    assert any(
-        r["status"] == "PRESENT" and r["expected_type"] == "TERMO_DE_REFERENCIA"
-        for r in out["references"]
-    )
+    assert any(r["status"] == "PRESENT" and r["expected_type"] == "TERMO_DE_REFERENCIA" for r in out["references"])
     # Planilha missing
-    assert any(
-        r["status"] == "MISSING" and r["expected_type"] == "PLANILHA_ORCAMENTARIA"
-        for r in out["references"]
-    )
+    assert any(r["status"] == "MISSING" and r["expected_type"] == "PLANILHA_ORCAMENTARIA" for r in out["references"])
     assert out["missing_count"] >= 1
 
 
@@ -131,6 +124,56 @@ def test_detect_missing_fixture_mentions_file() -> None:
     assert out["missing_count"] >= 1
     types = {r["expected_type"] for r in out["references"] if r["status"] == "MISSING"}
     assert "PLANILHA_ORCAMENTARIA" in types or "MINUTA_CONTRATUAL" in types
+
+
+def test_planilha_filename_not_overridden_by_bdi_sheet_content() -> None:
+    """xlsx named planilha with BDI sheet must stay PLANILHA_ORCAMENTARIA."""
+    r = classify_document(
+        filename="sample_planilha.xlsx",
+        text_sample="Orçamento\nItem Qtd\n1 10\nBDI\nAdministração 10%",
+        extension=".xlsx",
+    )
+    assert r["result"] == "PLANILHA_ORCAMENTARIA", r
+
+
+def test_profile_fit_binds_excerpt_to_source_document() -> None:
+    """Regression: profile fit must not attach edital excerpt to aviso (docs[0])."""
+    from scripts.edital_case.analyze import _analyze_profile_fit
+
+    aviso = _doc(
+        "doc-001",
+        "aviso.pdf",
+        "AVISO",
+        "AVISO DE LICITAÇÃO\nAbertura da sessão: 26/08/2026 às 09:00\nEdital nº 99/2026",
+    )
+    edital = _doc(
+        "doc-003",
+        "edital.pdf",
+        "EDITAL",
+        "EDITAL DE PREGÃO ELETRÔNICO Nº 99/2026\n"
+        "Objeto: Contratação de empresa para reforma predial de prédio público\n"
+        "Critério de julgamento: menor preço",
+    )
+    profile = {
+        "_status": "LOADED",
+        "region": {"uf_primary": "SC"},
+        "positive_terms": ["reforma predial"],
+    }
+    item = _analyze_profile_fit(
+        [aviso, edital],
+        profile,
+        "aderencia_perfil",
+        "Aderência",
+        "administrativo",
+        True,
+    )
+    ev = item.get("evidence") or {}
+    assert ev.get("document_id") == "doc-003", ev
+    assert "reforma predial" in (ev.get("excerpt") or "").lower()
+    # Citation integrity: excerpt must exist in the claimed document's blocks
+    from scripts.edital_case.verify import _excerpt_in_blocks
+
+    assert _excerpt_in_blocks(ev.get("excerpt"), edital["blocks"])
 
 
 def test_consistency_orgao_whitespace_is_format_variation() -> None:

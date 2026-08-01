@@ -1,5 +1,19 @@
 # Definition of Done — Extra Consultoria
 
+## Claim tiers (honest evidence — EXTRA-OPEN-PRS-CONSOLIDATION-01)
+
+| Tier | Meaning |
+|------|---------|
+| `IMPLEMENTED` | Code path exists and is unit-tested |
+| `FIXTURE_PROVEN` | Synthetic/fixture E2E only |
+| `REAL_CASE_PROVEN` | Authorized real case (sanitized), not committed originals |
+| `LOCAL_OPERATIONAL` | Runs against local lake/env with reproducible log |
+| `VPS_OPERATIONAL` | Soak/timer on VPS with evidence — **never** from fixture alone |
+
+CI green or field-presence tests do **not** promote a claim across tiers.
+A single `[x]` must not hide these differences.
+
+
 > Checklist viva para acompanhar a evolução do desenvolvimento do projeto.
 >
 > **Natureza do projeto:** ferramenta pessoal, single-user, operada por Tiago Sasaki na CONFENGE. A Extra Construtora é o cliente piloto; o mesmo núcleo de dados também apoia a prospecção e a entrega de consultoria B2G para outros clientes da CONFENGE, sem transformar o projeto em SaaS.
@@ -135,10 +149,10 @@ Um item pode ser marcado como concluído apenas quando pelo menos uma das evidê
 - [ ] Uso local durante o estágio atual.
 - [ ] Operação contínua em VPS no estágio posterior.
 - [ ] Monitoramento recorrente de novas oportunidades e alterações relevantes.
-- [ ] Triagem inicial de edital.
-- [ ] Análise técnica aprofundada de edital quando solicitada.
-- [ ] Análise de planilha orçamentária, composições e BDI quando os documentos estiverem disponíveis.
-- [ ] Comparação de orçamento com referências oficiais e dados de mercado defensáveis.
+- [x] Triagem inicial de edital. Evidência: `scripts/edital_case` + campanha `DOC-DEEP-ANALYSIS-DECISION-INTEL-01` (checklist 36, verify PASS, recommendation REVIEW + disclaimer) · `artifacts/campaigns/DOC-DEEP-ANALYSIS-DECISION-INTEL-01/`.
+- [x] Análise técnica aprofundada de edital quando solicitada. Evidência: multi-doc case pack (edital/TR/aviso/planilha) · findings/inconsistências/anexos ausentes com locator · `edital_verification.json` verify PASS · mesma campanha.
+- [x] Análise de planilha orçamentária, composições e BDI quando os documentos estiverem disponíveis. Evidência: `scripts/budget_audit` golden E2E · items=12 compositions=1 BDI=8 · arithmetic + findings · verify PASS · `budget_verification.json`.
+- [ ] Comparação de orçamento com referências oficiais e dados de mercado defensáveis. **Claim tier:** `IMPLEMENTED` + `FIXTURE_PROVEN` (infraestrutura de comparação + manifest fields system/month/locality/regime). **NÃO** `REAL_CASE_PROVEN` / comparação oficial: o teste só exige presença de campos no manifesto, não dataset oficial (SINAPI/SICRO) com checksum, competência, origem pública e resultado reproduzível. Evidência parcial: `budget_audit.references` + `test_reference_manifest_required_fields`. Opção B (EXTRA-OPEN-PRS-CONSOLIDATION-01): checkbox reaberto até dataset oficial identificável.
 - [x] Apoio à decisão `GO`, `REVIEW` ou `NO_GO`. Evidência: opportunity_intel 401 opps GO=0 REVIEW≈397 NO_GO=4 · ranking demote · EXTRA-OPS-95
 - [ ] Apoio à organização e revisão de proposta, sem assumir assinatura ou responsabilidade da empresa.
 - [ ] Acompanhamento administrativo de contratos: prazos, publicações, aditivos, vigência, renovação e sinais de relicitação.
@@ -300,43 +314,47 @@ Um item pode ser marcado como concluído apenas quando pelo menos uma das evidê
 
 #### Triagem de edital
 
-- [ ] Existe checklist configurável de pelo menos 15 a 20 pontos críticos.
-- [ ] A triagem verifica objeto, escopo e aderência ao perfil da Extra.
-- [ ] A triagem verifica datas, horários, pedidos de esclarecimento, impugnação e entrega.
-- [ ] A triagem verifica modalidade, critério de julgamento e modo de disputa.
-- [ ] A triagem verifica condições de participação, consórcios e subcontratação.
-- [ ] A triagem verifica habilitação jurídica.
-- [ ] A triagem verifica regularidade fiscal e trabalhista.
-- [ ] A triagem verifica qualificação econômico-financeira.
-- [ ] A triagem verifica capital social, patrimônio líquido, índices e garantias.
-- [ ] A triagem verifica qualificação técnica operacional e profissional.
-- [ ] A triagem verifica atestados, CAT, ART/RRT, parcelas de maior relevância e quantitativos mínimos.
-- [ ] A triagem verifica visita técnica e declarações obrigatórias.
-- [ ] A triagem verifica formato, validade e condições da proposta.
-- [ ] A triagem verifica orçamento estimado, sigilo, regime de execução e reajuste.
-- [ ] A triagem verifica sanções, responsabilidades e riscos contratuais relevantes.
-- [ ] A triagem identifica inconsistências, ambiguidades e possíveis exigências restritivas para revisão humana.
-- [ ] A triagem produz conclusão preliminar e lista de pendências para análise aprofundada.
-- [ ] O resultado não é apresentado como parecer jurídico.
+> Aceite de capability (fixture + verify PASS): campanha `DOC-DEEP-ANALYSIS-DECISION-INTEL-01` · ADR-031 · `scripts/edital_case`. Não é parecer jurídico nem cobertura 95%.
+
+- [x] Existe checklist configurável de pelo menos 15 a 20 pontos críticos. Evidência: `CHECKLIST_ITEMS` = 36 · `edital_checklist.json` item_count=36 · campanha DOC-DEEP-ANALYSIS-DECISION-INTEL-01.
+- [x] A triagem verifica objeto, escopo e aderência ao perfil da Extra. Evidência: items `objeto_escopo` + `aderencia_perfil` · regression citation-to-source-doc · executive-summary.
+- [x] A triagem verifica datas, horários, pedidos de esclarecimento, impugnação e entrega. Evidência: `datas_horarios` + `esclarecimentos_impugnacoes` SATISFIED no fixture · `edital_timeline.json`.
+- [x] A triagem verifica modalidade, critério de julgamento e modo de disputa. Evidência: checklist items + sample_edital.pdf patterns.
+- [x] A triagem verifica condições de participação, consórcios e subcontratação. Evidência: `condicoes_participacao` / `consorcio` / `subcontratacao` no checklist 36.
+- [x] A triagem verifica habilitação jurídica. Evidência: item `habilitacao_juridica` no pack.
+- [x] A triagem verifica regularidade fiscal e trabalhista. Evidência: `regularidade_fiscal` + `regularidade_trabalhista`.
+- [x] A triagem verifica qualificação econômico-financeira. Evidência: `qualificacao_economica`.
+- [x] A triagem verifica capital social, patrimônio líquido, índices e garantias. Evidência: `capital_patrimonio` + `indices_economicos` + `garantia_*`.
+- [x] A triagem verifica qualificação técnica operacional e profissional. Evidência: `qualificacao_tecnica_operacional` + `qualificacao_tecnica_profissional`.
+- [x] A triagem verifica atestados, CAT, ART/RRT, parcelas de maior relevância e quantitativos mínimos. Evidência: `atestados_cat_art` + `parcelas_relevancia` + `quantitativos_minimos`.
+- [x] A triagem verifica visita técnica e declarações obrigatórias. Evidência: `visita_tecnica` + `declaracoes_obrigatorias`.
+- [x] A triagem verifica formato, validade e condições da proposta. Evidência: `formato_proposta`.
+- [x] A triagem verifica orçamento estimado, sigilo, regime de execução e reajuste. Evidência: `orcamento_estimado` + `regime_execucao` + `reajuste`.
+- [x] A triagem verifica sanções, responsabilidades e riscos contratuais relevantes. Evidência: `sancoes` + `riscos_contratuais` (NEEDS_HUMAN quando interpretativo).
+- [x] A triagem identifica inconsistências, ambiguidades e possíveis exigências restritivas para revisão humana. Evidência: `inconsistencies_count=1` · `edital_inconsistencies.json` · findings consistency.
+- [x] A triagem produz conclusão preliminar e lista de pendências para análise aprofundada. Evidência: `recommendation=REVIEW` + motivos/pendências em `edital-executive-summary.md`.
+- [x] O resultado não é apresentado como parecer jurídico. Evidência: disclaimer obrigatório no report + `recommendation.json` · ADR-031.
 
 #### Análise técnica aprofundada de edital e orçamento
 
-- [ ] O sistema permite vincular edital, anexos, projetos, memoriais, planilha, cronograma e minuta contratual ao mesmo caso.
-- [ ] Todos os documentos do caso possuem hash, versão, origem e data de obtenção.
-- [ ] O sistema detecta anexos mencionados e ausentes.
-- [ ] O sistema detecta divergências entre edital, termo de referência, projeto, planilha e minuta quando tecnicamente verificáveis.
-- [ ] A análise preserva rastreabilidade por página, item, célula ou trecho de origem.
-- [ ] Quantitativos relevantes podem ser comparados entre documentos.
-- [ ] Unidades, códigos, descrições e preços da planilha são normalizados.
-- [ ] Composições são vinculadas aos respectivos serviços.
-- [ ] Custos diretos, indiretos, encargos e BDI permanecem distinguíveis.
-- [ ] A análise verifica coerência aritmética de subtotais, totais, percentuais e arredondamentos.
-- [ ] A análise identifica itens sem composição, composição sem item e referência inconsistente.
-- [ ] A análise compara preços com SINAPI, SICRO ou outras tabelas oficiais aplicáveis, respeitando mês, localidade, desoneração e unidade.
-- [ ] Referências privadas ou históricas são identificadas separadamente das tabelas oficiais.
-- [ ] Diferença de preço é acompanhada de base comparável e não é tratada isoladamente como erro.
-- [ ] A análise registra riscos de exequibilidade e margem sem inventar custos internos não fornecidos pela Extra.
-- [ ] O relatório diferencia achado objetivo, alerta técnico, hipótese e decisão que depende de especialista.
+> Aceite de capability: `edital_case` + `budget_audit` · campanha `DOC-DEEP-ANALYSIS-DECISION-INTEL-01` · ADR-031/032/030. BDI = aritmética, não claim legal.
+
+- [x] O sistema permite vincular edital, anexos, projetos, memoriais, planilha, cronograma e minuta contratual ao mesmo caso. Evidência: `DOCUMENT_TYPES` + inventory multi-doc (5 docs no case) · `edital_inventory.json`.
+- [x] Todos os documentos do caso possuem hash, versão, origem e data de obtenção. Evidência: objects SHA-256 + `case-manifest` / inventory fields · verify object_immutable.
+- [x] O sistema detecta anexos mencionados e ausentes. Evidência: `missing-documents.json` + item `anexos_ausentes` · detect_missing tests.
+- [x] O sistema detecta divergências entre edital, termo de referência, projeto, planilha e minuta quando tecnicamente verificáveis. Evidência: `check_consistency` + timeline conflicts (aviso vs edital datas) · `edital_inconsistencies.json`.
+- [x] A análise preserva rastreabilidade por página, item, célula ou trecho de origem. Evidência: locators `page:N` (edital) e `Sheet!Cell` (budget findings) · citation audit 62/0 fabricated.
+- [x] Quantitativos relevantes podem ser comparados entre documentos. Evidência: `budget_audit.compare.match_items` + audit quantities · e2e map_counts.
+- [x] Unidades, códigos, descrições e preços da planilha são normalizados. Evidência: `normalize_case` · budget_items=12 no golden · `units.py`.
+- [x] Composições são vinculadas aos respectivos serviços. Evidência: compositions=1 + composition_inputs=4 · `compositions.py`.
+- [x] Custos diretos, indiretos, encargos e BDI permanecem distinguíveis. Evidência: bdi_components=8 · bdi_sum_percent_points=30.5 · ADR-030.
+- [x] A análise verifica coerência aritmética de subtotais, totais, percentuais e arredondamentos. Evidência: arithmetic_checks=22 (PASS=17, MATERIAL_DIFFERENCE=2) · verify PASS.
+- [x] A análise identifica itens sem composição, composição sem item e referência inconsistente. Evidência: findings MISSING_COEFFICIENT / BROKEN_REFERENCE / DUPLICATE_CODE no golden · `budget-executive-summary.md`.
+- [ ] A análise compara preços com SINAPI, SICRO ou outras tabelas oficiais aplicáveis, respeitando mês, localidade, desoneração e unidade. **Claim tier:** `IMPLEMENTED` (caminho de código + fixture) · `FIXTURE_PROVEN`. **NÃO** comparação real contra dataset oficial versionado. Evidência parcial: `references.compare_to_references` + manifest field presence. Opção B: reaberto — ausência de tabela oficial com checksum/origem/data/regra/resultado.
+- [x] Referências privadas ou históricas são identificadas separadamente das tabelas oficiais (no *modelo de dados* / typing do manifesto). **Claim tier:** `IMPLEMENTED` + `FIXTURE_PROVEN`. Não prova ingestão de tabela oficial. Evidência: reference manifest typing + report non-claims · ADR-032.
+- [x] Diferença de preço é acompanhada de base comparável e não é tratada isoladamente como erro. Evidência: comparison_status COMPARABLE* · materiality policy · findings severity without legal claim.
+- [x] A análise registra riscos de exequibilidade e margem sem inventar custos internos não fornecidos pela Extra. Evidência: `risks.py` / risk register · executive summary non-claims (no invented margin).
+- [x] O relatório diferencia achado objetivo, alerta técnico, hipótese e decisão que depende de especialista. Evidência: findings severity + checklist NEEDS_HUMAN + recommendation REVIEW · disclaimers nos reports.
 
 #### Análise crítica completa e decisão
 

@@ -204,9 +204,14 @@ def extract_xlsx(path: Path, document_id: str) -> dict[str, Any]:
     tables_out: list[dict[str, Any]] = []
     blocks: list[dict[str, Any]] = []
     try:
+        from io import BytesIO
+
         import openpyxl
 
-        wb = openpyxl.load_workbook(str(path), data_only=False)
+        # Objects are content-addressed by bare SHA-256 (no .xlsx suffix).
+        # openpyxl rejects extension-less paths; load from bytes instead.
+        payload = Path(path).read_bytes()
+        wb = openpyxl.load_workbook(BytesIO(payload), data_only=False)
         for sheet_name in wb.sheetnames:
             ws = wb[sheet_name]
             hidden = ws.sheet_state != "visible"
@@ -420,11 +425,7 @@ def extract_document(
         write_json(doc_dir / "references.json", {"references": []})
 
     # compact extraction summary without full text duplication in document.json later
-    summary = {
-        k: v
-        for k, v in result.items()
-        if k not in {"blocks", "tables"}
-    }
+    summary = {k: v for k, v in result.items() if k not in {"blocks", "tables"}}
     summary["block_count"] = len(blocks)
     summary["original_name"] = original_name
     summary["sha256"] = sha256
@@ -449,9 +450,7 @@ def full_text(blocks: list[dict[str, Any]]) -> str:
     return "\n".join(b.get("text") or "" for b in blocks)
 
 
-def find_excerpt(
-    blocks: list[dict[str, Any]], pattern: str, *, flags: int = re.I
-) -> dict[str, Any] | None:
+def find_excerpt(blocks: list[dict[str, Any]], pattern: str, *, flags: int = re.I) -> dict[str, Any] | None:
     rx = re.compile(pattern, flags)
     for b in blocks:
         text = b.get("text") or ""
@@ -460,6 +459,14 @@ def find_excerpt(
             continue
         start = max(0, m.start() - 80)
         end = min(len(text), m.end() + 120)
+        # Snap start to a token boundary so citation excerpts are verifiable
+        # substrings (avoid mid-word windows like "RÔNICO" from "ELETRÔNICO").
+        if start > 0 and text[start].isalnum() and text[start - 1].isalnum():
+            boundary = max(text.rfind(" ", 0, m.start()), text.rfind("\n", 0, m.start()))
+            if boundary >= max(0, m.start() - 80):
+                start = boundary + 1
+            else:
+                start = m.start()
         return {
             "document_id": b.get("document_id"),
             "page": b.get("page"),

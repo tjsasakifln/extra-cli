@@ -14,7 +14,13 @@ from scripts.edital_case.analyze import (
     recommend,
 )
 from scripts.edital_case.classify import classify_document
-from scripts.edital_case.extract import extract_pdf, extract_txt, find_excerpt
+from scripts.edital_case.extract import (
+    extract_document,
+    extract_pdf,
+    extract_txt,
+    extract_xlsx,
+    find_excerpt,
+)
 from scripts.edital_case.isolation import path_is_allowed
 from scripts.edital_case.store import put_object, sha256_bytes
 
@@ -188,3 +194,43 @@ def test_fixture_edital_pdf_if_present() -> None:
     assert result["page_count"] >= 1
     assert result["quality_status"] in {"OK", "PARTIAL", "OCR_REQUIRED", "EMPTY"}
     assert result.get("total_chars", 0) > 0
+
+
+def test_extract_xlsx_extensionless_object_path(tmp_path: Path) -> None:
+    """Regression: openpyxl rejects bare SHA object paths; must load via bytes."""
+    xlsx = FIXTURES / "sample_planilha.xlsx"
+    if not xlsx.exists():
+        pytest.skip("fixture xlsx not present")
+    bare = tmp_path / ("a" * 64)  # content-addressed object style (no .xlsx suffix)
+    bare.write_bytes(xlsx.read_bytes())
+    result = extract_xlsx(bare, "doc-planilha")
+    assert result["status"] == "OK", result.get("error")
+    assert result["quality_status"] == "OK"
+    assert len(result.get("blocks") or []) >= 1
+    assert any(b.get("cell") for b in result["blocks"])
+    assert any(t.get("cell_count", 0) > 0 for t in (result.get("tables") or []))
+
+
+def test_extract_document_planilha_via_put_object(tmp_path: Path) -> None:
+    """Shipped path: put_object stores bare SHA → extract_document(.xlsx) must succeed."""
+    xlsx = FIXTURES / "sample_planilha.xlsx"
+    if not xlsx.exists():
+        pytest.skip("fixture xlsx not present")
+    case = tmp_path / "case"
+    case.mkdir()
+    meta = put_object(case, xlsx.read_bytes(), filename="sample_planilha.xlsx")
+    result = extract_document(
+        case,
+        document_id="doc-001",
+        sha256=meta["sha256"],
+        extension=".xlsx",
+        original_name="sample_planilha.xlsx",
+    )
+    assert result["status"] == "OK", result.get("error")
+    assert result["quality_status"] == "OK"
+    assert (result.get("total_chars") or 0) > 0
+    assert len(result.get("blocks") or []) >= 1
+    summary = case / "documents" / "doc-001" / "extraction-summary.json"
+    assert summary.is_file()
+    tables = case / "documents" / "doc-001" / "tables.json"
+    assert tables.is_file()

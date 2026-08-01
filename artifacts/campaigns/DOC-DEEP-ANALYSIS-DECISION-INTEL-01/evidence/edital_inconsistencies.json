@@ -1,0 +1,97 @@
+{
+  "generated_at": "2026-08-01T15:30:18.992303+00:00",
+  "per_document_fields": {
+    "doc-001": {
+      "numero_processo": null,
+      "numero_edital": "99/2026",
+      "orgao": null,
+      "valor_estimado": null,
+      "data_sessao": "Abertura",
+      "prazo_execucao": null,
+      "criterio_julgamento": null,
+      "regime_execucao": null,
+      "consorcio": null,
+      "subcontratacao": null,
+      "garantia": null,
+      "visita_tecnica": null,
+      "bdi": null
+    },
+    "doc-002": {
+      "numero_processo": null,
+      "numero_edital": null,
+      "orgao": null,
+      "valor_estimado": null,
+      "data_sessao": null,
+      "prazo_execucao": null,
+      "criterio_julgamento": null,
+      "regime_execucao": null,
+      "consorcio": null,
+      "subcontratacao": null,
+      "garantia": null,
+      "visita_tecnica": null,
+      "bdi": null
+    },
+    "doc-003": {
+      "numero_processo": null,
+      "numero_edital": "99/2026",
+      "orgao": "Prefeitura Municipal de Exemplo",
+      "valor_estimado": "1.250.000,00",
+      "data_sessao": "abertura",
+      "prazo_execucao": "180 dias",
+      "criterio_julgamento": "menor preço",
+      "regime_execucao": null,
+      "consorcio": "Consórcio: não será permitido",
+      "subcontratacao": "Subcontratação: limitada a 30%",
+      "garantia": "Garantia de proposta: 1% do valor estimado",
+      "visita_tecnica": "Visita técnica facultativa em 20/08/2026",
+      "bdi": null
+    },
+    "doc-004": {
+      "numero_processo": null,
+      "numero_edital": null,
+      "orgao": null,
+      "valor_estimado": null,
+      "data_sessao": null,
+      "prazo_execucao": null,
+      "criterio_julgamento": null,
+      "regime_execucao": null,
+      "consorcio": null,
+      "subcontratacao": null,
+      "garantia": null,
+      "visita_tecnica": null,
+      "bdi": null
+    },
+    "doc-005": {
+      "numero_processo": null,
+      "numero_edital": null,
+      "orgao": null,
+      "valor_estimado": null,
+      "data_sessao": null,
+      "prazo_execucao": "180 dias",
+      "criterio_julgamento": null,
+      "regime_execucao": null,
+      "consorcio": null,
+      "subcontratacao": null,
+      "garantia": null,
+      "visita_tecnica": null,
+      "bdi": null
+    }
+  },
+  "inconsistencies": [
+    {
+      "field": "data_sessao",
+      "values": {
+        "doc-001": "Abertura",
+        "doc-003": "abertura"
+      },
+      "normalized": {
+        "doc-001": "abertura",
+        "doc-003": "abertura"
+      },
+      "class": "FORMAT_VARIATION",
+      "analysis": "divergência em data_sessao entre documentos (FORMAT_VARIATION)"
+    }
+  ],
+  "count": 1,
+  "confirmed_conflict_count": 0
+}

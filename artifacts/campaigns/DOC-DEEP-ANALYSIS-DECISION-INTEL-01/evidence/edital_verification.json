@@ -1,0 +1,436 @@
+{
+  "ok": true,
+  "generated_at": "2026-08-01T15:30:19.118174+00:00",
+  "checks": [
+    {
+      "name": "safety_flags.production_touched",
+      "status": "PASS",
+      "detail": "false"
+    },
+    {
+      "name": "safety_flags.soak_touched",
+      "status": "PASS",
+      "detail": "false"
+    },
+    {
+      "name": "safety_flags.vps_accessed",
+      "status": "PASS",
+      "detail": "false"
+    },
+    {
+      "name": "safety_flags.database_used",
+      "status": "PASS",
+      "detail": "false"
+    },
+    {
+      "name": "inventory",
+      "status": "PASS",
+      "detail": "5 documents"
+    },
+    {
+      "name": "object_immutable",
+      "status": "PASS",
+      "detail": "3f12a7c92aaf"
+    },
+    {
+      "name": "object_immutable",
+      "status": "PASS",
+      "detail": "0a2068a11942"
+    },
+    {
+      "name": "object_immutable",
+      "status": "PASS",
+      "detail": "b2fa4506aefe"
+    },
+    {
+      "name": "object_immutable",
+      "status": "PASS",
+      "detail": "fb6dd663f7be"
+    },
+    {
+      "name": "object_immutable",
+      "status": "PASS",
+      "detail": "0c1476812a38"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "checklist.objeto_escopo"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "checklist.aderencia_perfil"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "checklist.datas_horarios"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "checklist.esclarecimentos_impugnacoes"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "checklist.modalidade"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "checklist.criterio_julgamento"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "checklist.modo_disputa"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "checklist.consorcio"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "checklist.subcontratacao"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "checklist.habilitacao_juridica"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "checklist.regularidade_fiscal"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "checklist.regularidade_trabalhista"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "checklist.qualificacao_economica"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "checklist.indices_economicos"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "checklist.garantia_proposta"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "checklist.garantia_contrato"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "checklist.qualificacao_tecnica_operacional"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "checklist.atestados_cat_art"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "checklist.quantitativos_minimos"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "checklist.visita_tecnica"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "checklist.orcamento_estimado"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "checklist.sancoes"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "checklist.prazo_execucao"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "finding.F0017"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "finding.F0018"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "finding.F0024"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "finding.F0038"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "finding.F0039"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "finding.F0040"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "finding.F0041"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "finding.F0042"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "finding.F0043"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "finding.F0044"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "finding.F0045"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "finding.F0046"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "finding.F0047"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "finding.F0048"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "finding-sample.F0001"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "finding-sample.F0002"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "finding-sample.F0003"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "finding-sample.F0004"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "finding-sample.F0005"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "finding-sample.F0006"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "finding-sample.F0007"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "finding-sample.F0009"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "finding-sample.F0010"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "finding-sample.F0011"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "finding-sample.F0012"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "finding-sample.F0013"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "finding-sample.F0014"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "finding-sample.F0016"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "finding-sample.F0017"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "finding-sample.F0018"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "finding-sample.F0019"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "finding-sample.F0021"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "finding-sample.F0023"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "finding-sample.F0024"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "finding-sample.F0027"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "finding-sample.F0030"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "finding-sample.F0034"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "finding-sample.F0038"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "finding-sample.F0039"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
+      "detail": "finding-sample.F0040"
+    },
+    {
+      "name": "citation_audit",
+      "status": "PASS",
+      "detail": "0 fabricated of 63 checked"
+    },
+    {
+      "name": "go_gate",
+      "status": "PASS",
+      "detail": "recommendation=REVIEW"
+    },
+    {
+      "name": "report_reconciliation",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "name": "artifact",
+      "status": "PASS",
+      "detail": "checklist.json"
+    },
+    {
+      "name": "artifact",
+      "status": "PASS",
+      "detail": "timeline.json"
+    },
+    {
+      "name": "artifact",
+      "status": "PASS",
+      "detail": "findings.json"
+    },
+    {
+      "name": "artifact",
+      "status": "PASS",
+      "detail": "missing-documents.json"
+    },
+    {
+      "name": "artifact",
+      "status": "PASS",
+      "detail": "evidence-matrix.json"
+    },
+    {
+      "name": "artifact",
+      "status": "PASS",
+      "detail": "reports/executive-summary.md"
+    },
+    {
+      "name": "artifact",
+      "status": "PASS",
+      "detail": "reports/triage-report.html"
+    },
+    {
+      "name": "artifact",
+      "status": "PASS",
+      "detail": "reports/triage-workbook.xlsx"
+    },
+    {
+      "name": "artifact",
+      "status": "PASS",
+      "detail": "reports/triage-report.pdf"
+    }
+  ],
+  "issues": [],
+  "citation_checked": 63,
+  "citation_fabricated": 0,
+  "pass_count": 85,
+  "fail_count": 0
+}

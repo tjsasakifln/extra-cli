@@ -240,6 +240,7 @@ _DATE_PATTERNS = [
     ),
 ]
 
+
 def _normalize_date(raw: str) -> str | None:
     raw = raw.strip()
     for fmt in ("%d/%m/%Y", "%d.%m.%Y", "%d/%m/%y", "%d.%m.%y"):
@@ -291,9 +292,7 @@ def profile_completeness(profile: dict[str, Any]) -> dict[str, Any]:
         "missing": missing,
         "pending_elicitation": pending_elicitation,
         "blocks_go": blocks_go,
-        "reason": "perfil incompleto ou sem elicitation operacional completa"
-        if blocks_go
-        else "ok",
+        "reason": "perfil incompleto ou sem elicitation operacional completa" if blocks_go else "ok",
     }
 
 
@@ -324,13 +323,26 @@ def _evidence_from_hit(
     ev["rule_id"] = rule_id
     ev["analysis"] = analysis
     ev["confidence"] = confidence
-    if not hit or not doc:
+    if not hit and not doc:
         ev["review_status"] = "MISSING"
         return ev
+    if not hit:
+        # analysis without a textual locator (e.g. profile-only)
+        if doc:
+            ev["document_id"] = doc.get("document_id")
+            ev["document_sha256"] = doc.get("sha256")
+        ev["review_status"] = "MISSING"
+        return ev
+    # Prefer the document that produced the hit — callers may pass docs[0] by mistake.
+    hit_doc_id = hit.get("document_id") or (doc.get("document_id") if doc else None)
+    hit_sha = hit.get("document_sha256") or (doc.get("sha256") if doc else None)
+    if doc and hit.get("document_id") and doc.get("document_id") and hit.get("document_id") != doc.get("document_id"):
+        # Do not attach the wrong document's SHA to a foreign excerpt.
+        hit_sha = hit.get("document_sha256")
     ev.update(
         {
-            "document_id": doc.get("document_id"),
-            "document_sha256": doc.get("sha256"),
+            "document_id": hit_doc_id,
+            "document_sha256": hit_sha,
             "page": hit.get("page"),
             "section": hit.get("section"),
             "paragraph": hit.get("paragraph"),
@@ -404,9 +416,7 @@ def analyze_checklist(corpus: dict[str, Any], profile: dict[str, Any]) -> dict[s
         extraction_failed_all = bool(docs) and all(
             d.get("quality_status") in {"EXTRACTION_FAILED", "UNSUPPORTED"} for d in docs
         )
-        ocr_only = bool(docs) and all(
-            d.get("quality_status") == "OCR_REQUIRED" for d in docs
-        )
+        ocr_only = bool(docs) and all(d.get("quality_status") == "OCR_REQUIRED" for d in docs)
 
         if extraction_failed_all:
             status = "EXTRACTION_FAILED"
@@ -478,9 +488,18 @@ def _analyze_profile_fit(
     positive = [t.lower() for t in (profile.get("positive_terms") or [])]
     hits = [t for t in positive if t and t in text]
     objeto_hit = None
+    hit_doc: dict[str, Any] | None = None
     for doc in docs:
-        objeto_hit = find_excerpt(doc.get("blocks") or [], r"objeto[:\s].{10,200}")
-        if objeto_hit:
+        candidate = find_excerpt(doc.get("blocks") or [], r"objeto[:\s].{10,200}")
+        if candidate:
+            objeto_hit = candidate
+            hit_doc = doc
+            # Ensure hit carries the document that owns the excerpt (citation integrity).
+            objeto_hit = {
+                **candidate,
+                "document_id": candidate.get("document_id") or doc.get("document_id"),
+                "document_sha256": doc.get("sha256"),
+            }
             break
 
     if comp["blocks_go"]:
@@ -499,7 +518,8 @@ def _analyze_profile_fit(
         analysis = "poucos sinais de aderência ao perfil no texto extraído"
         conf = 0.45
 
-    doc0 = docs[0] if docs else None
+    # Never bind an excerpt from document B to document A (docs[0]) — breaks verify.
+    evidence_doc = hit_doc or (docs[0] if docs else None)
     return {
         "id": item_id,
         "label": label,
@@ -508,7 +528,7 @@ def _analyze_profile_fit(
         "status": status,
         "evidence": _evidence_from_hit(
             objeto_hit,
-            doc0,
+            evidence_doc,
             rule_id="profile.fit",
             analysis=analysis,
             confidence=conf,
@@ -562,8 +582,7 @@ def _match_inventory_doc(
     analyzable = [
         d
         for d in docs
-        if (d.get("classification") or {}).get("result")
-        not in {None, "UNSUPPORTED", "UNKNOWN"}
+        if (d.get("classification") or {}).get("result") not in {None, "UNSUPPORTED", "UNKNOWN"}
         and d.get("supported", True)
     ]
     ref_token = _fold_alnum(referenced_name)
@@ -614,11 +633,7 @@ def _match_inventory_doc(
 
     # 4) Generic "anexo N" without typed file → AMBIGUOUS never weak PRESENT
     if re.search(r"anexo", referenced_name, re.I):
-        vague = [
-            d2
-            for d2 in analyzable
-            if "anexo" in (d2.get("original_name") or "").lower()
-        ]
+        vague = [d2 for d2 in analyzable if "anexo" in (d2.get("original_name") or "").lower()]
         if vague:
             return vague[0].get("document_id") if len(vague) == 1 else None, "AMBIGUOUS", 0.4
 
@@ -629,8 +644,7 @@ def detect_missing_documents(corpus: dict[str, Any]) -> dict[str, Any]:
     """Cross-reference annex mentions with inventory."""
     docs = corpus.get("documents") or []
     inventory_names = " ".join(
-        f"{d.get('original_name','')} {d.get('classification',{}).get('result','')}"
-        for d in docs
+        f"{d.get('original_name', '')} {d.get('classification', {}).get('result', '')}" for d in docs
     ).lower()
 
     findings: list[dict[str, Any]] = []
@@ -727,11 +741,8 @@ def extract_timeline(corpus: dict[str, Any]) -> dict[str, Any]:
                         "document_sha256": doc.get("sha256"),
                         "page": (hit or {}).get("page"),
                         "locator": (hit or {}).get("locator"),
-                        "excerpt": (hit or {}).get("excerpt")
-                        or m.group(0)[:200].replace("\n", " "),
-                        "confidence": 0.7
-                        if norm or kind in {"validade_proposta", "execucao"}
-                        else 0.5,
+                        "excerpt": (hit or {}).get("excerpt") or m.group(0)[:200].replace("\n", " "),
+                        "confidence": 0.7 if norm or kind in {"validade_proposta", "execucao"} else 0.5,
                         "classification": kind,
                     }
                 )
@@ -811,9 +822,7 @@ def _normalize_compare_value(field: str, value: str) -> str:
 def check_consistency(corpus: dict[str, Any]) -> dict[str, Any]:
     fields = {
         "numero_processo": [r"processo\s*(?:licitat[oó]rio\s*)?n?[°ºo.]?\s*([0-9]{1,6}\s*/\s*[0-9]{2,4}|[0-9./-]{3,})"],
-        "numero_edital": [
-            r"(?:pre[gğ][aã]o\s+eletr[oô]nico|edital)\s*n?[°ºo.]?\s*([0-9]{1,4}\s*/\s*[0-9]{2,4})"
-        ],
+        "numero_edital": [r"(?:pre[gğ][aã]o\s+eletr[oô]nico|edital)\s*n?[°ºo.]?\s*([0-9]{1,4}\s*/\s*[0-9]{2,4})"],
         "orgao": [
             r"(prefeitura\s+municipal\s+de\s+[a-záàâãéêíóôõúç\s]{2,40})",
             r"(universidade\s+[^\n]{5,60})",
@@ -826,9 +835,7 @@ def check_consistency(corpus: dict[str, Any]) -> dict[str, Any]:
         ],
         "prazo_execucao": [r"prazo\s+de\s+execu[cç][aã]o[^\d]{0,20}(\d{1,4}\s*dias?)"],
         "criterio_julgamento": [r"(menor\s+pre[cç]o|t[eé]cnica\s+e\s+pre[cç]o|maior\s+desconto)"],
-        "regime_execucao": [
-            r"(empreitada\s+por\s+pre[cç]o\s+(global|unit[aá]rio)|contrata[cç][aã]o\s+integrada)"
-        ],
+        "regime_execucao": [r"(empreitada\s+por\s+pre[cç]o\s+(global|unit[aá]rio)|contrata[cç][aã]o\s+integrada)"],
         "consorcio": [r"cons[oó]rcio[^\n.]{0,80}"],
         "subcontratacao": [r"subcontrata[cç][aã]o[^\n.]{0,80}"],
         "garantia": [r"garantia\s+(?:de\s+)?(?:proposta|contratual|execu[cç][aã]o|m[ií]nima)[^\n.]{0,80}"],
@@ -851,11 +858,7 @@ def check_consistency(corpus: dict[str, Any]) -> dict[str, Any]:
 
     inconsistencies: list[dict[str, Any]] = []
     for field in fields:
-        values = {
-            did: vals[field]
-            for did, vals in per_doc.items()
-            if vals.get(field)
-        }
+        values = {did: vals[field] for did, vals in per_doc.items() if vals.get(field)}
         if len(values) <= 1:
             continue
         raw_uniq = set(values.values())
@@ -902,9 +905,7 @@ def check_consistency(corpus: dict[str, Any]) -> dict[str, Any]:
         "per_document_fields": per_doc,
         "inconsistencies": inconsistencies,
         "count": len(inconsistencies),
-        "confirmed_conflict_count": sum(
-            1 for i in inconsistencies if i.get("class") == "CONFIRMED_CONFLICT"
-        ),
+        "confirmed_conflict_count": sum(1 for i in inconsistencies if i.get("class") == "CONFIRMED_CONFLICT"),
     }
 
 
@@ -1103,8 +1104,7 @@ def build_findings(
         "findings": findings,
         "count": len(findings),
         "by_severity": {
-            s: sum(1 for f in findings if f["severity"] == s)
-            for s in ("critical", "high", "medium", "low", "info")
+            s: sum(1 for f in findings if f["severity"] == s) for s in ("critical", "high", "medium", "low", "info")
         },
     }
 
@@ -1135,27 +1135,25 @@ def recommend(
     timeline: dict[str, Any],
 ) -> dict[str, Any]:
     items = checklist.get("items") or []
-    blockers = [
-        i
-        for i in items
-        if i.get("status") in {"BLOCKER", "EXTRACTION_FAILED"} and i.get("critical")
-    ]
+    blockers = [i for i in items if i.get("status") in {"BLOCKER", "EXTRACTION_FAILED"} and i.get("critical")]
     missing_essential = [
         r
         for r in (missing.get("references") or [])
         if r.get("status") == "MISSING"
-        and (r.get("expected_type") in {
-            "TERMO_DE_REFERENCIA",
-            "PLANILHA_ORCAMENTARIA",
-            "EDITAL",
-            "MINUTA_CONTRATUAL",
-            "PROJETO",
-        } or re.search(r"termo de refer|planilha|edital|minuta|projeto b", (r.get("referenced_name") or ""), re.I))
+        and (
+            r.get("expected_type")
+            in {
+                "TERMO_DE_REFERENCIA",
+                "PLANILHA_ORCAMENTARIA",
+                "EDITAL",
+                "MINUTA_CONTRATUAL",
+                "PROJETO",
+            }
+            or re.search(r"termo de refer|planilha|edital|minuta|projeto b", (r.get("referenced_name") or ""), re.I)
+        )
     ]
     confirmed_conflicts = [
-        c
-        for c in (consistency.get("inconsistencies") or [])
-        if c.get("class") == "CONFIRMED_CONFLICT"
+        c for c in (consistency.get("inconsistencies") or []) if c.get("class") == "CONFIRMED_CONFLICT"
     ]
     date_conflicts = timeline.get("conflicts") or []
     comp = profile_completeness(profile)
@@ -1167,21 +1165,13 @@ def recommend(
     for ev in timeline.get("events") or []:
         if ev.get("kind") in {"sessao", "entrega_proposta"} and ev.get("normalized"):
             if ev["normalized"] < today:
-                no_go_reasons.append(
-                    f"prazo {ev['kind']} já vencido ({ev['normalized']})"
-                )
+                no_go_reasons.append(f"prazo {ev['kind']} já vencido ({ev['normalized']})")
 
     # object clearly out of scope vs negative — only if strong evidence
     # keep conservative: don't NO_GO on weak signals
 
-    favorable = [
-        i.get("label")
-        for i in items
-        if i.get("status") == "SATISFIED"
-    ][:15]
-    impeditivos = [i.get("label") for i in blockers] + [
-        r.get("referenced_name") for r in missing_essential
-    ]
+    favorable = [i.get("label") for i in items if i.get("status") == "SATISFIED"][:15]
+    impeditivos = [i.get("label") for i in blockers] + [r.get("referenced_name") for r in missing_essential]
     impeditivos += [c.get("field") for c in confirmed_conflicts]
     impeditivos += [f"conflito datas {c.get('kind')}" for c in date_conflicts]
 
@@ -1193,11 +1183,7 @@ def recommend(
         reasons = no_go_reasons
     else:
         # GO only under strict conditions — profile incompleteness always blocks
-        critical_ok = all(
-            i.get("status") in {"SATISFIED", "NOT_APPLICABLE"}
-            for i in items
-            if i.get("critical")
-        )
+        critical_ok = all(i.get("status") in {"SATISFIED", "NOT_APPLICABLE"} for i in items if i.get("critical"))
         if (
             critical_ok
             and not blockers
@@ -1229,8 +1215,7 @@ def recommend(
         "reasons": reasons,
         "favorable": favorable,
         "impeditive": impeditivos,
-        "missing_information": (comp.get("missing") or [])
-        + (comp.get("pending_elicitation") or []),
+        "missing_information": (comp.get("missing") or []) + (comp.get("pending_elicitation") or []),
         "next_actions": [
             "Revisar findings críticos com evidências",
             "Obter anexos ausentes junto ao órgão",
@@ -1292,16 +1277,8 @@ def patch_cross_checklist(
                     "review_status": "AUTO",
                 }
         if item.get("id") == "inconsistencias":
-            confs = [
-                c
-                for c in (consistency.get("inconsistencies") or [])
-                if c.get("class") == "CONFIRMED_CONFLICT"
-            ]
-            fmt = [
-                c
-                for c in (consistency.get("inconsistencies") or [])
-                if c.get("class") == "FORMAT_VARIATION"
-            ]
+            confs = [c for c in (consistency.get("inconsistencies") or []) if c.get("class") == "CONFIRMED_CONFLICT"]
+            fmt = [c for c in (consistency.get("inconsistencies") or []) if c.get("class") == "FORMAT_VARIATION"]
             dconf = timeline.get("conflicts") or []
             if confs or dconf:
                 item["status"] = "BLOCKER"
@@ -1311,10 +1288,7 @@ def patch_cross_checklist(
                         f"{len(confs)} conflitos confirmados de campo; "
                         f"{len(fmt)} variações de formato; {len(dconf)} de datas"
                     ),
-                    "excerpt": str(
-                        [c.get("field") for c in confs]
-                        + [c.get("kind") for c in dconf]
-                    )[:500],
+                    "excerpt": str([c.get("field") for c in confs] + [c.get("kind") for c in dconf])[:500],
                     "confidence": 0.85,
                     "review_status": "AUTO",
                 }

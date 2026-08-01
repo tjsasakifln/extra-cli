@@ -1,0 +1,62 @@
+{
+  "generated_at": "2026-08-01T15:30:18.992627+00:00",
+  "recommendation": "REVIEW",
+  "reasons": [
+    "perfil Extra incompleto / pending elicitation",
+    "2 itens críticos bloqueantes",
+    "2 anexos essenciais ausentes",
+    "conflitos documentais/datas",
+    "itens críticos sem evidência plena"
+  ],
+  "favorable": [
+    "Objeto e escopo da contratação",
+    "Datas e horários críticos",
+    "Prazos de esclarecimentos e impugnações",
+    "Modalidade licitatória",
+    "Critério de julgamento",
+    "Modo de disputa",
+    "Consórcio — permissão e condições",
+    "Subcontratação — limites e vedações",
+    "Habilitação jurídica",
+    "Regularidade fiscal",
+    "Regularidade trabalhista (CNDT)",
+    "Qualificação econômico-financeira",
+    "Índices econômicos (LG, SG, LC etc.)",
+    "Qualificação técnica operacional",
+    "Atestados, CAT, ART ou RRT"
+  ],
+  "impeditive": [
+    "Inconsistências e ambiguidades entre documentos",
+    "Anexos referidos e ausentes do pacote",
+    "Minuta do Contrato",
+    "projeto básico",
+    "conflito datas sessao"
+  ],
+  "missing_information": [
+    "priority_municipalities"
+  ],
+  "next_actions": [
+    "Revisar findings críticos com evidências",
+    "Obter anexos ausentes junto ao órgão",
+    "Completar elicitation do perfil Extra",
+    "Decisão humana de go/no-go comercial",
+    "Não usar este pack como parecer jurídico"
+  ],
+  "disclaimer": "AVISO: este case pack é triagem técnica operacional e NÃO substitui análise jurídica, responsabilidade técnica, ART/RRT, parecer formal nem decisão comercial humana. Validação humana obrigatória.",
+  "profile_completeness": {
+    "complete": false,
+    "missing": [],
+    "pending_elicitation": [
+      "priority_municipalities"
+    ],
+    "blocks_go": true,
+    "reason": "perfil incompleto ou sem elicitation operacional completa"
+  },
+  "counts": {
+    "checklist_items": 36,
+    "blockers": 2,
+    "missing_essential": 2,
+    "conflicts": 1,
+    "findings": 49
+  }
+}

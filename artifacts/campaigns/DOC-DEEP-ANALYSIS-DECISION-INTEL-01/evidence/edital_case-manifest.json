@@ -1,0 +1,17 @@
+{
+  "case_id": "fixture-multi-doc-01",
+  "created_at": "2026-08-01T15:30:18.700326+00:00",
+  "updated_at": "2026-08-01T15:30:19.118578+00:00",
+  "source": "/tmp/grok-goal-58f70c56721c/implementer/edital_source_pack_v3",
+  "status": "VERIFIED",
+  "schema_version": "edital-case-v1",
+  "campaign_id": "EDITAL-TECHNICAL-TRIAGE-CASE-PACK-01",
+  "production_touched": false,
+  "soak_touched": false,
+  "vps_accessed": false,
+  "database_used": false,
+  "document_count": 5,
+  "object_count": 0,
+  "recommendation": "REVIEW",
+  "profile_path": null
+}

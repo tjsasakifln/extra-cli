@@ -1,0 +1,42 @@
+{
+  "campaign_id": "DOC-DEEP-ANALYSIS-DECISION-INTEL-01",
+  "generated_at": "2026-08-01T15:30:19.452582+00:00",
+  "suite": {
+    "edital_case_pytest": "34+ passed",
+    "budget_audit_verify": "PASS"
+  },
+  "edital": {
+    "verify_status": "PASS",
+    "verify_ok": true,
+    "recommendation": "REVIEW",
+    "checklist_count": 36,
+    "findings": 49,
+    "inconsistencies": 1,
+    "citation_checked": 63,
+    "citation_fabricated": 0,
+    "planilha_type": "PLANILHA_ORCAMENTARIA",
+    "planilha_extraction_status": "OK",
+    "planilha_quality_status": "OK",
+    "planilha_block_count": 7,
+    "planilha_table_count": 2,
+    "case_dir": "/tmp/grok-goal-58f70c56721c/implementer/edital_cases_v3/fixture-multi-doc-01"
+  },
+  "budget": {
+    "verify_status": "PASS",
+    "map_counts": {
+      "budget_items": 12,
+      "compositions": 1,
+      "composition_inputs": 4,
+      "bdi_components": 8,
+      "sheets_classified": 8
+    },
+    "findings": 31,
+    "reconciliation": "PASS",
+    "case_dir": "/tmp/grok-goal-58f70c56721c/implementer/budget_root_v3/cases/golden-e2e-proof"
+  },
+  "fixes": [
+    "xlsx BytesIO load for bare SHA object paths",
+    "citation integrity for profile fit",
+    "planilha filename not reclassified as BDI from sheet content"
+  ]
+}

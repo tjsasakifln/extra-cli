@@ -1,0 +1,158 @@
+{
+  "campaign_id": "DOC-DEEP-ANALYSIS-DECISION-INTEL-01",
+  "generated_at": "2026-08-01T15:31:26.275982+00:00",
+  "branch": "campaign/doc-deep-analysis-dod-01",
+  "purpose": "Multi-doc deep reading including planilha sheet/cell locators; verify PASS; fix bare-SHA xlsx extraction.",
+  "pipelines": {
+    "edital_case": {
+      "verify": "PASS",
+      "verify_ok": true,
+      "citation_fabricated": 0,
+      "citation_checked": 63,
+      "checklist_items": 36,
+      "recommendation": "REVIEW",
+      "planilha": {
+        "original_name": "sample_planilha.xlsx",
+        "type": "PLANILHA_ORCAMENTARIA",
+        "extraction_status": "OK",
+        "quality_status": "OK",
+        "block_count": 7,
+        "table_count": 2,
+        "total_chars": 47,
+        "cell_locator_samples": [
+          "sheet:Orçamento!A1",
+          "sheet:Orçamento!B1",
+          "sheet:Orçamento!A2",
+          "sheet:Orçamento!B2",
+          "sheet:Orçamento!B3",
+          "sheet:BDI!A1",
+          "sheet:BDI!B1"
+        ],
+        "tables": [
+          {
+            "sheet": "Orçamento",
+            "cell_count": 5
+          },
+          {
+            "sheet": "BDI",
+            "cell_count": 2
+          }
+        ],
+        "root_cause_fixed": "openpyxl load via BytesIO for extension-less content-addressed object paths"
+      },
+      "documents": 5
+    },
+    "budget_audit": {
+      "verify": "PASS",
+      "reconciliation": "PASS",
+      "map_counts": {
+        "budget_items": 12,
+        "compositions": 1,
+        "composition_inputs": 4,
+        "bdi_components": 8,
+        "sheets_classified": 8
+      },
+      "findings": 31
+    },
+    "pytest": {
+      "edital_case": "34 passed expected"
+    }
+  },
+  "code_fix": {
+    "xlsx_bare_sha": "scripts/edital_case/extract.py extract_xlsx BytesIO",
+    "classify_planilha": "filename planilha not overridden by BDI sheet content",
+    "citation": "aderencia_perfil binds hit source document"
+  },
+  "files": {
+    "evidence/budget-executive-summary.md": {
+      "sha256": "b550a853234783cdae41e9d50af6f3ef9c2ea5e01c0df2cb760b255d0e19e571",
+      "bytes": 4252
+    },
+    "evidence/budget_case-manifest.json": {
+      "sha256": "be0762bb5e7486118fbe7a4424dd3e744afbd6fc1103bac017a280ea56151e9f",
+      "bytes": 1488
+    },
+    "evidence/budget_e2e_summary.json": {
+      "sha256": "3220faa11effb425fb7eb358de853491ae37b4aaa91ebd4a1c09691a621728e8",
+      "bytes": 1780
+    },
+    "evidence/budget_report_executive-summary.md": {
+      "sha256": "b550a853234783cdae41e9d50af6f3ef9c2ea5e01c0df2cb760b255d0e19e571",
+      "bytes": 4252
+    },
+    "evidence/budget_verification.json": {
+      "sha256": "441fb072fe83b2f37eb7ff338231cc1039a3020bbe4d95827f8d33d62d5aca39",
+      "bytes": 1836
+    },
+    "evidence/campaign_manifest.json": {
+      "sha256": "674f3b2504fd96e41ac87c1d13ecdc378b2019db32509947afe8ede8b085e55c",
+      "bytes": 1255
+    },
+    "evidence/edital-executive-summary.md": {
+      "sha256": "86166e281c7e4325eb455cbaa0b20e98a8acb40f376223347e9cedc60858f896",
+      "bytes": 22367
+    },
+    "evidence/edital_case-manifest.json": {
+      "sha256": "8ac4272060a90bbb28dd3c99b5cd59adb9d03bdbad4ba66d21dd84dce15b23a4",
+      "bytes": 545
+    },
+    "evidence/edital_checklist.json": {
+      "sha256": "52e1be2a1dad6175240fab5bc0b26c96e59df88d2d4ec8f90d58730403e00592",
+      "bytes": 26595
+    },
+    "evidence/edital_e2e_summary.json": {
+      "sha256": "8854d6a9a8b36fe1c1f379d257e6570bb77b86d3b9220c3f578430a132078e0a",
+      "bytes": 3850
+    },
+    "evidence/edital_evidence-matrix.json": {
+      "sha256": "ddb3695f34ca8bd0e3584ca7bd056c3ca941ddd53f632f3c908429de483ead64",
+      "bytes": 17351
+    },
+    "evidence/edital_findings.json": {
+      "sha256": "f2a882a63041242567dee316a9a3d410ca170a2e75f9d21239cb98f6720b11f1",
+      "bytes": 34284
+    },
+    "evidence/edital_inconsistencies.json": {
+      "sha256": "e0408598dc0e977757e739a2b273b344ecdd8a89ea9d3c519c8dc26a77d13751",
+      "bytes": 2651
+    },
+    "evidence/edital_inventory.json": {
+      "sha256": "6b4925267816ca4af3a93aca92cfbb5ab5ff65e78b41b3835141b5133eea8abb",
+      "bytes": 12515
+    },
+    "evidence/edital_missing-documents.json": {
+      "sha256": "e74352737108670d55bbadea69f80c906b48f98df8753915b17e94a5eaee3166",
+      "bytes": 6335
+    },
+    "evidence/edital_recommendation.json": {
+      "sha256": "3c36c2f20ddede4d774618c8288dac5859849c9221b637ab4b798de68b27a3bd",
+      "bytes": 2021
+    },
+    "evidence/edital_report_checksums.json": {
+      "sha256": "ad1eca4e8ad4731caed8e3ab2dddbd262d811306af19478e86bc5d1fb7d31b62",
+      "bytes": 465
+    },
+    "evidence/edital_report_executive-summary.md": {
+      "sha256": "86166e281c7e4325eb455cbaa0b20e98a8acb40f376223347e9cedc60858f896",
+      "bytes": 22367
+    },
+    "evidence/edital_report_reconciliation.json": {
+      "sha256": "65a5a90dd40f273bc42ea320e10cbf41fe4efbf15a88df4652e885d2aafc4ebb",
+      "bytes": 753
+    },
+    "evidence/edital_timeline.json": {
+      "sha256": "f89ce2d6aadf8a4a0d02a2c375dcfac48ccc40710d10323eb1185641d7fb9b66",
+      "bytes": 4402
+    },
+    "evidence/edital_verification.json": {
+      "sha256": "c4dc6366c73de5caf30727c1e57e9992f2ea4a0b8e1c783342e06554a1619e49",
+      "bytes": 8957
+    }
+  },
+  "honesty": {
+    "fixture_not_live_ente": true,
+    "not_parecer_juridico": true,
+    "bdi_arithmetic_not_legal": true,
+    "planilha_extraction_ok_in_edital_case": true
+  }
+}

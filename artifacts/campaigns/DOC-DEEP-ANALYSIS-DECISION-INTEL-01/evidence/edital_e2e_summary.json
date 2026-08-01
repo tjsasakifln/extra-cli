@@ -1,0 +1,147 @@
+{
+  "pipeline": "edital_case",
+  "case_dir": "/tmp/grok-goal-58f70c56721c/implementer/edital_cases_v3/fixture-multi-doc-01",
+  "document_count": 5,
+  "classifications": [
+    {
+      "name": "aviso_data_conflitante.pdf",
+      "type": "AVISO",
+      "quality": "OK",
+      "extraction_status": "OK",
+      "block_count": 1,
+      "table_count": 0,
+      "total_chars": 77,
+      "cell_locator_samples": null,
+      "tables": null
+    },
+    {
+      "name": "mentions_missing.txt",
+      "type": "TERMO_DE_REFERENCIA",
+      "quality": "OK",
+      "extraction_status": "OK",
+      "block_count": 1,
+      "table_count": 0,
+      "total_chars": 116,
+      "cell_locator_samples": null,
+      "tables": null
+    },
+    {
+      "name": "sample_edital.pdf",
+      "type": "EDITAL",
+      "quality": "OK",
+      "extraction_status": "OK",
+      "block_count": 4,
+      "table_count": 0,
+      "total_chars": 1206,
+      "cell_locator_samples": null,
+      "tables": null
+    },
+    {
+      "name": "sample_planilha.xlsx",
+      "type": "PLANILHA_ORCAMENTARIA",
+      "quality": "OK",
+      "extraction_status": "OK",
+      "block_count": 7,
+      "table_count": 2,
+      "total_chars": 47,
+      "cell_locator_samples": [
+        "sheet:Orçamento!A1",
+        "sheet:Orçamento!B1",
+        "sheet:Orçamento!A2",
+        "sheet:Orçamento!B2",
+        "sheet:Orçamento!B3",
+        "sheet:BDI!A1",
+        "sheet:BDI!B1"
+      ],
+      "tables": [
+        {
+          "sheet": "Orçamento",
+          "cell_count": 5
+        },
+        {
+          "sheet": "BDI",
+          "cell_count": 2
+        }
+      ]
+    },
+    {
+      "name": "sample_tr.docx",
+      "type": "TERMO_DE_REFERENCIA",
+      "quality": "OK",
+      "extraction_status": "OK",
+      "block_count": 3,
+      "table_count": 1,
+      "total_chars": 104,
+      "cell_locator_samples": null,
+      "tables": null
+    }
+  ],
+  "planilha": {
+    "original_name": "sample_planilha.xlsx",
+    "type": "PLANILHA_ORCAMENTARIA",
+    "extraction_status": "OK",
+    "quality_status": "OK",
+    "block_count": 7,
+    "table_count": 2,
+    "total_chars": 47,
+    "cell_locator_samples": [
+      "sheet:Orçamento!A1",
+      "sheet:Orçamento!B1",
+      "sheet:Orçamento!A2",
+      "sheet:Orçamento!B2",
+      "sheet:Orçamento!B3",
+      "sheet:BDI!A1",
+      "sheet:BDI!B1"
+    ],
+    "tables": [
+      {
+        "sheet": "Orçamento",
+        "cell_count": 5
+      },
+      {
+        "sheet": "BDI",
+        "cell_count": 2
+      }
+    ],
+    "root_cause_fixed": "openpyxl load via BytesIO for extension-less content-addressed object paths"
+  },
+  "checklist_defined_count": 36,
+  "checklist_run_count": 36,
+  "checklist_status_histogram": {
+    "SATISFIED": 18,
+    "NEEDS_HUMAN": 2,
+    "NOT_FOUND": 11,
+    "RISK": 3,
+    "BLOCKER": 2
+  },
+  "recommendation": "REVIEW",
+  "disclaimer_present": true,
+  "findings_count": 49,
+  "inconsistencies_count": 1,
+  "verify_ok": true,
+  "verify_status": "PASS",
+  "citation_checked": 63,
+  "citation_fabricated": 0,
+  "verify_issues": [],
+  "reconciliation": {
+    "ok": true,
+    "issues": [],
+    "counts": {
+      "documents": 5,
+      "checklist_items": 36,
+      "findings": 49,
+      "timeline_events": 6,
+      "missing": 11,
+      "risks": 30,
+      "inconsistencies": 1
+    },
+    "checksums": {
+      "executive-summary.md": "86166e281c7e4325eb455cbaa0b20e98a8acb40f376223347e9cedc60858f896",
+      "report-model.json": "b24ddf19ebede11217996afe3d24c8f1a3b9ad4356540e9cf34c8360c94a555a",
+      "triage-report.html": "af7859cf084f5b5e309fd97ceed47a119d750c41d99b572a9fdb86e614e911b2",
+      "triage-report.pdf": "6503c785020c1800dc7a67bb0174d509f0844a2fd98d4d286a6952a50afd086a",
+      "triage-workbook.xlsx": "38486de3c6138b6c391f0d3c0920fd1c19f2f7592ef0bcfc304c0761b4091dff"
+    },
+    "generated_at": "2026-08-01T15:30:19.112498+00:00"
+  }
+}

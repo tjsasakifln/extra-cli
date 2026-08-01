@@ -1,0 +1,21 @@
+{
+  "ok": true,
+  "issues": [],
+  "counts": {
+    "documents": 5,
+    "checklist_items": 36,
+    "findings": 49,
+    "timeline_events": 6,
+    "missing": 11,
+    "risks": 30,
+    "inconsistencies": 1
+  },
+  "checksums": {
+    "executive-summary.md": "86166e281c7e4325eb455cbaa0b20e98a8acb40f376223347e9cedc60858f896",
+    "report-model.json": "b24ddf19ebede11217996afe3d24c8f1a3b9ad4356540e9cf34c8360c94a555a",
+    "triage-report.html": "af7859cf084f5b5e309fd97ceed47a119d750c41d99b572a9fdb86e614e911b2",
+    "triage-report.pdf": "6503c785020c1800dc7a67bb0174d509f0844a2fd98d4d286a6952a50afd086a",
+    "triage-workbook.xlsx": "38486de3c6138b6c391f0d3c0920fd1c19f2f7592ef0bcfc304c0761b4091dff"
+  },
+  "generated_at": "2026-08-01T15:30:19.112498+00:00"
+}
