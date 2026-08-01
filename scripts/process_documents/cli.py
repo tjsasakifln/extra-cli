@@ -40,8 +40,18 @@ def cmd_probe(args: argparse.Namespace) -> int:
         limit=args.limit,
         download=False,
         max_processes=args.max_processes,
+        multi_source=not args.single_source,
+        rotation=not args.no_rotation,
     )
-    _print({"count": summary["count"], "by_status": summary["by_status"]})
+    _print(
+        {
+            "count": summary["count"],
+            "by_status": summary["by_status"],
+            "selection_policy": summary.get("selection_policy"),
+            "multi_source": summary.get("multi_source"),
+            "selected_canonical_ids": (summary.get("selected_canonical_ids") or [])[:20],
+        }
+    )
     return 0
 
 
@@ -55,10 +65,16 @@ def cmd_collect(args: argparse.Namespace) -> int:
             until=args.until,
             max_processes=args.max_processes,
             download=not args.no_download,
+            multi_source=not args.single_source,
         )
-        _print(run.to_dict() if hasattr(run, "to_dict") else run)
-        status = getattr(run, "status", None)
-        ok = status is not None and status.value in ("SUCCESS_NONZERO", "SUCCESS_ZERO")
+        payload = run.to_dict() if hasattr(run, "to_dict") else run
+        _print(payload)
+        if isinstance(payload, dict):
+            status = payload.get("status")
+        else:
+            st = getattr(run, "status", None)
+            status = st.value if hasattr(st, "value") else st
+        ok = status in ("SUCCESS_NONZERO", "SUCCESS_ZERO", "partial")
         return 0 if ok else 1
     summary = collect_many(
         only_active=not args.all,
@@ -67,8 +83,17 @@ def cmd_collect(args: argparse.Namespace) -> int:
         until=args.until,
         max_processes=args.max_processes,
         download=not args.no_download,
+        multi_source=not args.single_source,
+        rotation=not args.no_rotation,
     )
-    _print({"count": summary["count"], "by_status": summary["by_status"]})
+    _print(
+        {
+            "count": summary["count"],
+            "by_status": summary["by_status"],
+            "selection_policy": summary.get("selection_policy"),
+            "multi_source": summary.get("multi_source"),
+        }
+    )
     return 0
 
 
@@ -83,8 +108,22 @@ def cmd_backfill(args: argparse.Namespace) -> int:
 def cmd_incremental(args: argparse.Namespace) -> int:
     from scripts.process_documents.collect import incremental
 
-    summary = incremental(download=not args.no_download, limit=args.limit)
-    _print({"count": summary.get("count"), "by_status": summary.get("by_status")})
+    summary = incremental(
+        download=not args.no_download,
+        limit=args.limit,
+        multi_source=not args.single_source,
+        rotation=not args.no_rotation,
+    )
+    _print(
+        {
+            "count": summary.get("count"),
+            "by_status": summary.get("by_status"),
+            "selection_policy": summary.get("selection_policy"),
+            "multi_source": summary.get("multi_source"),
+            "eligible_count": summary.get("eligible_count"),
+            "selected_canonical_ids": (summary.get("selected_canonical_ids") or [])[:20],
+        }
+    )
     return 0
 
 
@@ -296,6 +335,16 @@ def build_parser() -> argparse.ArgumentParser:
     pr.add_argument("--all", action="store_true")
     pr.add_argument("--limit", type=int, default=10)
     pr.add_argument("--max-processes", type=int, default=3)
+    pr.add_argument(
+        "--single-source",
+        action="store_true",
+        help="Opt out of multi-source (legacy preferred family only)",
+    )
+    pr.add_argument(
+        "--no-rotation",
+        action="store_true",
+        help="Opt out of staleness rotation (legacy static sort)",
+    )
     pr.set_defaults(func=cmd_probe)
 
     c = sub.add_parser("collect", help="Live document collection")
@@ -306,6 +355,16 @@ def build_parser() -> argparse.ArgumentParser:
     c.add_argument("--until", default=None)
     c.add_argument("--max-processes", type=int, default=8)
     c.add_argument("--no-download", action="store_true")
+    c.add_argument(
+        "--single-source",
+        action="store_true",
+        help="Opt out of multi-source (legacy preferred family only)",
+    )
+    c.add_argument(
+        "--no-rotation",
+        action="store_true",
+        help="Opt out of staleness rotation (legacy static sort)",
+    )
     c.set_defaults(func=cmd_collect)
 
     b = sub.add_parser("backfill", help="Resumable historical backfill")
@@ -316,10 +375,23 @@ def build_parser() -> argparse.ArgumentParser:
     b.add_argument("--no-download", action="store_true")
     b.set_defaults(func=cmd_backfill)
 
-    inc = sub.add_parser("incremental", help="Incremental document refresh")
+    inc = sub.add_parser(
+        "incremental",
+        help="Incremental document refresh (daily: staleness rotation + multi-source)",
+    )
     inc.add_argument("--all", action="store_true")
     inc.add_argument("--limit", type=int, default=50)
     inc.add_argument("--no-download", action="store_true")
+    inc.add_argument(
+        "--single-source",
+        action="store_true",
+        help="Opt out of multi-source (legacy preferred family only)",
+    )
+    inc.add_argument(
+        "--no-rotation",
+        action="store_true",
+        help="Opt out of staleness rotation (legacy static sort)",
+    )
     inc.set_defaults(func=cmd_incremental)
 
     cov = sub.add_parser("coverage", help="Operational coverage report")
