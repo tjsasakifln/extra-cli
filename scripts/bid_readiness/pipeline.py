@@ -202,6 +202,36 @@ def run_pipeline(
         {"rows": match_rows, "denominator_includes_missing": True},
     )
 
+    # Technical acervo integration (canonical EXTRA base — never a second store)
+    from scripts.bid_readiness.integration import integrate_requirements
+
+    tech_reqs = []
+    for req in requirements:
+        tech = req.get("technical_criteria") or {}
+        if tech.get("min_quantity") is not None or tech.get("service") or tech.get("object"):
+            tech_reqs.append(
+                {
+                    "requirement_id": req.get("id") or req.get("requirement_id"),
+                    "service": tech.get("service") or tech.get("object") or req.get("text"),
+                    "quantity": tech.get("min_quantity"),
+                    "unit": tech.get("unit") or "m2",
+                    "allow_sum": bool(
+                        tech.get("summable") or tech.get("somatório") or tech.get("somatorio")
+                    ),
+                    "mandatory": req.get("mandatory", True),
+                    "document_id": req.get("source_document_id"),
+                    "page": req.get("page"),
+                    "cell": req.get("cell"),
+                    "sheet": req.get("sheet"),
+                    "text": req.get("text"),
+                }
+            )
+    if tech_reqs:
+        acervo_pack = integrate_requirements(tech_reqs)
+        _write_json(case_dir / "matrices" / "technical-acervo-integration.json", acervo_pack)
+    else:
+        acervo_pack = None
+
     # Category matrices
     def subset(cats: set[str]) -> list[dict[str, Any]]:
         return [r for r in match_rows if (r.get("category") or "").upper() in cats]
