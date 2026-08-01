@@ -1,0 +1,189 @@
+{
+  "requirement": {
+    "service": "alvenaria",
+    "activity": null,
+    "quantity": 500.0,
+    "unit": "m2",
+    "modality": "nao_especificada"
+  },
+  "allow_sum": false,
+  "candidates": [
+    {
+      "score": 254.0,
+      "exact_service_match": true,
+      "service_relevant": true,
+      "matched_terms": [
+        "alvenaria"
+      ],
+      "experience_id": "exp-cobasi-reforma-2024",
+      "title": "Reforma de edificação comercial – Cobasi",
+      "contractor": "Cobasi Comércio de Produtos Básicos e Industriais",
+      "city": "Florianópolis",
+      "state": "SC",
+      "evidence_level": "cat_with_registered_attestation",
+      "individual_cat_not_provided": false,
+      "activity": "reforma",
+      "service": "alvenaria",
+      "quantity": 1321.08,
+      "unit": "m2",
+      "original_text": "1.321,08 m²",
+      "original_description": "reforma de alvenaria",
+      "source_page": 1,
+      "source_file": "arquivo2.pdf",
+      "document_id": "doc-cat-252024163553",
+      "document_type": "CAT",
+      "certificate_number": "252024163553",
+      "art_number": "9326264-7",
+      "document_status": "no_expiration_identified",
+      "restrictions": [
+        "CAT de acervo técnico-profissional vinculada ao responsável técnico; não prova irrestrita de capacidade operacional da pessoa jurídica sem análise do edital."
+      ],
+      "review_flags": [],
+      "capability_tags": [
+        "reforma_comercial",
+        "estrutura_metalica",
+        "contrapiso",
+        "piso_ceramico",
+        "hidraulica",
+        "eletrica_baixa_tensao",
+        "alvenaria",
+        "reboco",
+        "calcada_concreto",
+        "calcada_lajotas"
+      ],
+      "blob": "alvenaria reforma de alvenaria reforma reforma comercial estrutura metalica contrapiso piso ceramico hidraulica eletrica baixa tensao alvenaria reboco calcada concreto calcada lajotas reforma de edificacao comercial cobasi reforma de edificacao comercial cobasi comercio de produtos basicos e industriais florianopolis rua francisco tolentino 657 centro florianopolis/sc"
+    },
+    {
+      "score": 254.0,
+      "exact_service_match": true,
+      "service_relevant": true,
+      "matched_terms": [
+        "alvenaria"
+      ],
+      "experience_id": "exp-petcampo-loja-2024",
+      "title": "Loja comercial com cobertura metálica – Pet Campo Agroshop, 2024",
+      "contractor": "Pet Campo Agroshop",
+      "city": "Florianópolis",
+      "state": "SC",
+      "evidence_level": "cat_with_registered_attestation",
+      "individual_cat_not_provided": false,
+      "activity": "execucao",
+      "service": "alvenaria de bloco ceramico",
+      "quantity": 143.78,
+      "unit": "m2",
+      "original_text": "143,78 m²",
+      "original_description": "alvenaria de bloco cerâmico",
+      "source_page": 2,
+      "source_file": "arquuivo6.pdf",
+      "document_id": "doc-cat-252025173000",
+      "document_type": "CAT",
+      "certificate_number": "252025173000",
+      "art_number": "9894161-3",
+      "document_status": "no_expiration_identified",
+      "restrictions": [
+        "CAT de acervo técnico-profissional vinculada ao responsável técnico; não prova irrestrita de capacidade operacional da pessoa jurídica sem análise do edital."
+      ],
+      "review_flags": [
+        {
+          "flag": "source_filename_typo_preserved",
+          "reason": "Nome de origem 'arquuivo6.pdf' (typo) preservado como source_file; alias normalizado arquivo6.pdf apenas para lookup."
+        }
+      ],
+      "capability_tags": [
+        "loja_comercial",
+        "estrutura_metalica",
+        "telha_aluminio",
+        "cobertura_metalica",
+        "contrapiso",
+        "piso_ceramico",
+        "rede_hidrossanitaria",
+        "pontos_logica",
+        "instalacao_eletrica",
+        "prevencao_incendio",
+        "alvenaria_bloco_ceramico"
+      ],
+      "blob": "alvenaria de bloco ceramico alvenaria de bloco ceramico execucao loja comercial estrutura metalica telha aluminio cobertura metalica contrapiso piso ceramico rede hidrossanitaria pontos logica instalacao eletrica prevencao incendio alvenaria bloco ceramico loja comercial com cobertura metalica pet campo agroshop 2024 execucao de loja comercial com cobertura em telha de aluminio sobre estrutura metalica pet campo agroshop florianopolis"
+    }
+  ],
+  "max_individual_quantity": 1321.08,
+  "best_individual": {
+    "score": 254.0,
+    "exact_service_match": true,
+    "service_relevant": true,
+    "matched_terms": [
+      "alvenaria"
+    ],
+    "experience_id": "exp-cobasi-reforma-2024",
+    "title": "Reforma de edificação comercial – Cobasi",
+    "contractor": "Cobasi Comércio de Produtos Básicos e Industriais",
+    "city": "Florianópolis",
+    "state": "SC",
+    "evidence_level": "cat_with_registered_attestation",
+    "individual_cat_not_provided": false,
+    "activity": "reforma",
+    "service": "alvenaria",
+    "quantity": 1321.08,
+    "unit": "m2",
+    "original_text": "1.321,08 m²",
+    "original_description": "reforma de alvenaria",
+    "source_page": 1,
+    "source_file": "arquivo2.pdf",
+    "document_id": "doc-cat-252024163553",
+    "document_type": "CAT",
+    "certificate_number": "252024163553",
+    "art_number": "9326264-7",
+    "document_status": "no_expiration_identified",
+    "restrictions": [
+      "CAT de acervo técnico-profissional vinculada ao responsável técnico; não prova irrestrita de capacidade operacional da pessoa jurídica sem análise do edital."
+    ],
+    "review_flags": [],
+    "capability_tags": [
+      "reforma_comercial",
+      "estrutura_metalica",
+      "contrapiso",
+      "piso_ceramico",
+      "hidraulica",
+      "eletrica_baixa_tensao",
+      "alvenaria",
+      "reboco",
+      "calcada_concreto",
+      "calcada_lajotas"
+    ],
+    "blob": "alvenaria reforma de alvenaria reforma reforma comercial estrutura metalica contrapiso piso ceramico hidraulica eletrica baixa tensao alvenaria reboco calcada concreto calcada lajotas reforma de edificacao comercial cobasi reforma de edificacao comercial cobasi comercio de produtos basicos e industriais florianopolis rua francisco tolentino 657 centro florianopolis/sc"
+  },
+  "sum_total": null,
+  "summed_records": [],
+  "adherence_level": "full_individual",
+  "limitations": [
+    "Resultado é evidência documental, não parecer jurídico de habilitação.",
+    "Análise do edital (parcela de maior relevância, somatório permitido, vínculos RT/PJ) permanece necessária.",
+    "Somatório automático entre obras distintas desabilitado (allow_sum=false).",
+    "CAT profissional não é prova irrestrita de capacidade operacional da pessoa jurídica."
+  ],
+  "human_review_required": true,
+  "disclaimer": "Evidência documental do acervo EXTRA. Não afirma atendimento jurídico absoluto a exigência de edital. Distingue evidência, inferência e necessidade de análise humana.",
+  "sources": [
+    {
+      "document": "CAT",
+      "number": "252024163553",
+      "art": "9326264-7",
+      "quantity": 1321.08,
+      "unit": "m2",
+      "source_file": "arquivo2.pdf",
+      "source_page": 1,
+      "experience_id": "exp-cobasi-reforma-2024",
+      "evidence_level": "cat_with_registered_attestation"
+    },
+    {
+      "document": "CAT",
+      "number": "252025173000",
+      "art": "9894161-3",
+      "quantity": 143.78,
+      "unit": "m2",
+      "source_file": "arquuivo6.pdf",
+      "source_page": 2,
+      "experience_id": "exp-petcampo-loja-2024",
+      "evidence_level": "cat_with_registered_attestation"
+    }
+  ]
+}

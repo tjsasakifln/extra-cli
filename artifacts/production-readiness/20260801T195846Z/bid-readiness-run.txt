@@ -1,0 +1,19 @@
+{
+  "ok": true,
+  "case": "artifacts/production-readiness/20260801T195846Z/bid-case/PR-READINESS-01",
+  "system_status": "SYSTEM_FAIL",
+  "package_status": "BLOCKED_BY_MISSING_DOCUMENT",
+  "final_status": "BLOCKED",
+  "summary": {
+    "requirements_count": 22,
+    "documents_count": 22,
+    "valid_count": 7,
+    "expired_count": 2,
+    "expiring_count": 0,
+    "missing_count": 1,
+    "blockers_count": 11,
+    "findings_count": 13,
+    "ingest_warnings": []
+  },
+  "isolation": false
+}

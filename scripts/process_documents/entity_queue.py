@@ -997,7 +997,7 @@ def simulate_fair_rotation(
     Each cycle selects ``batch_size`` pairs by lag, marks them successful, and
     continues until every pair has been selected at least once (or cycles cap).
     """
-    rng = random.Random(rng_seed)
+    rng = random.Random(rng_seed)  # noqa: S311 — deterministic schedule sim, not crypto
     queue: dict[str, EntityQueueEntry] = {}
     ensure_entity_source_pairs(queue, entity_sources)
     pairs = list_source_pairs(queue, entity_sources)
