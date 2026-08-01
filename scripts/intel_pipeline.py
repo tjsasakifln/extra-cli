@@ -1042,7 +1042,7 @@ def main() -> int:
                 "fit_estrategico": 0.20,
                 "viabilidade_financeira": 0.15,
                 "roi": 0.15,
-                "p_vitoria": 0.15,
+                "heuristic_scenario": 0.15,
                 "custo_logistico": 0.10,
                 "janela_temporal": 0.10,
                 "concorrencia": 0.15,
@@ -1074,8 +1074,8 @@ def main() -> int:
                 )
 
                 bid_sim = ed.get("_bid_simulation") or {}
-                pw = float(bid_sim.get("p_vitoria_pct") or 0)
-                scores["p_vitoria"] = min(1.0, pw / 60.0) if pw > 0 else 0.5
+                pw = float(bid_sim.get("heuristic_scenario_score", bid_sim.get("p_vitoria_pct")) or 0)
+                scores["heuristic_scenario"] = min(1.0, pw / 60.0) if pw > 0 else 0.5
 
                 dist = (ed.get("distancia") or {}).get("km")
                 if dist is None:

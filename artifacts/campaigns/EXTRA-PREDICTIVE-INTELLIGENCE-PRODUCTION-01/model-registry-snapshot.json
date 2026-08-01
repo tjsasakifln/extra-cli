@@ -1,0 +1,19 @@
+{
+  "models": [
+    {
+      "target": "demand_30d",
+      "status": "rejected_backtest",
+      "best": "hist_gbm_clf"
+    },
+    {
+      "target": "competitive_winner_p2a",
+      "status": "shadow_operational",
+      "best": "hist_gbm_clf",
+      "bss": 0.9052990881338843
+    },
+    {
+      "target": "winning_discount_p3",
+      "status": "data_blocked"
+    }
+  ]
+}

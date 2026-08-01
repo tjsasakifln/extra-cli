@@ -143,7 +143,7 @@ BID_SCORE_WEIGHTS = {
     "fit_estrategico": 0.20,
     "viabilidade_financeira": 0.15,
     "roi": 0.15,
-    "p_vitoria": 0.15,
+    "heuristic_scenario": 0.15,
     "custo_logistico": 0.10,
     "janela_temporal": 0.10,
     "concorrencia": 0.15,
@@ -329,8 +329,8 @@ def _compute_bid_score(edital: dict[str, Any], empresa: dict[str, Any]) -> dict[
 
     # D4: Probabilidade de Vitoria
     bid_sim = edital.get("_bid_simulation") or {}
-    p_win = _safe_float(bid_sim.get("p_vitoria_pct"))
-    scores["p_vitoria"] = min(1.0, p_win / 60.0) if p_win > 0 else 0.5
+    p_win = _safe_float(bid_sim.get("heuristic_scenario_score") if bid_sim.get("heuristic_scenario_score") is not None else bid_sim.get("p_vitoria_pct"))
+    scores["heuristic_scenario"] = min(1.0, p_win / 60.0) if p_win > 0 else 0.5
 
     # D5: Custo Logistico (distancia)
     dist = (edital.get("distancia") or {}).get("km")
@@ -591,8 +591,8 @@ def _build_enrichment_context(edital: dict[str, Any], empresa: dict[str, Any]) -
     if bid.get("has_data") or bid.get("historico_contratos", 0) >= 3:
         lance = bid.get("lance_sugerido", 0)
         desc = bid.get("desconto_sugerido_pct", 0)
-        pwin = bid.get("p_vitoria_pct", 0)
-        parts.append(f"SIMULACAO LANCE: R$ {lance:,.2f} (desconto {desc:.1f}%, P(vitoria) {pwin:.0f}%)")
+        pwin = bid.get("heuristic_scenario_score", bid.get("p_vitoria_pct", 0))
+        parts.append(f"CENARIO HEURISTICO LANCE: R$ {lance:,.2f} (desconto {desc:.1f}%, score {pwin:.0f}/100 NAO probabilidade)")
 
     # Bid/No-Bid Score (v2)
     bid_score = edital.get("_bid_score") or {}
@@ -1197,16 +1197,16 @@ def generate_executive_summary(
         if "PARTICIPAR" in (ed.get("analise", {}).get("recomendacao_acao", ""))
         and "NAO" not in (ed.get("analise", {}).get("recomendacao_acao", ""))
     )
-    p_vitorias = [
-        _safe_float((ed.get("_bid_simulation") or {}).get("p_vitoria_pct"))
+    heuristic_scores = [
+        _safe_float((ed.get("_bid_simulation") or {}).get("heuristic_scenario_score", (ed.get("_bid_simulation") or {}).get("p_vitoria_pct")))
         for ed in top20
         if "PARTICIPAR" in (ed.get("analise", {}).get("recomendacao_acao", ""))
         and "NAO" not in (ed.get("analise", {}).get("recomendacao_acao", ""))
     ]
-    avg_p_vitoria = sum(p_vitorias) / max(1, len(p_vitorias)) if p_vitorias else 0
+    avg_heuristic_scenario = sum(heuristic_scores) / max(1, len(heuristic_scores)) if heuristic_scores else 0
     valor_esperado = sum(
         _safe_float(ed.get("valor_estimado"))
-        * _safe_float((ed.get("_bid_simulation") or {}).get("p_vitoria_pct"))
+        * _safe_float((ed.get("_bid_simulation") or {}).get("heuristic_scenario_score", (ed.get("_bid_simulation") or {}).get("p_vitoria_pct")))
         / 100
         for ed in top20
         if "PARTICIPAR" in (ed.get("analise", {}).get("recomendacao_acao", ""))
@@ -1220,7 +1220,7 @@ def generate_executive_summary(
         f"\n- Valor total do pipeline: {_fmt_brl(total_valor_participar)}"
         f"\n- Custo estimado de propostas: {_fmt_brl(total_custo_propostas)}"
         f"\n- ROI potencial do portfolio: {roi_portfolio:.0f}x"
-        f"\n- P(vitoria) media: {avg_p_vitoria:.0f}%"
+        f"\n- Score de cenario heuristic medio: {avg_heuristic_scenario:.0f}%"
         f"\n- Valor esperado (EV): {_fmt_brl(valor_esperado)}"
     )
 
@@ -1247,7 +1247,7 @@ def generate_executive_summary(
         "(URGENTE > PRIORITARIO > BUSCAR > AVALIAR > MONITORAR)\n\n"
         "REGRAS:\n"
         "- Seja concreto: cite numeros de editais (#N), valores, datas, municipios\n"
-        "- Inclua as METRICAS DE PORTFOLIO fornecidas (valor total, ROI, P(vitoria), valor esperado) no resumo\n"
+        "- Inclua as METRICAS DE PORTFOLIO fornecidas (valor total, ROI, score de cenario heuristic, valor esperado de cenario) no resumo\n"
         "- proximos_passos devem comecar com prefixo: URGENTE:, PRIORITARIO:, BUSCAR:, AVALIAR:, MONITORAR:\n"
         "- Retorne SOMENTE o JSON, sem markdown\n"
     )

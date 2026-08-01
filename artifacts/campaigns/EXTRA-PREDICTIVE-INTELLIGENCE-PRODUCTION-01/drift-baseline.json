@@ -1,0 +1,9 @@
+{
+  "status": "baseline_not_yet_from_prospective",
+  "suspend_rules": [
+    "ECE>0.10",
+    "BSS<0",
+    "coverage loss",
+    "schema drift"
+  ]
+}

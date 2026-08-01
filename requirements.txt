@@ -38,3 +38,7 @@ prometheus_client>=0.20.0
 
 # Test / property-based (budget adversarial suite)
 hypothesis>=6.100.0
+
+# Predictive intelligence (optional; required for train/backtest)
+# scikit-learn>=1.4.0
+# numpy>=1.26.0

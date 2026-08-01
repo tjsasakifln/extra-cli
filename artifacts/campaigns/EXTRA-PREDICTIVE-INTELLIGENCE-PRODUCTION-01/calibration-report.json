@@ -1,0 +1,10 @@
+{
+  "method": "sigmoid (Platt) on held-out temporal cal fold",
+  "applied_to": [
+    "logistic_l2",
+    "hist_gbm_clf"
+  ],
+  "demand_30d_ece": 0.023100892128854463,
+  "p2a_ece": 0.003109586855411693,
+  "note": "Percentages as commercial probability only if claim PRODUCTION_AVAILABLE"
+}

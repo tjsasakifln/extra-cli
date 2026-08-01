@@ -1192,10 +1192,10 @@ def _build_sumario_executivo(data: dict, styles: dict) -> list:
 
     total_valor = sum(float(ed.get("valor_estimado") or 0) for ed in participar_eds)
     total_custo = sum(float((ed.get("custo_proposta") or {}).get("total") or 0) for ed in participar_eds)
-    p_vitorias = [float((ed.get("_bid_simulation") or {}).get("p_vitoria_pct") or 0) for ed in participar_eds]
+    p_vitorias = [float((ed.get("_bid_simulation") or {}).get("heuristic_scenario_score", (ed.get("_bid_simulation") or {}).get("p_vitoria_pct")) or 0) for ed in participar_eds]
     avg_p = sum(p_vitorias) / max(1, len(p_vitorias)) if p_vitorias else 0
     valor_esperado = sum(
-        float(ed.get("valor_estimado") or 0) * float((ed.get("_bid_simulation") or {}).get("p_vitoria_pct") or 0) / 100
+        float(ed.get("valor_estimado") or 0) * float((ed.get("_bid_simulation") or {}).get("heuristic_scenario_score", (ed.get("_bid_simulation") or {}).get("p_vitoria_pct")) or 0) / 100
         for ed in participar_eds
     )
     roi = total_valor / max(1, total_custo)
@@ -1205,7 +1205,7 @@ def _build_sumario_executivo(data: dict, styles: dict) -> list:
         ("Valor Total do Pipeline", _fmt_brl_report(total_valor)),
         ("Custo Estimado de Propostas", _fmt_brl_report(total_custo) if total_custo > 0 else "N/I"),
         ("ROI Potencial do Portfólio", f"{roi:.0f}x" if total_custo > 0 else "N/I"),
-        ("P(Vitória) Média", f"{avg_p:.0f}%" if any(p_vitorias) else "N/I"),
+        ("Score cenário (heurístico)", f"{avg_p:.0f}/100" if any(p_vitorias) else "N/I"),
         ("Valor Esperado (EV)", _fmt_brl_report(valor_esperado) if valor_esperado > 0 else "N/I"),
     ]
 
@@ -2088,8 +2088,8 @@ def _build_edital_detail(idx: int, ed: dict, styles: dict) -> list:
                 )
             )
 
-        # P(vitória)
-        p_vitoria = bid_sim.get("probabilidade_vitoria")
+        # Score cenário
+        p_vitoria = bid_sim.get("heuristic_scenario_score", bid_sim.get("probabilidade_vitoria"))
         if p_vitoria is not None:
             try:
                 pv = float(p_vitoria)
@@ -2100,7 +2100,7 @@ def _build_edital_detail(idx: int, ed: dict, styles: dict) -> list:
                 pv_color = SIGNAL_GREEN if pv_pct >= 50 else SIGNAL_AMBER if pv_pct >= 30 else SIGNAL_RED
                 elements.append(
                     Paragraph(
-                        f'P(vitória) estimada: <font color="{pv_color.hexval()}"><b>{pv_pct:.0f}%</b></font>',
+                        f'Score cenário estimada: <font color="{pv_color.hexval()}"><b>{pv_pct:.0f}%</b></font>',
                         styles["bullet"],
                     )
                 )

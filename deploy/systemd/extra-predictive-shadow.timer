@@ -1,0 +1,10 @@
+[Unit]
+Description=Daily predictive shadow cycle (Extra Consultoria)
+
+[Timer]
+OnCalendar=*-*-* 05:30:00
+Persistent=true
+Unit=extra-predictive-shadow.service
+
+[Install]
+WantedBy=timers.target

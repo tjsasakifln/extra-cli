@@ -1,0 +1,71 @@
+{
+  "client": "extra_construtora",
+  "profile_id": "extra_construtora",
+  "profile_version": 3,
+  "missing_critical": [
+    {
+      "field": "margem_minima",
+      "reason": "operational_capacity.margem_minima status PENDING or empty",
+      "required_for": [
+        "EXTRA_WIN_PROBABILITY_AVAILABLE",
+        "OPTIMAL_BID_RECOMMENDATION_AVAILABLE"
+      ]
+    },
+    {
+      "field": "capital_giro",
+      "reason": "operational_capacity.capital_giro status PENDING or empty",
+      "required_for": [
+        "EXTRA_WIN_PROBABILITY_AVAILABLE",
+        "OPTIMAL_BID_RECOMMENDATION_AVAILABLE"
+      ]
+    },
+    {
+      "field": "capacidade_garantia",
+      "reason": "operational_capacity.capacidade_garantia status PENDING or empty",
+      "required_for": [
+        "EXTRA_WIN_PROBABILITY_AVAILABLE",
+        "OPTIMAL_BID_RECOMMENDATION_AVAILABLE"
+      ]
+    },
+    {
+      "field": "capacidade_simultanea",
+      "reason": "operational_capacity.capacidade_simultanea status PENDING or empty",
+      "required_for": [
+        "EXTRA_WIN_PROBABILITY_AVAILABLE",
+        "OPTIMAL_BID_RECOMMENDATION_AVAILABLE"
+      ]
+    },
+    {
+      "field": "equipe",
+      "reason": "operational_capacity.equipe status PENDING or empty",
+      "required_for": [
+        "EXTRA_WIN_PROBABILITY_AVAILABLE",
+        "OPTIMAL_BID_RECOMMENDATION_AVAILABLE"
+      ]
+    },
+    {
+      "field": "contratos_correntes",
+      "reason": "operational_capacity.contratos_correntes status PENDING or empty",
+      "required_for": [
+        "EXTRA_WIN_PROBABILITY_AVAILABLE",
+        "OPTIMAL_BID_RECOMMENDATION_AVAILABLE"
+      ]
+    },
+    {
+      "field": "risco_aceitavel",
+      "reason": "operational_capacity.risco_aceitavel status PENDING or empty",
+      "required_for": [
+        "EXTRA_WIN_PROBABILITY_AVAILABLE",
+        "OPTIMAL_BID_RECOMMENDATION_AVAILABLE"
+      ]
+    }
+  ],
+  "personalization_allowed": false,
+  "p4_claim": "DATA_BLOCKED",
+  "p5_claim": "DATA_BLOCKED",
+  "notes": [
+    "Do not invent PENDING values",
+    "Population market win likelihood must use CALIBRATED_MARKET_WIN_LIKELIHOOD naming",
+    "EXTRA_WIN_PROBABILITY_AVAILABLE requires Extra outcome sample or hierarchical pooling + full profile"
+  ]
+}

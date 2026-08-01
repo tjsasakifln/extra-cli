@@ -1,0 +1,15 @@
+{
+  "bid_simulator": {
+    "method": "UNVALIDATED_HEURISTIC",
+    "prediction_claim_allowed": false,
+    "renamed_fields": [
+      "heuristic_scenario_score",
+      "lance_cenario",
+      "valor_esperado_cenario"
+    ],
+    "removed_from_export": [
+      "p_vitoria_pct as probability label"
+    ]
+  },
+  "static_tests": "tests/predictive/test_honesty_static.py"
+}

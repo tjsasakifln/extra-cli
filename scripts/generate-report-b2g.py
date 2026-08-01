@@ -6732,7 +6732,7 @@ def _build_methodology_content(styles: dict) -> list:
     el.append(Paragraph("<b>Competitividade Estimada</b>", styles["h3"]))
     el.append(
         Paragraph(
-            "A Competitividade Estimada é uma estimativa heurística da probabilidade de vitória "
+            "A Competitividade Estimada é um score heurístico (NÃO probabilidade calibrada de vitória) "
             "baseada em dados históricos de contratação do órgão licitante obtidos via Portal "
             "Nacional de Contratações Públicas. "
             "O modelo heurístico inspirado em análise de frequência considera o número de "
