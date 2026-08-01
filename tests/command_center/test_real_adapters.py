@@ -39,15 +39,19 @@ def test_resolve_data_mode_explicit_and_compat() -> None:
 
 
 def test_four_adapters_registered() -> None:
+    """Baseline four workflows remain; consulting chain adapters are additive."""
     ids = list_adapter_workflow_ids()
-    assert ids == sorted(
-        [
-            "workflow.confenge.public_agencies",
-            "workflow.confenge.suppliers",
-            "workflow.extra.opportunities",
-            "workflow.process_documents",
-        ]
-    )
+    for required in (
+        "workflow.confenge.public_agencies",
+        "workflow.confenge.suppliers",
+        "workflow.extra.opportunities",
+        "workflow.process_documents",
+        "workflow.edital_case",
+        "workflow.budget_audit",
+        "workflow.technical_acervo",
+        "workflow.bid_readiness",
+    ):
+        assert required in ids
 
 
 @pytest.mark.parametrize(
@@ -57,9 +61,22 @@ def test_four_adapters_registered() -> None:
 def test_argv_is_list_no_shell_metachar_injection(workflow_id: str, tmp_path: Path) -> None:
     adapter = get_adapter(workflow_id)
     assert adapter is not None
-    params: dict = {"data_mode": "REAL", "uf": "SC", "query": "demo-x", "max_shortlist": 3, "max_companies": 3, "max_leads": 3}
-    # Injection attempts must not appear as shell glue
-    params["query"] = "ok-query"
+    params: dict = {
+        "data_mode": "REAL",
+        "uf": "SC",
+        "query": "ok-query",
+        "max_shortlist": 3,
+        "max_companies": 3,
+        "max_leads": 3,
+        "service": "pavimentacao",
+        "source": "tests/fixtures/sample",
+        "source_dir": "tests/fixtures/sample",
+        "requirements": "scripts/bid_readiness/fixtures/golden/requirements.json",
+        "documents": "scripts/bid_readiness/fixtures/golden/documents",
+        "reference_date": "2026-08-01",
+        "quantity": 10,
+        "unit": "m2",
+    }
     argv = adapter.build_argv(params, out_dir=tmp_path)
     assert isinstance(argv, list)
     assert all(isinstance(a, str) for a in argv)

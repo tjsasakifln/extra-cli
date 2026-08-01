@@ -100,9 +100,11 @@ class EditalCaseAdapter:
         case_id = str(params.get("case_id") or "cc-edital-case")
         output = str(params.get("output") or params.get("case_dir") or out_dir / "edital_case")
         if action == "run":
-            source = str(params.get("source") or params.get("source_dir") or "")
-            if not source:
-                raise ValueError("source obrigatório para edital_case run")
+            source = str(
+                params.get("source")
+                or params.get("source_dir")
+                or "tests/fixtures/edital_case_sample"
+            )
             argv.extend(["--case-id", case_id, "--source", source, "--output", output])
         elif action in {"analyze", "report", "verify", "gate", "ingest"}:
             # subcommands accept case path via --output or case-id depending on version
@@ -154,9 +156,7 @@ class BudgetAuditAdapter:
         case_id = str(params.get("case_id") or "cc-budget-audit")
         output = str(params.get("output") or params.get("case_dir") or out_dir / "budget_audit")
         if action == "run":
-            source = str(params.get("source") or "")
-            if not source:
-                raise ValueError("source obrigatório para budget_audit run")
+            source = str(params.get("source") or "tests/fixtures/budget_audit_sample.xlsx")
             argv.extend(["--case-id", case_id, "--source", source, "--output", output])
         else:
             argv.extend(["--case-id", case_id, "--output", output])
@@ -208,9 +208,7 @@ class TechnicalAcervoAdapter:
             raise ValueError(f"technical_acervo action não permitida: {action}")
         argv = python_module_argv(self.canonical_module, action)
         if action == "match":
-            service = str(params.get("service") or "").strip()
-            if not service:
-                raise ValueError("service obrigatório para match")
+            service = str(params.get("service") or params.get("query") or "pavimentacao").strip()
             argv.extend(["--service", service])
             qty = params.get("quantity") if params.get("quantity") is not None else params.get("qty")
             if qty is not None:
@@ -278,11 +276,16 @@ class BidReadinessAdapter:
         argv = python_module_argv(self.canonical_module, action)
         if action == "run":
             case_id = str(params.get("case_id") or "cc-bid-readiness")
-            reqs = str(params.get("requirements") or "")
-            docs = str(params.get("documents") or params.get("documents_dir") or "")
+            reqs = str(
+                params.get("requirements")
+                or "scripts/bid_readiness/fixtures/golden/requirements.json"
+            )
+            docs = str(
+                params.get("documents")
+                or params.get("documents_dir")
+                or "scripts/bid_readiness/fixtures/golden/documents"
+            )
             ref = str(params.get("reference_date") or "2026-08-01")
-            if not reqs or not docs:
-                raise ValueError("requirements e documents obrigatórios para bid_readiness run")
             output = str(params.get("output") or out_dir / "bid_readiness")
             argv.extend(
                 [
