@@ -39,7 +39,8 @@ help:
 	@echo ''
 	@echo '── Ciclo semanal Extra (CANÔNICO) ─────────────────────────────────'
 	@echo '  extra-weekly    Ciclo operacional semanal: collect→process→quality'
-	@echo '                 →intelligence→delivery (manifest+MD+Excel+CSV)'
+	@echo '                 →intelligence→delivery (PDF+Excel decisórios multi-fonte,'
+	@echo '                 coverage matrix, decision_dataset, qa_report, checksums)'
 	@echo '                 python -m scripts.ops.weekly_cycle --strict'
 	@echo '  WEEKLY_FLAGS=   Flags extras, ex: --force-collect --skip-collect'
 	@echo ''
@@ -880,6 +881,30 @@ test-edital-relevance-final-blocker:
 	echo "blocker meta-test PASS (final gate non-zero + BLOCKED_HUMAN_DUAL_LABELING + development integrity)"
 
 
+
+# --- Extra multi-source open pack (EXTRA-MS-OPEN, 6 client artifacts) ---
+.PHONY: extra-ms-open-pack test-extra-ms-open-pack
+# Motor canônico: python3 -m scripts.ops.multi_source_open_pack
+# Required: OUT_DIR. Optional: PNCP, CIGA, SC_COMPRAS, COVERAGE, BRAND_DIR, AS_OF, PACK_ID
+extra-ms-open-pack:
+	@test -n "$(OUT_DIR)" || (echo "ERROR: set OUT_DIR=/path/to/pack-out"; exit 2)
+	@echo "==> EXTRA-MS-OPEN multi-source decision pack"
+	@echo "    OUT_DIR=$(OUT_DIR)"
+	python3 -m scripts.ops.multi_source_open_pack \
+		--out-dir "$(OUT_DIR)" \
+		$(if $(PNCP),--pncp "$(PNCP)",) \
+		$(if $(CIGA),--ciga "$(CIGA)",) \
+		$(if $(SC_COMPRAS),--sc-compras "$(SC_COMPRAS)",) \
+		$(if $(COVERAGE),--coverage "$(COVERAGE)",) \
+		$(if $(BRAND_DIR),--brand-dir "$(BRAND_DIR)",) \
+		$(if $(AS_OF),--as-of "$(AS_OF)",) \
+		$(if $(PACK_ID),--pack-id "$(PACK_ID)",) \
+		$(if $(UNIVERSE),--universe "$(UNIVERSE)",) \
+		$(if $(PROFILE),--profile "$(PROFILE)",)
+	@echo "==> done (see terminal_state + 6 client artifacts in OUT_DIR)"
+
+test-extra-ms-open-pack:
+	python3 -m pytest tests/test_multi_source_open_pack.py -q --tb=short --no-cov
 
 # --- Extra First Client Decision Delivery (piloto Extra Construtora) ---
 .PHONY: extra-first-client-delivery test-extra-first-client-delivery

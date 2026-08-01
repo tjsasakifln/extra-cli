@@ -200,6 +200,8 @@ def test_exit_blocked_on_opp_blocked() -> None:
 def _delivery_ok_detail() -> dict:
     return {
         "excel_ok": True,
+        "pdf_ok": True,
+        "pdf_status": "GENERATED",
         "checksums_file": "/tmp/checksums.json",
         "product_checksums": {"executive_md": {"sha256": "abc"}},
     }
