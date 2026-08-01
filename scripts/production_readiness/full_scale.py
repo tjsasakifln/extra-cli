@@ -164,10 +164,12 @@ def stream_pg_contracts(
     import psycopg2.extras
 
     conn = psycopg2.connect(dsn)
-    conn.set_session(readonly=True, autocommit=True)
+    # Named server-side cursors require an open transaction (not autocommit).
+    conn.set_session(readonly=True, autocommit=False)
     try:
         with conn.cursor(
-            name=f"full_scale_{uuid.uuid4().hex[:10]}", cursor_factory=psycopg2.extras.RealDictCursor
+            name=f"full_scale_{uuid.uuid4().hex[:10]}",
+            cursor_factory=psycopg2.extras.RealDictCursor,
         ) as cur:
             cur.itersize = page_size
             # OFFSET for resume; prefer keyset when available — offset is OK for proof
@@ -181,6 +183,10 @@ def stream_pg_contracts(
                 d["_offset"] = offset
                 offset += 1
                 yield d
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
     finally:
         conn.close()
 
