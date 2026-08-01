@@ -466,24 +466,42 @@ def build_export(
         own_staging = True
 
     try:
-        # Prefer staging (memory-bounded extract path); then pre_* lists; then classify in-memory.
+        # Prefer staging (memory-bounded extract): raw rows never retained.
+        # Aggregators still need a sequence; we materialize from SQLite one
+        # dataset at a time and drop references ASAP (no concurrent raw+classified
+        # giant lists; no permanent pre_classified retention after extract).
         if store is not None:
-            classified = store.load_all_classified()
-            aec_bids = store.load_all_bids()
             classification_counts = dict(
                 pre_classification_counts
                 or store.get_meta("classification_counts")
                 or {}
             )
+            aec_bids = store.load_all_bids()
+            open_bids, closed_bids, opp_status_counts = filter_open_bids(
+                aec_bids, as_of=as_of_d
+            )
+            n_aec_bids = len(aec_bids)
+            del aec_bids  # free full bid payload before loading contracts
+            classified = store.load_all_classified()
+            n_classified = len(classified)
         elif pre_classified is not None:
             classified = list(pre_classified)
             classification_counts = dict(pre_classification_counts or {})
             aec_bids = list(pre_aec_bids or [])
+            open_bids, closed_bids, opp_status_counts = filter_open_bids(
+                aec_bids, as_of=as_of_d
+            )
+            n_classified, n_aec_bids = len(classified), len(aec_bids)
+            del aec_bids
         else:
             classification_counts = classify_all_rows_stats(contracts)
             classified = classify_rows(contracts)
             aec_bids = classify_bids(bids)
-        open_bids, closed_bids, opp_status_counts = filter_open_bids(aec_bids, as_of=as_of_d)
+            open_bids, closed_bids, opp_status_counts = filter_open_bids(
+                aec_bids, as_of=as_of_d
+            )
+            n_classified, n_aec_bids = len(classified), len(aec_bids)
+            del aec_bids
 
         markets = build_markets(classified, open_bids)
         agencies = build_agencies(classified, open_bids)
@@ -567,8 +585,8 @@ def build_export(
         )
 
         dates = [c.data_publicacao for c in classified if c.data_publicacao]
-        bid_dates = []
-        for b in aec_bids:
+        bid_dates: list[str] = []
+        for b in open_bids + closed_bids:
             for k in ("data_publicacao", "data_encerramento", "data_abertura"):
                 if b.get(k):
                     bid_dates.append(str(b[k])[:10])
@@ -576,11 +594,13 @@ def build_export(
         max_data = max(all_dates) if all_dates else None
         min_data = min(all_dates) if all_dates else None
         contract_dates = [str(d)[:10] for d in dates if d]
+        # Drop classified before packaging public payload refs only
+        del classified
 
         counts_full = {
             **counts,
-            "classified_aec_contracts": len(classified),
-            "classified_aec_bids": len(aec_bids),
+            "classified_aec_contracts": n_classified,
+            "classified_aec_bids": n_aec_bids,
             "open_bids": len(open_bids),
             "closed_bids": len(closed_bids),
             "markets": len(payload["markets"]),
@@ -591,10 +611,11 @@ def build_export(
             "archetypes": len(payload["archetypes"]),
             "problem_service": len(payload["problem_service"]),
             "raw_contracts": counts.get("pncp_supplier_contracts", 0),
-            "after_classification_aec_confirmed": len(classified),
+            "after_classification_aec_confirmed": n_classified,
             "after_open_filter": len(open_bids),
             "staging": bool(store is not None),
             "max_public_samples": max_public_samples,
+            "memory_mode": "sqlite_staging_sequential" if store is not None else "in_memory",
         }
 
         manifest = build_manifest(
@@ -614,13 +635,13 @@ def build_export(
                     "contracts": {
                         "min_date": min(contract_dates) if contract_dates else None,
                         "max_date": max(contract_dates) if contract_dates else None,
-                        "n": len(classified),
+                        "n": n_classified,
                         "policy_warning_days": 30,
                         "policy_fail_days": 90,
                     },
                     "bids_radar": {
                         "n_open": len(open_bids),
-                        "n_classified": len(aec_bids),
+                        "n_classified": n_aec_bids,
                         "policy_warning_hours": 24,
                         "policy_fail_hours": 72,
                         "as_of": as_of_s,
@@ -632,8 +653,8 @@ def build_export(
             denominators={
                 "contracts_total_loaded": counts.get("pncp_supplier_contracts", 0),
                 "bids_total_loaded": counts.get("pncp_raw_bids", 0),
-                "aec_confirmed_contracts": len(classified),
-                "aec_confirmed_bids": len(aec_bids),
+                "aec_confirmed_contracts": n_classified,
+                "aec_confirmed_bids": n_aec_bids,
                 "open_bids_after_status_filter": len(open_bids),
                 "classified_share_note": (
                     "Only multi-layer aec_confirmed objects enter public aggregates."
