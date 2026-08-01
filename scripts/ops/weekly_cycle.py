@@ -41,7 +41,7 @@ from scripts.collect.run_contract import (  # noqa: E402
 from scripts.crawl.run_evidence import get_git_meta, new_run_id, sha256_file  # noqa: E402
 from scripts.quality.indicator_catalog import catalog_as_list  # noqa: E402
 
-COLLECTOR_VERSION = "weekly-cycle/1.1"
+COLLECTOR_VERSION = "weekly-cycle/1.2"
 DEFAULT_DSN = os.getenv(
     "LOCAL_DATALAKE_DSN",
     "postgresql://test:test@127.0.0.1:5433/extra_test",
@@ -50,9 +50,14 @@ DEFAULT_DSN = os.getenv(
 # DOD editais freshness is ≤24h — DOD prevails over historical 48h default.
 PNCP_OPP_SLA_HOURS = int(os.getenv("WEEKLY_PNCP_SLA_HOURS", "24"))
 CONTRACTS_SLA_HOURS = int(os.getenv("WEEKLY_CONTRACTS_SLA_HOURS", "168"))
+# Multi-source pack feed: CIGA dual + SC Compras (daily feeder honesty).
+CIGA_SLA_HOURS = int(os.getenv("WEEKLY_CIGA_SLA_HOURS", "24"))
+SC_COMPRAS_SLA_HOURS = int(os.getenv("WEEKLY_SC_COMPRAS_SLA_HOURS", "48"))
 DEFAULT_LOOKBACK_DAYS = int(os.getenv("WEEKLY_LOOKBACK_DAYS", "7"))
 # Canonical open-tenders collect path (aggregated modalities + reconcile).
 OPEN_TENDERS_COLLECT_PATH = "scripts.opportunity_intel.pncp_audit.run_pncp_open_monitoring"
+# Daily multi-source feeder surface (lake honesty for pack sources).
+DAILY_FEEDER_PATH = "scripts.ops.daily_multi_source_collect"
 
 # Exit codes
 EXIT_OK = 0
@@ -253,6 +258,26 @@ def stage_validate_db(conn: Any) -> StageResult:
     return StageResult(name="validate_db", status="ok", detail=detail)
 
 
+def stage_materialize_spine(conn: Any, *, dsn: str) -> StageResult:
+    """Materialize target_universe_entities + entity_source_registry when empty.
+
+    Registry existence is recorded but never claimed as operational coverage.
+    """
+    try:
+        from scripts.ops.materialize_canonical_spine import materialize_canonical_spine
+
+        result = materialize_canonical_spine(conn, dsn=dsn)
+    except Exception as exc:  # noqa: BLE001
+        return StageResult(
+            name="materialize_spine",
+            status="warn",
+            detail={"error": str(exc)},
+            error=str(exc),
+        )
+    status = "ok" if result.get("status") == "ok" else "warn"
+    return StageResult(name="materialize_spine", status=status, detail=result)
+
+
 def _hours_since(ts: Any) -> float | None:
     if ts is None:
         return None
@@ -393,16 +418,133 @@ def stage_freshness(conn: Any) -> StageResult:
             }
         )
 
+    # Multi-source pack feeds (CIGA + SC Compras) — honesty for decision pack.
+    # Uses the daily feeder assessors so vocabulary stays aligned.
+    try:
+        from scripts.ops.daily_multi_source_collect import (
+            assess_ciga,
+            assess_sc_compras,
+        )
+
+        for assess_fn, src_name in (
+            (assess_ciga, "ciga_ckan"),
+            (assess_sc_compras, "sc_compras"),
+        ):
+            try:
+                a = assess_fn(conn)
+                rows.append(
+                    {
+                        "source": src_name,
+                        "level": a.level,
+                        "sla_hours": a.sla_hours,
+                        "age_hours": a.age_hours,
+                        "row_count": a.row_count,
+                        "last_status": a.last_status,
+                        "scope_complete": a.scope_complete,
+                        "evidence": a.evidence,
+                        "indicator": "freshness_source",
+                        "note": "; ".join(a.notes) if a.notes else "daily feeder assessor",
+                    }
+                )
+            except Exception as src_exc:  # noqa: BLE001
+                rows.append(
+                    {
+                        "source": src_name,
+                        "level": "unknown",
+                        "sla_hours": CIGA_SLA_HOURS
+                        if src_name == "ciga_ckan"
+                        else SC_COMPRAS_SLA_HOURS,
+                        "indicator": "freshness_source",
+                        "note": f"assessor_error:{src_exc}",
+                    }
+                )
+    except Exception as import_exc:  # noqa: BLE001
+        rows.append(
+            {
+                "source": "ciga_ckan",
+                "level": "unknown",
+                "sla_hours": CIGA_SLA_HOURS,
+                "indicator": "freshness_source",
+                "note": f"daily_feeder_import:{import_exc}",
+            }
+        )
+        rows.append(
+            {
+                "source": "sc_compras",
+                "level": "unknown",
+                "sla_hours": SC_COMPRAS_SLA_HOURS,
+                "indicator": "freshness_source",
+                "note": f"daily_feeder_import:{import_exc}",
+            }
+        )
+
     critical_bad = any(
         r["source"] == "pncp_opportunities"
         and r["level"] in {"never", "unreliable", "incomplete", "unknown"}
         for r in rows
     )
+    # Municipal dual: missing/never CIGA is a pack multi-source honesty warning
+    # (does not alone force EXIT_TECH — PNCP remains critical collect).
+    multi_source_warn = any(
+        r["source"] == "ciga_ckan"
+        and r["level"] in {"never", "unreliable", "incomplete", "unknown", "stale"}
+        for r in rows
+    )
+    status = "warn" if (critical_bad or multi_source_warn) else "ok"
     return StageResult(
         name="freshness",
-        status="warn" if critical_bad else "ok",
-        detail={"sources": rows},
+        status=status,
+        detail={
+            "sources": rows,
+            "daily_feeder": DAILY_FEEDER_PATH,
+            "multi_source_warn": multi_source_warn,
+        },
     )
+
+
+def classify_offline_opportunity_collect(
+    *,
+    freshness_level: str | None,
+    records_fetched: int = 0,
+    last_run_id: Any = None,
+) -> tuple[str, dict[str, Any]]:
+    """Honest offline / no-network opportunity collect terminal mapping.
+
+    ``reused_fresh`` only when stage_freshness already proved ``level==fresh``
+    (complete prior collect within SLA). Offline without that proof is
+    ``partial`` — never wash to consultive OK / EXIT_OK.
+    """
+    level = str(freshness_level or "").strip().lower() or "never"
+    notes_base = [
+        "offline/no-network path — no live official API call",
+        f"freshness_level={level}",
+    ]
+    if level == "fresh":
+        return "reused_fresh", {
+            "records_obtained": int(records_fetched or 0),
+            "records_persisted": int(records_fetched or 0),
+            "request_completed": True,
+            "scope_complete": True,
+            "reused_within_sla": True,
+            "raw_uri": f"db://opportunity_runs/{last_run_id}" if last_run_id else None,
+            "notes": notes_base
+            + [
+                "reused previous COMPLETE PNCP opportunity collection within SLA",
+            ],
+        }
+    return "partial", {
+        "records_obtained": int(records_fetched or 0),
+        "records_persisted": int(records_fetched or 0),
+        "request_completed": True,
+        "scope_complete": False,
+        "reused_within_sla": False,
+        "raw_uri": f"db://opportunity_runs/{last_run_id}" if last_run_id else None,
+        "notes": notes_base
+        + [
+            "partial: offline without complete in-SLA proof is never reused_fresh",
+            "cannot claim consultive complete collect from skip/offline alone",
+        ],
+    }
 
 
 def _collect_pncp_opportunities(
@@ -1185,6 +1327,7 @@ def stage_delivery(
     runs: list[CollectionRun],
     freshness: list[dict[str, Any]],
     gaps: list[dict[str, Any]],
+    conn: Any | None = None,
 ) -> StageResult:
     out_dir.mkdir(parents=True, exist_ok=True)
     products: dict[str, Any] = {}
@@ -1235,7 +1378,7 @@ def stage_delivery(
             ("started_at", report.started_at),
             ("git_sha", (report.git or {}).get("git_sha")),
             ("valor_semantica", "estimado≠homologado≠pago"),
-            ("pdf_status", "RESIDUAL — não gerado como produto operacional"),
+            ("pdf_status", "see decision pack artifacts"),
         ]:
             meta.append([k, str(v)])
         for name, rows in [
@@ -1348,10 +1491,15 @@ def stage_delivery(
         "Revisar no mínimo: resumo, oportunidades, amostra de contratos, "
         "concorrentes, valores e limitações.",
         "",
-        "## PDF",
+        "## PDF e pacote decisório multi-fonte",
         "",
-        "**RESIDUAL:** PDF operacional multi-página real não é gate deste ciclo. "
-        "Produto canônico: Markdown + Excel + CSV.",
+        "Produtos canônicos gerados neste ciclo (quando o lake permitir):",
+        "- `extra_decision_report_<as_of>_<run_id>.pdf` — resumo executivo",
+        "- `extra_decision_pack_<as_of>_<run_id>.xlsx` — planilha analítica",
+        "- `coverage_by_entity_source.csv` — matriz ente × fonte × capacidade",
+        "- `decision_dataset.json` / `qa_report.json` — payload e QA fail-closed",
+        "",
+        "PDF **não** é residual: ausência de PDF falha o delivery em modo `--strict`.",
         "",
     ]
     md_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
@@ -1409,6 +1557,54 @@ def stage_delivery(
             encoding="utf-8",
         )
 
+    # Multi-source decision pack (PDF + Excel named + coverage + QA)
+    decision_pack: dict[str, Any] = {
+        "status": "skipped",
+        "pdf_ok": False,
+        "excel_ok": False,
+        "pdf_status": "NOT_ATTEMPTED",
+    }
+    skip_inventory = os.getenv("WEEKLY_INVENTORY_DOCS", "").strip() not in {
+        "1",
+        "true",
+        "TRUE",
+        "yes",
+    }
+    if conn is not None:
+        try:
+            from scripts.ops.weekly_decision_artifacts import (
+                build_weekly_decision_artifacts,
+            )
+
+            decision_pack = build_weekly_decision_artifacts(
+                conn=conn,
+                out_dir=out_dir,
+                cycle_id=report.cycle_id,
+                collection_id=report.collection_id,
+                freshness=freshness,
+                intel=intel,
+                runs=runs,
+                skip_network=skip_inventory,
+            )
+        except Exception as exc:  # noqa: BLE001
+            decision_pack = {
+                "status": "fail",
+                "pdf_ok": False,
+                "excel_ok": False,
+                "pdf_status": f"FAILED:{exc}",
+                "error": str(exc),
+            }
+
+    # Prefer decision-pack Excel as primary product when generated
+    decision_excel = decision_pack.get("excel")
+    decision_pdf = decision_pack.get("pdf")
+    pdf_ok = bool(decision_pack.get("pdf_ok"))
+    pdf_status = str(decision_pack.get("pdf_status") or ("GENERATED" if pdf_ok else "FAILED"))
+    if decision_excel and Path(str(decision_excel)).is_file():
+        xlsx_path = Path(str(decision_excel))
+        excel_ok = True
+        excel_note = excel_note or "decision pack excel"
+
     # Product checksums EXCLUDE the manifest (no self-referential hash).
     # Written to checksums.json; manifest only references that external file.
     checksums: dict[str, Any] = {}
@@ -1419,8 +1615,24 @@ def stage_delivery(
         "deliverable_e": deliverable_e_path,
         "deliverable_e_audit": deliverable_e_audit_path,
     }
+    if decision_pdf:
+        product_paths["extra_decision_report"] = Path(str(decision_pdf))
+    if decision_excel:
+        product_paths["extra_decision_pack"] = Path(str(decision_excel))
+    for optional_name in (
+        "coverage_by_entity_source.csv",
+        "decision_dataset.json",
+        "qa_report.json",
+    ):
+        p_opt = out_dir / optional_name
+        if p_opt.is_file():
+            product_paths[optional_name.replace(".", "_")] = p_opt
+    # Merge decision pack checksums
+    for k, meta in (decision_pack.get("product_checksums") or {}).items():
+        if isinstance(meta, dict) and meta.get("sha256"):
+            checksums[k] = meta
     for label, pth in product_paths.items():
-        if pth.exists() and pth.is_file():
+        if pth.exists() and pth.is_file() and label not in checksums:
             checksums[label] = {
                 "path": str(
                     pth.relative_to(_PROJECT_ROOT)
@@ -1435,7 +1647,7 @@ def stage_delivery(
     _atomic_json(
         checksums_path,
         {
-            "schema": "extra-weekly-checksums/1.0",
+            "schema": "extra-weekly-checksums/1.1",
             "cycle_id": report.cycle_id,
             "collection_id": report.collection_id,
             "note": "Hashes of product artifacts only — does not include manifest.json",
@@ -1452,15 +1664,17 @@ def stage_delivery(
         "bytes": checksums_path.stat().st_size if checksums_path.exists() else 0,
     }
 
-    # Excel is part of the product contract — required for delivery=ok
-    if excel_ok and md_path.exists() and paths["claims_csv"].exists():
+    # Excel + PDF are required for delivery=ok under the multi-source decision contract
+    if excel_ok and pdf_ok and md_path.exists() and paths["claims_csv"].exists():
         delivery_status = "ok"
     elif not excel_ok:
         delivery_status = "fail"
         excel_note = excel_note or "Excel generation failed — required for delivery=ok"
+    elif not pdf_ok:
+        delivery_status = "fail"
+        excel_note = excel_note or f"PDF generation failed — {pdf_status}"
     else:
         delivery_status = "fail"
-
 
     # ORPT: register operational lists / analytical reports / export pack on same cycle
     # without forcing all READY (READY|PARTIAL|NOT_READY|BLOCKED).
@@ -1537,8 +1751,29 @@ def stage_delivery(
         "deliverable_e_audit": str(deliverable_e_audit_path),
         "deliverable_e_ok": deliverable_e_ok,
         "deliverable_e_note": deliverable_e_note,
-        "pdf": None,
-        "pdf_status": "RESIDUAL_NOT_GENERATED",
+        "pdf": str(decision_pdf) if decision_pdf else None,
+        "pdf_ok": pdf_ok,
+        "pdf_status": pdf_status,
+        "decision_pack": {
+            k: decision_pack.get(k)
+            for k in (
+                "status",
+                "terminal_state",
+                "qa_reliability",
+                "shortlist_n",
+                "as_of",
+                "artifact_names",
+                "coverage_csv",
+                "decision_dataset",
+                "qa_report",
+                "load_meta",
+                "error",
+            )
+            if k in decision_pack or decision_pack.get(k) is not None
+        },
+        "coverage_by_entity_source": str(out_dir / "coverage_by_entity_source.csv"),
+        "decision_dataset": str(out_dir / "decision_dataset.json"),
+        "qa_report": str(out_dir / "qa_report.json"),
         "csvs": {k: str(v) for k, v in paths.items()},
         "checksums_file": str(checksums_path),
         "checksums_file_meta": checksums_file_meta,
@@ -1546,11 +1781,17 @@ def stage_delivery(
         "operational_products": operational_ledger,
         "claims_count": len(claims),
     }
+    err_msg = None
+    if delivery_status != "ok":
+        if not pdf_ok:
+            err_msg = f"PDF missing/failed ({pdf_status})"
+        else:
+            err_msg = excel_note or "delivery incomplete"
     return StageResult(
         name="delivery",
         status=delivery_status,
         detail=products,
-        error=None if delivery_status == "ok" else (excel_note or "delivery incomplete"),
+        error=err_msg,
     )
 
 
@@ -1560,7 +1801,7 @@ def _default_limitations(runs: list[CollectionRun], freshness: list[dict[str, An
         "Ranking GO/REVIEW/NO_GO é triagem interna, não probabilidade calibrada.",
         "Campos críticos PENDING no perfil Extra forçam REVIEW (nunca PARTICIPAR definitivo).",
         "valor_estimado ≠ valor_homologado ≠ valor pago/medido.",
-        "PDF multi-página real permanece residual nesta campanha.",
+        "PDF executivo e Excel analítico são produtos obrigatórios do ciclo estrito.",
         "Open tenders: coleta canônica via run_pncp_open_monitoring; "
         "reconciliação só em run completo + scope_complete.",
         "Freshness de editais: SLA 24h (DOD prevalece).",
@@ -1568,15 +1809,37 @@ def _default_limitations(runs: list[CollectionRun], freshness: list[dict[str, An
         "(re-coleta completa de 499k+ linhas está fora do orçamento do ciclo).",
         "Universo canônico = entidades raio 200 km (meta 1093).",
     ]
+    freshness_by = {
+        str(f.get("source") or ""): str(f.get("level") or "") for f in (freshness or [])
+    }
     for r in runs:
         if r.terminal_status == "partial":
             lim.append(f"Coleta parcial em {r.source}: {r.terminal_error or r.notes}")
         if r.terminal_status == "reused_fresh":
-            lim.append(f"Fonte {r.source} reutilizada dentro do SLA (sem nova chamada oficial).")
+            # Only claim in-SLA reuse when freshness agrees (never invent SLA reuse).
+            fr_level = freshness_by.get(r.source) or (
+                freshness_by.get("pncp_opportunities")
+                if r.source == "pncp_opportunities"
+                else ""
+            )
+            notes_blob = " ".join(str(n) for n in (r.notes or [])).lower()
+            if fr_level in {"never", "stale", "unreliable", "incomplete", "unknown"}:
+                lim.append(
+                    f"Fonte {r.source}: terminal reused_fresh inconsistente com "
+                    f"freshness={fr_level or 'missing'} — não claim reutilização in-SLA."
+                )
+            elif "offline" in notes_blob and fr_level != "fresh":
+                lim.append(
+                    f"Fonte {r.source}: offline sem freshness=fresh — não claim SLA reuse."
+                )
+            else:
+                lim.append(
+                    f"Fonte {r.source} reutilizada dentro do SLA (sem nova chamada oficial)."
+                )
         if r.terminal_status in {"failure", "blocked"}:
             lim.append(f"Fonte {r.source} em estado {r.terminal_status}.")
     for f in freshness:
-        if f.get("level") in {"stale", "never", "unreliable"}:
+        if f.get("level") in {"stale", "never", "unreliable", "incomplete"}:
             lim.append(f"Freshness {f.get('source')}={f.get('level')}.")
     return lim
 
@@ -1676,6 +1939,11 @@ def compute_exit_code(
             return EXIT_UNRELIABLE
         d = delivery.detail or {}
         if not d.get("excel_ok"):
+            return EXIT_UNRELIABLE
+        # PDF is a required operational product — never RESIDUAL_NOT_GENERATED.
+        if not d.get("pdf_ok"):
+            return EXIT_UNRELIABLE
+        if str(d.get("pdf_status") or "").startswith("RESIDUAL"):
             return EXIT_UNRELIABLE
         if not d.get("checksums_file") and not d.get("product_checksums"):
             return EXIT_UNRELIABLE
@@ -1817,6 +2085,10 @@ def run_weekly_cycle(
             report.duration_seconds = round(time.monotonic() - t0, 2)
             return report
 
+        # Materialize universe + source registry when empty (not coverage proof).
+        smat = stage_materialize_spine(conn, dsn=resolved)
+        stages.append(smat)
+
         sf = stage_freshness(conn)
         stages.append(sf)
         freshness_rows = list((sf.detail or {}).get("sources") or [])
@@ -1824,20 +2096,31 @@ def run_weekly_cycle(
 
         # collect
         if offline:
+            # Offline still consults stage_freshness — never invent reused_fresh
+            # when level is never/stale/incomplete (skip-as-success wash).
             r_opp = CollectionRun.start(
                 source="pncp_opportunities",
                 collection_id=collection_id,
                 collector_version=COLLECTOR_VERSION,
                 mode="offline_test",
+                parameters={"offline": True, "skip_collect": skip_collect},
             )
-            r_opp.finish(
-                records_obtained=0,
-                records_persisted=0,
-                request_completed=True,
-                scope_complete=True,
-                reused_within_sla=True,
-                notes=["offline test mode — no network"],
+            pncp_fresh = next(
+                (r for r in freshness_rows if r.get("source") == "pncp_opportunities"),
+                {},
             )
+            status, finish_kwargs = classify_offline_opportunity_collect(
+                freshness_level=str(pncp_fresh.get("level") or "never"),
+                records_fetched=int(pncp_fresh.get("records_fetched") or 0),
+                last_run_id=pncp_fresh.get("last_run_id"),
+            )
+            notes = list(finish_kwargs.pop("notes", []) or [])
+            if skip_collect:
+                notes.append("skip_collect combined with offline")
+            r_opp.finish(**finish_kwargs, notes=notes)
+            if r_opp.terminal_status != status:
+                r_opp.terminal_status = status  # type: ignore[assignment]
+                r_opp.notes.append(f"terminal_status forced to {status} by offline honesty")
         else:
             r_opp = _collect_pncp_opportunities(
                 conn,
@@ -1973,7 +2256,9 @@ def run_weekly_cycle(
             _PROJECT_ROOT / "output" / "weekly" / cycle_id
         )
         report.limitations = _default_limitations(runs, freshness_rows)
-        sd = stage_delivery(out, report, intel, runs, freshness_rows, gaps)
+        sd = stage_delivery(
+            out, report, intel, runs, freshness_rows, gaps, conn=conn
+        )
         stages.append(sd)
         report.products = sd.detail or {}
         report.runs = [r.to_dict() for r in runs]
@@ -2077,7 +2362,17 @@ def main(argv: list[str] | None = None) -> int:
                 "duration_seconds": report.duration_seconds,
                 "products": {
                     k: report.products.get(k)
-                    for k in ("executive_md", "excel", "manifest", "pdf_status")
+                    for k in (
+                        "executive_md",
+                        "excel",
+                        "manifest",
+                        "pdf",
+                        "pdf_ok",
+                        "pdf_status",
+                        "coverage_by_entity_source",
+                        "decision_dataset",
+                        "qa_report",
+                    )
                 },
                 "intelligence_counts": report.intelligence.get("counts"),
                 "runs": [

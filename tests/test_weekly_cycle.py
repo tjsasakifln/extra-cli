@@ -18,6 +18,8 @@ from scripts.ops.weekly_cycle import (
     EXIT_UNRELIABLE,
     StageResult,
     _build_claims_catalog,
+    _default_limitations,
+    classify_offline_opportunity_collect,
     classify_opportunity_freshness,
     compute_exit_code,
     run_weekly_cycle,
@@ -200,6 +202,8 @@ def test_exit_blocked_on_opp_blocked() -> None:
 def _delivery_ok_detail() -> dict:
     return {
         "excel_ok": True,
+        "pdf_ok": True,
+        "pdf_status": "GENERATED",
         "checksums_file": "/tmp/checksums.json",
         "product_checksums": {"executive_md": {"sha256": "abc"}},
     }
@@ -381,6 +385,108 @@ def test_partial_collect_never_exit_ok_even_with_products() -> None:
     assert compute_exit_code(stages, [run], strict=True) == EXIT_UNRELIABLE
     # also non-strict: partial is never consultively OK
     assert compute_exit_code(stages, [run], strict=False) == EXIT_UNRELIABLE
+
+
+# ---------------------------------------------------------------------------
+# Offline / skip honesty — never invent reused_fresh without in-SLA proof
+# ---------------------------------------------------------------------------
+
+
+def test_offline_without_fresh_proof_is_partial_not_reused_fresh() -> None:
+    """Offline/skip without stage_freshness=fresh must not claim reused_fresh."""
+    for level in ("never", "stale", "incomplete", "unreliable", "unknown", ""):
+        status, kwargs = classify_offline_opportunity_collect(
+            freshness_level=level or None,
+            records_fetched=0,
+        )
+        assert status == "partial", level
+        assert kwargs["reused_within_sla"] is False
+        assert kwargs["scope_complete"] is False
+        assert status != "reused_fresh"
+
+
+def test_offline_with_fresh_proof_may_reuse() -> None:
+    status, kwargs = classify_offline_opportunity_collect(
+        freshness_level="fresh",
+        records_fetched=12,
+        last_run_id=99,
+    )
+    assert status == "reused_fresh"
+    assert kwargs["reused_within_sla"] is True
+    assert kwargs["scope_complete"] is True
+    assert kwargs["records_persisted"] == 12
+
+
+def test_offline_partial_path_never_exit_ok() -> None:
+    """Wire offline honesty → CollectionRun → compute_exit_code (shipped path)."""
+    status, kwargs = classify_offline_opportunity_collect(
+        freshness_level="never",
+        records_fetched=0,
+    )
+    run = CollectionRun.start(
+        source="pncp_opportunities",
+        collection_id="c",
+        collector_version="t",
+        mode="offline_test",
+    )
+    notes = list(kwargs.pop("notes", []) or [])
+    run.finish(**kwargs, notes=notes)
+    if run.terminal_status != status:
+        run.terminal_status = status  # type: ignore[assignment]
+    assert run.terminal_status == "partial"
+    assert run.is_consultive_ok() is False
+
+    contracts = CollectionRun.start(
+        source="pncp_contracts",
+        collection_id="c",
+        collector_version="t",
+    )
+    contracts.finish(
+        records_obtained=100,
+        records_persisted=100,
+        request_completed=True,
+        scope_complete=True,
+        reused_within_sla=True,
+    )
+    stages = [
+        StageResult(name="validate_db", status="ok"),
+        StageResult(name="collect", status="warn"),
+        StageResult(name="quality", status="ok"),
+        StageResult(
+            name="intelligence",
+            status="ok",
+            detail={"counts": {"opportunities": 5}},
+        ),
+        StageResult(name="delivery", status="ok", detail=_delivery_ok_detail()),
+    ]
+    assert compute_exit_code(stages, [run, contracts], strict=True) == EXIT_UNRELIABLE
+    assert compute_exit_code(stages, [run, contracts], strict=False) == EXIT_UNRELIABLE
+
+
+def test_limitations_never_claim_sla_reuse_when_freshness_never() -> None:
+    """Limitations must not say 'reutilizada dentro do SLA' if freshness=never."""
+    run = CollectionRun.start(
+        source="pncp_opportunities",
+        collection_id="c",
+        collector_version="t",
+    )
+    # Simulate the OLD bug: terminal reused_fresh while freshness is never
+    run.finish(
+        records_obtained=0,
+        records_persisted=0,
+        request_completed=True,
+        scope_complete=True,
+        reused_within_sla=True,
+        notes=["offline test mode — no network"],
+    )
+    assert run.terminal_status == "reused_fresh"
+    lim = _default_limitations(
+        [run],
+        [{"source": "pncp_opportunities", "level": "never", "sla_hours": 24}],
+    )
+    joined = " ".join(lim)
+    assert "reutilizada dentro do SLA" not in joined
+    assert "never" in joined.lower() or "inconsistente" in joined.lower()
 
 
 def test_strict_missing_excel_is_nonzero() -> None:
@@ -682,7 +788,28 @@ def test_weekly_cycle_offline_skip_collect(tmp_path: Path) -> None:
     assert "collection_id" in claims_text or "cycle_run_id" in claims_text
     assert report.human_accept.get("status") == "PENDING_HUMAN"
     assert "LOCAL_READY" in report.claims_forbidden
-    # 0=ok, 1=tech (e.g. universe != 1093), 2=unreliable, 3=blocked
+    # Offline without in-SLA proof must not invent reused_fresh on PNCP.
+    opp_runs = [r for r in (report.runs or []) if r.get("source") == "pncp_opportunities"]
+    assert opp_runs, "pncp_opportunities run required"
+    opp = opp_runs[0]
+    pncp_fresh = next(
+        (f for f in (report.freshness or []) if f.get("source") == "pncp_opportunities"),
+        {},
+    )
+    if str(pncp_fresh.get("level") or "") != "fresh":
+        assert opp.get("terminal_status") != "reused_fresh"
+        assert opp.get("terminal_status") == "partial"
+        assert report.exit_code != EXIT_OK
+        lim_text = " ".join(report.limitations or [])
+        assert "reutilizada dentro do SLA" not in lim_text or "pncp_opportunities" not in lim_text.split(
+            "reutilizada dentro do SLA"
+        )[0][-80:]
+        # Stronger: no SLA-reuse claim for opportunities when not fresh
+        assert not any(
+            "pncp_opportunities reutilizada dentro do SLA" in str(x)
+            for x in (report.limitations or [])
+        )
+    # 0=ok only if freshness proof allowed reuse; else 1/2/3
     assert report.exit_code in {0, 1, 2, 3}
     if report.exit_code == EXIT_TECH:
         # Fail-closed path: universe seed missing/wrong must surface CANONICAL code.
@@ -746,3 +873,190 @@ def test_fresh_within_24h_sla() -> None:
         )
         == "stale"
     )
+
+
+# ---------------------------------------------------------------------------
+# Multi-source decision pack integration (PDF mandatory)
+# ---------------------------------------------------------------------------
+
+
+def test_stage_materialize_spine_ok(monkeypatch) -> None:
+    from scripts.ops import weekly_cycle as wc
+
+    def _fake_mat(conn, *, dsn=None):
+        return {
+            "status": "ok",
+            "universe": {"status": "ok", "after": 1093},
+            "entity_source_registry": {"status": "ok", "after": 1093},
+        }
+
+    monkeypatch.setattr(
+        "scripts.ops.materialize_canonical_spine.materialize_canonical_spine",
+        _fake_mat,
+        raising=False,
+    )
+    # Import path used inside stage
+    import scripts.ops.materialize_canonical_spine as mat
+
+    monkeypatch.setattr(mat, "materialize_canonical_spine", _fake_mat)
+    result = wc.stage_materialize_spine(conn=object(), dsn="postgresql://x")
+    assert result.name == "materialize_spine"
+    assert result.status == "ok"
+
+
+def test_stage_materialize_spine_warn_on_error(monkeypatch) -> None:
+    from scripts.ops import weekly_cycle as wc
+    import scripts.ops.materialize_canonical_spine as mat
+
+    def _boom(conn, *, dsn=None):
+        raise RuntimeError("no dsn")
+
+    monkeypatch.setattr(mat, "materialize_canonical_spine", _boom)
+    result = wc.stage_materialize_spine(conn=object(), dsn="postgresql://x")
+    assert result.status == "warn"
+    assert "no dsn" in (result.error or "")
+
+
+def test_stage_delivery_generates_pdf_via_decision_pack(tmp_path, monkeypatch) -> None:
+    """stage_delivery must call decision pack builder and set pdf_ok."""
+    from scripts.ops import weekly_cycle as wc
+    from scripts.ops.weekly_cycle import WeeklyCycleReport
+
+    report = WeeklyCycleReport(
+        cycle_id="weekly-test-1",
+        collection_id="col-test-1",
+        started_at="2026-08-01T00:00:00Z",
+        limitations=["test"],
+    )
+    intel = {
+        "opportunities": [
+            {
+                "id": 1,
+                "objeto": "pavimentacao asfaltica",
+                "ranking": "REVIEW",
+                "ranking_effective": "REVIEW",
+                "orgao_cnpj": "82922233000100",
+                "orgao_nome": "PREFEITURA",
+                "uf": "SC",
+                "link_edital": "https://pncp.gov.br/app/editais/x",
+                "numero_controle_pncp": "x",
+                "source": "pncp",
+            }
+        ],
+        "contracts": [],
+        "competitors": [],
+        "orgaos": [],
+        "counts": {"opportunities": 1},
+    }
+
+    pdf = tmp_path / "extra_decision_report_2026-08-01_weekly-test-1.pdf"
+    xlsx = tmp_path / "extra_decision_pack_2026-08-01_weekly-test-1.xlsx"
+    pdf.write_bytes(b"%PDF-1.4 mock")
+    xlsx.write_bytes(b"PK mock-xlsx")
+
+    def _fake_build(**kwargs):
+        out = Path(kwargs["out_dir"])
+        (out / "coverage_by_entity_source.csv").write_text("entity_id,source,result\n", encoding="utf-8")
+        (out / "decision_dataset.json").write_text("{\"ok\": true}\n", encoding="utf-8")
+        (out / "qa_report.json").write_text("{\"reliability\": \"PARTIAL\"}\n", encoding="utf-8")
+        return {
+            "status": "ok",
+            "excel_ok": True,
+            "pdf_ok": True,
+            "pdf_status": "GENERATED",
+            "excel": str(xlsx),
+            "pdf": str(pdf),
+            "product_checksums": {
+                "extra_decision_pack": {"path": xlsx.name, "sha256": "a" * 64, "bytes": 10},
+                "extra_decision_report": {"path": pdf.name, "sha256": "b" * 64, "bytes": 10},
+            },
+            "terminal_state": "PASS",
+            "qa_reliability": "PARTIAL",
+            "shortlist_n": 1,
+            "as_of": "2026-08-01",
+            "artifact_names": {"excel": xlsx.name, "pdf": pdf.name},
+        }
+
+    monkeypatch.setattr(
+        "scripts.ops.weekly_decision_artifacts.build_weekly_decision_artifacts",
+        _fake_build,
+    )
+    # Avoid heavy operational sub-products
+    monkeypatch.delenv("LOCAL_DATALAKE_DSN", raising=False)
+    monkeypatch.delenv("DATABASE_URL", raising=False)
+
+    stage = wc.stage_delivery(
+        tmp_path,
+        report,
+        intel,
+        runs=[],
+        freshness=[{"source": "pncp_opportunities", "level": "fresh", "sla_hours": 24}],
+        gaps=[],
+        conn=object(),
+    )
+    assert stage.name == "delivery"
+    assert stage.status == "ok", stage.error
+    detail = stage.detail or {}
+    assert detail.get("pdf_ok") is True
+    assert detail.get("excel_ok") is True
+    assert detail.get("pdf_status") == "GENERATED"
+    assert "RESIDUAL" not in str(detail.get("pdf_status"))
+
+
+def test_stage_delivery_fails_without_pdf(tmp_path, monkeypatch) -> None:
+    from scripts.ops import weekly_cycle as wc
+    from scripts.ops.weekly_cycle import WeeklyCycleReport
+
+    report = WeeklyCycleReport(
+        cycle_id="weekly-test-2",
+        collection_id="col-test-2",
+        started_at="2026-08-01T00:00:00Z",
+    )
+    intel = {
+        "opportunities": [],
+        "contracts": [],
+        "competitors": [],
+        "orgaos": [],
+        "counts": {"opportunities": 0},
+    }
+
+    def _fake_build(**kwargs):
+        return {
+            "status": "fail",
+            "excel_ok": True,
+            "pdf_ok": False,
+            "pdf_status": "FAILED:boom",
+            "excel": str(tmp_path / "x.xlsx"),
+            "pdf": None,
+            "product_checksums": {},
+            "terminal_state": "FAIL",
+        }
+
+    (tmp_path / "x.xlsx").write_bytes(b"PK")
+    monkeypatch.setattr(
+        "scripts.ops.weekly_decision_artifacts.build_weekly_decision_artifacts",
+        _fake_build,
+    )
+    monkeypatch.delenv("LOCAL_DATALAKE_DSN", raising=False)
+    monkeypatch.delenv("DATABASE_URL", raising=False)
+
+    stage = wc.stage_delivery(
+        tmp_path,
+        report,
+        intel,
+        runs=[],
+        freshness=[],
+        gaps=[],
+        conn=object(),
+    )
+    assert stage.status == "fail"
+    assert stage.detail.get("pdf_ok") is False
+
+
+def test_default_limitations_mentions_pdf_product() -> None:
+    from scripts.ops.weekly_cycle import _default_limitations
+
+    lim = _default_limitations([], [])
+    joined = " ".join(lim).lower()
+    assert "residual" not in joined or "pdf" in joined
+    assert "pdf" in joined

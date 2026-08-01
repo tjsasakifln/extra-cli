@@ -1,0 +1,13 @@
+[Unit]
+Description=Timer — Extra daily multi-source collection feeder (before weekly pack)
+Documentation=file:///opt/extra-consultoria/docs/DEVELOPMENT.md
+
+[Timer]
+# Morning UTC so lake is fresh for Monday weekly (03:30 UTC) and mid-week reuse.
+OnCalendar=*-*-* 02:15:00 UTC
+Persistent=true
+Unit=extra-daily-collect.service
+AccuracySec=5min
+
+[Install]
+WantedBy=timers.target

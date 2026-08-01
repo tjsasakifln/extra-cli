@@ -223,8 +223,19 @@ class CollectionRun:
         return d
 
     def is_consultive_ok(self) -> bool:
-        """Whether this run can feed consultive products for its source."""
-        return self.terminal_status in {"success", "success_zero", "reused_fresh", "partial"}
+        """Whether this run can feed consultive products for its source.
+
+        ``partial`` is never consultively OK — aligns with weekly
+        ``compute_exit_code`` and daily multi-source feeder completeness.
+        Incomplete / skipped / empty-without-query must not claim readiness.
+        """
+        if self.terminal_status not in {"success", "success_zero", "reused_fresh"}:
+            return False
+        if self.terminal_status == "success_zero" and (
+            not self.scope_complete or self.terminal_error
+        ):
+            return False
+        return True
 
 
 def persist_pipeline_run(conn: Any, run: CollectionRun) -> None:

@@ -1,0 +1,114 @@
+{
+  "schema": "extra-ms-open-gold-aec/1.0",
+  "description": "Conjunto ouro estratificado para classificação AEC e exclusão de falsos positivos",
+  "cases": [
+    {
+      "id": "fp_seguro",
+      "objeto": "Contratação de seguro de frota veicular municipal contra danos",
+      "expect_aec": false,
+      "expect_shortlist_eligible": false,
+      "stratum": "false_positive_seguro"
+    },
+    {
+      "id": "fp_veiculos",
+      "objeto": "Manutenção da frota de veículos automotores da prefeitura",
+      "expect_aec": false,
+      "expect_shortlist_eligible": false,
+      "stratum": "false_positive_veiculos"
+    },
+    {
+      "id": "fp_software",
+      "objeto": "Licença de uso de software BIM/CAD e manutenção de software de projetos",
+      "expect_aec": false,
+      "expect_shortlist_eligible": false,
+      "stratum": "false_positive_software"
+    },
+    {
+      "id": "fp_combustivel",
+      "objeto": "Aquisição de combustível diesel e gasolina para frota municipal",
+      "expect_aec": false,
+      "expect_shortlist_eligible": false,
+      "stratum": "false_positive_combustivel"
+    },
+    {
+      "id": "fp_limpeza",
+      "objeto": "Serviços de limpeza predial e conservação de áreas públicas",
+      "expect_aec": false,
+      "expect_shortlist_eligible": false,
+      "stratum": "false_positive_limpeza"
+    },
+    {
+      "id": "fp_alimentacao",
+      "objeto": "Fornecimento de gêneros alimentícios para merenda escolar",
+      "expect_aec": false,
+      "expect_shortlist_eligible": false,
+      "stratum": "false_positive_alimentacao"
+    },
+    {
+      "id": "fp_telecom",
+      "objeto": "Link de dados dedicado e telefonia VoIP para órgãos municipais",
+      "expect_aec": false,
+      "expect_shortlist_eligible": false,
+      "stratum": "false_positive_telecom"
+    },
+    {
+      "id": "fp_contrato_celebrado",
+      "objeto": "Extrato de Contrato nº 45/2026 - execução de pavimentação asfáltica",
+      "categoria_ato": "contrato",
+      "expect_aec": false,
+      "expect_active_dispute": false,
+      "expect_shortlist_eligible": false,
+      "stratum": "terminal_contrato"
+    },
+    {
+      "id": "fp_credenciamento",
+      "objeto": "Credenciamento de empresa para prestação de serviços de engenharia",
+      "categoria_ato": "credenciamento",
+      "expect_active_dispute": false,
+      "expect_shortlist_eligible": false,
+      "stratum": "terminal_credenciamento"
+    },
+    {
+      "id": "fp_fornecimento_puro",
+      "objeto": "Aquisição de equipamentos motobomba e conjuntos hidráulicos sem instalação de obra",
+      "expect_aec": false,
+      "expect_shortlist_eligible": false,
+      "stratum": "false_positive_fornecimento"
+    },
+    {
+      "id": "tp_pavimentacao",
+      "objeto": "Execução de pavimentação asfáltica e drenagem pluvial de vias urbanas",
+      "expect_aec": true,
+      "expect_shortlist_eligible": true,
+      "stratum": "true_positive_pavimentacao"
+    },
+    {
+      "id": "tp_saneamento",
+      "objeto": "Execução das obras de adequação e ampliação da estação de tratamento de esgoto e rede coletora",
+      "expect_aec": true,
+      "expect_shortlist_eligible": true,
+      "stratum": "true_positive_saneamento"
+    },
+    {
+      "id": "tp_reforma_predial",
+      "objeto": "Reforma predial de prédio público escolar com recuperação estrutural",
+      "expect_aec": true,
+      "expect_shortlist_eligible": true,
+      "stratum": "true_positive_reforma"
+    },
+    {
+      "id": "tp_edificacao",
+      "objeto": "Construção de edifício público para unidade básica de saúde",
+      "expect_aec": true,
+      "expect_shortlist_eligible": true,
+      "stratum": "true_positive_edificacao"
+    },
+    {
+      "id": "tp_projeto_engenharia",
+      "objeto": "Elaboração de projeto básico e executivo de engenharia para obras de infraestrutura urbana",
+      "expect_aec": true,
+      "expect_shortlist_eligible": true,
+      "stratum": "true_positive_projeto"
+    }
+  ]
+}
