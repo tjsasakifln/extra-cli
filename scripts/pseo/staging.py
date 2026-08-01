@@ -204,17 +204,21 @@ class StagingStore:
             yield [json.loads(r[0]) for r in rows]
 
     def load_all_classified(self, *, chunk_size: int = 5_000) -> list[ClassifiedContract]:
-        """Materialize classified rows (aggregators still list-based). Prefer iterators when possible."""
-        out: list[ClassifiedContract] = []
-        for batch in self.iter_classified(chunk_size=chunk_size):
-            out.extend(batch)
-        return out
+        """Forbidden on the export hot path — use iterators / stream_aggregate.
+
+        Raises so CI/tests catch accidental full materialization.
+        """
+        raise RuntimeError(
+            "load_all_classified is forbidden for memory-bounded export; "
+            "use StagingStore.iter_classified + stream_aggregate reducers"
+        )
 
     def load_all_bids(self, *, chunk_size: int = 5_000) -> list[dict[str, Any]]:
-        out: list[dict[str, Any]] = []
-        for batch in self.iter_bids(chunk_size=chunk_size):
-            out.extend(batch)
-        return out
+        """Forbidden on the export hot path — use iterators / stream_filter_bids."""
+        raise RuntimeError(
+            "load_all_bids is forbidden for memory-bounded export; "
+            "use StagingStore.iter_bids + stream_filter_bids"
+        )
 
     def close(self) -> None:
         try:

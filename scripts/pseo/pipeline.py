@@ -466,24 +466,62 @@ def build_export(
         own_staging = True
 
     try:
-        # Prefer staging (memory-bounded extract): raw rows never retained.
-        # Aggregators still need a sequence; we materialize from SQLite one
-        # dataset at a time and drop references ASAP (no concurrent raw+classified
-        # giant lists; no permanent pre_classified retention after extract).
+        # Prefer staging + streaming reducers: never load_all_classified / load_all_bids.
+        # Raw rows discarded at extract; classified/bids live only in SQLite + reducers.
         if store is not None:
+            from scripts.pseo.stream_aggregate import (
+                build_agencies_streaming,
+                build_archetypes_streaming,
+                build_competition_streaming,
+                build_markets_streaming,
+                build_prices_streaming,
+                freshness_bounds_streaming,
+                stream_filter_bids,
+            )
+
             classification_counts = dict(
                 pre_classification_counts
                 or store.get_meta("classification_counts")
                 or {}
             )
-            aec_bids = store.load_all_bids()
-            open_bids, closed_bids, opp_status_counts = filter_open_bids(
-                aec_bids, as_of=as_of_d
+            n_classified = store.classified_count
+            open_bids, closed_bids, opp_status_counts, n_aec_bids = stream_filter_bids(
+                store, as_of=as_of_d, max_open=max_public_samples * 200, max_closed=max_public_samples * 40
             )
-            n_aec_bids = len(aec_bids)
-            del aec_bids  # free full bid payload before loading contracts
-            classified = store.load_all_classified()
-            n_classified = len(classified)
+            markets = build_markets_streaming(store, open_bids)
+            agencies = build_agencies_streaming(store, open_bids)
+            prices_raw = build_prices_streaming(store, min_obs=12)
+            for pr in prices_raw:
+                uf = pr.get("region")
+                if uf and len(str(uf)) == 2:
+                    pr["region_label"] = _uf_label(str(uf))
+                arch = pr.get("object_pattern")
+                if arch and uf and len(str(uf)) == 2:
+                    pr.setdefault("mesh_slug", f"{arch}-{str(uf).lower()}")
+                for ex in (pr.get("public_examples") or [])[:max_public_samples]:
+                    if not ex.get("link_oficial"):
+                        link = pncp_consulta_url(ex.get("contrato_id"), ex.get("source"))
+                        if link:
+                            ex["link_oficial"] = link
+                            ex.setdefault("portal_origem", "pncp")
+            competition = build_competition_streaming(store)
+            opportunities = build_opportunities_v2(
+                open_bids, markets, as_of=as_of_s, closed_bids=closed_bids
+            )
+            problems = attach_problem_evidence(
+                build_problem_service_bridges(), markets, prices_raw
+            )
+            archetypes = build_archetypes_streaming(store)
+            _fb = freshness_bounds_streaming(store)
+            # Scalar bounds only — never O(N) date lists on streaming path
+            contract_dates = [
+                d for d in (_fb.get("contract_min"), _fb.get("contract_max")) if d
+            ]
+            # de-dupe while preserving order
+            contract_dates = list(dict.fromkeys(contract_dates))
+            bid_dates = [d for d in (_fb.get("bid_min"), _fb.get("bid_max")) if d]
+            bid_dates = list(dict.fromkeys(bid_dates))
+            memory_mode = "sqlite_streaming_reducers_bounded"
         elif pre_classified is not None:
             classified = list(pre_classified)
             classification_counts = dict(pre_classification_counts or {})
@@ -493,6 +531,40 @@ def build_export(
             )
             n_classified, n_aec_bids = len(classified), len(aec_bids)
             del aec_bids
+            markets = build_markets(classified, open_bids)
+            agencies = build_agencies(classified, open_bids)
+            prices_raw = build_comparable_prices(classified, min_obs=12)
+            for pr in prices_raw:
+                uf = pr.get("region")
+                if uf and len(str(uf)) == 2:
+                    pr["region_label"] = _uf_label(str(uf))
+                arch = pr.get("object_pattern")
+                if arch and uf and len(str(uf)) == 2:
+                    pr.setdefault("mesh_slug", f"{arch}-{str(uf).lower()}")
+                for ex in (pr.get("public_examples") or [])[:max_public_samples]:
+                    if not ex.get("link_oficial"):
+                        link = pncp_consulta_url(ex.get("contrato_id"), ex.get("source"))
+                        if link:
+                            ex["link_oficial"] = link
+                            ex.setdefault("portal_origem", "pncp")
+            competition = build_competition(classified)
+            opportunities = build_opportunities_v2(
+                open_bids, markets, as_of=as_of_s, closed_bids=closed_bids
+            )
+            problems = attach_problem_evidence(
+                build_problem_service_bridges(), markets, prices_raw
+            )
+            archetypes = build_public_archetypes(classified)
+            contract_dates = [
+                str(c.data_publicacao)[:10] for c in classified if c.data_publicacao
+            ]
+            bid_dates = []
+            for b in open_bids + closed_bids:
+                for k in ("data_publicacao", "data_encerramento", "data_abertura"):
+                    if b.get(k):
+                        bid_dates.append(str(b[k])[:10])
+            del classified
+            memory_mode = "in_memory_preclassified"
         else:
             classification_counts = classify_all_rows_stats(contracts)
             classified = classify_rows(contracts)
@@ -502,31 +574,40 @@ def build_export(
             )
             n_classified, n_aec_bids = len(classified), len(aec_bids)
             del aec_bids
-
-        markets = build_markets(classified, open_bids)
-        agencies = build_agencies(classified, open_bids)
-        prices_raw = build_comparable_prices(classified, min_obs=12)
-        for pr in prices_raw:
-            uf = pr.get("region")
-            if uf and len(str(uf)) == 2:
-                pr["region_label"] = _uf_label(str(uf))
-            arch = pr.get("object_pattern")
-            if arch and uf and len(str(uf)) == 2:
-                pr.setdefault("mesh_slug", f"{arch}-{str(uf).lower()}")
-            # Attach specific official links to examples when possible (never invent)
-            for ex in (pr.get("public_examples") or [])[:max_public_samples]:
-                if not ex.get("link_oficial"):
-                    link = pncp_consulta_url(ex.get("contrato_id"), ex.get("source"))
-                    if link:
-                        ex["link_oficial"] = link
-                        ex.setdefault("portal_origem", "pncp")
-        competition = build_competition(classified)
-        opportunities = build_opportunities_v2(
-            open_bids, markets, as_of=as_of_s, closed_bids=closed_bids
-        )
-        # Explicit sample cap already inside build_opportunities_v2 (items[:25])
-        problems = attach_problem_evidence(build_problem_service_bridges(), markets, prices_raw)
-        archetypes = build_public_archetypes(classified)
+            markets = build_markets(classified, open_bids)
+            agencies = build_agencies(classified, open_bids)
+            prices_raw = build_comparable_prices(classified, min_obs=12)
+            for pr in prices_raw:
+                uf = pr.get("region")
+                if uf and len(str(uf)) == 2:
+                    pr["region_label"] = _uf_label(str(uf))
+                arch = pr.get("object_pattern")
+                if arch and uf and len(str(uf)) == 2:
+                    pr.setdefault("mesh_slug", f"{arch}-{str(uf).lower()}")
+                for ex in (pr.get("public_examples") or [])[:max_public_samples]:
+                    if not ex.get("link_oficial"):
+                        link = pncp_consulta_url(ex.get("contrato_id"), ex.get("source"))
+                        if link:
+                            ex["link_oficial"] = link
+                            ex.setdefault("portal_origem", "pncp")
+            competition = build_competition(classified)
+            opportunities = build_opportunities_v2(
+                open_bids, markets, as_of=as_of_s, closed_bids=closed_bids
+            )
+            problems = attach_problem_evidence(
+                build_problem_service_bridges(), markets, prices_raw
+            )
+            archetypes = build_public_archetypes(classified)
+            contract_dates = [
+                str(c.data_publicacao)[:10] for c in classified if c.data_publicacao
+            ]
+            bid_dates = []
+            for b in open_bids + closed_bids:
+                for k in ("data_publicacao", "data_encerramento", "data_abertura"):
+                    if b.get(k):
+                        bid_dates.append(str(b[k])[:10])
+            del classified
+            memory_mode = "in_memory"
 
         payload = {
             "archetypes": archetypes,
@@ -562,7 +643,8 @@ def build_export(
                 "schema_version": "1.1.0",
                 "methodology": (
                     "Top 20 comercial so calibra classes de atividade. "
-                    "Classificador multi-camada: so aec_confirmed alimenta indicadores indexaveis."
+                    "Classificador multi-camada: so aec_confirmed alimenta indicadores indexaveis. "
+                    "Staging SQLite + streaming reducers: full classified/bids lists never retained."
                 ),
                 "internal_signature_aggregates": icp,
                 "classifier": {
@@ -584,18 +666,9 @@ def build_export(
             f"pseo-{generated_at.replace(':', '').replace('-', '')}-{uuid.uuid4().hex[:8]}"
         )
 
-        dates = [c.data_publicacao for c in classified if c.data_publicacao]
-        bid_dates: list[str] = []
-        for b in open_bids + closed_bids:
-            for k in ("data_publicacao", "data_encerramento", "data_abertura"):
-                if b.get(k):
-                    bid_dates.append(str(b[k])[:10])
-        all_dates = [str(d)[:10] for d in dates + bid_dates if d]
+        all_dates = [str(d)[:10] for d in contract_dates + bid_dates if d]
         max_data = max(all_dates) if all_dates else None
         min_data = min(all_dates) if all_dates else None
-        contract_dates = [str(d)[:10] for d in dates if d]
-        # Drop classified before packaging public payload refs only
-        del classified
 
         counts_full = {
             **counts,
@@ -612,10 +685,15 @@ def build_export(
             "problem_service": len(payload["problem_service"]),
             "raw_contracts": counts.get("pncp_supplier_contracts", 0),
             "after_classification_aec_confirmed": n_classified,
-            "after_open_filter": len(open_bids),
+            "after_open_filter": opp_status_counts.get("open_total", len(open_bids)),
             "staging": bool(store is not None),
             "max_public_samples": max_public_samples,
-            "memory_mode": "sqlite_staging_sequential" if store is not None else "in_memory",
+            "memory_mode": memory_mode,
+            "load_all_classified": False,
+            "load_all_bids": False,
+            "percentile_method_id": "sqlite_order_offset_v1",
+            "python_value_vectors": False,
+            "python_date_lists": False,
         }
 
         manifest = build_manifest(
