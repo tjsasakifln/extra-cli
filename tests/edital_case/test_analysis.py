@@ -126,6 +126,16 @@ def test_detect_missing_fixture_mentions_file() -> None:
     assert "PLANILHA_ORCAMENTARIA" in types or "MINUTA_CONTRATUAL" in types
 
 
+def test_planilha_filename_not_overridden_by_bdi_sheet_content() -> None:
+    """xlsx named planilha with BDI sheet must stay PLANILHA_ORCAMENTARIA."""
+    r = classify_document(
+        filename="sample_planilha.xlsx",
+        text_sample="Orçamento\nItem Qtd\n1 10\nBDI\nAdministração 10%",
+        extension=".xlsx",
+    )
+    assert r["result"] == "PLANILHA_ORCAMENTARIA", r
+
+
 def test_profile_fit_binds_excerpt_to_source_document() -> None:
     """Regression: profile fit must not attach edital excerpt to aviso (docs[0])."""
     from scripts.edital_case.analyze import _analyze_profile_fit

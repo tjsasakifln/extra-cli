@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "generated_at": "2026-08-01T15:01:07.173900+00:00",
+  "generated_at": "2026-08-01T15:30:18.985793+00:00",
   "item_count": 36,
   "items": [
     {
@@ -689,8 +689,8 @@
         "paragraph": null,
         "cell": null,
         "locator": null,
-        "excerpt": "Anexo II; Minuta do Contrato; Anexo I; Anexo III; Anexo IV; Cronograma Físico-Financeiro; Cronograma; Modelo de Proposta; Memorial Descritivo; projeto básico",
-        "analysis": "10 anexos referidos ausentes; 0 ambíguos",
+        "excerpt": "Anexo II; Minuta do Contrato; Anexo I; Anexo III; Anexo IV; Cronograma Físico-Financeiro; Cronograma; Modelo de Proposta; Memorial Descritivo; BDI; projeto básico",
+        "analysis": "11 anexos referidos ausentes; 0 ambíguos",
         "rule_id": "annex.cross",
         "confidence": 0.8,
         "review_status": "AUTO"

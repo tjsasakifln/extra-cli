@@ -1,10 +1,10 @@
 # Triagem Técnica de Edital — fixture-multi-doc-01
 
-- Gerado em: `2026-08-01T15:01:07.184883+00:00`
+- Gerado em: `2026-08-01T15:30:18.997579+00:00`
 - Recomendação preliminar: **REVIEW**
 - Documentos: 5
 - Checklist items: 36
-- Findings: 48
+- Findings: 49
 
 ## Disclaimer
 
@@ -53,7 +53,7 @@ Recomendação **REVIEW** com base em análise automática rastreável.
 - `doc-001` — aviso_data_conflitante.pdf — tipo=AVISO sha256=`3f12a7c92aaf…` quality=OK
 - `doc-002` — mentions_missing.txt — tipo=TERMO_DE_REFERENCIA sha256=`0a2068a11942…` quality=OK
 - `doc-003` — sample_edital.pdf — tipo=EDITAL sha256=`b2fa4506aefe…` quality=OK
-- `doc-004` — sample_planilha.xlsx — tipo=PLANILHA_ORCAMENTARIA sha256=`fb6dd663f7be…` quality=EXTRACTION_FAILED
+- `doc-004` — sample_planilha.xlsx — tipo=PLANILHA_ORCAMENTARIA sha256=`fb6dd663f7be…` quality=OK
 - `doc-005` — sample_tr.docx — tipo=TERMO_DE_REFERENCIA sha256=`0c1476812a38…` quality=OK
 
 ## Documentos ausentes / ambíguos
@@ -67,6 +67,7 @@ Recomendação **REVIEW** com base em análise automática rastreável.
 - **MISSING** `Cronograma` ← doc-003 p.4
 - **MISSING** `Modelo de Proposta` ← doc-003 p.4
 - **MISSING** `Memorial Descritivo` ← doc-003 p.4
+- **MISSING** `BDI` ← doc-004 p.None
 - **MISSING** `projeto básico` ← doc-005 p.None
 
 ## Linha do tempo
@@ -333,8 +334,8 @@ Sanções e multas conforme Lei 14.133/2021_
 ### anexos_ausentes — Anexos referidos e ausentes do pacote
 - status: **BLOCKER** (critical=True)
 - evidência: doc=`None` locator=`None` page=`None`
-- trecho: _Anexo II; Minuta do Contrato; Anexo I; Anexo III; Anexo IV; Cronograma Físico-Financeiro; Cronograma; Modelo de Proposta; Memorial Descritivo; projeto básico_
-- análise: 10 anexos referidos ausentes; 0 ambíguos
+- trecho: _Anexo II; Minuta do Contrato; Anexo I; Anexo III; Anexo IV; Cronograma Físico-Financeiro; Cronograma; Modelo de Proposta; Memorial Descritivo; BDI; projeto básico_
+- análise: 11 anexos referidos ausentes; 0 ambíguos
 
 ### prazo_execucao — Prazo de execução e cronograma
 - status: **SATISFIED** (critical=True)
@@ -386,6 +387,7 @@ Valor estimado:_
 - **high** Anexo ausente: Cronograma
 - **high** Anexo ausente: Modelo de Proposta
 - **high** Anexo ausente: Memorial Descritivo
+- **high** Anexo ausente: BDI
 - **high** Anexo ausente: projeto básico
 
 ## Inconsistências
@@ -491,7 +493,7 @@ Cronograma Físico-Financeiro
 Memorial Descritivo
 Sanções e multas conforme Lei 14.133/2021
 - F0032: `None` — ['sessao']
-- F0033: `None` — Anexo II; Minuta do Contrato; Anexo I; Anexo III; Anexo IV; Cronograma Físico-Financeiro; Cronograma; Modelo de Proposta; Memorial Descritivo; projeto básico
+- F0033: `None` — Anexo II; Minuta do Contrato; Anexo I; Anexo III; Anexo IV; Cronograma Físico-Financeiro; Cronograma; Modelo de Proposta; Memorial Descritivo; BDI; projeto bási
 - F0034: `page:3` — Prazo de execução: 180 dias
 Garantia de proposta: 1% do valor estimado
 Garantia contratual: 5% sobre o valor do contrato
@@ -537,8 +539,9 @@ Sanções e multas conforme Lei 14
 Cronograma Físico-Financeiro
 Memorial Descritivo
 Sanções e multas conforme Lei 14.133/2021
-- F0047: `paragraph:1` — Objeto: reforma predial conforme projeto básico.
-- F0048: `None` — {'doc-001': 'Abertura', 'doc-003': 'abertura'}
+- F0047: `sheet:BDI!A1` — BDI
+- F0048: `paragraph:1` — Objeto: reforma predial conforme projeto básico.
+- F0049: `None` — {'doc-001': 'Abertura', 'doc-003': 'abertura'}
 
 ---
 

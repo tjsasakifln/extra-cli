@@ -4,18 +4,18 @@
   "counts": {
     "documents": 5,
     "checklist_items": 36,
-    "findings": 48,
+    "findings": 49,
     "timeline_events": 6,
-    "missing": 10,
-    "risks": 29,
+    "missing": 11,
+    "risks": 30,
     "inconsistencies": 1
   },
   "checksums": {
-    "executive-summary.md": "1d91562761e3afb4b656a12be664e57403b68edaed78d9f8712e82ea8d034899",
-    "report-model.json": "eeee1d89aad5bcf6a1f33706a67d5151ea079900e7ec6c5b0563d9179e70eeca",
-    "triage-report.html": "a8f8644bf7306fe1eed38965c392f3193e15e17cd2e4e85d8f12f015303e9ea1",
-    "triage-report.pdf": "cc2031fda31f43ff7571c3e2dcc2164ce4a903e4975193a50bc9b4e6723b1577",
-    "triage-workbook.xlsx": "5bbead3098f0cb3748ab8254424c64e37758f2bf510d4fea5e2eee437058ad4d"
+    "executive-summary.md": "86166e281c7e4325eb455cbaa0b20e98a8acb40f376223347e9cedc60858f896",
+    "report-model.json": "b24ddf19ebede11217996afe3d24c8f1a3b9ad4356540e9cf34c8360c94a555a",
+    "triage-report.html": "af7859cf084f5b5e309fd97ceed47a119d750c41d99b572a9fdb86e614e911b2",
+    "triage-report.pdf": "6503c785020c1800dc7a67bb0174d509f0844a2fd98d4d286a6952a50afd086a",
+    "triage-workbook.xlsx": "38486de3c6138b6c391f0d3c0920fd1c19f2f7592ef0bcfc304c0761b4091dff"
   },
-  "generated_at": "2026-08-01T15:01:07.301684+00:00"
+  "generated_at": "2026-08-01T15:30:19.112498+00:00"
 }

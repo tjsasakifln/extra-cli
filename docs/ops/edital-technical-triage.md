@@ -27,12 +27,18 @@ python3 -m scripts.edital_case verify --case /tmp/edital-cases/demo
 - Recommendation `GO` | `REVIEW` | `NO_GO` — fail-closed; incomplete Extra profile blocks GO  
 - Reports: MD / HTML / XLSX / PDF under `case/reports/`  
 
+## Spreadsheet annexes in the case pack
+
+Planilhas (`.xlsx`/`.xlsm`) are stored as content-addressed objects (bare SHA, no suffix). Extraction loads bytes into openpyxl via `BytesIO` so sheet/cell locators work on the shipped path — not only when the file happens to keep a `.xlsx` filename on disk.
+
 ## Non-claims
 
 - Does **not** issue legal opinions or professional seals  
 - `NO_GO` / `REVIEW` must remain evidence-backed  
 - Distinguishes missing attachment vs download failure  
 - PDF text extraction is not OCR-complete until OCR path is used  
+- Full engineering BDI arithmetic audit remains `scripts.budget_audit` (planilha cells are available in the edital case; deep arithmetic is the budget pipeline)  
+
 
 ## Evidence pack
 

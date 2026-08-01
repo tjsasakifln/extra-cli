@@ -1,6 +1,6 @@
 {
   "ok": true,
-  "generated_at": "2026-08-01T15:01:07.308360+00:00",
+  "generated_at": "2026-08-01T15:30:19.118174+00:00",
   "checks": [
     {
       "name": "safety_flags.production_touched",
@@ -235,6 +235,11 @@
     {
       "name": "citation",
       "status": "PASS",
+      "detail": "finding.F0048"
+    },
+    {
+      "name": "citation",
+      "status": "PASS",
       "detail": "finding-sample.F0001"
     },
     {
@@ -365,7 +370,7 @@
     {
       "name": "citation_audit",
       "status": "PASS",
-      "detail": "0 fabricated of 62 checked"
+      "detail": "0 fabricated of 63 checked"
     },
     {
       "name": "go_gate",
@@ -424,8 +429,8 @@
     }
   ],
   "issues": [],
-  "citation_checked": 62,
+  "citation_checked": 63,
   "citation_fabricated": 0,
-  "pass_count": 84,
+  "pass_count": 85,
   "fail_count": 0
 }

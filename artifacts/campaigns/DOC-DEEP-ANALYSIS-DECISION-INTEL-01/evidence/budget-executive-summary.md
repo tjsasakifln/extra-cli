@@ -1,7 +1,7 @@
 # Executive Summary — Budget Audit
 
 - **Case ID:** golden-e2e-proof
-- **Generated:** 2026-08-01T14:59:08Z
+- **Generated:** 2026-08-01T15:30:19Z
 - **Documents:** 1
 - **Budget items:** 12
 - **Findings:** 31

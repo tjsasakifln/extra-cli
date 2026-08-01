@@ -204,9 +204,14 @@ def extract_xlsx(path: Path, document_id: str) -> dict[str, Any]:
     tables_out: list[dict[str, Any]] = []
     blocks: list[dict[str, Any]] = []
     try:
+        from io import BytesIO
+
         import openpyxl
 
-        wb = openpyxl.load_workbook(str(path), data_only=False)
+        # Objects are content-addressed by bare SHA-256 (no .xlsx suffix).
+        # openpyxl rejects extension-less paths; load from bytes instead.
+        payload = Path(path).read_bytes()
+        wb = openpyxl.load_workbook(BytesIO(payload), data_only=False)
         for sheet_name in wb.sheetnames:
             ws = wb[sheet_name]
             hidden = ws.sheet_state != "visible"

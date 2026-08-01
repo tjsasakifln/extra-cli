@@ -1,5 +1,5 @@
 {
-  "verified_at": "2026-08-01T14:59:08Z",
+  "verified_at": "2026-08-01T15:30:19Z",
   "status": "PASS",
   "issues": [],
   "blockers": [],
@@ -7,7 +7,7 @@
     "manifest_present": true,
     "object_hashes": [
       {
-        "document_id": "golden-a342ec61",
+        "document_id": "golden_v3-afa72c26",
         "ok": true
       }
     ],
@@ -52,10 +52,10 @@
       }
     },
     "checksums": {
-      "executive-summary.md": "c310612eeb2e66a04c596abe83aac7f8a0b76a736325ccd14cad4eeacd1cc21e",
-      "budget-audit-report.html": "f963f6871eb7c7a8abfb76b4432ece34e6a8810902bb6eb69c7a5a7d003e8520",
-      "budget-audit-report.pdf": "5b4d5d854569f0d4acba5a96c7ad12b206cca36dbe9f6413c63e7acd543c8836",
-      "budget-audit-workbook.xlsx": "ab1d9e79a48c87e7615921cc434c1e5481d40385af561e8b610da3b9faf1efe6"
+      "executive-summary.md": "b550a853234783cdae41e9d50af6f3ef9c2ea5e01c0df2cb760b255d0e19e571",
+      "budget-audit-report.html": "abf2366ab97c35dc25283bada071836ecd2347af023cae1d0f4825a1c07a2814",
+      "budget-audit-report.pdf": "316feb575ee3ace8de9d60213ea2761d44ca99dce0614290d74e700068815240",
+      "budget-audit-workbook.xlsx": "77db5bfb97c4da6e911677282d1afbcd034754a7e2274e1812a38c930e52b8e8"
     },
     "model_hash": "e91e74b8620a9452ca1aac29d456f89b39d9bafe7fa5d84e3a6959ba143a7144"
   }

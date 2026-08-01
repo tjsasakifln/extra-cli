@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T15:01:07.175226+00:00",
+  "generated_at": "2026-08-01T15:30:18.987383+00:00",
   "references": [
     {
       "referenced_name": "Anexo II",
@@ -156,6 +156,20 @@
       "confidence": 0.6
     },
     {
+      "referenced_name": "BDI",
+      "expected_type": "BDI",
+      "referenced_from": {
+        "document_id": "doc-004",
+        "page": null,
+        "section": null,
+        "locator": "sheet:BDI!A1",
+        "excerpt": "BDI"
+      },
+      "matched_document_id": null,
+      "status": "MISSING",
+      "confidence": 0.6
+    },
+    {
       "referenced_name": "projeto básico",
       "expected_type": "PROJETO",
       "referenced_from": {
@@ -170,7 +184,7 @@
       "confidence": 0.6
     }
   ],
-  "missing_count": 10,
+  "missing_count": 11,
   "ambiguous_count": 0,
   "present_count": 2,
   "inventory_fingerprint": "edfd753fcd2f7a81"

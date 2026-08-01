@@ -223,6 +223,26 @@ def classify_document(
             }
         )
 
+    # Workbook named planilha/orçamento often *contains* a BDI sheet; that must not
+    # reclassify the whole document as BDI-only (loses PLANILHA_ORCAMENTARIA role).
+    if (
+        name_guess == "PLANILHA_ORCAMENTARIA"
+        and extension.lower() in {".xlsx", ".xlsm", ".xls"}
+        and scores.get("PLANILHA_ORCAMENTARIA", 0) >= 0.4
+    ):
+        scores["PLANILHA_ORCAMENTARIA"] = max(
+            scores.get("PLANILHA_ORCAMENTARIA", 0),
+            scores.get("BDI", 0) + 0.35,
+        )
+        scores["BDI"] = min(scores.get("BDI", 0), scores["PLANILHA_ORCAMENTARIA"] * 0.55)
+        signals.append(
+            {
+                "kind": "workbook_filename_priority",
+                "type": "PLANILHA_ORCAMENTARIA",
+                "note": "xlsx filename planilha beats BDI sheet content",
+            }
+        )
+
     ranked = sorted(scores.items(), key=lambda kv: kv[1], reverse=True)
     best_type, best_score = ranked[0]
     second_score = ranked[1][1] if len(ranked) > 1 else 0.0
@@ -246,9 +266,7 @@ def classify_document(
             }
         )
 
-    evidence = "; ".join(
-        f"{s['kind']}:{s.get('pattern') or s.get('value')}" for s in signals[:8]
-    )
+    evidence = "; ".join(f"{s['kind']}:{s.get('pattern') or s.get('value')}" for s in signals[:8])
     return {
         "result": result if result in DOCUMENT_TYPES else "UNKNOWN",
         "confidence": confidence,

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T15:01:07.136217+00:00",
+  "generated_at": "2026-08-01T15:30:18.950310+00:00",
   "document_count": 5,
   "documents": [
     {
@@ -50,10 +50,13 @@
       },
       "quality_status": "OK",
       "extraction_status": "OK",
+      "extraction_method": "pymupdf_text",
       "page_count": 1,
       "total_chars": 77,
+      "block_count": 1,
+      "table_count": 0,
       "supported": true,
-      "origin": "/tmp/grok-goal-58f70c56721c/implementer/edital_source_pack/aviso_data_conflitante.pdf",
+      "origin": "/tmp/grok-goal-58f70c56721c/implementer/edital_source_pack_v3/aviso_data_conflitante.pdf",
       "method": "LOCAL_FILE"
     },
     {
@@ -129,10 +132,13 @@
       },
       "quality_status": "OK",
       "extraction_status": "OK",
+      "extraction_method": "text",
       "page_count": null,
       "total_chars": 116,
+      "block_count": 1,
+      "table_count": 0,
       "supported": true,
-      "origin": "/tmp/grok-goal-58f70c56721c/implementer/edital_source_pack/mentions_missing.txt",
+      "origin": "/tmp/grok-goal-58f70c56721c/implementer/edital_source_pack_v3/mentions_missing.txt",
       "method": "LOCAL_FILE"
     },
     {
@@ -238,10 +244,13 @@
       },
       "quality_status": "OK",
       "extraction_status": "OK",
+      "extraction_method": "pymupdf_text",
       "page_count": 4,
       "total_chars": 1206,
+      "block_count": 4,
+      "table_count": 0,
       "supported": true,
-      "origin": "/tmp/grok-goal-58f70c56721c/implementer/edital_source_pack/sample_edital.pdf",
+      "origin": "/tmp/grok-goal-58f70c56721c/implementer/edital_source_pack_v3/sample_edital.pdf",
       "method": "LOCAL_FILE"
     },
     {
@@ -251,7 +260,7 @@
       "extension": ".xlsx",
       "classification": {
         "result": "PLANILHA_ORCAMENTARIA",
-        "confidence": 0.786,
+        "confidence": 0.592,
         "signals": [
           {
             "kind": "filename",
@@ -259,18 +268,32 @@
             "type": "PLANILHA_ORCAMENTARIA"
           },
           {
+            "kind": "content",
+            "pattern": "\\bBDI\\b",
+            "type": "BDI"
+          },
+          {
             "kind": "filename_priority",
             "type": "PLANILHA_ORCAMENTARIA",
             "note": "specialized filename preferred over body mentions"
+          },
+          {
+            "kind": "workbook_filename_priority",
+            "type": "PLANILHA_ORCAMENTARIA",
+            "note": "xlsx filename planilha beats BDI sheet content"
           }
         ],
         "rule_version": "edital-classify-v1",
-        "needs_human_review": false,
-        "evidence": "filename:planilha; filename_priority:None",
+        "needs_human_review": true,
+        "evidence": "filename:planilha; content:\\bBDI\\b; filename_priority:None; workbook_filename_priority:None",
         "scores_top": [
           [
             "PLANILHA_ORCAMENTARIA",
-            0.55
+            1.0790000000000002
+          ],
+          [
+            "BDI",
+            0.5934500000000001
           ],
           [
             "EDITAL",
@@ -283,20 +306,38 @@
           [
             "ESTUDO_TECNICO_PRELIMINAR",
             0.0
-          ],
-          [
-            "PROJETO",
-            0.0
           ]
         ]
       },
-      "quality_status": "EXTRACTION_FAILED",
-      "extraction_status": "EXTRACTION_FAILED",
+      "quality_status": "OK",
+      "extraction_status": "OK",
+      "extraction_method": "openpyxl",
       "page_count": null,
-      "total_chars": 0,
+      "total_chars": 47,
+      "block_count": 7,
+      "table_count": 2,
       "supported": true,
-      "origin": "/tmp/grok-goal-58f70c56721c/implementer/edital_source_pack/sample_planilha.xlsx",
-      "method": "LOCAL_FILE"
+      "origin": "/tmp/grok-goal-58f70c56721c/implementer/edital_source_pack_v3/sample_planilha.xlsx",
+      "method": "LOCAL_FILE",
+      "cell_locator_samples": [
+        "sheet:Orçamento!A1",
+        "sheet:Orçamento!B1",
+        "sheet:Orçamento!A2",
+        "sheet:Orçamento!B2",
+        "sheet:Orçamento!B3",
+        "sheet:BDI!A1",
+        "sheet:BDI!B1"
+      ],
+      "tables": [
+        {
+          "sheet": "Orçamento",
+          "cell_count": 5
+        },
+        {
+          "sheet": "BDI",
+          "cell_count": 2
+        }
+      ]
     },
     {
       "document_id": "doc-005",
@@ -371,10 +412,13 @@
       },
       "quality_status": "OK",
       "extraction_status": "OK",
+      "extraction_method": "python-docx",
       "page_count": null,
       "total_chars": 104,
+      "block_count": 3,
+      "table_count": 1,
       "supported": true,
-      "origin": "/tmp/grok-goal-58f70c56721c/implementer/edital_source_pack/sample_tr.docx",
+      "origin": "/tmp/grok-goal-58f70c56721c/implementer/edital_source_pack_v3/sample_tr.docx",
       "method": "LOCAL_FILE"
     }
   ]

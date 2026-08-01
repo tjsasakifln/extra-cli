@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T15:01:07.180376+00:00",
+  "generated_at": "2026-08-01T15:30:18.992627+00:00",
   "recommendation": "REVIEW",
   "reasons": [
     "perfil Extra incompleto / pending elicitation",
@@ -57,6 +57,6 @@
     "blockers": 2,
     "missing_essential": 2,
     "conflicts": 1,
-    "findings": 48
+    "findings": 49
   }
 }
