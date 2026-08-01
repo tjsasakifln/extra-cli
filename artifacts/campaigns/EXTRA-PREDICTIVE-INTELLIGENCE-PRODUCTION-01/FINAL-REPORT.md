@@ -47,3 +47,10 @@ None. Historical walk-forward is backtest, not soak. See `prospective-evidence-s
 - Candidate set is pre-result only; cold-start winners drop the outcome.
 - Never-seen supplier `days_since_supplier_win=9999`.
 - Claim stays `HISTORICAL_BACKTEST_PROVEN` (not SHADOW) until live scheduled emission.
+
+
+## Skeptic fix (outcomes)
+
+- Demand resolution: empty events without coverage → `rejected_invalid_negative` (not label 0).
+- P2A: procurement_id → observed winner join; immature if missing; rejects outcome before as_of.
+- Drift metrics ignore rejected non-scorable outcomes.

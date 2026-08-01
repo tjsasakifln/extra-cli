@@ -68,6 +68,14 @@ def evaluate_outcomes_drift(
     y_true: list[float] = []
     y_prob: list[float] = []
     for o in outcomes:
+        # Rejected invalid negatives / non-scorable must not enter Brier/ECE
+        quality = str(o.get("outcome_quality") or "ok")
+        if quality.startswith("rejected"):
+            continue
+        if o.get("label_value") is None:
+            continue
+        if o.get("metadata", {}).get("scorable") is False:
+            continue
         pred = by_id.get(o.get("prediction_id"))
         if not pred:
             continue
@@ -76,8 +84,6 @@ def evaluate_outcomes_drift(
             if target_name not in str(pred.get("target_name") or ""):
                 continue
         lv = o.get("label_value")
-        if lv is None:
-            continue
         score = pred.get("probability")
         if score is None:
             score = pred.get("score")

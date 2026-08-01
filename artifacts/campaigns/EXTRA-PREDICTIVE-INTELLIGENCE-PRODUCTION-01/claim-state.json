@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-01T21:19:45+00:00",
+  "updated_at": "2026-08-01T21:42:06+00:00",
   "commercial_recommendation": "PARTIAL_CLAIM_ALLOWED",
   "claims": {
     "PREDICTIVE_DEMAND_FORECAST_AVAILABLE": {
@@ -267,7 +267,7 @@
     "PREDICTIVE_MARKET_INTELLIGENCE_AVAILABLE": {
       "claim_id": "PREDICTIVE_MARKET_INTELLIGENCE_AVAILABLE",
       "state": "DATA_BLOCKED",
-      "updated_at": "2026-08-01T21:19:45+00:00",
+      "updated_at": "2026-08-01T21:42:06+00:00",
       "evidence": {
         "demand": "BACKTEST_FAILED",
         "competitive": "HISTORICAL_BACKTEST_PROVEN",
@@ -316,7 +316,7 @@
     "PREDICTIVE_INTELLIGENCE_FULLY_PROVEN": {
       "claim_id": "PREDICTIVE_INTELLIGENCE_FULLY_PROVEN",
       "state": "PROSPECTIVE_EVIDENCE_INSUFFICIENT",
-      "updated_at": "2026-08-01T21:19:45+00:00",
+      "updated_at": "2026-08-01T21:42:06+00:00",
       "evidence": {
         "PREDICTIVE_DEMAND_FORECAST_AVAILABLE": "BACKTEST_FAILED",
         "PREDICTIVE_COMPETITIVE_INTELLIGENCE_AVAILABLE": "HISTORICAL_BACKTEST_PROVEN",
