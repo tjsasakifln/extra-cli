@@ -1,0 +1,182 @@
+{
+  "schema": "production-readiness.queue-cycle.v1",
+  "captured_at": "2026-08-02T03:09:04.241920+00:00",
+  "code_sha": "fefa485d80457ae7785755cbbe204fb59465ef21",
+  "cycle1": {
+    "command": "python -m scripts.process_documents incremental --limit 40 --max-batches 20 --max-wall-seconds 10800 --single-source",
+    "session": {
+      "runs": 291,
+      "status_histogram": {
+        "connection_failed": 135,
+        "SUCCESS_NONZERO": 101,
+        "SUCCESS_ZERO": 47,
+        "auth_required": 7,
+        "partial": 1
+      },
+      "documents_downloaded": 179,
+      "runs_by_source": {
+        "pncp": 134,
+        "html": 63,
+        "ciga": 94
+      },
+      "downloads_by_source": {
+        "ciga": 4,
+        "pncp": 174,
+        "html": 1
+      },
+      "success_nonzero_entities": 74,
+      "sample_nonzero": [
+        {
+          "run_id": "pd-html-20260801T221118Z-267c08aa98",
+          "entity": "00662270:INSTITUTO_NACIONAL_DE_METROLOGIA_QUALIDADE_E_TECNOLOGIA_INMETRO",
+          "status": "SUCCESS_NONZERO",
+          "documents_downloaded": 0,
+          "finished_at": "2026-08-01T22:11:19.066389+00:00",
+          "evidence_uri": "/var/lib/extra-consultoria/output/process_documents/runs/pd-html-20260801T221118Z-267c08aa98/result.json"
+        },
+        {
+          "run_id": "pd-html-20260801T222141Z-4a54f8cfb3",
+          "entity": "01258036:ATALANTA_CAMARA_MUNICIPAL",
+          "status": "SUCCESS_NONZERO",
+          "documents_downloaded": 0,
+          "finished_at": "2026-08-01T22:21:43.547694+00:00",
+          "evidence_uri": "/var/lib/extra-consultoria/output/process_documents/runs/pd-html-20260801T222141Z-4a54f8cfb3/result.json"
+        },
+        {
+          "run_id": "pd-ciga-20260801T222533Z-84001e88",
+          "entity": "00445416:CAMARA_MUNICIPAL_DE_RIO_RUFINO",
+          "status": "SUCCESS_NONZERO",
+          "documents_downloaded": 4,
+          "finished_at": "2026-08-01T22:25:41.163896+00:00",
+          "evidence_uri": "/var/lib/extra-consultoria/output/process_documents/runs/pd-ciga-20260801T222533Z-84001e88/result.json"
+        },
+        {
+          "run_id": "pd-ciga-20260801T222725Z-df91449a",
+          "entity": "00525967:CAMARA_DE_VEREADORES_DO_MUNICIPIO_DE_CANELINHA",
+          "status": "SUCCESS_NONZERO",
+          "documents_downloaded": 0,
+          "finished_at": "2026-08-01T22:27:25.500508+00:00",
+          "evidence_uri": "/var/lib/extra-consultoria/output/process_documents/runs/pd-ciga-20260801T222725Z-df91449a/result.json"
+        },
+        {
+          "run_id": "pd-ciga-20260801T222749Z-71e2410a",
+          "entity": "00652007:SERVICO_AUTONOMO_MUNICIPAL_DE_AGUA_E_ESGOTO",
+          "status": "SUCCESS_NONZERO",
+          "documents_downloaded": 0,
+          "finished_at": "2026-08-01T22:27:49.201286+00:00",
+          "evidence_uri": "/var/lib/extra-consultoria/output/process_documents/runs/pd-ciga-20260801T222749Z-71e2410a/result.json"
+        },
+        {
+          "run_id": "pd-ciga-20260801T222816Z-7e9b224f",
+          "entity": "00811276:CAMARA_MUNICIPAL_DE_URUSSANGA",
+          "status": "SUCCESS_NONZERO",
+          "documents_downloaded": 0,
+          "finished_at": "2026-08-01T22:28:16.813961+00:00",
+          "evidence_uri": "/var/lib/extra-consultoria/output/process_documents/runs/pd-ciga-20260801T222816Z-7e9b224f/result.json"
+        },
+        {
+          "run_id": "pd-ciga-20260801T222832Z-4e45c111",
+          "entity": "01258036:ATALANTA_CAMARA_MUNICIPAL",
+          "status": "SUCCESS_NONZERO",
+          "documents_downloaded": 0,
+          "finished_at": "2026-08-01T22:28:33.037246+00:00",
+          "evidence_uri": "/var/lib/extra-consultoria/output/process_documents/runs/pd-ciga-20260801T222832Z-4e45c111/result.json"
+        },
+        {
+          "run_id": "pd-ciga-20260801T222833Z-1878a4b0",
+          "entity": "01280363:INST_DE_PREVID_SOCIAL_DOS_SERV_PUBL_DO_MUNIC_DE_JLLE",
+          "status": "SUCCESS_NONZERO",
+          "documents_downloaded": 0,
+          "finished_at": "2026-08-01T22:28:33.086907+00:00",
+          "evidence_uri": "/var/lib/extra-consultoria/output/process_documents/runs/pd-ciga-20260801T222833Z-1878a4b0/result.json"
+        }
+      ]
+    },
+    "queue_summary": {
+      "eligible_count": 407,
+      "overdue_count": 335,
+      "never_succeeded_count": 333,
+      "within_sla_count": 72,
+      "sla_hours": 24,
+      "lag_cleared": false,
+      "generated_at": "2026-08-02T03:08:20.338510+00:00"
+    },
+    "raw_cas": {
+      "files_since_session": 179,
+      "bytes_since_session": 244824113
+    }
+  },
+  "three_cycles": {
+    "schema": "production-readiness.three-cycles.v1",
+    "session_start": "2026-08-01T22:08:00+00:00",
+    "session_runs_total": 291,
+    "session_status": {
+      "connection_failed": 135,
+      "SUCCESS_NONZERO": 101,
+      "SUCCESS_ZERO": 47,
+      "auth_required": 7,
+      "partial": 1
+    },
+    "session_docs_downloaded": 179,
+    "runs_by_source": {
+      "pncp": 134,
+      "html": 63,
+      "ciga": 94
+    },
+    "downloads_by_source": {
+      "ciga": 4,
+      "pncp": 174,
+      "html": 1
+    },
+    "queue_summary": {
+      "eligible_count": 407,
+      "overdue_count": 335,
+      "never_succeeded_count": 333,
+      "within_sla_count": 72,
+      "sla_hours": 24,
+      "lag_cleared": false,
+      "generated_at": "2026-08-02T03:08:20.338510+00:00"
+    },
+    "universe": {
+      "active_entities": 407,
+      "queue_entities": 407,
+      "success_with_last_success_at": 74
+    },
+    "cycles": [
+      {
+        "name": "cycle1_full_wall",
+        "cmd": "incremental --limit 40 --max-batches 20 --max-wall-seconds 10800 --single-source",
+        "note": "completed wall PARTIAL"
+      },
+      {
+        "name": "cycle2_multi_source_partial",
+        "cmd": "incremental --limit 25 --max-batches 3 --max-wall-seconds 2400",
+        "note": "killed mid-batch after real downloads; multi-source overrun"
+      },
+      {
+        "name": "cycle2b_single_source",
+        "cmd": "incremental --limit 20 --max-batches 2 --max-wall-seconds 1200 --single-source"
+      },
+      {
+        "name": "cycle3_single_source",
+        "cmd": "incremental --limit 20 --max-batches 2 --max-wall-seconds 1200 --single-source"
+      }
+    ],
+    "honest": {
+      "lag_cleared": false,
+      "real_downloads": true,
+      "not_mark_all": true,
+      "capacity_partial": true
+    }
+  },
+  "honest_claims": {
+    "lag_cleared": false,
+    "full_universe_drain": false,
+    "capacity_partial": true,
+    "real_downloads": true,
+    "not_mark_all_success": true,
+    "documents_downloaded_session": 179,
+    "success_entities": 74,
+    "overdue_remaining": 335
+  }
+}

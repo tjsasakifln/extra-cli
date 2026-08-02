@@ -1,0 +1,25 @@
+{
+  "schema": "production-readiness.source-coverage.v1",
+  "captured_at": "2026-08-02T03:09:04.241920+00:00",
+  "code_sha": "fefa485d80457ae7785755cbbe204fb59465ef21",
+  "runs_by_source": {
+    "pncp": 134,
+    "html": 63,
+    "ciga": 94
+  },
+  "downloads_by_source": {
+    "ciga": 4,
+    "pncp": 174,
+    "html": 1
+  },
+  "session_status": {
+    "connection_failed": 135,
+    "SUCCESS_NONZERO": 101,
+    "SUCCESS_ZERO": 47,
+    "auth_required": 7,
+    "partial": 1
+  },
+  "session_runs_total": 291,
+  "session_docs_downloaded": 179,
+  "note": "Real multi-source activity with non-zero downloads; PNCP dominant for downloads; connection_failed residual under capacity."
+}

@@ -1,0 +1,303 @@
+{
+  "schema": "production-readiness.real-collect.v1",
+  "captured_at": "2026-08-02T03:08:20.297229+00:00",
+  "session_start": "2026-08-01T22:08:00+00:00",
+  "mode": "real_download_not_mark_all",
+  "command": "python -m scripts.process_documents incremental --limit 40 --max-batches 20 --max-wall-seconds 10800 --single-source",
+  "pid": 241879,
+  "universe": {
+    "active_entities": 407,
+    "queue_entities": 407,
+    "success_with_last_success_at": 74
+  },
+  "queue_summary": {
+    "eligible_count": 407,
+    "overdue_count": 335,
+    "never_succeeded_count": 333,
+    "within_sla_count": 72,
+    "sla_hours": 24,
+    "lag_cleared": false,
+    "generated_at": "2026-08-02T03:08:20.338510+00:00"
+  },
+  "session": {
+    "runs": 291,
+    "status_histogram": {
+      "connection_failed": 135,
+      "SUCCESS_NONZERO": 101,
+      "SUCCESS_ZERO": 47,
+      "auth_required": 7,
+      "partial": 1
+    },
+    "documents_downloaded": 179,
+    "runs_by_source": {
+      "pncp": 134,
+      "html": 63,
+      "ciga": 94
+    },
+    "downloads_by_source": {
+      "ciga": 4,
+      "pncp": 174,
+      "html": 1
+    },
+    "success_nonzero_entities": 74,
+    "sample_nonzero": [
+      {
+        "run_id": "pd-html-20260801T221118Z-267c08aa98",
+        "entity": "00662270:INSTITUTO_NACIONAL_DE_METROLOGIA_QUALIDADE_E_TECNOLOGIA_INMETRO",
+        "status": "SUCCESS_NONZERO",
+        "documents_downloaded": 0,
+        "finished_at": "2026-08-01T22:11:19.066389+00:00",
+        "evidence_uri": "/var/lib/extra-consultoria/output/process_documents/runs/pd-html-20260801T221118Z-267c08aa98/result.json"
+      },
+      {
+        "run_id": "pd-html-20260801T222141Z-4a54f8cfb3",
+        "entity": "01258036:ATALANTA_CAMARA_MUNICIPAL",
+        "status": "SUCCESS_NONZERO",
+        "documents_downloaded": 0,
+        "finished_at": "2026-08-01T22:21:43.547694+00:00",
+        "evidence_uri": "/var/lib/extra-consultoria/output/process_documents/runs/pd-html-20260801T222141Z-4a54f8cfb3/result.json"
+      },
+      {
+        "run_id": "pd-ciga-20260801T222533Z-84001e88",
+        "entity": "00445416:CAMARA_MUNICIPAL_DE_RIO_RUFINO",
+        "status": "SUCCESS_NONZERO",
+        "documents_downloaded": 4,
+        "finished_at": "2026-08-01T22:25:41.163896+00:00",
+        "evidence_uri": "/var/lib/extra-consultoria/output/process_documents/runs/pd-ciga-20260801T222533Z-84001e88/result.json"
+      },
+      {
+        "run_id": "pd-ciga-20260801T222725Z-df91449a",
+        "entity": "00525967:CAMARA_DE_VEREADORES_DO_MUNICIPIO_DE_CANELINHA",
+        "status": "SUCCESS_NONZERO",
+        "documents_downloaded": 0,
+        "finished_at": "2026-08-01T22:27:25.500508+00:00",
+        "evidence_uri": "/var/lib/extra-consultoria/output/process_documents/runs/pd-ciga-20260801T222725Z-df91449a/result.json"
+      },
+      {
+        "run_id": "pd-ciga-20260801T222749Z-71e2410a",
+        "entity": "00652007:SERVICO_AUTONOMO_MUNICIPAL_DE_AGUA_E_ESGOTO",
+        "status": "SUCCESS_NONZERO",
+        "documents_downloaded": 0,
+        "finished_at": "2026-08-01T22:27:49.201286+00:00",
+        "evidence_uri": "/var/lib/extra-consultoria/output/process_documents/runs/pd-ciga-20260801T222749Z-71e2410a/result.json"
+      },
+      {
+        "run_id": "pd-ciga-20260801T222816Z-7e9b224f",
+        "entity": "00811276:CAMARA_MUNICIPAL_DE_URUSSANGA",
+        "status": "SUCCESS_NONZERO",
+        "documents_downloaded": 0,
+        "finished_at": "2026-08-01T22:28:16.813961+00:00",
+        "evidence_uri": "/var/lib/extra-consultoria/output/process_documents/runs/pd-ciga-20260801T222816Z-7e9b224f/result.json"
+      },
+      {
+        "run_id": "pd-ciga-20260801T222832Z-4e45c111",
+        "entity": "01258036:ATALANTA_CAMARA_MUNICIPAL",
+        "status": "SUCCESS_NONZERO",
+        "documents_downloaded": 0,
+        "finished_at": "2026-08-01T22:28:33.037246+00:00",
+        "evidence_uri": "/var/lib/extra-consultoria/output/process_documents/runs/pd-ciga-20260801T222832Z-4e45c111/result.json"
+      },
+      {
+        "run_id": "pd-ciga-20260801T222833Z-1878a4b0",
+        "entity": "01280363:INST_DE_PREVID_SOCIAL_DOS_SERV_PUBL_DO_MUNIC_DE_JLLE",
+        "status": "SUCCESS_NONZERO",
+        "documents_downloaded": 0,
+        "finished_at": "2026-08-01T22:28:33.086907+00:00",
+        "evidence_uri": "/var/lib/extra-consultoria/output/process_documents/runs/pd-ciga-20260801T222833Z-1878a4b0/result.json"
+      }
+    ]
+  },
+  "raw_cas": {
+    "files_since_session": 179,
+    "bytes_since_session": 244824113,
+    "sample_files": [
+      {
+        "path": "/var/lib/extra-consultoria/raw/process_documents/cas/d7/7a/d77ab178d7872c74572524b847e04d777844e1936b37eaac266530829a806f7a.pdf",
+        "bytes": 2476534,
+        "mtime": "2026-08-01T23:22:44.651202+00:00"
+      },
+      {
+        "path": "/var/lib/extra-consultoria/raw/process_documents/cas/d7/92/d79205fd52a9cdd450a70496618cffe83c2a7bd3da678acd7273a6208f3c1bd8.rar",
+        "bytes": 451897,
+        "mtime": "2026-08-02T01:21:59.034362+00:00"
+      },
+      {
+        "path": "/var/lib/extra-consultoria/raw/process_documents/cas/0f/d9/0fd95d0a8e9e06cd0dedd1563253e85eb17d686b81591f616b38ea0677cc9fa2.pdf",
+        "bytes": 69558,
+        "mtime": "2026-08-01T23:46:35.587114+00:00"
+      },
+      {
+        "path": "/var/lib/extra-consultoria/raw/process_documents/cas/97/f7/97f7d039a739935f44e5f9299ef797c7fd2b3329fa4aca25ed6b23423295c71f.pdf",
+        "bytes": 70626,
+        "mtime": "2026-08-02T01:18:13.739277+00:00"
+      },
+      {
+        "path": "/var/lib/extra-consultoria/raw/process_documents/cas/97/35/9735ca214780bae68546c6f4a3adfb0f5e24dd45e21b0b3e70e2b42023a27d02.zip",
+        "bytes": 20189867,
+        "mtime": "2026-08-02T01:17:23.036893+00:00"
+      },
+      {
+        "path": "/var/lib/extra-consultoria/raw/process_documents/cas/97/20/97207c8b73b76e1b362d13676ee50ae8e5890b6207d5c4b29585372e9b19ed77.pdf",
+        "bytes": 208761,
+        "mtime": "2026-08-02T01:08:06.300925+00:00"
+      },
+      {
+        "path": "/var/lib/extra-consultoria/raw/process_documents/cas/b3/e4/b3e48ed70cc21d991cf70cd6636208b4f99f0cd141c21c6a111aa56b96a8004c.rar",
+        "bytes": 541338,
+        "mtime": "2026-08-02T01:22:17.115281+00:00"
+      },
+      {
+        "path": "/var/lib/extra-consultoria/raw/process_documents/cas/8b/91/8b917430d45163aee4beb77a1a7e8d04d377ebb030aa87c24364a78f34cc1c4b.pdf",
+        "bytes": 36195,
+        "mtime": "2026-08-01T23:53:54.212800+00:00"
+      },
+      {
+        "path": "/var/lib/extra-consultoria/raw/process_documents/cas/8b/52/8b525ab4f52466eef000056b1d9dc7c34bf37ae0c48a737dca4ad0700825f714.pdf",
+        "bytes": 173996,
+        "mtime": "2026-08-02T01:43:01.626940+00:00"
+      },
+      {
+        "path": "/var/lib/extra-consultoria/raw/process_documents/cas/00/96/00960932f92b9605c9c84b7a032769b6040b766294ed76340d3c9a430895bc8c.pdf",
+        "bytes": 169462,
+        "mtime": "2026-08-02T01:16:23.873725+00:00"
+      },
+      {
+        "path": "/var/lib/extra-consultoria/raw/process_documents/cas/24/68/2468b9e0b7dd87e316fc0aa62b530d226a0c6d241b80befbed13f08ff1ef3b12.zip",
+        "bytes": 315091,
+        "mtime": "2026-08-01T22:25:40.040788+00:00"
+      },
+      {
+        "path": "/var/lib/extra-consultoria/raw/process_documents/cas/24/15/241569e5fe80d704ca05adc7bfbef83dcade15cde03fc92794437ad79b1cb379.pdf",
+        "bytes": 798278,
+        "mtime": "2026-08-02T01:43:28.276432+00:00"
+      },
+      {
+        "path": "/var/lib/extra-consultoria/raw/process_documents/cas/37/eb/37ebee453217656d6fcb1bfa5e6a739c9b74cf4a7f318d19f6eac8674cb471eb.pdf",
+        "bytes": 215832,
+        "mtime": "2026-08-02T01:21:59.578390+00:00"
+      },
+      {
+        "path": "/var/lib/extra-consultoria/raw/process_documents/cas/18/5b/185b2605b0f077ee43e289771fbaf5e213df370832e2df98286e06b522e47cb5.pdf",
+        "bytes": 208060,
+        "mtime": "2026-08-02T01:16:31.534168+00:00"
+      },
+      {
+        "path": "/var/lib/extra-consultoria/raw/process_documents/cas/18/22/1822b21c37f610ee445432ae2b52b337c15422f593d4d33fd1a0c3f08f63dbfd.pdf",
+        "bytes": 212313,
+        "mtime": "2026-08-01T23:46:39.723358+00:00"
+      },
+      {
+        "path": "/var/lib/extra-consultoria/raw/process_documents/cas/15/20/152053d51949f0d1c19669742209d8da73cc3fc5b819ad612138da66e4467740.pdf",
+        "bytes": 35169,
+        "mtime": "2026-08-02T01:16:44.098895+00:00"
+      },
+      {
+        "path": "/var/lib/extra-consultoria/raw/process_documents/cas/15/10/1510aad21b5671b7b1736f3b8ba2d2947e3b473e4390007e45ec6eea1be10929.pdf",
+        "bytes": 228383,
+        "mtime": "2026-08-02T00:25:24.611817+00:00"
+      },
+      {
+        "path": "/var/lib/extra-consultoria/raw/process_documents/cas/a2/fa/a2fa274c94ea691c8bab3f94fd1b254d9aa8d462698e19a2458fb58a0da46a8e.zip",
+        "bytes": 1085336,
+        "mtime": "2026-08-02T01:21:01.795480+00:00"
+      },
+      {
+        "path": "/var/lib/extra-consultoria/raw/process_documents/cas/80/a8/80a8f5f444c66838a61601722b2fcad97c56f81f0bea65e6217b83f40a8accd0.pdf",
+        "bytes": 64995,
+        "mtime": "2026-08-02T01:21:58.166318+00:00"
+      },
+      {
+        "path": "/var/lib/extra-consultoria/raw/process_documents/cas/1f/8c/1f8cc64a6e6594bbe99832c2f88ba27ea1a06b1f53579d8588c7fccfe1708e90.pdf",
+        "bytes": 61413,
+        "mtime": "2026-08-02T00:25:12.431128+00:00"
+      },
+      {
+        "path": "/var/lib/extra-consultoria/raw/process_documents/cas/47/f8/47f8764412232dc970265f3b70c8ddb6c5f40501e7678dd4e86c9535a7db0919.pdf",
+        "bytes": 206283,
+        "mtime": "2026-08-02T01:17:56.414457+00:00"
+      },
+      {
+        "path": "/var/lib/extra-consultoria/raw/process_documents/cas/47/5d/475dc0c733921456cdffd35555ecf2fd3b2348aadf8e5a65c73472884f664fc5.pdf",
+        "bytes": 179761,
+        "mtime": "2026-08-02T01:16:48.579154+00:00"
+      },
+      {
+        "path": "/var/lib/extra-consultoria/raw/process_documents/cas/75/2c/752cc141d5d77430007ee249fa93d89c4b5a1850265e3ba776a0817c565154c8.pdf",
+        "bytes": 206494,
+        "mtime": "2026-08-02T01:17:54.510368+00:00"
+      },
+      {
+        "path": "/var/lib/extra-consultoria/raw/process_documents/cas/75/3d/753d071ab02b9e2786c00c4f2ab3f4851db7b17d93214f9d7b3f2a54441e80ad.pdf",
+        "bytes": 187066,
+        "mtime": "2026-08-02T01:21:38.501324+00:00"
+      },
+      {
+        "path": "/var/lib/extra-consultoria/raw/process_documents/cas/75/c2/75c2b44c997849955b614e5a6f533597aafc9e7f7560511c0295e837c86018e1.pdf",
+        "bytes": 509222,
+        "mtime": "2026-08-02T03:05:22.357112+00:00"
+      },
+      {
+        "path": "/var/lib/extra-consultoria/raw/process_documents/cas/3f/d5/3fd5b37f083c21666a611729d265c4b0dd16cd22f0c367e3e8ecce30abea6fa9.rar",
+        "bytes": 1125435,
+        "mtime": "2026-08-02T03:05:19.304925+00:00"
+      },
+      {
+        "path": "/var/lib/extra-consultoria/raw/process_documents/cas/c2/b6/c2b6bd30441ad248868d812fc292e5affd9589575051f74503fbbf62be077726.zip",
+        "bytes": 1099815,
+        "mtime": "2026-08-01T22:25:40.708826+00:00"
+      },
+      {
+        "path": "/var/lib/extra-consultoria/raw/process_documents/cas/22/60/2260f24ab1ae9ccd89f25ac08b2f03737f85d001437b42aa11f9195beffe06ad.pdf",
+        "bytes": 128670,
+        "mtime": "2026-08-02T00:12:57.742088+00:00"
+      },
+      {
+        "path": "/var/lib/extra-consultoria/raw/process_documents/cas/8e/0b/8e0b809fe932ae644cae037efde8ac7941df36b1c8525ba74c6075fa53d58600.pdf",
+        "bytes": 75419,
+        "mtime": "2026-08-02T01:22:06.250728+00:00"
+      },
+      {
+        "path": "/var/lib/extra-consultoria/raw/process_documents/cas/8e/12/8e125b4cbc5fc1620b5445a7c7e945b9b7bb1502f31bd8d78c84fcbcfd29e634.zip",
+        "bytes": 346142,
+        "mtime": "2026-08-01T22:58:28.707864+00:00"
+      }
+    ]
+  },
+  "batches": {
+    "collect-batch-latest.json": {
+      "generated_at": "2026-08-02T03:08:09.656973+00:00",
+      "count": 20,
+      "by_status": {
+        "SUCCESS_ZERO": 1,
+        "partial": 1,
+        "SUCCESS_NONZERO": 17,
+        "connection_failed": 1
+      },
+      "overdue_count": 335,
+      "lag_cleared": false,
+      "multi_source": false,
+      "limit": 20
+    },
+    "collect-batch-previous.json": {
+      "generated_at": "2026-08-02T01:08:32.946789+00:00",
+      "count": 40,
+      "by_status": {
+        "SUCCESS_NONZERO": 22,
+        "SUCCESS_ZERO": 7,
+        "connection_failed": 11
+      },
+      "overdue_count": 335,
+      "lag_cleared": false,
+      "multi_source": false,
+      "limit": 40
+    }
+  },
+  "honest_claims": {
+    "lag_cleared": false,
+    "full_universe_drain": false,
+    "capacity_partial": true,
+    "real_downloads": true,
+    "non_zero_source_metrics": true,
+    "not_mark_all_success": true
+  }
+}

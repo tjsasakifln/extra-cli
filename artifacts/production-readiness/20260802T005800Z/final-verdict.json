@@ -1,0 +1,39 @@
+{
+  "schema": "production-readiness.final-verdict.v1",
+  "captured_at": "2026-08-02T03:09:04.241920+00:00",
+  "code_sha": "fefa485d80457ae7785755cbbe204fb59465ef21",
+  "terminal_state": "NOT_PASS_YET_CAPACITY_PARTIAL",
+  "gates": {
+    "A_code": "PARTIAL",
+    "B_quality": "PRIOR_HEAD_GREEN_d54e408e; timeout_fix_pending_CI",
+    "C_e2e": "PRIOR_PLAYWRIGHT_12_12_RECORDED",
+    "D_scale": "PRIOR_FULL_SCALE_4_4M_RECORDED",
+    "E_operation": "DEPLOYED_AND_REAL_COLLECT_PARTIAL_LAG",
+    "F_observability": "PRIOR_ALERTS_RECORDED",
+    "G_recovery": "PRIOR_BACKUP_RESTORE_97_97",
+    "H_real_case": "PRIOR_PATHS_PLUS_REAL_DOWNLOADS"
+  },
+  "real_collect_session": {
+    "docs_downloaded": 179,
+    "runs": 291,
+    "success_entities": 74,
+    "overdue": 335,
+    "lag_cleared": false,
+    "downloads_by_source": {
+      "ciga": 4,
+      "pncp": 174,
+      "html": 1
+    }
+  },
+  "blockers_to_PASS": [
+    "lag_cleared remains false (335/407 overdue after wall capacity)",
+    "full active-universe drain not completed in one session under PNCP latency",
+    "CI must re-run green on HEAD after push of timeout fix"
+  ],
+  "proven": [
+    "real download collect (not mark-all): 179 documents",
+    "multi-source metrics non-zero: pncp/ciga/html",
+    "cycle1 wall + incremental cycles with download",
+    "PNCP timeout fix (15s/90s) committed"
+  ]
+}
