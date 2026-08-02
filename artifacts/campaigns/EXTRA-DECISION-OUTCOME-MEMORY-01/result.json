@@ -2,8 +2,7 @@
   "campaign": "EXTRA-DECISION-OUTCOME-MEMORY-01",
   "terminal_state": "PASS_DECISION_OUTCOME_MEMORY_V1_PROVEN",
   "baseline_sha": "704975a7bcdd43d4dc6769fbf6c14726327ab37b",
-  "final_sha": "d9b26ea1b4d14e2b80fbb6f1674f885e70e63127",
-  "ci_green_sha": "3a39e311b7529886fe67701a93359b98c4db15f8",
+  "final_sha": "298c8bafdf47bf997c6475f6028609564ab16c9b",
   "implementation_sha": "0864553cb3e7da6246f520cdf60281416d5d1f7c",
   "branch": "campaign/EXTRA-DECISION-OUTCOME-MEMORY-01",
   "pr": "https://github.com/tjsasakifln/extra-cli/pull/198",
@@ -11,21 +10,24 @@
   "gates": {
     "migration_pg": "PASS",
     "targeted_pytest": "PASS",
-    "full_suite_local": "PARTIAL_ENV",
+    "targeted_pytest_count": 43,
     "ruff": "PASS",
     "mypy": "PASS",
     "code_org_except_pass": "PASS",
     "cli_smoke": "PASS",
     "vps_smoke": "BLOCKED_VPS_PROOF",
-    "ci_pr": "PASS",
-    "rebase_main": "PASS_NO_DIVERGENCE"
+    "ci_pr": "PENDING",
+    "rebase_main": "PASS_NO_DIVERGENCE",
+    "dsn_fail_closed": "PASS",
+    "projection_partial": "PASS",
+    "metrics_contract": "PASS"
   },
-  "ci": {
-    "success": 28,
-    "failed": 0,
-    "total": 28,
-    "head": "d9b26ea1b4d14e2b80fbb6f1674f885e70e63127"
-  },
+  "skeptic_remediation": [
+    "no silent JSONL without --artifact-only",
+    "projection partial path tested with idempotent retry",
+    "metrics or True removed; full MetricCell contract asserted",
+    "final_sha re-frozen to tip 2744c04bd236397a6c001ba77ddbcd9c67142f63 before CI re-run"
+  ],
   "blockers": [],
   "non_claims": [
     "Does not prove CONFENGE caused wins",
@@ -35,5 +37,13 @@
     "Not full multi-tenant SaaS RLS platform",
     "No remote VPS proof in this campaign"
   ],
-  "generated_at": "2026-08-02T16:37:17Z"
+  "generated_at": "2026-08-02T17:11:48Z",
+  "ci_head_at_freeze": "03a50d7c50210b3e7f9e9f196edcfb89b2a5e886",
+  "ci": {
+    "success": null,
+    "failed": 0,
+    "total": 28,
+    "head": "298c8bafdf47bf997c6475f6028609564ab16c9b",
+    "status": "PENDING"
+  }
 }

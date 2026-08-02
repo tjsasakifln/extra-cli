@@ -39,3 +39,19 @@ Result: **3537 passed**, 122 skipped, 11 deselected, **2 failed** (not in campai
 Targeted decision_memory + code org gate: **41 passed**.
 
 `test_critical_path_no_except_pass`: PASS after removing except-pass in review adapter.
+
+
+## Skeptic remediation (post-review)
+
+```bash
+export LOCAL_DATALAKE_DSN=postgresql://test:test@127.0.0.1:5433/extra_test
+python3 -m pytest tests/decision_memory/ tests/test_extra_decision_loop.py \
+  tests/test_code_organization_gate.py::test_critical_path_no_except_pass -q --no-cov
+```
+
+Result: **43 passed**.
+
+Fixes:
+1. No silent JSONL when DSN unset — requires `--artifact-only` or fails with PERSISTENCE_FAILED
+2. Projection partial path tested (PG OK → OSError on projection → PARTIAL + idempotent retry)
+3. Metrics contract asserted honestly (name, numerator, denominator, unknown_count, limitations, exclusions, filters)
