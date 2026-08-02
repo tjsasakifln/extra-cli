@@ -1,0 +1,98 @@
+[
+  {
+    "original": "m³",
+    "normalized": "m³",
+    "rule": "ALIAS_EXACT",
+    "confidence": 1.0,
+    "dict_version": "1.0.0",
+    "convertible_to": null
+  },
+  {
+    "original": "m²",
+    "normalized": "m²",
+    "rule": "ALIAS_EXACT",
+    "confidence": 1.0,
+    "dict_version": "1.0.0",
+    "convertible_to": null
+  },
+  {
+    "original": "kg",
+    "normalized": "kg",
+    "rule": "ALIAS_EXACT",
+    "confidence": 1.0,
+    "dict_version": "1.0.0",
+    "convertible_to": null
+  },
+  {
+    "original": "m²",
+    "normalized": "m²",
+    "rule": "ALIAS_EXACT",
+    "confidence": 1.0,
+    "dict_version": "1.0.0",
+    "convertible_to": null
+  },
+  {
+    "original": "m²",
+    "normalized": "m²",
+    "rule": "ALIAS_EXACT",
+    "confidence": 1.0,
+    "dict_version": "1.0.0",
+    "convertible_to": null
+  },
+  {
+    "original": "vb",
+    "normalized": "vb",
+    "rule": "ALIAS_EXACT",
+    "confidence": 1.0,
+    "dict_version": "1.0.0",
+    "convertible_to": null
+  },
+  {
+    "original": "un",
+    "normalized": "un",
+    "rule": "ALIAS_EXACT",
+    "confidence": 1.0,
+    "dict_version": "1.0.0",
+    "convertible_to": null
+  },
+  {
+    "original": "un",
+    "normalized": "un",
+    "rule": "ALIAS_EXACT",
+    "confidence": 1.0,
+    "dict_version": "1.0.0",
+    "convertible_to": null
+  },
+  {
+    "original": "un",
+    "normalized": "un",
+    "rule": "ALIAS_EXACT",
+    "confidence": 1.0,
+    "dict_version": "1.0.0",
+    "convertible_to": null
+  },
+  {
+    "original": "un",
+    "normalized": "un",
+    "rule": "ALIAS_EXACT",
+    "confidence": 1.0,
+    "dict_version": "1.0.0",
+    "convertible_to": null
+  },
+  {
+    "original": "m³",
+    "normalized": "m³",
+    "rule": "ALIAS_EXACT",
+    "confidence": 1.0,
+    "dict_version": "1.0.0",
+    "convertible_to": null
+  },
+  {
+    "original": "vb",
+    "normalized": "vb",
+    "rule": "ALIAS_EXACT",
+    "confidence": 1.0,
+    "dict_version": "1.0.0",
+    "convertible_to": null
+  }
+]

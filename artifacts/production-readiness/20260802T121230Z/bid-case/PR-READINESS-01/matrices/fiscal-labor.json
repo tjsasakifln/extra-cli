@@ -1,0 +1,179 @@
+{
+  "rows": [
+    {
+      "requirement_id": "REQ-FIS-001",
+      "status": "SATISFIED",
+      "document_ids": [
+        "doc-05_certidao_federal_valida",
+        "doc-21_certidao_nome_abreviado"
+      ],
+      "source_locators": [
+        {
+          "page": 10,
+          "section": "7"
+        }
+      ],
+      "evidence": "type match with valid identity",
+      "validation_rules": {
+        "mandatory": true,
+        "required_document_type": "CERTIDAO_FEDERAL"
+      },
+      "validity_result": "VALID",
+      "identity_result": "OK",
+      "technical": null,
+      "limitations": [
+        "Automated match is operational support only; not legal habilitation.",
+        "Semantic similarity alone never proves technical equivalence."
+      ],
+      "human_action": null,
+      "mandatory": true,
+      "category": "FISCAL",
+      "title": "CND Federal"
+    },
+    {
+      "requirement_id": "REQ-FIS-002",
+      "status": "EXPIRED",
+      "document_ids": [
+        "doc-06_certidao_estadual_vencida"
+      ],
+      "source_locators": [
+        {
+          "page": 10,
+          "section": "7"
+        }
+      ],
+      "evidence": "document expired",
+      "validation_rules": {
+        "mandatory": true,
+        "required_document_type": "CERTIDAO_ESTADUAL"
+      },
+      "validity_result": "EXPIRED",
+      "identity_result": null,
+      "technical": null,
+      "limitations": [
+        "Automated match is operational support only; not legal habilitation.",
+        "Semantic similarity alone never proves technical equivalence."
+      ],
+      "human_action": null,
+      "mandatory": true,
+      "category": "FISCAL",
+      "title": "CND Estadual"
+    },
+    {
+      "requirement_id": "REQ-FIS-003",
+      "status": "INCONSISTENT",
+      "document_ids": [
+        "doc-07_certidao_municipal_cnpj_outro"
+      ],
+      "source_locators": [
+        {
+          "page": 10,
+          "section": "7"
+        }
+      ],
+      "evidence": "identity inconsistency: CNPJ_MISMATCH, LEGAL_NAME_MISMATCH",
+      "validation_rules": {
+        "mandatory": true,
+        "required_document_type": "CERTIDAO_MUNICIPAL"
+      },
+      "validity_result": null,
+      "identity_result": "CNPJ_MISMATCH",
+      "technical": null,
+      "limitations": [
+        "Automated match is operational support only; not legal habilitation.",
+        "Semantic similarity alone never proves technical equivalence."
+      ],
+      "human_action": null,
+      "mandatory": true,
+      "category": "FISCAL",
+      "title": "CND Municipal"
+    },
+    {
+      "requirement_id": "REQ-FIS-004",
+      "status": "SATISFIED",
+      "document_ids": [
+        "doc-08_fgts_valido"
+      ],
+      "source_locators": [
+        {
+          "page": 10,
+          "section": "7"
+        }
+      ],
+      "evidence": "type match with valid identity",
+      "validation_rules": {
+        "mandatory": true,
+        "required_document_type": "FGTS"
+      },
+      "validity_result": "VALID",
+      "identity_result": "OK",
+      "technical": null,
+      "limitations": [
+        "Automated match is operational support only; not legal habilitation.",
+        "Semantic similarity alone never proves technical equivalence."
+      ],
+      "human_action": null,
+      "mandatory": true,
+      "category": "FISCAL",
+      "title": "FGTS"
+    },
+    {
+      "requirement_id": "REQ-FIS-005",
+      "status": "EXPIRED",
+      "document_ids": [
+        "doc-09_cndt_expiring"
+      ],
+      "source_locators": [
+        {
+          "page": 10,
+          "section": "7"
+        }
+      ],
+      "evidence": "document expired",
+      "validation_rules": {
+        "mandatory": true,
+        "required_document_type": "CNDT"
+      },
+      "validity_result": "EXPIRED",
+      "identity_result": null,
+      "technical": null,
+      "limitations": [
+        "Automated match is operational support only; not legal habilitation.",
+        "Semantic similarity alone never proves technical equivalence."
+      ],
+      "human_action": null,
+      "mandatory": true,
+      "category": "FISCAL",
+      "title": "CNDT"
+    },
+    {
+      "requirement_id": "REQ-FIS-006",
+      "status": "INCONSISTENT",
+      "document_ids": [
+        "doc-07_certidao_municipal_cnpj_outro"
+      ],
+      "source_locators": [
+        {
+          "page": 10,
+          "section": "7"
+        }
+      ],
+      "evidence": "identity inconsistency: CNPJ_MISMATCH, LEGAL_NAME_MISMATCH",
+      "validation_rules": {
+        "mandatory": true,
+        "required_document_type": "CERTIDAO_MUNICIPAL"
+      },
+      "validity_result": null,
+      "identity_result": "CNPJ_MISMATCH",
+      "technical": null,
+      "limitations": [
+        "Automated match is operational support only; not legal habilitation.",
+        "Semantic similarity alone never proves technical equivalence."
+      ],
+      "human_action": null,
+      "mandatory": true,
+      "category": "FISCAL",
+      "title": "Certidão municipal adicional"
+    }
+  ]
+}

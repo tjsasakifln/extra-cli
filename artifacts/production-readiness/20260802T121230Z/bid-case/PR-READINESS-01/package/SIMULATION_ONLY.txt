@@ -1,0 +1,4 @@
+SIMULATION_ONLY
+This package is a local simulation for human review.
+It is NOT a protocol submission and does NOT prove habilitacao.
+package_status=BLOCKED_BY_MISSING_DOCUMENT

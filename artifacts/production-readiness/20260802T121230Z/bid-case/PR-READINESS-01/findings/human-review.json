@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "finding_id": "F-0009",
+      "severity": "HIGH",
+      "classification": "NEEDS_HUMAN",
+      "requirement_id": "REQ-HUM-001",
+      "title": "Human review required for REQ-HUM-001",
+      "objective_observation": "human interpretation required — engineer/legal review before any SATISFIED",
+      "interpretation": "Operational observation — not a legal opinion.",
+      "document_ids": [
+        "doc-12_atestado_ok",
+        "doc-13_atestado_insuficiente",
+        "doc-16_atestado_unidade_errada",
+        "doc-22_atestado_textual_fraco"
+      ],
+      "source_locators": [],
+      "validation_rule": "NEEDS_HUMAN",
+      "deadline": null,
+      "impact": "Protocol remains blocked for human decision",
+      "recommended_action": "Engineer/legal review",
+      "limitations": [
+        "Human review required before protocol."
+      ],
+      "review_status": "OPEN"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "code_sha": "610442b5f2607ca0901fc96a8bc84a2e5bb1e4e5",
+  "cwd": "/mnt/d/extra consultoria/.worktrees/production-readiness-closeout",
+  "env_keys_present": [],
+  "head": "610442b5f2607ca0901fc96a8bc84a2e5bb1e4e5",
+  "platform": "Linux-x.x.x.x-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+  "purpose": "reproof_gates_CDFG_H",
+  "python": "3.12.3",
+  "timestamp": "2026-08-02T12:12:32.072831+00:00"
+}

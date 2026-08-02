@@ -1,0 +1,8 @@
+{
+  "ok": true,
+  "errors": [],
+  "requirements_count": 22,
+  "documents_count": 22,
+  "blockers_count": 11,
+  "package_status": "BLOCKED_BY_MISSING_DOCUMENT"
+}

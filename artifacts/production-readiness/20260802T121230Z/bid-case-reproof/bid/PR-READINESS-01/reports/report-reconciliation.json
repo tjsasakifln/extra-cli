@@ -1,0 +1,11 @@
+{
+  "model_sha256": "78e6c8f9afefbe26c3aaf2c6ab874286b43582ad90831020d56e150587e28b62",
+  "system_status": "SYSTEM_FAIL",
+  "package_status": "BLOCKED_BY_MISSING_DOCUMENT",
+  "blockers": 11,
+  "requirements": 22,
+  "documents": 22,
+  "md_contains_status": true,
+  "html_contains_status": true,
+  "ok": true
+}

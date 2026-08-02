@@ -1,0 +1,62 @@
+[
+  {
+    "code": "SINAPI-001",
+    "sheet": "Orcamento Analitico",
+    "row": 2
+  },
+  {
+    "code": "SINAPI-002",
+    "sheet": "Orcamento Analitico",
+    "row": 3
+  },
+  {
+    "code": "SINAPI-003",
+    "sheet": "Orcamento Analitico",
+    "row": 4
+  },
+  {
+    "code": "SINAPI-001",
+    "sheet": "Orcamento Analitico",
+    "row": 5
+  },
+  {
+    "code": "SINAPI-002",
+    "sheet": "Orcamento Analitico",
+    "row": 6
+  },
+  {
+    "code": "NOCOMP-99",
+    "sheet": "Orcamento Analitico",
+    "row": 7
+  },
+  {
+    "code": "DBL-001",
+    "sheet": "Orcamento Analitico",
+    "row": 8
+  },
+  {
+    "code": "NEG-001",
+    "sheet": "Orcamento Analitico",
+    "row": 9
+  },
+  {
+    "code": "ZERO-001",
+    "sheet": "Orcamento Analitico",
+    "row": 10
+  },
+  {
+    "code": "HID-001",
+    "sheet": "Orcamento Analitico",
+    "row": 11
+  },
+  {
+    "code": "SINAPI-001",
+    "sheet": "Curva ABC",
+    "row": 2
+  },
+  {
+    "code": "NOCOMP-99",
+    "sheet": "Curva ABC",
+    "row": 3
+  }
+]

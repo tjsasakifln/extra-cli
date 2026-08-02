@@ -1,0 +1,490 @@
+{
+  "check_count": 22,
+  "status_counts": {
+    "PASS": 17,
+    "MATERIAL_DIFFERENCE": 2,
+    "NOT_EVALUATED": 3
+  },
+  "checks": [
+    {
+      "check_id": "arith:golden-11ff148c:Orcamento Analitico:2:qty_x_pu",
+      "item_id": "golden-11ff148c:Orcamento Analitico:2",
+      "formula_expected": "quantity * unit_sale_price = total_sale_price",
+      "formula_observed": "10.0 * 100.0 = 1000.0",
+      "reported_value": 1000.0,
+      "recomputed_value": 1000.0,
+      "status": "PASS",
+      "absolute_difference": 0.0,
+      "relative_difference": 0.0,
+      "tolerance": 0.01,
+      "severity_hint": "INFO",
+      "price_total_pair": "sale",
+      "source_cells": [
+        "Orcamento Analitico!E2",
+        "Orcamento Analitico!H2",
+        "Orcamento Analitico!I2",
+        "Orcamento Analitico!F2"
+      ]
+    },
+    {
+      "check_id": "arith:golden-11ff148c:Orcamento Analitico:2:direct_plus_bdi",
+      "item_id": "golden-11ff148c:Orcamento Analitico:2",
+      "formula_expected": "unit_direct * (1 + bdi_frac) = unit_sale",
+      "formula_observed": "80.0 * (1 + 0.25) = 100.0",
+      "bdi_interpretation": {
+        "raw": 25.0,
+        "fraction_used": 0.25,
+        "rule": "abs<=1 => fraction else percent_points/100"
+      },
+      "reported_value": 100.0,
+      "recomputed_value": 100.0,
+      "status": "PASS",
+      "absolute_difference": 0.0,
+      "relative_difference": 0.0,
+      "tolerance": 0.01,
+      "severity_hint": "INFO",
+      "source_cells": [
+        "Orcamento Analitico!E2",
+        "Orcamento Analitico!H2",
+        "Orcamento Analitico!I2",
+        "Orcamento Analitico!F2"
+      ]
+    },
+    {
+      "check_id": "arith:golden-11ff148c:Orcamento Analitico:3:qty_x_pu",
+      "item_id": "golden-11ff148c:Orcamento Analitico:3",
+      "formula_expected": "quantity * unit_sale_price = total_sale_price",
+      "formula_observed": "5.0 * 50.0 = 250.0",
+      "reported_value": 300.0,
+      "recomputed_value": 250.0,
+      "status": "MATERIAL_DIFFERENCE",
+      "absolute_difference": 50.0,
+      "relative_difference": 16.666666666666664,
+      "tolerance": 0.01,
+      "severity_hint": "MEDIUM",
+      "price_total_pair": "sale",
+      "source_cells": [
+        "Orcamento Analitico!E3",
+        "Orcamento Analitico!H3",
+        "Orcamento Analitico!I3",
+        "Orcamento Analitico!F3"
+      ]
+    },
+    {
+      "check_id": "arith:golden-11ff148c:Orcamento Analitico:3:direct_plus_bdi",
+      "item_id": "golden-11ff148c:Orcamento Analitico:3",
+      "formula_expected": "unit_direct * (1 + bdi_frac) = unit_sale",
+      "formula_observed": "40.0 * (1 + 0.25) = 50.0",
+      "bdi_interpretation": {
+        "raw": 25.0,
+        "fraction_used": 0.25,
+        "rule": "abs<=1 => fraction else percent_points/100"
+      },
+      "reported_value": 50.0,
+      "recomputed_value": 50.0,
+      "status": "PASS",
+      "absolute_difference": 0.0,
+      "relative_difference": 0.0,
+      "tolerance": 0.01,
+      "severity_hint": "INFO",
+      "source_cells": [
+        "Orcamento Analitico!E3",
+        "Orcamento Analitico!H3",
+        "Orcamento Analitico!I3",
+        "Orcamento Analitico!F3"
+      ]
+    },
+    {
+      "check_id": "arith:golden-11ff148c:Orcamento Analitico:4:qty_x_pu",
+      "item_id": "golden-11ff148c:Orcamento Analitico:4",
+      "formula_expected": "quantity * unit_price = total",
+      "formula_observed": null,
+      "reported_value": null,
+      "recomputed_value": null,
+      "status": "NOT_EVALUATED",
+      "reason": "missing_operands",
+      "source_cells": [
+        "Orcamento Analitico!E4",
+        "Orcamento Analitico!H4",
+        "Orcamento Analitico!I4",
+        "Orcamento Analitico!F4"
+      ],
+      "absolute_difference": null,
+      "relative_difference": null,
+      "tolerance": 0.01
+    },
+    {
+      "check_id": "arith:golden-11ff148c:Orcamento Analitico:4:direct_plus_bdi",
+      "item_id": "golden-11ff148c:Orcamento Analitico:4",
+      "formula_expected": "unit_direct * (1 + bdi_frac) = unit_sale",
+      "formula_observed": "8.0 * (1 + 0.25) = 10.0",
+      "bdi_interpretation": {
+        "raw": 25.0,
+        "fraction_used": 0.25,
+        "rule": "abs<=1 => fraction else percent_points/100"
+      },
+      "reported_value": 10.0,
+      "recomputed_value": 10.0,
+      "status": "PASS",
+      "absolute_difference": 0.0,
+      "relative_difference": 0.0,
+      "tolerance": 0.01,
+      "severity_hint": "INFO",
+      "source_cells": [
+        "Orcamento Analitico!E4",
+        "Orcamento Analitico!H4",
+        "Orcamento Analitico!I4",
+        "Orcamento Analitico!F4"
+      ]
+    },
+    {
+      "check_id": "arith:golden-11ff148c:Orcamento Analitico:5:qty_x_pu",
+      "item_id": "golden-11ff148c:Orcamento Analitico:5",
+      "formula_expected": "quantity * unit_sale_price = total_sale_price",
+      "formula_observed": "2.0 * 100.0 = 200.0",
+      "reported_value": 200.0,
+      "recomputed_value": 200.0,
+      "status": "PASS",
+      "absolute_difference": 0.0,
+      "relative_difference": 0.0,
+      "tolerance": 0.01,
+      "severity_hint": "INFO",
+      "price_total_pair": "sale",
+      "source_cells": [
+        "Orcamento Analitico!E5",
+        "Orcamento Analitico!H5",
+        "Orcamento Analitico!I5",
+        "Orcamento Analitico!F5"
+      ]
+    },
+    {
+      "check_id": "arith:golden-11ff148c:Orcamento Analitico:5:direct_plus_bdi",
+      "item_id": "golden-11ff148c:Orcamento Analitico:5",
+      "formula_expected": "unit_direct * (1 + bdi_frac) = unit_sale",
+      "formula_observed": "80.0 * (1 + 0.25) = 100.0",
+      "bdi_interpretation": {
+        "raw": 25.0,
+        "fraction_used": 0.25,
+        "rule": "abs<=1 => fraction else percent_points/100"
+      },
+      "reported_value": 100.0,
+      "recomputed_value": 100.0,
+      "status": "PASS",
+      "absolute_difference": 0.0,
+      "relative_difference": 0.0,
+      "tolerance": 0.01,
+      "severity_hint": "INFO",
+      "source_cells": [
+        "Orcamento Analitico!E5",
+        "Orcamento Analitico!H5",
+        "Orcamento Analitico!I5",
+        "Orcamento Analitico!F5"
+      ]
+    },
+    {
+      "check_id": "arith:golden-11ff148c:Orcamento Analitico:6:qty_x_pu",
+      "item_id": "golden-11ff148c:Orcamento Analitico:6",
+      "formula_expected": "quantity * unit_sale_price = total_sale_price",
+      "formula_observed": "1.0 * 50.0 = 50.0",
+      "reported_value": 50.0,
+      "recomputed_value": 50.0,
+      "status": "PASS",
+      "absolute_difference": 0.0,
+      "relative_difference": 0.0,
+      "tolerance": 0.01,
+      "severity_hint": "INFO",
+      "price_total_pair": "sale",
+      "source_cells": [
+        "Orcamento Analitico!E6",
+        "Orcamento Analitico!H6",
+        "Orcamento Analitico!I6",
+        "Orcamento Analitico!F6"
+      ]
+    },
+    {
+      "check_id": "arith:golden-11ff148c:Orcamento Analitico:6:direct_plus_bdi",
+      "item_id": "golden-11ff148c:Orcamento Analitico:6",
+      "formula_expected": "unit_direct * (1 + bdi_frac) = unit_sale",
+      "formula_observed": "40.0 * (1 + 0.25) = 50.0",
+      "bdi_interpretation": {
+        "raw": 25.0,
+        "fraction_used": 0.25,
+        "rule": "abs<=1 => fraction else percent_points/100"
+      },
+      "reported_value": 50.0,
+      "recomputed_value": 50.0,
+      "status": "PASS",
+      "absolute_difference": 0.0,
+      "relative_difference": 0.0,
+      "tolerance": 0.01,
+      "severity_hint": "INFO",
+      "source_cells": [
+        "Orcamento Analitico!E6",
+        "Orcamento Analitico!H6",
+        "Orcamento Analitico!I6",
+        "Orcamento Analitico!F6"
+      ]
+    },
+    {
+      "check_id": "arith:golden-11ff148c:Orcamento Analitico:7:qty_x_pu",
+      "item_id": "golden-11ff148c:Orcamento Analitico:7",
+      "formula_expected": "quantity * unit_sale_price = total_sale_price",
+      "formula_observed": "1.0 * 1250.0 = 1250.0",
+      "reported_value": 1250.0,
+      "recomputed_value": 1250.0,
+      "status": "PASS",
+      "absolute_difference": 0.0,
+      "relative_difference": 0.0,
+      "tolerance": 0.01,
+      "severity_hint": "INFO",
+      "price_total_pair": "sale",
+      "source_cells": [
+        "Orcamento Analitico!E7",
+        "Orcamento Analitico!H7",
+        "Orcamento Analitico!I7",
+        "Orcamento Analitico!F7"
+      ]
+    },
+    {
+      "check_id": "arith:golden-11ff148c:Orcamento Analitico:7:direct_plus_bdi",
+      "item_id": "golden-11ff148c:Orcamento Analitico:7",
+      "formula_expected": "unit_direct * (1 + bdi_frac) = unit_sale",
+      "formula_observed": "1000.0 * (1 + 0.25) = 1250.0",
+      "bdi_interpretation": {
+        "raw": 25.0,
+        "fraction_used": 0.25,
+        "rule": "abs<=1 => fraction else percent_points/100"
+      },
+      "reported_value": 1250.0,
+      "recomputed_value": 1250.0,
+      "status": "PASS",
+      "absolute_difference": 0.0,
+      "relative_difference": 0.0,
+      "tolerance": 0.01,
+      "severity_hint": "INFO",
+      "source_cells": [
+        "Orcamento Analitico!E7",
+        "Orcamento Analitico!H7",
+        "Orcamento Analitico!I7",
+        "Orcamento Analitico!F7"
+      ]
+    },
+    {
+      "check_id": "arith:golden-11ff148c:Orcamento Analitico:8:qty_x_pu",
+      "item_id": "golden-11ff148c:Orcamento Analitico:8",
+      "formula_expected": "quantity * unit_sale_price = total_sale_price",
+      "formula_observed": "1.0 * 156.25 = 156.25",
+      "reported_value": 156.25,
+      "recomputed_value": 156.25,
+      "status": "PASS",
+      "absolute_difference": 0.0,
+      "relative_difference": 0.0,
+      "tolerance": 0.01,
+      "severity_hint": "INFO",
+      "price_total_pair": "sale",
+      "source_cells": [
+        "Orcamento Analitico!E8",
+        "Orcamento Analitico!H8",
+        "Orcamento Analitico!I8",
+        "Orcamento Analitico!F8"
+      ]
+    },
+    {
+      "check_id": "arith:golden-11ff148c:Orcamento Analitico:8:direct_plus_bdi",
+      "item_id": "golden-11ff148c:Orcamento Analitico:8",
+      "formula_expected": "unit_direct * (1 + bdi_frac) = unit_sale",
+      "formula_observed": "100.0 * (1 + 0.25) = 125.0",
+      "bdi_interpretation": {
+        "raw": 25.0,
+        "fraction_used": 0.25,
+        "rule": "abs<=1 => fraction else percent_points/100"
+      },
+      "reported_value": 156.25,
+      "recomputed_value": 125.0,
+      "status": "MATERIAL_DIFFERENCE",
+      "absolute_difference": 31.25,
+      "relative_difference": 20.0,
+      "tolerance": 0.01,
+      "severity_hint": "MEDIUM",
+      "source_cells": [
+        "Orcamento Analitico!E8",
+        "Orcamento Analitico!H8",
+        "Orcamento Analitico!I8",
+        "Orcamento Analitico!F8"
+      ]
+    },
+    {
+      "check_id": "arith:golden-11ff148c:Orcamento Analitico:9:qty_x_pu",
+      "item_id": "golden-11ff148c:Orcamento Analitico:9",
+      "formula_expected": "quantity * unit_sale_price = total_sale_price",
+      "formula_observed": "-2.0 * 12.5 = -25.0",
+      "reported_value": -25.0,
+      "recomputed_value": -25.0,
+      "status": "PASS",
+      "absolute_difference": 0.0,
+      "relative_difference": 0.0,
+      "tolerance": 0.01,
+      "severity_hint": "INFO",
+      "price_total_pair": "sale",
+      "source_cells": [
+        "Orcamento Analitico!E9",
+        "Orcamento Analitico!H9",
+        "Orcamento Analitico!I9",
+        "Orcamento Analitico!F9"
+      ]
+    },
+    {
+      "check_id": "arith:golden-11ff148c:Orcamento Analitico:9:direct_plus_bdi",
+      "item_id": "golden-11ff148c:Orcamento Analitico:9",
+      "formula_expected": "unit_direct * (1 + bdi_frac) = unit_sale",
+      "formula_observed": "10.0 * (1 + 0.25) = 12.5",
+      "bdi_interpretation": {
+        "raw": 25.0,
+        "fraction_used": 0.25,
+        "rule": "abs<=1 => fraction else percent_points/100"
+      },
+      "reported_value": 12.5,
+      "recomputed_value": 12.5,
+      "status": "PASS",
+      "absolute_difference": 0.0,
+      "relative_difference": 0.0,
+      "tolerance": 0.01,
+      "severity_hint": "INFO",
+      "source_cells": [
+        "Orcamento Analitico!E9",
+        "Orcamento Analitico!H9",
+        "Orcamento Analitico!I9",
+        "Orcamento Analitico!F9"
+      ]
+    },
+    {
+      "check_id": "arith:golden-11ff148c:Orcamento Analitico:10:qty_x_pu",
+      "item_id": "golden-11ff148c:Orcamento Analitico:10",
+      "formula_expected": "quantity * unit_sale_price = total_sale_price",
+      "formula_observed": "0.0 * 12.5 = 0.0",
+      "reported_value": 0.0,
+      "recomputed_value": 0.0,
+      "status": "PASS",
+      "absolute_difference": 0.0,
+      "relative_difference": 0.0,
+      "tolerance": 0.01,
+      "severity_hint": "INFO",
+      "price_total_pair": "sale",
+      "source_cells": [
+        "Orcamento Analitico!E10",
+        "Orcamento Analitico!H10",
+        "Orcamento Analitico!I10",
+        "Orcamento Analitico!F10"
+      ]
+    },
+    {
+      "check_id": "arith:golden-11ff148c:Orcamento Analitico:10:direct_plus_bdi",
+      "item_id": "golden-11ff148c:Orcamento Analitico:10",
+      "formula_expected": "unit_direct * (1 + bdi_frac) = unit_sale",
+      "formula_observed": "10.0 * (1 + 0.25) = 12.5",
+      "bdi_interpretation": {
+        "raw": 25.0,
+        "fraction_used": 0.25,
+        "rule": "abs<=1 => fraction else percent_points/100"
+      },
+      "reported_value": 12.5,
+      "recomputed_value": 12.5,
+      "status": "PASS",
+      "absolute_difference": 0.0,
+      "relative_difference": 0.0,
+      "tolerance": 0.01,
+      "severity_hint": "INFO",
+      "source_cells": [
+        "Orcamento Analitico!E10",
+        "Orcamento Analitico!H10",
+        "Orcamento Analitico!I10",
+        "Orcamento Analitico!F10"
+      ]
+    },
+    {
+      "check_id": "arith:golden-11ff148c:Orcamento Analitico:11:qty_x_pu",
+      "item_id": "golden-11ff148c:Orcamento Analitico:11",
+      "formula_expected": "quantity * unit_sale_price = total_sale_price",
+      "formula_observed": "3.0 * 25.0 = 75.0",
+      "reported_value": 75.0,
+      "recomputed_value": 75.0,
+      "status": "PASS",
+      "absolute_difference": 0.0,
+      "relative_difference": 0.0,
+      "tolerance": 0.01,
+      "severity_hint": "INFO",
+      "price_total_pair": "sale",
+      "source_cells": [
+        "Orcamento Analitico!E11",
+        "Orcamento Analitico!H11",
+        "Orcamento Analitico!I11",
+        "Orcamento Analitico!F11"
+      ]
+    },
+    {
+      "check_id": "arith:golden-11ff148c:Orcamento Analitico:11:direct_plus_bdi",
+      "item_id": "golden-11ff148c:Orcamento Analitico:11",
+      "formula_expected": "unit_direct * (1 + bdi_frac) = unit_sale",
+      "formula_observed": "20.0 * (1 + 0.25) = 25.0",
+      "bdi_interpretation": {
+        "raw": 25.0,
+        "fraction_used": 0.25,
+        "rule": "abs<=1 => fraction else percent_points/100"
+      },
+      "reported_value": 25.0,
+      "recomputed_value": 25.0,
+      "status": "PASS",
+      "absolute_difference": 0.0,
+      "relative_difference": 0.0,
+      "tolerance": 0.01,
+      "severity_hint": "INFO",
+      "source_cells": [
+        "Orcamento Analitico!E11",
+        "Orcamento Analitico!H11",
+        "Orcamento Analitico!I11",
+        "Orcamento Analitico!F11"
+      ]
+    },
+    {
+      "check_id": "arith:golden-11ff148c:Curva ABC:2:qty_x_pu",
+      "item_id": "golden-11ff148c:Curva ABC:2",
+      "formula_expected": "quantity * unit_price = total",
+      "formula_observed": null,
+      "reported_value": 1000.0,
+      "recomputed_value": null,
+      "status": "NOT_EVALUATED",
+      "reason": "missing_operands",
+      "source_cells": [
+        "Curva ABC!D2",
+        "Curva ABC!E2"
+      ],
+      "absolute_difference": null,
+      "relative_difference": null,
+      "tolerance": 0.01
+    },
+    {
+      "check_id": "arith:golden-11ff148c:Curva ABC:3:qty_x_pu",
+      "item_id": "golden-11ff148c:Curva ABC:3",
+      "formula_expected": "quantity * unit_price = total",
+      "formula_observed": null,
+      "reported_value": 1250.0,
+      "recomputed_value": null,
+      "status": "NOT_EVALUATED",
+      "reason": "missing_operands",
+      "source_cells": [
+        "Curva ABC!D3",
+        "Curva ABC!E3"
+      ],
+      "absolute_difference": null,
+      "relative_difference": null,
+      "tolerance": 0.01
+    }
+  ],
+  "policy": {
+    "absolute_tolerance_brl": 0.01,
+    "relative_tolerance_pct": 0.05,
+    "rounding_tolerance": 0.005,
+    "materiality_brl": 100.0,
+    "materiality_pct_of_total": 0.1
+  }
+}

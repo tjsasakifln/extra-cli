@@ -1,0 +1,278 @@
+{
+  "items": [
+    {
+      "finding_id": "F-0001",
+      "severity": "CRITICAL",
+      "classification": "IDENTITY_MISMATCH",
+      "requirement_id": "REQ-JUR-003",
+      "title": "Inconsistency for REQ-JUR-003",
+      "objective_observation": "identity inconsistency: REPRESENTATION_POWER_UNPROVEN, SIGNATORY_NOT_FOUND",
+      "interpretation": "Operational observation — not a legal opinion.",
+      "document_ids": [
+        "doc-03_procuracao_fraca"
+      ],
+      "source_locators": [],
+      "validation_rule": "IDENTITY_MISMATCH",
+      "deadline": null,
+      "impact": "Risk of inabilitação",
+      "recommended_action": "Replace document or correct cadastro",
+      "limitations": [
+        "Human review required before protocol."
+      ],
+      "review_status": "OPEN"
+    },
+    {
+      "finding_id": "F-0002",
+      "severity": "CRITICAL",
+      "classification": "IDENTITY_MISMATCH",
+      "requirement_id": "REQ-JUR-004",
+      "title": "Inconsistency for REQ-JUR-004",
+      "objective_observation": "identity inconsistency: SIGNATORY_NOT_FOUND",
+      "interpretation": "Operational observation — not a legal opinion.",
+      "document_ids": [
+        "doc-04_documento_signatario"
+      ],
+      "source_locators": [],
+      "validation_rule": "IDENTITY_MISMATCH",
+      "deadline": null,
+      "impact": "Risk of inabilitação",
+      "recommended_action": "Replace document or correct cadastro",
+      "limitations": [
+        "Human review required before protocol."
+      ],
+      "review_status": "OPEN"
+    },
+    {
+      "finding_id": "F-0003",
+      "severity": "CRITICAL",
+      "classification": "EXPIRED_DOCUMENT",
+      "requirement_id": "REQ-FIS-002",
+      "title": "Expired document for REQ-FIS-002",
+      "objective_observation": "document expired",
+      "interpretation": "Operational observation — not a legal opinion.",
+      "document_ids": [
+        "doc-06_certidao_estadual_vencida"
+      ],
+      "source_locators": [],
+      "validation_rule": "EXPIRED_DOCUMENT",
+      "deadline": null,
+      "impact": "Risk of inabilitação",
+      "recommended_action": "Renew document",
+      "limitations": [
+        "Human review required before protocol."
+      ],
+      "review_status": "OPEN"
+    },
+    {
+      "finding_id": "F-0004",
+      "severity": "CRITICAL",
+      "classification": "IDENTITY_MISMATCH",
+      "requirement_id": "REQ-FIS-003",
+      "title": "Inconsistency for REQ-FIS-003",
+      "objective_observation": "identity inconsistency: CNPJ_MISMATCH, LEGAL_NAME_MISMATCH",
+      "interpretation": "Operational observation — not a legal opinion.",
+      "document_ids": [
+        "doc-07_certidao_municipal_cnpj_outro"
+      ],
+      "source_locators": [],
+      "validation_rule": "IDENTITY_MISMATCH",
+      "deadline": null,
+      "impact": "Risk of inabilitação",
+      "recommended_action": "Replace document or correct cadastro",
+      "limitations": [
+        "Human review required before protocol."
+      ],
+      "review_status": "OPEN"
+    },
+    {
+      "finding_id": "F-0005",
+      "severity": "CRITICAL",
+      "classification": "EXPIRED_DOCUMENT",
+      "requirement_id": "REQ-FIS-005",
+      "title": "Expired document for REQ-FIS-005",
+      "objective_observation": "document expired",
+      "interpretation": "Operational observation — not a legal opinion.",
+      "document_ids": [
+        "doc-09_cndt_expiring"
+      ],
+      "source_locators": [],
+      "validation_rule": "EXPIRED_DOCUMENT",
+      "deadline": null,
+      "impact": "Risk of inabilitação",
+      "recommended_action": "Renew document",
+      "limitations": [
+        "Human review required before protocol."
+      ],
+      "review_status": "OPEN"
+    },
+    {
+      "finding_id": "F-0006",
+      "severity": "HIGH",
+      "classification": "AMBIGUOUS_EVIDENCE",
+      "requirement_id": "REQ-DEC-001",
+      "title": "Partial evidence for REQ-DEC-001",
+      "objective_observation": "document present but signature missing",
+      "interpretation": "Operational observation — not a legal opinion.",
+      "document_ids": [
+        "doc-17_declaracao_sem_assinatura"
+      ],
+      "source_locators": [],
+      "validation_rule": "AMBIGUOUS_EVIDENCE",
+      "deadline": null,
+      "impact": "May be insufficient",
+      "recommended_action": "Complete evidence",
+      "limitations": [
+        "Human review required before protocol."
+      ],
+      "review_status": "OPEN"
+    },
+    {
+      "finding_id": "F-0007",
+      "severity": "CRITICAL",
+      "classification": "MISSING_DOCUMENT",
+      "requirement_id": "REQ-GAR-001",
+      "title": "Missing mandatory document for REQ-GAR-001",
+      "objective_observation": "no document of required type",
+      "interpretation": "Operational observation — not a legal opinion.",
+      "document_ids": [],
+      "source_locators": [],
+      "validation_rule": "MISSING_DOCUMENT",
+      "deadline": null,
+      "impact": "Risk of inabilitação",
+      "recommended_action": "Obtain and ingest required document",
+      "limitations": [
+        "Human review required before protocol."
+      ],
+      "review_status": "OPEN"
+    },
+    {
+      "finding_id": "F-0008",
+      "severity": "CRITICAL",
+      "classification": "IDENTITY_MISMATCH",
+      "requirement_id": "REQ-FIS-006",
+      "title": "Inconsistency for REQ-FIS-006",
+      "objective_observation": "identity inconsistency: CNPJ_MISMATCH, LEGAL_NAME_MISMATCH",
+      "interpretation": "Operational observation — not a legal opinion.",
+      "document_ids": [
+        "doc-07_certidao_municipal_cnpj_outro"
+      ],
+      "source_locators": [],
+      "validation_rule": "IDENTITY_MISMATCH",
+      "deadline": null,
+      "impact": "Risk of inabilitação",
+      "recommended_action": "Replace document or correct cadastro",
+      "limitations": [
+        "Human review required before protocol."
+      ],
+      "review_status": "OPEN"
+    },
+    {
+      "finding_id": "F-0009",
+      "severity": "HIGH",
+      "classification": "NEEDS_HUMAN",
+      "requirement_id": "REQ-HUM-001",
+      "title": "Human review required for REQ-HUM-001",
+      "objective_observation": "human interpretation required — engineer/legal review before any SATISFIED",
+      "interpretation": "Operational observation — not a legal opinion.",
+      "document_ids": [
+        "doc-12_atestado_ok",
+        "doc-13_atestado_insuficiente",
+        "doc-16_atestado_unidade_errada",
+        "doc-22_atestado_textual_fraco"
+      ],
+      "source_locators": [],
+      "validation_rule": "NEEDS_HUMAN",
+      "deadline": null,
+      "impact": "Protocol remains blocked for human decision",
+      "recommended_action": "Engineer/legal review",
+      "limitations": [
+        "Human review required before protocol."
+      ],
+      "review_status": "OPEN"
+    },
+    {
+      "finding_id": "F-0010",
+      "severity": "CRITICAL",
+      "classification": "SIGNATORY_PROBLEM",
+      "requirement_id": null,
+      "title": "Representation power unproven on doc-03_procuracao_fraca",
+      "objective_observation": "powers missing or insufficient for bid acts",
+      "interpretation": "Operational observation — not a legal opinion.",
+      "document_ids": [
+        "doc-03_procuracao_fraca"
+      ],
+      "source_locators": [],
+      "validation_rule": "SIGNATORY_PROBLEM",
+      "deadline": null,
+      "impact": "Signature may be invalid for protocol",
+      "recommended_action": "Obtain procura with sufficient powers",
+      "limitations": [
+        "Human review required before protocol."
+      ],
+      "review_status": "OPEN"
+    },
+    {
+      "finding_id": "F-0011",
+      "severity": "HIGH",
+      "classification": "SIGNATORY_PROBLEM",
+      "requirement_id": null,
+      "title": "Signatory problem on doc-03_procuracao_fraca",
+      "objective_observation": "SIGNATORY_MISMATCH",
+      "interpretation": "Operational observation — not a legal opinion.",
+      "document_ids": [
+        "doc-03_procuracao_fraca"
+      ],
+      "source_locators": [],
+      "validation_rule": "SIGNATORY_PROBLEM",
+      "deadline": null,
+      "impact": "Representation unclear",
+      "recommended_action": "Align signatory evidence",
+      "limitations": [
+        "Human review required before protocol."
+      ],
+      "review_status": "OPEN"
+    },
+    {
+      "finding_id": "F-0012",
+      "severity": "HIGH",
+      "classification": "SIGNATORY_PROBLEM",
+      "requirement_id": null,
+      "title": "Signatory problem on doc-04_documento_signatario",
+      "objective_observation": "SIGNATORY_NOT_FOUND",
+      "interpretation": "Operational observation — not a legal opinion.",
+      "document_ids": [
+        "doc-04_documento_signatario"
+      ],
+      "source_locators": [],
+      "validation_rule": "SIGNATORY_PROBLEM",
+      "deadline": null,
+      "impact": "Representation unclear",
+      "recommended_action": "Align signatory evidence",
+      "limitations": [
+        "Human review required before protocol."
+      ],
+      "review_status": "OPEN"
+    },
+    {
+      "finding_id": "F-0013",
+      "severity": "CRITICAL",
+      "classification": "IDENTITY_MISMATCH",
+      "requirement_id": null,
+      "title": "CNPJ mismatch on doc-07_certidao_municipal_cnpj_outro",
+      "objective_observation": "document CNPJ 99999999000191 != expected 12345678000199",
+      "interpretation": "Operational observation — not a legal opinion.",
+      "document_ids": [
+        "doc-07_certidao_municipal_cnpj_outro"
+      ],
+      "source_locators": [],
+      "validation_rule": "IDENTITY_MISMATCH",
+      "deadline": null,
+      "impact": "Wrong entity document",
+      "recommended_action": "Remove foreign CNPJ document",
+      "limitations": [
+        "Human review required before protocol."
+      ],
+      "review_status": "OPEN"
+    }
+  ]
+}

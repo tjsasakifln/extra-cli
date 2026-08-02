@@ -1,0 +1,15 @@
+{
+  "bandit": {
+    "command": "bandit -r adapters/pncp.py entity_queue.py",
+    "issues": 2,
+    "note": "issue count informational; CI Security bandit is gate"
+  },
+  "code_sha": "610442b5f2607ca0901fc96a8bc84a2e5bb1e4e5",
+  "reproof_on_head": "610442b5f2607ca0901fc96a8bc84a2e5bb1e4e5",
+  "result": "PASS",
+  "ruff": {
+    "command": "ruff check scripts/process_documents/entity_queue.py collect.py production_readiness/",
+    "ok": true
+  },
+  "timestamp": "2026-08-02T12:25:51.449443+00:00"
+}

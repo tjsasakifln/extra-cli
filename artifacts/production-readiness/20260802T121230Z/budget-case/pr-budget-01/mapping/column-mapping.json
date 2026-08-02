@@ -1,0 +1,76 @@
+[
+  {
+    "sheet": "Orcamento Analitico",
+    "header_row": 1,
+    "headers": [
+      "Item",
+      "Código",
+      "Descrição",
+      "Unidade",
+      "Quantidade",
+      "Custo Unit",
+      "BDI %",
+      "Preço Unit",
+      "Preço Total"
+    ],
+    "field_columns": {
+      "item_number": 1,
+      "code": 2,
+      "description": 3,
+      "unit": 4,
+      "quantity": 5,
+      "unit_direct_cost": 6,
+      "unit_sale_price": 8,
+      "total_sale_price": 9,
+      "total_direct_cost": null,
+      "bdi_pct": 7,
+      "unit_material_cost": null,
+      "unit_labor_cost": null,
+      "unit_equipment_cost": null
+    },
+    "fields_mapped": {
+      "item_number": 1,
+      "code": 2,
+      "description": 3,
+      "unit": 4,
+      "quantity": 5,
+      "unit_direct_cost": 6,
+      "unit_sale_price": 8,
+      "total_sale_price": 9,
+      "bdi_pct": 7
+    }
+  },
+  {
+    "sheet": "Curva ABC",
+    "header_row": 1,
+    "headers": [
+      "Código",
+      "Descrição",
+      "Unidade",
+      "Quantidade",
+      "Preço Total"
+    ],
+    "field_columns": {
+      "item_number": null,
+      "code": 1,
+      "description": 2,
+      "unit": 3,
+      "quantity": 4,
+      "unit_direct_cost": null,
+      "unit_sale_price": null,
+      "total_sale_price": 5,
+      "total_direct_cost": null,
+      "bdi_pct": null,
+      "unit_material_cost": null,
+      "unit_labor_cost": null,
+      "unit_equipment_cost": null
+    },
+    "fields_mapped": {
+      "code": 1,
+      "description": 2,
+      "unit": 3,
+      "quantity": 4,
+      "total_sale_price": 5
+    }
+  }
+]

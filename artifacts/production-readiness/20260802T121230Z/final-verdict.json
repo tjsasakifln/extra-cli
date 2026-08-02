@@ -1,0 +1,30 @@
+{
+  "code_sha": "610442b5f2607ca0901fc96a8bc84a2e5bb1e4e5",
+  "gates": {
+    "A_code": "PASS",
+    "B_quality": "PASS — CI green on HEAD + local suite slice",
+    "C_e2e": "PASS — Playwright consulting-production.spec.ts 12/12 (16 flows) re-run on HEAD",
+    "D_scale": "PASS — full-scale dual-run pncp_supplier_contracts 4479442 rows, accepted 4402632, checksum match on HEAD",
+    "E_operation": "PASS — lag_cleared 407/407 + 2 incrementals (pack 20260802T115800Z included)",
+    "F_observability": "PASS — alert_pipeline self-check + dry-run + live path executed; ledger fallback fires; external webhook unset (non-claim)",
+    "G_recovery": "PASS — local_backup_restore_proof ok src=dst tables re-run on HEAD",
+    "H_real_case": "PASS — live technical_acervo match + budget/bid case package + deliverables present"
+  },
+  "non_claims": [
+    "Official licensed SINAPI bulk dump not claimed",
+    "External https webhook delivery not configured (NOTIFY_WEBHOOK_URL unset); ledger fallback proven"
+  ],
+  "proofs": {
+    "alerts_path_ok": true,
+    "backup_ok": true,
+    "documents_downloaded_session": 332,
+    "full_scale_accepted": 4402632,
+    "full_scale_dual_match": true,
+    "lag_cleared": true,
+    "playwright_passed": 12,
+    "restore_tables": "108=108"
+  },
+  "reproof_on_head": "610442b5f2607ca0901fc96a8bc84a2e5bb1e4e5",
+  "terminal_state": "PASS_PRODUCTION_READINESS_IMPLEMENTED_AND_PROVEN",
+  "timestamp": "2026-08-02T12:25:51.888454+00:00"
+}

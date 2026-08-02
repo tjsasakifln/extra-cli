@@ -1,0 +1,10 @@
+---META---
+{"document_type": "ATESTADO_CAPACIDADE_TECNICA"}
+---ENDMETA---
+
+Atestado de Capacidade Técnica
+Atestamos para os devidos fins
+Objeto: pavimentacao asfaltica
+Quantidade: 8000
+Unidade: m3
+Contratada: EXTRA CONSTRUTORA FICTICIA LTDA

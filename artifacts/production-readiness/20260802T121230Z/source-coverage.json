@@ -1,0 +1,24 @@
+{
+  "schema": "production-readiness.source-coverage.v1",
+  "captured_at": "2026-08-02T11:58:18.646399+00:00",
+  "runs_by_source": {
+    "pncp": 265,
+    "html": 64,
+    "ciga": 307
+  },
+  "downloads_by_source": {
+    "ciga": 4,
+    "pncp": 327,
+    "html": 1
+  },
+  "session_status": {
+    "connection_failed": 196,
+    "SUCCESS_NONZERO": 340,
+    "SUCCESS_ZERO": 89,
+    "auth_required": 7,
+    "partial": 2,
+    "pagination_incomplete": 2
+  },
+  "session_runs_total": 636,
+  "session_docs_downloaded": 332
+}

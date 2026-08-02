@@ -1,0 +1,202 @@
+{
+  "contract_version": "1.0.0",
+  "package_status": "BLOCKED_BY_TECHNICAL_QUALIFICATION",
+  "findings": [
+    {
+      "contract": "readiness_finding",
+      "contract_version": "1.0.0",
+      "requirement": {
+        "contract": "edital_requirement",
+        "contract_version": "1.0.0",
+        "requirement_id": "REQ-TEC-001",
+        "text": "pavimentacao asfaltica",
+        "service": "pavimentacao asfaltica",
+        "quantity": 5000,
+        "unit": "m2",
+        "mandatory": true,
+        "required_document_type": null,
+        "allow_sum": true,
+        "origin": {
+          "document_id": null,
+          "document_hash": null,
+          "page": null,
+          "item": null,
+          "cell": null,
+          "sheet": null,
+          "extracted_text": "",
+          "rule_applied": "edital_case_or_requirements_json"
+        },
+        "limitations": [],
+        "human_action_required": null
+      },
+      "match_status": "MISSING",
+      "technical_match": "NO_MATCH",
+      "technical_acervo_evidence": [],
+      "bid_document_evidence": [],
+      "acervo_raw": {
+        "adherence": "no_match",
+        "allow_sum": true,
+        "sum_total": null,
+        "limitations": [
+          "Resultado é evidência documental, não parecer jurídico de habilitação.",
+          "Análise do edital (parcela de maior relevância, somatório permitido, vínculos RT/PJ) permanece necessária.",
+          "Nenhum item do acervo corresponde semanticamente ao serviço informado.",
+          "CAT profissional não é prova irrestrita de capacidade operacional da pessoa jurídica."
+        ],
+        "human_review_required": true
+      },
+      "limitations": [
+        "Resultado é evidência documental, não parecer jurídico de habilitação.",
+        "Análise do edital (parcela de maior relevância, somatório permitido, vínculos RT/PJ) permanece necessária.",
+        "Nenhum item do acervo corresponde semanticamente ao serviço informado.",
+        "CAT profissional não é prova irrestrita de capacidade operacional da pessoa jurídica.",
+        "Acervo match is decision-support only; engineer review required.",
+        "Default path forbids summing distinct works unless allow_sum=true."
+      ],
+      "human_action_required": true
+    },
+    {
+      "contract": "readiness_finding",
+      "contract_version": "1.0.0",
+      "requirement": {
+        "contract": "edital_requirement",
+        "contract_version": "1.0.0",
+        "requirement_id": "REQ-TEC-002",
+        "text": "pavimentacao",
+        "service": "pavimentacao",
+        "quantity": 5000,
+        "unit": "m2",
+        "mandatory": true,
+        "required_document_type": null,
+        "allow_sum": false,
+        "origin": {
+          "document_id": null,
+          "document_hash": null,
+          "page": null,
+          "item": null,
+          "cell": null,
+          "sheet": null,
+          "extracted_text": "",
+          "rule_applied": "edital_case_or_requirements_json"
+        },
+        "limitations": [],
+        "human_action_required": null
+      },
+      "match_status": "MISSING",
+      "technical_match": "NO_MATCH",
+      "technical_acervo_evidence": [],
+      "bid_document_evidence": [],
+      "acervo_raw": {
+        "adherence": "no_match",
+        "allow_sum": false,
+        "sum_total": null,
+        "limitations": [
+          "Resultado é evidência documental, não parecer jurídico de habilitação.",
+          "Análise do edital (parcela de maior relevância, somatório permitido, vínculos RT/PJ) permanece necessária.",
+          "Nenhum item do acervo corresponde semanticamente ao serviço informado.",
+          "Somatório automático entre obras distintas desabilitado (allow_sum=false).",
+          "CAT profissional não é prova irrestrita de capacidade operacional da pessoa jurídica."
+        ],
+        "human_review_required": true
+      },
+      "limitations": [
+        "Resultado é evidência documental, não parecer jurídico de habilitação.",
+        "Análise do edital (parcela de maior relevância, somatório permitido, vínculos RT/PJ) permanece necessária.",
+        "Nenhum item do acervo corresponde semanticamente ao serviço informado.",
+        "Somatório automático entre obras distintas desabilitado (allow_sum=false).",
+        "CAT profissional não é prova irrestrita de capacidade operacional da pessoa jurídica.",
+        "Acervo match is decision-support only; engineer review required.",
+        "Default path forbids summing distinct works unless allow_sum=true."
+      ],
+      "human_action_required": true
+    },
+    {
+      "contract": "readiness_finding",
+      "contract_version": "1.0.0",
+      "requirement": {
+        "contract": "edital_requirement",
+        "contract_version": "1.0.0",
+        "requirement_id": "REQ-HUM-001",
+        "text": "drenagem profunda especial",
+        "service": "drenagem profunda especial",
+        "quantity": 100,
+        "unit": "m",
+        "mandatory": true,
+        "required_document_type": null,
+        "allow_sum": false,
+        "origin": {
+          "document_id": null,
+          "document_hash": null,
+          "page": null,
+          "item": null,
+          "cell": null,
+          "sheet": null,
+          "extracted_text": "",
+          "rule_applied": "edital_case_or_requirements_json"
+        },
+        "limitations": [],
+        "human_action_required": null
+      },
+      "match_status": "MISSING",
+      "technical_match": "NO_MATCH",
+      "technical_acervo_evidence": [],
+      "bid_document_evidence": [],
+      "acervo_raw": {
+        "adherence": "no_match",
+        "allow_sum": false,
+        "sum_total": null,
+        "limitations": [
+          "Resultado é evidência documental, não parecer jurídico de habilitação.",
+          "Análise do edital (parcela de maior relevância, somatório permitido, vínculos RT/PJ) permanece necessária.",
+          "Nenhum item do acervo corresponde semanticamente ao serviço informado.",
+          "Somatório automático entre obras distintas desabilitado (allow_sum=false).",
+          "CAT profissional não é prova irrestrita de capacidade operacional da pessoa jurídica."
+        ],
+        "human_review_required": true
+      },
+      "limitations": [
+        "Resultado é evidência documental, não parecer jurídico de habilitação.",
+        "Análise do edital (parcela de maior relevância, somatório permitido, vínculos RT/PJ) permanece necessária.",
+        "Nenhum item do acervo corresponde semanticamente ao serviço informado.",
+        "Somatório automático entre obras distintas desabilitado (allow_sum=false).",
+        "CAT profissional não é prova irrestrita de capacidade operacional da pessoa jurídica.",
+        "Acervo match is decision-support only; engineer review required.",
+        "Default path forbids summing distinct works unless allow_sum=true."
+      ],
+      "human_action_required": true
+    }
+  ],
+  "human_decision": {
+    "contract": "human_decision",
+    "contract_version": "1.0.0",
+    "status": "PENDING_HUMAN",
+    "allowed_outcomes": [
+      "BLOCKED_BY_EXPIRED_DOCUMENT",
+      "BLOCKED_BY_HUMAN_DECISION",
+      "BLOCKED_BY_INCONSISTENCY",
+      "BLOCKED_BY_MISSING_DOCUMENT",
+      "BLOCKED_BY_TECHNICAL_QUALIFICATION",
+      "NOT_READY",
+      "READY_FOR_HUMAN_REVIEW"
+    ],
+    "forbidden_outcomes": [
+      "HABILITADA",
+      "PROPOSTA APROVADA",
+      "PROPOSTA_APROVADA",
+      "READY_TO_SUBMIT"
+    ],
+    "auto_submit": false,
+    "auto_outreach": false
+  },
+  "sources": {
+    "technical_acervo": "data/extra_technical_acervo.json",
+    "edital_case": "scripts.edital_case (requirements + locators)",
+    "bid_readiness": "scripts.bid_readiness (identity/validity/package)"
+  },
+  "non_claims": [
+    "Not READY_TO_SUBMIT",
+    "Not HABILITADA",
+    "Not automatic proposal approval",
+    "Technical match consumes technical_acervo only — no second base"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "checks": {
+    "active_entities": 407,
+    "full_scale_dual_checksum_match": true,
+    "full_scale_publication_allowed": true,
+    "overdue": 0,
+    "queue_lag_cleared": true
+  },
+  "code_sha": "610442b5f2607ca0901fc96a8bc84a2e5bb1e4e5",
+  "reproof_on_head": "610442b5f2607ca0901fc96a8bc84a2e5bb1e4e5",
+  "result": "PASS",
+  "timestamp": "2026-08-02T12:25:51.760104+00:00"
+}

@@ -1,0 +1,20 @@
+[
+  {
+    "code": "88389",
+    "description": "Concreto fck 25 MPa",
+    "unit": "m3",
+    "price": 450.0
+  },
+  {
+    "code": "74109/001",
+    "description": "Servente",
+    "unit": "h",
+    "price": 22.5
+  },
+  {
+    "code": "99901",
+    "description": "Tubo PVC 100mm",
+    "unit": "m",
+    "price": 35.0
+  }
+]

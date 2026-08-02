@@ -1,0 +1,11 @@
+{
+  "code_sha": "610442b5f2607ca0901fc96a8bc84a2e5bb1e4e5",
+  "command": "python -m scripts.ops.local_backup_restore_proof",
+  "dump": "proof-extra_test-20260802T121232Z.dump",
+  "local_backup_restore_proof": true,
+  "log_tail": "local_backup_restore_proof: ok=True src_tables=108 dst_tables=108 dump=proof-extra_test-20260802T121232Z.dump\n",
+  "ok": true,
+  "reproof_on_head": "610442b5f2607ca0901fc96a8bc84a2e5bb1e4e5",
+  "src_tables": 108,
+  "timestamp": "2026-08-02T12:15:48.656109+00:00"
+}

@@ -1,0 +1,296 @@
+{
+  "doc-01_contrato_social": {
+    "cnpj_status": "OK",
+    "name_status": "OK_ABBREVIATION_TOLERANT",
+    "signatory_status": "OK",
+    "power_status": "OK",
+    "document_cnpj": "12345678000199",
+    "expected_cnpj": "12345678000199",
+    "document_name": "EXTRA CONSTRUTORA FICTICIA LTDA",
+    "expected_name": "EXTRA CONSTRUTORA FICTICIA LTDA",
+    "findings": [],
+    "needs_human": false
+  },
+  "doc-02_cartao_cnpj": {
+    "cnpj_status": "OK",
+    "name_status": "OK_ABBREVIATION_TOLERANT",
+    "signatory_status": "OK",
+    "power_status": "OK",
+    "document_cnpj": "12345678000199",
+    "expected_cnpj": "12345678000199",
+    "document_name": "EXTRA CONSTRUTORA FICTICIA LTDA",
+    "expected_name": "EXTRA CONSTRUTORA FICTICIA LTDA",
+    "findings": [],
+    "needs_human": false
+  },
+  "doc-03_procuracao_fraca": {
+    "cnpj_status": "OK",
+    "name_status": "OK_ABBREVIATION_TOLERANT",
+    "signatory_status": "SIGNATORY_MISMATCH",
+    "power_status": "REPRESENTATION_POWER_UNPROVEN",
+    "document_cnpj": "12345678000199",
+    "expected_cnpj": "12345678000199",
+    "document_name": "EXTRA CONSTRUTORA FICTICIA LTDA",
+    "expected_name": "EXTRA CONSTRUTORA FICTICIA LTDA",
+    "findings": [
+      "SIGNATORY_NOT_FOUND",
+      "REPRESENTATION_POWER_UNPROVEN"
+    ],
+    "needs_human": true
+  },
+  "doc-04_documento_signatario": {
+    "cnpj_status": "CNPJ_NOT_FOUND",
+    "name_status": "NAME_NOT_FOUND",
+    "signatory_status": "SIGNATORY_NOT_FOUND",
+    "power_status": "OK",
+    "document_cnpj": null,
+    "expected_cnpj": "12345678000199",
+    "document_name": null,
+    "expected_name": "EXTRA CONSTRUTORA FICTICIA LTDA",
+    "findings": [
+      "POSSIBLE_STALE_DATA",
+      "SIGNATORY_NOT_FOUND",
+      "NEEDS_HUMAN"
+    ],
+    "needs_human": true
+  },
+  "doc-05_certidao_federal_valida": {
+    "cnpj_status": "OK",
+    "name_status": "OK_ABBREVIATION_TOLERANT",
+    "signatory_status": "OK",
+    "power_status": "OK",
+    "document_cnpj": "12345678000199",
+    "expected_cnpj": "12345678000199",
+    "document_name": "EXTRA CONSTRUTORA FICTICIA LTDA",
+    "expected_name": "EXTRA CONSTRUTORA FICTICIA LTDA",
+    "findings": [],
+    "needs_human": false
+  },
+  "doc-06_certidao_estadual_vencida": {
+    "cnpj_status": "OK",
+    "name_status": "OK_ABBREVIATION_TOLERANT",
+    "signatory_status": "OK",
+    "power_status": "OK",
+    "document_cnpj": "12345678000199",
+    "expected_cnpj": "12345678000199",
+    "document_name": "EXTRA CONSTRUTORA FICTICIA LTDA",
+    "expected_name": "EXTRA CONSTRUTORA FICTICIA LTDA",
+    "findings": [],
+    "needs_human": false
+  },
+  "doc-07_certidao_municipal_cnpj_outro": {
+    "cnpj_status": "CNPJ_MISMATCH",
+    "name_status": "LEGAL_NAME_MISMATCH",
+    "signatory_status": "OK",
+    "power_status": "OK",
+    "document_cnpj": "99999999000191",
+    "expected_cnpj": "12345678000199",
+    "document_name": "OUTRA EMPRESA FICTICIA SA",
+    "expected_name": "EXTRA CONSTRUTORA FICTICIA LTDA",
+    "findings": [
+      "CNPJ_MISMATCH",
+      "LEGAL_NAME_MISMATCH"
+    ],
+    "needs_human": false
+  },
+  "doc-08_fgts_valido": {
+    "cnpj_status": "OK",
+    "name_status": "OK_ABBREVIATION_TOLERANT",
+    "signatory_status": "OK",
+    "power_status": "OK",
+    "document_cnpj": "12345678000199",
+    "expected_cnpj": "12345678000199",
+    "document_name": "EXTRA CONSTRUTORA FICTICIA LTDA",
+    "expected_name": "EXTRA CONSTRUTORA FICTICIA LTDA",
+    "findings": [],
+    "needs_human": false
+  },
+  "doc-09_cndt_expiring": {
+    "cnpj_status": "OK",
+    "name_status": "OK_ABBREVIATION_TOLERANT",
+    "signatory_status": "OK",
+    "power_status": "OK",
+    "document_cnpj": "12345678000199",
+    "expected_cnpj": "12345678000199",
+    "document_name": "EXTRA CONSTRUTORA FICTICIA LTDA",
+    "expected_name": "EXTRA CONSTRUTORA FICTICIA LTDA",
+    "findings": [],
+    "needs_human": false
+  },
+  "doc-10_balanco": {
+    "cnpj_status": "OK",
+    "name_status": "OK_ABBREVIATION_TOLERANT",
+    "signatory_status": "OK",
+    "power_status": "OK",
+    "document_cnpj": "12345678000199",
+    "expected_cnpj": "12345678000199",
+    "document_name": "EXTRA CONSTRUTORA FICTICIA LTDA",
+    "expected_name": "EXTRA CONSTRUTORA FICTICIA LTDA",
+    "findings": [],
+    "needs_human": false
+  },
+  "doc-11_certidao_falencia": {
+    "cnpj_status": "OK",
+    "name_status": "OK_ABBREVIATION_TOLERANT",
+    "signatory_status": "OK",
+    "power_status": "OK",
+    "document_cnpj": "12345678000199",
+    "expected_cnpj": "12345678000199",
+    "document_name": "EXTRA CONSTRUTORA FICTICIA LTDA",
+    "expected_name": "EXTRA CONSTRUTORA FICTICIA LTDA",
+    "findings": [],
+    "needs_human": false
+  },
+  "doc-12_atestado_ok": {
+    "cnpj_status": "CNPJ_NOT_FOUND",
+    "name_status": "NAME_NOT_FOUND",
+    "signatory_status": "OK",
+    "power_status": "OK",
+    "document_cnpj": null,
+    "expected_cnpj": "12345678000199",
+    "document_name": null,
+    "expected_name": "EXTRA CONSTRUTORA FICTICIA LTDA",
+    "findings": [
+      "POSSIBLE_STALE_DATA",
+      "NEEDS_HUMAN"
+    ],
+    "needs_human": true
+  },
+  "doc-13_atestado_insuficiente": {
+    "cnpj_status": "CNPJ_NOT_FOUND",
+    "name_status": "NAME_NOT_FOUND",
+    "signatory_status": "OK",
+    "power_status": "OK",
+    "document_cnpj": null,
+    "expected_cnpj": "12345678000199",
+    "document_name": null,
+    "expected_name": "EXTRA CONSTRUTORA FICTICIA LTDA",
+    "findings": [
+      "POSSIBLE_STALE_DATA",
+      "NEEDS_HUMAN"
+    ],
+    "needs_human": true
+  },
+  "doc-14_cat_vinculada": {
+    "cnpj_status": "OK",
+    "name_status": "NAME_NOT_FOUND",
+    "signatory_status": "OK",
+    "power_status": "OK",
+    "document_cnpj": "12345678000199",
+    "expected_cnpj": "12345678000199",
+    "document_name": null,
+    "expected_name": "EXTRA CONSTRUTORA FICTICIA LTDA",
+    "findings": [
+      "NEEDS_HUMAN"
+    ],
+    "needs_human": true
+  },
+  "doc-15_cat_duplicada": {
+    "cnpj_status": "CNPJ_NOT_FOUND",
+    "name_status": "NAME_NOT_FOUND",
+    "signatory_status": "OK",
+    "power_status": "OK",
+    "document_cnpj": null,
+    "expected_cnpj": "12345678000199",
+    "document_name": null,
+    "expected_name": "EXTRA CONSTRUTORA FICTICIA LTDA",
+    "findings": [
+      "POSSIBLE_STALE_DATA",
+      "NEEDS_HUMAN"
+    ],
+    "needs_human": true
+  },
+  "doc-16_atestado_unidade_errada": {
+    "cnpj_status": "CNPJ_NOT_FOUND",
+    "name_status": "NAME_NOT_FOUND",
+    "signatory_status": "OK",
+    "power_status": "OK",
+    "document_cnpj": null,
+    "expected_cnpj": "12345678000199",
+    "document_name": null,
+    "expected_name": "EXTRA CONSTRUTORA FICTICIA LTDA",
+    "findings": [
+      "POSSIBLE_STALE_DATA",
+      "NEEDS_HUMAN"
+    ],
+    "needs_human": true
+  },
+  "doc-17_declaracao_sem_assinatura": {
+    "cnpj_status": "OK",
+    "name_status": "OK_ABBREVIATION_TOLERANT",
+    "signatory_status": "SIGNATORY_MATCH",
+    "power_status": "OK",
+    "document_cnpj": "12345678000199",
+    "expected_cnpj": "12345678000199",
+    "document_name": "EXTRA CONSTRUTORA FICTICIA LTDA",
+    "expected_name": "EXTRA CONSTRUTORA FICTICIA LTDA",
+    "findings": [],
+    "needs_human": false
+  },
+  "doc-18_proposta": {
+    "cnpj_status": "OK",
+    "name_status": "OK_ABBREVIATION_TOLERANT",
+    "signatory_status": "SIGNATORY_MATCH",
+    "power_status": "OK",
+    "document_cnpj": "12345678000199",
+    "expected_cnpj": "12345678000199",
+    "document_name": "EXTRA CONSTRUTORA FICTICIA LTDA",
+    "expected_name": "EXTRA CONSTRUTORA FICTICIA LTDA",
+    "findings": [],
+    "needs_human": false
+  },
+  "doc-19_planilha_precos": {
+    "cnpj_status": "CNPJ_NOT_FOUND",
+    "name_status": "NAME_NOT_FOUND",
+    "signatory_status": "OK",
+    "power_status": "OK",
+    "document_cnpj": null,
+    "expected_cnpj": "12345678000199",
+    "document_name": null,
+    "expected_name": "EXTRA CONSTRUTORA FICTICIA LTDA",
+    "findings": [
+      "POSSIBLE_STALE_DATA",
+      "NEEDS_HUMAN"
+    ],
+    "needs_human": true
+  },
+  "doc-20_crea_empresa": {
+    "cnpj_status": "OK",
+    "name_status": "OK_ABBREVIATION_TOLERANT",
+    "signatory_status": "OK",
+    "power_status": "OK",
+    "document_cnpj": "12345678000199",
+    "expected_cnpj": "12345678000199",
+    "document_name": "EXTRA CONSTRUTORA FICTICIA LTDA",
+    "expected_name": "EXTRA CONSTRUTORA FICTICIA LTDA",
+    "findings": [],
+    "needs_human": false
+  },
+  "doc-21_certidao_nome_abreviado": {
+    "cnpj_status": "OK",
+    "name_status": "OK_ABBREVIATION_TOLERANT",
+    "signatory_status": "OK",
+    "power_status": "OK",
+    "document_cnpj": "12345678000199",
+    "expected_cnpj": "12345678000199",
+    "document_name": "EXTRA CONSTRUTORA FICTICIA",
+    "expected_name": "EXTRA CONSTRUTORA FICTICIA LTDA",
+    "findings": [],
+    "needs_human": false
+  },
+  "doc-22_atestado_textual_fraco": {
+    "cnpj_status": "CNPJ_NOT_FOUND",
+    "name_status": "NAME_NOT_FOUND",
+    "signatory_status": "OK",
+    "power_status": "OK",
+    "document_cnpj": null,
+    "expected_cnpj": "12345678000199",
+    "document_name": null,
+    "expected_name": "EXTRA CONSTRUTORA FICTICIA LTDA",
+    "findings": [
+      "POSSIBLE_STALE_DATA",
+      "NEEDS_HUMAN"
+    ],
+    "needs_human": true
+  }
+}

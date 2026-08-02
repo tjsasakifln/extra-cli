@@ -1,0 +1,25 @@
+{
+  "items": [
+    {
+      "finding_id": "F-0006",
+      "severity": "HIGH",
+      "classification": "AMBIGUOUS_EVIDENCE",
+      "requirement_id": "REQ-DEC-001",
+      "title": "Partial evidence for REQ-DEC-001",
+      "objective_observation": "document present but signature missing",
+      "interpretation": "Operational observation — not a legal opinion.",
+      "document_ids": [
+        "doc-17_declaracao_sem_assinatura"
+      ],
+      "source_locators": [],
+      "validation_rule": "AMBIGUOUS_EVIDENCE",
+      "deadline": null,
+      "impact": "May be insufficient",
+      "recommended_action": "Complete evidence",
+      "limitations": [
+        "Human review required before protocol."
+      ],
+      "review_status": "OPEN"
+    }
+  ]
+}

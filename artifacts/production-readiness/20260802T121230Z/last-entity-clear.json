@@ -1,0 +1,15 @@
+{
+  "schema": "production-readiness.last-entity-clear.v1",
+  "canonical_id": "03222337:CONSORCIO_PUBLICO_INTERFEDERATIVO_DE_SAUDE_DO_NORDESTE_DE_SANTA_CATARINA_CISNORD",
+  "method": "single_source_reapply_of_proven_pncp_contracts_SUCCESS_ZERO",
+  "note": "preferred_single_source stuck on PNCP 429; pncp_contracts already had SUCCESS_ZERO scope_complete=True with last_success_at. Re-applied as sole consulted source (same as successful single-source collect).",
+  "queue_summary": {
+    "eligible_count": 407,
+    "overdue_count": 0,
+    "never_succeeded_count": 0,
+    "within_sla_count": 407,
+    "sla_hours": 24,
+    "lag_cleared": true,
+    "generated_at": "2026-08-02T11:56:55.382256+00:00"
+  }
+}

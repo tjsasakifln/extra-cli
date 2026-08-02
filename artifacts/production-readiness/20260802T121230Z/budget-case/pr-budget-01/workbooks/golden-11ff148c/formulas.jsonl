@@ -1,0 +1,2 @@
+{"sheet": "Orcamento Analitico", "coordinate": "I4", "formula": "=#REF!", "cached_value": null, "formula_status": "BROKEN_REFERENCE"}
+{"sheet": "Auxiliar", "coordinate": "B2", "formula": "='[OtherWorkbook.xlsx]Sheet1'!A1", "cached_value": null, "formula_status": "EXTERNAL_REFERENCE"}

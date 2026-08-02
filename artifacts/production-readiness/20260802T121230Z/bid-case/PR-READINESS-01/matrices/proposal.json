@@ -1,0 +1,89 @@
+{
+  "rows": [
+    {
+      "requirement_id": "REQ-PROP-001",
+      "status": "SATISFIED",
+      "document_ids": [
+        "doc-18_proposta"
+      ],
+      "source_locators": [
+        {
+          "page": 10,
+          "section": "7"
+        }
+      ],
+      "evidence": "type match with valid identity",
+      "validation_rules": {
+        "mandatory": true,
+        "required_document_type": "PROPOSTA_COMERCIAL"
+      },
+      "validity_result": "EXPIRY_NOT_FOUND",
+      "identity_result": "OK",
+      "technical": null,
+      "limitations": [
+        "Automated match is operational support only; not legal habilitation.",
+        "Semantic similarity alone never proves technical equivalence."
+      ],
+      "human_action": null,
+      "mandatory": true,
+      "category": "PROPOSTA",
+      "title": "Proposta comercial assinada"
+    },
+    {
+      "requirement_id": "REQ-PROP-002",
+      "status": "SATISFIED",
+      "document_ids": [
+        "doc-19_planilha_precos"
+      ],
+      "source_locators": [
+        {
+          "page": 10,
+          "section": "7"
+        }
+      ],
+      "evidence": "type match with valid identity",
+      "validation_rules": {
+        "mandatory": true,
+        "required_document_type": "PLANILHA_PRECOS"
+      },
+      "validity_result": "EXPIRY_NOT_FOUND",
+      "identity_result": "CNPJ_NOT_FOUND",
+      "technical": null,
+      "limitations": [
+        "Automated match is operational support only; not legal habilitation.",
+        "Semantic similarity alone never proves technical equivalence."
+      ],
+      "human_action": null,
+      "mandatory": true,
+      "category": "PROPOSTA",
+      "title": "Planilha de preços"
+    },
+    {
+      "requirement_id": "REQ-GAR-001",
+      "status": "MISSING",
+      "document_ids": [],
+      "source_locators": [
+        {
+          "page": 10,
+          "section": "7"
+        }
+      ],
+      "evidence": "no document of required type",
+      "validation_rules": {
+        "mandatory": true,
+        "required_document_type": "GARANTIA_PROPOSTA"
+      },
+      "validity_result": null,
+      "identity_result": null,
+      "technical": null,
+      "limitations": [
+        "Automated match is operational support only; not legal habilitation.",
+        "Semantic similarity alone never proves technical equivalence."
+      ],
+      "human_action": null,
+      "mandatory": true,
+      "category": "PROPOSTA",
+      "title": "Garantia de proposta 1%"
+    }
+  ]
+}

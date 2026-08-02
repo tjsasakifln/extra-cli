@@ -1,0 +1,134 @@
+{
+  "doc-01_contrato_social": {
+    "signature_present": null,
+    "signatory": null,
+    "status": "SIGNATURE_NOT_FOUND",
+    "digital_validation": "DIGITAL_VALIDATION_NOT_PERFORMED"
+  },
+  "doc-02_cartao_cnpj": {
+    "signature_present": null,
+    "signatory": null,
+    "status": "SIGNATURE_NOT_FOUND",
+    "digital_validation": "DIGITAL_VALIDATION_NOT_PERFORMED"
+  },
+  "doc-03_procuracao_fraca": {
+    "signature_present": "PRESENT",
+    "signatory": "PEDRO OUTRO FICTICIO",
+    "status": "SIGNATURE_PRESENT",
+    "digital_validation": "DIGITAL_VALIDATION_NOT_PERFORMED"
+  },
+  "doc-04_documento_signatario": {
+    "signature_present": null,
+    "signatory": null,
+    "status": "SIGNATURE_NOT_FOUND",
+    "digital_validation": "DIGITAL_VALIDATION_NOT_PERFORMED"
+  },
+  "doc-05_certidao_federal_valida": {
+    "signature_present": null,
+    "signatory": null,
+    "status": "SIGNATURE_NOT_FOUND",
+    "digital_validation": "DIGITAL_VALIDATION_NOT_PERFORMED"
+  },
+  "doc-06_certidao_estadual_vencida": {
+    "signature_present": null,
+    "signatory": null,
+    "status": "SIGNATURE_NOT_FOUND",
+    "digital_validation": "DIGITAL_VALIDATION_NOT_PERFORMED"
+  },
+  "doc-07_certidao_municipal_cnpj_outro": {
+    "signature_present": null,
+    "signatory": null,
+    "status": "SIGNATURE_NOT_FOUND",
+    "digital_validation": "DIGITAL_VALIDATION_NOT_PERFORMED"
+  },
+  "doc-08_fgts_valido": {
+    "signature_present": null,
+    "signatory": null,
+    "status": "SIGNATURE_NOT_FOUND",
+    "digital_validation": "DIGITAL_VALIDATION_NOT_PERFORMED"
+  },
+  "doc-09_cndt_expiring": {
+    "signature_present": null,
+    "signatory": null,
+    "status": "SIGNATURE_NOT_FOUND",
+    "digital_validation": "DIGITAL_VALIDATION_NOT_PERFORMED"
+  },
+  "doc-10_balanco": {
+    "signature_present": null,
+    "signatory": null,
+    "status": "SIGNATURE_NOT_FOUND",
+    "digital_validation": "DIGITAL_VALIDATION_NOT_PERFORMED"
+  },
+  "doc-11_certidao_falencia": {
+    "signature_present": null,
+    "signatory": null,
+    "status": "SIGNATURE_NOT_FOUND",
+    "digital_validation": "DIGITAL_VALIDATION_NOT_PERFORMED"
+  },
+  "doc-12_atestado_ok": {
+    "signature_present": null,
+    "signatory": null,
+    "status": "SIGNATURE_NOT_FOUND",
+    "digital_validation": "DIGITAL_VALIDATION_NOT_PERFORMED"
+  },
+  "doc-13_atestado_insuficiente": {
+    "signature_present": null,
+    "signatory": null,
+    "status": "SIGNATURE_NOT_FOUND",
+    "digital_validation": "DIGITAL_VALIDATION_NOT_PERFORMED"
+  },
+  "doc-14_cat_vinculada": {
+    "signature_present": null,
+    "signatory": null,
+    "status": "SIGNATURE_NOT_FOUND",
+    "digital_validation": "DIGITAL_VALIDATION_NOT_PERFORMED"
+  },
+  "doc-15_cat_duplicada": {
+    "signature_present": null,
+    "signatory": null,
+    "status": "SIGNATURE_NOT_FOUND",
+    "digital_validation": "DIGITAL_VALIDATION_NOT_PERFORMED"
+  },
+  "doc-16_atestado_unidade_errada": {
+    "signature_present": null,
+    "signatory": null,
+    "status": "SIGNATURE_NOT_FOUND",
+    "digital_validation": "DIGITAL_VALIDATION_NOT_PERFORMED"
+  },
+  "doc-17_declaracao_sem_assinatura": {
+    "signature_present": "ABSENT",
+    "signatory": "JOAO DA SILVA FICTICIO",
+    "status": "SIGNATURE_NOT_FOUND",
+    "digital_validation": "DIGITAL_VALIDATION_NOT_PERFORMED"
+  },
+  "doc-18_proposta": {
+    "signature_present": "PRESENT",
+    "signatory": "JOAO DA SILVA FICTICIO",
+    "status": "SIGNATURE_PRESENT",
+    "digital_validation": "DIGITAL_VALIDATION_NOT_PERFORMED"
+  },
+  "doc-19_planilha_precos": {
+    "signature_present": null,
+    "signatory": null,
+    "status": "SIGNATURE_NOT_FOUND",
+    "digital_validation": "DIGITAL_VALIDATION_NOT_PERFORMED"
+  },
+  "doc-20_crea_empresa": {
+    "signature_present": null,
+    "signatory": null,
+    "status": "SIGNATURE_NOT_FOUND",
+    "digital_validation": "DIGITAL_VALIDATION_NOT_PERFORMED"
+  },
+  "doc-21_certidao_nome_abreviado": {
+    "signature_present": null,
+    "signatory": null,
+    "status": "SIGNATURE_NOT_FOUND",
+    "digital_validation": "DIGITAL_VALIDATION_NOT_PERFORMED"
+  },
+  "doc-22_atestado_textual_fraco": {
+    "signature_present": null,
+    "signatory": null,
+    "status": "SIGNATURE_NOT_FOUND",
+    "digital_validation": "DIGITAL_VALIDATION_NOT_PERFORMED"
+  }
+}

@@ -1,0 +1,290 @@
+{
+  "items": [
+    {
+      "document_id": "doc-01_contrato_social",
+      "classification": "CONTRATO_SOCIAL",
+      "confidence": 0.95,
+      "signals": [
+        "sidecar"
+      ],
+      "rule": "sidecar_override",
+      "version": "1.0",
+      "evidence": "provided in sidecar metadata",
+      "needs_review": false,
+      "original_name": "01_contrato_social.txt"
+    },
+    {
+      "document_id": "doc-02_cartao_cnpj",
+      "classification": "CARTAO_CNPJ",
+      "confidence": 0.95,
+      "signals": [
+        "sidecar"
+      ],
+      "rule": "sidecar_override",
+      "version": "1.0",
+      "evidence": "provided in sidecar metadata",
+      "needs_review": false,
+      "original_name": "02_cartao_cnpj.txt"
+    },
+    {
+      "document_id": "doc-03_procuracao_fraca",
+      "classification": "PROCURACAO",
+      "confidence": 0.95,
+      "signals": [
+        "sidecar"
+      ],
+      "rule": "sidecar_override",
+      "version": "1.0",
+      "evidence": "provided in sidecar metadata",
+      "needs_review": false,
+      "original_name": "03_procuracao_fraca.txt"
+    },
+    {
+      "document_id": "doc-04_documento_signatario",
+      "classification": "DOCUMENTO_SIGNATARIO",
+      "confidence": 0.95,
+      "signals": [
+        "sidecar"
+      ],
+      "rule": "sidecar_override",
+      "version": "1.0",
+      "evidence": "provided in sidecar metadata",
+      "needs_review": false,
+      "original_name": "04_documento_signatario.txt"
+    },
+    {
+      "document_id": "doc-05_certidao_federal_valida",
+      "classification": "CERTIDAO_FEDERAL",
+      "confidence": 0.95,
+      "signals": [
+        "sidecar"
+      ],
+      "rule": "sidecar_override",
+      "version": "1.0",
+      "evidence": "provided in sidecar metadata",
+      "needs_review": false,
+      "original_name": "05_certidao_federal_valida.txt"
+    },
+    {
+      "document_id": "doc-06_certidao_estadual_vencida",
+      "classification": "CERTIDAO_ESTADUAL",
+      "confidence": 0.95,
+      "signals": [
+        "sidecar"
+      ],
+      "rule": "sidecar_override",
+      "version": "1.0",
+      "evidence": "provided in sidecar metadata",
+      "needs_review": false,
+      "original_name": "06_certidao_estadual_vencida.txt"
+    },
+    {
+      "document_id": "doc-07_certidao_municipal_cnpj_outro",
+      "classification": "CERTIDAO_MUNICIPAL",
+      "confidence": 0.95,
+      "signals": [
+        "sidecar"
+      ],
+      "rule": "sidecar_override",
+      "version": "1.0",
+      "evidence": "provided in sidecar metadata",
+      "needs_review": false,
+      "original_name": "07_certidao_municipal_cnpj_outro.txt"
+    },
+    {
+      "document_id": "doc-08_fgts_valido",
+      "classification": "FGTS",
+      "confidence": 0.95,
+      "signals": [
+        "sidecar"
+      ],
+      "rule": "sidecar_override",
+      "version": "1.0",
+      "evidence": "provided in sidecar metadata",
+      "needs_review": false,
+      "original_name": "08_fgts_valido.txt"
+    },
+    {
+      "document_id": "doc-09_cndt_expiring",
+      "classification": "CNDT",
+      "confidence": 0.95,
+      "signals": [
+        "sidecar"
+      ],
+      "rule": "sidecar_override",
+      "version": "1.0",
+      "evidence": "provided in sidecar metadata",
+      "needs_review": false,
+      "original_name": "09_cndt_expiring.txt"
+    },
+    {
+      "document_id": "doc-10_balanco",
+      "classification": "BALANCO_PATRIMONIAL",
+      "confidence": 0.95,
+      "signals": [
+        "sidecar"
+      ],
+      "rule": "sidecar_override",
+      "version": "1.0",
+      "evidence": "provided in sidecar metadata",
+      "needs_review": false,
+      "original_name": "10_balanco.txt"
+    },
+    {
+      "document_id": "doc-11_certidao_falencia",
+      "classification": "CERTIDAO_FALENCIA",
+      "confidence": 0.95,
+      "signals": [
+        "sidecar"
+      ],
+      "rule": "sidecar_override",
+      "version": "1.0",
+      "evidence": "provided in sidecar metadata",
+      "needs_review": false,
+      "original_name": "11_certidao_falencia.txt"
+    },
+    {
+      "document_id": "doc-12_atestado_ok",
+      "classification": "ATESTADO_CAPACIDADE_TECNICA",
+      "confidence": 0.95,
+      "signals": [
+        "sidecar"
+      ],
+      "rule": "sidecar_override",
+      "version": "1.0",
+      "evidence": "provided in sidecar metadata",
+      "needs_review": false,
+      "original_name": "12_atestado_ok.txt"
+    },
+    {
+      "document_id": "doc-13_atestado_insuficiente",
+      "classification": "ATESTADO_CAPACIDADE_TECNICA",
+      "confidence": 0.95,
+      "signals": [
+        "sidecar"
+      ],
+      "rule": "sidecar_override",
+      "version": "1.0",
+      "evidence": "provided in sidecar metadata",
+      "needs_review": false,
+      "original_name": "13_atestado_insuficiente.txt"
+    },
+    {
+      "document_id": "doc-14_cat_vinculada",
+      "classification": "CAT",
+      "confidence": 0.95,
+      "signals": [
+        "sidecar"
+      ],
+      "rule": "sidecar_override",
+      "version": "1.0",
+      "evidence": "provided in sidecar metadata",
+      "needs_review": false,
+      "original_name": "14_cat_vinculada.txt"
+    },
+    {
+      "document_id": "doc-15_cat_duplicada",
+      "classification": "CAT",
+      "confidence": 0.95,
+      "signals": [
+        "sidecar"
+      ],
+      "rule": "sidecar_override",
+      "version": "1.0",
+      "evidence": "provided in sidecar metadata",
+      "needs_review": false,
+      "original_name": "15_cat_duplicada.txt"
+    },
+    {
+      "document_id": "doc-16_atestado_unidade_errada",
+      "classification": "ATESTADO_CAPACIDADE_TECNICA",
+      "confidence": 0.95,
+      "signals": [
+        "sidecar"
+      ],
+      "rule": "sidecar_override",
+      "version": "1.0",
+      "evidence": "provided in sidecar metadata",
+      "needs_review": false,
+      "original_name": "16_atestado_unidade_errada.txt"
+    },
+    {
+      "document_id": "doc-17_declaracao_sem_assinatura",
+      "classification": "DECLARACAO",
+      "confidence": 0.95,
+      "signals": [
+        "sidecar"
+      ],
+      "rule": "sidecar_override",
+      "version": "1.0",
+      "evidence": "provided in sidecar metadata",
+      "needs_review": false,
+      "original_name": "17_declaracao_sem_assinatura.txt"
+    },
+    {
+      "document_id": "doc-18_proposta",
+      "classification": "PROPOSTA_COMERCIAL",
+      "confidence": 0.95,
+      "signals": [
+        "sidecar"
+      ],
+      "rule": "sidecar_override",
+      "version": "1.0",
+      "evidence": "provided in sidecar metadata",
+      "needs_review": false,
+      "original_name": "18_proposta.txt"
+    },
+    {
+      "document_id": "doc-19_planilha_precos",
+      "classification": "PLANILHA_PRECOS",
+      "confidence": 0.95,
+      "signals": [
+        "sidecar"
+      ],
+      "rule": "sidecar_override",
+      "version": "1.0",
+      "evidence": "provided in sidecar metadata",
+      "needs_review": false,
+      "original_name": "19_planilha_precos.txt"
+    },
+    {
+      "document_id": "doc-20_crea_empresa",
+      "classification": "REGISTRO_CONSELHO_EMPRESA",
+      "confidence": 0.95,
+      "signals": [
+        "sidecar"
+      ],
+      "rule": "sidecar_override",
+      "version": "1.0",
+      "evidence": "provided in sidecar metadata",
+      "needs_review": false,
+      "original_name": "20_crea_empresa.txt"
+    },
+    {
+      "document_id": "doc-21_certidao_nome_abreviado",
+      "classification": "CERTIDAO_FEDERAL",
+      "confidence": 0.95,
+      "signals": [
+        "sidecar"
+      ],
+      "rule": "sidecar_override",
+      "version": "1.0",
+      "evidence": "provided in sidecar metadata",
+      "needs_review": false,
+      "original_name": "21_certidao_nome_abreviado.txt"
+    },
+    {
+      "document_id": "doc-22_atestado_textual_fraco",
+      "classification": "ATESTADO_CAPACIDADE_TECNICA",
+      "confidence": 0.95,
+      "signals": [
+        "sidecar"
+      ],
+      "rule": "sidecar_override",
+      "version": "1.0",
+      "evidence": "provided in sidecar metadata",
+      "needs_review": false,
+      "original_name": "22_atestado_textual_fraco.txt"
+    }
+  ]
+}

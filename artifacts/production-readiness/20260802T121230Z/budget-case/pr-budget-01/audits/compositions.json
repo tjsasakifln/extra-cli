@@ -1,0 +1,288 @@
+{
+  "composition_count": 1,
+  "input_count": 4,
+  "issue_count": 14,
+  "check_count": 3,
+  "issues": [
+    {
+      "kind": "MISSING_COEFFICIENT",
+      "input_id": "golden-11ff148c:Composicoes:4",
+      "cells": [
+        "Composicoes!A4",
+        "Composicoes!B4",
+        "Composicoes!C4",
+        "Composicoes!E4"
+      ]
+    },
+    {
+      "kind": "NEGATIVE_COEFFICIENT",
+      "input_id": "golden-11ff148c:Composicoes:5",
+      "value": -1.0,
+      "cells": [
+        "Composicoes!A5",
+        "Composicoes!B5",
+        "Composicoes!C5",
+        "Composicoes!D5",
+        "Composicoes!E5",
+        "Composicoes!F5"
+      ]
+    },
+    {
+      "kind": "ITEM_WITHOUT_COMPOSITION",
+      "item_id": "golden-11ff148c:Orcamento Analitico:2",
+      "code": "SINAPI-001",
+      "cells": [
+        "Orcamento Analitico!A2",
+        "Orcamento Analitico!B2",
+        "Orcamento Analitico!C2",
+        "Orcamento Analitico!D2",
+        "Orcamento Analitico!E2",
+        "Orcamento Analitico!F2",
+        "Orcamento Analitico!H2",
+        "Orcamento Analitico!I2",
+        "Orcamento Analitico!G2"
+      ],
+      "note": "No composition input row matched this code — may be structural"
+    },
+    {
+      "kind": "ITEM_WITHOUT_COMPOSITION",
+      "item_id": "golden-11ff148c:Orcamento Analitico:3",
+      "code": "SINAPI-002",
+      "cells": [
+        "Orcamento Analitico!A3",
+        "Orcamento Analitico!B3",
+        "Orcamento Analitico!C3",
+        "Orcamento Analitico!D3",
+        "Orcamento Analitico!E3",
+        "Orcamento Analitico!F3",
+        "Orcamento Analitico!H3",
+        "Orcamento Analitico!I3",
+        "Orcamento Analitico!G3"
+      ],
+      "note": "No composition input row matched this code — may be structural"
+    },
+    {
+      "kind": "ITEM_WITHOUT_COMPOSITION",
+      "item_id": "golden-11ff148c:Orcamento Analitico:4",
+      "code": "SINAPI-003",
+      "cells": [
+        "Orcamento Analitico!A4",
+        "Orcamento Analitico!B4",
+        "Orcamento Analitico!C4",
+        "Orcamento Analitico!D4",
+        "Orcamento Analitico!E4",
+        "Orcamento Analitico!F4",
+        "Orcamento Analitico!H4",
+        "Orcamento Analitico!I4",
+        "Orcamento Analitico!G4"
+      ],
+      "note": "No composition input row matched this code — may be structural"
+    },
+    {
+      "kind": "ITEM_WITHOUT_COMPOSITION",
+      "item_id": "golden-11ff148c:Orcamento Analitico:5",
+      "code": "SINAPI-001",
+      "cells": [
+        "Orcamento Analitico!A5",
+        "Orcamento Analitico!B5",
+        "Orcamento Analitico!C5",
+        "Orcamento Analitico!D5",
+        "Orcamento Analitico!E5",
+        "Orcamento Analitico!F5",
+        "Orcamento Analitico!H5",
+        "Orcamento Analitico!I5",
+        "Orcamento Analitico!G5"
+      ],
+      "note": "No composition input row matched this code — may be structural"
+    },
+    {
+      "kind": "ITEM_WITHOUT_COMPOSITION",
+      "item_id": "golden-11ff148c:Orcamento Analitico:6",
+      "code": "SINAPI-002",
+      "cells": [
+        "Orcamento Analitico!A6",
+        "Orcamento Analitico!B6",
+        "Orcamento Analitico!C6",
+        "Orcamento Analitico!D6",
+        "Orcamento Analitico!E6",
+        "Orcamento Analitico!F6",
+        "Orcamento Analitico!H6",
+        "Orcamento Analitico!I6",
+        "Orcamento Analitico!G6"
+      ],
+      "note": "No composition input row matched this code — may be structural"
+    },
+    {
+      "kind": "ITEM_WITHOUT_COMPOSITION",
+      "item_id": "golden-11ff148c:Orcamento Analitico:7",
+      "code": "NOCOMP-99",
+      "cells": [
+        "Orcamento Analitico!A7",
+        "Orcamento Analitico!B7",
+        "Orcamento Analitico!C7",
+        "Orcamento Analitico!D7",
+        "Orcamento Analitico!E7",
+        "Orcamento Analitico!F7",
+        "Orcamento Analitico!H7",
+        "Orcamento Analitico!I7",
+        "Orcamento Analitico!G7"
+      ],
+      "note": "No composition input row matched this code — may be structural"
+    },
+    {
+      "kind": "ITEM_WITHOUT_COMPOSITION",
+      "item_id": "golden-11ff148c:Orcamento Analitico:8",
+      "code": "DBL-001",
+      "cells": [
+        "Orcamento Analitico!A8",
+        "Orcamento Analitico!B8",
+        "Orcamento Analitico!C8",
+        "Orcamento Analitico!D8",
+        "Orcamento Analitico!E8",
+        "Orcamento Analitico!F8",
+        "Orcamento Analitico!H8",
+        "Orcamento Analitico!I8",
+        "Orcamento Analitico!G8"
+      ],
+      "note": "No composition input row matched this code — may be structural"
+    },
+    {
+      "kind": "ITEM_WITHOUT_COMPOSITION",
+      "item_id": "golden-11ff148c:Orcamento Analitico:9",
+      "code": "NEG-001",
+      "cells": [
+        "Orcamento Analitico!A9",
+        "Orcamento Analitico!B9",
+        "Orcamento Analitico!C9",
+        "Orcamento Analitico!D9",
+        "Orcamento Analitico!E9",
+        "Orcamento Analitico!F9",
+        "Orcamento Analitico!H9",
+        "Orcamento Analitico!I9",
+        "Orcamento Analitico!G9"
+      ],
+      "note": "No composition input row matched this code — may be structural"
+    },
+    {
+      "kind": "ITEM_WITHOUT_COMPOSITION",
+      "item_id": "golden-11ff148c:Orcamento Analitico:10",
+      "code": "ZERO-001",
+      "cells": [
+        "Orcamento Analitico!A10",
+        "Orcamento Analitico!B10",
+        "Orcamento Analitico!C10",
+        "Orcamento Analitico!D10",
+        "Orcamento Analitico!E10",
+        "Orcamento Analitico!F10",
+        "Orcamento Analitico!H10",
+        "Orcamento Analitico!I10",
+        "Orcamento Analitico!G10"
+      ],
+      "note": "No composition input row matched this code — may be structural"
+    },
+    {
+      "kind": "ITEM_WITHOUT_COMPOSITION",
+      "item_id": "golden-11ff148c:Orcamento Analitico:11",
+      "code": "HID-001",
+      "cells": [
+        "Orcamento Analitico!A11",
+        "Orcamento Analitico!B11",
+        "Orcamento Analitico!C11",
+        "Orcamento Analitico!D11",
+        "Orcamento Analitico!E11",
+        "Orcamento Analitico!F11",
+        "Orcamento Analitico!H11",
+        "Orcamento Analitico!I11",
+        "Orcamento Analitico!G11"
+      ],
+      "note": "No composition input row matched this code — may be structural"
+    },
+    {
+      "kind": "ITEM_WITHOUT_COMPOSITION",
+      "item_id": "golden-11ff148c:Curva ABC:2",
+      "code": "SINAPI-001",
+      "cells": [
+        "Curva ABC!A2",
+        "Curva ABC!B2",
+        "Curva ABC!C2",
+        "Curva ABC!D2",
+        "Curva ABC!E2"
+      ],
+      "note": "No composition input row matched this code — may be structural"
+    },
+    {
+      "kind": "ITEM_WITHOUT_COMPOSITION",
+      "item_id": "golden-11ff148c:Curva ABC:3",
+      "code": "NOCOMP-99",
+      "cells": [
+        "Curva ABC!A3",
+        "Curva ABC!B3",
+        "Curva ABC!C3",
+        "Curva ABC!D3",
+        "Curva ABC!E3"
+      ],
+      "note": "No composition input row matched this code — may be structural"
+    }
+  ],
+  "checks": [
+    {
+      "check_id": "comp:golden-11ff148c:Composicoes:2:coef_x_price",
+      "formula_expected": "coefficient * unit_price = total",
+      "reported_value": 20.0,
+      "recomputed_value": 20.0,
+      "status": "PASS",
+      "absolute_difference": 0.0,
+      "source_cells": [
+        "Composicoes!A2",
+        "Composicoes!B2",
+        "Composicoes!C2",
+        "Composicoes!D2",
+        "Composicoes!E2",
+        "Composicoes!F2"
+      ]
+    },
+    {
+      "check_id": "comp:golden-11ff148c:Composicoes:3:coef_x_price",
+      "formula_expected": "coefficient * unit_price = total",
+      "reported_value": 18.0,
+      "recomputed_value": 15.0,
+      "status": "MATERIAL_DIFFERENCE",
+      "absolute_difference": 3.0,
+      "source_cells": [
+        "Composicoes!A3",
+        "Composicoes!B3",
+        "Composicoes!C3",
+        "Composicoes!D3",
+        "Composicoes!E3",
+        "Composicoes!F3"
+      ]
+    },
+    {
+      "check_id": "comp:golden-11ff148c:Composicoes:5:coef_x_price",
+      "formula_expected": "coefficient * unit_price = total",
+      "reported_value": -0.01,
+      "recomputed_value": -0.01,
+      "status": "PASS",
+      "absolute_difference": 0.0,
+      "source_cells": [
+        "Composicoes!A5",
+        "Composicoes!B5",
+        "Composicoes!C5",
+        "Composicoes!D5",
+        "Composicoes!E5",
+        "Composicoes!F5"
+      ]
+    }
+  ],
+  "policy": {
+    "absolute_tolerance_brl": 0.01,
+    "relative_tolerance_pct": 0.05,
+    "rounding_tolerance": 0.005,
+    "materiality_brl": 100.0,
+    "materiality_pct_of_total": 0.1
+  },
+  "non_claims": [
+    "Does not judge productivity as incorrect without comparable base",
+    "Does not invent missing coefficients"
+  ]
+}

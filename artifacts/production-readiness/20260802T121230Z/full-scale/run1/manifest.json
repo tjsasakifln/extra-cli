@@ -1,0 +1,28 @@
+{
+  "accepted": 4402632,
+  "checksums": {
+    "accepted.jsonl": "e3197cbf46cb49b3b022cd70cab7b32433230d315ab12ba733e5f88b7bad1ff1",
+    "checkpoint.json": "29145d60413d9a59451c477d40bb382c4c57568cad568e6496311fc42a92da95",
+    "rejected.jsonl": "986a14fac9e4fcaa00fdfe394b5299906166d7434e12777e62a619f2b89bb556",
+    "spill-run1.sqlite": "1fa3192d09956592adc76c83f5e8029f039638f3e57e8f2dc1ca93c985a96f7d"
+  },
+  "code_sha": null,
+  "completed": true,
+  "deduplicated": 0,
+  "elapsed_seconds": 184.372,
+  "entities": 14044,
+  "errors": [],
+  "expected_total": 4479442,
+  "final_offset": 4479442,
+  "generated_at": "2026-08-02T12:15:41.831091+00:00",
+  "incomplete": false,
+  "max_rss_bytes": 39620608,
+  "min_disk_free_bytes": 485756645376,
+  "publication_allowed": true,
+  "rejected": 76810,
+  "run_id": "run1",
+  "source": "pncp_supplier_contracts@postgresql",
+  "started_offset": 0,
+  "throughput_rows_per_s": 24295.638,
+  "warnings": []
+}

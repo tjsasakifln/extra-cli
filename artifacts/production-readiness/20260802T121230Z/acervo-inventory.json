@@ -1,0 +1,24 @@
+{
+  "caos": 1,
+  "cats": 7,
+  "code_sha": "610442b5f2607ca0901fc96a8bc84a2e5bb1e4e5",
+  "dedup": {
+    "arquivo5_arquivo8_same_document": true,
+    "cat_count": 7,
+    "certificate": "252025174528",
+    "duplicate_certificate_numbers": {},
+    "ok": true,
+    "shared_document_id": "doc-cat-252025174528"
+  },
+  "disclaimer": "Evidência documental extraída dos PDFs fornecidos. Não constitui parecer jurídico de habilitação. Distingue CAT/atestado, CAO/histórico operacional e necessidade de análise humana do edital.",
+  "documents_total": 8,
+  "experiences": 8,
+  "organizations": 1,
+  "pii_scan": {
+    "issues": [],
+    "ok": true
+  },
+  "professionals": 1,
+  "reproof_on_head": "610442b5f2607ca0901fc96a8bc84a2e5bb1e4e5",
+  "timestamp": "2026-08-02T12:25:45.351830+00:00"
+}

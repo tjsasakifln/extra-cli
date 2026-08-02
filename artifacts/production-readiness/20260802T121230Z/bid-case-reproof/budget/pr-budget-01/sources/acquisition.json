@@ -1,0 +1,13 @@
+{
+  "case_id": "pr-budget-01",
+  "acquired_at": "2026-08-01T20:00:52Z",
+  "source": "/mnt/d/extra consultoria/.worktrees/production-readiness-closeout/artifacts/production-readiness/20260801T195846Z/golden.xlsx",
+  "entries": [
+    {
+      "source": "/mnt/d/extra consultoria/.worktrees/production-readiness-closeout/artifacts/production-readiness/20260801T195846Z/golden.xlsx",
+      "type": "file",
+      "sha256": "606b43e6fd86bf6f9c4ded28b569742d12abe9c144472bbd4791236cf88b0a86"
+    }
+  ],
+  "document_count": 1
+}

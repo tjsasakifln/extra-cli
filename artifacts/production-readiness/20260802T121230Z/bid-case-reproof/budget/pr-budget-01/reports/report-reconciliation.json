@@ -1,0 +1,38 @@
+{
+  "status": "PASS",
+  "finding_count": 31,
+  "item_count": 12,
+  "total_sale_price_sum": 5256.25,
+  "total_direct_cost_sum": null,
+  "arithmetic_check_count": 22,
+  "issues": [],
+  "checks": {
+    "primary_totals": {
+      "item_count": 12,
+      "finding_count": 31,
+      "severity_counts": {
+        "MEDIUM": 27,
+        "HIGH": 4
+      },
+      "total_sale_price_sum": 5256.25,
+      "total_direct_cost_sum": null,
+      "items_with_sale_total": 11,
+      "items_with_direct_total": 0,
+      "arithmetic_check_count": 22,
+      "arithmetic_status_counts": {
+        "PASS": 17,
+        "MATERIAL_DIFFERENCE": 2,
+        "NOT_EVALUATED": 3
+      },
+      "bdi_component_count": 8,
+      "bdi_sum_percent_points": 30.5
+    }
+  },
+  "checksums": {
+    "executive-summary.md": "c4035943c5bf904699d16530786398da435417cd3b99c6e93c9734ca77947b1c",
+    "budget-audit-report.html": "ad9d72dc4749348acb588206f4c54a9c6e52952d3abc1d62a8b764de6572ce01",
+    "budget-audit-report.pdf": "3280dd962c88a117f164805492ad088a5ca8ae7c87f3371009de66a8377790e0",
+    "budget-audit-workbook.xlsx": "2af574af96214cab2b1f01921f9c1caac39958d03c80267e66b59c938a417ab0"
+  },
+  "model_hash": "e91e74b8620a9452ca1aac29d456f89b39d9bafe7fa5d84e3a6959ba143a7144"
+}

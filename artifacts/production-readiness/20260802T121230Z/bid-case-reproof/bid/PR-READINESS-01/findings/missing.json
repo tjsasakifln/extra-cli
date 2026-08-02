@@ -1,0 +1,23 @@
+{
+  "items": [
+    {
+      "finding_id": "F-0007",
+      "severity": "CRITICAL",
+      "classification": "MISSING_DOCUMENT",
+      "requirement_id": "REQ-GAR-001",
+      "title": "Missing mandatory document for REQ-GAR-001",
+      "objective_observation": "no document of required type",
+      "interpretation": "Operational observation — not a legal opinion.",
+      "document_ids": [],
+      "source_locators": [],
+      "validation_rule": "MISSING_DOCUMENT",
+      "deadline": null,
+      "impact": "Risk of inabilitação",
+      "recommended_action": "Obtain and ingest required document",
+      "limitations": [
+        "Human review required before protocol."
+      ],
+      "review_status": "OPEN"
+    }
+  ]
+}

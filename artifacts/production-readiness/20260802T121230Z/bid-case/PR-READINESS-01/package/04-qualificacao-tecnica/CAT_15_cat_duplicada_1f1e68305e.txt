@@ -1,0 +1,11 @@
+---META---
+{"document_type": "CAT"}
+---ENDMETA---
+
+Certidão de Acervo Técnico - CAT
+CAT: CAT-FICT-001
+Responsável técnico: ENGENHEIRO FICTICIO
+Objeto: pavimentacao asfaltica
+Quantidade: 6000
+Unidade: m2
+Contratada: EXTRA CONSTRUTORA FICTICIA LTDA
