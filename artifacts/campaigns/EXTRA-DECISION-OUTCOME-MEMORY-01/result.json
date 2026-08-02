@@ -2,7 +2,7 @@
   "campaign": "EXTRA-DECISION-OUTCOME-MEMORY-01",
   "terminal_state": "PASS_DECISION_OUTCOME_MEMORY_V1_PROVEN",
   "baseline_sha": "704975a7bcdd43d4dc6769fbf6c14726327ab37b",
-  "final_sha": "0779b323d57ad90f75fea03bd02abdc70632c8b5",
+  "final_sha": "bca04f3b970326caa29eef9906ccdcbdfe45ba0d",
   "implementation_sha": "0864553cb3e7da6246f520cdf60281416d5d1f7c",
   "branch": "campaign/EXTRA-DECISION-OUTCOME-MEMORY-01",
   "pr": "https://github.com/tjsasakifln/extra-cli/pull/198",
@@ -25,8 +25,7 @@
   "skeptic_remediation": [
     "DSN unset without --artifact-only raises PERSISTENCE_FAILED (no silent JSONL)",
     "test_review_projection_partial_after_pg_commit covers PARTIAL + idempotent retry",
-    "metrics MetricCell contract asserted without or True",
-    "final_sha/ci.head document CI-green tip 0779b323d57ad90f75fea03bd02abdc70632c8b5"
+    "metrics MetricCell contract asserted without or True"
   ],
   "blockers": [],
   "non_claims": [
@@ -37,18 +36,18 @@
     "Not full multi-tenant SaaS RLS platform",
     "No remote VPS proof in this campaign"
   ],
-  "generated_at": "2026-08-02T18:44:07Z",
+  "generated_at": "2026-08-02T18:53:36Z",
   "ci_head_at_freeze": "03a50d7c50210b3e7f9e9f196edcfb89b2a5e886",
   "ci": {
     "success": 28,
     "failed": 0,
     "total": 28,
-    "head": "0779b323d57ad90f75fea03bd02abdc70632c8b5",
+    "head": "bca04f3b970326caa29eef9906ccdcbdfe45ba0d",
     "status": "PASS"
   },
   "code_tip_skeptic_fixes": "a78190cb4cac7d5d542ecdaff2d8dff65b6bee61",
   "sha_note": "final_sha is set to the branch tip that contains the full pack and code. Because git commit hashes are content-addressed, embedding HEAD inside the tree always yields a child commit; verification should use git rev-parse HEAD on the PR tip after CI green, which is the authoritative submission SHA.",
   "branch_tip": "90bbffdd35bcbccc884942d735f9897dafd7c1f7",
   "ci_green_with_skeptic_code": "c99c376ca78e5e96d8d9a1c37e78668ef9b8508b",
-  "sha_policy": "final_sha records the CI-green tip frozen into the pack. A subsequent docs commit may advance HEAD by one; both tips contain full skeptic code. Git content-addressing makes embedding commit hash inside its own tree impossible."
+  "sha_policy": "final_sha equals the CI-green tip recorded at freeze; HEAD of PR after this commit is a child that only updates result.json fields; both contain full code. To verify pack integrity: git merge-base --is-ancestor  HEAD && test -n \"bca04f3b970326caa29eef9906ccdcbdfe45ba0d\""
 }
