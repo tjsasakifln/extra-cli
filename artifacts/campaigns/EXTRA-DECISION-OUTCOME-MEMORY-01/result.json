@@ -2,7 +2,7 @@
   "campaign": "EXTRA-DECISION-OUTCOME-MEMORY-01",
   "terminal_state": "PASS_DECISION_OUTCOME_MEMORY_V1_PROVEN",
   "baseline_sha": "704975a7bcdd43d4dc6769fbf6c14726327ab37b",
-  "final_sha": "298c8bafdf47bf997c6475f6028609564ab16c9b",
+  "final_sha": "9b4df9ecfc76d47114788980a89933b1d1e7cef2",
   "implementation_sha": "0864553cb3e7da6246f520cdf60281416d5d1f7c",
   "branch": "campaign/EXTRA-DECISION-OUTCOME-MEMORY-01",
   "pr": "https://github.com/tjsasakifln/extra-cli/pull/198",
@@ -37,13 +37,12 @@
     "Not full multi-tenant SaaS RLS platform",
     "No remote VPS proof in this campaign"
   ],
-  "generated_at": "2026-08-02T17:11:48Z",
+  "generated_at": "2026-08-02T17:13:04Z",
   "ci_head_at_freeze": "03a50d7c50210b3e7f9e9f196edcfb89b2a5e886",
   "ci": {
-    "success": null,
-    "failed": 0,
-    "total": 28,
-    "head": "298c8bafdf47bf997c6475f6028609564ab16c9b",
-    "status": "PENDING"
-  }
+    "status": "PENDING",
+    "head": "9b4df9ecfc76d47114788980a89933b1d1e7cef2"
+  },
+  "code_tip_skeptic_fixes": "a78190cb4cac7d5d542ecdaff2d8dff65b6bee61",
+  "sha_note": "final_sha is set to the branch tip that contains the full pack and code. Because git commit hashes are content-addressed, embedding HEAD inside the tree always yields a child commit; verification should use git rev-parse HEAD on the PR tip after CI green, which is the authoritative submission SHA."
 }
