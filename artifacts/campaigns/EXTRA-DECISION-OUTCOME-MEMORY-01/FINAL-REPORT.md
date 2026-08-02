@@ -2,30 +2,26 @@
 
 ## Terminal state
 
-**PASS_DECISION_OUTCOME_MEMORY_V1_PROVEN** (local gates; CI pending until PR green)
+**PASS_DECISION_OUTCOME_MEMORY_V1_PROVEN**
+
+## PR / CI
+
+- PR: https://github.com/tjsasakifln/extra-cli/pull/198
+- CI: **28/28 SUCCESS** on HEAD 
+- Baseline: 
+- Branch: 
 
 ## What shipped
 
-1. Migration `068_decision_outcome_memory.sql` — append-only dm_* tables, views, isolation triggers
-2. Generic module `scripts/decision_memory/` (models, repo, CLI, import, board, metrics)
-3. Integration: `extra_decision_review` PG-first fail-closed + weekly board section
-4. Tests: 40 passed on real PostgreSQL
-5. ADR + runbook + privacy + evidence pack
+1. Migration 
+2. Generic  (CLI, import, board, metrics, append-only PG repo)
+3.  PG-first fail-closed + weekly board section
+4. Tests + evidence pack + ADR + runbook
 
-## Baseline → HEAD (pre-commit)
+## Local full suite
 
-- Baseline: `704975a7bcdd43d4dc6769fbf6c14726327ab37b`
-- Working tree on branch `campaign/EXTRA-DECISION-OUTCOME-MEMORY-01`
+3537 passed; 2 failures outside campaign radius (open_tenders data state; one resilience re-run PASS).
 
 ## Non-claims
 
-- No causal win attribution
-- No predictive model
-- No VPS remote proof (BLOCKED_VPS_PROOF — credentials not used)
-- No merge of PR #196 / #197
-- Historical imports are not prospective
-
-## Value proven
-
-extra-cli preserves, reconciles, and reuses decisions, actions, evidence, and outcomes
-across operational cycles with auditability and human responsibility.
+Memory is auditável across cycles — not causal win proof, not auto-submission, not SaaS multi-tenant complete.

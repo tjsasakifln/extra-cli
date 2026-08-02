@@ -2,7 +2,10 @@
   "campaign": "EXTRA-DECISION-OUTCOME-MEMORY-01",
   "terminal_state": "PASS_DECISION_OUTCOME_MEMORY_V1_PROVEN",
   "baseline_sha": "704975a7bcdd43d4dc6769fbf6c14726327ab37b",
-  "final_sha": "37a0c0c53ba0e728ce3c4ff7626d2b076b4f0846",
+  "final_sha": "f35c0ea0e02dc6add0fada2dc279d2701df0befe",
+  "implementation_sha": "0864553cb3e7da6246f520cdf60281416d5d1f7c",
+  "branch": "campaign/EXTRA-DECISION-OUTCOME-MEMORY-01",
+  "pr": "https://github.com/tjsasakifln/extra-cli/pull/198",
   "migration": "068_decision_outcome_memory.sql",
   "commands": [
     {
@@ -10,12 +13,19 @@
       "exit": 0
     },
     {
-      "cmd": "pytest tests/decision_memory/ tests/test_extra_decision_loop.py -q --no-cov",
+      "cmd": "pytest tests/decision_memory/ tests/test_extra_decision_loop.py tests/test_code_organization_gate.py::test_critical_path_no_except_pass -q --no-cov",
       "exit": 0,
-      "passed": 40
+      "passed": 41
     },
     {
-      "cmd": "ruff check scripts/decision_memory/ --ignore UP042",
+      "cmd": "REQUIRE_REAL_DB=1 pytest tests/ -q --tb=line --no-cov",
+      "exit": 1,
+      "passed": 3537,
+      "failed": 2,
+      "note": "1 env-data outside radius; 1 re-run PASS"
+    },
+    {
+      "cmd": "ruff check scripts/decision_memory/",
       "exit": 0
     },
     {
@@ -23,29 +33,22 @@
       "exit": 0
     },
     {
-      "cmd": "python3 -m scripts.decision_memory ... CLI smoke",
-      "exit": 0
+      "cmd": "CI PR #198",
+      "exit": 0,
+      "checks": "28/28 SUCCESS"
     }
   ],
   "gates": {
     "migration_pg": "PASS",
     "targeted_pytest": "PASS",
+    "full_suite_local": "PARTIAL_ENV",
     "ruff": "PASS",
     "mypy": "PASS",
+    "code_org_except_pass": "PASS",
     "cli_smoke": "PASS",
     "vps_smoke": "BLOCKED_VPS_PROOF",
-    "ci_pr": "RETRIGGERED_AFTER_RUFF_FIX",
-    "full_suite_local": "PARTIAL_ENV",
-    "full_suite_detail": {
-      "passed": 3537,
-      "failed": 2,
-      "failed_tests": [
-        "test_golden_path_coverage.py::test_coverage_live_clean_db (open_tenders fully_unmapped data state)",
-        "test_resilience_vertical_slice.py::test_vertical_slice_postgres_real_path (re-run PASS)"
-      ],
-      "note": "Failures outside decision_memory radius; resilience re-passes; coverage needs clean open_tenders mapping data"
-    },
-    "code_org_except_pass": "PASS"
+    "ci_pr": "PASS",
+    "rebase_main": "PASS_NO_DIVERGENCE"
   },
   "blockers": [],
   "non_claims": [
@@ -56,12 +59,6 @@
     "Not full multi-tenant SaaS RLS platform",
     "No remote VPS proof in this campaign"
   ],
-  "generated_at": "2026-08-02T15:03:08Z",
-  "feature_commit": "0864553cb3e7da6246f520cdf60281416d5d1f7c",
-  "implementation_sha": "0864553cb3e7da6246f520cdf60281416d5d1f7c",
-  "note": "final_sha is the tip of campaign branch after evidence pack commits",
-  "branch": "campaign/EXTRA-DECISION-OUTCOME-MEMORY-01",
-  "self_referential_sha_note": "final_sha is tip before freeze-commit; after freeze-commit tip may be +1 docs",
-  "updated_at": "2026-08-02T16:18:21Z",
-  "frozen_at": "2026-08-02T16:18:43Z"
+  "generated_at": "2026-08-02T16:36:44Z",
+  "note": "final_sha is tip after freeze commit (self-ref may drift +1 if amended)"
 }
