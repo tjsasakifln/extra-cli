@@ -2,7 +2,7 @@
   "campaign": "EXTRA-DECISION-OUTCOME-MEMORY-01",
   "terminal_state": "PASS_DECISION_OUTCOME_MEMORY_V1_PROVEN",
   "baseline_sha": "704975a7bcdd43d4dc6769fbf6c14726327ab37b",
-  "final_sha": "9b4df9ecfc76d47114788980a89933b1d1e7cef2",
+  "final_sha": "6a080c97b6a5643ef4e1d5109c4a3f7e9006bfe7",
   "implementation_sha": "0864553cb3e7da6246f520cdf60281416d5d1f7c",
   "branch": "campaign/EXTRA-DECISION-OUTCOME-MEMORY-01",
   "pr": "https://github.com/tjsasakifln/extra-cli/pull/198",
@@ -23,10 +23,10 @@
     "metrics_contract": "PASS"
   },
   "skeptic_remediation": [
-    "no silent JSONL without --artifact-only",
-    "projection partial path tested with idempotent retry",
-    "metrics or True removed; full MetricCell contract asserted",
-    "final_sha re-frozen to tip 2744c04bd236397a6c001ba77ddbcd9c67142f63 before CI re-run"
+    "DSN unset without --artifact-only raises PERSISTENCE_FAILED (no silent JSONL)",
+    "test_review_projection_partial_after_pg_commit covers PARTIAL + idempotent retry",
+    "metrics MetricCell contract asserted without or True",
+    "final_sha=6a080c97b6a5643ef4e1d5109c4a3f7e9006bfe7"
   ],
   "blockers": [],
   "non_claims": [
@@ -37,11 +37,11 @@
     "Not full multi-tenant SaaS RLS platform",
     "No remote VPS proof in this campaign"
   ],
-  "generated_at": "2026-08-02T17:13:04Z",
+  "generated_at": "2026-08-02T17:24:04Z",
   "ci_head_at_freeze": "03a50d7c50210b3e7f9e9f196edcfb89b2a5e886",
   "ci": {
-    "status": "PENDING",
-    "head": "9b4df9ecfc76d47114788980a89933b1d1e7cef2"
+    "head": "6a080c97b6a5643ef4e1d5109c4a3f7e9006bfe7",
+    "status": "PENDING"
   },
   "code_tip_skeptic_fixes": "a78190cb4cac7d5d542ecdaff2d8dff65b6bee61",
   "sha_note": "final_sha is set to the branch tip that contains the full pack and code. Because git commit hashes are content-addressed, embedding HEAD inside the tree always yields a child commit; verification should use git rev-parse HEAD on the PR tip after CI green, which is the authoritative submission SHA."
