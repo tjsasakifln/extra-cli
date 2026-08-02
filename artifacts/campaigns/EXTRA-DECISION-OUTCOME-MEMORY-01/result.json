@@ -2,7 +2,7 @@
   "campaign": "EXTRA-DECISION-OUTCOME-MEMORY-01",
   "terminal_state": "PASS_DECISION_OUTCOME_MEMORY_V1_PROVEN",
   "baseline_sha": "704975a7bcdd43d4dc6769fbf6c14726327ab37b",
-  "final_sha": "6a080c97b6a5643ef4e1d5109c4a3f7e9006bfe7",
+  "final_sha": "03625cc275d6857aed020d9c52ddf985fa1f09aa",
   "implementation_sha": "0864553cb3e7da6246f520cdf60281416d5d1f7c",
   "branch": "campaign/EXTRA-DECISION-OUTCOME-MEMORY-01",
   "pr": "https://github.com/tjsasakifln/extra-cli/pull/198",
@@ -16,7 +16,7 @@
     "code_org_except_pass": "PASS",
     "cli_smoke": "PASS",
     "vps_smoke": "BLOCKED_VPS_PROOF",
-    "ci_pr": "PENDING",
+    "ci_pr": "PASS",
     "rebase_main": "PASS_NO_DIVERGENCE",
     "dsn_fail_closed": "PASS",
     "projection_partial": "PASS",
@@ -26,7 +26,7 @@
     "DSN unset without --artifact-only raises PERSISTENCE_FAILED (no silent JSONL)",
     "test_review_projection_partial_after_pg_commit covers PARTIAL + idempotent retry",
     "metrics MetricCell contract asserted without or True",
-    "final_sha=6a080c97b6a5643ef4e1d5109c4a3f7e9006bfe7"
+    "final_sha equals CI-green tip 03625cc275d6857aed020d9c52ddf985fa1f09aa"
   ],
   "blockers": [],
   "non_claims": [
@@ -37,11 +37,14 @@
     "Not full multi-tenant SaaS RLS platform",
     "No remote VPS proof in this campaign"
   ],
-  "generated_at": "2026-08-02T17:24:04Z",
+  "generated_at": "2026-08-02T17:33:52Z",
   "ci_head_at_freeze": "03a50d7c50210b3e7f9e9f196edcfb89b2a5e886",
   "ci": {
-    "head": "6a080c97b6a5643ef4e1d5109c4a3f7e9006bfe7",
-    "status": "PENDING"
+    "success": 28,
+    "failed": 0,
+    "total": 28,
+    "head": "03625cc275d6857aed020d9c52ddf985fa1f09aa",
+    "status": "PASS"
   },
   "code_tip_skeptic_fixes": "a78190cb4cac7d5d542ecdaff2d8dff65b6bee61",
   "sha_note": "final_sha is set to the branch tip that contains the full pack and code. Because git commit hashes are content-addressed, embedding HEAD inside the tree always yields a child commit; verification should use git rev-parse HEAD on the PR tip after CI green, which is the authoritative submission SHA."
