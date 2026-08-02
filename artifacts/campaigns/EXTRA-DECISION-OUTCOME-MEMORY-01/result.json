@@ -34,7 +34,18 @@
     "mypy": "PASS",
     "cli_smoke": "PASS",
     "vps_smoke": "BLOCKED_VPS_PROOF",
-    "ci_pr": "PENDING"
+    "ci_pr": "PENDING",
+    "full_suite_local": "PARTIAL_ENV",
+    "full_suite_detail": {
+      "passed": 3537,
+      "failed": 2,
+      "failed_tests": [
+        "test_golden_path_coverage.py::test_coverage_live_clean_db (open_tenders fully_unmapped data state)",
+        "test_resilience_vertical_slice.py::test_vertical_slice_postgres_real_path (re-run PASS)"
+      ],
+      "note": "Failures outside decision_memory radius; resilience re-passes; coverage needs clean open_tenders mapping data"
+    },
+    "code_org_except_pass": "PASS"
   },
   "blockers": [],
   "non_claims": [
@@ -50,5 +61,6 @@
   "implementation_sha": "0864553cb3e7da6246f520cdf60281416d5d1f7c",
   "note": "final_sha is the tip of campaign branch after evidence pack commits",
   "branch": "campaign/EXTRA-DECISION-OUTCOME-MEMORY-01",
-  "self_referential_sha_note": "final_sha is best-effort tip; verify with git rev-parse HEAD on branch"
+  "self_referential_sha_note": "final_sha is best-effort tip; verify with git rev-parse HEAD on branch",
+  "updated_at": "2026-08-02T16:18:21Z"
 }
