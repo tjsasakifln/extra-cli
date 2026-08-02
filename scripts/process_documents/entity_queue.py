@@ -750,15 +750,18 @@ def select_batch_by_source_lag(
     """Prefer entities with the greatest per-source lag (entity×source aware)."""
     clock = now or _now()
 
-    def sort_key(d: EntityDocumentDiscovery) -> tuple[int, float, str]:
+    def sort_key(d: EntityDocumentDiscovery) -> tuple[int, int, float, str]:
         e = queue.get(d.canonical_id) or EntityQueueEntry(canonical_id=d.canonical_id)
         applicable = None
         if sources_for_entity is not None:
             applicable = list(sources_for_entity.get(d.canonical_id) or [])
         lag = max_source_lag_hours(e, now=clock, applicable_sources=applicable)
+        # Prefer entities clearable via open/local sources before PNCP (rate-limit).
+        plats = {str(p).lower() for p in (getattr(d, "platforms", None) or [])}
+        healthy_pref = 0 if plats & {"ciga_ckan", "ciga_dom", "dom_sc", "sc_compras"} else 1
         if lag is None:
-            return (0, 1e18, d.canonical_id)  # never — highest priority
-        return (1, -float(lag), d.canonical_id)
+            return (0, healthy_pref, 1e18, d.canonical_id)  # never — highest priority
+        return (1, healthy_pref, -float(lag), d.canonical_id)
 
     ordered = sorted(targets, key=sort_key)
     if limit is not None:
