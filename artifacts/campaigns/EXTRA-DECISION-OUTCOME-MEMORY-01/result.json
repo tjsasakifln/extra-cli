@@ -2,7 +2,7 @@
   "campaign": "EXTRA-DECISION-OUTCOME-MEMORY-01",
   "terminal_state": "PASS_DECISION_OUTCOME_MEMORY_V1_PROVEN",
   "baseline_sha": "704975a7bcdd43d4dc6769fbf6c14726327ab37b",
-  "final_sha": "6785c244e54edea75dcc3f94d9470648c891e351",
+  "final_sha": "37a0c0c53ba0e728ce3c4ff7626d2b076b4f0846",
   "migration": "068_decision_outcome_memory.sql",
   "commands": [
     {
@@ -34,7 +34,7 @@
     "mypy": "PASS",
     "cli_smoke": "PASS",
     "vps_smoke": "BLOCKED_VPS_PROOF",
-    "ci_pr": "PENDING",
+    "ci_pr": "PENDING_PUSH",
     "full_suite_local": "PARTIAL_ENV",
     "full_suite_detail": {
       "passed": 3537,
@@ -61,6 +61,7 @@
   "implementation_sha": "0864553cb3e7da6246f520cdf60281416d5d1f7c",
   "note": "final_sha is the tip of campaign branch after evidence pack commits",
   "branch": "campaign/EXTRA-DECISION-OUTCOME-MEMORY-01",
-  "self_referential_sha_note": "final_sha is best-effort tip; verify with git rev-parse HEAD on branch",
-  "updated_at": "2026-08-02T16:18:21Z"
+  "self_referential_sha_note": "final_sha is tip before freeze-commit; after freeze-commit tip may be +1 docs",
+  "updated_at": "2026-08-02T16:18:21Z",
+  "frozen_at": "2026-08-02T16:18:43Z"
 }
