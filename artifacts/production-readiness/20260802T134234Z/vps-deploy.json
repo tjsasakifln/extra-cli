@@ -1,0 +1,10 @@
+{
+  "code_sha_local": "527672455481f2a65ef8d0b97d996bfb04ba1033",
+  "code_sha_vps": "527672455481f2a65ef8d0b97d996bfb04ba1033",
+  "sha_match": true,
+  "deploy_method": "scripts/ops/deploy_production_readiness.sh --skip-full-scale --skip-cycles",
+  "remote_dir": "/opt/extra-consultoria",
+  "host": "ec-prod",
+  "timestamp": "2026-08-02T14:00:07.786310+00:00",
+  "meta_root": "/var/lib/extra-consultoria/output/process_documents"
+}

@@ -1,0 +1,37 @@
+{
+  "code_sha": "527672455481f2a65ef8d0b97d996bfb04ba1033",
+  "pack": "20260802T134234Z",
+  "timestamp": "2026-08-02T14:00:07.863821+00:00",
+  "gates": {
+    "A_code": "PASS \u2014 tip 52767245 consulting workflows + official SINAPI acquire + restore integrity + real-case chain",
+    "B_quality": "PASS \u2014 CI CLEAN on tip; ruff 0 in pack",
+    "C_e2e": "PASS \u2014 Playwright 12/12 (16 flows) on tip SHA",
+    "D_scale": "PASS \u2014 dual-run accepted 4402632 checksum match on tip code_sha=527672455481",
+    "E_operation": "PASS \u2014 deployed_sha=527672455481 lag_cleared=True entities=407 + 2 incrementals SUCCESS_NONZERO",
+    "F_observability": "PASS \u2014 live webhook fire+receive channels_configured=True source_failure_alert=True",
+    "G_recovery": "PASS \u2014 restore integrity fingerprints ok=True",
+    "H_real_case": "PASS \u2014 same-execution chain PASS package=BLOCKED_BY_MISSING_DOCUMENT ready_auto=False"
+  },
+  "sinapi_claim_level": "OFFICIAL_SIDRA_INDEX",
+  "proofs": {
+    "alerts_live_webhook": true,
+    "source_failure_alert_vps": true,
+    "sinapi_official": true,
+    "restore_integrity": true,
+    "real_case_same_execution": true,
+    "vps_sha_match": true,
+    "playwright_passed": 12,
+    "lag_cleared": true,
+    "full_scale_dual_match": true,
+    "two_incrementals": true,
+    "incremental_success_nonzero": 8
+  },
+  "non_claims": [
+    "CAIXA SINAPI full composition bulk zip not acquired (portal redirect loop); IBGE SIDRA OFFICIAL_SIDRA_INDEX used",
+    "SMTP external unset; webhook channel proven live",
+    "Source-lag overdue counters during short incremental batches may differ from entity-level lag_cleared (entity SLA still cleared)"
+  ],
+  "terminal_state": "PASS_PRODUCTION_READINESS_IMPLEMENTED_AND_PROVEN",
+  "all_pass": true,
+  "reproof_on_exact_tip": true
+}

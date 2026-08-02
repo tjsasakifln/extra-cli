@@ -1,0 +1,25 @@
+{
+  "count": 8,
+  "by_status": {
+    "SUCCESS_NONZERO": 8
+  },
+  "selection_policy": "success_lag_rotation",
+  "multi_source": false,
+  "eligible_count": 407,
+  "overdue_count": 381,
+  "lag_cleared": false,
+  "drain_stop_reason": "PARTIAL_CAPACITY_EXHAUSTED",
+  "capacity_insufficient": true,
+  "batches": 1,
+  "sla_alert_count": 381,
+  "selected_canonical_ids": [
+    "02156952:CAMARA_MUNICIPAL_DE_GRAVATAL",
+    "02179215:FUNDO_MUNICIPAL_DE_ASSISTENCIA_SOCIAL",
+    "02396675:SAMAE_SERVICO_AUTONOMO_MUNICIPAL_DE_AGUA_E_ESGOTO",
+    "02546845:CAMARA_DE_VEREADORES_DE_AURORA",
+    "02595453:CAMARA_MUNICIPAL_DE_RIO_FORTUNA",
+    "02971830:FUNDO_MUNICIPAL_DE_TURISMO",
+    "03269695:CONSORCIO_PUBLICO_INTERFEDERATIVO_DE_SAUDE_E_SERVICOS_DO_VALE_EUROPEU_CISAMVE",
+    "03324132:FUNDACAO_MUNICIPAL_DE_ESPORTES_DE_ILHOTA"
+  ]
+}

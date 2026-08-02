@@ -1,0 +1,67 @@
+{
+  "ok": true,
+  "generated_at": "2026-08-02T13:42:48.847976+00:00",
+  "source_db": "extra_test",
+  "restore_db": "extra_restore_proof",
+  "dump_path": "backups/local-proof/proof-extra_test-20260802T134240Z.dump",
+  "dump_bytes": 1325851,
+  "source_public_tables": 108,
+  "restore_public_tables": 108,
+  "pg_restore_exit": 0,
+  "pg_restore_stderr_tail": "",
+  "integrity": {
+    "source": {
+      "public_tables": 108,
+      "row_counts": {
+        "process_documents": 0,
+        "pncp_supplier_contracts": 1
+      },
+      "fingerprints": {
+        "process_documents": "empty",
+        "pncp_supplier_contracts": "677d08cdaf6b745d286e3e4c362f8336"
+      },
+      "compared_tables": [
+        "pncp_supplier_contracts",
+        "process_documents"
+      ]
+    },
+    "restore": {
+      "public_tables": 108,
+      "row_counts": {
+        "process_documents": 0,
+        "pncp_supplier_contracts": 1
+      },
+      "fingerprints": {
+        "process_documents": "empty",
+        "pncp_supplier_contracts": "677d08cdaf6b745d286e3e4c362f8336"
+      },
+      "compared_tables": [
+        "pncp_supplier_contracts",
+        "process_documents"
+      ]
+    },
+    "row_counts_match": true,
+    "fingerprints_match": true,
+    "compared_tables": [
+      "pncp_supplier_contracts",
+      "process_documents"
+    ]
+  },
+  "claims": {
+    "backup_exists": true,
+    "restore_separate_db": true,
+    "tables_restored": true,
+    "table_inventory_equal": true,
+    "domain_row_counts_equal": true,
+    "domain_fingerprints_equal": true
+  },
+  "limitations": [
+    "Storage Box / external backup path not exercised in this local proof.",
+    "Universe seed re-import is a separate step after restore (see universe_reimport_cmd).",
+    "Fingerprints use ctid samples (≤5000 rows/table) for speed; full-table digests optional."
+  ],
+  "recovery_instruction": "pg_restore -d <target_db> backups/local-proof/<dump>; or bash scripts/restore-database.sh when available.",
+  "universe_reimport_cmd": "python3 -c \"from scripts.lib.universe import load_canonical_universe; u=load_canonical_universe(); print(u.summary())\"",
+  "code_sha": "527672455481f2a65ef8d0b97d996bfb04ba1033",
+  "timestamp": "2026-08-02T13:42:48.868533+00:00"
+}

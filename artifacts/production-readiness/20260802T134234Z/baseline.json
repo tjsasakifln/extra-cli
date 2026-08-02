@@ -1,0 +1,7 @@
+{
+  "code_sha": "527672455481f2a65ef8d0b97d996bfb04ba1033",
+  "timestamp": "2026-08-02T13:42:35.014545+00:00",
+  "branch": "feat/production-readiness-closeout",
+  "base_merge": "704975a7bcdd43d4dc6769fbf6c14726327ab37b",
+  "reproof_reason": "skeptic demanded all gates re-executed on exact tip 52767245"
+}

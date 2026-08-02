@@ -1,0 +1,11 @@
+{
+  "result": "PASS",
+  "passed": 12,
+  "tests": 12,
+  "flows_documented": 16,
+  "spec": "e2e/consulting-production.spec.ts",
+  "code_sha": "527672455481f2a65ef8d0b97d996bfb04ba1033",
+  "timestamp": "2026-08-02T13:48:24.723245+00:00",
+  "hardening": "requireWorkflow real consulting IDs; strict upload/cancel/isolation/path-traversal",
+  "log_tail": "lting E2E (16 flows) \u203a 5: technical acervo consult\n[5/12] e2e/consulting-production.spec.ts:155:3 \u203a production readiness consulting E2E (16 flows) \u203a 6-8: bid readiness + human review + PDF/Excel\n[6/12] e2e/consulting-production.spec.ts:192:3 \u203a production readiness consulting E2E (16 flows) \u203a 9: parameter validation error is actionable\n[7/12] e2e/consulting-production.spec.ts:207:3 \u203a production readiness consulting E2E (16 flows) \u203a 10-11: cancel and reprocess require real job\n[8/12] e2e/consulting-production.spec.ts:230:3 \u203a production readiness consulting E2E (16 flows) \u203a 12: isolation \u2014 two jobs do not share ids\n[9/12] e2e/consulting-production.spec.ts:255:3 \u203a production readiness consulting E2E (16 flows) \u203a 13: REAL without valid credential/source fails closed\n[10/12] e2e/consulting-production.spec.ts:293:3 \u203a production readiness consulting E2E (16 flows) \u203a 14: FIXTURE explicitly selected and labeled\n[11/12] e2e/consulting-production.spec.ts:311:3 \u203a production readiness consulting E2E (16 flows) \u203a 15: path traversal rejected\n[12/12] e2e/consulting-production.spec.ts:327:3 \u203a production readiness consulting E2E (16 flows) \u203a 16: malicious parameter treated as data\n  12 passed (2.6m)\n"
+}

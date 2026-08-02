@@ -1,0 +1,100 @@
+{
+  "events": [
+    {
+      "timestamp": "2026-08-02T13:43:17.000951+00:00",
+      "level": "INFO",
+      "module": "scripts.notify",
+      "correlation_id": "",
+      "message": "Webhook sent: source-failure drill on VPS tip (status=200)",
+      "extra_data": {
+        "action": "notify_webhook",
+        "subject": "source-failure drill on VPS tip",
+        "status": 200
+      }
+    },
+    {
+      "dest": {
+        "smtp": false,
+        "webhook": true,
+        "any": true,
+        "env_keys_present": {
+          "NOTIFY_SMTP_HOST": false,
+          "NOTIFY_SMTP_FROM": false,
+          "NOTIFY_SMTP_TO": false,
+          "NOTIFY_WEBHOOK_URL": true
+        }
+      },
+      "dispatch": {
+        "title": "source-failure drill on VPS tip",
+        "fingerprint": "1f309e05d66261b5",
+        "suppressed": false,
+        "suppress_reason": null,
+        "destinations": {
+          "smtp": false,
+          "webhook": true,
+          "any": true,
+          "env_keys_present": {
+            "NOTIFY_SMTP_HOST": false,
+            "NOTIFY_SMTP_FROM": false,
+            "NOTIFY_SMTP_TO": false,
+            "NOTIFY_WEBHOOK_URL": true
+          }
+        },
+        "dry_run": false,
+        "channels": [
+          {
+            "success": true,
+            "message": "Webhook sent (HTTP 200)",
+            "channel": "webhook"
+          }
+        ],
+        "fallback_ledger": null,
+        "webhook_failure_detectable": true,
+        "has_actionable_context": true
+      },
+      "at": "2026-08-02T13:43:17.002613+00:00"
+    }
+  ],
+  "latest": {
+    "dest": {
+      "smtp": false,
+      "webhook": true,
+      "any": true,
+      "env_keys_present": {
+        "NOTIFY_SMTP_HOST": false,
+        "NOTIFY_SMTP_FROM": false,
+        "NOTIFY_SMTP_TO": false,
+        "NOTIFY_WEBHOOK_URL": true
+      }
+    },
+    "dispatch": {
+      "title": "source-failure drill on VPS tip",
+      "fingerprint": "1f309e05d66261b5",
+      "suppressed": false,
+      "suppress_reason": null,
+      "destinations": {
+        "smtp": false,
+        "webhook": true,
+        "any": true,
+        "env_keys_present": {
+          "NOTIFY_SMTP_HOST": false,
+          "NOTIFY_SMTP_FROM": false,
+          "NOTIFY_SMTP_TO": false,
+          "NOTIFY_WEBHOOK_URL": true
+        }
+      },
+      "dry_run": false,
+      "channels": [
+        {
+          "success": true,
+          "message": "Webhook sent (HTTP 200)",
+          "channel": "webhook"
+        }
+      ],
+      "fallback_ledger": null,
+      "webhook_failure_detectable": true,
+      "has_actionable_context": true
+    },
+    "at": "2026-08-02T13:43:17.002613+00:00"
+  }
+}

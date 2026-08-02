@@ -1,0 +1,25 @@
+{
+  "count": 8,
+  "by_status": {
+    "SUCCESS_NONZERO": 8
+  },
+  "selection_policy": "success_lag_rotation",
+  "multi_source": false,
+  "eligible_count": 407,
+  "overdue_count": 389,
+  "lag_cleared": false,
+  "drain_stop_reason": "PARTIAL_CAPACITY_EXHAUSTED",
+  "capacity_insufficient": true,
+  "batches": 1,
+  "sla_alert_count": 389,
+  "selected_canonical_ids": [
+    "01610999:FUNDO_MUNICIPAL_DE_ASSISTENCIA_SOCIAL_DO_MUNICIPIO_DE_CAMPO_ALEGRE_SC",
+    "01614019:MUNICIPIO_DE_TREVISO",
+    "01624194:CAMARA_MUNICIPAL_DE_BOCAINA_DO_SUL_SC",
+    "01630213:CAMARA_MUNICIPAL_DE_VEREADORES_DE_PALMEIRAS_SC",
+    "01637334:CAMARA_MUNICIPAL_DE_COCAL_DO_SUL",
+    "01646639:CAMARA_MUNICIPAL_DE_VEREADORES_DE_PAINEL",
+    "01794690:CAMARA_MUNICIPAL_DE_VEREADORES_DE_BOM_RETIRO",
+    "01796840:FUNDACAO_MUNICIPAL_DE_ESPORTES_DE_RIO_NEGRINHO"
+  ]
+}

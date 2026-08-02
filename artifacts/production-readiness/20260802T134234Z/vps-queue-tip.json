@@ -1,0 +1,12 @@
+{
+  "schema": "production-readiness.vps-queue-tip.v1",
+  "captured_at": "2026-08-02T13:48:01.147026+00:00",
+  "code_sha_vps": "527672455481f2a65ef8d0b97d996bfb04ba1033",
+  "meta_root": "/var/lib/extra-consultoria/output/process_documents",
+  "active_entities": 407,
+  "overdue_count": 0,
+  "within_sla_count": 407,
+  "never_succeeded_count": 0,
+  "lag_cleared": true,
+  "sla_hours": 24
+}
