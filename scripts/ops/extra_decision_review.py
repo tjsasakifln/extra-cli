@@ -237,14 +237,33 @@ def _persist_canonical_decision(
     except Exception as exc:  # noqa: BLE001
         try:
             conn.rollback()
-        except Exception:  # noqa: BLE001, S110
-            pass
+        except Exception as rollback_exc:  # noqa: BLE001
+            # Best-effort rollback; original persistence error is re-raised.
+            sys.stderr.write(
+                json.dumps(
+                    {
+                        "ok": False,
+                        "warning": "rollback_failed",
+                        "error": str(rollback_exc),
+                    }
+                )
+                + "\n"
+            )
         raise RuntimeError(f"{PERSISTENCE_FAILED}: {exc}") from exc
     finally:
         try:
             conn.close()
-        except Exception:  # noqa: BLE001, S110
-            pass
+        except Exception as close_exc:  # noqa: BLE001
+            sys.stderr.write(
+                json.dumps(
+                    {
+                        "ok": False,
+                        "warning": "connection_close_failed",
+                        "error": str(close_exc),
+                    }
+                )
+                + "\n"
+            )
 
 
 def decide(
