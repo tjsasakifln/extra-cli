@@ -1,9 +1,0 @@
----META---
-{"document_type": "CNDT"}
----ENDMETA---
-
-Certidão Negativa de Débitos Trabalhistas - CNDT
-CNPJ: 12.345.678/0001-99
-Razão social: EXTRA CONSTRUTORA FICTICIA LTDA
-Data de emissão: 2026-06-20
-Validade: 2026-07-20

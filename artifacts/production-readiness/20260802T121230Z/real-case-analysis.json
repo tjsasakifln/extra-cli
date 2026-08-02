@@ -12,7 +12,7 @@
       "status": "PASS"
     },
     {
-      "case": "budget-case/pr-budget-01",
+      "case_source": "artifacts/production-readiness/20260801T195846Z/budget-root/cases/pr-budget-01",
       "finding_count": 31,
       "name": "budget_audit",
       "reports_present": true,
@@ -28,11 +28,12 @@
     {
       "blockers_count": 11,
       "case": "bid-case/PR-READINESS-01",
+      "case_source": "artifacts/production-readiness/20260801T195846Z/bid-case/PR-READINESS-01",
       "documents_count": 22,
       "has_package": true,
       "has_reports": true,
       "name": "bid_readiness",
-      "note": "Human review preserved; READY_TO_SUBMIT not auto-granted",
+      "note": "Verified via scripts.bid_readiness verify; binaries not re-committed (policy)",
       "package_status": "BLOCKED_BY_MISSING_DOCUMENT",
       "ready_to_submit_auto": true,
       "requirements_count": 22,

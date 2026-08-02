@@ -1,9 +1,0 @@
----META---
-{"document_type": "CARTAO_CNPJ"}
----ENDMETA---
-
-Comprovante de Inscrição e de Situação Cadastral
-Cartão CNPJ
-Nome empresarial: EXTRA CONSTRUTORA FICTICIA LTDA
-CNPJ: 12.345.678/0001-99
-Data de emissão: 2026-01-01
