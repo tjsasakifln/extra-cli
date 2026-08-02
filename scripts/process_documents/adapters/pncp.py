@@ -60,7 +60,9 @@ class PncpDocumentAdapter:
         self,
         *,
         session: requests.Session | None = None,
-        timeout: tuple[float, float] = (5.0, 45.0),
+        # Connect timeout was 5s and caused frequent false connection_failed
+        # under PNCP latency/jitter observed in production drain runs.
+        timeout: tuple[float, float] = (15.0, 90.0),
         max_retries: int = 3,
         request_delay: float = 0.25,
         raw_root: Path | None = None,
