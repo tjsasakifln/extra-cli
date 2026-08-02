@@ -27,6 +27,7 @@ from scripts.decision_memory.repository import DecisionMemoryRepository
 from scripts.decision_memory.weekly_board import build_weekly_board
 from scripts.ops.extra_decision_review import (
     CANONICAL_PERSISTED,
+    CANONICAL_PERSISTED_PROJECTION_PARTIAL,
     NON_CANONICAL_ARTIFACT_ONLY,
     decide,
 )
@@ -180,10 +181,15 @@ def test_two_cycle_fixture_board_and_metrics(repo: DecisionMemoryRepository, cli
     assert win["denominator"] is not None  # WIN+LOSS
     assert "decision_influence_rate" in FORBIDDEN_AUTO_CAUSAL
     assert "decision_influence_rate" not in names
-    # Ensure denominators present
+    # Every metric cell must expose the honest contract fields
     for m in metrics["metrics"]:
+        assert "name" in m and m["name"]
         assert "numerator" in m
-        assert "limitations" in m or m.get("denominator") is not None or True
+        assert "denominator" in m  # may be None when not applicable
+        assert "unknown_count" in m
+        assert isinstance(m.get("limitations"), list)
+        assert isinstance(m.get("exclusions"), list)
+        assert isinstance(m.get("filters"), dict)
 
 
 def test_cli_smoke(dm_dsn: str, client_id: str, tmp_path: Path) -> None:
@@ -336,6 +342,110 @@ def test_review_db_failure_fail_closed(tmp_path: Path) -> None:
         )
     # No JSONL written on failure
     assert not (run / "human-decisions.jsonl").is_file()
+
+
+def test_review_missing_dsn_fail_closed_without_artifact_only(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Without DSN, decide must fail closed unless --artifact-only is explicit."""
+    monkeypatch.delenv("LOCAL_DATALAKE_DSN", raising=False)
+    run = tmp_path / "run"
+    run.mkdir()
+    (run / "shortlist.json").write_text(
+        json.dumps(
+            {
+                "result": "SHORTLIST_READY",
+                "shortlist": [{"opportunity_id": "no-dsn-1", "recommendation": "REVIEW"}],
+                "shortlist_count": 1,
+                "profile_stamp": {},
+            }
+        ),
+        encoding="utf-8",
+    )
+    with pytest.raises(RuntimeError, match="PERSISTENCE_FAILED"):
+        decide(
+            run,
+            opportunity_id="no-dsn-1",
+            decision="ACCEPT",
+            reason="no dsn without artifact-only",
+            actor="reviewer",
+            dsn=None,
+            artifact_only=False,
+            client_id="extra",
+        )
+    assert not (run / "human-decisions.jsonl").is_file()
+
+
+def test_review_projection_partial_after_pg_commit(
+    dm_dsn: str, client_id: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """PG commit succeeds; local projection fails → partial recoverable, not terminal PASS confusion."""
+    import scripts.decision_memory.projection as proj_mod
+
+    run = tmp_path / "run"
+    run.mkdir()
+    (run / "shortlist.json").write_text(
+        json.dumps(
+            {
+                "result": "SHORTLIST_READY",
+                "shortlist": [
+                    {
+                        "opportunity_id": "proj-fail-1",
+                        "recommendation": "REVIEW",
+                        "state": "REVIEW",
+                    }
+                ],
+                "shortlist_count": 1,
+                "profile_stamp": {"version": 1, "profile_hash": "k" * 64},
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    real_append = proj_mod.append_projection
+
+    def _boom(*_a: object, **_k: object) -> None:
+        raise OSError("simulated projection write failure")
+
+    # Local import inside _persist_canonical_decision resolves via projection module
+    monkeypatch.setattr(proj_mod, "append_projection", _boom)
+
+    out = decide(
+        run,
+        opportunity_id="proj-fail-1",
+        decision="ACCEPT",
+        reason="pg ok projection fails",
+        actor="reviewer",
+        dsn=dm_dsn,
+        client_id=client_id,
+    )
+    assert out["persistence"] == CANONICAL_PERSISTED_PROJECTION_PARTIAL
+    assert out.get("canonical_event_id")
+    assert out.get("projection_error")
+    # Not confused with pure artifact-only path
+    assert out["persistence"] != NON_CANONICAL_ARTIFACT_ONLY
+    # Recoverable meta written; JSONL may be absent
+    meta = run / "decision-memory-persistence.json"
+    assert meta.is_file()
+    meta_body = json.loads(meta.read_text(encoding="utf-8"))
+    assert meta_body["status"] == CANONICAL_PERSISTED_PROJECTION_PARTIAL
+    assert meta_body.get("recoverable") is True
+
+    # Idempotent retry after restoring real projection (PG event already exists)
+    monkeypatch.setattr(proj_mod, "append_projection", real_append)
+    again = decide(
+        run,
+        opportunity_id="proj-fail-1",
+        decision="ACCEPT",
+        reason="pg ok projection fails",
+        actor="reviewer",
+        dsn=dm_dsn,
+        client_id=client_id,
+    )
+    assert again["persistence"] == CANONICAL_PERSISTED
+    assert again.get("persistence_created") is False  # same idempotency key
+    assert again.get("canonical_event_id") == out.get("canonical_event_id")
+    assert (run / "human-decisions.jsonl").is_file()
 
 
 def test_cli_requires_client_id() -> None:

@@ -325,14 +325,19 @@ def decide(
             break
 
     target_dsn = dsn or os.getenv("LOCAL_DATALAKE_DSN")
-    if artifact_only or not target_dsn:
+    if artifact_only:
+        # Explicit non-canonical path only — never a silent fallback for missing DSN.
         append_decision(run_dir, record)
         record["persistence"] = NON_CANONICAL_ARTIFACT_ONLY
-        if artifact_only:
-            record["persistence_note"] = "Explicit --artifact-only; not equivalent to canonical PASS path"
-        else:
-            record["persistence_note"] = "No DSN configured; local JSONL only (non-canonical)"
+        record["persistence_note"] = (
+            "Explicit --artifact-only; not equivalent to canonical PASS path"
+        )
         return record
+    if not target_dsn:
+        raise RuntimeError(
+            f"{PERSISTENCE_FAILED}: LOCAL_DATALAKE_DSN/--dsn required for canonical "
+            "persistence; pass --artifact-only for explicit non-canonical JSONL only"
+        )
 
     # Canonical path: PG first, then projection
     return _persist_canonical_decision(
