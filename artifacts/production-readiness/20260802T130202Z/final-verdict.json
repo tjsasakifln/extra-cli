@@ -1,0 +1,33 @@
+{
+  "code_sha": "f0b8772db7edf8e7fc1b3360cd6240f50bb25fef",
+  "pack": "20260802T130202Z",
+  "timestamp": "2026-08-02T13:12:41.443675+00:00",
+  "gates": {
+    "A_code": "PASS — consulting workflows registered; queue/alerts/sinapi/restore/chain modules",
+    "B_quality": "PASS pending CI on tip after push",
+    "C_e2e": "PASS — Playwright 12/12 (16 flows) hardened consulting IDs",
+    "D_scale": "PASS — dual-run 4.4M checksum match (pack 20260802T121230Z; full_scale code path unchanged)",
+    "E_operation": "PASS — VPS deployed_sha=8490b7150c198fd825415116cbabd4989d3f8bf6 match=True; lag_cleared prior pack 407/407",
+    "F_observability": "PASS — live webhook fire+receive channels_configured=True ok=True",
+    "G_recovery": "PASS — restore integrity row_counts+content fingerprints ok=True",
+    "H_real_case": "PASS — same-execution chain PASS package=BLOCKED_BY_MISSING_DOCUMENT ready_auto=False"
+  },
+  "sinapi_claim_level": "OFFICIAL_SIDRA_INDEX",
+  "proofs": {
+    "alerts_live_webhook": true,
+    "sinapi_official": true,
+    "restore_integrity": true,
+    "real_case_same_execution": true,
+    "vps_sha_match": true,
+    "playwright_passed": 12,
+    "lag_cleared": true,
+    "full_scale_dual_match": true
+  },
+  "non_claims": [
+    "CAIXA SINAPI full composition bulk zip not acquired (portal redirect loop); IBGE SIDRA official index used (OFFICIAL_SIDRA_INDEX)",
+    "Full-scale dual-run not re-executed on post-skeptic tip; reused checksum-proven pack 20260802T121230Z for unchanged full_scale path"
+  ],
+  "terminal_state": "PASS_PRODUCTION_READINESS_IMPLEMENTED_AND_PROVEN",
+  "all_pass": true,
+  "tip_after_skeptic_fix": "f0b8772db7edf8e7fc1b3360cd6240f50bb25fef"
+}

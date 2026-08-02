@@ -87,6 +87,95 @@ def table_count(parts: dict[str, str], dbname: str) -> int:
     return int((r.stdout or "0").strip() or "0")
 
 
+def _psql_scalar(parts: dict[str, str], dbname: str, sql: str) -> str:
+    env = _env_for_pg(parts)
+    r = _run(
+        [
+            "psql",
+            "-h",
+            parts["host"],
+            "-p",
+            parts["port"],
+            "-U",
+            parts["user"],
+            "-d",
+            dbname,
+            "-tAc",
+            sql,
+        ],
+        env,
+    )
+    if r.returncode != 0:
+        raise RuntimeError(f"psql failed: {r.stderr}")
+    return (r.stdout or "").strip()
+
+
+def integrity_snapshot(parts: dict[str, str], dbname: str) -> dict[str, object]:
+    """Row counts + md5 fingerprints for key operational tables when present.
+
+    Gate G requires more than table inventory equality — compare processes,
+    documents, versions and queue-like state where schema has them.
+    """
+    env_tables = _psql_scalar(
+        parts,
+        dbname,
+        "SELECT string_agg(table_name, ',' ORDER BY table_name) "
+        "FROM information_schema.tables WHERE table_schema='public'",
+    )
+    present = set((env_tables or "").split(",")) if env_tables else set()
+    # Prefer domain tables; fall back to any public tables with rows
+    candidates = [
+        "process_documents",
+        "document_versions",
+        "documents",
+        "processes",
+        "entity_source_state",
+        "entity_source_queue",
+        "source_runs",
+        "document_inventory",
+        "pncp_supplier_contracts",
+        "opportunities",
+        "jobs",
+        "command_center_jobs",
+    ]
+    row_counts: dict[str, int] = {}
+    fingerprints: dict[str, str] = {}
+    # Only allowlisted identifiers — never interpolate operator input.
+    safe_tables = {c for c in candidates if c.replace("_", "").isalnum()}
+    for t in candidates:
+        if t not in present or t not in safe_tables:
+            continue
+        try:
+            n = int(
+                _psql_scalar(
+                    parts,
+                    dbname,
+                    'SELECT count(*) FROM "' + t + '"',  # noqa: S608 — t allowlisted identifier
+                )
+                or "0"
+            )
+        except RuntimeError:
+            continue
+        row_counts[t] = n
+        # Content fingerprint (not ctid — ctid changes across restore).
+        try:
+            if n == 0:
+                fingerprints[t] = "empty"
+            else:
+                # t is allowlisted alphanumeric identifier only (safe_tables)
+                sql = "SELECT md5(string_agg(row_hash, ',' ORDER BY row_hash)) FROM (SELECT md5(t::text) AS row_hash FROM \"" + t + "\" AS t ORDER BY md5(t::text) LIMIT 5000) s"  # noqa: S608
+                fp = _psql_scalar(parts, dbname, sql)
+                fingerprints[t] = fp or "empty"
+        except RuntimeError:
+            fingerprints[t] = "unavailable"
+    return {
+        "public_tables": len(present),
+        "row_counts": row_counts,
+        "fingerprints": fingerprints,
+        "compared_tables": sorted(row_counts.keys()),
+    }
+
+
 def ensure_db(parts: dict[str, str], dbname: str) -> None:
     env = _env_for_pg(parts)
     # connect to postgres maintenance db
@@ -198,6 +287,7 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     src_tables = table_count(parts, parts["dbname"])
+    src_integrity = integrity_snapshot(parts, parts["dbname"])
     ensure_db(parts, args.restore_db)
     restore = _run(
         [
@@ -218,6 +308,10 @@ def main(argv: list[str] | None = None) -> int:
     )
     # pg_restore may return 1 with warnings; treat only hard fail
     dst_tables = table_count(parts, args.restore_db)
+    dst_integrity = integrity_snapshot(parts, args.restore_db)
+    row_counts_match = src_integrity.get("row_counts") == dst_integrity.get("row_counts")
+    fingerprints_match = src_integrity.get("fingerprints") == dst_integrity.get("fingerprints")
+    compared = list(src_integrity.get("compared_tables") or [])
     report = {
         "ok": dump_path.is_file() and dst_tables >= 0 and src_tables >= 0,
         "generated_at": datetime.now(UTC).isoformat(),
@@ -229,14 +323,25 @@ def main(argv: list[str] | None = None) -> int:
         "restore_public_tables": dst_tables,
         "pg_restore_exit": restore.returncode,
         "pg_restore_stderr_tail": (restore.stderr or "")[-500:],
+        "integrity": {
+            "source": src_integrity,
+            "restore": dst_integrity,
+            "row_counts_match": row_counts_match,
+            "fingerprints_match": fingerprints_match,
+            "compared_tables": compared,
+        },
         "claims": {
             "backup_exists": dump_path.is_file() and dump_path.stat().st_size > 0,
             "restore_separate_db": args.restore_db != parts["dbname"],
             "tables_restored": dst_tables > 0 or src_tables == 0,
+            "table_inventory_equal": src_tables == dst_tables,
+            "domain_row_counts_equal": row_counts_match,
+            "domain_fingerprints_equal": fingerprints_match,
         },
         "limitations": [
             "Storage Box / external backup path not exercised in this local proof.",
             "Universe seed re-import is a separate step after restore (see universe_reimport_cmd).",
+            "Fingerprints use ctid samples (≤5000 rows/table) for speed; full-table digests optional.",
         ],
         "recovery_instruction": (
             "pg_restore -d <target_db> backups/local-proof/<dump>; "
@@ -247,10 +352,16 @@ def main(argv: list[str] | None = None) -> int:
             "u=load_canonical_universe(); print(u.summary())\""
         ),
     }
+    # Require integrity when domain tables exist; otherwise inventory equality
+    integrity_ok = True
+    if compared:
+        integrity_ok = bool(row_counts_match and fingerprints_match)
     report["ok"] = (
         report["claims"]["backup_exists"]
         and report["claims"]["restore_separate_db"]
         and (report["claims"]["tables_restored"] or src_tables == 0)
+        and report["claims"]["table_inventory_equal"]
+        and integrity_ok
     )
     out_json = args.out_dir / f"proof-report-{stamp}.json"
     out_json.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
@@ -259,7 +370,11 @@ def main(argv: list[str] | None = None) -> int:
     else:
         print(
             f"local_backup_restore_proof: ok={report['ok']} "
-            f"src_tables={src_tables} dst_tables={dst_tables} dump={dump_path.name}"
+            f"src_tables={src_tables} dst_tables={dst_tables} "
+            f"integrity_tables={len(compared)} "
+            f"row_counts_match={row_counts_match} "
+            f"fingerprints_match={fingerprints_match} "
+            f"dump={dump_path.name}"
         )
     return 0 if report["ok"] else 1
 

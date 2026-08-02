@@ -1,0 +1,10 @@
+{
+  "timestamp": "2026-08-02T13:06:44.145973+00:00",
+  "host": "ec-prod",
+  "remote_dir": "/opt/extra-consultoria",
+  "deployed_sha": "8490b7150c198fd825415116cbabd4989d3f8bf6",
+  "branch": "feat/production-readiness-closeout",
+  "skip_full_scale": true,
+  "skip_cycles": true,
+  "result": "DEPLOY_SCRIPT_EXECUTED"
+}

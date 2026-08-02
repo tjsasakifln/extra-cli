@@ -44,8 +44,11 @@ def load_official_manifest(path: Path) -> dict[str, Any]:
             f"manifest system={data.get('system')!r} is not an official SINAPI/SICRO source; "
             "refusing to treat as official"
         )
-    if data.get("is_fixture") or data.get("synthetic"):
-        raise ValueError("fixture/synthetic reference cannot be used as official")
+    if data.get("is_fixture") or data.get("synthetic") or data.get("is_demo_structure"):
+        raise ValueError("fixture/synthetic/demo reference cannot be used as official")
+    claim = str(data.get("claim_level") or "")
+    if claim.startswith("STRUCTURE") or "NOT_OFFICIAL" in claim:
+        raise ValueError(f"claim_level={claim!r} cannot be used as official")
     # verify file hash when present
     ref_file = data.get("file_path") or data.get("resolved_path")
     if ref_file and Path(ref_file).is_file():
