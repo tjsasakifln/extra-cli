@@ -395,10 +395,11 @@ def select_batch_by_success_lag(
         e = queue.get(d.canonical_id) or EntityQueueEntry(canonical_id=d.canonical_id)
         success = _parse_iso(e.last_success_at)
         next_run = _parse_iso(e.next_run_at) or datetime.min.replace(tzinfo=UTC)
-        # Prefer entities that can be cleared via local/open sources (CIGA/DOM/SC)
-        # before PNCP-heavy ones, so rate-limited PNCP does not starve lag drain.
+        # Prefer entities whose preferred_single_source is CIGA/DOM (not PNCP).
+        # sc_compras alone is insufficient: preferred_single_source still picks pncp
+        # when both exist, and PNCP 429 starves lag drain.
         plats = {str(p).lower() for p in (getattr(d, "platforms", None) or [])}
-        healthy_pref = 0 if plats & {"ciga_ckan", "ciga_dom", "dom_sc", "sc_compras"} else 1
+        healthy_pref = 0 if plats & {"ciga_ckan", "ciga_dom", "dom_sc"} else 1
         if success is None:
             return (0, healthy_pref, datetime.min.replace(tzinfo=UTC), next_run, d.canonical_id)
         return (1, healthy_pref, success, next_run, d.canonical_id)
@@ -756,9 +757,9 @@ def select_batch_by_source_lag(
         if sources_for_entity is not None:
             applicable = list(sources_for_entity.get(d.canonical_id) or [])
         lag = max_source_lag_hours(e, now=clock, applicable_sources=applicable)
-        # Prefer entities clearable via open/local sources before PNCP (rate-limit).
+        # Align with preferred_single_source: only CIGA/DOM families avoid PNCP.
         plats = {str(p).lower() for p in (getattr(d, "platforms", None) or [])}
-        healthy_pref = 0 if plats & {"ciga_ckan", "ciga_dom", "dom_sc", "sc_compras"} else 1
+        healthy_pref = 0 if plats & {"ciga_ckan", "ciga_dom", "dom_sc"} else 1
         if lag is None:
             return (0, healthy_pref, 1e18, d.canonical_id)  # never — highest priority
         return (1, healthy_pref, -float(lag), d.canonical_id)
