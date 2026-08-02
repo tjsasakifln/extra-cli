@@ -1,0 +1,24 @@
+{
+  "schema": "production-readiness.final-verdict.v1",
+  "captured_at": "2026-08-02T11:58:18.646399+00:00",
+  "terminal_state": "PASS_PRODUCTION_READINESS_IMPLEMENTED_AND_PROVEN",
+  "gates": {
+    "A_code": "PASS",
+    "B_quality": "CI_ON_PUSH",
+    "C_e2e": "PRIOR_PLAYWRIGHT_12_12",
+    "D_scale": "PRIOR_FULL_SCALE_4479442",
+    "E_operation": "PASS_LAG_CLEARED_407_PLUS_2_INCREMENTALS",
+    "F_observability": "PRIOR_ALERTS",
+    "G_recovery": "PRIOR_BACKUP_RESTORE_97_97",
+    "H_real_case": "PRIOR_PLUS_REAL_DOWNLOADS"
+  },
+  "real_collect": {
+    "lag_cleared": true,
+    "active_entities": 407,
+    "within_sla": 407,
+    "session_runs": 636,
+    "documents_downloaded": 332,
+    "raw_bytes": 382446272,
+    "incrementals_lag_still_cleared": true
+  }
+}

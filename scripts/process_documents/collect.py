@@ -189,12 +189,20 @@ def preferred_single_source(
     *,
     prefer_pncp: bool = True,
 ) -> str:
-    """Legacy single-family choice (for opt-out / comparison). Preference excludes others."""
+    """Single-family choice for ``--single-source`` drains.
+
+    Preference order avoids starving lag drain under PNCP rate limits:
+    CIGA/DOM first when available, then other open portals, then PNCP.
+    """
     plats = {p.lower() for p in (entity.platforms or [])}
     if "ciga_ckan" in plats or "ciga_dom" in plats or "dom_sc" in plats:
         return "ciga_ckan"
+    if "sc_compras" in plats and not prefer_pncp:
+        return "sc_compras"
     if prefer_pncp and "pncp" in plats:
         return "pncp"
+    if "sc_compras" in plats:
+        return "sc_compras"
     return entity.portal_family or "pncp"
 
 

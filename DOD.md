@@ -3106,3 +3106,16 @@ CI (PR #12):
 - **Estado:** `HUMAN_REVIEW_PENDING`
 - **Ação:** *Tiago deve revisar a fila de órgãos, os conflitos de interesses, as classificações jurídicas preliminares, os dossiers e os materiais de abordagem antes de autorizar qualquer contato.*
 
+## Production readiness closeout (2026-08-02)
+
+> Evidence pack: `artifacts/production-readiness/20260802T115800Z/`
+
+- [x] Active-universe entity queue drain: **lag_cleared=true** for **407/407** active entities (overdue=0, never_succeeded=0).
+- [x] Real document downloads in session: **332** (pncp 327, ciga 4, html 1); raw CAS **~382 MB**.
+- [x] Session runs: **636** with non-zero multi-source status histogram (not mark-all).
+- [x] Two post-drain incremental cycles with download; **lag remained cleared**.
+- [x] PNCP adapter timeouts raised to (15s connect, 90s read) — `fefa485d`.
+- [x] Scheduler prefers CIGA/DOM families before PNCP under lag drain — avoids 429 starvation.
+- [x] Queue state repair: SUCCESS_ZERO/NONZERO with `scope_complete≠false` reconciled missing `last_success_at` (inconsistent prior gap-close state).
+- Residual non-claims unchanged: official SINAPI live bulk dump; external https webhook delivery.
+
