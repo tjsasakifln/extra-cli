@@ -391,13 +391,17 @@ def select_batch_by_success_lag(
     Tie-break: canonical_id.
     """
 
-    def sort_key(d: EntityDocumentDiscovery) -> tuple[int, datetime, datetime, str]:
+    def sort_key(d: EntityDocumentDiscovery) -> tuple[int, int, datetime, datetime, str]:
         e = queue.get(d.canonical_id) or EntityQueueEntry(canonical_id=d.canonical_id)
         success = _parse_iso(e.last_success_at)
         next_run = _parse_iso(e.next_run_at) or datetime.min.replace(tzinfo=UTC)
+        # Prefer entities that can be cleared via local/open sources (CIGA/DOM/SC)
+        # before PNCP-heavy ones, so rate-limited PNCP does not starve lag drain.
+        plats = {str(p).lower() for p in (getattr(d, "platforms", None) or [])}
+        healthy_pref = 0 if plats & {"ciga_ckan", "ciga_dom", "dom_sc", "sc_compras"} else 1
         if success is None:
-            return (0, datetime.min.replace(tzinfo=UTC), next_run, d.canonical_id)
-        return (1, success, next_run, d.canonical_id)
+            return (0, healthy_pref, datetime.min.replace(tzinfo=UTC), next_run, d.canonical_id)
+        return (1, healthy_pref, success, next_run, d.canonical_id)
 
     _ = now  # reserved for lag metrics / future overdue filters
     ordered = sorted(targets, key=sort_key)
