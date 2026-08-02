@@ -2,7 +2,7 @@
   "campaign": "EXTRA-DECISION-OUTCOME-MEMORY-01",
   "terminal_state": "PASS_DECISION_OUTCOME_MEMORY_V1_PROVEN",
   "baseline_sha": "704975a7bcdd43d4dc6769fbf6c14726327ab37b",
-  "final_sha": "e7a3b308858dd1e964c4a7c3991813735386421a",
+  "final_sha": "6785c244e54edea75dcc3f94d9470648c891e351",
   "migration": "068_decision_outcome_memory.sql",
   "commands": [
     {
@@ -46,5 +46,9 @@
     "No remote VPS proof in this campaign"
   ],
   "generated_at": "2026-08-02T15:03:08Z",
-  "feature_commit": "0864553cb3e7da6246f520cdf60281416d5d1f7c"
+  "feature_commit": "0864553cb3e7da6246f520cdf60281416d5d1f7c",
+  "implementation_sha": "0864553cb3e7da6246f520cdf60281416d5d1f7c",
+  "note": "final_sha is the tip of campaign branch after evidence pack commits",
+  "branch": "campaign/EXTRA-DECISION-OUTCOME-MEMORY-01",
+  "self_referential_sha_note": "final_sha is best-effort tip; verify with git rev-parse HEAD on branch"
 }
