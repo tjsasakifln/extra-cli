@@ -2,7 +2,7 @@
   "campaign": "EXTRA-DECISION-OUTCOME-MEMORY-01",
   "terminal_state": "PASS_DECISION_OUTCOME_MEMORY_V1_PROVEN",
   "baseline_sha": "704975a7bcdd43d4dc6769fbf6c14726327ab37b",
-  "final_sha": "704975a7bcdd43d4dc6769fbf6c14726327ab37b",
+  "final_sha": "0864553cb3e7da6246f520cdf60281416d5d1f7c",
   "migration": "068_decision_outcome_memory.sql",
   "commands": [
     {
