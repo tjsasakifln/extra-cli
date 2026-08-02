@@ -1,0 +1,30 @@
+{
+  "ok": true,
+  "forbidden_auto_causal": [
+    "causal_win_attribution",
+    "confenge_caused_win",
+    "decision_influence_rate",
+    "loss_avoided"
+  ],
+  "sample_metric_names": [
+    "opportunities_evaluated",
+    "decisions_go",
+    "decisions_review",
+    "decisions_no_go",
+    "outcomes_unknown",
+    "win_rate",
+    "ineligibility_rate",
+    "actions_open",
+    "actions_completed",
+    "actions_overdue",
+    "recommendation_decision_divergence",
+    "decision_outcome_divergence_descriptive",
+    "margin_expected_declared_count",
+    "margin_realized_declared_count"
+  ],
+  "non_claims": [
+    "Metrics do not prove CONFENGE caused a win",
+    "Missing outcomes are UNKNOWN, not defeats",
+    "decision_influence_rate requires human-founded counterfactual (not auto)"
+  ]
+}

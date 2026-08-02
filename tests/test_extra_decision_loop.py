@@ -161,7 +161,14 @@ def test_review_accept_empty_and_finalize(tmp_path: Path) -> None:
     )
     listed = list_items(run)
     assert listed["n_items"] == 0
-    accept_empty(run, reason="Nenhum edital vigente no recorte", actor="tiago")
+    # artifact_only: unit tests of review ledger semantics (non-canonical path)
+    rec = accept_empty(
+        run,
+        reason="Nenhum edital vigente no recorte",
+        actor="tiago",
+        artifact_only=True,
+    )
+    assert rec.get("persistence") == "NON_CANONICAL_ARTIFACT_ONLY"
     # Without package_decision → READY_FOR_HUMAN_ACCEPTANCE (never silent PASS)
     st = finalize(run, actor="tiago", package_decision=None)
     assert st["terminal_state"] == READY_FOR_HUMAN
@@ -184,8 +191,22 @@ def test_review_decide_unknown_id_fails(tmp_path: Path) -> None:
         encoding="utf-8",
     )
     with pytest.raises(ValueError, match="not in shortlist"):
-        decide(run, opportunity_id="missing", decision="ACCEPT", reason="x", actor="tiago")
-    decide(run, opportunity_id="only-1", decision="REJECT", reason="fora de escopo", actor="tiago")
+        decide(
+            run,
+            opportunity_id="missing",
+            decision="ACCEPT",
+            reason="x",
+            actor="tiago",
+            artifact_only=True,
+        )
+    decide(
+        run,
+        opportunity_id="only-1",
+        decision="REJECT",
+        reason="fora de escopo",
+        actor="tiago",
+        artifact_only=True,
+    )
     st = finalize(run, actor="tiago", package_decision="ACCEPTED_WITH_LIMITATIONS")
     assert st["terminal_state"] == PASS_ACCEPTED
     assert st["n_decisions"] == 1

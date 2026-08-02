@@ -1,0 +1,6 @@
+{
+  "ok": true,
+  "proof": "tests/decision_memory/test_repository_pg.py::test_record_decision_and_idempotent + concurrency + import re-apply",
+  "cli_duplicate_policy": "ON CONFLICT (client_id, idempotency_key) DO NOTHING",
+  "sample_event_id": "99cac3c7-eaa5-45bf-9ae1-0c2b53727f77"
+}

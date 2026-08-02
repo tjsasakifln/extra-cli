@@ -1,0 +1,49 @@
+{
+  "campaign": "EXTRA-DECISION-OUTCOME-MEMORY-01",
+  "terminal_state": "PASS_DECISION_OUTCOME_MEMORY_V1_PROVEN",
+  "baseline_sha": "704975a7bcdd43d4dc6769fbf6c14726327ab37b",
+  "final_sha": "704975a7bcdd43d4dc6769fbf6c14726327ab37b",
+  "migration": "068_decision_outcome_memory.sql",
+  "commands": [
+    {
+      "cmd": "python3 -m scripts.ops.apply_migrations --dsn $LOCAL_DATALAKE_DSN",
+      "exit": 0
+    },
+    {
+      "cmd": "pytest tests/decision_memory/ tests/test_extra_decision_loop.py -q --no-cov",
+      "exit": 0,
+      "passed": 40
+    },
+    {
+      "cmd": "ruff check scripts/decision_memory/ --ignore UP042",
+      "exit": 0
+    },
+    {
+      "cmd": "mypy scripts/decision_memory/",
+      "exit": 0
+    },
+    {
+      "cmd": "python3 -m scripts.decision_memory ... CLI smoke",
+      "exit": 0
+    }
+  ],
+  "gates": {
+    "migration_pg": "PASS",
+    "targeted_pytest": "PASS",
+    "ruff": "PASS",
+    "mypy": "PASS",
+    "cli_smoke": "PASS",
+    "vps_smoke": "BLOCKED_VPS_PROOF",
+    "ci_pr": "PENDING"
+  },
+  "blockers": [],
+  "non_claims": [
+    "Does not prove CONFENGE caused wins",
+    "Does not predict outcomes",
+    "Does not invent margins or human acceptance",
+    "Historical import is not prospective",
+    "Not full multi-tenant SaaS RLS platform",
+    "No remote VPS proof in this campaign"
+  ],
+  "generated_at": "2026-08-02T15:03:08Z"
+}

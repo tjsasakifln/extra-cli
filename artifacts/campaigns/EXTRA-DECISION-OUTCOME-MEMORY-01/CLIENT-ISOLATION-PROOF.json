@@ -1,0 +1,13 @@
+{
+  "ok": true,
+  "tests": [
+    "test_client_isolation_adversarial",
+    "test_import_does_not_switch_client_scope"
+  ],
+  "mechanisms": [
+    "client_id filter",
+    "trigger dm_enforce_action_client_match",
+    "trigger dm_enforce_outcome_client_match"
+  ],
+  "rls": "not_enabled_v1"
+}

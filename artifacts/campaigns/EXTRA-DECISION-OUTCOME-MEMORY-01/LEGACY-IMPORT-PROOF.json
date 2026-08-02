@@ -1,0 +1,13 @@
+{
+  "ok": true,
+  "default_mode": "dry_run",
+  "tests": [
+    "test_import_dry_run_and_apply_idempotent",
+    "test_import_corrupted_jsonl"
+  ],
+  "policies": [
+    "zero_outcome_inference",
+    "HISTORICAL_UNVERIFIED",
+    "no_invention"
+  ]
+}
