@@ -34,7 +34,7 @@
     "mypy": "PASS",
     "cli_smoke": "PASS",
     "vps_smoke": "BLOCKED_VPS_PROOF",
-    "ci_pr": "PENDING_PUSH",
+    "ci_pr": "RETRIGGERED_AFTER_RUFF_FIX",
     "full_suite_local": "PARTIAL_ENV",
     "full_suite_detail": {
       "passed": 3537,
