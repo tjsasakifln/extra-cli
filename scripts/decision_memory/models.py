@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 from uuid import UUID
 
@@ -14,13 +14,13 @@ class StrictModel(BaseModel):
     model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
 
 
-class HumanDecision(str, Enum):
+class HumanDecision(StrEnum):
     GO = "GO"
     REVIEW = "REVIEW"
     NO_GO = "NO_GO"
 
 
-class LegacyDecision(str, Enum):
+class LegacyDecision(StrEnum):
     ACCEPT = "ACCEPT"
     REJECT = "REJECT"
     DEFER = "DEFER"
@@ -28,7 +28,7 @@ class LegacyDecision(str, Enum):
     NOT_PROVIDED = "NOT_PROVIDED"
 
 
-class SystemRecommendation(str, Enum):
+class SystemRecommendation(StrEnum):
     GO = "GO"
     REVIEW = "REVIEW"
     NO_GO = "NO_GO"
@@ -36,14 +36,14 @@ class SystemRecommendation(str, Enum):
     NOT_PROVIDED = "NOT_PROVIDED"
 
 
-class TemporalIntegrity(str, Enum):
+class TemporalIntegrity(StrEnum):
     PROSPECTIVE = "PROSPECTIVE"
     HISTORICAL_UNVERIFIED = "HISTORICAL_UNVERIFIED"
     OUTCOME_WITHOUT_PRIOR_DECISION = "OUTCOME_WITHOUT_PRIOR_DECISION"
     TEMPORAL_ORDER_UNKNOWN = "TEMPORAL_ORDER_UNKNOWN"
 
 
-class EventOrigin(str, Enum):
+class EventOrigin(StrEnum):
     CLI = "cli"
     REVIEW = "review"
     IMPORT = "import"
@@ -52,14 +52,14 @@ class EventOrigin(str, Enum):
     SUPERSESSION = "supersession"
 
 
-class CorrectionType(str, Enum):
+class CorrectionType(StrEnum):
     CORRECTION = "CORRECTION"
     SUPERSESSION = "SUPERSESSION"
     CLARIFICATION = "CLARIFICATION"
     VOID = "VOID"
 
 
-class ActionStatus(str, Enum):
+class ActionStatus(StrEnum):
     OPEN = "OPEN"
     IN_PROGRESS = "IN_PROGRESS"
     COMPLETED = "COMPLETED"
@@ -68,14 +68,14 @@ class ActionStatus(str, Enum):
     OVERDUE = "OVERDUE"
 
 
-class ActionCriticality(str, Enum):
+class ActionCriticality(StrEnum):
     CRITICAL = "CRITICAL"
     HIGH = "HIGH"
     NORMAL = "NORMAL"
     LOW = "LOW"
 
 
-class OutcomeType(str, Enum):
+class OutcomeType(StrEnum):
     UNKNOWN = "UNKNOWN"
     NO_PARTICIPATION = "NO_PARTICIPATION"
     PROPOSAL_SUBMITTED = "PROPOSAL_SUBMITTED"
@@ -96,7 +96,7 @@ class OutcomeType(str, Enum):
     MARGIN_DECLARED = "MARGIN_DECLARED"
 
 
-class ConfirmationDegree(str, Enum):
+class ConfirmationDegree(StrEnum):
     DECLARED = "DECLARED"
     DOCUMENTED = "DOCUMENTED"
     OFFICIAL = "OFFICIAL"
