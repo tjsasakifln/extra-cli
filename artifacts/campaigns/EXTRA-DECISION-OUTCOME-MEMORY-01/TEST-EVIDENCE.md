@@ -55,3 +55,15 @@ Fixes:
 1. No silent JSONL when DSN unset — requires `--artifact-only` or fails with PERSISTENCE_FAILED
 2. Projection partial path tested (PG OK → OSError on projection → PARTIAL + idempotent retry)
 3. Metrics contract asserted honestly (name, numerator, denominator, unknown_count, limitations, exclusions, filters)
+
+
+## Idempotent PARTIAL projection retry (skeptic)
+
+```bash
+export LOCAL_DATALAKE_DSN=postgresql://test:test@127.0.0.1:5433/extra_test
+python3 -m pytest tests/decision_memory/test_import_metrics_board_cli.py::test_review_projection_partial_after_pg_commit -vv --no-cov
+```
+
+- review key: `dm.decision.review:*` excludes `recorded_at`
+- after `time.sleep(1.1)` retry: `persistence_created=False`, same `event_id`, `COUNT(*)=1` in PG
+- suite: 42 passed (`tests/decision_memory/` + `test_extra_decision_loop`)
