@@ -172,7 +172,21 @@ def _persist_canonical_decision(
     from scripts.decision_memory.repository import DecisionMemoryRepository
 
     human, legacy = map_legacy_decision(str(record["decision"]))
+    from scripts.decision_memory.idempotency import review_decision_idempotency_key
+
     decided_at = datetime.fromisoformat(str(record["recorded_at"]).replace("Z", "+00:00"))
+    # Stable key excludes wall-clock so retries after PARTIAL projection (or any
+    # delay ≥1s) do not insert a second dm_decision_events row.
+    stable_key = review_decision_idempotency_key(
+        client_id=client_id,
+        opportunity_key=str(record["opportunity_id"]),
+        human_decision=human.value,
+        actor=str(record["actor"]),
+        justification=str(record["reason"]),
+        evidence_hash=record.get("evidence_hash"),
+        run_id=str(run_dir),
+        legacy_decision=legacy.value if legacy is not None else None,
+    )
     inp = DecisionRecordInput(
         client_id=client_id,
         opportunity_key=str(record["opportunity_id"]),
@@ -191,6 +205,7 @@ def _persist_canonical_decision(
         evidence_locators=[str(run_dir)],
         temporal_integrity=TemporalIntegrity.PROSPECTIVE,
         origin=EventOrigin.REVIEW,
+        idempotency_key=stable_key,
         payload={
             "run_dir": str(run_dir),
             "next_action": record.get("next_action"),
@@ -220,6 +235,7 @@ def _persist_canonical_decision(
                 event_id=str(event.get("event_id")),
                 client_id=client_id,
                 error=str(exc),
+                idempotency_key=str(event.get("idempotency_key") or ""),
             )
             persistence_status = CANONICAL_PERSISTED_PROJECTION_PARTIAL
             projection_error = str(exc)

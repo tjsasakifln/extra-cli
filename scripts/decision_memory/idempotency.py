@@ -37,9 +37,44 @@ def decision_idempotency_key(
     evidence_hash: str | None,
     legacy_decision: str | None = None,
     supersedes_event_id: str | None = None,
+    include_decided_at: bool = True,
 ) -> str:
+    """Build a deterministic decision idempotency key.
+
+    ``include_decided_at`` defaults True for CLI/historical imports (two intentional
+    decisions at different times are distinct). Review-path retries must pass
+    ``include_decided_at=False`` so wall-clock ``recorded_at`` does not fork a
+    second event after CANONICAL_PERSISTED_PROJECTION_PARTIAL recovery.
+    """
+    payload: dict[str, Any] = {
+        "client_id": client_id,
+        "opportunity_key": opportunity_key,
+        "human_decision": human_decision,
+        "legacy_decision": legacy_decision,
+        "actor": actor,
+        "justification": justification,
+        "evidence_hash": evidence_hash,
+        "supersedes_event_id": supersedes_event_id,
+    }
+    if include_decided_at:
+        payload["decided_at"] = decided_at
+    return deterministic_key("dm.decision", payload)
+
+
+def review_decision_idempotency_key(
+    *,
+    client_id: str,
+    opportunity_key: str,
+    human_decision: str,
+    actor: str,
+    justification: str,
+    evidence_hash: str | None,
+    run_id: str | None,
+    legacy_decision: str | None = None,
+) -> str:
+    """Stable key for Extra review retries (excludes volatile wall-clock)."""
     return deterministic_key(
-        "dm.decision",
+        "dm.decision.review",
         {
             "client_id": client_id,
             "opportunity_key": opportunity_key,
@@ -47,9 +82,8 @@ def decision_idempotency_key(
             "legacy_decision": legacy_decision,
             "actor": actor,
             "justification": justification,
-            "decided_at": decided_at,
             "evidence_hash": evidence_hash,
-            "supersedes_event_id": supersedes_event_id,
+            "run_id": run_id,
         },
     )
 

@@ -134,6 +134,8 @@ def test_extract_identifiers_from_actionable_shape() -> None:
 
 
 def test_idempotency_stable() -> None:
+    from scripts.decision_memory.idempotency import review_decision_idempotency_key
+
     a = decision_idempotency_key(
         client_id="c",
         opportunity_key="o",
@@ -156,6 +158,42 @@ def test_idempotency_stable() -> None:
     )
     assert a == b
     assert a.startswith("dm.decision:")
+
+    # Review keys ignore wall-clock so PARTIAL retries after delay stay single-row
+    r1 = review_decision_idempotency_key(
+        client_id="c",
+        opportunity_key="o",
+        human_decision="GO",
+        actor="a",
+        justification="j",
+        evidence_hash="e",
+        run_id="/tmp/run1",
+        legacy_decision="ACCEPT",
+    )
+    r2 = review_decision_idempotency_key(
+        client_id="c",
+        opportunity_key="o",
+        human_decision="GO",
+        actor="a",
+        justification="j",
+        evidence_hash="e",
+        run_id="/tmp/run1",
+        legacy_decision="ACCEPT",
+    )
+    assert r1 == r2
+    assert r1.startswith("dm.decision.review:")
+    # Default decision keys with different decided_at still diverge
+    d_late = decision_idempotency_key(
+        client_id="c",
+        opportunity_key="o",
+        human_decision="GO",
+        actor="a",
+        justification="j",
+        decided_at="2026-01-01T00:00:01Z",
+        evidence_hash="e",
+        legacy_decision="ACCEPT",
+    )
+    assert d_late != a
 
 
 def test_temporal_integrity() -> None:

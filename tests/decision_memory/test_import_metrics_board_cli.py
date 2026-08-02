@@ -379,7 +379,12 @@ def test_review_missing_dsn_fail_closed_without_artifact_only(
 def test_review_projection_partial_after_pg_commit(
     dm_dsn: str, client_id: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """PG commit succeeds; local projection fails → partial recoverable, not terminal PASS confusion."""
+    """PG commit succeeds; local projection fails → partial recoverable; retry is idempotent even after delay."""
+    import time
+
+    import psycopg2
+    from psycopg2.extras import RealDictCursor
+
     import scripts.decision_memory.projection as proj_mod
 
     run = tmp_path / "run"
@@ -422,6 +427,8 @@ def test_review_projection_partial_after_pg_commit(
     assert out["persistence"] == CANONICAL_PERSISTED_PROJECTION_PARTIAL
     assert out.get("canonical_event_id")
     assert out.get("projection_error")
+    first_event_id = out["canonical_event_id"]
+    first_idem = out.get("idempotency_key")
     # Not confused with pure artifact-only path
     assert out["persistence"] != NON_CANONICAL_ARTIFACT_ONLY
     # Recoverable meta written; JSONL may be absent
@@ -430,8 +437,10 @@ def test_review_projection_partial_after_pg_commit(
     meta_body = json.loads(meta.read_text(encoding="utf-8"))
     assert meta_body["status"] == CANONICAL_PERSISTED_PROJECTION_PARTIAL
     assert meta_body.get("recoverable") is True
+    assert meta_body.get("last_event_id") == first_event_id
 
-    # Idempotent retry after restoring real projection (PG event already exists)
+    # Wall-clock must not fork a second decision: delay >1s then retry
+    time.sleep(1.1)
     monkeypatch.setattr(proj_mod, "append_projection", real_append)
     again = decide(
         run,
@@ -443,9 +452,29 @@ def test_review_projection_partial_after_pg_commit(
         client_id=client_id,
     )
     assert again["persistence"] == CANONICAL_PERSISTED
-    assert again.get("persistence_created") is False  # same idempotency key
-    assert again.get("canonical_event_id") == out.get("canonical_event_id")
+    assert again.get("persistence_created") is False  # same stable review key
+    assert again.get("canonical_event_id") == first_event_id
+    assert again.get("idempotency_key") == first_idem
     assert (run / "human-decisions.jsonl").is_file()
+
+    # Authoritative count in PostgreSQL: exactly one decision for this opp
+    conn = psycopg2.connect(dm_dsn, cursor_factory=RealDictCursor)
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT event_id, idempotency_key
+                FROM public.dm_decision_events
+                WHERE client_id = %s AND opportunity_key = %s
+                ORDER BY created_at ASC
+                """,
+                (client_id, "proj-fail-1"),
+            )
+            rows = cur.fetchall()
+        assert len(rows) == 1, f"expected 1 decision after delayed retry, got {len(rows)}"
+        assert str(rows[0]["event_id"]) == str(first_event_id)
+    finally:
+        conn.close()
 
 
 def test_cli_requires_client_id() -> None:

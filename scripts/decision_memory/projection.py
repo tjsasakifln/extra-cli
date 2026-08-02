@@ -61,7 +61,14 @@ def append_projection(run_dir: Path, event: dict[str, Any]) -> Path:
     return path
 
 
-def write_partial_projection_failure(run_dir: Path, *, event_id: str, client_id: str, error: str) -> Path:
+def write_partial_projection_failure(
+    run_dir: Path,
+    *,
+    event_id: str,
+    client_id: str,
+    error: str,
+    idempotency_key: str | None = None,
+) -> Path:
     run_dir = Path(run_dir)
     run_dir.mkdir(parents=True, exist_ok=True)
     path = run_dir / PERSISTENCE_META
@@ -70,9 +77,13 @@ def write_partial_projection_failure(run_dir: Path, *, event_id: str, client_id:
         "status": "CANONICAL_PERSISTED_PROJECTION_PARTIAL",
         "last_event_id": event_id,
         "client_id": client_id,
+        "idempotency_key": idempotency_key,
         "projection_error": error,
         "recoverable": True,
-        "hint": "Retry projection; PG event is authoritative; import is idempotent",
+        "hint": (
+            "Retry decide with the same logical payload; PG event is authoritative "
+            "and review idempotency keys exclude wall-clock recorded_at"
+        ),
     }
     path.write_text(json.dumps(meta, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     return path
