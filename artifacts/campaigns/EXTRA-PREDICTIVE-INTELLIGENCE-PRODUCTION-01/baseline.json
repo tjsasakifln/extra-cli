@@ -1,7 +1,7 @@
 {
   "command": "git fetch --all --prune; gh pr view 197; git rev-parse HEAD origin/main",
   "started_at": "2026-08-03T02:40:00+00:00",
-  "finished_at": "2026-08-03T03:33:23.691954+00:00",
+  "finished_at": "2026-08-03T03:42:42.024592+00:00",
   "exit_code": 0,
   "HEAD_SHA": "2e15ad85430be4967138acaec82f51558337bbf7",
   "base_SHA": "704975a7bcdd43d4dc6769fbf6c14726327ab37b",
@@ -20,5 +20,7 @@
   },
   "limitations": [
     "Baseline SHAs are investigation-only; final HEAD supersedes."
-  ]
+  ],
+  "validated_code_tip": "2e15ad85430be4967138acaec82f51558337bbf7",
+  "evidence_docs_note": "docs-only evidence commits after code tip re-run full CI green"
 }

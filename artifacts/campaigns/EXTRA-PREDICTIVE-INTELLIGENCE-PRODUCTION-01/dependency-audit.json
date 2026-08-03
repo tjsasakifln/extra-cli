@@ -1,7 +1,7 @@
 {
   "command": "audit scripts/predictive imports; pip install -r requirements.txt; pip check",
   "started_at": "2026-08-03T02:42:00+00:00",
-  "finished_at": "2026-08-03T03:33:23.691954+00:00",
+  "finished_at": "2026-08-03T03:42:42.024592+00:00",
   "exit_code": 0,
   "HEAD_SHA": "2e15ad85430be4967138acaec82f51558337bbf7",
   "base_SHA": "704975a7bcdd43d4dc6769fbf6c14726327ab37b",
@@ -32,5 +32,7 @@
   },
   "limitations": [
     "Host pip check may report unrelated streamlit/protobuf conflicts outside requirements.txt."
-  ]
+  ],
+  "validated_code_tip": "2e15ad85430be4967138acaec82f51558337bbf7",
+  "evidence_docs_note": "docs-only evidence commits after code tip re-run full CI green"
 }
