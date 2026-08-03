@@ -22,5 +22,17 @@
     "Baseline SHAs are investigation-only; final HEAD supersedes."
   ],
   "validated_code_tip": "2e15ad85430be4967138acaec82f51558337bbf7",
-  "evidence_docs_note": "docs-only evidence commits after code tip re-run full CI green"
+  "evidence_docs_note": "docs-only evidence commits after code tip re-run full CI green",
+  "migration_pr197": "069_predictive_intelligence.sql",
+  "migration_pr198": "068_decision_outcome_memory.sql",
+  "adr": "docs/decisions/adr-069-predictive-intelligence-claim-gates.md",
+  "dm_link": {
+    "predictive_outcomes.dm_outcome_event_id": "FK to dm_outcome_events when present",
+    "link_status": [
+      "LINKED_DM",
+      "UNLINKED_LEGACY",
+      "HISTORICAL_UNVERIFIED",
+      "NOT_APPLICABLE_MODEL_ONLY"
+    ]
+  }
 }

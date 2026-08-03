@@ -4,6 +4,10 @@ Never rewrites predictions. Writes predictive_outcomes rows (or JSON ledger offl
 
 Demand negatives require coverage evidence — absence alone is never label 0.
 P2A joins predictions to observed winners by procurement_id after as_of.
+
+Commercial ground truth is Decision Memory (`dm_outcome_events`). Predictive
+outcomes are an evaluation projection and may LINK to DM events; they never
+create a competing commercial ledger.
 """
 
 from __future__ import annotations
@@ -34,6 +38,24 @@ def _parse_dt(value: Any) -> datetime | None:
     return None
 
 
+# Link status vocabulary (mirrors migration 069 CHECK constraint)
+LINK_STATUS_LINKED_DM = "LINKED_DM"
+LINK_STATUS_UNLINKED_LEGACY = "UNLINKED_LEGACY"
+LINK_STATUS_HISTORICAL_UNVERIFIED = "HISTORICAL_UNVERIFIED"
+LINK_STATUS_NOT_APPLICABLE = "NOT_APPLICABLE_MODEL_ONLY"
+
+# Outcome sources that are model/lake evaluation labels, not commercial DM facts
+_MODEL_ONLY_SOURCES = frozenset(
+    {
+        "observed_aec_event",
+        "coverage_confirmed_absence",
+        "insufficient_coverage",
+        "missing_procurement_or_supplier",
+        "outcome_not_after_as_of",
+    }
+)
+
+
 @dataclass
 class ResolvedOutcome:
     outcome_id: str
@@ -45,6 +67,8 @@ class ResolvedOutcome:
     error_abs: float | None
     brier_component: float | None
     metadata: dict[str, Any] = field(default_factory=dict)
+    dm_outcome_event_id: str | None = None
+    link_status: str = LINK_STATUS_NOT_APPLICABLE
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -365,19 +389,170 @@ def resolve_predictions(
     return resolved
 
 
+
+def default_link_status_for_source(outcome_source: str) -> str:
+    """Classify evaluation vs commercial-fact sources before optional DM lookup."""
+    if outcome_source in _MODEL_ONLY_SOURCES or outcome_source.startswith("coverage_"):
+        return LINK_STATUS_NOT_APPLICABLE
+    if outcome_source in {"observed_winner", "dm_outcome", "commercial_outcome"}:
+        return LINK_STATUS_UNLINKED_LEGACY
+    return LINK_STATUS_UNLINKED_LEGACY
+
+
+def link_outcomes_to_decision_memory(
+    outcomes: Sequence[ResolvedOutcome],
+    *,
+    dsn: str,
+    client_id: str | None = None,
+) -> list[ResolvedOutcome]:
+    """Attach dm_outcome_event_id when a matching Decision Memory fact exists.
+
+    Fail-closed: never invents DM rows. Unmatched commercial-ish outcomes stay
+    UNLINKED_LEGACY (or HISTORICAL_UNVERIFIED when metadata marks historical).
+    Model-only evaluation labels remain NOT_APPLICABLE_MODEL_ONLY.
+    """
+    if not outcomes:
+        return list(outcomes)
+
+    try:
+        import psycopg2
+        from psycopg2.extras import RealDictCursor
+    except ImportError:
+        return list(outcomes)
+
+    # Classify model-only vs commercial evaluation outcomes
+    tagged: list[ResolvedOutcome] = []
+    commercial: list[ResolvedOutcome] = []
+    for o in outcomes:
+        if o.dm_outcome_event_id:
+            o.link_status = LINK_STATUS_LINKED_DM
+            tagged.append(o)
+            continue
+        inferred = default_link_status_for_source(o.outcome_source)
+        if o.metadata.get("historical_unverified"):
+            o.link_status = LINK_STATUS_HISTORICAL_UNVERIFIED
+            commercial.append(o)
+            tagged.append(o)
+            continue
+        if inferred == LINK_STATUS_NOT_APPLICABLE:
+            o.link_status = LINK_STATUS_NOT_APPLICABLE
+            tagged.append(o)
+            continue
+        o.link_status = inferred  # UNLINKED_LEGACY until matched
+        commercial.append(o)
+        tagged.append(o)
+
+    if not commercial:
+        return tagged
+
+    try:
+        conn = psycopg2.connect(dsn)
+    except Exception:
+        return tagged
+
+    try:
+        # Confirm DM table exists
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT 1 FROM information_schema.tables
+                WHERE table_schema='public' AND table_name='dm_outcome_events'
+                """
+            )
+            if cur.fetchone() is None:
+                return tagged
+
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            for o in commercial:
+                if o.dm_outcome_event_id:
+                    o.link_status = LINK_STATUS_LINKED_DM
+                    continue
+                meta = o.metadata or {}
+                opp_key = (
+                    meta.get("opportunity_key")
+                    or meta.get("procurement_id")
+                    or meta.get("contrato_id")
+                    or ""
+                )
+                opp_key = str(opp_key).strip()
+                if not opp_key:
+                    if o.metadata.get("historical_unverified"):
+                        o.link_status = LINK_STATUS_HISTORICAL_UNVERIFIED
+                    else:
+                        o.link_status = LINK_STATUS_UNLINKED_LEGACY
+                    continue
+                params: list[Any] = [opp_key]
+                sql = """
+                    SELECT event_id::text AS event_id
+                    FROM public.dm_outcome_current
+                    WHERE opportunity_key = %s
+                """
+                if client_id:
+                    sql += " AND client_id = %s"
+                    params.append(client_id)
+                sql += " ORDER BY observed_at DESC NULLS LAST LIMIT 1"
+                cur.execute(sql, params)
+                row = cur.fetchone()
+                if row and row.get("event_id"):
+                    o.dm_outcome_event_id = str(row["event_id"])
+                    o.link_status = LINK_STATUS_LINKED_DM
+                    o.metadata = {
+                        **meta,
+                        "dm_link": "matched_opportunity_key",
+                        "dm_outcome_event_id": o.dm_outcome_event_id,
+                    }
+                elif meta.get("historical_unverified"):
+                    o.link_status = LINK_STATUS_HISTORICAL_UNVERIFIED
+                else:
+                    o.link_status = LINK_STATUS_UNLINKED_LEGACY
+    finally:
+        conn.close()
+    return tagged
+
+
 def persist_outcomes(
     outcomes: Sequence[ResolvedOutcome],
     *,
     ledger_path: Path | None = None,
     dsn: str | None = None,
+    client_id: str | None = None,
 ) -> dict[str, Any]:
     """Append to JSONL ledger; optionally insert into PG if DSN and table exist.
 
     Scorable outcomes (quality=ok + label) and rejected records are both
     persisted for audit; drift metrics should filter is_scorable.
+
+    When DSN is set, attempts Decision Memory linkage before write (never invents
+    commercial outcomes).
     """
     path = ledger_path or default_ledger_path()
     path.parent.mkdir(parents=True, exist_ok=True)
+
+    outcomes_list = list(outcomes)
+    for o in outcomes_list:
+        if o.dm_outcome_event_id:
+            o.link_status = LINK_STATUS_LINKED_DM
+        else:
+            # Preserve HISTORICAL_UNVERIFIED / explicit LINKED; re-tag defaults
+            if o.link_status in (LINK_STATUS_NOT_APPLICABLE, LINK_STATUS_UNLINKED_LEGACY, ""):
+                inferred = default_link_status_for_source(o.outcome_source)
+                if o.metadata.get("historical_unverified"):
+                    o.link_status = LINK_STATUS_HISTORICAL_UNVERIFIED
+                else:
+                    o.link_status = inferred
+
+    resolved_client = client_id
+    if not resolved_client:
+        for o in outcomes_list:
+            if o.metadata.get("client_id"):
+                resolved_client = str(o.metadata["client_id"])
+                break
+
+    if dsn:
+        outcomes_list = link_outcomes_to_decision_memory(
+            outcomes_list, dsn=dsn, client_id=resolved_client
+        )
+
     existing_ids: set[str] = set()
     if path.exists():
         for line in path.read_text(encoding="utf-8").splitlines():
@@ -392,8 +567,9 @@ def persist_outcomes(
     skipped = 0
     n_scorable = 0
     n_rejected = 0
+    n_linked_dm = 0
     with path.open("a", encoding="utf-8") as fh:
-        for o in outcomes:
+        for o in outcomes_list:
             if o.prediction_id in existing_ids:
                 skipped += 1
                 continue
@@ -404,6 +580,8 @@ def persist_outcomes(
                 n_scorable += 1
             elif o.outcome_quality.startswith("rejected"):
                 n_rejected += 1
+            if o.link_status == LINK_STATUS_LINKED_DM:
+                n_linked_dm += 1
 
     pg_written = 0
     if dsn:
@@ -413,14 +591,14 @@ def persist_outcomes(
             conn = psycopg2.connect(dsn)
             try:
                 with conn.cursor() as cur:
-                    for o in outcomes:
+                    for o in outcomes_list:
                         cur.execute(
                             """
                             INSERT INTO predictive_outcomes (
                               outcome_id, prediction_id, observed_at, label_value,
                               outcome_source, outcome_quality, error_abs, brier_component,
-                              metadata_json
-                            ) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s::jsonb)
+                              metadata_json, dm_outcome_event_id, link_status
+                            ) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s::jsonb,%s,%s)
                             ON CONFLICT (prediction_id) DO NOTHING
                             """,
                             (
@@ -433,6 +611,8 @@ def persist_outcomes(
                                 o.error_abs,
                                 o.brier_component,
                                 json.dumps(o.metadata),
+                                o.dm_outcome_event_id,
+                                o.link_status,
                             ),
                         )
                         pg_written += cur.rowcount
@@ -446,6 +626,7 @@ def persist_outcomes(
                 "skipped_existing": skipped,
                 "n_scorable": n_scorable,
                 "n_rejected_invalid_negative": n_rejected,
+                "n_linked_dm": n_linked_dm,
                 "pg_written": 0,
                 "pg_error": str(exc),
             }
@@ -456,6 +637,7 @@ def persist_outcomes(
         "skipped_existing": skipped,
         "n_scorable": n_scorable,
         "n_rejected_invalid_negative": n_rejected,
+        "n_linked_dm": n_linked_dm,
         "pg_written": pg_written,
-        "total_resolved_this_run": len(outcomes),
+        "total_resolved_this_run": len(outcomes_list),
     }

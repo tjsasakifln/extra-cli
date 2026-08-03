@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -332,3 +334,67 @@ def test_weekly_predictive_section_honest():
     for key in ("demand", "competitive_p2a", "winning_discount"):
         st = section["claims"][key]["state"]
         assert st not in {"PRODUCTION_AVAILABLE"}
+
+
+def test_default_link_status_model_only_vs_commercial():
+    from scripts.predictive.outcomes import (
+        LINK_STATUS_NOT_APPLICABLE,
+        LINK_STATUS_UNLINKED_LEGACY,
+        default_link_status_for_source,
+    )
+
+    assert default_link_status_for_source("observed_aec_event") == LINK_STATUS_NOT_APPLICABLE
+    assert default_link_status_for_source("coverage_confirmed_absence") == LINK_STATUS_NOT_APPLICABLE
+    assert default_link_status_for_source("observed_winner") == LINK_STATUS_UNLINKED_LEGACY
+
+
+def test_persist_outcomes_records_link_status(tmp_path):
+    from scripts.predictive.outcomes import (
+        LINK_STATUS_NOT_APPLICABLE,
+        LINK_STATUS_UNLINKED_LEGACY,
+        ResolvedOutcome,
+        persist_outcomes,
+    )
+
+    ledger = tmp_path / "outcomes.jsonl"
+    outcomes = [
+        ResolvedOutcome(
+            outcome_id="out_model",
+            prediction_id="pred_model",
+            observed_at="2024-01-15T00:00:00+00:00",
+            label_value=1.0,
+            outcome_source="observed_aec_event",
+            outcome_quality="ok",
+            error_abs=0.1,
+            brier_component=0.01,
+        ),
+        ResolvedOutcome(
+            outcome_id="out_win",
+            prediction_id="pred_win",
+            observed_at="2024-01-15T00:00:00+00:00",
+            label_value=1.0,
+            outcome_source="observed_winner",
+            outcome_quality="ok",
+            error_abs=0.0,
+            brier_component=0.0,
+            metadata={"procurement_id": "PROC-1"},
+        ),
+    ]
+    result = persist_outcomes(outcomes, ledger_path=ledger, dsn=None)
+    assert result["written"] == 2
+    lines = [json.loads(x) for x in ledger.read_text().splitlines() if x.strip()]
+    by_pred = {r["prediction_id"]: r for r in lines}
+    assert by_pred["pred_model"]["link_status"] == LINK_STATUS_NOT_APPLICABLE
+    assert by_pred["pred_win"]["link_status"] == LINK_STATUS_UNLINKED_LEGACY
+    assert by_pred["pred_win"].get("dm_outcome_event_id") in (None, "")
+
+
+def test_migration_069_declares_dm_outcome_link():
+    sql = (Path(__file__).resolve().parents[2] / "db/migrations/069_predictive_intelligence.sql").read_text(
+        encoding="utf-8"
+    )
+    assert "dm_outcome_event_id" in sql
+    assert "LINKED_DM" in sql
+    assert "UNLINKED_LEGACY" in sql
+    assert "fk_predictive_outcomes_dm_outcome" in sql
+    assert "dm_outcome_events" in sql

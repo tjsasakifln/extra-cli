@@ -24,18 +24,20 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 def test_numpy_and_sklearn_declared_in_requirements():
-    req = (ROOT / "requirements.txt").read_text(encoding="utf-8")
-    lines = [
+    """Predictive stack declared in requirements-predictive.txt and pulled by requirements.txt."""
+    pred_req = ROOT / "requirements-predictive.txt"
+    assert pred_req.is_file(), "requirements-predictive.txt must exist"
+    pred_text = pred_req.read_text(encoding="utf-8")
+    pred_lines = [
         ln.strip()
-        for ln in req.splitlines()
+        for ln in pred_text.splitlines()
         if ln.strip() and not ln.strip().startswith("#")
     ]
-    joined = "\n".join(lines).lower()
-    assert "numpy" in joined, "numpy must be an active runtime dependency"
+    joined = "\n".join(pred_lines).lower()
+    assert "numpy" in joined, "numpy must be in requirements-predictive.txt"
     assert "scikit-learn" in joined or "sklearn" in joined
-    # commented optional lines must not be the only form
-    assert not any(ln.startswith("# numpy") for ln in req.splitlines() if "numpy" in ln.lower() and "scikit" not in ln.lower())
-
+    root_req = (ROOT / "requirements.txt").read_text(encoding="utf-8")
+    assert "requirements-predictive" in root_req or "numpy" in root_req.lower()
 
 def test_metrics_module_imports_cleanly():
     mod = importlib.import_module("scripts.predictive.metrics")
@@ -164,14 +166,15 @@ def test_no_migration_collision_with_decision_memory():
     predictive = list(mig_dir.glob("*predictive_intelligence.sql"))
     decision = list(mig_dir.glob("*decision_outcome_memory.sql"))
     assert len(predictive) == 1
-    # decision memory lives on PR #198 only — must not be in this branch
-    assert len(decision) == 0
     pred_num = predictive[0].name.split("_", 1)[0]
-    assert pred_num == "069"
-    # no second file claiming same number
+    assert pred_num == "069", f"predictive must be 069, got {predictive[0].name}"
+    # After consolidation, Decision Memory 068 coexists on main
+    if decision:
+        dec_num = decision[0].name.split("_", 1)[0]
+        assert dec_num == "068", f"decision memory must be 068, got {decision[0].name}"
+        assert dec_num != pred_num
     same_num = list(mig_dir.glob(f"{pred_num}_*.sql"))
     assert len(same_num) == 1
-
 
 def test_heuristic_bid_score_not_serialized_as_probability():
     from scripts.lib.bid_simulator import METHOD_UNVALIDATED_HEURISTIC, simulate_bid

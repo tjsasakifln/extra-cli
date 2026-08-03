@@ -1,4 +1,4 @@
-# ADR-068 — Predictive intelligence claim gates
+# ADR-069 — Predictive intelligence claim gates
 
 **Status:** Accepted  
 **Date:** 2026-08-01  
@@ -35,3 +35,22 @@ defensible commercial claims of “inteligência preditiva”.
 - Keep heuristic scores labeled as probabilities — rejected (commercially indefensible).
 - Deep learning without baselines — rejected (complexity without auditability).
 - LLM-generated probabilities — rejected (not statistical models with PIT guarantees).
+
+
+## Relationship to Decision Memory (migration 068)
+
+Commercial operational facts (human decisions, participation, win/loss, contract,
+margin) are owned by **Decision & Outcome Memory** (`dm_*` / migration `068`).
+
+`predictive_outcomes` is an **evaluation projection** for model metrics (Brier, drift).
+It may reference `dm_outcome_events.event_id` via `dm_outcome_event_id` when a
+commercial fact is the ground truth. Link states:
+
+| link_status | Meaning |
+|-------------|---------|
+| `LINKED_DM` | Reconciled to a Decision Memory outcome event |
+| `UNLINKED_LEGACY` | Observed label from lake/procurement without DM row |
+| `HISTORICAL_UNVERIFIED` | Imported/historical without prospective DM write |
+| `NOT_APPLICABLE_MODEL_ONLY` | Model evaluation label (e.g. demand coverage) not a commercial DM fact |
+
+Never invent DM rows solely to complete predictive metrics.

@@ -220,8 +220,62 @@ CREATE TABLE IF NOT EXISTS public.predictive_outcomes (
     brier_component         DOUBLE PRECISION,
     metadata_json           JSONB NOT NULL DEFAULT '{}'::jsonb,
     reconciled_at           TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    -- Decision Memory linkage (commercial facts are canonical in dm_outcome_events)
+    dm_outcome_event_id     UUID NULL,
+    link_status             TEXT NOT NULL DEFAULT 'NOT_APPLICABLE_MODEL_ONLY'
+                            CHECK (link_status IN (
+                                'LINKED_DM',
+                                'UNLINKED_LEGACY',
+                                'HISTORICAL_UNVERIFIED',
+                                'NOT_APPLICABLE_MODEL_ONLY'
+                            )),
     UNIQUE (prediction_id)
 );
+
+-- Upgrade path when table already exists without DM columns (idempotent)
+ALTER TABLE public.predictive_outcomes
+    ADD COLUMN IF NOT EXISTS dm_outcome_event_id UUID NULL;
+ALTER TABLE public.predictive_outcomes
+    ADD COLUMN IF NOT EXISTS link_status TEXT NOT NULL DEFAULT 'NOT_APPLICABLE_MODEL_ONLY';
+
+-- FK only when Decision Memory migration 068 is present
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM information_schema.tables
+        WHERE table_schema = 'public' AND table_name = 'dm_outcome_events'
+    ) AND NOT EXISTS (
+        SELECT 1 FROM pg_constraint
+        WHERE conname = 'fk_predictive_outcomes_dm_outcome'
+    ) THEN
+        ALTER TABLE public.predictive_outcomes
+            ADD CONSTRAINT fk_predictive_outcomes_dm_outcome
+            FOREIGN KEY (dm_outcome_event_id)
+            REFERENCES public.dm_outcome_events(event_id);
+    END IF;
+END $$;
+
+-- Ensure CHECK on link_status for upgrade path
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint
+        WHERE conname = 'ck_predictive_outcomes_link_status'
+    ) THEN
+        ALTER TABLE public.predictive_outcomes
+            ADD CONSTRAINT ck_predictive_outcomes_link_status
+            CHECK (link_status IN (
+                'LINKED_DM',
+                'UNLINKED_LEGACY',
+                'HISTORICAL_UNVERIFIED',
+                'NOT_APPLICABLE_MODEL_ONLY'
+            ));
+    END IF;
+END $$;
+
+CREATE INDEX IF NOT EXISTS idx_predictive_outcomes_dm_event
+    ON public.predictive_outcomes (dm_outcome_event_id)
+    WHERE dm_outcome_event_id IS NOT NULL;
 
 CREATE TABLE IF NOT EXISTS public.predictive_drift_runs (
     drift_run_id            TEXT PRIMARY KEY,
