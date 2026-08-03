@@ -12,8 +12,8 @@ import pytest
 ROOT = Path(__file__).resolve().parents[2]
 
 
-def test_migration_068_exists_and_has_required_tables():
-    path = ROOT / "db" / "migrations" / "068_predictive_intelligence.sql"
+def test_migration_069_exists_and_has_required_tables():
+    path = ROOT / "db" / "migrations" / "069_predictive_intelligence.sql"
     assert path.exists()
     text = path.read_text(encoding="utf-8")
     for table in (

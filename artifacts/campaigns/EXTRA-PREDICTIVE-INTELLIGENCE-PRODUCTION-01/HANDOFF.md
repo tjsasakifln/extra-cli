@@ -3,7 +3,7 @@
 ## What shipped
 
 - Honest reclassification of bid_simulator heuristics
-- Claim registry + PG migration 068
+- Claim registry + PG migration 069
 - PIT datasets, leakage fail-closed, walk-forward backtests
 - Workspace `predictive-status` / `forecast`
 - Facade `python -m scripts.predictive`

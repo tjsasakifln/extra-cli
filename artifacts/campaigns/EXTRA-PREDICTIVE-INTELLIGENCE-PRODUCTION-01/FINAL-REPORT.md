@@ -10,7 +10,7 @@
 
 - Honesty layer: heuristic reclassified (`method=UNVALIDATED_HEURISTIC`, `prediction_claim_allowed=false`).
 - Claim registry (7 claims, gated states).
-- Migration `068_predictive_intelligence.sql` (immutable predictions).
+- Migration `069_predictive_intelligence.sql` (immutable predictions).
 - PIT dataset builders (demand 30/60/90, P2A, P3) + leakage fail-closed.
 - Baselines + HistGBM/logistic + walk-forward + Platt calibration.
 - Facade CLI, workspace integration, profile calibration, shadow systemd unit templates.

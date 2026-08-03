@@ -22,7 +22,7 @@ Logs: `/tmp/grok-goal-cde86c380195/implementer/honesty-tests.log`
 
 ```bash
 python3 -m scripts.ops.apply_migrations --dsn "$LOCAL_DATALAKE_DSN"
-# applied 068_predictive_intelligence.sql
+# applied 069_predictive_intelligence.sql
 ```
 
 Immutability check: `UPDATE predictive_predictions SET score=...` raises

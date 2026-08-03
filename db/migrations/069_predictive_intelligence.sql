@@ -1,6 +1,7 @@
 -- ============================================================================
--- Migration 068: Predictive intelligence layer (point-in-time datasets, models,
+-- Migration 069: Predictive intelligence layer (point-in-time datasets, models,
 -- immutable predictions, outcomes, drift, claim states)
+-- Note: 068 reserved by decision-outcome-memory (PR #198); predictive uses 069.
 -- ============================================================================
 -- Campaign: EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01
 -- ============================================================================
