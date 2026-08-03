@@ -1,0 +1,6 @@
+=== ruff ===
+All checks passed!
+=== ruff format check ===
+Would reformat: [1mscripts/decision_memory/repository.py[0m
+Would reformat: [1mscripts/predictive/outcomes.py[0m
+2 files would be reformatted, 28 files already formatted

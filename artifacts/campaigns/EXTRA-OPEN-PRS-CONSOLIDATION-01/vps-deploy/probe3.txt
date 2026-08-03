@@ -1,0 +1,101 @@
+=== env files ===
+ls: cannot access '/opt/extra-consultoria/.env.local': No such file or directory
+-rw------- 1 extra-consultoria extra-consultoria 7158 Aug  2 10:12 /opt/extra-consultoria/.env
+
+/home/extra-consultoria/:
+total 32
+drwx------ 4 extra-consultoria extra-consultoria 4096 Jul 30 22:02 .
+drwxr-xr-x 3 root              root              4096 Jul 23 09:57 ..
+-rw-r--r-- 1 extra-consultoria extra-consultoria  220 May  9 08:07 .bash_logout
+-rw-r--r-- 1 extra-consultoria extra-consultoria 3526 May  9 08:07 .bashrc
+drwxr-xr-x 4 extra-consultoria extra-consultoria 4096 Jul 29 10:03 extra-deliveries
+-rw-rw-r-- 1 extra-consultoria extra-consultoria   43 Jul 30 22:02 .gitconfig
+-rw-r--r-- 1 extra-consultoria extra-consultoria  807 May  9 08:07 .profile
+drwx------ 2 extra-consultoria extra-consultoria 4096 Jul 23 09:57 .ssh
+FILE=/opt/extra-consultoria/.env
+DATABASE_URL=***REDACTED***
+LOCAL_DATALAKE_DSN=***REDACTED***
+# /etc/systemd/system/extra-weekly.service
+[Unit]
+Description=Extra Consultoria — canonical weekly operational cycle (open tenders + pack)
+Documentation=file:///opt/extra-consultoria/docs/DEVELOPMENT.md
+After=network-online.target postgresql.service
+Wants=network-online.target
+OnFailure=extra-onfailure@%n.service
+# Single-writer: do not overlap concurrent PNCP crawls on the same DB.
+Conflicts=pncp-crawl-full.service pncp-crawl-inc.service extra-crawl-pncp.service
+
+[Service]
+Type=oneshot
+User=extra-consultoria
+Group=extra-consultoria
+WorkingDirectory=/opt/extra-consultoria
+Environment=PYTHONPATH=/opt/extra-consultoria
+Environment=PYTHONUNBUFFERED=1
+EnvironmentFile=/opt/extra-consultoria/.env
+# Canonical entry: make extra-weekly → scripts.ops.weekly_cycle --strict
+# Contracts writer authority is pncp-contracts.timer; weekly reuses lake data.
+# flock prevents overlapping weekly runs (pack generation). If contracts
+# incremental is ever re-enabled, run_contracts_incremental uses
+# /run/lock/extra-contracts-writer.lock (same domain as pncp-contracts).
+ExecStart=/usr/bin/flock --nonblock /run/lock/extra-weekly.lock /opt/extra-consultoria/.venv/bin/python -m scripts.ops.weekly_cycle --strict --no-contracts-incremental
+TimeoutStartSec=6h
+Restart=no
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=extra-weekly
+
+[Install]
+WantedBy=multi-user.target
+# /etc/systemd/system/extra-health-check.service
+# /etc/systemd/system/extra-health-check.service
+# Periodic health check: DB connectivity, disk space, optional off-site mount
+# Extra Consultoria — Story FEAT-4.1
+# Note: /mnt/storage-box is optional; health script must not hard-fail when unset.
+
+[Unit]
+Description=Extra Consultoria — Health Check
+Documentation=https://github.com/tjsasakifln/extra-cli/blob/main/docs/ops/vps-provisioning.md
+After=network-online.target
+Wants=network-online.target
+OnFailure=extra-onfailure@%n.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/extra-consultoria
+Environment=PYTHONPATH=/opt/extra-consultoria
+EnvironmentFile=/opt/extra-consultoria/.env
+# Prefer venv; legacy entrypoint scripts/health_check.py
+ExecStart=/opt/extra-consultoria/.venv/bin/python /opt/extra-consultoria/scripts/health_check.py
+User=extra-consultoria
+Group=extra-consultoria
+TimeoutStartSec=5min
+Restart=no
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=extra-health-check
+
+[Install]
+WantedBy=multi-user.target
+bash: line 15: docker: command not found
+HTTP/2 200 
+date: Mon, 03 Aug 2026 13:31:38 GMT
+content-type: text/html; charset=utf-8
+vary: X-PJAX, X-PJAX-Container, Turbo-Visit, Turbo-Frame, X-Requested-With, X-GitHub-Client-Version, Sec-Fetch-Site,Accept-Encoding, Accept, X-Requested-With
+etag: W/"d5da90dc9af8d350f33512fb245c0da3"
+sudo: gh: command not found
+extra-consultoria
+/opt/extra-consultoria/.git
+20260801T195548Z
+20260801T195846Z
+20260801T200107Z
+20260801T203800Z
+20260802T005800Z
+20260802T115800Z
+20260802T121230Z
+20260802T130202Z
+20260802T130535Z
+20260802T131430Z
+               total        used        free      shared  buff/cache   available
+Mem:            15Gi       5.1Gi       1.2Gi       4.5Gi        14Gi        10Gi
+Swap:          4.0Gi       1.5Gi       2.5Gi

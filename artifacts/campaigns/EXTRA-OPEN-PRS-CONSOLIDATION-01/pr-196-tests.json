@@ -1,0 +1,21 @@
+{
+  "generated_at": "2026-08-03T12:55:45.071850+00:00",
+  "pr": 196,
+  "sha_tested": "ecc924389af7768dcfd2e179fa74088b9631f619",
+  "command": "pytest tests/process_documents/test_entity_source_fair_queue.py tests/process_documents/test_quarantine_and_source_report.py tests/production_readiness/ -q --tb=line -x",
+  "passed": 28,
+  "exit_code": 0,
+  "transcript_path": "artifacts/campaigns/EXTRA-OPEN-PRS-CONSOLIDATION-01/pr196_focused_tests.txt",
+  "ci_pre_merge": {
+    "success_count": 28,
+    "mergeStateStatus": "CLEAN"
+  },
+  "main_ci_post_merge": {
+    "run_id": 30812613672,
+    "conclusion": "success",
+    "sha": "c9c4bf5ac2068ff7204492acf5600b74dd83ebb5"
+  },
+  "limitations": [
+    "Focused suite local; full suite via GitHub Actions CI on exact HEAD"
+  ]
+}

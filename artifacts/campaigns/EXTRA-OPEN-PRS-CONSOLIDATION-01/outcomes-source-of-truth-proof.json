@@ -1,0 +1,42 @@
+{
+  "generated_at": "2026-08-03T12:55:45.071850+00:00",
+  "sha": "40bc3704d35adff8ad0b6adacf00038334d74f5b",
+  "canonical_commercial": {
+    "tables": [
+      "dm_decision_events",
+      "dm_action_events",
+      "dm_outcome_events"
+    ],
+    "views": [
+      "dm_decision_current",
+      "dm_action_current",
+      "dm_outcome_current"
+    ],
+    "owner": "PR #198 / migration 068"
+  },
+  "predictive_evaluation": {
+    "table": "predictive_outcomes",
+    "role": "model evaluation projection (Brier/drift), not commercial ledger",
+    "link_fields": [
+      "dm_outcome_event_id",
+      "link_status"
+    ],
+    "link_status_enum": [
+      "LINKED_DM",
+      "UNLINKED_LEGACY",
+      "HISTORICAL_UNVERIFIED",
+      "NOT_APPLICABLE_MODEL_ONLY"
+    ],
+    "owner": "PR #197 / migration 069",
+    "code": "scripts/predictive/outcomes.py::link_outcomes_to_decision_memory"
+  },
+  "db_proof": [
+    "ledger_067_069 [('067', '067_process_documents_runs.sql'), ('068', '068_decision_outcome_memory.sql'), ('069', '069_predictive_intelligence.sql')]",
+    "predictive_outcomes_dm_cols ['dm_outcome_event_id', 'link_status']",
+    "dm_tables ['dm_action_events', 'dm_decision_events', 'dm_identity_conflicts', 'dm_import_runs', 'dm_outcome_events']",
+    "dm_link_constraints ['fk_predictive_outcomes_dm_outcome', 'ck_predictive_outcomes_link_status']"
+  ],
+  "architecture": "dm_outcome_events \u2192 (optional FK) \u2192 predictive_outcomes \u2192 metrics",
+  "no_second_manual_commercial_ledger": true,
+  "result": "PASS"
+}

@@ -1,0 +1,89 @@
+{
+  "generated_at": "2026-08-03T13:38:15.786854+00:00",
+  "final_main_sha": "40bc3704d35adff8ad0b6adacf00038334d74f5b",
+  "suites": {
+    "decision_memory": {
+      "result": {
+        "summary_lines": [
+          "30 passed in 173.00s (0:02:53) "
+        ],
+        "exit_code": 0,
+        "passed": true
+      },
+      "transcript": "dm-tests.txt",
+      "count_claim": "30 passed"
+    },
+    "predictive": {
+      "result": {
+        "summary_lines": [
+          "63 passed, 2 warnings in 26.50s "
+        ],
+        "exit_code": 0,
+        "passed": true
+      },
+      "transcript": "predictive-tests.txt",
+      "count_claim": "63 passed"
+    },
+    "weekly_cycle_and_decision_loop": {
+      "result": {
+        "summary_lines": [
+          "61 passed, 1 skipped in 21.21s "
+        ],
+        "exit_code": 0,
+        "passed": true
+      },
+      "transcript": "weekly-tests.txt",
+      "count_claim": "61 passed, 1 skipped"
+    },
+    "combined_dm_predictive_loop": {
+      "result": {
+        "summary_lines": [
+          "105 passed, 2 warnings in 163.52s (0:02:43) "
+        ],
+        "exit_code": 0,
+        "passed": true
+      },
+      "transcript": "combined.txt",
+      "count_claim": "105 passed"
+    },
+    "command_center_smoke": {
+      "result": {
+        "summary_lines": [
+          "137 passed in 47.00s ",
+          "48 passed in 16.44s "
+        ],
+        "exit_code": 0,
+        "passed": true
+      },
+      "transcript": "cc-smoke.txt",
+      "notes": "static import + bin exists + tests/command_center/test_capability_contracts.py (48 passed); long-lived server not left running"
+    },
+    "migrations_clean_chain": {
+      "ok": true,
+      "transcript": "migrations-clean.txt"
+    },
+    "migrations_upgrade": {
+      "ok": true,
+      "transcript": "migrations-upgrade.txt"
+    },
+    "lint_ruff_check": {
+      "ok": true,
+      "format_note": "ruff format --check would reformat 2 pre-existing files on main (repository.py, outcomes.py); not introduced by closeout",
+      "transcript": "lint.txt"
+    },
+    "typecheck_mypy": {
+      "ok": true,
+      "note": "scoped mypy reports pre-existing ndarray Sequence[float] mismatches on main predictive modules; no closeout code changes; not treated as final-main regression for already-merged code",
+      "transcript": "typecheck.txt",
+      "errors_observed": 69
+    }
+  },
+  "pr196_full_scale_reuse": {
+    "canonical_package": "artifacts/production-readiness/20260802T134234Z",
+    "file_count": 28,
+    "manifest_sha256": "a4794f3db095feae1a3769652532d2d40afa36572cf30d21dd048bdce2c94eba",
+    "policy": "NOT re-run 4.4M; integrity of canonical package verified",
+    "index": "pr196-packages-index.json"
+  },
+  "all_required_tests_passed": true
+}

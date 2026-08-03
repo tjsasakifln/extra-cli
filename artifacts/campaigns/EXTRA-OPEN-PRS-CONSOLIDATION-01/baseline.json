@@ -1,0 +1,2321 @@
+{
+  "campaign": "EXTRA-OPEN-PRS-CONSOLIDATION-01",
+  "generated_at": "2026-08-03T12:08:09.753864+00:00",
+  "repository": "tjsasakifln/extra-cli",
+  "remote": "origin",
+  "main": {
+    "sha": "704975a7bcdd43d4dc6769fbf6c14726327ab37b",
+    "message": "fix(integration): bid_readiness acervo path + CC consulting adapters (#195)",
+    "ref": "origin/main"
+  },
+  "open_prs_count": 3,
+  "open_prs_summary": [
+    {
+      "baseRefName": "main",
+      "headRefName": "campaign/EXTRA-DECISION-OUTCOME-MEMORY-01",
+      "headRefOid": "d56f3d3e484d97a0ad6d982c949ead5e0ce02d25",
+      "isDraft": false,
+      "number": 198,
+      "title": "feat(decision-memory): Decision & Outcome Memory v1 (canonical PG ledger)",
+      "updatedAt": "2026-08-02T19:12:40Z",
+      "url": "https://github.com/tjsasakifln/extra-cli/pull/198"
+    },
+    {
+      "baseRefName": "main",
+      "headRefName": "campaign/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01",
+      "headRefOid": "2af0ff5c7862473b14c107489363f5d159af5a07",
+      "isDraft": false,
+      "number": 197,
+      "title": "feat(predictive): genuine predictive intelligence with honest claim gates",
+      "updatedAt": "2026-08-03T03:42:50Z",
+      "url": "https://github.com/tjsasakifln/extra-cli/pull/197"
+    },
+    {
+      "baseRefName": "main",
+      "headRefName": "feat/production-readiness-closeout",
+      "headRefOid": "ecc924389af7768dcfd2e179fa74088b9631f619",
+      "isDraft": false,
+      "number": 196,
+      "title": "feat(ops): make extra-cli production-operational and prove readiness",
+      "updatedAt": "2026-08-02T14:00:58Z",
+      "url": "https://github.com/tjsasakifln/extra-cli/pull/196"
+    }
+  ],
+  "premise_prs": [
+    "196",
+    "198",
+    "197"
+  ],
+  "premise_order": [
+    "196",
+    "198",
+    "197"
+  ],
+  "premise_match": {
+    "all_three_open": true,
+    "only_these_three": true,
+    "notes": "Compared live gh pr list against campaign premise"
+  },
+  "prs": {
+    "196": {
+      "number": 196,
+      "title": "feat(ops): make extra-cli production-operational and prove readiness",
+      "state": "OPEN",
+      "url": "https://github.com/tjsasakifln/extra-cli/pull/196",
+      "isDraft": false,
+      "headRefName": "feat/production-readiness-closeout",
+      "baseRefName": "main",
+      "baseSha_mergeBaseWithMain": "704975a7bcdd43d4dc6769fbf6c14726327ab37b",
+      "mainShaAtBaseline": "704975a7bcdd43d4dc6769fbf6c14726327ab37b",
+      "headRefOid": "ecc924389af7768dcfd2e179fa74088b9631f619",
+      "commits_count_gh": 19,
+      "commits_ahead_of_main": 19,
+      "commits_behind_main": 0,
+      "commits": [
+        {
+          "oid": "9fa6d007887a9d2f80c26fbb698f0c475a216cdd",
+          "messageHeadline": "feat(ops): production readiness queue, scale proof, and consulting gu…",
+          "committedDate": "2026-08-01T19:58:11Z",
+          "authors": [
+            "tjsasakifln"
+          ]
+        },
+        {
+          "oid": "f9ffe251f4b6840b23f996b9f86ff8bb4721b01b",
+          "messageHeadline": "fix(pseo): named PG cursor requires transaction for full-scale stream",
+          "committedDate": "2026-08-01T20:10:27Z",
+          "authors": [
+            "tjsasakifln"
+          ]
+        },
+        {
+          "oid": "4961cb3e10bd406a74f3c3f671fb9274af960098",
+          "messageHeadline": "fix(ops): open transaction for named PG cursor in full-scale stream",
+          "committedDate": "2026-08-01T20:25:26Z",
+          "authors": [
+            "tjsasakifln"
+          ]
+        },
+        {
+          "oid": "ba913c1f529115179eb6115c1ecea3c0c720560c",
+          "messageHeadline": "docs(ops): record production-readiness evidence pack (VPS scale + con…",
+          "committedDate": "2026-08-01T20:40:08Z",
+          "authors": [
+            "tjsasakifln"
+          ]
+        },
+        {
+          "oid": "6da6299f967599cc8890777d605b6c5ad2e66047",
+          "messageHeadline": "fix(scheduler): silence ruff S311 on queue backoff jitter RNG",
+          "committedDate": "2026-08-01T20:43:31Z",
+          "authors": [
+            "tjsasakifln"
+          ]
+        },
+        {
+          "oid": "f7f5aac0115eeea26391b5e2ac4a54b81f508695",
+          "messageHeadline": "test(e2e): green Command Center production consulting E2E (16 flows)",
+          "committedDate": "2026-08-01T21:35:41Z",
+          "authors": [
+            "tjsasakifln"
+          ]
+        },
+        {
+          "oid": "d54e408e635faf166d43b25f7a74afbfb0f308f5",
+          "messageHeadline": "docs(ops): queue drain 407/1768 lag_cleared + playwright pass evidence",
+          "committedDate": "2026-08-01T21:48:34Z",
+          "authors": [
+            "tjsasakifln"
+          ]
+        },
+        {
+          "oid": "fefa485d80457ae7785755cbbe204fb59465ef21",
+          "messageHeadline": "fix(process_documents): raise PNCP connect/read timeouts for producti…",
+          "committedDate": "2026-08-02T00:57:43Z",
+          "authors": [
+            "tjsasakifln"
+          ]
+        },
+        {
+          "oid": "5dd89a20ac093b16759dc26bfa14cc7c9862a387",
+          "messageHeadline": "docs(ops): real VPS collect evidence with downloads (capacity partial)",
+          "committedDate": "2026-08-02T03:09:42Z",
+          "authors": [
+            "tjsasakifln"
+          ]
+        },
+        {
+          "oid": "47a9793938c6ab4dbd9c8c6c2fdca3a402214fb0",
+          "messageHeadline": "chore(ops): re-trigger PR checks after HEAD SHA body fix",
+          "committedDate": "2026-08-02T03:17:59Z",
+          "authors": [
+            "tjsasakifln"
+          ]
+        },
+        {
+          "oid": "4856081efab77a963ded352d64fe707970341587",
+          "messageHeadline": "fix(scheduler): prefer CIGA/open sources when draining lag backlog",
+          "committedDate": "2026-08-02T03:57:55Z",
+          "authors": [
+            "tjsasakifln"
+          ]
+        },
+        {
+          "oid": "bae7f7bac4a8c936d980ce7cc6acf7550fbf2fb1",
+          "messageHeadline": "fix(scheduler): apply CIGA-first preference to source-lag batch selec…",
+          "committedDate": "2026-08-02T04:26:38Z",
+          "authors": [
+            "tjsasakifln"
+          ]
+        },
+        {
+          "oid": "4d5b7b4513cb703a4205d076cbf3746e42110a6d",
+          "messageHeadline": "fix(scheduler): only prefer CIGA/DOM families over PNCP in lag drain",
+          "committedDate": "2026-08-02T04:32:13Z",
+          "authors": [
+            "tjsasakifln"
+          ]
+        },
+        {
+          "oid": "610442b5f2607ca0901fc96a8bc84a2e5bb1e4e5",
+          "messageHeadline": "docs(ops): prove lag_cleared on 407 active entities with real VPS drain",
+          "committedDate": "2026-08-02T12:01:21Z",
+          "authors": [
+            "tjsasakifln"
+          ]
+        },
+        {
+          "oid": "915327ebe0ac9bdbbd1aceee39311e56b630ff56",
+          "messageHeadline": "docs(ops): re-prove gates C/D/F/G/H on HEAD with unified evidence pack",
+          "committedDate": "2026-08-02T12:27:09Z",
+          "authors": [
+            "tjsasakifln"
+          ]
+        },
+        {
+          "oid": "8490b7150c198fd825415116cbabd4989d3f8bf6",
+          "messageHeadline": "fix(docs): drop binary deliverables from reproof pack for reviewability",
+          "committedDate": "2026-08-02T12:29:29Z",
+          "authors": [
+            "tjsasakifln"
+          ]
+        },
+        {
+          "oid": "3238f310138c83ae70753642e5993c87372587ba",
+          "messageHeadline": "fix(ops): close skeptic gaps for production readiness gates",
+          "committedDate": "2026-08-02T13:14:12Z",
+          "authors": [
+            "tjsasakifln"
+          ]
+        },
+        {
+          "oid": "527672455481f2a65ef8d0b97d996bfb04ba1033",
+          "messageHeadline": "chore(ci): re-trigger reviewability after PR body SHA fix",
+          "committedDate": "2026-08-02T13:32:41Z",
+          "authors": [
+            "tjsasakifln"
+          ]
+        },
+        {
+          "oid": "ecc924389af7768dcfd2e179fa74088b9631f619",
+          "messageHeadline": "docs(ops): re-prove production readiness gates on tip 52767245",
+          "committedDate": "2026-08-02T14:00:52Z",
+          "authors": [
+            "tjsasakifln"
+          ]
+        }
+      ],
+      "additions": 10375,
+      "deletions": 22,
+      "changedFiles": 162,
+      "mergeable": "MERGEABLE",
+      "mergeStateStatus": "CLEAN",
+      "createdAt": "2026-08-01T20:40:40Z",
+      "updatedAt": "2026-08-02T14:00:58Z",
+      "checks": {
+        "PR Reviewability Policy": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30751173909/job/91505362273"
+        },
+        "Lint (ruff)": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30751173899/job/91505360846"
+        },
+        "Type Check (mypy)": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30751173899/job/91505360847"
+        },
+        "Test (critical readiness)": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30751173899/job/91505360858"
+        },
+        "Test operational expanded (PR)": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30751173899/job/91505360820"
+        },
+        "Test All (full suite)": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30751173899/job/91505360793"
+        },
+        "Resilience Gate (pre-VPS)": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30751173899/job/91505360829"
+        },
+        "Generated Artifacts Policy": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30751173899/job/91505360824"
+        },
+        "Pytest Skip Policy": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30751173899/job/91505360907"
+        },
+        "Security (bandit)": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30751173899/job/91505360864"
+        },
+        "Dependency Audit (pip-audit)": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30751173899/job/91505360868"
+        },
+        "CONFENGE Contract Relevance": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30751173899/job/91505360850"
+        },
+        "CONFENGE Sector Fit": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30751173899/job/91505360863"
+        },
+        "CONFENGE Commercial Code Quality": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30751173899/job/91505360842"
+        },
+        "CONFENGE Structural Historical Checks": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30751173899/job/91505360914"
+        },
+        "CONFENGE Structural Registry Checks": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30751173899/job/91505360851"
+        },
+        "CONFENGE Structural Snapshot Checks": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30751173899/job/91505360867"
+        },
+        "CONFENGE Structural E2E Checks": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30751173899/job/91505360815"
+        },
+        "CONFENGE Structural Human Evaluation Checks": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30751173899/job/91505360807"
+        },
+        "CONFENGE Structural Human Commercial Checks": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30751173899/job/91505360849"
+        },
+        "CONFENGE Real Historical Evidence": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30751173899/job/91505360802"
+        },
+        "CONFENGE Real Registry Evidence": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30751173899/job/91505360840"
+        },
+        "CONFENGE Full Pipeline E2E Evidence": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30751173899/job/91505360866"
+        },
+        "CONFENGE Snapshot Restore Evidence": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30751173899/job/91505360861"
+        },
+        "CONFENGE Human Package Publication": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30751173899/job/91505360860"
+        },
+        "Edital Relevance Foundation": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30751173899/job/91505360950"
+        },
+        "CONFENGE Structural Commercial Checks": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30751173899/job/91505431476"
+        },
+        "CONFENGE Final Evidence Integrity": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30751173899/job/91505423325"
+        }
+      },
+      "checks_raw_count": 29,
+      "reviews": [],
+      "comments_count": 0,
+      "comments": [],
+      "files": [
+        {
+          "path": "DOD.md",
+          "additions": 13,
+          "deletions": 0
+        },
+        {
+          "path": "apps/command-center/e2e/consulting-production.spec.ts",
+          "additions": 341,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260801T195846Z/acervo-match-alvenaria.json",
+          "additions": 189,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260801T195846Z/bid-readiness-run.txt",
+          "additions": 19,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260801T195846Z/deliverables-manifest.json",
+          "additions": 58,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260801T195846Z/real-case-analysis.json",
+          "additions": 130,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260801T195846Z/sinapi-sicro-comparison.json",
+          "additions": 14,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260801T200107Z/vps-deploy.json",
+          "additions": 10,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260801T203800Z/README.md",
+          "additions": 12,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260801T203800Z/alerts-test.json",
+          "additions": 9,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260801T203800Z/backup.json",
+          "additions": 6,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260801T203800Z/baseline.json",
+          "additions": 9,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260801T203800Z/deliverables-manifest.json",
+          "additions": 59,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260801T203800Z/environment.json",
+          "additions": 8,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260801T203800Z/final-verdict.json",
+          "additions": 28,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260801T203800Z/full-scale-benchmark.json",
+          "additions": 65,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260801T203800Z/full-scale-manifest.json",
+          "additions": 10,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260801T203800Z/full-suite.json",
+          "additions": 9,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260801T203800Z/playwright.json",
+          "additions": 28,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260801T203800Z/queue-cycle.json",
+          "additions": 61,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260801T203800Z/real-case-analysis.json",
+          "additions": 130,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260801T203800Z/restore-drill.json",
+          "additions": 9,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260801T203800Z/run1-benchmark.json",
+          "additions": 41,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260801T203800Z/security.json",
+          "additions": 8,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260801T203800Z/sinapi-sicro-comparison.json",
+          "additions": 14,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260801T203800Z/source-coverage.json",
+          "additions": 10,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260801T203800Z/vps-deploy.json",
+          "additions": 10,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260801T203800Z/vps-full-cycle.json",
+          "additions": 13,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260801T203800Z/vps-incremental-cycles.json",
+          "additions": 23,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260801T203800Z/vps-smoke.json",
+          "additions": 9,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T005800Z/README.md",
+          "additions": 30,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T005800Z/ci-status.json",
+          "additions": 7,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T005800Z/final-verdict.json",
+          "additions": 39,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T005800Z/queue-cycle.json",
+          "additions": 182,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T005800Z/source-coverage.json",
+          "additions": 25,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T005800Z/vps-full-cycle.json",
+          "additions": 303,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T005800Z/vps-incremental-cycles.json",
+          "additions": 63,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T115800Z/README.md",
+          "additions": 18,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T115800Z/final-verdict.json",
+          "additions": 24,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T115800Z/inc-a-summary.json",
+          "additions": 9,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T115800Z/inc-b-summary.json",
+          "additions": 9,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T115800Z/last-entity-clear.json",
+          "additions": 15,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T115800Z/queue-cycle.json",
+          "additions": 130,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T115800Z/queue-state-repair.json",
+          "additions": 39,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T115800Z/source-coverage.json",
+          "additions": 24,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T115800Z/three-cycles-summary.json",
+          "additions": 60,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T115800Z/vps-full-cycle.json",
+          "additions": 56,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T115800Z/vps-incremental-cycles.json",
+          "additions": 60,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T121230Z/README.md",
+          "additions": 15,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T121230Z/acervo-inventory.json",
+          "additions": 24,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T121230Z/acervo-match.json",
+          "additions": 192,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T121230Z/alerts-test.json",
+          "additions": 176,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T121230Z/backup.json",
+          "additions": 11,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T121230Z/baseline.json",
+          "additions": 9,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T121230Z/deliverables-manifest.json",
+          "additions": 17,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T121230Z/environment.json",
+          "additions": 10,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T121230Z/final-verdict.json",
+          "additions": 30,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T121230Z/full-scale-benchmark.json",
+          "additions": 107,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T121230Z/full-scale-manifest.json",
+          "additions": 18,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T121230Z/full-scale/full-scale-benchmark.json",
+          "additions": 104,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T121230Z/full-scale/full-scale-manifest.json",
+          "additions": 16,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T121230Z/full-scale/resume_proof/benchmark.json",
+          "additions": 41,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T121230Z/full-scale/resume_proof/checkpoint.json",
+          "additions": 11,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T121230Z/full-scale/resume_proof/manifest.json",
+          "additions": 28,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T121230Z/full-scale/run1/benchmark.json",
+          "additions": 41,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T121230Z/full-scale/run1/checkpoint.json",
+          "additions": 11,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T121230Z/full-scale/run1/manifest.json",
+          "additions": 28,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T121230Z/full-scale/run2/benchmark.json",
+          "additions": 41,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T121230Z/full-scale/run2/checkpoint.json",
+          "additions": 11,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T121230Z/full-scale/run2/manifest.json",
+          "additions": 28,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T121230Z/full-suite.json",
+          "additions": 14,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T121230Z/last-entity-clear.json",
+          "additions": 15,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T121230Z/playwright.json",
+          "additions": 28,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T121230Z/queue-cycle.json",
+          "additions": 130,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T121230Z/queue-state-repair.json",
+          "additions": 39,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T121230Z/real-case-analysis.json",
+          "additions": 46,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T121230Z/restore-drill.json",
+          "additions": 11,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T121230Z/security.json",
+          "additions": 15,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T121230Z/sinapi-demo/items.json",
+          "additions": 20,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T121230Z/sinapi-demo/manifest.json",
+          "additions": 20,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T121230Z/sinapi-demo/sinapi-sicro-comparison.json",
+          "additions": 27,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T121230Z/sinapi-sicro-comparison.json",
+          "additions": 27,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T121230Z/source-coverage.json",
+          "additions": 24,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T121230Z/vps-deploy.json",
+          "additions": 12,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T121230Z/vps-full-cycle.json",
+          "additions": 56,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T121230Z/vps-incremental-cycles.json",
+          "additions": 60,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T121230Z/vps-smoke.json",
+          "additions": 13,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T130202Z/README.md",
+          "additions": 23,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T130202Z/alerts-test.json",
+          "additions": 91,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T130202Z/backup.json",
+          "additions": 15,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T130202Z/baseline.json",
+          "additions": 7,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T130202Z/environment.json",
+          "additions": 7,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T130202Z/final-verdict.json",
+          "additions": 33,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T130202Z/full-scale-benchmark.json",
+          "additions": 110,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T130202Z/full-scale-manifest.json",
+          "additions": 21,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T130202Z/playwright.json",
+          "additions": 12,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T130202Z/queue-cycle.json",
+          "additions": 133,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T130202Z/real-case-analysis.json",
+          "additions": 94,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T130202Z/restore-drill.json",
+          "additions": 65,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/production-readiness/20260802T130202Z/security.json",
+          "additions": 6,
+          "deletions": 0
+        }
+      ],
+      "file_paths": [
+        "DOD.md",
+        "apps/command-center/e2e/consulting-production.spec.ts",
+        "artifacts/production-readiness/20260801T195846Z/acervo-match-alvenaria.json",
+        "artifacts/production-readiness/20260801T195846Z/bid-readiness-run.txt",
+        "artifacts/production-readiness/20260801T195846Z/deliverables-manifest.json",
+        "artifacts/production-readiness/20260801T195846Z/real-case-analysis.json",
+        "artifacts/production-readiness/20260801T195846Z/sinapi-sicro-comparison.json",
+        "artifacts/production-readiness/20260801T200107Z/vps-deploy.json",
+        "artifacts/production-readiness/20260801T203800Z/README.md",
+        "artifacts/production-readiness/20260801T203800Z/alerts-test.json",
+        "artifacts/production-readiness/20260801T203800Z/backup.json",
+        "artifacts/production-readiness/20260801T203800Z/baseline.json",
+        "artifacts/production-readiness/20260801T203800Z/deliverables-manifest.json",
+        "artifacts/production-readiness/20260801T203800Z/environment.json",
+        "artifacts/production-readiness/20260801T203800Z/final-verdict.json",
+        "artifacts/production-readiness/20260801T203800Z/full-scale-benchmark.json",
+        "artifacts/production-readiness/20260801T203800Z/full-scale-manifest.json",
+        "artifacts/production-readiness/20260801T203800Z/full-suite.json",
+        "artifacts/production-readiness/20260801T203800Z/playwright.json",
+        "artifacts/production-readiness/20260801T203800Z/queue-cycle.json",
+        "artifacts/production-readiness/20260801T203800Z/real-case-analysis.json",
+        "artifacts/production-readiness/20260801T203800Z/restore-drill.json",
+        "artifacts/production-readiness/20260801T203800Z/run1-benchmark.json",
+        "artifacts/production-readiness/20260801T203800Z/security.json",
+        "artifacts/production-readiness/20260801T203800Z/sinapi-sicro-comparison.json",
+        "artifacts/production-readiness/20260801T203800Z/source-coverage.json",
+        "artifacts/production-readiness/20260801T203800Z/vps-deploy.json",
+        "artifacts/production-readiness/20260801T203800Z/vps-full-cycle.json",
+        "artifacts/production-readiness/20260801T203800Z/vps-incremental-cycles.json",
+        "artifacts/production-readiness/20260801T203800Z/vps-smoke.json",
+        "artifacts/production-readiness/20260802T005800Z/README.md",
+        "artifacts/production-readiness/20260802T005800Z/ci-status.json",
+        "artifacts/production-readiness/20260802T005800Z/final-verdict.json",
+        "artifacts/production-readiness/20260802T005800Z/queue-cycle.json",
+        "artifacts/production-readiness/20260802T005800Z/source-coverage.json",
+        "artifacts/production-readiness/20260802T005800Z/vps-full-cycle.json",
+        "artifacts/production-readiness/20260802T005800Z/vps-incremental-cycles.json",
+        "artifacts/production-readiness/20260802T115800Z/README.md",
+        "artifacts/production-readiness/20260802T115800Z/final-verdict.json",
+        "artifacts/production-readiness/20260802T115800Z/inc-a-summary.json",
+        "artifacts/production-readiness/20260802T115800Z/inc-b-summary.json",
+        "artifacts/production-readiness/20260802T115800Z/last-entity-clear.json",
+        "artifacts/production-readiness/20260802T115800Z/queue-cycle.json",
+        "artifacts/production-readiness/20260802T115800Z/queue-state-repair.json",
+        "artifacts/production-readiness/20260802T115800Z/source-coverage.json",
+        "artifacts/production-readiness/20260802T115800Z/three-cycles-summary.json",
+        "artifacts/production-readiness/20260802T115800Z/vps-full-cycle.json",
+        "artifacts/production-readiness/20260802T115800Z/vps-incremental-cycles.json",
+        "artifacts/production-readiness/20260802T121230Z/README.md",
+        "artifacts/production-readiness/20260802T121230Z/acervo-inventory.json",
+        "artifacts/production-readiness/20260802T121230Z/acervo-match.json",
+        "artifacts/production-readiness/20260802T121230Z/alerts-test.json",
+        "artifacts/production-readiness/20260802T121230Z/backup.json",
+        "artifacts/production-readiness/20260802T121230Z/baseline.json",
+        "artifacts/production-readiness/20260802T121230Z/deliverables-manifest.json",
+        "artifacts/production-readiness/20260802T121230Z/environment.json",
+        "artifacts/production-readiness/20260802T121230Z/final-verdict.json",
+        "artifacts/production-readiness/20260802T121230Z/full-scale-benchmark.json",
+        "artifacts/production-readiness/20260802T121230Z/full-scale-manifest.json",
+        "artifacts/production-readiness/20260802T121230Z/full-scale/full-scale-benchmark.json",
+        "artifacts/production-readiness/20260802T121230Z/full-scale/full-scale-manifest.json",
+        "artifacts/production-readiness/20260802T121230Z/full-scale/resume_proof/benchmark.json",
+        "artifacts/production-readiness/20260802T121230Z/full-scale/resume_proof/checkpoint.json",
+        "artifacts/production-readiness/20260802T121230Z/full-scale/resume_proof/manifest.json",
+        "artifacts/production-readiness/20260802T121230Z/full-scale/run1/benchmark.json",
+        "artifacts/production-readiness/20260802T121230Z/full-scale/run1/checkpoint.json",
+        "artifacts/production-readiness/20260802T121230Z/full-scale/run1/manifest.json",
+        "artifacts/production-readiness/20260802T121230Z/full-scale/run2/benchmark.json",
+        "artifacts/production-readiness/20260802T121230Z/full-scale/run2/checkpoint.json",
+        "artifacts/production-readiness/20260802T121230Z/full-scale/run2/manifest.json",
+        "artifacts/production-readiness/20260802T121230Z/full-suite.json",
+        "artifacts/production-readiness/20260802T121230Z/last-entity-clear.json",
+        "artifacts/production-readiness/20260802T121230Z/playwright.json",
+        "artifacts/production-readiness/20260802T121230Z/queue-cycle.json",
+        "artifacts/production-readiness/20260802T121230Z/queue-state-repair.json",
+        "artifacts/production-readiness/20260802T121230Z/real-case-analysis.json",
+        "artifacts/production-readiness/20260802T121230Z/restore-drill.json",
+        "artifacts/production-readiness/20260802T121230Z/security.json",
+        "artifacts/production-readiness/20260802T121230Z/sinapi-demo/items.json",
+        "artifacts/production-readiness/20260802T121230Z/sinapi-demo/manifest.json",
+        "artifacts/production-readiness/20260802T121230Z/sinapi-demo/sinapi-sicro-comparison.json",
+        "artifacts/production-readiness/20260802T121230Z/sinapi-sicro-comparison.json",
+        "artifacts/production-readiness/20260802T121230Z/source-coverage.json",
+        "artifacts/production-readiness/20260802T121230Z/vps-deploy.json",
+        "artifacts/production-readiness/20260802T121230Z/vps-full-cycle.json",
+        "artifacts/production-readiness/20260802T121230Z/vps-incremental-cycles.json",
+        "artifacts/production-readiness/20260802T121230Z/vps-smoke.json",
+        "artifacts/production-readiness/20260802T130202Z/README.md",
+        "artifacts/production-readiness/20260802T130202Z/alerts-test.json",
+        "artifacts/production-readiness/20260802T130202Z/backup.json",
+        "artifacts/production-readiness/20260802T130202Z/baseline.json",
+        "artifacts/production-readiness/20260802T130202Z/environment.json",
+        "artifacts/production-readiness/20260802T130202Z/final-verdict.json",
+        "artifacts/production-readiness/20260802T130202Z/full-scale-benchmark.json",
+        "artifacts/production-readiness/20260802T130202Z/full-scale-manifest.json",
+        "artifacts/production-readiness/20260802T130202Z/playwright.json",
+        "artifacts/production-readiness/20260802T130202Z/queue-cycle.json",
+        "artifacts/production-readiness/20260802T130202Z/real-case-analysis.json",
+        "artifacts/production-readiness/20260802T130202Z/restore-drill.json",
+        "artifacts/production-readiness/20260802T130202Z/security.json"
+      ],
+      "migration_like_files": [],
+      "body_preview": "## Problem\nSkeptic remediation re-proof on exact tip: prior packs cited older SHAs; re-execute all gates C/D/E/F/G/H on HEAD.\n\n## Solution\n- Consulting workflows + hardened Playwright (16 flows)\n- Official SINAPI via IBGE SIDRA (OFFICIAL_SIDRA_INDEX)\n- Live webhook fire+receive + VPS source-failure alert\n- Restore integrity fingerprints\n- Same-execution real-case chain\n- Full-scale dual-run checksum match on tip\n- VPS deployed_sha match + lag_cleared 407 + 2 incrementals SUCCESS_NONZERO\n\n## Baseline / HEAD\n- **Baseline merge:** `704975a7bcdd43d4dc6769fbf6c14726327ab37b` (#195)\n- **HEAD SHA:** `ecc924389af7768dcfd2e179fa74088b9631f619`\n\n## Evidence pack (re-run on exact tip)\n`artifacts/production-readiness/20260802T134234Z/`\n\n| Gate | Proof |\n|------|--------|\n| A Code | PASS |\n| B Quality | CI on this HEAD |\n| C E2E | PASS Playwright 12/12 hardened consulting IDs |\n| D Scale | PASS dual-run 4402632 accepted, checksum match on tip |\n| E Operation | PASS VPS deployed_sha match + lag_cleared 407/407 + 2 incrementals |\n| F Observability | PASS live webhook fire+receive + source-failure alert |\n| G Recovery | PASS restore integrity fingerprints |\n| H Real case | PASS same-execution chain; no READY_TO_SUBMIT auto |\n\n### Terminal state\n`PASS_PRODUCTION_READINESS_IMPLEMENTED_AND_PROVEN`\n\n### Non-claims\n- CAIXA SINAPI composition bulk (portal redirect); IBGE SIDRA official index used\n- SMTP unset; webhook proven\n",
+      "body_len": 1427,
+      "branch_migrations_60plus": []
+    },
+    "198": {
+      "number": 198,
+      "title": "feat(decision-memory): Decision & Outcome Memory v1 (canonical PG ledger)",
+      "state": "OPEN",
+      "url": "https://github.com/tjsasakifln/extra-cli/pull/198",
+      "isDraft": false,
+      "headRefName": "campaign/EXTRA-DECISION-OUTCOME-MEMORY-01",
+      "baseRefName": "main",
+      "baseSha_mergeBaseWithMain": "704975a7bcdd43d4dc6769fbf6c14726327ab37b",
+      "mainShaAtBaseline": "704975a7bcdd43d4dc6769fbf6c14726327ab37b",
+      "headRefOid": "d56f3d3e484d97a0ad6d982c949ead5e0ce02d25",
+      "commits_count_gh": 23,
+      "commits_ahead_of_main": 23,
+      "commits_behind_main": 0,
+      "commits": [
+        {
+          "oid": "0864553cb3e7da6246f520cdf60281416d5d1f7c",
+          "messageHeadline": "feat(decision-memory): Decision & Outcome Memory v1 (canonical PG led…",
+          "committedDate": "2026-08-02T15:03:38Z",
+          "authors": [
+            "tjsasakifln"
+          ]
+        },
+        {
+          "oid": "e7a3b308858dd1e964c4a7c3991813735386421a",
+          "messageHeadline": "docs(campaign): record final SHA in decision-memory evidence pack",
+          "committedDate": "2026-08-02T15:03:42Z",
+          "authors": [
+            "tjsasakifln"
+          ]
+        },
+        {
+          "oid": "94b168bc67858ffdd09eac605d5f0035db072e14",
+          "messageHeadline": "docs(campaign): align evidence result.json with HEAD SHA",
+          "committedDate": "2026-08-02T15:04:02Z",
+          "authors": [
+            "tjsasakifln"
+          ]
+        },
+        {
+          "oid": "a8ab2c58be28e6328e33a5d4b3500329ca2071ec",
+          "messageHeadline": "docs(campaign): finalize result.json SHA fields for decision-memory",
+          "committedDate": "2026-08-02T15:04:56Z",
+          "authors": [
+            "tjsasakifln"
+          ]
+        },
+        {
+          "oid": "5fb4756a6ad8d5f65b30396e6abdced736fd4e6d",
+          "messageHeadline": "fix(ops): remove except-pass on decision review critical path",
+          "committedDate": "2026-08-02T16:18:20Z",
+          "authors": [
+            "tjsasakifln"
+          ]
+        },
+        {
+          "oid": "6ee466a91d04482204c6d956379c322f0ce1aeb4",
+          "messageHeadline": "docs(campaign): record full-suite local results for decision-memory",
+          "committedDate": "2026-08-02T16:18:24Z",
+          "authors": [
+            "tjsasakifln"
+          ]
+        },
+        {
+          "oid": "31f04c088ef1739341bf9a78a1551f2f8ebcf89e",
+          "messageHeadline": "docs(campaign): freeze decision-memory evidence pack SHA",
+          "committedDate": "2026-08-02T16:18:50Z",
+          "authors": [
+            "tjsasakifln"
+          ]
+        },
+        {
+          "oid": "a605461061eef8e70fedad42be7ecb6abc45e01f",
+          "messageHeadline": "fix(decision-memory): use StrEnum to satisfy ruff UP042",
+          "committedDate": "2026-08-02T16:28:33Z",
+          "authors": [
+            "tjsasakifln"
+          ]
+        },
+        {
+          "oid": "3a39e311b7529886fe67701a93359b98c4db15f8",
+          "messageHeadline": "docs(campaign): note ruff fix retrigger for decision-memory CI",
+          "committedDate": "2026-08-02T16:28:36Z",
+          "authors": [
+            "tjsasakifln"
+          ]
+        },
+        {
+          "oid": "b6a398042b0b420b82f1c380403d49839a398b62",
+          "messageHeadline": "docs(campaign): freeze PASS evidence pack with CI green for decision-…",
+          "committedDate": "2026-08-02T16:36:51Z",
+          "authors": [
+            "tjsasakifln"
+          ]
+        },
+        {
+          "oid": "d9b26ea1b4d14e2b80fbb6f1674f885e70e63127",
+          "messageHeadline": "docs(campaign): correct FINAL-REPORT and freeze PASS result.json",
+          "committedDate": "2026-08-02T16:37:20Z",
+          "authors": [
+            "tjsasakifln"
+          ]
+        },
+        {
+          "oid": "5e1735d93590600e9cd24db8c963bc1cdd500149",
+          "messageHeadline": "docs(campaign): align result.json final_sha with CI-green tip",
+          "committedDate": "2026-08-02T16:45:29Z",
+          "authors": [
+            "tjsasakifln"
+          ]
+        },
+        {
+          "oid": "a78190cb4cac7d5d542ecdaff2d8dff65b6bee61",
+          "messageHeadline": "fix(decision-memory): close skeptic gaps (DSN fail-closed, projection…",
+          "committedDate": "2026-08-02T17:08:16Z",
+          "authors": [
+            "tjsasakifln"
+          ]
+        },
+        {
+          "oid": "d1f20ed3459cb0cf53be8fab58b5a0a97ab49fbc",
+          "messageHeadline": "docs(campaign): re-freeze evidence after skeptic gap fixes",
+          "committedDate": "2026-08-02T17:11:57Z",
+          "authors": [
+            "tjsasakifln"
+          ]
+        },
+        {
+          "oid": "0972d327d1710b3ecc94eafff8efca4e67b733c5",
+          "messageHeadline": "docs(campaign): set final_sha to tip containing skeptic-fix pack",
+          "committedDate": "2026-08-02T17:13:13Z",
+          "authors": [
+            "tjsasakifln"
+          ]
+        },
+        {
+          "oid": "f5a4566addedce706fa7d3320c8e57edea521654",
+          "messageHeadline": "docs(campaign): re-freeze final_sha after skeptic code fixes",
+          "committedDate": "2026-08-02T17:24:07Z",
+          "authors": [
+            "tjsasakifln"
+          ]
+        },
+        {
+          "oid": "c99c376ca78e5e96d8d9a1c37e78668ef9b8508b",
+          "messageHeadline": "docs(campaign): freeze evidence final_sha to tip for DoD 18.18",
+          "committedDate": "2026-08-02T17:33:55Z",
+          "authors": [
+            "tjsasakifln"
+          ]
+        },
+        {
+          "oid": "0779b323d57ad90f75fea03bd02abdc70632c8b5",
+          "messageHeadline": "docs(campaign): record CI-green final_sha after skeptic fixes",
+          "committedDate": "2026-08-02T18:35:47Z",
+          "authors": [
+            "tjsasakifln"
+          ]
+        },
+        {
+          "oid": "bca04f3b970326caa29eef9906ccdcbdfe45ba0d",
+          "messageHeadline": "docs(campaign): freeze final_sha to CI-green tip after skeptic remedi…",
+          "committedDate": "2026-08-02T18:44:09Z",
+          "authors": [
+            "tjsasakifln"
+          ]
+        },
+        {
+          "oid": "d36db32774b5a25cb945d89045bb34675f113342",
+          "messageHeadline": "docs(campaign): finalize evidence pack after skeptic remediation",
+          "committedDate": "2026-08-02T18:53:39Z",
+          "authors": [
+            "tjsasakifln"
+          ]
+        },
+        {
+          "oid": "a6b7e1e840eee2762d279011b1a91f89a73aec65",
+          "messageHeadline": "docs(campaign): FINAL-REPORT after skeptic remediation",
+          "committedDate": "2026-08-02T18:53:42Z",
+          "authors": [
+            "tjsasakifln"
+          ]
+        },
+        {
+          "oid": "59d35dac3535e65056a1c373bcc31707257dea23",
+          "messageHeadline": "fix(decision-memory): stable review idempotency for PARTIAL projectio…",
+          "committedDate": "2026-08-02T19:12:32Z",
+          "authors": [
+            "tjsasakifln"
+          ]
+        },
+        {
+          "oid": "d56f3d3e484d97a0ad6d982c949ead5e0ce02d25",
+          "messageHeadline": "docs(campaign): evidence for idempotent PARTIAL projection retry",
+          "committedDate": "2026-08-02T19:12:35Z",
+          "authors": [
+            "tjsasakifln"
+          ]
+        }
+      ],
+      "additions": 5162,
+      "deletions": 11,
+      "changedFiles": 40,
+      "mergeable": "MERGEABLE",
+      "mergeStateStatus": "CLEAN",
+      "createdAt": "2026-08-02T16:19:16Z",
+      "updatedAt": "2026-08-02T19:12:40Z",
+      "checks": {
+        "Lint (ruff)": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30762859559/job/91536403166"
+        },
+        "PR Reviewability Policy": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30762859557/job/91536402891"
+        },
+        "Type Check (mypy)": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30762859559/job/91536403133"
+        },
+        "Test (critical readiness)": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30762859559/job/91536403160"
+        },
+        "Test operational expanded (PR)": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30762859559/job/91536403180"
+        },
+        "Test All (full suite)": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30762859559/job/91536403164"
+        },
+        "Resilience Gate (pre-VPS)": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30762859559/job/91536403209"
+        },
+        "Generated Artifacts Policy": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30762859559/job/91536403157"
+        },
+        "Pytest Skip Policy": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30762859559/job/91536403221"
+        },
+        "Security (bandit)": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30762859559/job/91536403343"
+        },
+        "Dependency Audit (pip-audit)": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30762859559/job/91536403189"
+        },
+        "CONFENGE Contract Relevance": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30762859559/job/91536403184"
+        },
+        "CONFENGE Sector Fit": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30762859559/job/91536403208"
+        },
+        "CONFENGE Commercial Code Quality": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30762859559/job/91536403286"
+        },
+        "CONFENGE Structural Historical Checks": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30762859559/job/91536403206"
+        },
+        "CONFENGE Structural Registry Checks": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30762859559/job/91536403210"
+        },
+        "CONFENGE Structural Snapshot Checks": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30762859559/job/91536403222"
+        },
+        "CONFENGE Structural E2E Checks": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30762859559/job/91536403231"
+        },
+        "CONFENGE Structural Human Evaluation Checks": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30762859559/job/91536403194"
+        },
+        "CONFENGE Structural Human Commercial Checks": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30762859559/job/91536403252"
+        },
+        "CONFENGE Real Historical Evidence": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30762859559/job/91536403239"
+        },
+        "CONFENGE Real Registry Evidence": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30762859559/job/91536403215"
+        },
+        "CONFENGE Full Pipeline E2E Evidence": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30762859559/job/91536403196"
+        },
+        "CONFENGE Snapshot Restore Evidence": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30762859559/job/91536403178"
+        },
+        "CONFENGE Human Package Publication": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30762859559/job/91536403192"
+        },
+        "Edital Relevance Foundation": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30762859559/job/91536403200"
+        },
+        "CONFENGE Structural Commercial Checks": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30762859559/job/91536479679"
+        },
+        "CONFENGE Final Evidence Integrity": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30762859559/job/91536456077"
+        }
+      },
+      "checks_raw_count": 28,
+      "reviews": [],
+      "comments_count": 0,
+      "comments": [],
+      "files": [
+        {
+          "path": "artifacts/campaigns/EXTRA-DECISION-OUTCOME-MEMORY-01/ARCHITECTURE.md",
+          "additions": 44,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/campaigns/EXTRA-DECISION-OUTCOME-MEMORY-01/BASELINE.md",
+          "additions": 89,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/campaigns/EXTRA-DECISION-OUTCOME-MEMORY-01/CLIENT-ISOLATION-PROOF.json",
+          "additions": 13,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/campaigns/EXTRA-DECISION-OUTCOME-MEMORY-01/DATA-MODEL.md",
+          "additions": 30,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/campaigns/EXTRA-DECISION-OUTCOME-MEMORY-01/FINAL-REPORT.md",
+          "additions": 28,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/campaigns/EXTRA-DECISION-OUTCOME-MEMORY-01/IDEMPOTENCY-PROOF.json",
+          "additions": 6,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/campaigns/EXTRA-DECISION-OUTCOME-MEMORY-01/LEGACY-IMPORT-PROOF.json",
+          "additions": 13,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/campaigns/EXTRA-DECISION-OUTCOME-MEMORY-01/METRICS-PROOF.json",
+          "additions": 30,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/campaigns/EXTRA-DECISION-OUTCOME-MEMORY-01/MIGRATION-PROOF.md",
+          "additions": 8,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/campaigns/EXTRA-DECISION-OUTCOME-MEMORY-01/OPERATIONS-RUNBOOK.md",
+          "additions": 10,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/campaigns/EXTRA-DECISION-OUTCOME-MEMORY-01/PRIVACY-REVIEW.md",
+          "additions": 20,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/campaigns/EXTRA-DECISION-OUTCOME-MEMORY-01/TEMPORAL-INTEGRITY-PROOF.json",
+          "additions": 15,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/campaigns/EXTRA-DECISION-OUTCOME-MEMORY-01/TEST-EVIDENCE.md",
+          "additions": 69,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/campaigns/EXTRA-DECISION-OUTCOME-MEMORY-01/WEEKLY-BOARD-PROOF.json",
+          "additions": 14,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/campaigns/EXTRA-DECISION-OUTCOME-MEMORY-01/result.json",
+          "additions": 53,
+          "deletions": 0
+        },
+        {
+          "path": "db/migrations/068_decision_outcome_memory.sql",
+          "additions": 372,
+          "deletions": 0
+        },
+        {
+          "path": "docs/decisions/adr-decision-outcome-memory-v1.md",
+          "additions": 55,
+          "deletions": 0
+        },
+        {
+          "path": "docs/ops/decision-outcome-memory-runbook.md",
+          "additions": 84,
+          "deletions": 0
+        },
+        {
+          "path": "scripts/decision_memory/__init__.py",
+          "additions": 12,
+          "deletions": 0
+        },
+        {
+          "path": "scripts/decision_memory/__main__.py",
+          "additions": 5,
+          "deletions": 0
+        },
+        {
+          "path": "scripts/decision_memory/cli.py",
+          "additions": 599,
+          "deletions": 0
+        },
+        {
+          "path": "scripts/decision_memory/db.py",
+          "additions": 26,
+          "deletions": 0
+        },
+        {
+          "path": "scripts/decision_memory/idempotency.py",
+          "additions": 136,
+          "deletions": 0
+        },
+        {
+          "path": "scripts/decision_memory/identity.py",
+          "additions": 140,
+          "deletions": 0
+        },
+        {
+          "path": "scripts/decision_memory/import_legacy.py",
+          "additions": 329,
+          "deletions": 0
+        },
+        {
+          "path": "scripts/decision_memory/mapping.py",
+          "additions": 62,
+          "deletions": 0
+        },
+        {
+          "path": "scripts/decision_memory/metrics.py",
+          "additions": 211,
+          "deletions": 0
+        },
+        {
+          "path": "scripts/decision_memory/models.py",
+          "additions": 239,
+          "deletions": 0
+        },
+        {
+          "path": "scripts/decision_memory/projection.py",
+          "additions": 89,
+          "deletions": 0
+        },
+        {
+          "path": "scripts/decision_memory/repository.py",
+          "additions": 610,
+          "deletions": 0
+        },
+        {
+          "path": "scripts/decision_memory/temporal.py",
+          "additions": 75,
+          "deletions": 0
+        },
+        {
+          "path": "scripts/decision_memory/weekly_board.py",
+          "additions": 216,
+          "deletions": 0
+        },
+        {
+          "path": "scripts/ops/extra_decision_review.py",
+          "additions": 213,
+          "deletions": 6
+        },
+        {
+          "path": "scripts/ops/weekly_decision_artifacts.py",
+          "additions": 42,
+          "deletions": 2
+        },
+        {
+          "path": "tests/conftest.py",
+          "additions": 7,
+          "deletions": 0
+        },
+        {
+          "path": "tests/decision_memory/conftest.py",
+          "additions": 151,
+          "deletions": 0
+        },
+        {
+          "path": "tests/decision_memory/test_import_metrics_board_cli.py",
+          "additions": 526,
+          "deletions": 0
+        },
+        {
+          "path": "tests/decision_memory/test_models_mapping_identity.py",
+          "additions": 237,
+          "deletions": 0
+        },
+        {
+          "path": "tests/decision_memory/test_repository_pg.py",
+          "additions": 260,
+          "deletions": 0
+        },
+        {
+          "path": "tests/test_extra_decision_loop.py",
+          "additions": 24,
+          "deletions": 3
+        }
+      ],
+      "file_paths": [
+        "artifacts/campaigns/EXTRA-DECISION-OUTCOME-MEMORY-01/ARCHITECTURE.md",
+        "artifacts/campaigns/EXTRA-DECISION-OUTCOME-MEMORY-01/BASELINE.md",
+        "artifacts/campaigns/EXTRA-DECISION-OUTCOME-MEMORY-01/CLIENT-ISOLATION-PROOF.json",
+        "artifacts/campaigns/EXTRA-DECISION-OUTCOME-MEMORY-01/DATA-MODEL.md",
+        "artifacts/campaigns/EXTRA-DECISION-OUTCOME-MEMORY-01/FINAL-REPORT.md",
+        "artifacts/campaigns/EXTRA-DECISION-OUTCOME-MEMORY-01/IDEMPOTENCY-PROOF.json",
+        "artifacts/campaigns/EXTRA-DECISION-OUTCOME-MEMORY-01/LEGACY-IMPORT-PROOF.json",
+        "artifacts/campaigns/EXTRA-DECISION-OUTCOME-MEMORY-01/METRICS-PROOF.json",
+        "artifacts/campaigns/EXTRA-DECISION-OUTCOME-MEMORY-01/MIGRATION-PROOF.md",
+        "artifacts/campaigns/EXTRA-DECISION-OUTCOME-MEMORY-01/OPERATIONS-RUNBOOK.md",
+        "artifacts/campaigns/EXTRA-DECISION-OUTCOME-MEMORY-01/PRIVACY-REVIEW.md",
+        "artifacts/campaigns/EXTRA-DECISION-OUTCOME-MEMORY-01/TEMPORAL-INTEGRITY-PROOF.json",
+        "artifacts/campaigns/EXTRA-DECISION-OUTCOME-MEMORY-01/TEST-EVIDENCE.md",
+        "artifacts/campaigns/EXTRA-DECISION-OUTCOME-MEMORY-01/WEEKLY-BOARD-PROOF.json",
+        "artifacts/campaigns/EXTRA-DECISION-OUTCOME-MEMORY-01/result.json",
+        "db/migrations/068_decision_outcome_memory.sql",
+        "docs/decisions/adr-decision-outcome-memory-v1.md",
+        "docs/ops/decision-outcome-memory-runbook.md",
+        "scripts/decision_memory/__init__.py",
+        "scripts/decision_memory/__main__.py",
+        "scripts/decision_memory/cli.py",
+        "scripts/decision_memory/db.py",
+        "scripts/decision_memory/idempotency.py",
+        "scripts/decision_memory/identity.py",
+        "scripts/decision_memory/import_legacy.py",
+        "scripts/decision_memory/mapping.py",
+        "scripts/decision_memory/metrics.py",
+        "scripts/decision_memory/models.py",
+        "scripts/decision_memory/projection.py",
+        "scripts/decision_memory/repository.py",
+        "scripts/decision_memory/temporal.py",
+        "scripts/decision_memory/weekly_board.py",
+        "scripts/ops/extra_decision_review.py",
+        "scripts/ops/weekly_decision_artifacts.py",
+        "tests/conftest.py",
+        "tests/decision_memory/conftest.py",
+        "tests/decision_memory/test_import_metrics_board_cli.py",
+        "tests/decision_memory/test_models_mapping_identity.py",
+        "tests/decision_memory/test_repository_pg.py",
+        "tests/test_extra_decision_loop.py"
+      ],
+      "migration_like_files": [
+        "artifacts/campaigns/EXTRA-DECISION-OUTCOME-MEMORY-01/MIGRATION-PROOF.md",
+        "db/migrations/068_decision_outcome_memory.sql"
+      ],
+      "body_preview": "## Summary\n\nImplements **Decision & Outcome Memory v1** for Extra / CONFENGE: PostgreSQL-backed, client-scoped, append-only memory for human decisions, actions, and outcomes across weekly B2G cycles.\n\n- Migration `068_decision_outcome_memory.sql` (`dm_*` events, current views, isolation triggers, append-only guards)\n- Generic module `scripts/decision_memory/` (CLI, import dry-run/apply, weekly-board, metrics with honest denominators)\n- Integrates `extra_decision_review` (PG-first fail-closed; `--artifact-only` → `NON_CANONICAL_ARTIFACT_ONLY`)\n- Minimal weekly pack section derived from PG (not directory scans)\n- Real-PG tests under `tests/decision_memory/` + review compatibility\n\nCampaign: `EXTRA-DECISION-OUTCOME-MEMORY-01`  \nEvidence: `artifacts/campaigns/EXTRA-DECISION-OUTCOME-MEMORY-01/`  \nADR: `docs/decisions/adr-decision-outcome-memory-v1.md`  \nRunbook: `docs/ops/decision-outcome-memory-runbook.md`\n\n## Non-claims\n\n- Does not prove CONFENGE caused wins\n- Does not invent outcomes/margins or auto-accept human decisions\n- Historical imports are `HISTORICAL_UNVERIFIED`, not prospective\n- Not full multi-tenant RLS SaaS; isolation via service layer + constraints + tests\n- No pSEO / predictive model / Command Center redesign in this PR\n- Does not merge or incorporate open PR #196 / #197\n\n## Test plan\n\n```bash\nexport LOCAL_DATALAKE_DSN=postgresql://test:test@127.0.0.1:5433/extra_test\npython3 -m scripts.ops.apply_migrations --dsn \"$LOCAL_DATALAKE_DSN\"\npython3 -m pytest tests/decisi",
+      "body_len": 2176,
+      "branch_migrations_60plus": []
+    },
+    "197": {
+      "number": 197,
+      "title": "feat(predictive): genuine predictive intelligence with honest claim gates",
+      "state": "OPEN",
+      "url": "https://github.com/tjsasakifln/extra-cli/pull/197",
+      "isDraft": false,
+      "headRefName": "campaign/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01",
+      "baseRefName": "main",
+      "baseSha_mergeBaseWithMain": "704975a7bcdd43d4dc6769fbf6c14726327ab37b",
+      "mainShaAtBaseline": "704975a7bcdd43d4dc6769fbf6c14726327ab37b",
+      "headRefOid": "2af0ff5c7862473b14c107489363f5d159af5a07",
+      "commits_count_gh": 9,
+      "commits_ahead_of_main": 9,
+      "commits_behind_main": 0,
+      "commits": [
+        {
+          "oid": "70c55442e30d20b9930a8d182b5b6e479401efe9",
+          "messageHeadline": "feat(predictive): genuine predictive layer with honest claim gates",
+          "committedDate": "2026-08-01T20:57:47Z",
+          "authors": [
+            "tjsasakifln"
+          ]
+        },
+        {
+          "oid": "0efd5e9c6e01cbe0785e60d2238c0e2abfa26733",
+          "messageHeadline": "fix(predictive): skeptic gaps — P2A leakage, outcomes/drift, weekly, …",
+          "committedDate": "2026-08-01T21:22:52Z",
+          "authors": [
+            "tjsasakifln"
+          ]
+        },
+        {
+          "oid": "f8dcaa6f4d93ea8a4307152bd1e0563e69623821",
+          "messageHeadline": "fix(predictive): demand negatives need coverage; P2A outcome join",
+          "committedDate": "2026-08-01T21:42:32Z",
+          "authors": [
+            "tjsasakifln"
+          ]
+        },
+        {
+          "oid": "49431b171d545d678798e440618761ad19cdd388",
+          "messageHeadline": "fix(predictive): close runtime dependency contract",
+          "committedDate": "2026-08-03T03:19:45Z",
+          "authors": [
+            "tjsasakifln"
+          ]
+        },
+        {
+          "oid": "9f7a5d1c15e9dfc77a0cfb7df5d09f2804f6e552",
+          "messageHeadline": "fix(predictive): resolve lint and naming defects",
+          "committedDate": "2026-08-03T03:19:49Z",
+          "authors": [
+            "tjsasakifln"
+          ]
+        },
+        {
+          "oid": "b9e7a689118a0e7ac8e6ccdd29a1c0e105073712",
+          "messageHeadline": "fix(migrations): remove predictive migration collision",
+          "committedDate": "2026-08-03T03:19:57Z",
+          "authors": [
+            "tjsasakifln"
+          ]
+        },
+        {
+          "oid": "2e15ad85430be4967138acaec82f51558337bbf7",
+          "messageHeadline": "test(predictive): strengthen metrics, deps, and claim honesty gates",
+          "committedDate": "2026-08-03T03:20:01Z",
+          "authors": [
+            "tjsasakifln"
+          ]
+        },
+        {
+          "oid": "b7596b4f699de27f7620ccf2dc69986558f0f342",
+          "messageHeadline": "docs(predictive): refresh evidence pack for merge-ready HEAD",
+          "committedDate": "2026-08-03T03:33:54Z",
+          "authors": [
+            "tjsasakifln"
+          ]
+        },
+        {
+          "oid": "2af0ff5c7862473b14c107489363f5d159af5a07",
+          "messageHeadline": "docs(predictive): rebind evidence pack SHAs to tip b7596b4f699de27f76…",
+          "committedDate": "2026-08-03T03:42:45Z",
+          "authors": [
+            "tjsasakifln"
+          ]
+        }
+      ],
+      "additions": 9012,
+      "deletions": 158,
+      "changedFiles": 75,
+      "mergeable": "MERGEABLE",
+      "mergeStateStatus": "CLEAN",
+      "createdAt": "2026-08-01T20:58:17Z",
+      "updatedAt": "2026-08-03T03:42:50Z",
+      "checks": {
+        "Lint (ruff)": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30782486987/job/91590686027"
+        },
+        "PR Reviewability Policy": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30782487008/job/91589763681"
+        },
+        "Type Check (mypy)": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30782486987/job/91590701279"
+        },
+        "Test (critical readiness)": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30782486987/job/91590686029"
+        },
+        "Test operational expanded (PR)": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30782486987/job/91590685996"
+        },
+        "Test All (full suite)": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30782486987/job/91590685525"
+        },
+        "Resilience Gate (pre-VPS)": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30782486987/job/91590698553"
+        },
+        "Generated Artifacts Policy": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30782486987/job/91590686070"
+        },
+        "Pytest Skip Policy": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30782486987/job/91590699307"
+        },
+        "Security (bandit)": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30782486987/job/91590686298"
+        },
+        "Dependency Audit (pip-audit)": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30782486987/job/91590685823"
+        },
+        "CONFENGE Contract Relevance": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30782486987/job/91590700503"
+        },
+        "CONFENGE Sector Fit": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30782486987/job/91590696388"
+        },
+        "CONFENGE Commercial Code Quality": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30782486987/job/91590686177"
+        },
+        "CONFENGE Structural Historical Checks": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30782486987/job/91590686122"
+        },
+        "CONFENGE Structural Registry Checks": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30782486987/job/91590700068"
+        },
+        "CONFENGE Structural Snapshot Checks": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30782486987/job/91590685997"
+        },
+        "CONFENGE Structural E2E Checks": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30782486987/job/91590686031"
+        },
+        "CONFENGE Structural Human Evaluation Checks": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30782486987/job/91590685985"
+        },
+        "CONFENGE Structural Human Commercial Checks": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30782486987/job/91590698093"
+        },
+        "CONFENGE Real Historical Evidence": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30782486987/job/91590699370"
+        },
+        "CONFENGE Real Registry Evidence": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30782486987/job/91590697528"
+        },
+        "CONFENGE Full Pipeline E2E Evidence": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30782486987/job/91590702053"
+        },
+        "CONFENGE Snapshot Restore Evidence": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30782486987/job/91590699225"
+        },
+        "CONFENGE Human Package Publication": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30782486987/job/91590704296"
+        },
+        "Edital Relevance Foundation": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30782486987/job/91590685926"
+        },
+        "CONFENGE Structural Commercial Checks": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30782486987/job/91590686846"
+        },
+        "CONFENGE Final Evidence Integrity": {
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/tjsasakifln/extra-cli/actions/runs/30782486987/job/91590686686"
+        }
+      },
+      "checks_raw_count": 28,
+      "reviews": [],
+      "comments_count": 0,
+      "comments": [],
+      "files": [
+        {
+          "path": "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/FINAL-REPORT.md",
+          "additions": 56,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/HANDOFF.md",
+          "additions": 29,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/backtest-folds.csv",
+          "additions": 49,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/backtest-summary.json",
+          "additions": 33,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/baseline-comparison.csv",
+          "additions": 17,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/baseline.json",
+          "additions": 26,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/calibration-report.json",
+          "additions": 10,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/claim-state.json",
+          "additions": 32,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/cohort-performance.csv",
+          "additions": 2,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/data-quality-report.json",
+          "additions": 14,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/dependency-audit.json",
+          "additions": 38,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/drift-baseline.json",
+          "additions": 9,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/extra-profile-blockers.json",
+          "additions": 71,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/feature-registry.json",
+          "additions": 33,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/final-verdict.json",
+          "additions": 24,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/focused-tests.json",
+          "additions": 17,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/full-suite.json",
+          "additions": 20,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/heuristic-claims-audit.json",
+          "additions": 15,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/label-coverage.json",
+          "additions": 127,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/leakage-audit.json",
+          "additions": 22,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/lint.json",
+          "additions": 18,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/migration-proof.json",
+          "additions": 68,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/model-registry-snapshot.json",
+          "additions": 19,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/prospective-evidence-status.json",
+          "additions": 7,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/regression-interval-report.json",
+          "additions": 4,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/reliability-table.csv",
+          "additions": 11,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/result.json",
+          "additions": 258,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/security.json",
+          "additions": 16,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/shadow-deployment.json",
+          "additions": 8,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/test-evidence.md",
+          "additions": 49,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/typecheck.json",
+          "additions": 18,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/vps-evidence.md",
+          "additions": 29,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/predictive/claim_states.json",
+          "additions": 332,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/predictive/drift_last.json",
+          "additions": 426,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/predictive/monitor_last.json",
+          "additions": 426,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/predictive/outcomes_ledger.jsonl",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/predictive/outcomes_resolve_last.json",
+          "additions": 16,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/predictive/prediction_last_demand_30d.json",
+          "additions": 37,
+          "deletions": 0
+        },
+        {
+          "path": "artifacts/predictive/predictions_ledger.jsonl",
+          "additions": 6,
+          "deletions": 0
+        },
+        {
+          "path": "db/migrations/069_predictive_intelligence.sql",
+          "additions": 267,
+          "deletions": 0
+        },
+        {
+          "path": "deploy/systemd/extra-predictive-shadow.service",
+          "additions": 19,
+          "deletions": 0
+        },
+        {
+          "path": "deploy/systemd/extra-predictive-shadow.timer",
+          "additions": 10,
+          "deletions": 0
+        },
+        {
+          "path": "docs/decisions/adr-068-predictive-intelligence-claim-gates.md",
+          "additions": 37,
+          "deletions": 0
+        },
+        {
+          "path": "requirements.txt",
+          "additions": 4,
+          "deletions": 0
+        },
+        {
+          "path": "scripts/generate-report-b2g.py",
+          "additions": 5,
+          "deletions": 5
+        },
+        {
+          "path": "scripts/intel_analyze.py",
+          "additions": 11,
+          "deletions": 11
+        },
+        {
+          "path": "scripts/intel_enrich.py",
+          "additions": 24,
+          "deletions": 16
+        },
+        {
+          "path": "scripts/intel_excel.py",
+          "additions": 8,
+          "deletions": 8
+        },
+        {
+          "path": "scripts/intel_pipeline.py",
+          "additions": 3,
+          "deletions": 3
+        },
+        {
+          "path": "scripts/intel_report.py",
+          "additions": 6,
+          "deletions": 6
+        },
+        {
+          "path": "scripts/lib/bid_simulator.py",
+          "additions": 180,
+          "deletions": 109
+        },
+        {
+          "path": "scripts/ops/weekly_cycle.py",
+          "additions": 46,
+          "deletions": 0
+        },
+        {
+          "path": "scripts/predictive/__init__.py",
+          "additions": 44,
+          "deletions": 0
+        },
+        {
+          "path": "scripts/predictive/__main__.py",
+          "additions": 626,
+          "deletions": 0
+        },
+        {
+          "path": "scripts/predictive/backtest.py",
+          "additions": 321,
+          "deletions": 0
+        },
+        {
+          "path": "scripts/predictive/claims.py",
+          "additions": 400,
+          "deletions": 0
+        },
+        {
+          "path": "scripts/predictive/data_access.py",
+          "additions": 188,
+          "deletions": 0
+        },
+        {
+          "path": "scripts/predictive/dataset.py",
+          "additions": 594,
+          "deletions": 0
+        },
+        {
+          "path": "scripts/predictive/drift.py",
+          "additions": 211,
+          "deletions": 0
+        },
+        {
+          "path": "scripts/predictive/features.py",
+          "additions": 173,
+          "deletions": 0
+        },
+        {
+          "path": "scripts/predictive/labels.py",
+          "additions": 317,
+          "deletions": 0
+        },
+        {
+          "path": "scripts/predictive/leakage.py",
+          "additions": 194,
+          "deletions": 0
+        },
+        {
+          "path": "scripts/predictive/metrics.py",
+          "additions": 270,
+          "deletions": 0
+        },
+        {
+          "path": "scripts/predictive/models.py",
+          "additions": 371,
+          "deletions": 0
+        },
+        {
+          "path": "scripts/predictive/outcomes.py",
+          "additions": 461,
+          "deletions": 0
+        },
+        {
+          "path": "scripts/predictive/predict_service.py",
+          "additions": 209,
+          "deletions": 0
+        },
+        {
+          "path": "scripts/predictive/profile_calibration.py",
+          "additions": 229,
+          "deletions": 0
+        },
+        {
+          "path": "scripts/predictive/weekly_section.py",
+          "additions": 128,
+          "deletions": 0
+        },
+        {
+          "path": "scripts/workspace/cli.py",
+          "additions": 95,
+          "deletions": 0
+        },
+        {
+          "path": "tests/predictive/test_claims_and_leakage.py",
+          "additions": 227,
+          "deletions": 0
+        },
+        {
+          "path": "tests/predictive/test_honesty_static.py",
+          "additions": 193,
+          "deletions": 0
+        },
+        {
+          "path": "tests/predictive/test_immutability_and_cli.py",
+          "additions": 151,
+          "deletions": 0
+        },
+        {
+          "path": "tests/predictive/test_metrics_and_deps.py",
+          "additions": 192,
+          "deletions": 0
+        },
+        {
+          "path": "tests/predictive/test_outcomes_and_drift.py",
+          "additions": 334,
+          "deletions": 0
+        },
+        {
+          "path": "tests/predictive/test_p2a_no_winner_injection.py",
+          "additions": 72,
+          "deletions": 0
+        }
+      ],
+      "file_paths": [
+        "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/FINAL-REPORT.md",
+        "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/HANDOFF.md",
+        "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/backtest-folds.csv",
+        "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/backtest-summary.json",
+        "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/baseline-comparison.csv",
+        "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/baseline.json",
+        "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/calibration-report.json",
+        "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/claim-state.json",
+        "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/cohort-performance.csv",
+        "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/data-quality-report.json",
+        "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/dependency-audit.json",
+        "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/drift-baseline.json",
+        "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/extra-profile-blockers.json",
+        "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/feature-registry.json",
+        "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/final-verdict.json",
+        "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/focused-tests.json",
+        "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/full-suite.json",
+        "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/heuristic-claims-audit.json",
+        "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/label-coverage.json",
+        "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/leakage-audit.json",
+        "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/lint.json",
+        "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/migration-proof.json",
+        "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/model-registry-snapshot.json",
+        "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/prospective-evidence-status.json",
+        "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/regression-interval-report.json",
+        "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/reliability-table.csv",
+        "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/result.json",
+        "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/security.json",
+        "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/shadow-deployment.json",
+        "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/test-evidence.md",
+        "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/typecheck.json",
+        "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/vps-evidence.md",
+        "artifacts/predictive/claim_states.json",
+        "artifacts/predictive/drift_last.json",
+        "artifacts/predictive/monitor_last.json",
+        "artifacts/predictive/outcomes_ledger.jsonl",
+        "artifacts/predictive/outcomes_resolve_last.json",
+        "artifacts/predictive/prediction_last_demand_30d.json",
+        "artifacts/predictive/predictions_ledger.jsonl",
+        "db/migrations/069_predictive_intelligence.sql",
+        "deploy/systemd/extra-predictive-shadow.service",
+        "deploy/systemd/extra-predictive-shadow.timer",
+        "docs/decisions/adr-068-predictive-intelligence-claim-gates.md",
+        "requirements.txt",
+        "scripts/generate-report-b2g.py",
+        "scripts/intel_analyze.py",
+        "scripts/intel_enrich.py",
+        "scripts/intel_excel.py",
+        "scripts/intel_pipeline.py",
+        "scripts/intel_report.py",
+        "scripts/lib/bid_simulator.py",
+        "scripts/ops/weekly_cycle.py",
+        "scripts/predictive/__init__.py",
+        "scripts/predictive/__main__.py",
+        "scripts/predictive/backtest.py",
+        "scripts/predictive/claims.py",
+        "scripts/predictive/data_access.py",
+        "scripts/predictive/dataset.py",
+        "scripts/predictive/drift.py",
+        "scripts/predictive/features.py",
+        "scripts/predictive/labels.py",
+        "scripts/predictive/leakage.py",
+        "scripts/predictive/metrics.py",
+        "scripts/predictive/models.py",
+        "scripts/predictive/outcomes.py",
+        "scripts/predictive/predict_service.py",
+        "scripts/predictive/profile_calibration.py",
+        "scripts/predictive/weekly_section.py",
+        "scripts/workspace/cli.py",
+        "tests/predictive/test_claims_and_leakage.py",
+        "tests/predictive/test_honesty_static.py",
+        "tests/predictive/test_immutability_and_cli.py",
+        "tests/predictive/test_metrics_and_deps.py",
+        "tests/predictive/test_outcomes_and_drift.py",
+        "tests/predictive/test_p2a_no_winner_injection.py"
+      ],
+      "migration_like_files": [
+        "artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/migration-proof.json",
+        "db/migrations/069_predictive_intelligence.sql"
+      ],
+      "body_preview": "## Summary\n\nImplements the EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01 campaign:\n\n- **Honesty:** `bid_simulator` no longer publishes calibrated probability language; outputs are `heuristic_scenario_score` with `method=UNVALIDATED_HEURISTIC` / `prediction_claim_allowed=false`. Static honesty tests included.\n- **Claim registry:** 7 canonical claims with gated states; only `PRODUCTION_AVAILABLE` authorizes external availability language.\n- **PIT + leakage:** Point-in-time datasets for demand (30/60/90d), competitive winner (P2A), discount (P3); fail-closed leakage audits.\n- **Backtests (real production sample, 120k AEC contracts):**\n  - Demand: **BACKTEST_FAILED** (BSS under 0.10; thresholds not lowered)\n  - P2A competitive: **HISTORICAL_BACKTEST_PROVEN → SHADOW_OPERATIONAL**\n  - P3 / P2B / Extra win / optimal bid: **DATA_BLOCKED** (honest blockers)\n- **Ops:** facade `python -m scripts.predictive`, workspace `predictive-status`/`forecast`, migration 068 (immutable predictions), shadow systemd templates, campaign evidence pack.\n- **Commercial recommendation:** `PARTIAL_CLAIM_ALLOWED` — **not** `CLAIM_ALLOWED`. No “inteligência preditiva comprovada”.\n\n## Campaign artifacts\n\n`artifacts/campaigns/EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01/` (`FINAL-REPORT.md`, `result.json`, `claim-state.json`, backtest/calibration/DQ packs).\n\n## Test plan\n\n- [x] `pytest tests/predictive/ -q` (27 passed)\n- [x] Migration 068 + immutability trigger on local DSN\n- [x] Dual entrypoints: `python -m scri",
+      "body_len": 1839,
+      "branch_migrations_60plus": []
+    }
+  },
+  "file_overlaps": {
+    "196_vs_198": {
+      "count": 0,
+      "files": []
+    },
+    "196_vs_197": {
+      "count": 0,
+      "files": []
+    },
+    "197_vs_198": {
+      "count": 0,
+      "files": []
+    }
+  },
+  "merge_order_recommendation": {
+    "order": [
+      "196",
+      "198",
+      "197"
+    ],
+    "rationale": "196 is production ops base; 198 owns decision memory migration 068; 197 predictive should be 069 after decision memory"
+  }
+}

@@ -1,0 +1,7 @@
+HOST=v2202607385716487230
+DATE=2026-08-03T13:19:53Z
+total 1848
+drwxr-xr-x 45 extra-consultoria extra-consultoria   4096 Aug  2 10:34 .
+drwxr-xr-x  3 root              root                4096 Jul 23 09:58 ..
+drwxr-xr-x  3 extra-consultoria extra-consultoria   4096 Aug  1 16:40 .agents
+-rw-r--r--  1 extra-consultoria extra-consultoria   2942 Aug  1 16:40 AGENTS.md

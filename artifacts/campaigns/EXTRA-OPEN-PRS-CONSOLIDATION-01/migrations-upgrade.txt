@@ -1,0 +1,145 @@
+=== Strip 068/069 to simulate pre-consolidation state ===
+DELETE 2
+DROP TABLE
+NOTICE:  table "predictive_drift_snapshots" does not exist, skipping
+DROP TABLE
+DROP TABLE
+NOTICE:  drop cascades to constraint predictive_prediction_explanations_prediction_id_fkey on table predictive_prediction_explanations
+DROP TABLE
+NOTICE:  table "predictive_model_registry" does not exist, skipping
+DROP TABLE
+DROP TABLE
+DROP TABLE
+ERROR:  "dm_outcome_current" is not a table
+HINT:  Use DROP VIEW to remove a view.
+=== pre-upgrade ledger (no 068/069) ===
+ version |                   name                   
+---------+------------------------------------------
+ 066     | 066_upsert_qw01_nullif_empty_process.sql
+ 067     | 067_process_documents_runs.sql
+(2 rows)
+
+=== apply upgrade (expect apply 068+069 only) ===
+skip 001_pncp_raw_bids.sql (ledger)
+skip 002_pncp_supplier_contracts.sql (ledger)
+skip 003_enriched_entities.sql (ledger)
+skip 004_ingestion_tables.sql (ledger)
+skip 005_search_datalake_rpc.sql (ledger)
+skip 006_upsert_rpcs.sql (ledger)
+skip 007_sc_public_entities.sql (ledger)
+skip 008_purge_rpc.sql (ledger)
+skip 009_indexes_and_coverage.sql (ledger)
+skip 010_match_logging.sql (ledger)
+skip 011_unmatched_bids_view.sql (ledger)
+skip 012_coverage_snapshots.sql (ledger)
+skip 013_td-1.1_gin_index_objeto_contrato.sql (ledger)
+skip 014_td-1.1_fix_hnsw_expression.sql (ledger)
+skip 015_td-2.3_enriched_entities_ttl.sql (ledger)
+skip 016_td-2.3_objeto_compra_gin.sql (ledger)
+skip 017_td-2.3_matched_entity_id_index.sql (ledger)
+skip 018-td-5.3_esfera_id_check.sql (ledger)
+skip 019-td-5.3_soft_delete_purge_docs.sql (ledger)
+skip 020_td-2.4_sync_local_schema.sql (ledger)
+skip 021a_entity_coverage_rebuild.sql (ledger)
+skip 021b_entity_hierarchy.sql (ledger)
+skip 021c_sc_dados_abertos_municipio.sql (ledger)
+skip 021d_views_functions.sql (ledger)
+skip 022_match_method_coverage.sql (ledger)
+skip 023_pncp_engineering_pipeline.sql (ledger)
+skip 024_coverage_evidence_ledger.sql (ledger)
+skip 025a_contract_intel_views.sql (ledger)
+skip 025b_coverage_evidence_null_uniqueness.sql (ledger)
+skip 026_contract_intel_truth_v1.sql (ledger)
+skip 027_opportunity_intel.sql (ledger)
+skip 028_opportunity_indexes.sql (ledger)
+skip 029_qw01_auditable_radar.sql (ledger)
+skip 030_schema_contract_and_canonical_views.sql (ledger)
+skip 031_source_snapshot_reconciliation.sql (ledger)
+skip 032_capability_coverage.sql (ledger)
+skip 033_contract_versioning.sql (ledger)
+skip 034_supplier_identity.sql (ledger)
+skip 035_value_observations.sql (ledger)
+skip 036_reporting_views.sql (ledger)
+skip 037_target_universe_snapshot.sql (ledger)
+skip 038_target_universe_active_view.sql (ledger)
+skip 039_source_snapshot_tracking.sql (ledger)
+skip 040_coverage_model_expansion.sql (ledger)
+skip 041a_fix_fk_constraints.sql (ledger)
+skip 041b_fix_snapshot_membership.sql (ledger)
+skip 042_validate_fk_constraints.sql (ledger)
+skip 043_entity_aliases.sql (ledger)
+skip 044_fix_upsert_dedup.sql (ledger)
+skip 045_dlq_entries.sql (ledger)
+skip 046_pipeline_watermarks.sql (ledger)
+skip 047_pipeline_runs.sql (ledger)
+skip 048_record_hashes.sql (ledger)
+skip 049_pncp_resumable_backfill.sql (ledger)
+skip 050_fix_contracts_upsert_fk.sql (ledger)
+skip 051_contract_date_semantics.sql (ledger)
+skip 052_official_acts.sql (ledger)
+skip 053_entity_source_registry.sql (ledger)
+skip 054_local_resilience_contract.sql (ledger)
+skip 055_drop_orgao_entity_fk_national_pncp.sql (ledger)
+skip 056_drop_supplier_entity_fk_contracts.sql (ledger)
+skip 057_fix_upsert_opportunity_content_hash.sql (ledger)
+skip 058_dual_capability_coverage_views.sql (ledger)
+skip 059_coverage_evidence_canonical_entity_unique.sql (ledger)
+skip 060_national_contracts_intelligence_layers.sql (ledger)
+skip 061_canonical_entity_linkage.sql (ledger)
+skip 062_commercial_leads_ledger.sql (ledger)
+skip 063_supplier_registry.sql (ledger)
+skip 064_snapshot_write_guard.sql (ledger)
+skip 066_upsert_qw01_nullif_empty_process.sql (ledger)
+skip 067_process_documents_runs.sql (ledger)
+applied 068_decision_outcome_memory.sql
+applied 069_predictive_intelligence.sql
+migrations_ok mode=upgrade applied=2 skipped=71 repaired=0
+=== post-upgrade ledger ===
+ version |              name               
+---------+---------------------------------
+ 068     | 068_decision_outcome_memory.sql
+ 069     | 069_predictive_intelligence.sql
+(2 rows)
+
+     column_name     
+---------------------
+ dm_outcome_event_id
+ link_status
+(2 rows)
+
+                    conname                     
+------------------------------------------------
+ dm_outcome_events_outcome_type_check
+ dm_outcome_events_confirmation_degree_check
+ dm_outcome_events_temporal_integrity_check
+ dm_outcome_events_origin_check
+ dm_outcome_events_correction_type_check
+ ck_dm_outcome_actor_nonempty
+ ck_dm_outcome_source_nonempty
+ ck_dm_outcome_evidence_nonempty
+ ck_dm_outcome_client_nonempty
+ ck_dm_outcome_opp_nonempty
+ dm_outcome_events_event_id_not_null
+ dm_outcome_events_client_id_not_null
+ dm_outcome_events_opportunity_key_not_null
+ dm_outcome_events_outcome_type_not_null
+ dm_outcome_events_observed_at_not_null
+ dm_outcome_events_source_not_null
+ dm_outcome_events_evidence_hash_not_null
+ dm_outcome_events_confirmation_degree_not_null
+ dm_outcome_events_actor_not_null
+ dm_outcome_events_structured_facts_not_null
+ dm_outcome_events_limitations_not_null
+ dm_outcome_events_temporal_integrity_not_null
+ dm_outcome_events_origin_not_null
+ dm_outcome_events_idempotency_key_not_null
+ dm_outcome_events_schema_version_not_null
+ dm_outcome_events_payload_not_null
+ dm_outcome_events_created_at_not_null
+ dm_outcome_events_pkey
+ uq_dm_outcome_idempotency
+ dm_outcome_events_decision_event_id_fkey
+ dm_outcome_events_supersedes_event_id_fkey
+ fk_predictive_outcomes_dm_outcome
+(32 rows)
+

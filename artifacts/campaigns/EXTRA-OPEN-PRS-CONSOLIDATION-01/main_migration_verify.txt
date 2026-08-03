@@ -1,0 +1,4 @@
+ledger_067_069 [('067', '067_process_documents_runs.sql'), ('068', '068_decision_outcome_memory.sql'), ('069', '069_predictive_intelligence.sql')]
+predictive_outcomes_dm_cols ['dm_outcome_event_id', 'link_status']
+dm_tables ['dm_action_events', 'dm_decision_events', 'dm_identity_conflicts', 'dm_import_runs', 'dm_outcome_events']
+dm_link_constraints ['fk_predictive_outcomes_dm_outcome', 'ck_predictive_outcomes_link_status']

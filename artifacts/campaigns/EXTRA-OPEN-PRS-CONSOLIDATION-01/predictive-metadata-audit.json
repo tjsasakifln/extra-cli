@@ -1,0 +1,27 @@
+{
+  "generated_at": "2026-08-03T13:38:15.786854+00:00",
+  "final_main_sha": "40bc3704d35adff8ad0b6adacf00038334d74f5b",
+  "checks": {
+    "migration_068_decision_memory_exists": true,
+    "migration_069_predictive_exists": true,
+    "adr_069_predictive_exists": true,
+    "residual_predictive_adr_068": [],
+    "requirements_predictive_txt_exists": true,
+    "pr197_body": {
+      "no_predictive_migration_068": true,
+      "has_069_predictive_intelligence": true,
+      "has_068_decision_memory_ownership": true,
+      "has_dm_link": true,
+      "has_non_claims": true
+    },
+    "dm_link_in_migration_069": true,
+    "dm_link_in_outcomes_py": true
+  },
+  "ownership": {
+    "068": "Decision & Outcome Memory (PR #198)",
+    "069": "Predictive intelligence (PR #197)",
+    "outcomes_canonical": "dm_outcome_events",
+    "predictive_outcomes_role": "evaluation projection with optional dm_outcome_event_id FK"
+  },
+  "pass": true
+}

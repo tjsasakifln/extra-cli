@@ -1,0 +1,31 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-8.4.1, pluggy-1.6.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /tmp/grok-goal-a44def06a81e/implementer/wt-main-final
+configfile: pytest.ini
+plugins: benchmark-5.2.3, html-4.2.0, hypothesis-6.152.7, repeat-0.9.4, Faker-37.4.2, timeout-2.4.0, asyncio-1.1.0, mock-3.15.1, metadata-3.1.1, cov-4.1.0, anyio-4.2.0
+asyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 105 items
+
+tests/decision_memory/test_import_metrics_board_cli.py ............      [ 11%]
+tests/decision_memory/test_models_mapping_identity.py .........          [ 20%]
+tests/decision_memory/test_repository_pg.py .........                    [ 28%]
+tests/predictive/test_claims_and_leakage.py ...............              [ 42%]
+tests/predictive/test_honesty_static.py ......                           [ 48%]
+tests/predictive/test_immutability_and_cli.py .......                    [ 55%]
+tests/predictive/test_metrics_and_deps.py ................               [ 70%]
+tests/predictive/test_outcomes_and_drift.py .................            [ 86%]
+tests/predictive/test_p2a_no_winner_injection.py ..                      [ 88%]
+tests/test_extra_decision_loop.py ............                           [100%]
+
+=============================== warnings summary ===============================
+tests/predictive/test_metrics_and_deps.py::test_classification_report_empty_population
+  /usr/lib/python3/dist-packages/numpy/core/fromnumeric.py:3504: RuntimeWarning: Mean of empty slice.
+    return _methods._mean(a, axis=axis, dtype=dtype,
+
+tests/predictive/test_metrics_and_deps.py::test_classification_report_empty_population
+  /usr/lib/python3/dist-packages/numpy/core/_methods.py:129: RuntimeWarning: invalid value encountered in scalar divide
+    ret = ret.dtype.type(ret / rcount)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+================= 105 passed, 2 warnings in 141.27s (0:02:21) ==================

@@ -1,0 +1,40 @@
+{
+  "generated_at": "2026-08-03T12:55:45.071850+00:00",
+  "pr": 197,
+  "pre_merge_integration_sha": "ea3ee310ea9ddd8aa5abeecafdcba9037d9864f6",
+  "final_main_sha": "40bc3704d35adff8ad0b6adacf00038334d74f5b",
+  "proofs": [
+    {
+      "when": "post-integration branch worktree",
+      "command": "pytest tests/predictive/ -q --tb=short --no-cov",
+      "passed": 63,
+      "transcript": "implementer pr197_tests.txt (branch tip before final main re-proof)",
+      "note": "Predictive-only suite on integration branch"
+    },
+    {
+      "when": "final main re-proof",
+      "sha": "40bc3704d35adff8ad0b6adacf00038334d74f5b",
+      "command": "pytest tests/decision_memory/ tests/predictive/ tests/test_extra_decision_loop.py -q --tb=line --no-cov",
+      "env": {
+        "REQUIRE_REAL_DB": "1"
+      },
+      "passed": 105,
+      "transcript": "artifacts/campaigns/EXTRA-OPEN-PRS-CONSOLIDATION-01/main_combined_tests.txt",
+      "migrations_command": "python3 -m scripts.ops.apply_migrations --mode upgrade",
+      "migrations_transcript": "main_migrations.txt + main_migration_verify.txt",
+      "migrations_result": "068+069 present; dm_outcome_event_id+link_status columns; FK+CHECK exist; upgrade skip idempotent"
+    }
+  ],
+  "ci_pre_merge": {
+    "success_count": 28,
+    "mergeStateStatus": "CLEAN",
+    "head": "ea3ee310ea9ddd8aa5abeecafdcba9037d9864f6"
+  },
+  "main_ci_post_merge": {
+    "run_id": 30814398906,
+    "conclusion": "success",
+    "sha": "40bc3704d35adff8ad0b6adacf00038334d74f5b",
+    "url": "https://github.com/tjsasakifln/extra-cli/actions/runs/30814398906"
+  },
+  "corrected_claim": "On final main SHA 40bc3704: 105 passed (decision_memory+predictive+extra_decision_loop). Earlier '93' was DM+predictive without extra_decision_loop on branch worktree."
+}

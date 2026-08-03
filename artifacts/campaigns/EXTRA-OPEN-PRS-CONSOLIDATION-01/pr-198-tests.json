@@ -1,0 +1,26 @@
+{
+  "generated_at": "2026-08-03T12:55:45.071850+00:00",
+  "pr": 198,
+  "sha_tested": "e5b4bbba7b18281ee87af45e887373e7c3f6d9e5",
+  "command": "pytest tests/decision_memory/ tests/test_extra_decision_loop.py -q --tb=line --no-cov",
+  "env": {
+    "REQUIRE_REAL_DB": "1",
+    "LOCAL_DATALAKE_DSN": "postgresql://test:test@127.0.0.1:5433/extra_test"
+  },
+  "passed": 42,
+  "transcript_path": "artifacts/campaigns/EXTRA-OPEN-PRS-CONSOLIDATION-01/pr198_dm_tests.txt",
+  "migrations": {
+    "command": "python3 -m scripts.ops.apply_migrations --mode upgrade",
+    "transcript": "pr198_migrations / main_migrations",
+    "068_present": true
+  },
+  "ci_pre_merge": {
+    "success_count": 28,
+    "mergeStateStatus": "CLEAN"
+  },
+  "main_ci_post_merge": {
+    "run_id": 30813237718,
+    "conclusion": "success",
+    "sha": "e03c92fe2a3312c7c9012a37d2d384582890f8e8"
+  }
+}

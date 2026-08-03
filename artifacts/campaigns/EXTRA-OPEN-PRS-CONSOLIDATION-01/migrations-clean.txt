@@ -1,0 +1,106 @@
+=== CLEAN CHAIN (empty DB → upgrade mode full apply) ===
+applied 001_pncp_raw_bids.sql
+applied 002_pncp_supplier_contracts.sql
+applied 003_enriched_entities.sql
+applied 004_ingestion_tables.sql
+applied 005_search_datalake_rpc.sql
+applied 006_upsert_rpcs.sql
+applied 007_sc_public_entities.sql
+applied 008_purge_rpc.sql
+applied 009_indexes_and_coverage.sql
+applied 010_match_logging.sql
+applied 011_unmatched_bids_view.sql
+applied 012_coverage_snapshots.sql
+applied 013_td-1.1_gin_index_objeto_contrato.sql
+skip_optional in 014_td-1.1_fix_hnsw_expression.sql: extension "vector" is not available
+HINT:  The extension must first be installed on the system where PostgreSQL is running.
+
+skip_optional in 014_td-1.1_fix_hnsw_expression.sql: type vector does not exist
+LINE 28:     p_embedding    VECTOR(256) DEFAULT NULL
+                            ^
+
+migration_error 014_td-1.1_fix_hnsw_expression.sql: could not find a function named "search_datalake"
+
+repair_mark 014_td-1.1_fix_hnsw_expression.sql (could not find a function named "search_datalake"
+)
+applied 015_td-2.3_enriched_entities_ttl.sql
+applied 016_td-2.3_objeto_compra_gin.sql
+applied 017_td-2.3_matched_entity_id_index.sql
+applied 018-td-5.3_esfera_id_check.sql
+applied 019-td-5.3_soft_delete_purge_docs.sql
+applied 020_td-2.4_sync_local_schema.sql
+applied 021a_entity_coverage_rebuild.sql
+applied 021b_entity_hierarchy.sql
+applied 021c_sc_dados_abertos_municipio.sql
+applied 021d_views_functions.sql
+applied 022_match_method_coverage.sql
+applied 023_pncp_engineering_pipeline.sql
+applied 024_coverage_evidence_ledger.sql
+applied 025a_contract_intel_views.sql
+applied 025b_coverage_evidence_null_uniqueness.sql
+applied 026_contract_intel_truth_v1.sql
+applied 027_opportunity_intel.sql
+applied 028_opportunity_indexes.sql
+applied 029_qw01_auditable_radar.sql
+applied 030_schema_contract_and_canonical_views.sql
+applied 031_source_snapshot_reconciliation.sql
+applied 032_capability_coverage.sql
+applied 033_contract_versioning.sql
+applied 034_supplier_identity.sql
+applied 035_value_observations.sql
+applied 036_reporting_views.sql
+applied 037_target_universe_snapshot.sql
+applied 038_target_universe_active_view.sql
+applied 039_source_snapshot_tracking.sql
+applied 040_coverage_model_expansion.sql
+applied 041a_fix_fk_constraints.sql
+applied 041b_fix_snapshot_membership.sql
+applied 042_validate_fk_constraints.sql
+applied 043_entity_aliases.sql
+applied 044_fix_upsert_dedup.sql
+applied 045_dlq_entries.sql
+applied 046_pipeline_watermarks.sql
+applied 047_pipeline_runs.sql
+applied 048_record_hashes.sql
+applied 049_pncp_resumable_backfill.sql
+applied 050_fix_contracts_upsert_fk.sql
+applied 051_contract_date_semantics.sql
+applied 052_official_acts.sql
+applied 053_entity_source_registry.sql
+applied 054_local_resilience_contract.sql
+applied 055_drop_orgao_entity_fk_national_pncp.sql
+applied 056_drop_supplier_entity_fk_contracts.sql
+applied 057_fix_upsert_opportunity_content_hash.sql
+applied 058_dual_capability_coverage_views.sql
+applied 059_coverage_evidence_canonical_entity_unique.sql
+applied 060_national_contracts_intelligence_layers.sql
+applied 061_canonical_entity_linkage.sql
+applied 062_commercial_leads_ledger.sql
+applied 063_supplier_registry.sql
+applied 064_snapshot_write_guard.sql
+applied 066_upsert_qw01_nullif_empty_process.sql
+applied 067_process_documents_runs.sql
+applied 068_decision_outcome_memory.sql
+applied 069_predictive_intelligence.sql
+migrations_ok mode=upgrade applied=72 skipped=0 repaired=1
+=== ledger 067-069 ===
+ version |              name               
+---------+---------------------------------
+ 067     | 067_process_documents_runs.sql
+ 068     | 068_decision_outcome_memory.sql
+ 069     | 069_predictive_intelligence.sql
+(3 rows)
+
+=== objects ===
+       dm_dec       |      dm_out       |          pred          |      pred_out       
+--------------------+-------------------+------------------------+---------------------
+ dm_decision_events | dm_outcome_events | predictive_predictions | predictive_outcomes
+(1 row)
+
+=== DM link columns ===
+     column_name     
+---------------------
+ dm_outcome_event_id
+ link_status
+(2 rows)
+

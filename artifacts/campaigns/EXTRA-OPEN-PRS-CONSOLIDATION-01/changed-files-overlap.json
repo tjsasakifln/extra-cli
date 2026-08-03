@@ -1,0 +1,38 @@
+{
+  "generated_at": "2026-08-03T12:55:45.071850+00:00",
+  "source": "gh pr view files at campaign baseline",
+  "main_at_baseline": "704975a7bcdd43d4dc6769fbf6c14726327ab37b",
+  "pairs": {
+    "196_vs_198": {
+      "count": 0,
+      "files": []
+    },
+    "196_vs_197": {
+      "count": 0,
+      "files": []
+    },
+    "197_vs_198": {
+      "count": 0,
+      "files": []
+    }
+  },
+  "semantic_couplings": [
+    {
+      "topic": "outcomes",
+      "prs": [
+        198,
+        197
+      ],
+      "note": "dm_outcome_* canonical; predictive_outcomes evaluation + DM link after integration"
+    },
+    {
+      "topic": "weekly cycle",
+      "prs": [
+        198,
+        197
+      ],
+      "note": "DM weekly board from PG; predictive weekly_section claim-gated"
+    }
+  ],
+  "path_collision_risk": "none"
+}

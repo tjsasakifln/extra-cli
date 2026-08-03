@@ -1,0 +1,50 @@
+{
+  "generated_at": "2026-08-03T13:38:15.786854+00:00",
+  "final_main_sha": "40bc3704d35adff8ad0b6adacf00038334d74f5b",
+  "open_pr_count": 0,
+  "open_prs": [],
+  "merge_order": [
+    "#196",
+    "#198",
+    "#197"
+  ],
+  "merges": [
+    {
+      "number": 196,
+      "mergedAt": "2026-08-03T12:12:13Z",
+      "mergeCommit": "c9c4bf5ac2068ff7204492acf5600b74dd83ebb5"
+    },
+    {
+      "number": 198,
+      "mergedAt": "2026-08-03T12:21:19Z",
+      "mergeCommit": "e03c92fe2a3312c7c9012a37d2d384582890f8e8"
+    },
+    {
+      "number": 197,
+      "mergedAt": "2026-08-03T12:38:11Z",
+      "mergeCommit": "40bc3704d35adff8ad0b6adacf00038334d74f5b"
+    }
+  ],
+  "merge_order_timestamps_ok": true,
+  "migrations_on_main": {
+    "068": {
+      "file": "db/migrations/068_decision_outcome_memory.sql",
+      "owner": "Decision Memory / PR #198",
+      "exists": true
+    },
+    "069": {
+      "file": "db/migrations/069_predictive_intelligence.sql",
+      "owner": "Predictive / PR #197",
+      "exists": true
+    }
+  },
+  "clean_chain": {
+    "ok": true,
+    "transcript": "migrations-clean.txt"
+  },
+  "upgrade_path": {
+    "ok": true,
+    "transcript": "migrations-upgrade.txt",
+    "note": "pre-068/069 strip then re-apply; FK fk_predictive_outcomes_dm_outcome present"
+  }
+}

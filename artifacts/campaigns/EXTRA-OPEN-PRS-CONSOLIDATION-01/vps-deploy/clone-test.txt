@@ -1,0 +1,18 @@
+Warning: Permanently added 'github.com' (ED25519) to the list of known hosts.
+git@github.com: Permission denied (publickey).
+Cloning into '/tmp/extra-cli-clone-test'...
+40bc3704d35adff8ad0b6adacf00038334d74f5b
+40bc370 feat(predictive): genuine predictive intelligence with honest claim gates (#197)
+CLONE_HTTPS_OK
+-rw-r--r-- 1 extra-consultoria extra-consultoria  6961 Aug  1 16:40 057_fix_upsert_opportunity_content_hash.sql
+-rw-r--r-- 1 extra-consultoria extra-consultoria  2330 Aug  1 16:40 058_dual_capability_coverage_views.sql
+-rw-r--r-- 1 extra-consultoria extra-consultoria   896 Aug  1 16:40 059_coverage_evidence_canonical_entity_unique.sql
+-rw-r--r-- 1 extra-consultoria extra-consultoria  3825 Aug  1 16:40 060_national_contracts_intelligence_layers.sql
+-rw-r--r-- 1 extra-consultoria extra-consultoria 13611 Aug  1 16:40 061_canonical_entity_linkage.sql
+-rw-r--r-- 1 extra-consultoria extra-consultoria  5465 Aug  1 16:40 062_commercial_leads_ledger.sql
+-rw-r--r-- 1 extra-consultoria extra-consultoria  1129 Aug  1 16:40 063_supplier_registry.sql
+-rw-r--r-- 1 extra-consultoria extra-consultoria  1761 Aug  1 16:40 064_snapshot_write_guard.sql
+-rw-r--r-- 1 extra-consultoria extra-consultoria  5653 Aug  1 16:40 066_upsert_qw01_nullif_empty_process.sql
+-rw-r--r-- 1 extra-consultoria extra-consultoria  3923 Aug  1 16:40 067_process_documents_runs.sql
+DATABASE_URL=postgresql://postgres:***@127.0.0.1:5432/pncp_datalake
+LOCAL_DATALAKE_DSN=postgresql://postgres:***@127.0.0.1:5432/pncp_datalake

@@ -1,0 +1,18 @@
+{
+  "generated_at": "2026-08-03T12:55:45.071850+00:00",
+  "sha": "40bc3704d35adff8ad0b6adacf00038334d74f5b",
+  "predictive_stack_file": "requirements-predictive.txt",
+  "contents": [
+    "# Predictive intelligence stack (train / backtest / metrics).",
+    "# Install: pip install -r requirements-predictive.txt",
+    "# Also pulled in by requirements.txt for full-suite CI.",
+    "numpy>=1.26.0",
+    "scikit-learn>=1.4.0"
+  ],
+  "requirements_txt_integration": "-r requirements-predictive.txt (CI single-file install path)",
+  "justification_global_pull": "Full suite / CI installs requirements.txt only; include keeps CI green without editing every workflow job. Dedicated file documents predictive surface for operators.",
+  "lazy_imports": "Partial \u2014 models/metrics still import numpy/sklearn at module load for train path; claims/weekly_section do not import sklearn",
+  "core_without_train": "claims registry, honesty, weekly predictive_status do not require fitting models",
+  "attack_surface": "numpy+scikit-learn present when requirements.txt installed (same as CI). Predictive timers not enabled on VPS.",
+  "result": "ACCEPTABLE_WITH_DOCUMENTED_TRADEOFF"
+}

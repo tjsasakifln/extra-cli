@@ -1,0 +1,36 @@
+{
+  "captured_at": "2026-08-03T13:16:56Z",
+  "origin_main_sha": "40bc3704d35adff8ad0b6adacf00038334d74f5b",
+  "expected_sha": "40bc3704d35adff8ad0b6adacf00038334d74f5b",
+  "sha_match": true,
+  "open_prs": [],
+  "open_pr_count": 0,
+  "merges": [
+
+    {
+        "number": 196,
+        "title": "feat(ops): make extra-cli production-operational and prove readiness",
+        "state": "MERGED",
+        "mergedAt": "2026-08-03T12:12:13Z",
+        "mergeCommit": "c9c4bf5ac2068ff7204492acf5600b74dd83ebb5"
+    },
+    {
+        "number": 198,
+        "title": "feat(decision-memory): Decision & Outcome Memory v1 (canonical PG ledger)",
+        "state": "MERGED",
+        "mergedAt": "2026-08-03T12:21:19Z",
+        "mergeCommit": "e03c92fe2a3312c7c9012a37d2d384582890f8e8"
+    },
+    {
+        "number": 197,
+        "title": "feat(predictive): genuine predictive intelligence with honest claim gates",
+        "state": "MERGED",
+        "mergedAt": "2026-08-03T12:38:11Z",
+        "mergeCommit": "40bc3704d35adff8ad0b6adacf00038334d74f5b"
+    }
+
+  ],
+  "merge_order": ["#196", "#198", "#197"],
+  "merge_order_timestamps_ok": true,
+  "final_main_sha_is_pr197_merge": true
+}

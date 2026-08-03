@@ -1,0 +1,25 @@
+git=40bc3704d35adff8ad0b6adacf00038334d74f5b
+deployed=40bc3704d35adff8ad0b6adacf00038334d74f5b
+migrations [('068',), ('069',)]
+dm_decision_events_count 0
+predictive_predictions_count 0
+db_smoke_ok
+{"timestamp": "2026-08-03T13:34:04.401016+00:00", "level": "INFO", "module": "__main__", "correlation_id": "b4d6d9803423", "message": "Health check started", "extra_data": {"host": "v2202607385716487230"}}
+{"event": "health_check", "timestamp": "2026-08-03T13:34:04.400911+00:00", "host": "v2202607385716487230", "exit_code": 2, "results": {"db": {"status": "pass", "message": "PostgreSQL OK"}, "storage_box": {"status": "pass", "message": "Storage Box OK (1 entries)"}, "disk": {"status": "pass", "message": "Disk: 36.5G / 502.7G (7%) \u2014 445.7G free"}, "system": {"status": "pass", "message": "Load: 0.1 0.1 0.0 | Mem: 33% used (10746M avail / 15996M total)"}, "failed_units": {"status": "fail", "message": "critical failed units: 3 (extra-crawl-pncp.service                    loaded failed failed Extra Consultor)"}, "critical_timers": {"status": "pass", "message": "critical timers OK (5)"}, "dual_coverage": {"status": "fail", "message": "dual coverage summary missing"}}}
+{"timestamp": "2026-08-03T13:34:04.741408+00:00", "level": "ERROR", "module": "__main__", "correlation_id": "b4d6d9803423", "message": "Health check completed: exit_code=2", "extra_data": {"report": {"event": "health_check", "timestamp": "2026-08-03T13:34:04.400911+00:00", "host": "v2202607385716487230", "exit_code": 2, "results": {"db": {"status": "pass", "message": "PostgreSQL OK"}, "storage_box": {"status": "pass", "message": "Storage Box OK (1 entries)"}, "disk": {"status": "pass", "message": "Disk: 36.5G / 502.7G (7%) — 445.7G free"}, "system": {"status": "pass", "message": "Load: 0.1 0.1 0.0 | Mem: 33% used (10746M avail / 15996M total)"}, "failed_units": {"status": "fail", "message": "critical failed units: 3 (extra-crawl-pncp.service                    loaded failed failed Extra Consultor)"}, "critical_timers": {"status": "pass", "message": "critical timers OK (5)"}, "dual_coverage": {"status": "fail", "message": "dual coverage summary missing"}}}}}
+HEALTH_EXIT=2
+imports_ok
+not-found
+NEXT                            LEFT LAST                              PASSED UNIT                                      ACTIVATES
+Mon 2026-08-03 10:45:24 -03    11min Mon 2026-08-03 10:30:12 -03 3min 52s ago extra-check-alerts.timer                  extra-check-alerts.service
+Mon 2026-08-03 11:00:19 -03    26min Mon 2026-08-03 10:31:12 -03 2min 52s ago extra-health-check.timer                  extra-health-check.service
+Mon 2026-08-03 14:06:57 -03 3h 32min Mon 2026-08-03 10:07:46 -03    26min ago extra-crawl-pncp.timer                    extra-crawl-pncp.service
+Mon 2026-08-03 21:15:16 -03      10h Sun 2026-08-02 21:16:11 -03      13h ago extra-contracts-soak.timer                extra-contracts-soak.service
+Tue 2026-08-04 04:32:13 -03      17h Mon 2026-08-03 04:30:36 -03       6h ago extra-process-documents-incremental.timer extra-process-documents-incremental.service
+Tue 2026-08-04 06:04:24 -03      19h Mon 2026-08-03 06:03:36 -03 4h 30min ago extra-db-backup.timer                     extra-db-backup.service
+Sun 2026-08-09 02:00:36 -03   5 days Sun 2026-08-02 02:01:11 -03 1 day 8h ago extra-crawl-ciga-ckan.timer               extra-crawl-ciga-ckan.service
+Mon 2026-08-10 03:30:08 -03   6 days Mon 2026-08-03 03:31:46 -03       7h ago extra-weekly.timer                        extra-weekly.service
+
+8 timers listed.
+Pass --all to see loaded but inactive timers, too.
+SMOKE_DONE

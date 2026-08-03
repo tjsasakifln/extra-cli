@@ -1,0 +1,39 @@
+{
+  "generated_at": "2026-08-03T13:38:15.786854+00:00",
+  "state": "DEPLOYED_FINAL_MAIN_SHA",
+  "final_main_sha": "40bc3704d35adff8ad0b6adacf00038334d74f5b",
+  "deployed_sha": "40bc3704d35adff8ad0b6adacf00038334d74f5b",
+  "deployed_sha_equals_final_main_sha": true,
+  "vps": {
+    "host_alias": "ec-prod",
+    "hostname": "v2202607385716487230",
+    "app_path": "/opt/extra-consultoria",
+    "method": "backup + HTTPS re-clone to staging + atomic swap + preserve .env/.venv/backups/artifacts",
+    "backup": "/opt/extra-consultoria/backups/pre-closeout-20260803T133306Z",
+    "previous_git_status": "BROKEN_WORKTREE (gitdir pointed at missing Windows worktree path)",
+    "migrations_applied": [
+      "068_decision_outcome_memory.sql",
+      "069_predictive_intelligence.sql"
+    ],
+    "migration_ledger": [
+      "067",
+      "068",
+      "069"
+    ],
+    "predictive_timer": "not-found/inactive (units not installed; shadow hold preserved)",
+    "smoke": {
+      "db": "pass (PostgreSQL OK; 068/069 present)",
+      "imports": "ok (weekly_cycle, decision_memory, predictive)",
+      "health_check_exit": 2,
+      "health_check_notes": "pre-existing: critical failed units (extra-crawl-pncp) and dual_coverage summary missing \u2014 not SHA mismatch; DB check pass after DSN loaded",
+      "transcripts": [
+        "vps-deploy/deploy.log",
+        "vps-deploy/smoke-with-dsn.txt"
+      ]
+    }
+  },
+  "proof_files": [
+    "vps-deploy/deploy.log",
+    "vps-deploy/smoke-with-dsn.txt"
+  ]
+}

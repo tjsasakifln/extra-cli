@@ -1,0 +1,42 @@
+{
+  "generated_at": "2026-08-03T12:55:45.071850+00:00",
+  "sha": "40bc3704d35adff8ad0b6adacf00038334d74f5b",
+  "commands": [
+    "grep -RniE 'intelig\u00eancia preditiva comprovada|win probability|probabilidade de vit\u00f3ria' scripts/lib/bid_simulator.py scripts/predictive docs/decisions",
+    "pytest tests/predictive/test_honesty_static.py tests/predictive/test_claims_and_leakage.py tests/predictive/test_p2a_no_winner_injection.py"
+  ],
+  "findings": [
+    {
+      "pattern": "probabilidade de vit\u00f3ria",
+      "class": "NON_CLAIM_LANGUAGE",
+      "note": "Appears as prohibition text in bid_simulator and weekly_section omit message"
+    },
+    {
+      "pattern": "win probability",
+      "class": "INTERNAL_LABEL_DESCRIPTION",
+      "file": "scripts/predictive/labels.py",
+      "note": "Dataset label description for blocked Extra win target, not external claim"
+    },
+    {
+      "pattern": "intelig\u00eancia preditiva comprovada",
+      "class": "ABSENT_AS_CLAIM",
+      "note": "Not published as production claim"
+    }
+  ],
+  "claim_states_policy": {
+    "demand": "BACKTEST_FAILED",
+    "p2a": "SHADOW_OPERATIONAL / historical backtest proven",
+    "p3_p2b_extra_win_optimal": "DATA_BLOCKED",
+    "external_production_language": "only PRODUCTION_AVAILABLE"
+  },
+  "grep_sample": [
+    "scripts/lib/bid_simulator.py:9:- N\u00c3O usar como \"probabilidade de vit\u00f3ria\", \"lance \u00f3timo\" validado ou claim comercial.",
+    "scripts/lib/bid_simulator.py:71:            \"Do not publish as probabilidade de vit\u00f3ria or lance \u00f3timo\",",
+    "scripts/lib/bid_simulator.py:349:        f\"Score de cen\u00e1rio {score * 100:.0f}/100 \u2014 N\u00c3O \u00e9 probabilidade de vit\u00f3ria \"",
+    "scripts/predictive/labels.py:93:        description=\"Conditional win probability for Extra given participation\",",
+    "scripts/predictive/weekly_section.py:44:            \"Probabilidade de vit\u00f3ria da Extra omitida \u2014 claim n\u00e3o PRODUCTION_AVAILABLE\"",
+    "scripts/predictive/weekly_section.py:126:            \"bid_simulator N\u00c3O s\u00e3o probabilidade de vit\u00f3ria.\"",
+    "docs/decisions/adr-069-predictive-intelligence-claim-gates.md:29:- Extra win probability and optimal bid remain blocked while profile PENDING fields and"
+  ],
+  "result": "PASS_NO_FALSE_COMMERCIAL_CLAIMS"
+}

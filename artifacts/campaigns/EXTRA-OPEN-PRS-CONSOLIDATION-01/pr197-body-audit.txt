@@ -1,0 +1,8 @@
+12:- **Ops:** facade `python -m scripts.predictive`, workspace `predictive-status`/`forecast`, migration **069** (`069_predictive_intelligence.sql` — immutable predictions + evaluation projection), shadow systemd templates, campaign evidence pack.
+14:  - **068** = Decision & Outcome Memory (`068_decision_outcome_memory.sql`, PR #198) — canonical commercial facts in `dm_*` / `dm_outcome_events`.
+15:  - **069** = Predictive intelligence (`069_predictive_intelligence.sql`, this PR) — model datasets, immutable predictions, outcomes projection.
+16:  - Integration: `predictive_outcomes.dm_outcome_event_id` → `dm_outcome_events.event_id` (optional FK; commercial ground truth remains Decision Memory only).
+26:- [x] Migration **069** + immutability trigger on local DSN (after **068** Decision Memory)
+29:- [x] Decision Memory link columns on `predictive_outcomes` (`dm_outcome_event_id`, `link_status`)
+31:## Explicit non-claims
+38:- `predictive_outcomes` is an evaluation projection, **not** a second commercial outcomes ledger.

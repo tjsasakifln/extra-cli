@@ -1,0 +1,744 @@
+=== Predictive tests ===
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-8.4.1, pluggy-1.6.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /tmp/grok-goal-2378aaa0617c/implementer/wt-main-final
+configfile: pytest.ini
+plugins: benchmark-5.2.3, html-4.2.0, hypothesis-6.152.7, repeat-0.9.4, Faker-37.4.2, timeout-2.4.0, asyncio-1.1.0, mock-3.15.1, metadata-3.1.1, cov-4.1.0, anyio-4.2.0
+asyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 63 items
+
+tests/predictive/test_claims_and_leakage.py ...............              [ 23%]
+tests/predictive/test_honesty_static.py ......                           [ 33%]
+tests/predictive/test_immutability_and_cli.py .......                    [ 44%]
+tests/predictive/test_metrics_and_deps.py ................               [ 69%]
+tests/predictive/test_outcomes_and_drift.py .................            [ 96%]
+tests/predictive/test_p2a_no_winner_injection.py ..                      [100%]
+
+=============================== warnings summary ===============================
+tests/predictive/test_metrics_and_deps.py::test_classification_report_empty_population
+  /usr/lib/python3/dist-packages/numpy/core/fromnumeric.py:3504: RuntimeWarning: Mean of empty slice.
+    return _methods._mean(a, axis=axis, dtype=dtype,
+
+tests/predictive/test_metrics_and_deps.py::test_classification_report_empty_population
+  /usr/lib/python3/dist-packages/numpy/core/_methods.py:129: RuntimeWarning: invalid value encountered in scalar divide
+    ret = ret.dtype.type(ret / rcount)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+
+---------- coverage: platform linux, python 3.12.3-final-0 -----------
+Name                                                           Stmts   Miss  Cover   Missing
+--------------------------------------------------------------------------------------------
+scripts/__init__.py                                                0      0 100.0%
+scripts/_pt_accents.py                                            39     39   0.0%   20-1306
+scripts/auditor_deterministic_checks.py                          172    172   0.0%   2-473
+scripts/bid_readiness/__init__.py                                  5      5   0.0%   3-20
+scripts/bid_readiness/__main__.py                                  2      2   0.0%   1-3
+scripts/bid_readiness/classify.py                                 38     38   0.0%   3-128
+scripts/bid_readiness/cli.py                                     135    135   0.0%   3-221
+scripts/bid_readiness/extract.py                                 134    134   0.0%   3-188
+scripts/bid_readiness/findings.py                                 77     77   0.0%   3-298
+scripts/bid_readiness/gate/__init__.py                           187    187   0.0%   3-382
+scripts/bid_readiness/gate/__main__.py                             2      2   0.0%   1-3
+scripts/bid_readiness/identity.py                                 54     54   0.0%   3-87
+scripts/bid_readiness/ingest.py                                  134    134   0.0%   3-219
+scripts/bid_readiness/integration.py                              76     76   0.0%   18-290
+scripts/bid_readiness/isolation.py                                76     76   0.0%   3-151
+scripts/bid_readiness/match.py                                   191    191   0.0%   3-484
+scripts/bid_readiness/models.py                                  128    128   0.0%   3-170
+scripts/bid_readiness/package.py                                  90     90   0.0%   3-237
+scripts/bid_readiness/pipeline.py                                217    217   0.0%   3-616
+scripts/bid_readiness/reports.py                                 100    100   0.0%   3-276
+scripts/bid_readiness/requirements_loader.py                      66     66   0.0%   3-102
+scripts/bid_readiness/sanitize.py                                 50     50   0.0%   3-84
+scripts/bid_readiness/validity.py                                 54     54   0.0%   3-120
+scripts/bid_readiness/vault.py                                    73     73   0.0%   3-132
+scripts/budget_audit/__init__.py                                   3      3   0.0%   6-9
+scripts/budget_audit/__main__.py                                   2      2   0.0%   3-5
+scripts/budget_audit/arithmetic.py                               118    118   0.0%   3-344
+scripts/budget_audit/bdi.py                                       81     81   0.0%   7-257
+scripts/budget_audit/case_store.py                                82     82   0.0%   3-129
+scripts/budget_audit/classify.py                                  61     61   0.0%   3-181
+scripts/budget_audit/cli.py                                       95     95   0.0%   3-137
+scripts/budget_audit/compare.py                                   85     85   0.0%   3-199
+scripts/budget_audit/compositions.py                              31     31   0.0%   3-108
+scripts/budget_audit/constants.py                                 27     27   0.0%   3-144
+scripts/budget_audit/export_safety.py                             18     18   0.0%   3-32
+scripts/budget_audit/findings.py                                  49     49   0.0%   3-288
+scripts/budget_audit/gate.py                                      76     76   0.0%   3-174
+scripts/budget_audit/gate_main.py                                  3      3   0.0%   7-10
+scripts/budget_audit/hashing.py                                   25     25   0.0%   3-36
+scripts/budget_audit/ingest.py                                   119    119   0.0%   3-232
+scripts/budget_audit/isolation.py                                162    162   0.0%   3-273
+scripts/budget_audit/materiality.py                               44     44   0.0%   3-75
+scripts/budget_audit/normalize.py                                269    269   0.0%   3-587
+scripts/budget_audit/pipeline.py                                 237    237   0.0%   3-407
+scripts/budget_audit/references.py                                97     97   0.0%   3-191
+scripts/budget_audit/report.py                                   283    283   0.0%   3-591
+scripts/budget_audit/risks.py                                     23     23   0.0%   3-106
+scripts/budget_audit/units.py                                     44     44   0.0%   6-107
+scripts/budget_audit/workbook_reader.py                          221    221   0.0%   7-518
+scripts/budget_audit/zip_safety.py                                77     77   0.0%   3-122
+scripts/build-proposta-data.py                                   137    137   0.0%   12-441
+scripts/campaigns/__init__.py                                      0      0 100.0%
+scripts/campaigns/edital_relevance/__init__.py                     0      0 100.0%
+scripts/campaigns/edital_relevance/build_corpus.py               101    101   0.0%   2-215
+scripts/campaigns/edital_relevance/human_labeling.py             307    307   0.0%   2-554
+scripts/check-alerts.py                                          234    234   0.0%   2-601
+scripts/check_imports.py                                         108    108   0.0%   2-193
+scripts/collect-metrics.py                                       176    176   0.0%   2-439
+scripts/collect-sicaf.py                                          23     23   0.0%   2-83
+scripts/collect/__init__.py                                        2      2   0.0%   8-17
+scripts/collect/run_contract.py                                  110    110   0.0%   11-318
+scripts/collect_report_data.py                                  4430   4430   0.0%   2-11064
+scripts/command_center/__init__.py                                 3      3   0.0%   7-10
+scripts/command_center/__main__.py                                 3      3   0.0%   3-6
+scripts/command_center/adapters/__init__.py                       18     18   0.0%   3-58
+scripts/command_center/adapters/base.py                          261    261   0.0%   10-466
+scripts/command_center/adapters/confenge_public_agencies.py       63     63   0.0%   3-140
+scripts/command_center/adapters/confenge_suppliers.py             66     66   0.0%   3-153
+scripts/command_center/adapters/consulting_chain.py              154    154   0.0%   7-325
+scripts/command_center/adapters/extra_opportunities.py            81     81   0.0%   3-186
+scripts/command_center/adapters/process_documents.py              63     63   0.0%   3-134
+scripts/command_center/app.py                                    606    606   0.0%   3-1204
+scripts/command_center/artifact_reader.py                        128    128   0.0%   3-229
+scripts/command_center/capabilities/__init__.py                    5      5   0.0%   3-9
+scripts/command_center/capabilities/base.py                       88     88   0.0%   3-149
+scripts/command_center/capabilities/definitions.py               114    114   0.0%   3-1110
+scripts/command_center/capabilities/registry.py                   38     38   0.0%   3-58
+scripts/command_center/config.py                                  56     56   0.0%   3-100
+scripts/command_center/deliverables/__init__.py                    4      4   0.0%   6-13
+scripts/command_center/deliverables/excel_render.py              106    106   0.0%   3-150
+scripts/command_center/deliverables/pdf_render.py                 92     92   0.0%   3-273
+scripts/command_center/deliverables/profiles.py                   13     13   0.0%   3-45
+scripts/command_center/export_bundle.py                           48     48   0.0%   3-83
+scripts/command_center/fixtures/__init__.py                        0      0 100.0%
+scripts/command_center/fixtures/sample_data.py                    15     15   0.0%   6-233
+scripts/command_center/job_runner.py                             398    398   0.0%   3-736
+scripts/command_center/overview.py                               108    108   0.0%   3-343
+scripts/command_center/redaction.py                               38     38   0.0%   3-76
+scripts/command_center/regenerate.py                             110    110   0.0%   3-195
+scripts/command_center/result_head_filter.py                      24     24   0.0%   2-38
+scripts/command_center/review_rules.py                            55     55   0.0%   3-112
+scripts/command_center/run_compare.py                            118    118   0.0%   3-227
+scripts/command_center/run_manifest.py                           270    270   0.0%   7-433
+scripts/command_center/search_index.py                            95     95   0.0%   3-144
+scripts/command_center/security.py                                55     55   0.0%   3-87
+scripts/command_center/status_normalize.py                        83     83   0.0%   3-224
+scripts/command_center/store.py                                  455    455   0.0%   3-1026
+scripts/command_center/workflows/__init__.py                       3      3   0.0%   3-6
+scripts/command_center/workflows/catalog.py                       34     34   0.0%   3-490
+scripts/command_center/workflows/cli_entry.py                     10     10   0.0%   6-23
+scripts/command_center/workflows/runner.py                       380    380   0.0%   8-1113
+scripts/commercial_leads/__init__.py                              32     32   0.0%   3-80
+scripts/commercial_leads/__main__.py                               4      4   0.0%   3-8
+scripts/commercial_leads/baseline.py                              75     75   0.0%   3-177
+scripts/commercial_leads/canonical_coverage.py                    88     88   0.0%   8-287
+scripts/commercial_leads/cli.py                                  231    231   0.0%   3-473
+scripts/commercial_leads/commercial_validity.py                   68     68   0.0%   9-176
+scripts/commercial_leads/contract_relevance.py                    95     95   0.0%   7-489
+scripts/commercial_leads/dbutil.py                                11     11   0.0%   3-19
+scripts/commercial_leads/dossiers.py                              63     63   0.0%   3-232
+scripts/commercial_leads/exports.py                              241    241   0.0%   3-686
+scripts/commercial_leads/geography.py                             51     51   0.0%   6-139
+scripts/commercial_leads/identity.py                              53     53   0.0%   3-140
+scripts/commercial_leads/isolation.py                            195    195   0.0%   11-415
+scripts/commercial_leads/outreach_kits.py                         70     70   0.0%   3-223
+scripts/commercial_leads/pipeline.py                             615    615   0.0%   3-1709
+scripts/commercial_leads/profile.py                               90     90   0.0%   3-150
+scripts/commercial_leads/review.py                               151    151   0.0%   3-430
+scripts/commercial_leads/scoring.py                              231    231   0.0%   3-548
+scripts/commercial_leads/sector_fit.py                           338    338   0.0%   11-709
+scripts/commercial_leads/signals.py                              320    320   0.0%   6-1017
+scripts/commercial_leads/snapshot.py                             272    272   0.0%   7-812
+scripts/commercial_leads/supplier_registry.py                    181    181   0.0%   7-390
+scripts/commercial_leads/top10_gate.py                            97     97   0.0%   7-156
+scripts/company_registry/__init__.py                               7      7   0.0%   11-37
+scripts/company_registry/__main__.py                               2      2   0.0%   3-5
+scripts/company_registry/activate.py                             105    105   0.0%   3-204
+scripts/company_registry/cli.py                                  245    245   0.0%   3-365
+scripts/company_registry/commercial_bridge.py                    132    132   0.0%   3-258
+scripts/company_registry/coverage.py                              77     77   0.0%   3-158
+scripts/company_registry/diff.py                                  45     45   0.0%   3-128
+scripts/company_registry/downloader.py                           113    113   0.0%   3-234
+scripts/company_registry/extract.py                               91     91   0.0%   3-164
+scripts/company_registry/health.py                                48     48   0.0%   3-68
+scripts/company_registry/integrity.py                             54     54   0.0%   3-75
+scripts/company_registry/loader.py                               143    143   0.0%   3-307
+scripts/company_registry/locks.py                                 40     40   0.0%   3-50
+scripts/company_registry/lookup.py                                78     78   0.0%   3-173
+scripts/company_registry/manifest.py                              52     52   0.0%   3-76
+scripts/company_registry/models.py                                76     76   0.0%   3-110
+scripts/company_registry/normalization.py                         54     54   0.0%   3-104
+scripts/company_registry/outcome_ledger.py                        55     55   0.0%   3-253
+scripts/company_registry/paths.py                                 38     38   0.0%   3-75
+scripts/company_registry/refresh.py                              116    116   0.0%   3-224
+scripts/company_registry/release_discovery.py                     99     99   0.0%   3-185
+scripts/company_registry/selective_fetch.py                       99     99   0.0%   8-194
+scripts/company_registry/store.py                                 63     63   0.0%   3-261
+scripts/consulting_readiness.py                                  764    764   0.0%   2-2012
+scripts/contract_intel/__init__.py                                 0      0 100.0%
+scripts/contract_intel/cli.py                                    481    481   0.0%   19-1288
+scripts/contract_intel/target_universe.py                        158    158   0.0%   14-371
+scripts/coverage/__init__.py                                       0      0 100.0%
+scripts/coverage/applicability_matrix.py                         201    201   0.0%   2-399
+scripts/coverage/blockers.py                                      34     34   0.0%   12-203
+scripts/coverage/calculator.py                                    39     39   0.0%   7-144
+scripts/coverage/commercial_status.py                            108    108   0.0%   2-380
+scripts/coverage/contracts_entity_evidence.py                    253    253   0.0%   2-670
+scripts/coverage/coverage_contract.py                            599    599   0.0%   16-1819
+scripts/coverage/coverage_contract_cli.py                         87     87   0.0%   2-195
+scripts/coverage/dual_capability_coverage.py                    1317   1317   0.0%   2-2799
+scripts/coverage/edital_relevance_recall.py                      689    689   0.0%   2-1504
+scripts/coverage/entity_freshness.py                             142    142   0.0%   2-363
+scripts/coverage/freshness_by_entity.py                          761    761   0.0%   2-1718
+scripts/coverage/independent_inventory.py                        266    266   0.0%   2-589
+scripts/coverage/manifest.py                                      93     93   0.0%   17-281
+scripts/coverage/measure_pncp_expansion.py                        49     49   0.0%   14-119
+scripts/coverage/multi_source_coverage.py                        772    772   0.0%   2-1664
+scripts/coverage/project_ciga_dual_evidence.py                   172    172   0.0%   2-392
+scripts/coverage/recall_benchmark.py                             389    389   0.0%   2-737
+scripts/coverage/recall_capture_window.py                        102    102   0.0%   2-282
+scripts/coverage/reconcile_targets.py                            226    226   0.0%   2-696
+scripts/coverage/run_matching.py                                  34     34   0.0%   9-68
+scripts/coverage/sector_engineering.py                            64     64   0.0%   2-160
+scripts/coverage/session_coverage_pipeline.py                    548    548   0.0%   2-1332
+scripts/coverage/source_policy.py                                432    432   0.0%   2-771
+scripts/coverage/states.py                                       104    104   0.0%   25-366
+scripts/coverage/validate_coverage.py                            236    236   0.0%   2-858
+scripts/coverage_gate.py                                         102    102   0.0%   2-346
+scripts/coverage_truth.py                                        463    463   0.0%   2-921
+scripts/crawl/__init__.py                                          0      0 100.0%
+scripts/crawl/_parallel_mixin.py                                 185    185   0.0%   7-450
+scripts/crawl/act_classifier.py                                  184    184   0.0%   2-704
+scripts/crawl/adapter.py                                          77     77   0.0%   6-218
+scripts/crawl/async_client.py                                    259    259   0.0%   10-684
+scripts/crawl/batch_detect_platforms.py                          157    157   0.0%   11-326
+scripts/crawl/batch_detect_platforms_pass2.py                    192    192   0.0%   13-385
+scripts/crawl/bids_crawler.py                                    226    226   0.0%   53-780
+scripts/crawl/checkpoint.py                                       97     97   0.0%   21-437
+scripts/crawl/ciga_ckan_crawler.py                               539    539   0.0%   2-1091
+scripts/crawl/ciga_dom_publications.py                           639    639   0.0%   2-1368
+scripts/crawl/circuit_breaker.py                                 229    229   0.0%   7-510
+scripts/crawl/clients/__init__.py                                  0      0 100.0%
+scripts/crawl/clients/base/__init__.py                             2      2   0.0%   8-23
+scripts/crawl/clients/base/base.py                               254    254   0.0%   11-674
+scripts/crawl/clients/pncp/__init__.py                             0      0 100.0%
+scripts/crawl/clients/pncp/_parallel_mixin.py                      5      5   0.0%   7-26
+scripts/crawl/clients/pncp/async_client.py                        10     10   0.0%   7-39
+scripts/crawl/clients/pncp/circuit_breaker.py                     58     58   0.0%   9-97
+scripts/crawl/clients/pncp/retry.py                               35     35   0.0%   7-111
+scripts/crawl/common.py                                          119    119   0.0%   18-324
+scripts/crawl/compras_gov_crawler.py                             274    274   0.0%   27-671
+scripts/crawl/config.py                                           66     66   0.0%   11-232
+scripts/crawl/contracts_checkpoint_contract.py                   278    278   0.0%   28-553
+scripts/crawl/contracts_crawler.py                               450    450   0.0%   24-994
+scripts/crawl/contracts_writer_lock.py                            94     94   0.0%   14-154
+scripts/crawl/credential_validator.py                             71     71   0.0%   16-185
+scripts/crawl/dados_abertos_sc_crawler.py                        549    549   0.0%   2-1481
+scripts/crawl/date_semantics.py                                   41     41   0.0%   7-94
+scripts/crawl/discover_ciga_packages.py                           93     93   0.0%   2-190
+scripts/crawl/dlq.py                                             179    179   0.0%   22-520
+scripts/crawl/dlq_sync.py                                         69     69   0.0%   14-140
+scripts/crawl/doe_sc_crawler.py                                  379    379   0.0%   17-917
+scripts/crawl/doe_sc_publications.py                             107    107   0.0%   2-198
+scripts/crawl/doe_sc_selenium_crawler.py                         248    248   0.0%   21-593
+scripts/crawl/dom_sc_crawler.py                                  264    264   0.0%   20-632
+scripts/crawl/elic_sc_stub.py                                     31     31   0.0%   17-132
+scripts/crawl/enricher.py                                        288    288   0.0%   13-683
+scripts/crawl/exceptions.py                                       44     44   0.0%   9-121
+scripts/crawl/freshness.py                                        58     58   0.0%   12-188
+scripts/crawl/generate_transparencia_config.py                   103    103   0.0%   10-283
+scripts/crawl/ingestion/__init__.py                                0      0 100.0%
+scripts/crawl/ingestion/_base/__init__.py                          0      0 100.0%
+scripts/crawl/ingestion/_base/crawler.py                         215    215   0.0%   13-472
+scripts/crawl/ingestion/checkpoint.py                             13     13   0.0%   7-37
+scripts/crawl/ingestion/config.py                                 18     18   0.0%   8-34
+scripts/crawl/ingestion/load_official_acts_session.py            196    196   0.0%   2-453
+scripts/crawl/ingestion/loader.py                                  6      6   0.0%   7-24
+scripts/crawl/ingestion/metrics.py                                17     17   0.0%   8-29
+scripts/crawl/ingestion/transformer.py                             5      5   0.0%   7-17
+scripts/crawl/loader.py                                          118    118   0.0%   12-320
+scripts/crawl/metrics.py                                          25     25   0.0%   7-141
+scripts/crawl/middleware.py                                       27     27   0.0%   10-91
+scripts/crawl/mides_bigquery_crawler.py                          276    276   0.0%   2-722
+scripts/crawl/monitor.py                                         697    697   0.0%   2-1703
+scripts/crawl/orchestrator.py                                    119    119   0.0%   19-324
+scripts/crawl/pacing.py                                           68     68   0.0%   8-149
+scripts/crawl/pcp_crawler.py                                     240    240   0.0%   17-540
+scripts/crawl/pipeline.py                                        221    221   0.0%   12-525
+scripts/crawl/playwright_fallback.py                             128    128   0.0%   27-347
+scripts/crawl/pncp_arp_crawler.py                                191    191   0.0%   20-510
+scripts/crawl/pncp_backfill.py                                   528    528   0.0%   7-1323
+scripts/crawl/pncp_contract.py                                   101    101   0.0%   1-145
+scripts/crawl/pncp_crawler_adapter.py                            394    394   0.0%   1-890
+scripts/crawl/pncp_engineering.py                                110    110   0.0%   1-253
+scripts/crawl/pncp_geo.py                                         67     67   0.0%   1-84
+scripts/crawl/pncp_pca_crawler.py                                177    177   0.0%   20-461
+scripts/crawl/pncp_sc_focused.py                                 165    165   0.0%   2-296
+scripts/crawl/pool.py                                             67     67   0.0%   11-166
+scripts/crawl/provenance.py                                      139    139   0.0%   9-366
+scripts/crawl/provenance_sync.py                                  59     59   0.0%   12-112
+scripts/crawl/rate_limiter.py                                     41     41   0.0%   8-101
+scripts/crawl/redis_pool.py                                       40     40   0.0%   14-95
+scripts/crawl/registry.py                                        222    222   0.0%   24-807
+scripts/crawl/resilience/__init__.py                               5      5   0.0%   3-8
+scripts/crawl/resilience/adapters.py                             301    301   0.0%   3-705
+scripts/crawl/resilience/circuit_breaker.py                      121    121   0.0%   3-170
+scripts/crawl/resilience/config.py                                82     82   0.0%   3-153
+scripts/crawl/resilience/http_policy.py                           56     56   0.0%   3-92
+scripts/crawl/resilience/persistence.py                          189    189   0.0%   3-495
+scripts/crawl/resilience/pipeline.py                             194    194   0.0%   3-448
+scripts/crawl/resilience/stages.py                                55     55   0.0%   3-196
+scripts/crawl/resilience/state.py                                275    275   0.0%   3-479
+scripts/crawl/retry.py                                           102    102   0.0%   13-318
+scripts/crawl/run_contracts_90d_pilot.py                         552    552   0.0%   2-1431
+scripts/crawl/run_contracts_incremental.py                       120    120   0.0%   2-259
+scripts/crawl/run_dedup.py                                       112    112   0.0%   2-304
+scripts/crawl/run_evidence.py                                    243    243   0.0%   9-538
+scripts/crawl/run_lock.py                                         65     65   0.0%   2-85
+scripts/crawl/sanctions.py                                       246    246   0.0%   23-658
+scripts/crawl/sc_compras_crawler.py                              593    593   0.0%   25-1402
+scripts/crawl/security.py                                         29     29   0.0%   20-151
+scripts/crawl/selenium_crawler.py                                298    298   0.0%   20-812
+scripts/crawl/selenium_smoke_test.py                              96     96   0.0%   2-235
+scripts/crawl/smoke_pncp_public.py                               126    126   0.0%   14-243
+scripts/crawl/supabase_client.py                                  56     56   0.0%   15-130
+scripts/crawl/sync_client.py                                     238    238   0.0%   3-619
+scripts/crawl/tce_sc_crawler.py                                  388    388   0.0%   19-831
+scripts/crawl/transformer.py                                      61     61   0.0%   12-232
+scripts/crawl/transparencia_crawler.py                           666    666   0.0%   26-1628
+scripts/crawl/transparencia_templates/__init__.py                 25     25   0.0%   18-65
+scripts/crawl/transparencia_templates/base.py                     63     63   0.0%   6-190
+scripts/crawl/transparencia_templates/betha.py                    61     61   0.0%   14-155
+scripts/crawl/transparencia_templates/egov.py                     79     79   0.0%   14-178
+scripts/crawl/transparencia_templates/generico.py                133    133   0.0%   15-271
+scripts/crawl/transparencia_templates/ipam.py                     67     67   0.0%   14-153
+scripts/crawl/transparencia_templates/selenium_base.py            99     99   0.0%   18-242
+scripts/crawl/watermark.py                                        91     91   0.0%   16-281
+scripts/crawl/watermark_sync.py                                   64     64   0.0%   12-113
+scripts/data_contracts/__init__.py                                 0      0 100.0%
+scripts/data_contracts/entity.py                                  92     92   0.0%   2-114
+scripts/datalake-sc-200km.py                                     199    199   0.0%   2-487
+scripts/datalake_helper.py                                       384    384   0.0%   29-868
+scripts/decision_memory/__init__.py                                4      4   0.0%   7-12
+scripts/decision_memory/__main__.py                                2      2   0.0%   3-5
+scripts/decision_memory/cli.py                                   390    390   0.0%   10-599
+scripts/decision_memory/db.py                                     15     15   0.0%   3-26
+scripts/decision_memory/idempotency.py                            29     29   0.0%   3-125
+scripts/decision_memory/identity.py                               67     67   0.0%   3-140
+scripts/decision_memory/import_legacy.py                         150    150   0.0%   6-329
+scripts/decision_memory/mapping.py                                26     26   0.0%   3-62
+scripts/decision_memory/metrics.py                                82     82   0.0%   3-198
+scripts/decision_memory/models.py                                198    198   0.0%   3-239
+scripts/decision_memory/projection.py                             34     34   0.0%   3-89
+scripts/decision_memory/repository.py                            214    214   0.0%   3-610
+scripts/decision_memory/temporal.py                               47     47   0.0%   3-75
+scripts/decision_memory/weekly_board.py                           87     87   0.0%   3-187
+scripts/demo_b2g_setorial.py                                     531    531   0.0%   2-1199
+scripts/edital_case/__init__.py                                    6      6   0.0%   11-18
+scripts/edital_case/__main__.py                                    5      5   0.0%   3-10
+scripts/edital_case/acquire.py                                   204    204   0.0%   7-431
+scripts/edital_case/analyze.py                                   473    473   0.0%   3-1357
+scripts/edital_case/classify.py                                   61     61   0.0%   3-270
+scripts/edital_case/cli.py                                        91     91   0.0%   3-172
+scripts/edital_case/extract.py                                   218    218   0.0%   3-479
+scripts/edital_case/gate.py                                      193    193   0.0%   3-482
+scripts/edital_case/isolation.py                                 168    168   0.0%   7-313
+scripts/edital_case/models.py                                     18     18   0.0%   3-169
+scripts/edital_case/pipeline.py                                  101    101   0.0%   3-196
+scripts/edital_case/report.py                                    219    219   0.0%   3-550
+scripts/edital_case/store.py                                      82     82   0.0%   3-166
+scripts/edital_case/verify.py                                    120    120   0.0%   3-199
+scripts/entity_identity/__init__.py                                0      0 100.0%
+scripts/entity_identity/pncp_orgao_resolve.py                     80     80   0.0%   6-115
+scripts/export-sc-200km-final.py                                 107    107   0.0%   2-470
+scripts/fix/__init__.py                                            0      0 100.0%
+scripts/fix/activate_dormant_sources.py                          452    452   0.0%   2-953
+scripts/fix/geocode_missing_entities.py                          158    158   0.0%   2-389
+scripts/fix/rebuild_evidence_ledger.py                           143    143   0.0%   2-418
+scripts/fix/resolve_unresolved_entities.py                       232    232   0.0%   2-426
+scripts/fix/sc_dados_abertos_backfill.py                         245    245   0.0%   2-619
+scripts/fix/scrape_residual_portals.py                           631    631   0.0%   28-1430
+scripts/freshness_gate.py                                        137    137   0.0%   2-301
+scripts/generate-report-b2g.py                                  3164   3164   0.0%   2-7384
+scripts/generate_consultoria_pdf.py                              356    356   0.0%   2-1666
+scripts/generate_proposta_pdf.py                                 344    344   0.0%   8-1214
+scripts/golden_path.py                                          1360   1360   0.0%   2-3021
+scripts/health-dashboard.py                                      239    239   0.0%   2-472
+scripts/health_check.py                                          169    169   0.0%   2-317
+scripts/healthcheck.py                                           113    113   0.0%   2-223
+scripts/integrations/__init__.py                                   0      0 100.0%
+scripts/integrations/smartlic_snapshot_import.py                 326    326   0.0%   21-672
+scripts/intel_analyze.py                                         875    875   0.0%   2-1830
+scripts/intel_collect.py                                        1842   1842   0.0%   2-3490
+scripts/intel_enrich.py                                          310    310   0.0%   2-679
+scripts/intel_excel.py                                           538    538   0.0%   2-1091
+scripts/intel_extract_docs.py                                    541    541   0.0%   2-951
+scripts/intel_llm_gate.py                                        128    128   0.0%   2-515
+scripts/intel_pipeline.py                                        775    775   0.0%   2-1347
+scripts/intel_report.py                                         1137   1137   0.0%   2-2749
+scripts/intel_sector_loader.py                                   261    261   0.0%   28-565
+scripts/intel_validate.py                                        560    560   0.0%   2-1028
+scripts/lib/__init__.py                                            0      0 100.0%
+scripts/lib/bid_simulator.py                                     130     17  86.9%   79, 84, 93, 98, 103, 137-145, 202-203, 322, 337, 373
+scripts/lib/claim_language.py                                     66     66   0.0%   5-249
+scripts/lib/cli_validation.py                                     59     59   0.0%   8-182
+scripts/lib/constants.py                                           7      7   0.0%   7-55
+scripts/lib/cost_estimator.py                                     92     92   0.0%   2-289
+scripts/lib/data_reliability.py                                  191    191   0.0%   6-430
+scripts/lib/dedup.py                                              62     62   0.0%   2-198
+scripts/lib/doc_templates.py                                      96     96   0.0%   2-405
+scripts/lib/entity_hierarchy.py                                   96     96   0.0%   15-351
+scripts/lib/entity_resolver.py                                   123    123   0.0%   2-242
+scripts/lib/geocode.py                                           127    127   0.0%   15-323
+scripts/lib/intel_logging.py                                      15     15   0.0%   3-35
+scripts/lib/manual_override_ledger.py                             51     51   0.0%   5-88
+scripts/lib/name_normalizer.py                                    91     91   0.0%   19-327
+scripts/lib/retry.py                                              31     31   0.0%   12-85
+scripts/lib/structured_logging.py                                 84     84   0.0%   7-197
+scripts/lib/terminal.py                                           30     30   0.0%   14-89
+scripts/lib/universe.py                                          241    241   0.0%   7-443
+scripts/lib/universe_query.py                                     18     18   0.0%   24-88
+scripts/lib/value_semantics.py                                    44     44   0.0%   28-256
+scripts/lib/victory_profile.py                                   171    171   0.0%   2-392
+scripts/lib/win_loss_tracker.py                                   57     57   0.0%   2-145
+scripts/linkage/__init__.py                                        3      3   0.0%   14-18
+scripts/linkage/__main__.py                                       65     65   0.0%   3-91
+scripts/linkage/dossier.py                                        33     33   0.0%   3-133
+scripts/linkage/isolation.py                                      79     79   0.0%   6-165
+scripts/linkage/keys.py                                           96     96   0.0%   6-170
+scripts/linkage/pipeline.py                                      177    177   0.0%   3-662
+scripts/linkage/resolve.py                                       119    119   0.0%   7-345
+scripts/linkage/seed_isolated.py                                  99     99   0.0%   12-233
+scripts/local_datalake.py                                        363    363   0.0%   2-683
+scripts/matching/__init__.py                                       0      0 100.0%
+scripts/matching/entity_matcher.py                               279    279   0.0%   22-642
+scripts/matching/measure_baseline.py                              99     99   0.0%   2-238
+scripts/matching/official_acts_reconcile.py                      870    870   0.0%   14-1819
+scripts/national_intel/__init__.py                                 1      1   0.0%   10
+scripts/national_intel/__main__.py                                 2      2   0.0%   1-3
+scripts/national_intel/agencies.py                                18     18   0.0%   3-109
+scripts/national_intel/benchmarks.py                              20     20   0.0%   3-72
+scripts/national_intel/cli.py                                     54     54   0.0%   3-100
+scripts/national_intel/competitors.py                             24     24   0.0%   3-94
+scripts/national_intel/db.py                                      42     42   0.0%   3-69
+scripts/national_intel/lineage.py                                 42     42   0.0%   3-84
+scripts/national_intel/sql_filters.py                             18     18   0.0%   7-35
+scripts/notify.py                                                136    136   0.0%   2-302
+scripts/ocds_bridge/__init__.py                                    0      0 100.0%
+scripts/ocds_bridge/mapping.py                                    41     41   0.0%   6-149
+scripts/opportunity_intel/__init__.py                              1      1   0.0%   18
+scripts/opportunity_intel/backfill.py                            164    164   0.0%   2-449
+scripts/opportunity_intel/cli.py                                 440    440   0.0%   2-894
+scripts/opportunity_intel/competitive_intel_validation.py         80     80   0.0%   12-413
+scripts/opportunity_intel/crawler_base.py                        237    237   0.0%   11-603
+scripts/opportunity_intel/dedup.py                                39     39   0.0%   13-193
+scripts/opportunity_intel/manifest.py                             96     96   0.0%   14-334
+scripts/opportunity_intel/models.py                              104    104   0.0%   12-247
+scripts/opportunity_intel/pncp_audit.py                          243    243   0.0%   3-641
+scripts/opportunity_intel/pncp_crawler.py                         67     67   0.0%   15-172
+scripts/opportunity_intel/profile.py                              83     83   0.0%   3-132
+scripts/opportunity_intel/radar.py                               294    294   0.0%   3-845
+scripts/opportunity_intel/ranking.py                             188    188   0.0%   19-478
+scripts/opportunity_intel/reconciliation.py                      121    121   0.0%   27-489
+scripts/opportunity_intel/schema.py                               48     48   0.0%   3-153
+scripts/opportunity_intel/scoring.py                             144    144   0.0%   3-211
+scripts/opportunity_intel/status.py                               72     72   0.0%   21-349
+scripts/opportunity_intel/transformer.py                         169    169   0.0%   12-474
+scripts/ops/__init__.py                                            0      0 100.0%
+scripts/ops/alert_pipeline.py                                    183    183   0.0%   11-461
+scripts/ops/apply_migrations.py                                  192    192   0.0%   15-356
+scripts/ops/audit_client_claim_boundaries.py                     163    163   0.0%   2-260
+scripts/ops/audit_scope_boundaries.py                            235    235   0.0%   2-550
+scripts/ops/build_commercial_evaluation_sample.py                 82     82   0.0%   2-205
+scripts/ops/campaign_gate_canonical_entity_linkage.py             66     66   0.0%   2-167
+scripts/ops/campaign_offsite_backup_status.py                     75     75   0.0%   2-214
+scripts/ops/campaign_open_tenders_gate.py                         85     85   0.0%   2-263
+scripts/ops/campaign_open_tenders_release.py                      91     91   0.0%   2-290
+scripts/ops/campaign_open_tenders_soak.py                         96     96   0.0%   2-209
+scripts/ops/campaign_soak_tracker.py                             386    386   0.0%   2-768
+scripts/ops/campaign_stratified_recall_gate.py                    65     65   0.0%   2-231
+scripts/ops/campaign_stratified_recall_rc.py                      66     66   0.0%   2-115
+scripts/ops/campaign_stratified_recall_verify.py                  87     87   0.0%   2-184
+scripts/ops/campaign_verify_open_tenders.py                      120    120   0.0%   2-338
+scripts/ops/campaign_verify_production.py                         69     69   0.0%   2-182
+scripts/ops/canonical_entry_points.py                             86     86   0.0%   2-203
+scripts/ops/capability_inventory.py                               34     34   0.0%   6-144
+scripts/ops/centralized_config_audit.py                           56     56   0.0%   2-126
+scripts/ops/check_generated_artifacts_policy.py                  161    161   0.0%   13-314
+scripts/ops/check_pr_reviewability.py                            263    263   0.0%   18-587
+scripts/ops/check_pytest_skip_policy.py                           73     73   0.0%   9-121
+scripts/ops/client_ready_consulting_cycle.py                     816    816   0.0%   2-1960
+scripts/ops/cmi_item_proofs.py                                   324    324   0.0%   2-580
+scripts/ops/code_hygiene_gate.py                                 137    137   0.0%   2-327
+scripts/ops/code_organization_gate.py                            154    154   0.0%   2-296
+scripts/ops/commercial_executive_render.py                       339    339   0.0%   2-979
+scripts/ops/confenge_code_freeze.py                              248    248   0.0%   2-559
+scripts/ops/confenge_commercial_cycle.py                          55     55   0.0%   2-160
+scripts/ops/confenge_commercial_gates.py                         262    262   0.0%   2-602
+scripts/ops/confenge_commercial_target_router.py                 128    128   0.0%   2-283
+scripts/ops/confenge_contract_status.py                          103    103   0.0%   2-302
+scripts/ops/confenge_dump_restore.py                             190    190   0.0%   2-455
+scripts/ops/confenge_final_status.py                             739    739   0.0%   2-2123
+scripts/ops/confenge_frozen_inputs.py                            370    370   0.0%   2-761
+scripts/ops/confenge_full_pipeline_e2e.py                        114    114   0.0%   2-365
+scripts/ops/confenge_full_universe_e2e.py                        134    134   0.0%   2-353
+scripts/ops/confenge_historical_snapshot.py                      144    144   0.0%   2-449
+scripts/ops/confenge_human_review_packages.py                    310    310   0.0%   2-804
+scripts/ops/confenge_make_gates.py                               623    623   0.0%   2-1536
+scripts/ops/confenge_offer_sensitivity.py                        242    242   0.0%   2-535
+scripts/ops/confenge_official_cnpj.py                            230    230   0.0%   2-504
+scripts/ops/confenge_opencnpj_bulk.py                            137    137   0.0%   2-257
+scripts/ops/confenge_registry_commercial_cycle.py                 74     74   0.0%   2-180
+scripts/ops/confenge_registry_ingest.py                          297    297   0.0%   2-536
+scripts/ops/confenge_rerank_after_registry.py                    102    102   0.0%   2-248
+scripts/ops/contract_market_intelligence.py                      520    520   0.0%   18-1483
+scripts/ops/crawler_monitor.py                                   179    179   0.0%   8-342
+scripts/ops/daily_multi_source_collect.py                        468    468   0.0%   2-1167
+scripts/ops/deliverable_a_org_ranking.py                         149    149   0.0%   11-435
+scripts/ops/deliverable_b_competitors.py                         208    208   0.0%   9-507
+scripts/ops/deliverable_c_expiring.py                            179    179   0.0%   11-472
+scripts/ops/deliverable_d_prices.py                              210    210   0.0%   13-493
+scripts/ops/deliverable_e_editais.py                             281    281   0.0%   12-654
+scripts/ops/deliverable_package_final.py                         249    249   0.0%   13-637
+scripts/ops/diagnostic_profile.py                                126    126   0.0%   17-384
+scripts/ops/dod_low_hanging_audit.py                             531    531   0.0%   2-1269
+scripts/ops/dod_process_integrity.py                              32     32   0.0%   8-86
+scripts/ops/enrich_sc_compras_cnpj.py                             82     82   0.0%   2-158
+scripts/ops/eval_contract_relevance_holdout.py                    65     65   0.0%   2-114
+scripts/ops/eval_contract_relevance_real_holdout.py               90     90   0.0%   2-196
+scripts/ops/evidence_convention.py                                70     70   0.0%   7-256
+scripts/ops/extra_actionable.py                                  208    208   0.0%   2-410
+scripts/ops/extra_decision_loop.py                               118    118   0.0%   2-299
+scripts/ops/extra_decision_review.py                             237    237   0.0%   2-551
+scripts/ops/extra_first_client_delivery.py                      1168   1168   0.0%   2-3655
+scripts/ops/extra_profile.py                                     214    214   0.0%   2-469
+scripts/ops/extra_recurring_delivery.py                          605    605   0.0%   2-1616
+scripts/ops/extract_confenge_real_holdout_corpus.py              158    158   0.0%   2-391
+scripts/ops/file_metadata.py                                      15     15   0.0%   6-43
+scripts/ops/golden_clean_env.py                                  117    117   0.0%   2-295
+scripts/ops/health.py                                            192    192   0.0%   3-365
+scripts/ops/host_monitor.py                                      152    152   0.0%   6-281
+scripts/ops/ingest_supplier_registry_brasilapi.py                122    122   0.0%   2-185
+scripts/ops/live_consulting_pack.py                              609    609   0.0%   2-1778
+scripts/ops/local_backup_restore_proof.py                        121    121   0.0%   2-383
+scripts/ops/materialize_canonical_spine.py                       139    139   0.0%   11-242
+scripts/ops/multi_source_open_pack/__init__.py                     6      6   0.0%   7-19
+scripts/ops/multi_source_open_pack/__main__.py                     4      4   0.0%   3-8
+scripts/ops/multi_source_open_pack/analysis.py                    87     87   0.0%   3-246
+scripts/ops/multi_source_open_pack/classify_aec.py                45     45   0.0%   3-157
+scripts/ops/multi_source_open_pack/consolidate.py                195    195   0.0%   3-361
+scripts/ops/multi_source_open_pack/db_loaders.py                 133    133   0.0%   7-368
+scripts/ops/multi_source_open_pack/decide.py                     150    150   0.0%   3-305
+scripts/ops/multi_source_open_pack/documents.py                  356    356   0.0%   3-731
+scripts/ops/multi_source_open_pack/events.py                      33     33   0.0%   3-147
+scripts/ops/multi_source_open_pack/loaders.py                     86     86   0.0%   3-280
+scripts/ops/multi_source_open_pack/market_intel.py               234    234   0.0%   3-562
+scripts/ops/multi_source_open_pack/models.py                     172    172   0.0%   3-273
+scripts/ops/multi_source_open_pack/pdf_parse.py                   55     55   0.0%   3-126
+scripts/ops/multi_source_open_pack/pipeline.py                   201    201   0.0%   3-679
+scripts/ops/multi_source_open_pack/reconcile.py                   40     40   0.0%   3-109
+scripts/ops/multi_source_open_pack/render_pack.py                319    319   0.0%   3-799
+scripts/ops/multi_source_open_pack/textutil.py                   121    121   0.0%   3-161
+scripts/ops/multi_source_open_pack/universe.py                    64     64   0.0%   3-125
+scripts/ops/operational_reporting_acceptance.py                  151    151   0.0%   2-393
+scripts/ops/ops_gate_monitor.py                                  240    240   0.0%   12-498
+scripts/ops/orpt_item_proofs.py                                  350    350   0.0%   2-736
+scripts/ops/probe_entity_success_zero.py                         188    188   0.0%   2-465
+scripts/ops/publish_commercial_rc_v2.py                          204    204   0.0%   2-522
+scripts/ops/reconstruct_evidence.py                               54     54   0.0%   2-166
+scripts/ops/requirement_states.py                                273    273   0.0%   12-631
+scripts/ops/resilient_cycle.py                                   118    118   0.0%   8-281
+scripts/ops/resolve_cnpj14_batch.py                               75     75   0.0%   2-134
+scripts/ops/resolve_cnpj14_matriz.py                             169    169   0.0%   2-311
+scripts/ops/run_contracts_pilot.py                                57     57   0.0%   2-90
+scripts/ops/run_full_suite.py                                     55     55   0.0%   2-143
+scripts/ops/scan_docs_definition_consistency.py                   96     96   0.0%   2-204
+scripts/ops/scan_mandatory_gates_failclosed.py                    84     84   0.0%   2-185
+scripts/ops/scan_ops_docs_honesty.py                              53     53   0.0%   2-123
+scripts/ops/schema_audit.py                                       83     83   0.0%   2-167
+scripts/ops/sector_classifier.py                                 235    235   0.0%   2-776
+scripts/ops/seed_isolated_universe.py                             33     33   0.0%   2-67
+scripts/ops/snapshot_integrity.py                                109    109   0.0%   2-271
+scripts/ops/source_contract_tests.py                             158    158   0.0%   2-385
+scripts/ops/strategic_monthly_monitor.py                         184    184   0.0%   15-599
+scripts/ops/validate_systemd.py                                   76     76   0.0%   8-146
+scripts/ops/verify_confenge_artifact_binding.py                  105    105   0.0%   2-182
+scripts/ops/verify_confenge_denominator_integrity.py              91     91   0.0%   2-235
+scripts/ops/verify_soak_non_interference.py                      197    197   0.0%   2-377
+scripts/ops/weekly_cycle.py                                      834    834   0.0%   2-2439
+scripts/ops/weekly_decision_artifacts.py                         321    321   0.0%   15-793
+scripts/pipeline/__init__.py                                       0      0 100.0%
+scripts/pipeline/backfill_multi_source.py                        365    365   0.0%   2-871
+scripts/pncp_client.py                                            10     10   0.0%   11-31
+scripts/predictive/__init__.py                                     5      0 100.0%
+scripts/predictive/__main__.py                                   305    192  37.0%   87-90, 94-136, 140-186, 190-202, 206-301, 305-334, 346-349, 352, 375-391, 396-436, 441-498, 503-524, 579-580, 598-599, 606-608
+scripts/predictive/backtest.py                                   168     77  54.2%   53, 68-70, 89, 92-94, 109, 135-136, 160-161, 192-195, 220-287, 307-321
+scripts/predictive/claims.py                                     142     24  83.1%   126, 168, 171, 200, 219, 221, 225, 230, 268-277, 282-283, 286, 291-292, 394-400
+scripts/predictive/data_access.py                                 59     50  15.3%   11, 20-25, 37-92, 96-139, 146-188
+scripts/predictive/dataset.py                                    280     74  73.6%   31, 53-55, 86, 88-96, 128, 131, 134, 137, 141-142, 150, 156, 195-197, 209-210, 219-220, 250, 294, 297, 301, 317, 355, 372, 384-385, 392-394, 407-408, 449, 491-531, 558, 564
+scripts/predictive/drift.py                                      116     34  70.7%   46-53, 76, 78, 81, 84-85, 89, 91, 95-96, 126-128, 165, 178-179, 182-200, 210-211
+scripts/predictive/features.py                                    87     21  75.9%   21, 63, 70-72, 134-168
+scripts/predictive/labels.py                                      90     26  71.1%   145, 156, 175, 252-266, 293-294, 296-297, 299-300, 302-303, 307-317
+scripts/predictive/leakage.py                                     80     15  81.2%   51, 53, 57-59, 68-76, 91-99, 119, 136-139, 141, 152, 163
+scripts/predictive/metrics.py                                    161     24  85.1%   180, 184, 188-191, 195-199, 212-232
+scripts/predictive/models.py                                     169    101  40.2%   33, 38-43, 46-47, 51-68, 71, 117, 123-135, 155-165, 185-192, 212-244, 264-273, 289-297, 312-317, 331, 340-366
+scripts/predictive/outcomes.py                                   332    136  59.0%   30, 36-38, 83-84, 88-96, 106, 110-111, 132, 134-140, 161, 164, 168-169, 243, 246, 250, 288, 323, 327, 330, 359, 362, 365, 370-371, 399, 414-510, 534, 540, 548-549, 552, 558-564, 574-575, 581-582, 584, 588-623
+scripts/predictive/predict_service.py                            107     28  73.8%   59, 61, 63, 66-68, 111-144
+scripts/predictive/profile_calibration.py                        117     51  56.4%   52, 59-66, 80-81, 85-92, 124-140, 151-177, 196-198, 200-201, 203-206, 210, 226, 228
+scripts/predictive/weekly_section.py                              21      0 100.0%
+scripts/pricing-b2g-collect.py                                   169    169   0.0%   2-433
+scripts/process_documents/__init__.py                              5      5   0.0%   11-29
+scripts/process_documents/__main__.py                              2      2   0.0%   3-5
+scripts/process_documents/activity.py                            139    139   0.0%   12-281
+scripts/process_documents/adapters/__init__.py                     4      4   0.0%   3-8
+scripts/process_documents/adapters/base.py                        34     34   0.0%   3-64
+scripts/process_documents/adapters/ciga_ckan.py                  163    163   0.0%   7-404
+scripts/process_documents/adapters/generic_html.py               174    174   0.0%   8-571
+scripts/process_documents/adapters/pncp.py                       384    384   0.0%   7-762
+scripts/process_documents/adapters/sc_compras.py                 125    125   0.0%   10-292
+scripts/process_documents/backup_restore_proof.py                 81     81   0.0%   8-169
+scripts/process_documents/classify_docs.py                        42     42   0.0%   3-199
+scripts/process_documents/cli.py                                 309    309   0.0%   2-600
+scripts/process_documents/collect.py                             420    420   0.0%   10-961
+scripts/process_documents/confirm_gt_review.py                   192    192   0.0%   13-498
+scripts/process_documents/corpus.py                               86     86   0.0%   3-267
+scripts/process_documents/coverage.py                            323    323   0.0%   3-694
+scripts/process_documents/daily_ops_report.py                     42     42   0.0%   7-140
+scripts/process_documents/discovery.py                           134    134   0.0%   7-282
+scripts/process_documents/entity_queue.py                        557    557   0.0%   17-1054
+scripts/process_documents/error_classes.py                        66     66   0.0%   7-146
+scripts/process_documents/expand_zips.py                         142    142   0.0%   8-267
+scripts/process_documents/harvest_pncp.py                        185    185   0.0%   7-329
+scripts/process_documents/label_gt_slots.py                       90     90   0.0%   15-223
+scripts/process_documents/models.py                              177    177   0.0%   3-326
+scripts/process_documents/multi_source_session.py                395    395   0.0%   14-831
+scripts/process_documents/ops_health.py                          146    146   0.0%   12-333
+scripts/process_documents/process_card.py                        191    191   0.0%   12-409
+scripts/process_documents/quarantine.py                          102    102   0.0%   7-167
+scripts/process_documents/queue_lock.py                           68     68   0.0%   7-95
+scripts/process_documents/residual_session_campaign.py           158    158   0.0%   2-293
+scripts/process_documents/sanitize.py                             60     60   0.0%   6-96
+scripts/process_documents/source_budget.py                        56     56   0.0%   11-119
+scripts/process_documents/statuses.py                            100    100   0.0%   9-205
+scripts/process_documents/storage.py                             122    122   0.0%   3-185
+scripts/process_documents/vps_live_campaign.py                   235    235   0.0%   2-632
+scripts/process_documents/win_qual_campaign.py                    69     69   0.0%   12-156
+scripts/production_readiness/__init__.py                           2      2   0.0%   3-5
+scripts/production_readiness/__main__.py                          47     47   0.0%   3-110
+scripts/production_readiness/deliverables_manifest.py             71     71   0.0%   3-130
+scripts/production_readiness/evidence.py                          75     75   0.0%   3-133
+scripts/production_readiness/full_scale.py                       296    296   0.0%   8-604
+scripts/production_readiness/official_reference.py               110    110   0.0%   7-252
+scripts/production_readiness/official_sinapi_acquire.py          143    143   0.0%   19-306
+scripts/production_readiness/real_case_chain.py                  155    155   0.0%   9-350
+scripts/pseo/__init__.py                                           2      2   0.0%   7-8
+scripts/pseo/__main__.py                                           4      4   0.0%   3-8
+scripts/pseo/aggregate.py                                        300    300   0.0%   3-873
+scripts/pseo/allowlist.py                                         15     15   0.0%   7-266
+scripts/pseo/approval.py                                          41     41   0.0%   3-123
+scripts/pseo/archetypes.py                                        88     88   0.0%   11-316
+scripts/pseo/atomic_io.py                                         55     55   0.0%   3-98
+scripts/pseo/chunked_extract.py                                   90     90   0.0%   6-175
+scripts/pseo/classifiers.py                                      216    216   0.0%   10-725
+scripts/pseo/cli_export.py                                         4      4   0.0%   5-10
+scripts/pseo/comparison.py                                       174    174   0.0%   3-329
+scripts/pseo/export_web_cfg.py                                     4      4   0.0%   11-16
+scripts/pseo/jsonschema_export.py                                 58     58   0.0%   3-166
+scripts/pseo/models.py                                           850    850   0.0%   17-1150
+scripts/pseo/normalization.py                                     63     63   0.0%   3-85
+scripts/pseo/opportunities.py                                    105    105   0.0%   3-224
+scripts/pseo/pipeline.py                                         478    478   0.0%   2-1017
+scripts/pseo/privacy.py                                           29     29   0.0%   3-60
+scripts/pseo/provenance.py                                        99     99   0.0%   3-238
+scripts/pseo/release_snapshot.py                                   9      9   0.0%   2-34
+scripts/pseo/sanitize.py                                          41     41   0.0%   3-57
+scripts/pseo/schemas.py                                            4      4   0.0%   3-8
+scripts/pseo/staging.py                                          120    120   0.0%   11-257
+scripts/pseo/stream_aggregate.py                                 392    392   0.0%   16-845
+scripts/pseo/validation.py                                        51     51   0.0%   3-104
+scripts/pseo/value_spill.py                                       99     99   0.0%   16-172
+scripts/pseo/verify_web_cfg_compat.py                            100    100   0.0%   2-246
+scripts/public_agency/__init__.py                                 14     14   0.0%   7-35
+scripts/public_agency/__main__.py                                 30     30   0.0%   3-75
+scripts/public_agency/catalog.py                                  23     23   0.0%   3-36
+scripts/public_agency/conflict.py                                 72     72   0.0%   3-166
+scripts/public_agency/contacts.py                                 65     65   0.0%   3-163
+scripts/public_agency/dossier.py                                  66     66   0.0%   3-212
+scripts/public_agency/entities.py                                 64     64   0.0%   3-102
+scripts/public_agency/evidence.py                                 35     35   0.0%   3-102
+scripts/public_agency/exports.py                                 134    134   0.0%   3-360
+scripts/public_agency/fiscal_support.py                           47     47   0.0%   3-136
+scripts/public_agency/fragmentation.py                           123    123   0.0%   6-248
+scripts/public_agency/kit.py                                      67     67   0.0%   3-299
+scripts/public_agency/legal_thresholds.py                        114    114   0.0%   7-209
+scripts/public_agency/object_classification.py                    81     81   0.0%   3-180
+scripts/public_agency/pipeline.py                                320    320   0.0%   3-827
+scripts/public_agency/population.py                               82     82   0.0%   3-434
+scripts/public_agency/proposal.py                                 30     30   0.0%   3-157
+scripts/public_agency/publishability.py                           46     46   0.0%   3-153
+scripts/public_agency/scoring.py                                  95     95   0.0%   3-209
+scripts/public_agency/signals.py                                 205    205   0.0%   3-709
+scripts/quality/__init__.py                                        2      2   0.0%   3-10
+scripts/quality/indicator_catalog.py                              33     33   0.0%   8-210
+scripts/radar-b2g-collect.py                                     282    282   0.0%   2-614
+scripts/report_dedup.py                                           81     81   0.0%   2-240
+scripts/reports/__init__.py                                        1      1   0.0%   8
+scripts/reports/commercial_b2g_session.py                        624    624   0.0%   2-1637
+scripts/reports/commercial_sample_sc.py                          148    148   0.0%   2-431
+scripts/reports/concorrentes_report.py                            84     84   0.0%   3-148
+scripts/reports/contratos_report.py                              102    102   0.0%   7-204
+scripts/reports/coverage_gaps.py                                 118    118   0.0%   2-212
+scripts/reports/coverage_weekly.py                               505    505   0.0%   2-1325
+scripts/reports/deliverable_orgaos_ranking.py                    154    154   0.0%   2-397
+scripts/reports/editais_report.py                                 79     79   0.0%   7-182
+scripts/reports/executive_excel.py                               293    293   0.0%   2-819
+scripts/reports/executive_report.py                              591    591   0.0%   2-1613
+scripts/reports/golden_path_pack.py                              150    150   0.0%   6-347
+scripts/reports/operational_export_pack.py                       291    291   0.0%   2-555
+scripts/reports/operational_outputs.py                           367    367   0.0%   2-975
+scripts/reports/operational_reports.py                           265    265   0.0%   2-712
+scripts/reports/org_ranking.py                                   136    136   0.0%   2-329
+scripts/reports/panorama.py                                      169    169   0.0%   2-401
+scripts/reports/reconcile_pdf_excel.py                           226    226   0.0%   2-454
+scripts/reports/run_metadata.py                                  144    144   0.0%   2-419
+scripts/reports/valores_report.py                                 82     82   0.0%   3-144
+scripts/retention-b2g-collect.py                                 220    220   0.0%   2-433
+scripts/source_registry/__init__.py                                3      0 100.0%
+scripts/source_registry/__main__.py                                2      2   0.0%   1-3
+scripts/source_registry/acquisition/__init__.py                    4      4   0.0%   3-10
+scripts/source_registry/acquisition/ciga_municipio_expand.py      79     79   0.0%   9-173
+scripts/source_registry/acquisition/pncp_orgao_probe.py          191    191   0.0%   14-371
+scripts/source_registry/acquisition/promote_from_evidence.py     346    346   0.0%   16-724
+scripts/source_registry/builder.py                               333    333   0.0%   9-641
+scripts/source_registry/cli.py                                   123    123   0.0%   2-278
+scripts/source_registry/discovery.py                             129    129   0.0%   8-320
+scripts/source_registry/gap_report.py                            107    107   0.0%   3-230
+scripts/source_registry/models.py                                 84     29  65.5%   106, 111-113, 118, 123-148, 168
+scripts/source_registry/persistence.py                            27     27   0.0%   3-66
+scripts/technical_acervo/__init__.py                               3      3   0.0%   7-11
+scripts/technical_acervo/__main__.py                               4      4   0.0%   3-8
+scripts/technical_acervo/cli.py                                  265    265   0.0%   2-508
+scripts/technical_acervo/format.py                                78     78   0.0%   3-233
+scripts/technical_acervo/guards.py                                63     63   0.0%   3-97
+scripts/technical_acervo/match.py                                102    102   0.0%   3-253
+scripts/technical_acervo/normalize.py                             46     46   0.0%   3-86
+scripts/technical_acervo/search.py                               179    179   0.0%   3-500
+scripts/technical_acervo/store.py                                147    147   0.0%   3-253
+scripts/technical_acervo/synonyms.py                              67     67   0.0%   3-148
+scripts/universe_tools.py                                        180    180   0.0%   2-506
+scripts/validate-report-data.py                                  408    408   0.0%   2-900
+scripts/war-room-b2g-collect.py                                  213    213   0.0%   2-420
+scripts/workspace/__init__.py                                      0      0 100.0%
+scripts/workspace/__main__.py                                      2      0 100.0%
+scripts/workspace/actions.py                                     101     90  10.9%   62-119, 131-231, 244-358, 369-397
+scripts/workspace/cli.py                                         924    725  21.5%   45-60, 64-174, 178-408, 412-593, 598-610, 619-740, 745-890, 894-954, 958-1091, 1095-1109, 1113-1127, 1132-1205, 1209-1231, 1236-1273, 1277-1304, 1313-1325, 1336-1355, 1359-1367, 1371-1384, 1390-1401, 1416-1426, 1443, 1447, 1469-1474, 1689-1690, 1695, 1722-1723, 1729
+scripts/workspace/common.py                                      194    144  25.8%   18, 23-28, 59, 64, 69-77, 86-91, 95-114, 118-124, 128-145, 149-151, 155-166, 170-173, 177-178, 182-185, 199, 204-217, 221-226, 231-232, 236-273, 277-283, 287-297
+scripts/workspace/queue.py                                       261    243   6.9%   43-61, 76-119, 131-173, 181-217, 225-338, 346-436, 444-506, 510-580, 584-590, 601-645, 649-650, 678-715
+--------------------------------------------------------------------------------------------
+TOTAL                                                         121679 119842   1.5%
+Coverage HTML written to dir docs/td-001/coverage-reports/
+
+======================= 63 passed, 2 warnings in 26.50s ========================
+EXIT:0

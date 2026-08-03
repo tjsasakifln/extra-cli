@@ -1,0 +1,35 @@
+{
+  "campaign": "EXTRA-OPEN-PRS-CONSOLIDATION-CLOSEOUT-01",
+  "parent_campaign": "EXTRA-OPEN-PRS-CONSOLIDATION-01",
+  "generated_at": "2026-08-03T13:38:15.786854+00:00",
+  "terminal_state": "PASS_CONSOLIDATION_CLOSED_AND_DEPLOYED",
+  "final_main_sha": "40bc3704d35adff8ad0b6adacf00038334d74f5b",
+  "open_prs": [],
+  "merge_order": [
+    "#196",
+    "#198",
+    "#197"
+  ],
+  "pr197_body_fixed": {
+    "no_predictive_migration_068": true,
+    "has_069_predictive_intelligence": true,
+    "has_068_decision_memory_ownership": true,
+    "has_dm_link": true,
+    "has_non_claims": true
+  },
+  "migrations_coherent": true,
+  "tests_passed_on_final_sha": true,
+  "deployment_state": "DEPLOYED_FINAL_MAIN_SHA",
+  "deployed_sha": "40bc3704d35adff8ad0b6adacf00038334d74f5b",
+  "no_new_product_functionality": true,
+  "evidence_dir": "artifacts/campaigns/EXTRA-OPEN-PRS-CONSOLIDATION-01/",
+  "acceptance": {
+    "pr197_no_predictive_068": true,
+    "migrations_068_069_coherent": true,
+    "tests_on_final_sha": true,
+    "closeout_pack_exists": true,
+    "vps_state_proven": true,
+    "no_new_features": true,
+    "no_unjustified_open_prs": true
+  }
+}

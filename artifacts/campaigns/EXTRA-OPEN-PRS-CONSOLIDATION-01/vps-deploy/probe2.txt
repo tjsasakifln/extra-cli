@@ -1,0 +1,13 @@
+v2202607385716487230
+-rw-r--r-- 1 extra-consultoria extra-consultoria 78 Aug  1 16:40 /opt/extra-consultoria/.git
+gitdir: /mnt/d/extra consultoria/.git/worktrees/production-readiness-closeout
+HAS_068=no
+HAS_069=no
+/dev/vda4       503G   36G  447G   8% /
+local-proof
+/usr/bin/git
+uid=0(root) gid=0(root) groups=0(root)
+total 12
+drwxr-xr-x  3 root              root              4096 Jul 23 09:57 .
+drwxr-xr-x 18 root              root              4096 Jul 23 09:57 ..
+drwx------  4 extra-consultoria extra-consultoria 4096 Jul 30 22:02 extra-consultoria

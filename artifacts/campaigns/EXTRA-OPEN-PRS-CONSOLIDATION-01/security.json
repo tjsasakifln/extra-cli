@@ -1,0 +1,31 @@
+{
+  "generated_at": "2026-08-03T12:55:45.071850+00:00",
+  "sha": "40bc3704d35adff8ad0b6adacf00038334d74f5b",
+  "checks": [
+    {
+      "name": "CI Security (bandit)",
+      "result": "SUCCESS on PR merges and main run 30814398906"
+    },
+    {
+      "name": "CI Dependency Audit (pip-audit)",
+      "result": "SUCCESS"
+    },
+    {
+      "name": "Generated Artifacts Policy",
+      "result": "SUCCESS"
+    },
+    {
+      "name": "no DSN secrets in #196 packs",
+      "result": "PASS \u2014 only LOCAL_DATALAKE_DSN_set boolean"
+    },
+    {
+      "name": "predictive timer auto-enable",
+      "result": "PASS \u2014 not enabled on VPS; units shadow-only"
+    },
+    {
+      "name": "no push to main",
+      "result": "PASS \u2014 only squash merge via gh pr merge"
+    }
+  ],
+  "result": "PASS"
+}

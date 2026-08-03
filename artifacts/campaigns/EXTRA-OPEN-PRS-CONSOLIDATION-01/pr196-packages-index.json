@@ -1,0 +1,64 @@
+{
+  "generated_at": "2026-08-03T12:11:35.583087+00:00",
+  "pr": 196,
+  "head": "ecc924389af7768dcfd2e179fa74088b9631f619",
+  "canonical_package": "artifacts/production-readiness/20260802T134234Z",
+  "policy": "Preserve all packages for audit trail; tip pack is canonical per PR body",
+  "packages": [
+    {
+      "package": "artifacts/production-readiness/20260801T195846Z",
+      "file_count": 5,
+      "bytes": 14101,
+      "has_final_verdict": false
+    },
+    {
+      "package": "artifacts/production-readiness/20260801T200107Z",
+      "file_count": 1,
+      "bytes": 317,
+      "has_final_verdict": false
+    },
+    {
+      "package": "artifacts/production-readiness/20260801T203800Z",
+      "file_count": 22,
+      "bytes": 19848,
+      "has_final_verdict": true
+    },
+    {
+      "package": "artifacts/production-readiness/20260802T005800Z",
+      "file_count": 7,
+      "bytes": 24262,
+      "has_final_verdict": true
+    },
+    {
+      "package": "artifacts/production-readiness/20260802T115800Z",
+      "file_count": 11,
+      "bytes": 12991,
+      "has_final_verdict": true
+    },
+    {
+      "package": "artifacts/production-readiness/20260802T121230Z",
+      "file_count": 39,
+      "bytes": 52535,
+      "has_final_verdict": true
+    },
+    {
+      "package": "artifacts/production-readiness/20260802T130202Z",
+      "file_count": 21,
+      "bytes": 35754,
+      "has_final_verdict": true
+    },
+    {
+      "package": "artifacts/production-readiness/20260802T130535Z",
+      "file_count": 1,
+      "bytes": 317,
+      "has_final_verdict": false
+    },
+    {
+      "package": "artifacts/production-readiness/20260802T134234Z",
+      "file_count": 28,
+      "bytes": 39615,
+      "has_final_verdict": true
+    }
+  ],
+  "total_bytes": 199740
+}
