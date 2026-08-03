@@ -1,0 +1,33 @@
+{
+  "feature_schema_version": "pit_v1",
+  "demand": [
+    "n_contracts_30d",
+    "n_contracts_90d",
+    "n_contracts_180d",
+    "n_contracts_365d",
+    "days_since_last",
+    "mean_cadence_days",
+    "same_window_ly",
+    "month_sin",
+    "month_cos",
+    "mean_value_recent"
+  ],
+  "p2a": [
+    "supplier_wins_at_ente",
+    "supplier_wins_in_category",
+    "supplier_wins_total",
+    "market_share_ente",
+    "market_share_category",
+    "days_since_supplier_win",
+    "value_band_wins"
+  ],
+  "p3": [
+    "modality_code",
+    "log_estimated_value",
+    "n_hist_discounts",
+    "median_discount_hist",
+    "mean_discount_hist",
+    "p25_discount_hist",
+    "p75_discount_hist"
+  ]
+}

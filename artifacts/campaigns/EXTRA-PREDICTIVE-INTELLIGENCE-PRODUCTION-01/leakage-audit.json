@@ -1,0 +1,22 @@
+{
+  "demand_30d": {
+    "ok": true,
+    "n_examples_checked": 143591,
+    "findings": []
+  },
+  "demand_60d": {
+    "ok": true,
+    "n_examples_checked": 137118,
+    "findings": []
+  },
+  "demand_90d": {
+    "ok": true,
+    "n_examples_checked": 130449,
+    "findings": []
+  },
+  "competitive_winner_p2a": {
+    "ok": true,
+    "n_examples_checked": 300000,
+    "findings": []
+  }
+}

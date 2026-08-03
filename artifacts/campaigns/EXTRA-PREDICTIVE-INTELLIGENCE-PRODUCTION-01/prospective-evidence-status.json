@@ -1,0 +1,7 @@
+{
+  "prospective_calibrated": false,
+  "pre_outcome_predictions_emitted": false,
+  "mature_outcomes": 0,
+  "days_of_operation": 0,
+  "note": "Historical walk-forward is backtest, not prospective soak"
+}

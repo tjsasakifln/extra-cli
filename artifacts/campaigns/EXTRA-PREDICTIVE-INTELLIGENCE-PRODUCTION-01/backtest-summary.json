@@ -1,0 +1,33 @@
+{
+  "command": "claim registry evidence from prior campaign backtests (not re-run this session)",
+  "started_at": "2026-08-03T03:33:23.691954+00:00",
+  "finished_at": "2026-08-03T03:42:42.024592+00:00",
+  "exit_code": 0,
+  "HEAD_SHA": "2e15ad85430be4967138acaec82f51558337bbf7",
+  "base_SHA": "704975a7bcdd43d4dc6769fbf6c14726327ab37b",
+  "environment": "registry artifacts",
+  "result": {
+    "demand": {
+      "state": "BACKTEST_FAILED",
+      "BSS": 0.05172564469595131,
+      "threshold": 0.1,
+      "n": 11488,
+      "n_positives": 2477
+    },
+    "p2a": {
+      "state": "HISTORICAL_BACKTEST_PROVEN",
+      "BSS": 0.8709540780734535,
+      "n": 15908,
+      "shadow_live": false
+    },
+    "discount": {
+      "state": "DATA_BLOCKED",
+      "reason": "empty labels"
+    }
+  },
+  "limitations": [
+    "Backtest numbers are historical evidence already in claim registry; thresholds not re-tuned."
+  ],
+  "validated_code_tip": "2e15ad85430be4967138acaec82f51558337bbf7",
+  "evidence_docs_note": "docs-only evidence commits after code tip re-run full CI green"
+}

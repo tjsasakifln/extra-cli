@@ -443,22 +443,30 @@ def enrich_editais(
                     benchmark=bm,
                     cnae_principal=cnae_principal,
                 )
-                ed["_bid_simulation"] = {
-                    "lance_sugerido": bid_result.lance_sugerido,
-                    "desconto_sugerido_pct": bid_result.desconto_sugerido_pct,
-                    "p_vitoria_pct": bid_result.p_vitoria_pct,
-                    "margem_liquida_pct": bid_result.margem_liquida_pct,
-                    "valor_esperado": bid_result.valor_esperado,
-                    "lance_agressivo": bid_result.lance_agressivo,
-                    "lance_conservador": bid_result.lance_conservador,
-                    "desconto_agressivo_pct": bid_result.desconto_agressivo_pct,
-                    "desconto_conservador_pct": bid_result.desconto_conservador_pct,
-                    "competidores_esperados": bid_result.competidores_esperados,
-                    "historico_contratos": bid_result.historico_contratos,
-                    "confianca": bid_result.confianca,
-                    "racional": bid_result.racional,
-                    "has_data": bid_result.has_data,
-                }
+                # Honest export: heuristic scenario only (not validated probability)
+                if hasattr(bid_result, "to_export_dict"):
+                    ed["_bid_simulation"] = bid_result.to_export_dict()
+                else:
+                    ed["_bid_simulation"] = {
+                        "lance_cenario": bid_result.lance_sugerido,
+                        "desconto_cenario_pct": bid_result.desconto_sugerido_pct,
+                        "heuristic_scenario_score": bid_result.p_vitoria_pct,
+                        "margem_liquida_pct": bid_result.margem_liquida_pct,
+                        "valor_esperado_cenario": bid_result.valor_esperado,
+                        "lance_agressivo": bid_result.lance_agressivo,
+                        "lance_conservador": bid_result.lance_conservador,
+                        "desconto_agressivo_pct": bid_result.desconto_agressivo_pct,
+                        "desconto_conservador_pct": bid_result.desconto_conservador_pct,
+                        "competidores_esperados": bid_result.competidores_esperados,
+                        "historico_contratos": bid_result.historico_contratos,
+                        "confianca_cenario": bid_result.confianca,
+                        "racional": bid_result.racional,
+                        "has_data": bid_result.has_data,
+                        "method": "UNVALIDATED_HEURISTIC",
+                        "prediction_claim_allowed": False,
+                        "is_calibrated_probability": False,
+                        "is_optimal_bid": False,
+                    }
                 if bid_result.has_data:
                     bids_computed += 1
         logger.info("[LANCE] %d simulações de lance calculadas", bids_computed)

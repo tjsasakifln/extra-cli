@@ -1401,6 +1401,80 @@ def cmd_process_documents(args: argparse.Namespace) -> int:
     return 1
 
 
+
+def cmd_predictive_status(args: argparse.Namespace) -> int:
+    """Status of predictive claim registry (honest, no overclaim)."""
+    from scripts.predictive.claims import load_registry
+    from scripts.predictive.profile_calibration import personalization_blockers
+
+    reg = load_registry()
+    payload = reg.to_public_dict()
+    payload["extra_profile_blockers"] = personalization_blockers()
+    if args.json:
+        print(json.dumps(payload, indent=2, ensure_ascii=False, default=str))
+        return 0
+    print("\n=== PREDICTIVE STATUS — Extra Consultoria ===")
+    print(f"Recomendação comercial: {payload['commercial_recommendation']}")
+    print("(Somente PRODUCTION_AVAILABLE autoriza claim externo de disponibilidade)\n")
+    for cid, rec in payload["claims"].items():
+        flag = "✓" if rec.get("external_availability_allowed") else "·"
+        print(f"  {flag} {cid}: {rec['state']}")
+        if rec.get("blockers"):
+            for b in rec["blockers"][:3]:
+                print(f"      - {b}")
+    print()
+    return 0
+
+
+def cmd_forecasts(args: argparse.Namespace) -> int:
+    """List predictive surfaces; does not invent probabilities."""
+    from scripts.predictive.claims import load_registry
+    from scripts.predictive.predict_service import blocked_prediction
+
+    reg = load_registry()
+    targets = {
+        "demand": "demand_30d",
+        "competitors": "competitive_winner_p2a",
+        "discount": "winning_discount_p3",
+        "win": "extra_win_probability_p4",
+    }
+    kind = getattr(args, "forecast_kind", None) or "status"
+    if kind == "status" or kind is None:
+        return cmd_predictive_status(args)
+
+    target = targets.get(kind, kind)
+    if kind == "demand" and getattr(args, "horizon", None):
+        target = f"demand_{int(args.horizon)}d"
+
+    rec = blocked_prediction(
+        target_name=target,
+        reason=(
+            "Workspace forecast delegates to claim-gated predictive service; "
+            "no unvalidated probability is emitted here."
+        ),
+        registry=reg,
+    )
+    d = rec.to_dict()
+    if getattr(args, "opportunity_id", None):
+        d["procurement_id"] = args.opportunity_id
+    if getattr(args, "client", None):
+        d["client"] = args.client
+        if kind == "win":
+            from scripts.predictive.profile_calibration import personalization_blockers
+            d["profile_blockers"] = personalization_blockers(args.client)
+            d["nomenclature_if_market_only"] = "CALIBRATED_MARKET_WIN_LIKELIHOOD"
+    if args.json:
+        print(json.dumps(d, indent=2, ensure_ascii=False, default=str))
+    else:
+        print(f"Target: {d['target_name']}")
+        print(f"Claim: {d['claim_id']} = {d['claim_state']}")
+        print(f"prediction_allowed: {d['prediction_allowed']}")
+        print(f"vocabulary: {d['vocabulary']}")
+        for lim in (d.get("limitations") or [])[:5]:
+            print(f"  - {lim}")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="workspace",
@@ -1586,6 +1660,24 @@ Examples:
     p_docs.add_argument("query", nargs="?", default=None, help="processo/edital/entity para show")
     p_docs.add_argument("--json", action="store_true")
 
+
+    p_ps = sub.add_parser("predictive-status", help="Status dos claims preditivos (honestidade)")
+    p_ps.add_argument("--json", action="store_true")
+
+    p_fc = sub.add_parser("forecasts", help="Superfície preditiva (claim-gated)")
+    p_fc.add_argument("--json", action="store_true")
+
+    p_f = sub.add_parser("forecast", help="Previsão por tipo (claim-gated, sem overclaim)")
+    p_f.add_argument(
+        "forecast_kind",
+        choices=["demand", "competitors", "discount", "win", "status"],
+        help="Tipo de previsão",
+    )
+    p_f.add_argument("opportunity_id", nargs="?", default=None)
+    p_f.add_argument("--horizon", type=int, default=30)
+    p_f.add_argument("--client", default="extra_construtora")
+    p_f.add_argument("--json", action="store_true")
+
     return parser
 
 
@@ -1621,6 +1713,9 @@ def main(argv: list[str] | None = None) -> None:
         "commercial-lead": cmd_commercial_lead,
         "commercial-review": cmd_commercial_review,
         "process-documents": cmd_process_documents,
+        "predictive-status": cmd_predictive_status,
+        "forecasts": cmd_forecasts,
+        "forecast": cmd_forecasts,
     }
     handler = commands.get(args.command)
     if handler is None:

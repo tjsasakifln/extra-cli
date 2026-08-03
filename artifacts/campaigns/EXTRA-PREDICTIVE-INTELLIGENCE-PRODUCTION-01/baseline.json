@@ -1,0 +1,38 @@
+{
+  "command": "git fetch --all --prune; gh pr view 197; git rev-parse HEAD origin/main",
+  "started_at": "2026-08-03T02:40:00+00:00",
+  "finished_at": "2026-08-03T03:42:42.024592+00:00",
+  "exit_code": 0,
+  "HEAD_SHA": "2e15ad85430be4967138acaec82f51558337bbf7",
+  "base_SHA": "704975a7bcdd43d4dc6769fbf6c14726327ab37b",
+  "initial_HEAD": "f8dcaa6f4d93ea8a4307152bd1e0563e69623821",
+  "initial_base": "704975a7bcdd43d4dc6769fbf6c14726327ab37b",
+  "environment": "worktree .worktrees/predictive-intel",
+  "result": {
+    "failing_checks_at_start": [
+      "Lint (ruff)",
+      "Test All (full suite)",
+      "Edital Relevance Foundation"
+    ],
+    "migration_pr197": "068_predictive_intelligence.sql",
+    "migration_pr198_reserved": "068_decision_outcome_memory.sql",
+    "main_max_migration": "067_process_documents_runs.sql"
+  },
+  "limitations": [
+    "Baseline SHAs are investigation-only; final HEAD supersedes."
+  ],
+  "validated_code_tip": "2e15ad85430be4967138acaec82f51558337bbf7",
+  "evidence_docs_note": "docs-only evidence commits after code tip re-run full CI green",
+  "migration_pr197": "069_predictive_intelligence.sql",
+  "migration_pr198": "068_decision_outcome_memory.sql",
+  "adr": "docs/decisions/adr-069-predictive-intelligence-claim-gates.md",
+  "dm_link": {
+    "predictive_outcomes.dm_outcome_event_id": "FK to dm_outcome_events when present",
+    "link_status": [
+      "LINKED_DM",
+      "UNLINKED_LEGACY",
+      "HISTORICAL_UNVERIFIED",
+      "NOT_APPLICABLE_MODEL_ONLY"
+    ]
+  }
+}

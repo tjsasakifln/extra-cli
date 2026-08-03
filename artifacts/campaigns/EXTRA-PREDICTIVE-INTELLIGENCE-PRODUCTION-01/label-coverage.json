@@ -1,0 +1,127 @@
+{
+  "demand_30d": {
+    "run_id": "ds_demand_30d_c059b5eb5e00",
+    "target_name": "demand_30d",
+    "dataset_version": "demand_v1",
+    "n_examples": 143591,
+    "n_positives": 19053,
+    "n_negatives": 124538,
+    "n_rejected_invalid_neg": 208298,
+    "coverage": {
+      "n_entes": 3000,
+      "categories": [
+        "ampliacoes",
+        "drenagem",
+        "infraestrutura_urbana",
+        "manutencao_predial",
+        "obras_edificacoes",
+        "outros_aec",
+        "pavimentacao",
+        "reformas",
+        "saneamento",
+        "terraplenagem"
+      ],
+      "n_as_of": 47,
+      "require_coverage": true
+    },
+    "leakage": {
+      "ok": true,
+      "n_examples_checked": 143591,
+      "findings": []
+    },
+    "blockers": [],
+    "status": "built",
+    "feature_schema_version": "pit_v1"
+  },
+  "demand_60d": {
+    "run_id": "ds_demand_60d_15e8b1ce36d5",
+    "target_name": "demand_60d",
+    "dataset_version": "demand_v1",
+    "n_examples": 137118,
+    "n_positives": 31237,
+    "n_negatives": 105881,
+    "n_rejected_invalid_neg": 207284,
+    "coverage": {
+      "n_entes": 3000,
+      "categories": [
+        "ampliacoes",
+        "drenagem",
+        "infraestrutura_urbana",
+        "manutencao_predial",
+        "obras_edificacoes",
+        "outros_aec",
+        "pavimentacao",
+        "reformas",
+        "saneamento",
+        "terraplenagem"
+      ],
+      "n_as_of": 46,
+      "require_coverage": true
+    },
+    "leakage": {
+      "ok": true,
+      "n_examples_checked": 137118,
+      "findings": []
+    },
+    "blockers": [],
+    "status": "built",
+    "feature_schema_version": "pit_v1"
+  },
+  "demand_90d": {
+    "run_id": "ds_demand_90d_da0437d144b3",
+    "target_name": "demand_90d",
+    "dataset_version": "demand_v1",
+    "n_examples": 130449,
+    "n_positives": 40364,
+    "n_negatives": 90085,
+    "n_rejected_invalid_neg": 206466,
+    "coverage": {
+      "n_entes": 3000,
+      "categories": [
+        "ampliacoes",
+        "drenagem",
+        "infraestrutura_urbana",
+        "manutencao_predial",
+        "obras_edificacoes",
+        "outros_aec",
+        "pavimentacao",
+        "reformas",
+        "saneamento",
+        "terraplenagem"
+      ],
+      "n_as_of": 45,
+      "require_coverage": true
+    },
+    "leakage": {
+      "ok": true,
+      "n_examples_checked": 130449,
+      "findings": []
+    },
+    "blockers": [],
+    "status": "built",
+    "feature_schema_version": "pit_v1"
+  },
+  "p2a": {
+    "run_id": "ds_competitive_winner_p2a_fec725c5a700",
+    "target_name": "competitive_winner_p2a",
+    "dataset_version": "p2a_v1",
+    "n_examples": 300000,
+    "n_positives": 15000,
+    "n_negatives": 285000,
+    "n_rejected_invalid_neg": 0,
+    "coverage": {
+      "n_outcome_contracts": 119526,
+      "n_examples": 300000
+    },
+    "leakage": {
+      "ok": true,
+      "n_examples_checked": 300000,
+      "findings": []
+    },
+    "blockers": [],
+    "status": "built",
+    "feature_schema_version": "pit_v1"
+  },
+  "p2b": "DATA_BLOCKED",
+  "p3": "DATA_BLOCKED n=0"
+}

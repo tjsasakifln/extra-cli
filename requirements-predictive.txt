@@ -1,0 +1,5 @@
+# Predictive intelligence stack (train / backtest / metrics).
+# Install: pip install -r requirements-predictive.txt
+# Also pulled in by requirements.txt for full-suite CI.
+numpy>=1.26.0
+scikit-learn>=1.4.0

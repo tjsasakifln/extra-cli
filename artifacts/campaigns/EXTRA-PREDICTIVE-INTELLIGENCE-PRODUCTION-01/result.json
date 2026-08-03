@@ -1,0 +1,258 @@
+{
+  "campaign": "EXTRA-PREDICTIVE-INTELLIGENCE-PRODUCTION-01",
+  "generated_at": "2026-08-01T20:52:56.658791+00:00",
+  "code_implemented": true,
+  "corpus_available": {
+    "production_contracts_total": 4479442,
+    "sample_aec_contracts_used": 120000,
+    "discount_pairs_valid": 0,
+    "participant_lists": false
+  },
+  "backtests_approved": [
+    "competitive_winner_p2a"
+  ],
+  "backtests_failed": [
+    "demand_30d",
+    "demand_60d",
+    "demand_90d"
+  ],
+  "backtests_data_blocked": [
+    "winning_discount_p3",
+    "competitive_participation_p2b",
+    "extra_win_probability_p4",
+    "optimal_bid_p5"
+  ],
+  "targets": {
+    "demand_30d": {
+      "claim": "BACKTEST_FAILED",
+      "best_model": "hist_gbm_clf",
+      "gate": {
+        "passed": false,
+        "reasons": [
+          "BSS=0.05172564469595131 < 0.1"
+        ],
+        "data_blocked": false
+      },
+      "best_metrics_subset": {
+        "n": 11488,
+        "n_positives": 2477,
+        "brier": 0.15560471028163325,
+        "brier_skill_score": 0.05172564469595131,
+        "log_loss": 0.4901364111599655,
+        "ece": 0.023100892128854463,
+        "roc_auc": 0.5970002706511267,
+        "lift_top10": 2.4501184614730547,
+        "mae": null,
+        "coverage": null
+      },
+      "dataset_n": 143591
+    },
+    "demand_60d": {
+      "claim": "BACKTEST_FAILED",
+      "best_model": "hist_gbm_clf",
+      "gate": {
+        "passed": false,
+        "reasons": [
+          "BSS=0.0799041210837822 < 0.1",
+          "ECE=0.05614233270085075 > 0.05"
+        ],
+        "data_blocked": false
+      },
+      "best_metrics_subset": {
+        "n": 10970,
+        "n_positives": 3762,
+        "brier": 0.21272321635428051,
+        "brier_skill_score": 0.0799041210837822,
+        "log_loss": 0.6165962384306536,
+        "ece": 0.05614233270085075,
+        "roc_auc": 0.5832766888465235,
+        "lift_top10": 1.9617224880382778,
+        "mae": null,
+        "coverage": null
+      },
+      "dataset_n": 137118
+    },
+    "demand_90d": {
+      "claim": "BACKTEST_FAILED",
+      "best_model": "logistic_l2",
+      "gate": {
+        "passed": false,
+        "reasons": [
+          "BSS=0.09559523084866461 < 0.1",
+          "ECE=0.08237690912735224 > 0.05"
+        ],
+        "data_blocked": false
+      },
+      "best_metrics_subset": {
+        "n": 10436,
+        "n_positives": 4591,
+        "brier": 0.23905132943048982,
+        "brier_skill_score": 0.09559523084866461,
+        "log_loss": 0.6705647780807306,
+        "ece": 0.08237690912735224,
+        "roc_auc": 0.5700443777472903,
+        "lift_top10": 1.5851036218621974,
+        "mae": null,
+        "coverage": null
+      },
+      "dataset_n": 130449
+    },
+    "competitive_winner_p2a": {
+      "claim": "HISTORICAL_BACKTEST_PROVEN",
+      "best_model": "hist_gbm_clf",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "data_blocked": false
+      },
+      "best_metrics_subset": {
+        "n": 15908,
+        "n_positives": 795,
+        "brier": 0.006126355443748779,
+        "brier_skill_score": 0.8709540780734535,
+        "log_loss": 0.029349457641722917,
+        "ece": 0.004939717240898228,
+        "roc_auc": 0.9969464832434236,
+        "lift_top10": 9.935857753321553
+      },
+      "dataset_n": 198840,
+      "p2a_fix": "no force-include of cold-start winners; pre-result candidates only"
+    },
+    "winning_discount_p3": {
+      "claim": "DATA_BLOCKED",
+      "best_model": null,
+      "gate": {
+        "passed": false,
+        "data_blocked": true,
+        "reasons": [
+          "empty"
+        ]
+      },
+      "best_metrics_subset": {
+        "n": null,
+        "n_positives": null,
+        "brier": null,
+        "brier_skill_score": null,
+        "log_loss": null,
+        "ece": null,
+        "roc_auc": null,
+        "lift_top10": null,
+        "mae": null,
+        "coverage": null
+      },
+      "dataset_n": 0
+    },
+    "competitive_participation_p2b": {
+      "claim": "DATA_BLOCKED",
+      "best_model": null,
+      "gate": null,
+      "best_metrics_subset": {
+        "n": null,
+        "n_positives": null,
+        "brier": null,
+        "brier_skill_score": null,
+        "log_loss": null,
+        "ece": null,
+        "roc_auc": null,
+        "lift_top10": null,
+        "mae": null,
+        "coverage": null
+      },
+      "dataset_n": null
+    },
+    "extra_win_probability_p4": {
+      "claim": "DATA_BLOCKED",
+      "best_model": null,
+      "gate": null,
+      "best_metrics_subset": {
+        "n": null,
+        "n_positives": null,
+        "brier": null,
+        "brier_skill_score": null,
+        "log_loss": null,
+        "ece": null,
+        "roc_auc": null,
+        "lift_top10": null,
+        "mae": null,
+        "coverage": null
+      },
+      "dataset_n": null
+    },
+    "optimal_bid_p5": {
+      "claim": "DATA_BLOCKED",
+      "best_model": null,
+      "gate": null,
+      "best_metrics_subset": {
+        "n": null,
+        "n_positives": null,
+        "brier": null,
+        "brier_skill_score": null,
+        "log_loss": null,
+        "ece": null,
+        "roc_auc": null,
+        "lift_top10": null,
+        "mae": null,
+        "coverage": null
+      },
+      "dataset_n": null
+    }
+  },
+  "claims_allowed_external": [],
+  "claims_forbidden_external": [
+    "PREDICTIVE_DEMAND_FORECAST_AVAILABLE",
+    "PREDICTIVE_COMPETITIVE_INTELLIGENCE_AVAILABLE",
+    "PREDICTIVE_WINNING_DISCOUNT_AVAILABLE",
+    "PREDICTIVE_MARKET_INTELLIGENCE_AVAILABLE",
+    "EXTRA_WIN_PROBABILITY_AVAILABLE",
+    "OPTIMAL_BID_RECOMMENDATION_AVAILABLE",
+    "PREDICTIVE_INTELLIGENCE_FULLY_PROVEN"
+  ],
+  "shadow_status": {
+    "competitive_p2a": "HISTORICAL_BACKTEST_PROVEN",
+    "timers_shipped": true,
+    "timers_enabled": false,
+    "prospective_soak_complete": false,
+    "note": "SHADOW_OPERATIONAL not asserted without live scheduled emission"
+  },
+  "blockers_human": [
+    "Extra profile PENDING: margem_minima, capital_giro, capacidade_garantia, capacidade_simultanea, equipe, contratos_correntes, risco_aceitavel"
+  ],
+  "blockers_calendar": [
+    "Prospective soak >=30d with >=100 mature outcomes and >=4 weekly shadow runs not elapsed"
+  ],
+  "blockers_source": [
+    "P2B participant lists unavailable (winners only in contracts)",
+    "P3 estimated↔outcome value joins: 0 valid pairs in opportunity_intel",
+    "Demand BSS < 0.10 threshold on 120k AEC sample (closest demand_90d BSS≈0.096)"
+  ],
+  "next_automatic_events": [
+    "extra-predictive-shadow.timer daily 05:30 once deployed",
+    "python -m scripts.predictive resolve-outcomes",
+    "python -m scripts.predictive monitor"
+  ],
+  "commands": {
+    "claims": "python -m scripts.predictive claims",
+    "backtest_demand": "python -m scripts.predictive backtest --target demand_30d --limit 80000",
+    "workspace_status": "python -m scripts.workspace predictive-status --json",
+    "profile": "python -m scripts.predictive.profile_calibration --client extra_construtora blockers"
+  },
+  "models_approved_historical": [
+    "competitive_winner_p2a (hist_gbm/logistic calibrated) → SHADOW_OPERATIONAL"
+  ],
+  "models_rejected": [
+    "demand_30d/60d/90d BACKTEST_FAILED",
+    "winning_discount_p3 DATA_BLOCKED"
+  ],
+  "commercial_recommendation": "PARTIAL_CLAIM_ALLOWED",
+  "sha_note": "80a089f3 feat(predictive): genuine predictive layer with honest claim gates",
+  "sha": "80a089f3d83aa1c3544d6bac95f3c07c750b0780",
+  "claims_snapshot": {
+    "PREDICTIVE_DEMAND_FORECAST_AVAILABLE": "BACKTEST_FAILED",
+    "PREDICTIVE_COMPETITIVE_INTELLIGENCE_AVAILABLE": "HISTORICAL_BACKTEST_PROVEN",
+    "PREDICTIVE_WINNING_DISCOUNT_AVAILABLE": "DATA_BLOCKED",
+    "PREDICTIVE_MARKET_INTELLIGENCE_AVAILABLE": "DATA_BLOCKED",
+    "EXTRA_WIN_PROBABILITY_AVAILABLE": "DATA_BLOCKED",
+    "OPTIMAL_BID_RECOMMENDATION_AVAILABLE": "DATA_BLOCKED",
+    "PREDICTIVE_INTELLIGENCE_FULLY_PROVEN": "PROSPECTIVE_EVIDENCE_INSUFFICIENT"
+  }
+}

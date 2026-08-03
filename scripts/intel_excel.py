@@ -93,7 +93,7 @@ COLUMNS = [
     ("Desconto Mediano (Órgão)", 16, "center"),  # 20 — % mediano de desconto histórico (apenas compras do setor)
     ("Lance Sugerido (R$)", 18, "right"),  # 21 — valor que maximiza P(vitória) × margem
     ("Valor Esperado EV (R$)", 18, "right"),  # 22 — EV = P(vitória) × margem líquida × valor estimado
-    ("P(Vitória)", 10, "center"),  # 23 — probabilidade estimada de vencer
+    ("Score cenário (heurístico)", 10, "center"),  # 23 — probabilidade estimada de vencer
     ("Margem Líquida", 10, "center"),  # 24 — margem restante após desconto (BDI ref − desconto)
     ("População", 12, "right"),  # 25
     ("Compatível", 12, "center"),  # 26
@@ -521,18 +521,18 @@ def _build_oportunidades(wb: Workbook, items: list[dict], capacity_10x: float | 
             row.append(_dc(22, value=""))
 
         # Col 23: P(Vitoria) — win probability
-        win_prob = None
+        scenario_score_01 = None
         if isinstance(bid_sim, dict):
-            pct = _safe_float(bid_sim.get("p_vitoria_pct"))
-            win_prob = pct / 100.0 if pct is not None else None  # p_vitoria_pct is 0-100, Excel % fmt needs 0-1
-        if win_prob is not None:
-            if win_prob >= 0.50:
+            pct = _safe_float(bid_sim.get("heuristic_scenario_score", bid_sim.get("p_vitoria_pct")))
+            scenario_score_01 = pct / 100.0 if pct is not None else None  # heuristic score 0-100; NOT probability
+        if scenario_score_01 is not None:
+            if scenario_score_01 >= 0.50:
                 prob_font = st["green_font"]
-            elif win_prob >= 0.30:
+            elif scenario_score_01 >= 0.30:
                 prob_font = st["amber_font"]
             else:
                 prob_font = st["red_font"]
-            row.append(_dc(23, value=win_prob, font=prob_font, number_format="0%"))
+            row.append(_dc(23, value=scenario_score_01, font=prob_font, number_format="0%"))
         else:
             row.append(_dc(23, value=""))
 

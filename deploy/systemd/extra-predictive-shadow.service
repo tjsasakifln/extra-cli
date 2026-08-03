@@ -1,0 +1,19 @@
+[Unit]
+Description=Extra Consultoria — predictive intelligence shadow emit
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=oneshot
+User=extra-consultoria
+WorkingDirectory=/opt/extra-consultoria
+Environment=PYTHONPATH=/opt/extra-consultoria
+EnvironmentFile=-/opt/extra-consultoria/.env
+# Resource-bounded shadow emission (no production claim language)
+ExecStart=/usr/bin/python3 -m scripts.predictive monitor
+ExecStart=/usr/bin/python3 -m scripts.predictive resolve-outcomes
+Nice=10
+TimeoutStartSec=1800
+
+[Install]
+WantedBy=multi-user.target

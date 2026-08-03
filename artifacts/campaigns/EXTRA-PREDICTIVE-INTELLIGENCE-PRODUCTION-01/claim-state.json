@@ -1,0 +1,32 @@
+{
+  "command": "python -m scripts.predictive claims",
+  "started_at": "2026-08-03T03:33:23.691954+00:00",
+  "finished_at": "2026-08-03T03:42:42.024592+00:00",
+  "exit_code": 0,
+  "HEAD_SHA": "2e15ad85430be4967138acaec82f51558337bbf7",
+  "base_SHA": "704975a7bcdd43d4dc6769fbf6c14726327ab37b",
+  "environment": "local after CI green HEAD",
+  "result": {
+    "commercial_recommendation": "PARTIAL_CLAIM_ALLOWED",
+    "states": {
+      "PREDICTIVE_DEMAND_FORECAST_AVAILABLE": "BACKTEST_FAILED",
+      "PREDICTIVE_COMPETITIVE_INTELLIGENCE_AVAILABLE": "HISTORICAL_BACKTEST_PROVEN",
+      "PREDICTIVE_WINNING_DISCOUNT_AVAILABLE": "DATA_BLOCKED",
+      "PREDICTIVE_MARKET_INTELLIGENCE_AVAILABLE": "DATA_BLOCKED",
+      "EXTRA_WIN_PROBABILITY_AVAILABLE": "DATA_BLOCKED",
+      "OPTIMAL_BID_RECOMMENDATION_AVAILABLE": "DATA_BLOCKED",
+      "PREDICTIVE_INTELLIGENCE_FULLY_PROVEN": "PROSPECTIVE_EVIDENCE_INSUFFICIENT"
+    },
+    "external_availability_allowed_any": false,
+    "thresholds_unchanged": {
+      "MIN_BSS": 0.1,
+      "MAX_ECE": 0.05,
+      "MIN_TEST_N": 1000
+    }
+  },
+  "limitations": [
+    "PARTIAL_CLAIM_ALLOWED reflects historical P2A backtest only; not production language."
+  ],
+  "validated_code_tip": "2e15ad85430be4967138acaec82f51558337bbf7",
+  "evidence_docs_note": "docs-only evidence commits after code tip re-run full CI green"
+}

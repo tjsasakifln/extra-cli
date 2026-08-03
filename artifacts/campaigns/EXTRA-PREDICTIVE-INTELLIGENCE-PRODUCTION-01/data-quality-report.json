@@ -1,0 +1,14 @@
+{
+  "generated_at": "2026-08-01T20:52:56.658791+00:00",
+  "production_pncp_supplier_contracts": 4479442,
+  "sample_used": 120000,
+  "years": "2021-2025",
+  "aec_filter": "keyword object filter",
+  "opportunity_intel_discount_pairs": 0,
+  "participant_documentation": "absent",
+  "selection_bias": [
+    "Contracts = winners only",
+    "Keyword AEC filter imperfect",
+    "Sample capped at 120k for compute"
+  ]
+}

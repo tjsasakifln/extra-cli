@@ -1,0 +1,8 @@
+{
+  "units": [
+    "deploy/systemd/extra-predictive-shadow.service",
+    "deploy/systemd/extra-predictive-shadow.timer"
+  ],
+  "status": "code_ready_not_enabled_on_vps",
+  "reason": "Await operator enable + prospective soak; no fake soak"
+}

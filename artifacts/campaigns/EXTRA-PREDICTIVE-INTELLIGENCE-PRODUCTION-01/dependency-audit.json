@@ -1,0 +1,38 @@
+{
+  "command": "audit scripts/predictive imports; pip install -r requirements.txt; pip check",
+  "started_at": "2026-08-03T02:42:00+00:00",
+  "finished_at": "2026-08-03T03:42:42.024592+00:00",
+  "exit_code": 0,
+  "HEAD_SHA": "2e15ad85430be4967138acaec82f51558337bbf7",
+  "base_SHA": "704975a7bcdd43d4dc6769fbf6c14726327ab37b",
+  "environment": "python3.12 + requirements.txt",
+  "result": {
+    "numpy": {
+      "class": "runtime_required",
+      "action": "declared numpy>=1.26.0"
+    },
+    "scikit-learn": {
+      "class": "runtime_required",
+      "action": "declared scikit-learn>=1.4.0"
+    },
+    "joblib": {
+      "class": "transitive_via_sklearn",
+      "action": "not pinned directly"
+    },
+    "scipy": {
+      "class": "transitive_via_sklearn",
+      "action": "not pinned directly"
+    },
+    "pandas": {
+      "class": "not_imported",
+      "action": "none"
+    },
+    "import_proof": "from scripts.predictive import metrics, models succeeds",
+    "no_silent_import_fallback": true
+  },
+  "limitations": [
+    "Host pip check may report unrelated streamlit/protobuf conflicts outside requirements.txt."
+  ],
+  "validated_code_tip": "2e15ad85430be4967138acaec82f51558337bbf7",
+  "evidence_docs_note": "docs-only evidence commits after code tip re-run full CI green"
+}

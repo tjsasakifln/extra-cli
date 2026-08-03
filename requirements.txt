@@ -38,3 +38,7 @@ prometheus_client>=0.20.0
 
 # Test / property-based (budget adversarial suite)
 hypothesis>=6.100.0
+
+# Predictive intelligence stack — canonical list: requirements-predictive.txt
+# Kept here so CI single-file install remains complete; train path uses lazy imports.
+-r requirements-predictive.txt

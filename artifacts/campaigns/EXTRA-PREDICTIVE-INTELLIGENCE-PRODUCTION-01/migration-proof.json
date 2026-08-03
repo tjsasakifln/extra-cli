@@ -1,0 +1,68 @@
+{
+  "command": "apply_migrations --mode fresh; apply --max 067 then upgrade (069)",
+  "started_at": "2026-08-03T02:49:00+00:00",
+  "finished_at": "2026-08-03T03:42:42.024592+00:00",
+  "exit_code": 0,
+  "HEAD_SHA": "2e15ad85430be4967138acaec82f51558337bbf7",
+  "base_SHA": "704975a7bcdd43d4dc6769fbf6c14726327ab37b",
+  "environment": "docker pgvector/pgvector:pg16 @ 127.0.0.1:5545",
+  "result": {
+    "fresh": {
+      "exit": 0,
+      "applied_includes": "069_predictive_intelligence.sql",
+      "db": "extra_full_suite"
+    },
+    "incremental": {
+      "base_max": 67,
+      "applied": "069",
+      "exit": 0,
+      "sentinel_preserved": true,
+      "predictive_tables": [
+        "predictive_claim_states",
+        "predictive_client_profile_versions",
+        "predictive_dataset_runs",
+        "predictive_drift_runs",
+        "predictive_model_artifacts",
+        "predictive_model_metrics",
+        "predictive_models",
+        "predictive_outcomes",
+        "predictive_prediction_explanations",
+        "predictive_predictions",
+        "predictive_training_examples"
+      ],
+      "score_update_blocked": true,
+      "idempotent_exit": 0
+    },
+    "collision": {
+      "branch_068_069_files": [
+        "069_predictive_intelligence.sql"
+      ],
+      "no_decision_memory_migration": true
+    },
+    "checksums": [
+      {
+        "file": "067_process_documents_runs.sql",
+        "sha256": "282519b49fde127c9b382c0100bda6ac13c1eee191f95037a431cd7df7f63973"
+      },
+      {
+        "file": "069_predictive_intelligence.sql",
+        "sha256": "07d80940fbe9615493bf07a900e4f491c75f72bc2d07ea82c4d7cacdb82ea544"
+      }
+    ]
+  },
+  "input_hashes": [
+    {
+      "file": "067_process_documents_runs.sql",
+      "sha256": "282519b49fde127c9b382c0100bda6ac13c1eee191f95037a431cd7df7f63973"
+    },
+    {
+      "file": "069_predictive_intelligence.sql",
+      "sha256": "07d80940fbe9615493bf07a900e4f491c75f72bc2d07ea82c4d7cacdb82ea544"
+    }
+  ],
+  "limitations": [
+    "Local non-pgvector PG cannot apply vector migrations; proof used pgvector container matching CI."
+  ],
+  "validated_code_tip": "2e15ad85430be4967138acaec82f51558337bbf7",
+  "evidence_docs_note": "docs-only evidence commits after code tip re-run full CI green"
+}
