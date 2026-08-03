@@ -673,6 +673,40 @@ def build_weekly_decision_artifacts(
     decision_path = out_dir / "decision_dataset.json"
     _atomic_json(decision_path, decision_dataset)
 
+    # Minimal Decision Memory weekly board section (derived from PG when DSN available).
+    # Never directory-scans run artifacts for memory facts.
+    decision_memory_board: dict[str, Any] | None = None
+    decision_memory_board_path: Path | None = None
+    try:
+        import os
+
+        dsn = os.getenv("LOCAL_DATALAKE_DSN")
+        if dsn:
+            from scripts.decision_memory.db import connect
+            from scripts.decision_memory.repository import DecisionMemoryRepository
+            from scripts.decision_memory.weekly_board import build_weekly_board
+
+            conn_dm = connect(dsn)
+            try:
+                repo_dm = DecisionMemoryRepository(conn_dm)
+                decision_memory_board = build_weekly_board(
+                    repo_dm,
+                    client_id="extra",
+                    cycle_id=cycle_id,
+                )
+                decision_memory_board_path = out_dir / "decision-memory-weekly-board.json"
+                _atomic_json(decision_memory_board_path, decision_memory_board)
+                decision_dataset["decision_memory_board"] = {
+                    "path": decision_memory_board_path.name,
+                    "counts": decision_memory_board.get("counts"),
+                    "source": "postgresql:dm_*",
+                }
+                _atomic_json(decision_path, decision_dataset)
+            finally:
+                conn_dm.close()
+    except Exception as dm_exc:  # noqa: BLE001 — non-fatal for pack generation
+        pack_meta.setdefault("warnings", []).append(f"decision_memory_board:{dm_exc}")
+
     qa = build_qa_report(
         cycle_id=cycle_id,
         as_of=as_of_s,
@@ -703,13 +737,16 @@ def build_weekly_decision_artifacts(
             pack_meta.setdefault("warnings", []).append(f"pdf_alias_copy:{copy_exc}")
 
     product_checksums: dict[str, Any] = {}
-    for label, pth in {
+    checksum_targets: dict[str, Path] = {
         "extra_decision_pack": xlsx_path,
         "extra_decision_report": pdf_path,
         "coverage_by_entity_source": cov_path,
         "decision_dataset": decision_path,
         "qa_report": qa_path,
-    }.items():
+    }
+    if decision_memory_board_path is not None:
+        checksum_targets["decision_memory_weekly_board"] = decision_memory_board_path
+    for label, pth in checksum_targets.items():
         if pth.is_file():
             product_checksums[label] = {
                 "path": pth.name,
@@ -730,6 +767,9 @@ def build_weekly_decision_artifacts(
         "coverage_csv": str(cov_path),
         "decision_dataset": str(decision_path),
         "qa_report": str(qa_path),
+        "decision_memory_board": str(decision_memory_board_path)
+        if decision_memory_board_path
+        else None,
         "qa_reliability": qa.get("reliability"),
         "terminal_state": pack_meta["terminal_state"],
         "product_checksums": product_checksums,

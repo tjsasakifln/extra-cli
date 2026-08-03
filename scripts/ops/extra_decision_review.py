@@ -11,6 +11,12 @@ CLI:
       --reason "..." --actor tiago
 
 Never auto-accepts. PASS_EXTRA_DECISION_LOOP_ACCEPTED only after explicit human finalize.
+
+Canonical persistence (Decision & Outcome Memory v1):
+  When LOCAL_DATALAKE_DSN (or --dsn) is available and --artifact-only is NOT set,
+  decisions are written to PostgreSQL first, then projected to human-decisions.jsonl.
+  DB failure is fail-closed (no terminal ACCEPT). Use --artifact-only for explicit
+  non-canonical local ledger mode (NON_CANONICAL_ARTIFACT_ONLY).
 """
 
 from __future__ import annotations
@@ -18,6 +24,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
@@ -31,6 +38,11 @@ STATE_NAME = "decision-loop-state.json"
 
 READY_FOR_HUMAN = "READY_FOR_HUMAN_ACCEPTANCE"
 PASS_ACCEPTED = "PASS_EXTRA_DECISION_LOOP_ACCEPTED"  # noqa: S105
+NON_CANONICAL_ARTIFACT_ONLY = "NON_CANONICAL_ARTIFACT_ONLY"
+CANONICAL_PERSISTED = "CANONICAL_PERSISTED"
+CANONICAL_PERSISTED_PROJECTION_PARTIAL = "CANONICAL_PERSISTED_PROJECTION_PARTIAL"
+PERSISTENCE_FAILED = "PERSISTENCE_FAILED"
+DEFAULT_CLIENT_ID = "extra"  # Extra adapter only; generic module never defaults
 
 
 def utc_now() -> str:
@@ -141,6 +153,135 @@ def append_decision(run_dir: Path, record: dict[str, Any]) -> Path:
     return path
 
 
+def _persist_canonical_decision(
+    *,
+    run_dir: Path,
+    record: dict[str, Any],
+    dsn: str,
+    client_id: str,
+    system_recommendation: str | None = None,
+) -> dict[str, Any]:
+    """Write decision to PostgreSQL then project JSONL. Fail-closed on DB errors."""
+    from scripts.decision_memory.db import connect
+    from scripts.decision_memory.mapping import map_legacy_decision, map_system_recommendation
+    from scripts.decision_memory.models import DecisionRecordInput, EventOrigin, TemporalIntegrity
+    from scripts.decision_memory.projection import (
+        append_projection,
+        write_partial_projection_failure,
+    )
+    from scripts.decision_memory.repository import DecisionMemoryRepository
+
+    human, legacy = map_legacy_decision(str(record["decision"]))
+    from scripts.decision_memory.idempotency import review_decision_idempotency_key
+
+    decided_at = datetime.fromisoformat(str(record["recorded_at"]).replace("Z", "+00:00"))
+    # Stable key excludes wall-clock so retries after PARTIAL projection (or any
+    # delay ≥1s) do not insert a second dm_decision_events row.
+    stable_key = review_decision_idempotency_key(
+        client_id=client_id,
+        opportunity_key=str(record["opportunity_id"]),
+        human_decision=human.value,
+        actor=str(record["actor"]),
+        justification=str(record["reason"]),
+        evidence_hash=record.get("evidence_hash"),
+        run_id=str(run_dir),
+        legacy_decision=legacy.value if legacy is not None else None,
+    )
+    inp = DecisionRecordInput(
+        client_id=client_id,
+        opportunity_key=str(record["opportunity_id"]),
+        actor=str(record["actor"]),
+        justification=str(record["reason"]),
+        human_decision=human,
+        legacy_decision=legacy,
+        system_recommendation=map_system_recommendation(system_recommendation),
+        cycle_id=record.get("cycle_id"),
+        run_id=str(run_dir),
+        decided_at=decided_at,
+        profile_id=record.get("profile_id"),
+        profile_version=str(record.get("profile_version") or "") or None,
+        profile_hash=record.get("profile_hash"),
+        evidence_hash=record.get("evidence_hash"),
+        evidence_locators=[str(run_dir)],
+        temporal_integrity=TemporalIntegrity.PROSPECTIVE,
+        origin=EventOrigin.REVIEW,
+        idempotency_key=stable_key,
+        payload={
+            "run_dir": str(run_dir),
+            "next_action": record.get("next_action"),
+            "next_action_due": record.get("next_action_due"),
+            "report_version": record.get("report_version"),
+            "legacy_schema": SCHEMA,
+        },
+    )
+    try:
+        conn = connect(dsn)
+    except Exception as exc:  # noqa: BLE001 — fail-closed surface
+        raise RuntimeError(f"{PERSISTENCE_FAILED}: database unavailable: {exc}") from exc
+    try:
+        repo = DecisionMemoryRepository(conn)
+        result = repo.record_decision(inp)
+        event = result.get("event") or {}
+        if not event:
+            raise RuntimeError(f"{PERSISTENCE_FAILED}: empty event after record")
+        # PG committed inside repository on create; duplicate also ok
+        try:
+            append_projection(run_dir, event)
+            persistence_status = CANONICAL_PERSISTED
+            projection_error = None
+        except OSError as exc:
+            write_partial_projection_failure(
+                run_dir,
+                event_id=str(event.get("event_id")),
+                client_id=client_id,
+                error=str(exc),
+                idempotency_key=str(event.get("idempotency_key") or ""),
+            )
+            persistence_status = CANONICAL_PERSISTED_PROJECTION_PARTIAL
+            projection_error = str(exc)
+        out = dict(record)
+        out["canonical_event_id"] = event.get("event_id")
+        out["idempotency_key"] = event.get("idempotency_key")
+        out["canonical_decision"] = event.get("human_decision")
+        out["persistence"] = persistence_status
+        out["persistence_created"] = bool(result.get("created"))
+        if projection_error:
+            out["projection_error"] = projection_error
+        return out
+    except RuntimeError:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        try:
+            conn.rollback()
+        except Exception as rollback_exc:  # noqa: BLE001
+            # Best-effort rollback; original persistence error is re-raised.
+            sys.stderr.write(
+                json.dumps(
+                    {
+                        "ok": False,
+                        "warning": "rollback_failed",
+                        "error": str(rollback_exc),
+                    }
+                )
+                + "\n"
+            )
+        raise RuntimeError(f"{PERSISTENCE_FAILED}: {exc}") from exc
+    finally:
+        try:
+            conn.close()
+        except Exception as close_exc:  # noqa: BLE001
+            sys.stderr.write(
+                json.dumps(
+                    {
+                        "ok": False,
+                        "warning": "connection_close_failed",
+                        "error": str(close_exc),
+                    }
+                )
+                + "\n"
+            )
+
+
 def decide(
     run_dir: Path,
     *,
@@ -150,6 +291,9 @@ def decide(
     actor: str,
     next_action: str | None = None,
     next_action_due: str | None = None,
+    artifact_only: bool = False,
+    dsn: str | None = None,
+    client_id: str = DEFAULT_CLIENT_ID,
 ) -> dict[str, Any]:
     decision_u = decision.strip().upper()
     if decision_u not in DECISIONS:
@@ -187,8 +331,38 @@ def decide(
         "evidence_hash": bundle.get("_hash"),
         "run_dir": str(run_dir),
     }
-    append_decision(run_dir, record)
-    return record
+
+    # Resolve system recommendation from shortlist row when present
+    system_rec = None
+    for s in shortlist:
+        oid = str(s.get("opportunity_id") or s.get("numero_controle") or "")
+        if oid == opportunity_id:
+            system_rec = s.get("state") or s.get("recommendation")
+            break
+
+    target_dsn = dsn or os.getenv("LOCAL_DATALAKE_DSN")
+    if artifact_only:
+        # Explicit non-canonical path only — never a silent fallback for missing DSN.
+        append_decision(run_dir, record)
+        record["persistence"] = NON_CANONICAL_ARTIFACT_ONLY
+        record["persistence_note"] = (
+            "Explicit --artifact-only; not equivalent to canonical PASS path"
+        )
+        return record
+    if not target_dsn:
+        raise RuntimeError(
+            f"{PERSISTENCE_FAILED}: LOCAL_DATALAKE_DSN/--dsn required for canonical "
+            "persistence; pass --artifact-only for explicit non-canonical JSONL only"
+        )
+
+    # Canonical path: PG first, then projection
+    return _persist_canonical_decision(
+        run_dir=run_dir,
+        record=record,
+        dsn=target_dsn,
+        client_id=client_id,
+        system_recommendation=str(system_rec) if system_rec is not None else None,
+    )
 
 
 def accept_empty(
@@ -196,6 +370,9 @@ def accept_empty(
     *,
     reason: str,
     actor: str,
+    artifact_only: bool = False,
+    dsn: str | None = None,
+    client_id: str = DEFAULT_CLIENT_ID,
 ) -> dict[str, Any]:
     """Accept that there is no actionable tender — not a fake tender decision."""
     bundle = load_shortlist_bundle(run_dir)
@@ -208,6 +385,9 @@ def accept_empty(
         reason=reason,
         actor=actor,
         next_action="Aumentar cobertura / completar perfil e reexecutar weekly",
+        artifact_only=artifact_only,
+        dsn=dsn,
+        client_id=client_id,
     )
 
 
@@ -241,9 +421,7 @@ def finalize(
             raise ValueError(f"Missing decisions for: {missing}")
     else:
         if "NO_ACTIONABLE_TENDER" not in decided_ids:
-            raise ValueError(
-                "Empty shortlist requires accept-empty (decision on NO_ACTIONABLE_TENDER)"
-            )
+            raise ValueError("Empty shortlist requires accept-empty (decision on NO_ACTIONABLE_TENDER)")
 
     pkg = (package_decision or "").strip().upper() or None
     if pkg is not None and pkg not in PACKAGE_DECISIONS:
@@ -278,6 +456,21 @@ def finalize(
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Extra decision human review CLI")
     parser.add_argument("--run-dir", required=True, help="Directory of decision-loop run artifacts")
+    parser.add_argument(
+        "--dsn",
+        default=None,
+        help="PostgreSQL DSN for canonical memory (default LOCAL_DATALAKE_DSN)",
+    )
+    parser.add_argument(
+        "--client-id",
+        default=DEFAULT_CLIENT_ID,
+        help="Client scope for canonical memory (Extra adapter default: extra)",
+    )
+    parser.add_argument(
+        "--artifact-only",
+        action="store_true",
+        help="Force non-canonical JSONL-only mode (NON_CANONICAL_ARTIFACT_ONLY)",
+    )
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     sub.add_parser("list", help="List shortlist / empty result")
@@ -318,11 +511,21 @@ def main(argv: list[str] | None = None) -> int:
                 actor=args.actor,
                 next_action=args.next_action,
                 next_action_due=args.next_action_due,
+                artifact_only=bool(args.artifact_only),
+                dsn=args.dsn,
+                client_id=args.client_id,
             )
             print(json.dumps(rec, indent=2, ensure_ascii=False))
             return 0
         if args.cmd == "accept-empty":
-            rec = accept_empty(run_dir, reason=args.reason, actor=args.actor)
+            rec = accept_empty(
+                run_dir,
+                reason=args.reason,
+                actor=args.actor,
+                artifact_only=bool(args.artifact_only),
+                dsn=args.dsn,
+                client_id=args.client_id,
+            )
             print(json.dumps(rec, indent=2, ensure_ascii=False))
             return 0
         if args.cmd == "finalize":
@@ -334,6 +537,10 @@ def main(argv: list[str] | None = None) -> int:
             )
             print(json.dumps(st, indent=2, ensure_ascii=False))
             return 0
+    except RuntimeError as exc:
+        # Persistence fail-closed — never emit terminal ACCEPT path
+        print(json.dumps({"ok": False, "error": str(exc), "status": PERSISTENCE_FAILED}), file=sys.stderr)
+        return 3
     except (OSError, ValueError) as exc:
         print(json.dumps({"ok": False, "error": str(exc)}), file=sys.stderr)
         return 2

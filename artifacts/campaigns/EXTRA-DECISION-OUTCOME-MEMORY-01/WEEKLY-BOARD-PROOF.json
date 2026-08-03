@@ -1,0 +1,14 @@
+{
+  "ok": true,
+  "source": "postgresql:dm_*",
+  "counts": {
+    "pending_decisions": 0,
+    "actions_overdue": 1,
+    "actions_due_soon": 0,
+    "recurring": 0,
+    "new_outcomes": 1,
+    "divergences": 1,
+    "deliberation_items": 2
+  },
+  "derived_from": "postgresql dm_* only"
+}

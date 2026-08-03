@@ -41,6 +41,13 @@ def _mock_psycopg2_connect(request):
         "yes",
     }
 
+    # Decision & Outcome Memory v1: persistence proofs require real PostgreSQL
+    # (campaign EXTRA-DECISION-OUTCOME-MEMORY-01). Never mock this suite.
+    fspath = str(getattr(request.node, "fspath", "") or getattr(request.node, "path", ""))
+    if "decision_memory" in fspath.replace("\\", "/").split("/"):
+        yield
+        return
+
     # Real database access is opt-in. Several legacy integration tests mutate
     # shared local tables, so a marker alone must never disable isolation.
     if request.node.get_closest_marker("integration") is not None and require_real:

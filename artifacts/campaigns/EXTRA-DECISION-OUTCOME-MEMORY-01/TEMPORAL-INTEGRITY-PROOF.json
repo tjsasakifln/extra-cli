@@ -1,0 +1,15 @@
+{
+  "ok": true,
+  "states": [
+    "PROSPECTIVE",
+    "HISTORICAL_UNVERIFIED",
+    "OUTCOME_WITHOUT_PRIOR_DECISION",
+    "TEMPORAL_ORDER_UNKNOWN"
+  ],
+  "tests": [
+    "test_temporal_integrity",
+    "test_outcome_unknown_not_loss_and_temporal",
+    "import marks HISTORICAL_UNVERIFIED"
+  ],
+  "sample_outcome_temporal": "PROSPECTIVE"
+}
