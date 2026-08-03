@@ -1,0 +1,128 @@
+=== START DEPLOY 20260803T133306Z target=40bc3704d35adff8ad0b6adacf00038334d74f5b ===
+BACKUP=/opt/extra-consultoria/backups/pre-closeout-20260803T133306Z
+total 54332
+drwxr-xr-x 2 root              root                  4096 Aug  3 10:33 .
+drwxr-xr-x 4 extra-consultoria extra-consultoria     4096 Aug  3 10:33 ..
+-rw------- 1 extra-consultoria extra-consultoria     7158 Aug  2 10:12 .env
+-rw-r--r-- 1 root              root                  2220 Aug  3 10:33 migrations-list-before.txt
+-rw-r--r-- 1 root              root              55611209 Aug  3 10:33 tree-slim.tar.gz
+Cloning into '/opt/extra-consultoria-staging-20260803T133306Z'...
+Note: switching to '40bc3704d35adff8ad0b6adacf00038334d74f5b'.
+
+You are in 'detached HEAD' state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by switching back to a branch.
+
+If you want to create a new branch to retain commits you create, you may
+do so (now or later) by using -c with the switch command. Example:
+
+  git switch -c <new-branch-name>
+
+Or undo this operation with:
+
+  git switch -
+
+Turn off this advice by setting config variable advice.detachedHead to false
+
+HEAD is now at 40bc3704 feat(predictive): genuine predictive intelligence with honest claim gates (#197)
+STAGING_SHA=40bc3704d35adff8ad0b6adacf00038334d74f5b
+POST_SWAP_SHA=40bc3704d35adff8ad0b6adacf00038334d74f5b
+
+[notice] A new release of pip is available: 26.1.2 -> 26.2
+[notice] To update, run: /opt/extra-consultoria/.venv/bin/python -m pip install --upgrade pip
+=== applying migrations (upgrade) ===
+skip 001_pncp_raw_bids.sql (ledger)
+skip 002_pncp_supplier_contracts.sql (ledger)
+skip 003_enriched_entities.sql (ledger)
+skip 004_ingestion_tables.sql (ledger)
+skip 005_search_datalake_rpc.sql (ledger)
+skip 006_upsert_rpcs.sql (ledger)
+skip 007_sc_public_entities.sql (ledger)
+skip 008_purge_rpc.sql (ledger)
+skip 009_indexes_and_coverage.sql (ledger)
+skip 010_match_logging.sql (ledger)
+skip 011_unmatched_bids_view.sql (ledger)
+skip 012_coverage_snapshots.sql (ledger)
+skip 013_td-1.1_gin_index_objeto_contrato.sql (ledger)
+skip 014_td-1.1_fix_hnsw_expression.sql (ledger)
+skip 015_td-2.3_enriched_entities_ttl.sql (ledger)
+skip 016_td-2.3_objeto_compra_gin.sql (ledger)
+skip 017_td-2.3_matched_entity_id_index.sql (ledger)
+skip 018-td-5.3_esfera_id_check.sql (ledger)
+skip 019-td-5.3_soft_delete_purge_docs.sql (ledger)
+skip 020_td-2.4_sync_local_schema.sql (ledger)
+skip 021a_entity_coverage_rebuild.sql (ledger)
+skip 021b_entity_hierarchy.sql (ledger)
+skip 021c_sc_dados_abertos_municipio.sql (ledger)
+skip 021d_views_functions.sql (ledger)
+skip 022_match_method_coverage.sql (ledger)
+skip 023_pncp_engineering_pipeline.sql (ledger)
+skip 024_coverage_evidence_ledger.sql (ledger)
+skip 025a_contract_intel_views.sql (ledger)
+skip 025b_coverage_evidence_null_uniqueness.sql (ledger)
+skip 026_contract_intel_truth_v1.sql (ledger)
+skip 027_opportunity_intel.sql (ledger)
+skip 028_opportunity_indexes.sql (ledger)
+skip 029_qw01_auditable_radar.sql (ledger)
+skip 030_schema_contract_and_canonical_views.sql (ledger)
+skip 031_source_snapshot_reconciliation.sql (ledger)
+skip 032_capability_coverage.sql (ledger)
+skip 033_contract_versioning.sql (ledger)
+skip 034_supplier_identity.sql (ledger)
+skip 035_value_observations.sql (ledger)
+skip 036_reporting_views.sql (ledger)
+skip 037_target_universe_snapshot.sql (ledger)
+skip 038_target_universe_active_view.sql (ledger)
+skip 039_source_snapshot_tracking.sql (ledger)
+skip 040_coverage_model_expansion.sql (ledger)
+skip 041a_fix_fk_constraints.sql (ledger)
+skip 041b_fix_snapshot_membership.sql (ledger)
+skip 042_validate_fk_constraints.sql (ledger)
+skip 043_entity_aliases.sql (ledger)
+skip 044_fix_upsert_dedup.sql (ledger)
+skip 045_dlq_entries.sql (ledger)
+skip 046_pipeline_watermarks.sql (ledger)
+skip 047_pipeline_runs.sql (ledger)
+skip 048_record_hashes.sql (ledger)
+skip 049_pncp_resumable_backfill.sql (ledger)
+skip 050_fix_contracts_upsert_fk.sql (ledger)
+skip 051_contract_date_semantics.sql (ledger)
+skip 052_official_acts.sql (ledger)
+skip 053_entity_source_registry.sql (ledger)
+skip 054_local_resilience_contract.sql (ledger)
+skip 055_drop_orgao_entity_fk_national_pncp.sql (ledger)
+skip 056_drop_supplier_entity_fk_contracts.sql (ledger)
+skip 057_fix_upsert_opportunity_content_hash.sql (ledger)
+skip 058_dual_capability_coverage_views.sql (ledger)
+skip 059_coverage_evidence_canonical_entity_unique.sql (ledger)
+skip 060_national_contracts_intelligence_layers.sql (ledger)
+skip 061_canonical_entity_linkage.sql (ledger)
+skip 062_commercial_leads_ledger.sql (ledger)
+skip 063_supplier_registry.sql (ledger)
+skip 064_snapshot_write_guard.sql (ledger)
+skip 066_upsert_qw01_nullif_empty_process.sql (ledger)
+skip 067_process_documents_runs.sql (ledger)
+applied 068_decision_outcome_memory.sql
+applied 069_predictive_intelligence.sql
+migrations_ok mode=upgrade applied=2 skipped=71 repaired=0
+MIG_EXIT=0
+LEDGER [('067', '067_process_documents_runs.sql'), ('068', '068_decision_outcome_memory.sql'), ('069', '069_predictive_intelligence.sql')]
+TABLES ('dm_outcome_events', 'predictive_outcomes')
+COLS [('dm_outcome_event_id',), ('link_status',)]
+=== predictive timers ===
+not-found
+inactive
+ls: cannot access '/etc/systemd/system/extra-predictive*': No such file or directory
+no predictive units installed (OK for shadow-hold)
+=== smoke health_check ===
+{"timestamp": "2026-08-03T13:33:29.275362+00:00", "level": "INFO", "module": "__main__", "correlation_id": "7efe1658cad5", "message": "Health check started", "extra_data": {"host": "v2202607385716487230"}}
+{"timestamp": "2026-08-03T13:33:29.656611+00:00", "level": "ERROR", "module": "__main__", "correlation_id": "7efe1658cad5", "message": "Health check completed: exit_code=2", "extra_data": {"report": {"event": "health_check", "timestamp": "2026-08-03T13:33:29.275277+00:00", "host": "v2202607385716487230", "exit_code": 2, "results": {"db": {"status": "fail", "message": "LOCAL_DATALAKE_DSN/DATABASE_URL unset — load EnvironmentFile or export DSN (systemd unit must include EnvironmentFile=/opt/extra-consultoria/.env)"}, "storage_box": {"status": "pass", "message": "Storage Box OK (1 entries)"}, "disk": {"status": "pass", "message": "Disk: 36.5G / 502.7G (7%) — 445.7G free"}, "system": {"status": "pass", "message": "Load: 0.3 0.1 0.0 | Mem: 33% used (10649M avail / 15996M total)"}, "failed_units": {"status": "fail", "message": "critical failed units: 3 (extra-crawl-pncp.service                    loaded failed failed Extra Consultor)"}, "critical_timers": {"status": "pass", "message": "critical timers OK (5)"}, "dual_coverage": {"status": "fail", "message": "dual coverage summary missing"}}}}}
+{"event": "health_check", "timestamp": "2026-08-03T13:33:29.275277+00:00", "host": "v2202607385716487230", "exit_code": 2, "results": {"db": {"status": "fail", "message": "LOCAL_DATALAKE_DSN/DATABASE_URL unset \u2014 load EnvironmentFile or export DSN (systemd unit must include EnvironmentFile=/opt/extra-consultoria/.env)"}, "storage_box": {"status": "pass", "message": "Storage Box OK (1 entries)"}, "disk": {"status": "pass", "message": "Disk: 36.5G / 502.7G (7%) \u2014 445.7G free"}, "system": {"status": "pass", "message": "Load: 0.3 0.1 0.0 | Mem: 33% used (10649M avail / 15996M total)"}, "failed_units": {"status": "fail", "message": "critical failed units: 3 (extra-crawl-pncp.service                    loaded failed failed Extra Consultor)"}, "critical_timers": {"status": "pass", "message": "critical timers OK (5)"}, "dual_coverage": {"status": "fail", "message": "dual coverage summary missing"}}}
+SMOKE_EXIT=2
+imports_ok
+IMPORT_EXIT=0
+deployed_sha=40bc3704d35adff8ad0b6adacf00038334d74f5b
+git_sha=40bc3704d35adff8ad0b6adacf00038334d74f5b
+final_main_sha=40bc3704d35adff8ad0b6adacf00038334d74f5b
+SHA_EQUALITY=PASS
+=== DEPLOY COMPLETE ===
