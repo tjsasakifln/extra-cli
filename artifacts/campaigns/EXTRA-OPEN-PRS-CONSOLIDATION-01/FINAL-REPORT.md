@@ -127,3 +127,10 @@ artifacts/campaigns/EXTRA-OPEN-PRS-CONSOLIDATION-01/
 ```text
 PASS_CONSOLIDATION_CLOSED_AND_DEPLOYED
 ```
+
+## 12. Closeout chore PR
+
+Justified open PR for versioned evidence only:
+
+- https://github.com/tjsasakifln/extra-cli/pull/199 (`chore/consolidation-closeout`)
+- Contains only `artifacts/campaigns/EXTRA-OPEN-PRS-CONSOLIDATION-01/**` documentation/evidence
