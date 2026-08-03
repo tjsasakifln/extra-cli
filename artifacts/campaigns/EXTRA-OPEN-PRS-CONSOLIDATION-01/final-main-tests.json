@@ -98,7 +98,7 @@
     },
     "policy": "NOT re-run 4.4M; integrity of canonical package verified via reproducible listing hash",
     "index": "pr196-packages-index.json",
-    "note": "Prior non-reproducible custom concat hash a4794f3d\u2026 was removed; canonical is 3ad25153\u2026"
+    "note": "Canonical integrity hash is the reproducible sha256sum listing pipeline (see manifest_algorithm and pr196-canonical-manifest-hash.txt / pr196-hash-reverify.txt)."
   },
   "all_required_tests_passed": true,
   "pass_gate_excludes": [
