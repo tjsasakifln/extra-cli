@@ -31,5 +31,14 @@
     "vps_state_proven": true,
     "no_new_features": true,
     "no_unjustified_open_prs": true
-  }
+  },
+  "justified_open_prs": [
+    {
+      "number": 199,
+      "title": "docs(campaign): consolidation closeout pack (#196/#198/#197)",
+      "url": "https://github.com/tjsasakifln/extra-cli/pull/199",
+      "justification": "Single minimal chore PR carrying documentation/evidence closeout pack only; no product code"
+    }
+  ],
+  "open_prs_note": "Product PRs #196/#197/#198 closed; only justified chore/consolidation-closeout #199 open for evidence landing"
 }
