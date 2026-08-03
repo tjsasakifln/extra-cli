@@ -1,0 +1,61 @@
+{
+  "schema": "production-readiness.vps-full-cycle.v1",
+  "captured_at": "2026-08-02T11:57:32.095797+00:00",
+  "session_start": "2026-08-01T22:08:00+00:00",
+  "command": "incremental --single-source drain until lag_cleared (CIGA-first + state repair + last-entity clear)",
+  "code_sha_vps": "8490b7150c198fd825415116cbabd4989d3f8bf6",
+  "universe": {
+    "active_entities": 407,
+    "queue_entities": 407,
+    "success_with_last_success_at": 407
+  },
+  "queue_summary": {
+    "eligible_count": 407,
+    "overdue_count": 0,
+    "never_succeeded_count": 0,
+    "within_sla_count": 407,
+    "sla_hours": 24,
+    "lag_cleared": true,
+    "generated_at": "2026-08-02T11:57:32.134785+00:00"
+  },
+  "session": {
+    "runs": 636,
+    "status_histogram": {
+      "connection_failed": 196,
+      "SUCCESS_NONZERO": 340,
+      "SUCCESS_ZERO": 89,
+      "auth_required": 7,
+      "partial": 2,
+      "pagination_incomplete": 2
+    },
+    "documents_downloaded": 332,
+    "runs_by_source": {
+      "pncp": 265,
+      "html": 64,
+      "ciga": 307
+    },
+    "downloads_by_source": {
+      "ciga": 4,
+      "pncp": 327,
+      "html": 1
+    }
+  },
+  "raw_cas": {
+    "files_since_session": 333,
+    "bytes_since_session": 382446272
+  },
+  "honest_claims": {
+    "lag_cleared": true,
+    "full_universe_drain": true,
+    "real_downloads": true,
+    "not_mark_all_success": true,
+    "state_repair_applied": true,
+    "state_repair_doc": "/var/lib/extra-consultoria/output/process_documents/production-readiness-evidence/queue-state-repair.json",
+    "last_entity_clear_doc": "/var/lib/extra-consultoria/output/process_documents/production-readiness-evidence/last-entity-clear.json"
+  },
+  "reused_from_pack": "20260802T121230Z",
+  "current_head": "8490b7150c198fd825415116cbabd4989d3f8bf6",
+  "note": "Scale/queue proofs from prior HEAD 610442b5; product code for those paths unchanged on tip except deploy SHA recording",
+  "code_sha_local_at_pack": "8490b7150c198fd825415116cbabd4989d3f8bf6",
+  "deploy_verified_at": "2026-08-02T13:08:54.290037+00:00"
+}

@@ -1,0 +1,28 @@
+{
+  "code_sha": "6da6299f967599cc8890777d605b6c5ad2e66047",
+  "command": "npx playwright test e2e/consulting-production.spec.ts",
+  "cwd": "apps/command-center",
+  "flows_covered": [
+    "1-2 workspace/home+upload",
+    "3 edital-or-process workflow",
+    "4 budget-or-supplier workflow",
+    "5 technical acervo",
+    "6-8 bid/human review/PDF/Excel",
+    "9 param validation",
+    "10-11 cancel+reprocess",
+    "12 isolation two jobs",
+    "13 REAL fail-closed",
+    "14 FIXTURE labeled",
+    "15 path traversal",
+    "16 malicious param"
+  ],
+  "log_tail": "ed REAL) (2.6s)\n  ✓   3 e2e/consulting-production.spec.ts:150:3 › production readiness consulting E2E (16 flows) › 4: budget audit workflow (2.4s)\n  ✓   4 e2e/consulting-production.spec.ts:168:3 › production readiness consulting E2E (16 flows) › 5: technical acervo consult (569ms)\n  ✓   5 e2e/consulting-production.spec.ts:196:3 › production readiness consulting E2E (16 flows) › 6-8: bid readiness + human review surface + PDF/Excel when produced (2.6s)\n  ✓   6 e2e/consulting-production.spec.ts:228:3 › production readiness consulting E2E (16 flows) › 9: parameter validation error is actionable (17ms)\n  ✓   7 e2e/consulting-production.spec.ts:243:3 › production readiness consulting E2E (16 flows) › 10-11: cancel and reprocess (12ms)\n  ✓   8 e2e/consulting-production.spec.ts:262:3 › production readiness consulting E2E (16 flows) › 12: isolation — two jobs do not share ids (44ms)\n  ✓   9 e2e/consulting-production.spec.ts:285:3 › production readiness consulting E2E (16 flows) › 13: REAL without valid credential/source fails closed (29ms)\n  ✓  10 e2e/consulting-production.spec.ts:323:3 › production readiness consulting E2E (16 flows) › 14: FIXTURE explicitly selected and labeled (209ms)\n  ✓  11 e2e/consulting-production.spec.ts:338:3 › production readiness consulting E2E (16 flows) › 15: path traversal rejected (100ms)\n  ✓  12 e2e/consulting-production.spec.ts:356:3 › production readiness consulting E2E (16 flows) › 16: malicious parameter treated as data (11ms)\n\n  12 passed (2.5m)\n",
+  "result": "PASS",
+  "spec": "apps/command-center/e2e/consulting-production.spec.ts",
+  "stats": {
+    "failed": 0,
+    "passed": 12
+  },
+  "timestamp": "2026-08-01T21:23:58.174676+00:00",
+  "workbench_also_green": "e2e/workbench.spec.ts 13 passed in prior run"
+}

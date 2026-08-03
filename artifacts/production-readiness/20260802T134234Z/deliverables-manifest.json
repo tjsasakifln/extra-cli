@@ -1,0 +1,29 @@
+{
+  "code_sha": "527672455481f2a65ef8d0b97d996bfb04ba1033",
+  "pack": "20260802T134234Z",
+  "artifacts": [
+    "alerts-test.json",
+    "backup.json",
+    "baseline.json",
+    "environment.json",
+    "full-scale-benchmark.json",
+    "full-scale-manifest.json",
+    "inc-tip-1.json",
+    "inc-tip-2.json",
+    "playwright.json",
+    "queue-cycle.json",
+    "real-case-analysis.json",
+    "restore-drill.json",
+    "security.json",
+    "sinapi-sicro-comparison.json",
+    "source-coverage.json",
+    "source-failure-alert.json",
+    "vps-deploy.json",
+    "vps-full-cycle.json",
+    "vps-incremental-cycles.json",
+    "vps-queue-after-inc.json",
+    "vps-queue-tip.json",
+    "vps-smoke.json"
+  ],
+  "timestamp": "2026-08-02T14:00:07.860257+00:00"
+}

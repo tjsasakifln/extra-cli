@@ -1,0 +1,28 @@
+{
+  "code_sha": "610442b5f2607ca0901fc96a8bc84a2e5bb1e4e5",
+  "command": "npx playwright test e2e/consulting-production.spec.ts",
+  "cwd": "apps/command-center",
+  "flows_covered": [
+    "1-2 workspace/home+upload",
+    "3 edital-or-process workflow",
+    "4 budget-or-supplier workflow",
+    "5 technical acervo",
+    "6-8 bid/human review/PDF/Excel",
+    "9 param validation",
+    "10-11 cancel+reprocess",
+    "12 isolation two jobs",
+    "13 REAL fail-closed",
+    "14 FIXTURE labeled",
+    "15 path traversal",
+    "16 malicious param"
+  ],
+  "log_tail": "[WebServer] INFO:     Started server process [22928]\n[WebServer] INFO:     Waiting for application startup.\n[WebServer] INFO:     Application startup complete.\n\nRunning 12 tests using 1 worker\n\n  ✓   1 e2e/consulting-production.spec.ts:93:3 › production readiness consulting E2E (16 flows) › 1-2: workspace/home + document upload surface (746ms)\n  ✓   2 e2e/consulting-production.spec.ts:125:3 › production readiness consulting E2E (16 flows) › 3: edital case workflow start (FIXTURE or blocked REAL) (324ms)\n  ✓   3 e2e/consulting-production.spec.ts:150:3 › production readiness consulting E2E (16 flows) › 4: budget audit workflow (215ms)\n  ✓   4 e2e/consulting-production.spec.ts:168:3 › production readiness consulting E2E (16 flows) › 5: technical acervo consult (478ms)\n  ✓   5 e2e/consulting-production.spec.ts:196:3 › production readiness consulting E2E (16 flows) › 6-8: bid readiness + human review surface + PDF/Excel when produced (2.3s)\n  ✓   6 e2e/consulting-production.spec.ts:228:3 › production readiness consulting E2E (16 flows) › 9: parameter validation error is actionable (10ms)\n  ✓   7 e2e/consulting-production.spec.ts:243:3 › production readiness consulting E2E (16 flows) › 10-11: cancel and reprocess (9ms)\n  ✓   8 e2e/consulting-production.spec.ts:262:3 › production readiness consulting E2E (16 flows) › 12: isolation — two jobs do not share ids (34ms)\n  ✓   9 e2e/consulting-production.spec.ts:285:3 › production readiness consulting E2E (16 flows) › 13: REAL without valid credential/source fails closed (27ms)\n  ✓  10 e2e/consulting-production.spec.ts:323:3 › production readiness consulting E2E (16 flows) › 14: FIXTURE explicitly selected and labeled (184ms)\n  ✓  11 e2e/consulting-production.spec.ts:338:3 › production readiness consulting E2E (16 flows) › 15: path traversal rejected (92ms)\n  ✓  12 e2e/consulting-production.spec.ts:356:3 › production readiness consulting E2E (16 flows) › 16: malicious parameter treated as data (9ms)\n\n  12 passed (2.4m)\n",
+  "reproof_on_head": "610442b5f2607ca0901fc96a8bc84a2e5bb1e4e5",
+  "result": "PASS",
+  "spec": "apps/command-center/e2e/consulting-production.spec.ts",
+  "stats": {
+    "failed": 0,
+    "passed": 12
+  },
+  "timestamp": "2026-08-02T12:15:48.464519+00:00"
+}

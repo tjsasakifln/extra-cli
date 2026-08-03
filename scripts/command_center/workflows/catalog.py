@@ -305,6 +305,180 @@ WORKFLOWS: dict[str, WorkflowDef] = {
         supports_fixture=False,
         limitations=["Decisões não disparam outreach nem autoaceite de DOD."],
     ),
+    "workflow.edital_case": WorkflowDef(
+        id="workflow.edital_case",
+        title="Análise técnica de edital",
+        subtitle="Documento → exigências → análise → evidência",
+        client_id="consulting-edital",
+        client_label="Consultoria · Edital",
+        outcome="Case pack de triagem técnica com findings e evidências",
+        description=(
+            "Ingere documentos do edital, extrai exigências e produz análise técnica "
+            "citável — sem parecer jurídico automático."
+        ),
+        steps=[
+            "Informar case_id e pasta de origem",
+            "Ingerir documentos",
+            "Analisar exigências",
+            "Gerar relatórios",
+            "Revisão humana",
+        ],
+        expected_deliverables=["Relatório de análise", "Findings JSON", "run-manifest.json"],
+        params=[
+            WorkflowParam("case_id", "ID do caso", default="cc-edital-case"),
+            WorkflowParam(
+                "source",
+                "Arquivo/pasta de documentos (REAL) ou fixture",
+                default="tests/edital_case/fixtures/sample_edital.pdf",
+            ),
+            WorkflowParam(
+                "data_mode",
+                "Modo de execução",
+                type="select",
+                default="FIXTURE",
+                choices=["REAL", "FIXTURE"],
+            ),
+            WorkflowParam(
+                "use_fixture",
+                "Atalho: dados de demonstração",
+                type="bool",
+                default=True,
+                advanced=True,
+            ),
+        ],
+        limitations=[
+            "Não é parecer jurídico.",
+            "REAL exige fonte de documentos válida; sem fallback silencioso.",
+            "FIXTURE é demonstração e deve aparecer como tal.",
+        ],
+    ),
+    "workflow.budget_audit": WorkflowDef(
+        id="workflow.budget_audit",
+        title="Auditoria de orçamento e planilha",
+        subtitle="Planilha → aritmética/BDI → divergências com referência",
+        client_id="consulting-budget",
+        client_label="Consultoria · Orçamento",
+        outcome="Findings de orçamento com locators e trilha de evidência",
+        description=(
+            "Importa planilha de orçamento, valida totais/unidades/BDI e compara "
+            "com referência oficial quando disponível."
+        ),
+        steps=[
+            "Informar planilha",
+            "Normalizar itens",
+            "Auditar aritmética e BDI",
+            "Comparar referências",
+            "Gerar relatório",
+        ],
+        expected_deliverables=["Findings JSON", "Relatório PDF/XLSX", "run-manifest.json"],
+        params=[
+            WorkflowParam("case_id", "ID do caso", default="cc-budget-audit"),
+            WorkflowParam(
+                "source",
+                "Arquivo de orçamento",
+                default="tests/budget_audit/fixtures/operational_public_style_budget.xlsx",
+            ),
+            WorkflowParam(
+                "data_mode",
+                "Modo de execução",
+                type="select",
+                default="FIXTURE",
+                choices=["REAL", "FIXTURE"],
+            ),
+            WorkflowParam(
+                "use_fixture",
+                "Atalho: dados de demonstração",
+                type="bool",
+                default=True,
+                advanced=True,
+            ),
+        ],
+        limitations=[
+            "Comparação SINAPI/SICRO oficial exige dataset com proveniência.",
+            "Findings não fecham GO comercial sozinhos.",
+        ],
+    ),
+    "workflow.technical_acervo": WorkflowDef(
+        id="workflow.technical_acervo",
+        title="Consulta ao acervo técnico",
+        subtitle="Exigência × acervo canônico da Extra",
+        client_id="consulting-acervo",
+        client_label="Consultoria · Acervo",
+        outcome="Match de serviços/quantidades com scores e revisão humana",
+        description=(
+            "Consulta a fonte canônica data/extra_technical_acervo.json e retorna "
+            "matches com confiança — sem habilitar submissão."
+        ),
+        steps=["Informar serviço/quantidade", "Consultar acervo", "Revisar matches"],
+        expected_deliverables=["technical_acervo_result.json", "run-manifest.json"],
+        params=[
+            WorkflowParam("service", "Serviço / descrição", default="alvenaria", required=True),
+            WorkflowParam("qty", "Quantidade", type="int", default=100),
+            WorkflowParam("unit", "Unidade", default="m2"),
+            WorkflowParam(
+                "data_mode",
+                "Modo de execução",
+                type="select",
+                default="FIXTURE",
+                choices=["REAL", "FIXTURE"],
+            ),
+        ],
+        limitations=[
+            "Fonte canônica única: data/extra_technical_acervo.json.",
+            "Match não autoriza submissão nem READY_TO_SUBMIT.",
+        ],
+    ),
+    "workflow.bid_readiness": WorkflowDef(
+        id="workflow.bid_readiness",
+        title="Bid readiness / prontidão de proposta",
+        subtitle="Exigências × documentos × acervo → revisão humana",
+        client_id="consulting-bid",
+        client_label="Consultoria · Bid readiness",
+        outcome="Package de prontidão com blockers e revisão humana obrigatória",
+        description=(
+            "Monta matriz exigência×documento, cruza acervo e produz package "
+            "READY_FOR_HUMAN_REVIEW ou BLOCKED_* — nunca READY_TO_SUBMIT automático."
+        ),
+        steps=[
+            "Informar requirements e documentos",
+            "Classificar e casar evidências",
+            "Cruzar acervo técnico",
+            "Montar package",
+            "Revisão humana",
+        ],
+        expected_deliverables=["Package JSON", "Relatórios", "run-manifest.json"],
+        params=[
+            WorkflowParam("case_id", "ID do caso", default="cc-bid-readiness"),
+            WorkflowParam(
+                "requirements",
+                "Arquivo de requisitos",
+                default="scripts/bid_readiness/fixtures/golden/requirements.json",
+            ),
+            WorkflowParam(
+                "documents",
+                "Pasta de documentos",
+                default="scripts/bid_readiness/fixtures/golden/documents",
+            ),
+            WorkflowParam(
+                "data_mode",
+                "Modo de execução",
+                type="select",
+                default="FIXTURE",
+                choices=["REAL", "FIXTURE"],
+            ),
+            WorkflowParam(
+                "use_fixture",
+                "Atalho: dados de demonstração",
+                type="bool",
+                default=True,
+                advanced=True,
+            ),
+        ],
+        limitations=[
+            "Nunca emite READY_TO_SUBMIT / HABILITADA automaticamente.",
+            "Somente READY_FOR_HUMAN_REVIEW ou BLOCKED_*.",
+        ],
+    ),
 }
 
 

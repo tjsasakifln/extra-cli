@@ -1,0 +1,9 @@
+{
+  "alerts_info_count": 3,
+  "code_sha": "4961cb3e10bd406a74f3c3f671fb9274af960098",
+  "health_db": "pass",
+  "health_disk": "pass",
+  "health_failed_units": "extra-crawl-pncp failed pre-existing status=2",
+  "health_storage_box": "pass",
+  "timestamp": "2026-08-01T20:37:37.591719+00:00"
+}

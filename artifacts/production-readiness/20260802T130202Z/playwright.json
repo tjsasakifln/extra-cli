@@ -1,0 +1,12 @@
+{
+  "result": "PASS",
+  "passed": 12,
+  "tests": 12,
+  "flows": 16,
+  "spec": "e2e/consulting-production.spec.ts",
+  "code_sha": "f0b8772db7edf8e7fc1b3360cd6240f50bb25fef",
+  "timestamp": "2026-08-02T13:12:41.412881+00:00",
+  "hardening": "requireWorkflow real consulting IDs; no silent FALLBACK; upload/cancel/isolation strict",
+  "log_tail": ".ts:117:3 › production readiness consulting E2E (16 flows) › 3: edital case workflow start (FIXTURE)\n[3/12] e2e/consulting-production.spec.ts:131:3 › production readiness consulting E2E (16 flows) › 4: budget audit workflow\n[4/12] e2e/consulting-production.spec.ts:142:3 › production readiness consulting E2E (16 flows) › 5: technical acervo consult\n[5/12] e2e/consulting-production.spec.ts:155:3 › production readiness consulting E2E (16 flows) › 6-8: bid readiness + human review + PDF/Excel\n[6/12] e2e/consulting-production.spec.ts:192:3 › production readiness consulting E2E (16 flows) › 9: parameter validation error is actionable\n[7/12] e2e/consulting-production.spec.ts:207:3 › production readiness consulting E2E (16 flows) › 10-11: cancel and reprocess require real job\n[8/12] e2e/consulting-production.spec.ts:230:3 › production readiness consulting E2E (16 flows) › 12: isolation — two jobs do not share ids\n[9/12] e2e/consulting-production.spec.ts:255:3 › production readiness consulting E2E (16 flows) › 13: REAL without valid credential/source fails closed\n[10/12] e2e/consulting-production.spec.ts:293:3 › production readiness consulting E2E (16 flows) › 14: FIXTURE explicitly selected and labeled\n[11/12] e2e/consulting-production.spec.ts:311:3 › production readiness consulting E2E (16 flows) › 15: path traversal rejected\n[12/12] e2e/consulting-production.spec.ts:327:3 › production readiness consulting E2E (16 flows) › 16: malicious parameter treated as data\n  12 passed (20.5s)\n",
+  "tip_after_skeptic_fix": "f0b8772db7edf8e7fc1b3360cd6240f50bb25fef"
+}

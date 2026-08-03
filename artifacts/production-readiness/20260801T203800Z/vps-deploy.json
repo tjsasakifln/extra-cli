@@ -1,0 +1,10 @@
+{
+  "code_sha": "4961cb3e10bd406a74f3c3f671fb9274af960098",
+  "deployed_sha_initial": "9fa6d007887a9d2f80c26fbb698f0c475a216cdd",
+  "deployed_sha_tip": "4961cb3e10bd406a74f3c3f671fb9274af960098",
+  "import_ok": true,
+  "pg_dump_ok": true,
+  "pre_deploy_backup": "/var/lib/extra-consultoria/backups/pre-deploy-20260801T200107Z",
+  "remote_dir": "/opt/extra-consultoria",
+  "timestamp": "2026-08-01T20:37:37.492841+00:00"
+}

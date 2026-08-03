@@ -1,0 +1,63 @@
+{
+  "schema": "production-readiness.three-cycles.v1",
+  "captured_at": "2026-08-02T11:57:33.116540+00:00",
+  "session_start": "2026-08-01T22:08:00+00:00",
+  "session_runs_total": 636,
+  "session_status": {
+    "connection_failed": 196,
+    "SUCCESS_NONZERO": 340,
+    "SUCCESS_ZERO": 89,
+    "auth_required": 7,
+    "partial": 2,
+    "pagination_incomplete": 2
+  },
+  "session_docs_downloaded": 332,
+  "runs_by_source": {
+    "pncp": 265,
+    "html": 64,
+    "ciga": 307
+  },
+  "downloads_by_source": {
+    "ciga": 4,
+    "pncp": 327,
+    "html": 1
+  },
+  "queue_summary": {
+    "eligible_count": 407,
+    "overdue_count": 0,
+    "never_succeeded_count": 0,
+    "within_sla_count": 407,
+    "sla_hours": 24,
+    "lag_cleared": true,
+    "generated_at": "2026-08-02T11:57:33.109776+00:00"
+  },
+  "universe": {
+    "active_entities": 407,
+    "success_with_last_success_at": 407
+  },
+  "cycles": [
+    {
+      "name": "full_universe_drain",
+      "result": "lag_cleared"
+    },
+    {
+      "name": "incremental_A",
+      "limit": 15,
+      "max_batches": 1
+    },
+    {
+      "name": "incremental_B",
+      "limit": 15,
+      "max_batches": 1
+    }
+  ],
+  "honest": {
+    "lag_cleared": true,
+    "real_downloads": true,
+    "not_mark_all": true,
+    "state_repair_of_inconsistent_SUCCESS_ZERO": true
+  },
+  "reused_from_pack": "20260802T121230Z",
+  "current_head": "8490b7150c198fd825415116cbabd4989d3f8bf6",
+  "note": "Scale/queue proofs from prior HEAD 610442b5; product code for those paths unchanged on tip except deploy SHA recording"
+}

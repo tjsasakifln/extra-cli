@@ -1,0 +1,18 @@
+{
+  "code_sha": null,
+  "compare": {
+    "accepted_checksum_match": true,
+    "both_publication_allowed": true,
+    "checksum_a": "e3197cbf46cb49b3b022cd70cab7b32433230d315ab12ba733e5f88b7bad1ff1",
+    "checksum_b": "e3197cbf46cb49b3b022cd70cab7b32433230d315ab12ba733e5f88b7bad1ff1",
+    "count_diffs": {},
+    "identical_counts": true
+  },
+  "expected_total": 4479442,
+  "generated_at": "2026-08-02T12:21:46.676868+00:00",
+  "publication_allowed": true,
+  "reproof_on_head": "610442b5f2607ca0901fc96a8bc84a2e5bb1e4e5",
+  "run_dir": "/var/lib/extra-consultoria/output/production-readiness-fullscale-20260802T121236Z/20260802T121236Z",
+  "source": "pncp_supplier_contracts@postgresql",
+  "timestamp": "2026-08-02T12:22:59.638332+00:00"
+}

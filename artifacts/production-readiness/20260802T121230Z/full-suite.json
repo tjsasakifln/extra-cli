@@ -1,0 +1,14 @@
+{
+  "code_sha": "610442b5f2607ca0901fc96a8bc84a2e5bb1e4e5",
+  "github_ci_on_head": "PASS_ALL_CHECKS",
+  "local_slice": {
+    "command": "pytest tests/process_documents/ tests/test_local_backup_restore_proof.py -q",
+    "passed": 80,
+    "result": "PASS"
+  },
+  "playwright": "12 passed consulting-production.spec.ts (16 flows)",
+  "pr": 196,
+  "reproof_on_head": "610442b5f2607ca0901fc96a8bc84a2e5bb1e4e5",
+  "result": "PASS",
+  "timestamp": "2026-08-02T12:25:51.551887+00:00"
+}

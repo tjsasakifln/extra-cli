@@ -1,0 +1,176 @@
+{
+  "channels_configured": false,
+  "check_alerts_ran": true,
+  "code_sha": "610442b5f2607ca0901fc96a8bc84a2e5bb1e4e5",
+  "dry_run_dispatch": {
+    "channels": [
+      {
+        "channel": "ledger_fallback",
+        "message": "persisted to /mnt/d/extra consultoria/.worktrees/production-readiness-closeout/output/ops/alert_ledger.jsonl",
+        "success": true
+      }
+    ],
+    "destinations": {
+      "any": false,
+      "env_keys_present": {
+        "NOTIFY_SMTP_FROM": false,
+        "NOTIFY_SMTP_HOST": false,
+        "NOTIFY_SMTP_TO": false,
+        "NOTIFY_WEBHOOK_URL": false
+      },
+      "smtp": false,
+      "webhook": false
+    },
+    "dry_run": true,
+    "fallback_ledger": "/mnt/d/extra consultoria/.worktrees/production-readiness-closeout/output/ops/alert_ledger.jsonl",
+    "fingerprint": "a0f1afb193631e38",
+    "has_actionable_context": true,
+    "suppress_reason": null,
+    "suppressed": false,
+    "title": "production-readiness reproof",
+    "webhook_failure_detectable": true
+  },
+  "live_dispatch": {
+    "channels": [
+      {
+        "channel": "ledger_fallback",
+        "message": "persisted to /mnt/d/extra consultoria/.worktrees/production-readiness-closeout/output/ops/alert_ledger.jsonl",
+        "success": true
+      }
+    ],
+    "destinations": {
+      "any": false,
+      "env_keys_present": {
+        "NOTIFY_SMTP_FROM": false,
+        "NOTIFY_SMTP_HOST": false,
+        "NOTIFY_SMTP_TO": false,
+        "NOTIFY_WEBHOOK_URL": false
+      },
+      "smtp": false,
+      "webhook": false
+    },
+    "dry_run": false,
+    "fallback_ledger": "/mnt/d/extra consultoria/.worktrees/production-readiness-closeout/output/ops/alert_ledger.jsonl",
+    "fingerprint": "1baa5694026fa0bf",
+    "has_actionable_context": true,
+    "suppress_reason": null,
+    "suppressed": false,
+    "title": "production-readiness live probe",
+    "webhook_failure_detectable": true
+  },
+  "reproof_on_head": "610442b5f2607ca0901fc96a8bc84a2e5bb1e4e5",
+  "residual": "live channel may be unset; dry-run/self-check path executed",
+  "self_check": {
+    "destination_probe": {
+      "any": false,
+      "env_keys_present": {
+        "NOTIFY_SMTP_FROM": false,
+        "NOTIFY_SMTP_HOST": false,
+        "NOTIFY_SMTP_TO": false,
+        "NOTIFY_WEBHOOK_URL": false
+      },
+      "smtp": false,
+      "webhook": false
+    },
+    "first": {
+      "channels": [
+        {
+          "channel": "ledger_fallback",
+          "message": "persisted to /tmp/alert-self-nl4oc1xd/ledger.jsonl",
+          "success": true
+        }
+      ],
+      "destinations": {
+        "any": false,
+        "env_keys_present": {
+          "NOTIFY_SMTP_FROM": false,
+          "NOTIFY_SMTP_HOST": false,
+          "NOTIFY_SMTP_TO": false,
+          "NOTIFY_WEBHOOK_URL": false
+        },
+        "smtp": false,
+        "webhook": false
+      },
+      "dry_run": true,
+      "fallback_ledger": "/tmp/alert-self-nl4oc1xd/ledger.jsonl",
+      "fingerprint": "782da15b12526982",
+      "has_actionable_context": true,
+      "suppress_reason": null,
+      "suppressed": false,
+      "title": "self-check",
+      "webhook_failure_detectable": true
+    },
+    "ok": true,
+    "second_suppressed": true,
+    "status": {
+      "capabilities": {
+        "actionable_context": true,
+        "destination_configured": true,
+        "destination_testable": true,
+        "fallback_persistent": true,
+        "rate_limit_or_dedup": true,
+        "storm_control": true,
+        "webhook_failure_detectable": true
+      },
+      "claims": {
+        "forbidden": [
+          "Claim live webhook delivered without --live test",
+          "LOCAL_READY from alert pipeline alone"
+        ]
+      },
+      "dedup_seconds": 900,
+      "destination_configured": false,
+      "destinations": {
+        "any": false,
+        "env_keys_present": {
+          "NOTIFY_SMTP_FROM": false,
+          "NOTIFY_SMTP_HOST": false,
+          "NOTIFY_SMTP_TO": false,
+          "NOTIFY_WEBHOOK_URL": false
+        },
+        "smtp": false,
+        "webhook": false
+      },
+      "generated_at": "2026-08-02T12:15:47.884719Z",
+      "ledger_path": "/mnt/d/extra consultoria/.worktrees/production-readiness-closeout/output/ops/alert_ledger.jsonl",
+      "rate_limit": 20,
+      "rate_window_seconds": 3600
+    }
+  },
+  "status": {
+    "capabilities": {
+      "actionable_context": true,
+      "destination_configured": true,
+      "destination_testable": true,
+      "fallback_persistent": true,
+      "rate_limit_or_dedup": true,
+      "storm_control": true,
+      "webhook_failure_detectable": true
+    },
+    "claims": {
+      "forbidden": [
+        "Claim live webhook delivered without --live test",
+        "LOCAL_READY from alert pipeline alone"
+      ]
+    },
+    "dedup_seconds": 900,
+    "destination_configured": false,
+    "destinations": {
+      "any": false,
+      "env_keys_present": {
+        "NOTIFY_SMTP_FROM": false,
+        "NOTIFY_SMTP_HOST": false,
+        "NOTIFY_SMTP_TO": false,
+        "NOTIFY_WEBHOOK_URL": false
+      },
+      "smtp": false,
+      "webhook": false
+    },
+    "generated_at": "2026-08-02T12:15:48.143941Z",
+    "ledger_path": "/mnt/d/extra consultoria/.worktrees/production-readiness-closeout/output/ops/alert_ledger.jsonl",
+    "rate_limit": 20,
+    "rate_window_seconds": 3600
+  },
+  "test_flag": true,
+  "timestamp": "2026-08-02T12:15:49.066400+00:00"
+}

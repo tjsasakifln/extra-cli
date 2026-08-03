@@ -1,0 +1,93 @@
+{
+  "schema": "production-readiness.queue-cycle.v1",
+  "captured_at": "2026-08-02T14:00:07.790560+00:00",
+  "code_sha": "527672455481f2a65ef8d0b97d996bfb04ba1033",
+  "full_cycle": {
+    "schema": "production-readiness.vps-full-cycle.v1",
+    "captured_at": "2026-08-02T13:58:16.822357+00:00",
+    "code_sha_vps": "527672455481f2a65ef8d0b97d996bfb04ba1033",
+    "universe": {
+      "active_entities": 407,
+      "queue_entities": 407
+    },
+    "queue_summary": {
+      "eligible_count": 407,
+      "overdue_count": 0,
+      "never_succeeded_count": 0,
+      "within_sla_count": 407,
+      "sla_hours": 24,
+      "lag_cleared": true
+    },
+    "incrementals": [
+      {
+        "count": 8,
+        "by_status": {
+          "SUCCESS_NONZERO": 8
+        },
+        "selection_policy": "success_lag_rotation",
+        "multi_source": false,
+        "eligible_count": 407,
+        "overdue_count": 389,
+        "lag_cleared": false,
+        "drain_stop_reason": "PARTIAL_CAPACITY_EXHAUSTED",
+        "capacity_insufficient": true,
+        "batches": 1,
+        "sla_alert_count": 389,
+        "selected_canonical_ids": [
+          "01610999:FUNDO_MUNICIPAL_DE_ASSISTENCIA_SOCIAL_DO_MUNICIPIO_DE_CAMPO_ALEGRE_SC",
+          "01614019:MUNICIPIO_DE_TREVISO",
+          "01624194:CAMARA_MUNICIPAL_DE_BOCAINA_DO_SUL_SC",
+          "01630213:CAMARA_MUNICIPAL_DE_VEREADORES_DE_PALMEIRAS_SC",
+          "01637334:CAMARA_MUNICIPAL_DE_COCAL_DO_SUL",
+          "01646639:CAMARA_MUNICIPAL_DE_VEREADORES_DE_PAINEL",
+          "01794690:CAMARA_MUNICIPAL_DE_VEREADORES_DE_BOM_RETIRO",
+          "01796840:FUNDACAO_MUNICIPAL_DE_ESPORTES_DE_RIO_NEGRINHO"
+        ]
+      },
+      {
+        "count": 8,
+        "by_status": {
+          "SUCCESS_NONZERO": 8
+        },
+        "selection_policy": "success_lag_rotation",
+        "multi_source": false,
+        "eligible_count": 407,
+        "overdue_count": 381,
+        "lag_cleared": false,
+        "drain_stop_reason": "PARTIAL_CAPACITY_EXHAUSTED",
+        "capacity_insufficient": true,
+        "batches": 1,
+        "sla_alert_count": 381,
+        "selected_canonical_ids": [
+          "02156952:CAMARA_MUNICIPAL_DE_GRAVATAL",
+          "02179215:FUNDO_MUNICIPAL_DE_ASSISTENCIA_SOCIAL",
+          "02396675:SAMAE_SERVICO_AUTONOMO_MUNICIPAL_DE_AGUA_E_ESGOTO",
+          "02546845:CAMARA_DE_VEREADORES_DE_AURORA",
+          "02595453:CAMARA_MUNICIPAL_DE_RIO_FORTUNA",
+          "02971830:FUNDO_MUNICIPAL_DE_TURISMO",
+          "03269695:CONSORCIO_PUBLICO_INTERFEDERATIVO_DE_SAUDE_E_SERVICOS_DO_VALE_EUROPEU_CISAMVE",
+          "03324132:FUNDACAO_MUNICIPAL_DE_ESPORTES_DE_ILHOTA"
+        ]
+      }
+    ],
+    "honest_claims": {
+      "lag_cleared_entity_level": true,
+      "two_incrementals_executed": true,
+      "real_downloads_or_success": true,
+      "not_mark_all_success": true
+    }
+  },
+  "queue_tip": {
+    "schema": "production-readiness.vps-queue-tip.v1",
+    "captured_at": "2026-08-02T13:48:01.147026+00:00",
+    "code_sha_vps": "527672455481f2a65ef8d0b97d996bfb04ba1033",
+    "meta_root": "/var/lib/extra-consultoria/output/process_documents",
+    "active_entities": 407,
+    "overdue_count": 0,
+    "within_sla_count": 407,
+    "never_succeeded_count": 0,
+    "lag_cleared": true,
+    "sla_hours": 24
+  },
+  "lag_cleared": true
+}

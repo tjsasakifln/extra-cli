@@ -1,0 +1,41 @@
+{
+  "accepted": 4402632,
+  "checkpoint": {
+    "accepted": 4402632,
+    "completed": true,
+    "deduplicated": 0,
+    "entities": 14044,
+    "last_key": "93845519000151-2-000060/2026",
+    "offset": 4479442,
+    "rejected": 76810,
+    "run_id": "resume-a",
+    "updated_at": "2026-08-02T12:21:45.975157+00:00"
+  },
+  "checksums": {
+    "accepted.jsonl": "e3197cbf46cb49b3b022cd70cab7b32433230d315ab12ba733e5f88b7bad1ff1",
+    "checkpoint.json": "ffc664afec5c960c2b4d2ab2944519a4bdac505e4b9bff6d1a5721bafadb6f8a",
+    "rejected.jsonl": "986a14fac9e4fcaa00fdfe394b5299906166d7434e12777e62a619f2b89bb556",
+    "spill-resume-a.sqlite": "17fa142a0d02a30739e150dbdd8f4689a34b65a488f5e4af6d2055864c7b2aed"
+  },
+  "code_sha": null,
+  "completed": true,
+  "deduplicated": 0,
+  "elapsed_seconds": 178.757,
+  "entities": 14044,
+  "errors": [],
+  "expected_total": 6000,
+  "final_offset": 4479442,
+  "generated_at": "2026-08-02T12:21:46.674976+00:00",
+  "incomplete": false,
+  "max_rss_bytes": 41836544,
+  "min_disk_free_bytes": 483945754624,
+  "platform": "linux",
+  "publication_allowed": true,
+  "python": "3.13.5",
+  "rejected": 76810,
+  "run_id": "resume-a",
+  "source": "pncp_supplier_contracts@postgresql",
+  "started_offset": 5000,
+  "throughput_rows_per_s": 25030.862,
+  "warnings": []
+}

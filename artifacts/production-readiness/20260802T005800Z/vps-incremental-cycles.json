@@ -1,0 +1,63 @@
+{
+  "schema": "production-readiness.three-cycles.v1",
+  "session_start": "2026-08-01T22:08:00+00:00",
+  "session_runs_total": 291,
+  "session_status": {
+    "connection_failed": 135,
+    "SUCCESS_NONZERO": 101,
+    "SUCCESS_ZERO": 47,
+    "auth_required": 7,
+    "partial": 1
+  },
+  "session_docs_downloaded": 179,
+  "runs_by_source": {
+    "pncp": 134,
+    "html": 63,
+    "ciga": 94
+  },
+  "downloads_by_source": {
+    "ciga": 4,
+    "pncp": 174,
+    "html": 1
+  },
+  "queue_summary": {
+    "eligible_count": 407,
+    "overdue_count": 335,
+    "never_succeeded_count": 333,
+    "within_sla_count": 72,
+    "sla_hours": 24,
+    "lag_cleared": false,
+    "generated_at": "2026-08-02T03:08:20.338510+00:00"
+  },
+  "universe": {
+    "active_entities": 407,
+    "queue_entities": 407,
+    "success_with_last_success_at": 74
+  },
+  "cycles": [
+    {
+      "name": "cycle1_full_wall",
+      "cmd": "incremental --limit 40 --max-batches 20 --max-wall-seconds 10800 --single-source",
+      "note": "completed wall PARTIAL"
+    },
+    {
+      "name": "cycle2_multi_source_partial",
+      "cmd": "incremental --limit 25 --max-batches 3 --max-wall-seconds 2400",
+      "note": "killed mid-batch after real downloads; multi-source overrun"
+    },
+    {
+      "name": "cycle2b_single_source",
+      "cmd": "incremental --limit 20 --max-batches 2 --max-wall-seconds 1200 --single-source"
+    },
+    {
+      "name": "cycle3_single_source",
+      "cmd": "incremental --limit 20 --max-batches 2 --max-wall-seconds 1200 --single-source"
+    }
+  ],
+  "honest": {
+    "lag_cleared": false,
+    "real_downloads": true,
+    "not_mark_all": true,
+    "capacity_partial": true
+  }
+}

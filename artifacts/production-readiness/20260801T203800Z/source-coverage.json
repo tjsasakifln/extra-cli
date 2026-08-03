@@ -1,0 +1,10 @@
+{
+  "active_entities": 407,
+  "code_sha": "f7f5aac0115eeea26391b5e2ac4a54b81f508695",
+  "coverage_active": 1.0,
+  "coverage_pairs": 1.0,
+  "entity_source_pairs": 1768,
+  "never_succeeded_after": 0,
+  "overdue_pairs_after": 0,
+  "timestamp": "2026-08-01T21:48:29.496255+00:00"
+}

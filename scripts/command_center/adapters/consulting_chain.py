@@ -103,7 +103,7 @@ class EditalCaseAdapter:
             source = str(
                 params.get("source")
                 or params.get("source_dir")
-                or "tests/fixtures/edital_case_sample"
+                or "tests/edital_case/fixtures/sample_edital.pdf"
             )
             argv.extend(["--case-id", case_id, "--source", source, "--output", output])
         elif action in {"analyze", "report", "verify", "gate", "ingest"}:

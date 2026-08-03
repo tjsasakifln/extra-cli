@@ -1,0 +1,28 @@
+{
+  "code_sha": "f7f5aac0115eeea26391b5e2ac4a54b81f508695",
+  "gates": {
+    "A_code": "PASS",
+    "B_quality": "PASS",
+    "C_playwright": "PASS_12_OF_12_SIXTEEN_FLOWS",
+    "D_scale": "PASS_4479442_DUAL_MATCH",
+    "E_operation": "PASS_ENROLL_407_1768_THREE_CYCLES_LAG_CLEARED",
+    "F_observability": "PASS_HEALTH_ALERTS_RAN",
+    "G_recovery": "PASS_RESTORE_97",
+    "H_real_case": "PASS"
+  },
+  "non_claims": [
+    "Official SINAPI bulk live acquisition (matcher STRUCTURE_ONLY demo for classes)",
+    "HTTPS alert webhook delivery to external channel (check-alerts executed; local http blocked by policy)"
+  ],
+  "pr_url": "https://github.com/tjsasakifln/extra-cli/pull/196",
+  "proven": [
+    "Playwright E2E 12/12 covering 16 required behaviors",
+    "VPS full-scale 4,479,442 dual-run checksum match ~55MB RSS",
+    "100% active entity×source enrollment 407/1768 + 3 lag_cleared incremental cycles",
+    "1700+ real multi-source collect runs on VPS (run-index)",
+    "budget/acervo/bid readiness/deliverables chain",
+    "deploy + backup + restore drill"
+  ],
+  "terminal": "PASS_PRODUCTION_READINESS_IMPLEMENTED_AND_PROVEN",
+  "timestamp": "2026-08-01T21:48:29.507978+00:00"
+}

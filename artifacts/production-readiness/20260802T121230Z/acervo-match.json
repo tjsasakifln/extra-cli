@@ -1,0 +1,192 @@
+{
+  "adherence_level": "full_individual",
+  "allow_sum": false,
+  "best_individual": {
+    "activity": "reforma",
+    "art_number": "9326264-7",
+    "blob": "alvenaria reforma de alvenaria reforma reforma comercial estrutura metalica contrapiso piso ceramico hidraulica eletrica baixa tensao alvenaria reboco calcada concreto calcada lajotas reforma de edificacao comercial cobasi reforma de edificacao comercial cobasi comercio de produtos basicos e industriais florianopolis rua francisco tolentino 657 centro florianopolis/sc",
+    "capability_tags": [
+      "reforma_comercial",
+      "estrutura_metalica",
+      "contrapiso",
+      "piso_ceramico",
+      "hidraulica",
+      "eletrica_baixa_tensao",
+      "alvenaria",
+      "reboco",
+      "calcada_concreto",
+      "calcada_lajotas"
+    ],
+    "certificate_number": "252024163553",
+    "city": "Florianópolis",
+    "contractor": "Cobasi Comércio de Produtos Básicos e Industriais",
+    "document_id": "doc-cat-252024163553",
+    "document_status": "no_expiration_identified",
+    "document_type": "CAT",
+    "evidence_level": "cat_with_registered_attestation",
+    "exact_service_match": true,
+    "experience_id": "exp-cobasi-reforma-2024",
+    "individual_cat_not_provided": false,
+    "matched_terms": [
+      "alvenaria"
+    ],
+    "original_description": "reforma de alvenaria",
+    "original_text": "1.321,08 m²",
+    "quantity": 1321.08,
+    "restrictions": [
+      "CAT de acervo técnico-profissional vinculada ao responsável técnico; não prova irrestrita de capacidade operacional da pessoa jurídica sem análise do edital."
+    ],
+    "review_flags": [],
+    "score": 254.0,
+    "service": "alvenaria",
+    "service_relevant": true,
+    "source_file": "arquivo2.pdf",
+    "source_page": 1,
+    "state": "SC",
+    "title": "Reforma de edificação comercial – Cobasi",
+    "unit": "m2"
+  },
+  "candidates": [
+    {
+      "activity": "reforma",
+      "art_number": "9326264-7",
+      "blob": "alvenaria reforma de alvenaria reforma reforma comercial estrutura metalica contrapiso piso ceramico hidraulica eletrica baixa tensao alvenaria reboco calcada concreto calcada lajotas reforma de edificacao comercial cobasi reforma de edificacao comercial cobasi comercio de produtos basicos e industriais florianopolis rua francisco tolentino 657 centro florianopolis/sc",
+      "capability_tags": [
+        "reforma_comercial",
+        "estrutura_metalica",
+        "contrapiso",
+        "piso_ceramico",
+        "hidraulica",
+        "eletrica_baixa_tensao",
+        "alvenaria",
+        "reboco",
+        "calcada_concreto",
+        "calcada_lajotas"
+      ],
+      "certificate_number": "252024163553",
+      "city": "Florianópolis",
+      "contractor": "Cobasi Comércio de Produtos Básicos e Industriais",
+      "document_id": "doc-cat-252024163553",
+      "document_status": "no_expiration_identified",
+      "document_type": "CAT",
+      "evidence_level": "cat_with_registered_attestation",
+      "exact_service_match": true,
+      "experience_id": "exp-cobasi-reforma-2024",
+      "individual_cat_not_provided": false,
+      "matched_terms": [
+        "alvenaria"
+      ],
+      "original_description": "reforma de alvenaria",
+      "original_text": "1.321,08 m²",
+      "quantity": 1321.08,
+      "restrictions": [
+        "CAT de acervo técnico-profissional vinculada ao responsável técnico; não prova irrestrita de capacidade operacional da pessoa jurídica sem análise do edital."
+      ],
+      "review_flags": [],
+      "score": 254.0,
+      "service": "alvenaria",
+      "service_relevant": true,
+      "source_file": "arquivo2.pdf",
+      "source_page": 1,
+      "state": "SC",
+      "title": "Reforma de edificação comercial – Cobasi",
+      "unit": "m2"
+    },
+    {
+      "activity": "execucao",
+      "art_number": "9894161-3",
+      "blob": "alvenaria de bloco ceramico alvenaria de bloco ceramico execucao loja comercial estrutura metalica telha aluminio cobertura metalica contrapiso piso ceramico rede hidrossanitaria pontos logica instalacao eletrica prevencao incendio alvenaria bloco ceramico loja comercial com cobertura metalica pet campo agroshop 2024 execucao de loja comercial com cobertura em telha de aluminio sobre estrutura metalica pet campo agroshop florianopolis",
+      "capability_tags": [
+        "loja_comercial",
+        "estrutura_metalica",
+        "telha_aluminio",
+        "cobertura_metalica",
+        "contrapiso",
+        "piso_ceramico",
+        "rede_hidrossanitaria",
+        "pontos_logica",
+        "instalacao_eletrica",
+        "prevencao_incendio",
+        "alvenaria_bloco_ceramico"
+      ],
+      "certificate_number": "252025173000",
+      "city": "Florianópolis",
+      "contractor": "Pet Campo Agroshop",
+      "document_id": "doc-cat-252025173000",
+      "document_status": "no_expiration_identified",
+      "document_type": "CAT",
+      "evidence_level": "cat_with_registered_attestation",
+      "exact_service_match": true,
+      "experience_id": "exp-petcampo-loja-2024",
+      "individual_cat_not_provided": false,
+      "matched_terms": [
+        "alvenaria"
+      ],
+      "original_description": "alvenaria de bloco cerâmico",
+      "original_text": "143,78 m²",
+      "quantity": 143.78,
+      "restrictions": [
+        "CAT de acervo técnico-profissional vinculada ao responsável técnico; não prova irrestrita de capacidade operacional da pessoa jurídica sem análise do edital."
+      ],
+      "review_flags": [
+        {
+          "flag": "source_filename_typo_preserved",
+          "reason": "Nome de origem 'arquuivo6.pdf' (typo) preservado como source_file; alias normalizado arquivo6.pdf apenas para lookup."
+        }
+      ],
+      "score": 254.0,
+      "service": "alvenaria de bloco ceramico",
+      "service_relevant": true,
+      "source_file": "arquuivo6.pdf",
+      "source_page": 2,
+      "state": "SC",
+      "title": "Loja comercial com cobertura metálica – Pet Campo Agroshop, 2024",
+      "unit": "m2"
+    }
+  ],
+  "code_sha": "610442b5f2607ca0901fc96a8bc84a2e5bb1e4e5",
+  "disclaimer": "Evidência documental do acervo EXTRA. Não afirma atendimento jurídico absoluto a exigência de edital. Distingue evidência, inferência e necessidade de análise humana.",
+  "human_review_required": true,
+  "limitations": [
+    "Resultado é evidência documental, não parecer jurídico de habilitação.",
+    "Análise do edital (parcela de maior relevância, somatório permitido, vínculos RT/PJ) permanece necessária.",
+    "Somatório automático entre obras distintas desabilitado (allow_sum=false).",
+    "CAT profissional não é prova irrestrita de capacidade operacional da pessoa jurídica."
+  ],
+  "max_individual_quantity": 1321.08,
+  "reproof_on_head": "610442b5f2607ca0901fc96a8bc84a2e5bb1e4e5",
+  "requirement": {
+    "activity": null,
+    "modality": "nao_especificada",
+    "quantity": 100.0,
+    "service": "alvenaria",
+    "unit": "m2"
+  },
+  "sources": [
+    {
+      "art": "9326264-7",
+      "document": "CAT",
+      "evidence_level": "cat_with_registered_attestation",
+      "experience_id": "exp-cobasi-reforma-2024",
+      "number": "252024163553",
+      "quantity": 1321.08,
+      "source_file": "arquivo2.pdf",
+      "source_page": 1,
+      "unit": "m2"
+    },
+    {
+      "art": "9894161-3",
+      "document": "CAT",
+      "evidence_level": "cat_with_registered_attestation",
+      "experience_id": "exp-petcampo-loja-2024",
+      "number": "252025173000",
+      "quantity": 143.78,
+      "source_file": "arquuivo6.pdf",
+      "source_page": 2,
+      "unit": "m2"
+    }
+  ],
+  "sum_total": null,
+  "summed_records": [],
+  "timestamp": "2026-08-02T12:25:45.248327+00:00"
+}

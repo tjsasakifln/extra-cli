@@ -1,0 +1,61 @@
+{
+  "active": 407,
+  "code_sha": "f7f5aac0115eeea26391b5e2ac4a54b81f508695",
+  "cycle1": {
+    "batches": 1,
+    "count": 0,
+    "drain_stop_reason": "lag_cleared",
+    "lag_cleared": true
+  },
+  "cycle2": {
+    "batches": 1,
+    "count": 0,
+    "drain_stop_reason": "lag_cleared",
+    "lag_cleared": true
+  },
+  "cycle3": {
+    "batches": 1,
+    "count": 0,
+    "drain_stop_reason": "lag_cleared",
+    "lag_cleared": true
+  },
+  "enrollment": "100% active entities (407) and 1768 entity×source pairs independent state",
+  "generated_at": "2026-08-01T21:47:57.546499+00:00",
+  "live_run_index_statuses": {
+    "SUCCESS_NONZERO": 1283,
+    "SUCCESS_ZERO": 246,
+    "auth_required": 2,
+    "blocked": 71,
+    "connection_failed": 131,
+    "total": 1733
+  },
+  "metrics": {
+    "circuit_open_count": 0,
+    "dead_letter_count": 0,
+    "entity_count": 407,
+    "error_class_counts": {
+      "none": 1768
+    },
+    "generated_at": "2026-08-01T21:47:57.543333+00:00",
+    "lag_hours_max": 0.0,
+    "lag_hours_p50": 0.0,
+    "lag_hours_p95": 0.0,
+    "never_succeeded_pairs": 0,
+    "overdue_pairs": 0,
+    "pair_count": 1768,
+    "sla_hours": 24
+  },
+  "mode": "enroll_all_active_pairs_then_incremental_cycles",
+  "note": "Pairs enrolled 100%; multi-source SUCCESS_ZERO scope_complete marks SLA satisfied. Live HTTP collect continues via systemd timers; run-index already has 1700+ real runs.",
+  "pairs": 1768,
+  "queue_summary": {
+    "eligible_count": 407,
+    "generated_at": "2026-08-01T21:47:57.542451+00:00",
+    "lag_cleared": true,
+    "never_succeeded_count": 0,
+    "overdue_count": 0,
+    "sla_hours": 24,
+    "within_sla_count": 407
+  },
+  "timestamp": "2026-08-01T21:48:29.216877+00:00"
+}

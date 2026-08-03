@@ -292,6 +292,85 @@ def _safe_name(name: str) -> str:
     return "".join(c if c.isalnum() or c in "._-" else "_" for c in name)[:180]
 
 
+def source_consultation_report(
+    *,
+    applicable_sources: Sequence[str],
+    source_results: Mapping[str, Mapping[str, Any]] | None = None,
+    documents: Sequence[Mapping[str, Any]] | None = None,
+) -> dict[str, Any]:
+    """Distinguish not-consulted / query-failed / unpublished / located / unreadable.
+
+    Pure report for multi-source process reconstruction evidence.
+    """
+    results = source_results or {}
+    docs = list(documents or [])
+    rows: list[dict[str, Any]] = []
+    for src in applicable_sources:
+        rd = results.get(src)
+        if rd is None:
+            rows.append(
+                {
+                    "source_id": src,
+                    "state": "not_consulted",
+                    "documents_located": 0,
+                    "documents_unreadable": 0,
+                    "documents_unpublished": 0,
+                }
+            )
+            continue
+        st = str(rd.get("status") or "").lower()
+        src_docs = [d for d in docs if str(d.get("source_id") or d.get("portal_family") or "") == src]
+        if not src_docs and isinstance(rd.get("documents"), list):
+            src_docs = list(rd.get("documents") or [])
+        unreadable = [
+            d
+            for d in src_docs
+            if d.get("quarantined")
+            or d.get("unreadable")
+            or (d.get("extraction_quality") in {"none", "low"} and d.get("ocr_failed"))
+        ]
+        unpublished = [
+            d for d in src_docs if d.get("cited_missing") or str(d.get("public_access_status") or "") == "not_published"
+        ]
+        located = [d for d in src_docs if d.get("sha256") or d.get("raw_uri")]
+        if st in {"not_queried", "not_queried_budget"}:
+            state = "not_consulted"
+        elif st in {"connection_failed", "timeout", "error", "failed"} or rd.get("error"):
+            state = "query_failed"
+        elif unpublished and not located:
+            state = "document_not_published"
+        elif unreadable and located:
+            state = "located_but_unreadable"
+        elif located:
+            state = "document_located"
+        elif st in {"success_zero", "success", "success_nonzero"} and not located:
+            state = "document_not_published"
+        else:
+            state = "query_failed" if rd.get("errors") else "not_consulted"
+        rows.append(
+            {
+                "source_id": src,
+                "state": state,
+                "status": rd.get("status"),
+                "error": rd.get("error") or ((rd.get("errors") or [None])[0]),
+                "documents_located": len(located),
+                "documents_unreadable": len(unreadable),
+                "documents_unpublished": len(unpublished),
+            }
+        )
+    return {
+        "generated_at": _now_iso(),
+        "sources": rows,
+        "summary": {
+            "not_consulted": sum(1 for r in rows if r["state"] == "not_consulted"),
+            "query_failed": sum(1 for r in rows if r["state"] == "query_failed"),
+            "document_not_published": sum(1 for r in rows if r["state"] == "document_not_published"),
+            "document_located": sum(1 for r in rows if r["state"] == "document_located"),
+            "located_but_unreadable": sum(1 for r in rows if r["state"] == "located_but_unreadable"),
+        },
+    }
+
+
 def build_cards_from_collect_summary(
     summary: Mapping[str, Any],
     *,

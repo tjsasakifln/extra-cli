@@ -1,0 +1,8 @@
+{
+  "python": "3.12.3",
+  "cwd": "/mnt/d/extra consultoria/.worktrees/production-readiness-closeout",
+  "LOCAL_DATALAKE_DSN_set": true,
+  "NOTIFY_WEBHOOK_URL_set": true,
+  "timestamp": "2026-08-02T13:42:35.139612+00:00",
+  "code_sha": "527672455481f2a65ef8d0b97d996bfb04ba1033"
+}

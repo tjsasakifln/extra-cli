@@ -1,0 +1,8 @@
+{
+  "code_sha": "4961cb3e10bd406a74f3c3f671fb9274af960098",
+  "no_silent_fixture_fallback": true,
+  "path_traversal_e2e_spec": "apps/command-center/e2e/consulting-production.spec.ts",
+  "quarantine_module": "scripts/process_documents/quarantine.py",
+  "ruff_on_new_modules": "addressed",
+  "timestamp": "2026-08-01T20:37:38.196978+00:00"
+}

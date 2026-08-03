@@ -1,0 +1,9 @@
+{
+  "code_sha": "4961cb3e10bd406a74f3c3f671fb9274af960098",
+  "command": "python -m scripts.ops.local_backup_restore_proof",
+  "dst_tables": 97,
+  "local_backup_restore_proof": true,
+  "ok": true,
+  "src_tables": 97,
+  "timestamp": "2026-08-01T20:37:38.099592+00:00"
+}

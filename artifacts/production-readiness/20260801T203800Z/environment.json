@@ -1,0 +1,8 @@
+{
+  "code_sha": "4961cb3e10bd406a74f3c3f671fb9274af960098",
+  "local_suite": "pytest production_readiness + process_documents queue",
+  "timestamp": "2026-08-01T20:37:37.170072+00:00",
+  "vps_contracts": 4479442,
+  "vps_dir": "/opt/extra-consultoria",
+  "vps_host_alias": "ec-prod"
+}

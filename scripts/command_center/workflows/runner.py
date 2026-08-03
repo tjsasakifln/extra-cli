@@ -160,6 +160,15 @@ def run_workflow(
         result = _run_agencies(wf, params, out_dir, mf, emit, source_override=override)
     elif workflow_id == "workflow.process_documents":
         result = _run_documents(wf, params, out_dir, mf, emit, source_override=override)
+    elif workflow_id in {
+        "workflow.edital_case",
+        "workflow.budget_audit",
+        "workflow.technical_acervo",
+        "workflow.bid_readiness",
+    }:
+        # Explicit FIXTURE consulting path: run allowlisted adapters with demo sources.
+        # Never silently upgrades to REAL claims — terminal_claim stays FIXTURE_DEMO.
+        result = _run_consulting_fixture(wf, workflow_id, params, out_dir, mf, emit)
     elif workflow_id == "workflow.review.pending":
         result = {
             "status": "SUCCEEDED",
@@ -970,4 +979,140 @@ def _run_documents(
         "status": "SUCCEEDED",
         "message": "Cobertura e índice gerados; PDFs abrem no navegador.",
         "coverage": pack["coverage"],
+    }
+
+
+def _run_consulting_fixture(
+    wf: WorkflowDef,
+    workflow_id: str,
+    params: dict[str, Any],
+    out_dir: Path,
+    mf: RunManifest,
+    emit: ProgressCb,
+) -> dict[str, Any]:
+    """Run consulting adapters under explicit FIXTURE mode with demo sources.
+
+    Uses the same allowlisted adapters as REAL (no domain logic here), but
+    forces demo source defaults and keeps terminal_claim=FIXTURE_DEMO.
+    """
+    adapter = get_adapter(workflow_id)
+    if adapter is None:
+        raise ValueError(f"Sem adapter consultivo para {workflow_id}")
+
+    # Ensure demo defaults when operator did not pass sources
+    p = dict(params)
+    if workflow_id == "workflow.edital_case" and not p.get("source"):
+        p["source"] = "tests/edital_case/fixtures/sample_edital.pdf"
+    if workflow_id == "workflow.budget_audit" and not p.get("source"):
+        p["source"] = "tests/budget_audit/fixtures/operational_public_style_budget.xlsx"
+    if workflow_id == "workflow.bid_readiness":
+        p.setdefault("requirements", "scripts/bid_readiness/fixtures/golden/requirements.json")
+        p.setdefault("documents", "scripts/bid_readiness/fixtures/golden/documents")
+    if workflow_id == "workflow.technical_acervo":
+        p.setdefault("service", "alvenaria")
+        p.setdefault("qty", 100)
+        p.setdefault("unit", "m2")
+
+    emit("collecting", "Coletando", "running", f"Adapter consultivo FIXTURE: {workflow_id}")
+    try:
+        ar = run_real_adapter(adapter, p, out_dir=out_dir)
+    except AdapterBlockedError as exc:
+        pf = exc.preflight
+        mf.status = pf.status
+        mf.blockers = [pf.message or pf.status]
+        mf.limitations.extend(pf.limitations)
+        emit("collecting", "Coletando", "failed", pf.message or pf.status)
+        return {
+            "status": pf.status,
+            "message": pf.message or "preflight blocked",
+            "data_mode": DataMode.FIXTURE.value,
+        }
+
+    for art_path in ar.artifacts:
+        path = Path(art_path)
+        if path.is_file() and path.name != "run-manifest.json":
+            role = role_for_path(path, primary_hint=path.suffix.lower() in {".pdf", ".xlsx"})
+            mf.add_artifact(
+                declare_file(
+                    path,
+                    role=role,
+                    title=path.name,
+                    primary=path.suffix.lower() in {".pdf", ".xlsx"},
+                    review_required=True,
+                )
+            )
+
+    # Human review surface for bid readiness
+    if workflow_id == "workflow.bid_readiness":
+        mf.reviews_required.append(
+            {
+                "item_key": "package",
+                "title": "Revisão humana de bid readiness",
+                "question": "Package pronto para revisão? (nunca auto READY_TO_SUBMIT)",
+                "evidence": "adapter FIXTURE output",
+                "limitations": "human_review_required",
+                "risks": "missing documents block submission",
+                "content_hash": None,
+            }
+        )
+
+    mf.limitations.extend(ar.limitations)
+    mf.warnings.append("MODO DEMONSTRAÇÃO consultivo — adapter real + fontes de fixture.")
+    mf.terminal_claim = "FIXTURE_DEMO"
+    status = ar.status if ar.exit_code == 0 else ("PARTIAL" if ar.exit_code == 2 else "FAILED")
+    # Still SUCCEEDED for demo if adapter produced artifacts
+    if ar.exit_code == 0:
+        status = "SUCCEEDED"
+    emit("collecting", "Coletando", "succeeded" if ar.exit_code == 0 else "failed")
+    emit("generating_report", "Gerando relatório", "running")
+    # Minimal executive deliverables so PDF/XLSX path is real when missing
+    pdf_path = out_dir / "relatorio-consultivo.pdf"
+    xlsx_path = out_dir / "planilha-consultivo.xlsx"
+    if not any(out_dir.glob("*.pdf")):
+        write_executive_pdf(
+            pdf_path,
+            title=wf.title,
+            client_label=wf.client_label,
+            data_as_of=mf.data_as_of,
+            executive_summary=f"Demonstração FIXTURE do fluxo {workflow_id}.",
+            conclusions=[
+                f"status_adapter={ar.status}",
+                "Revisão humana obrigatória.",
+                "Não é evidência LIVE de produção.",
+            ],
+            indicators=[("workflow", workflow_id), ("data_mode", "FIXTURE")],
+            table_headers=["campo", "valor"],
+            table_rows=[[k, str(v)[:80]] for k, v in list(p.items())[:12]],
+            methodology=["Adapter allowlisted + fontes de demonstração."],
+            sources=["fixture"],
+            limitations=list(mf.limitations)[:8],
+            version_id=mf.run_id,
+            provenance={"run_id": mf.run_id, "data_mode": "FIXTURE"},
+            brand="EXTRA",
+        )
+        mf.add_artifact(
+            declare_file(pdf_path, role=ArtifactRole.EXECUTIVE_REPORT.value, title="PDF consultivo", primary=True)
+        )
+    if not any(out_dir.glob("*.xlsx")):
+        write_workbook(
+            xlsx_path,
+            title=wf.title,
+            summary_rows=[("workflow", workflow_id), ("mode", "FIXTURE")],
+            data_headers=["param", "value"],
+            data_rows=[[k, str(v)[:120]] for k, v in list(p.items())[:20]],
+            methodology=["Command Center consulting fixture path"],
+            sources=["fixture"],
+            limitations=list(mf.limitations)[:8],
+            provenance={"run_id": mf.run_id},
+            sheet_data_name="Params",
+        )
+        mf.add_artifact(
+            declare_file(xlsx_path, role=ArtifactRole.WORKBOOK.value, title="XLSX consultivo", primary=True)
+        )
+    emit("generating_report", "Gerando relatório", "succeeded")
+    return {
+        "status": status,
+        "message": f"Consulting FIXTURE {workflow_id}: {ar.message}",
+        "adapter_status": ar.status,
+        "exit_code": ar.exit_code,
     }

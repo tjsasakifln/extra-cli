@@ -1,0 +1,12 @@
+{
+  "code_sha": "610442b5f2607ca0901fc96a8bc84a2e5bb1e4e5",
+  "deploy_path": "/opt/extra-consultoria",
+  "full_scale_executed_on_vps": true,
+  "full_scale_out": "/var/lib/extra-consultoria/output/production-readiness-fullscale-20260802T121236Z",
+  "host": "ec-prod",
+  "lag_cleared_verified": true,
+  "process_documents_meta": "/var/lib/extra-consultoria/output/process_documents",
+  "reproof_on_head": "610442b5f2607ca0901fc96a8bc84a2e5bb1e4e5",
+  "result": "PASS",
+  "timestamp": "2026-08-02T12:25:51.652227+00:00"
+}

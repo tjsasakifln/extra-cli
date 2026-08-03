@@ -1,0 +1,58 @@
+{
+  "artifacts": {
+    "excel": {
+      "kind": "zip_or_xlsx",
+      "ok": true,
+      "path": "artifacts/production-readiness/20260801T195846Z/budget-root/cases/pr-budget-01/reports/budget-audit-workbook.xlsx",
+      "sha256": "2af574af96214cab2b1f01921f9c1caac39958d03c80267e66b59c938a417ab0",
+      "size": 15721
+    },
+    "pdf": {
+      "kind": "pdf",
+      "ok": true,
+      "path": "artifacts/production-readiness/20260801T195846Z/budget-root/cases/pr-budget-01/reports/budget-audit-report.pdf",
+      "sha256": "3280dd962c88a117f164805492ad088a5ca8ae7c87f3371009de66a8377790e0",
+      "size": 8376
+    }
+  },
+  "blocked_reasons": [
+    "awaiting_human_accept"
+  ],
+  "code_sha": "9fa6d007887a9d2f80c26fbb698f0c475a216cdd",
+  "conclusions": {
+    "audit_findings": 31,
+    "counts": {
+      "excel": {
+        "items": 12
+      },
+      "pdf": {
+        "items": 12
+      }
+    },
+    "verify": "PASS"
+  },
+  "delivery_blocked": true,
+  "documents_missing": [],
+  "documents_used": [
+    {
+      "path": "artifacts/production-readiness/20260801T195846Z/golden.xlsx"
+    }
+  ],
+  "execution_id": "pr-budget-01",
+  "generated_at": "2026-08-01T20:00:54.855134+00:00",
+  "human_review": {
+    "accepted_by_tiago": false,
+    "status": "PENDING"
+  },
+  "package_released_to_client": false,
+  "pdf_excel_agreement": true,
+  "ressalvas": [
+    "human review required",
+    "SINAPI demo structure not official acquisition"
+  ],
+  "sources_consulted": [
+    "budget_workbook"
+  ],
+  "sources_failed": [],
+  "template_version": "1.0"
+}

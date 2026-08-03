@@ -1,0 +1,11 @@
+{
+  "captured_at": "2026-08-02T13:56:01.224139+00:00",
+  "code_sha_vps": "527672455481f2a65ef8d0b97d996bfb04ba1033",
+  "active_entities": 407,
+  "overdue_count": 0,
+  "within_sla_count": 407,
+  "never_succeeded_count": 0,
+  "lag_cleared": true,
+  "sla_hours": 24,
+  "incrementals": 2
+}

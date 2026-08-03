@@ -1,0 +1,37 @@
+{
+  "code_sha": "527672455481f2a65ef8d0b97d996bfb04ba1033",
+  "timestamp": "2026-08-02T13:42:39.975824+00:00",
+  "claim_level": "OFFICIAL_SIDRA_INDEX",
+  "is_fixture": false,
+  "non_claim": "CAIXA bulk composition zip not acquired; IBGE SIDRA official index used",
+  "acquisition": {
+    "ok": true,
+    "claim_level": "OFFICIAL_SIDRA_INDEX",
+    "item_count": 4,
+    "sidra_url": "https://apisidra.ibge.gov.br/values/t/7060/n1/all/v/all/p/last%201",
+    "sidra_sha256": "84ed802335320db66063845a7c668791fe51ee8443de9daab94d76c501f9c88c",
+    "sidra_rows": 5
+  },
+  "aligned_competence": {
+    "exact": 0,
+    "approximate": 1,
+    "missing": 1,
+    "unit_incompatible": 2,
+    "competence_incompatible": 0
+  },
+  "with_competence_mismatch": {
+    "exact": 0,
+    "approximate": 0,
+    "missing": 0,
+    "unit_incompatible": 0,
+    "competence_incompatible": 1
+  },
+  "sample_statuses": [
+    "unit_incompatible",
+    "unit_incompatible",
+    "missing",
+    "approximate"
+  ],
+  "is_official": true,
+  "ok": true
+}

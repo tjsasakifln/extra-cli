@@ -1,0 +1,20 @@
+{
+  "system": "SINAPI",
+  "publisher": "CAIXA (demo structure — not a live official acquisition)",
+  "source_url": "https://www.caixa.gov.br/site/Paginas/downloads.aspx",
+  "acquired_at": "2026-08-02T12:17:25.002714+00:00",
+  "reference_month": "2026-06",
+  "locality": "SC",
+  "tax_regime": "desonerado",
+  "file_name": "items.json",
+  "file_path": "artifacts/production-readiness/20260802T121230Z/sinapi-demo/items.json",
+  "items_path": "artifacts/production-readiness/20260802T121230Z/sinapi-demo/items.json",
+  "size": 313,
+  "sha256": "ad554373a81f93df9cd4b1f8d41e14cc088dae7ae7fa8c8af7056cbbf5469558",
+  "license_or_access_note": "Demo structure for matcher tests only. Not an official bulk dump. Do not present as live SINAPI acquisition.",
+  "parser_version": "production-readiness-1",
+  "is_demo_structure": true,
+  "is_fixture": false,
+  "synthetic": false,
+  "claim_level": "STRUCTURE_ONLY_NOT_OFFICIAL_ACQUISITION"
+}

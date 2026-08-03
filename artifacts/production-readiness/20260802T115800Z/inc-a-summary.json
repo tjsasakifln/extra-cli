@@ -1,0 +1,9 @@
+{
+  "eligible_count": 407,
+  "overdue_count": 0,
+  "never_succeeded_count": 0,
+  "within_sla_count": 407,
+  "sla_hours": 24,
+  "lag_cleared": true,
+  "generated_at": "2026-08-02T11:57:32.757091+00:00"
+}

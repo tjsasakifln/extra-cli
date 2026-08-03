@@ -1,0 +1,65 @@
+{
+  "code_sha": "ba913c1f529115179eb6115c1ecea3c0c720560c",
+  "dual_run_compare": {
+    "accepted_checksum": "e3197cbf46cb49b3b022cd70cab7b32433230d315ab12ba733e5f88b7bad1ff1",
+    "match": true,
+    "run_a_accepted": 4402632,
+    "run_b_accepted": 4402632,
+    "run_b_elapsed_seconds": 172.117,
+    "run_b_max_rss_bytes": 57495552
+  },
+  "expected_total": 4479442,
+  "host": "ec-prod",
+  "proven_on": "pncp_supplier_contracts VPS lake",
+  "resume_proof": {
+    "continued": {
+      "completed": true,
+      "offset": 4479442
+    },
+    "partial_completed": true,
+    "partial_offset": 5000
+  },
+  "run1": {
+    "accepted": 4402632,
+    "checkpoint": {
+      "accepted": 4402632,
+      "completed": true,
+      "deduplicated": 0,
+      "entities": 14044,
+      "last_key": "93845519000151-2-000060/2026",
+      "offset": 4479442,
+      "rejected": 76810,
+      "run_id": "run1",
+      "updated_at": "2026-08-01T20:27:21.946175+00:00"
+    },
+    "checksums": {
+      "accepted.jsonl": "e3197cbf46cb49b3b022cd70cab7b32433230d315ab12ba733e5f88b7bad1ff1",
+      "checkpoint.json": "8519094b09ffd5cec617da22f9d7134410fee48c90be13b6147075ff1dfc6718",
+      "rejected.jsonl": "986a14fac9e4fcaa00fdfe394b5299906166d7434e12777e62a619f2b89bb556",
+      "spill-run1.sqlite": "1fa3192d09956592adc76c83f5e8029f039638f3e57e8f2dc1ca93c985a96f7d"
+    },
+    "code_sha": null,
+    "completed": true,
+    "deduplicated": 0,
+    "elapsed_seconds": 166.356,
+    "entities": 14044,
+    "errors": [],
+    "expected_total": 4479442,
+    "final_offset": 4479442,
+    "generated_at": "2026-08-01T20:27:22.602020+00:00",
+    "incomplete": false,
+    "max_rss_bytes": 57462784,
+    "min_disk_free_bytes": 485726191616,
+    "platform": "linux",
+    "publication_allowed": true,
+    "python": "3.13.5",
+    "rejected": 76810,
+    "run_id": "run1",
+    "source": "pncp_supplier_contracts@postgresql",
+    "started_offset": 0,
+    "throughput_rows_per_s": 26926.851,
+    "warnings": []
+  },
+  "source": "pncp_supplier_contracts@postgresql",
+  "timestamp": "20260801T202435Z"
+}

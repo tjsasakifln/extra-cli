@@ -1,0 +1,14 @@
+{
+  "claim_level": "STRUCTURE_ONLY_NOT_OFFICIAL_ACQUISITION",
+  "code_sha": "9fa6d007887a9d2f80c26fbb698f0c475a216cdd",
+  "counts": {
+    "approximate": 0,
+    "competence_incompatible": 0,
+    "exact": 2,
+    "missing": 1,
+    "unit_incompatible": 1
+  },
+  "is_demo_structure": true,
+  "non_claim": "NOT live official acquisition",
+  "timestamp": "2026-08-01T20:00:54.968773+00:00"
+}

@@ -1,0 +1,15 @@
+{
+  "ok": true,
+  "claims": {
+    "backup_exists": true,
+    "restore_separate_db": true,
+    "tables_restored": true,
+    "table_inventory_equal": true,
+    "domain_row_counts_equal": true,
+    "domain_fingerprints_equal": true
+  },
+  "source_public_tables": 108,
+  "restore_public_tables": 108,
+  "code_sha": "527672455481f2a65ef8d0b97d996bfb04ba1033",
+  "timestamp": "2026-08-02T13:42:48.873265+00:00"
+}

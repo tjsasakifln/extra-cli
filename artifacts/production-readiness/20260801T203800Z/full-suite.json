@@ -1,0 +1,9 @@
+{
+  "cc_adapters": "12 passed",
+  "code_sha": "4961cb3e10bd406a74f3c3f671fb9274af960098",
+  "command": "pytest tests/production_readiness tests/process_documents/test_entity_source_fair_queue.py tests/process_documents/test_quarantine_and_source_report.py",
+  "entity_queue_baseline": "14 passed",
+  "result": "23 passed",
+  "targeted_new_tests": 23,
+  "timestamp": "2026-08-01T20:37:38.398718+00:00"
+}

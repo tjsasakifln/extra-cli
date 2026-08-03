@@ -1,0 +1,17 @@
+{
+  "code_sha": "915327ebe0ac9bdbbd1aceee39311e56b630ff56",
+  "not_recommitted_binaries": true,
+  "pdf_xlsx_generated_in_source_case": true,
+  "reproof_on_head": "915327ebe0ac9bdbbd1aceee39311e56b630ff56",
+  "result": "PASS",
+  "source_case": "artifacts/production-readiness/20260801T195846Z/bid-case/PR-READINESS-01",
+  "timestamp": "2026-08-02T12:28:30.674770+00:00",
+  "verify_command": "python -m scripts.bid_readiness verify --case <case>",
+  "verify_result": {
+    "blockers_count": 11,
+    "documents_count": 22,
+    "ok": true,
+    "package_status": "BLOCKED_BY_MISSING_DOCUMENT",
+    "requirements_count": 22
+  }
+}

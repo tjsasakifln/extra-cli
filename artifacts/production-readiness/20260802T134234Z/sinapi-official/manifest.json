@@ -1,0 +1,22 @@
+{
+  "system": "SINAPI",
+  "publisher": "IBGE SIDRA (SINAPI table 7060) — official open API",
+  "source_url": "https://apisidra.ibge.gov.br/values/t/7060/n1/all/v/all/p/last%201",
+  "acquired_at": "2026-08-02T13:42:39.839940Z",
+  "reference_month": "202606",
+  "locality": "BR",
+  "tax_regime": "not_applicable_index_or_as_published",
+  "file_name": "items.json",
+  "file_path": "/mnt/d/extra consultoria/.worktrees/production-readiness-closeout/artifacts/production-readiness/20260802T134234Z/sinapi-official/items.json",
+  "items_path": "/mnt/d/extra consultoria/.worktrees/production-readiness-closeout/artifacts/production-readiness/20260802T134234Z/sinapi-official/items.json",
+  "size": 1847,
+  "sha256": "f2b82c55fb26860965506fd99dfdd178a9022902ed5e477494fa1bdaedd07029",
+  "license_or_access_note": "Public IBGE SIDRA API. Aggregate SINAPI indices — not CAIXA full composition dump. Composition bulk remains optional via OFFICIAL_SINAPI_ITEMS_PATH.",
+  "parser_version": "official_sinapi_acquire.v1",
+  "claim_level": "OFFICIAL_SIDRA_INDEX",
+  "is_fixture": false,
+  "synthetic": false,
+  "is_demo_structure": false,
+  "item_count": 4,
+  "sidra_sha256": "84ed802335320db66063845a7c668791fe51ee8443de9daab94d76c501f9c88c"
+}

@@ -1,0 +1,7 @@
+{
+  "head_at_check": "d54e408e635faf166d43b25f7a74afbfb0f308f5",
+  "pr": 196,
+  "result": "all_required_checks_green",
+  "note": "Only historical CANCELLED PR Reviewability superseded by SUCCESS on same tip. mergeStateStatus=CLEAN.",
+  "local_timeout_fix_commit": "fefa485d80457ae7785755cbbe204fb59465ef21"
+}

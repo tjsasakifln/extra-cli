@@ -1,0 +1,13 @@
+{
+  "accepted": 4402632,
+  "checksum_accepted": "e3197cbf46cb49b3b022cd70cab7b32433230d315ab12ba733e5f88b7bad1ff1",
+  "code_sha": "4961cb3e10bd406a74f3c3f671fb9274af960098",
+  "elapsed_seconds": 166.356,
+  "entities": 14044,
+  "full_scale_rows": 4479442,
+  "max_rss_bytes": 57462784,
+  "publication_allowed": true,
+  "rejected": 76810,
+  "throughput_rows_per_s": 26926.851,
+  "timestamp": "2026-08-01T20:37:37.693991+00:00"
+}

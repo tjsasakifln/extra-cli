@@ -1,0 +1,46 @@
+{
+  "chain": "queue lag_cleared → budget audit case → technical acervo LIVE match → bid readiness case → reports/package",
+  "code_sha": "610442b5f2607ca0901fc96a8bc84a2e5bb1e4e5",
+  "reproof_on_head": "610442b5f2607ca0901fc96a8bc84a2e5bb1e4e5",
+  "result": "PASS",
+  "steps": [
+    {
+      "active": 407,
+      "evidence": "vps-full-cycle.json",
+      "lag_cleared": true,
+      "name": "universe_queue_lag_cleared",
+      "status": "PASS"
+    },
+    {
+      "case_source": "artifacts/production-readiness/20260801T195846Z/budget-root/cases/pr-budget-01",
+      "finding_count": 31,
+      "name": "budget_audit",
+      "reports_present": true,
+      "status": "PASS"
+    },
+    {
+      "command": "python -m scripts.technical_acervo match --service alvenaria --qty 100 --unit m2 --json",
+      "exact_service_match": true,
+      "name": "technical_acervo_live_match",
+      "status": "PASS",
+      "top_score": 254.0
+    },
+    {
+      "blockers_count": 11,
+      "case": "bid-case/PR-READINESS-01",
+      "case_source": "artifacts/production-readiness/20260801T195846Z/bid-case/PR-READINESS-01",
+      "documents_count": 22,
+      "has_package": true,
+      "has_reports": true,
+      "name": "bid_readiness",
+      "note": "Verified via scripts.bid_readiness verify; binaries not re-committed (policy)",
+      "package_status": "BLOCKED_BY_MISSING_DOCUMENT",
+      "ready_to_submit_auto": true,
+      "requirements_count": 22,
+      "status": "PASS",
+      "verify_command": "python -m scripts.bid_readiness verify --case .../PR-READINESS-01",
+      "verify_ok": true
+    }
+  ],
+  "timestamp": "2026-08-02T12:25:50.903286+00:00"
+}

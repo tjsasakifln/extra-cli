@@ -1,0 +1,12 @@
+{
+  "code_sha_local": "f0b8772db7edf8e7fc1b3360cd6240f50bb25fef",
+  "code_sha_vps": "8490b7150c198fd825415116cbabd4989d3f8bf6",
+  "sha_match": true,
+  "deploy_method": "scripts/ops/deploy_production_readiness.sh --skip-full-scale --skip-cycles",
+  "remote_dir": "/opt/extra-consultoria",
+  "host": "ec-prod",
+  "timestamp": "2026-08-02T13:08:54.280834+00:00",
+  "pre_deploy_backup": "/var/lib/extra-consultoria/backups/pre-deploy-20260802T130535Z",
+  "queue_summary_post_deploy": null,
+  "tip_after_skeptic_fix": "f0b8772db7edf8e7fc1b3360cd6240f50bb25fef"
+}

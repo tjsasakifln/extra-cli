@@ -1,0 +1,91 @@
+{
+  "code_sha": "f0b8772db7edf8e7fc1b3360cd6240f50bb25fef",
+  "timestamp": "2026-08-02T13:02:10.567533+00:00",
+  "channels_configured": true,
+  "destinations": {
+    "smtp": false,
+    "webhook": true,
+    "any": true,
+    "env_keys_present": {
+      "NOTIFY_SMTP_HOST": false,
+      "NOTIFY_SMTP_FROM": false,
+      "NOTIFY_SMTP_TO": false,
+      "NOTIFY_WEBHOOK_URL": true
+    }
+  },
+  "status": {
+    "generated_at": "2026-08-02T13:02:10.567555Z",
+    "destination_configured": true,
+    "destinations": {
+      "smtp": false,
+      "webhook": true,
+      "any": true,
+      "env_keys_present": {
+        "NOTIFY_SMTP_HOST": false,
+        "NOTIFY_SMTP_FROM": false,
+        "NOTIFY_SMTP_TO": false,
+        "NOTIFY_WEBHOOK_URL": true
+      }
+    },
+    "dedup_seconds": 900,
+    "rate_limit": 20,
+    "rate_window_seconds": 3600,
+    "ledger_path": "/mnt/d/extra consultoria/.worktrees/production-readiness-closeout/output/ops/alert_ledger.jsonl",
+    "capabilities": {
+      "destination_configured": true,
+      "destination_testable": true,
+      "actionable_context": true,
+      "storm_control": true,
+      "rate_limit_or_dedup": true,
+      "webhook_failure_detectable": true,
+      "fallback_persistent": true
+    },
+    "claims": {
+      "forbidden": [
+        "Claim live webhook delivered without --live test",
+        "LOCAL_READY from alert pipeline alone"
+      ]
+    }
+  },
+  "probe_live": {
+    "success": true,
+    "message": "HTTP 200",
+    "detectable_failure": true,
+    "http_status": 200
+  },
+  "live_dispatch": {
+    "title": "production-readiness Gate F live channel",
+    "fingerprint": "a9e02f49b44c68d7",
+    "suppressed": false,
+    "suppress_reason": null,
+    "destinations": {
+      "smtp": false,
+      "webhook": true,
+      "any": true,
+      "env_keys_present": {
+        "NOTIFY_SMTP_HOST": false,
+        "NOTIFY_SMTP_FROM": false,
+        "NOTIFY_SMTP_TO": false,
+        "NOTIFY_WEBHOOK_URL": true
+      }
+    },
+    "dry_run": false,
+    "channels": [
+      {
+        "success": true,
+        "message": "Webhook sent (HTTP 200)",
+        "channel": "webhook"
+      }
+    ],
+    "fallback_ledger": null,
+    "webhook_failure_detectable": true,
+    "has_actionable_context": true
+  },
+  "receive": {
+    "total": 4,
+    "latest_method": "POST",
+    "latest_uuid": "4e216f62-4065-4379-86a5-8cb73ae69402"
+  },
+  "ok": true,
+  "tip_after_skeptic_fix": "f0b8772db7edf8e7fc1b3360cd6240f50bb25fef"
+}

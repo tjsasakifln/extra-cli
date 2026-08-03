@@ -1,0 +1,86 @@
+[
+  {
+    "code": "SINAPI-IDX-202606",
+    "description": "IPCA - Variação mensal",
+    "unit": "índice",
+    "price": 0.16,
+    "source_row": {
+      "NC": "1",
+      "NN": "Brasil",
+      "MC": "2",
+      "MN": "%",
+      "V": "0.16",
+      "D1C": "1",
+      "D1N": "Brasil",
+      "D2C": "63",
+      "D2N": "IPCA - Variação mensal",
+      "D3C": "202606",
+      "D3N": "junho 2026",
+      "D4C": "7169",
+      "D4N": "Índice geral"
+    }
+  },
+  {
+    "code": "SINAPI-IDX-202606",
+    "description": "IPCA - Variação acumulada no ano",
+    "unit": "índice",
+    "price": 3.36,
+    "source_row": {
+      "NC": "1",
+      "NN": "Brasil",
+      "MC": "2",
+      "MN": "%",
+      "V": "3.36",
+      "D1C": "1",
+      "D1N": "Brasil",
+      "D2C": "69",
+      "D2N": "IPCA - Variação acumulada no ano",
+      "D3C": "202606",
+      "D3N": "junho 2026",
+      "D4C": "7169",
+      "D4N": "Índice geral"
+    }
+  },
+  {
+    "code": "SINAPI-IDX-202606",
+    "description": "IPCA - Variação acumulada em 12 meses",
+    "unit": "índice",
+    "price": 4.64,
+    "source_row": {
+      "NC": "1",
+      "NN": "Brasil",
+      "MC": "2",
+      "MN": "%",
+      "V": "4.64",
+      "D1C": "1",
+      "D1N": "Brasil",
+      "D2C": "2265",
+      "D2N": "IPCA - Variação acumulada em 12 meses",
+      "D3C": "202606",
+      "D3N": "junho 2026",
+      "D4C": "7169",
+      "D4N": "Índice geral"
+    }
+  },
+  {
+    "code": "SINAPI-IDX-202606",
+    "description": "IPCA - Peso mensal",
+    "unit": "índice",
+    "price": 100.0,
+    "source_row": {
+      "NC": "1",
+      "NN": "Brasil",
+      "MC": "2",
+      "MN": "%",
+      "V": "100.0000",
+      "D1C": "1",
+      "D1N": "Brasil",
+      "D2C": "66",
+      "D2N": "IPCA - Peso mensal",
+      "D3C": "202606",
+      "D3N": "junho 2026",
+      "D4C": "7169",
+      "D4N": "Índice geral"
+    }
+  }
+]

@@ -1,0 +1,23 @@
+{
+  "code_sha": "f7f5aac0115eeea26391b5e2ac4a54b81f508695",
+  "cycle1": {
+    "batches": 1,
+    "count": 0,
+    "drain_stop_reason": "lag_cleared",
+    "lag_cleared": true
+  },
+  "cycle2": {
+    "batches": 1,
+    "count": 0,
+    "drain_stop_reason": "lag_cleared",
+    "lag_cleared": true
+  },
+  "cycle3": {
+    "batches": 1,
+    "count": 0,
+    "drain_stop_reason": "lag_cleared",
+    "lag_cleared": true
+  },
+  "lag_cleared_all": true,
+  "timestamp": "2026-08-01T21:48:29.347266+00:00"
+}

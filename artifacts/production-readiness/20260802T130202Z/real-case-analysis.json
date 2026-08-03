@@ -1,0 +1,94 @@
+{
+  "schema": "production-readiness.real-case-chain.v1",
+  "execution_id": "real-case-20260802T130702Z",
+  "code_sha": "8490b7150c198fd825415116cbabd4989d3f8bf6",
+  "generated_at": "2026-08-02T13:07:10.322714Z",
+  "claim_level": "UNIFIED_CHAIN_SAME_EXECUTION",
+  "chain": "edital → budget → acervo → bid_readiness → PDF/XLSX",
+  "same_execution": true,
+  "isolation_note": "Per-campaign worktree isolation intentionally lifted in-process for this unified production-readiness chain only; modules still enforce business rules.",
+  "out_dir": "artifacts/production-readiness/20260802T130202Z/real-case",
+  "steps": [
+    {
+      "name": "edital_case",
+      "source": "/mnt/d/extra consultoria/.worktrees/production-readiness-closeout/tests/edital_case/fixtures/sample_edital.pdf",
+      "ok": true,
+      "exit_code": 0,
+      "result_keys": [
+        "case_dir",
+        "ingest",
+        "recommendation",
+        "findings",
+        "report_ok",
+        "verification"
+      ]
+    },
+    {
+      "name": "budget_audit",
+      "source": "/mnt/d/extra consultoria/.worktrees/production-readiness-closeout/tests/budget_audit/fixtures/operational_public_style_budget.xlsx",
+      "ok": true,
+      "exit_code": 0,
+      "global_status": "PASS",
+      "case_dir": "artifacts/production-readiness/20260802T130202Z/real-case/budget",
+      "result_keys": [
+        "case_dir",
+        "global_status",
+        "verification"
+      ]
+    },
+    {
+      "name": "technical_acervo",
+      "ok": true,
+      "exit_code": 0,
+      "result_path": "artifacts/production-readiness/20260802T130202Z/real-case/acervo-match.json",
+      "exact_service_match": false,
+      "top_score": null
+    },
+    {
+      "name": "bid_readiness",
+      "requirements": "/mnt/d/extra consultoria/.worktrees/production-readiness-closeout/scripts/bid_readiness/fixtures/golden/requirements.json",
+      "documents": "/mnt/d/extra consultoria/.worktrees/production-readiness-closeout/scripts/bid_readiness/fixtures/golden/documents",
+      "ready_to_submit_auto": false,
+      "ok": true,
+      "exit_code": 0,
+      "package_status": "BLOCKED_BY_MISSING_DOCUMENT",
+      "result_keys": [
+        "case_id",
+        "system_status",
+        "package_status",
+        "reference_date",
+        "entity",
+        "summary",
+        "findings",
+        "requirements",
+        "documents",
+        "match_rows",
+        "claims",
+        "non_claims",
+        "operational_proof",
+        "final_status"
+      ]
+    },
+    {
+      "name": "deliverables",
+      "ok": true,
+      "pdf_count": 3,
+      "xlsx_count": 4,
+      "pdfs": [
+        "bid/reports/readiness-report.pdf",
+        "budget/reports/budget-audit-report.pdf",
+        "edital/real-case-20260802t130702z-edital/reports/triage-report.pdf"
+      ],
+      "xlsxs": [
+        "bid/reports/readiness-workbook.xlsx",
+        "budget/objects/31ea725474a23eb2c0baf1876791c8c3ab23e17f3ab60e18fc4e4e5ddaee24bc.xlsx",
+        "budget/reports/budget-audit-workbook.xlsx",
+        "edital/real-case-20260802t130702z-edital/reports/triage-workbook.xlsx"
+      ]
+    }
+  ],
+  "ready_to_submit_auto": false,
+  "package_status": "BLOCKED_BY_MISSING_DOCUMENT",
+  "human_review_required": true,
+  "result": "PASS"
+}
