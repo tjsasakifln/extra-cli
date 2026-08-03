@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-import json
+from collections.abc import Sequence
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
-from typing import Any, Callable, Sequence
+from typing import Any
 
 import numpy as np
 
@@ -95,10 +95,8 @@ def make_time_folds(
     return folds
 
 
-def _subset(
-    X: list[list[float]], y: list[float], idx: np.ndarray
-) -> tuple[list[list[float]], list[float]]:
-    return [X[i] for i in idx], [y[i] for i in idx]
+def _subset(x_mat: list[list[float]], y: list[float], idx: np.ndarray) -> tuple[list[list[float]], list[float]]:
+    return [x_mat[i] for i in idx], [y[i] for i in idx]
 
 
 def run_classification_backtest(
@@ -116,7 +114,7 @@ def run_classification_backtest(
             gate={"passed": False, "data_blocked": True, "reasons": ["empty"]},
         )
 
-    feature_names, X, y, as_ofs = examples_to_matrix(examples)
+    feature_names, x_mat, y, as_ofs = examples_to_matrix(examples)
     folds_idx = make_time_folds(as_ofs, n_folds=n_folds)
     fold_rows: list[dict[str, Any]] = []
 
@@ -130,30 +128,34 @@ def run_classification_backtest(
     }
 
     for fi, (tr, ca, te) in enumerate(folds_idx):
-        Xtr, ytr = _subset(X, y, tr)
-        Xca, yca = _subset(X, y, ca) if len(ca) else (Xtr[-max(1, len(Xtr)//5):], ytr[-max(1, len(ytr)//5):])
-        Xte, yte = _subset(X, y, te)
+        x_tr, ytr = _subset(x_mat, y, tr)
+        if len(ca):
+            x_ca, yca = _subset(x_mat, y, ca)
+        else:
+            hold = max(1, len(x_tr) // 5)
+            x_ca, yca = x_tr[-hold:], ytr[-hold:]
+        x_te, yte = _subset(x_mat, y, te)
 
         models: dict[str, FittedModel] = {
-            "prevalence_baseline": fit_prevalence_baseline(Xtr, ytr, feature_names),
-            "frequency_baseline": fit_frequency_feature_baseline(
-                Xtr, ytr, feature_names
-            ),
-            "logistic_l2": fit_logistic(Xtr, ytr, feature_names),
-            "hist_gbm_clf": fit_hist_gbm_classifier(Xtr, ytr, feature_names),
+            "prevalence_baseline": fit_prevalence_baseline(x_tr, ytr, feature_names),
+            "frequency_baseline": fit_frequency_feature_baseline(x_tr, ytr, feature_names),
+            "logistic_l2": fit_logistic(x_tr, ytr, feature_names),
+            "hist_gbm_clf": fit_hist_gbm_classifier(x_tr, ytr, feature_names),
         }
         # calibrate logistic and gbm on cal set
         for name in ("logistic_l2", "hist_gbm_clf"):
-            models[name] = calibrate_classifier(
-                models[name], Xca, yca, method="sigmoid"
-            )
+            models[name] = calibrate_classifier(models[name], x_ca, yca, method="sigmoid")
 
-        fold_metrics: dict[str, Any] = {"fold_id": f"fold_{fi}", "n_train": len(ytr), "n_test": len(yte)}
-        base_proba = models["prevalence_baseline"].predict_proba(Xte)
+        fold_metrics: dict[str, Any] = {
+            "fold_id": f"fold_{fi}",
+            "n_train": len(ytr),
+            "n_test": len(yte),
+        }
+        base_proba = models["prevalence_baseline"].predict_proba(x_te)
         # choose best baseline among prevalence and frequency by brier
         from scripts.predictive.metrics import brier_score
 
-        freq_proba = models["frequency_baseline"].predict_proba(Xte)
+        freq_proba = models["frequency_baseline"].predict_proba(x_te)
         if brier_score(yte, freq_proba) < brier_score(yte, base_proba):
             best_base = freq_proba
             best_base_name = "frequency_baseline"
@@ -162,7 +164,7 @@ def run_classification_backtest(
             best_base_name = "prevalence_baseline"
 
         for name, model in models.items():
-            proba = model.predict_proba(Xte)
+            proba = model.predict_proba(x_te)
             rep = classification_report(yte, proba, baseline_prob=best_base)
             rep["baseline_name"] = best_base_name
             rep["calibrated"] = model.calibrated
@@ -224,25 +226,23 @@ def run_regression_backtest(
             gate={"passed": False, "data_blocked": True, "reasons": ["empty"]},
         )
 
-    feature_names, X, y, as_ofs = examples_to_matrix(examples)
+    feature_names, x_mat, y, as_ofs = examples_to_matrix(examples)
     folds_idx = make_time_folds(as_ofs, n_folds=n_folds)
     fold_rows: list[dict[str, Any]] = []
     last: dict[str, Any] = {}
 
     for fi, (tr, ca, te) in enumerate(folds_idx):
-        Xtr, ytr = _subset(X, y, tr)
-        Xte, yte = _subset(X, y, te)
-        base = fit_median_baseline(Xtr, ytr, feature_names)
-        bundle = fit_quantile_bundle(Xtr, ytr, feature_names)
-        gbm = fit_hist_gbm_regressor(Xtr, ytr, feature_names)
-        y_base = base.predict(Xte)
-        y_p10 = bundle["p10"].predict(Xte)
-        y_p50 = bundle["p50"].predict(Xte)
-        y_p90 = bundle["p90"].predict(Xte)
-        y_gbm = gbm.predict(Xte)
-        rep_q = regression_report(
-            yte, y_p50, y_p10, y_p90, baseline_p50=y_base
-        )
+        x_tr, ytr = _subset(x_mat, y, tr)
+        x_te, yte = _subset(x_mat, y, te)
+        base = fit_median_baseline(x_tr, ytr, feature_names)
+        bundle = fit_quantile_bundle(x_tr, ytr, feature_names)
+        gbm = fit_hist_gbm_regressor(x_tr, ytr, feature_names)
+        y_base = base.predict(x_te)
+        y_p10 = bundle["p10"].predict(x_te)
+        y_p50 = bundle["p50"].predict(x_te)
+        y_p90 = bundle["p90"].predict(x_te)
+        y_gbm = gbm.predict(x_te)
+        rep_q = regression_report(yte, y_p50, y_p10, y_p90, baseline_p50=y_base)
         rep_g = regression_report(yte, y_gbm, baseline_p50=y_base)
         fold_rows.append(
             {
@@ -304,18 +304,18 @@ def train_production_candidate(
     task: str = "classification",
 ) -> tuple[FittedModel, list[str], dict[str, Any]]:
     """Train final candidate on all but last 15% time (for shadow deployment)."""
-    feature_names, X, y, as_ofs = examples_to_matrix(examples)
+    feature_names, x_mat, y, as_ofs = examples_to_matrix(examples)
     order = np.argsort([a.timestamp() for a in as_ofs])
     n = len(order)
     cut = int(n * 0.85)
     cal_cut = int(n * 0.75)
     tr = order[:cal_cut]
     ca = order[cal_cut:cut]
-    Xtr, ytr = _subset(X, y, tr)
-    Xca, yca = _subset(X, y, ca) if len(ca) else (Xtr, ytr)
+    x_tr, ytr = _subset(x_mat, y, tr)
+    x_ca, yca = _subset(x_mat, y, ca) if len(ca) else (x_tr, ytr)
     if task == "classification":
-        model = fit_hist_gbm_classifier(Xtr, ytr, feature_names)
-        model = calibrate_classifier(model, Xca, yca, method="sigmoid")
+        model = fit_hist_gbm_classifier(x_tr, ytr, feature_names)
+        model = calibrate_classifier(model, x_ca, yca, method="sigmoid")
         return model, feature_names, {"n_train": len(ytr), "n_cal": len(yca)}
-    model = fit_hist_gbm_regressor(Xtr, ytr, feature_names)
+    model = fit_hist_gbm_regressor(x_tr, ytr, feature_names)
     return model, feature_names, {"n_train": len(ytr)}

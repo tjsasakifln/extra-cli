@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import hashlib
 import json
-import math
-from dataclasses import asdict, dataclass, field
-from typing import Any, Protocol, Sequence
+from collections.abc import Sequence
+from dataclasses import dataclass, field
+from typing import Any
 
 import numpy as np
 from sklearn.calibration import CalibratedClassifierCV
@@ -27,8 +27,8 @@ class FittedModel:
     calibration_method: str | None = None
     extras: dict[str, Any] = field(default_factory=dict)
 
-    def predict_proba(self, X: Sequence[Sequence[float]]) -> np.ndarray:
-        arr = np.asarray(X, dtype=float)
+    def predict_proba(self, x_mat: Sequence[Sequence[float]]) -> np.ndarray:
+        arr = np.asarray(x_mat, dtype=float)
         if self.task != "classification":
             raise TypeError("predict_proba only for classification")
         if hasattr(self.model, "predict_proba"):
@@ -42,8 +42,8 @@ class FittedModel:
             return 1.0 / (1.0 + np.exp(-z))
         raise TypeError(f"Model {self.name} cannot predict_proba")
 
-    def predict(self, X: Sequence[Sequence[float]]) -> np.ndarray:
-        arr = np.asarray(X, dtype=float)
+    def predict(self, x_mat: Sequence[Sequence[float]]) -> np.ndarray:
+        arr = np.asarray(x_mat, dtype=float)
         return np.asarray(self.model.predict(arr), dtype=float)
 
     def artifact_blob(self) -> bytes:
@@ -71,17 +71,15 @@ class FittedModel:
         return hashlib.sha256(self.artifact_blob()).hexdigest()
 
 
-def _xy(
-    X: Sequence[Sequence[float]], y: Sequence[float]
-) -> tuple[np.ndarray, np.ndarray]:
-    return np.asarray(X, dtype=float), np.asarray(y, dtype=float)
+def _xy(x_mat: Sequence[Sequence[float]], y: Sequence[float]) -> tuple[np.ndarray, np.ndarray]:
+    return np.asarray(x_mat, dtype=float), np.asarray(y, dtype=float)
 
 
 # ---- Classification baselines ----
 
 
 def fit_prevalence_baseline(
-    X: Sequence[Sequence[float]],
+    x_mat: Sequence[Sequence[float]],
     y: Sequence[float],
     feature_names: list[str],
 ) -> FittedModel:
@@ -91,8 +89,8 @@ def fit_prevalence_baseline(
         def __init__(self, p: float) -> None:
             self.p = p
 
-        def predict_proba(self, X: np.ndarray) -> np.ndarray:
-            n = len(X)
+        def predict_proba(self, x_mat: np.ndarray) -> np.ndarray:
+            n = len(x_mat)
             return np.column_stack([np.full(n, 1 - self.p), np.full(n, self.p)])
 
     return FittedModel(
@@ -106,13 +104,13 @@ def fit_prevalence_baseline(
 
 
 def fit_frequency_feature_baseline(
-    X: Sequence[Sequence[float]],
+    x_mat: Sequence[Sequence[float]],
     y: Sequence[float],
     feature_names: list[str],
     feature_key: str = "n_contracts_365d",
 ) -> FittedModel:
     """Map a single frequency feature to empirical rate via binning."""
-    arr, yy = _xy(X, y)
+    arr, yy = _xy(x_mat, y)
     if feature_key in feature_names:
         idx = feature_names.index(feature_key)
     else:
@@ -121,7 +119,7 @@ def fit_frequency_feature_baseline(
     # simple monotone: p = sigmoid(a * log1p(x) + b) fit via logistic on one feature
     x1 = np.log1p(np.maximum(col, 0)).reshape(-1, 1)
     if len(yy) < 10 or len(np.unique(yy)) < 2:
-        return fit_prevalence_baseline(X, y, feature_names)
+        return fit_prevalence_baseline(x_mat, y, feature_names)
     clf = LogisticRegression(max_iter=500, C=1.0)
     clf.fit(x1, yy)
 
@@ -130,8 +128,8 @@ def fit_frequency_feature_baseline(
             self.clf = clf
             self.idx = idx
 
-        def predict_proba(self, X: np.ndarray) -> np.ndarray:
-            x1 = np.log1p(np.maximum(X[:, self.idx], 0)).reshape(-1, 1)
+        def predict_proba(self, x_mat: np.ndarray) -> np.ndarray:
+            x1 = np.log1p(np.maximum(x_mat[:, self.idx], 0)).reshape(-1, 1)
             return self.clf.predict_proba(x1)
 
     return FittedModel(
@@ -145,21 +143,21 @@ def fit_frequency_feature_baseline(
 
 
 def fit_logistic(
-    X: Sequence[Sequence[float]],
+    x_mat: Sequence[Sequence[float]],
     y: Sequence[float],
     feature_names: list[str],
     *,
-    C: float = 1.0,
+    c_reg: float = 1.0,
 ) -> FittedModel:
-    arr, yy = _xy(X, y)
+    arr, yy = _xy(x_mat, y)
     if len(yy) < 10 or len(np.unique(yy)) < 2:
-        return fit_prevalence_baseline(X, y, feature_names)
+        return fit_prevalence_baseline(x_mat, y, feature_names)
     pipe = Pipeline(
         [
             ("scaler", StandardScaler()),
             (
                 "clf",
-                LogisticRegression(max_iter=1000, C=C, class_weight="balanced"),
+                LogisticRegression(max_iter=1000, C=c_reg, class_weight="balanced"),
             ),
         ]
     )
@@ -174,16 +172,16 @@ def fit_logistic(
 
 
 def fit_hist_gbm_classifier(
-    X: Sequence[Sequence[float]],
+    x_mat: Sequence[Sequence[float]],
     y: Sequence[float],
     feature_names: list[str],
     *,
     max_depth: int = 4,
     max_iter: int = 100,
 ) -> FittedModel:
-    arr, yy = _xy(X, y)
+    arr, yy = _xy(x_mat, y)
     if len(yy) < 50 or len(np.unique(yy)) < 2:
-        return fit_logistic(X, y, feature_names)
+        return fit_logistic(x_mat, y, feature_names)
     clf = HistGradientBoostingClassifier(
         max_depth=max_depth,
         max_iter=max_iter,
@@ -202,12 +200,12 @@ def fit_hist_gbm_classifier(
 
 def calibrate_classifier(
     fitted: FittedModel,
-    X_cal: Sequence[Sequence[float]],
+    x_cal: Sequence[Sequence[float]],
     y_cal: Sequence[float],
     method: str = "isotonic",
 ) -> FittedModel:
     """Calibrate on held-out set. method: isotonic | sigmoid (Platt)."""
-    arr, yy = _xy(X_cal, y_cal)
+    arr, yy = _xy(x_cal, y_cal)
     if len(yy) < 30 or len(np.unique(yy)) < 2:
         return fitted
     # sklearn CalibratedClassifierCV with cv='prefit' deprecated; use frozen estimator
@@ -227,8 +225,8 @@ def calibrate_classifier(
                 self.base = base
                 self.lr = lr
 
-            def predict_proba(self, X: np.ndarray) -> np.ndarray:
-                s = self.base.predict_proba(X).reshape(-1, 1)
+            def predict_proba(self, x_mat: np.ndarray) -> np.ndarray:
+                s = self.base.predict_proba(x_mat).reshape(-1, 1)
                 return self.lr.predict_proba(s)
 
         return FittedModel(
@@ -259,7 +257,7 @@ def calibrate_classifier(
 
 
 def fit_median_baseline(
-    X: Sequence[Sequence[float]],
+    x_mat: Sequence[Sequence[float]],
     y: Sequence[float],
     feature_names: list[str],
 ) -> FittedModel:
@@ -269,8 +267,8 @@ def fit_median_baseline(
         def __init__(self, m: float) -> None:
             self.m = m
 
-        def predict(self, X: np.ndarray) -> np.ndarray:
-            return np.full(len(X), self.m)
+        def predict(self, x_mat: np.ndarray) -> np.ndarray:
+            return np.full(len(x_mat), self.m)
 
     return FittedModel(
         name="median_baseline",
@@ -283,19 +281,19 @@ def fit_median_baseline(
 
 
 def fit_quantile_regressor(
-    X: Sequence[Sequence[float]],
+    x_mat: Sequence[Sequence[float]],
     y: Sequence[float],
     feature_names: list[str],
     quantile: float = 0.5,
 ) -> FittedModel:
-    arr, yy = _xy(X, y)
+    arr, yy = _xy(x_mat, y)
     if len(yy) < 20:
-        return fit_median_baseline(X, y, feature_names)
+        return fit_median_baseline(x_mat, y, feature_names)
     try:
         reg = QuantileRegressor(quantile=quantile, alpha=0.1, solver="highs")
         reg.fit(arr, yy)
     except Exception:
-        return fit_median_baseline(X, y, feature_names)
+        return fit_median_baseline(x_mat, y, feature_names)
     return FittedModel(
         name=f"quantile_reg_{quantile}",
         family="quantile",
@@ -307,16 +305,14 @@ def fit_quantile_regressor(
 
 
 def fit_hist_gbm_regressor(
-    X: Sequence[Sequence[float]],
+    x_mat: Sequence[Sequence[float]],
     y: Sequence[float],
     feature_names: list[str],
 ) -> FittedModel:
-    arr, yy = _xy(X, y)
+    arr, yy = _xy(x_mat, y)
     if len(yy) < 50:
-        return fit_median_baseline(X, y, feature_names)
-    reg = HistGradientBoostingRegressor(
-        max_depth=4, max_iter=100, learning_rate=0.08, random_state=42
-    )
+        return fit_median_baseline(x_mat, y, feature_names)
+    reg = HistGradientBoostingRegressor(max_depth=4, max_iter=100, learning_rate=0.08, random_state=42)
     reg.fit(arr, yy)
     return FittedModel(
         name="hist_gbm_reg",
@@ -328,20 +324,18 @@ def fit_hist_gbm_regressor(
 
 
 def fit_quantile_bundle(
-    X: Sequence[Sequence[float]],
+    x_mat: Sequence[Sequence[float]],
     y: Sequence[float],
     feature_names: list[str],
 ) -> dict[str, FittedModel]:
     return {
-        "p10": fit_quantile_regressor(X, y, feature_names, 0.1),
-        "p50": fit_quantile_regressor(X, y, feature_names, 0.5),
-        "p90": fit_quantile_regressor(X, y, feature_names, 0.9),
+        "p10": fit_quantile_regressor(x_mat, y, feature_names, 0.1),
+        "p50": fit_quantile_regressor(x_mat, y, feature_names, 0.5),
+        "p90": fit_quantile_regressor(x_mat, y, feature_names, 0.9),
     }
 
 
-def explain_linear(
-    fitted: FittedModel, x_row: Sequence[float], top_k: int = 5
-) -> dict[str, list[dict[str, float]]]:
+def explain_linear(fitted: FittedModel, x_row: Sequence[float], top_k: int = 5) -> dict[str, list[dict[str, float]]]:
     """Coefficient × value decomposition for logistic/linear pipelines."""
     m = fitted.model
     coef = None

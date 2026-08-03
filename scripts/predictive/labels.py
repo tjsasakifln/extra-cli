@@ -29,10 +29,7 @@ LABEL_DEFINITIONS: dict[str, LabelDefinition] = {
         target_name="demand_30d",
         description="Probability ente publishes AEC-relevant contracting within 30d",
         unit="ente × categoria_aec × horizonte × as_of_date",
-        positive_rule=(
-            "At least one AEC-classified contract/edital for the ente with "
-            "event_at in (as_of, as_of+30d]"
-        ),
+        positive_rule=("At least one AEC-classified contract/edital for the ente with event_at in (as_of, as_of+30d]"),
         negative_rule=(
             "No AEC event in window AND coverage evidence that the source was "
             "queried for that ente/period (coverage flag or successful crawl window)"

@@ -6,10 +6,8 @@ Only PRODUCTION_AVAILABLE authorizes external "available" language for a claim.
 from __future__ import annotations
 
 import json
-import os
-from copy import deepcopy
 from dataclasses import asdict, dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -24,9 +22,7 @@ _MARKET_TRIO = (
 
 # Allowed transitions (from -> set of to). Fail-closed otherwise.
 _ALLOWED: dict[str, frozenset[str]] = {
-    "NOT_IMPLEMENTED": frozenset(
-        {"IMPLEMENTED", "DATA_BLOCKED", "NOT_IMPLEMENTED"}
-    ),
+    "NOT_IMPLEMENTED": frozenset({"IMPLEMENTED", "DATA_BLOCKED", "NOT_IMPLEMENTED"}),
     "IMPLEMENTED": frozenset(
         {
             "DATA_BLOCKED",
@@ -35,12 +31,8 @@ _ALLOWED: dict[str, frozenset[str]] = {
             "IMPLEMENTED",
         }
     ),
-    "DATA_BLOCKED": frozenset(
-        {"IMPLEMENTED", "DATA_BLOCKED", "HISTORICAL_BACKTEST_PROVEN"}
-    ),
-    "BACKTEST_FAILED": frozenset(
-        {"IMPLEMENTED", "DATA_BLOCKED", "BACKTEST_FAILED", "HISTORICAL_BACKTEST_PROVEN"}
-    ),
+    "DATA_BLOCKED": frozenset({"IMPLEMENTED", "DATA_BLOCKED", "HISTORICAL_BACKTEST_PROVEN"}),
+    "BACKTEST_FAILED": frozenset({"IMPLEMENTED", "DATA_BLOCKED", "BACKTEST_FAILED", "HISTORICAL_BACKTEST_PROVEN"}),
     "HISTORICAL_BACKTEST_PROVEN": frozenset(
         {
             "SHADOW_OPERATIONAL",
@@ -108,7 +100,7 @@ _ALLOWED: dict[str, frozenset[str]] = {
 
 
 def _utc_now() -> str:
-    return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+    return datetime.now(UTC).replace(microsecond=0).isoformat()
 
 
 def default_state_path() -> Path:
@@ -131,14 +123,19 @@ class ClaimRecord:
         return self.state == "PRODUCTION_AVAILABLE"
 
     def allows_probability_language(self) -> bool:
-        return self.state in {
-            "PRODUCTION_AVAILABLE",
-            "PROSPECTIVE_CALIBRATED",
-            "HISTORICAL_BACKTEST_PROVEN",
-            "SHADOW_OPERATIONAL",
-        } and self.claim_id not in {
-            # Even with market models, Extra-specific claims need their own gate
-        }
+        return (
+            self.state
+            in {
+                "PRODUCTION_AVAILABLE",
+                "PROSPECTIVE_CALIBRATED",
+                "HISTORICAL_BACKTEST_PROVEN",
+                "SHADOW_OPERATIONAL",
+            }
+            and self.claim_id
+            not in {
+                # Even with market models, Extra-specific claims need their own gate
+            }
+        )
 
 
 def _seed_records() -> dict[str, ClaimRecord]:
@@ -225,29 +222,21 @@ class ClaimRegistry:
         cur = self._claims[claim_id]
         allowed = _ALLOWED.get(cur.state, frozenset())
         if not force and state not in allowed:
-            raise ValueError(
-                f"Illegal transition {cur.state} -> {state} for {claim_id}"
-            )
+            raise ValueError(f"Illegal transition {cur.state} -> {state} for {claim_id}")
         # Gate: PRODUCTION_AVAILABLE requires evidence keys
         if state == "PRODUCTION_AVAILABLE":
             ev = {**(cur.evidence), **(evidence or {})}
             if not ev.get("prospective_calibrated") and not force:
-                raise ValueError(
-                    f"{claim_id}: PRODUCTION_AVAILABLE requires prospective_calibrated evidence"
-                )
+                raise ValueError(f"{claim_id}: PRODUCTION_AVAILABLE requires prospective_calibrated evidence")
         rec = ClaimRecord(
             claim_id=claim_id,
             state=state,
             updated_at=_utc_now(),
             evidence={**(cur.evidence), **(evidence or {})},
             blockers=list(blockers if blockers is not None else cur.blockers),
-            limitations=list(
-                limitations if limitations is not None else cur.limitations
-            ),
+            limitations=list(limitations if limitations is not None else cur.limitations),
             model_id=model_id if model_id is not None else cur.model_id,
-            model_version=model_version
-            if model_version is not None
-            else cur.model_version,
+            model_version=model_version if model_version is not None else cur.model_version,
         )
         self._claims[claim_id] = rec
         self._refresh_derived()
@@ -317,17 +306,13 @@ class ClaimRegistry:
         )
 
         # FULLY_PROVEN requires all three PRODUCTION_AVAILABLE
-        if all(
-            self._claims[c].state == "PRODUCTION_AVAILABLE" for c in _MARKET_TRIO
-        ):
+        if all(self._claims[c].state == "PRODUCTION_AVAILABLE" for c in _MARKET_TRIO):
             fstate = "PRODUCTION_AVAILABLE"
             fblock: list[str] = []
         else:
             fstate = "NOT_IMPLEMENTED"
             fblock = [
-                f"{c}={self._claims[c].state}"
-                for c in _MARKET_TRIO
-                if self._claims[c].state != "PRODUCTION_AVAILABLE"
+                f"{c}={self._claims[c].state}" for c in _MARKET_TRIO if self._claims[c].state != "PRODUCTION_AVAILABLE"
             ]
             # Reflect highest achieved intermediate if any market is further along
             if any(
@@ -364,9 +349,7 @@ class ClaimRegistry:
         fully = self.get("PREDICTIVE_INTELLIGENCE_FULLY_PROVEN").state
         if fully == "PRODUCTION_AVAILABLE":
             return "CLAIM_ALLOWED"
-        any_prod = any(
-            self.get(c).state == "PRODUCTION_AVAILABLE" for c in CLAIM_IDS
-        )
+        any_prod = any(self.get(c).state == "PRODUCTION_AVAILABLE" for c in CLAIM_IDS)
         any_shadow = any(
             self.get(c).state
             in {

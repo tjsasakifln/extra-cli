@@ -4,8 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import Any, Iterable
-
+from typing import Any
 
 FEATURE_SCHEMA_VERSION = "pit_v1"
 
@@ -57,10 +56,7 @@ def build_demand_features(
         events["days_since_last"] = last
         # cadence: mean inter-event days over last up to 10 events
         if len(past) >= 2:
-            gaps = [
-                _days_between(past[i], past[i - 1])
-                for i in range(1, len(past))
-            ]
+            gaps = [_days_between(past[i], past[i - 1]) for i in range(1, len(past))]
             values["mean_cadence_days"] = sum(gaps) / len(gaps)
             events["mean_cadence_days"] = past[-1]
         else:
@@ -68,9 +64,7 @@ def build_demand_features(
         # same month last year activity
         year_ago_start = as_of - timedelta(days=365 + 15)
         year_ago_end = as_of - timedelta(days=365 - 15)
-        values["same_window_ly"] = float(
-            sum(1 for e in past if year_ago_start <= e <= year_ago_end)
-        )
+        values["same_window_ly"] = float(sum(1 for e in past if year_ago_start <= e <= year_ago_end))
         events["same_window_ly"] = past[-1]
     else:
         values["days_since_last"] = 9999.0
@@ -84,17 +78,11 @@ def build_demand_features(
     events["month_cos"] = as_of
 
     if past_values:
-        paired = [
-            (e, v)
-            for e, v in zip(past_events, past_values)
-            if e <= as_of and v is not None and v > 0
-        ]
+        paired = [(e, v) for e, v in zip(past_events, past_values) if e <= as_of and v is not None and v > 0]
         if paired:
             recent = [v for _, v in paired[-10:]]
             values["mean_value_recent"] = sum(recent) / len(recent)
-            values["log_mean_value_recent"] = float(
-                __import__("math").log1p(values["mean_value_recent"])
-            )
+            values["log_mean_value_recent"] = float(__import__("math").log1p(values["mean_value_recent"]))
             events["mean_value_recent"] = paired[-1][0]
             events["log_mean_value_recent"] = paired[-1][0]
 
@@ -123,14 +111,10 @@ def build_competitor_features(
         "supplier_wins_in_category": float(supplier_wins_in_category),
         "supplier_wins_total": float(supplier_wins_total),
         "market_share_ente": (
-            float(supplier_wins_at_ente) / float(ente_contracts_total)
-            if ente_contracts_total > 0
-            else 0.0
+            float(supplier_wins_at_ente) / float(ente_contracts_total) if ente_contracts_total > 0 else 0.0
         ),
         "market_share_category": (
-            float(supplier_wins_in_category) / float(category_contracts_total)
-            if category_contracts_total > 0
-            else 0.0
+            float(supplier_wins_in_category) / float(category_contracts_total) if category_contracts_total > 0 else 0.0
         ),
         "days_since_supplier_win": float(days_since_supplier_win),
         "value_band_wins": float(value_band_wins),

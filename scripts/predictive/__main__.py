@@ -17,8 +17,9 @@ from __future__ import annotations
 
 import argparse
 import json
+import logging
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -41,6 +42,8 @@ from scripts.predictive.dataset import (
 )
 from scripts.predictive.predict_service import blocked_prediction, emit_prediction
 from scripts.predictive.profile_calibration import personalization_blockers
+
+logger = logging.getLogger(__name__)
 
 
 def _root() -> Path:
@@ -98,11 +101,7 @@ def cmd_data_quality(args: argparse.Namespace) -> int:
         stats["fetch_error"] = str(exc)
     from scripts.predictive.labels import is_aec_object
 
-    n_aec = sum(
-        1
-        for r in rows
-        if is_aec_object(str(r.get("objeto_contrato") or ""))
-    )
+    n_aec = sum(1 for r in rows if is_aec_object(str(r.get("objeto_contrato") or "")))
     pairs = []
     try:
         pairs = fetch_discount_pairs_from_opportunities(args.dsn)
@@ -110,7 +109,7 @@ def cmd_data_quality(args: argparse.Namespace) -> int:
         stats["discount_fetch_error"] = str(exc)
 
     report = {
-        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "generated_at": datetime.now(UTC).isoformat(),
         "corpus": stats,
         "sample_limit": limit,
         "sample_aec_rows": len(rows),
@@ -123,10 +122,7 @@ def cmd_data_quality(args: argparse.Namespace) -> int:
         "p3_discount": {
             "status": "DATA_BLOCKED" if len(pairs) < 1000 else "IMPLEMENTED",
             "n_pairs": len(pairs),
-            "reason": (
-                "Need auditável estimated→adjudicated joins; "
-                f"found {len(pairs)} opportunity_intel pairs"
-            ),
+            "reason": (f"Need auditável estimated→adjudicated joins; found {len(pairs)} opportunity_intel pairs"),
         },
         "selection_bias_notes": [
             "Contracts are winners only — not full bidder sets",
@@ -144,42 +140,35 @@ def _build_for_target(args: argparse.Namespace) -> Any:
     target = args.target
     if target.startswith("demand_"):
         days = int(target.split("_")[1].replace("d", ""))
-        rows = fetch_aec_contracts(
-            args.dsn, limit=args.limit, uf=args.uf, min_year=args.min_year
-        )
+        rows = fetch_aec_contracts(args.dsn, limit=args.limit, uf=args.uf, min_year=args.min_year)
         return build_demand_dataset(
             rows,
             horizon_days=days,
             max_entes=args.max_entes,
         )
     if target == "competitive_winner_p2a":
-        rows = fetch_aec_contracts(
-            args.dsn, limit=args.limit, uf=args.uf, min_year=args.min_year
-        )
-        return build_competitive_winner_dataset(
-            rows, max_outcomes=args.max_outcomes
-        )
+        rows = fetch_aec_contracts(args.dsn, limit=args.limit, uf=args.uf, min_year=args.min_year)
+        return build_competitive_winner_dataset(rows, max_outcomes=args.max_outcomes)
     if target == "competitive_participation_p2b":
-        from scripts.predictive.dataset import DatasetBuildResult
         import uuid
+
+        from scripts.predictive.dataset import DatasetBuildResult
 
         return DatasetBuildResult(
             run_id=f"ds_p2b_{uuid.uuid4().hex[:8]}",
             target_name=target,
             dataset_version="p2b_v1",
             examples=[],
-            blockers=[
-                "P2B DATA_BLOCKED: participant lists not available in schema "
-                "(contracts show winners only)"
-            ],
+            blockers=["P2B DATA_BLOCKED: participant lists not available in schema (contracts show winners only)"],
             status="data_blocked",
         )
     if target == "winning_discount_p3":
         pairs = fetch_discount_pairs_from_opportunities(args.dsn)
         return build_discount_dataset(pairs)
     if target in {"extra_win_probability_p4", "optimal_bid_p5"}:
-        from scripts.predictive.dataset import DatasetBuildResult
         import uuid
+
+        from scripts.predictive.dataset import DatasetBuildResult
 
         blockers = personalization_blockers()
         return DatasetBuildResult(
@@ -189,7 +178,7 @@ def _build_for_target(args: argparse.Namespace) -> Any:
             examples=[],
             blockers=[
                 "Requires participant×opportunity labels (not winner-only contracts)",
-                * [m["field"] + ": " + m["reason"] for m in blockers["missing_critical"]],
+                *[m["field"] + ": " + m["reason"] for m in blockers["missing_critical"]],
             ],
             status="data_blocked",
             coverage=blockers,
@@ -328,7 +317,7 @@ def cmd_train(args: argparse.Namespace) -> int:
         "feature_names": feature_names,
         "artifact_sha256": model.artifact_sha256(),
         "meta": meta,
-        "trained_at": datetime.now(timezone.utc).isoformat(),
+        "trained_at": datetime.now(UTC).isoformat(),
         "approval_status": "candidate",
         "limitations": [
             "Candidate only — not PRODUCTION_AVAILABLE without prospective gates",
@@ -405,7 +394,6 @@ def cmd_predict(args: argparse.Namespace) -> int:
 def cmd_resolve_outcomes(args: argparse.Namespace) -> int:
     """Join immutable predictions to post-window observed events; append outcomes ledger."""
     from scripts.predictive.outcomes import (
-        default_ledger_path,
         load_predictions_jsonl,
         persist_outcomes,
         resolve_predictions,
@@ -417,15 +405,13 @@ def cmd_resolve_outcomes(args: argparse.Namespace) -> int:
     for p in _out_dir().glob("prediction_last_*.json"):
         try:
             predictions.append(json.loads(p.read_text(encoding="utf-8")))
-        except Exception:
-            pass
+        except (OSError, json.JSONDecodeError, TypeError, ValueError) as exc:
+            logger.warning("skip unreadable prediction file %s: %s", p, exc)
 
     contracts: list[dict] = []
     fetch_error = None
     try:
-        contracts = fetch_aec_contracts(
-            args.dsn, limit=args.limit or 50000, uf=args.uf, min_year=args.min_year
-        )
+        contracts = fetch_aec_contracts(args.dsn, limit=args.limit or 50000, uf=args.uf, min_year=args.min_year)
     except Exception as exc:
         fetch_error = str(exc)
 
@@ -475,24 +461,18 @@ def cmd_monitor(args: argparse.Namespace) -> int:
     for p in _out_dir().glob("prediction_last_*.json"):
         try:
             predictions.append(json.loads(p.read_text(encoding="utf-8")))
-        except Exception:
-            pass
+        except (OSError, json.JSONDecodeError, TypeError, ValueError) as exc:
+            logger.warning("skip unreadable prediction file %s: %s", p, exc)
 
     # Evaluate per known target present in predictions
     targets = sorted(
-        {
-            str(p.get("target_name"))
-            for p in predictions
-            if p.get("target_name")
-        }
+        {str(p.get("target_name")) for p in predictions if p.get("target_name")}
         | {"demand_30d", "competitive_winner_p2a"}
     )
     drift_reports = []
     suspend_actions = []
     for t in targets:
-        report = evaluate_outcomes_drift(
-            outcomes, predictions, target_name=t, min_outcomes=30
-        )
+        report = evaluate_outcomes_drift(outcomes, predictions, target_name=t, min_outcomes=30)
         drift_reports.append(report.to_dict())
         action = apply_drift_to_claims(report, registry=reg)
         suspend_actions.append(action)

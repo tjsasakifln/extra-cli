@@ -3,11 +3,11 @@
 from __future__ import annotations
 
 import hashlib
-import json
 import uuid
-from dataclasses import asdict, dataclass, field
-from datetime import datetime, timedelta, timezone
-from typing import Any, Iterable, Sequence
+from collections.abc import Sequence
+from dataclasses import dataclass, field
+from datetime import UTC, datetime, timedelta
+from typing import Any
 
 from scripts.predictive.features import (
     FEATURE_SCHEMA_VERSION,
@@ -20,16 +20,16 @@ from scripts.predictive.labels import (
     aec_category,
     demand_label,
     is_aec_object,
-    winning_discount,
     winner_label,
+    winning_discount,
 )
 from scripts.predictive.leakage import assert_no_leakage, audit_examples
 
 
 def _utc(dt: datetime) -> datetime:
     if dt.tzinfo is None:
-        return dt.replace(tzinfo=timezone.utc)
-    return dt.astimezone(timezone.utc)
+        return dt.replace(tzinfo=UTC)
+    return dt.astimezone(UTC)
 
 
 def _example_id(*parts: str) -> str:
@@ -164,14 +164,14 @@ def build_demand_dataset(
         start = min(all_dates) + timedelta(days=90)
         end = max(all_dates) - timedelta(days=horizon_days)
         as_of_dates = []
-        cur = datetime(start.year, start.month, 1, tzinfo=timezone.utc)
+        cur = datetime(start.year, start.month, 1, tzinfo=UTC)
         end = _utc(end)
         while cur <= end:
             as_of_dates.append(cur)
             if cur.month == 12:
-                cur = datetime(cur.year + 1, 1, 1, tzinfo=timezone.utc)
+                cur = datetime(cur.year + 1, 1, 1, tzinfo=UTC)
             else:
-                cur = datetime(cur.year, cur.month + 1, 1, tzinfo=timezone.utc)
+                cur = datetime(cur.year, cur.month + 1, 1, tzinfo=UTC)
 
     examples: list[dict[str, Any]] = []
     rejected = 0
@@ -196,11 +196,7 @@ def build_demand_dataset(
                     month_key = f"{as_of.year:04d}-{as_of.month:02d}"
                     cov_ok = month_key in months
                 else:
-                    near = [
-                        d
-                        for d in all_evt_dates
-                        if abs((d - as_of).days) <= 180
-                    ]
+                    near = [d for d in all_evt_dates if abs((d - as_of).days) <= 180]
                     cov_ok = len(near) > 0
 
                 lab = demand_label(
@@ -240,16 +236,10 @@ def build_demand_dataset(
                         "label_source": lab.label_source,
                         "label_quality": lab.label_quality,
                         "features_json": fv.to_json(),
-                        "feature_events": {
-                            k: v.isoformat() for k, v in fv.events.items()
-                        },
+                        "feature_events": {k: v.isoformat() for k, v in fv.events.items()},
                         "feature_schema_version": FEATURE_SCHEMA_VERSION,
                         "source_run_ids": [],
-                        "source_max_event_at": (
-                            fv.source_max_event_at.isoformat()
-                            if fv.source_max_event_at
-                            else None
-                        ),
+                        "source_max_event_at": (fv.source_max_event_at.isoformat() if fv.source_max_event_at else None),
                         "dataset_version": dataset_version,
                         "cohort": cat,
                     }
@@ -262,9 +252,7 @@ def build_demand_dataset(
     status = "built" if examples else "empty"
     blockers: list[str] = []
     if len(examples) < 1000:
-        blockers.append(
-            f"n_examples={len(examples)} < 1000 — gate DATA_BLOCKED for production claim"
-        )
+        blockers.append(f"n_examples={len(examples)} < 1000 — gate DATA_BLOCKED for production claim")
 
     return DatasetBuildResult(
         run_id=run_id,
@@ -317,12 +305,8 @@ def build_competitive_winner_dataset(
                 "ente": ente,
                 "supplier": supplier,
                 "category": aec_category(str(obj)),
-                "valor": float(row["valor_total"])
-                if row.get("valor_total") not in (None, "")
-                else None,
-                "contrato_id": str(
-                    row.get("contrato_id") or row.get("id") or uuid.uuid4().hex[:12]
-                ),
+                "valor": float(row["valor_total"]) if row.get("valor_total") not in (None, "") else None,
+                "contrato_id": str(row.get("contrato_id") or row.get("id") or uuid.uuid4().hex[:12]),
             }
         )
     rows.sort(key=lambda r: r["event_at"])
@@ -361,16 +345,12 @@ def build_competitive_winner_dataset(
         winner = outcome["supplier"]
 
         if emit:
-            if first_event is None or (
-                outcome["event_at"] - first_event
-            ).days < min_history_days:
+            if first_event is None or (outcome["event_at"] - first_event).days < min_history_days:
                 rejected += 1
             else:
                 # Pre-result candidates ONLY — never inject the true winner if absent.
                 # Cold-start winners (no prior history in candidate universe) drop the outcome.
-                candidates = set(suppliers_at_ente.get(ente, set())) | set(
-                    suppliers_in_cat.get(cat, set())
-                )
+                candidates = set(suppliers_at_ente.get(ente, set())) | set(suppliers_in_cat.get(cat, set()))
                 if not candidates:
                     rejected += 1
                 elif winner not in candidates:
@@ -380,8 +360,7 @@ def build_competitive_winner_dataset(
 
                     def score_sid(sid: str) -> tuple[int, int]:
                         return (
-                            ente_supplier.get((ente, sid), 0)
-                            + cat_supplier.get((cat, sid), 0),
+                            ente_supplier.get((ente, sid), 0) + cat_supplier.get((cat, sid), 0),
                             supplier_total.get(sid, 0),
                         )
 
@@ -427,9 +406,7 @@ def build_competitive_winner_dataset(
                         if validate_feature_cutoff(fv, as_of):
                             rejected += 1
                             continue
-                        eid = _example_id(
-                            target, outcome["contrato_id"], sid, as_of.isoformat()
-                        )
+                        eid = _example_id(target, outcome["contrato_id"], sid, as_of.isoformat())
                         examples.append(
                             {
                                 "example_id": eid,
@@ -445,15 +422,11 @@ def build_competitive_winner_dataset(
                                 "label_source": lab.label_source,
                                 "label_quality": lab.label_quality,
                                 "features_json": fv.to_json(),
-                                "feature_events": {
-                                    k: v.isoformat() for k, v in fv.events.items()
-                                },
+                                "feature_events": {k: v.isoformat() for k, v in fv.events.items()},
                                 "feature_schema_version": FEATURE_SCHEMA_VERSION,
                                 "source_run_ids": [],
                                 "source_max_event_at": (
-                                    fv.source_max_event_at.isoformat()
-                                    if fv.source_max_event_at
-                                    else None
+                                    fv.source_max_event_at.isoformat() if fv.source_max_event_at else None
                                 ),
                                 "dataset_version": dataset_version,
                                 "cohort": cat,
@@ -524,9 +497,7 @@ def build_discount_dataset(
         )
         if disc is None:
             rejected += 1
-            blocks[meta.get("block", "unknown")] = (
-                blocks.get(meta.get("block", "unknown"), 0) + 1
-            )
+            blocks[meta.get("block", "unknown")] = blocks.get(meta.get("block", "unknown"), 0) + 1
             continue
         event_at = pair.get("event_at")
         if isinstance(event_at, str):
@@ -575,11 +546,7 @@ def build_discount_dataset(
                 "feature_events": {k: v.isoformat() for k, v in fv.events.items()},
                 "feature_schema_version": FEATURE_SCHEMA_VERSION,
                 "source_run_ids": [],
-                "source_max_event_at": (
-                    fv.source_max_event_at.isoformat()
-                    if fv.source_max_event_at
-                    else None
-                ),
+                "source_max_event_at": (fv.source_max_event_at.isoformat() if fv.source_max_event_at else None),
                 "dataset_version": dataset_version,
                 "estimated_value_semantics": meta["estimated_value_semantics"],
                 "outcome_value_semantics": meta["outcome_value_semantics"],
@@ -592,9 +559,7 @@ def build_discount_dataset(
 
     blockers: list[str] = []
     if len(examples) < 1000:
-        blockers.append(
-            f"n_valid_discount_pairs={len(examples)} < 1000 — DATA_BLOCKED for P3"
-        )
+        blockers.append(f"n_valid_discount_pairs={len(examples)} < 1000 — DATA_BLOCKED for P3")
     if rejected and not examples:
         blockers.append(f"All pairs rejected: {blocks}")
 
@@ -616,21 +581,14 @@ def examples_to_matrix(
 ) -> tuple[list[str], list[list[float]], list[float], list[datetime]]:
     """Convert examples to feature matrix with stable column order."""
     keys: list[str] = sorted(
-        {
-            k
-            for ex in examples
-            for k in (ex.get("features_json") or {})
-            if not str(k).startswith("_")
-        }
+        {k for ex in examples for k in (ex.get("features_json") or {}) if not str(k).startswith("_")}
     )
-    X: list[list[float]] = []
+    x_mat: list[list[float]] = []
     y: list[float] = []
     as_ofs: list[datetime] = []
     for ex in examples:
         feats = ex.get("features_json") or {}
-        X.append([float(feats.get(k, 0.0) or 0.0) for k in keys])
+        x_mat.append([float(feats.get(k, 0.0) or 0.0) for k in keys])
         y.append(float(ex["label_value"]))
-        as_ofs.append(
-            datetime.fromisoformat(str(ex["as_of_at"]).replace("Z", "+00:00"))
-        )
-    return keys, X, y, as_ofs
+        as_ofs.append(datetime.fromisoformat(str(ex["as_of_at"]).replace("Z", "+00:00")))
+    return keys, x_mat, y, as_ofs

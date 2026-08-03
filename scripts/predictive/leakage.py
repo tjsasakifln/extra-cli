@@ -6,7 +6,6 @@ from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from typing import Any
 
-
 LEAKY_FEATURE_NAMES = frozenset(
     {
         "winner_id",

@@ -2,20 +2,20 @@
 
 from __future__ import annotations
 
-import json
 import math
 import uuid
+from collections.abc import Sequence
 from dataclasses import asdict, dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Any
 
 from scripts.predictive.claims import ClaimRegistry, load_registry
 from scripts.predictive.metrics import brier_score, brier_skill_score, expected_calibration_error
 
 
 def _utc_now() -> str:
-    return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+    return datetime.now(UTC).replace(microsecond=0).isoformat()
 
 
 @dataclass
@@ -123,9 +123,7 @@ def evaluate_outcomes_drift(
         decision = "suspend_drift"
         reasons.append(f"BSS={bss:.4f} < 0")
     if baseline_prevalence is not None and abs(prev - baseline_prevalence) > 0.25:
-        reasons.append(
-            f"prevalence shift {baseline_prevalence:.3f} -> {prev:.3f}"
-        )
+        reasons.append(f"prevalence shift {baseline_prevalence:.3f} -> {prev:.3f}")
         if decision == "ok":
             decision = "suspend_data_quality"
 

@@ -166,9 +166,7 @@ def fetch_discount_pairs_from_opportunities(
             rows = cur.fetchall()
         pairs: list[dict[str, Any]] = []
         for r in rows:
-            event = r.get("data_homologacao") or r.get("data_encerramento") or r.get(
-                "data_publicacao"
-            )
+            event = r.get("data_homologacao") or r.get("data_encerramento") or r.get("data_publicacao")
             if event is None:
                 continue
             # Only accept if semantics are clear; valor_homologado is allowed

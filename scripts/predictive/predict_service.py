@@ -3,10 +3,9 @@
 from __future__ import annotations
 
 import hashlib
-import json
 import uuid
 from dataclasses import asdict, dataclass, field
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from scripts.predictive.claims import ClaimRegistry, load_registry
@@ -14,7 +13,7 @@ from scripts.predictive.models import FittedModel, explain_linear
 
 
 def _utc_now() -> datetime:
-    return datetime.now(timezone.utc).replace(microsecond=0)
+    return datetime.now(UTC).replace(microsecond=0)
 
 
 @dataclass
@@ -96,9 +95,7 @@ def emit_prediction(
     allowed = claim.state == "PRODUCTION_AVAILABLE"
     limitations = list(claim.limitations) + list(claim.blockers)
     if claim.state != "PRODUCTION_AVAILABLE":
-        limitations.append(
-            f"Claim {claim_id} state={claim.state}; external availability forbidden"
-        )
+        limitations.append(f"Claim {claim_id} state={claim.state}; external availability forbidden")
     if extra_limitations:
         limitations.extend(extra_limitations)
 

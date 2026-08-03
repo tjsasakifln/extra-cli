@@ -8,7 +8,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -125,7 +125,7 @@ def generate_form(client: str = "extra_construtora") -> dict[str, Any]:
     missing = list_missing_critical(profile)
     form = {
         "client": client,
-        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "generated_at": datetime.now(UTC).isoformat(),
         "instructions": "Preencha apenas campos com evidência real. Não invente.",
         "fields": [
             {
@@ -156,9 +156,7 @@ def import_responses(
     fields = responses.get("fields") or responses
     cleaned: dict[str, Any] = {}
     errors: list[str] = []
-    iterable = fields if isinstance(fields, dict) else {
-        f["field"]: f.get("value") for f in fields
-    }
+    iterable = fields if isinstance(fields, dict) else {f["field"]: f.get("value") for f in fields}
     for k, v in iterable.items():
         if v is None or v == "":
             errors.append(f"{k}: empty")
@@ -169,7 +167,7 @@ def import_responses(
         "version": version,
         "author": author,
         "source": source,
-        "created_at": datetime.now(timezone.utc).isoformat(),
+        "created_at": datetime.now(UTC).isoformat(),
         "values": cleaned,
         "errors": errors,
         "complete": not errors and set(CRITICAL_FIELDS).issubset(cleaned.keys()),
@@ -216,7 +214,14 @@ if __name__ == "__main__":
     # Support: python -m scripts.predictive.profile_calibration --client extra_construtora
     # without subcommand → blockers
     raw = sys.argv[1:]
-    if raw and raw[0].startswith("--") and "list-missing" not in raw and "form" not in raw and "import" not in raw and "blockers" not in raw:
+    if (
+        raw
+        and raw[0].startswith("--")
+        and "list-missing" not in raw
+        and "form" not in raw
+        and "import" not in raw
+        and "blockers" not in raw
+    ):
         # inject blockers
         sys.exit(main(raw + ["blockers"]))
     if not raw:

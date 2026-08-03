@@ -23,7 +23,7 @@ Usage:
 from __future__ import annotations
 
 import math
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass, field
 from typing import Any
 
 METHOD_UNVALIDATED_HEURISTIC = "UNVALIDATED_HEURISTIC"
@@ -272,18 +272,12 @@ def simulate_bid(
 
     bm = benchmark or {}
     desconto_mediano = float(
-        bm.get("desconto_mediano_orgao")
-        or bm.get("desconto_mediano")
-        or bm.get("median_discount")
-        or 0
+        bm.get("desconto_mediano_orgao") or bm.get("desconto_mediano") or bm.get("median_discount") or 0
     )
     desconto_p25 = float(bm.get("desconto_p25") or bm.get("p25_discount") or 0)
     desconto_p75 = float(bm.get("desconto_p75") or bm.get("p75_discount") or 0)
     historico_n = int(
-        bm.get("contratos_analisados")
-        or bm.get("descontos_encontrados")
-        or bm.get("total_contracts")
-        or 0
+        bm.get("contratos_analisados") or bm.get("descontos_encontrados") or bm.get("total_contracts") or 0
     )
     std_descontos = float(bm.get("desconto_std") or bm.get("std_discount") or 0)
 
@@ -331,9 +325,7 @@ def simulate_bid(
     lance_agressivo = valor * (1 - desconto_agressivo)
     lance_conservador = valor * (1 - desconto_conservador)
 
-    score = _scenario_score(
-        desconto_sugerido, desconto_mediano, num_competitors, std_descontos
-    )
+    score = _scenario_score(desconto_sugerido, desconto_mediano, num_competitors, std_descontos)
     bdi = margins["bdi_referencia"]
     margem = bdi - desconto_sugerido
 
@@ -351,8 +343,7 @@ def simulate_bid(
     if num_competitors > 0:
         parts.append(f"~{num_competitors} concorrentes estimados por HHI (heurística)")
     parts.append(
-        f"Margem líquida projetada (BDI genérico): {margem:.1%} "
-        f"(BDI ref: {bdi:.0%}, desconto: {desconto_sugerido:.1%})"
+        f"Margem líquida projetada (BDI genérico): {margem:.1%} (BDI ref: {bdi:.0%}, desconto: {desconto_sugerido:.1%})"
     )
     parts.append(
         f"Score de cenário {score * 100:.0f}/100 — NÃO é probabilidade de vitória "
@@ -379,10 +370,7 @@ def simulate_bid(
 def format_bid_summary(sim: BidSimulation, valor_estimado: float) -> str:
     """Format heuristic scenario as concise summary for reports (honest wording)."""
     if not sim.has_data:
-        return (
-            "Dados insuficientes para cenário heurístico de lance "
-            f"(method={METHOD_UNVALIDATED_HEURISTIC})"
-        )
+        return f"Dados insuficientes para cenário heurístico de lance (method={METHOD_UNVALIDATED_HEURISTIC})"
 
     return (
         f"Cenário heurístico (não validado): R$ {sim.lance_cenario:,.2f} "

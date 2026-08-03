@@ -10,21 +10,22 @@ from __future__ import annotations
 
 import json
 import uuid
+from collections.abc import Sequence
 from dataclasses import asdict, dataclass, field
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Any
 
 
 def _utc_now() -> datetime:
-    return datetime.now(timezone.utc).replace(microsecond=0)
+    return datetime.now(UTC).replace(microsecond=0)
 
 
 def _parse_dt(value: Any) -> datetime | None:
     if value is None:
         return None
     if isinstance(value, datetime):
-        return value if value.tzinfo else value.replace(tzinfo=timezone.utc)
+        return value if value.tzinfo else value.replace(tzinfo=UTC)
     if isinstance(value, str):
         try:
             return datetime.fromisoformat(value.replace("Z", "+00:00"))
@@ -51,11 +52,7 @@ class ResolvedOutcome:
     @property
     def is_scorable(self) -> bool:
         """Only quality=ok with finite label contributes to Brier/drift."""
-        return (
-            self.outcome_quality == "ok"
-            and self.label_value is not None
-            and self.brier_component is not None
-        )
+        return self.outcome_quality == "ok" and self.label_value is not None and self.brier_component is not None
 
 
 def default_ledger_path() -> Path:
@@ -75,9 +72,7 @@ def load_predictions_jsonl(path: Path) -> list[dict[str, Any]]:
     return out
 
 
-def _score_components(
-    prediction: dict[str, Any], label: float | None
-) -> tuple[float | None, float | None]:
+def _score_components(prediction: dict[str, Any], label: float | None) -> tuple[float | None, float | None]:
     if label is None:
         return None, None
     score = prediction.get("probability")
@@ -120,11 +115,7 @@ def coverage_ok_for_entity(
         }
         return bool(months & keys)
     # Weak nearby activity signal (not inventing absence for never-seen entes)
-    near = [
-        e
-        for e in events
-        if abs((e - as_of).days) <= 180 or abs((e - window_end).days) <= 180
-    ]
+    near = [e for e in events if abs((e - as_of).days) <= 180 or abs((e - window_end).days) <= 180]
     return len(near) > 0
 
 

@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 import math
-from typing import Any, Sequence
+from collections.abc import Sequence
+from typing import Any
 
 import numpy as np
 
@@ -129,9 +130,7 @@ def precision_recall_at_threshold(
     return {"precision": prec, "recall": rec, "f1": f1, "tp": tp, "fp": fp, "fn": fn}
 
 
-def lift_at_fraction(
-    y_true: Sequence[float], y_score: Sequence[float], fraction: float = 0.1
-) -> float:
+def lift_at_fraction(y_true: Sequence[float], y_score: Sequence[float], fraction: float = 0.1) -> float:
     y = _as_np(y_true)
     s = _as_np(y_score)
     n = len(y)
@@ -185,18 +184,14 @@ def rmse(y_true: Sequence[float], y_pred: Sequence[float]) -> float:
     return float(np.sqrt(np.mean((_as_np(y_true) - _as_np(y_pred)) ** 2)))
 
 
-def pinball_loss(
-    y_true: Sequence[float], y_pred: Sequence[float], quantile: float
-) -> float:
+def pinball_loss(y_true: Sequence[float], y_pred: Sequence[float], quantile: float) -> float:
     y = _as_np(y_true)
     q = _as_np(y_pred)
     e = y - q
     return float(np.mean(np.maximum(quantile * e, (quantile - 1) * e)))
 
 
-def interval_coverage(
-    y_true: Sequence[float], lo: Sequence[float], hi: Sequence[float]
-) -> dict[str, float]:
+def interval_coverage(y_true: Sequence[float], lo: Sequence[float], hi: Sequence[float]) -> dict[str, float]:
     y = _as_np(y_true)
     a = _as_np(lo)
     b = _as_np(hi)
@@ -228,9 +223,7 @@ def regression_report(
         out["mae_baseline"] = mae(y, b)
         out["pinball_p50_baseline"] = pinball_loss(y, b, 0.5)
         out["mae_improvement"] = (
-            (out["mae_baseline"] - out["mae"]) / out["mae_baseline"]
-            if out["mae_baseline"]
-            else 0.0
+            (out["mae_baseline"] - out["mae"]) / out["mae_baseline"] if out["mae_baseline"] else 0.0
         )
     if y_p10 is not None and y_p90 is not None:
         out["pinball_p10"] = pinball_loss(y, y_p10, 0.1)

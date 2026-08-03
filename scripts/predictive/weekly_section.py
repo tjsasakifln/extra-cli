@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from scripts.predictive.claims import load_registry
@@ -51,7 +51,7 @@ def build_weekly_predictive_section() -> dict[str, Any]:
 
     return {
         "section": "predictive_intelligence",
-        "generated_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
+        "generated_at": datetime.now(UTC).replace(microsecond=0).isoformat(),
         "commercial_recommendation": public["commercial_recommendation"],
         "vocabulary": {
             "allowed_when_production": "probabilidade calibrada",
@@ -88,9 +88,7 @@ def build_weekly_predictive_section() -> dict[str, Any]:
                 "HISTORICAL_BACKTEST_PROVEN",
             },
             "state": competitive["state"],
-            "mode": "shadow_or_historical_only"
-            if competitive["state"] != "PRODUCTION_AVAILABLE"
-            else "production",
+            "mode": "shadow_or_historical_only" if competitive["state"] != "PRODUCTION_AVAILABLE" else "production",
             "items": [],
             "limitations": competitive["limitations"] + competitive["blockers"],
             "p2b_participation_available": False,
@@ -101,11 +99,7 @@ def build_weekly_predictive_section() -> dict[str, Any]:
             "p10": None,
             "p50": None,
             "p90": None,
-            "reason_if_empty": (
-                None
-                if discount["prediction_allowed"]
-                else f"Desconto claim={discount['state']}"
-            ),
+            "reason_if_empty": (None if discount["prediction_allowed"] else f"Desconto claim={discount['state']}"),
         },
         "win_probability": win_block,
         "drift": {
@@ -124,11 +118,7 @@ def build_weekly_predictive_section() -> dict[str, Any]:
             "calendar": [
                 "Prospective soak ≥30d / ≥100 mature outcomes not elapsed",
             ],
-            "source": [
-                b
-                for c in (demand, competitive, discount, extra_win)
-                for b in (c.get("blockers") or [])
-            ],
+            "source": [b for c in (demand, competitive, discount, extra_win) for b in (c.get("blockers") or [])],
         },
         "disclaimer": (
             "Nenhuma capacidade preditiva está PRODUCTION_AVAILABLE neste pacote "
