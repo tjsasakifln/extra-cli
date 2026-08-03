@@ -1,0 +1,5 @@
+algorithm: find -type f | sort | xargs sha256sum | sha256sum
+file_count: 28
+manifest_sha256: 3ad2515330ab0d5f88318d1a21c257e481d6d5b7f9c978c300ecedde83e5de8d
+matches_pr196-canonical-manifest-hash.txt: True
+rejected_nonreproducible_a4794f3d: True

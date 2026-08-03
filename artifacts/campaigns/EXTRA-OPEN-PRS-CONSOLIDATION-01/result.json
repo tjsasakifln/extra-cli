@@ -1,10 +1,18 @@
 {
   "campaign": "EXTRA-OPEN-PRS-CONSOLIDATION-CLOSEOUT-01",
   "parent_campaign": "EXTRA-OPEN-PRS-CONSOLIDATION-01",
-  "generated_at": "2026-08-03T13:38:15.786854+00:00",
+  "generated_at": "2026-08-03T13:49:29.812698+00:00",
   "terminal_state": "PASS_CONSOLIDATION_CLOSED_AND_DEPLOYED",
   "final_main_sha": "40bc3704d35adff8ad0b6adacf00038334d74f5b",
-  "open_prs": [],
+  "open_prs": [
+    {
+      "number": 199,
+      "title": "docs(campaign): consolidation closeout pack (#196/#198/#197)",
+      "url": "https://github.com/tjsasakifln/extra-cli/pull/199",
+      "headRefName": "chore/consolidation-closeout",
+      "justification": "Single minimal chore PR carrying documentation/evidence closeout pack only; no product code"
+    }
+  ],
   "merge_order": [
     "#196",
     "#198",
@@ -37,8 +45,11 @@
       "number": 199,
       "title": "docs(campaign): consolidation closeout pack (#196/#198/#197)",
       "url": "https://github.com/tjsasakifln/extra-cli/pull/199",
+      "headRefName": "chore/consolidation-closeout",
       "justification": "Single minimal chore PR carrying documentation/evidence closeout pack only; no product code"
     }
   ],
-  "open_prs_note": "Product PRs #196/#197/#198 closed; only justified chore/consolidation-closeout #199 open for evidence landing"
+  "open_prs_note": "Product PRs #196/#197/#198 are MERGED/closed. The only open PR is justified chore/consolidation-closeout #199 (evidence pack only).",
+  "open_pr_count": 1,
+  "pr196_manifest_sha256": "3ad2515330ab0d5f88318d1a21c257e481d6d5b7f9c978c300ecedde83e5de8d"
 }

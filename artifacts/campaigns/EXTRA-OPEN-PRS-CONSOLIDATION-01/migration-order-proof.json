@@ -1,8 +1,16 @@
 {
-  "generated_at": "2026-08-03T13:38:15.786854+00:00",
+  "generated_at": "2026-08-03T13:49:29.812698+00:00",
   "final_main_sha": "40bc3704d35adff8ad0b6adacf00038334d74f5b",
-  "open_pr_count": 0,
-  "open_prs": [],
+  "open_pr_count": 1,
+  "open_prs": [
+    {
+      "number": 199,
+      "title": "docs(campaign): consolidation closeout pack (#196/#198/#197)",
+      "url": "https://github.com/tjsasakifln/extra-cli/pull/199",
+      "headRefName": "chore/consolidation-closeout",
+      "justification": "Single minimal chore PR carrying documentation/evidence closeout pack only; no product code"
+    }
+  ],
   "merge_order": [
     "#196",
     "#198",
@@ -46,5 +54,6 @@
     "ok": true,
     "transcript": "migrations-upgrade.txt",
     "note": "pre-068/069 strip then re-apply; FK fk_predictive_outcomes_dm_outcome present"
-  }
+  },
+  "open_prs_note": "Product PRs #196/#197/#198 are MERGED/closed. The only open PR is justified chore/consolidation-closeout #199 (evidence pack only)."
 }

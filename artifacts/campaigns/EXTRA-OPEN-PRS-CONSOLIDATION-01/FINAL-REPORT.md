@@ -9,7 +9,15 @@
 
 ## 1. Open PRs
 
-**None.** `gh pr list --state open` → `[]` (see `open-prs-and-merge-order.json`).
+Product PRs: **none open** (#196/#197/#198 are MERGED).
+
+Justified open PR (evidence-only chore, not product):
+
+| PR | Branch | Justification |
+|----|--------|---------------|
+| [#199](https://github.com/tjsasakifln/extra-cli/pull/199) | `chore/consolidation-closeout` | Single minimal PR landing documentation/evidence closeout pack only |
+
+See `result.json` → `open_prs` / `justified_open_prs` and `open-prs-and-merge-order.json` (product baseline).
 
 ## 2. Merge order (proven)
 
@@ -66,7 +74,7 @@ Evidence: `pr197-body-before.md`, `pr197-body-after.md`, `pr197-body-audit.txt`,
 | Combined DM+predictive+loop | **105 passed** | `combined.txt` |
 | Command Center smoke | import/bin OK + **48 passed** capability contracts | `cc-smoke.txt` |
 | `ruff check` (predictive/DM/apply_migrations) | **All checks passed** | `lint.txt` |
-| mypy scoped | pre-existing ndarray typing noise on main; not a closeout regression | `typecheck.txt` |
+| mypy scoped | **69 errors** pre-existing on main (`ok=false` honest); not a closeout pass gate | `typecheck.txt` |
 
 Detail: `final-main-tests.json`.
 
@@ -74,7 +82,8 @@ Detail: `final-main-tests.json`.
 
 - Canonical package: `artifacts/production-readiness/20260802T134234Z`
 - Files: 28
-- Manifest SHA-256: `a4794f3db095feae1a3769652532d2d40afa36572cf30d21dd048bdce2c94eba`
+- Manifest SHA-256: `3ad2515330ab0d5f88318d1a21c257e481d6d5b7f9c978c300ecedde83e5de8d`
+- Algorithm: `find package -type f | sort | xargs sha256sum | sha256sum` (reproducible listing hash; evidence `pr196-canonical-manifest-hash.txt`)
 - Index: `pr196-packages-index.json`
 - Policy: preserve packages; do **not** re-execute multi-million-record scale job
 

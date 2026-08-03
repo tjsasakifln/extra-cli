@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-03T13:38:15.786854+00:00",
+  "generated_at": "2026-08-03T13:49:29.812698+00:00",
   "final_main_sha": "40bc3704d35adff8ad0b6adacf00038334d74f5b",
   "suites": {
     "decision_memory": {
@@ -72,18 +72,36 @@
       "transcript": "lint.txt"
     },
     "typecheck_mypy": {
-      "ok": true,
-      "note": "scoped mypy reports pre-existing ndarray Sequence[float] mismatches on main predictive modules; no closeout code changes; not treated as final-main regression for already-merged code",
+      "ok": false,
+      "applicable": true,
+      "exit_observed": "Found 69 errors in 6 files (checked 30 source files)",
+      "errors_observed": 69,
+      "classification": "PRE_EXISTING_ON_MAIN",
+      "note": "Scoped mypy on scripts/predictive + scripts/decision_memory reports 69 pre-existing type errors on final main SHA (mostly ndarray vs Sequence[float]). Closeout introduced no product code; mypy is NOT a pass gate for this closeout. Required functional tests (DM/predictive/weekly/CC/migrations/ruff check) passed.",
       "transcript": "typecheck.txt",
-      "errors_observed": 69
+      "blocks_closeout": false
     }
   },
   "pr196_full_scale_reuse": {
     "canonical_package": "artifacts/production-readiness/20260802T134234Z",
     "file_count": 28,
-    "manifest_sha256": "a4794f3db095feae1a3769652532d2d40afa36572cf30d21dd048bdce2c94eba",
-    "policy": "NOT re-run 4.4M; integrity of canonical package verified",
-    "index": "pr196-packages-index.json"
+    "manifest_sha256": "3ad2515330ab0d5f88318d1a21c257e481d6d5b7f9c978c300ecedde83e5de8d",
+    "manifest_algorithm": "sha256sum of sorted `sha256sum <file>` lines for package tree (equivalent to: find ... -type f | sort | xargs sha256sum | sha256sum)",
+    "evidence_files": [
+      "pr196-canonical-manifest-hash.txt",
+      "pr196-canonical-sha256.txt",
+      "pr196-packages-index.json"
+    ],
+    "also_checked": {
+      "deliverables-manifest.json_sha256_prefix": "1f43e236e875967e",
+      "full-scale-manifest.json_sha256_prefix": "47ffa240fe724976"
+    },
+    "policy": "NOT re-run 4.4M; integrity of canonical package verified via reproducible listing hash",
+    "index": "pr196-packages-index.json",
+    "note": "Prior non-reproducible custom concat hash a4794f3d\u2026 was removed; canonical is 3ad25153\u2026"
   },
-  "all_required_tests_passed": true
+  "all_required_tests_passed": true,
+  "pass_gate_excludes": [
+    "typecheck_mypy (pre-existing on main; ok=false recorded honestly)"
+  ]
 }
