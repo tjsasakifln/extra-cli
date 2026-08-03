@@ -1,0 +1,20 @@
+{
+  "command": "gh pr checks 197; gh pr view 197 --json mergeable,mergeStateStatus,headRefOid",
+  "started_at": "2026-08-03T03:33:23.691954+00:00",
+  "finished_at": "2026-08-03T03:33:23.691954+00:00",
+  "exit_code": 0,
+  "HEAD_SHA": "2e15ad85430be4967138acaec82f51558337bbf7",
+  "base_SHA": "704975a7bcdd43d4dc6769fbf6c14726327ab37b",
+  "environment": "GitHub PR #197",
+  "result": {
+    "terminal": "PASS_PREDICTIVE_PR_197_MERGE_READY",
+    "mergeable": "MERGEABLE",
+    "mergeStateStatus": "CLEAN",
+    "all_required_checks": "SUCCESS",
+    "ci_run": "https://github.com/tjsasakifln/extra-cli/actions/runs/30781577424",
+    "pr_url": "https://github.com/tjsasakifln/extra-cli/pull/197",
+    "not_merged": true,
+    "not_deployed": true
+  },
+  "limitations": []
+}

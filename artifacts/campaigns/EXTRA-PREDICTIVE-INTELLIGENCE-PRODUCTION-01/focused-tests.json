@@ -1,0 +1,15 @@
+{
+  "command": "python -m pytest tests/predictive -q --no-cov",
+  "started_at": "2026-08-03T02:45:00+00:00",
+  "finished_at": "2026-08-03T03:33:23.691954+00:00",
+  "exit_code": 0,
+  "HEAD_SHA": "2e15ad85430be4967138acaec82f51558337bbf7",
+  "base_SHA": "704975a7bcdd43d4dc6769fbf6c14726327ab37b",
+  "environment": "local python3.12",
+  "result": {
+    "passed": 60,
+    "failed": 0,
+    "suite": "tests/predictive"
+  },
+  "limitations": []
+}

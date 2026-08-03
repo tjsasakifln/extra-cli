@@ -1,0 +1,18 @@
+{
+  "command": "REQUIRE_REAL_DB=1 python -m scripts.ops.run_full_suite (CI job Test All)",
+  "started_at": "2026-08-03T03:20:35+00:00",
+  "finished_at": "2026-08-03T03:33:23.691954+00:00",
+  "exit_code": 0,
+  "HEAD_SHA": "2e15ad85430be4967138acaec82f51558337bbf7",
+  "base_SHA": "704975a7bcdd43d4dc6769fbf6c14726327ab37b",
+  "environment": "GitHub Actions ubuntu-latest + pgvector/pgvector:pg16",
+  "result": {
+    "ci_job": "Test All (full suite)",
+    "conclusion": "SUCCESS",
+    "run_url": "https://github.com/tjsasakifln/extra-cli/actions/runs/30781577424/job/91587136904",
+    "duration": "7m14s"
+  },
+  "limitations": [
+    "Local full suite on /mnt/d was superseded by CI canonical run on same HEAD."
+  ]
+}
