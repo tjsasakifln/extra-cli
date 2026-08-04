@@ -1,0 +1,673 @@
+"""End-to-end reajuste 14.133 commercial pipeline (read-only source)."""
+
+from __future__ import annotations
+
+import hashlib
+import re
+import subprocess
+from datetime import UTC, date, datetime
+from pathlib import Path
+from typing import Any
+
+from scripts.commercial.reajuste_14133 import (
+    CAMPAIGN_SLUG,
+    DEFAULT_AS_OF,
+    MODULE_VERSION,
+    REGIME_14133,
+    STATUS_ALREADY_ADJUSTED,
+    STATUS_CLOSED,
+    STATUS_HOT_VERIFIED,
+    STATUS_LEGAL_REGIME_UNKNOWN,
+    STATUS_NOT_ELIGIBLE,
+    STATUS_RESEARCH_REQUIRED,
+    STATUS_REVIEW_REQUIRED,
+    STATUS_STRONG_CANDIDATE,
+)
+from scripts.commercial.reajuste_14133.checkpoint import (
+    append_classified,
+    classified_keys,
+    clear_classified,
+    load_classified,
+    load_raw_rows,
+    mark_stage,
+    save_params,
+    save_raw_rows,
+)
+from scripts.commercial.reajuste_14133.domain.dates import consolidate_dates
+from scripts.commercial.reajuste_14133.domain.eligibility import evaluate_eligibility
+from scripts.commercial.reajuste_14133.domain.finance import estimate_reajuste
+from scripts.commercial.reajuste_14133.domain.obra_classifier import classify_construction
+from scripts.commercial.reajuste_14133.domain.regime import classify_legal_regime
+from scripts.commercial.reajuste_14133.domain.scoring import rank_leads, score_lead
+from scripts.commercial.reajuste_14133.io.contacts import (
+    enrich_from_brasilapi,
+    enrich_from_registry_row,
+    merge_contacts,
+)
+from scripts.commercial.reajuste_14133.io.documents import (
+    pncp_contract_url,
+    verify_contract_documents,
+)
+from scripts.commercial.reajuste_14133.io.source import (
+    digits_cnpj,
+    fetch_contracts_batch,
+    fetch_supplier_registry,
+    mask_dsn,
+    resolve_source,
+)
+
+_PROJECT_ROOT = Path(__file__).resolve().parents[3]
+
+PUBLIC_ORG_MARKERS = (
+    "prefeitura", "municipio", "município", "governo", "secretaria", "ministerio",
+    "ministério", "autarquia", "fundacao", "fundação", "instituto federal",
+    "universidade federal", "camara municipal", "câmara municipal", "tribunal",
+    "companhia de agua", "companhia de água", "companhia de saneamento",
+    "departamento municipal de agua", "empresa publica", "empresa pública",
+)
+
+
+def utc_now() -> str:
+    return datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+
+def git_sha() -> str:
+    try:
+        out = subprocess.check_output(  # noqa: S603,S607
+            ["git", "rev-parse", "HEAD"],  # noqa: S607
+            cwd=str(_PROJECT_ROOT),
+            stderr=subprocess.DEVNULL,
+            text=True,
+            timeout=5,
+        )
+        return out.strip()
+    except (subprocess.SubprocessError, OSError, FileNotFoundError):
+        return "unknown"
+
+
+def _parse_as_of(value: str | date) -> date:
+    if isinstance(value, date):
+        return value
+    return date.fromisoformat(str(value)[:10])
+
+
+def is_private_supplier(cnpj: str | None, nome: str | None) -> bool:
+    c = digits_cnpj(cnpj)
+    if len(c) != 14:
+        return False
+    # natural person (CPF padded) heuristic: reject if looks like CPF-only (11 digits)
+    name = (nome or "").lower()
+    if any(m in name for m in PUBLIC_ORG_MARKERS):
+        # state-owned utilities etc.
+        if re.search(r"\b(s\.?a\.?|s/a|ltda|eireli|spe)\b", name, re.I):
+            # still could be private concessionaire — keep if clearly corporate
+            if any(x in name for x in ("prefeitura", "municipio", "secretaria", "governo do", "uniao", "união")):
+                return False
+        else:
+            return False
+    return True
+
+
+def dedupe_key(row: dict[str, Any]) -> str:
+    cid = (row.get("contrato_id") or "").strip()
+    if cid:
+        return f"cid:{cid}"
+    raw = "|".join(
+        [
+            digits_cnpj(row.get("fornecedor_cnpj")),
+            digits_cnpj(row.get("orgao_cnpj")),
+            str(row.get("valor_total") or ""),
+            str(row.get("data_assinatura") or row.get("data_inicio") or ""),
+            (row.get("objeto_contrato") or "")[:80],
+        ]
+    )
+    return "h:" + hashlib.sha256(raw.encode()).hexdigest()[:20]
+
+
+def classify_row(
+    row: dict[str, Any],
+    *,
+    as_of: date,
+    doc_scan: Any | None = None,
+    registry: dict[str, Any] | None = None,
+    contacts: dict[str, Any] | None = None,
+    structured_regime: str | None = None,
+) -> dict[str, Any]:
+    """Classify a single contract row into a lead record."""
+    objeto = row.get("objeto_contrato")
+    obra = classify_construction(objeto)
+    cnpj = digits_cnpj(row.get("fornecedor_cnpj"))
+    nome = (row.get("fornecedor_nome") or "").strip()
+    private = is_private_supplier(cnpj, nome)
+
+    assin = row.get("data_assinatura")
+    sig_year = None
+    if assin:
+        try:
+            sig_year = int(str(assin)[:4])
+        except ValueError:
+            sig_year = None
+
+    doc_texts: list[str] = []
+    index_found = False
+    docs_accessible = False
+    already_adjusted = False
+    index_name = None
+    if doc_scan is not None:
+        if doc_scan.regime_14133_mention and doc_scan.docs_accessible:
+            doc_texts.append("lei 14.133/2021 (portal/doc)")
+        for e in doc_scan.evidences:
+            if e.field_found == "regime_legal_14133" and e.confidence in {"medium", "high"} and doc_scan.docs_accessible:
+                doc_texts.append(e.excerpt)
+        index_found = bool(doc_scan.index_candidates) and doc_scan.docs_accessible
+        if doc_scan.index_candidates and doc_scan.docs_accessible:
+            index_name = doc_scan.index_candidates[0]
+        docs_accessible = bool(doc_scan.docs_accessible)
+        already_adjusted = bool(doc_scan.already_adjusted_hint)
+
+    regime = classify_legal_regime(
+        structured_regime=structured_regime,
+        document_texts=doc_texts or None,
+        objeto=objeto if "14.133" in (objeto or "") or "14133" in (objeto or "") else None,
+        signature_year=sig_year,
+        published_on_pncp=True,
+    )
+
+    dates = consolidate_dates(
+        as_of=as_of,
+        data_assinatura=row.get("data_assinatura"),
+        data_publicacao=row.get("data_publicacao_fonte") or row.get("data_publicacao"),
+        inicio_vigencia=row.get("data_inicio"),
+        fim_vigencia=row.get("data_fim"),
+        allow_proxy_for_prospection=True,
+    )
+
+    # Closed: inactive or end date past and no explicit balance
+    is_closed = False
+    if row.get("is_active") is False:
+        is_closed = True
+    fim = dates.fim_vigencia.value
+    if fim is not None and fim < as_of:
+        is_closed = True
+
+    finance = estimate_reajuste(
+        valor_original=row.get("valor_total"),
+        valor_atualizado=row.get("valor_total"),
+        indice_contratual=index_name,
+        # no official series values available by default
+        indice_base_value=None,
+        indice_final_value=None,
+    )
+
+    only_table = not docs_accessible
+    elig = evaluate_eligibility(
+        obra=obra,
+        regime=regime,
+        dates=dates,
+        finance=finance,
+        is_closed=is_closed,
+        already_adjusted=already_adjusted,
+        docs_accessible=docs_accessible,
+        index_found=index_found,
+        material_contradiction=False,
+        has_private_supplier=private,
+        only_table_dates=only_table,
+    )
+
+    contacts = contacts or {}
+    contact_score = float(contacts.get("contact_score") or 0.0)
+    uf = (contacts.get("uf_sede") or row.get("uf") or "").upper() if contacts else (row.get("uf") or "").upper()
+
+    # size heuristics from name / value
+    giant = bool(re.search(r"\b(oderbrecht|oas\b|camargo correa|andrade gutierrez|queiroz galvao)\b", nome, re.I))
+    too_small = bool(re.search(r"\bmei\b|microempresa individual", nome, re.I)) and float(row.get("valor_total") or 0) > 20_000_000
+
+    sc = score_lead(
+        eligibility=elig,
+        obra=obra,
+        regime=regime,
+        dates=dates,
+        finance=finance,
+        uf=uf,
+        municipio=row.get("municipio"),
+        portfolio_hint_brl=float(row.get("valor_total") or 0),
+        contact_score=contact_score,
+        source_freshness=0.55,
+        is_giant_low_consulting_fit=giant,
+        is_too_small_for_ticket=too_small,
+        has_personal_only_contact=bool(contacts.get("has_personal_only_contact")),
+    )
+
+    url = pncp_contract_url(row.get("contrato_id"), row.get("orgao_cnpj"))
+    evidences_fav = []
+    if obra.is_construction:
+        evidences_fav.append(f"Objeto classificado como {obra.category} (conf={obra.confidence:.2f})")
+    if dates.interregno_completo:
+        evidences_fav.append(
+            f"Interregno ≥12m na data-base efetiva ({dates.data_base_effective.source})"
+        )
+    if regime.proven:
+        evidences_fav.append(f"Regime comprovado: {regime.regime}")
+    if doc_scan and doc_scan.evidences:
+        evidences_fav.append(f"{len(doc_scan.evidences)} evidências documentais registradas")
+
+    commercial_arg = (
+        f"Identificamos indícios de contrato de {obra.category.replace('_', ' ')} "
+        f"com interregno anual potencialmente superado (data-base status={dates.data_base_status}). "
+        f"A confirmação do reajuste em sentido estrito depende da análise do contrato, "
+        f"das medições e das apostilas emitidas — não se trata de parecer jurídico nem de valor devido."
+    )
+
+    lead: dict[str, Any] = {
+        "classificacao": elig.status,
+        "score_total": sc.score_total,
+        "score_decomposition": sc.components,
+        "score_penalties": sc.penalties,
+        "ranking_bucket": sc.ranking_bucket,
+        "cnpj": cnpj,
+        "razao_social": nome,
+        "nome_fantasia": (contacts or {}).get("nome_fantasia") or (registry or {}).get("nome_fantasia"),
+        "municipio_empresa": (contacts or {}).get("municipio_sede") or row.get("municipio"),
+        "uf": uf,
+        "orgao_contratante": row.get("orgao_nome"),
+        "orgao_cnpj": digits_cnpj(row.get("orgao_cnpj")),
+        "contrato_id": row.get("contrato_id"),
+        "objeto": (objeto or "")[:2000],
+        "classificacao_obra": obra.category,
+        "obra_confidence": obra.confidence,
+        "obra_reasons": obra.reason_codes,
+        "valor_original": float(row.get("valor_total") or 0),
+        "valor_atualizado": float(row.get("valor_total") or 0),
+        "saldo_conhecido": float(finance.saldo_contratual) if finance.saldo_contratual is not None else None,
+        "regime_legal": regime.regime,
+        "regime_proven": regime.proven,
+        "regime_notes": regime.notes,
+        "data_base": dates.data_base_effective.value.isoformat() if dates.data_base_effective.value else None,
+        "data_base_status": dates.data_base_status,
+        "data_base_source": dates.data_base_effective.source,
+        "data_base_confidence": dates.data_base_effective.confidence,
+        "indice": finance.indice_contratual,
+        "data_proximo_reajuste": (
+            dates.proxima_data_aniversario.isoformat() if dates.proxima_data_aniversario else None
+        ),
+        "dias_atraso_potencial": dates.dias_desde_reajuste_aplicavel,
+        "vigencia_final": dates.fim_vigencia.value.isoformat() if dates.fim_vigencia.value else None,
+        "dias_restantes_vigencia": dates.dias_restantes_vigencia,
+        "percentual_reajuste": float(finance.percentual_acumulado) if finance.percentual_acumulado is not None else None,
+        "base_potencialmente_reajustavel": float(finance.base_reajustavel) if finance.base_reajustavel is not None else None,
+        "base_label": finance.base_label,
+        "valor_potencial": float(finance.valor_potencial) if finance.valor_potencial is not None else None,
+        "teto_teorico": float(finance.teto_teorico) if finance.teto_teorico is not None else None,
+        "teto_label": finance.teto_label,
+        "status_reajustes_anteriores": "EVIDENCIA_ENCONTRADA" if already_adjusted else "NAO_LOCALIZADO_NAS_FONTES",
+        "evidencias_favoraveis": evidences_fav,
+        "lacunas": elig.gaps,
+        "riscos": elig.risks + finance.limitations,
+        "proxima_acao_investigativa": elig.next_investigative_action,
+        "argumento_comercial": commercial_arg,
+        "canais_contato": {
+            "email": (contacts or {}).get("email_comercial"),
+            "telefone": (contacts or {}).get("telefone_empresarial"),
+            "site": (contacts or {}).get("site_oficial"),
+            "linkedin": (contacts or {}).get("linkedin_institucional"),
+        },
+        "contact_sources": (contacts or {}).get("contact_sources") or [],
+        "urls_oficiais": [u for u in [url] if u],
+        "hot_gates": elig.hot_gates,
+        "hot_gates_passed": elig.hot_gates_passed,
+        "dates": dates.as_dict(),
+        "finance": finance.as_dict(),
+        "obra": obra.as_dict(),
+        "regime": regime.as_dict(),
+        "doc_scan": doc_scan.as_dict() if doc_scan else None,
+        "timestamp_analise": utc_now(),
+        "module_version": MODULE_VERSION,
+        "dedupe_key": dedupe_key(row),
+        "data_assinatura": str(row.get("data_assinatura") or "")[:10] or None,
+        "data_inicio": str(row.get("data_inicio") or "")[:10] or None,
+        "data_publicacao": str(row.get("data_publicacao") or "")[:10] or None,
+    }
+    return lead
+
+
+def run_pipeline(
+    *,
+    as_of: str | date = DEFAULT_AS_OF,
+    scope: str = "national",
+    uf: str | None = None,
+    municipio: str | None = None,
+    supplier_cnpj: str | None = None,
+    min_contract_value: float = 1_000_000.0,
+    min_potential_value: float | None = None,
+    status_filter: str | None = None,
+    top: int = 200,
+    verify_documents: bool = False,
+    max_document_fetches: int = 30,
+    enrich_contacts: bool = False,
+    max_contact_lookups: int = 40,
+    dsn: str | None = None,
+    prefer_ssh: bool = False,
+    csv_path: str | None = None,
+    dry_run: bool = False,
+    batch_size: int = 2000,
+    max_source_rows: int | None = 25000,
+    resume_from: str | Path | None = None,
+    checkpoint_dir: str | Path | None = None,
+) -> dict[str, Any]:
+    """Execute full funnel and return run payload (no export).
+
+    Resume: pass ``resume_from`` (run output dir with ``.checkpoint/``) to skip
+    re-fetching raw rows and re-classifying already-written leads.
+    """
+    as_of_d = _parse_as_of(as_of)
+    cfg = resolve_source(dsn, prefer_ssh=prefer_ssh, csv_path=csv_path)
+    started = utc_now()
+    run_dir: Path | None = None
+    if resume_from:
+        run_dir = Path(resume_from)
+    elif checkpoint_dir:
+        run_dir = Path(checkpoint_dir)
+    funnel: dict[str, int] = {
+        "examined_raw": 0,
+        "after_dedupe": 0,
+        "private_supplier": 0,
+        "construction": 0,
+        "regime_14133_proven": 0,
+        "temporally_mature": 0,
+        "data_base_confirmed": 0,
+        "index_located": 0,
+        "already_adjusted": 0,
+        STATUS_HOT_VERIFIED: 0,
+        STATUS_STRONG_CANDIDATE: 0,
+        STATUS_REVIEW_REQUIRED: 0,
+        STATUS_RESEARCH_REQUIRED: 0,
+        STATUS_ALREADY_ADJUSTED: 0,
+        STATUS_NOT_ELIGIBLE: 0,
+        STATUS_LEGAL_REGIME_UNKNOWN: 0,
+        STATUS_CLOSED: 0,
+    }
+    excluded: list[dict[str, Any]] = []
+    if dry_run:
+        return {
+            "run_id": f"dry-{as_of_d.isoformat()}",
+            "as_of": as_of_d.isoformat(),
+            "module_version": MODULE_VERSION,
+            "campaign": CAMPAIGN_SLUG,
+            "source_mode": cfg.mode,
+            "source_dsn_masked": mask_dsn(cfg.dsn or ""),
+            "dry_run": True,
+            "started_at": started,
+            "funnel": funnel,
+            "leads": [],
+            "excluded": [],
+            "message": "dry-run: no source fetch",
+        }
+
+    params = {
+        "as_of": as_of_d.isoformat(),
+        "scope": scope,
+        "uf": uf,
+        "municipio": municipio,
+        "min_contract_value": min_contract_value,
+        "top": top,
+        "verify_documents": verify_documents,
+        "enrich_contacts": enrich_contacts,
+        "max_source_rows": max_source_rows,
+    }
+    if run_dir is not None:
+        run_dir.mkdir(parents=True, exist_ok=True)
+        save_params(run_dir, params)
+
+    # Resume raw fetch if checkpoint present
+    raw: list[dict[str, Any]] | None = None
+    if run_dir is not None and resume_from:
+        raw = load_raw_rows(run_dir)
+
+    if raw is None:
+        raw = fetch_contracts_batch(
+            cfg,
+            as_of=as_of_d,
+            min_contract_value=min_contract_value,
+            uf=uf,
+            municipio=municipio,
+            supplier_cnpj=supplier_cnpj,
+            scope=scope,
+            batch_size=batch_size,
+            max_rows=max_source_rows,
+        )
+        if run_dir is not None:
+            save_raw_rows(run_dir, raw)
+            mark_stage(run_dir, "raw_fetched", n=len(raw))
+    funnel["examined_raw"] = len(raw)
+
+    # Dedupe
+    seen: set[str] = set()
+    unique: list[dict[str, Any]] = []
+    for r in raw:
+        k = dedupe_key(r)
+        if k in seen:
+            excluded.append({"contrato_id": r.get("contrato_id"), "reason": "duplicata_instrumento"})
+            continue
+        seen.add(k)
+        unique.append(r)
+    funnel["after_dedupe"] = len(unique)
+
+    # Registry enrichment for top candidates by value (cheap)
+    cnpjs = [digits_cnpj(r.get("fornecedor_cnpj")) for r in unique]
+    registry_map = fetch_supplier_registry(cfg, cnpjs)
+
+    leads: list[dict[str, Any]] = []
+    already_keys: set[str] = set()
+    if run_dir is not None and resume_from:
+        prior = load_classified(run_dir)
+        leads.extend(prior)
+        already_keys = classified_keys(run_dir)
+        # rebuild funnel partial counts from prior
+        for lead in prior:
+            st = lead.get("classificacao") or ""
+            if st in funnel:
+                funnel[st] = funnel.get(st, 0) + 1
+            if (lead.get("obra") or {}).get("is_construction"):
+                funnel["construction"] += 1
+            funnel["private_supplier"] += 1
+    elif run_dir is not None and not resume_from:
+        # fresh checkpoint: wipe prior classified stream
+        clear_classified(run_dir)
+
+    doc_fetches = 0
+    contact_lookups = 0
+    contact_attempts = 0
+
+    # Pre-rank by value for selective document fetch
+    unique_sorted = sorted(unique, key=lambda r: float(r.get("valor_total") or 0), reverse=True)
+
+    for row in unique_sorted:
+        row_key = dedupe_key(row)
+        if row_key in already_keys:
+            continue
+        cnpj = digits_cnpj(row.get("fornecedor_cnpj"))
+        nome = row.get("fornecedor_nome")
+        if not is_private_supplier(cnpj, nome):
+            excluded.append({
+                "contrato_id": row.get("contrato_id"),
+                "cnpj": cnpj,
+                "reason": "fornecedor_nao_privado_ou_orgao",
+            })
+            continue
+        funnel["private_supplier"] += 1
+
+        doc_scan = None
+        do_fetch = verify_documents and doc_fetches < max_document_fetches
+        # only fetch for high-value construction-looking prefilter
+        pre_obra = classify_construction(row.get("objeto_contrato"))
+        if do_fetch and pre_obra.is_construction and float(row.get("valor_total") or 0) >= min_contract_value:
+            doc_scan = verify_contract_documents(
+                contrato_id=str(row.get("contrato_id") or ""),
+                orgao_cnpj=row.get("orgao_cnpj"),
+                orgao_nome=row.get("orgao_nome"),
+                objeto=row.get("objeto_contrato"),
+                fetch_remote=True,
+                max_fetches=1,
+            )
+            doc_fetches += 1
+        else:
+            doc_scan = verify_contract_documents(
+                contrato_id=str(row.get("contrato_id") or ""),
+                orgao_cnpj=row.get("orgao_cnpj"),
+                orgao_nome=row.get("orgao_nome"),
+                objeto=row.get("objeto_contrato"),
+                fetch_remote=False,
+                max_fetches=0,
+            )
+
+        contacts = enrich_from_registry_row(registry_map.get(cnpj))
+        if enrich_contacts and contact_lookups < max_contact_lookups and pre_obra.is_construction:
+            contact_attempts += 1
+            ba = enrich_from_brasilapi(cnpj)
+            contacts = merge_contacts(contacts, ba)
+            contact_lookups += 1
+
+        lead = classify_row(
+            row,
+            as_of=as_of_d,
+            doc_scan=doc_scan,
+            registry=registry_map.get(cnpj),
+            contacts=contacts,
+        )
+        if run_dir is not None and lead.get("obra", {}).get("is_construction"):
+            append_classified(run_dir, lead)
+            already_keys.add(row_key)
+
+        st = lead["classificacao"]
+        funnel[st] = funnel.get(st, 0) + 1
+        if lead["obra"]["is_construction"]:
+            funnel["construction"] += 1
+        else:
+            excluded.append({
+                "contrato_id": lead.get("contrato_id"),
+                "cnpj": cnpj,
+                "reason": "objeto_nao_construcao:" + ",".join(lead.get("obra_reasons") or []),
+            })
+            continue
+
+        if lead.get("regime_proven") and lead.get("regime_legal") == REGIME_14133:
+            funnel["regime_14133_proven"] += 1
+        if lead.get("dates", {}).get("interregno_completo"):
+            funnel["temporally_mature"] += 1
+        if lead.get("data_base_status") == "CONFIRMED":
+            funnel["data_base_confirmed"] += 1
+        if lead.get("indice"):
+            funnel["index_located"] += 1
+        if st == STATUS_ALREADY_ADJUSTED:
+            funnel["already_adjusted"] += 1
+
+        if st in {STATUS_NOT_ELIGIBLE, STATUS_CLOSED, STATUS_ALREADY_ADJUSTED}:
+            excluded.append({
+                "contrato_id": lead.get("contrato_id"),
+                "cnpj": cnpj,
+                "reason": st,
+                "detail": (lead.get("lacunas") or lead.get("evidencias_favoraveis") or [""])[:3],
+            })
+            # still keep ALREADY_ADJUSTED / CLOSED in leads for export sheets
+            if st == STATUS_NOT_ELIGIBLE and not lead["obra"]["is_construction"]:
+                continue
+
+        if min_potential_value is not None:
+            pot = lead.get("valor_potencial") or 0
+            teto = lead.get("teto_teorico") or 0
+            if max(pot or 0, teto or 0) < min_potential_value and st not in {
+                STATUS_HOT_VERIFIED, STATUS_STRONG_CANDIDATE
+            }:
+                continue
+
+        if status_filter and st != status_filter:
+            continue
+
+        leads.append(lead)
+
+    # Rank
+    leads_ranked = rank_leads(leads)
+    for i, lead in enumerate(leads_ranked, start=1):
+        lead["ranking"] = i
+    nacional = rank_leads(leads, ranking="NACIONAL")
+    sul = rank_leads(leads, ranking="SUL_SC_PRIORITY")
+
+    # Top slice for commercial queue (actionable statuses first)
+    actionable = [
+        lead for lead in leads_ranked
+        if lead["classificacao"] in {
+            STATUS_HOT_VERIFIED,
+            STATUS_STRONG_CANDIDATE,
+            STATUS_REVIEW_REQUIRED,
+            STATUS_LEGAL_REGIME_UNKNOWN,
+            STATUS_RESEARCH_REQUIRED,
+        }
+    ]
+    top_leads = actionable[:top]
+
+    pot_sum = sum(float(lead.get("valor_potencial") or 0) for lead in top_leads)
+    teto_sum = sum(float(lead.get("teto_teorico") or 0) for lead in top_leads)
+
+    if run_dir is not None:
+        mark_stage(
+            run_dir,
+            "classified",
+            n_leads=len(leads_ranked),
+            doc_fetches=doc_fetches,
+            contact_lookups=contact_lookups,
+        )
+
+    return {
+        "run_id": f"{CAMPAIGN_SLUG}-{as_of_d.isoformat()}-{git_sha()[:8]}",
+        "as_of": as_of_d.isoformat(),
+        "module_version": MODULE_VERSION,
+        "campaign": CAMPAIGN_SLUG,
+        "git_sha": git_sha(),
+        "source_mode": cfg.mode,
+        "source_dsn_masked": mask_dsn(cfg.dsn or ("ssh:" + cfg.ssh_host if cfg.mode == "ssh" else "")),
+        "started_at": started,
+        "finished_at": utc_now(),
+        "resumed": bool(resume_from),
+        "checkpoint_dir": str(run_dir / ".checkpoint") if run_dir else None,
+        "params": {
+            "scope": scope,
+            "uf": uf,
+            "municipio": municipio,
+            "min_contract_value": min_contract_value,
+            "min_potential_value": min_potential_value,
+            "top": top,
+            "verify_documents": verify_documents,
+            "max_document_fetches": max_document_fetches,
+            "doc_fetches_used": doc_fetches,
+            "contact_lookups_used": contact_lookups,
+            "contact_attempts": contact_attempts,
+            "enrich_contacts": enrich_contacts,
+            "max_source_rows": max_source_rows,
+        },
+        "funnel": funnel,
+        "metrics": {
+            "top_leads": len(top_leads),
+            "all_classified": len(leads_ranked),
+            "valor_potencial_agregado_top": pot_sum,
+            "teto_teorico_agregado_top": teto_sum,
+            "document_fetch_coverage": doc_fetches,
+            "excluded_count": len(excluded),
+            "contact_lookups_used": contact_lookups,
+            "contact_attempts": contact_attempts,
+        },
+        "leads": leads_ranked,
+        "top_leads": top_leads,
+        "nacional": nacional[:top],
+        "sul_sc_priority": sul[:top],
+        "excluded": excluded,
+        "language_policy": {
+            "reajuste_sentido_estrito_only": True,
+            "not_reequilibrio": True,
+            "not_repactuacao": True,
+            "not_atualizacao_por_atraso": True,
+            "not_aditivo_quantitativo": True,
+            "not_legal_opinion": True,
+            "hot_verified_requires_documentary_gates": True,
+            "no_hot_from_pncp_supplier_contracts_dates_alone": True,
+        },
+    }
