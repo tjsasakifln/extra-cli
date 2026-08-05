@@ -1,5 +1,5 @@
 {
-  "evidence_sha": "10b22906507dbdf69001e300b81c72d5b9aff3db",
+  "evidence_sha": "419da333238e9a5f61dcebf5c8985be5db0668bb",
   "deep": 211,
   "sample": [
     {
@@ -9,7 +9,15 @@
       "uf": "PI",
       "score": 49.82,
       "classificacao": "STRONG_CANDIDATE",
-      "contrato": "06535751000199-2-000009/2024"
+      "contrato_id": "06535751000199-2-000009/2024",
+      "failed_gates": [
+        "data_base_exata_localizada",
+        "contato_empresarial_verificavel",
+        "revisao_humana_concluida"
+      ],
+      "gates_passed": 10,
+      "data_base_status": "PROXY_PROSPECTION_ONLY",
+      "indice_in_clause": true
     },
     {
       "rank": 2,
@@ -18,7 +26,15 @@
       "uf": "SC",
       "score": 48.89,
       "classificacao": "STRONG_CANDIDATE",
-      "contrato": "04892707000100-2-000494/2024"
+      "contrato_id": "04892707000100-2-000494/2024",
+      "failed_gates": [
+        "data_base_exata_localizada",
+        "contato_empresarial_verificavel",
+        "revisao_humana_concluida"
+      ],
+      "gates_passed": 10,
+      "data_base_status": "PROXY_PROSPECTION_ONLY",
+      "indice_in_clause": true
     },
     {
       "rank": 3,
@@ -27,7 +43,15 @@
       "uf": "SC",
       "score": 48.4,
       "classificacao": "STRONG_CANDIDATE",
-      "contrato": "83021808000182-2-000395/2024"
+      "contrato_id": "83021808000182-2-000395/2024",
+      "failed_gates": [
+        "data_base_exata_localizada",
+        "contato_empresarial_verificavel",
+        "revisao_humana_concluida"
+      ],
+      "gates_passed": 10,
+      "data_base_status": "PROXY_PROSPECTION_ONLY",
+      "indice_in_clause": true
     },
     {
       "rank": 4,
@@ -36,7 +60,15 @@
       "uf": "RS",
       "score": 48.24,
       "classificacao": "STRONG_CANDIDATE",
-      "contrato": "04892707000100-2-000458/2024"
+      "contrato_id": "04892707000100-2-000458/2024",
+      "failed_gates": [
+        "data_base_exata_localizada",
+        "contato_empresarial_verificavel",
+        "revisao_humana_concluida"
+      ],
+      "gates_passed": 10,
+      "data_base_status": "PROXY_PROSPECTION_ONLY",
+      "indice_in_clause": true
     },
     {
       "rank": 5,
@@ -45,7 +77,15 @@
       "uf": "MG",
       "score": 47.72,
       "classificacao": "STRONG_CANDIDATE",
-      "contrato": "04892707000100-2-000350/2024"
+      "contrato_id": "04892707000100-2-000350/2024",
+      "failed_gates": [
+        "data_base_exata_localizada",
+        "contato_empresarial_verificavel",
+        "revisao_humana_concluida"
+      ],
+      "gates_passed": 10,
+      "data_base_status": "PROXY_PROSPECTION_ONLY",
+      "indice_in_clause": true
     },
     {
       "rank": 6,
@@ -54,7 +94,15 @@
       "uf": "RS",
       "score": 47.31,
       "classificacao": "STRONG_CANDIDATE",
-      "contrato": "04892707000100-2-000567/2024"
+      "contrato_id": "04892707000100-2-000567/2024",
+      "failed_gates": [
+        "data_base_exata_localizada",
+        "contato_empresarial_verificavel",
+        "revisao_humana_concluida"
+      ],
+      "gates_passed": 10,
+      "data_base_status": "PROXY_PROSPECTION_ONLY",
+      "indice_in_clause": true
     },
     {
       "rank": 7,
@@ -63,7 +111,15 @@
       "uf": "PR",
       "score": 47.14,
       "classificacao": "STRONG_CANDIDATE",
-      "contrato": "04892707000100-2-000579/2024"
+      "contrato_id": "04892707000100-2-000579/2024",
+      "failed_gates": [
+        "data_base_exata_localizada",
+        "contato_empresarial_verificavel",
+        "revisao_humana_concluida"
+      ],
+      "gates_passed": 10,
+      "data_base_status": "PROXY_PROSPECTION_ONLY",
+      "indice_in_clause": true
     },
     {
       "rank": 8,
@@ -72,7 +128,15 @@
       "uf": "RS",
       "score": 46.59,
       "classificacao": "STRONG_CANDIDATE",
-      "contrato": "04892707000100-2-000508/2024"
+      "contrato_id": "04892707000100-2-000508/2024",
+      "failed_gates": [
+        "data_base_exata_localizada",
+        "contato_empresarial_verificavel",
+        "revisao_humana_concluida"
+      ],
+      "gates_passed": 10,
+      "data_base_status": "PROXY_PROSPECTION_ONLY",
+      "indice_in_clause": true
     },
     {
       "rank": 9,
@@ -81,7 +145,15 @@
       "uf": "RS",
       "score": 45.89,
       "classificacao": "STRONG_CANDIDATE",
-      "contrato": "04892707000100-2-000561/2024"
+      "contrato_id": "04892707000100-2-000561/2024",
+      "failed_gates": [
+        "data_base_exata_localizada",
+        "contato_empresarial_verificavel",
+        "revisao_humana_concluida"
+      ],
+      "gates_passed": 10,
+      "data_base_status": "PROXY_PROSPECTION_ONLY",
+      "indice_in_clause": true
     },
     {
       "rank": 10,
@@ -90,7 +162,15 @@
       "uf": "RS",
       "score": 45.85,
       "classificacao": "STRONG_CANDIDATE",
-      "contrato": "04892707000100-2-000620/2024"
+      "contrato_id": "04892707000100-2-000620/2024",
+      "failed_gates": [
+        "data_base_exata_localizada",
+        "contato_empresarial_verificavel",
+        "revisao_humana_concluida"
+      ],
+      "gates_passed": 10,
+      "data_base_status": "PROXY_PROSPECTION_ONLY",
+      "indice_in_clause": true
     },
     {
       "rank": 11,
@@ -99,7 +179,15 @@
       "uf": "RS",
       "score": 45.8,
       "classificacao": "STRONG_CANDIDATE",
-      "contrato": "92883834000100-2-000007/2025"
+      "contrato_id": "92883834000100-2-000007/2025",
+      "failed_gates": [
+        "data_base_exata_localizada",
+        "contato_empresarial_verificavel",
+        "revisao_humana_concluida"
+      ],
+      "gates_passed": 10,
+      "data_base_status": "PROXY_PROSPECTION_ONLY",
+      "indice_in_clause": true
     },
     {
       "rank": 12,
@@ -108,7 +196,15 @@
       "uf": "RJ",
       "score": 45.65,
       "classificacao": "STRONG_CANDIDATE",
-      "contrato": "04892707000100-2-000596/2024"
+      "contrato_id": "04892707000100-2-000596/2024",
+      "failed_gates": [
+        "data_base_exata_localizada",
+        "contato_empresarial_verificavel",
+        "revisao_humana_concluida"
+      ],
+      "gates_passed": 10,
+      "data_base_status": "PROXY_PROSPECTION_ONLY",
+      "indice_in_clause": true
     },
     {
       "rank": 13,
@@ -117,7 +213,15 @@
       "uf": "MG",
       "score": 45.53,
       "classificacao": "STRONG_CANDIDATE",
-      "contrato": "21154554000113-2-000605/2024"
+      "contrato_id": "21154554000113-2-000605/2024",
+      "failed_gates": [
+        "data_base_exata_localizada",
+        "contato_empresarial_verificavel",
+        "revisao_humana_concluida"
+      ],
+      "gates_passed": 10,
+      "data_base_status": "PROXY_PROSPECTION_ONLY",
+      "indice_in_clause": true
     },
     {
       "rank": 14,
@@ -126,7 +230,15 @@
       "uf": "PR",
       "score": 45.5,
       "classificacao": "STRONG_CANDIDATE",
-      "contrato": "76247378000156-2-000324/2024"
+      "contrato_id": "76247378000156-2-000324/2024",
+      "failed_gates": [
+        "data_base_exata_localizada",
+        "contato_empresarial_verificavel",
+        "revisao_humana_concluida"
+      ],
+      "gates_passed": 10,
+      "data_base_status": "PROXY_PROSPECTION_ONLY",
+      "indice_in_clause": true
     },
     {
       "rank": 15,
@@ -135,7 +247,15 @@
       "uf": "MG",
       "score": 45.39,
       "classificacao": "STRONG_CANDIDATE",
-      "contrato": "16789398000127-2-000057/2024"
+      "contrato_id": "16789398000127-2-000057/2024",
+      "failed_gates": [
+        "data_base_exata_localizada",
+        "contato_empresarial_verificavel",
+        "revisao_humana_concluida"
+      ],
+      "gates_passed": 10,
+      "data_base_status": "PROXY_PROSPECTION_ONLY",
+      "indice_in_clause": true
     }
   ]
 }

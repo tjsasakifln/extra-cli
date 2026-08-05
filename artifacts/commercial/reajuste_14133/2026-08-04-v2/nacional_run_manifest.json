@@ -1,14 +1,14 @@
 {
-  "run_id": "rebind-2026-08-04-10b22906",
+  "run_id": "rebind-2026-08-04-419da333",
   "as_of": "2026-08-04",
   "module_version": "2.0.0",
   "campaign": "reajuste_14133",
-  "git_sha": "10b22906507dbdf69001e300b81c72d5b9aff3db",
-  "evidence_commit_sha": "10b22906507dbdf69001e300b81c72d5b9aff3db",
+  "git_sha": "419da333238e9a5f61dcebf5c8985be5db0668bb",
+  "evidence_commit_sha": "419da333238e9a5f61dcebf5c8985be5db0668bb",
   "source_mode": "ssh",
   "source_dsn_masked": "ssh:ec-prod",
-  "started_at": "2026-08-05T04:27:31Z",
-  "finished_at": "2026-08-05T04:27:36Z",
+  "started_at": "2026-08-05T04:39:55Z",
+  "finished_at": "2026-08-05T04:40:00Z",
   "terminal_status": "BLOCKED_INSUFFICIENT_VERIFIED_OUTREACH_LEADS",
   "params": {
     "scope": "national",
@@ -123,5 +123,12 @@
     "pdf_binary_not_documentary_proof": true,
     "unit_is_supplier_not_contract": true,
     "rebind_export_atomic": true
+  },
+  "exhaustion": {
+    "documentary_contracts": 211,
+    "ready_suppliers": 0,
+    "document_request_suppliers": 149,
+    "false_official": 0,
+    "checkpoint_deep": 211
   }
 }
