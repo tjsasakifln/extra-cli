@@ -1,15 +1,15 @@
 {
-  "git_sha": "ae5cf7b74cd00d08af4bd2c9e0bc2a25cf08f20c",
-  "evidence_commit_sha": "ae5cf7b74cd00d08af4bd2c9e0bc2a25cf08f20c",
+  "git_sha": "b7c3c26c41c79fb58996b42514c461d84ab471e5",
+  "evidence_commit_sha": "b7c3c26c41c79fb58996b42514c461d84ab471e5",
   "docs_processed_deep": 211,
   "official_pdf_text_extracted": 211,
   "files": {
     "FINAL-REPORT.md": {
-      "sha256": "0bc02fc4e4123c5d69d2c7a19bfe9d5c2e22655ab1eb7ac29528f1600a221693",
-      "size": 702
+      "sha256": "d90bffc2b72e645a0faf306fa125b8f17d53cbbd079306c5223761cc73bf6d34",
+      "size": 356
     },
     "checksums.sha256": {
-      "sha256": "1adfc1ea1139bcda797bf7e216aba4aba66138332ec58c93d8a620fe0113a9d3",
+      "sha256": "f9f1141d35e358f82f865e26a03ac0919f1039a70009ddee07c8f567b93a8893",
       "size": 1392
     },
     "data_quality_report.md": {
@@ -21,19 +21,19 @@
       "size": 175068
     },
     "human_review_top30_suppliers.json": {
-      "sha256": "9884fda4771379982e3ab46c054cd85964284418c288d8e01ff38287924fe6aa",
+      "sha256": "d8d8e3615c0daca0c07d4c1d3cef2b9b0b9ca989f2dd5a407680c24ef6a69349",
       "size": 96383
     },
     "human_review_top30_suppliers.md": {
-      "sha256": "48cb7f98783de965363b0ed47b76ba19e3897955b67d129b2f724b9475a2dcf2",
+      "sha256": "bf11018ab9423083f75f55bb9f4eed3896dc7fa71e2c206cb0022cd4ccdec8e7",
       "size": 8783
     },
     "human_review_top30_suppliers_nacional.json": {
-      "sha256": "9884fda4771379982e3ab46c054cd85964284418c288d8e01ff38287924fe6aa",
+      "sha256": "d8d8e3615c0daca0c07d4c1d3cef2b9b0b9ca989f2dd5a407680c24ef6a69349",
       "size": 96383
     },
     "human_review_top30_suppliers_nacional.md": {
-      "sha256": "48cb7f98783de965363b0ed47b76ba19e3897955b67d129b2f724b9475a2dcf2",
+      "sha256": "bf11018ab9423083f75f55bb9f4eed3896dc7fa71e2c206cb0022cd4ccdec8e7",
       "size": 8783
     },
     "methodology.md": {
@@ -41,11 +41,11 @@
       "size": 2840
     },
     "nacional_checksums.sha256": {
-      "sha256": "875a54c962f7698b616e2853f168a1e99119ef44a596aa735722a6caa3e02964",
+      "sha256": "163a7eace9638f129b991c330fbe7b0f79c287d314a74a2059c07e09890d493a",
       "size": 1749
     },
     "nacional_run_manifest.json": {
-      "sha256": "1597817364168559742d522ab7177a19d78ec2440b0eb44ed7bc61edf22b2413",
+      "sha256": "26073650fdde04609805803ddd9e83101b50ac7a0bb7b2a763e1d0955f199510",
       "size": 3568
     },
     "outreach_ready.csv": {
