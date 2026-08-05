@@ -1,7 +1,7 @@
 # FINAL-REPORT — Tiago review package (reajuste 14.133)
 
 - **git_sha (functional package code):** `9897701d833c857c22162ac2f37bce7760e2b529`
-- **git_tip (branch HEAD at package rebuild):** `4bd78c19ee2a05013200f7589b58ef1c6cc2d2ae` (skeptic-fix commit)
+- **git_tip (branch HEAD at package rebuild):** `c1a1c071e30692371c5087e6f1c682cbf7d424e8` (skeptic-fix commit)
 - **generated_at:** 2026-08-05T12:14:58Z
 - **terminal_status:** `BLOCKED_INSUFFICIENT_VERIFIED_OUTREACH_LEADS`
 - **TECHNICALLY_VERIFIED_PENDING_TIAGO:** 1
