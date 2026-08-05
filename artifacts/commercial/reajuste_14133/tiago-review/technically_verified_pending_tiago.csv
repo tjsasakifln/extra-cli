@@ -29,11 +29,7 @@ XXXXX//202X
 2
 .
 Após o interregno de um ano, independentemente de pedido do
-contratado, os preços iniciais serão reajusta",2024-04,EXACT_COMPETENCE_IN_REAJUSTE_CLAUSE,SICRO,"data-base p/cell=1-191: legre = 146,0  KM
-Unidade da Federação: RS
-DATA BASE SICRO: ABRIL 2024
-Prazo de Execução: 28 meses (840 dias)
-Item Discr || indice p=1-19: ['SICRO'] || regime_legal_14133 p=1-19: isposições da 
+contratado, os preços iniciais serão reajusta",SICRO/04/2024,EXACT_DATE_IN_REFERENCED_BUDGET,"SICRO, IPCA","regime_legal_14133 p=1-19: isposições da 
 Lei 14.981 de 20 de setembro de 2024
 ,
  e da Lei
@@ -54,100 +50,15 @@ um ano contado da data do orçamento estimado.
 .
 8
 .
-As Instruções Normativas encontram-se disponíveis no end",,,4133822044,,brasilapi_or_portfolio,2026-08-05,True,"['ausencia_de_apostila_no_pncp_nao_prova_que_reajuste_nao_foi_concedido', 'Saldo/medições indisponíveis — valor sobre total é teto teórico, não valor devido.', 'indice_contratual_ausente — não aplicar IPCA/INCC/SINAPI por plausibilidade']","Estamos analisando contratos públicos de obras com interregno anual já transcorrido e identificamos que este instrumento merece conferência da cláusula de reajuste. Para confirmar eventual valor, seria necessário examinar contrato, orçamento, medições e apostilas.",ACCEPT,,TECHNICALLY_VERIFIED_PENDING_TIAGO,DOCUMENT_LINK_VERIFIED,49.58,PR
-CONSTRUTORA PELOTENSE LTDA,92190503000195,04892707000100-2-000567/2024,92883834000100-2-000052/2025,"EXECUÇÃO SERVIÇOS EMERGENCIAIS NECESSÁRIOS PARA A ESTABILIDADE DE TALUDES DE CORTE E REFORÇO NOS MUROS DE CONTENÇÃO NECESSÁRIOS PARA A RECUPERAÇÃO DA TRAFEGABILIDADE E SEGURANÇA MÍNIMAS DA RODOVIA BR-158/RS, NO SEGMENTO DO KM 310+000 AO KM 324+000, NA JURISDIÇÃO DA UNIDADE LOCAL DE SANTA MARIA/RS.",SUP. REG. DO DNIT NO EST.DO RIO GRANDE DO SUL,57526919.13,,,LEI_14133_2021,"es encontram-se definidos no Termo de Referência, anexo a este Contrato.
- 
-Minuta de Contrato Situação de Emergência (19266480)         SEI 50610.004302/2024-22 / pg. 2
-[page=3]
-7
-.
-CLÁUSULA SÉTIMA – REAJUSTE (
-ART. 92, V)
-7
-.
-1
-.
-Os preços inicialmente contratados são ﬁxos e irreajustáveis no prazo de
-um ano contado da data do orçamento estimado.
-7
-.
-1
-.
-1
-.
-O orçamento estimado pela Administração baseou-se nas planilhas
-referenciais, elaboradas com base no SICRO do mês de
- 
-XXXXX//202X
-.
-7
-.
-2
-.
-Após o interregno de um ano, independentemente de pedido do
-contratado, os preços iniciais serão reajusta",2023-01,EXACT_COMPETENCE_IN_REAJUSTE_CLAUSE,SICRO,"data-base p/cell=1-19: acordo com a Instrução Normativa nº 01/DNIT SEDE, de 24 de
-janeiro de 2023, disponibilizada no site do
- 
-DNIT, exclusiva || indice p=1-19: ['SICRO'] || regime_legal_14133 p=1-19: isposições da 
-Lei 14.981 de 20 de setembro de 2024
-,
- e da Lei
-nº 14.133, de 1º || clausula_reajuste p=1-19: es encontram-se definidos no Termo de Referência, anexo a este Contrato.
- 
-Minut || indice_na_clausula_reajuste p=1-19: es encontram-se definidos no Termo de Referência, anexo a este Contrato.
- 
-Minut || data_base p=1-19: justáveis no prazo de
-um ano contado da data do orçamento estimado.
-7
-.
-1
-.
-1
-.
- || indice_fora_da_clausula p=1-4: sessenta e cinco centavos), 
-SICRO 
-de 
+As Instruções Normativas encontram-se disponíveis no end || data_base p=1-24: ão de itens integrantes do 
+SICRO, 
+n
+a data-base de 
 ABRIL/2024
-, 
-ONERADO 
-( || regime_legal_14133 p=1-25: e 20 de setembro de
-2024 e 
-pelo artigo 18, § § 1º e 2º da 
-Lei nº 14.133, de 1º",,,5133322700,,brasilapi_or_portfolio,2026-08-05,True,"['ausencia_de_apostila_no_pncp_nao_prova_que_reajuste_nao_foi_concedido', 'Saldo/medições indisponíveis — valor sobre total é teto teórico, não valor devido.', 'indice_contratual_ausente — não aplicar IPCA/INCC/SINAPI por plausibilidade']","Estamos analisando contratos públicos de obras com interregno anual já transcorrido e identificamos que este instrumento merece conferência da cláusula de reajuste. Para confirmar eventual valor, seria necessário examinar contrato, orçamento, medições e apostilas.",ACCEPT,,TECHNICALLY_VERIFIED_PENDING_TIAGO,DOCUMENT_LINK_PARTIAL,48.92,RS
-CONSÓRCIO PARANAMAP,59470520000100,68596162000178-2-000022/2025,,"Contratação de empresa especializada para execução de serviços de engenharia cartográfica incluindo o aerolevantamento fotogramétrico de alta resolução, perfilamento a LASER aerotransportado e elaboração da base cartográfica planialtimétrica, na escala 1 10.000 PEC-PCD classe A, de acordo com a ET-CQDG, de todo o território do estado do Paraná, Brasil, compreendendo aproximadamente1 200.000 Km2, c",IAT - Instituto Água e Terra (Antigo IAP),118447000.0,,,LEI_14133_2021,"ais incide ntes, taxa de administração, 
-frete, seguro e outros necessários ao cumprimento integral do objeto da contratação, além dos materiais inerentes 
-à prestação dos serviços contratados.  
+,
  
-4 REAJUSTE  
-4.1 A periodicidade de reajuste do valor deste contrato será an ual, conforme disposto na Lei Federal nº 
-10.192/2001, utilizando -se do  Índice Nacional de Preços ao Consumidor Amplo (IPCA).  
-4.1.1  O reajuste deverá ser solicitado pelo Contratado mediante requerimento protocolado até trinta dias antes do 
-fim de cada perío do de doze meses.  
-4.1.2  A assinatura do aditivo ao contrato manten",2024-10-29,EXACT_DATE_IN_REAJUSTE_CLAUSE,IPCA,"data-base p/cell=1-179: do ao protocolo
-22.086.618-1 por: Suellen Azevedo Costa em: 29/10/2024 14:39. Documento assinado nos termos do Art. 38 d || indice p=1-179: ['IPCA'] || regime_legal_14133 p=1-179: das demais garantias exigívei s de acordo com o previsto na Lei 14.133/2021.  
-7 || clausula_reajuste p=1-179: ais incide ntes, taxa de administração, 
-frete, seguro e outros necessários ao c || indice_na_clausula_reajuste p=1-179: ais incide ntes, taxa de administração, 
-frete, seguro e outros necessários ao c || data_base p=1-179: e que o valor seja igual ou inferior ao orçamento estimado para a 
-contratação, ",,,4132716000,,brasilapi_or_portfolio,2026-08-05,True,"['ausencia_de_apostila_no_pncp_nao_prova_que_reajuste_nao_foi_concedido', 'Saldo/medições indisponíveis — valor sobre total é teto teórico, não valor devido.']","Estamos analisando contratos públicos de obras com interregno anual já transcorrido e identificamos que este instrumento merece conferência da cláusula de reajuste. Para confirmar eventual valor, seria necessário examinar contrato, orçamento, medições e apostilas.",ACCEPT,,TECHNICALLY_VERIFIED_PENDING_TIAGO,DOCUMENT_LINK_VERIFIED,47.59,PR
-CONSTRUTORA ALEGRETENSE LTDA,07807120000144,92883834000100-2-000015/2025,92883834000100-2-000019/2025 | 87896874000157-2-000272/2024 | 87896874000157-2-000258/2024 | 87896874000157-2-000165/2024 | 87896874000157-2-000268/2024 | 92883834000100-2-000008/2026 | 87896874000157-2-000555/2024 | 92883834000100-2-000011/2026,"Contratação de empresa do ramo de engenharia para a execução dos serviços de elaboração de projetos básico e executivo de engenharia e execução de obras emergenciais de requalificação e reabilitação funcional do pavimento, da drenagem e da sinalização, bem como obras de contenção e melhorias necessárias para reestabelecimento e qualificação viária da rodovia ERS-640, Lote 15, trecho entr. ERS-241,",DEPARTAMENTO AUTÔNOMO DE ESTRADAS DE RODAGEM,106912731.06,,,LEI_14133_2021,"ação da
-obra.
-5.13. Observado o atendimento às cláusulas anteriores, o pagamento será efetuado no
-prazo de 30 (trinta) dias da protocolização da nota fiscal ou nota fiscal-fatura.
-CLÁUSULA SEXTA — DA ATUALIZAÇÃO MONETÁRIA
-6.1. Os valores do presente contrato não pagos na data prevista serão corrigidos até a
-data do efetivo pagamento, “pro rata die”, pelo Índice de Preços ao Consumidor Amplo — IPCA, do Sistema
-Nacional de Índices de Preços ao Consumidor — SNIPC, ou outro que venha a substituí-lo. 
-CLÁUSULA SÉTIMA — DO REAJUSTE DOS PREÇOS
-7.1 O contrato será reajustado, observado o interregno mínimo de um ano, a con",2024-12-30,EXACT_DATE_IN_REAJUSTE_CLAUSE,IPCA,"data-base p/cell=1-1: ADE
-QUADRO RESUMO
-MÊS-BASE: Abril / 2024 - SEM 
-DESONERAÇÃO
-30/12/2024 00:02:53 DAER/ACI/4347510 ANEXAR DOCUMENTOS 9112
- || indice p=1-24: ['IPCA'] || regime_legal_14133 p=1-24: Resolução nº XXXX , com  fundamento na Lei  nº  14.981/24; Lei  nº  14.133/21;   || clausula_reajuste p=1-24: ação da
-obra.
-5.13. Observado o atendimento às cláusulas anteriores, o pagamento || indice_na_clausula_reajuste p=1-24: ação da
-obra.
-5.13. Observado o atendimento às cláusulas anteriores, o pagamento || regime_legal_14133 p=1-114: to) do valor total do  contrato, nos termos do art. 98, da 
-Lei nº 14.133/2021,  || clausula_reajuste p=1-114: ............................................ ............... 41  
-13.  VALOR DE  || data_base p=1-114: ns de f orma sintética, 
-considerando o orçamento estimado, balizado na meto dol",,,5534262007,,brasilapi_or_portfolio,2026-08-05,True,"['ausencia_de_apostila_no_pncp_nao_prova_que_reajuste_nao_foi_concedido', 'Saldo/medições indisponíveis — valor sobre total é teto teórico, não valor devido.', 'indice_contratual_ausente — não aplicar IPCA/INCC/SINAPI por plausibilidade']","Estamos analisando contratos públicos de obras com interregno anual já transcorrido e identificamos que este instrumento merece conferência da cláusula de reajuste. Para confirmar eventual valor, seria necessário examinar contrato, orçamento, medições e apostilas.",ACCEPT,,TECHNICALLY_VERIFIED_PENDING_TIAGO,DOCUMENT_LINK_VERIFIED,34.05,RS
+co
+m
+eventu || indice_fora_da_clausula p=1-24: Preços ao Consumidor Amplo - IPCA
+,
+após decorridos 30 dias con",,,4133822044,,brasilapi_or_portfolio,2026-08-05,True,"['ausencia_de_apostila_no_pncp_nao_prova_que_reajuste_nao_foi_concedido', 'Saldo/medições indisponíveis — valor sobre total é teto teórico, não valor devido.', 'indice_contratual_ausente — não aplicar IPCA/INCC/SINAPI por plausibilidade']","Estamos analisando contratos públicos de obras com interregno anual já transcorrido e identificamos que este instrumento merece conferência da cláusula de reajuste. Para confirmar eventual valor, seria necessário examinar contrato, orçamento, medições e apostilas.",ACCEPT,,TECHNICALLY_VERIFIED_PENDING_TIAGO,DOCUMENT_LINK_VERIFIED,49.58,PR

@@ -193,6 +193,93 @@ def test_signature_not_used_as_exact_data_base():
     assert res.data_base_exata_localizada is False
 
 
+def test_protocol_assinado_date_is_not_exact_data_base():
+    """Skeptic: 'Documento assinado… em: 29/10/2024' must not become data-base."""
+    text = (
+        "CLÁUSULA DE REAJUSTE. Os preços serão reajustáveis anualmente. "
+        "Documento assinado nos termos do Art. 38 do Decreto ao protocolo "
+        "22.086.618-1 por: Suellen Azevedo Costa em: 29/10/2024 14:39."
+    )
+    res = extract_exact_data_base(text)
+    assert res.data_base_exata_localizada is False
+    assert res.primary is None or res.primary.value != "2024-10-29"
+
+
+def test_timestamp_upload_not_preferred_over_mes_base():
+    """Skeptic: 30/12/2024 00:02:53 ANEXAR DOCUMENTOS must not beat MÊS-BASE Abril/2024."""
+    text = (
+        "QUADRO RESUMO\n"
+        "MÊS-BASE: Abril / 2024 - SEM DESONERAÇÃO\n"
+        "30/12/2024 00:02:53 DAER/ACI/4347510 ANEXAR DOCUMENTOS 9112\n"
+        "CLÁUSULA DE REAJUSTE. Reajuste anual conforme data-base do orçamento."
+    )
+    res = extract_exact_data_base(text)
+    assert res.data_base_exata_localizada is True
+    assert res.primary is not None
+    assert res.primary.value_month == 4
+    assert res.primary.value_year == 2024
+    assert res.primary.value != "2024-12-30"
+
+
+def test_instrucao_normativa_calendar_not_competence():
+    """Skeptic: 'IN … de 24 de janeiro de 2023' is not data-base competence."""
+    text = (
+        "CLÁUSULA DE REAJUSTE. O índice será o SICRO XXXXX//202X. "
+        "Aplicação de acordo com a Instrução Normativa nº 01/DNIT SEDE, "
+        "de 24 de janeiro de 2023, disponibilizada no site do DNIT."
+    )
+    res = extract_exact_data_base(text)
+    assert res.data_base_exata_localizada is False
+    if res.primary is not None:
+        assert res.primary.value not in {"2023-01", "2023-01-24", "2023-01-01"}
+
+
+def test_ipca_in_atualizacao_monetaria_not_reajuste_index():
+    """Skeptic: IPCA under atualização monetária (late payment) ≠ reajuste index."""
+    from scripts.commercial.reajuste_14133.io.documents import extract_from_text
+
+    text = (
+        "5.13. Pagamento em 30 dias da protocolização da nota fiscal.\n"
+        "ATUALIZAÇÃO MONETÁRIA. Em caso de atraso o valor será atualizado pelo IPCA.\n"
+        "CLÁUSULA DE REAJUSTE. O reajuste será pelo SICRO com data-base do orçamento."
+    )
+    scan = extract_from_text(text, doc_type="contrato", url=None, is_official_document=True)
+    assert scan.reajuste_clause_mention is True
+    assert any("SICRO" in x for x in scan.index_in_clause)
+    assert not any(x == "IPCA" or x.startswith("IPCA") for x in scan.index_in_clause)
+
+
+def test_cartography_lidar_not_construction():
+    """Skeptic: cartographic LiDAR/photogrammetry is not material civil obra."""
+    obj = (
+        "Contratação de empresa especializada para execução de serviços de "
+        "engenharia cartográfica incluindo o aerolevantamento fotogramétrico "
+        "de alta resolução, perfilamento a LASER aerotransportado e elaboração "
+        "de base cartográfica"
+    )
+    r = classify_construction(obj, razao_social="CONSÓRCIO PARANAMAP")
+    assert r.is_construction is False
+    assert any(
+        "cartograph" in c or "aerolevantamento" in c or "sector" in c
+        for c in r.reason_codes + r.negative_hits
+    )
+
+
+def test_data_base_sicro_abril_is_exact_competence():
+    """Legitimate DATA BASE SICRO: ABRIL 2024 must still pass."""
+    text = (
+        "DATA BASE SICRO: ABRIL 2024\n"
+        "Prazo de Execução: 28 meses\n"
+        "CLÁUSULA DE REAJUSTE. Preços reajustáveis no prazo de um ano "
+        "contado da data do orçamento estimado."
+    )
+    res = extract_exact_data_base(text)
+    assert res.data_base_exata_localizada is True
+    assert res.primary is not None
+    assert res.primary.value_month == 4
+    assert res.primary.value_year == 2024
+
+
 def test_sinapi_competence_in_clause():
     text = (
         "Cláusula de reajuste: o índice será o SINAPI competência 06/2023 "

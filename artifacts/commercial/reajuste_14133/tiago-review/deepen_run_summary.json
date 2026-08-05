@@ -1,10 +1,11 @@
 {
-  "tech_count": 4,
-  "doc_req": 6,
+  "tech_count": 1,
+  "doc_req": 22,
+  "exhausted_non_tech": 35,
   "queue_size": 36,
-  "exhausted_non_tech": 32,
   "outreach_ready": 0,
   "top20_unequivocal_sector_fp": 0,
-  "git_sha": "d6a1f12fec6557dc29e6a2c197ac7f33aeddffb5",
-  "terminal_status": "BLOCKED_INSUFFICIENT_VERIFIED_OUTREACH_LEADS"
+  "terminal_status": "BLOCKED_INSUFFICIENT_VERIFIED_OUTREACH_LEADS",
+  "skeptic_fixes": true,
+  "git_functional": "9897701d833c857c22162ac2f37bce7760e2b529"
 }

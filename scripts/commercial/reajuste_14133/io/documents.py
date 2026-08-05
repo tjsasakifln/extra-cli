@@ -50,8 +50,14 @@ INDEX_PATTERNS = (
     r"\b(cesta\s+de\s+[ií]ndices?)\b",
 )
 
+# Reajuste em sentido estrito only — NEVER "atualização monetária" (late-payment IPCA)
 REAJUSTE_CLAUSE = re.compile(
-    r"reajust(?:e|amento)|repactua[cç]|reequil[ií]brio|atualiza[cç][aã]o\s+monet[aá]ria",
+    r"reajust(?:e|amento)|repactua[cç]|reequil[ií]brio",
+    re.I,
+)
+# Late-payment / billing updates — must not bind indices for reajuste score
+ATUALIZACAO_MONETARIA = re.compile(
+    r"atualiza[cç][aã]o\s+monet[aá]ria|atualiza[cç][aã]o\s+por\s+atraso",
     re.I,
 )
 DATA_BASE_PAT = re.compile(
@@ -299,16 +305,26 @@ def extract_from_text(
     if res.regime_14133_mention and (res.regime_8666_mention or res.regime_rdc_mention):
         res.regime_conflict = True
 
-    m_rej = REAJUSTE_CLAUSE.search(text)
     clause_windows: list[tuple[int, int]] = []
-    if m_rej:
+    # Collect reajuste/repactuação/reequilíbrio windows.
+    # Index binding uses FORWARD window from keyword only so preceding
+    # "atualização monetária" blocks cannot bind IPCA into reajuste.
+    for m_rej in REAJUSTE_CLAUSE.finditer(text):
         res.reajuste_clause_mention = True
         if is_official_document:
             res.pipeline_state = DOC_CLAUSE_LOCATED
-        w0, w1 = max(0, m_rej.start() - 200), min(len(text), m_rej.end() + 400)
-        clause_windows.append((w0, w1))
-        window = text[w0:w1]
-        if re.search(r"j[aá]\s+reajust|reajuste\s+concedido|apostilado\s+o\s+reajuste", window, re.I):
+        # Context for excerpt may look back; indices only look forward from keyword
+        w0_ctx = max(0, m_rej.start() - 80)
+        w0_idx = m_rej.start()
+        w1 = min(len(text), m_rej.end() + 400)
+        clause_windows.append((w0_idx, w1))
+        excerpt_window = text[w0_ctx:w1]
+        index_window_text = text[w0_idx:w1]
+        if re.search(
+            r"j[aá]\s+reajust|reajuste\s+concedido|apostilado\s+o\s+reajuste",
+            excerpt_window,
+            re.I,
+        ):
             res.already_adjusted_hint = True
         res.evidences.append(
             Evidence(
@@ -317,7 +333,7 @@ def extract_from_text(
                 identificador_oficial=official_id,
                 url_or_location=url,
                 consulted_at=_now(),
-                excerpt=window.strip()[:800],
+                excerpt=excerpt_window.strip()[:800],
                 content_hash=h,
                 extraction_method=method,
                 confidence="high" if is_official_document else "low",
@@ -326,25 +342,56 @@ def extract_from_text(
                 page=page_hint,
             )
         )
-        for idx in _indices_in_window(text, w0, w1):
-            if idx not in res.index_in_clause:
-                res.index_in_clause.append(idx)
-                res.evidences.append(
-                    Evidence(
-                        doc_type=doc_type,
-                        orgao_emissor=orgao,
-                        identificador_oficial=official_id,
-                        url_or_location=url,
-                        consulted_at=_now(),
-                        excerpt=text[w0:w1][:200],
-                        content_hash=h,
-                        extraction_method=method,
-                        confidence="high" if is_official_document else "low",
-                        field_found="indice_na_clausula_reajuste",
-                        section="clausula_reajuste",
-                        page=page_hint,
-                    )
+        for idx in _indices_in_window(text, w0_idx, w1):
+            if idx in res.index_in_clause:
+                continue
+            # Double-check: index position must not be inside atualização monetária span
+            # that is not itself a reajuste sentence.
+            ok = True
+            for pat in (
+                r"\bINCC(?:-?DI|-?M)?\b",
+                r"\bIPCA\b",
+                r"\bIGP-?M\b",
+                r"\bSINAPI\b",
+                r"\bSICRO\b",
+                r"\bIVAR\b",
+                r"\bICC\b",
+                r"\bINPC\b",
+            ):
+                for im in re.finditer(pat, index_window_text, re.I):
+                    token = im.group(0).upper().replace(" ", "_")
+                    if idx.split("_")[0] not in token and token.split("-")[0] not in idx:
+                        continue
+                    abs_pos = w0_idx + im.start()
+                    around = text[max(0, abs_pos - 100) : min(len(text), abs_pos + 40)]
+                    if ATUALIZACAO_MONETARIA.search(around) and not re.search(
+                        r"reajust(?:e|amento)", around, re.I
+                    ):
+                        ok = False
+                        break
+                if not ok:
+                    break
+            if not ok:
+                if idx not in res.index_outside_clause_only:
+                    res.index_outside_clause_only.append(idx)
+                continue
+            res.index_in_clause.append(idx)
+            res.evidences.append(
+                Evidence(
+                    doc_type=doc_type,
+                    orgao_emissor=orgao,
+                    identificador_oficial=official_id,
+                    url_or_location=url,
+                    consulted_at=_now(),
+                    excerpt=index_window_text[:200],
+                    content_hash=h,
+                    extraction_method=method,
+                    confidence="high" if is_official_document else "low",
+                    field_found="indice_na_clausula_reajuste",
+                    section="clausula_reajuste",
+                    page=page_hint,
                 )
+            )
 
     m_db = DATA_BASE_PAT.search(text)
     if m_db:

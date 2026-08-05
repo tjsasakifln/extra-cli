@@ -558,6 +558,17 @@ def classify_construction(
             "servicos de agua e esgoto",
             "modelagem bim sem execucao",
             "consultoria bim",
+            # Cartography / survey / remote sensing without material obra
+            "aerolevantamento",
+            "fotogrametrico",
+            "fotogrametria",
+            "perfilamento a laser",
+            "perfilamento laser",
+            "lidar",
+            "base cartografica",
+            "engenharia cartografica",
+            "mapeamento cartografico",
+            "levantamento aerofotogrametrico",
         ),
     )
     # software + gestão de obras / engenharia (not material execution)
@@ -588,6 +599,38 @@ def classify_construction(
         x in norm for x in ("agua", "esgoto", "saneamento", "abastecimento", "servico publico")
     ):
         sector_fp = list(sector_fp) + ["concessao_servico_publico"]
+    # Cartography / LiDAR / photogrammetry without material civil obra
+    carto_hits = _hits(
+        norm,
+        (
+            "aerolevantamento",
+            "fotogrametric",
+            "fotogrametria",
+            "perfilamento a laser",
+            "perfilamento laser",
+            "lidar",
+            "base cartografica",
+            "engenharia cartografica",
+            "mapeamento cartografico",
+            "levantamento aerofotogrametrico",
+            "cartografica",
+        ),
+    )
+    if carto_hits and not any(
+        t in norm
+        for t in (
+            "execucao de obra",
+            "execucao de obras",
+            "empreitada",
+            "pavimentacao",
+            "construcao de",
+            "recuperacao de rodovia",
+            "ponte",
+            "edificacao",
+            "obra de engenharia civil",
+        )
+    ):
+        sector_fp = list(sector_fp) + carto_hits + ["cartography_survey_without_material_obra"]
     if sector_fp:
         return ConstructionClassification(
             is_construction=False,
