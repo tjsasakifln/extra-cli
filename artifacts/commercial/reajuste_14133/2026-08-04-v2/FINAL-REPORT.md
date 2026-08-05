@@ -1,42 +1,50 @@
-**Evidence HEAD:** 
-
-# FINAL-REPORT — reajuste 14.133 v2 (honest documentary recovery)
+# FINAL-REPORT — reajuste 14.133 v2.1 (honest PDF recovery)
 
 **Terminal:** `BLOCKED_INSUFFICIENT_VERIFIED_OUTREACH_LEADS`  
-**As-of:** 2026-08-04 · module 2.0.0  
-**Updated:** 2026-08-05T02:41:23Z
+**Tip HEAD at write:** `4beaf0b8ac2433ea6f10b91069dbc4546e7a66a3`  
+**Updated:** 2026-08-05T03:21:16Z
 
-## Honest documentary metrics (Sul full prefilter)
+## Documentary definition (fail-closed)
+
+- Portal HTML / object_field / url_builder **never** set `docs_accessible` or `official_text_extracted`.
+- Real path: PNCP contrato API → `numeroControlePncpCompra` → compra `/arquivos` → PDF download → PyPDF2 text + page markers.
+- `docs_processed_deep` = contracts with PDF download work.
+- `official_pdf_text_extracted` = PDF text successfully extracted.
+
+## Etapa A — Sul (full prefilter)
 
 | Metric | Value |
 |--------|------:|
 | Universe / read / complete | 27634 / 27634 / True |
-| docs_processed_deep (PDF download work) | **205** |
+| docs_processed_deep | **205** |
 | official_pdf_text_extracted | **201** |
-| pdfs_downloaded / arquivos_listed | 288 / 1706 |
-| regime_14133_proven (funnel) | 89 |
 | OUTREACH_READY* | **0** |
 | DOCUMENT_REQUEST suppliers | 39 |
 
-### Definition (fail-closed)
+## Etapa B — Nacional ≥ R$5M (v2.1 PDF recovery)
 
-- `docs_processed_deep` = contracts where PNCP compra PDF download was performed (not portal HTML).
-- `official_pdf_text_extracted` = PDF text extracted via PyPDF2 from edital/TR/contrato.
-- Portal HTML / object_field_scan **never** set `docs_accessible` / `official_text_extracted`.
+| Metric | Value |
+|--------|------:|
+| Universe / read / complete | 36423 / 36423 / True |
+| docs_processed_deep | **220** |
+| official_pdf_text_extracted | **219** |
+| pdfs_downloaded | 309 |
+| national_v21_pdf_recovery | True |
+| OUTREACH_READY* | **0** |
 
-## Recovery path
+National human_review_top30 is PDF-grounded (not AUTO_STUB): pages + pncp_pdf_* docs.
 
-1. PNCP contrato API → `numeroControlePncpCompra`
-2. PNCP compra `/arquivos` list
-3. Download PDF (edital priority)
-4. PyPDF2 text extract with page markers
-5. Clause/regime/index only from official text
+## Key hashes
 
-## Human review
+| Artifact | Size | SHA-256 |
+|----------|-----:|---------|
+| Sul human_review | 175556 | `7bd043df8f6033b5c5a963a5f8f184a8eb965c77840b6439e01f73b0e3add5ff` |
+| Nacional human_review | 152811 | `31464ea512f251cee347ac0bb77d504a6269b60c86bd3e204a3857148027d1d1` |
+| Nacional document_evidence | 7121855 | `fb7a5c7341900d7272724ef8950b579a025a28a1cfc45037e796fc07fa62eef9` |
+| Nacional run_manifest | 4382 | `f048c441d7757e2e2a2f6c918c931eb2eec2438796825266d2fd4f409b641551` |
+| Nacional XLSX | 2761551 | `c0f0d829eedd9a7b1211333cfcea458e346f1dc33653f9fe4395b0066ceb8925` |
 
-`human_review_top30_suppliers.*` uses official PDF evidences with `page`/`hash` when present.  
-Águas de Palhoça / water concessions excluded from construction ICP.
+## Paths
 
-## Exhaustion
-
-≥200 contracts with real PDF deep work; 0 OUTREACH_READY without inventing certainty.
+- Full: `output/commercial/reajuste_14133/2026-08-04-v2/` (+ `nacional/`)
+- PR-safe: `artifacts/commercial/reajuste_14133/2026-08-04-v2/`

@@ -1,9 +1,8 @@
 {
-  "run_id": "reajuste_14133-2026-08-04-de3f5591",
   "as_of": "2026-08-04",
   "module_version": "2.0.0",
-  "git_sha": "38ddf955effd327918dac8f4591cb9dec4231dc7",
   "terminal_status": "BLOCKED_INSUFFICIENT_VERIFIED_OUTREACH_LEADS",
+  "source_mode": "ssh",
   "params": {
     "scope": "national",
     "uf": null,
@@ -23,14 +22,15 @@
     "pagination": "keyset",
     "require_proxy_interregno": false,
     "universe_eligible_count": 36423,
-    "execution_complete": true
+    "execution_complete": true,
+    "documentary_path": "pncp_compra_pdf_pypdf2"
   },
   "funnel": {
     "examined_raw": 36423,
     "after_dedupe": 36423,
     "private_supplier": 35071,
     "construction": 9360,
-    "regime_14133_proven": 1,
+    "regime_14133_proven": 202,
     "temporally_mature": 4250,
     "data_base_confirmed": 0,
     "index_located": 0,
@@ -49,7 +49,10 @@
     "OUTREACH_READY": 0,
     "OUTREACH_READY_WITHOUT_VALUE_ESTIMATE": 0,
     "DOCUMENT_REQUEST_CANDIDATE": 0,
-    "NOT_READY_FOR_OUTREACH": 35071
+    "NOT_READY_FOR_OUTREACH": 35071,
+    "docs_processed_deep": 220,
+    "official_pdf_text_extracted": 219,
+    "pdfs_downloaded": 309
   },
   "metrics": {
     "top_leads": 1,
@@ -62,7 +65,7 @@
     "valor_potencial_agregado_top": 0.0,
     "teto_teorico_agregado_top": 0.0,
     "document_fetch_coverage": 200,
-    "docs_processed_deep": 200,
+    "docs_processed_deep": 220,
     "excluded_count": 32173,
     "contact_lookups_used": 50,
     "contact_attempts": 50,
@@ -71,7 +74,13 @@
     "execution_complete": true,
     "sampling_reason": null,
     "reexport_with_sanitizer": true,
-    "evidence_commit_sha": "edb38edca6221211a689a95e11be91a80af0874e"
+    "evidence_commit_sha": "edb38edca6221211a689a95e11be91a80af0874e",
+    "official_pdf_text_extracted": 219,
+    "pdfs_downloaded": 309,
+    "arquivos_listed": 4016,
+    "docs_processed_deep_definition": "contracts with PNCP compra PDF download attempted (not portal HTML)",
+    "national_v21_pdf_recovery": true,
+    "human_review_kind": "official_pdf_pages"
   },
   "distributions": {
     "uf": {
@@ -123,9 +132,14 @@
       "pontes_estruturas": 131
     }
   },
-  "source_mode": "ssh",
-  "evidence_commit_sha": "38ddf955effd327918dac8f4591cb9dec4231dc7",
+  "documentary_path": "pncp_compra_pdf_pypdf2",
+  "national_v21_pdf_recovery": true,
+  "evidence_source": "output/commercial/reajuste_14133/2026-08-04-v2/nacional/",
   "xlsx_path": "output/commercial/reajuste_14133/2026-08-04-v2/nacional/leads_fornecedores_reajuste_14133.xlsx",
   "xlsx_sha256": "c0f0d829eedd9a7b1211333cfcea458e346f1dc33653f9fe4395b0066ceb8925",
-  "xlsx_size": 2761551
+  "xlsx_size": 2761551,
+  "document_evidence_sha256": "fb7a5c7341900d7272724ef8950b579a025a28a1cfc45037e796fc07fa62eef9",
+  "human_review_sha256": "31464ea512f251cee347ac0bb77d504a6269b60c86bd3e204a3857148027d1d1",
+  "run_manifest_sha256": "f048c441d7757e2e2a2f6c918c931eb2eec2438796825266d2fd4f409b641551",
+  "note": "Metrics and hashes from on-disk national v2.1 PDF recovery run; git_sha stamped at commit tip"
 }
