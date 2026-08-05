@@ -65,8 +65,8 @@ def _sha256_file(path: Path) -> str:
 def _git_head() -> str:
     try:
         return (
-            subprocess.check_output(
-                ["git", "rev-parse", "HEAD"],
+            subprocess.check_output(  # noqa: S603
+                ["git", "rev-parse", "HEAD"],  # noqa: S607
                 stderr=subprocess.DEVNULL,
                 text=True,
             )
@@ -204,7 +204,7 @@ def write_tiago_review_package(
 
     doc_req = [r for r in rows if r.get("outreach_status") == DOCUMENT_REQUEST_CANDIDATE]
     outreach_ready = [r for r in rows if r.get("outreach_status") == OUTREACH_READY]
-    assert len(outreach_ready) == 0 or all(
+    assert len(outreach_ready) == 0 or all(  # noqa: S101
         not r.get("tiago_decision") for r in outreach_ready
     ), "OUTREACH_READY must not be forged with Tiago decision"
 

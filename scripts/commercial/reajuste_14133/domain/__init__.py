@@ -1,5 +1,10 @@
 """Pure domain logic for reajuste 14.133 (no I/O)."""
 
+from scripts.commercial.reajuste_14133.domain.commercial_stages import (
+    CommercialStageResult,
+    evaluate_commercial_stage,
+    evaluate_temporal_hierarchy,
+)
 from scripts.commercial.reajuste_14133.domain.data_base_exact import (
     EXACT_DATA_BASE_SATISFYING,
     extract_exact_data_base,
@@ -30,11 +35,6 @@ from scripts.commercial.reajuste_14133.domain.finance import (
 from scripts.commercial.reajuste_14133.domain.obra_classifier import (
     ConstructionClassification,
     classify_construction,
-)
-from scripts.commercial.reajuste_14133.domain.commercial_stages import (
-    CommercialStageResult,
-    evaluate_commercial_stage,
-    evaluate_temporal_hierarchy,
 )
 from scripts.commercial.reajuste_14133.domain.outreach import (
     OutreachResult,

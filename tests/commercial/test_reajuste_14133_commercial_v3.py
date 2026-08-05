@@ -5,13 +5,10 @@ from __future__ import annotations
 from datetime import date
 from pathlib import Path
 
-import pytest
-
 from scripts.commercial.reajuste_14133 import (
     CALCULABLE_ADJUSTMENT_CLAIM,
     DIAGNOSTIC_OUTREACH_READY,
     LIKELY_ADJUSTMENT_OPPORTUNITY,
-    POTENTIAL_ADJUSTMENT_SIGNAL,
     REGIME_14133,
     TEMPORAL_LEVEL_A,
     TEMPORAL_LEVEL_B,
@@ -28,7 +25,6 @@ from scripts.commercial.reajuste_14133.io.human_review import (
     load_human_review_file,
 )
 from scripts.commercial.reajuste_14133.pipeline import classify_row
-
 
 AS_OF = date(2026, 8, 4)
 
@@ -324,7 +320,7 @@ def test_exports_stage_csvs(tmp_path: Path):
         "supplier_portfolios": portfolios,
         "top_leads": [lead],
     }
-    paths = write_v2_deliverables(tmp_path, run)
+    write_v2_deliverables(tmp_path, run)
     assert (tmp_path / "likely_adjustment_opportunities.csv").exists()
     assert (tmp_path / "diagnostic_outreach_ready.csv").exists()
     assert (tmp_path / "supplier_priority_queue.csv").exists()

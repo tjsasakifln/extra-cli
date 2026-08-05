@@ -409,9 +409,9 @@ def run_deepen(
             f"documentary exhaustion of {len(deepen_results)} Sul priority suppliers "
             f"with only {tech_count} TECHNICALLY_VERIFIED_PENDING_TIAGO"
         )
-    notes.append(f"OUTREACH_READY count: 0 (human_review_done never forged)")
-    notes.append(f"early_stop_disabled on priority path: True")
-    notes.append(f"max_pdfs/pages caps lifted for priority_deep: True")
+    notes.append("OUTREACH_READY count: 0 (human_review_done never forged)")
+    notes.append("early_stop_disabled on priority path: True")
+    notes.append("max_pdfs/pages caps lifted for priority_deep: True")
 
     out = out_dir or Path("output/commercial/reajuste_14133/tiago-review")
     package = write_tiago_review_package(

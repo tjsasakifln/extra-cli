@@ -549,7 +549,7 @@ def safe_zip_list(data: bytes, *, max_members: int = 40, max_member_bytes: int =
                     continue
                 try:
                     raw = zf.read(info)
-                except Exception:
+                except Exception:  # noqa: S112
                     continue
                 if len(raw) > max_member_bytes:
                     continue

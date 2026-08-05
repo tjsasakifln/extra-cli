@@ -11,7 +11,6 @@ import json
 from pathlib import Path
 from typing import Any
 
-
 REQUIRED_HINT_FIELDS = (
     "reviewer",
     "decision",
