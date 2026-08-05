@@ -3169,5 +3169,5 @@
     }
   ],
   "note": "Revisão baseada em PDF oficiais PNCP (pncp_pdf_pypdf2) com páginas quando disponíveis. NÃO é revisão só de objeto/portal.",
-  "evidence_commit_sha": "d3867d5d4426b14f25617a3cc3da7e8ad1fe8914"
+  "evidence_commit_sha": "e37c842349ccffcce78a50e11e42e05a45004aa7"
 }

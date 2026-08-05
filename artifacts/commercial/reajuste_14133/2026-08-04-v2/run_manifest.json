@@ -3,7 +3,7 @@
   "as_of": "2026-08-04",
   "module_version": "2.0.0",
   "campaign": "reajuste_14133",
-  "git_sha": "d3867d5d4426b14f25617a3cc3da7e8ad1fe8914",
+  "git_sha": "e37c842349ccffcce78a50e11e42e05a45004aa7",
   "source_mode": "ssh",
   "source_dsn_masked": "ssh:ec-prod",
   "started_at": "2026-08-05T02:18:21Z",
@@ -155,5 +155,5 @@
   },
   "resumed": false,
   "checkpoint_dir": "output/commercial/reajuste_14133/2026-08-04-v2/.checkpoint",
-  "evidence_commit_sha": "d3867d5d4426b14f25617a3cc3da7e8ad1fe8914"
+  "evidence_commit_sha": "e37c842349ccffcce78a50e11e42e05a45004aa7"
 }
