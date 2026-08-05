@@ -1,15 +1,17 @@
 {
-  "git_sha": "b7c3c26c41c79fb58996b42514c461d84ab471e5",
-  "evidence_commit_sha": "b7c3c26c41c79fb58996b42514c461d84ab471e5",
+  "git_sha": "10b22906507dbdf69001e300b81c72d5b9aff3db",
+  "evidence_commit_sha": "10b22906507dbdf69001e300b81c72d5b9aff3db",
   "docs_processed_deep": 211,
   "official_pdf_text_extracted": 211,
+  "checkpoint_docs_processed_deep": 211,
+  "false_official": 0,
   "files": {
     "FINAL-REPORT.md": {
-      "sha256": "d90bffc2b72e645a0faf306fa125b8f17d53cbbd079306c5223761cc73bf6d34",
-      "size": 356
+      "sha256": "02796c697e50c9a42bbe755b72fe744370eceb426d456560dc40ade8f540c075",
+      "size": 322
     },
     "checksums.sha256": {
-      "sha256": "f9f1141d35e358f82f865e26a03ac0919f1039a70009ddee07c8f567b93a8893",
+      "sha256": "d7ca7f00545a87684c859501428704bca0572be2bdb318e774dc0b5389f58c0e",
       "size": 1392
     },
     "data_quality_report.md": {
@@ -21,19 +23,19 @@
       "size": 175068
     },
     "human_review_top30_suppliers.json": {
-      "sha256": "d8d8e3615c0daca0c07d4c1d3cef2b9b0b9ca989f2dd5a407680c24ef6a69349",
+      "sha256": "7c06892fd5dc1f35f1e460fc9098be2684c8f83e0512ac2cc461001594dc1f5e",
       "size": 96383
     },
     "human_review_top30_suppliers.md": {
-      "sha256": "bf11018ab9423083f75f55bb9f4eed3896dc7fa71e2c206cb0022cd4ccdec8e7",
+      "sha256": "be8d0daea9b006c8f0768d5680e302029d249e2a9c7ba8e91c21e069c3e677b3",
       "size": 8783
     },
     "human_review_top30_suppliers_nacional.json": {
-      "sha256": "d8d8e3615c0daca0c07d4c1d3cef2b9b0b9ca989f2dd5a407680c24ef6a69349",
+      "sha256": "7c06892fd5dc1f35f1e460fc9098be2684c8f83e0512ac2cc461001594dc1f5e",
       "size": 96383
     },
     "human_review_top30_suppliers_nacional.md": {
-      "sha256": "bf11018ab9423083f75f55bb9f4eed3896dc7fa71e2c206cb0022cd4ccdec8e7",
+      "sha256": "be8d0daea9b006c8f0768d5680e302029d249e2a9c7ba8e91c21e069c3e677b3",
       "size": 8783
     },
     "methodology.md": {
@@ -41,11 +43,11 @@
       "size": 2840
     },
     "nacional_checksums.sha256": {
-      "sha256": "163a7eace9638f129b991c330fbe7b0f79c287d314a74a2059c07e09890d493a",
+      "sha256": "c870a81fa772f61d60c3878d94212cf3237dc458de9202e78ead9c8af348e0dc",
       "size": 1749
     },
     "nacional_run_manifest.json": {
-      "sha256": "26073650fdde04609805803ddd9e83101b50ac7a0bb7b2a763e1d0955f199510",
+      "sha256": "bddd0c8977c5329545651f736313c52dae321d7d79aea13962697e93792ee77f",
       "size": 3568
     },
     "outreach_ready.csv": {
@@ -57,12 +59,12 @@
       "size": 6382
     },
     "top15_nacional_sample.json": {
-      "sha256": "1d037dbccd3e3492cd15fc327db769829392b0a6b9edbeb79666e8478a8f888f",
+      "sha256": "98fc8866641eef2397f6ca13e5b3525f1645527e56932cc73db1b37ff395b578",
       "size": 3884
     },
     "top15_suppliers_sample.json": {
-      "sha256": "138b7eb720727732cf98c10355507c8892b3356f5df3916bb29dd7044c9d66b4",
-      "size": 3848
+      "sha256": "87eac428abed8cb2ca0a71d201f85cea7dd4c4cd02ca5fd3c4444e53c1fd94e2",
+      "size": 3863
     }
   }
 }
