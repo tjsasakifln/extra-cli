@@ -145,10 +145,13 @@ def enrich_from_brasilapi(cnpj: str, *, sleep_s: float = 0.15) -> dict[str, Any]
         )
     return {
         "site_oficial": None,
-        "email_comercial": business_email or freemail,
+        # Corporate email only in email_comercial; freemail kept separately (not discarded)
+        "email_comercial": business_email,
         "email_comercial_low_confidence": freemail,
         "email_confidence": email_conf if email else "none",
-        "allow_low_confidence_contact": bool(freemail and (phone or freemail)),
+        # Freemail alone is NOT full contact_verifiable for diagnostic outreach
+        "allow_low_confidence_contact": False,
+        "contact_requires_review": bool(freemail),
         "telefone_empresarial": str(phone) if phone else None,
         "formulario_contato": None,
         "linkedin_institucional": None,
@@ -169,6 +172,8 @@ def merge_contacts(*parts: dict[str, Any]) -> dict[str, Any]:
     out: dict[str, Any] = {
         "site_oficial": None,
         "email_comercial": None,
+        "email_comercial_low_confidence": None,
+        "email_confidence": "none",
         "telefone_empresarial": None,
         "formulario_contato": None,
         "linkedin_institucional": None,
@@ -180,22 +185,62 @@ def merge_contacts(*parts: dict[str, Any]) -> dict[str, Any]:
         "contact_sources": [],
         "contact_score": 0.0,
         "has_personal_only_contact": False,
+        "contact_requires_review": False,
+        "allow_low_confidence_contact": False,
         "limitations": [],
     }
     for p in parts:
         if not p:
             continue
         for k in (
-            "site_oficial", "email_comercial", "telefone_empresarial",
-            "formulario_contato", "linkedin_institucional", "municipio_sede",
-            "uf_sede", "nome_fantasia", "cnae_principal", "situacao_cadastral",
+            "site_oficial", "email_comercial", "email_comercial_low_confidence",
+            "telefone_empresarial", "formulario_contato", "linkedin_institucional",
+            "municipio_sede", "uf_sede", "nome_fantasia", "cnae_principal",
+            "situacao_cadastral",
         ):
             if p.get(k) and not out.get(k):
                 out[k] = p[k]
+        conf = str(p.get("email_confidence") or "none")
+        # Prefer high over low
+        order = {"high": 3, "low": 2, "none": 1}
+        if order.get(conf, 0) > order.get(str(out.get("email_confidence") or "none"), 0):
+            out["email_confidence"] = conf
         out["contact_sources"].extend(p.get("contact_sources") or [])
         out["contact_score"] = max(float(out["contact_score"]), float(p.get("contact_score") or 0))
         out["has_personal_only_contact"] = out["has_personal_only_contact"] or bool(
             p.get("has_personal_only_contact")
         )
+        out["contact_requires_review"] = out["contact_requires_review"] or bool(
+            p.get("contact_requires_review")
+        )
         out["limitations"].extend(p.get("limitations") or [])
     return out
+
+
+def is_contact_verifiable_for_diagnostic(contacts: dict[str, Any] | None) -> bool:
+    """High-confidence business channel only — freemail alone never qualifies."""
+    c = contacts or {}
+    if c.get("site_oficial") or c.get("formulario_contato") or c.get("linkedin_institucional"):
+        return True
+    if c.get("telefone_empresarial"):
+        return True
+    if c.get("email_comercial") and str(c.get("email_confidence") or "high") != "low":
+        # explicit corporate email (not freemail)
+        return True
+    if c.get("contact_verifiable") and not c.get("contact_requires_review"):
+        return True
+    return False
+
+
+def contact_readiness_level(contacts: dict[str, Any] | None) -> str:
+    """high | low | none — freemail without other channel is low, not high."""
+    c = contacts or {}
+    if is_contact_verifiable_for_diagnostic(c):
+        return "high"
+    if c.get("email_comercial_low_confidence") or (
+        c.get("email_confidence") == "low" and c.get("email_comercial")
+    ):
+        return "low"
+    if c.get("contact_score") and float(c.get("contact_score") or 0) > 0:
+        return "low"
+    return "none"

@@ -136,28 +136,45 @@ def export_run(
                 "automated_object_triage_count": triage_meta.get("automated_object_triage_count"),
                 "manual_review_note": (
                     "automated_object_triage.json = MACHINE ONLY. "
-                    "Human review is human_review_top30_suppliers.md/json — "
-                    "hand-authored per campaign with documents/pages/clauses."
+                    "Human documentary review only via --human-review-file "
+                    "(never auto artifacts named human_review)."
                 ),
             }
         )
-    # Prefer hand-authored human review for the brief when available
+    # Only hand-authored / imported human review — never AI/automated kinds
+    auto_kinds = {
+        "ai_assisted_evidence_review",
+        "automated_review_queue",
+        "automated_object_triage",
+        "human_review_pending",
+    }
     for candidate in (
-        out_dir / "human_review_top30_suppliers.json",
         out_dir / "human_desk_review_top30.json",
         out_dir / "manual_review.json",
+        out_dir / "human_review_completed.json",
     ):
         if not candidate.exists():
             continue
         try:
             payload = json.loads(candidate.read_text(encoding="utf-8"))
-            if payload.get("reviews") or payload.get("kind") == "human_desk_review":
-                review_for_brief = payload.get("reviews")
-                paths["human_review"] = str(candidate)
-                run.setdefault("metrics", {})["human_review_count"] = payload.get("n")
-                break
         except (OSError, json.JSONDecodeError):
             continue
+        kind = str(payload.get("kind") or "").lower()
+        if kind in auto_kinds or "ai" in kind or "automated" in kind:
+            continue
+        # Accept only explicit human desk / completed import
+        if kind not in {"human_desk_review", "human_review_completed", ""}:
+            if not payload.get("human_review_completed"):
+                continue
+        reviews = payload.get("reviews") or payload.get("records")
+        if not reviews and not payload.get("human_review_completed"):
+            continue
+        review_for_brief = reviews if isinstance(reviews, list) else None
+        paths["human_review_completed"] = str(candidate)
+        run.setdefault("metrics", {})["human_review_count"] = payload.get("n") or (
+            len(reviews) if isinstance(reviews, list) else 0
+        )
+        break
     paths["executive_brief"] = str(write_executive_brief(out_dir, run, review_for_brief))
     paths["xlsx"] = str(export_workbook(out_dir, run))
     dpaths = write_dossiers(out_dir, run.get("top_leads") or [], n=dossier_count)

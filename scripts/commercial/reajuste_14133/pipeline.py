@@ -86,8 +86,10 @@ from scripts.commercial.reajuste_14133.domain.value_quality import (
     validate_contract_value,
 )
 from scripts.commercial.reajuste_14133.io.contacts import (
+    contact_readiness_level,
     enrich_from_brasilapi,
     enrich_from_registry_row,
+    is_contact_verifiable_for_diagnostic,
     merge_contacts,
 )
 from scripts.commercial.reajuste_14133.io.documents import (
@@ -448,17 +450,9 @@ def classify_row(
         else 0.0
     )
 
-    contact_verifiable = bool(
-        contacts.get("email_comercial")
-        or contacts.get("telefone_empresarial")
-        or contacts.get("site_oficial")
-        or contacts.get("formulario_contato")
-        or contacts.get("linkedin_institucional")
-        or contacts.get("contact_verifiable")
-    )
-    # Freemail associated to company: lower confidence, still verifiable after review flag
-    if not contact_verifiable and contacts.get("email_comercial_low_confidence"):
-        contact_verifiable = bool(contacts.get("allow_low_confidence_contact"))
+    # Freemail alone is NOT diagnostic-verifiable (low confidence + requires review)
+    contact_verifiable = is_contact_verifiable_for_diagnostic(contacts)
+    contact_ready_lvl = contact_readiness_level(contacts)
     open_obl = exec_st.open_obligation_possible and not is_closed
 
     # Exact data-base: only structured extraction states (not mere "data-base" mention)
@@ -514,6 +508,7 @@ def classify_row(
         material_contradiction=contrad.material_contradiction,
         legal_regime_conflict=regime.regime == REGIME_CONFLICT,
         contact_verifiable=contact_verifiable,
+        contact_confidence=contact_ready_lvl,
         human_review_done=human_review_done,
         has_calculable_base=(
             finance.base_label in {"SALDO_CONTRATUAL", "SALDO_DERIVADO"}
@@ -727,12 +722,36 @@ def classify_row(
         "regime_legal": regime.regime,
         "regime_proven": regime.proven,
         "regime_notes": regime.notes,
-        "data_base": dates.data_base_effective.value.isoformat()
-        if dates.data_base_effective.value
-        else None,
+        # Legal data-base only when exact; proxy lives solely in proxy_date/proxy_type
+        "data_base": (
+            exact_budget_dt.isoformat()
+            if exact_budget_dt is not None
+            else (
+                dates.data_base_effective.value.isoformat()
+                if (
+                    data_base_exact
+                    and dates.data_base_effective.value
+                    and not str(dates.data_base_effective.source).startswith("proxy")
+                )
+                else None
+            )
+        ),
         "data_base_status": dates.data_base_status,
-        "data_base_source": dates.data_base_effective.source,
-        "data_base_confidence": dates.data_base_effective.confidence,
+        "data_base_source": (
+            dates.data_base_effective.source
+            if data_base_exact
+            and not str(dates.data_base_effective.source).startswith("proxy")
+            else (
+                "missing"
+                if not data_base_exact
+                else dates.data_base_effective.source
+            )
+        ),
+        "data_base_confidence": (
+            dates.data_base_effective.confidence
+            if data_base_exact
+            else "none"
+        ),
         "data_base_exata_localizada": data_base_exact,
         "exact_data_base": exact_data_base_payload,
         "document_link_status": document_link_status,
@@ -770,9 +789,12 @@ def classify_row(
         "argumento_comercial": commercial_arg,
         "canais_contato": {
             "email": (contacts or {}).get("email_comercial"),
+            "email_low_confidence": (contacts or {}).get("email_comercial_low_confidence"),
+            "email_confidence": (contacts or {}).get("email_confidence") or contact_ready_lvl,
             "telefone": (contacts or {}).get("telefone_empresarial"),
             "site": (contacts or {}).get("site_oficial"),
             "linkedin": (contacts or {}).get("linkedin_institucional"),
+            "requires_review": bool((contacts or {}).get("contact_requires_review")),
         },
         "contact_sources": (contacts or {}).get("contact_sources") or [],
         "urls_oficiais": [u for u in [url] if u],

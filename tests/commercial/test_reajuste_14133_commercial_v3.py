@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from datetime import date
 from pathlib import Path
 
@@ -352,3 +353,128 @@ def test_diagnostic_language_template():
     assert "potencialmente" in msg
     assert "não significa" in msg or "nao significa" in msg
     assert "valor pendente" in msg or "conferência" in msg or "conferencia" in msg
+
+
+def test_proxy_not_presented_as_legal_data_base():
+    """Proxy signature must never fill lead.data_base (legal field)."""
+    lead = classify_row(MATURE_OBRA_ROW, as_of=AS_OF, contacts={})
+    assert lead["exact_budget_date"] is None
+    assert lead["data_base"] is None  # legal field empty without exact orçamento
+    assert lead["proxy_date"] is not None
+    assert lead["proxy_type"] == "data_assinatura"
+    assert lead["data_base_status"] in {"PROXY_PROSPECTION_ONLY", "MISSING"}
+    assert lead["minimum_elapsed_confirmed"] is True
+
+
+def test_freemail_low_confidence_not_diagnostic():
+    """Freemail public CNPJ email: keep in queue, low readiness, not DIAGNOSTIC alone."""
+    from scripts.commercial.reajuste_14133.io.contacts import (
+        contact_readiness_level,
+        is_contact_verifiable_for_diagnostic,
+    )
+
+    freemail_contacts = {
+        "email_comercial": None,
+        "email_comercial_low_confidence": "contato@gmail.com",
+        "email_confidence": "low",
+        "contact_requires_review": True,
+        "contact_score": 0.35,
+    }
+    assert is_contact_verifiable_for_diagnostic(freemail_contacts) is False
+    assert contact_readiness_level(freemail_contacts) == "low"
+
+    r = evaluate_commercial_stage(
+        as_of=AS_OF,
+        is_construction=True,
+        obra_confidence=0.85,
+        private_supplier=True,
+        regime=REGIME_14133,
+        regime_proven=False,
+        signature_year=2023,
+        data_assinatura=date(2023, 5, 10),
+        open_obligation=True,
+        contact_verifiable=False,
+        contact_confidence="low",
+        human_review_done=False,
+    )
+    assert r.commercial_stage == LIKELY_ADJUSTMENT_OPPORTUNITY
+    assert r.dimensions.contact_readiness == "low"
+    assert any("freemail" in u or "baixa_confianca" in u for u in r.uncertainties)
+
+
+def test_exports_never_write_human_review_filenames(tmp_path: Path):
+    lead = classify_row(
+        MATURE_OBRA_ROW,
+        as_of=AS_OF,
+        contacts={
+            "email_comercial": "c@planaterra.com.br",
+            "email_confidence": "high",
+            "site_oficial": "https://planaterra.com.br",
+            "contact_score": 0.8,
+        },
+    )
+    lead["ranking"] = 1
+    from scripts.commercial.reajuste_14133.domain.supplier_portfolio import consolidate_suppliers
+
+    portfolios = consolidate_suppliers([lead])
+    run = {
+        "run_id": "test-v3-hr",
+        "as_of": AS_OF.isoformat(),
+        "git_sha": "test",
+        "leads": [lead],
+        "supplier_portfolios": portfolios,
+        "top_leads": [lead],
+    }
+    write_v2_deliverables(tmp_path, run)
+    assert not (tmp_path / "human_review_top30_suppliers.json").exists()
+    assert not (tmp_path / "human_review_top30_suppliers.md").exists()
+    assert (tmp_path / "automated_review_queue.json").exists()
+    assert (tmp_path / "human_review_pending.json").exists()
+    assert (tmp_path / "ai_assisted_evidence_review_top30.json").exists()
+    ai = json.loads((tmp_path / "ai_assisted_evidence_review_top30.json").read_text())
+    assert ai.get("kind") == "ai_assisted_evidence_review"
+    assert ai.get("human_review_completed") is False
+
+
+def test_export_run_rejects_ai_as_human_review(tmp_path: Path):
+    """cli.export_run must not treat ai_assisted artifacts as human_review."""
+    import json as _json
+
+    from scripts.commercial.reajuste_14133.cli import export_run
+
+    # Plant AI artifact that formerly poisoned human_review path
+    (tmp_path / "human_review_top30_suppliers.json").write_text(
+        _json.dumps(
+            {
+                "kind": "ai_assisted_evidence_review",
+                "reviews": [{"fornecedor": "X"}],
+                "n": 1,
+            }
+        ),
+        encoding="utf-8",
+    )
+    run = {
+        "run_id": "test",
+        "as_of": "2026-08-04",
+        "module_version": "3.0.0",
+        "campaign": "reajuste_14133",
+        "source_mode": "csv",
+        "source_dsn_masked": "postgresql://user:***@127.0.0.1/db",
+        "funnel": {},
+        "metrics": {},
+        "language_policy": {},
+        "top_leads": [],
+        "leads": [],
+        "supplier_portfolios": [],
+        "git_sha": "test",
+    }
+    # Minimal files for export path
+    result = export_run(run, tmp_path, dossier_count=0, manual_review=False)
+    paths = result.get("paths") or {}
+    assert "human_review" not in paths
+    assert "human_review_completed" not in paths or not str(
+        paths.get("human_review_completed", "")
+    ).endswith("human_review_top30_suppliers.json")
+    assert run.get("metrics", {}).get("human_review_count") in {None, 0} or (
+        "human_review" not in paths
+    )

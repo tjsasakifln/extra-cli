@@ -505,12 +505,9 @@ def write_v2_deliverables(out_dir: Path, run: dict[str, Any]) -> dict[str, str]:
             )
     paths["calculation_evidence_jsonl"] = str(p_calc)
 
-    # AI-assisted evidence review (NOT human / Tiago decision)
+    # AI-assisted evidence review only — NEVER dual-write human_review_* filenames
     ai_md = out_dir / "ai_assisted_evidence_review_top30.md"
     ai_json = out_dir / "ai_assisted_evidence_review_top30.json"
-    # Legacy filenames kept as copies pointing to AI review (never claim human)
-    hr_md = out_dir / "human_review_top30_suppliers.md"
-    hr_json = out_dir / "human_review_top30_suppliers.json"
     if not ai_json.exists():
         top30 = portfolios[:30]
         reviews = []
@@ -551,10 +548,10 @@ def write_v2_deliverables(out_dir: Path, run: dict[str, Any]) -> dict[str, str]:
                     "decisao": "AI_ASSISTED_EVIDENCE_REVIEW",
                     "motivo": (
                         "Revisão adversarial assistida por IA sobre objeto/CNAE/documentos. "
-                        "NÃO é revisão humana. OUTREACH_READY exige decisão explícita de Tiago."
+                        "NÃO é revisão humana. Importar via --human-review-file para completed."
                     ),
                     "sector_false_positive_flags": fp_flags,
-                    "risco": "Nao usar para OUTREACH_READY sem decisão explícita de Tiago",
+                    "risco": "Nao usar como human_review_completed",
                     "linguagem_permitida": "none",
                     "proxima_acao": p.get("proxima_acao"),
                     "outreach_status": p.get("outreach_status"),
@@ -562,9 +559,11 @@ def write_v2_deliverables(out_dir: Path, run: dict[str, Any]) -> dict[str, str]:
             )
         payload = {
             "kind": "ai_assisted_evidence_review",
+            "human_review_completed": False,
             "note": (
                 "AI_ASSISTED — not human documentary review. "
-                "human_review_done remains false until Tiago acts."
+                "Never dual-writes human_review_* filenames. "
+                "human_review_completed only via --human-review-file."
             ),
             "n": len(reviews),
             "sector_false_positives_in_top30": sector_fps,
@@ -577,7 +576,8 @@ def write_v2_deliverables(out_dir: Path, run: dict[str, Any]) -> dict[str, str]:
         lines = [
             "# AI-assisted evidence review — Top 30 suppliers",
             "",
-            "> **NÃO é revisão humana.** Decisão de Tiago (ACCEPT/REJECT/DEFER) é separada.",
+            "> **NÃO é revisão humana.** Não grava human_review_* (OBJECTIVE v3).",
+            "> Completar revisão via `--human-review-file`.",
             "",
             f"- sector_false_positive flags in top30: **{sector_fps}**",
             "",
@@ -590,23 +590,9 @@ def write_v2_deliverables(out_dir: Path, run: dict[str, Any]) -> dict[str, str]:
             lines.append(f"- motivo: {r.get('motivo')}")
             lines.append("")
         ai_md.write_text("\n".join(lines), encoding="utf-8")
-        # Legacy names: same content, kind clarified
-        legacy = dict(payload)
-        legacy["kind"] = "ai_assisted_evidence_review"
-        legacy["legacy_filename_note"] = (
-            "Former human_review_top30_suppliers.* renamed conceptually to "
-            "ai_assisted_evidence_review. Not Tiago human decision."
-        )
-        _write_json(hr_json, legacy)
-        hr_md.write_text(
-            "# LEGACY FILENAME — content is ai_assisted_evidence_review\n\n"
-            + "\n".join(lines),
-            encoding="utf-8",
-        )
     paths["ai_assisted_evidence_review_md"] = str(ai_md)
     paths["ai_assisted_evidence_review_json"] = str(ai_json)
-    paths["human_review_md"] = str(hr_md)
-    paths["human_review_json"] = str(hr_json)
+    # Explicit: no human_review_md / human_review_json paths for auto artifacts
 
     return paths
 

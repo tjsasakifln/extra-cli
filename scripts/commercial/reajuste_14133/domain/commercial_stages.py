@@ -353,6 +353,7 @@ def evaluate_commercial_stage(
     material_contradiction: bool = False,
     legal_regime_conflict: bool = False,
     contact_verifiable: bool = False,
+    contact_confidence: str | None = None,
     human_review_done: bool = False,
     has_calculable_base: bool = False,
     has_index_series: bool = False,
@@ -576,7 +577,23 @@ def evaluate_commercial_stage(
     else:
         exec_conf = CONF_LOW
 
-    contact_ready = CONF_HIGH if contact_verifiable else CONF_NONE
+    # Freemail / low-confidence channel → low readiness, not high; no silent drop
+    conf_in = (contact_confidence or "").lower()
+    if contact_verifiable and conf_in in {"", "high", CONF_HIGH}:
+        contact_ready = CONF_HIGH
+    elif conf_in in {"low", CONF_LOW} or (
+        not contact_verifiable and conf_in in {"low", CONF_LOW}
+    ):
+        contact_ready = CONF_LOW
+        uncertainties.append(
+            "contato_freemail_ou_baixa_confianca_exige_revisao_antes_de_abordagem"
+        )
+    elif contact_verifiable:
+        contact_ready = CONF_HIGH
+    else:
+        contact_ready = CONF_NONE
+    # Diagnostic requires high-confidence verifiable channel only
+    contact_ok_for_diagnostic = contact_verifiable and contact_ready == CONF_HIGH
     # Never auto-complete human review
     if human_review_done:
         human_st = HUMAN_REVIEW_COMPLETED
@@ -668,7 +685,7 @@ def evaluate_commercial_stage(
         action = ACTION_REQUEST_DOCS
         reasons.append("likely_opportunity_conservative_temporal")
         legacy = "DOCUMENT_REQUEST_CANDIDATE"
-        if contact_verifiable:
+        if contact_ok_for_diagnostic:
             stage = DIAGNOSTIC_OUTREACH_READY
             language = "diagnostic_only"
             next_act = (
@@ -680,13 +697,22 @@ def evaluate_commercial_stage(
             reasons.append("diagnostic_outreach_with_verifiable_channel")
             legacy = "DOCUMENT_REQUEST_CANDIDATE"
         else:
-            uncertainties.append(
-                "contato_empresarial_ausente — lead permanece na fila de enriquecimento"
-            )
-            action = ACTION_ENRICH_CONTACT
-            next_act = (
-                "Enriquecer contato empresarial; manter na fila de leads prioritários."
-            )
+            if contact_ready == CONF_LOW:
+                uncertainties.append(
+                    "contato_baixa_confianca_freemail_exige_revisao — permanece LIKELY"
+                )
+                action = ACTION_ENRICH_CONTACT
+                next_act = (
+                    "Revisar contato freemail/baixa confiança; enriquecer canal corporativo."
+                )
+            else:
+                uncertainties.append(
+                    "contato_empresarial_ausente — lead permanece na fila de enriquecimento"
+                )
+                action = ACTION_ENRICH_CONTACT
+                next_act = (
+                    "Enriquecer contato empresarial; manter na fila de leads prioritários."
+                )
 
     # 4) DOCUMENT_REQUEST can coexist with diagnostic — also as standalone
     #    when likely but docs missing (always true for LIKELY without verified pack)
