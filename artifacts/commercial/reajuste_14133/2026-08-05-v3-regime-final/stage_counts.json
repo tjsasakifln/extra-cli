@@ -1,66 +1,54 @@
 {
+  "table_count_pncp_supplier_contracts": 4503049,
+  "universe_eligible_count": 3886745,
+  "rows_read": 3886745,
+  "execution_complete": true,
+  "sampling_reason": null,
   "funnel": {
-    "examined_raw": 11503,
-    "after_dedupe": 11503,
-    "private_supplier": 11453,
-    "construction": 611,
+    "examined_raw": 3886745,
+    "after_dedupe": 3886745,
+    "private_supplier": 3864037,
+    "construction": 149180,
     "regime_14133_proven": 0,
-    "temporally_mature": 5,
+    "temporally_mature": 75154,
     "data_base_confirmed": 0,
     "index_located": 0,
     "already_adjusted": 0,
-    "universe_eligible_count": 11503,
+    "universe_eligible_count": 3886745,
     "sampled": 0,
     "HOT_VERIFIED": 0,
     "STRONG_CANDIDATE": 0,
     "REVIEW_REQUIRED": 0,
     "RESEARCH_REQUIRED": 0,
     "ALREADY_ADJUSTED": 0,
-    "NOT_ELIGIBLE": 11448,
-    "LEGAL_REGIME_UNKNOWN": 5,
+    "NOT_ELIGIBLE": 3788883,
+    "LEGAL_REGIME_UNKNOWN": 75154,
     "LEGAL_REGIME_CONFLICT": 0,
     "CLOSED_OR_FINANCIALLY_EXHAUSTED": 0,
     "OUTREACH_READY": 0,
     "OUTREACH_READY_WITHOUT_VALUE_ESTIMATE": 0,
-    "DOCUMENT_REQUEST_CANDIDATE": 0,
-    "NOT_READY_FOR_OUTREACH": 11453,
-    "POTENTIAL_ADJUSTMENT_SIGNAL": 7,
+    "DOCUMENT_REQUEST_CANDIDATE": 73783,
+    "NOT_READY_FOR_OUTREACH": 3790254,
+    "POTENTIAL_ADJUSTMENT_SIGNAL": 1371,
     "LIKELY_ADJUSTMENT_OPPORTUNITY": 0,
     "DIAGNOSTIC_OUTREACH_READY": 0,
-    "DOCUMENT_REQUEST_READY": 0,
+    "DOCUMENT_REQUEST_READY": 73783,
     "VERIFIED_ADJUSTMENT_OPPORTUNITY": 0,
     "CALCULABLE_ADJUSTMENT_CLAIM": 0,
-    "commercial_stage_not_commercial": 11446,
-    "minimum_interregnum_elapsed": 0
+    "commercial_stage_not_commercial": 3788883,
+    "minimum_interregnum_elapsed": 2020936
   },
-  "contracts_classified": {
-    "NOT_COMMERCIAL": 604,
-    "POTENTIAL_ADJUSTMENT_SIGNAL": 7
+  "contracts_commercial_stages": {
+    "POTENTIAL_ADJUSTMENT_SIGNAL": 1371,
+    "DOCUMENT_REQUEST_READY": 73783,
+    "LIKELY_ADJUSTMENT_OPPORTUNITY": 0,
+    "DIAGNOSTIC_OUTREACH_READY": 0,
+    "VERIFIED_ADJUSTMENT_OPPORTUNITY": 0,
+    "CALCULABLE_ADJUSTMENT_CLAIM": 0,
+    "NOT_COMMERCIAL": 3788883
   },
-  "regime_classified": {
-    "UNKNOWN": 608,
-    "TRANSITIONAL_REGIME_UNRESOLVED": 3
-  },
-  "n_contracts_read": 11503,
-  "n_suppliers": 457,
-  "before_likely_plus_diagnostic_replay": 755,
-  "after_likely_plus_diagnostic_live": 0,
-  "demotions_likely_path_replay": 732,
-  "demotion_replay": {
-    "before": {
-      "LIKELY_ADJUSTMENT_OPPORTUNITY": 771,
-      "NOT_COMMERCIAL": 1029
-    },
-    "after": {
-      "LIKELY_ADJUSTMENT_OPPORTUNITY": 23,
-      "NOT_COMMERCIAL": 1029,
-      "DOCUMENT_REQUEST_READY": 732,
-      "POTENTIAL_ADJUSTMENT_SIGNAL": 16
-    },
-    "before_likely_plus_diagnostic": 771,
-    "after_likely_plus_diagnostic": 23,
-    "demotions_total": 748,
-    "to_document_request_ready": 732,
-    "input_sha256": "ba0a91c630227c17c4952961a095a93d1fa93925233d4bd97e0fe737b3dad458"
-  }
+  "n_construction": 149180,
+  "n_suppliers": 31076,
+  "n_suppliers_document_request": 30851,
+  "demotion_replay_1800": null
 }

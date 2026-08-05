@@ -1,29 +1,42 @@
-# Metodologia — reajuste 14.133 v3.1 (regime-safe)
+# Metodologia — full national reajuste 14.133 v3.1
 
-## Correção
+## Fonte
 
-- Ano de assinatura e PNCP **não** elevam `legal_confidence` nem `LIKELY_14133`.
-- Ano só como contexto de transição / prioridade documental.
+- **Host:** ec-prod Postgres `pncp_datalake`
+- **Tabela:** `pncp_supplier_contracts` (**4,503,049** linhas totais)
+- **Pré-filtro elegível:** 3,886,745 (CNPJ válido, data, openish 24m, valor≥1)
+- **rows_read:** **3,886,745**
+- **max_source_rows:** null
+- **sampling_reason:** null
+- **execution_complete:** true
 
-## Hierarquia R-A…R-X
+## Regime
 
-| Nível | Regime | proven | legal_confidence | Exige |
-|-------|--------|--------|------------------|-------|
-| R-A | LEI_14133 | true | high | citação oficial vinculada ou campo estruturado |
-| R-B | LIKELY_14133 | false | medium | **sinal normativo positivo 14.133** + vínculo + pós-transição + sem legado |
-| R-C | TRANSITIONAL_REGIME_UNRESOLVED | false | unresolved | janela de transição sem fundamento |
-| R-D | UNKNOWN | false | none | sem sinais suficientes |
-| R-X | LEGAL_REGIME_CONFLICT | false | conflict | citações incompatíveis |
+Ano/PNCP **não** elevam LIKELY_14133. R-B exige sinal normativo positivo.
 
-**R-B não aceita:** ano pós-transição + documentos genéricos + ausência de legado.
+Distribuição no scan (todos os rows lidos):
 
-## Demotions (reprodutível)
+```json
+{
+  "LEI_14133_PROVEN": 0,
+  "LIKELY_14133": 0,
+  "TRANSITIONAL_REGIME_UNRESOLVED": 955309,
+  "UNKNOWN": 2908722,
+  "LEGACY_8666": 2,
+  "RDC": 3,
+  "LEGACY_10520": 1,
+  "REGIME_CONFLICT": 0
+}
+```
 
-Ver `run_manifest.json` → `demotion_replay` e transcript em scratch implementer:
-- input sha256 do export 1800
-- before LIKELY via regra antiga `signature_year>=2021`
-- after via `classify_row` shipped
+## Estágios comerciais (funil)
 
-## Live national
+| Estágio | Qtd |
+|---------|-----|
+| construction | 149,180 |
+| DOCUMENT_REQUEST_READY | 73,783 |
+| POTENTIAL_ADJUSTMENT_SIGNAL | 1,371 |
+| LIKELY / DIAGNOSTIC | 0 |
+| suppliers | 31,076 |
 
-`pncp_datalake.pncp_supplier_contracts` sem `--max-source-rows`.
+0 LIKELY sem prova documental de regime — comportamento esperado.
