@@ -1,187 +1,141 @@
 {
-  "n": 15,
+  "evidence_sha": "e0ac2ab6ea6255fe58e06b0538721d09ca4a8592",
   "scope": "SUL",
   "sample": [
     {
       "rank": 1,
-      "cnpj": "82743832000162",
       "razao_social": "PLANATERRA-TERRAPLENAGEM E PAVIMENTACAO LTDA",
-      "sede_uf": "SC",
+      "cnpj": "82743832000162",
+      "uf": "SC",
       "score": 48.89,
-      "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
-      "qtd_contratos": 14,
-      "melhor_classificacao": "STRONG_CANDIDATE",
-      "melhor_contrato_id": "04892707000100-2-000494/2024",
-      "regime_proven": null
+      "classificacao": "STRONG_CANDIDATE",
+      "contrato": "04892707000100-2-000494/2024"
     },
     {
       "rank": 2,
-      "cnpj": "80095466000157",
       "razao_social": "CONSTRUTORA OLIVEIRA LTDA",
-      "sede_uf": "SC",
+      "cnpj": "80095466000157",
+      "uf": "SC",
       "score": 48.4,
-      "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
-      "qtd_contratos": 11,
-      "melhor_classificacao": "STRONG_CANDIDATE",
-      "melhor_contrato_id": "83021808000182-2-000395/2024",
-      "regime_proven": null
+      "classificacao": "STRONG_CANDIDATE",
+      "contrato": "83021808000182-2-000395/2024"
     },
     {
       "rank": 3,
-      "cnpj": "88348024000187",
       "razao_social": "SBS ENGENHARIA E CONSTRUCOES LTDA.",
-      "sede_uf": "RS",
+      "cnpj": "88348024000187",
+      "uf": "RS",
       "score": 48.24,
-      "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
-      "qtd_contratos": 2,
-      "melhor_classificacao": "STRONG_CANDIDATE",
-      "melhor_contrato_id": "04892707000100-2-000458/2024",
-      "regime_proven": null
+      "classificacao": "STRONG_CANDIDATE",
+      "contrato": "04892707000100-2-000458/2024"
     },
     {
       "rank": 4,
-      "cnpj": "92190503000195",
       "razao_social": "CONSTRUTORA PELOTENSE LTDA",
-      "sede_uf": "RS",
+      "cnpj": "92190503000195",
+      "uf": "RS",
       "score": 47.31,
-      "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
-      "qtd_contratos": 2,
-      "melhor_classificacao": "STRONG_CANDIDATE",
-      "melhor_contrato_id": "04892707000100-2-000567/2024",
-      "regime_proven": null
+      "classificacao": "STRONG_CANDIDATE",
+      "contrato": "04892707000100-2-000567/2024"
     },
     {
       "rank": 5,
-      "cnpj": "92779503000125",
       "razao_social": "CASTILHO ENGENHARIA E EMPREENDIMENTOS S/A",
-      "sede_uf": "PR",
+      "cnpj": "92779503000125",
+      "uf": "PR",
       "score": 47.14,
-      "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
-      "qtd_contratos": 14,
-      "melhor_classificacao": "STRONG_CANDIDATE",
-      "melhor_contrato_id": "04892707000100-2-000579/2024",
-      "regime_proven": null
+      "classificacao": "STRONG_CANDIDATE",
+      "contrato": "04892707000100-2-000579/2024"
     },
     {
       "rank": 6,
-      "cnpj": "75911438000120",
       "razao_social": "ARTELESTE CONSTRUCOES LIMITADA",
-      "sede_uf": "RS",
+      "cnpj": "75911438000120",
+      "uf": "RS",
       "score": 46.59,
-      "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
-      "qtd_contratos": 4,
-      "melhor_classificacao": "STRONG_CANDIDATE",
-      "melhor_contrato_id": "04892707000100-2-000508/2024",
-      "regime_proven": null
+      "classificacao": "STRONG_CANDIDATE",
+      "contrato": "04892707000100-2-000508/2024"
     },
     {
       "rank": 7,
-      "cnpj": "02955426000124",
       "razao_social": "NEOVIA INFRAESTRUTURA RODOVIARIA LTDA",
-      "sede_uf": "RS",
+      "cnpj": "02955426000124",
+      "uf": "RS",
       "score": 45.89,
-      "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
-      "qtd_contratos": 15,
-      "melhor_classificacao": "STRONG_CANDIDATE",
-      "melhor_contrato_id": "04892707000100-2-000561/2024",
-      "regime_proven": null
+      "classificacao": "STRONG_CANDIDATE",
+      "contrato": "04892707000100-2-000561/2024"
     },
     {
       "rank": 8,
-      "cnpj": "92943398000118",
       "razao_social": "CONSTRUTORA CIDADE LIMITADA",
-      "sede_uf": "RS",
+      "cnpj": "92943398000118",
+      "uf": "RS",
       "score": 45.85,
-      "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
-      "qtd_contratos": 4,
-      "melhor_classificacao": "STRONG_CANDIDATE",
-      "melhor_contrato_id": "04892707000100-2-000620/2024",
-      "regime_proven": null
+      "classificacao": "STRONG_CANDIDATE",
+      "contrato": "04892707000100-2-000620/2024"
     },
     {
       "rank": 9,
-      "cnpj": "00061493000170",
       "razao_social": "ENCOPAV ENGENHARIA LTDA",
-      "sede_uf": "RS",
+      "cnpj": "00061493000170",
+      "uf": "RS",
       "score": 45.8,
-      "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
-      "qtd_contratos": 19,
-      "melhor_classificacao": "STRONG_CANDIDATE",
-      "melhor_contrato_id": "92883834000100-2-000007/2025",
-      "regime_proven": null
+      "classificacao": "STRONG_CANDIDATE",
+      "contrato": "92883834000100-2-000007/2025"
     },
     {
       "rank": 10,
-      "cnpj": "67156943000260",
       "razao_social": "SOTRAM - CONSTR. E TERRAPLENAGEM LTDA.",
-      "sede_uf": "PR",
+      "cnpj": "67156943000260",
+      "uf": "PR",
       "score": 45.5,
-      "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
-      "qtd_contratos": 11,
-      "melhor_classificacao": "STRONG_CANDIDATE",
-      "melhor_contrato_id": "76247378000156-2-000324/2024",
-      "regime_proven": null
+      "classificacao": "STRONG_CANDIDATE",
+      "contrato": "76247378000156-2-000324/2024"
     },
     {
       "rank": 11,
-      "cnpj": "59470520000100",
       "razao_social": "CONSÓRCIO PARANAMAP",
-      "sede_uf": "PR",
+      "cnpj": "59470520000100",
+      "uf": "PR",
       "score": 44.6,
-      "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
-      "qtd_contratos": 1,
-      "melhor_classificacao": "STRONG_CANDIDATE",
-      "melhor_contrato_id": "68596162000178-2-000022/2025",
-      "regime_proven": null
+      "classificacao": "STRONG_CANDIDATE",
+      "contrato": "68596162000178-2-000022/2025"
     },
     {
       "rank": 12,
-      "cnpj": "22788440000198",
       "razao_social": "ONDA DURA",
-      "sede_uf": "SC",
+      "cnpj": "22788440000198",
+      "uf": "SC",
       "score": 43.81,
-      "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
-      "qtd_contratos": 1,
-      "melhor_classificacao": "STRONG_CANDIDATE",
-      "melhor_contrato_id": "01280363000190-2-000001/2025",
-      "regime_proven": null
+      "classificacao": "STRONG_CANDIDATE",
+      "contrato": "01280363000190-2-000001/2025"
     },
     {
       "rank": 13,
-      "cnpj": "00820854000114",
       "razao_social": "QUALIDADE MINERACAO LTDA",
-      "sede_uf": "SC",
+      "cnpj": "00820854000114",
+      "uf": "SC",
       "score": 33.24,
-      "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
-      "qtd_contratos": 14,
-      "melhor_classificacao": "REVIEW_REQUIRED",
-      "melhor_contrato_id": "82951344000140-2-000031/2024",
-      "regime_proven": null
+      "classificacao": "REVIEW_REQUIRED",
+      "contrato": "82951344000140-2-000031/2024"
     },
     {
       "rank": 14,
-      "cnpj": "53673938000139",
       "razao_social": "CONSORCIO VALE DO RIBEIRA",
-      "sede_uf": "PR",
+      "cnpj": "53673938000139",
+      "uf": "PR",
       "score": 32.49,
-      "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
-      "qtd_contratos": 1,
-      "melhor_classificacao": "REVIEW_REQUIRED",
-      "melhor_contrato_id": "76669324000189-2-000013/2024",
-      "regime_proven": null
+      "classificacao": "REVIEW_REQUIRED",
+      "contrato": "76669324000189-2-000013/2024"
     },
     {
       "rank": 15,
-      "cnpj": "42722865000101",
       "razao_social": "R.J. ENGENHARIA DE MANUTENCAO INDUSTRIAL LTDA",
-      "sede_uf": "PR",
+      "cnpj": "42722865000101",
+      "uf": "PR",
       "score": 29.56,
-      "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
-      "qtd_contratos": 2,
-      "melhor_classificacao": "REVIEW_REQUIRED",
-      "melhor_contrato_id": "08597121000174-2-000506/2024",
-      "regime_proven": null
+      "classificacao": "REVIEW_REQUIRED",
+      "contrato": "08597121000174-2-000506/2024"
     }
-  ],
-  "note": "DOCUMENT_REQUEST Sul priority"
+  ]
 }

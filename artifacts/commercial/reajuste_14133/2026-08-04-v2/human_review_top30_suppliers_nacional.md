@@ -1,6 +1,6 @@
 # Human review Top 30 — rebind-export (official PDF)
 
-n=30 HEAD=`f338eb1d366aa8b4523fd494b9d8359bdb17cec6`
+n=30 HEAD=`e0ac2ab6ea6255fe58e06b0538721d09ca4a8592`
 Grounded in pncp_pdf_* after atomic reclassify.
 
 ## LCM CONSTRUCAO E COMERCIO S.A (`19758842000135`)
