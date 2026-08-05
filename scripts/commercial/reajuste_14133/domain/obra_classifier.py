@@ -206,6 +206,18 @@ NEGATIVE: tuple[str, ...] = (
     "sem execucao de obra",
     "sem execucao material",
     "sem execucao das obras",
+    # Concessão de serviço público contínuo ≠ empreitada
+    "concessao comum",
+    "concessao de servico",
+    "concessao de agua",
+    "concessao de esgoto",
+    "concessao de saneamento",
+    "outorga de concessao",
+    "servico publico de abastecimento",
+    "distribuicao de agua",
+    "abastecimento de agua",
+    "servicos de agua e esgoto",
+    "operacao de sistema de esgoto",
 )
 
 # Pure intellectual services without material execution
@@ -412,6 +424,15 @@ def classify_construction(
             "licenciamento de software",
             "software de gestao",
             "licenca de uso de software",
+            "concessao comum",
+            "concessao de servico",
+            "concessao de agua",
+            "concessao de esgoto",
+            "concessao de saneamento",
+            "outorga de concessao",
+            "abastecimento de agua",
+            "distribuicao de agua",
+            "servicos de agua e esgoto",
         ),
     )
     # software + gestão de obras / engenharia (not material execution)
@@ -419,6 +440,15 @@ def classify_construction(
         "gestao de obra" in norm or "gestao de obras" in norm or "engenharia" in norm
     ):
         sector_fp = list(sector_fp) + ["software_gestao_obras"]
+    # concessionária de água/esgoto (nome ou objeto)
+    if re.search(r"\baguas?\s+de\b|\bcompanhia\s+de\s+agua\b|\bsaneamento\s+de\b", norm) and (
+        "concess" in norm or "servico publico" in norm or "distribuicao" in norm
+    ):
+        sector_fp = list(sector_fp) + ["concessao_agua_esgoto"]
+    if "concessao" in norm and any(
+        x in norm for x in ("agua", "esgoto", "saneamento", "abastecimento", "servico publico")
+    ):
+        sector_fp = list(sector_fp) + ["concessao_servico_publico"]
     if sector_fp:
         return ConstructionClassification(
             is_construction=False,

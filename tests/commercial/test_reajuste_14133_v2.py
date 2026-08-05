@@ -145,10 +145,17 @@ def test_index_in_reajuste_clause_assigned():
         "CLÁUSULA DE REAJUSTE: os preços serão reajustados anualmente pelo INCC-DI "
         "divulgado pela FGV, contados da data-base do orçamento estimado."
     )
-    scan = extract_from_text(text, doc_type="contrato", url="https://example.com")
+    scan = extract_from_text(
+        text,
+        doc_type="contrato",
+        url="https://example.com",
+        method="pncp_pdf_pypdf2",
+        is_official_document=True,
+    )
     assert scan.reajuste_clause_mention
     assert any("INCC" in x for x in scan.index_in_clause)
     assert scan.docs_accessible is True
+    assert scan.official_text_extracted is True
 
 
 def test_pdf_binary_not_docs_accessible():
@@ -159,6 +166,45 @@ def test_pdf_binary_not_docs_accessible():
     assert scan.pdf_binary_located
     assert not scan.docs_accessible
     assert not scan.text_extracted
+    assert not getattr(scan, "official_text_extracted", False)
+
+
+def test_portal_html_not_official_documentary_proof():
+    """Portal/object HTML must not set docs_accessible / official_text_extracted."""
+    scan = extract_from_text(
+        "Edital regido pela Lei 14.133/2021 com cláusula de reajuste pelo INCC",
+        doc_type="pncp_portal_html",
+        url="https://pncp.gov.br/app/contratos/x",
+        method="http_get_html",
+        is_official_document=False,
+    )
+    assert scan.regime_14133_mention  # signal may exist
+    assert not scan.docs_accessible
+    assert not scan.official_text_extracted
+
+
+def test_official_pdf_text_sets_docs_accessible():
+    scan = extract_from_text(
+        "CLÁUSULA DE REAJUSTE: reajuste anual pelo INCC-DI. Edital regido pela Lei nº 14.133/2021. "
+        "Data-base do orçamento estimado: janeiro/2024.",
+        doc_type="pncp_pdf:edital.pdf",
+        url="https://pncp.gov.br/pncp-api/v1/orgaos/x/compras/2024/1/arquivos/1",
+        method="pncp_pdf_pypdf2",
+        is_official_document=True,
+        page_hint="1-10",
+    )
+    assert scan.docs_accessible
+    assert scan.official_text_extracted
+    assert scan.reajuste_clause_mention
+    assert any(e.page for e in scan.evidences)
+
+
+def test_fp_concessao_agua_not_construction():
+    r = classify_construction(
+        "Concessão Comum dos serviços públicos de abastecimento de água potável "
+        "e esgotamento sanitário do Município de Palhoça"
+    )
+    assert not r.is_construction
 
 
 # --- Temporal layers ---

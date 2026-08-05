@@ -104,6 +104,13 @@ PUBLIC_ORG_MARKERS = (
     "departamento municipal de agua", "empresa publica", "empresa pública",
 )
 
+# Concessionárias de utilidade (água/energia) — not CONFENGE construction ICP
+UTILITY_CONCESSIONAIRE_MARKERS = (
+    "aguas de ", "águas de ", "agua e esgoto", "água e esgoto",
+    "saneamento de ", "companhia catarinense de aguas", "casan",
+    "copasa", "sabesp", "cedae", "embasa", "cagece", "compesa",
+)
+
 
 def utc_now() -> str:
     return datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
@@ -134,6 +141,9 @@ def is_private_supplier(cnpj: str | None, nome: str | None) -> bool:
     if len(c) != 14:
         return False
     name = (nome or "").lower()
+    # Utility concessionaires are private SPEs but outside construction ICP ranking
+    if any(m in name for m in UTILITY_CONCESSIONAIRE_MARKERS):
+        return False
     if any(m in name for m in PUBLIC_ORG_MARKERS):
         if re.search(r"\b(s\.?a\.?|s/a|ltda|eireli|spe)\b", name, re.I):
             if any(
@@ -203,35 +213,42 @@ def classify_row(
     index_in_clause = False
     docs_accessible = False
     text_extracted = False
+    official_text = False
     already_adjusted = False
     index_name = None
     clause_located = False
     regime_conflict = False
     if doc_scan is not None:
-        text_extracted = bool(getattr(doc_scan, "text_extracted", False))
-        docs_accessible = bool(doc_scan.docs_accessible) and text_extracted
-        # Never treat binary-only PDF as accessible
-        if getattr(doc_scan, "pdf_binary_located", False) and not text_extracted:
+        # Official PDF/edital text only — portal HTML / object never count
+        official_text = bool(getattr(doc_scan, "official_text_extracted", False))
+        text_extracted = official_text
+        docs_accessible = bool(doc_scan.docs_accessible) and official_text
+        if getattr(doc_scan, "pdf_binary_located", False) and not official_text:
             docs_accessible = False
-        clause_located = bool(doc_scan.reajuste_clause_mention) and text_extracted
+        clause_located = bool(doc_scan.reajuste_clause_mention) and official_text
         regime_conflict = bool(getattr(doc_scan, "regime_conflict", False))
-        if doc_scan.regime_14133_mention and docs_accessible:
-            doc_texts.append("lei 14.133/2021 (portal/doc)")
+        if doc_scan.regime_14133_mention and official_text:
+            doc_texts.append("lei 14.133/2021 (documento oficial extraído)")
         for e in doc_scan.evidences:
-            if (
-                e.field_found == "regime_legal_14133"
-                and e.confidence in {"medium", "high"}
-                and docs_accessible
-            ):
+            method = getattr(e, "extraction_method", "") or ""
+            # Only official PDF extract methods prove regime/clause (not portal HTML)
+            if method not in {
+                "pncp_pdf_pypdf2",
+                "pncp_pdf_pypdf",
+                "process_documents_pdf",
+                "http_get_pdf_text",
+            }:
+                continue
+            if e.field_found == "regime_legal_14133" and e.excerpt:
                 doc_texts.append(e.excerpt)
             if e.field_found == "clausula_reajuste" and e.excerpt:
                 doc_texts.append(e.excerpt)
         in_clause = list(getattr(doc_scan, "index_in_clause", None) or [])
-        index_found = bool(in_clause) and docs_accessible
-        index_in_clause = bool(in_clause)
-        if in_clause and docs_accessible:
+        index_found = bool(in_clause) and official_text
+        index_in_clause = bool(in_clause) and official_text
+        if in_clause and official_text:
             index_name = in_clause[0]
-        already_adjusted = bool(doc_scan.already_adjusted_hint)
+        already_adjusted = bool(doc_scan.already_adjusted_hint) and official_text
 
     if official_acts:
         for act in official_acts[:5]:
@@ -766,11 +783,26 @@ def run_pipeline(
                     orgao_nome=row.get("orgao_nome"),
                     objeto=row.get("objeto_contrato"),
                     fetch_remote=True,
-                    max_fetches=2,
+                    max_fetches=3,
                 )
                 doc_fetches += 1
-                if doc_scan.text_extracted or doc_scan.pdf_binary_located:
+                # Honest deep-doc: only PDF download/extract work counts (not portal HTML)
+                if getattr(doc_scan, "deep_document_work", False) or (
+                    getattr(doc_scan, "pdfs_downloaded", 0) or 0
+                ) > 0:
                     docs_processed_deep += 1
+                if getattr(doc_scan, "official_text_extracted", False):
+                    funnel["official_pdf_text_extracted"] = (
+                        funnel.get("official_pdf_text_extracted", 0) + 1
+                    )
+                if getattr(doc_scan, "pdfs_downloaded", 0):
+                    funnel["pdfs_downloaded"] = funnel.get("pdfs_downloaded", 0) + int(
+                        doc_scan.pdfs_downloaded
+                    )
+                if getattr(doc_scan, "arquivos_listed", 0):
+                    funnel["arquivos_listed"] = funnel.get("arquivos_listed", 0) + int(
+                        doc_scan.arquivos_listed
+                    )
             else:
                 doc_scan = verify_contract_documents(
                     contrato_id=str(row.get("contrato_id") or ""),
@@ -999,6 +1031,13 @@ def run_pipeline(
             "teto_teorico_agregado_top": teto_sum,
             "document_fetch_coverage": doc_fetches,
             "docs_processed_deep": docs_processed_deep,
+            "official_pdf_text_extracted": funnel.get("official_pdf_text_extracted", 0),
+            "pdfs_downloaded": funnel.get("pdfs_downloaded", 0),
+            "arquivos_listed": funnel.get("arquivos_listed", 0),
+            "docs_processed_deep_definition": (
+                "contracts with PNCP compra PDF download attempted "
+                "(not portal HTML alone)"
+            ),
             "excluded_count": len(excluded),
             "contact_lookups_used": contact_lookups,
             "contact_attempts": contact_attempts,

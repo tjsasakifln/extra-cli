@@ -2,7 +2,7 @@
   "run_id": "reajuste_14133-2026-08-04-de3f5591",
   "as_of": "2026-08-04",
   "module_version": "2.0.0",
-  "git_sha": "edb38edca6221211a689a95e11be91a80af0874e",
+  "git_sha": "d3867d5d4426b14f25617a3cc3da7e8ad1fe8914",
   "terminal_status": "BLOCKED_INSUFFICIENT_VERIFIED_OUTREACH_LEADS",
   "params": {
     "scope": "national",
@@ -124,7 +124,7 @@
     }
   },
   "source_mode": "ssh",
-  "evidence_commit_sha": "d8e07b2bbffa9338d0f67063d5143a71e84a952f",
+  "evidence_commit_sha": "d3867d5d4426b14f25617a3cc3da7e8ad1fe8914",
   "xlsx_path": "output/commercial/reajuste_14133/2026-08-04-v2/nacional/leads_fornecedores_reajuste_14133.xlsx",
   "xlsx_sha256": "c0f0d829eedd9a7b1211333cfcea458e346f1dc33653f9fe4395b0066ceb8925",
   "xlsx_size": 2761551

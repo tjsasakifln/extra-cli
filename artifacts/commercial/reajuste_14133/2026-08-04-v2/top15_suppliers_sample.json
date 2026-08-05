@@ -1,137 +1,137 @@
 [
   {
     "ranking": 1,
-    "razao_social": "SURG CIA DE SERVICOS DE URBANIZACAO DE G",
-    "cnpj_masked": "75646273****",
-    "sede_uf": "PR",
-    "qtd_contratos": 7,
-    "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
-    "score": 18.54
-  },
-  {
-    "ranking": 2,
-    "razao_social": "CONSTRUCOES SCHOROEDER EIRELI    -",
-    "cnpj_masked": "10249046****",
-    "sede_uf": "SC",
-    "qtd_contratos": 20,
-    "outreach_status": "NOT_READY_FOR_OUTREACH",
-    "score": 21.41
-  },
-  {
-    "ranking": 3,
-    "razao_social": "NEOVIA INFRAESTRUTURA RODOVIARIA LTDA",
-    "cnpj_masked": "02955426****",
-    "sede_uf": "PR",
-    "qtd_contratos": 14,
-    "outreach_status": "NOT_READY_FOR_OUTREACH",
-    "score": 20.99
-  },
-  {
-    "ranking": 4,
-    "razao_social": "QUALIDADE MINERACAO LTDA",
-    "cnpj_masked": "00820854****",
-    "sede_uf": "SC",
-    "qtd_contratos": 37,
-    "outreach_status": "NOT_READY_FOR_OUTREACH",
-    "score": 20.76
-  },
-  {
-    "ranking": 5,
-    "razao_social": "GAIA RODOVIAS LTDA.",
-    "cnpj_masked": "03257777****",
-    "sede_uf": "SC",
-    "qtd_contratos": 11,
-    "outreach_status": "NOT_READY_FOR_OUTREACH",
-    "score": 20.67
-  },
-  {
-    "ranking": 6,
-    "razao_social": "AGUAS DE PALHOCA S.A",
-    "cnpj_masked": "57341135****",
-    "sede_uf": "SC",
-    "qtd_contratos": 1,
-    "outreach_status": "NOT_READY_FOR_OUTREACH",
-    "score": 20.35
-  },
-  {
-    "ranking": 7,
-    "razao_social": "ENGERAMA ENGENHARIA E EMPREENDIMENTOS LTDA",
-    "cnpj_masked": "79096020****",
-    "sede_uf": "PR",
-    "qtd_contratos": 1,
-    "outreach_status": "NOT_READY_FOR_OUTREACH",
-    "score": 20.18
-  },
-  {
-    "ranking": 8,
     "razao_social": "PLANATERRA-TERRAPLENAGEM E PAVIMENTACAO LTDA",
     "cnpj_masked": "82743832****",
     "sede_uf": "SC",
     "qtd_contratos": 24,
-    "outreach_status": "NOT_READY_FOR_OUTREACH",
-    "score": 19.78
+    "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
+    "score": 53.76
+  },
+  {
+    "ranking": 3,
+    "razao_social": "CONSTRUTORA OLIVEIRA LTDA",
+    "cnpj_masked": "80095466****",
+    "sede_uf": "SC",
+    "qtd_contratos": 36,
+    "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
+    "score": 51.39
+  },
+  {
+    "ranking": 4,
+    "razao_social": "CASTILHO ENGENHARIA E EMPREENDIMENTOS S/A",
+    "cnpj_masked": "92779503****",
+    "sede_uf": "PR",
+    "qtd_contratos": 8,
+    "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
+    "score": 50.13
+  },
+  {
+    "ranking": 5,
+    "razao_social": "SBS ENGENHARIA E CONSTRUCOES LTDA.",
+    "cnpj_masked": "88348024****",
+    "sede_uf": "RS",
+    "qtd_contratos": 3,
+    "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
+    "score": 49.85
+  },
+  {
+    "ranking": 6,
+    "razao_social": "ARTELESTE CONSTRUCOES LIMITADA",
+    "cnpj_masked": "75911438****",
+    "sede_uf": "PR",
+    "qtd_contratos": 3,
+    "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
+    "score": 49.58
+  },
+  {
+    "ranking": 7,
+    "razao_social": "CONSTRUTORA PELOTENSE LTDA",
+    "cnpj_masked": "92190503****",
+    "sede_uf": "RS",
+    "qtd_contratos": 2,
+    "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
+    "score": 48.92
+  },
+  {
+    "ranking": 8,
+    "razao_social": "NEOVIA INFRAESTRUTURA RODOVIARIA LTDA",
+    "cnpj_masked": "02955426****",
+    "sede_uf": "PR",
+    "qtd_contratos": 14,
+    "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
+    "score": 48.88
   },
   {
     "ranking": 9,
-    "razao_social": "CEGE ENGENHARIA LTDA",
-    "cnpj_masked": "04484014****",
-    "sede_uf": "SC",
-    "qtd_contratos": 10,
-    "outreach_status": "NOT_READY_FOR_OUTREACH",
-    "score": 19.7
-  },
-  {
-    "ranking": 10,
-    "razao_social": "CONSORCIO CONSTRUTOR ESTRADAS RURAIS",
-    "cnpj_masked": "57155217****",
-    "sede_uf": "PR",
-    "qtd_contratos": 1,
-    "outreach_status": "NOT_READY_FOR_OUTREACH",
-    "score": 19.67
+    "razao_social": "ENCOPAV ENGENHARIA LTDA",
+    "cnpj_masked": "00061493****",
+    "sede_uf": "RS",
+    "qtd_contratos": 38,
+    "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
+    "score": 48.79
   },
   {
     "ranking": 11,
-    "razao_social": "ENDEAL ENGENHARIA E CONSTRUÇÕES LTDA",
-    "cnpj_masked": "03430585****",
+    "razao_social": "CONSÓRCIO PARANAMAP",
+    "cnpj_masked": "59470520****",
     "sede_uf": "PR",
     "qtd_contratos": 1,
-    "outreach_status": "NOT_READY_FOR_OUTREACH",
-    "score": 19.63
-  },
-  {
-    "ranking": 12,
-    "razao_social": "CONSORCIO PALMEIRA",
-    "cnpj_masked": "57437373****",
-    "sede_uf": "PR",
-    "qtd_contratos": 1,
-    "outreach_status": "NOT_READY_FOR_OUTREACH",
-    "score": 19.54
+    "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
+    "score": 47.59
   },
   {
     "ranking": 13,
+    "razao_social": "CONSORCIO PAVIMENTA PONTA GROSSA",
+    "cnpj_masked": "55219671****",
+    "sede_uf": "PR",
+    "qtd_contratos": 2,
+    "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
+    "score": 38.49
+  },
+  {
+    "ranking": 14,
+    "razao_social": "CONSTRUTORA CIDADE LIMITADA",
+    "cnpj_masked": "92943398****",
+    "sede_uf": "RS",
+    "qtd_contratos": 3,
+    "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
+    "score": 38.36
+  },
+  {
+    "ranking": 15,
+    "razao_social": "QUALIDADE MINERACAO LTDA",
+    "cnpj_masked": "00820854****",
+    "sede_uf": "SC",
+    "qtd_contratos": 37,
+    "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
+    "score": 37.11
+  },
+  {
+    "ranking": 16,
+    "razao_social": "LEONARDO GABRIEL CHIMELLI GHELLER",
+    "cnpj_masked": "29914632****",
+    "sede_uf": "PR",
+    "qtd_contratos": 1,
+    "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
+    "score": 35.48
+  },
+  {
+    "ranking": 17,
+    "razao_social": "MARLON DE PAULA",
+    "cnpj_masked": "40443176****",
+    "sede_uf": "RS",
+    "qtd_contratos": 1,
+    "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
+    "score": 34.6
+  },
+  {
+    "ranking": 18,
     "razao_social": "CONSORCIO VALE DO RIBEIRA",
     "cnpj_masked": "53673938****",
     "sede_uf": "PR",
     "qtd_contratos": 1,
-    "outreach_status": "NOT_READY_FOR_OUTREACH",
-    "score": 19.14
-  },
-  {
-    "ranking": 14,
-    "razao_social": "ARTELESTE CONSTRUCOES LTDA",
-    "cnpj_masked": "75911438****",
-    "sede_uf": "PR",
-    "qtd_contratos": 3,
-    "outreach_status": "NOT_READY_FOR_OUTREACH",
-    "score": 19.05
-  },
-  {
-    "ranking": 15,
-    "razao_social": "SETEP CONSTRUCOES S.A",
-    "cnpj_masked": "83665141****",
-    "sede_uf": "SC",
-    "qtd_contratos": 7,
-    "outreach_status": "NOT_READY_FOR_OUTREACH",
-    "score": 19.04
+    "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
+    "score": 34.36
   }
 ]

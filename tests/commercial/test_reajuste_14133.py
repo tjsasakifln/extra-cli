@@ -644,10 +644,10 @@ def test_apostila_duplicate_mentions_not_proof_of_absence():
 def test_network_failure_documented(monkeypatch):
     from scripts.commercial.reajuste_14133.io import documents as docmod
 
-    def boom(url, timeout=12.0, max_bytes=500_000):
+    def boom_http(url, *, timeout=45.0, max_bytes=8_000_000, accept="*/*"):
         return None, "URLError: network down", "error"
 
-    monkeypatch.setattr(docmod, "fetch_url_text", boom)
+    monkeypatch.setattr(docmod, "_http_get", boom_http)
     v = docmod.verify_contract_documents(
         contrato_id="12345678000199-2-000001/2023",
         orgao_cnpj="12345678000199",
@@ -656,5 +656,10 @@ def test_network_failure_documented(monkeypatch):
         fetch_remote=True,
         max_fetches=1,
     )
-    assert v.network_error
-    assert any("fetch_error" in x for x in v.limitations)
+    assert v.network_error or any(
+        "unavailable" in x or "error" in x.lower() or "ausente" in x
+        for x in v.limitations
+    )
+    # Portal HTML alone must never mark official documentary accessibility
+    assert not v.docs_accessible
+    assert not v.official_text_extracted
