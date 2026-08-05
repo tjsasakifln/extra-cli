@@ -36,6 +36,7 @@ def lead_flat_row(lead: dict[str, Any]) -> dict[str, Any]:
     return {
         "ranking": lead.get("ranking"),
         "classificacao": lead.get("classificacao"),
+        "outreach_status": lead.get("outreach_status"),
         "score_total": lead.get("score_total"),
         "score_decomposition": decomp_s,
         "score_penalties": pen_s,
@@ -58,6 +59,7 @@ def lead_flat_row(lead: dict[str, Any]) -> dict[str, Any]:
         "data_base_status": lead.get("data_base_status"),
         "data_base_source": lead.get("data_base_source"),
         "indice": lead.get("indice"),
+        "indice_in_clause": lead.get("indice_in_clause"),
         "data_proximo_reajuste": lead.get("data_proximo_reajuste"),
         "dias_atraso_potencial": lead.get("dias_atraso_potencial"),
         "vigencia_final": lead.get("vigencia_final"),
@@ -68,6 +70,7 @@ def lead_flat_row(lead: dict[str, Any]) -> dict[str, Any]:
         "teto_teorico": lead.get("teto_teorico"),
         "teto_label": lead.get("teto_label"),
         "status_reajustes_anteriores": lead.get("status_reajustes_anteriores"),
+        "document_pipeline_state": lead.get("document_pipeline_state"),
         "evidencias_favoraveis": " | ".join(lead.get("evidencias_favoraveis") or []),
         "lacunas": " | ".join(lead.get("lacunas") or []),
         "riscos": " | ".join(lead.get("riscos") or []),

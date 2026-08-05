@@ -192,7 +192,14 @@ def export_run(
 
 
 def main(argv: list[str] | None = None) -> int:
-    args = build_parser().parse_args(argv)
+    raw = list(sys.argv[1:] if argv is None else argv)
+    # Atomic rebind-export unit (classify → outreach → export + invariants)
+    if raw and raw[0] == "rebind-export":
+        from scripts.commercial.reajuste_14133.rebind_export import main_rebind
+
+        return main_rebind(raw[1:])
+
+    args = build_parser().parse_args(raw)
     out_dir = Path(args.output_dir or f"{DEFAULT_OUTPUT_ROOT}/{args.as_of}")
     ckpt = args.checkpoint_dir or (str(out_dir) if args.export_all else None)
     try:

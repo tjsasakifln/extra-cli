@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from datetime import date
 from pathlib import Path
 
@@ -570,3 +571,265 @@ def test_classify_row_blocks_unknown_regime_from_ready():
             NOT_READY_FOR_OUTREACH,
             DOCUMENT_REQUEST_CANDIDATE,
         }
+
+
+# --- Atomic rebind-export unit ---
+
+
+def _official_pdf_scan_dict(*, conflict: bool = False) -> dict:
+    """Minimal stored doc_scan with official PDF evidence (as on disk after recovery)."""
+    excerpts_14133 = (
+        "EDITAL REGIDO PELA LEI 14.133 DE 01/04/2021 e demais normas aplicáveis."
+    )
+    excerpts_clause = (
+        "CLÁUSULA DE REAJUSTE: os preços serão reajustados anualmente pelo INCC."
+    )
+    evidences = [
+        {
+            "doc_type": "edital_pdf",
+            "orgao_emissor": "PNCP",
+            "identificador_oficial": "pdf-1",
+            "url_or_location": "https://pncp.gov.br/arquivo.pdf",
+            "consulted_at": "2026-08-05T01:35:00Z",
+            "excerpt": excerpts_14133,
+            "content_hash": "abc123",
+            "extraction_method": "pncp_pdf_pypdf2",
+            "confidence": "high",
+            "field_found": "regime_legal_14133",
+            "page": 2,
+            "section": "preambulo",
+            "human_confirmed": False,
+        },
+        {
+            "doc_type": "edital_pdf",
+            "orgao_emissor": "PNCP",
+            "identificador_oficial": "pdf-1",
+            "url_or_location": "https://pncp.gov.br/arquivo.pdf",
+            "consulted_at": "2026-08-05T01:35:00Z",
+            "excerpt": excerpts_clause,
+            "content_hash": "def456",
+            "extraction_method": "pncp_pdf_pypdf2",
+            "confidence": "high",
+            "field_found": "clausula_reajuste",
+            "page": 12,
+            "section": "reajuste",
+            "human_confirmed": False,
+        },
+    ]
+    if conflict:
+        evidences.append(
+            {
+                "doc_type": "edital_pdf",
+                "orgao_emissor": "PNCP",
+                "identificador_oficial": "pdf-1",
+                "url_or_location": "https://pncp.gov.br/arquivo.pdf",
+                "consulted_at": "2026-08-05T01:35:00Z",
+                "excerpt": "Contrato regido pela Lei 8.666/93 e alterações posteriores.",
+                "content_hash": "ghi789",
+                "extraction_method": "pncp_pdf_pypdf2",
+                "confidence": "high",
+                "field_found": "regime_legal_8666",
+                "page": 3,
+                "section": "preambulo",
+                "human_confirmed": False,
+            }
+        )
+    return {
+        "evidences": evidences,
+        "index_candidates": ["INCC"],
+        "index_in_clause": ["INCC"],
+        "index_outside_clause_only": [],
+        "regime_14133_mention": True,
+        "regime_8666_mention": conflict,
+        "regime_rdc_mention": False,
+        "regime_conflict": conflict,
+        "reajuste_clause_mention": True,
+        "data_base_mention": True,
+        "apostila_mention": False,
+        "already_adjusted_hint": False,
+        "docs_accessible": True,
+        "text_extracted": True,
+        "official_text_extracted": True,
+        "pdf_binary_located": True,
+        "pdf_text_pages": 40,
+        "pipeline_state": "CLAUSE_LOCATED",
+        "network_error": False,
+        "limitations": [],
+        "arquivos_listed": 2,
+        "pdfs_downloaded": 1,
+        "pdfs_text_extracted": 1,
+        "deep_document_work": True,
+    }
+
+
+def test_reclassify_from_pdf_evidence_not_legal_regime_unknown():
+    """Post-hoc regime_proven=True + LEGAL_REGIME_UNKNOWN must be fixed by reclassify."""
+    from scripts.commercial.reajuste_14133.rebind_export import reclassify_contract
+
+    prior = {
+        "contrato_id": "12345678000199-1-000001/2024",
+        "cnpj": "12345678000199",
+        "razao_social": "CONSTRUTORA REGIONAL LTDA",
+        "objeto": "Execução de obra de pavimentação asfáltica e drenagem urbana",
+        "valor_original": 18_000_000,
+        "uf": "SC",
+        "data_assinatura": "2024-03-01",
+        "data_inicio": "2024-04-01",
+        "data_fim": "2027-04-01",
+        "data_publicacao": "2024-02-15",
+        "is_active": True,
+        "orgao_cnpj": "11111111000111",
+        "orgao_contratante": "PREFEITURA MUNICIPAL",
+        "regime_legal": REGIME_14133,
+        "regime_proven": True,  # patched post-hoc
+        "classificacao": STATUS_LEGAL_REGIME_UNKNOWN,  # stale
+        "outreach_status": NOT_READY_FOR_OUTREACH,
+        "doc_scan": _official_pdf_scan_dict(conflict=False),
+        "canais_contato": {"email": "contato@example.com", "telefone": None, "site": None},
+        "human_review_done": False,
+    }
+    new = reclassify_contract(prior, as_of=AS_OF)
+    assert not (
+        new.get("regime_proven")
+        and new.get("regime_legal") == REGIME_14133
+        and new.get("classificacao") == STATUS_LEGAL_REGIME_UNKNOWN
+    ), "rebind must not leave proven 14133 as LEGAL_REGIME_UNKNOWN"
+    # With clean official 14133 + construction + mature proxy → not NOT_ELIGIBLE solely for regime
+    assert new.get("classificacao") != STATUS_LEGAL_REGIME_UNKNOWN
+    assert new.get("regime_legal") in {REGIME_14133, REGIME_CONFLICT}
+    if new.get("regime_legal") == REGIME_14133:
+        assert new.get("regime_proven") is True
+        assert new.get("outreach_status") in {
+            DOCUMENT_REQUEST_CANDIDATE,
+            OUTREACH_READY,
+            OUTREACH_READY_WITHOUT_VALUE_ESTIMATE,
+            NOT_READY_FOR_OUTREACH,
+        }
+
+
+def test_rebind_export_invariants_atomic(tmp_path: Path):
+    """Single rebind-export rewrites classify+CSV+manifest with HEAD binding."""
+    from scripts.commercial.reajuste_14133.rebind_export import (
+        rebind_export,
+        validate_invariants,
+        RebindInvariantError,
+    )
+
+    fake_head = "a" * 40
+    run_dir = tmp_path / "nacional"
+    run_dir.mkdir()
+    contracts = []
+    for i in range(3):
+        contracts.append(
+            {
+                "contrato_id": f"12345678000199-1-00000{i}/2023",
+                "cnpj": "12345678000199",
+                "razao_social": "CONSTRUTORA REGIONAL LTDA",
+                "objeto": "Execução de obra de pavimentação asfáltica e drenagem",
+                "valor_original": 12_000_000 + i * 1000,
+                "uf": "PR",
+                "data_assinatura": "2023-01-15",
+                "data_inicio": "2023-02-01",
+                "data_fim": "2027-02-01",
+                "data_publicacao": "2023-01-10",
+                "is_active": True,
+                "orgao_cnpj": "11111111000111",
+                "orgao_contratante": "PREFEITURA",
+                "regime_legal": REGIME_14133,
+                "regime_proven": True,
+                "classificacao": STATUS_LEGAL_REGIME_UNKNOWN,
+                "outreach_status": NOT_READY_FOR_OUTREACH,
+                "doc_scan": _official_pdf_scan_dict(conflict=False),
+                "canais_contato": {"email": None, "telefone": None, "site": None},
+            }
+        )
+    (run_dir / "contratos_analisados.json").write_text(
+        json.dumps({"contratos": contracts}, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
+    (run_dir / "run_manifest.json").write_text(
+        json.dumps(
+            {
+                "git_sha": "old",
+                "evidence_commit_sha": "older",
+                "params": {"universe_eligible_count": 3, "pagination": "keyset"},
+                "source_mode": "test",
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    art = tmp_path / "artifacts"
+    result = rebind_export(
+        run_dir,
+        as_of="2026-08-04",
+        head_sha=fake_head,
+        artifacts_dir=art,
+    )
+    assert result["still_unknown_with_proven"] == 0
+    assert result["head_sha"] == fake_head
+    assert result["n_contracts"] == 3
+    assert result["official"] >= 1
+
+    man = json.loads((run_dir / "run_manifest.json").read_text(encoding="utf-8"))
+    assert man["git_sha"] == fake_head
+    assert man["evidence_commit_sha"] == fake_head
+    assert man["params"]["rebind_export"] is True
+    assert man["metrics"]["docs_processed_deep"] == result["deep"]
+    assert man["funnel"]["docs_processed_deep"] == result["deep"]
+
+    # No proven+14133 left as UNKNOWN
+    reloaded = json.loads((run_dir / "contratos_analisados.json").read_text(encoding="utf-8"))
+    for lead in reloaded["contratos"]:
+        if lead.get("regime_proven") and lead.get("regime_legal") == REGIME_14133:
+            assert lead.get("classificacao") != STATUS_LEGAL_REGIME_UNKNOWN
+
+    # CSV/JSON coherence on classificacao
+    import csv as _csv
+
+    by_id = {}
+    with (run_dir / "contratos_analisados.csv").open(encoding="utf-8", newline="") as f:
+        for row in _csv.DictReader(f):
+            by_id[row["contrato_id"]] = row
+    for lead in reloaded["contratos"]:
+        crow = by_id[str(lead["contrato_id"])]
+        assert crow["classificacao"] == lead["classificacao"]
+        assert crow["regime_legal"] == str(lead["regime_legal"])
+
+    # Evidence timestamps inside window
+    started, finished = man["started_at"], man["finished_at"]
+    for line in (run_dir / "document_evidence.jsonl").read_text(encoding="utf-8").splitlines():
+        e = json.loads(line)
+        if e.get("extraction_method") == "pncp_pdf_pypdf2":
+            assert started <= e["consulted_at"] <= finished
+
+    errs = validate_invariants(
+        reloaded["contratos"],
+        manifest=man,
+        evidence_path=run_dir / "document_evidence.jsonl",
+        head_sha=fake_head,
+    )
+    assert errs == []
+
+    assert (art / "nacional_run_manifest.json").exists()
+
+
+def test_validate_invariants_catches_proven_unknown():
+    from scripts.commercial.reajuste_14133.rebind_export import validate_invariants
+
+    leads = [
+        {
+            "contrato_id": "x",
+            "regime_proven": True,
+            "regime_legal": REGIME_14133,
+            "classificacao": STATUS_LEGAL_REGIME_UNKNOWN,
+            "doc_scan": {},
+        }
+    ]
+    errs = validate_invariants(
+        leads,
+        manifest={"git_sha": "h", "evidence_commit_sha": "h"},
+        evidence_path=Path("/nonexistent"),
+        head_sha="h",
+    )
+    assert any("LEGAL_REGIME_UNKNOWN" in e for e in errs)
