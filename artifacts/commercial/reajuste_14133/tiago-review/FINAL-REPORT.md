@@ -1,6 +1,7 @@
 # FINAL-REPORT — Tiago review package (reajuste 14.133)
+- **git_sha (functional):** `9897701d833c857c22162ac2f37bce7760e2b529`
+- **git_tip (branch HEAD after bind):** `c967dc28a32b5ff2c1fcb12e6a67d1fd73bf52f0`
 
-- **git_sha (HEAD):** `b554254b4864910777b0e32f802ed43474614c64`
 - **generated_at:** 2026-08-05T12:00:25Z
 - **terminal_status:** `BLOCKED_INSUFFICIENT_VERIFIED_OUTREACH_LEADS`
 - **TECHNICALLY_VERIFIED_PENDING_TIAGO:** 4
@@ -65,3 +66,5 @@
 - Some compra PDFs are scanned images (OCR not always productive)
 - Castilho-class cases with empty formatos = compra arquivos not downloadable as PDF/DOCX/XLSX
 - National re-scan deliberately not performed
+
+- **evidence_rebind_note:** HEAD.txt stamps tip `9897701d833c857c22162ac2f37bce7760e2b529` via follow-up docs bind commit.
