@@ -144,6 +144,9 @@
   },
   "resumed": false,
   "checkpoint_dir": "output/commercial/reajuste_14133/2026-08-04-v2/.checkpoint",
-  "evidence_commit_sha": "4ba4171ee07f5d1bf5efe592f59b132c861766ba",
-  "code_version_note": "Campaign executed on working tree implementing v2; evidence pack bound to this commit"
+  "evidence_commit_sha": "d8e07b2bbffa9338d0f67063d5143a71e84a952f",
+  "code_version_note": "Campaign executed on working tree implementing v2; evidence pack bound to this commit",
+  "xlsx_path": "output/commercial/reajuste_14133/2026-08-04-v2/leads_fornecedores_reajuste_14133.xlsx",
+  "xlsx_sha256": "85699de65613ed0e012238002fbd8aaf2eae0826a6529bc43c5d4332cac7a3f5",
+  "xlsx_size": 2979748
 }

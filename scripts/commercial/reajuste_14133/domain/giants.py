@@ -64,8 +64,13 @@ def is_giant_low_consulting_fit(
     *,
     valor_contrato: float | None = None,
     cnae: str | None = None,
+    is_aggregate_portfolio: bool = False,
 ) -> bool:
-    """Heuristic: large national groups / concessions — keep as intelligence, not primary outreach."""
+    """Heuristic: large national groups / concessions — keep as intelligence, not primary outreach.
+
+    ``valor_contrato`` must be a **single instrument** value. Never pass summed portfolio
+    totals (``is_aggregate_portfolio=True`` disables the billion-scale name heuristic).
+    """
     del cnae  # reserved for future porte integration
     n = _norm(razao_social)
     if not n:
@@ -73,8 +78,12 @@ def is_giant_low_consulting_fit(
     for pat in _GIANT_PATTERNS:
         if re.search(pat, n, re.I):
             return True
-    # Billion-scale alone is not identity of a giant firm, but strong signal with "SA"
-    if valor_contrato is not None and valor_contrato >= 1_000_000_000:
+    # Billion-scale single contract + SA engineering name → low consulting fit signal
+    if (
+        not is_aggregate_portfolio
+        and valor_contrato is not None
+        and valor_contrato >= 1_000_000_000
+    ):
         if re.search(r"\bs\.?a\.?\b|\bs/a\b", n) and re.search(
             r"constru|engenharia|infra|rodov|concess", n
         ):

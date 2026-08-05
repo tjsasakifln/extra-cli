@@ -118,19 +118,19 @@
   },
   {
     "ranking": 14,
-    "razao_social": "EMBRAER S.A.",
-    "cnpj_masked": "07689002****",
+    "razao_social": "J.P.L. GOMES ENGENHARIA LTDA",
+    "cnpj_masked": "14042710****",
     "sede_uf": "SP",
-    "qtd_contratos": 1,
+    "qtd_contratos": 5,
     "outreach_status": "NOT_READY_FOR_OUTREACH",
     "score": 17.34
   },
   {
     "ranking": 15,
-    "razao_social": "J.P.L. GOMES ENGENHARIA LTDA",
-    "cnpj_masked": "14042710****",
-    "sede_uf": "SP",
-    "qtd_contratos": 5,
+    "razao_social": "NOLASCO CONSTRUCOES REFORMAS E INSTALACOES LTDA",
+    "cnpj_masked": "19024253****",
+    "sede_uf": "RJ",
+    "qtd_contratos": 3,
     "outreach_status": "NOT_READY_FOR_OUTREACH",
     "score": 17.34
   }

@@ -6,9 +6,7 @@
     "sede_uf": "PR",
     "qtd_contratos": 7,
     "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
-    "score": 18.54,
-    "melhor_contrato": "76178037000176-2-000112/2025",
-    "valor_portfolio": 88966450.82
+    "score": 18.54
   },
   {
     "ranking": 2,
@@ -17,9 +15,7 @@
     "sede_uf": "SC",
     "qtd_contratos": 20,
     "outreach_status": "NOT_READY_FOR_OUTREACH",
-    "score": 21.41,
-    "melhor_contrato": "04892707000100-2-000445/2023",
-    "valor_portfolio": 303872762.08
+    "score": 21.41
   },
   {
     "ranking": 3,
@@ -28,9 +24,7 @@
     "sede_uf": "PR",
     "qtd_contratos": 14,
     "outreach_status": "NOT_READY_FOR_OUTREACH",
-    "score": 20.99,
-    "melhor_contrato": "04892707000100-2-000142/2024",
-    "valor_portfolio": 775936923.8299999
+    "score": 20.99
   },
   {
     "ranking": 4,
@@ -39,9 +33,7 @@
     "sede_uf": "SC",
     "qtd_contratos": 37,
     "outreach_status": "NOT_READY_FOR_OUTREACH",
-    "score": 20.76,
-    "melhor_contrato": "82951344000140-2-000031/2024",
-    "valor_portfolio": 426838475.71
+    "score": 20.76
   },
   {
     "ranking": 5,
@@ -50,9 +42,7 @@
     "sede_uf": "SC",
     "qtd_contratos": 11,
     "outreach_status": "NOT_READY_FOR_OUTREACH",
-    "score": 20.67,
-    "melhor_contrato": "82951344000140-2-000038/2024",
-    "valor_portfolio": 225219956.83
+    "score": 20.67
   },
   {
     "ranking": 6,
@@ -61,9 +51,7 @@
     "sede_uf": "SC",
     "qtd_contratos": 1,
     "outreach_status": "NOT_READY_FOR_OUTREACH",
-    "score": 20.35,
-    "melhor_contrato": "82892316000108-2-000632/2024",
-    "valor_portfolio": 238000000.0
+    "score": 20.35
   },
   {
     "ranking": 7,
@@ -72,9 +60,7 @@
     "sede_uf": "PR",
     "qtd_contratos": 1,
     "outreach_status": "NOT_READY_FOR_OUTREACH",
-    "score": 20.18,
-    "melhor_contrato": "76105543000135-2-000098/2024",
-    "valor_portfolio": 154990000.0
+    "score": 20.18
   },
   {
     "ranking": 8,
@@ -83,9 +69,7 @@
     "sede_uf": "SC",
     "qtd_contratos": 24,
     "outreach_status": "NOT_READY_FOR_OUTREACH",
-    "score": 19.78,
-    "melhor_contrato": "04892707000100-2-000542/2024",
-    "valor_portfolio": 829482415.0500001
+    "score": 19.78
   },
   {
     "ranking": 9,
@@ -94,9 +78,7 @@
     "sede_uf": "SC",
     "qtd_contratos": 10,
     "outreach_status": "NOT_READY_FOR_OUTREACH",
-    "score": 19.7,
-    "melhor_contrato": "82951344000140-2-000036/2024",
-    "valor_portfolio": 105171698.5
+    "score": 19.7
   },
   {
     "ranking": 10,
@@ -105,9 +87,7 @@
     "sede_uf": "PR",
     "qtd_contratos": 1,
     "outreach_status": "NOT_READY_FOR_OUTREACH",
-    "score": 19.67,
-    "melhor_contrato": "07820337000194-2-000010/2024",
-    "valor_portfolio": 96850536.0
+    "score": 19.67
   },
   {
     "ranking": 11,
@@ -116,9 +96,7 @@
     "sede_uf": "PR",
     "qtd_contratos": 1,
     "outreach_status": "NOT_READY_FOR_OUTREACH",
-    "score": 19.63,
-    "melhor_contrato": "12092636000190-2-000005/2024",
-    "valor_portfolio": 118876086.76
+    "score": 19.63
   },
   {
     "ranking": 12,
@@ -127,9 +105,7 @@
     "sede_uf": "PR",
     "qtd_contratos": 1,
     "outreach_status": "NOT_READY_FOR_OUTREACH",
-    "score": 19.54,
-    "melhor_contrato": "76669324000189-2-000083/2024",
-    "valor_portfolio": 257215008.0
+    "score": 19.54
   },
   {
     "ranking": 13,
@@ -138,9 +114,7 @@
     "sede_uf": "PR",
     "qtd_contratos": 1,
     "outreach_status": "NOT_READY_FOR_OUTREACH",
-    "score": 19.14,
-    "melhor_contrato": "76669324000189-2-000013/2024",
-    "valor_portfolio": 56919000.0
+    "score": 19.14
   },
   {
     "ranking": 14,
@@ -149,9 +123,7 @@
     "sede_uf": "PR",
     "qtd_contratos": 3,
     "outreach_status": "NOT_READY_FOR_OUTREACH",
-    "score": 19.05,
-    "melhor_contrato": "04892707000100-2-000169/2024",
-    "valor_portfolio": 252880457.74
+    "score": 19.05
   },
   {
     "ranking": 15,
@@ -160,8 +132,6 @@
     "sede_uf": "SC",
     "qtd_contratos": 7,
     "outreach_status": "NOT_READY_FOR_OUTREACH",
-    "score": 19.04,
-    "melhor_contrato": "04892707000100-2-000324/2023",
-    "valor_portfolio": 106078651.69
+    "score": 19.04
   }
 ]
