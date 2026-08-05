@@ -1,7 +1,7 @@
 {
   "run_id": "reajuste_14133-2026-08-04-072933a9",
   "module_version": "3.1.0",
-  "git_sha": "072933a950650f1e532aa54b65ea2615d96dca94",
+  "git_sha": "f5c8cb198dc7c649ef566fd67ed52689bba051ba",
   "as_of": "2026-08-04",
   "source": {
     "mode": "dsn",
@@ -39,10 +39,24 @@
     "demotions_likely_path_replay_1800": 732
   },
   "before_after": {
-    "before_likely_plus_diagnostic_replay_1800": 755,
-    "after_likely_plus_diagnostic_live": 0,
-    "demotions_from_year_based_likely_replay": 732,
-    "live_rows_read": 11503
+    "before_likely_plus_diagnostic_replay": 771,
+    "after_likely_plus_diagnostic_replay": 23,
+    "demotions_total": 748,
+    "demotions_to_document_request_ready": 732,
+    "live_rows_read": 11503,
+    "live_likely_plus_diagnostic": 0
   },
-  "note": "Full national scan without --max-source-rows. Year never elevates regime to LIKELY_14133."
+  "note": "Full national scan without --max-source-rows. Year never elevates regime to LIKELY_14133.",
+  "demotion_replay": {
+    "input_path": "output/commercial/reajuste_14133/2026-08-04-v2-real/contratos_analisados.json",
+    "input_sha256": "ba0a91c630227c17c4952961a095a93d1fa93925233d4bd97e0fe737b3dad458",
+    "input_n": 1800,
+    "before_likely_plus_diagnostic": 771,
+    "after_likely_plus_diagnostic": 23,
+    "demotions_total": 748,
+    "demotions_to_document_request_ready": 732,
+    "demotions_to_potential_signal": 16,
+    "transcript": "implementer/demotion-replay-transcript.txt",
+    "results_json": "implementer/demotion-replay-results.json"
+  }
 }

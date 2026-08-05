@@ -177,12 +177,54 @@ def test_post_transition_proven_14133_can_reach_likely_or_diagnostic():
     assert stage.message_template == "proven"
 
 
+def test_post_transition_docs_without_normative_not_likely_14133():
+    """Year + empty/generic docs + no legacy must NOT yield LIKELY_14133 (R-B ban)."""
+    weak = classify_legal_regime(
+        document_texts=["x"],  # non-empty but no normative citation
+        signature_year=2024,
+        origin_edital_year=2024,
+        initiation_act_date=date(2024, 1, 15),
+        document_link_validated=True,
+        has_official_linked_document=True,
+        published_on_pncp=True,
+    )
+    assert weak.regime != REGIME_LIKELY_14133
+    assert weak.proven is False
+    assert weak.regime in {
+        REGIME_UNKNOWN,
+        REGIME_TRANSITIONAL_UNRESOLVED,
+    }
+
+    generic = classify_legal_regime(
+        document_texts=[
+            "Termo de contrato vinculado ao processo SEI 123/2024. "
+            "Modalidade: concorrência. Objeto: execução de obras de pavimentação."
+        ],
+        signature_year=2024,
+        origin_edital_year=2024,
+        initiation_act_date=date(2024, 1, 15),
+        document_link_validated=True,
+        has_official_linked_document=True,
+        published_on_pncp=True,
+    )
+    assert generic.regime != REGIME_LIKELY_14133
+    assert generic.proven is False
+
+
 def test_convergent_likely_14133_never_proven():
-    """R-B: post-transition official pack + validated link + no legacy → LIKELY_14133."""
+    """R-B: positive official normative 14.133 signal + convergent pack → LIKELY, not proven.
+
+    R-A requires official_linked docs with 14.133 citation. R-B covers origin-process
+    14.133 citation with validated link and post-transition initiation, without
+    full contract-side R-A proof.
+    """
     r = classify_legal_regime(
         document_texts=[
             "Termo de contrato vinculado ao processo SEI 123/2024. "
             "Modalidade: concorrência. Objeto: execução de obras de pavimentação."
+        ],
+        origin_document_texts=[
+            "Edital de concorrência regido pela Lei nº 14.133/2021, art. 28."
         ],
         signature_year=2024,
         origin_edital_year=2024,
@@ -195,6 +237,7 @@ def test_convergent_likely_14133_never_proven():
     assert r.proven is False
     assert r.evidence_level == "R-B"
     assert r.legal_confidence == "medium"
+    assert "positive_normative_14133_signal" in r.reason_codes
 
     stage = evaluate_commercial_stage(
         as_of=AS_OF,

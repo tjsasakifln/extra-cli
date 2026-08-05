@@ -459,10 +459,13 @@ def classify_legal_regime(
     # Object-only 14.133 mention — NOT proof, NOT R-B (insufficient official link)
     object_only_14133 = bool(hits_14133) and not document_texts
 
-    # R-B — strongly indicated by convergent official signals (never proven)
-    # Express 14.133 in official docs already returned R-A above.
-    # Here: post-transition initiation + validated document link + official docs
-    # + no legacy marks + compatible normative signals (not year alone).
+    # R-B — strongly indicated by convergent official signals (never proven).
+    # Express 14.133 in official linked docs already returned R-A above.
+    #
+    # MUST have ≥1 positive official normative/fundamento signal compatible with
+    # Lei 14.133 (citation in origin process or in docs when not full R-A).
+    # Post-transition year + absence of legacy + non-empty docs alone is NOT enough
+    # (year must never be the decisive positive signal for probable 14.133).
     initiation_after_transition = False
     for y in (
         initiation_year,
@@ -473,10 +476,16 @@ def classify_legal_regime(
             initiation_after_transition = True
             break
 
+    # Positive normative signal (not year, not silence):
+    # - origin process/edital cites 14.133; or
+    # - contract-side docs cite 14.133 but official_linked is false (not R-A yet)
+    positive_normative_14133 = bool(origin_14133) or (
+        bool(hits_14133) and bool(document_texts) and not official_linked
+    )
     if (
-        bool(document_texts)
-        and official_linked
+        positive_normative_14133
         and document_link_validated
+        and bool(document_texts or origin_document_texts)
         and not older
         and initiation_after_transition
         and not hits_8666
@@ -484,11 +493,6 @@ def classify_legal_regime(
         and not hits_10520
     ):
         excerpts_rb = (hits_14133 or origin_14133)[:3]
-        if not excerpts_rb:
-            excerpts_rb = [
-                "vínculo documental validado; ato iniciador pós-transição; "
-                "sem menção a regime legado no acervo oficial"
-            ]
         return RegimeResult(
             regime=REGIME_LIKELY_14133,
             confidence=0.7,
@@ -496,18 +500,20 @@ def classify_legal_regime(
             evidence_method="convergent_official_signals",
             excerpts=excerpts_rb,
             source_fields=[
-                "document_texts",
+                "document_texts" if hits_14133 else "origin_document_texts",
                 "document_link_validated",
                 "initiation_act_or_edital_year",
             ],
             reason_codes=[
                 "evidence_level_r_b",
                 "convergent_post_transition_signals",
+                "positive_normative_14133_signal",
                 "regime_not_proven",
             ],
             notes=(
-                "Sinais oficiais convergentes indicam possível enquadramento na "
-                "Lei 14.133; regime_proven=false — confirmar com fundamento explícito."
+                "Sinais oficiais convergentes (fundamento/normativo 14.133 + vínculo "
+                "documental + pós-transição, sem legado) indicam possível enquadramento; "
+                "regime_proven=false — confirmar com prova R-A."
             ),
             evidence_level=EVIDENCE_LEVEL_RB,
             legal_confidence=LEGAL_CONF_MEDIUM,

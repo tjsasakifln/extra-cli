@@ -45,5 +45,22 @@
   "n_suppliers": 457,
   "before_likely_plus_diagnostic_replay": 755,
   "after_likely_plus_diagnostic_live": 0,
-  "demotions_likely_path_replay": 732
+  "demotions_likely_path_replay": 732,
+  "demotion_replay": {
+    "before": {
+      "LIKELY_ADJUSTMENT_OPPORTUNITY": 771,
+      "NOT_COMMERCIAL": 1029
+    },
+    "after": {
+      "LIKELY_ADJUSTMENT_OPPORTUNITY": 23,
+      "NOT_COMMERCIAL": 1029,
+      "DOCUMENT_REQUEST_READY": 732,
+      "POTENTIAL_ADJUSTMENT_SIGNAL": 16
+    },
+    "before_likely_plus_diagnostic": 771,
+    "after_likely_plus_diagnostic": 23,
+    "demotions_total": 748,
+    "to_document_request_ready": 732,
+    "input_sha256": "ba0a91c630227c17c4952961a095a93d1fa93925233d4bd97e0fe737b3dad458"
+  }
 }
