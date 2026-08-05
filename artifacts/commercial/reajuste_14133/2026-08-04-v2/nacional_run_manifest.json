@@ -1,14 +1,14 @@
 {
-  "run_id": "rebind-2026-08-04-e0ac2ab6",
+  "run_id": "rebind-2026-08-04-ae5cf7b7",
   "as_of": "2026-08-04",
   "module_version": "2.0.0",
   "campaign": "reajuste_14133",
-  "git_sha": "e0ac2ab6ea6255fe58e06b0538721d09ca4a8592",
-  "evidence_commit_sha": "e0ac2ab6ea6255fe58e06b0538721d09ca4a8592",
+  "git_sha": "ae5cf7b74cd00d08af4bd2c9e0bc2a25cf08f20c",
+  "evidence_commit_sha": "ae5cf7b74cd00d08af4bd2c9e0bc2a25cf08f20c",
   "source_mode": "ssh",
   "source_dsn_masked": "ssh:ec-prod",
-  "started_at": "2026-08-05T04:03:25Z",
-  "finished_at": "2026-08-05T04:03:30Z",
+  "started_at": "2026-08-05T04:24:00Z",
+  "finished_at": "2026-08-05T04:24:09Z",
   "terminal_status": "BLOCKED_INSUFFICIENT_VERIFIED_OUTREACH_LEADS",
   "params": {
     "scope": "national",
@@ -31,13 +31,13 @@
     "execution_complete": true,
     "documentary_path": "pncp_compra_pdf_pypdf2",
     "rebind_export": true,
-    "docs_processed_deep": 220
+    "docs_processed_deep": 211
   },
   "funnel": {
     "examined_raw": 9360,
     "after_dedupe": 9360,
-    "docs_processed_deep": 220,
-    "official_pdf_text_extracted": 219,
+    "docs_processed_deep": 211,
+    "official_pdf_text_extracted": 211,
     "STRONG_CANDIDATE": 35,
     "construction": 9302,
     "regime_14133_proven": 191,
@@ -56,16 +56,17 @@
     "outreach_ready_without_value_suppliers": 0,
     "document_request_suppliers": 149,
     "not_ready_suppliers": 4559,
-    "docs_processed_deep": 220,
-    "official_pdf_text_extracted": 219,
+    "docs_processed_deep": 211,
+    "official_pdf_text_extracted": 211,
     "pdfs_downloaded": 309,
     "arquivos_listed": 4016,
     "universe_eligible_count": 36423,
     "rows_read": 9360,
     "execution_complete": true,
-    "docs_processed_deep_definition": "unique contracts with PNCP compra PDF download or official text extract",
+    "docs_processed_deep_definition": "unique contracts with official PDF text extract (pncp_pdf_pypdf2|pncp_pdf_pypdf|process_documents_pdf|http_get_pdf_text); portal HTML / API / binary-only do not count",
     "rebind_export": true,
-    "national_v21_pdf_recovery": true
+    "national_v21_pdf_recovery": true,
+    "doc_scan_sanitized": true
   },
   "distributions": {
     "uf": {

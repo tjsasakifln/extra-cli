@@ -1,6 +1,6 @@
 # Human review Top 30 — rebind-export (official PDF)
 
-n=30 HEAD=`e0ac2ab6ea6255fe58e06b0538721d09ca4a8592`
+n=30 HEAD=`ae5cf7b74cd00d08af4bd2c9e0bc2a25cf08f20c`
 Grounded in pncp_pdf_* after atomic reclassify.
 
 ## LCM CONSTRUCAO E COMERCIO S.A (`19758842000135`)
@@ -192,13 +192,6 @@ Grounded in pncp_pdf_* after atomic reclassify.
 - páginas: ['1-50']
 - decisão: DOCUMENT_REQUEST_OR_INTELLIGENCE
 
-## SOLL SERVICOS, OBRAS E LOCACOES LTDA. (`00323090000151`)
-- classificacao: LEGAL_REGIME_UNKNOWN | outreach: NOT_READY_FOR_OUTREACH
-- regime: UNKNOWN proven=False
-- docs: 
-- páginas: []
-- decisão: NOT_READY_REGIME_UNKNOWN
-
 ## GAIA RODOVIAS LTDA. (`03257777000124`)
 - classificacao: LEGAL_REGIME_CONFLICT | outreach: NOT_READY_FOR_OUTREACH
 - regime: LEGAL_REGIME_CONFLICT proven=False
@@ -211,4 +204,11 @@ Grounded in pncp_pdf_* after atomic reclassify.
 - regime: LEI_14133_2021 proven=True
 - docs: pncp_pdf:Edital C. 22-2024 (PI391 1 Etapa).pdf
 - páginas: ['1-50']
+- decisão: DOCUMENT_REQUEST_OR_INTELLIGENCE
+
+## CONSTRUTORA OLIVEIRA LTDA (`80095466000157`)
+- classificacao: STRONG_CANDIDATE | outreach: DOCUMENT_REQUEST_CANDIDATE
+- regime: LEI_14133_2021 proven=True
+- docs: pncp_pdf:Edital Concorrencia n  199_24_data.pdf
+- páginas: ['1-39']
 - decisão: DOCUMENT_REQUEST_OR_INTELLIGENCE
