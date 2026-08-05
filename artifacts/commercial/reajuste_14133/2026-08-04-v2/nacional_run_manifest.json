@@ -129,6 +129,10 @@
     "ready_suppliers": 0,
     "document_request_suppliers": 149,
     "false_official": 0,
-    "checkpoint_deep": 211
-  }
+    "checkpoint_deep": 211,
+    "evidence_commit_sha": "419da333238e9a5f61dcebf5c8985be5db0668bb",
+    "packaging_parent_sha": "58cebda411a5b965fe98a47d790b9f1fe1fb7cae"
+  },
+  "rebind_runtime_sha": "419da333238e9a5f61dcebf5c8985be5db0668bb",
+  "packaging_parent_sha": "58cebda411a5b965fe98a47d790b9f1fe1fb7cae"
 }

@@ -1,5 +1,4 @@
 {
-  "head": "419da333238e9a5f61dcebf5c8985be5db0668bb",
   "files": {
     "leads_fornecedores_reajuste_14133.xlsx": {
       "sha256": "58328d9d9ad83afbf2dae154a36df460519ece9f06f70c51db8d741c266296f9",
@@ -96,5 +95,8 @@
       "size": 18254,
       "path": "output/commercial/reajuste_14133/2026-08-04-v2/nacional/exhaustion_pack.json"
     }
-  }
+  },
+  "evidence_commit_sha": "419da333238e9a5f61dcebf5c8985be5db0668bb",
+  "rebind_runtime_sha": "419da333238e9a5f61dcebf5c8985be5db0668bb",
+  "packaging_parent_sha": "58cebda411a5b965fe98a47d790b9f1fe1fb7cae"
 }

@@ -1,9 +1,8 @@
 {
   "kind": "BLOCKED_INSUFFICIENT_VERIFIED_OUTREACH_LEADS",
-  "head_sha": "419da333238e9a5f61dcebf5c8985be5db0668bb",
   "evidence_commit_sha": "419da333238e9a5f61dcebf5c8985be5db0668bb",
   "git_sha": "419da333238e9a5f61dcebf5c8985be5db0668bb",
-  "generated_at": "2026-08-05T04:41Z",
+  "generated_at": "2026-08-05T05:06Z",
   "criteria": {
     "success_min_ready_suppliers": 15,
     "success_min_sul_ready": 8,
@@ -587,5 +586,8 @@
       "indice_in_clause": true
     }
   ],
-  "terminal_status": "BLOCKED_INSUFFICIENT_VERIFIED_OUTREACH_LEADS"
+  "terminal_status": "BLOCKED_INSUFFICIENT_VERIFIED_OUTREACH_LEADS",
+  "rebind_runtime_sha": "419da333238e9a5f61dcebf5c8985be5db0668bb",
+  "packaging_parent_sha": "58cebda411a5b965fe98a47d790b9f1fe1fb7cae",
+  "sha_label_note": "evidence_commit_sha/rebind_runtime_sha/git_sha = rebind that produced commercial tables. packaging_parent_sha = tip before this docs commit. PR tip after push is the packaging commit (child); never equal by chicken-egg."
 }

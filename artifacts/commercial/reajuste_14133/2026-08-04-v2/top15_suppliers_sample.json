@@ -1,5 +1,4 @@
 {
-  "evidence_sha": "419da333238e9a5f61dcebf5c8985be5db0668bb",
   "scope": "SUL",
   "deep": 211,
   "sample": [
@@ -261,5 +260,7 @@
       "data_base_status": "PROXY_PROSPECTION_ONLY",
       "indice_in_clause": false
     }
-  ]
+  ],
+  "evidence_commit_sha": "419da333238e9a5f61dcebf5c8985be5db0668bb",
+  "rebind_runtime_sha": "419da333238e9a5f61dcebf5c8985be5db0668bb"
 }
