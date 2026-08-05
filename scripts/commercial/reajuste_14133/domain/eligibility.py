@@ -11,7 +11,9 @@ from scripts.commercial.reajuste_14133 import (
     REGIME_10520,
     REGIME_14133,
     REGIME_CONFLICT,
+    REGIME_LIKELY_14133,
     REGIME_RDC,
+    REGIME_TRANSITIONAL_UNRESOLVED,
     REGIME_UNKNOWN,
     STATUS_ALREADY_ADJUSTED,
     STATUS_CLOSED,
@@ -216,17 +218,22 @@ def evaluate_eligibility(
             cannot_be_hot_from_table_dates_only=True,
         )
 
-    # Regime unknown after construction filter
-    if regime.regime == REGIME_UNKNOWN or (regime.regime == REGIME_14133 and not regime.proven):
+    # Regime unknown / transitional after construction filter
+    if regime.regime in {
+        REGIME_UNKNOWN,
+        REGIME_TRANSITIONAL_UNRESOLVED,
+    } or (regime.regime == REGIME_14133 and not regime.proven):
         reasons.append("regime_14133_nao_comprovado")
+        if regime.regime == REGIME_TRANSITIONAL_UNRESOLVED:
+            reasons.append("transitional_regime_unresolved")
         gaps.append("comprovacao_regime_legal_em_edital_ou_contrato")
         if not dates.interregno_completo:
             gaps.append("interregno_incompleto_ou_data_base_incerta")
-        # Temporal / financial signal?
         if dates.interregno_completo and obra.is_construction:
             status = STATUS_LEGAL_REGIME_UNKNOWN
             next_act = (
-                "Obter contrato/edital e localizar cláusula de regime (Lei 14.133) e de reajuste."
+                "Obter edital/contrato e localizar fundamento legal do regime "
+                "(8.666, RDC ou 14.133) e cláusula de reajuste — ano não presume regime."
             )
             if dates.data_base_status != DATA_BASE_CONFIRMED:
                 gaps.append("data_base_orcamento_estimado")
@@ -264,7 +271,15 @@ def evaluate_eligibility(
         and dates.interregno_completo
         and not is_closed
         and len(missing_point) <= 3
-        and (regime.regime == REGIME_14133 or regime.regime == REGIME_UNKNOWN)
+        and (
+            regime.regime
+            in {
+                REGIME_14133,
+                REGIME_LIKELY_14133,
+                REGIME_UNKNOWN,
+                REGIME_TRANSITIONAL_UNRESOLVED,
+            }
+        )
     ):
         # STRONG if mostly complete except 1-2 confirmations
         if len(missing_point) <= 2 and (docs_accessible or index_found or regime.proven):

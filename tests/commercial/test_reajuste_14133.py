@@ -106,9 +106,15 @@ def test_regime_14133_proven_from_document():
 
 
 def test_regime_unknown_despite_signature_after_2021():
+    """Year/PNCP must never prove 14.133; transition years → unresolved."""
+    from scripts.commercial.reajuste_14133 import REGIME_TRANSITIONAL_UNRESOLVED
+
     r = classify_legal_regime(signature_year=2023, published_on_pncp=True)
-    assert r.regime == REGIME_UNKNOWN
+    assert r.regime in {REGIME_UNKNOWN, REGIME_TRANSITIONAL_UNRESOLVED}
     assert not r.proven
+    assert r.legal_confidence in {"none", "unresolved"}
+    # Must not elevate to LIKELY or proven 14.133
+    assert r.regime not in {"LIKELY_14133", "LEI_14133_2021"}
 
 
 def test_regime_structured_field():

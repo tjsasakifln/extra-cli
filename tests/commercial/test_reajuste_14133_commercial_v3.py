@@ -9,14 +9,19 @@ from pathlib import Path
 from scripts.commercial.reajuste_14133 import (
     CALCULABLE_ADJUSTMENT_CLAIM,
     DIAGNOSTIC_OUTREACH_READY,
+    DOCUMENT_REQUEST_READY,
     LIKELY_ADJUSTMENT_OPPORTUNITY,
     REGIME_14133,
+    REGIME_LIKELY_14133,
     TEMPORAL_LEVEL_A,
     TEMPORAL_LEVEL_B,
     VERIFIED_ADJUSTMENT_OPPORTUNITY,
 )
 from scripts.commercial.reajuste_14133.domain.commercial_stages import (
     DIAGNOSTIC_LANGUAGE,
+    MSG_REGIME_LIKELY,
+    MSG_REGIME_PROVEN,
+    MSG_REGIME_UNRESOLVED,
     evaluate_commercial_stage,
     evaluate_temporal_hierarchy,
 )
@@ -76,14 +81,41 @@ def test_temporal_level_a_exact_budget():
 
 
 def test_likely_without_exact_data_base_contact_or_human():
-    """AC8 core: signature >12m, unknown exact data-base → LIKELY, null value."""
-    r = evaluate_commercial_stage(
+    """Proven 14.133 + signature >12m without exact data-base → LIKELY, null value.
+
+    Unknown regime alone must NOT become LIKELY (year is not evidence).
+    """
+    unknown = evaluate_commercial_stage(
         as_of=AS_OF,
         is_construction=True,
         obra_confidence=0.85,
         private_supplier=True,
         regime="UNKNOWN",
         regime_proven=False,
+        signature_year=2023,
+        exact_budget_date=None,
+        data_assinatura=date(2023, 5, 10),
+        open_obligation=True,
+        contact_verifiable=False,
+        human_review_done=False,
+        clause_located=False,
+        index_or_formula=False,
+    )
+    assert unknown.commercial_stage in {
+        DOCUMENT_REQUEST_READY,
+        "POTENTIAL_ADJUSTMENT_SIGNAL",
+    }
+    assert unknown.commercial_stage != LIKELY_ADJUSTMENT_OPPORTUNITY
+    assert unknown.regime_probable_14133 is False
+    assert unknown.valor_potencial_allowed is False
+
+    r = evaluate_commercial_stage(
+        as_of=AS_OF,
+        is_construction=True,
+        obra_confidence=0.85,
+        private_supplier=True,
+        regime=REGIME_14133,
+        regime_proven=True,
         signature_year=2023,
         exact_budget_date=None,
         data_assinatura=date(2023, 5, 10),
@@ -102,7 +134,9 @@ def test_likely_without_exact_data_base_contact_or_human():
 
 
 def test_diagnostic_when_contact_present():
-    r = evaluate_commercial_stage(
+    """DIAGNOSTIC requires proven or LIKELY_14133 + verifiable contact."""
+    # Object mention alone + year must NOT unlock 14.133 diagnostic
+    blocked = evaluate_commercial_stage(
         as_of=AS_OF,
         is_construction=True,
         obra_confidence=0.85,
@@ -116,23 +150,66 @@ def test_diagnostic_when_contact_present():
         contact_verifiable=True,
         human_review_done=False,
     )
+    assert blocked.commercial_stage != DIAGNOSTIC_OUTREACH_READY
+    assert blocked.regime_probable_14133 is False
+
+    r = evaluate_commercial_stage(
+        as_of=AS_OF,
+        is_construction=True,
+        obra_confidence=0.85,
+        private_supplier=True,
+        regime=REGIME_14133,
+        regime_proven=True,
+        signature_year=2023,
+        data_assinatura=date(2023, 5, 10),
+        open_obligation=True,
+        contact_verifiable=True,
+        human_review_done=False,
+    )
     assert r.commercial_stage == DIAGNOSTIC_OUTREACH_READY
-    assert "não significa" in r.language_allowed.lower() or "nao significa" in r.language_allowed.lower() or "potencialmente" in r.language_allowed.lower()
+    assert (
+        "não significa" in r.language_allowed.lower()
+        or "nao significa" in r.language_allowed.lower()
+        or "potencialmente" in r.language_allowed.lower()
+    )
     assert r.valor_potencial_allowed is False
-    assert "valor devido" in r.prohibited_language.lower() or "crédito" in r.prohibited_language.lower() or "credito" in r.prohibited_language.lower()
+    assert (
+        "valor devido" in r.prohibited_language.lower()
+        or "crédito" in r.prohibited_language.lower()
+        or "credito" in r.prohibited_language.lower()
+    )
+
+    likely = evaluate_commercial_stage(
+        as_of=AS_OF,
+        is_construction=True,
+        obra_confidence=0.85,
+        private_supplier=True,
+        regime=REGIME_LIKELY_14133,
+        regime_proven=False,
+        data_assinatura=date(2023, 5, 10),
+        open_obligation=True,
+        contact_verifiable=True,
+    )
+    assert likely.commercial_stage == DIAGNOSTIC_OUTREACH_READY
+    assert "possível" in likely.language_allowed.lower() or "possivel" in likely.language_allowed.lower()
 
 
 def test_pipeline_e2e_likely_and_diagnostic():
-    """AC8 end-to-end via shipped classify_row."""
+    """Mature obra without regime proof → DOCUMENT_REQUEST, not LIKELY by year."""
     no_contact = classify_row(MATURE_OBRA_ROW, as_of=AS_OF, contacts={})
-    assert no_contact["commercial_stage"] == LIKELY_ADJUSTMENT_OPPORTUNITY
+    assert no_contact["commercial_stage"] in {
+        DOCUMENT_REQUEST_READY,
+        "POTENTIAL_ADJUSTMENT_SIGNAL",
+    }
+    assert no_contact["commercial_stage"] != LIKELY_ADJUSTMENT_OPPORTUNITY
     assert no_contact["valor_potencial"] is None
     assert no_contact["minimum_elapsed_confirmed"] is True
     assert no_contact["exact_budget_date"] is None
     assert no_contact["proxy_date"] is not None
     assert no_contact["calculation_blocked"] is True
     assert no_contact["claim_readiness"] == "claim_blocked"
-    # Not erased from commercial queue despite LEGAL_REGIME_UNKNOWN eligibility
+    assert no_contact["regime_probable_14133"] is False
+    # Still in commercial queue for document request
     assert no_contact["opportunity_score"] > 0
     assert no_contact["priority_score"] > 0
 
@@ -146,19 +223,40 @@ def test_pipeline_e2e_likely_and_diagnostic():
             "contact_score": 0.85,
         },
     )
-    assert with_contact["commercial_stage"] == DIAGNOSTIC_OUTREACH_READY
+    # Contact does not invent 14.133 regime — still doc request / potential
+    assert with_contact["commercial_stage"] != DIAGNOSTIC_OUTREACH_READY
     assert with_contact["valor_potencial"] is None
-    arg = (with_contact["argumento_comercial"] or "").lower()
-    assert "potencialmente" in arg or "conferência" in arg or "conferencia" in arg
-    # Must not assert due credit
-    for banned in ("valor devido", "r$ ", "inadimpl", "crédito constituído", "credito constituido"):
+    arg = (with_contact.get("argumento_comercial") or with_contact.get("language_allowed") or "").lower()
+    # Must not assert due credit as a positive claim
+    for banned in ("inadimpl", "crédito constituído", "credito constituido", "r$ "):
         assert banned not in arg
+    assert "regido pela lei 14.133" not in arg
+
+    # With structured proven regime → LIKELY / DIAGNOSTIC
+    proven_row = {**MATURE_OBRA_ROW}
+    proven = classify_row(
+        proven_row,
+        as_of=AS_OF,
+        structured_regime="LEI_14133_2021",
+        contacts={
+            "email_comercial": "contato@planaterra.com.br",
+            "site_oficial": "https://planaterra.com.br",
+            "contact_score": 0.85,
+        },
+    )
+    assert proven["commercial_stage"] == DIAGNOSTIC_OUTREACH_READY
+    assert proven["regime_proven"] is True
+    assert proven["valor_potencial"] is None
 
 
 def test_verified_only_after_full_documentary_and_human_pack():
     """AC9: same contract only reaches VERIFIED after data-base+index+clause+human."""
     base = classify_row(MATURE_OBRA_ROW, as_of=AS_OF, contacts={})
-    assert base["commercial_stage"] == LIKELY_ADJUSTMENT_OPPORTUNITY
+    assert base["commercial_stage"] != VERIFIED_ADJUSTMENT_OPPORTUNITY
+    assert base["commercial_stage"] in {
+        DOCUMENT_REQUEST_READY,
+        "POTENTIAL_ADJUSTMENT_SIGNAL",
+    }
 
     # Still LIKELY/DIAGNOSTIC without exact pack even with human flag alone
     partial = evaluate_commercial_stage(
@@ -270,8 +368,10 @@ def test_human_review_file_import(tmp_path: Path):
             "data_base_confirmed": "2023-01-20",
             "index_confirmed": "INCC-DI",
             "prior_adjustment": "none_found",
+            "regime_confirmed": "LEI_14133_2021",
+            "document_link_validated": true,
             "decision": "ACCEPT",
-            "notes": "Cláusula e data-base lidas",
+            "notes": "Cláusula e data-base lidas no PDF oficial",
             "confidence": "high"
           }
         ]""",
@@ -281,6 +381,16 @@ def test_human_review_file_import(tmp_path: Path):
     assert human_review_done_for(
         recs, contrato_id="04892707000100-1-000200/2023"
     )
+    # Incomplete: reviewer+decision only
+    path_inc = tmp_path / "incomplete.json"
+    path_inc.write_text(
+        '[{"contrato_id":"inc-1","reviewer":"Tiago","decision":"ACCEPT"}]',
+        encoding="utf-8",
+    )
+    incomplete = load_human_review_file(path_inc)
+    assert not human_review_done_for(incomplete, contrato_id="inc-1")
+    assert incomplete["inc-1"]["human_review_status"] == "human_review_incomplete"
+    assert incomplete["inc-1"]["human_review_completed"] is False
     # Automated source rejected
     path2 = tmp_path / "bad.json"
     path2.write_text(
@@ -303,6 +413,7 @@ def test_exports_stage_csvs(tmp_path: Path):
     lead = classify_row(
         MATURE_OBRA_ROW,
         as_of=AS_OF,
+        structured_regime="LEI_14133_2021",
         contacts={
             "email_comercial": "c@planaterra.com.br",
             "site_oficial": "https://planaterra.com.br",
@@ -322,7 +433,9 @@ def test_exports_stage_csvs(tmp_path: Path):
         "top_leads": [lead],
     }
     write_v2_deliverables(tmp_path, run)
-    assert (tmp_path / "likely_adjustment_opportunities.csv").exists()
+    assert (tmp_path / "likely_adjustment_opportunities.csv").exists() or (
+        tmp_path / "diagnostic_outreach_ready.csv"
+    ).exists()
     assert (tmp_path / "diagnostic_outreach_ready.csv").exists()
     assert (tmp_path / "supplier_priority_queue.csv").exists()
     assert (tmp_path / "top30_sul_manual_review.md").exists()
@@ -336,16 +449,28 @@ def test_exports_stage_csvs(tmp_path: Path):
     assert "DIAGNOSTIC_OUTREACH_READY" in diag or "planaterra" in diag.lower() or "PLANATERRA" in diag
 
 
-def test_missing_contact_keeps_supplier_in_likely_queue():
+def test_missing_contact_keeps_supplier_in_document_or_likely_queue():
+    """Without regime proof: DOCUMENT_REQUEST; with proof: LIKELY even without contact."""
     lead = classify_row(MATURE_OBRA_ROW, as_of=AS_OF, contacts={})
-    assert lead["commercial_stage"] == LIKELY_ADJUSTMENT_OPPORTUNITY
+    assert lead["commercial_stage"] in {
+        DOCUMENT_REQUEST_READY,
+        "POTENTIAL_ADJUSTMENT_SIGNAL",
+    }
     assert lead["contact_readiness"] == "none"
     from scripts.commercial.reajuste_14133.domain.supplier_portfolio import consolidate_suppliers
 
     portfolios = consolidate_suppliers([lead])
     assert len(portfolios) == 1
-    assert portfolios[0]["commercial_stage"] == LIKELY_ADJUSTMENT_OPPORTUNITY
     assert portfolios[0]["contato_verificavel"] is False
+
+    proven = classify_row(
+        MATURE_OBRA_ROW,
+        as_of=AS_OF,
+        structured_regime="LEI_14133_2021",
+        contacts={},
+    )
+    assert proven["commercial_stage"] == LIKELY_ADJUSTMENT_OPPORTUNITY
+    assert proven["contact_readiness"] == "none"
 
 
 def test_diagnostic_language_template():
@@ -353,6 +478,9 @@ def test_diagnostic_language_template():
     assert "potencialmente" in msg
     assert "não significa" in msg or "nao significa" in msg
     assert "valor pendente" in msg or "conferência" in msg or "conferencia" in msg
+    assert "14.133" in MSG_REGIME_PROVEN
+    assert "possível" in MSG_REGIME_LIKELY or "possivel" in MSG_REGIME_LIKELY
+    assert "14.133" not in MSG_REGIME_UNRESOLVED.split("reajuste")[0] or "confirmar o regime" in MSG_REGIME_UNRESOLVED
 
 
 def test_proxy_not_presented_as_legal_data_base():
@@ -389,7 +517,7 @@ def test_freemail_low_confidence_not_diagnostic():
         obra_confidence=0.85,
         private_supplier=True,
         regime=REGIME_14133,
-        regime_proven=False,
+        regime_proven=True,
         signature_year=2023,
         data_assinatura=date(2023, 5, 10),
         open_obligation=True,

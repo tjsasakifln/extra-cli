@@ -1,0 +1,59 @@
+{
+  "run_id": "v3-regime-final-2026-08-05",
+  "module_version": "3.1.0",
+  "git_sha": "5ff5b90b71036505bd3bdcf67d68778243657e0d",
+  "as_of": "2026-08-04",
+  "metrics": {
+    "n_contracts_read": 1800,
+    "n_construction": 1784,
+    "n_suppliers": 846,
+    "n_sul_suppliers": 0,
+    "n_suppliers_with_reliable_contact": 28,
+    "stage_distribution_contracts": {
+      "DIAGNOSTIC_OUTREACH_READY": 11,
+      "LIKELY_ADJUSTMENT_OPPORTUNITY": 12,
+      "NOT_COMMERCIAL": 1029,
+      "DOCUMENT_REQUEST_READY": 732,
+      "POTENTIAL_ADJUSTMENT_SIGNAL": 16
+    },
+    "stage_distribution_suppliers": {
+      "DIAGNOSTIC_OUTREACH_READY": 8,
+      "DOCUMENT_REQUEST_READY": 428,
+      "LIKELY_ADJUSTMENT_OPPORTUNITY": 8,
+      "POTENTIAL_ADJUSTMENT_SIGNAL": 5,
+      "NOT_COMMERCIAL": 397
+    },
+    "regime_distribution": {
+      "LEI_14133_PROVEN": 29,
+      "TRANSITIONAL_REGIME_UNRESOLVED": 533,
+      "UNKNOWN": 1238
+    },
+    "before_v3_year_inference": {
+      "stage_distribution_contracts": {
+        "DIAGNOSTIC_OUTREACH_READY": 21,
+        "LIKELY_ADJUSTMENT_OPPORTUNITY": 734,
+        "NOT_COMMERCIAL": 1029,
+        "POTENTIAL_ADJUSTMENT_SIGNAL": 16
+      },
+      "likely_plus_diagnostic": 755
+    },
+    "after_regime_fix": {
+      "likely_plus_diagnostic": 23,
+      "document_request_ready": 732,
+      "potential_adjustment_signal": 16
+    },
+    "demotions_likely_path_to_doc_or_signal": 732,
+    "demotions_to_document_request_ready": 216,
+    "demotions_to_potential_signal": 5,
+    "source": "output/commercial/reajuste_14133/2026-08-04-v2-real/contratos_analisados.json",
+    "method": "replay_classify_row_regime_v2_on_prior_national_export_1800",
+    "live_national_datalake": "local DSN has ~1 national contract row; full live scan not available here"
+  },
+  "before_after": {
+    "before_likely_plus_diagnostic": 755,
+    "after_likely_plus_diagnostic": 23,
+    "demotions_from_likely_path": 732,
+    "document_request_ready_after": 732
+  },
+  "note": "Regime hierarchy R-A…R-X: year/PNCP never elevate legal confidence. Replay of prior 1800 national export; local DSN lacks full national universe."
+}

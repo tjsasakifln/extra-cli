@@ -1,7 +1,0 @@
-{
-  "kind": "automated_review_queue",
-  "human_review_completed": false,
-  "note": "Full portfolios omitted from git (size policy). See stage_counts.json + top30/top100 MD.",
-  "n_top30_sul": 30,
-  "n_top100_nacional": 100
-}

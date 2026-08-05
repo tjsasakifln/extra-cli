@@ -1,0 +1,248 @@
+{
+  "kind": "automated_review_queue",
+  "human_review_completed": false,
+  "count_total_hint": 30,
+  "items": [
+    {
+      "contrato_id": null,
+      "cnpj": "07928501000181",
+      "commercial_stage": "DIAGNOSTIC_OUTREACH_READY",
+      "regime_legal": null,
+      "regime_proven": null,
+      "human_review_completed": false
+    },
+    {
+      "contrato_id": null,
+      "cnpj": "92943398000118",
+      "commercial_stage": "DIAGNOSTIC_OUTREACH_READY",
+      "regime_legal": null,
+      "regime_proven": null,
+      "human_review_completed": false
+    },
+    {
+      "contrato_id": null,
+      "cnpj": "92779503000125",
+      "commercial_stage": "DIAGNOSTIC_OUTREACH_READY",
+      "regime_legal": null,
+      "regime_proven": null,
+      "human_review_completed": false
+    },
+    {
+      "contrato_id": null,
+      "cnpj": "03928516000199",
+      "commercial_stage": "DIAGNOSTIC_OUTREACH_READY",
+      "regime_legal": null,
+      "regime_proven": null,
+      "human_review_completed": false
+    },
+    {
+      "contrato_id": null,
+      "cnpj": "59653926000129",
+      "commercial_stage": "DIAGNOSTIC_OUTREACH_READY",
+      "regime_legal": null,
+      "regime_proven": null,
+      "human_review_completed": false
+    },
+    {
+      "contrato_id": null,
+      "cnpj": "48430801000113",
+      "commercial_stage": "DIAGNOSTIC_OUTREACH_READY",
+      "regime_legal": null,
+      "regime_proven": null,
+      "human_review_completed": false
+    },
+    {
+      "contrato_id": null,
+      "cnpj": "10249046000100",
+      "commercial_stage": "DOCUMENT_REQUEST_READY",
+      "regime_legal": null,
+      "regime_proven": null,
+      "human_review_completed": false
+    },
+    {
+      "contrato_id": null,
+      "cnpj": "82743832000162",
+      "commercial_stage": "LIKELY_ADJUSTMENT_OPPORTUNITY",
+      "regime_legal": null,
+      "regime_proven": null,
+      "human_review_completed": false
+    },
+    {
+      "contrato_id": null,
+      "cnpj": "07807120000144",
+      "commercial_stage": "LIKELY_ADJUSTMENT_OPPORTUNITY",
+      "regime_legal": null,
+      "regime_proven": null,
+      "human_review_completed": false
+    },
+    {
+      "contrato_id": null,
+      "cnpj": "90318338000189",
+      "commercial_stage": "LIKELY_ADJUSTMENT_OPPORTUNITY",
+      "regime_legal": null,
+      "regime_proven": null,
+      "human_review_completed": false
+    },
+    {
+      "contrato_id": null,
+      "cnpj": "83665141000150",
+      "commercial_stage": "DOCUMENT_REQUEST_READY",
+      "regime_legal": null,
+      "regime_proven": null,
+      "human_review_completed": false
+    },
+    {
+      "contrato_id": null,
+      "cnpj": "03094645000129",
+      "commercial_stage": "DOCUMENT_REQUEST_READY",
+      "regime_legal": null,
+      "regime_proven": null,
+      "human_review_completed": false
+    },
+    {
+      "contrato_id": null,
+      "cnpj": "02955426000124",
+      "commercial_stage": "DOCUMENT_REQUEST_READY",
+      "regime_legal": null,
+      "regime_proven": null,
+      "human_review_completed": false
+    },
+    {
+      "contrato_id": null,
+      "cnpj": "06280244000151",
+      "commercial_stage": "DOCUMENT_REQUEST_READY",
+      "regime_legal": null,
+      "regime_proven": null,
+      "human_review_completed": false
+    },
+    {
+      "contrato_id": null,
+      "cnpj": "12713820000100",
+      "commercial_stage": "DOCUMENT_REQUEST_READY",
+      "regime_legal": null,
+      "regime_proven": null,
+      "human_review_completed": false
+    },
+    {
+      "contrato_id": null,
+      "cnpj": "22798043000105",
+      "commercial_stage": "DOCUMENT_REQUEST_READY",
+      "regime_legal": null,
+      "regime_proven": null,
+      "human_review_completed": false
+    },
+    {
+      "contrato_id": null,
+      "cnpj": "03620927000112",
+      "commercial_stage": "DOCUMENT_REQUEST_READY",
+      "regime_legal": null,
+      "regime_proven": null,
+      "human_review_completed": false
+    },
+    {
+      "contrato_id": null,
+      "cnpj": "03257777000124",
+      "commercial_stage": "DOCUMENT_REQUEST_READY",
+      "regime_legal": null,
+      "regime_proven": null,
+      "human_review_completed": false
+    },
+    {
+      "contrato_id": null,
+      "cnpj": "00820854000114",
+      "commercial_stage": "DOCUMENT_REQUEST_READY",
+      "regime_legal": null,
+      "regime_proven": null,
+      "human_review_completed": false
+    },
+    {
+      "contrato_id": null,
+      "cnpj": "12218083000179",
+      "commercial_stage": "DOCUMENT_REQUEST_READY",
+      "regime_legal": null,
+      "regime_proven": null,
+      "human_review_completed": false
+    },
+    {
+      "contrato_id": null,
+      "cnpj": "79841904000108",
+      "commercial_stage": "DOCUMENT_REQUEST_READY",
+      "regime_legal": null,
+      "regime_proven": null,
+      "human_review_completed": false
+    },
+    {
+      "contrato_id": null,
+      "cnpj": "80996861000100",
+      "commercial_stage": "DOCUMENT_REQUEST_READY",
+      "regime_legal": null,
+      "regime_proven": null,
+      "human_review_completed": false
+    },
+    {
+      "contrato_id": null,
+      "cnpj": "01513315000103",
+      "commercial_stage": "DOCUMENT_REQUEST_READY",
+      "regime_legal": null,
+      "regime_proven": null,
+      "human_review_completed": false
+    },
+    {
+      "contrato_id": null,
+      "cnpj": "00336234000104",
+      "commercial_stage": "DOCUMENT_REQUEST_READY",
+      "regime_legal": null,
+      "regime_proven": null,
+      "human_review_completed": false
+    },
+    {
+      "contrato_id": null,
+      "cnpj": "21157133000146",
+      "commercial_stage": "DOCUMENT_REQUEST_READY",
+      "regime_legal": null,
+      "regime_proven": null,
+      "human_review_completed": false
+    },
+    {
+      "contrato_id": null,
+      "cnpj": "55219671000130",
+      "commercial_stage": "LIKELY_ADJUSTMENT_OPPORTUNITY",
+      "regime_legal": null,
+      "regime_proven": null,
+      "human_review_completed": false
+    },
+    {
+      "contrato_id": null,
+      "cnpj": "09223659000181",
+      "commercial_stage": "DOCUMENT_REQUEST_READY",
+      "regime_legal": null,
+      "regime_proven": null,
+      "human_review_completed": false
+    },
+    {
+      "contrato_id": null,
+      "cnpj": "84689066000392",
+      "commercial_stage": "DOCUMENT_REQUEST_READY",
+      "regime_legal": null,
+      "regime_proven": null,
+      "human_review_completed": false
+    },
+    {
+      "contrato_id": null,
+      "cnpj": "03453030000141",
+      "commercial_stage": "DOCUMENT_REQUEST_READY",
+      "regime_legal": null,
+      "regime_proven": null,
+      "human_review_completed": false
+    },
+    {
+      "contrato_id": null,
+      "cnpj": "04484014000189",
+      "commercial_stage": "DOCUMENT_REQUEST_READY",
+      "regime_legal": null,
+      "regime_proven": null,
+      "human_review_completed": false
+    }
+  ],
+  "note": "Compact sample for PR; full queue via pipeline replay of national export."
+}

@@ -319,18 +319,74 @@ def classify_row(
             if blob:
                 doc_texts.append(blob)
 
+    # Origin process / edital — may prove legacy regime over signature year
+    origin_edital_year = None
+    origin_process_year = None
+    for key in (
+        "ano_edital",
+        "edital_year",
+        "origin_edital_year",
+        "ano_compra",
+        "ano_licitacao",
+    ):
+        raw_y = row.get(key)
+        if raw_y is not None and str(raw_y).strip():
+            try:
+                origin_edital_year = int(str(raw_y).strip()[:4])
+                break
+            except ValueError:
+                pass
+    for key in (
+        "ano_processo",
+        "origin_process_year",
+        "process_year",
+        "ano_contratacao_originaria",
+    ):
+        raw_y = row.get(key)
+        if raw_y is not None and str(raw_y).strip():
+            try:
+                origin_process_year = int(str(raw_y).strip()[:4])
+                break
+            except ValueError:
+                pass
+    origin_doc_texts: list[str] = []
+    for key in (
+        "edital_fundamento_legal",
+        "fundamento_legal",
+        "origin_regime_text",
+        "processo_fundamento",
+    ):
+        val = row.get(key)
+        if val:
+            origin_doc_texts.append(str(val))
+    initiation_act = (
+        row.get("data_edital")
+        or row.get("data_abertura_licitacao")
+        or row.get("initiation_act_date")
+        or row.get("data_publicacao_edital")
+    )
+
     regime = classify_legal_regime(
-        structured_regime=structured_regime,
+        structured_regime=structured_regime or row.get("regime_juridico") or row.get("lei"),
         document_texts=doc_texts or None,
         objeto=objeto if "14.133" in (objeto or "") or "14133" in (objeto or "") else None,
         signature_year=sig_year,
         published_on_pncp=True,
+        origin_process_year=origin_process_year,
+        origin_edital_year=origin_edital_year,
+        origin_document_texts=origin_doc_texts or None,
+        initiation_act_date=initiation_act,
+        document_link_validated=document_link_validated,
+        has_official_linked_document=bool(doc_texts) and text_extracted,
     )
-    if regime_conflict and regime.regime == REGIME_14133:
+    if regime_conflict and regime.regime in {REGIME_14133, "LIKELY_14133"}:
         regime = classify_legal_regime(
             document_texts=(doc_texts or []) + ["lei 8.666 e lei 14.133"],
             signature_year=sig_year,
             published_on_pncp=True,
+            origin_process_year=origin_process_year,
+            origin_edital_year=origin_edital_year,
+            origin_document_texts=origin_doc_texts or None,
         )
 
     # Prefer exact data-base extracted from official docs (never signature/publication)
@@ -466,16 +522,28 @@ def classify_row(
         if not str(dates.data_base_effective.source).startswith("proxy"):
             exact_budget_dt = dates.data_base_effective.value
 
-    # Human review: only from explicit import — never auto-forged
+    # Human review: only from explicit complete import — never auto-forged
     hr_record = human_review_record or {}
-    if hr_record.get("decision") in {"ACCEPT", "CONFIRMED", "APPROVED"} and hr_record.get(
-        "reviewer"
-    ):
-        human_review_done = True
-    # Automated path never sets human_review_completed
-    human_review_status = (
-        "human_review_completed" if human_review_done else "human_review_pending"
-    )
+    if hr_record:
+        from scripts.commercial.reajuste_14133.io.human_review import (
+            assess_human_review_completeness,
+        )
+
+        hr_assessment = assess_human_review_completeness(hr_record)
+        human_review_done = bool(hr_assessment.get("can_mark_completed"))
+        if human_review_done:
+            human_review_status = "human_review_completed"
+        elif hr_record.get("reviewer") or hr_record.get("decision"):
+            human_review_status = "human_review_incomplete"
+            human_review_done = False
+        else:
+            human_review_status = "human_review_pending"
+            human_review_done = False
+    else:
+        # Explicit flag only if caller already validated completeness
+        human_review_status = (
+            "human_review_completed" if human_review_done else "human_review_pending"
+        )
 
     obj_text = (objeto or "")
     object_mentions_14133 = bool(
@@ -491,6 +559,7 @@ def classify_row(
         regime_proven=regime.proven,
         signature_year=sig_year,
         object_mentions_14133=object_mentions_14133,
+        legal_confidence=getattr(regime, "legal_confidence", None),
         exact_budget_date=exact_budget_dt,
         data_assinatura=_parse_date_field(row.get("data_assinatura")),
         data_publicacao=_parse_date_field(
@@ -722,6 +791,14 @@ def classify_row(
         "regime_legal": regime.regime,
         "regime_proven": regime.proven,
         "regime_notes": regime.notes,
+        "regime_evidence_level": getattr(regime, "evidence_level", None),
+        "regime_legal_confidence": getattr(regime, "legal_confidence", None),
+        "regime_chronological_context": getattr(regime, "chronological_context", None) or [],
+        "regime_priority_documents": getattr(regime, "priority_documents", None) or [],
+        "regime_probable_14133": commercial.regime_probable_14133,
+        "message_template": getattr(commercial, "message_template", None),
+        "origin_edital_year": origin_edital_year,
+        "origin_process_year": origin_process_year,
         # Legal data-base only when exact; proxy lives solely in proxy_date/proxy_type
         "data_base": (
             exact_budget_dt.isoformat()

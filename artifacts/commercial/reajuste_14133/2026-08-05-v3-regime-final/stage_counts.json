@@ -1,0 +1,27 @@
+{
+  "contracts": {
+    "DIAGNOSTIC_OUTREACH_READY": 11,
+    "LIKELY_ADJUSTMENT_OPPORTUNITY": 12,
+    "NOT_COMMERCIAL": 1029,
+    "DOCUMENT_REQUEST_READY": 732,
+    "POTENTIAL_ADJUSTMENT_SIGNAL": 16
+  },
+  "suppliers": {
+    "DIAGNOSTIC_OUTREACH_READY": 8,
+    "DOCUMENT_REQUEST_READY": 428,
+    "LIKELY_ADJUSTMENT_OPPORTUNITY": 8,
+    "POTENTIAL_ADJUSTMENT_SIGNAL": 5,
+    "NOT_COMMERCIAL": 397
+  },
+  "n_contracts": 1800,
+  "n_suppliers": 846,
+  "before_v3": {
+    "DIAGNOSTIC_OUTREACH_READY": 21,
+    "LIKELY_ADJUSTMENT_OPPORTUNITY": 734,
+    "NOT_COMMERCIAL": 1029,
+    "POTENTIAL_ADJUSTMENT_SIGNAL": 16
+  },
+  "demotions_likely_path_to_doc_or_signal": 732,
+  "before_likely_plus_diagnostic": 755,
+  "after_likely_plus_diagnostic": 23
+}
