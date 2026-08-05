@@ -345,10 +345,11 @@ def test_legal_regime_unknown_path():
 
 
 def test_ranking_deterministic():
+    # v3 ranks by priority_score / opportunity_score / material value — not claim value
     leads = [
-        {"score_total": 50, "valor_potencial": 100, "contrato_id": "b", "uf": "SC"},
-        {"score_total": 80, "valor_potencial": 50, "contrato_id": "a", "uf": "PR"},
-        {"score_total": 80, "valor_potencial": 100, "contrato_id": "c", "uf": "RS"},
+        {"score_total": 50, "priority_score": 50, "opportunity_score": 40, "valor_atualizado": 100, "contrato_id": "b", "uf": "SC"},
+        {"score_total": 80, "priority_score": 80, "opportunity_score": 70, "valor_atualizado": 50, "contrato_id": "a", "uf": "PR"},
+        {"score_total": 80, "priority_score": 85, "opportunity_score": 90, "valor_atualizado": 100, "contrato_id": "c", "uf": "RS"},
     ]
     r1 = rank_leads(leads)
     r2 = rank_leads(leads)

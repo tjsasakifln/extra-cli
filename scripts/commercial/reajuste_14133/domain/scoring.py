@@ -1,13 +1,15 @@
 """Explainable commercial scoring for reajuste leads.
 
-Weights (objective §8):
-  25% legal/documentary confidence
-  20% financial attractiveness
-  15% temporal urgency
-  15% probable reajustable balance
-  10% CONFENGE ICP fit
-  10% business contactability
-   5% source quality/freshness
+v3 split scores (commercial potential ≠ documentary completeness):
+  - opportunity_score: probability of relevant commercial pain
+  - verification_score: evidence quality
+  - commercial_fit_score: CONFENGE ICP compatibility
+  - priority_score: work-ordering blend
+
+Missing docs reduce verification, not opportunity.
+Missing contact reduces contact readiness, not supplier queue membership.
+
+Legacy weighted score retained for backward compatibility.
 """
 
 from __future__ import annotations
@@ -17,7 +19,11 @@ from decimal import Decimal
 from typing import Any
 
 from scripts.commercial.reajuste_14133 import (
+    CALCULABLE_ADJUSTMENT_CLAIM,
     DATA_BASE_CONFIRMED,
+    DIAGNOSTIC_OUTREACH_READY,
+    LIKELY_ADJUSTMENT_OPPORTUNITY,
+    POTENTIAL_ADJUSTMENT_SIGNAL,
     RANKING_NACIONAL,
     RANKING_SUL_SC,
     STATUS_ALREADY_ADJUSTED,
@@ -29,6 +35,7 @@ from scripts.commercial.reajuste_14133 import (
     STATUS_REVIEW_REQUIRED,
     STATUS_STRONG_CANDIDATE,
     SUL_UFS,
+    VERIFIED_ADJUSTMENT_OPPORTUNITY,
 )
 from scripts.commercial.reajuste_14133.domain.dates import DateBundle
 from scripts.commercial.reajuste_14133.domain.eligibility import EligibilityResult
@@ -54,6 +61,10 @@ class ScoreBreakdown:
     penalties: dict[str, float]
     ranking_bucket: str
     notes: list[str] = field(default_factory=list)
+    opportunity_score: float = 0.0
+    verification_score: float = 0.0
+    commercial_fit_score: float = 0.0
+    priority_score: float = 0.0
 
     def as_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -86,18 +97,22 @@ def score_lead(
     is_too_small_for_ticket: bool = False,
     has_personal_only_contact: bool = False,
     material_contradiction: bool = False,
+    commercial_stage: str | None = None,
+    minimum_interregnum_elapsed: bool | None = None,
+    multi_contract_count: int = 1,
+    regime_probable: bool = False,
 ) -> ScoreBreakdown:
-    """Return decomposable score in [0, 100]."""
+    """Return decomposable score in [0, 100] plus v3 split scores."""
     notes: list[str] = []
     penalties: dict[str, float] = {}
 
-    # 1) Legal / documentary
+    # 1) Legal / documentary (verification-heavy — does not erase opportunity)
     gate_frac = eligibility.hot_gates_passed / max(1, len(eligibility.hot_gates))
     legal = 0.35 * gate_frac
     if regime.proven and regime.regime.startswith("LEI_14133"):
         legal += 0.35
-    elif regime.regime == "UNKNOWN":
-        legal += 0.05
+    elif regime.regime == "UNKNOWN" or regime_probable:
+        legal += 0.12 if regime_probable else 0.05
     else:
         legal += 0.1
     if dates.data_base_status == DATA_BASE_CONFIRMED:
@@ -107,7 +122,6 @@ def score_lead(
     legal = _clamp(legal)
 
     # 2) Financial attractiveness — only VALUE_CONFIRMED/PLAUSIBLE may drive this
-    # Callers pass portfolio_hint_brl=0 when value quality blocks financial use.
     pot = _money(finance.valor_potencial)
     teto = _money(finance.teto_teorico)
     total_v = _money(finance.valor_atualizado_aditivos)
@@ -119,7 +133,6 @@ def score_lead(
         valor_ref = pot if pot > 0 else (
             teto * 0.25 if teto > 0 else total_v * 0.02
         )
-        # scale: R$50k → ~0.3, R$500k → ~0.7, R$2M+ → ~1.0
         if valor_ref <= 0:
             fin = 0.15
         else:
@@ -128,11 +141,15 @@ def score_lead(
             fin *= 0.55
             notes.append("Atratividade descontada: apenas teto teórico (UPPER_BOUND).")
 
-    # 3) Temporal urgency
+    # 3) Temporal urgency — conservative minimum interregnum counts for opportunity
     urg = 0.2
-    if dates.interregno_completo:
+    mature = bool(dates.interregno_completo) or bool(minimum_interregnum_elapsed)
+    if mature:
         days = dates.dias_desde_reajuste_aplicavel or 0
+        if minimum_interregnum_elapsed and not dates.interregno_completo:
+            days = max(days, 30)
         urg = _clamp(0.4 + min(0.5, max(0, days) / 730))
+        notes.append("Urgência temporal: interregno conservador ou exato completo.")
     if dates.dias_restantes_vigencia is not None:
         if 0 <= dates.dias_restantes_vigencia <= 90:
             urg = _clamp(urg + 0.15)
@@ -169,7 +186,7 @@ def score_lead(
         icp += 0.15
     icp = _clamp(icp)
 
-    # 6) Contactability
+    # 6) Contactability — does NOT zero opportunity
     cont = _clamp(float(contact_score))
 
     # 7) Source quality
@@ -189,13 +206,15 @@ def score_lead(
 
     raw = sum(components[k] * WEIGHTS[k] for k in WEIGHTS)
 
-    # Penalties (absolute score points on 0-1 scale before *100)
-    if not regime.proven:
-        penalties["regime_nao_confirmado"] = 0.08
+    # Penalties — verification-oriented; missing data-base/index do NOT wipe opportunity
+    if not regime.proven and not regime_probable:
+        penalties["regime_nao_confirmado"] = 0.05
+    # Missing data-base/index: tracked in verification_score, light legacy penalty only
     if dates.data_base_status != DATA_BASE_CONFIRMED:
-        penalties["data_base_ausente"] = 0.07
+        penalties["data_base_ausente"] = 0.02
+        notes.append("Data-base exata ausente: reduz verification_score, não opportunity.")
     if not finance.indice_contratual:
-        penalties["indice_ausente"] = 0.07
+        penalties["indice_ausente"] = 0.02
     if dates.dias_restantes_vigencia is not None and 0 <= dates.dias_restantes_vigencia <= 60:
         if not eligibility.hot_gates.get("documentos_acessiveis"):
             penalties["encerramento_proximo_sem_docs"] = 0.05
@@ -210,23 +229,89 @@ def score_lead(
     if is_too_small_for_ticket or supplier_size_hint == "micro_vs_ticket":
         penalties["fornecedor_pequeno_vs_complexidade"] = 0.06
     if has_personal_only_contact:
-        penalties["contato_apenas_pessoal"] = 0.04
+        penalties["contato_apenas_pessoal"] = 0.02
 
-    # Status floors / ceilings
+    # Status floors — LEGAL_REGIME_UNKNOWN no longer crushes commercial opportunity
     status_mult = {
         STATUS_HOT_VERIFIED: 1.0,
-        STATUS_STRONG_CANDIDATE: 0.92,
-        STATUS_REVIEW_REQUIRED: 0.75,
-        STATUS_RESEARCH_REQUIRED: 0.55,
-        STATUS_LEGAL_REGIME_UNKNOWN: 0.65,
+        STATUS_STRONG_CANDIDATE: 0.95,
+        STATUS_REVIEW_REQUIRED: 0.85,
+        STATUS_RESEARCH_REQUIRED: 0.75,
+        STATUS_LEGAL_REGIME_UNKNOWN: 0.80,
         STATUS_ALREADY_ADJUSTED: 0.15,
         STATUS_CLOSED: 0.1,
         STATUS_NOT_ELIGIBLE: 0.05,
-    }.get(eligibility.status, 0.5)
+    }.get(eligibility.status, 0.6)
+
+    stage_boost = {
+        CALCULABLE_ADJUSTMENT_CLAIM: 1.05,
+        VERIFIED_ADJUSTMENT_OPPORTUNITY: 1.0,
+        DIAGNOSTIC_OUTREACH_READY: 0.98,
+        LIKELY_ADJUSTMENT_OPPORTUNITY: 0.95,
+        POTENTIAL_ADJUSTMENT_SIGNAL: 0.75,
+    }.get(commercial_stage or "", 1.0)
 
     penalty_sum = sum(penalties.values())
-    final01 = _clamp((raw - penalty_sum) * status_mult)
+    final01 = _clamp((raw - penalty_sum) * status_mult * min(1.0, stage_boost))
     score = round(final01 * 100, 2)
+
+    # --- v3 split scores (0–100) ---
+    # Opportunity: pain signals independent of documentary completeness
+    opp = 0.15
+    if obra.is_construction:
+        opp += 0.25 * _clamp(obra.confidence)
+    if mature:
+        opp += 0.25
+    if regime.proven or regime_probable:
+        opp += 0.15
+    elif regime.regime.startswith("LEI_14133"):
+        opp += 0.08
+    if finance.base_label != "EXHAUSTED_OR_FULLY_MEASURED":
+        opp += 0.1
+    if ticket >= 1_000_000:
+        opp += 0.1
+    if multi_contract_count >= 2:
+        opp += min(0.1, 0.03 * multi_contract_count)
+    if material_contradiction:
+        opp -= 0.15
+    if is_giant_low_consulting_fit:
+        opp -= 0.08
+    opportunity_score = round(_clamp(opp) * 100, 2)
+
+    # Verification: evidence quality
+    ver = 0.05
+    ver += 0.25 * gate_frac
+    if dates.data_base_status == DATA_BASE_CONFIRMED:
+        ver += 0.2
+    if finance.indice_contratual:
+        ver += 0.15
+    if eligibility.hot_gates.get("documentos_acessiveis"):
+        ver += 0.15
+    if regime.proven:
+        ver += 0.15
+    if commercial_stage in {VERIFIED_ADJUSTMENT_OPPORTUNITY, CALCULABLE_ADJUSTMENT_CLAIM}:
+        ver += 0.1
+    verification_score = round(_clamp(ver) * 100, 2)
+
+    commercial_fit_score = round(icp * 100, 2)
+
+    # Priority: order human work — opportunity + fit + materiality + Sul; contact is bonus
+    pri = (
+        0.40 * (opportunity_score / 100)
+        + 0.25 * (commercial_fit_score / 100)
+        + 0.15 * (verification_score / 100)
+        + 0.10 * fin
+        + 0.10 * cont
+    )
+    if u in SUL_UFS:
+        pri = _clamp(pri + 0.05)
+    if u == "SC":
+        pri = _clamp(pri + 0.03)
+    priority_score = round(_clamp(pri) * 100, 2)
+
+    # Prefer priority_score as operational ranking when commercial stage is set
+    if commercial_stage:
+        score = priority_score
 
     ranking = RANKING_NACIONAL
     if u in SUL_UFS:
@@ -238,11 +323,18 @@ def score_lead(
         penalties={k: round(v, 4) for k, v in penalties.items()},
         ranking_bucket=ranking,
         notes=notes,
+        opportunity_score=opportunity_score,
+        verification_score=verification_score,
+        commercial_fit_score=commercial_fit_score,
+        priority_score=priority_score,
     )
 
 
 def rank_leads(leads: list[dict[str, Any]], *, ranking: str | None = None) -> list[dict[str, Any]]:
-    """Deterministic rank: score desc, valor desc, contrato_id asc."""
+    """Deterministic rank: priority_score desc, opportunity desc, valor desc, id asc.
+
+    valor_potencial is not used for ranking (only CALCULABLE may carry it).
+    """
     filtered = leads
     if ranking == RANKING_SUL_SC:
         filtered = [lead for lead in leads if (lead.get("uf") or "").upper() in SUL_UFS]
@@ -251,8 +343,14 @@ def rank_leads(leads: list[dict[str, Any]], *, ranking: str | None = None) -> li
 
     def key(lead: dict[str, Any]) -> tuple:
         return (
-            -float(lead.get("score_total") or 0),
-            -float(lead.get("valor_potencial") or lead.get("teto_teorico") or lead.get("valor_atualizado") or 0),
+            -float(lead.get("priority_score") or lead.get("score_total") or 0),
+            -float(lead.get("opportunity_score") or 0),
+            -float(
+                lead.get("teto_teorico")
+                or lead.get("valor_atualizado")
+                or lead.get("valor_original")
+                or 0
+            ),
             str(lead.get("contrato_id") or ""),
         )
 

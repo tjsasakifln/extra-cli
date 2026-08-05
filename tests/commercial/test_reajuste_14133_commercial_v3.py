@@ -1,0 +1,358 @@
+"""Commercial funnel v3: multi-dimension stages, temporal B, fail-closed claims."""
+
+from __future__ import annotations
+
+from datetime import date
+from pathlib import Path
+
+import pytest
+
+from scripts.commercial.reajuste_14133 import (
+    CALCULABLE_ADJUSTMENT_CLAIM,
+    DIAGNOSTIC_OUTREACH_READY,
+    LIKELY_ADJUSTMENT_OPPORTUNITY,
+    POTENTIAL_ADJUSTMENT_SIGNAL,
+    REGIME_14133,
+    TEMPORAL_LEVEL_A,
+    TEMPORAL_LEVEL_B,
+    VERIFIED_ADJUSTMENT_OPPORTUNITY,
+)
+from scripts.commercial.reajuste_14133.domain.commercial_stages import (
+    DIAGNOSTIC_LANGUAGE,
+    evaluate_commercial_stage,
+    evaluate_temporal_hierarchy,
+)
+from scripts.commercial.reajuste_14133.export.reports import write_v2_deliverables
+from scripts.commercial.reajuste_14133.io.human_review import (
+    human_review_done_for,
+    load_human_review_file,
+)
+from scripts.commercial.reajuste_14133.pipeline import classify_row
+
+
+AS_OF = date(2026, 8, 4)
+
+MATURE_OBRA_ROW = {
+    "contrato_id": "04892707000100-1-000200/2023",
+    "fornecedor_cnpj": "82743832000162",
+    "fornecedor_nome": "PLANATERRA TERRAPLENAGEM E PAVIMENTACAO LTDA",
+    "orgao_cnpj": "04892707000100",
+    "orgao_nome": "Departamento Nacional de Infraestrutura de Transportes",
+    "objeto_contrato": (
+        "Execução de obras de pavimentação asfáltica e drenagem urbana "
+        "na rodovia SC-401 — empreitada por preço global"
+    ),
+    "valor_total": 12_500_000,
+    "data_assinatura": "2023-05-10",
+    "data_inicio": "2023-06-01",
+    "data_fim": "2027-05-31",
+    "uf": "SC",
+    "municipio": "Florianopolis",
+    "is_active": True,
+}
+
+
+def test_temporal_level_b_signature_gt_12_months():
+    t = evaluate_temporal_hierarchy(
+        as_of=AS_OF,
+        exact_budget_date=None,
+        data_assinatura=date(2023, 5, 10),
+    )
+    assert t.level == TEMPORAL_LEVEL_B
+    assert t.minimum_elapsed_confirmed is True
+    assert t.exact_budget_date is None
+    assert t.calculation_blocked is True
+    assert t.diagnostic_outreach_allowed is True
+    assert t.proxy_type == "data_assinatura"
+    assert "orçamento" in t.temporal_reasoning.lower() or "orcamento" in t.temporal_reasoning.lower()
+
+
+def test_temporal_level_a_exact_budget():
+    t = evaluate_temporal_hierarchy(
+        as_of=AS_OF,
+        exact_budget_date=date(2023, 1, 15),
+        data_assinatura=date(2023, 5, 10),
+    )
+    assert t.level == TEMPORAL_LEVEL_A
+    assert t.interregno_complete_exact is True
+    assert t.exact_budget_date == date(2023, 1, 15)
+
+
+def test_likely_without_exact_data_base_contact_or_human():
+    """AC8 core: signature >12m, unknown exact data-base → LIKELY, null value."""
+    r = evaluate_commercial_stage(
+        as_of=AS_OF,
+        is_construction=True,
+        obra_confidence=0.85,
+        private_supplier=True,
+        regime="UNKNOWN",
+        regime_proven=False,
+        signature_year=2023,
+        exact_budget_date=None,
+        data_assinatura=date(2023, 5, 10),
+        open_obligation=True,
+        contact_verifiable=False,
+        human_review_done=False,
+        clause_located=False,
+        index_or_formula=False,
+    )
+    assert r.commercial_stage == LIKELY_ADJUSTMENT_OPPORTUNITY
+    assert r.temporal.level == TEMPORAL_LEVEL_B
+    assert r.valor_potencial_allowed is False
+    assert r.dimensions.claim_readiness == "claim_blocked"
+    assert r.dimensions.contact_readiness == "none"
+    assert r.dimensions.human_review_status != "human_review_completed"
+
+
+def test_diagnostic_when_contact_present():
+    r = evaluate_commercial_stage(
+        as_of=AS_OF,
+        is_construction=True,
+        obra_confidence=0.85,
+        private_supplier=True,
+        regime=REGIME_14133,
+        regime_proven=False,
+        signature_year=2023,
+        object_mentions_14133=True,
+        data_assinatura=date(2023, 5, 10),
+        open_obligation=True,
+        contact_verifiable=True,
+        human_review_done=False,
+    )
+    assert r.commercial_stage == DIAGNOSTIC_OUTREACH_READY
+    assert "não significa" in r.language_allowed.lower() or "nao significa" in r.language_allowed.lower() or "potencialmente" in r.language_allowed.lower()
+    assert r.valor_potencial_allowed is False
+    assert "valor devido" in r.prohibited_language.lower() or "crédito" in r.prohibited_language.lower() or "credito" in r.prohibited_language.lower()
+
+
+def test_pipeline_e2e_likely_and_diagnostic():
+    """AC8 end-to-end via shipped classify_row."""
+    no_contact = classify_row(MATURE_OBRA_ROW, as_of=AS_OF, contacts={})
+    assert no_contact["commercial_stage"] == LIKELY_ADJUSTMENT_OPPORTUNITY
+    assert no_contact["valor_potencial"] is None
+    assert no_contact["minimum_elapsed_confirmed"] is True
+    assert no_contact["exact_budget_date"] is None
+    assert no_contact["proxy_date"] is not None
+    assert no_contact["calculation_blocked"] is True
+    assert no_contact["claim_readiness"] == "claim_blocked"
+    # Not erased from commercial queue despite LEGAL_REGIME_UNKNOWN eligibility
+    assert no_contact["opportunity_score"] > 0
+    assert no_contact["priority_score"] > 0
+
+    with_contact = classify_row(
+        MATURE_OBRA_ROW,
+        as_of=AS_OF,
+        contacts={
+            "email_comercial": "contato@planaterra.com.br",
+            "telefone_empresarial": "4833334444",
+            "site_oficial": "https://planaterra.com.br",
+            "contact_score": 0.85,
+        },
+    )
+    assert with_contact["commercial_stage"] == DIAGNOSTIC_OUTREACH_READY
+    assert with_contact["valor_potencial"] is None
+    arg = (with_contact["argumento_comercial"] or "").lower()
+    assert "potencialmente" in arg or "conferência" in arg or "conferencia" in arg
+    # Must not assert due credit
+    for banned in ("valor devido", "r$ ", "inadimpl", "crédito constituído", "credito constituido"):
+        assert banned not in arg
+
+
+def test_verified_only_after_full_documentary_and_human_pack():
+    """AC9: same contract only reaches VERIFIED after data-base+index+clause+human."""
+    base = classify_row(MATURE_OBRA_ROW, as_of=AS_OF, contacts={})
+    assert base["commercial_stage"] == LIKELY_ADJUSTMENT_OPPORTUNITY
+
+    # Still LIKELY/DIAGNOSTIC without exact pack even with human flag alone
+    partial = evaluate_commercial_stage(
+        as_of=AS_OF,
+        is_construction=True,
+        obra_confidence=0.9,
+        private_supplier=True,
+        regime=REGIME_14133,
+        regime_proven=True,
+        signature_year=2023,
+        data_assinatura=date(2023, 5, 10),
+        exact_budget_date=None,  # missing
+        open_obligation=True,
+        clause_located=True,
+        index_or_formula=True,
+        docs_text_extracted=True,
+        document_link_validated=True,
+        contact_verifiable=True,
+        human_review_done=True,
+    )
+    assert partial.commercial_stage != VERIFIED_ADJUSTMENT_OPPORTUNITY
+    assert partial.commercial_stage in {
+        DIAGNOSTIC_OUTREACH_READY,
+        LIKELY_ADJUSTMENT_OPPORTUNITY,
+    }
+
+    full = evaluate_commercial_stage(
+        as_of=AS_OF,
+        is_construction=True,
+        obra_confidence=0.9,
+        private_supplier=True,
+        regime=REGIME_14133,
+        regime_proven=True,
+        signature_year=2023,
+        data_assinatura=date(2023, 5, 10),
+        exact_budget_date=date(2023, 1, 20),
+        open_obligation=True,
+        clause_located=True,
+        index_or_formula=True,
+        docs_text_extracted=True,
+        document_link_validated=True,
+        contact_verifiable=True,
+        human_review_done=True,
+        has_calculable_base=False,
+        has_index_series=False,
+    )
+    assert full.commercial_stage == VERIFIED_ADJUSTMENT_OPPORTUNITY
+    assert full.valor_potencial_allowed is False
+    assert full.dimensions.human_review_status == "human_review_completed"
+
+    calc = evaluate_commercial_stage(
+        as_of=AS_OF,
+        is_construction=True,
+        obra_confidence=0.9,
+        private_supplier=True,
+        regime=REGIME_14133,
+        regime_proven=True,
+        data_assinatura=date(2023, 5, 10),
+        exact_budget_date=date(2023, 1, 20),
+        open_obligation=True,
+        clause_located=True,
+        index_or_formula=True,
+        docs_text_extracted=True,
+        document_link_validated=True,
+        contact_verifiable=True,
+        human_review_done=True,
+        has_calculable_base=True,
+        has_index_series=True,
+    )
+    assert calc.commercial_stage == CALCULABLE_ADJUSTMENT_CLAIM
+    assert calc.valor_potencial_allowed is True
+
+
+def test_absence_of_prior_adjustment_is_uncertainty_not_exclusion():
+    r = evaluate_commercial_stage(
+        as_of=AS_OF,
+        is_construction=True,
+        obra_confidence=0.8,
+        private_supplier=True,
+        regime=REGIME_14133,
+        regime_proven=True,
+        signature_year=2023,
+        data_assinatura=date(2023, 5, 10),
+        open_obligation=True,
+        adjustment_history="NO_PRIOR_ADJUSTMENT_LOCATED",
+        contact_verifiable=False,
+    )
+    assert r.commercial_stage == LIKELY_ADJUSTMENT_OPPORTUNITY
+    assert any("apostila" in u or "inexistencia" in u or "existencia" in u for u in r.uncertainties)
+
+
+def test_only_calculable_allows_valor_potencial_in_pipeline():
+    lead = classify_row(MATURE_OBRA_ROW, as_of=AS_OF, contacts={})
+    assert lead["commercial_stage"] != CALCULABLE_ADJUSTMENT_CLAIM
+    assert lead["valor_potencial"] is None
+
+
+def test_human_review_file_import(tmp_path: Path):
+    path = tmp_path / "reviews.json"
+    path.write_text(
+        """[
+          {
+            "contrato_id": "04892707000100-1-000200/2023",
+            "reviewer": "Tiago",
+            "reviewed_at": "2026-08-05T12:00:00Z",
+            "documents_read": ["contrato.pdf", "edital.pdf"],
+            "pages": ["12-15"],
+            "clauses": ["cláusula 8 — reajuste"],
+            "data_base_confirmed": "2023-01-20",
+            "index_confirmed": "INCC-DI",
+            "prior_adjustment": "none_found",
+            "decision": "ACCEPT",
+            "notes": "Cláusula e data-base lidas",
+            "confidence": "high"
+          }
+        ]""",
+        encoding="utf-8",
+    )
+    recs = load_human_review_file(path)
+    assert human_review_done_for(
+        recs, contrato_id="04892707000100-1-000200/2023"
+    )
+    # Automated source rejected
+    path2 = tmp_path / "bad.json"
+    path2.write_text(
+        '[{"contrato_id":"x","reviewer":"bot","decision":"ACCEPT","source":"ai_assisted"}]',
+        encoding="utf-8",
+    )
+    bad = load_human_review_file(path2)
+    assert not human_review_done_for(bad, contrato_id="x")
+
+
+def test_automated_path_never_sets_human_review_completed():
+    lead = classify_row(MATURE_OBRA_ROW, as_of=AS_OF, contacts={})
+    assert lead["human_review_done"] is False
+    assert lead["human_review_completed"] is False
+    assert lead["human_review_status"] != "human_review_completed"
+    assert lead.get("automated_review_queue") is True
+
+
+def test_exports_stage_csvs(tmp_path: Path):
+    lead = classify_row(
+        MATURE_OBRA_ROW,
+        as_of=AS_OF,
+        contacts={
+            "email_comercial": "c@planaterra.com.br",
+            "site_oficial": "https://planaterra.com.br",
+            "contact_score": 0.8,
+        },
+    )
+    lead["ranking"] = 1
+    from scripts.commercial.reajuste_14133.domain.supplier_portfolio import consolidate_suppliers
+
+    portfolios = consolidate_suppliers([lead])
+    run = {
+        "run_id": "test-v3",
+        "as_of": AS_OF.isoformat(),
+        "git_sha": "test",
+        "leads": [lead],
+        "supplier_portfolios": portfolios,
+        "top_leads": [lead],
+    }
+    paths = write_v2_deliverables(tmp_path, run)
+    assert (tmp_path / "likely_adjustment_opportunities.csv").exists()
+    assert (tmp_path / "diagnostic_outreach_ready.csv").exists()
+    assert (tmp_path / "supplier_priority_queue.csv").exists()
+    assert (tmp_path / "top30_sul_manual_review.md").exists()
+    assert (tmp_path / "top100_nacional_manual_review.md").exists()
+    assert (tmp_path / "automated_review_queue.json").exists()
+    auto = (tmp_path / "automated_review_queue.json").read_text(encoding="utf-8")
+    assert "human_review_completed" in auto
+    assert '"human_review_completed": false' in auto.lower() or '"human_review_completed": false' in auto
+    # Diagnostic CSV must not invent valor for non-calculable
+    diag = (tmp_path / "diagnostic_outreach_ready.csv").read_text(encoding="utf-8")
+    assert "DIAGNOSTIC_OUTREACH_READY" in diag or "planaterra" in diag.lower() or "PLANATERRA" in diag
+
+
+def test_missing_contact_keeps_supplier_in_likely_queue():
+    lead = classify_row(MATURE_OBRA_ROW, as_of=AS_OF, contacts={})
+    assert lead["commercial_stage"] == LIKELY_ADJUSTMENT_OPPORTUNITY
+    assert lead["contact_readiness"] == "none"
+    from scripts.commercial.reajuste_14133.domain.supplier_portfolio import consolidate_suppliers
+
+    portfolios = consolidate_suppliers([lead])
+    assert len(portfolios) == 1
+    assert portfolios[0]["commercial_stage"] == LIKELY_ADJUSTMENT_OPPORTUNITY
+    assert portfolios[0]["contato_verificavel"] is False
+
+
+def test_diagnostic_language_template():
+    msg = DIAGNOSTIC_LANGUAGE.lower()
+    assert "potencialmente" in msg
+    assert "não significa" in msg or "nao significa" in msg
+    assert "valor pendente" in msg or "conferência" in msg or "conferencia" in msg

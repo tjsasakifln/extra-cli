@@ -94,6 +94,14 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Filtro SQL legado por assinatura≥12m (não default; pode gerar falso negativo de data-base)",
     )
+    p.add_argument(
+        "--human-review-file",
+        default=None,
+        help=(
+            "JSON ou CSV com revisão humana documental (reviewer, decision, data-base, índice...). "
+            "Única via para human_review_completed=true. Rotinas automáticas nunca marcam completo."
+        ),
+    )
     return p
 
 
@@ -202,6 +210,20 @@ def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(raw)
     out_dir = Path(args.output_dir or f"{DEFAULT_OUTPUT_ROOT}/{args.as_of}")
     ckpt = args.checkpoint_dir or (str(out_dir) if args.export_all else None)
+    human_map: dict[str, bool] = {}
+    human_records: dict[str, dict] = {}
+    if args.human_review_file:
+        from scripts.commercial.reajuste_14133.io.human_review import (
+            human_review_done_for,
+            load_human_review_file,
+        )
+
+        human_records = load_human_review_file(args.human_review_file)
+        for key, rec in human_records.items():
+            if human_review_done_for(human_records, contrato_id=key) or human_review_done_for(
+                human_records, cnpj=key
+            ):
+                human_map[key] = True
     try:
         run = run_pipeline(
             as_of=args.as_of,
@@ -226,6 +248,8 @@ def main(argv: list[str] | None = None) -> int:
             resume_from=args.resume_from,
             checkpoint_dir=ckpt if not args.resume_from else None,
             require_proxy_interregno=args.require_proxy_interregno,
+            human_review_map=human_map or None,
+            human_review_records=human_records or None,
         )
     except Exception as exc:
         print(f"ERROR: pipeline failed: {exc}", file=sys.stderr)

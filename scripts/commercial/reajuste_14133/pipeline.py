@@ -15,14 +15,19 @@ from pathlib import Path
 from typing import Any
 
 from scripts.commercial.reajuste_14133 import (
+    CALCULABLE_ADJUSTMENT_CLAIM,
     CAMPAIGN_SLUG,
     DATA_BASE_CONFIRMED,
     DEFAULT_AS_OF,
+    DIAGNOSTIC_OUTREACH_READY,
     DOCUMENT_REQUEST_CANDIDATE,
+    DOCUMENT_REQUEST_READY,
+    LIKELY_ADJUSTMENT_OPPORTUNITY,
     MODULE_VERSION,
     NOT_READY_FOR_OUTREACH,
     OUTREACH_READY,
     OUTREACH_READY_WITHOUT_VALUE_ESTIMATE,
+    POTENTIAL_ADJUSTMENT_SIGNAL,
     REGIME_14133,
     REGIME_CONFLICT,
     STATUS_ALREADY_ADJUSTED,
@@ -40,6 +45,7 @@ from scripts.commercial.reajuste_14133 import (
     TEMPORAL_UNKNOWN,
     TERMINAL_BLOCKED_INSUFFICIENT,
     TERMINAL_SUCCESS_OUTREACH,
+    VERIFIED_ADJUSTMENT_OPPORTUNITY,
 )
 from scripts.commercial.reajuste_14133.checkpoint import (
     append_classified,
@@ -51,6 +57,11 @@ from scripts.commercial.reajuste_14133.checkpoint import (
 )
 from scripts.commercial.reajuste_14133.domain.adjustment_history import (
     classify_adjustment_history,
+)
+from scripts.commercial.reajuste_14133.domain.commercial_stages import (
+    co_status_document_request,
+    diagnostic_message,
+    evaluate_commercial_stage,
 )
 from scripts.commercial.reajuste_14133.domain.contradictions import (
     detect_material_contradictions,
@@ -182,6 +193,17 @@ def temporal_layer(dates: Any) -> str:
     return TEMPORAL_UNKNOWN
 
 
+def _parse_date_field(v: Any) -> date | None:
+    if v is None or v == "":
+        return None
+    if isinstance(v, date):
+        return v
+    try:
+        return date.fromisoformat(str(v).strip()[:10])
+    except ValueError:
+        return None
+
+
 def classify_row(
     row: dict[str, Any],
     *,
@@ -192,6 +214,7 @@ def classify_row(
     structured_regime: str | None = None,
     human_review_done: bool = False,
     official_acts: list[dict[str, Any]] | None = None,
+    human_review_record: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Classify a single contract row into a lead record."""
     objeto = row.get("objeto_contrato")
@@ -425,6 +448,87 @@ def classify_row(
         else 0.0
     )
 
+    contact_verifiable = bool(
+        contacts.get("email_comercial")
+        or contacts.get("telefone_empresarial")
+        or contacts.get("site_oficial")
+        or contacts.get("formulario_contato")
+        or contacts.get("linkedin_institucional")
+        or contacts.get("contact_verifiable")
+    )
+    # Freemail associated to company: lower confidence, still verifiable after review flag
+    if not contact_verifiable and contacts.get("email_comercial_low_confidence"):
+        contact_verifiable = bool(contacts.get("allow_low_confidence_contact"))
+    open_obl = exec_st.open_obligation_possible and not is_closed
+
+    # Exact data-base: only structured extraction states (not mere "data-base" mention)
+    data_base_exact = bool(data_base_exact_from_docs) or (
+        dates.data_base_status == DATA_BASE_CONFIRMED
+        and dates.data_base_effective.confidence == "high"
+        and not str(dates.data_base_effective.source).startswith("proxy")
+    )
+    exact_budget_dt = _parse_date_field(orc_date) if data_base_exact else None
+    if data_base_exact and exact_budget_dt is None and dates.data_base_effective.value:
+        if not str(dates.data_base_effective.source).startswith("proxy"):
+            exact_budget_dt = dates.data_base_effective.value
+
+    # Human review: only from explicit import — never auto-forged
+    hr_record = human_review_record or {}
+    if hr_record.get("decision") in {"ACCEPT", "CONFIRMED", "APPROVED"} and hr_record.get(
+        "reviewer"
+    ):
+        human_review_done = True
+    # Automated path never sets human_review_completed
+    human_review_status = (
+        "human_review_completed" if human_review_done else "human_review_pending"
+    )
+
+    obj_text = (objeto or "")
+    object_mentions_14133 = bool(
+        re.search(r"14[\./]?133|lei\s*14", obj_text, re.I)
+    )
+
+    commercial = evaluate_commercial_stage(
+        as_of=as_of,
+        is_construction=obra.is_construction,
+        obra_confidence=float(obra.confidence or 0),
+        private_supplier=private,
+        regime=regime.regime,
+        regime_proven=regime.proven,
+        signature_year=sig_year,
+        object_mentions_14133=object_mentions_14133,
+        exact_budget_date=exact_budget_dt,
+        data_assinatura=_parse_date_field(row.get("data_assinatura")),
+        data_publicacao=_parse_date_field(
+            row.get("data_publicacao_fonte") or row.get("data_publicacao")
+        ),
+        inicio_vigencia=_parse_date_field(row.get("data_inicio")),
+        is_closed=is_closed,
+        open_obligation=open_obl,
+        fully_liquidated=exec_st.status == "CONTRACT_FULLY_MEASURED",
+        adjustment_history=adj.status,
+        clause_located=clause_located,
+        index_or_formula=index_in_clause,
+        docs_text_extracted=text_extracted,
+        document_link_validated=document_link_validated,
+        material_contradiction=contrad.material_contradiction,
+        legal_regime_conflict=regime.regime == REGIME_CONFLICT,
+        contact_verifiable=contact_verifiable,
+        human_review_done=human_review_done,
+        has_calculable_base=(
+            finance.base_label in {"SALDO_CONTRATUAL", "SALDO_DERIVADO"}
+            and finance.base_reajustavel is not None
+            and finance.base_reajustavel > 0
+        ),
+        has_index_series=(
+            finance.indice_contratual is not None
+            and finance.indice_base_value is not None
+            and finance.indice_final_value is not None
+        ),
+        value_plausible=value_q.status in {"VALUE_CONFIRMED", "VALUE_PLAUSIBLE"},
+        icp_compatible=not giant,
+    )
+
     sc = score_lead(
         eligibility=elig,
         obra=obra,
@@ -440,22 +544,12 @@ def classify_row(
         is_too_small_for_ticket=too_small,
         has_personal_only_contact=bool(contacts.get("has_personal_only_contact")),
         material_contradiction=contrad.material_contradiction,
+        commercial_stage=commercial.commercial_stage,
+        minimum_interregnum_elapsed=commercial.temporal.minimum_elapsed_confirmed,
+        regime_probable=commercial.regime_probable_14133,
     )
 
-    contact_verifiable = bool(
-        contacts.get("email_comercial")
-        or contacts.get("telefone_empresarial")
-        or contacts.get("site_oficial")
-    )
-    open_obl = exec_st.open_obligation_possible and not is_closed
-
-    # Exact data-base: only structured extraction states (not mere "data-base" mention)
-    data_base_exact = bool(data_base_exact_from_docs) or (
-        dates.data_base_status == DATA_BASE_CONFIRMED
-        and dates.data_base_effective.confidence == "high"
-        and not str(dates.data_base_effective.source).startswith("proxy")
-    )
-
+    # Legacy claim-path outreach (fail-closed) — preserved for HOT/VERIFIED gates
     outreach = evaluate_outreach(
         eligibility_status=elig.status,
         regime=regime.regime,
@@ -466,13 +560,17 @@ def classify_row(
         data_base_status=dates.data_base_status,
         data_base_exact=data_base_exact,
         index_in_clause=index_in_clause,
-        interregno_completo=bool(dates.interregno_completo),
+        interregno_completo=bool(
+            dates.interregno_completo or commercial.temporal.interregno_complete_exact
+        ),
         open_obligation=open_obl,
         adjustment_history=adj.status,
         value_quality=value_q.status,
         contact_verifiable=contact_verifiable,
         human_review_done=human_review_done,
-        has_valor_potencial=finance.valor_potencial is not None,
+        has_valor_potencial=(
+            finance.valor_potencial is not None and commercial.valor_potencial_allowed
+        ),
         argument_cites_unproven_value=False,
         docs_text_extracted=text_extracted,
         legal_regime_conflict=regime.regime == REGIME_CONFLICT,
@@ -480,11 +578,40 @@ def classify_row(
         document_link_status=document_link_status,
     )
 
+    # Map commercial stage to primary operational outreach label when not claim-ready
+    commercial_stage = commercial.commercial_stage
+    document_request_co = co_status_document_request(
+        commercial_stage, commercial.dimensions.documentary_confidence
+    )
+    if commercial_stage == DIAGNOSTIC_OUTREACH_READY:
+        operational_outreach = DOCUMENT_REQUEST_CANDIDATE  # legacy export bucket
+    elif commercial_stage == LIKELY_ADJUSTMENT_OPPORTUNITY:
+        operational_outreach = DOCUMENT_REQUEST_CANDIDATE
+    elif commercial_stage == CALCULABLE_ADJUSTMENT_CLAIM and human_review_done:
+        operational_outreach = OUTREACH_READY
+    elif commercial_stage == VERIFIED_ADJUSTMENT_OPPORTUNITY and human_review_done:
+        operational_outreach = OUTREACH_READY_WITHOUT_VALUE_ESTIMATE
+    else:
+        operational_outreach = outreach.status
+        if commercial_stage in {
+            POTENTIAL_ADJUSTMENT_SIGNAL,
+            LIKELY_ADJUSTMENT_OPPORTUNITY,
+            DIAGNOSTIC_OUTREACH_READY,
+            DOCUMENT_REQUEST_READY,
+        } and operational_outreach == NOT_READY_FOR_OUTREACH:
+            operational_outreach = commercial.outreach_status_legacy
+
     url = pncp_contract_url(row.get("contrato_id"), row.get("orgao_cnpj"))
-    evidences_fav = []
+    evidences_fav = list(commercial.favorable_signals)
     if obra.is_construction:
         evidences_fav.append(
             f"Objeto classificado como {obra.category} (conf={obra.confidence:.2f})"
+        )
+    if commercial.temporal.minimum_elapsed_confirmed:
+        evidences_fav.append(
+            f"Interregno mínimo conservador confirmado "
+            f"(level={commercial.temporal.level}; "
+            f"proxy={commercial.temporal.proxy_type})"
         )
     if dates.interregno_completo:
         evidences_fav.append(
@@ -498,27 +625,79 @@ def classify_row(
             f"{len(doc_scan.evidences)} evidências documentais "
             f"(pipeline={getattr(doc_scan, 'pipeline_state', '?')})"
         )
+    evidences_fav = list(dict.fromkeys(evidences_fav))
 
-    commercial_arg = (
-        f"Identificamos indícios de contrato de {obra.category.replace('_', ' ')} "
-        f"com interregno anual potencialmente superado (data-base status={dates.data_base_status}; "
-        f"temporal={t_layer}). "
-        f"A confirmação do reajuste em sentido estrito depende da análise do contrato, "
-        f"das medições e das apostilas emitidas — não se trata de parecer jurídico nem de valor devido."
-    )
-    if outreach.status == DOCUMENT_REQUEST_CANDIDATE:
-        from scripts.commercial.reajuste_14133.domain.outreach import exploratory_message
+    # Diagnostic language only — never claim due credit without verification
+    if commercial_stage == DIAGNOSTIC_OUTREACH_READY:
+        commercial_arg = diagnostic_message()
+    elif commercial_stage in {LIKELY_ADJUSTMENT_OPPORTUNITY, DOCUMENT_REQUEST_READY}:
+        commercial_arg = commercial.language_allowed
+    elif commercial_stage == POTENTIAL_ADJUSTMENT_SIGNAL:
+        commercial_arg = (
+            f"Sinal comercial de possível maturidade anual em obra "
+            f"({obra.category.replace('_', ' ')}). "
+            f"Não constitui afirmação de crédito. "
+            f"Temporal={commercial.temporal.level}."
+        )
+    elif operational_outreach == DOCUMENT_REQUEST_CANDIDATE:
+        commercial_arg = diagnostic_message()
+    else:
+        commercial_arg = commercial.language_allowed or (
+            f"Identificamos indícios de contrato de {obra.category.replace('_', ' ')} "
+            f"com interregno anual potencialmente superado. "
+            f"Confirmação depende de análise documental — sem valor devido afirmado."
+        )
 
-        commercial_arg = exploratory_message()
+    # valor_potencial ONLY on CALCULABLE stage
+    valor_potencial_out = None
+    if commercial.valor_potencial_allowed and commercial_stage == CALCULABLE_ADJUSTMENT_CLAIM:
+        valor_potencial_out = (
+            float(finance.valor_potencial) if finance.valor_potencial is not None else None
+        )
 
     lead: dict[str, Any] = {
         "classificacao": elig.status,
-        "outreach_status": outreach.status,
+        "commercial_stage": commercial_stage,
+        "commercial_dimensions": commercial.dimensions.as_dict(),
+        "temporal_evidence": commercial.temporal.as_dict(),
+        "exact_budget_date": (
+            commercial.temporal.exact_budget_date.isoformat()
+            if commercial.temporal.exact_budget_date
+            else None
+        ),
+        "proxy_date": (
+            commercial.temporal.proxy_date.isoformat()
+            if commercial.temporal.proxy_date
+            else None
+        ),
+        "proxy_type": commercial.temporal.proxy_type,
+        "minimum_elapsed_confirmed": commercial.temporal.minimum_elapsed_confirmed,
+        "temporal_reasoning": commercial.temporal.temporal_reasoning,
+        "calculation_blocked": commercial.temporal.calculation_blocked,
+        "document_request_ready": document_request_co
+        or commercial_stage == DOCUMENT_REQUEST_READY,
+        "regime_probable_14133": commercial.regime_probable_14133,
+        "outreach_status": operational_outreach,
+        "outreach_status_claim_path": outreach.status,
         "outreach_gates": outreach.gates,
         "outreach_gates_passed": outreach.gates_passed,
-        "outreach_language": outreach.language_allowed,
-        "outreach_next_action": outreach.next_action,
+        "outreach_language": commercial.language_allowed
+        if commercial_stage
+        in {
+            DIAGNOSTIC_OUTREACH_READY,
+            LIKELY_ADJUSTMENT_OPPORTUNITY,
+            DOCUMENT_REQUEST_READY,
+        }
+        else outreach.language_allowed,
+        "outreach_next_action": commercial.next_action,
+        "language_prohibited": commercial.prohibited_language,
+        "missing_documents": commercial.missing_documents,
+        "uncertainties": commercial.uncertainties,
         "score_total": sc.score_total,
+        "opportunity_score": sc.opportunity_score,
+        "verification_score": sc.verification_score,
+        "commercial_fit_score": sc.commercial_fit_score,
+        "priority_score": sc.priority_score,
         "score_decomposition": sc.components,
         "score_penalties": sc.penalties,
         "ranking_bucket": sc.ranking_bucket,
@@ -578,18 +757,16 @@ def classify_row(
         if finance.base_reajustavel is not None
         else None,
         "base_label": finance.base_label,
-        "valor_potencial": float(finance.valor_potencial)
-        if finance.valor_potencial is not None
-        else None,
+        "valor_potencial": valor_potencial_out,
         "teto_teorico": float(finance.teto_teorico) if finance.teto_teorico is not None else None,
         "teto_label": finance.teto_label,
         "status_reajustes_anteriores": adj.status,
         "adjustment_history": adj.status,
         "execution_status": exec_st.status,
         "evidencias_favoraveis": evidences_fav,
-        "lacunas": elig.gaps,
+        "lacunas": list(dict.fromkeys(list(elig.gaps) + list(commercial.missing_documents))),
         "riscos": elig.risks + finance.limitations + contrad.items + value_q.notes,
-        "proxima_acao_investigativa": elig.next_investigative_action,
+        "proxima_acao_investigativa": commercial.next_action or elig.next_investigative_action,
         "argumento_comercial": commercial_arg,
         "canais_contato": {
             "email": (contacts or {}).get("email_comercial"),
@@ -617,8 +794,15 @@ def classify_row(
         "data_inicio": str(row.get("data_inicio") or "")[:10] or None,
         "data_publicacao": str(row.get("data_publicacao") or "")[:10] or None,
         "human_review_done": human_review_done,
+        "human_review_status": human_review_status,
+        "human_review_completed": bool(human_review_done),  # only true via import
+        "human_review_record": hr_record or None,
+        "automated_review_queue": not human_review_done,
         "is_giant_low_fit": giant,
         "value_band": value_band(float(row.get("valor_total") or 0) or None),
+        "claim_readiness": commercial.dimensions.claim_readiness,
+        "contact_readiness": commercial.dimensions.contact_readiness,
+        "commercial_action": commercial.dimensions.commercial_action,
     }
     return lead
 
@@ -648,8 +832,14 @@ def run_pipeline(
     checkpoint_dir: str | Path | None = None,
     require_proxy_interregno: bool = False,
     human_review_map: dict[str, bool] | None = None,
+    human_review_records: dict[str, dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     """Execute full funnel with keyset streaming and supplier consolidation.
+
+    Two-phase commercial pipeline:
+      Phase 1 — cheap national structured triage (no remote docs/contacts).
+      Phase 2 — document/contact deepen only for high-priority suppliers
+                (Sul/SC, ICP fit, material value, age >12m, multi-contract).
 
     ``max_source_rows=None`` (default) means full prefiltered universe.
     Any non-None cap is diagnostic sampling and is recorded in the manifest.
@@ -687,6 +877,14 @@ def run_pipeline(
         OUTREACH_READY_WITHOUT_VALUE_ESTIMATE: 0,
         DOCUMENT_REQUEST_CANDIDATE: 0,
         NOT_READY_FOR_OUTREACH: 0,
+        POTENTIAL_ADJUSTMENT_SIGNAL: 0,
+        LIKELY_ADJUSTMENT_OPPORTUNITY: 0,
+        DIAGNOSTIC_OUTREACH_READY: 0,
+        DOCUMENT_REQUEST_READY: 0,
+        VERIFIED_ADJUSTMENT_OPPORTUNITY: 0,
+        CALCULABLE_ADJUSTMENT_CLAIM: 0,
+        "commercial_stage_not_commercial": 0,
+        "minimum_interregnum_elapsed": 0,
     }
     excluded: list[dict[str, Any]] = []
     uf_dist: Counter[str] = Counter()
@@ -777,9 +975,11 @@ def run_pipeline(
     contact_attempts = 0
     docs_processed_deep = 0
     human_map = human_review_map or {}
+    human_records = human_review_records or {}
+    # raw rows kept for phase-2 reclassify
+    raw_by_key: dict[str, dict[str, Any]] = {}
 
-    # Incremental: stream batches — do not hold entire raw universe when checkpointing
-    # Collect CNPJs for registry in first pass batches selectively
+    # Incremental: stream batches — Phase 1 cheap structured triage only
     registry_map: dict[str, dict[str, Any]] = {}
     cnpj_buffer: list[str] = []
 
@@ -795,7 +995,7 @@ def run_pipeline(
         max_rows=max_source_rows,
         require_proxy_interregno=require_proxy_interregno,
     ):
-        # Registry for this batch
+        # Registry for this batch (structured only — no BrasilAPI yet)
         batch_cnpjs = [digits_cnpj(r.get("fornecedor_cnpj")) for r in batch]
         cnpj_buffer.extend(batch_cnpjs)
         missing = [c for c in batch_cnpjs if c and c not in registry_map]
@@ -811,6 +1011,7 @@ def run_pipeline(
                 )
                 continue
             seen_dedupe.add(row_key)
+            raw_by_key[row_key] = row
 
             uf_dist[str(row.get("uf") or "?").upper()] += 1
             band_dist[value_band(float(row.get("valor_total") or 0) or None)] += 1
@@ -828,63 +1029,31 @@ def run_pipeline(
                 continue
             funnel["private_supplier"] += 1
 
-            pre_obra = classify_construction(row.get("objeto_contrato"))
+            pre_obra = classify_construction(row.get("objeto_contrato"), razao_social=nome)
             cat_dist[pre_obra.category] += 1
 
-            doc_scan = None
-            do_fetch = verify_documents and doc_fetches < max_document_fetches
-            # Prefer mid-market construction for deep docs (5M–300M), Sul, non-giant
-            val = float(row.get("valor_total") or 0)
-            prefer_doc = (
-                pre_obra.is_construction
-                and 5_000_000 <= val <= 300_000_000
-                and not is_giant_low_consulting_fit(nome, valor_contrato=val)
-            ) or (pre_obra.is_construction and val >= min_contract_value)
-            if do_fetch and prefer_doc:
-                doc_scan = verify_contract_documents(
-                    contrato_id=str(row.get("contrato_id") or ""),
-                    orgao_cnpj=row.get("orgao_cnpj"),
-                    orgao_nome=row.get("orgao_nome"),
-                    objeto=row.get("objeto_contrato"),
-                    fetch_remote=True,
-                    max_fetches=3,
-                )
-                doc_fetches += 1
-                # Honest deep-doc: only PDF download/extract work counts (not portal HTML)
-                if getattr(doc_scan, "deep_document_work", False) or (
-                    getattr(doc_scan, "pdfs_downloaded", 0) or 0
-                ) > 0:
-                    docs_processed_deep += 1
-                if getattr(doc_scan, "official_text_extracted", False):
-                    funnel["official_pdf_text_extracted"] = (
-                        funnel.get("official_pdf_text_extracted", 0) + 1
-                    )
-                if getattr(doc_scan, "pdfs_downloaded", 0):
-                    funnel["pdfs_downloaded"] = funnel.get("pdfs_downloaded", 0) + int(
-                        doc_scan.pdfs_downloaded
-                    )
-                if getattr(doc_scan, "arquivos_listed", 0):
-                    funnel["arquivos_listed"] = funnel.get("arquivos_listed", 0) + int(
-                        doc_scan.arquivos_listed
-                    )
-            else:
-                doc_scan = verify_contract_documents(
-                    contrato_id=str(row.get("contrato_id") or ""),
-                    orgao_cnpj=row.get("orgao_cnpj"),
-                    orgao_nome=row.get("orgao_nome"),
-                    objeto=row.get("objeto_contrato"),
-                    fetch_remote=False,
-                    max_fetches=0,
-                )
+            # Phase 1: local/structured docs only — no remote document budget burn
+            doc_scan = verify_contract_documents(
+                contrato_id=str(row.get("contrato_id") or ""),
+                orgao_cnpj=row.get("orgao_cnpj"),
+                orgao_nome=row.get("orgao_nome"),
+                objeto=row.get("objeto_contrato"),
+                fetch_remote=False,
+                max_fetches=0,
+            )
 
             contacts = enrich_from_registry_row(registry_map.get(cnpj))
-            if enrich_contacts and contact_lookups < max_contact_lookups and pre_obra.is_construction:
-                contact_attempts += 1
-                ba = enrich_from_brasilapi(cnpj)
-                contacts = merge_contacts(contacts, ba)
-                contact_lookups += 1
 
-            hr = bool(human_map.get(str(row.get("contrato_id") or ""), False) or human_map.get(cnpj, False))
+            cid = str(row.get("contrato_id") or "")
+            hr_rec = human_records.get(cid) or human_records.get(cnpj) or {}
+            hr = bool(
+                human_map.get(cid, False)
+                or human_map.get(cnpj, False)
+                or (
+                    hr_rec.get("decision") in {"ACCEPT", "CONFIRMED", "APPROVED"}
+                    and hr_rec.get("reviewer")
+                )
+            )
 
             lead = classify_row(
                 row,
@@ -893,7 +1062,9 @@ def run_pipeline(
                 registry=registry_map.get(cnpj),
                 contacts=contacts,
                 human_review_done=hr,
+                human_review_record=hr_rec or None,
             )
+            lead["_dedupe_key_internal"] = row_key
             if run_dir is not None and lead.get("obra", {}).get("is_construction"):
                 append_classified(run_dir, lead)
                 already_keys.add(row_key)
@@ -902,6 +1073,17 @@ def run_pipeline(
             funnel[st] = funnel.get(st, 0) + 1
             ost = lead.get("outreach_status") or NOT_READY_FOR_OUTREACH
             funnel[ost] = funnel.get(ost, 0) + 1
+            cst = lead.get("commercial_stage") or ""
+            if cst in funnel:
+                funnel[cst] = funnel.get(cst, 0) + 1
+            elif cst == "NOT_COMMERCIAL":
+                funnel["commercial_stage_not_commercial"] = (
+                    funnel.get("commercial_stage_not_commercial", 0) + 1
+                )
+            if lead.get("minimum_elapsed_confirmed"):
+                funnel["minimum_interregnum_elapsed"] = (
+                    funnel.get("minimum_interregnum_elapsed", 0) + 1
+                )
             if lead["obra"]["is_construction"]:
                 funnel["construction"] += 1
             else:
@@ -917,7 +1099,9 @@ def run_pipeline(
 
             if lead.get("regime_proven") and lead.get("regime_legal") == REGIME_14133:
                 funnel["regime_14133_proven"] += 1
-            if lead.get("dates", {}).get("interregno_completo"):
+            if lead.get("dates", {}).get("interregno_completo") or lead.get(
+                "minimum_elapsed_confirmed"
+            ):
                 funnel["temporally_mature"] += 1
             if lead.get("data_base_status") == "CONFIRMED":
                 funnel["data_base_confirmed"] += 1
@@ -944,10 +1128,13 @@ def run_pipeline(
                 if max(pot or 0, teto or 0) < min_potential_value and st not in {
                     STATUS_HOT_VERIFIED,
                     STATUS_STRONG_CANDIDATE,
+                } and lead.get("commercial_stage") not in {
+                    LIKELY_ADJUSTMENT_OPPORTUNITY,
+                    DIAGNOSTIC_OUTREACH_READY,
                 }:
                     continue
 
-            if status_filter and st != status_filter:
+            if status_filter and st != status_filter and lead.get("commercial_stage") != status_filter:
                 continue
 
             leads.append(lead)
@@ -955,6 +1142,174 @@ def run_pipeline(
     funnel["after_dedupe"] = len(seen_dedupe)
     if max_source_rows is not None:
         funnel["sampled"] = funnel["examined_raw"]
+
+    # Rank by priority_score (commercial potential) before deepen
+    def _priority_key(lead: dict[str, Any]) -> tuple:
+        return (
+            -float(lead.get("priority_score") or lead.get("score_total") or 0),
+            -float(lead.get("opportunity_score") or 0),
+            -float(lead.get("valor_atualizado") or lead.get("valor_original") or 0),
+            str(lead.get("contrato_id") or ""),
+        )
+
+    leads.sort(key=_priority_key)
+
+    # Phase 2 — deepen docs/contacts only for high-priority suppliers
+    # Priority order: Sul/SC → ICP fit → material value → age>12m → multi-contract → non-giant
+    def _deepen_rank(lead: dict[str, Any]) -> tuple:
+        uf_l = (lead.get("uf") or "").upper()
+        sul = 2 if uf_l == "SC" else (1 if uf_l in {"PR", "RS"} else 0)
+        return (
+            -sul,
+            -float(lead.get("priority_score") or 0),
+            -float(lead.get("opportunity_score") or 0),
+            -float(lead.get("valor_atualizado") or 0),
+            str(lead.get("contrato_id") or ""),
+        )
+
+    deepen_candidates = [
+        lead
+        for lead in leads
+        if lead.get("commercial_stage")
+        in {
+            POTENTIAL_ADJUSTMENT_SIGNAL,
+            LIKELY_ADJUSTMENT_OPPORTUNITY,
+            DIAGNOSTIC_OUTREACH_READY,
+            DOCUMENT_REQUEST_READY,
+            VERIFIED_ADJUSTMENT_OPPORTUNITY,
+            CALCULABLE_ADJUSTMENT_CLAIM,
+        }
+        or lead.get("obra", {}).get("is_construction")
+    ]
+    deepen_candidates.sort(key=_deepen_rank)
+
+    # Supplier consolidation preview for multi-contract boost in deepen order
+    cnpj_counts: Counter[str] = Counter(
+        str(lead.get("cnpj") or "") for lead in deepen_candidates if lead.get("cnpj")
+    )
+    deepen_candidates.sort(
+        key=lambda lead: (
+            - (2 if (lead.get("uf") or "").upper() == "SC" else (1 if (lead.get("uf") or "").upper() in {"PR", "RS"} else 0)),
+            -min(5, cnpj_counts.get(str(lead.get("cnpj") or ""), 0)),
+            -float(lead.get("priority_score") or 0),
+            -float(lead.get("opportunity_score") or 0),
+            str(lead.get("contrato_id") or ""),
+        )
+    )
+
+    if verify_documents or enrich_contacts:
+        deepen_n = max(max_document_fetches, max_contact_lookups, 30)
+        deepen_slice = deepen_candidates[:deepen_n]
+        lead_by_cid = {str(lead.get("contrato_id") or ""): lead for lead in leads}
+        deepened_cnpjs: set[str] = set()
+
+        for lead in deepen_slice:
+            cid = str(lead.get("contrato_id") or "")
+            cnpj = str(lead.get("cnpj") or "")
+            row = raw_by_key.get(str(lead.get("_dedupe_key_internal") or ""))
+            if row is None:
+                # reconstruct minimal row from lead
+                row = {
+                    "contrato_id": cid,
+                    "fornecedor_cnpj": cnpj,
+                    "fornecedor_nome": lead.get("razao_social"),
+                    "orgao_cnpj": lead.get("orgao_cnpj"),
+                    "orgao_nome": lead.get("orgao_contratante"),
+                    "objeto_contrato": lead.get("objeto"),
+                    "valor_total": lead.get("valor_original"),
+                    "data_assinatura": lead.get("data_assinatura"),
+                    "data_inicio": lead.get("data_inicio"),
+                    "data_publicacao": lead.get("data_publicacao"),
+                    "data_fim": lead.get("vigencia_final"),
+                    "uf": lead.get("uf"),
+                    "municipio": lead.get("municipio_empresa"),
+                    "is_active": lead.get("execution_status") == "CONTRACT_ACTIVE",
+                }
+
+            doc_scan = None
+            if verify_documents and doc_fetches < max_document_fetches:
+                doc_scan = verify_contract_documents(
+                    contrato_id=cid,
+                    orgao_cnpj=row.get("orgao_cnpj"),
+                    orgao_nome=row.get("orgao_nome"),
+                    objeto=row.get("objeto_contrato"),
+                    fetch_remote=True,
+                    max_fetches=3,
+                )
+                doc_fetches += 1
+                if getattr(doc_scan, "deep_document_work", False) or (
+                    getattr(doc_scan, "pdfs_downloaded", 0) or 0
+                ) > 0:
+                    docs_processed_deep += 1
+                if getattr(doc_scan, "official_text_extracted", False):
+                    funnel["official_pdf_text_extracted"] = (
+                        funnel.get("official_pdf_text_extracted", 0) + 1
+                    )
+                if getattr(doc_scan, "pdfs_downloaded", 0):
+                    funnel["pdfs_downloaded"] = funnel.get("pdfs_downloaded", 0) + int(
+                        doc_scan.pdfs_downloaded
+                    )
+
+            contacts = enrich_from_registry_row(registry_map.get(cnpj))
+            if (
+                enrich_contacts
+                and contact_lookups < max_contact_lookups
+                and cnpj
+                and cnpj not in deepened_cnpjs
+            ):
+                contact_attempts += 1
+                ba = enrich_from_brasilapi(cnpj)
+                contacts = merge_contacts(contacts, ba)
+                contact_lookups += 1
+                deepened_cnpjs.add(cnpj)
+
+            hr_rec = human_records.get(cid) or human_records.get(cnpj) or {}
+            hr = bool(
+                human_map.get(cid, False)
+                or human_map.get(cnpj, False)
+                or (
+                    hr_rec.get("decision") in {"ACCEPT", "CONFIRMED", "APPROVED"}
+                    and hr_rec.get("reviewer")
+                )
+            )
+            reclass = classify_row(
+                row,
+                as_of=as_of_d,
+                doc_scan=doc_scan,
+                registry=registry_map.get(cnpj),
+                contacts=contacts,
+                human_review_done=hr,
+                human_review_record=hr_rec or None,
+            )
+            reclass["_dedupe_key_internal"] = lead.get("_dedupe_key_internal")
+            # Replace in leads list
+            for i, existing in enumerate(leads):
+                if str(existing.get("contrato_id") or "") == cid and str(
+                    existing.get("cnpj") or ""
+                ) == cnpj:
+                    leads[i] = reclass
+                    break
+            lead_by_cid[cid] = reclass
+
+        # Rebuild commercial stage funnel counts after deepen
+        for key in (
+            POTENTIAL_ADJUSTMENT_SIGNAL,
+            LIKELY_ADJUSTMENT_OPPORTUNITY,
+            DIAGNOSTIC_OUTREACH_READY,
+            DOCUMENT_REQUEST_READY,
+            VERIFIED_ADJUSTMENT_OPPORTUNITY,
+            CALCULABLE_ADJUSTMENT_CLAIM,
+            "commercial_stage_not_commercial",
+        ):
+            funnel[key] = 0
+        for lead in leads:
+            cst = lead.get("commercial_stage") or ""
+            if cst in funnel:
+                funnel[cst] = funnel.get(cst, 0) + 1
+            elif cst == "NOT_COMMERCIAL":
+                funnel["commercial_stage_not_commercial"] = (
+                    funnel.get("commercial_stage_not_commercial", 0) + 1
+                )
 
     # Best-effort official acts for top construction leads
     top_for_acts = [
@@ -971,51 +1326,84 @@ def run_pipeline(
     except Exception as exc:
         params["official_acts_error"] = str(exc)[:200]
 
-    # Rank contracts then consolidate suppliers
+    # Rank contracts then consolidate suppliers (priority_score first)
+    leads.sort(key=_priority_key)
     leads_ranked = rank_leads(leads)
     for i, lead in enumerate(leads_ranked, start=1):
         lead["ranking"] = i
+        lead.pop("_dedupe_key_internal", None)
     nacional = rank_leads(leads, ranking="NACIONAL")
     sul = rank_leads(leads, ranking="SUL_SC_PRIORITY")
 
     portfolios = consolidate_suppliers(leads_ranked)
 
+    # Commercial actionable queue: LIKELY / DIAGNOSTIC / VERIFIED / CALCULABLE + legacy strong
     actionable = [
         lead
         for lead in leads_ranked
-        if lead["classificacao"]
+        if lead.get("commercial_stage")
+        in {
+            LIKELY_ADJUSTMENT_OPPORTUNITY,
+            DIAGNOSTIC_OUTREACH_READY,
+            DOCUMENT_REQUEST_READY,
+            VERIFIED_ADJUSTMENT_OPPORTUNITY,
+            CALCULABLE_ADJUSTMENT_CLAIM,
+            POTENTIAL_ADJUSTMENT_SIGNAL,
+        }
+        or lead.get("classificacao")
         in {
             STATUS_HOT_VERIFIED,
             STATUS_STRONG_CANDIDATE,
             STATUS_REVIEW_REQUIRED,
             STATUS_RESEARCH_REQUIRED,
-            # LEGAL_REGIME_UNKNOWN stays in intelligence but not as primary outreach queue
+            STATUS_LEGAL_REGIME_UNKNOWN,
         }
     ]
-    # Prefer non-UNKNOWN for top commercial queue
     top_leads = actionable[:top]
 
     ready_suppliers = [
         p
         for p in portfolios
-        if p.get("outreach_status")
+        if p.get("commercial_stage")
+        in {DIAGNOSTIC_OUTREACH_READY, VERIFIED_ADJUSTMENT_OPPORTUNITY, CALCULABLE_ADJUSTMENT_CLAIM}
+        or p.get("outreach_status")
         in {OUTREACH_READY, OUTREACH_READY_WITHOUT_VALUE_ESTIMATE}
     ]
     doc_req_suppliers = [
-        p for p in portfolios if p.get("outreach_status") == DOCUMENT_REQUEST_CANDIDATE
+        p
+        for p in portfolios
+        if p.get("document_request_ready")
+        or p.get("commercial_stage")
+        in {DOCUMENT_REQUEST_READY, LIKELY_ADJUSTMENT_OPPORTUNITY, DIAGNOSTIC_OUTREACH_READY}
+        or p.get("outreach_status") == DOCUMENT_REQUEST_CANDIDATE
     ]
     not_ready_suppliers = [
-        p for p in portfolios if p.get("outreach_status") == NOT_READY_FOR_OUTREACH
+        p
+        for p in portfolios
+        if p.get("commercial_stage") in {None, "NOT_COMMERCIAL", POTENTIAL_ADJUSTMENT_SIGNAL}
+        and p.get("outreach_status") == NOT_READY_FOR_OUTREACH
     ]
 
     pot_sum = sum(float(lead.get("valor_potencial") or 0) for lead in top_leads)
     teto_sum = sum(float(lead.get("teto_teorico") or 0) for lead in top_leads)
 
-    if len(ready_suppliers) >= 15:
+    # Commercial success = diagnostic/likely queue non-empty (not only claim-ready OUTREACH)
+    commercial_queue_n = sum(
+        1
+        for p in portfolios
+        if p.get("commercial_stage")
+        in {
+            LIKELY_ADJUSTMENT_OPPORTUNITY,
+            DIAGNOSTIC_OUTREACH_READY,
+            VERIFIED_ADJUSTMENT_OPPORTUNITY,
+            CALCULABLE_ADJUSTMENT_CLAIM,
+        }
+    )
+    if commercial_queue_n >= 1 or len(ready_suppliers) >= 1:
         terminal = TERMINAL_SUCCESS_OUTREACH
     elif docs_processed_deep >= 200 or doc_fetches >= 200:
         terminal = TERMINAL_BLOCKED_INSUFFICIENT
-    elif funnel["examined_raw"] > 0 and len(ready_suppliers) < 15:
+    elif funnel["examined_raw"] > 0 and commercial_queue_n == 0:
         terminal = TERMINAL_BLOCKED_INSUFFICIENT
     else:
         terminal = TERMINAL_BLOCKED_INSUFFICIENT

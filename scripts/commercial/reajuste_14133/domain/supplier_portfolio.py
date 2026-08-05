@@ -9,17 +9,24 @@ from collections import defaultdict
 from typing import Any
 
 from scripts.commercial.reajuste_14133 import (
+    CALCULABLE_ADJUSTMENT_CLAIM,
+    DIAGNOSTIC_OUTREACH_READY,
     DOCUMENT_REQUEST_CANDIDATE,
+    DOCUMENT_REQUEST_READY,
+    LIKELY_ADJUSTMENT_OPPORTUNITY,
     NOT_READY_FOR_OUTREACH,
     OUTREACH_READY,
     OUTREACH_READY_WITHOUT_VALUE_ESTIMATE,
+    POTENTIAL_ADJUSTMENT_SIGNAL,
     PRIOR_ADJUSTMENT_CONFIRMED,
     STATUS_ALREADY_ADJUSTED,
     STATUS_NOT_ELIGIBLE,
     SUL_UFS,
     VALUE_OUTLIER_REQUIRES_REVIEW,
     VALUE_UNUSABLE,
+    VERIFIED_ADJUSTMENT_OPPORTUNITY,
 )
+from scripts.commercial.reajuste_14133.domain.commercial_stages import diagnostic_message
 from scripts.commercial.reajuste_14133.domain.outreach import exploratory_message
 
 
@@ -138,8 +145,16 @@ def consolidate_suppliers(leads: list[dict[str, Any]]) -> list[dict[str, Any]]:
         mature = [
             c
             for c in contracts_sorted
-            if c.get("outreach_status")
+            if c.get("commercial_stage")
+            in {
+                LIKELY_ADJUSTMENT_OPPORTUNITY,
+                DIAGNOSTIC_OUTREACH_READY,
+                VERIFIED_ADJUSTMENT_OPPORTUNITY,
+                CALCULABLE_ADJUSTMENT_CLAIM,
+            }
+            or c.get("outreach_status")
             in {OUTREACH_READY, OUTREACH_READY_WITHOUT_VALUE_ESTIMATE}
+            or c.get("minimum_elapsed_confirmed")
             or (
                 c.get("dates", {}).get("interregno_completo")
                 and c.get("regime_proven")
@@ -149,7 +164,14 @@ def consolidate_suppliers(leads: list[dict[str, Any]]) -> list[dict[str, Any]]:
         doc_dep = [
             c
             for c in contracts_sorted
-            if c.get("outreach_status") == DOCUMENT_REQUEST_CANDIDATE
+            if c.get("document_request_ready")
+            or c.get("commercial_stage")
+            in {
+                DOCUMENT_REQUEST_READY,
+                LIKELY_ADJUSTMENT_OPPORTUNITY,
+                DIAGNOSTIC_OUTREACH_READY,
+            }
+            or c.get("outreach_status") == DOCUMENT_REQUEST_CANDIDATE
             or c.get("classificacao")
             in {"STRONG_CANDIDATE", "REVIEW_REQUIRED", "RESEARCH_REQUIRED", "LEGAL_REGIME_UNKNOWN"}
         ]
@@ -163,32 +185,83 @@ def consolidate_suppliers(leads: list[dict[str, Any]]) -> list[dict[str, Any]]:
             c for c in contracts_sorted if c.get("classificacao") == STATUS_NOT_ELIGIBLE
         ]
 
-        # Supplier-level outreach = best among contracts (never UNKNOWN as ready)
+        # Supplier-level commercial stage = best among contracts
+        stage_priority = {
+            CALCULABLE_ADJUSTMENT_CLAIM: 6,
+            VERIFIED_ADJUSTMENT_OPPORTUNITY: 5,
+            DIAGNOSTIC_OUTREACH_READY: 4,
+            LIKELY_ADJUSTMENT_OPPORTUNITY: 3,
+            DOCUMENT_REQUEST_READY: 3,
+            POTENTIAL_ADJUSTMENT_SIGNAL: 2,
+            "NOT_COMMERCIAL": 0,
+        }
         outreach_priority = {
             OUTREACH_READY: 4,
             OUTREACH_READY_WITHOUT_VALUE_ESTIMATE: 3,
             DOCUMENT_REQUEST_CANDIDATE: 2,
             NOT_READY_FOR_OUTREACH: 1,
         }
+        best_stage = "NOT_COMMERCIAL"
         best_outreach = NOT_READY_FOR_OUTREACH
         for c in contracts_sorted:
+            st_c = c.get("commercial_stage") or "NOT_COMMERCIAL"
+            if stage_priority.get(st_c, 0) > stage_priority.get(best_stage, 0):
+                best_stage = st_c
+                best = c
             st = c.get("outreach_status") or NOT_READY_FOR_OUTREACH
             if outreach_priority.get(st, 0) > outreach_priority.get(best_outreach, 0):
                 best_outreach = st
 
         sul = bool(SUL_UFS.intersection(ufs)) or str(best.get("uf") or "").upper() in SUL_UFS
         contact = best.get("canais_contato") or {}
-        has_contact = bool(contact.get("email") or contact.get("telefone") or contact.get("site"))
+        has_contact = bool(
+            contact.get("email")
+            or contact.get("telefone")
+            or contact.get("site")
+            or contact.get("linkedin")
+        )
+        doc_request = any(c.get("document_request_ready") for c in contracts_sorted) or best_stage in {
+            LIKELY_ADJUSTMENT_OPPORTUNITY,
+            DIAGNOSTIC_OUTREACH_READY,
+            DOCUMENT_REQUEST_READY,
+        }
 
-        if best_outreach == DOCUMENT_REQUEST_CANDIDATE:
+        if best_stage == DIAGNOSTIC_OUTREACH_READY:
+            arg = diagnostic_message()
+        elif best_stage in {LIKELY_ADJUSTMENT_OPPORTUNITY, DOCUMENT_REQUEST_READY}:
+            arg = best.get("argumento_comercial") or diagnostic_message()
+        elif best_outreach == DOCUMENT_REQUEST_CANDIDATE:
             arg = exploratory_message()
         else:
             arg = best.get("argumento_comercial") or exploratory_message()
 
         risks: list[str] = []
+        uncertainties: list[str] = []
         for c in contracts_sorted[:5]:
             risks.extend(list(c.get("riscos") or [])[:2])
+            uncertainties.extend(list(c.get("uncertainties") or [])[:2])
         risks = list(dict.fromkeys(risks))[:12]
+        uncertainties = list(dict.fromkeys(uncertainties))[:12]
+
+        score_reasons = []
+        if sul:
+            score_reasons.append("sede_ou_execucao_sul")
+        if best.get("minimum_elapsed_confirmed"):
+            score_reasons.append("interregno_conservador_gt_12m")
+        if len(contracts_sorted) >= 2:
+            score_reasons.append(f"multi_contratos={len(contracts_sorted)}")
+        if best.get("regime_probable_14133") or best.get("regime_proven"):
+            score_reasons.append("regime_14133_provavel_ou_comprovado")
+
+        commercial_stages = {
+            LIKELY_ADJUSTMENT_OPPORTUNITY,
+            DIAGNOSTIC_OUTREACH_READY,
+            DOCUMENT_REQUEST_READY,
+            VERIFIED_ADJUSTMENT_OPPORTUNITY,
+            CALCULABLE_ADJUSTMENT_CLAIM,
+            POTENTIAL_ADJUSTMENT_SIGNAL,
+        }
+        in_queue = best_stage in commercial_stages
 
         portfolio = {
             "cnpj": cnpj,
@@ -204,6 +277,7 @@ def consolidate_suppliers(leads: list[dict[str, Any]]) -> list[dict[str, Any]]:
             or (best.get("registry") or {}).get("situacao_cadastral"),
             "contatos": contact,
             "contato_verificavel": has_contact,
+            "contact_readiness": best.get("contact_readiness"),
             "qtd_contratos_candidatos": len(contracts_sorted),
             "orgaos_contratantes": orgaos,
             "valor_total_portfolio_analisado": portfolio_value,
@@ -223,26 +297,58 @@ def consolidate_suppliers(leads: list[dict[str, Any]]) -> list[dict[str, Any]]:
                 "contrato_id": best.get("contrato_id"),
                 "orgao": best.get("orgao_contratante"),
                 "score": best.get("score_total"),
+                "priority_score": best.get("priority_score"),
+                "opportunity_score": best.get("opportunity_score"),
                 "classificacao": best.get("classificacao"),
+                "commercial_stage": best.get("commercial_stage"),
                 "outreach_status": best.get("outreach_status"),
                 "valor_original": best.get("valor_original"),
                 "data_base_status": best.get("data_base_status"),
+                "exact_budget_date": best.get("exact_budget_date"),
+                "proxy_date": best.get("proxy_date"),
                 "regime_legal": best.get("regime_legal"),
                 "objeto": (best.get("objeto") or "")[:400],
             },
             "argumento_comercial": arg,
+            "linguagem_proibida": best.get("language_prohibited"),
+            "sinais_favoraveis": best.get("evidencias_favoraveis") or [],
+            "incertezas": uncertainties,
+            "documentos_faltantes": best.get("missing_documents") or [],
+            "abordagem_permitida": best.get("outreach_language") or arg,
+            "commercial_stage": best_stage,
+            "document_request_ready": doc_request,
+            "commercial_dimensions": best.get("commercial_dimensions"),
+            "opportunity_score": max(
+                (_safe_float(c.get("opportunity_score")) for c in contracts_sorted), default=0
+            ),
+            "verification_score": max(
+                (_safe_float(c.get("verification_score")) for c in contracts_sorted), default=0
+            ),
+            "commercial_fit_score": max(
+                (_safe_float(c.get("commercial_fit_score")) for c in contracts_sorted), default=0
+            ),
+            "priority_score": max(
+                (_safe_float(c.get("priority_score")) for c in contracts_sorted), default=0
+            ),
+            "motivos_score": score_reasons,
             "outreach_status": best_outreach,
             "prioridade_abordagem": (
                 "SUL_SC_PRIORITY"
-                if sul and best_outreach != NOT_READY_FOR_OUTREACH
-                else ("NACIONAL" if best_outreach != NOT_READY_FOR_OUTREACH else "INTELIGENCIA")
+                if sul and in_queue
+                else ("NACIONAL" if in_queue else "INTELIGENCIA")
             ),
             "proxima_acao": best.get("proxima_acao_investigativa")
             or best.get("outreach_next_action")
             or "Revisar dossiê documental do melhor contrato.",
             "riscos": risks,
             "evidencias": best.get("evidencias_favoraveis") or [],
-            "score_fornecedor": max(_safe_float(c.get("score_total")) for c in contracts_sorted),
+            "score_fornecedor": max(
+                (
+                    _safe_float(c.get("priority_score") or c.get("score_total"))
+                    for c in contracts_sorted
+                ),
+                default=0,
+            ),
             "contratos": [
                 {
                     "contrato_id": c.get("contrato_id"),
@@ -251,9 +357,13 @@ def consolidate_suppliers(leads: list[dict[str, Any]]) -> list[dict[str, Any]]:
                     "uf": c.get("uf"),
                     "valor_original": c.get("valor_original"),
                     "classificacao": c.get("classificacao"),
+                    "commercial_stage": c.get("commercial_stage"),
                     "outreach_status": c.get("outreach_status"),
                     "score_total": c.get("score_total"),
+                    "priority_score": c.get("priority_score"),
+                    "opportunity_score": c.get("opportunity_score"),
                     "data_base_status": c.get("data_base_status"),
+                    "minimum_elapsed_confirmed": c.get("minimum_elapsed_confirmed"),
                     "regime_legal": c.get("regime_legal"),
                     "regime_proven": c.get("regime_proven"),
                     "indice": c.get("indice"),
@@ -271,9 +381,10 @@ def consolidate_suppliers(leads: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
     portfolios.sort(
         key=lambda p: (
+            -stage_priority.get(p.get("commercial_stage") or "", 0),
             -{"OUTREACH_READY": 4, "OUTREACH_READY_WITHOUT_VALUE_ESTIMATE": 3,
               "DOCUMENT_REQUEST_CANDIDATE": 2}.get(p.get("outreach_status") or "", 0),
-            -_safe_float(p.get("score_fornecedor")),
+            -_safe_float(p.get("priority_score") or p.get("score_fornecedor")),
             p.get("cnpj") or "",
         )
     )

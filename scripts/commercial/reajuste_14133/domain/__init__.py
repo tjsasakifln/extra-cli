@@ -31,6 +31,11 @@ from scripts.commercial.reajuste_14133.domain.obra_classifier import (
     ConstructionClassification,
     classify_construction,
 )
+from scripts.commercial.reajuste_14133.domain.commercial_stages import (
+    CommercialStageResult,
+    evaluate_commercial_stage,
+    evaluate_temporal_hierarchy,
+)
 from scripts.commercial.reajuste_14133.domain.outreach import (
     OutreachResult,
     evaluate_outreach,
@@ -65,6 +70,9 @@ __all__ = [
     "classify_construction",
     "OutreachResult",
     "evaluate_outreach",
+    "CommercialStageResult",
+    "evaluate_commercial_stage",
+    "evaluate_temporal_hierarchy",
     "RegimeResult",
     "classify_legal_regime",
     "ScoreBreakdown",

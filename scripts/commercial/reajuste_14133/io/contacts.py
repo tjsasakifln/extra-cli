@@ -33,21 +33,44 @@ def brasilapi_cnpj(cnpj: str, *, timeout: float = 12.0) -> dict[str, Any] | None
         return None
 
 
+_FREEMAIL_DOMAINS = frozenset(
+    {
+        "gmail.com",
+        "hotmail.com",
+        "yahoo.com",
+        "outlook.com",
+        "icloud.com",
+        "bol.com.br",
+        "uol.com.br",
+        "terra.com.br",
+        "live.com",
+    }
+)
+
+
+def _is_freemail(email: str | None) -> bool:
+    if not email or "@" not in email:
+        return False
+    domain = email.strip().lower().split("@", 1)[-1]
+    return domain in _FREEMAIL_DOMAINS
+
+
 def _is_business_email(email: str | None) -> bool:
+    """Corporate domain preferred. Freemail is not discarded — lower confidence."""
     if not email:
         return False
     e = email.strip().lower()
     if "@" not in e:
         return False
-    # reject common personal domains for cold outreach enrichment
-    personal = (
-        "gmail.com", "hotmail.com", "yahoo.com", "outlook.com", "icloud.com",
-        "bol.com.br", "uol.com.br", "terra.com.br", "live.com",
-    )
-    domain = e.split("@", 1)[-1]
-    if domain in personal:
-        return False
     return True
+
+
+def _email_confidence(email: str | None) -> str:
+    if not email or not _is_business_email(email):
+        return "none"
+    if _is_freemail(email):
+        return "low"
+    return "high"
 
 
 def enrich_from_registry_row(reg: dict[str, Any] | None) -> dict[str, Any]:
@@ -92,11 +115,16 @@ def enrich_from_brasilapi(cnpj: str, *, sleep_s: float = 0.15) -> dict[str, Any]
         }
     email = data.get("email")
     phone = data.get("ddd_telefone_1") or data.get("telefone")
-    business_email = email if _is_business_email(email) else None
-    personal_only = bool(email) and not business_email
+    email_conf = _email_confidence(email)
+    # Keep freemail with low confidence (publicly associated to CNPJ) — require review
+    business_email = email if email_conf == "high" else None
+    freemail = email if email_conf == "low" else None
+    personal_only = bool(freemail) and not business_email and not phone
     score = 0.2
     if business_email:
         score += 0.35
+    elif freemail:
+        score += 0.15  # lower confidence freemail still counts for enrichment queue
     if phone:
         score += 0.25
     if data.get("descricao_situacao_cadastral") == "ATIVA" or str(data.get("situacao_cadastral")) in {"2", "ATIVA", "Ativa"}:
@@ -110,9 +138,17 @@ def enrich_from_brasilapi(cnpj: str, *, sleep_s: float = 0.15) -> dict[str, Any]
             "verified_at": verified,
         }
     ]
+    limitations: list[str] = []
+    if freemail:
+        limitations.append(
+            "email_freemail_associado_cnpj_confianca_baixa_exige_revisao"
+        )
     return {
         "site_oficial": None,
-        "email_comercial": business_email,
+        "email_comercial": business_email or freemail,
+        "email_comercial_low_confidence": freemail,
+        "email_confidence": email_conf if email else "none",
+        "allow_low_confidence_contact": bool(freemail and (phone or freemail)),
         "telefone_empresarial": str(phone) if phone else None,
         "formulario_contato": None,
         "linkedin_institucional": None,
@@ -125,9 +161,7 @@ def enrich_from_brasilapi(cnpj: str, *, sleep_s: float = 0.15) -> dict[str, Any]
         "contact_sources": sources,
         "contact_score": min(1.0, score),
         "has_personal_only_contact": personal_only,
-        "limitations": (
-            ["email_pessoal_ignorado_lgpd"] if personal_only else []
-        ),
+        "limitations": limitations,
     }
 
 

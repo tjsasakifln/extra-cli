@@ -1,0 +1,243 @@
+{
+  "contracts": {
+    "DIAGNOSTIC_OUTREACH_READY": 21,
+    "LIKELY_ADJUSTMENT_OPPORTUNITY": 734,
+    "NOT_COMMERCIAL": 1029,
+    "POTENTIAL_ADJUSTMENT_SIGNAL": 16
+  },
+  "suppliers": {
+    "DIAGNOSTIC_OUTREACH_READY": 18,
+    "LIKELY_ADJUSTMENT_OPPORTUNITY": 426,
+    "POTENTIAL_ADJUSTMENT_SIGNAL": 5,
+    "NOT_COMMERCIAL": 397
+  },
+  "old_outreach": {
+    "DOCUMENT_REQUEST_CANDIDATE": 22,
+    "NOT_READY_FOR_OUTREACH": 1778
+  },
+  "new_outreach": {
+    "DOCUMENT_REQUEST_CANDIDATE": 755,
+    "NOT_READY_FOR_OUTREACH": 1045
+  },
+  "gate_factors": {
+    "no_exact_data_base": 1800,
+    "no_contact": 1760,
+    "regime_not_probable": 16,
+    "no_min_interregnum": 1020
+  },
+  "n_contracts": 1800,
+  "n_suppliers": 846,
+  "likely_plus_diagnostic": 755,
+  "top_sul": [
+    {
+      "razao": "CONSTRUCOES SCHOROEDER EIRELI    -",
+      "cnpj": "10249046000100",
+      "stage": "DIAGNOSTIC_OUTREACH_READY",
+      "priority": 76.94,
+      "n": 4
+    },
+    {
+      "razao": "NEOVIA INFRAESTRUTURA RODOVIARIA LTDA",
+      "cnpj": "02955426000124",
+      "stage": "DIAGNOSTIC_OUTREACH_READY",
+      "priority": 73.25,
+      "n": 14
+    },
+    {
+      "razao": "CASTILHO ENGENHARIA E EMPREENDIMENTOS S/A",
+      "cnpj": "92779503000125",
+      "stage": "DIAGNOSTIC_OUTREACH_READY",
+      "priority": 73.2,
+      "n": 8
+    },
+    {
+      "razao": "CAMARGO E CAMARGO CONSTRUÇOES E SERVIÇOS LTDA",
+      "cnpj": "07928501000181",
+      "stage": "DIAGNOSTIC_OUTREACH_READY",
+      "priority": 71.38,
+      "n": 1
+    },
+    {
+      "razao": "CONSTRUTORA CIDADE LIMITADA",
+      "cnpj": "92943398000118",
+      "stage": "DIAGNOSTIC_OUTREACH_READY",
+      "priority": 70.04,
+      "n": 3
+    },
+    {
+      "razao": "CONSORCIO PALMEIRA",
+      "cnpj": "57437373000141",
+      "stage": "DIAGNOSTIC_OUTREACH_READY",
+      "priority": 69.88,
+      "n": 1
+    },
+    {
+      "razao": "CONSORCIO DALBA - CLC",
+      "cnpj": "58220887000103",
+      "stage": "DIAGNOSTIC_OUTREACH_READY",
+      "priority": 69.88,
+      "n": 1
+    },
+    {
+      "razao": "ENGERAMA ENGENHARIA E EMPREENDIMENTOS LTDA",
+      "cnpj": "79096020000168",
+      "stage": "DIAGNOSTIC_OUTREACH_READY",
+      "priority": 69.88,
+      "n": 1
+    },
+    {
+      "razao": "CONSORCIO SANCHES TRIPOLONI - CONSOL - CLEVELANDIA - PATO BRANCO",
+      "cnpj": "55018852000106",
+      "stage": "DIAGNOSTIC_OUTREACH_READY",
+      "priority": 69.13,
+      "n": 1
+    },
+    {
+      "razao": "VERDI SISTEMAS CONSTRUTIVOS LTDA",
+      "cnpj": "03928516000199",
+      "stage": "DIAGNOSTIC_OUTREACH_READY",
+      "priority": 66.35,
+      "n": 3
+    },
+    {
+      "razao": "CONSÓRCIO RODOVIA PR-170 - PITANGA A TURVO",
+      "cnpj": "59653926000129",
+      "stage": "DIAGNOSTIC_OUTREACH_READY",
+      "priority": 58.0,
+      "n": 1
+    },
+    {
+      "razao": "SAUDE PINHAIS SPE LTDA",
+      "cnpj": "48430801000113",
+      "stage": "DIAGNOSTIC_OUTREACH_READY",
+      "priority": 54.25,
+      "n": 1
+    },
+    {
+      "razao": "SETEP CONSTRUCOES S.A",
+      "cnpj": "83665141000150",
+      "stage": "LIKELY_ADJUSTMENT_OPPORTUNITY",
+      "priority": 78.75,
+      "n": 3
+    },
+    {
+      "razao": "Infrasul Infraestrutura e Empreendimentos Ltda",
+      "cnpj": "03094645000129",
+      "stage": "LIKELY_ADJUSTMENT_OPPORTUNITY",
+      "priority": 78.03,
+      "n": 16
+    },
+    {
+      "razao": "CONSTRUTORA VALE DO OURO LTDA",
+      "cnpj": "06280244000151",
+      "stage": "LIKELY_ADJUSTMENT_OPPORTUNITY",
+      "priority": 77.4,
+      "n": 1
+    },
+    {
+      "razao": "FRAGA CONSTRUCOES E ENGENHARIA LTDA",
+      "cnpj": "12713820000100",
+      "stage": "LIKELY_ADJUSTMENT_OPPORTUNITY",
+      "priority": 77.3,
+      "n": 1
+    },
+    {
+      "razao": "KAENG INFRAESTRUTURA EIRELI",
+      "cnpj": "22798043000105",
+      "stage": "LIKELY_ADJUSTMENT_OPPORTUNITY",
+      "priority": 77.06,
+      "n": 4
+    },
+    {
+      "razao": "PAVIPLAN PAVIMENTAÇÃO LTDA",
+      "cnpj": "03620927000112",
+      "stage": "LIKELY_ADJUSTMENT_OPPORTUNITY",
+      "priority": 76.92,
+      "n": 5
+    },
+    {
+      "razao": "GAIA RODOVIAS LTDA",
+      "cnpj": "03257777000124",
+      "stage": "LIKELY_ADJUSTMENT_OPPORTUNITY",
+      "priority": 76.91,
+      "n": 5
+    },
+    {
+      "razao": "QUALIDADE MINERACAO LTDA",
+      "cnpj": "00820854000114",
+      "stage": "LIKELY_ADJUSTMENT_OPPORTUNITY",
+      "priority": 76.88,
+      "n": 14
+    },
+    {
+      "razao": "BCL EMPREENDIMENTOS LTDA",
+      "cnpj": "12218083000179",
+      "stage": "LIKELY_ADJUSTMENT_OPPORTUNITY",
+      "priority": 76.88,
+      "n": 2
+    },
+    {
+      "razao": "BIO G SISTEMAS DE SANEAMENTO LTDA",
+      "cnpj": "79841904000108",
+      "stage": "LIKELY_ADJUSTMENT_OPPORTUNITY",
+      "priority": 76.88,
+      "n": 1
+    },
+    {
+      "razao": "PROSUL PROJETOS SUPERVISAO E PLANEJAMENTO LTDA",
+      "cnpj": "80996861000100",
+      "stage": "LIKELY_ADJUSTMENT_OPPORTUNITY",
+      "priority": 76.82,
+      "n": 3
+    },
+    {
+      "razao": "PLM CONSTRUCOES E COMERCIO LTDA",
+      "cnpj": "01513315000103",
+      "stage": "LIKELY_ADJUSTMENT_OPPORTUNITY",
+      "priority": 76.45,
+      "n": 1
+    },
+    {
+      "razao": "A J POTTER & CIA LTDA",
+      "cnpj": "00336234000104",
+      "stage": "LIKELY_ADJUSTMENT_OPPORTUNITY",
+      "priority": 76.35,
+      "n": 1
+    },
+    {
+      "razao": "BRITAX BRITAGEM E CONSTRUÇÕES LTDA",
+      "cnpj": "21157133000146",
+      "stage": "LIKELY_ADJUSTMENT_OPPORTUNITY",
+      "priority": 76.28,
+      "n": 9
+    },
+    {
+      "razao": "VIGA – PAVIMENTAÇÃO E OBRAS LTDA",
+      "cnpj": "09223659000181",
+      "stage": "LIKELY_ADJUSTMENT_OPPORTUNITY",
+      "priority": 76.19,
+      "n": 8
+    },
+    {
+      "razao": "BRITAGEM VOGELSANGER LTDA",
+      "cnpj": "84689066000392",
+      "stage": "LIKELY_ADJUSTMENT_OPPORTUNITY",
+      "priority": 76.19,
+      "n": 2
+    },
+    {
+      "razao": "FREEDOM ENGENHARIA E CONSTRUCAO LTDA",
+      "cnpj": "03453030000141",
+      "stage": "LIKELY_ADJUSTMENT_OPPORTUNITY",
+      "priority": 76.13,
+      "n": 3
+    },
+    {
+      "razao": "CEGE ENGENHARIA LTDA",
+      "cnpj": "04484014000189",
+      "stage": "LIKELY_ADJUSTMENT_OPPORTUNITY",
+      "priority": 76.13,
+      "n": 5
+    }
+  ]
+}

@@ -9,7 +9,17 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
-from scripts.commercial.reajuste_14133 import MODULE_VERSION, STATUS_HOT_VERIFIED
+from scripts.commercial.reajuste_14133 import (
+    CALCULABLE_ADJUSTMENT_CLAIM,
+    DIAGNOSTIC_OUTREACH_READY,
+    DOCUMENT_REQUEST_READY,
+    LIKELY_ADJUSTMENT_OPPORTUNITY,
+    MODULE_VERSION,
+    POTENTIAL_ADJUSTMENT_SIGNAL,
+    STATUS_HOT_VERIFIED,
+    SUL_UFS,
+    VERIFIED_ADJUSTMENT_OPPORTUNITY,
+)
 
 
 def _write_json(path: Path, data: Any) -> None:
@@ -103,9 +113,15 @@ def supplier_flat_row(p: dict[str, Any]) -> dict[str, Any]:
     best = p.get("melhor_oportunidade") or {}
     return {
         "ranking": p.get("ranking"),
+        "commercial_stage": p.get("commercial_stage"),
         "outreach_status": p.get("outreach_status"),
         "prioridade_abordagem": p.get("prioridade_abordagem"),
         "score_fornecedor": p.get("score_fornecedor"),
+        "opportunity_score": p.get("opportunity_score"),
+        "verification_score": p.get("verification_score"),
+        "commercial_fit_score": p.get("commercial_fit_score"),
+        "priority_score": p.get("priority_score"),
+        "motivos_score": " | ".join(p.get("motivos_score") or []),
         "cnpj": p.get("cnpj"),
         "razao_social": p.get("razao_social"),
         "nome_fantasia": p.get("nome_fantasia"),
@@ -121,7 +137,13 @@ def supplier_flat_row(p: dict[str, Any]) -> dict[str, Any]:
         "melhor_contrato_id": best.get("contrato_id"),
         "melhor_orgao": best.get("orgao"),
         "melhor_classificacao": best.get("classificacao"),
+        "melhor_commercial_stage": best.get("commercial_stage"),
+        "sinais_favoraveis": " | ".join(p.get("sinais_favoraveis") or p.get("evidencias") or []),
+        "incertezas": " | ".join(p.get("incertezas") or []),
+        "documentos_faltantes": " | ".join(p.get("documentos_faltantes") or []),
         "argumento_comercial": p.get("argumento_comercial"),
+        "abordagem_permitida": p.get("abordagem_permitida"),
+        "linguagem_proibida": p.get("linguagem_proibida"),
         "mensagem_abordagem": p.get("mensagem_abordagem"),
         "proxima_acao": p.get("proxima_acao"),
         "riscos": " | ".join(p.get("riscos") or []),
@@ -129,6 +151,53 @@ def supplier_flat_row(p: dict[str, Any]) -> dict[str, Any]:
         "telefone": cont.get("telefone"),
         "site": cont.get("site"),
         "contato_verificavel": p.get("contato_verificavel"),
+        "document_request_ready": p.get("document_request_ready"),
+    }
+
+
+def lead_commercial_flat_row(lead: dict[str, Any]) -> dict[str, Any]:
+    cont = lead.get("canais_contato") or {}
+    return {
+        "ranking": lead.get("ranking"),
+        "commercial_stage": lead.get("commercial_stage"),
+        "classificacao": lead.get("classificacao"),
+        "opportunity_score": lead.get("opportunity_score"),
+        "verification_score": lead.get("verification_score"),
+        "commercial_fit_score": lead.get("commercial_fit_score"),
+        "priority_score": lead.get("priority_score"),
+        "cnpj": lead.get("cnpj"),
+        "razao_social": lead.get("razao_social"),
+        "uf": lead.get("uf"),
+        "municipio_empresa": lead.get("municipio_empresa"),
+        "orgao_contratante": lead.get("orgao_contratante"),
+        "contrato_id": lead.get("contrato_id"),
+        "objeto": (lead.get("objeto") or "")[:400],
+        "valor_original": lead.get("valor_original"),
+        "regime_legal": lead.get("regime_legal"),
+        "regime_proven": lead.get("regime_proven"),
+        "regime_probable_14133": lead.get("regime_probable_14133"),
+        "exact_budget_date": lead.get("exact_budget_date"),
+        "proxy_date": lead.get("proxy_date"),
+        "proxy_type": lead.get("proxy_type"),
+        "minimum_elapsed_confirmed": lead.get("minimum_elapsed_confirmed"),
+        "temporal_reasoning": lead.get("temporal_reasoning"),
+        "calculation_blocked": lead.get("calculation_blocked"),
+        "data_base_status": lead.get("data_base_status"),
+        "valor_potencial": lead.get("valor_potencial"),
+        "teto_teorico": lead.get("teto_teorico"),
+        "document_request_ready": lead.get("document_request_ready"),
+        "contact_readiness": lead.get("contact_readiness"),
+        "human_review_status": lead.get("human_review_status"),
+        "claim_readiness": lead.get("claim_readiness"),
+        "email": cont.get("email"),
+        "telefone": cont.get("telefone"),
+        "site": cont.get("site"),
+        "argumento_comercial": lead.get("argumento_comercial"),
+        "linguagem_proibida": lead.get("language_prohibited"),
+        "proxima_acao": lead.get("outreach_next_action") or lead.get("proxima_acao_investigativa"),
+        "sinais_favoraveis": " | ".join(lead.get("evidencias_favoraveis") or []),
+        "incertezas": " | ".join(lead.get("uncertainties") or []),
+        "documentos_faltantes": " | ".join(lead.get("missing_documents") or []),
     }
 
 
@@ -243,6 +312,8 @@ def write_v2_deliverables(out_dir: Path, run: dict[str, Any]) -> dict[str, str]:
         for p in portfolios
         if p.get("outreach_status")
         in {"OUTREACH_READY", "OUTREACH_READY_WITHOUT_VALUE_ESTIMATE"}
+        or p.get("commercial_stage")
+        in {DIAGNOSTIC_OUTREACH_READY, VERIFIED_ADJUSTMENT_OPPORTUNITY, CALCULABLE_ADJUSTMENT_CLAIM}
     ]
     p_ready = out_dir / "outreach_ready.csv"
     with p_ready.open("w", encoding="utf-8", newline="") as f:
@@ -259,6 +330,121 @@ def write_v2_deliverables(out_dir: Path, run: dict[str, Any]) -> dict[str, str]:
     paths["not_ready_csv"] = _write_status_csv(
         "not_ready_for_outreach.csv", "NOT_READY_FOR_OUTREACH"
     )
+
+    # --- v3 commercial stage products ---
+    stage_files = {
+        "potential_adjustment_signals.csv": POTENTIAL_ADJUSTMENT_SIGNAL,
+        "likely_adjustment_opportunities.csv": LIKELY_ADJUSTMENT_OPPORTUNITY,
+        "diagnostic_outreach_ready.csv": DIAGNOSTIC_OUTREACH_READY,
+        "document_request_ready.csv": DOCUMENT_REQUEST_READY,
+        "verified_adjustment_opportunities.csv": VERIFIED_ADJUSTMENT_OPPORTUNITY,
+        "calculable_adjustment_claims.csv": CALCULABLE_ADJUSTMENT_CLAIM,
+    }
+    for fname, stage in stage_files.items():
+        if stage == DOCUMENT_REQUEST_READY:
+            rows = [
+                lead_commercial_flat_row(c)
+                for c in all_contracts
+                if c.get("commercial_stage") == stage
+                or c.get("document_request_ready")
+                or c.get("commercial_stage")
+                in {LIKELY_ADJUSTMENT_OPPORTUNITY, DIAGNOSTIC_OUTREACH_READY}
+            ]
+        elif stage == LIKELY_ADJUSTMENT_OPPORTUNITY:
+            # Include DIAGNOSTIC as superset of LIKELY for opportunity list
+            rows = [
+                lead_commercial_flat_row(c)
+                for c in all_contracts
+                if c.get("commercial_stage")
+                in {LIKELY_ADJUSTMENT_OPPORTUNITY, DIAGNOSTIC_OUTREACH_READY}
+            ]
+        else:
+            rows = [
+                lead_commercial_flat_row(c)
+                for c in all_contracts
+                if c.get("commercial_stage") == stage
+            ]
+        path = out_dir / fname
+        flds = list(rows[0].keys()) if rows else list(lead_commercial_flat_row({}).keys())
+        with path.open("w", encoding="utf-8", newline="") as f:
+            w = csv.DictWriter(f, fieldnames=flds)
+            w.writeheader()
+            for row in rows:
+                w.writerow(row)
+        paths[fname] = str(path)
+
+    # Supplier priority queue (all commercial stages, missing contact OK)
+    priority_portfolios = [
+        p
+        for p in portfolios
+        if p.get("commercial_stage")
+        in {
+            POTENTIAL_ADJUSTMENT_SIGNAL,
+            LIKELY_ADJUSTMENT_OPPORTUNITY,
+            DIAGNOSTIC_OUTREACH_READY,
+            DOCUMENT_REQUEST_READY,
+            VERIFIED_ADJUSTMENT_OPPORTUNITY,
+            CALCULABLE_ADJUSTMENT_CLAIM,
+        }
+    ]
+    p_pri = out_dir / "supplier_priority_queue.csv"
+    pri_rows = [supplier_flat_row(p) for p in priority_portfolios]
+    with p_pri.open("w", encoding="utf-8", newline="") as f:
+        flds = list(pri_rows[0].keys()) if pri_rows else fields
+        w = csv.DictWriter(f, fieldnames=flds)
+        w.writeheader()
+        for row in pri_rows:
+            w.writerow(row)
+    paths["supplier_priority_queue.csv"] = str(p_pri)
+
+    # Top 30 Sul + Top 100 nacional manual review packs (automated_review_queue)
+    sul_port = [
+        p
+        for p in portfolios
+        if p.get("sul_priority")
+        or (p.get("sede_uf") or "").upper() in SUL_UFS
+        or any(u in SUL_UFS for u in (p.get("ufs_execucao") or []))
+    ][:30]
+    nac_port = portfolios[:100]
+    paths["top30_sul_manual_review.md"] = str(
+        _write_manual_review_md(
+            out_dir / "top30_sul_manual_review.md",
+            sul_port,
+            title="Top 30 Sul — automated review queue (NOT human_review_completed)",
+        )
+    )
+    paths["top100_nacional_manual_review.md"] = str(
+        _write_manual_review_md(
+            out_dir / "top100_nacional_manual_review.md",
+            nac_port,
+            title="Top 100 Nacional — automated review queue (NOT human_review_completed)",
+        )
+    )
+    # automated_review_queue naming (never human_review_completed)
+    auto_q = {
+        "kind": "automated_review_queue",
+        "human_review_completed": False,
+        "note": "Machine-ranked queue for human desk work. Never sets human_review_completed.",
+        "top30_sul": sul_port,
+        "top100_nacional": nac_port,
+        "run_id": run.get("run_id"),
+        "git_sha": run.get("git_sha"),
+    }
+    p_auto = out_dir / "automated_review_queue.json"
+    _write_json(p_auto, auto_q)
+    paths["automated_review_queue.json"] = str(p_auto)
+    # human_review_pending marker (import path only completes)
+    p_pending = out_dir / "human_review_pending.json"
+    _write_json(
+        p_pending,
+        {
+            "kind": "human_review_pending",
+            "human_review_completed": False,
+            "n_awaiting": len(sul_port) + len(nac_port),
+            "import_via": "--human-review-file",
+        },
+    )
+    paths["human_review_pending.json"] = str(p_pending)
 
     p_port = out_dir / "supplier_portfolios.json"
     _write_json(
@@ -425,6 +611,42 @@ def write_v2_deliverables(out_dir: Path, run: dict[str, Any]) -> dict[str, str]:
     return paths
 
 
+def _write_manual_review_md(path: Path, portfolios: list[dict[str, Any]], *, title: str) -> Path:
+    lines = [
+        f"# {title}",
+        "",
+        "> **automated_review_queue / human_review_pending** — NÃO é `human_review_completed`.",
+        "> Importar decisões via `--human-review-file`. Nenhuma rotina automática marca revisão humana concluída.",
+        "",
+    ]
+    for i, p in enumerate(portfolios, start=1):
+        best = p.get("melhor_oportunidade") or {}
+        lines.append(f"## {i}. {p.get('razao_social')} (`{p.get('cnpj')}`)")
+        lines.append(f"- sede: {p.get('sede_municipio')}/{p.get('sede_uf')}")
+        lines.append(f"- commercial_stage: **{p.get('commercial_stage')}**")
+        lines.append(f"- contratos candidatos: {p.get('qtd_contratos_candidatos')}")
+        lines.append(f"- órgãos: {', '.join(p.get('orgaos_contratantes') or [])}")
+        lines.append(
+            f"- scores: priority={p.get('priority_score')} opportunity={p.get('opportunity_score')} "
+            f"verification={p.get('verification_score')} fit={p.get('commercial_fit_score')}"
+        )
+        lines.append(f"- motivos: {', '.join(p.get('motivos_score') or [])}")
+        lines.append(f"- melhor contrato: {best.get('contrato_id')} — {best.get('orgao')}")
+        lines.append(f"- sinais: {'; '.join((p.get('sinais_favoraveis') or [])[:5])}")
+        lines.append(f"- incertezas: {'; '.join((p.get('incertezas') or [])[:5])}")
+        lines.append(f"- docs faltantes: {'; '.join((p.get('documentos_faltantes') or [])[:6])}")
+        cont = p.get("contatos") or {}
+        lines.append(
+            f"- contato: email={cont.get('email')} tel={cont.get('telefone')} site={cont.get('site')}"
+        )
+        lines.append(f"- abordagem permitida: {(p.get('abordagem_permitida') or '')[:300]}")
+        lines.append(f"- linguagem proibida: {(p.get('linguagem_proibida') or '')[:200]}")
+        lines.append(f"- próxima ação: {p.get('proxima_acao')}")
+        lines.append("")
+    path.write_text("\n".join(lines), encoding="utf-8")
+    return path
+
+
 def write_methodology(out_dir: Path) -> Path:
     text = f"""# Metodologia — Reajuste em sentido estrito (Lei nº 14.133/2021)
 
@@ -441,25 +663,88 @@ def write_methodology(out_dir: Path) -> Path:
 - art. 123 e art. 136, I (apostila)
 - Lei nº 10.192/2001 (periodicidade mínima anual)
 
-## Premissas operacionais (v2)
+## Premissa temporal conservadora (v3)
 
-1. Data-base = **orçamento estimado** (CONFIRMED). Assinatura/publicação/OS são apenas `TEMPORAL_CANDIDATE_BY_PROXY`.
-2. Assinatura &lt; 12 meses **não** exclui o contrato se a data-base documental já completou o interregno.
-3. Índice só é atribuído se semanticamente vinculado à **cláusula de reajuste** (não bastam menções a SINAPI/IPCA no memorial).
-4. PDF binário localizado ≠ texto extraído ≠ gate documental.
-5. Ausência de apostila no PNCP **não prova** que o reajuste não foi concedido e **não** autoriza `OUTREACH_READY`.
-6. Valores `VALUE_OUTLIER_REQUIRES_REVIEW` não elevam score financeiro nem honorários.
-7. Varredura integral do pré-filtro com paginação **keyset**; sem limite silencioso de 25k.
-8. Ferramenta **qualifica**; não emite parecer jurídico nem envia mensagens.
+Para obras regidas ou **provavelmente** regidas pela Lei 14.133/2021:
 
-## Gates comerciais (distintos da classificação jurídica)
+1. A data-base do reajuste vincula-se à data do **orçamento estimado**.
+2. O orçamento estimado **necessariamente antecede** a contratação/assinatura.
+3. Se a assinatura ocorreu há **mais de doze meses**, o primeiro interregno anual já
+   transcorreu de forma **conservadora** (`minimum_interregnum_elapsed=true`),
+   mesmo sem data-base exata.
+4. A ausência da data-base exata **bloqueia cálculo e afirmação conclusiva**, mas
+   **não** impede classificar o contrato como `LIKELY_ADJUSTMENT_OPPORTUNITY`
+   nem autorizar abordagem **diagnóstica**.
+5. Proxy (publicação/início) **nunca** é apresentado como data-base legal.
+6. Ausência de apostila = **incerteza**, não prova positiva nem exclusão automática.
+7. Ausência de contato bloqueia só `DIAGNOSTIC_OUTREACH_READY`, não a fila de leads.
+
+## Estados comerciais (v3)
+
+| Estado | Significado |
+|--------|-------------|
+| POTENTIAL_ADJUSTMENT_SIGNAL | Sinais mínimos de maturidade anual em obra |
+| LIKELY_ADJUSTMENT_OPPORTUNITY | Oportunidade provável (sem exigir data-base/índice/contato/humano) |
+| DIAGNOSTIC_OUTREACH_READY | Abordagem diagnóstica prudente (exige contato verificável) |
+| DOCUMENT_REQUEST_READY | Ação comercial válida: pedir documentos (pode coexistir) |
+| VERIFIED_ADJUSTMENT_OPPORTUNITY | Pack documental + revisão humana; ainda sem valor |
+| CALCULABLE_ADJUSTMENT_CLAIM | Único estado com `valor_potencial` |
+
+## Dimensões independentes
+
+`signal_status`, `legal_confidence`, `temporal_confidence`, `documentary_confidence`,
+`execution_confidence`, `adjustment_history_confidence`, `contact_readiness`,
+`human_review_status`, `commercial_action`, `claim_readiness`.
+
+## Hierarquia temporal A–D
+
+| Nível | Evidência | Cálculo | Diagnóstico |
+|-------|-----------|---------|-------------|
+| A | Data-base exata do orçamento | se interregno OK | sim |
+| B | Assinatura &gt; 12 meses | bloqueado | sim |
+| C | Proxy (publicação/início) antigo | bloqueado | não (menor confiança) |
+| D | Insuficiente | bloqueado | não |
+
+## Pipeline em duas fases
+
+1. **Triagem nacional barata** — dados estruturados; consolidação por fornecedor.
+2. **Aprofundamento orientado a valor** — documentos e contatos só dos prioritários
+   (Sul/SC, ICP, valor, idade &gt;12m, multi-contrato, não-gigante).
+
+## Scoring v3
+
+| Score | O que mede |
+|-------|------------|
+| opportunity_score | Probabilidade de dor comercial relevante |
+| verification_score | Qualidade das evidências |
+| commercial_fit_score | Aderência ICP CONFENGE |
+| priority_score | Ordenação do trabalho humano |
+
+Falta de documento ↓ verification, **não** zera opportunity.
+Falta de contato ↓ contact_readiness, **não** remove da fila.
+
+## Fail-closed (apenas claims)
+
+- Somente `CALCULABLE_ADJUSTMENT_CLAIM` pode exibir `valor_potencial`.
+- Nenhuma mensagem afirma crédito devido sem verificação documental + revisão humana.
+- `human_review_completed` só via `--human-review-file` (nunca automático).
+
+## Premissas operacionais legadas (ainda válidas)
+
+1. Data-base legal = **orçamento estimado** (CONFIRMED). Assinatura/publicação/OS são proxy.
+2. Índice só se semanticamente vinculado à **cláusula de reajuste**.
+3. PDF binário ≠ texto extraído ≠ gate documental de claim.
+4. Varredura integral keyset; sem limite silencioso de 25k.
+5. Ferramenta **qualifica**; não envia mensagens automaticamente.
+
+## Gates de claim (legado, fail-closed)
 
 | Status | Significado |
 |--------|-------------|
-| OUTREACH_READY | 13 gates (empresa privada, obra, 14.133 comprovado, cláusula, data-base, índice, interregno, obrigação aberta, valor plausível, contato, revisão humana, argumento não enganoso) + base financeira |
-| OUTREACH_READY_WITHOUT_VALUE_ESTIMATE | Idem sem cifra de valor potencial |
-| DOCUMENT_REQUEST_CANDIDATE | Forte sinal; abordagem só exploratória pedindo documentos |
-| NOT_READY_FOR_OUTREACH | Fora da fila operacional (inclui todo `LEGAL_REGIME_UNKNOWN`) |
+| OUTREACH_READY | Pack claim completo + humano + valor |
+| OUTREACH_READY_WITHOUT_VALUE_ESTIMATE | Pack claim sem cifra |
+| TECHNICALLY_VERIFIED_PENDING_TIAGO | Técnico completo, aguarda humano |
+| DOCUMENT_REQUEST_CANDIDATE | Legado; preferir estados v3 |
 
 ## Funil jurídico/documental
 
