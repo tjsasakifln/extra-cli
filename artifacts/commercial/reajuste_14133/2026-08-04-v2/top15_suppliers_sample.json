@@ -1,0 +1,167 @@
+[
+  {
+    "ranking": 1,
+    "razao_social": "SURG CIA DE SERVICOS DE URBANIZACAO DE G",
+    "cnpj_masked": "75646273****",
+    "sede_uf": "PR",
+    "qtd_contratos": 7,
+    "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
+    "score": 18.54,
+    "melhor_contrato": "76178037000176-2-000112/2025",
+    "valor_portfolio": 88966450.82
+  },
+  {
+    "ranking": 2,
+    "razao_social": "CONSTRUCOES SCHOROEDER EIRELI    -",
+    "cnpj_masked": "10249046****",
+    "sede_uf": "SC",
+    "qtd_contratos": 20,
+    "outreach_status": "NOT_READY_FOR_OUTREACH",
+    "score": 21.41,
+    "melhor_contrato": "04892707000100-2-000445/2023",
+    "valor_portfolio": 303872762.08
+  },
+  {
+    "ranking": 3,
+    "razao_social": "NEOVIA INFRAESTRUTURA RODOVIARIA LTDA",
+    "cnpj_masked": "02955426****",
+    "sede_uf": "PR",
+    "qtd_contratos": 14,
+    "outreach_status": "NOT_READY_FOR_OUTREACH",
+    "score": 20.99,
+    "melhor_contrato": "04892707000100-2-000142/2024",
+    "valor_portfolio": 775936923.8299999
+  },
+  {
+    "ranking": 4,
+    "razao_social": "QUALIDADE MINERACAO LTDA",
+    "cnpj_masked": "00820854****",
+    "sede_uf": "SC",
+    "qtd_contratos": 37,
+    "outreach_status": "NOT_READY_FOR_OUTREACH",
+    "score": 20.76,
+    "melhor_contrato": "82951344000140-2-000031/2024",
+    "valor_portfolio": 426838475.71
+  },
+  {
+    "ranking": 5,
+    "razao_social": "GAIA RODOVIAS LTDA.",
+    "cnpj_masked": "03257777****",
+    "sede_uf": "SC",
+    "qtd_contratos": 11,
+    "outreach_status": "NOT_READY_FOR_OUTREACH",
+    "score": 20.67,
+    "melhor_contrato": "82951344000140-2-000038/2024",
+    "valor_portfolio": 225219956.83
+  },
+  {
+    "ranking": 6,
+    "razao_social": "AGUAS DE PALHOCA S.A",
+    "cnpj_masked": "57341135****",
+    "sede_uf": "SC",
+    "qtd_contratos": 1,
+    "outreach_status": "NOT_READY_FOR_OUTREACH",
+    "score": 20.35,
+    "melhor_contrato": "82892316000108-2-000632/2024",
+    "valor_portfolio": 238000000.0
+  },
+  {
+    "ranking": 7,
+    "razao_social": "ENGERAMA ENGENHARIA E EMPREENDIMENTOS LTDA",
+    "cnpj_masked": "79096020****",
+    "sede_uf": "PR",
+    "qtd_contratos": 1,
+    "outreach_status": "NOT_READY_FOR_OUTREACH",
+    "score": 20.18,
+    "melhor_contrato": "76105543000135-2-000098/2024",
+    "valor_portfolio": 154990000.0
+  },
+  {
+    "ranking": 8,
+    "razao_social": "PLANATERRA-TERRAPLENAGEM E PAVIMENTACAO LTDA",
+    "cnpj_masked": "82743832****",
+    "sede_uf": "SC",
+    "qtd_contratos": 24,
+    "outreach_status": "NOT_READY_FOR_OUTREACH",
+    "score": 19.78,
+    "melhor_contrato": "04892707000100-2-000542/2024",
+    "valor_portfolio": 829482415.0500001
+  },
+  {
+    "ranking": 9,
+    "razao_social": "CEGE ENGENHARIA LTDA",
+    "cnpj_masked": "04484014****",
+    "sede_uf": "SC",
+    "qtd_contratos": 10,
+    "outreach_status": "NOT_READY_FOR_OUTREACH",
+    "score": 19.7,
+    "melhor_contrato": "82951344000140-2-000036/2024",
+    "valor_portfolio": 105171698.5
+  },
+  {
+    "ranking": 10,
+    "razao_social": "CONSORCIO CONSTRUTOR ESTRADAS RURAIS",
+    "cnpj_masked": "57155217****",
+    "sede_uf": "PR",
+    "qtd_contratos": 1,
+    "outreach_status": "NOT_READY_FOR_OUTREACH",
+    "score": 19.67,
+    "melhor_contrato": "07820337000194-2-000010/2024",
+    "valor_portfolio": 96850536.0
+  },
+  {
+    "ranking": 11,
+    "razao_social": "ENDEAL ENGENHARIA E CONSTRUÇÕES LTDA",
+    "cnpj_masked": "03430585****",
+    "sede_uf": "PR",
+    "qtd_contratos": 1,
+    "outreach_status": "NOT_READY_FOR_OUTREACH",
+    "score": 19.63,
+    "melhor_contrato": "12092636000190-2-000005/2024",
+    "valor_portfolio": 118876086.76
+  },
+  {
+    "ranking": 12,
+    "razao_social": "CONSORCIO PALMEIRA",
+    "cnpj_masked": "57437373****",
+    "sede_uf": "PR",
+    "qtd_contratos": 1,
+    "outreach_status": "NOT_READY_FOR_OUTREACH",
+    "score": 19.54,
+    "melhor_contrato": "76669324000189-2-000083/2024",
+    "valor_portfolio": 257215008.0
+  },
+  {
+    "ranking": 13,
+    "razao_social": "CONSORCIO VALE DO RIBEIRA",
+    "cnpj_masked": "53673938****",
+    "sede_uf": "PR",
+    "qtd_contratos": 1,
+    "outreach_status": "NOT_READY_FOR_OUTREACH",
+    "score": 19.14,
+    "melhor_contrato": "76669324000189-2-000013/2024",
+    "valor_portfolio": 56919000.0
+  },
+  {
+    "ranking": 14,
+    "razao_social": "ARTELESTE CONSTRUCOES LTDA",
+    "cnpj_masked": "75911438****",
+    "sede_uf": "PR",
+    "qtd_contratos": 3,
+    "outreach_status": "NOT_READY_FOR_OUTREACH",
+    "score": 19.05,
+    "melhor_contrato": "04892707000100-2-000169/2024",
+    "valor_portfolio": 252880457.74
+  },
+  {
+    "ranking": 15,
+    "razao_social": "SETEP CONSTRUCOES S.A",
+    "cnpj_masked": "83665141****",
+    "sede_uf": "SC",
+    "qtd_contratos": 7,
+    "outreach_status": "NOT_READY_FOR_OUTREACH",
+    "score": 19.04,
+    "melhor_contrato": "04892707000100-2-000324/2023",
+    "valor_portfolio": 106078651.69
+  }
+]

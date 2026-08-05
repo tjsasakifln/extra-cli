@@ -1,0 +1,137 @@
+[
+  {
+    "ranking": 1,
+    "razao_social": "GAIA RODOVIAS LTDA.",
+    "cnpj_masked": "03257777****",
+    "sede_uf": "SC",
+    "qtd_contratos": 5,
+    "outreach_status": "NOT_READY_FOR_OUTREACH",
+    "score": 19.94
+  },
+  {
+    "ranking": 2,
+    "razao_social": "CEGE ENGENHARIA LTDA",
+    "cnpj_masked": "04484014****",
+    "sede_uf": "SC",
+    "qtd_contratos": 5,
+    "outreach_status": "NOT_READY_FOR_OUTREACH",
+    "score": 18.96
+  },
+  {
+    "ranking": 3,
+    "razao_social": "ARTELESTE CONSTRUCOES LTDA",
+    "cnpj_masked": "75911438****",
+    "sede_uf": "PR",
+    "qtd_contratos": 4,
+    "outreach_status": "NOT_READY_FOR_OUTREACH",
+    "score": 18.31
+  },
+  {
+    "ranking": 4,
+    "razao_social": "SETEP CONSTRUCOES S.A",
+    "cnpj_masked": "83665141****",
+    "sede_uf": "SC",
+    "qtd_contratos": 3,
+    "outreach_status": "NOT_READY_FOR_OUTREACH",
+    "score": 18.31
+  },
+  {
+    "ranking": 5,
+    "razao_social": "CASTILHO ENGENHARIA E EMPREENDIMENTOS S/A",
+    "cnpj_masked": "92779503****",
+    "sede_uf": "PR",
+    "qtd_contratos": 14,
+    "outreach_status": "NOT_READY_FOR_OUTREACH",
+    "score": 18.24
+  },
+  {
+    "ranking": 6,
+    "razao_social": "CONSTRUCOES SCHOROEDER EIRELI    -",
+    "cnpj_masked": "10249046****",
+    "sede_uf": "SC",
+    "qtd_contratos": 4,
+    "outreach_status": "NOT_READY_FOR_OUTREACH",
+    "score": 18.08
+  },
+  {
+    "ranking": 7,
+    "razao_social": "PLANATERRA-TERRAPLENAGEM E PAVIMENTACAO LTDA",
+    "cnpj_masked": "82743832****",
+    "sede_uf": "SC",
+    "qtd_contratos": 14,
+    "outreach_status": "NOT_READY_FOR_OUTREACH",
+    "score": 17.99
+  },
+  {
+    "ranking": 8,
+    "razao_social": "GENERAL CONTRACTOR CONSTRUTORA LTDA",
+    "cnpj_masked": "73509440****",
+    "sede_uf": "RJ",
+    "qtd_contratos": 1,
+    "outreach_status": "NOT_READY_FOR_OUTREACH",
+    "score": 17.97
+  },
+  {
+    "ranking": 9,
+    "razao_social": "LCM CONSTRUCAO E COMERCIO S.A",
+    "cnpj_masked": "19758842****",
+    "sede_uf": "MG",
+    "qtd_contratos": 118,
+    "outreach_status": "NOT_READY_FOR_OUTREACH",
+    "score": 17.62
+  },
+  {
+    "ranking": 10,
+    "razao_social": "COSAMPA PROJETOS E CONSTRUCOES LTDA",
+    "cnpj_masked": "03006548****",
+    "sede_uf": "CE",
+    "qtd_contratos": 15,
+    "outreach_status": "NOT_READY_FOR_OUTREACH",
+    "score": 17.57
+  },
+  {
+    "ranking": 11,
+    "razao_social": "HWN ENGENHARIA LTDA",
+    "cnpj_masked": "19256565****",
+    "sede_uf": "MG",
+    "qtd_contratos": 26,
+    "outreach_status": "NOT_READY_FOR_OUTREACH",
+    "score": 17.57
+  },
+  {
+    "ranking": 12,
+    "razao_social": "VANGUARDA CONSTRUCOES E SERVICOS DE CONSERVACAO VIARIA LTDA.",
+    "cnpj_masked": "38848107****",
+    "sede_uf": "SP",
+    "qtd_contratos": 9,
+    "outreach_status": "NOT_READY_FOR_OUTREACH",
+    "score": 17.57
+  },
+  {
+    "ranking": 13,
+    "razao_social": "CONSTRUTORA OLIVEIRA LTDA",
+    "cnpj_masked": "80095466****",
+    "sede_uf": "SC",
+    "qtd_contratos": 11,
+    "outreach_status": "NOT_READY_FOR_OUTREACH",
+    "score": 17.37
+  },
+  {
+    "ranking": 14,
+    "razao_social": "EMBRAER S.A.",
+    "cnpj_masked": "07689002****",
+    "sede_uf": "SP",
+    "qtd_contratos": 1,
+    "outreach_status": "NOT_READY_FOR_OUTREACH",
+    "score": 17.34
+  },
+  {
+    "ranking": 15,
+    "razao_social": "J.P.L. GOMES ENGENHARIA LTDA",
+    "cnpj_masked": "14042710****",
+    "sede_uf": "SP",
+    "qtd_contratos": 5,
+    "outreach_status": "NOT_READY_FOR_OUTREACH",
+    "score": 17.34
+  }
+]

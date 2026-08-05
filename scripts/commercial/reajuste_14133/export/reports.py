@@ -95,6 +95,40 @@ FIELD_DICTIONARY: list[tuple[str, str]] = [
 ]
 
 
+def supplier_flat_row(p: dict[str, Any]) -> dict[str, Any]:
+    cont = p.get("contatos") or {}
+    best = p.get("melhor_oportunidade") or {}
+    return {
+        "ranking": p.get("ranking"),
+        "outreach_status": p.get("outreach_status"),
+        "prioridade_abordagem": p.get("prioridade_abordagem"),
+        "score_fornecedor": p.get("score_fornecedor"),
+        "cnpj": p.get("cnpj"),
+        "razao_social": p.get("razao_social"),
+        "nome_fantasia": p.get("nome_fantasia"),
+        "sede_municipio": p.get("sede_municipio"),
+        "sede_uf": p.get("sede_uf"),
+        "sul_priority": p.get("sul_priority"),
+        "cnae": p.get("cnae"),
+        "situacao_cadastral": p.get("situacao_cadastral"),
+        "porte_cadastral": p.get("porte_cadastral"),
+        "qtd_contratos_candidatos": p.get("qtd_contratos_candidatos"),
+        "orgaos_contratantes": " | ".join(p.get("orgaos_contratantes") or []),
+        "valor_total_portfolio_analisado": p.get("valor_total_portfolio_analisado"),
+        "melhor_contrato_id": best.get("contrato_id"),
+        "melhor_orgao": best.get("orgao"),
+        "melhor_classificacao": best.get("classificacao"),
+        "argumento_comercial": p.get("argumento_comercial"),
+        "mensagem_abordagem": p.get("mensagem_abordagem"),
+        "proxima_acao": p.get("proxima_acao"),
+        "riscos": " | ".join(p.get("riscos") or []),
+        "email": cont.get("email"),
+        "telefone": cont.get("telefone"),
+        "site": cont.get("site"),
+        "contato_verificavel": p.get("contato_verificavel"),
+    }
+
+
 def write_csv_json(out_dir: Path, run: dict[str, Any]) -> dict[str, str]:
     out_dir.mkdir(parents=True, exist_ok=True)
     paths: dict[str, str] = {}
@@ -146,11 +180,204 @@ def write_csv_json(out_dir: Path, run: dict[str, Any]) -> dict[str, str]:
             "run_id", "as_of", "module_version", "campaign", "git_sha",
             "source_mode", "source_dsn_masked", "started_at", "finished_at",
             "params", "funnel", "metrics", "language_policy",
+            "terminal_status", "distributions",
         )
     }
-    # secret scan hard fail later
     _write_json(p_man, manifest)
     paths["manifest"] = str(p_man)
+    return paths
+
+
+def write_v2_deliverables(out_dir: Path, run: dict[str, Any]) -> dict[str, str]:
+    """Supplier-level commercial artifacts required by v2 campaign."""
+    out_dir.mkdir(parents=True, exist_ok=True)
+    paths: dict[str, str] = {}
+    portfolios = run.get("supplier_portfolios") or []
+    all_contracts = run.get("leads") or []
+
+    # Supplier CSV / XLSX companion
+    sflat = [supplier_flat_row(p) for p in portfolios]
+    p_sup_csv = out_dir / "leads_fornecedores_reajuste_14133.csv"
+    fields = list(sflat[0].keys()) if sflat else ["ranking", "cnpj", "outreach_status"]
+    with p_sup_csv.open("w", encoding="utf-8", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=fields)
+        w.writeheader()
+        for row in sflat:
+            w.writerow(row)
+    paths["suppliers_csv"] = str(p_sup_csv)
+
+    # Contract-level full
+    cflat = [lead_flat_row(c) for c in all_contracts]
+    p_c_csv = out_dir / "contratos_analisados.csv"
+    cfields = list(cflat[0].keys()) if cflat else ["contrato_id", "cnpj"]
+    with p_c_csv.open("w", encoding="utf-8", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=cfields)
+        w.writeheader()
+        for row in cflat:
+            w.writerow(row)
+    paths["contratos_csv"] = str(p_c_csv)
+    p_c_json = out_dir / "contratos_analisados.json"
+    _write_json(p_c_json, {"run_id": run.get("run_id"), "contratos": all_contracts})
+    paths["contratos_json"] = str(p_c_json)
+
+    def _write_status_csv(name: str, status: str) -> str:
+        rows = [supplier_flat_row(p) for p in portfolios if p.get("outreach_status") == status]
+        path = out_dir / name
+        flds = list(rows[0].keys()) if rows else fields
+        with path.open("w", encoding="utf-8", newline="") as f:
+            w = csv.DictWriter(f, fieldnames=flds)
+            w.writeheader()
+            for row in rows:
+                w.writerow(row)
+        return str(path)
+
+    paths["outreach_ready_csv"] = _write_status_csv(
+        "outreach_ready.csv", "OUTREACH_READY"
+    )
+    # include WITHOUT_VALUE in same file as separate rows + dedicated file
+    ready_wo = [
+        supplier_flat_row(p)
+        for p in portfolios
+        if p.get("outreach_status")
+        in {"OUTREACH_READY", "OUTREACH_READY_WITHOUT_VALUE_ESTIMATE"}
+    ]
+    p_ready = out_dir / "outreach_ready.csv"
+    with p_ready.open("w", encoding="utf-8", newline="") as f:
+        flds = list(ready_wo[0].keys()) if ready_wo else fields
+        w = csv.DictWriter(f, fieldnames=flds)
+        w.writeheader()
+        for row in ready_wo:
+            w.writerow(row)
+    paths["outreach_ready_csv"] = str(p_ready)
+
+    paths["document_request_csv"] = _write_status_csv(
+        "document_request_candidates.csv", "DOCUMENT_REQUEST_CANDIDATE"
+    )
+    paths["not_ready_csv"] = _write_status_csv(
+        "not_ready_for_outreach.csv", "NOT_READY_FOR_OUTREACH"
+    )
+
+    p_port = out_dir / "supplier_portfolios.json"
+    _write_json(
+        p_port,
+        {
+            "run_id": run.get("run_id"),
+            "as_of": run.get("as_of"),
+            "git_sha": run.get("git_sha"),
+            "n": len(portfolios),
+            "portfolios": portfolios,
+        },
+    )
+    paths["supplier_portfolios_json"] = str(p_port)
+
+    # Evidence JSONL
+    p_doc_ev = out_dir / "document_evidence.jsonl"
+    with p_doc_ev.open("w", encoding="utf-8") as f:
+        for lead in all_contracts:
+            scan = lead.get("doc_scan") or {}
+            for ev in scan.get("evidences") or []:
+                f.write(
+                    json.dumps(
+                        {
+                            "contrato_id": lead.get("contrato_id"),
+                            "cnpj": lead.get("cnpj"),
+                            "pipeline_state": lead.get("document_pipeline_state"),
+                            **(ev if isinstance(ev, dict) else {}),
+                        },
+                        ensure_ascii=False,
+                        default=str,
+                    )
+                    + "\n"
+                )
+    paths["document_evidence_jsonl"] = str(p_doc_ev)
+
+    p_calc = out_dir / "calculation_evidence.jsonl"
+    with p_calc.open("w", encoding="utf-8") as f:
+        for lead in all_contracts:
+            fin = lead.get("finance") or {}
+            if not fin:
+                continue
+            f.write(
+                json.dumps(
+                    {
+                        "contrato_id": lead.get("contrato_id"),
+                        "cnpj": lead.get("cnpj"),
+                        "indice": lead.get("indice"),
+                        "indice_in_clause": lead.get("indice_in_clause"),
+                        "valor_potencial": lead.get("valor_potencial"),
+                        "teto_teorico": lead.get("teto_teorico"),
+                        "value_quality_status": lead.get("value_quality_status"),
+                        "finance": fin,
+                    },
+                    ensure_ascii=False,
+                    default=str,
+                )
+                + "\n"
+            )
+    paths["calculation_evidence_jsonl"] = str(p_calc)
+
+    # Copy supplier xlsx name expected by objective (workbook writer also produces main xlsx)
+    # Human review stubs if absent
+    hr_md = out_dir / "human_review_top30_suppliers.md"
+    hr_json = out_dir / "human_review_top30_suppliers.json"
+    if not hr_json.exists():
+        top30 = portfolios[:30]
+        reviews = []
+        for p in top30:
+            best = p.get("melhor_oportunidade") or {}
+            reviews.append(
+                {
+                    "fornecedor": p.get("razao_social"),
+                    "cnpj": p.get("cnpj"),
+                    "contratos_consolidados": p.get("qtd_contratos_candidatos"),
+                    "documentos_efetivamente_lidos": [],
+                    "paginas": [],
+                    "clausulas": [],
+                    "regime": best.get("regime_legal"),
+                    "data_base": best.get("data_base_status"),
+                    "indice": None,
+                    "historico_reajuste": None,
+                    "situacao_execucao": None,
+                    "qualidade_valor": None,
+                    "contato": p.get("contatos"),
+                    "decisao": "TRIAGEM_AUTOMATICA_NAO_HUMANA",
+                    "motivo": (
+                        "Placeholder gerado pela CLI — substituir por revisão humana "
+                        "com páginas/trechos de documentos reais. "
+                        "NÃO é revisão humana documental."
+                    ),
+                    "risco": "Nao usar para OUTREACH_READY sem revisão humana real",
+                    "linguagem_permitida": "none",
+                    "proxima_acao": p.get("proxima_acao"),
+                    "outreach_status": p.get("outreach_status"),
+                }
+            )
+        payload = {
+            "kind": "human_review_top30_suppliers",
+            "note": "AUTO_STUB — not human documentary review",
+            "n": len(reviews),
+            "reviews": reviews,
+            "run_id": run.get("run_id"),
+            "git_sha": run.get("git_sha"),
+        }
+        _write_json(hr_json, payload)
+        lines = [
+            "# Human review Top 30 suppliers — AUTO STUB",
+            "",
+            "> **ATENÇÃO:** este arquivo é stub automático. Revisão humana documental",
+            "> exige leitura de contrato/edital com página, cláusula e hash.",
+            "",
+        ]
+        for r in reviews:
+            lines.append(f"## {r.get('fornecedor')} (`{r.get('cnpj')}`)")
+            lines.append(f"- contratos: {r.get('contratos_consolidados')}")
+            lines.append(f"- decisão: {r.get('decisao')}")
+            lines.append(f"- motivo: {r.get('motivo')}")
+            lines.append("")
+        hr_md.write_text("\n".join(lines), encoding="utf-8")
+    paths["human_review_md"] = str(hr_md)
+    paths["human_review_json"] = str(hr_json)
+
     return paths
 
 
@@ -158,6 +385,7 @@ def write_methodology(out_dir: Path) -> Path:
     text = f"""# Metodologia — Reajuste em sentido estrito (Lei nº 14.133/2021)
 
 **Módulo:** `{MODULE_VERSION}`
+**Unidade comercial:** fornecedor (CNPJ) com contratos vinculados
 **Campanha:** reajuste periódico por índice contratual
 **NÃO cobre:** reequilíbrio econômico-financeiro, repactuação de mão de obra, atualização monetária por atraso de pagamento, aditivo quantitativo.
 
@@ -168,57 +396,46 @@ def write_methodology(out_dir: Path) -> Path:
 - art. 92, V e § 3º (cláusulas necessárias)
 - art. 123 e art. 136, I (apostila)
 - Lei nº 10.192/2001 (periodicidade mínima anual)
-- Orientação TCU sobre reajuste em sentido estrito
 
-## Premissas operacionais
+## Premissas operacionais (v2)
 
-1. Data-base vinculada à data do **orçamento estimado**.
-2. Primeiro reajuste somente após interregno anual.
-3. Assinatura, publicação, OS e início de execução **não** são data-base automática.
-4. Índice deve constar do edital/contrato — nunca inventado (IPCA/INCC/SINAPI por “plausibilidade” é proibido).
-5. Reajuste ordinário pode ser registrado por **apostila**.
-6. Ausência de apostila no PNCP **não prova** que o reajuste não foi concedido.
-7. Ausência de cláusula é inconsistência documental — o sistema **não inventa** índice/data-base.
-8. Ferramenta **qualifica oportunidades**; não emite conclusão jurídica definitiva.
+1. Data-base = **orçamento estimado** (CONFIRMED). Assinatura/publicação/OS são apenas `TEMPORAL_CANDIDATE_BY_PROXY`.
+2. Assinatura &lt; 12 meses **não** exclui o contrato se a data-base documental já completou o interregno.
+3. Índice só é atribuído se semanticamente vinculado à **cláusula de reajuste** (não bastam menções a SINAPI/IPCA no memorial).
+4. PDF binário localizado ≠ texto extraído ≠ gate documental.
+5. Ausência de apostila no PNCP **não prova** que o reajuste não foi concedido e **não** autoriza `OUTREACH_READY`.
+6. Valores `VALUE_OUTLIER_REQUIRES_REVIEW` não elevam score financeiro nem honorários.
+7. Varredura integral do pré-filtro com paginação **keyset**; sem limite silencioso de 25k.
+8. Ferramenta **qualifica**; não emite parecer jurídico nem envia mensagens.
 
-## Funil de classificação
+## Gates comerciais (distintos da classificação jurídica)
 
 | Status | Significado |
 |--------|-------------|
-| HOT_VERIFIED | 10 gates documentais atendidos |
-| STRONG_CANDIDATE | Forte probabilidade; falta confirmação pontual |
-| REVIEW_REQUIRED | Indício relevante com lacunas |
-| RESEARCH_REQUIRED | Dados insuficientes para abordagem responsável |
-| ALREADY_ADJUSTED | Evidência de reajuste do período |
-| NOT_ELIGIBLE | Fora das regras materiais/temporais |
-| LEGAL_REGIME_UNKNOWN | Regime 14.133 não comprovado |
-| CLOSED_OR_FINANCIALLY_EXHAUSTED | Encerrado / sem saldo |
+| OUTREACH_READY | 13 gates (empresa privada, obra, 14.133 comprovado, cláusula, data-base, índice, interregno, obrigação aberta, valor plausível, contato, revisão humana, argumento não enganoso) + base financeira |
+| OUTREACH_READY_WITHOUT_VALUE_ESTIMATE | Idem sem cifra de valor potencial |
+| DOCUMENT_REQUEST_CANDIDATE | Forte sinal; abordagem só exploratória pedindo documentos |
+| NOT_READY_FOR_OUTREACH | Fora da fila operacional (inclui todo `LEGAL_REGIME_UNKNOWN`) |
 
-**Regra dura:** nenhum `HOT_VERIFIED` pode depender apenas de datas de `pncp_supplier_contracts`.
+## Funil jurídico/documental
 
-## Scoring comercial
+| Status | Significado |
+|--------|-------------|
+| HOT_VERIFIED | 10 gates documentais |
+| STRONG_CANDIDATE / REVIEW_REQUIRED / RESEARCH_REQUIRED | Lacunas |
+| LEGAL_REGIME_UNKNOWN / LEGAL_REGIME_CONFLICT | Regime não comprovado / contraditório |
+| ALREADY_ADJUSTED / CLOSED / NOT_ELIGIBLE | Fora do claim aberto |
 
-- 25% confiança jurídica/documental
-- 20% atratividade financeira
-- 15% urgência temporal
-- 15% saldo reajustável provável
-- 10% aderência ICP CONFENGE
-- 10% contatabilidade empresarial
-- 5% qualidade das fontes
+## Scoring
 
-Penalidades: regime não confirmado, data-base ausente, índice ausente, encerramento próximo sem docs, execução concluída, reajuste já publicado, contradições, fornecedor gigante, micro vs ticket, contato apenas pessoal.
-
-## Finanças
-
-- `valor_potencial`: só com índice contratual + série oficial + base reajustável conhecida.
-- `teto_teorico` / `UPPER_BOUND_NOT_CLAIM_VALUE`: envelope sobre valor total **sem** pretensão de valor devido.
+Pesos v1 mantidos; atratividade financeira zera se valor não validado/outlier.
 
 ## Limitações honestas
 
-- Schema PNCP estruturado **não** traz data-base de orçamento, índice nem regime legal nativos.
-- `process_documents` pode estar vazio no snapshot; fetches HTML/PDF são parciais.
-- Classificação de obra é híbrida (regras + vocabulário negativo), sem LLM operacional em massa.
-- Contatos apenas de fontes empresariais públicas (LGPD).
+- PNCP estruturado sem data-base/índice/regime nativos.
+- HTML do portal raramente contém cláusula integral.
+- Séries oficiais de índice exigem fonte externa licenciada (não inventar).
+- `NO_PRIOR_ADJUSTMENT_LOCATED` ≠ prova de inexistência de reajuste.
 """
     p = out_dir / "methodology.md"
     p.write_text(text, encoding="utf-8")

@@ -156,6 +156,8 @@ NEGATIVE: tuple[str, ...] = (
     "fornecimento de agua canalizada",
     "software",
     "licenca de uso",
+    "licenciamento de software",
+    "gestao de obras",  # software de gestão ≠ execução
     "tecnologia da informacao",
     "infraestrutura de ti",
     "vigilancia",
@@ -184,6 +186,26 @@ NEGATIVE: tuple[str, ...] = (
     "telecomunicacoes",
     "barbearia",
     "cabeleireiro",
+    # Sector false positives (regression pack)
+    "motor aeronautico",
+    "motores aeronauticos",
+    "aeronautic",
+    "suporte logistico de motores",
+    "componente de aeronave",
+    "aeronave",
+    "ppp de operacao",
+    "parceria publico privada",
+    "concessao hospitalar",
+    "concessao de hospital",
+    "concessao de longo prazo",
+    "operacao e manutencao de escolas",
+    "manutencao de equipamento",
+    "manutencao de equipamentos",
+    "manutencao de usina",
+    "equipamento de usina",
+    "sem execucao de obra",
+    "sem execucao material",
+    "sem execucao das obras",
 )
 
 # Pure intellectual services without material execution
@@ -367,18 +389,67 @@ def classify_construction(
             normalized_object=norm[:600],
         )
 
+    # Explicit "sem execução" / PPP / concession / aircraft / equipment maintenance
+    sector_fp = _hits(
+        norm,
+        (
+            "sem execucao de obra",
+            "sem execucao material",
+            "sem execucao das obras",
+            "parceria publico privada",
+            "ppp de operacao",
+            "concessao hospitalar",
+            "concessao de hospital",
+            "concessao de longo prazo",
+            "operacao e manutencao de escolas",
+            "manutencao de equipamento",
+            "manutencao de equipamentos",
+            "manutencao de usina",
+            "motor aeronautico",
+            "motores aeronauticos",
+            "suporte logistico de motores",
+            "aeronave",
+            "licenciamento de software",
+            "software de gestao",
+            "licenca de uso de software",
+        ),
+    )
+    # software + gestão de obras / engenharia (not material execution)
+    if ("software" in norm or "licenc" in norm) and (
+        "gestao de obra" in norm or "gestao de obras" in norm or "engenharia" in norm
+    ):
+        sector_fp = list(sector_fp) + ["software_gestao_obras"]
+    if sector_fp:
+        return ConstructionClassification(
+            is_construction=False,
+            confidence=0.0,
+            category="nao_construcao",
+            strong_hits=strong,
+            weak_hits=weak,
+            positive_context=pos,
+            negative_hits=neg + sector_fp,
+            reason_codes=["sector_false_positive_regression"],
+            normalized_object=norm[:600],
+        )
+
     # Pure IP consultancy without material works
-    if ip_only and not strong and not eng_maint and not allow_pure_ip:
-        # "fiscalizacao de obra" alone is IP — exclude from construction contractor ICP
-        material_exec = any(
+    if ip_only and not eng_maint and not allow_pure_ip:
+        # "sem execução" or negated execution must not count as material_exec
+        negated_exec = bool(
+            re.search(r"sem\s+execuc", norm)
+            or re.search(r"nao\s+inclui\s+execuc", norm)
+            or re.search(r"exclu[ií]da?\s+a\s+execuc", norm)
+        )
+        material_exec = (not negated_exec) and any(
             t in norm
             for t in (
-                "execucao",
+                "execucao de obra",
+                "execucao de obras",
+                "execucao das obras",
                 "empreitada",
-                "construcao",
+                "construcao de",
                 "paviment",
-                "reforma e",
-                "ampliacao",
+                "reforma e ampliacao",
             )
         )
         if not material_exec:
@@ -393,6 +464,20 @@ def classify_construction(
                 reason_codes=["intellectual_service_without_material_execution"],
                 normalized_object=norm[:600],
             )
+
+    # Equipment maintenance with engineering vocabulary (not predial/rodoviária)
+    if re.search(r"manutencao\s+de\s+equipamento", norm) and not eng_maint:
+        return ConstructionClassification(
+            is_construction=False,
+            confidence=0.0,
+            category="nao_construcao",
+            strong_hits=strong,
+            weak_hits=weak,
+            positive_context=pos,
+            negative_hits=["manutencao_equipamento"],
+            reason_codes=["equipment_maintenance_not_obra"],
+            normalized_object=norm[:600],
+        )
 
     if strong or eng_maint:
         conf = min(1.0, 0.72 + 0.04 * len(strong) + (0.1 if eng_maint else 0.0))

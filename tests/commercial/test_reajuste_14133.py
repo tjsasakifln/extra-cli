@@ -414,7 +414,7 @@ def test_sql_injection_uf_sanitized():
     )
     assert "%s" in q
     assert "DROP" not in q
-    assert params[3] == "SC"
+    assert "SC" in params
 
 
 def test_automated_triage_flags_non_construction_and_is_machine_labeled():
@@ -645,7 +645,7 @@ def test_network_failure_documented(monkeypatch):
     from scripts.commercial.reajuste_14133.io import documents as docmod
 
     def boom(url, timeout=12.0, max_bytes=500_000):
-        return None, "URLError: network down"
+        return None, "URLError: network down", "error"
 
     monkeypatch.setattr(docmod, "fetch_url_text", boom)
     v = docmod.verify_contract_documents(

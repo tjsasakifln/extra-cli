@@ -15,6 +15,7 @@ from scripts.commercial.reajuste_14133 import (
     REGIME_8666,
     REGIME_10520,
     REGIME_14133,
+    REGIME_CONFLICT,
     REGIME_RDC,
     REGIME_UNKNOWN,
 )
@@ -147,6 +148,23 @@ def classify_legal_regime(
     hits_8666 = _search(_8666_PATTERNS)
     hits_10520 = _search(_10520_PATTERNS)
     hits_rdc = _search(_RDC_PATTERNS)
+
+    # Contradictory explicit citations → LEGAL_REGIME_CONFLICT (blocks outreach)
+    older = bool(hits_8666 or hits_rdc or hits_10520)
+    if hits_14133 and older and document_texts:
+        return RegimeResult(
+            regime=REGIME_CONFLICT,
+            confidence=0.5,
+            proven=False,
+            evidence_method="document_excerpt_conflict",
+            excerpts=(hits_14133 + hits_8666 + hits_rdc + hits_10520)[:5],
+            source_fields=["document_texts"],
+            reason_codes=["legal_regime_conflict"],
+            notes=(
+                "Referências contraditórias a regimes distintos no acervo documental — "
+                "impedir abordagem até revisão humana."
+            ),
+        )
 
     # Prefer explicit older regimes when present (exclusion)
     if hits_8666 and not hits_14133:

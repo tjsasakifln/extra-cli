@@ -106,18 +106,27 @@ def score_lead(
         legal += 0.15
     legal = _clamp(legal)
 
-    # 2) Financial attractiveness — prefer potential over theoretical ceiling
+    # 2) Financial attractiveness — only VALUE_CONFIRMED/PLAUSIBLE may drive this
+    # Callers pass portfolio_hint_brl=0 when value quality blocks financial use.
     pot = _money(finance.valor_potencial)
     teto = _money(finance.teto_teorico)
-    valor_ref = pot if pot > 0 else (teto * 0.25 if teto > 0 else _money(finance.valor_atualizado_aditivos) * 0.02)
-    # scale: R$50k → ~0.3, R$500k → ~0.7, R$2M+ → ~1.0
-    if valor_ref <= 0:
-        fin = 0.15
+    total_v = _money(finance.valor_atualizado_aditivos)
+    if portfolio_hint_brl is not None and portfolio_hint_brl <= 0 and pot <= 0:
+        fin = 0.05
+        notes.append("Atratividade financeira bloqueada: valor PNCP não validado/outlier.")
+        penalties["valor_nao_validado"] = 0.15
     else:
-        fin = _clamp((valor_ref / 500_000) ** 0.5 * 0.7 + 0.15)
-    if finance.base_label == "UPPER_BOUND_NOT_CLAIM_VALUE":
-        fin *= 0.55
-        notes.append("Atratividade descontada: apenas teto teórico (UPPER_BOUND).")
+        valor_ref = pot if pot > 0 else (
+            teto * 0.25 if teto > 0 else total_v * 0.02
+        )
+        # scale: R$50k → ~0.3, R$500k → ~0.7, R$2M+ → ~1.0
+        if valor_ref <= 0:
+            fin = 0.15
+        else:
+            fin = _clamp((valor_ref / 500_000) ** 0.5 * 0.7 + 0.15)
+        if finance.base_label == "UPPER_BOUND_NOT_CLAIM_VALUE":
+            fin *= 0.55
+            notes.append("Atratividade descontada: apenas teto teórico (UPPER_BOUND).")
 
     # 3) Temporal urgency
     urg = 0.2

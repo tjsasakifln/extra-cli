@@ -18,6 +18,10 @@ from scripts.commercial.reajuste_14133.domain.obra_classifier import (
     ConstructionClassification,
     classify_construction,
 )
+from scripts.commercial.reajuste_14133.domain.outreach import (
+    OutreachResult,
+    evaluate_outreach,
+)
 from scripts.commercial.reajuste_14133.domain.regime import (
     RegimeResult,
     classify_legal_regime,
@@ -25,6 +29,14 @@ from scripts.commercial.reajuste_14133.domain.regime import (
 from scripts.commercial.reajuste_14133.domain.scoring import (
     ScoreBreakdown,
     score_lead,
+)
+from scripts.commercial.reajuste_14133.domain.supplier_portfolio import (
+    consolidate_suppliers,
+    dedupe_economic_opportunities,
+)
+from scripts.commercial.reajuste_14133.domain.value_quality import (
+    ValueQualityResult,
+    validate_contract_value,
 )
 
 __all__ = [
@@ -38,8 +50,14 @@ __all__ = [
     "estimate_reajuste",
     "ConstructionClassification",
     "classify_construction",
+    "OutreachResult",
+    "evaluate_outreach",
     "RegimeResult",
     "classify_legal_regime",
     "ScoreBreakdown",
     "score_lead",
+    "consolidate_suppliers",
+    "dedupe_economic_opportunities",
+    "ValueQualityResult",
+    "validate_contract_value",
 ]

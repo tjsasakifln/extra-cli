@@ -10,11 +10,13 @@ from scripts.commercial.reajuste_14133 import (
     REGIME_8666,
     REGIME_10520,
     REGIME_14133,
+    REGIME_CONFLICT,
     REGIME_RDC,
     REGIME_UNKNOWN,
     STATUS_ALREADY_ADJUSTED,
     STATUS_CLOSED,
     STATUS_HOT_VERIFIED,
+    STATUS_LEGAL_REGIME_CONFLICT,
     STATUS_LEGAL_REGIME_UNKNOWN,
     STATUS_NOT_ELIGIBLE,
     STATUS_RESEARCH_REQUIRED,
@@ -150,6 +152,16 @@ def evaluate_eligibility(
             reasons=["evidencia_reajuste_periodo"],
             risks=["ausencia_de_apostila_no_pncp_nao_prova_inexistencia"],
             next_investigative_action="Verificar se o reajuste do período foi integral ou parcial.",
+        )
+
+    if regime.regime == REGIME_CONFLICT:
+        return EligibilityResult(
+            status=STATUS_LEGAL_REGIME_CONFLICT,
+            hot_gates={g: False for g in HOT_GATES},
+            hot_gates_passed=0,
+            reasons=["legal_regime_conflict"],
+            risks=["referencias_contraditorias_de_regime"],
+            next_investigative_action="Revisão humana de edital/contrato antes de qualquer abordagem.",
         )
 
     if regime.regime in {REGIME_8666, REGIME_10520, REGIME_RDC}:
