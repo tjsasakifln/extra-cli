@@ -712,7 +712,6 @@ def test_rebind_export_invariants_atomic(tmp_path: Path):
     from scripts.commercial.reajuste_14133.rebind_export import (
         rebind_export,
         validate_invariants,
-        RebindInvariantError,
     )
 
     fake_head = "a" * 40

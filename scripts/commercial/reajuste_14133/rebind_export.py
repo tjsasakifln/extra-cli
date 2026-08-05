@@ -16,10 +16,9 @@ from __future__ import annotations
 import csv
 import hashlib
 import json
-import re
 import subprocess
 from collections import Counter
-from datetime import UTC, date, datetime
+from datetime import date
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
@@ -38,7 +37,6 @@ from scripts.commercial.reajuste_14133.domain.supplier_portfolio import consolid
 from scripts.commercial.reajuste_14133.export.excel_export import export_workbook
 from scripts.commercial.reajuste_14133.export.reports import (
     lead_flat_row,
-    supplier_flat_row,
     write_csv_json,
     write_data_quality,
     write_executive_brief,
