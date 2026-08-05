@@ -1,123 +1,62 @@
 {
-  "run_manifest.json": {
-    "path": "output/commercial/reajuste_14133/2026-08-04-v2/run_manifest.json",
-    "sha256": "e3233358140b0bedaf0d585445a8e8ccc0c230408b08302f53d9469c35a09e5b",
-    "size": 6313
+  "FINAL-REPORT.md": {
+    "sha256": "b94e4a8315d5efa0686470155fd7927aefead752dda2ab9a22c3b192aace15ce",
+    "size": 1885
   },
-  "human_review_top30_suppliers.json": {
-    "path": "output/commercial/reajuste_14133/2026-08-04-v2/human_review_top30_suppliers.json",
-    "sha256": "7bd043df8f6033b5c5a963a5f8f184a8eb965c77840b6439e01f73b0e3add5ff",
-    "size": 175556
-  },
-  "human_review_top30_suppliers.md": {
-    "path": "output/commercial/reajuste_14133/2026-08-04-v2/human_review_top30_suppliers.md",
-    "sha256": "d90afd4cfac92d1d36732c8c594e86b27eb7effb3cc30b171362173ddb4140ca",
-    "size": 18736
-  },
-  "supplier_portfolios.json": {
-    "path": "output/commercial/reajuste_14133/2026-08-04-v2/supplier_portfolios.json",
-    "sha256": "01e75d31bd329621cdaeb90fa1ccf8785f59ec4159f1a6adeae78763158f33dc",
-    "size": 15528602
-  },
-  "document_evidence.jsonl": {
-    "path": "output/commercial/reajuste_14133/2026-08-04-v2/document_evidence.jsonl",
-    "sha256": "b60d24b127a7d1b5e56c9911f47c3f5046a1745d87c3ecbe676af6d82cdcec41",
-    "size": 5816969
-  },
-  "leads_fornecedores_reajuste_14133.xlsx": {
-    "path": "output/commercial/reajuste_14133/2026-08-04-v2/leads_fornecedores_reajuste_14133.xlsx",
-    "sha256": "350be774ab1083510325852ac89a9f675b4d53ac91a86c5d6c39e494567880ac",
-    "size": 2955715
-  },
-  "leads_fornecedores_reajuste_14133.csv": {
-    "path": "output/commercial/reajuste_14133/2026-08-04-v2/leads_fornecedores_reajuste_14133.csv",
-    "sha256": "b1f1d244e0e4bc44a898359e6d489e5ff24a3908a3825ab2bec5e30725d0fec3",
-    "size": 3536102
-  },
-  "outreach_ready.csv": {
-    "path": "output/commercial/reajuste_14133/2026-08-04-v2/outreach_ready.csv",
-    "sha256": "e368066ef92f89e92b7e502db94c587470eb2b154cd2d8a9b97d5b5b1b1ddf56",
-    "size": 400
-  },
-  "document_request_candidates.csv": {
-    "path": "output/commercial/reajuste_14133/2026-08-04-v2/document_request_candidates.csv",
-    "sha256": "fde46890cdc88cf6556ecd7674f6883bfa0c9654f33a2349e8ee4bdd1288249b",
-    "size": 51038
-  },
-  "methodology.md": {
-    "path": "output/commercial/reajuste_14133/2026-08-04-v2/methodology.md",
-    "sha256": "87d9c68ec5bcc9c4c087286494ca0cc84f6baf5386a61602abc653b78d65e898",
-    "size": 2840
+  "checksums.sha256": {
+    "sha256": "c9baeabff5f65a9c8181bf2d00e19a19f4c9158cb281be3f4ecd9325584d1a5e",
+    "size": 7726
   },
   "data_quality_report.md": {
-    "path": "output/commercial/reajuste_14133/2026-08-04-v2/data_quality_report.md",
     "sha256": "5d385b12441188387e8211912fbeb49ad9eae87e5dad1d7a5b4fcdf3d964a053",
     "size": 3127
   },
-  "executive_brief.md": {
-    "path": "output/commercial/reajuste_14133/2026-08-04-v2/executive_brief.md",
-    "sha256": "cad85a241de5fbe19d1e0f181f4ec337ccedcbc61a9fa00eae9649cf103f6be5",
-    "size": 5470
+  "document_request_candidates.csv": {
+    "sha256": "d226d060170383e6a28d5df33af35ee9f55b50e076f0d6b4a8050476ffa063bd",
+    "size": 175068
   },
-  "evidence_commit_sha": "38ddf955effd327918dac8f4591cb9dec4231dc7",
-  "nacional_sul_manifest": {
-    "path": "output/commercial/reajuste_14133/2026-08-04-v2/run_manifest.json",
+  "human_review_top30_suppliers.json": {
+    "sha256": "ffe6cbaa756950afcbf9753793405abfa8eddc30fe7a18231e8f4b06dd3b57e7",
+    "size": 175625
+  },
+  "human_review_top30_suppliers.md": {
+    "sha256": "d90afd4cfac92d1d36732c8c594e86b27eb7effb3cc30b171362173ddb4140ca",
+    "size": 18736
+  },
+  "human_review_top30_suppliers_nacional.json": {
+    "sha256": "0335514904bf285f9d60f6d46b4c6db6307301f812149090f89a4e5470d34cef",
+    "size": 94081
+  },
+  "human_review_top30_suppliers_nacional.md": {
+    "sha256": "e46cc8149e95695a9b56bdbab307b7f5bb7d8aebba354a15f7c33702e25a54d0",
+    "size": 8728
+  },
+  "methodology.md": {
+    "sha256": "87d9c68ec5bcc9c4c087286494ca0cc84f6baf5386a61602abc653b78d65e898",
+    "size": 2840
+  },
+  "nacional_checksums.sha256": {
+    "sha256": "3fd5a7de54ead6dccb8ccbd7a7d79a4f4df6ab3c16d678ba20d9124186d71a9c",
+    "size": 1749
+  },
+  "nacional_run_manifest.json": {
+    "sha256": "b5ef045d07d58b6573cc224b68622184e749aabdf23b981b179254e9e1f0f3a9",
+    "size": 3441
+  },
+  "outreach_ready.csv": {
+    "sha256": "e368066ef92f89e92b7e502db94c587470eb2b154cd2d8a9b97d5b5b1b1ddf56",
+    "size": 400
+  },
+  "run_manifest.json": {
     "sha256": "7ac80095a25d819abf6ab17ac572c3c5ba89453f7d44c15cd05802f955e067f0",
     "size": 6382
   },
-  "nat_manifest": {
-    "path": "output/commercial/reajuste_14133/2026-08-04-v2/nacional/run_manifest.json",
-    "sha256": "f048c441d7757e2e2a2f6c918c931eb2eec2438796825266d2fd4f409b641551",
-    "size": 4382
+  "top15_nacional_sample.json": {
+    "sha256": "35964ef68185eff4a53212105cdc5710ea2f137b30ee70f2e699424bb2d83811",
+    "size": 4065
   },
-  "nacional_sul_hr": {
-    "path": "output/commercial/reajuste_14133/2026-08-04-v2/human_review_top30_suppliers.json",
-    "sha256": "7bd043df8f6033b5c5a963a5f8f184a8eb965c77840b6439e01f73b0e3add5ff",
-    "size": 175556
-  },
-  "nat_hr": {
-    "path": "output/commercial/reajuste_14133/2026-08-04-v2/nacional/human_review_top30_suppliers.json",
-    "sha256": "31464ea512f251cee347ac0bb77d504a6269b60c86bd3e204a3857148027d1d1",
-    "size": 152811
-  },
-  "nacional_sul_xlsx": {
-    "path": "output/commercial/reajuste_14133/2026-08-04-v2/leads_fornecedores_reajuste_14133.xlsx",
-    "sha256": "350be774ab1083510325852ac89a9f675b4d53ac91a86c5d6c39e494567880ac",
-    "size": 2955715
-  },
-  "nat_xlsx": {
-    "path": "output/commercial/reajuste_14133/2026-08-04-v2/nacional/leads_fornecedores_reajuste_14133.xlsx",
-    "sha256": "c0f0d829eedd9a7b1211333cfcea458e346f1dc33653f9fe4395b0066ceb8925",
-    "size": 2761551
-  },
-  "nat_evidence": {
-    "path": "output/commercial/reajuste_14133/2026-08-04-v2/nacional/document_evidence.jsonl",
-    "sha256": "fb7a5c7341900d7272724ef8950b579a025a28a1cfc45037e796fc07fa62eef9",
-    "size": 7121855
-  },
-  "nacional_sul_evidence": {
-    "path": "output/commercial/reajuste_14133/2026-08-04-v2/document_evidence.jsonl",
-    "sha256": "b60d24b127a7d1b5e56c9911f47c3f5046a1745d87c3ecbe676af6d82cdcec41",
-    "size": 5816969
-  },
-  "sul_manifest": {
-    "path": "output/commercial/reajuste_14133/2026-08-04-v2/run_manifest.json",
-    "sha256": "7ac80095a25d819abf6ab17ac572c3c5ba89453f7d44c15cd05802f955e067f0",
-    "size": 6382
-  },
-  "sul_hr": {
-    "path": "output/commercial/reajuste_14133/2026-08-04-v2/human_review_top30_suppliers.json",
-    "sha256": "7bd043df8f6033b5c5a963a5f8f184a8eb965c77840b6439e01f73b0e3add5ff",
-    "size": 175556
-  },
-  "sul_xlsx": {
-    "path": "output/commercial/reajuste_14133/2026-08-04-v2/leads_fornecedores_reajuste_14133.xlsx",
-    "sha256": "350be774ab1083510325852ac89a9f675b4d53ac91a86c5d6c39e494567880ac",
-    "size": 2955715
-  },
-  "sul_evidence": {
-    "path": "output/commercial/reajuste_14133/2026-08-04-v2/document_evidence.jsonl",
-    "sha256": "b60d24b127a7d1b5e56c9911f47c3f5046a1745d87c3ecbe676af6d82cdcec41",
-    "size": 5816969
+  "top15_suppliers_sample.json": {
+    "sha256": "7e7dfc67b055f4f04792140caf812b78908056bda95e3857f5e4682ef92aa578",
+    "size": 3495
   }
 }
