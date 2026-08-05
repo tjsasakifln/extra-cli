@@ -992,10 +992,22 @@ def run_pipeline(
         "commercial_stage_not_commercial": 0,
         "minimum_interregnum_elapsed": 0,
     }
+    # Memory-safe full national: never retain millions of exclusion rows or
+    # non-commercial leads in RAM. Counts stay exact; samples are capped.
+    EXCLUDED_SAMPLE_CAP = 5_000
     excluded: list[dict[str, Any]] = []
+    excluded_reason_counts: Counter[str] = Counter()
     uf_dist: Counter[str] = Counter()
     band_dist: Counter[str] = Counter()
     cat_dist: Counter[str] = Counter()
+    regime_dist: Counter[str] = Counter()
+
+    def _record_excluded(item: dict[str, Any]) -> None:
+        reason = str(item.get("reason") or "unknown")
+        excluded_reason_counts[reason] += 1
+        if len(excluded) < EXCLUDED_SAMPLE_CAP:
+            excluded.append(item)
+
     if dry_run:
         return {
             "run_id": f"dry-{as_of_d.isoformat()}",
@@ -1087,7 +1099,7 @@ def run_pipeline(
 
     # Incremental: stream batches — Phase 1 cheap structured triage only
     registry_map: dict[str, dict[str, Any]] = {}
-    cnpj_buffer: list[str] = []
+    _batch_num = 0
 
     for batch in iter_contracts_keyset(
         cfg,
@@ -1101,23 +1113,27 @@ def run_pipeline(
         max_rows=max_source_rows,
         require_proxy_interregno=require_proxy_interregno,
     ):
-        # Registry for this batch (structured only — no BrasilAPI yet)
+        _batch_num += 1
+        # Registry for this batch only (do not accumulate every CNPJ in a giant list)
         batch_cnpjs = [digits_cnpj(r.get("fornecedor_cnpj")) for r in batch]
-        cnpj_buffer.extend(batch_cnpjs)
         missing = [c for c in batch_cnpjs if c and c not in registry_map]
         if missing:
             registry_map.update(fetch_supplier_registry(cfg, missing[:500]))
+        # Bound registry cache growth on multi-million scans
+        if len(registry_map) > 50_000:
+            # keep most recent batch keys only
+            keep = {c for c in batch_cnpjs if c}
+            registry_map = {k: v for k, v in registry_map.items() if k in keep}
 
         for row in batch:
             funnel["examined_raw"] += 1
             row_key = dedupe_key(row)
             if row_key in already_keys or row_key in seen_dedupe:
-                excluded.append(
+                _record_excluded(
                     {"contrato_id": row.get("contrato_id"), "reason": "duplicata_instrumento"}
                 )
                 continue
             seen_dedupe.add(row_key)
-            raw_by_key[row_key] = row
 
             uf_dist[str(row.get("uf") or "?").upper()] += 1
             band_dist[value_band(float(row.get("valor_total") or 0) or None)] += 1
@@ -1125,7 +1141,7 @@ def run_pipeline(
             cnpj = digits_cnpj(row.get("fornecedor_cnpj"))
             nome = row.get("fornecedor_nome")
             if not is_private_supplier(cnpj, nome):
-                excluded.append(
+                _record_excluded(
                     {
                         "contrato_id": row.get("contrato_id"),
                         "cnpj": cnpj,
@@ -1171,7 +1187,11 @@ def run_pipeline(
                 human_review_record=hr_rec or None,
             )
             lead["_dedupe_key_internal"] = row_key
-            if run_dir is not None and lead.get("obra", {}).get("is_construction"):
+            is_obra = bool(lead.get("obra", {}).get("is_construction"))
+            # raw row only needed for deepen of commercial construction leads
+            if is_obra:
+                raw_by_key[row_key] = row
+            if run_dir is not None and is_obra:
                 append_classified(run_dir, lead)
                 already_keys.add(row_key)
 
@@ -1186,14 +1206,16 @@ def run_pipeline(
                 funnel["commercial_stage_not_commercial"] = (
                     funnel.get("commercial_stage_not_commercial", 0) + 1
                 )
+            reg_l = str(lead.get("regime_legal") or "UNKNOWN")
+            regime_dist[reg_l] += 1
             if lead.get("minimum_elapsed_confirmed"):
                 funnel["minimum_interregnum_elapsed"] = (
                     funnel.get("minimum_interregnum_elapsed", 0) + 1
                 )
-            if lead["obra"]["is_construction"]:
+            if is_obra:
                 funnel["construction"] += 1
             else:
-                excluded.append(
+                _record_excluded(
                     {
                         "contrato_id": lead.get("contrato_id"),
                         "cnpj": cnpj,
@@ -1217,7 +1239,7 @@ def run_pipeline(
                 funnel["already_adjusted"] += 1
 
             if st in {STATUS_NOT_ELIGIBLE, STATUS_CLOSED, STATUS_ALREADY_ADJUSTED}:
-                excluded.append(
+                _record_excluded(
                     {
                         "contrato_id": lead.get("contrato_id"),
                         "cnpj": cnpj,
@@ -1243,7 +1265,33 @@ def run_pipeline(
             if status_filter and st != status_filter and lead.get("commercial_stage") != status_filter:
                 continue
 
-            leads.append(lead)
+            # Keep in RAM only commercially relevant stages (full funnel counts above).
+            # NOT_COMMERCIAL construction is counted but not retained for ranking/export.
+            if cst in {
+                POTENTIAL_ADJUSTMENT_SIGNAL,
+                LIKELY_ADJUSTMENT_OPPORTUNITY,
+                DIAGNOSTIC_OUTREACH_READY,
+                DOCUMENT_REQUEST_READY,
+                VERIFIED_ADJUSTMENT_OPPORTUNITY,
+                CALCULABLE_ADJUSTMENT_CLAIM,
+            }:
+                leads.append(lead)
+            else:
+                # Drop raw for non-commercial construction to free memory
+                raw_by_key.pop(row_key, None)
+
+        if _batch_num % 25 == 0:
+            import sys
+
+            print(
+                f"[reajuste_14133] batch={_batch_num} examined={funnel['examined_raw']} "
+                f"construction={funnel['construction']} "
+                f"commercial_leads={len(leads)} "
+                f"doc_req={funnel.get(DOCUMENT_REQUEST_READY, 0)} "
+                f"likely={funnel.get(LIKELY_ADJUSTMENT_OPPORTUNITY, 0)}",
+                file=sys.stderr,
+                flush=True,
+            )
 
     funnel["after_dedupe"] = len(seen_dedupe)
     if max_source_rows is not None:
@@ -1596,13 +1644,20 @@ def run_pipeline(
                 "contracts with PNCP compra PDF download attempted "
                 "(not portal HTML alone)"
             ),
-            "excluded_count": len(excluded),
+            "excluded_count": int(sum(excluded_reason_counts.values()) or len(excluded)),
+            "excluded_reason_counts": dict(excluded_reason_counts),
+            "excluded_sample_size": len(excluded),
+            "regime_distribution": dict(regime_dist),
             "contact_lookups_used": contact_lookups,
             "contact_attempts": contact_attempts,
             "universe_eligible_count": universe_n,
             "rows_read": funnel["examined_raw"],
             "execution_complete": complete,
             "sampling_reason": sampling_reason,
+            "table_rows_note": (
+                "rows_read is prefiltered pncp_supplier_contracts scan; "
+                "not a silent subsample when max_source_rows is null"
+            ),
         },
         "leads": leads_ranked,
         "top_leads": top_leads,
@@ -1613,6 +1668,8 @@ def run_pipeline(
         "document_request_suppliers": doc_req_suppliers,
         "not_ready_suppliers": not_ready_suppliers,
         "excluded": excluded,
+        "excluded_reason_counts": dict(excluded_reason_counts),
+        "regime_distribution": dict(regime_dist),
         "language_policy": {
             "reajuste_sentido_estrito_only": True,
             "not_reequilibrio": True,
