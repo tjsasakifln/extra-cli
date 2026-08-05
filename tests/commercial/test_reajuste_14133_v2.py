@@ -832,3 +832,99 @@ def test_validate_invariants_catches_proven_unknown():
         head_sha="h",
     )
     assert any("LEGAL_REGIME_UNKNOWN" in e for e in errs)
+
+
+def test_sanitize_doc_scan_clears_false_official_without_pncp_pdf():
+    """Portal/API-only evidences must not keep official_text_extracted=true."""
+    from scripts.commercial.reajuste_14133.rebind_export import (
+        has_official_pdf_text_evidence,
+        sanitize_doc_scan,
+        unique_deep_contract_ids,
+        unique_official_contract_ids,
+    )
+
+    false_scan = {
+        "evidences": [
+            {"extraction_method": "url_builder", "field_found": "portal_url", "excerpt": "x"},
+            {"extraction_method": "http_get_api", "field_found": "contrato_metadata", "excerpt": "y"},
+        ],
+        "official_text_extracted": True,
+        "text_extracted": True,
+        "docs_accessible": True,
+        "deep_document_work": True,
+        "pdfs_downloaded": 3,
+        "pdfs_text_extracted": 3,
+        "pipeline_state": "TEXT_EXTRACTED",
+    }
+    clean = sanitize_doc_scan(false_scan)
+    assert clean is not None
+    assert clean["official_text_extracted"] is False
+    assert clean["docs_accessible"] is False
+    assert clean["deep_document_work"] is False
+    assert not has_official_pdf_text_evidence(clean)
+
+    good = sanitize_doc_scan(_official_pdf_scan_dict(conflict=False))
+    assert good is not None
+    assert good["official_text_extracted"] is True
+    assert has_official_pdf_text_evidence(good)
+
+    leads = [
+        {"contrato_id": "a", "doc_scan": clean},
+        {"contrato_id": "b", "doc_scan": good},
+        {
+            "contrato_id": "c",
+            "doc_scan": {
+                "evidences": [{"extraction_method": "http_get_pdf_binary"}],
+                "official_text_extracted": True,
+                "pdfs_downloaded": 1,
+                "deep_document_work": True,
+            },
+        },
+    ]
+    # only contract b has official PDF text methods
+    assert unique_deep_contract_ids(leads) == {"b"}
+    assert unique_official_contract_ids(
+        [{"contrato_id": "b", "doc_scan": good}]
+    ) == {"b"}
+
+
+def test_reclassify_strips_false_official_before_classify():
+    from scripts.commercial.reajuste_14133.rebind_export import reclassify_contract
+
+    prior = {
+        "contrato_id": "00360305000104-2-000242/2024",
+        "cnpj": "12345678000199",
+        "razao_social": "CONSTRUTORA REGIONAL LTDA",
+        "objeto": "Execução de obra de pavimentação asfáltica",
+        "valor_original": 12_000_000,
+        "uf": "SC",
+        "data_assinatura": "2023-01-15",
+        "data_inicio": "2023-02-01",
+        "data_fim": "2027-02-01",
+        "is_active": True,
+        "orgao_cnpj": "11111111000111",
+        "orgao_contratante": "PREFEITURA",
+        "regime_legal": REGIME_14133,
+        "regime_proven": True,
+        "classificacao": STATUS_LEGAL_REGIME_UNKNOWN,
+        "doc_scan": {
+            "evidences": [
+                {"extraction_method": "url_builder", "field_found": "portal_url"},
+                {"extraction_method": "http_get_api", "field_found": "contrato_metadata"},
+            ],
+            "official_text_extracted": True,
+            "text_extracted": True,
+            "docs_accessible": True,
+            "deep_document_work": True,
+            "pdfs_downloaded": 1,
+            "pdfs_text_extracted": 1,
+            "pipeline_state": "TEXT_EXTRACTED",
+            "regime_14133_mention": True,
+            "reajuste_clause_mention": True,
+        },
+        "canais_contato": {},
+    }
+    new = reclassify_contract(prior, as_of=AS_OF)
+    ds = new.get("doc_scan") or {}
+    assert ds.get("official_text_extracted") is False
+    assert not (new.get("regime_proven") and new.get("regime_legal") == REGIME_14133)

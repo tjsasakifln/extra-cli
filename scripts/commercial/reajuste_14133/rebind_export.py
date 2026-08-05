@@ -56,9 +56,73 @@ OFFICIAL_PDF_METHODS = frozenset(
     }
 )
 
+# Binary download alone is NOT documentary proof (no text extract).
+PDF_BINARY_ONLY_METHODS = frozenset({"http_get_pdf_binary"})
+
 
 class RebindInvariantError(RuntimeError):
     """Export blocked — structural unit inconsistent."""
+
+
+def evidence_methods(doc_scan: dict[str, Any] | None) -> set[str]:
+    """Extraction methods present on stored doc_scan evidences."""
+    if not isinstance(doc_scan, dict):
+        return set()
+    out: set[str] = set()
+    for e in doc_scan.get("evidences") or []:
+        if isinstance(e, dict):
+            m = e.get("extraction_method") or ""
+            if m:
+                out.add(str(m))
+    return out
+
+
+def has_official_pdf_text_evidence(doc_scan: dict[str, Any] | None) -> bool:
+    """True only when at least one evidence used an official PDF text extractor."""
+    return bool(evidence_methods(doc_scan) & OFFICIAL_PDF_METHODS)
+
+
+def sanitize_doc_scan(doc_scan: dict[str, Any] | None) -> dict[str, Any] | None:
+    """Fail-closed flags: portal HTML / API / binary-only never count as official text.
+
+    Stored recovery occasionally left ``official_text_extracted=True`` with only
+    ``url_builder`` / ``http_get_api`` (or binary-only) evidences. That inflated
+    deep/official counters past unique pncp_pdf_* contracts.
+    """
+    if not isinstance(doc_scan, dict):
+        return doc_scan
+    ds = dict(doc_scan)
+    methods = evidence_methods(ds)
+    has_text = bool(methods & OFFICIAL_PDF_METHODS)
+    has_binary_only = bool(methods & PDF_BINARY_ONLY_METHODS) and not has_text
+    if not has_text:
+        # Strip false documentary proof
+        ds["official_text_extracted"] = False
+        ds["text_extracted"] = False
+        ds["docs_accessible"] = False
+        # Keep download counters as telemetry, but deep work requires PDF text path
+        ds["deep_document_work"] = False
+        # Pipeline: binary located ≠ TEXT_EXTRACTED proof
+        if has_binary_only:
+            ds["pipeline_state"] = "DOCUMENT_DOWNLOADED"
+            ds["pdf_binary_located"] = True
+            ds["limitations"] = list(ds.get("limitations") or []) + [
+                "pdf_binary_without_text_extract_not_documentary_proof"
+            ]
+        elif ds.get("pipeline_state") in {"TEXT_EXTRACTED", "CLAUSE_LOCATED", "CLAUSE_HUMAN_CONFIRMED"}:
+            ds["pipeline_state"] = "DOCUMENT_URL_LOCATED"
+            ds["limitations"] = list(ds.get("limitations") or []) + [
+                "official_text_flag_cleared_no_pncp_pdf_method"
+            ]
+        # Mentions without official extract cannot prove regime/clause
+        # (keep raw mention flags for audit; classify_row requires official_text)
+    else:
+        ds["official_text_extracted"] = True
+        ds["text_extracted"] = True
+        ds["deep_document_work"] = True
+        if not ds.get("docs_accessible"):
+            ds["docs_accessible"] = True
+    return ds
 
 
 def git_sha() -> str:
@@ -177,9 +241,10 @@ def _contacts_from_lead(lead: dict[str, Any]) -> dict[str, Any]:
 def reclassify_contract(lead: dict[str, Any], *, as_of: date) -> dict[str, Any]:
     """Re-run shipped classify_row using stored official PDF doc_scan."""
     row = lead_to_row(lead)
-    scan_dict = lead.get("doc_scan") if isinstance(lead.get("doc_scan"), dict) else None
+    raw_scan = lead.get("doc_scan") if isinstance(lead.get("doc_scan"), dict) else None
+    scan_dict = sanitize_doc_scan(raw_scan)
     doc_scan = doc_scan_from_dict(scan_dict)
-    # Preserve as_dict for export continuity
+    # Preserve as_dict for export continuity (sanitized)
     if doc_scan is not None and scan_dict is not None:
 
         def _as_dict() -> dict[str, Any]:
@@ -201,8 +266,8 @@ def reclassify_contract(lead: dict[str, Any], *, as_of: date) -> dict[str, Any]:
         contacts=contacts,
         human_review_done=human,
     )
-    # Preserve documentary counters from prior deep work
-    if scan_dict:
+    # Persist sanitized documentary state (never re-inflate false official flags)
+    if scan_dict is not None:
         new_lead["doc_scan"] = scan_dict
         new_lead["document_pipeline_state"] = scan_dict.get("pipeline_state") or new_lead.get(
             "document_pipeline_state"
@@ -211,29 +276,31 @@ def reclassify_contract(lead: dict[str, Any], *, as_of: date) -> dict[str, Any]:
 
 
 def unique_deep_contract_ids(leads: list[dict[str, Any]]) -> set[str]:
-    """Contracts with real PDF download work (not portal HTML)."""
+    """Contracts with real official PDF *text* extract (pncp_pdf_* / process_documents_pdf).
+
+    Portal HTML, API metadata, and binary-only downloads do NOT count.
+    """
     out: set[str] = set()
     for lead in leads:
         ds = lead.get("doc_scan") or {}
         if not isinstance(ds, dict):
             continue
-        if ds.get("deep_document_work") or int(ds.get("pdfs_downloaded") or 0) > 0:
-            cid = str(lead.get("contrato_id") or "")
-            if cid:
-                out.add(cid)
-        # also count official text as deep documentary work
-        if ds.get("official_text_extracted"):
-            cid = str(lead.get("contrato_id") or "")
-            if cid:
-                out.add(cid)
+        if not has_official_pdf_text_evidence(ds):
+            continue
+        cid = str(lead.get("contrato_id") or "")
+        if cid:
+            out.add(cid)
     return out
 
 
 def unique_official_contract_ids(leads: list[dict[str, Any]]) -> set[str]:
+    """official_text_extracted only when backed by official PDF text methods."""
     out: set[str] = set()
     for lead in leads:
         ds = lead.get("doc_scan") or {}
-        if isinstance(ds, dict) and ds.get("official_text_extracted"):
+        if not isinstance(ds, dict):
+            continue
+        if ds.get("official_text_extracted") and has_official_pdf_text_evidence(ds):
             cid = str(lead.get("contrato_id") or "")
             if cid:
                 out.add(cid)
@@ -299,7 +366,7 @@ def validate_invariants(
             f"e.g. {bad[0].get('contrato_id')}"
         )
 
-    # 2) deep counts unique
+    # 2) deep counts unique — must equal pncp_pdf text extracts only
     deep_ids = unique_deep_contract_ids(leads)
     official_ids = unique_official_contract_ids(leads)
     funnel = manifest.get("funnel") or {}
@@ -318,6 +385,18 @@ def validate_invariants(
                 f"INVARIANT official_pdf_text_extracted={metrics['official_pdf_text_extracted']} "
                 f"!= unique_official={len(official_ids)}"
             )
+    # 2b) no false official_text without pncp_pdf_* evidence
+    false_official = [
+        lead
+        for lead in leads
+        if (lead.get("doc_scan") or {}).get("official_text_extracted")
+        and not has_official_pdf_text_evidence(lead.get("doc_scan") or {})
+    ]
+    if false_official:
+        errors.append(
+            f"INVARIANT official_text without pncp_pdf method: n={len(false_official)} "
+            f"e.g. {false_official[0].get('contrato_id')}"
+        )
 
     # 3) HEAD binding
     if manifest.get("git_sha") != head_sha:
@@ -581,10 +660,13 @@ def rebind_export(
             "rows_read": len(ranked),
             "execution_complete": True,
             "docs_processed_deep_definition": (
-                "unique contracts with PNCP compra PDF download or official text extract"
+                "unique contracts with official PDF text extract "
+                "(pncp_pdf_pypdf2|pncp_pdf_pypdf|process_documents_pdf|http_get_pdf_text); "
+                "portal HTML / API / binary-only do not count"
             ),
             "rebind_export": True,
             "national_v21_pdf_recovery": True,
+            "doc_scan_sanitized": True,
         },
         "leads": ranked,
         "top_leads": ranked[:250],
@@ -635,6 +717,27 @@ def rebind_export(
     # Evidence LAST so timestamps bind to rebind window (overrides export suite)
     evidence_path = run_dir / "document_evidence.jsonl"
     rebuild_evidence_jsonl(ranked, evidence_path, stamp_window=(started, finished))
+
+    # Checkpoint coherence: rewrite docs_processed_deep to unique_deep (not stale 200)
+    try:
+        from scripts.commercial.reajuste_14133.checkpoint import mark_stage
+
+        mark_stage(
+            run_dir,
+            "rebind_export",
+            docs_processed_deep=len(deep_ids),
+            official_pdf_text_extracted=len(official_ids),
+            doc_fetches=len(deep_ids),
+            n_leads=len(ranked),
+            n_suppliers=len(portfolios),
+            rebind_export=True,
+            git_sha=head,
+            evidence_commit_sha=head,
+            finished_at=finished,
+        )
+    except Exception as exc:  # noqa: BLE001 — never fail rebind solely on checkpoint write
+        # surface later only if checkpoint exists and fails invariant
+        _ = exc
 
     # Human review from reclassified data
     hr = build_human_review(portfolios, ranked)
@@ -746,6 +849,20 @@ def rebind_export(
                     break
     if mismatches > 3:
         errors.append(f"INVARIANT CSV/JSON mismatches total>={mismatches}")
+
+    # 5) checkpoint must match unique deep after rebind
+    ck_path = run_dir / ".checkpoint" / "checkpoint.json"
+    if ck_path.exists():
+        try:
+            ck = json.loads(ck_path.read_text(encoding="utf-8"))
+            ck_deep = ck.get("docs_processed_deep")
+            if ck_deep is not None and int(ck_deep) != len(deep_ids):
+                errors.append(
+                    f"INVARIANT checkpoint.docs_processed_deep={ck_deep} "
+                    f"!= unique_deep={len(deep_ids)}"
+                )
+        except (json.JSONDecodeError, TypeError, ValueError) as exc:
+            errors.append(f"INVARIANT checkpoint unreadable: {exc}")
 
     if errors:
         raise RebindInvariantError("; ".join(errors[:12]))
