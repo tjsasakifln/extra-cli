@@ -23,11 +23,29 @@ from scripts.commercial.reajuste_14133 import (
     STATUS_LEGAL_REGIME_CONFLICT,
     STATUS_LEGAL_REGIME_UNKNOWN,
     STATUS_NOT_ELIGIBLE,
+    TECHNICALLY_VERIFIED_PENDING_TIAGO,
     VALUE_CONFIRMED,
     VALUE_CONFLICT,
     VALUE_OUTLIER_REQUIRES_REVIEW,
     VALUE_PLAUSIBLE,
     VALUE_UNUSABLE,
+)
+
+# Technical gates (no human accept) required for TECHNICALLY_VERIFIED_PENDING_TIAGO
+TECHNICAL_GATES = (
+    "empresa_privada_confirmada",
+    "objeto_construcao_confirmado",
+    "documento_vinculo_validado",
+    "regime_14133_confirmado",
+    "clausula_reajuste_localizada",
+    "data_base_exata_localizada",
+    "indice_ou_formula_localizada",
+    "interregno_completo",
+    "obrigacao_financeira_potencialmente_aberta",
+    "ausencia_prova_concessao_integral",
+    "valor_contratual_plausivel",
+    "contato_empresarial_verificavel",
+    "argumento_comercial_nao_enganoso",
 )
 
 EXPLORATORY_LANGUAGE = (
@@ -40,6 +58,7 @@ EXPLORATORY_LANGUAGE = (
 OUTREACH_GATES = (
     "empresa_privada_confirmada",
     "objeto_construcao_confirmado",
+    "documento_vinculo_validado",
     "regime_14133_confirmado",
     "clausula_reajuste_localizada",
     "data_base_exata_localizada",
@@ -72,6 +91,7 @@ def _gate_map(
     *,
     private_supplier: bool,
     is_construction: bool,
+    document_link_validated: bool,
     regime_proven_14133: bool,
     clause_located: bool,
     data_base_exact: bool,
@@ -87,6 +107,7 @@ def _gate_map(
     return {
         "empresa_privada_confirmada": private_supplier,
         "objeto_construcao_confirmado": is_construction,
+        "documento_vinculo_validado": document_link_validated,
         "regime_14133_confirmado": regime_proven_14133,
         "clausula_reajuste_localizada": clause_located,
         "data_base_exata_localizada": data_base_exact,
@@ -122,11 +143,17 @@ def evaluate_outreach(
     argument_cites_unproven_value: bool = False,
     docs_text_extracted: bool = False,
     legal_regime_conflict: bool = False,
+    document_link_validated: bool = False,
+    document_link_status: str | None = None,
 ) -> OutreachResult:
     """Classify commercial outreach readiness (fail-closed).
 
     Never promotes LEGAL_REGIME_UNKNOWN to ready. Absence of apostila alone
     does not satisfy absence-of-prior-adjustment for ready status.
+
+    TECHNICALLY_VERIFIED_PENDING_TIAGO = all technical gates without human accept.
+    OUTREACH_READY still requires explicit Tiago decision (human_review_done).
+    Never forge human_review_done=True.
     """
     if data_base_exact is None:
         data_base_exact = data_base_status == DATA_BASE_CONFIRMED
@@ -144,9 +171,17 @@ def evaluate_outreach(
 
     argument_ok = not argument_cites_unproven_value
 
+    # Document link: CONFLICT never validates; VERIFIED or PARTIAL may
+    if document_link_status == "DOCUMENT_LINK_CONFLICT":
+        document_link_validated = False
+    elif document_link_status in {"DOCUMENT_LINK_VERIFIED", "DOCUMENT_LINK_PARTIAL"}:
+        document_link_validated = True
+    # else keep explicit flag
+
     gates = _gate_map(
         private_supplier=private_supplier,
         is_construction=is_construction,
+        document_link_validated=bool(document_link_validated),
         regime_proven_14133=bool(regime == REGIME_14133 and regime_proven),
         clause_located=clause_located and docs_text_extracted,
         data_base_exact=bool(data_base_exact),
@@ -220,24 +255,8 @@ def evaluate_outreach(
             blocked_by=blocked,
         )
 
-    core_ready = all(
-        gates[k]
-        for k in (
-            "empresa_privada_confirmada",
-            "objeto_construcao_confirmado",
-            "regime_14133_confirmado",
-            "clausula_reajuste_localizada",
-            "data_base_exata_localizada",
-            "indice_ou_formula_localizada",
-            "interregno_completo",
-            "obrigacao_financeira_potencialmente_aberta",
-            "ausencia_prova_concessao_integral",
-            "valor_contratual_plausivel",
-            "contato_empresarial_verificavel",
-            "revisao_humana_concluida",
-            "argumento_comercial_nao_enganoso",
-        )
-    )
+    technical_ready = all(gates[k] for k in TECHNICAL_GATES)
+    core_ready = technical_ready and gates["revisao_humana_concluida"]
 
     if core_ready and adjustment_history != PRIOR_ADJUSTMENT_CONFIRMED:
         if has_valor_potencial:
@@ -262,6 +281,21 @@ def evaluate_outreach(
             blocked_by=["valor_potencial_sem_saldo_ou_serie"],
         )
 
+    # Pre-human technical pack — never OUTREACH_READY without Tiago
+    if technical_ready and adjustment_history != PRIOR_ADJUSTMENT_CONFIRMED:
+        return OutreachResult(
+            status=TECHNICALLY_VERIFIED_PENDING_TIAGO,
+            gates=gates,
+            gates_passed=passed,
+            language_allowed="exploratory_pending_tiago_decision",
+            next_action=(
+                "Pacote técnico completo — aguardar decisão explícita de Tiago "
+                "(ACCEPT/REJECT/DEFER). Não enviar contato."
+            ),
+            reasons=["technical_gates_passed_pending_tiago"],
+            blocked_by=["revisao_humana_concluida"],
+        )
+
     # Document request: construction + fit + missing docs
     doc_candidate = (
         is_construction
@@ -274,6 +308,7 @@ def evaluate_outreach(
             or not data_base_exact
             or not index_in_clause
             or not docs_text_extracted
+            or not document_link_validated
             or eligibility_status in {STATUS_HOT_VERIFIED, "STRONG_CANDIDATE", "REVIEW_REQUIRED"}
         )
     )

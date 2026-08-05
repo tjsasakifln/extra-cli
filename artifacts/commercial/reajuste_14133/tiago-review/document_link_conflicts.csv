@@ -1,0 +1,2 @@
+empresa,cnpj,contrato_id,document,status,reasons,excerpt
+STRATA ENGENHARIA LTDA (mismatch example),regression-seed,unrelated-construction,documento_lisdexanfetamina,DOCUMENT_LINK_CONFLICT,pharma_document_vs_non_pharma_contract,aquisição de lisdexanfetamina dimesilato

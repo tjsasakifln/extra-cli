@@ -112,6 +112,21 @@ class Evidence:
         return asdict(self)
 
 
+# Documentary types sought during deep recovery (priority queue)
+DOC_TYPES_SOUGHT = (
+    "edital",
+    "contrato_ou_minuta",
+    "orcamento_estimado",
+    "planilha_orcamentaria",
+    "termo_referencia_ou_projeto_basico",
+    "cronograma",
+    "apostilas",
+    "termos_aditivos",
+    "publicacoes_reajuste",
+    "medicoes_ou_pagamentos",
+)
+
+
 @dataclass
 class DocumentScanResult:
     evidences: list[Evidence] = field(default_factory=list)
@@ -140,6 +155,17 @@ class DocumentScanResult:
     pdfs_downloaded: int = 0
     pdfs_text_extracted: int = 0
     deep_document_work: bool = False  # True only if PDF download+extract attempted with success or hard fail after download
+    # Priority-queue deep recovery fields
+    document_link_status: str | None = None
+    document_link: dict[str, Any] | None = None
+    signals_usable: bool = True
+    exact_data_base: dict[str, Any] | None = None
+    data_base_exata_localizada: bool = False
+    index_formula: dict[str, Any] | None = None
+    doc_type_inventory: dict[str, Any] = field(default_factory=dict)
+    formats_processed: list[str] = field(default_factory=list)
+    files_processed: int = 0
+    early_stop_disabled: bool = False
 
     def as_dict(self) -> dict[str, Any]:
         d = asdict(self)
@@ -368,8 +394,18 @@ def extract_from_text(
     return res
 
 
-def try_extract_pdf_via_process_documents(pdf_bytes: bytes) -> tuple[str | None, int]:
-    """Extract text from PDF bytes using PyPDF2/pypdf. Returns (text, page_count)."""
+def try_extract_pdf_via_process_documents(
+    pdf_bytes: bytes,
+    *,
+    max_pages: int | None = None,
+    full_text_first: bool = True,
+) -> tuple[str | None, int]:
+    """Extract text from PDF bytes using PyPDF2/pypdf. Returns (text, page_count).
+
+    For priority deepen: process all pages (max_pages=None). When full_text_first,
+    extract all pages then caller selects evidence windows from the full text.
+    Legacy default was first 50 pages; pass max_pages=50 to restore that cap.
+    """
     if not pdf_bytes or pdf_bytes[:4] != b"%PDF":
         return None, 0
     try:
@@ -383,7 +419,8 @@ def try_extract_pdf_via_process_documents(pdf_bytes: bytes) -> tuple[str | None,
         reader = PdfReader(BytesIO(pdf_bytes))
         parts: list[str] = []
         n_pages = len(reader.pages)
-        for i, page in enumerate(reader.pages[:50]):
+        page_iter = reader.pages if max_pages is None else reader.pages[: max(1, max_pages)]
+        for i, page in enumerate(page_iter):
             try:
                 t = page.extract_text() or ""
             except Exception:
@@ -391,9 +428,120 @@ def try_extract_pdf_via_process_documents(pdf_bytes: bytes) -> tuple[str | None,
             if t.strip():
                 parts.append(f"[page={i + 1}]\n{t}")
         text = "\n".join(parts).strip()
+        # full_text_first is informational for callers; extraction already covers pages
+        _ = full_text_first
         return (text or None), n_pages
     except Exception:
         return None, 0
+
+
+def try_extract_docx(data: bytes) -> tuple[str | None, str]:
+    """Extract plain text from DOCX (Office Open XML)."""
+    import zipfile
+
+    try:
+        with zipfile.ZipFile(BytesIO(data)) as zf:
+            if "word/document.xml" not in zf.namelist():
+                return None, "not_docx"
+            xml = zf.read("word/document.xml").decode("utf-8", errors="replace")
+        # strip tags crudely
+        text = re.sub(r"</w:p>", "\n", xml)
+        text = re.sub(r"<[^>]+>", " ", text)
+        text = re.sub(r"\s+", " ", text).strip()
+        return (text or None), "docx"
+    except Exception as exc:
+        return None, f"docx_error:{type(exc).__name__}"
+
+
+def try_extract_xlsx_ods(data: bytes, *, filename: str = "") -> tuple[str | None, str]:
+    """Extract cell text from XLSX or ODS for budget/competence search."""
+    import zipfile
+
+    name = filename.lower()
+    try:
+        if name.endswith(".ods") or data[:2] == b"PK":
+            with zipfile.ZipFile(BytesIO(data)) as zf:
+                names = zf.namelist()
+                # XLSX shared strings + sheets
+                if any(n.startswith("xl/") for n in names):
+                    parts: list[str] = []
+                    if "xl/sharedStrings.xml" in names:
+                        ss = zf.read("xl/sharedStrings.xml").decode("utf-8", errors="replace")
+                        parts.append(re.sub(r"<[^>]+>", " ", ss))
+                    for n in names:
+                        if n.startswith("xl/worksheets/") and n.endswith(".xml"):
+                            sheet = zf.read(n).decode("utf-8", errors="replace")
+                            parts.append(re.sub(r"<[^>]+>", " ", sheet))
+                    text = re.sub(r"\s+", " ", "\n".join(parts)).strip()
+                    return (text or None), "xlsx"
+                if "content.xml" in names:
+                    content = zf.read("content.xml").decode("utf-8", errors="replace")
+                    text = re.sub(r"<[^>]+>", " ", content)
+                    text = re.sub(r"\s+", " ", text).strip()
+                    return (text or None), "ods"
+        return None, "unknown_spreadsheet"
+    except Exception as exc:
+        return None, f"sheet_error:{type(exc).__name__}"
+
+
+def safe_zip_list(data: bytes, *, max_members: int = 40, max_member_bytes: int = 15_000_000) -> list[tuple[str, bytes]]:
+    """Safely list and read ZIP members (zip-slip resistant, size capped)."""
+    import zipfile
+
+    out: list[tuple[str, bytes]] = []
+    try:
+        with zipfile.ZipFile(BytesIO(data)) as zf:
+            for info in zf.infolist()[:max_members]:
+                name = info.filename
+                if name.endswith("/"):
+                    continue
+                # zip-slip
+                if ".." in name.replace("\\", "/").split("/"):
+                    continue
+                if info.file_size > max_member_bytes:
+                    continue
+                try:
+                    raw = zf.read(info)
+                except Exception:
+                    continue
+                if len(raw) > max_member_bytes:
+                    continue
+                out.append((name, raw))
+    except Exception:
+        return []
+    return out
+
+
+def _classify_doc_type(title: str) -> str | None:
+    t = title.lower()
+    if re.search(r"edital", t):
+        return "edital"
+    if re.search(r"contrato|minuta", t):
+        return "contrato_ou_minuta"
+    if re.search(r"or[cç]amento\s+estimado|orcamento estimado", t):
+        return "orcamento_estimado"
+    if re.search(r"planilha|or[cç]ament", t):
+        return "planilha_orcamentaria"
+    if re.search(r"termo\s+de\s+refer|projeto\s+b[aá]sico", t):
+        return "termo_referencia_ou_projeto_basico"
+    if re.search(r"cronograma", t):
+        return "cronograma"
+    if re.search(r"apostila", t):
+        return "apostilas"
+    if re.search(r"aditiv", t):
+        return "termos_aditivos"
+    if re.search(r"reajust", t):
+        return "publicacoes_reajuste"
+    if re.search(r"medi[cç]|pagamento|empenho", t):
+        return "medicoes_ou_pagamentos"
+    return None
+
+
+def _empty_doc_inventory() -> dict[str, Any]:
+    return {
+        dtype: {"sought": True, "found": False, "processed": False, "unavailable": True}
+        for dtype in DOC_TYPES_SOUGHT
+    }
 
 
 def _http_get(
@@ -505,9 +653,40 @@ def recover_pncp_official_documents(
     orgao_cnpj: str | None,
     orgao_nome: str | None,
     max_pdfs: int = 3,
+    priority_deep: bool = False,
+    max_pages: int | None = 50,
+    allow_non_pdf: bool = False,
+    early_stop_on_regime_clause: bool = True,
+    contract_object: str | None = None,
+    contract_fornecedor: str | None = None,
+    contract_fornecedor_cnpj: str | None = None,
+    contract_processo: str | None = None,
+    contract_numero: str | None = None,
 ) -> DocumentScanResult:
-    """Real recovery: contract meta → linked compra → download PDFs → extract text."""
+    """Real recovery: contract meta → linked compra → download files → extract text.
+
+    Priority deepen (priority_deep=True):
+      - no fixed 3-PDF cap (max_pdfs large)
+      - all pages (max_pages=None)
+      - no early stop after regime+clause
+      - multi-format: PDF, DOCX, XLSX, ODS, ZIP
+    """
+    from scripts.commercial.reajuste_14133.domain.data_base_exact import extract_exact_data_base
+    from scripts.commercial.reajuste_14133.domain.document_link import (
+        DOCUMENT_LINK_CONFLICT,
+        invalidate_signals_on_conflict,
+        verify_document_link,
+    )
+
+    if priority_deep:
+        max_pdfs = max(max_pdfs, 50)
+        max_pages = None
+        allow_non_pdf = True
+        early_stop_on_regime_clause = False
+
     res = DocumentScanResult()
+    res.doc_type_inventory = _empty_doc_inventory()
+    res.early_stop_disabled = not early_stop_on_regime_clause
     parsed = parse_pncp_contrato_id(contrato_id)
     if not parsed:
         res.limitations.append("contrato_id_not_pncp_parseable")
@@ -518,8 +697,10 @@ def recover_pncp_official_documents(
 
     meta = fetch_pncp_contract_meta(cnpj, ano, seq)
     compra_key = None
+    meta_object = None
     if meta:
         compra_key = meta.get("numeroControlePncpCompra") or meta.get("numeroControlePNCPCompra")
+        meta_object = str(meta.get("objetoContrato") or meta.get("objeto") or "")
         res.evidences.append(
             Evidence(
                 doc_type="pncp_contrato_api",
@@ -527,7 +708,7 @@ def recover_pncp_official_documents(
                 identificador_oficial=contrato_id,
                 url_or_location=f"{PNCP_API}/orgaos/{cnpj}/contratos/{ano}/{seq}",
                 consulted_at=_now(),
-                excerpt=str(meta.get("objetoContrato") or "")[:300],
+                excerpt=meta_object[:300],
                 content_hash=hashlib.sha256(str(meta).encode()).hexdigest()[:32],
                 extraction_method="http_get_api",
                 confidence="medium",
@@ -552,60 +733,93 @@ def recover_pncp_official_documents(
         res.limitations.append("pncp_compra_arquivos_empty")
         return res
 
+    # Inventory: mark found types from titles
+    for arq in arquivos:
+        title = str(arq.get("titulo") or arq.get("tipoDocumentoNome") or "")
+        dtype = _classify_doc_type(title)
+        if dtype and dtype in res.doc_type_inventory:
+            res.doc_type_inventory[dtype]["found"] = True
+            res.doc_type_inventory[dtype]["unavailable"] = False
+
     ranked = sorted(arquivos, key=_rank_arquivo, reverse=True)
-    pdfs_done = 0
-    for arq in ranked:
-        if pdfs_done >= max_pdfs:
-            break
-        title = str(arq.get("titulo") or arq.get("tipoDocumentoNome") or "documento")
-        # skip obvious non-pdf spreadsheets early
-        if re.search(r"\.(xls|xlsx|zip|doc)(\b|$)", title, re.I) and not re.search(r"\.pdf", title, re.I):
-            continue
-        url = _arquivo_url(arq, ccnpj, cano, cseq)
-        if not url:
-            continue
-        time.sleep(0.2)
-        body, err, ctype = _http_get(url, timeout=60, max_bytes=12_000_000)
-        if err or not body:
-            res.limitations.append(f"arquivo_fetch_error:{title[:40]}:{err}")
-            res.network_error = True
-            continue
-        is_pdf = body[:4] == b"%PDF" or "pdf" in (ctype or "")
-        if not is_pdf:
-            res.limitations.append(f"arquivo_not_pdf:{title[:40]}")
-            continue
-        res.pdfs_downloaded += 1
-        res.pdf_binary_located = True
-        res.pipeline_state = DOC_DOWNLOADED
-        res.deep_document_work = True
-        text, n_pages = try_extract_pdf_via_process_documents(body)
-        if not text:
-            res.limitations.append(f"pdf_parse_failed:{title[:40]}")
-            res.pipeline_state = DOC_PARSE_FAILED
+    files_done = 0
+    combined_official_text: list[str] = []
+    any_conflict = False
+    best_link_status: str | None = None
+
+    def _process_text_blob(
+        text: str,
+        *,
+        title: str,
+        url: str | None,
+        method: str,
+        page_hint: str | None,
+        is_spreadsheet: bool = False,
+    ) -> None:
+        nonlocal any_conflict, best_link_status
+        # Document link gate before using signals
+        # Bind compra files to the contract via numeroControlePncpCompra.
+        # Do NOT compare contract sequencial with compra sequencial (different spaces).
+        # When meta already linked this compra, both sides use the compra identity.
+        link = verify_document_link(
+            contract_numero_controle_pncp_compra=str(compra_key) if compra_key else None,
+            contract_orgao_cnpj=orgao_cnpj or cnpj,
+            contract_ano=cano,
+            contract_sequencial=cseq,
+            contract_processo=contract_processo,
+            contract_numero=contract_numero or contrato_id,
+            contract_object=contract_object or meta_object,
+            contract_contratacao_object=meta_object,
+            contract_fornecedor=contract_fornecedor,
+            contract_fornecedor_cnpj=contract_fornecedor_cnpj,
+            doc_numero_controle_pncp_compra=str(compra_key) if compra_key else None,
+            doc_orgao_cnpj=ccnpj,
+            doc_ano=cano,
+            doc_sequencial=cseq,
+            doc_object_or_title=title,
+            doc_text=text[:20000],
+            doc_fornecedor_mentions=text[:8000],
+        )
+        best_link_status = link.status
+        res.document_link = link.as_dict()
+        res.document_link_status = link.status
+        if link.status == DOCUMENT_LINK_CONFLICT:
+            any_conflict = True
+            res.signals_usable = False
+            wiped = invalidate_signals_on_conflict(
+                extract_from_text(
+                    text,
+                    doc_type=f"pncp_file:{title[:60]}",
+                    url=url,
+                    orgao=orgao_nome,
+                    official_id=contrato_id,
+                    method=method,
+                    is_official_document=True,
+                    page_hint=page_hint,
+                ).as_dict(),
+                link,
+            )
+            res.limitations.extend(wiped.get("limitations") or [])
             res.evidences.append(
                 Evidence(
-                    doc_type="pncp_compra_pdf",
+                    doc_type=f"pncp_file_conflict:{title[:40]}",
                     orgao_emissor=orgao_nome,
                     identificador_oficial=contrato_id,
                     url_or_location=url,
                     consulted_at=_now(),
-                    excerpt=f"[PDF_BINARY bytes={len(body)} pages={n_pages} title={title[:80]}]",
-                    content_hash=hashlib.sha256(body).hexdigest(),
-                    extraction_method="http_get_pdf_binary",
-                    confidence="low",
-                    field_found="pdf_binary_only",
+                    excerpt=f"DOCUMENT_LINK_CONFLICT: {', '.join(link.reasons)[:200]}",
+                    content_hash=hashlib.sha256(text[:2000].encode()).hexdigest()[:32],
+                    extraction_method=method,
+                    confidence="none",
+                    field_found="document_link_conflict",
+                    page=page_hint,
                 )
             )
-            pdfs_done += 1
-            continue
+            return
 
-        res.pdfs_text_extracted += 1
-        res.pdf_text_pages += n_pages
-        page_hint = f"1-{min(n_pages, 50)}" if n_pages else None
-        method = "pncp_pdf_pypdf2"
         page = extract_from_text(
             text,
-            doc_type=f"pncp_pdf:{title[:60]}",
+            doc_type=f"pncp_file:{title[:60]}",
             url=url,
             orgao=orgao_nome,
             official_id=contrato_id,
@@ -614,12 +828,217 @@ def recover_pncp_official_documents(
             page_hint=page_hint,
         )
         _merge_official(res, page)
-        pdfs_done += 1
-        # Stop early if we already have regime + clause signals
-        if res.regime_14133_mention and res.reajuste_clause_mention:
+        combined_official_text.append(text)
+        # Exact data-base
+        db = extract_exact_data_base(
+            text,
+            document=title[:120],
+            page_hint=page_hint,
+            is_budget_spreadsheet=is_spreadsheet,
+        )
+        if db.data_base_exata_localizada:
+            res.data_base_exata_localizada = True
+            res.exact_data_base = db.as_dict()
+        elif res.exact_data_base is None:
+            res.exact_data_base = db.as_dict()
+        # Index/formula bound to clause
+        if page.index_in_clause:
+            res.index_formula = {
+                "indices": list(page.index_in_clause),
+                "document": title[:120],
+                "page": page_hint,
+                "bound_to_reajuste_clause": True,
+                "formula": None,
+                "weights": None,
+            }
+        dtype = _classify_doc_type(title)
+        if dtype and dtype in res.doc_type_inventory:
+            res.doc_type_inventory[dtype]["processed"] = True
+            res.doc_type_inventory[dtype]["found"] = True
+            res.doc_type_inventory[dtype]["unavailable"] = False
+
+    for arq in ranked:
+        if files_done >= max_pdfs:
+            break
+        title = str(arq.get("titulo") or arq.get("tipoDocumentoNome") or "documento")
+        url = _arquivo_url(arq, ccnpj, cano, cseq)
+        if not url:
+            continue
+        time.sleep(0.15 if priority_deep else 0.2)
+        body, err, ctype = _http_get(url, timeout=90 if priority_deep else 60, max_bytes=20_000_000)
+        if err or not body:
+            res.limitations.append(f"arquivo_fetch_error:{title[:40]}:{err}")
+            res.network_error = True
+            continue
+
+        is_pdf = body[:4] == b"%PDF" or "pdf" in (ctype or "")
+        is_zip = body[:2] == b"PK" and re.search(r"\.zip(\b|$)", title, re.I)
+        is_docx = bool(re.search(r"\.docx(\b|$)", title, re.I)) or (
+            body[:2] == b"PK" and "word" in title.lower()
+        )
+        is_sheet = bool(re.search(r"\.(xlsx|xls|ods)(\b|$)", title, re.I))
+
+        if is_pdf:
+            res.pdfs_downloaded += 1
+            res.pdf_binary_located = True
+            res.pipeline_state = DOC_DOWNLOADED
+            res.deep_document_work = True
+            text, n_pages = try_extract_pdf_via_process_documents(
+                body, max_pages=max_pages, full_text_first=True
+            )
+            if not text:
+                res.limitations.append(f"pdf_parse_failed:{title[:40]}")
+                res.pipeline_state = DOC_PARSE_FAILED
+                res.evidences.append(
+                    Evidence(
+                        doc_type="pncp_compra_pdf",
+                        orgao_emissor=orgao_nome,
+                        identificador_oficial=contrato_id,
+                        url_or_location=url,
+                        consulted_at=_now(),
+                        excerpt=f"[PDF_BINARY bytes={len(body)} pages={n_pages} title={title[:80]}]",
+                        content_hash=hashlib.sha256(body).hexdigest(),
+                        extraction_method="http_get_pdf_binary",
+                        confidence="low",
+                        field_found="pdf_binary_only",
+                    )
+                )
+                files_done += 1
+                continue
+            res.pdfs_text_extracted += 1
+            res.pdf_text_pages += n_pages
+            page_hint = f"1-{n_pages}" if n_pages else None
+            if "pdf" not in res.formats_processed:
+                res.formats_processed.append("pdf")
+            _process_text_blob(
+                text,
+                title=title,
+                url=url,
+                method="pncp_pdf_pypdf2",
+                page_hint=page_hint,
+            )
+            files_done += 1
+            res.files_processed += 1
+        elif allow_non_pdf and is_docx:
+            text, kind = try_extract_docx(body)
+            res.deep_document_work = True
+            if text:
+                if "docx" not in res.formats_processed:
+                    res.formats_processed.append("docx")
+                _process_text_blob(
+                    text, title=title, url=url, method="pncp_docx", page_hint=None
+                )
+                files_done += 1
+                res.files_processed += 1
+            else:
+                res.limitations.append(f"docx_parse_failed:{title[:40]}:{kind}")
+        elif allow_non_pdf and is_sheet:
+            text, kind = try_extract_xlsx_ods(body, filename=title)
+            res.deep_document_work = True
+            if text:
+                if kind not in res.formats_processed:
+                    res.formats_processed.append(kind)
+                _process_text_blob(
+                    text,
+                    title=title,
+                    url=url,
+                    method=f"pncp_{kind}",
+                    page_hint="sheet",
+                    is_spreadsheet=True,
+                )
+                files_done += 1
+                res.files_processed += 1
+            else:
+                res.limitations.append(f"sheet_parse_failed:{title[:40]}:{kind}")
+        elif allow_non_pdf and is_zip:
+            res.deep_document_work = True
+            members = safe_zip_list(body)
+            if "zip" not in res.formats_processed:
+                res.formats_processed.append("zip")
+            for mname, mbody in members:
+                if mbody[:4] == b"%PDF":
+                    text, n_pages = try_extract_pdf_via_process_documents(
+                        mbody, max_pages=max_pages, full_text_first=True
+                    )
+                    if text:
+                        _process_text_blob(
+                            text,
+                            title=f"{title}/{mname}",
+                            url=url,
+                            method="pncp_zip_pdf",
+                            page_hint=f"1-{n_pages}" if n_pages else None,
+                        )
+                        res.pdfs_text_extracted += 1
+                elif mname.lower().endswith(".docx"):
+                    text, _k = try_extract_docx(mbody)
+                    if text:
+                        _process_text_blob(
+                            text,
+                            title=f"{title}/{mname}",
+                            url=url,
+                            method="pncp_zip_docx",
+                            page_hint=None,
+                        )
+                elif re.search(r"\.(xlsx|ods)$", mname, re.I):
+                    text, kind = try_extract_xlsx_ods(mbody, filename=mname)
+                    if text:
+                        _process_text_blob(
+                            text,
+                            title=f"{title}/{mname}",
+                            url=url,
+                            method=f"pncp_zip_{kind}",
+                            page_hint="sheet",
+                            is_spreadsheet=True,
+                        )
+            files_done += 1
+            res.files_processed += 1
+        else:
+            if not is_pdf:
+                res.limitations.append(f"arquivo_skipped_format:{title[:40]}")
+            continue
+
+        # Early stop only when NOT priority deep and we have regime+clause
+        if (
+            early_stop_on_regime_clause
+            and res.regime_14133_mention
+            and res.reajuste_clause_mention
+            and res.data_base_exata_localizada
+        ):
+            break
+        if (
+            early_stop_on_regime_clause
+            and not priority_deep
+            and res.regime_14133_mention
+            and res.reajuste_clause_mention
+        ):
             break
 
-    if res.official_text_extracted:
+    # Final exact data-base pass on combined text
+    if combined_official_text and not res.data_base_exata_localizada:
+        db = extract_exact_data_base(
+            "\n".join(combined_official_text),
+            document="combined_official",
+            page_hint=None,
+        )
+        res.exact_data_base = db.as_dict()
+        res.data_base_exata_localizada = db.data_base_exata_localizada
+
+    if any_conflict and not res.signals_usable:
+        # Wipe aggregate signals if conflict was the only content
+        if not any(
+            e.field_found not in {"document_link_conflict", "contrato_metadata", "portal_url", "pdf_binary_only"}
+            for e in res.evidences
+        ):
+            res.regime_14133_mention = False
+            res.reajuste_clause_mention = False
+            res.index_in_clause = []
+            res.index_candidates = []
+            res.data_base_exata_localizada = False
+
+    if res.document_link_status is None and best_link_status:
+        res.document_link_status = best_link_status
+
+    if res.official_text_extracted and res.signals_usable:
         res.docs_accessible = True
         res.text_extracted = True
         if res.reajuste_clause_mention:
@@ -670,11 +1089,17 @@ def verify_contract_documents(
     objeto: str | None,
     fetch_remote: bool = False,
     max_fetches: int = 1,
+    priority_deep: bool = False,
+    fornecedor_nome: str | None = None,
+    fornecedor_cnpj: str | None = None,
+    processo: str | None = None,
+    numero_contrato: str | None = None,
 ) -> DocumentScanResult:
-    """Scan contract signals. Real documentary proof only via PNCP arquivos PDFs.
+    """Scan contract signals. Real documentary proof only via PNCP arquivos.
 
     Object + portal URL are always recorded as low-confidence signals.
-    When fetch_remote=True, recover compra PDFs and extract text.
+    When fetch_remote=True, recover compra files and extract text.
+    priority_deep lifts 3-PDF / 50-page / early-stop / non-PDF exclusions.
     """
     merged = DocumentScanResult()
     # --- Object field: signal only ---
@@ -734,12 +1159,21 @@ def verify_contract_documents(
         )
         return merged
 
-    # --- Real path: PNCP contract meta + compra arquivos + PDF extract ---
+    # --- Real path: PNCP contract meta + compra arquivos + multi-format extract ---
     deep = recover_pncp_official_documents(
         contrato_id=contrato_id,
         orgao_cnpj=orgao_cnpj,
         orgao_nome=orgao_nome,
-        max_pdfs=min(3, max(1, max_fetches)),
+        max_pdfs=50 if priority_deep else min(3, max(1, max_fetches)),
+        priority_deep=priority_deep,
+        max_pages=None if priority_deep else 50,
+        allow_non_pdf=priority_deep,
+        early_stop_on_regime_clause=not priority_deep,
+        contract_object=objeto,
+        contract_fornecedor=fornecedor_nome,
+        contract_fornecedor_cnpj=fornecedor_cnpj,
+        contract_processo=processo,
+        contract_numero=numero_contrato,
     )
     # Merge deep into merged without letting portal HTML promote docs_accessible
     merged.arquivos_listed = deep.arquivos_listed
@@ -751,8 +1185,18 @@ def verify_contract_documents(
     merged.pdf_binary_located = merged.pdf_binary_located or deep.pdf_binary_located
     merged.evidences.extend(deep.evidences)
     merged.limitations.extend(deep.limitations)
+    merged.document_link_status = deep.document_link_status
+    merged.document_link = deep.document_link
+    merged.signals_usable = deep.signals_usable
+    merged.exact_data_base = deep.exact_data_base
+    merged.data_base_exata_localizada = deep.data_base_exata_localizada
+    merged.index_formula = deep.index_formula
+    merged.doc_type_inventory = deep.doc_type_inventory
+    merged.formats_processed = deep.formats_processed
+    merged.files_processed = deep.files_processed
+    merged.early_stop_disabled = deep.early_stop_disabled
 
-    if deep.official_text_extracted:
+    if deep.official_text_extracted and deep.signals_usable:
         merged.docs_accessible = True
         merged.text_extracted = True
         merged.official_text_extracted = True
@@ -779,6 +1223,15 @@ def verify_contract_documents(
             merged.pipeline_state = DOC_CLAUSE_LOCATED
         else:
             merged.pipeline_state = DOC_TEXT_EXTRACTED
+    elif deep.official_text_extracted and not deep.signals_usable:
+        # Conflict: keep raw evidences but block documentary gates
+        merged.docs_accessible = False
+        merged.text_extracted = False
+        merged.official_text_extracted = False
+        merged.signals_usable = False
+        merged.limitations.append("document_signals_invalidated_by_link_conflict")
+        if deep.pipeline_state in {DOC_DOWNLOADED, DOC_PARSE_FAILED, DOC_TEXT_EXTRACTED, DOC_CLAUSE_LOCATED}:
+            merged.pipeline_state = deep.pipeline_state
     else:
         # Keep URL-located / downloaded / parse-failed — never pretend HTML is official
         if deep.pipeline_state in {DOC_DOWNLOADED, DOC_PARSE_FAILED}:

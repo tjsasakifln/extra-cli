@@ -1,0 +1,1660 @@
+{
+  "kind": "sul_priority_documentary_exhaustion",
+  "n_priority": 36,
+  "n_technically_verified_pending_tiago": 4,
+  "n_document_request_remaining": 6,
+  "n_exhausted_non_tech": 32,
+  "all_individually_deepened": true,
+  "threshold_10_met": false,
+  "exhaustion_path_used": true,
+  "suppliers": [
+    {
+      "cnpj": "82743832000162",
+      "empresa": "PLANATERRA-TERRAPLENAGEM E PAVIMENTACAO LTDA",
+      "outreach_status": "NOT_READY_FOR_OUTREACH",
+      "exhausted": true,
+      "exhaustion_reason": "priority_deep completed: multi-format PNCP recovery attempted; files_processed=3 pages=3 formats=['pdf'] link=DOCUMENT_LINK_UNVERIFIED exact_db=False status=NOT_READY_FOR_OUTREACH",
+      "files_processed": 3,
+      "pdf_text_pages": 3,
+      "formats": [
+        "pdf"
+      ],
+      "doc_types_sought": [
+        "edital",
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico",
+        "cronograma",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "doc_types_found": [
+        "contrato_ou_minuta"
+      ],
+      "doc_types_processed": [
+        "contrato_ou_minuta"
+      ],
+      "doc_types_unavailable": [
+        "edital",
+        "orcamento_estimado",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico",
+        "cronograma",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "document_link_status": "DOCUMENT_LINK_UNVERIFIED",
+      "data_base_exata_localizada": false,
+      "exact_data_base_state": "NOT_LOCATED",
+      "early_stop_disabled": true
+    },
+    {
+      "cnpj": "80095466000157",
+      "empresa": "CONSTRUTORA OLIVEIRA LTDA",
+      "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
+      "exhausted": true,
+      "exhaustion_reason": "priority_deep completed: multi-format PNCP recovery attempted; files_processed=1 pages=110 formats=['pdf'] link=DOCUMENT_LINK_VERIFIED exact_db=True status=DOCUMENT_REQUEST_CANDIDATE",
+      "files_processed": 1,
+      "pdf_text_pages": 110,
+      "formats": [
+        "pdf"
+      ],
+      "doc_types_sought": [
+        "edital",
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico",
+        "cronograma",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "doc_types_found": [
+        "edital"
+      ],
+      "doc_types_processed": [
+        "edital"
+      ],
+      "doc_types_unavailable": [
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico",
+        "cronograma",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "document_link_status": "DOCUMENT_LINK_VERIFIED",
+      "data_base_exata_localizada": true,
+      "exact_data_base_state": "EXACT_DATE_IN_REFERENCED_BUDGET",
+      "early_stop_disabled": true
+    },
+    {
+      "cnpj": "92779503000125",
+      "empresa": "CASTILHO ENGENHARIA E EMPREENDIMENTOS S/A",
+      "outreach_status": "NOT_READY_FOR_OUTREACH",
+      "exhausted": true,
+      "exhaustion_reason": "priority_deep completed: multi-format PNCP recovery attempted; files_processed=0 pages=0 formats=[] link=None exact_db=False status=NOT_READY_FOR_OUTREACH",
+      "files_processed": 0,
+      "pdf_text_pages": 0,
+      "formats": [],
+      "doc_types_sought": [
+        "edital",
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico",
+        "cronograma",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "doc_types_found": [],
+      "doc_types_processed": [],
+      "doc_types_unavailable": [
+        "edital",
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico",
+        "cronograma",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "document_link_status": null,
+      "data_base_exata_localizada": false,
+      "exact_data_base_state": null,
+      "early_stop_disabled": true
+    },
+    {
+      "cnpj": "88348024000187",
+      "empresa": "SBS ENGENHARIA E CONSTRUCOES LTDA.",
+      "outreach_status": "NOT_READY_FOR_OUTREACH",
+      "exhausted": true,
+      "exhaustion_reason": "priority_deep completed: multi-format PNCP recovery attempted; files_processed=35 pages=1063 formats=['pdf'] link=DOCUMENT_LINK_VERIFIED exact_db=False status=NOT_READY_FOR_OUTREACH",
+      "files_processed": 35,
+      "pdf_text_pages": 1063,
+      "formats": [
+        "pdf"
+      ],
+      "doc_types_sought": [
+        "edital",
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico",
+        "cronograma",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "doc_types_found": [
+        "edital",
+        "planilha_orcamentaria",
+        "cronograma"
+      ],
+      "doc_types_processed": [
+        "edital",
+        "planilha_orcamentaria",
+        "cronograma"
+      ],
+      "doc_types_unavailable": [
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "termo_referencia_ou_projeto_basico",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "document_link_status": "DOCUMENT_LINK_VERIFIED",
+      "data_base_exata_localizada": false,
+      "exact_data_base_state": "EXACT_COMPETENCE_IN_REAJUSTE_CLAUSE",
+      "early_stop_disabled": true
+    },
+    {
+      "cnpj": "75911438000120",
+      "empresa": "ARTELESTE CONSTRUCOES LIMITADA",
+      "outreach_status": "TECHNICALLY_VERIFIED_PENDING_TIAGO",
+      "exhausted": false,
+      "exhaustion_reason": null,
+      "files_processed": 5,
+      "pdf_text_pages": 243,
+      "formats": [
+        "pdf"
+      ],
+      "doc_types_sought": [
+        "edital",
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico",
+        "cronograma",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "doc_types_found": [
+        "contrato_ou_minuta"
+      ],
+      "doc_types_processed": [
+        "contrato_ou_minuta"
+      ],
+      "doc_types_unavailable": [
+        "edital",
+        "orcamento_estimado",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico",
+        "cronograma",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "document_link_status": "DOCUMENT_LINK_VERIFIED",
+      "data_base_exata_localizada": true,
+      "exact_data_base_state": "EXACT_COMPETENCE_IN_REAJUSTE_CLAUSE",
+      "early_stop_disabled": true
+    },
+    {
+      "cnpj": "92190503000195",
+      "empresa": "CONSTRUTORA PELOTENSE LTDA",
+      "outreach_status": "TECHNICALLY_VERIFIED_PENDING_TIAGO",
+      "exhausted": false,
+      "exhaustion_reason": null,
+      "files_processed": 5,
+      "pdf_text_pages": 64,
+      "formats": [
+        "pdf"
+      ],
+      "doc_types_sought": [
+        "edital",
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico",
+        "cronograma",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "doc_types_found": [
+        "contrato_ou_minuta"
+      ],
+      "doc_types_processed": [
+        "contrato_ou_minuta"
+      ],
+      "doc_types_unavailable": [
+        "edital",
+        "orcamento_estimado",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico",
+        "cronograma",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "document_link_status": "DOCUMENT_LINK_PARTIAL",
+      "data_base_exata_localizada": true,
+      "exact_data_base_state": "EXACT_COMPETENCE_IN_REAJUSTE_CLAUSE",
+      "early_stop_disabled": true
+    },
+    {
+      "cnpj": "02955426000124",
+      "empresa": "NEOVIA INFRAESTRUTURA RODOVIARIA LTDA",
+      "outreach_status": "NOT_READY_FOR_OUTREACH",
+      "exhausted": true,
+      "exhaustion_reason": "priority_deep completed: multi-format PNCP recovery attempted; files_processed=0 pages=0 formats=[] link=None exact_db=False status=NOT_READY_FOR_OUTREACH",
+      "files_processed": 0,
+      "pdf_text_pages": 0,
+      "formats": [],
+      "doc_types_sought": [
+        "edital",
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico",
+        "cronograma",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "doc_types_found": [],
+      "doc_types_processed": [],
+      "doc_types_unavailable": [
+        "edital",
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico",
+        "cronograma",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "document_link_status": null,
+      "data_base_exata_localizada": false,
+      "exact_data_base_state": null,
+      "early_stop_disabled": true
+    },
+    {
+      "cnpj": "00061493000170",
+      "empresa": "ENCOPAV ENGENHARIA LTDA",
+      "outreach_status": "NOT_READY_FOR_OUTREACH",
+      "exhausted": true,
+      "exhaustion_reason": "priority_deep completed: multi-format PNCP recovery attempted; files_processed=17 pages=256 formats=['pdf'] link=DOCUMENT_LINK_UNVERIFIED exact_db=True status=NOT_READY_FOR_OUTREACH",
+      "files_processed": 17,
+      "pdf_text_pages": 256,
+      "formats": [
+        "pdf"
+      ],
+      "doc_types_sought": [
+        "edital",
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico",
+        "cronograma",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "doc_types_found": [
+        "contrato_ou_minuta",
+        "planilha_orcamentaria",
+        "cronograma"
+      ],
+      "doc_types_processed": [
+        "contrato_ou_minuta",
+        "planilha_orcamentaria",
+        "cronograma"
+      ],
+      "doc_types_unavailable": [
+        "edital",
+        "orcamento_estimado",
+        "termo_referencia_ou_projeto_basico",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "document_link_status": "DOCUMENT_LINK_UNVERIFIED",
+      "data_base_exata_localizada": true,
+      "exact_data_base_state": "EXACT_DATE_IN_REAJUSTE_CLAUSE",
+      "early_stop_disabled": true
+    },
+    {
+      "cnpj": "59470520000100",
+      "empresa": "CONSÓRCIO PARANAMAP",
+      "outreach_status": "TECHNICALLY_VERIFIED_PENDING_TIAGO",
+      "exhausted": false,
+      "exhaustion_reason": null,
+      "files_processed": 1,
+      "pdf_text_pages": 179,
+      "formats": [
+        "pdf"
+      ],
+      "doc_types_sought": [
+        "edital",
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico",
+        "cronograma",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "doc_types_found": [
+        "edital"
+      ],
+      "doc_types_processed": [
+        "edital"
+      ],
+      "doc_types_unavailable": [
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico",
+        "cronograma",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "document_link_status": "DOCUMENT_LINK_VERIFIED",
+      "data_base_exata_localizada": true,
+      "exact_data_base_state": "EXACT_DATE_IN_REAJUSTE_CLAUSE",
+      "early_stop_disabled": true
+    },
+    {
+      "cnpj": "55219671000130",
+      "empresa": "CONSORCIO PAVIMENTA PONTA GROSSA",
+      "outreach_status": "NOT_READY_FOR_OUTREACH",
+      "exhausted": true,
+      "exhaustion_reason": "priority_deep completed: multi-format PNCP recovery attempted; files_processed=33 pages=2370 formats=['pdf'] link=DOCUMENT_LINK_UNVERIFIED exact_db=True status=NOT_READY_FOR_OUTREACH",
+      "files_processed": 33,
+      "pdf_text_pages": 2370,
+      "formats": [
+        "pdf"
+      ],
+      "doc_types_sought": [
+        "edital",
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico",
+        "cronograma",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "doc_types_found": [
+        "edital",
+        "planilha_orcamentaria",
+        "cronograma"
+      ],
+      "doc_types_processed": [
+        "edital",
+        "planilha_orcamentaria",
+        "cronograma"
+      ],
+      "doc_types_unavailable": [
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "termo_referencia_ou_projeto_basico",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "document_link_status": "DOCUMENT_LINK_UNVERIFIED",
+      "data_base_exata_localizada": true,
+      "exact_data_base_state": "EXACT_COMPETENCE_IN_REAJUSTE_CLAUSE",
+      "early_stop_disabled": true
+    },
+    {
+      "cnpj": "92943398000118",
+      "empresa": "CONSTRUTORA CIDADE LIMITADA",
+      "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
+      "exhausted": true,
+      "exhaustion_reason": "priority_deep completed: multi-format PNCP recovery attempted; files_processed=7 pages=152 formats=['pdf'] link=DOCUMENT_LINK_UNVERIFIED exact_db=True status=DOCUMENT_REQUEST_CANDIDATE",
+      "files_processed": 7,
+      "pdf_text_pages": 152,
+      "formats": [
+        "pdf"
+      ],
+      "doc_types_sought": [
+        "edital",
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico",
+        "cronograma",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "doc_types_found": [
+        "contrato_ou_minuta",
+        "termo_referencia_ou_projeto_basico"
+      ],
+      "doc_types_processed": [
+        "contrato_ou_minuta",
+        "termo_referencia_ou_projeto_basico"
+      ],
+      "doc_types_unavailable": [
+        "edital",
+        "orcamento_estimado",
+        "planilha_orcamentaria",
+        "cronograma",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "document_link_status": "DOCUMENT_LINK_UNVERIFIED",
+      "data_base_exata_localizada": true,
+      "exact_data_base_state": "EXACT_COMPETENCE_IN_REAJUSTE_CLAUSE",
+      "early_stop_disabled": true
+    },
+    {
+      "cnpj": "00820854000114",
+      "empresa": "QUALIDADE MINERACAO LTDA",
+      "outreach_status": "NOT_READY_FOR_OUTREACH",
+      "exhausted": true,
+      "exhaustion_reason": "priority_deep completed: multi-format PNCP recovery attempted; files_processed=27 pages=366 formats=['pdf'] link=DOCUMENT_LINK_UNVERIFIED exact_db=True status=NOT_READY_FOR_OUTREACH",
+      "files_processed": 27,
+      "pdf_text_pages": 366,
+      "formats": [
+        "pdf"
+      ],
+      "doc_types_sought": [
+        "edital",
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico",
+        "cronograma",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "doc_types_found": [
+        "edital",
+        "contrato_ou_minuta",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico",
+        "cronograma"
+      ],
+      "doc_types_processed": [
+        "edital",
+        "contrato_ou_minuta",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico",
+        "cronograma"
+      ],
+      "doc_types_unavailable": [
+        "orcamento_estimado",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "document_link_status": "DOCUMENT_LINK_UNVERIFIED",
+      "data_base_exata_localizada": true,
+      "exact_data_base_state": "EXACT_DATE_IN_REAJUSTE_CLAUSE",
+      "early_stop_disabled": true
+    },
+    {
+      "cnpj": "29914632000142",
+      "empresa": "LEONARDO GABRIEL CHIMELLI GHELLER",
+      "outreach_status": "NOT_READY_FOR_OUTREACH",
+      "exhausted": true,
+      "exhaustion_reason": "priority_deep completed: multi-format PNCP recovery attempted; files_processed=1 pages=205 formats=['pdf'] link=DOCUMENT_LINK_VERIFIED exact_db=False status=NOT_READY_FOR_OUTREACH",
+      "files_processed": 1,
+      "pdf_text_pages": 205,
+      "formats": [
+        "pdf"
+      ],
+      "doc_types_sought": [
+        "edital",
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico",
+        "cronograma",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "doc_types_found": [
+        "edital"
+      ],
+      "doc_types_processed": [
+        "edital"
+      ],
+      "doc_types_unavailable": [
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico",
+        "cronograma",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "document_link_status": "DOCUMENT_LINK_VERIFIED",
+      "data_base_exata_localizada": false,
+      "exact_data_base_state": "NOT_LOCATED",
+      "early_stop_disabled": true
+    },
+    {
+      "cnpj": "40443176000132",
+      "empresa": "MARLON DE PAULA",
+      "outreach_status": "NOT_READY_FOR_OUTREACH",
+      "exhausted": true,
+      "exhaustion_reason": "priority_deep completed: multi-format PNCP recovery attempted; files_processed=9 pages=102 formats=['pdf'] link=DOCUMENT_LINK_UNVERIFIED exact_db=False status=NOT_READY_FOR_OUTREACH",
+      "files_processed": 9,
+      "pdf_text_pages": 102,
+      "formats": [
+        "pdf"
+      ],
+      "doc_types_sought": [
+        "edital",
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico",
+        "cronograma",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "doc_types_found": [
+        "edital",
+        "planilha_orcamentaria",
+        "cronograma"
+      ],
+      "doc_types_processed": [
+        "edital",
+        "planilha_orcamentaria",
+        "cronograma"
+      ],
+      "doc_types_unavailable": [
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "termo_referencia_ou_projeto_basico",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "document_link_status": "DOCUMENT_LINK_UNVERIFIED",
+      "data_base_exata_localizada": false,
+      "exact_data_base_state": "GENERIC_RULE_WITHOUT_DATE",
+      "early_stop_disabled": true
+    },
+    {
+      "cnpj": "53673938000139",
+      "empresa": "CONSORCIO VALE DO RIBEIRA",
+      "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
+      "exhausted": true,
+      "exhaustion_reason": "priority_deep completed: multi-format PNCP recovery attempted; files_processed=6 pages=534 formats=['pdf'] link=DOCUMENT_LINK_UNVERIFIED exact_db=True status=DOCUMENT_REQUEST_CANDIDATE",
+      "files_processed": 6,
+      "pdf_text_pages": 534,
+      "formats": [
+        "pdf"
+      ],
+      "doc_types_sought": [
+        "edital",
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico",
+        "cronograma",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "doc_types_found": [
+        "edital",
+        "cronograma"
+      ],
+      "doc_types_processed": [
+        "edital",
+        "cronograma"
+      ],
+      "doc_types_unavailable": [
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "document_link_status": "DOCUMENT_LINK_UNVERIFIED",
+      "data_base_exata_localizada": true,
+      "exact_data_base_state": "EXACT_DATE_IN_REAJUSTE_CLAUSE",
+      "early_stop_disabled": true
+    },
+    {
+      "cnpj": "07807120000144",
+      "empresa": "CONSTRUTORA ALEGRETENSE LTDA",
+      "outreach_status": "TECHNICALLY_VERIFIED_PENDING_TIAGO",
+      "exhausted": false,
+      "exhaustion_reason": null,
+      "files_processed": 13,
+      "pdf_text_pages": 491,
+      "formats": [
+        "pdf"
+      ],
+      "doc_types_sought": [
+        "edital",
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico",
+        "cronograma",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "doc_types_found": [
+        "contrato_ou_minuta",
+        "planilha_orcamentaria",
+        "cronograma"
+      ],
+      "doc_types_processed": [
+        "contrato_ou_minuta",
+        "planilha_orcamentaria",
+        "cronograma"
+      ],
+      "doc_types_unavailable": [
+        "edital",
+        "orcamento_estimado",
+        "termo_referencia_ou_projeto_basico",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "document_link_status": "DOCUMENT_LINK_VERIFIED",
+      "data_base_exata_localizada": true,
+      "exact_data_base_state": "EXACT_DATE_IN_REAJUSTE_CLAUSE",
+      "early_stop_disabled": true
+    },
+    {
+      "cnpj": "87654547000199",
+      "empresa": "COESUL-CONSTRUTORA EXTREMO SUL LTDA",
+      "outreach_status": "NOT_READY_FOR_OUTREACH",
+      "exhausted": true,
+      "exhaustion_reason": "priority_deep completed: multi-format PNCP recovery attempted; files_processed=20 pages=682 formats=['pdf'] link=DOCUMENT_LINK_VERIFIED exact_db=True status=NOT_READY_FOR_OUTREACH",
+      "files_processed": 20,
+      "pdf_text_pages": 682,
+      "formats": [
+        "pdf"
+      ],
+      "doc_types_sought": [
+        "edital",
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico",
+        "cronograma",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "doc_types_found": [
+        "contrato_ou_minuta",
+        "planilha_orcamentaria",
+        "cronograma"
+      ],
+      "doc_types_processed": [
+        "contrato_ou_minuta",
+        "planilha_orcamentaria",
+        "cronograma"
+      ],
+      "doc_types_unavailable": [
+        "edital",
+        "orcamento_estimado",
+        "termo_referencia_ou_projeto_basico",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "document_link_status": "DOCUMENT_LINK_VERIFIED",
+      "data_base_exata_localizada": true,
+      "exact_data_base_state": "EXACT_DATE_IN_REAJUSTE_CLAUSE",
+      "early_stop_disabled": true
+    },
+    {
+      "cnpj": "89723977000140",
+      "empresa": "TONIOLO, BUSNELLO S/A - TUNEIS, TERRAPLENAGENS E PAVIMENTACO",
+      "outreach_status": "NOT_READY_FOR_OUTREACH",
+      "exhausted": true,
+      "exhaustion_reason": "priority_deep completed: multi-format PNCP recovery attempted; files_processed=18 pages=647 formats=['pdf'] link=DOCUMENT_LINK_VERIFIED exact_db=True status=NOT_READY_FOR_OUTREACH",
+      "files_processed": 18,
+      "pdf_text_pages": 647,
+      "formats": [
+        "pdf"
+      ],
+      "doc_types_sought": [
+        "edital",
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico",
+        "cronograma",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "doc_types_found": [
+        "contrato_ou_minuta",
+        "planilha_orcamentaria",
+        "cronograma"
+      ],
+      "doc_types_processed": [
+        "contrato_ou_minuta",
+        "planilha_orcamentaria",
+        "cronograma"
+      ],
+      "doc_types_unavailable": [
+        "edital",
+        "orcamento_estimado",
+        "termo_referencia_ou_projeto_basico",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "document_link_status": "DOCUMENT_LINK_VERIFIED",
+      "data_base_exata_localizada": true,
+      "exact_data_base_state": "EXACT_DATE_IN_REAJUSTE_CLAUSE",
+      "early_stop_disabled": true
+    },
+    {
+      "cnpj": "05390905000139",
+      "empresa": "DALFOVO CONSTRUTORA LTDA",
+      "outreach_status": "NOT_READY_FOR_OUTREACH",
+      "exhausted": true,
+      "exhaustion_reason": "priority_deep completed: multi-format PNCP recovery attempted; files_processed=19 pages=504 formats=['pdf'] link=DOCUMENT_LINK_PARTIAL exact_db=True status=NOT_READY_FOR_OUTREACH",
+      "files_processed": 19,
+      "pdf_text_pages": 504,
+      "formats": [
+        "pdf"
+      ],
+      "doc_types_sought": [
+        "edital",
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico",
+        "cronograma",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "doc_types_found": [
+        "contrato_ou_minuta",
+        "planilha_orcamentaria",
+        "cronograma"
+      ],
+      "doc_types_processed": [
+        "contrato_ou_minuta",
+        "planilha_orcamentaria",
+        "cronograma"
+      ],
+      "doc_types_unavailable": [
+        "edital",
+        "orcamento_estimado",
+        "termo_referencia_ou_projeto_basico",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "document_link_status": "DOCUMENT_LINK_PARTIAL",
+      "data_base_exata_localizada": true,
+      "exact_data_base_state": "EXACT_DATE_IN_REAJUSTE_CLAUSE",
+      "early_stop_disabled": true
+    },
+    {
+      "cnpj": "03769527000173",
+      "empresa": "EMPRESA CONSTRUTORA PORTO BETON SA",
+      "outreach_status": "NOT_READY_FOR_OUTREACH",
+      "exhausted": true,
+      "exhaustion_reason": "priority_deep completed: multi-format PNCP recovery attempted; files_processed=4 pages=99 formats=['pdf'] link=DOCUMENT_LINK_UNVERIFIED exact_db=False status=NOT_READY_FOR_OUTREACH",
+      "files_processed": 4,
+      "pdf_text_pages": 99,
+      "formats": [
+        "pdf"
+      ],
+      "doc_types_sought": [
+        "edital",
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico",
+        "cronograma",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "doc_types_found": [
+        "cronograma"
+      ],
+      "doc_types_processed": [
+        "cronograma"
+      ],
+      "doc_types_unavailable": [
+        "edital",
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "document_link_status": "DOCUMENT_LINK_UNVERIFIED",
+      "data_base_exata_localizada": false,
+      "exact_data_base_state": "CONFLICTING_DATES",
+      "early_stop_disabled": true
+    },
+    {
+      "cnpj": "03928516000199",
+      "empresa": "VERDI SISTEMAS CONSTRUTIVOS LTDA",
+      "outreach_status": "NOT_READY_FOR_OUTREACH",
+      "exhausted": true,
+      "exhaustion_reason": "priority_deep completed: multi-format PNCP recovery attempted; files_processed=7 pages=144 formats=['pdf'] link=DOCUMENT_LINK_UNVERIFIED exact_db=False status=NOT_READY_FOR_OUTREACH",
+      "files_processed": 7,
+      "pdf_text_pages": 144,
+      "formats": [
+        "pdf"
+      ],
+      "doc_types_sought": [
+        "edital",
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico",
+        "cronograma",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "doc_types_found": [
+        "planilha_orcamentaria",
+        "cronograma"
+      ],
+      "doc_types_processed": [
+        "planilha_orcamentaria",
+        "cronograma"
+      ],
+      "doc_types_unavailable": [
+        "edital",
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "termo_referencia_ou_projeto_basico",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "document_link_status": "DOCUMENT_LINK_UNVERIFIED",
+      "data_base_exata_localizada": false,
+      "exact_data_base_state": "GENERIC_RULE_WITHOUT_DATE",
+      "early_stop_disabled": true
+    },
+    {
+      "cnpj": "19368227000112",
+      "empresa": "RGS ENGENHARIA S.A.",
+      "outreach_status": "NOT_READY_FOR_OUTREACH",
+      "exhausted": true,
+      "exhaustion_reason": "priority_deep completed: multi-format PNCP recovery attempted; files_processed=25 pages=445 formats=['pdf'] link=DOCUMENT_LINK_VERIFIED exact_db=False status=NOT_READY_FOR_OUTREACH",
+      "files_processed": 25,
+      "pdf_text_pages": 445,
+      "formats": [
+        "pdf"
+      ],
+      "doc_types_sought": [
+        "edital",
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico",
+        "cronograma",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "doc_types_found": [
+        "edital",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico"
+      ],
+      "doc_types_processed": [
+        "edital",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico"
+      ],
+      "doc_types_unavailable": [
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "cronograma",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "document_link_status": "DOCUMENT_LINK_VERIFIED",
+      "data_base_exata_localizada": false,
+      "exact_data_base_state": "GENERIC_RULE_WITHOUT_DATE",
+      "early_stop_disabled": true
+    },
+    {
+      "cnpj": "61381943000104",
+      "empresa": "CONSTRUTORA CONTINENTAL DE SAO PAULO LTDA",
+      "outreach_status": "NOT_READY_FOR_OUTREACH",
+      "exhausted": true,
+      "exhaustion_reason": "priority_deep completed: multi-format PNCP recovery attempted; files_processed=19 pages=1036 formats=['pdf'] link=DOCUMENT_LINK_UNVERIFIED exact_db=True status=NOT_READY_FOR_OUTREACH",
+      "files_processed": 19,
+      "pdf_text_pages": 1036,
+      "formats": [
+        "pdf"
+      ],
+      "doc_types_sought": [
+        "edital",
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico",
+        "cronograma",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "doc_types_found": [
+        "planilha_orcamentaria",
+        "cronograma"
+      ],
+      "doc_types_processed": [
+        "planilha_orcamentaria",
+        "cronograma"
+      ],
+      "doc_types_unavailable": [
+        "edital",
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "termo_referencia_ou_projeto_basico",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "document_link_status": "DOCUMENT_LINK_UNVERIFIED",
+      "data_base_exata_localizada": true,
+      "exact_data_base_state": "EXACT_DATE_IN_REAJUSTE_CLAUSE",
+      "early_stop_disabled": true
+    },
+    {
+      "cnpj": "57155076000103",
+      "empresa": "CONSORCIO - ITAX SUDOESTE",
+      "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
+      "exhausted": true,
+      "exhaustion_reason": "priority_deep completed: multi-format PNCP recovery attempted; files_processed=3 pages=349 formats=['pdf'] link=DOCUMENT_LINK_UNVERIFIED exact_db=True status=DOCUMENT_REQUEST_CANDIDATE",
+      "files_processed": 3,
+      "pdf_text_pages": 349,
+      "formats": [
+        "pdf"
+      ],
+      "doc_types_sought": [
+        "edital",
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico",
+        "cronograma",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "doc_types_found": [
+        "edital",
+        "cronograma"
+      ],
+      "doc_types_processed": [
+        "edital",
+        "cronograma"
+      ],
+      "doc_types_unavailable": [
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "document_link_status": "DOCUMENT_LINK_UNVERIFIED",
+      "data_base_exata_localizada": true,
+      "exact_data_base_state": "EXACT_DATE_IN_REAJUSTE_CLAUSE",
+      "early_stop_disabled": true
+    },
+    {
+      "cnpj": "57155217000198",
+      "empresa": "CONSORCIO CONSTRUTOR ESTRADAS RURAIS",
+      "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
+      "exhausted": true,
+      "exhaustion_reason": "priority_deep completed: multi-format PNCP recovery attempted; files_processed=1 pages=71 formats=['pdf'] link=DOCUMENT_LINK_VERIFIED exact_db=True status=DOCUMENT_REQUEST_CANDIDATE",
+      "files_processed": 1,
+      "pdf_text_pages": 71,
+      "formats": [
+        "pdf"
+      ],
+      "doc_types_sought": [
+        "edital",
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico",
+        "cronograma",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "doc_types_found": [
+        "edital"
+      ],
+      "doc_types_processed": [
+        "edital"
+      ],
+      "doc_types_unavailable": [
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico",
+        "cronograma",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "document_link_status": "DOCUMENT_LINK_VERIFIED",
+      "data_base_exata_localizada": true,
+      "exact_data_base_state": "EXACT_DATE_IN_REAJUSTE_CLAUSE",
+      "early_stop_disabled": true
+    },
+    {
+      "cnpj": "03430585000178",
+      "empresa": "ENDEAL ENGENHARIA E CONSTRUÇÕES LTDA",
+      "outreach_status": "NOT_READY_FOR_OUTREACH",
+      "exhausted": true,
+      "exhaustion_reason": "priority_deep completed: multi-format PNCP recovery attempted; files_processed=14 pages=416 formats=['pdf', 'xlsx'] link=DOCUMENT_LINK_UNVERIFIED exact_db=True status=NOT_READY_FOR_OUTREACH",
+      "files_processed": 14,
+      "pdf_text_pages": 416,
+      "formats": [
+        "pdf",
+        "xlsx"
+      ],
+      "doc_types_sought": [
+        "edital",
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico",
+        "cronograma",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "doc_types_found": [
+        "edital",
+        "planilha_orcamentaria"
+      ],
+      "doc_types_processed": [
+        "edital",
+        "planilha_orcamentaria"
+      ],
+      "doc_types_unavailable": [
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "termo_referencia_ou_projeto_basico",
+        "cronograma",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "document_link_status": "DOCUMENT_LINK_UNVERIFIED",
+      "data_base_exata_localizada": true,
+      "exact_data_base_state": "EXACT_DATE_IN_REFERENCED_BUDGET",
+      "early_stop_disabled": true
+    },
+    {
+      "cnpj": "58617019000161",
+      "empresa": "CONSORCIO NOVO IVAI",
+      "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
+      "exhausted": true,
+      "exhaustion_reason": "priority_deep completed: multi-format PNCP recovery attempted; files_processed=2 pages=72 formats=['pdf'] link=DOCUMENT_LINK_PARTIAL exact_db=True status=DOCUMENT_REQUEST_CANDIDATE",
+      "files_processed": 2,
+      "pdf_text_pages": 72,
+      "formats": [
+        "pdf"
+      ],
+      "doc_types_sought": [
+        "edital",
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico",
+        "cronograma",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "doc_types_found": [
+        "edital",
+        "cronograma"
+      ],
+      "doc_types_processed": [
+        "edital",
+        "cronograma"
+      ],
+      "doc_types_unavailable": [
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "document_link_status": "DOCUMENT_LINK_PARTIAL",
+      "data_base_exata_localizada": true,
+      "exact_data_base_state": "EXACT_DATE_IN_REAJUSTE_CLAUSE",
+      "early_stop_disabled": true
+    },
+    {
+      "cnpj": "61112028000105",
+      "empresa": "CONSORCIO ZANCANARO/DALBA/DUOVIAS",
+      "outreach_status": "NOT_READY_FOR_OUTREACH",
+      "exhausted": true,
+      "exhaustion_reason": "priority_deep completed: multi-format PNCP recovery attempted; files_processed=3 pages=90 formats=['pdf'] link=DOCUMENT_LINK_PARTIAL exact_db=False status=NOT_READY_FOR_OUTREACH",
+      "files_processed": 3,
+      "pdf_text_pages": 90,
+      "formats": [
+        "pdf"
+      ],
+      "doc_types_sought": [
+        "edital",
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico",
+        "cronograma",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "doc_types_found": [
+        "edital",
+        "cronograma"
+      ],
+      "doc_types_processed": [
+        "edital",
+        "cronograma"
+      ],
+      "doc_types_unavailable": [
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "document_link_status": "DOCUMENT_LINK_PARTIAL",
+      "data_base_exata_localizada": false,
+      "exact_data_base_state": "NOT_LOCATED",
+      "early_stop_disabled": true
+    },
+    {
+      "cnpj": "07928501000181",
+      "empresa": "CAMARGO E CAMARGO CONSTRUÇOES E SERVIÇOS LTDA",
+      "outreach_status": "NOT_READY_FOR_OUTREACH",
+      "exhausted": true,
+      "exhaustion_reason": "priority_deep completed: multi-format PNCP recovery attempted; files_processed=36 pages=221 formats=['pdf', 'docx', 'zip'] link=DOCUMENT_LINK_VERIFIED exact_db=True status=NOT_READY_FOR_OUTREACH",
+      "files_processed": 36,
+      "pdf_text_pages": 221,
+      "formats": [
+        "pdf",
+        "docx",
+        "zip"
+      ],
+      "doc_types_sought": [
+        "edital",
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico",
+        "cronograma",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "doc_types_found": [
+        "edital",
+        "contrato_ou_minuta",
+        "planilha_orcamentaria",
+        "cronograma",
+        "termos_aditivos"
+      ],
+      "doc_types_processed": [
+        "edital",
+        "contrato_ou_minuta",
+        "planilha_orcamentaria",
+        "cronograma",
+        "termos_aditivos"
+      ],
+      "doc_types_unavailable": [
+        "orcamento_estimado",
+        "termo_referencia_ou_projeto_basico",
+        "apostilas",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "document_link_status": "DOCUMENT_LINK_VERIFIED",
+      "data_base_exata_localizada": true,
+      "exact_data_base_state": "EXACT_COMPETENCE_IN_REAJUSTE_CLAUSE",
+      "early_stop_disabled": true
+    },
+    {
+      "cnpj": "90318338000189",
+      "empresa": "SULTEPA CONSTRUCOES E COMERCIO LTDA - EM RECUPERACAO JUDICIA",
+      "outreach_status": "NOT_READY_FOR_OUTREACH",
+      "exhausted": true,
+      "exhaustion_reason": "priority_deep completed: multi-format PNCP recovery attempted; files_processed=7 pages=239 formats=['pdf'] link=DOCUMENT_LINK_UNVERIFIED exact_db=True status=NOT_READY_FOR_OUTREACH",
+      "files_processed": 7,
+      "pdf_text_pages": 239,
+      "formats": [
+        "pdf"
+      ],
+      "doc_types_sought": [
+        "edital",
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico",
+        "cronograma",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "doc_types_found": [],
+      "doc_types_processed": [],
+      "doc_types_unavailable": [
+        "edital",
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico",
+        "cronograma",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "document_link_status": "DOCUMENT_LINK_UNVERIFIED",
+      "data_base_exata_localizada": true,
+      "exact_data_base_state": "EXACT_DATE_IN_REFERENCED_BUDGET",
+      "early_stop_disabled": true
+    },
+    {
+      "cnpj": "46733872000160",
+      "empresa": "P WEIRICH OBRAS",
+      "outreach_status": "NOT_READY_FOR_OUTREACH",
+      "exhausted": true,
+      "exhaustion_reason": "priority_deep completed: multi-format PNCP recovery attempted; files_processed=1 pages=63 formats=['pdf'] link=DOCUMENT_LINK_VERIFIED exact_db=False status=NOT_READY_FOR_OUTREACH",
+      "files_processed": 1,
+      "pdf_text_pages": 63,
+      "formats": [
+        "pdf"
+      ],
+      "doc_types_sought": [
+        "edital",
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico",
+        "cronograma",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "doc_types_found": [
+        "edital"
+      ],
+      "doc_types_processed": [
+        "edital"
+      ],
+      "doc_types_unavailable": [
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico",
+        "cronograma",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "document_link_status": "DOCUMENT_LINK_VERIFIED",
+      "data_base_exata_localizada": false,
+      "exact_data_base_state": "GENERIC_RULE_WITHOUT_DATE",
+      "early_stop_disabled": true
+    },
+    {
+      "cnpj": "03453030000141",
+      "empresa": "FREEDOM ENGENHARIA E CONSTRUCAO LTDA",
+      "outreach_status": "NOT_READY_FOR_OUTREACH",
+      "exhausted": true,
+      "exhaustion_reason": "priority_deep completed: multi-format PNCP recovery attempted; files_processed=34 pages=288 formats=['pdf'] link=DOCUMENT_LINK_UNVERIFIED exact_db=True status=NOT_READY_FOR_OUTREACH",
+      "files_processed": 34,
+      "pdf_text_pages": 288,
+      "formats": [
+        "pdf"
+      ],
+      "doc_types_sought": [
+        "edital",
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico",
+        "cronograma",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "doc_types_found": [
+        "edital",
+        "planilha_orcamentaria"
+      ],
+      "doc_types_processed": [
+        "edital"
+      ],
+      "doc_types_unavailable": [
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "termo_referencia_ou_projeto_basico",
+        "cronograma",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "document_link_status": "DOCUMENT_LINK_UNVERIFIED",
+      "data_base_exata_localizada": true,
+      "exact_data_base_state": "EXACT_COMPETENCE_IN_REAJUSTE_CLAUSE",
+      "early_stop_disabled": true
+    },
+    {
+      "cnpj": "31725142000140",
+      "empresa": "EUROVIA CONSTRUTORA EIRELI",
+      "outreach_status": "NOT_READY_FOR_OUTREACH",
+      "exhausted": true,
+      "exhaustion_reason": "priority_deep completed: multi-format PNCP recovery attempted; files_processed=18 pages=144 formats=['pdf'] link=DOCUMENT_LINK_UNVERIFIED exact_db=True status=NOT_READY_FOR_OUTREACH",
+      "files_processed": 18,
+      "pdf_text_pages": 144,
+      "formats": [
+        "pdf"
+      ],
+      "doc_types_sought": [
+        "edital",
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico",
+        "cronograma",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "doc_types_found": [
+        "edital",
+        "planilha_orcamentaria",
+        "cronograma"
+      ],
+      "doc_types_processed": [
+        "edital",
+        "planilha_orcamentaria",
+        "cronograma"
+      ],
+      "doc_types_unavailable": [
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "termo_referencia_ou_projeto_basico",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "document_link_status": "DOCUMENT_LINK_UNVERIFIED",
+      "data_base_exata_localizada": true,
+      "exact_data_base_state": "EXACT_DATE_IN_REFERENCED_BUDGET",
+      "early_stop_disabled": true
+    },
+    {
+      "cnpj": "33917494000122",
+      "empresa": "EDUARDO JARDIM ALVES DE OLIVEIRA LTDA",
+      "outreach_status": "NOT_READY_FOR_OUTREACH",
+      "exhausted": true,
+      "exhaustion_reason": "priority_deep completed: multi-format PNCP recovery attempted; files_processed=1 pages=59 formats=['pdf'] link=DOCUMENT_LINK_UNVERIFIED exact_db=False status=NOT_READY_FOR_OUTREACH",
+      "files_processed": 1,
+      "pdf_text_pages": 59,
+      "formats": [
+        "pdf"
+      ],
+      "doc_types_sought": [
+        "edital",
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico",
+        "cronograma",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "doc_types_found": [
+        "edital"
+      ],
+      "doc_types_processed": [
+        "edital"
+      ],
+      "doc_types_unavailable": [
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico",
+        "cronograma",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "document_link_status": "DOCUMENT_LINK_UNVERIFIED",
+      "data_base_exata_localizada": false,
+      "exact_data_base_state": "NOT_LOCATED",
+      "early_stop_disabled": true
+    },
+    {
+      "cnpj": "11279714000105",
+      "empresa": "AGR ENGENHARIA E EMPREENDIMENTOS LTDA",
+      "outreach_status": "NOT_READY_FOR_OUTREACH",
+      "exhausted": true,
+      "exhaustion_reason": "priority_deep completed: multi-format PNCP recovery attempted; files_processed=21 pages=345 formats=['pdf'] link=DOCUMENT_LINK_VERIFIED exact_db=False status=NOT_READY_FOR_OUTREACH",
+      "files_processed": 21,
+      "pdf_text_pages": 345,
+      "formats": [
+        "pdf"
+      ],
+      "doc_types_sought": [
+        "edital",
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico",
+        "cronograma",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "doc_types_found": [
+        "edital",
+        "planilha_orcamentaria",
+        "cronograma"
+      ],
+      "doc_types_processed": [
+        "edital",
+        "planilha_orcamentaria",
+        "cronograma"
+      ],
+      "doc_types_unavailable": [
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "termo_referencia_ou_projeto_basico",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "document_link_status": "DOCUMENT_LINK_VERIFIED",
+      "data_base_exata_localizada": false,
+      "exact_data_base_state": "GENERIC_RULE_WITHOUT_DATE",
+      "early_stop_disabled": true
+    },
+    {
+      "cnpj": "75646273000107",
+      "empresa": "SURG CIA DE SERVICOS DE URBANIZACAO DE G",
+      "outreach_status": "NOT_READY_FOR_OUTREACH",
+      "exhausted": true,
+      "exhaustion_reason": "priority_deep completed: multi-format PNCP recovery attempted; files_processed=1 pages=1 formats=['pdf'] link=DOCUMENT_LINK_UNVERIFIED exact_db=False status=NOT_READY_FOR_OUTREACH",
+      "files_processed": 1,
+      "pdf_text_pages": 1,
+      "formats": [
+        "pdf"
+      ],
+      "doc_types_sought": [
+        "edital",
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico",
+        "cronograma",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "doc_types_found": [
+        "edital"
+      ],
+      "doc_types_processed": [
+        "edital"
+      ],
+      "doc_types_unavailable": [
+        "contrato_ou_minuta",
+        "orcamento_estimado",
+        "planilha_orcamentaria",
+        "termo_referencia_ou_projeto_basico",
+        "cronograma",
+        "apostilas",
+        "termos_aditivos",
+        "publicacoes_reajuste",
+        "medicoes_ou_pagamentos"
+      ],
+      "document_link_status": "DOCUMENT_LINK_UNVERIFIED",
+      "data_base_exata_localizada": false,
+      "exact_data_base_state": "NOT_LOCATED",
+      "early_stop_disabled": true
+    }
+  ]
+}

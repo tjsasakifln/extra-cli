@@ -16,7 +16,7 @@ import unicodedata
 from dataclasses import asdict, dataclass, field
 from typing import Any
 
-RULE_VERSION = "obra-classifier-v1"
+RULE_VERSION = "obra-classifier-v2"
 
 # Construction execution — strong positive
 STRONG_PHRASES: tuple[str, ...] = (
@@ -151,15 +151,23 @@ NEGATIVE: tuple[str, ...] = (
     "locacao de equipamentos",
     "locacao de guindaste",
     "locacao de veiculos",
+    "locacao de veiculo",
+    "veiculos especiais",
+    "aluguel de veiculos",
     "fornecimento de gas",
     "gas natural canalizado",
     "fornecimento de agua canalizada",
     "software",
     "licenca de uso",
     "licenciamento de software",
+    "sistema de gestao",
+    "sistemas de gestao",
     "gestao de obras",  # software de gestão ≠ execução
     "tecnologia da informacao",
     "infraestrutura de ti",
+    "desenvolvimento de sistema",
+    "implantacao de software",
+    "solucao de software",
     "vigilancia",
     "seguranca patrimonial",
     "limpeza predial",
@@ -168,6 +176,10 @@ NEGATIVE: tuple[str, ...] = (
     "mao de obra exclusiva",
     "dedicacao exclusiva de mao de obra",
     "medicamento",
+    "medicamentos",
+    "lisdexanfetamina",
+    "farmaceutic",
+    "principio ativo",
     "generos alimenticios",
     "merenda",
     "combustivel",
@@ -186,6 +198,12 @@ NEGATIVE: tuple[str, ...] = (
     "telecomunicacoes",
     "barbearia",
     "cabeleireiro",
+    # Aggregate / mining without obra execution
+    "fornecimento de brita",
+    "fornecimento de agregado",
+    "fornecimento de areia",
+    "fornecimento de pedra",
+    "mineracao de areia",
     # Sector false positives (regression pack)
     "motor aeronautico",
     "motores aeronauticos",
@@ -306,18 +324,39 @@ def _category(norm: str, strong: list[str], weak: list[str], pos: list[str]) -> 
     return "nao_construcao"
 
 
+# Company-name tokens that NEVER prove sector by themselves
+_NAME_ONLY_NOT_SECTOR = (
+    "betha",  # software vendor name
+    "localiza",  # vehicle rental brand
+)
+
+
 def classify_construction(
     objeto: str | None,
     *,
     object_code: str | None = None,
     allow_pure_ip: bool = False,
+    razao_social: str | None = None,
+    cnae: str | None = None,
+    supplier_type: str | None = None,
+    remuneracao_natureza: str | None = None,
+    document_text: str | None = None,
 ) -> ConstructionClassification:
     """Classify whether the object is construction / engineering-by-scope work.
 
     ``allow_pure_ip=False`` excludes pure design/fiscalization without material
     execution (CONFENGE campaign focuses on construction contractors).
+
+    Company trade name alone is NEVER sector proof. Cross-check object,
+    optional CNAE, documents, supplier type and remuneration nature.
     """
-    norm = normalize_text(objeto)
+    # Material evidence = contract object + optional official docs (not company name)
+    material_blob = " ".join(
+        filter(None, [objeto or "", document_text or "", remuneracao_natureza or ""])
+    )
+    norm = normalize_text(material_blob)
+    name_norm = normalize_text(razao_social)
+    cnae_norm = normalize_text(cnae)
     if not norm:
         return ConstructionClassification(
             is_construction=False,
@@ -326,6 +365,81 @@ def classify_construction(
             reason_codes=["empty_object"],
             normalized_object="",
         )
+
+    # Explicit name-brand false positives when object is non-obra
+    if name_norm:
+        if "betha" in name_norm and any(
+            t in norm for t in ("software", "sistema", "licenc", "informatica", "ti ")
+        ):
+            return ConstructionClassification(
+                is_construction=False,
+                confidence=0.0,
+                category="nao_construcao",
+                reason_codes=["software_vendor_betha_regression"],
+                negative_hits=["betha_software"],
+                normalized_object=norm[:600],
+            )
+        if "localiza" in name_norm and any(
+            t in norm for t in ("veiculo", "locacao", "aluguel", "frota")
+        ):
+            return ConstructionClassification(
+                is_construction=False,
+                confidence=0.0,
+                category="nao_construcao",
+                reason_codes=["vehicle_rental_localiza_regression"],
+                negative_hits=["localiza_veiculos"],
+                normalized_object=norm[:600],
+            )
+
+    # CNAE hard excludes (software, vehicle rental, pharma, mining-only)
+    if cnae_norm:
+        soft_cnae = any(
+            x in cnae_norm
+            for x in (
+                "6201",
+                "6202",
+                "6203",
+                "6204",  # software/TI
+                "6311",
+                "6319",
+                "7711",
+                "7719",  # vehicle rental
+                "2121",
+                "2122",
+                "4644",  # pharma
+            )
+        )
+        # only hard-exclude when object also lacks material obra language
+        if soft_cnae and not any(
+            t in norm
+            for t in (
+                "execucao de obra",
+                "execucao de obras",
+                "empreitada",
+                "pavimentacao",
+                "obra de engenharia",
+            )
+        ):
+            return ConstructionClassification(
+                is_construction=False,
+                confidence=0.0,
+                category="nao_construcao",
+                reason_codes=["cnae_non_construction_without_material_obra"],
+                negative_hits=[cnae_norm[:40]],
+                normalized_object=norm[:600],
+            )
+
+    # Supplier type hints
+    st = normalize_text(supplier_type)
+    if st and any(t in st for t in ("software", "locadora", "farmaceut", "consultoria pura")):
+        if not any(t in norm for t in ("execucao de obra", "empreitada", "pavimentacao")):
+            return ConstructionClassification(
+                is_construction=False,
+                confidence=0.0,
+                category="nao_construcao",
+                reason_codes=["supplier_type_non_obra"],
+                normalized_object=norm[:600],
+            )
 
     strong = _hits(norm, STRONG_PHRASES) + _hits(norm, STRONG_TOKENS)
     # de-dupe preserve order
@@ -424,6 +538,15 @@ def classify_construction(
             "licenciamento de software",
             "software de gestao",
             "licenca de uso de software",
+            "implantacao de software",
+            "solucao de software",
+            "lisdexanfetamina",
+            "medicamento",
+            "medicamentos",
+            "locacao de veiculos",
+            "veiculos especiais",
+            "fornecimento de brita",
+            "fornecimento de agregado",
             "concessao comum",
             "concessao de servico",
             "concessao de agua",
@@ -433,13 +556,29 @@ def classify_construction(
             "abastecimento de agua",
             "distribuicao de agua",
             "servicos de agua e esgoto",
+            "modelagem bim sem execucao",
+            "consultoria bim",
         ),
     )
     # software + gestão de obras / engenharia (not material execution)
     if ("software" in norm or "licenc" in norm) and (
-        "gestao de obra" in norm or "gestao de obras" in norm or "engenharia" in norm
+        "gestao de obra" in norm
+        or "gestao de obras" in norm
+        or "engenharia" in norm
+        or "sistema" in norm
     ):
         sector_fp = list(sector_fp) + ["software_gestao_obras"]
+    # mining / aggregate supply without material obra
+    if any(t in norm for t in ("brita", "agregado", "mineracao")) and not any(
+        t in norm for t in ("execucao de obra", "empreitada", "pavimentacao", "construcao de")
+    ):
+        sector_fp = list(sector_fp) + ["aggregate_or_mining_without_obra"]
+    # BIM / consultoria consortia without material execution
+    if ("bim" in norm or "consultoria" in norm) and not any(
+        t in norm for t in ("execucao de obra", "empreitada", "execucao de obras")
+    ):
+        if "consultoria" in norm or "modelagem" in norm:
+            sector_fp = list(sector_fp) + ["consultancy_or_bim_without_obra"]
     # concessionária de água/esgoto (nome ou objeto)
     if re.search(r"\baguas?\s+de\b|\bcompanhia\s+de\s+agua\b|\bsaneamento\s+de\b", norm) and (
         "concess" in norm or "servico publico" in norm or "distribuicao" in norm

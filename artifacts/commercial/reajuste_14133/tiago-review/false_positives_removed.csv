@@ -1,0 +1,4 @@
+empresa,cnpj,reason,objeto,document_link_status,sector_flags
+BETHA SISTEMAS LTDA,regression-seed,software_vendor_not_construction_execution,Licenciamento de software de gestão pública / sistemas,N/A,software|betha
+LOCALIZA VEICULOS ESPECIAIS S.A.,from-portfolio-v2-real,vehicle_rental_not_obra,Locação de veículos especiais,N/A,vehicle_rental|localiza
+STRATA ENGENHARIA LTDA + documento lisdexanfetamina,regression-seed,DOCUMENT_LINK_CONFLICT pharma vs construction,doc farmacêutico vinculado indevidamente,DOCUMENT_LINK_CONFLICT,pharma|lisdexanfetamina

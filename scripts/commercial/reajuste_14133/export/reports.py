@@ -319,15 +319,33 @@ def write_v2_deliverables(out_dir: Path, run: dict[str, Any]) -> dict[str, str]:
             )
     paths["calculation_evidence_jsonl"] = str(p_calc)
 
-    # Copy supplier xlsx name expected by objective (workbook writer also produces main xlsx)
-    # Human review stubs if absent
+    # AI-assisted evidence review (NOT human / Tiago decision)
+    ai_md = out_dir / "ai_assisted_evidence_review_top30.md"
+    ai_json = out_dir / "ai_assisted_evidence_review_top30.json"
+    # Legacy filenames kept as copies pointing to AI review (never claim human)
     hr_md = out_dir / "human_review_top30_suppliers.md"
     hr_json = out_dir / "human_review_top30_suppliers.json"
-    if not hr_json.exists():
+    if not ai_json.exists():
         top30 = portfolios[:30]
         reviews = []
+        sector_fps = 0
         for p in top30:
             best = p.get("melhor_oportunidade") or {}
+            obj = (best.get("objeto") or p.get("objeto") or "").lower()
+            name = (p.get("razao_social") or "").lower()
+            fp_flags: list[str] = []
+            if any(x in obj for x in ("software", "licenciamento", "sistema de gestão", "sistema de gestao")):
+                fp_flags.append("software")
+            if any(x in obj for x in ("locação de veículo", "locacao de veiculo", "veículos especiais", "veiculos especiais")):
+                fp_flags.append("vehicle_rental")
+            if any(x in obj for x in ("medicamento", "lisdexanfetamina", "farmac")):
+                fp_flags.append("pharma")
+            if "localiza" in name and "veic" in (obj + name):
+                fp_flags.append("localiza_vehicle")
+            if "betha" in name:
+                fp_flags.append("betha_software")
+            if fp_flags:
+                sector_fps += 1
             reviews.append(
                 {
                     "fornecedor": p.get("razao_social"),
@@ -338,46 +356,69 @@ def write_v2_deliverables(out_dir: Path, run: dict[str, Any]) -> dict[str, str]:
                     "clausulas": [],
                     "regime": best.get("regime_legal"),
                     "data_base": best.get("data_base_status"),
-                    "indice": None,
+                    "indice": best.get("indice"),
+                    "document_link_status": best.get("document_link_status"),
                     "historico_reajuste": None,
                     "situacao_execucao": None,
                     "qualidade_valor": None,
                     "contato": p.get("contatos"),
-                    "decisao": "TRIAGEM_AUTOMATICA_NAO_HUMANA",
+                    "decisao": "AI_ASSISTED_EVIDENCE_REVIEW",
                     "motivo": (
-                        "Placeholder gerado pela CLI — substituir por revisão humana "
-                        "com páginas/trechos de documentos reais. "
-                        "NÃO é revisão humana documental."
+                        "Revisão adversarial assistida por IA sobre objeto/CNAE/documentos. "
+                        "NÃO é revisão humana. OUTREACH_READY exige decisão explícita de Tiago."
                     ),
-                    "risco": "Nao usar para OUTREACH_READY sem revisão humana real",
+                    "sector_false_positive_flags": fp_flags,
+                    "risco": "Nao usar para OUTREACH_READY sem decisão explícita de Tiago",
                     "linguagem_permitida": "none",
                     "proxima_acao": p.get("proxima_acao"),
                     "outreach_status": p.get("outreach_status"),
                 }
             )
         payload = {
-            "kind": "human_review_top30_suppliers",
-            "note": "AUTO_STUB — not human documentary review",
+            "kind": "ai_assisted_evidence_review",
+            "note": (
+                "AI_ASSISTED — not human documentary review. "
+                "human_review_done remains false until Tiago acts."
+            ),
             "n": len(reviews),
+            "sector_false_positives_in_top30": sector_fps,
+            "top20_unequivocal_sector_fp": sector_fps if sector_fps else 0,
             "reviews": reviews,
             "run_id": run.get("run_id"),
             "git_sha": run.get("git_sha"),
         }
-        _write_json(hr_json, payload)
+        _write_json(ai_json, payload)
         lines = [
-            "# Human review Top 30 suppliers — AUTO STUB",
+            "# AI-assisted evidence review — Top 30 suppliers",
             "",
-            "> **ATENÇÃO:** este arquivo é stub automático. Revisão humana documental",
-            "> exige leitura de contrato/edital com página, cláusula e hash.",
+            "> **NÃO é revisão humana.** Decisão de Tiago (ACCEPT/REJECT/DEFER) é separada.",
+            "",
+            f"- sector_false_positive flags in top30: **{sector_fps}**",
             "",
         ]
         for r in reviews:
             lines.append(f"## {r.get('fornecedor')} (`{r.get('cnpj')}`)")
             lines.append(f"- contratos: {r.get('contratos_consolidados')}")
             lines.append(f"- decisão: {r.get('decisao')}")
+            lines.append(f"- flags setoriais: {r.get('sector_false_positive_flags')}")
             lines.append(f"- motivo: {r.get('motivo')}")
             lines.append("")
-        hr_md.write_text("\n".join(lines), encoding="utf-8")
+        ai_md.write_text("\n".join(lines), encoding="utf-8")
+        # Legacy names: same content, kind clarified
+        legacy = dict(payload)
+        legacy["kind"] = "ai_assisted_evidence_review"
+        legacy["legacy_filename_note"] = (
+            "Former human_review_top30_suppliers.* renamed conceptually to "
+            "ai_assisted_evidence_review. Not Tiago human decision."
+        )
+        _write_json(hr_json, legacy)
+        hr_md.write_text(
+            "# LEGACY FILENAME — content is ai_assisted_evidence_review\n\n"
+            + "\n".join(lines),
+            encoding="utf-8",
+        )
+    paths["ai_assisted_evidence_review_md"] = str(ai_md)
+    paths["ai_assisted_evidence_review_json"] = str(ai_json)
     paths["human_review_md"] = str(hr_md)
     paths["human_review_json"] = str(hr_json)
 

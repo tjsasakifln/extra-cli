@@ -1,10 +1,23 @@
 """Pure domain logic for reajuste 14.133 (no I/O)."""
 
+from scripts.commercial.reajuste_14133.domain.data_base_exact import (
+    EXACT_DATA_BASE_SATISFYING,
+    extract_exact_data_base,
+    is_exact_data_base_state,
+)
 from scripts.commercial.reajuste_14133.domain.dates import (
     DateField,
     consolidate_dates,
     interregno_days,
     next_anniversary,
+)
+from scripts.commercial.reajuste_14133.domain.document_link import (
+    DOCUMENT_LINK_CONFLICT,
+    DOCUMENT_LINK_PARTIAL,
+    DOCUMENT_LINK_UNVERIFIED,
+    DOCUMENT_LINK_VERIFIED,
+    invalidate_signals_on_conflict,
+    verify_document_link,
 )
 from scripts.commercial.reajuste_14133.domain.eligibility import (
     EligibilityResult,
@@ -60,4 +73,13 @@ __all__ = [
     "dedupe_economic_opportunities",
     "ValueQualityResult",
     "validate_contract_value",
+    "verify_document_link",
+    "invalidate_signals_on_conflict",
+    "DOCUMENT_LINK_VERIFIED",
+    "DOCUMENT_LINK_PARTIAL",
+    "DOCUMENT_LINK_CONFLICT",
+    "DOCUMENT_LINK_UNVERIFIED",
+    "extract_exact_data_base",
+    "is_exact_data_base_state",
+    "EXACT_DATA_BASE_SATISFYING",
 ]

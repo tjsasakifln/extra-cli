@@ -379,6 +379,8 @@ def test_outreach_ready_requires_all_gates():
         human_review_done=True,
         has_valor_potencial=True,
         docs_text_extracted=True,
+        document_link_validated=True,
+        document_link_status="DOCUMENT_LINK_VERIFIED",
     )
     assert r.status == OUTREACH_READY
 
@@ -402,6 +404,8 @@ def test_outreach_ready_without_value():
         human_review_done=True,
         has_valor_potencial=False,
         docs_text_extracted=True,
+        document_link_validated=True,
+        document_link_status="DOCUMENT_LINK_VERIFIED",
     )
     assert r.status == OUTREACH_READY_WITHOUT_VALUE_ESTIMATE
 

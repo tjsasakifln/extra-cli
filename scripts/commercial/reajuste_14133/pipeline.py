@@ -195,9 +195,24 @@ def classify_row(
 ) -> dict[str, Any]:
     """Classify a single contract row into a lead record."""
     objeto = row.get("objeto_contrato")
-    obra = classify_construction(objeto)
     cnpj = digits_cnpj(row.get("fornecedor_cnpj"))
     nome = (row.get("fornecedor_nome") or "").strip()
+    cnae_hint = None
+    if registry:
+        cnae_hint = registry.get("cnae_principal") or registry.get("cnae")
+    obra = classify_construction(
+        objeto,
+        razao_social=nome,
+        cnae=cnae_hint,
+        document_text=(
+            " ".join(
+                getattr(e, "excerpt", "") or ""
+                for e in (getattr(doc_scan, "evidences", None) or [])
+            )[:3000]
+            if doc_scan
+            else None
+        ),
+    )
     private = is_private_supplier(cnpj, nome)
 
     assin = row.get("data_assinatura")
@@ -218,37 +233,60 @@ def classify_row(
     index_name = None
     clause_located = False
     regime_conflict = False
+    document_link_status = None
+    document_link_validated = False
+    data_base_exact_from_docs = False
+    exact_data_base_payload = None
+    signals_usable = True
     if doc_scan is not None:
+        signals_usable = bool(getattr(doc_scan, "signals_usable", True))
+        document_link_status = getattr(doc_scan, "document_link_status", None)
+        document_link_validated = document_link_status in {
+            "DOCUMENT_LINK_VERIFIED",
+            "DOCUMENT_LINK_PARTIAL",
+        }
         # Official PDF/edital text only — portal HTML / object never count
-        official_text = bool(getattr(doc_scan, "official_text_extracted", False))
+        # CONFLICT documents cannot prove regime/clause/index/data-base
+        official_text = bool(getattr(doc_scan, "official_text_extracted", False)) and signals_usable
         text_extracted = official_text
-        docs_accessible = bool(doc_scan.docs_accessible) and official_text
+        docs_accessible = bool(doc_scan.docs_accessible) and official_text and signals_usable
         if getattr(doc_scan, "pdf_binary_located", False) and not official_text:
             docs_accessible = False
-        clause_located = bool(doc_scan.reajuste_clause_mention) and official_text
-        regime_conflict = bool(getattr(doc_scan, "regime_conflict", False))
+        clause_located = bool(doc_scan.reajuste_clause_mention) and official_text and signals_usable
+        regime_conflict = bool(getattr(doc_scan, "regime_conflict", False)) and signals_usable
         if doc_scan.regime_14133_mention and official_text:
             doc_texts.append("lei 14.133/2021 (documento oficial extraído)")
         for e in doc_scan.evidences:
             method = getattr(e, "extraction_method", "") or ""
-            # Only official PDF extract methods prove regime/clause (not portal HTML)
+            # Only official PDF/DOCX/sheet extract methods prove regime/clause
             if method not in {
                 "pncp_pdf_pypdf2",
                 "pncp_pdf_pypdf",
                 "process_documents_pdf",
                 "http_get_pdf_text",
+                "pncp_docx",
+                "pncp_xlsx",
+                "pncp_ods",
+                "pncp_zip_pdf",
+                "pncp_zip_docx",
+                "pncp_zip_xlsx",
+                "pncp_zip_ods",
             }:
                 continue
             if e.field_found == "regime_legal_14133" and e.excerpt:
                 doc_texts.append(e.excerpt)
             if e.field_found == "clausula_reajuste" and e.excerpt:
                 doc_texts.append(e.excerpt)
-        in_clause = list(getattr(doc_scan, "index_in_clause", None) or [])
+        in_clause = list(getattr(doc_scan, "index_in_clause", None) or []) if signals_usable else []
         index_found = bool(in_clause) and official_text
         index_in_clause = bool(in_clause) and official_text
         if in_clause and official_text:
             index_name = in_clause[0]
         already_adjusted = bool(doc_scan.already_adjusted_hint) and official_text
+        data_base_exact_from_docs = bool(
+            getattr(doc_scan, "data_base_exata_localizada", False)
+        ) and signals_usable
+        exact_data_base_payload = getattr(doc_scan, "exact_data_base", None)
 
     if official_acts:
         for act in official_acts[:5]:
@@ -270,8 +308,20 @@ def classify_row(
             published_on_pncp=True,
         )
 
+    # Prefer exact data-base extracted from official docs (never signature/publication)
+    orc_date = None
+    orc_source = "missing"
+    orc_conf = "none"
+    if data_base_exact_from_docs and exact_data_base_payload:
+        primary = (exact_data_base_payload or {}).get("primary") or {}
+        orc_date = primary.get("value_date") or primary.get("value")
+        orc_source = f"document:{primary.get('document') or 'official'}:{primary.get('state')}"
+        orc_conf = "high" if primary.get("confidence") in {"high", "medium"} else "high"
     dates = consolidate_dates(
         as_of=as_of,
+        orcamento_estimado=orc_date,
+        orcamento_source=orc_source,
+        orcamento_confidence=orc_conf,
         data_assinatura=row.get("data_assinatura"),
         data_publicacao=row.get("data_publicacao_fonte") or row.get("data_publicacao"),
         inicio_vigencia=row.get("data_inicio"),
@@ -399,6 +449,13 @@ def classify_row(
     )
     open_obl = exec_st.open_obligation_possible and not is_closed
 
+    # Exact data-base: only structured extraction states (not mere "data-base" mention)
+    data_base_exact = bool(data_base_exact_from_docs) or (
+        dates.data_base_status == DATA_BASE_CONFIRMED
+        and dates.data_base_effective.confidence == "high"
+        and not str(dates.data_base_effective.source).startswith("proxy")
+    )
+
     outreach = evaluate_outreach(
         eligibility_status=elig.status,
         regime=regime.regime,
@@ -407,10 +464,7 @@ def classify_row(
         private_supplier=private,
         clause_located=clause_located,
         data_base_status=dates.data_base_status,
-        data_base_exact=(
-            dates.data_base_status == DATA_BASE_CONFIRMED
-            and dates.data_base_effective.confidence == "high"
-        ),
+        data_base_exact=data_base_exact,
         index_in_clause=index_in_clause,
         interregno_completo=bool(dates.interregno_completo),
         open_obligation=open_obl,
@@ -422,6 +476,8 @@ def classify_row(
         argument_cites_unproven_value=False,
         docs_text_extracted=text_extracted,
         legal_regime_conflict=regime.regime == REGIME_CONFLICT,
+        document_link_validated=document_link_validated,
+        document_link_status=document_link_status,
     )
 
     url = pncp_contract_url(row.get("contrato_id"), row.get("orgao_cnpj"))
@@ -498,6 +554,14 @@ def classify_row(
         "data_base_status": dates.data_base_status,
         "data_base_source": dates.data_base_effective.source,
         "data_base_confidence": dates.data_base_effective.confidence,
+        "data_base_exata_localizada": data_base_exact,
+        "exact_data_base": exact_data_base_payload,
+        "document_link_status": document_link_status,
+        "document_link_validated": document_link_validated,
+        "document_link": getattr(doc_scan, "document_link", None) if doc_scan else None,
+        "doc_type_inventory": getattr(doc_scan, "doc_type_inventory", None) if doc_scan else None,
+        "index_formula": getattr(doc_scan, "index_formula", None) if doc_scan else None,
+        "signals_usable": signals_usable,
         "temporal_layer": t_layer,
         "indice": finance.indice_contratual,
         "indice_in_clause": index_in_clause,

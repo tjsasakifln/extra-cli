@@ -432,7 +432,10 @@ def validate_invariants(
     return errors
 
 
-def build_human_review(portfolios: list[dict[str, Any]], leads: list[dict[str, Any]]) -> dict[str, Any]:
+def build_ai_assisted_evidence_review(
+    portfolios: list[dict[str, Any]], leads: list[dict[str, Any]]
+) -> dict[str, Any]:
+    """Adversarial AI-assisted evidence review — NOT Tiago human decision."""
     by_cnpj: dict[str, list[dict[str, Any]]] = {}
     for lead in leads:
         by_cnpj.setdefault(str(lead.get("cnpj") or ""), []).append(lead)
@@ -515,8 +518,8 @@ def build_human_review(portfolios: list[dict[str, Any]], leads: list[dict[str, A
                     else "NOT_READY_REGIME_UNKNOWN"
                 ),
                 "motivo": (
-                    "PDF oficial reclassificado no rebind-export; falta human_confirmed "
-                    "completo para OUTREACH_READY."
+                    "PDF oficial reclassificado no rebind-export; "
+                    "OUTREACH_READY exige decisão explícita de Tiago (não forjada)."
                 ),
                 "linguagem_permitida": (
                     "exploratory_document_request"
@@ -525,17 +528,25 @@ def build_human_review(portfolios: list[dict[str, Any]], leads: list[dict[str, A
                         in {"STRONG_CANDIDATE", "REVIEW_REQUIRED", "HOT_VERIFIED"})
                     else "none"
                 ),
-                "review_kind": "human_desk_review_from_official_pdf_rebind",
+                "review_kind": "ai_assisted_evidence_review",
             }
         )
     return {
-        "kind": "human_review_top30_suppliers",
+        "kind": "ai_assisted_evidence_review",
         "n": len(reviews),
         "false_positives": 0,
         "kept_in_queue": len(reviews),
         "reviews": reviews,
-        "note": "Rebind-export: reviews only for suppliers with official PDF text after reclassify.",
+        "note": (
+            "AI-assisted evidence review from official PDF reclassify. "
+            "NOT human/Tiago decision. human_review_done remains false."
+        ),
     }
+
+
+def build_human_review(portfolios: list[dict[str, Any]], leads: list[dict[str, Any]]) -> dict[str, Any]:
+    """Deprecated alias — returns ai_assisted_evidence_review payload."""
+    return build_ai_assisted_evidence_review(portfolios, leads)
 
 
 def rebind_export(
@@ -739,18 +750,19 @@ def rebind_export(
         # surface later only if checkpoint exists and fails invariant
         _ = exc
 
-    # Human review from reclassified data
-    hr = build_human_review(portfolios, ranked)
+    # AI-assisted evidence review from reclassified data (NOT Tiago human decision)
+    hr = build_ai_assisted_evidence_review(portfolios, ranked)
     hr["git_sha"] = head
     hr["evidence_commit_sha"] = head
-    (run_dir / "human_review_top30_suppliers.json").write_text(
-        json.dumps(hr, indent=2, ensure_ascii=False, default=str) + "\n", encoding="utf-8"
-    )
+    payload = json.dumps(hr, indent=2, ensure_ascii=False, default=str) + "\n"
+    (run_dir / "ai_assisted_evidence_review_top30.json").write_text(payload, encoding="utf-8")
+    (run_dir / "human_review_top30_suppliers.json").write_text(payload, encoding="utf-8")
     md_lines = [
-        "# Human review Top 30 — rebind-export (official PDF)",
+        "# AI-assisted evidence review Top 30 — rebind-export (official PDF)",
         "",
         f"n={hr['n']} HEAD=`{head}`",
         "Grounded in pncp_pdf_* after atomic reclassify.",
+        "NOT human/Tiago decision. OUTREACH_READY requires explicit Tiago ACCEPT.",
         "",
     ]
     for r in hr.get("reviews") or []:
@@ -763,7 +775,12 @@ def rebind_export(
             f"- decisão: {r.get('decisao')}",
             "",
         ]
-    (run_dir / "human_review_top30_suppliers.md").write_text("\n".join(md_lines), encoding="utf-8")
+    md_body = "\n".join(md_lines)
+    (run_dir / "ai_assisted_evidence_review_top30.md").write_text(md_body, encoding="utf-8")
+    (run_dir / "human_review_top30_suppliers.md").write_text(
+        "# LEGACY FILENAME — content is ai_assisted_evidence_review\n\n" + md_body,
+        encoding="utf-8",
+    )
 
     # Manifest (overwrite)
     man_path.write_text(
