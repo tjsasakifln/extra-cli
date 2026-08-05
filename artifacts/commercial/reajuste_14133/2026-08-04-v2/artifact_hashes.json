@@ -1,62 +1,66 @@
 {
-  "FINAL-REPORT.md": {
-    "sha256": "b94e4a8315d5efa0686470155fd7927aefead752dda2ab9a22c3b192aace15ce",
-    "size": 1885
-  },
-  "checksums.sha256": {
-    "sha256": "c9baeabff5f65a9c8181bf2d00e19a19f4c9158cb281be3f4ecd9325584d1a5e",
-    "size": 7726
-  },
-  "data_quality_report.md": {
-    "sha256": "5d385b12441188387e8211912fbeb49ad9eae87e5dad1d7a5b4fcdf3d964a053",
-    "size": 3127
-  },
-  "document_request_candidates.csv": {
-    "sha256": "d226d060170383e6a28d5df33af35ee9f55b50e076f0d6b4a8050476ffa063bd",
-    "size": 175068
-  },
-  "human_review_top30_suppliers.json": {
-    "sha256": "ffe6cbaa756950afcbf9753793405abfa8eddc30fe7a18231e8f4b06dd3b57e7",
-    "size": 175625
-  },
-  "human_review_top30_suppliers.md": {
-    "sha256": "d90afd4cfac92d1d36732c8c594e86b27eb7effb3cc30b171362173ddb4140ca",
-    "size": 18736
-  },
-  "human_review_top30_suppliers_nacional.json": {
-    "sha256": "0335514904bf285f9d60f6d46b4c6db6307301f812149090f89a4e5470d34cef",
-    "size": 94081
-  },
-  "human_review_top30_suppliers_nacional.md": {
-    "sha256": "e46cc8149e95695a9b56bdbab307b7f5bb7d8aebba354a15f7c33702e25a54d0",
-    "size": 8728
-  },
-  "methodology.md": {
-    "sha256": "87d9c68ec5bcc9c4c087286494ca0cc84f6baf5386a61602abc653b78d65e898",
-    "size": 2840
-  },
-  "nacional_checksums.sha256": {
-    "sha256": "3fd5a7de54ead6dccb8ccbd7a7d79a4f4df6ab3c16d678ba20d9124186d71a9c",
-    "size": 1749
-  },
-  "nacional_run_manifest.json": {
-    "sha256": "b5ef045d07d58b6573cc224b68622184e749aabdf23b981b179254e9e1f0f3a9",
-    "size": 3441
-  },
-  "outreach_ready.csv": {
-    "sha256": "e368066ef92f89e92b7e502db94c587470eb2b154cd2d8a9b97d5b5b1b1ddf56",
-    "size": 400
-  },
-  "run_manifest.json": {
-    "sha256": "7ac80095a25d819abf6ab17ac572c3c5ba89453f7d44c15cd05802f955e067f0",
-    "size": 6382
-  },
-  "top15_nacional_sample.json": {
-    "sha256": "35964ef68185eff4a53212105cdc5710ea2f137b30ee70f2e699424bb2d83811",
-    "size": 4065
-  },
-  "top15_suppliers_sample.json": {
-    "sha256": "7e7dfc67b055f4f04792140caf812b78908056bda95e3857f5e4682ef92aa578",
-    "size": 3495
+  "evidence_commit_sha": "f338eb1d366aa8b4523fd494b9d8359bdb17cec6",
+  "git_sha": "f338eb1d366aa8b4523fd494b9d8359bdb17cec6",
+  "files": {
+    "FINAL-REPORT.md": {
+      "sha256": "b14115a7c943af10ddc6ac6fdcdf9fc5b45871ad9fe06d2d8b67f684e0217835",
+      "size": 1297
+    },
+    "checksums.sha256": {
+      "sha256": "c9baeabff5f65a9c8181bf2d00e19a19f4c9158cb281be3f4ecd9325584d1a5e",
+      "size": 7726
+    },
+    "data_quality_report.md": {
+      "sha256": "5d385b12441188387e8211912fbeb49ad9eae87e5dad1d7a5b4fcdf3d964a053",
+      "size": 3127
+    },
+    "document_request_candidates.csv": {
+      "sha256": "d226d060170383e6a28d5df33af35ee9f55b50e076f0d6b4a8050476ffa063bd",
+      "size": 175068
+    },
+    "human_review_top30_suppliers.json": {
+      "sha256": "292cacb419043d02d6609e4ea07820acdf195d1a4646d4a67472970ecdcaad14",
+      "size": 94081
+    },
+    "human_review_top30_suppliers.md": {
+      "sha256": "e02cf573a2c16b69a01e9ef1247209ab038ce56e14be749c3d485416662fbee7",
+      "size": 8728
+    },
+    "human_review_top30_suppliers_nacional.json": {
+      "sha256": "292cacb419043d02d6609e4ea07820acdf195d1a4646d4a67472970ecdcaad14",
+      "size": 94081
+    },
+    "human_review_top30_suppliers_nacional.md": {
+      "sha256": "e02cf573a2c16b69a01e9ef1247209ab038ce56e14be749c3d485416662fbee7",
+      "size": 8728
+    },
+    "methodology.md": {
+      "sha256": "87d9c68ec5bcc9c4c087286494ca0cc84f6baf5386a61602abc653b78d65e898",
+      "size": 2840
+    },
+    "nacional_checksums.sha256": {
+      "sha256": "360d9bcacd31cc15feccc8842fcd95dc26d43f8c2354c09197666204b11ab337",
+      "size": 1749
+    },
+    "nacional_run_manifest.json": {
+      "sha256": "fe526ae22dd8077c47a774e4d676cb8e3f64e807f5c6aef28c634cac42c96f0b",
+      "size": 3441
+    },
+    "outreach_ready.csv": {
+      "sha256": "e368066ef92f89e92b7e502db94c587470eb2b154cd2d8a9b97d5b5b1b1ddf56",
+      "size": 400
+    },
+    "run_manifest.json": {
+      "sha256": "7ac80095a25d819abf6ab17ac572c3c5ba89453f7d44c15cd05802f955e067f0",
+      "size": 6382
+    },
+    "top15_nacional_sample.json": {
+      "sha256": "97aa57e0838505b9a31b09601711837440d700ca31167e5f4c5bf14b6b66d30e",
+      "size": 5859
+    },
+    "top15_suppliers_sample.json": {
+      "sha256": "137006d7d2f6cb25c9d0ccb5e6897d19e5d2db03e00662d940e48e51891a4634",
+      "size": 5827
+    }
   }
 }

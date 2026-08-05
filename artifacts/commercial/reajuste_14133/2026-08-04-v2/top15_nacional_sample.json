@@ -1,152 +1,186 @@
-[
-  {
-    "ranking": 9,
-    "razao_social": "LCM CONSTRUCAO E COMERCIO S.A",
-    "cnpj_masked": "19758842****",
-    "sede_uf": "MG",
-    "qtd_contratos": 118,
-    "outreach_status": "NOT_READY_FOR_OUTREACH",
-    "score": 17.62,
-    "official_pdf": true
-  },
-  {
-    "ranking": 7,
-    "razao_social": "PLANATERRA-TERRAPLENAGEM E PAVIMENTACAO LTDA",
-    "cnpj_masked": "82743832****",
-    "sede_uf": "SC",
-    "qtd_contratos": 14,
-    "outreach_status": "NOT_READY_FOR_OUTREACH",
-    "score": 17.99,
-    "official_pdf": true
-  },
-  {
-    "ranking": 11,
-    "razao_social": "HWN ENGENHARIA LTDA",
-    "cnpj_masked": "19256565****",
-    "sede_uf": "MG",
-    "qtd_contratos": 26,
-    "outreach_status": "NOT_READY_FOR_OUTREACH",
-    "score": 17.57,
-    "official_pdf": true
-  },
-  {
-    "ranking": 46,
-    "razao_social": "CONSTRUTORA CENTRO LESTE ENGENHARIA LTDA",
-    "cnpj_masked": "66418765****",
-    "sede_uf": "MG",
-    "qtd_contratos": 10,
-    "outreach_status": "NOT_READY_FOR_OUTREACH",
-    "score": 16.54,
-    "official_pdf": true
-  },
-  {
-    "ranking": 95,
-    "razao_social": "CONSÓRCIO SINAL MT",
-    "cnpj_masked": "56943390****",
-    "sede_uf": "MT",
-    "qtd_contratos": 3,
-    "outreach_status": "NOT_READY_FOR_OUTREACH",
-    "score": 15.74,
-    "official_pdf": true
-  },
-  {
-    "ranking": 100,
-    "razao_social": "CONSÓRCIO SOLUÇÃO DOR LOTE 8, formado pelas empresas NEOCONSTEC CONSULTORIA TÉCNICA LTDA, CNPJ sob nº 28.542.082/0001-15; PRODEC CONSULTORIA PARA DECISÃO S/S LTDA e SCB SERVIÇOS E CONSULTORIA EM BIM LTDA, CNPJ nº 22.642.758/0001-66",
-    "cnpj_masked": "28542082****",
-    "sede_uf": "GO",
-    "qtd_contratos": 4,
-    "outreach_status": "NOT_READY_FOR_OUTREACH",
-    "score": 15.66,
-    "official_pdf": true
-  },
-  {
-    "ranking": 126,
-    "razao_social": "CONSTRUTORA LUIZ COSTA LTDA",
-    "cnpj_masked": "00779059****",
-    "sede_uf": "RN",
-    "qtd_contratos": 22,
-    "outreach_status": "NOT_READY_FOR_OUTREACH",
-    "score": 15.44,
-    "official_pdf": true
-  },
-  {
-    "ranking": 1,
-    "razao_social": "GAIA RODOVIAS LTDA.",
-    "cnpj_masked": "03257777****",
-    "sede_uf": "SC",
-    "qtd_contratos": 5,
-    "outreach_status": "NOT_READY_FOR_OUTREACH",
-    "score": 19.94,
-    "official_pdf": true
-  },
-  {
-    "ranking": 5,
-    "razao_social": "CASTILHO ENGENHARIA E EMPREENDIMENTOS S/A",
-    "cnpj_masked": "92779503****",
-    "sede_uf": "PR",
-    "qtd_contratos": 14,
-    "outreach_status": "NOT_READY_FOR_OUTREACH",
-    "score": 18.24,
-    "official_pdf": true
-  },
-  {
-    "ranking": 18,
-    "razao_social": "SBS ENGENHARIA E CONSTRUCOES LTDA.",
-    "cnpj_masked": "88348024****",
-    "sede_uf": "RS",
-    "qtd_contratos": 2,
-    "outreach_status": "NOT_READY_FOR_OUTREACH",
-    "score": 17.26,
-    "official_pdf": true
-  },
-  {
-    "ranking": 27,
-    "razao_social": "OMEGA CONSTRUTORA E SERVIÇOS LTDA",
-    "cnpj_masked": "12647362****",
-    "sede_uf": "RJ",
-    "qtd_contratos": 7,
-    "outreach_status": "NOT_READY_FOR_OUTREACH",
-    "score": 16.94,
-    "official_pdf": true
-  },
-  {
-    "ranking": 34,
-    "razao_social": "RGS ENGENHARIA S.A.",
-    "cnpj_masked": "19368227****",
-    "sede_uf": "RS",
-    "qtd_contratos": 9,
-    "outreach_status": "NOT_READY_FOR_OUTREACH",
-    "score": 16.76,
-    "official_pdf": true
-  },
-  {
-    "ranking": 45,
-    "razao_social": "ETHOS ENGENHARIA DE INFRAESTRUTURA S/A",
-    "cnpj_masked": "19758779****",
-    "sede_uf": "MG",
-    "qtd_contratos": 16,
-    "outreach_status": "NOT_READY_FOR_OUTREACH",
-    "score": 16.54,
-    "official_pdf": true
-  },
-  {
-    "ranking": 48,
-    "razao_social": "STRATA ENGENHARIA LTDA",
-    "cnpj_masked": "38743357****",
-    "sede_uf": "MG",
-    "qtd_contratos": 11,
-    "outreach_status": "NOT_READY_FOR_OUTREACH",
-    "score": 16.52,
-    "official_pdf": true
-  },
-  {
-    "ranking": 50,
-    "razao_social": "CONSTRUTORA CONTINENTAL DE SAO PAULO LTDA",
-    "cnpj_masked": "61381943****",
-    "sede_uf": "RS",
-    "qtd_contratos": 6,
-    "outreach_status": "NOT_READY_FOR_OUTREACH",
-    "score": 16.47,
-    "official_pdf": true
-  }
-]
+{
+  "n": 15,
+  "sample": [
+    {
+      "rank": 1,
+      "cnpj": "05802590000190",
+      "razao_social": "CONSTRUTORA JUREMA LTDA",
+      "sede_uf": "PI",
+      "score": 49.82,
+      "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
+      "qtd_contratos": 6,
+      "melhor_classificacao": "STRONG_CANDIDATE",
+      "melhor_contrato_id": "06535751000199-2-000009/2024",
+      "regime_proven": null
+    },
+    {
+      "rank": 2,
+      "cnpj": "82743832000162",
+      "razao_social": "PLANATERRA-TERRAPLENAGEM E PAVIMENTACAO LTDA",
+      "sede_uf": "SC",
+      "score": 48.89,
+      "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
+      "qtd_contratos": 14,
+      "melhor_classificacao": "STRONG_CANDIDATE",
+      "melhor_contrato_id": "04892707000100-2-000494/2024",
+      "regime_proven": null
+    },
+    {
+      "rank": 3,
+      "cnpj": "80095466000157",
+      "razao_social": "CONSTRUTORA OLIVEIRA LTDA",
+      "sede_uf": "SC",
+      "score": 48.4,
+      "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
+      "qtd_contratos": 11,
+      "melhor_classificacao": "STRONG_CANDIDATE",
+      "melhor_contrato_id": "83021808000182-2-000395/2024",
+      "regime_proven": null
+    },
+    {
+      "rank": 4,
+      "cnpj": "88348024000187",
+      "razao_social": "SBS ENGENHARIA E CONSTRUCOES LTDA.",
+      "sede_uf": "RS",
+      "score": 48.24,
+      "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
+      "qtd_contratos": 2,
+      "melhor_classificacao": "STRONG_CANDIDATE",
+      "melhor_contrato_id": "04892707000100-2-000458/2024",
+      "regime_proven": null
+    },
+    {
+      "rank": 5,
+      "cnpj": "19758842000135",
+      "razao_social": "LCM CONSTRUCAO E COMERCIO S.A",
+      "sede_uf": "MG",
+      "score": 47.72,
+      "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
+      "qtd_contratos": 118,
+      "melhor_classificacao": "STRONG_CANDIDATE",
+      "melhor_contrato_id": "04892707000100-2-000350/2024",
+      "regime_proven": null
+    },
+    {
+      "rank": 6,
+      "cnpj": "92190503000195",
+      "razao_social": "CONSTRUTORA PELOTENSE LTDA",
+      "sede_uf": "RS",
+      "score": 47.31,
+      "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
+      "qtd_contratos": 2,
+      "melhor_classificacao": "STRONG_CANDIDATE",
+      "melhor_contrato_id": "04892707000100-2-000567/2024",
+      "regime_proven": null
+    },
+    {
+      "rank": 7,
+      "cnpj": "92779503000125",
+      "razao_social": "CASTILHO ENGENHARIA E EMPREENDIMENTOS S/A",
+      "sede_uf": "PR",
+      "score": 47.14,
+      "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
+      "qtd_contratos": 14,
+      "melhor_classificacao": "STRONG_CANDIDATE",
+      "melhor_contrato_id": "04892707000100-2-000579/2024",
+      "regime_proven": null
+    },
+    {
+      "rank": 8,
+      "cnpj": "75911438000120",
+      "razao_social": "ARTELESTE CONSTRUCOES LIMITADA",
+      "sede_uf": "RS",
+      "score": 46.59,
+      "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
+      "qtd_contratos": 4,
+      "melhor_classificacao": "STRONG_CANDIDATE",
+      "melhor_contrato_id": "04892707000100-2-000508/2024",
+      "regime_proven": null
+    },
+    {
+      "rank": 9,
+      "cnpj": "02955426000124",
+      "razao_social": "NEOVIA INFRAESTRUTURA RODOVIARIA LTDA",
+      "sede_uf": "RS",
+      "score": 45.89,
+      "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
+      "qtd_contratos": 15,
+      "melhor_classificacao": "STRONG_CANDIDATE",
+      "melhor_contrato_id": "04892707000100-2-000561/2024",
+      "regime_proven": null
+    },
+    {
+      "rank": 10,
+      "cnpj": "92943398000118",
+      "razao_social": "CONSTRUTORA CIDADE LIMITADA",
+      "sede_uf": "RS",
+      "score": 45.85,
+      "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
+      "qtd_contratos": 4,
+      "melhor_classificacao": "STRONG_CANDIDATE",
+      "melhor_contrato_id": "04892707000100-2-000620/2024",
+      "regime_proven": null
+    },
+    {
+      "rank": 11,
+      "cnpj": "00061493000170",
+      "razao_social": "ENCOPAV ENGENHARIA LTDA",
+      "sede_uf": "RS",
+      "score": 45.8,
+      "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
+      "qtd_contratos": 19,
+      "melhor_classificacao": "STRONG_CANDIDATE",
+      "melhor_contrato_id": "92883834000100-2-000007/2025",
+      "regime_proven": null
+    },
+    {
+      "rank": 12,
+      "cnpj": "72030927000185",
+      "razao_social": "SEEL SERVICOS ESPECIAIS DE ENGENHARIA LTDA",
+      "sede_uf": "RJ",
+      "score": 45.65,
+      "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
+      "qtd_contratos": 2,
+      "melhor_classificacao": "STRONG_CANDIDATE",
+      "melhor_contrato_id": "04892707000100-2-000596/2024",
+      "regime_proven": null
+    },
+    {
+      "rank": 13,
+      "cnpj": "15800344000152",
+      "razao_social": "CL ENGENHARIA E CONSTRUCAO LTDA",
+      "sede_uf": "MG",
+      "score": 45.53,
+      "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
+      "qtd_contratos": 3,
+      "melhor_classificacao": "STRONG_CANDIDATE",
+      "melhor_contrato_id": "21154554000113-2-000605/2024",
+      "regime_proven": null
+    },
+    {
+      "rank": 14,
+      "cnpj": "67156943000260",
+      "razao_social": "SOTRAM - CONSTR. E TERRAPLENAGEM LTDA.",
+      "sede_uf": "PR",
+      "score": 45.5,
+      "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
+      "qtd_contratos": 11,
+      "melhor_classificacao": "STRONG_CANDIDATE",
+      "melhor_contrato_id": "76247378000156-2-000324/2024",
+      "regime_proven": null
+    },
+    {
+      "rank": 15,
+      "cnpj": "17620199000153",
+      "razao_social": "AVANTI SOLUCOES E TECNOLOGIA LTDA",
+      "sede_uf": "MG",
+      "score": 45.39,
+      "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
+      "qtd_contratos": 1,
+      "melhor_classificacao": "STRONG_CANDIDATE",
+      "melhor_contrato_id": "16789398000127-2-000057/2024",
+      "regime_proven": null
+    }
+  ],
+  "note": "DOCUMENT_REQUEST top (OUTREACH_READY=0)"
+}

@@ -1,137 +1,187 @@
-[
-  {
-    "ranking": 1,
-    "razao_social": "PLANATERRA-TERRAPLENAGEM E PAVIMENTACAO LTDA",
-    "cnpj_masked": "82743832****",
-    "sede_uf": "SC",
-    "qtd_contratos": 24,
-    "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
-    "score": 53.76
-  },
-  {
-    "ranking": 3,
-    "razao_social": "CONSTRUTORA OLIVEIRA LTDA",
-    "cnpj_masked": "80095466****",
-    "sede_uf": "SC",
-    "qtd_contratos": 36,
-    "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
-    "score": 51.39
-  },
-  {
-    "ranking": 4,
-    "razao_social": "CASTILHO ENGENHARIA E EMPREENDIMENTOS S/A",
-    "cnpj_masked": "92779503****",
-    "sede_uf": "PR",
-    "qtd_contratos": 8,
-    "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
-    "score": 50.13
-  },
-  {
-    "ranking": 5,
-    "razao_social": "SBS ENGENHARIA E CONSTRUCOES LTDA.",
-    "cnpj_masked": "88348024****",
-    "sede_uf": "RS",
-    "qtd_contratos": 3,
-    "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
-    "score": 49.85
-  },
-  {
-    "ranking": 6,
-    "razao_social": "ARTELESTE CONSTRUCOES LIMITADA",
-    "cnpj_masked": "75911438****",
-    "sede_uf": "PR",
-    "qtd_contratos": 3,
-    "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
-    "score": 49.58
-  },
-  {
-    "ranking": 7,
-    "razao_social": "CONSTRUTORA PELOTENSE LTDA",
-    "cnpj_masked": "92190503****",
-    "sede_uf": "RS",
-    "qtd_contratos": 2,
-    "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
-    "score": 48.92
-  },
-  {
-    "ranking": 8,
-    "razao_social": "NEOVIA INFRAESTRUTURA RODOVIARIA LTDA",
-    "cnpj_masked": "02955426****",
-    "sede_uf": "PR",
-    "qtd_contratos": 14,
-    "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
-    "score": 48.88
-  },
-  {
-    "ranking": 9,
-    "razao_social": "ENCOPAV ENGENHARIA LTDA",
-    "cnpj_masked": "00061493****",
-    "sede_uf": "RS",
-    "qtd_contratos": 38,
-    "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
-    "score": 48.79
-  },
-  {
-    "ranking": 11,
-    "razao_social": "CONSÓRCIO PARANAMAP",
-    "cnpj_masked": "59470520****",
-    "sede_uf": "PR",
-    "qtd_contratos": 1,
-    "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
-    "score": 47.59
-  },
-  {
-    "ranking": 13,
-    "razao_social": "CONSORCIO PAVIMENTA PONTA GROSSA",
-    "cnpj_masked": "55219671****",
-    "sede_uf": "PR",
-    "qtd_contratos": 2,
-    "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
-    "score": 38.49
-  },
-  {
-    "ranking": 14,
-    "razao_social": "CONSTRUTORA CIDADE LIMITADA",
-    "cnpj_masked": "92943398****",
-    "sede_uf": "RS",
-    "qtd_contratos": 3,
-    "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
-    "score": 38.36
-  },
-  {
-    "ranking": 15,
-    "razao_social": "QUALIDADE MINERACAO LTDA",
-    "cnpj_masked": "00820854****",
-    "sede_uf": "SC",
-    "qtd_contratos": 37,
-    "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
-    "score": 37.11
-  },
-  {
-    "ranking": 16,
-    "razao_social": "LEONARDO GABRIEL CHIMELLI GHELLER",
-    "cnpj_masked": "29914632****",
-    "sede_uf": "PR",
-    "qtd_contratos": 1,
-    "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
-    "score": 35.48
-  },
-  {
-    "ranking": 17,
-    "razao_social": "MARLON DE PAULA",
-    "cnpj_masked": "40443176****",
-    "sede_uf": "RS",
-    "qtd_contratos": 1,
-    "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
-    "score": 34.6
-  },
-  {
-    "ranking": 18,
-    "razao_social": "CONSORCIO VALE DO RIBEIRA",
-    "cnpj_masked": "53673938****",
-    "sede_uf": "PR",
-    "qtd_contratos": 1,
-    "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
-    "score": 34.36
-  }
-]
+{
+  "n": 15,
+  "scope": "SUL",
+  "sample": [
+    {
+      "rank": 1,
+      "cnpj": "82743832000162",
+      "razao_social": "PLANATERRA-TERRAPLENAGEM E PAVIMENTACAO LTDA",
+      "sede_uf": "SC",
+      "score": 48.89,
+      "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
+      "qtd_contratos": 14,
+      "melhor_classificacao": "STRONG_CANDIDATE",
+      "melhor_contrato_id": "04892707000100-2-000494/2024",
+      "regime_proven": null
+    },
+    {
+      "rank": 2,
+      "cnpj": "80095466000157",
+      "razao_social": "CONSTRUTORA OLIVEIRA LTDA",
+      "sede_uf": "SC",
+      "score": 48.4,
+      "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
+      "qtd_contratos": 11,
+      "melhor_classificacao": "STRONG_CANDIDATE",
+      "melhor_contrato_id": "83021808000182-2-000395/2024",
+      "regime_proven": null
+    },
+    {
+      "rank": 3,
+      "cnpj": "88348024000187",
+      "razao_social": "SBS ENGENHARIA E CONSTRUCOES LTDA.",
+      "sede_uf": "RS",
+      "score": 48.24,
+      "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
+      "qtd_contratos": 2,
+      "melhor_classificacao": "STRONG_CANDIDATE",
+      "melhor_contrato_id": "04892707000100-2-000458/2024",
+      "regime_proven": null
+    },
+    {
+      "rank": 4,
+      "cnpj": "92190503000195",
+      "razao_social": "CONSTRUTORA PELOTENSE LTDA",
+      "sede_uf": "RS",
+      "score": 47.31,
+      "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
+      "qtd_contratos": 2,
+      "melhor_classificacao": "STRONG_CANDIDATE",
+      "melhor_contrato_id": "04892707000100-2-000567/2024",
+      "regime_proven": null
+    },
+    {
+      "rank": 5,
+      "cnpj": "92779503000125",
+      "razao_social": "CASTILHO ENGENHARIA E EMPREENDIMENTOS S/A",
+      "sede_uf": "PR",
+      "score": 47.14,
+      "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
+      "qtd_contratos": 14,
+      "melhor_classificacao": "STRONG_CANDIDATE",
+      "melhor_contrato_id": "04892707000100-2-000579/2024",
+      "regime_proven": null
+    },
+    {
+      "rank": 6,
+      "cnpj": "75911438000120",
+      "razao_social": "ARTELESTE CONSTRUCOES LIMITADA",
+      "sede_uf": "RS",
+      "score": 46.59,
+      "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
+      "qtd_contratos": 4,
+      "melhor_classificacao": "STRONG_CANDIDATE",
+      "melhor_contrato_id": "04892707000100-2-000508/2024",
+      "regime_proven": null
+    },
+    {
+      "rank": 7,
+      "cnpj": "02955426000124",
+      "razao_social": "NEOVIA INFRAESTRUTURA RODOVIARIA LTDA",
+      "sede_uf": "RS",
+      "score": 45.89,
+      "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
+      "qtd_contratos": 15,
+      "melhor_classificacao": "STRONG_CANDIDATE",
+      "melhor_contrato_id": "04892707000100-2-000561/2024",
+      "regime_proven": null
+    },
+    {
+      "rank": 8,
+      "cnpj": "92943398000118",
+      "razao_social": "CONSTRUTORA CIDADE LIMITADA",
+      "sede_uf": "RS",
+      "score": 45.85,
+      "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
+      "qtd_contratos": 4,
+      "melhor_classificacao": "STRONG_CANDIDATE",
+      "melhor_contrato_id": "04892707000100-2-000620/2024",
+      "regime_proven": null
+    },
+    {
+      "rank": 9,
+      "cnpj": "00061493000170",
+      "razao_social": "ENCOPAV ENGENHARIA LTDA",
+      "sede_uf": "RS",
+      "score": 45.8,
+      "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
+      "qtd_contratos": 19,
+      "melhor_classificacao": "STRONG_CANDIDATE",
+      "melhor_contrato_id": "92883834000100-2-000007/2025",
+      "regime_proven": null
+    },
+    {
+      "rank": 10,
+      "cnpj": "67156943000260",
+      "razao_social": "SOTRAM - CONSTR. E TERRAPLENAGEM LTDA.",
+      "sede_uf": "PR",
+      "score": 45.5,
+      "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
+      "qtd_contratos": 11,
+      "melhor_classificacao": "STRONG_CANDIDATE",
+      "melhor_contrato_id": "76247378000156-2-000324/2024",
+      "regime_proven": null
+    },
+    {
+      "rank": 11,
+      "cnpj": "59470520000100",
+      "razao_social": "CONSÓRCIO PARANAMAP",
+      "sede_uf": "PR",
+      "score": 44.6,
+      "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
+      "qtd_contratos": 1,
+      "melhor_classificacao": "STRONG_CANDIDATE",
+      "melhor_contrato_id": "68596162000178-2-000022/2025",
+      "regime_proven": null
+    },
+    {
+      "rank": 12,
+      "cnpj": "22788440000198",
+      "razao_social": "ONDA DURA",
+      "sede_uf": "SC",
+      "score": 43.81,
+      "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
+      "qtd_contratos": 1,
+      "melhor_classificacao": "STRONG_CANDIDATE",
+      "melhor_contrato_id": "01280363000190-2-000001/2025",
+      "regime_proven": null
+    },
+    {
+      "rank": 13,
+      "cnpj": "00820854000114",
+      "razao_social": "QUALIDADE MINERACAO LTDA",
+      "sede_uf": "SC",
+      "score": 33.24,
+      "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
+      "qtd_contratos": 14,
+      "melhor_classificacao": "REVIEW_REQUIRED",
+      "melhor_contrato_id": "82951344000140-2-000031/2024",
+      "regime_proven": null
+    },
+    {
+      "rank": 14,
+      "cnpj": "53673938000139",
+      "razao_social": "CONSORCIO VALE DO RIBEIRA",
+      "sede_uf": "PR",
+      "score": 32.49,
+      "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
+      "qtd_contratos": 1,
+      "melhor_classificacao": "REVIEW_REQUIRED",
+      "melhor_contrato_id": "76669324000189-2-000013/2024",
+      "regime_proven": null
+    },
+    {
+      "rank": 15,
+      "cnpj": "42722865000101",
+      "razao_social": "R.J. ENGENHARIA DE MANUTENCAO INDUSTRIAL LTDA",
+      "sede_uf": "PR",
+      "score": 29.56,
+      "outreach_status": "DOCUMENT_REQUEST_CANDIDATE",
+      "qtd_contratos": 2,
+      "melhor_classificacao": "REVIEW_REQUIRED",
+      "melhor_contrato_id": "08597121000174-2-000506/2024",
+      "regime_proven": null
+    }
+  ],
+  "note": "DOCUMENT_REQUEST Sul priority"
+}
