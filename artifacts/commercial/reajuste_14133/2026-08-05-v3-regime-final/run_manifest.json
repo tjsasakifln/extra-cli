@@ -1,59 +1,48 @@
 {
-  "run_id": "v3-regime-final-2026-08-05",
+  "run_id": "reajuste_14133-2026-08-04-072933a9",
   "module_version": "3.1.0",
-  "git_sha": "5ff5b90b71036505bd3bdcf67d68778243657e0d",
+  "git_sha": "072933a950650f1e532aa54b65ea2615d96dca94",
   "as_of": "2026-08-04",
+  "source": {
+    "mode": "dsn",
+    "table": "pncp_supplier_contracts",
+    "database": "pncp_datalake",
+    "max_source_rows": null,
+    "sampling_reason": null,
+    "min_contract_value": 1,
+    "rows_in_table": 11997
+  },
   "metrics": {
-    "n_contracts_read": 1800,
-    "n_construction": 1784,
-    "n_suppliers": 846,
-    "n_sul_suppliers": 0,
-    "n_suppliers_with_reliable_contact": 28,
-    "stage_distribution_contracts": {
-      "DIAGNOSTIC_OUTREACH_READY": 11,
-      "LIKELY_ADJUSTMENT_OPPORTUNITY": 12,
-      "NOT_COMMERCIAL": 1029,
-      "DOCUMENT_REQUEST_READY": 732,
-      "POTENTIAL_ADJUSTMENT_SIGNAL": 16
+    "n_contracts_read": 11503,
+    "n_construction": 611,
+    "n_suppliers": 457,
+    "n_sul_classified": 223,
+    "n_suppliers_with_reliable_contact": 0,
+    "stage_distribution_funnel": {
+      "POTENTIAL_ADJUSTMENT_SIGNAL": 7,
+      "LIKELY_ADJUSTMENT_OPPORTUNITY": 0,
+      "DIAGNOSTIC_OUTREACH_READY": 0,
+      "DOCUMENT_REQUEST_READY": 0,
+      "VERIFIED_ADJUSTMENT_OPPORTUNITY": 0,
+      "CALCULABLE_ADJUSTMENT_CLAIM": 0,
+      "commercial_stage_not_commercial": 11446
     },
-    "stage_distribution_suppliers": {
-      "DIAGNOSTIC_OUTREACH_READY": 8,
-      "DOCUMENT_REQUEST_READY": 428,
-      "LIKELY_ADJUSTMENT_OPPORTUNITY": 8,
-      "POTENTIAL_ADJUSTMENT_SIGNAL": 5,
-      "NOT_COMMERCIAL": 397
+    "stage_distribution_classified": {
+      "NOT_COMMERCIAL": 604,
+      "POTENTIAL_ADJUSTMENT_SIGNAL": 7
     },
-    "regime_distribution": {
-      "LEI_14133_PROVEN": 29,
-      "TRANSITIONAL_REGIME_UNRESOLVED": 533,
-      "UNKNOWN": 1238
+    "regime_distribution_classified": {
+      "UNKNOWN": 608,
+      "TRANSITIONAL_REGIME_UNRESOLVED": 3
     },
-    "before_v3_year_inference": {
-      "stage_distribution_contracts": {
-        "DIAGNOSTIC_OUTREACH_READY": 21,
-        "LIKELY_ADJUSTMENT_OPPORTUNITY": 734,
-        "NOT_COMMERCIAL": 1029,
-        "POTENTIAL_ADJUSTMENT_SIGNAL": 16
-      },
-      "likely_plus_diagnostic": 755
-    },
-    "after_regime_fix": {
-      "likely_plus_diagnostic": 23,
-      "document_request_ready": 732,
-      "potential_adjustment_signal": 16
-    },
-    "demotions_likely_path_to_doc_or_signal": 732,
-    "demotions_to_document_request_ready": 216,
-    "demotions_to_potential_signal": 5,
-    "source": "output/commercial/reajuste_14133/2026-08-04-v2-real/contratos_analisados.json",
-    "method": "replay_classify_row_regime_v2_on_prior_national_export_1800",
-    "live_national_datalake": "local DSN has ~1 national contract row; full live scan not available here"
+    "execution_complete": true,
+    "demotions_likely_path_replay_1800": 732
   },
   "before_after": {
-    "before_likely_plus_diagnostic": 755,
-    "after_likely_plus_diagnostic": 23,
-    "demotions_from_likely_path": 732,
-    "document_request_ready_after": 732
+    "before_likely_plus_diagnostic_replay_1800": 755,
+    "after_likely_plus_diagnostic_live": 0,
+    "demotions_from_year_based_likely_replay": 732,
+    "live_rows_read": 11503
   },
-  "note": "Regime hierarchy R-A…R-X: year/PNCP never elevate legal confidence. Replay of prior 1800 national export; local DSN lacks full national universe."
+  "note": "Full national scan without --max-source-rows. Year never elevates regime to LIKELY_14133."
 }

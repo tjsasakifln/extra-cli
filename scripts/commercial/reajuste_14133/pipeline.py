@@ -240,11 +240,18 @@ def classify_row(
     )
     private = is_private_supplier(cnpj, nome)
 
-    assin = row.get("data_assinatura")
+    # Chronological year for transitional context only — NEVER proves Lei 14.133.
+    # Prefer signature; fall back to start/publication when the lake lacks data_assinatura.
     sig_year = None
-    if assin:
+    for _date_key in ("data_assinatura", "data_inicio", "data_publicacao", "data_publicacao_fonte"):
+        _raw = row.get(_date_key)
+        if not _raw:
+            continue
         try:
-            sig_year = int(str(assin)[:4])
+            sig_year = int(str(_raw).strip()[:4])
+            if 1900 <= sig_year <= 2100:
+                break
+            sig_year = None
         except ValueError:
             sig_year = None
 
