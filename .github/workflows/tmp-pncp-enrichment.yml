@@ -1,0 +1,33 @@
+name: Temporary PNCP Package Enrichment
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - scripts/tmp_collect_contract_packages.py
+      - data/tmp_contracts_20260805.json
+      - .github/workflows/tmp-pncp-enrichment.yml
+
+permissions:
+  contents: read
+
+jobs:
+  collect-links:
+    name: Collect official package links
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install HTTP client
+        run: pip install requests
+      - name: Query PNCP contracts and procurement files
+        run: python scripts/tmp_collect_contract_packages.py
+      - name: Upload enrichment result
+        uses: actions/upload-artifact@v4
+        with:
+          name: pncp-enrichment-results
+          path: output/pncp_enrichment_results.json
+          retention-days: 3
