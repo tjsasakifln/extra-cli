@@ -1,0 +1,30 @@
+name: Temporary PNCP Contract Qualification
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/tmp_collect_contract_qualification.py"
+      - ".github/workflows/tmp-pncp-contract-qualification.yml"
+  workflow_dispatch:
+
+jobs:
+  collect:
+    name: Collect qualification evidence
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install HTTP client
+        run: python -m pip install requests
+      - name: Query PNCP contracts, terms and documents
+        run: python scripts/tmp_collect_contract_qualification.py
+      - name: Upload qualification result
+        uses: actions/upload-artifact@v4
+        with:
+          name: pncp-contract-qualification-raw
+          path: output/tmp/
+          retention-days: 3
