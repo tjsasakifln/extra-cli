@@ -83,15 +83,12 @@ def select_services(
         primary_id = discovery
         secondary_id = "inteligencia_pncp_mercado" if "inteligencia_pncp_mercado" in idx else None
         rationale_parts.append(
-            "Fatos insuficientes no input: melhor encaixe é diagnóstico/descoberta, "
-            "sem fabricar especialidade."
+            "Fatos insuficientes no input: melhor encaixe é diagnóstico/descoberta, sem fabricar especialidade."
         )
     elif why.get("trigger") == "addendum" or _has_addendum(contracts):
         primary_id = "aditivos_extracontratuais"
         secondary_id = "gestao_monitoramento_contratual"
-        rationale_parts.append(
-            "Dor contratual concreta de aditivos/alterações supera sinal genérico de portfólio."
-        )
+        rationale_parts.append("Dor contratual concreta de aditivos/alterações supera sinal genérico de portfólio.")
     elif why.get("trigger") == "glosa_medicao" or _has_glosa_med(contracts):
         primary_id = "medicoes_glosas_memoria"
         secondary_id = "gestao_monitoramento_contratual"
@@ -126,9 +123,7 @@ def select_services(
     elif len(contracts) >= 3:
         primary_id = "gestao_monitoramento_contratual"
         secondary_id = discovery
-        rationale_parts.append(
-            "Portfólio multi-contrato sem dor concreta dominante: monitoramento/gestão contratual."
-        )
+        rationale_parts.append("Portfólio multi-contrato sem dor concreta dominante: monitoramento/gestão contratual.")
     else:
         primary_id = discovery
         secondary_id = "apoio_licitacoes_propostas"
@@ -149,9 +144,7 @@ def select_services(
         # Policy: robust never gets lean outsource as primary
         primary = _svc_ref("auditoria_orcamento_bdi", sc, catalog)
         secondary = _svc_ref(discovery, sc, catalog)
-        rationale_parts.append(
-            "Override de política: conta robusta não recebe outsourcing pleno como primário."
-        )
+        rationale_parts.append("Override de política: conta robusta não recebe outsourcing pleno como primário.")
 
     if sc in {"robust", "mixed", "unknown"} and primary.get("approach_mode") == "outsourcing_operacional_temporario":
         primary = dict(primary)

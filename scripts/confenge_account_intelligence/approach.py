@@ -52,10 +52,7 @@ def build_approach_fields(
             "obj": "Estamos aguardando parecer interno antes de qualquer apoio externo.",
         },
         "aditivos_extracontratuais": {
-            "q": (
-                "Os aditivos recentes estão com memorial quantitativo/qualitativo "
-                "alinhado ao edital original?"
-            ),
+            "q": ("Os aditivos recentes estão com memorial quantitativo/qualitativo alinhado ao edital original?"),
             "cta": "Posso revisar a cadeia aditivo → planilha → memória em um caso recente.",
             "obj": "Aditivos já estão formalizados com a fiscalização.",
         },
@@ -115,8 +112,7 @@ def build_approach_fields(
         tone = "operacional_parceiro"
         density = "moderada"
         framing = (
-            "Reforço operacional temporário sustentado por evidências de carga/"
-            "regionalidade — sem afirmar organograma."
+            "Reforço operacional temporário sustentado por evidências de carga/regionalidade — sem afirmar organograma."
         )
     elif sid == "diagnostico_contratual_b2g":
         tone = "consultivo_discovery"
@@ -136,9 +132,7 @@ def build_approach_fields(
         "Usar score genérico como se fosse evidência contratual.",
     ]
     if sc == "robust":
-        claims_to_avoid.append(
-            "Oferecer outsourcing pleno ou dizer que a conta 'não tem estrutura'."
-        )
+        claims_to_avoid.append("Oferecer outsourcing pleno ou dizer que a conta 'não tem estrutura'.")
 
     research_gaps: list[str] = []
     if not (bag.get("contracts") or []):
@@ -146,13 +140,12 @@ def build_approach_fields(
     if not bag.get("cnae_principal"):
         research_gaps.append("CNAE principal ausente.")
     if structure.get("structure_class") == "unknown":
-        research_gaps.append(
-            "Sinais de estrutura interna insuficientes — não inferir lean por omissão."
-        )
-    if any(c.get("age_days") and c["age_days"] >= 365 and not c.get("reajuste_evidence") for c in (bag.get("contracts") or [])):
-        research_gaps.append(
-            "Validar cláusulas de reajuste e eventuais termos aditivos não presentes no input."
-        )
+        research_gaps.append("Sinais de estrutura interna insuficientes — não inferir lean por omissão.")
+    if any(
+        c.get("age_days") and c["age_days"] >= 365 and not c.get("reajuste_evidence")
+        for c in (bag.get("contracts") or [])
+    ):
+        research_gaps.append("Validar cláusulas de reajuste e eventuais termos aditivos não presentes no input.")
     if not (bag.get("evidence") or []):
         research_gaps.append("Sem evidências com URL/documento — anexar fontes quando disponíveis.")
 
@@ -160,9 +153,9 @@ def build_approach_fields(
     return {
         "fact_to_mention": fact_to_mention,
         "question_to_ask": t["q"],
-        "cta": t["cta"].replace("Posso", f"Para {company}, posso").replace(
-            "Para a empresa, posso", f"Para {company}, posso"
-        )
+        "cta": t["cta"]
+        .replace("Posso", f"Para {company}, posso")
+        .replace("Para a empresa, posso", f"Para {company}, posso")
         if False
         else t["cta"],
         "objection_expected": t["obj"],

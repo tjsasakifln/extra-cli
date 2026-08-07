@@ -182,8 +182,7 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_catalog(args)
     if args.command == "run":
         return cmd_run(args)
-    parser.error(f"Unknown command: {args.command}")
-    return 2
+    raise SystemExit(f"Unknown command: {args.command}")
 
 
 if __name__ == "__main__":

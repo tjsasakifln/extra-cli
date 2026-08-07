@@ -317,9 +317,9 @@ def why_now(bag: dict[str, Any], layers: dict[str, list[dict[str, Any]]]) -> dic
         ),
         (
             "mature_no_reajuste",
-            lambda c: (c.get("age_days") or 0) >= MATURE_DAYS
-            and not c.get("has_reajuste")
-            and not c.get("reajuste_evidence"),
+            lambda c: (
+                (c.get("age_days") or 0) >= MATURE_DAYS and not c.get("has_reajuste") and not c.get("reajuste_evidence")
+            ),
             "Contrato maduro sem prova de reajuste no input — janela potencial de reajuste.",
         ),
     ]
@@ -328,6 +328,7 @@ def why_now(bag: dict[str, Any], layers: dict[str, list[dict[str, Any]]]) -> dic
         matches = [c for c in contracts if pred(c)]
         if not matches:
             continue
+
         # Prefer most recent by age_days ascending (younger among mature still recent activity)
         def recency_key(c: dict[str, Any]) -> int:
             age = c.get("age_days")
@@ -368,8 +369,7 @@ def why_now(bag: dict[str, Any], layers: dict[str, list[dict[str, Any]]]) -> dic
         return {
             "trigger": "insufficient_facts",
             "temporal_fact": (
-                f"Em {as_of}, o input não traz portfólio contratual suficiente; "
-                "o momento é de diagnóstico/descoberta."
+                f"Em {as_of}, o input não traz portfólio contratual suficiente; o momento é de diagnóstico/descoberta."
             ),
             "recency_days": None,
             "epistemic_class": "weak_inference",

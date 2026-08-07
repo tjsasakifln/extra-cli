@@ -42,14 +42,15 @@ REQUIRED_TOP_LEVEL = (
 
 
 def load_json_schema() -> dict[str, Any]:
-    return json.loads(_SCHEMA_PATH.read_text(encoding="utf-8"))
+    data: Any = json.loads(_SCHEMA_PATH.read_text(encoding="utf-8"))
+    if not isinstance(data, dict):
+        raise TypeError("schema root must be an object")
+    return data
 
 
 def validate_dossier(dossier: dict[str, Any]) -> list[str]:
     """Return list of validation errors (empty if ok). No network; no jsonschema dep required."""
     errors: list[str] = []
-    if not isinstance(dossier, dict):
-        return ["dossier must be an object"]
     if dossier.get("schema_id") != SCHEMA_ID:
         errors.append(f"schema_id must be {SCHEMA_ID!r}")
     for key in REQUIRED_TOP_LEVEL:
@@ -64,9 +65,7 @@ def validate_dossier(dossier: dict[str, Any]) -> list[str]:
             errors.append("confirmed_facts items must be objects")
             continue
         if item.get("epistemic_class") != "confirmed":
-            errors.append(
-                f"confirmed_facts item {item.get('id')} has class {item.get('epistemic_class')}"
-            )
+            errors.append(f"confirmed_facts item {item.get('id')} has class {item.get('epistemic_class')}")
         if "evidence_ids" not in item:
             errors.append(f"confirmed_facts item {item.get('id')} missing evidence_ids")
     for item in (dossier.get("strong_inferences") or []) + (dossier.get("weak_inferences") or []):

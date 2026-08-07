@@ -81,10 +81,7 @@ def build_structure_hypothesis(bag: dict[str, Any]) -> dict[str, Any]:
     else:
         structure_class = "lean"
         confidence = 0.3
-        notes = (
-            "Sinais leves de operação regional/enxuta. "
-            "Oferta outsourced só se evidência de carga sustentar."
-        )
+        notes = "Sinais leves de operação regional/enxuta. Oferta outsourced só se evidência de carga sustentar."
 
     return {
         "structure_class": structure_class,

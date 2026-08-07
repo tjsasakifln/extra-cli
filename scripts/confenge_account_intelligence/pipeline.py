@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import concurrent.futures
+from collections.abc import Iterable
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 from scripts.confenge_account_intelligence.approach import build_approach_fields
 from scripts.confenge_account_intelligence.cache import AccountIntelCache
@@ -124,9 +125,7 @@ def build_dossier(
         "Valores de contrato somam apenas o observado no input.",
     ]
     if dominant.get("blocks_outreach"):
-        limitations.append(
-            f"Estado dominante {dominant.get('state')}: não realizar outreach automatizado."
-        )
+        limitations.append(f"Estado dominante {dominant.get('state')}: não realizar outreach automatizado.")
 
     dossier: dict[str, Any] = {
         "schema_id": SCHEMA_ID,

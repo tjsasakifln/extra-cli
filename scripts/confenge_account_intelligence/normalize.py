@@ -83,7 +83,7 @@ def normalize_record(raw: dict[str, Any], *, as_of: str | None = None) -> dict[s
             reajuste_evidence = None
         contracts.append(
             {
-                "id": str(c.get("id") or c.get("contract_id") or f"contract-{i+1}"),
+                "id": str(c.get("id") or c.get("contract_id") or f"contract-{i + 1}"),
                 "object": c.get("object") or c.get("objeto") or c.get("description"),
                 "value_brl": _as_float(c.get("value_brl") or c.get("valor") or c.get("value")),
                 "start_date": start.isoformat() if start else None,
@@ -106,7 +106,8 @@ def normalize_record(raw: dict[str, Any], *, as_of: str | None = None) -> dict[s
             }
         )
 
-    signals_in = raw.get("signals") if isinstance(raw.get("signals"), dict) else {}
+    signals_raw = raw.get("signals")
+    signals_in: dict[str, Any] = signals_raw if isinstance(signals_raw, dict) else {}
     signals = {
         "national_operation": _boolish(signals_in.get("national_operation")),
         "consortium_participation": _boolish(signals_in.get("consortium_participation")),
@@ -119,31 +120,35 @@ def normalize_record(raw: dict[str, Any], *, as_of: str | None = None) -> dict[s
         "concentrated_functions": _boolish(signals_in.get("concentrated_functions")),
     }
 
-    facts_in = raw.get("facts") if isinstance(raw.get("facts"), list) else []
+    facts_raw = raw.get("facts")
+    facts_in: list[Any] = facts_raw if isinstance(facts_raw, list) else []
     facts: list[dict[str, Any]] = []
     for i, f in enumerate(facts_in):
         if not isinstance(f, dict):
             continue
+        conf_raw = f.get("confidence")
+        conf_val = float(conf_raw) if conf_raw is not None else 0.5
         facts.append(
             {
-                "id": str(f.get("id") or f"fact-{i+1}"),
+                "id": str(f.get("id") or f"fact-{i + 1}"),
                 "text": str(f.get("text") or f.get("statement") or ""),
                 "epistemic_class": str(f.get("epistemic_class") or "weak_inference"),
-                "confidence": float(f.get("confidence") if f.get("confidence") is not None else 0.5),
+                "confidence": conf_val,
                 "evidence_ids": list(f.get("evidence_ids") or []),
                 "provenance": str(f.get("provenance") or "input.facts"),
                 "as_of": f.get("as_of") or as_of_value,
             }
         )
 
-    evidence_in = raw.get("evidence") if isinstance(raw.get("evidence"), list) else []
+    evidence_raw = raw.get("evidence")
+    evidence_in: list[Any] = evidence_raw if isinstance(evidence_raw, list) else []
     evidence: list[dict[str, Any]] = []
     for i, e in enumerate(evidence_in):
         if not isinstance(e, dict):
             continue
         evidence.append(
             {
-                "id": str(e.get("id") or f"ev-{i+1}"),
+                "id": str(e.get("id") or f"ev-{i + 1}"),
                 "url": e.get("url"),
                 "document": e.get("document") or e.get("title"),
                 "date": e.get("date") or e.get("source_date"),
