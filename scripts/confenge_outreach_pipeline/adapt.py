@@ -187,9 +187,33 @@ def intelligence_dossier_to_bridge_row(dossier: dict[str, Any]) -> dict[str, Any
                 }
             )
 
-    # Portfolio contracts from dossier portfolio_summary are summaries; prefer
-    # re-exported empty contracts list when not present (universe join fills).
+    # Prefer dossier contracts; else rebuild from portfolio_summary / input contracts.
     contracts = dossier.get("contracts") if isinstance(dossier.get("contracts"), list) else []
+    if not contracts:
+        # Intelligence dossier keeps portfolio_summary, not full contracts; carry
+        # normalized contracts stashed by the pipeline on the dossier when present.
+        contracts = (
+            dossier.get("_pipeline_contracts")
+            if isinstance(dossier.get("_pipeline_contracts"), list)
+            else []
+        )
+    # Bridge feed contracts are opaque JSON objects for Warmbly.
+    bridge_contracts: list[dict[str, Any]] = []
+    for c in contracts:
+        if not isinstance(c, dict):
+            continue
+        bridge_contracts.append(
+            {
+                "id": str(c.get("id") or c.get("contrato_id") or ""),
+                "object": c.get("object") or c.get("objeto"),
+                "value_brl": c.get("value_brl") or c.get("valor_total"),
+                "start_date": c.get("start_date"),
+                "end_date": c.get("end_date"),
+                "publication_date": c.get("publication_date"),
+                "agency": c.get("orgao") or c.get("agency"),
+                "uf": c.get("uf"),
+            }
+        )
 
     commercial_state = str(dominant.get("state") or dossier.get("commercial_state") or "NEW").upper()
 
@@ -222,8 +246,12 @@ def intelligence_dossier_to_bridge_row(dossier: dict[str, Any]) -> dict[str, Any
             "question_to_ask": str(dossier.get("question_to_ask") or ""),
             "cta": str(dossier.get("cta") or ""),
             "claims_to_avoid": list(dossier.get("claims_to_avoid") or []),
+            # why_now also lives in lead.moment; mirror for copy generators that
+            # only read messaging_context.
+            "why_now": str(why.get("temporal_fact") or why.get("summary") or ""),
+            "why_now_code": str(why.get("trigger") or why.get("code") or "").upper(),
         },
-        "contracts": contracts,
+        "contracts": bridge_contracts,
         "evidence": evidence,
         "inferences": inferences,
         "primary_service": primary,

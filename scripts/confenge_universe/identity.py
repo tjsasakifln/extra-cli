@@ -10,6 +10,7 @@ from scripts.company_registry.normalization import normalize_cnpj14, normalize_c
 from scripts.confenge_universe import (
     INVALID_IDENTITY,
     NATURAL_PERSON,
+    NOT_CONSTRUCTION,
     PUBLIC_ORGAN,
 )
 from scripts.linkage.keys import is_valid_cnpj14, normalize_name
@@ -30,6 +31,35 @@ DEFAULT_ORGAN_MARKERS = (
     "uniao",
     "consorcio publico",
     "consorcio intermunicipal",
+)
+
+# Private non-construction financial/public-service suppliers that appear as
+# "fornecedor" in PNCP but must never enter the B2G construction outreach universe.
+# Matched as whole-token markers on normalized name (not substring of "banconadas").
+DEFAULT_NON_CONSTRUCTION_SUPPLIER_MARKERS = (
+    "banco do brasil",
+    "banco bradesco",
+    "banco itau",
+    "itau unibanco",
+    "caixa economica",
+    "caixa economica federal",
+    "banco santander",
+    "banco safra",
+    "banco inter",
+    "banco btg",
+    "nubank",
+    "banco do nordeste",
+    "banco da amazonia",
+    "banco de brasilia",
+    "banrisul",
+    "sicoob",
+    "sicredi",
+    "correios",
+    "empresa brasileira de correios",
+    "petrobras",
+    "eletrobras",
+    "furnas",
+    "companhia energetica",
 )
 
 
@@ -63,6 +93,25 @@ def _looks_like_organ(name: str, markers: tuple[str, ...]) -> bool:
     return False
 
 
+def _looks_like_non_construction_supplier(
+    name: str,
+    markers: tuple[str, ...] = DEFAULT_NON_CONSTRUCTION_SUPPLIER_MARKERS,
+) -> bool:
+    """True for banks / utilities that are not construction outreach targets."""
+    n = f" {normalize_name(name)} "
+    for m in markers:
+        token = f" {normalize_name(m)} "
+        if token in n or n.strip() == normalize_name(m):
+            return True
+    # Bare "BANCO X" pattern (private bank as supplier), excluding names that
+    # clearly describe construction (e.g. none expected with BANCO prefix).
+    if re.search(r"\bbanco\b", n) and not re.search(
+        r"\b(construt|engenhari|paviment|obras|edifica)\w*", n
+    ):
+        return True
+    return False
+
+
 def resolve_identity(
     tax_id: str | None,
     name: str | None,
@@ -81,6 +130,18 @@ def resolve_identity(
             valid=False,
             exclusion_code=PUBLIC_ORGAN,
             exclusion_detail="public_organ_name",
+        )
+
+    if _looks_like_non_construction_supplier(raw_name):
+        c14 = normalize_cnpj14(tax_id)
+        return Identity(
+            cnpj14=c14 if c14 and is_valid_cnpj14(c14) else None,
+            cnpj_root=normalize_cnpj_root(tax_id),
+            razao_social=raw_name,
+            person_kind="cnpj",
+            valid=False,
+            exclusion_code=NOT_CONSTRUCTION,
+            exclusion_detail="non_construction_supplier_name",
         )
 
     digits = re.sub(r"\D", "", str(tax_id or ""))

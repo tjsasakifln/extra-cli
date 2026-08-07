@@ -230,6 +230,11 @@ def run_pipeline(cfg: PipelineConfig) -> PipelineResult:
             max_workers=cfg.max_workers,
             as_of=as_of.isoformat(),
         )
+        # Stash normalized contracts so the bridge can emit real contracts[]
+        # (dossier schema keeps portfolio_summary only).
+        for d, inp in zip(dossiers, intel_inputs, strict=False):
+            if isinstance(d, dict) and isinstance(inp, dict):
+                d["_pipeline_contracts"] = list(inp.get("contracts") or [])
         intel_raw_path = dirs["intel"] / "confenge-account-intelligence-v1.jsonl"
         _write_jsonl(intel_raw_path, dossiers)
 

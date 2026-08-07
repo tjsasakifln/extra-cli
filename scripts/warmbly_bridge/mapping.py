@@ -147,12 +147,20 @@ def _map_messaging(intel: dict[str, Any]) -> dict[str, Any]:
         for default in DEFAULT_CLAIMS_TO_AVOID:
             if default not in claims:
                 claims.append(default)
-    return {
+    out = {
         "fact_to_mention": _as_str(msg.get("fact_to_mention")),
         "question_to_ask": _as_str(msg.get("question_to_ask")),
         "cta": _as_str(msg.get("cta")),
         "claims_to_avoid": claims,
     }
+    # Optional copy-audit fields (Warmbly ignores unknown extras in JSON).
+    why = _as_str(msg.get("why_now") or msg.get("why_now_summary"))
+    why_code = _as_str(msg.get("why_now_code"))
+    if why:
+        out["why_now"] = why
+    if why_code:
+        out["why_now_code"] = why_code
+    return out
 
 
 def map_lead(

@@ -45,8 +45,13 @@ def _has_reequilibrio(contracts: list[dict[str, Any]]) -> bool:
 
 
 def _mature_no_reajuste(contracts: list[dict[str, Any]]) -> bool:
+    """True only when vigência start is known and mature — publication-only
+    dates must not invent a reajuste window (PNCP often has only pub date)."""
     for c in contracts:
         age = c.get("age_days")
+        # Require explicit start_date (not publication_date-only inference).
+        if not c.get("start_date"):
+            continue
         if age is not None and age >= MATURE_DAYS and not c.get("has_reajuste") and not c.get("reajuste_evidence"):
             return True
     return False

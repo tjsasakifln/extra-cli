@@ -318,9 +318,12 @@ def why_now(bag: dict[str, Any], layers: dict[str, list[dict[str, Any]]]) -> dic
         (
             "mature_no_reajuste",
             lambda c: (
-                (c.get("age_days") or 0) >= MATURE_DAYS and not c.get("has_reajuste") and not c.get("reajuste_evidence")
+                bool(c.get("start_date"))
+                and (c.get("age_days") or 0) >= MATURE_DAYS
+                and not c.get("has_reajuste")
+                and not c.get("reajuste_evidence")
             ),
-            "Contrato maduro sem prova de reajuste no input — janela potencial de reajuste.",
+            "Contrato maduro (com data de início observada) sem prova de reajuste no input — janela potencial de reajuste.",
         ),
     ]
     best: dict[str, Any] | None = None

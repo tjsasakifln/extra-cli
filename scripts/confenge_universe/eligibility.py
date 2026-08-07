@@ -64,6 +64,12 @@ def decide_eligibility(
                 in_universe=False,
                 reason=identity.exclusion_detail or "natural_person",
             )
+        if code == NOT_CONSTRUCTION:
+            return EligibilityDecision(
+                outreach_eligibility=NOT_CONSTRUCTION,
+                in_universe=False,
+                reason=identity.exclusion_detail or "non_construction_supplier",
+            )
         return EligibilityDecision(
             outreach_eligibility=INVALID_IDENTITY,
             in_universe=False,
