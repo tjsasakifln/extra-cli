@@ -89,6 +89,11 @@ def test_root_cnpj_dedupe_matrix_filial(sample_csv: Path, dnc_path: Path, tmp_pa
     assert CNPJ_ALFA_FILIAL in cnpjs
     assert alfa[0]["cnpj14"] == CNPJ_ALFA_MATRIZ  # prefer matriz
     assert alfa[0]["outreach_eligibility"] in {ELIGIBLE, DNC}
+    # Canonical HQ geo = matriz establishment (Joinville/SC), not sorted(UFs)[0]=PR
+    assert alfa[0]["uf"] == "SC"
+    assert alfa[0]["municipio"] == "Joinville"
+    # full_scale must be false on CSV fixtures
+    assert result["counts"]["full_scale"] is False
 
 
 def test_independent_brand_exception_matrix_filial_distinct_names(
@@ -248,6 +253,47 @@ def test_determinism(sample_csv: Path, dnc_path: Path, tmp_path: Path) -> None:
     m2 = json.loads(Path(r2["manifest_path"]).read_text(encoding="utf-8"))
     assert m1["counts"]["eligibles"] == m2["counts"]["eligibles"]
     assert m1["outputs"]["jsonl"]["sha256"] == m2["outputs"]["jsonl"]["sha256"]
+    assert m1["counts"]["full_scale"] is False
+
+
+def test_determinism_across_pythonhashseed(
+    sample_csv: Path, dnc_path: Path, tmp_path: Path
+) -> None:
+    """JSONL must be stable under PYTHONHASHSEED 0 vs 1 (set iteration order)."""
+    import subprocess
+    import sys
+
+    script = f"""
+import hashlib
+from datetime import date
+from pathlib import Path
+from scripts.confenge_universe.pipeline import run_universe_build
+
+out = Path({str(tmp_path / "hashseed")!r}) / __import__("os").environ["PYTHONHASHSEED"]
+out.mkdir(parents=True, exist_ok=True)
+r = run_universe_build(
+    as_of=date(2026, 8, 1),
+    csv_path={str(sample_csv)!r},
+    dnc_path={str(dnc_path)!r},
+    out_dir=out,
+)
+text = Path(r["jsonl_path"]).read_text(encoding="utf-8")
+print(hashlib.sha256(text.encode()).hexdigest())
+"""
+    digests = []
+    for seed in ("0", "1"):
+        env = {**dict(__import__("os").environ), "PYTHONHASHSEED": seed}
+        proc = subprocess.run(
+            [sys.executable, "-c", script],
+            capture_output=True,
+            text=True,
+            env=env,
+            cwd=str(Path(__file__).resolve().parents[2]),
+            check=False,
+        )
+        assert proc.returncode == 0, proc.stderr
+        digests.append(proc.stdout.strip().splitlines()[-1])
+    assert digests[0] == digests[1], f"hashseed digests differ: {digests}"
 
 
 def test_reconciliation_invariant(sample_csv: Path, dnc_path: Path, tmp_path: Path) -> None:
@@ -337,14 +383,17 @@ def test_bounded_memory_streaming_no_fetchall_full_table(sample_csv: Path) -> No
 
 
 def test_scale_250k_synthetic_no_full_materialization(tmp_path: Path) -> None:
-    """Synthetic ≥250k rows processed in batches; never materialize full list via fetchall."""
+    """Synthetic ≥250k rows processed in batches; never materialize full list via fetchall.
+
+    Also proves aggregator keeps only first/last dates (not O(n) date lists).
+    """
+    from scripts.commercial_leads.contract_relevance import classify_contract_relevance as _rel
+    from scripts.confenge_universe.aggregate import UniverseAggregator
+
     N = 250_000
     batch_size = 5_000
 
     def _make_cnpj(i: int) -> str:
-        # Deterministic valid-ish 14-digit ids for scale (identity may mark invalid
-        # check digits — we use a fixed valid root pool + order)
-        # Use pre-validated matrix pattern: cycle a few valid bases
         bases = [
             "11222333000181",
             "44555666000181",
@@ -381,7 +430,7 @@ def test_scale_250k_synthetic_no_full_materialization(tmp_path: Path) -> None:
                 "valor_total": float(100_000 + (i % 1000) * 1000),
                 "data_inicio": "2024-01-01",
                 "data_fim": "2025-12-31",
-                "data_publicacao": "2024-06-15",
+                "data_publicacao": f"2024-{(i % 12) + 1:02d}-15",
                 "uf": ["SC", "PR", "RS", "SP", "MG"][i % 5],
                 "municipio": "X",
                 "is_active": True,
@@ -397,7 +446,6 @@ def test_scale_250k_synthetic_no_full_materialization(tmp_path: Path) -> None:
         n_batches += 1
         max_batch = max(max_batch, len(batch))
         n_rows += len(batch)
-        # process batch (light) — simulate ingest cost without full universe finalize
         for row in batch:
             classify_contract_relevance(row["objeto_contrato"])
     elapsed = time.perf_counter() - t0
@@ -405,13 +453,47 @@ def test_scale_250k_synthetic_no_full_materialization(tmp_path: Path) -> None:
     assert n_rows == N
     assert n_batches == N // batch_size
     assert max_batch <= batch_size
-    assert max_batch < N  # never one giant materialization
-    # Soft time budget — should finish in reasonable time on CI
+    assert max_batch < N
     assert elapsed < 180.0, f"scale stream too slow: {elapsed:.1f}s"
 
-    # Full pipeline on a scaled-down but still multi-entity synthetic stream
-    # (250k full finalize is heavy; scale invariant above covers streaming).
-    # Still run pipeline on 3k synthetic for integration + recon.
+    # Aggregator memory: heavy single-supplier stream keeps only first/last dates
+    agg = UniverseAggregator(as_of=AS_OF, enable_independent_brand=False)
+    heavy = []
+    for i in range(5000):
+        heavy.append(
+            {
+                "contrato_id": f"HEAVY-{i:05d}",
+                "orgao_cnpj": f"{i % 100:014d}",
+                "orgao_nome": f"ORGAO {i % 20}",
+                "fornecedor_cnpj": CNPJ_MEGA,
+                "fornecedor_nome": "MEGA OBRAS NACIONAIS S.A.",
+                "objeto_contrato": "Execucao de obra de pavimentacao asfaltica",
+                "valor_total": 1_000_000.0,
+                "data_publicacao": "2020-01-01",
+                "data_inicio": "2020-01-01",
+                "uf": "SP",
+                "municipio": "Sao Paulo",
+                "is_active": True,
+            }
+        )
+    # vary dates so first/last would differ if we tracked all
+    for i, row in enumerate(heavy):
+        year = 2020 + (i // 1000)
+        row["data_publicacao"] = f"{year}-06-15"
+    agg.ingest_batch(heavy, relevance_fn=_rel)
+    bucket = next(iter(agg.buckets.values()))
+    assert not hasattr(bucket, "dates") or not isinstance(
+        getattr(bucket, "dates", None), list
+    ) or len(getattr(bucket, "dates", [])) == 0
+    # Only first/last envelope — O(1) temporal state
+    assert bucket.first_date is not None
+    assert bucket.last_date is not None
+    assert bucket.first_date <= bucket.last_date
+    # classify buffer is capped
+    assert len(bucket.contracts_for_classify) <= bucket.max_contracts_for_classify
+    assert bucket.contract_count == 5000
+
+    # Full pipeline on 3k synthetic for integration + recon; full_scale false
     def small_gen() -> Iterator[dict[str, Any]]:
         for i, row in enumerate(row_gen()):
             if i >= 3000:
@@ -428,6 +510,82 @@ def test_scale_250k_synthetic_no_full_materialization(tmp_path: Path) -> None:
     assert result["counts"]["input_contract_rows"] == 3000
     assert result["counts"]["peak_batch_size"] <= 500
     assert result["counts"]["eligibles"] >= 1
+    assert result["counts"]["full_scale"] is False
+
+
+def test_full_scale_flag_requires_dsn_mode() -> None:
+    from scripts.confenge_universe.pipeline import is_full_scale_run
+    from scripts.confenge_universe.source import SourceConfig
+
+    assert (
+        is_full_scale_run(
+            cfg=SourceConfig(mode="csv", csv_path="x.csv"),
+            max_rows=None,
+            row_iter=None,
+            csv_path="x.csv",
+        )
+        is False
+    )
+    assert (
+        is_full_scale_run(
+            cfg=SourceConfig(mode="dsn", dsn="postgresql://u:p@localhost/db"),
+            max_rows=None,
+            row_iter=None,
+            csv_path=None,
+        )
+        is True
+    )
+    assert (
+        is_full_scale_run(
+            cfg=SourceConfig(mode="dsn", dsn="postgresql://u:p@localhost/db"),
+            max_rows=1000,
+            row_iter=None,
+            csv_path=None,
+        )
+        is False
+    )
+
+
+def test_geo_prefers_matriz_not_sorted_uf() -> None:
+    from scripts.confenge_universe.aggregate import EntityBucket, EstablishmentAgg
+    from scripts.confenge_universe.dedupe import EntityKey
+    from scripts.confenge_universe.pipeline import _geo_from_matriz
+
+    b = EntityBucket(entity_key=EntityKey("11222333"), cnpj_root="11222333")
+    b.ufs = {"PR", "SC"}
+    b.municipios = {"Blumenau", "Joinville", "Curitiba"}
+    b.establishments = {
+        CNPJ_ALFA_MATRIZ: EstablishmentAgg(
+            cnpj14=CNPJ_ALFA_MATRIZ,
+            razao_social="ALFA",
+            uf="SC",
+            municipio="Joinville",
+        ),
+        CNPJ_ALFA_FILIAL: EstablishmentAgg(
+            cnpj14=CNPJ_ALFA_FILIAL,
+            razao_social="ALFA FILIAL",
+            uf="SC",
+            municipio="Blumenau",
+        ),
+    }
+    uf, mun = _geo_from_matriz(b, uf_reg=None, mun_reg=None)
+    assert uf == "SC"
+    assert mun == "Joinville"
+
+
+def test_dnc_loader_and_registry_helpers_fail_soft() -> None:
+    """Helpers must not raise when DSN/tables unavailable."""
+    from scripts.confenge_universe.pipeline import (
+        load_dnc_from_commercial_state,
+        load_registry_from_dsn,
+    )
+
+    dnc = load_dnc_from_commercial_state("postgresql://invalid:invalid@127.0.0.1:1/nope")
+    assert isinstance(dnc, set)
+    reg = load_registry_from_dsn(
+        "postgresql://invalid:invalid@127.0.0.1:1/nope", [CNPJ_MEGA]
+    )
+    assert reg == {}
 
 
 def test_identity_public_organ_and_invalid() -> None:

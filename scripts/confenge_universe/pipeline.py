@@ -91,6 +91,116 @@ def _parse_date(val: Any) -> date | None:
         return None
 
 
+def _geo_from_matriz(
+    bucket: EntityBucket,
+    *,
+    uf_reg: str | None,
+    mun_reg: str | None,
+) -> tuple[str | None, str | None]:
+    """Canonical HQ geo: registry first, else matriz establishment (not sorted UFs)."""
+    est = bucket.matriz_establishment()
+    uf = uf_reg or (est.uf if est else None)
+    municipio = mun_reg or (est.municipio if est else None)
+    if not uf and bucket.ufs:
+        # last resort only if matriz has no UF
+        uf = sorted(bucket.ufs)[0]
+    if not municipio and bucket.municipios and est is None:
+        municipio = sorted(bucket.municipios)[0]
+    return uf, municipio
+
+
+def load_dnc_from_commercial_state(dsn: str) -> set[str]:
+    """Load DO_NOT_CONTACT CNPJs from commercial_leads state overrides (human-dominant).
+
+    Fail-soft: missing tables/DSN → empty set (file-based DNC still applies).
+    """
+    out: set[str] = set()
+    try:
+        from scripts.commercial_leads.dbutil import connect
+        from scripts.commercial_leads.review import load_state_map
+
+        conn = connect(dsn)
+        try:
+            state_map = load_state_map(conn)
+        finally:
+            conn.close()
+        for cnpj, st in state_map.items():
+            if str(st).upper() == "DO_NOT_CONTACT":
+                digits = "".join(ch for ch in str(cnpj) if ch.isdigit())
+                if len(digits) >= 8:
+                    out.add(digits[:14] if len(digits) >= 14 else digits)
+                    out.add(digits[:8])
+    except Exception as exc:  # noqa: BLE001
+        _ = exc
+    # Best-effort outcome ledger (sqlite, local) — never invent
+    try:
+        from scripts.company_registry.outcome_ledger import connect_ledger
+
+        lconn = connect_ledger()
+        try:
+            # Latest to_state per CNPJ must be DO_NOT_CONTACT
+            rows = lconn.execute(
+                """
+                SELECT cnpj14, to_state FROM outcome_events e
+                WHERE id = (
+                    SELECT MAX(id) FROM outcome_events e2 WHERE e2.cnpj14 = e.cnpj14
+                )
+                AND to_state = 'DO_NOT_CONTACT'
+                """
+            ).fetchall()
+            for r in rows:
+                c = str(r["cnpj14"])
+                digits = "".join(ch for ch in c if ch.isdigit())
+                if len(digits) >= 8:
+                    out.add(digits[:14] if len(digits) >= 14 else digits)
+                    out.add(digits[:8])
+        finally:
+            lconn.close()
+    except Exception as exc:  # noqa: BLE001
+        _ = exc
+    return out
+
+
+def load_registry_from_dsn(
+    dsn: str, cnpjs: list[str]
+) -> dict[str, dict[str, Any]]:
+    """Load supplier_registry cadastral rows for representative CNPJs. Fail-soft."""
+    if not cnpjs:
+        return {}
+    try:
+        from scripts.commercial_leads.dbutil import connect
+        from scripts.commercial_leads.supplier_registry import load_registry_map
+
+        conn = connect(dsn)
+        try:
+            reg = load_registry_map(conn, cnpjs)
+        finally:
+            conn.close()
+        return {k: v.as_dict() for k, v in reg.items()}
+    except Exception as exc:  # noqa: BLE001
+        _ = exc
+        return {}
+
+
+def is_full_scale_run(
+    *,
+    cfg: SourceConfig | None,
+    max_rows: int | None,
+    row_iter: Iterator[dict[str, Any]] | None,
+    csv_path: str | None,
+) -> bool:
+    """True only for production DSN full scan — never CSV/iterator/sample."""
+    if max_rows is not None:
+        return False
+    if row_iter is not None:
+        return False
+    if csv_path:
+        return False
+    if cfg is None or cfg.mode != "dsn" or not cfg.dsn:
+        return False
+    return True
+
+
 def finalize_bucket(
     bucket: EntityBucket,
     *,
@@ -112,11 +222,17 @@ def finalize_bucket(
     reg = None
     if registry and identity.cnpj14:
         reg = registry.get(identity.cnpj14)
+        # also try all establishment CNPJs
+        if reg is None:
+            for c14 in sorted(bucket.establishments.keys()):
+                if c14 in registry:
+                    reg = registry[c14]
+                    break
 
     cnae = (reg or {}).get("cnae_principal") if reg else None
     nome_fantasia = (reg or {}).get("nome_fantasia") if reg else None
     situacao = (reg or {}).get("situacao_cadastral") if reg else None
-    mun = (reg or {}).get("municipio") if reg else None
+    mun_reg = (reg or {}).get("municipio") if reg else None
     uf_reg = (reg or {}).get("uf") if reg else None
 
     construction = assess_construction(
@@ -127,6 +243,12 @@ def finalize_bucket(
     )
 
     dnc = is_dnc_cnpj(identity.cnpj14, identity.cnpj_root, dnc_set)
+    # Also check any establishment CNPJ against DNC
+    if not dnc:
+        for c14 in bucket.establishments:
+            if is_dnc_cnpj(c14, bucket.cnpj_root, dnc_set):
+                dnc = True
+                break
     elig = decide_eligibility(
         identity=identity,
         construction=construction,
@@ -163,8 +285,7 @@ def finalize_bucket(
         }
         return None, excl
 
-    uf = uf_reg or (sorted(bucket.ufs)[0] if bucket.ufs else None)
-    municipio = mun or (sorted(bucket.municipios)[0] if bucket.municipios else None)
+    uf, municipio = _geo_from_matriz(bucket, uf_reg=uf_reg, mun_reg=mun_reg)
 
     record = {
         "schema_version": SCHEMA_VERSION,
@@ -250,11 +371,16 @@ def run_universe_build(
     dnc_set: set[str] | None = None,
     enable_independent_brand: bool = True,
     registry: dict[str, dict[str, Any]] | None = None,
+    load_human_dnc: bool = True,
+    load_registry: bool = True,
     source_meta_extra: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Build national construction universe from streamable contract source.
 
     Production: pass dsn (or env) without max_rows for full scale.
+    When DSN is available, human DO_NOT_CONTACT is loaded from commercial
+    lead state (and outcome ledger when present), and supplier_registry
+    cadastral fields are joined automatically unless disabled.
     Tests/fixtures: pass csv_path or row_iter.
     """
     as_of_d = as_of or date.today()
@@ -267,6 +393,7 @@ def run_universe_build(
 
     cfg: SourceConfig | None = None
     source_meta: dict[str, Any]
+    resolved_csv = csv_path
 
     if row_iter is not None:
         batches: Iterator[list[dict[str, Any]]] = iter_contract_rows(
@@ -279,6 +406,7 @@ def run_universe_build(
         }
     else:
         cfg = resolve_source(dsn, csv_path=csv_path)
+        resolved_csv = cfg.csv_path if cfg.mode == "csv" else csv_path
         batches = iter_contracts_keyset(
             cfg,
             min_contract_value=min_contract_value,
@@ -293,8 +421,24 @@ def run_universe_build(
                 "note": "Diagnostic sample — NOT full-scale population proof",
             }
 
+    # Human DNC from commercial state / outcome ledger when DSN available
+    effective_dsn = (cfg.dsn if cfg and cfg.dsn else None) or dsn
+    dnc_sources: list[str] = []
+    if dnc_path:
+        dnc_sources.append("dnc_file")
+    if dnc_set:
+        dnc_sources.append("dnc_set_arg")
+    if effective_dsn and load_human_dnc:
+        human_dnc = load_dnc_from_commercial_state(effective_dsn)
+        if human_dnc:
+            dnc |= human_dnc
+            dnc_sources.append("commercial_leads_state+outcome_ledger")
+        else:
+            dnc_sources.append("commercial_state_attempted_empty_or_unavailable")
+
     if source_meta_extra:
         source_meta = {**source_meta, **source_meta_extra}
+    source_meta["dnc_sources"] = dnc_sources
 
     agg = UniverseAggregator(
         as_of=as_of_d, enable_independent_brand=enable_independent_brand
@@ -304,6 +448,22 @@ def run_universe_build(
     for batch in batches:
         peak_batch = max(peak_batch, len(batch))
         agg.ingest_batch(batch, relevance_fn=classify_contract_relevance)
+
+    # Auto-load supplier_registry cadastral for establishment CNPJs (production DSN)
+    reg_map: dict[str, dict[str, Any]] = dict(registry or {})
+    if effective_dsn and load_registry and not reg_map:
+        all_cnpjs: list[str] = []
+        for b in agg.all_buckets():
+            all_cnpjs.extend(sorted(b.establishments.keys()))
+        reg_map = load_registry_from_dsn(effective_dsn, sorted(set(all_cnpjs)))
+        source_meta["registry_rows_loaded"] = len(reg_map)
+        source_meta["registry_source"] = "supplier_registry" if reg_map else "unavailable_or_empty"
+    elif reg_map:
+        source_meta["registry_rows_loaded"] = len(reg_map)
+        source_meta["registry_source"] = "caller_provided"
+    else:
+        source_meta["registry_rows_loaded"] = 0
+        source_meta["registry_source"] = "none"
 
     records: list[dict[str, Any]] = []
     exclusions: list[dict[str, Any]] = []
@@ -315,7 +475,7 @@ def run_universe_build(
 
     for bucket in agg.all_buckets():
         rec, meta = finalize_bucket(
-            bucket, as_of=as_of_d, dnc_set=dnc, registry=registry
+            bucket, as_of=as_of_d, dnc_set=dnc, registry=reg_map
         )
         if rec is not None:
             records.append(rec)
@@ -360,7 +520,15 @@ def run_universe_build(
         "peak_batch_size": peak_batch,
         "batch_size_config": batch_size,
         "max_rows": max_rows,
-        "full_scale": max_rows is None and row_iter is None,
+        "full_scale": is_full_scale_run(
+            cfg=cfg,
+            max_rows=max_rows,
+            row_iter=row_iter,
+            csv_path=resolved_csv,
+        ),
+        "source_mode": (cfg.mode if cfg else ("iterator" if row_iter is not None else "unknown")),
+        "dnc_loaded_count": len(dnc),
+        "registry_rows_loaded": int(source_meta.get("registry_rows_loaded") or 0),
     }
     sha = git_sha()
     manifest = build_manifest(

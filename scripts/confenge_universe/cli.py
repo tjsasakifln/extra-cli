@@ -108,6 +108,16 @@ def build_parser() -> argparse.ArgumentParser:
         help="Path to DNC list (txt/json/jsonl of CNPJ14 or roots)",
     )
     b.add_argument(
+        "--no-auto-dnc",
+        action="store_true",
+        help="Do not load human DO_NOT_CONTACT from commercial_leads state / outcome ledger",
+    )
+    b.add_argument(
+        "--no-auto-registry",
+        action="store_true",
+        help="Do not join supplier_registry cadastral (CNAE/situacao/nome_fantasia) from DSN",
+    )
+    b.add_argument(
         "--no-independent-brand",
         action="store_true",
         help="Disable independent decision-brand split; always collapse by CNPJ root",
@@ -137,6 +147,8 @@ def cmd_build(args: argparse.Namespace) -> int:
             uf=args.uf,
             dnc_path=args.dnc,
             enable_independent_brand=not args.no_independent_brand,
+            load_human_dnc=not args.no_auto_dnc,
+            load_registry=not args.no_auto_registry,
         )
     except Exception as exc:  # noqa: BLE001
         print(f"ERROR: {exc}", file=sys.stderr)
@@ -149,21 +161,23 @@ def cmd_build(args: argparse.Namespace) -> int:
         f"input_roots={counts.get('input_supplier_roots')} "
         f"contracts={counts.get('input_contract_rows')} "
         f"recon_ok={result.get('reconciliation_ok')} "
+        f"full_scale={counts.get('full_scale')} "
         f"jsonl={result.get('jsonl_path')} "
         f"manifest={result.get('manifest_path')}"
     )
     if args.dsn:
         print(f"  dsn={mask_dsn(args.dsn)}")
-    if args.max_rows is not None:
+    if counts.get("full_scale"):
+        print("  full_scale=true (DSN production path, no --max-rows)")
+    elif args.max_rows is not None:
         print(
-            "  NOTE: --max-rows set — this run is a diagnostic sample, "
-            "not full-scale population proof. Full-scale: omit --max-rows."
+            "  NOTE: --max-rows set — diagnostic sample, NOT full-scale population proof."
         )
-    else:
-        print(
-            f"  outputs: {DEFAULT_JSONL_NAME} + {DEFAULT_MANIFEST_NAME} "
-            f"under {args.out}"
-        )
+    elif args.csv:
+        print("  NOTE: CSV/fixture mode — full_scale=false (not live datalake).")
+    print(
+        f"  outputs: {DEFAULT_JSONL_NAME} + {DEFAULT_MANIFEST_NAME} under {args.out}"
+    )
 
     if args.result_json:
         path = Path(args.result_json)

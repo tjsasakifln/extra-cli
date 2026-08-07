@@ -63,7 +63,11 @@ class EstablishmentAgg:
 
 @dataclass
 class EntityBucket:
-    """Mutable streaming aggregate for one operational group."""
+    """Mutable streaming aggregate for one operational group.
+
+    Memory is bounded: only min/max contract dates (not per-contract date lists),
+    capped classify buffer, capped recent sample, capped orgaos/aliases.
+    """
 
     entity_key: EntityKey
     cnpj_root: str
@@ -79,13 +83,36 @@ class EntityBucket:
     value_recent: float = 0.0
     contract_count_recent: int = 0
     active_count: int = 0
-    dates: list[date] = field(default_factory=list)
+    # Bounded temporal envelope — NEVER retain O(n) per-contract date lists
+    first_date: date | None = None
+    last_date: date | None = None
     recent_sample: list[dict[str, Any]] = field(default_factory=list)
     # Keep raw contracts only while classifying — cleared after finalize if large
     contracts_for_classify: list[dict[str, Any]] = field(default_factory=list)
     max_contracts_for_classify: int = 500
     independent_brand: bool = False
     input_contract_rows: int = 0
+
+    def sorted_aliases(self) -> list[str]:
+        """Deterministic alias order (set iteration is PYTHONHASHSEED-sensitive)."""
+        return sorted(self.aliases)
+
+    def matriz_establishment(self) -> EstablishmentAgg | None:
+        """Prefer ordem 0001 (matriz) as geo/name representative."""
+        if not self.establishments:
+            return None
+        for c14 in sorted(self.establishments.keys()):
+            if len(c14) == 14 and c14[8:12] == "0001":
+                return self.establishments[c14]
+        return self.establishments[sorted(self.establishments.keys())[0]]
+
+    def representative_name(self) -> str | None:
+        """Stable display name: matriz razao first, else first sorted alias."""
+        est = self.matriz_establishment()
+        if est and est.razao_social:
+            return est.razao_social
+        aliases = self.sorted_aliases()
+        return aliases[0] if aliases else None
 
     def add_contract(
         self,
@@ -133,7 +160,10 @@ class EntityBucket:
             or _parse_date(row.get("data_inicio"))
         )
         if d:
-            self.dates.append(d)
+            if self.first_date is None or d < self.first_date:
+                self.first_date = d
+            if self.last_date is None or d > self.last_date:
+                self.last_date = d
             cutoff = date(as_of.year - RECENT_YEARS, as_of.month, as_of.day)
             if d >= cutoff:
                 self.contract_count_recent += 1
@@ -143,9 +173,6 @@ class EntityBucket:
         if active is True or str(active).lower() in {"t", "true", "1", "yes"}:
             self.active_count += 1
         fim = _parse_date(row.get("data_fim"))
-        if fim is None or fim >= as_of:
-            if active is not False:
-                pass  # active-ish already counted
 
         if is_relevant and len(self.contracts_for_classify) < self.max_contracts_for_classify:
             self.contracts_for_classify.append(row)
@@ -199,11 +226,8 @@ class UniverseAggregator:
         self._max_identity_excluded_samples = 100
 
     def _bucket_display_name(self, bucket: EntityBucket) -> str | None:
-        if bucket.aliases:
-            return next(iter(bucket.aliases))
-        if bucket.establishments:
-            return next(iter(bucket.establishments.values())).razao_social
-        return None
+        """Deterministic name for brand-split comparisons (no set-iter)."""
+        return bucket.representative_name()
 
     def _promote_root_bucket_to_brand(self, root: str) -> None:
         """When first independent brand is detected, re-key the plain-root bucket."""
@@ -325,8 +349,8 @@ class UniverseAggregator:
 
 
 def bucket_to_portfolio_dict(bucket: EntityBucket) -> dict[str, Any]:
-    first_d = min(bucket.dates) if bucket.dates else None
-    last_d = max(bucket.dates) if bucket.dates else None
+    first_d = bucket.first_date
+    last_d = bucket.last_date
     est_list = sorted(
         (
             {
@@ -341,6 +365,7 @@ def bucket_to_portfolio_dict(bucket: EntityBucket) -> dict[str, Any]:
         ),
         key=lambda x: x["cnpj14"],
     )[:MAX_ESTABLISHMENTS]
+    rep_name = bucket.representative_name()
     return {
         "contract_count_total": bucket.contract_count,
         "contract_count_recent": bucket.contract_count_recent,
@@ -355,12 +380,11 @@ def bucket_to_portfolio_dict(bucket: EntityBucket) -> dict[str, Any]:
         "last_contract_date": last_d.isoformat() if last_d else None,
         "active_contract_count": bucket.active_count,
         "establishments": est_list,
-        "aliases": sorted(bucket.aliases)[:MAX_ALIASES],
+        "aliases": bucket.sorted_aliases()[:MAX_ALIASES],
         "representative_cnpj14": prefer_matriz_cnpj(
             [{"cnpj14": e.cnpj14} for e in bucket.establishments.values()]
         ),
         "independent_brand": bucket.independent_brand,
-        "brand_tokens": sorted(
-            brand_tokens(next(iter(bucket.aliases), None))
-        ),
+        # Deterministic: tokens from matriz/representative name only
+        "brand_tokens": sorted(brand_tokens(rep_name)),
     }
