@@ -8,7 +8,7 @@ import subprocess
 import time
 import traceback
 from dataclasses import dataclass, field
-from datetime import date, datetime, UTC
+from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Any
 
@@ -39,9 +39,14 @@ def _utcnow() -> str:
 
 
 def _git_sha() -> str:
+    import shutil
+
+    git_bin = shutil.which("git")
+    if not git_bin:
+        return "unknown"
     try:
-        out = subprocess.check_output(
-            ["git", "rev-parse", "--short=12", "HEAD"],
+        out = subprocess.check_output(  # noqa: S603 — absolute git path, fixed argv
+            [git_bin, "rev-parse", "--short=12", "HEAD"],
             stderr=subprocess.DEVNULL,
             text=True,
             timeout=5,
