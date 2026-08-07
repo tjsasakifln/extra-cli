@@ -1,0 +1,214 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "confenge-account-intelligence-v1.schema.json",
+  "title": "confenge-account-intelligence-v1",
+  "description": "Structured commercial intelligence dossier per CONFENGE account (construction/engineering company). Inference never becomes fact.",
+  "type": "object",
+  "required": [
+    "schema_id",
+    "schema_version",
+    "catalog_version",
+    "generated_at",
+    "as_of",
+    "cnpj_root",
+    "source_hash",
+    "account_snapshot",
+    "portfolio_summary",
+    "why_now",
+    "confirmed_facts",
+    "strong_inferences",
+    "weak_inferences",
+    "internal_structure_hypothesis",
+    "primary_service",
+    "secondary_service",
+    "service_fit_rationale",
+    "fact_to_mention",
+    "question_to_ask",
+    "cta",
+    "objection_expected",
+    "claims_to_avoid",
+    "message_tone",
+    "research_gaps",
+    "evidence",
+    "dominant_state",
+    "cache_key"
+  ],
+  "properties": {
+    "schema_id": {
+      "const": "confenge-account-intelligence-v1"
+    },
+    "schema_version": { "type": "string" },
+    "catalog_version": { "type": "string" },
+    "generated_at": { "type": "string" },
+    "as_of": { "type": "string" },
+    "cnpj_root": { "type": "string", "minLength": 8, "maxLength": 8 },
+    "source_hash": { "type": "string" },
+    "cache_key": { "type": "string" },
+    "account_snapshot": {
+      "type": "object",
+      "required": ["cnpj14", "razao_social"],
+      "properties": {
+        "cnpj14": { "type": ["string", "null"] },
+        "cnpj_root": { "type": "string" },
+        "razao_social": { "type": ["string", "null"] },
+        "nome_fantasia": { "type": ["string", "null"] },
+        "municipio": { "type": ["string", "null"] },
+        "uf": { "type": ["string", "null"] },
+        "cnae_principal": { "type": ["string", "null"] },
+        "activity_class": { "type": ["string", "null"] }
+      }
+    },
+    "portfolio_summary": {
+      "type": "object",
+      "required": ["contract_count", "total_value_brl_observed", "ufs", "organs_count"],
+      "properties": {
+        "contract_count": { "type": "integer", "minimum": 0 },
+        "total_value_brl_observed": { "type": ["number", "null"] },
+        "ufs": { "type": "array", "items": { "type": "string" } },
+        "organs_count": { "type": "integer", "minimum": 0 },
+        "addendum_contracts": { "type": "integer", "minimum": 0 },
+        "mature_without_reajuste": { "type": "integer", "minimum": 0 },
+        "semantics": { "type": "string" }
+      }
+    },
+    "why_now": {
+      "type": "object",
+      "required": ["trigger", "temporal_fact", "recency_days", "epistemic_class"],
+      "properties": {
+        "trigger": { "type": "string" },
+        "temporal_fact": { "type": "string" },
+        "recency_days": { "type": ["integer", "null"] },
+        "epistemic_class": {
+          "type": "string",
+          "enum": ["confirmed", "strong_inference", "weak_inference", "unknown"]
+        }
+      }
+    },
+    "confirmed_facts": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/epistemic_item" }
+    },
+    "strong_inferences": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/epistemic_item" }
+    },
+    "weak_inferences": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/epistemic_item" }
+    },
+    "internal_structure_hypothesis": {
+      "type": "object",
+      "required": [
+        "structure_class",
+        "confidence",
+        "robust_signals",
+        "lean_signals",
+        "assertion_as_fact",
+        "notes"
+      ],
+      "properties": {
+        "structure_class": {
+          "type": "string",
+          "enum": ["robust", "lean", "unknown", "mixed"]
+        },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "robust_signals": { "type": "array", "items": { "type": "string" } },
+        "lean_signals": { "type": "array", "items": { "type": "string" } },
+        "assertion_as_fact": { "const": false },
+        "notes": { "type": "string" }
+      }
+    },
+    "primary_service": { "$ref": "#/$defs/service_ref" },
+    "secondary_service": {
+      "anyOf": [{ "$ref": "#/$defs/service_ref" }, { "type": "null" }]
+    },
+    "service_fit_rationale": { "type": "string" },
+    "fact_to_mention": { "type": "string" },
+    "question_to_ask": { "type": "string" },
+    "cta": { "type": "string" },
+    "objection_expected": { "type": "string" },
+    "claims_to_avoid": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "message_tone": {
+      "type": "object",
+      "required": ["tone", "technical_density", "framing"],
+      "properties": {
+        "tone": { "type": "string" },
+        "technical_density": {
+          "type": "string",
+          "enum": ["baixa", "moderada", "alta"]
+        },
+        "framing": { "type": "string" }
+      }
+    },
+    "research_gaps": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": { "type": "string" },
+          "url": { "type": ["string", "null"] },
+          "document": { "type": ["string", "null"] },
+          "date": { "type": ["string", "null"] },
+          "location": { "type": ["string", "null"] },
+          "source_type": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "dominant_state": {
+      "type": "object",
+      "required": ["state", "is_dominant", "blocks_outreach"],
+      "properties": {
+        "state": { "type": "string" },
+        "is_dominant": { "type": "boolean" },
+        "blocks_outreach": { "type": "boolean" },
+        "source": { "type": ["string", "null"] },
+        "notes": { "type": ["string", "null"] }
+      }
+    },
+    "limitations": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  },
+  "$defs": {
+    "epistemic_item": {
+      "type": "object",
+      "required": ["id", "text", "epistemic_class", "confidence", "evidence_ids", "provenance"],
+      "properties": {
+        "id": { "type": "string" },
+        "text": { "type": "string" },
+        "epistemic_class": {
+          "type": "string",
+          "enum": ["confirmed", "strong_inference", "weak_inference"]
+        },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "evidence_ids": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "provenance": { "type": "string" },
+        "as_of": { "type": ["string", "null"] }
+      }
+    },
+    "service_ref": {
+      "type": "object",
+      "required": ["service_id", "label", "family", "approach_mode"],
+      "properties": {
+        "service_id": { "type": "string" },
+        "label": { "type": "string" },
+        "family": { "type": "string" },
+        "approach_mode": { "type": "string" },
+        "catalog_version": { "type": "string" }
+      }
+    }
+  },
+  "additionalProperties": true
+}

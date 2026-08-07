@@ -1,0 +1,31 @@
+{
+  "cnpj": "12345678000195",
+  "razao_social": "EMPRESA BLOQUEADA EXEMPLO LTDA",
+  "municipio": "Blumenau",
+  "uf": "SC",
+  "as_of": "2026-08-01",
+  "commercial_state": "DO_NOT_CONTACT",
+  "human_outcome": {
+    "status": "DO_NOT_CONTACT",
+    "author": "human_reviewer",
+    "notes": "Pedido explícito de não contato"
+  },
+  "signals": {
+    "regional_only": true
+  },
+  "contracts": [
+    {
+      "id": "ct-dnc-01",
+      "object": "Serviços de engenharia",
+      "value_brl": 500000,
+      "start_date": "2025-01-01",
+      "end_date": "2026-01-01",
+      "uf": "SC",
+      "orgao": "Prefeitura Exemplo",
+      "has_addendum": true,
+      "addendum_count": 1,
+      "source_url": "https://example.local/pncp/ct-dnc-01",
+      "source_date": "2025-01-01"
+    }
+  ]
+}
