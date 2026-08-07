@@ -17,7 +17,10 @@ from scripts.confenge_contact_resolution.adapters.registry import RegistryAdapte
 from scripts.confenge_contact_resolution.adapters.site import SiteAdapter
 from scripts.confenge_contact_resolution.adapters.web_search import NoOpWebSearchProvider, WebSearchAdapter
 from scripts.confenge_contact_resolution.cache import ResolutionCache, cache_key
-from scripts.confenge_contact_resolution.merge import observations_to_candidates
+from scripts.confenge_contact_resolution.merge import (
+    account_block_from_observations,
+    observations_to_candidates,
+)
 from scripts.confenge_contact_resolution.models import (
     AccountContactResolution,
     ServiceContext,
@@ -148,6 +151,7 @@ class ContactResolver:
             razao = razao or ctx.registry_record.get("legal_name") or ctx.registry_record.get("razao_social")
 
         small = is_small_firm_porte(str(porte) if porte else None, mei=mei if isinstance(mei, bool) else None)
+        account_dnc, account_bounce, account_block_reason = account_block_from_observations(observations)
         candidates = observations_to_candidates(
             observations,
             cnpj14=cnpj14,
@@ -159,6 +163,8 @@ class ContactResolver:
             candidates,
             service_context=self.config.service_context,
             small_firm=small,
+            account_dnc=account_dnc,
+            account_bounce=account_bounce,
         )
 
         base.razao_social = razao
@@ -167,6 +173,10 @@ class ContactResolver:
         base.recommended_candidate_id = rec_id
         base.adapters_used = used
         base.adapters_skipped = skipped
+        if account_dnc or account_bounce:
+            base.limitations.append(
+                f"account_block:{account_block_reason or ('DNC' if account_dnc else 'bounce')}"
+            )
         if not ranked:
             base.absence_reason = "no_public_business_contact_found"
             base.limitations.append("Absence remains absence — no fabricated contacts")

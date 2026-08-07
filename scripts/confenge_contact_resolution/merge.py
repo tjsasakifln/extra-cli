@@ -55,6 +55,37 @@ def _source_priority(source_type: str | None) -> int:
     return order.get(source_type or "unknown", 0)
 
 
+def account_block_from_observations(
+    observations: list[RawObservation],
+) -> tuple[bool, bool, str | None]:
+    """Detect account-level DNC/bounce that must dominate all recommendations.
+
+    Account-level when human_outcome has dnc/bounce and **no** email/phone channel
+    (firm-wide DO_NOT_CONTACT marker). Channel-scoped human outcomes (with email
+    or phone) only flag that candidate via normal merge — they do not set these
+    flags.
+    """
+    account_dnc = False
+    account_bounce = False
+    reason: str | None = None
+    for o in observations:
+        is_human = (o.adapter == "human_outcome") or (
+            o.source is not None and o.source.source_type == "human_outcome"
+        )
+        if not is_human:
+            continue
+        has_channel = bool((o.email or "").strip() or (o.phone_raw or "").strip())
+        if has_channel:
+            continue
+        if o.dnc:
+            account_dnc = True
+            reason = o.dnc_reason or "DO_NOT_CONTACT"
+        if o.bounce:
+            account_bounce = True
+            reason = reason or o.dnc_reason or "bounce"
+    return account_dnc, account_bounce, reason
+
+
 def observations_to_candidates(
     observations: list[RawObservation],
     *,

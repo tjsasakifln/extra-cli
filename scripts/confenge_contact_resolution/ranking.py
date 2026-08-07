@@ -153,8 +153,17 @@ def select_recommended(
     *,
     service_context: str = ServiceContext.GENERIC.value,
     small_firm: bool = False,
+    account_dnc: bool = False,
+    account_bounce: bool = False,
 ) -> tuple[list[ContactCandidate], str | None]:
-    """Score, sort, mark exactly one recommended when viable. Mutates candidates."""
+    """Score, sort, mark exactly one recommended when viable. Mutates candidates.
+
+    Hard rules:
+    - ``CANDIDATE_UNVERIFIED`` (pattern-guessed) is never recommended primary.
+    - Account-level DNC/bounce (human outcome / DO_NOT_CONTACT without channel)
+      blocks *all* recommendations for the account.
+    - Channel-level DNC/bounce only blocks that candidate.
+    """
     if not candidates:
         return [], None
 
@@ -169,20 +178,28 @@ def select_recommended(
 
     scored.sort(key=lambda x: x.rank_score, reverse=True)
 
-    # Viable = not DNC/bounce, has channel, not pattern-guess only without other channel
+    if account_dnc or account_bounce:
+        reason = "account_dnc" if account_dnc else "account_bounce"
+        for c in scored:
+            c.rank_explain = list(c.rank_explain or []) + [f"blocked_by_{reason}"]
+            c.recommended = False
+            c.recommendation_reason = None
+        return scored, None
+
     recommended_id: str | None = None
     for c in scored:
         if c.rank_score < 0:
             continue
         if c.dnc or c.bounce:
             continue
-        if c.verification_status == VerificationStatus.CANDIDATE_UNVERIFIED.value and not c.phone_e164:
+        # Pattern-guessed personal email is never recommended primary (even with phone).
+        if c.verification_status == VerificationStatus.CANDIDATE_UNVERIFIED.value:
             continue
         if not c.email and not c.phone_e164:
             continue
         if c.verification_status == VerificationStatus.SYNTAX_INVALID.value and not c.phone_e164:
             continue
-        # Prefer enrollable email or any valid phone
+        # Non-enrollable email without a phone channel cannot be primary
         if c.email and not c.enrollable and not c.phone_e164:
             continue
 
@@ -195,11 +212,11 @@ def select_recommended(
         if c.email and c.enrollable:
             reason_parts.append("e-mail observado utilizável")
         elif c.email and not c.enrollable:
-            reason_parts.append("e-mail não enrollable; canal via telefone" if c.phone_e164 else "e-mail não enrollable")
+            reason_parts.append(
+                "e-mail não enrollable; canal via telefone" if c.phone_e164 else "e-mail não enrollable"
+            )
         if c.phone_e164:
             reason_parts.append(f"telefone {c.phone_type} E.164")
-        if c.dnc or c.bounce:
-            reason_parts.append("BLOQUEADO")
         c.recommendation_reason = "; ".join(reason_parts)
         recommended_id = c.candidate_id
         break

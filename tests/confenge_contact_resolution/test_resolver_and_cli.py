@@ -424,3 +424,40 @@ def test_small_firm_boosts_owner() -> None:
     cands = observations_to_candidates(obs, cnpj14=CNPJ_A)
     ranked, _ = select_recommended(cands, service_context="generic", small_firm=True)
     assert next(c for c in ranked if c.recommended).role_class == "owner"
+
+
+def test_resolver_account_dnc_blocks_all(tmp_path: Path) -> None:
+    """End-to-end: account-level human DO_NOT_CONTACT blocks any recommendation."""
+    ctx = AdapterContext(
+        cnpj14=CNPJ_A,
+        allow_network=False,
+        site_pages=[
+            {
+                "url": "https://x.example",
+                "source_date": "2026-06-01",
+                "contacts": [
+                    {"name": "Vendas", "cargo": "Comercial", "email": "vendas@x.example", "phone": "48999991111"},
+                ],
+            }
+        ],
+        human_outcomes=[
+            {
+                "cnpj14": CNPJ_A,
+                "dnc": True,
+                "dnc_reason": "DO_NOT_CONTACT",
+                "state": "DO_NOT_CONTACT",
+                "source_date": "2026-07-01",
+            }
+        ],
+    )
+    cfg = ResolverConfig(
+        adapters=_adapters_offline(),
+        allow_network=False,
+        context_builder=lambda _c: ctx,
+        cache=ResolutionCache(tmp_path / "c", ttl_seconds=60),
+    )
+    r = ContactResolver(cfg).resolve_one(CNPJ_A)
+    assert r.candidates
+    assert r.recommended_candidate_id is None
+    assert all(not c.recommended for c in r.candidates)
+    assert any("account_block" in lim for lim in r.limitations)

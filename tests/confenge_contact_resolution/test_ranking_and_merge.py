@@ -122,6 +122,64 @@ def test_pattern_guess_not_recommended_primary() -> None:
     assert winner.email == "contato@empresa.com.br"
 
 
+def test_pattern_guess_sole_candidate_with_phone_never_recommended() -> None:
+    """Regression: CANDIDATE_UNVERIFIED must never be recommended-primary even with mobile."""
+    obs = [
+        _obs(
+            name="João Silva",
+            cargo="Diretor",
+            email="joao.silva@empresa.com.br",
+            phone_raw="48999991234",
+            pattern_guessed_email=True,
+        ),
+    ]
+    cands = observations_to_candidates(obs, cnpj14="12345678000199")
+    assert len(cands) == 1
+    assert cands[0].verification_status == VerificationStatus.CANDIDATE_UNVERIFIED.value
+    assert cands[0].phone_e164  # phone present — previously allowed recommend
+    ranked, rec = select_recommended(cands)
+    assert rec is None
+    assert all(not c.recommended for c in ranked)
+    assert all(not c.enrollable for c in ranked)
+
+
+def test_account_level_dnc_blocks_all_recommendations() -> None:
+    """Human-outcome DNC without email/phone is account-wide and dominates."""
+    from scripts.confenge_contact_resolution.merge import account_block_from_observations
+
+    obs = [
+        _obs(
+            name="Vendas",
+            cargo="Comercial",
+            email="vendas@x.com.br",
+            phone_raw="48988886666",
+        ),
+        RawObservation(
+            adapter="human_outcome",
+            cnpj14="12345678000199",
+            name=None,
+            cargo=None,
+            email=None,
+            phone_raw=None,
+            dnc=True,
+            dnc_reason="DO_NOT_CONTACT",
+            source=SourceProvenance(source_type="human_outcome", source_date="2026-07-01"),
+            epistemic_class="HUMAN_OUTCOME",
+        ),
+    ]
+    account_dnc, account_bounce, reason = account_block_from_observations(obs)
+    assert account_dnc is True
+    assert account_bounce is False
+    assert reason == "DO_NOT_CONTACT"
+
+    cands = observations_to_candidates(obs, cnpj14="12345678000199")
+    ranked, rec = select_recommended(cands, account_dnc=account_dnc, account_bounce=account_bounce)
+    assert rec is None
+    assert all(not c.recommended for c in ranked)
+    # vendas still present as candidate (absence of inventing wipe), but not recommended
+    assert any(c.email == "vendas@x.com.br" for c in ranked)
+
+
 def test_conflicting_sources_dedupe_by_email() -> None:
     obs = [
         _obs(
