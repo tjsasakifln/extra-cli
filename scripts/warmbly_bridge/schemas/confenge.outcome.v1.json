@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://extra-cli.local/schemas/confenge.outcome.v1.json",
+  "title": "confenge.outcome.v1",
+  "description": "Warmbly → extra-cli outcome webhook envelope (PR #4/#6).",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "event_id",
+    "idempotency_key",
+    "occurred_at",
+    "source",
+    "event_type"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "confenge.outcome.v1"
+    },
+    "event_id": { "type": "string", "minLength": 1 },
+    "idempotency_key": { "type": "string", "minLength": 1 },
+    "occurred_at": { "type": "string", "minLength": 1 },
+    "source": { "type": "string", "minLength": 1 },
+    "source_lead_id": { "type": "string" },
+    "cnpj14": { "type": "string" },
+    "contact_email": { "type": "string" },
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "LEAD_IMPORTED",
+        "LEAD_REVIEWED",
+        "REVIEWED",
+        "CONTACT_APPROVED",
+        "CONTACTED",
+        "SENT",
+        "REPLIED",
+        "MEETING",
+        "PROPOSAL",
+        "WON",
+        "LOST",
+        "DO_NOT_CONTACT",
+        "DNC",
+        "BOUNCED",
+        "BOUNCE"
+      ]
+    },
+    "campaign_id": { "type": "string" },
+    "message_id": { "type": "string" },
+    "channel": { "type": "string" },
+    "metadata": { "type": "object" }
+  }
+}
