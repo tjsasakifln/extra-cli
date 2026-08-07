@@ -1,0 +1,18 @@
+{
+  "schema_version": "confenge.outcome.v1",
+  "event_id": "11111111-2222-3333-4444-555555555555",
+  "idempotency_key": "warmbly:fixture:contacted:acme:1",
+  "occurred_at": "2026-08-06T15:30:00Z",
+  "source": "warmbly",
+  "source_lead_id": "lead-acme-sc",
+  "cnpj14": "11222333000181",
+  "contact_email": "ana.silva@acme.example.com",
+  "event_type": "CONTACTED",
+  "campaign_id": "camp-fixture-001",
+  "message_id": "msg-fixture-001",
+  "channel": "email",
+  "metadata": {
+    "human_actor": "tiago",
+    "human_confirmed": true
+  }
+}
