@@ -1,11 +1,15 @@
-"""Contract tests: produced feed matches Warmbly PR #4 required field shape."""
+"""Contract tests: produced feed matches Warmbly PR #4 required field shape.
+
+Uses stdlib only (no jsonschema dep in CI). Schema files are loaded and their
+``required`` keys are asserted against produced feeds.
+"""
 
 from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import Any
 
-import jsonschema
 import pytest
 
 from scripts.warmbly_bridge import (
@@ -18,6 +22,34 @@ from scripts.warmbly_bridge import (
     SCHEMA_OUTREACH,
 )
 from scripts.warmbly_bridge.export import ExportConfig, export_outreach
+
+
+def _assert_required(obj: dict[str, Any], required: list[str] | tuple[str, ...], *, ctx: str) -> None:
+    for field in required:
+        assert field in obj, f"{ctx}: missing required field {field!r}"
+
+
+def _validate_against_schema_required(feed: dict[str, Any], schema: dict[str, Any]) -> None:
+    """Lightweight required-field / const check from frozen JSON Schema (no jsonschema lib)."""
+    _assert_required(feed, schema.get("required") or [], ctx="feed")
+    props = schema.get("properties") or {}
+    sv = props.get("schema_version") or {}
+    if "const" in sv:
+        assert feed.get("schema_version") == sv["const"]
+    source_schema = props.get("source") or {}
+    _assert_required(feed.get("source") or {}, source_schema.get("required") or [], ctx="source")
+    lead_def = (schema.get("$defs") or {}).get("lead") or {}
+    lead_required = lead_def.get("required") or []
+    for i, lead in enumerate(feed.get("leads") or []):
+        _assert_required(lead, lead_required, ctx=f"leads[{i}]")
+        company_req = ((lead_def.get("properties") or {}).get("company") or {}).get("required") or []
+        _assert_required(lead.get("company") or {}, company_req, ctx=f"leads[{i}].company")
+        msg_req = ((lead_def.get("properties") or {}).get("messaging_context") or {}).get("required") or []
+        _assert_required(
+            lead.get("messaging_context") or {},
+            msg_req,
+            ctx=f"leads[{i}].messaging_context",
+        )
 
 
 @pytest.fixture
@@ -63,7 +95,7 @@ def test_feed_required_fields_and_schema(
         assert "has_more" in feed["pagination"]
         assert "cursor" in feed["pagination"]
         assert feed["pagination"].get("content_hash") or feed["pagination"].get("hashes")
-        jsonschema.validate(instance=feed, schema=schema)
+        _validate_against_schema_required(feed, schema)
         for lead in feed["leads"]:
             for field in REQUIRED_LEAD_FIELDS:
                 assert field in lead, f"lead missing {field}"
