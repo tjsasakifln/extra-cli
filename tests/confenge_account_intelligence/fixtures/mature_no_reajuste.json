@@ -1,0 +1,61 @@
+{
+  "cnpj": "77888999000126",
+  "razao_social": "CONSTRUTORA RIO NORTE LTDA",
+  "nome_fantasia": "Rio Norte",
+  "municipio": "Florianópolis",
+  "uf": "SC",
+  "cnae_principal": "4120-4/00",
+  "activity_class": "CONSTRUCTION_CONTRACTOR",
+  "as_of": "2026-08-01",
+  "commercial_state": "NEW",
+  "signals": {
+    "national_operation": false,
+    "regional_only": true,
+    "high_recurrence": false,
+    "rapid_growth": false,
+    "concentrated_functions": false
+  },
+  "contracts": [
+    {
+      "id": "ct-rn-01",
+      "object": "Duplicação de via urbana — etapa 2",
+      "value_brl": 28500000,
+      "start_date": "2023-06-01",
+      "end_date": "2027-06-01",
+      "uf": "SC",
+      "orgao": "DEINFRA-SC",
+      "has_addendum": false,
+      "addendum_count": 0,
+      "has_reajuste": false,
+      "reajuste_evidence": null,
+      "source_url": "https://example.local/pncp/ct-rn-01",
+      "source_document": "Contrato DEINFRA 033/2023",
+      "source_date": "2023-06-01",
+      "source_location": "SC"
+    },
+    {
+      "id": "ct-rn-02",
+      "object": "Manutenção predial — prédio administrativo",
+      "value_brl": 2100000,
+      "start_date": "2024-02-01",
+      "end_date": "2026-02-01",
+      "uf": "SC",
+      "orgao": "Secretaria de Administração SC",
+      "has_addendum": false,
+      "has_reajuste": false,
+      "reajuste_evidence": null,
+      "source_url": "https://example.local/pncp/ct-rn-02",
+      "source_date": "2024-02-01"
+    }
+  ],
+  "facts": [
+    {
+      "id": "f-rn-1",
+      "text": "Contrato DEINFRA 033/2023 em vigor há mais de 365 dias sem termo de reajuste no material ingerido.",
+      "epistemic_class": "confirmed",
+      "confidence": 0.95,
+      "evidence_ids": ["ev-contract-ct-rn-01"],
+      "provenance": "input.contracts"
+    }
+  ]
+}

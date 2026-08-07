@@ -1,0 +1,140 @@
+{
+  "cnpj": "33444555000162",
+  "razao_social": "ENGENHARIA ATLANTICA S.A.",
+  "nome_fantasia": "Atlântica Eng",
+  "municipio": "São Paulo",
+  "uf": "SP",
+  "cnae_principal": "4211-1/01",
+  "activity_class": "CONSTRUCTION_CONTRACTOR",
+  "as_of": "2026-08-01",
+  "commercial_state": "NEW",
+  "signals": {
+    "national_operation": true,
+    "consortium_participation": true,
+    "legal_claims_compliance_unit": true,
+    "large_team_public_signal": true,
+    "high_recurrence": true,
+    "rapid_growth": false,
+    "low_public_formalization": false,
+    "regional_only": false,
+    "concentrated_functions": false
+  },
+  "contracts": [
+    {
+      "id": "ct-at-01",
+      "object": "Obra de infraestrutura rodoviária — lote A",
+      "value_brl": 85000000,
+      "start_date": "2024-01-10",
+      "end_date": "2027-01-10",
+      "uf": "SP",
+      "orgao": "DER-SP",
+      "has_addendum": false,
+      "has_reajuste": true,
+      "reajuste_evidence": "termo_reajuste_2025.pdf",
+      "source_url": "https://example.local/pncp/ct-at-01",
+      "source_document": "Contrato DER 001/2024",
+      "source_date": "2024-01-10"
+    },
+    {
+      "id": "ct-at-02",
+      "object": "Saneamento — expansão de rede",
+      "value_brl": 42000000,
+      "start_date": "2024-06-01",
+      "end_date": "2026-12-01",
+      "uf": "RJ",
+      "orgao": "CEDAE",
+      "has_reajuste": true,
+      "reajuste_evidence": "aditivo_reajuste_cedae",
+      "source_url": "https://example.local/pncp/ct-at-02",
+      "source_date": "2024-06-01"
+    },
+    {
+      "id": "ct-at-03",
+      "object": "Complexo hospitalar — estrutura",
+      "value_brl": 120000000,
+      "start_date": "2023-09-01",
+      "end_date": "2026-09-01",
+      "uf": "MG",
+      "orgao": "SES-MG",
+      "has_reajuste": true,
+      "reajuste_evidence": "memoria_reajuste_mg",
+      "source_url": "https://example.local/pncp/ct-at-03",
+      "source_date": "2023-09-01"
+    },
+    {
+      "id": "ct-at-04",
+      "object": "Aeroporto regional — pista",
+      "value_brl": 67000000,
+      "start_date": "2025-02-01",
+      "end_date": "2027-02-01",
+      "uf": "BA",
+      "orgao": "Infraero",
+      "has_reajuste": false,
+      "reajuste_evidence": "indice_aplicado_parcial",
+      "source_url": "https://example.local/pncp/ct-at-04",
+      "source_date": "2025-02-01"
+    },
+    {
+      "id": "ct-at-05",
+      "object": "Metro — estação consórcio",
+      "value_brl": 210000000,
+      "start_date": "2022-05-01",
+      "end_date": "2027-05-01",
+      "uf": "PR",
+      "orgao": "URBS",
+      "has_reajuste": true,
+      "reajuste_evidence": "ata_consorcio_reajuste",
+      "source_url": "https://example.local/pncp/ct-at-05",
+      "source_date": "2022-05-01"
+    },
+    {
+      "id": "ct-at-06",
+      "object": "Porto — dragagem e cais",
+      "value_brl": 95000000,
+      "start_date": "2024-11-01",
+      "end_date": "2026-11-01",
+      "uf": "SC",
+      "orgao": "SCPAR",
+      "has_reajuste": true,
+      "reajuste_evidence": "termo_2025",
+      "source_url": "https://example.local/pncp/ct-at-06",
+      "source_date": "2024-11-01"
+    },
+    {
+      "id": "ct-at-07",
+      "object": "Barragem — reforço estrutural",
+      "value_brl": 55000000,
+      "start_date": "2025-04-01",
+      "end_date": "2027-04-01",
+      "uf": "GO",
+      "orgao": "SANEAGO",
+      "has_reajuste": false,
+      "reajuste_evidence": "n/a_em_andamento",
+      "source_url": "https://example.local/pncp/ct-at-07",
+      "source_date": "2025-04-01"
+    },
+    {
+      "id": "ct-at-08",
+      "object": "Contorno rodoviário — lote B",
+      "value_brl": 78000000,
+      "start_date": "2023-12-01",
+      "end_date": "2026-12-01",
+      "uf": "RS",
+      "orgao": "DAER",
+      "has_reajuste": true,
+      "reajuste_evidence": "aditivo_reajuste_daer",
+      "source_url": "https://example.local/pncp/ct-at-08",
+      "source_date": "2023-12-01"
+    }
+  ],
+  "facts": [
+    {
+      "id": "f-at-1",
+      "text": "Participação pública em consórcios de infraestrutura em múltiplas UFs.",
+      "epistemic_class": "confirmed",
+      "confidence": 0.95,
+      "evidence_ids": ["ev-contract-ct-at-05"],
+      "provenance": "input.contracts+signals.consortium"
+    }
+  ]
+}
