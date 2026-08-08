@@ -1,6 +1,6 @@
 # CONFENGE contact enrichment — human review
 
-Generated: 2026-08-08T20:00:26Z
+Generated: 2026-08-08T20:14:00Z
 
 Status: **HUMAN_REVIEW_PENDING** (machine may be PASS; human must review)
 
@@ -22,21 +22,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** VERIFIED
 - **enrollable:** True
 
-### 2. AMF ENGENHARIA E SERVICOS LTDA (`00638562000165`)
-
-- **contato:** `amf@amf.com.br`
-- **ownership_status:** COMPANY_OWNED
-- **confidence:** 0.98
-- **reason:** domain_match_company_owned
-- **source_type:** site
-- **source_url:** https://amf.com.br/
-- **domínio oficial:** amf.com.br
-- **reuse signal (associated companies):** 1
-- **third-party signals:** —
-- **verification_status:** VERIFIED
-- **enrollable:** True
-
-### 3. ELEVADORES ATLAS SCHINDLER LTDA. (`00028986000108`)
+### 2. ELEVADORES ATLAS SCHINDLER LTDA. (`00028986000108`)
 
 - **contato:** `+5511933328527`
 - **ownership_status:** COMPANY_OWNED
@@ -50,7 +36,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** OBSERVED
 - **enrollable:** True
 
-### 4. CONSTRUTORA E TRANSPORTADORA IDEAL LTDA (`08815415000125`)
+### 3. CONSTRUTORA E TRANSPORTADORA IDEAL LTDA (`08815415000125`)
 
 - **contato:** `+5511981786900`
 - **ownership_status:** COMPANY_OWNED
@@ -64,7 +50,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** OBSERVED
 - **enrollable:** True
 
-### 5. SCAVE SERVICOS DE ENGENHARIA E LOCACAO LTDA (`01514128000136`)
+### 4. SCAVE SERVICOS DE ENGENHARIA E LOCACAO LTDA (`01514128000136`)
 
 - **contato:** `+558134263243`
 - **ownership_status:** COMPANY_OWNED
@@ -78,7 +64,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** OBSERVED
 - **enrollable:** True
 
-### 6. AEGEA SANEAMENTO E PARTICIPACOES S.A. (`08827501000158`)
+### 5. AEGEA SANEAMENTO E PARTICIPACOES S.A. (`08827501000158`)
 
 - **contato:** `relacionamento.ro@aegea.com.br`
 - **ownership_status:** COMPANY_OWNED
@@ -92,7 +78,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** VERIFIED
 - **enrollable:** True
 
-### 7. ENCOPAV ENGENHARIA LTDA (`00061493000170`)
+### 6. ENCOPAV ENGENHARIA LTDA (`00061493000170`)
 
 - **contato:** `encopav@encopav.com.br`
 - **ownership_status:** COMPANY_OWNED
@@ -106,7 +92,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** VERIFIED
 - **enrollable:** True
 
-### 8. METRA CONSTRUCOES LTDA (`34348652000133`)
+### 7. METRA CONSTRUCOES LTDA (`34348652000133`)
 
 - **contato:** `atendimento@metra.com.br`
 - **ownership_status:** COMPANY_OWNED
@@ -120,7 +106,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** VERIFIED
 - **enrollable:** True
 
-### 9. VENTO SUL ENGENHARIA LTDA (`03509843000106`)
+### 8. VENTO SUL ENGENHARIA LTDA (`03509843000106`)
 
 - **contato:** `ventosul@ventosul.com.br`
 - **ownership_status:** COMPANY_OWNED
@@ -134,7 +120,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** VERIFIED
 - **enrollable:** True
 
-### 10. MOVE INFRAESTRUTURA LTDA. (`05296490000139`)
+### 9. MOVE INFRAESTRUTURA LTDA. (`05296490000139`)
 
 - **contato:** `vagas@moveinfraestrutura.com.br`
 - **ownership_status:** COMPANY_OWNED
@@ -148,21 +134,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** VERIFIED
 - **enrollable:** True
 
-### 11. CONSTRUTORA CAIAPO LTDA (`00237518000143`)
-
-- **contato:** `+552029860249`
-- **ownership_status:** COMPANY_OWNED
-- **confidence:** 0.65
-- **reason:** phone_on_official_company_source_single_holder
-- **source_type:** contact_page
-- **source_url:** https://caiapo.com/contato
-- **domínio oficial:** caiapo.com
-- **reuse signal (associated companies):** 1
-- **third-party signals:** —
-- **verification_status:** OBSERVED
-- **enrollable:** True
-
-### 12. CONCRELAJE INDUSTRIA DE PRE-FABRICADOS DE CONCRETO LTDA (`01557107000106`)
+### 10. CONCRELAJE INDUSTRIA DE PRE-FABRICADOS DE CONCRETO LTDA (`01557107000106`)
 
 - **contato:** `concrelaje@concrelaje.com.br`
 - **ownership_status:** COMPANY_OWNED
@@ -176,7 +148,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** VERIFIED
 - **enrollable:** True
 
-### 13. CONSTRUTORA PERFIL LTDA (`04336212000103`)
+### 11. CONSTRUTORA PERFIL LTDA (`04336212000103`)
 
 - **contato:** `+551519473672`
 - **ownership_status:** COMPANY_OWNED
@@ -190,7 +162,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** OBSERVED
 - **enrollable:** True
 
-### 14. NOVATEC CONSTRUCOES E EMPREENDIMENTOS LTDA (`00338885000133`)
+### 12. NOVATEC CONSTRUCOES E EMPREENDIMENTOS LTDA (`00338885000133`)
 
 - **contato:** `+5511996480082`
 - **ownership_status:** COMPANY_OWNED
@@ -204,7 +176,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** OBSERVED
 - **enrollable:** True
 
-### 15. AXPAV TERRAPLENAGEM E PAVIMENTACAO LTDA (`10949562000130`)
+### 13. AXPAV TERRAPLENAGEM E PAVIMENTACAO LTDA (`10949562000130`)
 
 - **contato:** `+5543991351707`
 - **ownership_status:** COMPANY_OWNED
@@ -218,7 +190,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** OBSERVED
 - **enrollable:** True
 
-### 16. FUNDO DE DESENVOLVIMENTO DA INFRAESTRUTURA REGIONAL SUSTENTAVEL FDIRS (`21441766000181`)
+### 14. FUNDO DE DESENVOLVIMENTO DA INFRAESTRUTURA REGIONAL SUSTENTAVEL FDIRS (`21441766000181`)
 
 - **contato:** `+5599999999999`
 - **ownership_status:** COMPANY_OWNED
@@ -232,7 +204,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** OBSERVED
 - **enrollable:** True
 
-### 17. TRACADO CONSTRUCOES E SERVICOS LTDA (`00472805000138`)
+### 15. TRACADO CONSTRUCOES E SERVICOS LTDA (`00472805000138`)
 
 - **contato:** `comercial@tracado.com.br`
 - **ownership_status:** COMPANY_OWNED
@@ -246,7 +218,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** VERIFIED
 - **enrollable:** True
 
-### 18. JD CONSTRUCOES E SERVICOS LTDA (`13609718000121`)
+### 16. JD CONSTRUCOES E SERVICOS LTDA (`13609718000121`)
 
 - **contato:** `+554006561155`
 - **ownership_status:** COMPANY_OWNED
@@ -260,7 +232,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** OBSERVED
 - **enrollable:** True
 
-### 19. CONSTRUVERDE CONSTRUCOES E SERVICOS LTDA (`20360878000145`)
+### 17. CONSTRUVERDE CONSTRUCOES E SERVICOS LTDA (`20360878000145`)
 
 - **contato:** `+551138129000`
 - **ownership_status:** COMPANY_OWNED
@@ -274,7 +246,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** OBSERVED
 - **enrollable:** True
 
-### 20. CONSTRUTORA ANCAR LTDA (`00758756000102`)
+### 18. CONSTRUTORA ANCAR LTDA (`00758756000102`)
 
 - **contato:** `+551120403635`
 - **ownership_status:** COMPANY_OWNED
@@ -288,23 +260,37 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** OBSERVED
 - **enrollable:** True
 
-## Rejected (20)
+### 19. PAVCON CONSTRUTORA LTDA (`15747692000103`)
 
-### 1. LMA ENGENHARIA LTDA (`51694102000195`)
+- **contato:** `contato@pavcon.com.br`
+- **ownership_status:** COMPANY_OWNED
+- **confidence:** 1.0
+- **reason:** domain_match_company_owned
+- **source_type:** contact_page
+- **source_url:** https://pavcon.com.br/contato
+- **domínio oficial:** pavcon.com.br
+- **reuse signal (associated companies):** 1
+- **third-party signals:** —
+- **verification_status:** VERIFIED
+- **enrollable:** True
 
-- **contato:** `+557496969728`
-- **ownership_status:** SHARED_EXTERNAL_CONTACT
-- **confidence:** 0.15
-- **reason:** Phone shared by 4 unrelated CNPJs
-- **source_type:** —
-- **source_url:** —
+### 20. LMA ENGENHARIA LTDA (`51694102000195`)
+
+- **contato:** `+551786061777`
+- **ownership_status:** COMPANY_OWNED
+- **confidence:** 0.65
+- **reason:** phone_on_official_company_source_single_holder
+- **source_type:** contact_page
+- **source_url:** https://lma.com.br/contato
 - **domínio oficial:** lma.com.br
-- **reuse signal (associated companies):** 5
+- **reuse signal (associated companies):** 1
 - **third-party signals:** —
 - **verification_status:** OBSERVED
-- **enrollable:** False
+- **enrollable:** True
 
-### 2. CONSTRUTORA LUIZ COSTA LTDA (`00779059000120`)
+## Rejected (20)
+
+### 1. CONSTRUTORA LUIZ COSTA LTDA (`00779059000120`)
 
 - **contato:** `+557496969728`
 - **ownership_status:** THIRD_PARTY_SERVICE_PROVIDER
@@ -318,7 +304,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** OBSERVED
 - **enrollable:** False
 
-### 3. TMF CONSTRUCOES, INCORPORACAO E SERVICOS LTDA (`36909349000198`)
+### 2. TMF CONSTRUCOES, INCORPORACAO E SERVICOS LTDA (`36909349000198`)
 
 - **contato:** `+557496969728`
 - **ownership_status:** THIRD_PARTY_SERVICE_PROVIDER
@@ -332,7 +318,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** OBSERVED
 - **enrollable:** False
 
-### 4. SUPERA ENGENHARIA LTDA (`38756140000167`)
+### 3. SUPERA ENGENHARIA LTDA (`38756140000167`)
 
 - **contato:** `+557496969728`
 - **ownership_status:** THIRD_PARTY_SERVICE_PROVIDER
@@ -346,7 +332,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** OBSERVED
 - **enrollable:** False
 
-### 5. J G A BODANESE ENGENHARIA LTDA (`41659936000106`)
+### 4. J G A BODANESE ENGENHARIA LTDA (`41659936000106`)
 
 - **contato:** `+557496969728`
 - **ownership_status:** THIRD_PARTY_SERVICE_PROVIDER
@@ -360,7 +346,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** OBSERVED
 - **enrollable:** False
 
-### 6. COSAMPA CONSTRUCOES LTDA (`03006548000137`)
+### 5. COSAMPA CONSTRUCOES LTDA (`03006548000137`)
 
 - **contato:** `+557496969728`
 - **ownership_status:** THIRD_PARTY_SERVICE_PROVIDER
@@ -374,7 +360,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** OBSERVED
 - **enrollable:** False
 
-### 7. GAIA RODOVIAS LTDA. (`03257777000124`)
+### 6. GAIA RODOVIAS LTDA. (`03257777000124`)
 
 - **contato:** `+557496969728`
 - **ownership_status:** THIRD_PARTY_SERVICE_PROVIDER
@@ -388,7 +374,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** OBSERVED
 - **enrollable:** False
 
-### 8. NORTE CONSTRUCOES LTDA (`24581449000159`)
+### 7. NORTE CONSTRUCOES LTDA (`24581449000159`)
 
 - **contato:** `+557496969728`
 - **ownership_status:** THIRD_PARTY_SERVICE_PROVIDER
@@ -402,7 +388,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** OBSERVED
 - **enrollable:** False
 
-### 9. ABTEC ENGENHARIA LTDA (`12754237000147`)
+### 8. ABTEC ENGENHARIA LTDA (`12754237000147`)
 
 - **contato:** `+557496969728`
 - **ownership_status:** THIRD_PARTY_SERVICE_PROVIDER
@@ -416,7 +402,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** OBSERVED
 - **enrollable:** False
 
-### 10. JATOBETON ENGENHARIA LTDA (`00507949000182`)
+### 9. JATOBETON ENGENHARIA LTDA (`00507949000182`)
 
 - **contato:** `+557496969728`
 - **ownership_status:** THIRD_PARTY_SERVICE_PROVIDER
@@ -430,7 +416,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** OBSERVED
 - **enrollable:** False
 
-### 11. PAVIPLAN PAVIMENTACAO LTDA (`03620927000112`)
+### 10. PAVIPLAN PAVIMENTACAO LTDA (`03620927000112`)
 
 - **contato:** `+557496969728`
 - **ownership_status:** THIRD_PARTY_SERVICE_PROVIDER
@@ -444,7 +430,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** OBSERVED
 - **enrollable:** False
 
-### 12. BETUNEL INDUSTRIA E COMERCIO S/A (`60546801000260`)
+### 11. BETUNEL INDUSTRIA E COMERCIO S/A (`60546801000260`)
 
 - **contato:** `+557496969728`
 - **ownership_status:** THIRD_PARTY_SERVICE_PROVIDER
@@ -458,7 +444,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** OBSERVED
 - **enrollable:** False
 
-### 13. BANCO DO BRASIL SA (`00000000037788`)
+### 12. BANCO DO BRASIL SA (`00000000037788`)
 
 - **contato:** `+557496969728`
 - **ownership_status:** THIRD_PARTY_SERVICE_PROVIDER
@@ -472,7 +458,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** OBSERVED
 - **enrollable:** False
 
-### 14. PARAIBA TURISMO LTDA (`00455771000173`)
+### 13. PARAIBA TURISMO LTDA (`00455771000173`)
 
 - **contato:** `+557496969728`
 - **ownership_status:** THIRD_PARTY_SERVICE_PROVIDER
@@ -486,7 +472,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** OBSERVED
 - **enrollable:** False
 
-### 15. TRACADO CONSTRUCOES E SERVICOS LTDA (`00472805000308`)
+### 14. TRACADO CONSTRUCOES E SERVICOS LTDA (`00472805000308`)
 
 - **contato:** `+557496969728`
 - **ownership_status:** THIRD_PARTY_SERVICE_PROVIDER
@@ -500,7 +486,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** OBSERVED
 - **enrollable:** False
 
-### 16. LPK LTDA (`00535560000140`)
+### 15. LPK LTDA (`00535560000140`)
 
 - **contato:** `+557496969728`
 - **ownership_status:** THIRD_PARTY_SERVICE_PROVIDER
@@ -514,7 +500,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** OBSERVED
 - **enrollable:** False
 
-### 17. VISOMES COMERCIAL METROLOGICA LTDA (`00567892000107`)
+### 16. VISOMES COMERCIAL METROLOGICA LTDA (`00567892000107`)
 
 - **contato:** `+557496969728`
 - **ownership_status:** THIRD_PARTY_SERVICE_PROVIDER
@@ -528,7 +514,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** OBSERVED
 - **enrollable:** False
 
-### 18. ALVARO MARQUES REIS SONORIZACOES LTDA (`00636230000141`)
+### 17. ALVARO MARQUES REIS SONORIZACOES LTDA (`00636230000141`)
 
 - **contato:** `+557496969728`
 - **ownership_status:** THIRD_PARTY_SERVICE_PROVIDER
@@ -542,7 +528,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** OBSERVED
 - **enrollable:** False
 
-### 19. VERBENNA FARMACIA DE MANIPULACAO LTDA (`00787540000167`)
+### 18. VERBENNA FARMACIA DE MANIPULACAO LTDA (`00787540000167`)
 
 - **contato:** `hello@yourdomain.com`
 - **ownership_status:** SHARED_EXTERNAL_CONTACT
@@ -556,7 +542,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** OBSERVED
 - **enrollable:** False
 
-### 20. J D DE OLIVEIRA & I L CRUAIA LTDA (`00978237000141`)
+### 19. J D DE OLIVEIRA & I L CRUAIA LTDA (`00978237000141`)
 
 - **contato:** `+557496969728`
 - **ownership_status:** THIRD_PARTY_SERVICE_PROVIDER
@@ -570,9 +556,37 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** OBSERVED
 - **enrollable:** False
 
+### 20. FREMIX PAVIMENTACAO E CONSTRUCOES LTDA. - (`01065014000156`)
+
+- **contato:** `+557496969728`
+- **ownership_status:** THIRD_PARTY_SERVICE_PROVIDER
+- **confidence:** 0.1155
+- **reason:** Known third-party registry hit: None (OTHER)
+- **source_type:** —
+- **source_url:** —
+- **domínio oficial:** fremix.com.br
+- **reuse signal (associated companies):** 24
+- **third-party signals:** OTHER
+- **verification_status:** OBSERVED
+- **enrollable:** False
+
 ## Unresolved / review required (20)
 
-### 1. SUPERAGE ENGENHARIA S/A (`20558479000193`)
+### 1. AMF ENGENHARIA E SERVICOS LTDA (`00638562000165`)
+
+- **contato:** `amf@amf.com.br`
+- **ownership_status:** UNRESOLVED
+- **confidence:** 0.343
+- **reason:** weak_or_conflicting_ownership_signals
+- **source_type:** site
+- **source_url:** https://amf.com.br/
+- **domínio oficial:** amf.com.br
+- **reuse signal (associated companies):** 1
+- **third-party signals:** —
+- **verification_status:** VERIFIED
+- **enrollable:** False
+
+### 2. SUPERAGE ENGENHARIA S/A (`20558479000193`)
 
 - **contato:** `+553135418664`
 - **ownership_status:** LIKELY_COMPANY_OWNED
@@ -586,7 +600,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** REVIEW_REQUIRED
 - **enrollable:** False
 
-### 2. TETT'S ENGENHARIA LTDA (`47815614000195`)
+### 3. TETT'S ENGENHARIA LTDA (`47815614000195`)
 
 - **contato:** `+556282596100`
 - **ownership_status:** LIKELY_COMPANY_OWNED
@@ -600,7 +614,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** REVIEW_REQUIRED
 - **enrollable:** False
 
-### 3. R3 PRESTACAO DE SERVICOS LTDA (`15371451000102`)
+### 4. R3 PRESTACAO DE SERVICOS LTDA (`15371451000102`)
 
 - **contato:** `+554999980884`
 - **ownership_status:** LIKELY_COMPANY_OWNED
@@ -614,7 +628,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** REVIEW_REQUIRED
 - **enrollable:** False
 
-### 4. CONSORCIO COQUEIROS ARACAJU (`65457635000168`)
+### 5. CONSORCIO COQUEIROS ARACAJU (`65457635000168`)
 
 - **contato:** `+551121246140`
 - **ownership_status:** LIKELY_COMPANY_OWNED
@@ -628,7 +642,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** REVIEW_REQUIRED
 - **enrollable:** False
 
-### 5. VILLARES CONSTRUTORA E METALURGICA LTDA (`05863476000170`)
+### 6. VILLARES CONSTRUTORA E METALURGICA LTDA (`05863476000170`)
 
 - **contato:** `+554436487027`
 - **ownership_status:** LIKELY_COMPANY_OWNED
@@ -642,7 +656,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** REVIEW_REQUIRED
 - **enrollable:** False
 
-### 6. PELT PROJETOS E CONSTRUCOES LTDA (`15583839000177`)
+### 7. PELT PROJETOS E CONSTRUCOES LTDA (`15583839000177`)
 
 - **contato:** `+552166512112`
 - **ownership_status:** LIKELY_COMPANY_OWNED
@@ -656,7 +670,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** REVIEW_REQUIRED
 - **enrollable:** False
 
-### 7. SIMEMP SERVICOS TECNICOS E OBRAS LTDA (`09237296000133`)
+### 8. SIMEMP SERVICOS TECNICOS E OBRAS LTDA (`09237296000133`)
 
 - **contato:** `+556135464530`
 - **ownership_status:** LIKELY_COMPANY_OWNED
@@ -670,7 +684,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** REVIEW_REQUIRED
 - **enrollable:** False
 
-### 8. ARQUIUM - CONSTRUCOES E RESTAURO LTDA. (`06939632000100`)
+### 9. ARQUIUM - CONSTRUCOES E RESTAURO LTDA. (`06939632000100`)
 
 - **contato:** `+555132467701`
 - **ownership_status:** LIKELY_COMPANY_OWNED
@@ -684,7 +698,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** REVIEW_REQUIRED
 - **enrollable:** False
 
-### 9. WFL COMERCIAL E PRESTADORA LTDA (`17077946000159`)
+### 10. WFL COMERCIAL E PRESTADORA LTDA (`17077946000159`)
 
 - **contato:** `+556298376353`
 - **ownership_status:** LIKELY_COMPANY_OWNED
@@ -698,7 +712,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** REVIEW_REQUIRED
 - **enrollable:** False
 
-### 10. COFRANZA CONSTRUTORA LTDA (`03396992000106`)
+### 11. COFRANZA CONSTRUTORA LTDA (`03396992000106`)
 
 - **contato:** `+552227252503`
 - **ownership_status:** LIKELY_COMPANY_OWNED
@@ -712,7 +726,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** REVIEW_REQUIRED
 - **enrollable:** False
 
-### 11. MANUTEC MONTAGEM E EMPREENDIMENTOS LTDA (`18546232000105`)
+### 12. MANUTEC MONTAGEM E EMPREENDIMENTOS LTDA (`18546232000105`)
 
 - **contato:** `+552196912473`
 - **ownership_status:** LIKELY_COMPANY_OWNED
@@ -726,7 +740,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** REVIEW_REQUIRED
 - **enrollable:** False
 
-### 12. PROJECON - PROJETOS E CONSTRUCOES LTDA (`07765850000120`)
+### 13. PROJECON - PROJETOS E CONSTRUCOES LTDA (`07765850000120`)
 
 - **contato:** `+558132248725`
 - **ownership_status:** LIKELY_COMPANY_OWNED
@@ -740,7 +754,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** REVIEW_REQUIRED
 - **enrollable:** False
 
-### 13. E M T CONSTRUTORA LTDA (`05036194000107`)
+### 14. E M T CONSTRUTORA LTDA (`05036194000107`)
 
 - **contato:** `+556833221020`
 - **ownership_status:** LIKELY_COMPANY_OWNED
@@ -754,7 +768,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** REVIEW_REQUIRED
 - **enrollable:** False
 
-### 14. MULTICON ENGENHARIA LTDA (`00242092000116`)
+### 15. MULTICON ENGENHARIA LTDA (`00242092000116`)
 
 - **contato:** `+551132562333`
 - **ownership_status:** LIKELY_COMPANY_OWNED
@@ -768,7 +782,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** REVIEW_REQUIRED
 - **enrollable:** False
 
-### 15. I N MARQUES (`24940072000187`)
+### 16. I N MARQUES (`24940072000187`)
 
 - **contato:** `—`
 - **ownership_status:** —
@@ -782,7 +796,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** —
 - **enrollable:** None
 
-### 16. CONSTRUTORA CONSTRUCERTO LTDA (`20323692000116`)
+### 17. CONSTRUTORA CONSTRUCERTO LTDA (`20323692000116`)
 
 - **contato:** `+551734632833`
 - **ownership_status:** LIKELY_COMPANY_OWNED
@@ -796,7 +810,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** REVIEW_REQUIRED
 - **enrollable:** False
 
-### 17. VASCONCELOS ENGENHARIA LTDA (`08761499000161`)
+### 18. VASCONCELOS ENGENHARIA LTDA (`08761499000161`)
 
 - **contato:** `+558632311101`
 - **ownership_status:** LIKELY_COMPANY_OWNED
@@ -810,7 +824,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** REVIEW_REQUIRED
 - **enrollable:** False
 
-### 18. TN-CONSTRUCOES E SERVICOS LTDA (`52967001000103`)
+### 19. TN-CONSTRUCOES E SERVICOS LTDA (`52967001000103`)
 
 - **contato:** `+556581574124`
 - **ownership_status:** LIKELY_COMPANY_OWNED
@@ -824,7 +838,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** REVIEW_REQUIRED
 - **enrollable:** False
 
-### 19. MASB ENGENHARIA LTDA (`22271913000185`)
+### 20. MASB ENGENHARIA LTDA (`22271913000185`)
 
 - **contato:** `+554691027492`
 - **ownership_status:** LIKELY_COMPANY_OWNED
@@ -833,20 +847,6 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **source_type:** registry
 - **source_url:** https://brasilapi.com.br/api/cnpj/v1/
 - **domínio oficial:** masb.com
-- **reuse signal (associated companies):** 1
-- **third-party signals:** —
-- **verification_status:** REVIEW_REQUIRED
-- **enrollable:** False
-
-### 20. JUMBO PAVIMENTACAO LTDA (`40306265000137`)
-
-- **contato:** `+554699743064`
-- **ownership_status:** LIKELY_COMPANY_OWNED
-- **confidence:** 0.5
-- **reason:** consistent_but_not_definitive_ownership_signals
-- **source_type:** registry
-- **source_url:** https://brasilapi.com.br/api/cnpj/v1/
-- **domínio oficial:** jumbo.com.br
 - **reuse signal (associated companies):** 1
 - **third-party signals:** —
 - **verification_status:** REVIEW_REQUIRED

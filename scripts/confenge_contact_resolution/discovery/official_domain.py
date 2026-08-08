@@ -464,6 +464,10 @@ def is_credible_company_domain(domain: str | None, company_label: str | None) ->
         return False
     if sld in _GENERIC_BRAND_TOKENS:
         return False
+    # Short SLDs (wh, fts, bar) are classic live-host FPs — never company-owned
+    # eligible, even when nome_fantasia injects the same 3-letter acronym.
+    if len(sld) < 4:
+        return False
     label_tokens_all = _company_label_tokens(company_label)
     words = _company_brand_words(company_label)
     if not label_tokens_all:
@@ -475,10 +479,6 @@ def is_credible_company_domain(domain: str | None, company_label: str | None) ->
 
     if not words:
         return False
-
-    # 3-char SLD: only leading exact acronym
-    if len(sld) == 3:
-        return words[0] == sld
 
     # Prefer exact / residual-safe brand match on SLD
     label_tokens = [t for t in words if len(t) >= 4]

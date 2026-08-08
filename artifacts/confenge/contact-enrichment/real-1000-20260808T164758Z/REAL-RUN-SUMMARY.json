@@ -8,17 +8,15 @@
   "precision_filter_applied": false,
   "ownership_identity_gate_reapplied": true,
   "companies_processed": 1000,
-  "companies_with_enrollable_email": 183,
-  "emails_enrollable": 347,
-  "dropped_false_positive_email_rows": 69,
-  "prev_companies_with_enrollable_email": 230,
-  "prev_emails_enrollable": 416,
+  "companies_with_enrollable_email": 170,
+  "emails_enrollable": 326,
+  "dropped_false_positive_email_rows": 90,
   "operational_bar_100_companies": true,
   "human_validation": "HUMAN_REVIEW_PENDING",
   "machine_validation": "PASS",
   "human_review": {
     "schema": "confenge-human-review-status-v1",
-    "generated_at": "2026-08-08T20:00:26Z",
+    "generated_at": "2026-08-08T20:14:00Z",
     "machine_validation": "PASS",
     "human_validation": "HUMAN_REVIEW_PENDING",
     "counts": {
@@ -28,5 +26,5 @@
     },
     "note": "Human validation must not be auto-approved by the pipeline."
   },
-  "note": "Re-resolved via hard conjunctive COMPANY_OWNED identity gate (domain_match residual-safe); no offline filter theater"
+  "note": "Hard COMPANY_OWNED gate: residual-safe domain_match + SLD len>=4; re-resolved via ownership path"
 }

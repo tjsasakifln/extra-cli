@@ -186,6 +186,30 @@ def test_aligned_official_domain_still_enrollable() -> None:
     assert r.domain_matches_company is True
 
 
+def test_short_generic_official_host_never_enrollable() -> None:
+    """wh.com / fts.com must not COMPANY_OWN even when official_domain is poisoned."""
+    for email, razao, domain in (
+        ("contato@wh.com", "WH CONSTRUTORA LTDA", "wh.com"),
+        ("support@fts.com", "F T S CONSTRUTORA LTDA", "fts.com"),
+    ):
+        c = _cand(
+            email=email,
+            source_type="site",
+            source_url=f"https://{domain}/",
+            site=f"https://{domain}/",
+        )
+        ctx = OwnershipContext(
+            cnpj14="18568718000144",
+            razao_social=razao,
+            official_domain=domain,
+        )
+        r = resolve_ownership(c, ctx=ctx)
+        apply_ownership_to_candidate(c, r)
+        assert c.enrollable is False, (email, r.ownership_status, r.score_parts)
+        assert r.ownership_status != OwnershipStatus.COMPANY_OWNED.value
+        assert r.domain_matches_company is not True
+
+
 # --- B: accounting office domain ---
 def test_case_b_accounting_domain_rejected() -> None:
     c = _cand(
