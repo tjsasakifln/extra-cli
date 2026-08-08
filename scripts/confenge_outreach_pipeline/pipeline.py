@@ -317,12 +317,10 @@ def run_pipeline(cfg: PipelineConfig) -> PipelineResult:
                 if candidate.is_file():
                     prior_path = str(candidate)
             prior = load_projections_jsonl(prior_path) if prior_path else {}
-            # Operational batch size for THIS round's expensive path only.
-            # --activation-capacity wins when set; else --limit-downstream.
-            # Neither shrinks universe_total / reservoir.
-            capacity = cfg.activation_capacity
-            if capacity is None:
-                capacity = cfg.limit_downstream
+            # Hot-set size: --activation-capacity override, else policy.planned_capacity().
+            # NEVER pass limit_downstream as capacity_override — that is smoke/batch-only
+            # and must not become the production commercial shortlist.
+            capacity = cfg.activation_capacity  # None → planner uses policy.planned_capacity()
             cycle = run_activation_cycle(
                 universe_rows,
                 policy=policy,
@@ -356,7 +354,11 @@ def run_pipeline(cfg: PipelineConfig) -> PipelineResult:
             # Safety: never silent-truncate reservoir; expensive path is hot set only
             sample_path = dirs["sample"] / "downstream-hot-set.jsonl"
             _write_jsonl(sample_path, sample_rows)
-            planned_cap = int(capacity) if capacity is not None else policy.capacity.planned_capacity()
+            planned_cap = (
+                int(capacity)
+                if capacity is not None
+                else policy.capacity.planned_capacity()
+            )
             stages["activation"] = {
                 **cycle.summary(),
                 "projections_path": str(dirs["activation"] / "activation-projections.jsonl"),
@@ -365,12 +367,12 @@ def run_pipeline(cfg: PipelineConfig) -> PipelineResult:
                 "capacity_source": (
                     "activation_capacity_override"
                     if cfg.activation_capacity is not None
-                    else "limit_downstream_batch"
+                    else "policy.planned_capacity"
                 ),
                 "note": (
                     "Hot set is capacity-aware activation planning, not arbitrary Top-N. "
                     "Full reservoir remains monitored; only hot set enters expensive stages. "
-                    "--limit-downstream bounds THIS round's expensive batch only."
+                    "--limit-downstream is smoke/batch-only and does NOT set commercial capacity."
                 ),
             }
             stages["sample"] = {
