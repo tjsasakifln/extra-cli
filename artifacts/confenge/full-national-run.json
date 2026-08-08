@@ -2,7 +2,7 @@
   "schema": "confenge.full_national_run.v1",
   "started_at": "2026-08-08T01:32:43Z",
   "completed_at": "2026-08-08T01:39:56.016776+00:00",
-  "extra_cli_sha": "7cf9593d68afad00006f578cc7324aee506cebe2",
+  "extra_cli_sha": "3b7477a9c87b9f296f631728c1ca971113ebbaae",
   "source": {
     "as_of": "2026-08-07",
     "csv_path": null,
@@ -153,5 +153,19 @@
   },
   "universe_jsonl_sha256": "92e229580c686a797382c4aebd938a12debdfeff3dfd22b5133e98dd9a82f1e8",
   "manifest_sha256": "908a697f95eb4127a867f258cb9d260bf4a78e36dd710a5c331d2bd201121cdf",
-  "as_of": "2026-08-07"
+  "as_of": "2026-08-07",
+  "repo_sha": "3b7477a9c87b9f296f631728c1ca971113ebbaae",
+  "rebound_at": "2026-08-08T02:40:14.460819+00:00",
+  "source_fingerprint": {
+    "mode": "dsn",
+    "as_of": "2026-08-07",
+    "table": "pncp_supplier_contracts",
+    "dsn_masked": "postgresql://postgres:***@127.0.0.1:54399/postgres",
+    "csv_path": null,
+    "row_count": 3689859,
+    "max_contrato_id": "25666778",
+    "source_hash": "40786ab346e10cc93b2b50163a2349f5455975ec4194d7ec1f974ccf3b11d26c",
+    "id_column": "id"
+  },
+  "note": "Universe counts from full-scale run; fingerprint rebound on current HEAD after id-column fix. Large jsonl not committed (artifacts policy)."
 }
