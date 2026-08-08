@@ -8,15 +8,15 @@
   "precision_filter_applied": false,
   "ownership_identity_gate_reapplied": true,
   "companies_processed": 1000,
-  "companies_with_enrollable_email": 170,
-  "emails_enrollable": 326,
-  "dropped_false_positive_email_rows": 90,
+  "companies_with_enrollable_email": 157,
+  "emails_enrollable": 314,
+  "dropped_false_positive_email_rows": 102,
   "operational_bar_100_companies": true,
   "human_validation": "HUMAN_REVIEW_PENDING",
   "machine_validation": "PASS",
   "human_review": {
     "schema": "confenge-human-review-status-v1",
-    "generated_at": "2026-08-08T20:26:37Z",
+    "generated_at": "2026-08-08T20:46:35Z",
     "machine_validation": "PASS",
     "human_validation": "HUMAN_REVIEW_PENDING",
     "counts": {
@@ -26,5 +26,5 @@
     },
     "note": "Human validation must not be auto-approved by the pipeline."
   },
-  "note": "Hard COMPANY_OWNED identity gate + phone residual-host gate; re-resolved via resolve_ownership"
+  "note": "Honest re-resolve: razao-first identity, fantasia-only blocked, freemail needs docs, scrape-host phone gate"
 }

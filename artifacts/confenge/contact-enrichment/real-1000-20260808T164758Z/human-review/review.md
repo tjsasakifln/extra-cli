@@ -1,6 +1,6 @@
 # CONFENGE contact enrichment — human review
 
-Generated: 2026-08-08T20:26:37Z
+Generated: 2026-08-08T20:46:35Z
 
 Status: **HUMAN_REVIEW_PENDING** (machine may be PASS; human must review)
 
@@ -246,21 +246,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** VERIFIED
 - **enrollable:** True
 
-### 18. SANEAMENTO DE GOIAS S/A (`01616929000102`)
-
-- **contato:** `+551135790891`
-- **ownership_status:** COMPANY_OWNED
-- **confidence:** 0.65
-- **reason:** phone_on_official_company_source_single_holder
-- **source_type:** site
-- **source_url:** https://saneago.com.br/
-- **domínio oficial:** saneago.com.br
-- **reuse signal (associated companies):** 1
-- **third-party signals:** —
-- **verification_status:** OBSERVED
-- **enrollable:** True
-
-### 19. SIMENG ENGENHARIA LTDA (`60025322000117`)
+### 18. SIMENG ENGENHARIA LTDA (`60025322000117`)
 
 - **contato:** `contato@simeng.com.br`
 - **ownership_status:** COMPANY_OWNED
@@ -274,7 +260,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **verification_status:** VERIFIED
 - **enrollable:** True
 
-### 20. MIDT ENGENHARIA LTDA (`40301626000152`)
+### 19. MIDT ENGENHARIA LTDA (`40301626000152`)
 
 - **contato:** `contato@midt.com.br`
 - **ownership_status:** COMPANY_OWNED
@@ -283,6 +269,20 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 - **source_type:** site
 - **source_url:** https://midt.com.br/
 - **domínio oficial:** midt.com.br
+- **reuse signal (associated companies):** 1
+- **third-party signals:** —
+- **verification_status:** VERIFIED
+- **enrollable:** True
+
+### 20. PAVIDEZ ENGENHARIA LTDA (`01744153000106`)
+
+- **contato:** `contato@pavidez.com.br`
+- **ownership_status:** COMPANY_OWNED
+- **confidence:** 1.0
+- **reason:** domain_match_company_owned
+- **source_type:** site
+- **source_url:** https://pavidez.com.br/
+- **domínio oficial:** pavidez.com.br
 - **reuse signal (associated companies):** 1
 - **third-party signals:** —
 - **verification_status:** VERIFIED
@@ -576,7 +576,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 
 - **contato:** `amf@amf.com.br`
 - **ownership_status:** UNRESOLVED
-- **confidence:** 0.1201
+- **confidence:** 0.0147
 - **reason:** weak_or_conflicting_ownership_signals
 - **source_type:** site
 - **source_url:** https://amf.com.br/
@@ -589,9 +589,9 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 ### 2. SUPERAGE ENGENHARIA S/A (`20558479000193`)
 
 - **contato:** `+553135418664`
-- **ownership_status:** LIKELY_COMPANY_OWNED
-- **confidence:** 0.5
-- **reason:** consistent_but_not_definitive_ownership_signals
+- **ownership_status:** UNRESOLVED
+- **confidence:** 0.1
+- **reason:** phone_source_host_not_company_aligned
 - **source_type:** registry
 - **source_url:** https://brasilapi.com.br/api/cnpj/v1/
 - **domínio oficial:** superage.com.br
@@ -603,9 +603,9 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 ### 3. TETT'S ENGENHARIA LTDA (`47815614000195`)
 
 - **contato:** `+556282596100`
-- **ownership_status:** LIKELY_COMPANY_OWNED
-- **confidence:** 0.5
-- **reason:** consistent_but_not_definitive_ownership_signals
+- **ownership_status:** UNRESOLVED
+- **confidence:** 0.1
+- **reason:** phone_source_host_not_company_aligned
 - **source_type:** registry
 - **source_url:** https://brasilapi.com.br/api/cnpj/v1/
 - **domínio oficial:** tett.com
@@ -618,7 +618,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 
 - **contato:** `+5511981786900`
 - **ownership_status:** UNRESOLVED
-- **confidence:** 0.2275
+- **confidence:** 0.1
 - **reason:** phone_source_host_not_company_aligned
 - **source_type:** site
 - **source_url:** https://transportadora.com.br/
@@ -632,7 +632,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 
 - **contato:** `+554999980884`
 - **ownership_status:** UNRESOLVED
-- **confidence:** 0.175
+- **confidence:** 0.1
 - **reason:** phone_source_host_not_company_aligned
 - **source_type:** registry
 - **source_url:** https://brasilapi.com.br/api/cnpj/v1/
@@ -645,9 +645,9 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 ### 6. CONSORCIO COQUEIROS ARACAJU (`65457635000168`)
 
 - **contato:** `+551121246140`
-- **ownership_status:** LIKELY_COMPANY_OWNED
-- **confidence:** 0.5
-- **reason:** consistent_but_not_definitive_ownership_signals
+- **ownership_status:** UNRESOLVED
+- **confidence:** 0.1
+- **reason:** phone_source_host_not_company_aligned
 - **source_type:** registry
 - **source_url:** https://brasilapi.com.br/api/cnpj/v1/
 - **domínio oficial:** consorcio.com.br
@@ -659,9 +659,9 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 ### 7. VILLARES CONSTRUTORA E METALURGICA LTDA (`05863476000170`)
 
 - **contato:** `+554436487027`
-- **ownership_status:** LIKELY_COMPANY_OWNED
-- **confidence:** 0.5
-- **reason:** consistent_but_not_definitive_ownership_signals
+- **ownership_status:** UNRESOLVED
+- **confidence:** 0.1
+- **reason:** phone_source_host_not_company_aligned
 - **source_type:** registry
 - **source_url:** https://brasilapi.com.br/api/cnpj/v1/
 - **domínio oficial:** villares.com
@@ -673,9 +673,9 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 ### 8. PELT PROJETOS E CONSTRUCOES LTDA (`15583839000177`)
 
 - **contato:** `+552166512112`
-- **ownership_status:** LIKELY_COMPANY_OWNED
-- **confidence:** 0.5
-- **reason:** consistent_but_not_definitive_ownership_signals
+- **ownership_status:** UNRESOLVED
+- **confidence:** 0.1
+- **reason:** phone_source_host_not_company_aligned
 - **source_type:** registry
 - **source_url:** https://brasilapi.com.br/api/cnpj/v1/
 - **domínio oficial:** pelt.com
@@ -688,7 +688,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 
 - **contato:** `+5541992768954`
 - **ownership_status:** UNRESOLVED
-- **confidence:** 0.2275
+- **confidence:** 0.1
 - **reason:** phone_source_host_not_company_aligned
 - **source_type:** site
 - **source_url:** https://six.com.br/
@@ -701,9 +701,9 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 ### 10. SIMEMP SERVICOS TECNICOS E OBRAS LTDA (`09237296000133`)
 
 - **contato:** `+556135464530`
-- **ownership_status:** LIKELY_COMPANY_OWNED
-- **confidence:** 0.5
-- **reason:** consistent_but_not_definitive_ownership_signals
+- **ownership_status:** UNRESOLVED
+- **confidence:** 0.1
+- **reason:** phone_source_host_not_company_aligned
 - **source_type:** registry
 - **source_url:** https://brasilapi.com.br/api/cnpj/v1/
 - **domínio oficial:** simemp.com.br
@@ -716,7 +716,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 
 - **contato:** `+551786097998`
 - **ownership_status:** UNRESOLVED
-- **confidence:** 0.2275
+- **confidence:** 0.1
 - **reason:** phone_source_host_not_company_aligned
 - **source_type:** site
 - **source_url:** https://mpx.com.br/
@@ -729,9 +729,9 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 ### 12. ARQUIUM - CONSTRUCOES E RESTAURO LTDA. (`06939632000100`)
 
 - **contato:** `+555132467701`
-- **ownership_status:** LIKELY_COMPANY_OWNED
-- **confidence:** 0.5
-- **reason:** consistent_but_not_definitive_ownership_signals
+- **ownership_status:** UNRESOLVED
+- **confidence:** 0.1
+- **reason:** phone_source_host_not_company_aligned
 - **source_type:** registry
 - **source_url:** https://brasilapi.com.br/api/cnpj/v1/
 - **domínio oficial:** arquium.com.br
@@ -744,7 +744,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 
 - **contato:** `+556298376353`
 - **ownership_status:** UNRESOLVED
-- **confidence:** 0.175
+- **confidence:** 0.1
 - **reason:** phone_source_host_not_company_aligned
 - **source_type:** registry
 - **source_url:** https://brasilapi.com.br/api/cnpj/v1/
@@ -757,9 +757,9 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 ### 14. COFRANZA CONSTRUTORA LTDA (`03396992000106`)
 
 - **contato:** `+552227252503`
-- **ownership_status:** LIKELY_COMPANY_OWNED
-- **confidence:** 0.5
-- **reason:** consistent_but_not_definitive_ownership_signals
+- **ownership_status:** UNRESOLVED
+- **confidence:** 0.1
+- **reason:** phone_source_host_not_company_aligned
 - **source_type:** registry
 - **source_url:** https://brasilapi.com.br/api/cnpj/v1/
 - **domínio oficial:** francisco.com
@@ -771,9 +771,9 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 ### 15. MANUTEC MONTAGEM E EMPREENDIMENTOS LTDA (`18546232000105`)
 
 - **contato:** `+552196912473`
-- **ownership_status:** LIKELY_COMPANY_OWNED
-- **confidence:** 0.5
-- **reason:** consistent_but_not_definitive_ownership_signals
+- **ownership_status:** UNRESOLVED
+- **confidence:** 0.1
+- **reason:** phone_source_host_not_company_aligned
 - **source_type:** registry
 - **source_url:** https://brasilapi.com.br/api/cnpj/v1/
 - **domínio oficial:** manutec.com
@@ -785,9 +785,9 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 ### 16. PROJECON - PROJETOS E CONSTRUCOES LTDA (`07765850000120`)
 
 - **contato:** `+558132248725`
-- **ownership_status:** LIKELY_COMPANY_OWNED
-- **confidence:** 0.5
-- **reason:** consistent_but_not_definitive_ownership_signals
+- **ownership_status:** UNRESOLVED
+- **confidence:** 0.1
+- **reason:** phone_source_host_not_company_aligned
 - **source_type:** registry
 - **source_url:** https://brasilapi.com.br/api/cnpj/v1/
 - **domínio oficial:** projecon.com.br
@@ -800,7 +800,7 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 
 - **contato:** `+556833221020`
 - **ownership_status:** UNRESOLVED
-- **confidence:** 0.175
+- **confidence:** 0.1
 - **reason:** phone_source_host_not_company_aligned
 - **source_type:** registry
 - **source_url:** https://brasilapi.com.br/api/cnpj/v1/
@@ -813,9 +813,9 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 ### 18. MULTICON ENGENHARIA LTDA (`00242092000116`)
 
 - **contato:** `+551132562333`
-- **ownership_status:** LIKELY_COMPANY_OWNED
-- **confidence:** 0.5
-- **reason:** consistent_but_not_definitive_ownership_signals
+- **ownership_status:** UNRESOLVED
+- **confidence:** 0.1
+- **reason:** phone_source_host_not_company_aligned
 - **source_type:** registry
 - **source_url:** https://brasilapi.com.br/api/cnpj/v1/
 - **domínio oficial:** multicon.com.br
@@ -841,9 +841,9 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 ### 20. CONSTRUTORA CONSTRUCERTO LTDA (`20323692000116`)
 
 - **contato:** `+551734632833`
-- **ownership_status:** LIKELY_COMPANY_OWNED
-- **confidence:** 0.5
-- **reason:** consistent_but_not_definitive_ownership_signals
+- **ownership_status:** UNRESOLVED
+- **confidence:** 0.1
+- **reason:** phone_source_host_not_company_aligned
 - **source_type:** registry
 - **source_url:** https://brasilapi.com.br/api/cnpj/v1/
 - **domínio oficial:** construcerto.com.br

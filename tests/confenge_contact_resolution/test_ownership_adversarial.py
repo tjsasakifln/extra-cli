@@ -211,24 +211,51 @@ def test_short_generic_official_host_never_enrollable() -> None:
 
 
 def test_phone_only_on_residual_foreign_site_never_enrollable() -> None:
-    """CONNECTOR-style FP: phone scraped from caiafafacilities must not enroll."""
+    """CONNECTOR-style FP: scrape host blocks phone even when official_domain is good.
+
+    Realistic: site/source_url=caiafafacilities.com.br, official_domain=connector.eng.br.
+    Must not prefer official over residual third-party scrape host.
+    """
+    for official in ("caiafafacilities.com.br", "connector.eng.br"):
+        c = _cand(
+            phone="61999185906",
+            source_type="site",
+            source_url="https://caiafafacilities.com.br/",
+            site="https://caiafafacilities.com.br/",
+            cnpj14="01114245000102",
+        )
+        ctx = OwnershipContext(
+            cnpj14="01114245000102",
+            razao_social="CONNECTOR ENGENHARIA LTDA",
+            official_domain=official,
+        )
+        r = resolve_ownership(c, ctx=ctx)
+        apply_ownership_to_candidate(c, r)
+        assert c.enrollable is False, (official, r.ownership_status, r.score_parts)
+        assert r.ownership_status != OwnershipStatus.COMPANY_OWNED.value
+        assert "phone_identity_gate_blocked" in r.score_parts or "phone_source_host" in (r.ownership_reason or "")
+        assert any("phone_scrape_host_unaligned" in p for p in r.score_parts)
+
+
+def test_fantasia_only_domain_match_not_enrollable() -> None:
+    """LED INTERNET + fantasia CACTUS must not enroll cactus@cactus.com.br."""
     c = _cand(
-        phone="61999185906",
+        email="cactus@cactus.com.br",
         source_type="site",
-        source_url="https://caiafafacilities.com.br/",
-        site="https://caiafafacilities.com.br/",
-        cnpj14="01114245000102",
+        source_url="https://cactus.com.br/",
+        site="https://cactus.com.br/",
     )
     ctx = OwnershipContext(
-        cnpj14="01114245000102",
-        razao_social="CONNECTOR ENGENHARIA LTDA",
-        official_domain="caiafafacilities.com.br",
+        cnpj14="11222333000181",
+        razao_social="LED INTERNET LTDA",
+        nome_fantasia="CACTUS INFORMATICA",
+        official_domain="cactus.com.br",
     )
     r = resolve_ownership(c, ctx=ctx)
     apply_ownership_to_candidate(c, r)
     assert c.enrollable is False
     assert r.ownership_status != OwnershipStatus.COMPANY_OWNED.value
-    assert "phone_identity_gate_blocked" in r.score_parts or "phone_source_host" in (r.ownership_reason or "")
+    assert r.domain_matches_company is not True
 
 
 def test_phone_only_on_aligned_company_site_may_enroll() -> None:

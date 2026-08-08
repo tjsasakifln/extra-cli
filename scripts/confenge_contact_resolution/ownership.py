@@ -302,8 +302,16 @@ def resolve_ownership(
     src_type = (candidate.source.source_type if candidate.source else "unknown") or "unknown"
     email = candidate.email
     domain = domain_of(email) if email else None
-    site_dom = domain_from_url(candidate.site) or ctx.official_domain
-    company_label = " ".join(x for x in (ctx.razao_social or "", ctx.nome_fantasia or "") if x).strip()
+    source_url = candidate.source.source_url if candidate.source else None
+    # Site host from page we scraped (not official_domain fallback — that masks residual FPs)
+    scrape_host = domain_from_url(candidate.site) or domain_from_url(source_url)
+    site_dom = scrape_host or ctx.official_domain
+    razao = (ctx.razao_social or "").strip()
+    fantasia = (ctx.nome_fantasia or "").strip()
+    company_label = " ".join(x for x in (razao, fantasia) if x).strip()
+    # Identity alignment uses razao_social first; fantasia-only matches (LED+CACTUS→cactus.com)
+    # are not enough for COMPANY_OWNED enrollable.
+    identity_label = razao or company_label
 
     # --- hard invalid / pattern guess ---
     if (
@@ -393,16 +401,25 @@ def resolve_ownership(
         official = (ctx.official_domain or "").removeprefix("www.").lower()
         site_norm = (site_dom or "").removeprefix("www.").lower() if site_dom else ""
 
-        # Domain match requires residual-safe brand alignment (blocks emkoelektronik etc.)
+        # Domain match requires residual-safe brand alignment vs razao_social (not fantasia alone).
         from scripts.confenge_contact_resolution.discovery.official_domain import (
             email_domain_aligned_with_company,
         )
 
         aligned = email_domain_aligned_with_company(
             domain,
-            company_label,
+            identity_label,
             official_domain=official or None,
         )
+        if not aligned and fantasia and razao:
+            # Fantasia-only residual match is never identity for enrollable COMPANY_OWNED
+            fantasia_only = email_domain_aligned_with_company(
+                domain,
+                fantasia,
+                official_domain=official or None,
+            )
+            if fantasia_only:
+                parts.append("fantasia_only_domain_match_not_identity=0")
         # Strong: official company domain — require real name alignment (no short/generic FPs)
         if official and domain == official and overlap >= 0.35 and not tp_type and aligned:
             domain_match = True
@@ -652,16 +669,15 @@ def resolve_ownership(
             associated_company_count=associated,
         )
 
-    # Freemail COMPANY_OWNED only with strong multi-proof
+    # Freemail COMPANY_OWNED only with company-authored document + official source.
+    # Multi-source page counts alone are inflated by crawl and never enroll freemail.
     if freemail:
-        strong_freemail = (found_doc and found_official) or (
-            (independent_sources_count or 0) >= 2 and found_official and score >= 55
-        )
-        if strong_freemail and score >= 55:
+        strong_freemail = bool(found_doc and found_official and score >= 55)
+        if strong_freemail:
             status = OwnershipStatus.COMPANY_OWNED.value
-            reason = "freemail_with_strong_multi_source_company_proof"
+            reason = "freemail_with_company_document_proof"
             vreason = "VERIFIED_FREEMAIL"
-        elif score >= 40:
+        elif score >= 40 or ((independent_sources_count or 0) >= 2 and found_official and score >= 30):
             status = OwnershipStatus.LIKELY_COMPANY_OWNED.value
             reason = "freemail_partial_proof_review_required"
             vreason = "REVIEW_REQUIRED"
@@ -695,7 +711,7 @@ def resolve_ownership(
 
             identity_ok = _eda(
                 domain,
-                company_label,
+                identity_label,
                 official_domain=(ctx.official_domain or None),
             )
         if identity_ok and score >= 55:
@@ -722,14 +738,22 @@ def resolve_ownership(
             if not identity_ok:
                 parts.append("identity_gate_blocked_company_owned")
     else:
-        # Phone-only path (no email): site host must be residual-safe company domain.
-        # Blocks caiafafacilities.com.br phones attributed to CONNECTOR ENGENHARIA.
+        # Phone-only: scrape host (site/source_url) must be residual-safe vs razao.
+        # Preferring official_domain over residual site allowed caiafafacilities phones
+        # when official_domain=connector.eng.br — site host is authoritative.
         from scripts.confenge_contact_resolution.discovery.official_domain import (
             is_credible_company_domain as _icd,
         )
 
-        host_for_phone = (ctx.official_domain or site_dom or "").removeprefix("www.").lower()
-        phone_host_ok = bool(host_for_phone) and _icd(host_for_phone, company_label)
+        phone_scrape = (scrape_host or "").removeprefix("www.").lower() if scrape_host else ""
+        if phone_scrape:
+            phone_host_ok = _icd(phone_scrape, identity_label)
+            if not phone_host_ok:
+                parts.append(f"phone_scrape_host_unaligned={phone_scrape}")
+        else:
+            # No page host (registry-only): never COMPANY_OWNED from registry alone
+            phone_host_ok = False
+            parts.append("phone_no_scrape_host")
         if not phone_host_ok and (strong_page or found_official):
             if strong_page:
                 score -= 15
@@ -757,7 +781,7 @@ def resolve_ownership(
             reason = "insufficient_ownership_evidence"
             vreason = "UNRESOLVED"
 
-        # Phone-only company-owned: residual-safe site/doc single holder (not registry alone)
+        # Phone-only company-owned: residual-safe scrape host + site/doc (not registry alone)
         if (
             candidate.phone_e164
             and phone_host_ok
