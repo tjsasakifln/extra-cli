@@ -150,7 +150,43 @@
             }
           }
         },
-        "commercial_state": { "type": "string" }
+        "commercial_state": { "type": "string" },
+        "activation": {
+          "type": "object",
+          "description": "Optional commercial activation planner projection (additive, backward-compatible). Ordering score only — never purchase probability.",
+          "properties": {
+            "state": {
+              "type": "string",
+              "enum": ["WATCH", "RESEARCH_REQUIRED", "ACTIONABLE_NOW", "SUPPRESSED"]
+            },
+            "score": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100,
+              "description": "Deterministic ordering score 0–100. Not conversion probability."
+            },
+            "reason_codes": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "policy_version": { "type": "string" },
+            "evaluated_at": { "type": "string" },
+            "next_best_action_at": { "type": ["string", "null"] },
+            "expires_at": { "type": ["string", "null"] },
+            "source_hash": { "type": "string" },
+            "score_components": {
+              "type": "object",
+              "properties": {
+                "trigger_strength": { "type": "number" },
+                "freshness": { "type": "number" },
+                "evidence_quality": { "type": "number" },
+                "commercial_relevance": { "type": "number" }
+              },
+              "additionalProperties": true
+            }
+          },
+          "additionalProperties": true
+        }
       }
     }
   }

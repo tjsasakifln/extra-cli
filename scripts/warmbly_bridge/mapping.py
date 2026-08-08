@@ -250,7 +250,7 @@ def map_lead(
     except (TypeError, ValueError):
         score_f = 0.0
 
-    return {
+    lead: dict[str, Any] = {
         "source_lead_id": source_lead_id,
         "company": {
             "cnpj14": cnpj,
@@ -277,6 +277,50 @@ def map_lead(
         "evidence": evidence_items,
         "commercial_state": commercial_state,
     }
+    # Optional additive activation block (backward-compatible; absent in legacy feeds)
+    act = universe_row.get("activation") or intel.get("activation")
+    if isinstance(act, dict) and act.get("state"):
+        lead["activation"] = _map_activation(act)
+    return lead
+
+
+def _map_activation(act: dict[str, Any]) -> dict[str, Any]:
+    """Map activation planner projection into confenge.outreach.v1 lead.activation."""
+    score_raw = act.get("score", act.get("activation_score", 0))
+    try:
+        score_f = float(score_raw)
+    except (TypeError, ValueError):
+        score_f = 0.0
+    score_f = max(0.0, min(100.0, score_f))
+    reasons = act.get("reason_codes") or act.get("reasons") or []
+    if not isinstance(reasons, list):
+        reasons = []
+    components = act.get("score_components") or {}
+    if not isinstance(components, dict):
+        components = {}
+    state = _as_str(act.get("state") or act.get("activation_state")).upper()
+    out: dict[str, Any] = {
+        "state": state,
+        "score": round(score_f, 4),
+        "reason_codes": [str(r) for r in reasons],
+        "policy_version": _as_str(act.get("policy_version") or "confenge-activation-v1"),
+        "evaluated_at": _as_str(act.get("evaluated_at")),
+        "next_best_action_at": _as_str(act.get("next_best_action_at")) or None,
+        "expires_at": _as_str(act.get("expires_at")) or None,
+        "source_hash": _as_str(act.get("source_hash")),
+        "score_components": {
+            "trigger_strength": float(components.get("trigger_strength") or 0),
+            "freshness": float(components.get("freshness") or 0),
+            "evidence_quality": float(components.get("evidence_quality") or 0),
+            "commercial_relevance": float(components.get("commercial_relevance") or 0),
+        },
+    }
+    # Drop null optional timestamps for cleaner JSON (validators accept either)
+    if not out["next_best_action_at"]:
+        out["next_best_action_at"] = None
+    if not out["expires_at"]:
+        out["expires_at"] = None
+    return out
 
 
 def build_leads(

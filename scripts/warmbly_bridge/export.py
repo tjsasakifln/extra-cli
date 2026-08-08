@@ -74,6 +74,8 @@ class ExportConfig:
     system: str = DEFAULT_SYSTEM
     generated_at: str | None = None  # inject for deterministic tests
     repo_sha: str | None = None
+    # Delta deactivations for accounts leaving ACTIONABLE_NOW (manifest section)
+    deactivations: list[dict[str, Any]] | None = None
 
 
 def validate_inputs(cfg: ExportConfig) -> None:
@@ -275,6 +277,7 @@ def export_outreach(cfg: ExportConfig) -> dict[str, Any]:
             # Only remove if manifest will supersede; keep if same snapshot resume partial
             stale.unlink(missing_ok=True)
 
+    deacts = list(cfg.deactivations or [])
     manifest = {
         "schema_version": "confenge.outreach.manifest.v1",
         "module_version": MODULE_VERSION,
@@ -291,6 +294,9 @@ def export_outreach(cfg: ExportConfig) -> dict[str, Any]:
         "max_bytes_per_chunk": cfg.max_bytes_per_chunk,
         "limit": cfg.limit,
         "chunks": chunk_meta,
+        # Approach B: explicit deactivation delta (idempotent; Warmbly applies without DB coupling)
+        "deactivations": deacts,
+        "deactivation_count": len(deacts),
         "hashes": {
             "snapshot": snapshot_hash,
             "manifest_inputs": content_hash_obj(
@@ -298,6 +304,7 @@ def export_outreach(cfg: ExportConfig) -> dict[str, Any]:
                     "snapshot": snapshot_hash,
                     "run_id": run_id,
                     "chunks": [m["content_hash"] for m in chunk_meta],
+                    "deactivations": deacts,
                 }
             ),
         },

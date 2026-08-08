@@ -22,30 +22,32 @@ def build_parser() -> argparse.ArgumentParser:
         prog="python -m scripts.confenge_outreach_pipeline",
         description=(
             "Canonical CONFENGE outreach pipeline: "
-            "universe → diverse sample → account intelligence → "
-            "contact resolution → confenge.outreach.v1 feed."
+            "universe → activation planner (hot set) → account intelligence → "
+            "contact resolution → confenge.outreach.v1 feed. "
+            "Smoke mode can force diverse sample via --force-sample-mode."
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples
 --------
-# Full national universe + 200-account downstream (requires datalake DSN):
+# Production: full reservoir + activation-driven hot set:
 python -m scripts.confenge_outreach_pipeline run \\
   --dsn "$LOCAL_DATALAKE_DSN" \\
   --out output/confenge_outreach \\
   --as-of 2026-08-07 \\
-  --limit-downstream 200
+  --use-activation-planner
 
-# Offline fixture path (tests / smoke):
+# Smoke / diagnostic diverse sample (NOT commercial strategy):
 python -m scripts.confenge_outreach_pipeline run \\
   --csv tests/fixtures/confenge_universe/contracts_sample.csv \\
   --out /tmp/confenge_outreach_smoke \\
   --as-of 2026-08-01 \\
+  --force-sample-mode \\
   --limit-downstream 20 \\
   --skip-contacts
 
-IMPORTANT: --limit-downstream does NOT limit universe discovery. It only
-bounds expensive stages (intelligence, contacts, feed).
+IMPORTANT: In production the activation planner selects the hot set from
+capacity planning. --limit-downstream is not a commercial shortlist strategy.
 """.strip(),
     )
     p.add_argument("--version", action="version", version=f"{PIPELINE_ID} {MODULE_VERSION}")
@@ -127,6 +129,33 @@ bounds expensive stages (intelligence, contacts, feed).
         action="store_true",
         help="Exclude DNC accounts from the diverse downstream sample",
     )
+    run.add_argument(
+        "--use-activation-planner",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Use activation planner for hot set (default: on). Disable with --no-use-activation-planner.",
+    )
+    run.add_argument(
+        "--force-sample-mode",
+        action="store_true",
+        help="SMOKE only: use diverse sample instead of activation hot set",
+    )
+    run.add_argument(
+        "--activation-policy",
+        default=None,
+        help="Path to confenge_activation_policy.yaml",
+    )
+    run.add_argument(
+        "--activation-capacity",
+        type=int,
+        default=None,
+        help="Override hot-set capacity (default: policy capacity planning)",
+    )
+    run.add_argument(
+        "--prior-activation",
+        default=None,
+        help="Prior activation-projections.jsonl for incremental deltas",
+    )
     return p
 
 
@@ -165,6 +194,11 @@ def cmd_run(args: argparse.Namespace) -> int:
         contact_fixtures_dir=args.contact_fixtures_dir,
         include_dnc_in_sample=not args.no_dnc_in_sample,
         feed_limit=args.feed_limit,
+        use_activation_planner=bool(args.use_activation_planner),
+        activation_policy_path=args.activation_policy,
+        activation_capacity=args.activation_capacity,
+        prior_activation_path=args.prior_activation,
+        force_sample_mode=bool(args.force_sample_mode),
     )
     result = run_pipeline(cfg)
     payload = {
@@ -174,7 +208,16 @@ def cmd_run(args: argparse.Namespace) -> int:
         "errors": result.errors,
         "stages_summary": {
             "universe_rows": result.stages.get("universe_row_count"),
+            "reservoir_count": result.stages.get("reservoir_count"),
             "sample_count": (result.stages.get("sample") or {}).get("count"),
+            "sample_mode": (result.stages.get("sample") or {}).get("mode"),
+            "activation_counts": result.stages.get("activation_counts"),
+            "hot_set_count": result.stages.get("hot_set_count"),
+            "expensive_enrichment_count": result.stages.get("expensive_enrichment_count"),
+            "feed_count": result.stages.get("feed_count"),
+            "policy_version": result.stages.get("policy_version"),
+            "source_watermark": result.stages.get("source_watermark"),
+            "use_activation_planner": result.stages.get("use_activation_planner"),
             "intel_count": (result.stages.get("account_intelligence") or {}).get("count"),
             "service_distribution": (result.stages.get("account_intelligence") or {}).get(
                 "service_distribution"
@@ -191,6 +234,7 @@ def cmd_run(args: argparse.Namespace) -> int:
             "full_scale_universe": result.stages.get("full_scale_universe"),
             "as_of": result.stages.get("as_of"),
             "repo_sha": result.stages.get("repo_sha"),
+            "manifest_summary": result.stages.get("manifest_summary"),
         },
     }
     sys.stdout.write(json.dumps(payload, indent=2, ensure_ascii=False, default=str) + "\n")

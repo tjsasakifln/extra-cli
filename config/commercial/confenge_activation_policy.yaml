@@ -1,0 +1,213 @@
+# confenge-activation-v1 — commercial activation planner policy
+# Ordering score only: never purchase probability / conversion likelihood.
+# Observational language only: temporal windows justify verification, not legal claims.
+
+policy_version: confenge-activation-v1
+
+# Capacity-aware hot set (production). Safety caps only; not Top-N commercial strategy.
+capacity:
+  sends_per_hour: 10
+  send_window_hours: 9          # e.g. 09:00–18:00
+  planning_horizon_days: 7
+  research_buffer: 1.5          # research + no-contact headroom
+  max_hot_set: 500              # hard safety cap
+  min_hot_set: 20               # avoid idle ops when capacity exists
+
+# Re-evaluation defaults when no stronger trigger applies
+reevaluation:
+  watch_days: 14
+  research_required_days: 3
+  actionable_ttl_days: 14
+  suppressed_no_next_action: true
+
+# Score weights (must sum to 100). Ordering only.
+score_weights:
+  trigger_strength: 40
+  freshness: 25
+  evidence_quality: 20
+  commercial_relevance: 15
+
+# Materiality: contract value is log-damped and capped so mega-contracts cannot monopolize.
+materiality:
+  value_log_cap: 12.0           # max points from log10(1 + value/1e5)
+  value_weight_in_relevance: 0.35
+  portfolio_breadth_weight: 0.40
+  construction_fit_weight: 0.25
+
+# Dominant commercial states → SUPPRESSED (human-dominant; never overridden by triggers)
+suppressed_states:
+  - DO_NOT_CONTACT
+  - DNC
+  - WON
+  - LOST
+  - BLOCKED
+
+# States that block cold re-outreach (still monitored; not ACTIONABLE_NOW cold)
+active_commercial_block:
+  - REPLIED
+  - MEETING
+  - PROPOSAL
+  - SENT
+  - ENROLLED
+
+triggers:
+  NEW_RELEVANT_CONTRACT:
+    enabled: true
+    strength: 34
+    # last_contract_date within N days of as_of
+    recency_days: 45
+    requires_relevant_construction: true
+    language: >
+      Contrato relevante recente observado no portfólio público.
+      Não afirma direito econômico nem obrigação de reajuste.
+    expires_days: 30
+    promotes_to: ACTIONABLE_NOW
+    next_best_action: now
+
+  MATERIAL_PORTFOLIO_CHANGE:
+    enabled: true
+    strength: 28
+    # active_contract_count or contract_count_recent delta vs prior projection
+    min_active_delta: 2
+    min_recent_delta: 3
+    language: >
+      Mudança material no portfólio de contratos observados desde a última avaliação.
+    expires_days: 21
+    promotes_to: ACTIONABLE_NOW
+    next_best_action: now
+
+  CONTRACT_ANNIVERSARY_WINDOW:
+    enabled: true
+    strength: 22
+    # Days from first_contract_date or last_contract_date anniversary (±window)
+    anniversary_window_days: 30
+    # Minimum age of contract relationship before anniversary is meaningful
+    min_contract_age_days: 300
+    language: >
+      Contrato/portfólio atingiu janela temporal que justifica verificar
+      formalização de reajuste ou atualização. Não afirma que reajuste é devido.
+    expires_days: 45
+    promotes_to: RESEARCH_REQUIRED
+    next_best_action: now
+
+  NEW_AMENDMENT_OR_TERM:
+    enabled: true
+    strength: 36
+    # Only when portfolio recent_contracts or signals explicitly mention aditivo/termo
+    object_keywords:
+      - aditivo
+      - termo aditivo
+      - apostilamento
+      - termo de apostila
+    language: >
+      Documento ou objeto contratual compatível com aditivo/termo observado.
+      Não afirma validade jurídica nem valor do aditivo.
+    expires_days: 30
+    promotes_to: ACTIONABLE_NOW
+    next_best_action: now
+
+  CONTRACT_ENDING_WINDOW:
+    enabled: true
+    strength: 30
+    # data_fim within [0, ending_within_days]
+    ending_within_days: 90
+    language: >
+      Vigência observada se aproxima do fim (data_fim pública). Justifica
+      verificação de prorrogação ou nova contratação. Não afirma renovação automática.
+    expires_days: 60
+    promotes_to: ACTIONABLE_NOW
+    next_best_action: now
+
+  CONTRACT_EXTENSION_OR_PROROGATION:
+    enabled: true
+    strength: 32
+    object_keywords:
+      - prorrog
+      - renovação
+      - renovacao
+      - extensão de prazo
+      - extensao de prazo
+    language: >
+      Sinal textual de prorrogação/renovação em objeto público. Observacional.
+    expires_days: 30
+    promotes_to: ACTIONABLE_NOW
+    next_best_action: now
+
+  NEW_RELEVANT_PROCESS_DOCUMENT:
+    enabled: true
+    strength: 24
+    # Requires external document watermark signal when available; otherwise OFF path
+    language: >
+      Documento de processo relevante novo observado. Justifica pesquisa, não envio automático.
+    expires_days: 21
+    promotes_to: RESEARCH_REQUIRED
+    next_best_action: now
+
+  NEW_RELEVANT_PROCUREMENT:
+    enabled: true
+    strength: 26
+    object_keywords:
+      - pregão
+      - pregao
+      - concorrência
+      - concorrencia
+      - dispensa
+      - inexigibilidade
+      - RDC
+    language: >
+      Sinal de contratação/licitação relevante no objeto. Observacional.
+    expires_days: 21
+    promotes_to: RESEARCH_REQUIRED
+    next_best_action: now
+
+  MATERIAL_CONTRACT_CHANGE:
+    enabled: true
+    strength: 30
+    # Triggered when source_hash of portfolio changes materially vs prior
+    language: >
+      Alteração material em contrato(s) observados (hash de portfólio divergente).
+    expires_days: 21
+    promotes_to: ACTIONABLE_NOW
+    next_best_action: now
+
+  RESEARCH_GAP_WORTH_RESOLVING:
+    enabled: true
+    strength: 18
+    # High construction fit + recent activity but thin messaging/intel
+    min_priority_score: 50
+    max_days_since_last_contract: 120
+    language: >
+      Lacuna de pesquisa comercialmente justificável: atividade recente com fit
+      de construção, sem dossiê suficiente para outreach factual.
+    expires_days: 14
+    promotes_to: RESEARCH_REQUIRED
+    next_best_action: now
+
+# Freshness decay: days since strongest trigger event → freshness component (0–100 scale before weight)
+freshness_bands:
+  - max_days: 7
+    score: 100
+  - max_days: 21
+    score: 80
+  - max_days: 45
+    score: 55
+  - max_days: 90
+    score: 30
+  - max_days: 99999
+    score: 10
+
+# Evidence quality from epistemic signals available on universe rows
+evidence_quality:
+  confirmed_engineering: 90
+  strong_engineering_fit: 70
+  possible_engineering_fit: 45
+  default: 25
+  with_recent_contracts_sample: 15  # additive bonus capped later
+
+# Minimum activation_score to enter hot set when ACTIONABLE_NOW / RESEARCH_REQUIRED
+hot_set_min_score: 25
+
+# Production mode must not use arbitrary sample as commercial shortlist
+production:
+  require_activation_planner: true
+  forbid_limit_downstream_as_strategy: true
