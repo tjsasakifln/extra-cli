@@ -82,8 +82,16 @@ class ActivationProjection:
     commercial_state: str = "NEW"
     notes: list[str] = field(default_factory=list)
     # Durable funnel / cursor fields (expensive path progress)
+    company_key: str = ""
+    cnpj_raiz: str = ""
     downstream_status: str = "PENDING"
+    account_intelligence_status: str = "PENDING"
+    contact_resolution_status: str = "PENDING"
+    feed_export_status: str = "PENDING"
+    warmbly_import_status: str = "PENDING"
+    outreach_state: str = "NEW"
     last_downstream_at: str | None = None
+    last_processed_at: str | None = None
     next_eligible_at: str | None = None
     processing_attempts: int = 0
     last_error: str | None = None
@@ -94,6 +102,8 @@ class ActivationProjection:
     def as_dict(self) -> dict[str, Any]:
         return {
             "cnpj14": self.cnpj14,
+            "company_key": self.company_key or self.cnpj14,
+            "cnpj_raiz": self.cnpj_raiz or (self.cnpj14[:8] if len(self.cnpj14) >= 8 else ""),
             "activation_state": self.activation_state,
             "activation_score": round(float(self.activation_score), 4),
             "reason_codes": list(self.reason_codes),
@@ -107,9 +117,15 @@ class ActivationProjection:
             "fired_triggers": list(self.fired_triggers),
             "last_hot_set_at": self.last_hot_set_at,
             "commercial_state": self.commercial_state,
+            "outreach_state": self.outreach_state,
             "notes": list(self.notes),
             "downstream_status": self.downstream_status,
+            "account_intelligence_status": self.account_intelligence_status,
+            "contact_resolution_status": self.contact_resolution_status,
+            "feed_export_status": self.feed_export_status,
+            "warmbly_import_status": self.warmbly_import_status,
             "last_downstream_at": self.last_downstream_at,
+            "last_processed_at": self.last_processed_at,
             "next_eligible_at": self.next_eligible_at,
             "processing_attempts": int(self.processing_attempts),
             "last_error": self.last_error,

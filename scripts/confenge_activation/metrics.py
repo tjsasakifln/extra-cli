@@ -78,21 +78,86 @@ def build_universe_summary(
     elig = Counter(
         str(r.get("outreach_eligibility") or "UNKNOWN") for r in universe_rows
     )
+    entrada = int(counts.get("input_supplier_roots") or 0)
+    processados = int(counts.get("eligibles") or counts.get("eligible_for_outreach") or 0)
+    excluidos = int(counts.get("exclusions") or 0)
     recon = counts.get("reconciliation") or {}
-    if not recon and "input_supplier_roots" in counts:
+    if not recon or "unaccounted_records" not in (recon or {}):
         recon = reconcile(
-            entrada=int(counts.get("input_supplier_roots") or 0),
-            processados=int(counts.get("eligibles") or counts.get("eligible_for_outreach") or 0),
-            excluidos=int(counts.get("exclusions") or 0),
+            entrada=entrada,
+            processados=processados,
+            excluidos=excluidos,
             label="supplier_roots",
         )
+    else:
+        # Ensure unaccounted is always present for acceptance gates
+        recon = dict(recon)
+        recon.setdefault(
+            "unaccounted_records",
+            int(recon.get("input_supplier_roots") or entrada)
+            - int(recon.get("eligibles") or processados)
+            - int(recon.get("exclusions") or excluidos),
+        )
+        recon["ok"] = int(recon["unaccounted_records"]) == 0
+
+    excl_bd = {k: int(v) for k, v in (counts.get("exclusion_breakdown") or {}).items()}
+    excl_sum = sum(excl_bd.values()) if excl_bd else 0
+    # Normalize published breakdown so it always sums to exclusions total.
+    # Stale manifests mixed identity extras into exclusion_breakdown (+N); subtract
+    # from the dominant reason rather than inventing a negative residual key.
+    if excl_bd and excl_sum != excluidos:
+        delta = excl_sum - excluidos  # positive when breakdown overcounted
+        if delta > 0:
+            # Reduce largest bucket first
+            for key, _ in sorted(excl_bd.items(), key=lambda kv: -kv[1]):
+                take = min(delta, excl_bd[key])
+                excl_bd[key] -= take
+                delta -= take
+                if excl_bd[key] == 0:
+                    excl_bd.pop(key, None)
+                if delta == 0:
+                    break
+        elif delta < 0:
+            # undercount: attach to OTHER_EXCLUSION
+            excl_bd["OTHER_EXCLUSION"] = excl_bd.get("OTHER_EXCLUSION", 0) + (-delta)
+        if sum(excl_bd.values()) != excluidos:
+            excl_bd = {"EXCLUSION_TOTAL": excluidos}
+    elif not excl_bd and excluidos:
+        excl_bd = {"EXCLUSION_TOTAL": excluidos}
+
+    # Prefer live revalidated fingerprint when source still has stale fingerprint_error
+    snap = dict(source or {})
+    if snap.get("source_fingerprint_revalidated"):
+        rev = snap["source_fingerprint_revalidated"]
+        if isinstance(rev, dict) and not rev.get("fingerprint_error"):
+            snap = {**snap, **{k: rev[k] for k in rev if k in (
+                "mode", "row_count", "max_contrato_id", "id_column",
+                "source_hash", "fingerprint_error", "table", "dsn_masked",
+            )}}
+            snap["fingerprint_revalidated"] = True
+    # Explicit: never publish a dual conflicting fingerprint without flag
+    if snap.get("fingerprint_error") and snap.get("source_hash") is None:
+        snap["fingerprint_status"] = "STALE_OR_FAILED"
+    elif not snap.get("fingerprint_error") and snap.get("source_hash"):
+        snap["fingerprint_status"] = "OK"
+    else:
+        snap["fingerprint_status"] = snap.get("fingerprint_status") or "UNKNOWN"
+
+    unaccounted = int(recon.get("unaccounted_records") or 0)
+    excl_sum_final = sum(int(v) for v in excl_bd.values()) if excl_bd else 0
+    if excl_sum_final != excluidos:
+        unaccounted = max(unaccounted, abs(excl_sum_final - excluidos))
+        recon = dict(recon)
+        recon["exclusion_breakdown_sum"] = excl_sum_final
+        recon["exclusions"] = excluidos
+        recon["ok"] = unaccounted == 0 and excl_sum_final == excluidos
 
     return {
         "schema": "confenge.universe_summary.v1",
         "generated_at": _utcnow(),
         "started_at": started_at,
         "finished_at": finished_at,
-        "snapshot_source": source,
+        "snapshot_source": snap,
         "contracts_scanned": counts.get("input_contract_rows"),
         "contracts_eligible_identity": (
             int(counts.get("input_contract_rows") or 0)
@@ -104,7 +169,8 @@ def build_universe_summary(
         or counts.get("eligible_for_outreach"),
         "companies_after_dedupe": len(universe_rows),
         "eligibility_breakdown": dict(elig),
-        "exclusion_breakdown": counts.get("exclusion_breakdown") or {},
+        "exclusion_breakdown": excl_bd,
+        "exclusion_breakdown_sum": sum(int(v) for v in excl_bd.values()) if excl_bd else 0,
         "identity_exclusion_breakdown": counts.get("identity_exclusion_breakdown") or {},
         "companies_by_uf": companies_by_uf,
         "contracts_by_uf_approx": dict(
@@ -116,13 +182,7 @@ def build_universe_summary(
         "silent_limits": 0 if counts.get("max_rows") is None and counts.get("full_scale") else (
             1 if counts.get("max_rows") is not None else 0
         ),
-        "unaccounted_records": int((recon or {}).get("unaccounted_records") or 0)
-        if isinstance(recon, dict) and "unaccounted_records" in (recon or {})
-        else (
-            0
-            if isinstance(recon, dict) and recon.get("ok")
-            else -1
-        ),
+        "unaccounted_records": unaccounted,
     }
 
 

@@ -233,6 +233,14 @@ def evaluate_row(
         value_total=value_total,
     )
 
+    cnpj_raiz = str(row.get("cnpj_root") or row.get("cnpj_raiz") or cnpj[:8])
+    company_key = str(row.get("company_key") or prior.get("company_key") or cnpj)
+    outreach = str(
+        prior.get("outreach_state")
+        or row.get("outreach_state")
+        or commercial
+        or "NEW"
+    ).upper()
     proj = ActivationProjection(
         cnpj14=cnpj,
         activation_state=state,
@@ -249,8 +257,20 @@ def evaluate_row(
         last_hot_set_at=prior.get("last_hot_set_at"),
         commercial_state=commercial,
         notes=[],
+        company_key=company_key,
+        cnpj_raiz=cnpj_raiz,
         downstream_status=ds,
+        account_intelligence_status=str(
+            prior.get("account_intelligence_status") or "PENDING"
+        ).upper(),
+        contact_resolution_status=str(
+            prior.get("contact_resolution_status") or "PENDING"
+        ).upper(),
+        feed_export_status=str(prior.get("feed_export_status") or "PENDING").upper(),
+        warmbly_import_status=str(prior.get("warmbly_import_status") or "PENDING").upper(),
+        outreach_state=outreach,
         last_downstream_at=prior.get("last_downstream_at"),
+        last_processed_at=prior.get("last_processed_at") or prior.get("last_downstream_at"),
         next_eligible_at=str(next_elig) if next_elig else None,
         processing_attempts=int(prior.get("processing_attempts") or 0),
         last_error=prior.get("last_error"),

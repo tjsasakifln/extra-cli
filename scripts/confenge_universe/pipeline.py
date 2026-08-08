@@ -484,14 +484,14 @@ def run_universe_build(
             exclusions.append(meta)
             excl_breakdown[str(meta.get("outreach_eligibility") or "UNKNOWN")] += 1
 
-    # Identity failures that never formed buckets: count as exclusion units
-    # Use unique samples as approximate exclusion entities for reconciliation.
-    # For strict root recon we count: len(buckets) + identity_exclusion_entities.
+    # Identity failures that never formed buckets: tracked separately so
+    # exclusion_breakdown for supplier-root recon only counts bucket exclusions
+    # (must sum exactly to exclusions = input_supplier_roots - eligibles).
     identity_excl = _identity_root_exclusions(agg)
+    identity_extra: list[dict] = []
     for key, meta in identity_excl.items():
         if key not in input_entity_keys:
-            exclusions.append(meta)
-            excl_breakdown[str(meta.get("outreach_eligibility") or "INVALID_IDENTITY")] += 1
+            identity_extra.append(meta)
 
     # Reconciliation on operational entity keys with valid identity:
     # every finalized bucket is either eligible (in universe) or justified exclusion.
@@ -503,6 +503,11 @@ def run_universe_build(
     ]
     n_excl_from_buckets = len(bucket_excl)
     recon_ok = n_input_entities == n_eligibles + n_excl_from_buckets
+    bucket_excl_breakdown = Counter(
+        str(e.get("outreach_eligibility") or "UNKNOWN") for e in bucket_excl
+    )
+    if sum(bucket_excl_breakdown.values()) != n_excl_from_buckets:
+        recon_ok = False
 
     jsonl_meta = write_jsonl_stream(records, jsonl_path)
     counts = {
@@ -512,11 +517,12 @@ def run_universe_build(
         "exclusions": n_excl_from_buckets,
         "identity_row_exclusions": agg.stats["identity_exclusions"],
         "identity_exclusion_breakdown": dict(agg.stats["identity_exclusion_breakdown"]),
+        "identity_extra_entities": len(identity_extra),
         "eligibility_breakdown": dict(elig_breakdown),
-        "exclusion_breakdown": dict(excl_breakdown),
+        "exclusion_breakdown": dict(bucket_excl_breakdown),
         "dnc_in_universe": elig_breakdown.get(DNC, 0),
         "eligible_for_outreach": elig_breakdown.get(ELIGIBLE, 0),
-        "not_construction": excl_breakdown.get(NOT_CONSTRUCTION, 0),
+        "not_construction": int(bucket_excl_breakdown.get(NOT_CONSTRUCTION, 0)),
         "peak_batch_size": peak_batch,
         "batch_size_config": batch_size,
         "max_rows": max_rows,
