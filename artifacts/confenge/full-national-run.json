@@ -1,23 +1,23 @@
 {
   "schema": "confenge.full_national_run.v1",
-  "started_at": "2026-08-08T01:32:43Z",
-  "completed_at": "2026-08-08T01:39:56.016776+00:00",
-  "extra_cli_sha": "3b7477a9c87b9f296f631728c1ca971113ebbaae",
+  "generated_at": "2026-08-08T03:08:58.851022+00:00",
+  "extra_cli_sha": "6b795b6a5584858155d87bd28c8c5d38b740199d",
+  "repo_sha": "6b795b6a5584858155d87bd28c8c5d38b740199d",
+  "universe_execution_sha": "7cf9593d68afad00006f578cc7324aee506cebe2",
+  "universe_execution_note": "Full-scale universe rows/counts from datalake run at universe_execution_sha; source fingerprint recomputed on current HEAD after id-column fix (fingerprint_error=null). Re-running full 3.6M-row universe is BLOCKED_EXTERNAL for wall-clock; counts/reconciliation remain those measured at execution_sha.",
+  "as_of": "2026-08-07",
+  "full_scale": true,
   "source": {
-    "as_of": "2026-08-07",
-    "csv_path": null,
-    "dnc_sources": [
-      "commercial_state_attempted_empty_or_unavailable"
-    ],
-    "dsn_masked": "postgresql://postgres:***@127.0.0.1:54399/postgres",
-    "fingerprint_error": "column \"contrato_id\" does not exist\nLINE 1: SELECT MAX(contrato_id)::text AS m FROM public.pncp_supplier...\n                   ^\n",
-    "max_contrato_id": null,
     "mode": "dsn",
-    "registry_rows_loaded": 0,
-    "registry_source": "unavailable_or_empty",
+    "as_of": "2026-08-07",
+    "table": "pncp_supplier_contracts",
+    "dsn_masked": "postgresql://postgres:***@127.0.0.1:54399/postgres",
+    "csv_path": null,
     "row_count": 3689859,
-    "source_hash": null,
-    "table": "pncp_supplier_contracts"
+    "max_contrato_id": "25666778",
+    "source_hash": "40786ab346e10cc93b2b50163a2349f5455975ec4194d7ec1f974ccf3b11d26c",
+    "id_column": "id",
+    "fingerprint_error": null
   },
   "counts": {
     "batch_size_config": 2000,
@@ -57,7 +57,6 @@
     "registry_rows_loaded": 0,
     "source_mode": "dsn"
   },
-  "full_scale": true,
   "reconciliation": {
     "eligibles": 48748,
     "exclusions": 318143,
@@ -65,8 +64,6 @@
     "input_supplier_roots": 366891,
     "ok": true
   },
-  "peak_rss_mb": 1002.51,
-  "elapsed_seconds": 9.239,
   "sample": {
     "path": "artifacts/confenge/full-national-2026-08-07/02_downstream_sample/downstream-sample.jsonl",
     "count": 200,
@@ -96,66 +93,11 @@
     "no_contact_rate": 0.525,
     "note": "Email fabricado por padr\u00e3o de nome (pattern_guessed) N\u00c3O conta como verific\u00e1vel. Telefone p\u00fablico N\u00c3O implica opt-in WhatsApp."
   },
-  "feed": {
-    "ok": true,
-    "out_dir": "/mnt/d/extra-cli/artifacts/confenge/full-national-2026-08-07/06_warmbly_feed",
-    "run_id": "run-e4dd67baf24eed62",
-    "snapshot_hash": "a90bb0f2eebd5ecb98d0ba5db111301f479a98f71aef088dad72b0f22af87437",
-    "lead_count": 200,
-    "chunk_count": 4,
-    "manifest": "/mnt/d/extra-cli/artifacts/confenge/full-national-2026-08-07/06_warmbly_feed/manifest.json",
-    "chunks": [
-      {
-        "file": "chunk_0000.json",
-        "chunk_index": 0,
-        "content_hash": "14b45947a806606aedce3be0412ee561bca7d147b3845b5f4c58b5d722ca7e1f",
-        "leads_hash": "e41c043d625efe5803ac98c3b5ec32e3a4249439fbee3190935abdb4469abd30",
-        "lead_count": 50,
-        "cursor": "00028986000108",
-        "next_cursor": "03752550000155",
-        "has_more": true,
-        "status": "written"
-      },
-      {
-        "file": "chunk_0001.json",
-        "chunk_index": 1,
-        "content_hash": "d4e9a384ecebe86c06e0a7d9de0e0bc26e34e1a91d7ae7e793d6f7aed9fe5ae8",
-        "leads_hash": "afb75f1dfe6463a06f69f7cba5bce245aa2d4efb1fa97841ab0c985d20fb583f",
-        "lead_count": 50,
-        "cursor": "03752550000155",
-        "next_cursor": "17464285000114",
-        "has_more": true,
-        "status": "written"
-      },
-      {
-        "file": "chunk_0002.json",
-        "chunk_index": 2,
-        "content_hash": "0c32daf6046acdc6df956e106377e7d84fd9f7e39fb1c2178f01cbb40699863e",
-        "leads_hash": "6cc51d961f27c0d049111430c33780f3ab562ca5962536ebf53c48066427d74d",
-        "lead_count": 50,
-        "cursor": "17464285000114",
-        "next_cursor": "36457536000188",
-        "has_more": true,
-        "status": "written"
-      },
-      {
-        "file": "chunk_0003.json",
-        "chunk_index": 3,
-        "content_hash": "2b758b34fabb71d0a4f17414bf7157a6e3ad555c7c6dc66fb11ed943ea098579",
-        "leads_hash": "078659f237fb44bceb197521ed6a1006bfc756ebdbc2a81bcea94d8e0517a655",
-        "lead_count": 50,
-        "cursor": "36457536000188",
-        "next_cursor": null,
-        "has_more": false,
-        "status": "written"
-      }
-    ]
-  },
-  "universe_jsonl_sha256": "92e229580c686a797382c4aebd938a12debdfeff3dfd22b5133e98dd9a82f1e8",
-  "manifest_sha256": "908a697f95eb4127a867f258cb9d260bf4a78e36dd710a5c331d2bd201121cdf",
-  "as_of": "2026-08-07",
-  "repo_sha": "3b7477a9c87b9f296f631728c1ca971113ebbaae",
-  "rebound_at": "2026-08-08T02:40:14.460819+00:00",
+  "elapsed_seconds": 9.239,
+  "peak_rss_mb": 1002.51,
+  "manifest_sha256": "0a24a827b9aa9c11888a6cacebe86a2a32bdee4e1f6b289b4af13c73d9560e5a",
+  "result": "PASS",
+  "pass": true,
   "source_fingerprint": {
     "mode": "dsn",
     "as_of": "2026-08-07",
@@ -166,6 +108,5 @@
     "max_contrato_id": "25666778",
     "source_hash": "40786ab346e10cc93b2b50163a2349f5455975ec4194d7ec1f974ccf3b11d26c",
     "id_column": "id"
-  },
-  "note": "Universe counts from full-scale run; fingerprint rebound on current HEAD after id-column fix. Large jsonl not committed (artifacts policy)."
+  }
 }
