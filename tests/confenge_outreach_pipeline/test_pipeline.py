@@ -24,7 +24,7 @@ DNC_TXT = ROOT / "tests" / "fixtures" / "confenge_universe" / "dnc.txt"
 
 
 def test_limit_downstream_does_not_shrink_universe(tmp_path: Path) -> None:
-    """Universe discovery runs fully; only sample is limited."""
+    """Universe discovery runs fully; only expensive batch is limited."""
     out = tmp_path / "run"
     result = run_pipeline(
         PipelineConfig(
@@ -35,21 +35,29 @@ def test_limit_downstream_does_not_shrink_universe(tmp_path: Path) -> None:
             limit_downstream=1,
             max_workers=1,
             skip_contacts=True,
+            progress=False,
         )
     )
     assert result.ok, result.errors
-    assert result.stages["universe_row_count"] >= 1
-    # Sample is capped
+    universe_total = result.stages["universe_row_count"]
+    assert universe_total >= 1
+    # Sample/hot set is capped by limit_downstream (batch only)
     assert result.stages["sample"]["count"] == 1
+    assert result.stages["sample"]["count"] <= universe_total
+    # limit_downstream must NOT change universe_total
+    assert result.stages["manifest_summary"]["universe_total"] == universe_total
+    assert result.stages["manifest_summary"]["limit_downstream_is_batch_only"] is True
     # Intelligence only for sample
     assert result.stages["account_intelligence"]["count"] == 1
-    # Feed produced
+    # Feed produced (or empty-ok)
     feed = result.stages["feed"]
     assert feed.get("ok") is True
     assert feed.get("lead_count") == 1
     # Manifest records sampling flags honestly
     assert result.stages.get("sampling") is False  # no max_rows on universe
     assert result.stages.get("full_scale_universe") is False  # csv path
+    # Checkpoint written for resume
+    assert (out / "pipeline-checkpoint.json").is_file()
 
 
 def test_cli_run_fixture_end_to_end(tmp_path: Path) -> None:

@@ -35,7 +35,15 @@ python -m scripts.confenge_outreach_pipeline run \\
   --dsn "$LOCAL_DATALAKE_DSN" \\
   --out output/confenge_outreach \\
   --as-of 2026-08-07 \\
-  --use-activation-planner
+  --use-activation-planner \\
+  --limit-downstream 200
+
+# Resume after interrupt (checkpoint under --out):
+python -m scripts.confenge_outreach_pipeline run \\
+  --dsn "$LOCAL_DATALAKE_DSN" \\
+  --out output/confenge_outreach \\
+  --skip-universe \\
+  --limit-downstream 200
 
 # Smoke / diagnostic diverse sample (NOT commercial strategy):
 python -m scripts.confenge_outreach_pipeline run \\
@@ -46,8 +54,9 @@ python -m scripts.confenge_outreach_pipeline run \\
   --limit-downstream 20 \\
   --skip-contacts
 
-IMPORTANT: In production the activation planner selects the hot set from
-capacity planning. --limit-downstream is not a commercial shortlist strategy.
+IMPORTANT: --limit-downstream bounds only this round's expensive batch
+(intel/contacts/feed). Universe discovery is independent and full-scale
+when --max-rows is omitted. Round N+1 advances the durable activation cursor.
 """.strip(),
     )
     p.add_argument("--version", action="version", version=f"{PIPELINE_ID} {MODULE_VERSION}")
@@ -156,6 +165,21 @@ capacity planning. --limit-downstream is not a commercial shortlist strategy.
         default=None,
         help="Prior activation-projections.jsonl for incremental deltas",
     )
+    run.add_argument(
+        "--commercial-memory",
+        default=None,
+        help="JSONL overlay of commercial outcomes (DNC/NOT_NOW/BOUNCE/REPLIED) by cnpj14",
+    )
+    run.add_argument(
+        "--no-resume",
+        action="store_true",
+        help="Ignore pipeline-checkpoint.json and restart stage tracking",
+    )
+    run.add_argument(
+        "--quiet",
+        action="store_true",
+        help="Disable progress logging",
+    )
     return p
 
 
@@ -199,6 +223,9 @@ def cmd_run(args: argparse.Namespace) -> int:
         activation_capacity=args.activation_capacity,
         prior_activation_path=args.prior_activation,
         force_sample_mode=bool(args.force_sample_mode),
+        commercial_memory_path=args.commercial_memory,
+        resume=not bool(args.no_resume),
+        progress=not bool(args.quiet),
     )
     result = run_pipeline(cfg)
     payload = {
