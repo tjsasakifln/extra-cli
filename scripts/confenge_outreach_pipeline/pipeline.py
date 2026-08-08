@@ -13,14 +13,6 @@ from pathlib import Path
 from typing import Any
 
 from scripts.confenge_account_intelligence.pipeline import process_batch
-from scripts.confenge_contact_resolution.cache import ResolutionCache
-from scripts.confenge_contact_resolution.export import write_resolution_artifacts
-from scripts.confenge_contact_resolution.models import ServiceContext
-from scripts.confenge_contact_resolution.resolver import (
-    ContactResolver,
-    ResolverConfig,
-    default_adapters,
-)
 from scripts.confenge_activation.checkpoint import (
     load_checkpoint,
     new_checkpoint,
@@ -42,6 +34,14 @@ from scripts.confenge_activation.store import (
     load_projections_jsonl,
     write_hot_set_jsonl,
     write_projections_jsonl,
+)
+from scripts.confenge_contact_resolution.cache import ResolutionCache
+from scripts.confenge_contact_resolution.export import write_resolution_artifacts
+from scripts.confenge_contact_resolution.models import ServiceContext
+from scripts.confenge_contact_resolution.resolver import (
+    ContactResolver,
+    ResolverConfig,
+    default_adapters,
 )
 from scripts.confenge_outreach_pipeline import MODULE_VERSION, PIPELINE_ID
 from scripts.confenge_outreach_pipeline.adapt import (

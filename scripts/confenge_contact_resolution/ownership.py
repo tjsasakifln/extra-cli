@@ -754,8 +754,48 @@ def apply_ownership_to_candidate(
     return candidate
 
 
+def primary_rejection_reason(candidate: ContactCandidate) -> str:
+    """Single primary rejection bucket for metrics (partition, not multi-count)."""
+    is_guess = bool(candidate.email_layers and candidate.email_layers.pattern_guessed)
+    vs = (candidate.verification_status or "").upper()
+    vreason = (candidate.verification_reason or "").upper()
+    # Pattern guess wins as primary when present (even if also CANDIDATE_UNVERIFIED)
+    if (
+        is_guess
+        or vs == VerificationStatus.PATTERN_GUESS.value
+        or vreason == "PATTERN_GUESS"
+        or "pattern_guess" in (candidate.ownership_reason or "").lower()
+    ):
+        return "PATTERN_GUESS"
+
+    tp = (candidate.third_party_type or "").upper()
+    own = (candidate.ownership_status or "").upper()
+    reason = (candidate.ownership_reason or "").upper()
+    if tp == "ACCOUNTING" or "ACCOUNTING" in reason or "CONTAB" in reason:
+        return "ACCOUNTING"
+    if tp == "LEGAL" or "LEGAL" in reason or "ADVOCAC" in reason:
+        return "LEGAL"
+    if own == OwnershipStatus.SHARED_EXTERNAL_CONTACT.value or "SHARED_EXTERNAL" in reason:
+        return "SHARED_EXTERNAL"
+    if own == OwnershipStatus.THIRD_PARTY_SERVICE_PROVIDER.value or tp:
+        return "OTHER_THIRD_PARTY"
+    return "INVALID"
+
+
 def rejected_contact_dict(candidate: ContactCandidate) -> dict[str, Any]:
     """Serialize a rejected/non-enrollable candidate for rejected_contacts."""
+    primary = primary_rejection_reason(candidate)
+    secondary: list[str] = []
+    tp = (candidate.third_party_type or "").upper()
+    if tp and primary != "ACCOUNTING" and tp == "ACCOUNTING":
+        secondary.append("ACCOUNTING")
+    if tp and primary not in {tp, "OTHER_THIRD_PARTY"}:
+        secondary.append(tp)
+    if candidate.email_layers and candidate.email_layers.pattern_guessed and primary != "PATTERN_GUESS":
+        secondary.append("PATTERN_GUESS")
+    if (candidate.ownership_status or "") == OwnershipStatus.SHARED_EXTERNAL_CONTACT.value:
+        if primary != "SHARED_EXTERNAL":
+            secondary.append("SHARED_EXTERNAL")
     return {
         "type": candidate.contact_type
         if candidate.contact_type != "UNKNOWN"
@@ -765,6 +805,8 @@ def rejected_contact_dict(candidate: ContactCandidate) -> dict[str, Any]:
         "third_party_type": candidate.third_party_type,
         "enrollable": False,
         "reason": candidate.ownership_reason,
+        "primary_rejection_reason": primary,
+        "secondary_signals": secondary,
         "verification_status": candidate.verification_status,
         "confidence": candidate.confidence,
         "associated_company_count": candidate.associated_company_count,

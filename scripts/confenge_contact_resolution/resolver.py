@@ -57,13 +57,23 @@ def default_adapters(
     web_search_provider=None,
     registry_prefer_network: bool = False,
 ) -> list[ContactAdapter]:
+    provider = web_search_provider
+    if web_search_enabled and provider is None:
+        try:
+            from scripts.confenge_contact_resolution.discovery.web_search_providers import (
+                build_web_search_provider,
+            )
+
+            provider = build_web_search_provider()
+        except Exception:  # noqa: BLE001
+            provider = NoOpWebSearchProvider()
     return [
         RegistryAdapter(prefer_network=registry_prefer_network),
         SiteAdapter(),
         PublicDocsAdapter(),
         ContactPageAdapter(),
         WebSearchAdapter(
-            provider=web_search_provider or NoOpWebSearchProvider(),
+            provider=provider or NoOpWebSearchProvider(),
             enabled=web_search_enabled,
         ),
     ]
@@ -86,6 +96,10 @@ class ResolverConfig:
     third_party_registry: ThirdPartyRegistry | None = None
     # When False, skip ownership gate (legacy tests only; production always True)
     apply_ownership: bool = True
+    # Optional discovery cascade (production enrich-batch wires this)
+    discovery_cascade: Any | None = None
+    # Job metadata lookup: cnpj14 → {razao_social, economic_group_id, ...}
+    job_meta: dict[str, dict[str, Any]] = field(default_factory=dict)
 
 
 class ContactResolver:
@@ -130,6 +144,10 @@ class ContactResolver:
                 # rebuild lightly from dict
                 return _resolution_from_dict(hit)
 
+        job_meta = (self.config.job_meta or {}).get(cnpj14) or {}
+        economic_group_id = job_meta.get("economic_group_id") or job_meta.get("grupo_economico_id")
+        razao_hint = job_meta.get("razao_social") or job_meta.get("company_name")
+
         if ctx is None and self.config.context_builder:
             ctx = self.config.context_builder(cnpj14)
         if ctx is None:
@@ -143,6 +161,32 @@ class ContactResolver:
             if self.config.fixtures_dir and ctx.fixtures_dir is None:
                 ctx.fixtures_dir = self.config.fixtures_dir
             ctx.allow_network = self.config.allow_network or ctx.allow_network
+
+        # Production cascade: auto-fill site/docs/web before adapters (no manual injection)
+        discovery_meta: dict[str, Any] = {}
+        if self.config.discovery_cascade is not None and not self.config.fixtures_dir:
+            try:
+                cres = self.config.discovery_cascade.run(
+                    cnpj14=cnpj14,
+                    razao_social=razao_hint,
+                    registry_record=ctx.registry_record,
+                    existing_ctx=ctx,
+                    economic_group_id=str(economic_group_id) if economic_group_id else None,
+                )
+                ctx = cres.ctx
+                discovery_meta = cres.as_meta()
+                base.investigation_outcome = cres.stats.outcome
+                base.discovery_stats = cres.stats.as_dict()
+                base.domain_class = cres.domain.domain_class
+                if cres.domain.domain and cres.domain.is_company_owned_eligible():
+                    base.official_domain = cres.domain.domain
+            except Exception as exc:  # noqa: BLE001 — discovery soft-fail
+                base.limitations.append(f"discovery_error:{type(exc).__name__}")
+                base.investigation_outcome = "ERROR"
+
+        if economic_group_id:
+            base.economic_group_id = str(economic_group_id)
+            ctx.extra["economic_group_id"] = str(economic_group_id)
 
         observations = []
         used: list[str] = []
@@ -200,14 +244,19 @@ class ContactResolver:
         )
 
         fantasia = None
-        official_domain = None
+        official_domain = base.official_domain  # may be set by discovery cascade
+        if ctx.extra.get("official_domain") and not official_domain:
+            official_domain = str(ctx.extra["official_domain"])
         if ctx.registry_record:
             fantasia = ctx.registry_record.get("nome_fantasia") or ctx.registry_record.get("trade_name")
             site_raw = ctx.registry_record.get("site") or ctx.registry_record.get("website")
-            official_domain = domain_from_url(str(site_raw) if site_raw else None)
+            if not official_domain:
+                official_domain = domain_from_url(str(site_raw) if site_raw else None)
         for o in observations:
             if o.nome_fantasia and not fantasia:
                 fantasia = o.nome_fantasia
+        if not razao and razao_hint:
+            razao = str(razao_hint)
         # official_domain only from company-aligned hosts — never from an arbitrary
         # observation.site (third-party accounting pages must not become "official").
         company_label = " ".join(x for x in (razao or "", str(fantasia) if fantasia else "") if x)
@@ -238,6 +287,7 @@ class ContactResolver:
                 nome_fantasia=str(fantasia) if fantasia else None,
                 official_domain=official_domain,
                 observations=observations,
+                economic_group_id=str(economic_group_id) if economic_group_id else None,
             )
         else:
             rejected = []
@@ -287,14 +337,34 @@ class ContactResolver:
             base.limitations.append(f"account_block:{account_block_reason or ('DNC' if account_dnc else 'bounce')}")
         if not ranked and not rejected:
             base.absence_reason = "no_public_business_contact_found"
-            base.processing_state = CompanyProcessingState.NO_CONTACT.value
-            base.commercial_contact_state = CommercialContactState.NO_CONTACT_YET.value
+            # Budget/search exhausted must stay NO_CONTACT_YET commercially, not discard
+            inv = base.investigation_outcome or ""
+            if inv in {"BUDGET_EXHAUSTED", "SEARCH_EXHAUSTED", "RETRY_LATER", "ERROR"}:
+                base.processing_state = (
+                    CompanyProcessingState.RETRY_LATER.value
+                    if inv in {"BUDGET_EXHAUSTED", "RETRY_LATER", "ERROR"}
+                    else CompanyProcessingState.NO_CONTACT.value
+                )
+                base.commercial_contact_state = CommercialContactState.NO_CONTACT_YET.value
+                base.limitations.append(f"investigation_outcome:{inv}")
+            else:
+                base.processing_state = CompanyProcessingState.NO_CONTACT.value
+                base.commercial_contact_state = CommercialContactState.NO_CONTACT_YET.value
             base.limitations.append("Absence remains absence — no fabricated contacts")
+            if not base.investigation_outcome:
+                base.investigation_outcome = "NO_CONTACT_YET"
         elif not any(c.enrollable for c in ranked):
             if not base.absence_reason and not ranked:
                 base.absence_reason = "no_public_business_contact_found"
             elif ranked and not any(c.enrollable for c in ranked):
                 base.limitations.append("candidates_present_but_none_enrollable_after_ownership_resolution")
+            if not base.investigation_outcome:
+                base.investigation_outcome = "CONTACT_FOUND"
+        else:
+            if not base.investigation_outcome:
+                base.investigation_outcome = "CONTACT_FOUND"
+        if discovery_meta:
+            base.discovery_stats = {**(base.discovery_stats or {}), **(discovery_meta.get("discovery_stats") or {})}
         if self.config.cache:
             self.config.cache.set(ck, base.as_dict())
         return base
@@ -308,12 +378,17 @@ class ContactResolver:
         nome_fantasia: str | None,
         official_domain: str | None,
         observations: list,
+        economic_group_id: str | None = None,
     ) -> tuple[list, list[dict]]:
         """Run ownership resolver + reuse graph; split rejected third-party contacts."""
         from scripts.confenge_contact_resolution.models import ContactCandidate
 
         # Seed graph with this company's channels first (for same-company multi-cand)
-        self.reuse_graph.register_company(cnpj14, razao_social=razao_social)
+        self.reuse_graph.register_company(
+            cnpj14,
+            razao_social=razao_social,
+            economic_group_id=economic_group_id,
+        )
         for c in candidates:
             self.reuse_graph.observe_candidate(
                 cnpj14,
@@ -321,6 +396,7 @@ class ContactResolver:
                 phone=c.phone_e164 or c.phone_raw,
                 domain=domain_of(c.email) if c.email else None,
                 razao_social=razao_social,
+                economic_group_id=economic_group_id,
             )
 
         # Context text from observations (pages/docs) for third-party lexicon
@@ -337,6 +413,7 @@ class ContactResolver:
             razao_social=razao_social,
             nome_fantasia=nome_fantasia,
             official_domain=official_domain,
+            economic_group_id=economic_group_id,
         )
 
         kept: list[ContactCandidate] = []

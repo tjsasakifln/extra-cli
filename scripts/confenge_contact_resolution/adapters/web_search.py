@@ -1,5 +1,6 @@
 """Optional web-search provider interface — disabled by default in tests.
 
+Operational path uses ``build_web_search_provider()`` (DuckDuckGo HTML / Brave).
 No private social scraping. No anti-bot evasion. Provider is injectable.
 """
 
@@ -34,8 +35,19 @@ class WebSearchAdapter:
     def collect(self, ctx: AdapterContext) -> list[RawObservation]:
         if not self.enabled:
             return []
-        # Even when enabled, refuse if network not allowed unless provider is injected fixture
-        results = self.provider.search_business_contacts(ctx.cnpj14, allow_network=ctx.allow_network)
+        # Prefer hits already collected by DiscoveryCascade (budgeted)
+        prefetched = list(ctx.extra.get("web_search_hits") or [])
+        razao = None
+        if ctx.registry_record:
+            razao = ctx.registry_record.get("legal_name") or ctx.registry_record.get("razao_social")
+        results = prefetched
+        if not results:
+            results = self.provider.search_business_contacts(
+                ctx.cnpj14,
+                allow_network=ctx.allow_network,
+                razao_social=razao,
+                nome_fantasia=(ctx.registry_record or {}).get("nome_fantasia"),
+            )
         out: list[RawObservation] = []
         for r in results or []:
             email = r.get("email")
@@ -55,16 +67,18 @@ class WebSearchAdapter:
                     cargo=r.get("cargo"),
                     email=email,
                     phone_raw=phone,
-                    site=r.get("site"),
+                    site=r.get("site") or url,
                     linkedin_public=r.get("linkedin") if "linkedin.com" in str(r.get("linkedin") or "") else None,
                     source=SourceProvenance(
                         source_type="web_search",
                         source_url=r.get("url"),
-                        source_date=str(r.get("source_date") or "")[:10] or None,
-                        notes="Optional web search provider; public pages only",
+                        source_date=str(r.get("source_date") or r.get("retrieved_at") or "")[:10] or None,
+                        observed_at=str(r.get("retrieved_at") or "") or None,
+                        notes="Public web search provider; no private social scrape",
                     ),
                     pattern_guessed_email=bool(r.get("pattern_guessed_email")),
                     epistemic_class="OBSERVED_PUBLIC",
+                    context_text=r.get("snippet"),
                 )
             )
         return out

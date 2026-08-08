@@ -1,0 +1,33 @@
+{
+  "schema_id": "confenge-third-party-registry-v1",
+  "entries": [
+    {
+      "domain": null,
+      "phone": "+557496969728",
+      "email": null,
+      "entity_name": null,
+      "third_party_type": "OTHER",
+      "evidence": [
+        "Phone shared by 4 unrelated CNPJs",
+        "Known third-party registry hit: None (OTHER)"
+      ],
+      "associated_cnpjs": [
+        "00779059000120",
+        "36909349000198",
+        "38756140000167",
+        "41659936000106",
+        "03006548000137",
+        "03257777000124",
+        "24581449000159",
+        "12754237000147",
+        "00507949000182",
+        "03620927000112",
+        "60546801000260"
+      ],
+      "confidence": 0.8,
+      "first_seen_at": "2026-08-08T16:23:39Z",
+      "last_seen_at": "2026-08-08T16:40:10Z"
+    }
+  ],
+  "count": 1
+}

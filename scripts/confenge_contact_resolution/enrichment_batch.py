@@ -72,11 +72,26 @@ class EnrichmentMetrics:
     companies_without_contact: int = 0
     emails_found: int = 0
     emails_verified: int = 0
+    emails_review_required: int = 0
     generic_company_emails: int = 0
     nominal_company_emails: int = 0
     phones_found: int = 0
+    phones_enrollable: int = 0
     mobile_phones: int = 0
     landlines: int = 0
+    # Partitioned rejections (each contact counted once via primary reason)
+    rejected_total: int = 0
+    rejected_by_primary_reason: dict[str, int] = field(
+        default_factory=lambda: {
+            "ACCOUNTING": 0,
+            "LEGAL": 0,
+            "SHARED_EXTERNAL": 0,
+            "PATTERN_GUESS": 0,
+            "OTHER_THIRD_PARTY": 0,
+            "INVALID": 0,
+        }
+    )
+    # Legacy aliases (equal to partition buckets — no double-count)
     third_party_contacts_rejected: int = 0
     accounting_contacts_rejected: int = 0
     legal_contacts_rejected: int = 0
@@ -84,6 +99,12 @@ class EnrichmentMetrics:
     pattern_guesses_rejected: int = 0
     stale_contacts: int = 0
     review_required: int = 0
+    # discovery / budget outcomes
+    investigation_outcomes: dict[str, int] = field(default_factory=dict)
+    web_queries_total: int = 0
+    pages_fetched_total: int = 0
+    http_429: int = 0
+    timeouts: int = 0
     # rates filled at end
     verified_email_rate: float = 0.0
     verified_phone_rate: float = 0.0
@@ -96,28 +117,32 @@ class EnrichmentMetrics:
     duration_seconds: float = 0.0
     coverage_spike_warning: bool | None = None
     coverage_spike_notes: list[str] = field(default_factory=list)
+    # reuse graph summary (filled at end of batch)
+    reuse_graph_metrics: dict[str, Any] = field(default_factory=dict)
+    fixtures_dir: str | None = None
+    synthetic_contacts: int = 0
+    manually_injected_contacts: int = 0
 
     def finalize(self, *, duration_s: float, baseline: dict[str, Any] | None = None) -> None:
         n = max(1, self.companies_processed)
         self.verified_email_rate = round(self.companies_with_enrollable_email / n, 4)
         self.verified_phone_rate = round(self.companies_with_enrollable_phone / n, 4)
-        self.any_company_contact_rate = round(
-            (self.companies_with_enrollable_email + self.companies_with_enrollable_phone - self.companies_with_both)
-            / n,
-            4,
-        )
-        # simpler: any enrollable channel
         with_enrollable = (
             self.companies_with_enrollable_email + self.companies_with_enrollable_phone - self.companies_with_both
         )
         self.any_company_contact_rate = round(with_enrollable / n, 4)
-        total_rej = (
-            self.third_party_contacts_rejected + self.shared_external_contacts_rejected + self.pattern_guesses_rejected
+        # Sync legacy counters from partition (single source of truth)
+        self.pattern_guesses_rejected = int(self.rejected_by_primary_reason.get("PATTERN_GUESS", 0))
+        self.accounting_contacts_rejected = int(self.rejected_by_primary_reason.get("ACCOUNTING", 0))
+        self.legal_contacts_rejected = int(self.rejected_by_primary_reason.get("LEGAL", 0))
+        self.shared_external_contacts_rejected = int(self.rejected_by_primary_reason.get("SHARED_EXTERNAL", 0))
+        self.third_party_contacts_rejected = int(
+            self.rejected_by_primary_reason.get("OTHER_THIRD_PARTY", 0)
+            + self.accounting_contacts_rejected
+            + self.legal_contacts_rejected
         )
-        denom = max(1, self.emails_found + self.phones_found + total_rej)
-        self.third_party_rejection_rate = round(
-            (self.third_party_contacts_rejected + self.accounting_contacts_rejected) / denom, 4
-        )
+        denom = max(1, self.emails_found + self.phones_found + self.rejected_total)
+        self.third_party_rejection_rate = round(self.third_party_contacts_rejected / denom, 4)
         self.duration_seconds = round(duration_s, 3)
         if duration_s > 0:
             self.companies_per_hour = round(self.companies_processed / duration_s * 3600, 2)
@@ -130,9 +155,6 @@ class EnrichmentMetrics:
                     f"verified_email_rate jumped {prev_rate} → {self.verified_email_rate}; "
                     "inspect pattern_guesses / third_party / shared before celebrating"
                 )
-            if self.pattern_guesses_rejected == 0 and self.emails_verified > 0:
-                # not necessarily bad; only flag with spike
-                pass
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -142,20 +164,36 @@ class EnrichmentMetrics:
             "companies_with_enrollable_phone": self.companies_with_enrollable_phone,
             "companies_with_both": self.companies_with_both,
             "companies_without_contact": self.companies_without_contact,
+            "companies_no_contact": self.companies_without_contact,
             "emails_found": self.emails_found,
+            "emails_enrollable": self.emails_verified,
             "emails_verified": self.emails_verified,
+            "emails_review_required": self.emails_review_required,
             "generic_company_emails": self.generic_company_emails,
             "nominal_company_emails": self.nominal_company_emails,
             "phones_found": self.phones_found,
+            "phones_enrollable": self.phones_enrollable,
             "mobile_phones": self.mobile_phones,
             "landlines": self.landlines,
+            "rejected_total": self.rejected_total,
+            "rejected_by_primary_reason": dict(self.rejected_by_primary_reason),
             "third_party_contacts_rejected": self.third_party_contacts_rejected,
+            "third_party_rejected": self.third_party_contacts_rejected,
             "accounting_contacts_rejected": self.accounting_contacts_rejected,
+            "accounting_rejected": self.accounting_contacts_rejected,
             "legal_contacts_rejected": self.legal_contacts_rejected,
+            "legal_rejected": self.legal_contacts_rejected,
             "shared_external_contacts_rejected": self.shared_external_contacts_rejected,
+            "shared_external_rejected": self.shared_external_contacts_rejected,
             "pattern_guesses_rejected": self.pattern_guesses_rejected,
+            "pattern_guess_rejected": self.pattern_guesses_rejected,
             "stale_contacts": self.stale_contacts,
             "review_required": self.review_required,
+            "investigation_outcomes": dict(self.investigation_outcomes),
+            "web_queries_total": self.web_queries_total,
+            "pages_fetched_total": self.pages_fetched_total,
+            "http_429": self.http_429,
+            "timeouts": self.timeouts,
             "verified_email_rate": self.verified_email_rate,
             "verified_phone_rate": self.verified_phone_rate,
             "any_company_contact_rate": self.any_company_contact_rate,
@@ -166,6 +204,10 @@ class EnrichmentMetrics:
             "duration_seconds": self.duration_seconds,
             "coverage_spike_warning": self.coverage_spike_warning,
             "coverage_spike_notes": list(self.coverage_spike_notes),
+            "reuse_graph_metrics": dict(self.reuse_graph_metrics),
+            "fixtures_dir": self.fixtures_dir,
+            "synthetic_contacts": self.synthetic_contacts,
+            "manually_injected_contacts": self.manually_injected_contacts,
         }
 
 
@@ -178,6 +220,15 @@ def priority_sort_key(job: CompanyJob) -> tuple[int, int, str]:
         "universe": 4,
     }
     return (tier_order.get(job.priority_tier, 9), job.priority_rank, job.cnpj14)
+
+
+def _record_primary_rejection(metrics: EnrichmentMetrics, primary: str) -> None:
+    """Count one rejected contact under exactly one primary reason."""
+    key = (primary or "INVALID").upper()
+    if key not in metrics.rejected_by_primary_reason:
+        key = "INVALID"
+    metrics.rejected_total += 1
+    metrics.rejected_by_primary_reason[key] = int(metrics.rejected_by_primary_reason.get(key, 0)) + 1
 
 
 def accumulate_metrics(
@@ -195,23 +246,29 @@ def accumulate_metrics(
 
     has_enroll_email = False
     has_enroll_phone = False
+    counted_values: set[str] = set()
+
     for c in cands:
         if c.email:
             metrics.emails_found += 1
             if c.enrollable:
                 metrics.emails_verified += 1
                 has_enroll_email = True
+            elif c.ownership_status == OwnershipStatus.LIKELY_COMPANY_OWNED.value:
+                metrics.emails_review_required += 1
             if c.name:
                 metrics.nominal_company_emails += 1
-            elif c.email:
+            else:
                 metrics.generic_company_emails += 1
-            if c.email_layers and c.email_layers.pattern_guessed:
-                metrics.pattern_guesses_rejected += 1
-            if c.verification_status in {
-                VerificationStatus.PATTERN_GUESS.value,
-                VerificationStatus.CANDIDATE_UNVERIFIED.value,
-            }:
-                metrics.pattern_guesses_rejected += 1
+            # Non-enrollable candidate: count pattern-guess once (not twice)
+            if not c.enrollable:
+                is_guess = bool(c.email_layers and c.email_layers.pattern_guessed)
+                vreason = (c.verification_reason or "").upper()
+                if is_guess or vreason == "PATTERN_GUESS" or c.verification_status == VerificationStatus.PATTERN_GUESS.value:
+                    val = (c.email or "").lower()
+                    if val and val not in counted_values:
+                        counted_values.add(val)
+                        _record_primary_rejection(metrics, "PATTERN_GUESS")
         if c.phone_e164:
             metrics.phones_found += 1
             if c.phone_type == "mobile":
@@ -219,6 +276,7 @@ def accumulate_metrics(
             elif c.phone_type == "landline":
                 metrics.landlines += 1
             if c.enrollable:
+                metrics.phones_enrollable += 1
                 has_enroll_phone = True
         if c.ownership_status == OwnershipStatus.LIKELY_COMPANY_OWNED.value:
             metrics.review_required += 1
@@ -226,15 +284,39 @@ def accumulate_metrics(
             metrics.stale_contacts += 1
 
     for r in rejected:
-        metrics.third_party_contacts_rejected += 1
-        tp = (r.get("third_party_type") or "").upper()
-        own = (r.get("ownership_status") or "").upper()
-        if tp == "ACCOUNTING" or "ACCOUNTING" in (r.get("reason") or "").upper():
-            metrics.accounting_contacts_rejected += 1
-        if tp == "LEGAL":
-            metrics.legal_contacts_rejected += 1
-        if own == OwnershipStatus.SHARED_EXTERNAL_CONTACT.value:
-            metrics.shared_external_contacts_rejected += 1
+        val = str(r.get("value") or "").lower()
+        if val and val in counted_values:
+            continue  # already counted as pattern guess on candidate list
+        if val:
+            counted_values.add(val)
+        primary = (r.get("primary_rejection_reason") or "").upper()
+        if not primary:
+            tp = (r.get("third_party_type") or "").upper()
+            own = (r.get("ownership_status") or "").upper()
+            reason = (r.get("reason") or "").upper()
+            if "PATTERN" in reason:
+                primary = "PATTERN_GUESS"
+            elif tp == "ACCOUNTING" or "ACCOUNTING" in reason or "CONTAB" in reason:
+                primary = "ACCOUNTING"
+            elif tp == "LEGAL":
+                primary = "LEGAL"
+            elif own == OwnershipStatus.SHARED_EXTERNAL_CONTACT.value:
+                primary = "SHARED_EXTERNAL"
+            elif own == OwnershipStatus.THIRD_PARTY_SERVICE_PROVIDER.value or tp:
+                primary = "OTHER_THIRD_PARTY"
+            else:
+                primary = "INVALID"
+        _record_primary_rejection(metrics, primary)
+
+    inv = getattr(resolution, "investigation_outcome", None)
+    if inv:
+        metrics.investigation_outcomes[str(inv)] = metrics.investigation_outcomes.get(str(inv), 0) + 1
+    disc = getattr(resolution, "discovery_stats", None) or {}
+    if isinstance(disc, dict):
+        metrics.web_queries_total += int(disc.get("search_queries") or 0)
+        metrics.pages_fetched_total += int(disc.get("pages_fetched") or 0)
+        metrics.http_429 += int(disc.get("http_429") or 0)
+        metrics.timeouts += int(disc.get("timeouts") or 0)
 
     if has_enroll_email:
         metrics.companies_with_enrollable_email += 1
@@ -462,6 +544,32 @@ class EnrichmentBatchRunner:
         if max_companies is not None:
             todo = todo[: max(0, int(max_companies))]
 
+        # Propagate job meta (economic group, razao) into resolver for production path
+        job_meta: dict[str, dict[str, Any]] = {}
+        for j in ordered:
+            meta = dict(j.meta or {})
+            if j.razao_social:
+                meta.setdefault("razao_social", j.razao_social)
+            if j.priority_tier:
+                meta.setdefault("priority_tier", j.priority_tier)
+            # economic_group_id from explicit field or meta
+            eg = meta.get("economic_group_id") or meta.get("grupo_economico_id")
+            if eg:
+                meta["economic_group_id"] = str(eg)
+            job_meta[j.cnpj14] = meta
+            # Pre-register group for reuse graph before any resolve
+            self.resolver.reuse_graph.register_company(
+                j.cnpj14,
+                razao_social=j.razao_social,
+                economic_group_id=str(eg) if eg else None,
+            )
+        self.resolver.config.job_meta = job_meta
+        self.metrics.fixtures_dir = (
+            str(self.resolver.config.fixtures_dir) if self.resolver.config.fixtures_dir else None
+        )
+        if self.resolver.config.fixtures_dir:
+            self.metrics.synthetic_contacts = -1  # signal: fixture mode, not commercial proof
+
         t0 = time.time()
         resolutions: list[AccountContactResolution] = []
         verified_rows: list[dict[str, Any]] = []
@@ -473,10 +581,13 @@ class EnrichmentBatchRunner:
         warmbly_enrollable: list[dict[str, Any]] = []
 
         # Two-pass enrichment:
-        # 1) discover channels with ownership off → seed reverse reuse graph
-        # 2) re-resolve with ownership on so SHARED_EXTERNAL sees the full cohort
+        # 1) cheap local/registry seed of reuse graph (no full discovery cascade)
+        # 2) full discovery + ownership so SHARED_EXTERNAL sees the cohort graph
+        # Skipping cascade on pass1 avoids double network cost (search/crawl once).
         prev_ownership = self.resolver.config.apply_ownership
+        prev_cascade = self.resolver.config.discovery_cascade
         self.resolver.config.apply_ownership = False
+        self.resolver.config.discovery_cascade = None
         pass1: list[AccountContactResolution] = []
         for job in todo:
             try:
@@ -484,12 +595,14 @@ class EnrichmentBatchRunner:
                 if not res.razao_social and job.razao_social:
                     res.razao_social = job.razao_social
                 pass1.append(res)
+                eg = job_meta.get(job.cnpj14, {}).get("economic_group_id")
                 for c in res.candidates:
                     self.resolver.reuse_graph.observe_candidate(
                         res.cnpj14,
                         email=c.email,
                         phone=c.phone_e164 or c.phone_raw,
                         razao_social=res.razao_social,
+                        economic_group_id=str(eg) if eg else None,
                     )
             except Exception as exc:  # noqa: BLE001
                 self.metrics.retries += 1
@@ -498,10 +611,9 @@ class EnrichmentBatchRunner:
                 self._checkpoint.setdefault("failed_cnpjs", {})[job.cnpj14] = f"pass1:{exc}"
 
         self.resolver.config.apply_ownership = True
-        # Drop pass1 cache entries so pass2 recomputes ownership with full graph
+        self.resolver.config.discovery_cascade = prev_cascade
+        # Drop pass1 cache entries so pass2 recomputes with discovery + ownership
         if self.resolver.config.cache is not None:
-            # ResolutionCache has no clear(); overwrite via fresh resolves with no-cache keys
-            # by temporarily disabling cache for pass2 when present.
             cached = self.resolver.config.cache
             self.resolver.config.cache = None
         else:
@@ -537,17 +649,37 @@ class EnrichmentBatchRunner:
             row = company_export_row(res)
             wb = warmbly_contact_payload(res)
 
-            enrollable_contacts = [c for c in res.candidates if c.enrollable]
+            enrollable_contacts = [
+                c
+                for c in res.candidates
+                if c.enrollable
+                and c.ownership_status
+                in {
+                    OwnershipStatus.COMPANY_OWNED.value,
+                    OwnershipStatus.HUMAN_CONFIRMED.value,
+                }
+            ]
             likely = [c for c in res.candidates if c.ownership_status == OwnershipStatus.LIKELY_COMPANY_OWNED.value]
 
             if enrollable_contacts:
                 verified_rows.append(row)
-                warmbly_enrollable.append(
-                    {
-                        **wb,
-                        "contacts": [c for c in wb["contacts"] if c.get("enrollable")],
-                    }
-                )
+                # Flat commercial feed rows (one per enrollable contact)
+                for c in enrollable_contacts:
+                    warmbly_enrollable.append(
+                        {
+                            "cnpj14": res.cnpj14,
+                            "company_name": res.razao_social,
+                            "email": c.email,
+                            "phone": c.phone_e164 or c.phone_raw,
+                            "role_class": c.role_class,
+                            "ownership_status": c.ownership_status,
+                            "verification_status": c.verification_status,
+                            "confidence": c.confidence,
+                            "source_url": c.source.source_url if c.source else None,
+                            "source_type": c.source.source_type if c.source else None,
+                            "enrollable": True,
+                        }
+                    )
             if likely or res.commercial_contact_state == "CONTACT_REVIEW_REQUIRED":
                 review_rows.append(row)
             if res.rejected_contacts:
@@ -589,14 +721,16 @@ class EnrichmentBatchRunner:
 
         self._save_checkpoint()
         duration = time.time() - t0
-        self.metrics.finalize(duration_s=duration, baseline=self.baseline_metrics)
 
         # Persist graph + registry
         self.resolver.reuse_graph.save(self.output_dir / REUSE_GRAPH_FILENAME)
         self.resolver.third_party_registry.save(self.output_dir / REGISTRY_FILENAME)
+        self.metrics.reuse_graph_metrics = self.resolver.reuse_graph.sharing_metrics()
+        self.metrics.finalize(duration_s=duration, baseline=self.baseline_metrics)
 
         # Artifacts
-        write_jsonl(self.output_dir / FULL_RESOLUTIONS, [r.as_dict() for r in resolutions])
+        resolution_dicts = [r.as_dict() for r in resolutions]
+        write_jsonl(self.output_dir / FULL_RESOLUTIONS, resolution_dicts)
         write_jsonl(self.output_dir / CONTACTS_VERIFIED, verified_rows)
         write_jsonl(self.output_dir / CONTACTS_REVIEW, review_rows)
         write_jsonl(self.output_dir / CONTACTS_REJECTED, rejected_rows)
@@ -607,6 +741,11 @@ class EnrichmentBatchRunner:
         feed_dir.mkdir(parents=True, exist_ok=True)
         write_jsonl(feed_dir / "contacts.jsonl", warmbly_rows)
         write_jsonl(feed_dir / "contacts_enrollable.jsonl", warmbly_enrollable)
+
+        # Human review package — never auto-approves
+        from scripts.confenge_contact_resolution.human_review import write_human_review_package
+
+        human_status = write_human_review_package(self.output_dir, resolution_dicts, n_each=20)
 
         metrics_path = self.output_dir / METRICS_FILENAME
         metrics_path.write_text(
@@ -624,6 +763,7 @@ class EnrichmentBatchRunner:
             "resolved": len(resolutions),
             "metrics": metrics_dict,
             "retry_stats": self.retry_stats.as_dict(),
+            "human_review": human_status,
             "artifacts": {
                 "candidates": FULL_RESOLUTIONS,
                 "verified": CONTACTS_VERIFIED,
@@ -635,6 +775,7 @@ class EnrichmentBatchRunner:
                 "checkpoint": CHECKPOINT_FILENAME,
                 "third_party_registry": REGISTRY_FILENAME,
                 "reuse_graph": REUSE_GRAPH_FILENAME,
+                "human_review": "human-review/",
             },
             "finished_at": _now(),
             "ok": True,

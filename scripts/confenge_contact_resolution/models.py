@@ -245,6 +245,10 @@ class AccountContactResolution:
     cache_hit: bool = False
     resolved_at: str | None = None
     limitations: list[str] = field(default_factory=list)
+    investigation_outcome: str | None = None  # CONTACT_FOUND | BUDGET_EXHAUSTED | ...
+    economic_group_id: str | None = None
+    domain_class: str | None = None
+    discovery_stats: dict[str, Any] = field(default_factory=dict)
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -269,6 +273,10 @@ class AccountContactResolution:
             "cache_hit": self.cache_hit,
             "resolved_at": self.resolved_at,
             "limitations": list(self.limitations),
+            "investigation_outcome": self.investigation_outcome,
+            "economic_group_id": self.economic_group_id,
+            "domain_class": self.domain_class,
+            "discovery_stats": dict(self.discovery_stats or {}),
         }
 
 

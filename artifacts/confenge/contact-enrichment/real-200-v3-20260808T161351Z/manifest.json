@@ -1,0 +1,133 @@
+{
+  "schema_id": "confenge-contact-enrichment-manifest-v1",
+  "run_id": "real-200-v3-20260808T161351Z",
+  "output_dir": "artifacts/confenge/contact-enrichment/real-200-v3-20260808T161351Z",
+  "started_jobs": 200,
+  "resolved": 200,
+  "metrics": {
+    "companies_processed": 200,
+    "companies_with_any_candidate": 196,
+    "companies_with_enrollable_email": 54,
+    "companies_with_enrollable_phone": 87,
+    "companies_with_both": 51,
+    "companies_without_contact": 4,
+    "companies_no_contact": 4,
+    "emails_found": 120,
+    "emails_enrollable": 87,
+    "emails_verified": 87,
+    "emails_review_required": 32,
+    "generic_company_emails": 120,
+    "nominal_company_emails": 0,
+    "phones_found": 682,
+    "phones_enrollable": 468,
+    "mobile_phones": 68,
+    "landlines": 614,
+    "rejected_total": 11,
+    "rejected_by_primary_reason": {
+      "ACCOUNTING": 0,
+      "LEGAL": 0,
+      "SHARED_EXTERNAL": 1,
+      "PATTERN_GUESS": 0,
+      "OTHER_THIRD_PARTY": 10,
+      "INVALID": 0
+    },
+    "third_party_contacts_rejected": 10,
+    "third_party_rejected": 10,
+    "accounting_contacts_rejected": 0,
+    "accounting_rejected": 0,
+    "legal_contacts_rejected": 0,
+    "legal_rejected": 0,
+    "shared_external_contacts_rejected": 1,
+    "shared_external_rejected": 1,
+    "pattern_guesses_rejected": 0,
+    "pattern_guess_rejected": 0,
+    "stale_contacts": 0,
+    "review_required": 228,
+    "investigation_outcomes": {
+      "CONTACT_FOUND": 100,
+      "NO_CONTACT_YET": 95,
+      "BUDGET_EXHAUSTED": 5
+    },
+    "web_queries_total": 20,
+    "pages_fetched_total": 707,
+    "http_429": 0,
+    "timeouts": 0,
+    "verified_email_rate": 0.27,
+    "verified_phone_rate": 0.435,
+    "any_company_contact_rate": 0.45,
+    "third_party_rejection_rate": 0.0123,
+    "companies_per_hour": 425.35,
+    "cache_hits": 0,
+    "retries": 0,
+    "duration_seconds": 1692.729,
+    "coverage_spike_warning": null,
+    "coverage_spike_notes": [],
+    "reuse_graph_metrics": {
+      "unique_emails": 120,
+      "unique_phones": 969,
+      "contacts_shared_2_5": 13,
+      "contacts_shared_6_20": 2,
+      "contacts_shared_21_plus": 0,
+      "emails": {
+        "unique": 120,
+        "shared_2_5": 0,
+        "shared_6_20": 0,
+        "shared_21_plus": 0,
+        "same_root": 0,
+        "same_group": 0,
+        "unrelated": 0
+      },
+      "phones": {
+        "unique": 954,
+        "shared_2_5": 13,
+        "shared_6_20": 2,
+        "shared_21_plus": 0,
+        "same_root": 0,
+        "same_group": 0,
+        "unrelated": 15
+      }
+    },
+    "fixtures_dir": null,
+    "synthetic_contacts": 0,
+    "manually_injected_contacts": 0,
+    "retry_stats": {
+      "attempts": 400,
+      "retries": 0,
+      "rate_limit_waits": 11,
+      "last_error": null
+    }
+  },
+  "retry_stats": {
+    "attempts": 400,
+    "retries": 0,
+    "rate_limit_waits": 11,
+    "last_error": null
+  },
+  "human_review": {
+    "schema": "confenge-human-review-status-v1",
+    "generated_at": "2026-08-08T16:42:04Z",
+    "machine_validation": "PASS",
+    "human_validation": "HUMAN_REVIEW_PENDING",
+    "counts": {
+      "accepted": 20,
+      "rejected": 11,
+      "unresolved": 20
+    },
+    "note": "Human validation must not be auto-approved by the pipeline."
+  },
+  "artifacts": {
+    "candidates": "confenge-contact-candidates-v1.jsonl",
+    "verified": "contacts_verified.jsonl",
+    "review_required": "contacts_review_required.jsonl",
+    "rejected": "contacts_rejected.jsonl",
+    "accounting_rejections": "accounting-contact-rejections.jsonl",
+    "no_contact": "no-contact.jsonl",
+    "warmbly_feed": "warmbly_feed",
+    "checkpoint": "checkpoint.json",
+    "third_party_registry": "third_party_registry.json",
+    "reuse_graph": "reuse_graph.json",
+    "human_review": "human-review/"
+  },
+  "finished_at": "2026-08-08T16:42:04Z",
+  "ok": true
+}

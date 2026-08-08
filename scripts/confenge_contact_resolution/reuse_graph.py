@@ -239,6 +239,57 @@ class ContactReuseGraph:
             g.related_cnpjs[k] = set(v)
         return g
 
+    def sharing_metrics(self) -> dict[str, Any]:
+        """Cohort-level reuse stats for production diagnostics."""
+
+        def _bucket(n: int) -> str:
+            if n <= 1:
+                return "unique"
+            if n <= 5:
+                return "shared_2_5"
+            if n <= 20:
+                return "shared_6_20"
+            return "shared_21_plus"
+
+        def _channel_stats(index: dict[str, set[str]]) -> dict[str, Any]:
+            buckets = {"unique": 0, "shared_2_5": 0, "shared_6_20": 0, "shared_21_plus": 0}
+            same_root_shares = 0
+            same_group_shares = 0
+            unrelated_shares = 0
+            for _key, cnpjs in index.items():
+                n = len(cnpjs)
+                buckets[_bucket(n)] += 1
+                if n < 2:
+                    continue
+                # classify pair-wise relationship of the set
+                roots = {cnpj_root(c) for c in cnpjs}
+                groups = {self.cnpj_meta.get(c, {}).get("economic_group_id") for c in cnpjs}
+                groups.discard(None)
+                if len(roots) == 1:
+                    same_root_shares += 1
+                elif len(groups) == 1 and groups:
+                    same_group_shares += 1
+                else:
+                    unrelated_shares += 1
+            return {
+                **buckets,
+                "same_root": same_root_shares,
+                "same_group": same_group_shares,
+                "unrelated": unrelated_shares,
+            }
+
+        email_s = _channel_stats(self.email_to_cnpjs)
+        phone_s = _channel_stats(self.phone_to_cnpjs)
+        return {
+            "unique_emails": len(self.email_to_cnpjs),
+            "unique_phones": len(self.phone_to_cnpjs),
+            "contacts_shared_2_5": email_s["shared_2_5"] + phone_s["shared_2_5"],
+            "contacts_shared_6_20": email_s["shared_6_20"] + phone_s["shared_6_20"],
+            "contacts_shared_21_plus": email_s["shared_21_plus"] + phone_s["shared_21_plus"],
+            "emails": email_s,
+            "phones": phone_s,
+        }
+
     def save(self, path: Path | str) -> None:
         p = Path(path)
         p.parent.mkdir(parents=True, exist_ok=True)

@@ -201,8 +201,8 @@ def apply_commercial_memory(
 
 def load_commercial_memory_jsonl(path: str | Any) -> dict[str, dict[str, Any]]:
     """Load commercial memory overlay from JSONL (cnpj14 per line)."""
-    from pathlib import Path
     import json
+    from pathlib import Path
 
     p = Path(path)
     if not p.is_file():

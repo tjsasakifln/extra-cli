@@ -153,7 +153,11 @@ def build_parser() -> argparse.ArgumentParser:
     enrich.add_argument("--cache-ttl", type=int, default=86400)
     enrich.add_argument("--no-cache", action="store_true")
     enrich.add_argument("--allow-network", action="store_true")
-    enrich.add_argument("--enable-web-search", action="store_true")
+    enrich.add_argument(
+        "--enable-web-search",
+        action="store_true",
+        help="Enable web search (auto-on with --allow-network in production; uses DuckDuckGo/Brave)",
+    )
     enrich.add_argument("--check-mx", action="store_true")
     enrich.add_argument("--max-workers", type=int, default=4)
     enrich.add_argument("--run-id", default=None)
@@ -164,6 +168,24 @@ def build_parser() -> argparse.ArgumentParser:
         type=Path,
         default=None,
         help="Optional JSON with prior verified_email_rate for coverage-spike detection",
+    )
+    enrich.add_argument(
+        "--max-search-queries",
+        type=int,
+        default=None,
+        help="Override MAX_SEARCH_QUERIES_PER_COMPANY",
+    )
+    enrich.add_argument(
+        "--max-pages",
+        type=int,
+        default=None,
+        help="Override MAX_PAGES_PER_COMPANY",
+    )
+    enrich.add_argument(
+        "--max-seconds-per-company",
+        type=float,
+        default=None,
+        help="Override MAX_SECONDS_PER_COMPANY",
     )
 
     return p
@@ -284,8 +306,32 @@ def cmd_enrich_batch(args: argparse.Namespace) -> int:
     if not args.no_cache:
         cdir = args.cache_dir or (args.output_dir / ".cache")
         cache = ResolutionCache(cdir, ttl_seconds=args.cache_ttl)
+
+    web_provider = None
+    discovery_cascade = None
+    enable_web = bool(args.enable_web_search) or bool(args.allow_network)
+    if enable_web and bool(args.allow_network) and not args.fixtures_dir:
+        from scripts.confenge_contact_resolution.discovery import (
+            DiscoveryBudget,
+            DiscoveryCascade,
+            build_web_search_provider,
+        )
+
+        web_provider = build_web_search_provider()
+        budget = DiscoveryBudget.from_env_or_defaults(
+            max_search_queries=args.max_search_queries,
+            max_pages=args.max_pages,
+            max_seconds=args.max_seconds_per_company,
+        )
+        discovery_cascade = DiscoveryCascade(
+            budget=budget,
+            web_provider=web_provider,
+            allow_network=True,
+        )
+
     adapters = default_adapters(
-        web_search_enabled=bool(args.enable_web_search),
+        web_search_enabled=enable_web,
+        web_search_provider=web_provider,
         registry_prefer_network=bool(args.allow_network),
     )
     cfg = ResolverConfig(
@@ -297,6 +343,7 @@ def cmd_enrich_batch(args: argparse.Namespace) -> int:
         fixtures_dir=args.fixtures_dir,
         max_workers=max(1, int(args.max_workers)),
         apply_ownership=True,
+        discovery_cascade=discovery_cascade,
     )
     runner = EnrichmentBatchRunner(
         output_dir=args.output_dir,
