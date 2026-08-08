@@ -1,0 +1,157 @@
+{
+  "schema": "confenge.full_national_run.v1",
+  "started_at": "2026-08-08T01:32:43Z",
+  "completed_at": "2026-08-08T01:39:56.016776+00:00",
+  "extra_cli_sha": "7cf9593d68afad00006f578cc7324aee506cebe2",
+  "source": {
+    "as_of": "2026-08-07",
+    "csv_path": null,
+    "dnc_sources": [
+      "commercial_state_attempted_empty_or_unavailable"
+    ],
+    "dsn_masked": "postgresql://postgres:***@127.0.0.1:54399/postgres",
+    "fingerprint_error": "column \"contrato_id\" does not exist\nLINE 1: SELECT MAX(contrato_id)::text AS m FROM public.pncp_supplier...\n                   ^\n",
+    "max_contrato_id": null,
+    "mode": "dsn",
+    "registry_rows_loaded": 0,
+    "registry_source": "unavailable_or_empty",
+    "row_count": 3689859,
+    "source_hash": null,
+    "table": "pncp_supplier_contracts"
+  },
+  "counts": {
+    "batch_size_config": 2000,
+    "dnc_in_universe": 0,
+    "dnc_loaded_count": 0,
+    "eligibility_breakdown": {
+      "ELIGIBLE": 48748
+    },
+    "eligible_for_outreach": 48748,
+    "eligibles": 48748,
+    "exclusion_breakdown": {
+      "NATURAL_PERSON": 47,
+      "NOT_CONSTRUCTION": 318150,
+      "PUBLIC_ORGAN": 10
+    },
+    "exclusions": 318143,
+    "full_scale": true,
+    "identity_exclusion_breakdown": {
+      "INVALID_IDENTITY": 237,
+      "NATURAL_PERSON": 136879,
+      "NOT_CONSTRUCTION": 9690,
+      "PUBLIC_ORGAN": 30792
+    },
+    "identity_row_exclusions": 177598,
+    "input_contract_rows": 3689859,
+    "input_supplier_roots": 366891,
+    "max_rows": null,
+    "not_construction": 318150,
+    "peak_batch_size": 2000,
+    "reconciliation": {
+      "eligibles": 48748,
+      "exclusions": 318143,
+      "formula": "input_supplier_roots = eligibles + exclusions",
+      "input_supplier_roots": 366891,
+      "ok": true
+    },
+    "registry_rows_loaded": 0,
+    "source_mode": "dsn"
+  },
+  "full_scale": true,
+  "reconciliation": {
+    "eligibles": 48748,
+    "exclusions": 318143,
+    "formula": "input_supplier_roots = eligibles + exclusions",
+    "input_supplier_roots": 366891,
+    "ok": true
+  },
+  "peak_rss_mb": 1002.51,
+  "elapsed_seconds": 9.239,
+  "sample": {
+    "path": "artifacts/confenge/full-national-2026-08-07/02_downstream_sample/downstream-sample.jsonl",
+    "count": 200,
+    "profile_counts": {
+      "extensive_portfolio": 40,
+      "few_contracts": 40,
+      "mid_market": 40,
+      "national_structured": 40,
+      "regional_lean": 40
+    },
+    "note": "limit_downstream bounds only this sample and subsequent expensive stages; universe discovery is independent."
+  },
+  "contact_metrics": {
+    "empresas_total": 200,
+    "empresas_com_contato_nominal": 0,
+    "empresas_apenas_email_funcional_generico": 0,
+    "empresas_com_email_verificavel": 0,
+    "empresas_com_telefone_valido": 95,
+    "empresas_com_telefone_movel": 0,
+    "empresas_com_telefone_fixo": 94,
+    "empresas_sem_contato": 105,
+    "empresas_dnc": 0,
+    "nominal_contact_rate": 0.0,
+    "verified_email_rate": 0.0,
+    "generic_email_rate": 0.0,
+    "phone_rate": 0.475,
+    "no_contact_rate": 0.525,
+    "note": "Email fabricado por padr\u00e3o de nome (pattern_guessed) N\u00c3O conta como verific\u00e1vel. Telefone p\u00fablico N\u00c3O implica opt-in WhatsApp."
+  },
+  "feed": {
+    "ok": true,
+    "out_dir": "/mnt/d/extra-cli/artifacts/confenge/full-national-2026-08-07/06_warmbly_feed",
+    "run_id": "run-e4dd67baf24eed62",
+    "snapshot_hash": "a90bb0f2eebd5ecb98d0ba5db111301f479a98f71aef088dad72b0f22af87437",
+    "lead_count": 200,
+    "chunk_count": 4,
+    "manifest": "/mnt/d/extra-cli/artifacts/confenge/full-national-2026-08-07/06_warmbly_feed/manifest.json",
+    "chunks": [
+      {
+        "file": "chunk_0000.json",
+        "chunk_index": 0,
+        "content_hash": "14b45947a806606aedce3be0412ee561bca7d147b3845b5f4c58b5d722ca7e1f",
+        "leads_hash": "e41c043d625efe5803ac98c3b5ec32e3a4249439fbee3190935abdb4469abd30",
+        "lead_count": 50,
+        "cursor": "00028986000108",
+        "next_cursor": "03752550000155",
+        "has_more": true,
+        "status": "written"
+      },
+      {
+        "file": "chunk_0001.json",
+        "chunk_index": 1,
+        "content_hash": "d4e9a384ecebe86c06e0a7d9de0e0bc26e34e1a91d7ae7e793d6f7aed9fe5ae8",
+        "leads_hash": "afb75f1dfe6463a06f69f7cba5bce245aa2d4efb1fa97841ab0c985d20fb583f",
+        "lead_count": 50,
+        "cursor": "03752550000155",
+        "next_cursor": "17464285000114",
+        "has_more": true,
+        "status": "written"
+      },
+      {
+        "file": "chunk_0002.json",
+        "chunk_index": 2,
+        "content_hash": "0c32daf6046acdc6df956e106377e7d84fd9f7e39fb1c2178f01cbb40699863e",
+        "leads_hash": "6cc51d961f27c0d049111430c33780f3ab562ca5962536ebf53c48066427d74d",
+        "lead_count": 50,
+        "cursor": "17464285000114",
+        "next_cursor": "36457536000188",
+        "has_more": true,
+        "status": "written"
+      },
+      {
+        "file": "chunk_0003.json",
+        "chunk_index": 3,
+        "content_hash": "2b758b34fabb71d0a4f17414bf7157a6e3ad555c7c6dc66fb11ed943ea098579",
+        "leads_hash": "078659f237fb44bceb197521ed6a1006bfc756ebdbc2a81bcea94d8e0517a655",
+        "lead_count": 50,
+        "cursor": "36457536000188",
+        "next_cursor": null,
+        "has_more": false,
+        "status": "written"
+      }
+    ]
+  },
+  "universe_jsonl_sha256": "92e229580c686a797382c4aebd938a12debdfeff3dfd22b5133e98dd9a82f1e8",
+  "manifest_sha256": "908a697f95eb4127a867f258cb9d260bf4a78e36dd710a5c331d2bd201121cdf",
+  "as_of": "2026-08-07"
+}

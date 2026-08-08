@@ -1,0 +1,133 @@
+{
+  "pipeline_id": "confenge-outreach-pipeline-v1",
+  "module_version": "1.0.0",
+  "repo_sha": "7cf9593d68af",
+  "as_of": "2026-08-07",
+  "started_at": "2026-08-08T01:32:43Z",
+  "limit_downstream": 200,
+  "max_workers": 8,
+  "max_rows_universe": null,
+  "sampling": false,
+  "universe": {
+    "jsonl_path": "artifacts/confenge/full-national-2026-08-07/01_universe/confenge-universe-v1.jsonl",
+    "manifest_path": "artifacts/confenge/full-national-2026-08-07/01_universe/confenge-universe-manifest-v1.json",
+    "ok": true,
+    "skipped": true
+  },
+  "universe_row_count": 48748,
+  "sample": {
+    "path": "artifacts/confenge/full-national-2026-08-07/02_downstream_sample/downstream-sample.jsonl",
+    "count": 200,
+    "profile_counts": {
+      "extensive_portfolio": 40,
+      "few_contracts": 40,
+      "mid_market": 40,
+      "national_structured": 40,
+      "regional_lean": 40
+    },
+    "note": "limit_downstream bounds only this sample and subsequent expensive stages; universe discovery is independent."
+  },
+  "account_intelligence": {
+    "input_path": "artifacts/confenge/full-national-2026-08-07/03_account_intelligence/intelligence-inputs.jsonl",
+    "raw_path": "artifacts/confenge/full-national-2026-08-07/03_account_intelligence/confenge-account-intelligence-v1.jsonl",
+    "bridge_path": "artifacts/confenge/full-national-2026-08-07/05_bridge_inputs/account_intelligence.jsonl",
+    "count": 200,
+    "service_distribution": {
+      "auditoria_orcamento_bdi": 94,
+      "gestao_monitoramento_contratual": 64,
+      "reforco_temporario_backoffice": 22,
+      "diagnostico_contratual_b2g": 18,
+      "aditivos_extracontratuais": 2
+    }
+  },
+  "contacts": {
+    "ok": true,
+    "run_id": "confenge-contact-20260808-cee1fc5c",
+    "jsonl": "artifacts/confenge/full-national-2026-08-07/04_contact_resolution/confenge-contact-candidates-v1.jsonl",
+    "manifest": "artifacts/confenge/full-national-2026-08-07/04_contact_resolution/run_manifest.json",
+    "checksum_sha256": "fcc411b46e4fc4e6858a2390c5d8ac985dc13be7c450dc6c89172bbb2c875900",
+    "counts": {
+      "resolved": 200,
+      "with_candidates": 95,
+      "with_recommended": 94,
+      "absence": 105
+    },
+    "metrics": {
+      "empresas_total": 200,
+      "empresas_com_contato_nominal": 0,
+      "empresas_apenas_email_funcional_generico": 0,
+      "empresas_com_email_verificavel": 0,
+      "empresas_com_telefone_valido": 95,
+      "empresas_com_telefone_movel": 0,
+      "empresas_com_telefone_fixo": 94,
+      "empresas_sem_contato": 105,
+      "empresas_dnc": 0,
+      "nominal_contact_rate": 0.0,
+      "verified_email_rate": 0.0,
+      "generic_email_rate": 0.0,
+      "phone_rate": 0.475,
+      "no_contact_rate": 0.525,
+      "note": "Email fabricado por padrão de nome (pattern_guessed) NÃO conta como verificável. Telefone público NÃO implica opt-in WhatsApp."
+    },
+    "bridge_path": "artifacts/confenge/full-national-2026-08-07/05_bridge_inputs/contacts.jsonl"
+  },
+  "feed": {
+    "ok": true,
+    "out_dir": "/mnt/d/extra-cli/artifacts/confenge/full-national-2026-08-07/06_warmbly_feed",
+    "run_id": "run-e4dd67baf24eed62",
+    "snapshot_hash": "a90bb0f2eebd5ecb98d0ba5db111301f479a98f71aef088dad72b0f22af87437",
+    "lead_count": 200,
+    "chunk_count": 4,
+    "manifest": "/mnt/d/extra-cli/artifacts/confenge/full-national-2026-08-07/06_warmbly_feed/manifest.json",
+    "chunks": [
+      {
+        "file": "chunk_0000.json",
+        "chunk_index": 0,
+        "content_hash": "14b45947a806606aedce3be0412ee561bca7d147b3845b5f4c58b5d722ca7e1f",
+        "leads_hash": "e41c043d625efe5803ac98c3b5ec32e3a4249439fbee3190935abdb4469abd30",
+        "lead_count": 50,
+        "cursor": "00028986000108",
+        "next_cursor": "03752550000155",
+        "has_more": true,
+        "status": "written"
+      },
+      {
+        "file": "chunk_0001.json",
+        "chunk_index": 1,
+        "content_hash": "d4e9a384ecebe86c06e0a7d9de0e0bc26e34e1a91d7ae7e793d6f7aed9fe5ae8",
+        "leads_hash": "afb75f1dfe6463a06f69f7cba5bce245aa2d4efb1fa97841ab0c985d20fb583f",
+        "lead_count": 50,
+        "cursor": "03752550000155",
+        "next_cursor": "17464285000114",
+        "has_more": true,
+        "status": "written"
+      },
+      {
+        "file": "chunk_0002.json",
+        "chunk_index": 2,
+        "content_hash": "0c32daf6046acdc6df956e106377e7d84fd9f7e39fb1c2178f01cbb40699863e",
+        "leads_hash": "6cc51d961f27c0d049111430c33780f3ab562ca5962536ebf53c48066427d74d",
+        "lead_count": 50,
+        "cursor": "17464285000114",
+        "next_cursor": "36457536000188",
+        "has_more": true,
+        "status": "written"
+      },
+      {
+        "file": "chunk_0003.json",
+        "chunk_index": 3,
+        "content_hash": "2b758b34fabb71d0a4f17414bf7157a6e3ad555c7c6dc66fb11ed943ea098579",
+        "leads_hash": "078659f237fb44bceb197521ed6a1006bfc756ebdbc2a81bcea94d8e0517a655",
+        "lead_count": 50,
+        "cursor": "36457536000188",
+        "next_cursor": null,
+        "has_more": false,
+        "status": "written"
+      }
+    ]
+  },
+  "finished_at": "2026-08-08T01:32:52Z",
+  "elapsed_seconds": 9.239,
+  "peak_rss_mb": 1002.51,
+  "full_scale_universe": true
+}

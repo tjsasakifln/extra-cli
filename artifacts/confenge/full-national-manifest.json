@@ -1,0 +1,82 @@
+{
+  "as_of": "2026-08-07",
+  "counts": {
+    "batch_size_config": 2000,
+    "dnc_in_universe": 0,
+    "dnc_loaded_count": 0,
+    "eligibility_breakdown": {
+      "ELIGIBLE": 48748
+    },
+    "eligible_for_outreach": 48748,
+    "eligibles": 48748,
+    "exclusion_breakdown": {
+      "NATURAL_PERSON": 47,
+      "NOT_CONSTRUCTION": 318150,
+      "PUBLIC_ORGAN": 10
+    },
+    "exclusions": 318143,
+    "full_scale": true,
+    "identity_exclusion_breakdown": {
+      "INVALID_IDENTITY": 237,
+      "NATURAL_PERSON": 136879,
+      "NOT_CONSTRUCTION": 9690,
+      "PUBLIC_ORGAN": 30792
+    },
+    "identity_row_exclusions": 177598,
+    "input_contract_rows": 3689859,
+    "input_supplier_roots": 366891,
+    "max_rows": null,
+    "not_construction": 318150,
+    "peak_batch_size": 2000,
+    "reconciliation": {
+      "eligibles": 48748,
+      "exclusions": 318143,
+      "formula": "input_supplier_roots = eligibles + exclusions",
+      "input_supplier_roots": 366891,
+      "ok": true
+    },
+    "registry_rows_loaded": 0,
+    "source_mode": "dsn"
+  },
+  "extra": {
+    "built_at": "2026-08-08T00:43:01Z",
+    "dsn_masked": "postgresql://postgres:***@127.0.0.1:54399/postgres",
+    "full_scale_command": "python3 -m scripts.confenge_universe build --out output/confenge_universe --dsn \"$LOCAL_DATALAKE_DSN\" # omit --max-rows for full national scan",
+    "reconciliation_bucket_ok": true
+  },
+  "invariants": {
+    "commercial_tier_never_discard": true,
+    "dnc_dominant_for_outreach": true,
+    "no_invented_legal_regime_or_delay": true,
+    "no_silent_top_n_subset": true,
+    "score_is_order_only": true
+  },
+  "module_version": "1.0.0",
+  "outputs": {
+    "jsonl": {
+      "filename": "confenge-universe-v1.jsonl",
+      "lines": 48748,
+      "sha256": "92e229580c686a797382c4aebd938a12debdfeff3dfd22b5133e98dd9a82f1e8"
+    }
+  },
+  "repo_sha": "7cf9593d68afad00006f578cc7324aee506cebe2",
+  "rule_version": "confenge-universe-rules-v1",
+  "schema_version": "confenge-universe-manifest-v1",
+  "source": {
+    "as_of": "2026-08-07",
+    "csv_path": null,
+    "dnc_sources": [
+      "commercial_state_attempted_empty_or_unavailable"
+    ],
+    "dsn_masked": "postgresql://postgres:***@127.0.0.1:54399/postgres",
+    "fingerprint_error": "column \"contrato_id\" does not exist\nLINE 1: SELECT MAX(contrato_id)::text AS m FROM public.pncp_supplier...\n                   ^\n",
+    "max_contrato_id": null,
+    "mode": "dsn",
+    "registry_rows_loaded": 0,
+    "registry_source": "unavailable_or_empty",
+    "row_count": 3689859,
+    "source_hash": null,
+    "table": "pncp_supplier_contracts"
+  },
+  "universe_schema_version": "confenge-universe-v1"
+}

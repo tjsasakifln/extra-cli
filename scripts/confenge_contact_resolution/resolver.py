@@ -74,7 +74,11 @@ class ContactResolver:
         self.config = config or ResolverConfig()
 
     def _adapters_sig(self) -> str:
-        return ",".join(getattr(a, "name", type(a).__name__) for a in self.config.adapters)
+        # Include network mode so offline empty results never poison online re-runs.
+        names = ",".join(getattr(a, "name", type(a).__name__) for a in self.config.adapters)
+        net = "1" if self.config.allow_network else "0"
+        prefer = "1" if any(getattr(a, "prefer_network", False) for a in self.config.adapters) else "0"
+        return f"{names}|net={net}|prefer={prefer}"
 
     def resolve_one(
         self,

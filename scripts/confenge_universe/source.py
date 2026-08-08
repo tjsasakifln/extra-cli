@@ -313,11 +313,22 @@ def source_fingerprint(cfg: SourceConfig, *, as_of: date) -> dict[str, Any]:
             with conn.cursor() as cur:
                 cur.execute("SELECT COUNT(*)::bigint AS n FROM public.pncp_supplier_contracts")
                 base["row_count"] = int(cur.fetchone()["n"])
+                # Resolve physical id column (id / contrato_id / numero_controle_pncp).
                 cur.execute(
-                    "SELECT MAX(contrato_id)::text AS m FROM public.pncp_supplier_contracts"
+                    "SELECT column_name FROM information_schema.columns "
+                    "WHERE table_schema='public' AND table_name='pncp_supplier_contracts'"
+                )
+                available = [r["column_name"] for r in cur.fetchall()]
+                pmap = resolve_physical_map(available)
+                id_col = pmap.get("contrato_id", "id")
+                if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", id_col):
+                    raise ValueError(f"invalid id column: {id_col!r}")
+                cur.execute(
+                    f"SELECT MAX({id_col})::text AS m FROM public.pncp_supplier_contracts"
                 )
                 row = cur.fetchone()
                 base["max_contrato_id"] = row["m"] if row else None
+                base["id_column"] = id_col
                 import hashlib
 
                 payload = f"{base['row_count']}|{base['max_contrato_id']}|{as_of.isoformat()}"

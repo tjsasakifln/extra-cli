@@ -1,0 +1,13 @@
+{
+  "count": 200,
+  "profile_counts": {
+    "extensive_portfolio": 40,
+    "few_contracts": 40,
+    "mid_market": 40,
+    "national_structured": 40,
+    "regional_lean": 40
+  },
+  "path": "/mnt/d/extra-cli/artifacts/confenge/full-national-2026-08-07/02_downstream_sample/downstream-sample.jsonl",
+  "extra_cli_sha": "7cf9593d68afad00006f578cc7324aee506cebe2",
+  "note": "Diverse deterministic sample (not Top-N score)"
+}
