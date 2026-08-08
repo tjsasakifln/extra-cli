@@ -8,13 +8,13 @@ from __future__ import annotations
 import re
 from typing import Any
 
-from scripts.warmbly_bridge import EPISTEMIC_CLASSES, VERIFICATION_STATUSES
-from scripts.warmbly_bridge.constants import DEFAULT_CLAIMS_TO_AVOID, DOMINANT_COMMERCIAL_STATES
 from scripts.confenge_contact_resolution.mailbox_purpose import classify_mailbox_purpose
 from scripts.confenge_contact_resolution.send_readiness import (
-    evaluate_email_send_ready,
     classify_target_fit_send_tier,
+    evaluate_email_send_ready,
 )
+from scripts.warmbly_bridge import EPISTEMIC_CLASSES, VERIFICATION_STATUSES
+from scripts.warmbly_bridge.constants import DEFAULT_CLAIMS_TO_AVOID, DOMINANT_COMMERCIAL_STATES
 
 _CNPJ_RE = re.compile(r"^\d{14}$")
 _CONFIRMED = "CONFIRMED_FACT"
@@ -357,9 +357,7 @@ def map_lead(
         "factual_hook": lead["messaging_context"].get("fact_to_mention"),
         "evidence_ids": moment.get("evidence_ids") or [e.get("id") for e in evidence_items],
         "canonical_universe_member": universe_row.get("canonical_universe_member", True),
-        "construction_evidence": universe_row.get("construction_evidence")
-        or intel.get("construction_evidence")
-        or {},
+        "construction_evidence": universe_row.get("construction_evidence") or intel.get("construction_evidence") or {},
         "portfolio": universe_row.get("portfolio") if isinstance(universe_row.get("portfolio"), dict) else {},
         "offer": lead["offer"],
     }

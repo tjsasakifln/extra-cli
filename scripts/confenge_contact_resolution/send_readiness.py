@@ -258,11 +258,7 @@ def classify_target_fit_send_tier(
 
     pass_n = _pass_contract_count(company)
     offer = company.get("offer") if isinstance(company.get("offer"), dict) else {}
-    has_service = bool(
-        company.get("service_code")
-        or company.get("primary_service")
-        or offer.get("service_code")
-    )
+    has_service = bool(company.get("service_code") or company.get("primary_service") or offer.get("service_code"))
     has_trigger = bool(company.get("primary_trigger") or company.get("activation_triggers"))
     has_evidence = bool(
         company.get("evidence_ids")
@@ -365,9 +361,7 @@ def evaluate_email_send_ready(
     own = (ownership_status or "").strip().upper()
     ver = (verification_status or "").strip().upper()
 
-    fit = target_fit or classify_target_fit_send_tier(
-        company, canonical_universe_member=canonical_universe_member
-    )
+    fit = target_fit or classify_target_fit_send_tier(company, canonical_universe_member=canonical_universe_member)
     mp = classify_mailbox_purpose(email_norm)
     suitability = SUITABLE
     channel_ok = True
