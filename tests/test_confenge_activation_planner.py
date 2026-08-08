@@ -389,3 +389,36 @@ def test_select_hot_set_prefers_actionable():
 
 def test_stable_hash_deterministic():
     assert stable_hash({"a": 1, "b": [2, 3]}) == stable_hash({"b": [2, 3], "a": 1})
+
+
+def test_capacity_override_none_uses_policy_planned_capacity():
+    """capacity_override=None must use policy.planned_capacity, not an arbitrary Top-N."""
+    rows = []
+    for i in range(800):
+        cnpj = f"{i:08d}000199"
+        rows.append(
+            _company(
+                cnpj,
+                last="2026-07-25",
+                first="2024-01-01",
+                active=3,
+                recent=2,
+                priority=60,
+            )
+        )
+    planned = POLICY.capacity.planned_capacity()
+    assert planned > 200  # default policy is well above smoke sample size
+    cycle = run_activation_cycle(
+        rows,
+        policy=POLICY,
+        as_of=AS_OF,
+        capacity_override=None,
+        evaluated_at="2026-08-08T10:00:00Z",
+    )
+    assert cycle.reservoir_count == 800
+    assert cycle.hot_set_count <= planned
+    assert cycle.hot_set_count <= POLICY.capacity.max_hot_set
+    # Must not silently collapse to default limit_downstream=200
+    assert cycle.hot_set_count > 200 or cycle.activation_counts.get("ACTIONABLE_NOW", 0) + cycle.activation_counts.get(
+        "RESEARCH_REQUIRED", 0
+    ) <= 200

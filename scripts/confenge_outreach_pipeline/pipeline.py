@@ -317,8 +317,9 @@ def run_pipeline(cfg: PipelineConfig) -> PipelineResult:
                 if candidate.is_file():
                     prior_path = str(candidate)
             prior = load_projections_jsonl(prior_path) if prior_path else {}
-            # Operational batch: --limit-downstream bounds THIS round's expensive work only.
-            # Never shrinks universe_total / reservoir. activation_capacity wins if set.
+            # Operational batch size for THIS round's expensive path only.
+            # --activation-capacity wins when set; else --limit-downstream.
+            # Neither shrinks universe_total / reservoir.
             capacity = cfg.activation_capacity
             if capacity is None:
                 capacity = cfg.limit_downstream
@@ -355,15 +356,21 @@ def run_pipeline(cfg: PipelineConfig) -> PipelineResult:
             # Safety: never silent-truncate reservoir; expensive path is hot set only
             sample_path = dirs["sample"] / "downstream-hot-set.jsonl"
             _write_jsonl(sample_path, sample_rows)
+            planned_cap = int(capacity) if capacity is not None else policy.capacity.planned_capacity()
             stages["activation"] = {
                 **cycle.summary(),
                 "projections_path": str(dirs["activation"] / "activation-projections.jsonl"),
                 "hot_set_path": str(dirs["activation"] / "hot-set.jsonl"),
-                "capacity_this_round": capacity,
+                "capacity_this_round": planned_cap,
+                "capacity_source": (
+                    "activation_capacity_override"
+                    if cfg.activation_capacity is not None
+                    else "limit_downstream_batch"
+                ),
                 "note": (
                     "Hot set is capacity-aware activation planning, not arbitrary Top-N. "
                     "Full reservoir remains monitored; only hot set enters expensive stages. "
-                    "--limit-downstream = this round's expensive batch size only."
+                    "--limit-downstream bounds THIS round's expensive batch only."
                 ),
             }
             stages["sample"] = {
@@ -373,7 +380,7 @@ def run_pipeline(cfg: PipelineConfig) -> PipelineResult:
                 "profile_counts": sample_profile_counts(sample_rows),
                 "note": (
                     "Downstream rows selected by activation planner hot set. "
-                    f"capacity={capacity}; reservoir={len(universe_rows)}."
+                    f"capacity={planned_cap}; reservoir={len(universe_rows)}."
                 ),
             }
             stages["activation_counts"] = cycle.activation_counts
@@ -387,7 +394,7 @@ def run_pipeline(cfg: PipelineConfig) -> PipelineResult:
             _progress(
                 cfg.progress,
                 f"[activation] reservoir={cycle.reservoir_count} "
-                f"hot_set={cycle.hot_set_count}/{capacity} "
+                f"hot_set={cycle.hot_set_count}/{planned_cap} "
                 f"states={cycle.activation_counts}",
             )
         else:
@@ -615,10 +622,17 @@ def run_pipeline(cfg: PipelineConfig) -> PipelineResult:
                 ):
                     crow = contact_by.get(cnpj) or {}
                     contacts = crow.get("contacts") or []
+                    d["account_intelligence_status"] = "DONE"
+                    d["last_processed_at"] = d.get("last_downstream_at") or _utcnow()
                     if contacts:
                         d = mark_downstream(d, status=DOWNSTREAM_EXPORTED)
+                        d["contact_resolution_status"] = "FOUND"
+                        d["feed_export_status"] = "EXPORTED"
                     else:
                         d = mark_downstream(d, status=DOWNSTREAM_NO_CONTACT)
+                        d["contact_resolution_status"] = "NO_CONTACT"
+                        d["feed_export_status"] = "EXPORTED" if not cfg.skip_contacts else "PENDING"
+                    d["outreach_state"] = d.get("commercial_state") or "NEW"
                 updated.append(d)
             # rewrite projections with funnel status
             proj_path = dirs["activation"] / "activation-projections.jsonl"
