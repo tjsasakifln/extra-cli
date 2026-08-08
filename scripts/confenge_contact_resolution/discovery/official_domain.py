@@ -93,6 +93,46 @@ _ASSOCIATION_HINTS = (
     "sesi",
 )
 
+# Industry generics: alone they never prove company identity in a host SLD.
+_GENERIC_BRAND_TOKENS = frozenset(
+    {
+        "construtora",
+        "construcoes",
+        "construcao",
+        "engenharia",
+        "servicos",
+        "servico",
+        "comercio",
+        "industria",
+        "incorporadora",
+        "empreendimentos",
+        "participacoes",
+        "transportadora",
+        "transportes",
+        "mineracao",
+        "pavimentacao",
+        "instalacoes",
+        "locacao",
+        "obras",
+        "infraestrutura",
+        "saneamento",
+        "companhia",
+        "empresa",
+        "brasil",
+        "nacional",
+        "grupo",
+        "holding",
+        "bar",
+        "cafe",
+        "hotel",
+        "cooper",
+        "alpha",
+        "beta",
+        "delta",
+        "omega",
+    }
+)
+
 
 class DomainClass(StrEnum):
     OFFICIAL_CONFIRMED = "OFFICIAL_CONFIRMED"
@@ -225,6 +265,14 @@ def classify_host(
         )
 
     label = (company_label or "").strip()
+    if not is_credible_company_domain(h, label):
+        return DomainResolution(
+            domain=h,
+            domain_class=DomainClass.UNRESOLVED.value,
+            confidence=0.15,
+            evidence=["host_not_credible_for_company"],
+        )
+
     overlap = domain_token_overlap(h, label) if label else 0.0
     if overlap >= 0.55:
         return DomainResolution(
@@ -233,7 +281,8 @@ def classify_host(
             confidence=min(0.95, 0.55 + overlap),
             evidence=[f"token_overlap:{overlap:.2f}"],
         )
-    if overlap >= 0.35:
+    # Stricter than before (was 0.35): weak Jaccard on short hosts caused bar.com.br FPs
+    if overlap >= 0.45:
         return DomainResolution(
             domain=h,
             domain_class=DomainClass.OFFICIAL_LIKELY.value,
@@ -241,17 +290,22 @@ def classify_host(
             evidence=[f"token_overlap:{overlap:.2f}"],
         )
 
-    # Weak: brand-like single token in host matching a significant word of razão social
+    # Brand token in host: distinctive only (len>=6, not industry generic)
     if label:
-        tokens = [t for t in re.split(r"[^a-z0-9]+", label.lower()) if len(t) >= 5]
+        tokens = [
+            t
+            for t in re.split(r"[^a-z0-9]+", label.lower())
+            if len(t) >= 6 and t not in _GENERIC_BRAND_TOKENS
+        ]
         host_compact = h.replace(".", "").replace("-", "")
+        sld = _second_level_label(h)
         for t in tokens:
-            if t in host_compact or t in h:
+            if t == sld or (t in host_compact and len(t) >= 6):
                 return DomainResolution(
                     domain=h,
                     domain_class=DomainClass.OFFICIAL_LIKELY.value,
-                    confidence=0.55,
-                    evidence=[f"token_in_host:{t}"],
+                    confidence=0.6,
+                    evidence=[f"distinctive_token_in_host:{t}"],
                 )
 
     return DomainResolution(
@@ -260,6 +314,59 @@ def classify_host(
         confidence=0.2,
         evidence=["no_company_alignment"],
     )
+
+
+def _second_level_label(host: str | None) -> str:
+    h = (host or "").lower().removeprefix("www.")
+    parts = [p for p in h.split(".") if p]
+    if len(parts) >= 3 and parts[-1] == "br":
+        return parts[-3]
+    if len(parts) >= 2:
+        return parts[-2]
+    return parts[0] if parts else ""
+
+
+def is_credible_company_domain(domain: str | None, company_label: str | None) -> bool:
+    """Hard gate before a host may be treated as official for COMPANY_OWNED.
+
+    Rejects short SLDs (wh.com, fts.com) unless the company name starts with that
+    exact acronym, generic industry-only hosts, and hosts with no distinctive
+    token shared with the company name.
+    """
+    h = _host(domain)
+    if not h or is_blocked_host(h):
+        return False
+    sld = _second_level_label(h)
+    if len(sld) < 3:
+        return False
+    if sld in _GENERIC_BRAND_TOKENS:
+        return False
+    label = (company_label or "").strip()
+    if not label:
+        return False
+    # Fold label to tokens (keep short acronyms)
+    raw_parts = [t for t in re.split(r"[^a-z0-9]+", re.sub(r"[^a-z0-9\s]", " ", label.lower())) if t]
+    # Drop legal form tokens only
+    legal = {"ltda", "limitada", "sa", "me", "epp", "eireli", "s", "a", "e"}
+    words = [t for t in raw_parts if t not in legal and t not in _GENERIC_BRAND_TOKENS]
+    if not words:
+        return False
+
+    # 3-char SLD: only if it is the leading brand acronym of the company name
+    if len(sld) == 3:
+        return words[0] == sld
+
+    # Must share a distinctive token (len>=4) with company name
+    label_tokens = {t for t in words if len(t) >= 4}
+    if not label_tokens and words[0] != sld:
+        return False
+    host_flat = h.replace(".", "").replace("-", "")
+    for t in label_tokens:
+        if t == sld or t in host_flat:
+            return True
+    if words[0] == sld and len(sld) >= 4:
+        return True
+    return domain_token_overlap(h, label) >= 0.45
 
 
 def resolve_official_domain(

@@ -1,4 +1,8 @@
-"""Cheap official-domain candidates from razão/fantasia (no search engine)."""
+"""Cheap official-domain candidates from razão/fantasia (no search engine).
+
+Strict alignment only: never promote a live host to official just because DNS
+answers. Short/generic SLDs (wh.com, bar.com.br) stay UNRESOLVED.
+"""
 
 from __future__ import annotations
 
@@ -14,8 +18,10 @@ from scripts.confenge_contact_resolution.discovery.official_domain import (
     DomainResolution,
     classify_host,
     is_blocked_host,
+    is_credible_company_domain,
 )
 
+# Legal + industry generics that must not form a solo brand host.
 _STOP = {
     "ltda",
     "eireli",
@@ -55,6 +61,23 @@ _STOP = {
     "participações",
     "grupo",
     "holding",
+    "transportadora",
+    "transportes",
+    "mineracao",
+    "mineração",
+    "pavimentacao",
+    "pavimentação",
+    "instalacoes",
+    "instalações",
+    "locacao",
+    "locação",
+    "obras",
+    "infraestrutura",
+    "saneamento",
+    "companhia",
+    "empresa",
+    "brasil",
+    "nacional",
 }
 
 
@@ -66,7 +89,18 @@ def _strip_accents(s: str) -> str:
 def name_tokens(name: str | None) -> list[str]:
     raw = _strip_accents(name or "").lower()
     raw = re.sub(r"[^a-z0-9\s]", " ", raw)
-    return [t for t in raw.split() if t and t not in _STOP and len(t) >= 2]
+    # Brand tokens must be reasonably distinctive (len >= 4)
+    return [t for t in raw.split() if t and t not in _STOP and len(t) >= 4]
+
+
+def _sld(host: str) -> str:
+    h = (host or "").lower().removeprefix("www.")
+    parts = h.split(".")
+    if len(parts) >= 2 and parts[-1] == "br" and len(parts) >= 3:
+        return parts[-3]  # foo.com.br → foo
+    if len(parts) >= 2:
+        return parts[-2]
+    return parts[0] if parts else ""
 
 
 def candidate_domains(
@@ -75,7 +109,7 @@ def candidate_domains(
     nome_fantasia: str | None = None,
     max_candidates: int = 12,
 ) -> list[str]:
-    """Generate plausible .com.br / .com hosts from company names."""
+    """Generate plausible .com.br / .com hosts from distinctive company tokens only."""
     hosts: list[str] = []
     seen: set[str] = set()
 
@@ -83,28 +117,43 @@ def candidate_domains(
         h = h.lower().strip(".-")
         if not h or h in seen or is_blocked_host(h):
             return
-        if len(h) < 4:
+        sld = _sld(h)
+        # Ultra-short SLD only when explicitly allowed by caller path (acronym brands)
+        if len(sld) < 3:
+            return
+        if sld in _STOP:
+            return
+        if len(h) < 7:
             return
         seen.add(h)
         hosts.append(h)
 
     for label in (nome_fantasia, razao_social):
         toks = name_tokens(label)
+        # Also allow exact 3-letter leading acronym from raw name (AMF, LMA)
+        raw = _strip_accents(label or "").lower()
+        raw_words = [w for w in re.split(r"[^a-z0-9]+", raw) if w and w not in _STOP]
+        if raw_words and len(raw_words[0]) == 3 and raw_words[0].isalpha():
+            acr = raw_words[0]
+            add(f"{acr}.com.br")
+            add(f"{acr}.com")
         if not toks:
             continue
-        compact = "".join(toks[:3])
-        add(f"{compact}.com.br")
-        add(f"{compact}.com")
-        add(f"{'-'.join(toks[:3])}.com.br")
-        if len(toks) >= 1:
-            add(f"{toks[0]}.com.br")
-            add(f"{toks[0]}.com")
+        # Prefer multi-token brands when available
         if len(toks) >= 2:
             add(f"{toks[0]}{toks[1]}.com.br")
             add(f"{toks[0]}-{toks[1]}.com.br")
-            add(f"{toks[0]}engenharia.com.br")
-            add(f"{toks[0]}construtora.com.br")
-            add(f"{toks[0]}construcoes.com.br")
+            add(f"{''.join(toks[:3])}.com.br")
+            add(f"{'-'.join(toks[:3])}.com.br")
+        # Single distinctive brand token only if long enough (avoid WH, FTS as probes
+        # unless they are exact leading acronym handled above)
+        brand = toks[0]
+        if len(brand) >= 5:
+            add(f"{brand}.com.br")
+            add(f"{brand}.com")
+            add(f"{brand}engenharia.com.br")
+            add(f"{brand}construtora.com.br")
+            add(f"{brand}construcoes.com.br")
 
     return hosts[:max_candidates]
 
@@ -114,7 +163,8 @@ def probe_host(host: str, *, timeout: float = 3.0) -> dict[str, Any] | None:
     host = (host or "").lower().removeprefix("www.")
     if not host or is_blocked_host(host):
         return None
-    # Fail closed quickly on DNS (default getaddrinfo can hang on bad resolvers)
+    if len(_sld(host)) < 4:
+        return None
     prev_to = socket.getdefaulttimeout()
     socket.setdefaulttimeout(min(2.0, timeout))
     try:
@@ -157,7 +207,11 @@ def probe_official_domain(
     max_probes: int = 8,
     timeout: float = 5.0,
 ) -> DomainResolution:
-    """Probe name-derived hosts; return best company-aligned live domain."""
+    """Probe name-derived hosts; only return company-aligned official domains.
+
+    Live + UNRESOLVED is NEVER promoted to OFFICIAL_LIKELY (that caused wh.com
+    style false positives). Alignment must come from classify_host / credibility.
+    """
     label = " ".join(x for x in (razao_social or "", nome_fantasia or "") if x)
     best: DomainResolution | None = None
     for host in candidate_domains(razao_social=razao_social, nome_fantasia=nome_fantasia)[:max_probes]:
@@ -168,10 +222,11 @@ def probe_official_domain(
         res.provenance = list(res.provenance or []) + ["domain_probe"]
         res.source_url = live["url"]
         res.evidence = list(res.evidence or []) + [f"http_{live['status']}"]
-        if res.domain_class == DomainClass.UNRESOLVED.value:
-            res.domain_class = DomainClass.OFFICIAL_LIKELY.value
-            res.confidence = max(res.confidence, 0.6)
-            res.evidence.append("live_name_derived_host")
+        # Hard gate: only company-aligned classes may become official
+        if not res.is_company_owned_eligible():
+            continue
+        if not is_credible_company_domain(res.domain, label):
+            continue
         if best is None or res.confidence > best.confidence:
             best = res
         if res.domain_class == DomainClass.OFFICIAL_CONFIRMED.value:

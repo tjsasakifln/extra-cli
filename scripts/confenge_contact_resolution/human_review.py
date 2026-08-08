@@ -19,7 +19,21 @@ def _contact_row(
     bucket: str,
 ) -> dict[str, Any]:
     c = contact or {}
-    prov = c.get("provenance") or {}
+    # Candidates serialize SourceProvenance under "source" (not "provenance")
+    src = c.get("source") if isinstance(c.get("source"), dict) else {}
+    prov = c.get("provenance") if isinstance(c.get("provenance"), dict) else {}
+    source_url = (
+        src.get("source_url")
+        or prov.get("source_url")
+        or c.get("source_url")
+        or (c.get("source_urls") or [None])[0]
+    )
+    source_type = (
+        src.get("source_type")
+        or prov.get("source_type")
+        or c.get("source_type")
+        or (c.get("source_types") or [None])[0]
+    )
     return {
         "bucket": bucket,
         "empresa": company.get("company_name") or company.get("razao_social"),
@@ -30,8 +44,8 @@ def _contact_row(
         "ownership_status": c.get("ownership_status"),
         "confidence": c.get("confidence"),
         "reason": c.get("ownership_reason") or c.get("verification_reason") or c.get("reason"),
-        "source_url": prov.get("source_url") or c.get("source_url"),
-        "source_type": prov.get("source_type") or c.get("source_type"),
+        "source_url": source_url,
+        "source_type": source_type,
         "official_domain": company.get("official_domain"),
         "reuse_signal": c.get("associated_company_count"),
         "third_party_signals": c.get("third_party_type"),

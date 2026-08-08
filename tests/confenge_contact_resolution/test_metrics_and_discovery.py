@@ -4,6 +4,11 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from scripts.confenge_contact_resolution.adapters.contact_pages import ContactPageAdapter
+from scripts.confenge_contact_resolution.adapters.public_docs import PublicDocsAdapter
+from scripts.confenge_contact_resolution.adapters.registry import RegistryAdapter
+from scripts.confenge_contact_resolution.adapters.site import SiteAdapter
+from scripts.confenge_contact_resolution.adapters.web_search import NoOpWebSearchProvider, WebSearchAdapter
 from scripts.confenge_contact_resolution.discovery.official_domain import (
     DomainClass,
     classify_host,
@@ -29,20 +34,11 @@ from scripts.confenge_contact_resolution.models import (
     VerificationStatus,
 )
 from scripts.confenge_contact_resolution.ownership import (
-    OwnershipContext,
-    apply_ownership_to_candidate,
     primary_rejection_reason,
     rejected_contact_dict,
-    resolve_ownership,
 )
-from scripts.confenge_contact_resolution.resolver import ContactResolver, ResolverConfig
+from scripts.confenge_contact_resolution.resolver import ResolverConfig
 from scripts.confenge_contact_resolution.reuse_graph import ContactReuseGraph
-from scripts.confenge_contact_resolution.adapters.base import AdapterContext
-from scripts.confenge_contact_resolution.adapters.registry import RegistryAdapter
-from scripts.confenge_contact_resolution.adapters.site import SiteAdapter
-from scripts.confenge_contact_resolution.adapters.public_docs import PublicDocsAdapter
-from scripts.confenge_contact_resolution.adapters.contact_pages import ContactPageAdapter
-from scripts.confenge_contact_resolution.adapters.web_search import NoOpWebSearchProvider, WebSearchAdapter
 
 
 def _cand_pattern() -> ContactCandidate:

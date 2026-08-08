@@ -93,10 +93,32 @@ _STOP_TOKENS = frozenset(
         "comércio",
         "servicos",
         "serviços",
+        "servico",
+        "serviço",
         "construtora",
         "engenharia",
         "construcoes",
         "construções",
+        "construcao",
+        "construção",
+        "transportadora",
+        "transportes",
+        "mineracao",
+        "mineração",
+        "pavimentacao",
+        "pavimentação",
+        "instalacoes",
+        "instalações",
+        "locacao",
+        "locação",
+        "empreendimentos",
+        "participacoes",
+        "participações",
+        "incorporadora",
+        "industria",
+        "indústria",
+        "infraestrutura",
+        "saneamento",
         "www",
         "http",
         "https",
@@ -371,16 +393,19 @@ def resolve_ownership(
         official = (ctx.official_domain or "").removeprefix("www.").lower()
         site_norm = (site_dom or "").removeprefix("www.").lower() if site_dom else ""
 
-        # Strong: official company domain (caller must only set official_domain when company-aligned)
-        if official and domain == official and overlap >= 0.15:
+        # Strong: official company domain — require real name alignment (no short/generic FPs)
+        if official and domain == official and overlap >= 0.35 and not tp_type:
             domain_match = True
             score += 25
             parts.append("email_domain_eq_official_company=+25")
-        elif official and domain == official and not tp_type:
-            # Official domain set and no third-party signal on domain
+        elif official and domain == official and overlap >= 0.2 and not tp_type:
+            # Weaker alignment still on caller-confirmed official domain
             domain_match = True
-            score += 20
-            parts.append("email_domain_eq_official_no_tp=+20")
+            score += 15
+            parts.append("email_domain_eq_official_weak_overlap=+15")
+        elif official and domain == official and not tp_type and overlap < 0.2:
+            # Explicitly refuse: official_domain set without company-name alignment
+            parts.append("email_domain_eq_official_but_unaligned_with_company=0")
         elif overlap >= 0.35:
             domain_match = True
             score += 25
