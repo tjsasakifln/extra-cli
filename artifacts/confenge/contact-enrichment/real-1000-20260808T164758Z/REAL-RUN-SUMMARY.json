@@ -5,13 +5,28 @@
   "synthetic_contacts": 0,
   "manually_injected_contacts": 0,
   "network_enabled": true,
-  "precision_filter_applied": true,
+  "precision_filter_applied": false,
+  "ownership_identity_gate_reapplied": true,
   "companies_processed": 1000,
-  "companies_with_enrollable_email": 171,
-  "emails_enrollable": 313,
-  "dropped_false_positive_email_rows": 696,
+  "companies_with_enrollable_email": 183,
+  "emails_enrollable": 347,
+  "dropped_false_positive_email_rows": 69,
+  "prev_companies_with_enrollable_email": 230,
+  "prev_emails_enrollable": 416,
   "operational_bar_100_companies": true,
   "human_validation": "HUMAN_REVIEW_PENDING",
   "machine_validation": "PASS",
-  "note": "Commercial counts after residual-safe domain alignment + placeholder phone rejection"
+  "human_review": {
+    "schema": "confenge-human-review-status-v1",
+    "generated_at": "2026-08-08T20:00:26Z",
+    "machine_validation": "PASS",
+    "human_validation": "HUMAN_REVIEW_PENDING",
+    "counts": {
+      "accepted": 20,
+      "rejected": 20,
+      "unresolved": 20
+    },
+    "note": "Human validation must not be auto-approved by the pipeline."
+  },
+  "note": "Re-resolved via hard conjunctive COMPANY_OWNED identity gate (domain_match residual-safe); no offline filter theater"
 }

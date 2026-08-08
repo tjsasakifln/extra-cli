@@ -105,6 +105,87 @@ def test_case_a_legitimate_company_email_enrollable() -> None:
     assert c.ownership_status == OwnershipStatus.COMPANY_OWNED.value
 
 
+def test_residual_foreign_email_never_enrollable_via_site_score() -> None:
+    """Structural gate: residual-foreign domains cannot enroll via score soup.
+
+    Skeptic residual FPs (emkoelektronik / hotelparaiso / alcicafe) must fail
+    enrollable through resolve_ownership itself — not a post-hoc feed filter.
+    """
+    cases = (
+        (
+            "info@emkoelektronik.com",
+            "EMKO CONSTRUTORA LTDA",
+            "emkoelektronik.com",
+            "site",
+            "https://emkoelektronik.com/contato",
+        ),
+        (
+            "reservas@hotelparaiso.com.br",
+            "PARAISO DAS MADEIRAS V.PALMA LTDA",
+            "hotelparaiso.com.br",
+            "official_domain",
+            "https://hotelparaiso.com.br/",
+        ),
+        (
+            "contato@alcicafe.com.br",
+            "ALCI N. BECKER",
+            "alcicafe.com.br",
+            "company_page",
+            "https://alcicafe.com.br/contato",
+        ),
+        # Score-soup shape: contact_page on residual host + official_domain set to same host
+        (
+            "info@emkoelektronik.com",
+            "EMKO CONSTRUTORA LTDA",
+            "emkoelektronik.com",
+            "contact_page",
+            "https://emkoelektronik.com/contato",
+        ),
+    )
+    for email, razao, domain, source_type, url in cases:
+        c = _cand(
+            email=email,
+            source_type=source_type,
+            source_url=url,
+            site=f"https://{domain}",
+        )
+        ctx = OwnershipContext(
+            cnpj14="11222333000181",
+            razao_social=razao,
+            # Deliberately poisoned official_domain — gate must still refuse
+            official_domain=domain,
+        )
+        r = resolve_ownership(c, ctx=ctx)
+        apply_ownership_to_candidate(c, r)
+        assert c.enrollable is False, (email, source_type, r.ownership_status, r.score_parts)
+        assert r.ownership_status != OwnershipStatus.COMPANY_OWNED.value, (
+            email,
+            source_type,
+            r.score_parts,
+        )
+        assert r.domain_matches_company is not True
+
+
+def test_aligned_official_domain_still_enrollable() -> None:
+    """Positive control: residual-safe brand domains still become COMPANY_OWNED."""
+    c = _cand(
+        email="comercial@aegea.com.br",
+        source_type="site",
+        source_url="https://aegea.com.br/contato",
+        site="https://aegea.com.br",
+    )
+    ctx = OwnershipContext(
+        cnpj14="11222333000181",
+        razao_social="AEGEA SANEAMENTO E PARTICIPACOES S.A.",
+        official_domain="aegea.com.br",
+    )
+    r = resolve_ownership(c, ctx=ctx)
+    apply_ownership_to_candidate(c, r)
+    assert r.ownership_status == OwnershipStatus.COMPANY_OWNED.value
+    assert c.enrollable is True
+    assert r.domain_matches_company is True
+
+
 # --- B: accounting office domain ---
 def test_case_b_accounting_domain_rejected() -> None:
     c = _cand(

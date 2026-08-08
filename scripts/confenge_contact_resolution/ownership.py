@@ -431,19 +431,26 @@ def resolve_ownership(
         # Only reinforce when we already matched the company, or site domain matches company name.
         if site_norm and domain == site_norm:
             site_overlap = domain_token_overlap(site_norm, company_label)
-            if domain_match or site_overlap >= 0.35:
+            if domain_match or (aligned and site_overlap >= 0.35):
                 score += 10
                 parts.append("email_domain_eq_company_aligned_site=+10")
             else:
                 parts.append("email_domain_eq_site_circular_not_company_proof=0")
-                # Downgrade "strong_page" credit when page is not company-aligned
-                if strong_page and not domain_match:
-                    score -= 15
-                    parts.append("unaligned_page_credit_revoked=-15")
 
-        if not domain_match and strong_page and not tp_type and overlap >= 0.2:
+        # Residual-foreign / unaligned: revoke additive site credits (score soup).
+        # Without this, official_source+40 + company_page+15 + weak_hint+8 >= 60
+        # enrolls emkoelektronik/hotelparaiso/alcicafe via strong_page alone.
+        if not domain_match and not aligned:
+            if strong_page:
+                score -= 15
+                parts.append("unaligned_page_credit_revoked=-15")
+            if found_official and not found_doc:
+                score -= 40
+                parts.append("unaligned_official_source_credit_revoked=-40")
+        elif domain_match and strong_page and not tp_type:
+            # Reinforce only when residual-safe domain_match already holds
             score += 8
-            parts.append("weak_page_company_hint=+8")
+            parts.append("aligned_page_company_hint=+8")
 
     if freemail:
         score -= 15
@@ -676,34 +683,66 @@ def resolve_ownership(
             associated_company_count=associated,
         )
 
-    if score >= 60 and (domain_match or strong_page or (official_src and not freemail)):
-        status = OwnershipStatus.COMPANY_OWNED.value
-        reason = "strong_company_ownership_signals"
-        vreason = "VERIFIED" if score >= 70 else "OBSERVED_COMPANY"
-    elif score >= 40:
-        status = OwnershipStatus.LIKELY_COMPANY_OWNED.value
-        reason = "consistent_but_not_definitive_ownership_signals"
-        vreason = "REVIEW_REQUIRED"
-    elif score >= 15:
-        status = OwnershipStatus.UNRESOLVED.value
-        reason = "insufficient_ownership_evidence"
-        vreason = "UNRESOLVED"
-    else:
-        status = OwnershipStatus.UNRESOLVED.value
-        reason = "weak_or_conflicting_ownership_signals"
-        vreason = "UNRESOLVED"
+    # Non-freemail email: hard conjunctive gate — score alone never enrolls.
+    # COMPANY_OWNED requires residual-safe domain_match OR (document + domain alignment).
+    # Site-only weak brand hits stay LIKELY (review) and never enrollable.
+    if email:
+        identity_ok = bool(domain_match)
+        if not identity_ok and found_doc and domain:
+            from scripts.confenge_contact_resolution.discovery.official_domain import (
+                email_domain_aligned_with_company as _eda,
+            )
 
-    # Phone-only company-owned: official registry single holder + no reuse
-    if (
-        not email
-        and candidate.phone_e164
-        and status == OwnershipStatus.LIKELY_COMPANY_OWNED.value
-        and official_src
-        and (not reuse or reuse.unrelated_count <= 1)
-    ):
-        # Registry phones alone stay LIKELY (not enrollable for email outreach),
-        # but may be COMPANY_OWNED if also on site/contact_page.
-        if strong_page or found_doc:
+            identity_ok = _eda(
+                domain,
+                company_label,
+                official_domain=(ctx.official_domain or None),
+            )
+        if identity_ok and score >= 55:
+            status = OwnershipStatus.COMPANY_OWNED.value
+            reason = "domain_match_company_owned" if domain_match else "document_proof_company_owned"
+            vreason = "VERIFIED" if score >= 70 else "OBSERVED_COMPANY"
+            parts.append(f"identity_gate_ok score={score}")
+        elif score >= 40:
+            status = OwnershipStatus.LIKELY_COMPANY_OWNED.value
+            reason = "consistent_but_not_definitive_ownership_signals"
+            vreason = "REVIEW_REQUIRED"
+            if not identity_ok:
+                parts.append("identity_gate_blocked_company_owned")
+        elif score >= 15:
+            status = OwnershipStatus.UNRESOLVED.value
+            reason = "insufficient_ownership_evidence"
+            vreason = "UNRESOLVED"
+            if not identity_ok:
+                parts.append("identity_gate_blocked_company_owned")
+        else:
+            status = OwnershipStatus.UNRESOLVED.value
+            reason = "weak_or_conflicting_ownership_signals"
+            vreason = "UNRESOLVED"
+            if not identity_ok:
+                parts.append("identity_gate_blocked_company_owned")
+    else:
+        # Phone-only path (no email)
+        if score >= 60 and (strong_page or found_doc or official_src):
+            status = OwnershipStatus.LIKELY_COMPANY_OWNED.value
+            reason = "phone_signals_review_or_company"
+            vreason = "REVIEW_REQUIRED"
+        elif score >= 40:
+            status = OwnershipStatus.LIKELY_COMPANY_OWNED.value
+            reason = "consistent_but_not_definitive_ownership_signals"
+            vreason = "REVIEW_REQUIRED"
+        else:
+            status = OwnershipStatus.UNRESOLVED.value
+            reason = "insufficient_ownership_evidence"
+            vreason = "UNRESOLVED"
+
+        # Phone-only company-owned: site/doc single holder (not registry alone)
+        if (
+            candidate.phone_e164
+            and status == OwnershipStatus.LIKELY_COMPANY_OWNED.value
+            and (strong_page or found_doc)
+            and (not reuse or reuse.unrelated_count <= 1)
+        ):
             status = OwnershipStatus.COMPANY_OWNED.value
             reason = "phone_on_official_company_source_single_holder"
             vreason = "VERIFIED_PHONE"

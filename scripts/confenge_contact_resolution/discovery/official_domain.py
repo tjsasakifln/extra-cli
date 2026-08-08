@@ -292,11 +292,7 @@ def classify_host(
 
     # Brand token in host: distinctive only (len>=6, not industry generic)
     if label:
-        tokens = [
-            t
-            for t in re.split(r"[^a-z0-9]+", label.lower())
-            if len(t) >= 6 and t not in _GENERIC_BRAND_TOKENS
-        ]
+        tokens = [t for t in re.split(r"[^a-z0-9]+", label.lower()) if len(t) >= 6 and t not in _GENERIC_BRAND_TOKENS]
         host_compact = h.replace(".", "").replace("-", "")
         sld = _second_level_label(h)
         for t in tokens:
@@ -379,13 +375,27 @@ _ALLOWED_SLD_RESIDUALS = frozenset(
 )
 
 
-def _company_brand_words(company_label: str | None) -> list[str]:
+_LEGAL_LABEL_TOKENS = frozenset(
+    {"ltda", "limitada", "sa", "me", "epp", "eireli", "s", "a", "e", "das", "dos", "da", "do", "de"}
+)
+
+
+def _company_label_tokens(company_label: str | None) -> list[str]:
+    """Legal-stripped label tokens (keeps industry generics for compact matching)."""
     label = (company_label or "").strip()
     if not label:
         return []
     raw_parts = [t for t in re.split(r"[^a-z0-9]+", re.sub(r"[^a-z0-9\s]", " ", label.lower())) if t]
-    legal = {"ltda", "limitada", "sa", "me", "epp", "eireli", "s", "a", "e", "das", "dos", "da", "do", "de"}
-    return [t for t in raw_parts if t not in legal and t not in _GENERIC_BRAND_TOKENS]
+    return [t for t in raw_parts if t not in _LEGAL_LABEL_TOKENS]
+
+
+def _company_brand_words(company_label: str | None) -> list[str]:
+    return [t for t in _company_label_tokens(company_label) if t not in _GENERIC_BRAND_TOKENS]
+
+
+def _norm_label_slug(s: str) -> str:
+    """Collapse hyphens/underscores so acme-engenharia matches acmeengenharia."""
+    return re.sub(r"[-_]+", "", (s or "").lower())
 
 
 def brand_residual_ok(sld: str, brand: str) -> bool:
@@ -393,8 +403,8 @@ def brand_residual_ok(sld: str, brand: str) -> bool:
 
     Blocks emko+elektronik, hotel+paraiso, alci+cafe style hijacks.
     """
-    sld = (sld or "").lower()
-    brand = (brand or "").lower()
+    sld = _norm_label_slug(sld)
+    brand = _norm_label_slug(brand)
     if not sld or not brand or len(brand) < 3:
         return False
     if sld == brand:
@@ -407,6 +417,35 @@ def brand_residual_ok(sld: str, brand: str) -> bool:
     if sld.endswith(brand):
         residual = sld[: -len(brand)]
         return residual in _ALLOWED_SLD_RESIDUALS or residual in {"grupo", "group"}
+    return False
+
+
+def _sld_matches_label_compact(sld: str, label_tokens: list[str]) -> bool:
+    """True when SLD is an exact compact of legal-stripped label tokens.
+
+    Accepts industry+name forms (alphaengenharia, construtoraalpha, acme-engenharia)
+    without treating foreign residuals (emkoelektronik) as company-owned.
+    """
+    sld_n = _norm_label_slug(sld)
+    if not sld_n or not label_tokens:
+        return False
+    for n in (2, 3, 4):
+        if len(label_tokens) >= n:
+            compact = "".join(label_tokens[:n])
+            if len(compact) >= 6 and sld_n == compact:
+                return True
+    # Reorder industry generic + distinctive brand either way
+    non_gen = [t for t in label_tokens if t not in _GENERIC_BRAND_TOKENS and len(t) >= 3]
+    gen = [t for t in label_tokens if t in _GENERIC_BRAND_TOKENS]
+    for ng in non_gen[:3]:
+        for g in gen[:3]:
+            for compact in (ng + g, g + ng):
+                if len(compact) >= 6 and sld_n == compact:
+                    return True
+    # Distinctive brand alone equals SLD (acme vs acme-filial residual filial)
+    for ng in non_gen[:3]:
+        if brand_residual_ok(sld_n, ng):
+            return True
     return False
 
 
@@ -425,7 +464,15 @@ def is_credible_company_domain(domain: str | None, company_label: str | None) ->
         return False
     if sld in _GENERIC_BRAND_TOKENS:
         return False
+    label_tokens_all = _company_label_tokens(company_label)
     words = _company_brand_words(company_label)
+    if not label_tokens_all:
+        return False
+
+    # Exact multi-token compact (keeps alphaengenharia / construtoraalpha legit)
+    if _sld_matches_label_compact(sld, label_tokens_all):
+        return True
+
     if not words:
         return False
 
@@ -441,7 +488,7 @@ def is_credible_company_domain(domain: str | None, company_label: str | None) ->
     if brand_residual_ok(sld, words[0]) and len(words[0]) >= 4:
         return True
 
-    # Multi-token compact brand: "alpha engenharia" → alphaengenharia
+    # Multi-token compact brand from distinctive tokens only
     if len(words) >= 2:
         compact = "".join(words[:2])
         if len(compact) >= 6 and brand_residual_ok(sld, compact):

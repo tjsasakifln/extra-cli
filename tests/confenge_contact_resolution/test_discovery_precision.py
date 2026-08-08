@@ -94,6 +94,20 @@ def test_email_domain_residual_safe_variants():
         "PARAISO DAS MADEIRAS V.PALMA LTDA",
         official_domain="paraiso.com.br",
     )
+    # Exact multi-token compact of company label stays aligned
+    assert is_credible_company_domain(
+        "alphaengenharia.com.br",
+        "ALPHA ENGENHARIA E CONSTRUCOES LTDA",
+    )
+    assert is_credible_company_domain(
+        "construtoraalpha.com.br",
+        "Construtora Alpha Ltda",
+    )
+    assert email_domain_aligned_with_company(
+        "alphaengenharia.com.br",
+        "ALPHA ENGENHARIA E CONSTRUCOES LTDA",
+        official_domain="alphaengenharia.com.br",
+    )
 
 
 def test_placeholder_phone_invalid():
@@ -135,9 +149,7 @@ def test_probe_does_not_promote_unresolved_live_hosts(monkeypatch):
         lambda **kwargs: ["wh.com", "pavsantos.com.br"],
     )
     res = probe_official_domain(razao_social="WH CONSTRUTORA LTDA")
-    assert res.domain_class == DomainClass.UNRESOLVED.value or (
-        res.domain and "pavsantos" not in (res.domain or "")
-    )
+    assert res.domain_class == DomainClass.UNRESOLVED.value or (res.domain and "pavsantos" not in (res.domain or ""))
     # For WH label, pavsantos must not be selected either
     assert res.domain != "wh.com"
     assert not res.is_company_owned_eligible() or res.domain != "wh.com"
@@ -168,7 +180,10 @@ def test_html_extract_mailto_tel_whatsapp_jsonld():
     wa = extract_whatsapp(html)
     assert "contato@empresa-alpha.com.br" in emails
     assert "comercial@empresa-alpha.com.br" in emails
-    assert any("999887766" in p.replace(" ", "").replace("-", "") or "5511999887766" in p.replace(" ", "") for p in phones) or phones
+    assert (
+        any("999887766" in p.replace(" ", "").replace("-", "") or "5511999887766" in p.replace(" ", "") for p in phones)
+        or phones
+    )
     assert wa
     contacts = extract_contacts_from_html(html, source_url="https://empresa-alpha.com.br/contato")
     assert contacts
@@ -243,9 +258,7 @@ def test_cascade_stop_early_on_strong_public_doc(monkeypatch):
     assert result.stats.search_queries == 0
     assert calls["search"] == 0
     assert calls["probe"] == 0
-    assert any(
-        (d.get("email") or "").endswith("@alphaengenharia.com.br") for d in (result.ctx.public_docs or [])
-    )
+    assert any((d.get("email") or "").endswith("@alphaengenharia.com.br") for d in (result.ctx.public_docs or []))
 
 
 def test_accounting_shared_phone_rejected_end_to_end():
