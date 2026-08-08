@@ -1,8 +1,8 @@
 {
   "schema": "confenge.full_national_run.v1",
-  "generated_at": "2026-08-08T03:08:58.851022+00:00",
-  "extra_cli_sha": "6b795b6a5584858155d87bd28c8c5d38b740199d",
-  "repo_sha": "6b795b6a5584858155d87bd28c8c5d38b740199d",
+  "generated_at": "2026-08-08T03:10:02.308388+00:00",
+  "extra_cli_sha": "5e9985d9ba42653102067116bf268031c0955715",
+  "repo_sha": "5e9985d9ba42653102067116bf268031c0955715",
   "universe_execution_sha": "7cf9593d68afad00006f578cc7324aee506cebe2",
   "universe_execution_note": "Full-scale universe rows/counts from datalake run at universe_execution_sha; source fingerprint recomputed on current HEAD after id-column fix (fingerprint_error=null). Re-running full 3.6M-row universe is BLOCKED_EXTERNAL for wall-clock; counts/reconciliation remain those measured at execution_sha.",
   "as_of": "2026-08-07",
