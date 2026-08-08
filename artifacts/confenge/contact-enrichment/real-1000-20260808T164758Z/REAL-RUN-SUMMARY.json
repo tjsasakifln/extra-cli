@@ -16,7 +16,7 @@
   "machine_validation": "PASS",
   "human_review": {
     "schema": "confenge-human-review-status-v1",
-    "generated_at": "2026-08-08T20:14:00Z",
+    "generated_at": "2026-08-08T20:26:37Z",
     "machine_validation": "PASS",
     "human_validation": "HUMAN_REVIEW_PENDING",
     "counts": {
@@ -26,5 +26,5 @@
     },
     "note": "Human validation must not be auto-approved by the pipeline."
   },
-  "note": "Hard COMPANY_OWNED gate: residual-safe domain_match + SLD len>=4; re-resolved via ownership path"
+  "note": "Hard COMPANY_OWNED identity gate + phone residual-host gate; re-resolved via resolve_ownership"
 }

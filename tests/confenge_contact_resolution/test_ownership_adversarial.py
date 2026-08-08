@@ -210,6 +210,46 @@ def test_short_generic_official_host_never_enrollable() -> None:
         assert r.domain_matches_company is not True
 
 
+def test_phone_only_on_residual_foreign_site_never_enrollable() -> None:
+    """CONNECTOR-style FP: phone scraped from caiafafacilities must not enroll."""
+    c = _cand(
+        phone="61999185906",
+        source_type="site",
+        source_url="https://caiafafacilities.com.br/",
+        site="https://caiafafacilities.com.br/",
+        cnpj14="01114245000102",
+    )
+    ctx = OwnershipContext(
+        cnpj14="01114245000102",
+        razao_social="CONNECTOR ENGENHARIA LTDA",
+        official_domain="caiafafacilities.com.br",
+    )
+    r = resolve_ownership(c, ctx=ctx)
+    apply_ownership_to_candidate(c, r)
+    assert c.enrollable is False
+    assert r.ownership_status != OwnershipStatus.COMPANY_OWNED.value
+    assert "phone_identity_gate_blocked" in r.score_parts or "phone_source_host" in (r.ownership_reason or "")
+
+
+def test_phone_only_on_aligned_company_site_may_enroll() -> None:
+    c = _cand(
+        phone="4832221000",
+        source_type="site",
+        source_url="https://pavsantos.com.br/contato",
+        site="https://pavsantos.com.br",
+        cnpj14="03575041000102",
+    )
+    ctx = OwnershipContext(
+        cnpj14="03575041000102",
+        razao_social="PAVSANTOS CONSTRUTORA LTDA",
+        official_domain="pavsantos.com.br",
+    )
+    r = resolve_ownership(c, ctx=ctx)
+    apply_ownership_to_candidate(c, r)
+    assert r.ownership_status == OwnershipStatus.COMPANY_OWNED.value
+    assert c.enrollable is True
+
+
 # --- B: accounting office domain ---
 def test_case_b_accounting_domain_rejected() -> None:
     c = _cand(

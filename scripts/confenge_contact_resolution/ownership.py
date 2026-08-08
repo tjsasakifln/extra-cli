@@ -722,23 +722,45 @@ def resolve_ownership(
             if not identity_ok:
                 parts.append("identity_gate_blocked_company_owned")
     else:
-        # Phone-only path (no email)
-        if score >= 60 and (strong_page or found_doc or official_src):
+        # Phone-only path (no email): site host must be residual-safe company domain.
+        # Blocks caiafafacilities.com.br phones attributed to CONNECTOR ENGENHARIA.
+        from scripts.confenge_contact_resolution.discovery.official_domain import (
+            is_credible_company_domain as _icd,
+        )
+
+        host_for_phone = (ctx.official_domain or site_dom or "").removeprefix("www.").lower()
+        phone_host_ok = bool(host_for_phone) and _icd(host_for_phone, company_label)
+        if not phone_host_ok and (strong_page or found_official):
+            if strong_page:
+                score -= 15
+                parts.append("phone_unaligned_page_credit_revoked=-15")
+            if found_official and not found_doc:
+                score -= 40
+                parts.append("phone_unaligned_official_source_credit_revoked=-40")
+            conf = max(0.0, min(1.0, score / 100.0))
+
+        if phone_host_ok and score >= 60 and (strong_page or found_doc or official_src):
             status = OwnershipStatus.LIKELY_COMPANY_OWNED.value
             reason = "phone_signals_review_or_company"
             vreason = "REVIEW_REQUIRED"
-        elif score >= 40:
+        elif phone_host_ok and score >= 40:
             status = OwnershipStatus.LIKELY_COMPANY_OWNED.value
             reason = "consistent_but_not_definitive_ownership_signals"
             vreason = "REVIEW_REQUIRED"
+        elif not phone_host_ok:
+            status = OwnershipStatus.UNRESOLVED.value
+            reason = "phone_source_host_not_company_aligned"
+            vreason = "UNRESOLVED"
+            parts.append("phone_identity_gate_blocked")
         else:
             status = OwnershipStatus.UNRESOLVED.value
             reason = "insufficient_ownership_evidence"
             vreason = "UNRESOLVED"
 
-        # Phone-only company-owned: site/doc single holder (not registry alone)
+        # Phone-only company-owned: residual-safe site/doc single holder (not registry alone)
         if (
             candidate.phone_e164
+            and phone_host_ok
             and status == OwnershipStatus.LIKELY_COMPANY_OWNED.value
             and (strong_page or found_doc)
             and (not reuse or reuse.unrelated_count <= 1)
