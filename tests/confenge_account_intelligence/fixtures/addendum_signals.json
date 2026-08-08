@@ -1,0 +1,60 @@
+{
+  "cnpj": "55666777000144",
+  "razao_social": "OBRAS PLANALTO EIRELI",
+  "nome_fantasia": "Planalto Obras",
+  "municipio": "Curitiba",
+  "uf": "PR",
+  "cnae_principal": "4120-4/00",
+  "activity_class": "CONSTRUCTION_CONTRACTOR",
+  "as_of": "2026-08-01",
+  "commercial_state": "NEW",
+  "signals": {
+    "national_operation": false,
+    "consortium_participation": false,
+    "regional_only": false,
+    "high_recurrence": false,
+    "rapid_growth": false
+  },
+  "contracts": [
+    {
+      "id": "ct-pl-01",
+      "object": "Construção de centro administrativo",
+      "value_brl": 12500000,
+      "start_date": "2025-01-15",
+      "end_date": "2026-12-31",
+      "uf": "PR",
+      "orgao": "Prefeitura de Curitiba",
+      "has_addendum": true,
+      "addendum_count": 3,
+      "has_reajuste": false,
+      "source_url": "https://example.local/pncp/ct-pl-01",
+      "source_document": "Contrato 088/2025 + TA 1-3",
+      "source_date": "2025-01-15",
+      "source_location": "PR"
+    },
+    {
+      "id": "ct-pl-02",
+      "object": "Reforma de ginásio esportivo",
+      "value_brl": 3400000,
+      "start_date": "2025-08-01",
+      "end_date": "2026-08-01",
+      "uf": "PR",
+      "orgao": "Prefeitura de Londrina",
+      "has_addendum": true,
+      "addendum_count": 1,
+      "source_url": "https://example.local/pncp/ct-pl-02",
+      "source_document": "Contrato 201/2025",
+      "source_date": "2025-08-01"
+    }
+  ],
+  "facts": [
+    {
+      "id": "f-pl-add",
+      "text": "Três termos aditivos publicados no contrato do centro administrativo.",
+      "epistemic_class": "confirmed",
+      "confidence": 1.0,
+      "evidence_ids": ["ev-contract-ct-pl-01"],
+      "provenance": "input.contracts.addendum_count"
+    }
+  ]
+}

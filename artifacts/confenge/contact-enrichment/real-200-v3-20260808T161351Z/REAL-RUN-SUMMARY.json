@@ -1,0 +1,73 @@
+{
+  "schema": "confenge.real_enrichment_run.v1",
+  "run_id": "real-200-v3-20260808T161351Z",
+  "fixtures_dir": null,
+  "synthetic_contacts": 0,
+  "manually_injected_contacts": 0,
+  "network_enabled": true,
+  "web_search_provider": "duckduckgo_html_with_domain_probe_fallback",
+  "note": "DDG blocked in environment; production path used BrasilAPI + name-derived domain probe + conservative site crawl",
+  "metrics": {
+    "companies_processed": 200,
+    "companies_with_candidate": 196,
+    "companies_with_enrollable_email": 54,
+    "companies_with_enrollable_phone": 87,
+    "companies_with_both": 51,
+    "companies_no_contact": 4,
+    "emails_found": 120,
+    "emails_enrollable": 87,
+    "emails_review_required": 32,
+    "phones_found": 682,
+    "phones_enrollable": 468,
+    "third_party_rejected": 10,
+    "accounting_rejected": 0,
+    "legal_rejected": 0,
+    "shared_external_rejected": 1,
+    "pattern_guess_rejected": 0,
+    "rejected_total": 11,
+    "rejected_by_primary_reason": {
+      "ACCOUNTING": 0,
+      "LEGAL": 0,
+      "SHARED_EXTERNAL": 1,
+      "PATTERN_GUESS": 0,
+      "OTHER_THIRD_PARTY": 10,
+      "INVALID": 0
+    },
+    "pages_fetched_total": 707,
+    "duration_seconds": 1692.729,
+    "companies_per_hour": 425.35,
+    "investigation_outcomes": {
+      "CONTACT_FOUND": 100,
+      "NO_CONTACT_YET": 95,
+      "BUDGET_EXHAUSTED": 5
+    },
+    "reuse_graph_metrics": {
+      "unique_emails": 120,
+      "unique_phones": 969,
+      "contacts_shared_2_5": 13,
+      "contacts_shared_6_20": 2,
+      "contacts_shared_21_plus": 0,
+      "emails": {
+        "unique": 120,
+        "shared_2_5": 0,
+        "shared_6_20": 0,
+        "shared_21_plus": 0,
+        "same_root": 0,
+        "same_group": 0,
+        "unrelated": 0
+      },
+      "phones": {
+        "unique": 954,
+        "shared_2_5": 13,
+        "shared_6_20": 2,
+        "shared_21_plus": 0,
+        "same_root": 0,
+        "same_group": 0,
+        "unrelated": 15
+      }
+    }
+  },
+  "human_validation": "HUMAN_REVIEW_PENDING",
+  "machine_validation": "PASS",
+  "artifacts": "artifacts/confenge/contact-enrichment/real-200-v3-20260808T161351Z"
+}

@@ -1,0 +1,112 @@
+{
+  "schema": "confenge.full_national_run.v1",
+  "generated_at": "2026-08-08T03:22:14.625928+00:00",
+  "extra_cli_sha": "0d72a44105160352e17de1d9d4ae3a623a2707e4",
+  "repo_sha": "0d72a44105160352e17de1d9d4ae3a623a2707e4",
+  "universe_execution_sha": "7cf9593d68afad00006f578cc7324aee506cebe2",
+  "universe_execution_note": "Full-scale universe rows/counts from datalake run at universe_execution_sha; source fingerprint recomputed on current HEAD after id-column fix (fingerprint_error=null). Re-running full 3.6M-row universe is BLOCKED_EXTERNAL for wall-clock; counts/reconciliation remain those measured at execution_sha.",
+  "as_of": "2026-08-07",
+  "full_scale": true,
+  "source": {
+    "mode": "dsn",
+    "as_of": "2026-08-07",
+    "table": "pncp_supplier_contracts",
+    "dsn_masked": "postgresql://postgres:***@127.0.0.1:54399/postgres",
+    "csv_path": null,
+    "row_count": 3689859,
+    "max_contrato_id": "25666778",
+    "source_hash": "40786ab346e10cc93b2b50163a2349f5455975ec4194d7ec1f974ccf3b11d26c",
+    "id_column": "id",
+    "fingerprint_error": null
+  },
+  "counts": {
+    "batch_size_config": 2000,
+    "dnc_in_universe": 0,
+    "dnc_loaded_count": 0,
+    "eligibility_breakdown": {
+      "ELIGIBLE": 48748
+    },
+    "eligible_for_outreach": 48748,
+    "eligibles": 48748,
+    "exclusion_breakdown": {
+      "NATURAL_PERSON": 47,
+      "NOT_CONSTRUCTION": 318150,
+      "PUBLIC_ORGAN": 10
+    },
+    "exclusions": 318143,
+    "full_scale": true,
+    "identity_exclusion_breakdown": {
+      "INVALID_IDENTITY": 237,
+      "NATURAL_PERSON": 136879,
+      "NOT_CONSTRUCTION": 9690,
+      "PUBLIC_ORGAN": 30792
+    },
+    "identity_row_exclusions": 177598,
+    "input_contract_rows": 3689859,
+    "input_supplier_roots": 366891,
+    "max_rows": null,
+    "not_construction": 318150,
+    "peak_batch_size": 2000,
+    "reconciliation": {
+      "eligibles": 48748,
+      "exclusions": 318143,
+      "formula": "input_supplier_roots = eligibles + exclusions",
+      "input_supplier_roots": 366891,
+      "ok": true
+    },
+    "registry_rows_loaded": 0,
+    "source_mode": "dsn"
+  },
+  "reconciliation": {
+    "eligibles": 48748,
+    "exclusions": 318143,
+    "formula": "input_supplier_roots = eligibles + exclusions",
+    "input_supplier_roots": 366891,
+    "ok": true
+  },
+  "sample": {
+    "path": "artifacts/confenge/full-national-2026-08-07/02_downstream_sample/downstream-sample.jsonl",
+    "count": 200,
+    "profile_counts": {
+      "extensive_portfolio": 40,
+      "few_contracts": 40,
+      "mid_market": 40,
+      "national_structured": 40,
+      "regional_lean": 40
+    },
+    "note": "limit_downstream bounds only this sample and subsequent expensive stages; universe discovery is independent."
+  },
+  "contact_metrics": {
+    "empresas_total": 200,
+    "empresas_com_contato_nominal": 0,
+    "empresas_apenas_email_funcional_generico": 0,
+    "empresas_com_email_verificavel": 0,
+    "empresas_com_telefone_valido": 95,
+    "empresas_com_telefone_movel": 0,
+    "empresas_com_telefone_fixo": 94,
+    "empresas_sem_contato": 105,
+    "empresas_dnc": 0,
+    "nominal_contact_rate": 0.0,
+    "verified_email_rate": 0.0,
+    "generic_email_rate": 0.0,
+    "phone_rate": 0.475,
+    "no_contact_rate": 0.525,
+    "note": "Email fabricado por padr\u00e3o de nome (pattern_guessed) N\u00c3O conta como verific\u00e1vel. Telefone p\u00fablico N\u00c3O implica opt-in WhatsApp."
+  },
+  "elapsed_seconds": 9.239,
+  "peak_rss_mb": 1002.51,
+  "manifest_sha256": "0a24a827b9aa9c11888a6cacebe86a2a32bdee4e1f6b289b4af13c73d9560e5a",
+  "result": "PASS",
+  "pass": true,
+  "source_fingerprint": {
+    "mode": "dsn",
+    "as_of": "2026-08-07",
+    "table": "pncp_supplier_contracts",
+    "dsn_masked": "postgresql://postgres:***@127.0.0.1:54399/postgres",
+    "csv_path": null,
+    "row_count": 3689859,
+    "max_contrato_id": "25666778",
+    "source_hash": "40786ab346e10cc93b2b50163a2349f5455975ec4194d7ec1f974ccf3b11d26c",
+    "id_column": "id"
+  }
+}

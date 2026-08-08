@@ -1,0 +1,30 @@
+{
+  "schema": "confenge.real_enrichment_run.v1",
+  "run_id": "real-1000-20260808T164758Z",
+  "fixtures_dir": null,
+  "synthetic_contacts": 0,
+  "manually_injected_contacts": 0,
+  "network_enabled": true,
+  "precision_filter_applied": false,
+  "ownership_identity_gate_reapplied": true,
+  "companies_processed": 1000,
+  "companies_with_enrollable_email": 157,
+  "emails_enrollable": 314,
+  "dropped_false_positive_email_rows": 102,
+  "operational_bar_100_companies": true,
+  "human_validation": "HUMAN_REVIEW_PENDING",
+  "machine_validation": "PASS",
+  "human_review": {
+    "schema": "confenge-human-review-status-v1",
+    "generated_at": "2026-08-08T20:46:35Z",
+    "machine_validation": "PASS",
+    "human_validation": "HUMAN_REVIEW_PENDING",
+    "counts": {
+      "accepted": 20,
+      "rejected": 20,
+      "unresolved": 20
+    },
+    "note": "Human validation must not be auto-approved by the pipeline."
+  },
+  "note": "Honest re-resolve: razao-first identity, fantasia-only blocked, freemail needs docs, scrape-host phone gate"
+}

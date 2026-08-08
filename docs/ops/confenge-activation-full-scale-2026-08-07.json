@@ -1,0 +1,37 @@
+{
+  "policy_version": "confenge-activation-v1",
+  "evaluated_at": "2026-08-08T12:00:00Z",
+  "as_of": "2026-08-07",
+  "reservoir_count": 48748,
+  "activation_counts": {
+    "WATCH": 35570,
+    "RESEARCH_REQUIRED": 13168,
+    "ACTIONABLE_NOW": 10,
+    "SUPPRESSED": 0
+  },
+  "hot_set_count": 500,
+  "deactivation_count": 0,
+  "promotion_count": 10,
+  "source_watermark": "5f680bfe3b834edbe292c5f9b4a45ef7f2cc56f380198d708f1bcfdf35e8cb54",
+  "trigger_counts": {
+    "CONTRACT_ANNIVERSARY_WINDOW": 7591,
+    "CONTRACT_ENDING_WINDOW": 13,
+    "CONTRACT_EXTENSION_OR_PROROGATION": 143,
+    "NEW_AMENDMENT_OR_TERM": 106,
+    "NEW_RELEVANT_CONTRACT": 2,
+    "NEW_RELEVANT_PROCUREMENT": 392,
+    "RESEARCH_GAP_WORTH_RESOLVING": 6618
+  },
+  "rows_changed": 10,
+  "elapsed_seconds": 4.794,
+  "peak_rss_mb": 844.92,
+  "full_scale_universe": true,
+  "status": "PASS",
+  "elapsed_seconds_measured": 4.794,
+  "peak_rss_mb_measured": 844.92,
+  "expensive_vs_reservoir": {
+    "hot_set": 500,
+    "reservoir": 48748,
+    "ratio": 0.010257
+  }
+}

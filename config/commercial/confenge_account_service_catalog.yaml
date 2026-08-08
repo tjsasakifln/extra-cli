@@ -1,0 +1,189 @@
+# CONFENGE account-intelligence service catalog — versioned, extensible.
+# Consumed by scripts/confenge_account_intelligence (isolated module).
+# Does not replace config/commercial_profiles/confenge.yaml queue offers.
+
+schema_version: "1.0.0"
+catalog_id: confenge_account_service_catalog
+catalog_version: "1.0.0"
+version_date: "2026-08-07"
+profile_id: confenge
+brand: CONFENGE
+notes: >
+  Catálogo de serviços CONFENGE para roteamento de inteligência por conta
+  (construtoras / empresas de engenharia). Cada serviço é uma família
+  oferteável; o router escolhe o melhor encaixe a partir de evidência e
+  momento, não de template fixo por score. Diagnóstico/descoberta é
+  serviço legítimo quando o melhor ângulo for discovery.
+
+services:
+  - service_id: estruturacao_pleito_reajuste
+    family: reajuste_contratual
+    label: Estruturação de pleito de reajuste contratual
+    problem_solved: >
+      Contratos maduros sem prova pública de reajuste, ou reajustes
+      incompletos/atrasados que geram descompasso econômico.
+    fit_signals:
+      - mature_contract_without_reajuste_proof
+      - reajuste_clause_present_without_execution_evidence
+      - long_running_contract_cpi_window
+    approach_modes:
+      robust: revisao_independente_segunda_opiniao
+      lean: estruturacao_operacional_assistida
+    default_tone: tecnico_moderado
+    discovery_fallback: false
+
+  - service_id: reequilibrio_economico_financeiro
+    family: reequilibrio
+    label: Reequilíbrio econômico-financeiro
+    problem_solved: >
+      Eventos extraordinários, álea econômica ou desequilíbrio que
+      demandam análise técnica de reequilíbrio.
+    fit_signals:
+      - reequilibrio_mention
+      - extraordinary_cost_shock
+      - force_majeure_or_price_disruption
+    approach_modes:
+      robust: parecer_tecnico_independente
+      lean: apoio_a_montagem_do_pleito
+    default_tone: tecnico_alto
+    discovery_fallback: false
+
+  - service_id: aditivos_extracontratuais
+    family: aditivos
+    label: Aditivos, alterações e serviços extracontratuais
+    problem_solved: >
+      Alterações quantitativas/qualitativas, aditivos recorrentes e
+      serviços extracontratuais mal documentados.
+    fit_signals:
+      - addendum_present
+      - quantitative_or_qualitative_change
+      - extracontractual_services
+    approach_modes:
+      robust: auditoria_focal_de_aditivos
+      lean: apoio_a_formalizacao_de_aditivos
+    default_tone: tecnico_moderado
+    discovery_fallback: false
+
+  - service_id: medicoes_glosas_memoria
+    family: medicoes
+    label: Medições, faturamento, glosas e memória de cálculo
+    problem_solved: >
+      Glosas, medições contestadas, faturamento atrasado ou memória
+      de cálculo inconsistente.
+    fit_signals:
+      - glosa_signal
+      - measurement_dispute
+      - billing_delay
+    approach_modes:
+      robust: revisao_independente_de_medicao
+      lean: apoio_operacional_a_medicao
+    default_tone: tecnico_alto
+    discovery_fallback: false
+
+  - service_id: auditoria_orcamento_bdi
+    family: orcamento
+    label: Auditoria de orçamento, composições, BDI e planilhas
+    problem_solved: >
+      Planilhas, composições e BDI que precisam de segunda opinião
+      ou auditoria específica (não implica ausência de estrutura).
+    fit_signals:
+      - budget_audit_need
+      - bdi_or_composition_signal
+      - high_value_technical_package
+    approach_modes:
+      robust: auditoria_independente_segunda_opiniao
+      lean: revisao_tecnica_assistida
+    default_tone: tecnico_alto
+    discovery_fallback: false
+
+  - service_id: gestao_monitoramento_contratual
+    family: gestao_contratual
+    label: Gestão e monitoramento contratual
+    problem_solved: >
+      Portfólio ativo que se beneficia de acompanhamento contínuo
+      de prazos, obrigações e eventos contratuais.
+    fit_signals:
+      - multi_contract_portfolio
+      - near_expiry
+      - concurrent_obligations
+    approach_modes:
+      robust: monitoramento_focal_de_pico
+      lean: gestao_contratual_assistida
+    default_tone: tecnico_moderado
+    discovery_fallback: false
+
+  - service_id: apoio_licitacoes_propostas
+    family: licitacoes
+    label: Apoio técnico em licitações, propostas e editais
+    problem_solved: >
+      Preparação ou reforço de propostas/editais em janelas
+      competitivas recentes.
+    fit_signals:
+      - recent_tender_activity
+      - proposal_window
+      - edital_complexity
+    approach_modes:
+      robust: apoio_de_pico_em_proposta
+      lean: apoio_operacional_a_proposta
+    default_tone: tecnico_moderado
+    discovery_fallback: false
+
+  - service_id: inteligencia_pncp_mercado
+    family: inteligencia_mercado
+    label: Inteligência PNCP e mercado público
+    problem_solved: >
+      Necessidade de leitura de mercado, concorrentes e oportunidades
+      no universo público (PNCP e correlatos).
+    fit_signals:
+      - market_expansion
+      - competitor_pressure
+      - opportunity_scan_need
+    approach_modes:
+      robust: briefing_estrategico_de_mercado
+      lean: radar_de_oportunidades
+    default_tone: consultivo
+    discovery_fallback: false
+
+  - service_id: diagnostico_contratual_b2g
+    family: diagnostico
+    label: Diagnóstico contratual B2G
+    problem_solved: >
+      Fatos insuficientes ou momento de descoberta: mapear riscos e
+      oportunidades contratuais antes de ofertar especialidade.
+    fit_signals:
+      - insufficient_facts
+      - first_contact_discovery
+      - ambiguous_portfolio
+    approach_modes:
+      robust: diagnostico_focal_abm
+      lean: diagnostico_inicial_exploratorio
+    default_tone: consultivo
+    discovery_fallback: true
+
+  - service_id: reforco_temporario_backoffice
+    family: backoffice
+    label: Reforço temporário de backoffice técnico/contratual
+    problem_solved: >
+      Sinais de estrutura enxuta com carga contratual que justificam
+      reforço operacional temporário (somente se evidência sustentar).
+    fit_signals:
+      - lean_structure_with_load
+      - rapid_growth_with_few_contracts
+      - concentrated_functions
+    approach_modes:
+      robust: reforco_de_pico_especializado
+      lean: outsourcing_operacional_temporario
+    default_tone: operacional
+    discovery_fallback: false
+
+routing_policy:
+  concrete_pain_beats_generic: true
+  recent_facts_beat_remote: true
+  absence_is_not_lean_proof: true
+  robust_never_assume_no_structure: true
+  invent_service_forbidden: true
+  discovery_when_best_fit: diagnostico_contratual_b2g
+  dominant_states:
+    - DO_NOT_CONTACT
+    - HUMAN_REJECTED
+    - HUMAN_PAUSED

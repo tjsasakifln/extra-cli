@@ -1,0 +1,61 @@
+{
+  "cnpj": "11222333000181",
+  "razao_social": "CONSTRUTORA VALE SUL LTDA",
+  "nome_fantasia": "Vale Sul",
+  "municipio": "Criciúma",
+  "uf": "SC",
+  "cnae_principal": "4120-4/00",
+  "activity_class": "CONSTRUCTION_CONTRACTOR",
+  "as_of": "2026-08-01",
+  "commercial_state": "NEW",
+  "signals": {
+    "national_operation": false,
+    "consortium_participation": false,
+    "legal_claims_compliance_unit": false,
+    "large_team_public_signal": false,
+    "high_recurrence": false,
+    "rapid_growth": true,
+    "low_public_formalization": true,
+    "regional_only": true,
+    "concentrated_functions": true
+  },
+  "contracts": [
+    {
+      "id": "ct-vs-001",
+      "object": "Pavimentação asfáltica — trecho municipal",
+      "value_brl": 1850000,
+      "start_date": "2025-11-01",
+      "end_date": "2026-10-31",
+      "uf": "SC",
+      "orgao": "Prefeitura de Criciúma",
+      "has_addendum": false,
+      "addendum_count": 0,
+      "has_reajuste": false,
+      "source_url": "https://example.local/pncp/ct-vs-001",
+      "source_document": "Contrato 045/2025",
+      "source_date": "2025-11-01"
+    },
+    {
+      "id": "ct-vs-002",
+      "object": "Reforma de escola municipal",
+      "value_brl": 920000,
+      "start_date": "2026-03-15",
+      "end_date": "2026-12-15",
+      "uf": "SC",
+      "orgao": "Prefeitura de Içara",
+      "has_addendum": false,
+      "source_url": "https://example.local/pncp/ct-vs-002",
+      "source_document": "Contrato 012/2026",
+      "source_date": "2026-03-15"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "ev-vs-reg",
+      "url": "https://example.local/pncp/ct-vs-001",
+      "document": "Contrato 045/2025",
+      "date": "2025-11-01",
+      "location": "SC"
+    }
+  ]
+}

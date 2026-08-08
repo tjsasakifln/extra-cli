@@ -1,0 +1,28 @@
+{
+  "schema_id": "confenge-contact-resolution-manifest-v1",
+  "schema_version": "1.0.0",
+  "run_id": "confenge-contact-20260808-cee1fc5c",
+  "mode": "pipeline",
+  "service_context": "orcamento_medicoes",
+  "output_dir": "artifacts/confenge/full-national-2026-08-07/04_contact_resolution",
+  "candidates_artifact": "confenge-contact-candidates-v1.jsonl",
+  "input_count": 200,
+  "resolved_count": 200,
+  "with_candidates": 95,
+  "with_recommended": 94,
+  "absence_count": 105,
+  "cache_hits": 0,
+  "adapters": [
+    "registry"
+  ],
+  "started_at": "2026-08-08T01:32:51Z",
+  "finished_at": "2026-08-08T01:32:51Z",
+  "limitations": [
+    "Public phone does not imply WhatsApp opt-in.",
+    "Pattern-guessed emails are CANDIDATE_UNVERIFIED and never enrollable.",
+    "No private social scraping; optional web search is interface-only.",
+    "MX/domain checks never send mail."
+  ],
+  "checksum_sha256": "fcc411b46e4fc4e6858a2390c5d8ac985dc13be7c450dc6c89172bbb2c875900",
+  "ok": true
+}

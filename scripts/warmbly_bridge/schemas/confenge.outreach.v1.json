@@ -1,0 +1,193 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://extra-cli.local/schemas/confenge.outreach.v1.json",
+  "title": "confenge.outreach.v1",
+  "description": "Native Warmbly feed contract mirrored from Warmbly PR #4 schema.go (no code import).",
+  "type": "object",
+  "required": ["schema_version", "generated_at", "source", "pagination", "leads"],
+  "additionalProperties": true,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "confenge.outreach.v1"
+    },
+    "generated_at": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source": {
+      "type": "object",
+      "required": ["system", "run_id", "snapshot_hash", "profile_id", "profile_version"],
+      "properties": {
+        "system": { "type": "string", "minLength": 1 },
+        "run_id": { "type": "string", "minLength": 1 },
+        "snapshot_hash": { "type": "string", "minLength": 1 },
+        "repo_sha": { "type": "string" },
+        "profile_id": { "type": "string", "minLength": 1 },
+        "profile_version": { "type": "string", "minLength": 1 }
+      }
+    },
+    "pagination": {
+      "type": "object",
+      "required": ["has_more"],
+      "properties": {
+        "cursor": { "type": ["string", "null"] },
+        "next_cursor": { "type": ["string", "null"] },
+        "has_more": { "type": "boolean" },
+        "chunk_index": { "type": "integer", "minimum": 0 },
+        "content_hash": { "type": "string" },
+        "hashes": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        }
+      }
+    },
+    "leads": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/lead" }
+    }
+  },
+  "$defs": {
+    "lead": {
+      "type": "object",
+      "required": [
+        "source_lead_id",
+        "company",
+        "priority",
+        "moment",
+        "offer",
+        "messaging_context",
+        "contacts",
+        "contracts",
+        "evidence",
+        "commercial_state"
+      ],
+      "properties": {
+        "source_lead_id": { "type": "string", "minLength": 1 },
+        "company": {
+          "type": "object",
+          "required": ["cnpj14"],
+          "properties": {
+            "cnpj14": { "type": "string", "pattern": "^[0-9]{14}$" },
+            "cnpj_root": { "type": "string" },
+            "razao_social": { "type": "string" },
+            "nome_fantasia": { "type": "string" },
+            "municipio": { "type": "string" },
+            "uf": { "type": "string" },
+            "website": { "type": "string" }
+          }
+        },
+        "priority": {
+          "type": "object",
+          "properties": {
+            "rank": { "type": "integer" },
+            "score": { "type": "number" },
+            "tier": { "type": "string" },
+            "confidence": { "type": "string" }
+          }
+        },
+        "moment": {
+          "type": "object",
+          "properties": {
+            "code": { "type": "string" },
+            "summary": { "type": "string" },
+            "observed_at": { "type": "string" },
+            "confidence": { "type": "string" },
+            "evidence_ids": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          }
+        },
+        "offer": {
+          "type": "object",
+          "properties": {
+            "service_code": { "type": "string" },
+            "service_name": { "type": "string" },
+            "entry_offer": { "type": "string" },
+            "rationale": { "type": "string" }
+          }
+        },
+        "messaging_context": {
+          "type": "object",
+          "required": ["fact_to_mention", "question_to_ask", "cta", "claims_to_avoid"],
+          "properties": {
+            "fact_to_mention": { "type": "string" },
+            "question_to_ask": { "type": "string" },
+            "cta": { "type": "string" },
+            "claims_to_avoid": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          }
+        },
+        "contacts": {
+          "type": "array",
+          "items": { "type": "object" }
+        },
+        "contracts": {
+          "type": "array"
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id"],
+            "properties": {
+              "id": { "type": "string", "minLength": 1 },
+              "epistemic_class": {
+                "type": "string",
+                "enum": [
+                  "CONFIRMED_FACT",
+                  "STRONG_INFERENCE",
+                  "WEAK_INFERENCE",
+                  "COMMERCIAL_HYPOTHESIS",
+                  "NOT_FOUND",
+                  "REQUIRES_COMPANY_CONFIRMATION",
+                  "CONTRADICTORY_EVIDENCE"
+                ]
+              }
+            }
+          }
+        },
+        "commercial_state": { "type": "string" },
+        "activation": {
+          "type": "object",
+          "description": "Optional commercial activation planner projection (additive, backward-compatible). Ordering score only — never purchase probability.",
+          "properties": {
+            "state": {
+              "type": "string",
+              "enum": ["WATCH", "RESEARCH_REQUIRED", "ACTIONABLE_NOW", "SUPPRESSED"]
+            },
+            "score": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100,
+              "description": "Deterministic ordering score 0–100. Not conversion probability."
+            },
+            "reason_codes": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "policy_version": { "type": "string" },
+            "evaluated_at": { "type": "string" },
+            "next_best_action_at": { "type": ["string", "null"] },
+            "expires_at": { "type": ["string", "null"] },
+            "source_hash": { "type": "string" },
+            "score_components": {
+              "type": "object",
+              "properties": {
+                "trigger_strength": { "type": "number" },
+                "freshness": { "type": "number" },
+                "evidence_quality": { "type": "number" },
+                "commercial_relevance": { "type": "number" }
+              },
+              "additionalProperties": true
+            }
+          },
+          "additionalProperties": true
+        }
+      }
+    }
+  }
+}

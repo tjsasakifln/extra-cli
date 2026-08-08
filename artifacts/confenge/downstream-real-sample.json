@@ -1,0 +1,15 @@
+{
+  "count": 200,
+  "extra_cli_sha": "3b7477a9c87b9f296f631728c1ca971113ebbaae",
+  "full_scale_universe": true,
+  "profile_counts": {
+    "extensive_portfolio": 40,
+    "few_contracts": 40,
+    "mid_market": 40,
+    "national_structured": 40,
+    "regional_lean": 40
+  },
+  "jsonl_not_committed": true,
+  "jsonl_local_path": "artifacts/confenge/full-national-2026-08-07/02_downstream_sample/downstream-sample.jsonl",
+  "note": "Sample metrics only; raw jsonl excluded by generated-artifacts policy (max 512KiB)"
+}
