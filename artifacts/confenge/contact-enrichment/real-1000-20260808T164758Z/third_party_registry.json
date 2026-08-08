@@ -1,0 +1,328 @@
+{
+  "schema_id": "confenge-third-party-registry-v1",
+  "entries": [
+    {
+      "domain": null,
+      "phone": "+557496969728",
+      "email": null,
+      "entity_name": null,
+      "third_party_type": "OTHER",
+      "evidence": [
+        "Phone shared by 4 unrelated CNPJs",
+        "Known third-party registry hit: None (OTHER)",
+        "Domain/entity signals third-party (OTHER); does not match target company. evidence=['Phone shared by 4 unrelated CNPJs', 'Known third-party registry hit: None (OTHER)', 'registry_entry:+557496969728', 'registry:known']; company_overlap=0.40"
+      ],
+      "associated_cnpjs": [
+        "51694102000195",
+        "00779059000120",
+        "36909349000198",
+        "38756140000167",
+        "41659936000106",
+        "03006548000137",
+        "03257777000124",
+        "24581449000159",
+        "12754237000147",
+        "00507949000182",
+        "03620927000112",
+        "60546801000260",
+        "00000000037788",
+        "00455771000173",
+        "00472805000308",
+        "00535560000140",
+        "00567892000107",
+        "00636230000141",
+        "00978237000141",
+        "01065014000156",
+        "01107391001263",
+        "01375626000145",
+        "01400312000155",
+        "01489370000105",
+        "01590728000930",
+        "01954548000133",
+        "02207661000118",
+        "02724267000157",
+        "02862770000179",
+        "03014374000154",
+        "03074196000157",
+        "03129105000133",
+        "03155958000140",
+        "03911841000149",
+        "03948933000101",
+        "03951140000133",
+        "03992516000158",
+        "04063331000121",
+        "04159536000105",
+        "04164343000142",
+        "04192876000138",
+        "04650746000100",
+        "04847959000118",
+        "05099585001215",
+        "05155425000193",
+        "05306560000192",
+        "05343029000190",
+        "05630131000176",
+        "05922811000163",
+        "06007487000110",
+        "06103430000115",
+        "06628333000146",
+        "07015016006824",
+        "07112855000153",
+        "07148290000164",
+        "07185104000167",
+        "07229772000149",
+        "07315550000149",
+        "07346326000386"
+      ],
+      "confidence": 0.8,
+      "first_seen_at": "2026-08-08T17:11:19Z",
+      "last_seen_at": "2026-08-08T19:06:24Z"
+    },
+    {
+      "domain": "yourdomain.com",
+      "phone": "17817915094",
+      "email": "hello@yourdomain.com",
+      "entity_name": "yourdomain.com",
+      "third_party_type": "OTHER",
+      "evidence": [
+        "Channel shared by 19 unrelated CNPJs without known economic group or matriz/filial relation",
+        "Domain/entity signals third-party (OTHER); does not match target company. evidence=['Channel shared by 19 unrelated CNPJs without known economic group or matriz/filial relation', 'registry_entry:yourdomain.com', 'registry:yourdomain.com']; company_overlap=0.00",
+        "Domain/entity signals third-party (OTHER); does not match target company. evidence=['Channel shared by 19 unrelated CNPJs without known economic group or matriz/filial relation', \"Domain/entity signals third-party (OTHER); does not match target company. evidence=['Channel shared by 19 unrelated CNPJs without known economic group or matriz/filial relation', 'registry_entry:yourdomain.com', 'registry:yourdomain.com']; company_overlap=0.00\", 'registry_entry:yourdomain.com', 'registry:yourdomain.com']; company_overlap=0.00"
+      ],
+      "associated_cnpjs": [
+        "00787540000167",
+        "04788913000175",
+        "05818520000120"
+      ],
+      "confidence": 0.8,
+      "first_seen_at": "2026-08-08T17:34:21Z",
+      "last_seen_at": "2026-08-08T18:48:19Z"
+    },
+    {
+      "domain": null,
+      "phone": "+552545352419",
+      "email": null,
+      "entity_name": null,
+      "third_party_type": "OTHER",
+      "evidence": [
+        "Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation",
+        "Domain/entity signals third-party (OTHER); does not match target company. evidence=['Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation', 'registry_entry:+552545352419', 'registry:known']; company_overlap=0.25",
+        "Domain/entity signals third-party (OTHER); does not match target company. evidence=['Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation', \"Domain/entity signals third-party (OTHER); does not match target company. evidence=['Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation', 'registry_entry:+552545352419', 'registry:known']; company_overlap=0.25\", 'registry_entry:+552545352419', 'registry:known']; company_overlap=0.33",
+        "Domain/entity signals third-party (OTHER); does not match target company. evidence=['Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation', \"Domain/entity signals third-party (OTHER); does not match target company. evidence=['Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation', 'registry_entry:+552545352419', 'registry:known']; company_overlap=0.25\", 'Domain/entity signals third-party (OTHER); does not match target company. evidence=[\\'Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation\\', \"Domain/entity signals third-party (OTHER); does not match target company. evidence=[\\'Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation\\', \\'registry_entry:+552545352419\\', \\'registry:known\\']; company_overlap=0.25\", \\'registry_entry:+552545352419\\', \\'registry:known\\']; company_overlap=0.33', 'registry_entry:+552545352419', 'registry:known']; company_overlap=0.33",
+        "Known third-party registry hit: None (OTHER)",
+        "Domain/entity signals third-party (OTHER); does not match target company. evidence=['Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation', \"Domain/entity signals third-party (OTHER); does not match target company. evidence=['Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation', 'registry_entry:+552545352419', 'registry:known']; company_overlap=0.25\", 'Domain/entity signals third-party (OTHER); does not match target company. evidence=[\\'Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation\\', \"Domain/entity signals third-party (OTHER); does not match target company. evidence=[\\'Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation\\', \\'registry_entry:+552545352419\\', \\'registry:known\\']; company_overlap=0.25\", \\'registry_entry:+552545352419\\', \\'registry:known\\']; company_overlap=0.33', 'Domain/entity signals third-party (OTHER); does not match target company. evidence=[\\'Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation\\', \"Domain/entity signals third-party (OTHER); does not match target company. evidence=[\\'Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation\\', \\'registry_entry:+552545352419\\', \\'registry:known\\']; company_overlap=0.25\", \\'Domain/entity signals third-party (OTHER); does not match target company. evidence=[\\\\\\'Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation\\\\\\', \"Domain/entity signals third-party (OTHER); does not match target company. evidence=[\\\\\\'Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation\\\\\\', \\\\\\'registry_entry:+552545352419\\\\\\', \\\\\\'registry:known\\\\\\']; company_overlap=0.25\", \\\\\\'registry_entry:+552545352419\\\\\\', \\\\\\'registry:known\\\\\\']; company_overlap=0.33\\', \\'registry_entry:+552545352419\\', \\'registry:known\\']; company_overlap=0.33', 'Known third-party registry hit: None (OTHER)', 'registry_entry:+552545352419', 'registry:known']; company_overlap=0.14",
+        "Domain/entity signals third-party (OTHER); does not match target company. evidence=['Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation', \"Domain/entity signals third-party (OTHER); does not match target company. evidence=['Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation', 'registry_entry:+552545352419', 'registry:known']; company_overlap=0.25\", 'Domain/entity signals third-party (OTHER); does not match target company. evidence=[\\'Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation\\', \"Domain/entity signals third-party (OTHER); does not match target company. evidence=[\\'Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation\\', \\'registry_entry:+552545352419\\', \\'registry:known\\']; company_overlap=0.25\", \\'registry_entry:+552545352419\\', \\'registry:known\\']; company_overlap=0.33', 'Domain/entity signals third-party (OTHER); does not match target company. evidence=[\\'Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation\\', \"Domain/entity signals third-party (OTHER); does not match target company. evidence=[\\'Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation\\', \\'registry_entry:+552545352419\\', \\'registry:known\\']; company_overlap=0.25\", \\'Domain/entity signals third-party (OTHER); does not match target company. evidence=[\\\\\\'Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation\\\\\\', \"Domain/entity signals third-party (OTHER); does not match target company. evidence=[\\\\\\'Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation\\\\\\', \\\\\\'registry_entry:+552545352419\\\\\\', \\\\\\'registry:known\\\\\\']; company_overlap=0.25\", \\\\\\'registry_entry:+552545352419\\\\\\', \\\\\\'registry:known\\\\\\']; company_overlap=0.33\\', \\'registry_entry:+552545352419\\', \\'registry:known\\']; company_overlap=0.33', 'Known third-party registry hit: None (OTHER)', 'Domain/entity signals third-party (OTHER); does not match target company. evidence=[\\'Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation\\', \"Domain/entity signals third-party (OTHER); does not match target company. evidence=[\\'Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation\\', \\'registry_entry:+552545352419\\', \\'registry:known\\']; company_overlap=0.25\", \\'Domain/entity signals third-party (OTHER); does not match target company. evidence=[\\\\\\'Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation\\\\\\', \"Domain/entity signals third-party (OTHER); does not match target company. evidence=[\\\\\\'Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation\\\\\\', \\\\\\'registry_entry:+552545352419\\\\\\', \\\\\\'registry:known\\\\\\']; company_overlap=0.25\", \\\\\\'registry_entry:+552545352419\\\\\\', \\\\\\'registry:known\\\\\\']; company_overlap=0.33\\', \\'Domain/entity signals third-party (OTHER); does not match target company. evidence=[\\\\\\'Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation\\\\\\', \"Domain/entity signals third-party (OTHER); does not match target company. evidence=[\\\\\\'Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation\\\\\\', \\\\\\'registry_entry:+552545352419\\\\\\', \\\\\\'registry:known\\\\\\']; company_overlap=0.25\", \\\\\\'Domain/entity signals third-party (OTHER); does not match target company. evidence=[\\\\\\\\\\\\\\'Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation\\\\\\\\\\\\\\', \"Domain/entity signals third-party (OTHER); does not match target company. evidence=[\\\\\\\\\\\\\\'Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation\\\\\\\\\\\\\\', \\\\\\\\\\\\\\'registry_entry:+552545352419\\\\\\\\\\\\\\', \\\\\\\\\\\\\\'registry:known\\\\\\\\\\\\\\']; company_overlap=0.25\", \\\\\\\\\\\\\\'registry_entry:+552545352419\\\\\\\\\\\\\\', \\\\\\\\\\\\\\'registry:known\\\\\\\\\\\\\\']; company_overlap=0.33\\\\\\', \\\\\\'registry_entry:+552545352419\\\\\\', \\\\\\'registry:known\\\\\\']; company_overlap=0.33\\', \\'Known third-party registry hit: None (OTHER)\\', \\'registry_entry:+552545352419\\', \\'registry:known\\']; company_overlap=0.14', 'registry_entry:+552545352419', 'registry:known']; company_overlap=0.14",
+        "Domain/entity signals third-party (OTHER); does not match target company. evidence=['Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation', \"Domain/entity signals third-party (OTHER); does not match target company. evidence=['Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation', 'registry_entry:+552545352419', 'registry:known']; company_overlap=0.25\", 'Domain/entity signals third-party (OTHER); does not match target company. evidence=[\\'Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation\\', \"Domain/entity signals third-party (OTHER); does not match target company. evidence=[\\'Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation\\', \\'registry_entry:+552545352419\\', \\'registry:known\\']; company_overlap=0.25\", \\'registry_entry:+552545352419\\', \\'registry:known\\']; company_overlap=0.33', 'Domain/entity signals third-party (OTHER); does not match target company. evidence=[\\'Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation\\', \"Domain/entity signals third-party (OTHER); does not match target company. evidence=[\\'Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation\\', \\'registry_entry:+552545352419\\', \\'registry:known\\']; company_overlap=0.25\", \\'Domain/entity signals third-party (OTHER); does not match target company. evidence=[\\\\\\'Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation\\\\\\', \"Domain/entity signals third-party (OTHER); does not match target company. evidence=[\\\\\\'Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation\\\\\\', \\\\\\'registry_entry:+552545352419\\\\\\', \\\\\\'registry:known\\\\\\']; company_overlap=0.25\", \\\\\\'registry_entry:+552545352419\\\\\\', \\\\\\'registry:known\\\\\\']; company_overlap=0.33\\', \\'registry_entry:+552545352419\\', \\'registry:known\\']; company_overlap=0.33', 'Known third-party registry hit: None (OTHER)', 'Domain/entity signals third-party (OTHER); does not match target company. evidence=[\\'Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation\\', \"Domain/entity signals third-party (OTHER); does not match target company. evidence=[\\'Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation\\', \\'registry_entry:+552545352419\\', \\'registry:known\\']; company_overlap=0.25\", \\'Domain/entity signals third-party (OTHER); does not match target company. evidence=[\\\\\\'Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation\\\\\\', \"Domain/entity signals third-party (OTHER); does not match target company. evidence=[\\\\\\'Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation\\\\\\', \\\\\\'registry_entry:+552545352419\\\\\\', \\\\\\'registry:known\\\\\\']; company_overlap=0.25\", \\\\\\'registry_entry:+552545352419\\\\\\', \\\\\\'registry:known\\\\\\']; company_overlap=0.33\\', \\'Domain/entity signals third-party (OTHER); does not match target company. evidence=[\\\\\\'Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation\\\\\\', \"Domain/entity signals third-party (OTHER); does not match target company. evidence=[\\\\\\'Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation\\\\\\', \\\\\\'registry_entry:+552545352419\\\\\\', \\\\\\'registry:known\\\\\\']; company_overlap=0.25\", \\\\\\'Domain/entity signals third-party (OTHER); does not match target company. evidence=[\\\\\\\\\\\\\\'Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation\\\\\\\\\\\\\\', \"Domain/entity signals third-party (OTHER); does not match target company. evidence=[\\\\\\\\\\\\\\'Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation\\\\\\\\\\\\\\', \\\\\\\\\\\\\\'registry_entry:+552545352419\\\\\\\\\\\\\\', \\\\\\\\\\\\\\'registry:known\\\\\\\\\\\\\\']; company_overlap=0.25\", \\\\\\\\\\\\\\'registry_entry:+552545352419\\\\\\\\\\\\\\', \\\\\\\\\\\\\\'registry:known\\\\\\\\\\\\\\']; company_overlap=0.33\\\\\\', \\\\\\'registry_entry:+552545352419\\\\\\', \\\\\\'registry:known\\\\\\']; company_overlap=0.33\\', \\'Known third-party registry hit: None (OTHER)\\', \\'registry_entry:+552545352419\\', \\'registry:known\\']; company_overlap=0.14', 'Domain/entity signals third-party (OTHER); does not match target company. evidence=[\\'Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation\\', \"Domain/entity signals third-party (OTHER); does not match target company. evidence=[\\'Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation\\', \\'registry_entry:+552545352419\\', \\'registry:known\\']; company_overlap=0.25\", \\'Domain/entity signals third-party (OTHER); does not match target company. evidence=[\\\\\\'Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation\\\\\\', \"Domain/entity signals third-party (OTHER); does not match target company. evidence=[\\\\\\'Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation\\\\\\', \\\\\\'registry_entry:+552545352419\\\\\\', \\\\\\'registry:known\\\\\\']; company_overlap=0.25\", \\\\\\'registry_entry:+552545352419\\\\\\', \\\\\\'registry:known\\\\\\']; company_overlap=0.33\\', \\'Domain/entity signals third-party (OTHER); does not match target company. evidence=[\\\\\\'Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation\\\\\\', \"Domain/entity signals third-party (OTHER); does not match target company. evidence=[\\\\\\'Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation\\\\\\', \\\\\\'registry_entry:+552545352419\\\\\\', \\\\\\'registry:known\\\\\\']; company_overlap=0.25\", \\\\\\'Domain/entity signals third-party (OTHER); does not match target company. evidence=[\\\\\\\\\\\\\\'Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation\\\\\\\\\\\\\\', \"Domain/entity signals third-party (OTHER); does not match target company. evidence=[\\\\\\\\\\\\\\'Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation\\\\\\\\\\\\\\', \\\\\\\\\\\\\\'registry_entry:+552545352419\\\\\\\\\\\\\\', \\\\\\\\\\\\\\'registry:known\\\\\\\\\\\\\\']; company_overlap=0.25\", \\\\\\\\\\\\\\'registry_entry:+552545352419\\\\\\\\\\\\\\', \\\\\\\\\\\\\\'registry:known\\\\\\\\\\\\\\']; company_overlap=0.33\\\\\\', \\\\\\'registry_entry:+552545352419\\\\\\', \\\\\\'registry:known\\\\\\']; company_overlap=0.33\\', \\'Known third-party registry hit: None (OTHER)\\', \\'Domain/entity signals third-party (OTHER); does not match target company. evidence=[\\\\\\'Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation\\\\\\', \"Domain/entity signals third-party (OTHER); does not match target company. evidence=[\\\\\\'Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation\\\\\\', \\\\\\'registry_entry:+552545352419\\\\\\', \\\\\\'registry:known\\\\\\']; company_overlap=0.25\", \\\\\\'Domain/entity signals third-party (OTHER); does not match target company. evidence=[\\\\\\\\\\\\\\'Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation\\\\\\\\\\\\\\', \"Domain/entity signals third-party (OTHER); does not match target company. evidence=[\\\\\\\\\\\\\\'Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation\\\\\\\\\\\\\\', \\\\\\\\\\\\\\'registry_entry:+552545352419\\\\\\\\\\\\\\', \\\\\\\\\\\\\\'registry:known\\\\\\\\\\\\\\']; company_overlap=0.25\", \\\\\\\\\\\\\\'registry_entry:+552545352419\\\\\\\\\\\\\\', \\\\\\\\\\\\\\'registry:known\\\\\\\\\\\\\\']; company_overlap=0.33\\\\\\', \\\\\\'Domain/entity signals third-party (OTHER); does not match target company. evidence=[\\\\\\\\\\\\\\'Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation\\\\\\\\\\\\\\', \"Domain/entity signals third-party (OTHER); does not match target company. evidence=[\\\\\\\\\\\\\\'Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation\\\\\\\\\\\\\\', \\\\\\\\\\\\\\'registry_entry:+552545352419\\\\\\\\\\\\\\', \\\\\\\\\\\\\\'registry:known\\\\\\\\\\\\\\']; company_overlap=0.25\", \\\\\\\\\\\\\\'Domain/entity signals third-party (OTHER); does not match target company. evidence=[\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\'Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\', \"Domain/entity signals third-party (OTHER); does not match target company. evidence=[\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\'Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\', \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\'registry_entry:+552545352419\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\', \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\'registry:known\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\']; company_overlap=0.25\", \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\'registry_entry:+552545352419\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\', \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\'registry:known\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\']; company_overlap=0.33\\\\\\\\\\\\\\', \\\\\\\\\\\\\\'registry_entry:+552545352419\\\\\\\\\\\\\\', \\\\\\\\\\\\\\'registry:known\\\\\\\\\\\\\\']; company_overlap=0.33\\\\\\', \\\\\\'Known third-party registry hit: None (OTHER)\\\\\\', \\\\\\'registry_entry:+552545352419\\\\\\', \\\\\\'registry:known\\\\\\']; company_overlap=0.14\\', \\'registry_entry:+552545352419\\', \\'registry:known\\']; company_overlap=0.14', 'registry_entry:+552545352419', 'registry:known']; company_overlap=0.33"
+      ],
+      "associated_cnpjs": [
+        "01771408000120",
+        "02310921000186",
+        "02425943000191",
+        "02962499000143",
+        "03051567000185",
+        "03133846000198",
+        "03489027000188",
+        "03696188000142",
+        "04007895000490",
+        "04071245000160",
+        "04274988000138",
+        "04326123000178",
+        "05416754000140"
+      ],
+      "confidence": 0.8,
+      "first_seen_at": "2026-08-08T17:45:11Z",
+      "last_seen_at": "2026-08-08T18:41:41Z"
+    },
+    {
+      "domain": null,
+      "phone": "+5599999999999",
+      "email": null,
+      "entity_name": null,
+      "third_party_type": "OTHER",
+      "evidence": [
+        "Phone shared by 4 unrelated CNPJs",
+        "Known third-party registry hit: None (OTHER)"
+      ],
+      "associated_cnpjs": [
+        "02421421000111",
+        "02837835000126",
+        "03032888000132",
+        "03911841000149"
+      ],
+      "confidence": 0.8,
+      "first_seen_at": "2026-08-08T17:52:41Z",
+      "last_seen_at": "2026-08-08T18:15:43Z"
+    },
+    {
+      "domain": null,
+      "phone": "+559999999999",
+      "email": null,
+      "entity_name": null,
+      "third_party_type": "OTHER",
+      "evidence": [
+        "Phone shared by 4 unrelated CNPJs",
+        "Known third-party registry hit: None (OTHER)",
+        "Domain/entity signals third-party (OTHER); does not match target company. evidence=['Phone shared by 4 unrelated CNPJs', 'Known third-party registry hit: None (OTHER)', 'registry_entry:+559999999999', 'registry:known']; company_overlap=0.20",
+        "Domain/entity signals third-party (OTHER); does not match target company. evidence=['Phone shared by 4 unrelated CNPJs', 'Known third-party registry hit: None (OTHER)', \"Domain/entity signals third-party (OTHER); does not match target company. evidence=['Phone shared by 4 unrelated CNPJs', 'Known third-party registry hit: None (OTHER)', 'registry_entry:+559999999999', 'registry:known']; company_overlap=0.20\", 'registry_entry:+559999999999', 'registry:known']; company_overlap=0.20"
+      ],
+      "associated_cnpjs": [
+        "02837835000126",
+        "03007832000128",
+        "05277208000176",
+        "05461958000101",
+        "05503624000811",
+        "07137575000108"
+      ],
+      "confidence": 0.8,
+      "first_seen_at": "2026-08-08T17:57:42Z",
+      "last_seen_at": "2026-08-08T19:02:36Z"
+    },
+    {
+      "domain": "gmail.com",
+      "phone": "+5512996240776",
+      "email": "desenvolvimento5.midiasim@gmail.com",
+      "entity_name": "gmail.com",
+      "third_party_type": "OTHER",
+      "evidence": [
+        "Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation",
+        "Known third-party registry hit: gmail.com (OTHER)"
+      ],
+      "associated_cnpjs": [
+        "02844351000104",
+        "03797663000177",
+        "03945035000191",
+        "04002498000182",
+        "04650746000100",
+        "04743532000170",
+        "04883125000168",
+        "05465327000152",
+        "05789763000187",
+        "05934170000167",
+        "06350303000110",
+        "07229772000149"
+      ],
+      "confidence": 0.8,
+      "first_seen_at": "2026-08-08T17:58:02Z",
+      "last_seen_at": "2026-08-08T19:04:31Z"
+    },
+    {
+      "domain": "grupoccr.com.br",
+      "phone": "00000000000",
+      "email": "encarregado.dadospessoais@grupoccr.com.br",
+      "entity_name": "grupoccr.com.br",
+      "third_party_type": "OTHER",
+      "evidence": [
+        "Channel shared by 13 unrelated CNPJs without known economic group or matriz/filial relation"
+      ],
+      "associated_cnpjs": [
+        "03032888000132"
+      ],
+      "confidence": 0.8,
+      "first_seen_at": "2026-08-08T18:00:44Z",
+      "last_seen_at": "2026-08-08T18:00:44Z"
+    },
+    {
+      "domain": "suaempresa.com.br",
+      "phone": "33333333333",
+      "email": "seunome@suaempresa.com.br",
+      "entity_name": "suaempresa.com.br",
+      "third_party_type": "OTHER",
+      "evidence": [
+        "Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation",
+        "Domain/entity signals third-party (OTHER); does not match target company. evidence=['Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation', 'registry_entry:suaempresa.com.br', 'registry:suaempresa.com.br']; company_overlap=0.33"
+      ],
+      "associated_cnpjs": [
+        "04605710000104",
+        "04956527000145"
+      ],
+      "confidence": 0.8,
+      "first_seen_at": "2026-08-08T18:27:32Z",
+      "last_seen_at": "2026-08-08T18:32:58Z"
+    },
+    {
+      "domain": null,
+      "phone": "+552147483647",
+      "email": null,
+      "entity_name": null,
+      "third_party_type": "OTHER",
+      "evidence": [
+        "Phone shared by 4 unrelated CNPJs",
+        "Known third-party registry hit: None (OTHER)"
+      ],
+      "associated_cnpjs": [
+        "04831284000119",
+        "04885251000151",
+        "06020318000544"
+      ],
+      "confidence": 0.8,
+      "first_seen_at": "2026-08-08T18:31:11Z",
+      "last_seen_at": "2026-08-08T18:50:46Z"
+    },
+    {
+      "domain": null,
+      "phone": "+559803921568",
+      "email": null,
+      "entity_name": null,
+      "third_party_type": "OTHER",
+      "evidence": [
+        "Phone shared by 4 unrelated CNPJs"
+      ],
+      "associated_cnpjs": [
+        "05375586000192"
+      ],
+      "confidence": 0.8,
+      "first_seen_at": "2026-08-08T18:41:14Z",
+      "last_seen_at": "2026-08-08T18:41:14Z"
+    },
+    {
+      "domain": "brandbucket.com",
+      "phone": "44455354000",
+      "email": "info@brandbucket.com",
+      "entity_name": "brandbucket.com",
+      "third_party_type": "OTHER",
+      "evidence": [
+        "Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation"
+      ],
+      "associated_cnpjs": [
+        "05818520000120"
+      ],
+      "confidence": 0.8,
+      "first_seen_at": "2026-08-08T18:48:19Z",
+      "last_seen_at": "2026-08-08T18:48:19Z"
+    },
+    {
+      "domain": null,
+      "phone": "+559009009009",
+      "email": null,
+      "entity_name": null,
+      "third_party_type": "OTHER",
+      "evidence": [
+        "Phone shared by 4 unrelated CNPJs"
+      ],
+      "associated_cnpjs": [
+        "05934170000167"
+      ],
+      "confidence": 0.8,
+      "first_seen_at": "2026-08-08T18:49:46Z",
+      "last_seen_at": "2026-08-08T18:49:46Z"
+    },
+    {
+      "domain": "email.com",
+      "phone": "+5521999435158",
+      "email": "seu@email.com",
+      "entity_name": "email.com",
+      "third_party_type": "OTHER",
+      "evidence": [
+        "Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation",
+        "Domain/entity signals third-party (OTHER); does not match target company. evidence=['Channel shared by 5 unrelated CNPJs without known economic group or matriz/filial relation', 'registry_entry:email.com', 'registry:email.com']; company_overlap=0.00"
+      ],
+      "associated_cnpjs": [
+        "06350303000110",
+        "06923493000118"
+      ],
+      "confidence": 0.8,
+      "first_seen_at": "2026-08-08T18:55:31Z",
+      "last_seen_at": "2026-08-08T18:57:10Z"
+    }
+  ],
+  "count": 13
+}
