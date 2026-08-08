@@ -8,6 +8,7 @@ Yield is observed from the current cycle (never a hardcoded 15%/30%).
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 
 
@@ -92,8 +93,6 @@ def plan_supply_expansion(
         # ceil(need / yld)
         raw = int((need + yld - 1e-12) // yld) if yld else need
         # more portable ceil:
-        import math
-
         raw = int(math.ceil(need / yld))
     else:
         raw = max(min_batch, need)  # unknown yield: expand by at least min_batch
