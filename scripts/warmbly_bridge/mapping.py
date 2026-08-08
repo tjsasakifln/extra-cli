@@ -84,27 +84,73 @@ def _map_evidence_item(item: dict[str, Any], *, is_inference: bool, fallback_id:
     }
 
 
+def _map_contact_verification_status(raw: str, *, email: str, ownership: str) -> str:
+    """Map contact-resolution statuses onto Warmbly wire verification_status set."""
+    vs = (raw or "").strip().upper()
+    if vs in VERIFICATION_STATUSES:
+        return vs
+    # Ownership-aware mapping from confenge_contact_resolution enums.
+    if vs in {"VERIFIED", "OBSERVED"} or ownership in {"COMPANY_OWNED", "HUMAN_CONFIRMED"}:
+        if ownership in {"COMPANY_OWNED", "HUMAN_CONFIRMED"}:
+            return "OFFICIAL_SOURCE"
+        return "INSTITUTIONAL_GENERIC" if email else "NOT_FOUND"
+    if vs in {"REVIEW_REQUIRED"} or ownership == "LIKELY_COMPANY_OWNED":
+        return "PUBLIC_POSSIBLY_STALE"
+    if vs in {"PATTERN_GUESS", "CANDIDATE_UNVERIFIED", "SYNTAX_INVALID"}:
+        return "CANDIDATE_UNVERIFIED" if email else "INVALID"
+    if vs in {"NOT_AVAILABLE", ""}:
+        return "CANDIDATE_UNVERIFIED" if email else "NOT_FOUND"
+    return "CANDIDATE_UNVERIFIED" if email else "NOT_FOUND"
+
+
 def _map_contact(item: dict[str, Any], *, idx: int, cnpj: str) -> dict[str, Any]:
     email = _as_str(item.get("email"))
-    vs = _as_str(item.get("verification_status")).upper()
-    if vs and vs not in VERIFICATION_STATUSES:
-        vs = "CANDIDATE_UNVERIFIED" if email else "NOT_FOUND"
-    if not vs:
-        vs = "CANDIDATE_UNVERIFIED" if email else "NOT_FOUND"
-    return {
+    ownership = _as_str(item.get("ownership_status")).upper()
+    vs = _map_contact_verification_status(
+        _as_str(item.get("verification_status")),
+        email=email,
+        ownership=ownership,
+    )
+    enrollable = item.get("enrollable")
+    if enrollable is None:
+        # Default closed: only explicit COMPANY_OWNED / HUMAN_CONFIRMED are enrollable.
+        enrollable = ownership in {"COMPANY_OWNED", "HUMAN_CONFIRMED"}
+    else:
+        enrollable = bool(enrollable)
+    # Never mark pattern-guess / third-party as recommended for auto-send.
+    recommended = bool(item.get("recommended", False))
+    if not enrollable:
+        recommended = False
+    prov = item.get("provenance")
+    if not isinstance(prov, dict):
+        prov = {
+            "source_type": _as_str(item.get("source_type")),
+            "source_url": _as_str(item.get("source_url")),
+            "source_document": _as_str(item.get("source_document")),
+            "source_date": _as_str(item.get("source_date")),
+        }
+    out = {
         "source_contact_id": _as_str(item.get("source_contact_id")) or f"ct-{cnpj}-{idx}",
         "name": _as_str(item.get("name")),
-        "role": _as_str(item.get("role")),
+        "role": _as_str(item.get("role") or item.get("role_class")),
+        "role_class": _as_str(item.get("role_class") or item.get("role")),
         "email": email,
         "phone": _as_str(item.get("phone")),
         "linkedin_url": _as_str(item.get("linkedin_url")),
-        "source_url": _as_str(item.get("source_url")),
-        "source_document": _as_str(item.get("source_document")),
-        "source_date": _as_str(item.get("source_date")),
+        "source_url": _as_str(item.get("source_url") or prov.get("source_url")),
+        "source_document": _as_str(item.get("source_document") or prov.get("source_document")),
+        "source_date": _as_str(item.get("source_date") or prov.get("source_date")),
         "verification_status": vs,
+        "ownership_status": ownership,
+        "ownership_reason": _as_str(item.get("ownership_reason")),
+        "verification_reason": _as_str(item.get("verification_reason")),
+        "third_party_type": _as_str(item.get("third_party_type")),
         "confidence": _as_str(item.get("confidence")),
-        "recommended": bool(item.get("recommended", False)),
+        "enrollable": enrollable,
+        "recommended": recommended,
+        "provenance": prov,
     }
+    return out
 
 
 def _map_moment(intel: dict[str, Any]) -> dict[str, Any]:
@@ -199,9 +245,7 @@ def map_lead(
     if isinstance(raw_evidence, list):
         for i, item in enumerate(raw_evidence):
             if isinstance(item, dict):
-                evidence_items.append(
-                    _map_evidence_item(item, is_inference=False, fallback_id=f"ev-{cnpj}-{i}")
-                )
+                evidence_items.append(_map_evidence_item(item, is_inference=False, fallback_id=f"ev-{cnpj}-{i}"))
     raw_inf = intel.get("inferences") or []
     if isinstance(raw_inf, list):
         for i, item in enumerate(raw_inf):
@@ -216,28 +260,38 @@ def map_lead(
 
     moment = _map_moment(intel)
     if not moment["evidence_ids"]:
-        moment["evidence_ids"] = [
-            e["id"] for e in evidence_items if e.get("epistemic_class") == _CONFIRMED
-        ][:5]
+        moment["evidence_ids"] = [e["id"] for e in evidence_items if e.get("epistemic_class") == _CONFIRMED][:5]
 
     contact_list_raw = contacts_row.get("contacts")
+    if contact_list_raw is None:
+        # Accept confenge_contact_resolution resolution rows (candidates key).
+        contact_list_raw = contacts_row.get("candidates")
     if contact_list_raw is None and "email" in contacts_row:
         contact_list_raw = [contacts_row]
     if not isinstance(contact_list_raw, list):
         contact_list_raw = []
-    contacts = [
-        _map_contact(c, idx=i, cnpj=cnpj)
-        for i, c in enumerate(contact_list_raw)
-        if isinstance(c, dict)
-    ]
+    # Normalize resolution candidates → map_contact fields
+    normalized: list[dict[str, Any]] = []
+    for raw_c in contact_list_raw:
+        if not isinstance(raw_c, dict):
+            continue
+        if "email" in raw_c or "phone" in raw_c or "value" in raw_c:
+            if raw_c.get("value") and not raw_c.get("email") and "@" in str(raw_c.get("value")):
+                raw_c = {**raw_c, "email": raw_c["value"]}
+            elif raw_c.get("value") and not raw_c.get("phone"):
+                raw_c = {**raw_c, "phone": raw_c.get("phone_e164") or raw_c["value"]}
+            if raw_c.get("phone_e164") and not raw_c.get("phone"):
+                raw_c = {**raw_c, "phone": raw_c["phone_e164"]}
+            if raw_c.get("cargo") and not raw_c.get("role"):
+                raw_c = {**raw_c, "role": raw_c["cargo"]}
+            normalized.append(raw_c)
+    contacts = [_map_contact(c, idx=i, cnpj=cnpj) for i, c in enumerate(normalized) if isinstance(c, dict)]
 
     contracts = intel.get("contracts") or universe_row.get("contracts") or []
     if not isinstance(contracts, list):
         contracts = []
 
-    source_lead_id = _as_str(
-        universe_row.get("source_lead_id") or intel.get("source_lead_id") or f"cnpj:{cnpj}"
-    )
+    source_lead_id = _as_str(universe_row.get("source_lead_id") or intel.get("source_lead_id") or f"cnpj:{cnpj}")
 
     rank = universe_row.get("rank")
     try:
@@ -265,9 +319,7 @@ def map_lead(
             "rank": rank_i,
             "score": score_f,
             "tier": _as_str(universe_row.get("tier")),
-            "confidence": _as_str(
-                universe_row.get("priority_confidence") or universe_row.get("confidence")
-            ),
+            "confidence": _as_str(universe_row.get("priority_confidence") or universe_row.get("confidence")),
         },
         "moment": moment,
         "offer": _map_offer(intel),

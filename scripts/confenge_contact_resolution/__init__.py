@@ -11,8 +11,8 @@ behind a provider interface and is disabled by default in tests.
 from __future__ import annotations
 
 SCHEMA_ID = "confenge-contact-candidates-v1"
-SCHEMA_VERSION = "1.0.0"
-PACKAGE_VERSION = "1.0.0"
+SCHEMA_VERSION = "1.1.0"
+PACKAGE_VERSION = "1.1.0"
 
 __all__ = [
     "SCHEMA_ID",

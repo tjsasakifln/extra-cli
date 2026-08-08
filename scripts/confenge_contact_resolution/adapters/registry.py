@@ -100,6 +100,17 @@ class RegistryAdapter:
         if ctx.registry_record:
             return _from_registry_dict(cnpj14, ctx.registry_record)
 
+        # Offline / test fixtures: {cnpj14}_registry.json under fixtures_dir
+        if ctx.fixtures_dir:
+            p = ctx.fixtures_dir / f"{cnpj14}_registry.json"
+            if p.is_file():
+                try:
+                    data = json.loads(p.read_text(encoding="utf-8"))
+                    if isinstance(data, dict):
+                        return _from_registry_dict(cnpj14, data)
+                except (OSError, json.JSONDecodeError):
+                    pass
+
         local = _lookup_local(cnpj14)
         if local:
             return _from_registry_dict(cnpj14, local)

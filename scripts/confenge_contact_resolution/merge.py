@@ -69,9 +69,7 @@ def account_block_from_observations(
     account_bounce = False
     reason: str | None = None
     for o in observations:
-        is_human = (o.adapter == "human_outcome") or (
-            o.source is not None and o.source.source_type == "human_outcome"
-        )
+        is_human = (o.adapter == "human_outcome") or (o.source is not None and o.source.source_type == "human_outcome")
         if not is_human:
             continue
         has_channel = bool((o.email or "").strip() or (o.phone_raw or "").strip())
@@ -196,6 +194,25 @@ def observations_to_candidates(
         if email_a.verification_status == VerificationStatus.CANDIDATE_UNVERIFIED.value:
             epistemic = "INFERRED"
 
+        # Provisional enrollable from email policy only; ownership pass (resolver)
+        # is the authority for enrollable=true (COMPANY_OWNED / HUMAN_CONFIRMED).
+        provisional_enrollable = email_a.enrollable and not dnc and not bounce
+        if email_a.is_pattern_guessed:
+            provisional_enrollable = False
+
+        source_urls = []
+        source_types = []
+        for o in group:
+            if o.source and o.source.source_url:
+                source_urls.append(o.source.source_url)
+            if o.source and o.source.source_type:
+                source_types.append(o.source.source_type)
+        independent_sources = len({(o.source.source_type, o.source.source_url) for o in group if o.source})
+
+        art_only = any(getattr(o, "art_crea_only", False) for o in group)
+        if art_only:
+            limitations.append("art_crea_only")
+
         cand = ContactCandidate(
             candidate_id=cid,
             cnpj14=cnpj14,
@@ -213,11 +230,7 @@ def observations_to_candidates(
             source=src,
             verification_status=email_a.verification_status
             if email_a.email
-            else (
-                VerificationStatus.OBSERVED.value
-                if phone_a.valid
-                else VerificationStatus.NOT_AVAILABLE.value
-            ),
+            else (VerificationStatus.OBSERVED.value if phone_a.valid else VerificationStatus.NOT_AVAILABLE.value),
             email_layers=email_a.layers,
             confidence=conf,
             freshness=fresh,
@@ -230,8 +243,20 @@ def observations_to_candidates(
                 consent_status=wa_status,
                 consent_provenance=wa_prov,
             ),
-            enrollable=email_a.enrollable and not dnc and not bounce,
+            enrollable=provisional_enrollable,
             epistemic_class=epistemic,
+            independent_sources_count=max(1, independent_sources),
+            source_urls=list(dict.fromkeys(source_urls)),
+            source_types=list(dict.fromkeys(source_types)),
+            contact_type=(
+                "BOTH"
+                if email_a.email and phone_a.phone_e164
+                else "EMAIL"
+                if email_a.email
+                else "PHONE"
+                if phone_a.phone_e164
+                else "UNKNOWN"
+            ),
             limitations=limitations,
         )
         candidates.append(cand)

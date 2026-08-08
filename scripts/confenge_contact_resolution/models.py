@@ -17,16 +17,78 @@ class RoleClass(StrEnum):
     ENGENHARIA = "engenharia"
     LICITACOES = "licitações"
     FINANCEIRO = "financeiro"
+    ADMIN = "admin"
+    GENERAL = "general"
+    ACCOUNTING_EXTERNAL = "accounting_external"
+    LEGAL_EXTERNAL = "legal_external"
+    CONSULTANT_EXTERNAL = "consultant_external"
     GENERIC = "generic"
+    UNKNOWN = "unknown"
 
 
 class VerificationStatus(StrEnum):
     """How the contact address was obtained / checked (not outreach result)."""
 
     OBSERVED = "OBSERVED"  # exact value published by a source
+    VERIFIED = "VERIFIED"  # multi-source / ownership-confirmed public channel
     CANDIDATE_UNVERIFIED = "CANDIDATE_UNVERIFIED"  # pattern-guessed; never enrollable
+    PATTERN_GUESS = "PATTERN_GUESS"  # alias epistemic for guessed addresses
     SYNTAX_INVALID = "SYNTAX_INVALID"
     NOT_AVAILABLE = "NOT_AVAILABLE"
+    REVIEW_REQUIRED = "REVIEW_REQUIRED"
+
+
+class OwnershipStatus(StrEnum):
+    """Whether the channel belongs to the target company (not a third party)."""
+
+    COMPANY_OWNED = "COMPANY_OWNED"
+    LIKELY_COMPANY_OWNED = "LIKELY_COMPANY_OWNED"
+    HUMAN_CONFIRMED = "HUMAN_CONFIRMED"
+    THIRD_PARTY_SERVICE_PROVIDER = "THIRD_PARTY_SERVICE_PROVIDER"
+    SHARED_EXTERNAL_CONTACT = "SHARED_EXTERNAL_CONTACT"
+    UNRESOLVED = "UNRESOLVED"
+    INVALID = "INVALID"
+
+
+class ThirdPartyType(StrEnum):
+    ACCOUNTING = "ACCOUNTING"
+    LEGAL = "LEGAL"
+    CONSULTING = "CONSULTING"
+    BPO = "BPO"
+    VIRTUAL_OFFICE = "VIRTUAL_OFFICE"
+    SOFTWARE = "SOFTWARE"
+    MARKETPLACE = "MARKETPLACE"
+    ASSOCIATION = "ASSOCIATION"
+    OTHER = "OTHER"
+
+
+class CompanyProcessingState(StrEnum):
+    """Per-company enrichment pipeline state."""
+
+    NOT_STARTED = "NOT_STARTED"
+    LOCAL_SEARCH = "LOCAL_SEARCH"
+    OFFICIAL_WEB_SEARCH = "OFFICIAL_WEB_SEARCH"
+    PUBLIC_WEB_SEARCH = "PUBLIC_WEB_SEARCH"
+    FOUND_VERIFIED = "FOUND_VERIFIED"
+    FOUND_REVIEW_REQUIRED = "FOUND_REVIEW_REQUIRED"
+    NO_CONTACT = "NO_CONTACT"
+    RETRY_LATER = "RETRY_LATER"
+    FAILED = "FAILED"
+
+
+class CommercialContactState(StrEnum):
+    """Commercial readiness after enrichment (does not discard the lead)."""
+
+    NO_CONTACT_YET = "NO_CONTACT_YET"
+    CONTACT_REVIEW_REQUIRED = "CONTACT_REVIEW_REQUIRED"
+    CONTACT_READY = "CONTACT_READY"
+
+
+class FreshnessClass(StrEnum):
+    CURRENT = "CURRENT"
+    RECENT = "RECENT"
+    STALE = "STALE"
+    UNKNOWN_DATE = "UNKNOWN_DATE"
 
 
 class PhoneType(StrEnum):
@@ -52,8 +114,18 @@ class ServiceContext(StrEnum):
     GENERIC = "generic"
 
 
+# Only these ownership states may auto-enroll into supervised outreach queues.
+ENROLLABLE_OWNERSHIP = frozenset(
+    {
+        OwnershipStatus.COMPANY_OWNED.value,
+        OwnershipStatus.HUMAN_CONFIRMED.value,
+    }
+)
+
 ROLE_CLASS_VALUES = frozenset(r.value for r in RoleClass)
 VERIFICATION_STATUS_VALUES = frozenset(v.value for v in VerificationStatus)
+OWNERSHIP_STATUS_VALUES = frozenset(o.value for o in OwnershipStatus)
+THIRD_PARTY_TYPE_VALUES = frozenset(t.value for t in ThirdPartyType)
 PHONE_TYPE_VALUES = frozenset(p.value for p in PhoneType)
 WHATSAPP_CONSENT_VALUES = frozenset(w.value for w in WhatsAppConsent)
 
@@ -120,14 +192,27 @@ class ContactCandidate:
     recommendation_reason: str | None = None
     freshness: float = 1.0  # 1.0 = fresh; decays with age
     freshness_days: int | None = None
+    freshness_class: str = FreshnessClass.UNKNOWN_DATE.value
     dnc: bool = False
     bounce: bool = False
     dnc_reason: str | None = None
     whatsapp: WhatsAppBlock = field(default_factory=WhatsAppBlock)
     rank_score: float = 0.0
     rank_explain: list[str] = field(default_factory=list)
-    enrollable: bool = False  # never true for CANDIDATE_UNVERIFIED
+    enrollable: bool = False  # only COMPANY_OWNED / HUMAN_CONFIRMED
     epistemic_class: str = "OBSERVED_PUBLIC"  # OBSERVED_PUBLIC | INFERRED | HUMAN_OUTCOME
+    ownership_status: str = OwnershipStatus.UNRESOLVED.value
+    ownership_reason: str | None = None
+    verification_reason: str | None = None
+    third_party_type: str | None = None
+    associated_company_count: int = 1
+    independent_sources_count: int = 1
+    domain_matches_company: bool | None = None
+    found_on_official_source: bool = False
+    found_on_company_document: bool = False
+    source_urls: list[str] = field(default_factory=list)
+    source_types: list[str] = field(default_factory=list)
+    contact_type: str = "UNKNOWN"  # EMAIL | PHONE | BOTH
     limitations: list[str] = field(default_factory=list)
 
     def as_dict(self) -> dict[str, Any]:
@@ -144,11 +229,17 @@ class AccountContactResolution:
     cnpj14: str = ""
     account_key: str = ""
     razao_social: str | None = None
+    nome_fantasia: str | None = None
+    official_domain: str | None = None
     service_context: str = ServiceContext.GENERIC.value
     small_firm: bool = False
     candidates: list[ContactCandidate] = field(default_factory=list)
+    rejected_contacts: list[dict[str, Any]] = field(default_factory=list)
     recommended_candidate_id: str | None = None
     absence_reason: str | None = None  # set when no candidates
+    processing_state: str = CompanyProcessingState.NOT_STARTED.value
+    commercial_contact_state: str = CommercialContactState.NO_CONTACT_YET.value
+    next_contact_resolution_at: str | None = None
     adapters_used: list[str] = field(default_factory=list)
     adapters_skipped: list[str] = field(default_factory=list)
     cache_hit: bool = False
@@ -162,11 +253,17 @@ class AccountContactResolution:
             "cnpj14": self.cnpj14,
             "account_key": self.account_key,
             "razao_social": self.razao_social,
+            "nome_fantasia": self.nome_fantasia,
+            "official_domain": self.official_domain,
             "service_context": self.service_context,
             "small_firm": self.small_firm,
             "candidates": [c.as_dict() for c in self.candidates],
+            "rejected_contacts": list(self.rejected_contacts),
             "recommended_candidate_id": self.recommended_candidate_id,
             "absence_reason": self.absence_reason,
+            "processing_state": self.processing_state,
+            "commercial_contact_state": self.commercial_contact_state,
+            "next_contact_resolution_at": self.next_contact_resolution_at,
             "adapters_used": list(self.adapters_used),
             "adapters_skipped": list(self.adapters_skipped),
             "cache_hit": self.cache_hit,
@@ -196,6 +293,10 @@ class RawObservation:
     whatsapp_consent_provenance: str | None = None
     company_size: str | None = None
     razao_social: str | None = None
+    nome_fantasia: str | None = None
+    human_confirmed: bool = False
+    art_crea_only: bool = False  # engineer from ART/CREA — not auto commercial
+    context_text: str | None = None  # surrounding page/document text for third-party signals
     epistemic_class: str = "OBSERVED_PUBLIC"
     extra: dict[str, Any] = field(default_factory=dict)
 
@@ -231,6 +332,8 @@ def empty_manifest(
         "limitations": [
             "Public phone does not imply WhatsApp opt-in.",
             "Pattern-guessed emails are CANDIDATE_UNVERIFIED and never enrollable.",
+            "Only COMPANY_OWNED and HUMAN_CONFIRMED contacts are enrollable.",
+            "Absence of contact is preferred over attributing a third-party channel.",
             "No private social scraping; optional web search is interface-only.",
             "MX/domain checks never send mail.",
         ],

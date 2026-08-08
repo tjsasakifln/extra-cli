@@ -17,16 +17,30 @@ from scripts.confenge_contact_resolution.adapters.registry import RegistryAdapte
 from scripts.confenge_contact_resolution.adapters.site import SiteAdapter
 from scripts.confenge_contact_resolution.adapters.web_search import NoOpWebSearchProvider, WebSearchAdapter
 from scripts.confenge_contact_resolution.cache import ResolutionCache, cache_key
+from scripts.confenge_contact_resolution.email_policy import domain_of
 from scripts.confenge_contact_resolution.merge import (
     account_block_from_observations,
     observations_to_candidates,
 )
 from scripts.confenge_contact_resolution.models import (
     AccountContactResolution,
+    CommercialContactState,
+    CompanyProcessingState,
+    OwnershipStatus,
     ServiceContext,
 )
+from scripts.confenge_contact_resolution.ownership import (
+    OwnershipContext,
+    apply_ownership_to_candidate,
+    commercial_state_for_resolution,
+    domain_from_url,
+    rejected_contact_dict,
+    resolve_ownership,
+)
 from scripts.confenge_contact_resolution.ranking import select_recommended
+from scripts.confenge_contact_resolution.reuse_graph import ContactReuseGraph
 from scripts.confenge_contact_resolution.role_map import is_small_firm_porte
+from scripts.confenge_contact_resolution.third_party_registry import ThirdPartyRegistry
 
 
 def _digits(s: str | None) -> str:
@@ -67,11 +81,18 @@ class ResolverConfig:
     max_workers: int = 4
     # Injected per-CNPJ context builders for tests
     context_builder: Callable[[str], AdapterContext] | None = None
+    # Ownership / anti-false-positive infrastructure (shared across batch)
+    reuse_graph: ContactReuseGraph | None = None
+    third_party_registry: ThirdPartyRegistry | None = None
+    # When False, skip ownership gate (legacy tests only; production always True)
+    apply_ownership: bool = True
 
 
 class ContactResolver:
     def __init__(self, config: ResolverConfig | None = None) -> None:
         self.config = config or ResolverConfig()
+        self.reuse_graph = self.config.reuse_graph or ContactReuseGraph()
+        self.third_party_registry = self.config.third_party_registry or ThirdPartyRegistry()
 
     def _adapters_sig(self) -> str:
         # Include network mode so offline empty results never poison online re-runs.
@@ -129,9 +150,23 @@ class ContactResolver:
         razao = None
         porte = None
         mei = None
+        cascade_stage = CompanyProcessingState.LOCAL_SEARCH.value
+        base.processing_state = cascade_stage
+
+        # Cascade layers: local/registry → official pages/docs → public web
+        local_adapters = {"registry"}
+        official_adapters = {"site", "public_docs", "contact_page"}
+        public_adapters = {"web_search"}
 
         for adapter in self.config.adapters:
             name = getattr(adapter, "name", type(adapter).__name__)
+            if name in local_adapters:
+                cascade_stage = CompanyProcessingState.LOCAL_SEARCH.value
+            elif name in official_adapters:
+                cascade_stage = CompanyProcessingState.OFFICIAL_WEB_SEARCH.value
+            elif name in public_adapters:
+                cascade_stage = CompanyProcessingState.PUBLIC_WEB_SEARCH.value
+            base.processing_state = cascade_stage
             try:
                 obs = adapter.collect(ctx)
             except Exception as exc:  # noqa: BLE001 — fail soft per adapter
@@ -163,6 +198,50 @@ class ContactResolver:
             check_mx=self.config.check_mx,
             mx_resolver=self.config.mx_resolver,
         )
+
+        fantasia = None
+        official_domain = None
+        if ctx.registry_record:
+            fantasia = ctx.registry_record.get("nome_fantasia") or ctx.registry_record.get("trade_name")
+            site_raw = ctx.registry_record.get("site") or ctx.registry_record.get("website")
+            official_domain = domain_from_url(str(site_raw) if site_raw else None)
+        for o in observations:
+            if o.nome_fantasia and not fantasia:
+                fantasia = o.nome_fantasia
+        # official_domain only from company-aligned hosts — never from an arbitrary
+        # observation.site (third-party accounting pages must not become "official").
+        company_label = " ".join(x for x in (razao or "", str(fantasia) if fantasia else "") if x)
+        if not official_domain:
+            from scripts.confenge_contact_resolution.ownership import (
+                detect_third_party_type,
+                domain_token_overlap,
+            )
+
+            for o in observations:
+                if not o.site:
+                    continue
+                host = domain_from_url(o.site)
+                if not host:
+                    continue
+                tp, _ = detect_third_party_type(host)
+                if tp:
+                    continue  # never promote third-party host to official_domain
+                if company_label and domain_token_overlap(host, company_label) >= 0.35:
+                    official_domain = host
+                    break
+
+        if self.config.apply_ownership:
+            candidates, rejected = self._apply_ownership_pass(
+                candidates,
+                cnpj14=cnpj14,
+                razao_social=razao,
+                nome_fantasia=str(fantasia) if fantasia else None,
+                official_domain=official_domain,
+                observations=observations,
+            )
+        else:
+            rejected = []
+
         ranked, rec_id = select_recommended(
             candidates,
             service_context=self.config.service_context,
@@ -171,22 +250,152 @@ class ContactResolver:
             account_bounce=account_bounce,
         )
 
+        # Prefer enrollable recommended; if ranker picked non-enrollable and an
+        # enrollable exists, re-point recommendation for Warmbly feed safety.
+        if rec_id and self.config.apply_ownership:
+            rec_c = next((c for c in ranked if c.candidate_id == rec_id), None)
+            if rec_c and not rec_c.enrollable:
+                alt = next((c for c in ranked if c.enrollable and not c.dnc and not c.bounce), None)
+                if alt:
+                    if rec_c:
+                        rec_c.recommended = False
+                        rec_c.recommendation_reason = None
+                    alt.recommended = True
+                    alt.recommendation_reason = (
+                        f"Enrollable COMPANY_OWNED preferred over non-enrollable; "
+                        f"role_class={alt.role_class}; ownership={alt.ownership_status}"
+                    )
+                    rec_id = alt.candidate_id
+                else:
+                    # No enrollable: keep ranking for human review but mark limitation
+                    pass
+
+        proc_state, comm_state = commercial_state_for_resolution(ranked, rejected)
+
         base.razao_social = razao
+        base.nome_fantasia = str(fantasia) if fantasia else None
+        base.official_domain = official_domain
         base.small_firm = small
         base.candidates = ranked
+        base.rejected_contacts = rejected
         base.recommended_candidate_id = rec_id
+        base.processing_state = proc_state
+        base.commercial_contact_state = comm_state
         base.adapters_used = used
         base.adapters_skipped = skipped
         if account_dnc or account_bounce:
-            base.limitations.append(
-                f"account_block:{account_block_reason or ('DNC' if account_dnc else 'bounce')}"
-            )
-        if not ranked:
+            base.limitations.append(f"account_block:{account_block_reason or ('DNC' if account_dnc else 'bounce')}")
+        if not ranked and not rejected:
             base.absence_reason = "no_public_business_contact_found"
+            base.processing_state = CompanyProcessingState.NO_CONTACT.value
+            base.commercial_contact_state = CommercialContactState.NO_CONTACT_YET.value
             base.limitations.append("Absence remains absence — no fabricated contacts")
+        elif not any(c.enrollable for c in ranked):
+            if not base.absence_reason and not ranked:
+                base.absence_reason = "no_public_business_contact_found"
+            elif ranked and not any(c.enrollable for c in ranked):
+                base.limitations.append("candidates_present_but_none_enrollable_after_ownership_resolution")
         if self.config.cache:
             self.config.cache.set(ck, base.as_dict())
         return base
+
+    def _apply_ownership_pass(
+        self,
+        candidates: list,
+        *,
+        cnpj14: str,
+        razao_social: str | None,
+        nome_fantasia: str | None,
+        official_domain: str | None,
+        observations: list,
+    ) -> tuple[list, list[dict]]:
+        """Run ownership resolver + reuse graph; split rejected third-party contacts."""
+        from scripts.confenge_contact_resolution.models import ContactCandidate
+
+        # Seed graph with this company's channels first (for same-company multi-cand)
+        self.reuse_graph.register_company(cnpj14, razao_social=razao_social)
+        for c in candidates:
+            self.reuse_graph.observe_candidate(
+                cnpj14,
+                email=c.email,
+                phone=c.phone_e164 or c.phone_raw,
+                domain=domain_of(c.email) if c.email else None,
+                razao_social=razao_social,
+            )
+
+        # Context text from observations (pages/docs) for third-party lexicon
+        context_blob = " ".join(
+            filter(
+                None,
+                [getattr(o, "context_text", None) or (o.source.notes if o.source else None) for o in observations],
+            )
+        )
+        art_flags = {(o.email or "").lower(): bool(getattr(o, "art_crea_only", False)) for o in observations}
+
+        octx = OwnershipContext(
+            cnpj14=cnpj14,
+            razao_social=razao_social,
+            nome_fantasia=nome_fantasia,
+            official_domain=official_domain,
+        )
+
+        kept: list[ContactCandidate] = []
+        rejected: list[dict] = []
+
+        for c in candidates:
+            reuse = self.reuse_graph.best_signal(
+                cnpj14,
+                email=c.email,
+                phone=c.phone_e164 or c.phone_raw,
+                domain=domain_of(c.email) if c.email else None,
+            )
+            reg_hit = self.third_party_registry.lookup(
+                domain=domain_of(c.email) if c.email else None,
+                email=c.email,
+                phone=c.phone_e164 or c.phone_raw,
+            )
+            art_only = bool(art_flags.get((c.email or "").lower())) or ("art_crea_only" in (c.limitations or []))
+            result = resolve_ownership(
+                c,
+                ctx=octx,
+                reuse=reuse,
+                registry_hit=reg_hit,
+                context_text=context_blob,
+                art_crea_only=art_only,
+                independent_sources_count=c.independent_sources_count,
+            )
+            apply_ownership_to_candidate(
+                c,
+                result,
+                independent_sources_count=c.independent_sources_count,
+                source_urls=list(c.source_urls or []),
+                source_types=list(c.source_types or []),
+            )
+
+            # Grow third-party registry from hard rejects
+            if c.ownership_status in {
+                OwnershipStatus.THIRD_PARTY_SERVICE_PROVIDER.value,
+                OwnershipStatus.SHARED_EXTERNAL_CONTACT.value,
+            }:
+                self.third_party_registry.register_from_rejection(
+                    email=c.email,
+                    phone=c.phone_e164 or c.phone_raw,
+                    third_party_type=c.third_party_type
+                    or ("OTHER" if c.ownership_status == OwnershipStatus.SHARED_EXTERNAL_CONTACT.value else None),
+                    reason=c.ownership_reason,
+                    cnpj14=cnpj14,
+                )
+                rejected.append(rejected_contact_dict(c))
+                # Keep third-party out of primary candidates list when hard reject
+                if c.ownership_status == OwnershipStatus.THIRD_PARTY_SERVICE_PROVIDER.value:
+                    continue
+                if c.ownership_status == OwnershipStatus.SHARED_EXTERNAL_CONTACT.value and not c.enrollable:
+                    # Keep visibility for audit but not as positive candidate
+                    continue
+
+            kept.append(c)
+
+        return kept, rejected
 
     def resolve_batch(
         self,
@@ -223,6 +432,7 @@ def _resolution_from_dict(d: dict[str, Any]) -> AccountContactResolution:
     from scripts.confenge_contact_resolution.models import (
         ContactCandidate,
         EmailVerificationLayers,
+        OwnershipStatus,
         SourceProvenance,
         WhatsAppBlock,
     )
@@ -247,9 +457,13 @@ def _resolution_from_dict(d: dict[str, Any]) -> AccountContactResolution:
                 phone_type=cd.get("phone_type") or "unknown",
                 site=cd.get("site"),
                 linkedin_public=cd.get("linkedin_public"),
-                source=SourceProvenance(**{k: src.get(k) for k in (
-                    "source_type", "source_url", "source_document", "source_date", "observed_at", "notes"
-                ) if k in src or k == "source_type"}),
+                source=SourceProvenance(
+                    **{
+                        k: src.get(k)
+                        for k in ("source_type", "source_url", "source_document", "source_date", "observed_at", "notes")
+                        if k in src or k == "source_type"
+                    }
+                ),
                 verification_status=cd.get("verification_status") or "NOT_AVAILABLE",
                 email_layers=EmailVerificationLayers(
                     syntactic_ok=layers.get("syntactic_ok"),
@@ -263,6 +477,7 @@ def _resolution_from_dict(d: dict[str, Any]) -> AccountContactResolution:
                 recommendation_reason=cd.get("recommendation_reason"),
                 freshness=float(cd.get("freshness") or 0.7),
                 freshness_days=cd.get("freshness_days"),
+                freshness_class=cd.get("freshness_class") or "UNKNOWN_DATE",
                 dnc=bool(cd.get("dnc")),
                 bounce=bool(cd.get("bounce")),
                 dnc_reason=cd.get("dnc_reason"),
@@ -275,6 +490,18 @@ def _resolution_from_dict(d: dict[str, Any]) -> AccountContactResolution:
                 rank_explain=list(cd.get("rank_explain") or []),
                 enrollable=bool(cd.get("enrollable")),
                 epistemic_class=cd.get("epistemic_class") or "OBSERVED_PUBLIC",
+                ownership_status=cd.get("ownership_status") or OwnershipStatus.UNRESOLVED.value,
+                ownership_reason=cd.get("ownership_reason"),
+                verification_reason=cd.get("verification_reason"),
+                third_party_type=cd.get("third_party_type"),
+                associated_company_count=int(cd.get("associated_company_count") or 1),
+                independent_sources_count=int(cd.get("independent_sources_count") or 1),
+                domain_matches_company=cd.get("domain_matches_company"),
+                found_on_official_source=bool(cd.get("found_on_official_source")),
+                found_on_company_document=bool(cd.get("found_on_company_document")),
+                source_urls=list(cd.get("source_urls") or []),
+                source_types=list(cd.get("source_types") or []),
+                contact_type=cd.get("contact_type") or "UNKNOWN",
                 limitations=list(cd.get("limitations") or []),
             )
         )
@@ -287,11 +514,17 @@ def _resolution_from_dict(d: dict[str, Any]) -> AccountContactResolution:
         cnpj14=d.get("cnpj14") or "",
         account_key=d.get("account_key") or "",
         razao_social=d.get("razao_social"),
+        nome_fantasia=d.get("nome_fantasia"),
+        official_domain=d.get("official_domain"),
         service_context=d.get("service_context") or ServiceContext.GENERIC.value,
         small_firm=bool(d.get("small_firm")),
         candidates=cands,
+        rejected_contacts=list(d.get("rejected_contacts") or []),
         recommended_candidate_id=d.get("recommended_candidate_id"),
         absence_reason=d.get("absence_reason"),
+        processing_state=d.get("processing_state") or CompanyProcessingState.NOT_STARTED.value,
+        commercial_contact_state=d.get("commercial_contact_state") or CommercialContactState.NO_CONTACT_YET.value,
+        next_contact_resolution_at=d.get("next_contact_resolution_at"),
         adapters_used=list(d.get("adapters_used") or []),
         adapters_skipped=list(d.get("adapters_skipped") or []),
         cache_hit=bool(d.get("cache_hit")),

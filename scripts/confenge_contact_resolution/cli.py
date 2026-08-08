@@ -9,6 +9,11 @@ import sys
 from pathlib import Path
 
 from scripts.confenge_contact_resolution.cache import ResolutionCache
+from scripts.confenge_contact_resolution.enrichment_batch import (
+    CompanyJob,
+    EnrichmentBatchRunner,
+    priority_sort_key,
+)
 from scripts.confenge_contact_resolution.export import write_resolution_artifacts
 from scripts.confenge_contact_resolution.models import ServiceContext
 from scripts.confenge_contact_resolution.resolver import ContactResolver, ResolverConfig, default_adapters
@@ -52,8 +57,7 @@ def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         prog="python -m scripts.confenge_contact_resolution",
         description=(
-            "Resolve public business contacts for CONFENGE outreach "
-            "(candidates + provenance; no outreach send)."
+            "Resolve public business contacts for CONFENGE outreach (candidates + provenance; no outreach send)."
         ),
     )
     sub = p.add_subparsers(dest="command", required=True)
@@ -118,6 +122,50 @@ def build_parser() -> argparse.ArgumentParser:
     )
     add_common(batch)
 
+    enrich = sub.add_parser(
+        "enrich-batch",
+        help=(
+            "Ownership-aware mass enrichment with checkpoint, metrics, "
+            "third-party rejection artifacts, and Warmbly feed"
+        ),
+    )
+    enrich.add_argument(
+        "--input",
+        "-i",
+        type=Path,
+        required=True,
+        help="CNPJ list or jsonl with cnpj14/razao_social/priority_tier",
+    )
+    enrich.add_argument(
+        "--output-dir",
+        "-o",
+        type=Path,
+        required=True,
+        help="Directory under artifacts/confenge/contact-enrichment/<run_id>/ preferred",
+    )
+    enrich.add_argument(
+        "--service-context",
+        choices=[s.value for s in ServiceContext],
+        default=ServiceContext.GENERIC.value,
+    )
+    enrich.add_argument("--fixtures-dir", type=Path, default=None)
+    enrich.add_argument("--cache-dir", type=Path, default=None)
+    enrich.add_argument("--cache-ttl", type=int, default=86400)
+    enrich.add_argument("--no-cache", action="store_true")
+    enrich.add_argument("--allow-network", action="store_true")
+    enrich.add_argument("--enable-web-search", action="store_true")
+    enrich.add_argument("--check-mx", action="store_true")
+    enrich.add_argument("--max-workers", type=int, default=4)
+    enrich.add_argument("--run-id", default=None)
+    enrich.add_argument("--max-companies", type=int, default=None)
+    enrich.add_argument("--no-resume", action="store_true", help="Ignore checkpoint")
+    enrich.add_argument(
+        "--baseline-metrics",
+        type=Path,
+        default=None,
+        help="Optional JSON with prior verified_email_rate for coverage-spike detection",
+    )
+
     return p
 
 
@@ -152,7 +200,11 @@ def cmd_resolve(args: argparse.Namespace) -> int:
         service_context=args.service_context,
         run_id=args.run_id,
     )
-    print(json.dumps({**summary, "cnpj14": result.cnpj14, "absence_reason": result.absence_reason}, ensure_ascii=False, indent=2))
+    print(
+        json.dumps(
+            {**summary, "cnpj14": result.cnpj14, "absence_reason": result.absence_reason}, ensure_ascii=False, indent=2
+        )
+    )
     return 0
 
 
@@ -174,6 +226,94 @@ def cmd_batch(args: argparse.Namespace) -> int:
     return 0
 
 
+def _load_enrichment_jobs(path: Path) -> list[CompanyJob]:
+    text = path.read_text(encoding="utf-8")
+    jobs: list[CompanyJob] = []
+    if path.suffix.lower() == ".json":
+        data = json.loads(text)
+        rows = data if isinstance(data, list) else data.get("companies") or data.get("cnpjs") or []
+        for item in rows:
+            if isinstance(item, str):
+                jobs.append(CompanyJob(cnpj14=_digits(item)))
+            elif isinstance(item, dict):
+                jobs.append(
+                    CompanyJob(
+                        cnpj14=_digits(str(item.get("cnpj14") or item.get("cnpj") or "")),
+                        razao_social=item.get("razao_social") or item.get("company_name"),
+                        priority_tier=str(item.get("priority_tier") or item.get("tier") or "universe"),
+                        priority_rank=int(item.get("priority_rank") or item.get("rank") or 10_000_000),
+                        meta=item,
+                    )
+                )
+    else:
+        for line in text.splitlines():
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            if line.startswith("{"):
+                try:
+                    obj = json.loads(line)
+                except json.JSONDecodeError:
+                    jobs.append(CompanyJob(cnpj14=_digits(line)))
+                    continue
+                jobs.append(
+                    CompanyJob(
+                        cnpj14=_digits(str(obj.get("cnpj14") or obj.get("cnpj") or "")),
+                        razao_social=obj.get("razao_social") or obj.get("company_name"),
+                        priority_tier=str(obj.get("priority_tier") or obj.get("tier") or "universe"),
+                        priority_rank=int(obj.get("priority_rank") or obj.get("rank") or 10_000_000),
+                        meta=obj,
+                    )
+                )
+            else:
+                jobs.append(CompanyJob(cnpj14=_digits(line.split(",")[0])))
+    return [j for j in jobs if len(j.cnpj14) == 14]
+
+
+def cmd_enrich_batch(args: argparse.Namespace) -> int:
+    jobs = _load_enrichment_jobs(args.input)
+    if not jobs:
+        print(json.dumps({"ok": False, "error": "empty_input"}, ensure_ascii=False))
+        return 2
+    jobs = sorted(jobs, key=priority_sort_key)
+    baseline = None
+    if args.baseline_metrics and args.baseline_metrics.is_file():
+        baseline = json.loads(args.baseline_metrics.read_text(encoding="utf-8"))
+
+    cache = None
+    if not args.no_cache:
+        cdir = args.cache_dir or (args.output_dir / ".cache")
+        cache = ResolutionCache(cdir, ttl_seconds=args.cache_ttl)
+    adapters = default_adapters(
+        web_search_enabled=bool(args.enable_web_search),
+        registry_prefer_network=bool(args.allow_network),
+    )
+    cfg = ResolverConfig(
+        service_context=args.service_context,
+        adapters=adapters,
+        cache=cache,
+        check_mx=bool(args.check_mx),
+        allow_network=bool(args.allow_network),
+        fixtures_dir=args.fixtures_dir,
+        max_workers=max(1, int(args.max_workers)),
+        apply_ownership=True,
+    )
+    runner = EnrichmentBatchRunner(
+        output_dir=args.output_dir,
+        resolver_config=cfg,
+        run_id=args.run_id,
+        baseline_metrics=baseline,
+    )
+    # Attach fixtures via context only when fixtures_dir provided — adapters read it
+    summary = runner.run(
+        jobs,
+        resume=not bool(args.no_resume),
+        max_companies=args.max_companies,
+    )
+    print(json.dumps(summary, ensure_ascii=False, indent=2))
+    return 0 if summary.get("ok") else 1
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
@@ -181,6 +321,8 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_resolve(args)
     if args.command == "batch":
         return cmd_batch(args)
+    if args.command == "enrich-batch":
+        return cmd_enrich_batch(args)
     parser.error(f"unknown command {args.command}")
     return 2
 

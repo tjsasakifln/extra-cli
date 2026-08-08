@@ -53,8 +53,7 @@ class PublicDocsAdapter:
                         source_type="public_docs",
                         source_url=doc.get("url") or doc.get("source_url"),
                         source_document=doc.get("document_id") or doc.get("document"),
-                        source_date=str(doc.get("source_date") or doc.get("document_date") or "")[:10]
-                        or None,
+                        source_date=str(doc.get("source_date") or doc.get("document_date") or "")[:10] or None,
                         observed_at=_now(),
                         notes="From already-ingested public contract/licitação materials",
                     ),
