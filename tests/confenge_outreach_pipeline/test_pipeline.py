@@ -24,7 +24,7 @@ DNC_TXT = ROOT / "tests" / "fixtures" / "confenge_universe" / "dnc.txt"
 
 
 def test_limit_downstream_does_not_shrink_universe(tmp_path: Path) -> None:
-    """Universe discovery runs fully; only expensive batch is limited."""
+    """Universe discovery runs fully; force-sample uses limit_downstream as batch only."""
     out = tmp_path / "run"
     result = run_pipeline(
         PipelineConfig(
@@ -36,12 +36,13 @@ def test_limit_downstream_does_not_shrink_universe(tmp_path: Path) -> None:
             max_workers=1,
             skip_contacts=True,
             progress=False,
+            force_sample_mode=True,  # smoke path: limit_downstream bounds sample only
         )
     )
     assert result.ok, result.errors
     universe_total = result.stages["universe_row_count"]
     assert universe_total >= 1
-    # Sample/hot set is capped by limit_downstream (batch only)
+    # Sample is capped by limit_downstream in force_sample_mode
     assert result.stages["sample"]["count"] == 1
     assert result.stages["sample"]["count"] <= universe_total
     # limit_downstream must NOT change universe_total
@@ -58,6 +59,40 @@ def test_limit_downstream_does_not_shrink_universe(tmp_path: Path) -> None:
     assert result.stages.get("full_scale_universe") is False  # csv path
     # Checkpoint written for resume
     assert (out / "pipeline-checkpoint.json").is_file()
+
+
+def test_production_activation_does_not_use_limit_downstream_as_capacity(tmp_path: Path) -> None:
+    """run_pipeline production path must use policy planned_capacity, not limit_downstream."""
+    from scripts.confenge_activation.policy import load_policy
+
+    out = tmp_path / "run_prod_cap"
+    planned = load_policy().capacity.planned_capacity()
+    assert planned > 5  # policy default is well above smoke sample size
+    # Default limit_downstream is 200; production must NOT adopt that as commercial capacity.
+    default_limit_downstream = 200
+    result = run_pipeline(
+        PipelineConfig(
+            out_dir=out,
+            csv_path=str(FIXTURE_CSV),
+            dnc_path=str(DNC_TXT) if DNC_TXT.is_file() else None,
+            as_of=__import__("datetime").date(2026, 8, 1),
+            limit_downstream=5,  # must NOT become commercial hot-set capacity
+            max_workers=1,
+            skip_contacts=True,
+            progress=False,
+            use_activation_planner=True,
+            force_sample_mode=False,
+            activation_capacity=None,  # force policy path
+        )
+    )
+    assert result.ok, result.errors
+    act = result.stages.get("activation") or {}
+    assert act.get("capacity_source") == "policy.planned_capacity"
+    assert act.get("capacity_this_round") == planned
+    assert act.get("capacity_this_round") != 5 or planned == 5
+    assert act.get("capacity_this_round") != default_limit_downstream or planned == default_limit_downstream
+    assert result.stages["sample"]["mode"] == "activation_hot_set"
+    assert result.stages["universe_row_count"] >= result.stages["sample"]["count"]
 
 
 def test_cli_run_fixture_end_to_end(tmp_path: Path) -> None:

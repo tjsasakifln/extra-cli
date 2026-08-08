@@ -10,8 +10,11 @@ capacity:
   send_window_hours: 9          # e.g. 09:00–18:00
   planning_horizon_days: 7
   research_buffer: 1.5          # research + no-contact headroom
-  max_hot_set: 500              # hard safety cap
+  max_hot_set: 4000             # safety cap; supply expansion may grow hot set within this
   min_hot_set: 20               # avoid idle ops when capacity exists
+  # EMAIL_SEND_READY supply target days (ready = rate × window × days)
+  ready_supply_target_days: 2
+  max_send_rate_for_supply: 20  # planning peak for supply sizing (governor still adaptive)
 
 # Re-evaluation defaults when no stronger trigger applies
 reevaluation:

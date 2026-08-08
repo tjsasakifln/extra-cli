@@ -320,9 +320,7 @@ def run_pipeline(cfg: PipelineConfig) -> PipelineResult:
             # Hot-set size: --activation-capacity override, else policy.planned_capacity().
             # NEVER pass limit_downstream as capacity_override — that is smoke/batch-only
             # and must not become the production commercial shortlist.
-            capacity = cfg.activation_capacity
-            if capacity is None:
-                capacity = cfg.limit_downstream
+            capacity = cfg.activation_capacity  # None → planner uses policy.planned_capacity()
             cycle = run_activation_cycle(
                 universe_rows,
                 policy=policy,
@@ -369,12 +367,12 @@ def run_pipeline(cfg: PipelineConfig) -> PipelineResult:
                 "capacity_source": (
                     "activation_capacity_override"
                     if cfg.activation_capacity is not None
-                    else "limit_downstream_batch"
+                    else "policy.planned_capacity"
                 ),
                 "note": (
                     "Hot set is capacity-aware activation planning, not arbitrary Top-N. "
                     "Full reservoir remains monitored; only hot set enters expensive stages. "
-                    "--limit-downstream bounds THIS round expensive batch only."
+                    "--limit-downstream is smoke/batch-only and does NOT set commercial capacity."
                 ),
             }
             stages["sample"] = {

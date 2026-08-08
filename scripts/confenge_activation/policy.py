@@ -46,6 +46,8 @@ class CapacityConfig:
     research_buffer: float
     max_hot_set: int
     min_hot_set: int
+    ready_supply_target_days: int = 2
+    max_send_rate_for_supply: int = 20
 
     def planned_capacity(self) -> int:
         """Theoretical hot-set budget from rate × window × horizon × buffer."""
@@ -58,6 +60,12 @@ class CapacityConfig:
         n = int(round(raw))
         n = max(self.min_hot_set, n)
         return min(self.max_hot_set, n)
+
+    def ready_supply_target(self) -> int:
+        """EMAIL_SEND_READY companies to keep ahead of the queue (not hot-set size)."""
+        rate = self.max_send_rate_for_supply or 20
+        days = self.ready_supply_target_days or 2
+        return max(1, int(rate) * int(self.send_window_hours) * int(days))
 
 
 @dataclass(frozen=True)
@@ -113,8 +121,10 @@ def load_policy(path: Path | str | None = None) -> ActivationPolicy:
         send_window_hours=int(cap_raw.get("send_window_hours", 9)),
         planning_horizon_days=int(cap_raw.get("planning_horizon_days", 7)),
         research_buffer=float(cap_raw.get("research_buffer", 1.5)),
-        max_hot_set=int(cap_raw.get("max_hot_set", 500)),
+        max_hot_set=int(cap_raw.get("max_hot_set", 4000)),
         min_hot_set=int(cap_raw.get("min_hot_set", 20)),
+        ready_supply_target_days=int(cap_raw.get("ready_supply_target_days", 2)),
+        max_send_rate_for_supply=int(cap_raw.get("max_send_rate_for_supply", 20)),
     )
     if capacity.sends_per_hour < 1:
         raise ValueError("capacity.sends_per_hour must be >= 1")

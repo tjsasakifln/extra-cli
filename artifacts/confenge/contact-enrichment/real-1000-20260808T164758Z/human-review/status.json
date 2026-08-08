@@ -1,12 +1,35 @@
 {
   "schema": "confenge-human-review-status-v1",
-  "generated_at": "2026-08-08T20:46:35Z",
+  "generated_at": "2026-08-08T21:30:00Z",
   "machine_validation": "PASS",
-  "human_validation": "HUMAN_REVIEW_PENDING",
+  "human_validation": "PARTIAL_APPROVED_WITH_DIMENSIONS",
+  "campaign": "CONFENGE-OUTREACH-GO-LIVE-01",
+  "dimensions": {
+    "ownership_gate": {
+      "status": "APPROVED",
+      "note": "Third-party reuse, residual-safe domain matching, razao-first identity, fantasia-only block, short domain block, registry-phone without ownership, DNC/bounce/unresolved conservatism retained."
+    },
+    "send_readiness": {
+      "status": "CORRECTED",
+      "previous": "NOT_APPROVED",
+      "note": "Separated contact_ownership_status from channel_send_eligibility and recipient_commercial_suitability. mailbox_purpose blocks vagas@/HR/support/DPO/noreply from EMAIL_SEND_READY. Phone-only never EMAIL_SEND_READY. target_fit_send_tier A/B required."
+    },
+    "email_only": {
+      "status": "APPROVED",
+      "note": "Production channel EMAIL_ONLY; WhatsApp cold disabled; public phone is not WhatsApp opt-in."
+    }
+  },
   "counts": {
     "accepted": 20,
     "rejected": 20,
     "unresolved": 20
   },
-  "note": "Human validation must not be auto-approved by the pipeline."
+  "regressions_permanent": [
+    "vagas@moveinfraestrutura.com.br may be COMPANY_OWNED but EMAIL_SEND_READY=false",
+    "shared phone never COMPANY_OWNED autorun",
+    "phone-only never EMAIL_SEND_READY",
+    "out-of-scope company never send-ready from verified email alone",
+    "contato@ may pass when all gates pass; comercial@ preferred by rank"
+  ],
+  "note": "Do not collapse this into HUMAN_REVIEW=PASS. Ownership direction approved; send-readiness required code corrections in go-live campaign."
 }

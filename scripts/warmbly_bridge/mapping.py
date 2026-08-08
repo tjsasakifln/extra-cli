@@ -10,6 +10,11 @@ from typing import Any
 
 from scripts.warmbly_bridge import EPISTEMIC_CLASSES, VERIFICATION_STATUSES
 from scripts.warmbly_bridge.constants import DEFAULT_CLAIMS_TO_AVOID, DOMINANT_COMMERCIAL_STATES
+from scripts.confenge_contact_resolution.mailbox_purpose import classify_mailbox_purpose
+from scripts.confenge_contact_resolution.send_readiness import (
+    evaluate_email_send_ready,
+    classify_target_fit_send_tier,
+)
 
 _CNPJ_RE = re.compile(r"^\d{14}$")
 _CONFIRMED = "CONFIRMED_FACT"
@@ -150,6 +155,16 @@ def _map_contact(item: dict[str, Any], *, idx: int, cnpj: str) -> dict[str, Any]
         "recommended": recommended,
         "provenance": prov,
     }
+    # mailbox_purpose is independent of person role / ownership
+    mp = classify_mailbox_purpose(email or None)
+    out["mailbox_purpose"] = mp.purpose
+    out["mailbox_purpose_send_blocked"] = mp.send_blocked
+    if item.get("recipient_commercial_suitability"):
+        out["recipient_commercial_suitability"] = _as_str(item.get("recipient_commercial_suitability"))
+    if item.get("channel_send_eligibility") is not None:
+        out["channel_send_eligibility"] = bool(item.get("channel_send_eligibility"))
+    if item.get("email_send_ready") is not None:
+        out["email_send_ready"] = bool(item.get("email_send_ready"))
     return out
 
 
@@ -333,6 +348,84 @@ def map_lead(
     act = universe_row.get("activation") or intel.get("activation")
     if isinstance(act, dict) and act.get("state"):
         lead["activation"] = _map_activation(act)
+
+    # target_fit_send_tier + EMAIL_SEND_READY (explicit; Warmbly must not re-score)
+    company_ctx = {
+        **universe_row,
+        "service_code": lead["offer"].get("service_code"),
+        "primary_service": lead["offer"].get("service_code"),
+        "factual_hook": lead["messaging_context"].get("fact_to_mention"),
+        "evidence_ids": moment.get("evidence_ids") or [e.get("id") for e in evidence_items],
+        "canonical_universe_member": universe_row.get("canonical_universe_member", True),
+        "construction_evidence": universe_row.get("construction_evidence")
+        or intel.get("construction_evidence")
+        or {},
+        "portfolio": universe_row.get("portfolio") if isinstance(universe_row.get("portfolio"), dict) else {},
+        "offer": lead["offer"],
+    }
+    fit = classify_target_fit_send_tier(company_ctx)
+    lead["target_fit_send_tier"] = fit.tier
+    lead["target_fit_reasons"] = list(fit.reasons)
+
+    # Pick best email contact for company-level email_send_ready
+    best_ready = False
+    best_purpose = ""
+    best_suitability = ""
+    best_own = ""
+    best_ver = ""
+    for c in contacts:
+        email = c.get("email") or ""
+        if not email:
+            continue
+        r = evaluate_email_send_ready(
+            company=company_ctx,
+            email=email,
+            ownership_status=c.get("ownership_status"),
+            verification_status=c.get("verification_status"),
+            dnc=bool(c.get("dnc") or commercial_state in {"DO_NOT_CONTACT", "DNC"}),
+            bounce=bool(c.get("bounce") or c.get("bounced")),
+            account_blocked=commercial_state in {"BLOCKED", "LOST"},
+            service_code=lead["offer"].get("service_code"),
+            factual_evidence=bool(lead["messaging_context"].get("fact_to_mention") or evidence_items),
+            evidence_ids=[str(x) for x in (moment.get("evidence_ids") or [])],
+            target_fit=fit,
+        )
+        c["mailbox_purpose"] = r.mailbox_purpose
+        c["email_send_ready"] = r.email_send_ready
+        c["recipient_commercial_suitability"] = r.recipient_commercial_suitability
+        c["channel_send_eligibility"] = r.channel_send_eligibility
+        # EMAIL_ONLY: enrollable for auto send queue means email_send_ready, not phone
+        if r.email_send_ready:
+            c["enrollable"] = True
+            c["recommended"] = True
+            best_ready = True
+            best_purpose = r.mailbox_purpose
+            best_suitability = r.recipient_commercial_suitability
+            best_own = r.ownership_status
+            best_ver = r.verification_status
+        elif c.get("enrollable") and not email:
+            # phone-only must never be enrollable for EMAIL_ONLY production feed
+            c["enrollable"] = False
+            c["recommended"] = False
+        elif not r.email_send_ready and email:
+            # Keep ownership enrollable flag for review queues but mark not email-send-ready
+            c["email_send_ready"] = False
+
+    lead["email_send_ready"] = best_ready
+    if best_purpose:
+        lead["mailbox_purpose"] = best_purpose
+    if best_suitability:
+        lead["recipient_commercial_suitability"] = best_suitability
+    if best_own:
+        lead["ownership_status"] = best_own
+    if best_ver:
+        lead["verification_status"] = best_ver
+    lead["service_code"] = lead["offer"].get("service_code")
+    if isinstance(act, dict):
+        lead["activation_state"] = act.get("state") or act.get("activation_state")
+        lead["activation_score"] = act.get("score", act.get("activation_score"))
+        lead["activation_reasons"] = act.get("reason_codes") or act.get("reasons") or []
+        lead["next_best_action_at"] = act.get("next_best_action_at")
     return lead
 
 
