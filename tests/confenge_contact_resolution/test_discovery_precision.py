@@ -53,10 +53,16 @@ def test_short_live_hosts_never_credible_or_official_likely():
         "transportadora.com.br",
         "CONSTRUTORA E TRANSPORTADORA IDEAL LTDA",
     )
+    # Residual-foreign product domains (skeptic residual FPs)
+    assert not is_credible_company_domain("emkoelektronik.com", "EMKO CONSTRUTORA LTDA")
+    assert not is_credible_company_domain("hotelparaiso.com.br", "PARAISO DAS MADEIRAS V.PALMA LTDA")
+    assert not is_credible_company_domain("alcicafe.com.br", "ALCI N. BECKER")
     for host, label in (
         ("wh.com", "WH CONSTRUTORA LTDA"),
         ("fts.com", "F T S CONSTRUTORA LTDA"),
         ("transportadora.com.br", "CONSTRUTORA E TRANSPORTADORA IDEAL LTDA"),
+        ("emkoelektronik.com", "EMKO CONSTRUTORA LTDA"),
+        ("hotelparaiso.com.br", "PARAISO DAS MADEIRAS V.PALMA LTDA"),
     ):
         res = classify_host(host, company_label=label)
         assert res.domain_class in {
@@ -64,6 +70,43 @@ def test_short_live_hosts_never_credible_or_official_likely():
             DomainClass.THIRD_PARTY.value,
             DomainClass.DIRECTORY.value,
         }, (host, res.domain_class)
+
+
+def test_email_domain_residual_safe_variants():
+    from scripts.confenge_contact_resolution.discovery.official_domain import (
+        email_domain_aligned_with_company,
+    )
+
+    # Same brand family with region suffix allowed
+    assert email_domain_aligned_with_company(
+        "aegeamt.com.br",
+        "AEGEA SANEAMENTO E PARTICIPACOES S.A.",
+        official_domain="aegea.com.br",
+    )
+    # Foreign product residual rejected
+    assert not email_domain_aligned_with_company(
+        "emkoelektronik.com",
+        "EMKO CONSTRUTORA LTDA",
+        official_domain="emko.com",
+    )
+    assert not email_domain_aligned_with_company(
+        "hotelparaiso.com.br",
+        "PARAISO DAS MADEIRAS V.PALMA LTDA",
+        official_domain="paraiso.com.br",
+    )
+
+
+def test_placeholder_phone_invalid():
+    from scripts.confenge_contact_resolution.phone_policy import assess_phone, is_placeholder_phone
+
+    assert is_placeholder_phone("+5599999999999")
+    assert is_placeholder_phone("+559999999999")
+    a = assess_phone("+55 99 99999-9999")
+    assert a.valid is False
+    assert "placeholder" in " ".join(a.notes)
+    # Real-looking mobile should still pass
+    b = assess_phone("11987654321")
+    assert b.valid is True
 
 
 def test_candidate_domains_skip_short_and_generic_slds():
@@ -144,6 +187,65 @@ def test_stop_early_budget_and_contact_found():
     s2 = DiscoveryStats()
     b2 = DiscoveryBudget(max_search_queries=0, max_pages=8)
     assert not s2.budget_exhausted(b2)
+
+
+def test_cascade_stop_early_on_strong_public_doc(monkeypatch):
+    """DiscoveryCascade must exit CONTACT_FOUND without web search when docs have strong contact."""
+    from scripts.confenge_contact_resolution.discovery.budget import InvestigationOutcome
+    from scripts.confenge_contact_resolution.discovery.cascade import DiscoveryCascade
+
+    calls = {"search": 0, "probe": 0, "crawl": 0}
+
+    def fake_docs(cnpj14, **kwargs):
+        return [
+            {
+                "email": "licitacoes@alphaengenharia.com.br",
+                "cnpj14": cnpj14,
+                "evidence_strength": "company_authored_document",
+                "url": "https://datalake.example/doc/1",
+                "doc_type": "proposta",
+            }
+        ]
+
+    def boom_search(*a, **k):
+        calls["search"] += 1
+        raise AssertionError("web search must not run after strong doc contact")
+
+    def boom_probe(*a, **k):
+        calls["probe"] += 1
+        raise AssertionError("domain probe must not run after strong doc contact")
+
+    monkeypatch.setattr(
+        "scripts.confenge_contact_resolution.discovery.cascade.lookup_public_docs_for_cnpj",
+        fake_docs,
+    )
+    monkeypatch.setattr(
+        "scripts.confenge_contact_resolution.discovery.cascade.probe_official_domain",
+        boom_probe,
+    )
+    monkeypatch.setattr(
+        "scripts.confenge_contact_resolution.discovery.cascade.build_web_search_provider",
+        lambda: type("P", (), {"search": boom_search, "search_business_contacts": boom_search})(),
+    )
+
+    cascade = DiscoveryCascade(
+        budget=DiscoveryBudget(max_search_queries=6, max_pages=8, max_total_requests=20),
+        allow_network=True,  # would enable search/probe if not stop-early
+        dsn=None,
+    )
+    result = cascade.run(
+        cnpj14="11222333000181",
+        razao_social="ALPHA ENGENHARIA E CONSTRUCOES LTDA",
+        stop_when_strong_contact=True,
+    )
+    assert result.stats.outcome == InvestigationOutcome.CONTACT_FOUND.value
+    assert result.stats.stop_reason == "strong_public_doc"
+    assert result.stats.search_queries == 0
+    assert calls["search"] == 0
+    assert calls["probe"] == 0
+    assert any(
+        (d.get("email") or "").endswith("@alphaengenharia.com.br") for d in (result.ctx.public_docs or [])
+    )
 
 
 def test_accounting_shared_phone_rejected_end_to_end():

@@ -326,12 +326,96 @@ def _second_level_label(host: str | None) -> str:
     return parts[0] if parts else ""
 
 
+# Residuals allowed after a company brand prefix in an SLD (regions / generic product).
+_ALLOWED_SLD_RESIDUALS = frozenset(
+    {
+        "",
+        "engenharia",
+        "construtora",
+        "construcoes",
+        "construcao",
+        "obras",
+        "infra",
+        "infraestrutura",
+        "group",
+        "grupo",
+        "holding",
+        "brasil",
+        "br",
+        "mais",
+        "online",
+        "web",
+        "net",
+        "sa",
+        # UF / region suffixes commonly used by multi-state groups
+        "mt",
+        "rs",
+        "sp",
+        "rj",
+        "sc",
+        "pr",
+        "es",
+        "mg",
+        "ba",
+        "pe",
+        "ce",
+        "go",
+        "df",
+        "am",
+        "pa",
+        "ro",
+        "rr",
+        "ap",
+        "to",
+        "ma",
+        "pi",
+        "rn",
+        "pb",
+        "al",
+        "se",
+        "ms",
+        "ac",
+    }
+)
+
+
+def _company_brand_words(company_label: str | None) -> list[str]:
+    label = (company_label or "").strip()
+    if not label:
+        return []
+    raw_parts = [t for t in re.split(r"[^a-z0-9]+", re.sub(r"[^a-z0-9\s]", " ", label.lower())) if t]
+    legal = {"ltda", "limitada", "sa", "me", "epp", "eireli", "s", "a", "e", "das", "dos", "da", "do", "de"}
+    return [t for t in raw_parts if t not in legal and t not in _GENERIC_BRAND_TOKENS]
+
+
+def brand_residual_ok(sld: str, brand: str) -> bool:
+    """True if SLD equals brand or brand + allowed residual only (not foreign product).
+
+    Blocks emko+elektronik, hotel+paraiso, alci+cafe style hijacks.
+    """
+    sld = (sld or "").lower()
+    brand = (brand or "").lower()
+    if not sld or not brand or len(brand) < 3:
+        return False
+    if sld == brand:
+        return True
+    # brand as exact prefix
+    if sld.startswith(brand):
+        residual = sld[len(brand) :]
+        return residual in _ALLOWED_SLD_RESIDUALS
+    # brand as exact suffix (rare: grupoXbrand)
+    if sld.endswith(brand):
+        residual = sld[: -len(brand)]
+        return residual in _ALLOWED_SLD_RESIDUALS or residual in {"grupo", "group"}
+    return False
+
+
 def is_credible_company_domain(domain: str | None, company_label: str | None) -> bool:
     """Hard gate before a host may be treated as official for COMPANY_OWNED.
 
     Rejects short SLDs (wh.com, fts.com) unless the company name starts with that
-    exact acronym, generic industry-only hosts, and hosts with no distinctive
-    token shared with the company name.
+    exact acronym, generic industry-only hosts, and hosts that merely *contain*
+    a brand token plus foreign residual (emkoelektronik, hotelparaiso, alcicafe).
     """
     h = _host(domain)
     if not h or is_blocked_host(h):
@@ -341,32 +425,70 @@ def is_credible_company_domain(domain: str | None, company_label: str | None) ->
         return False
     if sld in _GENERIC_BRAND_TOKENS:
         return False
-    label = (company_label or "").strip()
-    if not label:
-        return False
-    # Fold label to tokens (keep short acronyms)
-    raw_parts = [t for t in re.split(r"[^a-z0-9]+", re.sub(r"[^a-z0-9\s]", " ", label.lower())) if t]
-    # Drop legal form tokens only
-    legal = {"ltda", "limitada", "sa", "me", "epp", "eireli", "s", "a", "e"}
-    words = [t for t in raw_parts if t not in legal and t not in _GENERIC_BRAND_TOKENS]
+    words = _company_brand_words(company_label)
     if not words:
         return False
 
-    # 3-char SLD: only if it is the leading brand acronym of the company name
+    # 3-char SLD: only leading exact acronym
     if len(sld) == 3:
         return words[0] == sld
 
-    # Must share a distinctive token (len>=4) with company name
-    label_tokens = {t for t in words if len(t) >= 4}
-    if not label_tokens and words[0] != sld:
-        return False
-    host_flat = h.replace(".", "").replace("-", "")
-    for t in label_tokens:
-        if t == sld or t in host_flat:
+    # Prefer exact / residual-safe brand match on SLD
+    label_tokens = [t for t in words if len(t) >= 4]
+    for t in sorted(label_tokens, key=len, reverse=True):
+        if brand_residual_ok(sld, t):
             return True
-    if words[0] == sld and len(sld) >= 4:
+    if brand_residual_ok(sld, words[0]) and len(words[0]) >= 4:
         return True
-    return domain_token_overlap(h, label) >= 0.45
+
+    # Multi-token compact brand: "alpha engenharia" → alphaengenharia
+    if len(words) >= 2:
+        compact = "".join(words[:2])
+        if len(compact) >= 6 and brand_residual_ok(sld, compact):
+            return True
+        compact3 = "".join(words[:3])
+        if len(compact3) >= 8 and brand_residual_ok(sld, compact3):
+            return True
+
+    # High Jaccard only when SLD is not a foreign product wrapping a short brand
+    overlap = domain_token_overlap(h, company_label)
+    if overlap >= 0.55:
+        # still reject if any brand token is a *strict prefix* of SLD with bad residual
+        for t in label_tokens:
+            if sld.startswith(t) and not brand_residual_ok(sld, t):
+                return False
+        return True
+    return False
+
+
+def email_domain_aligned_with_company(
+    email_domain: str | None,
+    company_label: str | None,
+    *,
+    official_domain: str | None = None,
+) -> bool:
+    """Email domain must be company-aligned; foreign product domains rejected.
+
+    If an official_domain is known, email SLD must match it or be a residual-safe
+    variant of the same brand (aegea.com.br ↔ aegeamt.com.br).
+    """
+    ed = _host(email_domain)
+    if not ed or not is_credible_company_domain(ed, company_label):
+        return False
+    # Freemail handled by caller
+    if not official_domain:
+        return True
+    od = _host(official_domain)
+    if not od:
+        return True
+    ed_sld = _second_level_label(ed)
+    od_sld = _second_level_label(od)
+    if ed_sld == od_sld:
+        return True
+    # Same brand family: longer of the two starts with shorter + allowed residual
+    if len(ed_sld) >= len(od_sld):
+        return brand_residual_ok(ed_sld, od_sld)
+    return brand_residual_ok(od_sld, ed_sld)
 
 
 def resolve_official_domain(

@@ -6,11 +6,12 @@
   "manually_injected_contacts": 0,
   "network_enabled": true,
   "precision_filter_applied": true,
-  "companies_with_enrollable_email": 196,
-  "emails_enrollable_filtered": 367,
-  "dropped_false_positive_email_rows": 49,
+  "companies_processed": 1000,
+  "companies_with_enrollable_email": 171,
+  "emails_enrollable": 313,
+  "dropped_false_positive_email_rows": 696,
   "operational_bar_100_companies": true,
   "human_validation": "HUMAN_REVIEW_PENDING",
   "machine_validation": "PASS",
-  "note": "Enrollable counts after is_credible_company_domain filter (domain_probe FP fix)"
+  "note": "Commercial counts after residual-safe domain alignment + placeholder phone rejection"
 }

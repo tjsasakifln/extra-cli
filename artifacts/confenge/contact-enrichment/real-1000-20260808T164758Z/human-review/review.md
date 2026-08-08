@@ -1,6 +1,6 @@
 # CONFENGE contact enrichment — human review
 
-Generated: 2026-08-08T19:17:17Z
+Generated: 2026-08-08T19:42:45Z
 
 Status: **HUMAN_REVIEW_PENDING** (machine may be PASS; human must review)
 
@@ -192,14 +192,14 @@ Each case lists company, CNPJ, contact, ownership, confidence, reason, source, d
 
 ### 14. FUNDO DE DESENVOLVIMENTO DA INFRAESTRUTURA REGIONAL SUSTENTAVEL FDIRS (`21441766000181`)
 
-- **contato:** `+5599999999999`
+- **contato:** `+551070814923`
 - **ownership_status:** COMPANY_OWNED
 - **confidence:** 0.65
 - **reason:** strong_company_ownership_signals
 - **source_type:** contact_page
 - **source_url:** https://fdirs.com.br/contato
 - **domínio oficial:** fdirs.com.br
-- **reuse signal (associated companies):** 2
+- **reuse signal (associated companies):** 1
 - **third-party signals:** —
 - **verification_status:** OBSERVED
 - **enrollable:** True

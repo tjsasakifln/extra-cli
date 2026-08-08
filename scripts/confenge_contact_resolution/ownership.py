@@ -393,26 +393,37 @@ def resolve_ownership(
         official = (ctx.official_domain or "").removeprefix("www.").lower()
         site_norm = (site_dom or "").removeprefix("www.").lower() if site_dom else ""
 
+        # Domain match requires residual-safe brand alignment (blocks emkoelektronik etc.)
+        from scripts.confenge_contact_resolution.discovery.official_domain import (
+            email_domain_aligned_with_company,
+        )
+
+        aligned = email_domain_aligned_with_company(
+            domain,
+            company_label,
+            official_domain=official or None,
+        )
         # Strong: official company domain — require real name alignment (no short/generic FPs)
-        if official and domain == official and overlap >= 0.35 and not tp_type:
+        if official and domain == official and overlap >= 0.35 and not tp_type and aligned:
             domain_match = True
             score += 25
             parts.append("email_domain_eq_official_company=+25")
-        elif official and domain == official and overlap >= 0.2 and not tp_type:
-            # Weaker alignment still on caller-confirmed official domain
+        elif official and domain == official and overlap >= 0.2 and not tp_type and aligned:
             domain_match = True
             score += 15
             parts.append("email_domain_eq_official_weak_overlap=+15")
-        elif official and domain == official and not tp_type and overlap < 0.2:
-            # Explicitly refuse: official_domain set without company-name alignment
+        elif official and domain == official and not aligned:
             parts.append("email_domain_eq_official_but_unaligned_with_company=0")
-        elif overlap >= 0.35:
+        elif aligned and overlap >= 0.35:
             domain_match = True
             score += 25
-            parts.append(f"domain_name_overlap={overlap:.2f}=+25")
+            parts.append(f"domain_name_overlap_aligned={overlap:.2f}=+25")
+        elif overlap >= 0.35 and not aligned:
+            # Overlap alone is not enough when residual is foreign product (hotelparaiso)
+            parts.append(f"domain_overlap_but_residual_foreign={overlap:.2f}=0")
         elif overlap > 0:
-            score += 10
-            parts.append(f"weak_domain_overlap={overlap:.2f}=+10")
+            score += 5
+            parts.append(f"weak_domain_overlap={overlap:.2f}=+5")
         else:
             parts.append("domain_unmatched_vs_company=0")
 

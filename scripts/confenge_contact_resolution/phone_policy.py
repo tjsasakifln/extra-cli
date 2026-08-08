@@ -83,6 +83,26 @@ def classify_phone_type(e164: str | None) -> str:
     return PhoneType.UNKNOWN.value
 
 
+def is_placeholder_phone(e164: str | None) -> bool:
+    """Detect obvious placeholder / mask numbers (all-same digit, 9999…, 0000…)."""
+    if not e164 or not e164.startswith("+55"):
+        return False
+    national = e164[3:]
+    if len(national) < 10:
+        return True
+    subscriber = national[2:]  # after DDD
+    if not subscriber:
+        return True
+    if len(set(subscriber)) == 1:
+        return True  # 999999999, 00000000, 11111111
+    if re.fullmatch(r"9{6,}", subscriber) or re.fullmatch(r"0{6,}", subscriber):
+        return True
+    # Obvious ascending keyboard patterns only (descending 987… can be real mobiles)
+    if subscriber in {"12345678", "123456789", "01234567", "012345678"}:
+        return True
+    return False
+
+
 def assess_phone(raw: str | None) -> PhoneAssessment:
     display = (str(raw).strip() if raw is not None else None) or None
     if not display:
@@ -103,6 +123,15 @@ def assess_phone(raw: str | None) -> PhoneAssessment:
             valid=False,
             confidence_delta=0.0,
             notes=["phone_invalid"],
+        )
+    if is_placeholder_phone(e164):
+        return PhoneAssessment(
+            phone_raw=display,
+            phone_e164=None,
+            phone_type=PhoneType.UNKNOWN.value,
+            valid=False,
+            confidence_delta=0.0,
+            notes=["phone_placeholder"],
         )
     ptype = classify_phone_type(e164)
     delta = 0.25 if ptype == PhoneType.MOBILE.value else 0.18 if ptype == PhoneType.LANDLINE.value else 0.1

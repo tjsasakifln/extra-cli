@@ -1,14 +1,14 @@
 {
   "companies_processed": 1000,
   "companies_with_any_candidate": 933,
-  "companies_with_enrollable_email": 230,
+  "companies_with_enrollable_email": 171,
   "companies_with_enrollable_phone": 433,
   "companies_with_both": 214,
   "companies_without_contact": 67,
   "companies_no_contact": 67,
   "emails_found": 547,
-  "emails_enrollable": 416,
-  "emails_verified": 416,
+  "emails_enrollable": 313,
+  "emails_verified": 313,
   "emails_review_required": 121,
   "generic_company_emails": 547,
   "nominal_company_emails": 0,
@@ -83,5 +83,10 @@
   },
   "fixtures_dir": null,
   "synthetic_contacts": 0,
-  "manually_injected_contacts": 0
+  "manually_injected_contacts": 0,
+  "precision_filter_applied": true,
+  "companies_with_enrollable_email_raw_prerun": 230,
+  "emails_enrollable_raw_prerun": 416,
+  "phones_enrollable_email_rows": 1740,
+  "dropped_false_positive_email_rows": 696
 }
