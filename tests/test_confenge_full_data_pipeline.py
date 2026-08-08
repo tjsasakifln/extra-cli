@@ -145,6 +145,11 @@ def test_reconciliation_unaccounted_zero() -> None:
 
 
 def test_limit_downstream_does_not_change_universe_total(tmp_path: Path) -> None:
+    """Smoke path: limit_downstream bounds sample only (force_sample_mode).
+
+    Production activation uses policy.planned_capacity — covered by
+    test_production_activation_does_not_use_limit_downstream_as_capacity.
+    """
     r1 = run_pipeline(
         PipelineConfig(
             out_dir=tmp_path / "a",
@@ -154,6 +159,7 @@ def test_limit_downstream_does_not_change_universe_total(tmp_path: Path) -> None
             limit_downstream=1,
             skip_contacts=True,
             progress=False,
+            force_sample_mode=True,
         )
     )
     r2 = run_pipeline(
@@ -165,6 +171,7 @@ def test_limit_downstream_does_not_change_universe_total(tmp_path: Path) -> None
             limit_downstream=2,
             skip_contacts=True,
             progress=False,
+            force_sample_mode=True,
         )
     )
     assert r1.ok and r2.ok
