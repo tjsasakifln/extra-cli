@@ -156,6 +156,7 @@ def build_dossier(
         "primary_service": selection["primary_service"],
         "secondary_service": selection["secondary_service"],
         "service_fit_rationale": selection["service_fit_rationale"],
+        "service_candidates": selection.get("service_candidates") or [],
         "fact_to_mention": approach["fact_to_mention"],
         "question_to_ask": approach["question_to_ask"],
         "cta": approach["cta"],
@@ -166,6 +167,22 @@ def build_dossier(
         "evidence": bag.get("evidence") or [],
         "dominant_state": dominant,
         "limitations": limitations,
+        "target_fit_class": bag.get("target_fit_class"),
+        "target_fit_evidence": bag.get("target_fit_evidence") or [],
+        "target_fit_reason_codes": bag.get("target_fit_reason_codes") or [],
+        "target_fit_confidence": bag.get("target_fit_confidence"),
+        "target_fit_version": bag.get("target_fit_version"),
+        "construction_evidence": bag.get("construction_evidence") or {},
+        "why_this_account": (
+            f"empresa com portfólio público observável: {bag.get('razao_social')}"
+            if bag.get("razao_social")
+            else approach.get("fact_to_mention") or ""
+        ),
+        "micro_offer_code": str(
+            (selection.get("primary_service") or {}).get("approach_mode") or ""
+        ),
+        "observed_fact": approach.get("fact_to_mention") or "",
+        "_pipeline_contracts": bag.get("contracts") or [],
     }
 
     if cache is not None:

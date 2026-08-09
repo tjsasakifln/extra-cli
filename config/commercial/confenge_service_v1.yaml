@@ -1,0 +1,196 @@
+# confenge.service.v1 — canonical cross-repo service ontology (extra-cli ↔ Warmbly)
+# Never map unknown codes to REAJUSTE. Diagnóstico is the commercial fallback.
+
+schema_id: confenge.service.v1
+schema_version: "1.0.0"
+version_date: "2026-08-09"
+notes: >
+  Single source of truth for service codes. extra-cli exports canonical_service_code;
+  Warmbly playbook codes are isomorphic via warmbly_playbook_code + aliases.
+  Unknown codes must fail closed (block generation), never fall back to REAJUSTE.
+
+services:
+  - canonical_service_code: REAJUSTE
+    extra_cli_service_id: estruturacao_pleito_reajuste
+    warmbly_playbook_code: REAJUSTE
+    aliases:
+      - REAJUSTE_14133
+      - REAJUSTE_CONTRATUAL
+      - reajuste
+      - estruturacao_pleito_reajuste
+    display_name: Estruturação de pleito de reajuste contratual
+    valid_triggers:
+      - mature_no_reajuste
+      - CONTRACT_ANNIVERSARY_WINDOW
+      - ANUALIDADE
+      - REAJUSTE_WINDOW
+    valid_micro_offers:
+      - REAJUSTE_CHECK
+    prohibited_fallbacks: []
+
+  - canonical_service_code: REEQUILIBRIO
+    extra_cli_service_id: reequilibrio_economico_financeiro
+    warmbly_playbook_code: REEQUILIBRIO
+    aliases:
+      - REEQUILIBRIO_ECO
+      - REEQUILIBRIO_ECONOMICO
+      - reequilibrio
+      - reequilibrio_economico_financeiro
+    display_name: Reequilíbrio econômico-financeiro
+    valid_triggers:
+      - reequilibrio
+      - extraordinary_cost_shock
+    valid_micro_offers:
+      - CLAIM_READINESS_CHECK
+    prohibited_fallbacks:
+      - REAJUSTE
+
+  - canonical_service_code: ADITIVOS
+    extra_cli_service_id: aditivos_extracontratuais
+    warmbly_playbook_code: ADITIVOS
+    aliases:
+      - ADITIVO
+      - ADDITIVE_REVIEW
+      - aditivos_extracontratuais
+      - EXTRACONTRATUAIS
+    display_name: Aditivos, alterações e serviços extracontratuais
+    valid_triggers:
+      - addendum
+      - ADITIVO_RECENTE
+      - quantitative_or_qualitative_change
+    valid_micro_offers:
+      - ADITIVO_RISK_CHECK
+      - DOCUMENT_CHECKLIST
+    prohibited_fallbacks:
+      - REAJUSTE
+
+  - canonical_service_code: MEDICOES
+    extra_cli_service_id: medicoes_glosas_memoria
+    warmbly_playbook_code: MEDICOES
+    aliases:
+      - MEDICAO
+      - MEDICÃO
+      - MEDIÇÃO
+      - medicoes_glosas_memoria
+      - glosa
+    display_name: Medições, faturamento, glosas e memória de cálculo
+    valid_triggers:
+      - glosa_medicao
+      - MEDICAO
+      - measurement_dispute
+    valid_micro_offers:
+      - MEDICAO_CHECK
+    prohibited_fallbacks:
+      - REAJUSTE
+
+  - canonical_service_code: ORCAMENTO_BDI
+    extra_cli_service_id: auditoria_orcamento_bdi
+    warmbly_playbook_code: PLANILHAS
+    aliases:
+      - PLANILHA
+      - QUANTITATIVOS
+      - ORCAMENTO
+      - auditoria_orcamento_bdi
+      - BDI
+    display_name: Auditoria de orçamento, composições, BDI e planilhas
+    valid_triggers:
+      - budget_audit_need
+      - high_value_technical_package
+      - PORTFOLIO_REVIEW
+    valid_micro_offers:
+      - DOCUMENT_CHECKLIST
+    prohibited_fallbacks:
+      - REAJUSTE
+
+  - canonical_service_code: MONITORAMENTO_CONTRATUAL
+    extra_cli_service_id: gestao_monitoramento_contratual
+    warmbly_playbook_code: MONITORAMENTO_CONTRATUAL
+    aliases:
+      - MONITORAMENTO
+      - PORTFOLIO
+      - ACOMPANHAMENTO
+      - gestao_monitoramento_contratual
+    display_name: Gestão e monitoramento contratual
+    valid_triggers:
+      - multi_contract_portfolio
+      - PORTFOLIO_REVIEW
+      - near_expiry
+    valid_micro_offers:
+      - DOCUMENT_CHECKLIST
+      - PORTFOLIO_SNAPSHOT
+    prohibited_fallbacks:
+      - REAJUSTE
+
+  - canonical_service_code: APOIO_LICITACAO
+    extra_cli_service_id: apoio_licitacoes_propostas
+    warmbly_playbook_code: APOIO_LICITACAO
+    aliases:
+      - LICITACAO
+      - BID_SUPPORT
+      - PROPOSTA
+      - apoio_licitacoes_propostas
+    display_name: Apoio técnico em licitações e propostas
+    valid_triggers:
+      - recent_tender_activity
+      - proposal_window
+    valid_micro_offers:
+      - PROCUREMENT_RISK_SNAPSHOT
+    prohibited_fallbacks:
+      - REAJUSTE
+
+  - canonical_service_code: INTELIGENCIA_PNCP
+    extra_cli_service_id: inteligencia_pncp_mercado
+    warmbly_playbook_code: INTELIGENCIA_PNCP
+    aliases:
+      - INTELIGENCIA
+      - PNCP_INTEL
+      - inteligencia_pncp_mercado
+    display_name: Inteligência PNCP e mercado público
+    valid_triggers:
+      - market_expansion
+      - opportunity_scan_need
+    valid_micro_offers:
+      - MARKET_BRIEF
+    prohibited_fallbacks:
+      - REAJUSTE
+
+  - canonical_service_code: DIAGNOSTICO
+    extra_cli_service_id: diagnostico_contratual_b2g
+    warmbly_playbook_code: DIAGNOSTICO
+    aliases:
+      - DIAGNOSTICO_CONTRATUAL
+      - DISCOVERY
+      - diagnostico_contratual_b2g
+    display_name: Diagnóstico contratual B2G
+    valid_triggers:
+      - insufficient_facts
+      - first_contact_discovery
+      - ambiguous_portfolio
+    valid_micro_offers:
+      - DIAGNOSTIC_CHECKLIST
+    prohibited_fallbacks:
+      - REAJUSTE
+    is_fallback: true
+
+  - canonical_service_code: BACKOFFICE
+    extra_cli_service_id: reforco_temporario_backoffice
+    warmbly_playbook_code: BACKOFFICE
+    aliases:
+      - REFORCO_BACKOFFICE
+      - outsourcing_operacional
+      - reforco_temporario_backoffice
+    display_name: Reforço temporário de backoffice técnico/contratual
+    valid_triggers:
+      - lean_structure_with_load
+      - concentrated_functions
+    valid_micro_offers:
+      - BACKOFFICE_SCOPE_CHECK
+    prohibited_fallbacks:
+      - REAJUSTE
+
+routing_rules:
+  reajuste_is_never_default: true
+  fallback_canonical: DIAGNOSTICO
+  unknown_code_behavior: FAIL_CLOSED
+  warmbly_must_not_rescore: true
+  warmbly_must_not_swap_service: true

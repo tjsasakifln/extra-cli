@@ -1,0 +1,21 @@
+{
+  "generated_at": "2026-08-09T21:10:34.088343+00:00",
+  "total_accounts": 50,
+  "service_distribution": {
+    "diagnostico_contratual_b2g": 6,
+    "gestao_monitoramento_contratual": 31,
+    "reforco_temporario_backoffice": 4,
+    "auditoria_orcamento_bdi": 9
+  },
+  "top_service_pct": 62.0,
+  "concentration_flag": "ROUTING_CONCENTRATION_REVIEW_REQUIRED",
+  "target_fit_audit_rows": 132,
+  "incident_false_targets": 6,
+  "incident_still_email_send_ready_after_fix": 0,
+  "false_positive_ready_in_universe_sample": 0,
+  "notes": [
+    "Reajuste is not default in recomputed router; feed sample multi-service.",
+    "Warmbly COPY-SAMPLE monoculture was REAJUSTE_14133 at account layer.",
+    "Full national EMAIL_SEND_READY stratified 50 requires live large DSN; local slice limited."
+  ]
+}

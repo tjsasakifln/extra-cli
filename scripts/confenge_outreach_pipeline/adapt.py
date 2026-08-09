@@ -32,16 +32,72 @@ def universe_row_to_intelligence_input(
         obj_l = obj.lower()
         # Only surface signals that appear in public object text or explicit fields.
         # Absence of a keyword is NOT proof of absence of the event.
+        # Absence of reajuste proof is NOT positive economic evidence.
         has_addendum = bool(c.get("has_addendum")) or any(
-            tok in obj_l for tok in ("aditiv", "apostilamento", "supressão", "supressao")
+            tok in obj_l
+            for tok in (
+                "aditiv",
+                "apostilamento",
+                "supressão",
+                "supressao",
+                "acréscimo",
+                "acrescimo de",
+                "prorrogação",
+                "prorrogacao",
+                "alteração qualitativa",
+                "alteracao qualitativa",
+                "alteração quantitativa",
+                "alteracao quantitativa",
+                "extracontratual",
+            )
         )
         has_reajuste = bool(c.get("has_reajuste") or c.get("reajuste_executed")) or any(
-            tok in obj_l for tok in ("reajuste", "repactua")
+            tok in obj_l for tok in ("reajuste", "repactua", "apostila de reajuste")
         )
         glosa = bool(c.get("glosa_signals") or c.get("measurement_issues")) or any(
-            tok in obj_l for tok in ("glosa", "medição contest", "medicao contest")
+            tok in obj_l
+            for tok in (
+                "glosa",
+                "medição contest",
+                "medicao contest",
+                "medicao",
+                "medição",
+                "faturamento",
+                "retenção",
+                "retencao",
+                "liquidação",
+                "liquidacao",
+            )
         )
-        reequilibrio = bool(c.get("reequilibrio_mention")) or "reequil" in obj_l
+        reequilibrio = bool(c.get("reequilibrio_mention")) or any(
+            tok in obj_l for tok in ("reequil", "álea", "alea economica", "desequilíbrio", "desequilibrio")
+        )
+        budget_bdi = bool(c.get("budget_or_bdi_signal") or c.get("planilha_signal")) or any(
+            tok in obj_l
+            for tok in (
+                "bdi",
+                "planilha orcament",
+                "planilha orçament",
+                "composicao de custo",
+                "composição de custo",
+                "quantitativo",
+                "orçamento de obra",
+                "orcamento de obra",
+            )
+        )
+        tender = bool(c.get("tender_or_proposal_signal")) or any(
+            tok in obj_l
+            for tok in (
+                "edital",
+                "licitacao",
+                "licitação",
+                "proposta comercial",
+                "pregão",
+                "pregao",
+                "concorrência",
+                "concorrencia",
+            )
+        )
         contracts.append(
             {
                 "id": str(c.get("contrato_id") or c.get("id") or f"u-contract-{i + 1}"),
@@ -58,6 +114,9 @@ def universe_row_to_intelligence_input(
                 "glosa_signals": glosa,
                 "measurement_issues": glosa,
                 "reequilibrio_mention": reequilibrio,
+                "budget_or_bdi_signal": budget_bdi,
+                "planilha_signal": budget_bdi,
+                "tender_or_proposal_signal": tender,
                 "source_url": c.get("source_url"),
                 "source_document": c.get("source_document") or "pncp",
                 "source_date": c.get("data_publicacao") or c.get("source_date"),
@@ -90,6 +149,7 @@ def universe_row_to_intelligence_input(
 
     as_of_value = as_of or row.get("as_of") or date.today().isoformat()
     cnpj = _digits(row.get("cnpj14") or row.get("cnpj") or "")
+    ce = row.get("construction_evidence") if isinstance(row.get("construction_evidence"), dict) else {}
 
     return {
         "cnpj": cnpj,
@@ -99,7 +159,7 @@ def universe_row_to_intelligence_input(
         "nome_fantasia": row.get("nome_fantasia"),
         "municipio": row.get("municipio"),
         "uf": row.get("uf"),
-        "activity_class": activity_class,
+        "activity_class": activity_class or ce.get("activity_class"),
         "as_of": as_of_value,
         "commercial_state": commercial_state,
         "signals": signals,
@@ -108,11 +168,21 @@ def universe_row_to_intelligence_input(
         "source_lead_id": row.get("source_lead_id") or f"cnpj:{cnpj}",
         "priority_score": row.get("priority_score"),
         "priority_reason": row.get("priority_reason"),
+        "construction_evidence": ce,
+        "target_fit_class": ce.get("target_fit_class") or row.get("target_fit_class"),
+        "target_fit_evidence": ce.get("target_fit_evidence") or row.get("target_fit_evidence") or [],
+        "target_fit_reason_codes": ce.get("target_fit_reason_codes")
+        or row.get("target_fit_reason_codes")
+        or [],
+        "target_fit_confidence": ce.get("target_fit_confidence") or row.get("target_fit_confidence"),
+        "target_fit_version": ce.get("target_fit_version") or row.get("target_fit_version"),
         "portfolio_stats": {
             "contract_count_total": contract_count,
             "value_total_brl": value_total,
             "ufs_atuacao": ufs,
             "active_contract_count": portfolio.get("active_contract_count"),
+            "relevant_contract_count": ce.get("relevant_contract_count"),
+            "pass_contract_count": ce.get("relevant_contract_count"),
         },
     }
 
@@ -217,6 +287,36 @@ def intelligence_dossier_to_bridge_row(dossier: dict[str, Any]) -> dict[str, Any
 
     commercial_state = str(dominant.get("state") or dossier.get("commercial_state") or "NEW").upper()
 
+    # Map to confenge.service.v1 canonical — never invent REAJUSTE for unknown.
+    raw_service = str(primary.get("service_id") or primary.get("service_code") or "")
+    canonical_service = raw_service
+    warmbly_service = raw_service
+    try:
+        from scripts.confenge_service_contract.mapping import (
+            map_to_canonical,
+            map_to_warmbly,
+        )
+
+        if raw_service:
+            canonical_service = map_to_canonical(raw_service)
+            warmbly_service = map_to_warmbly(raw_service)
+    except Exception:
+        # Fail closed: keep raw id; Warmbly must not default unknown → REAJUSTE.
+        canonical_service = raw_service
+        warmbly_service = raw_service
+
+    why_summary = str(why.get("temporal_fact") or why.get("summary") or "")
+    fact_mention = str(dossier.get("fact_to_mention") or "")
+    razao = snap.get("razao_social") or dossier.get("razao_social") or ""
+    why_you = str(
+        dossier.get("why_this_account")
+        or (
+            f"empresa com execução pública de engenharia/construção observável: {razao}"
+            if razao
+            else ""
+        )
+    )
+
     return {
         "cnpj14": cnpj,
         "cnpj_root": _digits(snap.get("cnpj_root") or dossier.get("cnpj_root") or cnpj[:8]),
@@ -226,9 +326,19 @@ def intelligence_dossier_to_bridge_row(dossier: dict[str, Any]) -> dict[str, Any
         "uf": snap.get("uf"),
         "commercial_state": commercial_state,
         "source_lead_id": dossier.get("source_lead_id") or f"cnpj:{cnpj}",
+        "target_fit_class": (
+            dossier.get("target_fit_class")
+            or snap.get("target_fit_class")
+            or (
+                (dossier.get("construction_evidence") or {}).get("target_fit_class")
+                if isinstance(dossier.get("construction_evidence"), dict)
+                else None
+            )
+        ),
+        "why_this_account": why_you,
         "why_now": {
             "code": str(why.get("trigger") or why.get("code") or "").upper(),
-            "summary": str(why.get("temporal_fact") or why.get("summary") or ""),
+            "summary": why_summary,
             "observed_at": str(why.get("observed_at") or dossier.get("as_of") or ""),
             "confidence": _confidence_from_epistemic(why.get("epistemic_class")),
             "evidence_ids": [
@@ -236,16 +346,25 @@ def intelligence_dossier_to_bridge_row(dossier: dict[str, Any]) -> dict[str, Any
             ][:5],
         },
         "offer": {
-            "service_code": str(primary.get("service_id") or primary.get("service_code") or ""),
+            "service_code": warmbly_service or raw_service,
+            "canonical_service_code": canonical_service or raw_service,
+            "extra_cli_service_id": raw_service,
             "service_name": str(primary.get("label") or primary.get("service_name") or ""),
             "entry_offer": str(primary.get("approach_mode") or ""),
+            "micro_offer_code": str(
+                dossier.get("micro_offer_code")
+                or primary.get("approach_mode")
+                or ""
+            ),
             "rationale": str(dossier.get("service_fit_rationale") or ""),
         },
+        "service_candidates": list(dossier.get("service_candidates") or []),
         "messaging": {
-            "fact_to_mention": str(dossier.get("fact_to_mention") or ""),
+            "fact_to_mention": fact_mention,
             "question_to_ask": str(dossier.get("question_to_ask") or ""),
             "cta": str(dossier.get("cta") or ""),
             "claims_to_avoid": list(dossier.get("claims_to_avoid") or []),
+            "why_this_account": why_you,
             # why_now also lives in lead.moment; mirror for copy generators that
             # only read messaging_context.
             "why_now": str(why.get("temporal_fact") or why.get("summary") or ""),
