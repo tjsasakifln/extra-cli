@@ -66,3 +66,9 @@ NO_GO
 - `cross-repo-service-contract.json`
 - `rebuild-2026-08-09/confenge-outreach-v1-clean.json`
 - `FINAL-REPORT.md`
+
+## Panel submission
+
+- `PANEL-SUBMISSION.md` — package for adversarial verification (ends **NO_GO**)
+- extra-cli PR: https://github.com/tjsasakifln/extra-cli/pull/211
+- warmbly PR: https://github.com/tjsasakifln/warmbly/pull/34
