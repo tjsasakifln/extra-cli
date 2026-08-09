@@ -217,3 +217,75 @@ def test_cli_main_fixture(tmp_path: Path):
     assert data["counts"]["total"] > 0
     assert any(o["intent"] == "bofu" for o in data["opportunities"])
     assert any(o.get("unique_data_available") for o in data["opportunities"])
+
+
+def test_normative_editorial_problem_service_is_not_unique_data():
+    """Normative/editorial evidence must NOT claim content moat / N contracts."""
+    from scripts.organic.engine import (
+        _is_contract_aggregate_evidence,
+        opportunities_from_problem_service,
+    )
+
+    assert not _is_contract_aggregate_evidence(
+        evidence_kind="normative_editorial",
+        dataset="pncp_supplier_contracts,site-confenge-guides",
+        sources=["pncp_supplier_contracts", "site-confenge-guides"],
+    )
+    # Pure site guides
+    assert not _is_contract_aggregate_evidence(
+        evidence_kind="normative_editorial",
+        dataset="site-confenge-guides",
+        sources=["site-confenge-guides"],
+    )
+    # Real market aggregate still true
+    assert _is_contract_aggregate_evidence(
+        evidence_kind="market_benchmark",
+        dataset="pncp_supplier_contracts",
+        sources=["pncp_supplier_contracts"],
+    )
+
+    rows = opportunities_from_problem_service(
+        [
+            {
+                "id": "prob-fake-normative",
+                "slug": "fake-normative",
+                "problem_label": "Padrão editorial",
+                "confenge_service_slug": "reequilibrio-obras-publicas",
+                "theme": "reequilibrio",
+                "evidence_count": 48,
+                "evidence_kind": "normative_editorial",
+                "observed_pattern": "Padrão qualitativo.",
+                "sources": ["pncp_supplier_contracts", "site-confenge-guides"],
+                "technical_guide_paths": ["/conteudos/x/"],
+                "limitations": ["Não é contagem de contratos."],
+            }
+        ],
+        as_of="2026-08-01",
+    )
+    assert len(rows) == 1
+    opp = rows[0]
+    assert opp["unique_data_available"] is False
+    assert (opp.get("datalake_evidence") or {}).get("public_label") == "editorial_pattern"
+    assert (opp.get("datalake_evidence") or {}).get("is_contract_aggregate") is False
+    # data moat must be low for editorial (not 0.55+ from fake contract signal)
+    assert float(opp.get("data_moat_score") or 0) < 0.4
+
+
+def test_radar_methodology_is_portuguese_client_facing():
+    from scripts.organic.engine import opportunities_from_radar
+
+    rows = opportunities_from_radar(
+        [
+            {
+                "id": "radar-edificacoes-publicas-pr",
+                "historical_count": 10,
+                "items": [{"x": 1}, {"x": 2}, {"x": 3}, {"x": 4}],
+                "freshness": {"age_hours": 12},
+            }
+        ],
+        as_of="2026-08-01",
+    )
+    meth = (rows[0].get("datalake_evidence") or {}).get("methodology") or ""
+    assert "Open-status" not in meth
+    assert "never treat" not in meth.lower()
+    assert "Filtro de status aberto" in meth or "status aberto" in meth.lower()

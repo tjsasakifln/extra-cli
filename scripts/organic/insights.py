@@ -77,7 +77,7 @@ def insight_from_problem_service(ps: dict[str, Any], *, as_of: str | None = None
     return {
         "insight_id": f"insight-prob-{slug}",
         "kind": "problem_service_pattern",
-        "dataset": ",".join(ps.get("sources") or ["pncp_supplier_contracts", "site-confenge-guides"]),
+        "dataset": ",".join(ps.get("sources") or ["site-confenge-guides"]),
         "data_as_of": as_of,
         "filters": {
             "theme": ps.get("theme"),
@@ -85,8 +85,9 @@ def insight_from_problem_service(ps: dict[str, Any], *, as_of: str | None = None
         },
         "record_count": evidence,
         "methodology": (
-            "Padrão editorial-normativo ancorado em contagem de evidências e "
-            "arquétipos recorrentes no datalake; não é ranking comercial."
+            "Padrão editorial-normativo: enquadramento problema→serviço com base em "
+            "guias técnicos e arquétipos recorrentes. Não é contagem de contratos "
+            "agregados nem ranking comercial."
         ),
         "limitations": list(ps.get("limitations") or []),
         "sources": list(ps.get("sources") or []),

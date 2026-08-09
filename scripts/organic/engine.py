@@ -341,6 +341,9 @@ def opportunities_from_markets(markets: list[dict[str, Any]], *, as_of: str) -> 
                     "confidence": insight["confidence"],
                     "result": insight["result"],
                     "insight_id": insight["insight_id"],
+                    "evidence_kind": "market_benchmark",
+                    "is_contract_aggregate": n >= 8,
+                    "public_label": "contract_aggregate" if n >= 8 else "thin_sample",
                 },
                 demand_strength=0.35,
                 data_moat=data_moat,
@@ -355,6 +358,51 @@ def opportunities_from_markets(markets: list[dict[str, Any]], *, as_of: str) -> 
     return out
 
 
+def _is_contract_aggregate_evidence(
+    *,
+    evidence_kind: str | None = None,
+    dataset: str | None = None,
+    sources: list[str] | None = None,
+) -> bool:
+    """True only for real public-contract aggregates (content moat).
+
+    Normative/editorial evidence counts (guides, site docs) are valuable but
+    must NOT be labeled as 'we analyzed N contracts' or unique_data_available.
+    """
+    kind = (evidence_kind or "").strip().lower()
+    if kind in {
+        "normative_editorial",
+        "editorial",
+        "normative",
+        "guide",
+        "jurisprudence",
+        "problem_service_pattern",
+    }:
+        return False
+    ds = (dataset or "").lower()
+    srcs = " ".join(str(s).lower() for s in (sources or []))
+    blob = f"{ds} {srcs}"
+    has_pncp = any(
+        t in blob
+        for t in (
+            "pncp_supplier_contracts",
+            "pncp_raw",
+            "pncp_open",
+            "pncp_contracts",
+            "supplier_contracts",
+            "pncp",
+        )
+    )
+    has_only_site = "site-confenge" in blob and not has_pncp
+    if has_only_site:
+        return False
+    return has_pncp or "contract_aggregate" in blob or kind in {
+        "market_benchmark",
+        "open_opportunity_radar",
+        "contract_aggregate",
+    }
+
+
 def opportunities_from_problem_service(
     items: list[dict[str, Any]], *, as_of: str
 ) -> list[dict[str, Any]]:
@@ -365,6 +413,15 @@ def opportunities_from_problem_service(
         guides = list(ps.get("technical_guide_paths") or [])
         existing = guides[0] if guides else (f"/{service}/" if service else None)
         evidence = int(ps.get("evidence_count") or 0)
+        evidence_kind = str(ps.get("evidence_kind") or insight.get("result", {}).get("evidence_kind") or "")
+        sources = list(ps.get("sources") or insight.get("sources") or [])
+        is_contract = _is_contract_aggregate_evidence(
+            evidence_kind=evidence_kind,
+            dataset=str(insight.get("dataset") or ""),
+            sources=sources,
+        )
+        # unique_data / content moat only for genuine contract aggregates
+        unique = is_contract and evidence >= 15
         out.append(
             _base_opportunity(
                 oid=f"opp-ps-{ps.get('id') or ps.get('slug')}",
@@ -381,7 +438,7 @@ def opportunities_from_problem_service(
                 existing_url=existing,
                 suggested_cta=f"Ver serviço: {service}" if service else "Falar com a CONFENGE",
                 suggested_internal_links=guides[:5] + ([f"/{service}/"] if service else []),
-                unique_data=evidence >= 15,
+                unique_data=unique,
                 datalake_evidence={
                     "dataset": insight["dataset"],
                     "as_of": insight["data_as_of"],
@@ -392,9 +449,15 @@ def opportunities_from_problem_service(
                     "confidence": insight["confidence"],
                     "result": insight["result"],
                     "insight_id": insight["insight_id"],
+                    "evidence_kind": evidence_kind or "unknown",
+                    "is_contract_aggregate": is_contract,
+                    "public_label": (
+                        "contract_aggregate" if is_contract else "editorial_pattern"
+                    ),
                 },
                 demand_strength=0.45,
-                data_moat=0.55 if evidence >= 20 else 0.35,
+                # Editorial patterns have topical value but low data moat
+                data_moat=0.55 if unique else (0.25 if evidence >= 15 else 0.15),
                 topical=0.8,
                 freshness=0.5,
                 competitive=0.5,
@@ -448,13 +511,19 @@ def opportunities_from_radar(
                     "as_of": as_of,
                     "record_count": open_n,
                     "historical_count": hist,
-                    "methodology": "Open-status filter on bids; never treat history as open",
+                    "methodology": (
+                        "Filtro de status aberto sobre editais/compras do PNCP; "
+                        "histórico encerrado nunca é tratado como oportunidade vigente."
+                    ),
                     "limitations": [
                         "Status pode mudar após o corte; sempre verificar fonte oficial."
                     ],
                     "sources": ["pncp"],
                     "confidence": 0.65 if open_n >= 3 else 0.3,
                     "freshness": freshness,
+                    "evidence_kind": "open_opportunity_radar",
+                    "is_contract_aggregate": open_n >= 3,
+                    "public_label": "open_radar" if open_n >= 3 else "thin_radar",
                 },
                 demand_strength=0.3,
                 data_moat=0.5 if open_n >= 3 else 0.15,
