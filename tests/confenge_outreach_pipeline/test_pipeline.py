@@ -250,7 +250,10 @@ def test_adapt_intelligence_and_contacts_join() -> None:
         "as_of": "2026-08-01",
     }
     bridge_intel = intelligence_dossier_to_bridge_row(dossier)
-    assert bridge_intel["offer"]["service_code"] == "gestao_monitoramento_contratual"
+    # confenge.service.v1: warmbly service_code is canonical playbook code
+    assert bridge_intel["offer"]["service_code"] == "MONITORAMENTO_CONTRATUAL"
+    assert bridge_intel["offer"]["canonical_service_code"] == "MONITORAMENTO_CONTRATUAL"
+    assert bridge_intel["offer"]["extra_cli_service_id"] == "gestao_monitoramento_contratual"
     assert bridge_intel["messaging"]["fact_to_mention"]
 
     resolution = {
@@ -279,7 +282,8 @@ def test_adapt_intelligence_and_contacts_join() -> None:
     u = universe_row_for_bridge(universe, rank=1)
     leads = build_leads([u], [bridge_intel], [bridge_contacts])
     assert len(leads) == 1
-    assert leads[0]["offer"]["service_code"] == "gestao_monitoramento_contratual"
+    assert leads[0]["offer"]["service_code"] == "MONITORAMENTO_CONTRATUAL"
+    assert leads[0]["offer"]["extra_cli_service_id"] == "gestao_monitoramento_contratual"
     assert leads[0]["contacts"][0]["email"] == "ana@acme.example.com"
     assert leads[0]["messaging_context"]["fact_to_mention"]
 
