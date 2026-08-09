@@ -1,0 +1,39 @@
+[
+  {
+    "id": "market-edificacoes-publicas-sc",
+    "slug": "edificacoes-publicas-sc",
+    "archetype_id": "edificacoes-publicas",
+    "region": "SC",
+    "segment": "edificacoes-publicas",
+    "contract_count": 24,
+    "buyer_count": 9,
+    "supplier_count": 12,
+    "median_value": 420000.0,
+    "p25_value": 180000.0,
+    "p75_value": 910000.0,
+    "open_opportunity_count": 4,
+    "period_start": "2024-01-01",
+    "period_end": "2026-07-01",
+    "interpretation_hooks": [
+      "9 órgãos compradores distintos no recorte SC."
+    ],
+    "limitations": [
+      "Amostra regional; não é censo nacional."
+    ],
+    "sources": ["pncp_supplier_contracts"]
+  },
+  {
+    "id": "market-thin-demo",
+    "slug": "thin-demo-xx",
+    "archetype_id": "saneamento-hidraulica",
+    "region": "XX",
+    "segment": "saneamento",
+    "contract_count": 2,
+    "buyer_count": 1,
+    "supplier_count": 1,
+    "median_value": 50000.0,
+    "period_end": "2026-07-01",
+    "limitations": ["Amostra insuficiente"],
+    "sources": ["pncp_supplier_contracts"]
+  }
+]

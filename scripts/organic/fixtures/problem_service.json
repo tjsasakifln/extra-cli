@@ -1,0 +1,19 @@
+[
+  {
+    "id": "prob-reequilibrio",
+    "slug": "reequilibrio-dispersao-precos",
+    "problem_label": "Reequilíbrio diante de dispersão de preços e insumos",
+    "confenge_service_slug": "reequilibrio-obras-publicas",
+    "theme": "reequilibrio",
+    "evidence_count": 28,
+    "evidence_kind": "normative_editorial",
+    "observed_pattern": "Alta dispersão em benchmarks regionais sinaliza sensibilidade a insumos.",
+    "limitations": ["Não recomenda pleito sem dossiê do contrato concreto."],
+    "sources": ["pncp_supplier_contracts", "site-confenge-guides"],
+    "technical_guide_paths": [
+      "/conteudos/reequilibrio-economico-financeiro-obra-publica/",
+      "/reequilibrio-obras-publicas/"
+    ],
+    "related_archetypes": ["edificacoes-publicas"]
+  }
+]
