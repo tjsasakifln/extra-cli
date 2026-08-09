@@ -1,0 +1,26 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-8.4.1, pluggy-1.6.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /mnt/d/extra-cli
+configfile: pytest.ini
+plugins: benchmark-5.2.3, html-4.2.0, hypothesis-6.152.7, repeat-0.9.4, Faker-37.4.2, timeout-2.4.0, asyncio-1.1.0, mock-3.15.1, metadata-3.1.1, cov-4.1.0, anyio-4.2.0
+asyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 114 items
+
+tests/confenge_universe/test_target_fit_adversarial.py ...........       [  9%]
+tests/confenge_universe/test_universe_builder.py .....................   [ 28%]
+tests/confenge_outreach_pipeline/test_near_duplicate.py ....             [ 31%]
+tests/confenge_outreach_pipeline/test_pipeline.py ......                 [ 36%]
+tests/confenge_service_contract/test_service_v1.py ......                [ 42%]
+tests/confenge_account_intelligence/test_catalog.py ..                   [ 43%]
+tests/confenge_account_intelligence/test_cli.py ...                      [ 46%]
+tests/confenge_account_intelligence/test_pipeline_golden.py ....         [ 50%]
+tests/confenge_account_intelligence/test_policy.py ....                  [ 53%]
+tests/confenge_account_intelligence/test_router_no_reajuste_default.py . [ 54%]
+.......                                                                  [ 60%]
+tests/confenge_account_intelligence/test_ten_family_e2e.py ...........   [ 70%]
+tests/commercial_leads/test_confenge_integrity_gates.py ................ [ 84%]
+..........                                                               [ 92%]
+tests/commercial_leads/test_confenge_final_closure.py ........           [100%]
+
+============================= 114 passed in 14.03s =============================

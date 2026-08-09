@@ -1,0 +1,100 @@
+?   	github.com/warmbly/warmbly/internal/app/integration	[no test files]
+?   	github.com/warmbly/warmbly/internal/app/leadsync	[no test files]
+?   	github.com/warmbly/warmbly/internal/app/mcp	[no test files]
+?   	github.com/warmbly/warmbly/internal/app/nativeactions	[no test files]
+?   	github.com/warmbly/warmbly/internal/app/notification	[no test files]
+?   	github.com/warmbly/warmbly/internal/app/oauth	[no test files]
+?   	github.com/warmbly/warmbly/internal/app/organization	[no test files]
+?   	github.com/warmbly/warmbly/internal/app/passkey	[no test files]
+?   	github.com/warmbly/warmbly/internal/app/placement	[no test files]
+?   	github.com/warmbly/warmbly/internal/app/provisioning	[no test files]
+?   	github.com/warmbly/warmbly/internal/app/ratelimit	[no test files]
+?   	github.com/warmbly/warmbly/internal/app/referral	[no test files]
+?   	github.com/warmbly/warmbly/internal/app/releases	[no test files]
+?   	github.com/warmbly/warmbly/internal/app/replyclassify	[no test files]
+?   	github.com/warmbly/warmbly/internal/app/research	[no test files]
+?   	github.com/warmbly/warmbly/internal/app/sequence	[no test files]
+ok  	github.com/warmbly/warmbly/internal/app/settings	0.010s
+?   	github.com/warmbly/warmbly/internal/app/skills	[no test files]
+?   	github.com/warmbly/warmbly/internal/app/socket	[no test files]
+?   	github.com/warmbly/warmbly/internal/app/stripe	[no test files]
+?   	github.com/warmbly/warmbly/internal/app/subscription	[no test files]
+?   	github.com/warmbly/warmbly/internal/app/sysstatus	[no test files]
+?   	github.com/warmbly/warmbly/internal/app/team	[no test files]
+ok  	github.com/warmbly/warmbly/internal/app/template	0.014s
+?   	github.com/warmbly/warmbly/internal/app/token	[no test files]
+?   	github.com/warmbly/warmbly/internal/app/trial	[no test files]
+?   	github.com/warmbly/warmbly/internal/app/twofa	[no test files]
+?   	github.com/warmbly/warmbly/internal/app/tz	[no test files]
+?   	github.com/warmbly/warmbly/internal/app/unibox	[no test files]
+?   	github.com/warmbly/warmbly/internal/app/user	[no test files]
+ok  	github.com/warmbly/warmbly/internal/app/warmup	0.014s
+ok  	github.com/warmbly/warmbly/internal/app/warmupcontent	0.023s
+ok  	github.com/warmbly/warmbly/internal/app/webhook	0.015s
+ok  	github.com/warmbly/warmbly/internal/app/whatsapp	0.015s
+ok  	github.com/warmbly/warmbly/internal/app/whatsapp/evolution	0.594s
+ok  	github.com/warmbly/warmbly/internal/app/worker	0.040s
+?   	github.com/warmbly/warmbly/internal/app/worker/mailmanager	[no test files]
+ok  	github.com/warmbly/warmbly/internal/app/worker/wmail	0.048s
+?   	github.com/warmbly/warmbly/internal/app/worker_orchestrator	[no test files]
+?   	github.com/warmbly/warmbly/internal/bitmask	[no test files]
+ok  	github.com/warmbly/warmbly/internal/client/goog	0.013s
+ok  	github.com/warmbly/warmbly/internal/client/msgraph	0.009s
+ok  	github.com/warmbly/warmbly/internal/client/netbind	0.005s
+ok  	github.com/warmbly/warmbly/internal/client/smtpimap/imap	0.010s
+?   	github.com/warmbly/warmbly/internal/client/smtpimap/smtp	[no test files]
+?   	github.com/warmbly/warmbly/internal/config	[no test files]
+ok  	github.com/warmbly/warmbly/internal/email	8.028s
+ok  	github.com/warmbly/warmbly/internal/errx	0.010s
+?   	github.com/warmbly/warmbly/internal/events	[no test files]
+?   	github.com/warmbly/warmbly/internal/infrastructure/apns	[no test files]
+?   	github.com/warmbly/warmbly/internal/infrastructure/cache	[no test files]
+?   	github.com/warmbly/warmbly/internal/infrastructure/cloudprovider	[no test files]
+ok  	github.com/warmbly/warmbly/internal/infrastructure/cloudprovider/hetzner	0.134s
+ok  	github.com/warmbly/warmbly/internal/infrastructure/codec	0.005s
+?   	github.com/warmbly/warmbly/internal/infrastructure/db	[no test files]
+ok  	github.com/warmbly/warmbly/internal/infrastructure/encryptedkeys	0.104s
+ok  	github.com/warmbly/warmbly/internal/infrastructure/eventbus	3.919s
+?   	github.com/warmbly/warmbly/internal/infrastructure/gtasks	[no test files]
+?   	github.com/warmbly/warmbly/internal/infrastructure/kafka	[no test files]
+ok  	github.com/warmbly/warmbly/internal/infrastructure/kms	0.005s
+?   	github.com/warmbly/warmbly/internal/infrastructure/pubsub	[no test files]
+?   	github.com/warmbly/warmbly/internal/infrastructure/secrets	[no test files]
+?   	github.com/warmbly/warmbly/internal/infrastructure/ssm	[no test files]
+ok  	github.com/warmbly/warmbly/internal/infrastructure/storage	0.022s
+?   	github.com/warmbly/warmbly/internal/jobs	[no test files]
+ok  	github.com/warmbly/warmbly/internal/models	0.006s
+?   	github.com/warmbly/warmbly/internal/notify	[no test files]
+ok  	github.com/warmbly/warmbly/internal/notify/templates	0.009s
+?   	github.com/warmbly/warmbly/internal/observability	[no test files]
+ok  	github.com/warmbly/warmbly/internal/pkg/argon2	0.931s
+?   	github.com/warmbly/warmbly/internal/pkg/captcha	[no test files]
+ok  	github.com/warmbly/warmbly/internal/pkg/climit	0.004s [no tests to run]
+ok  	github.com/warmbly/warmbly/internal/pkg/crypt	0.256s
+ok  	github.com/warmbly/warmbly/internal/pkg/dnsauth	0.005s
+ok  	github.com/warmbly/warmbly/internal/pkg/dsn	0.004s
+ok  	github.com/warmbly/warmbly/internal/pkg/emailaddr	0.005s
+?   	github.com/warmbly/warmbly/internal/pkg/emailverify	[no test files]
+ok  	github.com/warmbly/warmbly/internal/pkg/emsg	0.004s
+?   	github.com/warmbly/warmbly/internal/pkg/encrypt	[no test files]
+?   	github.com/warmbly/warmbly/internal/pkg/generation	[no test files]
+?   	github.com/warmbly/warmbly/internal/pkg/geo	[no test files]
+ok  	github.com/warmbly/warmbly/internal/pkg/humanlint	0.008s
+?   	github.com/warmbly/warmbly/internal/pkg/idtoken	[no test files]
+?   	github.com/warmbly/warmbly/internal/pkg/mcp	[no test files]
+?   	github.com/warmbly/warmbly/internal/pkg/safehttp	[no test files]
+?   	github.com/warmbly/warmbly/internal/pkg/stoken	[no test files]
+?   	github.com/warmbly/warmbly/internal/pkg/tmplfuncs	[no test files]
+?   	github.com/warmbly/warmbly/internal/pkg/warmlint	[no test files]
+?   	github.com/warmbly/warmbly/internal/pkg/warmpersona	[no test files]
+ok  	github.com/warmbly/warmbly/internal/pkg/whdomain	0.004s
+ok  	github.com/warmbly/warmbly/internal/repository	0.011s
+?   	github.com/warmbly/warmbly/internal/sandbox	[no test files]
+ok  	github.com/warmbly/warmbly/internal/scheduler	0.020s
+?   	github.com/warmbly/warmbly/internal/seed	[no test files]
+ok  	github.com/warmbly/warmbly/internal/tasks	0.020s
+?   	github.com/warmbly/warmbly/internal/tasks/proto	[no test files]
+?   	github.com/warmbly/warmbly/internal/tasksched	[no test files]
+?   	github.com/warmbly/warmbly/internal/utils	[no test files]
+?   	github.com/warmbly/warmbly/internal/utils/paging	[no test files]
+?   	github.com/warmbly/warmbly/internal/utils/validate	[no test files]
