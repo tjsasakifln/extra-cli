@@ -175,7 +175,12 @@ def build_dossier(
         "construction_evidence": bag.get("construction_evidence") or {},
         "why_this_account": str(approach.get("why_this_account") or ""),
         "micro_offer_code": str(approach.get("micro_offer_code") or ""),
-        "observed_fact": approach.get("fact_to_mention") or "",
+        # Single spine path: observed_fact == body_seed_fact (never confirmed[0] portfolio-count)
+        "observed_fact": str(approach.get("observed_fact") or approach.get("body_seed_fact") or ""),
+        "body_seed_fact": str(approach.get("body_seed_fact") or approach.get("observed_fact") or ""),
+        "fact_evidence_ids": list(approach.get("fact_evidence_ids") or []),
+        "message_spine": approach.get("message_spine") or {},
+        "message_spine_complete": bool(approach.get("message_spine_complete")),
         "_pipeline_contracts": bag.get("contracts") or [],
     }
 

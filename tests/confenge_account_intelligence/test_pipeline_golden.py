@@ -33,7 +33,8 @@ def test_five_golden_profiles_differ(
 
     # Expected routing (evidence + moment, not score template)
     assert primaries["regional_lean"] == "reforco_temporario_backoffice"
-    assert primaries["national_structured"] == "auditoria_orcamento_bdi"
+    # Robust multi without BDI/planilha signals → gestão (not invented specialty)
+    assert primaries["national_structured"] == "gestao_monitoramento_contratual"
     assert primaries["addendum_signals"] == "aditivos_extracontratuais"
     assert primaries["mature_no_reajuste"] == "estruturacao_pleito_reajuste"
     assert primaries["insufficient_facts"] == "diagnostico_contratual_b2g"

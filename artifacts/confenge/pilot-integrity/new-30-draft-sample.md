@@ -1,751 +1,748 @@
-# New 30 draft sample — NO-SEND
+# New 30 draft sample — NO-SEND (organic_top_n + MessageSpine)
 
-Generated: 2026-08-09T21:50:10Z
+Generated: 2026-08-09T22:50:53Z
 Dispatch: **PAUSED**. Kill switch: ENGAGED. No email to real leads.
-Source feed: `rebuild-2026-08-09/confenge-outreach-v1-clean.json`
-Feed run_id: `pilot-integrity-recovery-01-fixed-router`
+Sampling: **organic_top_n** (no per-service quota).
+Prior stratified 8/family mix: **INVALIDATED** as multi-service proof.
+Feed run_id: `pilot-integrity-recovery-01-message-spine`
 
 | Gate | Result |
 |------|--------|
 | n | 30 |
-| empty why_you | 0 |
+| empty/hollow why_you | 0 |
 | empty micro_offer | 0 |
-| empty observed_fact | 0 |
+| hollow observed_fact | 0 |
 | empty evidence_ids | 0 |
+| hollow portfolio body | 0 |
 | generic Contrato subject | 0 |
-| near-duplicate blocked | False (max_sim=0.9394) |
-| REAJUSTE in sample | 0 |
-| service mix (full feed) | {'REEQUILIBRIO': 1, 'PLANILHAS': 8, 'MEDICOES': 8, 'BACKOFFICE': 8, 'ADITIVOS': 8, 'MONITORAMENTO_CONTRATUAL': 8, 'APOIO_LICITACAO': 8} |
+| near-duplicate blocked | False (max_sim=0.5273) |
+| struct_ok | True |
+| service mix (organic sample) | {'gestao_monitoramento_contratual': 24, 'apoio_licitacoes_propostas': 6} |
+| concentration | ROUTING_CONCENTRATION_REVIEW_REQUIRED (top=0.8) |
 
-## 1. Almeida & Filho Terraplenagens Ltda
-- CNPJ: `32487258000150` UF=SC
-- target_fit: `TARGET_CONFIRMED`
-- service: `reequilibrio_economico_financeiro` → `REEQUILIBRIO` / Warmbly `REEQUILIBRIO`
-- why_you: Almeida & Filho Terraplenagens Ltda com execução pública observável junto a Secretaria de Estado da Infraestrutura e Mobilidade (SC) — objeto: Reabilitação da Rodovia SC-412, Trecho: BR 101 - Gaspar (Rodovia Jorge Lacerda).
-Pagamento do Reequilibrio Processo SIE 27836/2020 (R$ 468,882)
-- why_now: Menção a reequilíbrio em material contratual ingerido.
-- observed_fact: Portfólio público observado com 3 contrato(s) no input.
-- micro_offer: `CLAIM_READINESS_CHECK`
-- evidence_ids: ['cf-portfolio-count', 'cf-ufs', 'cf-mature-no-reajuste', 'cf-reequilibrio']
-- rationale: Menção a reequilíbrio no material ingerido. Não reduzir a reajuste ordinário sem nexo.
-- subject: Reequilíbrio contratual (generic_contrato=False)
-
-```
-Olá,
-
-Pelo que está público sobre Almeida & Filho Terraplenagens Ltda, portfólio público observado com 3 contrato(s) no input..
-
-Isso não prova crédito sozinho, mas se houver evento extraordinário, o nexo e a memória precisam estar organizados.
-
-Ofereço uma leitura técnica independente do material de reequilíbrio já reunido.
-```
-
-## 2. SAMP CONSTRUTORA DE OBRAS LTDA
+## 1. SAMP CONSTRUTORA DE OBRAS LTDA
 - CNPJ: `02810894000100` UF=PR
 - target_fit: `TARGET_CONFIRMED`
-- service: `auditoria_orcamento_bdi` → `ORCAMENTO_BDI` / Warmbly `PLANILHAS`
-- why_you: SAMP CONSTRUTORA DE OBRAS LTDA com execução pública observável junto a Diretoria de Obras (PR) — objeto: Contratação para execução de pavimentação asfáltica de vias urbana em CBUQ, 9.522,11 m², incluindo serviços preliminares, terraplenagem, drenagem, base e sub-ba (R$ 5,200,000)
+- service: `gestao_monitoramento_contratual` → `MONITORAMENTO_CONTRATUAL` / Warmbly `MONITORAMENTO_CONTRATUAL`
+- why_you: SAMP CONSTRUTORA DE OBRAS LTDA com execução pública observável — objeto: Contratação para execução de pavimentação asfáltica de vias urbana em CBUQ, 9.522,11 m², incluindo serviços preliminares, terraplenagem, drenagem, base e sub-ba; órgão: Diretoria de Obras; UF PR; R$ 5,200,000
 - why_now: Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
-- observed_fact: Portfólio público observado com 8 contrato(s) no input.
-- micro_offer: `DOCUMENT_CHECKLIST`
-- evidence_ids: ['cf-portfolio-count', 'cf-ufs', 'cf-mature-no-reajuste']
-- rationale: Estrutura robusta/ABM: revisão independente / segunda opinião. Necessidade operacional sustentada supera janela genérica de reajuste.
-- subject: Planilha / BDI (generic_contrato=False)
+- observed_fact: objeto: Contratação para execução de pavimentação asfáltica de vias urbana em CBUQ, 9.522,11 m², incluindo serviços preliminares, terraplenagem, drenagem, base e sub-ba; órgão: Diretoria de Obras; UF PR; R$ 5,200,000
+- micro_offer: `PUBLIC_DATA_SNAPSHOT`
+- evidence_ids: ['cf-contract-15425341']
+- supporting_signals: ['multi_contract']
+- rationale: Portfólio multi-contrato sem dor concreta dominante (gestão/monitoramento — especialidade só com sinais específicos). Monitoramento/gestão supera janela de verificação de reajuste; não inventar orçamento/BDI sem sinal de planilha.
+- subject: Gestão contratual: Contratação para execução de pavimentação asfált (generic_contrato=False)
+- spine_complete: True
 
 ```
 Olá,
 
-Pelo que está público sobre SAMP CONSTRUTORA DE OBRAS LTDA, portfólio público observado com 8 contrato(s) no input..
+Pelo que está público sobre SAMP CONSTRUTORA DE OBRAS LTDA, objeto: Contratação para execução de pavimentação asfáltica de vias urbana em CBUQ, 9.522,11 m², incluindo serviços preliminares, terraplenagem, drenagem, base e sub-ba; órgão: Diretoria de Obras; UF PR; R$ 5,200,000.
 
-Isso não prova crédito sozinho, mas planilha/BDI desse pacote técnico merecem segunda leitura pontual.
+Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
 
-Envio escopo de auditoria focal (composições + BDI) para um contrato-alvo.
+Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
 ```
 
-## 3. M F FRAZAO CONSTRUCOES E SERVICOS LTDA
+## 2. M F FRAZAO CONSTRUCOES E SERVICOS LTDA
 - CNPJ: `18683397000129` UF=RJ
 - target_fit: `TARGET_CONFIRMED`
-- service: `auditoria_orcamento_bdi` → `ORCAMENTO_BDI` / Warmbly `PLANILHAS`
-- why_you: M F FRAZAO CONSTRUCOES E SERVICOS LTDA com execução pública observável junto a SUPERINTENDENCIA REG. POL. RODV. FEDERAL-PA (PA) — objeto: O OBJETO DO PRESENTE INSTRUMENTO É A CONTRATAÇÃO DE OBRA DE CONSTRUÇÃO DA UNIDADE OPERACIONAL DA POLÍCIA RODOVIÁRIA FEDERAL EM DOM ELISEU-PA, NAS CONDIÇÕES ESTA (R$ 3,532,610)
+- service: `gestao_monitoramento_contratual` → `MONITORAMENTO_CONTRATUAL` / Warmbly `MONITORAMENTO_CONTRATUAL`
+- why_you: M F FRAZAO CONSTRUCOES E SERVICOS LTDA com execução pública observável — objeto: O OBJETO DO PRESENTE INSTRUMENTO É A CONTRATAÇÃO DE OBRA DE CONSTRUÇÃO DA UNIDADE OPERACIONAL DA POLÍCIA RODOVIÁRIA FEDERAL EM DOM ELISEU-PA, NAS CONDIÇÕES ESTA; órgão: SUPERINTENDENCIA REG. POL. RODV. FEDERAL-PA; UF PA; R$ 3,532,610
 - why_now: Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
-- observed_fact: Portfólio público observado com 8 contrato(s) no input.
-- micro_offer: `DOCUMENT_CHECKLIST`
-- evidence_ids: ['cf-portfolio-count', 'cf-ufs', 'cf-mature-no-reajuste']
-- rationale: Estrutura robusta/ABM: revisão independente / segunda opinião. Necessidade operacional sustentada supera janela genérica de reajuste.
-- subject: Planilha / BDI (generic_contrato=False)
+- observed_fact: objeto: O OBJETO DO PRESENTE INSTRUMENTO É A CONTRATAÇÃO DE OBRA DE CONSTRUÇÃO DA UNIDADE OPERACIONAL DA POLÍCIA RODOVIÁRIA FEDERAL EM DOM ELISEU-PA, NAS CONDIÇÕES ESTA; órgão: SUPERINTENDENCIA REG. POL. RODV. FEDERAL-PA; UF PA; R$ 3,532,610
+- micro_offer: `PUBLIC_DATA_SNAPSHOT`
+- evidence_ids: ['cf-contract-18036099']
+- supporting_signals: ['multi_contract']
+- rationale: Portfólio multi-contrato sem dor concreta dominante (gestão/monitoramento — especialidade só com sinais específicos). Monitoramento/gestão supera janela de verificação de reajuste; não inventar orçamento/BDI sem sinal de planilha.
+- subject: Gestão contratual: O OBJETO DO PRESENTE INSTRUMENTO É A CONTRATAÇÃO (generic_contrato=False)
+- spine_complete: True
 
 ```
 Olá,
 
-Pelo que está público sobre M F FRAZAO CONSTRUCOES E SERVICOS LTDA, portfólio público observado com 8 contrato(s) no input..
+Pelo que está público sobre M F FRAZAO CONSTRUCOES E SERVICOS LTDA, objeto: O OBJETO DO PRESENTE INSTRUMENTO É A CONTRATAÇÃO DE OBRA DE CONSTRUÇÃO DA UNIDADE OPERACIONAL DA POLÍCIA RODOVIÁRIA FEDERAL EM DOM ELISEU-PA, NAS CONDIÇÕES ESTA; órgão: SUPERINTENDENCIA REG. POL. RODV. FEDERAL-PA; UF PA; R$ 3,532,610.
 
-Isso não prova crédito sozinho, mas planilha/BDI desse pacote técnico merecem segunda leitura pontual.
+Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
 
-Envio escopo de auditoria focal (composições + BDI) para um contrato-alvo.
+Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
 ```
 
-## 4. SOUZA E FONSECA CONSTRUCOES E COMERCIO. LTDA
-- CNPJ: `37251510000141` UF=PA
-- target_fit: `TARGET_CONFIRMED`
-- service: `auditoria_orcamento_bdi` → `ORCAMENTO_BDI` / Warmbly `PLANILHAS`
-- why_you: SOUZA E FONSECA CONSTRUCOES E COMERCIO. LTDA com execução pública observável junto a INSTITUTO EVANDRO CHAGAS (PA) — objeto: CONTRATAÇÃO DE SERVIÇOS COMUNS DE ENGENHARIA DE ADEQUAÇÃO E MANUTENÇÃO PREDIAL. (R$ 176,132)
-- why_now: Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
-- observed_fact: Portfólio público observado com 7 contrato(s) no input.
-- micro_offer: `DOCUMENT_CHECKLIST`
-- evidence_ids: ['cf-portfolio-count', 'cf-ufs', 'cf-mature-no-reajuste']
-- rationale: Estrutura robusta/ABM: revisão independente / segunda opinião. Necessidade operacional sustentada supera janela genérica de reajuste.
-- subject: Planilha / BDI (generic_contrato=False)
-
-```
-Olá,
-
-Pelo que está público sobre SOUZA E FONSECA CONSTRUCOES E COMERCIO. LTDA, portfólio público observado com 7 contrato(s) no input..
-
-Isso não prova crédito sozinho, mas planilha/BDI desse pacote técnico merecem segunda leitura pontual.
-
-Envio escopo de auditoria focal (composições + BDI) para um contrato-alvo.
-```
-
-## 5. EMPROTEC ENGENHARIA LTDA
-- CNPJ: `28709222000105` UF=RN
-- target_fit: `TARGET_CONFIRMED`
-- service: `auditoria_orcamento_bdi` → `ORCAMENTO_BDI` / Warmbly `PLANILHAS`
-- why_you: EMPROTEC ENGENHARIA LTDA com execução pública observável junto a Prefeitura (RN) — objeto: PAVIMENTAÇÃO ASFÁLTICA DE RUAS COM CBUQ (CONCRETO BETUMINOSO USINADO À QUENTE) NO MUNICÍPIO DE PARELHAS/RN - CONVÊNIO SIN N° 32/2022 (R$ 1,567,308)
-- why_now: Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
-- observed_fact: Portfólio público observado com 7 contrato(s) no input.
-- micro_offer: `DOCUMENT_CHECKLIST`
-- evidence_ids: ['cf-portfolio-count', 'cf-ufs', 'cf-mature-no-reajuste']
-- rationale: Estrutura robusta/ABM: revisão independente / segunda opinião. Necessidade operacional sustentada supera janela genérica de reajuste.
-- subject: Planilha / BDI (generic_contrato=False)
-
-```
-Olá,
-
-Pelo que está público sobre EMPROTEC ENGENHARIA LTDA, portfólio público observado com 7 contrato(s) no input..
-
-Isso não prova crédito sozinho, mas planilha/BDI desse pacote técnico merecem segunda leitura pontual.
-
-Envio escopo de auditoria focal (composições + BDI) para um contrato-alvo.
-```
-
-## 6. BENEDETTI E FUGALI ENGENHARIA LTDA
+## 3. BENEDETTI E FUGALI ENGENHARIA LTDA
 - CNPJ: `51027691000158` UF=RS
 - target_fit: `TARGET_CONFIRMED`
-- service: `medicoes_glosas_memoria` → `MEDICOES` / Warmbly `MEDICOES`
-- why_you: BENEDETTI E FUGALI ENGENHARIA LTDA com execução pública observável junto a PM DE COTIPORÃ (RS) — objeto: Contratação de empresa especializada para prestação de serviços de elaboração de projeto de engenharia para contenção de talude e pavimentação asfáltica em trec (R$ 105,000)
-- why_now: Sinais de glosa ou medição contestada no material ingerido.
-- observed_fact: Portfólio público observado com 8 contrato(s) no input.
-- micro_offer: `MEDICAO_CHECK`
-- evidence_ids: ['cf-portfolio-count', 'cf-ufs', 'cf-mature-no-reajuste', 'cf-glosa-medicao']
-- rationale: Sinais de glosa/medição no material público. Evento documental específico supera janela de reajuste.
-- subject: Medições — BENEDETTI (generic_contrato=False)
-
-```
-Olá,
-
-Pelo que está público sobre BENEDETTI E FUGALI ENGENHARIA LTDA, portfólio público observado com 8 contrato(s) no input..
-
-Isso não prova crédito sozinho, mas o ponto de atenção costuma ser critério de medição e memória de cálculo.
-
-Proponho uma revisão pontual da última medição contestada, com checklist de evidências.
-```
-
-## 7. KOLF SERVIÇOS DE ENGENHARIA LTDA
-- CNPJ: `07555412000137` UF=PR
-- target_fit: `TARGET_CONFIRMED`
-- service: `medicoes_glosas_memoria` → `MEDICOES` / Warmbly `MEDICOES`
-- why_you: KOLF SERVIÇOS DE ENGENHARIA LTDA com execução pública observável junto a Secretaria Municipal de Obras e Serviços Urbanos (SC) — objeto: CONTRATAÇÃO DA READEQUAÇÃO DO PROJETO ELÉTRICO EXECUTIVO DO CANAL EXTRAVASOR PAVIMENTADO DA BEIRA RIO - LOTE 03 (R$ 4,000)
-- why_now: Sinais de glosa ou medição contestada no material ingerido.
-- observed_fact: Portfólio público observado com 8 contrato(s) no input.
-- micro_offer: `MEDICAO_CHECK`
-- evidence_ids: ['cf-portfolio-count', 'cf-ufs', 'cf-mature-no-reajuste', 'cf-glosa-medicao']
-- rationale: Sinais de glosa/medição no material público. Evento documental específico supera janela de reajuste.
-- subject: Medições — KOLF (generic_contrato=False)
-
-```
-Olá,
-
-Pelo que está público sobre KOLF SERVIÇOS DE ENGENHARIA LTDA, portfólio público observado com 8 contrato(s) no input..
-
-Isso não prova crédito sozinho, mas o ponto de atenção costuma ser critério de medição e memória de cálculo.
-
-Proponho uma revisão pontual da última medição contestada, com checklist de evidências.
-```
-
-## 8. ARPO ASSESSORIA E ARQUITETURA LTDA
-- CNPJ: `40495801000190` UF=RS
-- target_fit: `TARGET_CONFIRMED`
-- service: `medicoes_glosas_memoria` → `MEDICOES` / Warmbly `MEDICOES`
-- why_you: ARPO ASSESSORIA E ARQUITETURA LTDA com execução pública observável junto a Município de Bento Gonçalves (RS) — objeto: ABERTURA DE PROCESSO DE DISPENSA DE LICITAÇÃO PARA CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA A ELABORAÇÃO DE PROJETO EXECUTIVO DE CONTENÇÃO DE TALUDE E DRENAGEM (R$ 18,760)
-- why_now: Sinais de glosa ou medição contestada no material ingerido.
-- observed_fact: Portfólio público observado com 6 contrato(s) no input.
-- micro_offer: `MEDICAO_CHECK`
-- evidence_ids: ['cf-portfolio-count', 'cf-ufs', 'cf-mature-no-reajuste', 'cf-glosa-medicao']
-- rationale: Sinais de glosa/medição no material público. Evento documental específico supera janela de reajuste.
-- subject: Medições — ARPO (generic_contrato=False)
-
-```
-Olá,
-
-Pelo que está público sobre ARPO ASSESSORIA E ARQUITETURA LTDA, portfólio público observado com 6 contrato(s) no input..
-
-Isso não prova crédito sozinho, mas o ponto de atenção costuma ser critério de medição e memória de cálculo.
-
-Proponho uma revisão pontual da última medição contestada, com checklist de evidências.
-```
-
-## 9. DFT PROJETOS LTDA
-- CNPJ: `29646103000105` UF=MG
-- target_fit: `TARGET_CONFIRMED`
-- service: `medicoes_glosas_memoria` → `MEDICOES` / Warmbly `MEDICOES`
-- why_you: DFT PROJETOS LTDA com execução pública observável junto a Departamento de Compras e Licitação (MG) — objeto: Contratação de serviços de consultoria em engenharia para elaboração de projeto de iluminação pública com tecnologia LED, serviços de Medição e Verificação e ap (R$ 11,657)
-- why_now: Sinais de glosa ou medição contestada no material ingerido.
-- observed_fact: Portfólio público observado com 8 contrato(s) no input.
-- micro_offer: `MEDICAO_CHECK`
-- evidence_ids: ['cf-portfolio-count', 'cf-ufs', 'cf-mature-no-reajuste', 'cf-glosa-medicao']
-- rationale: Sinais de glosa/medição no material público. Evento documental específico supera janela de reajuste.
-- subject: Medições — DFT (generic_contrato=False)
-
-```
-Olá,
-
-Pelo que está público sobre DFT PROJETOS LTDA, portfólio público observado com 8 contrato(s) no input..
-
-Isso não prova crédito sozinho, mas o ponto de atenção costuma ser critério de medição e memória de cálculo.
-
-Proponho uma revisão pontual da última medição contestada, com checklist de evidências.
-```
-
-## 10. EAT ENGENHARIA LTDA
-- CNPJ: `22564047000110` UF=MA
-- target_fit: `TARGET_CONFIRMED`
-- service: `reforco_temporario_backoffice` → `BACKOFFICE` / Warmbly `BACKOFFICE`
-- why_you: EAT ENGENHARIA LTDA com execução pública observável junto a TRIBUNAL REGIONAL DO TRABALHO DA 16. REGIAO (MA) — objeto: Contratação de serviços comuns de engenharia, no regime de empreitada por preço global, para reforma da fachada do Edifício-Sede do Tribunal Regional do Trabalh (R$ 999,999)
+- service: `gestao_monitoramento_contratual` → `MONITORAMENTO_CONTRATUAL` / Warmbly `MONITORAMENTO_CONTRATUAL`
+- why_you: BENEDETTI E FUGALI ENGENHARIA LTDA com execução pública observável — objeto: Contratação de empresa especializada para prestação de serviços de elaboração de projeto de engenharia para contenção de talude e pavimentação asfáltica em trec; órgão: PM DE COTIPORÃ; UF RS; R$ 105,000
 - why_now: Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
-- observed_fact: Portfólio público observado com 3 contrato(s) no input.
-- micro_offer: `BACKOFFICE_SCOPE_CHECK`
-- evidence_ids: ['cf-portfolio-count', 'cf-ufs', 'cf-mature-no-reajuste']
-- rationale: Hipótese de estrutura enxuta com carga multi-contrato sustentada. Não inferir 'sem estrutura' por ausência de dados públicos.
-- subject: Reforço operacional pontual (generic_contrato=False)
+- observed_fact: objeto: Contratação de empresa especializada para prestação de serviços de elaboração de projeto de engenharia para contenção de talude e pavimentação asfáltica em trec; órgão: PM DE COTIPORÃ; UF RS; R$ 105,000
+- micro_offer: `PUBLIC_DATA_SNAPSHOT`
+- evidence_ids: ['cf-contract-18124261']
+- supporting_signals: ['multi_contract']
+- rationale: Portfólio multi-contrato sem dor concreta dominante (gestão/monitoramento — especialidade só com sinais específicos). Monitoramento/gestão supera janela de verificação de reajuste; não inventar orçamento/BDI sem sinal de planilha.
+- subject: Gestão contratual: Contratação de empresa especializada para presta (generic_contrato=False)
+- spine_complete: True
 
 ```
 Olá,
 
-Pelo que está público sobre EAT ENGENHARIA LTDA, portfólio público observado com 3 contrato(s) no input..
+Pelo que está público sobre BENEDETTI E FUGALI ENGENHARIA LTDA, objeto: Contratação de empresa especializada para prestação de serviços de elaboração de projeto de engenharia para contenção de talude e pavimentação asfáltica em trec; órgão: PM DE COTIPORÃ; UF RS; R$ 105,000.
 
-Isso não prova crédito sozinho, mas o volume observado pode justificar reforço pontual (sem presumir falta de estrutura).
+Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
 
-Posso dimensionar um reforço temporário de backoffice técnico/contratual por sprint.
+Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
 ```
 
-## 11. JULIO GONÇALVES DE CARVALHO
-- CNPJ: `40515734000128` UF=GO
-- target_fit: `TARGET_CONFIRMED`
-- service: `reforco_temporario_backoffice` → `BACKOFFICE` / Warmbly `BACKOFFICE`
-- why_you: JULIO GONÇALVES DE CARVALHO com execução pública observável junto a PREFEITURA MUNICIPAL DE BRAZABRANTES (GO) — objeto: SERVIÇOS DE LEVANTAMENTOS PLANIALTIMÉTRICO CADASTRAL DAS RUAS: 05, 06 E RUA JOSÉ AURELIANO MACHADO, PARA A MELHORIA DO SISTEMA DE DRENAGEM PLUVIAL E VIABILIDADE (R$ 4,950)
-- why_now: Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
-- observed_fact: Portfólio público observado com 3 contrato(s) no input.
-- micro_offer: `BACKOFFICE_SCOPE_CHECK`
-- evidence_ids: ['cf-portfolio-count', 'cf-ufs', 'cf-mature-no-reajuste']
-- rationale: Hipótese de estrutura enxuta com carga multi-contrato sustentada. Não inferir 'sem estrutura' por ausência de dados públicos.
-- subject: Reforço operacional pontual (generic_contrato=False)
-
-```
-Olá,
-
-Pelo que está público sobre JULIO GONÇALVES DE CARVALHO, portfólio público observado com 3 contrato(s) no input..
-
-Isso não prova crédito sozinho, mas o volume observado pode justificar reforço pontual (sem presumir falta de estrutura).
-
-Posso dimensionar um reforço temporário de backoffice técnico/contratual por sprint.
-```
-
-## 12. VALLE ENGENHARIA LTDA
-- CNPJ: `00572142000123` UF=MS
-- target_fit: `TARGET_CONFIRMED`
-- service: `reforco_temporario_backoffice` → `BACKOFFICE` / Warmbly `BACKOFFICE`
-- why_you: VALLE ENGENHARIA LTDA com execução pública observável junto a Prefeitura Municipal de Ribas do Rio Pardo-MS (MS) — objeto: Contratação de empresa especializada para Execução de infraestrutura urbana - Pavimentação Asfáltica e Drenagem de Águas Pluviais, Bairro Nossa Senhora da Conce
-- why_now: Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
-- observed_fact: Portfólio público observado com 3 contrato(s) no input.
-- micro_offer: `BACKOFFICE_SCOPE_CHECK`
-- evidence_ids: ['cf-portfolio-count', 'cf-ufs', 'cf-mature-no-reajuste']
-- rationale: Hipótese de estrutura enxuta com carga multi-contrato sustentada. Não inferir 'sem estrutura' por ausência de dados públicos.
-- subject: Reforço operacional pontual (generic_contrato=False)
-
-```
-Olá,
-
-Pelo que está público sobre VALLE ENGENHARIA LTDA, portfólio público observado com 3 contrato(s) no input..
-
-Isso não prova crédito sozinho, mas o volume observado pode justificar reforço pontual (sem presumir falta de estrutura).
-
-Posso dimensionar um reforço temporário de backoffice técnico/contratual por sprint.
-```
-
-## 13. BMM CONSTRUCAO CIVIL
-- CNPJ: `01606382000164` UF=SP
-- target_fit: `TARGET_CONFIRMED`
-- service: `reforco_temporario_backoffice` → `BACKOFFICE` / Warmbly `BACKOFFICE`
-- why_you: BMM CONSTRUCAO CIVIL com execução pública observável junto a DIRETORIA DE AGRIC., ABASTECIMENTO, MEIO AMBIENTE E TURISMO (SP) — objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA VISANDO A EXECUÇÃO DE OBRA DE DRENAGEM NA RUA JAIR DE ALMEIDA VIEIRA, NO MUNICÍPIO DE SARAPUÍ/SP, COMPREENDENDO A IMPLANTAÇ (R$ 790,000)
-- why_now: Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
-- observed_fact: Portfólio público observado com 3 contrato(s) no input.
-- micro_offer: `BACKOFFICE_SCOPE_CHECK`
-- evidence_ids: ['cf-portfolio-count', 'cf-ufs', 'cf-mature-no-reajuste']
-- rationale: Hipótese de estrutura enxuta com carga multi-contrato sustentada. Não inferir 'sem estrutura' por ausência de dados públicos.
-- subject: Reforço operacional pontual (generic_contrato=False)
-
-```
-Olá,
-
-Pelo que está público sobre BMM CONSTRUCAO CIVIL, portfólio público observado com 3 contrato(s) no input..
-
-Isso não prova crédito sozinho, mas o volume observado pode justificar reforço pontual (sem presumir falta de estrutura).
-
-Posso dimensionar um reforço temporário de backoffice técnico/contratual por sprint.
-```
-
-## 14. FAMONTE CONSTRUCOES LTDA
+## 4. FAMONTE CONSTRUCOES LTDA
 - CNPJ: `50435443000183` UF=MG
 - target_fit: `TARGET_CONFIRMED`
-- service: `aditivos_extracontratuais` → `ADITIVOS` / Warmbly `ADITIVOS`
-- why_you: FAMONTE CONSTRUCOES LTDA com execução pública observável junto a Prefeitura Municipal de Itarana (ES) — objeto: Execucao de obra de drenagem e Pavimentacao, com blocos de concreto intertravados, na comunidade Triunfo a Rodovia ES-261, Itarana/ES, conforme especificacoes e (R$ 525,756)
-- why_now: Aditivos/alterações observados em contrato público recente ou ativo.
-- observed_fact: Portfólio público observado com 8 contrato(s) no input.
-- micro_offer: `ADITIVO_RISK_CHECK`
-- evidence_ids: ['cf-portfolio-count', 'cf-ufs', 'cf-addenda', 'cf-mature-no-reajuste']
-- rationale: Dor contratual concreta de aditivos/alterações. Supera reajuste genérico e portfólio sem evento.
-- subject: Aditivo — FAMONTE (generic_contrato=False)
+- service: `gestao_monitoramento_contratual` → `MONITORAMENTO_CONTRATUAL` / Warmbly `MONITORAMENTO_CONTRATUAL`
+- why_you: FAMONTE CONSTRUCOES LTDA com execução pública observável — objeto: Execucao de obra de drenagem e Pavimentacao, com blocos de concreto intertravados, na comunidade Triunfo a Rodovia ES-261, Itarana/ES, conforme especificacoes e; órgão: Prefeitura Municipal de Itarana; UF ES; R$ 525,756
+- why_now: Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
+- observed_fact: objeto: Execucao de obra de drenagem e Pavimentacao, com blocos de concreto intertravados, na comunidade Triunfo a Rodovia ES-261, Itarana/ES, conforme especificacoes e; órgão: Prefeitura Municipal de Itarana; UF ES; R$ 525,756
+- micro_offer: `PUBLIC_DATA_SNAPSHOT`
+- evidence_ids: ['cf-contract-25404457']
+- supporting_signals: ['multi_contract']
+- rationale: Portfólio multi-contrato sem dor concreta dominante (gestão/monitoramento — especialidade só com sinais específicos). Monitoramento/gestão supera janela de verificação de reajuste; não inventar orçamento/BDI sem sinal de planilha.
+- subject: Gestão contratual: Execucao de obra de drenagem e Pavimentacao, com (generic_contrato=False)
+- spine_complete: True
 
 ```
 Olá,
 
-Pelo que está público sobre FAMONTE CONSTRUCOES LTDA, portfólio público observado com 8 contrato(s) no input..
+Pelo que está público sobre FAMONTE CONSTRUCOES LTDA, objeto: Execucao de obra de drenagem e Pavimentacao, com blocos de concreto intertravados, na comunidade Triunfo a Rodovia ES-261, Itarana/ES, conforme especificacoes e; órgão: Prefeitura Municipal de Itarana; UF ES; R$ 525,756.
 
-Isso não prova crédito sozinho, mas vale checar se alterações/aditivos realinharam planilha e memórias desse contrato.
+Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
 
-Posso revisar a cadeia aditivo → planilha → memória em um caso recente.
+Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
 ```
 
-## 15. MOSF CONSTRUCOES LTDA
+## 5. KOLF SERVIÇOS DE ENGENHARIA LTDA
+- CNPJ: `07555412000137` UF=PR
+- target_fit: `TARGET_CONFIRMED`
+- service: `gestao_monitoramento_contratual` → `MONITORAMENTO_CONTRATUAL` / Warmbly `MONITORAMENTO_CONTRATUAL`
+- why_you: KOLF SERVIÇOS DE ENGENHARIA LTDA com execução pública observável — objeto: CONTRATAÇÃO DA READEQUAÇÃO DO PROJETO ELÉTRICO EXECUTIVO DO CANAL EXTRAVASOR PAVIMENTADO DA BEIRA RIO - LOTE 03; órgão: Secretaria Municipal de Obras e Serviços Urbanos; UF SC; R$ 4,000
+- why_now: Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
+- observed_fact: objeto: CONTRATAÇÃO DA READEQUAÇÃO DO PROJETO ELÉTRICO EXECUTIVO DO CANAL EXTRAVASOR PAVIMENTADO DA BEIRA RIO - LOTE 03; órgão: Secretaria Municipal de Obras e Serviços Urbanos; UF SC; R$ 4,000
+- micro_offer: `PUBLIC_DATA_SNAPSHOT`
+- evidence_ids: ['cf-contract-22710960']
+- supporting_signals: ['structure_robust', 'multi_contract']
+- rationale: Portfólio multi-contrato sem dor concreta dominante (gestão/monitoramento — especialidade só com sinais específicos). Monitoramento/gestão supera janela de verificação de reajuste; não inventar orçamento/BDI sem sinal de planilha.
+- subject: Gestão contratual: CONTRATAÇÃO DA READEQUAÇÃO DO PROJETO ELÉTRICO E (generic_contrato=False)
+- spine_complete: True
+
+```
+Olá,
+
+Pelo que está público sobre KOLF SERVIÇOS DE ENGENHARIA LTDA, objeto: CONTRATAÇÃO DA READEQUAÇÃO DO PROJETO ELÉTRICO EXECUTIVO DO CANAL EXTRAVASOR PAVIMENTADO DA BEIRA RIO - LOTE 03; órgão: Secretaria Municipal de Obras e Serviços Urbanos; UF SC; R$ 4,000.
+
+Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
+
+Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
+```
+
+## 6. ARPO ASSESSORIA E ARQUITETURA LTDA
+- CNPJ: `40495801000190` UF=RS
+- target_fit: `TARGET_CONFIRMED`
+- service: `apoio_licitacoes_propostas` → `APOIO_LICITACAO` / Warmbly `APOIO_LICITACAO`
+- why_you: ARPO ASSESSORIA E ARQUITETURA LTDA com execução pública observável — objeto: ABERTURA DE PROCESSO DE DISPENSA DE LICITAÇÃO PARA CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA A ELABORAÇÃO DE PROJETO EXECUTIVO DE CONTENÇÃO DE TALUDE E DRENAGEM; órgão: Município de Bento Gonçalves; UF RS; R$ 18,760
+- why_now: Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
+- observed_fact: objeto: ABERTURA DE PROCESSO DE DISPENSA DE LICITAÇÃO PARA CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA A ELABORAÇÃO DE PROJETO EXECUTIVO DE CONTENÇÃO DE TALUDE E DRENAGEM; órgão: Município de Bento Gonçalves; UF RS; R$ 18,760
+- micro_offer: `PROCUREMENT_RISK_SNAPSHOT`
+- evidence_ids: ['cf-contract-8898534']
+- supporting_signals: ['tender_proposal']
+- rationale: Atividade de licitação/proposta observada. Janela competitiva, não reajuste.
+- subject: Licitações / propostas: ABERTURA DE PROCESSO DE DISPENSA DE LICITAÇÃO PA (generic_contrato=False)
+- spine_complete: True
+
+```
+Olá,
+
+Pelo que está público sobre ARPO ASSESSORIA E ARQUITETURA LTDA, objeto: ABERTURA DE PROCESSO DE DISPENSA DE LICITAÇÃO PARA CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA A ELABORAÇÃO DE PROJETO EXECUTIVO DE CONTENÇÃO DE TALUDE E DRENAGEM; órgão: Município de Bento Gonçalves; UF RS; R$ 18,760.
+
+Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
+
+Disponibilizo apoio de pico em análise de edital/proposta sob NDA.
+```
+
+## 7. MOSF CONSTRUCOES LTDA
 - CNPJ: `38597819000150` UF=BA
 - target_fit: `TARGET_CONFIRMED`
-- service: `aditivos_extracontratuais` → `ADITIVOS` / Warmbly `ADITIVOS`
-- why_you: MOSF CONSTRUCOES LTDA com execução pública observável junto a PREFEITURA MUNICIPAL DE VERA CRUZ (BA) — objeto: Aditivo de quantitativo ao contrato 0395/2024, que tem como objeto a
+- service: `gestao_monitoramento_contratual` → `MONITORAMENTO_CONTRATUAL` / Warmbly `MONITORAMENTO_CONTRATUAL`
+- why_you: MOSF CONSTRUCOES LTDA com execução pública observável — objeto: Aditivo de quantitativo ao contrato 0395/2024, que tem como objeto a
 Contratação de empresa de engenharia para execução da obra de
-pavimentação da 3ª Travessa d (R$ 343,503)
-- why_now: Aditivos/alterações observados em contrato público recente ou ativo.
-- observed_fact: Portfólio público observado com 8 contrato(s) no input.
-- micro_offer: `ADITIVO_RISK_CHECK`
-- evidence_ids: ['cf-portfolio-count', 'cf-ufs', 'cf-addenda', 'cf-mature-no-reajuste']
-- rationale: Dor contratual concreta de aditivos/alterações. Supera reajuste genérico e portfólio sem evento.
-- subject: Aditivo — MOSF (generic_contrato=False)
+pavimentação da 3ª Travessa d; órgão: PREFEITURA MUNICIPAL DE VERA CRUZ; UF BA; R$ 343,503
+- why_now: Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
+- observed_fact: objeto: Aditivo de quantitativo ao contrato 0395/2024, que tem como objeto a
+Contratação de empresa de engenharia para execução da obra de
+pavimentação da 3ª Travessa d; órgão: PREFEITURA MUNICIPAL DE VERA CRUZ; UF BA; R$ 343,503
+- micro_offer: `PUBLIC_DATA_SNAPSHOT`
+- evidence_ids: ['cf-contract-437398']
+- supporting_signals: ['multi_contract']
+- rationale: Portfólio multi-contrato sem dor concreta dominante (gestão/monitoramento — especialidade só com sinais específicos). Monitoramento/gestão supera janela de verificação de reajuste; não inventar orçamento/BDI sem sinal de planilha.
+- subject: Gestão contratual: Aditivo de quantitativo ao contrato 0395/2024, q (generic_contrato=False)
+- spine_complete: True
 
 ```
 Olá,
 
-Pelo que está público sobre MOSF CONSTRUCOES LTDA, portfólio público observado com 8 contrato(s) no input..
+Pelo que está público sobre MOSF CONSTRUCOES LTDA, objeto: Aditivo de quantitativo ao contrato 0395/2024, que tem como objeto a
+Contratação de empresa de engenharia para execução da obra de
+pavimentação da 3ª Travessa d; órgão: PREFEITURA MUNICIPAL DE VERA CRUZ; UF BA; R$ 343,503.
 
-Isso não prova crédito sozinho, mas vale checar se alterações/aditivos realinharam planilha e memórias desse contrato.
+Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
 
-Posso revisar a cadeia aditivo → planilha → memória em um caso recente.
+Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
 ```
 
-## 16. SEAL CONSTRUTORA LTDA
-- CNPJ: `31497575000195` UF=BA
+## 8. DFT PROJETOS LTDA
+- CNPJ: `29646103000105` UF=MG
 - target_fit: `TARGET_CONFIRMED`
-- service: `aditivos_extracontratuais` → `ADITIVOS` / Warmbly `ADITIVOS`
-- why_you: SEAL CONSTRUTORA LTDA com execução pública observável junto a SECRETARIA MUNICIPAL DE SERV PUBL OBRAS E PLANEJ DA CIDADE (BA) — objeto: Contratação de empresa de engenharia para execução de obras/serviços de pavimentação de vias no perímetro urbano do Município de Amargosa-BA (R$ 1,502,408)
-- why_now: Aditivos/alterações observados em contrato público recente ou ativo.
-- observed_fact: Portfólio público observado com 8 contrato(s) no input.
-- micro_offer: `ADITIVO_RISK_CHECK`
-- evidence_ids: ['cf-portfolio-count', 'cf-ufs', 'cf-addenda', 'cf-mature-no-reajuste']
-- rationale: Dor contratual concreta de aditivos/alterações. Supera reajuste genérico e portfólio sem evento.
-- subject: Aditivo — SEAL (generic_contrato=False)
+- service: `gestao_monitoramento_contratual` → `MONITORAMENTO_CONTRATUAL` / Warmbly `MONITORAMENTO_CONTRATUAL`
+- why_you: DFT PROJETOS LTDA com execução pública observável — objeto: Contratação de serviços de consultoria em engenharia para elaboração de projeto de iluminação pública com tecnologia LED, serviços de Medição e Verificação e ap; órgão: Departamento de Compras e Licitação; UF MG; R$ 11,657
+- why_now: Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
+- observed_fact: objeto: Contratação de serviços de consultoria em engenharia para elaboração de projeto de iluminação pública com tecnologia LED, serviços de Medição e Verificação e ap; órgão: Departamento de Compras e Licitação; UF MG; R$ 11,657
+- micro_offer: `PUBLIC_DATA_SNAPSHOT`
+- evidence_ids: ['cf-contract-15369594']
+- supporting_signals: ['multi_contract']
+- rationale: Portfólio multi-contrato sem dor concreta dominante (gestão/monitoramento — especialidade só com sinais específicos). Monitoramento/gestão supera janela de verificação de reajuste; não inventar orçamento/BDI sem sinal de planilha.
+- subject: Gestão contratual: Contratação de serviços de consultoria em engenh (generic_contrato=False)
+- spine_complete: True
 
 ```
 Olá,
 
-Pelo que está público sobre SEAL CONSTRUTORA LTDA, portfólio público observado com 8 contrato(s) no input..
+Pelo que está público sobre DFT PROJETOS LTDA, objeto: Contratação de serviços de consultoria em engenharia para elaboração de projeto de iluminação pública com tecnologia LED, serviços de Medição e Verificação e ap; órgão: Departamento de Compras e Licitação; UF MG; R$ 11,657.
 
-Isso não prova crédito sozinho, mas vale checar se alterações/aditivos realinharam planilha e memórias desse contrato.
+Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
 
-Posso revisar a cadeia aditivo → planilha → memória em um caso recente.
+Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
 ```
 
-## 17. S&F DA ROCHA CONSTRUTORA LTDA
-- CNPJ: `15667412000157` UF=MG
-- target_fit: `TARGET_CONFIRMED`
-- service: `aditivos_extracontratuais` → `ADITIVOS` / Warmbly `ADITIVOS`
-- why_you: S&F DA ROCHA CONSTRUTORA LTDA com execução pública observável junto a Unidade Única (MG) — objeto: CONTRATAÇÃO DE EMPRESA DE ENGENHARIA PARA EXECUÇÃO DA OBRA DE RECONSTRUÇÃO DE PONTE EM CONCRETO ARMADO NO CÓRREGO SANTO ANTÔNIO SOBRE O RIO SANTO ANTÔNIO COMPRI (R$ 416,869)
-- why_now: Aditivos/alterações observados em contrato público recente ou ativo.
-- observed_fact: Portfólio público observado com 7 contrato(s) no input.
-- micro_offer: `ADITIVO_RISK_CHECK`
-- evidence_ids: ['cf-portfolio-count', 'cf-ufs', 'cf-addenda', 'cf-mature-no-reajuste']
-- rationale: Dor contratual concreta de aditivos/alterações. Supera reajuste genérico e portfólio sem evento.
-- subject: Aditivo — S&F (generic_contrato=False)
-
-```
-Olá,
-
-Pelo que está público sobre S&F DA ROCHA CONSTRUTORA LTDA, portfólio público observado com 7 contrato(s) no input..
-
-Isso não prova crédito sozinho, mas vale checar se alterações/aditivos realinharam planilha e memórias desse contrato.
-
-Posso revisar a cadeia aditivo → planilha → memória em um caso recente.
-```
-
-## 18. TELETUSA TELEFONIA E CONSTRUCOES LTDA
+## 9. TELETUSA TELEFONIA E CONSTRUCOES LTDA
 - CNPJ: `54826144000120` UF=SP
 - target_fit: `TARGET_CONFIRMED`
 - service: `gestao_monitoramento_contratual` → `MONITORAMENTO_CONTRATUAL` / Warmbly `MONITORAMENTO_CONTRATUAL`
-- why_you: TELETUSA TELEFONIA E CONSTRUCOES LTDA com execução pública observável junto a DIVISÃO DE OBRAS E SERVIÇOS MUNICIPAIS (SP) — objeto: Obtenção de proposta mais vantajosa à Administração Municipal, visando a contratação de empresa especializada para execução de recapeamento asfáltico tipo CBUQ (R$ 1,257,470)
+- why_you: TELETUSA TELEFONIA E CONSTRUCOES LTDA com execução pública observável — objeto: Obtenção de proposta mais vantajosa à Administração Municipal, visando a contratação de empresa especializada para execução de recapeamento asfáltico tipo CBUQ; órgão: DIVISÃO DE OBRAS E SERVIÇOS MUNICIPAIS; UF SP; R$ 1,257,470
 - why_now: Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
-- observed_fact: Portfólio público observado com 8 contrato(s) no input.
+- observed_fact: objeto: Obtenção de proposta mais vantajosa à Administração Municipal, visando a contratação de empresa especializada para execução de recapeamento asfáltico tipo CBUQ; órgão: DIVISÃO DE OBRAS E SERVIÇOS MUNICIPAIS; UF SP; R$ 1,257,470
 - micro_offer: `PUBLIC_DATA_SNAPSHOT`
-- evidence_ids: ['cf-portfolio-count', 'cf-ufs', 'cf-mature-no-reajuste']
-- rationale: Portfólio multi-contrato sem dor concreta dominante. Monitoramento/gestão supera janela de verificação de reajuste.
-- subject: Carteira — TELETUSA (generic_contrato=False)
+- evidence_ids: ['cf-contract-15403775']
+- supporting_signals: ['multi_contract']
+- rationale: Portfólio multi-contrato sem dor concreta dominante (gestão/monitoramento — especialidade só com sinais específicos). Monitoramento/gestão supera janela de verificação de reajuste; não inventar orçamento/BDI sem sinal de planilha.
+- subject: Gestão contratual: Obtenção de proposta mais vantajosa à Administra (generic_contrato=False)
+- spine_complete: True
 
 ```
 Olá,
 
-Pelo que está público sobre TELETUSA TELEFONIA E CONSTRUCOES LTDA, portfólio público observado com 8 contrato(s) no input..
+Pelo que está público sobre TELETUSA TELEFONIA E CONSTRUCOES LTDA, objeto: Obtenção de proposta mais vantajosa à Administração Municipal, visando a contratação de empresa especializada para execução de recapeamento asfáltico tipo CBUQ; órgão: DIVISÃO DE OBRAS E SERVIÇOS MUNICIPAIS; UF SP; R$ 1,257,470.
 
-Isso não prova crédito sozinho, mas carteira multi-contrato pede triagem do que merece atenção agora.
+Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
 
 Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
 ```
 
-## 19. QUATRO D ENGENHARIA LTDA
-- CNPJ: `46482251000150` UF=SC
-- target_fit: `TARGET_CONFIRMED`
-- service: `gestao_monitoramento_contratual` → `MONITORAMENTO_CONTRATUAL` / Warmbly `MONITORAMENTO_CONTRATUAL`
-- why_you: QUATRO D ENGENHARIA LTDA com execução pública observável junto a Unidade Única (SC) — objeto: Contratação de empresa especializada para execução das obras de construção da sede da Associação de Pais e Amigos dos Excepcionais - APAE, no Município de Itape (R$ 7,450,000)
-- why_now: Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
-- observed_fact: Portfólio público observado com 8 contrato(s) no input.
-- micro_offer: `PUBLIC_DATA_SNAPSHOT`
-- evidence_ids: ['cf-portfolio-count', 'cf-ufs', 'cf-mature-no-reajuste']
-- rationale: Portfólio multi-contrato sem dor concreta dominante. Monitoramento/gestão supera janela de verificação de reajuste.
-- subject: Carteira — QUATRO (generic_contrato=False)
-
-```
-Olá,
-
-Pelo que está público sobre QUATRO D ENGENHARIA LTDA, portfólio público observado com 8 contrato(s) no input..
-
-Isso não prova crédito sozinho, mas carteira multi-contrato pede triagem do que merece atenção agora.
-
-Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
-```
-
-## 20. CONSORCIO INTER. DESENVOLVIMENTO DA INFRA - CIDIR
-- CNPJ: `11117243000120` UF=SC
-- target_fit: `TARGET_CONFIRMED`
-- service: `gestao_monitoramento_contratual` → `MONITORAMENTO_CONTRATUAL` / Warmbly `MONITORAMENTO_CONTRATUAL`
-- why_you: CONSORCIO INTER. DESENVOLVIMENTO DA INFRA - CIDIR com execução pública observável junto a MUNICÍPIO DE ÁGUAS DE CHAPECÓ (SC) — objeto: Contratação de Consórcio Público - CONSÓRCIO INTERMUNICIPAL DE DESENVOLVIMENTO DA INFRAESTRUTURA RODOVIARIA – CIDIR, ESPECIALIZADO EM INFRAESTRUTURA RODOVIÁRIA, (R$ 1,111,633)
-- why_now: Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
-- observed_fact: Portfólio público observado com 8 contrato(s) no input.
-- micro_offer: `PUBLIC_DATA_SNAPSHOT`
-- evidence_ids: ['cf-portfolio-count', 'cf-ufs', 'cf-mature-no-reajuste']
-- rationale: Portfólio multi-contrato sem dor concreta dominante. Monitoramento/gestão supera janela de verificação de reajuste.
-- subject: Carteira — CONSORCIO (generic_contrato=False)
-
-```
-Olá,
-
-Pelo que está público sobre CONSORCIO INTER. DESENVOLVIMENTO DA INFRA - CIDIR, portfólio público observado com 8 contrato(s) no input..
-
-Isso não prova crédito sozinho, mas carteira multi-contrato pede triagem do que merece atenção agora.
-
-Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
-```
-
-## 21. QUEIROZ MIGUEL EMPREENDIMENTOS E CONSTRUCOES LTDA
-- CNPJ: `30776622000177` UF=MG
-- target_fit: `TARGET_CONFIRMED`
-- service: `gestao_monitoramento_contratual` → `MONITORAMENTO_CONTRATUAL` / Warmbly `MONITORAMENTO_CONTRATUAL`
-- why_you: QUEIROZ MIGUEL EMPREENDIMENTOS E CONSTRUCOES LTDA com execução pública observável junto a Unidade Única (MG) — objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA CONSTRUÇÃO DE PONTE MISTA AÇO E CONCRETO EM ZONA RURAL DO MUNICÍPIO DE SÃO JOÃO DO PACUÍMG, CONFORME TERMO DE CONVÊNIO (R$ 680,746)
-- why_now: Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
-- observed_fact: Portfólio público observado com 8 contrato(s) no input.
-- micro_offer: `PUBLIC_DATA_SNAPSHOT`
-- evidence_ids: ['cf-portfolio-count', 'cf-ufs', 'cf-mature-no-reajuste']
-- rationale: Portfólio multi-contrato sem dor concreta dominante. Monitoramento/gestão supera janela de verificação de reajuste.
-- subject: Carteira — QUEIROZ (generic_contrato=False)
-
-```
-Olá,
-
-Pelo que está público sobre QUEIROZ MIGUEL EMPREENDIMENTOS E CONSTRUCOES LTDA, portfólio público observado com 8 contrato(s) no input..
-
-Isso não prova crédito sozinho, mas carteira multi-contrato pede triagem do que merece atenção agora.
-
-Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
-```
-
-## 22. AUTENTICA ROSA SOUZA LTDA
-- CNPJ: `21466670000178` UF=SC
-- target_fit: `TARGET_CONFIRMED`
-- service: `apoio_licitacoes_propostas` → `APOIO_LICITACAO` / Warmbly `APOIO_LICITACAO`
-- why_you: AUTENTICA ROSA SOUZA LTDA com execução pública observável junto a SERVICO AUTONOMO MUNICIPAL DE AGUA E ESGOTO (SC) — objeto: CONTRATAÇÃO SOB A FORMA DE EXECUÇÃO INDIRETA E REGIME DE EMPREITADA POR PREÇO GLOBAL, DE EMPRESA ESPECIALIZADA PARA AMPLIAÇÃO DA REDE PÚBLICA DE ESGOTO. (R$ 3,610,000)
-- why_now: Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
-- observed_fact: Portfólio público observado com 3 contrato(s) no input.
-- micro_offer: `PROCUREMENT_RISK_SNAPSHOT`
-- evidence_ids: ['cf-portfolio-count', 'cf-ufs', 'cf-mature-no-reajuste']
-- rationale: Atividade de licitação/proposta observada. Janela competitiva, não reajuste.
-- subject: Licitação / proposta (generic_contrato=False)
-
-```
-Olá,
-
-Pelo que está público sobre AUTENTICA ROSA SOUZA LTDA, portfólio público observado com 3 contrato(s) no input..
-
-Isso não prova crédito sozinho, mas premissas de edital/proposta merecem validação documental.
-
-Disponibilizo apoio de pico em análise de edital/proposta sob NDA.
-```
-
-## 23. ALTO VALE CONSTRUCOES LTDA
+## 10. ALTO VALE CONSTRUCOES LTDA
 - CNPJ: `37365559000125` UF=SC
 - target_fit: `TARGET_CONFIRMED`
 - service: `apoio_licitacoes_propostas` → `APOIO_LICITACAO` / Warmbly `APOIO_LICITACAO`
-- why_you: ALTO VALE CONSTRUCOES LTDA com execução pública observável junto a SECRETARIA DE INFRAESTRUTURA (SC) — objeto: Contratação de empresa especializada em engenharia civil para a execução integral de obra de Pavimentação em Pavimento Rígido (Concreto de Cimento Portland) na (R$ 10,748,950)
+- why_you: ALTO VALE CONSTRUCOES LTDA com execução pública observável — objeto: Contratação de empresa especializada em engenharia civil para a execução integral de obra de Pavimentação em Pavimento Rígido (Concreto de Cimento Portland) na; órgão: SECRETARIA DE INFRAESTRUTURA; UF SC; R$ 10,748,950
 - why_now: Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
-- observed_fact: Portfólio público observado com 6 contrato(s) no input.
+- observed_fact: objeto: Contratação de empresa especializada em engenharia civil para a execução integral de obra de Pavimentação em Pavimento Rígido (Concreto de Cimento Portland) na; órgão: SECRETARIA DE INFRAESTRUTURA; UF SC; R$ 10,748,950
 - micro_offer: `PROCUREMENT_RISK_SNAPSHOT`
-- evidence_ids: ['cf-portfolio-count', 'cf-ufs', 'cf-mature-no-reajuste']
+- evidence_ids: ['cf-contract-24555197']
+- supporting_signals: ['tender_proposal']
 - rationale: Atividade de licitação/proposta observada. Janela competitiva, não reajuste.
-- subject: Licitação / proposta (generic_contrato=False)
+- subject: Licitações / propostas: Contratação de empresa especializada em engenhar (generic_contrato=False)
+- spine_complete: True
 
 ```
 Olá,
 
-Pelo que está público sobre ALTO VALE CONSTRUCOES LTDA, portfólio público observado com 6 contrato(s) no input..
+Pelo que está público sobre ALTO VALE CONSTRUCOES LTDA, objeto: Contratação de empresa especializada em engenharia civil para a execução integral de obra de Pavimentação em Pavimento Rígido (Concreto de Cimento Portland) na; órgão: SECRETARIA DE INFRAESTRUTURA; UF SC; R$ 10,748,950.
 
-Isso não prova crédito sozinho, mas premissas de edital/proposta merecem validação documental.
+Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
 
 Disponibilizo apoio de pico em análise de edital/proposta sob NDA.
 ```
 
-## 24. M S KLAUCZEK   CIA LTDA
-- CNPJ: `10699348000172` UF=RS
+## 11. QUATRO D ENGENHARIA LTDA
+- CNPJ: `46482251000150` UF=SC
 - target_fit: `TARGET_CONFIRMED`
-- service: `apoio_licitacoes_propostas` → `APOIO_LICITACAO` / Warmbly `APOIO_LICITACAO`
-- why_you: M S KLAUCZEK   CIA LTDA com execução pública observável junto a PREFEITURA MUNICIPAL (RS) — objeto: Constitui objeto da presente licitacao a selecao e contratacao de empresa  em regime de empreitada por PRECO GLOBAL POR LOTE  na modalidade CONCORRENCIA ELETRON (R$ 2,680,000)
+- service: `gestao_monitoramento_contratual` → `MONITORAMENTO_CONTRATUAL` / Warmbly `MONITORAMENTO_CONTRATUAL`
+- why_you: QUATRO D ENGENHARIA LTDA com execução pública observável — objeto: Contratação de empresa especializada para execução das obras de construção da sede da Associação de Pais e Amigos dos Excepcionais - APAE, no Município de Itape; órgão: Unidade Única; UF SC; R$ 7,450,000
 - why_now: Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
-- observed_fact: Portfólio público observado com 3 contrato(s) no input.
-- micro_offer: `PROCUREMENT_RISK_SNAPSHOT`
-- evidence_ids: ['cf-portfolio-count', 'cf-ufs', 'cf-mature-no-reajuste']
-- rationale: Atividade de licitação/proposta observada. Janela competitiva, não reajuste.
-- subject: Licitação / proposta (generic_contrato=False)
+- observed_fact: objeto: Contratação de empresa especializada para execução das obras de construção da sede da Associação de Pais e Amigos dos Excepcionais - APAE, no Município de Itape; órgão: Unidade Única; UF SC; R$ 7,450,000
+- micro_offer: `PUBLIC_DATA_SNAPSHOT`
+- evidence_ids: ['cf-contract-6014437']
+- supporting_signals: ['multi_contract']
+- rationale: Portfólio multi-contrato sem dor concreta dominante (gestão/monitoramento — especialidade só com sinais específicos). Monitoramento/gestão supera janela de verificação de reajuste; não inventar orçamento/BDI sem sinal de planilha.
+- subject: Gestão contratual: Contratação de empresa especializada para execuç (generic_contrato=False)
+- spine_complete: True
 
 ```
 Olá,
 
-Pelo que está público sobre M S KLAUCZEK   CIA LTDA, portfólio público observado com 3 contrato(s) no input..
+Pelo que está público sobre QUATRO D ENGENHARIA LTDA, objeto: Contratação de empresa especializada para execução das obras de construção da sede da Associação de Pais e Amigos dos Excepcionais - APAE, no Município de Itape; órgão: Unidade Única; UF SC; R$ 7,450,000.
 
-Isso não prova crédito sozinho, mas premissas de edital/proposta merecem validação documental.
+Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
 
-Disponibilizo apoio de pico em análise de edital/proposta sob NDA.
+Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
 ```
 
-## 25. ALMEIDA ENGENHARIA - PROJETOS E EXECUCAO UNIPESSOAL LTDA
+## 12. ALMEIDA ENGENHARIA - PROJETOS E EXECUCAO UNIPESSOAL LTDA
 - CNPJ: `42605700000150` UF=DF
 - target_fit: `TARGET_CONFIRMED`
 - service: `apoio_licitacoes_propostas` → `APOIO_LICITACAO` / Warmbly `APOIO_LICITACAO`
-- why_you: ALMEIDA ENGENHARIA - PROJETOS E EXECUCAO UNIPESSOAL LTDA com execução pública observável junto a MJ-DPRF-DEPART.DE POL.RODOVIARIA FEDERAL/DF (DF) — objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM ENGENHARIA OU ARQUITETURA PARA ELABORAÇÃO/ADAPTAÇÃO DE PROJETOS EXECUTIVOS DE ENGENHARIA/ARQUITETURA (INCLUINDO TODAS AS (R$ 79,785)
+- why_you: ALMEIDA ENGENHARIA - PROJETOS E EXECUCAO UNIPESSOAL LTDA com execução pública observável — objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM ENGENHARIA OU ARQUITETURA PARA ELABORAÇÃO/ADAPTAÇÃO DE PROJETOS EXECUTIVOS DE ENGENHARIA/ARQUITETURA (INCLUINDO TODAS AS; órgão: MJ-DPRF-DEPART.DE POL.RODOVIARIA FEDERAL/DF; UF DF; R$ 79,785
 - why_now: Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
-- observed_fact: Portfólio público observado com 6 contrato(s) no input.
+- observed_fact: objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM ENGENHARIA OU ARQUITETURA PARA ELABORAÇÃO/ADAPTAÇÃO DE PROJETOS EXECUTIVOS DE ENGENHARIA/ARQUITETURA (INCLUINDO TODAS AS; órgão: MJ-DPRF-DEPART.DE POL.RODOVIARIA FEDERAL/DF; UF DF; R$ 79,785
 - micro_offer: `PROCUREMENT_RISK_SNAPSHOT`
-- evidence_ids: ['cf-portfolio-count', 'cf-ufs', 'cf-mature-no-reajuste']
+- evidence_ids: ['cf-contract-166507']
+- supporting_signals: ['tender_proposal']
 - rationale: Atividade de licitação/proposta observada. Janela competitiva, não reajuste.
-- subject: Licitação / proposta (generic_contrato=False)
+- subject: Licitações / propostas: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM ENGENHAR (generic_contrato=False)
+- spine_complete: True
 
 ```
 Olá,
 
-Pelo que está público sobre ALMEIDA ENGENHARIA - PROJETOS E EXECUCAO UNIPESSOAL LTDA, portfólio público observado com 6 contrato(s) no input..
+Pelo que está público sobre ALMEIDA ENGENHARIA - PROJETOS E EXECUCAO UNIPESSOAL LTDA, objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM ENGENHARIA OU ARQUITETURA PARA ELABORAÇÃO/ADAPTAÇÃO DE PROJETOS EXECUTIVOS DE ENGENHARIA/ARQUITETURA (INCLUINDO TODAS AS; órgão: MJ-DPRF-DEPART.DE POL.RODOVIARIA FEDERAL/DF; UF DF; R$ 79,785.
 
-Isso não prova crédito sozinho, mas premissas de edital/proposta merecem validação documental.
+Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
 
 Disponibilizo apoio de pico em análise de edital/proposta sob NDA.
 ```
 
-## 26. METODO PROJETOS E CONSTRUCOES ELETRICAS LTDA
-- CNPJ: `10495235000155` UF=MG
+## 13. SEAL CONSTRUTORA LTDA
+- CNPJ: `31497575000195` UF=BA
 - target_fit: `TARGET_CONFIRMED`
-- service: `medicoes_glosas_memoria` → `MEDICOES` / Warmbly `MEDICOES`
-- why_you: METODO PROJETOS E CONSTRUCOES ELETRICAS LTDA com execução pública observável junto a MUNICÍPIO DE SACRAMENTO/MG (MG) — objeto: Contratação de empresa especializada em engenharia elétrica para a execução de obras e serviços de engenharia elétrica, sob regime de medição, destinados à cons (R$ 6,889,496)
-- why_now: Sinais de glosa ou medição contestada no material ingerido.
-- observed_fact: Portfólio público observado com 8 contrato(s) no input.
-- micro_offer: `MEDICAO_CHECK`
-- evidence_ids: ['cf-portfolio-count', 'cf-ufs', 'cf-mature-no-reajuste', 'cf-glosa-medicao']
-- rationale: Sinais de glosa/medição no material público. Evento documental específico supera janela de reajuste.
-- subject: Medições — METODO (generic_contrato=False)
+- service: `gestao_monitoramento_contratual` → `MONITORAMENTO_CONTRATUAL` / Warmbly `MONITORAMENTO_CONTRATUAL`
+- why_you: SEAL CONSTRUTORA LTDA com execução pública observável — objeto: Contratação de empresa de engenharia para execução de obras/serviços de pavimentação de vias no perímetro urbano do Município de Amargosa-BA; órgão: SECRETARIA MUNICIPAL DE SERV PUBL OBRAS E PLANEJ DA CIDADE; UF BA; R$ 1,502,408
+- why_now: Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
+- observed_fact: objeto: Contratação de empresa de engenharia para execução de obras/serviços de pavimentação de vias no perímetro urbano do Município de Amargosa-BA; órgão: SECRETARIA MUNICIPAL DE SERV PUBL OBRAS E PLANEJ DA CIDADE; UF BA; R$ 1,502,408
+- micro_offer: `PUBLIC_DATA_SNAPSHOT`
+- evidence_ids: ['cf-contract-25549230']
+- supporting_signals: ['multi_contract']
+- rationale: Portfólio multi-contrato sem dor concreta dominante (gestão/monitoramento — especialidade só com sinais específicos). Monitoramento/gestão supera janela de verificação de reajuste; não inventar orçamento/BDI sem sinal de planilha.
+- subject: Gestão contratual: Contratação de empresa de engenharia para execuç (generic_contrato=False)
+- spine_complete: True
 
 ```
 Olá,
 
-Pelo que está público sobre METODO PROJETOS E CONSTRUCOES ELETRICAS LTDA, portfólio público observado com 8 contrato(s) no input..
+Pelo que está público sobre SEAL CONSTRUTORA LTDA, objeto: Contratação de empresa de engenharia para execução de obras/serviços de pavimentação de vias no perímetro urbano do Município de Amargosa-BA; órgão: SECRETARIA MUNICIPAL DE SERV PUBL OBRAS E PLANEJ DA CIDADE; UF BA; R$ 1,502,408.
 
-Isso não prova crédito sozinho, mas o ponto de atenção costuma ser critério de medição e memória de cálculo.
+Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
 
-Proponho uma revisão pontual da última medição contestada, com checklist de evidências.
+Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
 ```
 
-## 27. CONSTRUTORA MCM LTDA - EPP
+## 14. CONSORCIO INTER. DESENVOLVIMENTO DA INFRA - CIDIR
+- CNPJ: `11117243000120` UF=SC
+- target_fit: `TARGET_CONFIRMED`
+- service: `gestao_monitoramento_contratual` → `MONITORAMENTO_CONTRATUAL` / Warmbly `MONITORAMENTO_CONTRATUAL`
+- why_you: CONSORCIO INTER. DESENVOLVIMENTO DA INFRA - CIDIR com execução pública observável — objeto: Contratação de Consórcio Público - CONSÓRCIO INTERMUNICIPAL DE DESENVOLVIMENTO DA INFRAESTRUTURA RODOVIARIA – CIDIR, ESPECIALIZADO EM INFRAESTRUTURA RODOVIÁRIA,; órgão: MUNICÍPIO DE ÁGUAS DE CHAPECÓ; UF SC; R$ 1,111,633
+- why_now: Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
+- observed_fact: objeto: Contratação de Consórcio Público - CONSÓRCIO INTERMUNICIPAL DE DESENVOLVIMENTO DA INFRAESTRUTURA RODOVIARIA – CIDIR, ESPECIALIZADO EM INFRAESTRUTURA RODOVIÁRIA,; órgão: MUNICÍPIO DE ÁGUAS DE CHAPECÓ; UF SC; R$ 1,111,633
+- micro_offer: `PUBLIC_DATA_SNAPSHOT`
+- evidence_ids: ['cf-contract-15419443']
+- supporting_signals: ['multi_contract']
+- rationale: Portfólio multi-contrato sem dor concreta dominante (gestão/monitoramento — especialidade só com sinais específicos). Monitoramento/gestão supera janela de verificação de reajuste; não inventar orçamento/BDI sem sinal de planilha.
+- subject: Gestão contratual: Contratação de Consórcio Público - CONSÓRCIO INT (generic_contrato=False)
+- spine_complete: True
+
+```
+Olá,
+
+Pelo que está público sobre CONSORCIO INTER. DESENVOLVIMENTO DA INFRA - CIDIR, objeto: Contratação de Consórcio Público - CONSÓRCIO INTERMUNICIPAL DE DESENVOLVIMENTO DA INFRAESTRUTURA RODOVIARIA – CIDIR, ESPECIALIZADO EM INFRAESTRUTURA RODOVIÁRIA,; órgão: MUNICÍPIO DE ÁGUAS DE CHAPECÓ; UF SC; R$ 1,111,633.
+
+Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
+
+Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
+```
+
+## 15. S&F DA ROCHA CONSTRUTORA LTDA
+- CNPJ: `15667412000157` UF=MG
+- target_fit: `TARGET_CONFIRMED`
+- service: `gestao_monitoramento_contratual` → `MONITORAMENTO_CONTRATUAL` / Warmbly `MONITORAMENTO_CONTRATUAL`
+- why_you: S&F DA ROCHA CONSTRUTORA LTDA com execução pública observável — objeto: CONTRATAÇÃO DE EMPRESA DE ENGENHARIA PARA EXECUÇÃO DA OBRA DE RECONSTRUÇÃO DE PONTE EM CONCRETO ARMADO NO CÓRREGO SANTO ANTÔNIO SOBRE O RIO SANTO ANTÔNIO COMPRI; órgão: Unidade Única; UF MG; R$ 416,869
+- why_now: Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
+- observed_fact: objeto: CONTRATAÇÃO DE EMPRESA DE ENGENHARIA PARA EXECUÇÃO DA OBRA DE RECONSTRUÇÃO DE PONTE EM CONCRETO ARMADO NO CÓRREGO SANTO ANTÔNIO SOBRE O RIO SANTO ANTÔNIO COMPRI; órgão: Unidade Única; UF MG; R$ 416,869
+- micro_offer: `PUBLIC_DATA_SNAPSHOT`
+- evidence_ids: ['cf-contract-666637']
+- supporting_signals: ['multi_contract']
+- rationale: Portfólio multi-contrato sem dor concreta dominante (gestão/monitoramento — especialidade só com sinais específicos). Monitoramento/gestão supera janela de verificação de reajuste; não inventar orçamento/BDI sem sinal de planilha.
+- subject: Gestão contratual: CONTRATAÇÃO DE EMPRESA DE ENGENHARIA PARA EXECUÇ (generic_contrato=False)
+- spine_complete: True
+
+```
+Olá,
+
+Pelo que está público sobre S&F DA ROCHA CONSTRUTORA LTDA, objeto: CONTRATAÇÃO DE EMPRESA DE ENGENHARIA PARA EXECUÇÃO DA OBRA DE RECONSTRUÇÃO DE PONTE EM CONCRETO ARMADO NO CÓRREGO SANTO ANTÔNIO SOBRE O RIO SANTO ANTÔNIO COMPRI; órgão: Unidade Única; UF MG; R$ 416,869.
+
+Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
+
+Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
+```
+
+## 16. METODO PROJETOS E CONSTRUCOES ELETRICAS LTDA
+- CNPJ: `10495235000155` UF=MG
+- target_fit: `TARGET_CONFIRMED`
+- service: `apoio_licitacoes_propostas` → `APOIO_LICITACAO` / Warmbly `APOIO_LICITACAO`
+- why_you: METODO PROJETOS E CONSTRUCOES ELETRICAS LTDA com execução pública observável — objeto: Contratação de empresa especializada em engenharia elétrica para a execução de obras e serviços de engenharia elétrica, sob regime de medição, destinados à cons; órgão: MUNICÍPIO DE SACRAMENTO/MG; UF MG; R$ 6,889,496
+- why_now: Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
+- observed_fact: objeto: Contratação de empresa especializada em engenharia elétrica para a execução de obras e serviços de engenharia elétrica, sob regime de medição, destinados à cons; órgão: MUNICÍPIO DE SACRAMENTO/MG; UF MG; R$ 6,889,496
+- micro_offer: `PROCUREMENT_RISK_SNAPSHOT`
+- evidence_ids: ['cf-contract-18360846']
+- supporting_signals: ['tender_proposal']
+- rationale: Atividade de licitação/proposta observada. Janela competitiva, não reajuste.
+- subject: Licitações / propostas: Contratação de empresa especializada em engenhar (generic_contrato=False)
+- spine_complete: True
+
+```
+Olá,
+
+Pelo que está público sobre METODO PROJETOS E CONSTRUCOES ELETRICAS LTDA, objeto: Contratação de empresa especializada em engenharia elétrica para a execução de obras e serviços de engenharia elétrica, sob regime de medição, destinados à cons; órgão: MUNICÍPIO DE SACRAMENTO/MG; UF MG; R$ 6,889,496.
+
+Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
+
+Disponibilizo apoio de pico em análise de edital/proposta sob NDA.
+```
+
+## 17. SOUZA E FONSECA CONSTRUCOES E COMERCIO. LTDA
+- CNPJ: `37251510000141` UF=PA
+- target_fit: `TARGET_CONFIRMED`
+- service: `gestao_monitoramento_contratual` → `MONITORAMENTO_CONTRATUAL` / Warmbly `MONITORAMENTO_CONTRATUAL`
+- why_you: SOUZA E FONSECA CONSTRUCOES E COMERCIO. LTDA com execução pública observável — objeto: CONTRATAÇÃO DE SERVIÇOS COMUNS DE ENGENHARIA DE ADEQUAÇÃO E MANUTENÇÃO PREDIAL.; órgão: INSTITUTO EVANDRO CHAGAS; UF PA; R$ 176,132
+- why_now: Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
+- observed_fact: objeto: CONTRATAÇÃO DE SERVIÇOS COMUNS DE ENGENHARIA DE ADEQUAÇÃO E MANUTENÇÃO PREDIAL.; órgão: INSTITUTO EVANDRO CHAGAS; UF PA; R$ 176,132
+- micro_offer: `PUBLIC_DATA_SNAPSHOT`
+- evidence_ids: ['cf-contract-15102403']
+- supporting_signals: ['multi_contract']
+- rationale: Portfólio multi-contrato sem dor concreta dominante (gestão/monitoramento — especialidade só com sinais específicos). Monitoramento/gestão supera janela de verificação de reajuste; não inventar orçamento/BDI sem sinal de planilha.
+- subject: Gestão contratual: CONTRATAÇÃO DE SERVIÇOS COMUNS DE ENGENHARIA DE  (generic_contrato=False)
+- spine_complete: True
+
+```
+Olá,
+
+Pelo que está público sobre SOUZA E FONSECA CONSTRUCOES E COMERCIO. LTDA, objeto: CONTRATAÇÃO DE SERVIÇOS COMUNS DE ENGENHARIA DE ADEQUAÇÃO E MANUTENÇÃO PREDIAL.; órgão: INSTITUTO EVANDRO CHAGAS; UF PA; R$ 176,132.
+
+Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
+
+Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
+```
+
+## 18. CONSTRUTORA MCM LTDA - EPP
 - CNPJ: `20906665000176` UF=MG
 - target_fit: `TARGET_CONFIRMED`
 - service: `apoio_licitacoes_propostas` → `APOIO_LICITACAO` / Warmbly `APOIO_LICITACAO`
-- why_you: CONSTRUTORA MCM LTDA - EPP com execução pública observável junto a Sec Mun de Obras, Infraest e Políticas Urbanas (MG) — objeto: CONTRATAÇÃO DE EMPRESA PARA CONSTRUÇÃO DE PONTE DE CONCRETO ARMADO NA AV DR. RENATO AZEREDO EM ENCONTRO COM O SÍTIO DA ABADIA / VAPABUÇÚ, SETE LAGOAS/MG, EM CON (R$ 770,000)
+- why_you: CONSTRUTORA MCM LTDA - EPP com execução pública observável — objeto: CONTRATAÇÃO DE EMPRESA PARA CONSTRUÇÃO DE PONTE DE CONCRETO ARMADO NA AV DR. RENATO AZEREDO EM ENCONTRO COM O SÍTIO DA ABADIA / VAPABUÇÚ, SETE LAGOAS/MG, EM CON; órgão: Sec Mun de Obras, Infraest e Políticas Urbanas; UF MG; R$ 770,000
 - why_now: Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
-- observed_fact: Portfólio público observado com 7 contrato(s) no input.
+- observed_fact: objeto: CONTRATAÇÃO DE EMPRESA PARA CONSTRUÇÃO DE PONTE DE CONCRETO ARMADO NA AV DR. RENATO AZEREDO EM ENCONTRO COM O SÍTIO DA ABADIA / VAPABUÇÚ, SETE LAGOAS/MG, EM CON; órgão: Sec Mun de Obras, Infraest e Políticas Urbanas; UF MG; R$ 770,000
 - micro_offer: `PROCUREMENT_RISK_SNAPSHOT`
-- evidence_ids: ['cf-portfolio-count', 'cf-ufs', 'cf-mature-no-reajuste']
+- evidence_ids: ['cf-contract-8640007']
+- supporting_signals: ['tender_proposal']
 - rationale: Atividade de licitação/proposta observada. Janela competitiva, não reajuste.
-- subject: Licitação / proposta (generic_contrato=False)
+- subject: Licitações / propostas: CONTRATAÇÃO DE EMPRESA PARA CONSTRUÇÃO DE PONTE  (generic_contrato=False)
+- spine_complete: True
 
 ```
 Olá,
 
-Pelo que está público sobre CONSTRUTORA MCM LTDA - EPP, portfólio público observado com 7 contrato(s) no input..
+Pelo que está público sobre CONSTRUTORA MCM LTDA - EPP, objeto: CONTRATAÇÃO DE EMPRESA PARA CONSTRUÇÃO DE PONTE DE CONCRETO ARMADO NA AV DR. RENATO AZEREDO EM ENCONTRO COM O SÍTIO DA ABADIA / VAPABUÇÚ, SETE LAGOAS/MG, EM CON; órgão: Sec Mun de Obras, Infraest e Políticas Urbanas; UF MG; R$ 770,000.
 
-Isso não prova crédito sozinho, mas premissas de edital/proposta merecem validação documental.
+Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
 
 Disponibilizo apoio de pico em análise de edital/proposta sob NDA.
 ```
 
-## 28. IDEALIZE DOCUMENTOS E PROJETOS LTDA
-- CNPJ: `35416840000114` UF=SC
+## 19. QUEIROZ MIGUEL EMPREENDIMENTOS E CONSTRUCOES LTDA
+- CNPJ: `30776622000177` UF=MG
 - target_fit: `TARGET_CONFIRMED`
-- service: `apoio_licitacoes_propostas` → `APOIO_LICITACAO` / Warmbly `APOIO_LICITACAO`
-- why_you: IDEALIZE DOCUMENTOS E PROJETOS LTDA com execução pública observável junto a PREFEITURA MUNICIPAL DE FORQUILHINHA - SC (SC) — objeto: A presente licitação tem por objetivo REGISTRAR PREÇO para elaboração de projetos de engenharia para obras de pavimentação de vias, passeios públicos e ciclovia (R$ 396,997)
+- service: `gestao_monitoramento_contratual` → `MONITORAMENTO_CONTRATUAL` / Warmbly `MONITORAMENTO_CONTRATUAL`
+- why_you: QUEIROZ MIGUEL EMPREENDIMENTOS E CONSTRUCOES LTDA com execução pública observável — objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA CONSTRUÇÃO DE PONTE MISTA AÇO E CONCRETO EM ZONA RURAL DO MUNICÍPIO DE SÃO JOÃO DO PACUÍMG, CONFORME TERMO DE CONVÊNIO; órgão: Unidade Única; UF MG; R$ 680,746
 - why_now: Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
-- observed_fact: Portfólio público observado com 3 contrato(s) no input.
-- micro_offer: `PROCUREMENT_RISK_SNAPSHOT`
-- evidence_ids: ['cf-portfolio-count', 'cf-ufs', 'cf-mature-no-reajuste']
-- rationale: Atividade de licitação/proposta observada. Janela competitiva, não reajuste.
-- subject: Licitação / proposta (generic_contrato=False)
+- observed_fact: objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA CONSTRUÇÃO DE PONTE MISTA AÇO E CONCRETO EM ZONA RURAL DO MUNICÍPIO DE SÃO JOÃO DO PACUÍMG, CONFORME TERMO DE CONVÊNIO; órgão: Unidade Única; UF MG; R$ 680,746
+- micro_offer: `PUBLIC_DATA_SNAPSHOT`
+- evidence_ids: ['cf-contract-25450199']
+- supporting_signals: ['multi_contract']
+- rationale: Portfólio multi-contrato sem dor concreta dominante (gestão/monitoramento — especialidade só com sinais específicos). Monitoramento/gestão supera janela de verificação de reajuste; não inventar orçamento/BDI sem sinal de planilha.
+- subject: Gestão contratual: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA CONSTR (generic_contrato=False)
+- spine_complete: True
 
 ```
 Olá,
 
-Pelo que está público sobre IDEALIZE DOCUMENTOS E PROJETOS LTDA, portfólio público observado com 3 contrato(s) no input..
+Pelo que está público sobre QUEIROZ MIGUEL EMPREENDIMENTOS E CONSTRUCOES LTDA, objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA CONSTRUÇÃO DE PONTE MISTA AÇO E CONCRETO EM ZONA RURAL DO MUNICÍPIO DE SÃO JOÃO DO PACUÍMG, CONFORME TERMO DE CONVÊNIO; órgão: Unidade Única; UF MG; R$ 680,746.
 
-Isso não prova crédito sozinho, mas premissas de edital/proposta merecem validação documental.
+Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
 
-Disponibilizo apoio de pico em análise de edital/proposta sob NDA.
+Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
 ```
 
-## 29. PROJHEART ENGENHARIA LTDA
+## 20. PROJHEART ENGENHARIA LTDA
 - CNPJ: `47432025000128` UF=GO
 - target_fit: `TARGET_CONFIRMED`
-- service: `medicoes_glosas_memoria` → `MEDICOES` / Warmbly `MEDICOES`
-- why_you: PROJHEART ENGENHARIA LTDA com execução pública observável junto a POLÍCIA MILITAR DO ESTADO DE GOIÁS/GO (GO) — objeto: Execução de obra de reforma do laboratório do Hospital da Polícia Militar do Estado de Goiás - HPM/PMGO. (R$ 307,000)
-- why_now: Sinais de glosa ou medição contestada no material ingerido.
-- observed_fact: Portfólio público observado com 8 contrato(s) no input.
-- micro_offer: `MEDICAO_CHECK`
-- evidence_ids: ['cf-portfolio-count', 'cf-ufs', 'cf-mature-no-reajuste', 'cf-glosa-medicao']
-- rationale: Sinais de glosa/medição no material público. Evento documental específico supera janela de reajuste.
-- subject: Medições — PROJHEART (generic_contrato=False)
+- service: `gestao_monitoramento_contratual` → `MONITORAMENTO_CONTRATUAL` / Warmbly `MONITORAMENTO_CONTRATUAL`
+- why_you: PROJHEART ENGENHARIA LTDA com execução pública observável — objeto: Execução de obra de reforma do laboratório do Hospital da Polícia Militar do Estado de Goiás - HPM/PMGO.; órgão: POLÍCIA MILITAR DO ESTADO DE GOIÁS/GO; UF GO; R$ 307,000
+- why_now: Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
+- observed_fact: objeto: Execução de obra de reforma do laboratório do Hospital da Polícia Militar do Estado de Goiás - HPM/PMGO.; órgão: POLÍCIA MILITAR DO ESTADO DE GOIÁS/GO; UF GO; R$ 307,000
+- micro_offer: `PUBLIC_DATA_SNAPSHOT`
+- evidence_ids: ['cf-contract-5030030']
+- supporting_signals: ['multi_contract']
+- rationale: Portfólio multi-contrato sem dor concreta dominante (gestão/monitoramento — especialidade só com sinais específicos). Monitoramento/gestão supera janela de verificação de reajuste; não inventar orçamento/BDI sem sinal de planilha.
+- subject: Gestão contratual: Execução de obra de reforma do laboratório do Ho (generic_contrato=False)
+- spine_complete: True
 
 ```
 Olá,
 
-Pelo que está público sobre PROJHEART ENGENHARIA LTDA, portfólio público observado com 8 contrato(s) no input..
+Pelo que está público sobre PROJHEART ENGENHARIA LTDA, objeto: Execução de obra de reforma do laboratório do Hospital da Polícia Militar do Estado de Goiás - HPM/PMGO.; órgão: POLÍCIA MILITAR DO ESTADO DE GOIÁS/GO; UF GO; R$ 307,000.
 
-Isso não prova crédito sozinho, mas o ponto de atenção costuma ser critério de medição e memória de cálculo.
+Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
 
-Proponho uma revisão pontual da última medição contestada, com checklist de evidências.
+Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
 ```
 
-## 30. SANTPAV TECNOLOGIA EM ASFALTOS EIRELI
+## 21. SANTPAV TECNOLOGIA EM ASFALTOS EIRELI
 - CNPJ: `31088105000178` UF=RS
 - target_fit: `TARGET_CONFIRMED`
-- service: `aditivos_extracontratuais` → `ADITIVOS` / Warmbly `ADITIVOS`
-- why_you: SANTPAV TECNOLOGIA EM ASFALTOS EIRELI com execução pública observável junto a MUNICÍPIO DE JAPARAÍBA/MG (MG) — objeto: Aquisição de Massa Asfáltica usinada a quente (CBUQ) para aplicação a frio, preparada com CAP 50/70, pó de pedra e pedriscos, para aplicação a frio em manutençã (R$ 2,800)
-- why_now: Aditivos/alterações observados em contrato público recente ou ativo.
-- observed_fact: Portfólio público observado com 8 contrato(s) no input.
-- micro_offer: `ADITIVO_RISK_CHECK`
-- evidence_ids: ['cf-portfolio-count', 'cf-ufs', 'cf-addenda', 'cf-mature-no-reajuste']
-- rationale: Dor contratual concreta de aditivos/alterações. Supera reajuste genérico e portfólio sem evento.
-- subject: Aditivo — SANTPAV (generic_contrato=False)
+- service: `gestao_monitoramento_contratual` → `MONITORAMENTO_CONTRATUAL` / Warmbly `MONITORAMENTO_CONTRATUAL`
+- why_you: SANTPAV TECNOLOGIA EM ASFALTOS EIRELI com execução pública observável — objeto: Aquisição de Massa Asfáltica usinada a quente (CBUQ) para aplicação a frio, preparada com CAP 50/70, pó de pedra e pedriscos, para aplicação a frio em manutençã; órgão: MUNICÍPIO DE JAPARAÍBA/MG; UF MG; R$ 2,800
+- why_now: Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
+- observed_fact: objeto: Aquisição de Massa Asfáltica usinada a quente (CBUQ) para aplicação a frio, preparada com CAP 50/70, pó de pedra e pedriscos, para aplicação a frio em manutençã; órgão: MUNICÍPIO DE JAPARAÍBA/MG; UF MG; R$ 2,800
+- micro_offer: `PUBLIC_DATA_SNAPSHOT`
+- evidence_ids: ['cf-contract-25551473']
+- supporting_signals: ['multi_contract']
+- rationale: Portfólio multi-contrato sem dor concreta dominante (gestão/monitoramento — especialidade só com sinais específicos). Monitoramento/gestão supera janela de verificação de reajuste; não inventar orçamento/BDI sem sinal de planilha.
+- subject: Gestão contratual: Aquisição de Massa Asfáltica usinada a quente (C (generic_contrato=False)
+- spine_complete: True
 
 ```
 Olá,
 
-Pelo que está público sobre SANTPAV TECNOLOGIA EM ASFALTOS EIRELI, portfólio público observado com 8 contrato(s) no input..
+Pelo que está público sobre SANTPAV TECNOLOGIA EM ASFALTOS EIRELI, objeto: Aquisição de Massa Asfáltica usinada a quente (CBUQ) para aplicação a frio, preparada com CAP 50/70, pó de pedra e pedriscos, para aplicação a frio em manutençã; órgão: MUNICÍPIO DE JAPARAÍBA/MG; UF MG; R$ 2,800.
 
-Isso não prova crédito sozinho, mas vale checar se alterações/aditivos realinharam planilha e memórias desse contrato.
+Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
 
-Posso revisar a cadeia aditivo → planilha → memória em um caso recente.
+Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
 ```
 
+## 22. CCT Construtora de Obras Ltda - EPP
+- CNPJ: `02063876000102` UF=SC
+- target_fit: `TARGET_CONFIRMED`
+- service: `gestao_monitoramento_contratual` → `MONITORAMENTO_CONTRATUAL` / Warmbly `MONITORAMENTO_CONTRATUAL`
+- why_you: CCT Construtora de Obras Ltda - EPP com execução pública observável — objeto: Contratação eventual de serviços de reparos em redes de drenagem, para as Unidades Regionais de Obras.; órgão: Prefeitura Municipal de Joinville - PMJ; UF SC; R$ 406,494
+- why_now: Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
+- observed_fact: objeto: Contratação eventual de serviços de reparos em redes de drenagem, para as Unidades Regionais de Obras.; órgão: Prefeitura Municipal de Joinville - PMJ; UF SC; R$ 406,494
+- micro_offer: `PUBLIC_DATA_SNAPSHOT`
+- evidence_ids: ['cf-contract-25584989']
+- supporting_signals: ['multi_contract']
+- rationale: Portfólio multi-contrato sem dor concreta dominante (gestão/monitoramento — especialidade só com sinais específicos). Monitoramento/gestão supera janela de verificação de reajuste; não inventar orçamento/BDI sem sinal de planilha.
+- subject: Gestão contratual: Contratação eventual de serviços de reparos em r (generic_contrato=False)
+- spine_complete: True
 
-## Near-duplicate audit
-
-```json
-{
-  "total_drafts": 30,
-  "compared_pairs": 435,
-  "high_similarity_pairs": 35,
-  "max_similarity": 0.9394,
-  "pair_fraction_high": 0.0805,
-  "threshold": 0.82,
-  "blocked": false,
-  "reason_codes": [
-    "near_duplicate_ok"
-  ],
-  "sample_pairs": [
-    {
-      "a": "02810894000100",
-      "b": "18683397000129",
-      "similarity": 0.8286
-    },
-    {
-      "a": "02810894000100",
-      "b": "28709222000105",
-      "similarity": 0.8529
-    },
-    {
-      "a": "18683397000129",
-      "b": "37251510000141",
-      "similarity": 0.8571
-    },
-    {
-      "a": "18683397000129",
-      "b": "28709222000105",
-      "similarity": 0.8529
-    },
-    {
-      "a": "37251510000141",
-      "b": "28709222000105",
-      "similarity": 0.8286
-    },
-    {
-      "a": "51027691000158",
-      "b": "07555412000137",
-      "similarity": 0.8824
-    },
-    {
-      "a": "51027691000158",
-      "b": "40495801000190",
-      "similarity": 0.8286
-    },
-    {
-      "a": "51027691000158",
-      "b": "29646103000105",
-      "similarity": 0.8529
-    },
-    {
-      "a": "51027691000158",
-      "b": "47432025000128",
-      "similarity": 0.9091
-    },
-    {
-      "a": "07555412000137",
-      "b": "40495801000190",
-      "similarity": 0.8286
-    }
-  ]
-}
 ```
+Olá,
+
+Pelo que está público sobre CCT Construtora de Obras Ltda - EPP, objeto: Contratação eventual de serviços de reparos em redes de drenagem, para as Unidades Regionais de Obras.; órgão: Prefeitura Municipal de Joinville - PMJ; UF SC; R$ 406,494.
+
+Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
+
+Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
+```
+
+## 23. AVANTTE ENGENHARIA E PARTICIPACÕES LTDA
+- CNPJ: `23467362000192` UF=RS
+- target_fit: `TARGET_CONFIRMED`
+- service: `gestao_monitoramento_contratual` → `MONITORAMENTO_CONTRATUAL` / Warmbly `MONITORAMENTO_CONTRATUAL`
+- why_you: AVANTTE ENGENHARIA E PARTICIPACÕES LTDA com execução pública observável — objeto: Contratação de empresa para execução dos serviços de pavimentação asfáltica, microdrenagem e terraplanagem, nas Ruas José Severino Pick e Charlotte Mandler, Bai; órgão: PREFEITURA MUNICIPAL DE SANTA CRUZ DO SUL; UF RS; R$ 3,660,984
+- why_now: Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
+- observed_fact: objeto: Contratação de empresa para execução dos serviços de pavimentação asfáltica, microdrenagem e terraplanagem, nas Ruas José Severino Pick e Charlotte Mandler, Bai; órgão: PREFEITURA MUNICIPAL DE SANTA CRUZ DO SUL; UF RS; R$ 3,660,984
+- micro_offer: `PUBLIC_DATA_SNAPSHOT`
+- evidence_ids: ['cf-contract-9005585']
+- supporting_signals: ['multi_contract']
+- rationale: Portfólio multi-contrato sem dor concreta dominante (gestão/monitoramento — especialidade só com sinais específicos). Monitoramento/gestão supera janela de verificação de reajuste; não inventar orçamento/BDI sem sinal de planilha.
+- subject: Gestão contratual: Contratação de empresa para execução dos serviço (generic_contrato=False)
+- spine_complete: True
+
+```
+Olá,
+
+Pelo que está público sobre AVANTTE ENGENHARIA E PARTICIPACÕES LTDA, objeto: Contratação de empresa para execução dos serviços de pavimentação asfáltica, microdrenagem e terraplanagem, nas Ruas José Severino Pick e Charlotte Mandler, Bai; órgão: PREFEITURA MUNICIPAL DE SANTA CRUZ DO SUL; UF RS; R$ 3,660,984.
+
+Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
+
+Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
+```
+
+## 24. E R GONÇALVES ENGENHERIA E SERVIÇO
+- CNPJ: `27454811000119` UF=GO
+- target_fit: `TARGET_CONFIRMED`
+- service: `gestao_monitoramento_contratual` → `MONITORAMENTO_CONTRATUAL` / Warmbly `MONITORAMENTO_CONTRATUAL`
+- why_you: E R GONÇALVES ENGENHERIA E SERVIÇO com execução pública observável — objeto: VALOR QUE SE EMPENHA PARA OCORRER DESPESAS COM 2º TERMO ADITIVO DA EXECUÇÃO DE OBRA PARA REQUALIFICAÇÃO DA FEIRA COBERTA EM QUADRA POLIESPORTIVA ATENDENDO A SEC; órgão: FUNDO MUNICIPAL DE EDUCACAO - FME; UF GO; R$ 42,839
+- why_now: Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
+- observed_fact: objeto: VALOR QUE SE EMPENHA PARA OCORRER DESPESAS COM 2º TERMO ADITIVO DA EXECUÇÃO DE OBRA PARA REQUALIFICAÇÃO DA FEIRA COBERTA EM QUADRA POLIESPORTIVA ATENDENDO A SEC; órgão: FUNDO MUNICIPAL DE EDUCACAO - FME; UF GO; R$ 42,839
+- micro_offer: `PUBLIC_DATA_SNAPSHOT`
+- evidence_ids: ['cf-contract-25508747']
+- supporting_signals: ['multi_contract']
+- rationale: Portfólio multi-contrato sem dor concreta dominante (gestão/monitoramento — especialidade só com sinais específicos). Monitoramento/gestão supera janela de verificação de reajuste; não inventar orçamento/BDI sem sinal de planilha.
+- subject: Gestão contratual: VALOR QUE SE EMPENHA PARA OCORRER DESPESAS COM 2 (generic_contrato=False)
+- spine_complete: True
+
+```
+Olá,
+
+Pelo que está público sobre E R GONÇALVES ENGENHERIA E SERVIÇO, objeto: VALOR QUE SE EMPENHA PARA OCORRER DESPESAS COM 2º TERMO ADITIVO DA EXECUÇÃO DE OBRA PARA REQUALIFICAÇÃO DA FEIRA COBERTA EM QUADRA POLIESPORTIVA ATENDENDO A SEC; órgão: FUNDO MUNICIPAL DE EDUCACAO - FME; UF GO; R$ 42,839.
+
+Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
+
+Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
+```
+
+## 25. EMPROTEC ENGENHARIA LTDA
+- CNPJ: `28709222000105` UF=RN
+- target_fit: `TARGET_CONFIRMED`
+- service: `gestao_monitoramento_contratual` → `MONITORAMENTO_CONTRATUAL` / Warmbly `MONITORAMENTO_CONTRATUAL`
+- why_you: EMPROTEC ENGENHARIA LTDA com execução pública observável — objeto: PAVIMENTAÇÃO ASFÁLTICA DE RUAS COM CBUQ (CONCRETO BETUMINOSO USINADO À QUENTE) NO MUNICÍPIO DE PARELHAS/RN - CONVÊNIO SIN N° 32/2022; órgão: Prefeitura; UF RN; R$ 1,567,308
+- why_now: Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
+- observed_fact: objeto: PAVIMENTAÇÃO ASFÁLTICA DE RUAS COM CBUQ (CONCRETO BETUMINOSO USINADO À QUENTE) NO MUNICÍPIO DE PARELHAS/RN - CONVÊNIO SIN N° 32/2022; órgão: Prefeitura; UF RN; R$ 1,567,308
+- micro_offer: `PUBLIC_DATA_SNAPSHOT`
+- evidence_ids: ['cf-contract-25507721']
+- supporting_signals: ['multi_contract']
+- rationale: Portfólio multi-contrato sem dor concreta dominante (gestão/monitoramento — especialidade só com sinais específicos). Monitoramento/gestão supera janela de verificação de reajuste; não inventar orçamento/BDI sem sinal de planilha.
+- subject: Gestão contratual: PAVIMENTAÇÃO ASFÁLTICA DE RUAS COM CBUQ (CONCRET (generic_contrato=False)
+- spine_complete: True
+
+```
+Olá,
+
+Pelo que está público sobre EMPROTEC ENGENHARIA LTDA, objeto: PAVIMENTAÇÃO ASFÁLTICA DE RUAS COM CBUQ (CONCRETO BETUMINOSO USINADO À QUENTE) NO MUNICÍPIO DE PARELHAS/RN - CONVÊNIO SIN N° 32/2022; órgão: Prefeitura; UF RN; R$ 1,567,308.
+
+Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
+
+Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
+```
+
+## 26. CONCREVIA CONSTRUTORA
+- CNPJ: `03818852000189` UF=MS
+- target_fit: `TARGET_CONFIRMED`
+- service: `gestao_monitoramento_contratual` → `MONITORAMENTO_CONTRATUAL` / Warmbly `MONITORAMENTO_CONTRATUAL`
+- why_you: CONCREVIA CONSTRUTORA com execução pública observável — objeto: Contratação de Empresa de Engenharia Especializada para Execução da Obras de Drenagem de Águas Pluviais do Parque Aquático / Residencial Modelo IV, no Município; órgão: MUNICIPIO DE BATAGUASSU; UF MS; R$ 294,923
+- why_now: Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
+- observed_fact: objeto: Contratação de Empresa de Engenharia Especializada para Execução da Obras de Drenagem de Águas Pluviais do Parque Aquático / Residencial Modelo IV, no Município; órgão: MUNICIPIO DE BATAGUASSU; UF MS; R$ 294,923
+- micro_offer: `PUBLIC_DATA_SNAPSHOT`
+- evidence_ids: ['cf-contract-8863965']
+- supporting_signals: ['multi_contract']
+- rationale: Portfólio multi-contrato sem dor concreta dominante (gestão/monitoramento — especialidade só com sinais específicos). Monitoramento/gestão supera janela de verificação de reajuste; não inventar orçamento/BDI sem sinal de planilha.
+- subject: Gestão contratual: Contratação de Empresa de Engenharia Especializa (generic_contrato=False)
+- spine_complete: True
+
+```
+Olá,
+
+Pelo que está público sobre CONCREVIA CONSTRUTORA, objeto: Contratação de Empresa de Engenharia Especializada para Execução da Obras de Drenagem de Águas Pluviais do Parque Aquático / Residencial Modelo IV, no Município; órgão: MUNICIPIO DE BATAGUASSU; UF MS; R$ 294,923.
+
+Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
+
+Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
+```
+
+## 27. SETEP CONSTRUÇÕES S.A.
+- CNPJ: `83665141000150` UF=SC
+- target_fit: `TARGET_CONFIRMED`
+- service: `apoio_licitacoes_propostas` → `APOIO_LICITACAO` / Warmbly `APOIO_LICITACAO`
+- why_you: SETEP CONSTRUÇÕES S.A. com execução pública observável — objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA A EXECUÇÃO DE OBRA DE PAVIMENTAÇÃO ASFÁLTICA EM CBUQ, SOBRE PAVIMENTAÇÃO DE CASCALHO EXISTENTE, NA RUA VERANÓPOLIS, TR; órgão: PREFEITURA MUNICIPAL DE PONTE SERRADA - SC; UF SC; R$ 390,959
+- why_now: Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
+- observed_fact: objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA A EXECUÇÃO DE OBRA DE PAVIMENTAÇÃO ASFÁLTICA EM CBUQ, SOBRE PAVIMENTAÇÃO DE CASCALHO EXISTENTE, NA RUA VERANÓPOLIS, TR; órgão: PREFEITURA MUNICIPAL DE PONTE SERRADA - SC; UF SC; R$ 390,959
+- micro_offer: `PROCUREMENT_RISK_SNAPSHOT`
+- evidence_ids: ['cf-contract-15307331']
+- supporting_signals: ['tender_proposal']
+- rationale: Atividade de licitação/proposta observada. Janela competitiva, não reajuste.
+- subject: Licitações / propostas: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA A EXEC (generic_contrato=False)
+- spine_complete: True
+
+```
+Olá,
+
+Pelo que está público sobre SETEP CONSTRUÇÕES S.A., objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA A EXECUÇÃO DE OBRA DE PAVIMENTAÇÃO ASFÁLTICA EM CBUQ, SOBRE PAVIMENTAÇÃO DE CASCALHO EXISTENTE, NA RUA VERANÓPOLIS, TR; órgão: PREFEITURA MUNICIPAL DE PONTE SERRADA - SC; UF SC; R$ 390,959.
+
+Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
+
+Disponibilizo apoio de pico em análise de edital/proposta sob NDA.
+```
+
+## 28. ALPHAVIAS ENGENHARIA LTDA
+- CNPJ: `35190568000105` UF=PR
+- target_fit: `TARGET_CONFIRMED`
+- service: `gestao_monitoramento_contratual` → `MONITORAMENTO_CONTRATUAL` / Warmbly `MONITORAMENTO_CONTRATUAL`
+- why_you: ALPHAVIAS ENGENHARIA LTDA com execução pública observável — objeto: Contratacao de empresa para a Prestacao de servicos tecnicos profissionais de engenharia voltados a concepcao executiva de obras de pavimentacao em recape asfal; órgão: Assessoria de Planejamento e Politicas Publicas; UF PR; R$ 111,925
+- why_now: Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
+- observed_fact: objeto: Contratacao de empresa para a Prestacao de servicos tecnicos profissionais de engenharia voltados a concepcao executiva de obras de pavimentacao em recape asfal; órgão: Assessoria de Planejamento e Politicas Publicas; UF PR; R$ 111,925
+- micro_offer: `PUBLIC_DATA_SNAPSHOT`
+- evidence_ids: ['cf-contract-8138563']
+- supporting_signals: ['multi_contract']
+- rationale: Portfólio multi-contrato sem dor concreta dominante (gestão/monitoramento — especialidade só com sinais específicos). Monitoramento/gestão supera janela de verificação de reajuste; não inventar orçamento/BDI sem sinal de planilha.
+- subject: Gestão contratual: Contratacao de empresa para a Prestacao de servi (generic_contrato=False)
+- spine_complete: True
+
+```
+Olá,
+
+Pelo que está público sobre ALPHAVIAS ENGENHARIA LTDA, objeto: Contratacao de empresa para a Prestacao de servicos tecnicos profissionais de engenharia voltados a concepcao executiva de obras de pavimentacao em recape asfal; órgão: Assessoria de Planejamento e Politicas Publicas; UF PR; R$ 111,925.
+
+Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
+
+Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
+```
+
+## 29. CONSTRUTORA MESSINA LTDA
+- CNPJ: `10585762000150` UF=PR
+- target_fit: `TARGET_CONFIRMED`
+- service: `gestao_monitoramento_contratual` → `MONITORAMENTO_CONTRATUAL` / Warmbly `MONITORAMENTO_CONTRATUAL`
+- why_you: CONSTRUTORA MESSINA LTDA com execução pública observável — objeto: Contratação de empresa de engenharia para reforma em edificação existente onde será instalado o Almoxarifado da Secretaria de Saúde.; órgão: Gabinete do Gestor - Ga; UF PR; R$ 183,900
+- why_now: Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
+- observed_fact: objeto: Contratação de empresa de engenharia para reforma em edificação existente onde será instalado o Almoxarifado da Secretaria de Saúde.; órgão: Gabinete do Gestor - Ga; UF PR; R$ 183,900
+- micro_offer: `PUBLIC_DATA_SNAPSHOT`
+- evidence_ids: ['cf-contract-15434794']
+- supporting_signals: ['multi_contract']
+- rationale: Portfólio multi-contrato sem dor concreta dominante (gestão/monitoramento — especialidade só com sinais específicos). Monitoramento/gestão supera janela de verificação de reajuste; não inventar orçamento/BDI sem sinal de planilha.
+- subject: Gestão contratual: Contratação de empresa de engenharia para reform (generic_contrato=False)
+- spine_complete: True
+
+```
+Olá,
+
+Pelo que está público sobre CONSTRUTORA MESSINA LTDA, objeto: Contratação de empresa de engenharia para reforma em edificação existente onde será instalado o Almoxarifado da Secretaria de Saúde.; órgão: Gabinete do Gestor - Ga; UF PR; R$ 183,900.
+
+Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
+
+Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
+```
+
+## 30. BFC OBRAS E SOLUCOES INTEGRADAS LTDA
+- CNPJ: `51274708000171` UF=MG
+- target_fit: `TARGET_CONFIRMED`
+- service: `gestao_monitoramento_contratual` → `MONITORAMENTO_CONTRATUAL` / Warmbly `MONITORAMENTO_CONTRATUAL`
+- why_you: BFC OBRAS E SOLUCOES INTEGRADAS LTDA com execução pública observável — objeto: 0043211-44.2022.8.16.6000 - O objeto do presente instrumento é a contratação de empresa ou consórcio de empresas para a execução da SUBSTITUIÇÃO DE PISO NO EDIF; órgão: TRIBUNAL DE JUSTIÇA ESTADO DO PARANA; UF PR; R$ 634,995
+- why_now: Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
+- observed_fact: objeto: 0043211-44.2022.8.16.6000 - O objeto do presente instrumento é a contratação de empresa ou consórcio de empresas para a execução da SUBSTITUIÇÃO DE PISO NO EDIF; órgão: TRIBUNAL DE JUSTIÇA ESTADO DO PARANA; UF PR; R$ 634,995
+- micro_offer: `PUBLIC_DATA_SNAPSHOT`
+- evidence_ids: ['cf-contract-18198541']
+- supporting_signals: ['structure_robust', 'multi_contract']
+- rationale: Portfólio multi-contrato sem dor concreta dominante (gestão/monitoramento — especialidade só com sinais específicos). Monitoramento/gestão supera janela de verificação de reajuste; não inventar orçamento/BDI sem sinal de planilha.
+- subject: Gestão contratual: 0043211-44.2022.8.16.6000 - O objeto do presente (generic_contrato=False)
+- spine_complete: True
+
+```
+Olá,
+
+Pelo que está público sobre BFC OBRAS E SOLUCOES INTEGRADAS LTDA, objeto: 0043211-44.2022.8.16.6000 - O objeto do presente instrumento é a contratação de empresa ou consórcio de empresas para a execução da SUBSTITUIÇÃO DE PISO NO EDIF; órgão: TRIBUNAL DE JUSTIÇA ESTADO DO PARANA; UF PR; R$ 634,995.
+
+Em 2026-08-09, há portfólio público observável sem dor contratual concreta dominante — ângulo de revisão/diagnóstico focal.
+
+Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
+```
+

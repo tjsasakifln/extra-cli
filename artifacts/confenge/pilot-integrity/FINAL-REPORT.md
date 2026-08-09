@@ -73,3 +73,17 @@ Root causes: permissive POSSIBLE ICP; pass_count total fallback; service taxonom
 ## Principle
 
 Automation must not scale a wrong commercial premise. Honest state: **NO_GO**, dispatch PAUSED.
+
+## MessageSpine recovery pass (2026-08-09T22:50:53Z)
+
+Structural production-spine fix:
+
+1. `message_spine.py` — single observed_fact/body_seed from contract objeto/órgão
+2. Gates: hollow fact, service evidence, any-pair near-dup
+3. Router specialty only with specialty signals
+4. Organic sample `sampling=organic_top_n` — prior 8/family mix invalidated
+5. Verdict remains **NO_GO**
+
+Organic sample30 struct_ok=True near_dup_blocked=False
+svc={'gestao_monitoramento_contratual': 24, 'apoio_licitacoes_propostas': 6} top_frac=0.8 concentration=ROUTING_CONCENTRATION_REVIEW_REQUIRED
+

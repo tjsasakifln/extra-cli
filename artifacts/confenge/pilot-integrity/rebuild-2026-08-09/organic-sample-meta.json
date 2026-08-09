@@ -1,0 +1,32 @@
+{
+  "generated_at": "2026-08-09T22:50:53Z",
+  "sampling": "organic_top_n",
+  "gates": {
+    "empty_why_you": 0,
+    "empty_micro_offer": 0,
+    "hollow_observed_fact": 0,
+    "empty_evidence_ids": 0,
+    "generic_contrato_subject": 0,
+    "hollow_portfolio_body": 0,
+    "near_duplicate": {
+      "total_drafts": 30,
+      "compared_pairs": 435,
+      "high_similarity_pairs": 0,
+      "max_similarity": 0.5273,
+      "pair_fraction_high": 0.0,
+      "threshold": 0.82,
+      "blocked": false,
+      "reason_codes": [
+        "near_duplicate_ok"
+      ],
+      "sample_pairs": []
+    },
+    "struct_ok": true
+  },
+  "svc": {
+    "gestao_monitoramento_contratual": 24,
+    "apoio_licitacoes_propostas": 6
+  },
+  "verdict_hint": "PASS_STRUCTURAL",
+  "concentration_flag": "ROUTING_CONCENTRATION_REVIEW_REQUIRED"
+}

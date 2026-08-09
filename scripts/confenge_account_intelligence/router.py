@@ -247,23 +247,10 @@ def build_service_candidates(
             )
         )
 
-    # Operational / structure-based (FASE7: operational need > reajuste verification window)
-    if sc == "robust" and len(contracts) >= 5:
-        candidates.append(
-            _candidate(
-                "auditoria_orcamento_bdi",
-                score=72,
-                factual_basis="robust_structure_multi_contract",
-                temporal_relevance="medium",
-                confidence=0.6,
-                supporting_signal_ids=["structure_robust", "multi_contract"],
-                evidence_ids=ev_ids,
-                why_this="Estrutura robusta/ABM: revisão independente / segunda opinião.",
-                why_not_others="Necessidade operacional sustentada supera janela genérica de reajuste.",
-            )
-        )
-    # Lean backoffice: operational only with multi-contract load (≥3). Two contracts
-    # that are merely regional/mature do not justify outsourcing framing over reajuste verify.
+    # Operational / structure-based (FASE7).
+    # Structure proxies open ONLY gestão or diagnóstico — never invent specialty
+    # (auditoria/BDI/planilha) without specialty signals (_has_budget_bdi above).
+    # Lean backoffice: operational only with multi-contract load (≥3).
     if (
         sc == "lean"
         and len(contracts) >= 3
@@ -284,7 +271,17 @@ def build_service_candidates(
         )
     if len(contracts) >= 3:
         # Lean multi-contract: backoffice (62) is the operational primary; gestão secondary.
-        gestao_score = 55.0 if sc == "lean" else 65.0
+        # Robust multi (≥5) elevates gestão (72) above mature reajuste verify (48) without
+        # inventing BDI specialty.
+        if sc == "lean":
+            gestao_score = 55.0
+            gestao_signals = ["multi_contract"]
+        elif sc == "robust" and len(contracts) >= 5:
+            gestao_score = 72.0
+            gestao_signals = ["structure_robust", "multi_contract"]
+        else:
+            gestao_score = 65.0
+            gestao_signals = ["multi_contract"]
         candidates.append(
             _candidate(
                 "gestao_monitoramento_contratual",
@@ -292,10 +289,16 @@ def build_service_candidates(
                 factual_basis="multi_contract_portfolio",
                 temporal_relevance="medium",
                 confidence=0.6,
-                supporting_signal_ids=["multi_contract"],
+                supporting_signal_ids=gestao_signals,
                 evidence_ids=ev_ids,
-                why_this="Portfólio multi-contrato sem dor concreta dominante.",
-                why_not_others="Monitoramento/gestão supera janela de verificação de reajuste.",
+                why_this=(
+                    "Portfólio multi-contrato sem dor concreta dominante "
+                    "(gestão/monitoramento — especialidade só com sinais específicos)."
+                ),
+                why_not_others=(
+                    "Monitoramento/gestão supera janela de verificação de reajuste; "
+                    "não inventar orçamento/BDI sem sinal de planilha."
+                ),
             )
         )
 
@@ -386,19 +389,39 @@ def select_services(
     primary = _svc_ref(primary_id, sc, catalog)
     secondary = _svc_ref(secondary_id, sc, catalog) if secondary_id else None
 
+    # Robust never gets full-outsource backoffice as primary — demote to gestão
+    # (not invented BDI specialty without budget signals).
     if sc == "robust" and primary_id == "reforco_temporario_backoffice":
-        primary = _svc_ref("auditoria_orcamento_bdi", sc, catalog)
+        primary_id = "gestao_monitoramento_contratual"
+        primary = _svc_ref(primary_id, sc, catalog)
         secondary = _svc_ref(discovery, sc, catalog)
-        rationale_parts.append("Override de política: conta robusta não recebe outsourcing pleno como primário.")
-        # Fix candidates top for consistency
-        for c in candidates:
-            if c["service_id"] == "auditoria_orcamento_bdi":
-                c["score"] = max(float(c["score"]), 96)
-        candidates.sort(key=lambda c: (-float(c["score"]), c["service_id"]))
+        rationale_parts.append(
+            "Override de política: conta robusta não recebe outsourcing pleno como primário "
+            "(gestão/monitoramento; especialidade BDI só com sinal de planilha)."
+        )
 
     if sc in {"robust", "mixed", "unknown"} and primary.get("approach_mode") == "outsourcing_operacional_temporario":
         primary = dict(primary)
         primary["approach_mode"] = "revisao_independente_segunda_opiniao"
+
+    # Propagate router evidence onto primary for SERVICE_FIT_SUPPORTED consumers.
+    primary = dict(primary)
+    win = next((c for c in candidates if c.get("service_id") == primary.get("service_id")), None)
+    if win:
+        primary["supporting_signal_ids"] = list(win.get("supporting_signal_ids") or [])
+        primary["evidence_ids"] = list(win.get("evidence_ids") or [])
+        primary["factual_basis"] = win.get("factual_basis")
+        primary["confidence"] = win.get("confidence")
+    else:
+        primary.setdefault("supporting_signal_ids", ["fallback"] if primary_id == discovery else [])
+        primary.setdefault("evidence_ids", [])
+
+    if secondary:
+        secondary = dict(secondary)
+        sec = next((c for c in candidates if c.get("service_id") == secondary.get("service_id")), None)
+        if sec:
+            secondary["supporting_signal_ids"] = list(sec.get("supporting_signal_ids") or [])
+            secondary["evidence_ids"] = list(sec.get("evidence_ids") or [])
 
     return {
         "primary_service": primary,

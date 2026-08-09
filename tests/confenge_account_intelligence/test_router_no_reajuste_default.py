@@ -127,11 +127,12 @@ def test_mature_single_contract_can_be_reajuste_verification() -> None:
 
 
 def test_robust_multi_beats_mature_reajuste() -> None:
+    """Robust multi-contract without BDI/planilha signals → gestão, not invented specialty."""
     bag = {
         "contracts": [
             {
                 "id": f"c{i}",
-                "object": f"obra de infraestrutura {i}",
+                "object": f"obra de infraestrutura rodoviária trecho {i} com extensão relevante",
                 "start_date": "2022-01-01",
                 "age_days": 1200,
                 "has_reajuste": False,
@@ -142,8 +143,39 @@ def test_robust_multi_beats_mature_reajuste() -> None:
         "signals": {},
     }
     r = _sel(bag, structure={"structure_class": "robust", "lean_signals": []}, why={"trigger": ""})
-    assert r["primary_service"]["service_id"] == "auditoria_orcamento_bdi"
+    assert r["primary_service"]["service_id"] == "gestao_monitoramento_contratual"
     assert r["primary_service"]["service_id"] != "estruturacao_pleito_reajuste"
+    assert r["primary_service"]["service_id"] != "auditoria_orcamento_bdi"
+    # specialty BDI only when budget signals present
+    signals = r["primary_service"].get("supporting_signal_ids") or []
+    assert "multi_contract" in signals or "structure_robust" in signals
+
+
+def test_robust_multi_no_bdi_never_invents_planilha() -> None:
+    bag = {
+        "contracts": [
+            {
+                "id": f"c{i}",
+                "object": f"construção de edifício escolar bloco {i} com fundações",
+                "start_date": "2021-06-01",
+                "age_days": 1500,
+                "has_reajuste": False,
+            }
+            for i in range(5)
+        ],
+        "facts": [],
+        "signals": {},
+    }
+    r = _sel(bag, structure={"structure_class": "robust", "lean_signals": []}, why={"trigger": ""})
+    assert r["primary_service"]["service_id"] in {
+        "gestao_monitoramento_contratual",
+        "diagnostico_contratual_b2g",
+    }
+    ids = {c["service_id"] for c in r.get("service_candidates") or []}
+    # May appear only if _has_budget_bdi; structure proxy alone must not inject it as winner
+    if "auditoria_orcamento_bdi" in ids:
+        bdi = next(c for c in r["service_candidates"] if c["service_id"] == "auditoria_orcamento_bdi")
+        assert "budget_bdi" in (bdi.get("supporting_signal_ids") or [])
 
 
 def test_candidates_include_why_fields() -> None:

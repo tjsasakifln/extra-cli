@@ -110,3 +110,12 @@ Logs (scratch, not committed): `/tmp/grok-goal-85afca0088bc/`
 1. Adversarial review of forensics + samples for theater / generic why / weak mature ranking / monoculture.
 2. Confirm remaining blockers before any controlled pilot discussion.
 3. **Do not** authorize dispatch, merge-as-GO, or production import from this package alone.
+
+
+## MessageSpine pass (2026-08-09T22:50:53Z)
+
+- Structural spine + gates + organic sample regenerated
+- Sample30: hollow_fact=0, hollow_body=0, near_dup_blocked=False, max_sim=0.5273, struct_ok=True
+- Organic mix (honest, gestão-heavy after killing invented BDI): {'gestao_monitoramento_contratual': 24, 'apoio_licitacoes_propostas': 6}
+- Prior stratified 8/family: **INVALIDATED**
+- Terminal verdict remains **NO_GO**

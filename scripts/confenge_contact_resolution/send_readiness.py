@@ -123,6 +123,9 @@ _GENERIC_WHY_MARKERS: tuple[str, ...] = (
     "portfólio público observável",
     "observamos contratos públicos",
     "momento comercial indicado pelo extra-cli",
+    "portfólio público observado com",
+    "contrato(s) no input",
+    "ufs observadas nos contratos",
 )
 
 
@@ -426,6 +429,18 @@ def _is_generic_why(text: str) -> bool:
     t = text.strip().lower()
     if not t:
         return True
+    # Prefer shared hollow detector (portfolio-count, UFs-only, meta).
+    try:
+        from scripts.confenge_account_intelligence.message_spine import is_hollow_fact
+
+        if is_hollow_fact(text):
+            # Hollow portfolio-count is never rescued by a keyword.
+            if "portfólio público observado com" in t or "contrato(s) no input" in t:
+                return True
+            if "ufs observadas" in t:
+                return True
+    except Exception:
+        pass
     if any(m in t for m in _GENERIC_WHY_MARKERS):
         # Allow if the string also carries a concrete contractual hook.
         concrete = (
@@ -443,11 +458,64 @@ def _is_generic_why(text: str) -> bool:
             "dnit",
             "pncp",
         )
+        # Portfolio-count lines mention "contrato" but remain hollow.
+        if "portfólio público observado com" in t or "contrato(s) no input" in t:
+            return True
         if any(c in t for c in concrete) and len(t) > 80:
             return False
         return True
     # Hollow: company name only, or shorter than a real hook.
     if len(t) < 40:
+        return True
+    return False
+
+
+def _is_hollow_observed_fact(text: str) -> bool:
+    """observed_fact / fact_to_mention must be a concrete contractual hook."""
+    try:
+        from scripts.confenge_account_intelligence.message_spine import is_hollow_fact
+
+        return is_hollow_fact(text)
+    except Exception:
+        return _is_generic_why(text)
+
+
+def _service_fit_supported(company: dict[str, Any] | None, svc: str) -> bool:
+    """SERVICE_FIT_SUPPORTED requires service code PLUS candidate evidence/signals.
+
+    A bare non-empty service_code is not enough (prevents silent monoculture labels).
+    """
+    if not svc or not company:
+        return False
+    # Explicit router candidates with supporting signals or evidence ids.
+    for c in company.get("service_candidates") or []:
+        if not isinstance(c, dict):
+            continue
+        sid = str(c.get("service_id") or c.get("service_code") or "").strip()
+        if not sid:
+            continue
+        if sid != svc and svc not in sid and sid not in svc:
+            # also allow canonical / warmbly aliases loosely
+            if sid.upper() != svc.upper():
+                continue
+        signals = c.get("supporting_signal_ids") or c.get("supporting_signals") or []
+        evidence = c.get("evidence_ids") or []
+        if (isinstance(signals, list) and len(signals) > 0) or (
+            isinstance(evidence, list) and len(evidence) > 0
+        ):
+            return True
+    ps = company.get("primary_service")
+    if isinstance(ps, dict):
+        signals = ps.get("supporting_signal_ids") or ps.get("supporting_signals") or []
+        evidence = ps.get("evidence_ids") or []
+        if (isinstance(signals, list) and len(signals) > 0) or (
+            isinstance(evidence, list) and len(evidence) > 0
+        ):
+            return True
+    # Bridge/feed may flatten signals at company root
+    root_signals = company.get("supporting_signal_ids") or company.get("service_supporting_signal_ids")
+    root_ev = company.get("service_evidence_ids") or company.get("fact_evidence_ids")
+    if (isinstance(root_signals, list) and root_signals) or (isinstance(root_ev, list) and root_ev):
         return True
     return False
 
@@ -548,9 +616,9 @@ def evaluate_copy_context_ready(company: dict[str, Any] | None, *, service_code:
 
     if not why_you or _is_generic_why(why_you):
         missing.append("why_this_account")
-    if not why_now:
+    if not why_now or _is_generic_why(why_now) or _is_hollow_observed_fact(why_now):
         missing.append("why_now")
-    if not observed:
+    if not observed or _is_hollow_observed_fact(observed):
         missing.append("observed_fact")
     if not svc:
         missing.append("service_code")
@@ -560,6 +628,9 @@ def evaluate_copy_context_ready(company: dict[str, Any] | None, *, service_code:
         missing.append("evidence_ids")
     if not cta:
         missing.append("cta")
+    # Message spine incomplete flag (if present)
+    if company.get("message_spine_complete") is False:
+        missing.append("message_spine_incomplete")
 
     ready = len(missing) == 0
     if ready:
@@ -674,14 +745,20 @@ def evaluate_email_send_ready(
                 or company["primary_service"].get("service_code")
                 or svc
             ).strip()
-    service_fit_supported = bool(svc)
+    service_fit_supported = _service_fit_supported(company, svc) if company else False
     if not svc:
         reasons.append("no_service_code")
+        service_fit_supported = False
+        if suitability == SUITABLE:
+            suitability = UNSUITABLE_NO_SERVICE
+    elif not service_fit_supported:
+        reasons.append("service_fit_unsupported")
+        reasons.append(f"service_code:{svc}")
         if suitability == SUITABLE:
             suitability = UNSUITABLE_NO_SERVICE
     else:
-        # Reject silent REAJUSTE-only monoculture markers without supporting fit
         reasons.append(f"service_code:{svc}")
+        reasons.append("service_fit_supported")
 
     has_ev = factual_evidence or bool(evidence_ids)
     if company and not has_ev:

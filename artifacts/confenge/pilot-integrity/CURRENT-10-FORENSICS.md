@@ -157,7 +157,7 @@ SEVERINO BATISTA COSTA PERTENCENTE AO MUNICIPIO DE ALTO ALERE  | orgão=MUNICÍP
 | sector / activity | `STRONG_ENGINEERING_FIT` / `ENGINEERING_SERVICE_PROVIDER` |
 | In universe | True |
 | Exec contracts | 7 |
-| Recomputed primary | `auditoria_orcamento_bdi` |
+| Recomputed primary | `gestao_monitoramento_contratual` (post-spine router) |
 | Warmbly sample | `REAJUSTE_14133` |
 | EMAIL_SEND_READY after fix | `False` |
 
@@ -228,6 +228,22 @@ SEVERINO BATISTA COSTA PERTENCENTE AO MUNICIPIO DE ALTO ALERE  | orgão=MUNICÍP
 
 **target_fit reasons:** name_hard_out_without_execution;name_markers:isomedical,medical
 
+
+### Material contracts (from universe portfolio.recent_contracts)
+
+| contrato_id | órgão | UF | valor | objeto (trunc) |
+|---|---|---|---:|---|
+| 547830 | DEPARTAMENTO NACIONAL INFRAEST.DE TRANSPORTES | DF | 9527127.48 | CONTRATAÇÃO DE EMPRESA PARA ELABORAÇÃO DOS ESTUDOS, PROJETOS BÁSICO E EXECUTIVO DE ENGENHARIA, EXECU |
+| 350973 | SUP. REG. DO DNIT NO ESTADO DA PARAIBA | PB | 6944929.01 | O OBJETO DO PRESENTE INSTRUMENTO É A CONTRATAÇÃO DE EMPRESA PARA ELABORAÇÃO DOS ESTUDOS, PROJETOS BÁ |
+| 325896 | SECRETARIA DE ESTADO DE INFRA-ESTRUTURA | MT | 14750781.02 | Contratação Semi-Integrada de empresa de engenharia para execução dos serviços necessários para elab |
+| 8271522 | DEPARTAMENTO NACIONAL INFRAEST.DE TRANSPORTES | DF | 9147685.47 | CONTRATAÇÃO DE EMPRESA PARA ELABORAÇÃO DOS ESTUDOS, PROJETOS BÁSICO E EXECUTIVO DE ENGENHARIA, EXECU |
+| 751293 | DEPARTAMENTO NACIONAL INFRAEST.DE TRANSPORTES | DF | 8468000.0 | CONTRATAÇÃO DE EMPRESA PARA ELABORAÇÃO DOS ESTUDOS, PROJETOS BÁSICO E EXECUTIVO DE ENGENHARIA, EXECU |
+| 2533498 | EMLURB - AUTARQUIA DE MANUTENÇÃO E LIMPEZA URBANA | PE | 17200000.0 | CONTRATAÇÃO DE EMPRESA ESPECIALIZADA DE ENGENHARIA PARA EXECUÇÃO DE SERVIÇOS DE
+RECUPERAÇÃO ESTRUTU |
+| 2495375 | EMLURB - AUTARQUIA DE MANUTENÇÃO E LIMPEZA URBANA | PE | 14350000.0 | A CONTRATAÇÃO DE EMPRESA ESPECIALIZADA DE ENGENHARIA PARA EXECUÇÃO DE SERVIÇOS ESPECIAIS DE RECUPERA |
+
+**Triangulation:** name ENGINEERING + STRONG_ENGINEERING_FIT + multiple DNIT/EMLURB/infra execution objects (reabilitação de OAE/pontes, obras semi-integradas) → TRUE_TARGET confirmed.
+**Service after MessageSpine router:** structure-only multi-contract → `gestao_monitoramento_contratual` (not invented PLANILHAS/BDI without budget signals); Warmbly sample was SERVICE_WRONG (REAJUSTE_14133 monoculture).
 
 ## Classification policy
 
