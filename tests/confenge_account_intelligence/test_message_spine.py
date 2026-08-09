@@ -12,12 +12,62 @@ from scripts.confenge_account_intelligence.pipeline import build_dossier
 def test_is_hollow_portfolio_count() -> None:
     assert is_hollow_fact("Portfólio público observado com 3 contrato(s) no input.") is True
     assert is_hollow_fact("UFs observadas nos contratos: SC, PR") is True
+    # Align with COPY_CONTEXT generic markers (skeptic gap)
+    assert (
+        is_hollow_fact(
+            "Em 2026-08-09, há portfólio público observável sem dor contratual concreta "
+            "dominante — ângulo de revisão/diagnóstico focal."
+        )
+        is True
+    )
     assert (
         is_hollow_fact(
             "objeto: pavimentação asfáltica CBUQ em vias urbanas; órgão: Pref. Coxilha"
         )
         is False
     )
+
+
+def test_portfolio_review_why_now_not_generic_when_contract_hook() -> None:
+    """MessageSpine why_now must pass evaluate_copy_context_ready (not hollow template)."""
+    from scripts.confenge_contact_resolution.send_readiness import evaluate_copy_context_ready
+    from scripts.confenge_account_intelligence.pipeline import build_dossier
+
+    bag = {
+        "razao_social": "SAMP CONSTRUTORA DE OBRAS LTDA",
+        "cnpj14": "02810894000100",
+        "contracts": [
+            {
+                "id": "1",
+                "object": (
+                    "Contratação para execução de pavimentação asfáltica de vias urbana "
+                    "em CBUQ, 9.522,11 m², incluindo serviços preliminares"
+                ),
+                "orgao": "Diretoria de Obras",
+                "uf": "PR",
+                "value_brl": 5_200_000,
+            }
+            for _ in range(3)
+        ],
+    }
+    d = build_dossier(bag)
+    spine = d.get("message_spine") or {}
+    assert is_hollow_fact(spine.get("why_now")) is False
+    assert "portfólio público observável" not in (spine.get("why_now") or "").lower()
+    assert spine.get("complete") is True
+    company = {
+        "why_this_account": d["why_this_account"],
+        "why_now": spine["why_now"],
+        "observed_fact": d["observed_fact"],
+        "service_code": d["primary_service"]["service_id"],
+        "micro_offer_code": d["micro_offer_code"],
+        "evidence_ids": d.get("fact_evidence_ids") or ["e1"],
+        "cta": d["cta"],
+        "primary_service": d["primary_service"],
+        "service_candidates": d.get("service_candidates") or [],
+    }
+    res = evaluate_copy_context_ready(company)
+    assert res.copy_context_ready is True, res.missing_fields
 
 
 def test_spine_prefers_contract_object_not_confirmed_zero() -> None:

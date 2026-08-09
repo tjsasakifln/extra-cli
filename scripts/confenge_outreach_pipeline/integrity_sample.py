@@ -63,10 +63,17 @@ def compose_body(dossier: dict[str, Any]) -> str:
         or "a empresa"
     )
     fact = str(dossier.get("body_seed_fact") or dossier.get("observed_fact") or "").strip()
+    # Prefer MessageSpine why_now (never hollow portfolio_review template)
     why_now = ""
-    wn = dossier.get("why_now")
-    if isinstance(wn, dict):
-        why_now = str(wn.get("temporal_fact") or wn.get("summary") or "").strip()
+    spine = dossier.get("message_spine") if isinstance(dossier.get("message_spine"), dict) else {}
+    if spine.get("why_now"):
+        why_now = str(spine.get("why_now") or "").strip()
+    if not why_now or is_hollow_fact(why_now):
+        wn = dossier.get("why_now")
+        if isinstance(wn, dict):
+            why_now = str(wn.get("temporal_fact") or wn.get("summary") or "").strip()
+        if is_hollow_fact(why_now):
+            why_now = ""
     cta = str(dossier.get("cta") or "").strip()
     parts = [
         "Olá,",
@@ -188,15 +195,36 @@ def build_integrity_sample(
             }
         )
 
-    # Gate metrics
+    # Prefer spine why_now (already de-hollowed) over raw dossier why_now temporal_fact
+    for x, d in zip(drafts, selected):
+        spine = d.get("message_spine") if isinstance(d.get("message_spine"), dict) else {}
+        spine_why_now = str(spine.get("why_now") or "").strip()
+        if spine_why_now and not is_hollow_fact(spine_why_now):
+            x["why_now"] = spine_why_now
+        # Prefer spine completeness flag after hollow alignment
+        x["message_spine_complete"] = bool(
+            d.get("message_spine_complete")
+            and not is_hollow_fact(x.get("why_now"))
+            and not is_hollow_fact(x.get("observed_fact"))
+            and not is_hollow_fact(x.get("why_you"))
+        )
+
+    # Gate metrics — same hollow detector as COPY_CONTEXT_READY
     empty_why = sum(1 for x in drafts if not str(x["why_you"]).strip() or is_hollow_fact(x["why_you"]))
+    empty_why_now = sum(
+        1 for x in drafts if not str(x.get("why_now") or "").strip() or is_hollow_fact(x.get("why_now"))
+    )
     empty_micro = sum(1 for x in drafts if not str(x["micro_offer"]).strip())
     empty_fact = sum(1 for x in drafts if is_hollow_fact(x["observed_fact"]))
     empty_ev = sum(1 for x in drafts if not x.get("evidence_ids"))
     generic_subj = sum(1 for x in drafts if x.get("generic_contrato_subject"))
     hollow_body = sum(
-        1 for x in drafts if "portfólio público observado com" in (x.get("body") or "").lower()
+        1
+        for x in drafts
+        if "portfólio público observado com" in (x.get("body") or "").lower()
+        or "portfólio público observável" in (x.get("body") or "").lower()
     )
+    spine_incomplete = sum(1 for x in drafts if not x.get("message_spine_complete"))
     nd = audit_near_duplicates(drafts)
     svc_dist = Counter(x["service_id"] for x in drafts)
     warmbly_dist = Counter(x["warmbly_service_code"] for x in drafts)
@@ -209,10 +237,12 @@ def build_integrity_sample(
 
     struct_ok = (
         empty_why == 0
+        and empty_why_now == 0
         and empty_micro == 0
         and empty_fact == 0
         and empty_ev == 0
         and hollow_body == 0
+        and spine_incomplete == 0
         and not nd.blocked
         and len(drafts) >= min(n, 1)
     )
@@ -226,11 +256,13 @@ def build_integrity_sample(
         "service_distribution_warmbly": dict(warmbly_dist),
         "gates": {
             "empty_why_you": empty_why,
+            "hollow_why_now": empty_why_now,
             "empty_micro_offer": empty_micro,
             "hollow_observed_fact": empty_fact,
             "empty_evidence_ids": empty_ev,
             "generic_contrato_subject": generic_subj,
             "hollow_portfolio_body": hollow_body,
+            "spine_incomplete": spine_incomplete,
             "near_duplicate": nd.as_dict(),
             "struct_ok": struct_ok,
         },

@@ -119,3 +119,11 @@ Logs (scratch, not committed): `/tmp/grok-goal-85afca0088bc/`
 - Organic mix (honest, gestão-heavy after killing invented BDI): {'gestao_monitoramento_contratual': 24, 'apoio_licitacoes_propostas': 6}
 - Prior stratified 8/family: **INVALIDATED**
 - Terminal verdict remains **NO_GO**
+
+
+## MessageSpine v2 (2026-08-09T23:09:39Z)
+
+- Aligned `is_hollow_fact` / portfolio_review `why_now` with COPY_CONTEXT generic markers
+- Sample30: hollow_why_now=0, copy_context spot-check first10 PASS, struct_ok=True
+- TRACADO + JATOBETON forensics: material contracts cited; stale auditoria primary removed
+- Terminal **NO_GO** unchanged (safety + concentration + live cohort blockers)

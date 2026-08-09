@@ -124,9 +124,27 @@ SEVERINO BATISTA COSTA PERTENCENTE AO MUNICIPIO DE ALTO ALERE  | orgão=MUNICÍP
 **Why REAJUSTE_14133:** Warmbly sample ServiceCode=REAJUSTE_14133 with empty why_you/micro_offer; recomputed primary=apoio_licitacoes_propostas; root causes: (1) possible-fit ICP, (2) pass_count total fallback, (3) Warmbly/account layer REAJUSTE default or reajuste-campaign feed, (4) missing COPY_CONTEXT_READY gate.
 
 **Contracts:**
-- (none in local datalake slice)
+- Contratação de empresa especializada para execução de obras de pavimentação asfáltica e de passeio com blocos intertratavados, na forma de e | orgão=MUNICÍPIO DE PONTE PRETA - RS | R$276128.31
+- Pavimentacao asfaltica nova em CBUQ e sinalizacao Horizontal e Vertical em trecho de estrada municipal  ligacao entre o municipio de Fagunde | orgão=PREFEITURA MUNICIPAL DE FAGUNDES VARELA | R$1556993.2
+- CONTRATAÇÃO DE EMPRESA ESPECIALIZADA NO FORNECIMENTO DE MATERIAIS E MÃO DE OBRA PARA EXECUÇÃO DE PAVIMENTAÇÃO ASFÁLTICA, CONFORME ESPECIFICA | orgão=Prefeitura Municipal de Coxilha | R$767502.41
+- CONTRATAÇÃO DE EMPRESA ESPECIALIZADA NO FORNECIMENTO DE MATERIAIS E MÃO DE OBRA PARA EXECUÇÃO DE PAVIMENTAÇÃO ASFÁLTICA, CONFORME ESPECIFICA | orgão=Prefeitura Municipal de Coxilha | R$391568.77
+- Pavimentação Asfáltica no trecho que interliga o Município de Jacutinga - RS com o Município de Quatro Irmãos  RS, conforme Convênio Adminis | orgão=PM Jacutinga | R$17123125.09
 
 **target_fit reasons:** multi_execution_contracts_triangulation;activity_class_engineering
+### Material contracts (from universe portfolio.recent_contracts)
+
+| contrato_id | órgão | UF | valor | objeto (trunc) |
+|---|---|---|---:|---|
+| 25556619 | MUNICÍPIO DE PONTE PRETA - RS | RS | 276128.31 | Contratação de empresa especializada para execução de obras de pavimentação asfáltica e de passeio c |
+| 24417906 | PREFEITURA MUNICIPAL DE FAGUNDES VARELA | RS | 1556993.2 | Pavimentacao asfaltica nova em CBUQ e sinalizacao Horizontal e Vertical em trecho de estrada municip |
+| 12484966 | Prefeitura Municipal de Coxilha | RS | 767502.41 | CONTRATAÇÃO DE EMPRESA ESPECIALIZADA NO FORNECIMENTO DE MATERIAIS E MÃO DE OBRA PARA EXECUÇÃO DE PAV |
+| 12485054 | Prefeitura Municipal de Coxilha | RS | 391568.77 | CONTRATAÇÃO DE EMPRESA ESPECIALIZADA NO FORNECIMENTO DE MATERIAIS E MÃO DE OBRA PARA EXECUÇÃO DE PAV |
+| 5976331 | PM Jacutinga | RS | 17123125.09 | Pavimentação Asfáltica no trecho que interliga o Município de Jacutinga - RS com o Município de Quat |
+| 5029550 | Prefeitura Municipal de Quatro Irmãos | RS | 259372.0 | Contratação de Empresa para Execução de Pavimentação Asfáltica na Rua Leão Kwitko (Plano de Ação 090 |
+| 15465381 | MUNICIPIO DE IMIGRANTE | RS | 3782835.94 | Constitui objeto da presente licitação a contratação de empresa para a reconstrução da ciclovia loca |
+
+**Triangulation:** name construções + ENGINEERING_SERVICE_PROVIDER + multiple pavimentação asfáltica / CBUQ execution contracts (Ponte Preta, Fagundes Varela, Coxilha, Jacutinga) → TRUE_TARGET confirmed with material objects.
+
 ### TRACADO CONSTRUCOES E SERVICOS LTDA (`00472805000308`)
 
 | Field | Value |
@@ -161,12 +179,31 @@ SEVERINO BATISTA COSTA PERTENCENTE AO MUNICIPIO DE ALTO ALERE  | orgão=MUNICÍP
 | Warmbly sample | `REAJUSTE_14133` |
 | EMAIL_SEND_READY after fix | `False` |
 
-**Why REAJUSTE_14133:** Warmbly sample ServiceCode=REAJUSTE_14133 with empty why_you/micro_offer; recomputed primary=auditoria_orcamento_bdi; root causes: (1) possible-fit ICP, (2) pass_count total fallback, (3) Warmbly/account layer REAJUSTE default or reajuste-campaign feed, (4) missing COPY_CONTEXT_READY gate.
+**Why REAJUSTE_14133:** Warmbly sample ServiceCode=REAJUSTE_14133 with empty why_you/micro_offer; recomputed primary=gestao_monitoramento_contratual; root causes: (1) possible-fit ICP, (2) pass_count total fallback, (3) Warmbly/account layer REAJUSTE default or reajuste-campaign feed, (4) missing COPY_CONTEXT_READY gate.
 
 **Contracts:**
-- (none in local datalake slice)
+- CONTRATAÇÃO DE EMPRESA PARA ELABORAÇÃO DOS ESTUDOS, PROJETOS BÁSICO E EXECUTIVO DE ENGENHARIA, EXECUÇÃO DAS OBRAS DE REABILITAÇÃO DE 01 (UMA | orgão=DEPARTAMENTO NACIONAL INFRAEST.DE TRANSPORTES | R$9527127.48
+- O OBJETO DO PRESENTE INSTRUMENTO É A CONTRATAÇÃO DE EMPRESA PARA ELABORAÇÃO DOS ESTUDOS, PROJETOS BÁSICO E EXECUTIVO DE ENGENHARIA E EXECUÇÃ | orgão=SUP. REG. DO DNIT NO ESTADO DA PARAIBA | R$6944929.01
+- Contratação Semi-Integrada de empresa de engenharia para execução dos serviços necessários para elaboração do projeto executivo de engenhari | orgão=SECRETARIA DE ESTADO DE INFRA-ESTRUTURA | R$14750781.02
+- CONTRATAÇÃO DE EMPRESA PARA ELABORAÇÃO DOS ESTUDOS, PROJETOS BÁSICO E EXECUTIVO DE ENGENHARIA, EXECUÇÃO DAS OBRAS DE REABILITAÇÃO DE 03 (TRÊ | orgão=DEPARTAMENTO NACIONAL INFRAEST.DE TRANSPORTES | R$9147685.47
+- CONTRATAÇÃO DE EMPRESA PARA ELABORAÇÃO DOS ESTUDOS, PROJETOS BÁSICO E EXECUTIVO DE ENGENHARIA, EXECUÇÃO DAS OBRAS DE REABILITAÇÃO DE 01 (UMA | orgão=DEPARTAMENTO NACIONAL INFRAEST.DE TRANSPORTES | R$8468000.0
 
 **target_fit reasons:** sector_strong_plus_execution_contract
+### Material contracts (from universe portfolio.recent_contracts)
+
+| contrato_id | órgão | UF | valor | objeto (trunc) |
+|---|---|---|---:|---|
+| 547830 | DEPARTAMENTO NACIONAL INFRAEST.DE TRANSPORTES | DF | 9527127.48 | CONTRATAÇÃO DE EMPRESA PARA ELABORAÇÃO DOS ESTUDOS, PROJETOS BÁSICO E EXECUTIVO DE ENGENHARIA, EXECU |
+| 350973 | SUP. REG. DO DNIT NO ESTADO DA PARAIBA | PB | 6944929.01 | O OBJETO DO PRESENTE INSTRUMENTO É A CONTRATAÇÃO DE EMPRESA PARA ELABORAÇÃO DOS ESTUDOS, PROJETOS BÁ |
+| 325896 | SECRETARIA DE ESTADO DE INFRA-ESTRUTURA | MT | 14750781.02 | Contratação Semi-Integrada de empresa de engenharia para execução dos serviços necessários para elab |
+| 8271522 | DEPARTAMENTO NACIONAL INFRAEST.DE TRANSPORTES | DF | 9147685.47 | CONTRATAÇÃO DE EMPRESA PARA ELABORAÇÃO DOS ESTUDOS, PROJETOS BÁSICO E EXECUTIVO DE ENGENHARIA, EXECU |
+| 751293 | DEPARTAMENTO NACIONAL INFRAEST.DE TRANSPORTES | DF | 8468000.0 | CONTRATAÇÃO DE EMPRESA PARA ELABORAÇÃO DOS ESTUDOS, PROJETOS BÁSICO E EXECUTIVO DE ENGENHARIA, EXECU |
+| 2533498 | EMLURB - AUTARQUIA DE MANUTENÇÃO E LIMPEZA URBANA | PE | 17200000.0 | CONTRATAÇÃO DE EMPRESA ESPECIALIZADA DE ENGENHARIA PARA EXECUÇÃO DE SERVIÇOS DE
+RECUPERAÇÃO ESTRUTU |
+| 2495375 | EMLURB - AUTARQUIA DE MANUTENÇÃO E LIMPEZA URBANA | PE | 14350000.0 | A CONTRATAÇÃO DE EMPRESA ESPECIALIZADA DE ENGENHARIA PARA EXECUÇÃO DE SERVIÇOS ESPECIAIS DE RECUPERA |
+
+**Triangulation:** ENGINEERING + STRONG_ENGINEERING_FIT + DNIT/EMLURB/infra execution objects → TRUE_TARGET. Service after MessageSpine router: gestão (not invented BDI).
+
 ### VISOMES COMERCIAL METROLOGICA LTDA (`00567892000107`)
 
 | Field | Value |

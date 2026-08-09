@@ -19,22 +19,30 @@ META_EVIDENCE_PREFIXES: tuple[str, ...] = (
     "wi-",
 )
 
+# Shared with send_readiness COPY_CONTEXT — MessageSpine.complete must match gate.
 _HOLLOW_FACT_PATTERNS: tuple[re.Pattern[str], ...] = (
     re.compile(r"portf[oó]lio\s+p[uú]blico\s+observado\s+com\s+\d+\s+contrato", re.I),
     re.compile(r"portf[oó]lio\s+p[uú]blico\s+observado\s+com", re.I),
+    re.compile(r"portf[oó]lio\s+p[uú]blico\s+observ[aá]vel", re.I),
+    re.compile(r"portf[oó]lio\s+p[uú]blico\s+de\s+contratos", re.I),
+    re.compile(r"sem\s+dor\s+contratual\s+concreta", re.I),
     re.compile(r"ufs\s+observadas\s+nos\s+contratos", re.I),
     re.compile(r"contrato\(s\)\s+no\s+input", re.I),
     re.compile(r"^sem\s+fato\s+p[uú]blico\s+confirmado", re.I),
     re.compile(r"sem\s+objeto\s+contratual\s+espec[ií]fico\s+no\s+input", re.I),
     re.compile(r"empresa\s+com\s+momento\s+comercial\s+p[uú]blico", re.I),
     re.compile(r"momento\s+comercial\s+indicado\s+pelo\s+extra-cli", re.I),
-    re.compile(r"portf[oó]lio\s+p[uú]blico\s+de\s+contratos", re.I),
     re.compile(r"observamos\s+contratos\s+p[uú]blicos", re.I),
+    re.compile(r"empresa\s+com\s+portf[oó]lio\s+p[uú]blico", re.I),
 )
 
 
 def is_hollow_fact(text: str | None) -> bool:
-    """True when text is empty, meta-only, or portfolio-count boilerplate."""
+    """True when text is empty, meta-only, portfolio boilerplate, or generic why_now.
+
+    MUST stay aligned with send_readiness._is_generic_why / evaluate_copy_context_ready
+    so MessageSpine.complete cannot be True while COPY_CONTEXT_READY is False.
+    """
     t = (text or "").strip()
     if not t:
         return True
@@ -101,22 +109,23 @@ def _non_hollow_confirmed(confirmed: list[dict[str, Any]]) -> tuple[str, list[st
 
 
 def _why_now_text(why: dict[str, Any], hook: str, service_id: str) -> str:
+    """Build why_now that passes COPY_CONTEXT (never generic portfolio_review template)."""
+    trigger = ""
     if isinstance(why, dict):
-        for key in ("temporal_fact", "summary", "code"):
-            val = str(why.get(key) or "").strip()
-            if val and not is_hollow_fact(val):
-                # Prefer concrete temporal_fact; still reject hollow portfolio lines.
-                if key == "code" and len(val) < 12:
-                    continue
-                if key == "code":
-                    continue
-                return val
         trigger = str(why.get("trigger") or "").strip()
-    else:
-        trigger = ""
+        for key in ("temporal_fact", "summary"):
+            val = str(why.get(key) or "").strip()
+            if not val or is_hollow_fact(val):
+                continue
+            # Even non-hollow must not be pure meta without contract hook when we have one.
+            if hook and not is_hollow_fact(hook) and "objeto" not in val.lower():
+                # Prefer anchoring to concrete hook over abstract summary.
+                break
+            return val
     if hook and not is_hollow_fact(hook):
         if trigger and trigger not in {"", "insufficient_facts", "portfolio_review"}:
             return f"Momento {trigger} ancorado no fato público: {hook[:160]}"
+        # portfolio_review / empty trigger: still require concrete hook, not hollow template
         return f"Fato contratual público utilizável agora: {hook[:160]}"
     if trigger == "insufficient_facts":
         return "Material público insuficiente para especialidade — discovery honesto."
