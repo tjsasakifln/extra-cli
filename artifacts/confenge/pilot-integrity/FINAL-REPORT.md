@@ -1,19 +1,36 @@
 # FINAL-REPORT — CONFENGE-PILOT-INTEGRITY-RECOVERY-01
 
-## Verdict: NO_GO (dispatch PAUSED)
+## Verdict: **NO_GO** (dispatch PAUSED, kill switch ENGAGED)
 
-### Code fixes landed (extra-cli + warmbly branches)
-Target-fit triangulation, semantic EMAIL_SEND_READY, multi-service router, confenge.service.v1, Warmbly unknown≠REAJUSTE, near-dup gate.
+## Incident
 
-### Offline national rescore
-48 748 rows → CONFIRMED 5 606 / RESEARCH 39 212 / OUT 3 930 (prior full pass).
+10 Warmbly EMAIL_SEND_READY accounts were REAJUSTE monoculture with empty copy and several non-construction suppliers (imobiliária, móveis, frota, metrologia, médico, etc.).
 
-### Clean no-send sample (this pass)
-- 30 drafts + 10 deep-review from TARGET_CONFIRMED + STRONG/CONFIRMED sector
-- Services: {'gestao_monitoramento_contratual': 19, 'auditoria_orcamento_bdi': 16, 'apoio_licitacoes_propostas': 10, 'reforco_temporario_backoffice': 5}
-- Near-dup blocked: False
-- Empty copy fields: {'why': 0, 'micro': 0, 'fact': 0, 'ev': 0}
-- Structural gates: PASS
+## Code fixes (committed)
 
-### Still required for GO_FOR_CONTROLLED_PILOT
-Merge/deploy, optional full DSN rebuild, Warmbly import PAUSED, operator sign-off.
+### extra-cli `fix/confenge-pilot-target-service-integrity`
+- Triangulated `target_fit_class`
+- Semantic EMAIL_SEND_READY + COPY_CONTEXT_READY
+- Multi-service router (`service_candidates`, reajuste never default)
+- `confenge.service.v1` ontology
+- Near-duplicate batch gate
+- Adversarial tests
+
+### warmbly `fix/confenge-pilot-service-copy-integrity`
+- Full extra-cli service_id aliases
+- DIAGNOSTICO / INTELIGENCIA / BACKOFFICE playbooks
+- Unknown service → needs_review (never REAJUSTE)
+- Incomplete strategy + template → RED
+
+## National offline rescore
+48748 rows → CONFIRMED 5606 / RESEARCH 39212 / OUT 3930
+
+## Warmbly local import (evidence)
+- Feed: `data/confenge-feeds/pilot-integrity-clean-v1.json`
+- 50 leads applied; services multi-family; **REAJUSTE=0**
+- **email_send_ready true = 0** (fail-closed)
+- Hard ICP FP = 0; borderline = 2
+- Kill switch engaged; details in `rebuild-2026-08-09/warmbly-import-evidence.json`
+
+## Remaining blockers for GO
+See GO-NO-GO.md — real contacts, deploy, full rebuild optional, operator review.
