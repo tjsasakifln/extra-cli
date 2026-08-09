@@ -1367,6 +1367,30 @@ def cmd_commercial_lead(args: argparse.Namespace) -> int:
     return 0 if data.get("ok") else 1
 
 
+def cmd_reajuste_leads(args: argparse.Namespace) -> int:
+    """Delegate to reajuste 14.133 commercial campaign CLI."""
+    from scripts.commercial.reajuste_14133.cli import main as reajuste_main
+
+    argv: list[str] = ["--as-of", args.as_of, "--top", str(args.top)]
+    if args.export_all:
+        argv.append("--export-all")
+    if args.ssh:
+        argv.append("--ssh")
+    if args.json:
+        argv.append("--json")
+    if args.uf:
+        argv.extend(["--uf", args.uf])
+    if args.min_contract_value is not None:
+        argv.extend(["--min-contract-value", str(args.min_contract_value)])
+    if args.strict:
+        argv.append("--strict")
+    if args.dry_run:
+        argv.append("--dry-run")
+    if args.output_dir:
+        argv.extend(["--output-dir", args.output_dir])
+    return int(reajuste_main(argv))
+
+
 def cmd_commercial_review(args: argparse.Namespace) -> int:
     from scripts.commercial_leads.review import apply_review
 
@@ -1648,6 +1672,21 @@ Examples:
     p_cr.add_argument("--force-override", action="store_true")
     p_cr.add_argument("--dsn", default=None)
 
+    p_rej = sub.add_parser(
+        "reajuste-leads",
+        help="Fila reajuste em sentido estrito (Lei 14.133) — CONFENGE",
+    )
+    p_rej.add_argument("--as-of", default="2026-08-04")
+    p_rej.add_argument("--top", type=int, default=200)
+    p_rej.add_argument("--export-all", action="store_true")
+    p_rej.add_argument("--ssh", action="store_true", help="Ler datalake VPS via SSH (read-only)")
+    p_rej.add_argument("--uf", default=None)
+    p_rej.add_argument("--min-contract-value", type=float, default=1_000_000.0)
+    p_rej.add_argument("--output-dir", default=None)
+    p_rej.add_argument("--strict", action="store_true")
+    p_rej.add_argument("--dry-run", action="store_true")
+    p_rej.add_argument("--json", action="store_true")
+
     p_docs = sub.add_parser(
         "process-documents",
         help="Documentos públicos de processos (capability procurement_process_documents)",
@@ -1712,6 +1751,7 @@ def main(argv: list[str] | None = None) -> None:
         "commercial-leads": cmd_commercial_leads,
         "commercial-lead": cmd_commercial_lead,
         "commercial-review": cmd_commercial_review,
+        "reajuste-leads": cmd_reajuste_leads,
         "process-documents": cmd_process_documents,
         "predictive-status": cmd_predictive_status,
         "forecasts": cmd_forecasts,

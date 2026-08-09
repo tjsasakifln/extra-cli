@@ -1,0 +1,18 @@
+{
+  "version": "1.0.0",
+  "accounts": {
+    "00779059000120": {
+      "conta_estrategica": true,
+      "operacao_nacional_robusta": true,
+      "estrutura_interna_especializada": true,
+      "participacao_recorrente_consorcios": true,
+      "ciclo_venda_longo": true,
+      "gap_capacidade": 12,
+      "convertibilidade": 18,
+      "confianca": "MEDIA",
+      "estrutura_interna_identificada": "empresa nacional estruturada, carteira robusta e atuação recorrente em consórcios",
+      "justificativa": "Teste de regressão: não priorizar a Construtora Luiz Costa apenas pelo contrato DER-PR 1149 ou pela anualidade.",
+      "fonte": "revisão comercial humana validada em 2026-08-06"
+    }
+  }
+}
