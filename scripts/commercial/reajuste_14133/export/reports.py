@@ -220,15 +220,18 @@ def write_csv_json(out_dir: Path, run: dict[str, Any]) -> dict[str, str]:
     paths["csv"] = str(p_csv)
 
     p_json = out_dir / "leads_reajuste_14133.json"
-    _write_json(p_json, {
-        "run_id": run.get("run_id"),
-        "as_of": run.get("as_of"),
-        "module_version": MODULE_VERSION,
-        "leads": leads,
-        "funnel": run.get("funnel"),
-        "metrics": run.get("metrics"),
-        "language_policy": run.get("language_policy"),
-    })
+    _write_json(
+        p_json,
+        {
+            "run_id": run.get("run_id"),
+            "as_of": run.get("as_of"),
+            "module_version": MODULE_VERSION,
+            "leads": leads,
+            "funnel": run.get("funnel"),
+            "metrics": run.get("metrics"),
+            "language_policy": run.get("language_policy"),
+        },
+    )
     paths["json"] = str(p_json)
 
     p_ex = out_dir / "excluded_reasons.csv"
@@ -237,22 +240,35 @@ def write_csv_json(out_dir: Path, run: dict[str, Any]) -> dict[str, str]:
         w = csv.DictWriter(f, fieldnames=["contrato_id", "cnpj", "reason", "detail"])
         w.writeheader()
         for e in excl:
-            w.writerow({
-                "contrato_id": e.get("contrato_id"),
-                "cnpj": e.get("cnpj"),
-                "reason": e.get("reason"),
-                "detail": json.dumps(e.get("detail"), ensure_ascii=False, default=str) if e.get("detail") else "",
-            })
+            w.writerow(
+                {
+                    "contrato_id": e.get("contrato_id"),
+                    "cnpj": e.get("cnpj"),
+                    "reason": e.get("reason"),
+                    "detail": json.dumps(e.get("detail"), ensure_ascii=False, default=str) if e.get("detail") else "",
+                }
+            )
     paths["excluded_csv"] = str(p_ex)
 
     p_man = out_dir / "run_manifest.json"
     manifest = {
         k: run.get(k)
         for k in (
-            "run_id", "as_of", "module_version", "campaign", "git_sha",
-            "source_mode", "source_dsn_masked", "started_at", "finished_at",
-            "params", "funnel", "metrics", "language_policy",
-            "terminal_status", "distributions",
+            "run_id",
+            "as_of",
+            "module_version",
+            "campaign",
+            "git_sha",
+            "source_mode",
+            "source_dsn_masked",
+            "started_at",
+            "finished_at",
+            "params",
+            "funnel",
+            "metrics",
+            "language_policy",
+            "terminal_status",
+            "distributions",
         )
     }
     _write_json(p_man, manifest)
@@ -303,15 +319,12 @@ def write_v2_deliverables(out_dir: Path, run: dict[str, Any]) -> dict[str, str]:
                 w.writerow(row)
         return str(path)
 
-    paths["outreach_ready_csv"] = _write_status_csv(
-        "outreach_ready.csv", "OUTREACH_READY"
-    )
+    paths["outreach_ready_csv"] = _write_status_csv("outreach_ready.csv", "OUTREACH_READY")
     # include WITHOUT_VALUE in same file as separate rows + dedicated file
     ready_wo = [
         supplier_flat_row(p)
         for p in portfolios
-        if p.get("outreach_status")
-        in {"OUTREACH_READY", "OUTREACH_READY_WITHOUT_VALUE_ESTIMATE"}
+        if p.get("outreach_status") in {"OUTREACH_READY", "OUTREACH_READY_WITHOUT_VALUE_ESTIMATE"}
         or p.get("commercial_stage")
         in {DIAGNOSTIC_OUTREACH_READY, VERIFIED_ADJUSTMENT_OPPORTUNITY, CALCULABLE_ADJUSTMENT_CLAIM}
     ]
@@ -324,12 +337,8 @@ def write_v2_deliverables(out_dir: Path, run: dict[str, Any]) -> dict[str, str]:
             w.writerow(row)
     paths["outreach_ready_csv"] = str(p_ready)
 
-    paths["document_request_csv"] = _write_status_csv(
-        "document_request_candidates.csv", "DOCUMENT_REQUEST_CANDIDATE"
-    )
-    paths["not_ready_csv"] = _write_status_csv(
-        "not_ready_for_outreach.csv", "NOT_READY_FOR_OUTREACH"
-    )
+    paths["document_request_csv"] = _write_status_csv("document_request_candidates.csv", "DOCUMENT_REQUEST_CANDIDATE")
+    paths["not_ready_csv"] = _write_status_csv("not_ready_for_outreach.csv", "NOT_READY_FOR_OUTREACH")
 
     # --- v3 commercial stage products ---
     stage_files = {
@@ -347,23 +356,17 @@ def write_v2_deliverables(out_dir: Path, run: dict[str, Any]) -> dict[str, str]:
                 for c in all_contracts
                 if c.get("commercial_stage") == stage
                 or c.get("document_request_ready")
-                or c.get("commercial_stage")
-                in {LIKELY_ADJUSTMENT_OPPORTUNITY, DIAGNOSTIC_OUTREACH_READY}
+                or c.get("commercial_stage") in {LIKELY_ADJUSTMENT_OPPORTUNITY, DIAGNOSTIC_OUTREACH_READY}
             ]
         elif stage == LIKELY_ADJUSTMENT_OPPORTUNITY:
             # Include DIAGNOSTIC as superset of LIKELY for opportunity list
             rows = [
                 lead_commercial_flat_row(c)
                 for c in all_contracts
-                if c.get("commercial_stage")
-                in {LIKELY_ADJUSTMENT_OPPORTUNITY, DIAGNOSTIC_OUTREACH_READY}
+                if c.get("commercial_stage") in {LIKELY_ADJUSTMENT_OPPORTUNITY, DIAGNOSTIC_OUTREACH_READY}
             ]
         else:
-            rows = [
-                lead_commercial_flat_row(c)
-                for c in all_contracts
-                if c.get("commercial_stage") == stage
-            ]
+            rows = [lead_commercial_flat_row(c) for c in all_contracts if c.get("commercial_stage") == stage]
         path = out_dir / fname
         flds = list(rows[0].keys()) if rows else list(lead_commercial_flat_row({}).keys())
         with path.open("w", encoding="utf-8", newline="") as f:
@@ -521,7 +524,10 @@ def write_v2_deliverables(out_dir: Path, run: dict[str, Any]) -> dict[str, str]:
             fp_flags: list[str] = []
             if any(x in obj for x in ("software", "licenciamento", "sistema de gestão", "sistema de gestao")):
                 fp_flags.append("software")
-            if any(x in obj for x in ("locação de veículo", "locacao de veiculo", "veículos especiais", "veiculos especiais")):
+            if any(
+                x in obj
+                for x in ("locação de veículo", "locacao de veiculo", "veículos especiais", "veiculos especiais")
+            ):
                 fp_flags.append("vehicle_rental")
             if any(x in obj for x in ("medicamento", "lisdexanfetamina", "farmac")):
                 fp_flags.append("pharma")
@@ -624,9 +630,7 @@ def _write_manual_review_md(path: Path, portfolios: list[dict[str, Any]], *, tit
         lines.append(f"- incertezas: {'; '.join((p.get('incertezas') or [])[:5])}")
         lines.append(f"- docs faltantes: {'; '.join((p.get('documentos_faltantes') or [])[:6])}")
         cont = p.get("contatos") or {}
-        lines.append(
-            f"- contato: email={cont.get('email')} tel={cont.get('telefone')} site={cont.get('site')}"
-        )
+        lines.append(f"- contato: email={cont.get('email')} tel={cont.get('telefone')} site={cont.get('site')}")
         lines.append(f"- abordagem permitida: {(p.get('abordagem_permitida') or '')[:300]}")
         lines.append(f"- linguagem proibida: {(p.get('linguagem_proibida') or '')[:200]}")
         lines.append(f"- próxima ação: {p.get('proxima_acao')}")
@@ -803,7 +807,9 @@ def write_data_quality(out_dir: Path, run: dict[str, Any]) -> Path:
     return p
 
 
-def write_executive_brief(out_dir: Path, run: dict[str, Any], manual_review: list[dict[str, Any]] | None = None) -> Path:
+def write_executive_brief(
+    out_dir: Path, run: dict[str, Any], manual_review: list[dict[str, Any]] | None = None
+) -> Path:
     funnel = run.get("funnel") or {}
     metrics = run.get("metrics") or {}
     top = run.get("top_leads") or []
@@ -932,8 +938,13 @@ def build_dossier_md(lead: dict[str, Any]) -> str:
     sections.append("")
     d = lead.get("dates") or {}
     for key in (
-        "orcamento_estimado", "data_assinatura", "data_publicacao",
-        "inicio_vigencia", "fim_vigencia", "ultimo_reajuste", "data_base_effective",
+        "orcamento_estimado",
+        "data_assinatura",
+        "data_publicacao",
+        "inicio_vigencia",
+        "fim_vigencia",
+        "ultimo_reajuste",
+        "data_base_effective",
     ):
         field = d.get(key) or {}
         sections.append(

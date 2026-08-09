@@ -111,9 +111,7 @@ def sanitize_doc_scan(doc_scan: dict[str, Any] | None) -> dict[str, Any] | None:
             ]
         elif ds.get("pipeline_state") in {"TEXT_EXTRACTED", "CLAUSE_LOCATED", "CLAUSE_HUMAN_CONFIRMED"}:
             ds["pipeline_state"] = "DOCUMENT_URL_LOCATED"
-            ds["limitations"] = list(ds.get("limitations") or []) + [
-                "official_text_flag_cleared_no_pncp_pdf_method"
-            ]
+            ds["limitations"] = list(ds.get("limitations") or []) + ["official_text_flag_cleared_no_pncp_pdf_method"]
         # Mentions without official extract cannot prove regime/clause
         # (keep raw mention flags for audit; classify_row requires official_text)
     else:
@@ -269,9 +267,7 @@ def reclassify_contract(lead: dict[str, Any], *, as_of: date) -> dict[str, Any]:
     # Persist sanitized documentary state (never re-inflate false official flags)
     if scan_dict is not None:
         new_lead["doc_scan"] = scan_dict
-        new_lead["document_pipeline_state"] = scan_dict.get("pipeline_state") or new_lead.get(
-            "document_pipeline_state"
-        )
+        new_lead["document_pipeline_state"] = scan_dict.get("pipeline_state") or new_lead.get("document_pipeline_state")
     return new_lead
 
 
@@ -331,8 +327,7 @@ def rebuild_evidence_jsonl(leads: list[dict[str, Any]], path: Path, *, stamp_win
                         {
                             "contrato_id": lead.get("contrato_id"),
                             "cnpj": lead.get("cnpj"),
-                            "pipeline_state": lead.get("document_pipeline_state")
-                            or ds.get("pipeline_state"),
+                            "pipeline_state": lead.get("document_pipeline_state") or ds.get("pipeline_state"),
                             **ee,
                         },
                         ensure_ascii=False,
@@ -362,8 +357,7 @@ def validate_invariants(
     ]
     if bad:
         errors.append(
-            f"INVARIANT regime_proven+14133 still LEGAL_REGIME_UNKNOWN: n={len(bad)} "
-            f"e.g. {bad[0].get('contrato_id')}"
+            f"INVARIANT regime_proven+14133 still LEGAL_REGIME_UNKNOWN: n={len(bad)} e.g. {bad[0].get('contrato_id')}"
         )
 
     # 2) deep counts unique — must equal pncp_pdf text extracts only
@@ -402,9 +396,7 @@ def validate_invariants(
     if manifest.get("git_sha") != head_sha:
         errors.append(f"INVARIANT git_sha={manifest.get('git_sha')} != HEAD={head_sha}")
     if manifest.get("evidence_commit_sha") != head_sha:
-        errors.append(
-            f"INVARIANT evidence_commit_sha={manifest.get('evidence_commit_sha')} != HEAD={head_sha}"
-        )
+        errors.append(f"INVARIANT evidence_commit_sha={manifest.get('evidence_commit_sha')} != HEAD={head_sha}")
 
     # 4) evidence timestamps inside window
     started = str(manifest.get("started_at") or "")
@@ -424,17 +416,12 @@ def validate_invariants(
             if ca and not (started <= ca <= finished):
                 outside += 1
         if total_pdf and outside:
-            errors.append(
-                f"INVARIANT {outside}/{total_pdf} pdf evidences outside "
-                f"[{started}, {finished}]"
-            )
+            errors.append(f"INVARIANT {outside}/{total_pdf} pdf evidences outside [{started}, {finished}]")
 
     return errors
 
 
-def build_ai_assisted_evidence_review(
-    portfolios: list[dict[str, Any]], leads: list[dict[str, Any]]
-) -> dict[str, Any]:
+def build_ai_assisted_evidence_review(portfolios: list[dict[str, Any]], leads: list[dict[str, Any]]) -> dict[str, Any]:
     """Adversarial AI-assisted evidence review — NOT Tiago human decision."""
     by_cnpj: dict[str, list[dict[str, Any]]] = {}
     for lead in leads:
@@ -523,9 +510,10 @@ def build_ai_assisted_evidence_review(
                 ),
                 "linguagem_permitida": (
                     "exploratory_document_request"
-                    if (p.get("outreach_status") == DOCUMENT_REQUEST_CANDIDATE
-                        or best.get("classificacao")
-                        in {"STRONG_CANDIDATE", "REVIEW_REQUIRED", "HOT_VERIFIED"})
+                    if (
+                        p.get("outreach_status") == DOCUMENT_REQUEST_CANDIDATE
+                        or best.get("classificacao") in {"STRONG_CANDIDATE", "REVIEW_REQUIRED", "HOT_VERIFIED"}
+                    )
                     else "none"
                 ),
                 "review_kind": "ai_assisted_evidence_review",
@@ -588,9 +576,7 @@ def rebind_export(
     portfolios = consolidate_suppliers(ranked)
 
     ready = [p for p in portfolios if p.get("outreach_status") == OUTREACH_READY]
-    ready_nv = [
-        p for p in portfolios if p.get("outreach_status") == OUTREACH_READY_WITHOUT_VALUE_ESTIMATE
-    ]
+    ready_nv = [p for p in portfolios if p.get("outreach_status") == OUTREACH_READY_WITHOUT_VALUE_ESTIMATE]
     doc_req = [p for p in portfolios if p.get("outreach_status") == DOCUMENT_REQUEST_CANDIDATE]
     not_ready = [p for p in portfolios if p.get("outreach_status") == NOT_READY_FOR_OUTREACH]
 
@@ -620,9 +606,11 @@ def rebind_export(
             prior_man = {}
 
     prior_params = prior_man.get("params") or {}
-    universe = prior_params.get("universe_eligible_count") or prior_man.get("metrics", {}).get(
-        "universe_eligible_count"
-    ) or len(ranked)
+    universe = (
+        prior_params.get("universe_eligible_count")
+        or prior_man.get("metrics", {}).get("universe_eligible_count")
+        or len(ranked)
+    )
 
     run: dict[str, Any] = {
         "run_id": f"rebind-{as_of}-{head[:8]}",
@@ -661,12 +649,8 @@ def rebind_export(
             "not_ready_suppliers": len(not_ready),
             "docs_processed_deep": len(deep_ids),
             "official_pdf_text_extracted": len(official_ids),
-            "pdfs_downloaded": sum(
-                int((lead.get("doc_scan") or {}).get("pdfs_downloaded") or 0) for lead in ranked
-            ),
-            "arquivos_listed": sum(
-                int((lead.get("doc_scan") or {}).get("arquivos_listed") or 0) for lead in ranked
-            ),
+            "pdfs_downloaded": sum(int((lead.get("doc_scan") or {}).get("pdfs_downloaded") or 0) for lead in ranked),
+            "arquivos_listed": sum(int((lead.get("doc_scan") or {}).get("arquivos_listed") or 0) for lead in ranked),
             "universe_eligible_count": universe,
             "rows_read": len(ranked),
             "execution_complete": True,
@@ -682,9 +666,7 @@ def rebind_export(
         "leads": ranked,
         "top_leads": ranked[:250],
         "nacional": ranked[:250],
-        "sul_sc_priority": [
-            lead for lead in ranked if str(lead.get("uf") or "").upper() in {"SC", "PR", "RS"}
-        ][:250],
+        "sul_sc_priority": [lead for lead in ranked if str(lead.get("uf") or "").upper() in {"SC", "PR", "RS"}][:250],
         "supplier_portfolios": portfolios,
         "outreach_ready_suppliers": ready,
         "document_request_suppliers": doc_req,
@@ -855,9 +837,7 @@ def rebind_export(
 
     # Validate
     man = json.loads(man_path.read_text(encoding="utf-8"))
-    errors = validate_invariants(
-        ranked, manifest=man, evidence_path=evidence_path, head_sha=head
-    )
+    errors = validate_invariants(ranked, manifest=man, evidence_path=evidence_path, head_sha=head)
     # CSV/JSON field match sample
     csv_by_id: dict[str, dict[str, str]] = {}
     with csv_path.open(encoding="utf-8", newline="") as f:
@@ -899,10 +879,7 @@ def rebind_export(
             ck = json.loads(ck_path.read_text(encoding="utf-8"))
             ck_deep = ck.get("docs_processed_deep")
             if ck_deep is not None and int(ck_deep) != len(deep_ids):
-                errors.append(
-                    f"INVARIANT checkpoint.docs_processed_deep={ck_deep} "
-                    f"!= unique_deep={len(deep_ids)}"
-                )
+                errors.append(f"INVARIANT checkpoint.docs_processed_deep={ck_deep} != unique_deep={len(deep_ids)}")
         except (json.JSONDecodeError, TypeError, ValueError) as exc:
             errors.append(f"INVARIANT checkpoint unreadable: {exc}")
 
@@ -923,9 +900,7 @@ def rebind_export(
         ):
             src = run_dir / name
             if src.exists():
-                dest = artifacts_dir / (
-                    f"nacional_{name}" if "nacional" in str(run_dir) else name
-                )
+                dest = artifacts_dir / (f"nacional_{name}" if "nacional" in str(run_dir) else name)
                 dest.write_bytes(src.read_bytes())
         # nacional_run_manifest compact
         pack = {
@@ -963,9 +938,7 @@ def rebind_export(
         "document_request_suppliers": len(doc_req),
         "outreach_ready": len(ready) + len(ready_nv),
         "terminal_status": run["terminal_status"],
-        "classificacao_counts": dict(
-            Counter(lead.get("classificacao") for lead in ranked)
-        ),
+        "classificacao_counts": dict(Counter(lead.get("classificacao") for lead in ranked)),
     }
 
 

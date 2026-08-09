@@ -79,14 +79,8 @@ def is_giant_low_consulting_fit(
         if re.search(pat, n, re.I):
             return True
     # Billion-scale single contract + SA engineering name → low consulting fit signal
-    if (
-        not is_aggregate_portfolio
-        and valor_contrato is not None
-        and valor_contrato >= 1_000_000_000
-    ):
-        if re.search(r"\bs\.?a\.?\b|\bs/a\b", n) and re.search(
-            r"constru|engenharia|infra|rodov|concess", n
-        ):
+    if not is_aggregate_portfolio and valor_contrato is not None and valor_contrato >= 1_000_000_000:
+        if re.search(r"\bs\.?a\.?\b|\bs/a\b", n) and re.search(r"constru|engenharia|infra|rodov|concess", n):
             return True
     return False
 
@@ -100,8 +94,6 @@ def is_sme_regional_fit(
     """Prefer small/medium regional constructors in commercial ranking."""
     if is_giant_low_consulting_fit(razao_social, valor_contrato=valor_contrato):
         return False
-    if valor_contrato is not None and (
-        valor_contrato < 5_000_000 or valor_contrato > 300_000_000
-    ):
+    if valor_contrato is not None and (valor_contrato < 5_000_000 or valor_contrato > 300_000_000):
         return False
     return True

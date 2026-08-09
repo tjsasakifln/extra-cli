@@ -113,9 +113,7 @@ def estimate_reajuste(
     elif v_upd is not None and v_upd > 0:
         base = v_upd
         base_label = UPPER_BOUND_LABEL
-        limitations.append(
-            "Saldo/medições indisponíveis — valor sobre total é teto teórico, não valor devido."
-        )
+        limitations.append("Saldo/medições indisponíveis — valor sobre total é teto teórico, não valor devido.")
 
     idx_name = (indice_contratual or "").strip() or None
     i_base = _dec(indice_base_value)

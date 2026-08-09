@@ -110,18 +110,44 @@ from scripts.commercial.reajuste_14133.io.source import (
 _PROJECT_ROOT = Path(__file__).resolve().parents[3]
 
 PUBLIC_ORG_MARKERS = (
-    "prefeitura", "municipio", "município", "governo", "secretaria", "ministerio",
-    "ministério", "autarquia", "fundacao", "fundação", "instituto federal",
-    "universidade federal", "camara municipal", "câmara municipal", "tribunal",
-    "companhia de agua", "companhia de água", "companhia de saneamento",
-    "departamento municipal de agua", "empresa publica", "empresa pública",
+    "prefeitura",
+    "municipio",
+    "município",
+    "governo",
+    "secretaria",
+    "ministerio",
+    "ministério",
+    "autarquia",
+    "fundacao",
+    "fundação",
+    "instituto federal",
+    "universidade federal",
+    "camara municipal",
+    "câmara municipal",
+    "tribunal",
+    "companhia de agua",
+    "companhia de água",
+    "companhia de saneamento",
+    "departamento municipal de agua",
+    "empresa publica",
+    "empresa pública",
 )
 
 # Concessionárias de utilidade (água/energia) — not CONFENGE construction ICP
 UTILITY_CONCESSIONAIRE_MARKERS = (
-    "aguas de ", "águas de ", "agua e esgoto", "água e esgoto",
-    "saneamento de ", "companhia catarinense de aguas", "casan",
-    "copasa", "sabesp", "cedae", "embasa", "cagece", "compesa",
+    "aguas de ",
+    "águas de ",
+    "agua e esgoto",
+    "água e esgoto",
+    "saneamento de ",
+    "companhia catarinense de aguas",
+    "casan",
+    "copasa",
+    "sabesp",
+    "cedae",
+    "embasa",
+    "cagece",
+    "compesa",
 )
 
 
@@ -159,10 +185,7 @@ def is_private_supplier(cnpj: str | None, nome: str | None) -> bool:
         return False
     if any(m in name for m in PUBLIC_ORG_MARKERS):
         if re.search(r"\b(s\.?a\.?|s/a|ltda|eireli|spe)\b", name, re.I):
-            if any(
-                x in name
-                for x in ("prefeitura", "municipio", "secretaria", "governo do", "uniao", "união")
-            ):
+            if any(x in name for x in ("prefeitura", "municipio", "secretaria", "governo do", "uniao", "união")):
                 return False
         else:
             return False
@@ -230,10 +253,7 @@ def classify_row(
         razao_social=nome,
         cnae=cnae_hint,
         document_text=(
-            " ".join(
-                getattr(e, "excerpt", "") or ""
-                for e in (getattr(doc_scan, "evidences", None) or [])
-            )[:3000]
+            " ".join(getattr(e, "excerpt", "") or "" for e in (getattr(doc_scan, "evidences", None) or []))[:3000]
             if doc_scan
             else None
         ),
@@ -315,9 +335,7 @@ def classify_row(
         if in_clause and official_text:
             index_name = in_clause[0]
         already_adjusted = bool(doc_scan.already_adjusted_hint) and official_text
-        data_base_exact_from_docs = bool(
-            getattr(doc_scan, "data_base_exata_localizada", False)
-        ) and signals_usable
+        data_base_exact_from_docs = bool(getattr(doc_scan, "data_base_exata_localizada", False)) and signals_usable
         exact_data_base_payload = getattr(doc_scan, "exact_data_base", None)
 
     if official_acts:
@@ -485,18 +503,13 @@ def classify_row(
 
     contacts = contacts or {}
     contact_score = float(contacts.get("contact_score") or 0.0)
-    uf = (
-        (contacts.get("uf_sede") or row.get("uf") or "").upper()
-        if contacts
-        else (row.get("uf") or "").upper()
-    )
+    uf = (contacts.get("uf_sede") or row.get("uf") or "").upper() if contacts else (row.get("uf") or "").upper()
 
-    giant = is_giant_low_consulting_fit(
-        nome, valor_contrato=float(row.get("valor_total") or 0) or None
+    giant = is_giant_low_consulting_fit(nome, valor_contrato=float(row.get("valor_total") or 0) or None)
+    too_small = (
+        bool(re.search(r"\bmei\b|microempresa individual", nome, re.I))
+        and float(row.get("valor_total") or 0) > 20_000_000
     )
-    too_small = bool(re.search(r"\bmei\b|microempresa individual", nome, re.I)) and float(
-        row.get("valor_total") or 0
-    ) > 20_000_000
 
     freshness = compute_source_freshness(
         as_of=as_of,
@@ -508,9 +521,7 @@ def classify_row(
     )
 
     portfolio_for_score = (
-        float(row.get("valor_total") or 0)
-        if may_use_for_financial_attractiveness(value_q.status)
-        else 0.0
+        float(row.get("valor_total") or 0) if may_use_for_financial_attractiveness(value_q.status) else 0.0
     )
 
     # Freemail alone is NOT diagnostic-verifiable (low confidence + requires review)
@@ -548,14 +559,10 @@ def classify_row(
             human_review_done = False
     else:
         # Explicit flag only if caller already validated completeness
-        human_review_status = (
-            "human_review_completed" if human_review_done else "human_review_pending"
-        )
+        human_review_status = "human_review_completed" if human_review_done else "human_review_pending"
 
-    obj_text = (objeto or "")
-    object_mentions_14133 = bool(
-        re.search(r"14[\./]?133|lei\s*14", obj_text, re.I)
-    )
+    obj_text = objeto or ""
+    object_mentions_14133 = bool(re.search(r"14[\./]?133|lei\s*14", obj_text, re.I))
 
     commercial = evaluate_commercial_stage(
         as_of=as_of,
@@ -569,9 +576,7 @@ def classify_row(
         legal_confidence=getattr(regime, "legal_confidence", None),
         exact_budget_date=exact_budget_dt,
         data_assinatura=_parse_date_field(row.get("data_assinatura")),
-        data_publicacao=_parse_date_field(
-            row.get("data_publicacao_fonte") or row.get("data_publicacao")
-        ),
+        data_publicacao=_parse_date_field(row.get("data_publicacao_fonte") or row.get("data_publicacao")),
         inicio_vigencia=_parse_date_field(row.get("data_inicio")),
         is_closed=is_closed,
         open_obligation=open_obl,
@@ -631,17 +636,13 @@ def classify_row(
         data_base_status=dates.data_base_status,
         data_base_exact=data_base_exact,
         index_in_clause=index_in_clause,
-        interregno_completo=bool(
-            dates.interregno_completo or commercial.temporal.interregno_complete_exact
-        ),
+        interregno_completo=bool(dates.interregno_completo or commercial.temporal.interregno_complete_exact),
         open_obligation=open_obl,
         adjustment_history=adj.status,
         value_quality=value_q.status,
         contact_verifiable=contact_verifiable,
         human_review_done=human_review_done,
-        has_valor_potencial=(
-            finance.valor_potencial is not None and commercial.valor_potencial_allowed
-        ),
+        has_valor_potencial=(finance.valor_potencial is not None and commercial.valor_potencial_allowed),
         argument_cites_unproven_value=False,
         docs_text_extracted=text_extracted,
         legal_regime_conflict=regime.regime == REGIME_CONFLICT,
@@ -651,9 +652,7 @@ def classify_row(
 
     # Map commercial stage to primary operational outreach label when not claim-ready
     commercial_stage = commercial.commercial_stage
-    document_request_co = co_status_document_request(
-        commercial_stage, commercial.dimensions.documentary_confidence
-    )
+    document_request_co = co_status_document_request(commercial_stage, commercial.dimensions.documentary_confidence)
     if commercial_stage == DIAGNOSTIC_OUTREACH_READY:
         operational_outreach = DOCUMENT_REQUEST_CANDIDATE  # legacy export bucket
     elif commercial_stage == LIKELY_ADJUSTMENT_OPPORTUNITY:
@@ -664,20 +663,22 @@ def classify_row(
         operational_outreach = OUTREACH_READY_WITHOUT_VALUE_ESTIMATE
     else:
         operational_outreach = outreach.status
-        if commercial_stage in {
-            POTENTIAL_ADJUSTMENT_SIGNAL,
-            LIKELY_ADJUSTMENT_OPPORTUNITY,
-            DIAGNOSTIC_OUTREACH_READY,
-            DOCUMENT_REQUEST_READY,
-        } and operational_outreach == NOT_READY_FOR_OUTREACH:
+        if (
+            commercial_stage
+            in {
+                POTENTIAL_ADJUSTMENT_SIGNAL,
+                LIKELY_ADJUSTMENT_OPPORTUNITY,
+                DIAGNOSTIC_OUTREACH_READY,
+                DOCUMENT_REQUEST_READY,
+            }
+            and operational_outreach == NOT_READY_FOR_OUTREACH
+        ):
             operational_outreach = commercial.outreach_status_legacy
 
     url = pncp_contract_url(row.get("contrato_id"), row.get("orgao_cnpj"))
     evidences_fav = list(commercial.favorable_signals)
     if obra.is_construction:
-        evidences_fav.append(
-            f"Objeto classificado como {obra.category} (conf={obra.confidence:.2f})"
-        )
+        evidences_fav.append(f"Objeto classificado como {obra.category} (conf={obra.confidence:.2f})")
     if commercial.temporal.minimum_elapsed_confirmed:
         evidences_fav.append(
             f"Interregno mínimo conservador confirmado "
@@ -685,16 +686,12 @@ def classify_row(
             f"proxy={commercial.temporal.proxy_type})"
         )
     if dates.interregno_completo:
-        evidences_fav.append(
-            f"Interregno ≥12m na data-base efetiva ({dates.data_base_effective.source}) "
-            f"[{t_layer}]"
-        )
+        evidences_fav.append(f"Interregno ≥12m na data-base efetiva ({dates.data_base_effective.source}) [{t_layer}]")
     if regime.proven:
         evidences_fav.append(f"Regime comprovado: {regime.regime}")
     if doc_scan and doc_scan.evidences:
         evidences_fav.append(
-            f"{len(doc_scan.evidences)} evidências documentais "
-            f"(pipeline={getattr(doc_scan, 'pipeline_state', '?')})"
+            f"{len(doc_scan.evidences)} evidências documentais (pipeline={getattr(doc_scan, 'pipeline_state', '?')})"
         )
     evidences_fav = list(dict.fromkeys(evidences_fav))
 
@@ -722,9 +719,7 @@ def classify_row(
     # valor_potencial ONLY on CALCULABLE stage
     valor_potencial_out = None
     if commercial.valor_potencial_allowed and commercial_stage == CALCULABLE_ADJUSTMENT_CLAIM:
-        valor_potencial_out = (
-            float(finance.valor_potencial) if finance.valor_potencial is not None else None
-        )
+        valor_potencial_out = float(finance.valor_potencial) if finance.valor_potencial is not None else None
 
     lead: dict[str, Any] = {
         "classificacao": elig.status,
@@ -732,21 +727,14 @@ def classify_row(
         "commercial_dimensions": commercial.dimensions.as_dict(),
         "temporal_evidence": commercial.temporal.as_dict(),
         "exact_budget_date": (
-            commercial.temporal.exact_budget_date.isoformat()
-            if commercial.temporal.exact_budget_date
-            else None
+            commercial.temporal.exact_budget_date.isoformat() if commercial.temporal.exact_budget_date else None
         ),
-        "proxy_date": (
-            commercial.temporal.proxy_date.isoformat()
-            if commercial.temporal.proxy_date
-            else None
-        ),
+        "proxy_date": (commercial.temporal.proxy_date.isoformat() if commercial.temporal.proxy_date else None),
         "proxy_type": commercial.temporal.proxy_type,
         "minimum_elapsed_confirmed": commercial.temporal.minimum_elapsed_confirmed,
         "temporal_reasoning": commercial.temporal.temporal_reasoning,
         "calculation_blocked": commercial.temporal.calculation_blocked,
-        "document_request_ready": document_request_co
-        or commercial_stage == DOCUMENT_REQUEST_READY,
+        "document_request_ready": document_request_co or commercial_stage == DOCUMENT_REQUEST_READY,
         "regime_probable_14133": commercial.regime_probable_14133,
         "outreach_status": operational_outreach,
         "outreach_status_claim_path": outreach.status,
@@ -774,8 +762,7 @@ def classify_row(
         "ranking_bucket": sc.ranking_bucket,
         "cnpj": cnpj,
         "razao_social": nome,
-        "nome_fantasia": (contacts or {}).get("nome_fantasia")
-        or (registry or {}).get("nome_fantasia"),
+        "nome_fantasia": (contacts or {}).get("nome_fantasia") or (registry or {}).get("nome_fantasia"),
         "municipio_empresa": (contacts or {}).get("municipio_sede") or row.get("municipio"),
         "uf": uf,
         "cnae": (registry or {}).get("cnae_principal"),
@@ -792,9 +779,7 @@ def classify_row(
         "valor_atualizado": float(row.get("valor_total") or 0),
         "value_quality": value_q.as_dict(),
         "value_quality_status": value_q.status,
-        "saldo_conhecido": float(finance.saldo_contratual)
-        if finance.saldo_contratual is not None
-        else None,
+        "saldo_conhecido": float(finance.saldo_contratual) if finance.saldo_contratual is not None else None,
         "regime_legal": regime.regime,
         "regime_proven": regime.proven,
         "regime_notes": regime.notes,
@@ -802,7 +787,6 @@ def classify_row(
         "regime_legal_confidence": getattr(regime, "legal_confidence", None),
         "regime_chronological_context": getattr(regime, "chronological_context", None) or [],
         "regime_priority_documents": getattr(regime, "priority_documents", None) or [],
-        "regime_probable_14133": commercial.regime_probable_14133,
         "message_template": getattr(commercial, "message_template", None),
         "origin_edital_year": origin_edital_year,
         "origin_process_year": origin_process_year,
@@ -823,19 +807,10 @@ def classify_row(
         "data_base_status": dates.data_base_status,
         "data_base_source": (
             dates.data_base_effective.source
-            if data_base_exact
-            and not str(dates.data_base_effective.source).startswith("proxy")
-            else (
-                "missing"
-                if not data_base_exact
-                else dates.data_base_effective.source
-            )
+            if data_base_exact and not str(dates.data_base_effective.source).startswith("proxy")
+            else ("missing" if not data_base_exact else dates.data_base_effective.source)
         ),
-        "data_base_confidence": (
-            dates.data_base_effective.confidence
-            if data_base_exact
-            else "none"
-        ),
+        "data_base_confidence": (dates.data_base_effective.confidence if data_base_exact else "none"),
         "data_base_exata_localizada": data_base_exact,
         "exact_data_base": exact_data_base_payload,
         "document_link_status": document_link_status,
@@ -994,7 +969,7 @@ def run_pipeline(
     }
     # Memory-safe full national: never retain millions of exclusion rows or
     # non-commercial leads in RAM. Counts stay exact; samples are capped.
-    EXCLUDED_SAMPLE_CAP = 5_000
+    excluded_sample_cap = 5_000
     excluded: list[dict[str, Any]] = []
     excluded_reason_counts: Counter[str] = Counter()
     uf_dist: Counter[str] = Counter()
@@ -1005,7 +980,7 @@ def run_pipeline(
     def _record_excluded(item: dict[str, Any]) -> None:
         reason = str(item.get("reason") or "unknown")
         excluded_reason_counts[reason] += 1
-        if len(excluded) < EXCLUDED_SAMPLE_CAP:
+        if len(excluded) < excluded_sample_cap:
             excluded.append(item)
 
     if dry_run:
@@ -1027,9 +1002,7 @@ def run_pipeline(
 
     sampling_reason = None
     if max_source_rows is not None:
-        sampling_reason = (
-            f"DIAGNOSTIC max_source_rows={max_source_rows} — not a full national analysis"
-        )
+        sampling_reason = f"DIAGNOSTIC max_source_rows={max_source_rows} — not a full national analysis"
 
     params = {
         "as_of": as_of_d.isoformat(),
@@ -1129,9 +1102,7 @@ def run_pipeline(
             funnel["examined_raw"] += 1
             row_key = dedupe_key(row)
             if row_key in already_keys or row_key in seen_dedupe:
-                _record_excluded(
-                    {"contrato_id": row.get("contrato_id"), "reason": "duplicata_instrumento"}
-                )
+                _record_excluded({"contrato_id": row.get("contrato_id"), "reason": "duplicata_instrumento"})
                 continue
             seen_dedupe.add(row_key)
 
@@ -1171,10 +1142,7 @@ def run_pipeline(
             hr = bool(
                 human_map.get(cid, False)
                 or human_map.get(cnpj, False)
-                or (
-                    hr_rec.get("decision") in {"ACCEPT", "CONFIRMED", "APPROVED"}
-                    and hr_rec.get("reviewer")
-                )
+                or (hr_rec.get("decision") in {"ACCEPT", "CONFIRMED", "APPROVED"} and hr_rec.get("reviewer"))
             )
 
             lead = classify_row(
@@ -1203,15 +1171,11 @@ def run_pipeline(
             if cst in funnel:
                 funnel[cst] = funnel.get(cst, 0) + 1
             elif cst == "NOT_COMMERCIAL":
-                funnel["commercial_stage_not_commercial"] = (
-                    funnel.get("commercial_stage_not_commercial", 0) + 1
-                )
+                funnel["commercial_stage_not_commercial"] = funnel.get("commercial_stage_not_commercial", 0) + 1
             reg_l = str(lead.get("regime_legal") or "UNKNOWN")
             regime_dist[reg_l] += 1
             if lead.get("minimum_elapsed_confirmed"):
-                funnel["minimum_interregnum_elapsed"] = (
-                    funnel.get("minimum_interregnum_elapsed", 0) + 1
-                )
+                funnel["minimum_interregnum_elapsed"] = funnel.get("minimum_interregnum_elapsed", 0) + 1
             if is_obra:
                 funnel["construction"] += 1
             else:
@@ -1219,17 +1183,14 @@ def run_pipeline(
                     {
                         "contrato_id": lead.get("contrato_id"),
                         "cnpj": cnpj,
-                        "reason": "objeto_nao_construcao:"
-                        + ",".join(lead.get("obra_reasons") or []),
+                        "reason": "objeto_nao_construcao:" + ",".join(lead.get("obra_reasons") or []),
                     }
                 )
                 continue
 
             if lead.get("regime_proven") and lead.get("regime_legal") == REGIME_14133:
                 funnel["regime_14133_proven"] += 1
-            if lead.get("dates", {}).get("interregno_completo") or lead.get(
-                "minimum_elapsed_confirmed"
-            ):
+            if lead.get("dates", {}).get("interregno_completo") or lead.get("minimum_elapsed_confirmed"):
                 funnel["temporally_mature"] += 1
             if lead.get("data_base_status") == "CONFIRMED":
                 funnel["data_base_confirmed"] += 1
@@ -1244,22 +1205,26 @@ def run_pipeline(
                         "contrato_id": lead.get("contrato_id"),
                         "cnpj": cnpj,
                         "reason": st,
-                        "detail": (lead.get("lacunas") or lead.get("evidencias_favoraveis") or [""])[
-                            :3
-                        ],
+                        "detail": (lead.get("lacunas") or lead.get("evidencias_favoraveis") or [""])[:3],
                     }
                 )
 
             if min_potential_value is not None:
                 pot = lead.get("valor_potencial") or 0
                 teto = lead.get("teto_teorico") or 0
-                if max(pot or 0, teto or 0) < min_potential_value and st not in {
-                    STATUS_HOT_VERIFIED,
-                    STATUS_STRONG_CANDIDATE,
-                } and lead.get("commercial_stage") not in {
-                    LIKELY_ADJUSTMENT_OPPORTUNITY,
-                    DIAGNOSTIC_OUTREACH_READY,
-                }:
+                if (
+                    max(pot or 0, teto or 0) < min_potential_value
+                    and st
+                    not in {
+                        STATUS_HOT_VERIFIED,
+                        STATUS_STRONG_CANDIDATE,
+                    }
+                    and lead.get("commercial_stage")
+                    not in {
+                        LIKELY_ADJUSTMENT_OPPORTUNITY,
+                        DIAGNOSTIC_OUTREACH_READY,
+                    }
+                ):
                     continue
 
             if status_filter and st != status_filter and lead.get("commercial_stage") != status_filter:
@@ -1338,12 +1303,14 @@ def run_pipeline(
     deepen_candidates.sort(key=_deepen_rank)
 
     # Supplier consolidation preview for multi-contract boost in deepen order
-    cnpj_counts: Counter[str] = Counter(
-        str(lead.get("cnpj") or "") for lead in deepen_candidates if lead.get("cnpj")
-    )
+    cnpj_counts: Counter[str] = Counter(str(lead.get("cnpj") or "") for lead in deepen_candidates if lead.get("cnpj"))
     deepen_candidates.sort(
         key=lambda lead: (
-            - (2 if (lead.get("uf") or "").upper() == "SC" else (1 if (lead.get("uf") or "").upper() in {"PR", "RS"} else 0)),
+            -(
+                2
+                if (lead.get("uf") or "").upper() == "SC"
+                else (1 if (lead.get("uf") or "").upper() in {"PR", "RS"} else 0)
+            ),
             -min(5, cnpj_counts.get(str(lead.get("cnpj") or ""), 0)),
             -float(lead.get("priority_score") or 0),
             -float(lead.get("opportunity_score") or 0),
@@ -1391,26 +1358,15 @@ def run_pipeline(
                     max_fetches=3,
                 )
                 doc_fetches += 1
-                if getattr(doc_scan, "deep_document_work", False) or (
-                    getattr(doc_scan, "pdfs_downloaded", 0) or 0
-                ) > 0:
+                if getattr(doc_scan, "deep_document_work", False) or (getattr(doc_scan, "pdfs_downloaded", 0) or 0) > 0:
                     docs_processed_deep += 1
                 if getattr(doc_scan, "official_text_extracted", False):
-                    funnel["official_pdf_text_extracted"] = (
-                        funnel.get("official_pdf_text_extracted", 0) + 1
-                    )
+                    funnel["official_pdf_text_extracted"] = funnel.get("official_pdf_text_extracted", 0) + 1
                 if getattr(doc_scan, "pdfs_downloaded", 0):
-                    funnel["pdfs_downloaded"] = funnel.get("pdfs_downloaded", 0) + int(
-                        doc_scan.pdfs_downloaded
-                    )
+                    funnel["pdfs_downloaded"] = funnel.get("pdfs_downloaded", 0) + int(doc_scan.pdfs_downloaded)
 
             contacts = enrich_from_registry_row(registry_map.get(cnpj))
-            if (
-                enrich_contacts
-                and contact_lookups < max_contact_lookups
-                and cnpj
-                and cnpj not in deepened_cnpjs
-            ):
+            if enrich_contacts and contact_lookups < max_contact_lookups and cnpj and cnpj not in deepened_cnpjs:
                 contact_attempts += 1
                 ba = enrich_from_brasilapi(cnpj)
                 contacts = merge_contacts(contacts, ba)
@@ -1421,10 +1377,7 @@ def run_pipeline(
             hr = bool(
                 human_map.get(cid, False)
                 or human_map.get(cnpj, False)
-                or (
-                    hr_rec.get("decision") in {"ACCEPT", "CONFIRMED", "APPROVED"}
-                    and hr_rec.get("reviewer")
-                )
+                or (hr_rec.get("decision") in {"ACCEPT", "CONFIRMED", "APPROVED"} and hr_rec.get("reviewer"))
             )
             reclass = classify_row(
                 row,
@@ -1438,9 +1391,7 @@ def run_pipeline(
             reclass["_dedupe_key_internal"] = lead.get("_dedupe_key_internal")
             # Replace in leads list
             for i, existing in enumerate(leads):
-                if str(existing.get("contrato_id") or "") == cid and str(
-                    existing.get("cnpj") or ""
-                ) == cnpj:
+                if str(existing.get("contrato_id") or "") == cid and str(existing.get("cnpj") or "") == cnpj:
                     leads[i] = reclass
                     break
             lead_by_cid[cid] = reclass
@@ -1461,18 +1412,12 @@ def run_pipeline(
             if cst in funnel:
                 funnel[cst] = funnel.get(cst, 0) + 1
             elif cst == "NOT_COMMERCIAL":
-                funnel["commercial_stage_not_commercial"] = (
-                    funnel.get("commercial_stage_not_commercial", 0) + 1
-                )
+                funnel["commercial_stage_not_commercial"] = funnel.get("commercial_stage_not_commercial", 0) + 1
 
     # Best-effort official acts for top construction leads
-    top_for_acts = [
-        lead for lead in leads if lead.get("obra", {}).get("is_construction")
-    ][:30]
+    top_for_acts = [lead for lead in leads if lead.get("obra", {}).get("is_construction")][:30]
     try:
-        acts_map = fetch_official_acts_mentions(
-            cfg, [str(lead.get("contrato_id") or "") for lead in top_for_acts]
-        )
+        acts_map = fetch_official_acts_mentions(cfg, [str(lead.get("contrato_id") or "") for lead in top_for_acts])
         for lead in top_for_acts:
             cid = str(lead.get("contrato_id") or "")
             if acts_map.get(cid):
@@ -1520,8 +1465,7 @@ def run_pipeline(
         for p in portfolios
         if p.get("commercial_stage")
         in {DIAGNOSTIC_OUTREACH_READY, VERIFIED_ADJUSTMENT_OPPORTUNITY, CALCULABLE_ADJUSTMENT_CLAIM}
-        or p.get("outreach_status")
-        in {OUTREACH_READY, OUTREACH_READY_WITHOUT_VALUE_ESTIMATE}
+        or p.get("outreach_status") in {OUTREACH_READY, OUTREACH_READY_WITHOUT_VALUE_ESTIMATE}
     ]
     doc_req_suppliers = [
         p
@@ -1573,9 +1517,7 @@ def run_pipeline(
             docs_processed_deep=docs_processed_deep,
         )
 
-    complete = max_source_rows is None and (
-        universe_n < 0 or funnel["examined_raw"] >= universe_n * 0.95
-    )
+    complete = max_source_rows is None and (universe_n < 0 or funnel["examined_raw"] >= universe_n * 0.95)
 
     return {
         "run_id": f"{CAMPAIGN_SLUG}-{as_of_d.isoformat()}-{git_sha()[:8]}",
@@ -1584,9 +1526,7 @@ def run_pipeline(
         "campaign": CAMPAIGN_SLUG,
         "git_sha": git_sha(),
         "source_mode": cfg.mode,
-        "source_dsn_masked": mask_dsn(
-            cfg.dsn or ("ssh:" + cfg.ssh_host if cfg.mode == "ssh" else "")
-        ),
+        "source_dsn_masked": mask_dsn(cfg.dsn or ("ssh:" + cfg.ssh_host if cfg.mode == "ssh" else "")),
         "started_at": started,
         "finished_at": utc_now(),
         "resumed": bool(resume_from),
@@ -1625,11 +1565,7 @@ def run_pipeline(
             "supplier_portfolios": len(portfolios),
             "outreach_ready_suppliers": len(ready_suppliers),
             "outreach_ready_without_value_suppliers": len(
-                [
-                    p
-                    for p in portfolios
-                    if p.get("outreach_status") == OUTREACH_READY_WITHOUT_VALUE_ESTIMATE
-                ]
+                [p for p in portfolios if p.get("outreach_status") == OUTREACH_READY_WITHOUT_VALUE_ESTIMATE]
             ),
             "document_request_suppliers": len(doc_req_suppliers),
             "not_ready_suppliers": len(not_ready_suppliers),
@@ -1641,8 +1577,7 @@ def run_pipeline(
             "pdfs_downloaded": funnel.get("pdfs_downloaded", 0),
             "arquivos_listed": funnel.get("arquivos_listed", 0),
             "docs_processed_deep_definition": (
-                "contracts with PNCP compra PDF download attempted "
-                "(not portal HTML alone)"
+                "contracts with PNCP compra PDF download attempted (not portal HTML alone)"
             ),
             "excluded_count": int(sum(excluded_reason_counts.values()) or len(excluded)),
             "excluded_reason_counts": dict(excluded_reason_counts),

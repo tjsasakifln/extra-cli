@@ -75,8 +75,7 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         default=False,
         help=(
-            "Gerar automated_object_triage.json (máquina). "
-            "Default: False. NÃO confunde com revisão humana documental."
+            "Gerar automated_object_triage.json (máquina). Default: False. NÃO confunde com revisão humana documental."
         ),
     )
     p.add_argument(
@@ -237,9 +236,7 @@ def main(argv: list[str] | None = None) -> int:
 
         human_records = load_human_review_file(args.human_review_file)
         for key, rec in human_records.items():
-            if human_review_done_for(human_records, contrato_id=key) or human_review_done_for(
-                human_records, cnpj=key
-            ):
+            if human_review_done_for(human_records, contrato_id=key) or human_review_done_for(human_records, cnpj=key):
                 human_map[key] = True
     try:
         run = run_pipeline(
@@ -319,10 +316,7 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(summary, ensure_ascii=False, indent=2, default=str))
     else:
         print(f"reajuste_14133 v{MODULE_VERSION} run={run.get('run_id')}")
-        print(
-            f"source={run.get('source_mode')} as_of={run.get('as_of')} "
-            f"terminal={run.get('terminal_status')}"
-        )
+        print(f"source={run.get('source_mode')} as_of={run.get('as_of')} terminal={run.get('terminal_status')}")
         funnel = run.get("funnel") or {}
         metrics = run.get("metrics") or {}
         print(

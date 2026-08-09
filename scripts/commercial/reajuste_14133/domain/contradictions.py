@@ -34,9 +34,7 @@ def detect_material_contradictions(
     regimes = [r for r in (regime_labels or []) if r]
     uniq = set(regimes)
     if legal_regime_conflict or len(uniq) > 1:
-        if legal_regime_conflict or (
-            "LEI_14133_2021" in uniq and ("LEI_8666_1993" in uniq or "RDC" in uniq)
-        ):
+        if legal_regime_conflict or ("LEI_14133_2021" in uniq and ("LEI_8666_1993" in uniq or "RDC" in uniq)):
             items.append("regime_legal_contraditorio")
 
     if already_adjusted and claiming_no_adjustment:

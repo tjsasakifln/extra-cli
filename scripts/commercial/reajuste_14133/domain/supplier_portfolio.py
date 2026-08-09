@@ -128,11 +128,7 @@ def consolidate_suppliers(leads: list[dict[str, Any]]) -> list[dict[str, Any]]:
         )
         best = contracts_sorted[0]
         orgaos = sorted(
-            {
-                str(c.get("orgao_contratante") or "").strip()
-                for c in contracts_sorted
-                if c.get("orgao_contratante")
-            }
+            {str(c.get("orgao_contratante") or "").strip() for c in contracts_sorted if c.get("orgao_contratante")}
         )
         ufs = sorted({str(c.get("uf") or "").upper() for c in contracts_sorted if c.get("uf")})
         portfolio_value = 0.0
@@ -152,8 +148,7 @@ def consolidate_suppliers(leads: list[dict[str, Any]]) -> list[dict[str, Any]]:
                 VERIFIED_ADJUSTMENT_OPPORTUNITY,
                 CALCULABLE_ADJUSTMENT_CLAIM,
             }
-            or c.get("outreach_status")
-            in {OUTREACH_READY, OUTREACH_READY_WITHOUT_VALUE_ESTIMATE}
+            or c.get("outreach_status") in {OUTREACH_READY, OUTREACH_READY_WITHOUT_VALUE_ESTIMATE}
             or c.get("minimum_elapsed_confirmed")
             or (
                 c.get("dates", {}).get("interregno_completo")
@@ -181,9 +176,7 @@ def consolidate_suppliers(leads: list[dict[str, Any]]) -> list[dict[str, Any]]:
             if c.get("classificacao") == STATUS_ALREADY_ADJUSTED
             or c.get("adjustment_history") == PRIOR_ADJUSTMENT_CONFIRMED
         ]
-        discarded = [
-            c for c in contracts_sorted if c.get("classificacao") == STATUS_NOT_ELIGIBLE
-        ]
+        discarded = [c for c in contracts_sorted if c.get("classificacao") == STATUS_NOT_ELIGIBLE]
 
         # Supplier-level commercial stage = best among contracts
         stage_priority = {
@@ -215,10 +208,7 @@ def consolidate_suppliers(leads: list[dict[str, Any]]) -> list[dict[str, Any]]:
         sul = bool(SUL_UFS.intersection(ufs)) or str(best.get("uf") or "").upper() in SUL_UFS
         contact = best.get("canais_contato") or {}
         has_contact = bool(
-            contact.get("email")
-            or contact.get("telefone")
-            or contact.get("site")
-            or contact.get("linkedin")
+            contact.get("email") or contact.get("telefone") or contact.get("site") or contact.get("linkedin")
         )
         doc_request = any(c.get("document_request_ready") for c in contracts_sorted) or best_stage in {
             LIKELY_ADJUSTMENT_OPPORTUNITY,
@@ -281,18 +271,10 @@ def consolidate_suppliers(leads: list[dict[str, Any]]) -> list[dict[str, Any]]:
             "qtd_contratos_candidatos": len(contracts_sorted),
             "orgaos_contratantes": orgaos,
             "valor_total_portfolio_analisado": portfolio_value,
-            "contratos_reajuste_maduro": [
-                c.get("contrato_id") for c in mature if c.get("contrato_id")
-            ],
-            "contratos_dependentes_documentos": [
-                c.get("contrato_id") for c in doc_dep if c.get("contrato_id")
-            ],
-            "contratos_ja_reajustados": [
-                c.get("contrato_id") for c in already if c.get("contrato_id")
-            ],
-            "contratos_descartados": [
-                c.get("contrato_id") for c in discarded if c.get("contrato_id")
-            ],
+            "contratos_reajuste_maduro": [c.get("contrato_id") for c in mature if c.get("contrato_id")],
+            "contratos_dependentes_documentos": [c.get("contrato_id") for c in doc_dep if c.get("contrato_id")],
+            "contratos_ja_reajustados": [c.get("contrato_id") for c in already if c.get("contrato_id")],
+            "contratos_descartados": [c.get("contrato_id") for c in discarded if c.get("contrato_id")],
             "melhor_oportunidade": {
                 "contrato_id": best.get("contrato_id"),
                 "orgao": best.get("orgao_contratante"),
@@ -318,24 +300,16 @@ def consolidate_suppliers(leads: list[dict[str, Any]]) -> list[dict[str, Any]]:
             "commercial_stage": best_stage,
             "document_request_ready": doc_request,
             "commercial_dimensions": best.get("commercial_dimensions"),
-            "opportunity_score": max(
-                (_safe_float(c.get("opportunity_score")) for c in contracts_sorted), default=0
-            ),
-            "verification_score": max(
-                (_safe_float(c.get("verification_score")) for c in contracts_sorted), default=0
-            ),
+            "opportunity_score": max((_safe_float(c.get("opportunity_score")) for c in contracts_sorted), default=0),
+            "verification_score": max((_safe_float(c.get("verification_score")) for c in contracts_sorted), default=0),
             "commercial_fit_score": max(
                 (_safe_float(c.get("commercial_fit_score")) for c in contracts_sorted), default=0
             ),
-            "priority_score": max(
-                (_safe_float(c.get("priority_score")) for c in contracts_sorted), default=0
-            ),
+            "priority_score": max((_safe_float(c.get("priority_score")) for c in contracts_sorted), default=0),
             "motivos_score": score_reasons,
             "outreach_status": best_outreach,
             "prioridade_abordagem": (
-                "SUL_SC_PRIORITY"
-                if sul and in_queue
-                else ("NACIONAL" if in_queue else "INTELIGENCIA")
+                "SUL_SC_PRIORITY" if sul and in_queue else ("NACIONAL" if in_queue else "INTELIGENCIA")
             ),
             "proxima_acao": best.get("proxima_acao_investigativa")
             or best.get("outreach_next_action")
@@ -343,10 +317,7 @@ def consolidate_suppliers(leads: list[dict[str, Any]]) -> list[dict[str, Any]]:
             "riscos": risks,
             "evidencias": best.get("evidencias_favoraveis") or [],
             "score_fornecedor": max(
-                (
-                    _safe_float(c.get("priority_score") or c.get("score_total"))
-                    for c in contracts_sorted
-                ),
+                (_safe_float(c.get("priority_score") or c.get("score_total")) for c in contracts_sorted),
                 default=0,
             ),
             "contratos": [
@@ -382,8 +353,9 @@ def consolidate_suppliers(leads: list[dict[str, Any]]) -> list[dict[str, Any]]:
     portfolios.sort(
         key=lambda p: (
             -stage_priority.get(p.get("commercial_stage") or "", 0),
-            -{"OUTREACH_READY": 4, "OUTREACH_READY_WITHOUT_VALUE_ESTIMATE": 3,
-              "DOCUMENT_REQUEST_CANDIDATE": 2}.get(p.get("outreach_status") or "", 0),
+            -{"OUTREACH_READY": 4, "OUTREACH_READY_WITHOUT_VALUE_ESTIMATE": 3, "DOCUMENT_REQUEST_CANDIDATE": 2}.get(
+                p.get("outreach_status") or "", 0
+            ),
             -_safe_float(p.get("priority_score") or p.get("score_fornecedor")),
             p.get("cnpj") or "",
         )

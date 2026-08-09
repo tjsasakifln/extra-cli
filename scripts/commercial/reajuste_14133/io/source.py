@@ -75,9 +75,13 @@ def resolve_source(
     """Resolve source without logging secrets."""
     if csv_path:
         return SourceConfig(mode="csv", csv_path=csv_path, read_only=True)
-    env_dsn = dsn or os.environ.get("REAJUSTE_SOURCE_DSN") or os.environ.get(
-        "CONFENGE_COMMERCIAL_SOURCE_DSN"
-    ) or os.environ.get("LOCAL_DATALAKE_DSN") or os.environ.get("DATABASE_URL")
+    env_dsn = (
+        dsn
+        or os.environ.get("REAJUSTE_SOURCE_DSN")
+        or os.environ.get("CONFENGE_COMMERCIAL_SOURCE_DSN")
+        or os.environ.get("LOCAL_DATALAKE_DSN")
+        or os.environ.get("DATABASE_URL")
+    )
     if prefer_ssh or os.environ.get("REAJUSTE_SOURCE_MODE", "").lower() == "ssh":
         return SourceConfig(mode="ssh", dsn=None, read_only=True)
     if env_dsn:
@@ -97,15 +101,9 @@ def _connect_dsn(dsn: str) -> Any:
 def _ssh_psql(sql: str, *, host: str, database: str, timeout: int = 600) -> str:
     """Run SQL on remote PG as postgres via SSH. SELECT-only enforced by caller."""
     head = sql.lstrip().lower()
-    if any(
-        head.startswith(w)
-        for w in ("insert", "update", "delete", "drop", "alter", "truncate", "create", "grant")
-    ):
+    if any(head.startswith(w) for w in ("insert", "update", "delete", "drop", "alter", "truncate", "create", "grant")):
         raise RuntimeError("Write SQL blocked in reajuste source (read-only).")
-    remote = (
-        f"sudo -u postgres psql -d {database} -v ON_ERROR_STOP=1 "
-        f"-P pager=off -A -t -c {repr(sql)}"
-    )
+    remote = f"sudo -u postgres psql -d {database} -v ON_ERROR_STOP=1 -P pager=off -A -t -c {repr(sql)}"
     proc = subprocess.run(  # noqa: S603
         ["ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=30", host, remote],  # noqa: S607
         capture_output=True,
@@ -114,9 +112,7 @@ def _ssh_psql(sql: str, *, host: str, database: str, timeout: int = 600) -> str:
         check=False,
     )
     if proc.returncode != 0:
-        raise RuntimeError(
-            f"SSH SQL failed (exit {proc.returncode}): {(proc.stderr or '')[:500]}"
-        )
+        raise RuntimeError(f"SSH SQL failed (exit {proc.returncode}): {(proc.stderr or '')[:500]}")
     return proc.stdout or ""
 
 
@@ -125,11 +121,7 @@ def _ssh_json_rows(sql: str, *, host: str, database: str, timeout: int = 900) ->
     import json
 
     inner = sql.rstrip().rstrip(";")
-    wrap = (
-        "SELECT COALESCE(json_agg(row_to_json(q)), '[]'::json)::text FROM ("
-        + inner
-        + ") q"
-    )
+    wrap = "SELECT COALESCE(json_agg(row_to_json(q)), '[]'::json)::text FROM (" + inner + ") q"
     out = _ssh_psql(wrap, host=host, database=database, timeout=timeout).strip()
     if not out:
         return []
@@ -231,9 +223,7 @@ def build_prefilter_query(
     if has_active:
         # Prefer active but do not exclusive-filter expired-with-open-obligations
         # Include active OR recently ended
-        where.append(
-            "(is_active = true OR data_fim IS NULL OR data_fim >= %s::date - INTERVAL '24 months')"
-        )
+        where.append("(is_active = true OR data_fim IS NULL OR data_fim >= %s::date - INTERVAL '24 months')")
         params.append(as_of.isoformat())
     if uf:
         u = re.sub(r"[^A-Za-z]", "", uf).upper()[:2]
@@ -253,9 +243,7 @@ def build_prefilter_query(
 
     # Keyset: (valor_total DESC, contrato_id ASC) walk without OFFSET
     if keyset_valor is not None and keyset_contrato_id is not None:
-        where.append(
-            "(valor_total < %s OR (valor_total = %s AND contrato_id > %s))"
-        )
+        where.append("(valor_total < %s OR (valor_total = %s AND contrato_id > %s))")
         params.extend([float(keyset_valor), float(keyset_valor), str(keyset_contrato_id)])
 
     if order_for_scan == "keyset":
@@ -265,11 +253,7 @@ def build_prefilter_query(
     else:
         order = " ORDER BY valor_total DESC NULLS LAST, contrato_id ASC"
 
-    sql = (
-        f"SELECT {col_sql} FROM pncp_supplier_contracts WHERE "
-        + " AND ".join(where)
-        + order
-    )
+    sql = f"SELECT {col_sql} FROM pncp_supplier_contracts WHERE " + " AND ".join(where) + order
     if limit is not None:
         sql += " LIMIT %s"
         params.append(int(limit))
@@ -462,9 +446,7 @@ def _normalize_row(row: dict[str, Any], columns: list[str]) -> dict[str, Any]:
     return row
 
 
-def _execute_select_params(
-    cfg: SourceConfig, sql: str, params: list[Any]
-) -> list[dict[str, Any]]:
+def _execute_select_params(cfg: SourceConfig, sql: str, params: list[Any]) -> list[dict[str, Any]]:
     if not (cfg.mode == "dsn" and cfg.dsn):
         raise RuntimeError("Parameterized execute requires dsn mode")
     conn = _connect_dsn(cfg.dsn)
@@ -486,9 +468,7 @@ def _execute_select(cfg: SourceConfig, sql: str, *, columns: list[str]) -> list[
         finally:
             conn.close()
     if cfg.mode == "ssh":
-        result = _ssh_json_rows(
-            sql, host=cfg.ssh_host, database=cfg.ssh_database, timeout=900
-        )
+        result = _ssh_json_rows(sql, host=cfg.ssh_host, database=cfg.ssh_database, timeout=900)
         return [_normalize_row(row, columns) for row in result]
     raise RuntimeError(f"Unsupported source mode: {cfg.mode}")
 
@@ -615,10 +595,7 @@ def fetch_official_acts_mentions(
         try:
             if cfg.mode == "dsn" and cfg.dsn:
                 # Generic column probe — fail soft
-                sql = (
-                    f"SELECT * FROM {table} WHERE "
-                    f"CAST(row_to_json({table}) AS text) ILIKE %s LIMIT %s"
-                )
+                sql = f"SELECT * FROM {table} WHERE CAST(row_to_json({table}) AS text) ILIKE %s LIMIT %s"
                 conn = _connect_dsn(cfg.dsn)
                 try:
                     with conn.cursor() as cur:

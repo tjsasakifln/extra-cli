@@ -259,10 +259,7 @@ def test_cartography_lidar_not_construction():
     )
     r = classify_construction(obj, razao_social="CONSÓRCIO PARANAMAP")
     assert r.is_construction is False
-    assert any(
-        "cartograph" in c or "aerolevantamento" in c or "sector" in c
-        for c in r.reason_codes + r.negative_hits
-    )
+    assert any("cartograph" in c or "aerolevantamento" in c or "sector" in c for c in r.reason_codes + r.negative_hits)
 
 
 def test_data_base_sicro_abril_is_exact_competence():

@@ -228,13 +228,7 @@ def evaluate_outreach(
 
     if regime != REGIME_14133 or not regime_proven:
         # Strong commercial signal + construction may still be DOCUMENT_REQUEST
-        strong_signal = (
-            is_construction
-            and private_supplier
-            and interregno_completo
-            and value_ok
-            and open_obligation
-        )
+        strong_signal = is_construction and private_supplier and interregno_completo and value_ok and open_obligation
         if strong_signal and not legal_regime_conflict:
             return OutreachResult(
                 status=DOCUMENT_REQUEST_CANDIDATE,
@@ -274,9 +268,7 @@ def evaluate_outreach(
             gates=gates,
             gates_passed=passed,
             language_allowed="diagnostic_and_calculation_offer_no_figure",
-            next_action=(
-                "Abordar oferecendo diagnóstico e cálculo sem citar cifra de valor potencial."
-            ),
+            next_action=("Abordar oferecendo diagnóstico e cálculo sem citar cifra de valor potencial."),
             reasons=["all_gates_except_financial_base"],
             blocked_by=["valor_potencial_sem_saldo_ou_serie"],
         )

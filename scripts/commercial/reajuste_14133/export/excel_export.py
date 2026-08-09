@@ -65,9 +65,7 @@ def _write_sheet(ws, rows: list[dict[str, Any]], *, freeze: bool = True) -> None
         for i, h in enumerate(headers, start=1)
         if any(x in h for x in ("valor", "saldo", "teto", "base_potencialmente", "portfolio"))
     }
-    date_cols = {
-        i for i, h in enumerate(headers, start=1) if "data" in h or h in {"vigencia_final"}
-    }
+    date_cols = {i for i, h in enumerate(headers, start=1) if "data" in h or h in {"vigencia_final"}}
     for r in ws.iter_rows(min_row=2, max_row=ws.max_row):
         for i, cell in enumerate(r, start=1):
             if i in money_cols and isinstance(cell.value, (int, float)):
@@ -96,30 +94,20 @@ def export_workbook(out_dir: Path, run: dict[str, Any]) -> Path:
     all_leads = run.get("leads") or []
 
     ready = [p for p in portfolios if p.get("outreach_status") == "OUTREACH_READY"]
-    ready_nv = [
-        p
-        for p in portfolios
-        if p.get("outreach_status") == "OUTREACH_READY_WITHOUT_VALUE_ESTIMATE"
-    ]
-    doc_req = [
-        p for p in portfolios if p.get("outreach_status") == "DOCUMENT_REQUEST_CANDIDATE"
-    ]
-    not_ready = [
-        p for p in portfolios if p.get("outreach_status") == "NOT_READY_FOR_OUTREACH"
-    ]
+    ready_nv = [p for p in portfolios if p.get("outreach_status") == "OUTREACH_READY_WITHOUT_VALUE_ESTIMATE"]
+    doc_req = [p for p in portfolios if p.get("outreach_status") == "DOCUMENT_REQUEST_CANDIDATE"]
+    not_ready = [p for p in portfolios if p.get("outreach_status") == "NOT_READY_FOR_OUTREACH"]
     sul = [p for p in portfolios if p.get("sul_priority")]
     already = [lead for lead in all_leads if lead.get("classificacao") == "ALREADY_ADJUSTED"]
     conflict = [
         lead
         for lead in all_leads
-        if lead.get("classificacao") == "LEGAL_REGIME_CONFLICT"
-        or lead.get("regime_legal") == "LEGAL_REGIME_CONFLICT"
+        if lead.get("classificacao") == "LEGAL_REGIME_CONFLICT" or lead.get("regime_legal") == "LEGAL_REGIME_CONFLICT"
     ]
     outliers = [
         lead
         for lead in all_leads
-        if lead.get("value_quality_status")
-        in {"VALUE_OUTLIER_REQUIRES_REVIEW", "VALUE_CONFLICT", "VALUE_UNUSABLE"}
+        if lead.get("value_quality_status") in {"VALUE_OUTLIER_REQUIRES_REVIEW", "VALUE_CONFLICT", "VALUE_UNUSABLE"}
     ]
 
     sheets: list[tuple[str, list[dict[str, Any]]]] = [

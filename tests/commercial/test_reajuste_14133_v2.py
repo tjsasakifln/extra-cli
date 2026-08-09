@@ -57,16 +57,12 @@ AS_OF = date(2026, 8, 4)
 
 
 def test_fp_aeronautical_logistics_not_construction():
-    r = classify_construction(
-        "Suporte logístico de motores aeronáuticos e componentes de aeronaves"
-    )
+    r = classify_construction("Suporte logístico de motores aeronáuticos e componentes de aeronaves")
     assert not r.is_construction
 
 
 def test_fp_software_gestao_obras_not_construction():
-    r = classify_construction(
-        "Licenciamento de software de gestão de obras e construção civil"
-    )
+    r = classify_construction("Licenciamento de software de gestão de obras e construção civil")
     assert not r.is_construction
 
 
@@ -81,16 +77,12 @@ def test_fp_ppp_escolar_not_empreitada():
 
 
 def test_fp_concessao_hospitalar_not_obra():
-    r = classify_construction(
-        "Concessão hospitalar de longo prazo com gestão de serviços de saúde"
-    )
+    r = classify_construction("Concessão hospitalar de longo prazo com gestão de serviços de saúde")
     assert not r.is_construction
 
 
 def test_fp_projeto_sem_execucao_not_obra():
-    r = classify_construction(
-        "Elaboração de projeto básico e executivo sem execução de obra"
-    )
+    r = classify_construction("Elaboração de projeto básico e executivo sem execução de obra")
     assert not r.is_construction
 
 
@@ -105,9 +97,7 @@ def test_fp_manutencao_equipamento_not_obra():
 
 
 def test_true_pavimentacao_still_construction():
-    r = classify_construction(
-        "Execução de obra de pavimentação asfáltica e drenagem urbana com empreitada"
-    )
+    r = classify_construction("Execução de obra de pavimentação asfáltica e drenagem urbana com empreitada")
     assert r.is_construction
 
 
@@ -116,9 +106,7 @@ def test_true_pavimentacao_still_construction():
 
 def test_regime_conflict_blocks():
     r = classify_legal_regime(
-        document_texts=[
-            "Contrato regido pela Lei nº 14.133/2021 e subsidiariamente pela Lei 8.666/1993"
-        ]
+        document_texts=["Contrato regido pela Lei nº 14.133/2021 e subsidiariamente pela Lei 8.666/1993"]
     )
     assert r.regime == REGIME_CONFLICT
     assert not r.proven
@@ -136,9 +124,7 @@ def test_index_outside_clause_not_assigned():
     scan = extract_from_text(text, doc_type="anexo", url=None)
     assert not scan.reajuste_clause_mention
     assert "SINAPI" not in scan.index_in_clause
-    assert "SINAPI" in scan.index_outside_clause_only or "SINAPI" in (
-        scan.index_candidates or []
-    )
+    assert "SINAPI" in scan.index_outside_clause_only or "SINAPI" in (scan.index_candidates or [])
 
 
 def test_index_in_reajuste_clause_assigned():
@@ -161,9 +147,7 @@ def test_index_in_reajuste_clause_assigned():
 
 def test_pdf_binary_not_docs_accessible():
     text = "[PDF_BINARY bytes=12345 sha256=abcdef0123456789]"
-    scan = extract_from_text(
-        text, doc_type="pdf", url="https://x", is_binary_placeholder=True
-    )
+    scan = extract_from_text(text, doc_type="pdf", url="https://x", is_binary_placeholder=True)
     assert scan.pdf_binary_located
     assert not scan.docs_accessible
     assert not scan.text_extracted
@@ -290,9 +274,7 @@ def test_no_prior_adjustment_is_not_proof():
 
 
 def test_partial_adjustment():
-    h = classify_adjustment_history(
-        document_texts=["Foi concedido reajuste parcial das parcelas de 2024."]
-    )
+    h = classify_adjustment_history(document_texts=["Foi concedido reajuste parcial das parcelas de 2024."])
     assert h.status == "PARTIAL_ADJUSTMENT_CONFIRMED"
 
 
@@ -525,7 +507,17 @@ def test_cli_manual_review_default_false():
 
 def test_keyset_query_has_no_offset_when_keyset():
     sql, params = build_prefilter_query(
-        columns=["contrato_id", "valor_total", "fornecedor_cnpj", "data_assinatura", "data_inicio", "data_publicacao", "data_fim", "is_active", "uf"],
+        columns=[
+            "contrato_id",
+            "valor_total",
+            "fornecedor_cnpj",
+            "data_assinatura",
+            "data_inicio",
+            "data_publicacao",
+            "data_fim",
+            "is_active",
+            "uf",
+        ],
         as_of=AS_OF,
         min_contract_value=1_000_000,
         limit=100,
@@ -546,9 +538,7 @@ def test_keyset_stream_csv(tmp_path: Path):
         encoding="utf-8",
     )
     cfg = resolve_source(csv_path=str(csv_path))
-    batches = list(
-        iter_contracts_keyset(cfg, as_of=AS_OF, min_contract_value=1_000_000, batch_size=1)
-    )
+    batches = list(iter_contracts_keyset(cfg, as_of=AS_OF, min_contract_value=1_000_000, batch_size=1))
     assert len(batches) == 2
     assert sum(len(b) for b in batches) == 2
 
@@ -582,12 +572,8 @@ def test_classify_row_blocks_unknown_regime_from_ready():
 
 def _official_pdf_scan_dict(*, conflict: bool = False) -> dict:
     """Minimal stored doc_scan with official PDF evidence (as on disk after recovery)."""
-    excerpts_14133 = (
-        "EDITAL REGIDO PELA LEI 14.133 DE 01/04/2021 e demais normas aplicáveis."
-    )
-    excerpts_clause = (
-        "CLÁUSULA DE REAJUSTE: os preços serão reajustados anualmente pelo INCC."
-    )
+    excerpts_14133 = "EDITAL REGIDO PELA LEI 14.133 DE 01/04/2021 e demais normas aplicáveis."
+    excerpts_clause = "CLÁUSULA DE REAJUSTE: os preços serão reajustados anualmente pelo INCC."
     evidences = [
         {
             "doc_type": "edital_pdf",
@@ -887,9 +873,7 @@ def test_sanitize_doc_scan_clears_false_official_without_pncp_pdf():
     ]
     # only contract b has official PDF text methods
     assert unique_deep_contract_ids(leads) == {"b"}
-    assert unique_official_contract_ids(
-        [{"contrato_id": "b", "doc_scan": good}]
-    ) == {"b"}
+    assert unique_official_contract_ids([{"contrato_id": "b", "doc_scan": good}]) == {"b"}
 
 
 def test_reclassify_strips_false_official_before_classify():

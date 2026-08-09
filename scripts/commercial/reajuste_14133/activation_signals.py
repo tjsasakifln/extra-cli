@@ -107,6 +107,4 @@ def assert_not_operational_authority(payload: dict[str, Any]) -> None:
         "RESEARCH_REQUIRED",
         "SUPPRESSED",
     }:
-        raise AssertionError(
-            "reajuste must not set activation_state; confenge_activation owns that"
-        )
+        raise AssertionError("reajuste must not set activation_state; confenge_activation owns that")

@@ -81,9 +81,7 @@ def _hot_gates(
     )
     return {
         "obra_construcao": bool(obra.is_construction and obra.confidence >= 0.55),
-        "regime_14133_comprovado": bool(
-            regime.regime == REGIME_14133 and regime.proven
-        ),
+        "regime_14133_comprovado": bool(regime.regime == REGIME_14133 and regime.proven),
         "vigente_ou_saldo_executavel": bool(not is_closed and has_executable_balance),
         "data_base_exata": data_base_ok,
         "indice_localizado": bool(index_found and finance.indice_contratual),

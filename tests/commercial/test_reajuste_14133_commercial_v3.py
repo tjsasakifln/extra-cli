@@ -41,8 +41,7 @@ MATURE_OBRA_ROW = {
     "orgao_cnpj": "04892707000100",
     "orgao_nome": "Departamento Nacional de Infraestrutura de Transportes",
     "objeto_contrato": (
-        "Execução de obras de pavimentação asfáltica e drenagem urbana "
-        "na rodovia SC-401 — empreitada por preço global"
+        "Execução de obras de pavimentação asfáltica e drenagem urbana na rodovia SC-401 — empreitada por preço global"
     ),
     "valor_total": 12_500_000,
     "data_assinatura": "2023-05-10",
@@ -378,9 +377,7 @@ def test_human_review_file_import(tmp_path: Path):
         encoding="utf-8",
     )
     recs = load_human_review_file(path)
-    assert human_review_done_for(
-        recs, contrato_id="04892707000100-1-000200/2023"
-    )
+    assert human_review_done_for(recs, contrato_id="04892707000100-1-000200/2023")
     # Incomplete: reviewer+decision only
     path_inc = tmp_path / "incomplete.json"
     path_inc.write_text(
@@ -600,9 +597,7 @@ def test_export_run_rejects_ai_as_human_review(tmp_path: Path):
     result = export_run(run, tmp_path, dossier_count=0, manual_review=False)
     paths = result.get("paths") or {}
     assert "human_review" not in paths
-    assert "human_review_completed" not in paths or not str(
-        paths.get("human_review_completed", "")
-    ).endswith("human_review_top30_suppliers.json")
-    assert run.get("metrics", {}).get("human_review_count") in {None, 0} or (
-        "human_review" not in paths
+    assert "human_review_completed" not in paths or not str(paths.get("human_review_completed", "")).endswith(
+        "human_review_top30_suppliers.json"
     )
+    assert run.get("metrics", {}).get("human_review_count") in {None, 0} or ("human_review" not in paths)

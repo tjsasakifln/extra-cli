@@ -25,9 +25,9 @@ from scripts.commercial.reajuste_14133 import (
     LEGAL_CONF_NONE,
     LEGAL_CONF_UNRESOLVED,
     POST_TRANSITION_AMBIGUITY_YEAR,
+    REGIME_8666,
     REGIME_10520,
     REGIME_14133,
-    REGIME_8666,
     REGIME_CONFLICT,
     REGIME_LIKELY_14133,
     REGIME_RDC,
@@ -113,11 +113,7 @@ def in_transition_or_ambiguity_window(
     Dual regime optionality: 2021–2023. Signatures in 2024 may still stem from
     2023 (or earlier) processes. Origin year in the window also qualifies.
     """
-    years = [
-        y
-        for y in (signature_year, origin_process_year, origin_edital_year)
-        if y is not None
-    ]
+    years = [y for y in (signature_year, origin_process_year, origin_edital_year) if y is not None]
     if not years:
         return False
     for y in years:
@@ -139,13 +135,9 @@ def origin_is_legacy_regime(
     joined = _norm("\n".join(origin_document_texts or []))
     if not joined:
         return False
-    if re.search(_8666_PATTERNS[0], joined, re.I) or re.search(
-        _8666_PATTERNS[1], joined, re.I
-    ):
+    if re.search(_8666_PATTERNS[0], joined, re.I) or re.search(_8666_PATTERNS[1], joined, re.I):
         return True
-    if re.search(_RDC_PATTERNS[0], joined, re.I) or re.search(
-        _RDC_PATTERNS[2], joined, re.I
-    ):
+    if re.search(_RDC_PATTERNS[0], joined, re.I) or re.search(_RDC_PATTERNS[2], joined, re.I):
         return True
     return False
 
@@ -192,10 +184,7 @@ def _chronological_notes(
     """Context for investigation priority — must not elevate legal confidence."""
     notes: list[str] = []
     if signature_year is not None:
-        notes.append(
-            f"Assinatura em {signature_year} é contexto cronológico; "
-            f"não comprova regime da Lei 14.133/2021."
-        )
+        notes.append(f"Assinatura em {signature_year} é contexto cronológico; não comprova regime da Lei 14.133/2021.")
         if TRANSITION_START_YEAR <= signature_year <= TRANSITION_END_YEAR:
             notes.append(
                 f"Ano {signature_year} está no período de transição dual "
@@ -207,9 +196,7 @@ def _chronological_notes(
                 "ou anterior — ano não presume Lei 14.133."
             )
     if published_on_pncp:
-        notes.append(
-            "Publicação no PNCP não comprova, isoladamente, o regime jurídico."
-        )
+        notes.append("Publicação no PNCP não comprova, isoladamente, o regime jurídico.")
     if origin_edital_year is not None:
         notes.append(f"Edital/processo originário: ano {origin_edital_year}.")
     if origin_process_year is not None and origin_process_year != origin_edital_year:
@@ -243,11 +230,7 @@ def classify_legal_regime(
         origin_edital_year=origin_edital_year,
     )
     initiation_year = _year_of(initiation_act_date)
-    official_linked = (
-        has_official_linked_document
-        if has_official_linked_document is not None
-        else bool(document_texts)
-    )
+    official_linked = has_official_linked_document if has_official_linked_document is not None else bool(document_texts)
 
     # --- Origin legacy overrides signature year (2024 contract from 2023 edital) ---
     origin_texts = list(origin_document_texts or [])
@@ -287,11 +270,14 @@ def classify_legal_regime(
             legal_confidence=LEGAL_CONF_HIGH,
             chronological_context=chrono,
         )
-    if origin_is_legacy_regime(
-        origin_process_year=origin_process_year,
-        origin_edital_year=origin_edital_year,
-        origin_document_texts=origin_document_texts,
-    ) and not origin_14133:
+    if (
+        origin_is_legacy_regime(
+            origin_process_year=origin_process_year,
+            origin_edital_year=origin_edital_year,
+            origin_document_texts=origin_document_texts,
+        )
+        and not origin_14133
+    ):
         # Pre-2021 origin year without 14.133 citation → legacy presumption of 8.666 family
         legacy_year = origin_edital_year or origin_process_year
         return RegimeResult(
@@ -479,9 +465,7 @@ def classify_legal_regime(
     # Positive normative signal (not year, not silence):
     # - origin process/edital cites 14.133; or
     # - contract-side docs cite 14.133 but official_linked is false (not R-A yet)
-    positive_normative_14133 = bool(origin_14133) or (
-        bool(hits_14133) and bool(document_texts) and not official_linked
-    )
+    positive_normative_14133 = bool(origin_14133) or (bool(hits_14133) and bool(document_texts) and not official_linked)
     if (
         positive_normative_14133
         and document_link_validated
@@ -523,9 +507,7 @@ def classify_legal_regime(
 
     if object_only_14133:
         # Weak object mention — does not prove, does not elevate to LIKELY_14133
-        chrono = chrono + [
-            "Menção no objeto sem documento oficial — não comprova regime."
-        ]
+        chrono = chrono + ["Menção no objeto sem documento oficial — não comprova regime."]
 
     # R-C — transitional regime unresolved
     transitional = in_transition_or_ambiguity_window(
@@ -558,13 +540,9 @@ def classify_legal_regime(
     # R-D — unknown
     notes_parts = list(chrono)
     if object_only_14133:
-        notes_parts.append(
-            "Menção no objeto sem documento oficial — não comprova regime para HOT/VERIFIED."
-        )
+        notes_parts.append("Menção no objeto sem documento oficial — não comprova regime para HOT/VERIFIED.")
     if not notes_parts:
-        notes_parts.append(
-            "Regime jurídico não comprovado por campo estruturado nem documento."
-        )
+        notes_parts.append("Regime jurídico não comprovado por campo estruturado nem documento.")
 
     return RegimeResult(
         regime=REGIME_UNKNOWN,
@@ -582,7 +560,9 @@ def classify_legal_regime(
     )
 
 
-def regime_allows_likely_opportunity(result: RegimeResult | None = None, *, regime: str | None = None, proven: bool = False) -> bool:
+def regime_allows_likely_opportunity(
+    result: RegimeResult | None = None, *, regime: str | None = None, proven: bool = False
+) -> bool:
     """True only for R-A proven 14.133 or R-B LIKELY_14133 — never year/PNCP."""
     if result is not None:
         if result.regime == REGIME_14133 and result.proven:

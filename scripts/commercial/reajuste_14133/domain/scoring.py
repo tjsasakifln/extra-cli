@@ -142,9 +142,7 @@ def score_lead(
         notes.append("Atratividade financeira bloqueada: valor PNCP não validado/outlier.")
         penalties["valor_nao_validado"] = 0.15
     else:
-        valor_ref = pot if pot > 0 else (
-            teto * 0.25 if teto > 0 else total_v * 0.02
-        )
+        valor_ref = pot if pot > 0 else (teto * 0.25 if teto > 0 else total_v * 0.02)
         if valor_ref <= 0:
             fin = 0.15
         else:
@@ -357,12 +355,7 @@ def rank_leads(leads: list[dict[str, Any]], *, ranking: str | None = None) -> li
         return (
             -float(lead.get("priority_score") or lead.get("score_total") or 0),
             -float(lead.get("opportunity_score") or 0),
-            -float(
-                lead.get("teto_teorico")
-                or lead.get("valor_atualizado")
-                or lead.get("valor_original")
-                or 0
-            ),
+            -float(lead.get("teto_teorico") or lead.get("valor_atualizado") or lead.get("valor_original") or 0),
             str(lead.get("contrato_id") or ""),
         )
 

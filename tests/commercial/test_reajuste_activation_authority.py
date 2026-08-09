@@ -12,7 +12,6 @@ from scripts.commercial.reajuste_14133.activation_signals import (
 )
 from scripts.commercial.reajuste_14133.domain.scoring import ScoreBreakdown
 
-
 ROOT = Path(__file__).resolve().parents[2]
 REAJUSTE = ROOT / "scripts" / "commercial" / "reajuste_14133"
 
@@ -61,28 +60,21 @@ def test_assert_blocks_activation_state_injection():
 
 
 def test_reajuste_source_does_not_assign_activation_state():
-    """Static scan: reajuste package must not assign ACTIONABLE_NOW as authority."""
-    banned = ("ACTIONABLE_NOW", "activation_state")
+    """Static scan: reajuste package must not assign activation_state as authority."""
     offenders: list[str] = []
     for path in REAJUSTE.rglob("*.py"):
         if path.name == "activation_signals.py":
             continue  # documents the boundary
         text = path.read_text(encoding="utf-8")
-        # Allow string mentions in comments/docs about the boundary
-        if "ACTIONABLE_NOW" in text and "must not" not in text and "not set" not in text:
-            # Only fail if it looks like assignment
-            try:
-                tree = ast.parse(text)
-            except SyntaxError:
-                continue
-            for node in ast.walk(tree):
-                if isinstance(node, ast.Assign):
-                    for t in node.targets:
-                        if isinstance(t, ast.Name) and t.id == "activation_state":
-                            offenders.append(str(path.relative_to(ROOT)))
-                if isinstance(node, ast.Constant) and node.value == "ACTIONABLE_NOW":
-                    # constant alone is OK if not assigned to activation_state
-                    pass
+        try:
+            tree = ast.parse(text)
+        except SyntaxError:
+            continue
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Assign):
+                for t in node.targets:
+                    if isinstance(t, ast.Name) and t.id == "activation_state":
+                        offenders.append(str(path.relative_to(ROOT)))
     assert not offenders, f"reajuste must not assign activation_state: {offenders}"
 
 

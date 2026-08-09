@@ -23,19 +23,16 @@ from scripts.commercial.reajuste_14133 import (
     CALCULABLE_ADJUSTMENT_CLAIM,
     DIAGNOSTIC_OUTREACH_READY,
     DOCUMENT_REQUEST_READY,
-    LEGAL_CONF_CONFLICT,
     LEGAL_CONF_HIGH,
     LEGAL_CONF_MEDIUM,
-    LEGAL_CONF_NONE,
-    LEGAL_CONF_UNRESOLVED,
     LIKELY_ADJUSTMENT_OPPORTUNITY,
     NO_PRIOR_ADJUSTMENT_LOCATED,
     PARTIAL_ADJUSTMENT_CONFIRMED,
     POTENTIAL_ADJUSTMENT_SIGNAL,
     PRIOR_ADJUSTMENT_CONFIRMED,
+    REGIME_8666,
     REGIME_10520,
     REGIME_14133,
-    REGIME_8666,
     REGIME_CONFLICT,
     REGIME_LIKELY_14133,
     REGIME_RDC,
@@ -252,11 +249,7 @@ def evaluate_temporal_hierarchy(
             proxy_type=(
                 "data_assinatura"
                 if data_assinatura
-                else (
-                    "inicio_vigencia"
-                    if inicio_vigencia
-                    else ("data_publicacao" if data_publicacao else None)
-                )
+                else ("inicio_vigencia" if inicio_vigencia else ("data_publicacao" if data_publicacao else None))
             ),
             minimum_elapsed_confirmed=elapsed,
             temporal_confidence=CONF_HIGH if elapsed else CONF_MEDIUM,
@@ -271,9 +264,7 @@ def evaluate_temporal_hierarchy(
                     else "interregno anual ainda incompleto na data-base exata."
                 )
             ),
-            days_since_signature=(
-                (as_of - data_assinatura).days if data_assinatura else None
-            ),
+            days_since_signature=((as_of - data_assinatura).days if data_assinatura else None),
         )
 
     if data_assinatura is not None:
@@ -352,9 +343,7 @@ def evaluate_temporal_hierarchy(
         calculation_blocked=True,
         diagnostic_outreach_allowed=False,
         interregno_complete_exact=False,
-        temporal_reasoning=(
-            "Nenhum marco temporal permite inferência conservadora de interregno anual."
-        ),
+        temporal_reasoning=("Nenhum marco temporal permite inferência conservadora de interregno anual."),
     )
 
 
@@ -605,9 +594,7 @@ def evaluate_commercial_stage(
         favorable.append("regime_14133_comprovado")
     elif regime == REGIME_LIKELY_14133 or (probable and not regime_proven):
         favorable.append("regime_14133_fortemente_indicado_r_b")
-        uncertainties.append(
-            "Regime LIKELY_14133 por evidências oficiais convergentes — não comprovado"
-        )
+        uncertainties.append("Regime LIKELY_14133 por evidências oficiais convergentes — não comprovado")
     elif regime == REGIME_TRANSITIONAL_UNRESOLVED:
         uncertainties.append("transitional_regime_unresolved")
         favorable.append("regime_transicao_requer_documentos")
@@ -622,9 +609,7 @@ def evaluate_commercial_stage(
         favorable.append("interregno_exato_confirmado")
     elif temporal.level == TEMPORAL_LEVEL_B and temporal.minimum_elapsed_confirmed:
         favorable.append("interregno_conservador_por_assinatura_gt_12m")
-        uncertainties.append(
-            "data-base exata do orçamento ausente — cálculo preciso bloqueado"
-        )
+        uncertainties.append("data-base exata do orçamento ausente — cálculo preciso bloqueado")
     elif temporal.level == TEMPORAL_LEVEL_C:
         favorable.append("marco_temporal_proxy_antigo")
         uncertainties.append("sem assinatura confiável — confiança temporal reduzida")
@@ -664,9 +649,7 @@ def evaluate_commercial_stage(
 
     if adjustment_history == NO_PRIOR_ADJUSTMENT_LOCATED:
         adj_conf = CONF_LOW
-        uncertainties.append(
-            "ausencia_de_apostila_nao_prova_inexistencia_nem_existencia_de_reajuste"
-        )
+        uncertainties.append("ausencia_de_apostila_nao_prova_inexistencia_nem_existencia_de_reajuste")
     elif adjustment_history == PARTIAL_ADJUSTMENT_CONFIRMED:
         adj_conf = CONF_MEDIUM
         uncertainties.append("reajuste_parcial_localizado")
@@ -684,13 +667,9 @@ def evaluate_commercial_stage(
     conf_in = (contact_confidence or "").lower()
     if contact_verifiable and conf_in in {"", "high", CONF_HIGH}:
         contact_ready = CONF_HIGH
-    elif conf_in in {"low", CONF_LOW} or (
-        not contact_verifiable and conf_in in {"low", CONF_LOW}
-    ):
+    elif conf_in in {"low", CONF_LOW} or (not contact_verifiable and conf_in in {"low", CONF_LOW}):
         contact_ready = CONF_LOW
-        uncertainties.append(
-            "contato_freemail_ou_baixa_confianca_exige_revisao_antes_de_abordagem"
-        )
+        uncertainties.append("contato_freemail_ou_baixa_confianca_exige_revisao_antes_de_abordagem")
     elif contact_verifiable:
         contact_ready = CONF_HIGH
     else:
@@ -734,13 +713,10 @@ def evaluate_commercial_stage(
     action = ACTION_INTEL_ONLY
     diagnostic_ok = False
     legacy = "NOT_READY_FOR_OUTREACH"
-    msg_key, msg_body = select_message_template(
-        regime=regime, regime_proven=regime_proven, regime_probable=probable
-    )
+    msg_key, msg_body = select_message_template(regime=regime, regime_proven=regime_proven, regime_probable=probable)
 
-    temporal_ok_for_likely = (
-        temporal.minimum_elapsed_confirmed
-        or (temporal.level == TEMPORAL_LEVEL_A and temporal.interregno_complete_exact)
+    temporal_ok_for_likely = temporal.minimum_elapsed_confirmed or (
+        temporal.level == TEMPORAL_LEVEL_A and temporal.interregno_complete_exact
     )
     temporal_ok_for_signal = temporal_ok_for_likely or temporal.level == TEMPORAL_LEVEL_C
 
@@ -840,9 +816,7 @@ def evaluate_commercial_stage(
     ):
         stage = LIKELY_ADJUSTMENT_OPPORTUNITY
         language = "commercial_intelligence"
-        next_act = (
-            "Priorizar na fila; solicitar documentos e enriquecer contato se necessário."
-        )
+        next_act = "Priorizar na fila; solicitar documentos e enriquecer contato se necessário."
         action = ACTION_REQUEST_DOCS
         reasons.append("likely_opportunity_regime_proven_or_r_b")
         legacy = "DOCUMENT_REQUEST_CANDIDATE"
@@ -859,31 +833,18 @@ def evaluate_commercial_stage(
             legacy = "DOCUMENT_REQUEST_CANDIDATE"
         else:
             if contact_ready == CONF_LOW:
-                uncertainties.append(
-                    "contato_baixa_confianca_freemail_exige_revisao — permanece LIKELY"
-                )
+                uncertainties.append("contato_baixa_confianca_freemail_exige_revisao — permanece LIKELY")
                 action = ACTION_ENRICH_CONTACT
-                next_act = (
-                    "Revisar contato freemail/baixa confiança; enriquecer canal corporativo."
-                )
+                next_act = "Revisar contato freemail/baixa confiança; enriquecer canal corporativo."
             else:
-                uncertainties.append(
-                    "contato_empresarial_ausente — lead permanece na fila de enriquecimento"
-                )
+                uncertainties.append("contato_empresarial_ausente — lead permanece na fila de enriquecimento")
                 action = ACTION_ENRICH_CONTACT
-                next_act = (
-                    "Enriquecer contato empresarial; manter na fila de leads prioritários."
-                )
+                next_act = "Enriquecer contato empresarial; manter na fila de leads prioritários."
 
     # 4) DOCUMENT_REQUEST_READY — primary operational state for unresolved regime
-    elif strong_doc_request and (
-        regime_unresolved
-        or not probable
-    ):
+    elif strong_doc_request and (regime_unresolved or not probable):
         # Prefer DOCUMENT_REQUEST when regime needs resolution and maturity is strong
-        if regime in {REGIME_TRANSITIONAL_UNRESOLVED, REGIME_UNKNOWN} or (
-            not probable and temporal_ok_for_likely
-        ):
+        if regime in {REGIME_TRANSITIONAL_UNRESOLVED, REGIME_UNKNOWN} or (not probable and temporal_ok_for_likely):
             stage = DOCUMENT_REQUEST_READY
             language = "document_request"
             next_act = (
@@ -892,8 +853,7 @@ def evaluate_commercial_stage(
             )
             action = (
                 ACTION_REQUEST_LEGAL_REGIME_DOCS
-                if regime
-                in {REGIME_TRANSITIONAL_UNRESOLVED, REGIME_UNKNOWN, REGIME_CONFLICT}
+                if regime in {REGIME_TRANSITIONAL_UNRESOLVED, REGIME_UNKNOWN, REGIME_CONFLICT}
                 else ACTION_REQUEST_DOCS
             )
             reasons.append("document_request_regime_unresolved_or_unknown")
@@ -929,9 +889,7 @@ def evaluate_commercial_stage(
         msg_key, msg_body = "unresolved", MSG_REGIME_UNRESOLVED
 
     else:
-        stage = (
-            "NOT_COMMERCIAL" if not temporal_ok_for_signal else POTENTIAL_ADJUSTMENT_SIGNAL
-        )
+        stage = "NOT_COMMERCIAL" if not temporal_ok_for_signal else POTENTIAL_ADJUSTMENT_SIGNAL
         if stage == "NOT_COMMERCIAL":
             reasons.append("sinais_insuficientes")
             action = ACTION_INTEL_ONLY
@@ -949,11 +907,7 @@ def evaluate_commercial_stage(
         stage = (
             LIKELY_ADJUSTMENT_OPPORTUNITY
             if probable and temporal_ok_for_likely
-            else (
-                DOCUMENT_REQUEST_READY
-                if temporal_ok_for_likely
-                else POTENTIAL_ADJUSTMENT_SIGNAL
-            )
+            else (DOCUMENT_REQUEST_READY if temporal_ok_for_likely else POTENTIAL_ADJUSTMENT_SIGNAL)
         )
         diagnostic_ok = False
         language = "intelligence_only"
@@ -969,11 +923,7 @@ def evaluate_commercial_stage(
             VERIFIED_ADJUSTMENT_OPPORTUNITY,
             CALCULABLE_ADJUSTMENT_CLAIM,
         }:
-            stage = (
-                POTENTIAL_ADJUSTMENT_SIGNAL
-                if temporal_ok_for_signal
-                else "NOT_COMMERCIAL"
-            )
+            stage = POTENTIAL_ADJUSTMENT_SIGNAL if temporal_ok_for_signal else "NOT_COMMERCIAL"
             diagnostic_ok = False
             language = "intelligence_only"
             action = ACTION_HUMAN_REVIEW
@@ -1017,9 +967,7 @@ def evaluate_commercial_stage(
         if not probable:
             msg_key, msg_body = (
                 "unresolved",
-                DOCUMENT_REQUEST_LANGUAGE
-                if stage == DOCUMENT_REQUEST_READY
-                else MSG_REGIME_UNRESOLVED,
+                DOCUMENT_REQUEST_LANGUAGE if stage == DOCUMENT_REQUEST_READY else MSG_REGIME_UNRESOLVED,
             )
 
     dims = CommercialDimensions(
@@ -1032,12 +980,7 @@ def evaluate_commercial_stage(
                 VERIFIED_ADJUSTMENT_OPPORTUNITY,
                 CALCULABLE_ADJUSTMENT_CLAIM,
             }
-            else (
-                "medium"
-                if stage
-                in {POTENTIAL_ADJUSTMENT_SIGNAL, DOCUMENT_REQUEST_READY}
-                else "none"
-            )
+            else ("medium" if stage in {POTENTIAL_ADJUSTMENT_SIGNAL, DOCUMENT_REQUEST_READY} else "none")
         ),
         legal_confidence=legal_conf,
         temporal_confidence=temporal.temporal_confidence,
@@ -1072,11 +1015,7 @@ def evaluate_commercial_stage(
         favorable_signals=favorable,
         uncertainties=uncertainties,
         valor_potencial_allowed=valor_ok,
-        diagnostic_outreach_allowed=(
-            diagnostic_ok
-            and stage == DIAGNOSTIC_OUTREACH_READY
-            and probable
-        ),
+        diagnostic_outreach_allowed=(diagnostic_ok and stage == DIAGNOSTIC_OUTREACH_READY and probable),
         reasons=reasons,
         outreach_status_legacy=legacy,
         message_template=msg_key,

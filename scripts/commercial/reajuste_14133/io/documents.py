@@ -160,7 +160,9 @@ class DocumentScanResult:
     arquivos_listed: int = 0
     pdfs_downloaded: int = 0
     pdfs_text_extracted: int = 0
-    deep_document_work: bool = False  # True only if PDF download+extract attempted with success or hard fail after download
+    deep_document_work: bool = (
+        False  # True only if PDF download+extract attempted with success or hard fail after download
+    )
     # Priority-queue deep recovery fields
     document_link_status: str | None = None
     document_link: dict[str, Any] | None = None
@@ -250,9 +252,7 @@ def extract_from_text(
         res.docs_accessible = False
         res.text_extracted = False
         res.pipeline_state = DOC_DOWNLOADED
-        res.limitations.append(
-            "PDF binário localizado sem extração de texto — não satisfaz gate documental."
-        )
+        res.limitations.append("PDF binário localizado sem extração de texto — não satisfaz gate documental.")
         h = hashlib.sha256(text.encode("utf-8", errors="replace")).hexdigest()
         res.evidences.append(
             Evidence(
@@ -364,9 +364,7 @@ def extract_from_text(
                         continue
                     abs_pos = w0_idx + im.start()
                     around = text[max(0, abs_pos - 100) : min(len(text), abs_pos + 40)]
-                    if ATUALIZACAO_MONETARIA.search(around) and not re.search(
-                        r"reajust(?:e|amento)", around, re.I
-                    ):
+                    if ATUALIZACAO_MONETARIA.search(around) and not re.search(r"reajust(?:e|amento)", around, re.I):
                         ok = False
                         break
                 if not ok:
@@ -458,9 +456,11 @@ def try_extract_pdf_via_process_documents(
     try:
         try:
             from pypdf import PdfReader  # type: ignore[import-untyped]
+
             method = "pypdf"
         except ImportError:
             from PyPDF2 import PdfReader  # type: ignore[import-untyped]
+
             method = "PyPDF2"
         del method
         reader = PdfReader(BytesIO(pdf_bytes))
@@ -586,8 +586,7 @@ def _classify_doc_type(title: str) -> str | None:
 
 def _empty_doc_inventory() -> dict[str, Any]:
     return {
-        dtype: {"sought": True, "found": False, "processed": False, "unavailable": True}
-        for dtype in DOC_TYPES_SOUGHT
+        dtype: {"sought": True, "found": False, "processed": False, "unavailable": True} for dtype in DOC_TYPES_SOUGHT
     }
 
 
@@ -608,9 +607,7 @@ def _http_get(
         return None, f"{type(exc).__name__}: {exc}", "error"
 
 
-def fetch_url_text(
-    url: str, *, timeout: float = 12.0, max_bytes: int = 500_000
-) -> tuple[str | None, str | None, str]:
+def fetch_url_text(url: str, *, timeout: float = 12.0, max_bytes: int = 500_000) -> tuple[str | None, str | None, str]:
     """Fetch public URL body as text/kind triple (html|pdf_binary|json|error|empty)."""
     raw, err, ctype = _http_get(url, timeout=timeout, max_bytes=max_bytes)
     if err:
@@ -618,9 +615,7 @@ def fetch_url_text(
     if not raw:
         return None, "empty", "empty"
     if "pdf" in ctype or raw[:4] == b"%PDF":
-        placeholder = (
-            f"[PDF_BINARY bytes={len(raw)} sha256={hashlib.sha256(raw).hexdigest()[:16]}]"
-        )
+        placeholder = f"[PDF_BINARY bytes={len(raw)} sha256={hashlib.sha256(raw).hexdigest()[:16]}]"
         return placeholder, None, "pdf_binary"
     if "json" in ctype:
         return raw.decode("utf-8", errors="replace"), None, "json"
@@ -920,9 +915,7 @@ def recover_pncp_official_documents(
 
         is_pdf = body[:4] == b"%PDF" or "pdf" in (ctype or "")
         is_zip = body[:2] == b"PK" and re.search(r"\.zip(\b|$)", title, re.I)
-        is_docx = bool(re.search(r"\.docx(\b|$)", title, re.I)) or (
-            body[:2] == b"PK" and "word" in title.lower()
-        )
+        is_docx = bool(re.search(r"\.docx(\b|$)", title, re.I)) or (body[:2] == b"PK" and "word" in title.lower())
         is_sheet = bool(re.search(r"\.(xlsx|xls|ods)(\b|$)", title, re.I))
 
         if is_pdf:
@@ -930,9 +923,7 @@ def recover_pncp_official_documents(
             res.pdf_binary_located = True
             res.pipeline_state = DOC_DOWNLOADED
             res.deep_document_work = True
-            text, n_pages = try_extract_pdf_via_process_documents(
-                body, max_pages=max_pages, full_text_first=True
-            )
+            text, n_pages = try_extract_pdf_via_process_documents(body, max_pages=max_pages, full_text_first=True)
             if not text:
                 res.limitations.append(f"pdf_parse_failed:{title[:40]}")
                 res.pipeline_state = DOC_PARSE_FAILED
@@ -972,9 +963,7 @@ def recover_pncp_official_documents(
             if text:
                 if "docx" not in res.formats_processed:
                     res.formats_processed.append("docx")
-                _process_text_blob(
-                    text, title=title, url=url, method="pncp_docx", page_hint=None
-                )
+                _process_text_blob(text, title=title, url=url, method="pncp_docx", page_hint=None)
                 files_done += 1
                 res.files_processed += 1
             else:
@@ -1171,9 +1160,7 @@ def verify_contract_documents(
     merged.data_base_mention = obj_scan.data_base_mention
     merged.apostila_mention = obj_scan.apostila_mention
     merged.already_adjusted_hint = obj_scan.already_adjusted_hint
-    merged.limitations.append(
-        "Varredura do campo objeto_contrato não substitui edital/contrato/apostila."
-    )
+    merged.limitations.append("Varredura do campo objeto_contrato não substitui edital/contrato/apostila.")
     merged.docs_accessible = False
     merged.text_extracted = False
     merged.official_text_extracted = False
@@ -1196,9 +1183,7 @@ def verify_contract_documents(
                 field_found="portal_url",
             )
         )
-        merged.limitations.append(
-            "URL do portal localizada ≠ documento oficial acessível / texto extraído."
-        )
+        merged.limitations.append("URL do portal localizada ≠ documento oficial acessível / texto extraído.")
 
     if not fetch_remote or max_fetches <= 0:
         merged.limitations.append(
@@ -1251,14 +1236,10 @@ def verify_contract_documents(
         merged.regime_8666_mention = merged.regime_8666_mention or deep.regime_8666_mention
         merged.regime_rdc_mention = merged.regime_rdc_mention or deep.regime_rdc_mention
         merged.regime_conflict = merged.regime_conflict or deep.regime_conflict
-        merged.reajuste_clause_mention = (
-            deep.reajuste_clause_mention or merged.reajuste_clause_mention
-        )
+        merged.reajuste_clause_mention = deep.reajuste_clause_mention or merged.reajuste_clause_mention
         merged.data_base_mention = deep.data_base_mention or merged.data_base_mention
         merged.apostila_mention = deep.apostila_mention or merged.apostila_mention
-        merged.already_adjusted_hint = (
-            deep.already_adjusted_hint or merged.already_adjusted_hint
-        )
+        merged.already_adjusted_hint = deep.already_adjusted_hint or merged.already_adjusted_hint
         for idx in deep.index_in_clause:
             if idx not in merged.index_in_clause:
                 merged.index_in_clause.append(idx)
@@ -1287,7 +1268,5 @@ def verify_contract_documents(
         merged.text_extracted = False
         merged.official_text_extracted = False
 
-    merged.limitations.append(
-        "Ausência de apostila no PNCP não prova, isoladamente, que o reajuste não foi concedido."
-    )
+    merged.limitations.append("Ausência de apostila no PNCP não prova, isoladamente, que o reajuste não foi concedido.")
     return merged

@@ -47,9 +47,7 @@ AS_OF = date(2026, 8, 4)
 
 
 def _obra_ok():
-    return classify_construction(
-        "Execução de obra de pavimentação asfáltica e drenagem urbana com empreitada"
-    )
+    return classify_construction("Execução de obra de pavimentação asfáltica e drenagem urbana com empreitada")
 
 
 def _dates(**kwargs):
@@ -64,17 +62,13 @@ def _fin(**kwargs):
 
 
 def test_construction_true_without_literal_obra():
-    r = classify_construction(
-        "Contratação de empresa para pavimentação asfáltica e rede de drenagem pluvial"
-    )
+    r = classify_construction("Contratação de empresa para pavimentação asfáltica e rede de drenagem pluvial")
     assert r.is_construction
     assert r.category in {"pavimentacao_rodoviaria", "drenagem_urbanizacao", "obras_engenharia_geral"}
 
 
 def test_construction_false_fornecimento_com_palavra_construcao():
-    r = classify_construction(
-        "Fornecimento de materiais de construção civil: cimento, areia e brita"
-    )
+    r = classify_construction("Fornecimento de materiais de construção civil: cimento, areia e brita")
     assert not r.is_construction
     assert "negative_vocabulary" in r.reason_codes or "materials" in " ".join(r.reason_codes)
 
@@ -330,9 +324,7 @@ def test_regime_8666_not_eligible():
         fim_vigencia=date(2028, 1, 1),
     )
     finance = _fin(valor_original=2e6)
-    elig = evaluate_eligibility(
-        obra=obra, regime=regime, dates=dates, finance=finance, has_private_supplier=True
-    )
+    elig = evaluate_eligibility(obra=obra, regime=regime, dates=dates, finance=finance, has_private_supplier=True)
     assert elig.status == STATUS_NOT_ELIGIBLE
 
 
@@ -341,9 +333,7 @@ def test_legal_regime_unknown_path():
     regime = classify_legal_regime(signature_year=2023)
     dates = _dates(data_assinatura=date(2023, 1, 1), fim_vigencia=date(2028, 1, 1))
     finance = _fin(valor_original=3e6)
-    elig = evaluate_eligibility(
-        obra=obra, regime=regime, dates=dates, finance=finance, has_private_supplier=True
-    )
+    elig = evaluate_eligibility(obra=obra, regime=regime, dates=dates, finance=finance, has_private_supplier=True)
     assert elig.status == STATUS_LEGAL_REGIME_UNKNOWN
 
 
@@ -353,9 +343,30 @@ def test_legal_regime_unknown_path():
 def test_ranking_deterministic():
     # v3 ranks by priority_score / opportunity_score / material value — not claim value
     leads = [
-        {"score_total": 50, "priority_score": 50, "opportunity_score": 40, "valor_atualizado": 100, "contrato_id": "b", "uf": "SC"},
-        {"score_total": 80, "priority_score": 80, "opportunity_score": 70, "valor_atualizado": 50, "contrato_id": "a", "uf": "PR"},
-        {"score_total": 80, "priority_score": 85, "opportunity_score": 90, "valor_atualizado": 100, "contrato_id": "c", "uf": "RS"},
+        {
+            "score_total": 50,
+            "priority_score": 50,
+            "opportunity_score": 40,
+            "valor_atualizado": 100,
+            "contrato_id": "b",
+            "uf": "SC",
+        },
+        {
+            "score_total": 80,
+            "priority_score": 80,
+            "opportunity_score": 70,
+            "valor_atualizado": 50,
+            "contrato_id": "a",
+            "uf": "PR",
+        },
+        {
+            "score_total": 80,
+            "priority_score": 85,
+            "opportunity_score": 90,
+            "valor_atualizado": 100,
+            "contrato_id": "c",
+            "uf": "RS",
+        },
     ]
     r1 = rank_leads(leads)
     r2 = rank_leads(leads)
@@ -368,12 +379,8 @@ def test_score_decomposition_keys():
     regime = classify_legal_regime(signature_year=2023)
     dates = _dates(data_assinatura=date(2023, 1, 1), fim_vigencia=date(2028, 1, 1))
     finance = _fin(valor_original=5e6)
-    elig = evaluate_eligibility(
-        obra=obra, regime=regime, dates=dates, finance=finance, has_private_supplier=True
-    )
-    sc = score_lead(
-        eligibility=elig, obra=obra, regime=regime, dates=dates, finance=finance, uf="SC"
-    )
+    elig = evaluate_eligibility(obra=obra, regime=regime, dates=dates, finance=finance, has_private_supplier=True)
+    sc = score_lead(eligibility=elig, obra=obra, regime=regime, dates=dates, finance=finance, uf="SC")
     assert set(sc.components) >= {
         "confianca_juridica_documental",
         "atratividade_financeira",
@@ -663,10 +670,7 @@ def test_network_failure_documented(monkeypatch):
         fetch_remote=True,
         max_fetches=1,
     )
-    assert v.network_error or any(
-        "unavailable" in x or "error" in x.lower() or "ausente" in x
-        for x in v.limitations
-    )
+    assert v.network_error or any("unavailable" in x or "error" in x.lower() or "ausente" in x for x in v.limitations)
     # Portal HTML alone must never mark official documentary accessibility
     assert not v.docs_accessible
     assert not v.official_text_extracted

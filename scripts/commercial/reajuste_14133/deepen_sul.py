@@ -212,12 +212,8 @@ def deepen_one(
     processed = [k for k, v in inv.items() if v.get("processed")]
     unavailable = [k for k, v in inv.items() if v.get("unavailable") and not v.get("found")]
     exhausted = (
-        lead.get("outreach_status")
-        not in {TECHNICALLY_VERIFIED_PENDING_TIAGO, OUTREACH_READY}
-        and (
-            not fetch_remote
-            or getattr(doc_scan, "arquivos_listed", 0) >= 0
-        )
+        lead.get("outreach_status") not in {TECHNICALLY_VERIFIED_PENDING_TIAGO, OUTREACH_READY}
+        and (not fetch_remote or getattr(doc_scan, "arquivos_listed", 0) >= 0)
         and (
             getattr(doc_scan, "files_processed", 0) > 0
             or "pncp_compra_arquivos_empty" in (getattr(doc_scan, "limitations", None) or [])
@@ -252,8 +248,7 @@ def deepen_one(
         "data_base_exata_localizada": lead.get("data_base_exata_localizada"),
         "indice": lead.get("indice"),
         "index_formula": lead.get("index_formula") or getattr(doc_scan, "index_formula", None),
-        "document_link_status": lead.get("document_link_status")
-        or getattr(doc_scan, "document_link_status", None),
+        "document_link_status": lead.get("document_link_status") or getattr(doc_scan, "document_link_status", None),
         "document_link": lead.get("document_link") or getattr(doc_scan, "document_link", None),
         "doc_type_inventory": inv,
         "doc_types_sought": sought,
@@ -276,8 +271,7 @@ def deepen_one(
         "contato_data_consulta": contacts.get("consulted_at"),
         "outreach_gates": lead.get("outreach_gates"),
         "evidences": [
-            e.as_dict() if hasattr(e, "as_dict") else e
-            for e in (getattr(doc_scan, "evidences", None) or [])[:20]
+            e.as_dict() if hasattr(e, "as_dict") else e for e in (getattr(doc_scan, "evidences", None) or [])[:20]
         ],
         "human_review_done": False,
     }
@@ -344,9 +338,7 @@ def run_deepen(
             obj = ""
             best = p.get("melhor_oportunidade") or {}
             obj = str(best.get("objeto") or "")
-            cl = classify_construction(
-                obj, razao_social=p.get("razao_social"), cnae=p.get("cnae")
-            )
+            cl = classify_construction(obj, razao_social=p.get("razao_social"), cnae=p.get("cnae"))
             if not cl.is_construction:
                 false_positives.append(
                     {
@@ -393,9 +385,7 @@ def run_deepen(
                     "contrato_id": result.get("contrato_id"),
                     "document": (result.get("document_link") or {}).get("reasons"),
                     "status": "DOCUMENT_LINK_CONFLICT",
-                    "reasons": "|".join(
-                        (result.get("document_link") or {}).get("reasons") or []
-                    ),
+                    "reasons": "|".join((result.get("document_link") or {}).get("reasons") or []),
                     "excerpt": (result.get("clausula_excerpt") or "")[:200],
                 }
             )

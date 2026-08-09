@@ -95,9 +95,7 @@ def classify_execution_status(
         return ExecutionStatusResult(
             status=CONTRACT_ACTIVE if (is_active is not False) else EXECUTION_STATUS_UNKNOWN,
             open_obligation_possible=True,
-            reasons=["vigente_ou_sem_fim_conhecido"]
-            if is_active is not False
-            else ["status_execucao_incerto"],
+            reasons=["vigente_ou_sem_fim_conhecido"] if is_active is not False else ["status_execucao_incerto"],
         )
 
     if is_active is None and fim is None:

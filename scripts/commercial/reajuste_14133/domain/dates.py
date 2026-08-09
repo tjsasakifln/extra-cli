@@ -213,9 +213,7 @@ def consolidate_dates(
                     "Não autoriza HOT_VERIFIED. Obter data do orçamento estimado."
                 ),
             )
-            notes.append(
-                "data_base_status=PROXY — assinatura/início/publicação usadas só como heurística."
-            )
+            notes.append("data_base_status=PROXY — assinatura/início/publicação usadas só como heurística.")
         else:
             effective = DateField(
                 value=None,
@@ -251,15 +249,18 @@ def consolidate_dates(
     return DateBundle(
         orcamento_estimado=orc,
         competencia_orcamento=_field(
-            competencia_orcamento, "document|missing",
+            competencia_orcamento,
+            "document|missing",
             CONFIDENCE_CONFIRMED if competencia_orcamento else CONFIDENCE_MISSING,
         ),
         data_limite_proposta=_field(
-            data_limite_proposta, "document|missing",
+            data_limite_proposta,
+            "document|missing",
             CONFIDENCE_PROXY if data_limite_proposta else CONFIDENCE_MISSING,
         ),
         data_proposta_vencedora=_field(
-            data_proposta_vencedora, "document|missing",
+            data_proposta_vencedora,
+            "document|missing",
             CONFIDENCE_PROXY if data_proposta_vencedora else CONFIDENCE_MISSING,
         ),
         data_assinatura=assin,

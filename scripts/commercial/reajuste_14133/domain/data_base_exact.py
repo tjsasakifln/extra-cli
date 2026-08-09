@@ -88,15 +88,11 @@ _COMP_NUM = re.compile(
 )
 # Explicit budget/index competence labels (highest priority)
 _EXPLICIT_MES_BASE = re.compile(
-    r"m[eê]s[- ]base\s*[:\-]?\s*("
-    + "|".join(_MONTHS.keys())
-    + r")\s*/?\s*(20\d{2})",
+    r"m[eê]s[- ]base\s*[:\-]?\s*(" + "|".join(_MONTHS.keys()) + r")\s*/?\s*(20\d{2})",
     re.I,
 )
 _EXPLICIT_DATA_BASE_SICRO_SINAPI = re.compile(
-    r"data\s*base\s*(?:sicro|sinapi)\s*[:\-]?\s*("
-    + "|".join(_MONTHS.keys())
-    + r")\s*/?\s*(20\d{2})",
+    r"data\s*base\s*(?:sicro|sinapi)\s*[:\-]?\s*(" + "|".join(_MONTHS.keys()) + r")\s*/?\s*(20\d{2})",
     re.I,
 )
 _EXPLICIT_COMP_INDEX = re.compile(
@@ -130,9 +126,7 @@ _PROTOCOL_OR_ARTIFACT = re.compile(
 _REGULATORY_CALENDAR = re.compile(
     r"instru[cç][aã]o\s+normativa|portaria|decreto|resolu[cç][aã]o|"
     r"lei\s+n|lei\s+n[ºo°.]|"
-    r"de\s+\d{1,2}\s+de\s+(?:"
-    + "|".join(_MONTHS.keys())
-    + r")\s+de\s+20\d{2}",
+    r"de\s+\d{1,2}\s+de\s+(?:" + "|".join(_MONTHS.keys()) + r")\s+de\s+20\d{2}",
     re.I,
 )
 # Placeholder like XXXXX//202X or //202X without real month
@@ -318,9 +312,7 @@ def extract_exact_data_base(
         kind_idx = "sicro" if "sicro" in m.group(0).lower() else "sinapi"
         hits.append(
             ExactDataBaseHit(
-                state=EXACT_COMPETENCE_IN_REAJUSTE_CLAUSE
-                if in_clause(m.start())
-                else EXACT_DATE_IN_REFERENCED_BUDGET,
+                state=EXACT_COMPETENCE_IN_REAJUSTE_CLAUSE if in_clause(m.start()) else EXACT_DATE_IN_REFERENCED_BUDGET,
                 value=f"{kind_idx.upper()}/{mo:02d}/{y}",
                 value_date=_safe_date(1, mo, y),
                 value_month=mo,
@@ -347,9 +339,7 @@ def extract_exact_data_base(
         excerpt = text[max(0, m.start() - 30) : min(len(text), m.end() + 30)].strip()
         hits.append(
             ExactDataBaseHit(
-                state=EXACT_COMPETENCE_IN_REAJUSTE_CLAUSE
-                if in_clause(m.start())
-                else EXACT_DATE_IN_REFERENCED_BUDGET,
+                state=EXACT_COMPETENCE_IN_REAJUSTE_CLAUSE if in_clause(m.start()) else EXACT_DATE_IN_REFERENCED_BUDGET,
                 value=f"{y:04d}-{mo:02d}",
                 value_date=_safe_date(1, mo, y),
                 value_month=mo,
@@ -424,9 +414,7 @@ def extract_exact_data_base(
         excerpt = text[max(0, m.start() - 60) : min(len(text), m.end() + 60)].strip()
         hits.append(
             ExactDataBaseHit(
-                state=EXACT_DATE_IN_REAJUSTE_CLAUSE
-                if in_clause(m.start())
-                else EXACT_DATE_IN_REFERENCED_BUDGET,
+                state=EXACT_DATE_IN_REAJUSTE_CLAUSE if in_clause(m.start()) else EXACT_DATE_IN_REFERENCED_BUDGET,
                 value=dt.isoformat(),
                 value_date=dt,
                 value_month=mo,
@@ -457,11 +445,7 @@ def extract_exact_data_base(
             state = COMPETENCE_IN_BUDGET_SPREADSHEET
             rel = "spreadsheet"
         elif near_label:
-            state = (
-                EXACT_COMPETENCE_IN_REAJUSTE_CLAUSE
-                if in_clause(m.start())
-                else EXACT_DATE_IN_REFERENCED_BUDGET
-            )
+            state = EXACT_COMPETENCE_IN_REAJUSTE_CLAUSE if in_clause(m.start()) else EXACT_DATE_IN_REFERENCED_BUDGET
             rel = "in_clause" if in_clause(m.start()) else "referenced_budget"
         else:
             # bare "janeiro de 2023" in clause window without label → reject
@@ -649,11 +633,7 @@ def extract_exact_data_base(
                 exp_keys.add((h.value_year, h.value_month))
         if len(exp_keys) == 1:
             ym = next(iter(exp_keys))
-            satisfying = [
-                h
-                for h in satisfying
-                if h.value_year == ym[0] and h.value_month == ym[1]
-            ]
+            satisfying = [h for h in satisfying if h.value_year == ym[0] and h.value_month == ym[1]]
         else:
             conflicts = [f"conflicting_values:{sorted(str(k) for k in keys)}"]
             return ExactDataBaseResult(

@@ -351,9 +351,7 @@ def classify_construction(
     optional CNAE, documents, supplier type and remuneration nature.
     """
     # Material evidence = contract object + optional official docs (not company name)
-    material_blob = " ".join(
-        filter(None, [objeto or "", document_text or "", remuneracao_natureza or ""])
-    )
+    material_blob = " ".join(filter(None, [objeto or "", document_text or "", remuneracao_natureza or ""]))
     norm = normalize_text(material_blob)
     name_norm = normalize_text(razao_social)
     cnae_norm = normalize_text(cnae)
@@ -368,9 +366,7 @@ def classify_construction(
 
     # Explicit name-brand false positives when object is non-obra
     if name_norm:
-        if "betha" in name_norm and any(
-            t in norm for t in ("software", "sistema", "licenc", "informatica", "ti ")
-        ):
+        if "betha" in name_norm and any(t in norm for t in ("software", "sistema", "licenc", "informatica", "ti ")):
             return ConstructionClassification(
                 is_construction=False,
                 confidence=0.0,
@@ -379,9 +375,7 @@ def classify_construction(
                 negative_hits=["betha_software"],
                 normalized_object=norm[:600],
             )
-        if "localiza" in name_norm and any(
-            t in norm for t in ("veiculo", "locacao", "aluguel", "frota")
-        ):
+        if "localiza" in name_norm and any(t in norm for t in ("veiculo", "locacao", "aluguel", "frota")):
             return ConstructionClassification(
                 is_construction=False,
                 confidence=0.0,
@@ -458,16 +452,19 @@ def classify_construction(
     eng_maint = _hits(norm, ENGINEERING_MAINTENANCE)
 
     # Supply-only materials/equipment: hard exclude even if "construção" appears
-    supply_only = _hits(norm, (
-        "fornecimento de materiais",
-        "aquisicao de materiais",
-        "materiais de construcao",
-        "materiais para construcao",
-        "aquisicao de cimento",
-        "fornecimento de cimento",
-        "locacao de maquinas",
-        "locacao de equipamentos",
-    ))
+    supply_only = _hits(
+        norm,
+        (
+            "fornecimento de materiais",
+            "aquisicao de materiais",
+            "materiais de construcao",
+            "materiais para construcao",
+            "aquisicao de cimento",
+            "fornecimento de cimento",
+            "locacao de maquinas",
+            "locacao de equipamentos",
+        ),
+    )
     if supply_only and not any(
         x in norm
         for x in (
@@ -573,10 +570,7 @@ def classify_construction(
     )
     # software + gestão de obras / engenharia (not material execution)
     if ("software" in norm or "licenc" in norm) and (
-        "gestao de obra" in norm
-        or "gestao de obras" in norm
-        or "engenharia" in norm
-        or "sistema" in norm
+        "gestao de obra" in norm or "gestao de obras" in norm or "engenharia" in norm or "sistema" in norm
     ):
         sector_fp = list(sector_fp) + ["software_gestao_obras"]
     # mining / aggregate supply without material obra

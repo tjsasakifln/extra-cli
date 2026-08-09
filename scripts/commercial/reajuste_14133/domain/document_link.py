@@ -133,9 +133,7 @@ def sector_contradiction(contract_object: str | None, doc_text: str | None) -> l
                 "licenca de uso de software",
                 "sistema de gestao de obras",
             )
-        ) and not any(
-            t in d for t in ("execucao de obra", "empreitada", "pavimentacao", "construcao civil")
-        ):
+        ) and not any(t in d for t in ("execucao de obra", "empreitada", "pavimentacao", "construcao civil")):
             reasons.append("software_document_vs_construction_contract")
     if any(t in d for t in _VEHICLE_DOC) and has_construction_obj:
         if not any(t in d for t in ("obra", "paviment", "empreitada", "construcao")):
@@ -233,10 +231,15 @@ def verify_document_link(
             checks["cnpj_orgao"] = True
         # leave unknown if not found — not auto-conflict
 
-    if contract_ano is not None and contract_sequencial is not None and doc_ano is not None and doc_sequencial is not None:
+    if (
+        contract_ano is not None
+        and contract_sequencial is not None
+        and doc_ano is not None
+        and doc_sequencial is not None
+    ):
         try:
-            checks["ano_sequencial"] = (
-                int(contract_ano) == int(doc_ano) and int(contract_sequencial) == int(doc_sequencial)
+            checks["ano_sequencial"] = int(contract_ano) == int(doc_ano) and int(contract_sequencial) == int(
+                doc_sequencial
             )
             if not checks["ano_sequencial"]:
                 reasons.append("ano_sequencial_mismatch")

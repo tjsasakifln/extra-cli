@@ -64,14 +64,11 @@ def _sha256_file(path: Path) -> str:
 
 def _git_head() -> str:
     try:
-        return (
-            subprocess.check_output(  # noqa: S603
-                ["git", "rev-parse", "HEAD"],  # noqa: S607
-                stderr=subprocess.DEVNULL,
-                text=True,
-            )
-            .strip()
-        )
+        return subprocess.check_output(  # noqa: S603
+            ["git", "rev-parse", "HEAD"],  # noqa: S607
+            stderr=subprocess.DEVNULL,
+            text=True,
+        ).strip()
     except (subprocess.CalledProcessError, FileNotFoundError, OSError):
         return "unknown"
 
@@ -124,13 +121,8 @@ def supplier_row(portfolio: dict[str, Any], *, deepen: dict[str, Any] | None = N
         "clausula": deepen.get("clausula_excerpt")
         or ("localizada" if deepen.get("clause_located") else best.get("clausula")),
         "data_base": primary.get("value") or best.get("data_base") or deepen.get("data_base"),
-        "data_base_state": (exact.get("state") if isinstance(exact, dict) else None)
-        or best.get("data_base_status"),
-        "indice": (
-            ", ".join(idx_formula.get("indices") or [])
-            if isinstance(idx_formula, dict)
-            else None
-        )
+        "data_base_state": (exact.get("state") if isinstance(exact, dict) else None) or best.get("data_base_status"),
+        "indice": (", ".join(idx_formula.get("indices") or []) if isinstance(idx_formula, dict) else None)
         or best.get("indice")
         or deepen.get("indice"),
         "paginas_e_trechos": " || ".join(pages[:8]),
@@ -152,8 +144,7 @@ def supplier_row(portfolio: dict[str, Any], *, deepen: dict[str, Any] | None = N
         "decisao_sugerida": suggested,
         "tiago_decision": "",  # empty for Tiago: ACCEPT | REJECT | DEFER
         "outreach_status": status,
-        "document_link_status": deepen.get("document_link_status")
-        or best.get("document_link_status"),
+        "document_link_status": deepen.get("document_link_status") or best.get("document_link_status"),
         "score": portfolio.get("score_fornecedor") or best.get("score_total"),
         "sede_uf": portfolio.get("sede_uf") or deepen.get("uf"),
     }
@@ -174,13 +165,8 @@ def write_tiago_review_package(
     evidence_dir = out_dir / "evidence_pack"
     evidence_dir.mkdir(parents=True, exist_ok=True)
 
-    deepen_by_cnpj = {
-        str(d.get("cnpj") or ""): d for d in (deepen_results or []) if d.get("cnpj")
-    }
-    rows = [
-        supplier_row(p, deepen=deepen_by_cnpj.get(str(p.get("cnpj") or "")))
-        for p in portfolios
-    ]
+    deepen_by_cnpj = {str(d.get("cnpj") or ""): d for d in (deepen_results or []) if d.get("cnpj")}
+    rows = [supplier_row(p, deepen=deepen_by_cnpj.get(str(p.get("cnpj") or ""))) for p in portfolios]
     # de-dupe by cnpj
     seen: set[str] = set()
     deduped: list[dict[str, Any]] = []

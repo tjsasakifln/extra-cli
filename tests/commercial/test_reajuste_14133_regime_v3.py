@@ -14,8 +14,8 @@ from scripts.commercial.reajuste_14133 import (
     DOCUMENT_REQUEST_READY,
     LIKELY_ADJUSTMENT_OPPORTUNITY,
     POTENTIAL_ADJUSTMENT_SIGNAL,
-    REGIME_14133,
     REGIME_8666,
+    REGIME_14133,
     REGIME_LIKELY_14133,
     REGIME_TRANSITIONAL_UNRESOLVED,
     REGIME_UNKNOWN,
@@ -44,9 +44,7 @@ def test_year_alone_never_probable_14133():
     assert r.proven is False
     assert r.regime != REGIME_LIKELY_14133
     assert r.regime != REGIME_14133
-    assert not regime_probable_14133(
-        regime=r.regime, regime_proven=r.proven, signature_year=2023
-    )
+    assert not regime_probable_14133(regime=r.regime, regime_proven=r.proven, signature_year=2023)
 
 
 def test_pncp_publication_never_proves_regime():
@@ -122,9 +120,7 @@ def test_2024_contract_from_legacy_2023_edital_stays_legacy():
     r = classify_legal_regime(
         signature_year=2024,
         origin_edital_year=2023,
-        origin_document_texts=[
-            "Edital de licitação regido pela Lei nº 8.666/1993"
-        ],
+        origin_document_texts=["Edital de licitação regido pela Lei nº 8.666/1993"],
         published_on_pncp=True,
     )
     assert r.regime == REGIME_8666
@@ -143,9 +139,7 @@ def test_2024_contract_from_legacy_2023_edital_stays_legacy():
 
 def test_post_transition_proven_14133_can_reach_likely_or_diagnostic():
     r = classify_legal_regime(
-        document_texts=[
-            "Contrato administrativo regido pela Lei nº 14.133/2021, art. 92"
-        ],
+        document_texts=["Contrato administrativo regido pela Lei nº 14.133/2021, art. 92"],
         signature_year=2024,
         origin_edital_year=2024,
         initiation_act_date=date(2024, 2, 1),
@@ -223,9 +217,7 @@ def test_convergent_likely_14133_never_proven():
             "Termo de contrato vinculado ao processo SEI 123/2024. "
             "Modalidade: concorrência. Objeto: execução de obras de pavimentação."
         ],
-        origin_document_texts=[
-            "Edital de concorrência regido pela Lei nº 14.133/2021, art. 28."
-        ],
+        origin_document_texts=["Edital de concorrência regido pela Lei nº 14.133/2021, art. 28."],
         signature_year=2024,
         origin_edital_year=2024,
         initiation_act_date=date(2024, 1, 15),
@@ -372,8 +364,7 @@ def test_pipeline_row_2024_legacy_edital():
         "orgao_cnpj": "04892707000100",
         "orgao_nome": "DNIT",
         "objeto_contrato": (
-            "Execução de obras de pavimentação asfáltica e drenagem "
-            "na rodovia — empreitada por preço global"
+            "Execução de obras de pavimentação asfáltica e drenagem na rodovia — empreitada por preço global"
         ),
         "valor_total": 8_000_000,
         "data_assinatura": "2024-02-10",

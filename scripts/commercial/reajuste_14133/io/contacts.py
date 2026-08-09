@@ -127,7 +127,11 @@ def enrich_from_brasilapi(cnpj: str, *, sleep_s: float = 0.15) -> dict[str, Any]
         score += 0.15  # lower confidence freemail still counts for enrichment queue
     if phone:
         score += 0.25
-    if data.get("descricao_situacao_cadastral") == "ATIVA" or str(data.get("situacao_cadastral")) in {"2", "ATIVA", "Ativa"}:
+    if data.get("descricao_situacao_cadastral") == "ATIVA" or str(data.get("situacao_cadastral")) in {
+        "2",
+        "ATIVA",
+        "Ativa",
+    }:
         score += 0.1
     verified = date.today().isoformat()
     sources = [
@@ -140,9 +144,7 @@ def enrich_from_brasilapi(cnpj: str, *, sleep_s: float = 0.15) -> dict[str, Any]
     ]
     limitations: list[str] = []
     if freemail:
-        limitations.append(
-            "email_freemail_associado_cnpj_confianca_baixa_exige_revisao"
-        )
+        limitations.append("email_freemail_associado_cnpj_confianca_baixa_exige_revisao")
     return {
         "site_oficial": None,
         # Corporate email only in email_comercial; freemail kept separately (not discarded)
@@ -193,9 +195,16 @@ def merge_contacts(*parts: dict[str, Any]) -> dict[str, Any]:
         if not p:
             continue
         for k in (
-            "site_oficial", "email_comercial", "email_comercial_low_confidence",
-            "telefone_empresarial", "formulario_contato", "linkedin_institucional",
-            "municipio_sede", "uf_sede", "nome_fantasia", "cnae_principal",
+            "site_oficial",
+            "email_comercial",
+            "email_comercial_low_confidence",
+            "telefone_empresarial",
+            "formulario_contato",
+            "linkedin_institucional",
+            "municipio_sede",
+            "uf_sede",
+            "nome_fantasia",
+            "cnae_principal",
             "situacao_cadastral",
         ):
             if p.get(k) and not out.get(k):
@@ -207,12 +216,8 @@ def merge_contacts(*parts: dict[str, Any]) -> dict[str, Any]:
             out["email_confidence"] = conf
         out["contact_sources"].extend(p.get("contact_sources") or [])
         out["contact_score"] = max(float(out["contact_score"]), float(p.get("contact_score") or 0))
-        out["has_personal_only_contact"] = out["has_personal_only_contact"] or bool(
-            p.get("has_personal_only_contact")
-        )
-        out["contact_requires_review"] = out["contact_requires_review"] or bool(
-            p.get("contact_requires_review")
-        )
+        out["has_personal_only_contact"] = out["has_personal_only_contact"] or bool(p.get("has_personal_only_contact"))
+        out["contact_requires_review"] = out["contact_requires_review"] or bool(p.get("contact_requires_review"))
         out["limitations"].extend(p.get("limitations") or [])
     return out
 
@@ -237,9 +242,7 @@ def contact_readiness_level(contacts: dict[str, Any] | None) -> str:
     c = contacts or {}
     if is_contact_verifiable_for_diagnostic(c):
         return "high"
-    if c.get("email_comercial_low_confidence") or (
-        c.get("email_confidence") == "low" and c.get("email_comercial")
-    ):
+    if c.get("email_comercial_low_confidence") or (c.get("email_confidence") == "low" and c.get("email_comercial")):
         return "low"
     if c.get("contact_score") and float(c.get("contact_score") or 0) > 0:
         return "low"

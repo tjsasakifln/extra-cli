@@ -21,9 +21,7 @@ HUMAN_REVIEW_INCOMPLETE = "human_review_incomplete"
 HUMAN_REVIEW_PENDING = "human_review_pending"
 HUMAN_REVIEW_NONE = "human_review_none"
 
-_ACCEPT_DECISIONS = frozenset(
-    {"ACCEPT", "CONFIRMED", "APPROVED", "COMPLETE", "REGIME_UNRESOLVED"}
-)
+_ACCEPT_DECISIONS = frozenset({"ACCEPT", "CONFIRMED", "APPROVED", "COMPLETE", "REGIME_UNRESOLVED"})
 _VERIFIED_PROMOTE_DECISIONS = frozenset({"ACCEPT", "CONFIRMED", "APPROVED", "COMPLETE"})
 
 
@@ -160,35 +158,17 @@ def assess_human_review_completeness(rec: dict[str, Any]) -> dict[str, Any]:
     verified_missing: list[str] = []
     if acceptish and complete:
         if not (
-            rec.get("clauses")
-            or rec.get("clause")
-            or rec.get("clausula_reajuste")
-            or rec.get("clause_identified")
+            rec.get("clauses") or rec.get("clause") or rec.get("clausula_reajuste") or rec.get("clause_identified")
         ):
             verified_missing.append("clausula_reajuste_identificada")
-        if not (
-            rec.get("data_base_confirmed")
-            or rec.get("data_base")
-            or rec.get("exact_budget_date")
-        ):
+        if not (rec.get("data_base_confirmed") or rec.get("data_base") or rec.get("exact_budget_date")):
             verified_missing.append("data_base_confirmada")
-        if not (
-            rec.get("index_confirmed")
-            or rec.get("indice")
-            or rec.get("formula")
-            or rec.get("index_or_formula")
-        ):
+        if not (rec.get("index_confirmed") or rec.get("indice") or rec.get("formula") or rec.get("index_or_formula")):
             verified_missing.append("indice_ou_formula_confirmada")
-        if not (
-            rec.get("prior_adjustment")
-            or rec.get("adjustment_history")
-            or rec.get("historico_reajustes")
-        ):
+        if not (rec.get("prior_adjustment") or rec.get("adjustment_history") or rec.get("historico_reajustes")):
             verified_missing.append("historico_reajustes_analisado")
         if not (
-            rec.get("document_link_validated")
-            or rec.get("vinculo_documental")
-            or rec.get("document_contract_link")
+            rec.get("document_link_validated") or rec.get("vinculo_documental") or rec.get("document_contract_link")
         ):
             # Soft: documents_read + locus already imply some binding
             if not docs:
