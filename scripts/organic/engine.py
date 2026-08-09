@@ -8,7 +8,7 @@ Output: SEO_OPPORTUNITIES document ordered by commercial Content Value Score.
 from __future__ import annotations
 
 import json
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Any
 
@@ -285,7 +285,6 @@ def opportunities_from_markets(markets: list[dict[str, Any]], *, as_of: str) -> 
         insight = insight_from_market(m, as_of=as_of)
         n = int(insight["record_count"] or 0)
         region = (m.get("region") or "") or ""
-        segment = m.get("archetype_id") or m.get("segment") or ""
         slug = m.get("slug") or m.get("id") or "market"
         # Prefer existing inteligencia/radar paths when shape matches
         proposed = f"/inteligencia/mercados/{slug}/" if not str(slug).startswith("market-") else (
@@ -581,7 +580,7 @@ def build_opportunities(
 
     return {
         "schema_version": SCHEMA_VERSION,
-        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "generated_at": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "as_of": as_of,
         "north_star": "receita_esperada_atribuivel_ao_inbound_organico",
         "scoring": {
