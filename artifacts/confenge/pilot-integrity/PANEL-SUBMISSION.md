@@ -16,7 +16,7 @@ This package **must not** be treated as `GO_FOR_CONTROLLED_PILOT`. Prior GO is i
 
 | Repo | Branch | HEAD | PR |
 |------|--------|------|-----|
-| extra-cli | `fix/confenge-pilot-target-service-integrity` | `2146384ce78f0ead0766ac225c662f9b74603bfb` | https://github.com/tjsasakifln/extra-cli/pull/211 |
+| extra-cli | `fix/confenge-pilot-target-service-integrity` | `0c7a4645` (tip; see PR) | https://github.com/tjsasakifln/extra-cli/pull/211 |
 | warmbly | `fix/confenge-pilot-service-copy-integrity` | `567977b2ff81fa8fcd655713c9a3ba02d0907090` | https://github.com/tjsasakifln/warmbly/pull/34 |
 
 ## Artifacts (authoritative)
