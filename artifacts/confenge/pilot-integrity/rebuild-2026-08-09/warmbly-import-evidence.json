@@ -1,59 +1,29 @@
 {
-  "imported_at": "2026-08-09T21:24:20.707134+00:00",
+  "imported_at": "2026-08-09T21:45:03.208396+00:00",
   "feed_path": "warmbly/data/confenge-feeds/pilot-integrity-clean-v1.json",
-  "source_feed_jsonl": "artifacts/confenge/pilot-integrity/rebuild-2026-08-09/confenge-outreach-feed-clean.jsonl",
-  "dry_run_summary": [
-    "CONFENGE import (dry-run) status=completed",
-    "  creates=48 updates=2 unchanged=0 blocked=0",
-    "  missing_contact=0 invalid=0 leads_processed=50 errors=0"
-  ],
-  "apply_summary": [
-    "CONFENGE import (apply) status=completed",
-    "  creates=48 updates=2 unchanged=0 blocked=0",
-    "  missing_contact=0 invalid=0 leads_processed=50 errors=0"
-  ],
-  "import_runs": [
-    "8e23881c-0e56-46b7-8270-ffa575987c9c|completed|false|pilot-integrity-recovery-01|pilot-integrity-clean-2026-08-09|{\"blocked\": 0, \"creates\": 48, \"invalid\": 0, \"updates\": 2, \"warnings\": 0, \"conflicts\": 0, \"unchanged\": 0, \"evidence_added\": 142, \"leads_processed\": 50, \"missing_contact\": 0, \"contacts_promoted\": 0, \"leads_skipped_error\": 0}",
-    "1810e501-fbfd-484e-9a6d-38a7b6c6defe|completed|true|pilot-integrity-recovery-01|pilot-integrity-clean-2026-08-09|{\"blocked\": 0, \"creates\": 48, \"invalid\": 0, \"updates\": 2, \"warnings\": 0, \"conflicts\": 0, \"unchanged\": 0, \"evidence_added\": 142, \"leads_processed\": 50, \"missing_contact\": 0, \"contacts_promoted\": 0, \"leads_skipped_error\": 0}"
-  ],
-  "accounts_imported": 50,
+  "run_id": "pilot-integrity-recovery-01-fixed-router",
+  "leads": 49,
   "service_distribution": {
-    "MONITORAMENTO_CONTRATUAL": 19,
-    "PLANILHAS": 16,
-    "APOIO_LICITACAO": 10,
-    "BACKOFFICE": 5,
+    "ADITIVOS": 8,
+    "APOIO_LICITACAO": 8,
+    "BACKOFFICE": 8,
+    "MEDICOES": 8,
+    "MONITORAMENTO_CONTRATUAL": 8,
+    "PLANILHAS": 8,
+    "REEQUILIBRIO": 1,
     "REAJUSTE": 0
   },
   "email_send_ready_true": 0,
-  "email_send_ready_false": 50,
   "reajuste_count": 0,
-  "kill_switch": "ENGAGED (data/confenge-kill-switch)",
+  "unique_why_this_account": 49,
+  "kill_switch": "ENGAGED",
   "dispatch": "PAUSED",
-  "auto_send": false,
-  "human_approval_required": true,
-  "icp_audit": {
-    "n": 50,
-    "hard_false_positives": 0,
-    "borderline_names": [
-      {
-        "cnpj": "41364679000185",
-        "name": "H B TREINAMENTOS LTDA",
-        "note": "name suggests training; fact may still be eng — keep RESEARCH not auto-send"
-      },
-      {
-        "cnpj": "09377564000112",
-        "name": "AMPLA ASSESSORIA E PLANEJAMENTO LTDA EPP",
-        "note": "assessoria; fact waste-plan-like — RESEARCH"
-      }
-    ],
-    "criterion": "hard FP = imobiliária/móveis/frota/metrologia/médico/pneus without execution evidence (incident class)"
-  },
-  "why_not_email_send_ready": [
-    "contacts use .invalid synthetic domains (no real lead delivery)",
-    "feed set email_send_ready=false at import",
-    "target_fit_send_tier not populated by Warmbly import path (empty)",
-    "kill switch engaged via confenge stop-sending",
-    "CONFENGE_AUTO_SEND_ENABLED=false"
-  ],
-  "note": "0 EMAIL_SEND_READY post-import is FAIL-CLOSED success for pilot integrity; cohort ICP hard-FP = 0 among 50 construction-confirmed imports"
+  "skeptic_fixes": [
+    "mature_no_reajuste score below multi-contract gestão/orçamento (FASE7)",
+    "why_this_account from concrete contract object, not hollow portfolio string",
+    "micro_offer_code is catalog micro-offer not approach_mode",
+    "Warmbly WhyThisAccount uses fact; generic why flagged incomplete_copy_context",
+    "honest multi-contract mature test with start_date/age_days",
+    "10-family e2e golden + Warmbly AllServiceFamiliesStrategyPreservesCode"
+  ]
 }

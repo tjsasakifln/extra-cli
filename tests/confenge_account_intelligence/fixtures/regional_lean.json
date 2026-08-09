@@ -47,6 +47,19 @@
       "source_url": "https://example.local/pncp/ct-vs-002",
       "source_document": "Contrato 012/2026",
       "source_date": "2026-03-15"
+    },
+    {
+      "id": "ct-vs-003",
+      "object": "Manutenção civil de praça e calçadas",
+      "value_brl": 410000,
+      "start_date": "2026-05-01",
+      "end_date": "2026-11-30",
+      "uf": "SC",
+      "orgao": "Prefeitura de Criciúma",
+      "has_addendum": false,
+      "source_url": "https://example.local/pncp/ct-vs-003",
+      "source_document": "Contrato 088/2026",
+      "source_date": "2026-05-01"
     }
   ],
   "evidence": [

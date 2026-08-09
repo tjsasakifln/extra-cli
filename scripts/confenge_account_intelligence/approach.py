@@ -9,6 +9,58 @@ def _company_label(bag: dict[str, Any]) -> str:
     return str(bag.get("razao_social") or bag.get("nome_fantasia") or "a empresa")
 
 
+def _build_why_this_account(
+    bag: dict[str, Any],
+    company: str,
+    confirmed: list[dict[str, Any]],
+    service_id: str,
+) -> str:
+    """Specific WHY YOU from public contracts/facts — never hollow portfolio boilerplate."""
+    contracts = bag.get("contracts") or []
+    # Prefer a concrete object + agency from the first substantial contract.
+    for c in contracts:
+        if not isinstance(c, dict):
+            continue
+        obj = str(c.get("object") or c.get("objeto") or c.get("objeto_contrato") or "").strip()
+        if len(obj) < 24:
+            continue
+        org = str(c.get("orgao") or c.get("agency") or c.get("orgao_nome") or "").strip()
+        uf = str(c.get("uf") or "").strip()
+        val = c.get("value_brl") or c.get("valor_total")
+        bits = [f"{company} com execução pública observável"]
+        if org:
+            bits.append(f"junto a {org}")
+        if uf:
+            bits.append(f"({uf})")
+        bits.append(f"— objeto: {obj[:160]}")
+        if isinstance(val, (int, float)) and val > 0:
+            bits.append(f"(R$ {val:,.0f})")
+        return " ".join(bits)
+
+    # Fall back to first confirmed fact if it is not a hollow portfolio count line.
+    for item in confirmed:
+        text = str(item.get("text") or "").strip()
+        if not text:
+            continue
+        low = text.lower()
+        if "portfólio público observado com" in low and "contrato(s) no input" in low:
+            continue
+        if "ufs observadas nos contratos" in low:
+            continue
+        return f"{company}: {text[:220]}"
+
+    activity = str(bag.get("activity_class") or "").strip()
+    if activity and activity not in {"OTHER", "UNKNOWN", ""}:
+        return (
+            f"{company} classificada como {activity} com material público insuficiente "
+            f"para especialidade além de {service_id} — discovery honesto."
+        )
+    return (
+        f"{company}: sem objeto contratual específico no input; "
+        "não afirmar portfólio de engenharia sem evidência."
+    )
+
+
 def build_approach_fields(
     bag: dict[str, Any],
     *,
@@ -100,6 +152,24 @@ def build_approach_fields(
     }
     t = templates.get(sid) or templates["diagnostico_contratual_b2g"]
 
+    # Canonical micro-offer codes (not approach_mode labels).
+    micro_by_service: dict[str, str] = {
+        "estruturacao_pleito_reajuste": "REAJUSTE_CHECK",
+        "reequilibrio_economico_financeiro": "CLAIM_READINESS_CHECK",
+        "aditivos_extracontratuais": "ADITIVO_RISK_CHECK",
+        "medicoes_glosas_memoria": "MEDICAO_CHECK",
+        "auditoria_orcamento_bdi": "DOCUMENT_CHECKLIST",
+        "gestao_monitoramento_contratual": "PUBLIC_DATA_SNAPSHOT",
+        "apoio_licitacoes_propostas": "PROCUREMENT_RISK_SNAPSHOT",
+        "inteligencia_pncp_mercado": "MARKET_BRIEF",
+        "diagnostico_contratual_b2g": "DIAGNOSTIC_CHECKLIST",
+        "reforco_temporario_backoffice": "BACKOFFICE_SCOPE_CHECK",
+    }
+    micro_offer_code = micro_by_service.get(sid, "DIAGNOSTIC_CHECKLIST")
+
+    # why_this_account: must cite a concrete public hook, never a hollow portfolio template.
+    why_this_account = _build_why_this_account(bag, company, confirmed, sid)
+
     # Tone / density
     if sc == "robust" or "independente" in mode or "auditoria" in mode or "segunda_opiniao" in mode:
         tone = "consultivo_abm"
@@ -166,4 +236,6 @@ def build_approach_fields(
             "framing": framing,
         },
         "research_gaps": research_gaps,
+        "why_this_account": why_this_account,
+        "micro_offer_code": micro_offer_code,
     }

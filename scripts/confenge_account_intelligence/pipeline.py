@@ -173,14 +173,8 @@ def build_dossier(
         "target_fit_confidence": bag.get("target_fit_confidence"),
         "target_fit_version": bag.get("target_fit_version"),
         "construction_evidence": bag.get("construction_evidence") or {},
-        "why_this_account": (
-            f"empresa com portfólio público observável: {bag.get('razao_social')}"
-            if bag.get("razao_social")
-            else approach.get("fact_to_mention") or ""
-        ),
-        "micro_offer_code": str(
-            (selection.get("primary_service") or {}).get("approach_mode") or ""
-        ),
+        "why_this_account": str(approach.get("why_this_account") or ""),
+        "micro_offer_code": str(approach.get("micro_offer_code") or ""),
         "observed_fact": approach.get("fact_to_mention") or "",
         "_pipeline_contracts": bag.get("contracts") or [],
     }

@@ -1,7 +1,7 @@
 # GO-NO-GO — CONFENGE pilot integrity recovery
 
-Date: 2026-08-09T21:24:20Z
-Dispatch: **PAUSED** | Kill switch: **ENGAGED** | WhatsApp: OFF | GREEN autorun: OFF
+Date: 2026-08-09T21:45:03Z
+Dispatch: **PAUSED** | Kill switch: **ENGAGED** | WhatsApp: OFF | GREEN: OFF
 
 ## Verdict
 
@@ -9,60 +9,32 @@ Dispatch: **PAUSED** | Kill switch: **ENGAGED** | WhatsApp: OFF | GREEN autorun:
 NO_GO
 ```
 
-## Warmbly import evidence (this session)
+## Skeptic-panel fixes applied
+
+1. **Router FASE7**: `mature_no_reajuste` scores 48 (multi-contract) / 60 (thin book) — cannot beat gestão (65) or robust orçamento (72).
+2. **why_this_account**: built from concrete contract object/órgão, not “portfólio público observável”.
+3. **micro_offer_code**: real codes (`REAJUSTE_CHECK`, `ADITIVO_RISK_CHECK`, …), not `approach_mode`.
+4. **Warmbly strategy**: WhyThisAccount from fact; hollow “momento comercial público” → `incomplete_copy_context`.
+5. **Tests**: multi-contract mature with `start_date`/`age_days`; 10-family e2e; Warmbly family preserve.
+
+## Warmbly re-import (fixed router feed)
 
 | Item | Result |
 |------|--------|
-| Feed | `warmbly/data/confenge-feeds/pilot-integrity-clean-v1.json` |
-| Dry-run | creates=48 updates=2 blocked=0 errors=0 (50 leads) |
-| Apply | creates=48 updates=2 blocked=0 errors=0 (50 leads) |
-| Service mix | MONITORAMENTO 19 · PLANILHAS 16 · APOIO_LICITACAO 10 · BACKOFFICE 5 |
-| **REAJUSTE count** | **0 / 50** (monoculture broken) |
-| `email_send_ready=true` | **0 / 50** (fail-closed) |
-| Hard ICP FP (incident class) | **0 / 50** |
-| Borderline names | 2 (TREINAMENTOS, ASSESSORIA) — not auto-send |
-| Kill switch file | `warmbly/data/confenge-kill-switch` present |
-| Import run IDs | see `rebuild-2026-08-09/warmbly-import-evidence.json` |
+| Leads | 49 |
+| Service mix | ADITIVOS 8 · MEDICOES 8 · PLANILHAS 8 · MONITORAMENTO 8 · APOIO_LICITACAO 8 · BACKOFFICE 8 · REEQUILIBRIO 1 |
+| **REAJUSTE** | **0** |
+| unique why_this_account | 49 |
+| email_send_ready=true | 0 (fail-closed; .invalid contacts + kill switch) |
+| Hard ICP FP | 0 in construction-confirmed sample |
 
-### Why `email_send_ready` is all false (correct)
+## Why still NO_GO
 
-1. Synthetic contacts on `.invalid` domains (no real delivery possible)
-2. Feed explicitly set `email_send_ready=false` / `dispatch_authorized=false`
-3. Kill switch engaged (`confenge stop-sending`)
-4. `CONFENGE_AUTO_SEND_ENABLED=false`
+1. No real COMPANY_OWNED verified contacts → no live EMAIL_SEND_READY send queue of 50
+2. Full DSN 3.6M rebuild not re-run under construction v2 (offline rescore only)
+3. Merge/deploy + operator review of new-30/new-10 still required
+4. Local warmbly_dev only — not production VPS
 
-This is **not** a regression: the previous bug was false EMAIL_SEND_READY on non-ICP firms with REAJUSTE. Post-fix import refuses send-ready while preserving multi-service routing on construction names.
+## Safety
 
-## Offline structural gates (extra-cli rescore)
-
-| Gate | Result |
-|------|--------|
-| Universe rescore 48748 | CONFIRMED 5606 / RESEARCH 39212 / OUT 3930 |
-| Sample50 human hard FP | 0 |
-| Sample30 near-dup | not blocked (max_sim≈0.61) |
-| Sample30 empty copy fields | 0 |
-
-## Why still NO_GO (concrete blockers)
-
-1. **No live EMAIL_SEND_READY cohort of 50** — fail-closed left all 50 as non-send-ready; cannot claim pilot-ready send queue without real COMPANY_OWNED verified contacts + populated target_fit_send_tier on Warmbly.
-2. **2 borderline names** in import sample need RESEARCH disposition before any send path.
-3. **Full DSN universe rebuild (3.6M)** not re-run under construction v2 (offline rescore of existing eligibles only).
-4. **Operator merge/deploy** of fix branches + human review of new-30/new-10 still required.
-5. **Production Warmbly/VPS** not the local import target — local `warmbly_dev` only.
-
-## Safety invariants verified this session
-
-- Kill switch ENGAGED
-- No dispatch / no auto-send
-- No email to real leads (`.invalid` contacts only)
-- Contaminated COPY-SAMPLE drafts not reused
-- REAJUSTE monoculture absent in clean import
-
-## Next for a future GO_FOR_CONTROLLED_PILOT
-
-1. Merge `fix/confenge-pilot-target-service-integrity` (extra-cli) + `fix/confenge-pilot-service-copy-integrity` (warmbly)
-2. Optional full DSN rebuild
-3. Resolve real contacts only for TARGET_CONFIRMED
-4. Warmbly import on staging/prod with dispatch PAUSED + kill switch
-5. Human audit of any EMAIL_SEND_READY until 50 with 0 hard FP
-6. Operator explicit enable for controlled pilot morning
+Kill switch engaged; no dispatch; no real-lead email; contaminated sample not reused.

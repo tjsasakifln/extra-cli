@@ -114,12 +114,15 @@ UNSUITABLE_NO_EVIDENCE = "UNSUITABLE_NO_EVIDENCE"
 UNSUITABLE_STALE = "UNSUITABLE_STALE"
 UNSUITABLE_COPY_CONTEXT = "UNSUITABLE_COPY_CONTEXT"
 
-# Generic why_you / hooks that do not count as copy context
+# Prefixes/phrases that alone (or with only a company name) are hollow copy context.
 _GENERIC_WHY_MARKERS: tuple[str, ...] = (
     "empresa com momento comercial público",
     "portfólio público de contratos de engenharia",
     "portfólio público de contratos",
+    "empresa com portfólio público observável",
+    "portfólio público observável",
     "observamos contratos públicos",
+    "momento comercial indicado pelo extra-cli",
 )
 
 
@@ -423,7 +426,30 @@ def _is_generic_why(text: str) -> bool:
     t = text.strip().lower()
     if not t:
         return True
-    return any(m in t for m in _GENERIC_WHY_MARKERS)
+    if any(m in t for m in _GENERIC_WHY_MARKERS):
+        # Allow if the string also carries a concrete contractual hook.
+        concrete = (
+            "objeto",
+            "contrato",
+            "paviment",
+            "obra",
+            "engenharia",
+            "aditivo",
+            "medição",
+            "medicao",
+            "orgão",
+            "orgao",
+            "prefeitura",
+            "dnit",
+            "pncp",
+        )
+        if any(c in t for c in concrete) and len(t) > 80:
+            return False
+        return True
+    # Hollow: company name only, or shorter than a real hook.
+    if len(t) < 40:
+        return True
+    return False
 
 
 def evaluate_copy_context_ready(company: dict[str, Any] | None, *, service_code: str | None = None) -> CopyContextResult:

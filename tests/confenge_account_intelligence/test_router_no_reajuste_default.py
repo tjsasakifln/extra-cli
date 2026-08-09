@@ -76,20 +76,74 @@ def test_mature_no_reajuste_only_when_no_stronger() -> None:
 
 
 def test_multi_contract_gestao_not_reajuste() -> None:
+    """Production shape: multi-contract mature books must NOT primary reajuste.
+
+    Real PNCP vigência often has start_date + age_days>=365 without reajuste
+    proof. FASE7: operational need (gestão) > reajuste verification window.
+    """
     bag = {
         "contracts": [
-            {"id": f"c{i}", "object": f"contrato {i}", "has_addendum": False} for i in range(4)
+            {
+                "id": f"c{i}",
+                "object": f"execução de obra de pavimentação trecho {i}",
+                "has_addendum": False,
+                "has_reajuste": False,
+                "start_date": "2023-01-01",
+                "age_days": 800 + i,
+            }
+            for i in range(4)
         ],
         "facts": [],
         "signals": {},
     }
     r = _sel(bag, structure={"structure_class": "mixed", "lean_signals": []}, why={"trigger": ""})
     assert r["primary_service"]["service_id"] != "estruturacao_pleito_reajuste"
-    assert r["primary_service"]["service_id"] in {
-        "gestao_monitoramento_contratual",
-        "diagnostico_contratual_b2g",
-        "auditoria_orcamento_bdi",
+    assert r["primary_service"]["service_id"] == "gestao_monitoramento_contratual"
+    # Reajuste may appear as a lower-ranked candidate, never primary here.
+    cands = r.get("service_candidates") or []
+    reaj = next((c for c in cands if c["service_id"] == "estruturacao_pleito_reajuste"), None)
+    gest = next((c for c in cands if c["service_id"] == "gestao_monitoramento_contratual"), None)
+    assert gest is not None and reaj is not None
+    assert float(gest["score"]) > float(reaj["score"])
+
+
+def test_mature_single_contract_can_be_reajuste_verification() -> None:
+    """Single mature contract without stronger signals → reajuste verification OK."""
+    bag = {
+        "contracts": [
+            {
+                "id": "c1",
+                "object": "pavimentação asfáltica etapa única",
+                "start_date": "2023-06-01",
+                "age_days": 800,
+                "has_reajuste": False,
+                "has_addendum": False,
+            }
+        ],
+        "facts": [{"text": "maduro", "epistemic_class": "confirmed"}],
     }
+    r = _sel(bag, why={"trigger": "mature_no_reajuste"})
+    assert r["primary_service"]["service_id"] == "estruturacao_pleito_reajuste"
+
+
+def test_robust_multi_beats_mature_reajuste() -> None:
+    bag = {
+        "contracts": [
+            {
+                "id": f"c{i}",
+                "object": f"obra de infraestrutura {i}",
+                "start_date": "2022-01-01",
+                "age_days": 1200,
+                "has_reajuste": False,
+            }
+            for i in range(6)
+        ],
+        "facts": [],
+        "signals": {},
+    }
+    r = _sel(bag, structure={"structure_class": "robust", "lean_signals": []}, why={"trigger": ""})
+    assert r["primary_service"]["service_id"] == "auditoria_orcamento_bdi"
+    assert r["primary_service"]["service_id"] != "estruturacao_pleito_reajuste"
 
 
 def test_candidates_include_why_fields() -> None:

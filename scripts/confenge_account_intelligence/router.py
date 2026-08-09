@@ -247,15 +247,71 @@ def build_service_candidates(
             )
         )
 
-    # Reajuste verification window — specialized, NOT default, below concrete pain
+    # Operational / structure-based (FASE7: operational need > reajuste verification window)
+    if sc == "robust" and len(contracts) >= 5:
+        candidates.append(
+            _candidate(
+                "auditoria_orcamento_bdi",
+                score=72,
+                factual_basis="robust_structure_multi_contract",
+                temporal_relevance="medium",
+                confidence=0.6,
+                supporting_signal_ids=["structure_robust", "multi_contract"],
+                evidence_ids=ev_ids,
+                why_this="Estrutura robusta/ABM: revisão independente / segunda opinião.",
+                why_not_others="Necessidade operacional sustentada supera janela genérica de reajuste.",
+            )
+        )
+    # Lean backoffice: operational only with multi-contract load (≥3). Two contracts
+    # that are merely regional/mature do not justify outsourcing framing over reajuste verify.
+    if (
+        sc == "lean"
+        and len(contracts) >= 3
+        and len(structure.get("lean_signals") or []) >= 2
+    ):
+        candidates.append(
+            _candidate(
+                "reforco_temporario_backoffice",
+                score=62,
+                factual_basis="lean_structure_with_load",
+                temporal_relevance="medium",
+                confidence=0.5,
+                supporting_signal_ids=["structure_lean", "multi_contract"],
+                evidence_ids=ev_ids,
+                why_this="Hipótese de estrutura enxuta com carga multi-contrato sustentada.",
+                why_not_others="Não inferir 'sem estrutura' por ausência de dados públicos.",
+            )
+        )
+    if len(contracts) >= 3:
+        # Lean multi-contract: backoffice (62) is the operational primary; gestão secondary.
+        gestao_score = 55.0 if sc == "lean" else 65.0
+        candidates.append(
+            _candidate(
+                "gestao_monitoramento_contratual",
+                score=gestao_score,
+                factual_basis="multi_contract_portfolio",
+                temporal_relevance="medium",
+                confidence=0.6,
+                supporting_signal_ids=["multi_contract"],
+                evidence_ids=ev_ids,
+                why_this="Portfólio multi-contrato sem dor concreta dominante.",
+                why_not_others="Monitoramento/gestão supera janela de verificação de reajuste.",
+            )
+        )
+
+    # Reajuste verification window (FASE7):
+    # concrete pain > documentary > operational (multi-contract) > reajuste verify > discovery
+    # Multi-contract (≥3): 48 < gestão 65 / robust 72 / lean-backoffice 62
+    # Thin mature book (1–2): 60 so verification beats discovery; not competing with gestão
     if trigger == "mature_no_reajuste" or _mature_no_reajuste(contracts):
+        mature_score = 48.0 if len(contracts) >= 3 else 60.0
         candidates.append(
             _candidate(
                 "estruturacao_pleito_reajuste",
-                score=70,
+                score=mature_score,
                 factual_basis="mature_contract_without_reajuste_proof",
                 temporal_relevance="medium",
-                confidence=0.65,
+                confidence=0.55,
                 supporting_signal_ids=["mature_no_reajuste"],
                 evidence_ids=ev_ids,
                 why_this=(
@@ -263,53 +319,13 @@ def build_service_candidates(
                     "janela de VERIFICAÇÃO (ausência de prova ≠ evento econômico)."
                 ),
                 why_not_others=(
-                    "Só vence se não houver aditivo/glosa/reequilíbrio/orçamento mais forte."
+                    "Em carteira multi-contrato, gestão/orçamento operacional vencem; "
+                    "em livro fino maduro, a verificação de reajuste supera discovery."
                 ),
-                contraindications=["publication_date_only_must_not_invent_window"],
-            )
-        )
-
-    # Operational / structure-based
-    if sc == "robust" and len(contracts) >= 5:
-        candidates.append(
-            _candidate(
-                "auditoria_orcamento_bdi",
-                score=60,
-                factual_basis="robust_structure_multi_contract",
-                temporal_relevance="low",
-                confidence=0.55,
-                supporting_signal_ids=["structure_robust", "multi_contract"],
-                evidence_ids=ev_ids,
-                why_this="Estrutura robusta/ABM: revisão independente / segunda opinião.",
-                why_not_others="Nunca outsourcing pleno; sem dor concreta dominante.",
-            )
-        )
-    if sc == "lean" and len(contracts) > 0 and len(structure.get("lean_signals") or []) >= 2:
-        candidates.append(
-            _candidate(
-                "reforco_temporario_backoffice",
-                score=58,
-                factual_basis="lean_structure_with_load",
-                temporal_relevance="low",
-                confidence=0.5,
-                supporting_signal_ids=["structure_lean"],
-                evidence_ids=ev_ids,
-                why_this="Hipótese de estrutura enxuta com carga — só com evidência de volume.",
-                why_not_others="Não inferir 'sem estrutura' por ausência de dados públicos.",
-            )
-        )
-    if len(contracts) >= 3:
-        candidates.append(
-            _candidate(
-                "gestao_monitoramento_contratual",
-                score=55,
-                factual_basis="multi_contract_portfolio",
-                temporal_relevance="low",
-                confidence=0.55,
-                supporting_signal_ids=["multi_contract"],
-                evidence_ids=ev_ids,
-                why_this="Portfólio multi-contrato sem dor concreta dominante.",
-                why_not_others="Monitoramento > reajuste inventado.",
+                contraindications=[
+                    "publication_date_only_must_not_invent_window",
+                    "must_not_defeat_multi_contract_operational_need",
+                ],
             )
         )
 
