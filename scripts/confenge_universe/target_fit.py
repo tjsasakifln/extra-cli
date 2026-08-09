@@ -58,7 +58,10 @@ _EXECUTION_MARKERS: tuple[str, ...] = (
     "manutencao civil",
     "recuperacao estrutural",
     "drenagem",
-    "fundacao",
+    # construction foundation (not "fundacao saude" agency names)
+    "fundacao de",
+    "fundacoes de",
+    "fundacao profunda",
     "edificacao",
     "obra de arte especial",
     "reabilitacao de",
@@ -69,10 +72,20 @@ _EXECUTION_MARKERS: tuple[str, ...] = (
 # Supply / adjacency objects that must not alone confirm ICP
 _SUPPLY_ADJACENCY: tuple[str, ...] = (
     "aquisicao de",
+    "aquisicao de medicamento",
+    "aquisicao de medicamentos",
+    "aquisicao de insumos",
     "fornecimento de materiais",
     "fornecimento de pecas",
     "fornecimento de pneus",
     "fornecimento de moveis",
+    "fornecimento de medicamento",
+    "fornecimento de medicamentos",
+    "medicamento",
+    "medicamentos",
+    "farmaceutic",
+    "insumos hospital",
+    "insumos medic",
     "conjuntos escolares",
     "cateter",
     "calibracao",
@@ -98,6 +111,10 @@ _NAME_HARD_OUT: tuple[str, ...] = NAME_OUT_OF_SCOPE + (
     "isomedical",
     "medico",
     "medical",
+    "farmaceutic",
+    "farmacia",
+    "quimico-farmaceutica",
+    "quimico farmaceutica",
     "frotas",
     "manutencao de frotas",
     "importacao exportacao",
@@ -137,8 +154,25 @@ def _object_is_execution(obj: str) -> bool:
     n = normalize_text(obj)
     if not n:
         return False
-    if any(a in n for a in _SUPPLY_ADJACENCY) and not any(e in n for e in _EXECUTION_MARKERS):
-        return False
+    # Pure supply / medication acquisition never counts as construction execution,
+    # even if agency names contain foundation-like tokens (fundacao saude).
+    if any(a in n for a in _SUPPLY_ADJACENCY):
+        # Allow only if a true construction execution marker also appears
+        # (e.g. "aquisicao de servicos de execucao de obra" is rare but possible).
+        if not any(e in n for e in _EXECUTION_MARKERS):
+            return False
+        # If both, require explicit obra/engenharia execution tokens (not fundacao alone)
+        strong_exec = (
+            "execucao de obra",
+            "execucao de obras",
+            "empreitada",
+            "pavimentacao",
+            "construcao civil",
+            "servicos de engenharia",
+            "servico de engenharia",
+        )
+        if not any(e in n for e in strong_exec):
+            return False
     rel = classify_contract_relevance(obj)
     if rel.status != "PASS":
         return False
@@ -154,7 +188,16 @@ def _object_is_supply_only(obj: str) -> bool:
     n = normalize_text(obj)
     if not n:
         return False
-    if any(e in n for e in _EXECUTION_MARKERS):
+    strong_exec = (
+        "execucao de obra",
+        "execucao de obras",
+        "empreitada",
+        "pavimentacao",
+        "construcao civil",
+        "servicos de engenharia",
+        "servico de engenharia",
+    )
+    if any(e in n for e in strong_exec):
         return False
     return any(a in n for a in _SUPPLY_ADJACENCY)
 

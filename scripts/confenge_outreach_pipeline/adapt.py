@@ -33,22 +33,34 @@ def universe_row_to_intelligence_input(
         # Only surface signals that appear in public object text or explicit fields.
         # Absence of a keyword is NOT proof of absence of the event.
         # Absence of reajuste proof is NOT positive economic evidence.
-        has_addendum = bool(c.get("has_addendum")) or any(
-            tok in obj_l
-            for tok in (
-                "aditiv",
-                "apostilamento",
-                "supressão",
-                "supressao",
-                "acréscimo",
-                "acrescimo de",
-                "prorrogação",
-                "prorrogacao",
-                "alteração qualitativa",
-                "alteracao qualitativa",
-                "alteração quantitativa",
-                "alteracao quantitativa",
-                "extracontratual",
+        # Avoid false positives on negated phrases ("sem aditivo").
+        _neg = any(
+            p in obj_l
+            for p in ("sem aditiv", "sem glosa", "sem reajuste", "sem reequil", "sem medicao", "sem medição")
+        )
+        has_addendum = bool(c.get("has_addendum")) or (
+            not _neg
+            and any(
+                tok in obj_l
+                for tok in (
+                    "termo aditiv",
+                    "aditivo de",
+                    "aditivos de",
+                    "aditivo nº",
+                    "aditivo n",
+                    "apostilamento",
+                    "supressão",
+                    "supressao",
+                    "acréscimo",
+                    "acrescimo de",
+                    "prorrogação",
+                    "prorrogacao",
+                    "alteração qualitativa",
+                    "alteracao qualitativa",
+                    "alteração quantitativa",
+                    "alteracao quantitativa",
+                    "extracontratual",
+                )
             )
         )
         has_reajuste = bool(c.get("has_reajuste") or c.get("reajuste_executed")) or any(

@@ -1,693 +1,542 @@
-# New 30 draft sample — NO-SEND (organic_top_n + MessageSpine)
+# New 30 draft sample — NO-SEND
 
-Generated: 2026-08-09T23:09:39Z
-Dispatch: **PAUSED**. Kill switch: ENGAGED. No email to real leads.
-Sampling: **organic_top_n** (no per-service quota).
-Prior stratified 8/family mix: **INVALIDATED** as multi-service proof.
-Feed run_id: `pilot-integrity-recovery-01-message-spine-v2`
+Generated: 2026-08-09T23:48:11Z
+Dispatch: **PAUSED**. Kill switch: ENGAGED.
+tf={'TARGET_PROBABLE_RESEARCH': 38548, 'TARGET_OUT_OF_SCOPE': 4769, 'TARGET_CONFIRMED': 5431} process={'gestao_monitoramento_contratual': 607, 'reforco_temporario_backoffice': 118, 'apoio_licitacoes_propostas': 100, 'auditoria_orcamento_bdi': 13, 'medicoes_glosas_memoria': 6, 'aditivos_extracontratuais': 5} ready=49
+| n | 30 | hollow | 0/0/0 | nd | False/0.551 | conc | ROUTING_CONCENTRATION_REVIEW_REQUIRED/0.767 | reaj | 0.0 |
 
-| Gate | Result |
-|------|--------|
-| n | 30 |
-| empty/hollow why_you | 0 |
-| hollow why_now | 0 |
-| empty micro_offer | 0 |
-| hollow observed_fact | 0 |
-| empty evidence_ids | 0 |
-| hollow portfolio body | 0 |
-| spine_incomplete | 0 |
-| near-duplicate blocked | False (max_sim=0.5) |
-| struct_ok | True |
-| service mix | {'gestao_monitoramento_contratual': 24, 'apoio_licitacoes_propostas': 6} |
-| concentration | ROUTING_CONCENTRATION_REVIEW_REQUIRED (top=0.8) |
-
-## 1. SAMP CONSTRUTORA DE OBRAS LTDA
-- CNPJ: `02810894000100` UF=PR
-- service: `gestao_monitoramento_contratual` / Warmbly `MONITORAMENTO_CONTRATUAL`
-- why_you: SAMP CONSTRUTORA DE OBRAS LTDA com execução pública observável — objeto: Contratação para execução de pavimentação asfáltica de vias urbana em CBUQ, 9.522,11 m², incluindo serviços preliminares, terraplenagem, drenagem, base e sub-ba; órgão: Diretoria de Obras; UF PR; R$ 5,200,000
-- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação para execução de pavimentação asfáltica de vias urbana em CBUQ, 9.522,11 m², incluindo serviços preliminares, terraplenagem, dre; órgão: Diretoria de Obras; UF PR.
-- observed_fact: objeto: Contratação para execução de pavimentação asfáltica de vias urbana em CBUQ, 9.522,11 m², incluindo serviços preliminares, terraplenagem, drenagem, base e sub-ba; órgão: Diretoria de Obras; UF PR; R$ 5,200,000
-- micro_offer: `PUBLIC_DATA_SNAPSHOT`
-- evidence_ids: ['cf-contract-15425341']
-- signals: ['multi_contract']
-- subject: Gestão contratual: Contratação para execução de pavimentação asfált
-- spine_complete: True
+## 1. ENCOPAV ENGENHARIA LTDA
+- `00061493000170` gestao_monitoramento_contratual/MONITORAMENTO_CONTRATUAL
+- why_you: ENCOPAV ENGENHARIA LTDA com execução pública observável — objeto: Contratação de empresa, através de empreitada global (material + mão de obra) para execução da obra de pavimentação em Concreto Betuminoso Usinado À Quente (C.B; órgão: Unidades Administrativas  Subordinadas; UF RS; R$ 2,839,000
+- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação de empresa, através de empreitada global (material + mão de obra) para execução da obra de pavimentação em Concreto Betuminoso U; órgão: Unidades Administrativas  Subordinadas; UF RS.
+- fact: objeto: Contratação de empresa, através de empreitada global (material + mão de obra) para execução da obra de pavimentação em Concreto Betuminoso Usinado À Quente (C.B; órgão: Unidades Administrativas  Subordinadas; UF RS; R$ 2,839,000
+- micro: `PUBLIC_DATA_SNAPSHOT`
 
 ```
 Olá,
 
-Pelo que está público sobre SAMP CONSTRUTORA DE OBRAS LTDA, objeto: Contratação para execução de pavimentação asfáltica de vias urbana em CBUQ, 9.522,11 m², incluindo serviços preliminares, terraplenagem, drenagem, base e sub-ba; órgão: Diretoria de Obras; UF PR; R$ 5,200,000.
+Pelo que está público sobre ENCOPAV ENGENHARIA LTDA, objeto: Contratação de empresa, através de empreitada global (material + mão de obra) para execução da obra de pavimentação em Concreto Betuminoso Usinado À Quente (C.B; órgão: Unidades Administrativas  Subordinadas; UF RS; R$ 2,839,000.
 
-Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação para execução de pavimentação asfáltica de vias urbana em CBUQ, 9.522,11 m², incluindo serviços preliminares, terraplenagem, dre; órgão: Diretoria de Obras; UF PR.
+Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação de empresa, através de empreitada global (material + mão de obra) para execução da obra de pavimentação em Concreto Betuminoso U; órgão: Unidades Administrativas  Subordinadas; UF RS.
 
 Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
 ```
 
-## 2. M F FRAZAO CONSTRUCOES E SERVICOS LTDA
-- CNPJ: `18683397000129` UF=RJ
-- service: `gestao_monitoramento_contratual` / Warmbly `MONITORAMENTO_CONTRATUAL`
-- why_you: M F FRAZAO CONSTRUCOES E SERVICOS LTDA com execução pública observável — objeto: O OBJETO DO PRESENTE INSTRUMENTO É A CONTRATAÇÃO DE OBRA DE CONSTRUÇÃO DA UNIDADE OPERACIONAL DA POLÍCIA RODOVIÁRIA FEDERAL EM DOM ELISEU-PA, NAS CONDIÇÕES ESTA; órgão: SUPERINTENDENCIA REG. POL. RODV. FEDERAL-PA; UF PA; R$ 3,532,610
-- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: O OBJETO DO PRESENTE INSTRUMENTO É A CONTRATAÇÃO DE OBRA DE CONSTRUÇÃO DA UNIDADE OPERACIONAL DA POLÍCIA RODOVIÁRIA FEDERAL EM DOM ELISEU-PA; órgão: SUPERINTENDENCIA REG. POL. RODV. FEDERAL-PA; UF PA.
-- observed_fact: objeto: O OBJETO DO PRESENTE INSTRUMENTO É A CONTRATAÇÃO DE OBRA DE CONSTRUÇÃO DA UNIDADE OPERACIONAL DA POLÍCIA RODOVIÁRIA FEDERAL EM DOM ELISEU-PA, NAS CONDIÇÕES ESTA; órgão: SUPERINTENDENCIA REG. POL. RODV. FEDERAL-PA; UF PA; R$ 3,532,610
-- micro_offer: `PUBLIC_DATA_SNAPSHOT`
-- evidence_ids: ['cf-contract-18036099']
-- signals: ['multi_contract']
-- subject: Gestão contratual: O OBJETO DO PRESENTE INSTRUMENTO É A CONTRATAÇÃO
-- spine_complete: True
+## 2. Traçado Construções e Serviços Ltda.
+- `00472805000138` apoio_licitacoes_propostas/APOIO_LICITACAO
+- why_you: Traçado Construções e Serviços Ltda. com execução pública observável — objeto: Contratação de empresa especializada para execução de obras de pavimentação asfáltica e de passeio com blocos intertratavados, na forma de empreitada global, co; órgão: MUNICÍPIO DE PONTE PRETA - RS; UF RS; R$ 276,128
+- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação de empresa especializada para execução de obras de pavimentação asfáltica e de passeio com blocos intertratavados, na forma de e; órgão: MUNICÍPIO DE PONTE PRETA - RS; UF RS.
+- fact: objeto: Contratação de empresa especializada para execução de obras de pavimentação asfáltica e de passeio com blocos intertratavados, na forma de empreitada global, co; órgão: MUNICÍPIO DE PONTE PRETA - RS; UF RS; R$ 276,128
+- micro: `PROCUREMENT_RISK_SNAPSHOT`
 
 ```
 Olá,
 
-Pelo que está público sobre M F FRAZAO CONSTRUCOES E SERVICOS LTDA, objeto: O OBJETO DO PRESENTE INSTRUMENTO É A CONTRATAÇÃO DE OBRA DE CONSTRUÇÃO DA UNIDADE OPERACIONAL DA POLÍCIA RODOVIÁRIA FEDERAL EM DOM ELISEU-PA, NAS CONDIÇÕES ESTA; órgão: SUPERINTENDENCIA REG. POL. RODV. FEDERAL-PA; UF PA; R$ 3,532,610.
+Pelo que está público sobre Traçado Construções e Serviços Ltda., objeto: Contratação de empresa especializada para execução de obras de pavimentação asfáltica e de passeio com blocos intertratavados, na forma de empreitada global, co; órgão: MUNICÍPIO DE PONTE PRETA - RS; UF RS; R$ 276,128.
 
-Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: O OBJETO DO PRESENTE INSTRUMENTO É A CONTRATAÇÃO DE OBRA DE CONSTRUÇÃO DA UNIDADE OPERACIONAL DA POLÍCIA RODOVIÁRIA FEDERAL EM DOM ELISEU-PA; órgão: SUPERINTENDENCIA REG. POL. RODV. FEDERAL-PA; UF PA.
-
-Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
-```
-
-## 3. BENEDETTI E FUGALI ENGENHARIA LTDA
-- CNPJ: `51027691000158` UF=RS
-- service: `gestao_monitoramento_contratual` / Warmbly `MONITORAMENTO_CONTRATUAL`
-- why_you: BENEDETTI E FUGALI ENGENHARIA LTDA com execução pública observável — objeto: Contratação de empresa especializada para prestação de serviços de elaboração de projeto de engenharia para contenção de talude e pavimentação asfáltica em trec; órgão: PM DE COTIPORÃ; UF RS; R$ 105,000
-- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação de empresa especializada para prestação de serviços de elaboração de projeto de engenharia para contenção de talude e pavimentaç; órgão: PM DE COTIPORÃ; UF RS.
-- observed_fact: objeto: Contratação de empresa especializada para prestação de serviços de elaboração de projeto de engenharia para contenção de talude e pavimentação asfáltica em trec; órgão: PM DE COTIPORÃ; UF RS; R$ 105,000
-- micro_offer: `PUBLIC_DATA_SNAPSHOT`
-- evidence_ids: ['cf-contract-18124261']
-- signals: ['multi_contract']
-- subject: Gestão contratual: Contratação de empresa especializada para presta
-- spine_complete: True
-
-```
-Olá,
-
-Pelo que está público sobre BENEDETTI E FUGALI ENGENHARIA LTDA, objeto: Contratação de empresa especializada para prestação de serviços de elaboração de projeto de engenharia para contenção de talude e pavimentação asfáltica em trec; órgão: PM DE COTIPORÃ; UF RS; R$ 105,000.
-
-Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação de empresa especializada para prestação de serviços de elaboração de projeto de engenharia para contenção de talude e pavimentaç; órgão: PM DE COTIPORÃ; UF RS.
-
-Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
-```
-
-## 4. FAMONTE CONSTRUCOES LTDA
-- CNPJ: `50435443000183` UF=MG
-- service: `gestao_monitoramento_contratual` / Warmbly `MONITORAMENTO_CONTRATUAL`
-- why_you: FAMONTE CONSTRUCOES LTDA com execução pública observável — objeto: Execucao de obra de drenagem e Pavimentacao, com blocos de concreto intertravados, na comunidade Triunfo a Rodovia ES-261, Itarana/ES, conforme especificacoes e; órgão: Prefeitura Municipal de Itarana; UF ES; R$ 525,756
-- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Execucao de obra de drenagem e Pavimentacao, com blocos de concreto intertravados, na comunidade Triunfo a Rodovia ES-261, Itarana/ES, confo; órgão: Prefeitura Municipal de Itarana; UF ES.
-- observed_fact: objeto: Execucao de obra de drenagem e Pavimentacao, com blocos de concreto intertravados, na comunidade Triunfo a Rodovia ES-261, Itarana/ES, conforme especificacoes e; órgão: Prefeitura Municipal de Itarana; UF ES; R$ 525,756
-- micro_offer: `PUBLIC_DATA_SNAPSHOT`
-- evidence_ids: ['cf-contract-25404457']
-- signals: ['multi_contract']
-- subject: Gestão contratual: Execucao de obra de drenagem e Pavimentacao, com
-- spine_complete: True
-
-```
-Olá,
-
-Pelo que está público sobre FAMONTE CONSTRUCOES LTDA, objeto: Execucao de obra de drenagem e Pavimentacao, com blocos de concreto intertravados, na comunidade Triunfo a Rodovia ES-261, Itarana/ES, conforme especificacoes e; órgão: Prefeitura Municipal de Itarana; UF ES; R$ 525,756.
-
-Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Execucao de obra de drenagem e Pavimentacao, com blocos de concreto intertravados, na comunidade Triunfo a Rodovia ES-261, Itarana/ES, confo; órgão: Prefeitura Municipal de Itarana; UF ES.
-
-Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
-```
-
-## 5. KOLF SERVIÇOS DE ENGENHARIA LTDA
-- CNPJ: `07555412000137` UF=PR
-- service: `gestao_monitoramento_contratual` / Warmbly `MONITORAMENTO_CONTRATUAL`
-- why_you: KOLF SERVIÇOS DE ENGENHARIA LTDA com execução pública observável — objeto: CONTRATAÇÃO DA READEQUAÇÃO DO PROJETO ELÉTRICO EXECUTIVO DO CANAL EXTRAVASOR PAVIMENTADO DA BEIRA RIO - LOTE 03; órgão: Secretaria Municipal de Obras e Serviços Urbanos; UF SC; R$ 4,000
-- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: CONTRATAÇÃO DA READEQUAÇÃO DO PROJETO ELÉTRICO EXECUTIVO DO CANAL EXTRAVASOR PAVIMENTADO DA BEIRA RIO - LOTE 03; órgão: Secretaria Municipal de Obras e Serviços Urbanos; UF SC.
-- observed_fact: objeto: CONTRATAÇÃO DA READEQUAÇÃO DO PROJETO ELÉTRICO EXECUTIVO DO CANAL EXTRAVASOR PAVIMENTADO DA BEIRA RIO - LOTE 03; órgão: Secretaria Municipal de Obras e Serviços Urbanos; UF SC; R$ 4,000
-- micro_offer: `PUBLIC_DATA_SNAPSHOT`
-- evidence_ids: ['cf-contract-22710960']
-- signals: ['structure_robust', 'multi_contract']
-- subject: Gestão contratual: CONTRATAÇÃO DA READEQUAÇÃO DO PROJETO ELÉTRICO E
-- spine_complete: True
-
-```
-Olá,
-
-Pelo que está público sobre KOLF SERVIÇOS DE ENGENHARIA LTDA, objeto: CONTRATAÇÃO DA READEQUAÇÃO DO PROJETO ELÉTRICO EXECUTIVO DO CANAL EXTRAVASOR PAVIMENTADO DA BEIRA RIO - LOTE 03; órgão: Secretaria Municipal de Obras e Serviços Urbanos; UF SC; R$ 4,000.
-
-Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: CONTRATAÇÃO DA READEQUAÇÃO DO PROJETO ELÉTRICO EXECUTIVO DO CANAL EXTRAVASOR PAVIMENTADO DA BEIRA RIO - LOTE 03; órgão: Secretaria Municipal de Obras e Serviços Urbanos; UF SC.
-
-Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
-```
-
-## 6. ARPO ASSESSORIA E ARQUITETURA LTDA
-- CNPJ: `40495801000190` UF=RS
-- service: `apoio_licitacoes_propostas` / Warmbly `APOIO_LICITACAO`
-- why_you: ARPO ASSESSORIA E ARQUITETURA LTDA com execução pública observável — objeto: ABERTURA DE PROCESSO DE DISPENSA DE LICITAÇÃO PARA CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA A ELABORAÇÃO DE PROJETO EXECUTIVO DE CONTENÇÃO DE TALUDE E DRENAGEM; órgão: Município de Bento Gonçalves; UF RS; R$ 18,760
-- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: ABERTURA DE PROCESSO DE DISPENSA DE LICITAÇÃO PARA CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA A ELABORAÇÃO DE PROJETO EXECUTIVO DE CONTENÇÃO ; órgão: Município de Bento Gonçalves; UF RS.
-- observed_fact: objeto: ABERTURA DE PROCESSO DE DISPENSA DE LICITAÇÃO PARA CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA A ELABORAÇÃO DE PROJETO EXECUTIVO DE CONTENÇÃO DE TALUDE E DRENAGEM; órgão: Município de Bento Gonçalves; UF RS; R$ 18,760
-- micro_offer: `PROCUREMENT_RISK_SNAPSHOT`
-- evidence_ids: ['cf-contract-8898534']
-- signals: ['tender_proposal']
-- subject: Licitações / propostas: ABERTURA DE PROCESSO DE DISPENSA DE LICITAÇÃO PA
-- spine_complete: True
-
-```
-Olá,
-
-Pelo que está público sobre ARPO ASSESSORIA E ARQUITETURA LTDA, objeto: ABERTURA DE PROCESSO DE DISPENSA DE LICITAÇÃO PARA CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA A ELABORAÇÃO DE PROJETO EXECUTIVO DE CONTENÇÃO DE TALUDE E DRENAGEM; órgão: Município de Bento Gonçalves; UF RS; R$ 18,760.
-
-Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: ABERTURA DE PROCESSO DE DISPENSA DE LICITAÇÃO PARA CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA A ELABORAÇÃO DE PROJETO EXECUTIVO DE CONTENÇÃO ; órgão: Município de Bento Gonçalves; UF RS.
+Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação de empresa especializada para execução de obras de pavimentação asfáltica e de passeio com blocos intertratavados, na forma de e; órgão: MUNICÍPIO DE PONTE PRETA - RS; UF RS.
 
 Disponibilizo apoio de pico em análise de edital/proposta sob NDA.
 ```
 
-## 7. MOSF CONSTRUCOES LTDA
-- CNPJ: `38597819000150` UF=BA
-- service: `gestao_monitoramento_contratual` / Warmbly `MONITORAMENTO_CONTRATUAL`
-- why_you: MOSF CONSTRUCOES LTDA com execução pública observável — objeto: Aditivo de quantitativo ao contrato 0395/2024, que tem como objeto a
-Contratação de empresa de engenharia para execução da obra de
-pavimentação da 3ª Travessa d; órgão: PREFEITURA MUNICIPAL DE VERA CRUZ; UF BA; R$ 343,503
-- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Aditivo de quantitativo ao contrato 0395/2024, que tem como objeto a
-Contratação de empresa de engenharia para execução da obra de
-pavimenta; órgão: PREFEITURA MUNICIPAL DE VERA CRUZ; UF BA.
-- observed_fact: objeto: Aditivo de quantitativo ao contrato 0395/2024, que tem como objeto a
-Contratação de empresa de engenharia para execução da obra de
-pavimentação da 3ª Travessa d; órgão: PREFEITURA MUNICIPAL DE VERA CRUZ; UF BA; R$ 343,503
-- micro_offer: `PUBLIC_DATA_SNAPSHOT`
-- evidence_ids: ['cf-contract-437398']
-- signals: ['multi_contract']
-- subject: Gestão contratual: Aditivo de quantitativo ao contrato 0395/2024, q
-- spine_complete: True
+## 3. JATOBETON ENGENHARIA LTDA
+- `00507949000182` gestao_monitoramento_contratual/MONITORAMENTO_CONTRATUAL
+- why_you: JATOBETON ENGENHARIA LTDA com execução pública observável — objeto: CONTRATAÇÃO DE EMPRESA PARA ELABORAÇÃO DOS ESTUDOS, PROJETOS BÁSICO E EXECUTIVO DE ENGENHARIA, EXECUÇÃO DAS OBRAS DE REABILITAÇÃO DE 01 (UMA) OBRA DE ARTE ESPEC; órgão: DEPARTAMENTO NACIONAL INFRAEST.DE TRANSPORTES; UF DF; R$ 9,527,127
+- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: CONTRATAÇÃO DE EMPRESA PARA ELABORAÇÃO DOS ESTUDOS, PROJETOS BÁSICO E EXECUTIVO DE ENGENHARIA, EXECUÇÃO DAS OBRAS DE REABILITAÇÃO DE 01 (UMA; órgão: DEPARTAMENTO NACIONAL INFRAEST.DE TRANSPORTES; UF DF.
+- fact: objeto: CONTRATAÇÃO DE EMPRESA PARA ELABORAÇÃO DOS ESTUDOS, PROJETOS BÁSICO E EXECUTIVO DE ENGENHARIA, EXECUÇÃO DAS OBRAS DE REABILITAÇÃO DE 01 (UMA) OBRA DE ARTE ESPEC; órgão: DEPARTAMENTO NACIONAL INFRAEST.DE TRANSPORTES; UF DF; R$ 9,527,127
+- micro: `PUBLIC_DATA_SNAPSHOT`
 
 ```
 Olá,
 
-Pelo que está público sobre MOSF CONSTRUCOES LTDA, objeto: Aditivo de quantitativo ao contrato 0395/2024, que tem como objeto a
-Contratação de empresa de engenharia para execução da obra de
-pavimentação da 3ª Travessa d; órgão: PREFEITURA MUNICIPAL DE VERA CRUZ; UF BA; R$ 343,503.
+Pelo que está público sobre JATOBETON ENGENHARIA LTDA, objeto: CONTRATAÇÃO DE EMPRESA PARA ELABORAÇÃO DOS ESTUDOS, PROJETOS BÁSICO E EXECUTIVO DE ENGENHARIA, EXECUÇÃO DAS OBRAS DE REABILITAÇÃO DE 01 (UMA) OBRA DE ARTE ESPEC; órgão: DEPARTAMENTO NACIONAL INFRAEST.DE TRANSPORTES; UF DF; R$ 9,527,127.
 
-Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Aditivo de quantitativo ao contrato 0395/2024, que tem como objeto a
-Contratação de empresa de engenharia para execução da obra de
-pavimenta; órgão: PREFEITURA MUNICIPAL DE VERA CRUZ; UF BA.
+Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: CONTRATAÇÃO DE EMPRESA PARA ELABORAÇÃO DOS ESTUDOS, PROJETOS BÁSICO E EXECUTIVO DE ENGENHARIA, EXECUÇÃO DAS OBRAS DE REABILITAÇÃO DE 01 (UMA; órgão: DEPARTAMENTO NACIONAL INFRAEST.DE TRANSPORTES; UF DF.
 
 Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
 ```
 
-## 8. DFT PROJETOS LTDA
-- CNPJ: `29646103000105` UF=MG
-- service: `gestao_monitoramento_contratual` / Warmbly `MONITORAMENTO_CONTRATUAL`
-- why_you: DFT PROJETOS LTDA com execução pública observável — objeto: Contratação de serviços de consultoria em engenharia para elaboração de projeto de iluminação pública com tecnologia LED, serviços de Medição e Verificação e ap; órgão: Departamento de Compras e Licitação; UF MG; R$ 11,657
-- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação de serviços de consultoria em engenharia para elaboração de projeto de iluminação pública com tecnologia LED, serviços de Mediçã; órgão: Departamento de Compras e Licitação; UF MG.
-- observed_fact: objeto: Contratação de serviços de consultoria em engenharia para elaboração de projeto de iluminação pública com tecnologia LED, serviços de Medição e Verificação e ap; órgão: Departamento de Compras e Licitação; UF MG; R$ 11,657
-- micro_offer: `PUBLIC_DATA_SNAPSHOT`
-- evidence_ids: ['cf-contract-15369594']
-- signals: ['multi_contract']
-- subject: Gestão contratual: Contratação de serviços de consultoria em engenh
-- spine_complete: True
+## 4. AMF ENGENHARIA E SERVICO LTDA
+- `00638562000165` gestao_monitoramento_contratual/MONITORAMENTO_CONTRATUAL
+- why_you: AMF ENGENHARIA E SERVICO LTDA com execução pública observável — objeto: ELABORACAO DO PROJETO EXECUTIVO DE ENGENHARIA E EXECUCAO DE OBRAS E SERVICOS DE INFRAESTRUTURA URBANA DE LIGACAO DOS BAIRROS VICENTE SOELLA E AMARILIO CAIADO FR; órgão: PREFEITURA MUNICIPAL DE COLATINA; UF ES; R$ 19,333,295
+- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: ELABORACAO DO PROJETO EXECUTIVO DE ENGENHARIA E EXECUCAO DE OBRAS E SERVICOS DE INFRAESTRUTURA URBANA DE LIGACAO DOS BAIRROS VICENTE SOELLA ; órgão: PREFEITURA MUNICIPAL DE COLATINA; UF ES.
+- fact: objeto: ELABORACAO DO PROJETO EXECUTIVO DE ENGENHARIA E EXECUCAO DE OBRAS E SERVICOS DE INFRAESTRUTURA URBANA DE LIGACAO DOS BAIRROS VICENTE SOELLA E AMARILIO CAIADO FR; órgão: PREFEITURA MUNICIPAL DE COLATINA; UF ES; R$ 19,333,295
+- micro: `PUBLIC_DATA_SNAPSHOT`
 
 ```
 Olá,
 
-Pelo que está público sobre DFT PROJETOS LTDA, objeto: Contratação de serviços de consultoria em engenharia para elaboração de projeto de iluminação pública com tecnologia LED, serviços de Medição e Verificação e ap; órgão: Departamento de Compras e Licitação; UF MG; R$ 11,657.
+Pelo que está público sobre AMF ENGENHARIA E SERVICO LTDA, objeto: ELABORACAO DO PROJETO EXECUTIVO DE ENGENHARIA E EXECUCAO DE OBRAS E SERVICOS DE INFRAESTRUTURA URBANA DE LIGACAO DOS BAIRROS VICENTE SOELLA E AMARILIO CAIADO FR; órgão: PREFEITURA MUNICIPAL DE COLATINA; UF ES; R$ 19,333,295.
 
-Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação de serviços de consultoria em engenharia para elaboração de projeto de iluminação pública com tecnologia LED, serviços de Mediçã; órgão: Departamento de Compras e Licitação; UF MG.
+Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: ELABORACAO DO PROJETO EXECUTIVO DE ENGENHARIA E EXECUCAO DE OBRAS E SERVICOS DE INFRAESTRUTURA URBANA DE LIGACAO DOS BAIRROS VICENTE SOELLA ; órgão: PREFEITURA MUNICIPAL DE COLATINA; UF ES.
 
 Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
 ```
 
-## 9. TELETUSA TELEFONIA E CONSTRUCOES LTDA
-- CNPJ: `54826144000120` UF=SP
-- service: `gestao_monitoramento_contratual` / Warmbly `MONITORAMENTO_CONTRATUAL`
-- why_you: TELETUSA TELEFONIA E CONSTRUCOES LTDA com execução pública observável — objeto: Obtenção de proposta mais vantajosa à Administração Municipal, visando a contratação de empresa especializada para execução de recapeamento asfáltico tipo CBUQ; órgão: DIVISÃO DE OBRAS E SERVIÇOS MUNICIPAIS; UF SP; R$ 1,257,470
-- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Obtenção de proposta mais vantajosa à Administração Municipal, visando a contratação de empresa especializada para execução de recapeamento ; órgão: DIVISÃO DE OBRAS E SERVIÇOS MUNICIPAIS; UF SP.
-- observed_fact: objeto: Obtenção de proposta mais vantajosa à Administração Municipal, visando a contratação de empresa especializada para execução de recapeamento asfáltico tipo CBUQ; órgão: DIVISÃO DE OBRAS E SERVIÇOS MUNICIPAIS; UF SP; R$ 1,257,470
-- micro_offer: `PUBLIC_DATA_SNAPSHOT`
-- evidence_ids: ['cf-contract-15403775']
-- signals: ['multi_contract']
-- subject: Gestão contratual: Obtenção de proposta mais vantajosa à Administra
-- spine_complete: True
+## 5. QUALIDADE CONSTRUÇÕES E PAVIMENTAÇÕES LTDA
+- `00820854000114` gestao_monitoramento_contratual/MONITORAMENTO_CONTRATUAL
+- why_you: QUALIDADE CONSTRUÇÕES E PAVIMENTAÇÕES LTDA com execução pública observável — objeto: Execução de serviços de manutenção e conservação rotineira e periódica do pavimento das rodovias da Área 03 da SR Leste, numa extensão de 133,90 km.; órgão: DER - Departamento de Estradas de Rodagem do Estado do Paraná; UF PR; R$ 68,100,000
+- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Execução de serviços de manutenção e conservação rotineira e periódica do pavimento das rodovias da Área 03 da SR Leste, numa extensão de 13; órgão: DER - Departamento de Estradas de Rodagem do Estado do Paraná; UF PR.
+- fact: objeto: Execução de serviços de manutenção e conservação rotineira e periódica do pavimento das rodovias da Área 03 da SR Leste, numa extensão de 133,90 km.; órgão: DER - Departamento de Estradas de Rodagem do Estado do Paraná; UF PR; R$ 68,100,000
+- micro: `PUBLIC_DATA_SNAPSHOT`
 
 ```
 Olá,
 
-Pelo que está público sobre TELETUSA TELEFONIA E CONSTRUCOES LTDA, objeto: Obtenção de proposta mais vantajosa à Administração Municipal, visando a contratação de empresa especializada para execução de recapeamento asfáltico tipo CBUQ; órgão: DIVISÃO DE OBRAS E SERVIÇOS MUNICIPAIS; UF SP; R$ 1,257,470.
+Pelo que está público sobre QUALIDADE CONSTRUÇÕES E PAVIMENTAÇÕES LTDA, objeto: Execução de serviços de manutenção e conservação rotineira e periódica do pavimento das rodovias da Área 03 da SR Leste, numa extensão de 133,90 km.; órgão: DER - Departamento de Estradas de Rodagem do Estado do Paraná; UF PR; R$ 68,100,000.
 
-Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Obtenção de proposta mais vantajosa à Administração Municipal, visando a contratação de empresa especializada para execução de recapeamento ; órgão: DIVISÃO DE OBRAS E SERVIÇOS MUNICIPAIS; UF SP.
+Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Execução de serviços de manutenção e conservação rotineira e periódica do pavimento das rodovias da Área 03 da SR Leste, numa extensão de 13; órgão: DER - Departamento de Estradas de Rodagem do Estado do Paraná; UF PR.
 
 Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
 ```
 
-## 10. ALTO VALE CONSTRUCOES LTDA
-- CNPJ: `37365559000125` UF=SC
-- service: `apoio_licitacoes_propostas` / Warmbly `APOIO_LICITACAO`
-- why_you: ALTO VALE CONSTRUCOES LTDA com execução pública observável — objeto: Contratação de empresa especializada em engenharia civil para a execução integral de obra de Pavimentação em Pavimento Rígido (Concreto de Cimento Portland) na; órgão: SECRETARIA DE INFRAESTRUTURA; UF SC; R$ 10,748,950
-- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação de empresa especializada em engenharia civil para a execução integral de obra de Pavimentação em Pavimento Rígido (Concreto de C; órgão: SECRETARIA DE INFRAESTRUTURA; UF SC.
-- observed_fact: objeto: Contratação de empresa especializada em engenharia civil para a execução integral de obra de Pavimentação em Pavimento Rígido (Concreto de Cimento Portland) na; órgão: SECRETARIA DE INFRAESTRUTURA; UF SC; R$ 10,748,950
-- micro_offer: `PROCUREMENT_RISK_SNAPSHOT`
-- evidence_ids: ['cf-contract-24555197']
-- signals: ['tender_proposal']
-- subject: Licitações / propostas: Contratação de empresa especializada em engenhar
-- spine_complete: True
+## 6. CONNECTOR ENGENHARIA LTDA
+- `01114245000102` gestao_monitoramento_contratual/MONITORAMENTO_CONTRATUAL
+- why_you: CONNECTOR ENGENHARIA LTDA com execução pública observável — objeto: O OBJETO DO PRESENTE INSTRUMENTO É A CONTRATAÇÃO DE SERVIÇOS DE ENGENHARIA DE REVITALIZAÇÃO DA 
+CENTRAL DE ÁGUA GELADA DO DTCEA-GL, A SEREM EXECUTADOS SEM REGIM; órgão: CENTRO DE AQUISIÇÕES ESPECIFICAS; UF RJ; R$ 3,688,860
+- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: O OBJETO DO PRESENTE INSTRUMENTO É A CONTRATAÇÃO DE SERVIÇOS DE ENGENHARIA DE REVITALIZAÇÃO DA 
+CENTRAL DE ÁGUA GELADA DO DTCEA-GL, A SEREM ; órgão: CENTRO DE AQUISIÇÕES ESPECIFICAS; UF RJ.
+- fact: objeto: O OBJETO DO PRESENTE INSTRUMENTO É A CONTRATAÇÃO DE SERVIÇOS DE ENGENHARIA DE REVITALIZAÇÃO DA 
+CENTRAL DE ÁGUA GELADA DO DTCEA-GL, A SEREM EXECUTADOS SEM REGIM; órgão: CENTRO DE AQUISIÇÕES ESPECIFICAS; UF RJ; R$ 3,688,860
+- micro: `PUBLIC_DATA_SNAPSHOT`
 
 ```
 Olá,
 
-Pelo que está público sobre ALTO VALE CONSTRUCOES LTDA, objeto: Contratação de empresa especializada em engenharia civil para a execução integral de obra de Pavimentação em Pavimento Rígido (Concreto de Cimento Portland) na; órgão: SECRETARIA DE INFRAESTRUTURA; UF SC; R$ 10,748,950.
+Pelo que está público sobre CONNECTOR ENGENHARIA LTDA, objeto: O OBJETO DO PRESENTE INSTRUMENTO É A CONTRATAÇÃO DE SERVIÇOS DE ENGENHARIA DE REVITALIZAÇÃO DA 
+CENTRAL DE ÁGUA GELADA DO DTCEA-GL, A SEREM EXECUTADOS SEM REGIM; órgão: CENTRO DE AQUISIÇÕES ESPECIFICAS; UF RJ; R$ 3,688,860.
 
-Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação de empresa especializada em engenharia civil para a execução integral de obra de Pavimentação em Pavimento Rígido (Concreto de C; órgão: SECRETARIA DE INFRAESTRUTURA; UF SC.
+Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: O OBJETO DO PRESENTE INSTRUMENTO É A CONTRATAÇÃO DE SERVIÇOS DE ENGENHARIA DE REVITALIZAÇÃO DA 
+CENTRAL DE ÁGUA GELADA DO DTCEA-GL, A SEREM ; órgão: CENTRO DE AQUISIÇÕES ESPECIFICAS; UF RJ.
+
+Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
+```
+
+## 7. SCAVE SERVICOS
+- `01514128000136` gestao_monitoramento_contratual/MONITORAMENTO_CONTRATUAL
+- why_you: SCAVE SERVICOS com execução pública observável — objeto: Contratação de Empresa Especializada para prestação de serviços de Pavimentação Asfáltica e Sinalização Viária de diversas Ruas Municipais, conforme Emenda Parl; órgão: Prefeitura Municipal de São José do Egito; UF PE; R$ 2,049,341
+- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação de Empresa Especializada para prestação de serviços de Pavimentação Asfáltica e Sinalização Viária de diversas Ruas Municipais, ; órgão: Prefeitura Municipal de São José do Egito; UF PE.
+- fact: objeto: Contratação de Empresa Especializada para prestação de serviços de Pavimentação Asfáltica e Sinalização Viária de diversas Ruas Municipais, conforme Emenda Parl; órgão: Prefeitura Municipal de São José do Egito; UF PE; R$ 2,049,341
+- micro: `PUBLIC_DATA_SNAPSHOT`
+
+```
+Olá,
+
+Pelo que está público sobre SCAVE SERVICOS, objeto: Contratação de Empresa Especializada para prestação de serviços de Pavimentação Asfáltica e Sinalização Viária de diversas Ruas Municipais, conforme Emenda Parl; órgão: Prefeitura Municipal de São José do Egito; UF PE; R$ 2,049,341.
+
+Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação de Empresa Especializada para prestação de serviços de Pavimentação Asfáltica e Sinalização Viária de diversas Ruas Municipais, ; órgão: Prefeitura Municipal de São José do Egito; UF PE.
+
+Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
+```
+
+## 8. PAVIDEZ ENGENHARIA LTDA
+- `01744153000106` gestao_monitoramento_contratual/MONITORAMENTO_CONTRATUAL
+- why_you: PAVIDEZ ENGENHARIA LTDA com execução pública observável — objeto: Contratacao de empresa responsavel pela execucao de recapeamento e implantacao asfaltica incluindo fornecimento de material para ser executada em diversas vias; órgão: PREFEITURA MUNICIPAL; UF MG; R$ 87,867
+- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratacao de empresa responsavel pela execucao de recapeamento e implantacao asfaltica incluindo fornecimento de material para ser executa; órgão: PREFEITURA MUNICIPAL; UF MG.
+- fact: objeto: Contratacao de empresa responsavel pela execucao de recapeamento e implantacao asfaltica incluindo fornecimento de material para ser executada em diversas vias; órgão: PREFEITURA MUNICIPAL; UF MG; R$ 87,867
+- micro: `PUBLIC_DATA_SNAPSHOT`
+
+```
+Olá,
+
+Pelo que está público sobre PAVIDEZ ENGENHARIA LTDA, objeto: Contratacao de empresa responsavel pela execucao de recapeamento e implantacao asfaltica incluindo fornecimento de material para ser executada em diversas vias; órgão: PREFEITURA MUNICIPAL; UF MG; R$ 87,867.
+
+Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratacao de empresa responsavel pela execucao de recapeamento e implantacao asfaltica incluindo fornecimento de material para ser executa; órgão: PREFEITURA MUNICIPAL; UF MG.
+
+Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
+```
+
+## 9. Infrasul - Infraestrutura e Empreendimentos LTDA.
+- `03094645000129` gestao_monitoramento_contratual/MONITORAMENTO_CONTRATUAL
+- why_you: Infrasul - Infraestrutura e Empreendimentos LTDA. com execução pública observável — objeto: EXECUÇÃO DE OBRA DE REVITALIZAÇÃO VIÁRIA DAS RUAS ADÃO SENS E NORBERTO PEDRO LUDWIG, NO BAIRRO GRUTA, COMPREENDENDO REFORÇO DE SUBLEITO, FRESAGEM, RECAPEAMENTO; órgão: Departamento de Urbanismo; UF SC; R$ 3,689,500
+- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: EXECUÇÃO DE OBRA DE REVITALIZAÇÃO VIÁRIA DAS RUAS ADÃO SENS E NORBERTO PEDRO LUDWIG, NO BAIRRO GRUTA, COMPREENDENDO REFORÇO DE SUBLEITO, FRE; órgão: Departamento de Urbanismo; UF SC.
+- fact: objeto: EXECUÇÃO DE OBRA DE REVITALIZAÇÃO VIÁRIA DAS RUAS ADÃO SENS E NORBERTO PEDRO LUDWIG, NO BAIRRO GRUTA, COMPREENDENDO REFORÇO DE SUBLEITO, FRESAGEM, RECAPEAMENTO; órgão: Departamento de Urbanismo; UF SC; R$ 3,689,500
+- micro: `PUBLIC_DATA_SNAPSHOT`
+
+```
+Olá,
+
+Pelo que está público sobre Infrasul - Infraestrutura e Empreendimentos LTDA., objeto: EXECUÇÃO DE OBRA DE REVITALIZAÇÃO VIÁRIA DAS RUAS ADÃO SENS E NORBERTO PEDRO LUDWIG, NO BAIRRO GRUTA, COMPREENDENDO REFORÇO DE SUBLEITO, FRESAGEM, RECAPEAMENTO; órgão: Departamento de Urbanismo; UF SC; R$ 3,689,500.
+
+Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: EXECUÇÃO DE OBRA DE REVITALIZAÇÃO VIÁRIA DAS RUAS ADÃO SENS E NORBERTO PEDRO LUDWIG, NO BAIRRO GRUTA, COMPREENDENDO REFORÇO DE SUBLEITO, FRE; órgão: Departamento de Urbanismo; UF SC.
+
+Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
+```
+
+## 10. DALBA ENGENHARIA E EMPREENDIMENTOS LTDA
+- `03222465000185` gestao_monitoramento_contratual/MONITORAMENTO_CONTRATUAL
+- why_you: DALBA ENGENHARIA E EMPREENDIMENTOS LTDA com execução pública observável — objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA NA CONSTRUÇÃO CIVIL PARA EXECUÇÃO DE OBRA DE ENGENHARIA, CONSISTENTE EM PAVIMENTAÇÃO ASFÁLTICA DE VIA MARGINAL DA PR-466, I; órgão: SVOSU -  Sec de Viação Obras e Serviços Urbanos; UF PR; R$ 12,394,555
+- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA NA CONSTRUÇÃO CIVIL PARA EXECUÇÃO DE OBRA DE ENGENHARIA, CONSISTENTE EM PAVIMENTAÇÃO ASFÁLTICA DE VIA M; órgão: SVOSU -  Sec de Viação Obras e Serviços Urbanos; UF PR.
+- fact: objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA NA CONSTRUÇÃO CIVIL PARA EXECUÇÃO DE OBRA DE ENGENHARIA, CONSISTENTE EM PAVIMENTAÇÃO ASFÁLTICA DE VIA MARGINAL DA PR-466, I; órgão: SVOSU -  Sec de Viação Obras e Serviços Urbanos; UF PR; R$ 12,394,555
+- micro: `PUBLIC_DATA_SNAPSHOT`
+
+```
+Olá,
+
+Pelo que está público sobre DALBA ENGENHARIA E EMPREENDIMENTOS LTDA, objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA NA CONSTRUÇÃO CIVIL PARA EXECUÇÃO DE OBRA DE ENGENHARIA, CONSISTENTE EM PAVIMENTAÇÃO ASFÁLTICA DE VIA MARGINAL DA PR-466, I; órgão: SVOSU -  Sec de Viação Obras e Serviços Urbanos; UF PR; R$ 12,394,555.
+
+Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA NA CONSTRUÇÃO CIVIL PARA EXECUÇÃO DE OBRA DE ENGENHARIA, CONSISTENTE EM PAVIMENTAÇÃO ASFÁLTICA DE VIA M; órgão: SVOSU -  Sec de Viação Obras e Serviços Urbanos; UF PR.
+
+Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
+```
+
+## 11. Gaia Rodovias Ltda
+- `03257777000124` gestao_monitoramento_contratual/MONITORAMENTO_CONTRATUAL
+- why_you: Gaia Rodovias Ltda com execução pública observável — objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE OBRA DE ENGENHARIA DESTINADA À PAVIMENTAÇÃO ASFÁLTICA DE ESTRADA MUNICIPAL RURAL – TRECHO 1 DA ESTRADA MUN; órgão: PREFEITURA MUNICIPAL DE SANTA TEREZINHA DO PROGRESSO; UF SC; R$ 5,481,000
+- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE OBRA DE ENGENHARIA DESTINADA À PAVIMENTAÇÃO ASFÁLTICA DE ESTRADA MUNICIPAL RURAL – TRE; órgão: PREFEITURA MUNICIPAL DE SANTA TEREZINHA DO PROGRESSO; UF SC.
+- fact: objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE OBRA DE ENGENHARIA DESTINADA À PAVIMENTAÇÃO ASFÁLTICA DE ESTRADA MUNICIPAL RURAL – TRECHO 1 DA ESTRADA MUN; órgão: PREFEITURA MUNICIPAL DE SANTA TEREZINHA DO PROGRESSO; UF SC; R$ 5,481,000
+- micro: `PUBLIC_DATA_SNAPSHOT`
+
+```
+Olá,
+
+Pelo que está público sobre Gaia Rodovias Ltda, objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE OBRA DE ENGENHARIA DESTINADA À PAVIMENTAÇÃO ASFÁLTICA DE ESTRADA MUNICIPAL RURAL – TRECHO 1 DA ESTRADA MUN; órgão: PREFEITURA MUNICIPAL DE SANTA TEREZINHA DO PROGRESSO; UF SC; R$ 5,481,000.
+
+Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE OBRA DE ENGENHARIA DESTINADA À PAVIMENTAÇÃO ASFÁLTICA DE ESTRADA MUNICIPAL RURAL – TRE; órgão: PREFEITURA MUNICIPAL DE SANTA TEREZINHA DO PROGRESSO; UF SC.
+
+Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
+```
+
+## 12. PAVSANTOS CONSTRUTORA LTDA
+- `03575041000102` gestao_monitoramento_contratual/MONITORAMENTO_CONTRATUAL
+- why_you: PAVSANTOS CONSTRUTORA LTDA com execução pública observável — objeto: CONTRATAÇÃO DE PESSOA JURIDICA PARA CONSTRUÇÃO DO ANEL VIARIO DA CIDADE DE VILA PROPICIO, CONFORME PROJETO DE ENGENHARIA.; órgão: PREFEITURA MUNICIPAL DE VILA PROPICIO; UF GO; R$ 3,103,249
+- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: CONTRATAÇÃO DE PESSOA JURIDICA PARA CONSTRUÇÃO DO ANEL VIARIO DA CIDADE DE VILA PROPICIO, CONFORME PROJETO DE ENGENHARIA.; órgão: PREFEITURA MUNICIPAL DE VILA PROPICIO; UF GO.
+- fact: objeto: CONTRATAÇÃO DE PESSOA JURIDICA PARA CONSTRUÇÃO DO ANEL VIARIO DA CIDADE DE VILA PROPICIO, CONFORME PROJETO DE ENGENHARIA.; órgão: PREFEITURA MUNICIPAL DE VILA PROPICIO; UF GO; R$ 3,103,249
+- micro: `PUBLIC_DATA_SNAPSHOT`
+
+```
+Olá,
+
+Pelo que está público sobre PAVSANTOS CONSTRUTORA LTDA, objeto: CONTRATAÇÃO DE PESSOA JURIDICA PARA CONSTRUÇÃO DO ANEL VIARIO DA CIDADE DE VILA PROPICIO, CONFORME PROJETO DE ENGENHARIA.; órgão: PREFEITURA MUNICIPAL DE VILA PROPICIO; UF GO; R$ 3,103,249.
+
+Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: CONTRATAÇÃO DE PESSOA JURIDICA PARA CONSTRUÇÃO DO ANEL VIARIO DA CIDADE DE VILA PROPICIO, CONFORME PROJETO DE ENGENHARIA.; órgão: PREFEITURA MUNICIPAL DE VILA PROPICIO; UF GO.
+
+Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
+```
+
+## 13. Paviplan Pavimentação Ltda
+- `03620927000112` gestao_monitoramento_contratual/MONITORAMENTO_CONTRATUAL
+- why_you: Paviplan Pavimentação Ltda com execução pública observável — objeto: Pavimentação asfáltica em CBUQ na Rua Ervino Paulo Weinshutz, Estrada Expedicionário Manoel Elias Portela e Estrada das Tropas - Convênio nº 395/2026 SECID.; órgão: Departamento de Obras Públicas - Dop; UF PR; R$ 1,147,530
+- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Pavimentação asfáltica em CBUQ na Rua Ervino Paulo Weinshutz, Estrada Expedicionário Manoel Elias Portela e Estrada das Tropas - Convênio nº; órgão: Departamento de Obras Públicas - Dop; UF PR.
+- fact: objeto: Pavimentação asfáltica em CBUQ na Rua Ervino Paulo Weinshutz, Estrada Expedicionário Manoel Elias Portela e Estrada das Tropas - Convênio nº 395/2026 SECID.; órgão: Departamento de Obras Públicas - Dop; UF PR; R$ 1,147,530
+- micro: `PUBLIC_DATA_SNAPSHOT`
+
+```
+Olá,
+
+Pelo que está público sobre Paviplan Pavimentação Ltda, objeto: Pavimentação asfáltica em CBUQ na Rua Ervino Paulo Weinshutz, Estrada Expedicionário Manoel Elias Portela e Estrada das Tropas - Convênio nº 395/2026 SECID.; órgão: Departamento de Obras Públicas - Dop; UF PR; R$ 1,147,530.
+
+Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Pavimentação asfáltica em CBUQ na Rua Ervino Paulo Weinshutz, Estrada Expedicionário Manoel Elias Portela e Estrada das Tropas - Convênio nº; órgão: Departamento de Obras Públicas - Dop; UF PR.
+
+Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
+```
+
+## 14. COMPACTA SUL PAVIMENTACAO LTDA
+- `03667661000163` apoio_licitacoes_propostas/APOIO_LICITACAO
+- why_you: COMPACTA SUL PAVIMENTACAO LTDA com execução pública observável — objeto: CONTRATACAO DE EMPRESA S  ESPECIALIZADA S  PARA A EXECUCAO DE OBRAS DE PAVIMENTACAO ASFALTICA EM CONCRETO BETUMINOSO USINADO A QUENTE  CBUQ  NO PERIMETRO URBANO; órgão: PREFEITURA MUNICIPAL DE JÓIA; UF RS; R$ 1,190,989
+- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: CONTRATACAO DE EMPRESA S  ESPECIALIZADA S  PARA A EXECUCAO DE OBRAS DE PAVIMENTACAO ASFALTICA EM CONCRETO BETUMINOSO USINADO A QUENTE  CBUQ ; órgão: PREFEITURA MUNICIPAL DE JÓIA; UF RS.
+- fact: objeto: CONTRATACAO DE EMPRESA S  ESPECIALIZADA S  PARA A EXECUCAO DE OBRAS DE PAVIMENTACAO ASFALTICA EM CONCRETO BETUMINOSO USINADO A QUENTE  CBUQ  NO PERIMETRO URBANO; órgão: PREFEITURA MUNICIPAL DE JÓIA; UF RS; R$ 1,190,989
+- micro: `PROCUREMENT_RISK_SNAPSHOT`
+
+```
+Olá,
+
+Pelo que está público sobre COMPACTA SUL PAVIMENTACAO LTDA, objeto: CONTRATACAO DE EMPRESA S  ESPECIALIZADA S  PARA A EXECUCAO DE OBRAS DE PAVIMENTACAO ASFALTICA EM CONCRETO BETUMINOSO USINADO A QUENTE  CBUQ  NO PERIMETRO URBANO; órgão: PREFEITURA MUNICIPAL DE JÓIA; UF RS; R$ 1,190,989.
+
+Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: CONTRATACAO DE EMPRESA S  ESPECIALIZADA S  PARA A EXECUCAO DE OBRAS DE PAVIMENTACAO ASFALTICA EM CONCRETO BETUMINOSO USINADO A QUENTE  CBUQ ; órgão: PREFEITURA MUNICIPAL DE JÓIA; UF RS.
 
 Disponibilizo apoio de pico em análise de edital/proposta sob NDA.
 ```
 
-## 11. QUATRO D ENGENHARIA LTDA
-- CNPJ: `46482251000150` UF=SC
-- service: `gestao_monitoramento_contratual` / Warmbly `MONITORAMENTO_CONTRATUAL`
-- why_you: QUATRO D ENGENHARIA LTDA com execução pública observável — objeto: Contratação de empresa especializada para execução das obras de construção da sede da Associação de Pais e Amigos dos Excepcionais - APAE, no Município de Itape; órgão: Unidade Única; UF SC; R$ 7,450,000
-- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação de empresa especializada para execução das obras de construção da sede da Associação de Pais e Amigos dos Excepcionais - APAE, n; órgão: Unidade Única; UF SC.
-- observed_fact: objeto: Contratação de empresa especializada para execução das obras de construção da sede da Associação de Pais e Amigos dos Excepcionais - APAE, no Município de Itape; órgão: Unidade Única; UF SC; R$ 7,450,000
-- micro_offer: `PUBLIC_DATA_SNAPSHOT`
-- evidence_ids: ['cf-contract-6014437']
-- signals: ['multi_contract']
-- subject: Gestão contratual: Contratação de empresa especializada para execuç
-- spine_complete: True
+## 15. VERDEBIANCO ENGENHARIA LTDA
+- `03992945000125` gestao_monitoramento_contratual/MONITORAMENTO_CONTRATUAL
+- why_you: VERDEBIANCO ENGENHARIA LTDA com execução pública observável — objeto: CONTRATACAO DE EMPRESA ESPECIALIZADA EM SERVICOS DE ENGENHARIA PARA CONSTRUCAO DE COBERTURA NA ARQUIBANCADA E REFORMA DOS BANHEIROS E VESTIARIOS DO ESTADIO MUNI; órgão: PREFEITURA MUNICIPAL; UF SP; R$ 1,059,967
+- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: CONTRATACAO DE EMPRESA ESPECIALIZADA EM SERVICOS DE ENGENHARIA PARA CONSTRUCAO DE COBERTURA NA ARQUIBANCADA E REFORMA DOS BANHEIROS E VESTIA; órgão: PREFEITURA MUNICIPAL; UF SP.
+- fact: objeto: CONTRATACAO DE EMPRESA ESPECIALIZADA EM SERVICOS DE ENGENHARIA PARA CONSTRUCAO DE COBERTURA NA ARQUIBANCADA E REFORMA DOS BANHEIROS E VESTIARIOS DO ESTADIO MUNI; órgão: PREFEITURA MUNICIPAL; UF SP; R$ 1,059,967
+- micro: `PUBLIC_DATA_SNAPSHOT`
 
 ```
 Olá,
 
-Pelo que está público sobre QUATRO D ENGENHARIA LTDA, objeto: Contratação de empresa especializada para execução das obras de construção da sede da Associação de Pais e Amigos dos Excepcionais - APAE, no Município de Itape; órgão: Unidade Única; UF SC; R$ 7,450,000.
+Pelo que está público sobre VERDEBIANCO ENGENHARIA LTDA, objeto: CONTRATACAO DE EMPRESA ESPECIALIZADA EM SERVICOS DE ENGENHARIA PARA CONSTRUCAO DE COBERTURA NA ARQUIBANCADA E REFORMA DOS BANHEIROS E VESTIARIOS DO ESTADIO MUNI; órgão: PREFEITURA MUNICIPAL; UF SP; R$ 1,059,967.
 
-Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação de empresa especializada para execução das obras de construção da sede da Associação de Pais e Amigos dos Excepcionais - APAE, n; órgão: Unidade Única; UF SC.
+Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: CONTRATACAO DE EMPRESA ESPECIALIZADA EM SERVICOS DE ENGENHARIA PARA CONSTRUCAO DE COBERTURA NA ARQUIBANCADA E REFORMA DOS BANHEIROS E VESTIA; órgão: PREFEITURA MUNICIPAL; UF SP.
 
 Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
 ```
 
-## 12. ALMEIDA ENGENHARIA - PROJETOS E EXECUCAO UNIPESSOAL LTDA
-- CNPJ: `42605700000150` UF=DF
-- service: `apoio_licitacoes_propostas` / Warmbly `APOIO_LICITACAO`
-- why_you: ALMEIDA ENGENHARIA - PROJETOS E EXECUCAO UNIPESSOAL LTDA com execução pública observável — objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM ENGENHARIA OU ARQUITETURA PARA ELABORAÇÃO/ADAPTAÇÃO DE PROJETOS EXECUTIVOS DE ENGENHARIA/ARQUITETURA (INCLUINDO TODAS AS; órgão: MJ-DPRF-DEPART.DE POL.RODOVIARIA FEDERAL/DF; UF DF; R$ 79,785
-- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM ENGENHARIA OU ARQUITETURA PARA ELABORAÇÃO/ADAPTAÇÃO DE PROJETOS EXECUTIVOS DE ENGENHARIA/ARQUITETURA; órgão: MJ-DPRF-DEPART.DE POL.RODOVIARIA FEDERAL/DF; UF DF.
-- observed_fact: objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM ENGENHARIA OU ARQUITETURA PARA ELABORAÇÃO/ADAPTAÇÃO DE PROJETOS EXECUTIVOS DE ENGENHARIA/ARQUITETURA (INCLUINDO TODAS AS; órgão: MJ-DPRF-DEPART.DE POL.RODOVIARIA FEDERAL/DF; UF DF; R$ 79,785
-- micro_offer: `PROCUREMENT_RISK_SNAPSHOT`
-- evidence_ids: ['cf-contract-166507']
-- signals: ['tender_proposal']
-- subject: Licitações / propostas: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM ENGENHAR
-- spine_complete: True
+## 16. UNICON CONSTRUCOES LTDA
+- `04287461000148` gestao_monitoramento_contratual/MONITORAMENTO_CONTRATUAL
+- why_you: UNICON CONSTRUCOES LTDA com execução pública observável — objeto: Contratação de Empresa de Engenharia Civil, para a execução de obras e serviços de Construção de 25 vinte e cinco Unidades habitacionais, em favorecimento as fa; órgão: PREFEITURA MUNICIPAL DE DOIS RIACHOS - AL; UF AL; R$ 3,514,563
+- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação de Empresa de Engenharia Civil, para a execução de obras e serviços de Construção de 25 vinte e cinco Unidades habitacionais, em; órgão: PREFEITURA MUNICIPAL DE DOIS RIACHOS - AL; UF AL.
+- fact: objeto: Contratação de Empresa de Engenharia Civil, para a execução de obras e serviços de Construção de 25 vinte e cinco Unidades habitacionais, em favorecimento as fa; órgão: PREFEITURA MUNICIPAL DE DOIS RIACHOS - AL; UF AL; R$ 3,514,563
+- micro: `PUBLIC_DATA_SNAPSHOT`
 
 ```
 Olá,
 
-Pelo que está público sobre ALMEIDA ENGENHARIA - PROJETOS E EXECUCAO UNIPESSOAL LTDA, objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM ENGENHARIA OU ARQUITETURA PARA ELABORAÇÃO/ADAPTAÇÃO DE PROJETOS EXECUTIVOS DE ENGENHARIA/ARQUITETURA (INCLUINDO TODAS AS; órgão: MJ-DPRF-DEPART.DE POL.RODOVIARIA FEDERAL/DF; UF DF; R$ 79,785.
+Pelo que está público sobre UNICON CONSTRUCOES LTDA, objeto: Contratação de Empresa de Engenharia Civil, para a execução de obras e serviços de Construção de 25 vinte e cinco Unidades habitacionais, em favorecimento as fa; órgão: PREFEITURA MUNICIPAL DE DOIS RIACHOS - AL; UF AL; R$ 3,514,563.
 
-Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM ENGENHARIA OU ARQUITETURA PARA ELABORAÇÃO/ADAPTAÇÃO DE PROJETOS EXECUTIVOS DE ENGENHARIA/ARQUITETURA; órgão: MJ-DPRF-DEPART.DE POL.RODOVIARIA FEDERAL/DF; UF DF.
+Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação de Empresa de Engenharia Civil, para a execução de obras e serviços de Construção de 25 vinte e cinco Unidades habitacionais, em; órgão: PREFEITURA MUNICIPAL DE DOIS RIACHOS - AL; UF AL.
+
+Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
+```
+
+## 17. IBIAPINA SERVICOS & CONSTRUCOES LTDA
+- `08753223000131` apoio_licitacoes_propostas/APOIO_LICITACAO
+- why_you: IBIAPINA SERVICOS & CONSTRUCOES LTDA com execução pública observável — objeto: ADESÃO A ATA DE REGISTRO DE PREÇOS N° 202505270001, CONCORRÊNCIA ELETRONICA N° CE004/2025 - FG, PROCESSO ADMINISTRATIVO N° 00010.20250220/0001-42 PARA FUTURAS E; órgão: Secretaria de Obras e Serviços Públicos (SOSP); UF CE; R$ 1,250,000
+- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: ADESÃO A ATA DE REGISTRO DE PREÇOS N° 202505270001, CONCORRÊNCIA ELETRONICA N° CE004/2025 - FG, PROCESSO ADMINISTRATIVO N° 00010.20250220/00; órgão: Secretaria de Obras e Serviços Públicos (SOSP); UF CE.
+- fact: objeto: ADESÃO A ATA DE REGISTRO DE PREÇOS N° 202505270001, CONCORRÊNCIA ELETRONICA N° CE004/2025 - FG, PROCESSO ADMINISTRATIVO N° 00010.20250220/0001-42 PARA FUTURAS E; órgão: Secretaria de Obras e Serviços Públicos (SOSP); UF CE; R$ 1,250,000
+- micro: `PROCUREMENT_RISK_SNAPSHOT`
+
+```
+Olá,
+
+Pelo que está público sobre IBIAPINA SERVICOS & CONSTRUCOES LTDA, objeto: ADESÃO A ATA DE REGISTRO DE PREÇOS N° 202505270001, CONCORRÊNCIA ELETRONICA N° CE004/2025 - FG, PROCESSO ADMINISTRATIVO N° 00010.20250220/0001-42 PARA FUTURAS E; órgão: Secretaria de Obras e Serviços Públicos (SOSP); UF CE; R$ 1,250,000.
+
+Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: ADESÃO A ATA DE REGISTRO DE PREÇOS N° 202505270001, CONCORRÊNCIA ELETRONICA N° CE004/2025 - FG, PROCESSO ADMINISTRATIVO N° 00010.20250220/00; órgão: Secretaria de Obras e Serviços Públicos (SOSP); UF CE.
 
 Disponibilizo apoio de pico em análise de edital/proposta sob NDA.
 ```
 
-## 13. SEAL CONSTRUTORA LTDA
-- CNPJ: `31497575000195` UF=BA
-- service: `gestao_monitoramento_contratual` / Warmbly `MONITORAMENTO_CONTRATUAL`
-- why_you: SEAL CONSTRUTORA LTDA com execução pública observável — objeto: Contratação de empresa de engenharia para execução de obras/serviços de pavimentação de vias no perímetro urbano do Município de Amargosa-BA; órgão: SECRETARIA MUNICIPAL DE SERV PUBL OBRAS E PLANEJ DA CIDADE; UF BA; R$ 1,502,408
-- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação de empresa de engenharia para execução de obras/serviços de pavimentação de vias no perímetro urbano do Município de Amargosa-BA; órgão: SECRETARIA MUNICIPAL DE SERV PUBL OBRAS E PLANEJ DA CIDADE; UF BA.
-- observed_fact: objeto: Contratação de empresa de engenharia para execução de obras/serviços de pavimentação de vias no perímetro urbano do Município de Amargosa-BA; órgão: SECRETARIA MUNICIPAL DE SERV PUBL OBRAS E PLANEJ DA CIDADE; UF BA; R$ 1,502,408
-- micro_offer: `PUBLIC_DATA_SNAPSHOT`
-- evidence_ids: ['cf-contract-25549230']
-- signals: ['multi_contract']
-- subject: Gestão contratual: Contratação de empresa de engenharia para execuç
-- spine_complete: True
+## 18. R MARTINS ENGENHARIA EIRELI
+- `15493716000145` apoio_licitacoes_propostas/APOIO_LICITACAO
+- why_you: R MARTINS ENGENHARIA EIRELI com execução pública observável — objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM PRESTAÇÃO DE SERVIÇOS DE ENGENHARIA, OBJETIVANDO CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM PRESTAÇÃO DE SERVIÇOS DE ENGENH; órgão: PIRACANJUBA - FMAS; UF GO; R$ 337,500
+- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM PRESTAÇÃO DE SERVIÇOS DE ENGENHARIA, OBJETIVANDO CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM PRESTAÇÃO D; órgão: PIRACANJUBA - FMAS; UF GO.
+- fact: objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM PRESTAÇÃO DE SERVIÇOS DE ENGENHARIA, OBJETIVANDO CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM PRESTAÇÃO DE SERVIÇOS DE ENGENH; órgão: PIRACANJUBA - FMAS; UF GO; R$ 337,500
+- micro: `PROCUREMENT_RISK_SNAPSHOT`
 
 ```
 Olá,
 
-Pelo que está público sobre SEAL CONSTRUTORA LTDA, objeto: Contratação de empresa de engenharia para execução de obras/serviços de pavimentação de vias no perímetro urbano do Município de Amargosa-BA; órgão: SECRETARIA MUNICIPAL DE SERV PUBL OBRAS E PLANEJ DA CIDADE; UF BA; R$ 1,502,408.
+Pelo que está público sobre R MARTINS ENGENHARIA EIRELI, objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM PRESTAÇÃO DE SERVIÇOS DE ENGENHARIA, OBJETIVANDO CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM PRESTAÇÃO DE SERVIÇOS DE ENGENH; órgão: PIRACANJUBA - FMAS; UF GO; R$ 337,500.
 
-Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação de empresa de engenharia para execução de obras/serviços de pavimentação de vias no perímetro urbano do Município de Amargosa-BA; órgão: SECRETARIA MUNICIPAL DE SERV PUBL OBRAS E PLANEJ DA CIDADE; UF BA.
-
-Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
-```
-
-## 14. CONSORCIO INTER. DESENVOLVIMENTO DA INFRA - CIDIR
-- CNPJ: `11117243000120` UF=SC
-- service: `gestao_monitoramento_contratual` / Warmbly `MONITORAMENTO_CONTRATUAL`
-- why_you: CONSORCIO INTER. DESENVOLVIMENTO DA INFRA - CIDIR com execução pública observável — objeto: Contratação de Consórcio Público - CONSÓRCIO INTERMUNICIPAL DE DESENVOLVIMENTO DA INFRAESTRUTURA RODOVIARIA – CIDIR, ESPECIALIZADO EM INFRAESTRUTURA RODOVIÁRIA,; órgão: MUNICÍPIO DE ÁGUAS DE CHAPECÓ; UF SC; R$ 1,111,633
-- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação de Consórcio Público - CONSÓRCIO INTERMUNICIPAL DE DESENVOLVIMENTO DA INFRAESTRUTURA RODOVIARIA – CIDIR, ESPECIALIZADO EM INFRAE; órgão: MUNICÍPIO DE ÁGUAS DE CHAPECÓ; UF SC.
-- observed_fact: objeto: Contratação de Consórcio Público - CONSÓRCIO INTERMUNICIPAL DE DESENVOLVIMENTO DA INFRAESTRUTURA RODOVIARIA – CIDIR, ESPECIALIZADO EM INFRAESTRUTURA RODOVIÁRIA,; órgão: MUNICÍPIO DE ÁGUAS DE CHAPECÓ; UF SC; R$ 1,111,633
-- micro_offer: `PUBLIC_DATA_SNAPSHOT`
-- evidence_ids: ['cf-contract-15419443']
-- signals: ['multi_contract']
-- subject: Gestão contratual: Contratação de Consórcio Público - CONSÓRCIO INT
-- spine_complete: True
-
-```
-Olá,
-
-Pelo que está público sobre CONSORCIO INTER. DESENVOLVIMENTO DA INFRA - CIDIR, objeto: Contratação de Consórcio Público - CONSÓRCIO INTERMUNICIPAL DE DESENVOLVIMENTO DA INFRAESTRUTURA RODOVIARIA – CIDIR, ESPECIALIZADO EM INFRAESTRUTURA RODOVIÁRIA,; órgão: MUNICÍPIO DE ÁGUAS DE CHAPECÓ; UF SC; R$ 1,111,633.
-
-Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação de Consórcio Público - CONSÓRCIO INTERMUNICIPAL DE DESENVOLVIMENTO DA INFRAESTRUTURA RODOVIARIA – CIDIR, ESPECIALIZADO EM INFRAE; órgão: MUNICÍPIO DE ÁGUAS DE CHAPECÓ; UF SC.
-
-Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
-```
-
-## 15. S&F DA ROCHA CONSTRUTORA LTDA
-- CNPJ: `15667412000157` UF=MG
-- service: `gestao_monitoramento_contratual` / Warmbly `MONITORAMENTO_CONTRATUAL`
-- why_you: S&F DA ROCHA CONSTRUTORA LTDA com execução pública observável — objeto: CONTRATAÇÃO DE EMPRESA DE ENGENHARIA PARA EXECUÇÃO DA OBRA DE RECONSTRUÇÃO DE PONTE EM CONCRETO ARMADO NO CÓRREGO SANTO ANTÔNIO SOBRE O RIO SANTO ANTÔNIO COMPRI; órgão: Unidade Única; UF MG; R$ 416,869
-- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: CONTRATAÇÃO DE EMPRESA DE ENGENHARIA PARA EXECUÇÃO DA OBRA DE RECONSTRUÇÃO DE PONTE EM CONCRETO ARMADO NO CÓRREGO SANTO ANTÔNIO SOBRE O RIO ; órgão: Unidade Única; UF MG.
-- observed_fact: objeto: CONTRATAÇÃO DE EMPRESA DE ENGENHARIA PARA EXECUÇÃO DA OBRA DE RECONSTRUÇÃO DE PONTE EM CONCRETO ARMADO NO CÓRREGO SANTO ANTÔNIO SOBRE O RIO SANTO ANTÔNIO COMPRI; órgão: Unidade Única; UF MG; R$ 416,869
-- micro_offer: `PUBLIC_DATA_SNAPSHOT`
-- evidence_ids: ['cf-contract-666637']
-- signals: ['multi_contract']
-- subject: Gestão contratual: CONTRATAÇÃO DE EMPRESA DE ENGENHARIA PARA EXECUÇ
-- spine_complete: True
-
-```
-Olá,
-
-Pelo que está público sobre S&F DA ROCHA CONSTRUTORA LTDA, objeto: CONTRATAÇÃO DE EMPRESA DE ENGENHARIA PARA EXECUÇÃO DA OBRA DE RECONSTRUÇÃO DE PONTE EM CONCRETO ARMADO NO CÓRREGO SANTO ANTÔNIO SOBRE O RIO SANTO ANTÔNIO COMPRI; órgão: Unidade Única; UF MG; R$ 416,869.
-
-Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: CONTRATAÇÃO DE EMPRESA DE ENGENHARIA PARA EXECUÇÃO DA OBRA DE RECONSTRUÇÃO DE PONTE EM CONCRETO ARMADO NO CÓRREGO SANTO ANTÔNIO SOBRE O RIO ; órgão: Unidade Única; UF MG.
-
-Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
-```
-
-## 16. METODO PROJETOS E CONSTRUCOES ELETRICAS LTDA
-- CNPJ: `10495235000155` UF=MG
-- service: `apoio_licitacoes_propostas` / Warmbly `APOIO_LICITACAO`
-- why_you: METODO PROJETOS E CONSTRUCOES ELETRICAS LTDA com execução pública observável — objeto: Contratação de empresa especializada em engenharia elétrica para a execução de obras e serviços de engenharia elétrica, sob regime de medição, destinados à cons; órgão: MUNICÍPIO DE SACRAMENTO/MG; UF MG; R$ 6,889,496
-- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação de empresa especializada em engenharia elétrica para a execução de obras e serviços de engenharia elétrica, sob regime de mediçã; órgão: MUNICÍPIO DE SACRAMENTO/MG; UF MG.
-- observed_fact: objeto: Contratação de empresa especializada em engenharia elétrica para a execução de obras e serviços de engenharia elétrica, sob regime de medição, destinados à cons; órgão: MUNICÍPIO DE SACRAMENTO/MG; UF MG; R$ 6,889,496
-- micro_offer: `PROCUREMENT_RISK_SNAPSHOT`
-- evidence_ids: ['cf-contract-18360846']
-- signals: ['tender_proposal']
-- subject: Licitações / propostas: Contratação de empresa especializada em engenhar
-- spine_complete: True
-
-```
-Olá,
-
-Pelo que está público sobre METODO PROJETOS E CONSTRUCOES ELETRICAS LTDA, objeto: Contratação de empresa especializada em engenharia elétrica para a execução de obras e serviços de engenharia elétrica, sob regime de medição, destinados à cons; órgão: MUNICÍPIO DE SACRAMENTO/MG; UF MG; R$ 6,889,496.
-
-Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação de empresa especializada em engenharia elétrica para a execução de obras e serviços de engenharia elétrica, sob regime de mediçã; órgão: MUNICÍPIO DE SACRAMENTO/MG; UF MG.
+Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM PRESTAÇÃO DE SERVIÇOS DE ENGENHARIA, OBJETIVANDO CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM PRESTAÇÃO D; órgão: PIRACANJUBA - FMAS; UF GO.
 
 Disponibilizo apoio de pico em análise de edital/proposta sob NDA.
 ```
 
-## 17. SOUZA E FONSECA CONSTRUCOES E COMERCIO. LTDA
-- CNPJ: `37251510000141` UF=PA
-- service: `gestao_monitoramento_contratual` / Warmbly `MONITORAMENTO_CONTRATUAL`
-- why_you: SOUZA E FONSECA CONSTRUCOES E COMERCIO. LTDA com execução pública observável — objeto: CONTRATAÇÃO DE SERVIÇOS COMUNS DE ENGENHARIA DE ADEQUAÇÃO E MANUTENÇÃO PREDIAL.; órgão: INSTITUTO EVANDRO CHAGAS; UF PA; R$ 176,132
-- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: CONTRATAÇÃO DE SERVIÇOS COMUNS DE ENGENHARIA DE ADEQUAÇÃO E MANUTENÇÃO PREDIAL.; órgão: INSTITUTO EVANDRO CHAGAS; UF PA.
-- observed_fact: objeto: CONTRATAÇÃO DE SERVIÇOS COMUNS DE ENGENHARIA DE ADEQUAÇÃO E MANUTENÇÃO PREDIAL.; órgão: INSTITUTO EVANDRO CHAGAS; UF PA; R$ 176,132
-- micro_offer: `PUBLIC_DATA_SNAPSHOT`
-- evidence_ids: ['cf-contract-15102403']
-- signals: ['multi_contract']
-- subject: Gestão contratual: CONTRATAÇÃO DE SERVIÇOS COMUNS DE ENGENHARIA DE 
-- spine_complete: True
+## 19. PAVCON CONSTRUTORA LTDA
+- `15747692000103` gestao_monitoramento_contratual/MONITORAMENTO_CONTRATUAL
+- why_you: PAVCON CONSTRUTORA LTDA com execução pública observável — objeto: Constitui objeto do presente contrato a execução da Obra de Construção de Espaço Esportivo Comunitário, objeto do Convênio Nº 986854/2025 – MEP/CAIXA, na zona u; órgão: MUNICIPIO DE ELESBAO VELOSO; UF PI; R$ 1,455,188
+- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Constitui objeto do presente contrato a execução da Obra de Construção de Espaço Esportivo Comunitário, objeto do Convênio Nº 986854/2025 – ; órgão: MUNICIPIO DE ELESBAO VELOSO; UF PI.
+- fact: objeto: Constitui objeto do presente contrato a execução da Obra de Construção de Espaço Esportivo Comunitário, objeto do Convênio Nº 986854/2025 – MEP/CAIXA, na zona u; órgão: MUNICIPIO DE ELESBAO VELOSO; UF PI; R$ 1,455,188
+- micro: `PUBLIC_DATA_SNAPSHOT`
 
 ```
 Olá,
 
-Pelo que está público sobre SOUZA E FONSECA CONSTRUCOES E COMERCIO. LTDA, objeto: CONTRATAÇÃO DE SERVIÇOS COMUNS DE ENGENHARIA DE ADEQUAÇÃO E MANUTENÇÃO PREDIAL.; órgão: INSTITUTO EVANDRO CHAGAS; UF PA; R$ 176,132.
+Pelo que está público sobre PAVCON CONSTRUTORA LTDA, objeto: Constitui objeto do presente contrato a execução da Obra de Construção de Espaço Esportivo Comunitário, objeto do Convênio Nº 986854/2025 – MEP/CAIXA, na zona u; órgão: MUNICIPIO DE ELESBAO VELOSO; UF PI; R$ 1,455,188.
 
-Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: CONTRATAÇÃO DE SERVIÇOS COMUNS DE ENGENHARIA DE ADEQUAÇÃO E MANUTENÇÃO PREDIAL.; órgão: INSTITUTO EVANDRO CHAGAS; UF PA.
+Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Constitui objeto do presente contrato a execução da Obra de Construção de Espaço Esportivo Comunitário, objeto do Convênio Nº 986854/2025 – ; órgão: MUNICIPIO DE ELESBAO VELOSO; UF PI.
 
 Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
 ```
 
-## 18. CONSTRUTORA MCM LTDA - EPP
-- CNPJ: `20906665000176` UF=MG
-- service: `apoio_licitacoes_propostas` / Warmbly `APOIO_LICITACAO`
-- why_you: CONSTRUTORA MCM LTDA - EPP com execução pública observável — objeto: CONTRATAÇÃO DE EMPRESA PARA CONSTRUÇÃO DE PONTE DE CONCRETO ARMADO NA AV DR. RENATO AZEREDO EM ENCONTRO COM O SÍTIO DA ABADIA / VAPABUÇÚ, SETE LAGOAS/MG, EM CON; órgão: Sec Mun de Obras, Infraest e Políticas Urbanas; UF MG; R$ 770,000
-- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: CONTRATAÇÃO DE EMPRESA PARA CONSTRUÇÃO DE PONTE DE CONCRETO ARMADO NA AV DR. RENATO AZEREDO EM ENCONTRO COM O SÍTIO DA ABADIA / VAPABUÇÚ, SE; órgão: Sec Mun de Obras, Infraest e Políticas Urbanas; UF MG.
-- observed_fact: objeto: CONTRATAÇÃO DE EMPRESA PARA CONSTRUÇÃO DE PONTE DE CONCRETO ARMADO NA AV DR. RENATO AZEREDO EM ENCONTRO COM O SÍTIO DA ABADIA / VAPABUÇÚ, SETE LAGOAS/MG, EM CON; órgão: Sec Mun de Obras, Infraest e Políticas Urbanas; UF MG; R$ 770,000
-- micro_offer: `PROCUREMENT_RISK_SNAPSHOT`
-- evidence_ids: ['cf-contract-8640007']
-- signals: ['tender_proposal']
-- subject: Licitações / propostas: CONTRATAÇÃO DE EMPRESA PARA CONSTRUÇÃO DE PONTE 
-- spine_complete: True
+## 20. EMKO CONSTRUTORA LTDA
+- `24233779000153` gestao_monitoramento_contratual/MONITORAMENTO_CONTRATUAL
+- why_you: EMKO CONSTRUTORA LTDA com execução pública observável — objeto: Contratação de empresa especializada na prestação de serviços, sob demanda, de manutenção predial (Corretiva e Preventiva), de adequação e de adaptação de bens; órgão: ASSEMBLEIA LEGISLATIVA; UF RN; R$ 2,183,700
+- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação de empresa especializada na prestação de serviços, sob demanda, de manutenção predial (Corretiva e Preventiva), de adequação e d; órgão: ASSEMBLEIA LEGISLATIVA; UF RN.
+- fact: objeto: Contratação de empresa especializada na prestação de serviços, sob demanda, de manutenção predial (Corretiva e Preventiva), de adequação e de adaptação de bens; órgão: ASSEMBLEIA LEGISLATIVA; UF RN; R$ 2,183,700
+- micro: `PUBLIC_DATA_SNAPSHOT`
 
 ```
 Olá,
 
-Pelo que está público sobre CONSTRUTORA MCM LTDA - EPP, objeto: CONTRATAÇÃO DE EMPRESA PARA CONSTRUÇÃO DE PONTE DE CONCRETO ARMADO NA AV DR. RENATO AZEREDO EM ENCONTRO COM O SÍTIO DA ABADIA / VAPABUÇÚ, SETE LAGOAS/MG, EM CON; órgão: Sec Mun de Obras, Infraest e Políticas Urbanas; UF MG; R$ 770,000.
+Pelo que está público sobre EMKO CONSTRUTORA LTDA, objeto: Contratação de empresa especializada na prestação de serviços, sob demanda, de manutenção predial (Corretiva e Preventiva), de adequação e de adaptação de bens; órgão: ASSEMBLEIA LEGISLATIVA; UF RN; R$ 2,183,700.
 
-Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: CONTRATAÇÃO DE EMPRESA PARA CONSTRUÇÃO DE PONTE DE CONCRETO ARMADO NA AV DR. RENATO AZEREDO EM ENCONTRO COM O SÍTIO DA ABADIA / VAPABUÇÚ, SE; órgão: Sec Mun de Obras, Infraest e Políticas Urbanas; UF MG.
+Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação de empresa especializada na prestação de serviços, sob demanda, de manutenção predial (Corretiva e Preventiva), de adequação e d; órgão: ASSEMBLEIA LEGISLATIVA; UF RN.
+
+Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
+```
+
+## 21. 2 S PROJETOS DE ENGENHARIA DE OBRAS DE  CONSTRUÇÃO LTDA
+- `31988427000173` gestao_monitoramento_contratual/MONITORAMENTO_CONTRATUAL
+- why_you: 2 S PROJETOS DE ENGENHARIA DE OBRAS DE  CONSTRUÇÃO LTDA com execução pública observável — objeto: Contratação de empresa especializada para EXECUÇÃO DE OBRA DE IMPLANTAÇÃO DA 
+PRAÇA NA RUA EXPERIDIÃO VIEIRA SANDRES, S/N, CENTRO, POMBOS - PE.; órgão: PREFEITURA MUNICIPAL DE POMBOS; UF PE; R$ 195,674
+- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação de empresa especializada para EXECUÇÃO DE OBRA DE IMPLANTAÇÃO DA 
+PRAÇA NA RUA EXPERIDIÃO VIEIRA SANDRES, S/N, CENTRO, POMBOS -; órgão: PREFEITURA MUNICIPAL DE POMBOS; UF PE.
+- fact: objeto: Contratação de empresa especializada para EXECUÇÃO DE OBRA DE IMPLANTAÇÃO DA 
+PRAÇA NA RUA EXPERIDIÃO VIEIRA SANDRES, S/N, CENTRO, POMBOS - PE.; órgão: PREFEITURA MUNICIPAL DE POMBOS; UF PE; R$ 195,674
+- micro: `PUBLIC_DATA_SNAPSHOT`
+
+```
+Olá,
+
+Pelo que está público sobre 2 S PROJETOS DE ENGENHARIA DE OBRAS DE  CONSTRUÇÃO LTDA, objeto: Contratação de empresa especializada para EXECUÇÃO DE OBRA DE IMPLANTAÇÃO DA 
+PRAÇA NA RUA EXPERIDIÃO VIEIRA SANDRES, S/N, CENTRO, POMBOS - PE.; órgão: PREFEITURA MUNICIPAL DE POMBOS; UF PE; R$ 195,674.
+
+Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação de empresa especializada para EXECUÇÃO DE OBRA DE IMPLANTAÇÃO DA 
+PRAÇA NA RUA EXPERIDIÃO VIEIRA SANDRES, S/N, CENTRO, POMBOS -; órgão: PREFEITURA MUNICIPAL DE POMBOS; UF PE.
+
+Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
+```
+
+## 22. SINALES SINALIZACAO ESPIRITO SANTO LTDA
+- `36377091000126` gestao_monitoramento_contratual/MONITORAMENTO_CONTRATUAL
+- why_you: SINALES SINALIZACAO ESPIRITO SANTO LTDA com execução pública observável — objeto: Contratação emergencial de empresa especializada para prestação de serviços de engenharia de tráfego consistentes na
+implantação, revitalização e manutenção de; órgão: SECRETARIA MUNICIPAL DE ENGENHARIA DE TRANSITO; UF GO; R$ 28,031,983
+- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação emergencial de empresa especializada para prestação de serviços de engenharia de tráfego consistentes na
+implantação, revitaliza; órgão: SECRETARIA MUNICIPAL DE ENGENHARIA DE TRANSITO; UF GO.
+- fact: objeto: Contratação emergencial de empresa especializada para prestação de serviços de engenharia de tráfego consistentes na
+implantação, revitalização e manutenção de; órgão: SECRETARIA MUNICIPAL DE ENGENHARIA DE TRANSITO; UF GO; R$ 28,031,983
+- micro: `PUBLIC_DATA_SNAPSHOT`
+
+```
+Olá,
+
+Pelo que está público sobre SINALES SINALIZACAO ESPIRITO SANTO LTDA, objeto: Contratação emergencial de empresa especializada para prestação de serviços de engenharia de tráfego consistentes na
+implantação, revitalização e manutenção de; órgão: SECRETARIA MUNICIPAL DE ENGENHARIA DE TRANSITO; UF GO; R$ 28,031,983.
+
+Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação emergencial de empresa especializada para prestação de serviços de engenharia de tráfego consistentes na
+implantação, revitaliza; órgão: SECRETARIA MUNICIPAL DE ENGENHARIA DE TRANSITO; UF GO.
+
+Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
+```
+
+## 23. TMF CONSTRUÇÕES, IMCORPORAÇÃO E SERVIÇOS LTDA
+- `36909349000198` gestao_monitoramento_contratual/MONITORAMENTO_CONTRATUAL
+- why_you: TMF CONSTRUÇÕES, IMCORPORAÇÃO E SERVIÇOS LTDA com execução pública observável — objeto: Contratação de 
+serviço especializado, sob demanda, para prestação de serviços de MANUTENÇÃO PREDIAL, 
+consistindo  em  instalação,  montagem,  reparação  e; órgão: MUNICIPIO DE CUIABA; UF MT; R$ 9,773,128
+- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação de 
+serviço especializado, sob demanda, para prestação de serviços de MANUTENÇÃO PREDIAL, 
+consistindo  em  instalação,  monta; órgão: MUNICIPIO DE CUIABA; UF MT.
+- fact: objeto: Contratação de 
+serviço especializado, sob demanda, para prestação de serviços de MANUTENÇÃO PREDIAL, 
+consistindo  em  instalação,  montagem,  reparação  e; órgão: MUNICIPIO DE CUIABA; UF MT; R$ 9,773,128
+- micro: `PUBLIC_DATA_SNAPSHOT`
+
+```
+Olá,
+
+Pelo que está público sobre TMF CONSTRUÇÕES, IMCORPORAÇÃO E SERVIÇOS LTDA, objeto: Contratação de 
+serviço especializado, sob demanda, para prestação de serviços de MANUTENÇÃO PREDIAL, 
+consistindo  em  instalação,  montagem,  reparação  e; órgão: MUNICIPIO DE CUIABA; UF MT; R$ 9,773,128.
+
+Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação de 
+serviço especializado, sob demanda, para prestação de serviços de MANUTENÇÃO PREDIAL, 
+consistindo  em  instalação,  monta; órgão: MUNICIPIO DE CUIABA; UF MT.
+
+Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
+```
+
+## 24. ARTFLEX ENGENHARIA LTDA
+- `37073624000149` gestao_monitoramento_contratual/MONITORAMENTO_CONTRATUAL
+- why_you: ARTFLEX ENGENHARIA LTDA com execução pública observável — objeto: O OBJETO DO PRESENTE INSTRUMENTO É A PRESTAÇÃO DE SERVIÇOS COMUNS DE ENGENHARIA PARA RECOMPOSIÇÃO, COM FORNECIMENTO INTEGRAL DE TODOS OS INSUMOS NECESSÁRIOS, DO; órgão: CENTRO DE SERVIÇOS COMPARTILHADOS; UF DF; R$ 4,620,000
+- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: O OBJETO DO PRESENTE INSTRUMENTO É A PRESTAÇÃO DE SERVIÇOS COMUNS DE ENGENHARIA PARA RECOMPOSIÇÃO, COM FORNECIMENTO INTEGRAL DE TODOS OS INS; órgão: CENTRO DE SERVIÇOS COMPARTILHADOS; UF DF.
+- fact: objeto: O OBJETO DO PRESENTE INSTRUMENTO É A PRESTAÇÃO DE SERVIÇOS COMUNS DE ENGENHARIA PARA RECOMPOSIÇÃO, COM FORNECIMENTO INTEGRAL DE TODOS OS INSUMOS NECESSÁRIOS, DO; órgão: CENTRO DE SERVIÇOS COMPARTILHADOS; UF DF; R$ 4,620,000
+- micro: `PUBLIC_DATA_SNAPSHOT`
+
+```
+Olá,
+
+Pelo que está público sobre ARTFLEX ENGENHARIA LTDA, objeto: O OBJETO DO PRESENTE INSTRUMENTO É A PRESTAÇÃO DE SERVIÇOS COMUNS DE ENGENHARIA PARA RECOMPOSIÇÃO, COM FORNECIMENTO INTEGRAL DE TODOS OS INSUMOS NECESSÁRIOS, DO; órgão: CENTRO DE SERVIÇOS COMPARTILHADOS; UF DF; R$ 4,620,000.
+
+Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: O OBJETO DO PRESENTE INSTRUMENTO É A PRESTAÇÃO DE SERVIÇOS COMUNS DE ENGENHARIA PARA RECOMPOSIÇÃO, COM FORNECIMENTO INTEGRAL DE TODOS OS INS; órgão: CENTRO DE SERVIÇOS COMPARTILHADOS; UF DF.
+
+Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
+```
+
+## 25. SUPERA ENGENHARIA LTDA
+- `38756140000167` medicoes_glosas_memoria/MEDICOES
+- why_you: SUPERA ENGENHARIA LTDA com execução pública observável — objeto: Contratação  de  empresa  especializada  para  elaboração, desenvolvimento e detalhamento do projeto executivo arquitetônico e projetos  executivos  complementa; órgão: DIVISAO DE COMPRAS; UF SP; R$ 134,308
+- why_now: Momento glosa_medicao ancorado no fato público: objeto: Contratação  de  empresa  especializada  para  elaboração, desenvolvimento e detalhamento do projeto executivo arquitetônico e projetos  executivos  com
+- fact: objeto: Contratação  de  empresa  especializada  para  elaboração, desenvolvimento e detalhamento do projeto executivo arquitetônico e projetos  executivos  complementa; órgão: DIVISAO DE COMPRAS; UF SP; R$ 134,308
+- micro: `MEDICAO_CHECK`
+
+```
+Olá,
+
+Pelo que está público sobre SUPERA ENGENHARIA LTDA, objeto: Contratação  de  empresa  especializada  para  elaboração, desenvolvimento e detalhamento do projeto executivo arquitetônico e projetos  executivos  complementa; órgão: DIVISAO DE COMPRAS; UF SP; R$ 134,308.
+
+Momento glosa_medicao ancorado no fato público: objeto: Contratação  de  empresa  especializada  para  elaboração, desenvolvimento e detalhamento do projeto executivo arquitetônico e projetos  executivos  com
+
+Proponho uma revisão pontual da última medição contestada, com checklist de evidências.
+```
+
+## 26. MIDT ENGENHARIA LTDA
+- `40301626000152` gestao_monitoramento_contratual/MONITORAMENTO_CONTRATUAL
+- why_you: MIDT ENGENHARIA LTDA com execução pública observável — objeto: Contratacao de empresa especializada na elaboracao de projetos executivos deengenharia para implantacao de pavimentacao asfaltica em rodovia rural, no trecho co; órgão: SECRETARIA MUNICIPAL DE OBRAS E SERVIÇOS URBANOS; UF ES; R$ 167,400
+- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratacao de empresa especializada na elaboracao de projetos executivos deengenharia para implantacao de pavimentacao asfaltica em rodovia; órgão: SECRETARIA MUNICIPAL DE OBRAS E SERVIÇOS URBANOS; UF ES.
+- fact: objeto: Contratacao de empresa especializada na elaboracao de projetos executivos deengenharia para implantacao de pavimentacao asfaltica em rodovia rural, no trecho co; órgão: SECRETARIA MUNICIPAL DE OBRAS E SERVIÇOS URBANOS; UF ES; R$ 167,400
+- micro: `PUBLIC_DATA_SNAPSHOT`
+
+```
+Olá,
+
+Pelo que está público sobre MIDT ENGENHARIA LTDA, objeto: Contratacao de empresa especializada na elaboracao de projetos executivos deengenharia para implantacao de pavimentacao asfaltica em rodovia rural, no trecho co; órgão: SECRETARIA MUNICIPAL DE OBRAS E SERVIÇOS URBANOS; UF ES; R$ 167,400.
+
+Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratacao de empresa especializada na elaboracao de projetos executivos deengenharia para implantacao de pavimentacao asfaltica em rodovia; órgão: SECRETARIA MUNICIPAL DE OBRAS E SERVIÇOS URBANOS; UF ES.
+
+Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
+```
+
+## 27. VIDA EMPREENDIMENTOS E CONSULTORIA EMPRESARIAL LTDA
+- `41576001000166` gestao_monitoramento_contratual/MONITORAMENTO_CONTRATUAL
+- why_you: VIDA EMPREENDIMENTOS E CONSULTORIA EMPRESARIAL LTDA com execução pública observável — objeto: CONTRATAÇÃO DE EMPRESA PARA CONSTRUÇÃO DO NOVO CENTRO DE ENSINO INFANTIL (C.E.I), LOCALIZADO NO DISTRITO DE GEORGE OETTERER, INCLUINDO O FORNECIMENTO DE MATERIA; órgão: SECRETARIA DE OBRAS E ENGENHARIA; UF SP; R$ 8,537,521
+- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: CONTRATAÇÃO DE EMPRESA PARA CONSTRUÇÃO DO NOVO CENTRO DE ENSINO INFANTIL (C.E.I), LOCALIZADO NO DISTRITO DE GEORGE OETTERER, INCLUINDO O FOR; órgão: SECRETARIA DE OBRAS E ENGENHARIA; UF SP.
+- fact: objeto: CONTRATAÇÃO DE EMPRESA PARA CONSTRUÇÃO DO NOVO CENTRO DE ENSINO INFANTIL (C.E.I), LOCALIZADO NO DISTRITO DE GEORGE OETTERER, INCLUINDO O FORNECIMENTO DE MATERIA; órgão: SECRETARIA DE OBRAS E ENGENHARIA; UF SP; R$ 8,537,521
+- micro: `PUBLIC_DATA_SNAPSHOT`
+
+```
+Olá,
+
+Pelo que está público sobre VIDA EMPREENDIMENTOS E CONSULTORIA EMPRESARIAL LTDA, objeto: CONTRATAÇÃO DE EMPRESA PARA CONSTRUÇÃO DO NOVO CENTRO DE ENSINO INFANTIL (C.E.I), LOCALIZADO NO DISTRITO DE GEORGE OETTERER, INCLUINDO O FORNECIMENTO DE MATERIA; órgão: SECRETARIA DE OBRAS E ENGENHARIA; UF SP; R$ 8,537,521.
+
+Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: CONTRATAÇÃO DE EMPRESA PARA CONSTRUÇÃO DO NOVO CENTRO DE ENSINO INFANTIL (C.E.I), LOCALIZADO NO DISTRITO DE GEORGE OETTERER, INCLUINDO O FOR; órgão: SECRETARIA DE OBRAS E ENGENHARIA; UF SP.
+
+Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
+```
+
+## 28. INSTITUTO RUAS LTDA
+- `44571860000150` apoio_licitacoes_propostas/APOIO_LICITACAO
+- why_you: INSTITUTO RUAS LTDA com execução pública observável — objeto: Contratação de empresa para prestação de serviço de Elaboração de Projeto Executivo de Pavimentação em Concreto.; órgão: Prefeitura de Itaqui; UF RS; R$ 429,700
+- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação de empresa para prestação de serviço de Elaboração de Projeto Executivo de Pavimentação em Concreto.; órgão: Prefeitura de Itaqui; UF RS.
+- fact: objeto: Contratação de empresa para prestação de serviço de Elaboração de Projeto Executivo de Pavimentação em Concreto.; órgão: Prefeitura de Itaqui; UF RS; R$ 429,700
+- micro: `PROCUREMENT_RISK_SNAPSHOT`
+
+```
+Olá,
+
+Pelo que está público sobre INSTITUTO RUAS LTDA, objeto: Contratação de empresa para prestação de serviço de Elaboração de Projeto Executivo de Pavimentação em Concreto.; órgão: Prefeitura de Itaqui; UF RS; R$ 429,700.
+
+Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação de empresa para prestação de serviço de Elaboração de Projeto Executivo de Pavimentação em Concreto.; órgão: Prefeitura de Itaqui; UF RS.
 
 Disponibilizo apoio de pico em análise de edital/proposta sob NDA.
 ```
 
-## 19. QUEIROZ MIGUEL EMPREENDIMENTOS E CONSTRUCOES LTDA
-- CNPJ: `30776622000177` UF=MG
-- service: `gestao_monitoramento_contratual` / Warmbly `MONITORAMENTO_CONTRATUAL`
-- why_you: QUEIROZ MIGUEL EMPREENDIMENTOS E CONSTRUCOES LTDA com execução pública observável — objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA CONSTRUÇÃO DE PONTE MISTA AÇO E CONCRETO EM ZONA RURAL DO MUNICÍPIO DE SÃO JOÃO DO PACUÍMG, CONFORME TERMO DE CONVÊNIO; órgão: Unidade Única; UF MG; R$ 680,746
-- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA CONSTRUÇÃO DE PONTE MISTA AÇO E CONCRETO EM ZONA RURAL DO MUNICÍPIO DE SÃO JOÃO DO PACUÍMG, CONFOR; órgão: Unidade Única; UF MG.
-- observed_fact: objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA CONSTRUÇÃO DE PONTE MISTA AÇO E CONCRETO EM ZONA RURAL DO MUNICÍPIO DE SÃO JOÃO DO PACUÍMG, CONFORME TERMO DE CONVÊNIO; órgão: Unidade Única; UF MG; R$ 680,746
-- micro_offer: `PUBLIC_DATA_SNAPSHOT`
-- evidence_ids: ['cf-contract-25450199']
-- signals: ['multi_contract']
-- subject: Gestão contratual: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA CONSTR
-- spine_complete: True
+## 29. SULVIAS OBRAS E CONSTRUCOES LTDA
+- `52359706000148` gestao_monitoramento_contratual/MONITORAMENTO_CONTRATUAL
+- why_you: SULVIAS OBRAS E CONSTRUCOES LTDA com execução pública observável — objeto: CONTRATAÇÃO DE EMPRESA PARA EXECUÇÃO DE SERVIÇOS DE REPERFILAGEM ASFÁLTICA, INCLUINDO RETIRADA DA SUB-BASE E BASE COMPROMETIDAS, RECUPERAÇÃO DA SUB-BASE E BASE; órgão: MUNICÍPIO DE FORMOSA DO SUL; UF SC; R$ 1,089,800
+- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: CONTRATAÇÃO DE EMPRESA PARA EXECUÇÃO DE SERVIÇOS DE REPERFILAGEM ASFÁLTICA, INCLUINDO RETIRADA DA SUB-BASE E BASE COMPROMETIDAS, RECUPERAÇÃO; órgão: MUNICÍPIO DE FORMOSA DO SUL; UF SC.
+- fact: objeto: CONTRATAÇÃO DE EMPRESA PARA EXECUÇÃO DE SERVIÇOS DE REPERFILAGEM ASFÁLTICA, INCLUINDO RETIRADA DA SUB-BASE E BASE COMPROMETIDAS, RECUPERAÇÃO DA SUB-BASE E BASE; órgão: MUNICÍPIO DE FORMOSA DO SUL; UF SC; R$ 1,089,800
+- micro: `PUBLIC_DATA_SNAPSHOT`
 
 ```
 Olá,
 
-Pelo que está público sobre QUEIROZ MIGUEL EMPREENDIMENTOS E CONSTRUCOES LTDA, objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA CONSTRUÇÃO DE PONTE MISTA AÇO E CONCRETO EM ZONA RURAL DO MUNICÍPIO DE SÃO JOÃO DO PACUÍMG, CONFORME TERMO DE CONVÊNIO; órgão: Unidade Única; UF MG; R$ 680,746.
+Pelo que está público sobre SULVIAS OBRAS E CONSTRUCOES LTDA, objeto: CONTRATAÇÃO DE EMPRESA PARA EXECUÇÃO DE SERVIÇOS DE REPERFILAGEM ASFÁLTICA, INCLUINDO RETIRADA DA SUB-BASE E BASE COMPROMETIDAS, RECUPERAÇÃO DA SUB-BASE E BASE; órgão: MUNICÍPIO DE FORMOSA DO SUL; UF SC; R$ 1,089,800.
 
-Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA CONSTRUÇÃO DE PONTE MISTA AÇO E CONCRETO EM ZONA RURAL DO MUNICÍPIO DE SÃO JOÃO DO PACUÍMG, CONFOR; órgão: Unidade Única; UF MG.
+Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: CONTRATAÇÃO DE EMPRESA PARA EXECUÇÃO DE SERVIÇOS DE REPERFILAGEM ASFÁLTICA, INCLUINDO RETIRADA DA SUB-BASE E BASE COMPROMETIDAS, RECUPERAÇÃO; órgão: MUNICÍPIO DE FORMOSA DO SUL; UF SC.
 
 Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
 ```
 
-## 20. PROJHEART ENGENHARIA LTDA
-- CNPJ: `47432025000128` UF=GO
-- service: `gestao_monitoramento_contratual` / Warmbly `MONITORAMENTO_CONTRATUAL`
-- why_you: PROJHEART ENGENHARIA LTDA com execução pública observável — objeto: Execução de obra de reforma do laboratório do Hospital da Polícia Militar do Estado de Goiás - HPM/PMGO.; órgão: POLÍCIA MILITAR DO ESTADO DE GOIÁS/GO; UF GO; R$ 307,000
-- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Execução de obra de reforma do laboratório do Hospital da Polícia Militar do Estado de Goiás - HPM/PMGO.; órgão: POLÍCIA MILITAR DO ESTADO DE GOIÁS/GO; UF GO.
-- observed_fact: objeto: Execução de obra de reforma do laboratório do Hospital da Polícia Militar do Estado de Goiás - HPM/PMGO.; órgão: POLÍCIA MILITAR DO ESTADO DE GOIÁS/GO; UF GO; R$ 307,000
-- micro_offer: `PUBLIC_DATA_SNAPSHOT`
-- evidence_ids: ['cf-contract-5030030']
-- signals: ['multi_contract']
-- subject: Gestão contratual: Execução de obra de reforma do laboratório do Ho
-- spine_complete: True
+## 30. LIFE ENGENHARIA E TOPOGRAFIA LTDA
+- `55014274000121` apoio_licitacoes_propostas/APOIO_LICITACAO
+- why_you: LIFE ENGENHARIA E TOPOGRAFIA LTDA com execução pública observável — objeto: Contratação de empresa especializada para elaboração de projeto viário de pavimentação asfáltica, Programa Estrada Boa.; órgão: MUNICÍPIO DE RIO RUFINO; UF SC; R$ 23,520
+- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação de empresa especializada para elaboração de projeto viário de pavimentação asfáltica, Programa Estrada Boa.; órgão: MUNICÍPIO DE RIO RUFINO; UF SC.
+- fact: objeto: Contratação de empresa especializada para elaboração de projeto viário de pavimentação asfáltica, Programa Estrada Boa.; órgão: MUNICÍPIO DE RIO RUFINO; UF SC; R$ 23,520
+- micro: `PROCUREMENT_RISK_SNAPSHOT`
 
 ```
 Olá,
 
-Pelo que está público sobre PROJHEART ENGENHARIA LTDA, objeto: Execução de obra de reforma do laboratório do Hospital da Polícia Militar do Estado de Goiás - HPM/PMGO.; órgão: POLÍCIA MILITAR DO ESTADO DE GOIÁS/GO; UF GO; R$ 307,000.
+Pelo que está público sobre LIFE ENGENHARIA E TOPOGRAFIA LTDA, objeto: Contratação de empresa especializada para elaboração de projeto viário de pavimentação asfáltica, Programa Estrada Boa.; órgão: MUNICÍPIO DE RIO RUFINO; UF SC; R$ 23,520.
 
-Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Execução de obra de reforma do laboratório do Hospital da Polícia Militar do Estado de Goiás - HPM/PMGO.; órgão: POLÍCIA MILITAR DO ESTADO DE GOIÁS/GO; UF GO.
-
-Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
-```
-
-## 21. SANTPAV TECNOLOGIA EM ASFALTOS EIRELI
-- CNPJ: `31088105000178` UF=RS
-- service: `gestao_monitoramento_contratual` / Warmbly `MONITORAMENTO_CONTRATUAL`
-- why_you: SANTPAV TECNOLOGIA EM ASFALTOS EIRELI com execução pública observável — objeto: Aquisição de Massa Asfáltica usinada a quente (CBUQ) para aplicação a frio, preparada com CAP 50/70, pó de pedra e pedriscos, para aplicação a frio em manutençã; órgão: MUNICÍPIO DE JAPARAÍBA/MG; UF MG; R$ 2,800
-- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Aquisição de Massa Asfáltica usinada a quente (CBUQ) para aplicação a frio, preparada com CAP 50/70, pó de pedra e pedriscos, para aplicação; órgão: MUNICÍPIO DE JAPARAÍBA/MG; UF MG.
-- observed_fact: objeto: Aquisição de Massa Asfáltica usinada a quente (CBUQ) para aplicação a frio, preparada com CAP 50/70, pó de pedra e pedriscos, para aplicação a frio em manutençã; órgão: MUNICÍPIO DE JAPARAÍBA/MG; UF MG; R$ 2,800
-- micro_offer: `PUBLIC_DATA_SNAPSHOT`
-- evidence_ids: ['cf-contract-25551473']
-- signals: ['multi_contract']
-- subject: Gestão contratual: Aquisição de Massa Asfáltica usinada a quente (C
-- spine_complete: True
-
-```
-Olá,
-
-Pelo que está público sobre SANTPAV TECNOLOGIA EM ASFALTOS EIRELI, objeto: Aquisição de Massa Asfáltica usinada a quente (CBUQ) para aplicação a frio, preparada com CAP 50/70, pó de pedra e pedriscos, para aplicação a frio em manutençã; órgão: MUNICÍPIO DE JAPARAÍBA/MG; UF MG; R$ 2,800.
-
-Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Aquisição de Massa Asfáltica usinada a quente (CBUQ) para aplicação a frio, preparada com CAP 50/70, pó de pedra e pedriscos, para aplicação; órgão: MUNICÍPIO DE JAPARAÍBA/MG; UF MG.
-
-Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
-```
-
-## 22. CCT Construtora de Obras Ltda - EPP
-- CNPJ: `02063876000102` UF=SC
-- service: `gestao_monitoramento_contratual` / Warmbly `MONITORAMENTO_CONTRATUAL`
-- why_you: CCT Construtora de Obras Ltda - EPP com execução pública observável — objeto: Contratação eventual de serviços de reparos em redes de drenagem, para as Unidades Regionais de Obras.; órgão: Prefeitura Municipal de Joinville - PMJ; UF SC; R$ 406,494
-- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação eventual de serviços de reparos em redes de drenagem, para as Unidades Regionais de Obras.; órgão: Prefeitura Municipal de Joinville - PMJ; UF SC.
-- observed_fact: objeto: Contratação eventual de serviços de reparos em redes de drenagem, para as Unidades Regionais de Obras.; órgão: Prefeitura Municipal de Joinville - PMJ; UF SC; R$ 406,494
-- micro_offer: `PUBLIC_DATA_SNAPSHOT`
-- evidence_ids: ['cf-contract-25584989']
-- signals: ['multi_contract']
-- subject: Gestão contratual: Contratação eventual de serviços de reparos em r
-- spine_complete: True
-
-```
-Olá,
-
-Pelo que está público sobre CCT Construtora de Obras Ltda - EPP, objeto: Contratação eventual de serviços de reparos em redes de drenagem, para as Unidades Regionais de Obras.; órgão: Prefeitura Municipal de Joinville - PMJ; UF SC; R$ 406,494.
-
-Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação eventual de serviços de reparos em redes de drenagem, para as Unidades Regionais de Obras.; órgão: Prefeitura Municipal de Joinville - PMJ; UF SC.
-
-Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
-```
-
-## 23. AVANTTE ENGENHARIA E PARTICIPACÕES LTDA
-- CNPJ: `23467362000192` UF=RS
-- service: `gestao_monitoramento_contratual` / Warmbly `MONITORAMENTO_CONTRATUAL`
-- why_you: AVANTTE ENGENHARIA E PARTICIPACÕES LTDA com execução pública observável — objeto: Contratação de empresa para execução dos serviços de pavimentação asfáltica, microdrenagem e terraplanagem, nas Ruas José Severino Pick e Charlotte Mandler, Bai; órgão: PREFEITURA MUNICIPAL DE SANTA CRUZ DO SUL; UF RS; R$ 3,660,984
-- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação de empresa para execução dos serviços de pavimentação asfáltica, microdrenagem e terraplanagem, nas Ruas José Severino Pick e Ch; órgão: PREFEITURA MUNICIPAL DE SANTA CRUZ DO SUL; UF RS.
-- observed_fact: objeto: Contratação de empresa para execução dos serviços de pavimentação asfáltica, microdrenagem e terraplanagem, nas Ruas José Severino Pick e Charlotte Mandler, Bai; órgão: PREFEITURA MUNICIPAL DE SANTA CRUZ DO SUL; UF RS; R$ 3,660,984
-- micro_offer: `PUBLIC_DATA_SNAPSHOT`
-- evidence_ids: ['cf-contract-9005585']
-- signals: ['multi_contract']
-- subject: Gestão contratual: Contratação de empresa para execução dos serviço
-- spine_complete: True
-
-```
-Olá,
-
-Pelo que está público sobre AVANTTE ENGENHARIA E PARTICIPACÕES LTDA, objeto: Contratação de empresa para execução dos serviços de pavimentação asfáltica, microdrenagem e terraplanagem, nas Ruas José Severino Pick e Charlotte Mandler, Bai; órgão: PREFEITURA MUNICIPAL DE SANTA CRUZ DO SUL; UF RS; R$ 3,660,984.
-
-Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação de empresa para execução dos serviços de pavimentação asfáltica, microdrenagem e terraplanagem, nas Ruas José Severino Pick e Ch; órgão: PREFEITURA MUNICIPAL DE SANTA CRUZ DO SUL; UF RS.
-
-Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
-```
-
-## 24. E R GONÇALVES ENGENHERIA E SERVIÇO
-- CNPJ: `27454811000119` UF=GO
-- service: `gestao_monitoramento_contratual` / Warmbly `MONITORAMENTO_CONTRATUAL`
-- why_you: E R GONÇALVES ENGENHERIA E SERVIÇO com execução pública observável — objeto: VALOR QUE SE EMPENHA PARA OCORRER DESPESAS COM 2º TERMO ADITIVO DA EXECUÇÃO DE OBRA PARA REQUALIFICAÇÃO DA FEIRA COBERTA EM QUADRA POLIESPORTIVA ATENDENDO A SEC; órgão: FUNDO MUNICIPAL DE EDUCACAO - FME; UF GO; R$ 42,839
-- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: VALOR QUE SE EMPENHA PARA OCORRER DESPESAS COM 2º TERMO ADITIVO DA EXECUÇÃO DE OBRA PARA REQUALIFICAÇÃO DA FEIRA COBERTA EM QUADRA POLIESPOR; órgão: FUNDO MUNICIPAL DE EDUCACAO - FME; UF GO.
-- observed_fact: objeto: VALOR QUE SE EMPENHA PARA OCORRER DESPESAS COM 2º TERMO ADITIVO DA EXECUÇÃO DE OBRA PARA REQUALIFICAÇÃO DA FEIRA COBERTA EM QUADRA POLIESPORTIVA ATENDENDO A SEC; órgão: FUNDO MUNICIPAL DE EDUCACAO - FME; UF GO; R$ 42,839
-- micro_offer: `PUBLIC_DATA_SNAPSHOT`
-- evidence_ids: ['cf-contract-25508747']
-- signals: ['multi_contract']
-- subject: Gestão contratual: VALOR QUE SE EMPENHA PARA OCORRER DESPESAS COM 2
-- spine_complete: True
-
-```
-Olá,
-
-Pelo que está público sobre E R GONÇALVES ENGENHERIA E SERVIÇO, objeto: VALOR QUE SE EMPENHA PARA OCORRER DESPESAS COM 2º TERMO ADITIVO DA EXECUÇÃO DE OBRA PARA REQUALIFICAÇÃO DA FEIRA COBERTA EM QUADRA POLIESPORTIVA ATENDENDO A SEC; órgão: FUNDO MUNICIPAL DE EDUCACAO - FME; UF GO; R$ 42,839.
-
-Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: VALOR QUE SE EMPENHA PARA OCORRER DESPESAS COM 2º TERMO ADITIVO DA EXECUÇÃO DE OBRA PARA REQUALIFICAÇÃO DA FEIRA COBERTA EM QUADRA POLIESPOR; órgão: FUNDO MUNICIPAL DE EDUCACAO - FME; UF GO.
-
-Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
-```
-
-## 25. EMPROTEC ENGENHARIA LTDA
-- CNPJ: `28709222000105` UF=RN
-- service: `gestao_monitoramento_contratual` / Warmbly `MONITORAMENTO_CONTRATUAL`
-- why_you: EMPROTEC ENGENHARIA LTDA com execução pública observável — objeto: PAVIMENTAÇÃO ASFÁLTICA DE RUAS COM CBUQ (CONCRETO BETUMINOSO USINADO À QUENTE) NO MUNICÍPIO DE PARELHAS/RN - CONVÊNIO SIN N° 32/2022; órgão: Prefeitura; UF RN; R$ 1,567,308
-- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: PAVIMENTAÇÃO ASFÁLTICA DE RUAS COM CBUQ (CONCRETO BETUMINOSO USINADO À QUENTE) NO MUNICÍPIO DE PARELHAS/RN - CONVÊNIO SIN N° 32/2022; órgão: Prefeitura; UF RN.
-- observed_fact: objeto: PAVIMENTAÇÃO ASFÁLTICA DE RUAS COM CBUQ (CONCRETO BETUMINOSO USINADO À QUENTE) NO MUNICÍPIO DE PARELHAS/RN - CONVÊNIO SIN N° 32/2022; órgão: Prefeitura; UF RN; R$ 1,567,308
-- micro_offer: `PUBLIC_DATA_SNAPSHOT`
-- evidence_ids: ['cf-contract-25507721']
-- signals: ['multi_contract']
-- subject: Gestão contratual: PAVIMENTAÇÃO ASFÁLTICA DE RUAS COM CBUQ (CONCRET
-- spine_complete: True
-
-```
-Olá,
-
-Pelo que está público sobre EMPROTEC ENGENHARIA LTDA, objeto: PAVIMENTAÇÃO ASFÁLTICA DE RUAS COM CBUQ (CONCRETO BETUMINOSO USINADO À QUENTE) NO MUNICÍPIO DE PARELHAS/RN - CONVÊNIO SIN N° 32/2022; órgão: Prefeitura; UF RN; R$ 1,567,308.
-
-Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: PAVIMENTAÇÃO ASFÁLTICA DE RUAS COM CBUQ (CONCRETO BETUMINOSO USINADO À QUENTE) NO MUNICÍPIO DE PARELHAS/RN - CONVÊNIO SIN N° 32/2022; órgão: Prefeitura; UF RN.
-
-Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
-```
-
-## 26. CONCREVIA CONSTRUTORA
-- CNPJ: `03818852000189` UF=MS
-- service: `gestao_monitoramento_contratual` / Warmbly `MONITORAMENTO_CONTRATUAL`
-- why_you: CONCREVIA CONSTRUTORA com execução pública observável — objeto: Contratação de Empresa de Engenharia Especializada para Execução da Obras de Drenagem de Águas Pluviais do Parque Aquático / Residencial Modelo IV, no Município; órgão: MUNICIPIO DE BATAGUASSU; UF MS; R$ 294,923
-- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação de Empresa de Engenharia Especializada para Execução da Obras de Drenagem de Águas Pluviais do Parque Aquático / Residencial Mod; órgão: MUNICIPIO DE BATAGUASSU; UF MS.
-- observed_fact: objeto: Contratação de Empresa de Engenharia Especializada para Execução da Obras de Drenagem de Águas Pluviais do Parque Aquático / Residencial Modelo IV, no Município; órgão: MUNICIPIO DE BATAGUASSU; UF MS; R$ 294,923
-- micro_offer: `PUBLIC_DATA_SNAPSHOT`
-- evidence_ids: ['cf-contract-8863965']
-- signals: ['multi_contract']
-- subject: Gestão contratual: Contratação de Empresa de Engenharia Especializa
-- spine_complete: True
-
-```
-Olá,
-
-Pelo que está público sobre CONCREVIA CONSTRUTORA, objeto: Contratação de Empresa de Engenharia Especializada para Execução da Obras de Drenagem de Águas Pluviais do Parque Aquático / Residencial Modelo IV, no Município; órgão: MUNICIPIO DE BATAGUASSU; UF MS; R$ 294,923.
-
-Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação de Empresa de Engenharia Especializada para Execução da Obras de Drenagem de Águas Pluviais do Parque Aquático / Residencial Mod; órgão: MUNICIPIO DE BATAGUASSU; UF MS.
-
-Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
-```
-
-## 27. SETEP CONSTRUÇÕES S.A.
-- CNPJ: `83665141000150` UF=SC
-- service: `apoio_licitacoes_propostas` / Warmbly `APOIO_LICITACAO`
-- why_you: SETEP CONSTRUÇÕES S.A. com execução pública observável — objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA A EXECUÇÃO DE OBRA DE PAVIMENTAÇÃO ASFÁLTICA EM CBUQ, SOBRE PAVIMENTAÇÃO DE CASCALHO EXISTENTE, NA RUA VERANÓPOLIS, TR; órgão: PREFEITURA MUNICIPAL DE PONTE SERRADA - SC; UF SC; R$ 390,959
-- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA A EXECUÇÃO DE OBRA DE PAVIMENTAÇÃO ASFÁLTICA EM CBUQ, SOBRE PAVIMENTAÇÃO DE CASCALHO EXISTENTE, NA; órgão: PREFEITURA MUNICIPAL DE PONTE SERRADA - SC; UF SC.
-- observed_fact: objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA A EXECUÇÃO DE OBRA DE PAVIMENTAÇÃO ASFÁLTICA EM CBUQ, SOBRE PAVIMENTAÇÃO DE CASCALHO EXISTENTE, NA RUA VERANÓPOLIS, TR; órgão: PREFEITURA MUNICIPAL DE PONTE SERRADA - SC; UF SC; R$ 390,959
-- micro_offer: `PROCUREMENT_RISK_SNAPSHOT`
-- evidence_ids: ['cf-contract-15307331']
-- signals: ['tender_proposal']
-- subject: Licitações / propostas: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA A EXEC
-- spine_complete: True
-
-```
-Olá,
-
-Pelo que está público sobre SETEP CONSTRUÇÕES S.A., objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA A EXECUÇÃO DE OBRA DE PAVIMENTAÇÃO ASFÁLTICA EM CBUQ, SOBRE PAVIMENTAÇÃO DE CASCALHO EXISTENTE, NA RUA VERANÓPOLIS, TR; órgão: PREFEITURA MUNICIPAL DE PONTE SERRADA - SC; UF SC; R$ 390,959.
-
-Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA A EXECUÇÃO DE OBRA DE PAVIMENTAÇÃO ASFÁLTICA EM CBUQ, SOBRE PAVIMENTAÇÃO DE CASCALHO EXISTENTE, NA; órgão: PREFEITURA MUNICIPAL DE PONTE SERRADA - SC; UF SC.
+Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação de empresa especializada para elaboração de projeto viário de pavimentação asfáltica, Programa Estrada Boa.; órgão: MUNICÍPIO DE RIO RUFINO; UF SC.
 
 Disponibilizo apoio de pico em análise de edital/proposta sob NDA.
-```
-
-## 28. ALPHAVIAS ENGENHARIA LTDA
-- CNPJ: `35190568000105` UF=PR
-- service: `gestao_monitoramento_contratual` / Warmbly `MONITORAMENTO_CONTRATUAL`
-- why_you: ALPHAVIAS ENGENHARIA LTDA com execução pública observável — objeto: Contratacao de empresa para a Prestacao de servicos tecnicos profissionais de engenharia voltados a concepcao executiva de obras de pavimentacao em recape asfal; órgão: Assessoria de Planejamento e Politicas Publicas; UF PR; R$ 111,925
-- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratacao de empresa para a Prestacao de servicos tecnicos profissionais de engenharia voltados a concepcao executiva de obras de paviment; órgão: Assessoria de Planejamento e Politicas Publicas; UF PR.
-- observed_fact: objeto: Contratacao de empresa para a Prestacao de servicos tecnicos profissionais de engenharia voltados a concepcao executiva de obras de pavimentacao em recape asfal; órgão: Assessoria de Planejamento e Politicas Publicas; UF PR; R$ 111,925
-- micro_offer: `PUBLIC_DATA_SNAPSHOT`
-- evidence_ids: ['cf-contract-8138563']
-- signals: ['multi_contract']
-- subject: Gestão contratual: Contratacao de empresa para a Prestacao de servi
-- spine_complete: True
-
-```
-Olá,
-
-Pelo que está público sobre ALPHAVIAS ENGENHARIA LTDA, objeto: Contratacao de empresa para a Prestacao de servicos tecnicos profissionais de engenharia voltados a concepcao executiva de obras de pavimentacao em recape asfal; órgão: Assessoria de Planejamento e Politicas Publicas; UF PR; R$ 111,925.
-
-Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratacao de empresa para a Prestacao de servicos tecnicos profissionais de engenharia voltados a concepcao executiva de obras de paviment; órgão: Assessoria de Planejamento e Politicas Publicas; UF PR.
-
-Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
-```
-
-## 29. CONSTRUTORA MESSINA LTDA
-- CNPJ: `10585762000150` UF=PR
-- service: `gestao_monitoramento_contratual` / Warmbly `MONITORAMENTO_CONTRATUAL`
-- why_you: CONSTRUTORA MESSINA LTDA com execução pública observável — objeto: Contratação de empresa de engenharia para reforma em edificação existente onde será instalado o Almoxarifado da Secretaria de Saúde.; órgão: Gabinete do Gestor - Ga; UF PR; R$ 183,900
-- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação de empresa de engenharia para reforma em edificação existente onde será instalado o Almoxarifado da Secretaria de Saúde.; órgão: Gabinete do Gestor - Ga; UF PR.
-- observed_fact: objeto: Contratação de empresa de engenharia para reforma em edificação existente onde será instalado o Almoxarifado da Secretaria de Saúde.; órgão: Gabinete do Gestor - Ga; UF PR; R$ 183,900
-- micro_offer: `PUBLIC_DATA_SNAPSHOT`
-- evidence_ids: ['cf-contract-15434794']
-- signals: ['multi_contract']
-- subject: Gestão contratual: Contratação de empresa de engenharia para reform
-- spine_complete: True
-
-```
-Olá,
-
-Pelo que está público sobre CONSTRUTORA MESSINA LTDA, objeto: Contratação de empresa de engenharia para reforma em edificação existente onde será instalado o Almoxarifado da Secretaria de Saúde.; órgão: Gabinete do Gestor - Ga; UF PR; R$ 183,900.
-
-Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação de empresa de engenharia para reforma em edificação existente onde será instalado o Almoxarifado da Secretaria de Saúde.; órgão: Gabinete do Gestor - Ga; UF PR.
-
-Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
-```
-
-## 30. BFC OBRAS E SOLUCOES INTEGRADAS LTDA
-- CNPJ: `51274708000171` UF=MG
-- service: `gestao_monitoramento_contratual` / Warmbly `MONITORAMENTO_CONTRATUAL`
-- why_you: BFC OBRAS E SOLUCOES INTEGRADAS LTDA com execução pública observável — objeto: 0043211-44.2022.8.16.6000 - O objeto do presente instrumento é a contratação de empresa ou consórcio de empresas para a execução da SUBSTITUIÇÃO DE PISO NO EDIF; órgão: TRIBUNAL DE JUSTIÇA ESTADO DO PARANA; UF PR; R$ 634,995
-- why_now: Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: 0043211-44.2022.8.16.6000 - O objeto do presente instrumento é a contratação de empresa ou consórcio de empresas para a execução da SUBSTITU; órgão: TRIBUNAL DE JUSTIÇA ESTADO DO PARANA; UF PR.
-- observed_fact: objeto: 0043211-44.2022.8.16.6000 - O objeto do presente instrumento é a contratação de empresa ou consórcio de empresas para a execução da SUBSTITUIÇÃO DE PISO NO EDIF; órgão: TRIBUNAL DE JUSTIÇA ESTADO DO PARANA; UF PR; R$ 634,995
-- micro_offer: `PUBLIC_DATA_SNAPSHOT`
-- evidence_ids: ['cf-contract-18198541']
-- signals: ['structure_robust', 'multi_contract']
-- subject: Gestão contratual: 0043211-44.2022.8.16.6000 - O objeto do presente
-- spine_complete: True
-
-```
-Olá,
-
-Pelo que está público sobre BFC OBRAS E SOLUCOES INTEGRADAS LTDA, objeto: 0043211-44.2022.8.16.6000 - O objeto do presente instrumento é a contratação de empresa ou consórcio de empresas para a execução da SUBSTITUIÇÃO DE PISO NO EDIF; órgão: TRIBUNAL DE JUSTIÇA ESTADO DO PARANA; UF PR; R$ 634,995.
-
-Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: 0043211-44.2022.8.16.6000 - O objeto do presente instrumento é a contratação de empresa ou consórcio de empresas para a execução da SUBSTITU; órgão: TRIBUNAL DE JUSTIÇA ESTADO DO PARANA; UF PR.
-
-Posso montar um painel mínimo de monitoramento para o portfólio prioritário.
 ```
 

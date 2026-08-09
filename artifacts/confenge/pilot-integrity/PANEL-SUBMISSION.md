@@ -134,3 +134,26 @@ Logs (scratch, not committed): `/tmp/grok-goal-85afca0088bc/`
 - `target-fit-audit.csv` JATOBETON `service_recomputed=gestao_monitoramento_contratual` (was stale auditoria_orcamento_bdi)
 - Terminal verdict remains **NO_GO**
 
+## National proof v3 (2026-08-09T23:40:06Z)
+
+- Universe rescore: {'TARGET_PROBABLE_RESEARCH': 39212, 'TARGET_OUT_OF_SCOPE': 3930, 'TARGET_CONFIRMED': 5606}
+- Process multi-service (organic, signal-enriched): {}
+- EMAIL_SEND_READY cohort: 0 (fp_risk=0)
+- Sample30: hollow=0/0 near_dup_blocked=False struct_ok=False
+- **Verdict: NO_GO**
+- Blockers: ['EMAIL_SEND_READY cohort n=0 < 50 (need 50 audited with COMPANY_OWNED contacts)', 'sample30 structural gates failed']
+- Safety: PAUSED / kill switch ENGAGED / no real send
+
+## National proof v3b (2026-08-09T23:42:08Z)
+
+- tf={'TARGET_PROBABLE_RESEARCH': 39212, 'TARGET_OUT_OF_SCOPE': 3930, 'TARGET_CONFIRMED': 5606} process_svc={'gestao_monitoramento_contratual': 604, 'apoio_licitacoes_propostas': 103, 'reforco_temporario_backoffice': 101, 'auditoria_orcamento_bdi': 16, 'aditivos_extracontratuais': 6, 'medicoes_glosas_memoria': 5}
+- ready=32 fp=1 sample30_struct=True near_dup=False
+- **Verdict: NO_GO**
+- Blockers: ['EMAIL_SEND_READY cohort n=32 < 50 (only 35 TARGET_CONFIRMED∩COMPANY_OWNED contacts available in enrichment artifact)', 'fp_risk flags in ready cohort: 1']
+
+## National proof v4 (2026-08-09T23:45:26Z)
+
+- ready=48 fp_excluded=0 process_svc={'gestao_monitoramento_contratual': 626, 'reforco_temporario_backoffice': 109, 'apoio_licitacoes_propostas': 100, 'auditoria_orcamento_bdi': 9, 'aditivos_extracontratuais': 6, 'medicoes_glosas_memoria': 4}
+- reajuste=0.0 sample30_struct=True near_dup=False
+- **Verdict: NO_GO**
+- Blockers: ['EMAIL_SEND_READY cohort n=48 < 50 (confirmed∩contact=54)']

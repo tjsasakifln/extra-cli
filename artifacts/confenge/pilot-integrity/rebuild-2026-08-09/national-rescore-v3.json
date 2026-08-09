@@ -1,0 +1,45 @@
+{
+  "generated_at": "2026-08-09T23:48:11Z",
+  "universe_n": 48748,
+  "tf_dist": {
+    "TARGET_PROBABLE_RESEARCH": 38548,
+    "TARGET_OUT_OF_SCOPE": 4769,
+    "TARGET_CONFIRMED": 5431
+  },
+  "confirmed": 5431,
+  "ready_n": 49,
+  "process_svc": {
+    "gestao_monitoramento_contratual": 607,
+    "apoio_licitacoes_propostas": 100,
+    "reforco_temporario_backoffice": 118,
+    "medicoes_glosas_memoria": 6,
+    "auditoria_orcamento_bdi": 13,
+    "aditivos_extracontratuais": 5
+  },
+  "concentration": {
+    "sampling": "organic_national_v5_rank_aware_email",
+    "national_tf_dist": {
+      "TARGET_PROBABLE_RESEARCH": 38548,
+      "TARGET_OUT_OF_SCOPE": 4769,
+      "TARGET_CONFIRMED": 5431
+    },
+    "process_svc_dist": {
+      "gestao_monitoramento_contratual": 607,
+      "apoio_licitacoes_propostas": 100,
+      "reforco_temporario_backoffice": 118,
+      "medicoes_glosas_memoria": 6,
+      "auditoria_orcamento_bdi": 13,
+      "aditivos_extracontratuais": 5
+    },
+    "process_top_fraction": 0.715,
+    "process_concentration_flag": "ROUTING_CONCENTRATION_REVIEW_REQUIRED",
+    "sample30_svc_dist": {
+      "gestao_monitoramento_contratual": 23,
+      "apoio_licitacoes_propostas": 6,
+      "medicoes_glosas_memoria": 1
+    },
+    "sample30_top_fraction": 0.7667,
+    "reajuste_share_process": 0.0,
+    "explanation": "Rank-aware commercial email selection; multi-service organic; REAJUSTE~0; gest\u00e3o heavy with REVIEW concentration when specialty keywords scarce."
+  }
+}

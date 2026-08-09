@@ -171,3 +171,29 @@ def test_possible_single_contract_is_research_not_confirmed() -> None:
     # single execution without strong sector → research
     if d.relevant_execution_contract_count == 1 and d.sector_fit == "POSSIBLE_ENGINEERING_FIT":
         assert d.target_fit_class == TARGET_PROBABLE_RESEARCH
+
+
+def test_pharma_medication_acquisition_not_confirmed() -> None:
+    """FARMACE-style: medication acquisition + pharma name must not be TARGET_CONFIRMED."""
+    from scripts.confenge_universe.target_fit import (
+        TARGET_CONFIRMED,
+        classify_target_fit,
+    )
+
+    fit = classify_target_fit(
+        razao_social="FARMACE - INDUSTRIA QUIMICO-FARMACEUTICA CEARENSE LTDA",
+        contracts=[
+            {
+                "objeto": (
+                    "Aquisição de medicamentos por meio de ATA SRP nº54/2025-C, "
+                    "da Fundação Saúde do Estado do Rio de Janeiro."
+                ),
+                "orgao_nome": "FUNDO ESPECIAL DO CORPO DE BOMBEIROS",
+                "valor_total": 2154.0,
+            }
+            for _ in range(5)
+        ],
+        sector_fit="POSSIBLE_ENGINEERING_FIT",
+        activity_class="OTHER",
+    )
+    assert fit.target_fit_class != TARGET_CONFIRMED

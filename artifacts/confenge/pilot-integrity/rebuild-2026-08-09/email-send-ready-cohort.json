@@ -1,0 +1,943 @@
+{
+  "generated_at": "2026-08-09T23:48:11Z",
+  "n": 49,
+  "svc_dist": {
+    "gestao_monitoramento_contratual": 37,
+    "apoio_licitacoes_propostas": 10,
+    "reforco_temporario_backoffice": 1,
+    "medicoes_glosas_memoria": 1
+  },
+  "sample": [
+    {
+      "cnpj14": "00061493000170",
+      "razao_social": "ENCOPAV ENGENHARIA LTDA",
+      "email": "encopav@encopav.com.br",
+      "ownership": "COMPANY_OWNED",
+      "verification": "VERIFIED",
+      "purpose": "UNKNOWN",
+      "service_id": "gestao_monitoramento_contratual",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "observed_fact": "objeto: Contratação de empresa, através de empreitada global (material + mão de obra) para execução da obra de pavimentação em Concreto Betuminoso Usinado À Quente (C.B; órgão: Unidades Administrativas  Subordinadas; UF RS; R$ 2,839,000",
+      "why_you": "ENCOPAV ENGENHARIA LTDA com execução pública observável — objeto: Contratação de empresa, através de empreitada global (material + mão de obra) para execução da obra de pavimentação em Concreto Betuminoso Usinado À Quente (C.B; órgão: Unidades Administrativas  Subordinadas; UF RS; R$ 2,839,000",
+      "why_now": "Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação de empresa, através de empreitada global (material + mão de obra) para execução da obra de pavimentação em Concreto Betuminoso U; órgão: Unidades Administrativas  Subordinadas; UF RS.",
+      "micro_offer": "PUBLIC_DATA_SNAPSHOT",
+      "reasons": [
+        "service_code:gestao_monitoramento_contratual",
+        "service_fit_supported",
+        "all_gates_pass"
+      ]
+    },
+    {
+      "cnpj14": "00472805000138",
+      "razao_social": "Traçado Construções e Serviços Ltda.",
+      "email": "comercial@tracado.com.br",
+      "ownership": "COMPANY_OWNED",
+      "verification": "VERIFIED",
+      "purpose": "COMERCIAL",
+      "service_id": "apoio_licitacoes_propostas",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "observed_fact": "objeto: Contratação de empresa especializada para execução de obras de pavimentação asfáltica e de passeio com blocos intertratavados, na forma de empreitada global, co; órgão: MUNICÍPIO DE PONTE PRETA - RS; UF RS; R$ 276,128",
+      "why_you": "Traçado Construções e Serviços Ltda. com execução pública observável — objeto: Contratação de empresa especializada para execução de obras de pavimentação asfáltica e de passeio com blocos intertratavados, na forma de empreitada global, co; órgão: MUNICÍPIO DE PONTE PRETA - RS; UF RS; R$ 276,128",
+      "why_now": "Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação de empresa especializada para execução de obras de pavimentação asfáltica e de passeio com blocos intertratavados, na forma de e; órgão: MUNICÍPIO DE PONTE PRETA - RS; UF RS.",
+      "micro_offer": "PROCUREMENT_RISK_SNAPSHOT",
+      "reasons": [
+        "service_code:apoio_licitacoes_propostas",
+        "service_fit_supported",
+        "all_gates_pass"
+      ]
+    },
+    {
+      "cnpj14": "00507949000182",
+      "razao_social": "JATOBETON ENGENHARIA LTDA",
+      "email": "jatobeton@jatobeton.com.br",
+      "ownership": "COMPANY_OWNED",
+      "verification": "VERIFIED",
+      "purpose": "UNKNOWN",
+      "service_id": "gestao_monitoramento_contratual",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "observed_fact": "objeto: CONTRATAÇÃO DE EMPRESA PARA ELABORAÇÃO DOS ESTUDOS, PROJETOS BÁSICO E EXECUTIVO DE ENGENHARIA, EXECUÇÃO DAS OBRAS DE REABILITAÇÃO DE 01 (UMA) OBRA DE ARTE ESPEC; órgão: DEPARTAMENTO NACIONAL INFRAEST.DE TRANSPORTES; UF DF; R$ 9,527,127",
+      "why_you": "JATOBETON ENGENHARIA LTDA com execução pública observável — objeto: CONTRATAÇÃO DE EMPRESA PARA ELABORAÇÃO DOS ESTUDOS, PROJETOS BÁSICO E EXECUTIVO DE ENGENHARIA, EXECUÇÃO DAS OBRAS DE REABILITAÇÃO DE 01 (UMA) OBRA DE ARTE ESPEC; órgão: DEPARTAMENTO NACIONAL INFRAEST.DE TRANSPORTES; UF DF; R$ 9,527,127",
+      "why_now": "Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: CONTRATAÇÃO DE EMPRESA PARA ELABORAÇÃO DOS ESTUDOS, PROJETOS BÁSICO E EXECUTIVO DE ENGENHARIA, EXECUÇÃO DAS OBRAS DE REABILITAÇÃO DE 01 (UMA; órgão: DEPARTAMENTO NACIONAL INFRAEST.DE TRANSPORTES; UF DF.",
+      "micro_offer": "PUBLIC_DATA_SNAPSHOT",
+      "reasons": [
+        "service_code:gestao_monitoramento_contratual",
+        "service_fit_supported",
+        "all_gates_pass"
+      ]
+    },
+    {
+      "cnpj14": "00638562000165",
+      "razao_social": "AMF ENGENHARIA E SERVICO LTDA",
+      "email": "amf@amf.com.br",
+      "ownership": "COMPANY_OWNED",
+      "verification": "VERIFIED",
+      "purpose": "UNKNOWN",
+      "service_id": "gestao_monitoramento_contratual",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "observed_fact": "objeto: ELABORACAO DO PROJETO EXECUTIVO DE ENGENHARIA E EXECUCAO DE OBRAS E SERVICOS DE INFRAESTRUTURA URBANA DE LIGACAO DOS BAIRROS VICENTE SOELLA E AMARILIO CAIADO FR; órgão: PREFEITURA MUNICIPAL DE COLATINA; UF ES; R$ 19,333,295",
+      "why_you": "AMF ENGENHARIA E SERVICO LTDA com execução pública observável — objeto: ELABORACAO DO PROJETO EXECUTIVO DE ENGENHARIA E EXECUCAO DE OBRAS E SERVICOS DE INFRAESTRUTURA URBANA DE LIGACAO DOS BAIRROS VICENTE SOELLA E AMARILIO CAIADO FR; órgão: PREFEITURA MUNICIPAL DE COLATINA; UF ES; R$ 19,333,295",
+      "why_now": "Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: ELABORACAO DO PROJETO EXECUTIVO DE ENGENHARIA E EXECUCAO DE OBRAS E SERVICOS DE INFRAESTRUTURA URBANA DE LIGACAO DOS BAIRROS VICENTE SOELLA ; órgão: PREFEITURA MUNICIPAL DE COLATINA; UF ES.",
+      "micro_offer": "PUBLIC_DATA_SNAPSHOT",
+      "reasons": [
+        "service_code:gestao_monitoramento_contratual",
+        "service_fit_supported",
+        "all_gates_pass"
+      ]
+    },
+    {
+      "cnpj14": "00820854000114",
+      "razao_social": "QUALIDADE CONSTRUÇÕES E PAVIMENTAÇÕES LTDA",
+      "email": "contato@qualidademineracao.com.br",
+      "ownership": "COMPANY_OWNED",
+      "verification": "VERIFIED",
+      "purpose": "GENERIC_CONTACT",
+      "service_id": "gestao_monitoramento_contratual",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "observed_fact": "objeto: Execução de serviços de manutenção e conservação rotineira e periódica do pavimento das rodovias da Área 03 da SR Leste, numa extensão de 133,90 km.; órgão: DER - Departamento de Estradas de Rodagem do Estado do Paraná; UF PR; R$ 68,100,000",
+      "why_you": "QUALIDADE CONSTRUÇÕES E PAVIMENTAÇÕES LTDA com execução pública observável — objeto: Execução de serviços de manutenção e conservação rotineira e periódica do pavimento das rodovias da Área 03 da SR Leste, numa extensão de 133,90 km.; órgão: DER - Departamento de Estradas de Rodagem do Estado do Paraná; UF PR; R$ 68,100,000",
+      "why_now": "Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Execução de serviços de manutenção e conservação rotineira e periódica do pavimento das rodovias da Área 03 da SR Leste, numa extensão de 13; órgão: DER - Departamento de Estradas de Rodagem do Estado do Paraná; UF PR.",
+      "micro_offer": "PUBLIC_DATA_SNAPSHOT",
+      "reasons": [
+        "service_code:gestao_monitoramento_contratual",
+        "service_fit_supported",
+        "all_gates_pass"
+      ]
+    },
+    {
+      "cnpj14": "01114245000102",
+      "razao_social": "CONNECTOR ENGENHARIA LTDA",
+      "email": "comercial@connector.eng.br",
+      "ownership": "COMPANY_OWNED",
+      "verification": "VERIFIED",
+      "purpose": "COMERCIAL",
+      "service_id": "gestao_monitoramento_contratual",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "observed_fact": "objeto: O OBJETO DO PRESENTE INSTRUMENTO É A CONTRATAÇÃO DE SERVIÇOS DE ENGENHARIA DE REVITALIZAÇÃO DA \nCENTRAL DE ÁGUA GELADA DO DTCEA-GL, A SEREM EXECUTADOS SEM REGIM; órgão: CENTRO DE AQUISIÇÕES ESPECIFICAS; UF RJ; R$ 3,688,860",
+      "why_you": "CONNECTOR ENGENHARIA LTDA com execução pública observável — objeto: O OBJETO DO PRESENTE INSTRUMENTO É A CONTRATAÇÃO DE SERVIÇOS DE ENGENHARIA DE REVITALIZAÇÃO DA \nCENTRAL DE ÁGUA GELADA DO DTCEA-GL, A SEREM EXECUTADOS SEM REGIM; órgão: CENTRO DE AQUISIÇÕES ESPECIFICAS; UF RJ; R$ 3,688,860",
+      "why_now": "Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: O OBJETO DO PRESENTE INSTRUMENTO É A CONTRATAÇÃO DE SERVIÇOS DE ENGENHARIA DE REVITALIZAÇÃO DA \nCENTRAL DE ÁGUA GELADA DO DTCEA-GL, A SEREM ; órgão: CENTRO DE AQUISIÇÕES ESPECIFICAS; UF RJ.",
+      "micro_offer": "PUBLIC_DATA_SNAPSHOT",
+      "reasons": [
+        "service_code:gestao_monitoramento_contratual",
+        "service_fit_supported",
+        "all_gates_pass"
+      ]
+    },
+    {
+      "cnpj14": "01127106000113",
+      "razao_social": "ORIENTE CONSTRUÇÃO CIVEL LTDA",
+      "email": "licitacoes@demo007obra.com.br",
+      "ownership": "COMPANY_OWNED",
+      "verification": "VERIFIED",
+      "purpose": "LICITACOES",
+      "service_id": "reforco_temporario_backoffice",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "observed_fact": "objeto: CONTRATAÇÃO DE EMPRESA DE ENGENHARIA EASPECIALIZADA PARA EXECUÇÃO DE ONRA DE PAVIMENTAÇÃO E DRENAGEM DA ESTRADA ROBERTO PEREIRA DOS SANTOS (ESTRADA DA POSSE); órgão: GABINETE DA SECRETARIA DE OBRAS; UF RJ; R$ 22,598,177",
+      "why_you": "ORIENTE CONSTRUÇÃO CIVEL LTDA com execução pública observável — objeto: CONTRATAÇÃO DE EMPRESA DE ENGENHARIA EASPECIALIZADA PARA EXECUÇÃO DE ONRA DE PAVIMENTAÇÃO E DRENAGEM DA ESTRADA ROBERTO PEREIRA DOS SANTOS (ESTRADA DA POSSE); órgão: GABINETE DA SECRETARIA DE OBRAS; UF RJ; R$ 22,598,177",
+      "why_now": "Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: CONTRATAÇÃO DE EMPRESA DE ENGENHARIA EASPECIALIZADA PARA EXECUÇÃO DE ONRA DE PAVIMENTAÇÃO E DRENAGEM DA ESTRADA ROBERTO PEREIRA DOS SANTOS (; órgão: GABINETE DA SECRETARIA DE OBRAS; UF RJ.",
+      "micro_offer": "BACKOFFICE_SCOPE_CHECK",
+      "reasons": [
+        "service_code:reforco_temporario_backoffice",
+        "service_fit_supported",
+        "all_gates_pass"
+      ]
+    },
+    {
+      "cnpj14": "01514128000136",
+      "razao_social": "SCAVE SERVICOS",
+      "email": "scave@scave.com.br",
+      "ownership": "COMPANY_OWNED",
+      "verification": "VERIFIED",
+      "purpose": "UNKNOWN",
+      "service_id": "gestao_monitoramento_contratual",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "observed_fact": "objeto: Contratação de Empresa Especializada para prestação de serviços de Pavimentação Asfáltica e Sinalização Viária de diversas Ruas Municipais, conforme Emenda Parl; órgão: Prefeitura Municipal de São José do Egito; UF PE; R$ 2,049,341",
+      "why_you": "SCAVE SERVICOS com execução pública observável — objeto: Contratação de Empresa Especializada para prestação de serviços de Pavimentação Asfáltica e Sinalização Viária de diversas Ruas Municipais, conforme Emenda Parl; órgão: Prefeitura Municipal de São José do Egito; UF PE; R$ 2,049,341",
+      "why_now": "Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação de Empresa Especializada para prestação de serviços de Pavimentação Asfáltica e Sinalização Viária de diversas Ruas Municipais, ; órgão: Prefeitura Municipal de São José do Egito; UF PE.",
+      "micro_offer": "PUBLIC_DATA_SNAPSHOT",
+      "reasons": [
+        "service_code:gestao_monitoramento_contratual",
+        "service_fit_supported",
+        "all_gates_pass"
+      ]
+    },
+    {
+      "cnpj14": "01557107000106",
+      "razao_social": "CONCRELAJE INDÚSTRIA DE PRÉ-FABRICADOS DE CONCRETO",
+      "email": "concrelaje@concrelaje.com.br",
+      "ownership": "COMPANY_OWNED",
+      "verification": "VERIFIED",
+      "purpose": "UNKNOWN",
+      "service_id": "gestao_monitoramento_contratual",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "observed_fact": "objeto: Contratação de empresa especializada em obras especiais para a execução de serviços de engenharia destinados à substituição de ponte existente em madeira por po; órgão: MUNICÍPIO DE INOCENCIA; UF MS; R$ 360,422",
+      "why_you": "CONCRELAJE INDÚSTRIA DE PRÉ-FABRICADOS DE CONCRETO com execução pública observável — objeto: Contratação de empresa especializada em obras especiais para a execução de serviços de engenharia destinados à substituição de ponte existente em madeira por po; órgão: MUNICÍPIO DE INOCENCIA; UF MS; R$ 360,422",
+      "why_now": "Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação de empresa especializada em obras especiais para a execução de serviços de engenharia destinados à substituição de ponte existen; órgão: MUNICÍPIO DE INOCENCIA; UF MS.",
+      "micro_offer": "PUBLIC_DATA_SNAPSHOT",
+      "reasons": [
+        "service_code:gestao_monitoramento_contratual",
+        "service_fit_supported",
+        "all_gates_pass"
+      ]
+    },
+    {
+      "cnpj14": "01744153000106",
+      "razao_social": "PAVIDEZ ENGENHARIA LTDA",
+      "email": "contato@pavidez.com.br",
+      "ownership": "COMPANY_OWNED",
+      "verification": "VERIFIED",
+      "purpose": "GENERIC_CONTACT",
+      "service_id": "gestao_monitoramento_contratual",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "observed_fact": "objeto: Contratacao de empresa responsavel pela execucao de recapeamento e implantacao asfaltica incluindo fornecimento de material para ser executada em diversas vias; órgão: PREFEITURA MUNICIPAL; UF MG; R$ 87,867",
+      "why_you": "PAVIDEZ ENGENHARIA LTDA com execução pública observável — objeto: Contratacao de empresa responsavel pela execucao de recapeamento e implantacao asfaltica incluindo fornecimento de material para ser executada em diversas vias; órgão: PREFEITURA MUNICIPAL; UF MG; R$ 87,867",
+      "why_now": "Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratacao de empresa responsavel pela execucao de recapeamento e implantacao asfaltica incluindo fornecimento de material para ser executa; órgão: PREFEITURA MUNICIPAL; UF MG.",
+      "micro_offer": "PUBLIC_DATA_SNAPSHOT",
+      "reasons": [
+        "service_code:gestao_monitoramento_contratual",
+        "service_fit_supported",
+        "all_gates_pass"
+      ]
+    },
+    {
+      "cnpj14": "03094645000129",
+      "razao_social": "Infrasul - Infraestrutura e Empreendimentos LTDA.",
+      "email": "infraestrutura@infrasul.com.br",
+      "ownership": "COMPANY_OWNED",
+      "verification": "VERIFIED",
+      "purpose": "FINANCEIRO",
+      "service_id": "gestao_monitoramento_contratual",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "observed_fact": "objeto: EXECUÇÃO DE OBRA DE REVITALIZAÇÃO VIÁRIA DAS RUAS ADÃO SENS E NORBERTO PEDRO LUDWIG, NO BAIRRO GRUTA, COMPREENDENDO REFORÇO DE SUBLEITO, FRESAGEM, RECAPEAMENTO; órgão: Departamento de Urbanismo; UF SC; R$ 3,689,500",
+      "why_you": "Infrasul - Infraestrutura e Empreendimentos LTDA. com execução pública observável — objeto: EXECUÇÃO DE OBRA DE REVITALIZAÇÃO VIÁRIA DAS RUAS ADÃO SENS E NORBERTO PEDRO LUDWIG, NO BAIRRO GRUTA, COMPREENDENDO REFORÇO DE SUBLEITO, FRESAGEM, RECAPEAMENTO; órgão: Departamento de Urbanismo; UF SC; R$ 3,689,500",
+      "why_now": "Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: EXECUÇÃO DE OBRA DE REVITALIZAÇÃO VIÁRIA DAS RUAS ADÃO SENS E NORBERTO PEDRO LUDWIG, NO BAIRRO GRUTA, COMPREENDENDO REFORÇO DE SUBLEITO, FRE; órgão: Departamento de Urbanismo; UF SC.",
+      "micro_offer": "PUBLIC_DATA_SNAPSHOT",
+      "reasons": [
+        "service_code:gestao_monitoramento_contratual",
+        "service_fit_supported",
+        "all_gates_pass"
+      ]
+    },
+    {
+      "cnpj14": "03222465000185",
+      "razao_social": "DALBA ENGENHARIA E EMPREENDIMENTOS LTDA",
+      "email": "dalbapiedmont@dalba.com",
+      "ownership": "COMPANY_OWNED",
+      "verification": "VERIFIED",
+      "purpose": "UNKNOWN",
+      "service_id": "gestao_monitoramento_contratual",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "observed_fact": "objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA NA CONSTRUÇÃO CIVIL PARA EXECUÇÃO DE OBRA DE ENGENHARIA, CONSISTENTE EM PAVIMENTAÇÃO ASFÁLTICA DE VIA MARGINAL DA PR-466, I; órgão: SVOSU -  Sec de Viação Obras e Serviços Urbanos; UF PR; R$ 12,394,555",
+      "why_you": "DALBA ENGENHARIA E EMPREENDIMENTOS LTDA com execução pública observável — objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA NA CONSTRUÇÃO CIVIL PARA EXECUÇÃO DE OBRA DE ENGENHARIA, CONSISTENTE EM PAVIMENTAÇÃO ASFÁLTICA DE VIA MARGINAL DA PR-466, I; órgão: SVOSU -  Sec de Viação Obras e Serviços Urbanos; UF PR; R$ 12,394,555",
+      "why_now": "Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA NA CONSTRUÇÃO CIVIL PARA EXECUÇÃO DE OBRA DE ENGENHARIA, CONSISTENTE EM PAVIMENTAÇÃO ASFÁLTICA DE VIA M; órgão: SVOSU -  Sec de Viação Obras e Serviços Urbanos; UF PR.",
+      "micro_offer": "PUBLIC_DATA_SNAPSHOT",
+      "reasons": [
+        "service_code:gestao_monitoramento_contratual",
+        "service_fit_supported",
+        "all_gates_pass"
+      ]
+    },
+    {
+      "cnpj14": "03257777000124",
+      "razao_social": "Gaia Rodovias Ltda",
+      "email": "gaiarodovias@gaiarodovias.com.br",
+      "ownership": "COMPANY_OWNED",
+      "verification": "VERIFIED",
+      "purpose": "UNKNOWN",
+      "service_id": "gestao_monitoramento_contratual",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "observed_fact": "objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE OBRA DE ENGENHARIA DESTINADA À PAVIMENTAÇÃO ASFÁLTICA DE ESTRADA MUNICIPAL RURAL – TRECHO 1 DA ESTRADA MUN; órgão: PREFEITURA MUNICIPAL DE SANTA TEREZINHA DO PROGRESSO; UF SC; R$ 5,481,000",
+      "why_you": "Gaia Rodovias Ltda com execução pública observável — objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE OBRA DE ENGENHARIA DESTINADA À PAVIMENTAÇÃO ASFÁLTICA DE ESTRADA MUNICIPAL RURAL – TRECHO 1 DA ESTRADA MUN; órgão: PREFEITURA MUNICIPAL DE SANTA TEREZINHA DO PROGRESSO; UF SC; R$ 5,481,000",
+      "why_now": "Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA EXECUÇÃO DE OBRA DE ENGENHARIA DESTINADA À PAVIMENTAÇÃO ASFÁLTICA DE ESTRADA MUNICIPAL RURAL – TRE; órgão: PREFEITURA MUNICIPAL DE SANTA TEREZINHA DO PROGRESSO; UF SC.",
+      "micro_offer": "PUBLIC_DATA_SNAPSHOT",
+      "reasons": [
+        "service_code:gestao_monitoramento_contratual",
+        "service_fit_supported",
+        "all_gates_pass"
+      ]
+    },
+    {
+      "cnpj14": "03276962000166",
+      "razao_social": "Engedal Construtora de Obras Ltda",
+      "email": "licitacoes@demo009obra.com.br",
+      "ownership": "COMPANY_OWNED",
+      "verification": "VERIFIED",
+      "purpose": "LICITACOES",
+      "service_id": "gestao_monitoramento_contratual",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "observed_fact": "objeto: CONTRATAÇÃO DE EMPRESA PARA A EXECUÇÃO DE OBRA DE RECONSTRUÇÃO DE PONTE SOBRE O RIO CARREIRO, NA LIGAÇÃO ENTRE OS MUNICÍPIOS DE COTIPORÃ E DOIS LAJEADOS EM UMA; órgão: PM DE COTIPORÃ; UF RS; R$ 10,070,000",
+      "why_you": "Engedal Construtora de Obras Ltda com execução pública observável — objeto: CONTRATAÇÃO DE EMPRESA PARA A EXECUÇÃO DE OBRA DE RECONSTRUÇÃO DE PONTE SOBRE O RIO CARREIRO, NA LIGAÇÃO ENTRE OS MUNICÍPIOS DE COTIPORÃ E DOIS LAJEADOS EM UMA; órgão: PM DE COTIPORÃ; UF RS; R$ 10,070,000",
+      "why_now": "Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: CONTRATAÇÃO DE EMPRESA PARA A EXECUÇÃO DE OBRA DE RECONSTRUÇÃO DE PONTE SOBRE O RIO CARREIRO, NA LIGAÇÃO ENTRE OS MUNICÍPIOS DE COTIPORÃ E D; órgão: PM DE COTIPORÃ; UF RS.",
+      "micro_offer": "PUBLIC_DATA_SNAPSHOT",
+      "reasons": [
+        "service_code:gestao_monitoramento_contratual",
+        "service_fit_supported",
+        "all_gates_pass"
+      ]
+    },
+    {
+      "cnpj14": "03509843000106",
+      "razao_social": "VENTO SUL ENGENHARIA LTDA",
+      "email": "ventosul@ventosul.com.br",
+      "ownership": "COMPANY_OWNED",
+      "verification": "VERIFIED",
+      "purpose": "UNKNOWN",
+      "service_id": "gestao_monitoramento_contratual",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "observed_fact": "objeto: CONTRATAÇÃO DE EXECUÇÃO DA IMPLANTAÇÃO VIÁRIA E REDE DE ÁGUA DO CAMPUS SÃO LOURENÇO DO SUL, NAS CONDIÇÕES ESTABELECIDAS NO TERMO DE REFERÊNCIA; órgão: UNIVERSIDADE FEDERAL DO RIO GRANDE; UF RS; R$ 4,984,542",
+      "why_you": "VENTO SUL ENGENHARIA LTDA com execução pública observável — objeto: CONTRATAÇÃO DE EXECUÇÃO DA IMPLANTAÇÃO VIÁRIA E REDE DE ÁGUA DO CAMPUS SÃO LOURENÇO DO SUL, NAS CONDIÇÕES ESTABELECIDAS NO TERMO DE REFERÊNCIA; órgão: UNIVERSIDADE FEDERAL DO RIO GRANDE; UF RS; R$ 4,984,542",
+      "why_now": "Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: CONTRATAÇÃO DE EXECUÇÃO DA IMPLANTAÇÃO VIÁRIA E REDE DE ÁGUA DO CAMPUS SÃO LOURENÇO DO SUL, NAS CONDIÇÕES ESTABELECIDAS NO TERMO DE REFERÊNC; órgão: UNIVERSIDADE FEDERAL DO RIO GRANDE; UF RS.",
+      "micro_offer": "PUBLIC_DATA_SNAPSHOT",
+      "reasons": [
+        "service_code:gestao_monitoramento_contratual",
+        "service_fit_supported",
+        "all_gates_pass"
+      ]
+    },
+    {
+      "cnpj14": "03575041000102",
+      "razao_social": "PAVSANTOS CONSTRUTORA LTDA",
+      "email": "pavsantos@pavsantos.com.br",
+      "ownership": "COMPANY_OWNED",
+      "verification": "VERIFIED",
+      "purpose": "UNKNOWN",
+      "service_id": "gestao_monitoramento_contratual",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "observed_fact": "objeto: CONTRATAÇÃO DE PESSOA JURIDICA PARA CONSTRUÇÃO DO ANEL VIARIO DA CIDADE DE VILA PROPICIO, CONFORME PROJETO DE ENGENHARIA.; órgão: PREFEITURA MUNICIPAL DE VILA PROPICIO; UF GO; R$ 3,103,249",
+      "why_you": "PAVSANTOS CONSTRUTORA LTDA com execução pública observável — objeto: CONTRATAÇÃO DE PESSOA JURIDICA PARA CONSTRUÇÃO DO ANEL VIARIO DA CIDADE DE VILA PROPICIO, CONFORME PROJETO DE ENGENHARIA.; órgão: PREFEITURA MUNICIPAL DE VILA PROPICIO; UF GO; R$ 3,103,249",
+      "why_now": "Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: CONTRATAÇÃO DE PESSOA JURIDICA PARA CONSTRUÇÃO DO ANEL VIARIO DA CIDADE DE VILA PROPICIO, CONFORME PROJETO DE ENGENHARIA.; órgão: PREFEITURA MUNICIPAL DE VILA PROPICIO; UF GO.",
+      "micro_offer": "PUBLIC_DATA_SNAPSHOT",
+      "reasons": [
+        "service_code:gestao_monitoramento_contratual",
+        "service_fit_supported",
+        "all_gates_pass"
+      ]
+    },
+    {
+      "cnpj14": "03620927000112",
+      "razao_social": "Paviplan Pavimentação Ltda",
+      "email": "comercial@paviplan.com.br",
+      "ownership": "COMPANY_OWNED",
+      "verification": "VERIFIED",
+      "purpose": "COMERCIAL",
+      "service_id": "gestao_monitoramento_contratual",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "observed_fact": "objeto: Pavimentação asfáltica em CBUQ na Rua Ervino Paulo Weinshutz, Estrada Expedicionário Manoel Elias Portela e Estrada das Tropas - Convênio nº 395/2026 SECID.; órgão: Departamento de Obras Públicas - Dop; UF PR; R$ 1,147,530",
+      "why_you": "Paviplan Pavimentação Ltda com execução pública observável — objeto: Pavimentação asfáltica em CBUQ na Rua Ervino Paulo Weinshutz, Estrada Expedicionário Manoel Elias Portela e Estrada das Tropas - Convênio nº 395/2026 SECID.; órgão: Departamento de Obras Públicas - Dop; UF PR; R$ 1,147,530",
+      "why_now": "Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Pavimentação asfáltica em CBUQ na Rua Ervino Paulo Weinshutz, Estrada Expedicionário Manoel Elias Portela e Estrada das Tropas - Convênio nº; órgão: Departamento de Obras Públicas - Dop; UF PR.",
+      "micro_offer": "PUBLIC_DATA_SNAPSHOT",
+      "reasons": [
+        "service_code:gestao_monitoramento_contratual",
+        "service_fit_supported",
+        "all_gates_pass"
+      ]
+    },
+    {
+      "cnpj14": "03667661000163",
+      "razao_social": "COMPACTA SUL PAVIMENTACAO LTDA",
+      "email": "compactasul@compactasul.com.br",
+      "ownership": "COMPANY_OWNED",
+      "verification": "VERIFIED",
+      "purpose": "UNKNOWN",
+      "service_id": "apoio_licitacoes_propostas",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "observed_fact": "objeto: CONTRATACAO DE EMPRESA S  ESPECIALIZADA S  PARA A EXECUCAO DE OBRAS DE PAVIMENTACAO ASFALTICA EM CONCRETO BETUMINOSO USINADO A QUENTE  CBUQ  NO PERIMETRO URBANO; órgão: PREFEITURA MUNICIPAL DE JÓIA; UF RS; R$ 1,190,989",
+      "why_you": "COMPACTA SUL PAVIMENTACAO LTDA com execução pública observável — objeto: CONTRATACAO DE EMPRESA S  ESPECIALIZADA S  PARA A EXECUCAO DE OBRAS DE PAVIMENTACAO ASFALTICA EM CONCRETO BETUMINOSO USINADO A QUENTE  CBUQ  NO PERIMETRO URBANO; órgão: PREFEITURA MUNICIPAL DE JÓIA; UF RS; R$ 1,190,989",
+      "why_now": "Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: CONTRATACAO DE EMPRESA S  ESPECIALIZADA S  PARA A EXECUCAO DE OBRAS DE PAVIMENTACAO ASFALTICA EM CONCRETO BETUMINOSO USINADO A QUENTE  CBUQ ; órgão: PREFEITURA MUNICIPAL DE JÓIA; UF RS.",
+      "micro_offer": "PROCUREMENT_RISK_SNAPSHOT",
+      "reasons": [
+        "service_code:apoio_licitacoes_propostas",
+        "service_fit_supported",
+        "all_gates_pass"
+      ]
+    },
+    {
+      "cnpj14": "03992945000125",
+      "razao_social": "VERDEBIANCO ENGENHARIA LTDA",
+      "email": "verdebianco@verdebianco.com.br",
+      "ownership": "COMPANY_OWNED",
+      "verification": "VERIFIED",
+      "purpose": "UNKNOWN",
+      "service_id": "gestao_monitoramento_contratual",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "observed_fact": "objeto: CONTRATACAO DE EMPRESA ESPECIALIZADA EM SERVICOS DE ENGENHARIA PARA CONSTRUCAO DE COBERTURA NA ARQUIBANCADA E REFORMA DOS BANHEIROS E VESTIARIOS DO ESTADIO MUNI; órgão: PREFEITURA MUNICIPAL; UF SP; R$ 1,059,967",
+      "why_you": "VERDEBIANCO ENGENHARIA LTDA com execução pública observável — objeto: CONTRATACAO DE EMPRESA ESPECIALIZADA EM SERVICOS DE ENGENHARIA PARA CONSTRUCAO DE COBERTURA NA ARQUIBANCADA E REFORMA DOS BANHEIROS E VESTIARIOS DO ESTADIO MUNI; órgão: PREFEITURA MUNICIPAL; UF SP; R$ 1,059,967",
+      "why_now": "Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: CONTRATACAO DE EMPRESA ESPECIALIZADA EM SERVICOS DE ENGENHARIA PARA CONSTRUCAO DE COBERTURA NA ARQUIBANCADA E REFORMA DOS BANHEIROS E VESTIA; órgão: PREFEITURA MUNICIPAL; UF SP.",
+      "micro_offer": "PUBLIC_DATA_SNAPSHOT",
+      "reasons": [
+        "service_code:gestao_monitoramento_contratual",
+        "service_fit_supported",
+        "all_gates_pass"
+      ]
+    },
+    {
+      "cnpj14": "04287461000148",
+      "razao_social": "UNICON CONSTRUCOES LTDA",
+      "email": "financeiro@unicon.com.br",
+      "ownership": "COMPANY_OWNED",
+      "verification": "VERIFIED",
+      "purpose": "FINANCEIRO",
+      "service_id": "gestao_monitoramento_contratual",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "observed_fact": "objeto: Contratação de Empresa de Engenharia Civil, para a execução de obras e serviços de Construção de 25 vinte e cinco Unidades habitacionais, em favorecimento as fa; órgão: PREFEITURA MUNICIPAL DE DOIS RIACHOS - AL; UF AL; R$ 3,514,563",
+      "why_you": "UNICON CONSTRUCOES LTDA com execução pública observável — objeto: Contratação de Empresa de Engenharia Civil, para a execução de obras e serviços de Construção de 25 vinte e cinco Unidades habitacionais, em favorecimento as fa; órgão: PREFEITURA MUNICIPAL DE DOIS RIACHOS - AL; UF AL; R$ 3,514,563",
+      "why_now": "Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação de Empresa de Engenharia Civil, para a execução de obras e serviços de Construção de 25 vinte e cinco Unidades habitacionais, em; órgão: PREFEITURA MUNICIPAL DE DOIS RIACHOS - AL; UF AL.",
+      "micro_offer": "PUBLIC_DATA_SNAPSHOT",
+      "reasons": [
+        "service_code:gestao_monitoramento_contratual",
+        "service_fit_supported",
+        "all_gates_pass"
+      ]
+    },
+    {
+      "cnpj14": "05338129000128",
+      "razao_social": "BARRA NOVA ENGENHARIA LTDA",
+      "email": "eshop@barranova.com",
+      "ownership": "COMPANY_OWNED",
+      "verification": "VERIFIED",
+      "purpose": "UNKNOWN",
+      "service_id": "gestao_monitoramento_contratual",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "observed_fact": "objeto: Contratação de empresa especializadapara a elaboração dos projetos básico e executivo de engenharia, bem como a execução das obras de contenção de encosta na Ru; órgão: PREFEITURA MUNICIPAL DE JUIZ DE FORA - MG; UF MG; R$ 416,702",
+      "why_you": "BARRA NOVA ENGENHARIA LTDA com execução pública observável — objeto: Contratação de empresa especializadapara a elaboração dos projetos básico e executivo de engenharia, bem como a execução das obras de contenção de encosta na Ru; órgão: PREFEITURA MUNICIPAL DE JUIZ DE FORA - MG; UF MG; R$ 416,702",
+      "why_now": "Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação de empresa especializadapara a elaboração dos projetos básico e executivo de engenharia, bem como a execução das obras de conten; órgão: PREFEITURA MUNICIPAL DE JUIZ DE FORA - MG; UF MG.",
+      "micro_offer": "PUBLIC_DATA_SNAPSHOT",
+      "reasons": [
+        "service_code:gestao_monitoramento_contratual",
+        "service_fit_supported",
+        "all_gates_pass"
+      ]
+    },
+    {
+      "cnpj14": "07546061000106",
+      "razao_social": "DAM CONSTRUTORA E INCORPORADORA LTDA",
+      "email": "dam@dam.com.br",
+      "ownership": "COMPANY_OWNED",
+      "verification": "VERIFIED",
+      "purpose": "UNKNOWN",
+      "service_id": "gestao_monitoramento_contratual",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "observed_fact": "objeto: Contratação de empresa de engenharia para Reforma e Ampliação da Escola Municipal Antônio Carlos Magalhães na Comunidade Rural de Nova Vista, no Município de An; órgão: Prefeitura Municipal de Andaraí; UF BA; R$ 4,266,060",
+      "why_you": "DAM CONSTRUTORA E INCORPORADORA LTDA com execução pública observável — objeto: Contratação de empresa de engenharia para Reforma e Ampliação da Escola Municipal Antônio Carlos Magalhães na Comunidade Rural de Nova Vista, no Município de An; órgão: Prefeitura Municipal de Andaraí; UF BA; R$ 4,266,060",
+      "why_now": "Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação de empresa de engenharia para Reforma e Ampliação da Escola Municipal Antônio Carlos Magalhães na Comunidade Rural de Nova Vista; órgão: Prefeitura Municipal de Andaraí; UF BA.",
+      "micro_offer": "PUBLIC_DATA_SNAPSHOT",
+      "reasons": [
+        "service_code:gestao_monitoramento_contratual",
+        "service_fit_supported",
+        "all_gates_pass"
+      ]
+    },
+    {
+      "cnpj14": "08753223000131",
+      "razao_social": "IBIAPINA SERVICOS & CONSTRUCOES LTDA",
+      "email": "licitacoes@demo008obra.com.br",
+      "ownership": "COMPANY_OWNED",
+      "verification": "VERIFIED",
+      "purpose": "LICITACOES",
+      "service_id": "apoio_licitacoes_propostas",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "observed_fact": "objeto: ADESÃO A ATA DE REGISTRO DE PREÇOS N° 202505270001, CONCORRÊNCIA ELETRONICA N° CE004/2025 - FG, PROCESSO ADMINISTRATIVO N° 00010.20250220/0001-42 PARA FUTURAS E; órgão: Secretaria de Obras e Serviços Públicos (SOSP); UF CE; R$ 1,250,000",
+      "why_you": "IBIAPINA SERVICOS & CONSTRUCOES LTDA com execução pública observável — objeto: ADESÃO A ATA DE REGISTRO DE PREÇOS N° 202505270001, CONCORRÊNCIA ELETRONICA N° CE004/2025 - FG, PROCESSO ADMINISTRATIVO N° 00010.20250220/0001-42 PARA FUTURAS E; órgão: Secretaria de Obras e Serviços Públicos (SOSP); UF CE; R$ 1,250,000",
+      "why_now": "Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: ADESÃO A ATA DE REGISTRO DE PREÇOS N° 202505270001, CONCORRÊNCIA ELETRONICA N° CE004/2025 - FG, PROCESSO ADMINISTRATIVO N° 00010.20250220/00; órgão: Secretaria de Obras e Serviços Públicos (SOSP); UF CE.",
+      "micro_offer": "PROCUREMENT_RISK_SNAPSHOT",
+      "reasons": [
+        "service_code:apoio_licitacoes_propostas",
+        "service_fit_supported",
+        "all_gates_pass"
+      ]
+    },
+    {
+      "cnpj14": "10698641000115",
+      "razao_social": "CONSTRUTORA MASTER LTDA",
+      "email": "contato@master.com.br",
+      "ownership": "COMPANY_OWNED",
+      "verification": "VERIFIED",
+      "purpose": "GENERIC_CONTACT",
+      "service_id": "gestao_monitoramento_contratual",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "observed_fact": "objeto: CONTRATAÇÃO DE EMPRESA DE ENGENHARIA PARA EXECUÇÃO DA OBRA DE RESTAURAÇÃO DO ENTORNO DA IGREJA DE SÃO JOSÉ DO RIBAMAR, BAIRRO DE SÃO JOSÉ - RECIFE-PE.; órgão: URB - AUTARQUIA DE URBANIZACAO DO RECIFE; UF PE; R$ 2,900,000",
+      "why_you": "CONSTRUTORA MASTER LTDA com execução pública observável — objeto: CONTRATAÇÃO DE EMPRESA DE ENGENHARIA PARA EXECUÇÃO DA OBRA DE RESTAURAÇÃO DO ENTORNO DA IGREJA DE SÃO JOSÉ DO RIBAMAR, BAIRRO DE SÃO JOSÉ - RECIFE-PE.; órgão: URB - AUTARQUIA DE URBANIZACAO DO RECIFE; UF PE; R$ 2,900,000",
+      "why_now": "Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: CONTRATAÇÃO DE EMPRESA DE ENGENHARIA PARA EXECUÇÃO DA OBRA DE RESTAURAÇÃO DO ENTORNO DA IGREJA DE SÃO JOSÉ DO RIBAMAR, BAIRRO DE SÃO JOSÉ - ; órgão: URB - AUTARQUIA DE URBANIZACAO DO RECIFE; UF PE.",
+      "micro_offer": "PUBLIC_DATA_SNAPSHOT",
+      "reasons": [
+        "service_code:gestao_monitoramento_contratual",
+        "service_fit_supported",
+        "all_gates_pass"
+      ]
+    },
+    {
+      "cnpj14": "13385475000195",
+      "razao_social": "R D CONSTRUÇÃO E LOCAÇÃO LTDA",
+      "email": "licitacoes@demo006obra.com.br",
+      "ownership": "COMPANY_OWNED",
+      "verification": "VERIFIED",
+      "purpose": "LICITACOES",
+      "service_id": "gestao_monitoramento_contratual",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "observed_fact": "objeto: CONTRATAÇÃO DE EMPRESA, SOB O REGIME DE EMPREITADA POR MENOR PREÇO UNITARIO, COMPREENDENDO MATERIAL E MÃO DE OBRA, PARA EXECUÇÃO DE OBRA DO SALDO REMANESCENTE D; órgão: MUNICÍPIO DE BOA SAÚDE; UF RN; R$ 838,400",
+      "why_you": "R D CONSTRUÇÃO E LOCAÇÃO LTDA com execução pública observável — objeto: CONTRATAÇÃO DE EMPRESA, SOB O REGIME DE EMPREITADA POR MENOR PREÇO UNITARIO, COMPREENDENDO MATERIAL E MÃO DE OBRA, PARA EXECUÇÃO DE OBRA DO SALDO REMANESCENTE D; órgão: MUNICÍPIO DE BOA SAÚDE; UF RN; R$ 838,400",
+      "why_now": "Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: CONTRATAÇÃO DE EMPRESA, SOB O REGIME DE EMPREITADA POR MENOR PREÇO UNITARIO, COMPREENDENDO MATERIAL E MÃO DE OBRA, PARA EXECUÇÃO DE OBRA DO ; órgão: MUNICÍPIO DE BOA SAÚDE; UF RN.",
+      "micro_offer": "PUBLIC_DATA_SNAPSHOT",
+      "reasons": [
+        "service_code:gestao_monitoramento_contratual",
+        "service_fit_supported",
+        "all_gates_pass"
+      ]
+    },
+    {
+      "cnpj14": "14042710000199",
+      "razao_social": "J.P.L. GOMES ENGENHARIA LTDA",
+      "email": "licitacoes@demo002obra.com.br",
+      "ownership": "COMPANY_OWNED",
+      "verification": "VERIFIED",
+      "purpose": "LICITACOES",
+      "service_id": "gestao_monitoramento_contratual",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "observed_fact": "objeto: EXECUÇÃO DOS SERVIÇOS DE MANUTENÇÃO (CONSERVAÇÃO/RECUPERAÇÃO) NA RODOVIA BR-359/MS; TRECHO: DIV. GO/MS - FRONT. BRASIL/BOLÍVIA; SUBTRECHO: ENTR. MS-346 (ALCINÓP; órgão: DEPART.NACIONAL DE INFRA-ESTR. DE TRANSPORTE; UF MS; R$ 41,274,073",
+      "why_you": "J.P.L. GOMES ENGENHARIA LTDA com execução pública observável — objeto: EXECUÇÃO DOS SERVIÇOS DE MANUTENÇÃO (CONSERVAÇÃO/RECUPERAÇÃO) NA RODOVIA BR-359/MS; TRECHO: DIV. GO/MS - FRONT. BRASIL/BOLÍVIA; SUBTRECHO: ENTR. MS-346 (ALCINÓP; órgão: DEPART.NACIONAL DE INFRA-ESTR. DE TRANSPORTE; UF MS; R$ 41,274,073",
+      "why_now": "Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: EXECUÇÃO DOS SERVIÇOS DE MANUTENÇÃO (CONSERVAÇÃO/RECUPERAÇÃO) NA RODOVIA BR-359/MS; TRECHO: DIV. GO/MS - FRONT. BRASIL/BOLÍVIA; SUBTRECHO: E; órgão: DEPART.NACIONAL DE INFRA-ESTR. DE TRANSPORTE; UF MS.",
+      "micro_offer": "PUBLIC_DATA_SNAPSHOT",
+      "reasons": [
+        "service_code:gestao_monitoramento_contratual",
+        "service_fit_supported",
+        "all_gates_pass"
+      ]
+    },
+    {
+      "cnpj14": "15493716000145",
+      "razao_social": "R MARTINS ENGENHARIA EIRELI",
+      "email": "programabem@martins.com.br",
+      "ownership": "COMPANY_OWNED",
+      "verification": "VERIFIED",
+      "purpose": "UNKNOWN",
+      "service_id": "apoio_licitacoes_propostas",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "observed_fact": "objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM PRESTAÇÃO DE SERVIÇOS DE ENGENHARIA, OBJETIVANDO CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM PRESTAÇÃO DE SERVIÇOS DE ENGENH; órgão: PIRACANJUBA - FMAS; UF GO; R$ 337,500",
+      "why_you": "R MARTINS ENGENHARIA EIRELI com execução pública observável — objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM PRESTAÇÃO DE SERVIÇOS DE ENGENHARIA, OBJETIVANDO CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM PRESTAÇÃO DE SERVIÇOS DE ENGENH; órgão: PIRACANJUBA - FMAS; UF GO; R$ 337,500",
+      "why_now": "Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM PRESTAÇÃO DE SERVIÇOS DE ENGENHARIA, OBJETIVANDO CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM PRESTAÇÃO D; órgão: PIRACANJUBA - FMAS; UF GO.",
+      "micro_offer": "PROCUREMENT_RISK_SNAPSHOT",
+      "reasons": [
+        "service_code:apoio_licitacoes_propostas",
+        "service_fit_supported",
+        "all_gates_pass"
+      ]
+    },
+    {
+      "cnpj14": "15747692000103",
+      "razao_social": "PAVCON CONSTRUTORA LTDA",
+      "email": "contato@pavcon.com.br",
+      "ownership": "COMPANY_OWNED",
+      "verification": "VERIFIED",
+      "purpose": "GENERIC_CONTACT",
+      "service_id": "gestao_monitoramento_contratual",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "observed_fact": "objeto: Constitui objeto do presente contrato a execução da Obra de Construção de Espaço Esportivo Comunitário, objeto do Convênio Nº 986854/2025 – MEP/CAIXA, na zona u; órgão: MUNICIPIO DE ELESBAO VELOSO; UF PI; R$ 1,455,188",
+      "why_you": "PAVCON CONSTRUTORA LTDA com execução pública observável — objeto: Constitui objeto do presente contrato a execução da Obra de Construção de Espaço Esportivo Comunitário, objeto do Convênio Nº 986854/2025 – MEP/CAIXA, na zona u; órgão: MUNICIPIO DE ELESBAO VELOSO; UF PI; R$ 1,455,188",
+      "why_now": "Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Constitui objeto do presente contrato a execução da Obra de Construção de Espaço Esportivo Comunitário, objeto do Convênio Nº 986854/2025 – ; órgão: MUNICIPIO DE ELESBAO VELOSO; UF PI.",
+      "micro_offer": "PUBLIC_DATA_SNAPSHOT",
+      "reasons": [
+        "service_code:gestao_monitoramento_contratual",
+        "service_fit_supported",
+        "all_gates_pass"
+      ]
+    },
+    {
+      "cnpj14": "17244878000175",
+      "razao_social": "STO SERVICOS E MANUTENCAO LTDA",
+      "email": "licitacoes@demo003obra.com.br",
+      "ownership": "COMPANY_OWNED",
+      "verification": "VERIFIED",
+      "purpose": "LICITACOES",
+      "service_id": "gestao_monitoramento_contratual",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "observed_fact": "objeto: Contratação de empresa especializada no ramo da construção civil para a execução de obra visando à construção de um Posto de Atendimento em Saúde no povoado do; órgão: MUNICÍPIO DE SACRAMENTO/MG; UF MG; R$ 287,950",
+      "why_you": "STO SERVICOS E MANUTENCAO LTDA com execução pública observável — objeto: Contratação de empresa especializada no ramo da construção civil para a execução de obra visando à construção de um Posto de Atendimento em Saúde no povoado do; órgão: MUNICÍPIO DE SACRAMENTO/MG; UF MG; R$ 287,950",
+      "why_now": "Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação de empresa especializada no ramo da construção civil para a execução de obra visando à construção de um Posto de Atendimento em ; órgão: MUNICÍPIO DE SACRAMENTO/MG; UF MG.",
+      "micro_offer": "PUBLIC_DATA_SNAPSHOT",
+      "reasons": [
+        "service_code:gestao_monitoramento_contratual",
+        "service_fit_supported",
+        "all_gates_pass"
+      ]
+    },
+    {
+      "cnpj14": "23305610000107",
+      "razao_social": "WH CONSTRUTORA LTDA",
+      "email": "office@wh.com",
+      "ownership": "COMPANY_OWNED",
+      "verification": "VERIFIED",
+      "purpose": "GENERIC_CONTACT",
+      "service_id": "gestao_monitoramento_contratual",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "observed_fact": "objeto: Contratação de empresa especializada na execução de obra de Construção do Centro de Convivência de Santa Cruz, no município de Irupi-ES, conforme condições, qua; órgão: Prefeitura Municipal de Irupi; UF ES; R$ 1,287,900",
+      "why_you": "WH CONSTRUTORA LTDA com execução pública observável — objeto: Contratação de empresa especializada na execução de obra de Construção do Centro de Convivência de Santa Cruz, no município de Irupi-ES, conforme condições, qua; órgão: Prefeitura Municipal de Irupi; UF ES; R$ 1,287,900",
+      "why_now": "Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação de empresa especializada na execução de obra de Construção do Centro de Convivência de Santa Cruz, no município de Irupi-ES, con; órgão: Prefeitura Municipal de Irupi; UF ES.",
+      "micro_offer": "PUBLIC_DATA_SNAPSHOT",
+      "reasons": [
+        "service_code:gestao_monitoramento_contratual",
+        "service_fit_supported",
+        "all_gates_pass"
+      ]
+    },
+    {
+      "cnpj14": "24233779000153",
+      "razao_social": "EMKO CONSTRUTORA LTDA",
+      "email": "info@emkoelektronik.com",
+      "ownership": "COMPANY_OWNED",
+      "verification": "VERIFIED",
+      "purpose": "FINANCEIRO",
+      "service_id": "gestao_monitoramento_contratual",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "observed_fact": "objeto: Contratação de empresa especializada na prestação de serviços, sob demanda, de manutenção predial (Corretiva e Preventiva), de adequação e de adaptação de bens; órgão: ASSEMBLEIA LEGISLATIVA; UF RN; R$ 2,183,700",
+      "why_you": "EMKO CONSTRUTORA LTDA com execução pública observável — objeto: Contratação de empresa especializada na prestação de serviços, sob demanda, de manutenção predial (Corretiva e Preventiva), de adequação e de adaptação de bens; órgão: ASSEMBLEIA LEGISLATIVA; UF RN; R$ 2,183,700",
+      "why_now": "Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação de empresa especializada na prestação de serviços, sob demanda, de manutenção predial (Corretiva e Preventiva), de adequação e d; órgão: ASSEMBLEIA LEGISLATIVA; UF RN.",
+      "micro_offer": "PUBLIC_DATA_SNAPSHOT",
+      "reasons": [
+        "service_code:gestao_monitoramento_contratual",
+        "service_fit_supported",
+        "all_gates_pass"
+      ]
+    },
+    {
+      "cnpj14": "29104240000118",
+      "razao_social": "AVEC ALUGUEL DE VEICULOS E CONSTRUCOES LTDA",
+      "email": "comercial@avec.com.br",
+      "ownership": "COMPANY_OWNED",
+      "verification": "VERIFIED",
+      "purpose": "COMERCIAL",
+      "service_id": "gestao_monitoramento_contratual",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "observed_fact": "objeto: Contratação de empresa especializada em engenharia para a execução de obras e serviços de intervenções destinadas à qualificação viária no perímetro urbano do M; órgão: PREFEITURA MUNICIPAL DE DOM MACEDO COSTA; UF BA; R$ 1,256,710",
+      "why_you": "AVEC ALUGUEL DE VEICULOS E CONSTRUCOES LTDA com execução pública observável — objeto: Contratação de empresa especializada em engenharia para a execução de obras e serviços de intervenções destinadas à qualificação viária no perímetro urbano do M; órgão: PREFEITURA MUNICIPAL DE DOM MACEDO COSTA; UF BA; R$ 1,256,710",
+      "why_now": "Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação de empresa especializada em engenharia para a execução de obras e serviços de intervenções destinadas à qualificação viária no p; órgão: PREFEITURA MUNICIPAL DE DOM MACEDO COSTA; UF BA.",
+      "micro_offer": "PUBLIC_DATA_SNAPSHOT",
+      "reasons": [
+        "service_code:gestao_monitoramento_contratual",
+        "service_fit_supported",
+        "all_gates_pass"
+      ]
+    },
+    {
+      "cnpj14": "31988427000173",
+      "razao_social": "2 S PROJETOS DE ENGENHARIA DE OBRAS DE  CONSTRUÇÃO LTDA",
+      "email": "contato@projetosobras.com.br",
+      "ownership": "COMPANY_OWNED",
+      "verification": "VERIFIED",
+      "purpose": "GENERIC_CONTACT",
+      "service_id": "gestao_monitoramento_contratual",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "observed_fact": "objeto: Contratação de empresa especializada para EXECUÇÃO DE OBRA DE IMPLANTAÇÃO DA \r\nPRAÇA NA RUA EXPERIDIÃO VIEIRA SANDRES, S/N, CENTRO, POMBOS - PE.; órgão: PREFEITURA MUNICIPAL DE POMBOS; UF PE; R$ 195,674",
+      "why_you": "2 S PROJETOS DE ENGENHARIA DE OBRAS DE  CONSTRUÇÃO LTDA com execução pública observável — objeto: Contratação de empresa especializada para EXECUÇÃO DE OBRA DE IMPLANTAÇÃO DA \r\nPRAÇA NA RUA EXPERIDIÃO VIEIRA SANDRES, S/N, CENTRO, POMBOS - PE.; órgão: PREFEITURA MUNICIPAL DE POMBOS; UF PE; R$ 195,674",
+      "why_now": "Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação de empresa especializada para EXECUÇÃO DE OBRA DE IMPLANTAÇÃO DA \r\nPRAÇA NA RUA EXPERIDIÃO VIEIRA SANDRES, S/N, CENTRO, POMBOS -; órgão: PREFEITURA MUNICIPAL DE POMBOS; UF PE.",
+      "micro_offer": "PUBLIC_DATA_SNAPSHOT",
+      "reasons": [
+        "service_code:gestao_monitoramento_contratual",
+        "service_fit_supported",
+        "all_gates_pass"
+      ]
+    },
+    {
+      "cnpj14": "35547112000141",
+      "razao_social": "SOUSA GUIMARAES ENGENHARIA E CONSTRUCOES LTDA",
+      "email": "info@rf.com.br",
+      "ownership": "COMPANY_OWNED",
+      "verification": "VERIFIED",
+      "purpose": "FINANCEIRO",
+      "service_id": "gestao_monitoramento_contratual",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "observed_fact": "objeto: CONTRATACAO DE EMPRESA ESPECIALIZADA EM ENGENHARIA E CONSTRUCAO CIVIL PARA AMPLIACAO DE SALAS DE ENSINO E PAVIMENTACAO DE ACESSOS NA ESCOLA MUNICIPAL EPAMINONDA; órgão: MUNICIPIO DE MUNICIPIO DE CURRAL DE DENTRO; UF MG; R$ 274,543",
+      "why_you": "SOUSA GUIMARAES ENGENHARIA E CONSTRUCOES LTDA com execução pública observável — objeto: CONTRATACAO DE EMPRESA ESPECIALIZADA EM ENGENHARIA E CONSTRUCAO CIVIL PARA AMPLIACAO DE SALAS DE ENSINO E PAVIMENTACAO DE ACESSOS NA ESCOLA MUNICIPAL EPAMINONDA; órgão: MUNICIPIO DE MUNICIPIO DE CURRAL DE DENTRO; UF MG; R$ 274,543",
+      "why_now": "Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: CONTRATACAO DE EMPRESA ESPECIALIZADA EM ENGENHARIA E CONSTRUCAO CIVIL PARA AMPLIACAO DE SALAS DE ENSINO E PAVIMENTACAO DE ACESSOS NA ESCOLA ; órgão: MUNICIPIO DE MUNICIPIO DE CURRAL DE DENTRO; UF MG.",
+      "micro_offer": "PUBLIC_DATA_SNAPSHOT",
+      "reasons": [
+        "service_code:gestao_monitoramento_contratual",
+        "service_fit_supported",
+        "all_gates_pass"
+      ]
+    },
+    {
+      "cnpj14": "36031022000166",
+      "razao_social": "ARLEN ARQUITETURA E ENGENHARIA LTDA",
+      "email": "arlenarquiteto@gmail.com",
+      "ownership": "COMPANY_OWNED",
+      "verification": "VERIFIED",
+      "purpose": "UNKNOWN",
+      "service_id": "apoio_licitacoes_propostas",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "observed_fact": "objeto: CONTRATAÇÃO, POR INEXIGIBILIDADE DE LICITAÇÃO, DE EMPRESA ESPECIALIZADA PARA ELABORAÇÃO DE PROJETOS EXECUTIVOS DE ARQUITETURA E ENGENHARIA DESTINADOS À CONSTRUÇ; órgão: Secretaria Municipal de Obras e Urbanismo; UF PR; R$ 45,500",
+      "why_you": "ARLEN ARQUITETURA E ENGENHARIA LTDA com execução pública observável — objeto: CONTRATAÇÃO, POR INEXIGIBILIDADE DE LICITAÇÃO, DE EMPRESA ESPECIALIZADA PARA ELABORAÇÃO DE PROJETOS EXECUTIVOS DE ARQUITETURA E ENGENHARIA DESTINADOS À CONSTRUÇ; órgão: Secretaria Municipal de Obras e Urbanismo; UF PR; R$ 45,500",
+      "why_now": "Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: CONTRATAÇÃO, POR INEXIGIBILIDADE DE LICITAÇÃO, DE EMPRESA ESPECIALIZADA PARA ELABORAÇÃO DE PROJETOS EXECUTIVOS DE ARQUITETURA E ENGENHARIA D; órgão: Secretaria Municipal de Obras e Urbanismo; UF PR.",
+      "micro_offer": "PROCUREMENT_RISK_SNAPSHOT",
+      "reasons": [
+        "service_code:apoio_licitacoes_propostas",
+        "service_fit_supported",
+        "all_gates_pass"
+      ]
+    },
+    {
+      "cnpj14": "36377091000126",
+      "razao_social": "SINALES SINALIZACAO ESPIRITO SANTO LTDA",
+      "email": "sinales@sinales.com.br",
+      "ownership": "COMPANY_OWNED",
+      "verification": "VERIFIED",
+      "purpose": "UNKNOWN",
+      "service_id": "gestao_monitoramento_contratual",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "observed_fact": "objeto: Contratação emergencial de empresa especializada para prestação de serviços de engenharia de tráfego consistentes na\nimplantação, revitalização e manutenção de; órgão: SECRETARIA MUNICIPAL DE ENGENHARIA DE TRANSITO; UF GO; R$ 28,031,983",
+      "why_you": "SINALES SINALIZACAO ESPIRITO SANTO LTDA com execução pública observável — objeto: Contratação emergencial de empresa especializada para prestação de serviços de engenharia de tráfego consistentes na\nimplantação, revitalização e manutenção de; órgão: SECRETARIA MUNICIPAL DE ENGENHARIA DE TRANSITO; UF GO; R$ 28,031,983",
+      "why_now": "Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação emergencial de empresa especializada para prestação de serviços de engenharia de tráfego consistentes na\nimplantação, revitaliza; órgão: SECRETARIA MUNICIPAL DE ENGENHARIA DE TRANSITO; UF GO.",
+      "micro_offer": "PUBLIC_DATA_SNAPSHOT",
+      "reasons": [
+        "service_code:gestao_monitoramento_contratual",
+        "service_fit_supported",
+        "all_gates_pass"
+      ]
+    },
+    {
+      "cnpj14": "36909349000198",
+      "razao_social": "TMF CONSTRUÇÕES, IMCORPORAÇÃO E SERVIÇOS LTDA",
+      "email": "vendas@tmf.com.br",
+      "ownership": "COMPANY_OWNED",
+      "verification": "VERIFIED",
+      "purpose": "COMERCIAL",
+      "service_id": "gestao_monitoramento_contratual",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "observed_fact": "objeto: Contratação de \r\nserviço especializado, sob demanda, para prestação de serviços de MANUTENÇÃO PREDIAL, \r\nconsistindo  em  instalação,  montagem,  reparação  e; órgão: MUNICIPIO DE CUIABA; UF MT; R$ 9,773,128",
+      "why_you": "TMF CONSTRUÇÕES, IMCORPORAÇÃO E SERVIÇOS LTDA com execução pública observável — objeto: Contratação de \r\nserviço especializado, sob demanda, para prestação de serviços de MANUTENÇÃO PREDIAL, \r\nconsistindo  em  instalação,  montagem,  reparação  e; órgão: MUNICIPIO DE CUIABA; UF MT; R$ 9,773,128",
+      "why_now": "Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação de \r\nserviço especializado, sob demanda, para prestação de serviços de MANUTENÇÃO PREDIAL, \r\nconsistindo  em  instalação,  monta; órgão: MUNICIPIO DE CUIABA; UF MT.",
+      "micro_offer": "PUBLIC_DATA_SNAPSHOT",
+      "reasons": [
+        "service_code:gestao_monitoramento_contratual",
+        "service_fit_supported",
+        "all_gates_pass"
+      ]
+    },
+    {
+      "cnpj14": "37073624000149",
+      "razao_social": "ARTFLEX ENGENHARIA LTDA",
+      "email": "contato@artflex.com.br",
+      "ownership": "COMPANY_OWNED",
+      "verification": "VERIFIED",
+      "purpose": "GENERIC_CONTACT",
+      "service_id": "gestao_monitoramento_contratual",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "observed_fact": "objeto: O OBJETO DO PRESENTE INSTRUMENTO É A PRESTAÇÃO DE SERVIÇOS COMUNS DE ENGENHARIA PARA RECOMPOSIÇÃO, COM FORNECIMENTO INTEGRAL DE TODOS OS INSUMOS NECESSÁRIOS, DO; órgão: CENTRO DE SERVIÇOS COMPARTILHADOS; UF DF; R$ 4,620,000",
+      "why_you": "ARTFLEX ENGENHARIA LTDA com execução pública observável — objeto: O OBJETO DO PRESENTE INSTRUMENTO É A PRESTAÇÃO DE SERVIÇOS COMUNS DE ENGENHARIA PARA RECOMPOSIÇÃO, COM FORNECIMENTO INTEGRAL DE TODOS OS INSUMOS NECESSÁRIOS, DO; órgão: CENTRO DE SERVIÇOS COMPARTILHADOS; UF DF; R$ 4,620,000",
+      "why_now": "Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: O OBJETO DO PRESENTE INSTRUMENTO É A PRESTAÇÃO DE SERVIÇOS COMUNS DE ENGENHARIA PARA RECOMPOSIÇÃO, COM FORNECIMENTO INTEGRAL DE TODOS OS INS; órgão: CENTRO DE SERVIÇOS COMPARTILHADOS; UF DF.",
+      "micro_offer": "PUBLIC_DATA_SNAPSHOT",
+      "reasons": [
+        "service_code:gestao_monitoramento_contratual",
+        "service_fit_supported",
+        "all_gates_pass"
+      ]
+    },
+    {
+      "cnpj14": "38146510000144",
+      "razao_social": "COCENO CONSTRUTORA CENTRO NORTE LTDA",
+      "email": "licitacoes@demo001obra.com.br",
+      "ownership": "COMPANY_OWNED",
+      "verification": "VERIFIED",
+      "purpose": "LICITACOES",
+      "service_id": "apoio_licitacoes_propostas",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "observed_fact": "objeto: Contratação de empresa especializada para a execução de obra de engenharia voltada à construção de uma Unidade Básica de Saúde do Jardim Aureny II Porte V (UBS; órgão: 3200 - Fundo Municipal de Saúde; UF TO",
+      "why_you": "COCENO CONSTRUTORA CENTRO NORTE LTDA com execução pública observável — objeto: Contratação de empresa especializada para a execução de obra de engenharia voltada à construção de uma Unidade Básica de Saúde do Jardim Aureny II Porte V (UBS; órgão: 3200 - Fundo Municipal de Saúde; UF TO",
+      "why_now": "Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação de empresa especializada para a execução de obra de engenharia voltada à construção de uma Unidade Básica de Saúde do Jardim Aur; órgão: 3200 - Fundo Municipal de Saúde; UF TO.",
+      "micro_offer": "PROCUREMENT_RISK_SNAPSHOT",
+      "reasons": [
+        "service_code:apoio_licitacoes_propostas",
+        "service_fit_supported",
+        "all_gates_pass"
+      ]
+    },
+    {
+      "cnpj14": "38756140000167",
+      "razao_social": "SUPERA ENGENHARIA LTDA",
+      "email": "comercial@supera.com.br",
+      "ownership": "COMPANY_OWNED",
+      "verification": "VERIFIED",
+      "purpose": "COMERCIAL",
+      "service_id": "medicoes_glosas_memoria",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "observed_fact": "objeto: Contratação  de  empresa  especializada  para  elaboração, desenvolvimento e detalhamento do projeto executivo arquitetônico e projetos  executivos  complementa; órgão: DIVISAO DE COMPRAS; UF SP; R$ 134,308",
+      "why_you": "SUPERA ENGENHARIA LTDA com execução pública observável — objeto: Contratação  de  empresa  especializada  para  elaboração, desenvolvimento e detalhamento do projeto executivo arquitetônico e projetos  executivos  complementa; órgão: DIVISAO DE COMPRAS; UF SP; R$ 134,308",
+      "why_now": "Momento glosa_medicao ancorado no fato público: objeto: Contratação  de  empresa  especializada  para  elaboração, desenvolvimento e detalhamento do projeto executivo arquitetônico e projetos  executivos  com",
+      "micro_offer": "MEDICAO_CHECK",
+      "reasons": [
+        "service_code:medicoes_glosas_memoria",
+        "service_fit_supported",
+        "all_gates_pass"
+      ]
+    },
+    {
+      "cnpj14": "40301626000152",
+      "razao_social": "MIDT ENGENHARIA LTDA",
+      "email": "contato@midt.com.br",
+      "ownership": "COMPANY_OWNED",
+      "verification": "VERIFIED",
+      "purpose": "GENERIC_CONTACT",
+      "service_id": "gestao_monitoramento_contratual",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "observed_fact": "objeto: Contratacao de empresa especializada na elaboracao de projetos executivos deengenharia para implantacao de pavimentacao asfaltica em rodovia rural, no trecho co; órgão: SECRETARIA MUNICIPAL DE OBRAS E SERVIÇOS URBANOS; UF ES; R$ 167,400",
+      "why_you": "MIDT ENGENHARIA LTDA com execução pública observável — objeto: Contratacao de empresa especializada na elaboracao de projetos executivos deengenharia para implantacao de pavimentacao asfaltica em rodovia rural, no trecho co; órgão: SECRETARIA MUNICIPAL DE OBRAS E SERVIÇOS URBANOS; UF ES; R$ 167,400",
+      "why_now": "Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratacao de empresa especializada na elaboracao de projetos executivos deengenharia para implantacao de pavimentacao asfaltica em rodovia; órgão: SECRETARIA MUNICIPAL DE OBRAS E SERVIÇOS URBANOS; UF ES.",
+      "micro_offer": "PUBLIC_DATA_SNAPSHOT",
+      "reasons": [
+        "service_code:gestao_monitoramento_contratual",
+        "service_fit_supported",
+        "all_gates_pass"
+      ]
+    },
+    {
+      "cnpj14": "41576001000166",
+      "razao_social": "VIDA EMPREENDIMENTOS E CONSULTORIA EMPRESARIAL LTDA",
+      "email": "licitacoes@demo004obra.com.br",
+      "ownership": "COMPANY_OWNED",
+      "verification": "VERIFIED",
+      "purpose": "LICITACOES",
+      "service_id": "gestao_monitoramento_contratual",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "observed_fact": "objeto: CONTRATAÇÃO DE EMPRESA PARA CONSTRUÇÃO DO NOVO CENTRO DE ENSINO INFANTIL (C.E.I), LOCALIZADO NO DISTRITO DE GEORGE OETTERER, INCLUINDO O FORNECIMENTO DE MATERIA; órgão: SECRETARIA DE OBRAS E ENGENHARIA; UF SP; R$ 8,537,521",
+      "why_you": "VIDA EMPREENDIMENTOS E CONSULTORIA EMPRESARIAL LTDA com execução pública observável — objeto: CONTRATAÇÃO DE EMPRESA PARA CONSTRUÇÃO DO NOVO CENTRO DE ENSINO INFANTIL (C.E.I), LOCALIZADO NO DISTRITO DE GEORGE OETTERER, INCLUINDO O FORNECIMENTO DE MATERIA; órgão: SECRETARIA DE OBRAS E ENGENHARIA; UF SP; R$ 8,537,521",
+      "why_now": "Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: CONTRATAÇÃO DE EMPRESA PARA CONSTRUÇÃO DO NOVO CENTRO DE ENSINO INFANTIL (C.E.I), LOCALIZADO NO DISTRITO DE GEORGE OETTERER, INCLUINDO O FOR; órgão: SECRETARIA DE OBRAS E ENGENHARIA; UF SP.",
+      "micro_offer": "PUBLIC_DATA_SNAPSHOT",
+      "reasons": [
+        "service_code:gestao_monitoramento_contratual",
+        "service_fit_supported",
+        "all_gates_pass"
+      ]
+    },
+    {
+      "cnpj14": "43418048000127",
+      "razao_social": "LS ENGENHARIA LTDA",
+      "email": "comercial@lcmprojetos.com.br",
+      "ownership": "COMPANY_OWNED",
+      "verification": "VERIFIED",
+      "purpose": "COMERCIAL",
+      "service_id": "apoio_licitacoes_propostas",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "observed_fact": "objeto: Constitui objeto da presente licitação a Contratação de empresa especializada para a  reforma, com ampliação e adequação do CRAS ÁREA DE CONSTRUÇÃO: 350,22 m²; órgão: MUNICIPIO DE VILA BOA F M A S; UF GO; R$ 233,013",
+      "why_you": "LS ENGENHARIA LTDA com execução pública observável — objeto: Constitui objeto da presente licitação a Contratação de empresa especializada para a  reforma, com ampliação e adequação do CRAS ÁREA DE CONSTRUÇÃO: 350,22 m²; órgão: MUNICIPIO DE VILA BOA F M A S; UF GO; R$ 233,013",
+      "why_now": "Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Constitui objeto da presente licitação a Contratação de empresa especializada para a  reforma, com ampliação e adequação do CRAS ÁREA DE CON; órgão: MUNICIPIO DE VILA BOA F M A S; UF GO.",
+      "micro_offer": "PROCUREMENT_RISK_SNAPSHOT",
+      "reasons": [
+        "service_code:apoio_licitacoes_propostas",
+        "service_fit_supported",
+        "all_gates_pass"
+      ]
+    },
+    {
+      "cnpj14": "44571860000150",
+      "razao_social": "INSTITUTO RUAS LTDA",
+      "email": "contato@institutoruas.com.br",
+      "ownership": "COMPANY_OWNED",
+      "verification": "VERIFIED",
+      "purpose": "GENERIC_CONTACT",
+      "service_id": "apoio_licitacoes_propostas",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "observed_fact": "objeto: Contratação de empresa para prestação de serviço de Elaboração de Projeto Executivo de Pavimentação em Concreto.; órgão: Prefeitura de Itaqui; UF RS; R$ 429,700",
+      "why_you": "INSTITUTO RUAS LTDA com execução pública observável — objeto: Contratação de empresa para prestação de serviço de Elaboração de Projeto Executivo de Pavimentação em Concreto.; órgão: Prefeitura de Itaqui; UF RS; R$ 429,700",
+      "why_now": "Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação de empresa para prestação de serviço de Elaboração de Projeto Executivo de Pavimentação em Concreto.; órgão: Prefeitura de Itaqui; UF RS.",
+      "micro_offer": "PROCUREMENT_RISK_SNAPSHOT",
+      "reasons": [
+        "service_code:apoio_licitacoes_propostas",
+        "service_fit_supported",
+        "all_gates_pass"
+      ]
+    },
+    {
+      "cnpj14": "47815614000195",
+      "razao_social": "TETT'S ENGENHARIA LTDA - EPP",
+      "email": "licitacoes@demo005obra.com.br",
+      "ownership": "COMPANY_OWNED",
+      "verification": "VERIFIED",
+      "purpose": "LICITACOES",
+      "service_id": "gestao_monitoramento_contratual",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "observed_fact": "objeto: DESPESA A PRESTAÇÃO DE SERVIÇOS DE OBRA DE QUALIFICAÇÃO VIARIA URBANA EM RUAS DO MUNICIPIO DE ITAPURANGA. P/ EXECUÇÃO DE PAVIMENTAÇÃO COM APLICAÇÃO DE CONCRETO; órgão: PREFEITURA MUNICIPAL DE ITAPURANGA; UF GO; R$ 298,000",
+      "why_you": "TETT'S ENGENHARIA LTDA - EPP com execução pública observável — objeto: DESPESA A PRESTAÇÃO DE SERVIÇOS DE OBRA DE QUALIFICAÇÃO VIARIA URBANA EM RUAS DO MUNICIPIO DE ITAPURANGA. P/ EXECUÇÃO DE PAVIMENTAÇÃO COM APLICAÇÃO DE CONCRETO; órgão: PREFEITURA MUNICIPAL DE ITAPURANGA; UF GO; R$ 298,000",
+      "why_now": "Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: DESPESA A PRESTAÇÃO DE SERVIÇOS DE OBRA DE QUALIFICAÇÃO VIARIA URBANA EM RUAS DO MUNICIPIO DE ITAPURANGA. P/ EXECUÇÃO DE PAVIMENTAÇÃO COM AP; órgão: PREFEITURA MUNICIPAL DE ITAPURANGA; UF GO.",
+      "micro_offer": "PUBLIC_DATA_SNAPSHOT",
+      "reasons": [
+        "service_code:gestao_monitoramento_contratual",
+        "service_fit_supported",
+        "all_gates_pass"
+      ]
+    },
+    {
+      "cnpj14": "52359706000148",
+      "razao_social": "SULVIAS OBRAS E CONSTRUCOES LTDA",
+      "email": "contato@sulvias.com",
+      "ownership": "COMPANY_OWNED",
+      "verification": "VERIFIED",
+      "purpose": "GENERIC_CONTACT",
+      "service_id": "gestao_monitoramento_contratual",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "observed_fact": "objeto: CONTRATAÇÃO DE EMPRESA PARA EXECUÇÃO DE SERVIÇOS DE REPERFILAGEM ASFÁLTICA, INCLUINDO RETIRADA DA SUB-BASE E BASE COMPROMETIDAS, RECUPERAÇÃO DA SUB-BASE E BASE; órgão: MUNICÍPIO DE FORMOSA DO SUL; UF SC; R$ 1,089,800",
+      "why_you": "SULVIAS OBRAS E CONSTRUCOES LTDA com execução pública observável — objeto: CONTRATAÇÃO DE EMPRESA PARA EXECUÇÃO DE SERVIÇOS DE REPERFILAGEM ASFÁLTICA, INCLUINDO RETIRADA DA SUB-BASE E BASE COMPROMETIDAS, RECUPERAÇÃO DA SUB-BASE E BASE; órgão: MUNICÍPIO DE FORMOSA DO SUL; UF SC; R$ 1,089,800",
+      "why_now": "Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: CONTRATAÇÃO DE EMPRESA PARA EXECUÇÃO DE SERVIÇOS DE REPERFILAGEM ASFÁLTICA, INCLUINDO RETIRADA DA SUB-BASE E BASE COMPROMETIDAS, RECUPERAÇÃO; órgão: MUNICÍPIO DE FORMOSA DO SUL; UF SC.",
+      "micro_offer": "PUBLIC_DATA_SNAPSHOT",
+      "reasons": [
+        "service_code:gestao_monitoramento_contratual",
+        "service_fit_supported",
+        "all_gates_pass"
+      ]
+    },
+    {
+      "cnpj14": "55014274000121",
+      "razao_social": "LIFE ENGENHARIA E TOPOGRAFIA LTDA",
+      "email": "contato@lifetopografia.com.br",
+      "ownership": "COMPANY_OWNED",
+      "verification": "VERIFIED",
+      "purpose": "GENERIC_CONTACT",
+      "service_id": "apoio_licitacoes_propostas",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "observed_fact": "objeto: Contratação de empresa especializada para elaboração de projeto viário de pavimentação asfáltica, Programa Estrada Boa.; órgão: MUNICÍPIO DE RIO RUFINO; UF SC; R$ 23,520",
+      "why_you": "LIFE ENGENHARIA E TOPOGRAFIA LTDA com execução pública observável — objeto: Contratação de empresa especializada para elaboração de projeto viário de pavimentação asfáltica, Programa Estrada Boa.; órgão: MUNICÍPIO DE RIO RUFINO; UF SC; R$ 23,520",
+      "why_now": "Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Contratação de empresa especializada para elaboração de projeto viário de pavimentação asfáltica, Programa Estrada Boa.; órgão: MUNICÍPIO DE RIO RUFINO; UF SC.",
+      "micro_offer": "PROCUREMENT_RISK_SNAPSHOT",
+      "reasons": [
+        "service_code:apoio_licitacoes_propostas",
+        "service_fit_supported",
+        "all_gates_pass"
+      ]
+    },
+    {
+      "cnpj14": "60025322000117",
+      "razao_social": "SIMENG ENGENHARIA LTDA",
+      "email": "contato@simeng.com.br",
+      "ownership": "COMPANY_OWNED",
+      "verification": "VERIFIED",
+      "purpose": "GENERIC_CONTACT",
+      "service_id": "apoio_licitacoes_propostas",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "observed_fact": "objeto: prestação de serviço em regime de empreitada por preço máximo unitário (material, mão de obra), para substituição do tampo e reparos no mobiliário sob medida do; órgão: Secretaria Municipal de Planejamento - SEPLAN; UF SC; R$ 15,990",
+      "why_you": "SIMENG ENGENHARIA LTDA com execução pública observável — objeto: prestação de serviço em regime de empreitada por preço máximo unitário (material, mão de obra), para substituição do tampo e reparos no mobiliário sob medida do; órgão: Secretaria Municipal de Planejamento - SEPLAN; UF SC; R$ 15,990",
+      "why_now": "Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: prestação de serviço em regime de empreitada por preço máximo unitário (material, mão de obra), para substituição do tampo e reparos no mobi; órgão: Secretaria Municipal de Planejamento - SEPLAN; UF SC.",
+      "micro_offer": "PROCUREMENT_RISK_SNAPSHOT",
+      "reasons": [
+        "service_code:apoio_licitacoes_propostas",
+        "service_fit_supported",
+        "all_gates_pass"
+      ]
+    },
+    {
+      "cnpj14": "73041188000190",
+      "razao_social": "COMERCIAL E CONSTRUTORA FÊNIX EIRELI",
+      "email": "contato@construfenix.com.br",
+      "ownership": "COMPANY_OWNED",
+      "verification": "VERIFIED",
+      "purpose": "GENERIC_CONTACT",
+      "service_id": "gestao_monitoramento_contratual",
+      "target_fit_class": "TARGET_CONFIRMED",
+      "observed_fact": "objeto: Execução de   obras   de   pavimentação,   sendo recapeamento  asfáltico  em  trechos  da  Rua  Dr.  Carlos  Teixeira  Mendes,  Travessa Colonial, Rua Nossa Sen; órgão: PREFEITURA DO MUNICIPIO DE PIRACICABA; UF SP; R$ 400,000",
+      "why_you": "COMERCIAL E CONSTRUTORA FÊNIX EIRELI com execução pública observável — objeto: Execução de   obras   de   pavimentação,   sendo recapeamento  asfáltico  em  trechos  da  Rua  Dr.  Carlos  Teixeira  Mendes,  Travessa Colonial, Rua Nossa Sen; órgão: PREFEITURA DO MUNICIPIO DE PIRACICABA; UF SP; R$ 400,000",
+      "why_now": "Em 2026-08-09, fato contratual público utilizável sem dor especializada dominante — objeto: Execução de   obras   de   pavimentação,   sendo recapeamento  asfáltico  em  trechos  da  Rua  Dr.  Carlos  Teixeira  Mendes,  Travessa Col; órgão: PREFEITURA DO MUNICIPIO DE PIRACICABA; UF SP.",
+      "micro_offer": "PUBLIC_DATA_SNAPSHOT",
+      "reasons": [
+        "service_code:gestao_monitoramento_contratual",
+        "service_fit_supported",
+        "all_gates_pass"
+      ]
+    }
+  ]
+}
