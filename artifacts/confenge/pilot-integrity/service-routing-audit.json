@@ -1,46 +1,164 @@
 {
-  "generated_at": "2026-08-09T21:45:03.220948+00:00",
-  "fixed_router_feed_service_distribution": {
-    "ADITIVOS": 8,
-    "APOIO_LICITACAO": 8,
-    "BACKOFFICE": 8,
-    "MEDICOES": 8,
-    "MONITORAMENTO_CONTRATUAL": 8,
-    "PLANILHAS": 8,
-    "REEQUILIBRIO": 1,
-    "REAJUSTE": 0
-  },
-  "reajuste_pct": 0.0,
-  "unique_why_this_account": 49,
-  "warmbly_import": {
-    "imported_at": "2026-08-09T21:45:03.208396+00:00",
-    "feed_path": "warmbly/data/confenge-feeds/pilot-integrity-clean-v1.json",
-    "run_id": "pilot-integrity-recovery-01-fixed-router",
-    "leads": 49,
-    "service_distribution": {
-      "ADITIVOS": 8,
-      "APOIO_LICITACAO": 8,
-      "BACKOFFICE": 8,
-      "MEDICOES": 8,
-      "MONITORAMENTO_CONTRATUAL": 8,
-      "PLANILHAS": 8,
-      "REEQUILIBRIO": 1,
-      "REAJUSTE": 0
+  "generated_at": "2026-08-09T21:50:10Z",
+  "feed_run_id": "pilot-integrity-recovery-01-fixed-router",
+  "feed_snapshot_hash": "pilot-integrity-fixed-router-2026-08-09",
+  "total_accounts": 49,
+  "universe_rescore": {
+    "n": 48748,
+    "tf_dist": {
+      "TARGET_PROBABLE_RESEARCH": 39212,
+      "TARGET_OUT_OF_SCOPE": 3930,
+      "TARGET_CONFIRMED": 5606
     },
-    "email_send_ready_true": 0,
-    "reajuste_count": 0,
-    "unique_why_this_account": 49,
-    "kill_switch": "ENGAGED",
-    "dispatch": "PAUSED",
-    "skeptic_fixes": [
-      "mature_no_reajuste score below multi-contract gestão/orçamento (FASE7)",
-      "why_this_account from concrete contract object, not hollow portfolio string",
-      "micro_offer_code is catalog micro-offer not approach_mode",
-      "Warmbly WhyThisAccount uses fact; generic why flagged incomplete_copy_context",
-      "honest multi-contract mature test with start_date/age_days",
-      "10-family e2e golden + Warmbly AllServiceFamiliesStrategyPreservesCode"
+    "tier_dist": {
+      "RESEARCH_ONLY": 39212,
+      "OUT_OF_SCOPE": 3930,
+      "A_AUTOMATIC": 2369,
+      "B_EVIDENCE_SUPPORTED": 3237
+    },
+    "confirmed": 5606
+  },
+  "service_distribution_warmbly": {
+    "REEQUILIBRIO": 1,
+    "PLANILHAS": 8,
+    "MEDICOES": 8,
+    "BACKOFFICE": 8,
+    "ADITIVOS": 8,
+    "MONITORAMENTO_CONTRATUAL": 8,
+    "APOIO_LICITACAO": 8
+  },
+  "service_distribution_extra_cli": {
+    "reequilibrio_economico_financeiro": 1,
+    "auditoria_orcamento_bdi": 8,
+    "medicoes_glosas_memoria": 8,
+    "reforco_temporario_backoffice": 8,
+    "aditivos_extracontratuais": 8,
+    "gestao_monitoramento_contratual": 8,
+    "apoio_licitacoes_propostas": 8
+  },
+  "trigger_distribution": {
+    "REEQUILIBRIO": 1,
+    "PORTFOLIO_REVIEW": 32,
+    "GLOSA_MEDICAO": 8,
+    "ADDENDUM": 8
+  },
+  "top_service_pct": 16.33,
+  "concentration_flag": null,
+  "pct_empty_why_you_sample30": 0.0,
+  "pct_empty_micro_offer_sample30": 0.0,
+  "pct_empty_observed_fact_sample30": 0.0,
+  "pct_empty_evidence_sample30": 0.0,
+  "pct_near_duplicate_pairs_sample30": 8.05,
+  "near_duplicate": {
+    "total_drafts": 30,
+    "compared_pairs": 435,
+    "high_similarity_pairs": 35,
+    "max_similarity": 0.9394,
+    "pair_fraction_high": 0.0805,
+    "threshold": 0.82,
+    "blocked": false,
+    "reason_codes": [
+      "near_duplicate_ok"
+    ],
+    "sample_pairs": [
+      {
+        "a": "02810894000100",
+        "b": "18683397000129",
+        "similarity": 0.8286
+      },
+      {
+        "a": "02810894000100",
+        "b": "28709222000105",
+        "similarity": 0.8529
+      },
+      {
+        "a": "18683397000129",
+        "b": "37251510000141",
+        "similarity": 0.8571
+      },
+      {
+        "a": "18683397000129",
+        "b": "28709222000105",
+        "similarity": 0.8529
+      },
+      {
+        "a": "37251510000141",
+        "b": "28709222000105",
+        "similarity": 0.8286
+      },
+      {
+        "a": "51027691000158",
+        "b": "07555412000137",
+        "similarity": 0.8824
+      },
+      {
+        "a": "51027691000158",
+        "b": "40495801000190",
+        "similarity": 0.8286
+      },
+      {
+        "a": "51027691000158",
+        "b": "29646103000105",
+        "similarity": 0.8529
+      },
+      {
+        "a": "51027691000158",
+        "b": "47432025000128",
+        "similarity": 0.9091
+      },
+      {
+        "a": "07555412000137",
+        "b": "40495801000190",
+        "similarity": 0.8286
+      }
     ]
   },
+  "pct_reajuste": 0.0,
+  "pct_diagnostico": 0.0,
+  "service_x_trigger_matrix": {
+    "REEQUILIBRIO": {
+      "REEQUILIBRIO": 1
+    },
+    "PLANILHAS": {
+      "PORTFOLIO_REVIEW": 8
+    },
+    "MEDICOES": {
+      "GLOSA_MEDICAO": 8
+    },
+    "BACKOFFICE": {
+      "PORTFOLIO_REVIEW": 8
+    },
+    "ADITIVOS": {
+      "ADDENDUM": 8
+    },
+    "MONITORAMENTO_CONTRATUAL": {
+      "PORTFOLIO_REVIEW": 8
+    },
+    "APOIO_LICITACAO": {
+      "PORTFOLIO_REVIEW": 8
+    }
+  },
+  "unique_why_this_account": 49,
+  "incident_10": {
+    "FALSE_TARGET": 6,
+    "TRUE_TARGET": 2,
+    "RESEARCH": 2,
+    "still_send_ready": 0
+  },
+  "warmbly_import": {
+    "leads": 49,
+    "reajuste_count": 0,
+    "email_send_ready_true": 0,
+    "kill_switch": "ENGAGED",
+    "dispatch": "PAUSED"
+  },
+  "skeptic_fixes_verified": [
+    "multi_mature→gestao not reajuste",
+    "why_this_account cites objeto",
+    "micro_offer_code catalog not approach_mode",
+    "clean feed REAJUSTE=0 multi-service",
+    "unique why=49"
+  ],
   "verdict": "NO_GO",
   "dispatch": "PAUSED"
 }

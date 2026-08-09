@@ -1,5 +1,9 @@
 # Contaminated feed invalidation
 
-COPY-SAMPLE-2026-08-10 drafts/enrollments are contaminated.
-Clean feed: rebuild-2026-08-09/confenge-outreach-feed-clean.jsonl
-Dispatch: PAUSED.
+Date: 2026-08-09T21:50:10Z
+
+COPY-SAMPLE-2026-08-10 drafts/hashes/enrollments are **contaminated**. Do not reuse for pilot send.
+
+Clean feed: `confenge-outreach-v1-clean.json` (run_id=`pilot-integrity-recovery-01-fixed-router`).
+
+Dispatch PAUSED. Kill switch ENGAGED.

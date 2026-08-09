@@ -1,20 +1,75 @@
 # FINAL-REPORT — CONFENGE-PILOT-INTEGRITY-RECOVERY-01
 
-## Verdict: NO_GO (dispatch PAUSED, kill switch ENGAGED)
+Generated: 2026-08-09T21:50:10Z
 
-### Incident root causes
-ICP false positives; pass_count total fallback; REAJUSTE monoculture; empty/generic copy.
+## Verdict: **NO_GO**
 
-### Code fixes (extra-cli + warmbly)
-Target-fit triangulation; semantic EMAIL_SEND_READY; FASE7 router ranking; confenge.service.v1;
-concrete why_this_account + real micro_offers; Warmbly unknown≠REAJUSTE + generic-why detection;
-10-family e2e goldens.
+Dispatch **PAUSED**. Kill switch **ENGAGED**. No real-lead email.
 
-### Evidence
-- National rescore 48748 → CONFIRMED 5606 / RESEARCH 39212 / OUT 3930
-- Clean feed from **fixed** router: multi-service, REAJUSTE=0, 49 unique why_this_account
-- Warmbly import: same service mix preserved; email_send_ready=0 fail-closed
-- Tests: 52 pytest intelligence pack green; Warmbly strategy family tests green
+## Incident (proven)
 
-### Remaining for GO_FOR_CONTROLLED_PILOT
-Real contacts, deploy, optional full DSN rebuild, operator sign-off. Keep PAUSED.
+| Class | Count | Notes |
+|-------|------:|-------|
+| FALSE_TARGET | 6 | imobiliária, móveis, frota, metrologia, ônibus, médico, etc. |
+| TRUE_TARGET | 2 | TRACADO, JATOBETON with construction execution |
+| TARGET_REQUIRES_RESEARCH | 2 | |
+| Warmbly service | 10/10 REAJUSTE_14133 | empty why_you/micro_offer, clone bodies |
+
+Root causes: permissive POSSIBLE ICP; pass_count total fallback; service taxonomy / REAJUSTE account default; missing COPY_CONTEXT_READY.
+
+## Code fixes (committed)
+
+**extra-cli** `fix/confenge-pilot-target-service-integrity`: target_fit triangulation; semantic EMAIL_SEND_READY; FASE7 router; confenge.service.v1; concrete why_this_account; real micro_offers; adversarial + 10-family e2e tests.
+
+**warmbly** `fix/confenge-pilot-service-copy-integrity`: full aliases; DIAGNOSTICO/INTELIGENCIA/BACKOFFICE; unknown≠REAJUSTE; fact-based WhyThisAccount; generic copy → needs_review.
+
+## National offline rescore
+
+```json
+{
+  "n": 48748,
+  "tf_dist": {
+    "TARGET_PROBABLE_RESEARCH": 39212,
+    "TARGET_OUT_OF_SCOPE": 3930,
+    "TARGET_CONFIRMED": 5606
+  },
+  "tier_dist": {
+    "RESEARCH_ONLY": 39212,
+    "OUT_OF_SCOPE": 3930,
+    "A_AUTOMATIC": 2369,
+    "B_EVIDENCE_SUPPORTED": 3237
+  },
+  "confirmed": 5606,
+  "fp50": 0,
+  "struct_ok": false,
+  "svc_dist": {
+    "apoio_licitacoes_propostas": 3,
+    "gestao_monitoramento_contratual": 28,
+    "reforco_temporario_backoffice": 10,
+    "auditoria_orcamento_bdi": 8,
+    "medicoes_glosas_memoria": 1
+  },
+  "dup_blocked": true,
+  "verdict": "NO_GO",
+  "concentration_flag": null
+}
+```
+
+## Clean no-send proof
+
+- Feed: 49 TARGET_CONFIRMED leads from **fixed** router
+- Services: {'REEQUILIBRIO': 1, 'PLANILHAS': 8, 'MEDICOES': 8, 'BACKOFFICE': 8, 'ADITIVOS': 8, 'MONITORAMENTO_CONTRATUAL': 8, 'APOIO_LICITACAO': 8} — REAJUSTE=0
+- Sample30: empty fields 0/0/0/0; near-dup blocked=False
+- Unique why_this_account in feed: 49
+- Warmbly local import: multi-service preserved; email_send_ready=0 fail-closed
+
+## Remaining blockers for GO_FOR_CONTROLLED_PILOT
+
+- No live EMAIL_SEND_READY cohort of 50 with real COMPANY_OWNED verified contacts — clean import fail-closed (email_send_ready=0) by design (.invalid contacts + kill switch).
+- Full DSN national universe rebuild (3.6M contracts) not re-executed under construction/target_fit v2; offline rescore of existing 48,748 eligibles only.
+- Operator merge/deploy of fix branches + human review of new-30/new-10 still required.
+- Warmbly import target was local warmbly_dev, not production VPS.
+
+## Principle
+
+Automation must not scale a wrong commercial premise. Honest state: **NO_GO**, dispatch PAUSED.
