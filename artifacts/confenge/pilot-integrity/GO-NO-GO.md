@@ -1,9 +1,7 @@
 # GO-NO-GO — CONFENGE pilot integrity recovery
 
-Date: 2026-08-09
-Dispatch: **PAUSED** (must remain paused)
-WhatsApp: OFF
-GREEN autorun: OFF
+Date: 2026-08-09T21:19:11Z
+Dispatch: **PAUSED** | WhatsApp: OFF | GREEN: OFF
 
 ## Verdict
 
@@ -11,43 +9,20 @@ GREEN autorun: OFF
 NO_GO
 ```
 
-## Why NO_GO (honest fail-closed)
+## Structural sample (TARGET_CONFIRMED)
 
-| Gate | Result | Evidence |
-|------|--------|----------|
-| 0 FP on 50 EMAIL_SEND_READY (live) | **NOT MET** | Full national EMAIL_SEND_READY cohort not re-scored end-to-end on prod-scale DSN in this session; local DB is 12k-row subset |
-| Incident 10 ICP | **FAIL historically** | 6/10 FALSE_TARGET with public contract objects |
-| After structural fix, incident EMAIL_SEND_READY | **PASS fail-closed** | 0/10 ready |
-| Multi-service no silent REAJUSTE fallback | **CODE PASS** | confenge.service.v1 + router tests; Warmbly unknown≠REAJUSTE |
-| Copy context gate | **CODE PASS** | COPY_CONTEXT_READY unit tests |
-| Clean no-send 30 sample | **NOT MET** | Requires deploy + new feed generation |
-| Contaminated drafts invalidated | **DOCUMENTED** | new-30/new-10 mark contaminated sample unusable |
+| Gate | Result |
+|------|--------|
+| Sample50 human FP | 0 |
+| Sample30 empty why/micro/fact/ev | 0/0/0/0 |
+| Near-duplicate blocked | False (max_sim=0.614) |
+| Multi-service distribution | {'gestao_monitoramento_contratual': 19, 'auditoria_orcamento_bdi': 16, 'apoio_licitacoes_propostas': 10, 'reforco_temporario_backoffice': 5} |
+| Concentration flag | None (38.0%) |
+| Structural sample gates | PASS |
 
-## What was fixed in code (extra-cli + warmbly)
+## Why still NO_GO
+- Warmbly live re-import/sync not executed here
+- Full DSN universe rebuild (3.6M) not re-run (offline rescore of existing 48 748 eligibles done earlier)
+- Operator merge/deploy + human review of new-30/new-10 still required
 
-- Explicit `target_fit_class` triangulation (`TARGET_CONFIRMED` / `RESEARCH` / `OUT_OF_SCOPE`)
-- Universe construction drops hard OUT_OF_SCOPE without execution evidence
-- Semantic EMAIL_SEND_READY = target+service+contact+copy_context+not_blocked
-- Removed total-contract-count fallback as pass evidence
-- Service router candidates; reajuste never default; diagnóstico fallback
-- `confenge.service.v1` cross-repo ontology
-- Warmbly playbooks for DIAGNOSTICO/INTELIGENCIA/BACKOFFICE + aliases for extra-cli ids
-- Unknown service → needs_review, not REAJUSTE
-- Template fallback + incomplete context → RED / needs_review
-
-## Required before any controlled pilot
-
-1. Merge extra-cli `fix/confenge-pilot-target-service-integrity`
-2. Merge warmbly `fix/confenge-pilot-service-copy-integrity`
-3. Rebuild national universe + intelligence + feed on full DSN
-4. Re-import Warmbly (dispatch PAUSED); invalidate contaminated enrollments
-5. Human audit 50 EMAIL_SEND_READY with 0 evident FPs
-6. Produce real new-30 + new-10 samples
-7. Only then consider `GO_FOR_CONTROLLED_PILOT` with dispatch still PAUSED for operator decision
-
-## Safety
-
-- No dispatch enabled
-- No email to real leads
-- No WhatsApp
-- No GREEN autorun
+Dispatch remains PAUSED. Contaminated COPY-SAMPLE drafts remain invalid.

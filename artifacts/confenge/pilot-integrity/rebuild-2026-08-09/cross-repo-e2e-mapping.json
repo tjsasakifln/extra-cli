@@ -1,0 +1,62 @@
+[
+  {
+    "extra_cli": "estruturacao_pleito_reajuste",
+    "canonical": "REAJUSTE",
+    "warmbly": "REAJUSTE",
+    "roundtrip_ok": true
+  },
+  {
+    "extra_cli": "reequilibrio_economico_financeiro",
+    "canonical": "REEQUILIBRIO",
+    "warmbly": "REEQUILIBRIO",
+    "roundtrip_ok": true
+  },
+  {
+    "extra_cli": "aditivos_extracontratuais",
+    "canonical": "ADITIVOS",
+    "warmbly": "ADITIVOS",
+    "roundtrip_ok": true
+  },
+  {
+    "extra_cli": "medicoes_glosas_memoria",
+    "canonical": "MEDICOES",
+    "warmbly": "MEDICOES",
+    "roundtrip_ok": true
+  },
+  {
+    "extra_cli": "auditoria_orcamento_bdi",
+    "canonical": "ORCAMENTO_BDI",
+    "warmbly": "PLANILHAS",
+    "roundtrip_ok": true
+  },
+  {
+    "extra_cli": "gestao_monitoramento_contratual",
+    "canonical": "MONITORAMENTO_CONTRATUAL",
+    "warmbly": "MONITORAMENTO_CONTRATUAL",
+    "roundtrip_ok": true
+  },
+  {
+    "extra_cli": "apoio_licitacoes_propostas",
+    "canonical": "APOIO_LICITACAO",
+    "warmbly": "APOIO_LICITACAO",
+    "roundtrip_ok": true
+  },
+  {
+    "extra_cli": "inteligencia_pncp_mercado",
+    "canonical": "INTELIGENCIA_PNCP",
+    "warmbly": "INTELIGENCIA_PNCP",
+    "roundtrip_ok": true
+  },
+  {
+    "extra_cli": "diagnostico_contratual_b2g",
+    "canonical": "DIAGNOSTICO",
+    "warmbly": "DIAGNOSTICO",
+    "roundtrip_ok": true
+  },
+  {
+    "extra_cli": "reforco_temporario_backoffice",
+    "canonical": "BACKOFFICE",
+    "warmbly": "BACKOFFICE",
+    "roundtrip_ok": true
+  }
+]

@@ -1,21 +1,51 @@
 {
-  "generated_at": "2026-08-09T21:10:34.088343+00:00",
-  "total_accounts": 50,
+  "generated_at": "2026-08-09T21:19:11.864156+00:00",
+  "confirmed_strong_pool": 2369,
+  "sample50_human_fp_count": 0,
   "service_distribution": {
-    "diagnostico_contratual_b2g": 6,
-    "gestao_monitoramento_contratual": 31,
-    "reforco_temporario_backoffice": 4,
-    "auditoria_orcamento_bdi": 9
+    "gestao_monitoramento_contratual": 19,
+    "auditoria_orcamento_bdi": 16,
+    "apoio_licitacoes_propostas": 10,
+    "reforco_temporario_backoffice": 5
   },
-  "top_service_pct": 62.0,
-  "concentration_flag": "ROUTING_CONCENTRATION_REVIEW_REQUIRED",
-  "target_fit_audit_rows": 132,
-  "incident_false_targets": 6,
-  "incident_still_email_send_ready_after_fix": 0,
-  "false_positive_ready_in_universe_sample": 0,
-  "notes": [
-    "Reajuste is not default in recomputed router; feed sample multi-service.",
-    "Warmbly COPY-SAMPLE monoculture was REAJUSTE_14133 at account layer.",
-    "Full national EMAIL_SEND_READY stratified 50 requires live large DSN; local slice limited."
-  ]
+  "top_service_pct": 38.0,
+  "concentration_flag": null,
+  "sample30": {
+    "why": 0,
+    "micro": 0,
+    "fact": 0,
+    "ev": 0,
+    "n": 30,
+    "near_duplicate_blocked": false,
+    "near_duplicate": {
+      "total_drafts": 30,
+      "compared_pairs": 435,
+      "high_similarity_pairs": 0,
+      "max_similarity": 0.614,
+      "pair_fraction_high": 0.0,
+      "threshold": 0.82,
+      "blocked": false,
+      "reason_codes": [
+        "near_duplicate_ok"
+      ],
+      "sample_pairs": []
+    },
+    "email_send_ready_true": 30
+  },
+  "structural_sample_gates": "PASS",
+  "dispatch": "PAUSED",
+  "note": "Universe membership rescored offline; full DSN rebuild not run; Warmbly live import not run",
+  "universe_rows_rescored": 48748,
+  "target_fit_distribution": {
+    "TARGET_PROBABLE_RESEARCH": 39212,
+    "TARGET_OUT_OF_SCOPE": 3930,
+    "TARGET_CONFIRMED": 5606
+  },
+  "send_tier_distribution": {
+    "RESEARCH_ONLY": 39212,
+    "OUT_OF_SCOPE": 3930,
+    "A_AUTOMATIC": 2369,
+    "B_EVIDENCE_SUPPORTED": 3237
+  },
+  "confirmed_send_tier_pool": 5606
 }

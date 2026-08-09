@@ -1,39 +1,19 @@
 # FINAL-REPORT — CONFENGE-PILOT-INTEGRITY-RECOVERY-01
 
-## Executive summary
+## Verdict: NO_GO (dispatch PAUSED)
 
-The commercial motor was **not** reliably selecting
-`empresa correta → momento correto → serviço correto → contato correto → mensagem específica`.
+### Code fixes landed (extra-cli + warmbly branches)
+Target-fit triangulation, semantic EMAIL_SEND_READY, multi-service router, confenge.service.v1, Warmbly unknown≠REAJUSTE, near-dup gate.
 
-Adversarial forensics of the 10 EMAIL_SEND_READY Warmbly samples proved:
-- **6 FALSE_TARGET** firms (imobiliária, móveis, frota, pneus/importação, metrologia, ônibus, médico) with public contracts that are **not** construction execution.
-- **2 TRUE_TARGET** (TRACADO, JATOBETON) with real engineering/pavement evidence.
-- **100% REAJUSTE_14133** on Warmbly with empty why_you/micro_offer and near-clone bodies.
+### Offline national rescore
+48 748 rows → CONFIRMED 5 606 / RESEARCH 39 212 / OUT 3 930 (prior full pass).
 
-## Fixes landed
+### Clean no-send sample (this pass)
+- 30 drafts + 10 deep-review from TARGET_CONFIRMED + STRONG/CONFIRMED sector
+- Services: {'gestao_monitoramento_contratual': 19, 'auditoria_orcamento_bdi': 16, 'apoio_licitacoes_propostas': 10, 'reforco_temporario_backoffice': 5}
+- Near-dup blocked: False
+- Empty copy fields: {'why': 0, 'micro': 0, 'fact': 0, 'ev': 0}
+- Structural gates: PASS
 
-### extra-cli (`fix/confenge-pilot-target-service-integrity`)
-- `scripts/confenge_universe/target_fit.py` + construction integration
-- Semantic `send_readiness.py` (COPY_CONTEXT_READY, no total-count fallback)
-- Router `service_candidates[]`, reajuste never default
-- Adapter signal enrichment (aditivos/glosas/BDI/licitações)
-- `config/commercial/confenge_service_v1.yaml` + mapping module
-- Adversarial pytest suite (41 tests green in core pack)
-
-### warmbly (`fix/confenge-pilot-service-copy-integrity`)
-- Full service aliases + DIAGNOSTICO / INTELIGENCIA_PNCP / BACKOFFICE playbooks
-- Strategy: unknown service fail-closed (no REAJUSTE invent)
-- Drafts: template+incomplete context → RED needs_review
-
-## Artifacts
-
-- `current-10-forensics.csv` / `CURRENT-10-FORENSICS.md`
-- `target-fit-audit.csv`
-- `service-routing-audit.json`
-- `cross-repo-service-contract.json`
-- `new-30-draft-sample.md` / `new-10-human-review.md` (blocked pending clean cycle)
-- `GO-NO-GO.md` → **NO_GO**
-
-## Verdict
-
-**NO_GO** for controlled pilot send. Code path hardened; live re-score + clean sample still required.
+### Still required for GO_FOR_CONTROLLED_PILOT
+Merge/deploy, optional full DSN rebuild, Warmbly import PAUSED, operator sign-off.
