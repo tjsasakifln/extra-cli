@@ -127,3 +127,10 @@ Logs (scratch, not committed): `/tmp/grok-goal-85afca0088bc/`
 - Sample30: hollow_why_now=0, copy_context spot-check first10 PASS, struct_ok=True
 - TRACADO + JATOBETON forensics: material contracts cited; stale auditoria primary removed
 - Terminal **NO_GO** unchanged (safety + concentration + live cohort blockers)
+
+## CSV completeness fix (2026-08-09T23:24:25Z)
+
+- `current-10-forensics.csv` now **10/10** incident CNPJs (was truncated at 6)
+- `target-fit-audit.csv` JATOBETON `service_recomputed=gestao_monitoramento_contratual` (was stale auditoria_orcamento_bdi)
+- Terminal verdict remains **NO_GO**
+
