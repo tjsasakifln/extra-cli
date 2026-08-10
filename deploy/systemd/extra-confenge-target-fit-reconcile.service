@@ -1,0 +1,18 @@
+[Unit]
+Description=Extra Consultoria — CONFENGE target-fit national reconciliation
+Documentation=file:/opt/extra-cli/docs/confenge/TARGET-FIT-CONTINUOUS-REFRESH.md
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=extra
+WorkingDirectory=/opt/extra-cli
+EnvironmentFile=-/etc/extra-cli/extra-collector.env
+Environment=TARGET_FIT_ASYNC_MODE=SHADOW
+ExecStart=/usr/bin/python3 -m scripts.confenge_target_fit reconcile
+Nice=15
+TimeoutStartSec=6h
+
+[Install]
+WantedBy=multi-user.target

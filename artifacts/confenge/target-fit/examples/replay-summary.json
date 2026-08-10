@@ -1,0 +1,46 @@
+{
+  "generated_at": "2026-08-10T01:20:30.418133+00:00",
+  "mode": "SHADOW",
+  "companies_observed": 5,
+  "distribution": {
+    "TARGET_CONFIRMED": 2,
+    "TARGET_PROBABLE_RESEARCH": 1,
+    "TARGET_OUT_OF_SCOPE": 2
+  },
+  "rows": [
+    {
+      "company_key": "cnpj_root:11222333",
+      "shadow_class": "TARGET_CONFIRMED",
+      "transition": "TARGET_FIT_CONFIRMED",
+      "target_fit_version": "confenge-target-fit-v1"
+    },
+    {
+      "company_key": "cnpj_root:22334455",
+      "shadow_class": "TARGET_PROBABLE_RESEARCH",
+      "transition": "TARGET_FIT_RESEARCH_REQUIRED",
+      "target_fit_version": "confenge-target-fit-v1"
+    },
+    {
+      "company_key": "cnpj_root:33445566",
+      "shadow_class": "TARGET_OUT_OF_SCOPE",
+      "transition": "TARGET_FIT_UNCHANGED",
+      "target_fit_version": "confenge-target-fit-v1"
+    },
+    {
+      "company_key": "cnpj_root:44556677",
+      "shadow_class": "TARGET_CONFIRMED",
+      "transition": "TARGET_FIT_CONFIRMED",
+      "target_fit_version": "confenge-target-fit-v1"
+    },
+    {
+      "company_key": "cnpj_root:99887766",
+      "shadow_class": "TARGET_OUT_OF_SCOPE",
+      "transition": "TARGET_FIT_UNCHANGED",
+      "target_fit_version": "confenge-target-fit-v1"
+    }
+  ],
+  "notes": "Local datalake seed + CDC refresh. SHADOW does not mutate EMAIL_SEND_READY. Supply-only stays OUT. Construction becomes CONFIRMED. Consortium stays PROBABLE (conservative).",
+  "verdict_candidate": "TARGET_FIT_ASYNC_READY",
+  "depends_on_pr": 211,
+  "merge_after": "#211"
+}
