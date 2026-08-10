@@ -1,0 +1,28 @@
+CONFENGE Commercial Code Quality	pass	53s	https://github.com/tjsasakifln/extra-cli/actions/runs/31346169781/job/93328419096	
+CONFENGE Contract Relevance	pass	43s	https://github.com/tjsasakifln/extra-cli/actions/runs/31346169781/job/93328419133	
+CONFENGE Final Evidence Integrity	pass	44s	https://github.com/tjsasakifln/extra-cli/actions/runs/31346169781/job/93328513557	
+CONFENGE Full Pipeline E2E Evidence	pass	35s	https://github.com/tjsasakifln/extra-cli/actions/runs/31346169781/job/93328419116	
+CONFENGE Human Package Publication	pass	36s	https://github.com/tjsasakifln/extra-cli/actions/runs/31346169781/job/93328419048	
+CONFENGE Real Historical Evidence	pass	28s	https://github.com/tjsasakifln/extra-cli/actions/runs/31346169781/job/93328419081	
+CONFENGE Real Registry Evidence	pass	41s	https://github.com/tjsasakifln/extra-cli/actions/runs/31346169781/job/93328419109	
+CONFENGE Sector Fit	pass	49s	https://github.com/tjsasakifln/extra-cli/actions/runs/31346169781/job/93328419034	
+CONFENGE Snapshot Restore Evidence	pass	41s	https://github.com/tjsasakifln/extra-cli/actions/runs/31346169781/job/93328419195	
+CONFENGE Structural Commercial Checks	pass	49s	https://github.com/tjsasakifln/extra-cli/actions/runs/31346169781/job/93328540192	
+CONFENGE Structural E2E Checks	pass	46s	https://github.com/tjsasakifln/extra-cli/actions/runs/31346169781/job/93328419032	
+CONFENGE Structural Historical Checks	pass	45s	https://github.com/tjsasakifln/extra-cli/actions/runs/31346169781/job/93328419022	
+CONFENGE Structural Human Commercial Checks	pass	9s	https://github.com/tjsasakifln/extra-cli/actions/runs/31346169781/job/93328419060	
+CONFENGE Structural Human Evaluation Checks	pass	35s	https://github.com/tjsasakifln/extra-cli/actions/runs/31346169781/job/93328419066	
+CONFENGE Structural Registry Checks	pass	42s	https://github.com/tjsasakifln/extra-cli/actions/runs/31346169781/job/93328419064	
+CONFENGE Structural Snapshot Checks	pass	42s	https://github.com/tjsasakifln/extra-cli/actions/runs/31346169781/job/93328419102	
+Dependency Audit (pip-audit)	pass	44s	https://github.com/tjsasakifln/extra-cli/actions/runs/31346169781/job/93328419090	
+Edital Relevance Foundation	pass	8m35s	https://github.com/tjsasakifln/extra-cli/actions/runs/31346169781/job/93328419042	
+Generated Artifacts Policy	pass	7s	https://github.com/tjsasakifln/extra-cli/actions/runs/31346169781/job/93328419178	
+Lint (ruff)	pass	33s	https://github.com/tjsasakifln/extra-cli/actions/runs/31346169781/job/93328419024	
+PR Reviewability Policy	pass	9s	https://github.com/tjsasakifln/extra-cli/actions/runs/31346169796/job/93328419052	
+Pytest Skip Policy	pass	10s	https://github.com/tjsasakifln/extra-cli/actions/runs/31346169781/job/93328419037	
+Resilience Gate (pre-VPS)	pass	1m24s	https://github.com/tjsasakifln/extra-cli/actions/runs/31346169781/job/93328419041	
+Security (bandit)	pass	46s	https://github.com/tjsasakifln/extra-cli/actions/runs/31346169781/job/93328419051	
+Test (critical readiness)	pass	1m0s	https://github.com/tjsasakifln/extra-cli/actions/runs/31346169781/job/93328419026	
+Test All (full suite)	pass	8m9s	https://github.com/tjsasakifln/extra-cli/actions/runs/31346169781/job/93328419044	
+Test operational expanded (PR)	pass	47s	https://github.com/tjsasakifln/extra-cli/actions/runs/31346169781/job/93328418991	
+Type Check (mypy)	pass	37s	https://github.com/tjsasakifln/extra-cli/actions/runs/31346169781/job/93328419033	

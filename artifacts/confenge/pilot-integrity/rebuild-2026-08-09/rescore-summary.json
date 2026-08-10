@@ -1,0 +1,27 @@
+{
+  "n": 48748,
+  "tf_dist": {
+    "TARGET_PROBABLE_RESEARCH": 39212,
+    "TARGET_OUT_OF_SCOPE": 3930,
+    "TARGET_CONFIRMED": 5606
+  },
+  "tier_dist": {
+    "RESEARCH_ONLY": 39212,
+    "OUT_OF_SCOPE": 3930,
+    "A_AUTOMATIC": 2369,
+    "B_EVIDENCE_SUPPORTED": 3237
+  },
+  "confirmed": 5606,
+  "fp50": 0,
+  "struct_ok": false,
+  "svc_dist": {
+    "apoio_licitacoes_propostas": 3,
+    "gestao_monitoramento_contratual": 28,
+    "reforco_temporario_backoffice": 10,
+    "auditoria_orcamento_bdi": 8,
+    "medicoes_glosas_memoria": 1
+  },
+  "dup_blocked": true,
+  "verdict": "NO_GO",
+  "concentration_flag": null
+}

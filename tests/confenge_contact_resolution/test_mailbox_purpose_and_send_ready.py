@@ -11,10 +11,10 @@ from scripts.confenge_contact_resolution.mailbox_purpose import (
 )
 from scripts.confenge_contact_resolution.send_readiness import (
     TIER_A_AUTOMATIC,
-    TIER_B_EVIDENCE_SUPPORTED,
     TIER_OUT_OF_SCOPE,
     TIER_RESEARCH_ONLY,
     classify_target_fit_send_tier,
+    evaluate_copy_context_ready,
     evaluate_email_send_ready,
     ready_supply_target,
 )
@@ -97,11 +97,39 @@ def test_out_of_scope_verified_email_not_send_ready() -> None:
 def test_generic_contato_can_pass_when_all_gates_ok() -> None:
     company = {
         "outreach_eligibility": "ELIGIBLE",
-        "construction_evidence": {"sector_fit": "CONFIRMED_ENGINEERING"},
+        "construction_evidence": {
+            "sector_fit": "CONFIRMED_ENGINEERING",
+            "target_fit_class": "TARGET_CONFIRMED",
+            "relevant_contract_count": 4,
+        },
+        "target_fit_class": "TARGET_CONFIRMED",
         "service_code": "REAJUSTE_14133",
         "portfolio": {"pass_contract_count": 4},
-        "factual_hook": "Contrato de engenharia PASS recente.",
+        "factual_hook": "Contrato de engenharia PASS recente no órgão X.",
+        "observed_fact": (
+            "objeto: pavimentação asfáltica CBUQ em vias urbanas; órgão: Pref. X; UF RS"
+        ),
+        "why_this_account": (
+            "executora de pavimentação com contratos públicos recentes no RS — "
+            "objeto: pavimentação asfáltica CBUQ em vias urbanas"
+        ),
+        "why_now": "aditivo recente no contrato municipal de pavimentação asfáltica CBUQ",
+        "micro_offer_code": "REAJUSTE_CHECK",
+        "evidence_ids": ["ev-contract-1"],
+        "cta": "Posso te mandar o recorte público que encontrei?",
         "canonical_universe_member": True,
+        "service_candidates": [
+            {
+                "service_id": "estruturacao_pleito_reajuste",
+                "supporting_signal_ids": ["mature_no_reajuste"],
+                "evidence_ids": ["ev-contract-1"],
+            }
+        ],
+        "primary_service": {
+            "service_id": "estruturacao_pleito_reajuste",
+            "supporting_signal_ids": ["mature_no_reajuste"],
+            "evidence_ids": ["ev-contract-1"],
+        },
     }
     email = "contato@empresa-target.com.br"
     mp = classify_mailbox_purpose(email)
@@ -112,11 +140,14 @@ def test_generic_contato_can_pass_when_all_gates_ok() -> None:
         email=email,
         ownership_status="COMPANY_OWNED",
         verification_status="OBSERVED",
-        service_code="REAJUSTE_14133",
+        service_code="estruturacao_pleito_reajuste",
         factual_evidence=True,
+        evidence_ids=["ev-contract-1"],
     )
     assert r.email_send_ready is True
     assert r.mailbox_purpose == PURPOSE_GENERIC_CONTACT
+    assert r.copy_context_ready is True
+    assert r.service_fit_supported is True
 
 
 def test_comercial_preferred_over_generic_rank() -> None:
@@ -169,9 +200,15 @@ def test_research_only_stays_in_reservoir_not_send_ready() -> None:
     assert r.target_fit_send_tier == TIER_RESEARCH_ONLY
 
 
-def test_b_evidence_supported_possible_with_pass_contracts() -> None:
+def test_possible_fit_never_send_tier_even_with_pass_counts() -> None:
+    """POSSIBLE is TARGET_PROBABLE_RESEARCH — never EMAIL_SEND_READY tier A/B."""
     company = {
-        "construction_evidence": {"sector_fit": "POSSIBLE_ENGINEERING_FIT"},
+        "construction_evidence": {
+            "sector_fit": "POSSIBLE_ENGINEERING_FIT",
+            "target_fit_class": "TARGET_PROBABLE_RESEARCH",
+            "relevant_contract_count": 3,
+        },
+        "target_fit_class": "TARGET_PROBABLE_RESEARCH",
         "portfolio": {"pass_contract_count": 3},
         "service_code": "REAJUSTE_14133",
         "primary_trigger": "NEW_RELEVANT_CONTRACT",
@@ -179,12 +216,28 @@ def test_b_evidence_supported_possible_with_pass_contracts() -> None:
         "canonical_universe_member": True,
     }
     fit = classify_target_fit_send_tier(company)
-    assert fit.tier == TIER_B_EVIDENCE_SUPPORTED
+    assert fit.tier == TIER_RESEARCH_ONLY
+    r = evaluate_email_send_ready(
+        company=company,
+        email="comercial@x.com.br",
+        ownership_status="COMPANY_OWNED",
+        verification_status="OBSERVED",
+        service_code="REAJUSTE_14133",
+        factual_evidence=True,
+    )
+    assert r.email_send_ready is False
 
 
 def test_a_automatic_confirmed() -> None:
     company = {
-        "construction_evidence": {"sector_fit": "CONFIRMED_ENGINEERING"},
+        "construction_evidence": {
+            "sector_fit": "CONFIRMED_ENGINEERING",
+            "target_fit_class": "TARGET_CONFIRMED",
+            "relevant_contract_count": 2,
+        },
+        "target_fit_class": "TARGET_CONFIRMED",
+        "portfolio": {"pass_contract_count": 2},
+        "factual_hook": "obra pública",
         "canonical_universe_member": True,
     }
     assert classify_target_fit_send_tier(company).tier == TIER_A_AUTOMATIC
@@ -198,7 +251,11 @@ def test_ready_supply_target_formula() -> None:
 def test_send_ready_invariant_requires_universe_and_tier() -> None:
     """SEND_READY => canonical_universe_member && tier in {A,B}."""
     company = {
-        "construction_evidence": {"sector_fit": "CONFIRMED_ENGINEERING"},
+        "construction_evidence": {
+            "sector_fit": "CONFIRMED_ENGINEERING",
+            "target_fit_class": "TARGET_CONFIRMED",
+        },
+        "target_fit_class": "TARGET_CONFIRMED",
         "canonical_universe_member": False,
         "service_code": "X",
         "factual_hook": "y",
@@ -212,3 +269,110 @@ def test_send_ready_invariant_requires_universe_and_tier() -> None:
         factual_evidence=True,
     )
     assert r.email_send_ready is False
+
+
+def test_copy_context_incomplete_blocks_send_ready() -> None:
+    company = {
+        "outreach_eligibility": "ELIGIBLE",
+        "construction_evidence": {
+            "sector_fit": "CONFIRMED_ENGINEERING",
+            "target_fit_class": "TARGET_CONFIRMED",
+            "relevant_contract_count": 3,
+        },
+        "target_fit_class": "TARGET_CONFIRMED",
+        "service_code": "gestao_monitoramento_contratual",
+        "portfolio": {"pass_contract_count": 3},
+        "canonical_universe_member": True,
+        # missing why_you / micro_offer / evidence / cta on purpose
+        "factual_hook": "portfólio público",
+    }
+    r = evaluate_email_send_ready(
+        company=company,
+        email="comercial@construtora.com.br",
+        ownership_status="COMPANY_OWNED",
+        verification_status="VERIFIED",
+        service_code="gestao_monitoramento_contratual",
+        factual_evidence=True,
+    )
+    assert r.email_send_ready is False
+    assert r.copy_context_ready is False
+    assert any("copy_context" in x for x in r.reasons)
+
+
+def test_total_contract_count_is_not_pass_evidence() -> None:
+    """Regression: active_contract_count must not inflate pass_contract_count."""
+    company = {
+        "construction_evidence": {"sector_fit": "POSSIBLE_ENGINEERING_FIT"},
+        "portfolio": {"active_contract_count": 69, "contract_count_total": 69},
+        "canonical_universe_member": True,
+    }
+    fit = classify_target_fit_send_tier(company)
+    assert fit.tier == TIER_RESEARCH_ONLY
+
+
+def test_evaluate_copy_context_requires_non_generic_why() -> None:
+    company = {
+        "why_this_account": "empresa com momento comercial público: ACME",
+        "why_now": "x",
+        "observed_fact": "y",
+        "service_code": "REAJUSTE",
+        "micro_offer_code": "REAJUSTE_CHECK",
+        "evidence_ids": ["e1"],
+        "cta": "posso enviar?",
+    }
+    res = evaluate_copy_context_ready(company)
+    assert res.copy_context_ready is False
+    assert "why_this_account" in res.missing_fields
+
+
+def test_copy_context_rejects_hollow_portfolio_count_fact() -> None:
+    """COPY_CONTEXT must reject portfolio-count as observed_fact (skeptic gap)."""
+    company = {
+        "why_this_account": (
+            "ACME com execução pública observável — objeto: pavimentação asfáltica "
+            "CBUQ no município de Coxilha; órgão: Pref. Coxilha"
+        ),
+        "why_now": "Menção a reequilíbrio em material contratual ingerido com nexo documentado.",
+        "observed_fact": "Portfólio público observado com 3 contrato(s) no input.",
+        "service_code": "REEQUILIBRIO",
+        "micro_offer_code": "CLAIM_READINESS_CHECK",
+        "evidence_ids": ["cf-portfolio-count"],
+        "cta": "Ofereço leitura técnica do material de reequilíbrio.",
+    }
+    res = evaluate_copy_context_ready(company)
+    assert res.copy_context_ready is False
+    assert "observed_fact" in res.missing_fields
+
+
+def test_service_fit_requires_candidate_evidence_not_bare_code() -> None:
+    """Bare service_code without signals/evidence is NOT SERVICE_FIT_SUPPORTED."""
+    company = {
+        "outreach_eligibility": "ELIGIBLE",
+        "construction_evidence": {
+            "sector_fit": "CONFIRMED_ENGINEERING",
+            "target_fit_class": "TARGET_CONFIRMED",
+            "relevant_contract_count": 3,
+        },
+        "target_fit_class": "TARGET_CONFIRMED",
+        "service_code": "auditoria_orcamento_bdi",
+        "canonical_universe_member": True,
+        "observed_fact": "objeto: pavimentação asfáltica em CBUQ; órgão: Pref. Y",
+        "why_this_account": "ACME — objeto: pavimentação asfáltica em CBUQ; órgão: Pref. Y",
+        "why_now": "Portfólio multi-contrato sem especialidade documental de planilha.",
+        "micro_offer_code": "DOCUMENT_CHECKLIST",
+        "evidence_ids": ["cf-contract-1"],
+        "cta": "Posso enviar checklist de planilha?",
+        # no service_candidates / supporting_signal_ids
+    }
+    r = evaluate_email_send_ready(
+        company=company,
+        email="comercial@construtora.com.br",
+        ownership_status="COMPANY_OWNED",
+        verification_status="VERIFIED",
+        service_code="auditoria_orcamento_bdi",
+        factual_evidence=True,
+        evidence_ids=["cf-contract-1"],
+    )
+    assert r.service_fit_supported is False
+    assert r.email_send_ready is False
+    assert any("service_fit_unsupported" in x for x in r.reasons)

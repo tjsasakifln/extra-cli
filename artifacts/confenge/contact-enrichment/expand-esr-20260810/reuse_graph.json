@@ -1,0 +1,767 @@
+{
+  "email_to_cnpjs": {
+    "arantes@terraplenagem.com": [
+      "05895635000118"
+    ],
+    "contato@garden.com.br": [
+      "07351538000190"
+    ],
+    "email@email.com": [
+      "08150094000197"
+    ],
+    "imprensa@matera.com": [
+      "08150094000197"
+    ],
+    "lytoranea@lytoranea.com.br": [
+      "07792269000105"
+    ],
+    "u003eancar@nectarc.com.br": [
+      "00758756000102"
+    ],
+    "u003ejardimsul@vcrp.com.br": [
+      "00758756000102"
+    ],
+    "u003ejunior@alamedacom.com.br": [
+      "00758756000102"
+    ],
+    "vendas@garden.com.br": [
+      "07351538000190"
+    ],
+    "voce@empresa.com.br": [
+      "08150094000197"
+    ]
+  },
+  "phone_to_cnpjs": {
+    "+551120403635": [
+      "00758756000102"
+    ],
+    "+551132562333": [
+      "00242092000116"
+    ],
+    "+551134304532": [
+      "02558157000162"
+    ],
+    "+551135120300": [
+      "08150094000197"
+    ],
+    "+551135790891": [
+      "01616929000102"
+    ],
+    "+551137793965": [
+      "00758756000102"
+    ],
+    "+551141374760": [
+      "07351538000190"
+    ],
+    "+551144904600": [
+      "00758756000102"
+    ],
+    "+551146894700": [
+      "02250663000190"
+    ],
+    "+5511996480082": [
+      "00338885000133"
+    ],
+    "+551237791883": [
+      "08150094000197"
+    ],
+    "+551239243000": [
+      "00758756000102"
+    ],
+    "+551254617226": [
+      "05895635000118"
+    ],
+    "+551333612533": [
+      "05895635000118"
+    ],
+    "+551362893302": [
+      "05895635000118"
+    ],
+    "+5513918559770": [
+      "05895635000118"
+    ],
+    "+5513974166921": [
+      "05895635000118"
+    ],
+    "+551438583013": [
+      "02250663000190"
+    ],
+    "+551717531256": [
+      "08150094000197"
+    ],
+    "+551718023512": [
+      "08150094000197"
+    ],
+    "+551732662006": [
+      "05321084000189"
+    ],
+    "+551741710170": [
+      "07351538000190"
+    ],
+    "+551742834339": [
+      "03006548000137"
+    ],
+    "+551742834341": [
+      "03006548000137"
+    ],
+    "+551742834343": [
+      "03006548000137"
+    ],
+    "+551762165142": [
+      "07351538000190"
+    ],
+    "+551779073137": [
+      "02955426000124"
+    ],
+    "+551782643044": [
+      "08150094000197"
+    ],
+    "+551785776835": [
+      "02955426000124"
+    ],
+    "+551785776839": [
+      "02955426000124"
+    ],
+    "+551786052428": [
+      "05895635000118"
+    ],
+    "+551786052429": [
+      "05895635000118"
+    ],
+    "+551786113673": [
+      "05895635000118"
+    ],
+    "+551786287799": [
+      "02955426000124"
+    ],
+    "+551786296089": [
+      "03006548000137"
+    ],
+    "+551786296090": [
+      "03006548000137"
+    ],
+    "+551786304417": [
+      "02955426000124"
+    ],
+    "+551786313706": [
+      "07351538000190"
+    ],
+    "+551786313707": [
+      "07351538000190"
+    ],
+    "+551786314149": [
+      "07351538000190"
+    ],
+    "+551786320843": [
+      "07351538000190"
+    ],
+    "+551786330629": [
+      "03006548000137"
+    ],
+    "+551786330738": [
+      "07351538000190"
+    ],
+    "+551786330751": [
+      "07351538000190"
+    ],
+    "+551937284000": [
+      "00758756000102"
+    ],
+    "+551937947700": [
+      "08150094000197"
+    ],
+    "+552029860249": [
+      "00237518000143"
+    ],
+    "+552126882063": [
+      "07792269000105"
+    ],
+    "+552326082023": [
+      "07351538000190"
+    ],
+    "+552545352419": [
+      "02955426000124"
+    ],
+    "+552939404464": [
+      "02955426000124"
+    ],
+    "+553135061160": [
+      "06981180000116"
+    ],
+    "+553135067500": [
+      "06981180000116"
+    ],
+    "+553473401396": [
+      "03006548000137"
+    ],
+    "+553838412962": [
+      "07469458000133"
+    ],
+    "+554130759000": [
+      "02955426000124"
+    ],
+    "+554231412000": [
+      "03030002000111"
+    ],
+    "+554430312266": [
+      "02539384000140"
+    ],
+    "+554432324748": [
+      "06218782000116"
+    ],
+    "+554532682819": [
+      "04537626000192"
+    ],
+    "+554699082448": [
+      "07555412000137"
+    ],
+    "+554699851988": [
+      "03752550000155"
+    ],
+    "+554730274661": [
+      "03574370000120"
+    ],
+    "+554791754403": [
+      "06145928000140"
+    ],
+    "+554888369045": [
+      "06955770000174"
+    ],
+    "+554932451311": [
+      "06099082000150"
+    ],
+    "+555430276956": [
+      "07351538000190"
+    ],
+    "+555433591119": [
+      "00220982000127"
+    ],
+    "+555537911450": [
+      "05755180000135"
+    ],
+    "+555537911533": [
+      "03145493000146"
+    ],
+    "+555558998500": [
+      "02250663000190"
+    ],
+    "+556137732000": [
+      "07094346000145"
+    ],
+    "+556232433102": [
+      "01616929000102"
+    ],
+    "+556240060123": [
+      "00237518000143"
+    ],
+    "+556536673222": [
+      "02499237000194"
+    ],
+    "+556733235800": [
+      "05296337000101"
+    ],
+    "+556761407501": [
+      "01616929000102"
+    ],
+    "+557496969728": [
+      "03006548000137",
+      "05895635000118",
+      "07351538000190"
+    ],
+    "+558132248725": [
+      "07765850000120"
+    ],
+    "+558133225522": [
+      "00338885000133",
+      "00999591000152"
+    ],
+    "+558134272422": [
+      "02908931000118"
+    ],
+    "+558134452271": [
+      "00758756000102"
+    ],
+    "+558433189500": [
+      "00779059000120"
+    ],
+    "+558440063424": [
+      "00758756000102"
+    ],
+    "+558441030961": [
+      "08150094000197"
+    ],
+    "+558521387366": [
+      "07279410000162"
+    ],
+    "+558532892363": [
+      "03006548000137"
+    ],
+    "+558534541000": [
+      "02200917000165"
+    ],
+    "+558737791591": [
+      "05545366000160"
+    ],
+    "+558889731610": [
+      "08150094000197"
+    ],
+    "+559491559913": [
+      "02250663000190"
+    ],
+    "0000000000": [
+      "07351538000190"
+    ],
+    "00000000000": [
+      "00758756000102",
+      "07351538000190"
+    ],
+    "000000000000": [
+      "06280244000151"
+    ],
+    "0484562807": [
+      "08150094000197"
+    ],
+    "069474677277": [
+      "05895635000118"
+    ],
+    "10035675004": [
+      "05321084000189"
+    ],
+    "13038930552": [
+      "00237518000143"
+    ],
+    "13333333333": [
+      "02955426000124"
+    ],
+    "13725490196": [
+      "02955426000124"
+    ],
+    "17210495016": [
+      "03006548000137"
+    ],
+    "17273862688": [
+      "03006548000137"
+    ],
+    "17817915094": [
+      "03006548000137",
+      "05321084000189",
+      "07765850000120",
+      "08150094000197"
+    ],
+    "17857768402": [
+      "02955426000124"
+    ],
+    "17862878003": [
+      "02955426000124"
+    ],
+    "17863044186": [
+      "02955426000124"
+    ],
+    "20190327000": [
+      "01616929000102"
+    ],
+    "20220503142": [
+      "02955426000124"
+    ],
+    "20260809235": [
+      "02250663000190"
+    ],
+    "30000000269": [
+      "00758756000102"
+    ],
+    "40698787754": [
+      "02955426000124"
+    ],
+    "45236872111": [
+      "02955426000124"
+    ],
+    "45833333333": [
+      "05895635000118"
+    ],
+    "48104550345": [
+      "02955426000124"
+    ],
+    "49733024081": [
+      "02955426000124"
+    ],
+    "52555899850": [
+      "02250663000190"
+    ],
+    "525558998500": [
+      "02250663000190"
+    ],
+    "86274509803": [
+      "02955426000124"
+    ],
+    "86666666666": [
+      "02955426000124"
+    ],
+    "94019679303": [
+      "02250663000190"
+    ],
+    "97865839130": [
+      "00338885000133"
+    ],
+    "97865839131": [
+      "00338885000133"
+    ],
+    "97885752298": [
+      "00338885000133"
+    ],
+    "97885752299": [
+      "00338885000133"
+    ]
+  },
+  "domain_to_cnpjs": {
+    "alamedacom.com.br": [
+      "00758756000102"
+    ],
+    "email.com": [
+      "08150094000197"
+    ],
+    "empresa.com.br": [
+      "08150094000197"
+    ],
+    "garden.com.br": [
+      "07351538000190"
+    ],
+    "lytoranea.com.br": [
+      "07792269000105"
+    ],
+    "matera.com": [
+      "08150094000197"
+    ],
+    "nectarc.com.br": [
+      "00758756000102"
+    ],
+    "terraplenagem.com": [
+      "05895635000118"
+    ],
+    "vcrp.com.br": [
+      "00758756000102"
+    ]
+  },
+  "cnpj_meta": {
+    "00220982000127": {
+      "razao_social": "MATT CONSTRUTORA LTDA",
+      "cnpj_root": "00220982"
+    },
+    "00237518000143": {
+      "razao_social": "CONSTRUTORA CAIAPO LTDA",
+      "cnpj_root": "00237518"
+    },
+    "00242092000116": {
+      "razao_social": "MULTICON ENGENHARIA LTDA",
+      "cnpj_root": "00242092"
+    },
+    "00338885000133": {
+      "razao_social": "NOVATEC CONSTRUCOES E EMPREENDIMENTOS LTDA",
+      "cnpj_root": "00338885"
+    },
+    "00758756000102": {
+      "razao_social": "CONSTRUTORA ANCAR LTDA",
+      "cnpj_root": "00758756"
+    },
+    "00779059000120": {
+      "razao_social": "CONSTRUTORA LUIZ COSTA LTDA",
+      "cnpj_root": "00779059"
+    },
+    "00999591000152": {
+      "razao_social": "A.G.C CONSTRUCOES & EMPREENDIMENTOS LTDA",
+      "cnpj_root": "00999591"
+    },
+    "01616929000102": {
+      "razao_social": "SANEAMENTO DE GOIAS S/A",
+      "cnpj_root": "01616929"
+    },
+    "02200917000165": {
+      "razao_social": "COPA ENGENHARIA LTDA",
+      "cnpj_root": "02200917"
+    },
+    "02250663000190": {
+      "razao_social": "GONCALVES & DIAS ENGENHARIA LTDA",
+      "cnpj_root": "02250663"
+    },
+    "02499237000194": {
+      "razao_social": "RIVOLI CONSTRUTORA LTDA",
+      "cnpj_root": "02499237"
+    },
+    "02539384000140": {
+      "razao_social": "EXTRACON MINERACAO E OBRAS LTDA",
+      "cnpj_root": "02539384"
+    },
+    "02558157000162": {
+      "razao_social": "TELEFONICA BRASIL S.A.",
+      "cnpj_root": "02558157"
+    },
+    "02908931000118": {
+      "razao_social": "CONSTRUTORA SBM LTDA",
+      "cnpj_root": "02908931"
+    },
+    "02955426000124": {
+      "razao_social": "NEOVIA INFRAESTRUTURA RODOVIARIA LTDA",
+      "cnpj_root": "02955426"
+    },
+    "03006548000137": {
+      "razao_social": "COSAMPA CONSTRUCOES LTDA",
+      "cnpj_root": "03006548"
+    },
+    "03030002000111": {
+      "razao_social": "PAVIMENTACOES E TERRAPLENAGENS SCHMITT LTDA",
+      "cnpj_root": "03030002"
+    },
+    "03145493000146": {
+      "razao_social": "CONSTRUTORA E INCORPORADORA PALMITINHO LTDA",
+      "cnpj_root": "03145493"
+    },
+    "03574370000120": {
+      "razao_social": "EMPREITEIRA DE MAO DE OBRA ADRIMAR LTDA",
+      "cnpj_root": "03574370"
+    },
+    "03752550000155": {
+      "razao_social": "SIX PAVIMENTACAO LTDA",
+      "cnpj_root": "03752550"
+    },
+    "04537626000192": {
+      "razao_social": "COBREBEM CONSTRUTORA DE OBRAS LTDA",
+      "cnpj_root": "04537626"
+    },
+    "05296337000101": {
+      "razao_social": "TOPOSAT AMBIENTAL LTDA",
+      "cnpj_root": "05296337"
+    },
+    "05321084000189": {
+      "razao_social": "USINA DO VALE CONSTRUTORA LTDA",
+      "cnpj_root": "05321084"
+    },
+    "05545366000160": {
+      "razao_social": "C P M CONSTRUTORA LTDA",
+      "cnpj_root": "05545366"
+    },
+    "05755180000135": {
+      "razao_social": "BOA FE CONSTRUCOES LTDA",
+      "cnpj_root": "05755180"
+    },
+    "05895635000118": {
+      "razao_social": "JR CONSTRUCOES E TERRAPLENAGEM LTDA",
+      "cnpj_root": "05895635"
+    },
+    "06099082000150": {
+      "razao_social": "CONSBRITA CONSTRUTORA DE OBRAS LTDA",
+      "cnpj_root": "06099082"
+    },
+    "06145928000140": {
+      "razao_social": "CONSTRUCAO CIVIL M G LTDA",
+      "cnpj_root": "06145928"
+    },
+    "06218782000116": {
+      "razao_social": "CASA DO ASFALTO DISTRIBUIDORA, INDUSTRIA E COMERCIO DE ASFALTO LTDA",
+      "cnpj_root": "06218782"
+    },
+    "06280244000151": {
+      "razao_social": "CONSTRUTORA VALE DO OURO LTDA",
+      "cnpj_root": "06280244"
+    },
+    "06955770000174": {
+      "razao_social": "R MORAES AGENCIA DE TURISMO LTDA",
+      "cnpj_root": "06955770"
+    },
+    "06981180000116": {
+      "razao_social": "CEMIG DISTRIBUICAO S.A",
+      "cnpj_root": "06981180"
+    },
+    "07094346000145": {
+      "razao_social": "G4F SOLUCOES CORPORATIVAS LTDA",
+      "cnpj_root": "07094346"
+    },
+    "07279410000162": {
+      "razao_social": "JOTA BARROS PROJETOS E ASSESSORIA TECNICA LTDA",
+      "cnpj_root": "07279410"
+    },
+    "07351538000190": {
+      "razao_social": "GARDEN CONSULTORIA PROJETOS E GESTAO LTDA",
+      "cnpj_root": "07351538"
+    },
+    "07469458000133": {
+      "razao_social": "ENGENORTE - ENGENHARIA, SERVICOS E CONSULTORIA LTDA",
+      "cnpj_root": "07469458"
+    },
+    "07555412000137": {
+      "razao_social": "KOLF SERVICOS DE ENGENHARIA LTDA",
+      "cnpj_root": "07555412"
+    },
+    "07765850000120": {
+      "razao_social": "PROJECON - PROJETOS E CONSTRUCOES LTDA",
+      "cnpj_root": "07765850"
+    },
+    "07792269000105": {
+      "razao_social": "CONSTRUTORA LYTORANEA LTDA - EM RECUPERACAO JUDICIAL",
+      "cnpj_root": "07792269"
+    },
+    "08150094000197": {
+      "razao_social": "MATERA ENGENHARIA LTDA",
+      "cnpj_root": "08150094"
+    },
+    "08336260000144": {
+      "razao_social": "BARROS & ARAUJO ENGENHARIA LTDA",
+      "cnpj_root": "08336260"
+    },
+    "08588912000138": {
+      "razao_social": "Pavimax E.J.F. Empreendimentos ltda ¿ EPP",
+      "cnpj_root": "08588912"
+    },
+    "08593703000182": {
+      "razao_social": "PAS - PROJETO, ASSESORIA E SISTEMA LTDA",
+      "cnpj_root": "08593703"
+    },
+    "08642026000145": {
+      "razao_social": "O K EMPREENDIMENTOS CONSTRUCOES E SERVICOS LTDA",
+      "cnpj_root": "08642026"
+    },
+    "08715392000187": {
+      "razao_social": "SM RESENDE CONSTRUCOES E INCORPORACOES LTDA",
+      "cnpj_root": "08715392"
+    },
+    "08761499000161": {
+      "razao_social": "VASCONCELOS ENGENHARIA LTDA",
+      "cnpj_root": "08761499"
+    },
+    "08815415000125": {
+      "razao_social": "CONSTRUTORA E TRANSPORTADORA IDEAL LTDA - ME",
+      "cnpj_root": "08815415"
+    },
+    "09195930000112": {
+      "razao_social": "THI ENGENHARIA E ARQUITETURA LTDA.",
+      "cnpj_root": "09195930"
+    },
+    "09223659000181": {
+      "razao_social": "Viga Pavimentação e Obras Ltda",
+      "cnpj_root": "09223659"
+    },
+    "09511886000102": {
+      "razao_social": "GB & GB CONSTRUCOES LTDA",
+      "cnpj_root": "09511886"
+    },
+    "09549705000137": {
+      "razao_social": "Magnus Engenharia e Arquitetura Ltda",
+      "cnpj_root": "09549705"
+    },
+    "10395581000161": {
+      "razao_social": "PREMIER SOLUTION LTDA",
+      "cnpj_root": "10395581"
+    },
+    "10434136000163": {
+      "razao_social": "MACRO CONSTRUCOES E ENGENHARIA LTDA",
+      "cnpj_root": "10434136"
+    },
+    "10477919000124": {
+      "razao_social": "DATERRA CONSTRUCOES E SERVICOS LTDA",
+      "cnpj_root": "10477919"
+    },
+    "10499738000107": {
+      "razao_social": "SAO BENTO ILUMINACAO LTDA",
+      "cnpj_root": "10499738"
+    },
+    "10558895000138": {
+      "razao_social": "NOROMIX CONCRETO S A",
+      "cnpj_root": "10558895"
+    },
+    "10641065000170": {
+      "razao_social": "NIEMAIA CONSTRUCOES LTDA",
+      "cnpj_root": "10641065"
+    },
+    "10671681000173": {
+      "razao_social": "R&S PRESTADORA DE SERVICOS LTDA",
+      "cnpj_root": "10671681"
+    },
+    "10779248000156": {
+      "razao_social": "PIZZATO ENGENHARIA EM PRE-MOLDADOS LTDA",
+      "cnpj_root": "10779248"
+    },
+    "10858746000194": {
+      "razao_social": "ROLP RENTAL LTDA",
+      "cnpj_root": "10858746"
+    },
+    "10949562000130": {
+      "razao_social": "AXPAV TERRAPLENAGEM E PAVIMENTAÇÃO LTDA",
+      "cnpj_root": "10949562"
+    },
+    "11286215000137": {
+      "razao_social": "ALEX MACHADO NUNES & CIA CONSTRUCOES LTDA",
+      "cnpj_root": "11286215"
+    },
+    "11504898000151": {
+      "razao_social": "Oeste - Locação de Maquinas e Equipamentos Ltda - ME",
+      "cnpj_root": "11504898"
+    },
+    "11557132000135": {
+      "razao_social": "FORTE SERVICO DA CONSTRUCAO CIVIL LTDA",
+      "cnpj_root": "11557132"
+    },
+    "11896697000147": {
+      "razao_social": "A S NETO ENGENHARIA LTDA - EPP",
+      "cnpj_root": "11896697"
+    },
+    "11904442000189": {
+      "razao_social": "A 5 M LTDA",
+      "cnpj_root": "11904442"
+    },
+    "12022153000119": {
+      "razao_social": "EMBRAPAV - EMPRESA BRASILEIRA DE PAVIMENTACAO LTDA",
+      "cnpj_root": "12022153"
+    },
+    "12218083000179": {
+      "razao_social": "BCL EMPREENDIMENTOS LTDA",
+      "cnpj_root": "12218083"
+    },
+    "12647362000158": {
+      "razao_social": "OMEGA CONSTRUTORA E SERVIÇOS LTDA",
+      "cnpj_root": "12647362"
+    },
+    "12805036000121": {
+      "razao_social": "MULTCOM CONSTRUTORA LTDA",
+      "cnpj_root": "12805036"
+    },
+    "13438063000176": {
+      "razao_social": "CONSTRUSETE CONSTRUTORA LTDA",
+      "cnpj_root": "13438063"
+    },
+    "13495966000199": {
+      "razao_social": "V. F. GOMES CONSTRUTORA LTDA",
+      "cnpj_root": "13495966"
+    },
+    "13585696000107": {
+      "razao_social": "CONSTRUTORA JF PRADO LTDA",
+      "cnpj_root": "13585696"
+    },
+    "13609718000121": {
+      "razao_social": "JD CONSTRUCOES E SERVICOS LTDA",
+      "cnpj_root": "13609718"
+    },
+    "13613420000195": {
+      "razao_social": "ECOPONTES - SISTEMAS ESTRUTURAIS SUSTENTAVEIS LTDA",
+      "cnpj_root": "13613420"
+    },
+    "13731196000136": {
+      "razao_social": "LCAD SERVICOS DE ENGENHARIA LTDA.",
+      "cnpj_root": "13731196"
+    },
+    "13859951000162": {
+      "razao_social": "CONNECT ON MARKETING DE EVENTOS LTDA",
+      "cnpj_root": "13859951"
+    },
+    "14341694000135": {
+      "razao_social": "OUROPAV CONSTRUTORA E LOTEADORA LTDA",
+      "cnpj_root": "14341694"
+    },
+    "15137421000136": {
+      "razao_social": "WR CASSOL ENGENHARIA   CONSTRUCOES LTDA",
+      "cnpj_root": "15137421"
+    },
+    "15371451000102": {
+      "razao_social": "R3 PRESTACAO DE SERVICOS LTDA",
+      "cnpj_root": "15371451"
+    }
+  },
+  "related_cnpjs": {}
+}

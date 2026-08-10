@@ -1,0 +1,13 @@
+{
+  "timestamp_utc": "2026-08-10T03:21:19.937795+00:00",
+  "continuous_imap_status": "HOSTINGER IMAP PASS",
+  "gmail_reply_ingested": true,
+  "reply_subject": "Re: CONFENGE SELF_SMOKE 20260810T031437Z",
+  "reply_from": "tiago.sasaki@gmail.com",
+  "reply_message_id": "CACvuq=6weuwqHbZ2A3p4KQEhAXJQ6+OeFWtCDVn6a=e5dqigiw@mail.gmail.com",
+  "in_reply_to": "979e8cc4-71a3-4c44-a004-009b2d6b2888@confenge.com.br",
+  "unibox_uid": 220,
+  "internal_date": "2026-08-10T03:15:44Z",
+  "no_restart": true,
+  "pass": true
+}

@@ -1,4 +1,15 @@
-"""Service fit router — evidence + moment, not fixed score templates."""
+"""Service fit router — evidence + moment, not fixed score templates.
+
+Ordering principle:
+  concrete pain/event >
+  documentary event >
+  operational need >
+  reajuste verification window >
+  diagnóstico genérico
+
+`reajuste` is NEVER the default.
+`diagnóstico` is the commercial fallback when no specialty is sustained.
+"""
 
 from __future__ import annotations
 
@@ -21,7 +32,6 @@ def _svc_ref(service_id: str, structure_class: str, catalog: dict[str, Any]) -> 
     elif structure_class == "lean":
         mode = modes.get("lean") or modes.get("robust") or "apoio_operacional"
     else:
-        # unknown/mixed → conservative ABM framing (independent review / focal diagnosis)
         mode = modes.get("robust") or modes.get("lean") or "diagnostico_focal"
     return {
         "service_id": service_id,
@@ -44,12 +54,39 @@ def _has_reequilibrio(contracts: list[dict[str, Any]]) -> bool:
     return any(c.get("reequilibrio_mention") for c in contracts)
 
 
+def _has_budget_bdi(contracts: list[dict[str, Any]], bag: dict[str, Any]) -> bool:
+    if bag.get("signals", {}).get("budget_audit_need") or bag.get("signals", {}).get("bdi_signal"):
+        return True
+    for c in contracts:
+        if c.get("budget_or_bdi_signal") or c.get("planilha_signal"):
+            return True
+        obj = str(c.get("object") or c.get("objeto") or "").lower()
+        if any(tok in obj for tok in ("bdi", "planilha orcament", "planilha orçament", "composicao de custo")):
+            return True
+    return False
+
+
+def _has_tender_signal(contracts: list[dict[str, Any]], bag: dict[str, Any]) -> bool:
+    if bag.get("signals", {}).get("recent_tender_activity") or bag.get("signals", {}).get("proposal_window"):
+        return True
+    for c in contracts:
+        if c.get("tender_or_proposal_signal"):
+            return True
+        obj = str(c.get("object") or "").lower()
+        if any(tok in obj for tok in ("edital", "proposta comercial", "licitacao", "licitação")):
+            return True
+    return False
+
+
 def _mature_no_reajuste(contracts: list[dict[str, Any]]) -> bool:
     """True only when vigência start is known and mature — publication-only
-    dates must not invent a reajuste window (PNCP often has only pub date)."""
+    dates must not invent a reajuste window (PNCP often has only pub date).
+
+    This is a VERIFICATION window hypothesis, not proof of economic right.
+    It must not defeat stronger concrete pain signals (caller order enforces).
+    """
     for c in contracts:
         age = c.get("age_days")
-        # Require explicit start_date (not publication_date-only inference).
         if not c.get("start_date"):
             continue
         if age is not None and age >= MATURE_DAYS and not c.get("has_reajuste") and not c.get("reajuste_evidence"):
@@ -63,6 +100,288 @@ def _insufficient(bag: dict[str, Any]) -> bool:
     return len(contracts) == 0 and len(facts) == 0
 
 
+def _candidate(
+    service_id: str,
+    *,
+    score: float,
+    factual_basis: str,
+    temporal_relevance: str,
+    confidence: float,
+    supporting_signal_ids: list[str],
+    evidence_ids: list[str],
+    why_this: str,
+    why_not_others: str,
+    contraindications: list[str] | None = None,
+) -> dict[str, Any]:
+    return {
+        "service_id": service_id,
+        "score": score,
+        "supporting_signal_ids": supporting_signal_ids,
+        "evidence_ids": evidence_ids,
+        "factual_basis": factual_basis,
+        "temporal_relevance": temporal_relevance,
+        "confidence": confidence,
+        "contraindications": list(contraindications or []),
+        "why_this_service": why_this,
+        "why_not_other_services": why_not_others,
+    }
+
+
+def build_service_candidates(
+    bag: dict[str, Any],
+    *,
+    structure: dict[str, Any],
+    why: dict[str, Any],
+    catalog: dict[str, Any],
+) -> list[dict[str, Any]]:
+    """Rank service candidates from evidence. Higher score = better fit."""
+    contracts = bag.get("contracts") or []
+    sc = str(structure.get("structure_class") or "unknown")
+    discovery = discovery_service_id(catalog)
+    idx = service_index(catalog)
+    trigger = str(why.get("trigger") or "")
+    candidates: list[dict[str, Any]] = []
+
+    # Evidence IDs from contracts
+    ev_ids = [str(c.get("id")) for c in contracts if c.get("id")][:10]
+
+    if _insufficient(bag):
+        candidates.append(
+            _candidate(
+                discovery,
+                score=100,
+                factual_basis="no_contracts_no_facts",
+                temporal_relevance="none",
+                confidence=0.9,
+                supporting_signal_ids=["insufficient_facts"],
+                evidence_ids=[],
+                why_this="Fatos insuficientes: diagnóstico/descoberta sem fabricar especialidade.",
+                why_not_others="Sem dor concreta sustentada, reajuste/aditivo/glosa seriam invenção.",
+            )
+        )
+        if "inteligencia_pncp_mercado" in idx:
+            candidates.append(
+                _candidate(
+                    "inteligencia_pncp_mercado",
+                    score=40,
+                    factual_basis="empty_portfolio_market_scan",
+                    temporal_relevance="low",
+                    confidence=0.4,
+                    supporting_signal_ids=["insufficient_facts"],
+                    evidence_ids=[],
+                    why_this="Secundário de inteligência de mercado na ausência de dossiê.",
+                    why_not_others="Primário permanece diagnóstico.",
+                )
+            )
+        return candidates
+
+    # Concrete pain — highest priority
+    if trigger == "addendum" or _has_addendum(contracts):
+        candidates.append(
+            _candidate(
+                "aditivos_extracontratuais",
+                score=95,
+                factual_basis="addendum_signal_in_public_record",
+                temporal_relevance="high",
+                confidence=0.85,
+                supporting_signal_ids=["addendum"],
+                evidence_ids=ev_ids,
+                why_this="Dor contratual concreta de aditivos/alterações.",
+                why_not_others="Supera reajuste genérico e portfólio sem evento.",
+            )
+        )
+    if trigger == "glosa_medicao" or _has_glosa_med(contracts):
+        candidates.append(
+            _candidate(
+                "medicoes_glosas_memoria",
+                score=94,
+                factual_basis="glosa_or_measurement_signal",
+                temporal_relevance="high",
+                confidence=0.85,
+                supporting_signal_ids=["glosa_medicao"],
+                evidence_ids=ev_ids,
+                why_this="Sinais de glosa/medição no material público.",
+                why_not_others="Evento documental específico supera janela de reajuste.",
+            )
+        )
+    if trigger == "reequilibrio" or _has_reequilibrio(contracts):
+        candidates.append(
+            _candidate(
+                "reequilibrio_economico_financeiro",
+                score=93,
+                factual_basis="reequilibrio_mention",
+                temporal_relevance="high",
+                confidence=0.8,
+                supporting_signal_ids=["reequilibrio"],
+                evidence_ids=ev_ids,
+                why_this="Menção a reequilíbrio no material ingerido.",
+                why_not_others="Não reduzir a reajuste ordinário sem nexo.",
+            )
+        )
+    if _has_budget_bdi(contracts, bag):
+        candidates.append(
+            _candidate(
+                "auditoria_orcamento_bdi",
+                score=80,
+                factual_basis="budget_bdi_planilha_signal",
+                temporal_relevance="medium",
+                confidence=0.7,
+                supporting_signal_ids=["budget_bdi"],
+                evidence_ids=ev_ids,
+                why_this="Sinais de orçamento/BDI/planilha no material.",
+                why_not_others="Especialidade documental de planilha, não reajuste default.",
+            )
+        )
+    if _has_tender_signal(contracts, bag):
+        candidates.append(
+            _candidate(
+                "apoio_licitacoes_propostas",
+                score=78,
+                factual_basis="tender_or_proposal_signal",
+                temporal_relevance="medium",
+                confidence=0.65,
+                supporting_signal_ids=["tender_proposal"],
+                evidence_ids=ev_ids,
+                why_this="Atividade de licitação/proposta observada.",
+                why_not_others="Janela competitiva, não reajuste.",
+            )
+        )
+
+    # Operational / structure-based (FASE7).
+    # Structure proxies open ONLY gestão or diagnóstico — never invent specialty
+    # (auditoria/BDI/planilha) without specialty signals (_has_budget_bdi above).
+    # Lean backoffice: operational only with multi-contract load (≥3).
+    if (
+        sc == "lean"
+        and len(contracts) >= 3
+        and len(structure.get("lean_signals") or []) >= 2
+    ):
+        candidates.append(
+            _candidate(
+                "reforco_temporario_backoffice",
+                score=62,
+                factual_basis="lean_structure_with_load",
+                temporal_relevance="medium",
+                confidence=0.5,
+                supporting_signal_ids=["structure_lean", "multi_contract"],
+                evidence_ids=ev_ids,
+                why_this="Hipótese de estrutura enxuta com carga multi-contrato sustentada.",
+                why_not_others="Não inferir 'sem estrutura' por ausência de dados públicos.",
+            )
+        )
+    if len(contracts) >= 3:
+        # Lean multi-contract: backoffice (62) is the operational primary; gestão secondary.
+        # Robust multi (≥5) elevates gestão (72) above mature reajuste verify (48) without
+        # inventing BDI specialty.
+        # Diversity of órgãos/UFs distinguishes GESTAO_SUPPORTED from thin multi_contract.
+        orgaos = {
+            str(c.get("orgao") or c.get("agency") or c.get("orgao_nome") or "").strip()
+            for c in contracts
+            if isinstance(c, dict) and str(c.get("orgao") or c.get("agency") or c.get("orgao_nome") or "").strip()
+        }
+        ufs = {
+            str(c.get("uf") or "").strip().upper()
+            for c in contracts
+            if isinstance(c, dict) and str(c.get("uf") or "").strip()
+        }
+        diverse = len(orgaos) >= 2 or len(ufs) >= 2 or len(contracts) >= 5
+        if sc == "lean":
+            gestao_score = 55.0
+            gestao_signals = ["multi_contract", "structure_lean"]
+            if diverse:
+                gestao_signals.append("multi_orgao" if len(orgaos) >= 2 else "multi_uf")
+            else:
+                gestao_signals = ["multi_contract_thin"]
+        elif sc == "robust" and len(contracts) >= 5:
+            gestao_score = 72.0
+            gestao_signals = ["structure_robust", "multi_contract"]
+            if len(orgaos) >= 2:
+                gestao_signals.append("multi_orgao")
+            if len(ufs) >= 2:
+                gestao_signals.append("multi_uf")
+        else:
+            # Score still beats mature reajuste verify (48) so reajuste is never
+            # the silent default — but multi_contract_thin is NOT SERVICE_FIT_SUPPORTED.
+            gestao_score = 65.0 if diverse else 55.0
+            gestao_signals = ["multi_contract"]
+            if len(orgaos) >= 2:
+                gestao_signals.append("multi_orgao")
+            elif len(ufs) >= 2:
+                gestao_signals.append("multi_uf")
+            else:
+                gestao_signals = ["multi_contract_thin"]
+        candidates.append(
+            _candidate(
+                "gestao_monitoramento_contratual",
+                score=gestao_score,
+                factual_basis="multi_contract_portfolio",
+                temporal_relevance="medium",
+                confidence=0.6,
+                supporting_signal_ids=gestao_signals,
+                evidence_ids=ev_ids,
+                why_this=(
+                    f"Carteira multi-contrato (n={len(contracts)}) com sinais de "
+                    f"{', '.join(gestao_signals)} — gestão/monitoramento só se a "
+                    "dispersão de obrigações for material, não por ausência de dor."
+                ),
+                why_not_others=(
+                    "Monitoramento/gestão supera janela de verificação de reajuste; "
+                    "não inventar orçamento/BDI sem sinal de planilha."
+                ),
+            )
+        )
+
+    # Reajuste verification window (FASE7):
+    # concrete pain > documentary > operational (multi-contract) > reajuste verify > discovery
+    # Multi-contract (≥3): 48 < gestão 65 / robust 72 / lean-backoffice 62
+    # Thin mature book (1–2): 60 so verification beats discovery; not competing with gestão
+    if trigger == "mature_no_reajuste" or _mature_no_reajuste(contracts):
+        mature_score = 48.0 if len(contracts) >= 3 else 60.0
+        candidates.append(
+            _candidate(
+                "estruturacao_pleito_reajuste",
+                score=mature_score,
+                factual_basis="mature_contract_without_reajuste_proof",
+                temporal_relevance="medium",
+                confidence=0.55,
+                supporting_signal_ids=["mature_no_reajuste"],
+                evidence_ids=ev_ids,
+                why_this=(
+                    "Contrato maduro com start_date conhecido sem prova de reajuste no input: "
+                    "janela de VERIFICAÇÃO (ausência de prova ≠ evento econômico)."
+                ),
+                why_not_others=(
+                    "Em carteira multi-contrato, gestão/orçamento operacional vencem; "
+                    "em livro fino maduro, a verificação de reajuste supera discovery."
+                ),
+                contraindications=[
+                    "publication_date_only_must_not_invent_window",
+                    "must_not_defeat_multi_contract_operational_need",
+                ],
+            )
+        )
+
+    # Always keep diagnóstico as low-score fallback candidate
+    candidates.append(
+        _candidate(
+            discovery,
+            score=20,
+            factual_basis="fallback_diagnosis",
+            temporal_relevance="none",
+            confidence=0.5,
+            supporting_signal_ids=["fallback"],
+            evidence_ids=ev_ids[:3],
+            why_this="Fallback comercial correto quando especialidade não é sustentada.",
+            why_not_others="Reajuste jamais é default.",
+        )
+    )
+
+    # Drop unknown catalog ids
+    candidates = [c for c in candidates if c["service_id"] in idx]
+    candidates.sort(key=lambda c: (-float(c["score"]), c["service_id"]))
+    return candidates
+
+
 def select_services(
     bag: dict[str, Any],
     *,
@@ -70,69 +389,24 @@ def select_services(
     why: dict[str, Any],
     catalog: dict[str, Any],
 ) -> dict[str, Any]:
-    """Ordered rules: concrete pain > structure framing > discovery.
-
-    Robust/ABM never gets "full outsource / no structure" framing.
-    Lean may get operational/outsourced only with supporting evidence.
-    """
-    contracts = bag.get("contracts") or []
+    """Select primary/secondary from ranked candidates. Reajuste never default."""
     sc = str(structure.get("structure_class") or "unknown")
     discovery = discovery_service_id(catalog)
     idx = service_index(catalog)
 
-    primary_id: str
-    secondary_id: str | None
-    rationale_parts: list[str] = []
-
-    if _insufficient(bag):
+    candidates = build_service_candidates(bag, structure=structure, why=why, catalog=catalog)
+    if not candidates:
         primary_id = discovery
-        secondary_id = "inteligencia_pncp_mercado" if "inteligencia_pncp_mercado" in idx else None
-        rationale_parts.append(
-            "Fatos insuficientes no input: melhor encaixe é diagnóstico/descoberta, sem fabricar especialidade."
-        )
-    elif why.get("trigger") == "addendum" or _has_addendum(contracts):
-        primary_id = "aditivos_extracontratuais"
-        secondary_id = "gestao_monitoramento_contratual"
-        rationale_parts.append("Dor contratual concreta de aditivos/alterações supera sinal genérico de portfólio.")
-    elif why.get("trigger") == "glosa_medicao" or _has_glosa_med(contracts):
-        primary_id = "medicoes_glosas_memoria"
-        secondary_id = "gestao_monitoramento_contratual"
-        rationale_parts.append("Sinais de glosa/medição no material público apontam serviço de medições.")
-    elif why.get("trigger") == "reequilibrio" or _has_reequilibrio(contracts):
-        primary_id = "reequilibrio_economico_financeiro"
-        secondary_id = "estruturacao_pleito_reajuste"
-        rationale_parts.append("Menção a reequilíbrio no material ingerido define o encaixe primário.")
-    elif why.get("trigger") == "mature_no_reajuste" or _mature_no_reajuste(contracts):
-        primary_id = "estruturacao_pleito_reajuste"
-        secondary_id = "diagnostico_contratual_b2g"
-        rationale_parts.append(
-            "Contrato maduro sem prova de reajuste no input: ângulo de estruturação de pleito "
-            "(ausência de prova não afirma que reajuste nunca ocorreu)."
-        )
-    elif sc == "robust" and len(contracts) >= 5:
-        # National structured without specific pain → independent audit / second opinion
-        primary_id = "auditoria_orcamento_bdi"
-        secondary_id = "diagnostico_contratual_b2g"
-        rationale_parts.append(
-            "Conta com sinais de estrutura robusta/ABM: oferecer revisão independente / "
-            "segunda opinião / auditoria específica — jamais presumir ausência de estrutura."
-        )
-    elif sc == "lean" and len(contracts) > 0 and len(structure.get("lean_signals") or []) >= 2:
-        # Lean with load evidence → operational reinforcement
-        primary_id = "reforco_temporario_backoffice"
-        secondary_id = "gestao_monitoramento_contratual"
-        rationale_parts.append(
-            "Hipótese de estrutura enxuta com carga contratual observada: reforço temporário "
-            "de backoffice só porque evidências regionais/de volume sustentam — não por score fixo."
-        )
-    elif len(contracts) >= 3:
-        primary_id = "gestao_monitoramento_contratual"
-        secondary_id = discovery
-        rationale_parts.append("Portfólio multi-contrato sem dor concreta dominante: monitoramento/gestão contratual.")
+        secondary_id = None
+        rationale_parts = ["Sem candidatos: diagnóstico."]
     else:
-        primary_id = discovery
-        secondary_id = "apoio_licitacoes_propostas"
-        rationale_parts.append("Melhor ângulo atual é diagnóstico contratual B2G / discovery.")
+        primary_id = str(candidates[0]["service_id"])
+        secondary_id = str(candidates[1]["service_id"]) if len(candidates) > 1 else None
+        if secondary_id == primary_id:
+            secondary_id = str(candidates[2]["service_id"]) if len(candidates) > 2 else None
+        rationale_parts = [str(candidates[0].get("why_this_service") or "")]
+        if candidates[0].get("why_not_other_services"):
+            rationale_parts.append(str(candidates[0]["why_not_other_services"]))
 
     # Safety: never invent service outside catalog
     if primary_id not in idx:
@@ -141,22 +415,46 @@ def select_services(
     if secondary_id is not None and secondary_id not in idx:
         secondary_id = None
 
-    # Robust accounts: rewrite approach if someone tried full outsource framing
     primary = _svc_ref(primary_id, sc, catalog)
     secondary = _svc_ref(secondary_id, sc, catalog) if secondary_id else None
 
+    # Robust never gets full-outsource backoffice as primary — demote to gestão
+    # (not invented BDI specialty without budget signals).
     if sc == "robust" and primary_id == "reforco_temporario_backoffice":
-        # Policy: robust never gets lean outsource as primary
-        primary = _svc_ref("auditoria_orcamento_bdi", sc, catalog)
+        primary_id = "gestao_monitoramento_contratual"
+        primary = _svc_ref(primary_id, sc, catalog)
         secondary = _svc_ref(discovery, sc, catalog)
-        rationale_parts.append("Override de política: conta robusta não recebe outsourcing pleno como primário.")
+        rationale_parts.append(
+            "Override de política: conta robusta não recebe outsourcing pleno como primário "
+            "(gestão/monitoramento; especialidade BDI só com sinal de planilha)."
+        )
 
     if sc in {"robust", "mixed", "unknown"} and primary.get("approach_mode") == "outsourcing_operacional_temporario":
         primary = dict(primary)
         primary["approach_mode"] = "revisao_independente_segunda_opiniao"
 
+    # Propagate router evidence onto primary for SERVICE_FIT_SUPPORTED consumers.
+    primary = dict(primary)
+    win = next((c for c in candidates if c.get("service_id") == primary.get("service_id")), None)
+    if win:
+        primary["supporting_signal_ids"] = list(win.get("supporting_signal_ids") or [])
+        primary["evidence_ids"] = list(win.get("evidence_ids") or [])
+        primary["factual_basis"] = win.get("factual_basis")
+        primary["confidence"] = win.get("confidence")
+    else:
+        primary.setdefault("supporting_signal_ids", ["fallback"] if primary_id == discovery else [])
+        primary.setdefault("evidence_ids", [])
+
+    if secondary:
+        secondary = dict(secondary)
+        sec = next((c for c in candidates if c.get("service_id") == secondary.get("service_id")), None)
+        if sec:
+            secondary["supporting_signal_ids"] = list(sec.get("supporting_signal_ids") or [])
+            secondary["evidence_ids"] = list(sec.get("evidence_ids") or [])
+
     return {
         "primary_service": primary,
         "secondary_service": secondary,
-        "service_fit_rationale": " ".join(rationale_parts),
+        "service_fit_rationale": " ".join(p for p in rationale_parts if p),
+        "service_candidates": candidates,
     }

@@ -76,16 +76,120 @@ def normalize_record(raw: dict[str, Any], *, as_of: str | None = None) -> dict[s
         elif pub is not None:
             age_days = (as_of_date - pub).days
         addendum_count = _as_int(c.get("addendum_count") or c.get("aditivos_count"), 0)
-        has_addendum = _boolish(c.get("has_addendum")) or addendum_count > 0
-        has_reajuste = _boolish(c.get("has_reajuste") or c.get("reajuste_executed"))
+        obj_text = str(c.get("object") or c.get("objeto") or c.get("description") or c.get("objeto_contrato") or "")
+        obj_l = obj_text.lower()
+        # Surface specialty signals from public object text (absence ≠ proof of absence).
+        # Enables multi-service routing on real PNCP objects without invented defaults.
+        # Negated phrases ("sem aditivo", "sem glosa") must not fire specialty signals.
+        _negated = any(
+            phrase in obj_l
+            for phrase in (
+                "sem aditiv",
+                "sem glosa",
+                "sem reajuste",
+                "sem reequil",
+                "sem medicao",
+                "sem medição",
+                "nao ha aditiv",
+                "não há aditiv",
+                "ausencia de aditiv",
+                "ausência de aditiv",
+            )
+        )
+
+        def _pos(tokens: tuple[str, ...]) -> bool:
+            if _negated:
+                # still allow positive tokens only if not under a negation phrase
+                # simple approach: skip object-text specialty when negation present
+                return False
+            return any(tok in obj_l for tok in tokens)
+
+        has_addendum = (
+            _boolish(c.get("has_addendum"))
+            or addendum_count > 0
+            or _pos(
+                (
+                    "termo aditiv",
+                    "aditivo de",
+                    "aditivos de",
+                    "aditivo nº",
+                    "aditivo n",
+                    "apostilamento",
+                    "supressão",
+                    "supressao",
+                    "acréscimo",
+                    "acrescimo de",
+                    "prorrogação",
+                    "prorrogacao",
+                    "alteração qualitativa",
+                    "alteracao qualitativa",
+                    "alteração quantitativa",
+                    "alteracao quantitativa",
+                    "extracontratual",
+                )
+            )
+        )
+        has_reajuste = _boolish(c.get("has_reajuste") or c.get("reajuste_executed")) or (
+            not _negated
+            and any(tok in obj_l for tok in ("reajuste", "repactua", "apostila de reajuste"))
+        )
         reajuste_evidence = c.get("reajuste_evidence")
         if reajuste_evidence in (None, "", [], {}):
             reajuste_evidence = None
+        glosa_signals = _boolish(c.get("glosa_signals") or c.get("has_glosa")) or _pos(
+            (
+                "glosa",
+                "medição contest",
+                "medicao contest",
+                "retenção",
+                "retencao",
+            )
+        )
+        measurement_issues = _boolish(c.get("measurement_issues") or c.get("medicao_contestada")) or (
+            not _negated
+            and any(tok in obj_l for tok in ("medição contest", "medicao contest", "faturamento contest"))
+        )
+        # bare "medicao" alone is too common; only when not negated and with contest/diverg context
+        if not measurement_issues and not _negated:
+            if any(tok in obj_l for tok in ("medição", "medicao")) and any(
+                tok in obj_l for tok in ("contest", "diverg", "glosa", "reten")
+            ):
+                measurement_issues = True
+        reequilibrio_mention = _boolish(c.get("reequilibrio_mention")) or (
+            not _negated
+            and any(tok in obj_l for tok in ("reequil", "álea", "alea economica", "desequilíbrio", "desequilibrio"))
+        )
+        budget_or_bdi = _boolish(c.get("budget_or_bdi_signal") or c.get("planilha_signal")) or any(
+            tok in obj_l
+            for tok in (
+                "bdi",
+                "planilha orcament",
+                "planilha orçament",
+                "composicao de custo",
+                "composição de custo",
+                "quantitativo",
+                "orçamento de obra",
+                "orcamento de obra",
+            )
+        )
+        tender_or_proposal = _boolish(c.get("tender_or_proposal_signal")) or any(
+            tok in obj_l
+            for tok in (
+                "edital",
+                "licitacao",
+                "licitação",
+                "proposta comercial",
+                "pregão",
+                "pregao",
+                "concorrência",
+                "concorrencia",
+            )
+        )
         contracts.append(
             {
-                "id": str(c.get("id") or c.get("contract_id") or f"contract-{i + 1}"),
-                "object": c.get("object") or c.get("objeto") or c.get("description"),
-                "value_brl": _as_float(c.get("value_brl") or c.get("valor") or c.get("value")),
+                "id": str(c.get("id") or c.get("contract_id") or c.get("contrato_id") or f"contract-{i + 1}"),
+                "object": obj_text or c.get("object") or c.get("objeto") or c.get("description"),
+                "value_brl": _as_float(c.get("value_brl") or c.get("valor") or c.get("value") or c.get("valor_total")),
                 "start_date": start.isoformat() if start else None,
                 "end_date": end.isoformat() if end else None,
                 "publication_date": pub.isoformat() if pub else None,
@@ -93,12 +197,15 @@ def normalize_record(raw: dict[str, Any], *, as_of: str | None = None) -> dict[s
                 "uf": c.get("uf"),
                 "orgao": c.get("orgao") or c.get("agency") or c.get("orgao_nome"),
                 "has_addendum": has_addendum,
-                "addendum_count": addendum_count,
+                "addendum_count": addendum_count if addendum_count > 0 else (1 if has_addendum else 0),
                 "has_reajuste": has_reajuste,
                 "reajuste_evidence": reajuste_evidence,
-                "measurement_issues": _boolish(c.get("measurement_issues") or c.get("medicao_contestada")),
-                "glosa_signals": _boolish(c.get("glosa_signals") or c.get("has_glosa")),
-                "reequilibrio_mention": _boolish(c.get("reequilibrio_mention")),
+                "measurement_issues": measurement_issues,
+                "glosa_signals": glosa_signals,
+                "reequilibrio_mention": reequilibrio_mention,
+                "budget_or_bdi_signal": budget_or_bdi,
+                "planilha_signal": budget_or_bdi,
+                "tender_or_proposal_signal": tender_or_proposal,
                 "source_url": c.get("source_url") or c.get("url"),
                 "source_document": c.get("source_document") or c.get("document"),
                 "source_date": c.get("source_date") or (pub.isoformat() if pub else None),

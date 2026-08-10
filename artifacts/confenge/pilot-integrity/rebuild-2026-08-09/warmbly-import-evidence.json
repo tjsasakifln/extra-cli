@@ -1,0 +1,29 @@
+{
+  "imported_at": "2026-08-09T21:45:03.208396+00:00",
+  "feed_path": "warmbly/data/confenge-feeds/pilot-integrity-clean-v1.json",
+  "run_id": "pilot-integrity-recovery-01-fixed-router",
+  "leads": 49,
+  "service_distribution": {
+    "ADITIVOS": 8,
+    "APOIO_LICITACAO": 8,
+    "BACKOFFICE": 8,
+    "MEDICOES": 8,
+    "MONITORAMENTO_CONTRATUAL": 8,
+    "PLANILHAS": 8,
+    "REEQUILIBRIO": 1,
+    "REAJUSTE": 0
+  },
+  "email_send_ready_true": 0,
+  "reajuste_count": 0,
+  "unique_why_this_account": 49,
+  "kill_switch": "ENGAGED",
+  "dispatch": "PAUSED",
+  "skeptic_fixes": [
+    "mature_no_reajuste score below multi-contract gestão/orçamento (FASE7)",
+    "why_this_account from concrete contract object, not hollow portfolio string",
+    "micro_offer_code is catalog micro-offer not approach_mode",
+    "Warmbly WhyThisAccount uses fact; generic why flagged incomplete_copy_context",
+    "honest multi-contract mature test with start_date/age_days",
+    "10-family e2e golden + Warmbly AllServiceFamiliesStrategyPreservesCode"
+  ]
+}

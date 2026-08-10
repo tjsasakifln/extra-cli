@@ -1,8 +1,15 @@
-"""Approach copy fields: tone, CTA, questions — epistemic, no insider language."""
+"""Approach copy fields: tone, CTA, questions — epistemic, no insider language.
+
+Messaging facts come ONLY from MessageSpine (never confirmed[0] portfolio-count).
+"""
 
 from __future__ import annotations
 
 from typing import Any
+
+from scripts.confenge_account_intelligence.message_spine import (
+    build_message_spine,
+)
 
 
 def _company_label(bag: dict[str, Any]) -> str:
@@ -23,15 +30,16 @@ def build_approach_fields(
     sc = structure.get("structure_class") or "unknown"
     company = _company_label(bag)
 
-    # fact_to_mention: prefer confirmed fact text
-    confirmed = layers.get("confirmed_facts") or []
-    if confirmed:
-        fact_to_mention = confirmed[0]["text"]
-    else:
-        fact_to_mention = (
-            "Não há fato público confirmado suficiente no input; "
-            "a conversa deve partir de discovery sem afirmar portfólio inexistente."
-        )
+    spine = build_message_spine(bag, why=why, selection=selection, layers=layers)
+    fact_to_mention = spine.observed_fact or (
+        "Não há fato contratual concreto no input; "
+        "a conversa deve partir de discovery sem afirmar portfólio inexistente."
+    )
+    why_this_account = spine.why_this_account or (
+        f"{company}: sem objeto contratual específico no input; "
+        "não afirmar portfólio de engenharia sem evidência."
+    )
+    micro_offer_code = spine.micro_offer_code
 
     # Per-service question / CTA / objection
     templates: dict[str, dict[str, str]] = {
@@ -71,7 +79,10 @@ def build_approach_fields(
         },
         "gestao_monitoramento_contratual": {
             "q": "Quais prazos e obrigações contratuais mais consomem a equipe neste trimestre?",
-            "cta": "Posso montar um painel mínimo de monitoramento para o portfólio prioritário.",
+            "cta": (
+                "Se fizer sentido, monto um recorte enxuto só dos contratos com marcos "
+                "nos próximos 90 dias — sem dashboard genérico."
+            ),
             "obj": "Já usamos sistema próprio de gestão contratual.",
         },
         "apoio_licitacoes_propostas": {
@@ -98,7 +109,55 @@ def build_approach_fields(
             "obj": "Preferimos não externalizar rotinas operacionais.",
         },
     }
-    t = templates.get(sid) or templates["diagnostico_contratual_b2g"]
+    t = dict(templates.get(sid) or templates["diagnostico_contratual_b2g"])
+
+    # Diversify CTA wording by company hash so same service does not mass-reuse one line.
+    cta_variants = {
+        "gestao_monitoramento_contratual": [
+            "Se fizer sentido, monto um recorte enxuto só dos contratos com marcos nos próximos 90 dias.",
+            "Posso devolver uma lista priorizada dos 3 contratos públicos com maior carga de obrigação no horizonte curto.",
+            "Ofereço um check de 20 minutos sobre qual contrato da carteira pública mereceria atenção primeiro.",
+        ],
+        "estruturacao_pleito_reajuste": [
+            "Posso enviar um roteiro objetivo de checagem de reajuste (cláusula → índice → memória) para um contrato-piloto.",
+            "Se útil, faço a leitura de uma cláusula de reajuste pública e devolvo os pontos a confirmar com a equipe.",
+        ],
+        "aditivos_extracontratuais": [
+            "Posso revisar a cadeia aditivo → planilha → memória em um caso recente.",
+            "Se quiser, olho o memorial de um aditivo público e aponto só as lacunas documentais.",
+        ],
+        "medicoes_glosas_memoria": [
+            "Proponho uma revisão pontual da última medição contestada, com checklist de evidências.",
+            "Posso devolver um checklist curto do que costuma sustentar (ou derrubar) uma memória de medição.",
+        ],
+        "auditoria_orcamento_bdi": [
+            "Envio escopo de auditoria focal (composições + BDI) para um contrato-alvo.",
+            "Se fizer sentido, faço uma segunda opinião só sobre um pacote de planilha/BDI — sem substituir a equipe.",
+        ],
+        "apoio_licitacoes_propostas": [
+            "Disponibilizo apoio de pico em análise de edital/proposta sob NDA.",
+            "Posso ajudar a varrer um edital em janela e devolver riscos técnicos de proposta em formato curto.",
+        ],
+        "diagnostico_contratual_b2g": [
+            "Sugiro um diagnóstico contratual B2G curto para mapear riscos e priorizar encaixes.",
+            "Se preferir, começamos por uma conversa de 15 minutos só para validar se há encaixe real.",
+        ],
+        "reforco_temporario_backoffice": [
+            "Posso dimensionar um reforço temporário de backoffice técnico/contratual por sprint.",
+            "Se a carga apertar, monto um escopo de sprint de apoio (medições/aditivos/propostas) com entregáveis claros.",
+        ],
+        "inteligencia_pncp_mercado": [
+            "Posso entregar um briefing PNCP focado no recorte que importar para vocês.",
+            "Se útil, recorto o PNCP por UF/órgão e devolvo um mapa de oportunidades públicas.",
+        ],
+        "reequilibrio_economico_financeiro": [
+            "Ofereço uma leitura técnica independente do material de reequilíbrio já reunido.",
+            "Posso ajudar a organizar o nexo causal documental antes de qualquer narrativa de crédito.",
+        ],
+    }
+    variants = cta_variants.get(sid) or [t["cta"]]
+    h = sum(ord(ch) for ch in company) if company else 0
+    t["cta"] = variants[h % len(variants)]
 
     # Tone / density
     if sc == "robust" or "independente" in mode or "auditoria" in mode or "segunda_opiniao" in mode:
@@ -152,6 +211,8 @@ def build_approach_fields(
     # Dominant state note baked into limitations later
     return {
         "fact_to_mention": fact_to_mention,
+        "observed_fact": spine.observed_fact,
+        "body_seed_fact": spine.body_seed_fact,
         "question_to_ask": t["q"],
         "cta": t["cta"]
         .replace("Posso", f"Para {company}, posso")
@@ -166,4 +227,10 @@ def build_approach_fields(
             "framing": framing,
         },
         "research_gaps": research_gaps,
+        "why_this_account": why_this_account,
+        "why_now_copy": spine.why_now,
+        "micro_offer_code": micro_offer_code,
+        "message_spine": spine.as_dict(),
+        "message_spine_complete": spine.complete,
+        "fact_evidence_ids": list(spine.fact_evidence_ids),
     }

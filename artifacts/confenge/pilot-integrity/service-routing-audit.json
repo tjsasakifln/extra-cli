@@ -1,0 +1,48 @@
+{
+  "timestamp_utc": "2026-08-10T03:06:34.314899+00:00",
+  "universe_count": 48748,
+  "TARGET_CONFIRMED": 5431,
+  "errors": 0,
+  "target_fit_dist": {
+    "TARGET_PROBABLE_RESEARCH": 38548,
+    "TARGET_OUT_OF_SCOPE": 4769,
+    "TARGET_CONFIRMED": 5431
+  },
+  "confirmed_primary_service_dist": {
+    "gestao_monitoramento_contratual": 3793,
+    "apoio_licitacoes_propostas": 681,
+    "reforco_temporario_backoffice": 825,
+    "auditoria_orcamento_bdi": 86,
+    "aditivos_extracontratuais": 41,
+    "medicoes_glosas_memoria": 3,
+    "reequilibrio_economico_financeiro": 2
+  },
+  "gestao_split": {
+    "GESTAO_SUPPORTED": 3483,
+    "GESTAO_GENERIC_FALLBACK": 310
+  },
+  "gestao_total": 3793,
+  "service_fit_family_counts": {
+    "gestao_monitoramento_contratual:FIT": 3483,
+    "apoio_licitacoes_propostas:FIT": 681,
+    "gestao_monitoramento_contratual:NO_FIT": 310,
+    "reforco_temporario_backoffice:FIT": 825,
+    "auditoria_orcamento_bdi:FIT": 86,
+    "aditivos_extracontratuais:FIT": 41,
+    "medicoes_glosas_memoria:FIT": 3,
+    "reequilibrio_economico_financeiro:FIT": 2
+  },
+  "ten_family_coverage": {
+    "estruturacao_pleito_reajuste": 0,
+    "reequilibrio_economico_financeiro": 2,
+    "aditivos_extracontratuais": 41,
+    "medicoes_glosas_memoria": 3,
+    "auditoria_orcamento_bdi": 86,
+    "gestao_monitoramento_contratual": 3793,
+    "apoio_licitacoes_propostas": 681,
+    "inteligencia_pncp_mercado": 0,
+    "diagnostico_contratual_b2g": 0,
+    "reforco_temporario_backoffice": 825
+  },
+  "note": "GESTAO_GENERIC_FALLBACK must not enter SERVICE_FIT_SUPPORTED / EMAIL_SEND_READY"
+}

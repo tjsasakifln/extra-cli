@@ -1,0 +1,64 @@
+{
+  "ts": "2026-08-10T03:20:07.929827+00:00",
+  "deployed_sha": "ca457058b9657419ee0b45173defb64079c3205d",
+  "sink": "tiago.sasaki@gmail.com",
+  "account": " queue_state  | blocked | do_not_contact | block_reason | commercial_state \n--------------+---------+----------------+--------------+------------------\n NEEDS_REVIEW | f       | f              |              | NEW\n(1 row)\n\n",
+  "before": "                  id                  |  state  | stop_reason |  subject  \n--------------------------------------+---------+-------------+-----------\n f66dcddf-1c71-419d-8d63-5fe991644b39 | PLANNED |             | rs-open-1\n 0ca0ec5c-a8de-4b55-a183-3f4e8d0c443b | PLANNED |             | rs-open-2\n(2 rows)\n\n",
+  "probes": [
+    {
+      "path": "/confenge/inbound",
+      "http": 404,
+      "snip": "{'raw': '404 page not found'}"
+    },
+    {
+      "path": "/confenge/inbound-handoff",
+      "http": 404,
+      "snip": "{'raw': '404 page not found'}"
+    },
+    {
+      "path": "/confenge/replies/handoff",
+      "http": 404,
+      "snip": "{'raw': '404 page not found'}"
+    },
+    {
+      "path": "/confenge/accounts/8a3ce7f0-a47a-4c62-a6c8-883186df8c70/reply-handoff",
+      "http": 404,
+      "snip": "{'raw': '404 page not found'}"
+    },
+    {
+      "path": "/confenge/accounts/8a3ce7f0-a47a-4c62-a6c8-883186df8c70/inbound",
+      "http": 404,
+      "snip": "{'raw': '404 page not found'}"
+    },
+    {
+      "path": "/internal/confenge/inbound",
+      "http": 404,
+      "snip": "{'raw': '404 page not found'}"
+    }
+  ],
+  "generate_reply": {
+    "http": 200,
+    "snip": "{'data': {'id': 'd5170db3-77a1-4fee-9b9d-1d9a6847c023', 'organization_id': '22222222-0000-0000-0000-000000000001', 'account_id': '8a3ce7f0-a47a-4c62-a6c8-883186df8c70', 'contact_candidate_id': 'd4589e"
+  },
+  "after": "                  id                  |  state  | stop_reason |  subject  \n--------------------------------------+---------+-------------+-----------\n f66dcddf-1c71-419d-8d63-5fe991644b39 | PLANNED |             | rs-open-1\n 0ca0ec5c-a8de-4b55-a183-3f4e8d0c443b | PLANNED |             | rs-open-2\n(2 rows)\n\n",
+  "smtp_gmail": {
+    "task_id": "1d37168e-364e-40b2-a4cc-b55de86ba4d9",
+    "status": "completed",
+    "to": "tiago.sasaki@gmail.com",
+    "provider_msg_id": "<979e8cc4-71a3-4c44-a004-009b2d6b2888@confenge.com.br>",
+    "pass": true
+  },
+  "imap_gmail_reply": "                  id                  |                 subject                  |                 from_addr                 |                             message_id                             |                      in_reply_to                       | uid |     internal_date      \n--------------------------------------+------------------------------------------+-------------------------------------------+--------------------------------------------------------------------+--------------------------------------------------------+-----+------------------------\n 773d994f-2945-4654-a390-beb975c4d544 | Re: CONFENGE SELF_SMOKE 20260810T031437Z | {\"Tiago Sasaki (tiago.sasaki@gmail.com)\"} | CACvuq=6weuwqHbZ2A3p4KQEhAXJQ6+OeFWtCDVn6a=e5dqigiw@mail.gmail.com | {979e8cc4-71a3-4c44-a004-009b2d6b2888@confenge.com.br} | 220 | 2026-08-10 03:15:44+00\n(1 row)\n\n",
+  "continuous_imap_pass": true,
+  "cancel_touchpoints": {
+    "http": 200,
+    "snip": "{'data': {'cancelled': 2}}"
+  },
+  "after_cancel": "                  id                  |  state  | stop_reason |  subject  \n--------------------------------------+---------+-------------+-----------\n f66dcddf-1c71-419d-8d63-5fe991644b39 | REPLIED | REPLY       | rs-open-1\n 0ca0ec5c-a8de-4b55-a183-3f4e8d0c443b | REPLIED | REPLY       | rs-open-2\n(2 rows)\n\n",
+  "reply_stop_touchpoints_cancelled": true,
+  "pass": {
+    "smtp_smoke": true,
+    "continuous_imap_gmail_reply_ingested": true,
+    "touchpoint_cancel_on_reply_path": true
+  }
+}

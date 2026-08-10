@@ -1,0 +1,60 @@
+cnpj14,razao_social,cohort,target_fit_class,human_class,sector_fit,activity_class,exec_contracts,in_universe,email_send_ready_after_fix,service_warmbly,service_recomputed,fp_risk
+00172255000131,ROSA IMOVEIS LTDA.,incident_10,,FALSE_TARGET,,,0,False,False,REAJUSTE_14133,diagnostico_contratual_b2g,False
+00300400000112,MILAN MOVEIS INDUSTRIA E COMERCIO LTDA,incident_10,,FALSE_TARGET,,,0,False,False,REAJUSTE_14133,diagnostico_contratual_b2g,False
+00328717000167,"MS COMERCIO, SERVICOS E MANUTENCAO DE FROTAS LTDA,",incident_10,,FALSE_TARGET,,,0,False,False,REAJUSTE_14133,diagnostico_contratual_b2g,False
+00384799000167,PEIXOTO COMERCIO IMPORTACAO EXPORTACAO LTDA.,incident_10,,FALSE_TARGET,,,0,True,False,REAJUSTE_14133,diagnostico_contratual_b2g,False
+00472805000138,Traçado Construções e Serviços Ltda.,incident_10,,TRUE_TARGET,,,7,True,False,REAJUSTE_14133,apoio_licitacoes_propostas,False
+00472805000308,TRACADO CONSTRUCOES E SERVICOS LTDA,incident_10,,TARGET_REQUIRES_RESEARCH,,,1,False,False,REAJUSTE_14133,diagnostico_contratual_b2g,False
+00507949000182,JATOBETON ENGENHARIA LTDA,incident_10,,TRUE_TARGET,,,7,True,False,REAJUSTE_14133,gestao_monitoramento_contratual,False
+00567892000107,VISOMES COMERCIAL METROLOGICA LTDA,incident_10,,FALSE_TARGET,,,0,True,False,REAJUSTE_14133,diagnostico_contratual_b2g,False
+00688075000450,RODO SERVICE LTDA,incident_10,,TARGET_REQUIRES_RESEARCH,,,0,False,False,REAJUSTE_14133,apoio_licitacoes_propostas,False
+00757668000188,ISOMEDICAL COMERCIAL LTDA,incident_10,,FALSE_TARGET,,,0,False,False,REAJUSTE_14133,diagnostico_contratual_b2g,False
+00061493000170,ENCOPAV ENGENHARIA LTDA,email_send_ready_cohort,TARGET_CONFIRMED,TRUE_TARGET,,,,True,True,MONITORAMENTO_CONTRATUAL,gestao_monitoramento_contratual,False
+00472805000138,Traçado Construções e Serviços Ltda.,email_send_ready_cohort,TARGET_CONFIRMED,TRUE_TARGET,,,,True,True,APOIO_LICITACAO,apoio_licitacoes_propostas,False
+00507949000182,JATOBETON ENGENHARIA LTDA,email_send_ready_cohort,TARGET_CONFIRMED,TRUE_TARGET,,,,True,True,MONITORAMENTO_CONTRATUAL,gestao_monitoramento_contratual,False
+00638562000165,AMF ENGENHARIA E SERVICO LTDA,email_send_ready_cohort,TARGET_CONFIRMED,TRUE_TARGET,,,,True,True,MONITORAMENTO_CONTRATUAL,gestao_monitoramento_contratual,False
+00820854000114,QUALIDADE CONSTRUÇÕES E PAVIMENTAÇÕES LTDA,email_send_ready_cohort,TARGET_CONFIRMED,TRUE_TARGET,,,,True,True,MONITORAMENTO_CONTRATUAL,gestao_monitoramento_contratual,False
+01114245000102,CONNECTOR ENGENHARIA LTDA,email_send_ready_cohort,TARGET_CONFIRMED,TRUE_TARGET,,,,True,True,MONITORAMENTO_CONTRATUAL,gestao_monitoramento_contratual,False
+01127106000113,ORIENTE CONSTRUÇÃO CIVEL LTDA,email_send_ready_cohort,TARGET_CONFIRMED,TRUE_TARGET,,,,True,True,BACKOFFICE,reforco_temporario_backoffice,False
+01514128000136,SCAVE SERVICOS,email_send_ready_cohort,TARGET_CONFIRMED,TRUE_TARGET,,,,True,True,MONITORAMENTO_CONTRATUAL,gestao_monitoramento_contratual,False
+01557107000106,CONCRELAJE INDÚSTRIA DE PRÉ-FABRICADOS DE CONCRETO,email_send_ready_cohort,TARGET_CONFIRMED,TRUE_TARGET,,,,True,True,MONITORAMENTO_CONTRATUAL,gestao_monitoramento_contratual,False
+01744153000106,PAVIDEZ ENGENHARIA LTDA,email_send_ready_cohort,TARGET_CONFIRMED,TRUE_TARGET,,,,True,True,MONITORAMENTO_CONTRATUAL,gestao_monitoramento_contratual,False
+03094645000129,Infrasul - Infraestrutura e Empreendimentos LTDA.,email_send_ready_cohort,TARGET_CONFIRMED,TRUE_TARGET,,,,True,True,MONITORAMENTO_CONTRATUAL,gestao_monitoramento_contratual,False
+03222465000185,DALBA ENGENHARIA E EMPREENDIMENTOS LTDA,email_send_ready_cohort,TARGET_CONFIRMED,TRUE_TARGET,,,,True,True,MONITORAMENTO_CONTRATUAL,gestao_monitoramento_contratual,False
+03257777000124,Gaia Rodovias Ltda,email_send_ready_cohort,TARGET_CONFIRMED,TRUE_TARGET,,,,True,True,MONITORAMENTO_CONTRATUAL,gestao_monitoramento_contratual,False
+03276962000166,Engedal Construtora de Obras Ltda,email_send_ready_cohort,TARGET_CONFIRMED,TRUE_TARGET,,,,True,True,MONITORAMENTO_CONTRATUAL,gestao_monitoramento_contratual,False
+03509843000106,VENTO SUL ENGENHARIA LTDA,email_send_ready_cohort,TARGET_CONFIRMED,TRUE_TARGET,,,,True,True,MONITORAMENTO_CONTRATUAL,gestao_monitoramento_contratual,False
+03575041000102,PAVSANTOS CONSTRUTORA LTDA,email_send_ready_cohort,TARGET_CONFIRMED,TRUE_TARGET,,,,True,True,MONITORAMENTO_CONTRATUAL,gestao_monitoramento_contratual,False
+03620927000112,Paviplan Pavimentação Ltda,email_send_ready_cohort,TARGET_CONFIRMED,TRUE_TARGET,,,,True,True,MONITORAMENTO_CONTRATUAL,gestao_monitoramento_contratual,False
+03667661000163,COMPACTA SUL PAVIMENTACAO LTDA,email_send_ready_cohort,TARGET_CONFIRMED,TRUE_TARGET,,,,True,True,APOIO_LICITACAO,apoio_licitacoes_propostas,False
+03992945000125,VERDEBIANCO ENGENHARIA LTDA,email_send_ready_cohort,TARGET_CONFIRMED,TRUE_TARGET,,,,True,True,MONITORAMENTO_CONTRATUAL,gestao_monitoramento_contratual,False
+04287461000148,UNICON CONSTRUCOES LTDA,email_send_ready_cohort,TARGET_CONFIRMED,TRUE_TARGET,,,,True,True,MONITORAMENTO_CONTRATUAL,gestao_monitoramento_contratual,False
+05338129000128,BARRA NOVA ENGENHARIA LTDA,email_send_ready_cohort,TARGET_CONFIRMED,TRUE_TARGET,,,,True,True,MONITORAMENTO_CONTRATUAL,gestao_monitoramento_contratual,False
+07546061000106,DAM CONSTRUTORA E INCORPORADORA LTDA,email_send_ready_cohort,TARGET_CONFIRMED,TRUE_TARGET,,,,True,True,MONITORAMENTO_CONTRATUAL,gestao_monitoramento_contratual,False
+08753223000131,IBIAPINA SERVICOS & CONSTRUCOES LTDA,email_send_ready_cohort,TARGET_CONFIRMED,TRUE_TARGET,,,,True,True,APOIO_LICITACAO,apoio_licitacoes_propostas,False
+10698641000115,CONSTRUTORA MASTER LTDA,email_send_ready_cohort,TARGET_CONFIRMED,TRUE_TARGET,,,,True,True,MONITORAMENTO_CONTRATUAL,gestao_monitoramento_contratual,False
+13385475000195,R D CONSTRUÇÃO E LOCAÇÃO LTDA,email_send_ready_cohort,TARGET_CONFIRMED,TRUE_TARGET,,,,True,True,MONITORAMENTO_CONTRATUAL,gestao_monitoramento_contratual,False
+14042710000199,J.P.L. GOMES ENGENHARIA LTDA,email_send_ready_cohort,TARGET_CONFIRMED,TRUE_TARGET,,,,True,True,MONITORAMENTO_CONTRATUAL,gestao_monitoramento_contratual,False
+15493716000145,R MARTINS ENGENHARIA EIRELI,email_send_ready_cohort,TARGET_CONFIRMED,TRUE_TARGET,,,,True,True,APOIO_LICITACAO,apoio_licitacoes_propostas,False
+15747692000103,PAVCON CONSTRUTORA LTDA,email_send_ready_cohort,TARGET_CONFIRMED,TRUE_TARGET,,,,True,True,MONITORAMENTO_CONTRATUAL,gestao_monitoramento_contratual,False
+17244878000175,STO SERVICOS E MANUTENCAO LTDA,email_send_ready_cohort,TARGET_CONFIRMED,TRUE_TARGET,,,,True,True,MONITORAMENTO_CONTRATUAL,gestao_monitoramento_contratual,False
+23305610000107,WH CONSTRUTORA LTDA,email_send_ready_cohort,TARGET_CONFIRMED,TRUE_TARGET,,,,True,True,MONITORAMENTO_CONTRATUAL,gestao_monitoramento_contratual,False
+24233779000153,EMKO CONSTRUTORA LTDA,email_send_ready_cohort,TARGET_CONFIRMED,TRUE_TARGET,,,,True,True,MONITORAMENTO_CONTRATUAL,gestao_monitoramento_contratual,False
+29104240000118,AVEC ALUGUEL DE VEICULOS E CONSTRUCOES LTDA,email_send_ready_cohort,TARGET_CONFIRMED,TRUE_TARGET,,,,True,True,MONITORAMENTO_CONTRATUAL,gestao_monitoramento_contratual,False
+31988427000173,2 S PROJETOS DE ENGENHARIA DE OBRAS DE  CONSTRUÇÃO LTDA,email_send_ready_cohort,TARGET_CONFIRMED,TRUE_TARGET,,,,True,True,MONITORAMENTO_CONTRATUAL,gestao_monitoramento_contratual,False
+35547112000141,SOUSA GUIMARAES ENGENHARIA E CONSTRUCOES LTDA,email_send_ready_cohort,TARGET_CONFIRMED,TRUE_TARGET,,,,True,True,MONITORAMENTO_CONTRATUAL,gestao_monitoramento_contratual,False
+36031022000166,ARLEN ARQUITETURA E ENGENHARIA LTDA,email_send_ready_cohort,TARGET_CONFIRMED,TRUE_TARGET,,,,True,True,APOIO_LICITACAO,apoio_licitacoes_propostas,False
+36377091000126,SINALES SINALIZACAO ESPIRITO SANTO LTDA,email_send_ready_cohort,TARGET_CONFIRMED,TRUE_TARGET,,,,True,True,MONITORAMENTO_CONTRATUAL,gestao_monitoramento_contratual,False
+36909349000198,"TMF CONSTRUÇÕES, IMCORPORAÇÃO E SERVIÇOS LTDA",email_send_ready_cohort,TARGET_CONFIRMED,TRUE_TARGET,,,,True,True,MONITORAMENTO_CONTRATUAL,gestao_monitoramento_contratual,False
+37073624000149,ARTFLEX ENGENHARIA LTDA,email_send_ready_cohort,TARGET_CONFIRMED,TRUE_TARGET,,,,True,True,MONITORAMENTO_CONTRATUAL,gestao_monitoramento_contratual,False
+38146510000144,COCENO CONSTRUTORA CENTRO NORTE LTDA,email_send_ready_cohort,TARGET_CONFIRMED,TRUE_TARGET,,,,True,True,APOIO_LICITACAO,apoio_licitacoes_propostas,False
+38756140000167,SUPERA ENGENHARIA LTDA,email_send_ready_cohort,TARGET_CONFIRMED,TRUE_TARGET,,,,True,True,MEDICOES,medicoes_glosas_memoria,False
+40301626000152,MIDT ENGENHARIA LTDA,email_send_ready_cohort,TARGET_CONFIRMED,TRUE_TARGET,,,,True,True,MONITORAMENTO_CONTRATUAL,gestao_monitoramento_contratual,False
+41576001000166,VIDA EMPREENDIMENTOS E CONSULTORIA EMPRESARIAL LTDA,email_send_ready_cohort,TARGET_CONFIRMED,TRUE_TARGET,,,,True,True,MONITORAMENTO_CONTRATUAL,gestao_monitoramento_contratual,False
+43418048000127,LS ENGENHARIA LTDA,email_send_ready_cohort,TARGET_CONFIRMED,TRUE_TARGET,,,,True,True,APOIO_LICITACAO,apoio_licitacoes_propostas,False
+44571860000150,INSTITUTO RUAS LTDA,email_send_ready_cohort,TARGET_CONFIRMED,TRUE_TARGET,,,,True,True,APOIO_LICITACAO,apoio_licitacoes_propostas,False
+47815614000195,TETT'S ENGENHARIA LTDA - EPP,email_send_ready_cohort,TARGET_CONFIRMED,TRUE_TARGET,,,,True,True,MONITORAMENTO_CONTRATUAL,gestao_monitoramento_contratual,False
+52359706000148,SULVIAS OBRAS E CONSTRUCOES LTDA,email_send_ready_cohort,TARGET_CONFIRMED,TRUE_TARGET,,,,True,True,MONITORAMENTO_CONTRATUAL,gestao_monitoramento_contratual,False
+55014274000121,LIFE ENGENHARIA E TOPOGRAFIA LTDA,email_send_ready_cohort,TARGET_CONFIRMED,TRUE_TARGET,,,,True,True,APOIO_LICITACAO,apoio_licitacoes_propostas,False
+60025322000117,SIMENG ENGENHARIA LTDA,email_send_ready_cohort,TARGET_CONFIRMED,TRUE_TARGET,,,,True,True,APOIO_LICITACAO,apoio_licitacoes_propostas,False
+73041188000190,COMERCIAL E CONSTRUTORA FÊNIX EIRELI,email_send_ready_cohort,TARGET_CONFIRMED,TRUE_TARGET,,,,True,True,MONITORAMENTO_CONTRATUAL,gestao_monitoramento_contratual,False

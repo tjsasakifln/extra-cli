@@ -28,6 +28,11 @@ from scripts.commercial_leads.sector_fit import (
 from scripts.commercial_leads.sector_fit import (
     RULE_VERSION as SECTOR_FIT_VERSION,
 )
+from scripts.confenge_universe.target_fit import (
+    TARGET_OUT_OF_SCOPE,
+    TARGET_PROBABLE_RESEARCH,
+    classify_target_fit,
+)
 from scripts.coverage.sector_engineering import classify_sector
 
 # Activity classes that belong in the construction/engineering B2G universe
@@ -40,11 +45,12 @@ UNIVERSE_ACTIVITY_CLASSES = frozenset(
 )
 
 # Sector fit classes that prove construction evidence strong enough for membership
+# POSSIBLE may enter the research universe but never auto-send (see target_fit).
 CONSTRUCTION_MEMBER_CLASSES = frozenset(
     {
         CLASS_CONFIRMED,
         CLASS_STRONG,
-        CLASS_POSSIBLE,  # possible still enters universe; score orders later
+        CLASS_POSSIBLE,
     }
 )
 
@@ -63,6 +69,11 @@ class ConstructionEvidence:
     rule_versions: dict[str, str] = field(default_factory=dict)
     epistemic_class: str = "EVIDENCE"  # EVIDENCE | INFERENCE | ABSENCE
     provenance: list[dict[str, Any]] = field(default_factory=list)
+    target_fit_class: str = TARGET_PROBABLE_RESEARCH
+    target_fit_evidence: list[dict[str, Any]] = field(default_factory=list)
+    target_fit_reason_codes: list[str] = field(default_factory=list)
+    target_fit_confidence: float = 0.0
+    target_fit_version: str = ""
 
     def as_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -140,6 +151,30 @@ def assess_construction(
             epistemic = "ABSENCE"
             reasons.append("no_construction_evidence")
 
+    # Explicit ICP target-fit (stricter than universe membership).
+    # POSSIBLE/adjacency can stay in universe for research but not auto-send.
+    tf = classify_target_fit(
+        razao_social=razao_social,
+        nome_fantasia=nome_fantasia,
+        contracts=contracts,
+        cnae_principal=cnae_principal,
+        cnaes_secundarios=cnaes_secundarios or [],
+        sector_fit=decision.classification,
+        activity_class=decision.activity_class,
+        construction_evidence={
+            "sector_fit": decision.classification,
+            "activity_class": decision.activity_class,
+            "relevant_contract_count": int(decision.relevant_contract_count),
+            "relevant_ratio": float(decision.relevant_contract_ratio),
+        },
+    )
+    # Hard out-of-scope with zero execution: do not keep as universe construction member.
+    if tf.target_fit_class == TARGET_OUT_OF_SCOPE and tf.relevant_execution_contract_count == 0:
+        is_member = False
+        epistemic = "EVIDENCE"
+        reasons.append("target_fit_out_of_scope")
+        reasons.extend(tf.target_fit_reason_codes[:3])
+
     return ConstructionEvidence(
         is_construction=is_member,
         sector_fit=decision.classification,
@@ -153,7 +188,8 @@ def assess_construction(
         rule_versions={
             "sector_fit": SECTOR_FIT_VERSION,
             "contract_relevance": CONTRACT_RELEVANCE_VERSION,
-            "construction_bridge": "confenge-universe-construction-v1",
+            "construction_bridge": "confenge-universe-construction-v2",
+            "target_fit": tf.target_fit_version,
         },
         epistemic_class=epistemic,
         provenance=[
@@ -162,6 +198,16 @@ def assess_construction(
                 "classification": decision.classification,
                 "activity_class": decision.activity_class,
                 "confidence": decision.confidence,
-            }
+            },
+            {
+                "source": "confenge_universe.target_fit",
+                "target_fit_class": tf.target_fit_class,
+                "confidence": tf.target_fit_confidence,
+            },
         ],
+        target_fit_class=tf.target_fit_class,
+        target_fit_evidence=list(tf.target_fit_evidence),
+        target_fit_reason_codes=list(tf.target_fit_reason_codes),
+        target_fit_confidence=float(tf.target_fit_confidence),
+        target_fit_version=tf.target_fit_version,
     )

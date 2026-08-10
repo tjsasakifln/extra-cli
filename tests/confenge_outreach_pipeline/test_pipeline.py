@@ -5,8 +5,6 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import pytest
-
 from scripts.confenge_outreach_pipeline.adapt import (
     contact_resolution_to_bridge_row,
     intelligence_dossier_to_bridge_row,
@@ -16,7 +14,6 @@ from scripts.confenge_outreach_pipeline.cli import main as cli_main
 from scripts.confenge_outreach_pipeline.pipeline import PipelineConfig, run_pipeline
 from scripts.confenge_outreach_pipeline.sample import classify_profile, select_diverse_sample
 from scripts.warmbly_bridge.mapping import build_leads
-
 
 ROOT = Path(__file__).resolve().parents[2]
 FIXTURE_CSV = ROOT / "tests" / "fixtures" / "confenge_universe" / "contracts_sample.csv"
@@ -250,7 +247,10 @@ def test_adapt_intelligence_and_contacts_join() -> None:
         "as_of": "2026-08-01",
     }
     bridge_intel = intelligence_dossier_to_bridge_row(dossier)
-    assert bridge_intel["offer"]["service_code"] == "gestao_monitoramento_contratual"
+    # confenge.service.v1: warmbly service_code is canonical playbook code
+    assert bridge_intel["offer"]["service_code"] == "MONITORAMENTO_CONTRATUAL"
+    assert bridge_intel["offer"]["canonical_service_code"] == "MONITORAMENTO_CONTRATUAL"
+    assert bridge_intel["offer"]["extra_cli_service_id"] == "gestao_monitoramento_contratual"
     assert bridge_intel["messaging"]["fact_to_mention"]
 
     resolution = {
@@ -279,7 +279,8 @@ def test_adapt_intelligence_and_contacts_join() -> None:
     u = universe_row_for_bridge(universe, rank=1)
     leads = build_leads([u], [bridge_intel], [bridge_contacts])
     assert len(leads) == 1
-    assert leads[0]["offer"]["service_code"] == "gestao_monitoramento_contratual"
+    assert leads[0]["offer"]["service_code"] == "MONITORAMENTO_CONTRATUAL"
+    assert leads[0]["offer"]["extra_cli_service_id"] == "gestao_monitoramento_contratual"
     assert leads[0]["contacts"][0]["email"] == "ana@acme.example.com"
     assert leads[0]["messaging_context"]["fact_to_mention"]
 
@@ -295,8 +296,6 @@ def test_contract_schema_matches_warmbly_constants() -> None:
     from scripts.warmbly_bridge import SCHEMA_OUTREACH
 
     assert SCHEMA_OUTREACH == "confenge.outreach.v1"
-    # properties expected by Warmbly Feed struct
-    props = schema.get("properties") or schema
     # If JSON Schema, check required top-level
     if "properties" in schema:
         for key in ("schema_version", "source", "leads"):

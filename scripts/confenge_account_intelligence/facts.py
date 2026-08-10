@@ -378,12 +378,37 @@ def why_now(bag: dict[str, Any], layers: dict[str, list[dict[str, Any]]]) -> dic
             "epistemic_class": "weak_inference",
         }
 
+    # Prefer a concrete contract hook so why_now is not generic portfolio boilerplate
+    # (COPY_CONTEXT / MessageSpine reject "portfólio público observável…").
+    hook_bits: list[str] = []
+    for c in contracts:
+        if not isinstance(c, dict):
+            continue
+        obj = str(c.get("object") or c.get("objeto") or c.get("objeto_contrato") or "").strip()
+        if len(obj) < 24:
+            continue
+        org = str(c.get("orgao") or c.get("agency") or c.get("orgao_nome") or "").strip()
+        uf = str(c.get("uf") or "").strip()
+        hook_bits = [f"objeto: {obj[:140]}"]
+        if org:
+            hook_bits.append(f"órgão: {org}")
+        if uf:
+            hook_bits.append(f"UF {uf}")
+        break
+    if hook_bits:
+        temporal = (
+            f"Em {as_of}, fato contratual público utilizável sem dor especializada dominante — "
+            + "; ".join(hook_bits)
+            + "."
+        )
+    else:
+        temporal = (
+            f"Em {as_of}, portfólio contratual no input sem objeto material suficiente "
+            "para especialidade — revisão/diagnóstico focal honesto."
+        )
     return {
         "trigger": "portfolio_review",
-        "temporal_fact": (
-            f"Em {as_of}, há portfólio público observável sem dor contratual concreta "
-            "dominante — ângulo de revisão/diagnóstico focal."
-        ),
+        "temporal_fact": temporal,
         "recency_days": min((c.get("age_days") for c in contracts if c.get("age_days") is not None), default=None),
         "epistemic_class": "strong_inference",
     }

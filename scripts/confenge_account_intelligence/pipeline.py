@@ -156,6 +156,7 @@ def build_dossier(
         "primary_service": selection["primary_service"],
         "secondary_service": selection["secondary_service"],
         "service_fit_rationale": selection["service_fit_rationale"],
+        "service_candidates": selection.get("service_candidates") or [],
         "fact_to_mention": approach["fact_to_mention"],
         "question_to_ask": approach["question_to_ask"],
         "cta": approach["cta"],
@@ -166,6 +167,21 @@ def build_dossier(
         "evidence": bag.get("evidence") or [],
         "dominant_state": dominant,
         "limitations": limitations,
+        "target_fit_class": bag.get("target_fit_class"),
+        "target_fit_evidence": bag.get("target_fit_evidence") or [],
+        "target_fit_reason_codes": bag.get("target_fit_reason_codes") or [],
+        "target_fit_confidence": bag.get("target_fit_confidence"),
+        "target_fit_version": bag.get("target_fit_version"),
+        "construction_evidence": bag.get("construction_evidence") or {},
+        "why_this_account": str(approach.get("why_this_account") or ""),
+        "micro_offer_code": str(approach.get("micro_offer_code") or ""),
+        # Single spine path: observed_fact == body_seed_fact (never confirmed[0] portfolio-count)
+        "observed_fact": str(approach.get("observed_fact") or approach.get("body_seed_fact") or ""),
+        "body_seed_fact": str(approach.get("body_seed_fact") or approach.get("observed_fact") or ""),
+        "fact_evidence_ids": list(approach.get("fact_evidence_ids") or []),
+        "message_spine": approach.get("message_spine") or {},
+        "message_spine_complete": bool(approach.get("message_spine_complete")),
+        "_pipeline_contracts": bag.get("contracts") or [],
     }
 
     if cache is not None:

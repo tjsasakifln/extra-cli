@@ -90,5 +90,6 @@ def test_cli_batch_jsonl(tmp_path: Path) -> None:
     assert all(r["schema_id"] == "confenge-account-intelligence-v1" for r in rows)
     services = [r["primary_service"]["service_id"] for r in rows]
     assert services[0] == "reforco_temporario_backoffice"
-    assert services[1] == "auditoria_orcamento_bdi"
+    # national_structured: robust multi → gestão (no BDI signal invention)
+    assert services[1] == "gestao_monitoramento_contratual"
     assert services[2] == "diagnostico_contratual_b2g"

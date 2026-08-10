@@ -188,10 +188,16 @@ def _map_offer(intel: dict[str, Any]) -> dict[str, Any]:
     offer = intel.get("offer") or {}
     if not isinstance(offer, dict):
         offer = {}
+    # confenge.service.v1: service_code is Warmbly playbook; preserve ontology ids.
     return {
         "service_code": _as_str(offer.get("service_code") or offer.get("id")),
+        "canonical_service_code": _as_str(
+            offer.get("canonical_service_code") or offer.get("service_code") or offer.get("id")
+        ),
+        "extra_cli_service_id": _as_str(offer.get("extra_cli_service_id")),
         "service_name": _as_str(offer.get("service_name") or offer.get("label")),
         "entry_offer": _as_str(offer.get("entry_offer")),
+        "micro_offer_code": _as_str(offer.get("micro_offer_code")),
         "rationale": _as_str(offer.get("rationale")),
     }
 
