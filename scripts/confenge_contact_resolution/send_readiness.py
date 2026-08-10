@@ -731,8 +731,10 @@ def _is_hollow_observed_fact(text: str, company: dict[str, Any] | None = None) -
 
         if is_hollow_fact(text):
             return True
+    except ImportError:
+        return _is_generic_why(text, company=company)
     except Exception:
-        pass
+        return _is_generic_why(text, company=company)
     return _is_generic_why(text, company=company)
 
 
