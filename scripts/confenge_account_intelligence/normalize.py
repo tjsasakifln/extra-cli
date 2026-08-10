@@ -218,18 +218,17 @@ def normalize_record(raw: dict[str, Any], *, as_of: str | None = None) -> dict[s
     # Derive cheap portfolio signals from public contract dates/objects so the
     # multi-service router is not starved into mature→reajuste monoculture when
     # only thin maturity evidence is present without specialty tokens.
-    recent_pubs = 0
+    #
+    # recent_tender_activity MUST NOT fire on mere recent publication/start dates —
+    # that is normal portfolio activity and incorrectly elevates apoio_licitacoes
+    # over lean backoffice/gestão (golden regional_lean regression).
+    # Require tender/proposal object tokens (or explicit caller signal).
     recent_starts = 0
     for c in contracts:
         age = c.get("age_days")
-        if age is not None and age <= 180:
-            if c.get("publication_date"):
-                recent_pubs += 1
-            if c.get("start_date"):
-                recent_starts += 1
-    auto_recent_tender = recent_pubs >= 1 or any(
-        bool(c.get("tender_or_proposal_signal")) for c in contracts
-    )
+        if age is not None and age <= 180 and c.get("start_date"):
+            recent_starts += 1
+    auto_recent_tender = any(bool(c.get("tender_or_proposal_signal")) for c in contracts)
     auto_rapid_growth = len(contracts) >= 2 and recent_starts >= 1 and len(contracts) <= 8
     auto_high_recurrence = len(contracts) >= 5
     signals = {
@@ -242,7 +241,7 @@ def normalize_record(raw: dict[str, Any], *, as_of: str | None = None) -> dict[s
         "low_public_formalization": _boolish(signals_in.get("low_public_formalization")),
         "regional_only": _boolish(signals_in.get("regional_only")),
         "concentrated_functions": _boolish(signals_in.get("concentrated_functions")),
-        # Explicit router inputs (preserve caller override)
+        # Caller override preserved; auto only with tender/proposal tokens
         "recent_tender_activity": _boolish(signals_in.get("recent_tender_activity"))
         or auto_recent_tender,
         "proposal_window": _boolish(signals_in.get("proposal_window")),

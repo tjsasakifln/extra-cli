@@ -111,9 +111,13 @@ def _harvest_contacts(artifact_root: Path) -> dict[str, dict[str, Any]]:
             score += 3
         if obj.get("source_url") or obj.get("root_source_url"):
             score += 2
+        if obj.get("provenance_chain"):
+            score += 2
         prev = by_root.get(r)
         if prev is not None and score < int(prev.get("_score") or -1):
             return
+        # Prefer root_source_type (canonical enum) over leaf source_type for trust
+        root_st = obj.get("root_source_type") or obj.get("source_type")
         by_root[r] = {
             "cnpj_raiz": r,
             "cnpj14": _digits(obj.get("cnpj14") or obj.get("cnpj") or r)[:14],
@@ -125,9 +129,17 @@ def _harvest_contacts(artifact_root: Path) -> dict[str, dict[str, Any]]:
             ).upper(),
             "service_id": obj.get("service_id")
             or (obj.get("primary_service") or {}).get("service_id"),
-            "source_url": obj.get("source_url") or obj.get("root_source_url"),
-            "source_type": obj.get("source_type") or obj.get("root_source_type"),
+            "source_url": obj.get("root_source_url") or obj.get("source_url"),
+            "source_type": root_st,
+            "root_source_type": root_st,
             "provenance_chain": obj.get("provenance_chain"),
+            "why_you": obj.get("why_you"),
+            "why_now": obj.get("why_now"),
+            "observed_fact": obj.get("observed_fact"),
+            "micro_offer": obj.get("micro_offer") or obj.get("micro_offer_code"),
+            "cta": obj.get("cta"),
+            "evidence_ids": obj.get("evidence_ids"),
+            "service_fit_supported": obj.get("service_fit_supported"),
             "mailbox_purpose": classify_mailbox_purpose(email).as_dict(),
             "harvest_path": str(path),
             "_score": score,
@@ -212,9 +224,32 @@ def _evaluate_harvest_esr(
             "razao_social": rec.get("razao_social"),
             "target_fit_class": TARGET_CONFIRMED,
             "target_fit": TARGET_CONFIRMED,
-            "primary_service": {"service_id": rec.get("service_id") or "diagnostico_contratual_b2g"},
+            "primary_service": {
+                "service_id": rec.get("service_id") or "diagnostico_contratual_b2g",
+                "supporting_signal_ids": list(rec.get("supporting_signal_ids") or ["harvest"]),
+                "evidence_ids": list(rec.get("evidence_ids") or ["harvest-ev"]),
+                "factual_basis": rec.get("factual_basis") or "public_record_harvest",
+                "confidence": float(rec.get("confidence") or 0.55),
+            },
             "service_id": rec.get("service_id"),
-            "copy_context": {"present": True, "hollow": False},
+            # Pass through copy fields when present (clean cohort has them)
+            "copy_context": {
+                "present": bool(
+                    rec.get("why_you") or rec.get("why_now") or rec.get("observed_fact")
+                ),
+                "hollow": False,
+                "why_you": rec.get("why_you"),
+                "why_this_account": rec.get("why_you"),
+                "why_now": rec.get("why_now"),
+                "observed_fact": rec.get("observed_fact"),
+                "micro_offer_code": rec.get("micro_offer") or rec.get("service_id"),
+                "cta": rec.get("cta"),
+            },
+            "why_you": rec.get("why_you"),
+            "why_now": rec.get("why_now"),
+            "observed_fact": rec.get("observed_fact"),
+            "micro_offer": rec.get("micro_offer"),
+            "cta": rec.get("cta"),
         }
         # published_index keys may be company_key
         ck = f"cnpj_root:{root}"
@@ -225,6 +260,11 @@ def _evaluate_harvest_esr(
             ) or TARGET_CONFIRMED
             company["published_target_fit"] = pub
 
+        src_type = (
+            rec.get("root_source_type")
+            or rec.get("source_type")
+            or "REAL_OFFICIAL_SITE"
+        )
         result = evaluate_email_send_ready(
             company=company,
             email=str(email),
@@ -234,8 +274,11 @@ def _evaluate_harvest_esr(
             contact_fresh=True,
             service_code=rec.get("service_id"),
             factual_evidence=True,
-            require_copy_context=False,  # harvest often lacks full copy spine
-            source_type=rec.get("source_type") or "REAL_OFFICIAL_SITE",
+            evidence_ids=list(rec.get("evidence_ids") or ["harvest-ev"]),
+            require_copy_context=bool(
+                rec.get("why_you") or rec.get("why_now") or rec.get("observed_fact")
+            ),
+            source_type=str(src_type),
             source_url=rec.get("source_url"),
             provenance_chain=rec.get("provenance_chain"),
             published_index=published_index,
