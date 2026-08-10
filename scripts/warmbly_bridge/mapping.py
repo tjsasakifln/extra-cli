@@ -438,53 +438,91 @@ def map_lead(
             company_ctx[k] = intel[k]
 
     fit = None
-    published_class = company_ctx.get("target_fit_class") or (
-        (company_ctx.get("published_target_fit") or {}).get("target_fit_class")
-        if isinstance(company_ctx.get("published_target_fit"), dict)
-        else None
-    )
-    if published_class:
-        # Authoritative published class → map to send tier without re-triangulating
-        try:
-            from scripts.confenge_contact_resolution.send_readiness import TargetFitResult
-            from scripts.confenge_target_fit.published import (
-                attach_published_fields,
-                evaluate_published_send_gate,
-                map_class_to_send_tier,
-                published_from_row_or_db,
-            )
+    # Live path open when conn/index provided — prefer store over embeds.
+    live_open = conn is not None or published_index is not None
+    try:
+        from scripts.confenge_contact_resolution.send_readiness import TargetFitResult
+        from scripts.confenge_target_fit.published import (
+            attach_published_fields,
+            company_key_from_row,
+            enrich_row_with_published,
+            evaluate_published_send_gate,
+            map_class_to_send_tier,
+            published_from_row_or_db,
+            resolve_suppressed,
+        )
 
-            pub = published_from_row_or_db(company_ctx, conn=conn, published_index=published_index)
+        pub = published_from_row_or_db(
+            company_ctx, conn=conn, published_index=published_index
+        )
+        if pub is not None:
+            ck = (pub or {}).get("company_key") or company_key_from_row(company_ctx)
+            suppressed = resolve_suppressed(conn, company_key=ck, row=company_ctx)
+            dl_wm = str(
+                company_ctx.get("datalake_watermark") or datalake_watermark or ""
+            )
+            company_ctx = enrich_row_with_published(
+                company_ctx, pub, suppressed=suppressed, datalake_watermark=dl_wm
+            )
             blocks, pub_reasons, fresh = evaluate_published_send_gate(
                 published=pub,
-                datalake_watermark=str(company_ctx.get("datalake_watermark") or ""),
-                suppressed=bool(
-                    company_ctx.get("target_fit_suppressed")
-                    or company_ctx.get("target_fit_send_suppressed")
-                ),
+                datalake_watermark=dl_wm,
+                suppressed=suppressed,
             )
+            pub_class = str(pub.get("target_fit_class") or "")
             fit = TargetFitResult(
-                tier=map_class_to_send_tier(str(published_class)),
+                tier=map_class_to_send_tier(pub_class),
                 reasons=list(pub_reasons) + ["published_target_fit"],
-                sector_fit=str(
-                    (pub or {}).get("sector_fit")
-                    or company_ctx.get("sector_fit")
-                    or ""
-                ),
-                canonical_universe_member=str(published_class) != "TARGET_OUT_OF_SCOPE",
+                sector_fit=str(pub.get("sector_fit") or company_ctx.get("sector_fit") or ""),
+                canonical_universe_member=pub_class != "TARGET_OUT_OF_SCOPE",
             )
             lead = attach_published_fields(lead, published=pub, freshness=fresh)
             if blocks:
                 company_ctx["target_fit_send_suppressed"] = True
-        except Exception:  # noqa: BLE001
-            fit = None
-            published_class = None
+            company_ctx["target_fit_fresh"] = bool(
+                fresh and fresh.target_fit_fresh and not fresh.blocks_send
+            )
+        elif live_open:
+            # Live path open but no store hit: fail closed (no sticky embed).
+            fit = TargetFitResult(
+                tier="OUT_OF_SCOPE",
+                reasons=["TARGET_FIT_MISSING", "live_store_miss"],
+                sector_fit="",
+                canonical_universe_member=False,
+            )
+            lead["target_fit_class"] = None
+            lead["target_fit_confidence"] = None
+            lead["target_fit_version"] = None
+            lead["target_fit_computed_at"] = None
+            lead["target_fit_source_watermark"] = None
+            lead["target_fit_fresh"] = False
+            lead["target_fit_evidence_ids"] = []
+            company_ctx["target_fit_fresh"] = False
+    except Exception as exc:  # noqa: BLE001 — fail closed, never re-score to sendable
+        if live_open:
+            from scripts.confenge_contact_resolution.send_readiness import TargetFitResult
+
+            fit = TargetFitResult(
+                tier="OUT_OF_SCOPE",
+                reasons=[f"published_path_error:{type(exc).__name__}", "fail_closed"],
+                sector_fit="",
+                canonical_universe_member=False,
+            )
+            lead["target_fit_class"] = None
+            lead["target_fit_confidence"] = None
+            lead["target_fit_version"] = None
+            lead["target_fit_computed_at"] = None
+            lead["target_fit_source_watermark"] = None
+            lead["target_fit_fresh"] = False
+            lead["target_fit_evidence_ids"] = []
+            company_ctx["target_fit_send_suppressed"] = True
+            company_ctx["target_fit_fresh"] = False
 
     if fit is None:
-        # Legacy path only when no published materialization is available
+        # Offline/legacy path only when live store is not open
         fit = classify_target_fit_send_tier(company_ctx)
         # Still emit empty/null contract fields so Warmbly can fail-closed if required
-        lead.setdefault("target_fit_class", None)
+        lead.setdefault("target_fit_class", company_ctx.get("target_fit_class"))
         lead.setdefault("target_fit_confidence", None)
         lead.setdefault("target_fit_version", None)
         lead.setdefault("target_fit_computed_at", None)
