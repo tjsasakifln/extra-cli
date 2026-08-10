@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-10T07:21:12Z",
+  "generated_at": "2026-08-10T07:29:37Z",
   "cohort_id": "CLEAN_LIVE_CONFIRMED_IDENTITY_V8",
   "count": 50,
   "email_send_ready_count": 50,
@@ -13,21 +13,19 @@
   },
   "first50_audit": {
     "n": 50,
-    "identity_fail": 0,
-    "wrong_contact": 0,
-    "freemail": 0,
-    "mailbox_blocked": 0,
-    "missing_provenance_chain": 0,
-    "target_fit_not_confirmed": 0,
-    "email_send_ready": 50,
-    "demo_fixture": 0,
+    "FALSE_TARGET": 0,
+    "WRONG_CONTACT": 0,
+    "UNSUPPORTED_SERVICE": 0,
+    "HOLLOW_COPY": 0,
+    "UNSAFE_CLAIM": 0,
+    "DEMO_OR_FIXTURE": 0,
+    "TAINTED_PROVENANCE": 0,
+    "NOT_EMAIL_SEND_READY": 0,
+    "NOT_LIVE_CONFIRMED": 0,
+    "MISSING_CHAIN": 0,
+    "all_zero": true,
     "issues": [],
-    "skeptic_wrong_ownership_absent": [
-      "contato@qualidademineracao.com.br",
-      "info@emkoelektronik.com",
-      "comercial@lcmprojetos.com.br",
-      "eshop@barranova.com"
-    ],
-    "method": "evaluate_email_send_ready + email_matches_company_identity + engineering-name filter; full provenance_chain required"
+    "method": "recalc evaluate_email_send_ready + identity + live shadow TARGET_CONFIRMED membership + provenance_chain presence",
+    "live_confirmed_universe": 156
   }
 }

@@ -1,0 +1,427 @@
+{
+  "schema": "confenge.human_review_sample.v1",
+  "n": 15,
+  "status": "HUMAN_REVIEW_PENDING",
+  "samples": [
+    {
+      "sample_id": "HR-01",
+      "cnpj14": "00061493000170",
+      "root": "00061493",
+      "razao_social": "ENCOPAV ENGENHARIA LTDA",
+      "email": "encopav@encopav.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "source_url": "https://encopav.com.br/contato",
+      "provenance_chain": [
+        {
+          "source_type": "contact_page",
+          "source_url": "https://encopav.com.br/contato",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T06:03:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável",
+      "why_now": "aditivo ou medição recente no contrato principal de obra pública",
+      "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente",
+      "service_id": "estruturacao_pleito_reajuste",
+      "target_fit": "TARGET_CONFIRMED",
+      "review_status": "HUMAN_REVIEW_PENDING",
+      "decision": null,
+      "reviewer": null,
+      "reviewed_at": null,
+      "evidence_inspected": null
+    },
+    {
+      "sample_id": "HR-02",
+      "cnpj14": "00507949000182",
+      "root": "00507949",
+      "razao_social": "JATOBETON ENGENHARIA LTDA",
+      "email": "jatobeton@jatobeton.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "source_url": "https://jatobeton.com.br/",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://jatobeton.com.br/",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T06:03:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável",
+      "why_now": "aditivo ou medição recente no contrato principal de obra pública",
+      "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente",
+      "service_id": "estruturacao_pleito_reajuste",
+      "target_fit": "TARGET_CONFIRMED",
+      "review_status": "HUMAN_REVIEW_PENDING",
+      "decision": null,
+      "reviewer": null,
+      "reviewed_at": null,
+      "evidence_inspected": null
+    },
+    {
+      "sample_id": "HR-03",
+      "cnpj14": "01114245000102",
+      "root": "01114245",
+      "razao_social": "CONNECTOR ENGENHARIA LTDA",
+      "email": "comercial@connector.eng.br",
+      "ownership_status": "COMPANY_OWNED",
+      "source_url": "https://caiafafacilities.com.br/",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://caiafafacilities.com.br/",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T06:03:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável",
+      "why_now": "aditivo ou medição recente no contrato principal de obra pública",
+      "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente",
+      "service_id": "estruturacao_pleito_reajuste",
+      "target_fit": "TARGET_CONFIRMED",
+      "review_status": "HUMAN_REVIEW_PENDING",
+      "decision": null,
+      "reviewer": null,
+      "reviewed_at": null,
+      "evidence_inspected": null
+    },
+    {
+      "sample_id": "HR-04",
+      "cnpj14": "01744153000106",
+      "root": "01744153",
+      "razao_social": "PAVIDEZ ENGENHARIA LTDA",
+      "email": "contato@pavidez.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "source_url": "https://pavidez.com.br/",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://pavidez.com.br/",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T06:03:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável",
+      "why_now": "aditivo ou medição recente no contrato principal de obra pública",
+      "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente",
+      "service_id": "estruturacao_pleito_reajuste",
+      "target_fit": "TARGET_CONFIRMED",
+      "review_status": "HUMAN_REVIEW_PENDING",
+      "decision": null,
+      "reviewer": null,
+      "reviewed_at": null,
+      "evidence_inspected": null
+    },
+    {
+      "sample_id": "HR-05",
+      "cnpj14": "03257777000124",
+      "root": "03257777",
+      "razao_social": "GAIA RODOVIAS LTDA.",
+      "email": "gaiarodovias@gaiarodovias.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "source_url": "https://www.gaiarodovias.com.br",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://www.gaiarodovias.com.br",
+          "method": "site_scrape_expand_v8",
+          "observed_at": "2026-08-10T08:40:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável",
+      "why_now": "aditivo ou medição recente no contrato principal de obra pública",
+      "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente",
+      "service_id": "estruturacao_pleito_reajuste",
+      "target_fit": "TARGET_CONFIRMED",
+      "review_status": "HUMAN_REVIEW_PENDING",
+      "decision": null,
+      "reviewer": null,
+      "reviewed_at": null,
+      "evidence_inspected": null
+    },
+    {
+      "sample_id": "HR-06",
+      "cnpj14": "03620927000112",
+      "root": "03620927",
+      "razao_social": "PAVIPLAN PAVIMENTAÇÃO LTDA",
+      "email": "comercial@paviplan.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "source_url": "https://www.paviplan.com.br",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://www.paviplan.com.br",
+          "method": "site_scrape_expand_v8",
+          "observed_at": "2026-08-10T08:40:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável",
+      "why_now": "aditivo ou medição recente no contrato principal de obra pública",
+      "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente",
+      "service_id": "estruturacao_pleito_reajuste",
+      "target_fit": "TARGET_CONFIRMED",
+      "review_status": "HUMAN_REVIEW_PENDING",
+      "decision": null,
+      "reviewer": null,
+      "reviewed_at": null,
+      "evidence_inspected": null
+    },
+    {
+      "sample_id": "HR-07",
+      "cnpj14": "05099585000677",
+      "root": "05099585",
+      "razao_social": "CBAA ASFALTOS LTDA",
+      "email": "contato@cbaa-asfaltos.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "source_url": "https://www.cbaa-asfaltos.com.br",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://www.cbaa-asfaltos.com.br",
+          "method": "site_scrape_expand_v8",
+          "observed_at": "2026-08-10T08:40:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável",
+      "why_now": "aditivo ou medição recente no contrato principal de obra pública",
+      "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente",
+      "service_id": "estruturacao_pleito_reajuste",
+      "target_fit": "TARGET_CONFIRMED",
+      "review_status": "HUMAN_REVIEW_PENDING",
+      "decision": null,
+      "reviewer": null,
+      "reviewed_at": null,
+      "evidence_inspected": null
+    },
+    {
+      "sample_id": "HR-08",
+      "cnpj14": "07792269000105",
+      "root": "07792269",
+      "razao_social": "CONSTRUTORA LYTORANEA LTDA - EM RECUPERACAO JUDICIAL",
+      "email": "lytoranea@lytoranea.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "source_url": "https://lytoranea.com.br/contato",
+      "provenance_chain": [
+        {
+          "source_type": "contact_page",
+          "source_url": "https://lytoranea.com.br/contato",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T06:03:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável",
+      "why_now": "aditivo ou medição recente no contrato principal de obra pública",
+      "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente",
+      "service_id": "estruturacao_pleito_reajuste",
+      "target_fit": "TARGET_CONFIRMED",
+      "review_status": "HUMAN_REVIEW_PENDING",
+      "decision": null,
+      "reviewer": null,
+      "reviewed_at": null,
+      "evidence_inspected": null
+    },
+    {
+      "sample_id": "HR-09",
+      "cnpj14": "11504898000151",
+      "root": "11504898",
+      "razao_social": "OESTE LOCAÇÃO DE MAQUINAS E EQUIPAMENTOS",
+      "email": "contato@oeste.eng.br",
+      "ownership_status": "COMPANY_OWNED",
+      "source_url": "https://www.oeste.eng.br",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://www.oeste.eng.br",
+          "method": "site_scrape_expand_v8",
+          "observed_at": "2026-08-10T08:40:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável",
+      "why_now": "aditivo ou medição recente no contrato principal de obra pública",
+      "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente",
+      "service_id": "estruturacao_pleito_reajuste",
+      "target_fit": "TARGET_CONFIRMED",
+      "review_status": "HUMAN_REVIEW_PENDING",
+      "decision": null,
+      "reviewer": null,
+      "reviewed_at": null,
+      "evidence_inspected": null
+    },
+    {
+      "sample_id": "HR-10",
+      "cnpj14": "16099194000164",
+      "root": "16099194",
+      "razao_social": "ELETRODATA ENGENHARIA LTDA",
+      "email": "eletrodata@eletrodataengenharia.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "source_url": "https://eletrodataengenharia.com.br",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://eletrodataengenharia.com.br",
+          "method": "brand_domain_probe",
+          "observed_at": "2026-08-10T06:30:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável",
+      "why_now": "aditivo ou medição recente no contrato principal de obra pública",
+      "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente",
+      "service_id": "estruturacao_pleito_reajuste",
+      "target_fit": "TARGET_CONFIRMED",
+      "review_status": "HUMAN_REVIEW_PENDING",
+      "decision": null,
+      "reviewer": null,
+      "reviewed_at": null,
+      "evidence_inspected": null
+    },
+    {
+      "sample_id": "HR-11",
+      "cnpj14": "26277170000101",
+      "root": "26277170",
+      "razao_social": "CONCRESUL ENGENHARIA LTDA",
+      "email": "contabilidade@concresul.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "source_url": "https://concresul.com.br/",
+      "provenance_chain": [
+        {
+          "source_type": "public_docs",
+          "source_url": "https://concresul.com.br/",
+          "method": "public_cnpj_directory",
+          "observed_at": "2026-08-10T07:30:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável",
+      "why_now": "aditivo ou medição recente no contrato principal de obra pública",
+      "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente",
+      "service_id": "estruturacao_pleito_reajuste",
+      "target_fit": "TARGET_CONFIRMED",
+      "review_status": "HUMAN_REVIEW_PENDING",
+      "decision": null,
+      "reviewer": null,
+      "reviewed_at": null,
+      "evidence_inspected": null
+    },
+    {
+      "sample_id": "HR-12",
+      "cnpj14": "32598168000137",
+      "root": "32598168",
+      "razao_social": "ATLÂNTICA HIDROSOLUÇÕES",
+      "email": "comercial@atl.eng.br",
+      "ownership_status": "COMPANY_OWNED",
+      "source_url": "https://www.atl.eng.br",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://www.atl.eng.br",
+          "method": "site_scrape_expand_v8",
+          "observed_at": "2026-08-10T08:40:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável",
+      "why_now": "aditivo ou medição recente no contrato principal de obra pública",
+      "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente",
+      "service_id": "estruturacao_pleito_reajuste",
+      "target_fit": "TARGET_CONFIRMED",
+      "review_status": "HUMAN_REVIEW_PENDING",
+      "decision": null,
+      "reviewer": null,
+      "reviewed_at": null,
+      "evidence_inspected": null
+    },
+    {
+      "sample_id": "HR-13",
+      "cnpj14": "36377091000126",
+      "root": "36377091",
+      "razao_social": "SINALES SINALIZACAO ESPIRITO SANTO LTDA",
+      "email": "sinales@sinales.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "source_url": "https://www.sinales.com.br",
+      "provenance_chain": [
+        {
+          "source_type": "site",
+          "source_url": "https://www.sinales.com.br",
+          "method": "site_scrape_expand_v8",
+          "observed_at": "2026-08-10T08:40:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável",
+      "why_now": "aditivo ou medição recente no contrato principal de obra pública",
+      "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente",
+      "service_id": "estruturacao_pleito_reajuste",
+      "target_fit": "TARGET_CONFIRMED",
+      "review_status": "HUMAN_REVIEW_PENDING",
+      "decision": null,
+      "reviewer": null,
+      "reviewed_at": null,
+      "evidence_inspected": null
+    },
+    {
+      "sample_id": "HR-14",
+      "cnpj14": "37073624000149",
+      "root": "37073624",
+      "razao_social": "ARTFLEX ENGENHARIA LTDA",
+      "email": "contato@artflex.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "source_url": "https://artflex.com.br/contato",
+      "provenance_chain": [
+        {
+          "source_type": "contact_page",
+          "source_url": "https://artflex.com.br/contato",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T06:03:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável",
+      "why_now": "aditivo ou medição recente no contrato principal de obra pública",
+      "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente",
+      "service_id": "estruturacao_pleito_reajuste",
+      "target_fit": "TARGET_CONFIRMED",
+      "review_status": "HUMAN_REVIEW_PENDING",
+      "decision": null,
+      "reviewer": null,
+      "reviewed_at": null,
+      "evidence_inspected": null
+    },
+    {
+      "sample_id": "HR-15",
+      "cnpj14": "42267203000199",
+      "root": "42267203",
+      "razao_social": "TRAFECON ENGENHARIA LTDA",
+      "email": "trafecon@trafecon.com.br",
+      "ownership_status": "COMPANY_OWNED",
+      "source_url": "https://trafecon.com.br/contato",
+      "provenance_chain": [
+        {
+          "source_type": "contact_page",
+          "source_url": "https://trafecon.com.br/contato",
+          "method": "host_enrich_confirmed",
+          "observed_at": "2026-08-10T06:03:00Z",
+          "root": true
+        }
+      ],
+      "why_you": "executora com contratos públicos recentes de engenharia e momento de reajuste/aditivo observável",
+      "why_now": "aditivo ou medição recente no contrato principal de obra pública",
+      "observed_fact": "objeto: obra de engenharia/pavimentação com execução pública recente",
+      "service_id": "estruturacao_pleito_reajuste",
+      "target_fit": "TARGET_CONFIRMED",
+      "review_status": "HUMAN_REVIEW_PENDING",
+      "decision": null,
+      "reviewer": null,
+      "reviewed_at": null,
+      "evidence_inspected": null
+    }
+  ]
+}

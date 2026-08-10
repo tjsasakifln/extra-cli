@@ -1,11 +1,20 @@
 {
-  "generated_at": "2026-08-10T07:21:12Z",
-  "extra_cli_origin_main": "313266f1275c40371e49afb3be00239d4d9afa03",
-  "extra_cli_host_deployed": "313266f1275c40371e49afb3be00239d4d9afa03",
-  "extra_cli_match": true,
-  "warmbly_origin_main": "81d83429316aa6241cc81b3ac8e761bfc59c2487",
-  "warmbly_host_deployed": "81d83429316aa6241cc81b3ac8e761bfc59c2487",
-  "warmbly_match": true,
-  "pr_215": "MERGED",
-  "pack_branch": "docs/confenge-unconditional-go-v8"
+  "generated_at": "2026-08-10T07:29:37Z",
+  "extra_cli": {
+    "origin_main": "313266f1275c40371e49afb3be00239d4d9afa03",
+    "host_deployed": "313266f1275c40371e49afb3be00239d4d9afa03",
+    "runtime": "313266f1275c40371e49afb3be00239d4d9afa03",
+    "triple_match": true,
+    "ci_green": true,
+    "ci_url": "https://github.com/tjsasakifln/extra-cli/actions/runs/31362953870"
+  },
+  "warmbly": {
+    "origin_main": "81d83429316aa6241cc81b3ac8e761bfc59c2487",
+    "host_deployed": "81d83429316aa6241cc81b3ac8e761bfc59c2487",
+    "runtime": "81d83429316aa6241cc81b3ac8e761bfc59c2487",
+    "triple_match": true,
+    "ci_green": true,
+    "ci_url": "https://github.com/tjsasakifln/warmbly/actions/runs/31354614986"
+  },
+  "identity_match": true
 }
