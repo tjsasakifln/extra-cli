@@ -113,29 +113,81 @@ def load_confirmed_roots(dsn: str) -> list[dict[str, Any]]:
         conn.close()
 
 
-def _load_checkpoint(path: Path) -> dict[str, Any]:
-    if not path.is_file():
-        return {"completed_roots": [], "updated_at": None}
-    try:
-        return json.loads(path.read_text(encoding="utf-8"))
-    except json.JSONDecodeError:
-        return {"completed_roots": [], "updated_at": None}
+def _accounts_completed_roots(accounts_dir: Path) -> set[str]:
+    """Roots already persisted as account JSON (authoritative for multi-worker resume)."""
+    if not accounts_dir.is_dir():
+        return set()
+    out: set[str] = set()
+    for p in accounts_dir.glob("*.json"):
+        stem = p.stem.strip()
+        if len(stem) == 8 and stem.isdigit():
+            out.add(stem)
+    return out
 
 
-def _save_checkpoint(path: Path, completed: set[str]) -> None:
+def _load_checkpoint(path: Path, accounts_dir: Path | None = None) -> dict[str, Any]:
+    """Load checkpoint and merge with on-disk account files (shard-safe)."""
+    data: dict[str, Any] = {"completed_roots": [], "updated_at": None}
+    if path.is_file():
+        try:
+            raw = json.loads(path.read_text(encoding="utf-8"))
+            if isinstance(raw, dict):
+                data = raw
+        except json.JSONDecodeError:
+            pass
+    completed = {str(x) for x in (data.get("completed_roots") or []) if x}
+    if accounts_dir is not None:
+        completed |= _accounts_completed_roots(accounts_dir)
+    data["completed_roots"] = sorted(completed)
+    data["count"] = len(completed)
+    return data
+
+
+def _save_checkpoint(path: Path, completed: set[str], accounts_dir: Path | None = None) -> None:
+    """Atomic merge-save with flock so parallel shards do not clobber each other."""
+    import fcntl
+    import os
+    import tempfile
+
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(
-        json.dumps(
-            {
-                "completed_roots": sorted(completed),
+    lock_path = path.with_suffix(path.suffix + ".lock")
+    merged = set(completed)
+    if accounts_dir is not None:
+        merged |= _accounts_completed_roots(accounts_dir)
+
+    with lock_path.open("a+", encoding="utf-8") as lock_fh:
+        fcntl.flock(lock_fh.fileno(), fcntl.LOCK_EX)
+        try:
+            if path.is_file():
+                try:
+                    prior = json.loads(path.read_text(encoding="utf-8"))
+                    merged |= {str(x) for x in (prior.get("completed_roots") or []) if x}
+                except json.JSONDecodeError:
+                    pass
+            if accounts_dir is not None:
+                merged |= _accounts_completed_roots(accounts_dir)
+            payload = {
+                "completed_roots": sorted(merged),
                 "updated_at": _utcnow(),
-                "count": len(completed),
-            },
-            indent=2,
-        )
-        + "\n",
-        encoding="utf-8",
-    )
+                "count": len(merged),
+            }
+            fd, tmp_name = tempfile.mkstemp(
+                prefix=path.name + ".",
+                suffix=".tmp",
+                dir=str(path.parent),
+            )
+            try:
+                with os.fdopen(fd, "w", encoding="utf-8") as tmp_fh:
+                    tmp_fh.write(json.dumps(payload, indent=2) + "\n")
+                os.replace(tmp_name, path)
+            except Exception:
+                try:
+                    os.unlink(tmp_name)
+                except OSError:
+                    pass
+                raise
+        finally:
+            fcntl.flock(lock_fh.fileno(), fcntl.LOCK_UN)
 
 
 def _result_to_public_docs(result: Any) -> list[dict[str, Any]]:
@@ -383,7 +435,9 @@ def run_national_process_harvest(
     confirmed_keys = [str(r.get("cnpj_raiz") or "") for r in roots if r.get("cnpj_raiz")]
     completed: set[str] = set()
     if cfg.resume:
-        completed = set(_load_checkpoint(ckpt_path).get("completed_roots") or [])
+        completed = set(
+            _load_checkpoint(ckpt_path, accounts_dir=accounts_dir).get("completed_roots") or []
+        )
 
     enricher = ProcessFirstEnricher(
         config=ProcessFirstConfig(
@@ -466,9 +520,14 @@ def run_national_process_harvest(
                     attempt_count=1,
                     meta={"error": f"{type(exc).__name__}: {exc}"},
                 )
-                terminals.append(st.as_dict())
+                term_row = st.as_dict()
+                terminals.append(term_row)
                 completed.add(root)
                 processed += 1
+                with terminals_path.open("a", encoding="utf-8") as term_fh:
+                    term_fh.write(json.dumps(term_row, ensure_ascii=False) + "\n")
+                if processed % 10 == 0:
+                    _save_checkpoint(ckpt_path, completed, accounts_dir=accounts_dir)
                 continue
 
             # Persist account result
@@ -549,8 +608,11 @@ def run_national_process_harvest(
 
             completed.add(root)
             processed += 1
-            if processed % 25 == 0:
-                _save_checkpoint(ckpt_path, completed)
+            # Incremental terminal append (shard-safe; final merge rewrites deduped file)
+            with terminals_path.open("a", encoding="utf-8") as term_fh:
+                term_fh.write(json.dumps(st.as_dict(), ensure_ascii=False) + "\n")
+            if processed % 10 == 0:
+                _save_checkpoint(ckpt_path, completed, accounts_dir=accounts_dir)
                 logger.info(
                     "national process harvest processed=%s completed=%s emails=%s",
                     processed,
@@ -560,7 +622,7 @@ def run_national_process_harvest(
             if cfg.politeness_seconds > 0:
                 time.sleep(cfg.politeness_seconds)
 
-    _save_checkpoint(ckpt_path, completed)
+    _save_checkpoint(ckpt_path, completed, accounts_dir=accounts_dir)
 
     # Terminal coverage for all CONFIRMED (attempted = completed this/prior runs)
     terminal_cov = measure_terminal_coverage(

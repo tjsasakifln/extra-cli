@@ -584,40 +584,49 @@ class EnrichmentBatchRunner:
         # 1) cheap local/registry seed of reuse graph (no full discovery cascade)
         # 2) full discovery + ownership so SHARED_EXTERNAL sees the cohort graph
         # Skipping cascade on pass1 avoids double network cost (search/crawl once).
+        # National batches (large todo): skip pass1 — it can hang for hours on network
+        # registry lookups with zero checkpoint progress before any terminal is written.
         prev_ownership = self.resolver.config.apply_ownership
         prev_cascade = self.resolver.config.discovery_cascade
-        self.resolver.config.apply_ownership = False
-        self.resolver.config.discovery_cascade = None
-        pass1: list[AccountContactResolution] = []
-        for job in todo:
-            try:
-                res = self._resolve_with_retry(job.cnpj14)
-                if not res.razao_social and job.razao_social:
-                    res.razao_social = job.razao_social
-                pass1.append(res)
-                eg = job_meta.get(job.cnpj14, {}).get("economic_group_id")
-                for c in res.candidates:
-                    self.resolver.reuse_graph.observe_candidate(
-                        res.cnpj14,
-                        email=c.email,
-                        phone=c.phone_e164 or c.phone_raw,
-                        razao_social=res.razao_social,
-                        economic_group_id=str(eg) if eg else None,
-                    )
-            except Exception as exc:  # noqa: BLE001
-                self.metrics.retries += 1
-                self.retry_stats.retries += 1
-                self.retry_stats.last_error = str(exc)
-                self._checkpoint.setdefault("failed_cnpjs", {})[job.cnpj14] = f"pass1:{exc}"
+        skip_pass1 = len(todo) > 200
+        cached = None
+        if not skip_pass1:
+            self.resolver.config.apply_ownership = False
+            self.resolver.config.discovery_cascade = None
+            pass1: list[AccountContactResolution] = []
+            for job in todo:
+                try:
+                    res = self._resolve_with_retry(job.cnpj14)
+                    if not res.razao_social and job.razao_social:
+                        res.razao_social = job.razao_social
+                    pass1.append(res)
+                    eg = job_meta.get(job.cnpj14, {}).get("economic_group_id")
+                    for c in res.candidates:
+                        self.resolver.reuse_graph.observe_candidate(
+                            res.cnpj14,
+                            email=c.email,
+                            phone=c.phone_e164 or c.phone_raw,
+                            razao_social=res.razao_social,
+                            economic_group_id=str(eg) if eg else None,
+                        )
+                except Exception as exc:  # noqa: BLE001
+                    self.metrics.retries += 1
+                    self.retry_stats.retries += 1
+                    self.retry_stats.last_error = str(exc)
+                    self._checkpoint.setdefault("failed_cnpjs", {})[job.cnpj14] = f"pass1:{exc}"
 
-        self.resolver.config.apply_ownership = True
-        self.resolver.config.discovery_cascade = prev_cascade
-        # Drop pass1 cache entries so pass2 recomputes with discovery + ownership
-        if self.resolver.config.cache is not None:
-            cached = self.resolver.config.cache
-            self.resolver.config.cache = None
+            self.resolver.config.apply_ownership = True
+            self.resolver.config.discovery_cascade = prev_cascade
+            # Drop pass1 cache entries so pass2 recomputes with discovery + ownership
+            if self.resolver.config.cache is not None:
+                cached = self.resolver.config.cache
+                self.resolver.config.cache = None
+            else:
+                cached = None
         else:
-            cached = None
+            # Ensure pass2 uses ownership + cascade as configured
+            self.resolver.config.apply_ownership = True
+            self.resolver.config.discovery_cascade = prev_cascade
 
         for job in todo:
             try:
@@ -711,8 +720,8 @@ class EnrichmentBatchRunner:
 
             warmbly_rows.append(wb)
             self._checkpoint.setdefault("completed_cnpjs", []).append(job.cnpj14)
-            # periodic checkpoint every 25
-            if len(resolutions) % 25 == 0:
+            # periodic checkpoint every 10 (national drain needs frequent resume points)
+            if len(resolutions) % 10 == 0:
                 self._save_checkpoint()
 
         if cached is not None:
