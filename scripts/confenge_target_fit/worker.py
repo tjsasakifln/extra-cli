@@ -42,6 +42,7 @@ from scripts.confenge_target_fit.store import (
     set_control,
     set_target_fit_watermark,
     start_cycle,
+    try_company_advisory_lock,
 )
 
 logger = logging.getLogger(__name__)
@@ -120,6 +121,21 @@ def process_one(
         "latency_ms": 0.0,
     }
     try:
+        # Belt-and-suspenders single-writer: claim is one-row-per-company, but
+        # advisory lock blocks concurrent publish if two dirty rows raced.
+        if not try_company_advisory_lock(conn, item.company_key):
+            mark_dirty_done(
+                conn,
+                item.id,
+                status=STATUS_RETRY,
+                error="company_lock_busy",
+                next_retry_at=_utcnow() + timedelta(seconds=5),
+            )
+            result["status"] = STATUS_RETRY
+            result["error"] = "company_lock_busy"
+            result["latency_ms"] = (time.perf_counter() - t0) * 1000
+            return result
+
         company = load_company_input(
             conn,
             cnpj_raiz=item.cnpj_raiz,

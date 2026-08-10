@@ -49,9 +49,9 @@ def _mock_psycopg2_connect(request):
         yield
         return
 
-    # CONFENGE target-fit continuous refresh store tests already skip without DSN.
-    # They prove real SKIP LOCKED / idempotency / publish atomicity against Postgres.
-    if "confenge_target_fit" in path_parts and "test_store_idempotency" in fspath:
+    # CONFENGE target-fit continuous refresh integration tests already skip without
+    # DSN. They prove SKIP LOCKED, publish atomicity, downgrade→send-ready, etc.
+    if "confenge_target_fit" in path_parts:
         yield
         return
 

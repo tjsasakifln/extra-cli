@@ -196,13 +196,23 @@ def test_publish_and_history_append(dsn):
 
 def test_claim_skip_locked_single_writer(dsn):
     from scripts.confenge_target_fit.db import connect
-    from scripts.confenge_target_fit.store import claim_batch, enqueue_dirty, ensure_control_defaults
+    from scripts.confenge_target_fit.store import (
+        claim_batch,
+        enqueue_dirty,
+        ensure_control_defaults,
+        reclaim_expired_locks,
+    )
 
     ck = "cnpj_root:44556677"
     key = f"lock-test-{uuid.uuid4().hex}"
     conn = connect(dsn, readonly=False)
     try:
         ensure_control_defaults(conn)
+        with conn.cursor() as cur:
+            cur.execute(
+                "DELETE FROM confenge_target_fit_dirty WHERE company_key = %s", (ck,)
+            )
+        conn.commit()
         enqueue_dirty(
             conn,
             company_key=ck,
@@ -216,6 +226,7 @@ def test_claim_skip_locked_single_writer(dsn):
             idempotency_key=key,
         )
         conn.commit()
+        reclaim_expired_locks(conn)
         batch1 = claim_batch(
             conn, worker_id="w1", batch_size=10, lock_ttl_seconds=60
         )
@@ -228,7 +239,7 @@ def test_claim_skip_locked_single_writer(dsn):
         ids2 = {i.id for i in batch2 if i.idempotency_key == key}
         # Second worker must not re-claim the same processing row
         assert ids1.isdisjoint(ids2)
-        assert len(ids1) == 1
+        assert len(ids1) == 1, f"ids1={ids1} batch1={batch1}"
     finally:
         conn.close()
 

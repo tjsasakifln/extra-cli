@@ -204,36 +204,92 @@ def claim_batch(
     batch_size: int,
     lock_ttl_seconds: int,
 ) -> list[DirtyItem]:
-    """Claim pending/retry items with FOR UPDATE SKIP LOCKED (single-writer per row)."""
+    """Claim dirty work with single-writer per company_key.
+
+    - At most one row per company_key is claimed in a batch (DISTINCT ON).
+    - Companies already ``processing`` with a live lock are excluded.
+    - Rows are locked with FOR UPDATE SKIP LOCKED so concurrent workers never
+      claim the same dirty id.
+    - process_one also takes pg_try_advisory_xact_lock(company_key) so two
+      workers cannot publish the same company even if two dirty rows raced in.
+    """
     reclaim_expired_locks(conn)
     now = _utcnow()
     lock_until = now + timedelta(seconds=lock_ttl_seconds)
     with conn.cursor() as cur:
+        # Step 1: lock candidate rows (skip locked), more than batch to allow
+        # post-filter one-per-company.
         cur.execute(
             """
-            WITH cte AS (
-                SELECT id
-                FROM confenge_target_fit_dirty
-                WHERE status IN ('pending', 'retry')
-                  AND (next_retry_at IS NULL OR next_retry_at <= now())
-                ORDER BY priority DESC, detected_at ASC
-                LIMIT %s
-                FOR UPDATE SKIP LOCKED
-            )
+            SELECT id, company_key, priority, detected_at
+            FROM confenge_target_fit_dirty
+            WHERE status IN ('pending', 'retry')
+              AND (next_retry_at IS NULL OR next_retry_at <= now())
+              AND NOT EXISTS (
+                  SELECT 1
+                  FROM confenge_target_fit_dirty p
+                  WHERE p.company_key = confenge_target_fit_dirty.company_key
+                    AND p.status = 'processing'
+                    AND p.locked_until IS NOT NULL
+                    AND p.locked_until > now()
+              )
+            ORDER BY priority DESC, detected_at ASC
+            LIMIT %s
+            FOR UPDATE SKIP LOCKED
+            """,
+            (max(batch_size * 4, batch_size),),
+        )
+        candidates = cur.fetchall() or []
+        # Step 2: keep first row per company_key (already priority-ordered)
+        seen: set[str] = set()
+        selected_ids: list[int] = []
+        for row in candidates:
+            ck = row["company_key"] if isinstance(row, dict) else row[1]
+            rid = int(row["id"] if isinstance(row, dict) else row[0])
+            if ck in seen:
+                continue
+            seen.add(str(ck))
+            selected_ids.append(rid)
+            if len(selected_ids) >= batch_size:
+                break
+        if not selected_ids:
+            return []
+        cur.execute(
+            """
             UPDATE confenge_target_fit_dirty d
             SET status = 'processing',
                 locked_by = %s,
                 locked_until = %s,
                 attempt_count = d.attempt_count + 1,
                 updated_at = now()
-            FROM cte
-            WHERE d.id = cte.id
+            WHERE d.id = ANY(%s)
+              AND d.status IN ('pending', 'retry')
             RETURNING d.*
             """,
-            (batch_size, worker_id, lock_until),
+            (worker_id, lock_until, selected_ids),
         )
         rows = cur.fetchall() or []
     return [_row_to_dirty(r) for r in rows]
+
+
+def try_company_advisory_lock(conn: Any, company_key: str) -> bool:
+    """Transaction-scoped advisory lock for single-writer publish per company.
+
+    Returns False if another session already holds the lock (caller should
+    requeue the dirty row without treating it as a classification failure).
+    """
+    with conn.cursor() as cur:
+        cur.execute(
+            "SELECT pg_try_advisory_xact_lock(hashtext(%s))",
+            (company_key,),
+        )
+        row = cur.fetchone()
+        if not row:
+            return False
+        # RealDictRow or tuple
+        if isinstance(row, dict):
+            return bool(next(iter(row.values())))
+        return bool(row[0])
 
 
 def mark_dirty_done(
@@ -264,14 +320,27 @@ def mark_dirty_done(
         )
 
 
+def _as_dict(row: Any) -> dict[str, Any] | None:
+    if row is None:
+        return None
+    if isinstance(row, dict):
+        return dict(row)
+    try:
+        return dict(row)
+    except (TypeError, ValueError):
+        # Fallback for odd row factories
+        if hasattr(row, "keys"):
+            return {k: row[k] for k in row.keys()}  # type: ignore[index]
+        return None
+
+
 def get_current(conn: Any, company_key: str) -> dict[str, Any] | None:
     with conn.cursor() as cur:
         cur.execute(
             "SELECT * FROM confenge_company_target_fit_current WHERE company_key = %s",
             (company_key,),
         )
-        row = cur.fetchone()
-        return dict(row) if row else None
+        return _as_dict(cur.fetchone())
 
 
 def list_stale_versions(

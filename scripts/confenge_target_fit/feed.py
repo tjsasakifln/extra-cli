@@ -1,6 +1,7 @@
 """Feed contract helpers for confenge.outreach.v1 compatibility.
 
 Warmbly must consume published target-fit decisions — never re-score locally.
+Used by warmbly_bridge.mapping and outreach exporters.
 """
 
 from __future__ import annotations
@@ -12,6 +13,11 @@ from scripts.confenge_target_fit.freshness import (
     feed_fields_from_current,
 )
 from scripts.confenge_target_fit.models import FreshnessDecision
+from scripts.confenge_target_fit.published import (
+    attach_published_fields,
+    evaluate_published_send_gate,
+    map_class_to_send_tier,
+)
 
 
 def enrich_outreach_row(
@@ -35,13 +41,20 @@ def enrich_outreach_row(
         suppressed=suppressed,
     )
     fields = feed_fields_from_current(current, fresh)
-    out = dict(row)
+    out = attach_published_fields(dict(row), published=current, freshness=fresh)
     out.update(fields)
-    out["email_send_ready_target_fit_ok"] = (
-        fields.get("target_fit_class") == "TARGET_CONFIRMED"
-        and fields.get("target_fit_fresh") is True
-        and not fresh.blocks_send
+    blocks, reasons, _ = evaluate_published_send_gate(
+        published=current,
+        datalake_watermark=datalake_watermark,
+        suppressed=suppressed,
     )
+    out["target_fit_send_tier"] = map_class_to_send_tier(
+        (current or {}).get("target_fit_class") if current else None
+    )
+    out["email_send_ready_target_fit_ok"] = not blocks
+    out["target_fit_block_reasons"] = reasons
+    if blocks and out.get("email_send_ready") is True:
+        out["email_send_ready"] = False
     return out
 
 
@@ -56,6 +69,8 @@ def assert_warmbly_contract(row: dict[str, Any]) -> list[str]:
         errors.append("target_fit_version_missing")
     if not row.get("target_fit_source_watermark"):
         errors.append("target_fit_source_watermark_missing")
+    if row.get("email_send_ready") and row.get("target_fit_class") != "TARGET_CONFIRMED":
+        errors.append("email_send_ready_without_confirmed")
     return errors
 
 

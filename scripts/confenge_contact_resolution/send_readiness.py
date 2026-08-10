@@ -717,6 +717,110 @@ def evaluate_copy_context_ready(company: dict[str, Any] | None, *, service_code:
         reasons.extend(f"missing:{m}" for m in missing)
     return CopyContextResult(copy_context_ready=ready, reasons=reasons, missing_fields=missing)
 
+def _published_target_fit_from_company(
+    company: dict[str, Any] | None,
+) -> dict[str, Any] | None:
+    """Extract published materialization fields when present on the company row.
+
+    Prefer confenge_company_target_fit_current projection over local re-scoring.
+    """
+    if not company:
+        return None
+    try:
+        from scripts.confenge_target_fit.published import published_from_row_or_db
+
+        return published_from_row_or_db(company, conn=None)
+    except Exception:  # noqa: BLE001 — soft import for envs without continuous-refresh
+        if company.get("target_fit_class"):
+            return {
+                "target_fit_class": company.get("target_fit_class"),
+                "target_fit_confidence": company.get("target_fit_confidence"),
+                "target_fit_version": company.get("target_fit_version"),
+                "source_watermark": company.get("target_fit_source_watermark"),
+                "computed_at": company.get("target_fit_computed_at"),
+                "operational_status": company.get("target_fit_operational_status")
+                or "ok",
+                "target_fit_evidence": company.get("target_fit_evidence") or [],
+                "company_key": company.get("company_key"),
+            }
+        return None
+
+
+def _gate_from_published(
+    company: dict[str, Any] | None,
+    *,
+    target_fit: TargetFitResult | None,
+    canonical_universe_member: bool | None,
+) -> tuple[TargetFitResult, list[str], bool]:
+    """Return (fit, extra_block_reasons, published_blocks_send).
+
+    When published TARGET_* materialization is present, it is authoritative:
+    non-CONFIRMED / stale / REFRESH_FAILED / TARGET_FIT_DOWNGRADE block send.
+    """
+    extra: list[str] = []
+    published = _published_target_fit_from_company(company)
+    suppressed = False
+    if company:
+        suppressed = bool(
+            company.get("target_fit_suppressed")
+            or company.get("target_fit_downgrade")
+            or company.get("target_fit_send_suppressed")
+            or "TARGET_FIT_DOWNGRADE"
+            in (company.get("suppression_reasons") or [])
+        )
+
+    if published is None:
+        fit = target_fit or classify_target_fit_send_tier(
+            company, canonical_universe_member=canonical_universe_member
+        )
+        return fit, extra, False
+
+    try:
+        from scripts.confenge_target_fit.published import (
+            evaluate_published_send_gate,
+            map_class_to_send_tier,
+        )
+
+        dl_wm = ""
+        if company:
+            dl_wm = str(
+                company.get("datalake_watermark")
+                or company.get("target_fit_datalake_watermark")
+                or ""
+            )
+        blocks, pub_reasons, _fresh = evaluate_published_send_gate(
+            published=published,
+            datalake_watermark=dl_wm,
+            suppressed=suppressed,
+        )
+        tier = map_class_to_send_tier(str(published.get("target_fit_class") or ""))
+        reasons = list(pub_reasons)
+        reasons.append("published_target_fit")
+        fit = TargetFitResult(
+            tier=tier,
+            reasons=reasons,
+            sector_fit=str(
+                published.get("sector_fit")
+                or (company or {}).get("sector_fit")
+                or ""
+            ),
+            canonical_universe_member=(
+                True
+                if canonical_universe_member is None
+                else bool(canonical_universe_member)
+            )
+            and str(published.get("target_fit_class") or "") != "TARGET_OUT_OF_SCOPE",
+        )
+        if blocks:
+            extra.extend(pub_reasons)
+        return fit, extra, blocks
+    except Exception:  # noqa: BLE001
+        fit = target_fit or classify_target_fit_send_tier(
+            company, canonical_universe_member=canonical_universe_member
+        )
+        return fit, extra, False
+
+
 
 def evaluate_email_send_ready(
     *,
@@ -735,15 +839,24 @@ def evaluate_email_send_ready(
     target_fit: TargetFitResult | None = None,
     require_copy_context: bool = True,
 ) -> EmailSendReadyResult:
-    """EMAIL_SEND_READY requires target+service+contact+copy_context+not_blocked."""
+    """EMAIL_SEND_READY requires target+service+contact+copy+not_blocked+fresh.
+
+    When published target-fit materialization fields are present on ``company``
+    (from confenge_company_target_fit_current / continuous refresh), they are
+    authoritative: stale, REFRESH_FAILED, TARGET_FIT_DOWNGRADE, or non-CONFIRMED
+    fail-closed. Warmbly must not re-score past this gate.
+    """
     reasons: list[str] = []
     email_norm = (email or "").strip() or None
     own = (ownership_status or "").strip().upper()
     ver = (verification_status or "").strip().upper()
 
-    fit = target_fit or classify_target_fit_send_tier(
-        company, canonical_universe_member=canonical_universe_member
+    fit, published_blocks, published_blocks_send = _gate_from_published(
+        company,
+        target_fit=target_fit,
+        canonical_universe_member=canonical_universe_member,
     )
+    reasons.extend(published_blocks)
     mp = classify_mailbox_purpose(email_norm)
     suitability = SUITABLE
     channel_ok = True
@@ -795,7 +908,11 @@ def evaluate_email_send_ready(
         channel_ok = False
 
     if fit.tier not in SEND_TIERS:
-        reasons.append(f"target_fit:{fit.tier}")
+        if f"target_fit:{fit.tier}" not in reasons:
+            reasons.append(f"target_fit:{fit.tier}")
+        if suitability == SUITABLE:
+            suitability = UNSUITABLE_TARGET
+    if published_blocks_send:
         if suitability == SUITABLE:
             suitability = UNSUITABLE_TARGET
     if not fit.canonical_universe_member:
@@ -881,12 +998,14 @@ def evaluate_email_send_ready(
         and not account_blocked
         and contact_fresh
         and not mp.send_blocked
+        and not published_blocks_send
     )
 
     target_ok = (
         fit.tier in SEND_TIERS
         and fit.canonical_universe_member
         and fit.target_fit_class not in {TARGET_OUT_OF_SCOPE, TARGET_PROBABLE_RESEARCH}
+        and not published_blocks_send
     )
 
     email_ready = (
@@ -895,7 +1014,16 @@ def evaluate_email_send_ready(
         and service_fit_supported
         and has_ev
         and copy_ok
+        and not published_blocks_send
     )
+    # De-dupe reasons while preserving order
+    seen: set[str] = set()
+    deduped: list[str] = []
+    for r in reasons:
+        if r not in seen:
+            seen.add(r)
+            deduped.append(r)
+    reasons = deduped
     if email_ready and "all_gates_pass" not in reasons:
         reasons.append("all_gates_pass")
 

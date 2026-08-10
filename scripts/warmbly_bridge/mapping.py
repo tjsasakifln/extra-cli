@@ -355,7 +355,8 @@ def map_lead(
     if isinstance(act, dict) and act.get("state"):
         lead["activation"] = _map_activation(act)
 
-    # target_fit_send_tier + EMAIL_SEND_READY (explicit; Warmbly must not re-score)
+    # target_fit: prefer published continuous-refresh materialization.
+    # Warmbly must NOT re-score ICP class — only consume published decision + freshness.
     company_ctx = {
         **universe_row,
         "service_code": lead["offer"].get("service_code"),
@@ -367,7 +368,82 @@ def map_lead(
         "portfolio": universe_row.get("portfolio") if isinstance(universe_row.get("portfolio"), dict) else {},
         "offer": lead["offer"],
     }
-    fit = classify_target_fit_send_tier(company_ctx)
+    # Propagate published materialization fields when present on universe/intel rows
+    for k in (
+        "target_fit_class",
+        "target_fit_confidence",
+        "target_fit_version",
+        "target_fit_computed_at",
+        "target_fit_source_watermark",
+        "target_fit_fresh",
+        "target_fit_evidence",
+        "target_fit_evidence_ids",
+        "target_fit_reason_codes",
+        "target_fit_suppressed",
+        "target_fit_send_suppressed",
+        "published_target_fit",
+        "datalake_watermark",
+    ):
+        if k in universe_row and universe_row[k] is not None:
+            company_ctx[k] = universe_row[k]
+        elif k in intel and intel[k] is not None:
+            company_ctx[k] = intel[k]
+
+    fit = None
+    published_class = company_ctx.get("target_fit_class") or (
+        (company_ctx.get("published_target_fit") or {}).get("target_fit_class")
+        if isinstance(company_ctx.get("published_target_fit"), dict)
+        else None
+    )
+    if published_class:
+        # Authoritative published class → map to send tier without re-triangulating
+        try:
+            from scripts.confenge_target_fit.published import (
+                evaluate_published_send_gate,
+                map_class_to_send_tier,
+                published_from_row_or_db,
+                attach_published_fields,
+            )
+            from scripts.confenge_contact_resolution.send_readiness import TargetFitResult
+
+            pub = published_from_row_or_db(company_ctx, conn=None)
+            blocks, pub_reasons, fresh = evaluate_published_send_gate(
+                published=pub,
+                datalake_watermark=str(company_ctx.get("datalake_watermark") or ""),
+                suppressed=bool(
+                    company_ctx.get("target_fit_suppressed")
+                    or company_ctx.get("target_fit_send_suppressed")
+                ),
+            )
+            fit = TargetFitResult(
+                tier=map_class_to_send_tier(str(published_class)),
+                reasons=list(pub_reasons) + ["published_target_fit"],
+                sector_fit=str(
+                    (pub or {}).get("sector_fit")
+                    or company_ctx.get("sector_fit")
+                    or ""
+                ),
+                canonical_universe_member=str(published_class) != "TARGET_OUT_OF_SCOPE",
+            )
+            lead = attach_published_fields(lead, published=pub, freshness=fresh)
+            if blocks:
+                company_ctx["target_fit_send_suppressed"] = True
+        except Exception:  # noqa: BLE001
+            fit = None
+            published_class = None
+
+    if fit is None:
+        # Legacy path only when no published materialization is available
+        fit = classify_target_fit_send_tier(company_ctx)
+        # Still emit empty/null contract fields so Warmbly can fail-closed if required
+        lead.setdefault("target_fit_class", None)
+        lead.setdefault("target_fit_confidence", None)
+        lead.setdefault("target_fit_version", None)
+        lead.setdefault("target_fit_computed_at", None)
+        lead.setdefault("target_fit_source_watermark", None)
+        lead.setdefault("target_fit_fresh", False)
+        lead.setdefault("target_fit_evidence_ids", [])
+
     lead["target_fit_send_tier"] = fit.tier
     lead["target_fit_reasons"] = list(fit.reasons)
 

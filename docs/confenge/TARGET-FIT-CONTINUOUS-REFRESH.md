@@ -126,7 +126,21 @@ source_watermark_target_fit << datalake watermark
 
 REFRESH_FAILED / RECOMPUTE_REQUIRED
   → fail-closed (no autorun)
+
+CONFIRMED → PROBABLE/OUT (ACTIVE)
+  → confenge_target_fit_downstream_invalidation
+  → target_fit_send_suppressed / is_send_suppressed
+  → EMAIL_SEND_READY=false (history preserved)
 ```
+
+### Downstream wiring (AC4)
+
+| Component | Behavior |
+|-----------|----------|
+| `scripts/confenge_target_fit/published.py` | Load `confenge_company_target_fit_current`, map class→send tier, evaluate freshness/suppression |
+| `send_readiness.evaluate_email_send_ready` | When published fields present on company row, they are **authoritative** (no local re-triangulation) |
+| `warmbly_bridge.mapping.map_lead` | Prefers published `target_fit_*` fields; never re-scores ICP class when materialization is present |
+| `confenge.outreach.v1` schema | Optional lead fields: class, confidence, version, computed_at, source_watermark, fresh, evidence_ids |
 
 Feed fields for `confenge.outreach.v1`:
 
@@ -139,6 +153,11 @@ Feed fields for `confenge.outreach.v1`:
 - `target_fit_evidence_ids`
 
 Warmbly must **not** rescore. Fail-closed if not `TARGET_CONFIRMED` or not fresh.
+
+### Single-writer per company
+
+`claim_batch` claims at most one dirty row per `company_key` and excludes companies already `processing`.  
+`process_one` also takes `pg_try_advisory_xact_lock(hashtext(company_key))` so concurrent workers cannot publish the same company.
 
 ## Epistemic rules (do not regress)
 
