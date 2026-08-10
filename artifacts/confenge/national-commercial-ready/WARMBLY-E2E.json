@@ -1,6 +1,6 @@
 {
   "schema": "confenge.warmbly_e2e.v1",
-  "PASS": true,
+  "PASS": false,
   "email_only": true,
   "whatsapp_enabled": false,
   "auto_send_enabled": false,
@@ -13,28 +13,29 @@
     "snapshot_hash": "fa990dc5dd658492dc5726d3831f295174565b615fc88e89fe796d2a71956530",
     "chunks_imported": 2,
     "leads_processed": 72,
-    "creates": 72,
-    "outreach_accounts_total": 445
+    "creates": 72
   },
   "checks": {
     "reservoir_feed_import": "PASS",
     "incremental_sync": "PASS",
     "idempotent_import": "PASS_SYNC_STATE",
     "no_duplicates": "PASS_SYNC_STATE",
-    "dnc_preserved": "PASS_CONFIG",
-    "kill_switch": "PASS_SENDING_PAUSED",
-    "governor_10_per_hour": "PASS",
-    "business_hours": "PASS",
-    "smtp_imap_reply_stop": "PASS_CONFIG_STACK",
     "whatsapp_off": "PASS",
     "auto_send_off": "PASS",
+    "governor_10_per_hour": "PASS",
+    "business_hours": "PASS",
+    "kill_switch": "PASS_SENDING_PAUSED",
+    "dnc_preserved": "PASS_CONFIG",
+    "smtp_imap_reply_stop": "PASS_CONFIG",
+    "outcomes_webhook": "PASS_CONFIG",
     "rolling_hot_set": "PASS_UNIT_TEST",
-    "outcomes_webhook": "PASS_CONFIG"
+    "decision_memory_replied": "PENDING"
   },
   "limitations": [
-    "SMTP/IMAP live probe not re-run this freeze (stack configured; commercial send paused)",
-    "Decision Memory / REPLIED preservation not re-exercised in this freeze",
-    "Hot-set rolling proven by unit test, not live Warmbly queue drain"
+    "SMTP/IMAP/reply-stop: config verified, live health probe not re-run this freeze",
+    "DNC preserve: config path only this freeze",
+    "Rolling hot-set: unit test only this freeze",
+    "Decision Memory / REPLIED: not re-exercised this freeze"
   ],
-  "note": "Feed import PASS for 72 ESR. No commercial send."
+  "note": "Feed import of 72 ESR is real. Behavioral E2E incomplete → PASS=false; EXTERNAL blocked."
 }

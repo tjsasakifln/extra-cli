@@ -1,7 +1,7 @@
 {
-  "origin_main": "47d6bf32dafb76cdafc654885a306d7a0fe6f374",
-  "host_deployed_sha": "47d6bf32dafb76cdafc654885a306d7a0fe6f374",
-  "runtime_sha": "47d6bf32dafb76cdafc654885a306d7a0fe6f374",
+  "origin_main": "ba10b2d5b56c0054059d7d0730c605d0fdddb39f",
+  "host_deployed_sha": "ba10b2d5b56c0054059d7d0730c605d0fdddb39f",
+  "runtime_sha": "ba10b2d5b56c0054059d7d0730c605d0fdddb39f",
   "triple_sha_equal": true,
   "warmbly_origin_main": "c22cfb9ef6e7e2fc1397aeb73356e85fd01eb9af",
   "warmbly_host_deployed": "c22cfb9ef6e7e2fc1397aeb73356e85fd01eb9af",
@@ -9,7 +9,9 @@
   "pr_222_merged": true,
   "pr_223_merged": true,
   "pr_224_merged": true,
-  "merged_sha": "47d6bf32dafb76cdafc654885a306d7a0fe6f374",
-  "as_of": "2026-08-10T17:07:41Z",
-  "pack_git_sha": "7612004a867853d4b523059f859f1a876ae1567f"
+  "pr_226_merged": true,
+  "merged_sha": "ba10b2d5b56c0054059d7d0730c605d0fdddb39f",
+  "note": "Rebound to post-#226 tip ba10b2d5 = host .deployed_sha",
+  "as_of": "2026-08-10T17:34:13Z",
+  "pack_git_sha": "da5891cd63e01c6f88db4bc0404bf1ebb6028489"
 }

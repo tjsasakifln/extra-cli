@@ -1,10 +1,6 @@
 {
-  "as_of": "2026-08-10T17:07:41Z",
+  "as_of": "2026-08-10T17:34:13Z",
   "reasons": [
-    [
-      "service_fit_supported",
-      285
-    ],
     [
       "ownership_identity_domain_mismatch",
       203
@@ -16,30 +12,6 @@
     [
       "ownership:LIKELY_COMPANY_OWNED",
       195
-    ],
-    [
-      "service_code:diagnostico_contratual_b2g",
-      137
-    ],
-    [
-      "all_gates_pass",
-      72
-    ],
-    [
-      "provenance_trust:REAL_OBSERVED",
-      72
-    ],
-    [
-      "service_code:apoio_licitacoes_propostas",
-      45
-    ],
-    [
-      "service_code:auditoria_orcamento_bdi",
-      40
-    ],
-    [
-      "service_code:estruturacao_pleito_reajuste",
-      34
     ],
     [
       "copy_context_not_ready",
@@ -58,14 +30,6 @@
       23
     ],
     [
-      "service_code:reforco_temporario_backoffice",
-      18
-    ],
-    [
-      "service_code:gestao_monitoramento_contratual",
-      10
-    ],
-    [
       "ownership:THIRD_PARTY_SERVICE_PROVIDER",
       5
     ],
@@ -76,14 +40,6 @@
     [
       "mailbox_purpose_blocked:PRESS",
       2
-    ],
-    [
-      "domain_aligned_with_company",
-      1
-    ],
-    [
-      "service_code:aditivos_extracontratuais",
-      1
     ],
     [
       "mailbox_purpose_blocked:PRIVACY_DPO",

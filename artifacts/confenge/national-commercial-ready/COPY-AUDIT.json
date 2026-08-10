@@ -1,13 +1,14 @@
 {
   "schema": "confenge.copy_audit.v1",
-  "as_of": "2026-08-10T17:07:41Z",
+  "as_of": "2026-08-10T17:34:13Z",
   "sample_size": 100,
   "target_sample_size": 100,
   "strata_counts": {
-    "EMAIL_SEND_READY": 29,
-    "NOT_READY_OR_FOUND_NOT_SENDABLE": 15,
-    "CONTACT_EXHAUSTED": 28,
-    "CONTACT_FOUND_NOT_SENDABLE": 28
+    "EMAIL_SEND_READY": 25,
+    "NOT_READY_OR_FOUND_NOT_SENDABLE": 25,
+    "CONTACT_EXHAUSTED": 25,
+    "CONTACT_FOUND_NOT_SENDABLE": 23,
+    "CONTACT_READY": 2
   },
   "counters": {
     "FALSE_TARGET": 0,

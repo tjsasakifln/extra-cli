@@ -354,8 +354,12 @@ def evaluate_root_candidates(
         )
         for r in result.reasons or []:
             reasons_agg[str(r)[:120]] += 1
-        if "service_fit_supported" in (result.reasons or []):
+        # Failure-only counters for loss analysis (pass reasons tracked separately)
+        if "service_fit_unsupported" in (result.reasons or []):
+            reasons_agg["FAIL:service_fit_unsupported"] += 1
+        elif "service_fit_supported" in (result.reasons or []):
             any_service_ok = True
+            reasons_agg["PASS:service_fit_supported"] += 1
         if "copy_context_complete" in (result.reasons or []) or result.email_send_ready:
             any_copy_ok = True
         if any("provenance_trust" in str(x) for x in (result.reasons or [])):
@@ -575,7 +579,21 @@ def rebuild_strict_esr(
             funnel["SERVICE_FIT_VALID"] += 1
         if result["copy_ok"]:
             funnel["COPY_CONTEXT_VALID"] += 1
-        reason_counter.update(result["reasons"])
+        # Only failure reasons go into loss/not_ready_top (never PASS: prefixes)
+        for reason, n in (result.get("reasons") or Counter()).items():
+            r = str(reason)
+            if r.startswith("PASS:") or r in {
+                "service_fit_supported",
+                "all_gates_pass",
+                "domain_aligned_with_company",
+                "copy_context_complete",
+            }:
+                continue
+            if r.startswith("provenance_trust:") and "REAL_OBSERVED" in r:
+                continue
+            if r.startswith("service_code:") and result.get("service_ok"):
+                continue
+            reason_counter[r] += int(n)
         best = result.get("best") or {}
         if best.get("service_code"):
             service_counter[str(best["service_code"])] += 1
@@ -601,6 +619,12 @@ def rebuild_strict_esr(
         business_days=10,
     )
 
+    # Ontology health: true failures of service fit among evaluated email roots
+    service_fit_unsupported = int(reason_counter.get("FAIL:service_fit_unsupported", 0)) + int(
+        reason_counter.get("service_fit_unsupported", 0)
+    )
+    service_fit_ok = service_fit_unsupported == 0
+
     return {
         "schema": "confenge.strict_national_esr.v1",
         "as_of": _utcnow(),
@@ -617,13 +641,16 @@ def rebuild_strict_esr(
         "capacity": capacity,
         "service_distribution": dict(service_counter.most_common()),
         "not_ready_top": reason_counter.most_common(25),
+        "service_fit_unsupported_count": service_fit_unsupported,
+        "service_fit_ontology_ok": service_fit_ok,
         "esr_rows": esr_rows,
         "not_ready_sample": not_ready[:50],
         "NATIONAL_COMMERCIAL_RESERVOIR_HEALTHY": bool(capacity.get("reserve_gate_ok") and esr_n >= reserve),
         "PILOT_READY_CANDIDATE": esr_n >= 50,
         "note": (
             "Strict ESR via build_dossier + evaluate_email_send_ready; "
-            "email observed is upper bound only, never ESR proxy."
+            "email observed is upper bound only, never ESR proxy. "
+            "not_ready_top excludes PASS reasons (service_fit_supported, all_gates_pass)."
         ),
     }
 
