@@ -25,6 +25,10 @@ from scripts.confenge_contact_resolution.models import (
     ThirdPartyType,
     VerificationStatus,
 )
+from scripts.confenge_contact_resolution.provenance_trust import (
+    is_demo_or_fixture_domain,
+    is_demo_or_fixture_email,
+)
 
 # Domain / entity tokens that strongly signal a third-party service provider.
 _THIRD_PARTY_LEXICON: list[tuple[re.Pattern[str], str]] = [
@@ -331,6 +335,58 @@ def resolve_ownership(
             confidence=0.0,
             enrollable=False,
             score_parts=["no_channel"],
+        )
+
+    # --- demo/fixture channel never enrollable even if labeled VERIFIED ---
+    # Ownership only hard-blocks on the *channel* looking synthetic (email/domain)
+    # or explicit fixture source_type. URL heuristics like example.com remain a
+    # send-readiness concern (evaluate_email_send_ready), not ownership identity.
+    src_type_early = ((candidate.source.source_type if candidate.source else "") or "").strip().lower()
+    if is_demo_or_fixture_email(email) or is_demo_or_fixture_domain(domain) or is_demo_or_fixture_domain(
+        ctx.official_domain
+    ):
+        return OwnershipResult(
+            ownership_status=OwnershipStatus.INVALID.value,
+            ownership_reason="demo_or_fixture_channel_never_enrollable",
+            verification_reason="PROVENANCE_TAINT_DEMO",
+            confidence=0.0,
+            enrollable=False,
+            domain_matches_company=False,
+            score_parts=["demo_fixture_domain"],
+        )
+    if src_type_early in {
+        "fixture",
+        "fixtures",
+        "test_fixture",
+        "test",
+        "demo",
+        "synthetic",
+        "mock",
+        "sample",
+        "example",
+        "fake",
+        "seed",
+        "generated",
+        "cached_synthetic",
+    }:
+        return OwnershipResult(
+            ownership_status=OwnershipStatus.INVALID.value,
+            ownership_reason=f"provenance_tainted_source_type:{src_type_early}",
+            verification_reason="PROVENANCE_TAINT",
+            confidence=0.0,
+            enrollable=False,
+            domain_matches_company=False,
+            score_parts=[f"taint_source:{src_type_early}"],
+        )
+    if (candidate.epistemic_class or "").upper() in {"SYNTHETIC", "FIXTURE", "DEMO"}:
+        return OwnershipResult(
+            ownership_status=OwnershipStatus.INVALID.value,
+            ownership_reason=f"provenance_tainted_epistemic:{candidate.epistemic_class}",
+            verification_reason="PROVENANCE_TAINT",
+            confidence=0.0,
+            enrollable=False,
+            domain_matches_company=False,
+            score_parts=["taint_epistemic"],
         )
 
     is_guess = bool(

@@ -1,4 +1,13 @@
-"""Human-review package generator (never auto-approves)."""
+"""Human-review package generator (never auto-approves).
+
+Machine processes may emit:
+  MACHINE_REVIEW_PASS | HUMAN_REVIEW_PENDING | HUMAN_REVIEW_REJECTED (queue only)
+
+HUMAN_REVIEW_APPROVED requires an attributable human decision:
+  reviewer + reviewed_at + decision + evidence_inspected
+
+Never mint HUMAN_REVIEW_APPROVED from scripts, tests, or LLMs.
+"""
 
 from __future__ import annotations
 
@@ -7,9 +16,83 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+# Machine-vs-human review semantics (explicit; do not conflate).
+MACHINE_REVIEW_PASS = "MACHINE_REVIEW_PASS"  # noqa: S105 — status enum, not a secret
+HUMAN_REVIEW_PENDING = "HUMAN_REVIEW_PENDING"
+HUMAN_REVIEW_APPROVED = "HUMAN_REVIEW_APPROVED"
+HUMAN_REVIEW_REJECTED = "HUMAN_REVIEW_REJECTED"
+
+# Identities that must never be recorded as human reviewers.
+_FORBIDDEN_REVIEWER_IDS = frozenset(
+    {
+        "grok",
+        "gpt",
+        "claude",
+        "llm",
+        "script",
+        "pytest",
+        "ci",
+        "automation",
+        "bot",
+        "system",
+        "machine",
+        "extra-cli",
+        "warmbly",
+        "auto",
+        "autorun",
+    }
+)
+
 
 def _now() -> str:
     return datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+
+def is_forbidden_reviewer(reviewer: str | None) -> bool:
+    if not reviewer or not str(reviewer).strip():
+        return True
+    r = str(reviewer).strip().lower()
+    if r in _FORBIDDEN_REVIEWER_IDS:
+        return True
+    return any(tok in r for tok in _FORBIDDEN_REVIEWER_IDS)
+
+
+def mint_human_review_decision(
+    *,
+    reviewer: str,
+    decision: str,
+    evidence_inspected: list[str] | dict[str, Any] | str,
+    reviewed_at: str | None = None,
+    notes: str | None = None,
+) -> dict[str, Any]:
+    """Record a real human review decision. Raises if reviewer is automation."""
+    if is_forbidden_reviewer(reviewer):
+        raise ValueError(
+            f"HUMAN_REVIEW_APPROVED cannot be minted by automation/identity={reviewer!r}"
+        )
+    dec = str(decision).strip().upper()
+    if dec not in {HUMAN_REVIEW_APPROVED, HUMAN_REVIEW_REJECTED, "APPROVED", "REJECTED"}:
+        raise ValueError(f"invalid human review decision: {decision!r}")
+    if dec == "APPROVED":
+        dec = HUMAN_REVIEW_APPROVED
+    if dec == "REJECTED":
+        dec = HUMAN_REVIEW_REJECTED
+    if not evidence_inspected:
+        raise ValueError("HUMAN_REVIEW requires evidence_inspected")
+    return {
+        "status": dec,
+        "reviewer": str(reviewer).strip(),
+        "reviewed_at": reviewed_at or _now(),
+        "decision": dec,
+        "evidence_inspected": evidence_inspected,
+        "notes": notes,
+        "minted_by": "human_review.mint_human_review_decision",
+    }
+
+
+def machine_review_status(*, structural_pass: bool) -> str:
+    """Machine structural checks never yield HUMAN_REVIEW_APPROVED."""
+    return MACHINE_REVIEW_PASS if structural_pass else HUMAN_REVIEW_PENDING
 
 
 def _contact_row(
