@@ -1,0 +1,34 @@
+[Unit]
+Description=Extra Consultoria — CONFENGE target-fit worker (long-running)
+Documentation=file:/opt/extra-consultoria/docs/confenge/TARGET-FIT-CONTINUOUS-REFRESH.md
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=extra-consultoria
+Group=extra-consultoria
+WorkingDirectory=/opt/extra-consultoria
+Environment=PYTHONPATH=/opt/extra-consultoria
+Environment=TARGET_FIT_ASYNC_MODE=SHADOW
+Environment=TARGET_FIT_EXPORT_DB=1
+Environment=TARGET_FIT_BATCH_SIZE=50
+Environment=TARGET_FIT_LOCK_TTL_SECONDS=300
+EnvironmentFile=-/opt/extra-consultoria/.env
+EnvironmentFile=-/etc/extra-cli/extra-collector.env
+ExecStart=/opt/extra-consultoria/.venv/bin/python -m scripts.confenge_target_fit worker --loop --idle-sleep 20
+Restart=on-failure
+RestartSec=45
+Nice=15
+IOSchedulingClass=best-effort
+IOSchedulingPriority=6
+KillSignal=SIGINT
+TimeoutStopSec=60
+MemoryMax=512M
+MemoryHigh=384M
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=extra-confenge-target-fit-worker
+
+[Install]
+WantedBy=multi-user.target

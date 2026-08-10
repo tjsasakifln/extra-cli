@@ -1,0 +1,287 @@
+{
+  "generated_at": "2026-08-10T01:49:42.077380+00:00",
+  "dsn": "127.0.0.1:5433/pncp_datalake",
+  "tag": "tf-replay-da4569d1",
+  "target_fit_version": "confenge-target-fit-v1",
+  "native_window_72h": 0,
+  "method": "Simulate datalake cycle: bump ingested_at + mutate objeto_contrato on real pncp_supplier_contracts rows, then shipped CDC enqueue + worker. Not synthetic previous-state in compute(); transitions come from DB→CDC→worker.",
+  "phases": {
+    "pre_classify_distribution": {
+      "TARGET_CONFIRMED": 3,
+      "TARGET_PROBABLE_RESEARCH": 213,
+      "TARGET_OUT_OF_SCOPE": 184
+    },
+    "roots_considered": 400,
+    "canary_baseline": 30,
+    "mutations": {
+      "unchanged_bumps": 298,
+      "promo_muts": 300,
+      "down_muts": 0
+    },
+    "backup_rows": 598,
+    "cdc_after_mutations": {
+      "since": "2026-08-09T23:49:53.462019+00:00",
+      "watermark": "2026-08-09T22:49:52.875892-03:00",
+      "companies_seen": 30,
+      "enqueued": 30,
+      "skipped_idempotent": 0
+    },
+    "worker_shadow": {
+      "cycle_id": "worker-20260810T014953Z-92cd43",
+      "cycle_kind": "worker",
+      "mode": "SHADOW",
+      "target_fit_version": "confenge-target-fit-v1",
+      "source_watermark": "2026-08-09T22:49:52.875892-03:00",
+      "dirty_enqueued": 0,
+      "claimed": 30,
+      "processed": 30,
+      "skipped_same_fingerprint": 15,
+      "upgrades": 15,
+      "downgrades": 0,
+      "unchanged": 0,
+      "failures": 0,
+      "retries": 0,
+      "dead_letter": 0,
+      "transitions": {
+        "OUT→CONFIRMED": 15
+      },
+      "processing_latency_ms_total": 994.4307899713749,
+      "error": null
+    },
+    "worker_active_canary": {
+      "processed": 30,
+      "upgrades": 15,
+      "downgrades": 0,
+      "skipped": 0,
+      "failures": 0
+    },
+    "worker_downgrade": {
+      "processed": 45,
+      "downgrades": 15,
+      "targets": 15
+    }
+  },
+  "datalake": {
+    "contracts": 11997,
+    "ingested_min": "2026-07-11T11:41:30.064070-03:00",
+    "ingested_max": "2026-07-11T11:41:31.708316-03:00"
+  },
+  "companies_observed": 83,
+  "dirty": 60,
+  "recomputed": 105,
+  "unchanged": 30,
+  "promotions": 12,
+  "downgrades": 15,
+  "failures": 0,
+  "current_distribution": {
+    "TARGET_PROBABLE_RESEARCH": 30,
+    "TARGET_OUT_OF_SCOPE": 15,
+    "TARGET_CONFIRMED": 3
+  },
+  "shadow_distribution": {
+    "TARGET_OUT_OF_SCOPE": 25,
+    "TARGET_PROBABLE_RESEARCH": 40,
+    "TARGET_CONFIRMED": 18
+  },
+  "sample_counts": {
+    "promotions": 12,
+    "unchanged": 15,
+    "out_of_scope": 15,
+    "downgrades": 15
+  },
+  "sample_thresholds_met": {
+    "promotions_ge_10": true,
+    "unchanged_ge_10": true,
+    "out_ge_10": true,
+    "downgrades_ge_10": true
+  },
+  "supply_only_confirmed_violations": [],
+  "downgrade_send_ready_checks": [
+    {
+      "company_key": "cnpj_root:53499240",
+      "is_send_suppressed": true,
+      "email_send_ready": false,
+      "class": "TARGET_OUT_OF_SCOPE",
+      "reasons": [
+        "target_fit_class:TARGET_OUT_OF_SCOPE",
+        "TARGET_FIT_DOWNGRADE",
+        "target_fit:OUT_OF_SCOPE",
+        "not_universe_member"
+      ]
+    },
+    {
+      "company_key": "cnpj_root:67729178",
+      "is_send_suppressed": true,
+      "email_send_ready": false,
+      "class": "TARGET_OUT_OF_SCOPE",
+      "reasons": [
+        "target_fit_class:TARGET_OUT_OF_SCOPE",
+        "TARGET_FIT_DOWNGRADE",
+        "target_fit:OUT_OF_SCOPE",
+        "not_universe_member"
+      ]
+    },
+    {
+      "company_key": "cnpj_root:38613730",
+      "is_send_suppressed": true,
+      "email_send_ready": false,
+      "class": "TARGET_OUT_OF_SCOPE",
+      "reasons": [
+        "target_fit_class:TARGET_OUT_OF_SCOPE",
+        "TARGET_FIT_DOWNGRADE",
+        "target_fit:OUT_OF_SCOPE",
+        "not_universe_member"
+      ]
+    },
+    {
+      "company_key": "cnpj_root:19555146",
+      "is_send_suppressed": true,
+      "email_send_ready": false,
+      "class": "TARGET_OUT_OF_SCOPE",
+      "reasons": [
+        "target_fit_class:TARGET_OUT_OF_SCOPE",
+        "TARGET_FIT_DOWNGRADE",
+        "target_fit:OUT_OF_SCOPE",
+        "not_universe_member"
+      ]
+    },
+    {
+      "company_key": "cnpj_root:02520829",
+      "is_send_suppressed": true,
+      "email_send_ready": false,
+      "class": "TARGET_OUT_OF_SCOPE",
+      "reasons": [
+        "target_fit_class:TARGET_OUT_OF_SCOPE",
+        "TARGET_FIT_DOWNGRADE",
+        "target_fit:OUT_OF_SCOPE",
+        "not_universe_member"
+      ]
+    },
+    {
+      "company_key": "cnpj_root:11145401",
+      "is_send_suppressed": true,
+      "email_send_ready": false,
+      "class": "TARGET_OUT_OF_SCOPE",
+      "reasons": [
+        "target_fit_class:TARGET_OUT_OF_SCOPE",
+        "TARGET_FIT_DOWNGRADE",
+        "target_fit:OUT_OF_SCOPE",
+        "not_universe_member"
+      ]
+    },
+    {
+      "company_key": "cnpj_root:82997446",
+      "is_send_suppressed": true,
+      "email_send_ready": false,
+      "class": "TARGET_OUT_OF_SCOPE",
+      "reasons": [
+        "target_fit_class:TARGET_OUT_OF_SCOPE",
+        "TARGET_FIT_DOWNGRADE",
+        "target_fit:OUT_OF_SCOPE",
+        "not_universe_member"
+      ]
+    },
+    {
+      "company_key": "cnpj_root:62917826",
+      "is_send_suppressed": true,
+      "email_send_ready": false,
+      "class": "TARGET_OUT_OF_SCOPE",
+      "reasons": [
+        "target_fit_class:TARGET_OUT_OF_SCOPE",
+        "TARGET_FIT_DOWNGRADE",
+        "target_fit:OUT_OF_SCOPE",
+        "not_universe_member"
+      ]
+    },
+    {
+      "company_key": "cnpj_root:11118645",
+      "is_send_suppressed": true,
+      "email_send_ready": false,
+      "class": "TARGET_OUT_OF_SCOPE",
+      "reasons": [
+        "target_fit_class:TARGET_OUT_OF_SCOPE",
+        "TARGET_FIT_DOWNGRADE",
+        "target_fit:OUT_OF_SCOPE",
+        "not_universe_member"
+      ]
+    },
+    {
+      "company_key": "cnpj_root:39649812",
+      "is_send_suppressed": true,
+      "email_send_ready": false,
+      "class": "TARGET_OUT_OF_SCOPE",
+      "reasons": [
+        "target_fit_class:TARGET_OUT_OF_SCOPE",
+        "TARGET_FIT_DOWNGRADE",
+        "target_fit:OUT_OF_SCOPE",
+        "not_universe_member"
+      ]
+    },
+    {
+      "company_key": "cnpj_root:44734671",
+      "is_send_suppressed": true,
+      "email_send_ready": false,
+      "class": "TARGET_OUT_OF_SCOPE",
+      "reasons": [
+        "target_fit_class:TARGET_OUT_OF_SCOPE",
+        "TARGET_FIT_DOWNGRADE",
+        "target_fit:OUT_OF_SCOPE",
+        "not_universe_member"
+      ]
+    },
+    {
+      "company_key": "cnpj_root:13965228",
+      "is_send_suppressed": true,
+      "email_send_ready": false,
+      "class": "TARGET_OUT_OF_SCOPE",
+      "reasons": [
+        "target_fit_class:TARGET_OUT_OF_SCOPE",
+        "TARGET_FIT_DOWNGRADE",
+        "target_fit:OUT_OF_SCOPE",
+        "not_universe_member"
+      ]
+    }
+  ],
+  "status": {
+    "status": "HEALTHY",
+    "datalake_watermark": "2026-08-09T22:49:55.723298-03:00",
+    "target_fit_watermark": "2026-08-09T22:49:55.723298-03:00",
+    "lag_seconds": 0.0,
+    "dirty": 0,
+    "processing": 0,
+    "retry": 0,
+    "dead": 0,
+    "current_version": "confenge-target-fit-v1",
+    "confirmed": 3,
+    "probable": 30,
+    "out": 15,
+    "last_success": "2026-08-09T22:49:57.604522-03:00",
+    "async_mode": "ACTIVE",
+    "auto_paused": false,
+    "details": {
+      "queue": {
+        "skipped_same_fingerprint": 45,
+        "done": 60
+      },
+      "distribution_current": {
+        "TARGET_PROBABLE_RESEARCH": 30,
+        "TARGET_OUT_OF_SCOPE": 15,
+        "TARGET_CONFIRMED": 3
+      },
+      "distribution_shadow": {
+        "TARGET_OUT_OF_SCOPE": 25,
+        "TARGET_PROBABLE_RESEARCH": 40,
+        "TARGET_CONFIRMED": 18
+      },
+      "population_source": "current",
+      "oldest_dirty_age_seconds": null,
+      "slo_minutes": 30,
+      "as_of": "2026-08-10T01:49:57.700443+00:00"
+    }
+  },
+  "status_human": "STATUS: HEALTHY\nDATALAKE WATERMARK: 2026-08-09T22:49:55.723298-03:00\nTARGET-FIT WATERMARK: 2026-08-09T22:49:55.723298-03:00\nLAG: 0s\nDIRTY: 0\nPROCESSING: 0\nRETRY: 0\nDEAD: 0\nCURRENT VERSION: confenge-target-fit-v1\nCONFIRMED: 3\nPROBABLE: 30\nOUT: 15\nLAST SUCCESS: 2026-08-09T22:49:57.604522-03:00\nASYNC MODE: ACTIVE\nAUTO PAUSED: False",
+  "residual_datalake_note": "Native 72h window empty. Simulated ETL via ingested_at bump + objeto mutation. Restore of original objetos failed due to FK fk_contracts_orgao_entity_v2; ~300 rows retain supply-template objeto text used for downgrade phase. source_id tf-replay tags stripped. Local pncp_datalake may need reload from snapshot for full fidelity.",
+  "pipeline_path": "DB mutate → CDC enqueue → claim_batch → process_one → current/history/events → send_ready suppress",
+  "transitions_source": "confenge_company_target_fit_history previous_class→target_fit_class (not seeded previous in compute)",
+  "finalized_at": "2026-08-10T01:55:15.182944+00:00"
+}

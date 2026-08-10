@@ -1,0 +1,31 @@
+[Unit]
+Description=Extra Consultoria — CONFENGE target-fit CDC refresh (fast path)
+Documentation=file:/opt/extra-consultoria/docs/confenge/TARGET-FIT-CONTINUOUS-REFRESH.md
+After=network-online.target postgresql.service
+Wants=network-online.target
+# Async consumer of datalake: never hard-fail ETL on target-fit.
+
+[Service]
+Type=oneshot
+User=extra-consultoria
+Group=extra-consultoria
+WorkingDirectory=/opt/extra-consultoria
+Environment=PYTHONPATH=/opt/extra-consultoria
+Environment=TARGET_FIT_ASYNC_MODE=SHADOW
+Environment=TARGET_FIT_EXPORT_DB=1
+Environment=TARGET_FIT_BATCH_SIZE=50
+Environment=TARGET_FIT_WORKERS=1
+EnvironmentFile=-/opt/extra-consultoria/.env
+EnvironmentFile=-/etc/extra-cli/extra-collector.env
+ExecStart=/usr/bin/flock --nonblock /run/lock/extra-confenge-target-fit-refresh.lock \
+  /opt/extra-consultoria/.venv/bin/python -m scripts.confenge_target_fit refresh --max-batches 5
+Nice=15
+IOSchedulingClass=best-effort
+IOSchedulingPriority=6
+TimeoutStartSec=45m
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=extra-confenge-target-fit-refresh
+
+[Install]
+WantedBy=multi-user.target

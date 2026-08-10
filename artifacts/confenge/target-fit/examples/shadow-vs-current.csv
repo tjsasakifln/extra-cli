@@ -1,0 +1,28 @@
+company,old,new,evidence,transition,expected?
+cnpj_root:53499240,TARGET_CONFIRMED,TARGET_OUT_OF_SCOPE,['sector_fit_out_without_execution'],TARGET_FIT_LOST,pipeline
+cnpj_root:67729178,TARGET_CONFIRMED,TARGET_OUT_OF_SCOPE,"['possible_or_single_execution_needs_research', 'supply_adjacency_only']",TARGET_FIT_LOST,pipeline
+cnpj_root:38613730,TARGET_CONFIRMED,TARGET_OUT_OF_SCOPE,['sector_fit_out_without_execution'],TARGET_FIT_LOST,pipeline
+cnpj_root:19555146,TARGET_CONFIRMED,TARGET_OUT_OF_SCOPE,['sector_fit_out_without_execution'],TARGET_FIT_LOST,pipeline
+cnpj_root:02520829,TARGET_CONFIRMED,TARGET_OUT_OF_SCOPE,"['sector_fit_out_without_execution', 'CONSORTIUM_EVIDENCE', 'consortium_contracts_present_conservative']",TARGET_FIT_LOST,pipeline
+cnpj_root:11145401,TARGET_CONFIRMED,TARGET_OUT_OF_SCOPE,['sector_fit_out_without_execution'],TARGET_FIT_LOST,pipeline
+cnpj_root:82997446,TARGET_CONFIRMED,TARGET_OUT_OF_SCOPE,['sector_fit_out_without_execution'],TARGET_FIT_LOST,pipeline
+cnpj_root:62917826,TARGET_CONFIRMED,TARGET_OUT_OF_SCOPE,['sector_fit_out_without_execution'],TARGET_FIT_LOST,pipeline
+cnpj_root:11118645,TARGET_CONFIRMED,TARGET_OUT_OF_SCOPE,['sector_fit_out_without_execution'],TARGET_FIT_LOST,pipeline
+cnpj_root:39649812,TARGET_CONFIRMED,TARGET_OUT_OF_SCOPE,['sector_fit_out_without_execution'],TARGET_FIT_LOST,pipeline
+cnpj_root:44734671,TARGET_CONFIRMED,TARGET_OUT_OF_SCOPE,"['name_hard_out_without_execution', 'name_markers:farmaceutic', 'CONSORTIUM_EVIDENCE', 'consortium_contracts_present_conservative']",TARGET_FIT_LOST,pipeline
+cnpj_root:13965228,TARGET_CONFIRMED,TARGET_OUT_OF_SCOPE,['sector_fit_out_without_execution'],TARGET_FIT_LOST,pipeline
+cnpj_root:07752236,TARGET_CONFIRMED,TARGET_OUT_OF_SCOPE,"['name_hard_out_without_execution', 'name_markers:medico']",TARGET_FIT_LOST,pipeline
+cnpj_root:03652030,TARGET_CONFIRMED,TARGET_OUT_OF_SCOPE,['sector_fit_out_without_execution'],TARGET_FIT_LOST,pipeline
+cnpj_root:00802002,TARGET_CONFIRMED,TARGET_OUT_OF_SCOPE,['sector_fit_out_without_execution'],TARGET_FIT_LOST,pipeline
+cnpj_root:19555146,TARGET_OUT_OF_SCOPE,TARGET_CONFIRMED,['multi_execution_contracts_triangulation'],TARGET_FIT_CONFIRMED,pipeline
+cnpj_root:02520829,TARGET_OUT_OF_SCOPE,TARGET_CONFIRMED,"['multi_execution_contracts_triangulation', 'CONSORTIUM_EVIDENCE', 'consortium_contracts_present_conservative']",TARGET_FIT_CONFIRMED,pipeline
+cnpj_root:11145401,TARGET_OUT_OF_SCOPE,TARGET_CONFIRMED,['multi_execution_contracts_triangulation'],TARGET_FIT_CONFIRMED,pipeline
+cnpj_root:82997446,TARGET_OUT_OF_SCOPE,TARGET_CONFIRMED,['multi_execution_contracts_triangulation'],TARGET_FIT_CONFIRMED,pipeline
+cnpj_root:62917826,TARGET_OUT_OF_SCOPE,TARGET_CONFIRMED,['multi_execution_contracts_triangulation'],TARGET_FIT_CONFIRMED,pipeline
+cnpj_root:11118645,TARGET_OUT_OF_SCOPE,TARGET_CONFIRMED,['multi_execution_contracts_triangulation'],TARGET_FIT_CONFIRMED,pipeline
+cnpj_root:39649812,TARGET_OUT_OF_SCOPE,TARGET_CONFIRMED,['multi_execution_contracts_triangulation'],TARGET_FIT_CONFIRMED,pipeline
+cnpj_root:44734671,TARGET_OUT_OF_SCOPE,TARGET_CONFIRMED,"['multi_execution_contracts_triangulation', 'CONSORTIUM_EVIDENCE', 'consortium_contracts_present_conservative']",TARGET_FIT_CONFIRMED,pipeline
+cnpj_root:13965228,TARGET_OUT_OF_SCOPE,TARGET_CONFIRMED,['multi_execution_contracts_triangulation'],TARGET_FIT_CONFIRMED,pipeline
+cnpj_root:07752236,TARGET_OUT_OF_SCOPE,TARGET_CONFIRMED,['multi_execution_contracts_triangulation'],TARGET_FIT_CONFIRMED,pipeline
+cnpj_root:03652030,TARGET_OUT_OF_SCOPE,TARGET_CONFIRMED,['multi_execution_contracts_triangulation'],TARGET_FIT_CONFIRMED,pipeline
+cnpj_root:00802002,TARGET_OUT_OF_SCOPE,TARGET_CONFIRMED,['multi_execution_contracts_triangulation'],TARGET_FIT_CONFIRMED,pipeline

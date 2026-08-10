@@ -1,0 +1,122 @@
+[
+  {
+    "company_key": "cnpj_root:53499240",
+    "cnpj_raiz": "53499240",
+    "target_fit_class": "TARGET_OUT_OF_SCOPE",
+    "input_fingerprint": "sha256:3fbaaafc2cedd7d78823901e834089f09a1ad9fdcbe0ed30abef31b70e1ed8cb",
+    "source_watermark": "2026-08-09T22:49:55.723298-03:00",
+    "computed_at": "2026-08-09T22:49:56.765714-03:00"
+  },
+  {
+    "company_key": "cnpj_root:67729178",
+    "cnpj_raiz": "67729178",
+    "target_fit_class": "TARGET_OUT_OF_SCOPE",
+    "input_fingerprint": "sha256:28248dba108b3f07adc56052b50782b5b791618479ad97eafe734b354a7c8167",
+    "source_watermark": "2026-08-09T22:49:55.723298-03:00",
+    "computed_at": "2026-08-09T22:49:56.726790-03:00"
+  },
+  {
+    "company_key": "cnpj_root:38613730",
+    "cnpj_raiz": "38613730",
+    "target_fit_class": "TARGET_OUT_OF_SCOPE",
+    "input_fingerprint": "sha256:c2c8d8e4e5a27373f75939700281b3012b53120a03837d153899165900196cad",
+    "source_watermark": "2026-08-09T22:49:55.723298-03:00",
+    "computed_at": "2026-08-09T22:49:56.689739-03:00"
+  },
+  {
+    "company_key": "cnpj_root:19555146",
+    "cnpj_raiz": "19555146",
+    "target_fit_class": "TARGET_OUT_OF_SCOPE",
+    "input_fingerprint": "sha256:a4b902f75b6d1cf43db1fbfc51a4a5b2be4721c1fdf8da57d538a542885061c8",
+    "source_watermark": "2026-08-09T22:49:55.723298-03:00",
+    "computed_at": "2026-08-09T22:49:56.659683-03:00"
+  },
+  {
+    "company_key": "cnpj_root:02520829",
+    "cnpj_raiz": "02520829",
+    "target_fit_class": "TARGET_OUT_OF_SCOPE",
+    "input_fingerprint": "sha256:1dbead91698b4292fb871321a363a5f3c8c04ef3d2303a816694e9b019fd5375",
+    "source_watermark": "2026-08-09T22:49:55.723298-03:00",
+    "computed_at": "2026-08-09T22:49:56.631691-03:00"
+  },
+  {
+    "company_key": "cnpj_root:11145401",
+    "cnpj_raiz": "11145401",
+    "target_fit_class": "TARGET_OUT_OF_SCOPE",
+    "input_fingerprint": "sha256:358abec659b746dd7dcbfaa9dc2a3d0c670cf26676d403c8b630c5e7e2fdcde0",
+    "source_watermark": "2026-08-09T22:49:55.723298-03:00",
+    "computed_at": "2026-08-09T22:49:56.594032-03:00"
+  },
+  {
+    "company_key": "cnpj_root:82997446",
+    "cnpj_raiz": "82997446",
+    "target_fit_class": "TARGET_OUT_OF_SCOPE",
+    "input_fingerprint": "sha256:cb4e8ba0bd750f19c5105d1c9818f2cadeb5bf492f11a73803696d0b957c10a5",
+    "source_watermark": "2026-08-09T22:49:55.723298-03:00",
+    "computed_at": "2026-08-09T22:49:56.566371-03:00"
+  },
+  {
+    "company_key": "cnpj_root:62917826",
+    "cnpj_raiz": "62917826",
+    "target_fit_class": "TARGET_OUT_OF_SCOPE",
+    "input_fingerprint": "sha256:0d3197d1f1c7b9d0753fa0c9d08c71a8e749be726e37fd65c6a8dafef26713f5",
+    "source_watermark": "2026-08-09T22:49:55.723298-03:00",
+    "computed_at": "2026-08-09T22:49:56.524983-03:00"
+  },
+  {
+    "company_key": "cnpj_root:11118645",
+    "cnpj_raiz": "11118645",
+    "target_fit_class": "TARGET_OUT_OF_SCOPE",
+    "input_fingerprint": "sha256:a7322a46eec34cd35065cc7655e8f89478a876b323c8e9480b752dbcc0a48f3a",
+    "source_watermark": "2026-08-09T22:49:55.723298-03:00",
+    "computed_at": "2026-08-09T22:49:56.486536-03:00"
+  },
+  {
+    "company_key": "cnpj_root:39649812",
+    "cnpj_raiz": "39649812",
+    "target_fit_class": "TARGET_OUT_OF_SCOPE",
+    "input_fingerprint": "sha256:362f54b9bc865a6385c3f9a8c91aae7d72f7e16b9ed895cb3c0e204594280729",
+    "source_watermark": "2026-08-09T22:49:55.723298-03:00",
+    "computed_at": "2026-08-09T22:49:56.438716-03:00"
+  },
+  {
+    "company_key": "cnpj_root:44734671",
+    "cnpj_raiz": "44734671",
+    "target_fit_class": "TARGET_OUT_OF_SCOPE",
+    "input_fingerprint": "sha256:eadb846472b15e879d1d4442903d08b1ec161344712bb0bc3c8b8f3e8b972864",
+    "source_watermark": "2026-08-09T22:49:55.723298-03:00",
+    "computed_at": "2026-08-09T22:49:56.394663-03:00"
+  },
+  {
+    "company_key": "cnpj_root:13965228",
+    "cnpj_raiz": "13965228",
+    "target_fit_class": "TARGET_OUT_OF_SCOPE",
+    "input_fingerprint": "sha256:b223d2a9ca128d936b8dc57e504121d2f6f3693729976b6f2cd93b46af7a63ab",
+    "source_watermark": "2026-08-09T22:49:55.723298-03:00",
+    "computed_at": "2026-08-09T22:49:56.349795-03:00"
+  },
+  {
+    "company_key": "cnpj_root:07752236",
+    "cnpj_raiz": "07752236",
+    "target_fit_class": "TARGET_OUT_OF_SCOPE",
+    "input_fingerprint": "sha256:27cf5c1dd2ff5a9d4a5e4d9e132057cca6373f6b85cff9990ed829e15e92a498",
+    "source_watermark": "2026-08-09T22:49:55.723298-03:00",
+    "computed_at": "2026-08-09T22:49:56.238339-03:00"
+  },
+  {
+    "company_key": "cnpj_root:03652030",
+    "cnpj_raiz": "03652030",
+    "target_fit_class": "TARGET_OUT_OF_SCOPE",
+    "input_fingerprint": "sha256:90223ae37d180f0b5dfcb2d1a9048cc338098084ece98844e988740bb4156ae8",
+    "source_watermark": "2026-08-09T22:49:55.723298-03:00",
+    "computed_at": "2026-08-09T22:49:56.199025-03:00"
+  },
+  {
+    "company_key": "cnpj_root:00802002",
+    "cnpj_raiz": "00802002",
+    "target_fit_class": "TARGET_OUT_OF_SCOPE",
+    "input_fingerprint": "sha256:c4e725f20b9250f0ae93e5dbaa755f267e19ac517d1fbb845a9db8ef44ea9341",
+    "source_watermark": "2026-08-09T22:49:55.723298-03:00",
+    "computed_at": "2026-08-09T22:49:56.082591-03:00"
+  }
+]

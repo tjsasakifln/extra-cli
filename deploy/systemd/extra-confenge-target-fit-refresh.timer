@@ -1,0 +1,13 @@
+[Unit]
+Description=Timer — CONFENGE target-fit CDC refresh (safety net)
+Documentation=file:/opt/extra-cli/docs/confenge/TARGET-FIT-CONTINUOUS-REFRESH.md
+
+[Timer]
+# Safety net every 30 minutes; prefer datalake completion trigger when wired.
+OnCalendar=*:0/30
+Persistent=true
+RandomizedDelaySec=3m
+Unit=extra-confenge-target-fit-refresh.service
+
+[Install]
+WantedBy=timers.target

@@ -235,6 +235,9 @@ def map_lead(
     *,
     intel: dict[str, Any] | None,
     contacts_row: dict[str, Any] | None,
+    conn: Any | None = None,
+    published_index: dict[str, dict[str, Any]] | None = None,
+    datalake_watermark: str = "",
 ) -> dict[str, Any] | None:
     """Map one universe row + optional intel/contacts into a feed lead.
 
@@ -355,7 +358,9 @@ def map_lead(
     if isinstance(act, dict) and act.get("state"):
         lead["activation"] = _map_activation(act)
 
-    # target_fit_send_tier + EMAIL_SEND_READY (explicit; Warmbly must not re-score)
+    # target_fit: prefer published continuous-refresh materialization.
+    # Warmbly must NOT re-score ICP class — only consume published decision + freshness.
+    # EMAIL_SEND_READY recomputed fail-closed including provenance taint.
     msg_ctx = lead["messaging_context"] if isinstance(lead.get("messaging_context"), dict) else {}
     intel_msg = intel.get("messaging") if isinstance(intel.get("messaging"), dict) else {}
     # Prefer structured primary_service / service_candidates from intel (signals+evidence).
@@ -411,7 +416,120 @@ def map_lead(
         "offer": lead["offer"],
         "messaging": {**intel_msg, **msg_ctx},
     }
-    fit = classify_target_fit_send_tier(company_ctx)
+    # Propagate published materialization fields when present on universe/intel rows
+    for k in (
+        "target_fit_class",
+        "target_fit_confidence",
+        "target_fit_version",
+        "target_fit_computed_at",
+        "target_fit_source_watermark",
+        "target_fit_fresh",
+        "target_fit_evidence",
+        "target_fit_evidence_ids",
+        "target_fit_reason_codes",
+        "target_fit_suppressed",
+        "target_fit_send_suppressed",
+        "published_target_fit",
+        "datalake_watermark",
+    ):
+        if k in universe_row and universe_row[k] is not None:
+            company_ctx[k] = universe_row[k]
+        elif k in intel and intel[k] is not None:
+            company_ctx[k] = intel[k]
+
+    fit = None
+    # Live path open when conn/index provided — prefer store over embeds.
+    live_open = conn is not None or published_index is not None
+    try:
+        from scripts.confenge_contact_resolution.send_readiness import TargetFitResult
+        from scripts.confenge_target_fit.published import (
+            attach_published_fields,
+            company_key_from_row,
+            enrich_row_with_published,
+            evaluate_published_send_gate,
+            map_class_to_send_tier,
+            published_from_row_or_db,
+            resolve_suppressed,
+        )
+
+        pub = published_from_row_or_db(
+            company_ctx, conn=conn, published_index=published_index
+        )
+        if pub is not None:
+            ck = (pub or {}).get("company_key") or company_key_from_row(company_ctx)
+            suppressed = resolve_suppressed(conn, company_key=ck, row=company_ctx)
+            dl_wm = str(
+                company_ctx.get("datalake_watermark") or datalake_watermark or ""
+            )
+            company_ctx = enrich_row_with_published(
+                company_ctx, pub, suppressed=suppressed, datalake_watermark=dl_wm
+            )
+            blocks, pub_reasons, fresh = evaluate_published_send_gate(
+                published=pub,
+                datalake_watermark=dl_wm,
+                suppressed=suppressed,
+            )
+            pub_class = str(pub.get("target_fit_class") or "")
+            fit = TargetFitResult(
+                tier=map_class_to_send_tier(pub_class),
+                reasons=list(pub_reasons) + ["published_target_fit"],
+                sector_fit=str(pub.get("sector_fit") or company_ctx.get("sector_fit") or ""),
+                canonical_universe_member=pub_class != "TARGET_OUT_OF_SCOPE",
+            )
+            lead = attach_published_fields(lead, published=pub, freshness=fresh)
+            if blocks:
+                company_ctx["target_fit_send_suppressed"] = True
+            company_ctx["target_fit_fresh"] = bool(
+                fresh and fresh.target_fit_fresh and not fresh.blocks_send
+            )
+        elif live_open:
+            # Live path open but no store hit: fail closed (no sticky embed).
+            fit = TargetFitResult(
+                tier="OUT_OF_SCOPE",
+                reasons=["TARGET_FIT_MISSING", "live_store_miss"],
+                sector_fit="",
+                canonical_universe_member=False,
+            )
+            lead["target_fit_class"] = None
+            lead["target_fit_confidence"] = None
+            lead["target_fit_version"] = None
+            lead["target_fit_computed_at"] = None
+            lead["target_fit_source_watermark"] = None
+            lead["target_fit_fresh"] = False
+            lead["target_fit_evidence_ids"] = []
+            company_ctx["target_fit_fresh"] = False
+    except Exception as exc:  # noqa: BLE001 — fail closed, never re-score to sendable
+        if live_open:
+            from scripts.confenge_contact_resolution.send_readiness import TargetFitResult
+
+            fit = TargetFitResult(
+                tier="OUT_OF_SCOPE",
+                reasons=[f"published_path_error:{type(exc).__name__}", "fail_closed"],
+                sector_fit="",
+                canonical_universe_member=False,
+            )
+            lead["target_fit_class"] = None
+            lead["target_fit_confidence"] = None
+            lead["target_fit_version"] = None
+            lead["target_fit_computed_at"] = None
+            lead["target_fit_source_watermark"] = None
+            lead["target_fit_fresh"] = False
+            lead["target_fit_evidence_ids"] = []
+            company_ctx["target_fit_send_suppressed"] = True
+            company_ctx["target_fit_fresh"] = False
+
+    if fit is None:
+        # Offline/legacy path only when live store is not open
+        fit = classify_target_fit_send_tier(company_ctx)
+        # Still emit empty/null contract fields so Warmbly can fail-closed if required
+        lead.setdefault("target_fit_class", company_ctx.get("target_fit_class"))
+        lead.setdefault("target_fit_confidence", None)
+        lead.setdefault("target_fit_version", None)
+        lead.setdefault("target_fit_computed_at", None)
+        lead.setdefault("target_fit_source_watermark", None)
+        lead.setdefault("target_fit_fresh", False)
+        lead.setdefault("target_fit_evidence_ids", [])
+
     lead["target_fit_send_tier"] = fit.tier
     lead["target_fit_reasons"] = list(fit.reasons)
 
@@ -533,8 +651,17 @@ def build_leads(
     universe_rows: list[dict[str, Any]],
     intel_rows: list[dict[str, Any]],
     contact_rows: list[dict[str, Any]],
+    *,
+    conn: Any | None = None,
+    published_index: dict[str, dict[str, Any]] | None = None,
+    datalake_watermark: str = "",
 ) -> list[dict[str, Any]]:
-    """Join inputs by cnpj14 and return stably sorted leads."""
+    """Join inputs by cnpj14 and return stably sorted leads.
+
+    When ``conn`` is provided (or a prebuilt ``published_index``), each lead is
+    joined to ``confenge_company_target_fit_current`` so Warmbly consumes the
+    live published decision instead of re-scoring.
+    """
     intel_by = index_by_cnpj(intel_rows, label="account-intelligence") if intel_rows else {}
     contacts_by = index_by_cnpj(contact_rows, label="contacts") if contact_rows else {}
     leads: list[dict[str, Any]] = []
@@ -542,7 +669,14 @@ def build_leads(
         cnpj = normalize_cnpj14(str(row.get("cnpj14") or row.get("cnpj") or ""))
         if not cnpj:
             continue
-        lead = map_lead(row, intel=intel_by.get(cnpj), contacts_row=contacts_by.get(cnpj))
+        lead = map_lead(
+            row,
+            intel=intel_by.get(cnpj),
+            contacts_row=contacts_by.get(cnpj),
+            conn=conn,
+            published_index=published_index,
+            datalake_watermark=datalake_watermark,
+        )
         if lead is not None:
             leads.append(lead)
     leads.sort(key=lambda lead: (lead["company"]["cnpj14"], lead["source_lead_id"]))

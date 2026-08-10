@@ -1,0 +1,162 @@
+[
+  {
+    "company_key": "cnpj_root:19555146",
+    "cnpj_raiz": "19555146",
+    "previous_class": "TARGET_OUT_OF_SCOPE",
+    "target_fit_class": "TARGET_CONFIRMED",
+    "transition_event": "TARGET_FIT_CONFIRMED",
+    "target_fit_reason_codes": [
+      "multi_execution_contracts_triangulation"
+    ],
+    "computed_at": "2026-08-09T22:49:55.215119-03:00",
+    "source_watermark": "2026-08-09T22:49:52.875892-03:00",
+    "materialization_mode": "ACTIVE"
+  },
+  {
+    "company_key": "cnpj_root:02520829",
+    "cnpj_raiz": "02520829",
+    "previous_class": "TARGET_OUT_OF_SCOPE",
+    "target_fit_class": "TARGET_CONFIRMED",
+    "transition_event": "TARGET_FIT_CONFIRMED",
+    "target_fit_reason_codes": [
+      "multi_execution_contracts_triangulation",
+      "CONSORTIUM_EVIDENCE",
+      "consortium_contracts_present_conservative"
+    ],
+    "computed_at": "2026-08-09T22:49:55.185874-03:00",
+    "source_watermark": "2026-08-09T22:49:52.875892-03:00",
+    "materialization_mode": "ACTIVE"
+  },
+  {
+    "company_key": "cnpj_root:11145401",
+    "cnpj_raiz": "11145401",
+    "previous_class": "TARGET_OUT_OF_SCOPE",
+    "target_fit_class": "TARGET_CONFIRMED",
+    "transition_event": "TARGET_FIT_CONFIRMED",
+    "target_fit_reason_codes": [
+      "multi_execution_contracts_triangulation"
+    ],
+    "computed_at": "2026-08-09T22:49:55.157956-03:00",
+    "source_watermark": "2026-08-09T22:49:52.875892-03:00",
+    "materialization_mode": "ACTIVE"
+  },
+  {
+    "company_key": "cnpj_root:82997446",
+    "cnpj_raiz": "82997446",
+    "previous_class": "TARGET_OUT_OF_SCOPE",
+    "target_fit_class": "TARGET_CONFIRMED",
+    "transition_event": "TARGET_FIT_CONFIRMED",
+    "target_fit_reason_codes": [
+      "multi_execution_contracts_triangulation"
+    ],
+    "computed_at": "2026-08-09T22:49:55.129091-03:00",
+    "source_watermark": "2026-08-09T22:49:52.875892-03:00",
+    "materialization_mode": "ACTIVE"
+  },
+  {
+    "company_key": "cnpj_root:62917826",
+    "cnpj_raiz": "62917826",
+    "previous_class": "TARGET_OUT_OF_SCOPE",
+    "target_fit_class": "TARGET_CONFIRMED",
+    "transition_event": "TARGET_FIT_CONFIRMED",
+    "target_fit_reason_codes": [
+      "multi_execution_contracts_triangulation"
+    ],
+    "computed_at": "2026-08-09T22:49:55.100553-03:00",
+    "source_watermark": "2026-08-09T22:49:52.875892-03:00",
+    "materialization_mode": "ACTIVE"
+  },
+  {
+    "company_key": "cnpj_root:11118645",
+    "cnpj_raiz": "11118645",
+    "previous_class": "TARGET_OUT_OF_SCOPE",
+    "target_fit_class": "TARGET_CONFIRMED",
+    "transition_event": "TARGET_FIT_CONFIRMED",
+    "target_fit_reason_codes": [
+      "multi_execution_contracts_triangulation"
+    ],
+    "computed_at": "2026-08-09T22:49:55.068324-03:00",
+    "source_watermark": "2026-08-09T22:49:52.875892-03:00",
+    "materialization_mode": "ACTIVE"
+  },
+  {
+    "company_key": "cnpj_root:39649812",
+    "cnpj_raiz": "39649812",
+    "previous_class": "TARGET_OUT_OF_SCOPE",
+    "target_fit_class": "TARGET_CONFIRMED",
+    "transition_event": "TARGET_FIT_CONFIRMED",
+    "target_fit_reason_codes": [
+      "multi_execution_contracts_triangulation"
+    ],
+    "computed_at": "2026-08-09T22:49:55.037227-03:00",
+    "source_watermark": "2026-08-09T22:49:52.875892-03:00",
+    "materialization_mode": "ACTIVE"
+  },
+  {
+    "company_key": "cnpj_root:44734671",
+    "cnpj_raiz": "44734671",
+    "previous_class": "TARGET_OUT_OF_SCOPE",
+    "target_fit_class": "TARGET_CONFIRMED",
+    "transition_event": "TARGET_FIT_CONFIRMED",
+    "target_fit_reason_codes": [
+      "multi_execution_contracts_triangulation",
+      "CONSORTIUM_EVIDENCE",
+      "consortium_contracts_present_conservative"
+    ],
+    "computed_at": "2026-08-09T22:49:55.005585-03:00",
+    "source_watermark": "2026-08-09T22:49:52.875892-03:00",
+    "materialization_mode": "ACTIVE"
+  },
+  {
+    "company_key": "cnpj_root:13965228",
+    "cnpj_raiz": "13965228",
+    "previous_class": "TARGET_OUT_OF_SCOPE",
+    "target_fit_class": "TARGET_CONFIRMED",
+    "transition_event": "TARGET_FIT_CONFIRMED",
+    "target_fit_reason_codes": [
+      "multi_execution_contracts_triangulation"
+    ],
+    "computed_at": "2026-08-09T22:49:54.968473-03:00",
+    "source_watermark": "2026-08-09T22:49:52.875892-03:00",
+    "materialization_mode": "ACTIVE"
+  },
+  {
+    "company_key": "cnpj_root:07752236",
+    "cnpj_raiz": "07752236",
+    "previous_class": "TARGET_OUT_OF_SCOPE",
+    "target_fit_class": "TARGET_CONFIRMED",
+    "transition_event": "TARGET_FIT_CONFIRMED",
+    "target_fit_reason_codes": [
+      "multi_execution_contracts_triangulation"
+    ],
+    "computed_at": "2026-08-09T22:49:54.934794-03:00",
+    "source_watermark": "2026-08-09T22:49:52.875892-03:00",
+    "materialization_mode": "ACTIVE"
+  },
+  {
+    "company_key": "cnpj_root:03652030",
+    "cnpj_raiz": "03652030",
+    "previous_class": "TARGET_OUT_OF_SCOPE",
+    "target_fit_class": "TARGET_CONFIRMED",
+    "transition_event": "TARGET_FIT_CONFIRMED",
+    "target_fit_reason_codes": [
+      "multi_execution_contracts_triangulation"
+    ],
+    "computed_at": "2026-08-09T22:49:54.837735-03:00",
+    "source_watermark": "2026-08-09T22:49:52.875892-03:00",
+    "materialization_mode": "ACTIVE"
+  },
+  {
+    "company_key": "cnpj_root:00802002",
+    "cnpj_raiz": "00802002",
+    "previous_class": "TARGET_OUT_OF_SCOPE",
+    "target_fit_class": "TARGET_CONFIRMED",
+    "transition_event": "TARGET_FIT_CONFIRMED",
+    "target_fit_reason_codes": [
+      "multi_execution_contracts_triangulation"
+    ],
+    "computed_at": "2026-08-09T22:49:54.794993-03:00",
+    "source_watermark": "2026-08-09T22:49:52.875892-03:00",
+    "materialization_mode": "ACTIVE"
+  }
+]

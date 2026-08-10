@@ -44,7 +44,14 @@ def _mock_psycopg2_connect(request):
     # Decision & Outcome Memory v1: persistence proofs require real PostgreSQL
     # (campaign EXTRA-DECISION-OUTCOME-MEMORY-01). Never mock this suite.
     fspath = str(getattr(request.node, "fspath", "") or getattr(request.node, "path", ""))
-    if "decision_memory" in fspath.replace("\\", "/").split("/"):
+    path_parts = fspath.replace("\\", "/").split("/")
+    if "decision_memory" in path_parts:
+        yield
+        return
+
+    # CONFENGE target-fit continuous refresh integration tests already skip without
+    # DSN. They prove SKIP LOCKED, publish atomicity, downgrade→send-ready, etc.
+    if "confenge_target_fit" in path_parts:
         yield
         return
 

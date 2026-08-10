@@ -151,6 +151,44 @@
           }
         },
         "commercial_state": { "type": "string" },
+        "target_fit_class": {
+          "type": ["string", "null"],
+          "description": "Published ICP class from extra-cli continuous refresh (TARGET_CONFIRMED|TARGET_PROBABLE_RESEARCH|TARGET_OUT_OF_SCOPE). Warmbly must not re-score."
+        },
+        "target_fit_confidence": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "target_fit_version": {
+          "type": ["string", "null"],
+          "description": "Classifier version that produced the published decision."
+        },
+        "target_fit_computed_at": {
+          "type": ["string", "null"],
+          "description": "ISO timestamp when target-fit was materialised."
+        },
+        "target_fit_source_watermark": {
+          "type": ["string", "null"],
+          "description": "Datalake watermark observed when target-fit was computed."
+        },
+        "target_fit_fresh": {
+          "type": ["boolean", "null"],
+          "description": "False when stale/missing/failed relative to datalake watermark policy."
+        },
+        "target_fit_evidence_ids": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Provenance ids only — full evidence stays in extra-cli materialization."
+        },
+        "target_fit_send_tier": {
+          "type": ["string", "null"],
+          "description": "Legacy send tier mapped from published class (A_AUTOMATIC|B_EVIDENCE_SUPPORTED|RESEARCH_ONLY|OUT_OF_SCOPE)."
+        },
+        "email_send_ready": {
+          "type": ["boolean", "null"],
+          "description": "EMAIL_SEND_READY after all gates including published target-fit freshness. Never true if target_fit_class != TARGET_CONFIRMED or not fresh."
+        },
         "activation": {
           "type": "object",
           "description": "Optional commercial activation planner projection (additive, backward-compatible). Ordering score only — never purchase probability.",

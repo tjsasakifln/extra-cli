@@ -1,0 +1,3 @@
+company,old,new,old_confidence,new_confidence,transition,version,watermark,computed_at,expected?
+cnpj_root:11222333,TARGET_PROBABLE_RESEARCH,TARGET_CONFIRMED,0.45,0.9,PROBABLE→CONFIRMED,confenge-target-fit-v1,2026-08-09T00:00:00Z,2026-08-09T01:00:00Z,review
+cnpj_root:99887766,TARGET_OUT_OF_SCOPE,TARGET_OUT_OF_SCOPE,0.8,0.8,UNCHANGED,confenge-target-fit-v1,2026-08-09T00:00:00Z,2026-08-09T01:00:00Z,yes
