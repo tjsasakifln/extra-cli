@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-08-10T08:24:07Z",
-  "extra_cli_deployed_sha": "9bcb7ef5eb2ce9d5e13157e335b5978a68d81250",
+  "generated_at": "2026-08-10T08:55:31Z",
+  "extra_cli_deployed_sha": "5b92233dd867306cc6e2ca6502117365ede191bc",
   "warmbly_deployed_sha": "81d83429316aa6241cc81b3ac8e761bfc59c2487",
   "status_sh": {
     "BACKEND": "PASS",
@@ -25,5 +25,6 @@
   },
   "continuous_imap": "PASS",
   "reply_stop": "PASS",
-  "outcome_loop": "PASS"
+  "outcome_loop": "PASS",
+  "emitter": "scripts/confenge/emit_unconditional_go_pack.py"
 }

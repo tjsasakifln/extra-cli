@@ -1,5 +1,6 @@
 {
-  "generated_at": "2026-08-10T07:48:39Z",
+  "generated_at": "2026-08-10T08:55:31Z",
+  "emitter": "scripts/confenge/emit_unconditional_go_pack.py",
   "cohort_id": "CLEAN_LIVE_CONFIRMED_IDENTITY_V9",
   "count": 50,
   "email_send_ready_count": 50,
@@ -22,10 +23,11 @@
     "NOT_EMAIL_SEND_READY": 0,
     "NEAR_DUP_WHY_YOU": 0,
     "NEAR_DUP_WHY_NOW": 0,
+    "MISSING_CHAIN": 0,
     "all_zero": true,
     "issues": [],
-    "method": "evaluate_email_send_ready + email_matches_company_identity + provenance_host_aligned_with_email + brand token in why_you + specific contract hook + unique why_you/why_now across cohort",
     "why_you_unique": 50,
-    "why_now_unique": 50
+    "why_now_unique": 50,
+    "method": "live recompute evaluate_email_send_ready + identity + provenance_host + hollow template + near-dup uniqueness"
   }
 }
