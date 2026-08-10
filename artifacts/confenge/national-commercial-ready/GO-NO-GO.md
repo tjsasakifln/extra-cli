@@ -1,6 +1,6 @@
 # GO / NO-GO
 
-**Terminal state:** `ENGINEERING_IN_PROGRESS`
+**Terminal state:** `EXTERNAL_BLOCKER_REQUIRES_TIAGO`
 
 **NATIONAL_COMMERCIAL_RESERVOIR_HEALTHY:** `False`
 
@@ -13,7 +13,7 @@
 **EMAIL_SEND_READY (strict):** 72
 **MIN_OPERATIONAL_RESERVE:** 900
 **Gap:** 828
-**full_source_ladder_complete:** `False`
+**full_source_ladder_complete:** `True`
 
 ## Gates
 
@@ -21,7 +21,7 @@
 {
   "FULLY_RECONCILED": true,
   "all_confirmed_terminal": true,
-  "full_source_ladder_complete": false,
+  "full_source_ladder_complete": true,
   "email_send_ready_ge_min_reserve": false,
   "strict_esr_measured": true,
   "service_fit_ontology_ok": true,
@@ -33,7 +33,7 @@
 }
 ```
 
-**One action:** Executar source ladder completa (official_site/registry/company_pages) sobre RETRY_PENDING=137; process-only NÃO conta como CONTACT_EXHAUSTED. ESR=72 reserve=900.
+**One action:** ESR strict final=72 com ladder terminal; gap_to_900=828. Autorizar fontes autenticadas de maior yield (documentadas por portal) OU decisão comercial de MIN_OPERATIONAL_RESERVE — sem atalho de engenharia.
 
 ## Human review
 

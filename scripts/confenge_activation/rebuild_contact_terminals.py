@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Any
 
 from scripts.confenge_contact_resolution.discovery_state import (
+    CONTACT_EXHAUSTED,
     CONTACT_READY,
     CONTACT_RETRY_PENDING,
     DEFAULT_SOURCE_LADDER,
@@ -94,7 +95,16 @@ def rebuild(
         ):
             for row in _load_jsonl(Path(enrich_dir) / name):
                 root = _root8(row.get("cnpj14") or row.get("account_key") or row.get("cnpj_raiz"))
-                if root:
+                if not root:
+                    continue
+                # Prefer richer adapter evidence (do not let a sparse later file wipe sources)
+                prev = enrich_by_root.get(root)
+                if prev is None:
+                    enrich_by_root[root] = row
+                    continue
+                prev_n = len(prev.get("adapters_used") or []) + len(prev.get("adapters_skipped") or [])
+                new_n = len(row.get("adapters_used") or []) + len(row.get("adapters_skipped") or [])
+                if new_n >= prev_n:
                     enrich_by_root[root] = row
 
     # Emails from process candidates
@@ -170,13 +180,21 @@ def rebuild(
     cov = measure_terminal_coverage(terminals, target_confirmed_total=len(confirmed_roots))
     counts = Counter(t["terminal_state"] for t in terminals)
     full_n = sum(1 for t in terminals if t.get("ladder_complete"))
+    # READY/FOUND may short-circuit before full ladder; EXHAUSTED must be full.
+    exhausted_incomplete = sum(
+        1
+        for t in terminals
+        if t.get("terminal_state") == CONTACT_EXHAUSTED and not t.get("ladder_complete")
+    )
     report = {
         "schema": "confenge.rebuild_contact_terminals.v1",
         "roots": len(confirmed_roots),
         "terminal_counts": dict(counts),
         "full_ladder_complete_roots": full_n,
-        "full_source_ladder_complete": full_n == len(confirmed_roots)
-        and counts.get(CONTACT_RETRY_PENDING, 0) == 0,
+        "exhausted_incomplete": exhausted_incomplete,
+        "full_source_ladder_complete": (
+            counts.get(CONTACT_RETRY_PENDING, 0) == 0 and exhausted_incomplete == 0
+        ),
         "coverage": cov,
         "out_path": str(out_path),
         "DEFAULT_SOURCE_LADDER": list(DEFAULT_SOURCE_LADDER),

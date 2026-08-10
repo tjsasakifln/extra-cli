@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-08-10T17:04:34Z",
+  "as_of": "2026-08-10T17:07:41Z",
   "rows": [
     {
       "cnpj_raiz": "01324865",
@@ -77,7 +77,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "last_attempt_at": "2026-08-10T17:07:12Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -96,32 +96,32 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "05810013",
+      "cnpj_raiz": "03776742",
       "terminal_state": "CONTACT_FOUND_NOT_SENDABLE",
       "sources_attempted": [
         "process_administrative_docs",
         "pncp_annexes",
         "official_registry",
         "official_site",
-        "public_docs_datalake",
-        "company_public_pages"
+        "company_public_pages",
+        "public_docs_datalake"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "last_attempt_at": "2026-08-10T17:07:12Z",
       "next_retry_at": null,
       "terminal_reason": "contacts_found_not_sendable",
-      "email_count": 2,
+      "email_count": 3,
       "email_send_ready_count": 0,
       "network_discovery": true,
       "ladder_complete": true,
       "meta": {
         "rebuild": "honest_merge_process_enrich",
         "full_ladder": true,
-        "enrich_state": "NO_CONTACT_YET"
+        "enrich_state": "CONTACT_REVIEW_REQUIRED"
       },
       "audit_stratum": "CONTACT_FOUND_NOT_SENDABLE",
       "ownership_status": "N/A_NO_CONTACT",
-      "source_type": "process_administrative_docs,pncp_annexes,official_registry,official_site,public_docs_datalake,company_public_pages",
+      "source_type": "process_administrative_docs,pncp_annexes,official_registry,official_site,company_public_pages,public_docs_datalake",
       "audit_flags": [],
       "audit_pass": true
     },
@@ -200,7 +200,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "last_attempt_at": "2026-08-10T17:07:12Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -219,7 +219,7 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "05993595",
+      "cnpj_raiz": "05810013",
       "terminal_state": "CONTACT_FOUND_NOT_SENDABLE",
       "sources_attempted": [
         "process_administrative_docs",
@@ -230,7 +230,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "last_attempt_at": "2026-08-10T17:07:12Z",
       "next_retry_at": null,
       "terminal_reason": "contacts_found_not_sendable",
       "email_count": 2,
@@ -324,7 +324,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "last_attempt_at": "2026-08-10T17:07:12Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -343,7 +343,7 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "07386649",
+      "cnpj_raiz": "05993595",
       "terminal_state": "CONTACT_FOUND_NOT_SENDABLE",
       "sources_attempted": [
         "process_administrative_docs",
@@ -354,10 +354,10 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "last_attempt_at": "2026-08-10T17:07:12Z",
       "next_retry_at": null,
       "terminal_reason": "contacts_found_not_sendable",
-      "email_count": 1,
+      "email_count": 2,
       "email_send_ready_count": 0,
       "network_discovery": true,
       "ladder_complete": true,
@@ -447,7 +447,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "last_attempt_at": "2026-08-10T17:07:12Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -466,7 +466,7 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "07667763",
+      "cnpj_raiz": "07386649",
       "terminal_state": "CONTACT_FOUND_NOT_SENDABLE",
       "sources_attempted": [
         "process_administrative_docs",
@@ -477,7 +477,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "last_attempt_at": "2026-08-10T17:07:12Z",
       "next_retry_at": null,
       "terminal_reason": "contacts_found_not_sendable",
       "email_count": 1,
@@ -570,7 +570,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "last_attempt_at": "2026-08-10T17:07:12Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -589,28 +589,32 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "07947791",
+      "cnpj_raiz": "07667763",
       "terminal_state": "CONTACT_FOUND_NOT_SENDABLE",
       "sources_attempted": [
         "process_administrative_docs",
-        "pncp_annexes"
+        "pncp_annexes",
+        "official_registry",
+        "official_site",
+        "public_docs_datalake",
+        "company_public_pages"
       ],
-      "attempt_count": 2,
-      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "attempt_count": 6,
+      "last_attempt_at": "2026-08-10T17:07:12Z",
       "next_retry_at": null,
       "terminal_reason": "contacts_found_not_sendable",
       "email_count": 1,
       "email_send_ready_count": 0,
       "network_discovery": true,
-      "ladder_complete": false,
+      "ladder_complete": true,
       "meta": {
         "rebuild": "honest_merge_process_enrich",
-        "full_ladder": false,
-        "enrich_state": "CONTACT_REVIEW_REQUIRED"
+        "full_ladder": true,
+        "enrich_state": "NO_CONTACT_YET"
       },
       "audit_stratum": "CONTACT_FOUND_NOT_SENDABLE",
       "ownership_status": "N/A_NO_CONTACT",
-      "source_type": "process_administrative_docs,pncp_annexes",
+      "source_type": "process_administrative_docs,pncp_annexes,official_registry,official_site,public_docs_datalake,company_public_pages",
       "audit_flags": [],
       "audit_pass": true
     },
@@ -689,7 +693,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "last_attempt_at": "2026-08-10T17:07:12Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -708,7 +712,7 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "10785639",
+      "cnpj_raiz": "07947791",
       "terminal_state": "CONTACT_FOUND_NOT_SENDABLE",
       "sources_attempted": [
         "process_administrative_docs",
@@ -719,17 +723,17 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "last_attempt_at": "2026-08-10T17:07:12Z",
       "next_retry_at": null,
       "terminal_reason": "contacts_found_not_sendable",
-      "email_count": 1,
+      "email_count": 2,
       "email_send_ready_count": 0,
       "network_discovery": true,
       "ladder_complete": true,
       "meta": {
         "rebuild": "honest_merge_process_enrich",
         "full_ladder": true,
-        "enrich_state": "NO_CONTACT_YET"
+        "enrich_state": "CONTACT_REVIEW_REQUIRED"
       },
       "audit_stratum": "CONTACT_FOUND_NOT_SENDABLE",
       "ownership_status": "N/A_NO_CONTACT",
@@ -812,7 +816,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "last_attempt_at": "2026-08-10T17:07:12Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -831,32 +835,32 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "11349160",
+      "cnpj_raiz": "09278438",
       "terminal_state": "CONTACT_FOUND_NOT_SENDABLE",
       "sources_attempted": [
         "process_administrative_docs",
         "pncp_annexes",
         "official_registry",
         "official_site",
-        "public_docs_datalake",
-        "company_public_pages"
+        "company_public_pages",
+        "public_docs_datalake"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "last_attempt_at": "2026-08-10T17:07:12Z",
       "next_retry_at": null,
       "terminal_reason": "contacts_found_not_sendable",
-      "email_count": 1,
+      "email_count": 2,
       "email_send_ready_count": 0,
       "network_discovery": true,
       "ladder_complete": true,
       "meta": {
         "rebuild": "honest_merge_process_enrich",
         "full_ladder": true,
-        "enrich_state": "NO_CONTACT_YET"
+        "enrich_state": "CONTACT_REVIEW_REQUIRED"
       },
       "audit_stratum": "CONTACT_FOUND_NOT_SENDABLE",
       "ownership_status": "N/A_NO_CONTACT",
-      "source_type": "process_administrative_docs,pncp_annexes,official_registry,official_site,public_docs_datalake,company_public_pages",
+      "source_type": "process_administrative_docs,pncp_annexes,official_registry,official_site,company_public_pages,public_docs_datalake",
       "audit_flags": [],
       "audit_pass": true
     },
@@ -935,7 +939,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "last_attempt_at": "2026-08-10T17:07:12Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -954,7 +958,7 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "11520665",
+      "cnpj_raiz": "10785639",
       "terminal_state": "CONTACT_FOUND_NOT_SENDABLE",
       "sources_attempted": [
         "process_administrative_docs",
@@ -965,7 +969,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "last_attempt_at": "2026-08-10T17:07:12Z",
       "next_retry_at": null,
       "terminal_reason": "contacts_found_not_sendable",
       "email_count": 1,
@@ -1058,7 +1062,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "last_attempt_at": "2026-08-10T17:07:12Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -1077,7 +1081,7 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "12628444",
+      "cnpj_raiz": "11349160",
       "terminal_state": "CONTACT_FOUND_NOT_SENDABLE",
       "sources_attempted": [
         "process_administrative_docs",
@@ -1088,10 +1092,10 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "last_attempt_at": "2026-08-10T17:07:12Z",
       "next_retry_at": null,
       "terminal_reason": "contacts_found_not_sendable",
-      "email_count": 2,
+      "email_count": 1,
       "email_send_ready_count": 0,
       "network_discovery": true,
       "ladder_complete": true,
@@ -1181,7 +1185,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "last_attempt_at": "2026-08-10T17:07:12Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -1200,7 +1204,7 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "13991890",
+      "cnpj_raiz": "11520665",
       "terminal_state": "CONTACT_FOUND_NOT_SENDABLE",
       "sources_attempted": [
         "process_administrative_docs",
@@ -1211,7 +1215,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "last_attempt_at": "2026-08-10T17:07:12Z",
       "next_retry_at": null,
       "terminal_reason": "contacts_found_not_sendable",
       "email_count": 1,
@@ -1305,7 +1309,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "last_attempt_at": "2026-08-10T17:07:12Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -1324,7 +1328,7 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "14711839",
+      "cnpj_raiz": "12628444",
       "terminal_state": "CONTACT_FOUND_NOT_SENDABLE",
       "sources_attempted": [
         "process_administrative_docs",
@@ -1335,10 +1339,10 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "last_attempt_at": "2026-08-10T17:07:12Z",
       "next_retry_at": null,
       "terminal_reason": "contacts_found_not_sendable",
-      "email_count": 1,
+      "email_count": 2,
       "email_send_ready_count": 0,
       "network_discovery": true,
       "ladder_complete": true,
@@ -1428,7 +1432,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "last_attempt_at": "2026-08-10T17:07:12Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -1447,7 +1451,7 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "16791765",
+      "cnpj_raiz": "13991890",
       "terminal_state": "CONTACT_FOUND_NOT_SENDABLE",
       "sources_attempted": [
         "process_administrative_docs",
@@ -1458,10 +1462,10 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "last_attempt_at": "2026-08-10T17:07:12Z",
       "next_retry_at": null,
       "terminal_reason": "contacts_found_not_sendable",
-      "email_count": 2,
+      "email_count": 1,
       "email_send_ready_count": 0,
       "network_discovery": true,
       "ladder_complete": true,
@@ -1551,7 +1555,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "last_attempt_at": "2026-08-10T17:07:12Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -1570,7 +1574,7 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "19800452",
+      "cnpj_raiz": "14711839",
       "terminal_state": "CONTACT_FOUND_NOT_SENDABLE",
       "sources_attempted": [
         "process_administrative_docs",
@@ -1581,10 +1585,10 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "last_attempt_at": "2026-08-10T17:07:12Z",
       "next_retry_at": null,
       "terminal_reason": "contacts_found_not_sendable",
-      "email_count": 2,
+      "email_count": 1,
       "email_send_ready_count": 0,
       "network_discovery": true,
       "ladder_complete": true,
@@ -1674,7 +1678,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "last_attempt_at": "2026-08-10T17:07:12Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -1693,28 +1697,32 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "20419850",
+      "cnpj_raiz": "16791765",
       "terminal_state": "CONTACT_FOUND_NOT_SENDABLE",
       "sources_attempted": [
         "process_administrative_docs",
-        "pncp_annexes"
+        "pncp_annexes",
+        "official_registry",
+        "official_site",
+        "public_docs_datalake",
+        "company_public_pages"
       ],
-      "attempt_count": 2,
-      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "attempt_count": 6,
+      "last_attempt_at": "2026-08-10T17:07:12Z",
       "next_retry_at": null,
       "terminal_reason": "contacts_found_not_sendable",
-      "email_count": 1,
+      "email_count": 2,
       "email_send_ready_count": 0,
       "network_discovery": true,
-      "ladder_complete": false,
+      "ladder_complete": true,
       "meta": {
         "rebuild": "honest_merge_process_enrich",
-        "full_ladder": false,
-        "enrich_state": "CONTACT_REVIEW_REQUIRED"
+        "full_ladder": true,
+        "enrich_state": "NO_CONTACT_YET"
       },
       "audit_stratum": "CONTACT_FOUND_NOT_SENDABLE",
       "ownership_status": "N/A_NO_CONTACT",
-      "source_type": "process_administrative_docs,pncp_annexes",
+      "source_type": "process_administrative_docs,pncp_annexes,official_registry,official_site,public_docs_datalake,company_public_pages",
       "audit_flags": [],
       "audit_pass": true
     },
@@ -1794,7 +1802,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "last_attempt_at": "2026-08-10T17:07:12Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -1813,28 +1821,32 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "20488184",
+      "cnpj_raiz": "19800452",
       "terminal_state": "CONTACT_FOUND_NOT_SENDABLE",
       "sources_attempted": [
         "process_administrative_docs",
-        "pncp_annexes"
+        "pncp_annexes",
+        "official_registry",
+        "official_site",
+        "public_docs_datalake",
+        "company_public_pages"
       ],
-      "attempt_count": 2,
-      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "attempt_count": 6,
+      "last_attempt_at": "2026-08-10T17:07:12Z",
       "next_retry_at": null,
       "terminal_reason": "contacts_found_not_sendable",
       "email_count": 2,
       "email_send_ready_count": 0,
       "network_discovery": true,
-      "ladder_complete": false,
+      "ladder_complete": true,
       "meta": {
         "rebuild": "honest_merge_process_enrich",
-        "full_ladder": false,
-        "enrich_state": "CONTACT_REVIEW_REQUIRED"
+        "full_ladder": true,
+        "enrich_state": "NO_CONTACT_YET"
       },
       "audit_stratum": "CONTACT_FOUND_NOT_SENDABLE",
       "ownership_status": "N/A_NO_CONTACT",
-      "source_type": "process_administrative_docs,pncp_annexes",
+      "source_type": "process_administrative_docs,pncp_annexes,official_registry,official_site,public_docs_datalake,company_public_pages",
       "audit_flags": [],
       "audit_pass": true
     },
@@ -1881,7 +1893,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "last_attempt_at": "2026-08-10T17:07:12Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -1900,28 +1912,32 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "24144040",
+      "cnpj_raiz": "20419850",
       "terminal_state": "CONTACT_FOUND_NOT_SENDABLE",
       "sources_attempted": [
         "process_administrative_docs",
-        "pncp_annexes"
+        "pncp_annexes",
+        "public_docs_datalake",
+        "official_registry",
+        "official_site",
+        "company_public_pages"
       ],
-      "attempt_count": 2,
-      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "attempt_count": 6,
+      "last_attempt_at": "2026-08-10T17:07:12Z",
       "next_retry_at": null,
       "terminal_reason": "contacts_found_not_sendable",
-      "email_count": 2,
+      "email_count": 1,
       "email_send_ready_count": 0,
       "network_discovery": true,
-      "ladder_complete": false,
+      "ladder_complete": true,
       "meta": {
         "rebuild": "honest_merge_process_enrich",
-        "full_ladder": false,
+        "full_ladder": true,
         "enrich_state": "CONTACT_REVIEW_REQUIRED"
       },
       "audit_stratum": "CONTACT_FOUND_NOT_SENDABLE",
       "ownership_status": "N/A_NO_CONTACT",
-      "source_type": "process_administrative_docs,pncp_annexes",
+      "source_type": "process_administrative_docs,pncp_annexes,public_docs_datalake,official_registry,official_site,company_public_pages",
       "audit_flags": [],
       "audit_pass": true
     },
@@ -1968,7 +1984,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "last_attempt_at": "2026-08-10T17:07:12Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -1987,28 +2003,32 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "27846603",
+      "cnpj_raiz": "20488184",
       "terminal_state": "CONTACT_FOUND_NOT_SENDABLE",
       "sources_attempted": [
         "process_administrative_docs",
-        "pncp_annexes"
+        "pncp_annexes",
+        "public_docs_datalake",
+        "official_registry",
+        "official_site",
+        "company_public_pages"
       ],
-      "attempt_count": 2,
-      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "attempt_count": 6,
+      "last_attempt_at": "2026-08-10T17:07:12Z",
       "next_retry_at": null,
       "terminal_reason": "contacts_found_not_sendable",
-      "email_count": 4,
+      "email_count": 2,
       "email_send_ready_count": 0,
       "network_discovery": true,
-      "ladder_complete": false,
+      "ladder_complete": true,
       "meta": {
         "rebuild": "honest_merge_process_enrich",
-        "full_ladder": false,
+        "full_ladder": true,
         "enrich_state": "CONTACT_REVIEW_REQUIRED"
       },
       "audit_stratum": "CONTACT_FOUND_NOT_SENDABLE",
       "ownership_status": "N/A_NO_CONTACT",
-      "source_type": "process_administrative_docs,pncp_annexes",
+      "source_type": "process_administrative_docs,pncp_annexes,public_docs_datalake,official_registry,official_site,company_public_pages",
       "audit_flags": [],
       "audit_pass": true
     },
@@ -2055,7 +2075,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "last_attempt_at": "2026-08-10T17:07:12Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -2074,28 +2094,32 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "29305003",
+      "cnpj_raiz": "22965437",
       "terminal_state": "CONTACT_FOUND_NOT_SENDABLE",
       "sources_attempted": [
         "process_administrative_docs",
-        "pncp_annexes"
+        "pncp_annexes",
+        "official_registry",
+        "official_site",
+        "company_public_pages",
+        "public_docs_datalake"
       ],
-      "attempt_count": 2,
-      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "attempt_count": 6,
+      "last_attempt_at": "2026-08-10T17:07:12Z",
       "next_retry_at": null,
       "terminal_reason": "contacts_found_not_sendable",
-      "email_count": 2,
+      "email_count": 1,
       "email_send_ready_count": 0,
       "network_discovery": true,
-      "ladder_complete": false,
+      "ladder_complete": true,
       "meta": {
         "rebuild": "honest_merge_process_enrich",
-        "full_ladder": false,
+        "full_ladder": true,
         "enrich_state": "CONTACT_REVIEW_REQUIRED"
       },
       "audit_stratum": "CONTACT_FOUND_NOT_SENDABLE",
       "ownership_status": "N/A_NO_CONTACT",
-      "source_type": "process_administrative_docs,pncp_annexes",
+      "source_type": "process_administrative_docs,pncp_annexes,official_registry,official_site,company_public_pages,public_docs_datalake",
       "audit_flags": [],
       "audit_pass": true
     },
@@ -2143,7 +2167,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "last_attempt_at": "2026-08-10T17:07:12Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -2162,28 +2186,32 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "29386657",
+      "cnpj_raiz": "24144040",
       "terminal_state": "CONTACT_FOUND_NOT_SENDABLE",
       "sources_attempted": [
         "process_administrative_docs",
-        "pncp_annexes"
+        "pncp_annexes",
+        "public_docs_datalake",
+        "official_registry",
+        "official_site",
+        "company_public_pages"
       ],
-      "attempt_count": 2,
-      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "attempt_count": 6,
+      "last_attempt_at": "2026-08-10T17:07:12Z",
       "next_retry_at": null,
       "terminal_reason": "contacts_found_not_sendable",
       "email_count": 2,
       "email_send_ready_count": 0,
       "network_discovery": true,
-      "ladder_complete": false,
+      "ladder_complete": true,
       "meta": {
         "rebuild": "honest_merge_process_enrich",
-        "full_ladder": false,
+        "full_ladder": true,
         "enrich_state": "CONTACT_REVIEW_REQUIRED"
       },
       "audit_stratum": "CONTACT_FOUND_NOT_SENDABLE",
       "ownership_status": "N/A_NO_CONTACT",
-      "source_type": "process_administrative_docs,pncp_annexes",
+      "source_type": "process_administrative_docs,pncp_annexes,public_docs_datalake,official_registry,official_site,company_public_pages",
       "audit_flags": [],
       "audit_pass": true
     },
@@ -2230,7 +2258,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "last_attempt_at": "2026-08-10T17:07:12Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -2249,28 +2277,32 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "30216559",
+      "cnpj_raiz": "27846603",
       "terminal_state": "CONTACT_FOUND_NOT_SENDABLE",
       "sources_attempted": [
         "process_administrative_docs",
-        "pncp_annexes"
+        "pncp_annexes",
+        "public_docs_datalake",
+        "official_registry",
+        "official_site",
+        "company_public_pages"
       ],
-      "attempt_count": 2,
-      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "attempt_count": 6,
+      "last_attempt_at": "2026-08-10T17:07:12Z",
       "next_retry_at": null,
       "terminal_reason": "contacts_found_not_sendable",
-      "email_count": 2,
+      "email_count": 4,
       "email_send_ready_count": 0,
       "network_discovery": true,
-      "ladder_complete": false,
+      "ladder_complete": true,
       "meta": {
         "rebuild": "honest_merge_process_enrich",
-        "full_ladder": false,
+        "full_ladder": true,
         "enrich_state": "CONTACT_REVIEW_REQUIRED"
       },
       "audit_stratum": "CONTACT_FOUND_NOT_SENDABLE",
       "ownership_status": "N/A_NO_CONTACT",
-      "source_type": "process_administrative_docs,pncp_annexes",
+      "source_type": "process_administrative_docs,pncp_annexes,public_docs_datalake,official_registry,official_site,company_public_pages",
       "audit_flags": [],
       "audit_pass": true
     },
@@ -2317,7 +2349,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "last_attempt_at": "2026-08-10T17:07:12Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -2336,28 +2368,32 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "30428306",
+      "cnpj_raiz": "29305003",
       "terminal_state": "CONTACT_FOUND_NOT_SENDABLE",
       "sources_attempted": [
         "process_administrative_docs",
-        "pncp_annexes"
+        "pncp_annexes",
+        "public_docs_datalake",
+        "official_registry",
+        "official_site",
+        "company_public_pages"
       ],
-      "attempt_count": 2,
-      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "attempt_count": 6,
+      "last_attempt_at": "2026-08-10T17:07:12Z",
       "next_retry_at": null,
       "terminal_reason": "contacts_found_not_sendable",
-      "email_count": 1,
+      "email_count": 2,
       "email_send_ready_count": 0,
       "network_discovery": true,
-      "ladder_complete": false,
+      "ladder_complete": true,
       "meta": {
         "rebuild": "honest_merge_process_enrich",
-        "full_ladder": false,
+        "full_ladder": true,
         "enrich_state": "CONTACT_REVIEW_REQUIRED"
       },
       "audit_stratum": "CONTACT_FOUND_NOT_SENDABLE",
       "ownership_status": "N/A_NO_CONTACT",
-      "source_type": "process_administrative_docs,pncp_annexes",
+      "source_type": "process_administrative_docs,pncp_annexes,public_docs_datalake,official_registry,official_site,company_public_pages",
       "audit_flags": [],
       "audit_pass": true
     },
@@ -2404,7 +2440,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "last_attempt_at": "2026-08-10T17:07:12Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -2423,28 +2459,32 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "33224167",
+      "cnpj_raiz": "29386657",
       "terminal_state": "CONTACT_FOUND_NOT_SENDABLE",
       "sources_attempted": [
         "process_administrative_docs",
-        "pncp_annexes"
+        "pncp_annexes",
+        "public_docs_datalake",
+        "official_registry",
+        "official_site",
+        "company_public_pages"
       ],
-      "attempt_count": 2,
-      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "attempt_count": 6,
+      "last_attempt_at": "2026-08-10T17:07:12Z",
       "next_retry_at": null,
       "terminal_reason": "contacts_found_not_sendable",
       "email_count": 2,
       "email_send_ready_count": 0,
       "network_discovery": true,
-      "ladder_complete": false,
+      "ladder_complete": true,
       "meta": {
         "rebuild": "honest_merge_process_enrich",
-        "full_ladder": false,
+        "full_ladder": true,
         "enrich_state": "CONTACT_REVIEW_REQUIRED"
       },
       "audit_stratum": "CONTACT_FOUND_NOT_SENDABLE",
       "ownership_status": "N/A_NO_CONTACT",
-      "source_type": "process_administrative_docs,pncp_annexes",
+      "source_type": "process_administrative_docs,pncp_annexes,public_docs_datalake,official_registry,official_site,company_public_pages",
       "audit_flags": [],
       "audit_pass": true
     },
@@ -2491,7 +2531,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "last_attempt_at": "2026-08-10T17:07:12Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -2510,28 +2550,32 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "40443176",
+      "cnpj_raiz": "30216559",
       "terminal_state": "CONTACT_FOUND_NOT_SENDABLE",
       "sources_attempted": [
         "process_administrative_docs",
-        "pncp_annexes"
+        "pncp_annexes",
+        "public_docs_datalake",
+        "official_registry",
+        "official_site",
+        "company_public_pages"
       ],
-      "attempt_count": 2,
-      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "attempt_count": 6,
+      "last_attempt_at": "2026-08-10T17:07:12Z",
       "next_retry_at": null,
       "terminal_reason": "contacts_found_not_sendable",
       "email_count": 2,
       "email_send_ready_count": 0,
       "network_discovery": true,
-      "ladder_complete": false,
+      "ladder_complete": true,
       "meta": {
         "rebuild": "honest_merge_process_enrich",
-        "full_ladder": false,
+        "full_ladder": true,
         "enrich_state": "CONTACT_REVIEW_REQUIRED"
       },
       "audit_stratum": "CONTACT_FOUND_NOT_SENDABLE",
       "ownership_status": "N/A_NO_CONTACT",
-      "source_type": "process_administrative_docs,pncp_annexes",
+      "source_type": "process_administrative_docs,pncp_annexes,public_docs_datalake,official_registry,official_site,company_public_pages",
       "audit_flags": [],
       "audit_pass": true
     },
@@ -2578,7 +2622,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "last_attempt_at": "2026-08-10T17:07:12Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -2597,28 +2641,32 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "43894609",
+      "cnpj_raiz": "30428306",
       "terminal_state": "CONTACT_FOUND_NOT_SENDABLE",
       "sources_attempted": [
         "process_administrative_docs",
-        "pncp_annexes"
+        "pncp_annexes",
+        "public_docs_datalake",
+        "official_registry",
+        "official_site",
+        "company_public_pages"
       ],
-      "attempt_count": 2,
-      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "attempt_count": 6,
+      "last_attempt_at": "2026-08-10T17:07:12Z",
       "next_retry_at": null,
       "terminal_reason": "contacts_found_not_sendable",
-      "email_count": 2,
+      "email_count": 1,
       "email_send_ready_count": 0,
       "network_discovery": true,
-      "ladder_complete": false,
+      "ladder_complete": true,
       "meta": {
         "rebuild": "honest_merge_process_enrich",
-        "full_ladder": false,
+        "full_ladder": true,
         "enrich_state": "CONTACT_REVIEW_REQUIRED"
       },
       "audit_stratum": "CONTACT_FOUND_NOT_SENDABLE",
       "ownership_status": "N/A_NO_CONTACT",
-      "source_type": "process_administrative_docs,pncp_annexes",
+      "source_type": "process_administrative_docs,pncp_annexes,public_docs_datalake,official_registry,official_site,company_public_pages",
       "audit_flags": [],
       "audit_pass": true
     },
@@ -2665,7 +2713,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "last_attempt_at": "2026-08-10T17:07:12Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -2684,28 +2732,32 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "44956741",
+      "cnpj_raiz": "33224167",
       "terminal_state": "CONTACT_FOUND_NOT_SENDABLE",
       "sources_attempted": [
         "process_administrative_docs",
-        "pncp_annexes"
+        "pncp_annexes",
+        "public_docs_datalake",
+        "official_registry",
+        "official_site",
+        "company_public_pages"
       ],
-      "attempt_count": 2,
-      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "attempt_count": 6,
+      "last_attempt_at": "2026-08-10T17:07:12Z",
       "next_retry_at": null,
       "terminal_reason": "contacts_found_not_sendable",
       "email_count": 2,
       "email_send_ready_count": 0,
       "network_discovery": true,
-      "ladder_complete": false,
+      "ladder_complete": true,
       "meta": {
         "rebuild": "honest_merge_process_enrich",
-        "full_ladder": false,
+        "full_ladder": true,
         "enrich_state": "CONTACT_REVIEW_REQUIRED"
       },
       "audit_stratum": "CONTACT_FOUND_NOT_SENDABLE",
       "ownership_status": "N/A_NO_CONTACT",
-      "source_type": "process_administrative_docs,pncp_annexes",
+      "source_type": "process_administrative_docs,pncp_annexes,public_docs_datalake,official_registry,official_site,company_public_pages",
       "audit_flags": [],
       "audit_pass": true
     },
@@ -2752,7 +2804,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "last_attempt_at": "2026-08-10T17:07:12Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -2771,28 +2823,32 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "45408078",
+      "cnpj_raiz": "39579692",
       "terminal_state": "CONTACT_FOUND_NOT_SENDABLE",
       "sources_attempted": [
         "process_administrative_docs",
-        "pncp_annexes"
+        "pncp_annexes",
+        "official_registry",
+        "official_site",
+        "company_public_pages",
+        "public_docs_datalake"
       ],
-      "attempt_count": 2,
-      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "attempt_count": 6,
+      "last_attempt_at": "2026-08-10T17:07:12Z",
       "next_retry_at": null,
       "terminal_reason": "contacts_found_not_sendable",
-      "email_count": 2,
+      "email_count": 6,
       "email_send_ready_count": 0,
       "network_discovery": true,
-      "ladder_complete": false,
+      "ladder_complete": true,
       "meta": {
         "rebuild": "honest_merge_process_enrich",
-        "full_ladder": false,
+        "full_ladder": true,
         "enrich_state": "CONTACT_REVIEW_REQUIRED"
       },
       "audit_stratum": "CONTACT_FOUND_NOT_SENDABLE",
       "ownership_status": "N/A_NO_CONTACT",
-      "source_type": "process_administrative_docs,pncp_annexes",
+      "source_type": "process_administrative_docs,pncp_annexes,official_registry,official_site,company_public_pages,public_docs_datalake",
       "audit_flags": [],
       "audit_pass": true
     },
@@ -2839,7 +2895,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "last_attempt_at": "2026-08-10T17:07:12Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -2858,28 +2914,32 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "46531708",
+      "cnpj_raiz": "40443176",
       "terminal_state": "CONTACT_FOUND_NOT_SENDABLE",
       "sources_attempted": [
         "process_administrative_docs",
-        "pncp_annexes"
+        "pncp_annexes",
+        "public_docs_datalake",
+        "official_registry",
+        "official_site",
+        "company_public_pages"
       ],
-      "attempt_count": 2,
-      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "attempt_count": 6,
+      "last_attempt_at": "2026-08-10T17:07:12Z",
       "next_retry_at": null,
       "terminal_reason": "contacts_found_not_sendable",
       "email_count": 2,
       "email_send_ready_count": 0,
       "network_discovery": true,
-      "ladder_complete": false,
+      "ladder_complete": true,
       "meta": {
         "rebuild": "honest_merge_process_enrich",
-        "full_ladder": false,
+        "full_ladder": true,
         "enrich_state": "CONTACT_REVIEW_REQUIRED"
       },
       "audit_stratum": "CONTACT_FOUND_NOT_SENDABLE",
       "ownership_status": "N/A_NO_CONTACT",
-      "source_type": "process_administrative_docs,pncp_annexes",
+      "source_type": "process_administrative_docs,pncp_annexes,public_docs_datalake,official_registry,official_site,company_public_pages",
       "audit_flags": [],
       "audit_pass": true
     },
@@ -2926,7 +2986,7 @@
         "company_public_pages"
       ],
       "attempt_count": 6,
-      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "last_attempt_at": "2026-08-10T17:07:12Z",
       "next_retry_at": null,
       "terminal_reason": "source_ladder_exhausted_no_contact",
       "email_count": 0,
@@ -2945,28 +3005,32 @@
       "audit_pass": true
     },
     {
-      "cnpj_raiz": "46694964",
+      "cnpj_raiz": "41735757",
       "terminal_state": "CONTACT_FOUND_NOT_SENDABLE",
       "sources_attempted": [
         "process_administrative_docs",
-        "pncp_annexes"
+        "pncp_annexes",
+        "official_registry",
+        "official_site",
+        "public_docs_datalake",
+        "company_public_pages"
       ],
-      "attempt_count": 2,
-      "last_attempt_at": "2026-08-10T17:03:32Z",
+      "attempt_count": 6,
+      "last_attempt_at": "2026-08-10T17:07:12Z",
       "next_retry_at": null,
       "terminal_reason": "contacts_found_not_sendable",
-      "email_count": 2,
+      "email_count": 1,
       "email_send_ready_count": 0,
       "network_discovery": true,
-      "ladder_complete": false,
+      "ladder_complete": true,
       "meta": {
         "rebuild": "honest_merge_process_enrich",
-        "full_ladder": false,
+        "full_ladder": true,
         "enrich_state": "CONTACT_REVIEW_REQUIRED"
       },
       "audit_stratum": "CONTACT_FOUND_NOT_SENDABLE",
       "ownership_status": "N/A_NO_CONTACT",
-      "source_type": "process_administrative_docs,pncp_annexes",
+      "source_type": "process_administrative_docs,pncp_annexes,official_registry,official_site,public_docs_datalake,company_public_pages",
       "audit_flags": [],
       "audit_pass": true
     },

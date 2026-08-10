@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-08-10T17:04:34Z",
+  "as_of": "2026-08-10T17:07:41Z",
   "reasons": [
     [
       "service_fit_supported",
@@ -90,5 +90,5 @@
       1
     ]
   ],
-  "CONTACT_RETRY_PENDING": 137
+  "CONTACT_RETRY_PENDING": 0
 }
