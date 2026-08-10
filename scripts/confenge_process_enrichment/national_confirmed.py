@@ -49,6 +49,21 @@ def _utcnow() -> str:
     return datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
 
+def normalize_cnpj14(root: str, result: Any) -> str:
+    """Best-effort 14-digit CNPJ from harvest result contracts; else root stub."""
+    root = "".join(c for c in root if c.isdigit())[:8]
+    graph = getattr(result, "process_graph", None)
+    contracts = list(getattr(graph, "contracts", None) or [])
+    for c in contracts:
+        raw = getattr(c, "supplier_cnpj", None) or ""
+        digits = "".join(ch for ch in str(raw) if ch.isdigit())
+        if len(digits) >= 14 and digits[:8] == root:
+            return digits[:14]
+        if len(digits) == 8 and digits == root:
+            continue
+    return root + "000100"
+
+
 @dataclass
 class NationalHarvestConfig:
     output_dir: Path = field(default_factory=lambda: DEFAULT_OUT)
@@ -363,14 +378,15 @@ def run_national_process_harvest(
             if cfg.max_companies is not None and processed >= cfg.max_companies:
                 break
 
-            cnpj14 = root + "000100"  # synthetic branch stub for resolvers
-            # Prefer real 14 when available via company_key pattern cnpj_root:...
+            # Pass root-padded key; load_contracts_for_supplier matches by root8.
+            cnpj14 = root + "000100"
             try:
                 t0 = time.time()
                 result = enricher.enrich(
-                    account_cnpj=cnpj14,
+                    account_cnpj=root,  # root is enough for root-based contract lookup
                     razao_social=None,
                 )
+                cnpj14 = normalize_cnpj14(root, result)
             except Exception as exc:  # noqa: BLE001
                 logger.warning("harvest failed root=%s err=%s", root, exc)
                 st = classify_contact_terminal(

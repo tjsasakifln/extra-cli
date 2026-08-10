@@ -149,6 +149,118 @@ def extract_from_pdf_bytes(
     return TextExtractResult(text="", origin="none", page_count=pages, content_hash=h)
 
 
+def extract_from_docx_bytes(data: bytes, *, max_chars: int = 300_000) -> TextExtractResult:
+    """Extract text from OOXML .docx (ZIP) without external deps when possible."""
+    h = _sha256_bytes(data)
+    text = ""
+    try:
+        import zipfile
+        import io
+        from xml.etree import ElementTree as ET
+
+        with zipfile.ZipFile(io.BytesIO(data)) as zf:
+            # word/document.xml is the main body
+            names = zf.namelist()
+            target = "word/document.xml"
+            if target not in names:
+                # fallback: any document*.xml under word/
+                cands = [n for n in names if n.startswith("word/") and n.endswith(".xml")]
+                target = cands[0] if cands else ""
+            if target:
+                xml = zf.read(target)
+                root = ET.fromstring(xml)
+                # WordprocessingML text nodes
+                parts: list[str] = []
+                for el in root.iter():
+                    tag = el.tag.rsplit("}", 1)[-1]
+                    if tag == "t" and el.text:
+                        parts.append(el.text)
+                    elif tag in {"tab"}:
+                        parts.append("\t")
+                    elif tag in {"br", "cr"}:
+                        parts.append("\n")
+                text = re.sub(r"[ \t]+\n", "\n", " ".join(parts))
+                text = re.sub(r"\n{3,}", "\n\n", text).strip()
+    except Exception:
+        text = ""
+    if text:
+        trunc = len(text) > max_chars
+        return TextExtractResult(
+            text=text[:max_chars],
+            origin="office",
+            content_hash=h,
+            truncated=trunc,
+        )
+    return TextExtractResult(text="", origin="none", content_hash=h)
+
+
+def extract_from_zip_container(
+    data: bytes,
+    *,
+    max_chars: int = 300_000,
+    allow_ocr: bool = False,
+    ocr_cache: dict[str, str] | None = None,
+) -> TextExtractResult:
+    """PNCP often ships ZIP of PDFs/DOCX as a single 'arquivo'.
+
+    Recurse into members and concatenate extracted text (bounded).
+    """
+    h = _sha256_bytes(data)
+    try:
+        import zipfile
+        import io
+    except Exception:
+        return TextExtractResult(text="", origin="none", content_hash=h)
+
+    chunks: list[str] = []
+    total = 0
+    try:
+        with zipfile.ZipFile(io.BytesIO(data)) as zf:
+            for name in zf.namelist():
+                if name.endswith("/") or total >= max_chars:
+                    continue
+                lower = name.lower()
+                try:
+                    member = zf.read(name)
+                except Exception:
+                    continue
+                if not member:
+                    continue
+                if lower.endswith(".pdf") or member[:4] == b"%PDF":
+                    part = extract_from_pdf_bytes(
+                        member, max_chars=max_chars - total, allow_ocr=allow_ocr, ocr_cache=ocr_cache
+                    )
+                elif lower.endswith((".docx", ".docm")) or member[:2] == b"PK":
+                    # Nested zip/docx
+                    if lower.endswith((".docx", ".docm")):
+                        part = extract_from_docx_bytes(member, max_chars=max_chars - total)
+                    else:
+                        part = TextExtractResult(text="", origin="none")
+                elif lower.endswith((".html", ".htm", ".txt", ".csv")):
+                    try:
+                        part = extract_from_html(member.decode("utf-8", errors="replace"))
+                    except Exception:
+                        part = TextExtractResult(text="", origin="none")
+                else:
+                    continue
+                if part.text:
+                    chunks.append(part.text)
+                    total += len(part.text)
+    except Exception:
+        return TextExtractResult(text="", origin="none", content_hash=h)
+
+    text = "\n\n".join(chunks).strip()
+    if not text:
+        return TextExtractResult(text="", origin="none", content_hash=h)
+    trunc = len(text) > max_chars
+    return TextExtractResult(
+        text=text[:max_chars],
+        origin="zip_container",
+        content_hash=h,
+        truncated=trunc,
+    )
+
+
 def extract_text(
     *,
     structured_fields: dict[str, Any] | None = None,
@@ -177,6 +289,26 @@ def extract_text(
     if raw_bytes:
         mime_l = (mime or "").lower()
         name_l = (filename or "").lower()
+        # OOXML docx
+        if (
+            name_l.endswith((".docx", ".docm"))
+            or "wordprocessingml" in mime_l
+            or "officedocument.wordprocessingml" in mime_l
+        ):
+            docx = extract_from_docx_bytes(raw_bytes)
+            if docx.text:
+                return docx
+        # ZIP container (PNCP often packs PDFs inside a single archive)
+        if raw_bytes[:2] == b"PK" or name_l.endswith(".zip") or "zip" in mime_l:
+            # Try docx first, then generic zip-of-docs
+            docx = extract_from_docx_bytes(raw_bytes)
+            if docx.text:
+                return docx
+            zipped = extract_from_zip_container(
+                raw_bytes, allow_ocr=allow_ocr, ocr_cache=ocr_cache
+            )
+            if zipped.text:
+                return zipped
         if "pdf" in mime_l or name_l.endswith(".pdf") or raw_bytes[:4] == b"%PDF":
             return extract_from_pdf_bytes(raw_bytes, allow_ocr=allow_ocr, ocr_cache=ocr_cache)
         if "html" in mime_l or name_l.endswith((".html", ".htm")):
@@ -187,7 +319,7 @@ def extract_text(
         # plain text fallback
         try:
             text = raw_bytes.decode("utf-8", errors="replace")
-            if text.strip():
+            if text.strip() and not text.startswith("PK"):
                 return TextExtractResult(
                     text=text[:300_000],
                     origin="office" if "off" in mime_l or name_l.endswith((".docx", ".odt")) else "html",

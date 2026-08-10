@@ -227,32 +227,70 @@ def load_contracts_for_supplier(
         except ImportError:
             return []
 
+    root8 = cnpj[:8]
+    # Prefer root match (CNPJ matrix/filial) — synthetic branch stubs must not miss contracts.
+    # Host schema (ec-prod): fornecedor_cnpj_8, valor_total, contrato_id, source_id, is_active…
     sql_candidates = [
-        """
-        SELECT ni_fornecedor AS fornecedor_cnpj, nome_fornecedor,
-               orgao_cnpj, orgao_nome, uf, municipio,
-               valor_global, data_assinatura, objeto_contrato,
-               numero_controle_pncp, processo, numero_processo,
-               ano_contrato, sequencial_contrato, numero_contrato_empenho,
-               data_vigencia_fim
-        FROM pncp_supplier_contracts
-        WHERE regexp_replace(ni_fornecedor, '\\D', '', 'g') = %s
-          AND COALESCE(is_active, true) = true
-        ORDER BY data_assinatura DESC NULLS LAST
-        LIMIT %s
-        """,
-        """
-        SELECT fornecedor_cnpj, orgao_cnpj, orgao_razao_social AS orgao_nome,
-               unidade_uf AS uf, unidade_municipio AS municipio,
-               valor_global, data_assinatura, informacao_complementar AS objeto_contrato,
-               numero_controle_pncp_compra AS numero_controle_pncp, processo,
-               ano_contrato, sequencial_contrato, numero_contrato_empenho,
-               data_vigencia_fim
-        FROM supplier_contracts
-        WHERE regexp_replace(fornecedor_cnpj, '\\D', '', 'g') = %s
-        ORDER BY data_assinatura DESC NULLS LAST
-        LIMIT %s
-        """,
+        (
+            """
+            SELECT fornecedor_cnpj, fornecedor_nome AS nome_fornecedor,
+                   orgao_cnpj, orgao_nome, uf, municipio,
+                   valor_total AS valor_global, data_assinatura, objeto_contrato,
+                   contrato_id, source_id AS numero_controle_pncp,
+                   source_id AS numero_controle_pncp_compra,
+                   data_fim AS data_vigencia_fim, fornecedor_cnpj_8, is_active
+            FROM pncp_supplier_contracts
+            WHERE fornecedor_cnpj_8 = %s
+              AND COALESCE(is_active, true) = true
+            ORDER BY data_assinatura DESC NULLS LAST
+            LIMIT %s
+            """,
+            (root8, limit),
+        ),
+        (
+            """
+            SELECT fornecedor_cnpj, fornecedor_nome AS nome_fornecedor,
+                   orgao_cnpj, orgao_nome, uf, municipio,
+                   valor_total AS valor_global, data_assinatura, objeto_contrato,
+                   contrato_id, source_id AS numero_controle_pncp,
+                   data_fim AS data_vigencia_fim, fornecedor_cnpj_8
+            FROM pncp_supplier_contracts
+            WHERE fornecedor_cnpj_8 = %s
+            ORDER BY data_assinatura DESC NULLS LAST
+            LIMIT %s
+            """,
+            (root8, limit),
+        ),
+        (
+            """
+            SELECT fornecedor_cnpj, orgao_cnpj, orgao_razao_social AS orgao_nome,
+                   unidade_uf AS uf, unidade_municipio AS municipio,
+                   valor_global, data_assinatura, informacao_complementar AS objeto_contrato,
+                   numero_controle_pncp_compra AS numero_controle_pncp, processo,
+                   ano_contrato, sequencial_contrato, numero_contrato_empenho,
+                   data_vigencia_fim
+            FROM supplier_contracts
+            WHERE left(regexp_replace(fornecedor_cnpj, '\\D', '', 'g'), 8) = %s
+            ORDER BY data_assinatura DESC NULLS LAST
+            LIMIT %s
+            """,
+            (root8, limit),
+        ),
+        (
+            """
+            SELECT ni_fornecedor AS fornecedor_cnpj, nome_fornecedor,
+                   orgao_cnpj, orgao_nome, uf, municipio,
+                   valor_global, data_assinatura, objeto_contrato,
+                   numero_controle_pncp, processo, numero_processo,
+                   ano_contrato, sequencial_contrato, numero_contrato_empenho,
+                   data_vigencia_fim
+            FROM pncp_supplier_contracts
+            WHERE regexp_replace(COALESCE(ni_fornecedor, fornecedor_cnpj, ''), '\\D', '', 'g') = %s
+            ORDER BY data_assinatura DESC NULLS LAST
+            LIMIT %s
+            """,
+            (cnpj, limit),
+        ),
     ]
     try:
         conn = psycopg.connect(dsn)  # type: ignore[attr-defined]
@@ -260,9 +298,9 @@ def load_contracts_for_supplier(
         return []
     try:
         with conn.cursor() as cur:
-            for sql in sql_candidates:
+            for sql, params in sql_candidates:
                 try:
-                    cur.execute(sql, (cnpj, limit))
+                    cur.execute(sql, params)
                     cols = [d[0] for d in cur.description] if cur.description else []
                     rows = [dict(zip(cols, r, strict=False)) for r in (cur.fetchall() or [])]
                     if rows:
