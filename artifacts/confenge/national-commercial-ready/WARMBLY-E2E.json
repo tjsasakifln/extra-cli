@@ -1,6 +1,19 @@
 {
+  "schema": "confenge.warmbly_e2e.v1",
+  "PASS": false,
   "email_only": true,
   "whatsapp_enabled": false,
-  "emails_per_hour": 10,
-  "auto_send_enabled": false
+  "auto_send_enabled": false,
+  "governor_10h": true,
+  "business_hours": "09:00-18:00",
+  "note": "No-send validation required on host after deploy; commercial send blocked.",
+  "checks": {
+    "reservoir_feed_import": "PENDING",
+    "incremental_sync": "PENDING",
+    "idempotent_import": "PENDING",
+    "no_duplicates": "PENDING",
+    "dnc_preserved": "PENDING",
+    "kill_switch": "PENDING",
+    "smtp_imap_reply_stop": "PENDING"
+  }
 }

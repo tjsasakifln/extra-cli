@@ -1,8 +1,13 @@
 {
+  "as_of": "2026-08-10T15:40:17Z",
   "TARGET_CONFIRMED_total": 8382,
-  "process_harvest_accounts": 298,
-  "process_esr_proxy": 8,
-  "historical_esr": 60,
-  "network_enrichment_running": true,
-  "process_harvest_running": true
+  "terminals": {
+    "CONTACT_FOUND_NOT_SENDABLE": 519,
+    "CONTACT_EXHAUSTED": 7462,
+    "CONTACT_READY": 178,
+    "CONTACT_RETRY_PENDING": 223
+  },
+  "contact_complete": false,
+  "email_roots_upper_bound": 223,
+  "EMAIL_SEND_READY": 72
 }

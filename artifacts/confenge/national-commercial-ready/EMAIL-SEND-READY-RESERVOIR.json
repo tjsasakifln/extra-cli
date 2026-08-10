@@ -1,11 +1,23 @@
 {
-  "as_of": "2026-08-10T12:42:52Z",
-  "EMAIL_SEND_READY_DISTINCT_COMPANIES": 60,
+  "as_of": "2026-08-10T15:40:17Z",
+  "EMAIL_SEND_READY_DISTINCT_COMPANIES": 72,
+  "email_roots_upper_bound": 223,
+  "funnel": {
+    "TOTAL_CONTACT_CANDIDATES": 315,
+    "DISTINCT_COMPANIES_WITH_EMAIL": 223,
+    "COMPANY_OWNED": 83,
+    "IDENTITY_SAFE": 83,
+    "MAILBOX_ALLOWED": 220,
+    "PROVENANCE_VALID": 72,
+    "SERVICE_FIT_VALID": 223,
+    "COPY_CONTEXT_VALID": 72,
+    "EMAIL_SEND_READY_DISTINCT_COMPANIES": 72
+  },
   "capacity": {
     "schema": "confenge.operational_capacity_metrics.v1",
     "PILOT_ACCEPTANCE_SAMPLE": 50,
-    "NATIONAL_EMAIL_SEND_READY_RESERVOIR": 60,
-    "ACTIVE_HOT_SET": 10,
+    "NATIONAL_EMAIL_SEND_READY_RESERVOIR": 72,
+    "ACTIVE_HOT_SET": 50,
     "MIN_OPERATIONAL_RESERVE": 900,
     "operational_reserve_days": 10,
     "emails_per_hour": 10.0,
@@ -13,7 +25,7 @@
     "reserve_gate_ok": false,
     "hot_set_le_reservoir": true,
     "pilot_is_not_capacity": true,
-    "note": "50 is PILOT_ACCEPTANCE_SAMPLE (quality only). Reservoir=60, hot_set=10, min_reserve=900.",
+    "note": "50 is PILOT_ACCEPTANCE_SAMPLE (quality only). Reservoir=72, hot_set=50, min_reserve=900.",
     "warmbly": {
       "email_only": true,
       "whatsapp_enabled": false,
@@ -22,5 +34,109 @@
       "send_window_start": "09:00",
       "send_window_end": "18:00"
     }
-  }
+  },
+  "gap_vs_reserve": 828,
+  "MIN_OPERATIONAL_RESERVE": 900,
+  "NATIONAL_COMMERCIAL_RESERVOIR_HEALTHY": false,
+  "PILOT_READY_CANDIDATE": true,
+  "service_distribution": {
+    "diagnostico_contratual_b2g": 108,
+    "auditoria_orcamento_bdi": 33,
+    "apoio_licitacoes_propostas": 32,
+    "estruturacao_pleito_reajuste": 25,
+    "reforco_temporario_backoffice": 16,
+    "gestao_monitoramento_contratual": 8,
+    "aditivos_extracontratuais": 1
+  },
+  "not_ready_top": [
+    [
+      "service_fit_supported",
+      285
+    ],
+    [
+      "ownership_identity_domain_mismatch",
+      203
+    ],
+    [
+      "sticky_ownership_insufficient_for_identity",
+      203
+    ],
+    [
+      "ownership:LIKELY_COMPANY_OWNED",
+      195
+    ],
+    [
+      "service_code:diagnostico_contratual_b2g",
+      137
+    ],
+    [
+      "all_gates_pass",
+      72
+    ],
+    [
+      "provenance_trust:REAL_OBSERVED",
+      72
+    ],
+    [
+      "service_code:apoio_licitacoes_propostas",
+      45
+    ],
+    [
+      "service_code:auditoria_orcamento_bdi",
+      40
+    ],
+    [
+      "service_code:estruturacao_pleito_reajuste",
+      34
+    ],
+    [
+      "copy_context_not_ready",
+      25
+    ],
+    [
+      "copy_context_incomplete",
+      25
+    ],
+    [
+      "missing:message_spine_incomplete",
+      25
+    ],
+    [
+      "missing:why_now",
+      23
+    ],
+    [
+      "service_code:reforco_temporario_backoffice",
+      18
+    ],
+    [
+      "service_code:gestao_monitoramento_contratual",
+      10
+    ],
+    [
+      "ownership:THIRD_PARTY_SERVICE_PROVIDER",
+      5
+    ],
+    [
+      "mailbox_purpose_blocked:SUPPORT_SAC",
+      5
+    ],
+    [
+      "mailbox_purpose_blocked:PRESS",
+      2
+    ],
+    [
+      "domain_aligned_with_company",
+      1
+    ],
+    [
+      "service_code:aditivos_extracontratuais",
+      1
+    ],
+    [
+      "mailbox_purpose_blocked:PRIVACY_DPO",
+      1
+    ]
+  ],
+  "note": "Strict ESR via build_dossier + evaluate_email_send_ready; email observed is upper bound only, never ESR proxy."
 }

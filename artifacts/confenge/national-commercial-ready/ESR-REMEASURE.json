@@ -1,0 +1,590 @@
+{
+  "schema": "confenge.strict_national_esr.v1",
+  "as_of": "2026-08-10T15:37:53Z",
+  "harvest_dir": "artifacts/confenge/process-first-national-confirmed",
+  "TARGET_CONFIRMED": 8382,
+  "process_terminals": 8382,
+  "process_terminal_counts": {
+    "CONTACT_FOUND_NOT_SENDABLE": 519,
+    "CONTACT_EXHAUSTED": 7462,
+    "CONTACT_READY": 178,
+    "CONTACT_RETRY_PENDING": 223
+  },
+  "funnel": {
+    "TOTAL_CONTACT_CANDIDATES": 315,
+    "DISTINCT_COMPANIES_WITH_EMAIL": 223,
+    "COMPANY_OWNED": 83,
+    "IDENTITY_SAFE": 83,
+    "MAILBOX_ALLOWED": 220,
+    "PROVENANCE_VALID": 72,
+    "SERVICE_FIT_VALID": 223,
+    "COPY_CONTEXT_VALID": 72,
+    "EMAIL_SEND_READY_DISTINCT_COMPANIES": 72
+  },
+  "EMAIL_SEND_READY_DISTINCT_COMPANIES": 72,
+  "email_roots_upper_bound": 223,
+  "MIN_OPERATIONAL_RESERVE": 900,
+  "gap_vs_reserve": 828,
+  "reserve_gate_ok": false,
+  "capacity": {
+    "schema": "confenge.operational_capacity_metrics.v1",
+    "PILOT_ACCEPTANCE_SAMPLE": 50,
+    "NATIONAL_EMAIL_SEND_READY_RESERVOIR": 72,
+    "ACTIVE_HOT_SET": 50,
+    "MIN_OPERATIONAL_RESERVE": 900,
+    "operational_reserve_days": 10,
+    "emails_per_hour": 10.0,
+    "business_hours_per_day": 9.0,
+    "reserve_gate_ok": false,
+    "hot_set_le_reservoir": true,
+    "pilot_is_not_capacity": true,
+    "note": "50 is PILOT_ACCEPTANCE_SAMPLE (quality only). Reservoir=72, hot_set=50, min_reserve=900.",
+    "warmbly": {
+      "email_only": true,
+      "whatsapp_enabled": false,
+      "auto_send_enabled": false,
+      "sending_paused": false,
+      "send_window_start": "09:00",
+      "send_window_end": "18:00"
+    }
+  },
+  "service_distribution": {
+    "diagnostico_contratual_b2g": 108,
+    "auditoria_orcamento_bdi": 33,
+    "apoio_licitacoes_propostas": 32,
+    "estruturacao_pleito_reajuste": 25,
+    "reforco_temporario_backoffice": 16,
+    "gestao_monitoramento_contratual": 8,
+    "aditivos_extracontratuais": 1
+  },
+  "not_ready_top": [
+    [
+      "service_fit_supported",
+      285
+    ],
+    [
+      "ownership_identity_domain_mismatch",
+      203
+    ],
+    [
+      "sticky_ownership_insufficient_for_identity",
+      203
+    ],
+    [
+      "ownership:LIKELY_COMPANY_OWNED",
+      195
+    ],
+    [
+      "service_code:diagnostico_contratual_b2g",
+      137
+    ],
+    [
+      "all_gates_pass",
+      72
+    ],
+    [
+      "provenance_trust:REAL_OBSERVED",
+      72
+    ],
+    [
+      "service_code:apoio_licitacoes_propostas",
+      45
+    ],
+    [
+      "service_code:auditoria_orcamento_bdi",
+      40
+    ],
+    [
+      "service_code:estruturacao_pleito_reajuste",
+      34
+    ],
+    [
+      "copy_context_not_ready",
+      25
+    ],
+    [
+      "copy_context_incomplete",
+      25
+    ],
+    [
+      "missing:message_spine_incomplete",
+      25
+    ],
+    [
+      "missing:why_now",
+      23
+    ],
+    [
+      "service_code:reforco_temporario_backoffice",
+      18
+    ],
+    [
+      "service_code:gestao_monitoramento_contratual",
+      10
+    ],
+    [
+      "ownership:THIRD_PARTY_SERVICE_PROVIDER",
+      5
+    ],
+    [
+      "mailbox_purpose_blocked:SUPPORT_SAC",
+      5
+    ],
+    [
+      "mailbox_purpose_blocked:PRESS",
+      2
+    ],
+    [
+      "domain_aligned_with_company",
+      1
+    ],
+    [
+      "service_code:aditivos_extracontratuais",
+      1
+    ],
+    [
+      "mailbox_purpose_blocked:PRIVACY_DPO",
+      1
+    ]
+  ],
+  "esr_rows": [
+    {
+      "cnpj_raiz": "01324865",
+      "razao_social": "VANIZ J G LO ME",
+      "email": "riollielima@hotmail.com",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "UNKNOWN",
+      "mailbox_send_blocked": false,
+      "service_code": "auditoria_orcamento_bdi",
+      "why_this_account": "VANIZ J G LO ME aparece com execução contratual pública em mais de uma UF (RS, SC). Âncora pública: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA FORNECIMENTO DE MATERIAIS, MÃO DE OBRA E DEMAIS OBRIGAÇÕES NECESSÁRIAS PARA A….",
+      "why_now": "Contrato com término previsto em 2026-09-25; órgão PREFEITURA MUNICIPAL DE TRÊS PASSOS; objeto: 1.1\tContratação de empresa do ramo pertinente para execução de: A\tLote I: Iluminação Praça do Distri (horizonte ~46 dias) — janela temporal verificável.",
+      "observed_fact": "objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA PARA FORNECIMENTO DE MATERIAIS, MÃO DE OBRA E DEMAIS OBRIGAÇÕES NECESSÁRIAS PARA A EXECUÇÃO DA OBRA DE CONSTRUÇÃO DE 10 UNIDADES HABITACIONAIS,; órgão: Fundo Rotativo Habitacional; UF SC; R$ 1,597,006",
+      "micro_offer": "DOCUMENT_CHECKLIST",
+      "cta": "Envio escopo de auditoria focal (composições + BDI) para um contrato-alvo.",
+      "source_type": "public_process_document",
+      "source_url": null,
+      "n_contracts": 2,
+      "email_send_ready": true,
+      "reasons": [
+        "service_code:auditoria_orcamento_bdi",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_OBSERVED"
+      ],
+      "supporting_signal_ids": [
+        "budget_bdi"
+      ]
+    },
+    {
+      "cnpj_raiz": "01608331",
+      "razao_social": "TEBECON CONSTRUTORA LTDA",
+      "email": "licitacao.rotocycle@gmail.com",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "LICITACOES",
+      "mailbox_send_blocked": false,
+      "service_code": "apoio_licitacoes_propostas",
+      "why_this_account": "No caso de TEBECON CONSTRUTORA LTDA, o encaixe parte de um fato concreto de execução contratual pública: CONTRATAÇÃO DE EMPRESA PARA PRESTAÇÃO DE SERVIÇOS TÉCNICOS DE ENGENHARIA ESPECIALIZADOS PARA EXECUÇÃO DE INFRAESTRUTURA…. Sem generalizar portfólio além do que está no input.",
+      "why_now": "Contrato com término previsto em 2026-09-28; órgão PREFEITURA DO MUNICÍPIO DE BERTIOGA; objeto: CONTRATAÇÃO DE EMPRESA PARA PRESTAÇÃO DE SERVIÇOS TÉCNICOS DE ENGENHARIA ESPECIALIZADOS PARA EXECUÇÃ (horizonte ~49 dias) — janela temporal verificável.",
+      "observed_fact": "objeto: CONTRATAÇÃO DE EMPRESA PARA PRESTAÇÃO DE SERVIÇOS TÉCNICOS DE ENGENHARIA ESPECIALIZADOS PARA EXECUÇÃO DE INFRAESTRUTURA URBANA NA AVENIDA BRUNO COVAS - BAIRRO CHACARA VISTA LINDA, ; órgão: PREFEITURA DO MUNICÍPIO DE BERTIOGA; UF SP; R$ 145,000",
+      "micro_offer": "PROCUREMENT_RISK_SNAPSHOT",
+      "cta": "Posso ajudar a varrer um edital em janela e devolver riscos técnicos de proposta em formato curto.",
+      "source_type": "public_process_document",
+      "source_url": "https://pncp.gov.br/pncp-api/v1/orgaos/68020916000147/compras/2026/35/arquivos/3",
+      "n_contracts": 2,
+      "email_send_ready": true,
+      "reasons": [
+        "service_code:apoio_licitacoes_propostas",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_OBSERVED"
+      ],
+      "supporting_signal_ids": [
+        "tender_proposal"
+      ]
+    },
+    {
+      "cnpj_raiz": "04213084",
+      "razao_social": "CONSTRUTORA LATERAL DE OBRAS LTDA.",
+      "email": "jaime.jasdistribuidora@gmail.com",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "UNKNOWN",
+      "mailbox_send_blocked": false,
+      "service_code": "auditoria_orcamento_bdi",
+      "why_this_account": "CONSTRUTORA LATERAL DE OBRAS LTDA. aparece com pavimentação/vias em mais de uma UF (PR, SC). Âncora pública: Contratação de uma empresa de engenharia para a pavimentação de Vias Urbanas em CBUQ no Bairro Jardim Dona Hermínia jun….",
+      "why_now": "Publicação/marco recente no PNCP: publicação em 2026-05-12; órgão MUNICIPIO DE SAO MATEUS DO SUL; objeto: Contratação de uma empresa de engenharia para a pavimentação de Vias Urbanas em CBUQ no Bairro Jardi.",
+      "observed_fact": "objeto: Contratação de uma empresa de engenharia para a pavimentação de Vias Urbanas em CBUQ no Bairro Jardim Dona Hermínia; órgão: MUNICIPIO DE SAO MATEUS DO SUL; UF PR; R$ 1,704,156",
+      "micro_offer": "DOCUMENT_CHECKLIST",
+      "cta": "Envio escopo de auditoria focal (composições + BDI) para um contrato-alvo.",
+      "source_type": "public_process_document",
+      "source_url": null,
+      "n_contracts": 2,
+      "email_send_ready": true,
+      "reasons": [
+        "service_code:auditoria_orcamento_bdi",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_OBSERVED"
+      ],
+      "supporting_signal_ids": [
+        "budget_bdi"
+      ]
+    },
+    {
+      "cnpj_raiz": "08594071",
+      "razao_social": "ENGELEC - ENGENHARIA ELÉTRICA E CIVIL LTDA",
+      "email": "topografiadooeste@gmail.com",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "UNKNOWN",
+      "mailbox_send_blocked": false,
+      "service_code": "apoio_licitacoes_propostas",
+      "why_this_account": "ENGELEC - ENGENHARIA ELÉTRICA E CIVIL LTDA — execução contratual pública cruzando UFs (MS, PR). Fato: Contratação de empresa especializada para a Execução da Conclusão do Bloco S05/CCO/CME com área total útil de 2.261,74….",
+      "why_now": "Contrato com término previsto em 2026-11-11; órgão UEM - Universidade Estadual de Maringá; objeto: Contratação de empresa especializada para a Execução da Conclusão do Bloco S05/CCO/CME com área tota (horizonte ~93 dias) — janela temporal verificável.",
+      "observed_fact": "objeto: Contratação de empresa especializada para a Execução da Conclusão do Bloco S05/CCO/CME com área total útil de 2.261,74 m2 e área total a ser construída de 4.216,49 m2. Faz parte da; órgão: UEM - Universidade Estadual de Maringá; UF PR; R$ 12,500,000",
+      "micro_offer": "PROCUREMENT_RISK_SNAPSHOT",
+      "cta": "Disponibilizo apoio de pico em análise de edital/proposta sob NDA.",
+      "source_type": "public_process_document",
+      "source_url": null,
+      "n_contracts": 2,
+      "email_send_ready": true,
+      "reasons": [
+        "service_code:apoio_licitacoes_propostas",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_OBSERVED"
+      ],
+      "supporting_signal_ids": [
+        "tender_proposal"
+      ]
+    },
+    {
+      "cnpj_raiz": "08661713",
+      "razao_social": "VM VELOSO CERQUEIRA LTDA",
+      "email": "muciomallan21@gmail.com",
+      "ownership_status": "COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "UNKNOWN",
+      "mailbox_send_blocked": false,
+      "service_code": "diagnostico_contratual_b2g",
+      "why_this_account": "VM VELOSO CERQUEIRA LTDA — foco no fato de execução contratual pública disponível no input: Contrato, a execução da obra de construção de 430 (quatrocentos e trinta) cisternas de placas, com capacidade mínima de….",
+      "why_now": "Há um marco datado e recente na carteira pública: publicação em 2026-07-28; órgão EPI - SECRETARIA DE AGRICULTURA FAMILIAR; objeto: Contrato, a execução da obra de construção de 430 (quatrocentos e trinta) cisternas de placas, com c.",
+      "observed_fact": "objeto: Contrato, a execução da obra de construção de 430 (quatrocentos e trinta) cisternas de placas, com capacidade mínima de 16.000 litros cada, incluindo fornecimento de materiais, mão; órgão: EPI - SECRETARIA DE AGRICULTURA FAMILIAR; UF PI; R$ 6,765,634",
+      "micro_offer": "DIAGNOSTIC_CHECKLIST",
+      "cta": "Se preferir, começamos por uma conversa de 15 minutos só para validar se há encaixe real.",
+      "source_type": "public_process_document",
+      "source_url": null,
+      "n_contracts": 2,
+      "email_send_ready": true,
+      "reasons": [
+        "service_code:diagnostico_contratual_b2g",
+        "service_fit_supported",
+        "all_gates_pass",
+        "provenance_trust:REAL_OBSERVED"
+      ],
+      "supporting_signal_ids": [
+        "fallback"
+      ]
+    }
+  ],
+  "not_ready_sample": [
+    {
+      "cnpj_raiz": "00220982",
+      "razao_social": "MATT CONTRUTORA LTDA",
+      "email": "contato@cfextintores.com.br",
+      "ownership_status": "LIKELY_COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "GENERIC_CONTACT",
+      "mailbox_send_blocked": false,
+      "service_code": "gestao_monitoramento_contratual",
+      "why_this_account": "A carteira pública de MATT CONTRUTORA LTDA distribui execução contratual pública entre 8 órgãos distintos — o custo de priorizar o contrato errado sobe quando medições e marcos não compartilham a mesma fiscalização. Fato-base: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA, SOB REGIME DE EMPREITADA GLOBAL, COMPREENDENDO O FORNECIMENTO DE MATERIAL E MÃO-D….",
+      "why_now": "Contrato com término previsto em 2027-01-31; órgão PREFEITURA MUNICIPAL DE CAMARGO - RS; objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA, SOB REGIME DE EMPREITADA GLOBAL, COMPREENDENDO O FORNECIMENTO  (horizonte ~174 dias) — janela temporal verificável.",
+      "observed_fact": "objeto: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA, SOB REGIME DE EMPREITADA GLOBAL, COMPREENDENDO O FORNECIMENTO DE MATERIAL E MÃO-DE-OBRA PARA RECAPEAMENTO DA AVENIDA HONORATO ZILLI, TRECHO EN; órgão: PREFEITURA MUNICIPAL DE CAMARGO - RS; UF RS; R$ 794,326",
+      "micro_offer": "PUBLIC_DATA_SNAPSHOT",
+      "cta": "Se fizer sentido, monto um recorte enxuto só dos contratos com marcos nos próximos 90 dias.",
+      "source_type": "public_process_document",
+      "source_url": "https://pncp.gov.br/pncp-api/v1/orgaos/88349238000178/compras/2026/130/arquivos/2",
+      "n_contracts": 8,
+      "email_send_ready": false,
+      "reasons": [
+        "ownership:LIKELY_COMPANY_OWNED",
+        "ownership_identity_domain_mismatch",
+        "sticky_ownership_insufficient_for_identity",
+        "service_code:gestao_monitoramento_contratual",
+        "service_fit_supported"
+      ],
+      "supporting_signal_ids": [
+        "multi_contract",
+        "multi_orgao"
+      ]
+    },
+    {
+      "cnpj_raiz": "00237518",
+      "razao_social": "CONSTRUTORA CAIAPÓ LTDA.",
+      "email": "wireconex@wireconex.com",
+      "ownership_status": "LIKELY_COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "UNKNOWN",
+      "mailbox_send_blocked": false,
+      "service_code": "apoio_licitacoes_propostas",
+      "why_this_account": "O que chama atenção em CONSTRUTORA CAIAPÓ LTDA. não é um edital isolado: são 8 frentes recentes em geografia e órgãos distintos (execução contratual pública). Fato utilizável: EXECUÇÃO DOS SERVIÇOS DE RESTAURAÇÃO - LOTE 03 - RODOVIA GO-178, TRECHO: CAÇU/ITARUMÃ/ITAJÁ, COM EXTENSÃO DE 85,05KM, N….",
+      "why_now": "Há um marco datado e recente na carteira pública: publicação em 2026-07-07; órgão AGENCIA GOIANA DE INFRAEST.E TRANSPORTES/GO; objeto: EXECUÇÃO DOS SERVIÇOS DE RESTAURAÇÃO - LOTE 03 - RODOVIA GO-178, TRECHO: CAÇU/ITARUMÃ/ITAJÁ, COM EXT.",
+      "observed_fact": "objeto: EXECUÇÃO DOS SERVIÇOS DE RESTAURAÇÃO - LOTE 03 - RODOVIA GO-178, TRECHO: CAÇU/ITARUMÃ/ITAJÁ, COM EXTENSÃO DE 85,05KM, NESTE ESTADO.; órgão: AGENCIA GOIANA DE INFRAEST.E TRANSPORTES/GO; UF GO; R$ 185,955,000",
+      "micro_offer": "PROCUREMENT_RISK_SNAPSHOT",
+      "cta": "Disponibilizo apoio de pico em análise de edital/proposta sob NDA.",
+      "source_type": "public_process_document",
+      "source_url": null,
+      "n_contracts": 8,
+      "email_send_ready": false,
+      "reasons": [
+        "ownership:LIKELY_COMPANY_OWNED",
+        "ownership_identity_domain_mismatch",
+        "sticky_ownership_insufficient_for_identity",
+        "service_code:apoio_licitacoes_propostas",
+        "service_fit_supported"
+      ],
+      "supporting_signal_ids": [
+        "tender_proposal"
+      ]
+    },
+    {
+      "cnpj_raiz": "00894402",
+      "razao_social": "CONSTRUÇÕES E ADMINISTRAÇÃO DE OBRAS LTDA",
+      "email": "techne@techne.net.br",
+      "ownership_status": "LIKELY_COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "UNKNOWN",
+      "mailbox_send_blocked": false,
+      "service_code": "reforco_temporario_backoffice",
+      "why_this_account": "CONSTRUÇÕES E ADMINISTRAÇÃO DE OBRAS LTDA opera execução contratual pública sob múltiplos órgãos (2). Sem assumir dor interna: o ângulo é só a coordenação pública observável. Marco: Execução de obras de arte correntes em 7 (sete) Municípios do estado de Goiás: Adelândia, Anicuns, Buriti de Goiás, Cór….",
+      "why_now": "Contrato com término previsto em 2026-12-23; órgão AGENCIA GOIANA DE INFRAEST.E TRANSPORTES/GO; objeto: Execução de estruturas de obras de arte corrente (OAC) a serem implantadas em substituição de pontes (horizonte ~135 dias) — janela temporal verificável.",
+      "observed_fact": "objeto: Execução de obras de arte correntes em 7 (sete) Municípios do estado de Goiás: Adelândia, Anicuns, Buriti de Goiás, Córrego do Ouro, Moiporá, Novo Brasil e São João da Paraúna.; órgão: AGENCIA GOIANA DE INFRAEST.E TRANSPORTES/GO; UF GO; R$ 13,406,052",
+      "micro_offer": "BACKOFFICE_SCOPE_CHECK",
+      "cta": "Se a carga apertar, monto um escopo de sprint de apoio (medições/aditivos/propostas) com entregáveis claros.",
+      "source_type": "public_process_document",
+      "source_url": null,
+      "n_contracts": 3,
+      "email_send_ready": false,
+      "reasons": [
+        "ownership:LIKELY_COMPANY_OWNED",
+        "ownership_identity_domain_mismatch",
+        "sticky_ownership_insufficient_for_identity",
+        "service_code:reforco_temporario_backoffice",
+        "service_fit_supported"
+      ],
+      "supporting_signal_ids": [
+        "structure_lean",
+        "multi_contract"
+      ]
+    },
+    {
+      "cnpj_raiz": "01278335",
+      "razao_social": "MARSOU ENGENHARIA LTDA.",
+      "email": "lucaslouza@engelouza.com.br",
+      "ownership_status": "LIKELY_COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "UNKNOWN",
+      "mailbox_send_blocked": false,
+      "service_code": "apoio_licitacoes_propostas",
+      "why_this_account": "MARSOU ENGENHARIA LTDA. concentra 8 frentes públicas recentes em 5 UFs e 8 órgãos, com ênfase em edificação/reforma. Âncora: CONTRATAÇÃO DE EMPRESA OU CONSÓRCIO ESPECIALIZADO PARA EXECUÇÃO DA OBRA DE RESTAURAÇÃO DA EDIFICAÇÃO DA SEDE DA SUPERIN….",
+      "why_now": "Evento contratual público recente: publicação em 2026-07-27; órgão SUPERINTENDENCIA DO IPHAN NO MATO GROSSO/MT; objeto: CONTRATAÇÃO DE EMPRESA OU CONSÓRCIO ESPECIALIZADO PARA EXECUÇÃO DA OBRA DE RESTAURAÇÃO DA EDIFICAÇÃO.",
+      "observed_fact": "objeto: CONTRATAÇÃO DE EMPRESA OU CONSÓRCIO ESPECIALIZADO PARA EXECUÇÃO DA OBRA DE RESTAURAÇÃO DA EDIFICAÇÃO DA SEDE DA SUPERINTENDÊNCIA DO IPHAN-MT, LOCALIZADA À RUA SETE DE SETEMBRO, Nº ; órgão: SUPERINTENDENCIA DO IPHAN NO MATO GROSSO/MT; UF MT; R$ 1,484,999",
+      "micro_offer": "PROCUREMENT_RISK_SNAPSHOT",
+      "cta": "Disponibilizo apoio de pico em análise de edital/proposta sob NDA.",
+      "source_type": "public_process_document",
+      "source_url": null,
+      "n_contracts": 8,
+      "email_send_ready": false,
+      "reasons": [
+        "ownership:LIKELY_COMPANY_OWNED",
+        "ownership_identity_domain_mismatch",
+        "sticky_ownership_insufficient_for_identity",
+        "service_code:apoio_licitacoes_propostas",
+        "service_fit_supported"
+      ],
+      "supporting_signal_ids": [
+        "tender_proposal"
+      ]
+    },
+    {
+      "cnpj_raiz": "01378407",
+      "razao_social": "ALIANÇA DO BRASIL SEGUROS SA",
+      "email": "leonardo@albanimatte.com",
+      "ownership_status": "LIKELY_COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "UNKNOWN",
+      "mailbox_send_blocked": false,
+      "service_code": "diagnostico_contratual_b2g",
+      "why_this_account": "Há presença multi-UF de execução contratual pública em ALIANÇA DO BRASIL SEGUROS SA (RS, SP). Ponto concreto: Prestação de serviços em seguros para cobertura de riscos prediais (bens imóveis e benfeitorias) para proteção contra i….",
+      "why_now": "Há um marco datado e recente na carteira pública: publicação em 2026-07-31; órgão MUNICIPIO DE ENCANTADO; objeto: Prestação de serviços em seguros para cobertura de riscos prediais (bens imóveis e benfeitorias) par.",
+      "observed_fact": "objeto: Prestação de serviços em seguros para cobertura de riscos prediais (bens imóveis e benfeitorias) para proteção contra incêndio, queda de raio, explosão, vendaval, danos elétricos e; órgão: MUNICIPIO DE ENCANTADO; UF RS; R$ 10,601",
+      "micro_offer": "DIAGNOSTIC_CHECKLIST",
+      "cta": "Se preferir, começamos por uma conversa de 15 minutos só para validar se há encaixe real.",
+      "source_type": "public_process_document",
+      "source_url": null,
+      "n_contracts": 2,
+      "email_send_ready": false,
+      "reasons": [
+        "ownership:LIKELY_COMPANY_OWNED",
+        "ownership_identity_domain_mismatch",
+        "sticky_ownership_insufficient_for_identity",
+        "service_code:diagnostico_contratual_b2g",
+        "service_fit_supported"
+      ],
+      "supporting_signal_ids": [
+        "fallback"
+      ]
+    },
+    {
+      "cnpj_raiz": "01797907",
+      "razao_social": "SOM & ARTE PRODUÇÕES LTDA - ME.",
+      "email": "contato@tmac.com.br",
+      "ownership_status": "LIKELY_COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "GENERIC_CONTACT",
+      "mailbox_send_blocked": false,
+      "service_code": "diagnostico_contratual_b2g",
+      "why_this_account": "Para SOM & ARTE PRODUÇÕES LTDA - ME., o gancho é específico em execução contratual pública: Contratação de apresentação musical do GRUPO CANTO DA TERRA, com acompanhamento de produção técnica e estrutura de palc…. Não extrapolamos para a carteira inteira sem mais evidência.",
+      "why_now": "Contrato com término previsto em 2026-07-24; órgão Fundação de Cultura de Mato Grosso do Sul; objeto: O objeto do presente contrato é a apresentação artística do grupo “Canto da Terra”, contratado atrav (horizonte ~-17 dias) — janela temporal verificável.",
+      "observed_fact": "objeto: Contratação de apresentação musical do GRUPO CANTO DA TERRA, com acompanhamento de produção técnica e estrutura de palco, para celebração do evento em comemoração ao DIA DO SERVIDO; órgão: PREFEITURA MUNICIPAL DE PORTO MURTINHO; UF MS; R$ 38,000",
+      "micro_offer": "DIAGNOSTIC_CHECKLIST",
+      "cta": "Se preferir, começamos por uma conversa de 15 minutos só para validar se há encaixe real.",
+      "source_type": "public_process_document",
+      "source_url": "https://pncp.gov.br/pncp-api/v1/orgaos/03107539000132/compras/2026/70/arquivos/28",
+      "n_contracts": 2,
+      "email_send_ready": false,
+      "reasons": [
+        "ownership:LIKELY_COMPANY_OWNED",
+        "ownership_identity_domain_mismatch",
+        "sticky_ownership_insufficient_for_identity",
+        "service_code:diagnostico_contratual_b2g",
+        "service_fit_supported"
+      ],
+      "supporting_signal_ids": [
+        "fallback"
+      ]
+    },
+    {
+      "cnpj_raiz": "02162646",
+      "razao_social": "REED EXHIBITIONS ALCÂNTARA MACHADO LTDA",
+      "email": "todos@ubrafe.org.br",
+      "ownership_status": "LIKELY_COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "UNKNOWN",
+      "mailbox_send_blocked": false,
+      "service_code": "diagnostico_contratual_b2g",
+      "why_this_account": "REED EXHIBITIONS ALCÂNTARA MACHADO LTDA — execução contratual pública cruzando UFs (DF, RS). Fato: Contratação de estande expositor e demais itens necessários para a participação do CFQ no evento In-Cosmetics Latin Ame….",
+      "why_now": "Contrato com término previsto em 2026-10-29; órgão CONSELHO FEDERAL DE QUIMICA; objeto: Contratação de estande expositor e demais itens necessários para a participação do CFQ no evento In- (horizonte ~80 dias) — janela temporal verificável.",
+      "observed_fact": "objeto: Contratação de estande expositor e demais itens necessários para a participação do CFQ no evento In-Cosmetics Latin America, que será realizado nos dias 23 e 24 de setembro de 2026; órgão: CONSELHO FEDERAL DE QUIMICA; UF DF; R$ 64,417",
+      "micro_offer": "DIAGNOSTIC_CHECKLIST",
+      "cta": "Sugiro um diagnóstico contratual B2G curto para mapear riscos e priorizar encaixes.",
+      "source_type": "public_process_document",
+      "source_url": null,
+      "n_contracts": 2,
+      "email_send_ready": false,
+      "reasons": [
+        "ownership:LIKELY_COMPANY_OWNED",
+        "ownership_identity_domain_mismatch",
+        "sticky_ownership_insufficient_for_identity",
+        "service_code:diagnostico_contratual_b2g",
+        "service_fit_supported"
+      ],
+      "supporting_signal_ids": [
+        "fallback"
+      ]
+    },
+    {
+      "cnpj_raiz": "02315712",
+      "razao_social": "RVP TECNOLOGIA EM ENGENHARIA LTDA ME",
+      "email": "contato@metdata.com.br",
+      "ownership_status": "LIKELY_COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "GENERIC_CONTACT",
+      "mailbox_send_blocked": false,
+      "service_code": "diagnostico_contratual_b2g",
+      "why_this_account": "RVP TECNOLOGIA EM ENGENHARIA LTDA ME — foco no fato de execução contratual pública disponível no input: Solicito contratação de empresa de engenharia de tráfego conforme termo de referência. junto a UAGABVICE - UNIDADE ADMI….",
+      "why_now": "Publicação/marco recente no PNCP: publicação em 2026-07-15; órgão UAGABVICE - UNIDADE ADMINISTRATIVA DA SEC. GERAL DE GOVERNO; objeto: Solicito contratação de empresa de engenharia de tráfego conforme termo de referência..",
+      "observed_fact": "objeto: Solicito contratação de empresa de engenharia de tráfego conforme termo de referência.; órgão: UAGABVICE - UNIDADE ADMINISTRATIVA DA SEC. GERAL DE GOVERNO; UF RS; R$ 64,200",
+      "micro_offer": "DIAGNOSTIC_CHECKLIST",
+      "cta": "Sugiro um diagnóstico contratual B2G curto para mapear riscos e priorizar encaixes.",
+      "source_type": "public_process_document",
+      "source_url": "https://pncp.gov.br/pncp-api/v1/orgaos/07664821000171/compras/2026/23/arquivos/3",
+      "n_contracts": 2,
+      "email_send_ready": false,
+      "reasons": [
+        "ownership:LIKELY_COMPANY_OWNED",
+        "ownership_identity_domain_mismatch",
+        "sticky_ownership_insufficient_for_identity",
+        "service_code:diagnostico_contratual_b2g",
+        "service_fit_supported"
+      ],
+      "supporting_signal_ids": [
+        "fallback"
+      ]
+    },
+    {
+      "cnpj_raiz": "02604476",
+      "razao_social": "CLIMATICA ENGENHARIA LTDA",
+      "email": "prophysls@prophysls.com.br",
+      "ownership_status": "LIKELY_COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "UNKNOWN",
+      "mailbox_send_blocked": false,
+      "service_code": "diagnostico_contratual_b2g",
+      "why_this_account": "Para CLIMATICA ENGENHARIA LTDA, o gancho é específico em execução contratual pública: Prestação de serviços contínuos e sob demanda referentes à operação e manutenção preventiva, corretiva e preditiva dos…. Não extrapolamos para a carteira inteira sem mais evidência.",
+      "why_now": "Ainda no horizonte operacional: publicação em 2026-01-26; órgão SENADO FEDERAL; objeto: Prestação de serviços contínuos e sob demanda referentes à operação e manutenção preventiva, correti.",
+      "observed_fact": "objeto: Prestação de serviços contínuos e sob demanda referentes à operação e manutenção preventiva, corretiva e preditiva dos sistemas e equipamentos de ar-condicionado, exaustão e ventil; órgão: SENADO FEDERAL; UF DF; R$ 19,753,081",
+      "micro_offer": "DIAGNOSTIC_CHECKLIST",
+      "cta": "Sugiro um diagnóstico contratual B2G curto para mapear riscos e priorizar encaixes.",
+      "source_type": "public_process_document",
+      "source_url": null,
+      "n_contracts": 2,
+      "email_send_ready": false,
+      "reasons": [
+        "ownership:LIKELY_COMPANY_OWNED",
+        "ownership_identity_domain_mismatch",
+        "sticky_ownership_insufficient_for_identity",
+        "service_code:diagnostico_contratual_b2g",
+        "service_fit_supported"
+      ],
+      "supporting_signal_ids": [
+        "fallback"
+      ]
+    },
+    {
+      "cnpj_raiz": "02676310",
+      "razao_social": "IDEIAS TURISMO LTDA",
+      "email": "compras@cref5.org.br",
+      "ownership_status": "LIKELY_COMPANY_OWNED",
+      "verification_status": "OBSERVED",
+      "mailbox_purpose": "LICITACOES",
+      "mailbox_send_blocked": false,
+      "service_code": "diagnostico_contratual_b2g",
+      "why_this_account": "Há presença multi-UF de execução contratual pública em IDEIAS TURISMO LTDA (CE, MG). Ponto concreto: CONTRATAÇÃO DE SERVIÇOS CONTINUADOS DE RESERVA, EMISSÃO, MARCAÇÃO E REMARCAÇÃO DE BILHETES DE PASSAGENS AÉREAS E RODOVI….",
+      "why_now": "Evento contratual público recente: publicação em 2026-07-21; órgão CONSELHO REGIONAL DE EDUC FÍSICA DA 5ª REG; objeto: CONTRATAÇÃO DE SERVIÇOS CONTINUADOS DE RESERVA, EMISSÃO, MARCAÇÃO E REMARCAÇÃO DE BILHETES DE PASSAG.",
+      "observed_fact": "objeto: CONTRATAÇÃO DE SERVIÇOS CONTINUADOS DE RESERVA, EMISSÃO, MARCAÇÃO E REMARCAÇÃO DE BILHETES DE PASSAGENS AÉREAS E RODOVIÁRIAS NACIONAIS, POR MEIO DE ATENDIMENTO REMOTO E POR TELEFON; órgão: CONSELHO REGIONAL DE EDUC FÍSICA DA 5ª REG; UF CE; R$ 414,185",
+      "micro_offer": "DIAGNOSTIC_CHECKLIST",
+      "cta": "Se preferir, começamos por uma conversa de 15 minutos só para validar se há encaixe real.",
+      "source_type": "public_process_document",
+      "source_url": null,
+      "n_contracts": 2,
+      "email_send_ready": false,
+      "reasons": [
+        "ownership:LIKELY_COMPANY_OWNED",
+        "ownership_identity_domain_mismatch",
+        "sticky_ownership_insufficient_for_identity",
+        "service_code:diagnostico_contratual_b2g",
+        "service_fit_supported"
+      ],
+      "supporting_signal_ids": [
+        "fallback"
+      ]
+    }
+  ],
+  "NATIONAL_COMMERCIAL_RESERVOIR_HEALTHY": false,
+  "PILOT_READY_CANDIDATE": true,
+  "note": "Strict ESR via build_dossier + evaluate_email_send_ready; email observed is upper bound only, never ESR proxy.",
+  "esr_rows_count": 72
+}

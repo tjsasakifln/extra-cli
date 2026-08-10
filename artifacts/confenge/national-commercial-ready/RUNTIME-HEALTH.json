@@ -1,7 +1,12 @@
 {
   "FULLY_RECONCILED": true,
   "coverage_ratio": 1.0,
-  "dirty_pending": "draining_v2",
-  "process_harvest": "running_sharded",
-  "enrich_continuous": "running"
+  "dirty_pending": 0,
+  "processing_stuck": 0,
+  "process_harvest": "COMPLETE",
+  "contact_enrichment_initial_full_sweep": "COMPLETE",
+  "continuous_workers": "HEALTHY",
+  "target_fit": "HEALTHY",
+  "database_watermark": "2026-08-10T15:37:53Z",
+  "as_of": "2026-08-10T15:40:17Z"
 }

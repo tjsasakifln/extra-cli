@@ -133,6 +133,7 @@ UNSUITABLE_STALE = "UNSUITABLE_STALE"
 UNSUITABLE_COPY_CONTEXT = "UNSUITABLE_COPY_CONTEXT"
 UNSUITABLE_PROVENANCE = "UNSUITABLE_PROVENANCE"
 
+
 def company_identity_label(company: dict[str, Any] | None) -> str:
     """Best available legal/trade name for domain↔company identity checks."""
     if not company:
@@ -183,11 +184,7 @@ def email_matches_company_identity(
         return False, "ownership_identity_domain_missing"
     official = None
     if company:
-        official = (
-            company.get("official_domain")
-            or company.get("company_domain")
-            or company.get("website_domain")
-        )
+        official = company.get("official_domain") or company.get("company_domain") or company.get("website_domain")
         if official:
             official = str(official).strip() or None
     # Lazy import keeps send_readiness free of circular import at module load
@@ -468,8 +465,10 @@ def classify_target_fit_send_tier(
     sector = _sector_fit_from_row(company)
     tfc = _target_fit_class_from_row(company)
 
-    if tfc == TARGET_OUT_OF_SCOPE or sector in _OUT_OF_SCOPE_MARKERS or any(
-        m in sector for m in ("BANK", "NOT_CONSTRUCTION", "OUT_OF_SCOPE")
+    if (
+        tfc == TARGET_OUT_OF_SCOPE
+        or sector in _OUT_OF_SCOPE_MARKERS
+        or any(m in sector for m in ("BANK", "NOT_CONSTRUCTION", "OUT_OF_SCOPE"))
     ):
         return TargetFitResult(
             tier=TIER_OUT_OF_SCOPE,
@@ -541,11 +540,7 @@ def classify_target_fit_send_tier(
         )
 
     # POSSIBLE / probable → never automatic send
-    if (
-        tfc == TARGET_PROBABLE_RESEARCH
-        or sector in _POSSIBLE_FIT
-        or "POSSIBLE" in sector
-    ):
+    if tfc == TARGET_PROBABLE_RESEARCH or sector in _POSSIBLE_FIT or "POSSIBLE" in sector:
         reasons.append(f"possible_or_probable_research pass_contracts={pass_n}")
         return TargetFitResult(
             tier=TIER_RESEARCH_ONLY,
@@ -833,58 +828,55 @@ def _service_fit_supported(company: dict[str, Any] | None, svc: str) -> bool:
     return False
 
 
-def evaluate_copy_context_ready(company: dict[str, Any] | None, *, service_code: str | None = None) -> CopyContextResult:
+def evaluate_copy_context_ready(
+    company: dict[str, Any] | None, *, service_code: str | None = None
+) -> CopyContextResult:
     """COPY_CONTEXT_READY: why you/now, fact, service, micro-offer, evidence, CTA."""
     missing: list[str] = []
     reasons: list[str] = []
     if not company:
         return CopyContextResult(False, reasons=["missing_company"], missing_fields=["company"])
 
+    # Prefer sealed message_spine (complete copy package) over dossier-level
+    # why_now dicts (trigger metadata) that stringify as generic/hollow.
+    spine = company.get("message_spine") if isinstance(company.get("message_spine"), dict) else {}
+    messaging = company.get("messaging") if isinstance(company.get("messaging"), dict) else {}
+
     why_you = _field_nonempty(
-        company.get("why_this_account")
+        spine.get("why_this_account")
+        or company.get("why_this_account")
         or company.get("why_you")
-        or ((company.get("messaging") or {}) if isinstance(company.get("messaging"), dict) else {}).get(
-            "why_this_account"
-        )
+        or messaging.get("why_this_account")
     )
+
+    why_now_raw = company.get("why_now")
+    why_now_from_dict = ""
+    if isinstance(why_now_raw, dict):
+        why_now_from_dict = _field_nonempty(
+            why_now_raw.get("temporal_fact") or why_now_raw.get("summary") or why_now_raw.get("code")
+        )
     why_now = _field_nonempty(
-        company.get("why_now")
-        or (
-            company.get("why_now") if isinstance(company.get("why_now"), str) else None
-        )
-        or (
-            (company.get("moment") or {}) if isinstance(company.get("moment"), dict) else {}
-        ).get("summary")
-        or (
-            (company.get("why_now") if isinstance(company.get("why_now"), dict) else {}) or {}
-        ).get("summary")
-        or (
-            (company.get("why_now") if isinstance(company.get("why_now"), dict) else {}) or {}
-        ).get("temporal_fact")
+        spine.get("why_now")
+        or (why_now_raw if isinstance(why_now_raw, str) else None)
+        or why_now_from_dict
+        or ((company.get("moment") or {}) if isinstance(company.get("moment"), dict) else {}).get("summary")
+        or messaging.get("why_now")
     )
-    if isinstance(company.get("why_now"), dict):
-        why_now = _field_nonempty(
-            company["why_now"].get("temporal_fact")
-            or company["why_now"].get("summary")
-            or company["why_now"].get("code")
-            or why_now
-        )
 
     observed = _field_nonempty(
-        company.get("observed_fact")
+        spine.get("observed_fact")
+        or company.get("observed_fact")
         or company.get("factual_hook")
         or company.get("fact_to_mention")
-        or (
-            (company.get("messaging") or {}) if isinstance(company.get("messaging"), dict) else {}
-        ).get("fact_to_mention")
+        or messaging.get("fact_to_mention")
+        or messaging.get("observed_fact")
     )
     svc = _field_nonempty(
         service_code
+        or spine.get("service_id")
         or company.get("service_code")
         or company.get("canonical_service_code")
-        or (
-            (company.get("offer") or {}) if isinstance(company.get("offer"), dict) else {}
-        ).get("service_code")
+        or ((company.get("offer") or {}) if isinstance(company.get("offer"), dict) else {}).get("service_code")
         or (
             (company.get("primary_service") or {})
             if isinstance(company.get("primary_service"), dict)
@@ -893,39 +885,32 @@ def evaluate_copy_context_ready(company: dict[str, Any] | None, *, service_code:
     )
     if isinstance(company.get("primary_service"), dict) and not svc:
         svc = _field_nonempty(
-            company["primary_service"].get("service_id")
-            or company["primary_service"].get("service_code")
+            company["primary_service"].get("service_id") or company["primary_service"].get("service_code")
         )
 
     micro = _field_nonempty(
-        company.get("micro_offer_code")
+        spine.get("micro_offer_code")
+        or company.get("micro_offer_code")
         or company.get("micro_offer")
-        or (
-            (company.get("offer") or {}) if isinstance(company.get("offer"), dict) else {}
-        ).get("entry_offer")
-        or (
-            (company.get("offer") or {}) if isinstance(company.get("offer"), dict) else {}
-        ).get("micro_offer_code")
+        or ((company.get("offer") or {}) if isinstance(company.get("offer"), dict) else {}).get("entry_offer")
+        or ((company.get("offer") or {}) if isinstance(company.get("offer"), dict) else {}).get("micro_offer_code")
     )
-    evidence = company.get("evidence_ids")
+    evidence = spine.get("fact_evidence_ids") or company.get("fact_evidence_ids") or company.get("evidence_ids")
     if not evidence and isinstance(company.get("evidence"), list):
-        evidence = [
-            str(e.get("id") if isinstance(e, dict) else e)
-            for e in company["evidence"]
-            if e
-        ]
+        evidence = [str(e.get("id") if isinstance(e, dict) else e) for e in company["evidence"] if e]
     if not evidence and isinstance(company.get("moment"), dict):
         evidence = company["moment"].get("evidence_ids")
     has_evidence = bool(evidence) and (
         isinstance(evidence, list) and len(evidence) > 0 or isinstance(evidence, str) and evidence.strip()
     )
-    cta = _field_nonempty(
-        company.get("cta")
-        or (
-            (company.get("messaging") or {}) if isinstance(company.get("messaging"), dict) else {}
-        ).get("cta")
-        or company.get("question_to_ask")
-    )
+    cta = _field_nonempty(company.get("cta") or messaging.get("cta") or company.get("question_to_ask"))
+    # Spine complete flag is authoritative when present
+    if spine.get("complete") is True and company.get("message_spine_complete") is None:
+        company = dict(company)
+        company["message_spine_complete"] = True
+    if spine.get("complete") is False:
+        company = dict(company)
+        company["message_spine_complete"] = False
 
     if not why_you or _is_generic_why(why_you, company=company):
         missing.append("why_this_account")
@@ -958,6 +943,7 @@ def evaluate_copy_context_ready(company: dict[str, Any] | None, *, service_code:
         reasons.extend(f"missing:{m}" for m in missing)
     return CopyContextResult(copy_context_ready=ready, reasons=reasons, missing_fields=missing)
 
+
 def _published_target_fit_from_company(
     company: dict[str, Any] | None,
     *,
@@ -973,9 +959,7 @@ def _published_target_fit_from_company(
     try:
         from scripts.confenge_target_fit.published import published_from_row_or_db
 
-        return published_from_row_or_db(
-            company, conn=conn, published_index=published_index
-        )
+        return published_from_row_or_db(company, conn=conn, published_index=published_index)
     except Exception:  # noqa: BLE001 — soft import for envs without continuous-refresh
         # When live path is open, never fall back to sticky embeds.
         if conn is not None or published_index is not None:
@@ -987,8 +971,7 @@ def _published_target_fit_from_company(
                 "target_fit_version": company.get("target_fit_version"),
                 "source_watermark": company.get("target_fit_source_watermark"),
                 "computed_at": company.get("target_fit_computed_at"),
-                "operational_status": company.get("target_fit_operational_status")
-                or "ok",
+                "operational_status": company.get("target_fit_operational_status") or "ok",
                 "target_fit_evidence": company.get("target_fit_evidence") or [],
                 "company_key": company.get("company_key"),
             }
@@ -1013,17 +996,14 @@ def _gate_from_published(
     """
     extra: list[str] = []
     live_open = conn is not None or published_index is not None
-    published = _published_target_fit_from_company(
-        company, conn=conn, published_index=published_index
-    )
+    published = _published_target_fit_from_company(company, conn=conn, published_index=published_index)
     suppressed = False
     if company:
         suppressed = bool(
             company.get("target_fit_suppressed")
             or company.get("target_fit_downgrade")
             or company.get("target_fit_send_suppressed")
-            or "TARGET_FIT_DOWNGRADE"
-            in (company.get("suppression_reasons") or [])
+            or "TARGET_FIT_DOWNGRADE" in (company.get("suppression_reasons") or [])
         )
 
     if published is None:
@@ -1039,9 +1019,7 @@ def _gate_from_published(
                 target_fit_class=TARGET_OUT_OF_SCOPE,
             )
             return fit, extra, True
-        fit = target_fit or classify_target_fit_send_tier(
-            company, canonical_universe_member=canonical_universe_member
-        )
+        fit = target_fit or classify_target_fit_send_tier(company, canonical_universe_member=canonical_universe_member)
         return fit, extra, False
 
     try:
@@ -1052,11 +1030,7 @@ def _gate_from_published(
 
         dl_wm = ""
         if company:
-            dl_wm = str(
-                company.get("datalake_watermark")
-                or company.get("target_fit_datalake_watermark")
-                or ""
-            )
+            dl_wm = str(company.get("datalake_watermark") or company.get("target_fit_datalake_watermark") or "")
         blocks, pub_reasons, _fresh = evaluate_published_send_gate(
             published=published,
             datalake_watermark=dl_wm,
@@ -1068,27 +1042,16 @@ def _gate_from_published(
         fit = TargetFitResult(
             tier=tier,
             reasons=reasons,
-            sector_fit=str(
-                published.get("sector_fit")
-                or (company or {}).get("sector_fit")
-                or ""
-            ),
-            canonical_universe_member=(
-                True
-                if canonical_universe_member is None
-                else bool(canonical_universe_member)
-            )
+            sector_fit=str(published.get("sector_fit") or (company or {}).get("sector_fit") or ""),
+            canonical_universe_member=(True if canonical_universe_member is None else bool(canonical_universe_member))
             and str(published.get("target_fit_class") or "") != "TARGET_OUT_OF_SCOPE",
         )
         if blocks:
             extra.extend(pub_reasons)
         return fit, extra, blocks
     except Exception:  # noqa: BLE001
-        fit = target_fit or classify_target_fit_send_tier(
-            company, canonical_universe_member=canonical_universe_member
-        )
+        fit = target_fit or classify_target_fit_send_tier(company, canonical_universe_member=canonical_universe_member)
         return fit, extra, False
-
 
 
 def evaluate_email_send_ready(
@@ -1311,9 +1274,7 @@ def evaluate_email_send_ready(
         ).strip()
         if isinstance(company.get("primary_service"), dict):
             svc = str(
-                company["primary_service"].get("service_id")
-                or company["primary_service"].get("service_code")
-                or svc
+                company["primary_service"].get("service_id") or company["primary_service"].get("service_code") or svc
             ).strip()
     service_fit_supported = _service_fit_supported(company, svc) if company else False
     if not svc:
