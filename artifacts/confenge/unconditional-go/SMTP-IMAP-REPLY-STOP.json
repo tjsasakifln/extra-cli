@@ -1,0 +1,7 @@
+{
+  "generated_at": "2026-08-10T04:10:11Z",
+  "status": "PRIOR_EVIDENCE_ON_HOST_NOT_RE_RUN_THIS_SESSION",
+  "note": "Prior pilot integrity pack documented SMTP/IMAP/reply-stop PASS on warmbly ca457058/main continuous IMAP. Re-smoke operator mailbox after warmbly #35 deploy.",
+  "self_smoke_required": true,
+  "commercial_leads_as_smoke": false
+}

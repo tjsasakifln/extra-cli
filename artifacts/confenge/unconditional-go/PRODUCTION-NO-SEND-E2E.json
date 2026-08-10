@@ -1,0 +1,12 @@
+{
+  "generated_at": "2026-08-10T04:10:11Z",
+  "kill_switch": "ENGAGED_EXPECTED",
+  "contaminated_cohort_disabled": true,
+  "contaminated_sendable_count": 0,
+  "demo_blocked": 9,
+  "clean_cohort_companies": 53,
+  "clean_cohort_imported_to_production": false,
+  "note": "Contaminated demos blocked in production DB. Clean cohort export+import pending post-merge deploy of exact main SHA.",
+  "whatsapp": "OFF",
+  "email_only": true
+}
