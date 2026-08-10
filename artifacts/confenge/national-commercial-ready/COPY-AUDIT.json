@@ -1,8 +1,15 @@
 {
   "schema": "confenge.copy_audit.v1",
-  "as_of": "2026-08-10T16:09:39Z",
-  "sample_size": 72,
-  "target_sample_size": 72,
+  "as_of": "2026-08-10T16:32:34Z",
+  "sample_size": 100,
+  "target_sample_size": 100,
+  "strata_counts": {
+    "EMAIL_SEND_READY": 25,
+    "NOT_READY_OR_FOUND_NOT_SENDABLE": 25,
+    "CONTACT_EXHAUSTED": 25,
+    "CONTACT_FOUND_NOT_SENDABLE": 22,
+    "CONTACT_READY": 3
+  },
   "counters": {
     "FALSE_TARGET": 0,
     "WRONG_COMPANY": 0,
@@ -17,5 +24,5 @@
     "DUPLICATE_COPY": 0
   },
   "PASS": true,
-  "note": "Machine adversarial audit only. HUMAN_REVIEW_PENDING until Tiago runs python -m scripts.confenge.human_review"
+  "note": "Machine adversarial audit only. HUMAN_REVIEW_PENDING until Tiago runs python -m scripts.confenge.human_review. Stratified across ESR + not-ready + terminals."
 }

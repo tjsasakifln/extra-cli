@@ -44,9 +44,64 @@ DEFAULT_SOURCE_LADDER: tuple[str, ...] = (
     "company_public_pages",
 )
 
+# Minimum set that must be attempted before CONTACT_EXHAUSTED is legal.
+# Process-only harvest is never enough — official_site / registry / company pages
+# must run (or be proven unavailable with explicit EXTERNAL_BLOCKER).
+REQUIRED_FOR_EXHAUSTION: frozenset[str] = frozenset(
+    {
+        "process_administrative_docs",
+        "pncp_annexes",
+        "official_site",
+        "official_registry",
+        "company_public_pages",
+    }
+)
+
+# Aliases accepted as covering a required ladder step
+_SOURCE_ALIASES: dict[str, frozenset[str]] = {
+    "process_administrative_docs": frozenset(
+        {"process_administrative_docs", "public_process_document", "public_docs"}
+    ),
+    "pncp_annexes": frozenset({"pncp_annexes", "pncp_annex", "pncp"}),
+    "official_site": frozenset(
+        {"official_site", "site", "OFFICIAL_COMPANY_SITE", "REAL_OFFICIAL_SITE"}
+    ),
+    "official_registry": frozenset({"official_registry", "registry"}),
+    "company_public_pages": frozenset(
+        {"company_public_pages", "contact_page", "web_search", "site_crawl"}
+    ),
+    "public_docs_datalake": frozenset({"public_docs_datalake", "datalake", "public_docs"}),
+    "transparency_compras": frozenset(
+        {"transparency_compras", "transparency", "compras", "municipal_portal"}
+    ),
+}
+
 
 def _utcnow() -> str:
     return datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+
+def sources_cover_required_ladder(sources_attempted: list[str] | None) -> bool:
+    """True only when every REQUIRED_FOR_EXHAUSTION step was really attempted."""
+    attempted = {str(s).strip() for s in (sources_attempted or []) if s}
+    if not attempted:
+        return False
+    for required in REQUIRED_FOR_EXHAUSTION:
+        aliases = _SOURCE_ALIASES.get(required, frozenset({required}))
+        if not (attempted & aliases) and required not in attempted:
+            return False
+    return True
+
+
+def missing_ladder_steps(sources_attempted: list[str] | None) -> list[str]:
+    """Required steps not yet covered by sources_attempted."""
+    attempted = {str(s).strip() for s in (sources_attempted or []) if s}
+    missing: list[str] = []
+    for required in DEFAULT_SOURCE_LADDER:
+        aliases = _SOURCE_ALIASES.get(required, frozenset({required}))
+        if required not in attempted and not (attempted & aliases):
+            missing.append(required)
+    return missing
 
 
 @dataclass
@@ -166,7 +221,9 @@ def classify_contact_terminal(
             meta=dict(meta or {}),
         )
 
-    if ladder_complete and sources:
+    # CONTACT_EXHAUSTED is illegal when only process docs were tried.
+    full_ladder = sources_cover_required_ladder(sources)
+    if ladder_complete and sources and full_ladder:
         return ContactDiscoveryState(
             cnpj_raiz=cnpj_raiz,
             terminal_state=CONTACT_EXHAUSTED,
@@ -181,7 +238,11 @@ def classify_contact_terminal(
             meta=dict(meta or {}),
         )
 
-    # Attempted something but ladder incomplete
+    # Attempted something but ladder incomplete (incl. process-only "exhaustion")
+    missing = missing_ladder_steps(sources)
+    reason = "ladder_incomplete"
+    if ladder_complete and sources and not full_ladder:
+        reason = "process_only_not_full_ladder"
     return ContactDiscoveryState(
         cnpj_raiz=cnpj_raiz,
         terminal_state=CONTACT_RETRY_PENDING,
@@ -189,12 +250,12 @@ def classify_contact_terminal(
         attempt_count=attempt_count,
         last_attempt_at=now,
         next_retry_at=next_retry_at,
-        terminal_reason="ladder_incomplete",
+        terminal_reason=reason,
         email_count=email_candidates,
         email_send_ready_count=email_send_ready,
         network_discovery=network_discovery,
         ladder_complete=False,
-        meta=dict(meta or {}),
+        meta={**(meta or {}), "missing_ladder_steps": missing},
     )
 
 

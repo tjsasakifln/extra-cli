@@ -1,15 +1,15 @@
 {
-  "as_of": "2026-08-10T16:09:39Z",
+  "as_of": "2026-08-10T16:32:34Z",
   "TARGET_CONFIRMED_total": 8382,
   "terminals": {
-    "CONTACT_EXHAUSTED": 7685,
-    "CONTACT_FOUND_NOT_SENDABLE": 519,
-    "CONTACT_READY": 178,
-    "CONTACT_RETRY_PENDING": 0,
-    "CONTACT_EXTERNAL_BLOCKER": 0,
-    "CONTACT_NEVER_ATTEMPTED": 0
+    "CONTACT_RETRY_PENDING": 169,
+    "CONTACT_READY": 216,
+    "CONTACT_EXHAUSTED": 7959,
+    "CONTACT_FOUND_NOT_SENDABLE": 38,
+    "CONTACT_NEVER_ATTEMPTED": 0,
+    "CONTACT_EXTERNAL_BLOCKER": 0
   },
-  "contact_complete": true,
+  "contact_complete": false,
   "email_roots_upper_bound": 223,
   "EMAIL_SEND_READY": 72
 }

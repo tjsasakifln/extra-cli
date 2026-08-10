@@ -1,16 +1,22 @@
 {
   "schema": "confenge.go_no_go.v1",
-  "as_of": "2026-08-10T16:09:39Z",
+  "as_of": "2026-08-10T16:32:34Z",
   "NATIONAL_COMMERCIAL_RESERVOIR_HEALTHY": false,
   "PILOT_READY_CANDIDATE": true,
-  "terminal_state": "EXTERNAL_BLOCKER_REQUIRES_TIAGO",
+  "PILOT_TECHNICAL_READINESS": "READY_FOR_HUMAN_REVIEW",
+  "NATIONAL_RESERVE_READINESS": "PARTIAL_0.8_DAYS",
+  "RESERVE_DAYS": 0.8,
+  "terminal_state": "ENGINEERING_IN_PROGRESS",
   "gates": {
     "FULLY_RECONCILED": true,
     "all_confirmed_terminal": true,
+    "full_source_ladder_complete": false,
     "email_send_ready_ge_min_reserve": false,
     "strict_esr_measured": true,
     "service_fit_ontology_ok": true,
+    "service_fit_unsupported_count": 0,
     "machine_audit_pass": true,
+    "machine_audit_sample_size": 100,
     "sha_bound": true,
     "warmbly_e2e_pass": true
   },
@@ -29,6 +35,6 @@
     "COPY_CONTEXT_VALID": 72,
     "EMAIL_SEND_READY_DISTINCT_COMPANIES": 72
   },
-  "one_action": "ESR strict final=72 com ladder terminal; gap_to_900=828. Autorizar fontes autenticadas de maior yield (documentadas por portal) OU decisão comercial de MIN_OPERATIONAL_RESERVE — sem atalho de engenharia.",
+  "one_action": "Executar source ladder completa (official_site/registry/company_pages) sobre RETRY_PENDING=169; process-only NÃO conta como CONTACT_EXHAUSTED. ESR=72 reserve=900.",
   "human_review_command": "python -m scripts.confenge.human_review --sample artifacts/confenge/national-commercial-ready/HUMAN-REVIEW-SAMPLE.json --reviewer tiago"
 }
