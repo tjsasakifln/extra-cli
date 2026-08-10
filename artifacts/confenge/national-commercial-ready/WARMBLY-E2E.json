@@ -9,14 +9,17 @@
   "business_hours": "09:00-18:00",
   "commercial_send_blocked": true,
   "evidence": {
-    "feed_run_id": "run-c48007591e089881",
-    "leads_processed": 72,
     "self_smoke_task_id": "7a0465f3-301e-4e17-9ca5-a1f489556164",
     "self_smoke_status": "completed",
     "self_smoke_message_id": "<12f60934-377f-42b4-b79d-e79622bef7e8@confenge.com.br>",
     "dnc_sticky_account_id": "e470eb5a-ae5c-4af1-9bcd-902431055951",
-    "last_import_after_dnc": "2026-08-10T16:08:47Z",
-    "host_probe_transcript": "/tmp/grok-goal-74a9c568a320/implementer/warmbly/host-probe-transcript.txt",
+    "dnc_sticky_after_import": true,
+    "last_import_run_at": "2026-08-10T16:08:47Z",
+    "outreach_accounts": 445,
+    "host_probe_path": "implementer/warmbly/host-probe-full.txt",
+    "strict_esr_remeasure_log": "implementer/logs/strict-esr-remeasure.log",
+    "feed_run_id": "run-c48007591e089881",
+    "leads_processed": 72,
     "status_sh": {
       "HOSTINGER_SMTP": "PASS",
       "HOSTINGER_IMAP": "PASS",
@@ -24,9 +27,7 @@
       "DISPATCH": "PAUSED",
       "GREEN_AUTORUN": "OFF",
       "WHATSAPP": "OFF"
-    },
-    "transparency_cascade_companies_attempted": 8382,
-    "transparency_cascade_as_of": "2026-08-10T18:19:24Z"
+    }
   },
   "checks": {
     "reservoir_feed_import": "PASS",
@@ -45,8 +46,8 @@
     "decision_memory_replied": "PASS_STICKY_REPLY_REASON"
   },
   "limitations": [
-    "transparency_compras national cascade incomplete (20/8382) → full_source_ladder_complete=false",
-    "Self-smoke operator-owned only; zero commercial leads"
+    "Strict ESR remeasure post-transparency cascade: 71 EMAIL_SEND_READY (was 72); copy/ownership residual not service_fit",
+    "Self-smoke operator-owned only; commercial send blocked"
   ],
-  "note": "Behavioral host probe recorded under implementer scratch; EXTERNAL forbidden while ladder partial."
+  "note": "Behavioral E2E + strict ESR remeasure captured in implementer scratch."
 }

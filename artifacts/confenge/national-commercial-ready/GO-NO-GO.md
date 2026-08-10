@@ -5,14 +5,14 @@
 **NATIONAL_COMMERCIAL_RESERVOIR_HEALTHY:** `False`
 
 **PILOT_TECHNICAL_READINESS:** `READY_FOR_HUMAN_REVIEW`
-**NATIONAL_RESERVE_READINESS:** `PARTIAL_0.8_DAYS`
-**RESERVE_DAYS:** `0.8`
+**NATIONAL_RESERVE_READINESS:** `PARTIAL_0.79_DAYS`
+**RESERVE_DAYS:** `0.79`
 
 **PILOT_READY_CANDIDATE:** `True`
 
-**EMAIL_SEND_READY (strict):** 72
+**EMAIL_SEND_READY (strict):** 71
 **MIN_OPERATIONAL_RESERVE:** 900
-**Gap:** 828
+**Gap:** 829
 **full_source_ladder_complete:** `True`
 
 ## Gates
@@ -37,7 +37,7 @@
 }
 ```
 
-**One action:** ESR strict final=72 com ladder terminal; gap_to_900=828. Autorizar fontes autenticadas de maior yield OU decisão comercial de MIN_OPERATIONAL_RESERVE — sem atalho de engenharia.
+**One action:** ESR strict final=71 com ladder terminal; gap_to_900=829. Autorizar fontes autenticadas de maior yield (documentadas por portal) OU decisão comercial de MIN_OPERATIONAL_RESERVE — sem atalho de engenharia.
 
 ## Human review
 

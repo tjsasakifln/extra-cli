@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-08-10T18:20:40Z",
+  "as_of": "2026-08-10T18:46:55Z",
   "rows": [
     {
       "stage": "NATIONAL_COMMERCIAL_UNIVERSE",
@@ -15,7 +15,7 @@
     },
     {
       "stage": "COMPANY_OWNED",
-      "count": 83
+      "count": 80
     },
     {
       "stage": "SERVICE_FIT_VALID",
@@ -23,11 +23,11 @@
     },
     {
       "stage": "COPY_CONTEXT_VALID",
-      "count": 72
+      "count": 71
     },
     {
       "stage": "EMAIL_SEND_READY",
-      "count": 72
+      "count": 71
     },
     {
       "stage": "MIN_OPERATIONAL_RESERVE",
@@ -41,7 +41,7 @@
   "capacity": {
     "schema": "confenge.operational_capacity_metrics.v1",
     "PILOT_ACCEPTANCE_SAMPLE": 50,
-    "NATIONAL_EMAIL_SEND_READY_RESERVOIR": 72,
+    "NATIONAL_EMAIL_SEND_READY_RESERVOIR": 71,
     "ACTIVE_HOT_SET": 50,
     "MIN_OPERATIONAL_RESERVE": 900,
     "operational_reserve_days": 10,
@@ -50,7 +50,7 @@
     "reserve_gate_ok": false,
     "hot_set_le_reservoir": true,
     "pilot_is_not_capacity": true,
-    "note": "50 is PILOT_ACCEPTANCE_SAMPLE (quality only). Reservoir=72, hot_set=50, min_reserve=900.",
+    "note": "50 is PILOT_ACCEPTANCE_SAMPLE (quality only). Reservoir=71, hot_set=50, min_reserve=900.",
     "warmbly": {
       "email_only": true,
       "whatsapp_enabled": false,

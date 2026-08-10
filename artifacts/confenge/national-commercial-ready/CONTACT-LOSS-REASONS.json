@@ -1,17 +1,9 @@
 {
-  "as_of": "2026-08-10T17:34:13Z",
+  "as_of": "2026-08-10T18:45:25Z",
   "reasons": [
     [
-      "ownership_identity_domain_mismatch",
-      203
-    ],
-    [
-      "sticky_ownership_insufficient_for_identity",
-      203
-    ],
-    [
       "ownership:LIKELY_COMPANY_OWNED",
-      195
+      199
     ],
     [
       "copy_context_not_ready",
@@ -24,10 +16,6 @@
     [
       "missing:message_spine_incomplete",
       25
-    ],
-    [
-      "missing:why_now",
-      23
     ],
     [
       "ownership:THIRD_PARTY_SERVICE_PROVIDER",
@@ -46,5 +34,6 @@
       1
     ]
   ],
-  "CONTACT_RETRY_PENDING": 0
+  "CONTACT_RETRY_PENDING": 0,
+  "note": "Strict remeasure loss (ownership/mailbox/copy) — not service_fit_unsupported"
 }
