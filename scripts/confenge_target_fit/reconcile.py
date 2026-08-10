@@ -174,22 +174,34 @@ def count_canonical_eligible_roots(conn: Any) -> int | None:
 
     Falls back to None so callers use visited universe roots as denominator
     rather than inventing a hard-coded national figure.
+
+    Uses SAVEPOINTs so a missing optional table never rolls back the outer
+    reconcile transaction (which may already hold hundreds of thousands of
+    dirty-queue inserts).
     """
     with conn.cursor() as cur:
         # Optional precomputed universe table (may not exist on all hosts)
-        for sql in (
-            "SELECT COUNT(*)::int AS n FROM confenge_universe_eligible_roots",
-            "SELECT COUNT(*)::int AS n FROM confenge_company_universe WHERE eligibility = 'ELIGIBLE'",
+        for i, sql in enumerate(
+            (
+                "SELECT COUNT(*)::int AS n FROM confenge_universe_eligible_roots",
+                "SELECT COUNT(*)::int AS n FROM confenge_company_universe WHERE eligibility = 'ELIGIBLE'",
+            )
         ):
+            sp = f"canonical_eligible_{i}"
             try:
+                cur.execute(f"SAVEPOINT {sp}")
                 cur.execute(sql)
                 row = cur.fetchone()
+                cur.execute(f"RELEASE SAVEPOINT {sp}")
                 if row and row.get("n") is not None:
                     return int(row["n"])
             except Exception:  # noqa: BLE001
-                conn.rollback()
+                try:
+                    cur.execute(f"ROLLBACK TO SAVEPOINT {sp}")
+                    cur.execute(f"RELEASE SAVEPOINT {sp}")
+                except Exception:  # noqa: BLE001
+                    pass
     return None
-
 
 def run_reconcile(
     dsn: str,
