@@ -273,15 +273,43 @@ def build_service_candidates(
         # Lean multi-contract: backoffice (62) is the operational primary; gestão secondary.
         # Robust multi (≥5) elevates gestão (72) above mature reajuste verify (48) without
         # inventing BDI specialty.
+        # Diversity of órgãos/UFs distinguishes GESTAO_SUPPORTED from thin multi_contract.
+        orgaos = {
+            str(c.get("orgao") or c.get("agency") or c.get("orgao_nome") or "").strip()
+            for c in contracts
+            if isinstance(c, dict) and str(c.get("orgao") or c.get("agency") or c.get("orgao_nome") or "").strip()
+        }
+        ufs = {
+            str(c.get("uf") or "").strip().upper()
+            for c in contracts
+            if isinstance(c, dict) and str(c.get("uf") or "").strip()
+        }
+        diverse = len(orgaos) >= 2 or len(ufs) >= 2 or len(contracts) >= 5
         if sc == "lean":
             gestao_score = 55.0
-            gestao_signals = ["multi_contract"]
+            gestao_signals = ["multi_contract", "structure_lean"]
+            if diverse:
+                gestao_signals.append("multi_orgao" if len(orgaos) >= 2 else "multi_uf")
+            else:
+                gestao_signals = ["multi_contract_thin"]
         elif sc == "robust" and len(contracts) >= 5:
             gestao_score = 72.0
             gestao_signals = ["structure_robust", "multi_contract"]
+            if len(orgaos) >= 2:
+                gestao_signals.append("multi_orgao")
+            if len(ufs) >= 2:
+                gestao_signals.append("multi_uf")
         else:
-            gestao_score = 65.0
+            # Score still beats mature reajuste verify (48) so reajuste is never
+            # the silent default — but multi_contract_thin is NOT SERVICE_FIT_SUPPORTED.
+            gestao_score = 65.0 if diverse else 55.0
             gestao_signals = ["multi_contract"]
+            if len(orgaos) >= 2:
+                gestao_signals.append("multi_orgao")
+            elif len(ufs) >= 2:
+                gestao_signals.append("multi_uf")
+            else:
+                gestao_signals = ["multi_contract_thin"]
         candidates.append(
             _candidate(
                 "gestao_monitoramento_contratual",
@@ -292,8 +320,9 @@ def build_service_candidates(
                 supporting_signal_ids=gestao_signals,
                 evidence_ids=ev_ids,
                 why_this=(
-                    "Portfólio multi-contrato sem dor concreta dominante "
-                    "(gestão/monitoramento — especialidade só com sinais específicos)."
+                    f"Carteira multi-contrato (n={len(contracts)}) com sinais de "
+                    f"{', '.join(gestao_signals)} — gestão/monitoramento só se a "
+                    "dispersão de obrigações for material, não por ausência de dor."
                 ),
                 why_not_others=(
                     "Monitoramento/gestão supera janela de verificação de reajuste; "

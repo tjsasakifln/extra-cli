@@ -1,0 +1,42 @@
+{
+  "EMAIL_SEND_READY": 54,
+  "EMAIL_SEND_READY_meets_gate": true,
+  "audit50": {
+    "FALSE_TARGET": 0,
+    "WRONG_CONTACT": 0,
+    "UNSUPPORTED_SERVICE": 0,
+    "HOLLOW_COPY": 0,
+    "UNSAFE_CLAIM": 0
+  },
+  "service_dist": {
+    "gestao_monitoramento_contratual": 42,
+    "apoio_licitacoes_propostas": 11,
+    "reforco_temporario_backoffice": 1
+  },
+  "near_dup_blocked": false,
+  "near_dup_metrics": {
+    "lexical_similarity_raw": 0.6825,
+    "semantic_template_similarity": 0.7455,
+    "normalized_skeleton_similarity": 0.6727,
+    "CTA_reuse_rate": 0.325,
+    "opening_reuse_rate": 0.0,
+    "sentence_pattern_reuse_rate": 0.025,
+    "transition_reuse_rate": 0.025,
+    "dominant_skeleton_share": 0.025,
+    "high_semantic_pairs": 0
+  },
+  "blind_template": "NO_SUFFICIENT_VARIATION",
+  "blind_metrics": {
+    "lexical_similarity_raw": 0.6825,
+    "semantic_template_similarity": 0.7455,
+    "normalized_skeleton_similarity": 0.6727,
+    "CTA_reuse_rate": 0.325,
+    "opening_reuse_rate": 0.0,
+    "sentence_pattern_reuse_rate": 0.025,
+    "transition_reuse_rate": 0.025,
+    "dominant_skeleton_share": 0.025,
+    "high_semantic_pairs": 0
+  },
+  "contact_policy": "COMPANY_OWNED/HUMAN_CONFIRMED only; free-mail domains excluded",
+  "lineage": "universe TARGET_CONFIRMED + MessageSpine complete + SERVICE_FIT + COPY_CONTEXT + preexisting public company emails (enrichment/VPS index), not invented"
+}

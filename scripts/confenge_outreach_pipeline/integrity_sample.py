@@ -56,6 +56,67 @@ def bag_from_feed_lead(lead: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _opening_for(company: str, fact: str, service_id: str, why_you: str) -> str:
+    """Service- and fact-aware opening — avoid one skeleton for the whole batch."""
+    sid = (service_id or "").lower()
+    fact_l = (fact or "").lower()
+    # Prefer human insight from why_you when present and non-hollow
+    if why_you and not is_hollow_fact(why_you) and len(why_you) > 40:
+        # First sentence of why_you as lead
+        first = why_you.split(".")[0].strip()
+        if first and company.lower() not in first.lower():
+            return f"{first}."
+        return why_you if why_you.endswith(".") else why_you + "."
+    if "paviment" in fact_l or "cbuq" in fact_l:
+        return (
+            f"Vi que {company} tem obra de pavimentação/vias com registro público recente — "
+            f"detalhe utilizável: {fact[:140]}."
+        )
+    if "aditivo" in fact_l or "prorroga" in fact_l:
+        return (
+            f"Chamou atenção um marco de aditivo/prorrogação ligado a {company}: {fact[:140]}."
+        )
+    if "medição" in fact_l or "medicao" in fact_l or "glosa" in fact_l:
+        return (
+            f"Há sinal público de medição/glosa no histórico de {company}: {fact[:140]}."
+        )
+    if "saneamento" in fact_l or "esgoto" in fact_l:
+        return (
+            f"No recorte público de {company}, o tema saneamento/redes aparece com clareza: {fact[:140]}."
+        )
+    openings = {
+        "estruturacao_pleito_reajuste": (
+            f"Sobre a janela de verificação de reajuste em {company}, o fato público é: {fact[:140]}."
+        ),
+        "aditivos_extracontratuais": (
+            f"No fluxo de aditivos de {company}, o que está público permite esta leitura: {fact[:140]}."
+        ),
+        "medicoes_glosas_memoria": (
+            f"Na linha de medições de {company}, o registro público aponta: {fact[:140]}."
+        ),
+        "auditoria_orcamento_bdi": (
+            f"Para planilha/BDI em {company}, o ponto de partida público é: {fact[:140]}."
+        ),
+        "gestao_monitoramento_contratual": (
+            f"A carteira pública de {company} sugere disciplina de monitoramento: {fact[:140]}."
+        ),
+        "apoio_licitacoes_propostas": (
+            f"No ciclo de licitações/propostas de {company}, o fato público é: {fact[:140]}."
+        ),
+        "diagnostico_contratual_b2g": (
+            f"Para um diagnóstico B2G honesto com {company}, partimos só do que está público: {fact[:140]}."
+        ),
+        "reforco_temporario_backoffice": (
+            f"Se a carga contratual de {company} apertar o backoffice, o fato-base público é: {fact[:140]}."
+        ),
+    }
+    if fact:
+        return openings.get(sid) or (
+            f"Com base no registro público de {company}: {fact[:160]}."
+        )
+    return f"Olá — escrevo a partir de dados públicos sobre {company}."
+
+
 def compose_body(dossier: dict[str, Any]) -> str:
     company = str(
         (dossier.get("account_snapshot") or {}).get("razao_social")
@@ -63,7 +124,9 @@ def compose_body(dossier: dict[str, Any]) -> str:
         or "a empresa"
     )
     fact = str(dossier.get("body_seed_fact") or dossier.get("observed_fact") or "").strip()
-    # Prefer MessageSpine why_now (never hollow portfolio_review template)
+    why_you = str(dossier.get("why_this_account") or dossier.get("why_you") or "").strip()
+    sid = str((dossier.get("primary_service") or {}).get("service_id") or dossier.get("service_id") or "")
+    # Prefer MessageSpine why_now (never hollow / WEAK)
     why_now = ""
     spine = dossier.get("message_spine") if isinstance(dossier.get("message_spine"), dict) else {}
     if spine.get("why_now"):
@@ -72,15 +135,11 @@ def compose_body(dossier: dict[str, Any]) -> str:
         wn = dossier.get("why_now")
         if isinstance(wn, dict):
             why_now = str(wn.get("temporal_fact") or wn.get("summary") or "").strip()
-        if is_hollow_fact(why_now):
+        if is_hollow_fact(why_now) or "why_now_strength=weak" in (why_now or "").lower():
             why_now = ""
     cta = str(dossier.get("cta") or "").strip()
-    parts = [
-        "Olá,",
-        "",
-        f"Pelo que está público sobre {company}, {fact}." if fact else f"Pelo que está público sobre {company}.",
-        "",
-    ]
+    opening = _opening_for(company, fact, sid, why_you)
+    parts = ["Olá,", "", opening, ""]
     if why_now and not is_hollow_fact(why_now):
         parts.append(why_now)
         parts.append("")

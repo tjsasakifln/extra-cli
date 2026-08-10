@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import asdict, dataclass, field
+from datetime import date, datetime
 from typing import Any
 
 # Meta evidence ids that may stay in internal lists but never seed the body.
@@ -36,9 +37,14 @@ _HOLLOW_FACT_PATTERNS: tuple[re.Pattern[str], ...] = (
     re.compile(r"empresa\s+com\s+portf[oó]lio\s+p[uú]blico", re.I),
     re.compile(r"fato\s+contratual\s+p[uú]blico\s+utiliz[aá]vel", re.I),
     re.compile(r"sem\s+dor\s+especializada\s+dominante", re.I),
+    re.compile(r"sem\s+dor\s+concreta\s+dominante", re.I),
+    re.compile(r"sem\s+dor\s+contratual\s+concreta", re.I),
+    re.compile(r"sem\s+dor\s+concreta", re.I),
     re.compile(r"momento\s+comercial\s+p[uú]blico", re.I),
     re.compile(r"execu[cç][aã]o\s+p[uú]blica\s+observ[aá]vel", re.I),
     re.compile(r"empresa\s+com\s+execu[cç][aã]o\s+p[uú]blica", re.I),
+    re.compile(r"portf[oó]lio\s+multi-contrato\s+ativo", re.I),
+    re.compile(r"why_now_strength\s*=\s*(?:moderate|weak)", re.I),
     re.compile(r"target_fit|email_send_ready|copy_context_ready|service_fit_supported", re.I),
     re.compile(r"primary_service|micro_offer_code|why_this_account\s*=", re.I),
 )
@@ -130,70 +136,224 @@ def _compress_hook_insight(hook: str, *, max_len: int = 140) -> str:
     return t
 
 
-def _why_now_text(why: dict[str, Any], hook: str, service_id: str) -> str:
-    """Build temporal why_now that passes COPY_CONTEXT (never hollow meta templates)."""
-    trigger = ""
-    temporal = ""
-    if isinstance(why, dict):
-        trigger = str(why.get("trigger") or "").strip()
-        for key in ("temporal_fact", "summary"):
-            val = str(why.get(key) or "").strip()
-            if not val or is_hollow_fact(val):
-                continue
-            temporal = val
-            break
-    # Prefer explicit temporal event when non-hollow.
-    if temporal and not is_hollow_fact(temporal):
-        # If temporal is still abstract, anchor to contract hook.
-        if hook and not is_hollow_fact(hook) and "objeto" not in temporal.lower():
-            insight = _compress_hook_insight(hook)
-            return f"{temporal.rstrip('.')}: {insight}"
-        return temporal
-    if hook and not is_hollow_fact(hook):
-        insight = _compress_hook_insight(hook)
-        if trigger in {"aditivo", "additive", "CONTRACT_EXTENSION", "prorrogacao", "prorrogação"}:
-            return f"Evento de prorrogação/aditivo recente ligado a: {insight}"
-        if trigger in {"anualidade", "ANUALIDADE", "mature_no_reajuste"}:
-            return f"Janela de aniversário/madurez contratual observável em: {insight}"
-        if trigger in {"medicao", "medição", "glosa"}:
-            return f"Sinal documental de medição/glosa associado a: {insight}"
-        if trigger and trigger not in {"", "insufficient_facts", "portfolio_review"}:
-            return f"Gatilho {trigger} ancorado no contrato público: {insight}"
-        # portfolio_review without a dated event: WEAK temporal — do not invent "now".
-        # Still provide a non-hollow line only when multi-signal portfolio exists in hook.
-        if "órgão" in hook.lower() or "orgao" in hook.lower() or "UF" in hook:
-            return (
-                f"Carteira pública ativa com obrigação em execução — âncora: {insight}. "
-                "Sem evento datado adicional no input (why_now_strength=MODERATE)."
-            )
-        # Single thin hook without temporal event → weak (caller may mark COPY false)
+def _parse_date(val: Any) -> date | None:
+    if val is None:
+        return None
+    s = str(val).strip()[:10]
+    if not s:
+        return None
+    for fmt in ("%Y-%m-%d", "%d/%m/%Y", "%Y/%m/%d"):
+        try:
+            return datetime.strptime(s, fmt).date()
+        except ValueError:
+            continue
+    return None
+
+
+def _extract_temporal_event(bag: dict[str, Any], why: dict[str, Any]) -> tuple[str, str]:
+    """Return (why_now_text, strength) strength in {STRONG, MODERATE, WEAK}.
+
+    STRENGTH rules (objective §6):
+    - STRONG: dated aditivo/prorrogação/publicação/aniversário/medição with timestamp
+    - WEAK: no dated temporal event (even if contract hook exists) → COPY not ready
+    """
+    today = date.today()
+    trigger = str((why or {}).get("trigger") or "").strip()
+    # Explicit non-hollow temporal_fact with a date token
+    for key in ("temporal_fact", "summary"):
+        val = str((why or {}).get(key) or "").strip()
+        if not val or is_hollow_fact(val):
+            continue
+        if re.search(r"20\d{2}-\d{2}-\d{2}|\d{1,2}/\d{1,2}/20\d{2}|20\d{2}", val):
+            if trigger in {"portfolio_review", "insufficient_facts", ""}:
+                # Still accept if text itself has a dated event language
+                if any(
+                    k in val.lower()
+                    for k in (
+                        "publicad",
+                        "aditivo",
+                        "prorroga",
+                        "anivers",
+                        "medi",
+                        "glosa",
+                        "licita",
+                        "contrata",
+                        "inici",
+                        "término",
+                        "termino",
+                        "venciment",
+                    )
+                ):
+                    return val, "STRONG"
+            else:
+                return val, "STRONG"
+
+    contracts = bag.get("contracts") or []
+    dated: list[tuple[date, str, dict[str, Any]]] = []
+    for c in contracts:
+        if not isinstance(c, dict):
+            continue
+        for date_field, label in (
+            ("publication_date", "publicação"),
+            ("data_publicacao", "publicação"),
+            ("start_date", "início de execução"),
+            ("data_inicio", "início de execução"),
+            ("end_date", "término previsto"),
+            ("data_fim", "término previsto"),
+        ):
+            d = _parse_date(c.get(date_field))
+            if d:
+                dated.append((d, label, c))
+
+    if not dated and trigger in {
+        "aditivo",
+        "additive",
+        "CONTRACT_EXTENSION",
+        "prorrogacao",
+        "prorrogação",
+        "anualidade",
+        "ANUALIDADE",
+        "mature_no_reajuste",
+        "medicao",
+        "medição",
+        "glosa",
+    }:
+        # Trigger names alone without dates are still WEAK (no inventing "now")
         return (
-            f"Sem evento temporal específico no input; âncora contratual disponível: {insight} "
-            "(why_now_strength=WEAK)."
+            f"Gatilho {trigger} sem timestamp verificável no input "
+            "(why_now_strength=WEAK).",
+            "WEAK",
         )
-    if trigger == "insufficient_facts":
-        return "Material público insuficiente para especialidade — discovery honesto."
-    return f"Sem fato contratual concreto para {service_id}; não inventar dor."
+
+    if dated:
+        # Prefer most recent publication/start within ~540 days
+        dated.sort(key=lambda x: x[0], reverse=True)
+        for d, label, c in dated:
+            age = (today - d).days
+            if age < 0:
+                age = 0
+            if age > 540 and label != "término previsto":
+                continue
+            obj = str(c.get("object") or c.get("objeto") or "")[:100]
+            org = str(c.get("orgao") or c.get("agency") or "")[:80]
+            bits = [f"{label} em {d.isoformat()}"]
+            if org:
+                bits.append(f"órgão {org}")
+            if obj:
+                bits.append(f"objeto: {obj}")
+            # Near end_date → anniversary/termination window
+            if label == "término previsto":
+                days_left = (d - today).days
+                if -30 <= days_left <= 180:
+                    return (
+                        "Contrato com "
+                        + "; ".join(bits)
+                        + f" (horizonte ~{days_left} dias) — janela temporal verificável.",
+                        "STRONG",
+                    )
+                continue
+            if age <= 180:
+                return (
+                    "Evento contratual público recente: " + "; ".join(bits) + ".",
+                    "STRONG",
+                )
+            if age <= 400:
+                return (
+                    "Marco contratual datado no portfólio: " + "; ".join(bits) + ".",
+                    "MODERATE",
+                )
+
+    # No dated event → WEAK (do not invent "now")
+    return (
+        "Sem evento temporal datado no input (why_now_strength=WEAK); "
+        "manter em pesquisa/reservatório até haver aditivo, publicação, "
+        "aniversário ou outro marco verificável.",
+        "WEAK",
+    )
 
 
-def _why_this_account(company: str, hook: str, confirmed: list[dict[str, Any]], service_id: str) -> str:
-    """Explain why THIS company warrants the approach (not a PNCP dump)."""
+def _why_now_text(why: dict[str, Any], hook: str, service_id: str, bag: dict[str, Any] | None = None) -> tuple[str, str]:
+    """Return (why_now, strength). strength WEAK ⇒ spine incomplete / COPY false."""
+    bag = bag or {}
+    text, strength = _extract_temporal_event(bag, why if isinstance(why, dict) else {})
+    if strength != "WEAK" and text and not is_hollow_fact(text):
+        return text, strength
+    # Force WEAK path — never MODERATE invented from undated portfolio
+    return text if text else (
+        f"Sem fato temporal concreto para {service_id} (why_now_strength=WEAK)."
+    ), "WEAK"
+
+
+def _object_theme(hook: str) -> str:
+    low = (hook or "").lower()
+    themes = [
+        (("paviment", "cbuq", "asfalt"), "pavimentação/vias"),
+        (("saneamento", "esgoto", "rede de água", "abastecimento"), "saneamento"),
+        (("obra de arte", "ponte", "viaduto"), "obra de arte especial"),
+        (("edifica", "predial", "reforma"), "edificação/reforma"),
+        (("drenagem", "macrodren"), "drenagem"),
+        (("terraplen", "movimento de terra"), "terraplenagem"),
+        (("licita", "edital", "proposta"), "frente de licitação"),
+        (("medição", "medicao", "glosa"), "ciclo de medição"),
+        (("aditivo", "prorroga"), "aditivo/prorrogação"),
+        (("bdi", "planilha", "orçamento"), "planilha/BDI"),
+    ]
+    for keys, label in themes:
+        if any(k in low for k in keys):
+            return label
+    return "execução contratual pública"
+
+
+def _why_this_account(
+    company: str,
+    hook: str,
+    confirmed: list[dict[str, Any]],
+    service_id: str,
+    bag: dict[str, Any] | None = None,
+) -> str:
+    """Explain why THIS company warrants the approach (not a fixed PNCP dump scaffold)."""
+    bag = bag or {}
+    contracts = [c for c in (bag.get("contracts") or []) if isinstance(c, dict)]
+    orgaos = {
+        str(c.get("orgao") or c.get("agency") or "").strip()
+        for c in contracts
+        if str(c.get("orgao") or c.get("agency") or "").strip()
+    }
+    ufs = {str(c.get("uf") or "").strip().upper() for c in contracts if str(c.get("uf") or "").strip()}
+    n = len(contracts)
+    theme = _object_theme(hook)
+
     if hook and not is_hollow_fact(hook):
-        insight = _compress_hook_insight(hook, max_len=160)
-        # Multi-organ / multi-UF signals → portfolio complexity (real why_you)
-        multi = False
-        low = hook.lower()
-        if "órgão" in low or "orgao" in low:
-            multi = True
-        return (
-            f"{company} aparece com obrigação pública em curso ({insight}). "
-            + (
-                "Quando a execução cruza órgão/UF e valor material, costuma valer "
-                "olhar o contrato com disciplina de monitoramento antes de escalar dor."
-                if multi
-                else "O objeto e o valor material tornam útil uma leitura objetiva do contrato "
-                "antes de assumir que a equipe interna já fechou o tema."
+        insight = _compress_hook_insight(hook, max_len=120)
+        # Diversify structure by portfolio shape (avoid identical sentence skeleton)
+        if n >= 3 and len(orgaos) >= 2 and len(ufs) >= 2:
+            return (
+                f"{company} concentra {n} frentes públicas recentes em {len(ufs)} UFs "
+                f"e {len(orgaos)} órgãos, com ênfase em {theme}. "
+                f"Âncora: {insight}."
             )
+        if n >= 3 and len(orgaos) >= 2:
+            return (
+                f"A carteira pública de {company} distribui {theme} entre "
+                f"{len(orgaos)} órgãos distintos — o custo de priorizar o contrato "
+                f"errado sobe quando medições e marcos não compartilham a mesma fiscalização. "
+                f"Fato-base: {insight}."
+            )
+        if n >= 3:
+            return (
+                f"{company} mantém múltiplos contratos públicos em paralelo "
+                f"(n≈{n}) no tema {theme}. Isso muda o tipo de conversa: "
+                f"não é um edital isolado, é ritmo de carteira. Âncora: {insight}."
+            )
+        if len(ufs) >= 2:
+            return (
+                f"{company} aparece com {theme} em mais de uma UF "
+                f"({', '.join(sorted(ufs)[:4])}). Âncora pública: {insight}."
+            )
+        # Single-contract but specific object
+        return (
+            f"No caso de {company}, o encaixe parte de um fato concreto de {theme}: "
+            f"{insight}. Sem generalizar portfólio além do que está no input."
         )
     text, _ = _non_hollow_confirmed(confirmed)
     if text and not is_hollow_fact(text):
@@ -258,16 +418,19 @@ def build_message_spine(
         conf_text, conf_ids = _non_hollow_confirmed(confirmed)
         hook, hook_ids = conf_text, conf_ids
 
-    why_you = _why_this_account(company, hook, confirmed, service_id)
-    why_now = _why_now_text(why if isinstance(why, dict) else {}, hook, service_id)
+    why_you = _why_this_account(company, hook, confirmed, service_id, bag=bag)
+    why_now, why_now_strength = _why_now_text(
+        why if isinstance(why, dict) else {}, hook, service_id, bag=bag
+    )
 
     incomplete: list[str] = []
     if is_hollow_fact(hook):
         incomplete.append("observed_fact_hollow_or_missing")
     if is_hollow_fact(why_you):
         incomplete.append("why_this_account_hollow")
-    if is_hollow_fact(why_now):
-        incomplete.append("why_now_hollow")
+    if is_hollow_fact(why_now) or why_now_strength == "WEAK":
+        # §6: no dated temporal event ⇒ not COPY_CONTEXT_READY / spine incomplete
+        incomplete.append("why_now_weak_or_hollow")
     if not service_id:
         incomplete.append("service_id_missing")
     if not micro:
@@ -277,15 +440,17 @@ def build_message_spine(
 
     observed = "" if is_hollow_fact(hook) else hook
     body_seed = observed  # identical — no second path
+    # Never surface WEAK why_now as a sendable field
+    why_now_out = "" if why_now_strength == "WEAK" or is_hollow_fact(why_now) else why_now
 
     return MessageSpine(
         observed_fact=observed,
         why_this_account=why_you if not is_hollow_fact(why_you) else "",
-        why_now=why_now if not is_hollow_fact(why_now) else "",
+        why_now=why_now_out,
         fact_evidence_ids=list(hook_ids),
         micro_offer_code=micro,
         service_id=service_id,
         body_seed_fact=body_seed,
-        complete=len(incomplete) == 0 and bool(observed),
+        complete=len(incomplete) == 0 and bool(observed) and why_now_strength != "WEAK",
         incomplete_reasons=incomplete,
     )

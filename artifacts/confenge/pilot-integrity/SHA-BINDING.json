@@ -7,6 +7,8 @@
   "warmbly_branch": "fix/confenge-pilot-service-copy-integrity",
   "warmbly_head": "be082d329d4c0abdca8a97f49c0324130b53d68f",
   "vps_extra_worktree_head": "560b59c9ff9e024981272f302199e22989182d72",
-  "vps_main_deploy_head": "0b3fce71 (NOT this PR — production not redeployed this round)",
-  "match_note": "PR heads are bound; VPS production deploy SHA is NOT updated to PR heads — no false MATCH for runtime"
+  "vps_main_deploy_head": "0b3fce71 (NOT this PR \u2014 production not redeployed this round)",
+  "match_note": "Runtime integrity code at 560b59c9; bd5c2cc0 is docs/evidence only. Warmbly runtime at be082d32. VPS production not on these SHAs \u2014 do not claim MATCH.",
+  "extra_cli_head_docs_tip": "bd5c2cc0",
+  "extra_cli_runtime_head": "560b59c9ff9e024981272f302199e22989182d72"
 }

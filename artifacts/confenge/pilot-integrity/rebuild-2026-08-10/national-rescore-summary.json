@@ -1,22 +1,19 @@
 {
-  "timestamp_utc": "2026-08-10T01:14:17.630016+00:00",
-  "repo_sha": "560b59c9ff9e024981272f302199e22989182d72",
+  "timestamp_utc": "2026-08-10T01:29:33.334539+00:00",
+  "repo_sha": "pending_commit",
   "watermark": {
     "vps_source_row_count": 4503049,
-    "vps_distinct_suppliers": 523938,
-    "vps_max_ingested_at": "2026-08-05T11:18:41+02:00",
-    "vps_max_data_publicacao": "2026-08-05"
+    "vps_distinct_suppliers": 523938
   },
   "universe_count": 48748,
-  "universe_errors": 0,
+  "TARGET_CONFIRMED": 5431,
+  "TARGET_PROBABLE_RESEARCH": 38548,
+  "TARGET_OUT_OF_SCOPE": 4769,
   "target_fit_dist": {
     "TARGET_PROBABLE_RESEARCH": 38548,
     "TARGET_OUT_OF_SCOPE": 4769,
     "TARGET_CONFIRMED": 5431
   },
-  "TARGET_CONFIRMED": 5431,
-  "TARGET_PROBABLE_RESEARCH": 38548,
-  "TARGET_OUT_OF_SCOPE": 4769,
   "confirmed_service_dist": {
     "gestao_monitoramento_contratual": 3793,
     "reforco_temporario_backoffice": 825,
@@ -27,231 +24,115 @@
     "reequilibrio_economico_financeiro": 2
   },
   "gestao_split": {
-    "GESTAO_SUPPORTED": 3793
+    "GESTAO_SUPPORTED": 3483,
+    "GESTAO_GENERIC_FALLBACK": 310
   },
-  "structural_ready_no_contact_gate": 46,
+  "family_service_fit_counts": {
+    "gestao_monitoramento_contratual:FIT": 3483,
+    "reforco_temporario_backoffice:FIT": 825,
+    "apoio_licitacoes_propostas:FIT": 681,
+    "gestao_monitoramento_contratual:NO_FIT": 310,
+    "auditoria_orcamento_bdi:FIT": 86,
+    "aditivos_extracontratuais:FIT": 41,
+    "medicoes_glosas_memoria:FIT": 3,
+    "reequilibrio_economico_financeiro:FIT": 2
+  },
+  "structural_ready_no_contact_gate": 4203,
   "EMAIL_SEND_READY_revalidated_prior_feed": 0,
-  "EMAIL_SEND_READY_threshold": 50,
   "EMAIL_SEND_READY_meets_gate": false,
-  "prior_feed_leads": 50,
   "near_dup_sample": {
-    "total_drafts": 30,
-    "compared_pairs": 435,
-    "high_similarity_pairs": 435,
-    "max_similarity": 1.0,
-    "pair_fraction_high": 1.0,
+    "total_drafts": 40,
+    "compared_pairs": 780,
+    "high_similarity_pairs": 0,
+    "max_similarity": 0.7708,
+    "pair_fraction_high": 0.0,
     "threshold": 0.82,
     "blocked": true,
     "reason_codes": [
-      "near_duplicate_any_high_pair",
-      "semantic_template_near_duplicate",
-      "near_duplicate_extreme_pair",
-      "near_duplicate_batch_fraction",
-      "near_duplicate_family_fraction:diagnostico_contratual_b2g",
-      "identical_transition_reuse",
       "identical_cta_mass_reuse"
     ],
-    "sample_pairs": [
-      {
-        "a": "20569802000124",
-        "b": "42126310000105",
-        "lexical_similarity_raw": 0.8333,
-        "semantic_template_similarity": 1.0,
-        "normalized_skeleton_similarity": 0.9048,
-        "similarity": 1.0,
-        "service_id": "diagnostico_contratual_b2g"
-      },
-      {
-        "a": "20569802000124",
-        "b": "27819676000168",
-        "lexical_similarity_raw": 0.7692,
-        "semantic_template_similarity": 1.0,
-        "normalized_skeleton_similarity": 0.8261,
-        "similarity": 1.0,
-        "service_id": "diagnostico_contratual_b2g"
-      },
-      {
-        "a": "20569802000124",
-        "b": "20308285000130",
-        "lexical_similarity_raw": 0.7692,
-        "semantic_template_similarity": 1.0,
-        "normalized_skeleton_similarity": 0.8261,
-        "similarity": 1.0,
-        "service_id": "diagnostico_contratual_b2g"
-      },
-      {
-        "a": "20569802000124",
-        "b": "38218230000102",
-        "lexical_similarity_raw": 0.8333,
-        "semantic_template_similarity": 1.0,
-        "normalized_skeleton_similarity": 0.8636,
-        "similarity": 1.0,
-        "service_id": "diagnostico_contratual_b2g"
-      },
-      {
-        "a": "20569802000124",
-        "b": "34894434000102",
-        "lexical_similarity_raw": 0.8,
-        "semantic_template_similarity": 1.0,
-        "normalized_skeleton_similarity": 0.8636,
-        "similarity": 1.0,
-        "service_id": "diagnostico_contratual_b2g"
-      },
-      {
-        "a": "20569802000124",
-        "b": "37646562000117",
-        "lexical_similarity_raw": 0.8333,
-        "semantic_template_similarity": 1.0,
-        "normalized_skeleton_similarity": 0.8636,
-        "similarity": 1.0,
-        "service_id": "diagnostico_contratual_b2g"
-      },
-      {
-        "a": "20569802000124",
-        "b": "50482484000120",
-        "lexical_similarity_raw": 0.8,
-        "semantic_template_similarity": 1.0,
-        "normalized_skeleton_similarity": 0.8261,
-        "similarity": 1.0,
-        "service_id": "diagnostico_contratual_b2g"
-      },
-      {
-        "a": "20569802000124",
-        "b": "02577913000109",
-        "lexical_similarity_raw": 0.913,
-        "semantic_template_similarity": 1.0,
-        "normalized_skeleton_similarity": 0.9048,
-        "similarity": 1.0,
-        "service_id": "diagnostico_contratual_b2g"
-      },
-      {
-        "a": "20569802000124",
-        "b": "09616071000198",
-        "lexical_similarity_raw": 0.8333,
-        "semantic_template_similarity": 1.0,
-        "normalized_skeleton_similarity": 0.8636,
-        "similarity": 1.0,
-        "service_id": "diagnostico_contratual_b2g"
-      },
-      {
-        "a": "20569802000124",
-        "b": "10703032000107",
-        "lexical_similarity_raw": 0.7692,
-        "semantic_template_similarity": 1.0,
-        "normalized_skeleton_similarity": 0.8261,
-        "similarity": 1.0,
-        "service_id": "diagnostico_contratual_b2g"
-      },
-      {
-        "a": "20569802000124",
-        "b": "29876900000189",
-        "lexical_similarity_raw": 0.7037,
-        "semantic_template_similarity": 1.0,
-        "normalized_skeleton_similarity": 0.75,
-        "similarity": 1.0,
-        "service_id": "diagnostico_contratual_b2g"
-      },
-      {
-        "a": "20569802000124",
-        "b": "05269841000112",
-        "lexical_similarity_raw": 0.8,
-        "semantic_template_similarity": 1.0,
-        "normalized_skeleton_similarity": 0.8636,
-        "similarity": 1.0,
-        "service_id": "diagnostico_contratual_b2g"
-      }
-    ],
-    "lexical_similarity_raw_max": 0.9545,
-    "semantic_template_similarity_max": 1.0,
-    "normalized_skeleton_similarity_max": 1.0,
-    "high_semantic_pairs": 435,
-    "cta_reuse_rate": 1.0,
+    "sample_pairs": [],
+    "lexical_similarity_raw_max": 0.6909,
+    "semantic_template_similarity_max": 0.7708,
+    "normalized_skeleton_similarity_max": 0.6724,
+    "high_semantic_pairs": 0,
+    "cta_reuse_rate": 0.7,
     "opening_reuse_rate": 0.0,
-    "sentence_pattern_reuse_rate": 0.0667,
-    "dominant_skeleton_share": 0.0667,
+    "sentence_pattern_reuse_rate": 0.025,
+    "dominant_skeleton_share": 0.025,
     "metrics": {
-      "lexical_similarity_raw": 0.9545,
-      "semantic_template_similarity": 1.0,
-      "normalized_skeleton_similarity": 1.0,
-      "CTA_reuse_rate": 1.0,
+      "lexical_similarity_raw": 0.6909,
+      "semantic_template_similarity": 0.7708,
+      "normalized_skeleton_similarity": 0.6724,
+      "CTA_reuse_rate": 0.7,
       "opening_reuse_rate": 0.0,
-      "sentence_pattern_reuse_rate": 0.0667,
-      "transition_reuse_rate": 0.931,
-      "dominant_skeleton_share": 0.0667,
-      "high_semantic_pairs": 435
+      "sentence_pattern_reuse_rate": 0.025,
+      "transition_reuse_rate": 0.0263,
+      "dominant_skeleton_share": 0.025,
+      "high_semantic_pairs": 0
     }
   },
   "blind_template": {
     "pass": false,
     "blocked": true,
     "reason_codes": [
-      "near_duplicate_any_high_pair",
-      "semantic_template_near_duplicate",
-      "near_duplicate_extreme_pair",
-      "near_duplicate_batch_fraction",
-      "near_duplicate_family_fraction:diagnostico_contratual_b2g",
-      "identical_transition_reuse",
       "identical_cta_mass_reuse"
     ],
     "metrics": {
-      "lexical_similarity_raw": 0.9545,
-      "semantic_template_similarity": 1.0,
-      "normalized_skeleton_similarity": 1.0,
-      "CTA_reuse_rate": 1.0,
+      "lexical_similarity_raw": 0.6909,
+      "semantic_template_similarity": 0.7708,
+      "normalized_skeleton_similarity": 0.6724,
+      "CTA_reuse_rate": 0.7,
       "opening_reuse_rate": 0.0,
-      "sentence_pattern_reuse_rate": 0.0667,
-      "transition_reuse_rate": 0.931,
-      "dominant_skeleton_share": 0.0667,
-      "high_semantic_pairs": 435
+      "sentence_pattern_reuse_rate": 0.025,
+      "transition_reuse_rate": 0.0263,
+      "dominant_skeleton_share": 0.025,
+      "high_semantic_pairs": 0
     },
-    "sample_pairs": [
-      {
-        "a": "20569802000124",
-        "b": "42126310000105",
-        "lexical_similarity_raw": 0.8333,
-        "semantic_template_similarity": 1.0,
-        "normalized_skeleton_similarity": 0.9048,
-        "similarity": 1.0,
-        "service_id": "diagnostico_contratual_b2g"
-      },
-      {
-        "a": "20569802000124",
-        "b": "27819676000168",
-        "lexical_similarity_raw": 0.7692,
-        "semantic_template_similarity": 1.0,
-        "normalized_skeleton_similarity": 0.8261,
-        "similarity": 1.0,
-        "service_id": "diagnostico_contratual_b2g"
-      },
-      {
-        "a": "20569802000124",
-        "b": "20308285000130",
-        "lexical_similarity_raw": 0.7692,
-        "semantic_template_similarity": 1.0,
-        "normalized_skeleton_similarity": 0.8261,
-        "similarity": 1.0,
-        "service_id": "diagnostico_contratual_b2g"
-      },
-      {
-        "a": "20569802000124",
-        "b": "38218230000102",
-        "lexical_similarity_raw": 0.8333,
-        "semantic_template_similarity": 1.0,
-        "normalized_skeleton_similarity": 0.8636,
-        "similarity": 1.0,
-        "service_id": "diagnostico_contratual_b2g"
-      },
-      {
-        "a": "20569802000124",
-        "b": "34894434000102",
-        "lexical_similarity_raw": 0.8,
-        "semantic_template_similarity": 1.0,
-        "normalized_skeleton_similarity": 0.8636,
-        "similarity": 1.0,
-        "service_id": "diagnostico_contratual_b2g"
-      }
-    ],
+    "sample_pairs": [],
     "question": "Se eu remover os fatos variáveis, estas mensagens ainda parecem o mesmo template?",
     "answer": "YES_SAME_TEMPLATE"
-  }
+  },
+  "sample_bodies": [
+    {
+      "cnpj": "00061493000170",
+      "service_id": "gestao_monitoramento_contratual",
+      "body": "Olá,\n\nA carteira pública de ENCOPAV ENGENHARIA LTDA distribui pavimentação/vias entre 5 órgãos distintos — o custo de priorizar o contrato errado sobe quando medições e marcos não compartilham a mesma fiscalização. Fato-base: Contratação de empresa, através de empreitada global (material + mão de obra) para execução da obra de pavimentação em….\n\nEvento contratual público recente: publicação em 202"
+    },
+    {
+      "cnpj": "00079526000109",
+      "service_id": "gestao_monitoramento_contratual",
+      "body": "Olá,\n\nBWS CONSTRUCOES LTDA ME concentra 8 frentes públicas recentes em 2 UFs e 2 órgãos, com ênfase em execução contratual pública. Âncora: CONTRATAÇÃO DE EMPRESA DE ENGENHARIA PARA A EXECUÇÃO DA OBRA DE CONSTRUÇÃO DO CAMPUS SANTA CRUZ DO CAPIBARIBE DO IFPE.….\n\nMarco contratual datado no portfólio: publicação em 2025-10-10; órgão INST.FED.DE EDUC.,CIENC.E TEC.DE PERNAMBUCO; objeto: CONTRATAÇÃO DE "
+    },
+    {
+      "cnpj": "00086165000128",
+      "service_id": "gestao_monitoramento_contratual",
+      "body": "Olá,\n\nCONSTRUTORA ARTEC S/A - EM RECUPERACAO JUDICIAL concentra 3 frentes públicas recentes em 2 UFs e 3 órgãos, com ênfase em execução contratual pública. Âncora: O objeto do presente instrumento é a contratação de empresa para execução de obras de Implantação de nova interseção ro….\n\nMarco contratual datado no portfólio: publicação em 2025-12-09; órgão EDF - DEPARTAMENTO DE ESTRADAS DE RODAGEM; "
+    },
+    {
+      "cnpj": "00142402000120",
+      "service_id": "apoio_licitacoes_propostas",
+      "body": "Olá,\n\nA carteira pública de ERNANI JOSÉ BUENO LTDA distribui obra de arte especial entre 8 órgãos distintos — o custo de priorizar o contrato errado sobe quando medições e marcos não compartilham a mesma fiscalização. Fato-base: CONTRATAÇÃO DE EMPRESA ESPECIALIZADA EM CONSTRUÇÃO DE PONTE SOBRE O RIO CAPIVARI MIRIM (PROLONGAMENTO DA AVENIDA DONATO….\n\nEvento contratual público recente: publicação em"
+    },
+    {
+      "cnpj": "00159291000165",
+      "service_id": "gestao_monitoramento_contratual",
+      "body": "Olá,\n\nA carteira pública de ITAIPU INDUSTRIA E COMERCIO DE BRITAS E ASFALTO LTDA distribui pavimentação/vias entre 6 órgãos distintos — o custo de priorizar o contrato errado sobe quando medições e marcos não compartilham a mesma fiscalização. Fato-base: Contratação de empresa especializada em engenharia para execução de obra de recapeamento asfáltico em diversos trechos….\n\nEvento contratual públi"
+    },
+    {
+      "cnpj": "00167424000145",
+      "service_id": "gestao_monitoramento_contratual",
+      "body": "Olá,\n\nA carteira pública de PROJECON PROJETOS E CONSTRUÇÃO CIVIL PIRACICABA LTDA distribui execução contratual pública entre 3 órgãos distintos — o custo de priorizar o contrato errado sobe quando medições e marcos não compartilham a mesma fiscalização. Fato-base: Execução de obras de recapeamento asfáltico na Rua Viena e Rua João Moyses. junto a PREFEITURA DO MUNICIPIO DE PIRACICA….\n\nEvento contr"
+    },
+    {
+      "cnpj": "00196198000120",
+      "service_id": "apoio_licitacoes_propostas",
+      "body": "Olá,\n\nA carteira pública de AFM ARTEFATOS DE CIMENTO LTDA distribui pavimentação/vias entre 2 órgãos distintos — o custo de priorizar o contrato errado sobe quando medições e marcos não compartilham a mesma fiscalização. Fato-base: CA presente licitação tem por objeto a CONCORRÊNCIA ELETRÔNICA PARA \"CONTRATAÇÃO DE PESSOA JURÍDICA PARA A EXECUÇÃO DE….\n\nEvento contratual público recente: publicação "
+    },
+    {
+      "cnpj": "00201966000197",
+      "service_id": "gestao_monitoramento_contratual",
+      "body": "Olá,\n\nA carteira pública de ÁGAPE CONSTRUTORA LTDA distribui execução contratual pública entre 4 órgãos distintos — o custo de priorizar o contrato errado sobe quando medições e marcos não compartilham a mesma fiscalização. Fato-base: Contratação de empresa de engenharia para obra de execução dos serviços de Revitalização do Parque Natural Municipal da….\n\nMarco contratual datado no portfólio: publ"
+    }
+  ]
 }

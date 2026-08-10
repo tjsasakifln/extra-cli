@@ -128,9 +128,15 @@ _GENERIC_WHY_MARKERS: tuple[str, ...] = (
     "ufs observadas nos contratos",
     "fato contratual público utilizável",
     "sem dor especializada dominante",
+    "sem dor concreta dominante",
+    "sem dor contratual concreta",
+    "sem dor concreta",
     "momento comercial público",
     "execução pública observável",
     "empresa com execução pública observável",
+    "portfólio multi-contrato ativo",
+    "why_now_strength=weak",
+    "why_now_strength=moderate",
     "target_fit",
     "email_send_ready",
     "copy_context_ready",
@@ -516,11 +522,23 @@ def _gestao_signals_sufficient(signals: list[Any], evidence: list[Any], company:
         "complex_contract",
         "recurring_portfolio",
     }
+    # multi_contract alone is not enough ("tem contrato público" / thin book).
     if sigs & strong:
         return True
-    if "multi_contract" in sigs and n_contracts >= 3:
+    if "multi_contract" in sigs and n_contracts >= 5:
         return True
-    if evidence and n_contracts >= 3:
+    # 3–4 contracts only with evidence AND explicit multi-organ/UF signal elsewhere
+    orgaos = set()
+    ufs = set()
+    for c in company.get("contracts") or []:
+        if isinstance(c, dict):
+            o = str(c.get("orgao") or c.get("agency") or "").strip()
+            u = str(c.get("uf") or "").strip().upper()
+            if o:
+                orgaos.add(o)
+            if u:
+                ufs.add(u)
+    if "multi_contract" in sigs and n_contracts >= 3 and (len(orgaos) >= 2 or len(ufs) >= 2):
         return True
     return False
 
