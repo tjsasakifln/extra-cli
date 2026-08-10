@@ -1,6 +1,6 @@
 {
   "schema": "confenge.rolling_hot_set.v1",
-  "as_of": "2026-08-10T18:46:55Z",
+  "as_of": "2026-08-10T18:58:04Z",
   "ACTIVE_HOT_SET": 10,
   "hot_set_size_configured": 10,
   "reservoir_eligible": 71,
