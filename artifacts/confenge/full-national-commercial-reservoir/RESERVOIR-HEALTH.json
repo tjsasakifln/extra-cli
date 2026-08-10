@@ -22,7 +22,7 @@
     "zero_unsupported_service": true,
     "zero_hollow_copy": null,
     "zero_unsafe_claim": null,
-    "note": "PILOT_GO is independent of NATIONAL_RESERVOIR_HEALTHY. Do not treat ESR≥50 as pipeline capacity or business objective."
+    "note": "PILOT_GO is independent of NATIONAL_RESERVOIR_HEALTHY. Do not treat ESR\u226550 as pipeline capacity or business objective."
   },
   "national": {
     "NATIONAL_RESERVOIR_HEALTHY": true,
@@ -39,5 +39,15 @@
   "as_of": "2026-08-10T08:10:54.635518+00:00",
   "warmbly_capacity_per_hour": 10,
   "warmbly_channel": "EMAIL_ONLY",
-  "whatsapp": "OFF"
+  "whatsapp": "OFF",
+  "honest_notes": {
+    "email_send_ready_is_evaluate_gate_not_label": true,
+    "contact_attempted_is_network_harvest_only": true,
+    "offline_continuous_not_counted_as_discovery": true,
+    "activation_projections_table_empty_or_absent": true,
+    "service_distribution_is_live_sample_n200_confirmed": true,
+    "supplier_roots_vs_construction_relevant": "511645 supplier roots; construction-relevant=CONFIRMED+PROBABLE=419362",
+    "email_send_ready": 0,
+    "evaluate_email_send_ready_fails_on_prior_clean_cohort_too": true
+  }
 }

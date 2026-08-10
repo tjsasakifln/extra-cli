@@ -31,5 +31,5 @@ are present in object text and portfolio shape.
 ## Outreach
 
 National multi-service sample does not block outreach on monoculture grounds.
-Pilot harvest ESR still subject to evaluate_email_send_ready fail-closed gates
-(identity/provenance/mailbox) — do not claim GO from cohort-41 alone.
+Pilot harvest ESR under `evaluate_email_send_ready` is currently **0**
+(fail-closed provenance/service_fit) — do not invent ESR from sticky labels.
