@@ -8,7 +8,7 @@ Timestamp (UTC): 2026-08-10T01:33:37.703789+00:00
 
 | Criterion | Status | Evidence |
 |-----------|--------|----------|
-| extra-cli CI GREEN on tip HEAD | PENDING at write | code commit then verify Actions |
+| extra-cli CI GREEN on tip HEAD | PASS | `a49b439df31adc276615e9fdc2ffd1bb022c8377` Actions GREEN |
 | warmbly CI GREEN | PASS | be082d32 |
 | full current-datalake rebuild | PARTIAL | VPS watermark 4.5M; universe 48,748 rescored live; full rebuild still long-running on VPS |
 | target_fit current | PASS | CONFIRMED=5431 |

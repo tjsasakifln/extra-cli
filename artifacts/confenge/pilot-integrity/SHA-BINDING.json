@@ -1,14 +1,15 @@
 {
-  "timestamp_utc": "2026-08-10T01:15:16Z",
+  "timestamp_utc": "2026-08-10T01:44:17.944581+00:00",
   "extra_cli_pr": 211,
   "extra_cli_branch": "fix/confenge-pilot-target-service-integrity",
-  "extra_cli_head": "560b59c9ff9e024981272f302199e22989182d72",
+  "extra_cli_head": "a49b439df31adc276615e9fdc2ffd1bb022c8377",
+  "extra_cli_ci": "GREEN",
+  "extra_cli_ci_run": "https://github.com/tjsasakifln/extra-cli/actions/runs/31347451467",
   "warmbly_pr": 34,
   "warmbly_branch": "fix/confenge-pilot-service-copy-integrity",
   "warmbly_head": "be082d329d4c0abdca8a97f49c0324130b53d68f",
-  "vps_extra_worktree_head": "560b59c9ff9e024981272f302199e22989182d72",
-  "vps_main_deploy_head": "0b3fce71 (NOT this PR \u2014 production not redeployed this round)",
-  "match_note": "Runtime integrity code at 560b59c9; bd5c2cc0 is docs/evidence only. Warmbly runtime at be082d32. VPS production not on these SHAs \u2014 do not claim MATCH.",
-  "extra_cli_head_docs_tip": "bd5c2cc0",
-  "extra_cli_runtime_head": "560b59c9ff9e024981272f302199e22989182d72"
+  "warmbly_ci": "GREEN",
+  "vps_prod_extra_main": "0b3fce71",
+  "vps_prod_match": false,
+  "note": "PR tip HEADs CI green. Host-of-record not redeployed to these SHAs \u2014 no false MATCH."
 }
