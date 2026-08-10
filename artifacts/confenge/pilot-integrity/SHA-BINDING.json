@@ -1,14 +1,12 @@
 {
-  "timestamp_utc": "2026-08-10T02:51:15.048133+00:00",
-  "extra_cli_runtime_head": "a49b439df31adc276615e9fdc2ffd1bb022c8377",
-  "extra_cli_docs_tip_pending_commit": true,
+  "timestamp_utc": "2026-08-10T03:03:17.627794+00:00",
+  "extra_cli_head": "25436439e9590cfb1765b3c867238371bc0a07cb",
   "warmbly_head": "ca457058b9657419ee0b45173defb64079c3205d",
-  "warmbly_ci": "GREEN",
   "vps_deployed_warmbly": "ca457058b9657419ee0b45173defb64079c3205d",
   "vps_warmbly_match": true,
   "vps_extra_cli_match": false,
-  "EMAIL_SEND_READY": 49,
-  "EMAIL_SEND_READY_meets_gate": false,
+  "EMAIL_SEND_READY": 62,
+  "EMAIL_SEND_READY_meets_gate": true,
   "blind_template": "NO_SUFFICIENT_VARIATION",
   "near_dup_blocked": false,
   "audit50": {
@@ -18,14 +16,13 @@
     "HOLLOW_COPY": 0,
     "UNSAFE_CLAIM": 0
   },
+  "production_nosend_all_cases_pass": true,
   "smtp_self_smoke": false,
   "imap_reply_stop_continuous": false,
-  "production_nosend_all_cases_pass": true,
   "CONFENGE_SELF_SMOKE_TO": "NOT_SET",
   "verdict": "NO_GO",
   "blockers": [
-    "EMAIL_SEND_READY=49 natural join (threshold 50) \u2014 contact enrichment coverage, not gaming",
-    "CONFENGE_SELF_SMOKE_TO unset \u2014 cannot re-prove controlled SMTP + continuous IMAP reply-stop",
-    "extra-cli not host-of-record MATCH"
+    "CONFENGE_SELF_SMOKE_TO unset \u2014 controlled SMTP + continuous IMAP reply-stop",
+    "extra-cli not host-of-record MATCH / not merged to main"
   ]
 }

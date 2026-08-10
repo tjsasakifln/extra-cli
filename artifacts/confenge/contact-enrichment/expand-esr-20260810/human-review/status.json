@@ -1,0 +1,12 @@
+{
+  "schema": "confenge-human-review-status-v1",
+  "generated_at": "2026-08-10T02:59:39Z",
+  "machine_validation": "PASS",
+  "human_validation": "HUMAN_REVIEW_PENDING",
+  "counts": {
+    "accepted": 11,
+    "rejected": 0,
+    "unresolved": 20
+  },
+  "note": "Human validation must not be auto-approved by the pipeline."
+}

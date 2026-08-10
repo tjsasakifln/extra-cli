@@ -1,16 +1,17 @@
 {
-  "timestamp_utc": "2026-08-10T02:51:15.048133+00:00",
-  "feed_sha256": "8bcd317b12b0e39352b4668ee6b46726bd321bd1a47f31b6532e794de7a99edb",
-  "feed_leads": 49,
+  "timestamp_utc": "2026-08-10T03:03:17.627794+00:00",
+  "feed_sha256": "493cfe61aad4455eef683543bf307a96ab9d58e50b215938458812f7168d0e25",
+  "feed_leads": 62,
   "import_http": 200,
   "import_counts": {
-    "creates": 5,
-    "updates": 44,
-    "leads_processed": 49,
+    "creates": 11,
+    "updates": 51,
+    "leads_processed": 62,
     "blocked": 0
   },
   "vps_warmbly_sha": "ca457058b9657419ee0b45173defb64079c3205d",
   "dispatch": "PAUSED",
   "kill_switch": true,
-  "auto_send": false
+  "auto_send": false,
+  "contact_policy": "COMPANY_OWNED VERIFIED only; free-mail excluded; nested extraction from enrichment runs"
 }
