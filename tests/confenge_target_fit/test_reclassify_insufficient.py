@@ -27,3 +27,16 @@ def test_cnae_positive_reason_without_evidence_list_still_needs_payload() -> Non
         reason_codes=["default_research", "CONSORTIUM_EVIDENCE"],
         evidence=None,
     )
+
+
+def test_consortium_only_evidence_is_not_positive_icp() -> None:
+    assert should_downgrade_probable_to_insufficient(
+        reason_codes=["default_research", "CONSORTIUM_EVIDENCE"],
+        evidence=[
+            {
+                "id": "consortium",
+                "type": "CONSORTIUM_EVIDENCE",
+                "excerpt": "consortium contracts present",
+            }
+        ],
+    )

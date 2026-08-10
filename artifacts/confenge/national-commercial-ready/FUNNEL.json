@@ -13,7 +13,7 @@
     },
     {
       "stage": "TARGET_PROBABLE_RESEARCH",
-      "count": 411610,
+      "count": 24984,
       "pct_of_previous": 0.801343,
       "notes": "requires positive ICP evidence"
     },
@@ -24,15 +24,15 @@
     },
     {
       "stage": "TARGET_INSUFFICIENT_EVIDENCE",
-      "count": 0,
+      "count": 386626,
       "pct_of_previous": 0.0,
-      "notes": "not PROBABLE — no positive ICP evidence"
+      "notes": "not PROBABLE \u2014 no positive ICP evidence"
     },
     {
       "stage": "target_fit_class_partition_sum",
       "count": 512350,
       "pct_of_previous": 0.997469,
-      "notes": "CONFIRMED+PROBABLE+OUT+INSUFFICIENT (should ≈ universe when fully classified)"
+      "notes": "CONFIRMED+PROBABLE+OUT+INSUFFICIENT (should \u2248 universe when fully classified)"
     },
     {
       "stage": "CONTACT_READY",

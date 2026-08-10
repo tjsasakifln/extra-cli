@@ -44,8 +44,20 @@ def _is_empty_evidence(evidence: Any) -> bool:
     if isinstance(evidence, str):
         s = evidence.strip()
         return s in {"", "[]", "{}", "null", "None"}
-    if isinstance(evidence, (list, dict)):
+    if isinstance(evidence, dict):
         return len(evidence) == 0
+    if isinstance(evidence, list):
+        if len(evidence) == 0:
+            return True
+        # Consortium-only notes are NOT positive ICP construction evidence
+        non_consortium = [
+            e
+            for e in evidence
+            if isinstance(e, dict)
+            and str(e.get("type") or "")
+            not in {"CONSORTIUM_EVIDENCE", "CONSORTIUM"}
+        ]
+        return len(non_consortium) == 0
     return True
 
 
@@ -112,7 +124,20 @@ def reclassify_shadow_probable_without_evidence(
             """,
             (TARGET_PROBABLE_RESEARCH,),
         )
-        rows = list(cur.fetchall() or [])
+        raw_rows = list(cur.fetchall() or [])
+
+    def _as_dict(r: Any) -> dict[str, Any]:
+        if isinstance(r, dict):
+            return r
+        # plain tuple cursor: company_key, cnpj_raiz, reason_codes, evidence
+        return {
+            "company_key": r[0],
+            "cnpj_raiz": r[1],
+            "reason_codes": r[2],
+            "evidence": r[3],
+        }
+
+    rows = [_as_dict(r) for r in raw_rows]
 
     candidates = []
     for r in rows:
@@ -126,32 +151,43 @@ def reclassify_shadow_probable_without_evidence(
 
     updated = 0
     if not dry_run and candidates:
+        keys = [r["company_key"] for r in candidates]
+        # Bulk update in chunks (avoid per-row round-trips on 300k+ rows)
+        chunk_size = 5000
+        marker = json.dumps(
+            ["reclassified_insufficient_no_positive_evidence"],
+            ensure_ascii=False,
+        )
         with conn.cursor() as cur:
-            for r in candidates:
+            for i in range(0, len(keys), chunk_size):
+                chunk = keys[i : i + chunk_size]
                 cur.execute(
                     """
                     UPDATE confenge_target_fit_shadow
                     SET shadow_class = %s,
-                        shadow_confidence = LEAST(shadow_confidence, 0.25),
-                        reason_codes = %s,
+                        shadow_confidence = LEAST(COALESCE(shadow_confidence, 0.25), 0.25),
+                        reason_codes = %s::json,
                         target_fit_version = %s,
                         updated_at = NOW()
-                    WHERE company_key = %s
+                    WHERE company_key = ANY(%s)
                       AND shadow_class = %s
                     """,
                     (
                         TARGET_INSUFFICIENT_EVIDENCE,
-                        json.dumps(
-                            list(_reasons_list(r.get("reason_codes")))
-                            + ["reclassified_insufficient_no_positive_evidence"]
-                        ),
+                        marker,
                         TARGET_FIT_VERSION,
-                        r["company_key"],
+                        chunk,
                         TARGET_PROBABLE_RESEARCH,
                     ),
                 )
-                updated += cur.rowcount
-        conn.commit()
+                updated += int(cur.rowcount or 0)
+                conn.commit()
+                if (i // chunk_size) % 10 == 0:
+                    logger.info(
+                        "reclassify progress updated=%s / %s",
+                        updated,
+                        len(keys),
+                    )
 
     return {
         "schema": "confenge.reclassify_insufficient.v1",
