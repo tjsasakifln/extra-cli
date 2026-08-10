@@ -757,6 +757,9 @@ def _published_target_fit_from_company(
             company, conn=conn, published_index=published_index
         )
     except Exception:  # noqa: BLE001 — soft import for envs without continuous-refresh
+        # When live path is open, never fall back to sticky embeds.
+        if conn is not None or published_index is not None:
+            return None
         if company.get("target_fit_class"):
             return {
                 "target_fit_class": company.get("target_fit_class"),
@@ -784,8 +787,12 @@ def _gate_from_published(
 
     When published TARGET_* materialization is present, it is authoritative:
     non-CONFIRMED / stale / REFRESH_FAILED / TARGET_FIT_DOWNGRADE block send.
+
+    When live path is open (``conn`` or ``published_index``) and no published
+    row is found, fail closed — never re-score sticky embeds to send-ready.
     """
     extra: list[str] = []
+    live_open = conn is not None or published_index is not None
     published = _published_target_fit_from_company(
         company, conn=conn, published_index=published_index
     )
@@ -800,6 +807,18 @@ def _gate_from_published(
         )
 
     if published is None:
+        if live_open:
+            # Store miss while live path open: never authorize from embeds.
+            extra.append("TARGET_FIT_MISSING")
+            extra.append("live_store_miss")
+            fit = TargetFitResult(
+                tier=TIER_OUT_OF_SCOPE,
+                reasons=["TARGET_FIT_MISSING", "live_store_miss"],
+                sector_fit="",
+                canonical_universe_member=False,
+                target_fit_class=TARGET_OUT_OF_SCOPE,
+            )
+            return fit, extra, True
         fit = target_fit or classify_target_fit_send_tier(
             company, canonical_universe_member=canonical_universe_member
         )
