@@ -158,16 +158,56 @@ def test_map_lead_joins_live_current_without_embedded_fields(dsn):
             "razao_social": "CONSTRUTORA LIVE JOIN LTDA",
             "canonical_universe_member": True,
             "commercial_state": "NEW",
+            "official_domain": "livejoin.com.br",
+            "construction_evidence": {
+                "sector_fit": "CONFIRMED_ENGINEERING",
+                "target_fit_class": TARGET_CONFIRMED,
+                "relevant_contract_count": 3,
+            },
+            "portfolio": {"pass_contract_count": 3},
             # NO target_fit_class embedded — must load from DB
         }
         intel = {
-            "offer": {"service_code": "REAJUSTE", "service_name": "Reajuste"},
-            "messaging_context": {
-                "fact_to_mention": "obra X",
-                "question_to_ask": "q",
-                "cta": "c",
+            "offer": {
+                "service_code": "estruturacao_pleito_reajuste",
+                "service_name": "Reajuste",
+                "entry_offer": "REAJUSTE_CHECK",
+                "micro_offer_code": "REAJUSTE_CHECK",
+            },
+            "primary_service": {
+                "service_id": "estruturacao_pleito_reajuste",
+                "supporting_signal_ids": ["mature_no_reajuste"],
+                "evidence_ids": ["e1"],
+            },
+            "service_candidates": [
+                {
+                    "service_id": "estruturacao_pleito_reajuste",
+                    "supporting_signal_ids": ["mature_no_reajuste"],
+                    "evidence_ids": ["e1"],
+                }
+            ],
+            "messaging": {
+                "fact_to_mention": (
+                    "objeto: pavimentação asfáltica CBUQ em vias urbanas; órgão: Pref. X"
+                ),
+                "why_this_account": (
+                    "executora de pavimentação com contratos públicos recentes — "
+                    "objeto: pavimentação asfáltica CBUQ em vias urbanas"
+                ),
+                "why_now": "aditivo recente no contrato municipal de pavimentação asfáltica CBUQ",
+                "cta": "Posso te mandar o recorte público que encontrei?",
                 "claims_to_avoid": [],
             },
+            "why_this_account": (
+                "executora de pavimentação com contratos públicos recentes — "
+                "objeto: pavimentação asfáltica CBUQ em vias urbanas"
+            ),
+            "why_now": "aditivo recente no contrato municipal de pavimentação asfáltica CBUQ",
+            "observed_fact": (
+                "objeto: pavimentação asfáltica CBUQ em vias urbanas; órgão: Pref. X"
+            ),
+            "micro_offer_code": "REAJUSTE_CHECK",
+            "evidence_ids": ["e1"],
             "evidence": [{"id": "e1", "epistemic_class": "CONFIRMED_FACT"}],
         }
         contacts = {
@@ -176,6 +216,10 @@ def test_map_lead_joins_live_current_without_embedded_fields(dsn):
                     "email": "engenharia@livejoin.com.br",
                     "ownership_status": "COMPANY_OWNED",
                     "verification_status": "OBSERVED",
+                    "provenance": {
+                        "source_type": "site",
+                        "source_url": "https://livejoin.com.br/contato",
+                    },
                 }
             ]
         }
@@ -191,7 +235,7 @@ def test_map_lead_joins_live_current_without_embedded_fields(dsn):
         assert lead.get("target_fit_version") == TARGET_FIT_VERSION
         assert lead.get("target_fit_fresh") is True
         assert lead.get("target_fit_source_watermark")
-        # With CONFIRMED + fresh + contact gates, send may be true
+        # CONFIRMED + fresh + real provenance + copy context → send ready
         assert lead.get("email_send_ready") is True
     finally:
         conn.close()
