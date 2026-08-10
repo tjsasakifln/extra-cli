@@ -34,7 +34,7 @@ def _now() -> str:
 
 
 def _run(cmd: list[str], *, cwd: Path | None = None, check: bool = True) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(
+    return subprocess.run(  # noqa: S603
         cmd,
         cwd=str(cwd or REPO),
         text=True,
@@ -54,8 +54,10 @@ def git_sha(path: Path, ref: str = "HEAD") -> str:
 
 
 def host_cmd(script: str) -> str:
-    r = subprocess.run(
-        ["ssh", "-o", "ConnectTimeout=40", HOST, "bash -s"],
+    # Operator-controlled host alias; absolute path not portable across workstations.
+    ssh_cmd = ["ssh", "-o", "ConnectTimeout=40", HOST, "bash -s"]  # noqa: S607
+    r = subprocess.run(  # noqa: S603
+        ssh_cmd,
         input=script,
         text=True,
         capture_output=True,
@@ -263,12 +265,16 @@ def labels(host: str) -> set[str]:
 def recompute_cohort_audit(rows: list[dict[str, Any]]) -> dict[str, Any]:
     # Ensure repo on PYTHONPATH for gates
     sys.path.insert(0, str(REPO))
-    from scripts.confenge_contact_resolution.send_readiness import (  # noqa: WPS433
-        evaluate_email_send_ready,
-        email_matches_company_identity,
+    from scripts.confenge_contact_resolution.email_policy import (  # noqa: I001,WPS433
+        is_freemail,
     )
-    from scripts.confenge_contact_resolution.email_policy import is_freemail  # noqa: WPS433
-    from scripts.confenge_contact_resolution.mailbox_purpose import classify_mailbox_purpose  # noqa: WPS433
+    from scripts.confenge_contact_resolution.mailbox_purpose import (  # noqa: I001,WPS433
+        classify_mailbox_purpose,
+    )
+    from scripts.confenge_contact_resolution.send_readiness import (  # noqa: I001,WPS433
+        email_matches_company_identity,
+        evaluate_email_send_ready,
+    )
 
     audit = {
         "FALSE_TARGET": 0,
@@ -614,7 +620,7 @@ docker exec warmbly-confenge-postgres-1 psql -U warmbly -d warmbly_dev -t -A -c 
         "generated_at": now,
         "emitter": "scripts/confenge/emit_unconditional_go_pack.py",
         "cohort_id": COHORT_ID,
-        **{f"extra_cli_ci_green": True},
+        "extra_cli_ci_green": True,
         "extra_cli_ci_run": extra_ci.get("ci_url"),
         "extra_cli_ci_head": extra_main,
         "warmbly_ci_green": True,
@@ -724,7 +730,7 @@ docker exec warmbly-confenge-postgres-1 psql -U warmbly -d warmbly_dev -t -A -c 
 
     go_md = f"""# GO / NO-GO — Unconditional CONFENGE email pilot
 
-Generated: `{now}`  
+Generated: `{now}`
 Emitter: `scripts/confenge/emit_unconditional_go_pack.py` (sole pack writer)
 
 ## Terminal state
@@ -799,7 +805,7 @@ extra-cli `{extra_main}` · warmbly `{warmbly_main}` · cohort `{COHORT_ID}` · 
 
     final = f"""# FINAL REPORT — CONFENGE-OUTREACH-UNCONDITIONAL-GO-01
 
-Generated: `{now}`  
+Generated: `{now}`
 Emitter: `scripts/confenge/emit_unconditional_go_pack.py`
 
 ## Terminal
